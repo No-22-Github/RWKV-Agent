@@ -4,10 +4,15 @@
 
 ## 先构建运行时
 
-在 `rwkv-mobile` 源码目录中构建最小 CPU/Metal 可用组合（实际后端取决于模型格式）：
+本项目第一版在 Apple Silicon 上固定使用上游的 **Core ML** 后端，以利用 Apple Neural Engine。构建时只启用它：
 
 ```sh
-cmake -S . -B build -DBUILD_EXAMPLES=ON -DENABLE_SERVER=ON
+cmake -S . -B build \
+  -DBUILD_EXAMPLES=ON -DENABLE_SERVER=ON \
+  -DENABLE_COREML_BACKEND=ON \
+  -DENABLE_WEBRWKV_BACKEND=OFF -DENABLE_NCNN_BACKEND=OFF \
+  -DENABLE_LLAMACPP_BACKEND=OFF -DENABLE_MNN_BACKEND=OFF \
+  -DENABLE_MLX_BACKEND=OFF
 cmake --build build --target rwkv_server -j
 ```
 
@@ -17,15 +22,15 @@ cmake --build build --target rwkv_server -j
 go build -o rwkv-cli ./cmd/rwkv-cli
 ./rwkv-cli run \
   --engine /absolute/path/to/rwkv_server \
-  --model /absolute/path/to/model \
+  --model /absolute/path/to/coreml-model-directory \
   --tokenizer /absolute/path/to/tokenizer \
-  --backend web_rwkv
+  --backend coreml
 ```
 
 省略 `--prompt` 后进入交互式续写模式；也可以一次性续写：
 
 ```sh
-./rwkv-cli run --engine /path/rwkv_server --model /path/model --tokenizer /path/tokenizer --backend web_rwkv --prompt 'Once upon a time'
+./rwkv-cli run --engine /path/rwkv_server --model /path/coreml-model-directory --tokenizer /path/tokenizer --backend coreml --prompt 'Once upon a time'
 ```
 
 如果运行时已经独立启动，使用 `complete`：
@@ -34,4 +39,4 @@ go build -o rwkv-cli ./cmd/rwkv-cli
 ./rwkv-cli complete --url http://127.0.0.1:8000 --prompt 'Once upon a time'
 ```
 
-`--backend` 必须与所下载模型的格式相匹配；上游支持的名称和兼容组合由其构建配置决定。
+Core ML 的输入不是原始 `.pth` 文件。上游转换脚本会从 `.pth` 权重生成一个模型目录，其中包含 `config.yaml` 和一个或多个由 Xcode 编译出的 `.mlmodelc` 目录；把这个模型目录传给 `--model`。分词器仍使用与原始 RWKV 权重匹配的 tokenizer 文件。
