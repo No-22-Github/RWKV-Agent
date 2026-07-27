@@ -7,12 +7,12 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"os/exec"
 	"os/signal"
+	"path/filepath"
+	"strings"
 	"syscall"
-	"time"
 
-	"github.com/no22/RWKV-Agent/internal/client"
+	"github.com/no22/RWKV-Agent/internal/native/mlx"
 )
 
 func main() {
@@ -20,13 +20,10 @@ func main() {
 		usage()
 		os.Exit(2)
 	}
+
 	switch os.Args[1] {
 	case "run":
 		run(os.Args[2:])
-	case "complete":
-		complete(os.Args[2:])
-	case "llama":
-		llama(os.Args[2:])
 	default:
 		usage()
 		os.Exit(2)
@@ -34,122 +31,109 @@ func main() {
 }
 
 func usage() {
-	fmt.Fprintln(os.Stderr, "rwkv-cli run --engine <rwkv_server> --model <model> --tokenizer <tokenizer> --backend <name> [--prompt text]")
-	fmt.Fprintln(os.Stderr, "rwkv-cli complete --url <runtime URL> --prompt <text>")
-	fmt.Fprintln(os.Stderr, "rwkv-cli llama --engine <llama-cli> --model <rwkv.gguf> [--prompt text]")
-}
-
-func commonFlags(name string) (*flag.FlagSet, *string, *string, *int, *float64) {
-	fs := flag.NewFlagSet(name, flag.ExitOnError)
-	url := fs.String("url", "http://127.0.0.1:8000", "rwkv-mobile server URL")
-	prompt := fs.String("prompt", "", "prompt; omit for interactive mode")
-	maxTokens := fs.Int("max-tokens", 256, "maximum generated tokens")
-	temperature := fs.Float64("temperature", 1, "sampling temperature")
-	return fs, url, prompt, maxTokens, temperature
+	fmt.Fprintln(os.Stderr, "rwkv-cli run --model <MLX model directory> [--tokenizer <vocab file>] [--prompt <text>]")
 }
 
 func run(args []string) {
-	fs, url, prompt, maxTokens, temperature := commonFlags("run")
-	engine := fs.String("engine", "rwkv_server", "path to rwkv-mobile rwkv_server executable")
-	model := fs.String("model", "", "model path")
-	tokenizer := fs.String("tokenizer", "", "tokenizer path")
-	backend := fs.String("backend", "", "rwkv-mobile backend, e.g. web_rwkv or mnn")
-	port := fs.Int("port", 8000, "local runtime port")
-	fs.Parse(args)
-	if *model == "" || *tokenizer == "" || *backend == "" {
-		fs.Usage()
-		os.Exit(2)
-	}
-	*url = fmt.Sprintf("http://127.0.0.1:%d", *port)
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
-	cmd := exec.CommandContext(ctx, *engine, "--host", "127.0.0.1", "--port", fmt.Sprint(*port), "--model", *model, "--tokenizer", *tokenizer, "--backend", *backend)
-	cmd.Stdout, cmd.Stderr = os.Stderr, os.Stderr
-	if err := cmd.Start(); err != nil {
-		fatal("start rwkv runtime: %v", err)
-	}
-	defer func() { _ = cmd.Process.Signal(os.Interrupt); _ = cmd.Wait() }()
-	if err := waitForHealth(ctx, *url); err != nil {
-		fatal("runtime did not become ready: %v", err)
-	}
-	generate(ctx, *url, *prompt, *maxTokens, *temperature)
-}
-
-func complete(args []string) {
-	fs, url, prompt, maxTokens, temperature := commonFlags("complete")
-	fs.Parse(args)
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
-	generate(ctx, *url, *prompt, *maxTokens, *temperature)
-}
-
-// llama uses llama.cpp's Metal backend. It is the verified minimal path for
-// RWKV GGUF models on Apple Silicon.
-func llama(args []string) {
-	fs := flag.NewFlagSet("llama", flag.ExitOnError)
-	engine := fs.String("engine", "llama-cli", "path to a llama.cpp llama-cli executable")
-	model := fs.String("model", "", "RWKV GGUF model path")
+	fs := flag.NewFlagSet("run", flag.ExitOnError)
+	model := fs.String("model", "", "MLX model directory containing config.json and safetensors")
+	tokenizer := fs.String("tokenizer", "", "RWKV World tokenizer vocabulary; defaults to the model directory")
 	prompt := fs.String("prompt", "", "prompt; omit for interactive mode")
 	maxTokens := fs.Int("max-tokens", 256, "maximum generated tokens")
+	temperature := fs.Float64("temperature", 1, "sampling temperature")
+	topK := fs.Int("top-k", 128, "top-k sampling cutoff")
+	topP := fs.Float64("top-p", 0.8, "top-p sampling cutoff")
+	raw := fs.Bool("raw", false, "use the prompt verbatim instead of the RWKV chat template")
+	reasoning := fs.Bool("reasoning", true, "include the G1 fast-thinking prompt markers")
 	fs.Parse(args)
+
 	if *model == "" {
 		fs.Usage()
 		os.Exit(2)
 	}
+	if *tokenizer == "" {
+		*tokenizer = filepath.Join(*model, "rwkv_vocab_v20230424.txt")
+	}
+	if *maxTokens <= 0 || *temperature <= 0 || *topK <= 0 || *topP <= 0 || *topP > 1 {
+		fatal("invalid sampling options")
+	}
+	if !mlx.Available() {
+		fatal("MLX support is not present in this build; run ./scripts/build-mlx.sh on Apple Silicon")
+	}
 
-	commandArgs := []string{"-m", *model, "-n", fmt.Sprint(*maxTokens), "--no-warmup", "--simple-io"}
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	fmt.Fprintln(os.Stderr, "Loading native MLX model...")
+	runtime, err := mlx.Open(*model, *tokenizer)
+	if err != nil {
+		fatal("load native MLX model: %v", err)
+	}
+	defer runtime.Close()
+
+	options := mlx.GenerateOptions{
+		MaxTokens:   *maxTokens,
+		Temperature: float32(*temperature),
+		TopK:        *topK,
+		TopP:        float32(*topP),
+	}
+	generate := func(input string) {
+		formatted := renderPrompt(input, *raw, *reasoning)
+		err := runtime.Generate(ctx, formatted, options, func(text string) error {
+			_, writeErr := io.WriteString(os.Stdout, text)
+			return writeErr
+		})
+		fmt.Println()
+		if err != nil && ctx.Err() == nil {
+			fmt.Fprintln(os.Stderr, "generation failed:", err)
+		}
+	}
+
 	if *prompt != "" {
-		commandArgs = append(commandArgs, "--single-turn", "-p", *prompt)
-	}
-	cmd := exec.Command(*engine, commandArgs...)
-	cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
-	if err := cmd.Run(); err != nil {
-		fatal("llama.cpp generation failed: %v", err)
-	}
-}
-
-func waitForHealth(ctx context.Context, url string) error {
-	ticker := time.NewTicker(250 * time.Millisecond)
-	defer ticker.Stop()
-	timeout := time.NewTimer(2 * time.Minute)
-	defer timeout.Stop()
-	for {
-		if err := client.Healthy(ctx, url); err == nil {
-			return nil
-		}
-		select {
-		case <-ctx.Done():
-			return ctx.Err()
-		case <-timeout.C:
-			return fmt.Errorf("timed out after two minutes")
-		case <-ticker.C:
-		}
-	}
-}
-
-func generate(ctx context.Context, url, prompt string, maxTokens int, temperature float64) {
-	if prompt != "" {
-		completePrompt(ctx, url, prompt, maxTokens, temperature)
+		generate(*prompt)
+		printSpeeds(runtime)
 		return
 	}
-	fmt.Fprintln(os.Stderr, "Interactive continuation mode. Enter a prompt; Ctrl-C exits.")
+
+	fmt.Fprintln(os.Stderr, "Interactive mode. Enter a prompt; Ctrl-C exits.")
 	scanner := bufio.NewScanner(os.Stdin)
 	for {
 		fmt.Print("> ")
 		if !scanner.Scan() {
-			return
+			break
 		}
-		completePrompt(ctx, url, scanner.Text(), maxTokens, temperature)
+		if input := strings.TrimSpace(scanner.Text()); input != "" {
+			generate(input)
+		}
+		if ctx.Err() != nil {
+			break
+		}
+	}
+	if err := scanner.Err(); err != nil {
+		fmt.Fprintln(os.Stderr, "read prompt:", err)
+	}
+	printSpeeds(runtime)
+}
+
+func renderPrompt(prompt string, raw, reasoning bool) string {
+	if raw {
+		return prompt
+	}
+	formatted := "User: " + prompt + "\n\nAssistant:"
+	if reasoning {
+		formatted = "<|bos|>" + formatted + " <think>\n</think>"
+	}
+	return formatted
+}
+
+func printSpeeds(runtime *mlx.Runtime) {
+	stats := runtime.Stats()
+	if stats.PrefillTokensPerSecond > 0 {
+		fmt.Fprintf(os.Stderr, "Prefill: %.1f tok/s; decode: %.1f tok/s\n", stats.PrefillTokensPerSecond, stats.DecodeTokensPerSecond)
 	}
 }
 
-func completePrompt(ctx context.Context, url, prompt string, maxTokens int, temperature float64) {
-	fmt.Print(prompt)
-	err := client.Complete(ctx, url, client.CompletionRequest{Prompt: prompt, MaxTokens: maxTokens, Temperature: temperature}, func(text string) error { _, err := io.WriteString(os.Stdout, text); return err })
-	fmt.Println()
-	if err != nil && ctx.Err() == nil {
-		fmt.Fprintln(os.Stderr, "generation failed:", err)
-	}
+func fatal(format string, args ...any) {
+	fmt.Fprintf(os.Stderr, format+"\n", args...)
+	os.Exit(1)
 }
-
-func fatal(format string, args ...any) { fmt.Fprintf(os.Stderr, format+"\n", args...); os.Exit(1) }

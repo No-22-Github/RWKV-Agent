@@ -1,59 +1,93 @@
 # RWKV-Agent
 
-跨平台 RWKV Agent 软件。计划以 Go 实现 Agent Harness、桌面端和系统集成，UI 使用 WebAssembly 并运行在系统 WebView 中。
+跨平台 RWKV Agent 软件。Go 负责 Agent Harness、桌面宿主与系统集成，UI 计划使用 WebAssembly 并运行在系统 WebView 中。模型推理必须是可随应用分发的原生实现，不使用 Python 后端。
 
-仓库目前处于最小可运行阶段，只包含 `rwkv-cli`：它可以启动
-[`rwkv-mobile`](https://github.com/MollySophia/rwkv-mobile) 的 `rwkv_server`、等待模型加载完成，然后把流式续写直接写到终端；也可以通过 llama.cpp 的 Metal 后端直接加载 RWKV GGUF 模型。Desktop 和 WASM UI 尚未开始实现。
+当前最小可运行版本使用 [`rwkv-mobile`](https://github.com/MollySophia/rwkv-mobile) 的 C++ Runtime 和 MLX 后端：
 
-## 先构建运行时
-
-本项目第一版在 Apple Silicon 上固定使用上游的 **Core ML** 后端，以利用 Apple Neural Engine。构建时只启用它：
-
-```sh
-cmake -S . -B build \
-  -DBUILD_EXAMPLES=ON -DENABLE_SERVER=ON \
-  -DENABLE_COREML_BACKEND=ON \
-  -DENABLE_WEBRWKV_BACKEND=OFF -DENABLE_NCNN_BACKEND=OFF \
-  -DENABLE_LLAMACPP_BACKEND=OFF -DENABLE_MNN_BACKEND=OFF \
-  -DENABLE_MLX_BACKEND=OFF
-cmake --build build --target rwkv_server -j
+```text
+Go CLI → cgo → rwkv-mobile C API → C++ MLX backend → Metal
 ```
 
-## 构建并运行 CLI
+仓库把 `rwkv-mobile` 固定为 Git submodule。Apple Silicon 构建只启用 MLX；llama.cpp、Core ML、MNN、NCNN、WebRWKV 和 HTTP Server 均不参与这一构建。
+
+## 环境
+
+- Apple Silicon Mac
+- Xcode（包含 Swift toolchain）
+- CMake 3.25+
+- Ninja
+- Go 1.26+
+- MLX 格式的 RWKV 模型目录：
+  - `config.json`
+  - 一个或多个 `*.safetensors`
+  - `rwkv_vocab_v20230424.txt`
+
+## 构建
+
+首次拉取后初始化上游依赖：
 
 ```sh
-go build -o rwkv-cli ./cmd/rwkv-cli
-./rwkv-cli run \
-  --engine /absolute/path/to/rwkv_server \
-  --model /absolute/path/to/coreml-model-directory \
-  --tokenizer /absolute/path/to/tokenizer \
-  --backend coreml
+git submodule update --init --recursive
 ```
 
-省略 `--prompt` 后进入交互式续写模式；也可以一次性续写：
+构建 C++ MLX Runtime、Metal 资源和 Go CLI：
 
 ```sh
-./rwkv-cli run --engine /path/rwkv_server --model /path/coreml-model-directory --tokenizer /path/tokenizer --backend coreml --prompt 'Once upon a time'
+./scripts/build-mlx.sh
 ```
 
-如果运行时已经独立启动，使用 `complete`：
+产物位于 `dist/`：
+
+```text
+dist/
+├── rwkv-cli
+├── librwkv_mobile.dylib
+└── mlx-swift_Cmlx.bundle/
+    └── Contents/Resources/default.metallib
+```
+
+动态库和 Metal resource bundle 都是运行时必需文件，分发时必须和 CLI 一起携带。以后打包 `.app` 时，它们应分别进入 Frameworks 和 Resources。
+
+## 运行
+
+使用模型目录内的默认 tokenizer：
 
 ```sh
-./rwkv-cli complete --url http://127.0.0.1:8000 --prompt 'Once upon a time'
+./dist/rwkv-cli run \
+  --model /absolute/path/to/mlx-model-directory \
+  --prompt "你好，请介绍一下你自己。" \
+  --max-tokens 128
 ```
 
-Core ML 的输入不是原始 `.pth` 文件。上游转换脚本会从 `.pth` 权重生成一个模型目录，其中包含 `config.yaml` 和一个或多个由 Xcode 编译出的 `.mlmodelc` 目录；把这个模型目录传给 `--model`。分词器仍使用与原始 RWKV 权重匹配的 tokenizer 文件。
-
-## 已验证的 Apple Silicon 最小路径
-
-当前 macOS 的 Core ML 运行时无法加载上游转换器产生的多入口模型，因此最小可用入口改为已验证的 llama.cpp Metal 路径。它使用 Apple GPU，并可直接加载 RWKV 的 `.gguf` 文件，无须转换。
+也可以显式指定 tokenizer：
 
 ```sh
-./rwkv-cli llama \
-  --engine /Users/no22/Projects/Preen/models/llama-b9939/llama-cli \
-  --model /Users/no22/Projects/Preen/models/rwkv7-g1g-1.5b-20260526-ctx8192-FP16.gguf \
-  --prompt 'The capital of France is' \
-  --max-tokens 64
+./dist/rwkv-cli run \
+  --model /absolute/path/to/mlx-model-directory \
+  --tokenizer /absolute/path/to/rwkv_vocab_v20230424.txt \
+  --prompt "你好"
 ```
 
-省略 `--prompt` 会进入交互模式。
+省略 `--prompt` 会加载一次模型并进入交互模式。默认按 RWKV G1 的 chat 模板渲染用户输入，并使用 fast-thinking 标记；普通非 reasoning 模型可传 `--reasoning=false`。如需对原始文本做续写，传 `--raw`。
+
+## 测试
+
+普通 Go 测试不要求本机已有原生构建：
+
+```sh
+go test ./...
+```
+
+构建 MLX Runtime 后，可执行真实模型集成测试：
+
+```sh
+RWKV_TEST_MODEL=/absolute/path/to/mlx-model-directory \
+RWKV_TEST_TOKENIZER=/absolute/path/to/rwkv_vocab_v20230424.txt \
+./scripts/test-mlx.sh
+```
+
+运行时不加载 Python，也不启动外部推理进程或 HTTP Server。
+
+## 分发注意
+
+当前固定的 `rwkv-mobile` revision 没有在仓库根目录提供明确的 LICENSE 文件。技术打包链已经可用，但公开分发前仍需确认上游源码及其预编译 `libMLXModelFFI.a` 的授权条件，并为 RWKV-Agent 选择自己的项目许可证。
