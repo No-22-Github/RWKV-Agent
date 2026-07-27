@@ -6,6 +6,7 @@ source_dir="$repo_root/third_party/rwkv-mobile"
 native_build_dir="$repo_root/build/native/rwkv-mobile"
 dist_dir="$repo_root/dist"
 resource_dir="$dist_dir/mlx-swift_Cmlx.bundle/Contents/Resources"
+asset_dir="$dist_dir/assets"
 
 if [[ "$(uname -s)" != "Darwin" || "$(uname -m)" != "arm64" ]]; then
   echo "MLX builds currently require macOS on Apple Silicon." >&2
@@ -36,13 +37,14 @@ cmake -S "$source_dir" -B "$native_build_dir" -G Ninja \
 
 cmake --build "$native_build_dir" --target rwkv_mobile -j
 
-mkdir -p "$dist_dir" "$resource_dir"
+mkdir -p "$dist_dir" "$resource_dir" "$asset_dir"
 cp "$native_build_dir/librwkv_mobile.dylib" "$dist_dir/librwkv_mobile.dylib"
 cp "$source_dir/src/backends/mlx/prebuilt/macos-arm64/default.metallib" "$resource_dir/default.metallib"
+cp "$source_dir/assets/rwkv_vocab_v20230424.txt" "$asset_dir/rwkv_vocab_v20230424.txt"
 
 (
   cd "$repo_root"
-  CGO_ENABLED=1 go build -tags mlx -trimpath -o "$dist_dir/rwkv-cli" ./cmd/rwkv-cli
+  CGO_ENABLED=1 go build -tags "mlx converter" -trimpath -o "$dist_dir/rwkv-cli" ./cmd/rwkv-cli
 )
 install_name_tool -add_rpath @executable_path "$dist_dir/rwkv-cli"
 

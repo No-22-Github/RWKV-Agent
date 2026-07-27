@@ -17,6 +17,8 @@ fi
   cd "$repo_root"
   CGO_ENABLED=1 go test -c -tags mlx -o "$test_binary" ./internal/native/mlx
 )
-install_name_tool -add_rpath @executable_path "$test_binary"
+if ! otool -l "$test_binary" | grep -Fq "path @executable_path "; then
+  install_name_tool -add_rpath @executable_path "$test_binary"
+fi
 
 "$test_binary" -test.run TestNativeMLXGeneration -test.v

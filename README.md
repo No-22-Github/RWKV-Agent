@@ -17,10 +17,7 @@ Go CLI → cgo → rwkv-mobile C API → C++ MLX backend → Metal
 - CMake 3.25+
 - Ninja
 - Go 1.26+
-- MLX 格式的 RWKV 模型目录：
-  - `config.json`
-  - 一个或多个 `*.safetensors`
-  - `rwkv_vocab_v20230424.txt`
+- 上游发布的 RWKV-7 `.pth` 权重，或已经转换好的 MLX 模型目录
 
 ## 构建
 
@@ -42,11 +39,36 @@ git submodule update --init --recursive
 dist/
 ├── rwkv-cli
 ├── librwkv_mobile.dylib
+├── assets/
+│   └── rwkv_vocab_v20230424.txt
 └── mlx-swift_Cmlx.bundle/
     └── Contents/Resources/default.metallib
 ```
 
 动态库和 Metal resource bundle 都是运行时必需文件，分发时必须和 CLI 一起携带。以后打包 `.app` 时，它们应分别进入 Frameworks 和 Resources。
+
+## 转换模型
+
+上游 RWKV 发布的 `.pth` 需要先转换一次。转换器已经编译进 `rwkv-cli`，它直接在 C++ 中读取 PyTorch checkpoint 并输出 MLX 所需的 safetensors，不依赖 Python、PyTorch 或外部转换进程：
+
+```sh
+./dist/rwkv-cli convert \
+  --input /absolute/path/to/rwkv7-model.pth \
+  --output /absolute/path/to/rwkv7-model-mlx
+```
+
+默认输出 BF16，并自动携带 RWKV World tokenizer。输出目录包含：
+
+```text
+rwkv7-model-mlx/
+├── config.json
+├── model.safetensors
+└── rwkv_vocab_v20230424.txt
+```
+
+可以通过 `--precision fp16` 或 `--precision fp32` 更改输出精度。目标目录已存在时转换器默认拒绝覆盖；确认替换可加 `--overwrite`，替换过程使用同目录临时目录和原子重命名，失败时保留原输出。
+
+目前转换器针对 RWKV-7 官方 checkpoint 的键名和张量布局；不把任意 PyTorch 模型伪装成 RWKV 模型。
 
 ## 运行
 
@@ -84,6 +106,15 @@ go test ./...
 RWKV_TEST_MODEL=/absolute/path/to/mlx-model-directory \
 RWKV_TEST_TOKENIZER=/absolute/path/to/rwkv_vocab_v20230424.txt \
 ./scripts/test-mlx.sh
+```
+
+转换器也提供可选的实模回归测试；如果设置参考 safetensors，还会执行 SHA-256 一致性校验：
+
+```sh
+RWKV_TEST_PTH=/absolute/path/to/model.pth \
+RWKV_TEST_TOKENIZER=/absolute/path/to/rwkv_vocab_v20230424.txt \
+RWKV_TEST_CONVERTER_REFERENCE=/absolute/path/to/reference/model.safetensors \
+go test -tags converter ./internal/native/converter -run TestNativeConversion -v
 ```
 
 运行时不加载 Python，也不启动外部推理进程或 HTTP Server。

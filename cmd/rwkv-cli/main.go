@@ -12,6 +12,7 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/no22/RWKV-Agent/internal/native/converter"
 	"github.com/no22/RWKV-Agent/internal/native/mlx"
 )
 
@@ -24,6 +25,8 @@ func main() {
 	switch os.Args[1] {
 	case "run":
 		run(os.Args[2:])
+	case "convert":
+		convertModel(os.Args[2:])
 	default:
 		usage()
 		os.Exit(2)
@@ -31,7 +34,61 @@ func main() {
 }
 
 func usage() {
-	fmt.Fprintln(os.Stderr, "rwkv-cli run --model <MLX model directory> [--tokenizer <vocab file>] [--prompt <text>]")
+	fmt.Fprintln(os.Stderr, `Usage:
+  rwkv-cli convert --input <RWKV .pth> --output <MLX model directory>
+  rwkv-cli run --model <MLX model directory> [--tokenizer <vocab file>] [--prompt <text>]`)
+}
+
+func convertModel(args []string) {
+	fs := flag.NewFlagSet("convert", flag.ExitOnError)
+	input := fs.String("input", "", "official RWKV PyTorch .pth checkpoint")
+	output := fs.String("output", "", "destination MLX model directory")
+	tokenizer := fs.String("tokenizer", "", "RWKV World tokenizer vocabulary")
+	precision := fs.String("precision", "bf16", "output precision: bf16, fp16, or fp32")
+	overwrite := fs.Bool("overwrite", false, "atomically replace an existing output directory")
+	fs.Parse(args)
+
+	if *input == "" || *output == "" {
+		fs.Usage()
+		os.Exit(2)
+	}
+	if *tokenizer == "" {
+		var err error
+		*tokenizer, err = bundledTokenizerPath()
+		if err != nil {
+			fatal("%v; pass --tokenizer explicitly", err)
+		}
+	}
+	if !converter.Available() {
+		fatal("native converter is not present in this build; run ./scripts/build-mlx.sh")
+	}
+
+	err := converter.Convert(converter.Options{
+		InputPath:     *input,
+		OutputPath:    *output,
+		TokenizerPath: *tokenizer,
+		Precision:     *precision,
+		Overwrite:     *overwrite,
+	})
+	if err != nil {
+		fatal("convert model: %v", err)
+	}
+}
+
+func bundledTokenizerPath() (string, error) {
+	const filename = "rwkv_vocab_v20230424.txt"
+	candidates := make([]string, 0, 2)
+	if executable, err := os.Executable(); err == nil {
+		candidates = append(candidates, filepath.Join(filepath.Dir(executable), "assets", filename))
+	}
+	candidates = append(candidates, filepath.Join("third_party", "rwkv-mobile", "assets", filename))
+	for _, candidate := range candidates {
+		info, err := os.Stat(candidate)
+		if err == nil && !info.IsDir() {
+			return filepath.Abs(candidate)
+		}
+	}
+	return "", fmt.Errorf("bundled tokenizer %q was not found", filename)
 }
 
 func run(args []string) {
