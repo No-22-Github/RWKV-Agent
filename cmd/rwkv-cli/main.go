@@ -9,11 +9,10 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
-	"strings"
 	"syscall"
 	"time"
 
-	"github.com/no22/rwkv-cli/internal/client"
+	"github.com/no22/RWKV-Agent/internal/client"
 )
 
 func main() {
@@ -154,5 +153,3 @@ func completePrompt(ctx context.Context, url, prompt string, maxTokens int, temp
 }
 
 func fatal(format string, args ...any) { fmt.Fprintf(os.Stderr, format+"\n", args...); os.Exit(1) }
-
-var _ = strings.Builder{}

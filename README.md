@@ -1,6 +1,9 @@
-# rwkv-cli
+# RWKV-Agent
 
-最小的 Go 命令行胶水层：启动 `rwkv-mobile` 的 `rwkv_server`、等待模型加载完成，然后把续写的流式输出直接写到终端。
+跨平台 RWKV Agent 软件。计划以 Go 实现 Agent Harness、桌面端和系统集成，UI 使用 WebAssembly 并运行在系统 WebView 中。
+
+仓库目前处于最小可运行阶段，只包含 `rwkv-cli`：它可以启动
+[`rwkv-mobile`](https://github.com/MollySophia/rwkv-mobile) 的 `rwkv_server`、等待模型加载完成，然后把流式续写直接写到终端；也可以通过 llama.cpp 的 Metal 后端直接加载 RWKV GGUF 模型。Desktop 和 WASM UI 尚未开始实现。
 
 ## 先构建运行时
 

@@ -416,7 +416,7 @@ wheels = [
 ]
 
 [[package]]
-name = "rwkv-cli-coreml-tools"
+name = "rwkv-agent-coreml-tools"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
