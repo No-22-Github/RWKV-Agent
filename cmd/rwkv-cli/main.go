@@ -26,6 +26,8 @@ func main() {
 		run(os.Args[2:])
 	case "complete":
 		complete(os.Args[2:])
+	case "llama":
+		llama(os.Args[2:])
 	default:
 		usage()
 		os.Exit(2)
@@ -35,6 +37,7 @@ func main() {
 func usage() {
 	fmt.Fprintln(os.Stderr, "rwkv-cli run --engine <rwkv_server> --model <model> --tokenizer <tokenizer> --backend <name> [--prompt text]")
 	fmt.Fprintln(os.Stderr, "rwkv-cli complete --url <runtime URL> --prompt <text>")
+	fmt.Fprintln(os.Stderr, "rwkv-cli llama --engine <llama-cli> --model <rwkv.gguf> [--prompt text]")
 }
 
 func commonFlags(name string) (*flag.FlagSet, *string, *string, *int, *float64) {
@@ -79,6 +82,31 @@ func complete(args []string) {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	generate(ctx, *url, *prompt, *maxTokens, *temperature)
+}
+
+// llama uses llama.cpp's Metal backend. It is the verified minimal path for
+// RWKV GGUF models on Apple Silicon.
+func llama(args []string) {
+	fs := flag.NewFlagSet("llama", flag.ExitOnError)
+	engine := fs.String("engine", "llama-cli", "path to a llama.cpp llama-cli executable")
+	model := fs.String("model", "", "RWKV GGUF model path")
+	prompt := fs.String("prompt", "", "prompt; omit for interactive mode")
+	maxTokens := fs.Int("max-tokens", 256, "maximum generated tokens")
+	fs.Parse(args)
+	if *model == "" {
+		fs.Usage()
+		os.Exit(2)
+	}
+
+	commandArgs := []string{"-m", *model, "-n", fmt.Sprint(*maxTokens), "--no-warmup", "--simple-io"}
+	if *prompt != "" {
+		commandArgs = append(commandArgs, "--single-turn", "-p", *prompt)
+	}
+	cmd := exec.Command(*engine, commandArgs...)
+	cmd.Stdin, cmd.Stdout, cmd.Stderr = os.Stdin, os.Stdout, os.Stderr
+	if err := cmd.Run(); err != nil {
+		fatal("llama.cpp generation failed: %v", err)
+	}
 }
 
 func waitForHealth(ctx context.Context, url string) error {
