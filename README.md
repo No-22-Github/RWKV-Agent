@@ -2,6 +2,9 @@
 
 跨平台 RWKV Agent 软件。Go 负责 Agent Harness、桌面宿主与系统集成，UI 计划使用 WebAssembly 并运行在系统 WebView 中。模型推理必须是可随应用分发的原生实现，不使用 Python 后端。
 
+推理核心的跨平台接口、Session、Capability 和 RWKV State 语义见
+[`docs/inference-core-design.md`](docs/inference-core-design.md)。
+
 当前最小可运行版本使用 [`rwkv-mobile`](https://github.com/MollySophia/rwkv-mobile) 的 C++ Runtime 和 MLX 后端：
 
 ```text
