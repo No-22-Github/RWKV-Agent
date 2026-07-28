@@ -12,8 +12,9 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/no22/RWKV-Agent/internal/inference"
+	mlxbackend "github.com/no22/RWKV-Agent/internal/inference/backend/mlx"
 	"github.com/no22/RWKV-Agent/internal/native/converter"
-	"github.com/no22/RWKV-Agent/internal/native/mlx"
 )
 
 func main() {
@@ -36,7 +37,7 @@ func main() {
 func usage() {
 	fmt.Fprintln(os.Stderr, `Usage:
   rwkv-cli convert --input <RWKV .pth> --output <MLX model directory>
-  rwkv-cli run --model <MLX model directory> [--tokenizer <vocab file>] [--prompt <text>]`)
+  rwkv-cli run --model <model path> [--backend auto|mlx] [--tokenizer <vocab file>] [--prompt <text>]`)
 }
 
 func convertModel(args []string) {
@@ -93,7 +94,8 @@ func bundledTokenizerPath() (string, error) {
 
 func run(args []string) {
 	fs := flag.NewFlagSet("run", flag.ExitOnError)
-	model := fs.String("model", "", "MLX model directory containing config.json and safetensors")
+	modelPath := fs.String("model", "", "model path")
+	backend := fs.String("backend", string(inference.BackendAuto), "inference backend: auto or mlx")
 	tokenizer := fs.String("tokenizer", "", "RWKV World tokenizer vocabulary; defaults to the model directory")
 	prompt := fs.String("prompt", "", "prompt; omit for interactive mode")
 	maxTokens := fs.Int("max-tokens", 256, "maximum generated tokens")
@@ -104,40 +106,69 @@ func run(args []string) {
 	reasoning := fs.Bool("reasoning", true, "include the G1 fast-thinking prompt markers")
 	fs.Parse(args)
 
-	if *model == "" {
+	if *modelPath == "" {
 		fs.Usage()
 		os.Exit(2)
 	}
 	if *tokenizer == "" {
-		*tokenizer = filepath.Join(*model, "rwkv_vocab_v20230424.txt")
+		*tokenizer = filepath.Join(*modelPath, "rwkv_vocab_v20230424.txt")
 	}
 	if *maxTokens <= 0 || *temperature <= 0 || *topK <= 0 || *topP <= 0 || *topP > 1 {
 		fatal("invalid sampling options")
-	}
-	if !mlx.Available() {
-		fatal("MLX support is not present in this build; run ./scripts/build-mlx.sh on Apple Silicon")
 	}
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
-	fmt.Fprintln(os.Stderr, "Loading native MLX model...")
-	runtime, err := mlx.Open(*model, *tokenizer)
+	core, err := inference.NewCore(mlxbackend.New())
 	if err != nil {
-		fatal("load native MLX model: %v", err)
+		fatal("initialize inference core: %v", err)
 	}
-	defer runtime.Close()
+	defer core.Close()
 
-	options := mlx.GenerateOptions{
-		MaxTokens:   *maxTokens,
+	fmt.Fprintln(os.Stderr, "Loading native model...")
+	model, err := core.LoadModel(ctx, inference.LoadRequest{
+		Source: inference.ModelSource{
+			Path:          *modelPath,
+			TokenizerPath: *tokenizer,
+		},
+		Backend: inference.BackendID(*backend),
+	}, nil)
+	if err != nil {
+		fatal("load native model: %v", err)
+	}
+	defer model.Close()
+
+	session, err := model.NewSession(ctx, inference.SessionOptions{})
+	if err != nil {
+		fatal("create inference session: %v", err)
+	}
+	defer session.Close()
+
+	sampling := inference.SamplingOptions{
 		Temperature: float32(*temperature),
 		TopK:        *topK,
 		TopP:        float32(*topP),
 	}
 	generate := func(input string) {
-		formatted := renderPrompt(input, *raw, *reasoning)
-		err := runtime.Generate(ctx, formatted, options, func(text string) error {
-			_, writeErr := io.WriteString(os.Stdout, text)
+		request := inference.GenerateRequest{
+			Prompt:   inference.PromptOptions{Reasoning: *reasoning},
+			Sampling: sampling,
+			Limits: inference.GenerationLimits{
+				MaxOutputTokens: *maxTokens,
+			},
+			Commit: inference.CommitOnSuccess,
+		}
+		if *raw {
+			request.Raw = &inference.RawInput{Text: input}
+		} else {
+			request.Messages = []inference.Message{inference.TextMessage(inference.RoleUser, input)}
+		}
+		_, err := session.Generate(ctx, request, func(event inference.GenerationEvent) error {
+			if event.Kind != inference.EventOutputDelta || event.Delta == nil {
+				return nil
+			}
+			_, writeErr := io.WriteString(os.Stdout, event.Delta.Text)
 			return writeErr
 		})
 		fmt.Println()
@@ -148,7 +179,7 @@ func run(args []string) {
 
 	if *prompt != "" {
 		generate(*prompt)
-		printSpeeds(runtime)
+		printSpeeds(session)
 		return
 	}
 
@@ -169,24 +200,13 @@ func run(args []string) {
 	if err := scanner.Err(); err != nil {
 		fmt.Fprintln(os.Stderr, "read prompt:", err)
 	}
-	printSpeeds(runtime)
+	printSpeeds(session)
 }
 
-func renderPrompt(prompt string, raw, reasoning bool) string {
-	if raw {
-		return prompt
-	}
-	formatted := "User: " + prompt + "\n\nAssistant:"
-	if reasoning {
-		formatted = "<|bos|>" + formatted + " <think>\n</think>"
-	}
-	return formatted
-}
-
-func printSpeeds(runtime *mlx.Runtime) {
-	stats := runtime.Stats()
-	if stats.PrefillTokensPerSecond > 0 {
-		fmt.Fprintf(os.Stderr, "Prefill: %.1f tok/s; decode: %.1f tok/s\n", stats.PrefillTokensPerSecond, stats.DecodeTokensPerSecond)
+func printSpeeds(session inference.Session) {
+	timings := session.Stats().LastTimings
+	if timings.PrefillTokensPerSecond > 0 {
+		fmt.Fprintf(os.Stderr, "Prefill: %.1f tok/s; decode: %.1f tok/s\n", timings.PrefillTokensPerSecond, timings.DecodeTokensPerSecond)
 	}
 }
 

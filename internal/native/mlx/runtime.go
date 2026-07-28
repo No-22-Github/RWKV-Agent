@@ -21,6 +21,7 @@ type Stats struct {
 
 type runtimeImpl interface {
 	generate(context.Context, string, GenerateOptions, func(string) error) error
+	countTokens(string) (int, error)
 	clearState() error
 	stats() Stats
 	close() error
@@ -47,6 +48,13 @@ func (r *Runtime) Generate(ctx context.Context, prompt string, options GenerateO
 		return errors.New("MLX runtime is closed")
 	}
 	return r.impl.generate(ctx, prompt, options, write)
+}
+
+func (r *Runtime) CountTokens(text string) (int, error) {
+	if r == nil || r.impl == nil {
+		return 0, errors.New("MLX runtime is closed")
+	}
+	return r.impl.countTokens(text)
 }
 
 func (r *Runtime) ClearState() error {

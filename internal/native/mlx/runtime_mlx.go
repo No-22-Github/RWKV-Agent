@@ -181,6 +181,25 @@ func (r *nativeRuntime) generate(ctx context.Context, prompt string, options Gen
 	return nil
 }
 
+func (r *nativeRuntime) countTokens(text string) (int, error) {
+	if text == "" {
+		return 0, nil
+	}
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if r.closed {
+		return 0, errors.New("MLX runtime is closed")
+	}
+
+	textCString := C.CString(text)
+	defer C.free(unsafe.Pointer(textCString))
+	count := C.rwkvmobile_runtime_calculate_tokens_count_from_text(r.handle, r.modelID, textCString)
+	if count < 0 {
+		return 0, fmt.Errorf("rwkv-mobile token count failed (code %d)", int(count))
+	}
+	return int(count), nil
+}
+
 func (r *nativeRuntime) clearState() error {
 	r.mu.Lock()
 	defer r.mu.Unlock()

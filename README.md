@@ -8,10 +8,14 @@
 当前最小可运行版本使用 [`rwkv-mobile`](https://github.com/MollySophia/rwkv-mobile) 的 C++ Runtime 和 MLX 后端：
 
 ```text
-Go CLI → cgo → rwkv-mobile C API → C++ MLX backend → Metal
+Go CLI → inference Core/Model/Session → MLX adapter
+       → cgo → rwkv-mobile C API → C++ MLX backend → Metal
 ```
 
 仓库把 `rwkv-mobile` 固定为 Git submodule。Apple Silicon 构建只启用 MLX；llama.cpp、Core ML、MNN、NCNN、WebRWKV 和 HTTP Server 均不参与这一构建。
+
+CLI 只依赖统一推理核心，不直接依赖 MLX Runtime。当前可选 backend 是
+`auto` 和 `mlx`；后续 Windows/Linux backend 将接入同一接口。
 
 ## 环境
 
@@ -79,6 +83,7 @@ rwkv7-model-mlx/
 
 ```sh
 ./dist/rwkv-cli run \
+  --backend auto \
   --model /absolute/path/to/mlx-model-directory \
   --prompt "你好，请介绍一下你自己。" \
   --max-tokens 128
@@ -110,6 +115,8 @@ RWKV_TEST_MODEL=/absolute/path/to/mlx-model-directory \
 RWKV_TEST_TOKENIZER=/absolute/path/to/rwkv_vocab_v20230424.txt \
 ./scripts/test-mlx.sh
 ```
+
+该脚本同时运行底层 native MLX 测试和统一推理核心的 backend contract tests。
 
 转换器也提供可选的实模回归测试；如果设置参考 safetensors，还会执行 SHA-256 一致性校验：
 
