@@ -8,6 +8,8 @@
 
 关联文档：[跨平台推理核心设计](inference-core-design.md)
 
+执行文档：[RWKV Mobile macOS CLI 完整实施计划](rwkv-mobile-macos-cli-implementation-plan.md)
+
 ## 1. 决策
 
 RWKV-Agent 采用以下路线：
