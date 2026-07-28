@@ -1,10 +1,38 @@
 package inference
 
 import (
+	"crypto/sha256"
 	"errors"
 	"fmt"
 	"strings"
 )
+
+const (
+	PromptTemplateID      = "rwkv-g1-chat"
+	PromptTemplateVersion = 1
+)
+
+func DefaultPromptProfile(reasoning bool) PromptProfile {
+	canonical := fmt.Sprintf(
+		"%s\x00%d\x00%t\x00%t\x00%t\x00%s\x00%s",
+		PromptTemplateID,
+		PromptTemplateVersion,
+		reasoning,
+		true,
+		false,
+		"<|bos|>",
+		"\n\n",
+	)
+	return PromptProfile{
+		TemplateID:      PromptTemplateID,
+		TemplateVersion: PromptTemplateVersion,
+		ProfileHash:     fmt.Sprintf("sha256:%x", sha256.Sum256([]byte(canonical))),
+		Reasoning:       reasoning,
+		SpaceAfterRoles: true,
+		BOS:             "<|bos|>",
+		EOS:             "\n\n",
+	}
+}
 
 func CompileGeneratePrompt(request GenerateRequest) (string, error) {
 	if err := validateInput(request.Messages, request.Raw); err != nil {
@@ -31,6 +59,29 @@ func CompileGeneratePrompt(request GenerateRequest) (string, error) {
 	formatted := prompt.String()
 	if request.Prompt.Reasoning {
 		formatted = "<|bos|>" + formatted + " <think>\n</think>"
+	}
+	return formatted, nil
+}
+
+func CompileCommittedPrompt(messages []Message, options PromptOptions) (string, error) {
+	if err := validateInput(messages, nil); err != nil {
+		return "", err
+	}
+	var prompt strings.Builder
+	for _, message := range messages {
+		text, err := messageText(message)
+		if err != nil {
+			return "", err
+		}
+		role, err := promptRole(message.Role)
+		if err != nil {
+			return "", err
+		}
+		fmt.Fprintf(&prompt, "%s: %s\n\n", role, text)
+	}
+	formatted := prompt.String()
+	if options.Reasoning {
+		formatted = "<|bos|>" + formatted
 	}
 	return formatted, nil
 }

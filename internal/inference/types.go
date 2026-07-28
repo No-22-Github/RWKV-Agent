@@ -31,6 +31,7 @@ type Capabilities struct {
 	DeterministicSeed       Support
 	SupportedBatchSizes     []int
 	MaxConcurrentGeneration int
+	MaxObservedBatch        int
 }
 
 type DeviceInfo struct {
@@ -56,14 +57,15 @@ type ModelSource struct {
 }
 
 type ModelInfo struct {
-	ID             ModelID
-	Fingerprint    string
-	Architecture   string
-	Format         ModelFormat
-	Precision      string
-	Quantization   string
-	VocabularySize int
-	Backend        BackendID
+	ID                   ModelID
+	Fingerprint          string
+	TokenizerFingerprint string
+	Architecture         string
+	Format               ModelFormat
+	Precision            string
+	Quantization         string
+	VocabularySize       int
+	Backend              BackendID
 }
 
 type LoadRequest struct {
@@ -98,6 +100,7 @@ type SessionOptions struct{}
 
 type Session interface {
 	Generate(context.Context, GenerateRequest, EventSink) (GenerateResult, error)
+	Prefill(context.Context, PrefillRequest, ProgressSink) (PrefillResult, error)
 	CountTokens(context.Context, TokenCountRequest) (int, error)
 	Reset(context.Context) error
 	StateInfo() SessionStateInfo
@@ -106,6 +109,21 @@ type Session interface {
 	Fork(context.Context) (Session, error)
 	Stats() SessionStats
 	Close() error
+}
+
+type Tokenizer interface {
+	Encode(context.Context, string) ([]int32, error)
+}
+
+type PrefillRequest struct {
+	Tokens        []int32
+	ReplacePrefix bool
+}
+
+type PrefillResult struct {
+	TokenCount    int
+	PrefixHash    string
+	StateRevision string
 }
 
 type Role string
@@ -146,6 +164,17 @@ type RawInput struct {
 
 type PromptOptions struct {
 	Reasoning bool
+}
+
+type PromptProfile struct {
+	TemplateID      string
+	TemplateVersion int
+	ProfileHash     string
+	Reasoning       bool
+	SpaceAfterRoles bool
+	FlowerTemplate  bool
+	BOS             string
+	EOS             string
 }
 
 type SamplingOptions struct {
@@ -252,9 +281,16 @@ type GenerateResult struct {
 }
 
 type SessionStateInfo struct {
-	Revision   string
-	Status     string
-	TokenCount int
+	Revision                  string
+	LogicalRevision           string
+	NativeRevision            string
+	Status                    string
+	TokenCount                int
+	CommittedPrefixTokenCount int
+	NativeSnapshot            bool
+	RecoveryMode              string
+	DirtyReason               string
+	PrefixHash                string
 }
 
 type SessionStats struct {
@@ -266,7 +302,13 @@ type StateDescriptor struct {
 	FormatVersion    int
 	ModelFingerprint string
 	StateRevision    string
+	PrefixTokenCount int
+	PrefixHash       string
+	CodecID          string
+	CodecVersion     int
 }
 
 type ExportStateOptions struct{}
-type ImportStateOptions struct{}
+type ImportStateOptions struct {
+	Descriptor StateDescriptor
+}

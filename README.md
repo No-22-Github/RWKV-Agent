@@ -1,64 +1,62 @@
 # RWKV-Agent
 
-跨平台 RWKV Agent 软件。Go 负责 Agent Harness、桌面宿主与系统集成，UI 计划使用 WebAssembly 并运行在系统 WebView 中。模型推理必须是可随应用分发的原生实现，不使用 Python 后端。
-
-推理核心的跨平台接口、Session、Capability 和 RWKV State 语义见
-[`docs/inference-core-design.md`](docs/inference-core-design.md)。
-RWKV Mobile 的采用边界，以及终端多轮对话与 State 管理的短期实施计划见
-[`docs/rwkv-mobile-adoption-and-cli-milestone.md`](docs/rwkv-mobile-adoption-and-cli-milestone.md)。
-
-当前最小可运行版本使用 [`rwkv-mobile`](https://github.com/MollySophia/rwkv-mobile) 的 C++ Runtime 和 MLX 后端：
+RWKV-Agent 当前提供一个可分发的 Apple Silicon macOS 本地 CLI。Go 负责 Conversation 事务、Session 持久化和终端交互；独立的 `librwkv_agent_runtime.dylib` 通过固定版本的 RWKV Mobile tokenizer/sampler 与 MLX FFI 执行推理。运行时不依赖 Python、PyTorch、HTTP 服务或外部进程。
 
 ```text
-Go CLI → inference Core/Model/Session → MLX adapter
-       → cgo → rwkv-mobile C API → C++ MLX backend → Metal
+rwkv-cli
+  → Conversation（transcript / revision / rollback / replay）
+  → inference backend
+  → versioned C ABI + per-request callback
+  → single-model scheduler
+  → MLX continuous batch（最多 4 个活跃 Session）
 ```
 
-仓库把 `rwkv-mobile` 固定为 Git submodule。Apple Silicon 构建只启用 MLX；llama.cpp、Core ML、MNN、NCNN、WebRWKV 和 HTTP Server 均不参与这一构建。
+详细设计和验收范围见：
 
-CLI 只依赖统一推理核心，不直接依赖 MLX Runtime。当前可选 backend 是
-`auto` 和 `mlx`；后续 Windows/Linux backend 将接入同一接口。
+- [`docs/inference-core-design.md`](docs/inference-core-design.md)
+- [`docs/rwkv-mobile-adoption-and-cli-milestone.md`](docs/rwkv-mobile-adoption-and-cli-milestone.md)
+- [`docs/rwkv-mobile-macos-cli-implementation-plan.md`](docs/rwkv-mobile-macos-cli-implementation-plan.md)
 
 ## 环境
 
 - Apple Silicon Mac
+- macOS 15+
 - Xcode（包含 Swift toolchain）
 - CMake 3.25+
 - Ninja
 - Go 1.26+
-- 上游发布的 RWKV-7 `.pth` 权重，或已经转换好的 MLX 模型目录
+- RWKV-7 `.pth` checkpoint，或已转换的 MLX safetensors 模型目录
 
-## 构建
-
-首次拉取后初始化上游依赖：
+首次拉取后初始化固定版本的上游依赖：
 
 ```sh
 git submodule update --init --recursive
 ```
 
-构建 C++ MLX Runtime、Metal 资源和 Go CLI：
+## 构建
 
 ```sh
-./scripts/build-mlx.sh
+./scripts/build-macos.sh
 ```
 
-产物位于 `dist/`：
+构建脚本固定 `arm64` 和 `MACOSX_DEPLOYMENT_TARGET=15.0`，并验证 dylib、rpath、Metal resource、deployment target 和 CLI help smoke test。产物如下：
 
 ```text
 dist/
 ├── rwkv-cli
-├── librwkv_mobile.dylib
+├── librwkv_agent_runtime.dylib
+├── build-manifest.json
 ├── assets/
 │   └── rwkv_vocab_v20230424.txt
 └── mlx-swift_Cmlx.bundle/
     └── Contents/Resources/default.metallib
 ```
 
-动态库和 Metal resource bundle 都是运行时必需文件，分发时必须和 CLI 一起携带。以后打包 `.app` 时，它们应分别进入 Frameworks 和 Resources。
+`scripts/build-mlx.sh` 仍保留为兼容入口，但会转发到 `build-macos.sh`。
 
-## 转换模型
+## 转换 `.pth`
 
-上游 RWKV 发布的 `.pth` 需要先转换一次。转换器已经编译进 `rwkv-cli`，它直接在 C++ 中读取 PyTorch checkpoint 并输出 MLX 所需的 safetensors，不依赖 Python、PyTorch 或外部转换进程：
+转换器直接读取 PyTorch ZIP/pickle checkpoint 并写出 MLX safetensors，不加载 Python 或 PyTorch：
 
 ```sh
 ./dist/rwkv-cli convert \
@@ -66,7 +64,7 @@ dist/
   --output /absolute/path/to/rwkv7-model-mlx
 ```
 
-默认输出 BF16，并自动携带 RWKV World tokenizer。输出目录包含：
+默认输出 BF16，也可使用 `--precision fp16` 或 `--precision fp32`。目标目录已存在时默认拒绝覆盖；确认替换可传 `--overwrite`。转换结果包含：
 
 ```text
 rwkv7-model-mlx/
@@ -75,62 +73,107 @@ rwkv7-model-mlx/
 └── rwkv_vocab_v20230424.txt
 ```
 
-可以通过 `--precision fp16` 或 `--precision fp32` 更改输出精度。目标目录已存在时转换器默认拒绝覆盖；确认替换可加 `--overwrite`，替换过程使用同目录临时目录和原子重命名，失败时保留原输出。
-
-目前转换器针对 RWKV-7 官方 checkpoint 的键名和张量布局；不把任意 PyTorch 模型伪装成 RWKV 模型。
-
-## 运行
-
-使用模型目录内的默认 tokenizer：
+## 运行多轮 REPL
 
 ```sh
 ./dist/rwkv-cli run \
-  --backend auto \
-  --model /absolute/path/to/mlx-model-directory \
-  --prompt "你好，请介绍一下你自己。" \
-  --max-tokens 128
+  --model /absolute/path/to/rwkv7-model-mlx \
+  --session ./sessions/demo.rwkv-session \
+  --autosave
 ```
 
-也可以显式指定 tokenizer：
+主要参数：
+
+```text
+--backend auto|rwkvmobile
+--provider auto|mlx
+--tokenizer <file>
+--session <bundle>
+--prompt <single turn>
+--max-tokens <n>
+--temperature <f>
+--top-k <n>
+--top-p <f>
+--reasoning
+--autosave
+--native-state auto|off|required
+```
+
+REPL 命令：
+
+```text
+/state
+/history
+/save [path]
+/load <path>
+/reset
+/new
+/help
+/exit
+```
+
+每轮先在候选 transcript 上生成，只有完整输出与 native prefix 对齐后才提交。取消、终端写入失败或 native 错误不会写入残缺 user/assistant 消息；dirty State 会在下一轮或保存前从已提交 transcript 重建。
+
+生成时第一次 `Ctrl-C` 只取消当前 turn 并回到提示符。空闲时 `Ctrl-C` 退出。`SIGTERM` 会先请求取消再按 Session、Model、Runtime 的顺序关闭。
+
+## Session bundle
+
+Session 使用不可变 revision 和原子 `CURRENT` 指针：
+
+```text
+demo.rwkv-session/
+├── CURRENT
+└── revisions/
+    └── sha256-.../
+        ├── session.json
+        ├── transcript.jsonl
+        └── state.bin
+```
+
+transcript 是事实源，`state.bin` 只是带 codec、尺寸、prefix token 和 checksum 校验的 MLX State 加速快照。快照不存在或导入失败时会自动 replay transcript；模型、tokenizer、prompt profile 或 Initial State 指纹不兼容时拒绝加载。`/load` 使用临时 Conversation 完成校验和恢复，成功后才替换当前会话。
+
+## 4 路并发
+
+`concurrent` 命令用一个模型实例创建多个 Session，并让 native scheduler 合并单 token decode：
 
 ```sh
-./dist/rwkv-cli run \
-  --model /absolute/path/to/mlx-model-directory \
-  --tokenizer /absolute/path/to/rwkv_vocab_v20230424.txt \
-  --prompt "你好"
+./dist/rwkv-cli concurrent \
+  --model /absolute/path/to/rwkv7-model-mlx \
+  --concurrency 4 \
+  --max-tokens 64 \
+  --concurrent-prompt "用一句话介绍 RWKV"
 ```
 
-省略 `--prompt` 会加载一次模型并进入交互模式。默认按 RWKV G1 的 chat 模板渲染用户输入，并使用 fast-thinking 标记；普通非 reasoning 模型可传 `--reasoning=false`。如需对原始文本做续写，传 `--raw`。
+输出会报告 `max_native_batch`。目标配置中它应达到 4，且每个 Session 的 callback、采样器、token、取消标志和 State 都彼此隔离。MLX FFI 支持 16 个物理 State slot；当前交付把业务活跃 batch 上限固定为 4，并为额外请求提供有界 FIFO 队列。
 
 ## 测试
 
-普通 Go 测试不要求本机已有原生构建：
+不依赖真实模型：
 
 ```sh
 go test ./...
+go test -race ./...
+./scripts/test-macos-native.sh
 ```
 
-构建 MLX Runtime 后，可执行真实模型集成测试：
+`test-macos-native.sh` 还会构建 AddressSanitizer 版本并运行 C ABI lifecycle test。
+
+使用已转换模型：
 
 ```sh
-RWKV_TEST_MODEL=/absolute/path/to/mlx-model-directory \
-RWKV_TEST_TOKENIZER=/absolute/path/to/rwkv_vocab_v20230424.txt \
-./scripts/test-mlx.sh
+RWKV_TEST_MODEL=/absolute/path/to/mlx-model \
+./scripts/test-macos-real-model.sh
 ```
 
-该脚本同时运行底层 native MLX 测试和统一推理核心的 backend contract tests。
-
-转换器也提供可选的实模回归测试；如果设置参考 safetensors，还会执行 SHA-256 一致性校验：
+直接使用 `.pth`：
 
 ```sh
-RWKV_TEST_PTH=/absolute/path/to/model.pth \
-RWKV_TEST_TOKENIZER=/absolute/path/to/rwkv_vocab_v20230424.txt \
-RWKV_TEST_CONVERTER_REFERENCE=/absolute/path/to/reference/model.safetensors \
-go test -tags converter ./internal/native/converter -run TestNativeConversion -v
+RWKV_TEST_PTH=/absolute/path/to/rwkv7-model.pth \
+./scripts/test-macos-real-model.sh
 ```
 
-运行时不加载 Python，也不启动外部推理进程或 HTTP Server。
+真实模型脚本覆盖转换、单轮生成、4 路 concurrent batch、保存、native State 恢复，以及移除 `state.bin` 后的 transcript replay。
 
 ## 分发注意
 
-当前固定的 `rwkv-mobile` revision 没有在仓库根目录提供明确的 LICENSE 文件。技术打包链已经可用，但公开分发前仍需确认上游源码及其预编译 `libMLXModelFFI.a` 的授权条件，并为 RWKV-Agent 选择自己的项目许可证。
+当前固定的 `rwkv-mobile` revision 没有在仓库根目录提供明确的 LICENSE 文件。技术打包链已经可用，但公开分发前仍需确认上游源码及预编译 `libMLXModelFFI.a` 的授权条件，并为 RWKV-Agent 选择项目许可证。

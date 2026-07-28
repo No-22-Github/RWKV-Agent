@@ -6,23 +6,31 @@ import (
 )
 
 var (
-	ErrInvalidArgument = errors.New("invalid inference argument")
-	ErrUnavailable     = errors.New("inference backend unavailable")
-	ErrUnsupported     = errors.New("inference operation unsupported")
-	ErrBusy            = errors.New("inference session busy")
-	ErrClosed          = errors.New("inference resource closed")
+	ErrInvalidArgument   = errors.New("invalid inference argument")
+	ErrUnavailable       = errors.New("inference backend unavailable")
+	ErrUnsupported       = errors.New("inference operation unsupported")
+	ErrBusy              = errors.New("inference session busy")
+	ErrClosed            = errors.New("inference resource closed")
+	ErrCancelled         = errors.New("inference operation cancelled")
+	ErrIncompatibleState = errors.New("incompatible inference State")
+	ErrCorruptState      = errors.New("corrupt inference State")
+	ErrCapacity          = errors.New("inference capacity exhausted")
+	ErrBackendFailure    = errors.New("inference backend failure")
 )
 
 type ErrorCode string
 
 const (
-	CodeInvalidArgument ErrorCode = "invalid_argument"
-	CodeUnavailable     ErrorCode = "unavailable"
-	CodeUnsupported     ErrorCode = "unsupported"
-	CodeBusy            ErrorCode = "busy"
-	CodeCancelled       ErrorCode = "cancelled"
-	CodeBackendFailure  ErrorCode = "backend_failure"
-	CodeClosed          ErrorCode = "closed"
+	CodeInvalidArgument   ErrorCode = "invalid_argument"
+	CodeUnavailable       ErrorCode = "unavailable"
+	CodeUnsupported       ErrorCode = "unsupported"
+	CodeBusy              ErrorCode = "busy"
+	CodeCancelled         ErrorCode = "cancelled"
+	CodeIncompatibleState ErrorCode = "incompatible_state"
+	CodeCorruptState      ErrorCode = "corrupt_state"
+	CodeCapacity          ErrorCode = "capacity"
+	CodeBackendFailure    ErrorCode = "backend_failure"
+	CodeClosed            ErrorCode = "closed"
 )
 
 type Error struct {

@@ -1,6 +1,6 @@
 # RWKV Mobile macOS CLI 完整实施计划
 
-状态：Implementation Plan v1.0
+状态：Implemented（Implementation Plan v1.0）
 
 分析日期：2026-07-28
 
@@ -12,6 +12,9 @@
 
 - [RWKV Mobile 采用方案与 CLI 多轮对话里程碑](rwkv-mobile-adoption-and-cli-milestone.md)
 - [跨平台推理核心设计](inference-core-design.md)
+- [macOS CLI 实施与验证记录](macos-cli-implementation-validation.md)
+
+实施说明：功能里程碑 PR 0–8 已在主分支方案中整体落地；当前交付按本机目标将 active continuous batch 配置为 4。内部 fork 目标通过主仓库内独立、版本化的 native facade 实现，固定 submodule 本身保持不修改，详见验证记录。
 
 ## 1. 最终交付结果
 

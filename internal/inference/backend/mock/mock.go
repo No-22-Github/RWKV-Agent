@@ -151,17 +151,18 @@ func (m *model) releaseSession(session *session) {
 }
 
 type session struct {
-	mu          sync.Mutex
-	model       *model
-	config      Config
-	closed      bool
-	busy        bool
-	cancel      context.CancelFunc
-	done        chan struct{}
-	generations uint64
-	revision    uint64
-	stateStatus string
-	lastTimings inference.Timings
+	mu           sync.Mutex
+	model        *model
+	config       Config
+	closed       bool
+	busy         bool
+	cancel       context.CancelFunc
+	done         chan struct{}
+	generations  uint64
+	revision     uint64
+	stateStatus  string
+	lastTimings  inference.Timings
+	prefixTokens []int32
 }
 
 func (s *session) Generate(
@@ -285,6 +286,46 @@ func (s *session) CountTokens(ctx context.Context, request inference.TokenCountR
 	return utf8.RuneCountInString(prompt), nil
 }
 
+func (s *session) Encode(ctx context.Context, text string) ([]int32, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+	tokens := make([]int32, 0, utf8.RuneCountInString(text))
+	for _, value := range text {
+		tokens = append(tokens, int32(value))
+	}
+	return tokens, nil
+}
+
+func (s *session) Prefill(
+	ctx context.Context,
+	request inference.PrefillRequest,
+	progress inference.ProgressSink,
+) (inference.PrefillResult, error) {
+	if err := ctx.Err(); err != nil {
+		return inference.PrefillResult{}, err
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.closed {
+		return inference.PrefillResult{}, &inference.Error{Op: "prefill", Code: inference.CodeClosed, Backend: BackendID, Err: inference.ErrClosed}
+	}
+	if s.busy {
+		return inference.PrefillResult{}, &inference.Error{Op: "prefill", Code: inference.CodeBusy, Backend: BackendID, Err: inference.ErrBusy}
+	}
+	s.prefixTokens = append(s.prefixTokens[:0], request.Tokens...)
+	if progress != nil {
+		if err := progress(inference.Progress{Stage: "prefill", Completed: int64(len(request.Tokens)), Total: int64(len(request.Tokens))}); err != nil {
+			return inference.PrefillResult{}, err
+		}
+	}
+	return inference.PrefillResult{
+		TokenCount:    len(request.Tokens),
+		PrefixHash:    strconv.Itoa(len(request.Tokens)),
+		StateRevision: strconv.FormatUint(s.revision, 10),
+	}, nil
+}
+
 func (s *session) Reset(ctx context.Context) error {
 	if err := ctx.Err(); err != nil {
 		return err
@@ -299,6 +340,7 @@ func (s *session) Reset(ctx context.Context) error {
 	}
 	s.revision++
 	s.stateStatus = "clean"
+	s.prefixTokens = nil
 	return nil
 }
 
@@ -312,8 +354,10 @@ func (s *session) StateInfo() inference.SessionStateInfo {
 		status = "generating"
 	}
 	return inference.SessionStateInfo{
-		Revision: strconv.FormatUint(s.revision, 10),
-		Status:   status,
+		Revision:                  strconv.FormatUint(s.revision, 10),
+		Status:                    status,
+		TokenCount:                len(s.prefixTokens),
+		CommittedPrefixTokenCount: len(s.prefixTokens),
 	}
 }
 
@@ -412,3 +456,4 @@ func (s *session) end() {
 var _ inference.Backend = (*Backend)(nil)
 var _ inference.Model = (*model)(nil)
 var _ inference.Session = (*session)(nil)
+var _ inference.Tokenizer = (*session)(nil)

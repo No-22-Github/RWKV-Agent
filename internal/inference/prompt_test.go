@@ -63,3 +63,27 @@ func TestCompileGeneratePromptRejectsAmbiguousInput(t *testing.T) {
 		t.Fatalf("error = %v, want ErrInvalidArgument", err)
 	}
 }
+
+func TestCompileCommittedPromptGolden(t *testing.T) {
+	t.Parallel()
+	messages := []Message{
+		TextMessage(RoleSystem, "be concise"),
+		TextMessage(RoleUser, "hello"),
+		TextMessage(RoleAssistant, "hi"),
+		TextMessage(RoleUser, "again"),
+	}
+	got, err := CompileCommittedPrompt(messages, PromptOptions{Reasoning: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := "<|bos|>System: be concise\n\nUser: hello\n\nAssistant: hi\n\nUser: again\n\n"
+	if got != want {
+		t.Fatalf("committed prompt = %q, want %q", got, want)
+	}
+	profile := DefaultPromptProfile(true)
+	if profile.TemplateID != PromptTemplateID ||
+		profile.TemplateVersion != PromptTemplateVersion ||
+		profile.ProfileHash == "" {
+		t.Fatalf("invalid prompt profile: %+v", profile)
+	}
+}
