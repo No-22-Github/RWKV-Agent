@@ -4,6 +4,8 @@
 
 推理核心的跨平台接口、Session、Capability 和 RWKV State 语义见
 [`docs/inference-core-design.md`](docs/inference-core-design.md)。
+RWKV Mobile 的采用边界，以及终端多轮对话与 State 管理的短期实施计划见
+[`docs/rwkv-mobile-adoption-and-cli-milestone.md`](docs/rwkv-mobile-adoption-and-cli-milestone.md)。
 
 当前最小可运行版本使用 [`rwkv-mobile`](https://github.com/MollySophia/rwkv-mobile) 的 C++ Runtime 和 MLX 后端：
 
