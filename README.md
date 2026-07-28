@@ -16,6 +16,7 @@ rwkv-cli
 - [`docs/inference-core-design.md`](docs/inference-core-design.md)
 - [`docs/rwkv-mobile-adoption-and-cli-milestone.md`](docs/rwkv-mobile-adoption-and-cli-milestone.md)
 - [`docs/rwkv-mobile-macos-cli-implementation-plan.md`](docs/rwkv-mobile-macos-cli-implementation-plan.md)
+- [`docs/rwkv-cli-tui-redesign-plan.md`](docs/rwkv-cli-tui-redesign-plan.md)
 
 ## 环境
 
