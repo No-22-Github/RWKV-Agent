@@ -2,6 +2,10 @@
 
 RWKV-Agent 当前提供一个可分发的 Apple Silicon macOS 本地 CLI。Go 负责 Conversation 事务、Session 持久化和终端交互；独立的 `librwkv_agent_runtime.dylib` 通过固定版本的 RWKV Mobile tokenizer/sampler 与 MLX FFI 执行推理。运行时不依赖 Python、PyTorch、HTTP 服务或外部进程。
 
+> 当前真正可用的是 Apple Silicon macOS 15+ 源码构建；Windows 和 Linux 是目标平台，
+> 但还没有可用入口。第一次使用请直接看
+> [`macOS 从零上手`](docs/getting-started-macos.md)。
+
 ```text
 rwkv-cli
   → Conversation（transcript / revision / rollback / replay）
@@ -13,6 +17,7 @@ rwkv-cli
 
 详细设计和验收范围见：
 
+- [`docs/getting-started-macos.md`](docs/getting-started-macos.md)
 - [`docs/inference-core-design.md`](docs/inference-core-design.md)
 - [`docs/direct-pth-loading.md`](docs/direct-pth-loading.md)
 - [`docs/rwkv-mobile-adoption-and-cli-milestone.md`](docs/rwkv-mobile-adoption-and-cli-milestone.md)
@@ -35,7 +40,21 @@ rwkv-cli
 git submodule update --init --recursive
 ```
 
+命令行依赖可通过 Homebrew 安装：
+
+```sh
+brew install cmake ninja go
+```
+
 ## 构建
+
+先检查环境，不进行编译：
+
+```sh
+./scripts/build-macos.sh --check
+```
+
+然后构建：
 
 ```sh
 ./scripts/build-macos.sh
@@ -43,7 +62,8 @@ git submodule update --init --recursive
 
 构建脚本固定 `arm64` 和 `MACOSX_DEPLOYMENT_TARGET=15.0`，从固定 revision 构建带直接
 PTH 入口的 MLX FFI，并验证 dylib、rpath、Metal resource、deployment target 和 CLI
-help smoke test。首次构建会拉取 MLX Swift 依赖，后续复用 `build/` 中的构建缓存。产物如下：
+help smoke test。缺少 submodule 时会自动初始化。首次构建会拉取 MLX Swift 依赖，后续
+复用 `build/` 中的构建缓存；旧版留下的部分补丁缓存也会自动修复。产物如下：
 
 ```text
 dist/
@@ -57,6 +77,8 @@ dist/
 ```
 
 `scripts/build-mlx.sh` 仍保留为兼容入口，但会转发到 `build-macos.sh`。
+安装、运行、更新和常见错误的完整说明见
+[`docs/getting-started-macos.md`](docs/getting-started-macos.md)。
 
 ## 直接运行 `.pth`（推荐）
 

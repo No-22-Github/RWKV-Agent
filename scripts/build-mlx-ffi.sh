@@ -31,12 +31,35 @@ if [[ "$actual_commit" != "$upstream_commit" ]]; then
 fi
 
 ffi_source="$source_dir/Tools/MLXModelFFI/MLXModelFFI.swift"
+if git -C "$source_dir" apply --unidiff-zero --reverse --check "$patch_path" >/dev/null 2>&1; then
+  echo "Using prepared MLX Swift source cache."
+elif git -C "$source_dir" apply --unidiff-zero --check "$patch_path" >/dev/null 2>&1; then
+  git -C "$source_dir" apply --unidiff-zero "$patch_path"
+else
+  echo "Repairing a stale or partially patched MLX Swift source cache..." >&2
+  git -C "$source_dir" restore \
+    --source="$upstream_commit" \
+    --staged \
+    --worktree \
+    -- \
+    Tools/MLXModelFFI/MLXModelFFI.swift
+
+  if ! git -C "$source_dir" apply --unidiff-zero --check "$patch_path"; then
+    echo "Could not prepare the pinned MLX Swift source." >&2
+    echo "Move this generated cache aside and retry:" >&2
+    echo "  mv \"$source_dir\" \"${source_dir}.old\"" >&2
+    exit 1
+  fi
+  git -C "$source_dir" apply --unidiff-zero "$patch_path"
+fi
+
 if ! grep -Fq '@_cdecl("mlx_model_load_pth")' "$ffi_source"; then
-  git -C "$source_dir" apply --check "$patch_path"
-  git -C "$source_dir" apply "$patch_path"
+  echo "Prepared MLX Swift source is missing the direct PTH entry point." >&2
+  exit 1
 fi
 
 xcodebuild \
+  -quiet \
   -project "$source_dir/mlx-swift-examples.xcodeproj" \
   -scheme MLXModelFFI \
   -configuration Release \
