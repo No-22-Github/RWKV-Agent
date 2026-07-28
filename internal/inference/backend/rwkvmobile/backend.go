@@ -1,6 +1,7 @@
 package rwkvmobile
 
 import (
+	"archive/zip"
 	"context"
 	"crypto/sha256"
 	"errors"
@@ -57,7 +58,7 @@ func (b *Backend) Info() inference.BackendInfo {
 			Name: "Apple Silicon",
 			Kind: "gpu",
 		},
-		Formats:           []inference.ModelFormat{"mlx-safetensors"},
+		Formats:           []inference.ModelFormat{"rwkv-pth", "mlx-safetensors"},
 		Capabilities:      advertisedCapabilities(b.options.MaxActiveBatch),
 		Available:         available,
 		UnavailableReason: reason,
@@ -96,7 +97,11 @@ func (b *Backend) ProbeModel(ctx context.Context, source inference.ModelSource) 
 	if err := validateSource(source); err != nil {
 		return inference.ModelInfo{}, wrap("probe model", inference.CodeInvalidArgument, err)
 	}
-	modelFingerprint, err := fingerprintFiles(source.Path, "*.safetensors", "config.json")
+	format, err := sourceFormat(source.Path)
+	if err != nil {
+		return inference.ModelInfo{}, wrap("probe model", inference.CodeInvalidArgument, err)
+	}
+	modelFingerprint, err := fingerprintModel(source.Path, format)
 	if err != nil {
 		return inference.ModelInfo{}, wrap("fingerprint model", inference.CodeBackendFailure, err)
 	}
@@ -104,12 +109,16 @@ func (b *Backend) ProbeModel(ctx context.Context, source inference.ModelSource) 
 	if err != nil {
 		return inference.ModelInfo{}, wrap("fingerprint tokenizer", inference.CodeBackendFailure, err)
 	}
+	modelID := filepath.Base(source.Path)
+	if format == "rwkv-pth" {
+		modelID = strings.TrimSuffix(modelID, filepath.Ext(modelID))
+	}
 	return inference.ModelInfo{
-		ID:                   inference.ModelID(filepath.Base(source.Path)),
+		ID:                   inference.ModelID(modelID),
 		Fingerprint:          "sha256:" + modelFingerprint,
 		TokenizerFingerprint: "sha256:" + tokenizerFingerprint,
 		Architecture:         "rwkv-7",
-		Format:               "mlx-safetensors",
+		Format:               format,
 		Backend:              BackendID,
 	}, nil
 }
@@ -142,6 +151,7 @@ func (b *Backend) LoadModel(
 		Path:          request.Source.Path,
 		TokenizerPath: tokenizerPath(request.Source),
 		Provider:      b.options.Provider,
+		IndexPath:     pthIndexPath(request.Source.Path),
 	})
 	if err != nil {
 		_ = nativeRuntime.Close()
@@ -182,23 +192,32 @@ func tokenizerPath(source inference.ModelSource) string {
 	if source.TokenizerPath != "" {
 		return source.TokenizerPath
 	}
+	if strings.EqualFold(filepath.Ext(source.Path), ".pth") {
+		return filepath.Join(
+			filepath.Dir(source.Path),
+			"rwkv_vocab_v20230424.txt")
+	}
 	return filepath.Join(source.Path, "rwkv_vocab_v20230424.txt")
 }
 
 func validateSource(source inference.ModelSource) error {
 	info, err := os.Stat(source.Path)
 	if err != nil {
-		return fmt.Errorf("model directory: %w", err)
+		return fmt.Errorf("model path: %w", err)
 	}
-	if !info.IsDir() {
-		return fmt.Errorf("%w: model path is not a directory", inference.ErrInvalidArgument)
-	}
-	if _, err := os.Stat(filepath.Join(source.Path, "config.json")); err != nil {
-		return fmt.Errorf("model config: %w", err)
-	}
-	weights, err := filepath.Glob(filepath.Join(source.Path, "*.safetensors"))
-	if err != nil || len(weights) == 0 {
-		return fmt.Errorf("%w: no safetensors weights", inference.ErrInvalidArgument)
+	if info.IsDir() {
+		if _, err := os.Stat(filepath.Join(source.Path, "config.json")); err != nil {
+			return fmt.Errorf("model config: %w", err)
+		}
+		weights, err := filepath.Glob(filepath.Join(source.Path, "*.safetensors"))
+		if err != nil || len(weights) == 0 {
+			return fmt.Errorf("%w: no safetensors weights", inference.ErrInvalidArgument)
+		}
+	} else if !info.Mode().IsRegular() ||
+		!strings.EqualFold(filepath.Ext(source.Path), ".pth") {
+		return fmt.Errorf(
+			"%w: model must be an RWKV .pth file or MLX model directory",
+			inference.ErrInvalidArgument)
 	}
 	if _, err := os.Stat(tokenizerPath(source)); err != nil {
 		return fmt.Errorf("tokenizer: %w", err)
@@ -206,7 +225,28 @@ func validateSource(source inference.ModelSource) error {
 	return nil
 }
 
-func fingerprintFiles(directory string, pattern string, required ...string) (string, error) {
+func sourceFormat(path string) (inference.ModelFormat, error) {
+	info, err := os.Stat(path)
+	if err != nil {
+		return "", err
+	}
+	if !info.IsDir() && strings.EqualFold(filepath.Ext(path), ".pth") {
+		return "rwkv-pth", nil
+	}
+	if info.IsDir() {
+		return "mlx-safetensors", nil
+	}
+	return "", fmt.Errorf("%w: unsupported model path", inference.ErrInvalidArgument)
+}
+
+func fingerprintModel(path string, format inference.ModelFormat) (string, error) {
+	if format == "rwkv-pth" {
+		return fingerprintPTH(path)
+	}
+	return fingerprintFileStats(path, "*.safetensors", "config.json")
+}
+
+func fingerprintFileStats(directory string, pattern string, required ...string) (string, error) {
 	files, err := filepath.Glob(filepath.Join(directory, pattern))
 	if err != nil {
 		return "", err
@@ -217,13 +257,61 @@ func fingerprintFiles(directory string, pattern string, required ...string) (str
 	sort.Strings(files)
 	digest := sha256.New()
 	for _, path := range files {
-		fileDigest, err := fingerprintFile(path)
+		info, err := os.Stat(path)
 		if err != nil {
 			return "", err
 		}
-		fmt.Fprintf(digest, "%s\x00%s\x00", filepath.Base(path), fileDigest)
+		fmt.Fprintf(
+			digest,
+			"%s\x00%d\x00%d\x00",
+			filepath.Base(path),
+			info.Size(),
+			info.ModTime().UnixNano())
 	}
 	return fmt.Sprintf("%x", digest.Sum(nil)), nil
+}
+
+func fingerprintPTH(path string) (string, error) {
+	reader, err := zip.OpenReader(path)
+	if err != nil {
+		return "", err
+	}
+	defer reader.Close()
+
+	files := append([]*zip.File(nil), reader.File...)
+	sort.Slice(files, func(left, right int) bool {
+		return files[left].Name < files[right].Name
+	})
+	digest := sha256.New()
+	fmt.Fprint(digest, "rwkv-agent-pth-zip-v1\x00")
+	for _, file := range files {
+		fmt.Fprintf(
+			digest,
+			"%s\x00%d\x00%d\x00%d\x00",
+			file.Name,
+			file.CRC32,
+			file.UncompressedSize64,
+			file.Method)
+	}
+	return fmt.Sprintf("%x", digest.Sum(nil)), nil
+}
+
+func pthIndexPath(path string) string {
+	if !strings.EqualFold(filepath.Ext(path), ".pth") {
+		return ""
+	}
+	cacheRoot, err := os.UserCacheDir()
+	if err != nil {
+		return ""
+	}
+	absolute, err := filepath.Abs(path)
+	if err != nil {
+		return ""
+	}
+	digest := sha256.Sum256(
+		[]byte("rwkv-agent-pth-index-path-v1\x00" + absolute))
+	key := fmt.Sprintf("%x", digest[:])
+	return filepath.Join(cacheRoot, "RWKV-Agent", "pth-index", "v1", key+".rwkvi")
 }
 
 func fingerprintFile(path string) (string, error) {

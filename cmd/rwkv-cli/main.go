@@ -77,9 +77,9 @@ func main() {
 func usage() {
 	fmt.Fprintln(os.Stderr, `Usage:
   rwkv-cli convert --input <RWKV .pth> --output <MLX model directory>
-  rwkv-cli run --model <MLX model directory> [--prompt <text> | --session <bundle>]
-  rwkv-cli concurrent --model <MLX model directory> [--concurrency 1..8] [--ui auto|tui|plain]
-  rwkv-cli bench --model <MLX model directory> [--concurrency 1..8]`)
+  rwkv-cli run --model <RWKV .pth or MLX directory> [--prompt <text> | --session <bundle>]
+  rwkv-cli concurrent --model <RWKV .pth or MLX directory> [--concurrency 1..8] [--ui auto|tui|plain]
+  rwkv-cli bench --model <RWKV .pth or MLX directory> [--concurrency 1..8]`)
 }
 
 func convertModel(args []string) error {
@@ -137,10 +137,10 @@ func bundledTokenizerPath() (string, error) {
 func parseRunOptions(name string, args []string) (runOptions, error) {
 	var options runOptions
 	fs := flag.NewFlagSet(name, flag.ContinueOnError)
-	fs.StringVar(&options.modelPath, "model", "", "MLX model directory")
+	fs.StringVar(&options.modelPath, "model", "", "RWKV .pth file or MLX model directory")
 	fs.StringVar(&options.backend, "backend", "auto", "inference backend: auto or rwkvmobile")
 	fs.StringVar(&options.provider, "provider", "auto", "native provider: auto or mlx")
-	fs.StringVar(&options.tokenizer, "tokenizer", "", "RWKV World tokenizer; defaults to model directory")
+	fs.StringVar(&options.tokenizer, "tokenizer", "", "RWKV World tokenizer; bundled automatically for .pth")
 	fs.IntVar(&options.maxTokens, "max-tokens", 256, "maximum generated tokens")
 	fs.Float64Var(&options.temperature, "temperature", 1, "sampling temperature")
 	fs.IntVar(&options.topK, "top-k", 128, "top-k sampling cutoff")
@@ -173,7 +173,15 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		return options, fmt.Errorf("%s requires --model", name)
 	}
 	if options.tokenizer == "" {
-		options.tokenizer = filepath.Join(options.modelPath, "rwkv_vocab_v20230424.txt")
+		if strings.EqualFold(filepath.Ext(options.modelPath), ".pth") {
+			tokenizer, err := bundledTokenizerPath()
+			if err != nil {
+				return options, err
+			}
+			options.tokenizer = tokenizer
+		} else {
+			options.tokenizer = filepath.Join(options.modelPath, "rwkv_vocab_v20230424.txt")
+		}
 	}
 	if options.backend == "mlx" {
 		options.backend = string(rwkvbackend.BackendID)

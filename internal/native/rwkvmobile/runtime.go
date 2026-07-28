@@ -46,6 +46,7 @@ type ModelOptions struct {
 	Path          string
 	TokenizerPath string
 	Provider      string
+	IndexPath     string
 }
 
 type Capabilities struct {

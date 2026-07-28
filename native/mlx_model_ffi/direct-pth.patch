@@ -1,0 +1,133 @@
+diff --git a/Tools/MLXModelFFI/MLXModelFFI.swift b/Tools/MLXModelFFI/MLXModelFFI.swift
+index 8b92288..a004c51 100644
+--- a/Tools/MLXModelFFI/MLXModelFFI.swift
++++ b/Tools/MLXModelFFI/MLXModelFFI.swift
+@@ -11,0 +12 @@ import MLX
++import MLXNN
+@@ -52,2 +53 @@ private func intValue(_ value: Any?) -> Int? {
+-private func readFFIModelConfig(from configurationURL: URL) throws -> FFIModelConfig {
+-    let configData = try Data(contentsOf: configurationURL)
++private func readFFIModelConfig(from configData: Data) throws -> FFIModelConfig {
+@@ -75,0 +76,4 @@ private func readFFIModelConfig(from configurationURL: URL) throws -> FFIModelCo
++private func readFFIModelConfig(from configurationURL: URL) throws -> FFIModelConfig {
++    try readFFIModelConfig(from: Data(contentsOf: configurationURL))
++}
++
+@@ -149,0 +154,117 @@ public func mlx_model_load(_ cPath: UnsafePointer<CChar>?) -> UnsafeMutableRawPo
++public typealias PthTensorProvider = @convention(c) (
++    UnsafeMutableRawPointer?,
++    Int32,
++    UnsafeMutablePointer<UnsafePointer<CChar>?>?,
++    UnsafeMutablePointer<UnsafeRawPointer?>?,
++    UnsafeMutablePointer<Int>?,
++    UnsafeMutablePointer<UnsafePointer<Int32>?>?,
++    UnsafeMutablePointer<Int32>?,
++    UnsafeMutablePointer<Int32>?,
++    UnsafeMutablePointer<Int32>?
++) -> Int32
++
++@_cdecl("mlx_model_load_pth")
++public func mlx_model_load_pth(
++    _ configJSON: UnsafePointer<CChar>?,
++    _ tensorCount: Int32,
++    _ provider: PthTensorProvider?,
++    _ userData: UnsafeMutableRawPointer?
++) -> UnsafeMutableRawPointer? {
++    guard let configJSON else {
++        setFFIError("PTH config JSON is null")
++        return nil
++    }
++    guard tensorCount > 0 else {
++        setFFIError("PTH tensor count must be positive")
++        return nil
++    }
++    guard let provider else {
++        setFFIError("PTH tensor provider is null")
++        return nil
++    }
++
++    do {
++        let configData = Data(bytes: configJSON, count: strlen(configJSON))
++        let modelConfig = try JSONDecoder().decode(Rwkv7Configuration.self, from: configData)
++        let ffiConfig = try readFFIModelConfig(from: configData)
++        let model = Rwkv7Model(modelConfig)
++        var weights = [String: MLXArray]()
++        weights.reserveCapacity(Int(tensorCount))
++
++        for index in 0..<tensorCount {
++            var name: UnsafePointer<CChar>?
++            var bytes: UnsafeRawPointer?
++            var byteCount = 0
++            var shapePointer: UnsafePointer<Int32>?
++            var rank: Int32 = 0
++            var dtype: Int32 = 0
++            var transform: Int32 = 0
++            let result = provider(
++                userData,
++                index,
++                &name,
++                &bytes,
++                &byteCount,
++                &shapePointer,
++                &rank,
++                &dtype,
++                &transform)
++            guard result == 0, let name, let bytes, let shapePointer, rank > 0, byteCount > 0 else {
++                throw NSError(
++                    domain: "MLXModelFFI",
++                    code: 20,
++                    userInfo: [NSLocalizedDescriptionKey: "PTH tensor provider failed at index \(index)"])
++            }
++            let shape = UnsafeBufferPointer(start: shapePointer, count: Int(rank)).map(Int.init)
++            let data = Data(
++                bytesNoCopy: UnsafeMutableRawPointer(mutating: bytes),
++                count: byteCount,
++                deallocator: .none)
++            let mlxDType: DType
++            switch dtype {
++            case 0:
++                mlxDType = .float32
++            case 1:
++                mlxDType = .float16
++            case 2:
++                mlxDType = .bfloat16
++            default:
++                throw NSError(
++                    domain: "MLXModelFFI",
++                    code: 21,
++                    userInfo: [NSLocalizedDescriptionKey: "unsupported PTH dtype \(dtype)"])
++            }
++            var array = MLXArray(data, shape, dtype: mlxDType)
++            if transform == 1 {
++                guard shape.count == 2 else {
++                    throw NSError(
++                        domain: "MLXModelFFI",
++                        code: 22,
++                        userInfo: [NSLocalizedDescriptionKey: "PTH transpose requires rank 2"])
++                }
++                array = array.transposed()
++            } else if transform != 0 {
++                throw NSError(
++                    domain: "MLXModelFFI",
++                    code: 23,
++                    userInfo: [NSLocalizedDescriptionKey: "unsupported PTH transform \(transform)"])
++            }
++            weights[String(cString: name)] = array
++        }
++
++        weights = model.sanitize(weights: weights)
++        let parameters = ModuleParameters.unflattened(weights)
++        try model.update(parameters: parameters, verify: [.all])
++        eval(model)
++
++        let context = ModelContext(
++            modelDirectory: URL(filePath: ""),
++            model: model,
++            config: ffiConfig)
++        return Unmanaged.passRetained(context).toOpaque()
++    } catch {
++        setFFIError("direct PTH load failed: \(error)")
++        return nil
++    }
++}
++

@@ -15,13 +15,7 @@ fi
 
 mkdir -p "$work_dir"
 if [[ -z "$model_path" ]]; then
-  model_path="$work_dir/model-mlx"
-  if [[ ! -f "$model_path/model.safetensors" ]]; then
-    "$repo_root/dist/rwkv-cli" convert \
-      --input "$pth_path" \
-      --output "$model_path" \
-      --tokenizer "$tokenizer_path"
-  fi
+  model_path="$pth_path"
 fi
 
 export RWKV_TEST_MODEL="$model_path"

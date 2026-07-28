@@ -1,0 +1,77 @@
+diff --git a/src/pth_loader.h b/src/pth_loader.h
+index bf00767..37a2857 100644
+--- a/src/pth_loader.h
++++ b/src/pth_loader.h
+@@ -3,0 +4 @@
++#include <cstddef>
+@@ -25,0 +27,6 @@ struct PthTensorInfo {
++    std::string storage_key;
++};
++
++struct PthTensorView {
++    const void *data = nullptr;
++    size_t byte_count = 0;
+@@ -30,0 +38 @@ public:
++    PthFile(const std::string &path, const std::vector<PthTensorInfo> &index);
+@@ -38,0 +47 @@ public:
++    bool read_tensor_view(const std::string &name, PthTensorView &view) const;
+diff --git a/src/pth_loader.cpp b/src/pth_loader.cpp
+index 9e4bf3d..75b7359 100644
+--- a/src/pth_loader.cpp
++++ b/src/pth_loader.cpp
+@@ -537 +537 @@ struct PthFile::Impl {
+-    explicit Impl(const std::string &path) : zip(path) {
++    void find_prefix() {
+@@ -546,0 +547,4 @@ struct PthFile::Impl {
++    }
++
++    explicit Impl(const std::string &path) : zip(path) {
++        find_prefix();
+@@ -559,0 +564 @@ struct PthFile::Impl {
++            info.storage_key = r.storage_key;
+@@ -564,0 +570,22 @@ struct PthFile::Impl {
++    Impl(const std::string &path, const std::vector<PthTensorInfo> &index)
++        : zip(path) {
++        find_prefix();
++        records.reserve(index.size());
++        infos.reserve(index.size());
++        for (const auto &info : index) {
++            if (info.name.empty() || info.storage_key.empty()) {
++                throw std::runtime_error("invalid cached pth tensor index");
++            }
++            TensorRecord record;
++            record.name = info.name;
++            record.storage_key = info.storage_key;
++            record.dtype = info.dtype;
++            record.storage_size = info.storage_size;
++            record.offset = info.offset;
++            record.shape = info.shape;
++            record.stride = info.stride;
++            records.emplace(record.name, std::move(record));
++            infos.emplace(info.name, info);
++        }
++    }
++
+@@ -579,0 +607,3 @@ PthFile::PthFile(const std::string &path) : impl_(new Impl(path)) {}
++PthFile::PthFile(const std::string &path, const std::vector<PthTensorInfo> &index)
++    : impl_(new Impl(path, index)) {}
++
+@@ -601,0 +632,18 @@ std::vector<std::string> PthFile::tensor_names() const {
++bool PthFile::read_tensor_view(
++    const std::string &name,
++    PthTensorView &view) const {
++    view = {};
++    const TensorRecord *record = impl_->record(name);
++    if (!record || !contiguous(record->shape, record->stride)) return false;
++    const uint64_t elements = numel(record->shape);
++    if (record->offset > record->storage_size ||
++        elements > record->storage_size - record->offset) {
++        throw std::runtime_error("pth tensor view is out of storage bounds: " + name);
++    }
++    const size_t element_size = dtype_size(record->dtype);
++    view.data =
++        impl_->storage(*record) + record->offset * element_size;
++    view.byte_count = static_cast<size_t>(elements) * element_size;
++    return true;
++}
++

@@ -170,14 +170,17 @@ func (r *nativeRuntime) loadModel(options ModelOptions) (modelImpl, error) {
 	modelPath := C.CString(options.Path)
 	tokenizerPath := C.CString(options.TokenizerPath)
 	provider := C.CString(options.Provider)
+	indexPath := C.CString(options.IndexPath)
 	defer C.free(unsafe.Pointer(modelPath))
 	defer C.free(unsafe.Pointer(tokenizerPath))
 	defer C.free(unsafe.Pointer(provider))
+	defer C.free(unsafe.Pointer(indexPath))
 	nativeOptions := C.rwa_model_options{
 		struct_size:    C.uint32_t(C.sizeof_rwa_model_options),
 		model_path:     modelPath,
 		tokenizer_path: tokenizerPath,
 		provider:       provider,
+		index_path:     indexPath,
 	}
 	var handle *C.rwa_model
 	status := C.rwa_model_load(r.handle, &nativeOptions, &handle)

@@ -12,19 +12,38 @@ endif()
 set(RWKV_MOBILE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../third_party/rwkv-mobile")
 set(RWKV_MOBILE_SRC "${RWKV_MOBILE_DIR}/src")
 set(MLX_DIR "${RWKV_MOBILE_SRC}/backends/mlx")
-set(MLX_LIB "${MLX_DIR}/prebuilt/macos-arm64/libMLXModelFFI.a")
+set(RWKV_PTH_LOADER_DIR "${CMAKE_BINARY_DIR}/pth-loader")
+execute_process(
+    COMMAND
+        "${CMAKE_CURRENT_SOURCE_DIR}/../../scripts/prepare-pth-loader.sh"
+        "${RWKV_PTH_LOADER_DIR}"
+    COMMAND_ERROR_IS_FATAL ANY
+)
+set(
+    RWKV_AGENT_MLX_LIB
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../build/native/mlx-ffi/libMLXModelFFI.a"
+    CACHE FILEPATH
+    "MLXModelFFI static library")
+set(MLX_LIB "${RWKV_AGENT_MLX_LIB}")
 
 if(NOT EXISTS "${MLX_LIB}")
-    message(FATAL_ERROR "Pinned MLXModelFFI library is missing: ${MLX_LIB}")
+    message(FATAL_ERROR
+        "Direct-PTH MLXModelFFI is missing: ${MLX_LIB}. "
+        "Run scripts/build-mlx-ffi.sh first.")
 endif()
 
 add_library(rwkv_agent_runtime SHARED
     rwkv_agent_runtime.cpp
+    rwkv_pth_model.cpp
+    "../rwkv_model_schema/rwkv7_schema.cpp"
+    "${RWKV_PTH_LOADER_DIR}/pth_loader.cpp"
     "${RWKV_MOBILE_SRC}/tokenizer.cpp"
     "${RWKV_MOBILE_SRC}/sampler.cpp"
 )
 
 target_include_directories(rwkv_agent_runtime PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/../rwkv_model_schema"
+    "${RWKV_PTH_LOADER_DIR}"
     "${RWKV_MOBILE_SRC}"
     "${MLX_DIR}/include"
 )
@@ -70,4 +89,14 @@ if(BUILD_TESTING)
     add_executable(rwkv_agent_runtime_lifecycle_test runtime_lifecycle_test.cpp)
     target_link_libraries(rwkv_agent_runtime_lifecycle_test PRIVATE rwkv_agent_runtime)
     add_test(NAME rwkv_agent_runtime_lifecycle COMMAND rwkv_agent_runtime_lifecycle_test)
+
+    add_executable(
+        rwkv7_index_test
+        "../rwkv_model_schema/rwkv7_index_test.cpp"
+        "../rwkv_model_schema/rwkv7_schema.cpp"
+        "${RWKV_PTH_LOADER_DIR}/pth_loader.cpp")
+    target_include_directories(rwkv7_index_test PRIVATE
+        "${CMAKE_CURRENT_SOURCE_DIR}/../rwkv_model_schema"
+        "${RWKV_PTH_LOADER_DIR}")
+    add_test(NAME rwkv7_index_round_trip COMMAND rwkv7_index_test)
 endif()

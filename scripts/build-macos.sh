@@ -5,6 +5,7 @@ repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source_dir="$repo_root/third_party/rwkv-mobile"
 runtime_source_dir="$repo_root/native/rwkv_agent_runtime"
 runtime_build_dir="$repo_root/build/native/agent-runtime"
+mlx_ffi_dir="$repo_root/build/native/mlx-ffi"
 dist_dir="$repo_root/dist"
 resource_dir="$dist_dir/mlx-swift_Cmlx.bundle/Contents/Resources"
 asset_dir="$dist_dir/assets"
@@ -29,15 +30,18 @@ fi
 
 export MACOSX_DEPLOYMENT_TARGET="$deployment_target"
 
+"$repo_root/scripts/build-mlx-ffi.sh"
+
 cmake -S "$runtime_source_dir" -B "$runtime_build_dir" -G Ninja \
   -DCMAKE_BUILD_TYPE=Release \
   -DCMAKE_OSX_ARCHITECTURES=arm64 \
-  -DCMAKE_OSX_DEPLOYMENT_TARGET="$deployment_target"
+  -DCMAKE_OSX_DEPLOYMENT_TARGET="$deployment_target" \
+  -DRWKV_AGENT_MLX_LIB="$mlx_ffi_dir/libMLXModelFFI.a"
 cmake --build "$runtime_build_dir" --target rwkv_agent_runtime -j
 
 mkdir -p "$dist_dir" "$resource_dir" "$asset_dir"
 cp "$runtime_build_dir/librwkv_agent_runtime.dylib" "$dist_dir/librwkv_agent_runtime.dylib"
-cp "$source_dir/src/backends/mlx/prebuilt/macos-arm64/default.metallib" "$resource_dir/default.metallib"
+cp "$mlx_ffi_dir/default.metallib" "$resource_dir/default.metallib"
 cp "$source_dir/assets/rwkv_vocab_v20230424.txt" "$asset_dir/rwkv_vocab_v20230424.txt"
 
 (
@@ -76,7 +80,7 @@ printf '%s\n' \
   '{' \
   '  "schema_version": 1,' \
   "  \"commit\": \"$commit\"," \
-  '  "runtime_abi_version": 1,' \
+  '  "runtime_abi_version": 2,' \
   "  \"go_version\": \"$go_version\"," \
   "  \"deployment_target\": \"$deployment_target\"," \
   '  "sha256": {' \

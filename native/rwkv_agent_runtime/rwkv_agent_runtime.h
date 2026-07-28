@@ -14,7 +14,7 @@ extern "C" {
 #define RWA_API __attribute__((visibility("default")))
 #endif
 
-#define RWA_ABI_VERSION 1u
+#define RWA_ABI_VERSION 2u
 #define RWA_CAP_NATIVE_STATE (1ull << 0)
 #define RWA_CAP_CONTINUOUS_BATCH (1ull << 1)
 #define RWA_CAP_EXACT_TOKENS (1ull << 2)
@@ -70,6 +70,7 @@ typedef struct rwa_model_options {
     const char *model_path;
     const char *tokenizer_path;
     const char *provider;
+    const char *index_path;
 } rwa_model_options;
 
 typedef struct rwa_session_options {

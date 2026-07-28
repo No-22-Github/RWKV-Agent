@@ -1,6 +1,7 @@
 #include "rwkv_agent_runtime.h"
 
 #include "MLXModelFFI.h"
+#include "rwkv_pth_model.h"
 #include "sampler.h"
 #include "tensor.h"
 #include "tokenizer.h"
@@ -8,10 +9,12 @@
 #include <algorithm>
 #include <atomic>
 #include <chrono>
+#include <cctype>
 #include <condition_variable>
 #include <cstdint>
 #include <cstring>
 #include <deque>
+#include <filesystem>
 #include <limits>
 #include <map>
 #include <memory>
@@ -37,6 +40,17 @@ constexpr size_t kMaxStateBytes = size_t(1) << 30;
 constexpr char kStateMagic[8] = {'R', 'W', 'A', 'S', 'T', 'A', 'T', 'E'};
 constexpr uint32_t kStateVersion = 1;
 constexpr const char *kCodecID = "mlx-fp16-cache-logits";
+
+bool is_pth_path(const char *path) {
+    if (path == nullptr) return false;
+    std::string extension = std::filesystem::path(path).extension().string();
+    std::transform(
+        extension.begin(),
+        extension.end(),
+        extension.begin(),
+        [](unsigned char ch) { return static_cast<char>(std::tolower(ch)); });
+    return extension == ".pth";
+}
 
 uint64_t prefix_hash(const std::vector<int32_t> &tokens) {
     uint64_t hash = 1469598103934665603ull;
@@ -855,9 +869,24 @@ rwa_status rwa_model_load(
         runtime->error.set("load RWKV tokenizer failed");
         return RWA_BACKEND_FAILURE;
     }
-    model->mlx = mlx_model_load(options->model_path);
+    std::string direct_pth_error;
+    if (is_pth_path(options->model_path)) {
+        model->mlx = rwkv_agent_load_pth_model(
+            options->model_path,
+            options->index_path == nullptr ? "" : options->index_path,
+            direct_pth_error);
+    } else {
+        model->mlx = mlx_model_load(options->model_path);
+    }
     if (model->mlx == nullptr) {
-        runtime->error.set(mlx_error("load MLX model"));
+        std::string message = mlx_error(
+            is_pth_path(options->model_path)
+                ? "load RWKV .pth directly"
+                : "load MLX model");
+        if (!direct_pth_error.empty()) {
+            message += ": " + direct_pth_error;
+        }
+        runtime->error.set(std::move(message));
         return RWA_BACKEND_FAILURE;
     }
     if (mlx_model_get_config(

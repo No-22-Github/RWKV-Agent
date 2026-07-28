@@ -14,6 +14,7 @@ rwkv-cli
 详细设计和验收范围见：
 
 - [`docs/inference-core-design.md`](docs/inference-core-design.md)
+- [`docs/direct-pth-loading.md`](docs/direct-pth-loading.md)
 - [`docs/rwkv-mobile-adoption-and-cli-milestone.md`](docs/rwkv-mobile-adoption-and-cli-milestone.md)
 - [`docs/rwkv-mobile-macos-cli-implementation-plan.md`](docs/rwkv-mobile-macos-cli-implementation-plan.md)
 - [`docs/rwkv-cli-tui-redesign-plan.md`](docs/rwkv-cli-tui-redesign-plan.md)
@@ -22,7 +23,7 @@ rwkv-cli
 
 - Apple Silicon Mac
 - macOS 15+
-- Xcode（包含 Swift toolchain）
+- Xcode（包含 Swift 与 Metal Toolchain）
 - CMake 3.25+
 - Ninja
 - Go 1.26+
@@ -40,7 +41,9 @@ git submodule update --init --recursive
 ./scripts/build-macos.sh
 ```
 
-构建脚本固定 `arm64` 和 `MACOSX_DEPLOYMENT_TARGET=15.0`，并验证 dylib、rpath、Metal resource、deployment target 和 CLI help smoke test。产物如下：
+构建脚本固定 `arm64` 和 `MACOSX_DEPLOYMENT_TARGET=15.0`，从固定 revision 构建带直接
+PTH 入口的 MLX FFI，并验证 dylib、rpath、Metal resource、deployment target 和 CLI
+help smoke test。首次构建会拉取 MLX Swift 依赖，后续复用 `build/` 中的构建缓存。产物如下：
 
 ```text
 dist/
@@ -55,9 +58,30 @@ dist/
 
 `scripts/build-mlx.sh` 仍保留为兼容入口，但会转发到 `build-macos.sh`。
 
-## 转换 `.pth`
+## 直接运行 `.pth`（推荐）
 
-转换器直接读取 PyTorch ZIP/pickle checkpoint 并写出 MLX safetensors，不加载 Python 或 PyTorch：
+运行不再要求先转换模型：
+
+```sh
+./dist/rwkv-cli run \
+  --model /absolute/path/to/rwkv7-model.pth \
+  --session ./sessions/demo.rwkv-session \
+  --autosave
+```
+
+运行时 mmap 原始 `.pth`，直接把 tensor 装入 MLX，不写出第二份完整权重。第一次加载会在
+`~/Library/Caches/RWKV-Agent/pth-index/v1/` 生成一个 `.rwkvi` 元数据索引；索引记录
+tensor 名称映射、shape、dtype、storage key 和 offset，通常只有几十到几百 KB。后续加载
+通过索引跳过 pickle 元数据解析。缓存 key 绑定原文件的绝对路径，索引内部再校验文件大小
+与修改时间；checkpoint 变化后会自动拒绝旧索引并原位重建，不会不断累积完整权重副本。
+
+`.pth` 默认使用发行包里的 RWKV World tokenizer；只有自定义 vocabulary 时才需要传
+`--tokenizer`。
+
+## 显式转换（可选）
+
+`convert` 保留给需要独立 MLX safetensors 产物的部署流程。转换器直接读取 PyTorch
+ZIP/pickle checkpoint 并写出 MLX safetensors，不加载 Python 或 PyTorch：
 
 ```sh
 ./dist/rwkv-cli convert \
@@ -78,7 +102,7 @@ rwkv7-model-mlx/
 
 ```sh
 ./dist/rwkv-cli run \
-  --model /absolute/path/to/rwkv7-model-mlx \
+  --model /absolute/path/to/rwkv7-model.pth \
   --session ./sessions/demo.rwkv-session \
   --autosave
 ```
@@ -161,7 +185,7 @@ revision，丢弃旧版 native State，再用当前 profile replay。未显式�
 
 ```sh
 ./dist/rwkv-cli concurrent \
-  --model /absolute/path/to/rwkv7-model-mlx \
+  --model /absolute/path/to/rwkv7-model.pth \
   --concurrency 8 \
   --max-tokens 64 \
   --concurrent-prompt "用一句话介绍 RWKV"
@@ -234,7 +258,7 @@ compact 降级和 resize 行为。
 
 ```sh
 ./dist/rwkv-cli concurrent \
-  --model /absolute/path/to/rwkv7-model-mlx \
+  --model /absolute/path/to/rwkv7-model.pth \
   --concurrency 8 \
   --concurrent-prompt "你好" \
   --top-k 1 \
@@ -273,9 +297,11 @@ RWKV_TEST_PTH=/absolute/path/to/rwkv7-model.pth \
 ./scripts/test-macos-real-model.sh
 ```
 
-真实模型脚本覆盖转换、单轮生成、8 路贪心解码 State 隔离、4 路取消、保存、native
-State 恢复，以及移除 `state.bin` 后的 transcript replay。
+真实模型脚本让 `.pth` 直接进入运行时，并覆盖单轮生成、8 路贪心解码 State 隔离、
+4 路取消、保存、native State 恢复，以及移除 `state.bin` 后的 transcript replay。
 
 ## 分发注意
 
-当前固定的 `rwkv-mobile` revision 没有在仓库根目录提供明确的 LICENSE 文件。技术打包链已经可用，但公开分发前仍需确认上游源码及预编译 `libMLXModelFFI.a` 的授权条件，并为 RWKV-Agent 选择项目许可证。
+当前固定的 `rwkv-mobile` revision 没有在仓库根目录提供明确的 LICENSE 文件。技术打包链
+已经可用，但公开分发前仍需确认上游源码、MLX Swift FFI 源码及其依赖的授权条件，并为
+RWKV-Agent 选择项目许可证。
