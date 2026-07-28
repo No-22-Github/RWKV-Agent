@@ -9,7 +9,7 @@ import (
 
 const (
 	PromptTemplateID      = "rwkv-g1-chat"
-	PromptTemplateVersion = 1
+	PromptTemplateVersion = 2
 )
 
 func DefaultPromptProfile(reasoning bool) PromptProfile {
@@ -20,7 +20,7 @@ func DefaultPromptProfile(reasoning bool) PromptProfile {
 		reasoning,
 		true,
 		false,
-		"<|bos|>",
+		"",
 		"\n\n",
 	)
 	return PromptProfile{
@@ -29,7 +29,7 @@ func DefaultPromptProfile(reasoning bool) PromptProfile {
 		ProfileHash:     fmt.Sprintf("sha256:%x", sha256.Sum256([]byte(canonical))),
 		Reasoning:       reasoning,
 		SpaceAfterRoles: true,
-		BOS:             "<|bos|>",
+		BOS:             "",
 		EOS:             "\n\n",
 	}
 }
@@ -52,18 +52,19 @@ func CompileGeneratePrompt(request GenerateRequest) (string, error) {
 		if err != nil {
 			return "", err
 		}
+		text = cleanPromptText(message.Role, text)
 		fmt.Fprintf(&prompt, "%s: %s\n\n", role, text)
 	}
 	prompt.WriteString("Assistant:")
 
 	formatted := prompt.String()
 	if request.Prompt.Reasoning {
-		formatted = "<|bos|>" + formatted + " <think>\n</think>"
+		formatted += " <think>\n</think>"
 	}
 	return formatted, nil
 }
 
-func CompileCommittedPrompt(messages []Message, options PromptOptions) (string, error) {
+func CompileCommittedPrompt(messages []Message, _ PromptOptions) (string, error) {
 	if err := validateInput(messages, nil); err != nil {
 		return "", err
 	}
@@ -77,13 +78,10 @@ func CompileCommittedPrompt(messages []Message, options PromptOptions) (string, 
 		if err != nil {
 			return "", err
 		}
+		text = cleanPromptText(message.Role, text)
 		fmt.Fprintf(&prompt, "%s: %s\n\n", role, text)
 	}
-	formatted := prompt.String()
-	if options.Reasoning {
-		formatted = "<|bos|>" + formatted
-	}
-	return formatted, nil
+	return prompt.String(), nil
 }
 
 func CompileTokenCountPrompt(request TokenCountRequest) (string, error) {
@@ -149,6 +147,18 @@ func messageText(message Message) (string, error) {
 		return "", fmt.Errorf("%w: message text must not be empty", ErrInvalidArgument)
 	}
 	return text.String(), nil
+}
+
+func cleanPromptText(role Role, text string) string {
+	if role != RoleSystem && role != RoleUser && role != RoleTool {
+		return text
+	}
+	text = strings.ReplaceAll(text, "\r\n", "\n")
+	text = strings.ReplaceAll(text, "\r", "\n")
+	for strings.Contains(text, "\n\n") {
+		text = strings.ReplaceAll(text, "\n\n", "\n")
+	}
+	return strings.TrimSpace(text)
 }
 
 func promptRole(role Role) (string, error) {

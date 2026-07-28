@@ -11,7 +11,7 @@
 - 精确 token encode、prefix 同步、dirty/rebuild 状态和 FNV64 native prefix hash。
 - MLX fp16 recurrent cache、prefix token IDs 和 logits 的 native State codec。
 - Go `runtime/cgo.Handle` callback 路由；旧的进程级 writer 和 generation mutex 路径已删除。
-- 版本化 `rwkv-g1-chat` prompt profile。
+- 版本化 `rwkv-g1-chat` prompt profile（当前为 v2，遵循官方 G1 QA/快速思考模板且不注入字面量伪 BOS）。
 - Conversation candidate turn、失败回滚、canonical transcript hash 和 SHA-256 logical revision。
 - 不可变 Session revision、原子 `CURRENT`、checksum、兼容性校验和 logical-only replay。
 - `/state`、`/history`、`/save`、`/load`、`/reset`、`/new`、`/help`、`/exit`。

@@ -54,7 +54,7 @@ func New(ctx context.Context, model inference.Model, options Options) (*Conversa
 		return nil, fmt.Errorf("%w: model is required", inference.ErrInvalidArgument)
 	}
 	if options.Profile.TemplateID == "" {
-		options.Profile = inference.DefaultPromptProfile(true)
+		options.Profile = inference.DefaultPromptProfile(false)
 	}
 	if options.NativeState == "" {
 		options.NativeState = "auto"

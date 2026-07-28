@@ -19,7 +19,7 @@ func TestCompileGeneratePrompt(t *testing.T) {
 				Messages: []Message{TextMessage(RoleUser, "你好")},
 				Prompt:   PromptOptions{Reasoning: true},
 			},
-			want: "<|bos|>User: 你好\n\nAssistant: <think>\n</think>",
+			want: "User: 你好\n\nAssistant: <think>\n</think>",
 		},
 		{
 			name: "plain chat",
@@ -27,6 +27,16 @@ func TestCompileGeneratePrompt(t *testing.T) {
 				Messages: []Message{TextMessage(RoleUser, "hello")},
 			},
 			want: "User: hello\n\nAssistant:",
+		},
+		{
+			name: "official input cleanup",
+			request: GenerateRequest{
+				Messages: []Message{
+					TextMessage(RoleSystem, " concise\r\n\r\nplease "),
+					TextMessage(RoleUser, " first\n\n\nsecond "),
+				},
+			},
+			want: "System: concise\nplease\n\nUser: first\nsecond\n\nAssistant:",
 		},
 		{
 			name: "raw",
@@ -76,7 +86,7 @@ func TestCompileCommittedPromptGolden(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := "<|bos|>System: be concise\n\nUser: hello\n\nAssistant: hi\n\nUser: again\n\n"
+	want := "System: be concise\n\nUser: hello\n\nAssistant: hi\n\nUser: again\n\n"
 	if got != want {
 		t.Fatalf("committed prompt = %q, want %q", got, want)
 	}

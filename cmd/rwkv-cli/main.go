@@ -33,6 +33,9 @@ type runOptions struct {
 	temperature      float64
 	topK             int
 	topP             float64
+	presencePenalty  float64
+	frequencyPenalty float64
+	penaltyDecay     float64
 	reasoning        bool
 	autosave         bool
 	nativeState      string
@@ -137,8 +140,11 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 	fs.IntVar(&options.maxTokens, "max-tokens", 256, "maximum generated tokens")
 	fs.Float64Var(&options.temperature, "temperature", 1, "sampling temperature")
 	fs.IntVar(&options.topK, "top-k", 128, "top-k sampling cutoff")
-	fs.Float64Var(&options.topP, "top-p", 0.8, "top-p sampling cutoff")
-	fs.BoolVar(&options.reasoning, "reasoning", true, "enable the RWKV G1 reasoning profile")
+	fs.Float64Var(&options.topP, "top-p", 0.5, "top-p sampling cutoff")
+	fs.Float64Var(&options.presencePenalty, "presence-penalty", 2, "RWKV presence penalty")
+	fs.Float64Var(&options.frequencyPenalty, "frequency-penalty", 0.1, "RWKV frequency penalty")
+	fs.Float64Var(&options.penaltyDecay, "penalty-decay", 0.99, "RWKV repetition-penalty decay")
+	fs.BoolVar(&options.reasoning, "reasoning", false, "enable the RWKV G1 fast-thinking profile")
 	fs.BoolVar(&options.autosave, "autosave", false, "save the session after each committed turn")
 	fs.StringVar(&options.nativeState, "native-state", "auto", "native State mode: auto, off, or required")
 	if name == "concurrent" {
@@ -168,7 +174,9 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		return options, fmt.Errorf("invalid --native-state %q", options.nativeState)
 	}
 	if options.maxTokens <= 0 || options.temperature <= 0 ||
-		options.topK <= 0 || options.topP <= 0 || options.topP > 1 {
+		options.topK <= 0 || options.topP <= 0 || options.topP > 1 ||
+		options.presencePenalty < 0 || options.frequencyPenalty < 0 ||
+		options.penaltyDecay <= 0 || options.penaltyDecay > 1 {
 		return options, errors.New("invalid sampling options")
 	}
 	return options, nil
@@ -226,9 +234,12 @@ func conversationOptions(options runOptions) conversation.Options {
 func turnOptions(options runOptions) conversation.TurnOptions {
 	return conversation.TurnOptions{
 		Sampling: inference.SamplingOptions{
-			Temperature: float32(options.temperature),
-			TopK:        options.topK,
-			TopP:        float32(options.topP),
+			Temperature:      float32(options.temperature),
+			TopK:             options.topK,
+			TopP:             float32(options.topP),
+			PresencePenalty:  float32(options.presencePenalty),
+			FrequencyPenalty: float32(options.frequencyPenalty),
+			PenaltyDecay:     float32(options.penaltyDecay),
 		},
 		Limits: inference.GenerationLimits{MaxOutputTokens: options.maxTokens},
 	}

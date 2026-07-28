@@ -94,10 +94,21 @@ rwkv7-model-mlx/
 --temperature <f>
 --top-k <n>
 --top-p <f>
+--presence-penalty <f>
+--frequency-penalty <f>
+--penalty-decay <f>
 --reasoning
 --autosave
 --native-state auto|off|required
 ```
+
+默认使用 RWKV 官方 G1 常规聊天模板 `User: ...\n\nAssistant:`。难题可额外传入
+`--reasoning`，启用官方快速思考模板 `Assistant: <think>\n</think>`；不要把
+`<|bos|>` 等伪 special token 写进 prompt。
+
+默认解码参数采用当前 G1 模型卡的聊天建议：
+`temperature=1`、`top-p=0.5`、`presence-penalty=2`、
+`frequency-penalty=0.1`、`penalty-decay=0.99`。
 
 REPL 命令：
 
