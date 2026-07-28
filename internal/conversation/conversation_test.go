@@ -5,6 +5,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/no22/RWKV-Agent/internal/conversation"
@@ -239,6 +240,121 @@ func TestIncompatibleTokenizerAndTemplateRejected(t *testing.T) {
 		nil,
 	); !errors.Is(err, inference.ErrIncompatibleState) {
 		t.Fatalf("template mismatch error = %v, want ErrIncompatibleState", err)
+	}
+}
+
+func TestPromptProfileUpgradeReplaysTranscriptAndKeepsReasoningMode(t *testing.T) {
+	model := newMockModel(t, "legacy answer")
+	legacy := legacyPromptProfile(true)
+	value, err := conversation.New(context.Background(), model, conversation.Options{
+		Profile:     legacy,
+		NativeState: "off",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := value.Turn(
+		context.Background(),
+		"legacy question",
+		testTurnOptions(),
+		func(inference.GenerationEvent) error { return nil },
+	); err != nil {
+		t.Fatal(err)
+	}
+	oldRevision := value.State().Revision
+	bundle := filepath.Join(t.TempDir(), "legacy.rwkv-session")
+	if err := value.Save(context.Background(), bundle); err != nil {
+		t.Fatal(err)
+	}
+	_ = value.Close()
+
+	upgraded, err := conversation.Load(
+		context.Background(),
+		model,
+		bundle,
+		conversation.Options{
+			NativeState:               "off",
+			AllowPromptProfileUpgrade: true,
+		},
+		nil,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer upgraded.Close()
+	if profile := upgraded.Profile(); !profile.Reasoning ||
+		profile.TemplateVersion != inference.PromptTemplateVersion {
+		t.Fatalf("upgraded profile = %+v", profile)
+	}
+	state := upgraded.State()
+	if state.RecoveryMode != "profile-migration" ||
+		state.Revision == oldRevision ||
+		state.MessageCount != 2 {
+		t.Fatalf("upgraded State = %+v", state)
+	}
+	if err := upgraded.Save(context.Background(), bundle); err != nil {
+		t.Fatal(err)
+	}
+	strict, err := conversation.Load(
+		context.Background(),
+		model,
+		bundle,
+		conversation.Options{
+			Profile:     inference.DefaultPromptProfile(true),
+			NativeState: "off",
+		},
+		nil,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer strict.Close()
+	if strict.State().Revision != state.Revision {
+		t.Fatalf("saved migrated revision = %q, want %q", strict.State().Revision, state.Revision)
+	}
+}
+
+func TestPromptProfileUpgradeRejectsReasoningModeChange(t *testing.T) {
+	model := newMockModel(t, "answer")
+	value, err := conversation.New(context.Background(), model, conversation.Options{
+		Profile:     legacyPromptProfile(true),
+		NativeState: "off",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	bundle := filepath.Join(t.TempDir(), "legacy.rwkv-session")
+	if err := value.Save(context.Background(), bundle); err != nil {
+		t.Fatal(err)
+	}
+	_ = value.Close()
+
+	_, err = conversation.Load(
+		context.Background(),
+		model,
+		bundle,
+		conversation.Options{
+			Profile:                   inference.DefaultPromptProfile(false),
+			NativeState:               "off",
+			AllowPromptProfileUpgrade: true,
+		},
+		nil,
+	)
+	if !errors.Is(err, inference.ErrIncompatibleState) ||
+		!strings.Contains(err.Error(), "reasoning mode mismatch") {
+		t.Fatalf("load error = %v, want reasoning mode mismatch", err)
+	}
+}
+
+func legacyPromptProfile(reasoning bool) inference.PromptProfile {
+	return inference.PromptProfile{
+		TemplateID:      inference.PromptTemplateID,
+		TemplateVersion: 1,
+		ProfileHash:     "sha256:legacy-profile",
+		Reasoning:       reasoning,
+		SpaceAfterRoles: true,
+		BOS:             "<|bos|>",
+		EOS:             "\n\n",
 	}
 }
 

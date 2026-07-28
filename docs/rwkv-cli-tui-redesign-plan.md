@@ -1,10 +1,13 @@
 # RWKV CLI TUI 重做实施计划
 
-状态：Proposed（Implementation Plan v1.0）
+状态：Implemented（Implementation Plan v1.1）
 
 分析日期：2026-07-28
 
 目标平台：macOS 15+ / Apple Silicon
+
+说明：第 1–10 节记录最初的四路 dashboard v1.0 设计；第 11 节记录已落地的 v1.1
+扩展，它取代了 v1.0 中“暂不支持鼠标”和“暂不超过四路”的阶段性限制。
 
 关联文档：
 
@@ -555,22 +558,22 @@ View 测试使用固定 terminal 宽高和 deterministic snapshot 做 golden tes
 
 以下条件全部满足才算 TUI 重做完成：
 
-- [ ] `concurrent` 在正常终端默认显示实时 dashboard。
-- [ ] 四路相同 prompt、不同 seed，prompt 中没有 session 编号。
-- [ ] 四个 pane 能独立显示 prefill、generation、done/error/cancelled。
-- [ ] 2×2、单列和 compact layout 可用。
-- [ ] resize 和中英文宽字符显示正确。
-- [ ] `Ctrl-C`、`q`、`Esc` 能可靠清理全部生成。
-- [ ] TUI 异常退出后终端状态恢复。
-- [ ] 非 TTY 自动 plain，输出无 ANSI。
-- [ ] plain summary 字段保持稳定。
-- [ ] `go test ./...` 通过。
-- [ ] `go test -race ./...` 通过。
-- [ ] PTY 集成测试通过。
-- [ ] 指定 G1h 1.5B 模型真实四路生成通过。
-- [ ] `max_native_batch=4`。
-- [ ] TUI 相对 plain 的 aggregate tok/s 回退不超过 5%。
-- [ ] README 更新命令、快捷键、截图或录屏说明。
+- [x] `concurrent` 在正常终端默认显示实时 dashboard。
+- [x] 四路相同 prompt、不同 seed，prompt 中没有 session 编号。
+- [x] 四个 pane 能独立显示 prefill、generation、done/error/cancelled。
+- [x] 2×2、单列和 compact layout 可用。
+- [x] resize 和中英文宽字符显示正确。
+- [x] `Ctrl-C`、`q`、`Esc` 能可靠清理全部生成。
+- [x] TUI 异常退出后终端状态恢复。
+- [x] 非 TTY 自动 plain，输出无 ANSI。
+- [x] plain summary 字段保持稳定。
+- [x] `go test ./...` 通过。
+- [x] `go test -race ./...` 通过。
+- [x] PTY 集成测试通过。
+- [x] 指定 G1h 1.5B 模型真实四路生成通过。
+- [x] `max_native_batch=4`。
+- [x] TUI 相对 plain 的 aggregate tok/s 回退不超过 5%。
+- [x] README 更新命令、快捷键、截图或录屏说明。
 
 ## 10. 建议的最终代码边界
 
@@ -600,3 +603,25 @@ func runConcurrent(args []string) error {
 
 命令入口不再理解 pane、Bubble Tea message、token buffer 或布局；TUI 也不再理解 MLX、
 native State 和 Conversation revision。这个边界是本次重做最重要的长期维护目标。
+
+## 11. v1.1：8 路结果选择与 Conversation 续聊
+
+v1.1 已完整落地：
+
+- [x] `--concurrency` 开放 1–8，runtime 按实际并发数分配 active batch。
+- [x] 8 路在标准宽度使用 2×4，超宽终端使用 4×2，并保留单列/compact 降级。
+- [x] 所有初始窗口使用相同 prompt 和解码参数；只有独立 seed 不同。
+- [x] 修复动态 prefill 只保护 slot 0 导致的 State 交叉污染。
+- [x] 真实模型在 `top-k=1` 下验证 8 个输出逐字相同，`max_native_batch=8`。
+- [x] 初始生成结束后保留每个 pane 对应的 `Conversation` 和 native State。
+- [x] 鼠标点击任意 pane 后可在 footer 输入追问，回答继续流入原 pane。
+- [x] 无鼠标时可用 Tab/方向键选择，再按 Enter 进入输入。
+- [x] 每轮完成后自动保持在该 Conversation，可连续追问。
+- [x] 续聊取消不提交残缺 turn，下一轮仍从最后一个已提交 revision 继续。
+- [x] runner `Close`、rerun 和 TUI 退出会按序关闭全部保留的 Conversation。
+- [x] PTY 测试覆盖鼠标协议、输入、流式续聊、alternate-screen 恢复和竞态检测。
+- [x] 真实模型验证 8 路生成后点击 Session 3 并在同窗续聊。
+
+v1.1 仍保持原边界：TUI 只消费 runner snapshot；Conversation 事务和 native State
+生命周期不进入 Bubble Tea 层。点击 pane 只是选择已有会话，不会复制文本、重建 prompt
+或创建替代 Session。

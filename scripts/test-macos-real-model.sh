@@ -40,7 +40,7 @@ if ! otool -l "$repo_root/dist/rwkvmobile-integration.test" |
   install_name_tool -add_rpath @executable_path "$repo_root/dist/rwkvmobile-integration.test"
 fi
 "$repo_root/dist/rwkvmobile-integration.test" \
-  -test.run 'Test(RWKVMobileBackendContract|FourSessionContinuousBatchAndIndependentCancel)' \
+  -test.run 'Test(RWKVMobileBackendContract|FourSessionContinuousBatchAndIndependentCancel|EightSessionGreedyBatchPreservesEveryStateSlot)' \
   -test.v
 
 "$repo_root/dist/rwkv-cli" run \

@@ -12,9 +12,10 @@ import (
 )
 
 type Options struct {
-	Profile                 inference.PromptProfile
-	InitialStateFingerprint string
-	NativeState             string
+	Profile                   inference.PromptProfile
+	InitialStateFingerprint   string
+	NativeState               string
+	AllowPromptProfileUpgrade bool
 }
 
 type TurnOptions struct {
@@ -237,6 +238,12 @@ func (c *Conversation) State() State {
 	}
 }
 
+func (c *Conversation) Profile() inference.PromptProfile {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	return c.profile
+}
+
 func (c *Conversation) Save(ctx context.Context, path string) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
@@ -296,20 +303,33 @@ func Load(
 	if options.NativeState == "" {
 		options.NativeState = "auto"
 	}
-	if err := validateCompatibility(model.Info(), options, snapshot); err != nil {
+	profileUpgraded, err := validateCompatibility(model.Info(), options, snapshot)
+	if err != nil {
 		return nil, err
 	}
-	expectedRevision, err := calculateTranscriptRevision(
+	sourceRevision, err := calculateTranscriptRevision(
 		snapshot.Transcript,
 		model.Info(),
-		options.Profile,
+		snapshot.Profile,
 		options.InitialStateFingerprint,
 	)
 	if err != nil {
 		return nil, err
 	}
-	if expectedRevision != snapshot.Revision {
+	if sourceRevision != snapshot.Revision {
 		return nil, fmt.Errorf("%w: logical revision mismatch", inference.ErrCorruptState)
+	}
+	targetRevision := sourceRevision
+	if profileUpgraded {
+		targetRevision, err = calculateTranscriptRevision(
+			snapshot.Transcript,
+			model.Info(),
+			options.Profile,
+			options.InitialStateFingerprint,
+		)
+		if err != nil {
+			return nil, err
+		}
 	}
 	conversation, err := New(ctx, model, options)
 	if err != nil {
@@ -320,7 +340,8 @@ func Load(
 		_ = conversation.Close()
 		return nil, fmt.Errorf("%w: required native State snapshot is missing", inference.ErrIncompatibleState)
 	}
-	if len(snapshot.NativeState) > 0 &&
+	if !profileUpgraded &&
+		len(snapshot.NativeState) > 0 &&
 		options.NativeState != "off" &&
 		model.Capabilities().StateImport.Available {
 		_, importErr := conversation.session.ImportState(
@@ -337,7 +358,7 @@ func Load(
 		}
 	}
 	conversation.transcript = appendMessages(nil, snapshot.Transcript...)
-	conversation.revision = snapshot.Revision
+	conversation.revision = targetRevision
 	conversation.transcriptHash = snapshot.TranscriptHash
 	if !restored {
 		if err := conversation.session.Reset(ctx); err != nil {
@@ -348,7 +369,11 @@ func Load(
 			_ = conversation.Close()
 			return nil, err
 		}
-		conversation.recoveryMode = "replay"
+		if profileUpgraded {
+			conversation.recoveryMode = "profile-migration"
+		} else {
+			conversation.recoveryMode = "replay"
+		}
 	} else if err := conversation.syncCommitted(ctx, conversation.transcript, progress); err != nil {
 		_ = conversation.Close()
 		return nil, err
@@ -360,25 +385,50 @@ func validateCompatibility(
 	model inference.ModelInfo,
 	options Options,
 	snapshot store.Snapshot,
-) error {
+) (bool, error) {
 	if snapshot.SchemaVersion != SchemaVersion {
-		return fmt.Errorf("%w: session schema %d", inference.ErrIncompatibleState, snapshot.SchemaVersion)
+		return false, fmt.Errorf("%w: session schema %d", inference.ErrIncompatibleState, snapshot.SchemaVersion)
 	}
 	if snapshot.Model.Fingerprint != model.Fingerprint {
-		return fmt.Errorf("%w: model fingerprint mismatch", inference.ErrIncompatibleState)
+		return false, fmt.Errorf("%w: model fingerprint mismatch", inference.ErrIncompatibleState)
 	}
 	if snapshot.Model.TokenizerFingerprint != model.TokenizerFingerprint {
-		return fmt.Errorf("%w: tokenizer fingerprint mismatch", inference.ErrIncompatibleState)
-	}
-	if snapshot.Profile.TemplateID != options.Profile.TemplateID ||
-		snapshot.Profile.TemplateVersion != options.Profile.TemplateVersion ||
-		snapshot.Profile.ProfileHash != options.Profile.ProfileHash {
-		return fmt.Errorf("%w: prompt profile mismatch", inference.ErrIncompatibleState)
+		return false, fmt.Errorf("%w: tokenizer fingerprint mismatch", inference.ErrIncompatibleState)
 	}
 	if snapshot.InitialStateFingerprint != options.InitialStateFingerprint {
-		return fmt.Errorf("%w: Initial State fingerprint mismatch", inference.ErrIncompatibleState)
+		return false, fmt.Errorf("%w: Initial State fingerprint mismatch", inference.ErrIncompatibleState)
 	}
-	return nil
+	if profilesMatch(snapshot.Profile, options.Profile) {
+		return false, nil
+	}
+	if !options.AllowPromptProfileUpgrade {
+		return false, fmt.Errorf("%w: prompt profile mismatch", inference.ErrIncompatibleState)
+	}
+	if snapshot.Profile.TemplateID != options.Profile.TemplateID {
+		return false, fmt.Errorf("%w: prompt template mismatch", inference.ErrIncompatibleState)
+	}
+	if snapshot.Profile.Reasoning != options.Profile.Reasoning {
+		return false, fmt.Errorf("%w: reasoning mode mismatch", inference.ErrIncompatibleState)
+	}
+	current := inference.DefaultPromptProfile(options.Profile.Reasoning)
+	if !profilesMatch(current, options.Profile) ||
+		snapshot.Profile.TemplateVersion <= 0 ||
+		snapshot.Profile.TemplateVersion >= options.Profile.TemplateVersion {
+		return false, fmt.Errorf("%w: prompt profile mismatch", inference.ErrIncompatibleState)
+	}
+	if options.NativeState == "required" {
+		return false, fmt.Errorf(
+			"%w: prompt profile upgrade requires transcript replay",
+			inference.ErrIncompatibleState,
+		)
+	}
+	return true, nil
+}
+
+func profilesMatch(left, right inference.PromptProfile) bool {
+	return left.TemplateID == right.TemplateID &&
+		left.TemplateVersion == right.TemplateVersion &&
+		left.ProfileHash == right.ProfileHash
 }
 
 func (c *Conversation) ReplaceWith(other *Conversation) error {
@@ -392,6 +442,10 @@ func (c *Conversation) ReplaceWith(other *Conversation) error {
 	oldSession := c.session
 	c.session = other.session
 	c.tokenizer = other.tokenizer
+	c.modelInfo = other.modelInfo
+	c.profile = other.profile
+	c.initialStateFingerprint = other.initialStateFingerprint
+	c.nativeStateMode = other.nativeStateMode
 	c.transcript = other.transcript
 	c.revision = other.revision
 	c.transcriptHash = other.transcriptHash

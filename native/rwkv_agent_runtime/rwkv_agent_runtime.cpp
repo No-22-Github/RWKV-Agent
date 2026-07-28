@@ -224,29 +224,40 @@ rwa_status cache_zero_slot(rwa_model *model, int32_t slot) {
     return RWA_OK;
 }
 
-struct SlotZeroGuard {
+struct ActiveSlotsGuard {
     rwa_model *model;
-    std::vector<uint8_t> saved;
+    std::vector<std::vector<uint8_t>> saved;
     bool restore = false;
     rwa_status status = RWA_OK;
 
-    explicit SlotZeroGuard(rwa_model *m) : model(m) {
-        if (model->active_count.load(std::memory_order_acquire) > 0) {
-            status = cache_read_slot(model, 0, saved);
-            restore = status == RWA_OK;
+    explicit ActiveSlotsGuard(rwa_model *m) : model(m) {
+        const uint32_t active =
+            model->active_count.load(std::memory_order_acquire);
+        saved.resize(active);
+        for (uint32_t slot = 0; slot < active; ++slot) {
+            status = cache_read_slot(
+                model, static_cast<int32_t>(slot), saved[slot]);
+            if (status != RWA_OK) {
+                saved.clear();
+                return;
+            }
         }
+        restore = !saved.empty();
     }
 
-    ~SlotZeroGuard() {
-        if (restore) {
-            (void)cache_write_slot(model, 0, saved);
-        }
+    ~ActiveSlotsGuard() {
+        if (restore) (void)restore_now();
     }
 
     rwa_status restore_now() {
         if (!restore) return status;
         restore = false;
-        return cache_write_slot(model, 0, saved);
+        for (size_t slot = 0; slot < saved.size(); ++slot) {
+            status = cache_write_slot(
+                model, static_cast<int32_t>(slot), saved[slot]);
+            if (status != RWA_OK) return status;
+        }
+        return RWA_OK;
     }
 };
 
@@ -267,8 +278,8 @@ rwa_status eval_tokens_slot_zero(
         return RWA_OK;
     }
 
-    SlotZeroGuard slot_guard(model);
-    if (slot_guard.status != RWA_OK) return slot_guard.status;
+    ActiveSlotsGuard slots_guard(model);
+    if (slots_guard.status != RWA_OK) return slots_guard.status;
     std::vector<uint8_t> cache;
     {
         std::lock_guard<std::mutex> state_lock(session->state_mutex);
@@ -311,7 +322,7 @@ rwa_status eval_tokens_slot_zero(
         session->logits = std::move(logits);
         session->prefix_tokens = target;
     }
-    status = slot_guard.restore_now();
+    status = slots_guard.restore_now();
     if (status != RWA_OK) return status;
     if (evaluated) *evaluated = completed;
     return RWA_OK;

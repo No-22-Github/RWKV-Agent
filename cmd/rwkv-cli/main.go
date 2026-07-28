@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"bytes"
 	"context"
 	"errors"
 	"flag"
@@ -14,33 +13,37 @@ import (
 	"strings"
 	"sync"
 	"syscall"
-	"time"
 
+	concurrentcli "github.com/no22/RWKV-Agent/internal/cli/concurrent"
 	"github.com/no22/RWKV-Agent/internal/conversation"
 	"github.com/no22/RWKV-Agent/internal/inference"
 	rwkvbackend "github.com/no22/RWKV-Agent/internal/inference/backend/rwkvmobile"
 	"github.com/no22/RWKV-Agent/internal/native/converter"
+	"github.com/no22/RWKV-Agent/internal/terminal"
+	concurrenttui "github.com/no22/RWKV-Agent/internal/tui/concurrent"
 )
 
 type runOptions struct {
-	modelPath        string
-	backend          string
-	provider         string
-	tokenizer        string
-	sessionPath      string
-	prompt           string
-	maxTokens        int
-	temperature      float64
-	topK             int
-	topP             float64
-	presencePenalty  float64
-	frequencyPenalty float64
-	penaltyDecay     float64
-	reasoning        bool
-	autosave         bool
-	nativeState      string
-	concurrency      int
-	concurrentPrompt string
+	modelPath         string
+	backend           string
+	provider          string
+	tokenizer         string
+	sessionPath       string
+	prompt            string
+	maxTokens         int
+	temperature       float64
+	topK              int
+	topP              float64
+	presencePenalty   float64
+	frequencyPenalty  float64
+	penaltyDecay      float64
+	reasoning         bool
+	reasoningExplicit bool
+	autosave          bool
+	nativeState       string
+	concurrency       int
+	concurrentPrompt  string
+	ui                string
 }
 
 func main() {
@@ -52,8 +55,10 @@ func main() {
 	switch os.Args[1] {
 	case "run":
 		err = run(os.Args[2:])
-	case "concurrent", "bench":
+	case "concurrent":
 		err = runConcurrent(os.Args[2:])
+	case "bench":
+		err = runConcurrent(append(os.Args[2:], "--ui", "plain"))
 	case "convert":
 		err = convertModel(os.Args[2:])
 	default:
@@ -72,8 +77,9 @@ func main() {
 func usage() {
 	fmt.Fprintln(os.Stderr, `Usage:
   rwkv-cli convert --input <RWKV .pth> --output <MLX model directory>
-  rwkv-cli run --model <MLX model directory> [--session <bundle>]
-  rwkv-cli concurrent --model <MLX model directory> [--concurrency 4]`)
+  rwkv-cli run --model <MLX model directory> [--prompt <text> | --session <bundle>]
+  rwkv-cli concurrent --model <MLX model directory> [--concurrency 1..8] [--ui auto|tui|plain]
+  rwkv-cli bench --model <MLX model directory> [--concurrency 1..8]`)
 }
 
 func convertModel(args []string) error {
@@ -135,8 +141,6 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 	fs.StringVar(&options.backend, "backend", "auto", "inference backend: auto or rwkvmobile")
 	fs.StringVar(&options.provider, "provider", "auto", "native provider: auto or mlx")
 	fs.StringVar(&options.tokenizer, "tokenizer", "", "RWKV World tokenizer; defaults to model directory")
-	fs.StringVar(&options.sessionPath, "session", "", "session bundle path")
-	fs.StringVar(&options.prompt, "prompt", "", "single-turn prompt; omit for the REPL")
 	fs.IntVar(&options.maxTokens, "max-tokens", 256, "maximum generated tokens")
 	fs.Float64Var(&options.temperature, "temperature", 1, "sampling temperature")
 	fs.IntVar(&options.topK, "top-k", 128, "top-k sampling cutoff")
@@ -145,18 +149,28 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 	fs.Float64Var(&options.frequencyPenalty, "frequency-penalty", 0.1, "RWKV frequency penalty")
 	fs.Float64Var(&options.penaltyDecay, "penalty-decay", 0.99, "RWKV repetition-penalty decay")
 	fs.BoolVar(&options.reasoning, "reasoning", false, "enable the RWKV G1 fast-thinking profile")
-	fs.BoolVar(&options.autosave, "autosave", false, "save the session after each committed turn")
 	fs.StringVar(&options.nativeState, "native-state", "auto", "native State mode: auto, off, or required")
-	if name == "concurrent" {
+	switch name {
+	case "run":
+		fs.StringVar(&options.sessionPath, "session", "", "session bundle path")
+		fs.StringVar(&options.prompt, "prompt", "", "single-turn prompt; omit for the REPL")
+		fs.BoolVar(&options.autosave, "autosave", false, "save the session after each committed turn")
+	case "concurrent":
 		fs.IntVar(&options.concurrency, "concurrency", 4, "number of overlapping sessions")
 		fs.StringVar(&options.concurrentPrompt, "concurrent-prompt", "用一句话介绍 RWKV。", "prompt for every session")
+		fs.StringVar(&options.ui, "ui", "auto", "concurrent renderer: auto, tui, or plain")
 	}
 	if err := fs.Parse(args); err != nil {
 		return options, err
 	}
+	fs.Visit(func(value *flag.Flag) {
+		if value.Name == "reasoning" {
+			options.reasoningExplicit = true
+		}
+	})
 	if options.modelPath == "" {
 		fs.Usage()
-		return options, errors.New("run requires --model")
+		return options, fmt.Errorf("%s requires --model", name)
 	}
 	if options.tokenizer == "" {
 		options.tokenizer = filepath.Join(options.modelPath, "rwkv_vocab_v20230424.txt")
@@ -173,6 +187,11 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 	if options.nativeState != "auto" && options.nativeState != "off" && options.nativeState != "required" {
 		return options, fmt.Errorf("invalid --native-state %q", options.nativeState)
 	}
+	if name == "concurrent" {
+		if _, err := terminal.ParseUIMode(options.ui); err != nil {
+			return options, err
+		}
+	}
 	if options.maxTokens <= 0 || options.temperature <= 0 ||
 		options.topK <= 0 || options.topP <= 0 || options.topP > 1 ||
 		options.presencePenalty < 0 || options.frequencyPenalty < 0 ||
@@ -188,32 +207,34 @@ type loadedRuntime struct {
 }
 
 func loadRuntime(ctx context.Context, options runOptions) (*loadedRuntime, error) {
+	maxActiveBatch := 1
+	if options.concurrency > 0 {
+		maxActiveBatch = options.concurrency
+	}
 	backend := rwkvbackend.New(rwkvbackend.Options{
 		Provider:       options.provider,
-		MaxActiveBatch: 4,
+		MaxActiveBatch: maxActiveBatch,
 		QueueCapacity:  64,
 	})
 	core, err := inference.NewCore(backend)
 	if err != nil {
 		return nil, fmt.Errorf("initialize inference core: %w", err)
 	}
-	fmt.Fprintln(os.Stderr, "Loading native model...")
+	theme := terminal.NewTheme(terminal.SupportsStyle(os.Stderr))
+	spinner := terminal.StartSpinner(os.Stderr, theme, "Loading native model")
 	model, err := core.LoadModel(ctx, inference.LoadRequest{
 		Source: inference.ModelSource{
 			Path:          options.modelPath,
 			TokenizerPath: options.tokenizer,
 		},
 		Backend: inference.BackendID(options.backend),
-	}, func(progress inference.Progress) error {
-		if progress.Completed == progress.Total && progress.Total > 0 {
-			fmt.Fprintln(os.Stderr, "Model loaded.")
-		}
-		return nil
-	})
+	}, func(inference.Progress) error { return nil })
 	if err != nil {
+		spinner.Stop(false, "Model load failed")
 		_ = core.Close()
 		return nil, fmt.Errorf("load native model: %w", err)
 	}
+	spinner.Stop(true, "Model ready")
 	return &loadedRuntime{core: core, model: model}, nil
 }
 
@@ -224,11 +245,22 @@ func (r *loadedRuntime) Close() error {
 	return r.core.Close()
 }
 
-func conversationOptions(options runOptions) conversation.Options {
+func newConversationOptions(options runOptions) conversation.Options {
 	return conversation.Options{
 		Profile:     inference.DefaultPromptProfile(options.reasoning),
 		NativeState: options.nativeState,
 	}
+}
+
+func loadConversationOptions(options runOptions) conversation.Options {
+	value := conversation.Options{
+		NativeState:               options.nativeState,
+		AllowPromptProfileUpgrade: true,
+	}
+	if options.reasoningExplicit {
+		value.Profile = inference.DefaultPromptProfile(options.reasoning)
+	}
+	return value
 }
 
 func turnOptions(options runOptions) conversation.TurnOptions {
@@ -265,7 +297,7 @@ func run(args []string) error {
 				lifecycle,
 				runtime.model,
 				options.sessionPath,
-				conversationOptions(options),
+				loadConversationOptions(options),
 				printReplayProgress,
 			)
 		} else if !errors.Is(statErr, os.ErrNotExist) {
@@ -273,10 +305,18 @@ func run(args []string) error {
 		}
 	}
 	if current == nil && err == nil {
-		current, err = conversation.New(lifecycle, runtime.model, conversationOptions(options))
+		current, err = conversation.New(lifecycle, runtime.model, newConversationOptions(options))
 	}
 	if err != nil {
 		return fmt.Errorf("initialize conversation: %w", err)
+	}
+	options.reasoning = current.Profile().Reasoning
+	if current.State().RecoveryMode == "profile-migration" {
+		fmt.Fprintf(
+			os.Stderr,
+			"✓ Upgraded session prompt profile to v%d and rebuilt State from transcript\n",
+			current.Profile().TemplateVersion,
+		)
 	}
 	defer current.Close()
 
@@ -302,7 +342,14 @@ func repl(
 	current *conversation.Conversation,
 	options runOptions,
 ) error {
-	fmt.Fprintln(os.Stderr, "Interactive mode. Type /help for commands; Ctrl-C cancels a turn or exits while idle.")
+	theme := terminal.NewTheme(terminal.SupportsStyle(os.Stderr))
+	fmt.Fprintf(
+		os.Stderr,
+		"%s %s\n%s\n",
+		theme.Render(theme.Title, "RWKV"),
+		theme.Render(theme.Muted, "· interactive"),
+		theme.Render(theme.Muted, "Type /help for commands · Ctrl-C cancels a turn or exits while idle"),
+	)
 	lines := make(chan string)
 	readErrors := make(chan error, 1)
 	go func() {
@@ -314,7 +361,7 @@ func repl(
 		close(lines)
 	}()
 	for {
-		fmt.Print("> ")
+		fmt.Fprint(os.Stdout, theme.Render(theme.Prompt, "❯ "))
 		select {
 		case <-controller.Exit():
 			fmt.Fprintln(os.Stderr)
@@ -375,14 +422,16 @@ func executeTurn(
 		if event.Kind != inference.EventOutputDelta || event.Delta == nil {
 			return nil
 		}
-		_, writeErr := io.WriteString(writer, event.Delta.Text)
+		_, writeErr := io.WriteString(writer, terminal.SanitizeModelText(event.Delta.Text))
 		return writeErr
 	})
 	fmt.Fprintln(writer)
 	if result.Timings.DecodeTokensPerSecond > 0 {
+		theme := terminal.NewTheme(terminal.SupportsStyle(os.Stderr))
 		fmt.Fprintf(
 			os.Stderr,
-			"Prefill: %.1f tok/s; decode: %.1f tok/s\n",
+			"%s prefill %.1f tok/s · decode %.1f tok/s\n",
+			theme.Render(theme.Muted, "◇"),
 			result.Timings.PrefillTokensPerSecond,
 			result.Timings.DecodeTokensPerSecond,
 		)
@@ -398,8 +447,10 @@ func executeCommand(
 	input string,
 ) (bool, error) {
 	fields := strings.Fields(input)
+	theme := terminal.NewTheme(terminal.SupportsStyle(os.Stdout))
 	switch fields[0] {
 	case "/help":
+		fmt.Println(theme.Render(theme.Title, "Commands"))
 		fmt.Println(`/state                show logical and native State
 /history              show committed transcript
 /save [path]           save an immutable session revision
@@ -408,8 +459,9 @@ func executeCommand(
 /exit                  save if requested and exit`)
 	case "/state":
 		state := current.State()
+		fmt.Println(theme.Render(theme.Title, "State"))
 		fmt.Printf(
-			"revision=%s status=%s messages=%d tokens=%d native=%s snapshot=%t recovery=%s",
+			"  revision  %s\n  status    %s\n  messages  %d\n  tokens    %d\n  native    %s\n  snapshot  %t\n  recovery  %s",
 			shortRevision(state.Revision),
 			state.Status,
 			state.MessageCount,
@@ -419,12 +471,18 @@ func executeCommand(
 			state.RecoveryMode,
 		)
 		if state.DirtyReason != "" {
-			fmt.Printf(" dirty_reason=%q", state.DirtyReason)
+			fmt.Printf("\n  dirty     %q", state.DirtyReason)
 		}
 		fmt.Println()
 	case "/history":
+		fmt.Println(theme.Render(theme.Title, "History"))
 		for _, message := range current.History() {
-			fmt.Printf("%s: %s\n", message.Role, messageText(message))
+			role := string(message.Role)
+			style := theme.Accent
+			if message.Role == inference.RoleAssistant {
+				style = theme.Success
+			}
+			fmt.Printf("%s %s\n", theme.Render(style, role+" ›"), messageText(message))
 		}
 	case "/save":
 		path := options.sessionPath
@@ -437,7 +495,7 @@ func executeCommand(
 		if err := current.Save(ctx, path); err != nil {
 			return false, err
 		}
-		fmt.Println("saved", path)
+		fmt.Println(theme.Render(theme.Success, "✓ saved"), path)
 	case "/load":
 		if len(fields) != 2 {
 			return false, errors.New("usage: /load <path>")
@@ -446,7 +504,7 @@ func executeCommand(
 			ctx,
 			model,
 			fields[1],
-			conversationOptions(*options),
+			loadConversationOptions(*options),
 			printReplayProgress,
 		)
 		if err != nil {
@@ -458,12 +516,13 @@ func executeCommand(
 		}
 		_ = replacement.Close()
 		options.sessionPath = fields[1]
-		fmt.Println("loaded", fields[1])
+		options.reasoning = current.Profile().Reasoning
+		fmt.Println(theme.Render(theme.Success, "✓ loaded"), fields[1])
 	case "/reset", "/new":
 		if err := current.Reset(ctx); err != nil {
 			return false, err
 		}
-		fmt.Println("conversation reset")
+		fmt.Println(theme.Render(theme.Success, "✓ conversation reset"))
 	case "/exit":
 		return true, nil
 	default:
@@ -490,9 +549,13 @@ func shortRevision(value string) string {
 
 func printReplayProgress(progress inference.Progress) error {
 	if progress.Total > 0 {
-		fmt.Fprintf(os.Stderr, "\rRebuilding State: %d/%d tokens", progress.Completed, progress.Total)
-		if progress.Completed == progress.Total {
-			fmt.Fprintln(os.Stderr)
+		if terminal.SupportsStyle(os.Stderr) {
+			fmt.Fprintf(os.Stderr, "\rRebuilding State: %d/%d tokens", progress.Completed, progress.Total)
+			if progress.Completed == progress.Total {
+				fmt.Fprintln(os.Stderr)
+			}
+		} else if progress.Completed == progress.Total {
+			fmt.Fprintf(os.Stderr, "Rebuilt State: %d tokens\n", progress.Total)
 		}
 	}
 	return nil
@@ -581,69 +644,62 @@ func runConcurrent(args []string) error {
 	if err != nil {
 		return err
 	}
-	if options.concurrency < 1 || options.concurrency > 4 {
-		return errors.New("--concurrency must be between 1 and 4")
+	if options.concurrency < 1 || options.concurrency > 8 {
+		return errors.New("--concurrency must be between 1 and 8")
 	}
-	ctx := context.Background()
+	mode, err := terminal.ParseUIMode(options.ui)
+	if err != nil {
+		return err
+	}
+	selected, err := terminal.SelectUI(mode, terminal.Detect(os.Stdin, os.Stdout))
+	if err != nil {
+		return err
+	}
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
 	runtime, err := loadRuntime(ctx, options)
 	if err != nil {
 		return err
 	}
 	defer runtime.Close()
-	conversations := make([]*conversation.Conversation, options.concurrency)
-	for index := range conversations {
-		conversations[index], err = conversation.New(ctx, runtime.model, conversationOptions(options))
+	factory := func() (*concurrentcli.Runner, error) {
+		return concurrentcli.NewRunner(runtime.model, concurrentcli.Options{
+			Conversation: newConversationOptions(options),
+			Turn:         turnOptions(options),
+			Prompt:       options.concurrentPrompt,
+			Concurrency:  options.concurrency,
+			BaseSeed:     42,
+		})
+	}
+	if selected == terminal.UIPlain {
+		runner, err := factory()
 		if err != nil {
 			return err
 		}
-		defer conversations[index].Close()
-	}
-	start := make(chan struct{})
-	results := make([]inference.GenerateResult, options.concurrency)
-	outputs := make([]bytes.Buffer, options.concurrency)
-	errs := make([]error, options.concurrency)
-	var wait sync.WaitGroup
-	begin := time.Now()
-	for index := range conversations {
-		wait.Add(1)
-		go func(index int) {
-			defer wait.Done()
-			<-start
-			seed := int64(42 + index)
-			turn := turnOptions(options)
-			turn.Sampling.Seed = &seed
-			results[index], errs[index] = conversations[index].Turn(
-				ctx,
-				fmt.Sprintf("[%d] %s", index+1, options.concurrentPrompt),
-				turn,
-				func(event inference.GenerationEvent) error {
-					if event.Kind == inference.EventOutputDelta && event.Delta != nil {
-						outputs[index].WriteString(event.Delta.Text)
-					}
-					return nil
-				},
-			)
-		}(index)
-	}
-	close(start)
-	wait.Wait()
-	elapsed := time.Since(begin)
-	totalTokens := 0
-	for index := range conversations {
-		if errs[index] != nil {
-			return fmt.Errorf("session %d: %w", index+1, errs[index])
+		_, err = (concurrentcli.PlainRenderer{Out: os.Stdout, Status: os.Stderr}).Run(ctx, runner)
+		if errors.Is(err, context.Canceled) {
+			return nil
 		}
-		totalTokens += results[index].Usage.CompletionTokens
-		fmt.Printf("session %d (%d tokens): %s\n", index+1, results[index].Usage.CompletionTokens, outputs[index].String())
+		return err
 	}
-	fmt.Fprintf(
-		os.Stderr,
-		"Concurrent batch complete: sessions=%d max_native_batch=%d tokens=%d elapsed=%s aggregate=%.1f tok/s\n",
-		options.concurrency,
-		runtime.model.Capabilities().MaxObservedBatch,
-		totalTokens,
-		elapsed.Round(time.Millisecond),
-		float64(totalTokens)/elapsed.Seconds(),
+	provider := options.provider
+	if provider == "auto" {
+		provider = "mlx"
+	}
+	summary, err := concurrenttui.Run(
+		ctx,
+		factory,
+		concurrenttui.Metadata{
+			Model:       filepath.Base(options.modelPath),
+			Provider:    provider,
+			Concurrency: options.concurrency,
+		},
+		os.Stdin,
+		os.Stdout,
 	)
-	return nil
+	fmt.Fprintln(os.Stderr, summary.String())
+	if errors.Is(err, context.Canceled) {
+		return nil
+	}
+	return err
 }

@@ -3,4 +3,5 @@ __pycache__/
 /rwkv-cli
 /build/
 /dist/
+/sessions/
 .DS_Store

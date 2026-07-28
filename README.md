@@ -8,7 +8,7 @@ rwkv-cli
   → inference backend
   → versioned C ABI + per-request callback
   → single-model scheduler
-  → MLX continuous batch（最多 4 个活跃 Session）
+  → MLX continuous batch（最多 8 个活跃 Session）
 ```
 
 详细设计和验收范围见：
@@ -111,6 +111,9 @@ rwkv7-model-mlx/
 `temperature=1`、`top-p=0.5`、`presence-penalty=2`、
 `frequency-penalty=0.1`、`penalty-decay=0.99`。
 
+模型加载时，交互终端显示轻量 spinner；单轮生成和 REPL 不进入 alternate screen，模型回答
+仍是可直接选择、复制和重定向的普通文本。非交互环境不输出颜色或光标控制序列。
+
 REPL 命令：
 
 ```text
@@ -142,21 +145,104 @@ demo.rwkv-session/
         └── state.bin
 ```
 
-transcript 是事实源，`state.bin` 只是带 codec、尺寸、prefix token 和 checksum 校验的 MLX State 加速快照。快照不存在或导入失败时会自动 replay transcript；模型、tokenizer、prompt profile 或 Initial State 指纹不兼容时拒绝加载。`/load` 使用临时 Conversation 完成校验和恢复，成功后才替换当前会话。
+transcript 是事实源，`state.bin` 只是带 codec、尺寸、prefix token 和 checksum 校验的 MLX
+State 加速快照。快照不存在或导入失败时会自动 replay transcript；模型、tokenizer、
+Initial State 或不支持迁移的 prompt profile 不兼容时拒绝加载。`/load` 使用临时
+Conversation 完成校验和恢复，成功后才替换当前会话。
 
-## 4 路并发
+同一 `rwkv-g1-chat` 模板的旧 prompt profile 会安全升级：CLI 校验旧 transcript 和 logical
+revision，丢弃旧版 native State，再用当前 profile replay。未显式传 `--reasoning` 时会
+继承 Session 原有的 reasoning 模式；显式模式冲突、模型或 tokenizer 不匹配仍会拒绝。
+迁移后的 autosave 写入新 revision，不会原地改写旧 revision。
+
+## 1–8 路并发与选中续聊
 
 `concurrent` 命令用一个模型实例创建多个 Session，并让 native scheduler 合并单 token decode：
 
 ```sh
 ./dist/rwkv-cli concurrent \
   --model /absolute/path/to/rwkv7-model-mlx \
-  --concurrency 4 \
+  --concurrency 8 \
   --max-tokens 64 \
   --concurrent-prompt "用一句话介绍 RWKV"
 ```
 
-输出会报告 `max_native_batch`。目标配置中它应达到 4，且每个 Session 的 callback、采样器、token、取消标志和 State 都彼此隔离。MLX FFI 支持 16 个物理 State slot；当前交付把业务活跃 batch 上限固定为 4，并为额外请求提供有界 FIFO 队列。
+当 stdin/stdout 都是可交互终端时，命令默认进入实时 dashboard。8 路在常见宽终端显示
+2×4 pane，超宽终端显示 4×2 pane；窄终端自动切换为单列或 compact 列表。每个 pane
+独立显示 phase、输出、token、decode 速度、耗时和 finish reason；header/footer 显示
+provider、全局 phase、native batch 和 aggregate tok/s。
+
+```text
+ model-mlx · MLX · Continuous Batch 8 · completed               00:02.1
+
+╭────────────────────────────╮ ╭────────────────────────────╮
+│ Session 1 · done           │ │ Session 2 · done           │
+│ RWKV 是一种基于 RNN 的…    │ │                            │
+│ 31 tokens · 22.4 tok/s     │ │ 0 tokens                   │
+╰────────────────────────────╯ ╰────────────────────────────╯
+
+ ... Session 3–8 ...
+
+ native batch 8/8 · total 221 tokens · aggregate 92.1 tok/s
+ click/Enter continue · q quit · r rerun · y copy
+```
+
+初始 8 路完成后，直接用鼠标点击满意的 pane，底部会出现输入框；输入问题并按 Enter，
+回答会继续流入同一个 pane。这个操作复用该 pane 原本的 `Conversation` 和 native
+State，而不是用输出文本临时拼一个新会话。回答完成后输入框会再次打开，可以连续追问；
+按 Esc 离开输入框，再按 q 退出。没有鼠标时，用 Tab/方向键选中 pane，再按 Enter。
+
+渲染模式：
+
+```text
+--ui auto    终端可交互时使用 TUI，否则自动 plain（默认）
+--ui tui     强制 TUI；终端能力不足时明确报错
+--ui plain   强制稳定纯文本输出，适合 pipe、CI 和脚本
+```
+
+Dashboard 快捷键：
+
+```text
+Ctrl-C / q / Esc   运行中取消全部 session，并在回滚完成后退出
+Tab / ← / →        切换当前 pane
+↑ / ↓ / PgUp/PgDn  滚动当前 pane 的长输出
+y                  复制当前 session 的完整输出（macOS）
+鼠标点击 / Enter   全部完成后选择当前 pane 并继续对话
+Esc                输入时放弃本次提问
+q / Esc            未在输入时退出 dashboard
+r                  使用相同参数重新运行
+```
+
+退出 alternate screen 后固定打印：
+
+```text
+Concurrent batch complete: sessions=8 max_native_batch=8 tokens=128 elapsed=2.756s aggregate=46.4 tok/s
+```
+
+所有窗口收到完全相同的用户 prompt 和解码参数，只使用 `42 + session_index` 的不同
+seed；session 编号只属于 UI，不会写进模型输入。因此常规采样允许措辞不同，而
+`--top-k 1` 的贪心解码应得到相同结果。每个 Session 的 callback、采样器、token、取消
+标志和 State 彼此隔离。动态加入 batch 的 prefill 会保存并恢复全部活跃物理 State slot，
+不会再污染其他窗口。MLX FFI 支持 16 个物理 State slot；CLI 当前开放最多 8 路活跃
+batch，并为额外请求提供有界 FIFO 队列。
+
+截图或录屏时，8 路建议先把终端调整到至少 `120×40` cell；`160×24` 以上会切换为四列。
+生成过程中截取 dashboard，完成后再演示点击某个结果继续追问。`80×24` 可用于记录
+compact 降级和 resize 行为。
+
+排查“相同问候却出现多国语言”时，可先用贪心解码做隔离性验证：
+
+```sh
+./dist/rwkv-cli concurrent \
+  --model /absolute/path/to/rwkv7-model-mlx \
+  --concurrency 8 \
+  --concurrent-prompt "你好" \
+  --top-k 1 \
+  --max-tokens 32 \
+  --ui plain
+```
+
+8 个结果应一致；去掉 `--top-k 1` 后，seed 不同会产生合理的采样差异。
 
 ## 测试
 
@@ -168,7 +254,10 @@ go test -race ./...
 ./scripts/test-macos-native.sh
 ```
 
-`test-macos-native.sh` 还会构建 AddressSanitizer 版本并运行 C ABI lifecycle test。
+Go 测试包含 8 路 runner、选定 Conversation 续聊与取消回滚、plain 无 ANSI、
+CJK/emoji cell 宽度、响应式布局，以及真实 PTY 下的 alternate-screen、resize、鼠标
+点选续聊、`q` 全局取消和终端恢复。`test-macos-native.sh` 还会构建 AddressSanitizer
+版本并运行 C ABI lifecycle test。
 
 使用已转换模型：
 
@@ -184,7 +273,8 @@ RWKV_TEST_PTH=/absolute/path/to/rwkv7-model.pth \
 ./scripts/test-macos-real-model.sh
 ```
 
-真实模型脚本覆盖转换、单轮生成、4 路 concurrent batch、保存、native State 恢复，以及移除 `state.bin` 后的 transcript replay。
+真实模型脚本覆盖转换、单轮生成、8 路贪心解码 State 隔离、4 路取消、保存、native
+State 恢复，以及移除 `state.bin` 后的 transcript replay。
 
 ## 分发注意
 
