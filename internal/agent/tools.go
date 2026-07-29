@@ -1,0 +1,426 @@
+package agent
+
+import (
+	"bufio"
+	"bytes"
+	"context"
+	"encoding/json"
+	"fmt"
+	"io"
+	"io/fs"
+	"os"
+	"path/filepath"
+	"strings"
+	"unicode/utf8"
+
+	"github.com/no22/RWKV-Agent/internal/inference"
+)
+
+const (
+	maxReadBytes       = 64 * 1024
+	maxSearchFileBytes = 2 * 1024 * 1024
+)
+
+type workspace struct {
+	root string
+}
+
+func WorkspaceTools(root string) ([]Tool, error) {
+	value, err := newWorkspace(root)
+	if err != nil {
+		return nil, err
+	}
+	return []Tool{
+		&listFilesTool{workspace: value},
+		&readFileTool{workspace: value},
+		&searchTextTool{workspace: value},
+	}, nil
+}
+
+func newWorkspace(root string) (*workspace, error) {
+	if root == "" {
+		root = "."
+	}
+	absolute, err := filepath.Abs(root)
+	if err != nil {
+		return nil, fmt.Errorf("resolve workspace: %w", err)
+	}
+	resolved, err := filepath.EvalSymlinks(absolute)
+	if err != nil {
+		return nil, fmt.Errorf("resolve workspace symlinks: %w", err)
+	}
+	info, err := os.Stat(resolved)
+	if err != nil {
+		return nil, fmt.Errorf("stat workspace: %w", err)
+	}
+	if !info.IsDir() {
+		return nil, fmt.Errorf("%w: workspace is not a directory", inference.ErrInvalidArgument)
+	}
+	return &workspace{root: filepath.Clean(resolved)}, nil
+}
+
+func (w *workspace) resolve(path string) (string, error) {
+	if path == "" {
+		path = "."
+	}
+	if filepath.IsAbs(path) || filepath.VolumeName(path) != "" {
+		return "", fmt.Errorf("path must be workspace-relative")
+	}
+	clean := filepath.Clean(path)
+	if clean == ".." || strings.HasPrefix(clean, ".."+string(filepath.Separator)) {
+		return "", fmt.Errorf("path escapes the workspace")
+	}
+	target, err := filepath.EvalSymlinks(filepath.Join(w.root, clean))
+	if err != nil {
+		return "", err
+	}
+	relative, err := filepath.Rel(w.root, target)
+	if err != nil || relative == ".." || strings.HasPrefix(relative, ".."+string(filepath.Separator)) {
+		return "", fmt.Errorf("path escapes the workspace")
+	}
+	return target, nil
+}
+
+func (w *workspace) relative(path string) string {
+	value, err := filepath.Rel(w.root, path)
+	if err != nil || value == "." {
+		return value
+	}
+	return filepath.ToSlash(value)
+}
+
+type listFilesTool struct {
+	workspace *workspace
+}
+
+func (t *listFilesTool) Spec() ToolSpec {
+	return ToolSpec{
+		Name:        "list_files",
+		Description: "List files and directories below a workspace-relative path. Generated and VCS directories are skipped.",
+		Arguments:   `{"path":"optional relative directory","max_depth":"integer 1..8","max_results":"integer 1..500"}`,
+	}
+}
+
+type listFilesArgs struct {
+	Path       string `json:"path"`
+	MaxDepth   int    `json:"max_depth"`
+	MaxResults int    `json:"max_results"`
+}
+
+type fileEntry struct {
+	Path string `json:"path"`
+	Type string `json:"type"`
+	Size int64  `json:"size,omitempty"`
+}
+
+type listFilesResult struct {
+	Entries   []fileEntry `json:"entries"`
+	Truncated bool        `json:"truncated"`
+}
+
+func (t *listFilesTool) Execute(ctx context.Context, raw json.RawMessage) (any, error) {
+	var args listFilesArgs
+	if err := decodeArguments(raw, &args); err != nil {
+		return nil, err
+	}
+	if args.MaxDepth == 0 {
+		args.MaxDepth = 3
+	}
+	if args.MaxResults == 0 {
+		args.MaxResults = 200
+	}
+	if args.MaxDepth < 1 || args.MaxDepth > 8 {
+		return nil, fmt.Errorf("max_depth must be between 1 and 8")
+	}
+	if args.MaxResults < 1 || args.MaxResults > 500 {
+		return nil, fmt.Errorf("max_results must be between 1 and 500")
+	}
+	target, err := t.workspace.resolve(args.Path)
+	if err != nil {
+		return nil, err
+	}
+	info, err := os.Stat(target)
+	if err != nil {
+		return nil, err
+	}
+	if !info.IsDir() {
+		return nil, fmt.Errorf("path is not a directory")
+	}
+	baseDepth := pathDepth(t.workspace.relative(target))
+	result := listFilesResult{Entries: make([]fileEntry, 0, args.MaxResults)}
+	err = filepath.WalkDir(target, func(path string, entry fs.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+		if path == target {
+			return nil
+		}
+		relative := t.workspace.relative(path)
+		if entry.IsDir() && shouldSkipDirectory(entry.Name()) {
+			return filepath.SkipDir
+		}
+		if pathDepth(relative)-baseDepth > args.MaxDepth {
+			if entry.IsDir() {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		if len(result.Entries) >= args.MaxResults {
+			result.Truncated = true
+			return fs.SkipAll
+		}
+		item := fileEntry{Path: relative, Type: "file"}
+		if entry.IsDir() {
+			item.Type = "directory"
+		} else if entry.Type()&os.ModeSymlink != 0 {
+			item.Type = "symlink"
+		} else if value, statErr := entry.Info(); statErr == nil {
+			item.Size = value.Size()
+		}
+		result.Entries = append(result.Entries, item)
+		return nil
+	})
+	return result, err
+}
+
+type readFileTool struct {
+	workspace *workspace
+}
+
+func (t *readFileTool) Spec() ToolSpec {
+	return ToolSpec{
+		Name:        "read_file",
+		Description: "Read one UTF-8 text file inside the workspace, up to 64 KiB.",
+		Arguments:   `{"path":"relative file path"}`,
+	}
+}
+
+type readFileArgs struct {
+	Path string `json:"path"`
+}
+
+type readFileResult struct {
+	Path      string `json:"path"`
+	Content   string `json:"content"`
+	Truncated bool   `json:"truncated"`
+}
+
+func (t *readFileTool) Execute(ctx context.Context, raw json.RawMessage) (any, error) {
+	var args readFileArgs
+	if err := decodeArguments(raw, &args); err != nil {
+		return nil, err
+	}
+	if args.Path == "" {
+		return nil, fmt.Errorf("path is required")
+	}
+	target, err := t.workspace.resolve(args.Path)
+	if err != nil {
+		return nil, err
+	}
+	info, err := os.Stat(target)
+	if err != nil {
+		return nil, err
+	}
+	if !info.Mode().IsRegular() {
+		return nil, fmt.Errorf("path is not a regular file")
+	}
+	handle, err := os.Open(target)
+	if err != nil {
+		return nil, err
+	}
+	defer handle.Close()
+	data, err := io.ReadAll(io.LimitReader(handle, maxReadBytes+1))
+	if err != nil {
+		return nil, err
+	}
+	if bytes.IndexByte(data, 0) >= 0 {
+		return nil, fmt.Errorf("binary files are not supported")
+	}
+	if !utf8.Valid(data) {
+		return nil, fmt.Errorf("file is not valid UTF-8 text")
+	}
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+	truncated := len(data) > maxReadBytes
+	if truncated {
+		data = data[:maxReadBytes]
+	}
+	return readFileResult{
+		Path:      t.workspace.relative(target),
+		Content:   string(data),
+		Truncated: truncated,
+	}, nil
+}
+
+type searchTextTool struct {
+	workspace *workspace
+}
+
+func (t *searchTextTool) Spec() ToolSpec {
+	return ToolSpec{
+		Name:        "search_text",
+		Description: "Search literal text in workspace files. Generated and VCS directories are skipped.",
+		Arguments:   `{"query":"literal text","path":"optional relative path","case_sensitive":"boolean","max_results":"integer 1..200"}`,
+	}
+}
+
+type searchTextArgs struct {
+	Query         string `json:"query"`
+	Path          string `json:"path"`
+	CaseSensitive bool   `json:"case_sensitive"`
+	MaxResults    int    `json:"max_results"`
+}
+
+type searchMatch struct {
+	Path string `json:"path"`
+	Line int    `json:"line"`
+	Text string `json:"text"`
+}
+
+type searchTextResult struct {
+	Matches   []searchMatch `json:"matches"`
+	Truncated bool          `json:"truncated"`
+}
+
+func (t *searchTextTool) Execute(ctx context.Context, raw json.RawMessage) (any, error) {
+	var args searchTextArgs
+	if err := decodeArguments(raw, &args); err != nil {
+		return nil, err
+	}
+	if args.Query == "" {
+		return nil, fmt.Errorf("query is required")
+	}
+	if args.MaxResults == 0 {
+		args.MaxResults = 50
+	}
+	if args.MaxResults < 1 || args.MaxResults > 200 {
+		return nil, fmt.Errorf("max_results must be between 1 and 200")
+	}
+	target, err := t.workspace.resolve(args.Path)
+	if err != nil {
+		return nil, err
+	}
+	info, err := os.Stat(target)
+	if err != nil {
+		return nil, err
+	}
+	result := searchTextResult{Matches: make([]searchMatch, 0, args.MaxResults)}
+	visit := func(path string, entry fs.DirEntry) error {
+		if err := ctx.Err(); err != nil {
+			return err
+		}
+		if entry.IsDir() {
+			if path != target && shouldSkipDirectory(entry.Name()) {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		if entry.Type()&os.ModeSymlink != 0 {
+			return nil
+		}
+		value, err := entry.Info()
+		if err != nil || !value.Mode().IsRegular() || value.Size() > maxSearchFileBytes {
+			return nil
+		}
+		matches, binary, err := searchFile(path, args.Query, args.CaseSensitive, args.MaxResults-len(result.Matches))
+		if err != nil || binary {
+			return err
+		}
+		for _, match := range matches {
+			match.Path = t.workspace.relative(path)
+			result.Matches = append(result.Matches, match)
+		}
+		if len(result.Matches) >= args.MaxResults {
+			result.Truncated = true
+			return fs.SkipAll
+		}
+		return nil
+	}
+	if !info.IsDir() {
+		entry := fs.FileInfoToDirEntry(info)
+		err = visit(target, entry)
+	} else {
+		err = filepath.WalkDir(target, func(path string, entry fs.DirEntry, walkErr error) error {
+			if walkErr != nil {
+				return walkErr
+			}
+			return visit(path, entry)
+		})
+	}
+	return result, err
+}
+
+func searchFile(path, query string, caseSensitive bool, limit int) ([]searchMatch, bool, error) {
+	handle, err := os.Open(path)
+	if err != nil {
+		return nil, false, err
+	}
+	defer handle.Close()
+	needle := query
+	if !caseSensitive {
+		needle = strings.ToLower(needle)
+	}
+	scanner := bufio.NewScanner(handle)
+	scanner.Buffer(make([]byte, 64*1024), maxSearchFileBytes)
+	var matches []searchMatch
+	for lineNumber := 1; scanner.Scan(); lineNumber++ {
+		line := scanner.Text()
+		if strings.IndexByte(line, 0) >= 0 {
+			return nil, true, nil
+		}
+		haystack := line
+		if !caseSensitive {
+			haystack = strings.ToLower(haystack)
+		}
+		if strings.Contains(haystack, needle) {
+			matches = append(matches, searchMatch{
+				Line: lineNumber,
+				Text: truncateText(strings.TrimSpace(line), 300),
+			})
+			if len(matches) >= limit {
+				break
+			}
+		}
+	}
+	return matches, false, scanner.Err()
+}
+
+func decodeArguments(raw json.RawMessage, target any) error {
+	decoder := json.NewDecoder(bytes.NewReader(raw))
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(target); err != nil {
+		return fmt.Errorf("invalid arguments: %w", err)
+	}
+	if decoder.Decode(&struct{}{}) != io.EOF {
+		return fmt.Errorf("invalid arguments: trailing data")
+	}
+	return nil
+}
+
+func shouldSkipDirectory(name string) bool {
+	switch name {
+	case ".git", "build", "dist", "node_modules":
+		return true
+	default:
+		return false
+	}
+}
+
+func pathDepth(path string) int {
+	if path == "" || path == "." {
+		return 0
+	}
+	return strings.Count(filepath.ToSlash(filepath.Clean(path)), "/") + 1
+}
+
+func truncateText(value string, limit int) string {
+	runes := []rune(value)
+	if len(runes) <= limit {
+		return value
+	}
+	return string(runes[:limit])
+}

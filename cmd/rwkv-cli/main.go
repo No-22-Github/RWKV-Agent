@@ -7,6 +7,8 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"net/http"
+	"net/textproto"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -14,7 +16,11 @@ import (
 	"sync"
 	"syscall"
 
+	"github.com/no22/RWKV-Agent/internal/agent"
 	concurrentcli "github.com/no22/RWKV-Agent/internal/cli/concurrent"
+	"github.com/no22/RWKV-Agent/internal/continuation"
+	localcontinuation "github.com/no22/RWKV-Agent/internal/continuation/local"
+	"github.com/no22/RWKV-Agent/internal/continuation/rwkvlightning"
 	"github.com/no22/RWKV-Agent/internal/conversation"
 	"github.com/no22/RWKV-Agent/internal/inference"
 	rwkvbackend "github.com/no22/RWKV-Agent/internal/inference/backend/rwkvmobile"
@@ -31,6 +37,7 @@ type runOptions struct {
 	sessionPath       string
 	prompt            string
 	maxTokens         int
+	decisionMaxTokens int
 	temperature       float64
 	topK              int
 	topP              float64
@@ -44,6 +51,23 @@ type runOptions struct {
 	concurrency       int
 	concurrentPrompt  string
 	ui                string
+	workspace         string
+	maxSteps          int
+	completion        string
+	apiURL            string
+	apiPasswordEnv    string
+	apiHeaderEnvs     stringListFlag
+}
+
+type stringListFlag []string
+
+func (values *stringListFlag) String() string {
+	return strings.Join(*values, ",")
+}
+
+func (values *stringListFlag) Set(value string) error {
+	*values = append(*values, value)
+	return nil
 }
 
 func main() {
@@ -55,6 +79,8 @@ func main() {
 	switch os.Args[1] {
 	case "run":
 		err = run(os.Args[2:])
+	case "agent":
+		err = runAgent(os.Args[2:])
 	case "concurrent":
 		err = runConcurrent(os.Args[2:])
 	case "bench":
@@ -78,6 +104,7 @@ func usage() {
 	fmt.Fprintln(os.Stderr, `Usage:
   rwkv-cli convert --input <RWKV .pth> --output <MLX model directory>
   rwkv-cli run --model <RWKV .pth or MLX directory> [--prompt <text> | --session <bundle>]
+  rwkv-cli agent --model <path or remote model ID> --prompt <task> [--completion local|rwkv-lightning]
   rwkv-cli concurrent --model <RWKV .pth or MLX directory> [--concurrency 1..8] [--ui auto|tui|plain]
   rwkv-cli bench --model <RWKV .pth or MLX directory> [--concurrency 1..8]`)
 }
@@ -137,17 +164,31 @@ func bundledTokenizerPath() (string, error) {
 func parseRunOptions(name string, args []string) (runOptions, error) {
 	var options runOptions
 	fs := flag.NewFlagSet(name, flag.ContinueOnError)
-	fs.StringVar(&options.modelPath, "model", "", "RWKV .pth file or MLX model directory")
+	defaultTopK := 128
+	defaultTopP := 0.5
+	defaultPresencePenalty := 2.0
+	defaultFrequencyPenalty := 0.1
+	defaultPenaltyDecay := 0.99
+	defaultMaxTokens := 256
+	if name == "agent" {
+		defaultTopK = 1
+		defaultTopP = 1
+		defaultPresencePenalty = 0
+		defaultFrequencyPenalty = 0
+		defaultPenaltyDecay = 1
+		defaultMaxTokens = 1024
+	}
+	fs.StringVar(&options.modelPath, "model", "", "local model path or remote model identifier")
 	fs.StringVar(&options.backend, "backend", "auto", "inference backend: auto or rwkvmobile")
 	fs.StringVar(&options.provider, "provider", "auto", "native provider: auto or mlx")
 	fs.StringVar(&options.tokenizer, "tokenizer", "", "RWKV World tokenizer; bundled automatically for .pth")
-	fs.IntVar(&options.maxTokens, "max-tokens", 256, "maximum generated tokens")
+	fs.IntVar(&options.maxTokens, "max-tokens", defaultMaxTokens, "maximum generated tokens")
 	fs.Float64Var(&options.temperature, "temperature", 1, "sampling temperature")
-	fs.IntVar(&options.topK, "top-k", 128, "top-k sampling cutoff")
-	fs.Float64Var(&options.topP, "top-p", 0.5, "top-p sampling cutoff")
-	fs.Float64Var(&options.presencePenalty, "presence-penalty", 2, "RWKV presence penalty")
-	fs.Float64Var(&options.frequencyPenalty, "frequency-penalty", 0.1, "RWKV frequency penalty")
-	fs.Float64Var(&options.penaltyDecay, "penalty-decay", 0.99, "RWKV repetition-penalty decay")
+	fs.IntVar(&options.topK, "top-k", defaultTopK, "top-k sampling cutoff")
+	fs.Float64Var(&options.topP, "top-p", defaultTopP, "top-p sampling cutoff")
+	fs.Float64Var(&options.presencePenalty, "presence-penalty", defaultPresencePenalty, "RWKV presence penalty")
+	fs.Float64Var(&options.frequencyPenalty, "frequency-penalty", defaultFrequencyPenalty, "RWKV frequency penalty")
+	fs.Float64Var(&options.penaltyDecay, "penalty-decay", defaultPenaltyDecay, "RWKV repetition-penalty decay")
 	fs.BoolVar(&options.reasoning, "reasoning", false, "enable the RWKV G1 fast-thinking profile")
 	fs.StringVar(&options.nativeState, "native-state", "auto", "native State mode: auto, off, or required")
 	switch name {
@@ -155,6 +196,24 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		fs.StringVar(&options.sessionPath, "session", "", "session bundle path")
 		fs.StringVar(&options.prompt, "prompt", "", "single-turn prompt; omit for the REPL")
 		fs.BoolVar(&options.autosave, "autosave", false, "save the session after each committed turn")
+	case "agent":
+		fs.StringVar(&options.prompt, "prompt", "", "task for the read-only repository agent")
+		fs.StringVar(&options.workspace, "workspace", ".", "workspace root available to read-only tools")
+		fs.IntVar(&options.maxSteps, "max-steps", 6, "maximum model steps including protocol retries")
+		fs.IntVar(&options.decisionMaxTokens, "decision-max-tokens", 256, "maximum generated tokens for tool selection")
+		fs.StringVar(&options.completion, "completion", "local", "continuation provider: local or rwkv-lightning")
+		fs.StringVar(&options.apiURL, "api-url", "", "full rwkv_lightning continuation endpoint URL")
+		fs.StringVar(
+			&options.apiPasswordEnv,
+			"api-password-env",
+			"RWKV_API_PASSWORD",
+			"environment variable containing the rwkv_lightning password",
+		)
+		fs.Var(
+			&options.apiHeaderEnvs,
+			"api-header-env",
+			"repeatable HTTP_HEADER=ENV_VAR mapping for deployment authentication",
+		)
 	case "concurrent":
 		fs.IntVar(&options.concurrency, "concurrency", 4, "number of overlapping sessions")
 		fs.StringVar(&options.concurrentPrompt, "concurrent-prompt", "用一句话介绍 RWKV。", "prompt for every session")
@@ -172,7 +231,21 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		fs.Usage()
 		return options, fmt.Errorf("%s requires --model", name)
 	}
-	if options.tokenizer == "" {
+	if name == "agent" {
+		if strings.TrimSpace(options.prompt) == "" {
+			return options, errors.New("agent requires --prompt")
+		}
+		if options.maxSteps < 1 || options.maxSteps > 20 {
+			return options, errors.New("--max-steps must be between 1 and 20")
+		}
+		if options.completion != "local" && options.completion != "rwkv-lightning" {
+			return options, fmt.Errorf("unsupported continuation provider %q", options.completion)
+		}
+		if options.completion == "rwkv-lightning" && strings.TrimSpace(options.apiURL) == "" {
+			return options, errors.New("rwkv-lightning continuation requires --api-url")
+		}
+	}
+	if options.tokenizer == "" && !(name == "agent" && options.completion == "rwkv-lightning") {
 		if strings.EqualFold(filepath.Ext(options.modelPath), ".pth") {
 			tokenizer, err := bundledTokenizerPath()
 			if err != nil {
@@ -205,6 +278,9 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		options.presencePenalty < 0 || options.frequencyPenalty < 0 ||
 		options.penaltyDecay <= 0 || options.penaltyDecay > 1 {
 		return options, errors.New("invalid sampling options")
+	}
+	if name == "agent" && options.decisionMaxTokens <= 0 {
+		return options, errors.New("invalid agent decision token limit")
 	}
 	return options, nil
 }
@@ -341,6 +417,132 @@ func run(args []string) error {
 		return nil
 	}
 	return repl(lifecycle, controller, runtime.model, current, options)
+}
+
+func runAgent(args []string) error {
+	options, err := parseRunOptions("agent", args)
+	if err != nil {
+		return err
+	}
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	var generator continuation.Generator
+	if options.completion == "rwkv-lightning" {
+		headers, headerErr := loadAPIHeaders(options.apiHeaderEnvs)
+		if headerErr != nil {
+			return headerErr
+		}
+		generator, err = rwkvlightning.New(rwkvlightning.Config{
+			Endpoint: options.apiURL,
+			Model:    options.modelPath,
+			Password: os.Getenv(options.apiPasswordEnv),
+			Headers:  headers,
+		})
+		if err != nil {
+			return fmt.Errorf("initialize remote continuation: %w", err)
+		}
+	} else {
+		runtime, loadErr := loadRuntime(ctx, options)
+		if loadErr != nil {
+			return loadErr
+		}
+		defer runtime.Close()
+		session, sessionErr := runtime.model.NewSession(ctx, inference.SessionOptions{})
+		if sessionErr != nil {
+			return fmt.Errorf("create agent session: %w", sessionErr)
+		}
+		defer session.Close()
+		generator, err = localcontinuation.New(session)
+		if err != nil {
+			return fmt.Errorf("initialize local continuation: %w", err)
+		}
+	}
+	tools, err := agent.WorkspaceTools(options.workspace)
+	if err != nil {
+		return fmt.Errorf("initialize agent workspace: %w", err)
+	}
+	theme := terminal.NewTheme(terminal.SupportsStyle(os.Stderr))
+	runner, err := agent.NewRunner(generator, tools, agent.Options{
+		MaxSteps:                options.maxSteps,
+		ProtocolRetries:         1,
+		DecisionMaxOutputTokens: options.decisionMaxTokens,
+		ControlPrompt:           agent.ControlPromptSystem,
+		Protocol:                agent.G1IProtocol{},
+		Renderer:                agent.RWKVChatRenderer{Reasoning: options.reasoning},
+		Generation: continuation.Request{
+			Model:           options.modelPath,
+			MaxOutputTokens: options.maxTokens,
+			Sampling: continuation.Sampling{
+				Temperature:      float32(options.temperature),
+				TopK:             options.topK,
+				TopP:             float32(options.topP),
+				PresencePenalty:  float32(options.presencePenalty),
+				FrequencyPenalty: float32(options.frequencyPenalty),
+				PenaltyDecay:     float32(options.penaltyDecay),
+			},
+		},
+		Observe: func(event agent.Event) {
+			switch event.Kind {
+			case agent.EventModelStart:
+				fmt.Fprintf(os.Stderr, "%s step %d\n", theme.Render(theme.Muted, "Agent"), event.Step)
+			case agent.EventRetry:
+				fmt.Fprintln(os.Stderr, theme.Render(theme.Warning, "Retrying invalid model action"))
+			case agent.EventToolStart:
+				fmt.Fprintf(os.Stderr, "%s %s\n", theme.Render(theme.Accent, "Tool"), event.Tool)
+			case agent.EventToolDone:
+				if event.Err != nil {
+					fmt.Fprintf(os.Stderr, "%s %s: %v\n", theme.Render(theme.Warning, "Tool failed"), event.Tool, event.Err)
+				}
+			}
+		},
+	})
+	if err != nil {
+		return err
+	}
+	result, err := runner.Run(ctx, options.prompt)
+	if err != nil {
+		if os.Getenv("RWKV_AGENT_DEBUG") == "1" {
+			for _, step := range result.Steps {
+				fmt.Fprintf(
+					os.Stderr,
+					"Agent raw step %d: %q\n",
+					step.Number,
+					step.ModelOutput,
+				)
+			}
+		}
+		return err
+	}
+	fmt.Fprintln(os.Stdout, terminal.SanitizeModelText(result.Output))
+	return nil
+}
+
+func loadAPIHeaders(mappings []string) (http.Header, error) {
+	headers := make(http.Header, len(mappings))
+	for _, mapping := range mappings {
+		name, environment, ok := strings.Cut(mapping, "=")
+		name = textproto.CanonicalMIMEHeaderKey(strings.TrimSpace(name))
+		environment = strings.TrimSpace(environment)
+		if !ok || name == "" || environment == "" {
+			return nil, fmt.Errorf(
+				"invalid --api-header-env %q; expected HTTP_HEADER=ENV_VAR",
+				mapping,
+			)
+		}
+		value, exists := os.LookupEnv(environment)
+		if !exists {
+			return nil, fmt.Errorf(
+				"--api-header-env for %s references unset environment variable %s",
+				name,
+				environment,
+			)
+		}
+		if strings.ContainsAny(value, "\r\n") {
+			return nil, fmt.Errorf("environment variable %s contains an invalid header value", environment)
+		}
+		headers.Set(name, value)
+	}
+	return headers, nil
 }
 
 func repl(

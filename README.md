@@ -23,6 +23,8 @@ rwkv-cli
 - [`docs/rwkv-mobile-adoption-and-cli-milestone.md`](docs/rwkv-mobile-adoption-and-cli-milestone.md)
 - [`docs/rwkv-mobile-macos-cli-implementation-plan.md`](docs/rwkv-mobile-macos-cli-implementation-plan.md)
 - [`docs/rwkv-cli-tui-redesign-plan.md`](docs/rwkv-cli-tui-redesign-plan.md)
+- [`docs/agent-harness-milestone.md`](docs/agent-harness-milestone.md)
+- [`docs/continuation-and-agent-protocol.md`](docs/continuation-and-agent-protocol.md)
 
 ## 环境
 
@@ -200,6 +202,78 @@ Conversation 完成校验和恢复，成功后才替换当前会话。
 revision，丢弃旧版 native State，再用当前 profile replay。未显式传 `--reasoning` 时会
 继承 Session 原有的 reasoning 模式；显式模式冲突、模型或 tokenizer 不匹配仍会拒绝。
 迁移后的 autosave 写入新 revision，不会原地改写旧 revision。
+
+## 实验性只读 Agent 框架
+
+`agent` 命令用于验证第一条 Agent Harness 纵向链路：模型可以在指定工作区内列出文件、
+读取文本和搜索字面量，然后基于实际文件内容回答。工具没有写入、命令执行或网络能力。
+Agent 只依赖“文本前缀 -> 续写文本”的窄接口，本地模型和 `rwkv_lightning` HTTP 是两种
+可替换 adapter。当前 `rwkv-g1i-envelope-v1` 采用 G1I 已验证的文本 envelope：
+`<tool_call>{"name":...,"arguments":...}</tool_call>` 和
+`Tool: <tool_result>...</tool_result>`。第一轮普通文本直接作为最终回答，不要求套
+envelope；因此用户询问 Agent 能力时不需要虚构一次工具调用。
+
+工具选择和工具后回答是两个受控阶段。成功执行一个只读工具后，Runner 使用独立的短回答
+prompt，并按任务相关性压缩过长字符串，再预填 `<answer>`；工具路由示例和完整大文件
+不会继续占用回答阶段上下文。工具失败则回到选择阶段，让模型修正调用。旧裸 JSON 动作
+协议已在真实 13B 验证通过后移除。
+
+```sh
+./dist/rwkv-cli agent \
+  --model /absolute/path/to/rwkv7-model.pth \
+  --workspace /absolute/path/to/project \
+  --prompt "阅读 README 和 docs，概括当前已完成内容与下一步"
+```
+
+Agent 默认使用 `temperature=1`、`top-k=1`、`top-p=1` 的确定性解码，presence/frequency
+惩罚为 0，`penalty-decay=1`。工具选择最多生成 256 token，最终回答最多生成 1024
+token，并限制为 6 个模型 step。`rwkv_lightning` 在 `top-k=1` 时直接取 argmax，因此
+temperature 和 top-p 不参与随机采样。可用参数包括：
+
+```text
+--max-steps <1..20>
+--decision-max-tokens <n>
+--max-tokens <n>
+--workspace <directory>
+--reasoning
+```
+
+使用 `rwkv_lightning` 的原生续写接口：
+
+```sh
+# 仅当服务启用请求体密码时：export RWKV_API_PASSWORD='...'
+# 仅当 endpoint 使用 Cloudflare Access 时：
+export RWKV_CF_ACCESS_CLIENT_ID='...'
+export RWKV_CF_ACCESS_CLIENT_SECRET='...'
+
+./dist/rwkv-cli agent \
+  --completion rwkv-lightning \
+  --api-url https://example.com/v1/chat/completions \
+  --model rwkv7-13b \
+  --api-header-env CF-Access-Client-Id=RWKV_CF_ACCESS_CLIENT_ID \
+  --api-header-env CF-Access-Client-Secret=RWKV_CF_ACCESS_CLIENT_SECRET \
+  --workspace /absolute/path/to/project \
+  --prompt "阅读 README 和 docs，概括当前已完成内容与下一步"
+```
+
+`--api-url` 是完整 endpoint，不会自动拼接 OpenAI 路径。密码默认从
+`RWKV_API_PASSWORD` 读取，也可用 `--api-password-env` 指定其他环境变量；服务没有请求体
+密码时可以不设置。`--api-header-env` 可重复使用，将部署层认证请求头绑定到环境变量，
+凭证不会进入命令行参数或配置文件。远程模型只会收到 Agent 组成的 prompt，但其中会包含
+模型主动读取的本地文件片段。
+
+只有以 `<tool_call>` 开头的输出会进入严格 envelope/JSON 解析；其余正常文本是最终
+回答。畸形工具控制帧只重试一次，之后明确失败。动作协议、RWKV prompt 渲染器和续写
+传输分别版本化，未来可以替换工具格式而不修改本地或 HTTP generator。所有工具路径必须
+相对 `--workspace`；绝对路径、
+`..` 穿越和指向工作区外的符号链接都会被拒绝。单文件读取限制为 64 KiB，搜索跳过
+`.git`、`build`、`dist` 和 `node_modules`。
+
+诊断模型协议错误时可临时设置 `RWKV_AGENT_DEBUG=1`；它会在失败时打印原始模型 step，
+其中可能包含本地文件内容，默认不会启用。
+
+当前命令是一次性只读任务，还没有 Agent transcript 保存/恢复、上下文压缩、写文件审批或
+命令执行。后续实施顺序与验收门槛见 Agent Harness 里程碑文档。
 
 ## 1–8 路并发与选中续聊
 
