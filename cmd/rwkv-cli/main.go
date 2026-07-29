@@ -26,6 +26,7 @@ import (
 	rwkvbackend "github.com/no22/RWKV-Agent/internal/inference/backend/rwkvmobile"
 	"github.com/no22/RWKV-Agent/internal/native/converter"
 	"github.com/no22/RWKV-Agent/internal/terminal"
+	agenttui "github.com/no22/RWKV-Agent/internal/tui/agent"
 	concurrenttui "github.com/no22/RWKV-Agent/internal/tui/concurrent"
 )
 
@@ -104,7 +105,7 @@ func usage() {
 	fmt.Fprintln(os.Stderr, `Usage:
   rwkv-cli convert --input <RWKV .pth> --output <MLX model directory>
   rwkv-cli run --model <RWKV .pth or MLX directory> [--prompt <text> | --session <bundle>]
-  rwkv-cli agent --model <path or remote model ID> --prompt <task> [--completion local|rwkv-lightning]
+  rwkv-cli agent --model <path or remote model ID> [--prompt <task>] [--ui auto|tui|plain]
   rwkv-cli concurrent --model <RWKV .pth or MLX directory> [--concurrency 1..8] [--ui auto|tui|plain]
   rwkv-cli bench --model <RWKV .pth or MLX directory> [--concurrency 1..8]`)
 }
@@ -198,6 +199,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		fs.BoolVar(&options.autosave, "autosave", false, "save the session after each committed turn")
 	case "agent":
 		fs.StringVar(&options.prompt, "prompt", "", "task for the read-only repository agent")
+		fs.StringVar(&options.ui, "ui", "auto", "agent renderer: auto, tui, or plain")
 		fs.StringVar(&options.workspace, "workspace", ".", "workspace root available to read-only tools")
 		fs.IntVar(&options.maxSteps, "max-steps", 6, "maximum model steps including protocol retries")
 		fs.IntVar(&options.decisionMaxTokens, "decision-max-tokens", 256, "maximum generated tokens for tool selection")
@@ -232,9 +234,6 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		return options, fmt.Errorf("%s requires --model", name)
 	}
 	if name == "agent" {
-		if strings.TrimSpace(options.prompt) == "" {
-			return options, errors.New("agent requires --prompt")
-		}
 		if options.maxSteps < 1 || options.maxSteps > 20 {
 			return options, errors.New("--max-steps must be between 1 and 20")
 		}
@@ -243,6 +242,9 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		}
 		if options.completion == "rwkv-lightning" && strings.TrimSpace(options.apiURL) == "" {
 			return options, errors.New("rwkv-lightning continuation requires --api-url")
+		}
+		if options.ui == string(terminal.UIPlain) && strings.TrimSpace(options.prompt) == "" {
+			return options, errors.New("agent --ui plain requires --prompt")
 		}
 	}
 	if options.tokenizer == "" && !(name == "agent" && options.completion == "rwkv-lightning") {
@@ -268,7 +270,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 	if options.nativeState != "auto" && options.nativeState != "off" && options.nativeState != "required" {
 		return options, fmt.Errorf("invalid --native-state %q", options.nativeState)
 	}
-	if name == "concurrent" {
+	if name == "agent" || name == "concurrent" {
 		if _, err := terminal.ParseUIMode(options.ui); err != nil {
 			return options, err
 		}
@@ -424,6 +426,17 @@ func runAgent(args []string) error {
 	if err != nil {
 		return err
 	}
+	mode, err := terminal.ParseUIMode(options.ui)
+	if err != nil {
+		return err
+	}
+	selected, err := terminal.SelectUI(mode, terminal.Detect(os.Stdin, os.Stdout))
+	if err != nil {
+		return err
+	}
+	if selected == terminal.UIPlain && strings.TrimSpace(options.prompt) == "" {
+		return errors.New("agent requires --prompt outside an interactive TUI")
+	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	var generator continuation.Generator
@@ -462,6 +475,23 @@ func runAgent(args []string) error {
 		return fmt.Errorf("initialize agent workspace: %w", err)
 	}
 	theme := terminal.NewTheme(terminal.SupportsStyle(os.Stderr))
+	var observe func(agent.Event)
+	if selected == terminal.UIPlain {
+		observe = func(event agent.Event) {
+			switch event.Kind {
+			case agent.EventModelStart:
+				fmt.Fprintf(os.Stderr, "%s step %d\n", theme.Render(theme.Muted, "Agent"), event.Step)
+			case agent.EventRetry:
+				fmt.Fprintln(os.Stderr, theme.Render(theme.Warning, "Retrying invalid model action"))
+			case agent.EventToolStart:
+				fmt.Fprintf(os.Stderr, "%s %s\n", theme.Render(theme.Accent, "Tool"), event.Tool)
+			case agent.EventToolDone:
+				if event.Err != nil {
+					fmt.Fprintf(os.Stderr, "%s %s: %v\n", theme.Render(theme.Warning, "Tool failed"), event.Tool, event.Err)
+				}
+			}
+		}
+	}
 	runner, err := agent.NewRunner(generator, tools, agent.Options{
 		MaxSteps:                options.maxSteps,
 		ProtocolRetries:         1,
@@ -481,22 +511,33 @@ func runAgent(args []string) error {
 				PenaltyDecay:     float32(options.penaltyDecay),
 			},
 		},
-		Observe: func(event agent.Event) {
-			switch event.Kind {
-			case agent.EventModelStart:
-				fmt.Fprintf(os.Stderr, "%s step %d\n", theme.Render(theme.Muted, "Agent"), event.Step)
-			case agent.EventRetry:
-				fmt.Fprintln(os.Stderr, theme.Render(theme.Warning, "Retrying invalid model action"))
-			case agent.EventToolStart:
-				fmt.Fprintf(os.Stderr, "%s %s\n", theme.Render(theme.Accent, "Tool"), event.Tool)
-			case agent.EventToolDone:
-				if event.Err != nil {
-					fmt.Fprintf(os.Stderr, "%s %s: %v\n", theme.Render(theme.Warning, "Tool failed"), event.Tool, event.Err)
-				}
-			}
-		},
+		Observe: observe,
 	})
 	if err != nil {
+		return err
+	}
+	if selected == terminal.UITUI {
+		provider := options.provider
+		if options.completion == "rwkv-lightning" {
+			provider = options.completion
+		} else if provider == "auto" {
+			provider = "mlx"
+		}
+		_, err = agenttui.Run(
+			ctx,
+			runner,
+			agenttui.Metadata{
+				Model:     filepath.Base(options.modelPath),
+				Provider:  provider,
+				Workspace: options.workspace,
+			},
+			options.prompt,
+			os.Stdin,
+			os.Stdout,
+		)
+		if errors.Is(err, context.Canceled) {
+			return nil
+		}
 		return err
 	}
 	result, err := runner.Run(ctx, options.prompt)

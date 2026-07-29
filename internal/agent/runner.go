@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+	"sync"
 
 	"github.com/no22/RWKV-Agent/internal/continuation"
 )
@@ -16,6 +17,12 @@ var (
 	ErrProtocol = errors.New("agent protocol error")
 	ErrMaxSteps = errors.New("agent reached the step limit")
 )
+
+const casualConversationControl = `You are a helpful conversational assistant.
+The current user message is casual conversation, not a repository task.
+Reply briefly and naturally in the user's language.
+Do not inspect, list, read, search, summarize, or mention the workspace.
+Repository tools are unavailable for this turn.`
 
 type ToolSpec struct {
 	Name        string
@@ -81,6 +88,10 @@ type Runner struct {
 	protocol  ActionProtocol
 	renderer  PromptRenderer
 	control   string
+
+	runMu   sync.Mutex
+	stateMu sync.RWMutex
+	history []Message
 }
 
 func NewRunner(generator continuation.Generator, tools []Tool, options Options) (*Runner, error) {
@@ -175,28 +186,53 @@ func applyGenerationDefaults(request *continuation.Request) {
 }
 
 func (r *Runner) Run(ctx context.Context, prompt string) (Result, error) {
+	return r.RunWithObserver(ctx, prompt, nil)
+}
+
+// RunWithObserver executes and transactionally commits one conversation turn.
+// A cancelled or failed turn never changes History.
+func (r *Runner) RunWithObserver(
+	ctx context.Context,
+	prompt string,
+	observer func(Event),
+) (Result, error) {
 	if strings.TrimSpace(prompt) == "" {
 		return Result{}, fmt.Errorf("%w: prompt is required", continuation.ErrInvalidRequest)
 	}
+	r.runMu.Lock()
+	defer r.runMu.Unlock()
+
 	task := strings.TrimSpace(prompt)
-	messages := []Message{
-		{Role: RoleSystem, Content: r.control},
-		{Role: RoleUser, Content: task},
+	casual := isCasualConversation(task)
+	history := r.History()
+	messages := make([]Message, 0, len(history)+2)
+	control := r.control
+	if casual {
+		control = casualConversationControl
 	}
+	messages = append(messages, Message{Role: RoleSystem, Content: control})
+	messages = append(messages, history...)
+	messages = append(messages, Message{Role: RoleUser, Content: task})
 	if r.options.ControlPrompt == ControlPromptInline {
-		messages = []Message{{
+		label := "Repository task:"
+		if casual {
+			label = "Current user message:"
+		}
+		messages = append([]Message(nil), history...)
+		messages = append(messages, Message{
 			Role:    RoleUser,
-			Content: r.control + "\n\nRepository task:\n" + task,
-		}}
+			Content: control + "\n\n" + label + "\n" + task,
+		})
 	}
 
 	result := Result{Steps: make([]Step, 0, r.options.MaxSteps)}
+	turnMessages := []Message{{Role: RoleUser, Content: task}}
 	retries := 0
 	seenToolCalls := make(map[string]struct{})
 	stage := StageDecision
 	assistantPrefix := ""
 	for step := 1; step <= r.options.MaxSteps; step++ {
-		r.observe(Event{Kind: EventModelStart, Step: step})
+		r.observe(Event{Kind: EventModelStart, Step: step}, observer)
 		rendered, err := r.renderer.Render(messages)
 		if err != nil {
 			return result, err
@@ -228,7 +264,7 @@ func (r *Runner) Run(ctx context.Context, prompt string) (Result, error) {
 				return result, err
 			}
 			retries++
-			r.observe(Event{Kind: EventRetry, Step: step, Err: err})
+			r.observe(Event{Kind: EventRetry, Step: step, Err: err}, observer)
 			if strings.TrimSpace(modelAction) != "" {
 				messages = append(messages, Message{Role: RoleAssistant, Content: modelAction})
 			}
@@ -241,14 +277,37 @@ func (r *Runner) Run(ctx context.Context, prompt string) (Result, error) {
 		retries = 0
 		if action.Type == "final" {
 			result.Output = action.Content
+			turnMessages = append(turnMessages, Message{
+				Role:    RoleAssistant,
+				Content: action.Content,
+			})
+			r.commit(turnMessages)
 			return result, nil
+		}
+		if casual {
+			err = fmt.Errorf("%w: tools are unavailable for casual conversation", ErrProtocol)
+			if retries >= r.options.ProtocolRetries {
+				return result, err
+			}
+			retries++
+			r.observe(Event{Kind: EventRetry, Step: step, Err: err}, observer)
+			messages = append(
+				messages,
+				Message{Role: RoleAssistant, Content: modelAction},
+				Message{
+					Role: RoleUser,
+					Content: "Reply to my casual message directly and briefly. " +
+						"Do not call tools or discuss the repository.",
+				},
+			)
+			continue
 		}
 
 		tool, ok := r.tools[action.Name]
 		if !ok {
 			err = fmt.Errorf("unknown tool %q", action.Name)
 		} else {
-			r.observe(Event{Kind: EventToolStart, Step: step, Tool: action.Name})
+			r.observe(Event{Kind: EventToolStart, Step: step, Tool: action.Name}, observer)
 		}
 		var value any
 		if err == nil {
@@ -270,18 +329,29 @@ func (r *Runner) Run(ctx context.Context, prompt string) (Result, error) {
 		if marshalErr != nil {
 			return result, fmt.Errorf("encode tool result: %w", marshalErr)
 		}
-		r.observe(Event{Kind: EventToolDone, Step: step, Tool: action.Name, Err: err})
+		r.observe(Event{Kind: EventToolDone, Step: step, Tool: action.Name, Err: err}, observer)
 		toolContent := r.protocol.FormatToolResult(
 			action.Name,
 			fmt.Sprintf("call-%d", step),
 			string(encoded),
 		)
 		toolContent = compactToolResult(task, toolContent)
+		recordedAction := r.protocol.RecordAction(action, generated.Text)
+		turnMessages = append(
+			turnMessages,
+			Message{Role: RoleAssistant, Content: recordedAction},
+			Message{
+				Role:       RoleTool,
+				Name:       action.Name,
+				ToolCallID: fmt.Sprintf("call-%d", step),
+				Content:    toolContent,
+			},
+		)
 		messages = append(
 			messages,
 			Message{
 				Role:    RoleAssistant,
-				Content: r.protocol.RecordAction(action, generated.Text),
+				Content: recordedAction,
 			},
 			Message{
 				Role:       RoleTool,
@@ -291,7 +361,7 @@ func (r *Runner) Run(ctx context.Context, prompt string) (Result, error) {
 			},
 		)
 		if err == nil {
-			answerMessages, prefix := r.protocol.PrepareAnswer(task, toolContent)
+			answerMessages, prefix := r.protocol.PrepareAnswer(history, task, toolContent)
 			if len(answerMessages) == 0 || strings.TrimSpace(prefix) == "" {
 				return result, fmt.Errorf("%w: protocol did not prepare an answer stage", ErrProtocol)
 			}
@@ -311,6 +381,44 @@ func (r *Runner) Run(ctx context.Context, prompt string) (Result, error) {
 	return result, ErrMaxSteps
 }
 
+func isCasualConversation(prompt string) bool {
+	normalized := strings.ToLower(strings.TrimSpace(prompt))
+	normalized = strings.Trim(normalized, " \t\r\n,.!?;:，。！？；：～~")
+	switch normalized {
+	case "你好", "您好", "嗨", "哈喽", "哈啰", "在吗",
+		"hello", "hi", "hey", "hello there",
+		"早上好", "上午好", "下午好", "晚上好",
+		"good morning", "good afternoon", "good evening":
+		return true
+	default:
+		return false
+	}
+}
+
+// History returns a copy of the committed multi-turn transcript. The control
+// prompt is intentionally excluded.
+func (r *Runner) History() []Message {
+	r.stateMu.RLock()
+	defer r.stateMu.RUnlock()
+	return append([]Message(nil), r.history...)
+}
+
+// Reset clears committed conversation history. It does not change the tool
+// registry or generation configuration.
+func (r *Runner) Reset() {
+	r.runMu.Lock()
+	defer r.runMu.Unlock()
+	r.stateMu.Lock()
+	r.history = nil
+	r.stateMu.Unlock()
+}
+
+func (r *Runner) commit(messages []Message) {
+	r.stateMu.Lock()
+	r.history = append(r.history, messages...)
+	r.stateMu.Unlock()
+}
+
 func canonicalToolCall(action Action) string {
 	var arguments bytes.Buffer
 	if err := json.Compact(&arguments, action.Arguments); err != nil {
@@ -319,9 +427,12 @@ func canonicalToolCall(action Action) string {
 	return action.Name + "\x00" + arguments.String()
 }
 
-func (r *Runner) observe(event Event) {
+func (r *Runner) observe(event Event, observer func(Event)) {
 	if r.options.Observe != nil {
 		r.options.Observe(event)
+	}
+	if observer != nil {
+		observer(event)
 	}
 }
 

@@ -23,6 +23,12 @@ Agent step loop；先证明模型能可靠地依据仓库证据回答，再逐�
 ## 2. 已落地
 
 - `rwkv-cli agent --model ... --workspace ... --prompt ...` 一次性任务入口。
+- `rwkv-cli agent --model ... --workspace ...` 多轮 TUI 入口；交互终端自动选择，
+  非交互环境保持 plain 输出。
+- Runner 事务化保存进程内 user/assistant/tool transcript；后续轮次的工具选择和独立
+  最终回答阶段都携带已提交历史。
+- 取消、生成失败、协议错误和 step 超限不提交当前轮；`/new`、`/reset` 显式清空历史。
+- Agent TUI 展示 Conversation、step、工具活动、只读权限和工作区，支持当前轮取消后继续。
 - `tool` / `final` 两类 G1I envelope 动作及严格字段校验。
 - 普通文本 final 与 G1I 工具控制帧的联合输出语义。
 - 一次协议纠错重试和 1–20 step 硬上限。
@@ -44,7 +50,8 @@ Agent step loop；先证明模型能可靠地依据仓库证据回答，再逐�
 
 ## 3. 当前边界
 
-- Agent transcript 尚未接入不可变 Session bundle，进程退出后不能续跑。
+- Agent transcript 已支持进程内多轮提交和重置，但尚未接入不可变 Session bundle，
+  进程退出后不能续跑。
 - 尚无全局 token 预算；当前只有回答阶段的单字符串字符预算。
 - 没有结构化输出约束，当前依赖 prompt、严格解析和一次纠错。
 - 还没有覆盖中英文任务、错误工具参数和多步查找的真实模型成功率基准。

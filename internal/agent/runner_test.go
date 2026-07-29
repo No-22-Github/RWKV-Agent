@@ -90,6 +90,84 @@ func TestRunnerSupportsInlineControlPrompt(t *testing.T) {
 	}
 }
 
+func TestRunnerRoutesCasualGreetingWithoutWorkspaceTools(t *testing.T) {
+	t.Parallel()
+
+	var prompt string
+	runner, err := NewRunner(
+		continuation.GenerateFunc(func(
+			_ context.Context,
+			request continuation.Request,
+			_ continuation.EventSink,
+		) (continuation.Result, error) {
+			prompt = request.Prompt
+			return continuation.Result{
+				Text:         "你好！有什么我可以帮你的吗？",
+				FinishReason: continuation.FinishStop,
+			}, nil
+		}),
+		[]Tool{echoTool{}},
+		Options{},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "你好")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(prompt, "Available tools:") ||
+		!strings.Contains(prompt, "casual conversation") {
+		t.Fatalf("greeting prompt was routed as a repository task:\n%s", prompt)
+	}
+	if result.Output != "你好！有什么我可以帮你的吗？" ||
+		len(result.Steps) != 1 ||
+		result.Steps[0].Tool != "" {
+		t.Fatalf("greeting result = %+v", result)
+	}
+}
+
+func TestRunnerRejectsToolAttemptForCasualGreeting(t *testing.T) {
+	t.Parallel()
+
+	outputs := []continuation.Result{
+		{
+			Text:         `<tool_call>{"name":"counting_echo","arguments":{"value":"wrong"}}</tool_call>`,
+			FinishReason: continuation.FinishStop,
+		},
+		{Text: "你好！", FinishReason: continuation.FinishStop},
+	}
+	calls := 0
+	tool := &countingEchoTool{calls: &calls}
+	generations := 0
+	runner, err := NewRunner(
+		continuation.GenerateFunc(func(
+			_ context.Context,
+			_ continuation.Request,
+			_ continuation.EventSink,
+		) (continuation.Result, error) {
+			result := outputs[generations]
+			generations++
+			return result, nil
+		}),
+		[]Tool{tool},
+		Options{MaxSteps: 3, ProtocolRetries: 1},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "你好！")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if calls != 0 {
+		t.Fatalf("casual greeting executed a workspace tool %d time(s)", calls)
+	}
+	if result.Output != "你好！" || len(runner.History()) != 2 {
+		t.Fatalf("greeting result=%+v history=%+v", result, runner.History())
+	}
+}
+
 func TestRunnerUsesIndependentG1IAnswerStageAfterTool(t *testing.T) {
 	t.Parallel()
 	outputs := []continuation.Result{
@@ -201,6 +279,153 @@ func TestRunnerRetriesProtocolOnce(t *testing.T) {
 	}
 }
 
+func TestRunnerCarriesCommittedHistoryAcrossTurns(t *testing.T) {
+	t.Parallel()
+
+	outputs := []string{"The title is Example.", "It was README.md."}
+	var prompts []string
+	runner, err := NewRunner(
+		continuation.GenerateFunc(func(
+			_ context.Context,
+			request continuation.Request,
+			_ continuation.EventSink,
+		) (continuation.Result, error) {
+			prompts = append(prompts, request.Prompt)
+			return continuation.Result{
+				Text:         outputs[len(prompts)-1],
+				FinishReason: continuation.FinishStop,
+			}, nil
+		}),
+		nil,
+		Options{},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := runner.Run(context.Background(), "What is the title?"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := runner.Run(context.Background(), "Which file was that from?"); err != nil {
+		t.Fatal(err)
+	}
+	for _, fragment := range []string{
+		"User: What is the title?",
+		"Assistant: The title is Example.",
+		"User: Which file was that from?",
+	} {
+		if !strings.Contains(prompts[1], fragment) {
+			t.Fatalf("second prompt does not contain %q:\n%s", fragment, prompts[1])
+		}
+	}
+	history := runner.History()
+	if len(history) != 4 ||
+		history[0].Role != RoleUser ||
+		history[1].Role != RoleAssistant ||
+		history[2].Content != "Which file was that from?" ||
+		history[3].Content != "It was README.md." {
+		t.Fatalf("history = %+v", history)
+	}
+}
+
+func TestRunnerCommitsToolTraceAndRollsBackFailedTurn(t *testing.T) {
+	t.Parallel()
+
+	calls := 0
+	runner, err := NewRunner(
+		continuation.GenerateFunc(func(
+			_ context.Context,
+			_ continuation.Request,
+			_ continuation.EventSink,
+		) (continuation.Result, error) {
+			calls++
+			switch calls {
+			case 1:
+				return continuation.Result{
+					Text: `<tool_call>{"name":"echo","arguments":{"value":"hello"}}</tool_call>`,
+				}, nil
+			case 2:
+				return continuation.Result{
+					Text:         "hello",
+					FinishReason: continuation.FinishStop,
+				}, nil
+			default:
+				return continuation.Result{}, context.Canceled
+			}
+		}),
+		[]Tool{echoTool{}},
+		Options{MaxSteps: 3},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := runner.Run(context.Background(), "Use echo."); err != nil {
+		t.Fatal(err)
+	}
+	history := runner.History()
+	if len(history) != 4 ||
+		history[1].Role != RoleAssistant ||
+		history[2].Role != RoleTool ||
+		history[3].Content != "hello" {
+		t.Fatalf("tool history = %+v", history)
+	}
+	if _, err := runner.Run(context.Background(), "This turn fails."); !errors.Is(err, context.Canceled) {
+		t.Fatalf("failed turn error = %v", err)
+	}
+	if got := runner.History(); len(got) != len(history) {
+		t.Fatalf("failed turn changed history: before=%+v after=%+v", history, got)
+	}
+	runner.Reset()
+	if got := runner.History(); len(got) != 0 {
+		t.Fatalf("history after reset = %+v", got)
+	}
+}
+
+func TestToolAnswerStageRetainsEarlierTurns(t *testing.T) {
+	t.Parallel()
+
+	outputs := []continuation.Result{
+		{Text: "README.md is the relevant file.", FinishReason: continuation.FinishStop},
+		{
+			Text:         `<tool_call>{"name":"echo","arguments":{"value":"# Example"}}</tool_call>`,
+			FinishReason: continuation.FinishStop,
+		},
+		{Text: "Its title is Example.", FinishReason: continuation.FinishStop},
+	}
+	var prompts []string
+	runner, err := NewRunner(
+		continuation.GenerateFunc(func(
+			_ context.Context,
+			request continuation.Request,
+			_ continuation.EventSink,
+		) (continuation.Result, error) {
+			prompts = append(prompts, request.Prompt)
+			return outputs[len(prompts)-1], nil
+		}),
+		[]Tool{echoTool{}},
+		Options{MaxSteps: 3},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := runner.Run(context.Background(), "Which file is relevant?"); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := runner.Run(context.Background(), "Read it and tell me its title."); err != nil {
+		t.Fatal(err)
+	}
+	answerPrompt := prompts[2]
+	for _, fragment := range []string{
+		"User: Which file is relevant?",
+		"Assistant: README.md is the relevant file.",
+		"User: Read it and tell me its title.",
+		`"value":"# Example"`,
+	} {
+		if !strings.Contains(answerPrompt, fragment) {
+			t.Fatalf("answer prompt does not contain %q:\n%s", fragment, answerPrompt)
+		}
+	}
+}
+
 func TestRunnerStopsAtStepLimitAfterToolFailures(t *testing.T) {
 	t.Parallel()
 	runner, err := NewRunner(
@@ -239,6 +464,29 @@ func (echoTool) Spec() ToolSpec {
 		Description: "Return a value.",
 		Arguments:   `{"value":"string"}`,
 	}
+}
+
+type countingEchoTool struct {
+	calls *int
+}
+
+func (t *countingEchoTool) Spec() ToolSpec {
+	return ToolSpec{
+		Name:        "counting_echo",
+		Description: "Count executions and return a value.",
+		Arguments:   `{"value":"string"}`,
+	}
+}
+
+func (t *countingEchoTool) Execute(_ context.Context, raw json.RawMessage) (any, error) {
+	*t.calls++
+	var args struct {
+		Value string `json:"value"`
+	}
+	if err := json.Unmarshal(raw, &args); err != nil {
+		return nil, err
+	}
+	return args.Value, nil
 }
 
 func (echoTool) Execute(_ context.Context, raw json.RawMessage) (any, error) {

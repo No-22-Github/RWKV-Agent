@@ -93,8 +93,15 @@ func TestAgentDefaultsAreDeterministicAndBounded(t *testing.T) {
 	if options.completion != "local" || options.apiPasswordEnv != "RWKV_API_PASSWORD" {
 		t.Fatalf("agent continuation defaults = %+v", options)
 	}
-	if _, err := parseRunOptions("agent", []string{"--model", "model"}); err == nil {
-		t.Fatal("agent accepted an empty prompt")
+	interactive, err := parseRunOptions("agent", []string{"--model", "model"})
+	if err != nil || interactive.ui != string(terminal.UIAuto) {
+		t.Fatalf("interactive agent options = %+v, %v", interactive, err)
+	}
+	if _, err := parseRunOptions(
+		"agent",
+		[]string{"--model", "model", "--ui", "plain"},
+	); err == nil {
+		t.Fatal("plain agent accepted an empty prompt")
 	}
 	if _, err := parseRunOptions(
 		"agent",

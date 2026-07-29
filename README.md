@@ -221,6 +221,25 @@ prompt，并按任务相关性压缩过长字符串，再预填 `<answer>`；工
 ```sh
 ./dist/rwkv-cli agent \
   --model /absolute/path/to/rwkv7-model.pth \
+  --workspace /absolute/path/to/project
+```
+
+交互终端默认进入全屏 Agent TUI。首轮完成后可直接追问；Harness 会把已提交的
+user/assistant/tool transcript 带入后续工具选择和最终回答阶段。取消或失败的轮次不会写入
+会话历史。输入 `/new` 或 `/reset` 可清空当前多轮会话，`/exit` 可退出；`Ctrl-C` 在运行时
+取消当前轮次，空闲时退出。
+
+传入 `--prompt` 时会自动提交首轮任务。脚本、pipe 和 CI 自动使用 plain renderer，并要求
+显式提供 prompt；也可以手动选择：
+
+```text
+--ui auto|tui|plain
+```
+
+```sh
+./dist/rwkv-cli agent \
+  --ui plain \
+  --model /absolute/path/to/rwkv7-model.pth \
   --workspace /absolute/path/to/project \
   --prompt "阅读 README 和 docs，概括当前已完成内容与下一步"
 ```
@@ -252,8 +271,7 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
   --model rwkv7-13b \
   --api-header-env CF-Access-Client-Id=RWKV_CF_ACCESS_CLIENT_ID \
   --api-header-env CF-Access-Client-Secret=RWKV_CF_ACCESS_CLIENT_SECRET \
-  --workspace /absolute/path/to/project \
-  --prompt "阅读 README 和 docs，概括当前已完成内容与下一步"
+  --workspace /absolute/path/to/project
 ```
 
 `--api-url` 是完整 endpoint，不会自动拼接 OpenAI 路径。密码默认从
