@@ -29,6 +29,9 @@ Agent step loop；先证明模型能可靠地依据仓库证据回答，再逐�
   最终回答阶段都携带已提交历史。
 - 取消、生成失败、协议错误和 step 超限不提交当前轮；`/new`、`/reset` 显式清空历史。
 - Agent TUI 展示 Conversation、step、工具活动、只读权限和工作区，支持当前轮取消后继续。
+- 每轮由模型驱动的 `respond|inspect` Router 先判断是否需要新工作区证据；Router 不接收
+  工具 schema 或原始 tool payload，Harness 只解析路由结果，不使用关键词意图启发式。
+- `respond` 路由不开放工具；Router 协议重试后仍失败则 fail closed 到 `respond`。
 - `tool` / `final` 两类 G1I envelope 动作及严格字段校验。
 - 普通文本 final 与 G1I 工具控制帧的联合输出语义。
 - 一次协议纠错重试和 1–20 step 硬上限。

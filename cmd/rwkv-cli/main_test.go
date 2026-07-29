@@ -87,6 +87,9 @@ func TestAgentDefaultsAreDeterministicAndBounded(t *testing.T) {
 			options.decisionMaxTokens,
 		)
 	}
+	if options.routeMaxTokens != 16 {
+		t.Fatalf("agent route token limit = %d", options.routeMaxTokens)
+	}
 	if options.workspace != "." || options.maxSteps != 6 {
 		t.Fatalf("agent bounds = %+v", options)
 	}
@@ -114,6 +117,12 @@ func TestAgentDefaultsAreDeterministicAndBounded(t *testing.T) {
 		[]string{"--model", "model", "--prompt", "task", "--decision-max-tokens", "0"},
 	); err == nil {
 		t.Fatal("agent accepted a non-positive decision token limit")
+	}
+	if _, err := parseRunOptions(
+		"agent",
+		[]string{"--model", "model", "--prompt", "task", "--route-max-tokens", "0"},
+	); err == nil {
+		t.Fatal("agent accepted a non-positive route token limit")
 	}
 }
 

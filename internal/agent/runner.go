@@ -18,11 +18,11 @@ var (
 	ErrMaxSteps = errors.New("agent reached the step limit")
 )
 
-const casualConversationControl = `You are a helpful conversational assistant.
-The current user message is casual conversation, not a repository task.
-Reply briefly and naturally in the user's language.
-Do not inspect, list, read, search, summarize, or mention the workspace.
-Repository tools are unavailable for this turn.`
+const directResponseControl = `You are a helpful conversational assistant.
+Answer the current user message directly and naturally in the user's language.
+Use the committed conversation and general knowledge.
+Workspace tools are unavailable for this turn. Do not claim to have inspected files.
+Do not output tool calls, role labels, or hidden reasoning.`
 
 type ToolSpec struct {
 	Name        string
@@ -44,6 +44,10 @@ type Options struct {
 	Renderer                PromptRenderer
 	Generation              continuation.Request
 	Observe                 func(Event)
+	Router                  RouteProtocol
+	RouteRenderer           PromptRenderer
+	RouteRetries            int
+	RouteMaxOutputTokens    int
 }
 
 type ControlPromptMode string
@@ -57,16 +61,19 @@ type EventKind string
 
 const (
 	EventModelStart EventKind = "model_start"
+	EventRouteStart EventKind = "route_start"
+	EventRouteDone  EventKind = "route_done"
 	EventRetry      EventKind = "protocol_retry"
 	EventToolStart  EventKind = "tool_start"
 	EventToolDone   EventKind = "tool_done"
 )
 
 type Event struct {
-	Kind EventKind
-	Step int
-	Tool string
-	Err  error
+	Kind  EventKind
+	Step  int
+	Tool  string
+	Route Route
+	Err   error
 }
 
 type Step struct {
@@ -79,15 +86,19 @@ type Step struct {
 type Result struct {
 	Output string
 	Steps  []Step
+	Route  Route
 }
 
 type Runner struct {
-	generator continuation.Generator
-	tools     map[string]Tool
-	options   Options
-	protocol  ActionProtocol
-	renderer  PromptRenderer
-	control   string
+	generator       continuation.Generator
+	tools           map[string]Tool
+	options         Options
+	protocol        ActionProtocol
+	renderer        PromptRenderer
+	control         string
+	responseControl string
+	router          RouteProtocol
+	routeRenderer   PromptRenderer
 
 	runMu   sync.Mutex
 	stateMu sync.RWMutex
@@ -103,6 +114,9 @@ func NewRunner(generator continuation.Generator, tools []Tool, options Options) 
 	}
 	if options.ProtocolRetries < 0 {
 		return nil, fmt.Errorf("%w: protocol retries cannot be negative", continuation.ErrInvalidRequest)
+	}
+	if options.RouteRetries < 0 {
+		return nil, fmt.Errorf("%w: route retries cannot be negative", continuation.ErrInvalidRequest)
 	}
 	if options.DecisionMaxOutputTokens < 0 {
 		return nil, fmt.Errorf(
@@ -126,12 +140,29 @@ func NewRunner(generator continuation.Generator, tools []Tool, options Options) 
 	if options.Renderer == nil {
 		options.Renderer = RWKVChatRenderer{}
 	}
+	if options.Router != nil && options.RouteRenderer == nil {
+		options.RouteRenderer = RWKVChatRenderer{}
+	}
 	applyGenerationDefaults(&options.Generation)
 	if options.DecisionMaxOutputTokens == 0 {
 		options.DecisionMaxOutputTokens = 256
 	}
 	if options.DecisionMaxOutputTokens > options.Generation.MaxOutputTokens {
 		options.DecisionMaxOutputTokens = options.Generation.MaxOutputTokens
+	}
+	if options.Router != nil {
+		if options.RouteMaxOutputTokens == 0 {
+			options.RouteMaxOutputTokens = 16
+		}
+		if options.RouteMaxOutputTokens < 1 {
+			return nil, fmt.Errorf(
+				"%w: route output token limit must be positive",
+				continuation.ErrInvalidRequest,
+			)
+		}
+		if options.RouteMaxOutputTokens > options.Generation.MaxOutputTokens {
+			options.RouteMaxOutputTokens = options.Generation.MaxOutputTokens
+		}
 	}
 
 	registered := make(map[string]Tool, len(tools))
@@ -153,13 +184,27 @@ func NewRunner(generator continuation.Generator, tools []Tool, options Options) 
 	sort.Slice(specs, func(left, right int) bool {
 		return specs[left].Name < specs[right].Name
 	})
+	responseControl := directResponseControl
+	if len(specs) > 0 {
+		var capabilities strings.Builder
+		capabilities.WriteString(
+			"\nOnly when the user asks about your capabilities, describe these read-only capabilities:\n",
+		)
+		for _, spec := range specs {
+			fmt.Fprintf(&capabilities, "- %s: %s\n", spec.Name, spec.Description)
+		}
+		responseControl += strings.TrimRight(capabilities.String(), "\n")
+	}
 	return &Runner{
-		generator: generator,
-		tools:     registered,
-		options:   options,
-		protocol:  options.Protocol,
-		renderer:  options.Renderer,
-		control:   options.Protocol.Instructions(specs),
+		generator:       generator,
+		tools:           registered,
+		options:         options,
+		protocol:        options.Protocol,
+		renderer:        options.Renderer,
+		control:         options.Protocol.Instructions(specs),
+		responseControl: responseControl,
+		router:          options.Router,
+		routeRenderer:   options.RouteRenderer,
 	}, nil
 }
 
@@ -203,19 +248,29 @@ func (r *Runner) RunWithObserver(
 	defer r.runMu.Unlock()
 
 	task := strings.TrimSpace(prompt)
-	casual := isCasualConversation(task)
 	history := r.History()
+	result := Result{
+		Steps: make([]Step, 0, r.options.MaxSteps),
+		Route: RouteInspect,
+	}
+	if r.router != nil {
+		route, routeErr := r.decideRoute(ctx, history, task, observer)
+		if routeErr != nil {
+			return result, routeErr
+		}
+		result.Route = route
+	}
 	messages := make([]Message, 0, len(history)+2)
 	control := r.control
-	if casual {
-		control = casualConversationControl
+	if result.Route == RouteRespond {
+		control = r.responseControl
 	}
 	messages = append(messages, Message{Role: RoleSystem, Content: control})
 	messages = append(messages, history...)
 	messages = append(messages, Message{Role: RoleUser, Content: task})
 	if r.options.ControlPrompt == ControlPromptInline {
 		label := "Repository task:"
-		if casual {
+		if result.Route == RouteRespond {
 			label = "Current user message:"
 		}
 		messages = append([]Message(nil), history...)
@@ -225,9 +280,9 @@ func (r *Runner) RunWithObserver(
 		})
 	}
 
-	result := Result{Steps: make([]Step, 0, r.options.MaxSteps)}
 	turnMessages := []Message{{Role: RoleUser, Content: task}}
 	retries := 0
+	routeViolations := 0
 	seenToolCalls := make(map[string]struct{})
 	stage := StageDecision
 	assistantPrefix := ""
@@ -240,7 +295,7 @@ func (r *Runner) RunWithObserver(
 		request := r.options.Generation
 		request.Prompt = rendered
 		request.Stops = r.protocol.Stops(stage)
-		if stage == StageDecision {
+		if stage == StageDecision && result.Route == RouteInspect {
 			request.MaxOutputTokens = r.options.DecisionMaxOutputTokens
 		}
 		if assistantPrefix != "" {
@@ -284,20 +339,20 @@ func (r *Runner) RunWithObserver(
 			r.commit(turnMessages)
 			return result, nil
 		}
-		if casual {
-			err = fmt.Errorf("%w: tools are unavailable for casual conversation", ErrProtocol)
-			if retries >= r.options.ProtocolRetries {
+		if result.Route == RouteRespond {
+			err = fmt.Errorf("%w: tools are unavailable on the respond route", ErrProtocol)
+			if routeViolations >= r.options.ProtocolRetries {
 				return result, err
 			}
-			retries++
+			routeViolations++
 			r.observe(Event{Kind: EventRetry, Step: step, Err: err}, observer)
 			messages = append(
 				messages,
 				Message{Role: RoleAssistant, Content: modelAction},
 				Message{
 					Role: RoleUser,
-					Content: "Reply to my casual message directly and briefly. " +
-						"Do not call tools or discuss the repository.",
+					Content: "The route for this turn is respond. Answer directly using " +
+						"the conversation and do not call workspace tools.",
 				},
 			)
 			continue
@@ -381,18 +436,56 @@ func (r *Runner) RunWithObserver(
 	return result, ErrMaxSteps
 }
 
-func isCasualConversation(prompt string) bool {
-	normalized := strings.ToLower(strings.TrimSpace(prompt))
-	normalized = strings.Trim(normalized, " \t\r\n,.!?;:，。！？；：～~")
-	switch normalized {
-	case "你好", "您好", "嗨", "哈喽", "哈啰", "在吗",
-		"hello", "hi", "hey", "hello there",
-		"早上好", "上午好", "下午好", "晚上好",
-		"good morning", "good afternoon", "good evening":
-		return true
-	default:
-		return false
+func (r *Runner) decideRoute(
+	ctx context.Context,
+	history []Message,
+	task string,
+	observer func(Event),
+) (Route, error) {
+	r.observe(Event{Kind: EventRouteStart}, observer)
+	messages := []Message{{Role: RoleSystem, Content: r.router.Instructions()}}
+	messages = append(messages, routingHistory(history)...)
+	messages = append(messages, Message{Role: RoleUser, Content: task})
+
+	for attempt := 0; attempt <= r.options.RouteRetries; attempt++ {
+		rendered, err := r.routeRenderer.Render(messages)
+		if err != nil {
+			r.observe(Event{Kind: EventRouteDone, Err: err}, observer)
+			return "", err
+		}
+		request := r.options.Generation
+		request.Prompt = rendered + " <route>"
+		request.Stops = r.router.Stops()
+		request.MaxOutputTokens = r.options.RouteMaxOutputTokens
+		generated, err := r.generator.Continue(ctx, request, nil)
+		if err != nil {
+			r.observe(Event{Kind: EventRouteDone, Err: err}, observer)
+			return "", err
+		}
+		candidate := strings.TrimSpace(generated.Text)
+		if !strings.HasPrefix(candidate, "<route>") {
+			candidate = "<route>" + candidate
+		}
+		route, parseErr := r.router.Parse(candidate, generated.FinishReason)
+		if parseErr == nil {
+			r.observe(Event{Kind: EventRouteDone, Route: route}, observer)
+			return route, nil
+		}
+		if attempt == r.options.RouteRetries {
+			r.observe(Event{
+				Kind:  EventRouteDone,
+				Route: RouteRespond,
+				Err:   parseErr,
+			}, observer)
+			return RouteRespond, nil
+		}
+		messages = append(
+			messages,
+			Message{Role: RoleAssistant, Content: candidate},
+			Message{Role: RoleUser, Content: r.router.Correction(parseErr)},
+		)
 	}
+	return RouteRespond, nil
 }
 
 // History returns a copy of the committed multi-turn transcript. The control

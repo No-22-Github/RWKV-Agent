@@ -213,10 +213,13 @@ Agent 只依赖“文本前缀 -> 续写文本”的窄接口，本地模型和 
 `Tool: <tool_result>...</tool_result>`。第一轮普通文本直接作为最终回答，不要求套
 envelope；因此用户询问 Agent 能力时不需要虚构一次工具调用。
 
-工具选择和工具后回答是两个受控阶段。成功执行一个只读工具后，Runner 使用独立的短回答
-prompt，并按任务相关性压缩过长字符串，再预填 `<answer>`；工具路由示例和完整大文件
-不会继续占用回答阶段上下文。工具失败则回到选择阶段，让模型修正调用。旧裸 JSON 动作
-协议已在真实 13B 验证通过后移除。
+每轮先由一个不暴露工具 schema 的短 Router prompt 让模型选择 `respond` 或 `inspect`。
+`respond` 使用完全无工具的普通回答 prompt；`inspect` 才进入工具选择阶段。Router 只读取
+最近的已提交 user/assistant 历史，不接收原始工具正文；格式连续失败时安全降级为
+`respond`，Harness 不根据关键词猜测用户意图。成功执行一个只读工具后，Runner 使用独立
+的短回答 prompt，并按任务相关性压缩过长字符串，再预填 `<answer>`；工具路由示例和完整
+大文件不会继续占用回答阶段上下文。工具失败则回到选择阶段，让模型修正调用。旧裸 JSON
+动作协议已在真实 13B 验证通过后移除。
 
 ```sh
 ./dist/rwkv-cli agent \
@@ -245,12 +248,14 @@ user/assistant/tool transcript 带入后续工具选择和最终回答阶段。�
 ```
 
 Agent 默认使用 `temperature=1`、`top-k=1`、`top-p=1` 的确定性解码，presence/frequency
-惩罚为 0，`penalty-decay=1`。工具选择最多生成 256 token，最终回答最多生成 1024
-token，并限制为 6 个模型 step。`rwkv_lightning` 在 `top-k=1` 时直接取 argmax，因此
-temperature 和 top-p 不参与随机采样。可用参数包括：
+惩罚为 0，`penalty-decay=1`。Router 最多生成 16 token，工具选择最多生成 256 token，
+最终回答最多生成 1024 token，并限制为 6 个 Agent step（Router 独立计数）。
+`rwkv_lightning` 在 `top-k=1` 时直接取 argmax，因此 temperature 和 top-p 不参与随机
+采样。可用参数包括：
 
 ```text
 --max-steps <1..20>
+--route-max-tokens <n>
 --decision-max-tokens <n>
 --max-tokens <n>
 --workspace <directory>

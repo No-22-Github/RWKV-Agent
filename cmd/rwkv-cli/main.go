@@ -39,6 +39,7 @@ type runOptions struct {
 	prompt            string
 	maxTokens         int
 	decisionMaxTokens int
+	routeMaxTokens    int
 	temperature       float64
 	topK              int
 	topP              float64
@@ -203,6 +204,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		fs.StringVar(&options.workspace, "workspace", ".", "workspace root available to read-only tools")
 		fs.IntVar(&options.maxSteps, "max-steps", 6, "maximum model steps including protocol retries")
 		fs.IntVar(&options.decisionMaxTokens, "decision-max-tokens", 256, "maximum generated tokens for tool selection")
+		fs.IntVar(&options.routeMaxTokens, "route-max-tokens", 16, "maximum generated tokens for respond/inspect routing")
 		fs.StringVar(&options.completion, "completion", "local", "continuation provider: local or rwkv-lightning")
 		fs.StringVar(&options.apiURL, "api-url", "", "full rwkv_lightning continuation endpoint URL")
 		fs.StringVar(
@@ -283,6 +285,9 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 	}
 	if name == "agent" && options.decisionMaxTokens <= 0 {
 		return options, errors.New("invalid agent decision token limit")
+	}
+	if name == "agent" && options.routeMaxTokens <= 0 {
+		return options, errors.New("invalid agent route token limit")
 	}
 	return options, nil
 }
@@ -479,6 +484,23 @@ func runAgent(args []string) error {
 	if selected == terminal.UIPlain {
 		observe = func(event agent.Event) {
 			switch event.Kind {
+			case agent.EventRouteDone:
+				if event.Err != nil {
+					fmt.Fprintf(
+						os.Stderr,
+						"%s %s: %v\n",
+						theme.Render(theme.Warning, "Route fallback"),
+						event.Route,
+						event.Err,
+					)
+				} else {
+					fmt.Fprintf(
+						os.Stderr,
+						"%s %s\n",
+						theme.Render(theme.Accent, "Route"),
+						event.Route,
+					)
+				}
 			case agent.EventModelStart:
 				fmt.Fprintf(os.Stderr, "%s step %d\n", theme.Render(theme.Muted, "Agent"), event.Step)
 			case agent.EventRetry:
@@ -499,6 +521,10 @@ func runAgent(args []string) error {
 		ControlPrompt:           agent.ControlPromptSystem,
 		Protocol:                agent.G1IProtocol{},
 		Renderer:                agent.RWKVChatRenderer{Reasoning: options.reasoning},
+		Router:                  agent.G1IRouteProtocol{},
+		RouteRenderer:           agent.RWKVChatRenderer{},
+		RouteRetries:            1,
+		RouteMaxOutputTokens:    options.routeMaxTokens,
 		Generation: continuation.Request{
 			Model:           options.modelPath,
 			MaxOutputTokens: options.maxTokens,

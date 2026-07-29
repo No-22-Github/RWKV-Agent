@@ -300,6 +300,19 @@ func (m *model) updateMouseWheel(message tea.MouseWheelMsg) (tea.Model, tea.Cmd)
 func (m *model) recordEvent(event agentcore.Event) {
 	m.step = max(m.step, event.Step)
 	switch event.Kind {
+	case agentcore.EventRouteStart:
+		m.activities = append(m.activities, activity{
+			text:  "Routing · checking whether workspace evidence is needed",
+			style: activityAccent,
+		})
+	case agentcore.EventRouteDone:
+		text := fmt.Sprintf("Route · %s", event.Route)
+		style := activitySuccess
+		if event.Err != nil {
+			text = fmt.Sprintf("Route · respond fallback: %v", event.Err)
+			style = activityWarning
+		}
+		m.activities = append(m.activities, activity{text: text, style: style})
 	case agentcore.EventModelStart:
 		m.activities = append(m.activities, activity{
 			text:  fmt.Sprintf("Step %d · deciding next action", event.Step),

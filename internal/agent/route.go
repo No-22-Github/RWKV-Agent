@@ -1,0 +1,113 @@
+package agent
+
+import (
+	"fmt"
+	"strings"
+
+	"github.com/no22/RWKV-Agent/internal/continuation"
+)
+
+const G1IRouteProtocolV1 = "rwkv-g1i-route-v1"
+
+type Route string
+
+const (
+	RouteRespond Route = "respond"
+	RouteInspect Route = "inspect"
+)
+
+type RouteProtocol interface {
+	ID() string
+	Instructions() string
+	Parse(string, continuation.FinishReason) (Route, error)
+	Correction(error) string
+	Stops() []string
+}
+
+// G1IRouteProtocol asks the model whether the committed conversation already
+// contains enough evidence to answer. It deliberately does not expose tool
+// names or schemas.
+type G1IRouteProtocol struct{}
+
+func (G1IRouteProtocol) ID() string {
+	return G1IRouteProtocolV1
+}
+
+func (G1IRouteProtocol) Instructions() string {
+	return strings.TrimSpace(`Classify whether answering the current user message correctly requires NEW evidence from workspace files.
+Output exactly one route and nothing else:
+- <route>respond</route>: casual conversation, general knowledge, questions about which tools/capabilities are available, or an answer already supported by the committed conversation.
+- <route>inspect</route>: the answer requires listing, reading, or searching workspace files now.
+Asking ABOUT available tools never requires USING those tools. Route capability questions to respond.
+Do not answer the user. Do not guess file contents.
+Examples:
+User: 你好
+Assistant: <route>respond</route>
+User: What tools can you use?
+Assistant: <route>respond</route>
+User: 你有哪些工具？不要调用它们。
+Assistant: <route>respond</route>
+User: Read README.md and report its title.
+Assistant: <route>inspect</route>
+Earlier assistant: README.md is titled Example.
+User: What was that title?
+Assistant: <route>respond</route>`)
+}
+
+func (G1IRouteProtocol) Parse(
+	value string,
+	finish continuation.FinishReason,
+) (Route, error) {
+	candidate := strings.TrimSpace(value)
+	if match := leadingThinkBlocks.FindStringIndex(candidate); match != nil && match[0] == 0 {
+		candidate = strings.TrimSpace(candidate[match[1]:])
+	}
+	if finish == continuation.FinishLength {
+		return "", fmt.Errorf("%w: route reached the output token limit", ErrProtocol)
+	}
+	const (
+		open  = "<route>"
+		close = "</route>"
+	)
+	if !strings.HasPrefix(candidate, open) {
+		return "", fmt.Errorf("%w: route envelope is missing", ErrProtocol)
+	}
+	payload, closed := envelopeContent(candidate, open, close)
+	if !closed && finish != continuation.FinishStop {
+		return "", fmt.Errorf("%w: incomplete route envelope", ErrProtocol)
+	}
+	switch Route(payload) {
+	case RouteRespond, RouteInspect:
+		return Route(payload), nil
+	default:
+		return "", fmt.Errorf("%w: invalid route %q", ErrProtocol, payload)
+	}
+}
+
+func (G1IRouteProtocol) Correction(_ error) string {
+	return `Your previous route was invalid. Output exactly <route>respond</route> or <route>inspect</route> and nothing else.`
+}
+
+func (G1IRouteProtocol) Stops() []string {
+	return []string{"</route>", "\nUser:", "\nSystem:", "\nTool:"}
+}
+
+const maxRoutingHistoryMessages = 8
+
+func routingHistory(history []Message) []Message {
+	filtered := make([]Message, 0, min(len(history), maxRoutingHistoryMessages))
+	for _, message := range history {
+		if message.Role != RoleUser && message.Role != RoleAssistant {
+			continue
+		}
+		if message.Role == RoleAssistant &&
+			strings.HasPrefix(strings.TrimSpace(message.Content), "<tool_call>") {
+			continue
+		}
+		filtered = append(filtered, message)
+	}
+	if len(filtered) > maxRoutingHistoryMessages {
+		filtered = filtered[len(filtered)-maxRoutingHistoryMessages:]
+	}
+	return filtered
+}

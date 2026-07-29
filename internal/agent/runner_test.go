@@ -93,21 +93,30 @@ func TestRunnerSupportsInlineControlPrompt(t *testing.T) {
 func TestRunnerRoutesCasualGreetingWithoutWorkspaceTools(t *testing.T) {
 	t.Parallel()
 
-	var prompt string
+	var prompts []string
 	runner, err := NewRunner(
 		continuation.GenerateFunc(func(
 			_ context.Context,
 			request continuation.Request,
 			_ continuation.EventSink,
 		) (continuation.Result, error) {
-			prompt = request.Prompt
+			prompts = append(prompts, request.Prompt)
+			if len(prompts) == 1 {
+				return continuation.Result{
+					Text:         "respond",
+					FinishReason: continuation.FinishStop,
+				}, nil
+			}
 			return continuation.Result{
 				Text:         "你好！有什么我可以帮你的吗？",
 				FinishReason: continuation.FinishStop,
 			}, nil
 		}),
 		[]Tool{echoTool{}},
-		Options{},
+		Options{
+			Router:               G1IRouteProtocol{},
+			RouteMaxOutputTokens: 16,
+		},
 	)
 	if err != nil {
 		t.Fatal(err)
@@ -116,11 +125,15 @@ func TestRunnerRoutesCasualGreetingWithoutWorkspaceTools(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if strings.Contains(prompt, "Available tools:") ||
-		!strings.Contains(prompt, "casual conversation") {
-		t.Fatalf("greeting prompt was routed as a repository task:\n%s", prompt)
+	if len(prompts) != 2 ||
+		strings.Contains(prompts[0], "Available tools:") ||
+		!strings.Contains(prompts[0], "requires NEW evidence") ||
+		strings.Contains(prompts[1], "Available tools:") ||
+		!strings.Contains(prompts[1], "Workspace tools are unavailable") {
+		t.Fatalf("greeting prompts were not isolated from tools:\n%q", prompts)
 	}
 	if result.Output != "你好！有什么我可以帮你的吗？" ||
+		result.Route != RouteRespond ||
 		len(result.Steps) != 1 ||
 		result.Steps[0].Tool != "" {
 		t.Fatalf("greeting result = %+v", result)
@@ -131,6 +144,7 @@ func TestRunnerRejectsToolAttemptForCasualGreeting(t *testing.T) {
 	t.Parallel()
 
 	outputs := []continuation.Result{
+		{Text: "respond", FinishReason: continuation.FinishStop},
 		{
 			Text:         `<tool_call>{"name":"counting_echo","arguments":{"value":"wrong"}}</tool_call>`,
 			FinishReason: continuation.FinishStop,
@@ -151,7 +165,11 @@ func TestRunnerRejectsToolAttemptForCasualGreeting(t *testing.T) {
 			return result, nil
 		}),
 		[]Tool{tool},
-		Options{MaxSteps: 3, ProtocolRetries: 1},
+		Options{
+			MaxSteps:        3,
+			ProtocolRetries: 1,
+			Router:          G1IRouteProtocol{},
+		},
 	)
 	if err != nil {
 		t.Fatal(err)
@@ -163,7 +181,9 @@ func TestRunnerRejectsToolAttemptForCasualGreeting(t *testing.T) {
 	if calls != 0 {
 		t.Fatalf("casual greeting executed a workspace tool %d time(s)", calls)
 	}
-	if result.Output != "你好！" || len(runner.History()) != 2 {
+	if result.Output != "你好！" ||
+		result.Route != RouteRespond ||
+		len(runner.History()) != 2 {
 		t.Fatalf("greeting result=%+v history=%+v", result, runner.History())
 	}
 }

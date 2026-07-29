@@ -49,6 +49,10 @@ func TestRemoteMultiTurnConversation(t *testing.T) {
 		DecisionMaxOutputTokens: 256,
 		Protocol:                G1IProtocol{},
 		Renderer:                RWKVChatRenderer{},
+		Router:                  G1IRouteProtocol{},
+		RouteRenderer:           RWKVChatRenderer{},
+		RouteRetries:            1,
+		RouteMaxOutputTokens:    16,
 		Generation: continuation.Request{
 			Model:           model,
 			MaxOutputTokens: 512,
@@ -72,11 +76,30 @@ func TestRemoteMultiTurnConversation(t *testing.T) {
 	}
 	t.Logf("greeting: %s", greeting.Output)
 	requireNoToolCalls(t, greeting)
+	if greeting.Route != RouteRespond {
+		t.Fatalf("greeting route = %q", greeting.Route)
+	}
 	if strings.TrimSpace(greeting.Output) == "" ||
 		len([]rune(greeting.Output)) > 100 ||
 		strings.Contains(greeting.Output, "BLUE-LANTERN") ||
 		strings.Contains(greeting.Output, "README") {
 		t.Fatalf("greeting produced an unrelated repository answer: %q", greeting.Output)
+	}
+
+	capabilities, err := runner.Run(
+		ctx,
+		"你有哪些工具？不要调用它们，请原样列出工具名。",
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("capabilities: %s", capabilities.Output)
+	requireNoToolCalls(t, capabilities)
+	if capabilities.Route != RouteRespond ||
+		!strings.Contains(capabilities.Output, "list_files") ||
+		!strings.Contains(capabilities.Output, "read_file") ||
+		!strings.Contains(capabilities.Output, "search_text") {
+		t.Fatalf("capability answer = %+v", capabilities)
 	}
 
 	first, err := runner.Run(
@@ -88,6 +111,9 @@ func TestRemoteMultiTurnConversation(t *testing.T) {
 	}
 	t.Logf("turn 1: %s", first.Output)
 	requireContainsCodes(t, first.Output)
+	if first.Route != RouteInspect {
+		t.Fatalf("file task route = %q", first.Route)
+	}
 	if len(first.Steps) < 1 || first.Steps[0].Tool != "read_file" {
 		t.Fatalf("first turn did not read the fixture: %+v", first.Steps)
 	}
@@ -102,6 +128,9 @@ func TestRemoteMultiTurnConversation(t *testing.T) {
 	t.Logf("turn 2: %s", second.Output)
 	requireContainsCodes(t, second.Output)
 	requireNoToolCalls(t, second)
+	if second.Route != RouteRespond {
+		t.Fatalf("history follow-up route = %q", second.Route)
+	}
 
 	third, err := runner.Run(
 		ctx,
@@ -116,6 +145,9 @@ func TestRemoteMultiTurnConversation(t *testing.T) {
 		t.Fatalf("third turn did not retain the conversation: %q", third.Output)
 	}
 	requireNoToolCalls(t, third)
+	if third.Route != RouteRespond {
+		t.Fatalf("history filename route = %q", third.Route)
+	}
 	if got := runner.History(); len(got) < 8 {
 		t.Fatalf("committed multi-turn history is too short: %+v", got)
 	}
