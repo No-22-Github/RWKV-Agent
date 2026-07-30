@@ -87,6 +87,40 @@ func TestG1IProtocolUsesStageSpecificStops(t *testing.T) {
 	}
 }
 
+func TestG1IProtocolPreparesAnswerWithFullToolTranscript(t *testing.T) {
+	t.Parallel()
+	protocol := G1IProtocol{}
+	messages, prefix := protocol.PrepareAnswer([]Message{
+		{Role: RoleSystem, Content: "tool instructions"},
+		{Role: RoleUser, Content: "compare files"},
+		{Role: RoleAssistant, Content: `<tool_call>{"name":"read_file","arguments":{"path":"a"}}</tool_call>`},
+		{Role: RoleTool, Content: `<tool_result>{"result":"first"}</tool_result>`},
+		{Role: RoleAssistant, Content: `<tool_call>{"name":"read_file","arguments":{"path":"b"}}</tool_call>`},
+		{Role: RoleTool, Content: `<tool_result>{"result":"second"}</tool_result>`},
+	})
+	if prefix != "<answer>" || len(messages) != 7 {
+		t.Fatalf("prepared messages=%+v prefix=%q", messages, prefix)
+	}
+	if messages[0].Role != RoleSystem ||
+		!strings.Contains(messages[0].Content, "Tools are unavailable") ||
+		strings.Contains(messages[0].Content, "tool instructions") {
+		t.Fatalf("answer control = %+v", messages[0])
+	}
+	for _, fragment := range []string{"compare files", `"result":"first"`, `"result":"second"`} {
+		found := false
+		for _, message := range messages {
+			found = found || strings.Contains(message.Content, fragment)
+		}
+		if !found {
+			t.Fatalf("prepared transcript does not contain %q: %+v", fragment, messages)
+		}
+	}
+	if messages[len(messages)-1].Role != RoleUser ||
+		!strings.Contains(messages[len(messages)-1].Content, "tools are now unavailable") {
+		t.Fatalf("final answer reminder = %+v", messages[len(messages)-1])
+	}
+}
+
 func TestG1IProtocolCompactsToolResultsForContinuation(t *testing.T) {
 	t.Parallel()
 	longContent := "# Project\n" + strings.Repeat("irrelevant material ", 300) +

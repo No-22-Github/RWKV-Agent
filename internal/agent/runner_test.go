@@ -28,6 +28,10 @@ func TestRunnerExecutesToolThenReturnsFinal(t *testing.T) {
 		return continuation.Result{
 			Text:         output,
 			FinishReason: continuation.FinishStop,
+			Usage: continuation.Usage{
+				PromptTokens:     10 + len(prompts),
+				CompletionTokens: len(prompts),
+			},
 		}, nil
 	})
 	runner, err := NewRunner(generator, []Tool{echoTool{}}, Options{MaxSteps: 3})
@@ -44,17 +48,37 @@ func TestRunnerExecutesToolThenReturnsFinal(t *testing.T) {
 	if len(result.Steps) != 2 || result.Steps[0].Tool != "echo" {
 		t.Fatalf("steps = %+v", result.Steps)
 	}
+	first := result.Steps[0]
+	if first.Stage != StageDecision ||
+		first.ActionType != "tool" ||
+		first.FinishReason != continuation.FinishStop ||
+		first.Usage.PromptTokens != 11 ||
+		string(first.ToolArguments) != `{"value":"hello"}` ||
+		!strings.Contains(string(first.ToolResult), `"value":"hello"`) ||
+		first.ToolError != "" ||
+		first.ProtocolError != "" {
+		t.Fatalf("first step trace = %+v", first)
+	}
+	second := result.Steps[1]
+	if second.Stage != StageDecision ||
+		second.ActionType != "final" ||
+		second.FinishReason != continuation.FinishStop ||
+		second.Usage.CompletionTokens != 2 ||
+		second.Tool != "" {
+		t.Fatalf("second step trace = %+v", second)
+	}
 	if len(prompts) != 2 {
 		t.Fatalf("continuation prompts = %+v", prompts)
 	}
 	for _, fragment := range []string{
-		"System: You are the final repository answer stage.",
+		"System: You are a read-only repository agent.",
 		"User: Use echo.",
+		`Assistant: <tool_call>{"name":"echo","arguments":{"value":"hello"}}</tool_call>`,
 		"Tool: <tool_result>",
 		`"ok":true`,
 		`"result":{"value":"hello"}`,
 		`"tool":"echo"`,
-		"Assistant: <answer>",
+		"If the evidence is sufficient, answer now.",
 	} {
 		if !strings.Contains(prompts[1], fragment) {
 			t.Fatalf("second prompt does not contain %q:\n%s", fragment, prompts[1])
@@ -188,15 +212,19 @@ func TestRunnerRejectsToolAttemptForCasualGreeting(t *testing.T) {
 	}
 }
 
-func TestRunnerUsesIndependentG1IAnswerStageAfterTool(t *testing.T) {
+func TestRunnerCanUseMultipleSuccessfulToolsBeforeAnswer(t *testing.T) {
 	t.Parallel()
 	outputs := []continuation.Result{
 		{
-			Text:         `<tool_call>{"name":"echo","arguments":{"value":"hello"}}`,
+			Text:         `<tool_call>{"name":"echo","arguments":{"value":"first"}}</tool_call>`,
 			FinishReason: continuation.FinishStop,
 		},
 		{
-			Text:         "The tool returned hello.",
+			Text:         `<tool_call>{"name":"echo","arguments":{"value":"second"}}</tool_call>`,
+			FinishReason: continuation.FinishStop,
+		},
+		{
+			Text:         "The tools returned first and second.",
 			FinishReason: continuation.FinishStop,
 		},
 	}
@@ -227,34 +255,127 @@ func TestRunnerUsesIndependentG1IAnswerStageAfterTool(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if result.Output != "The tool returned hello." || len(requests) != 2 {
+	if result.Output != "The tools returned first and second." ||
+		len(requests) != 3 ||
+		len(result.Steps) != 3 ||
+		result.Steps[0].Tool != "echo" ||
+		result.Steps[1].Tool != "echo" {
 		t.Fatalf("result=%+v requests=%d", result, len(requests))
 	}
 	second := requests[1].Prompt
 	for _, fragment := range []string{
-		"System: You are the final repository answer stage.",
+		"System: You are a read-only repository agent.",
 		"User: Use echo.",
-		`"result":{"value":"hello"}`,
+		`"result":{"value":"first"}`,
 		`"tool":"echo"}</tool_result>`,
-		"Assistant: <answer>",
+		"Available tools:",
+		"If the evidence is sufficient, answer now.",
 	} {
 		if !strings.Contains(second, fragment) {
 			t.Fatalf("second prompt does not contain %q:\n%s", fragment, second)
 		}
 	}
-	if strings.Contains(second, "Available tools:") {
-		t.Fatalf("answer prompt leaked tool routing instructions:\n%s", second)
+	third := requests[2].Prompt
+	for _, fragment := range []string{
+		"System: You are the final repository answer stage.",
+		`"result":{"value":"first"}`,
+		`"result":{"value":"second"}`,
+		"Assistant: <answer>",
+	} {
+		if !strings.Contains(third, fragment) {
+			t.Fatalf("third prompt does not contain %q:\n%s", fragment, third)
+		}
 	}
-	if strings.Contains(strings.Join(requests[0].Stops, "\x00"), "</answer>") ||
-		strings.Contains(strings.Join(requests[1].Stops, "\x00"), "</tool_call>") {
-		t.Fatalf("stage stops = decision:%q answer:%q", requests[0].Stops, requests[1].Stops)
+	for index, request := range requests[:2] {
+		if !strings.Contains(strings.Join(request.Stops, "\x00"), "</tool_call>") ||
+			strings.Contains(strings.Join(request.Stops, "\x00"), "</answer>") {
+			t.Fatalf("request %d stops = %q", index+1, request.Stops)
+		}
 	}
-	if requests[0].MaxOutputTokens != 256 || requests[1].MaxOutputTokens != 1024 {
+	if !strings.Contains(strings.Join(requests[2].Stops, "\x00"), "</answer>") ||
+		strings.Contains(strings.Join(requests[2].Stops, "\x00"), "</tool_call>") {
+		t.Fatalf("answer stops = %q", requests[2].Stops)
+	}
+	if requests[0].MaxOutputTokens != 256 ||
+		requests[1].MaxOutputTokens != 1024 ||
+		requests[2].MaxOutputTokens != 1024 {
 		t.Fatalf(
-			"stage token limits = decision:%d answer:%d",
+			"stage token limits = decision:%d post-tool:%d final:%d",
 			requests[0].MaxOutputTokens,
 			requests[1].MaxOutputTokens,
+			requests[2].MaxOutputTokens,
 		)
+	}
+	if result.Steps[0].Stage != StageDecision ||
+		result.Steps[1].Stage != StageDecision ||
+		result.Steps[2].Stage != StageAnswer {
+		t.Fatalf("step stages = %+v", result.Steps)
+	}
+	history := runner.History()
+	if len(history) != 6 ||
+		history[0].Role != RoleUser ||
+		history[1].Role != RoleAssistant ||
+		history[2].Role != RoleTool ||
+		history[3].Role != RoleAssistant ||
+		history[4].Role != RoleTool ||
+		history[5].Role != RoleAssistant {
+		t.Fatalf("multi-tool history = %+v", history)
+	}
+}
+
+func TestRunnerDuplicateCallForcesAnswerFromSuccessfulEvidence(t *testing.T) {
+	t.Parallel()
+	outputs := []string{
+		`<tool_call>{"name":"echo","arguments":{"value":"same"}}</tool_call>`,
+		`<tool_call>{"name":"echo","arguments":{"value":"same"}}</tool_call>`,
+		"done",
+	}
+	generations := 0
+	var requests []continuation.Request
+	runner, err := NewRunner(
+		continuation.GenerateFunc(func(
+			_ context.Context,
+			request continuation.Request,
+			_ continuation.EventSink,
+		) (continuation.Result, error) {
+			requests = append(requests, request)
+			result := continuation.Result{
+				Text:         outputs[generations],
+				FinishReason: continuation.FinishStop,
+			}
+			generations++
+			return result, nil
+		}),
+		[]Tool{echoTool{}},
+		Options{MaxSteps: 3},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "Use echo once.")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Output != "done" ||
+		result.Steps[1].ToolError != "duplicate tool call rejected" {
+		t.Fatalf("duplicate call result = %+v", result)
+	}
+	if len(requests) != 3 ||
+		result.Steps[2].Stage != StageAnswer ||
+		!strings.Contains(requests[2].Prompt, "Tools are unavailable") ||
+		!strings.Contains(requests[2].Prompt, `"result":{"value":"same"}`) ||
+		!strings.Contains(requests[2].Prompt, "repeats a successful call") ||
+		!strings.Contains(requests[2].Prompt, "Assistant: <answer>") {
+		t.Fatalf("forced answer requests=%+v result=%+v", requests, result)
+	}
+	history := runner.History()
+	if len(history) != 6 ||
+		history[1].Role != RoleAssistant ||
+		history[2].Role != RoleTool ||
+		history[3].Role != RoleAssistant ||
+		history[4].Role != RoleTool ||
+		history[5].Content != "done" {
+		t.Fatalf("duplicate-call history = %+v", history)
 	}
 }
 
@@ -400,7 +521,7 @@ func TestRunnerCommitsToolTraceAndRollsBackFailedTurn(t *testing.T) {
 	}
 }
 
-func TestToolAnswerStageRetainsEarlierTurns(t *testing.T) {
+func TestToolContinuationRetainsEarlierTurns(t *testing.T) {
 	t.Parallel()
 
 	outputs := []continuation.Result{
@@ -473,6 +594,56 @@ func TestRunnerStopsAtStepLimitAfterToolFailures(t *testing.T) {
 	}
 	if result.Steps[1].ToolError != `unknown tool "missing"` {
 		t.Fatalf("failed step = %+v", result.Steps[1])
+	}
+	if len(runner.History()) != 0 {
+		t.Fatalf("failed turn committed history = %+v", runner.History())
+	}
+}
+
+func TestRunnerRollsBackMultiToolTurnWhenForcedAnswerFails(t *testing.T) {
+	t.Parallel()
+	outputs := []continuation.Result{
+		{
+			Text:         `<tool_call>{"name":"echo","arguments":{"value":"first"}}</tool_call>`,
+			FinishReason: continuation.FinishStop,
+		},
+		{
+			Text:         `<tool_call>{"name":"echo","arguments":{"value":"second"}}</tool_call>`,
+			FinishReason: continuation.FinishStop,
+		},
+		{
+			Text:         "truncated final answer",
+			FinishReason: continuation.FinishLength,
+		},
+	}
+	calls := 0
+	runner, err := NewRunner(
+		continuation.GenerateFunc(func(
+			context.Context,
+			continuation.Request,
+			continuation.EventSink,
+		) (continuation.Result, error) {
+			result := outputs[calls]
+			calls++
+			return result, nil
+		}),
+		[]Tool{echoTool{}},
+		Options{MaxSteps: 3},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "Use both values.")
+	if !errors.Is(err, ErrProtocol) {
+		t.Fatalf("error = %v, want ErrProtocol", err)
+	}
+	if len(result.Steps) != 3 ||
+		result.Steps[2].Stage != StageAnswer ||
+		result.Steps[2].ProtocolError == "" {
+		t.Fatalf("failed multi-tool result = %+v", result)
+	}
+	if len(runner.History()) != 0 {
+		t.Fatalf("failed multi-tool turn committed history = %+v", runner.History())
 	}
 }
 

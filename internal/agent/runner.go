@@ -24,6 +24,13 @@ Use the committed conversation and general knowledge.
 Workspace tools are unavailable for this turn. Do not claim to have inspected files.
 Do not output tool calls, role labels, or hidden reasoning.`
 
+const postToolDecisionReminder = `Use the Tool results above to continue the current task.
+If the evidence is sufficient, answer now. Call another tool only for a specific missing fact.
+Never repeat a successful tool call.`
+
+const duplicateToolAnswerReminder = `That tool call was rejected because it repeats a successful call.
+Answer the current task from the evidence already collected.`
+
 type ToolSpec struct {
 	Name        string
 	Description string
@@ -77,16 +84,23 @@ type Event struct {
 }
 
 type Step struct {
-	Number      int
-	ModelOutput string
-	Tool        string
-	ToolError   string
+	Number        int                       `json:"number"`
+	Stage         GenerationStage           `json:"stage"`
+	ModelOutput   string                    `json:"model_output"`
+	FinishReason  continuation.FinishReason `json:"finish_reason"`
+	Usage         continuation.Usage        `json:"usage"`
+	ActionType    string                    `json:"action_type,omitempty"`
+	Tool          string                    `json:"tool,omitempty"`
+	ToolArguments json.RawMessage           `json:"tool_arguments,omitempty"`
+	ToolResult    json.RawMessage           `json:"tool_result,omitempty"`
+	ToolError     string                    `json:"tool_error,omitempty"`
+	ProtocolError string                    `json:"protocol_error,omitempty"`
 }
 
 type Result struct {
-	Output string
-	Steps  []Step
-	Route  Route
+	Output string `json:"output"`
+	Steps  []Step `json:"steps"`
+	Route  Route  `json:"route"`
 }
 
 type Runner struct {
@@ -284,9 +298,25 @@ func (r *Runner) RunWithObserver(
 	retries := 0
 	routeViolations := 0
 	seenToolCalls := make(map[string]struct{})
+	successfulToolCalls := 0
 	stage := StageDecision
 	assistantPrefix := ""
+	forceAnswer := false
 	for step := 1; step <= r.options.MaxSteps; step++ {
+		if result.Route == RouteInspect &&
+			successfulToolCalls > 0 &&
+			(step == r.options.MaxSteps || forceAnswer) {
+			answerMessages, prefix := r.protocol.PrepareAnswer(messages)
+			if len(answerMessages) == 0 || strings.TrimSpace(prefix) == "" {
+				return result, fmt.Errorf(
+					"%w: protocol did not prepare an answer stage",
+					ErrProtocol,
+				)
+			}
+			messages = answerMessages
+			assistantPrefix = prefix
+			stage = StageAnswer
+		}
 		r.observe(Event{Kind: EventModelStart, Step: step}, observer)
 		rendered, err := r.renderer.Render(messages)
 		if err != nil {
@@ -295,7 +325,9 @@ func (r *Runner) RunWithObserver(
 		request := r.options.Generation
 		request.Prompt = rendered
 		request.Stops = r.protocol.Stops(stage)
-		if stage == StageDecision && result.Route == RouteInspect {
+		if stage == StageDecision &&
+			result.Route == RouteInspect &&
+			successfulToolCalls == 0 {
 			request.MaxOutputTokens = r.options.DecisionMaxOutputTokens
 		}
 		if assistantPrefix != "" {
@@ -305,7 +337,13 @@ func (r *Runner) RunWithObserver(
 		if err != nil {
 			return result, err
 		}
-		current := Step{Number: step, ModelOutput: generated.Text}
+		current := Step{
+			Number:       step,
+			Stage:        stage,
+			ModelOutput:  generated.Text,
+			FinishReason: generated.FinishReason,
+			Usage:        generated.Usage,
+		}
 		result.Steps = append(result.Steps, current)
 
 		modelAction := generated.Text
@@ -315,6 +353,7 @@ func (r *Runner) RunWithObserver(
 		}
 		action, err := r.protocol.Parse(modelAction, generated.FinishReason)
 		if err != nil {
+			result.Steps[len(result.Steps)-1].ProtocolError = err.Error()
 			if retries >= r.options.ProtocolRetries {
 				return result, err
 			}
@@ -330,6 +369,7 @@ func (r *Runner) RunWithObserver(
 			continue
 		}
 		retries = 0
+		result.Steps[len(result.Steps)-1].ActionType = action.Type
 		if action.Type == "final" {
 			result.Output = action.Content
 			turnMessages = append(turnMessages, Message{
@@ -341,6 +381,7 @@ func (r *Runner) RunWithObserver(
 		}
 		if result.Route == RouteRespond {
 			err = fmt.Errorf("%w: tools are unavailable on the respond route", ErrProtocol)
+			result.Steps[len(result.Steps)-1].ProtocolError = err.Error()
 			if routeViolations >= r.options.ProtocolRetries {
 				return result, err
 			}
@@ -359,22 +400,26 @@ func (r *Runner) RunWithObserver(
 		}
 
 		tool, ok := r.tools[action.Name]
+		result.Steps[len(result.Steps)-1].Tool = action.Name
+		result.Steps[len(result.Steps)-1].ToolArguments =
+			append(json.RawMessage(nil), action.Arguments...)
 		if !ok {
 			err = fmt.Errorf("unknown tool %q", action.Name)
 		} else {
 			r.observe(Event{Kind: EventToolStart, Step: step, Tool: action.Name}, observer)
 		}
 		var value any
+		duplicate := false
 		if err == nil {
 			callKey := canonicalToolCall(action)
-			if _, duplicate := seenToolCalls[callKey]; duplicate {
+			if _, exists := seenToolCalls[callKey]; exists {
+				duplicate = true
 				err = fmt.Errorf("duplicate tool call rejected")
 			} else {
 				seenToolCalls[callKey] = struct{}{}
 				value, err = tool.Execute(ctx, action.Arguments)
 			}
 		}
-		result.Steps[len(result.Steps)-1].Tool = action.Name
 		payload := toolResult{OK: err == nil, Tool: action.Name, Result: value}
 		if err != nil {
 			payload.Error = err.Error()
@@ -384,6 +429,8 @@ func (r *Runner) RunWithObserver(
 		if marshalErr != nil {
 			return result, fmt.Errorf("encode tool result: %w", marshalErr)
 		}
+		result.Steps[len(result.Steps)-1].ToolResult =
+			append(json.RawMessage(nil), encoded...)
 		r.observe(Event{Kind: EventToolDone, Step: step, Tool: action.Name, Err: err}, observer)
 		toolContent := r.protocol.FormatToolResult(
 			action.Name,
@@ -416,21 +463,23 @@ func (r *Runner) RunWithObserver(
 			},
 		)
 		if err == nil {
-			answerMessages, prefix := r.protocol.PrepareAnswer(history, task, toolContent)
-			if len(answerMessages) == 0 || strings.TrimSpace(prefix) == "" {
-				return result, fmt.Errorf("%w: protocol did not prepare an answer stage", ErrProtocol)
-			}
-			messages = answerMessages
-			assistantPrefix = prefix
-			stage = StageAnswer
+			successfulToolCalls++
+			messages = append(messages, Message{
+				Role:    RoleUser,
+				Content: postToolDecisionReminder,
+			})
+		} else if duplicate && successfulToolCalls > 0 {
+			forceAnswer = true
+			messages = append(messages, Message{
+				Role:    RoleUser,
+				Content: duplicateToolAnswerReminder,
+			})
 		} else {
 			messages = append(messages, Message{
 				Role: RoleUser,
 				Content: "The tool call failed: " + err.Error() + ". " +
 					r.protocol.Correction(err),
 			})
-			assistantPrefix = ""
-			stage = StageDecision
 		}
 	}
 	return result, ErrMaxSteps

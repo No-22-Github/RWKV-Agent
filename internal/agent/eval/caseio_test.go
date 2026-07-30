@@ -1,0 +1,158 @@
+package eval
+
+import (
+	"os"
+	"path/filepath"
+	"strings"
+	"testing"
+)
+
+func TestBuiltinCasesValidate(t *testing.T) {
+	smoke := SmokeCases()
+	if len(smoke) != 10 {
+		t.Fatalf("smoke cases = %d, want 10", len(smoke))
+	}
+	if err := ValidateCases(smoke); err != nil {
+		t.Fatal(err)
+	}
+	boundary, err := BoundaryCases()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(boundary) != 18 {
+		t.Fatalf("boundary cases = %d, want 18", len(boundary))
+	}
+	if err := ValidateCases(boundary); err != nil {
+		t.Fatal(err)
+	}
+	for _, testCase := range boundary {
+		if testCase.Category == "" || testCase.Source == "" {
+			t.Fatalf("boundary case lacks attribution metadata: %+v", testCase)
+		}
+	}
+}
+
+func TestLoadCasesUsesStrictVersionedSchema(t *testing.T) {
+	valid := `{
+	  "schema_version": 2,
+	  "cases": [{
+	    "id": "read",
+	    "description": "Read a fixture.",
+	    "files": {"note.txt": "hello"},
+	    "turns": [{
+	      "prompt": "Read note.txt.",
+	      "expect": {
+	        "route": "inspect",
+	        "tools": ["read_file"],
+	        "calls": [{"name": "read_file", "arguments": {"path": "note.txt"}}]
+	      }
+	    }]
+	  }]
+	}`
+	path := filepath.Join(t.TempDir(), "cases.json")
+	if err := os.WriteFile(path, []byte(valid), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	cases, err := LoadCases(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(cases) != 1 || cases[0].ID != "read" {
+		t.Fatalf("cases = %+v", cases)
+	}
+
+	unknown := strings.Replace(valid, `"prompt": "Read note.txt."`, `"prompt": "Read note.txt.", "unknown": true`, 1)
+	if err := os.WriteFile(path, []byte(unknown), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := LoadCases(path); err == nil ||
+		!strings.Contains(err.Error(), "unknown field") {
+		t.Fatalf("unknown field error = %v", err)
+	}
+
+	wrongVersion := strings.Replace(valid, `"schema_version": 2`, `"schema_version": 1`, 1)
+	if err := os.WriteFile(path, []byte(wrongVersion), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := LoadCases(path); err == nil ||
+		!strings.Contains(err.Error(), "unsupported case schema version") {
+		t.Fatalf("schema version error = %v", err)
+	}
+}
+
+func TestValidateCasesAcceptsBoundaryExpectations(t *testing.T) {
+	answer := "42"
+	number := 42.0
+	tolerance := 0.1
+	cases := []Case{{
+		ID:          "boundary",
+		Description: "Boundary scoring contract.",
+		Turns: []Turn{{
+			Prompt: "Inspect evidence.",
+			Expect: Expectation{
+				RequiredTools:  []string{"read_file"},
+				ForbiddenTools: []string{"list_files"},
+				RequiredCalls: []ExpectedCall{{
+					Name:      "read_file",
+					Arguments: map[string]any{"path": "data.txt"},
+				}},
+				OutputEquals: &answer,
+			},
+		}, {
+			Prompt: "Compute a value.",
+			Expect: Expectation{
+				RequiredTools:  []string{"read_file"},
+				ExpectedNumber: &number,
+				Tolerance:      &tolerance,
+			},
+		}},
+	}}
+	if err := ValidateCases(cases); err != nil {
+		t.Fatal(err)
+	}
+
+	cases[0].Turns[0].Expect.RequiredTools = []string{"read_file", "read_file"}
+	if err := ValidateCases(cases); err == nil ||
+		!strings.Contains(err.Error(), "repeats required tool") {
+		t.Fatalf("duplicate required tool error = %v", err)
+	}
+}
+
+func TestValidateCasesRejectsFixturePathTraversal(t *testing.T) {
+	testCase := Case{
+		ID:          "escape",
+		Description: "Invalid fixture.",
+		Files:       map[string]string{"../secret.txt": "secret"},
+		Turns: []Turn{{
+			Prompt: "Read it.",
+			Expect: Expectation{
+				Tools: []string{},
+			},
+		}},
+	}
+	if err := ValidateCases([]Case{testCase}); err == nil ||
+		!strings.Contains(err.Error(), "escapes its fixture root") {
+		t.Fatalf("path traversal error = %v", err)
+	}
+}
+
+func TestSelectCasesPreservesRequestedOrderAndRejectsInvalidIDs(t *testing.T) {
+	cases := BuiltinCases()
+	selected, err := SelectCases(cases, []string{"list_directory", "respond_arithmetic"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(selected) != 2 ||
+		selected[0].ID != "list_directory" ||
+		selected[1].ID != "respond_arithmetic" {
+		t.Fatalf("selected cases = %+v", selected)
+	}
+	if _, err := SelectCases(cases, []string{"respond_arithmetic", "respond_arithmetic"}); err == nil ||
+		!strings.Contains(err.Error(), "duplicate selected case") {
+		t.Fatalf("duplicate selection error = %v", err)
+	}
+	if _, err := SelectCases(cases, []string{"not_a_case"}); err == nil ||
+		!strings.Contains(err.Error(), "unknown eval case") {
+		t.Fatalf("unknown selection error = %v", err)
+	}
+}

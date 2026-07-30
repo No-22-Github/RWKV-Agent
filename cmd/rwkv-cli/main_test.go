@@ -1,7 +1,9 @@
 package main
 
 import (
+	"strings"
 	"testing"
+	"time"
 
 	"github.com/no22/RWKV-Agent/internal/terminal"
 )
@@ -152,6 +154,90 @@ func TestAgentAcceptsRWKVLightningContinuation(t *testing.T) {
 		"--completion", "rwkv-lightning",
 	}); err == nil {
 		t.Fatal("remote agent accepted a missing API URL")
+	}
+}
+
+func TestAgentEvalOptionsAreDeterministicAndIsolated(t *testing.T) {
+	t.Parallel()
+
+	options, err := parseRunOptions("agent-eval", []string{
+		"--model", "model",
+		"--cases", "cases.json",
+		"--case", "read_exact_file",
+		"--case", "multi_turn_memory",
+		"--output", "eval-output",
+		"--case-timeout", "45s",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if options.topK != 1 ||
+		options.topP != 1 ||
+		options.maxTokens != 1024 ||
+		options.decisionMaxTokens != 256 ||
+		options.routeMaxTokens != 16 {
+		t.Fatalf("agent eval defaults = %+v", options)
+	}
+	if options.evalCasesPath != "cases.json" ||
+		options.evalSuite != "boundary" ||
+		options.evalSuiteExplicit ||
+		options.evalOutput != "eval-output" ||
+		options.evalCaseTimeout != 45*time.Second ||
+		len(options.evalCaseIDs) != 2 ||
+		options.evalCaseIDs[0] != "read_exact_file" ||
+		options.evalCaseIDs[1] != "multi_turn_memory" {
+		t.Fatalf("agent eval options = %+v", options)
+	}
+	if strings.TrimSpace(options.prompt) != "" || options.workspace != "" {
+		t.Fatalf("agent eval unexpectedly accepted interactive fields: %+v", options)
+	}
+	if _, err := parseRunOptions("agent-eval", []string{
+		"--model", "model",
+		"--case-timeout", "0s",
+	}); err == nil {
+		t.Fatal("agent eval accepted a non-positive case timeout")
+	}
+	suiteOptions, err := parseRunOptions("agent-eval", []string{
+		"--model", "model",
+		"--suite", "smoke",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if suiteOptions.evalSuite != "smoke" || !suiteOptions.evalSuiteExplicit {
+		t.Fatalf("explicit suite options = %+v", suiteOptions)
+	}
+	if _, err := parseRunOptions("agent-eval", []string{
+		"--model", "model",
+		"--suite", "smoke",
+		"--cases", "cases.json",
+	}); err == nil {
+		t.Fatal("agent eval accepted --suite with --cases")
+	}
+	if _, err := parseRunOptions("agent-eval", []string{
+		"--model", "model",
+		"--suite", "unknown",
+	}); err == nil {
+		t.Fatal("agent eval accepted an unknown suite")
+	}
+}
+
+func TestAgentEvalAcceptsRemoteContinuation(t *testing.T) {
+	t.Parallel()
+
+	options, err := parseRunOptions("agent-eval", []string{
+		"--model", "rwkv7-13b",
+		"--completion", "rwkv-lightning",
+		"--api-url", "https://example.test/v1/chat/completions",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if options.completion != "rwkv-lightning" ||
+		options.apiURL == "" ||
+		options.tokenizer != "" ||
+		options.evalCaseTimeout != 2*time.Minute {
+		t.Fatalf("remote agent eval options = %+v", options)
 	}
 }
 

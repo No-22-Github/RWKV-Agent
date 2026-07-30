@@ -292,11 +292,77 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 `..` 穿越和指向工作区外的符号链接都会被拒绝。单文件读取限制为 64 KiB，搜索跳过
 `.git`、`build`、`dist` 和 `node_modules`。
 
+成功工具调用后，Runner 保留完整的本轮 assistant/tool 轨迹，并允许模型继续调用另一个
+不同工具或直接回答。每个成功结果后都会提醒模型只为明确缺失的事实继续调用；同一调用
+不会重复执行。只要本轮已有成功结果，最后一个 Agent step 会保留给禁用工具、预填
+`<answer>` 的强制回答阶段；成功后才事务化提交整轮 transcript，任何生成、协议或 step
+失败仍整轮回滚。
+
 诊断模型协议错误时可临时设置 `RWKV_AGENT_DEBUG=1`；它会在失败时打印原始模型 step，
 其中可能包含本地文件内容，默认不会启用。
 
-当前命令是一次性只读任务，还没有 Agent transcript 保存/恢复、上下文压缩、写文件审批或
-命令执行。后续实施顺序与验收门槛见 Agent Harness 里程碑文档。
+### Agent 评测与 trace
+
+`agent-eval` 使用与 `agent` 完全相同的 Router、prompt、采样和 Runner 参数运行固定
+case。默认 `boundary` suite 有 18 个从
+[`marty1885/primitive-bench`](https://github.com/marty1885/primitive-bench)
+只读任务改造的 case，覆盖发现/搜索、多文件、CSV/JSON/JSONL、财务计算、日志、配置
+优先级和 prompt injection。`smoke` suite 保留原来的 10 个协议与安全契约回归：
+
+```sh
+./dist/rwkv-cli agent-eval \
+  --model /absolute/path/to/rwkv7-model.pth \
+  --suite boundary \
+  --output runs/local-13b-boundary
+```
+
+每个 case 使用独立临时工作区；本地推理还会为每个 case 创建全新的 Session，只有同一
+case 的多个 turn 共享 transcript/State。可以用可重复的 `--case` 跑子集，用
+`--case-timeout` 设置单 case 超时，也可以用 `--cases` 载入
+`schema_version: 2` 的自定义 JSON case 文件。`--cases` 与 `--suite` 互斥；输出目录
+必须尚不存在，避免覆盖已有基线。
+
+```sh
+./dist/rwkv-cli agent-eval \
+  --suite smoke \
+  --completion rwkv-lightning \
+  --api-url https://example.com/v1/chat/completions \
+  --model rwkv7-13b \
+  --case read_exact_file \
+  --case multi_turn_memory \
+  --output runs/remote-13b-smoke
+```
+
+每次运行原子写入三个文件：
+
+- `run.json`：精确 case 定义、模型指纹（本地可用时）、Harness/协议版本、prompt 配置、
+  采样参数和运行环境。
+- `trace.jsonl`：逐次原始 continuation request/output、usage、阶段、Runner 事件和工具
+  结果；不记录 HTTP 密码或认证 header，但可能包含 case 文件内容。
+- `summary.json`：逐 case/turn 失败原因，以及答案、route、协议、精确/必需/禁止工具、
+  必需调用参数、no-call 和任务成功率。
+
+失败 case 仍会写完 artifacts，随后命令以非零状态退出。默认输出到带 UTC 时间戳的
+`runs/agent-eval-*`。
+
+2026-07-30 的 `rwkv-g1i-13b-4922` 结果：
+
+- `smoke`：10/10，只证明 Router、协议、工具和隔离链路可用。
+- 固定在第一次成功工具后回答的 `boundary` 基线：4/18；答案 6/18，必需工具 15/22，
+  必需调用 15/23，26 次工具调用中 9 次错误。
+- 完全开放多工具循环的 `boundary` 对照：10/18；答案 10/18，必需工具 20/22，
+  必需调用 21/23，但工具调用增至 65 次、错误增至 32 次，8 个失败 case 都耗尽 step
+  且没有最终回答。
+
+这两轮都保持 route 和协议动作 100% 正确，说明前一版主要有框架侧的单工具上限，而完全
+放开后又暴露出 13B 在证据足够时继续调用的偏置。当前 `rwkv-agent-eval-v4` 使用上述混合
+状态机；同一套 18 题实测仍为 10/18，必需工具和调用保持 20/22、21/23，但工具调用降至
+54 次、错误降至 23 次。原先 8 个 step 耗尽且无回答的失败降至 1 个；`pb_csv_sum` 恢复
+通过，`pb_markdown_release_notes` 因输出了正确 flag 外的解释而被精确判分判错。该结果
+证明收束机制有效，但没有提高本轮总分，仍不能作为发布门槛。
+
+当前 Agent 已支持进程内多轮只读交互，但还没有 transcript 保存/恢复、上下文压缩、
+写文件审批或命令执行。后续实施顺序与验收门槛见 Agent Harness 里程碑文档。
 
 ## 1–8 路并发与选中续聊
 

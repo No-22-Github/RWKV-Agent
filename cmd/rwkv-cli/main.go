@@ -15,8 +15,10 @@ import (
 	"strings"
 	"sync"
 	"syscall"
+	"time"
 
 	"github.com/no22/RWKV-Agent/internal/agent"
+	agenteval "github.com/no22/RWKV-Agent/internal/agent/eval"
 	concurrentcli "github.com/no22/RWKV-Agent/internal/cli/concurrent"
 	"github.com/no22/RWKV-Agent/internal/continuation"
 	localcontinuation "github.com/no22/RWKV-Agent/internal/continuation/local"
@@ -59,6 +61,12 @@ type runOptions struct {
 	apiURL            string
 	apiPasswordEnv    string
 	apiHeaderEnvs     stringListFlag
+	evalSuite         string
+	evalSuiteExplicit bool
+	evalCasesPath     string
+	evalOutput        string
+	evalCaseIDs       stringListFlag
+	evalCaseTimeout   time.Duration
 }
 
 type stringListFlag []string
@@ -83,6 +91,8 @@ func main() {
 		err = run(os.Args[2:])
 	case "agent":
 		err = runAgent(os.Args[2:])
+	case "agent-eval":
+		err = runAgentEval(os.Args[2:])
 	case "concurrent":
 		err = runConcurrent(os.Args[2:])
 	case "bench":
@@ -107,6 +117,7 @@ func usage() {
   rwkv-cli convert --input <RWKV .pth> --output <MLX model directory>
   rwkv-cli run --model <RWKV .pth or MLX directory> [--prompt <text> | --session <bundle>]
   rwkv-cli agent --model <path or remote model ID> [--prompt <task>] [--ui auto|tui|plain]
+  rwkv-cli agent-eval --model <path or remote model ID> [--suite boundary|smoke] [--output <directory>]
   rwkv-cli concurrent --model <RWKV .pth or MLX directory> [--concurrency 1..8] [--ui auto|tui|plain]
   rwkv-cli bench --model <RWKV .pth or MLX directory> [--concurrency 1..8]`)
 }
@@ -166,13 +177,14 @@ func bundledTokenizerPath() (string, error) {
 func parseRunOptions(name string, args []string) (runOptions, error) {
 	var options runOptions
 	fs := flag.NewFlagSet(name, flag.ContinueOnError)
+	agentMode := name == "agent" || name == "agent-eval"
 	defaultTopK := 128
 	defaultTopP := 0.5
 	defaultPresencePenalty := 2.0
 	defaultFrequencyPenalty := 0.1
 	defaultPenaltyDecay := 0.99
 	defaultMaxTokens := 256
-	if name == "agent" {
+	if agentMode {
 		defaultTopK = 1
 		defaultTopP = 1
 		defaultPresencePenalty = 0
@@ -198,10 +210,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		fs.StringVar(&options.sessionPath, "session", "", "session bundle path")
 		fs.StringVar(&options.prompt, "prompt", "", "single-turn prompt; omit for the REPL")
 		fs.BoolVar(&options.autosave, "autosave", false, "save the session after each committed turn")
-	case "agent":
-		fs.StringVar(&options.prompt, "prompt", "", "task for the read-only repository agent")
-		fs.StringVar(&options.ui, "ui", "auto", "agent renderer: auto, tui, or plain")
-		fs.StringVar(&options.workspace, "workspace", ".", "workspace root available to read-only tools")
+	case "agent", "agent-eval":
 		fs.IntVar(&options.maxSteps, "max-steps", 6, "maximum model steps including protocol retries")
 		fs.IntVar(&options.decisionMaxTokens, "decision-max-tokens", 256, "maximum generated tokens for tool selection")
 		fs.IntVar(&options.routeMaxTokens, "route-max-tokens", 16, "maximum generated tokens for respond/inspect routing")
@@ -218,6 +227,17 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			"api-header-env",
 			"repeatable HTTP_HEADER=ENV_VAR mapping for deployment authentication",
 		)
+		if name == "agent" {
+			fs.StringVar(&options.prompt, "prompt", "", "task for the read-only repository agent")
+			fs.StringVar(&options.ui, "ui", "auto", "agent renderer: auto, tui, or plain")
+			fs.StringVar(&options.workspace, "workspace", ".", "workspace root available to read-only tools")
+		} else {
+			fs.StringVar(&options.evalSuite, "suite", agenteval.SuiteBoundary, "built-in Agent eval suite: boundary or smoke")
+			fs.StringVar(&options.evalCasesPath, "cases", "", "versioned custom Agent eval case JSON; conflicts with --suite")
+			fs.StringVar(&options.evalOutput, "output", "", "new directory for run.json, trace.jsonl, and summary.json")
+			fs.Var(&options.evalCaseIDs, "case", "repeatable built-in or file-backed case ID to run")
+			fs.DurationVar(&options.evalCaseTimeout, "case-timeout", 2*time.Minute, "timeout for each isolated eval case")
+		}
 	case "concurrent":
 		fs.IntVar(&options.concurrency, "concurrency", 4, "number of overlapping sessions")
 		fs.StringVar(&options.concurrentPrompt, "concurrent-prompt", "用一句话介绍 RWKV。", "prompt for every session")
@@ -227,15 +247,18 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		return options, err
 	}
 	fs.Visit(func(value *flag.Flag) {
-		if value.Name == "reasoning" {
+		switch value.Name {
+		case "reasoning":
 			options.reasoningExplicit = true
+		case "suite":
+			options.evalSuiteExplicit = true
 		}
 	})
 	if options.modelPath == "" {
 		fs.Usage()
 		return options, fmt.Errorf("%s requires --model", name)
 	}
-	if name == "agent" {
+	if agentMode {
 		if options.maxSteps < 1 || options.maxSteps > 20 {
 			return options, errors.New("--max-steps must be between 1 and 20")
 		}
@@ -245,11 +268,28 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		if options.completion == "rwkv-lightning" && strings.TrimSpace(options.apiURL) == "" {
 			return options, errors.New("rwkv-lightning continuation requires --api-url")
 		}
-		if options.ui == string(terminal.UIPlain) && strings.TrimSpace(options.prompt) == "" {
+		if name == "agent" &&
+			options.ui == string(terminal.UIPlain) &&
+			strings.TrimSpace(options.prompt) == "" {
 			return options, errors.New("agent --ui plain requires --prompt")
 		}
+		if name == "agent-eval" && options.evalCaseTimeout <= 0 {
+			return options, errors.New("--case-timeout must be positive")
+		}
+		if name == "agent-eval" {
+			if options.evalSuite != agenteval.SuiteBoundary &&
+				options.evalSuite != agenteval.SuiteSmoke {
+				return options, fmt.Errorf(
+					"unsupported Agent eval suite %q; expected boundary or smoke",
+					options.evalSuite,
+				)
+			}
+			if options.evalCasesPath != "" && options.evalSuiteExplicit {
+				return options, errors.New("--suite and --cases cannot be used together")
+			}
+		}
 	}
-	if options.tokenizer == "" && !(name == "agent" && options.completion == "rwkv-lightning") {
+	if options.tokenizer == "" && !(agentMode && options.completion == "rwkv-lightning") {
 		if strings.EqualFold(filepath.Ext(options.modelPath), ".pth") {
 			tokenizer, err := bundledTokenizerPath()
 			if err != nil {
@@ -283,10 +323,10 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		options.penaltyDecay <= 0 || options.penaltyDecay > 1 {
 		return options, errors.New("invalid sampling options")
 	}
-	if name == "agent" && options.decisionMaxTokens <= 0 {
+	if agentMode && options.decisionMaxTokens <= 0 {
 		return options, errors.New("invalid agent decision token limit")
 	}
-	if name == "agent" && options.routeMaxTokens <= 0 {
+	if agentMode && options.routeMaxTokens <= 0 {
 		return options, errors.New("invalid agent route token limit")
 	}
 	return options, nil
@@ -426,6 +466,103 @@ func run(args []string) error {
 	return repl(lifecycle, controller, runtime.model, current, options)
 }
 
+type agentGeneratorSource struct {
+	newGenerator func(context.Context) (continuation.Generator, io.Closer, error)
+	close        func() error
+	modelInfo    inference.ModelInfo
+	hasModelInfo bool
+}
+
+func newAgentGeneratorSource(
+	ctx context.Context,
+	options runOptions,
+) (*agentGeneratorSource, error) {
+	if options.completion == "rwkv-lightning" {
+		headers, err := loadAPIHeaders(options.apiHeaderEnvs)
+		if err != nil {
+			return nil, err
+		}
+		client, err := rwkvlightning.New(rwkvlightning.Config{
+			Endpoint: options.apiURL,
+			Model:    options.modelPath,
+			Password: os.Getenv(options.apiPasswordEnv),
+			Headers:  headers,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("initialize remote continuation: %w", err)
+		}
+		return &agentGeneratorSource{
+			newGenerator: func(context.Context) (continuation.Generator, io.Closer, error) {
+				return client, noopCloser{}, nil
+			},
+			close: func() error { return nil },
+		}, nil
+	}
+	runtime, err := loadRuntime(ctx, options)
+	if err != nil {
+		return nil, err
+	}
+	source := &agentGeneratorSource{
+		close:        runtime.Close,
+		modelInfo:    runtime.model.Info(),
+		hasModelInfo: true,
+	}
+	source.newGenerator = func(
+		sessionContext context.Context,
+	) (continuation.Generator, io.Closer, error) {
+		session, err := runtime.model.NewSession(sessionContext, inference.SessionOptions{})
+		if err != nil {
+			return nil, nil, fmt.Errorf("create agent session: %w", err)
+		}
+		generator, err := localcontinuation.New(session)
+		if err != nil {
+			_ = session.Close()
+			return nil, nil, fmt.Errorf("initialize local continuation: %w", err)
+		}
+		return generator, session, nil
+	}
+	return source, nil
+}
+
+func (s *agentGeneratorSource) Close() error {
+	if s == nil || s.close == nil {
+		return nil
+	}
+	return s.close()
+}
+
+type noopCloser struct{}
+
+func (noopCloser) Close() error { return nil }
+
+func agentRunnerOptions(options runOptions, observe func(agent.Event)) agent.Options {
+	return agent.Options{
+		MaxSteps:                options.maxSteps,
+		ProtocolRetries:         1,
+		DecisionMaxOutputTokens: options.decisionMaxTokens,
+		ControlPrompt:           agent.ControlPromptSystem,
+		Protocol:                agent.G1IProtocol{},
+		Renderer:                agent.RWKVChatRenderer{Reasoning: options.reasoning},
+		Router:                  agent.G1IRouteProtocol{},
+		RouteRenderer:           agent.RWKVChatRenderer{},
+		RouteRetries:            1,
+		RouteMaxOutputTokens:    options.routeMaxTokens,
+		Generation: continuation.Request{
+			Model:           options.modelPath,
+			MaxOutputTokens: options.maxTokens,
+			Sampling: continuation.Sampling{
+				Temperature:      float32(options.temperature),
+				TopK:             options.topK,
+				TopP:             float32(options.topP),
+				PresencePenalty:  float32(options.presencePenalty),
+				FrequencyPenalty: float32(options.frequencyPenalty),
+				PenaltyDecay:     float32(options.penaltyDecay),
+			},
+		},
+		Observe: observe,
+	}
+}
+
 func runAgent(args []string) error {
 	options, err := parseRunOptions("agent", args)
 	if err != nil {
@@ -444,37 +581,16 @@ func runAgent(args []string) error {
 	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
-	var generator continuation.Generator
-	if options.completion == "rwkv-lightning" {
-		headers, headerErr := loadAPIHeaders(options.apiHeaderEnvs)
-		if headerErr != nil {
-			return headerErr
-		}
-		generator, err = rwkvlightning.New(rwkvlightning.Config{
-			Endpoint: options.apiURL,
-			Model:    options.modelPath,
-			Password: os.Getenv(options.apiPasswordEnv),
-			Headers:  headers,
-		})
-		if err != nil {
-			return fmt.Errorf("initialize remote continuation: %w", err)
-		}
-	} else {
-		runtime, loadErr := loadRuntime(ctx, options)
-		if loadErr != nil {
-			return loadErr
-		}
-		defer runtime.Close()
-		session, sessionErr := runtime.model.NewSession(ctx, inference.SessionOptions{})
-		if sessionErr != nil {
-			return fmt.Errorf("create agent session: %w", sessionErr)
-		}
-		defer session.Close()
-		generator, err = localcontinuation.New(session)
-		if err != nil {
-			return fmt.Errorf("initialize local continuation: %w", err)
-		}
+	source, err := newAgentGeneratorSource(ctx, options)
+	if err != nil {
+		return err
 	}
+	defer source.Close()
+	generator, generatorCloser, err := source.newGenerator(ctx)
+	if err != nil {
+		return err
+	}
+	defer generatorCloser.Close()
 	tools, err := agent.WorkspaceTools(options.workspace)
 	if err != nil {
 		return fmt.Errorf("initialize agent workspace: %w", err)
@@ -514,31 +630,11 @@ func runAgent(args []string) error {
 			}
 		}
 	}
-	runner, err := agent.NewRunner(generator, tools, agent.Options{
-		MaxSteps:                options.maxSteps,
-		ProtocolRetries:         1,
-		DecisionMaxOutputTokens: options.decisionMaxTokens,
-		ControlPrompt:           agent.ControlPromptSystem,
-		Protocol:                agent.G1IProtocol{},
-		Renderer:                agent.RWKVChatRenderer{Reasoning: options.reasoning},
-		Router:                  agent.G1IRouteProtocol{},
-		RouteRenderer:           agent.RWKVChatRenderer{},
-		RouteRetries:            1,
-		RouteMaxOutputTokens:    options.routeMaxTokens,
-		Generation: continuation.Request{
-			Model:           options.modelPath,
-			MaxOutputTokens: options.maxTokens,
-			Sampling: continuation.Sampling{
-				Temperature:      float32(options.temperature),
-				TopK:             options.topK,
-				TopP:             float32(options.topP),
-				PresencePenalty:  float32(options.presencePenalty),
-				FrequencyPenalty: float32(options.frequencyPenalty),
-				PenaltyDecay:     float32(options.penaltyDecay),
-			},
-		},
-		Observe: observe,
-	})
+	runner, err := agent.NewRunner(
+		generator,
+		tools,
+		agentRunnerOptions(options, observe),
+	)
 	if err != nil {
 		return err
 	}
@@ -582,6 +678,115 @@ func runAgent(args []string) error {
 	}
 	fmt.Fprintln(os.Stdout, terminal.SanitizeModelText(result.Output))
 	return nil
+}
+
+func runAgentEval(args []string) error {
+	options, err := parseRunOptions("agent-eval", args)
+	if err != nil {
+		return err
+	}
+	suite := options.evalSuite
+	cases, err := agenteval.BuiltinSuite(suite)
+	if err != nil {
+		return err
+	}
+	if options.evalCasesPath != "" {
+		cases, err = agenteval.LoadCases(options.evalCasesPath)
+		if err != nil {
+			return fmt.Errorf("load Agent eval cases: %w", err)
+		}
+		suite = "custom"
+	}
+	cases, err = agenteval.SelectCases(cases, options.evalCaseIDs)
+	if err != nil {
+		return err
+	}
+	if options.evalOutput == "" {
+		options.evalOutput = filepath.Join(
+			"runs",
+			"agent-eval-"+time.Now().UTC().Format("20060102-150405.000000000"),
+		)
+	}
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	source, err := newAgentGeneratorSource(ctx, options)
+	if err != nil {
+		return err
+	}
+	defer source.Close()
+	model := agenteval.ModelMetadata{
+		Identifier: options.modelPath,
+		Backend:    options.backend,
+		Provider:   options.provider,
+		Completion: options.completion,
+	}
+	if source.hasModelInfo {
+		info := source.modelInfo
+		model.Fingerprint = info.Fingerprint
+		model.TokenizerFingerprint = info.TokenizerFingerprint
+		model.Architecture = info.Architecture
+		model.Format = string(info.Format)
+		model.Precision = info.Precision
+		model.Quantization = info.Quantization
+		model.Backend = string(info.Backend)
+	}
+	report, runErr := agenteval.Run(ctx, agenteval.Config{
+		Cases:       cases,
+		Suite:       suite,
+		Model:       model,
+		Runner:      agentRunnerOptions(options, nil),
+		CaseTimeout: options.evalCaseTimeout,
+		GeneratorFactory: func(
+			caseContext context.Context,
+		) (continuation.Generator, io.Closer, error) {
+			return source.newGenerator(caseContext)
+		},
+	})
+	if report.Manifest.RunID == "" {
+		return runErr
+	}
+	paths, writeErr := agenteval.WriteArtifacts(options.evalOutput, report)
+	if writeErr != nil {
+		return fmt.Errorf("write Agent eval artifacts: %w", writeErr)
+	}
+	metrics := report.Summary.Metrics
+	fmt.Fprintf(
+		os.Stdout,
+		"Agent eval (%s): %d/%d cases passed; answer %s; route %s; protocol %s\n",
+		suite,
+		metrics.TaskSuccess.Correct,
+		metrics.TaskSuccess.Total,
+		formatEvalScore(metrics.AnswerAccuracy),
+		formatEvalScore(metrics.RouteAccuracy),
+		formatEvalScore(metrics.ProtocolValidity),
+	)
+	fmt.Fprintf(
+		os.Stdout,
+		"Tool checks: exact %s; required %s; forbidden %s; calls %s\n",
+		formatEvalScore(metrics.ToolSelection),
+		formatEvalScore(metrics.RequiredToolCompletion),
+		formatEvalScore(metrics.ForbiddenToolAvoidance),
+		formatEvalScore(metrics.RequiredCallAccuracy),
+	)
+	fmt.Fprintf(os.Stdout, "Artifacts: %s\n", paths.Directory)
+	if runErr != nil {
+		return runErr
+	}
+	if metrics.TaskSuccess.Correct != metrics.TaskSuccess.Total {
+		return fmt.Errorf(
+			"Agent eval failed %d of %d cases",
+			metrics.TaskSuccess.Total-metrics.TaskSuccess.Correct,
+			metrics.TaskSuccess.Total,
+		)
+	}
+	return nil
+}
+
+func formatEvalScore(score agenteval.Score) string {
+	if score.Total == 0 {
+		return "n/a"
+	}
+	return fmt.Sprintf("%.1f%%", 100*score.Rate)
 }
 
 func loadAPIHeaders(mappings []string) (http.Header, error) {
