@@ -131,7 +131,12 @@ func TestRunScoresAndWritesTraceArtifacts(t *testing.T) {
 	assertScore(t, "no-call accuracy", report.Summary.Metrics.NoCallAccuracy, 1, 1)
 	if report.Summary.Metrics.ModelCalls != 5 ||
 		report.Summary.Metrics.ToolCalls != 1 ||
+		report.Summary.Metrics.ToolExecutions != 1 ||
 		report.Summary.Metrics.ToolErrors != 0 ||
+		report.Summary.Metrics.RejectedCalls != 0 ||
+		report.Summary.Metrics.DuplicateCalls != 0 ||
+		report.Summary.Metrics.RecoveryBlocks != 0 ||
+		report.Summary.Metrics.ForcedAnswers != 0 ||
 		report.Summary.Metrics.PromptTokens != 10 ||
 		report.Summary.Metrics.CompletionTokens != 5 {
 		t.Fatalf("metrics = %+v", report.Summary.Metrics)
@@ -282,6 +287,53 @@ func TestBoundaryNumericToleranceRequiresPlainNumber(t *testing.T) {
 	failures := validateTurn(expect, result, nil)
 	if len(failures) != 1 || !strings.Contains(failures[0], "not a plain number") {
 		t.Fatalf("non-numeric output failures = %v", failures)
+	}
+}
+
+func TestSummarizeRecoveryMetrics(t *testing.T) {
+	t.Parallel()
+	cases := []Case{{
+		ID: "recovery",
+		Turns: []Turn{{
+			Prompt: "recover",
+		}},
+	}}
+	results := []CaseResult{{
+		ID:     "recovery",
+		Passed: true,
+		Turns: []TurnResult{{
+			Passed: true,
+			Result: agent.Result{
+				ForcedAnswerReason: "step_budget_after_tool_attempt",
+				Steps: []agent.Step{
+					{
+						Tool:         "read_file",
+						ToolExecuted: true,
+						ToolError:    "missing",
+					},
+					{
+						Tool:         "read_file",
+						ToolRejected: "duplicate_tool_call",
+						ToolError:    "duplicate",
+					},
+					{
+						Tool:         "read_file",
+						ToolRejected: "consecutive_tool_failures",
+						ToolError:    "blocked",
+					},
+				},
+			},
+		}},
+	}}
+	metrics := summarize("run", cases, results, nil).Metrics
+	if metrics.ToolCalls != 3 ||
+		metrics.ToolExecutions != 1 ||
+		metrics.ToolErrors != 3 ||
+		metrics.RejectedCalls != 2 ||
+		metrics.DuplicateCalls != 1 ||
+		metrics.RecoveryBlocks != 1 ||
+		metrics.ForcedAnswers != 1 {
+		t.Fatalf("recovery metrics = %+v", metrics)
 	}
 }
 

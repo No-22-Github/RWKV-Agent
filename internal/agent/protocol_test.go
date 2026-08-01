@@ -15,6 +15,9 @@ func TestProtocolAndRendererHaveIndependentVersions(t *testing.T) {
 	if protocol.ID() != G1IActionProtocolV1 {
 		t.Fatalf("protocol ID = %q", protocol.ID())
 	}
+	if protocol.ToolCallPrefix() != "<tool_call>" {
+		t.Fatalf("tool call prefix = %q", protocol.ToolCallPrefix())
+	}
 	if renderer.ID() != RWKVPromptRendererV1 {
 		t.Fatalf("renderer ID = %q", renderer.ID())
 	}

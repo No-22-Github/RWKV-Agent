@@ -259,8 +259,8 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		return options, fmt.Errorf("%s requires --model", name)
 	}
 	if agentMode {
-		if options.maxSteps < 1 || options.maxSteps > 20 {
-			return options, errors.New("--max-steps must be between 1 and 20")
+		if options.maxSteps < 2 || options.maxSteps > 20 {
+			return options, errors.New("--max-steps must be between 2 and 20")
 		}
 		if options.completion != "local" && options.completion != "rwkv-lightning" {
 			return options, fmt.Errorf("unsupported continuation provider %q", options.completion)

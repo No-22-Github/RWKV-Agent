@@ -11,7 +11,7 @@ import (
 
 const (
 	SchemaVersion  = 2
-	HarnessVersion = "rwkv-agent-eval-v4"
+	HarnessVersion = "rwkv-agent-eval-v5"
 )
 
 type GeneratorFactory func(
@@ -122,7 +122,12 @@ type Metrics struct {
 
 	ModelCalls       int   `json:"model_calls"`
 	ToolCalls        int   `json:"tool_calls"`
+	ToolExecutions   int   `json:"tool_executions"`
 	ToolErrors       int   `json:"tool_errors"`
+	RejectedCalls    int   `json:"rejected_tool_calls"`
+	DuplicateCalls   int   `json:"duplicate_tool_calls"`
+	RecoveryBlocks   int   `json:"recovery_blocked_calls"`
+	ForcedAnswers    int   `json:"forced_answers"`
 	ProtocolRetries  int   `json:"protocol_retries"`
 	RouteFallbacks   int   `json:"route_fallbacks"`
 	PromptTokens     int   `json:"prompt_tokens"`

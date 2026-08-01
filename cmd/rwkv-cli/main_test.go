@@ -116,6 +116,12 @@ func TestAgentDefaultsAreDeterministicAndBounded(t *testing.T) {
 	}
 	if _, err := parseRunOptions(
 		"agent",
+		[]string{"--model", "model", "--prompt", "task", "--max-steps", "1"},
+	); err == nil {
+		t.Fatal("agent accepted a step limit without room for a final answer")
+	}
+	if _, err := parseRunOptions(
+		"agent",
 		[]string{"--model", "model", "--prompt", "task", "--decision-max-tokens", "0"},
 	); err == nil {
 		t.Fatal("agent accepted a non-positive decision token limit")

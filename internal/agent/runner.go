@@ -31,6 +31,15 @@ Never repeat a successful tool call.`
 const duplicateToolAnswerReminder = `That tool call was rejected because it repeats a successful call.
 Answer the current task from the evidence already collected.`
 
+const (
+	maxConsecutiveToolFailures = 2
+	forcedAnswerStepBudget     = "step_budget_after_tool_attempt"
+	forcedAnswerDuplicateCall  = "duplicate_tool_call"
+	rejectedUnknownTool        = "unknown_tool"
+	rejectedDuplicateCall      = "duplicate_tool_call"
+	rejectedFailureLimit       = "consecutive_tool_failures"
+)
+
 type ToolSpec struct {
 	Name        string
 	Description string
@@ -93,14 +102,17 @@ type Step struct {
 	Tool          string                    `json:"tool,omitempty"`
 	ToolArguments json.RawMessage           `json:"tool_arguments,omitempty"`
 	ToolResult    json.RawMessage           `json:"tool_result,omitempty"`
+	ToolExecuted  bool                      `json:"tool_executed,omitempty"`
+	ToolRejected  string                    `json:"tool_rejected_reason,omitempty"`
 	ToolError     string                    `json:"tool_error,omitempty"`
 	ProtocolError string                    `json:"protocol_error,omitempty"`
 }
 
 type Result struct {
-	Output string `json:"output"`
-	Steps  []Step `json:"steps"`
-	Route  Route  `json:"route"`
+	Output             string `json:"output"`
+	Steps              []Step `json:"steps"`
+	Route              Route  `json:"route"`
+	ForcedAnswerReason string `json:"forced_answer_reason,omitempty"`
 }
 
 type Runner struct {
@@ -125,6 +137,12 @@ func NewRunner(generator continuation.Generator, tools []Tool, options Options) 
 	}
 	if options.MaxSteps <= 0 {
 		options.MaxSteps = 6
+	}
+	if options.MaxSteps < 2 {
+		return nil, fmt.Errorf(
+			"%w: at least two steps are required to reserve a final answer after tool use",
+			continuation.ErrInvalidRequest,
+		)
 	}
 	if options.ProtocolRetries < 0 {
 		return nil, fmt.Errorf("%w: protocol retries cannot be negative", continuation.ErrInvalidRequest)
@@ -299,12 +317,18 @@ func (r *Runner) RunWithObserver(
 	routeViolations := 0
 	seenToolCalls := make(map[string]struct{})
 	successfulToolCalls := 0
+	toolAttempts := 0
+	consecutiveFailedTool := ""
+	consecutiveToolFailures := 0
 	stage := StageDecision
 	assistantPrefix := ""
 	forceAnswer := false
+	if r.router != nil && result.Route == RouteInspect {
+		assistantPrefix = r.protocol.ToolCallPrefix()
+	}
 	for step := 1; step <= r.options.MaxSteps; step++ {
 		if result.Route == RouteInspect &&
-			successfulToolCalls > 0 &&
+			toolAttempts > 0 &&
 			(step == r.options.MaxSteps || forceAnswer) {
 			answerMessages, prefix := r.protocol.PrepareAnswer(messages)
 			if len(answerMessages) == 0 || strings.TrimSpace(prefix) == "" {
@@ -316,6 +340,9 @@ func (r *Runner) RunWithObserver(
 			messages = answerMessages
 			assistantPrefix = prefix
 			stage = StageAnswer
+			if result.ForcedAnswerReason == "" {
+				result.ForcedAnswerReason = forcedAnswerStepBudget
+			}
 		}
 		r.observe(Event{Kind: EventModelStart, Step: step}, observer)
 		rendered, err := r.renderer.Render(messages)
@@ -399,25 +426,52 @@ func (r *Runner) RunWithObserver(
 			continue
 		}
 
+		toolAttempts++
+		assistantPrefix = ""
 		tool, ok := r.tools[action.Name]
 		result.Steps[len(result.Steps)-1].Tool = action.Name
 		result.Steps[len(result.Steps)-1].ToolArguments =
 			append(json.RawMessage(nil), action.Arguments...)
-		if !ok {
-			err = fmt.Errorf("unknown tool %q", action.Name)
-		} else {
-			r.observe(Event{Kind: EventToolStart, Step: step, Tool: action.Name}, observer)
-		}
 		var value any
 		duplicate := false
-		if err == nil {
-			callKey := canonicalToolCall(action)
-			if _, exists := seenToolCalls[callKey]; exists {
-				duplicate = true
-				err = fmt.Errorf("duplicate tool call rejected")
-			} else {
-				seenToolCalls[callKey] = struct{}{}
+		recoveryBlocked := false
+		executed := false
+		callKey := canonicalToolCall(action)
+		if _, exists := seenToolCalls[callKey]; exists {
+			duplicate = true
+			result.Steps[len(result.Steps)-1].ToolRejected = rejectedDuplicateCall
+			err = fmt.Errorf("duplicate tool call rejected")
+		} else {
+			seenToolCalls[callKey] = struct{}{}
+			switch {
+			case !ok:
+				result.Steps[len(result.Steps)-1].ToolRejected = rejectedUnknownTool
+				err = fmt.Errorf("unknown tool %q", action.Name)
+			case action.Name == consecutiveFailedTool &&
+				consecutiveToolFailures >= maxConsecutiveToolFailures:
+				recoveryBlocked = true
+				result.Steps[len(result.Steps)-1].ToolRejected = rejectedFailureLimit
+				err = fmt.Errorf(
+					"tool %q blocked after %d consecutive failures; choose a different tool or answer",
+					action.Name,
+					consecutiveToolFailures,
+				)
+			default:
+				executed = true
+				r.observe(Event{Kind: EventToolStart, Step: step, Tool: action.Name}, observer)
 				value, err = tool.Execute(ctx, action.Arguments)
+			}
+		}
+		result.Steps[len(result.Steps)-1].ToolExecuted = executed
+		if executed {
+			if err == nil {
+				consecutiveFailedTool = ""
+				consecutiveToolFailures = 0
+			} else if action.Name == consecutiveFailedTool {
+				consecutiveToolFailures++
+			} else {
+				consecutiveFailedTool = action.Name
+				consecutiveToolFailures = 1
 			}
 		}
 		payload := toolResult{OK: err == nil, Tool: action.Name, Result: value}
@@ -468,21 +522,62 @@ func (r *Runner) RunWithObserver(
 				Role:    RoleUser,
 				Content: postToolDecisionReminder,
 			})
-		} else if duplicate && successfulToolCalls > 0 {
+		} else if duplicate {
 			forceAnswer = true
+			result.ForcedAnswerReason = forcedAnswerDuplicateCall
 			messages = append(messages, Message{
 				Role:    RoleUser,
-				Content: duplicateToolAnswerReminder,
+				Content: duplicateToolReminder(successfulToolCalls > 0),
 			})
 		} else {
 			messages = append(messages, Message{
-				Role: RoleUser,
-				Content: "The tool call failed: " + err.Error() + ". " +
-					r.protocol.Correction(err),
+				Role:    RoleUser,
+				Content: toolFailureReminder(action.Name, err, recoveryBlocked, r.tools),
 			})
 		}
 	}
 	return result, ErrMaxSteps
+}
+
+func duplicateToolReminder(hasEvidence bool) string {
+	if hasEvidence {
+		return duplicateToolAnswerReminder
+	}
+	return `That tool call was rejected because it repeats an earlier failed call.
+Tools are now unavailable. Answer from the Tool results, and clearly state anything that could not be verified.`
+}
+
+func toolFailureReminder(
+	name string,
+	err error,
+	recoveryBlocked bool,
+	tools map[string]Tool,
+) string {
+	var prompt strings.Builder
+	fmt.Fprintf(&prompt, "The tool call failed: %v. ", err)
+	if recoveryBlocked {
+		prompt.WriteString("Do not call the same tool again in this turn. ")
+	} else {
+		prompt.WriteString("Do not repeat the same call. ")
+	}
+	switch name {
+	case "read_file":
+		if _, hasList := tools["list_files"]; hasList {
+			if _, hasSearch := tools["search_text"]; hasSearch {
+				prompt.WriteString(
+					"If the path is uncertain, use list_files or search_text before another read_file call. ",
+				)
+			}
+		}
+	case "list_files":
+		if _, hasSearch := tools["search_text"]; hasSearch {
+			prompt.WriteString(
+				"Try an existing parent directory or workspace root, or use search_text for a known literal. ",
+			)
+		}
+	}
+	prompt.WriteString("Choose a different useful tool or answer with the limitation. Do not guess.")
+	return prompt.String()
 }
 
 func (r *Runner) decideRoute(

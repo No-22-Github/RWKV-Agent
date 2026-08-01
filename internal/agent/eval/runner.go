@@ -506,9 +506,24 @@ func summarize(
 				if step.Tool != "" {
 					summary.Metrics.ToolCalls++
 				}
+				if step.ToolExecuted {
+					summary.Metrics.ToolExecutions++
+				}
 				if step.ToolError != "" {
 					summary.Metrics.ToolErrors++
 				}
+				if step.ToolRejected != "" {
+					summary.Metrics.RejectedCalls++
+				}
+				switch step.ToolRejected {
+				case "duplicate_tool_call":
+					summary.Metrics.DuplicateCalls++
+				case "consecutive_tool_failures":
+					summary.Metrics.RecoveryBlocks++
+				}
+			}
+			if turnResult.Result.ForcedAnswerReason != "" {
+				summary.Metrics.ForcedAnswers++
 			}
 		}
 	}

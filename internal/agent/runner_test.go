@@ -11,6 +11,25 @@ import (
 	"github.com/no22/RWKV-Agent/internal/continuation"
 )
 
+func TestRunnerRequiresTwoStepsForToolConvergence(t *testing.T) {
+	t.Parallel()
+	_, err := NewRunner(
+		continuation.GenerateFunc(func(
+			context.Context,
+			continuation.Request,
+			continuation.EventSink,
+		) (continuation.Result, error) {
+			return continuation.Result{}, nil
+		}),
+		nil,
+		Options{MaxSteps: 1},
+	)
+	if !errors.Is(err, continuation.ErrInvalidRequest) ||
+		!strings.Contains(err.Error(), "at least two steps") {
+		t.Fatalf("error = %v", err)
+	}
+}
+
 func TestRunnerExecutesToolThenReturnsFinal(t *testing.T) {
 	t.Parallel()
 	outputs := []string{
@@ -357,6 +376,10 @@ func TestRunnerDuplicateCallForcesAnswerFromSuccessfulEvidence(t *testing.T) {
 		t.Fatal(err)
 	}
 	if result.Output != "done" ||
+		result.ForcedAnswerReason != forcedAnswerDuplicateCall ||
+		result.Steps[0].ToolExecuted != true ||
+		result.Steps[1].ToolExecuted ||
+		result.Steps[1].ToolRejected != rejectedDuplicateCall ||
 		result.Steps[1].ToolError != "duplicate tool call rejected" {
 		t.Fatalf("duplicate call result = %+v", result)
 	}
@@ -376,6 +399,56 @@ func TestRunnerDuplicateCallForcesAnswerFromSuccessfulEvidence(t *testing.T) {
 		history[4].Role != RoleTool ||
 		history[5].Content != "done" {
 		t.Fatalf("duplicate-call history = %+v", history)
+	}
+}
+
+func TestRunnerDuplicateFailedCallForcesLimitedAnswer(t *testing.T) {
+	t.Parallel()
+	outputs := []string{
+		`<tool_call>{"name":"failing","arguments":{"value":"same"}}</tool_call>`,
+		`<tool_call>{"name":"failing","arguments":{"value":"same"}}</tool_call>`,
+		"could not verify",
+	}
+	generations := 0
+	executions := 0
+	var requests []continuation.Request
+	runner, err := NewRunner(
+		continuation.GenerateFunc(func(
+			_ context.Context,
+			request continuation.Request,
+			_ continuation.EventSink,
+		) (continuation.Result, error) {
+			requests = append(requests, request)
+			result := continuation.Result{
+				Text:         outputs[generations],
+				FinishReason: continuation.FinishStop,
+			}
+			generations++
+			return result, nil
+		}),
+		[]Tool{&failingTool{calls: &executions}},
+		Options{MaxSteps: 3},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "Use the failing tool.")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if executions != 1 ||
+		result.Output != "could not verify" ||
+		result.ForcedAnswerReason != forcedAnswerDuplicateCall ||
+		result.Steps[0].ToolError != "planned failure" ||
+		result.Steps[1].ToolExecuted ||
+		result.Steps[1].ToolRejected != rejectedDuplicateCall ||
+		result.Steps[2].Stage != StageAnswer {
+		t.Fatalf("duplicate failed-call result=%+v executions=%d", result, executions)
+	}
+	if len(requests) != 3 ||
+		!strings.Contains(requests[2].Prompt, "repeats an earlier failed call") ||
+		!strings.Contains(requests[2].Prompt, "clearly state anything that could not be verified") {
+		t.Fatalf("duplicate failed-call requests = %+v", requests)
 	}
 }
 
@@ -569,15 +642,26 @@ func TestToolContinuationRetainsEarlierTurns(t *testing.T) {
 
 func TestRunnerStopsAtStepLimitAfterToolFailures(t *testing.T) {
 	t.Parallel()
+	outputs := []continuation.Result{
+		{
+			Text:         `<tool_call>{"name":"missing","arguments":{"value":"again"}}</tool_call>`,
+			FinishReason: continuation.FinishStop,
+		},
+		{
+			Text:         "The requested operation could not be verified because the tool was unavailable.",
+			FinishReason: continuation.FinishStop,
+		},
+	}
+	calls := 0
 	runner, err := NewRunner(
 		continuation.GenerateFunc(func(
 			context.Context,
 			continuation.Request,
 			continuation.EventSink,
 		) (continuation.Result, error) {
-			return continuation.Result{
-				Text: `<tool_call>{"name":"missing","arguments":{"value":"again"}}</tool_call>`,
-			}, nil
+			result := outputs[calls]
+			calls++
+			return result, nil
 		}),
 		nil,
 		Options{MaxSteps: 2},
@@ -586,17 +670,181 @@ func TestRunnerStopsAtStepLimitAfterToolFailures(t *testing.T) {
 		t.Fatal(err)
 	}
 	result, err := runner.Run(context.Background(), "Loop.")
-	if !errors.Is(err, ErrMaxSteps) {
-		t.Fatalf("error = %v, want ErrMaxSteps", err)
+	if err != nil {
+		t.Fatal(err)
 	}
-	if len(result.Steps) != 2 {
-		t.Fatalf("steps = %d", len(result.Steps))
+	if result.Output != outputs[1].Text ||
+		result.ForcedAnswerReason != forcedAnswerStepBudget ||
+		len(result.Steps) != 2 ||
+		result.Steps[1].Stage != StageAnswer {
+		t.Fatalf("forced failure answer = %+v", result)
 	}
-	if result.Steps[1].ToolError != `unknown tool "missing"` {
-		t.Fatalf("failed step = %+v", result.Steps[1])
+	if result.Steps[0].ToolError != `unknown tool "missing"` {
+		t.Fatalf("failed step = %+v", result.Steps[0])
 	}
-	if len(runner.History()) != 0 {
-		t.Fatalf("failed turn committed history = %+v", runner.History())
+	if history := runner.History(); len(history) != 4 ||
+		history[1].Role != RoleAssistant ||
+		history[2].Role != RoleTool ||
+		history[3].Content != outputs[1].Text {
+		t.Fatalf("failed-tool answer history = %+v", history)
+	}
+}
+
+func TestRunnerPrefillsFirstInspectToolCall(t *testing.T) {
+	t.Parallel()
+	outputs := []continuation.Result{
+		{Text: "inspect", FinishReason: continuation.FinishStop},
+		{
+			Text:         `{"name":"echo","arguments":{"value":"prefilled"}}`,
+			FinishReason: continuation.FinishStop,
+		},
+		{Text: "done", FinishReason: continuation.FinishStop},
+	}
+	var requests []continuation.Request
+	runner, err := NewRunner(
+		continuation.GenerateFunc(func(
+			_ context.Context,
+			request continuation.Request,
+			_ continuation.EventSink,
+		) (continuation.Result, error) {
+			requests = append(requests, request)
+			return outputs[len(requests)-1], nil
+		}),
+		[]Tool{echoTool{}},
+		Options{
+			MaxSteps: 3,
+			Router:   G1IRouteProtocol{},
+		},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "Use echo.")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Route != RouteInspect ||
+		result.Output != "done" ||
+		len(result.Steps) != 2 ||
+		result.Steps[0].Tool != "echo" {
+		t.Fatalf("prefilled inspect result = %+v", result)
+	}
+	if len(requests) != 3 ||
+		!strings.HasSuffix(requests[1].Prompt, "Assistant: <tool_call>") ||
+		!strings.HasSuffix(requests[2].Prompt, "Assistant:") ||
+		strings.HasSuffix(requests[2].Prompt, "Assistant: <tool_call>") {
+		t.Fatalf("inspect prompts = %+v", requests)
+	}
+	if history := runner.History(); len(history) != 4 ||
+		history[1].Content !=
+			`<tool_call>{"name":"echo","arguments":{"value":"prefilled"}}</tool_call>` {
+		t.Fatalf("prefilled tool history = %+v", history)
+	}
+}
+
+func TestRunnerBlocksThirdConsecutiveFailureAndRecoversWithDifferentTool(t *testing.T) {
+	t.Parallel()
+	outputs := []continuation.Result{
+		{
+			Text:         `<tool_call>{"name":"failing","arguments":{"value":"one"}}</tool_call>`,
+			FinishReason: continuation.FinishStop,
+		},
+		{
+			Text:         `<tool_call>{"name":"failing","arguments":{"value":"two"}}</tool_call>`,
+			FinishReason: continuation.FinishStop,
+		},
+		{
+			Text:         `<tool_call>{"name":"failing","arguments":{"value":"three"}}</tool_call>`,
+			FinishReason: continuation.FinishStop,
+		},
+		{
+			Text:         `<tool_call>{"name":"echo","arguments":{"value":"recovered"}}</tool_call>`,
+			FinishReason: continuation.FinishStop,
+		},
+		{Text: "recovered", FinishReason: continuation.FinishStop},
+	}
+	generations := 0
+	executions := 0
+	var requests []continuation.Request
+	runner, err := NewRunner(
+		continuation.GenerateFunc(func(
+			_ context.Context,
+			request continuation.Request,
+			_ continuation.EventSink,
+		) (continuation.Result, error) {
+			requests = append(requests, request)
+			result := outputs[generations]
+			generations++
+			return result, nil
+		}),
+		[]Tool{&failingTool{calls: &executions}, echoTool{}},
+		Options{MaxSteps: 5},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "Recover.")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if executions != maxConsecutiveToolFailures ||
+		result.Output != "recovered" ||
+		result.ForcedAnswerReason != forcedAnswerStepBudget ||
+		len(result.Steps) != 5 ||
+		result.Steps[0].ToolExecuted != true ||
+		result.Steps[1].ToolExecuted != true ||
+		result.Steps[2].ToolExecuted ||
+		result.Steps[2].ToolRejected != rejectedFailureLimit ||
+		!strings.Contains(result.Steps[2].ToolError, "blocked after 2 consecutive failures") ||
+		result.Steps[3].ToolError != "" ||
+		result.Steps[4].Stage != StageAnswer {
+		t.Fatalf("recovery result=%+v executions=%d", result, executions)
+	}
+	if !strings.Contains(requests[3].Prompt, "Do not call the same tool again") {
+		t.Fatalf("recovery prompt = %q", requests[3].Prompt)
+	}
+}
+
+func TestRunnerSuggestsDiscoveryAfterMissingReadPath(t *testing.T) {
+	t.Parallel()
+	tools, err := WorkspaceTools(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	outputs := []continuation.Result{
+		{
+			Text:         `<tool_call>{"name":"read_file","arguments":{"path":"missing.txt"}}</tool_call>`,
+			FinishReason: continuation.FinishStop,
+		},
+		{Text: "The file was not found.", FinishReason: continuation.FinishStop},
+	}
+	var prompts []string
+	runner, err := NewRunner(
+		continuation.GenerateFunc(func(
+			_ context.Context,
+			request continuation.Request,
+			_ continuation.EventSink,
+		) (continuation.Result, error) {
+			prompts = append(prompts, request.Prompt)
+			return outputs[len(prompts)-1], nil
+		}),
+		tools,
+		Options{MaxSteps: 3},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "Read missing.txt.")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Output != outputs[1].Text ||
+		len(prompts) != 2 ||
+		!strings.Contains(
+			prompts[1],
+			"use list_files or search_text before another read_file call",
+		) {
+		t.Fatalf("missing-path recovery result=%+v prompts=%+v", result, prompts)
 	}
 }
 
@@ -661,6 +909,10 @@ type countingEchoTool struct {
 	calls *int
 }
 
+type failingTool struct {
+	calls *int
+}
+
 func (t *countingEchoTool) Spec() ToolSpec {
 	return ToolSpec{
 		Name:        "counting_echo",
@@ -678,6 +930,19 @@ func (t *countingEchoTool) Execute(_ context.Context, raw json.RawMessage) (any,
 		return nil, err
 	}
 	return args.Value, nil
+}
+
+func (t *failingTool) Spec() ToolSpec {
+	return ToolSpec{
+		Name:        "failing",
+		Description: "Always fail.",
+		Arguments:   `{"value":"string"}`,
+	}
+}
+
+func (t *failingTool) Execute(_ context.Context, _ json.RawMessage) (any, error) {
+	*t.calls++
+	return nil, fmt.Errorf("planned failure")
 }
 
 func (echoTool) Execute(_ context.Context, raw json.RawMessage) (any, error) {
