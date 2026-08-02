@@ -50,6 +50,7 @@ type runOptions struct {
 	penaltyDecay      float64
 	reasoning         bool
 	reasoningExplicit bool
+	fewShot           bool
 	autosave          bool
 	nativeState       string
 	concurrency       int
@@ -214,6 +215,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		fs.IntVar(&options.maxSteps, "max-steps", 6, "maximum model steps including protocol retries")
 		fs.IntVar(&options.decisionMaxTokens, "decision-max-tokens", 256, "maximum generated tokens for tool selection")
 		fs.IntVar(&options.routeMaxTokens, "route-max-tokens", 16, "maximum generated tokens for respond/inspect routing")
+		fs.BoolVar(&options.fewShot, "few-shot", false, "enable agent decision trajectory examples")
 		fs.StringVar(&options.completion, "completion", "local", "continuation provider: local or rwkv-lightning")
 		fs.StringVar(&options.apiURL, "api-url", "", "full rwkv_lightning continuation endpoint URL")
 		fs.StringVar(
@@ -541,7 +543,7 @@ func agentRunnerOptions(options runOptions, observe func(agent.Event)) agent.Opt
 		ProtocolRetries:         1,
 		DecisionMaxOutputTokens: options.decisionMaxTokens,
 		ControlPrompt:           agent.ControlPromptSystem,
-		Protocol:                agent.G1IProtocol{},
+		Protocol:                agent.G1IProtocol{FewShot: options.fewShot},
 		Renderer:                agent.RWKVChatRenderer{Reasoning: options.reasoning},
 		Router:                  agent.G1IRouteProtocol{},
 		RouteRenderer:           agent.RWKVChatRenderer{},

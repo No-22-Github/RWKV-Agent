@@ -130,10 +130,10 @@ func (t *listFilesTool) Execute(ctx context.Context, raw json.RawMessage) (any, 
 		args.MaxResults = 200
 	}
 	if args.MaxDepth < 1 || args.MaxDepth > 8 {
-		return nil, fmt.Errorf("max_depth must be between 1 and 8")
+		return nil, fmt.Errorf("%w: max_depth must be between 1 and 8", ErrInvalidToolArguments)
 	}
 	if args.MaxResults < 1 || args.MaxResults > 500 {
-		return nil, fmt.Errorf("max_results must be between 1 and 500")
+		return nil, fmt.Errorf("%w: max_results must be between 1 and 500", ErrInvalidToolArguments)
 	}
 	target, err := t.workspace.resolve(args.Path)
 	if err != nil {
@@ -214,7 +214,7 @@ func (t *readFileTool) Execute(ctx context.Context, raw json.RawMessage) (any, e
 		return nil, err
 	}
 	if args.Path == "" {
-		return nil, fmt.Errorf("path is required")
+		return nil, fmt.Errorf("%w: path is required", ErrInvalidToolArguments)
 	}
 	target, err := t.workspace.resolve(args.Path)
 	if err != nil {
@@ -292,13 +292,13 @@ func (t *searchTextTool) Execute(ctx context.Context, raw json.RawMessage) (any,
 		return nil, err
 	}
 	if args.Query == "" {
-		return nil, fmt.Errorf("query is required")
+		return nil, fmt.Errorf("%w: query is required", ErrInvalidToolArguments)
 	}
 	if args.MaxResults == 0 {
 		args.MaxResults = 50
 	}
 	if args.MaxResults < 1 || args.MaxResults > 200 {
-		return nil, fmt.Errorf("max_results must be between 1 and 200")
+		return nil, fmt.Errorf("%w: max_results must be between 1 and 200", ErrInvalidToolArguments)
 	}
 	target, err := t.workspace.resolve(args.Path)
 	if err != nil {
@@ -393,10 +393,10 @@ func decodeArguments(raw json.RawMessage, target any) error {
 	decoder := json.NewDecoder(bytes.NewReader(raw))
 	decoder.DisallowUnknownFields()
 	if err := decoder.Decode(target); err != nil {
-		return fmt.Errorf("invalid arguments: %w", err)
+		return fmt.Errorf("%w: %v", ErrInvalidToolArguments, err)
 	}
 	if decoder.Decode(&struct{}{}) != io.EOF {
-		return fmt.Errorf("invalid arguments: trailing data")
+		return fmt.Errorf("%w: trailing data", ErrInvalidToolArguments)
 	}
 	return nil
 }

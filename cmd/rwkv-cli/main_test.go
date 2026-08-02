@@ -95,6 +95,9 @@ func TestAgentDefaultsAreDeterministicAndBounded(t *testing.T) {
 	if options.workspace != "." || options.maxSteps != 6 {
 		t.Fatalf("agent bounds = %+v", options)
 	}
+	if options.fewShot {
+		t.Fatal("agent enabled few-shot by default before A/B validation")
+	}
 	if options.completion != "local" || options.apiPasswordEnv != "RWKV_API_PASSWORD" {
 		t.Fatalf("agent continuation defaults = %+v", options)
 	}
@@ -131,6 +134,20 @@ func TestAgentDefaultsAreDeterministicAndBounded(t *testing.T) {
 		[]string{"--model", "model", "--prompt", "task", "--route-max-tokens", "0"},
 	); err == nil {
 		t.Fatal("agent accepted a non-positive route token limit")
+	}
+}
+
+func TestAgentAcceptsFewShotProfile(t *testing.T) {
+	t.Parallel()
+	options, err := parseRunOptions(
+		"agent-eval",
+		[]string{"--model", "model", "--suite", "smoke", "--few-shot"},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !options.fewShot {
+		t.Fatalf("few-shot option = %+v", options)
 	}
 }
 

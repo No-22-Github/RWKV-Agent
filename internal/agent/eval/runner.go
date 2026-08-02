@@ -85,6 +85,10 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 	if rwkvRenderer, ok := renderer.(agent.RWKVChatRenderer); ok {
 		reasoning = rwkvRenderer.Reasoning
 	}
+	fewShot := false
+	if g1iProtocol, ok := protocol.(agent.G1IProtocol); ok {
+		fewShot = g1iProtocol.FewShot
+	}
 	caseIDs := make([]string, len(config.Cases))
 	for index, testCase := range config.Cases {
 		caseIDs[index] = testCase.ID
@@ -103,6 +107,7 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 			RouteProtocol:           config.Runner.Router.ID(),
 			ControlPrompt:           string(controlPrompt),
 			Reasoning:               reasoning,
+			FewShot:                 fewShot,
 			MaxSteps:                config.Runner.MaxSteps,
 			ProtocolRetries:         config.Runner.ProtocolRetries,
 			RouteRetries:            config.Runner.RouteRetries,

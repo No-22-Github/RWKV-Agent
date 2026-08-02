@@ -14,8 +14,10 @@ import (
 )
 
 var (
-	ErrProtocol = errors.New("agent protocol error")
-	ErrMaxSteps = errors.New("agent reached the step limit")
+	ErrProtocol             = errors.New("agent protocol error")
+	ErrMaxSteps             = errors.New("agent reached the step limit")
+	ErrInvalidToolArguments = errors.New("invalid tool arguments")
+	ErrNoWorkspaceEvidence  = errors.New("agent could not obtain workspace evidence")
 )
 
 const directResponseControl = `You are a helpful conversational assistant.
@@ -103,6 +105,7 @@ type Step struct {
 	ToolArguments json.RawMessage           `json:"tool_arguments,omitempty"`
 	ToolResult    json.RawMessage           `json:"tool_result,omitempty"`
 	ToolExecuted  bool                      `json:"tool_executed,omitempty"`
+	ToolEvidence  bool                      `json:"tool_evidence,omitempty"`
 	ToolRejected  string                    `json:"tool_rejected_reason,omitempty"`
 	ToolError     string                    `json:"tool_error,omitempty"`
 	ProtocolError string                    `json:"protocol_error,omitempty"`
@@ -318,6 +321,7 @@ func (r *Runner) RunWithObserver(
 	seenToolCalls := make(map[string]struct{})
 	successfulToolCalls := 0
 	toolAttempts := 0
+	hasToolEvidence := false
 	consecutiveFailedTool := ""
 	consecutiveToolFailures := 0
 	stage := StageDecision
@@ -330,6 +334,9 @@ func (r *Runner) RunWithObserver(
 		if result.Route == RouteInspect &&
 			toolAttempts > 0 &&
 			(step == r.options.MaxSteps || forceAnswer) {
+			if !hasToolEvidence {
+				return result, noWorkspaceEvidenceError()
+			}
 			answerMessages, prefix := r.protocol.PrepareAnswer(messages)
 			if len(answerMessages) == 0 || strings.TrimSpace(prefix) == "" {
 				return result, fmt.Errorf(
@@ -398,6 +405,9 @@ func (r *Runner) RunWithObserver(
 		retries = 0
 		result.Steps[len(result.Steps)-1].ActionType = action.Type
 		if action.Type == "final" {
+			if result.Route == RouteInspect && toolAttempts > 0 && !hasToolEvidence {
+				return result, noWorkspaceEvidenceError()
+			}
 			result.Output = action.Content
 			turnMessages = append(turnMessages, Message{
 				Role:    RoleAssistant,
@@ -464,7 +474,16 @@ func (r *Runner) RunWithObserver(
 		}
 		result.Steps[len(result.Steps)-1].ToolExecuted = executed
 		if executed {
-			if err == nil {
+			toolEvidence := !errors.Is(err, ErrInvalidToolArguments)
+			result.Steps[len(result.Steps)-1].ToolEvidence = toolEvidence
+			if toolEvidence {
+				hasToolEvidence = true
+			}
+			if errors.Is(err, ErrInvalidToolArguments) {
+				// Schema repair attempts have not observed workspace state and
+				// must not consume the runtime failure budget. A corrected call
+				// to the same tool still needs a chance to execute.
+			} else if err == nil {
 				consecutiveFailedTool = ""
 				consecutiveToolFailures = 0
 			} else if action.Name == consecutiveFailedTool {
@@ -520,7 +539,7 @@ func (r *Runner) RunWithObserver(
 			successfulToolCalls++
 			messages = append(messages, Message{
 				Role:    RoleUser,
-				Content: postToolDecisionReminder,
+				Content: r.protocol.PostToolReminder(),
 			})
 		} else if duplicate {
 			forceAnswer = true
@@ -554,6 +573,19 @@ func toolFailureReminder(
 	tools map[string]Tool,
 ) string {
 	var prompt strings.Builder
+	if errors.Is(err, ErrInvalidToolArguments) {
+		fmt.Fprintf(&prompt, "The %s arguments were rejected: %v. ", name, err)
+		if tool, ok := tools[name]; ok {
+			fmt.Fprintf(
+				&prompt,
+				"Retry %s using only the fields in this exact argument shape: %s. ",
+				name,
+				tool.Spec().Arguments,
+			)
+		}
+		prompt.WriteString("Do not add optional limit, byte, offset, or pagination fields unless the schema lists them.")
+		return prompt.String()
+	}
 	fmt.Fprintf(&prompt, "The tool call failed: %v. ", err)
 	if recoveryBlocked {
 		prompt.WriteString("Do not call the same tool again in this turn. ")
@@ -578,6 +610,13 @@ func toolFailureReminder(
 	}
 	prompt.WriteString("Choose a different useful tool or answer with the limitation. Do not guess.")
 	return prompt.String()
+}
+
+func noWorkspaceEvidenceError() error {
+	return fmt.Errorf(
+		"%w: every tool call failed argument validation or was rejected; the turn was not committed",
+		ErrNoWorkspaceEvidence,
+	)
 }
 
 func (r *Runner) decideRoute(

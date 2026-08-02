@@ -3,11 +3,36 @@ package agent
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 )
+
+func TestWorkspaceToolsClassifyInvalidArguments(t *testing.T) {
+	t.Parallel()
+	tools, err := WorkspaceTools(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, tool := range tools {
+		var arguments json.RawMessage
+		switch tool.Spec().Name {
+		case "list_files":
+			arguments = json.RawMessage(`{"path":".","max_depth":9}`)
+		case "read_file":
+			arguments = json.RawMessage(`{"path":"README.md","max_bytes":64}`)
+		case "search_text":
+			arguments = json.RawMessage(`{"path":"."}`)
+		default:
+			t.Fatalf("unexpected tool %q", tool.Spec().Name)
+		}
+		if _, executeErr := tool.Execute(context.Background(), arguments); !errors.Is(executeErr, ErrInvalidToolArguments) {
+			t.Fatalf("%s error = %v, want ErrInvalidToolArguments", tool.Spec().Name, executeErr)
+		}
+	}
+}
 
 func TestWorkspaceToolsReadListAndSearch(t *testing.T) {
 	t.Parallel()

@@ -11,7 +11,7 @@ import (
 
 const (
 	SchemaVersion  = 2
-	HarnessVersion = "rwkv-agent-eval-v5"
+	HarnessVersion = "rwkv-agent-eval-v7"
 )
 
 type GeneratorFactory func(
@@ -74,6 +74,7 @@ type HarnessMetadata struct {
 	RouteProtocol           string `json:"route_protocol"`
 	ControlPrompt           string `json:"control_prompt"`
 	Reasoning               bool   `json:"reasoning"`
+	FewShot                 bool   `json:"few_shot"`
 	MaxSteps                int    `json:"max_steps"`
 	ProtocolRetries         int    `json:"protocol_retries"`
 	RouteRetries            int    `json:"route_retries"`

@@ -168,6 +168,17 @@ v5 `smoke` 的严格工具序列评分为 4/10，但 11/11 回答、route 和协
 证据充分后的额外探索。早期 10/10 smoke 使用“一次成功工具后立即回答”的状态机，不能和
 当前顺序多工具循环直接比较。
 
+`rwkv-agent-eval-v6` 将工具参数校验错误与实际工作区观察分开：错误提示携带工具的
+精确参数形状，修正参数不会被同工具运行时失败预算提前阻断。若 `inspect` 轮在收束或输出
+final 前仍没有任何可信工具观察，Runner 返回 `ErrNoWorkspaceEvidence` 并保持 transcript
+不变，防止未验证猜测被后续 Router 当作已提交对话依据。v6 的真实模型基线待重新评测。
+
+`rwkv-agent-eval-v7` 提供默认关闭的 `--few-shot` profile，在初始控制 prompt、成功工具
+结果后的近距离提醒和强制回答 prompt 中加入完整轨迹或格式示例。13B A/B 显示 smoke
+严格通过从 4/10 升至 5/10，工具请求从 21 降至 16；但 boundary 从 10/18 降至 7/18，
+并出现复制示例路径和值的 prompt anchoring。因此该 profile 只用于复现实验，不进入默认
+Agent 行为；后续若继续尝试，应避免包含可复制的静态事实，并优先测试抽象或动态示例。
+
 当前 Agent 解码参数为 `temperature=1`、`top_k=1`、`top_p=1`、
 `alpha_presence=0`、`alpha_frequency=0`、`alpha_decay=1`。在
 `rwkv_lightning` 中 `top_k=1` 会直接选择 argmax，因此 temperature/top-p 实际不参与

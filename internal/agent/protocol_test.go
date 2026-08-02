@@ -90,6 +90,38 @@ func TestG1IProtocolUsesStageSpecificStops(t *testing.T) {
 	}
 }
 
+func TestG1IProtocolAddsFewShotDecisionTrajectories(t *testing.T) {
+	t.Parallel()
+	specs := []ToolSpec{{
+		Name:        "read_file",
+		Description: "Read a file.",
+		Arguments:   `{"path":"relative file path"}`,
+	}}
+	baseline := (G1IProtocol{}).Instructions(specs)
+	fewShot := (G1IProtocol{FewShot: true}).Instructions(specs)
+	if strings.Contains(baseline, "Additional complete decision trajectories") {
+		t.Fatalf("baseline unexpectedly contains few-shot trajectories: %q", baseline)
+	}
+	for _, fragment := range []string{
+		"Additional complete decision trajectories",
+		"Assistant: Project Aurora",
+		`Assistant: <tool_call>{"name":"read_file","arguments":{"path":"docs/migrate.md"}}</tool_call>`,
+		`"max_bytes":64`,
+		"Assistant: VALUE=cedar",
+	} {
+		if !strings.Contains(fewShot, fragment) {
+			t.Fatalf("few-shot instructions do not contain %q:\n%s", fragment, fewShot)
+		}
+	}
+	if strings.Contains((G1IProtocol{}).PostToolReminder(), "Decision patterns") ||
+		!strings.Contains(
+			(G1IProtocol{FewShot: true}).PostToolReminder(),
+			"Call one different tool only for a specific missing fact",
+		) {
+		t.Fatalf("post-tool reminders were not profile-specific")
+	}
+}
+
 func TestG1IProtocolPreparesAnswerWithFullToolTranscript(t *testing.T) {
 	t.Parallel()
 	protocol := G1IProtocol{}
@@ -121,6 +153,17 @@ func TestG1IProtocolPreparesAnswerWithFullToolTranscript(t *testing.T) {
 	if messages[len(messages)-1].Role != RoleUser ||
 		!strings.Contains(messages[len(messages)-1].Content, "tools are now unavailable") {
 		t.Fatalf("final answer reminder = %+v", messages[len(messages)-1])
+	}
+}
+
+func TestG1IProtocolAddsFewShotOutputContractsToForcedAnswer(t *testing.T) {
+	t.Parallel()
+	baseline, _ := (G1IProtocol{}).PrepareAnswer(nil)
+	fewShot, _ := (G1IProtocol{FewShot: true}).PrepareAnswer(nil)
+	if strings.Contains(baseline[0].Content, "Output-contract examples") ||
+		!strings.Contains(fewShot[0].Content, "Answer with only the flag") ||
+		!strings.Contains(fewShot[0].Content, "SKU-17 1248.50") {
+		t.Fatalf("answer profiles baseline=%q few-shot=%q", baseline[0].Content, fewShot[0].Content)
 	}
 }
 

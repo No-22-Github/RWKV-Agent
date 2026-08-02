@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -640,15 +642,11 @@ func TestToolContinuationRetainsEarlierTurns(t *testing.T) {
 	}
 }
 
-func TestRunnerStopsAtStepLimitAfterToolFailures(t *testing.T) {
+func TestRunnerRejectsForcedAnswerWithoutWorkspaceEvidence(t *testing.T) {
 	t.Parallel()
 	outputs := []continuation.Result{
 		{
 			Text:         `<tool_call>{"name":"missing","arguments":{"value":"again"}}</tool_call>`,
-			FinishReason: continuation.FinishStop,
-		},
-		{
-			Text:         "The requested operation could not be verified because the tool was unavailable.",
 			FinishReason: continuation.FinishStop,
 		},
 	}
@@ -670,23 +668,181 @@ func TestRunnerStopsAtStepLimitAfterToolFailures(t *testing.T) {
 		t.Fatal(err)
 	}
 	result, err := runner.Run(context.Background(), "Loop.")
-	if err != nil {
-		t.Fatal(err)
+	if !errors.Is(err, ErrNoWorkspaceEvidence) {
+		t.Fatalf("error = %v, want ErrNoWorkspaceEvidence", err)
 	}
-	if result.Output != outputs[1].Text ||
-		result.ForcedAnswerReason != forcedAnswerStepBudget ||
-		len(result.Steps) != 2 ||
-		result.Steps[1].Stage != StageAnswer {
-		t.Fatalf("forced failure answer = %+v", result)
+	if calls != 1 || result.Output != "" || len(result.Steps) != 1 {
+		t.Fatalf("ungrounded result = %+v calls=%d", result, calls)
 	}
 	if result.Steps[0].ToolError != `unknown tool "missing"` {
 		t.Fatalf("failed step = %+v", result.Steps[0])
 	}
-	if history := runner.History(); len(history) != 4 ||
-		history[1].Role != RoleAssistant ||
-		history[2].Role != RoleTool ||
-		history[3].Content != outputs[1].Text {
-		t.Fatalf("failed-tool answer history = %+v", history)
+	if history := runner.History(); len(history) != 0 {
+		t.Fatalf("ungrounded turn committed history = %+v", history)
+	}
+}
+
+func TestRunnerRepairsWorkspaceToolArgumentsBeforeReadingEvidence(t *testing.T) {
+	t.Parallel()
+	root := t.TempDir()
+	if err := os.WriteFile(filepath.Join(root, "README.md"), []byte("# Example\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	tools, err := WorkspaceTools(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	outputs := []continuation.Result{
+		{
+			Text:         `<tool_call>{"name":"read_file","arguments":{"path":"README.md","max_limit":64}}</tool_call>`,
+			FinishReason: continuation.FinishStop,
+		},
+		{
+			Text:         `<tool_call>{"name":"read_file","arguments":{"path":"README.md","max_bytes":64}}</tool_call>`,
+			FinishReason: continuation.FinishStop,
+		},
+		{
+			Text:         `<tool_call>{"name":"read_file","arguments":{"path":"README.md"}}</tool_call>`,
+			FinishReason: continuation.FinishStop,
+		},
+		{Text: "# Example", FinishReason: continuation.FinishStop},
+	}
+	var requests []continuation.Request
+	runner, err := NewRunner(
+		continuation.GenerateFunc(func(
+			_ context.Context,
+			request continuation.Request,
+			_ continuation.EventSink,
+		) (continuation.Result, error) {
+			requests = append(requests, request)
+			return outputs[len(requests)-1], nil
+		}),
+		tools,
+		Options{MaxSteps: 5},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "Read README.md.")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Output != "# Example" || len(result.Steps) != 4 {
+		t.Fatalf("result = %+v", result)
+	}
+	if !result.Steps[0].ToolExecuted || result.Steps[0].ToolEvidence ||
+		!result.Steps[1].ToolExecuted || result.Steps[1].ToolEvidence ||
+		!result.Steps[2].ToolExecuted || !result.Steps[2].ToolEvidence {
+		t.Fatalf("evidence trace = %+v", result.Steps)
+	}
+	for _, index := range []int{1, 2} {
+		prompt := requests[index].Prompt
+		if !strings.Contains(prompt, `exact argument shape: {"path":"relative file path"}`) ||
+			!strings.Contains(prompt, "Do not add optional limit, byte, offset, or pagination fields") {
+			t.Fatalf("repair prompt %d = %q", index, prompt)
+		}
+	}
+}
+
+func TestRunnerRollsBackRepeatedInvalidArgumentsWithoutGuessing(t *testing.T) {
+	t.Parallel()
+	tools, err := WorkspaceTools(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	invalid := `<tool_call>{"name":"read_file","arguments":{"path":"README.md","max_bytes":64}}</tool_call>`
+	outputs := []continuation.Result{
+		{Text: invalid, FinishReason: continuation.FinishStop},
+		{Text: invalid, FinishReason: continuation.FinishStop},
+	}
+	calls := 0
+	runner, err := NewRunner(
+		continuation.GenerateFunc(func(
+			context.Context,
+			continuation.Request,
+			continuation.EventSink,
+		) (continuation.Result, error) {
+			result := outputs[calls]
+			calls++
+			return result, nil
+		}),
+		tools,
+		Options{MaxSteps: 4},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "Read README.md.")
+	if !errors.Is(err, ErrNoWorkspaceEvidence) {
+		t.Fatalf("error = %v, want ErrNoWorkspaceEvidence", err)
+	}
+	if calls != 2 || result.Output != "" || len(result.Steps) != 2 ||
+		result.ForcedAnswerReason != forcedAnswerDuplicateCall ||
+		result.Steps[0].ToolEvidence ||
+		result.Steps[1].ToolRejected != rejectedDuplicateCall {
+		t.Fatalf("result=%+v calls=%d", result, calls)
+	}
+	if history := runner.History(); len(history) != 0 {
+		t.Fatalf("invalid-argument turn contaminated history: %+v", history)
+	}
+}
+
+func TestRunnerDoesNotRouteFromRolledBackUngroundedTurn(t *testing.T) {
+	t.Parallel()
+	root := t.TempDir()
+	if err := os.WriteFile(filepath.Join(root, "README.md"), []byte("# Example\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	tools, err := WorkspaceTools(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	invalid := `{"name":"read_file","arguments":{"path":"README.md","max_bytes":64}}`
+	outputs := []continuation.Result{
+		{Text: "inspect", FinishReason: continuation.FinishStop},
+		{Text: invalid, FinishReason: continuation.FinishStop},
+		{Text: `<tool_call>` + invalid + `</tool_call>`, FinishReason: continuation.FinishStop},
+		{Text: "inspect", FinishReason: continuation.FinishStop},
+		{Text: `{"name":"read_file","arguments":{"path":"README.md"}}`, FinishReason: continuation.FinishStop},
+		{Text: "# Example", FinishReason: continuation.FinishStop},
+	}
+	var requests []continuation.Request
+	runner, err := NewRunner(
+		continuation.GenerateFunc(func(
+			_ context.Context,
+			request continuation.Request,
+			_ continuation.EventSink,
+		) (continuation.Result, error) {
+			requests = append(requests, request)
+			return outputs[len(requests)-1], nil
+		}),
+		tools,
+		Options{
+			MaxSteps:             4,
+			Router:               G1IRouteProtocol{},
+			RouteMaxOutputTokens: 16,
+		},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, runErr := runner.Run(
+		context.Background(),
+		"Read README.md for the unique GROUNDING-TURN-ONE request.",
+	); !errors.Is(runErr, ErrNoWorkspaceEvidence) {
+		t.Fatalf("first error = %v, want ErrNoWorkspaceEvidence", runErr)
+	}
+	result, err := runner.Run(context.Background(), "Read README.md correctly now.")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Output != "# Example" || len(requests) != len(outputs) {
+		t.Fatalf("second result=%+v requests=%d", result, len(requests))
+	}
+	secondRoutePrompt := requests[3].Prompt
+	if strings.Contains(secondRoutePrompt, "GROUNDING-TURN-ONE") ||
+		strings.Contains(secondRoutePrompt, "max_bytes") {
+		t.Fatalf("rolled-back turn leaked into next route prompt: %q", secondRoutePrompt)
 	}
 }
 

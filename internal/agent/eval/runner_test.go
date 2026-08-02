@@ -86,7 +86,7 @@ func TestRunScoresAndWritesTraceArtifacts(t *testing.T) {
 			MaxSteps:                3,
 			ProtocolRetries:         1,
 			DecisionMaxOutputTokens: 32,
-			Protocol:                agent.G1IProtocol{},
+			Protocol:                agent.G1IProtocol{FewShot: true},
 			Renderer:                agent.RWKVChatRenderer{},
 			Router:                  agent.G1IRouteProtocol{},
 			RouteRenderer:           agent.RWKVChatRenderer{},
@@ -121,6 +121,9 @@ func TestRunScoresAndWritesTraceArtifacts(t *testing.T) {
 	}
 	if factoryCalls != 2 {
 		t.Fatalf("generator factories = %d, want 2", factoryCalls)
+	}
+	if !report.Manifest.Harness.FewShot {
+		t.Fatalf("few-shot profile was not recorded: %+v", report.Manifest.Harness)
 	}
 	assertScore(t, "task success", report.Summary.Metrics.TaskSuccess, 2, 2)
 	assertScore(t, "answer accuracy", report.Summary.Metrics.AnswerAccuracy, 2, 2)
