@@ -30,11 +30,18 @@ func TestBuiltinCasesValidate(t *testing.T) {
 			t.Fatalf("boundary case lacks attribution metadata: %+v", testCase)
 		}
 	}
+	assistant, err := AssistantCases()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(assistant) != 6 {
+		t.Fatalf("assistant cases = %d, want 6", len(assistant))
+	}
 }
 
 func TestLoadCasesUsesStrictVersionedSchema(t *testing.T) {
 	valid := `{
-	  "schema_version": 2,
+		  "schema_version": 3,
 	  "cases": [{
 	    "id": "read",
 	    "description": "Read a fixture.",
@@ -70,7 +77,7 @@ func TestLoadCasesUsesStrictVersionedSchema(t *testing.T) {
 		t.Fatalf("unknown field error = %v", err)
 	}
 
-	wrongVersion := strings.Replace(valid, `"schema_version": 2`, `"schema_version": 1`, 1)
+	wrongVersion := strings.Replace(valid, `"schema_version": 3`, `"schema_version": 1`, 1)
 	if err := os.WriteFile(path, []byte(wrongVersion), 0o600); err != nil {
 		t.Fatal(err)
 	}

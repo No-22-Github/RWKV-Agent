@@ -34,12 +34,13 @@ func (G1IRouteProtocol) ID() string {
 }
 
 func (G1IRouteProtocol) Instructions() string {
-	return strings.TrimSpace(`Classify whether answering the current user message correctly requires NEW evidence from workspace files.
+	return strings.TrimSpace(`Classify whether answering the current user message correctly requires NEW evidence from available read-only tools.
 Output exactly one route and nothing else:
 - <route>respond</route>: casual conversation, general knowledge, questions about which tools/capabilities are available, or an answer already supported by the committed conversation.
-- <route>inspect</route>: the answer requires listing, reading, or searching workspace files now.
+- <route>inspect</route>: the answer requires current external facts, local files, deterministic calculation over tool data, or another read-only lookup now.
+If required arguments are missing or ambiguous, route to respond so the assistant can ask a clarifying question instead of guessing.
 Asking ABOUT available tools never requires USING those tools. Route capability questions to respond.
-Do not answer the user. Do not guess file contents.
+Do not answer the user. Do not guess file contents, locations, current conditions, or provider facts.
 Examples:
 User: 你好
 Assistant: <route>respond</route>
@@ -49,6 +50,12 @@ User: 你有哪些工具？不要调用它们。
 Assistant: <route>respond</route>
 User: Read README.md and report its title.
 Assistant: <route>inspect</route>
+User: 今天上海天气怎么样？
+Assistant: <route>inspect</route>
+User: 看一下 notes 目录里这周的开销。
+Assistant: <route>inspect</route>
+User: 帮我查一下天气。
+Assistant: <route>respond</route>
 Earlier assistant: README.md is titled Example.
 User: What was that title?
 Assistant: <route>respond</route>`)

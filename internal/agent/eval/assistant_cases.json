@@ -1,0 +1,152 @@
+{
+  "schema_version": 3,
+  "cases": [
+    {
+      "id": "as_weather_transit_hours",
+      "description": "Collect weather and nearest-transit closing time through a dependent tool sequence.",
+      "category": "assistant-dependent",
+      "turns": [
+        {
+          "prompt": "今天上海天气怎么样？我打算去最近的地铁站，但不知道它什么时候关门。",
+          "expect": {
+            "route": "inspect",
+            "tools": ["weather", "nearest_transit", "transit_hours"],
+            "calls": [
+              {"name": "weather", "arguments": {"city": "上海"}},
+              {"name": "nearest_transit", "arguments": {"kind": "subway"}},
+              {"name": "transit_hours"}
+            ],
+            "output_contains": ["多云", "27", "世纪大道站", "23:30"],
+            "output_excludes": ["<tool_call>", "<tool_result>", "Assistant:"],
+            "plan": {
+              "subtask_count": 3,
+              "waves": [["weather", "nearest_transit"], ["transit_hours"]],
+              "references": [
+                {"subtask": 3, "argument": "station", "source": "$2.name"}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "as_expense_fx_convert",
+      "description": "Aggregate current-week local expenses and convert the deterministic total.",
+      "category": "assistant-dependent",
+      "files": {
+        "notes/expenses.jsonl": "{\"date\":\"2026-08-03\",\"item\":\"午餐\",\"amount\":100,\"currency\":\"CNY\"}\n{\"date\":\"2026-08-04\",\"item\":\"交通\",\"amount\":50,\"currency\":\"CNY\"}\n{\"date\":\"2026-07-31\",\"item\":\"旧记录\",\"amount\":900,\"currency\":\"CNY\"}\n"
+      },
+      "turns": [
+        {
+          "prompt": "看一下我 notes 目录里这周的开销记录，一共花了多少，换成美元大概是多少？",
+          "expect": {
+            "route": "inspect",
+            "tools": ["structured_query", "fx_convert"],
+            "calls": [
+              {"name": "structured_query", "arguments": {"path": "notes", "filter": "本周", "aggregate": "sum"}},
+              {"name": "fx_convert", "arguments": {"amount": 150, "from": "CNY", "to": "USD"}}
+            ],
+            "output_contains": ["150", "21"],
+            "output_excludes": ["<tool_call>", "<tool_result>", "Assistant:"],
+            "plan": {
+              "subtask_count": 2,
+              "waves": [["structured_query"], ["fx_convert"]],
+              "references": [
+                {"subtask": 2, "argument": "amount", "source": "$1.total"}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "as_expense_fx_unavailable",
+      "description": "Keep the verified local total and explicitly abstain when FX is unavailable.",
+      "category": "assistant-degradation",
+      "provider_unavailable": ["fx"],
+      "files": {
+        "notes/expenses.jsonl": "{\"date\":\"2026-08-03\",\"item\":\"午餐\",\"amount\":100,\"currency\":\"CNY\"}\n{\"date\":\"2026-08-04\",\"item\":\"交通\",\"amount\":50,\"currency\":\"CNY\"}\n{\"date\":\"2026-07-31\",\"item\":\"旧记录\",\"amount\":900,\"currency\":\"CNY\"}\n"
+      },
+      "turns": [
+        {
+          "prompt": "看一下我 notes 目录里这周的开销记录，一共花了多少，换成美元大概是多少？如果汇率不可用，不要猜。",
+          "expect": {
+            "route": "inspect",
+            "tools": ["structured_query", "fx_convert"],
+            "calls": [
+              {"name": "structured_query", "arguments": {"path": "notes", "filter": "本周", "aggregate": "sum"}},
+              {"name": "fx_convert", "arguments": {"amount": 150, "from": "CNY", "to": "USD"}}
+            ],
+            "output_contains": ["150", "不可用"],
+            "output_excludes": ["21", "$", "<tool_call>", "<tool_result>"],
+            "must_state_unverified": ["不可用"],
+            "plan": {
+              "subtask_count": 2,
+              "waves": [["structured_query"], ["fx_convert"]],
+              "references": [
+                {"subtask": 2, "argument": "amount", "source": "$1.total"}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "as_single_weather",
+      "description": "Use exactly one weather lookup for a single-intent request.",
+      "category": "assistant-control",
+      "turns": [
+        {
+          "prompt": "今天上海天气怎么样？",
+          "expect": {
+            "route": "inspect",
+            "tools": ["weather"],
+            "calls": [{"name": "weather", "arguments": {"city": "上海"}}],
+            "output_contains": ["多云", "27"]
+          }
+        }
+      ]
+    },
+    {
+      "id": "as_two_independent_facts",
+      "description": "Collect two independent assistant facts without inventing a dependency.",
+      "category": "assistant-independent",
+      "turns": [
+        {
+          "prompt": "告诉我今天上海的天气和现在的日期时间。",
+          "expect": {
+            "route": "inspect",
+            "required_tools": ["weather", "datetime"],
+            "required_calls": [
+              {"name": "weather", "arguments": {"city": "上海"}},
+              {"name": "datetime", "arguments": {"op": "now"}}
+            ],
+            "output_contains": ["多云"],
+            "output_contains_any": ["2026-08-04", "2026年8月4日"],
+            "plan": {
+              "subtask_count": 2,
+              "waves": [["weather", "datetime"]],
+              "references": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "as_ambiguous_needs_clarify",
+      "description": "Ask for a missing city instead of guessing or calling a provider.",
+      "category": "assistant-clarification",
+      "turns": [
+        {
+          "prompt": "帮我查一下今天的天气。",
+          "expect": {
+            "route": "respond",
+            "tools": [],
+            "output_contains": ["城市"],
+            "output_excludes": ["上海", "北京", "多云", "30"]
+          }
+        }
+      ]
+    }
+  ]
+}

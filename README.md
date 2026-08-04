@@ -203,10 +203,13 @@ revision，丢弃旧版 native State，再用当前 profile replay。未显式�
 继承 Session 原有的 reasoning 模式；显式模式冲突、模型或 tokenizer 不匹配仍会拒绝。
 迁移后的 autosave 写入新 revision，不会原地改写旧 revision。
 
-## 实验性只读 Agent 框架
+## 实验性本地优先 Agent 框架
 
 `agent` 命令用于验证第一条 Agent Harness 纵向链路：模型可以在指定工作区内列出文件、
-读取文本和搜索字面量，然后基于实际文件内容回答。工具没有写入、命令执行或网络能力。
+读取文本、搜索字面量和确定性处理结构化数据，然后基于实际工具结果回答。P0 还注册了
+`weather`、`nearest_transit`、`transit_hours`、`fx_convert`、`calculator`、
+`structured_query` 和 `datetime`。天气、交通和汇率目前使用固定 mock Provider，只用于
+可重复评测，不代表实时数据；工具没有写入、命令执行或真实网络能力。
 Agent 只依赖“文本前缀 -> 续写文本”的窄接口，本地模型和 `rwkv_lightning` HTTP 是两种
 可替换 adapter。当前 `rwkv-g1i-envelope-v1` 采用 G1I 已验证的文本 envelope：
 `<tool_call>{"name":...,"arguments":...}</tool_call>` 和
@@ -216,7 +219,7 @@ envelope；因此用户询问 Agent 能力时不需要虚构一次工具调用�
 每轮先由一个不暴露工具 schema 的短 Router prompt 让模型选择 `respond` 或 `inspect`。
 `respond` 使用完全无工具的普通回答 prompt；`inspect` 才进入工具选择阶段。Router 只读取
 最近的已提交 user/assistant 历史，不接收原始工具正文；格式连续失败时安全降级为
-`respond`，Harness 不根据关键词猜测用户意图。成功执行一个只读工具后，Runner 使用独立
+`respond`，Harness 不根据关键词猜测用户意图。成功执行只读工具后，Runner 使用独立
 的短回答 prompt，并按任务相关性压缩过长字符串，再预填 `<answer>`；工具路由示例和完整
 大文件不会继续占用回答阶段上下文。Router 明确选择 `inspect` 后，Runner 会在第一次工具
 选择续写前预填 `<tool_call>`，模型只需继续生成 JSON 和 closing tag，Runner 再重建并
@@ -249,7 +252,7 @@ user/assistant/tool transcript 带入后续工具选择和最终回答阶段。�
 ```
 
 Agent 默认使用 `temperature=1`、`top-k=1`、`top-p=1` 的确定性解码，presence/frequency
-惩罚为 0，`penalty-decay=1`。Router 最多生成 16 token，工具选择最多生成 256 token，
+惩罚为 0，`penalty-decay=1`。Router 最多生成 16 token，首次工具选择最多生成 96 token，
 最终回答最多生成 1024 token，并限制为 6 个 Agent step（Router 独立计数）。
 `rwkv_lightning` 在 `top-k=1` 时直接取 argmax，因此 temperature 和 top-p 不参与随机
 采样。可用参数包括：
@@ -311,7 +314,8 @@ transcript；生成、协议或 step 失败仍整轮回滚。
 case。默认 `boundary` suite 有 18 个从
 [`marty1885/primitive-bench`](https://github.com/marty1885/primitive-bench)
 只读任务改造的 case，覆盖发现/搜索、多文件、CSV/JSON/JSONL、财务计算、日志、配置
-优先级和 prompt injection。`smoke` suite 保留原来的 10 个协议与安全契约回归：
+优先级和 prompt injection。`smoke` suite 保留原来的 10 个协议与安全契约回归；新增的
+6-case `assistant` suite 覆盖天气/交通、开销/汇率、Provider 不可用、单意图和歧义追问：
 
 ```sh
 ./dist/rwkv-cli agent-eval \
@@ -323,7 +327,7 @@ case。默认 `boundary` suite 有 18 个从
 每个 case 使用独立临时工作区；本地推理还会为每个 case 创建全新的 Session，只有同一
 case 的多个 turn 共享 transcript/State。可以用可重复的 `--case` 跑子集，用
 `--case-timeout` 设置单 case 超时，也可以用 `--cases` 载入
-`schema_version: 2` 的自定义 JSON case 文件。`--cases` 与 `--suite` 互斥；输出目录
+`schema_version: 3` 的自定义 JSON case 文件。`--cases` 与 `--suite` 互斥；输出目录
 必须尚不存在，避免覆盖已有基线。
 
 ```sh
@@ -344,7 +348,7 @@ case 的多个 turn 共享 transcript/State。可以用可重复的 `--case` 跑
 - `trace.jsonl`：逐次原始 continuation request/output、usage、阶段、Runner 事件和工具
   结果；不记录 HTTP 密码或认证 header，但可能包含 case 文件内容。
 - `summary.json`：逐 case/turn 失败原因，以及答案、route、协议、精确/必需/禁止工具、
-  必需调用参数、no-call 和任务成功率。
+  必需调用参数、no-call、显式弃答、plan 和答案契约修复率。
 
 失败 case 仍会写完 artifacts，随后命令以非零状态退出。默认输出到带 UTC 时间戳的
 `runs/agent-eval-*`。

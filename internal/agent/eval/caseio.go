@@ -106,6 +106,11 @@ func ValidateCases(cases []Case) error {
 				return fmt.Errorf("case %q outside file cannot enter the workspace", testCase.ID)
 			}
 		}
+		for _, name := range testCase.ProviderUnavailable {
+			if strings.TrimSpace(name) == "" {
+				return fmt.Errorf("case %q has an empty unavailable provider name", testCase.ID)
+			}
+		}
 		if len(testCase.Turns) == 0 {
 			return fmt.Errorf("case %q requires at least one turn", testCase.ID)
 		}
@@ -200,6 +205,16 @@ func ValidateCases(cases []Case) error {
 					testCase.ID,
 					index+1,
 				)
+			}
+			if plan := turn.Expect.Plan; plan != nil {
+				if plan.SubtaskCount < 1 {
+					return fmt.Errorf("case %q turn %d plan subtask_count must be positive", testCase.ID, index+1)
+				}
+				for _, reference := range plan.References {
+					if reference.Subtask < 1 || strings.TrimSpace(reference.Argument) == "" || strings.TrimSpace(reference.Source) == "" {
+						return fmt.Errorf("case %q turn %d has an invalid plan reference", testCase.ID, index+1)
+					}
+				}
 			}
 		}
 	}

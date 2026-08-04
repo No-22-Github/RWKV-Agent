@@ -9,6 +9,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"unicode"
 
 	"github.com/no22/RWKV-Agent/internal/continuation"
 )
@@ -17,6 +18,7 @@ var (
 	ErrProtocol             = errors.New("agent protocol error")
 	ErrMaxSteps             = errors.New("agent reached the step limit")
 	ErrInvalidToolArguments = errors.New("invalid tool arguments")
+	ErrProviderUnavailable  = errors.New("provider unavailable")
 	ErrNoWorkspaceEvidence  = errors.New("agent could not obtain workspace evidence")
 )
 
@@ -34,12 +36,18 @@ const duplicateToolAnswerReminder = `That tool call was rejected because it repe
 Answer the current task from the evidence already collected.`
 
 const (
-	maxConsecutiveToolFailures = 2
-	forcedAnswerStepBudget     = "step_budget_after_tool_attempt"
-	forcedAnswerDuplicateCall  = "duplicate_tool_call"
-	rejectedUnknownTool        = "unknown_tool"
-	rejectedDuplicateCall      = "duplicate_tool_call"
-	rejectedFailureLimit       = "consecutive_tool_failures"
+	answerContractFallbackEN = "I could not provide a reliable answer because the model output violated the answer contract. Please retry."
+	answerContractFallbackZH = "模型输出不符合答案契约，因此无法可靠展示。请重试。"
+)
+
+const (
+	maxConsecutiveToolFailures  = 2
+	forcedAnswerStepBudget      = "step_budget_after_tool_attempt"
+	forcedAnswerDuplicateCall   = "duplicate_tool_call"
+	rejectedUnknownTool         = "unknown_tool"
+	rejectedDuplicateCall       = "duplicate_tool_call"
+	rejectedFailureLimit        = "consecutive_tool_failures"
+	rejectedProviderUnavailable = "provider_unavailable"
 )
 
 type ToolSpec struct {
@@ -95,27 +103,54 @@ type Event struct {
 }
 
 type Step struct {
-	Number        int                       `json:"number"`
-	Stage         GenerationStage           `json:"stage"`
-	ModelOutput   string                    `json:"model_output"`
-	FinishReason  continuation.FinishReason `json:"finish_reason"`
-	Usage         continuation.Usage        `json:"usage"`
-	ActionType    string                    `json:"action_type,omitempty"`
-	Tool          string                    `json:"tool,omitempty"`
-	ToolArguments json.RawMessage           `json:"tool_arguments,omitempty"`
-	ToolResult    json.RawMessage           `json:"tool_result,omitempty"`
-	ToolExecuted  bool                      `json:"tool_executed,omitempty"`
-	ToolEvidence  bool                      `json:"tool_evidence,omitempty"`
-	ToolRejected  string                    `json:"tool_rejected_reason,omitempty"`
-	ToolError     string                    `json:"tool_error,omitempty"`
-	ProtocolError string                    `json:"protocol_error,omitempty"`
+	Number          int                       `json:"number"`
+	Stage           GenerationStage           `json:"stage"`
+	ModelOutput     string                    `json:"model_output"`
+	FinishReason    continuation.FinishReason `json:"finish_reason"`
+	Usage           continuation.Usage        `json:"usage"`
+	ActionType      string                    `json:"action_type,omitempty"`
+	Tool            string                    `json:"tool,omitempty"`
+	ToolArguments   json.RawMessage           `json:"tool_arguments,omitempty"`
+	ToolResult      json.RawMessage           `json:"tool_result,omitempty"`
+	ToolExecuted    bool                      `json:"tool_executed,omitempty"`
+	ToolEvidence    bool                      `json:"tool_evidence,omitempty"`
+	ToolUnavailable bool                      `json:"tool_unavailable,omitempty"`
+	ToolRejected    string                    `json:"tool_rejected_reason,omitempty"`
+	ToolError       string                    `json:"tool_error,omitempty"`
+	ProtocolError   string                    `json:"protocol_error,omitempty"`
 }
 
 type Result struct {
-	Output             string `json:"output"`
-	Steps              []Step `json:"steps"`
-	Route              Route  `json:"route"`
-	ForcedAnswerReason string `json:"forced_answer_reason,omitempty"`
+	Output                 string     `json:"output"`
+	OriginalOutput         string     `json:"original_output"`
+	AnswerContractRepaired bool       `json:"answer_contract_repaired,omitempty"`
+	AnswerViolations       []string   `json:"answer_violations,omitempty"`
+	Steps                  []Step     `json:"steps"`
+	Route                  Route      `json:"route"`
+	ForcedAnswerReason     string     `json:"forced_answer_reason,omitempty"`
+	Plan                   *PlanTrace `json:"plan,omitempty"`
+	PlanRejections         int        `json:"plan_rejections,omitempty"`
+	PlanFallbacks          int        `json:"plan_fallbacks,omitempty"`
+}
+
+type answerViolation string
+
+const (
+	violationProtocolTag answerViolation = "protocol_tag"
+	violationRoleHeader  answerViolation = "role_header"
+	violationJSONPayload answerViolation = "json_payload"
+	violationToolEcho    answerViolation = "tool_payload_echo"
+)
+
+type PlanTrace struct {
+	Subtasks []PlanSubtaskTrace `json:"subtasks"`
+	Waves    [][]int            `json:"waves"`
+}
+
+type PlanSubtaskTrace struct {
+	ID        int             `json:"id"`
+	Tool      string          `json:"tool"`
+	Arguments json.RawMessage `json:"arguments"`
 }
 
 type Runner struct {
@@ -180,7 +215,7 @@ func NewRunner(generator continuation.Generator, tools []Tool, options Options) 
 	}
 	applyGenerationDefaults(&options.Generation)
 	if options.DecisionMaxOutputTokens == 0 {
-		options.DecisionMaxOutputTokens = 256
+		options.DecisionMaxOutputTokens = 96
 	}
 	if options.DecisionMaxOutputTokens > options.Generation.MaxOutputTokens {
 		options.DecisionMaxOutputTokens = options.Generation.MaxOutputTokens
@@ -319,6 +354,8 @@ func (r *Runner) RunWithObserver(
 	retries := 0
 	routeViolations := 0
 	seenToolCalls := make(map[string]struct{})
+	unavailableTools := make(map[string]struct{})
+	var unverified []string
 	successfulToolCalls := 0
 	toolAttempts := 0
 	hasToolEvidence := false
@@ -337,7 +374,7 @@ func (r *Runner) RunWithObserver(
 			if !hasToolEvidence {
 				return result, noWorkspaceEvidenceError()
 			}
-			answerMessages, prefix := r.protocol.PrepareAnswer(messages)
+			answerMessages, prefix := r.protocol.PrepareAnswer(messages, unverified)
 			if len(answerMessages) == 0 || strings.TrimSpace(prefix) == "" {
 				return result, fmt.Errorf(
 					"%w: protocol did not prepare an answer stage",
@@ -408,10 +445,21 @@ func (r *Runner) RunWithObserver(
 			if result.Route == RouteInspect && toolAttempts > 0 && !hasToolEvidence {
 				return result, noWorkspaceEvidenceError()
 			}
-			result.Output = action.Content
+			result.OriginalOutput = action.Content
+			violations := validateAnswer(action.Content)
+			committedOutput := action.Content
+			if len(violations) > 0 {
+				result.AnswerContractRepaired = true
+				result.AnswerViolations = make([]string, len(violations))
+				for index, violation := range violations {
+					result.AnswerViolations[index] = string(violation)
+				}
+				committedOutput = answerContractFallback(task)
+			}
+			result.Output = committedOutput
 			turnMessages = append(turnMessages, Message{
 				Role:    RoleAssistant,
-				Content: action.Content,
+				Content: committedOutput,
 			})
 			r.commit(turnMessages)
 			return result, nil
@@ -447,7 +495,11 @@ func (r *Runner) RunWithObserver(
 		recoveryBlocked := false
 		executed := false
 		callKey := canonicalToolCall(action)
-		if _, exists := seenToolCalls[callKey]; exists {
+		if _, unavailable := unavailableTools[action.Name]; unavailable {
+			result.Steps[len(result.Steps)-1].ToolRejected = rejectedProviderUnavailable
+			result.Steps[len(result.Steps)-1].ToolUnavailable = true
+			err = fmt.Errorf("%w: %s", ErrProviderUnavailable, action.Name)
+		} else if _, exists := seenToolCalls[callKey]; exists {
 			duplicate = true
 			result.Steps[len(result.Steps)-1].ToolRejected = rejectedDuplicateCall
 			err = fmt.Errorf("duplicate tool call rejected")
@@ -479,7 +531,13 @@ func (r *Runner) RunWithObserver(
 			if toolEvidence {
 				hasToolEvidence = true
 			}
-			if errors.Is(err, ErrInvalidToolArguments) {
+			if errors.Is(err, ErrProviderUnavailable) {
+				unavailableTools[action.Name] = struct{}{}
+				result.Steps[len(result.Steps)-1].ToolRejected = rejectedProviderUnavailable
+				result.Steps[len(result.Steps)-1].ToolUnavailable = true
+				unverified = appendUnique(unverified, action.Name)
+				forceAnswer = true
+			} else if errors.Is(err, ErrInvalidToolArguments) {
 				// Schema repair attempts have not observed workspace state and
 				// must not consume the runtime failure budget. A corrected call
 				// to the same tool still needs a chance to execute.
@@ -558,6 +616,78 @@ func (r *Runner) RunWithObserver(
 	return result, ErrMaxSteps
 }
 
+func validateAnswer(output string) []answerViolation {
+	trimmed := strings.TrimSpace(output)
+	lower := strings.ToLower(trimmed)
+	violations := make([]answerViolation, 0, 4)
+
+	for _, tag := range []string{
+		"<tool_call", "</tool_call", "<tool_result", "</tool_result",
+		"<answer", "</answer", "<think", "</think",
+	} {
+		if strings.Contains(lower, tag) {
+			violations = append(violations, violationProtocolTag)
+			break
+		}
+	}
+
+	for _, line := range strings.Split(trimmed, "\n") {
+		line = strings.TrimSpace(strings.ToLower(line))
+		for _, role := range []string{"assistant", "user", "system", "tool"} {
+			if strings.HasPrefix(line, role+":") || strings.HasPrefix(line, role+"：") {
+				violations = append(violations, violationRoleHeader)
+				line = ""
+				break
+			}
+		}
+		if line == "" && len(violations) > 0 && violations[len(violations)-1] == violationRoleHeader {
+			break
+		}
+	}
+
+	var payload any
+	if json.Unmarshal([]byte(trimmed), &payload) == nil {
+		switch payload.(type) {
+		case map[string]any, []any:
+			violations = append(violations, violationJSONPayload)
+		}
+	}
+
+	if strings.Contains(lower, `"ok"`) &&
+		strings.Contains(lower, `"tool"`) &&
+		(strings.Contains(lower, `"result"`) || strings.Contains(lower, `"error"`)) {
+		violations = append(violations, violationToolEcho)
+	}
+	return violations
+}
+
+func answerContractFallback(task string) string {
+	for _, value := range task {
+		if unicode.Is(unicode.Han, value) {
+			return answerContractFallbackZH
+		}
+	}
+	return answerContractFallbackEN
+}
+
+func appendUnique(values []string, value string) []string {
+	for _, existing := range values {
+		if existing == value {
+			return values
+		}
+	}
+	return append(values, value)
+}
+
+func providerUnavailableReminder(name string) string {
+	return fmt.Sprintf(
+		"The provider for %s is unavailable. Do not call %s again in this turn. Continue only with verified Tool results and explicitly state that the %s fact could not be verified.",
+		name,
+		name,
+		name,
+	)
+}
+
 func duplicateToolReminder(hasEvidence bool) string {
 	if hasEvidence {
 		return duplicateToolAnswerReminder
@@ -573,6 +703,9 @@ func toolFailureReminder(
 	tools map[string]Tool,
 ) string {
 	var prompt strings.Builder
+	if errors.Is(err, ErrProviderUnavailable) {
+		return providerUnavailableReminder(name)
+	}
 	if errors.Is(err, ErrInvalidToolArguments) {
 		fmt.Fprintf(&prompt, "The %s arguments were rejected: %v. ", name, err)
 		if tool, ok := tools[name]; ok {

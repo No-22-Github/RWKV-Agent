@@ -1,6 +1,6 @@
 # 本地优先助手型 Agent 实施规格
 
-状态：规划中，未开工
+状态：P0 代码与无模型闭环已落地；真实 13B 已复测，A4 为 0/5，未通过 P0 出口门槛
 读者：直接实现本规格的人。每个 Commit 给出改动文件、签名、测试名和完成判据。
 基线：`docs/agent-harness-milestone.md`（只读仓库 Agent，继续作为模型能力基线保留）
 证据：`runs/api-13b-evaluation-report-20260803.md`
@@ -406,6 +406,20 @@ func validateAnswer(output string) []answerViolation
 3. A4 复测拿到确定性工具层的因果结论，5 个算术/聚合失败至少通过 3 个。
 4. TUI 能完整走完两题，且降级说明可见。
 5. `go test ./...` 与 `go test -race ./...` 通过。
+
+### 2026-08-04 实测结论
+
+- 脚本 mock 验收：问题 A、问题 B、汇率不可用变体全部通过。
+- 真实 `rwkv-g1i-13b-4922` `assistant`：原始任务 1/6、回答 1/6、route 5/6、协议
+  23/23、精确工具序列 1/5、参数 2/8。`as_single_weather` 通过；
+  `as_two_independent_facts` 仅因日期格式被严格判分拒绝，语义口径约为 2/6。
+- 真实 A4 `boundary`：总任务 8/18、回答 10/18；指定五题为 0/5，低于至少 3/5 的
+  硬门槛。产物见 `runs/api-13b-v8-assistant-20260804-01/` 和
+  `runs/api-13b-v8-boundary-compute-20260804-01/`。
+- 因果结论：确定性执行层能工作，但 13B 尚不能可靠完成多步分解、参数生成和复杂聚合；
+  `structured_query` 当前契约也不足以直接表达复合指标、分组、列选择和跨表计算。
+- 判定：完成出口条件 1；真实单天气题满足条件 2；条件 3 明确失败；条件 4 尚未做真实 TUI
+  手工验收。保持 P0，不开始 P1，不通过 Harness 语义特判抬分。
 
 ---
 

@@ -132,7 +132,7 @@ func TestG1IProtocolPreparesAnswerWithFullToolTranscript(t *testing.T) {
 		{Role: RoleTool, Content: `<tool_result>{"result":"first"}</tool_result>`},
 		{Role: RoleAssistant, Content: `<tool_call>{"name":"read_file","arguments":{"path":"b"}}</tool_call>`},
 		{Role: RoleTool, Content: `<tool_result>{"result":"second"}</tool_result>`},
-	})
+	}, nil)
 	if prefix != "<answer>" || len(messages) != 7 {
 		t.Fatalf("prepared messages=%+v prefix=%q", messages, prefix)
 	}
@@ -158,12 +158,23 @@ func TestG1IProtocolPreparesAnswerWithFullToolTranscript(t *testing.T) {
 
 func TestG1IProtocolAddsFewShotOutputContractsToForcedAnswer(t *testing.T) {
 	t.Parallel()
-	baseline, _ := (G1IProtocol{}).PrepareAnswer(nil)
-	fewShot, _ := (G1IProtocol{FewShot: true}).PrepareAnswer(nil)
+	baseline, _ := (G1IProtocol{}).PrepareAnswer(nil, nil)
+	fewShot, _ := (G1IProtocol{FewShot: true}).PrepareAnswer(nil, nil)
 	if strings.Contains(baseline[0].Content, "Output-contract examples") ||
 		!strings.Contains(fewShot[0].Content, "Answer with only the flag") ||
 		!strings.Contains(fewShot[0].Content, "SKU-17 1248.50") {
 		t.Fatalf("answer profiles baseline=%q few-shot=%q", baseline[0].Content, fewShot[0].Content)
+	}
+}
+
+func TestG1IProtocolListsUnverifiedFactsInAnswerStage(t *testing.T) {
+	t.Parallel()
+	messages, _ := (G1IProtocol{}).PrepareAnswer(nil, []string{"fx_convert", "weather"})
+	last := messages[len(messages)-1].Content
+	for _, fragment := range []string{"- fx_convert", "- weather", "Do not invent a value"} {
+		if !strings.Contains(last, fragment) {
+			t.Fatalf("unverified reminder does not contain %q: %s", fragment, last)
+		}
 	}
 }
 

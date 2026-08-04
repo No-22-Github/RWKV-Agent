@@ -19,7 +19,7 @@ Agent step loop；先证明模型能可靠地依据仓库证据回答，再逐�
    禁用工具、预填 `<answer>` 的独立回答阶段，文件内容始终视为不可信数据。
 5. 失败调用提供确定性恢复提示；同一工具连续执行失败两次后阻断第三次调用。
 6. 限制总 step 和协议重试次数，避免无界循环。
-7. 只开放 `list_files`、`read_file`、`search_text`。
+7. 只开放只读工作区工具、确定性计算工具和固定 mock 助手 Provider。
 8. 暂不开放写文件、shell、Git、网络和动态插件。
 
 ## 2. 已落地
@@ -54,7 +54,7 @@ Agent step loop；先证明模型能可靠地依据仓库证据回答，再逐�
 - `rwkv-g1i-envelope-v1` 与 `rwkv-chat-continuation-v1` 独立版本标识。
 - 协议、循环、路径越界、截断、搜索与读取的无模型单元测试。
 - 回答阶段对长字符串保留开头和任务相关窗口，单个字符串约束为 2400 Unicode 字符。
-- `rwkv-cli agent-eval` 可运行内置或 `schema_version: 2` 的自定义 case；每个 case
+- `rwkv-cli agent-eval` 可运行内置或 `schema_version: 3` 的自定义 case；每个 case
   隔离临时工作区，本地模式使用独立 inference Session，同一 case 内保留多轮状态。
 - 评测原子写入 `run.json`、`trace.jsonl` 和 `summary.json`；记录模型/协议/采样版本、
   原始 continuation、Runner/tool 事件和分项指标，失败 case 也保留诊断产物。
@@ -62,6 +62,14 @@ Agent step loop；先证明模型能可靠地依据仓库证据回答，再逐�
   `marty1885/primitive-bench@e0af1723` 的只读任务，并记录分类、来源和难度。
 - 边界判分支持无序必需工具、禁止工具、参数子集调用、严格答案和数值容差；保留 smoke
   的精确有序工具/调用判分。
+- P0 助手工具包括 `weather`、`nearest_transit`、`transit_hours`、`fx_convert`、
+  `calculator`、`structured_query` 和 `datetime`；外部事实使用固定 mock Provider，
+  `structured_query` 复用统一工作区越界策略。
+- Provider 不可用会进入不可重试的显式降级路径，最终回答 prompt 注入未验证事实清单。
+- `rwkv-agent-eval-v8` 增加独立 6-case `assistant` suite、plan 预留指标、显式弃答指标，
+  boundary 同时注册 `calculator` 与 `structured_query`，但仍与 assistant 分轨计分。
+- 最终答案提交前拒绝协议标签、role header、整段 JSON 和原始工具 payload；用户看到并写入
+  transcript 的是确定性弃答，模型原文仍保留给 `answer_accuracy`，修复发生率单独统计。
 
 2026-07-30 的 `rwkv-g1i-13b-4922` 远程 smoke test 覆盖直接回答、`read_file` 和
 `search_text`，三条均完成且未触发协议重试。旧裸 JSON 协议已经删除。协议结构参考
@@ -112,12 +120,51 @@ v5 `smoke` 严格工具序列评分为 4/10，但 11/11 回答、route 和协议
 失败轨迹出现对示例路径 `notes/title.txt` 和示例值 `EMBER-7` 的直接复制。结论是静态完整
 few-shot 能改善局部停止效率，但对当前模型有严重锚定副作用，不能设为默认策略。
 
+2026-08-04 的 P0 无模型验收用脚本 continuation 完整跑通问题 A、问题 B 和汇率不可用变体，
+三题均通过，证明 Router/Runner、mock 工具、Provider 降级和评测判分链路闭环。该结果只代表
+Harness 验收，不代表 `rwkv-g1i-13b-4922` 能力。
+
+同日使用 `rwkv-g1i-13b-4922` 完成真实远程验收，原始产物分别位于
+`runs/api-13b-v8-assistant-20260804-01/` 和
+`runs/api-13b-v8-boundary-compute-20260804-01/`。`assistant` 原始任务通过 1/6、回答 1/6、
+route 5/6、协议 23/23、精确工具序列 1/5、参数 2/8；没有触发协议重试、Router fallback
+或答案契约修复。逐题结果如下：
+
+| case | 实际结果 | 主要归因 |
+|---|---|---|
+| `as_weather_transit_hours` | `weather -> transit_hours("上海")`，缺少 `nearest_transit` | 模型依赖分解和参数传递失败 |
+| `as_expense_fx_convert` | 额外读取文件，错误过滤后只汇总 100 CNY，换算 14 USD | 模型工具选择和过滤参数失败；工具错误反馈正常 |
+| `as_expense_fx_unavailable` | 本地总额误报 0，但明确说明 FX Provider 不可用 | 模型生成不支持的过滤语法；旧解析器又静默返回 0；`未完成` 字面判分是假阴性 |
+| `as_single_weather` | 单次 `weather` 后正确回答 | 通过 |
+| `as_two_independent_facts` | 两个工具和事实均正确，日期写成 `2026年8月4日` | 语义通过；要求字面 `2026-08-04` 的判分过严 |
+| `as_ambiguous_needs_clarify` | 擅自猜北京并重复调用天气 | 模型未澄清歧义 |
+
+因此原始分是 1/6；剔除日期格式假阴性后，语义任务完成约为 2/6。汇率不可用题虽然正确
+拒绝猜测，但本地总额仍错误，不能整体改判为通过。模型已经能稳定地产生合法控制帧和完成
+单工具事实题，但多步规划、参数生成、证据充分性判断与歧义处理仍明显不足。
+
+本轮远程产物生成后，`structured_query` 已改为拒绝 `>=`、`<=`、`!=`、`==` 等不支持的
+过滤表达式，并在工具说明中明确只接受空过滤、`本周`/`this week` 或精确 `field=value`；
+assistant 判分也已接受 ISO/中文日期二选一和“不可用”降级措辞。修复后的远程分数尚未复测，
+因此上面的原始分保持不变，不用离线重算冒充新模型结果。
+
+A4 `boundary` 复测为任务 8/18、回答 10/18、route 18/18、协议 77/77、必需工具 19/22、
+必需调用 20/23；60 次工具请求中实际执行 47 次，22 次报错，13 次重复调用被拒绝，16 题
+进入强制回答。指定的 5 个算术/聚合失败全部仍失败（0/5）：利息只算一段、EUR 对比拆解
+错误、汇率列选择错误、JSONL 请求了不支持的复合聚合、CSV 对账只输出 SKU。`calculator`
+执行本身是确定性的，失败主要在模型没有把任务拆成正确表达式；现有 `structured_query` 也只
+支持单一 `sum|count|avg` 和精确过滤，不能直接表达多指标、分组、列选择或跨表计算。
+
+结论：P0 代码和无模型闭环已落地，但 A4 的 `>=3/5` 硬门槛未达到，P0 不算完成，暂不进入
+P1 或开放有副作用工具。Harness 继续只负责协议、权限、预算、执行、重复拒绝和提交策略；
+不增加题目关键词路由或任务特判来掩盖模型能力。
+
 ## 3. 当前边界
 
 - Agent transcript 已支持进程内多轮提交和重置，但尚未接入不可变 Session bundle，
   进程退出后不能续跑。
 - 尚无全局 token 预算；当前只有回答阶段的单字符串字符预算。
-- 没有结构化输出约束，当前依赖 prompt、严格解析和一次纠错。
+- 工具动作有严格结构解析，最终答案有结构泄漏校验；正文语义和格式遵循仍由模型负责。
 - 已有英文边界任务和错误工具参数/多步查找的三轮 13B 数据，但尚缺中文边界题、重复运行
   稳定性和 7B/3B 横向比较。
 - 当前 1.5B G1 的协议遵循不足，不能把 CLI 入口视为可用 Agent 产品。
@@ -125,7 +172,7 @@ few-shot 能改善局部停止效率，但对当前模型有严重锚定副作�
 - 不支持并行工具调用。
 - 已支持顺序多工具调用，但没有显式 planner、依赖图或动态 step/token 预算。
 - `rwkv_lightning` 当前只返回通用 `finish_reason=stop`，预算耗尽与命中 stop string
-  无法可靠区分；CLI 暂以 256 token 限制工具选择，以 1024 token 默认回答预算降低
+  无法可靠区分；CLI 暂以 96 token 限制首次工具选择，以 1024 token 默认回答预算降低
   语义截断概率。
 - 远程续写第一版还没有 SSE 流式输出、usage 统计或服务端 State 对接。
 - 已有 10-case smoke、18-case boundary、无模型回归测试和三轮真实 13B 边界结果，但

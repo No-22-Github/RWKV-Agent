@@ -127,6 +127,7 @@ func TestRunScoresAndWritesTraceArtifacts(t *testing.T) {
 	}
 	assertScore(t, "task success", report.Summary.Metrics.TaskSuccess, 2, 2)
 	assertScore(t, "answer accuracy", report.Summary.Metrics.AnswerAccuracy, 2, 2)
+	assertScore(t, "answer contract repaired", report.Summary.Metrics.AnswerContractRepaired, 0, 2)
 	assertScore(t, "route accuracy", report.Summary.Metrics.RouteAccuracy, 2, 2)
 	assertScore(t, "protocol validity", report.Summary.Metrics.ProtocolValidity, 3, 3)
 	assertScore(t, "tool selection", report.Summary.Metrics.ToolSelection, 2, 2)
@@ -219,6 +220,164 @@ func TestRunScoresAndWritesTraceArtifacts(t *testing.T) {
 		!strings.Contains(err.Error(), "already exists") {
 		t.Fatalf("existing output error = %v", err)
 	}
+}
+
+func TestAssistantSuiteMockAcceptance(t *testing.T) {
+	cases, err := AssistantCases()
+	if err != nil {
+		t.Fatal(err)
+	}
+	cases, err = SelectCases(cases, []string{
+		"as_weather_transit_hours",
+		"as_expense_fx_convert",
+		"as_expense_fx_unavailable",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	scripts := [][]continuation.Result{
+		{
+			generated("inspect"),
+			generated(`<tool_call>{"name":"weather","arguments":{"city":"上海"}}</tool_call>`),
+			generated(`<tool_call>{"name":"nearest_transit","arguments":{"kind":"subway"}}</tool_call>`),
+			generated(`<tool_call>{"name":"transit_hours","arguments":{"station":"世纪大道站"}}</tool_call>`),
+			generated("上海今天多云，27 摄氏度。最近的地铁站是世纪大道站，23:30 关门。"),
+		},
+		{
+			generated("inspect"),
+			generated(`<tool_call>{"name":"structured_query","arguments":{"path":"notes","filter":"本周","aggregate":"sum"}}</tool_call>`),
+			generated(`<tool_call>{"name":"fx_convert","arguments":{"amount":150,"from":"CNY","to":"USD"}}</tool_call>`),
+			generated("本周共花费 150 元人民币，约合 21 美元。"),
+		},
+		{
+			generated("inspect"),
+			generated(`<tool_call>{"name":"structured_query","arguments":{"path":"notes","filter":"本周","aggregate":"sum"}}</tool_call>`),
+			generated(`<tool_call>{"name":"fx_convert","arguments":{"amount":150,"from":"CNY","to":"USD"}}</tool_call>`),
+			generated("本周共花费 150 元人民币；汇率服务不可用，美元换算未完成。"),
+		},
+	}
+	factoryCalls := 0
+	report, err := Run(context.Background(), Config{
+		Cases: cases,
+		Suite: SuiteAssistant,
+		Model: ModelMetadata{Identifier: "scripted", Backend: "test", Provider: "test", Completion: "test"},
+		Runner: agent.Options{
+			MaxSteps:      6,
+			Protocol:      agent.G1IProtocol{},
+			Renderer:      agent.RWKVChatRenderer{},
+			Router:        agent.G1IRouteProtocol{},
+			RouteRenderer: agent.RWKVChatRenderer{},
+			Generation: continuation.Request{
+				Model:           "scripted",
+				MaxOutputTokens: 1024,
+			},
+		},
+		GeneratorFactory: func(context.Context) (continuation.Generator, io.Closer, error) {
+			script := scripts[factoryCalls]
+			factoryCalls++
+			index := 0
+			return continuation.GenerateFunc(func(
+				context.Context,
+				continuation.Request,
+				continuation.EventSink,
+			) (continuation.Result, error) {
+				result := script[index]
+				index++
+				return result, nil
+			}), noopTestCloser{}, nil
+		},
+		CaseTimeout: time.Second,
+		TempDir:     t.TempDir(),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if factoryCalls != 3 {
+		t.Fatalf("generator factories = %d, want 3", factoryCalls)
+	}
+	assertScore(t, "assistant task success", report.Summary.Metrics.TaskSuccess, 3, 3)
+	assertScore(t, "assistant answer accuracy", report.Summary.Metrics.AnswerAccuracy, 3, 3)
+	assertScore(t, "assistant explicit abstention", report.Summary.Metrics.ExplicitAbstention, 1, 1)
+	assertScore(t, "assistant contract repair", report.Summary.Metrics.AnswerContractRepaired, 0, 3)
+}
+
+func TestValidateTurnPlanExpectation(t *testing.T) {
+	expect := Expectation{Plan: &PlanExpectation{
+		SubtaskCount: 3,
+		Waves:        [][]string{{"weather", "nearest_transit"}, {"transit_hours"}},
+		References: []Reference{{
+			Subtask:  3,
+			Argument: "station",
+			Source:   "$2.name",
+		}},
+	}}
+	result := agent.Result{Plan: &agent.PlanTrace{
+		Subtasks: []agent.PlanSubtaskTrace{
+			{ID: 1, Tool: "weather", Arguments: json.RawMessage(`{"city":"上海"}`)},
+			{ID: 2, Tool: "nearest_transit", Arguments: json.RawMessage(`{"kind":"subway"}`)},
+			{ID: 3, Tool: "transit_hours", Arguments: json.RawMessage(`{"station":"$2.name"}`)},
+		},
+		Waves: [][]int{{2, 1}, {3}},
+	}}
+	if failures := validateTurn(expect, result, nil); len(failures) != 0 {
+		t.Fatalf("valid plan failures = %v", failures)
+	}
+	result.Plan.Subtasks[2].Arguments = json.RawMessage(`{"station":"世纪大道站"}`)
+	if failures := validateTurn(expect, result, nil); len(failures) != 1 || !strings.Contains(failures[0], "does not use reference") {
+		t.Fatalf("literal dependency failures = %v", failures)
+	}
+}
+
+func TestValidateTurnExplicitAbstention(t *testing.T) {
+	expect := Expectation{MustStateUnverified: []string{"美元换算未完成"}}
+	if failures := validateTurn(expect, agent.Result{Output: "人民币总额 150 元；美元换算未完成。"}, nil); len(failures) != 0 {
+		t.Fatalf("explicit abstention failures = %v", failures)
+	}
+	if failures := validateTurn(expect, agent.Result{Output: "人民币总额 150 元，约 21 美元。"}, nil); len(failures) != 1 {
+		t.Fatalf("unsupported conversion failures = %v", failures)
+	}
+}
+
+func TestAnswerContainsAnyAlternative(t *testing.T) {
+	expect := Expectation{
+		OutputContains:    []string{"多云"},
+		OutputContainsAny: []string{"2026-08-04", "2026年8月4日"},
+	}
+	if failures := answerFailures(expect, "今天是2026年8月4日，天气多云。"); len(failures) != 0 {
+		t.Fatalf("localized date failures = %v", failures)
+	}
+	if failures := answerFailures(expect, "今天是2026-08-04，天气多云。"); len(failures) != 0 {
+		t.Fatalf("ISO date failures = %v", failures)
+	}
+	if failures := answerFailures(expect, "今天天气多云。"); len(failures) != 1 {
+		t.Fatalf("missing date failures = %v", failures)
+	}
+	if !hasAnswerExpectation(Expectation{OutputContainsAny: []string{"2026-08-04"}}) {
+		t.Fatal("output_contains_any alone must count as an answer expectation")
+	}
+}
+
+func TestAnswerContractRepairKeepsOriginalAccuracySeparate(t *testing.T) {
+	answer := "42"
+	expect := Expectation{OutputEquals: &answer}
+	result := agent.Result{
+		Output:                 "I could not provide a reliable answer.",
+		OriginalOutput:         "42",
+		AnswerContractRepaired: true,
+		AnswerViolations:       []string{"role_header"},
+	}
+	failures := validateTurn(expect, result, nil)
+	if len(failures) != 1 || !strings.Contains(failures[0], "answer contract repaired") {
+		t.Fatalf("repair validation failures = %v", failures)
+	}
+	testCase := Case{ID: "repair", Turns: []Turn{{Expect: expect}}}
+	summary := summarize("run", []Case{testCase}, []CaseResult{{
+		ID:     "repair",
+		Passed: false,
+		Turns:  []TurnResult{{Result: result, Passed: false}},
+	}}, nil)
+	assertScore(t, "answer accuracy", summary.Metrics.AnswerAccuracy, 1, 1)
+	assertScore(t, "answer contract repaired", summary.Metrics.AnswerContractRepaired, 1, 1)
 }
 
 func TestBoundaryScoringMatchesRequiredCallsWithoutOrder(t *testing.T) {
@@ -353,7 +512,11 @@ func generated(text string) continuation.Result {
 
 func assertScore(t *testing.T, name string, score Score, correct int, total int) {
 	t.Helper()
-	if score.Correct != correct || score.Total != total || score.Rate != 1 {
+	expectedRate := 0.0
+	if total > 0 {
+		expectedRate = float64(correct) / float64(total)
+	}
+	if score.Correct != correct || score.Total != total || score.Rate != expectedRate {
 		t.Fatalf("%s = %+v", name, score)
 	}
 }

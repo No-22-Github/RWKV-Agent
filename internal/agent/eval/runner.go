@@ -8,12 +8,14 @@ import (
 	"reflect"
 	"runtime"
 	"slices"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/no22/RWKV-Agent/internal/agent"
+	assistanttools "github.com/no22/RWKV-Agent/internal/agent/tools"
 	"github.com/no22/RWKV-Agent/internal/continuation"
 )
 
@@ -144,7 +146,7 @@ func runCase(
 		return result
 	}
 	defer cleanup()
-	tools, err := agent.WorkspaceTools(workspace)
+	tools, err := evalTools(config.Suite, workspace, testCase)
 	if err != nil {
 		result.Error = fmt.Sprintf("create tools: %v", err)
 		return result
@@ -206,6 +208,57 @@ func runCase(
 		result.Passed = false
 	}
 	return result
+}
+
+type fixedAssistantClock struct{ value time.Time }
+
+func (c fixedAssistantClock) Now() time.Time { return c.value }
+
+func evalTools(suite string, workspace string, testCase Case) ([]agent.Tool, error) {
+	workspaceTools, err := agent.WorkspaceTools(workspace)
+	if err != nil {
+		return nil, err
+	}
+	clock := fixedAssistantClock{value: time.Date(
+		2026,
+		time.August,
+		4,
+		10,
+		0,
+		0,
+		0,
+		time.FixedZone("Asia/Shanghai", 8*60*60),
+	)}
+	switch suite {
+	case SuiteBoundary:
+		compute, err := assistanttools.ComputeTools(assistanttools.Options{
+			Clock:     clock,
+			Workspace: workspace,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return append(workspaceTools, compute...), nil
+	case SuiteAssistant:
+		provider, err := assistanttools.DefaultMockProvider()
+		if err != nil {
+			return nil, err
+		}
+		for _, name := range testCase.ProviderUnavailable {
+			provider.Unavailable[name] = true
+		}
+		assistant, err := assistanttools.AssistantTools(assistanttools.Options{
+			Provider:  provider,
+			Clock:     clock,
+			Workspace: workspace,
+		})
+		if err != nil {
+			return nil, err
+		}
+		return append(workspaceTools, assistant...), nil
+	default:
+		return workspaceTools, nil
+	}
 }
 
 func validateTurn(
@@ -289,8 +342,85 @@ func validateTurn(
 			)
 		}
 	}
-	failures = append(failures, answerFailures(expect, result.Output)...)
+	failures = append(failures, answerFailures(expect, modelAnswer(result))...)
+	if result.AnswerContractRepaired {
+		failures = append(
+			failures,
+			fmt.Sprintf("answer contract repaired: %v", result.AnswerViolations),
+		)
+	}
+	if result.Plan != nil && expect.Plan != nil {
+		failures = append(failures, planFailures(*expect.Plan, *result.Plan)...)
+	}
+	for _, required := range expect.MustStateUnverified {
+		if !strings.Contains(result.Output, required) {
+			failures = append(failures, fmt.Sprintf("output does not explicitly state unverified item %q", required))
+		}
+	}
 	return failures
+}
+
+func planFailures(expect PlanExpectation, actual agent.PlanTrace) []string {
+	var failures []string
+	if len(actual.Subtasks) != expect.SubtaskCount {
+		failures = append(failures, fmt.Sprintf("plan subtasks = %d, want %d", len(actual.Subtasks), expect.SubtaskCount))
+	}
+	if !planWavesEqual(expect.Waves, actual) {
+		failures = append(failures, fmt.Sprintf("plan waves do not match %v", expect.Waves))
+	}
+	for _, reference := range expect.References {
+		if !planReferenceMatches(reference, actual) {
+			failures = append(failures, fmt.Sprintf(
+				"plan subtask %d argument %q does not use reference %q",
+				reference.Subtask,
+				reference.Argument,
+				reference.Source,
+			))
+		}
+	}
+	return failures
+}
+
+func planWavesEqual(expected [][]string, actual agent.PlanTrace) bool {
+	if len(expected) != len(actual.Waves) {
+		return false
+	}
+	byID := make(map[int]string, len(actual.Subtasks))
+	for _, subtask := range actual.Subtasks {
+		byID[subtask.ID] = subtask.Tool
+	}
+	for index, ids := range actual.Waves {
+		tools := make([]string, 0, len(ids))
+		for _, id := range ids {
+			name, ok := byID[id]
+			if !ok {
+				return false
+			}
+			tools = append(tools, name)
+		}
+		want := append([]string(nil), expected[index]...)
+		sort.Strings(tools)
+		sort.Strings(want)
+		if !slices.Equal(tools, want) {
+			return false
+		}
+	}
+	return true
+}
+
+func planReferenceMatches(reference Reference, actual agent.PlanTrace) bool {
+	for _, subtask := range actual.Subtasks {
+		if subtask.ID != reference.Subtask {
+			continue
+		}
+		var arguments map[string]any
+		if json.Unmarshal(subtask.Arguments, &arguments) != nil {
+			return false
+		}
+		value, ok := arguments[reference.Argument].(string)
+		return ok && value == reference.Source
+	}
+	return false
 }
 
 func answerFailures(expect Expectation, output string) []string {
@@ -311,6 +441,21 @@ func answerFailures(expect Expectation, output string) []string {
 			failures = append(
 				failures,
 				fmt.Sprintf("output does not contain %q", required),
+			)
+		}
+	}
+	if len(expect.OutputContainsAny) > 0 {
+		matched := false
+		for _, alternative := range expect.OutputContainsAny {
+			if strings.Contains(output, alternative) {
+				matched = true
+				break
+			}
+		}
+		if !matched {
+			failures = append(
+				failures,
+				fmt.Sprintf("output does not contain any of %q", expect.OutputContainsAny),
 			)
 		}
 	}
@@ -423,8 +568,16 @@ func matchRequiredCalls(actual []agent.Step, expected []ExpectedCall) []bool {
 func hasAnswerExpectation(expect Expectation) bool {
 	return expect.OutputEquals != nil ||
 		len(expect.OutputContains) > 0 ||
+		len(expect.OutputContainsAny) > 0 ||
 		len(expect.OutputExcludes) > 0 ||
 		expect.ExpectedNumber != nil
+}
+
+func modelAnswer(result agent.Result) string {
+	if result.OriginalOutput != "" || result.AnswerContractRepaired {
+		return result.OriginalOutput
+	}
+	return result.Output
 }
 
 func summarize(
@@ -451,9 +604,38 @@ func summarize(
 			expect := testCase.Turns[index].Expect
 			if hasAnswerExpectation(expect) {
 				summary.Metrics.AnswerAccuracy.Total++
-				if len(answerFailures(expect, turnResult.Result.Output)) == 0 {
+				answer := modelAnswer(turnResult.Result)
+				if len(answerFailures(expect, answer)) == 0 {
 					summary.Metrics.AnswerAccuracy.Correct++
 				}
+				summary.Metrics.AnswerContractRepaired.Total++
+				if turnResult.Result.AnswerContractRepaired {
+					summary.Metrics.AnswerContractRepaired.Correct++
+				}
+				for _, required := range expect.MustStateUnverified {
+					summary.Metrics.ExplicitAbstention.Total++
+					if strings.Contains(answer, required) {
+						summary.Metrics.ExplicitAbstention.Correct++
+					}
+				}
+				if expect.Plan != nil && turnResult.Result.Plan != nil {
+					summary.Metrics.PlanSubtaskCount.Total++
+					if len(turnResult.Result.Plan.Subtasks) == expect.Plan.SubtaskCount {
+						summary.Metrics.PlanSubtaskCount.Correct++
+					}
+					summary.Metrics.PlanWaveOrder.Total++
+					if planWavesEqual(expect.Plan.Waves, *turnResult.Result.Plan) {
+						summary.Metrics.PlanWaveOrder.Correct++
+					}
+					for _, reference := range expect.Plan.References {
+						summary.Metrics.PlanReferenceUse.Total++
+						if planReferenceMatches(reference, *turnResult.Result.Plan) {
+							summary.Metrics.PlanReferenceUse.Correct++
+						}
+					}
+				}
+				summary.Metrics.PlanRejections += turnResult.Result.PlanRejections
+				summary.Metrics.PlanFallbacks += turnResult.Result.PlanFallbacks
 			}
 			if expect.Route != "" {
 				summary.Metrics.RouteAccuracy.Total++
@@ -560,6 +742,11 @@ func summarize(
 	finalizeScore(&summary.Metrics.ForbiddenToolAvoidance)
 	finalizeScore(&summary.Metrics.RequiredCallAccuracy)
 	finalizeScore(&summary.Metrics.NoCallAccuracy)
+	finalizeScore(&summary.Metrics.PlanSubtaskCount)
+	finalizeScore(&summary.Metrics.PlanWaveOrder)
+	finalizeScore(&summary.Metrics.PlanReferenceUse)
+	finalizeScore(&summary.Metrics.ExplicitAbstention)
+	finalizeScore(&summary.Metrics.AnswerContractRepaired)
 	return summary
 }
 

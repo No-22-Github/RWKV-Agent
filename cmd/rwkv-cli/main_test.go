@@ -82,7 +82,7 @@ func TestAgentDefaultsAreDeterministicAndBounded(t *testing.T) {
 		options.penaltyDecay != 1 {
 		t.Fatalf("agent sampling defaults = %+v", options)
 	}
-	if options.maxTokens != 1024 || options.decisionMaxTokens != 256 {
+	if options.maxTokens != 1024 || options.decisionMaxTokens != 96 {
 		t.Fatalf(
 			"agent token limits = answer:%d decision:%d",
 			options.maxTokens,
@@ -197,7 +197,7 @@ func TestAgentEvalOptionsAreDeterministicAndIsolated(t *testing.T) {
 	if options.topK != 1 ||
 		options.topP != 1 ||
 		options.maxTokens != 1024 ||
-		options.decisionMaxTokens != 256 ||
+		options.decisionMaxTokens != 96 ||
 		options.routeMaxTokens != 16 {
 		t.Fatalf("agent eval defaults = %+v", options)
 	}

@@ -1,0 +1,42 @@
+{
+  "weather": {
+    "上海": {
+      "city": "上海",
+      "condition": "多云",
+      "temp_c": 27.0,
+      "observed_at": "2026-08-04T09:00:00+08:00"
+    },
+    "北京": {
+      "city": "北京",
+      "condition": "晴",
+      "temp_c": 30.0,
+      "observed_at": "2026-08-04T09:00:00+08:00"
+    }
+  },
+  "transit": {
+    "subway": {
+      "name": "世纪大道站",
+      "distance_m": 420,
+      "lines": ["2", "4", "6", "9"]
+    },
+    "bus": {
+      "name": "张杨路东方路站",
+      "distance_m": 180,
+      "lines": ["130", "639"]
+    }
+  },
+  "hours": {
+    "世纪大道站": {
+      "station": "世纪大道站",
+      "open": "05:30",
+      "close": "23:30",
+      "weekday": "Tuesday"
+    }
+  },
+  "rates": {
+    "CNY/USD": {
+      "rate": 0.14,
+      "quoted_at": "2026-08-04T09:00:00+08:00"
+    }
+  }
+}

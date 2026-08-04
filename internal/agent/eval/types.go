@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	SchemaVersion  = 2
-	HarnessVersion = "rwkv-agent-eval-v7"
+	SchemaVersion  = 3
+	HarnessVersion = "rwkv-agent-eval-v8"
 )
 
 type GeneratorFactory func(
@@ -19,14 +19,15 @@ type GeneratorFactory func(
 ) (continuation.Generator, io.Closer, error)
 
 type Case struct {
-	ID           string            `json:"id"`
-	Description  string            `json:"description"`
-	Category     string            `json:"category,omitempty"`
-	Source       string            `json:"source,omitempty"`
-	Difficulty   string            `json:"difficulty,omitempty"`
-	Files        map[string]string `json:"files,omitempty"`
-	OutsideFiles map[string]string `json:"outside_files,omitempty"`
-	Turns        []Turn            `json:"turns"`
+	ID                  string            `json:"id"`
+	Description         string            `json:"description"`
+	Category            string            `json:"category,omitempty"`
+	Source              string            `json:"source,omitempty"`
+	Difficulty          string            `json:"difficulty,omitempty"`
+	Files               map[string]string `json:"files,omitempty"`
+	OutsideFiles        map[string]string `json:"outside_files,omitempty"`
+	ProviderUnavailable []string          `json:"provider_unavailable,omitempty"`
+	Turns               []Turn            `json:"turns"`
 }
 
 type Turn struct {
@@ -35,17 +36,32 @@ type Turn struct {
 }
 
 type Expectation struct {
-	Route          agent.Route    `json:"route,omitempty"`
-	Tools          []string       `json:"tools,omitempty"`
-	Calls          []ExpectedCall `json:"calls,omitempty"`
-	RequiredTools  []string       `json:"required_tools,omitempty"`
-	ForbiddenTools []string       `json:"forbidden_tools,omitempty"`
-	RequiredCalls  []ExpectedCall `json:"required_calls,omitempty"`
-	OutputEquals   *string        `json:"output_equals,omitempty"`
-	OutputContains []string       `json:"output_contains,omitempty"`
-	OutputExcludes []string       `json:"output_excludes,omitempty"`
-	ExpectedNumber *float64       `json:"expected_number,omitempty"`
-	Tolerance      *float64       `json:"tolerance,omitempty"`
+	Route               agent.Route      `json:"route,omitempty"`
+	Tools               []string         `json:"tools,omitempty"`
+	Calls               []ExpectedCall   `json:"calls,omitempty"`
+	RequiredTools       []string         `json:"required_tools,omitempty"`
+	ForbiddenTools      []string         `json:"forbidden_tools,omitempty"`
+	RequiredCalls       []ExpectedCall   `json:"required_calls,omitempty"`
+	OutputEquals        *string          `json:"output_equals,omitempty"`
+	OutputContains      []string         `json:"output_contains,omitempty"`
+	OutputContainsAny   []string         `json:"output_contains_any,omitempty"`
+	OutputExcludes      []string         `json:"output_excludes,omitempty"`
+	ExpectedNumber      *float64         `json:"expected_number,omitempty"`
+	Tolerance           *float64         `json:"tolerance,omitempty"`
+	Plan                *PlanExpectation `json:"plan,omitempty"`
+	MustStateUnverified []string         `json:"must_state_unverified,omitempty"`
+}
+
+type PlanExpectation struct {
+	SubtaskCount int         `json:"subtask_count"`
+	Waves        [][]string  `json:"waves"`
+	References   []Reference `json:"references"`
+}
+
+type Reference struct {
+	Subtask  int    `json:"subtask"`
+	Argument string `json:"argument"`
+	Source   string `json:"source"`
 }
 
 type ExpectedCall struct {
@@ -120,6 +136,11 @@ type Metrics struct {
 	ForbiddenToolAvoidance Score `json:"forbidden_tool_avoidance"`
 	RequiredCallAccuracy   Score `json:"required_call_accuracy"`
 	NoCallAccuracy         Score `json:"no_call_accuracy"`
+	PlanSubtaskCount       Score `json:"plan_subtask_count"`
+	PlanWaveOrder          Score `json:"plan_wave_order"`
+	PlanReferenceUse       Score `json:"plan_reference_use"`
+	ExplicitAbstention     Score `json:"explicit_abstention"`
+	AnswerContractRepaired Score `json:"answer_contract_repaired"`
 
 	ModelCalls       int   `json:"model_calls"`
 	ToolCalls        int   `json:"tool_calls"`
@@ -131,6 +152,8 @@ type Metrics struct {
 	ForcedAnswers    int   `json:"forced_answers"`
 	ProtocolRetries  int   `json:"protocol_retries"`
 	RouteFallbacks   int   `json:"route_fallbacks"`
+	PlanRejections   int   `json:"plan_rejections"`
+	PlanFallbacks    int   `json:"plan_fallbacks"`
 	PromptTokens     int   `json:"prompt_tokens"`
 	CompletionTokens int   `json:"completion_tokens"`
 	WallTimeMillis   int64 `json:"wall_time_millis"`

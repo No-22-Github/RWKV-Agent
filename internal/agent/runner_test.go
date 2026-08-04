@@ -92,7 +92,7 @@ func TestRunnerExecutesToolThenReturnsFinal(t *testing.T) {
 		t.Fatalf("continuation prompts = %+v", prompts)
 	}
 	for _, fragment := range []string{
-		"System: You are a read-only repository agent.",
+		"System: You are a local-first assistant with read-only tools.",
 		"User: Use echo.",
 		`Assistant: <tool_call>{"name":"echo","arguments":{"value":"hello"}}</tool_call>`,
 		"Tool: <tool_result>",
@@ -285,7 +285,7 @@ func TestRunnerCanUseMultipleSuccessfulToolsBeforeAnswer(t *testing.T) {
 	}
 	second := requests[1].Prompt
 	for _, fragment := range []string{
-		"System: You are a read-only repository agent.",
+		"System: You are a local-first assistant with read-only tools.",
 		"User: Use echo.",
 		`"result":{"value":"first"}`,
 		`"tool":"echo"}</tool_result>`,
@@ -298,7 +298,7 @@ func TestRunnerCanUseMultipleSuccessfulToolsBeforeAnswer(t *testing.T) {
 	}
 	third := requests[2].Prompt
 	for _, fragment := range []string{
-		"System: You are the final repository answer stage.",
+		"System: You are the final local-assistant answer stage.",
 		`"result":{"value":"first"}`,
 		`"result":{"value":"second"}`,
 		"Assistant: <answer>",
@@ -341,6 +341,74 @@ func TestRunnerCanUseMultipleSuccessfulToolsBeforeAnswer(t *testing.T) {
 		history[4].Role != RoleTool ||
 		history[5].Role != RoleAssistant {
 		t.Fatalf("multi-tool history = %+v", history)
+	}
+}
+
+func TestValidateAnswerRejectsProtocolTag(t *testing.T) {
+	t.Parallel()
+	assertAnswerViolation(t, "Use <tool_call> only internally.", violationProtocolTag)
+}
+
+func TestValidateAnswerRejectsRoleHeader(t *testing.T) {
+	t.Parallel()
+	assertAnswerViolation(t, "Assistant: The answer is 42.", violationRoleHeader)
+}
+
+func TestValidateAnswerRejectsJSONPayload(t *testing.T) {
+	t.Parallel()
+	assertAnswerViolation(t, `{"answer":42}`, violationJSONPayload)
+}
+
+func TestValidateAnswerRejectsToolEcho(t *testing.T) {
+	t.Parallel()
+	assertAnswerViolation(
+		t,
+		`Raw payload: {"ok":true,"tool":"weather","result":{"temp_c":27}}`,
+		violationToolEcho,
+	)
+}
+
+func TestRunnerRepairsAnswerContractBeforeCommit(t *testing.T) {
+	t.Parallel()
+	runner, err := NewRunner(
+		continuation.GenerateFunc(func(
+			context.Context,
+			continuation.Request,
+			continuation.EventSink,
+		) (continuation.Result, error) {
+			return continuation.Result{Text: "Assistant: leaked answer"}, nil
+		}),
+		nil,
+		Options{},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "answer")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Output != answerContractFallbackEN ||
+		result.OriginalOutput != "Assistant: leaked answer" ||
+		!result.AnswerContractRepaired ||
+		len(result.AnswerViolations) != 1 ||
+		result.AnswerViolations[0] != string(violationRoleHeader) {
+		t.Fatalf("repair result = %+v", result)
+	}
+	history := runner.History()
+	if len(history) != 2 || history[1].Content != answerContractFallbackEN {
+		t.Fatalf("committed history = %+v", history)
+	}
+	if answerContractFallback("请回答") != answerContractFallbackZH {
+		t.Fatal("Chinese task did not receive the Chinese contract fallback")
+	}
+}
+
+func assertAnswerViolation(t *testing.T, output string, expected answerViolation) {
+	t.Helper()
+	violations := validateAnswer(output)
+	if len(violations) != 1 || violations[0] != expected {
+		t.Fatalf("validateAnswer(%q) = %v, want [%s]", output, violations, expected)
 	}
 }
 
@@ -1004,6 +1072,47 @@ func TestRunnerSuggestsDiscoveryAfterMissingReadPath(t *testing.T) {
 	}
 }
 
+func TestRunnerProviderUnavailableForcesExplicitLimitation(t *testing.T) {
+	t.Parallel()
+	outputs := []continuation.Result{
+		{Text: `<tool_call>{"name":"echo","arguments":{"value":"人民币总额 150 元"}}</tool_call>`, FinishReason: continuation.FinishStop},
+		{Text: `<tool_call>{"name":"fx_convert","arguments":{"amount":150,"from":"CNY","to":"USD"}}</tool_call>`, FinishReason: continuation.FinishStop},
+		{Text: "人民币总额是 150 元；fx_convert 不可用，因此美元换算未完成。", FinishReason: continuation.FinishStop},
+	}
+	var prompts []string
+	fxExecutions := 0
+	runner, err := NewRunner(
+		continuation.GenerateFunc(func(
+			_ context.Context,
+			request continuation.Request,
+			_ continuation.EventSink,
+		) (continuation.Result, error) {
+			prompts = append(prompts, request.Prompt)
+			return outputs[len(prompts)-1], nil
+		}),
+		[]Tool{echoTool{}, &providerUnavailableTool{calls: &fxExecutions}},
+		Options{MaxSteps: 4},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "把人民币总额换成美元；汇率不可用时不要猜。")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if fxExecutions != 1 ||
+		len(result.Steps) != 3 ||
+		!result.Steps[1].ToolUnavailable ||
+		result.Steps[1].ToolRejected != rejectedProviderUnavailable ||
+		result.Steps[2].Stage != StageAnswer ||
+		!strings.Contains(prompts[2], "- fx_convert") ||
+		!strings.Contains(result.Output, "150") ||
+		!strings.Contains(result.Output, "未完成") ||
+		strings.Contains(result.Output, "21") {
+		t.Fatalf("provider fallback result=%+v prompts=%+v executions=%d", result, prompts, fxExecutions)
+	}
+}
+
 func TestRunnerRollsBackMultiToolTurnWhenForcedAnswerFails(t *testing.T) {
 	t.Parallel()
 	outputs := []continuation.Result{
@@ -1059,6 +1168,21 @@ func (echoTool) Spec() ToolSpec {
 		Description: "Return a value.",
 		Arguments:   `{"value":"string"}`,
 	}
+}
+
+type providerUnavailableTool struct{ calls *int }
+
+func (*providerUnavailableTool) Spec() ToolSpec {
+	return ToolSpec{
+		Name:        "fx_convert",
+		Description: "Convert currency.",
+		Arguments:   `{"amount":"number","from":"string","to":"string"}`,
+	}
+}
+
+func (t *providerUnavailableTool) Execute(context.Context, json.RawMessage) (any, error) {
+	*t.calls++
+	return nil, ErrProviderUnavailable
 }
 
 type countingEchoTool struct {

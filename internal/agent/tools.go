@@ -25,6 +25,27 @@ type workspace struct {
 	root string
 }
 
+// WorkspaceResolver exposes the existing workspace containment policy to
+// tool packages without exposing the workspace root itself.
+type WorkspaceResolver struct {
+	workspace *workspace
+}
+
+func NewWorkspaceResolver(root string) (*WorkspaceResolver, error) {
+	value, err := newWorkspace(root)
+	if err != nil {
+		return nil, err
+	}
+	return &WorkspaceResolver{workspace: value}, nil
+}
+
+func (r *WorkspaceResolver) Resolve(path string) (string, error) {
+	if r == nil || r.workspace == nil {
+		return "", fmt.Errorf("workspace resolver is not initialized")
+	}
+	return r.workspace.resolve(path)
+}
+
 func WorkspaceTools(root string) ([]Tool, error) {
 	value, err := newWorkspace(root)
 	if err != nil {

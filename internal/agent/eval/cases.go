@@ -3,8 +3,9 @@ package eval
 import "fmt"
 
 const (
-	SuiteBoundary = "boundary"
-	SuiteSmoke    = "smoke"
+	SuiteBoundary  = "boundary"
+	SuiteSmoke     = "smoke"
+	SuiteAssistant = "assistant"
 )
 
 func BuiltinCases() []Case {
@@ -214,7 +215,9 @@ func BuiltinSuite(name string) ([]Case, error) {
 		return SmokeCases(), nil
 	case SuiteBoundary:
 		return BoundaryCases()
+	case SuiteAssistant:
+		return AssistantCases()
 	default:
-		return nil, fmt.Errorf("unknown Agent eval suite %q; expected smoke or boundary", name)
+		return nil, fmt.Errorf("unknown Agent eval suite %q; expected smoke, boundary, or assistant", name)
 	}
 }

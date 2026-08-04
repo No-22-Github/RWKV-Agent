@@ -19,6 +19,7 @@ import (
 
 	"github.com/no22/RWKV-Agent/internal/agent"
 	agenteval "github.com/no22/RWKV-Agent/internal/agent/eval"
+	assistanttools "github.com/no22/RWKV-Agent/internal/agent/tools"
 	concurrentcli "github.com/no22/RWKV-Agent/internal/cli/concurrent"
 	"github.com/no22/RWKV-Agent/internal/continuation"
 	localcontinuation "github.com/no22/RWKV-Agent/internal/continuation/local"
@@ -118,7 +119,7 @@ func usage() {
   rwkv-cli convert --input <RWKV .pth> --output <MLX model directory>
   rwkv-cli run --model <RWKV .pth or MLX directory> [--prompt <text> | --session <bundle>]
   rwkv-cli agent --model <path or remote model ID> [--prompt <task>] [--ui auto|tui|plain]
-  rwkv-cli agent-eval --model <path or remote model ID> [--suite boundary|smoke] [--output <directory>]
+  rwkv-cli agent-eval --model <path or remote model ID> [--suite boundary|smoke|assistant] [--output <directory>]
   rwkv-cli concurrent --model <RWKV .pth or MLX directory> [--concurrency 1..8] [--ui auto|tui|plain]
   rwkv-cli bench --model <RWKV .pth or MLX directory> [--concurrency 1..8]`)
 }
@@ -213,7 +214,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		fs.BoolVar(&options.autosave, "autosave", false, "save the session after each committed turn")
 	case "agent", "agent-eval":
 		fs.IntVar(&options.maxSteps, "max-steps", 6, "maximum model steps including protocol retries")
-		fs.IntVar(&options.decisionMaxTokens, "decision-max-tokens", 256, "maximum generated tokens for tool selection")
+		fs.IntVar(&options.decisionMaxTokens, "decision-max-tokens", 96, "maximum generated tokens for tool selection")
 		fs.IntVar(&options.routeMaxTokens, "route-max-tokens", 16, "maximum generated tokens for respond/inspect routing")
 		fs.BoolVar(&options.fewShot, "few-shot", false, "enable agent decision trajectory examples")
 		fs.StringVar(&options.completion, "completion", "local", "continuation provider: local or rwkv-lightning")
@@ -234,7 +235,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			fs.StringVar(&options.ui, "ui", "auto", "agent renderer: auto, tui, or plain")
 			fs.StringVar(&options.workspace, "workspace", ".", "workspace root available to read-only tools")
 		} else {
-			fs.StringVar(&options.evalSuite, "suite", agenteval.SuiteBoundary, "built-in Agent eval suite: boundary or smoke")
+			fs.StringVar(&options.evalSuite, "suite", agenteval.SuiteBoundary, "built-in Agent eval suite: boundary, smoke, or assistant")
 			fs.StringVar(&options.evalCasesPath, "cases", "", "versioned custom Agent eval case JSON; conflicts with --suite")
 			fs.StringVar(&options.evalOutput, "output", "", "new directory for run.json, trace.jsonl, and summary.json")
 			fs.Var(&options.evalCaseIDs, "case", "repeatable built-in or file-backed case ID to run")
@@ -280,9 +281,10 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		}
 		if name == "agent-eval" {
 			if options.evalSuite != agenteval.SuiteBoundary &&
-				options.evalSuite != agenteval.SuiteSmoke {
+				options.evalSuite != agenteval.SuiteSmoke &&
+				options.evalSuite != agenteval.SuiteAssistant {
 				return options, fmt.Errorf(
-					"unsupported Agent eval suite %q; expected boundary or smoke",
+					"unsupported Agent eval suite %q; expected boundary, smoke, or assistant",
 					options.evalSuite,
 				)
 			}
@@ -597,6 +599,18 @@ func runAgent(args []string) error {
 	if err != nil {
 		return fmt.Errorf("initialize agent workspace: %w", err)
 	}
+	mockProvider, err := assistanttools.DefaultMockProvider()
+	if err != nil {
+		return fmt.Errorf("initialize assistant mock provider: %w", err)
+	}
+	assistant, err := assistanttools.AssistantTools(assistanttools.Options{
+		Provider:  mockProvider,
+		Workspace: options.workspace,
+	})
+	if err != nil {
+		return fmt.Errorf("initialize assistant tools: %w", err)
+	}
+	tools = append(tools, assistant...)
 	theme := terminal.NewTheme(terminal.SupportsStyle(os.Stderr))
 	var observe func(agent.Event)
 	if selected == terminal.UIPlain {
