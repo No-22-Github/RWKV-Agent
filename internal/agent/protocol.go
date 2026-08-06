@@ -8,11 +8,13 @@ import (
 	"strings"
 
 	"github.com/no22/RWKV-Agent/internal/continuation"
+	"github.com/no22/RWKV-Agent/internal/inference"
 )
 
 const (
 	G1IActionProtocolV1  = "rwkv-g1i-envelope-v1"
 	RWKVPromptRendererV1 = "rwkv-chat-continuation-v1"
+	RWKVPromptRendererV2 = "rwkv-chat-continuation-v2"
 )
 
 var leadingThinkBlocks = regexp.MustCompile(`(?s)\A\s*(?:<think>.*?</think>\s*)+`)
@@ -388,11 +390,13 @@ type PromptRenderer interface {
 }
 
 type RWKVChatRenderer struct {
+	ThinkingMode inference.ThinkingMode
+	// Reasoning preserves the former fast-thinking renderer construction.
 	Reasoning bool
 }
 
 func (RWKVChatRenderer) ID() string {
-	return RWKVPromptRendererV1
+	return RWKVPromptRendererV2
 }
 
 func (renderer RWKVChatRenderer) Render(messages []Message) (string, error) {
@@ -415,10 +419,44 @@ func (renderer RWKVChatRenderer) Render(messages []Message) (string, error) {
 		fmt.Fprintf(&prompt, "%s: %s\n\n", renderedRole, content)
 	}
 	prompt.WriteString("Assistant:")
-	if renderer.Reasoning {
-		prompt.WriteString(" <think>\n</think>")
+	switch renderer.thinkingMode() {
+	case inference.ThinkingFast:
+		prompt.WriteString(" <think></think")
+	case inference.ThinkingFull:
+		prompt.WriteString(" <think")
 	}
 	return prompt.String(), nil
+}
+
+func (renderer RWKVChatRenderer) thinkingMode() inference.ThinkingMode {
+	if renderer.ThinkingMode != "" {
+		return renderer.ThinkingMode
+	}
+	if renderer.Reasoning {
+		return inference.ThinkingFast
+	}
+	return inference.ThinkingOff
+}
+
+func (renderer RWKVChatRenderer) appendAssistantPrefix(prompt, prefix string) (string, bool) {
+	if renderer.thinkingMode() != inference.ThinkingOff {
+		return prompt, false
+	}
+	return prompt + " " + prefix, true
+}
+
+func (renderer RWKVChatRenderer) reconstructOutput(output string) string {
+	if strings.HasPrefix(strings.TrimSpace(output), "<think>") {
+		return output
+	}
+	switch renderer.thinkingMode() {
+	case inference.ThinkingFast:
+		return "<think></think" + output
+	case inference.ThinkingFull:
+		return "<think" + output
+	default:
+		return output
+	}
 }
 
 func renderRole(role MessageRole) (string, error) {

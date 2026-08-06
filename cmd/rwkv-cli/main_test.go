@@ -18,6 +18,9 @@ func TestOfficialG1ChatDefaults(t *testing.T) {
 	if options.reasoning {
 		t.Fatal("reasoning must be opt-in for regular chat")
 	}
+	if options.thinkingMode != "off" {
+		t.Fatalf("default thinking mode = %q", options.thinkingMode)
+	}
 	if options.reasoningExplicit {
 		t.Fatal("omitted --reasoning must remain unspecified for Session inheritance")
 	}
@@ -47,8 +50,31 @@ func TestExplicitReasoningOverridesSessionInheritance(t *testing.T) {
 		t.Fatal("--reasoning=false must count as an explicit mode selection")
 	}
 	if profile := loadConversationOptions(options).Profile; profile.TemplateID == "" ||
-		profile.Reasoning {
+		profile.Reasoning || profile.ThinkingMode != "off" {
 		t.Fatalf("explicit profile = %+v", profile)
+	}
+}
+
+func TestThinkingModesAndLegacyAlias(t *testing.T) {
+	t.Parallel()
+	for _, mode := range []string{"off", "fast", "full"} {
+		options, err := parseRunOptions("run", []string{"--model", "model", "--thinking", mode})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if options.thinkingMode != mode || !options.thinkingExplicit {
+			t.Fatalf("mode %q parsed as %+v", mode, options)
+		}
+	}
+	legacy, err := parseRunOptions("run", []string{"--model", "model", "--reasoning"})
+	if err != nil || legacy.thinkingMode != "fast" || !legacy.thinkingExplicit {
+		t.Fatalf("legacy reasoning options = %+v, %v", legacy, err)
+	}
+	if _, err := parseRunOptions("run", []string{"--model", "model", "--thinking", "bogus"}); err == nil {
+		t.Fatal("unknown thinking mode accepted")
+	}
+	if _, err := parseRunOptions("run", []string{"--model", "model", "--thinking", "full", "--reasoning=false"}); err == nil {
+		t.Fatal("conflicting thinking controls accepted")
 	}
 }
 

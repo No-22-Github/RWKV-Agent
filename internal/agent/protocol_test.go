@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/no22/RWKV-Agent/internal/continuation"
+	"github.com/no22/RWKV-Agent/internal/inference"
 )
 
 func TestProtocolAndRendererHaveIndependentVersions(t *testing.T) {
@@ -18,8 +19,50 @@ func TestProtocolAndRendererHaveIndependentVersions(t *testing.T) {
 	if protocol.ToolCallPrefix() != "<tool_call>" {
 		t.Fatalf("tool call prefix = %q", protocol.ToolCallPrefix())
 	}
-	if renderer.ID() != RWKVPromptRendererV1 {
+	if renderer.ID() != RWKVPromptRendererV2 {
 		t.Fatalf("renderer ID = %q", renderer.ID())
+	}
+}
+
+func TestFullThinkingRendererFramesOutputWithoutToolPrefixInjection(t *testing.T) {
+	t.Parallel()
+	renderer := RWKVChatRenderer{ThinkingMode: inference.ThinkingFull}
+	prompt, err := renderer.Render([]Message{{Role: RoleUser, Content: "task"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.HasSuffix(prompt, "Assistant: <think") {
+		t.Fatalf("full thinking prompt = %q", prompt)
+	}
+	framed, injected := renderer.appendAssistantPrefix(prompt, "<tool_call>")
+	if injected || framed != prompt {
+		t.Fatalf("full thinking prefix framing = %q, injected=%v", framed, injected)
+	}
+	output := renderer.reconstructOutput(">inspect</think>\n<tool_call>{\"name\":\"x\",\"arguments\":{}}</tool_call>")
+	action, err := (G1IProtocol{}).Parse(output, continuation.FinishStop)
+	if err != nil || action.Type != "tool" {
+		t.Fatalf("full thinking parse = %+v, %v", action, err)
+	}
+}
+
+func TestFastThinkingRendererUsesExactTokenBoundary(t *testing.T) {
+	t.Parallel()
+	renderer := RWKVChatRenderer{ThinkingMode: inference.ThinkingFast}
+	prompt, err := renderer.Render([]Message{{Role: RoleUser, Content: "task"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.HasSuffix(prompt, "Assistant: <think></think") {
+		t.Fatalf("fast thinking prompt = %q", prompt)
+	}
+	framed, injected := renderer.appendAssistantPrefix(prompt, "<tool_call>")
+	if injected || framed != prompt {
+		t.Fatalf("fast thinking prefix framing = %q, injected=%v", framed, injected)
+	}
+	output := renderer.reconstructOutput("><tool_call>{\"name\":\"x\",\"arguments\":{}}</tool_call>")
+	action, err := (G1IProtocol{}).Parse(output, continuation.FinishStop)
+	if err != nil || action.Type != "tool" {
+		t.Fatalf("fast thinking parse = %+v, %v", action, err)
 	}
 }
 
@@ -223,7 +266,7 @@ func TestRWKVChatRendererBuildsRawContinuationPrompt(t *testing.T) {
 		"User: task",
 		"Assistant: <tool_call>",
 		"Tool: <tool_result>",
-		"Assistant: <think>\n</think>",
+		"Assistant: <think></think",
 	} {
 		if !strings.Contains(prompt, fragment) {
 			t.Fatalf("prompt does not contain %q:\n%s", fragment, prompt)

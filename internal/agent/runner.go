@@ -159,14 +159,14 @@ type Result struct {
 	Output                 string      `json:"output"`
 	OriginalOutput         string      `json:"original_output"`
 	RouteSteps             []RouteStep `json:"route_steps,omitempty"`
-	AnswerContractRepaired bool       `json:"answer_contract_repaired,omitempty"`
-	AnswerViolations       []string   `json:"answer_violations,omitempty"`
-	Steps                  []Step     `json:"steps"`
-	Route                  Route      `json:"route"`
-	ForcedAnswerReason     string     `json:"forced_answer_reason,omitempty"`
-	Plan                   *PlanTrace `json:"plan,omitempty"`
-	PlanRejections         int        `json:"plan_rejections,omitempty"`
-	PlanFallbacks          int        `json:"plan_fallbacks,omitempty"`
+	AnswerContractRepaired bool        `json:"answer_contract_repaired,omitempty"`
+	AnswerViolations       []string    `json:"answer_violations,omitempty"`
+	Steps                  []Step      `json:"steps"`
+	Route                  Route       `json:"route"`
+	ForcedAnswerReason     string      `json:"forced_answer_reason,omitempty"`
+	Plan                   *PlanTrace  `json:"plan,omitempty"`
+	PlanRejections         int         `json:"plan_rejections,omitempty"`
+	PlanFallbacks          int         `json:"plan_fallbacks,omitempty"`
 }
 
 type answerViolation string
@@ -438,14 +438,29 @@ func (r *Runner) RunWithObserver(
 			successfulToolCalls == 0 {
 			request.MaxOutputTokens = r.options.DecisionMaxOutputTokens
 		}
+		injectedPrefix := false
 		if assistantPrefix != "" {
-			request.Prompt += " " + assistantPrefix
+			if renderer, ok := r.renderer.(interface {
+				appendAssistantPrefix(string, string) (string, bool)
+			}); ok {
+				request.Prompt, injectedPrefix = renderer.appendAssistantPrefix(
+					request.Prompt,
+					assistantPrefix,
+				)
+			} else {
+				request.Prompt += " " + assistantPrefix
+				injectedPrefix = true
+			}
 		}
 		var offered []string
 		if stage == StageDecision {
 			offered = r.offeredToolNames()
 		}
-		promptTrace := r.tracePrompt(request, assistantPrefix, offered)
+		tracePrefix := ""
+		if injectedPrefix {
+			tracePrefix = assistantPrefix
+		}
+		promptTrace := r.tracePrompt(request, tracePrefix, offered)
 		generated, err := r.generator.Continue(ctx, request, nil)
 		if err != nil {
 			return result, err
@@ -461,7 +476,10 @@ func (r *Runner) RunWithObserver(
 		result.Steps = append(result.Steps, current)
 
 		modelAction := generated.Text
-		if assistantPrefix != "" &&
+		if renderer, ok := r.renderer.(interface{ reconstructOutput(string) string }); ok {
+			modelAction = renderer.reconstructOutput(modelAction)
+		}
+		if injectedPrefix &&
 			!strings.HasPrefix(strings.TrimSpace(modelAction), assistantPrefix) {
 			modelAction = assistantPrefix + modelAction
 		}

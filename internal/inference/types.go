@@ -162,7 +162,17 @@ type RawInput struct {
 	Text string
 }
 
+type ThinkingMode string
+
+const (
+	ThinkingOff  ThinkingMode = "off"
+	ThinkingFast ThinkingMode = "fast"
+	ThinkingFull ThinkingMode = "full"
+)
+
 type PromptOptions struct {
+	ThinkingMode ThinkingMode
+	// Reasoning preserves source compatibility with the former boolean switch.
 	Reasoning bool
 }
 
@@ -170,6 +180,8 @@ type PromptProfile struct {
 	TemplateID      string
 	TemplateVersion int
 	ProfileHash     string
+	ThinkingMode    ThinkingMode
+	// Reasoning is retained for v1/v2 persisted Session migration.
 	Reasoning       bool
 	SpaceAfterRoles bool
 	FlowerTemplate  bool

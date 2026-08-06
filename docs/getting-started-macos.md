@@ -126,7 +126,8 @@ REPL 中常用命令：
 ```
 
 普通聊天使用 RWKV G1 官方 `User: ... / Assistant:` 模板。需要快速思考模板时显式加入
-`--reasoning`；不要在问题中手写 `<|bos|>`。
+`--thinking off|fast|full`；不要在问题中手写 `<|bos|>`。`fast` 严格预填充
+`<think></think`，`full` 严格预填充 `<think`，两者的下一个 `>` 都由模型生成。
 
 ## 6. 并发生成
 

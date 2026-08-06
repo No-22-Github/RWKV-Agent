@@ -14,12 +14,20 @@ func TestCompileGeneratePrompt(t *testing.T) {
 		want    string
 	}{
 		{
+			name: "full thinking chat",
+			request: GenerateRequest{
+				Messages: []Message{TextMessage(RoleUser, "你好")},
+				Prompt:   PromptOptions{ThinkingMode: ThinkingFull},
+			},
+			want: "User: 你好\n\nAssistant: <think",
+		},
+		{
 			name: "reasoning chat",
 			request: GenerateRequest{
 				Messages: []Message{TextMessage(RoleUser, "你好")},
 				Prompt:   PromptOptions{Reasoning: true},
 			},
-			want: "User: 你好\n\nAssistant: <think>\n</think>",
+			want: "User: 你好\n\nAssistant: <think></think",
 		},
 		{
 			name: "plain chat",
@@ -59,6 +67,19 @@ func TestCompileGeneratePrompt(t *testing.T) {
 				t.Fatalf("prompt = %q, want %q", got, test.want)
 			}
 		})
+	}
+}
+
+func TestParseThinkingMode(t *testing.T) {
+	t.Parallel()
+	for _, mode := range []ThinkingMode{ThinkingOff, ThinkingFast, ThinkingFull} {
+		got, err := ParseThinkingMode(string(mode))
+		if err != nil || got != mode {
+			t.Fatalf("parse %q = %q, %v", mode, got, err)
+		}
+	}
+	if _, err := ParseThinkingMode("invalid"); err == nil {
+		t.Fatal("invalid thinking mode accepted")
 	}
 }
 

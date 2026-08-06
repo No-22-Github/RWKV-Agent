@@ -17,6 +17,7 @@ import (
 	"github.com/no22/RWKV-Agent/internal/agent"
 	assistanttools "github.com/no22/RWKV-Agent/internal/agent/tools"
 	"github.com/no22/RWKV-Agent/internal/continuation"
+	"github.com/no22/RWKV-Agent/internal/inference"
 )
 
 const defaultCaseTimeout = 2 * time.Minute
@@ -83,9 +84,12 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 	if controlPrompt == "" {
 		controlPrompt = agent.ControlPromptSystem
 	}
-	reasoning := false
+	thinkingMode := inference.ThinkingOff
 	if rwkvRenderer, ok := renderer.(agent.RWKVChatRenderer); ok {
-		reasoning = rwkvRenderer.Reasoning
+		thinkingMode = rwkvRenderer.ThinkingMode
+		if thinkingMode == "" && rwkvRenderer.Reasoning {
+			thinkingMode = inference.ThinkingFast
+		}
 	}
 	fewShot := false
 	if g1iProtocol, ok := protocol.(agent.G1IProtocol); ok {
@@ -108,7 +112,8 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 			RouteRenderer:           routeRenderer.ID(),
 			RouteProtocol:           config.Runner.Router.ID(),
 			ControlPrompt:           string(controlPrompt),
-			Reasoning:               reasoning,
+			ThinkingMode:            string(thinkingMode),
+			Reasoning:               thinkingMode != inference.ThinkingOff,
 			FewShot:                 fewShot,
 			MaxSteps:                config.Runner.MaxSteps,
 			ProtocolRetries:         config.Runner.ProtocolRetries,

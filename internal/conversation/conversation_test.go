@@ -341,8 +341,8 @@ func TestPromptProfileUpgradeRejectsReasoningModeChange(t *testing.T) {
 		nil,
 	)
 	if !errors.Is(err, inference.ErrIncompatibleState) ||
-		!strings.Contains(err.Error(), "reasoning mode mismatch") {
-		t.Fatalf("load error = %v, want reasoning mode mismatch", err)
+		!strings.Contains(err.Error(), "thinking mode mismatch") {
+		t.Fatalf("load error = %v, want thinking mode mismatch", err)
 	}
 }
 

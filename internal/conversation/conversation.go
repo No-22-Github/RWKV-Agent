@@ -119,7 +119,9 @@ func (c *Conversation) Turn(
 	candidate := appendMessages(c.transcript, inference.TextMessage(inference.RoleUser, userText))
 	result, err := c.session.Generate(ctx, inference.GenerateRequest{
 		Messages: candidate,
-		Prompt:   inference.PromptOptions{Reasoning: c.profile.Reasoning},
+		Prompt: inference.PromptOptions{
+			ThinkingMode: inference.ProfileThinkingMode(c.profile),
+		},
 		Sampling: options.Sampling,
 		Limits:   options.Limits,
 		Commit:   inference.CommitOnSuccess,
@@ -175,7 +177,7 @@ func (c *Conversation) syncCommitted(
 	}
 	text, err := inference.CompileCommittedPrompt(
 		messages,
-		inference.PromptOptions{Reasoning: c.profile.Reasoning},
+		inference.PromptOptions{ThinkingMode: inference.ProfileThinkingMode(c.profile)},
 	)
 	if err != nil {
 		return err
@@ -298,7 +300,9 @@ func Load(
 		return nil, fmt.Errorf("%w: canonical transcript hash mismatch", inference.ErrCorruptState)
 	}
 	if options.Profile.TemplateID == "" {
-		options.Profile = inference.DefaultPromptProfile(snapshot.Profile.Reasoning)
+		options.Profile = inference.DefaultPromptProfileForThinking(
+			inference.ProfileThinkingMode(snapshot.Profile),
+		)
 	}
 	if options.NativeState == "" {
 		options.NativeState = "auto"
@@ -407,10 +411,10 @@ func validateCompatibility(
 	if snapshot.Profile.TemplateID != options.Profile.TemplateID {
 		return false, fmt.Errorf("%w: prompt template mismatch", inference.ErrIncompatibleState)
 	}
-	if snapshot.Profile.Reasoning != options.Profile.Reasoning {
-		return false, fmt.Errorf("%w: reasoning mode mismatch", inference.ErrIncompatibleState)
+	if inference.ProfileThinkingMode(snapshot.Profile) != inference.ProfileThinkingMode(options.Profile) {
+		return false, fmt.Errorf("%w: thinking mode mismatch", inference.ErrIncompatibleState)
 	}
-	current := inference.DefaultPromptProfile(options.Profile.Reasoning)
+	current := inference.DefaultPromptProfileForThinking(inference.ProfileThinkingMode(options.Profile))
 	if !profilesMatch(current, options.Profile) ||
 		snapshot.Profile.TemplateVersion <= 0 ||
 		snapshot.Profile.TemplateVersion >= options.Profile.TemplateVersion {

@@ -50,6 +50,8 @@ type runOptions struct {
 	presencePenalty   float64
 	frequencyPenalty  float64
 	penaltyDecay      float64
+	thinkingMode      string
+	thinkingExplicit  bool
 	reasoning         bool
 	reasoningExplicit bool
 	fewShot           bool
@@ -206,7 +208,8 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 	fs.Float64Var(&options.presencePenalty, "presence-penalty", defaultPresencePenalty, "RWKV presence penalty")
 	fs.Float64Var(&options.frequencyPenalty, "frequency-penalty", defaultFrequencyPenalty, "RWKV frequency penalty")
 	fs.Float64Var(&options.penaltyDecay, "penalty-decay", defaultPenaltyDecay, "RWKV repetition-penalty decay")
-	fs.BoolVar(&options.reasoning, "reasoning", false, "enable the RWKV G1 fast-thinking profile")
+	fs.StringVar(&options.thinkingMode, "thinking", string(inference.ThinkingOff), "thinking mode: off, fast, or full")
+	fs.BoolVar(&options.reasoning, "reasoning", false, "deprecated alias for --thinking=fast")
 	fs.StringVar(&options.nativeState, "native-state", "auto", "native State mode: auto, off, or required")
 	switch name {
 	case "run":
@@ -258,12 +261,30 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 	}
 	fs.Visit(func(value *flag.Flag) {
 		switch value.Name {
+		case "thinking":
+			options.thinkingExplicit = true
 		case "reasoning":
 			options.reasoningExplicit = true
 		case "suite":
 			options.evalSuiteExplicit = true
 		}
 	})
+	if options.thinkingExplicit && options.reasoningExplicit {
+		return options, errors.New("--thinking and deprecated --reasoning cannot be used together")
+	}
+	if options.reasoningExplicit {
+		options.thinkingMode = string(inference.ThinkingOff)
+		if options.reasoning {
+			options.thinkingMode = string(inference.ThinkingFast)
+		}
+		options.thinkingExplicit = true
+	}
+	mode, err := inference.ParseThinkingMode(options.thinkingMode)
+	if err != nil {
+		return options, fmt.Errorf("invalid --thinking: %w", err)
+	}
+	options.thinkingMode = string(mode)
+	options.reasoning = mode != inference.ThinkingOff
 	if options.modelPath == "" {
 		fs.Usage()
 		return options, fmt.Errorf("%s requires --model", name)
@@ -389,7 +410,9 @@ func (r *loadedRuntime) Close() error {
 
 func newConversationOptions(options runOptions) conversation.Options {
 	return conversation.Options{
-		Profile:     inference.DefaultPromptProfile(options.reasoning),
+		Profile: inference.DefaultPromptProfileForThinking(
+			inference.ThinkingMode(options.thinkingMode),
+		),
 		NativeState: options.nativeState,
 	}
 }
@@ -399,8 +422,10 @@ func loadConversationOptions(options runOptions) conversation.Options {
 		NativeState:               options.nativeState,
 		AllowPromptProfileUpgrade: true,
 	}
-	if options.reasoningExplicit {
-		value.Profile = inference.DefaultPromptProfile(options.reasoning)
+	if options.thinkingExplicit {
+		value.Profile = inference.DefaultPromptProfileForThinking(
+			inference.ThinkingMode(options.thinkingMode),
+		)
 	}
 	return value
 }
@@ -452,7 +477,8 @@ func run(args []string) error {
 	if err != nil {
 		return fmt.Errorf("initialize conversation: %w", err)
 	}
-	options.reasoning = current.Profile().Reasoning
+	options.thinkingMode = string(inference.ProfileThinkingMode(current.Profile()))
+	options.reasoning = options.thinkingMode != string(inference.ThinkingOff)
 	if current.State().RecoveryMode == "profile-migration" {
 		fmt.Fprintf(
 			os.Stderr,
@@ -553,12 +579,14 @@ func agentRunnerOptions(options runOptions, observe func(agent.Event)) agent.Opt
 		DecisionMaxOutputTokens: options.decisionMaxTokens,
 		ControlPrompt:           agent.ControlPromptSystem,
 		Protocol:                agent.G1IProtocol{FewShot: options.fewShot},
-		Renderer:                agent.RWKVChatRenderer{Reasoning: options.reasoning},
-		Router:                  agent.G1IRouteProtocol{},
-		RouteRenderer:           agent.RWKVChatRenderer{},
-		RouteRetries:            1,
-		RouteMaxOutputTokens:    options.routeMaxTokens,
-		TracePromptBytes:        options.tracePromptBytes,
+		Renderer: agent.RWKVChatRenderer{
+			ThinkingMode: inference.ThinkingMode(options.thinkingMode),
+		},
+		Router:               agent.G1IRouteProtocol{},
+		RouteRenderer:        agent.RWKVChatRenderer{},
+		RouteRetries:         1,
+		RouteMaxOutputTokens: options.routeMaxTokens,
+		TracePromptBytes:     options.tracePromptBytes,
 		Generation: continuation.Request{
 			Model:           options.modelPath,
 			MaxOutputTokens: options.maxTokens,
@@ -676,6 +704,7 @@ func runAgent(args []string) error {
 				Model:     filepath.Base(options.modelPath),
 				Provider:  provider,
 				Workspace: options.workspace,
+				Thinking:  options.thinkingMode,
 			},
 			options.prompt,
 			os.Stdin,
@@ -1022,7 +1051,8 @@ func executeCommand(
 		}
 		_ = replacement.Close()
 		options.sessionPath = fields[1]
-		options.reasoning = current.Profile().Reasoning
+		options.thinkingMode = string(inference.ProfileThinkingMode(current.Profile()))
+		options.reasoning = options.thinkingMode != string(inference.ThinkingOff)
 		fmt.Println(theme.Render(theme.Success, "✓ loaded"), fields[1])
 	case "/reset", "/new":
 		if err := current.Reset(ctx); err != nil {

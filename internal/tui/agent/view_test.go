@@ -28,6 +28,7 @@ func TestViewFitsWideAndNarrowTerminals(t *testing.T) {
 				Model:     "rwkv-g1",
 				Provider:  "mlx",
 				Workspace: "/tmp/example",
+				Thinking:  "full",
 			},
 			theme:  terminal.NewTheme(true),
 			width:  size.width,
@@ -54,7 +55,7 @@ func TestViewFitsWideAndNarrowTerminals(t *testing.T) {
 		if got := lipgloss.Height(view); got > size.height {
 			t.Fatalf("%dx%d view height = %d", size.width, size.height, got)
 		}
-		for _, fragment := range []string{"READ ONLY", "Conversation", "Activity", "read_file"} {
+		for _, fragment := range []string{"READ ONLY", "THINK FULL", "Conversation", "Activity", "read_file"} {
 			if !strings.Contains(view, fragment) {
 				t.Fatalf("%dx%d view missing %q", size.width, size.height, fragment)
 			}

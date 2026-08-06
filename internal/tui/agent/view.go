@@ -74,7 +74,11 @@ func (m *model) renderHeader(width int) string {
 	if provider == "" {
 		provider = "LOCAL"
 	}
-	left := fmt.Sprintf(" %s · %s · Agent", modelName, provider)
+	thinking := strings.ToUpper(strings.TrimSpace(m.meta.Thinking))
+	if thinking == "" {
+		thinking = "OFF"
+	}
+	left := fmt.Sprintf(" %s · %s · Agent · THINK %s", modelName, provider, thinking)
 	right := m.theme.Warning.Render("READ ONLY") + " "
 	padding := max(1, width-lipgloss.Width(left)-lipgloss.Width(right))
 	return ansi.Truncate(left+strings.Repeat(" ", padding)+right, width, "")

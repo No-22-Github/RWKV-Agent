@@ -9,15 +9,26 @@ import (
 
 const (
 	PromptTemplateID      = "rwkv-g1-chat"
-	PromptTemplateVersion = 2
+	PromptTemplateVersion = 3
 )
 
 func DefaultPromptProfile(reasoning bool) PromptProfile {
+	mode := ThinkingOff
+	if reasoning {
+		mode = ThinkingFast
+	}
+	return DefaultPromptProfileForThinking(mode)
+}
+
+func DefaultPromptProfileForThinking(mode ThinkingMode) PromptProfile {
+	if mode == "" {
+		mode = ThinkingOff
+	}
 	canonical := fmt.Sprintf(
-		"%s\x00%d\x00%t\x00%t\x00%t\x00%s\x00%s",
+		"%s\x00%d\x00%s\x00%t\x00%t\x00%s\x00%s",
 		PromptTemplateID,
 		PromptTemplateVersion,
-		reasoning,
+		mode,
 		true,
 		false,
 		"",
@@ -27,7 +38,8 @@ func DefaultPromptProfile(reasoning bool) PromptProfile {
 		TemplateID:      PromptTemplateID,
 		TemplateVersion: PromptTemplateVersion,
 		ProfileHash:     fmt.Sprintf("sha256:%x", sha256.Sum256([]byte(canonical))),
-		Reasoning:       reasoning,
+		ThinkingMode:    mode,
+		Reasoning:       mode != ThinkingOff,
 		SpaceAfterRoles: true,
 		BOS:             "",
 		EOS:             "\n\n",
@@ -58,10 +70,43 @@ func CompileGeneratePrompt(request GenerateRequest) (string, error) {
 	prompt.WriteString("Assistant:")
 
 	formatted := prompt.String()
-	if request.Prompt.Reasoning {
-		formatted += " <think>\n</think>"
+	switch PromptThinkingMode(request.Prompt) {
+	case ThinkingFast:
+		formatted += " <think></think"
+	case ThinkingFull:
+		formatted += " <think"
 	}
 	return formatted, nil
+}
+
+func PromptThinkingMode(options PromptOptions) ThinkingMode {
+	if options.ThinkingMode != "" {
+		return options.ThinkingMode
+	}
+	if options.Reasoning {
+		return ThinkingFast
+	}
+	return ThinkingOff
+}
+
+func ProfileThinkingMode(profile PromptProfile) ThinkingMode {
+	if profile.ThinkingMode != "" {
+		return profile.ThinkingMode
+	}
+	if profile.Reasoning {
+		return ThinkingFast
+	}
+	return ThinkingOff
+}
+
+func ParseThinkingMode(value string) (ThinkingMode, error) {
+	mode := ThinkingMode(strings.ToLower(strings.TrimSpace(value)))
+	switch mode {
+	case ThinkingOff, ThinkingFast, ThinkingFull:
+		return mode, nil
+	default:
+		return "", fmt.Errorf("%w: unknown thinking mode %q", ErrInvalidArgument, value)
+	}
 }
 
 func CompileCommittedPrompt(messages []Message, _ PromptOptions) (string, error) {

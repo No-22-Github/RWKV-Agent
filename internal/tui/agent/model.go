@@ -18,6 +18,7 @@ type Metadata struct {
 	Model     string
 	Provider  string
 	Workspace string
+	Thinking  string
 }
 
 type Session interface {

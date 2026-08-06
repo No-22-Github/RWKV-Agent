@@ -146,14 +146,17 @@ rwkv7-model-mlx/
 --presence-penalty <f>
 --frequency-penalty <f>
 --penalty-decay <f>
---reasoning
+--thinking off|fast|full
 --autosave
 --native-state auto|off|required
 ```
 
-默认使用 RWKV 官方 G1 常规聊天模板 `User: ...\n\nAssistant:`。难题可额外传入
-`--reasoning`，启用官方快速思考模板 `Assistant: <think>\n</think>`；不要把
-`<|bos|>` 等伪 special token 写进 prompt。
+默认使用 RWKV 官方 G1 常规聊天模板 `User: ...\n\nAssistant:`。`--thinking fast`
+严格预填充 `Assistant: <think></think` 后快速续写；`--thinking full`
+严格预填充 `Assistant: <think`。两者的下一个 `>` 都由模型生成，full 模式再由模型生成
+思考内容、闭合标签并回答。旧参数
+`--reasoning[=true|false]` 仍分别兼容 `fast/off`；不要把 `<|bos|>` 等伪 special token
+写进 prompt。
 
 默认解码参数采用当前 G1 模型卡的聊天建议：
 `temperature=1`、`top-p=0.5`、`presence-penalty=2`、
@@ -199,8 +202,8 @@ Initial State 或不支持迁移的 prompt profile 不兼容时拒绝加载。`/
 Conversation 完成校验和恢复，成功后才替换当前会话。
 
 同一 `rwkv-g1-chat` 模板的旧 prompt profile 会安全升级：CLI 校验旧 transcript 和 logical
-revision，丢弃旧版 native State，再用当前 profile replay。未显式传 `--reasoning` 时会
-继承 Session 原有的 reasoning 模式；显式模式冲突、模型或 tokenizer 不匹配仍会拒绝。
+revision，丢弃旧版 native State，再用当前 profile replay。未显式传 `--thinking` 时会
+继承 Session 原有的思考模式；显式模式冲突、模型或 tokenizer 不匹配仍会拒绝。
 迁移后的 autosave 写入新 revision，不会原地改写旧 revision。
 
 ## 实验性本地优先 Agent 框架
@@ -263,7 +266,7 @@ Agent 默认使用 `temperature=1`、`top-k=1`、`top-p=1` 的确定性解码，
 --decision-max-tokens <n>
 --max-tokens <n>
 --workspace <directory>
---reasoning
+--thinking off|fast|full
 ```
 
 使用 `rwkv_lightning` 的原生续写接口：
