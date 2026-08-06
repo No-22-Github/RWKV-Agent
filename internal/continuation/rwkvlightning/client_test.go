@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -31,6 +33,7 @@ func validRequest() continuation.Request {
 func TestClientMapsContinuationRequestAndResponse(t *testing.T) {
 	t.Parallel()
 	var received requestBody
+	var receivedFields map[string]json.RawMessage
 	var accessID string
 	var accessSecret string
 	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
@@ -42,14 +45,21 @@ func TestClientMapsContinuationRequestAndResponse(t *testing.T) {
 		}
 		accessID = request.Header.Get("CF-Access-Client-Id")
 		accessSecret = request.Header.Get("CF-Access-Client-Secret")
-		if err := json.NewDecoder(request.Body).Decode(&received); err != nil {
+		body, err := io.ReadAll(request.Body)
+		if err != nil {
 			t.Error(err)
 		}
-		_, _ = writer.Write([]byte(`{
-			"choices":[
-				{"index":0,"message":{"role":"assistant","content":"{\"type\":\"final\",\"content\":\"done\"}"},"finish_reason":"stop"}
-			]
-		}`))
+		if err := json.Unmarshal(body, &received); err != nil {
+			t.Error(err)
+		}
+		if err := json.Unmarshal(body, &receivedFields); err != nil {
+			t.Error(err)
+		}
+		writeSSE(
+			writer,
+			`{"choices":[{"index":0,"delta":{"content":"{\"type\":\"final\",\"content\":\"done\"}"}}],"usage":{"prompt_tokens":12,"completion_tokens":4}}`,
+			`{"choices":[{"index":0,"delta":{},"finish_reason":"stop"}]}`,
+		)
 	}))
 	defer server.Close()
 
@@ -81,21 +91,62 @@ func TestClientMapsContinuationRequestAndResponse(t *testing.T) {
 	}
 	if result.Text != `{"type":"final","content":"done"}` ||
 		result.FinishReason != continuation.FinishStop ||
+		result.Usage.PromptTokens != 12 ||
+		result.Usage.CompletionTokens != 4 ||
 		delta != result.Text {
 		t.Fatalf("result = %+v, delta = %q", result, delta)
 	}
 	if received.Model != "rwkv7-13b" ||
 		len(received.Contents) != 1 ||
 		received.Contents[0] != validRequest().Prompt ||
-		received.StopTokens == nil ||
 		received.MaxTokens != 321 ||
 		received.TopK != 12 ||
 		received.Password != "secret" ||
-		received.Stream {
+		!received.Stream ||
+		received.ChunkSize != 1 {
 		t.Fatalf("request = %+v", received)
+	}
+	if len(received.StopTokens) != 1 || received.StopTokens[0] != 0 {
+		t.Fatalf("server stop tokens = %v", received.StopTokens)
+	}
+	if _, exists := receivedFields["stop_tokens"]; !exists {
+		t.Fatal("request omitted explicit EOS stop token")
 	}
 	if accessID != "client-id" || accessSecret != "client-secret" {
 		t.Fatalf("access headers = %q, %q", accessID, accessSecret)
+	}
+}
+
+func TestClientAppliesDecodedTextStops(t *testing.T) {
+	t.Parallel()
+	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, _ *http.Request) {
+		writeSSE(
+			writer,
+			`{"choices":[{"index":0,"delta":{"content":"answer\nTo"}}]}`,
+			`{"choices":[{"index":0,"delta":{"content":"ol: ignored"}}]}`,
+		)
+	}))
+	defer server.Close()
+	client, err := New(Config{Endpoint: server.URL, Model: "rwkv7"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	request := validRequest()
+	request.Stops = []string{"\nUser:", "\nTool:"}
+	var delta string
+	result, err := client.Continue(
+		context.Background(),
+		request,
+		func(event continuation.Event) error {
+			delta += event.Text
+			return nil
+		},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Text != "answer" || delta != "answer" {
+		t.Fatalf("result = %+v, delta = %q", result, delta)
 	}
 }
 
@@ -153,7 +204,7 @@ func TestClientCancellationStopsRequest(t *testing.T) {
 func TestClientRejectsMalformedResponse(t *testing.T) {
 	t.Parallel()
 	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
-		_, _ = writer.Write([]byte(`{"choices":[]}`))
+		writeSSE(writer, `{"choices":[]}`)
 	}))
 	defer server.Close()
 	client, err := New(Config{Endpoint: server.URL, Model: "rwkv7"})
@@ -163,6 +214,14 @@ func TestClientRejectsMalformedResponse(t *testing.T) {
 	if _, err := client.Continue(context.Background(), validRequest(), nil); !errors.Is(err, ErrRemote) {
 		t.Fatalf("error = %v, want ErrRemote", err)
 	}
+}
+
+func writeSSE(writer http.ResponseWriter, chunks ...string) {
+	writer.Header().Set("Content-Type", "text/event-stream")
+	for _, chunk := range chunks {
+		_, _ = fmt.Fprintf(writer, "data: %s\n\n", chunk)
+	}
+	_, _ = fmt.Fprint(writer, "data: [DONE]\n\n")
 }
 
 type roundTripFunc func(*http.Request) (*http.Response, error)

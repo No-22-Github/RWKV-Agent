@@ -1,6 +1,7 @@
 package rwkvlightning
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"encoding/json"
@@ -67,7 +68,7 @@ type requestBody struct {
 	Model          string   `json:"model"`
 	Contents       []string `json:"contents"`
 	MaxTokens      int      `json:"max_tokens"`
-	StopTokens     []string `json:"stop_tokens"`
+	StopTokens     []int    `json:"stop_tokens"`
 	Temperature    float32  `json:"temperature"`
 	TopK           int      `json:"top_k"`
 	TopP           float32  `json:"top_p"`
@@ -75,17 +76,20 @@ type requestBody struct {
 	AlphaFrequency float32  `json:"alpha_frequency"`
 	AlphaDecay     float32  `json:"alpha_decay"`
 	Stream         bool     `json:"stream"`
+	ChunkSize      int      `json:"chunk_size"`
 	Password       string   `json:"password,omitempty"`
 }
 
-type responseBody struct {
+type streamBody struct {
 	Choices []struct {
-		Index   int `json:"index"`
-		Message struct {
+		Index int `json:"index"`
+		Delta struct {
 			Content string `json:"content"`
-		} `json:"message"`
+		} `json:"delta"`
 		FinishReason string `json:"finish_reason"`
 	} `json:"choices"`
+	Usage continuation.Usage `json:"usage"`
+	Error json.RawMessage    `json:"error"`
 }
 
 func (c *Client) Continue(
@@ -104,14 +108,15 @@ func (c *Client) Continue(
 		Model:          model,
 		Contents:       []string{request.Prompt},
 		MaxTokens:      request.MaxOutputTokens,
-		StopTokens:     append([]string{}, request.Stops...),
+		StopTokens:     []int{0},
 		Temperature:    request.Sampling.Temperature,
 		TopK:           request.Sampling.TopK,
 		TopP:           request.Sampling.TopP,
 		AlphaPresence:  request.Sampling.PresencePenalty,
 		AlphaFrequency: request.Sampling.FrequencyPenalty,
 		AlphaDecay:     request.Sampling.PenaltyDecay,
-		Stream:         false,
+		Stream:         true,
+		ChunkSize:      1,
 		Password:       c.password,
 	})
 	if err != nil {
@@ -140,14 +145,18 @@ func (c *Client) Continue(
 		return continuation.Result{}, fmt.Errorf("%w: request failed: %v", ErrRemote, err)
 	}
 	defer response.Body.Close()
-	body, err := io.ReadAll(io.LimitReader(response.Body, maxResponseBytes+1))
-	if err != nil {
-		return continuation.Result{}, fmt.Errorf("%w: read response: %v", ErrRemote, err)
-	}
-	if len(body) > maxResponseBytes {
-		return continuation.Result{}, fmt.Errorf("%w: response exceeded %d bytes", ErrRemote, maxResponseBytes)
-	}
 	if response.StatusCode < 200 || response.StatusCode >= 300 {
+		body, readErr := io.ReadAll(io.LimitReader(response.Body, maxResponseBytes+1))
+		if readErr != nil {
+			return continuation.Result{}, fmt.Errorf("%w: read error response: %v", ErrRemote, readErr)
+		}
+		if len(body) > maxResponseBytes {
+			return continuation.Result{}, fmt.Errorf(
+				"%w: error response exceeded %d bytes",
+				ErrRemote,
+				maxResponseBytes,
+			)
+		}
 		return continuation.Result{}, fmt.Errorf(
 			"%w: HTTP %d: %s",
 			ErrRemote,
@@ -155,35 +164,149 @@ func (c *Client) Continue(
 			safeResponseMessage(body, c.password),
 		)
 	}
-	var decoded responseBody
-	if err := json.Unmarshal(body, &decoded); err != nil {
-		return continuation.Result{}, fmt.Errorf("%w: decode response: %v", ErrRemote, err)
+	return readStreamResponse(ctx, response.Body, request.Stops, sink, c.password)
+}
+
+func readStreamResponse(
+	ctx context.Context,
+	body io.Reader,
+	stops []string,
+	sink continuation.EventSink,
+	secret string,
+) (continuation.Result, error) {
+	scanner := bufio.NewScanner(body)
+	scanner.Buffer(make([]byte, 64*1024), maxResponseBytes)
+	var result strings.Builder
+	pending := ""
+	finish := continuation.FinishUnknown
+	usage := continuation.Usage{}
+	sawChoice := false
+	sawDone := false
+	responseBytes := 0
+	emit := func(text string) error {
+		if text == "" {
+			return nil
+		}
+		result.WriteString(text)
+		if sink == nil {
+			return nil
+		}
+		return sink(continuation.Event{Kind: continuation.EventTextDelta, Text: text})
 	}
-	if len(decoded.Choices) == 0 {
-		return continuation.Result{}, fmt.Errorf("%w: response has no choices", ErrRemote)
-	}
-	choice := decoded.Choices[0]
-	for _, candidate := range decoded.Choices {
-		if candidate.Index == 0 {
-			choice = candidate
+	for scanner.Scan() {
+		line := scanner.Text()
+		responseBytes += len(line) + 1
+		if responseBytes > maxResponseBytes {
+			return continuation.Result{}, fmt.Errorf(
+				"%w: response exceeded %d bytes",
+				ErrRemote,
+				maxResponseBytes,
+			)
+		}
+		line = strings.TrimSpace(line)
+		if !strings.HasPrefix(line, "data:") {
+			continue
+		}
+		data := strings.TrimSpace(strings.TrimPrefix(line, "data:"))
+		if data == "[DONE]" {
+			sawDone = true
 			break
 		}
-	}
-	if sink != nil && choice.Message.Content != "" {
-		if err := sink(continuation.Event{
-			Kind: continuation.EventTextDelta,
-			Text: choice.Message.Content,
-		}); err != nil {
-			return continuation.Result{
-				Text:         choice.Message.Content,
-				FinishReason: continuation.FinishCancelled,
-			}, err
+		if data == "" {
+			continue
+		}
+		var chunk streamBody
+		if err := json.Unmarshal([]byte(data), &chunk); err != nil {
+			return continuation.Result{}, fmt.Errorf("%w: decode stream chunk: %v", ErrRemote, err)
+		}
+		if len(chunk.Error) != 0 && string(chunk.Error) != "null" {
+			return continuation.Result{}, fmt.Errorf(
+				"%w: stream error: %s",
+				ErrRemote,
+				safeResponseMessage(chunk.Error, secret),
+			)
+		}
+		if chunk.Usage != (continuation.Usage{}) {
+			usage = chunk.Usage
+		}
+		for _, choice := range chunk.Choices {
+			if choice.Index != 0 {
+				continue
+			}
+			sawChoice = true
+			if choice.FinishReason != "" {
+				finish = finishReason(choice.FinishReason)
+			}
+			pending += choice.Delta.Content
+			text, tail, stopped := splitAtStop(pending, stops)
+			if err := emit(text); err != nil {
+				return continuation.Result{
+					Text:         result.String(),
+					FinishReason: continuation.FinishCancelled,
+					Usage:        usage,
+				}, err
+			}
+			pending = tail
+			if stopped {
+				return continuation.Result{
+					Text:         result.String(),
+					FinishReason: continuation.FinishStop,
+					Usage:        usage,
+				}, nil
+			}
 		}
 	}
+	if err := scanner.Err(); err != nil {
+		if ctx.Err() != nil {
+			return continuation.Result{
+				Text:         result.String(),
+				FinishReason: continuation.FinishCancelled,
+				Usage:        usage,
+			}, ctx.Err()
+		}
+		return continuation.Result{}, fmt.Errorf("%w: read stream: %v", ErrRemote, err)
+	}
+	if !sawDone {
+		return continuation.Result{}, fmt.Errorf("%w: stream ended before [DONE]", ErrRemote)
+	}
+	if !sawChoice {
+		return continuation.Result{}, fmt.Errorf("%w: response has no choices", ErrRemote)
+	}
+	if err := emit(pending); err != nil {
+		return continuation.Result{
+			Text:         result.String(),
+			FinishReason: continuation.FinishCancelled,
+			Usage:        usage,
+		}, err
+	}
 	return continuation.Result{
-		Text:         choice.Message.Content,
-		FinishReason: finishReason(choice.FinishReason),
+		Text:         result.String(),
+		FinishReason: finish,
+		Usage:        usage,
 	}, nil
+}
+
+func splitAtStop(value string, stops []string) (string, string, bool) {
+	stopIndex := len(value)
+	for _, stop := range stops {
+		if index := strings.Index(value, stop); index >= 0 && index < stopIndex {
+			stopIndex = index
+		}
+	}
+	if stopIndex < len(value) {
+		return value[:stopIndex], "", true
+	}
+	tailBytes := 0
+	for _, stop := range stops {
+		limit := min(len(value), len(stop)-1)
+		for length := 1; length <= limit; length++ {
+			if length > tailBytes && strings.HasSuffix(value, stop[:length]) {
+				tailBytes = length
+			}
+		}
+	}
+	safeBytes := len(value) - tailBytes
+	return value[:safeBytes], value[safeBytes:], false
 }
 
 func safeResponseMessage(body []byte, secret string) string {

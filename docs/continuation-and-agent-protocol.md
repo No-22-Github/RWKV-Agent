@@ -111,7 +111,7 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 
 ./dist/rwkv-cli agent \
   --completion rwkv-lightning \
-  --api-url https://example.com/v1/chat/completions \
+  --api-url https://example.com/v1/batch/completions \
   --model rwkv7-13b \
   --api-header-env CF-Access-Client-Id=RWKV_CF_ACCESS_CLIENT_ID \
   --api-header-env CF-Access-Client-Secret=RWKV_CF_ACCESS_CLIENT_SECRET \
@@ -121,6 +121,11 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 
 远程 Agent 的工具仍在本机执行，但完整 prompt 会包含模型请求过的文件片段并发送到远程
 endpoint。选择远程续写即代表显式启用这条数据路径。
+
+`rwkv_lightning_cuda` 的 raw continuation endpoint 是 `/v1/batch/completions`。它直接接收
+`contents`，不会像 `/v1/chat/completions` 那样重新渲染 role 和 think 前缀。服务端
+`stop_tokens` 接受整数 token ID；客户端显式只发送 EOS `0`，避免服务默认 token 提前截断
+Full think，并继续以 decoded text 匹配协议 stop 序列。
 
 ## 5. 后续兼容层
 

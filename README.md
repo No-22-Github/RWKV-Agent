@@ -279,14 +279,18 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 
 ./dist/rwkv-cli agent \
   --completion rwkv-lightning \
-  --api-url https://example.com/v1/chat/completions \
+  --api-url https://example.com/v1/batch/completions \
   --model rwkv7-13b \
   --api-header-env CF-Access-Client-Id=RWKV_CF_ACCESS_CLIENT_ID \
   --api-header-env CF-Access-Client-Secret=RWKV_CF_ACCESS_CLIENT_SECRET \
   --workspace /absolute/path/to/project
 ```
 
-`--api-url` 是完整 endpoint，不会自动拼接 OpenAI 路径。密码默认从
+`--api-url` 是完整 endpoint，不会自动拼接 OpenAI 路径。新版
+`rwkv_lightning_cuda` 应使用保留原始 `contents` 的 `/v1/batch/completions`；不要使用会
+重新套 chat 模板和 think 前缀的 `/v1/chat/completions`。服务端 `stop_tokens` 是整数 token
+ID；客户端只发送 EOS `0`，避免服务默认 token 过早截断 Full think，并在响应中匹配项目的
+decoded-text stop 序列。密码默认从
 `RWKV_API_PASSWORD` 读取，也可用 `--api-password-env` 指定其他环境变量；服务没有请求体
 密码时可以不设置。`--api-header-env` 可重复使用，将部署层认证请求头绑定到环境变量，
 凭证不会进入命令行参数或配置文件。远程模型只会收到 Agent 组成的 prompt，但其中会包含
@@ -337,7 +341,7 @@ case 的多个 turn 共享 transcript/State。可以用可重复的 `--case` 跑
 ./dist/rwkv-cli agent-eval \
   --suite smoke \
   --completion rwkv-lightning \
-  --api-url https://example.com/v1/chat/completions \
+  --api-url https://example.com/v1/batch/completions \
   --model rwkv7-13b \
   --case read_exact_file \
   --case multi_turn_memory \
