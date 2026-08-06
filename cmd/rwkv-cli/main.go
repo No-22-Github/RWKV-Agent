@@ -43,6 +43,7 @@ type runOptions struct {
 	maxTokens         int
 	decisionMaxTokens int
 	routeMaxTokens    int
+	tracePromptBytes  int
 	temperature       float64
 	topK              int
 	topP              float64
@@ -217,6 +218,12 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		fs.IntVar(&options.decisionMaxTokens, "decision-max-tokens", 96, "maximum generated tokens for tool selection")
 		fs.IntVar(&options.routeMaxTokens, "route-max-tokens", 16, "maximum generated tokens for respond/inspect routing")
 		fs.BoolVar(&options.fewShot, "few-shot", false, "enable agent decision trajectory examples")
+		fs.IntVar(
+			&options.tracePromptBytes,
+			"trace-prompt-bytes",
+			agent.DefaultTracePromptBytes,
+			"per-prompt recording budget in trace output; 0 disables, negative records in full",
+		)
 		fs.StringVar(&options.completion, "completion", "local", "continuation provider: local or rwkv-lightning")
 		fs.StringVar(&options.apiURL, "api-url", "", "full rwkv_lightning continuation endpoint URL")
 		fs.StringVar(
@@ -551,6 +558,7 @@ func agentRunnerOptions(options runOptions, observe func(agent.Event)) agent.Opt
 		RouteRenderer:           agent.RWKVChatRenderer{},
 		RouteRetries:            1,
 		RouteMaxOutputTokens:    options.routeMaxTokens,
+		TracePromptBytes:        options.tracePromptBytes,
 		Generation: continuation.Request{
 			Model:           options.modelPath,
 			MaxOutputTokens: options.maxTokens,

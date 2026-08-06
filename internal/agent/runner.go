@@ -74,7 +74,15 @@ type Options struct {
 	RouteRenderer           PromptRenderer
 	RouteRetries            int
 	RouteMaxOutputTokens    int
+	// TracePromptBytes caps how much of each rendered prompt is recorded.
+	// Zero disables prompt recording entirely; a negative value records the
+	// full prompt with no cap.
+	TracePromptBytes int
 }
+
+// DefaultTracePromptBytes keeps a full boundary-sized prompt while bounding a
+// pathological workspace file from dominating the trace.
+const DefaultTracePromptBytes = 128 * 1024
 
 type ControlPromptMode string
 
@@ -102,9 +110,24 @@ type Event struct {
 	Err   error
 }
 
+// PromptTrace records exactly what was sent to the model for one generation.
+// Greedy decoding makes the prompt the only input that can explain an output
+// change, so a run without it cannot attribute a score move to a specific
+// harness change. Truncated is set when Bytes exceeded the recording budget.
+type PromptTrace struct {
+	Prompt          string   `json:"prompt"`
+	Bytes           int      `json:"bytes"`
+	Truncated       bool     `json:"truncated,omitempty"`
+	AssistantPrefix string   `json:"assistant_prefix,omitempty"`
+	Stops           []string `json:"stops,omitempty"`
+	MaxOutputTokens int      `json:"max_output_tokens,omitempty"`
+	ToolsOffered    []string `json:"tools_offered,omitempty"`
+}
+
 type Step struct {
 	Number          int                       `json:"number"`
 	Stage           GenerationStage           `json:"stage"`
+	Request         *PromptTrace              `json:"request,omitempty"`
 	ModelOutput     string                    `json:"model_output"`
 	FinishReason    continuation.FinishReason `json:"finish_reason"`
 	Usage           continuation.Usage        `json:"usage"`
@@ -120,9 +143,22 @@ type Step struct {
 	ProtocolError   string                    `json:"protocol_error,omitempty"`
 }
 
+// RouteStep records one routing attempt, including the retry a correction
+// triggers. The route prompt was previously invisible, so a route change could
+// not be traced to the history or instructions that caused it.
+type RouteStep struct {
+	Attempt       int          `json:"attempt"`
+	Request       *PromptTrace `json:"request,omitempty"`
+	ModelOutput   string       `json:"model_output"`
+	Route         Route        `json:"route,omitempty"`
+	ProtocolError string       `json:"protocol_error,omitempty"`
+	FailedClosed  bool         `json:"failed_closed,omitempty"`
+}
+
 type Result struct {
-	Output                 string     `json:"output"`
-	OriginalOutput         string     `json:"original_output"`
+	Output                 string      `json:"output"`
+	OriginalOutput         string      `json:"original_output"`
+	RouteSteps             []RouteStep `json:"route_steps,omitempty"`
 	AnswerContractRepaired bool       `json:"answer_contract_repaired,omitempty"`
 	AnswerViolations       []string   `json:"answer_violations,omitempty"`
 	Steps                  []Step     `json:"steps"`
@@ -324,7 +360,8 @@ func (r *Runner) RunWithObserver(
 		Route: RouteInspect,
 	}
 	if r.router != nil {
-		route, routeErr := r.decideRoute(ctx, history, task, observer)
+		route, routeSteps, routeErr := r.decideRoute(ctx, history, task, observer)
+		result.RouteSteps = routeSteps
 		if routeErr != nil {
 			return result, routeErr
 		}
@@ -404,6 +441,11 @@ func (r *Runner) RunWithObserver(
 		if assistantPrefix != "" {
 			request.Prompt += " " + assistantPrefix
 		}
+		var offered []string
+		if stage == StageDecision {
+			offered = r.offeredToolNames()
+		}
+		promptTrace := r.tracePrompt(request, assistantPrefix, offered)
 		generated, err := r.generator.Continue(ctx, request, nil)
 		if err != nil {
 			return result, err
@@ -411,6 +453,7 @@ func (r *Runner) RunWithObserver(
 		current := Step{
 			Number:       step,
 			Stage:        stage,
+			Request:      promptTrace,
 			ModelOutput:  generated.Text,
 			FinishReason: generated.FinishReason,
 			Usage:        generated.Usage,
@@ -526,6 +569,11 @@ func (r *Runner) RunWithObserver(
 		}
 		result.Steps[len(result.Steps)-1].ToolExecuted = executed
 		if executed {
+			// An argument error is rejected before the tool reaches the
+			// workspace, so it observed nothing and must not satisfy the
+			// evidence gate. Every other executed outcome did reach the
+			// workspace: a missing path or a runtime failure is a real
+			// observation the model may report.
 			toolEvidence := !errors.Is(err, ErrInvalidToolArguments)
 			result.Steps[len(result.Steps)-1].ToolEvidence = toolEvidence
 			if toolEvidence {
@@ -745,6 +793,55 @@ func toolFailureReminder(
 	return prompt.String()
 }
 
+// tracePrompt captures a generation request. The prompt is recorded verbatim up
+// to the configured budget so a greedy output change can be attributed to the
+// exact input that produced it.
+func (r *Runner) tracePrompt(
+	request continuation.Request,
+	assistantPrefix string,
+	toolsOffered []string,
+) *PromptTrace {
+	budget := r.options.TracePromptBytes
+	if budget == 0 {
+		return nil
+	}
+	prompt := request.Prompt
+	trace := &PromptTrace{
+		Bytes:           len(prompt),
+		AssistantPrefix: assistantPrefix,
+		MaxOutputTokens: request.MaxOutputTokens,
+		ToolsOffered:    toolsOffered,
+	}
+	if len(request.Stops) > 0 {
+		trace.Stops = append([]string{}, request.Stops...)
+	}
+	if budget > 0 && len(prompt) > budget {
+		// Keep the head and tail: the head carries the control prompt and tool
+		// list, the tail carries the most recent observation and the prefix.
+		head := budget / 2
+		tail := budget - head
+		prompt = prompt[:head] + "\n...[trace truncated]...\n" + prompt[len(prompt)-tail:]
+		trace.Truncated = true
+	}
+	trace.Prompt = prompt
+	return trace
+}
+
+// offeredToolNames lists the tools present in this run's registry. A change to
+// the tool list changes every decision prompt, which under greedy decoding can
+// move unrelated cases; recording it makes that attributable.
+func (r *Runner) offeredToolNames() []string {
+	if len(r.tools) == 0 {
+		return nil
+	}
+	names := make([]string, 0, len(r.tools))
+	for name := range r.tools {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	return names
+}
+
 func noWorkspaceEvidenceError() error {
 	return fmt.Errorf(
 		"%w: every tool call failed argument validation or was rejected; the turn was not committed",
@@ -757,51 +854,69 @@ func (r *Runner) decideRoute(
 	history []Message,
 	task string,
 	observer func(Event),
-) (Route, error) {
+) (Route, []RouteStep, error) {
 	r.observe(Event{Kind: EventRouteStart}, observer)
 	messages := []Message{{Role: RoleSystem, Content: r.router.Instructions()}}
 	messages = append(messages, routingHistory(history)...)
 	messages = append(messages, Message{Role: RoleUser, Content: task})
 
+	var steps []RouteStep
 	for attempt := 0; attempt <= r.options.RouteRetries; attempt++ {
 		rendered, err := r.routeRenderer.Render(messages)
 		if err != nil {
 			r.observe(Event{Kind: EventRouteDone, Err: err}, observer)
-			return "", err
+			return "", steps, err
 		}
 		request := r.options.Generation
 		request.Prompt = rendered + " <route>"
 		request.Stops = r.router.Stops()
 		request.MaxOutputTokens = r.options.RouteMaxOutputTokens
+		promptTrace := r.tracePrompt(request, "<route>", nil)
 		generated, err := r.generator.Continue(ctx, request, nil)
 		if err != nil {
+			steps = append(steps, RouteStep{
+				Attempt: attempt + 1,
+				Request: promptTrace,
+			})
 			r.observe(Event{Kind: EventRouteDone, Err: err}, observer)
-			return "", err
+			return "", steps, err
 		}
 		candidate := strings.TrimSpace(generated.Text)
 		if !strings.HasPrefix(candidate, "<route>") {
 			candidate = "<route>" + candidate
 		}
 		route, parseErr := r.router.Parse(candidate, generated.FinishReason)
-		if parseErr == nil {
-			r.observe(Event{Kind: EventRouteDone, Route: route}, observer)
-			return route, nil
+		current := RouteStep{
+			Attempt:     attempt + 1,
+			Request:     promptTrace,
+			ModelOutput: generated.Text,
 		}
+		if parseErr == nil {
+			current.Route = route
+			steps = append(steps, current)
+			r.observe(Event{Kind: EventRouteDone, Route: route}, observer)
+			return route, steps, nil
+		}
+		current.ProtocolError = parseErr.Error()
 		if attempt == r.options.RouteRetries {
+			current.Route = RouteRespond
+			current.FailedClosed = true
+			steps = append(steps, current)
 			r.observe(Event{
 				Kind:  EventRouteDone,
 				Route: RouteRespond,
 				Err:   parseErr,
 			}, observer)
-			return RouteRespond, nil
+			return RouteRespond, steps, nil
 		}
+		steps = append(steps, current)
 		messages = append(
 			messages,
 			Message{Role: RoleAssistant, Content: candidate},
 			Message{Role: RoleUser, Content: r.router.Correction(parseErr)},
 		)
 	}
-	return RouteRespond, nil
+	return RouteRespond, steps, nil
 }
 
 // History returns a copy of the committed multi-turn transcript. The control

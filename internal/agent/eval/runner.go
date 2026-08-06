@@ -116,6 +116,7 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 			AnswerMaxOutputTokens:   config.Runner.Generation.MaxOutputTokens,
 			DecisionMaxOutputTokens: config.Runner.DecisionMaxOutputTokens,
 			RouteMaxOutputTokens:    config.Runner.RouteMaxOutputTokens,
+			TracePromptBytes:        config.Runner.TracePromptBytes,
 		},
 		Sampling: samplingSnapshot(config.Runner.Generation.Sampling),
 		Environment: EnvironmentMetadata{

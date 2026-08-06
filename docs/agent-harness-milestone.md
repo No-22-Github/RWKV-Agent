@@ -159,6 +159,89 @@ A4 `boundary` 复测为任务 8/18、回答 10/18、route 18/18、协议 77/77�
 P1 或开放有副作用工具。Harness 继续只负责协议、权限、预算、执行、重复拒绝和提交策略；
 不增加题目关键词路由或任务特判来掩盖模型能力。
 
+### 2026-08-06：三个 Harness/工具层缺陷修复（分数尚未复测）
+
+对 `runs/api-13b-v8-boundary-20260805-latest/` 的 29 个 tool error 归因后，确认其中相当
+一部分不是模型能力问题。三处修复如下，均为确定性改动，没有引入题目关键词路由或任务特判。
+
+1. **证据判据错误分类（正确性缺陷，非评分问题）**。`workspace.resolve` 的
+   `path must be workspace-relative` 是裸 `fmt.Errorf`，没有包 `ErrInvalidToolArguments`，
+   因此被 `runner.go` 当成「到达过工作区的真实观察」点亮 `hasToolEvidence`，使
+   `ErrNoWorkspaceEvidence` 回滚失效。后果是 `pb_log_incident_root_cause` 与
+   `pb_markdown_release_notes` 各 5 次调用全失败、0 次成功，仍然提交了答案，后者编造出
+   `--migration-flag=2.4.0`。修复方式是把畸形路径归类为参数错误：参数错误在工具触达工作区
+   **之前**就被拒绝，没有观察到任何状态，不能作为回答依据；而缺失文件（`lstat`）和运行时
+   失败确实触达了工作区，仍然算可信观察。越界拒绝保持裸错误，因为「拒绝」本身是可报告的
+   观察，`path_escape_refusal` 的契约不变。
+2. **`/workspace` 前缀归一化**。模型看不到真实工作区根（临时目录），`/workspace` 是它能做
+   的最合理推断，而原错误文案没有给出正确形状，导致它连试 5 次直到预算耗尽。现在绝对路径
+   会映射到候选相对路径，**只接受归一化后确实存在于工作区内的候选**，并复用原有的包含性
+   检查。`/etc/hosts` 等真实越界照旧失败。错误文案改为给出修正后的路径形状。
+3. **`ComputeTools` 收窄为仅 `calculator`**。`structured_query` 表达不了 boundary 的多指标、
+   计算表达式和列选择聚合：`pb_csv_sum` 的 `sales.csv` 只有 `item,qty`，而求和列硬编码为
+   `amount/total/value/revenue/result`，**没有列参数**，该题在原契约下即使参数完美也必失败。
+   把它注册进 boundary 等于用工具契约替考掉被测的推理能力，因此撤出；boundary 任务改由
+   `read_file` + `calculator` 组合完成，`structured_query` 保持为 assistant suite 工具。
+
+用 trace 里的原始参数回放确认：两题的 `list_files{"path":"/workspace"}` 现在能拿到真实
+文件列表，`/workspace/logs`、`/workspace/project` 等不存在的目录照旧失败。**拿到证据不等于
+通过**，模型仍需读对文件并给出正确答案；但拿不到证据必然失败，且当时还会编造答案。
+
+新增测试：`TestWorkspaceToolsNormalizeNotionalAbsolutePaths`、
+`TestWorkspaceMalformedAbsolutePathIsArgumentError`、
+`TestRunnerRollsBackWhenOnlyMalformedPathsWereTried`。`go test ./...` 与
+`go test -race ./...` 通过。
+
+同日已用同一 `rwkv7-g1i-13.3b-20260805-ctx16384` 完成三套复测，详见
+`runs/api-13b-v9-evaluation-report-20260806.md`。**模型未变**，boundary 严格任务
+`8/18 -> 10/18`、答案 `9/18 -> 12/18`、工具错误 `29 -> 16`，模型调用次数不变（91），
+`assistant` 与 `smoke` 所有指标逐项不变，构成干净对照。
+
+最重要的实测结论与 A4 原假设相反：`structured_query` 不是没帮上忙，而是在主动制造错误答案。
+撤掉它后 `pb_jsonl_event_aggregate` 与 `pb_csv_reconcile_returns` 仅用 `read_file` 就答对，
+连 `calculator` 都没用——模型自己的算术是对的。原先有该工具时给出 `355.72`（应 `438.72`）
+和 `$1,499.50`（应 `1248.50`）。不合身的工具比没有工具更差。
+
+两个原先编造答案的 case 现在拿到真实证据并给出正确事实：`pb_markdown_release_notes` 由幻觉
+`--migration-flag=2.4.0` 变为正确的 `--enable-v2-auth`，`pb_log_incident_root_cause` 由占位符
+变为三项事实全对；两者仍因严格字符串格式判失败。8 个剩余失败中 4 个是判分口径（模型事实
+正确），4 个是真实模型失败，因此语义口径约 14/18、严格口径 10/18，两个数都要保留。
+
+必须记录的负面结果：`pb_eur_trip_card_vs_fx` 由 `2690.35` 退化到 `0.00`，
+`pb_missing_file_recover` 由通过转为判分失败（答案仍正确）。撤掉工具改变了工具清单，从而
+改变每个 case 的 decision prompt，在 greedy 下会改变轨迹——同一原因既带来 3 个修复也带来
+这两处退化。
+
+### 2026-08-06：trace 增加 prompt 粒度，并用它证实上述因果链
+
+原先 trace 只记录 `model_output`，不记录输入。在 greedy 解码下 prompt 是唯一能解释输出变化的
+输入，因此缺少它的 run 无法把分数变化归因到具体改动。现已落地：
+
+- `Step.Request` 记录每次生成的完整 prompt、字节数、assistant 预填、stop 串、
+  `max_output_tokens`，以及 decision 阶段的**工具清单**。
+- 新增 `Result.RouteSteps`，记录路由每一次尝试的 prompt、输出、解析错误与 fail-closed 标记；
+  路由 prompt 此前完全不可见。
+- `Options.TracePromptBytes` 控制预算：`0` 关闭，负值不截断，默认
+  `DefaultTracePromptBytes`（128 KiB）。超预算时保留头尾并标记 `truncated`，`bytes` 始终报告
+  截断前真实大小。CLI 暴露 `--trace-prompt-bytes`，取值写入 `run.json` 的 harness 元数据。
+
+同参数复跑 boundary 为 `10/18`，与未加 trace 的 run 逐项一致，证明记录本身不改变行为。
+18 题 trace 体积 0.7 MB。
+
+用它对 `pb_missing_file_recover` 做单题 A/B（唯一差异是工具注册表）：prompt
+`2622 -> 2263` 字节，在第 1505 字节处首次分歧，差异正是 `structured_query` 的 359 字节说明行；
+首个动作由 `search_text{path:"config.yaml", case_sensitive:true}` 变为
+`search_text{path:".", case_sensitive:false}`，两者答案都是正确的 `COBALT-7`，只是后者不再
+经过 rubric 要求的 `list_files`。
+
+因此该回退**不是能力退化，是工具清单变化在 greedy 下的轨迹漂移**，原先的推断已成为直接证据。
+推论：任何改动工具清单的实验都会连带移动无关 case 的分数，单题分数变化不能直接归因于该工具
+本身；此类改动今后须同时记录工具清单与 prompt 字节数。
+
+一个独立的测量口径问题待定：13 次 duplicate 是 Harness 正确拦下、`tool_executed=false`
+的调用，但严格序列判分把它们算作失败。smoke 4/10 而答案 11/11 全对，主要来自这个口径。
+是否把「被拒绝且未执行的调用」从序列判分中排除，需要单独决定。
+
 ## 3. 当前边界
 
 - Agent transcript 已支持进程内多轮提交和重置，但尚未接入不可变 Session bundle，

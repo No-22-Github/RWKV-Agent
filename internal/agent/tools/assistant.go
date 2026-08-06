@@ -93,10 +93,14 @@ func ComputeTools(options Options) ([]agent.Tool, error) {
 	if err != nil {
 		return nil, err
 	}
-	result := make([]agent.Tool, 0, 2)
+	result := make([]agent.Tool, 0, 1)
 	for _, tool := range all {
-		switch tool.Spec().Name {
-		case "calculator", "structured_query":
+		// calculator only. structured_query cannot express the boundary
+		// suite's multi-metric, computed and column-selecting aggregates, so
+		// registering it there replaces the reasoning under test with a tool
+		// contract instead of measuring it. Boundary tasks compose read_file
+		// with calculator; structured_query stays an assistant-suite tool.
+		if tool.Spec().Name == "calculator" {
 			result = append(result, tool)
 		}
 	}

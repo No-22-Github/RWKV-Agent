@@ -97,6 +97,7 @@ type HarnessMetadata struct {
 	AnswerMaxOutputTokens   int    `json:"answer_max_output_tokens"`
 	DecisionMaxOutputTokens int    `json:"decision_max_output_tokens"`
 	RouteMaxOutputTokens    int    `json:"route_max_output_tokens"`
+	TracePromptBytes        int    `json:"trace_prompt_bytes"`
 }
 
 type EnvironmentMetadata struct {

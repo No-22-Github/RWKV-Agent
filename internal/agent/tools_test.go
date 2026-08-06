@@ -6,6 +6,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -99,6 +100,75 @@ func TestWorkspaceToolsReadListAndSearch(t *testing.T) {
 		searchResult.Matches[0].Path != "docs/plan.md" ||
 		searchResult.Matches[0].Line != 1 {
 		t.Fatalf("matches = %+v", searchResult.Matches)
+	}
+}
+
+func TestWorkspaceToolsNormalizeNotionalAbsolutePaths(t *testing.T) {
+	t.Parallel()
+	root := t.TempDir()
+	if err := os.MkdirAll(filepath.Join(root, "logs"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(
+		filepath.Join(root, "logs", "deploy.log"), []byte("ERROR boom\n"), 0o644,
+	); err != nil {
+		t.Fatal(err)
+	}
+	tools, err := WorkspaceTools(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var read, list Tool
+	for _, tool := range tools {
+		switch tool.Spec().Name {
+		case "read_file":
+			read = tool
+		case "list_files":
+			list = tool
+		}
+	}
+	for _, path := range []string{
+		"/workspace/logs/deploy.log",
+		"/logs/deploy.log",
+		"/workspace/workspace/logs/deploy.log",
+		filepath.Join(root, "logs", "deploy.log"),
+	} {
+		arguments := json.RawMessage(`{"path":` + strconv.Quote(path) + `}`)
+		value, err := read.Execute(context.Background(), arguments)
+		if err != nil {
+			t.Fatalf("read_file(%q) error = %v, want normalized success", path, err)
+		}
+		if content := value.(readFileResult).Content; !strings.Contains(content, "ERROR boom") {
+			t.Fatalf("read_file(%q) content = %q", path, content)
+		}
+	}
+	if _, err := list.Execute(
+		context.Background(), json.RawMessage(`{"path":"/workspace/logs"}`),
+	); err != nil {
+		t.Fatalf("list_files absolute error = %v, want normalized success", err)
+	}
+}
+
+func TestWorkspaceMalformedAbsolutePathIsArgumentError(t *testing.T) {
+	t.Parallel()
+	tools, err := WorkspaceTools(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	var read Tool
+	for _, tool := range tools {
+		if tool.Spec().Name == "read_file" {
+			read = tool
+		}
+	}
+	// A path that cannot be normalized onto an existing workspace entry must be
+	// an argument error so it never counts as workspace evidence.
+	_, err = read.Execute(context.Background(), json.RawMessage(`{"path":"/etc/hosts"}`))
+	if !errors.Is(err, ErrInvalidToolArguments) {
+		t.Fatalf("error = %v, want ErrInvalidToolArguments", err)
+	}
+	if !strings.Contains(err.Error(), "workspace-relative") {
+		t.Fatalf("error = %v, want the corrected path shape", err)
 	}
 }
 

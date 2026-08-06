@@ -710,6 +710,199 @@ func TestToolContinuationRetainsEarlierTurns(t *testing.T) {
 	}
 }
 
+// A turn whose every tool call was rejected for a malformed path observed no
+// workspace state. It must roll back instead of letting the model answer from
+// nothing, which is how an unsupported value reached a committed answer before.
+func TestRunnerRecordsPromptTraceForEveryGeneration(t *testing.T) {
+	t.Parallel()
+	root := t.TempDir()
+	if err := os.WriteFile(
+		filepath.Join(root, "answer.txt"), []byte("BLUEBIRD\n"), 0o644,
+	); err != nil {
+		t.Fatal(err)
+	}
+	tools, err := WorkspaceTools(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	outputs := []continuation.Result{
+		{Text: "<route>inspect</route>", FinishReason: continuation.FinishStop},
+		{
+			Text:         `<tool_call>{"name":"read_file","arguments":{"path":"answer.txt"}}</tool_call>`,
+			FinishReason: continuation.FinishStop,
+		},
+		{Text: "BLUEBIRD", FinishReason: continuation.FinishStop},
+	}
+	calls := 0
+	runner, err := NewRunner(
+		continuation.GenerateFunc(func(
+			context.Context,
+			continuation.Request,
+			continuation.EventSink,
+		) (continuation.Result, error) {
+			result := outputs[calls]
+			calls++
+			return result, nil
+		}),
+		tools,
+		Options{
+			MaxSteps:         3,
+			Router:           G1IRouteProtocol{},
+			RouteRenderer:    RWKVChatRenderer{},
+			RouteRetries:     1,
+			TracePromptBytes: DefaultTracePromptBytes,
+		},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "Read answer.txt.")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(result.RouteSteps) != 1 {
+		t.Fatalf("route steps = %+v, want 1", result.RouteSteps)
+	}
+	route := result.RouteSteps[0]
+	if route.Request == nil || route.Request.Prompt == "" ||
+		route.Request.Bytes != len(route.Request.Prompt) ||
+		route.Route != RouteInspect {
+		t.Fatalf("route trace = %+v", route)
+	}
+	for _, step := range result.Steps {
+		if step.Request == nil || step.Request.Prompt == "" {
+			t.Fatalf("step %d has no prompt trace: %+v", step.Number, step)
+		}
+		if step.Request.Bytes != len(step.Request.Prompt) {
+			t.Fatalf("step %d byte count disagrees with prompt", step.Number)
+		}
+	}
+	// The tool list must be recorded on decision steps: changing it changes
+	// every decision prompt, which under greedy decoding moves other cases.
+	decision := result.Steps[0]
+	if len(decision.Request.ToolsOffered) != 3 {
+		t.Fatalf("tools offered = %v, want 3 workspace tools", decision.Request.ToolsOffered)
+	}
+	if decision.Request.MaxOutputTokens == 0 && decision.Request.Stops == nil {
+		t.Fatalf("decision trace lost sampling context: %+v", decision.Request)
+	}
+}
+
+func TestRunnerPromptTraceRespectsBudget(t *testing.T) {
+	t.Parallel()
+	for _, testCase := range []struct {
+		name      string
+		budget    int
+		wantNil   bool
+		truncated bool
+	}{
+		{"disabled", 0, true, false},
+		{"tiny budget truncates", 64, false, true},
+		{"unlimited", -1, false, false},
+	} {
+		t.Run(testCase.name, func(t *testing.T) {
+			runner, err := NewRunner(
+				continuation.GenerateFunc(func(
+					context.Context,
+					continuation.Request,
+					continuation.EventSink,
+				) (continuation.Result, error) {
+					return continuation.Result{
+						Text:         "done",
+						FinishReason: continuation.FinishStop,
+					}, nil
+				}),
+				nil,
+				Options{MaxSteps: 2, TracePromptBytes: testCase.budget},
+			)
+			if err != nil {
+				t.Fatal(err)
+			}
+			result, err := runner.Run(context.Background(), strings.Repeat("task ", 200))
+			if err != nil {
+				t.Fatal(err)
+			}
+			trace := result.Steps[0].Request
+			if testCase.wantNil {
+				if trace != nil {
+					t.Fatalf("budget 0 still recorded a prompt: %+v", trace)
+				}
+				return
+			}
+			if trace == nil {
+				t.Fatal("prompt trace missing")
+			}
+			if trace.Truncated != testCase.truncated {
+				t.Fatalf("truncated = %v, want %v", trace.Truncated, testCase.truncated)
+			}
+			// Bytes always reports the true pre-truncation size.
+			if trace.Bytes < len(trace.Prompt) && !trace.Truncated {
+				t.Fatalf("bytes %d < prompt %d without truncation", trace.Bytes, len(trace.Prompt))
+			}
+			if testCase.truncated && !strings.Contains(trace.Prompt, "trace truncated") {
+				t.Fatalf("truncated prompt lacks marker: %q", trace.Prompt)
+			}
+		})
+	}
+}
+
+func TestRunnerRollsBackWhenOnlyMalformedPathsWereTried(t *testing.T) {
+	t.Parallel()
+	root := t.TempDir()
+	if err := os.WriteFile(
+		filepath.Join(root, "notes.md"), []byte("--enable-v2-auth\n"), 0o644,
+	); err != nil {
+		t.Fatal(err)
+	}
+	tools, err := WorkspaceTools(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	outputs := []continuation.Result{
+		{
+			Text:         `<tool_call>{"name":"search_text","arguments":{"query":"flag","path":"/nowhere/deep"}}</tool_call>`,
+			FinishReason: continuation.FinishStop,
+		},
+		{
+			Text:         `<tool_call>{"name":"list_files","arguments":{"path":"/nowhere/other"}}</tool_call>`,
+			FinishReason: continuation.FinishStop,
+		},
+		{Text: "The required flag is --migration-flag=2.4.0", FinishReason: continuation.FinishStop},
+	}
+	calls := 0
+	runner, err := NewRunner(
+		continuation.GenerateFunc(func(
+			context.Context,
+			continuation.Request,
+			continuation.EventSink,
+		) (continuation.Result, error) {
+			result := outputs[calls]
+			calls++
+			return result, nil
+		}),
+		tools,
+		Options{MaxSteps: 3},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "Find the required migration flag.")
+	if !errors.Is(err, ErrNoWorkspaceEvidence) {
+		t.Fatalf("error = %v, want ErrNoWorkspaceEvidence", err)
+	}
+	if result.Output != "" {
+		t.Fatalf("ungrounded answer was committed: %q", result.Output)
+	}
+	for index, step := range result.Steps {
+		if step.ToolEvidence {
+			t.Fatalf("step %d marked a rejected path as evidence: %+v", index, step)
+		}
+	}
+	if history := runner.History(); len(history) != 0 {
+		t.Fatalf("rolled-back turn contaminated history: %+v", history)
+	}
+}
+
 func TestRunnerRejectsForcedAnswerWithoutWorkspaceEvidence(t *testing.T) {
 	t.Parallel()
 	outputs := []continuation.Result{

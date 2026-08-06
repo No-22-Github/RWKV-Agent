@@ -359,6 +359,41 @@ rwkv-cli agent-eval --model rwkv-g1i-13b-4922 --suite boundary \
 - 结果写入 `runs/`，并在 `docs/agent-harness-milestone.md` 追加一段实测记录。
 - 5 个算术/聚合失败至少通过 3 个。**没达到就先别做 P1**，说明工具设计有问题。
 
+### 2026-08-06 修订：`structured_query` 撤出 boundary
+
+A4 的 0/5 结论中，3 题（`pb_csv_sum`、`pb_jsonl_event_aggregate`、
+`pb_csv_reconcile_returns`）的失败原因是 `structured_query` 表达力不足，而不是模型不会拆解：
+trace 显示模型意图每次都正确，是工具没有对应参数。`pb_csv_sum` 尤其明确——`sales.csv` 只有
+`item,qty`，求和列硬编码为 `amount/total/value/revenue/result`，没有列参数，该题在原契约下
+无论参数怎么写都必失败。
+
+面对这个事实有两条路：加宽 `structured_query`，或让它退出 boundary。**选择后者。**理由是
+boundary 这条轨道的存在意义就是测深度推理（第 1 节：`boundary` 回答「补数据之后 13B 是不是
+变强了」），用一个能直接表达复合聚合的工具去覆盖它，等于把要考的东西替考掉，而且 A4
+「只加确定性工具、架构不动」的干净因果口径也会被破坏。boundary 任务改由 `read_file` +
+`calculator` 组合完成，考的是模型能不能把任务拆成正确表达式——这正是报告指出的真实弱项。
+
+因此 A4 门槛的含义随之收窄：它现在只检验 `calculator` 能不能消掉纯算术失败
+（`pb_loc_interest_8_months`、`pb_eur_trip_card_vs_fx`、`pb_fx_column_trap`），
+另外 2 题的聚合能力改为在 assistant suite 用 `structured_query` 单独衡量。**5 题至少过 3
+的原门槛不再适用于同一集合**，新门槛在复测后重定。`structured_query` 保持窄契约，
+不为提分加宽。
+
+### 2026-08-06 复测结果：A4 由 0/5 升至 2/5
+
+详见 `runs/api-13b-v9-evaluation-report-20260806.md`。同一模型、同一 profile 下，A4 指定 5 题
+`0/5 -> 2/5`，仍未达到原定 `>=3/5`。
+
+实测推翻了本节的一个隐含前提。原判断是「模型算术不可靠，所以交给确定性工具」，但
+`pb_jsonl_event_aggregate` 和 `pb_csv_reconcile_returns` 在**撤掉** `structured_query` 后仅用
+`read_file` 就答对了，连 `calculator` 都没调用——模型自己的算术本来是对的，是不合身的工具把
+它带偏了。因此第 2 节「所有精确执行交给确定性工具」需要补一条边界：**工具只有在能精确表达
+任务时才优于模型直算；表达不了的工具会主动制造错误答案。**
+
+仍失败的 3 题里，`pb_eur_trip_card_vs_fx` 和 `pb_fx_column_trap` **根本没有调用**
+`calculator`。所以当前瓶颈不是「确定性工具算不对」，而是「模型不去用工具，或用了但表达式
+拆错」。下一轮训练优先级应是「该算的时候去调工具」，而不是继续加工具。
+
 ## Commit A5：输出预算与答案结构校验
 
 ### 修改

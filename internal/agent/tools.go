@@ -80,12 +80,86 @@ func newWorkspace(root string) (*workspace, error) {
 	return &workspace{root: filepath.Clean(resolved)}, nil
 }
 
+// absoluteCandidates maps a model-supplied absolute path onto the relative
+// paths it plausibly meant. The model never sees the real workspace root, so it
+// commonly anchors paths at a notional "/workspace". Candidates are ordered
+// most literal first; resolve only accepts one that both stays inside the
+// workspace and actually exists, so a genuine escape such as "/etc/hosts" still
+// fails.
+func (w *workspace) absoluteCandidates(path string) []string {
+	trimmed := filepath.ToSlash(path)
+	if volume := filepath.VolumeName(path); volume != "" {
+		trimmed = strings.TrimPrefix(trimmed, filepath.ToSlash(volume))
+	}
+	if root := filepath.ToSlash(w.root); strings.HasPrefix(trimmed, root+"/") {
+		trimmed = strings.TrimPrefix(trimmed, root+"/")
+	}
+	trimmed = strings.TrimLeft(trimmed, "/")
+	if trimmed == "" {
+		return []string{"."}
+	}
+	candidates := []string{trimmed}
+	for _, notional := range []string{"workspace", filepath.Base(w.root)} {
+		for {
+			if trimmed == notional {
+				trimmed = "."
+			} else if strings.HasPrefix(trimmed, notional+"/") {
+				trimmed = strings.TrimPrefix(trimmed, notional+"/")
+			} else {
+				break
+			}
+			candidates = append(candidates, trimmed)
+			if trimmed == "." {
+				break
+			}
+		}
+	}
+	return candidates
+}
+
 func (w *workspace) resolve(path string) (string, error) {
 	if path == "" {
 		path = "."
 	}
 	if filepath.IsAbs(path) || filepath.VolumeName(path) != "" {
-		return "", fmt.Errorf("path must be workspace-relative")
+		// An absolute path that already points inside the workspace is accepted
+		// after the same containment check as any relative path. Symlinks are
+		// evaluated first so a link form of the root (macOS /var) still matches.
+		if resolved, err := filepath.EvalSymlinks(path); err == nil {
+			if relative, err := filepath.Rel(w.root, resolved); err == nil &&
+				relative != ".." &&
+				!strings.HasPrefix(relative, ".."+string(filepath.Separator)) {
+				return resolved, nil
+			}
+		}
+		candidates := w.absoluteCandidates(path)
+		for _, candidate := range candidates {
+			resolved, err := w.resolveRelative(candidate)
+			if err != nil {
+				continue
+			}
+			if _, err := os.Lstat(resolved); err != nil {
+				continue
+			}
+			return resolved, nil
+		}
+		// A malformed path argument is rejected before the tool reads anything,
+		// so it must be classified as an argument error: it observed no
+		// workspace state and cannot ground an answer. Escapes stay a plain
+		// error because a refusal is itself a reportable observation.
+		return "", fmt.Errorf(
+			"%w: path must be workspace-relative, such as %q; got absolute path %q",
+			ErrInvalidToolArguments,
+			candidates[len(candidates)-1],
+			path,
+		)
+	}
+	return w.resolveRelative(path)
+}
+
+func (w *workspace) resolveRelative(path string) (string, error) {
+	if path == "" {
+		path = "."
 	}
 	clean := filepath.Clean(path)
 	if clean == ".." || strings.HasPrefix(clean, ".."+string(filepath.Separator)) {
