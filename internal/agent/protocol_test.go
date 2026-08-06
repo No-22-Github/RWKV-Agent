@@ -140,8 +140,8 @@ func TestG1IProtocolAddsFewShotDecisionTrajectories(t *testing.T) {
 		Description: "Read a file.",
 		Arguments:   `{"path":"relative file path"}`,
 	}}
-	baseline := (G1IProtocol{}).Instructions(specs)
-	fewShot := (G1IProtocol{FewShot: true}).Instructions(specs)
+	baseline := (G1IProtocol{}).Instructions(specs, inference.ThinkingOff)
+	fewShot := (G1IProtocol{FewShot: true}).Instructions(specs, inference.ThinkingOff)
 	if strings.Contains(baseline, "Additional complete decision trajectories") {
 		t.Fatalf("baseline unexpectedly contains few-shot trajectories: %q", baseline)
 	}
@@ -165,6 +165,46 @@ func TestG1IProtocolAddsFewShotDecisionTrajectories(t *testing.T) {
 	}
 }
 
+func TestG1IProtocolUsesThinkingModeAwareControl(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name     string
+		mode     inference.ThinkingMode
+		want     string
+		unwanted string
+	}{
+		{
+			name:     "off",
+			mode:     inference.ThinkingOff,
+			want:     "Do not emit <think>",
+			unwanted: "Assistant prefix ends with",
+		},
+		{
+			name:     "fast",
+			mode:     inference.ThinkingFast,
+			want:     "prefix ends with <think></think and leaves its final >",
+			unwanted: "think inside the current block",
+		},
+		{
+			name:     "full",
+			mode:     inference.ThinkingFull,
+			want:     "prefix ends with <think and leaves its final >",
+			unwanted: "Do not emit <think>",
+		},
+	}
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+			instructions := (G1IProtocol{}).Instructions(nil, test.mode)
+			if !strings.Contains(instructions, test.want) ||
+				strings.Contains(instructions, test.unwanted) {
+				t.Fatalf("instructions = %q", instructions)
+			}
+		})
+	}
+}
+
 func TestG1IProtocolPreparesAnswerWithFullToolTranscript(t *testing.T) {
 	t.Parallel()
 	protocol := G1IProtocol{}
@@ -175,7 +215,7 @@ func TestG1IProtocolPreparesAnswerWithFullToolTranscript(t *testing.T) {
 		{Role: RoleTool, Content: `<tool_result>{"result":"first"}</tool_result>`},
 		{Role: RoleAssistant, Content: `<tool_call>{"name":"read_file","arguments":{"path":"b"}}</tool_call>`},
 		{Role: RoleTool, Content: `<tool_result>{"result":"second"}</tool_result>`},
-	}, nil)
+	}, nil, inference.ThinkingOff)
 	if prefix != "<answer>" || len(messages) != 7 {
 		t.Fatalf("prepared messages=%+v prefix=%q", messages, prefix)
 	}
@@ -201,8 +241,8 @@ func TestG1IProtocolPreparesAnswerWithFullToolTranscript(t *testing.T) {
 
 func TestG1IProtocolAddsFewShotOutputContractsToForcedAnswer(t *testing.T) {
 	t.Parallel()
-	baseline, _ := (G1IProtocol{}).PrepareAnswer(nil, nil)
-	fewShot, _ := (G1IProtocol{FewShot: true}).PrepareAnswer(nil, nil)
+	baseline, _ := (G1IProtocol{}).PrepareAnswer(nil, nil, inference.ThinkingOff)
+	fewShot, _ := (G1IProtocol{FewShot: true}).PrepareAnswer(nil, nil, inference.ThinkingOff)
 	if strings.Contains(baseline[0].Content, "Output-contract examples") ||
 		!strings.Contains(fewShot[0].Content, "Answer with only the flag") ||
 		!strings.Contains(fewShot[0].Content, "SKU-17 1248.50") {
@@ -210,9 +250,53 @@ func TestG1IProtocolAddsFewShotOutputContractsToForcedAnswer(t *testing.T) {
 	}
 }
 
+func TestG1IProtocolUsesThinkingModeAwareForcedAnswerControl(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name     string
+		mode     inference.ThinkingMode
+		want     string
+		unwanted string
+	}{
+		{
+			name:     "off",
+			mode:     inference.ThinkingOff,
+			want:     "opening <answer> tag is already supplied",
+			unwanted: "Assistant prefix ends with",
+		},
+		{
+			name:     "fast",
+			mode:     inference.ThinkingFast,
+			want:     "prefix ends with <think></think and leaves its final >",
+			unwanted: "opening <answer> tag is already supplied",
+		},
+		{
+			name:     "full",
+			mode:     inference.ThinkingFull,
+			want:     "think inside the current block, close it with </think>",
+			unwanted: "Do not expose hidden reasoning",
+		},
+	}
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+			messages, _ := (G1IProtocol{}).PrepareAnswer(nil, nil, test.mode)
+			control := messages[0].Content
+			if !strings.Contains(control, test.want) || strings.Contains(control, test.unwanted) {
+				t.Fatalf("control = %q", control)
+			}
+		})
+	}
+}
+
 func TestG1IProtocolListsUnverifiedFactsInAnswerStage(t *testing.T) {
 	t.Parallel()
-	messages, _ := (G1IProtocol{}).PrepareAnswer(nil, []string{"fx_convert", "weather"})
+	messages, _ := (G1IProtocol{}).PrepareAnswer(
+		nil,
+		[]string{"fx_convert", "weather"},
+		inference.ThinkingOff,
+	)
 	last := messages[len(messages)-1].Content
 	for _, fragment := range []string{"- fx_convert", "- weather", "Do not invent a value"} {
 		if !strings.Contains(last, fragment) {

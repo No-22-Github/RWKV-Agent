@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/no22/RWKV-Agent/internal/continuation"
+	"github.com/no22/RWKV-Agent/internal/inference"
 )
 
 func TestRunnerRequiresTwoStepsForToolConvergence(t *testing.T) {
@@ -132,6 +133,93 @@ func TestRunnerSupportsInlineControlPrompt(t *testing.T) {
 		!strings.Contains(prompt, "Repository task:\ntask") ||
 		!strings.HasSuffix(prompt, "Assistant:") {
 		t.Fatalf("prompt = %q", prompt)
+	}
+}
+
+func TestRunnerRendersThinkingModeAwareControlAndExactBoundary(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name        string
+		mode        inference.ThinkingMode
+		response    string
+		wantControl string
+		wantSuffix  string
+	}{
+		{
+			name:        "off",
+			mode:        inference.ThinkingOff,
+			response:    "done",
+			wantControl: "Do not emit <think>",
+			wantSuffix:  "Assistant:",
+		},
+		{
+			name:        "fast",
+			mode:        inference.ThinkingFast,
+			response:    ">done",
+			wantControl: "prefix ends with <think></think and leaves its final >",
+			wantSuffix:  "Assistant: <think></think",
+		},
+		{
+			name:        "full",
+			mode:        inference.ThinkingFull,
+			response:    ">plan</think>done",
+			wantControl: "prefix ends with <think and leaves its final >",
+			wantSuffix:  "Assistant: <think",
+		},
+	}
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+			for _, controlPrompt := range []ControlPromptMode{
+				ControlPromptSystem,
+				ControlPromptInline,
+			} {
+				var prompt string
+				runner, err := NewRunner(
+					continuation.GenerateFunc(func(
+						_ context.Context,
+						request continuation.Request,
+						_ continuation.EventSink,
+					) (continuation.Result, error) {
+						prompt = request.Prompt
+						return continuation.Result{
+							Text:         test.response,
+							FinishReason: continuation.FinishStop,
+						}, nil
+					}),
+					nil,
+					Options{
+						ControlPrompt: controlPrompt,
+						Renderer:      RWKVChatRenderer{ThinkingMode: test.mode},
+					},
+				)
+				if err != nil {
+					t.Fatal(err)
+				}
+				if _, err := runner.Run(context.Background(), "task"); err != nil {
+					t.Fatal(err)
+				}
+				if !strings.Contains(prompt, test.wantControl) ||
+					!strings.HasSuffix(prompt, test.wantSuffix) {
+					t.Fatalf("control=%s prompt=%q", controlPrompt, prompt)
+				}
+			}
+		})
+	}
+}
+
+func TestDirectResponseControlUsesThinkingModeBoundary(t *testing.T) {
+	t.Parallel()
+	fast := directResponseControl(inference.ThinkingFast)
+	full := directResponseControl(inference.ThinkingFull)
+	if !strings.Contains(fast, "prefix ends with <think></think and leaves its final >") ||
+		strings.Contains(fast, "think inside the current block") {
+		t.Fatalf("fast control = %q", fast)
+	}
+	if !strings.Contains(full, "prefix ends with <think and leaves its final >") ||
+		!strings.Contains(full, "close it with </think>") {
+		t.Fatalf("full control = %q", full)
 	}
 }
 

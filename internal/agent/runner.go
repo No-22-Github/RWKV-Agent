@@ -12,6 +12,7 @@ import (
 	"unicode"
 
 	"github.com/no22/RWKV-Agent/internal/continuation"
+	"github.com/no22/RWKV-Agent/internal/inference"
 )
 
 var (
@@ -22,11 +23,21 @@ var (
 	ErrNoWorkspaceEvidence  = errors.New("agent could not obtain workspace evidence")
 )
 
-const directResponseControl = `You are a helpful conversational assistant.
+func directResponseControl(mode inference.ThinkingMode) string {
+	prompt := `You are a helpful conversational assistant.
 Answer the current user message directly and naturally in the user's language.
 Use the committed conversation and general knowledge.
 Workspace tools are unavailable for this turn. Do not claim to have inspected files.
-Do not output tool calls, role labels, or hidden reasoning.`
+`
+	switch mode {
+	case inference.ThinkingFast:
+		return prompt + "The Assistant prefix ends with <think></think and leaves its final > for you. Generate > first, then answer directly. Do not open another <think> block, output tool calls, or emit role labels."
+	case inference.ThinkingFull:
+		return prompt + "The Assistant prefix ends with <think and leaves its final > for you. Generate > first, think inside the current block, close it with </think>, then answer directly. Do not open another <think> block, output tool calls, or emit role labels."
+	default:
+		return prompt + "Do not output tool calls, role labels, or hidden reasoning."
+	}
+}
 
 const postToolDecisionReminder = `Use the Tool results above to continue the current task.
 If the evidence is sufficient, answer now. Call another tool only for a specific missing fact.
@@ -197,6 +208,7 @@ type Runner struct {
 	renderer        PromptRenderer
 	control         string
 	responseControl string
+	thinkingMode    inference.ThinkingMode
 	router          RouteProtocol
 	routeRenderer   PromptRenderer
 
@@ -290,7 +302,8 @@ func NewRunner(generator continuation.Generator, tools []Tool, options Options) 
 	sort.Slice(specs, func(left, right int) bool {
 		return specs[left].Name < specs[right].Name
 	})
-	responseControl := directResponseControl
+	thinkingMode := rendererThinkingMode(options.Renderer)
+	responseControl := directResponseControl(thinkingMode)
 	if len(specs) > 0 {
 		var capabilities strings.Builder
 		capabilities.WriteString(
@@ -307,11 +320,23 @@ func NewRunner(generator continuation.Generator, tools []Tool, options Options) 
 		options:         options,
 		protocol:        options.Protocol,
 		renderer:        options.Renderer,
-		control:         options.Protocol.Instructions(specs),
+		control:         options.Protocol.Instructions(specs, thinkingMode),
 		responseControl: responseControl,
+		thinkingMode:    thinkingMode,
 		router:          options.Router,
 		routeRenderer:   options.RouteRenderer,
 	}, nil
+}
+
+func rendererThinkingMode(renderer PromptRenderer) inference.ThinkingMode {
+	switch renderer := renderer.(type) {
+	case RWKVChatRenderer:
+		return renderer.thinkingMode()
+	case *RWKVChatRenderer:
+		return renderer.thinkingMode()
+	default:
+		return inference.ThinkingOff
+	}
 }
 
 func applyGenerationDefaults(request *continuation.Request) {
@@ -411,7 +436,11 @@ func (r *Runner) RunWithObserver(
 			if !hasToolEvidence {
 				return result, noWorkspaceEvidenceError()
 			}
-			answerMessages, prefix := r.protocol.PrepareAnswer(messages, unverified)
+			answerMessages, prefix := r.protocol.PrepareAnswer(
+				messages,
+				unverified,
+				r.thinkingMode,
+			)
 			if len(answerMessages) == 0 || strings.TrimSpace(prefix) == "" {
 				return result, fmt.Errorf(
 					"%w: protocol did not prepare an answer stage",
