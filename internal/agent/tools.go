@@ -193,6 +193,17 @@ func (t *listFilesTool) Spec() ToolSpec {
 		Name:        "list_files",
 		Description: "List files and directories below a workspace-relative path. Generated and VCS directories are skipped.",
 		Arguments:   `{"path":"optional relative directory","max_depth":"integer 1..8","max_results":"integer 1..500"}`,
+		Parameters: json.RawMessage(`{
+			"type":"object",
+			"properties":{
+				"path":{"type":["string","null"],"description":"Optional workspace-relative directory."},
+				"max_depth":{"type":["integer","null"],"minimum":1,"maximum":8},
+				"max_results":{"type":["integer","null"],"minimum":1,"maximum":500}
+			},
+			"required":["path","max_depth","max_results"],
+			"additionalProperties":false
+		}`),
+		Strict: true,
 	}
 }
 
@@ -290,6 +301,13 @@ func (t *readFileTool) Spec() ToolSpec {
 		Name:        "read_file",
 		Description: "Read one UTF-8 text file inside the workspace, up to 64 KiB.",
 		Arguments:   `{"path":"relative file path"}`,
+		Parameters: json.RawMessage(`{
+			"type":"object",
+			"properties":{"path":{"type":"string","description":"Workspace-relative file path."}},
+			"required":["path"],
+			"additionalProperties":false
+		}`),
+		Strict: true,
 	}
 }
 
@@ -360,6 +378,18 @@ func (t *searchTextTool) Spec() ToolSpec {
 		Name:        "search_text",
 		Description: "Search literal text in workspace files. Generated and VCS directories are skipped.",
 		Arguments:   `{"query":"literal text","path":"optional relative path","case_sensitive":"boolean","max_results":"integer 1..200"}`,
+		Parameters: json.RawMessage(`{
+			"type":"object",
+			"properties":{
+				"query":{"type":"string","description":"Literal text to search for."},
+				"path":{"type":["string","null"],"description":"Optional workspace-relative file or directory."},
+				"case_sensitive":{"type":["boolean","null"]},
+				"max_results":{"type":["integer","null"],"minimum":1,"maximum":200}
+			},
+			"required":["query","path","case_sensitive","max_results"],
+			"additionalProperties":false
+		}`),
+		Strict: true,
 	}
 }
 

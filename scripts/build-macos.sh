@@ -13,32 +13,38 @@ deployment_target="15.0"
 
 usage() {
   cat <<'EOF'
-Usage: ./scripts/build-macos.sh [--check]
+Usage: ./scripts/build-macos.sh [--check] [--with-chat-completions]
 
 Build the Apple Silicon macOS distribution.
 
 Options:
-  --check   Verify the local build environment without compiling.
-  -h        Show this help.
+  --check                    Verify the local build environment without compiling.
+  --with-chat-completions    Include the optional official OpenAI Go SDK adapter.
+  -h                         Show this help.
 EOF
 }
 
 check_only=0
-case "${1:-}" in
-  "")
-    ;;
-  --check)
-    check_only=1
-    ;;
-  -h|--help)
-    usage
-    exit 0
-    ;;
-  *)
-    usage >&2
-    exit 2
-    ;;
-esac
+with_chat_completions=0
+while (( $# > 0 )); do
+  case "$1" in
+    --check)
+      check_only=1
+      ;;
+    --with-chat-completions)
+      with_chat_completions=1
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      usage >&2
+      exit 2
+      ;;
+  esac
+  shift
+done
 
 if [[ "$(uname -s)" != "Darwin" || "$(uname -m)" != "arm64" ]]; then
   echo "This build currently requires an Apple Silicon Mac running macOS 15 or newer." >&2
@@ -108,8 +114,12 @@ cp "$source_dir/assets/rwkv_vocab_v20230424.txt" "$asset_dir/rwkv_vocab_v2023042
 
 (
   cd "$repo_root"
+  build_tags="mlx converter"
+  if (( with_chat_completions )); then
+    build_tags="$build_tags chatcompletions"
+  fi
   CGO_ENABLED=1 go build \
-    -tags "mlx converter" \
+    -tags "$build_tags" \
     -trimpath \
     -ldflags "-s -w" \
     -o "$dist_dir/rwkv-cli" \
@@ -138,6 +148,10 @@ cli_sha="$(shasum -a 256 "$dist_dir/rwkv-cli" | awk '{print $1}')"
 runtime_sha="$(shasum -a 256 "$dist_dir/librwkv_agent_runtime.dylib" | awk '{print $1}')"
 tokenizer_sha="$(shasum -a 256 "$asset_dir/rwkv_vocab_v20230424.txt" | awk '{print $1}')"
 metallib_sha="$(shasum -a 256 "$resource_dir/default.metallib" | awk '{print $1}')"
+chat_completions_manifest=false
+if (( with_chat_completions )); then
+  chat_completions_manifest=true
+fi
 
 printf '%s\n' \
   '{' \
@@ -146,6 +160,7 @@ printf '%s\n' \
   '  "runtime_abi_version": 2,' \
   "  \"go_version\": \"$go_version\"," \
   "  \"deployment_target\": \"$deployment_target\"," \
+  "  \"chat_completions\": $chat_completions_manifest," \
   '  "sha256": {' \
   "    \"rwkv-cli\": \"$cli_sha\"," \
   "    \"librwkv_agent_runtime.dylib\": \"$runtime_sha\"," \

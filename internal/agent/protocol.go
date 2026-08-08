@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/no22/RWKV-Agent/internal/continuation"
+	"github.com/no22/RWKV-Agent/internal/continuation/toolchat"
 	"github.com/no22/RWKV-Agent/internal/inference"
 )
 
@@ -412,10 +413,12 @@ const (
 )
 
 type Message struct {
-	Role       MessageRole
-	Content    string
-	Name       string
-	ToolCallID string
+	Role             MessageRole
+	Content          string
+	ReasoningContent string
+	Name             string
+	ToolCallID       string
+	ToolCalls        []toolchat.ToolCall
 }
 
 type PromptRenderer interface {

@@ -62,6 +62,18 @@ brew install cmake ninja go
 ./scripts/build-macos.sh
 ```
 
+默认产物只包含本地 RWKV 和纯续写 provider，不编译或链接 OpenAI SDK。需要调用上游
+Chat Completions 时使用可选构建：
+
+```sh
+./scripts/build-macos.sh --with-chat-completions
+```
+
+纯 Go 构建对应为 `go build ./cmd/rwkv-cli` 与
+`go build -tags chatcompletions ./cmd/rwkv-cli`。依赖仍由同一个 `go.mod` 锁定版本，但无 tag
+的二进制不含 SDK 代码；若在默认构建中选择 `--completion chat-completions`，CLI 会明确提示
+用 `-tags chatcompletions` 重建。
+
 构建脚本固定 `arm64` 和 `MACOSX_DEPLOYMENT_TARGET=15.0`，从固定 revision 构建带直接
 PTH 入口的 MLX FFI，并验证 dylib、rpath、Metal resource、deployment target 和 CLI
 help smoke test。缺少 submodule 时会自动初始化。首次构建会拉取 MLX Swift 依赖，后续
@@ -296,8 +308,99 @@ decoded-text stop 序列。密码默认从
 凭证不会进入命令行参数或配置文件。远程模型只会收到 Agent 组成的 prompt，但其中会包含
 模型主动读取的本地文件片段。
 
-只有以 `<tool_call>` 开头的输出会进入严格 envelope/JSON 解析；其余正常文本是最终
-回答。畸形工具控制帧只重试一次，之后明确失败。动作协议、RWKV prompt 渲染器和续写
+使用上游 OpenAI-compatible Chat Completions 接口测试其他模型：
+
+```sh
+export OPENAI_API_KEY='...'
+
+./dist/rwkv-cli agent \
+  --completion chat-completions \
+  --api-url https://example.com/v1/chat/completions \
+  --model other-model \
+  --workspace /absolute/path/to/project \
+  --prompt "阅读 README 并概括项目"
+```
+
+对于默认启用隐藏推理、且隐藏推理与正文共享输出预算的服务，应显式关闭上游思考，
+避免短路由和工具控制帧在产出正文前耗尽 token。例如 DeepSeek V4-Flash：
+
+```sh
+export DEEPSEEK_API_KEY='...'
+
+./dist/rwkv-cli agent \
+  --completion chat-completions \
+  --api-url https://api.deepseek.com/v1/chat/completions \
+  --api-key-env DEEPSEEK_API_KEY \
+  --model deepseek-v4-flash \
+  --chat-thinking disabled \
+  --chat-prompt-mode native-chat \
+  --chat-token-limit-field max-tokens \
+  --workspace /absolute/path/to/project \
+  --prompt "阅读 README 并概括项目"
+```
+
+`chat-completions` 由官方 `github.com/openai/openai-go/v3` SDK 实现，并通过
+`chatcompletions` build tag 与默认发行包隔离。它是外层兼容适配器，不改变本地
+continuation 和 G1I 基线，并支持两种
+prompt transport：
+
+- `--chat-prompt-mode native-chat` 是默认值。它传递真正的 system/user/assistant 消息，并按
+  Chat Completions 原生协议发送 `tools`。模型调用工具时必须返回 `assistant.tool_calls` 和
+  `finish_reason: "tool_calls"`；本地执行后，下一轮使用匹配的 `role: "tool"` 与
+  `tool_call_id` 回传 JSON 结果。
+- `--chat-prompt-mode wrapped-continuation` 是不支持原生工具的兼容回退。它把 Runner 渲染的
+  完整 prompt 放进一个 user message，并继续使用项目自有 G1I 文本控制帧。
+
+原生模式将工具参数声明为 JSON Schema；能满足 Structured Outputs 子集的工具启用
+`strict: true`。当前 Harness 每个模型 step 只接受一个动作，因此请求固定发送
+`parallel_tool_calls: false`：首次已路由到 `inspect` 时使用 `tool_choice: "required"`，
+取得结果后的决策使用 `auto`，最终回答阶段不再发送工具。客户端会在执行前校验调用 ID、
+函数名、`finish_reason` 与 JSON 对象参数。若兼容服务忽略 `parallel_tool_calls: false` 仍返回
+多个合法调用，adapter 只接纳第一个并让后续调用回到下一轮串行决策；其他不一致响应仍会
+被拒绝。
+字段与消息顺序以 OpenAI 的 [Function calling guide](https://developers.openai.com/api/docs/guides/function-calling)
+和 [Create chat completion reference](https://developers.openai.com/api/reference/resources/chat/subresources/completions/methods/create)
+为基准。
+
+两种模式都使用非流式响应；`temperature`、`top_p`、presence/frequency penalty、stop 和
+seed 会映射到上游，非标准的 `top_k` 与 `penalty_decay` 不会发送。评测产物会将实际模式
+记录在 `prompt_mode`，因此可以直接做 wrapped/native A/B。`native-chat` 当前要求内部
+`--thinking off`；上游思考仍由独立的 `--chat-thinking` 控制。
+
+输出预算默认使用 OpenAI 当前文档推荐的 `max_completion_tokens`。仅当兼容服务仍只接受
+已弃用的 `max_tokens` 时，显式设置 `--chat-token-limit-field max-tokens`；评测 manifest
+会记录最终字段，避免不同接口配置被混为同一基线。
+
+`--chat-thinking auto` 是默认值，不发送非标准字段，适用于普通 OpenAI-compatible 服务；
+`disabled` 或 `enabled` 会发送 `thinking: {"type":"..."}`，用于支持该扩展的上游。
+在 `enabled` 模式下，adapter 会保存并在工具结果轮回传上游的 `reasoning_content`；由于
+DeepSeek thinking mode 不接受 `tool_choice: "required"`，该组合会在 wire 层降为 `auto`，
+其余模式保持 Runner 请求的选择不变。
+这与 `--thinking off|fast|full` 不同：`--chat-thinking` 控制上游服务是否生成隐藏推理，
+`--thinking` 控制本项目内部 RWKV prompt 和 G1I 思考协议。若上游不支持 `thinking`
+扩展，应保留 `auto`；不要依赖 endpoint 或模型名的隐式厂商检测。
+
+Bearer token 默认读取 `OPENAI_API_KEY`，可通过 `--api-key-env` 指定其他环境变量。无需
+Bearer token 的本地服务可以不设置该变量；自定义网关认证仍可使用可重复的
+`--api-header-env HEADER=ENV_VAR`，显式的 `Authorization` header 会覆盖 bearer token。
+
+可选的真实接口集成测试默认跳过。配置 endpoint、模型和凭证后可复验同一 adapter；
+对 DeepSeek V4 应同时设置 `CHAT_COMPLETIONS_INTEGRATION_THINKING=disabled`：
+
+```sh
+export CHAT_COMPLETIONS_INTEGRATION_URL=https://api.deepseek.com/v1/chat/completions
+export CHAT_COMPLETIONS_INTEGRATION_MODEL=deepseek-v4-flash
+export CHAT_COMPLETIONS_INTEGRATION_API_KEY='...'
+export CHAT_COMPLETIONS_INTEGRATION_THINKING=disabled
+export CHAT_COMPLETIONS_INTEGRATION_PROMPT_MODE=native-chat
+export CHAT_COMPLETIONS_INTEGRATION_TOKEN_LIMIT_FIELD=max-tokens
+go test -tags chatcompletions ./internal/continuation/chatcompletions \
+  -run 'TestRemoteChatCompletions(NativeTool)?Integration' -v
+```
+
+本地 continuation 与 `wrapped-continuation` 中，只有以 `<tool_call>` 开头的输出会进入
+严格 envelope/JSON 解析；其余正常文本是最终回答。畸形工具控制帧只重试一次，之后明确
+失败。`native-chat` 则先校验官方结构化 tool call，再转换为同一内部 Action。动作协议、RWKV prompt 渲染器和续写
 传输分别版本化，未来可以替换工具格式而不修改本地或 HTTP generator。所有工具路径必须
 相对 `--workspace`；绝对路径、
 `..` 穿越和指向工作区外的符号链接都会被拒绝。单文件读取限制为 64 KiB，搜索跳过
@@ -346,6 +449,17 @@ case 的多个 turn 共享 transcript/State。可以用可重复的 `--case` 跑
   --case read_exact_file \
   --case multi_turn_memory \
   --output runs/remote-13b-smoke
+```
+
+Chat Completions 模型使用同一套评测：
+
+```sh
+./dist/rwkv-cli agent-eval \
+  --suite smoke \
+  --completion chat-completions \
+  --api-url https://example.com/v1/chat/completions \
+  --model other-model \
+  --output runs/chat-other-model-smoke
 ```
 
 每次运行原子写入三个文件：

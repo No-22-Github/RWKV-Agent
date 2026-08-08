@@ -70,16 +70,20 @@ type ExpectedCall struct {
 }
 
 type ModelMetadata struct {
-	Identifier           string `json:"identifier"`
-	Fingerprint          string `json:"fingerprint,omitempty"`
-	TokenizerFingerprint string `json:"tokenizer_fingerprint,omitempty"`
-	Architecture         string `json:"architecture,omitempty"`
-	Format               string `json:"format,omitempty"`
-	Precision            string `json:"precision,omitempty"`
-	Quantization         string `json:"quantization,omitempty"`
-	Backend              string `json:"backend"`
-	Provider             string `json:"provider"`
-	Completion           string `json:"completion"`
+	Identifier           string   `json:"identifier"`
+	Fingerprint          string   `json:"fingerprint,omitempty"`
+	TokenizerFingerprint string   `json:"tokenizer_fingerprint,omitempty"`
+	Architecture         string   `json:"architecture,omitempty"`
+	Format               string   `json:"format,omitempty"`
+	Precision            string   `json:"precision,omitempty"`
+	Quantization         string   `json:"quantization,omitempty"`
+	Backend              string   `json:"backend"`
+	Provider             string   `json:"provider"`
+	Completion           string   `json:"completion"`
+	PromptMode           string   `json:"prompt_mode,omitempty"`
+	UnsupportedSampling  []string `json:"unsupported_sampling,omitempty"`
+	UpstreamThinking     string   `json:"upstream_thinking,omitempty"`
+	TokenLimitField      string   `json:"token_limit_field,omitempty"`
 }
 
 type HarnessMetadata struct {

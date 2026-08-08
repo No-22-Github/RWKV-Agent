@@ -17,6 +17,7 @@ import (
 	"github.com/no22/RWKV-Agent/internal/agent"
 	assistanttools "github.com/no22/RWKV-Agent/internal/agent/tools"
 	"github.com/no22/RWKV-Agent/internal/continuation"
+	"github.com/no22/RWKV-Agent/internal/continuation/toolchat"
 	"github.com/no22/RWKV-Agent/internal/inference"
 )
 
@@ -850,6 +851,86 @@ func (g *recordingGenerator) Continue(
 	return result, err
 }
 
+func (g *recordingGenerator) NativeToolCalling() bool {
+	completer, ok := g.generator.(toolchat.Completer)
+	return ok && completer.NativeToolCalling()
+}
+
+func (g *recordingGenerator) Complete(
+	ctx context.Context,
+	request toolchat.Request,
+	sink continuation.EventSink,
+) (toolchat.Result, error) {
+	completer, ok := g.generator.(toolchat.Completer)
+	if !ok || !completer.NativeToolCalling() {
+		return toolchat.Result{}, fmt.Errorf(
+			"%w: generator does not support native tool calling",
+			continuation.ErrInvalidRequest,
+		)
+	}
+	started := time.Now()
+	result, err := completer.Complete(ctx, request, sink)
+	value := ModelCallTrace{
+		Stage:          toolChatRequestStage(request),
+		Request:        toolChatRequestSnapshot(request),
+		Response:       toolChatResponseSnapshot(result),
+		DurationMillis: time.Since(started).Milliseconds(),
+	}
+	if err != nil {
+		value.Error = err.Error()
+	}
+	g.recorder.modelCall(value)
+	return result, err
+}
+
+func toolChatRequestStage(request toolchat.Request) string {
+	return requestStage(continuation.Request{Stops: request.Stops})
+}
+
+func toolChatRequestSnapshot(request toolchat.Request) RequestSnapshot {
+	prompt, err := json.Marshal(struct {
+		Messages          []toolchat.Message  `json:"messages"`
+		Tools             []toolchat.Tool     `json:"tools,omitempty"`
+		ToolChoice        toolchat.ToolChoice `json:"tool_choice,omitempty"`
+		AssistantPrefix   string              `json:"assistant_prefix,omitempty"`
+		ParallelToolCalls bool                `json:"parallel_tool_calls"`
+	}{
+		Messages:          request.Messages,
+		Tools:             request.Tools,
+		ToolChoice:        request.ToolChoice,
+		AssistantPrefix:   request.AssistantPrefix,
+		ParallelToolCalls: request.ParallelToolCalls,
+	})
+	if err != nil {
+		prompt = []byte(`{"trace_error":"could not encode native Chat Completions request"}`)
+	}
+	return RequestSnapshot{
+		Model:           request.Model,
+		Prompt:          string(prompt),
+		MaxOutputTokens: request.MaxOutputTokens,
+		Stops:           append([]string(nil), request.Stops...),
+		Sampling:        samplingSnapshot(request.Sampling),
+	}
+}
+
+func toolChatResponseSnapshot(result toolchat.Result) ResponseSnapshot {
+	text := result.Content
+	if len(result.ToolCalls) > 0 {
+		encoded, err := json.Marshal(result.ToolCalls)
+		if err == nil {
+			text = string(encoded)
+		}
+	}
+	return ResponseSnapshot{
+		Text:         text,
+		FinishReason: result.FinishReason,
+		Usage: UsageSnapshot{
+			PromptTokens:     result.Usage.PromptTokens,
+			CompletionTokens: result.Usage.CompletionTokens,
+		},
+	}
+}
+
 func requestStage(request continuation.Request) string {
 	for _, stop := range request.Stops {
 		switch stop {
@@ -898,3 +979,4 @@ func responseSnapshot(result continuation.Result) ResponseSnapshot {
 }
 
 var _ continuation.Generator = (*recordingGenerator)(nil)
+var _ toolchat.Completer = (*recordingGenerator)(nil)

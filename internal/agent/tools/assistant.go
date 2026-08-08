@@ -110,7 +110,12 @@ func ComputeTools(options Options) ([]agent.Tool, error) {
 type weatherTool struct{ provider Provider }
 
 func (*weatherTool) Spec() agent.ToolSpec {
-	return agent.ToolSpec{Name: "weather", Description: "Get the current observed weather for a city.", Arguments: `{"city":"string"}`}
+	return strictSpec(
+		"weather",
+		"Get the current observed weather for a city.",
+		`{"city":"string"}`,
+		`{"type":"object","properties":{"city":{"type":"string"}},"required":["city"],"additionalProperties":false}`,
+	)
 }
 
 func (t *weatherTool) Execute(ctx context.Context, raw json.RawMessage) (any, error) {
@@ -133,7 +138,12 @@ func (t *weatherTool) Execute(ctx context.Context, raw json.RawMessage) (any, er
 type nearestTransitTool struct{ provider Provider }
 
 func (*nearestTransitTool) Spec() agent.ToolSpec {
-	return agent.ToolSpec{Name: "nearest_transit", Description: "Find the nearest subway or bus station.", Arguments: `{"kind":"subway|bus"}`}
+	return strictSpec(
+		"nearest_transit",
+		"Find the nearest subway or bus station.",
+		`{"kind":"subway|bus"}`,
+		`{"type":"object","properties":{"kind":{"type":"string","enum":["subway","bus"]}},"required":["kind"],"additionalProperties":false}`,
+	)
 }
 
 func (t *nearestTransitTool) Execute(ctx context.Context, raw json.RawMessage) (any, error) {
@@ -156,7 +166,12 @@ func (t *nearestTransitTool) Execute(ctx context.Context, raw json.RawMessage) (
 type transitHoursTool struct{ provider Provider }
 
 func (*transitHoursTool) Spec() agent.ToolSpec {
-	return agent.ToolSpec{Name: "transit_hours", Description: "Get opening and closing hours for a transit station.", Arguments: `{"station":"string"}`}
+	return strictSpec(
+		"transit_hours",
+		"Get opening and closing hours for a transit station.",
+		`{"station":"string"}`,
+		`{"type":"object","properties":{"station":{"type":"string"}},"required":["station"],"additionalProperties":false}`,
+	)
 }
 
 func (t *transitHoursTool) Execute(ctx context.Context, raw json.RawMessage) (any, error) {
@@ -179,7 +194,12 @@ func (t *transitHoursTool) Execute(ctx context.Context, raw json.RawMessage) (an
 type fxConvertTool struct{ provider Provider }
 
 func (*fxConvertTool) Spec() agent.ToolSpec {
-	return agent.ToolSpec{Name: "fx_convert", Description: "Convert an amount using a provider exchange-rate quote.", Arguments: `{"amount":"number","from":"string","to":"string"}`}
+	return strictSpec(
+		"fx_convert",
+		"Convert an amount using a provider exchange-rate quote.",
+		`{"amount":"number","from":"string","to":"string"}`,
+		`{"type":"object","properties":{"amount":{"type":"number"},"from":{"type":"string"},"to":{"type":"string"}},"required":["amount","from","to"],"additionalProperties":false}`,
+	)
 }
 
 func (t *fxConvertTool) Execute(ctx context.Context, raw json.RawMessage) (any, error) {
@@ -218,7 +238,12 @@ func (t *fxConvertTool) Execute(ctx context.Context, raw json.RawMessage) (any, 
 type calculatorTool struct{}
 
 func (calculatorTool) Spec() agent.ToolSpec {
-	return agent.ToolSpec{Name: "calculator", Description: "Evaluate a finite arithmetic expression with +, -, *, /, %, and parentheses.", Arguments: `{"expression":"string"}`}
+	return strictSpec(
+		"calculator",
+		"Evaluate a finite arithmetic expression with +, -, *, /, %, and parentheses.",
+		`{"expression":"string"}`,
+		`{"type":"object","properties":{"expression":{"type":"string","minLength":1,"maxLength":4096}},"required":["expression"],"additionalProperties":false}`,
+	)
 }
 
 func (calculatorTool) Execute(_ context.Context, raw json.RawMessage) (any, error) {
@@ -311,11 +336,12 @@ type structuredQueryTool struct {
 }
 
 func (*structuredQueryTool) Spec() agent.ToolSpec {
-	return agent.ToolSpec{
-		Name:        "structured_query",
-		Description: "Filter JSON, JSONL, or CSV rows deterministically. filter must be empty, 本周/this week, or exact field=value predicates joined by comma or &&; comparison expressions are unsupported. sum/avg use the first numeric amount, total, value, revenue, or result field.",
-		Arguments:   `{"path":"string","filter":"string","aggregate":"sum|count|avg"}`,
-	}
+	return strictSpec(
+		"structured_query",
+		"Filter JSON, JSONL, or CSV rows deterministically. filter must be empty, 本周/this week, or exact field=value predicates joined by comma or &&; comparison expressions are unsupported. sum/avg use the first numeric amount, total, value, revenue, or result field.",
+		`{"path":"string","filter":"string","aggregate":"sum|count|avg"}`,
+		`{"type":"object","properties":{"path":{"type":"string"},"filter":{"type":"string"},"aggregate":{"type":"string","enum":["sum","count","avg"]}},"required":["path","filter","aggregate"],"additionalProperties":false}`,
+	)
 }
 
 type structuredQueryResult struct {
@@ -590,7 +616,30 @@ func numericRowValue(row map[string]any) (float64, bool) {
 type datetimeTool struct{ clock Clock }
 
 func (*datetimeTool) Spec() agent.ToolSpec {
-	return agent.ToolSpec{Name: "datetime", Description: "Read, compare, or add to dates and times deterministically.", Arguments: `{"op":"now|compare|add","args":{...}}`}
+	return agent.ToolSpec{
+		Name:        "datetime",
+		Description: "Read, compare, or add to dates and times deterministically.",
+		Arguments:   `{"op":"now|compare|add","args":{...}}`,
+		Parameters: json.RawMessage(`{
+			"type":"object",
+			"properties":{
+				"op":{"type":"string","enum":["now","compare","add"]},
+				"args":{"type":"object","description":"now uses {}; compare uses left and right; add uses time and duration."}
+			},
+			"required":["op","args"]
+		}`),
+		Strict: false,
+	}
+}
+
+func strictSpec(name string, description string, arguments string, parameters string) agent.ToolSpec {
+	return agent.ToolSpec{
+		Name:        name,
+		Description: description,
+		Arguments:   arguments,
+		Parameters:  json.RawMessage(parameters),
+		Strict:      true,
+	}
 }
 
 func (t *datetimeTool) Execute(_ context.Context, raw json.RawMessage) (any, error) {

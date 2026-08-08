@@ -22,6 +22,7 @@ import (
 	assistanttools "github.com/no22/RWKV-Agent/internal/agent/tools"
 	concurrentcli "github.com/no22/RWKV-Agent/internal/cli/concurrent"
 	"github.com/no22/RWKV-Agent/internal/continuation"
+	"github.com/no22/RWKV-Agent/internal/continuation/chatcompletions"
 	localcontinuation "github.com/no22/RWKV-Agent/internal/continuation/local"
 	"github.com/no22/RWKV-Agent/internal/continuation/rwkvlightning"
 	"github.com/no22/RWKV-Agent/internal/conversation"
@@ -34,44 +35,49 @@ import (
 )
 
 type runOptions struct {
-	modelPath         string
-	backend           string
-	provider          string
-	tokenizer         string
-	sessionPath       string
-	prompt            string
-	maxTokens         int
-	decisionMaxTokens int
-	routeMaxTokens    int
-	tracePromptBytes  int
-	temperature       float64
-	topK              int
-	topP              float64
-	presencePenalty   float64
-	frequencyPenalty  float64
-	penaltyDecay      float64
-	thinkingMode      string
-	thinkingExplicit  bool
-	reasoning         bool
-	reasoningExplicit bool
-	fewShot           bool
-	autosave          bool
-	nativeState       string
-	concurrency       int
-	concurrentPrompt  string
-	ui                string
-	workspace         string
-	maxSteps          int
-	completion        string
-	apiURL            string
-	apiPasswordEnv    string
-	apiHeaderEnvs     stringListFlag
-	evalSuite         string
-	evalSuiteExplicit bool
-	evalCasesPath     string
-	evalOutput        string
-	evalCaseIDs       stringListFlag
-	evalCaseTimeout   time.Duration
+	modelPath          string
+	backend            string
+	provider           string
+	tokenizer          string
+	sessionPath        string
+	prompt             string
+	maxTokens          int
+	decisionMaxTokens  int
+	routeMaxTokens     int
+	tracePromptBytes   int
+	temperature        float64
+	topK               int
+	topP               float64
+	presencePenalty    float64
+	frequencyPenalty   float64
+	penaltyDecay       float64
+	thinkingMode       string
+	thinkingExplicit   bool
+	reasoning          bool
+	reasoningExplicit  bool
+	fewShot            bool
+	autosave           bool
+	nativeState        string
+	concurrency        int
+	concurrentPrompt   string
+	ui                 string
+	workspace          string
+	maxSteps           int
+	completion         string
+	apiURL             string
+	apiKeyEnv          string
+	chatThinking       string
+	chatPromptMode     string
+	chatPromptExplicit bool
+	chatTokenLimit     string
+	apiPasswordEnv     string
+	apiHeaderEnvs      stringListFlag
+	evalSuite          string
+	evalSuiteExplicit  bool
+	evalCasesPath      string
+	evalOutput         string
+	evalCaseIDs        stringListFlag
+	evalCaseTimeout    time.Duration
 }
 
 type stringListFlag []string
@@ -227,8 +233,37 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			agent.DefaultTracePromptBytes,
 			"per-prompt recording budget in trace output; 0 disables, negative records in full",
 		)
-		fs.StringVar(&options.completion, "completion", "local", "continuation provider: local or rwkv-lightning")
-		fs.StringVar(&options.apiURL, "api-url", "", "full rwkv_lightning continuation endpoint URL")
+		fs.StringVar(
+			&options.completion,
+			"completion",
+			"local",
+			"continuation provider: local, rwkv-lightning, or chat-completions (optional build)",
+		)
+		fs.StringVar(&options.apiURL, "api-url", "", "full remote continuation endpoint URL")
+		fs.StringVar(
+			&options.apiKeyEnv,
+			"api-key-env",
+			"OPENAI_API_KEY",
+			"environment variable containing the Chat Completions bearer token",
+		)
+		fs.StringVar(
+			&options.chatThinking,
+			"chat-thinking",
+			string(chatcompletions.ThinkingAuto),
+			"upstream Chat Completions thinking extension: auto, disabled, or enabled",
+		)
+		fs.StringVar(
+			&options.chatPromptMode,
+			"chat-prompt-mode",
+			string(chatcompletions.PromptNativeChat),
+			"Chat Completions prompt transport: wrapped-continuation or native-chat",
+		)
+		fs.StringVar(
+			&options.chatTokenLimit,
+			"chat-token-limit-field",
+			string(chatcompletions.TokenLimitMaxCompletionTokens),
+			"Chat Completions token limit field: max-completion-tokens or max-tokens",
+		)
 		fs.StringVar(
 			&options.apiPasswordEnv,
 			"api-password-env",
@@ -267,6 +302,8 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			options.reasoningExplicit = true
 		case "suite":
 			options.evalSuiteExplicit = true
+		case "chat-prompt-mode":
+			options.chatPromptExplicit = true
 		}
 	})
 	if options.thinkingExplicit && options.reasoningExplicit {
@@ -293,11 +330,42 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		if options.maxSteps < 2 || options.maxSteps > 20 {
 			return options, errors.New("--max-steps must be between 2 and 20")
 		}
-		if options.completion != "local" && options.completion != "rwkv-lightning" {
+		if options.completion != "local" &&
+			options.completion != "rwkv-lightning" &&
+			options.completion != "chat-completions" {
 			return options, fmt.Errorf("unsupported continuation provider %q", options.completion)
 		}
-		if options.completion == "rwkv-lightning" && strings.TrimSpace(options.apiURL) == "" {
-			return options, errors.New("rwkv-lightning continuation requires --api-url")
+		if options.completion != "local" && strings.TrimSpace(options.apiURL) == "" {
+			return options, fmt.Errorf("%s continuation requires --api-url", options.completion)
+		}
+		chatThinking, err := chatcompletions.ParseThinkingMode(options.chatThinking)
+		if err != nil {
+			return options, err
+		}
+		options.chatThinking = string(chatThinking)
+		if options.completion != "chat-completions" && chatThinking != chatcompletions.ThinkingAuto {
+			return options, errors.New("--chat-thinking requires --completion chat-completions")
+		}
+		chatPromptMode, err := chatcompletions.ParsePromptMode(options.chatPromptMode)
+		if err != nil {
+			return options, err
+		}
+		options.chatPromptMode = string(chatPromptMode)
+		if options.completion != "chat-completions" && options.chatPromptExplicit {
+			return options, errors.New("--chat-prompt-mode requires --completion chat-completions")
+		}
+		if chatPromptMode == chatcompletions.PromptNativeChat &&
+			options.thinkingMode != string(inference.ThinkingOff) {
+			return options, errors.New("--chat-prompt-mode native-chat requires --thinking off")
+		}
+		chatTokenLimit, err := chatcompletions.ParseTokenLimitField(options.chatTokenLimit)
+		if err != nil {
+			return options, err
+		}
+		options.chatTokenLimit = string(chatTokenLimit)
+		if options.completion != "chat-completions" &&
+			chatTokenLimit != chatcompletions.TokenLimitMaxCompletionTokens {
+			return options, errors.New("--chat-token-limit-field requires --completion chat-completions")
 		}
 		if name == "agent" &&
 			options.ui == string(terminal.UIPlain) &&
@@ -321,7 +389,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			}
 		}
 	}
-	if options.tokenizer == "" && !(agentMode && options.completion == "rwkv-lightning") {
+	if options.tokenizer == "" && !(agentMode && options.completion != "local") {
 		if strings.EqualFold(filepath.Ext(options.modelPath), ".pth") {
 			tokenizer, err := bundledTokenizerPath()
 			if err != nil {
@@ -514,10 +582,30 @@ func newAgentGeneratorSource(
 	ctx context.Context,
 	options runOptions,
 ) (*agentGeneratorSource, error) {
-	if options.completion == "rwkv-lightning" {
+	if options.completion != "local" {
 		headers, err := loadAPIHeaders(options.apiHeaderEnvs)
 		if err != nil {
 			return nil, err
+		}
+		if options.completion == "chat-completions" {
+			client, err := chatcompletions.New(chatcompletions.Config{
+				Endpoint:   options.apiURL,
+				Model:      options.modelPath,
+				APIKey:     os.Getenv(options.apiKeyEnv),
+				Thinking:   chatcompletions.ThinkingMode(options.chatThinking),
+				PromptMode: chatcompletions.PromptMode(options.chatPromptMode),
+				TokenLimit: chatcompletions.TokenLimitField(options.chatTokenLimit),
+				Headers:    headers,
+			})
+			if err != nil {
+				return nil, fmt.Errorf("initialize Chat Completions continuation: %w", err)
+			}
+			return &agentGeneratorSource{
+				newGenerator: func(context.Context) (continuation.Generator, io.Closer, error) {
+					return client, noopCloser{}, nil
+				},
+				close: func() error { return nil },
+			}, nil
 		}
 		client, err := rwkvlightning.New(rwkvlightning.Config{
 			Endpoint: options.apiURL,
@@ -608,6 +696,7 @@ func runAgent(args []string) error {
 	if err != nil {
 		return err
 	}
+	reportCompletionCompatibility(options)
 	mode, err := terminal.ParseUIMode(options.ui)
 	if err != nil {
 		return err
@@ -692,7 +781,7 @@ func runAgent(args []string) error {
 	}
 	if selected == terminal.UITUI {
 		provider := options.provider
-		if options.completion == "rwkv-lightning" {
+		if options.completion != "local" {
 			provider = options.completion
 		} else if provider == "auto" {
 			provider = "mlx"
@@ -738,6 +827,7 @@ func runAgentEval(args []string) error {
 	if err != nil {
 		return err
 	}
+	reportCompletionCompatibility(options)
 	suite := options.evalSuite
 	cases, err := agenteval.BuiltinSuite(suite)
 	if err != nil {
@@ -772,6 +862,12 @@ func runAgentEval(args []string) error {
 		Backend:    options.backend,
 		Provider:   options.provider,
 		Completion: options.completion,
+	}
+	if options.completion == "chat-completions" {
+		model.PromptMode = options.chatPromptMode
+		model.UnsupportedSampling = []string{"top_k", "penalty_decay"}
+		model.UpstreamThinking = options.chatThinking
+		model.TokenLimitField = options.chatTokenLimit
 	}
 	if source.hasModelInfo {
 		info := source.modelInfo
@@ -833,6 +929,26 @@ func runAgentEval(args []string) error {
 		)
 	}
 	return nil
+}
+
+func reportCompletionCompatibility(options runOptions) {
+	if options.completion != "chat-completions" {
+		return
+	}
+	fmt.Fprintln(
+		os.Stderr,
+		"Chat Completions compatibility: prompt mode="+options.chatPromptMode+"; "+
+			"tool transport="+chatToolTransport(options.chatPromptMode)+"; "+
+			"top-k and penalty-decay are not sent upstream; streaming is disabled; "+
+			"upstream thinking="+options.chatThinking+"; token limit="+options.chatTokenLimit,
+	)
+}
+
+func chatToolTransport(promptMode string) string {
+	if promptMode == string(chatcompletions.PromptNativeChat) {
+		return "native"
+	}
+	return "g1i-text"
 }
 
 func formatEvalScore(score agenteval.Score) string {

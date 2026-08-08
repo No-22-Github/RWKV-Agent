@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
+	"errors"
 	"io"
 	"os"
 	"path/filepath"
@@ -13,7 +14,125 @@ import (
 
 	"github.com/no22/RWKV-Agent/internal/agent"
 	"github.com/no22/RWKV-Agent/internal/continuation"
+	"github.com/no22/RWKV-Agent/internal/continuation/toolchat"
 )
+
+type nativeEvalGenerator struct {
+	requests []toolchat.Request
+}
+
+func (*nativeEvalGenerator) Continue(
+	context.Context,
+	continuation.Request,
+	continuation.EventSink,
+) (continuation.Result, error) {
+	return continuation.Result{}, errors.New("native eval unexpectedly used text continuation")
+}
+
+func (*nativeEvalGenerator) NativeToolCalling() bool {
+	return true
+}
+
+func (g *nativeEvalGenerator) Complete(
+	_ context.Context,
+	request toolchat.Request,
+	_ continuation.EventSink,
+) (toolchat.Result, error) {
+	g.requests = append(g.requests, request)
+	result := toolchat.Result{
+		FinishReason: continuation.FinishStop,
+		Usage: continuation.Usage{
+			PromptTokens:     3,
+			CompletionTokens: 1,
+		},
+	}
+	switch len(g.requests) {
+	case 1:
+		result.Content = "<route>inspect</route>"
+	case 2:
+		result.FinishReason = continuation.FinishToolCalls
+		result.Content = "I will read the requested file."
+		result.ToolCalls = []toolchat.ToolCall{{
+			ID:        "call-native",
+			Name:      "read_file",
+			Arguments: `{"path":"facts.txt"}`,
+		}}
+	case 3:
+		result.Content = "TRACE-2048"
+	default:
+		return toolchat.Result{}, errors.New("unexpected native completion")
+	}
+	return result, nil
+}
+
+var _ continuation.Generator = (*nativeEvalGenerator)(nil)
+var _ toolchat.Completer = (*nativeEvalGenerator)(nil)
+
+func TestRunPreservesNativeToolCompleterThroughRecording(t *testing.T) {
+	generator := &nativeEvalGenerator{}
+	report, err := Run(context.Background(), Config{
+		Cases: []Case{{
+			ID:          "native",
+			Description: "Use a native function call through the eval recorder.",
+			Files:       map[string]string{"facts.txt": "TRACE-2048\n"},
+			Turns: []Turn{{
+				Prompt: "Read facts.txt and return only its value.",
+				Expect: Expectation{
+					Route:        agent.RouteInspect,
+					Tools:        []string{"read_file"},
+					OutputEquals: stringPointerForTest("TRACE-2048"),
+				},
+			}},
+		}},
+		Model: ModelMetadata{Identifier: "native", Completion: "chat-completions"},
+		Runner: agent.Options{
+			MaxSteps:                3,
+			ProtocolRetries:         1,
+			DecisionMaxOutputTokens: 32,
+			Protocol:                agent.G1IProtocol{},
+			Renderer:                agent.RWKVChatRenderer{},
+			Router:                  agent.G1IRouteProtocol{},
+			RouteRenderer:           agent.RWKVChatRenderer{},
+			RouteRetries:            1,
+			RouteMaxOutputTokens:    8,
+			Generation: continuation.Request{
+				Model:           "native",
+				MaxOutputTokens: 64,
+				Sampling: continuation.Sampling{
+					Temperature:  1,
+					TopK:         1,
+					TopP:         1,
+					PenaltyDecay: 1,
+				},
+			},
+		},
+		GeneratorFactory: func(context.Context) (continuation.Generator, io.Closer, error) {
+			return generator, nil, nil
+		},
+		CaseTimeout: time.Second,
+		TempDir:     t.TempDir(),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if report.Summary.Metrics.TaskSuccess.Correct != 1 || len(generator.requests) != 3 {
+		t.Fatalf("native eval did not complete: metrics=%+v requests=%d", report.Summary.Metrics, len(generator.requests))
+	}
+	structuredTrace := false
+	for _, record := range report.Trace {
+		if record.ModelCall != nil && strings.Contains(record.ModelCall.Request.Prompt, `"tools"`) {
+			structuredTrace = true
+			break
+		}
+	}
+	if !structuredTrace {
+		t.Fatalf("native trace did not preserve structured request: %+v", report.Trace)
+	}
+}
+
+func stringPointerForTest(value string) *string {
+	return &value
+}
 
 func TestRunScoresAndWritesTraceArtifacts(t *testing.T) {
 	scripts := [][]continuation.Result{

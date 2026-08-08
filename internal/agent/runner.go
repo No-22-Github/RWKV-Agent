@@ -12,6 +12,7 @@ import (
 	"unicode"
 
 	"github.com/no22/RWKV-Agent/internal/continuation"
+	"github.com/no22/RWKV-Agent/internal/continuation/toolchat"
 	"github.com/no22/RWKV-Agent/internal/inference"
 )
 
@@ -65,6 +66,8 @@ type ToolSpec struct {
 	Name        string
 	Description string
 	Arguments   string
+	Parameters  json.RawMessage
+	Strict      bool
 }
 
 type Tool interface {
@@ -202,7 +205,9 @@ type PlanSubtaskTrace struct {
 
 type Runner struct {
 	generator       continuation.Generator
+	toolCompleter   toolchat.Completer
 	tools           map[string]Tool
+	toolSpecs       []ToolSpec
 	options         Options
 	protocol        ActionProtocol
 	renderer        PromptRenderer
@@ -302,6 +307,15 @@ func NewRunner(generator continuation.Generator, tools []Tool, options Options) 
 	sort.Slice(specs, func(left, right int) bool {
 		return specs[left].Name < specs[right].Name
 	})
+	var toolCompleter toolchat.Completer
+	if candidate, ok := generator.(toolchat.Completer); ok && candidate.NativeToolCalling() {
+		for _, spec := range specs {
+			if err := validateNativeToolSpec(spec); err != nil {
+				return nil, err
+			}
+		}
+		toolCompleter = candidate
+	}
 	thinkingMode := rendererThinkingMode(options.Renderer)
 	responseControl := directResponseControl(thinkingMode)
 	if len(specs) > 0 {
@@ -316,11 +330,13 @@ func NewRunner(generator continuation.Generator, tools []Tool, options Options) 
 	}
 	return &Runner{
 		generator:       generator,
+		toolCompleter:   toolCompleter,
 		tools:           registered,
+		toolSpecs:       append([]ToolSpec(nil), specs...),
 		options:         options,
 		protocol:        options.Protocol,
 		renderer:        options.Renderer,
-		control:         options.Protocol.Instructions(specs, thinkingMode),
+		control:         toolControlPrompt(options.Protocol, specs, thinkingMode, toolCompleter != nil),
 		responseControl: responseControl,
 		thinkingMode:    thinkingMode,
 		router:          options.Router,
@@ -467,8 +483,12 @@ func (r *Runner) RunWithObserver(
 			successfulToolCalls == 0 {
 			request.MaxOutputTokens = r.options.DecisionMaxOutputTokens
 		}
+		requireNativeTool := r.toolCompleter != nil &&
+			stage == StageDecision &&
+			result.Route == RouteInspect &&
+			successfulToolCalls == 0
 		injectedPrefix := false
-		if assistantPrefix != "" {
+		if assistantPrefix != "" && r.toolCompleter == nil {
 			if renderer, ok := r.renderer.(interface {
 				appendAssistantPrefix(string, string) (string, bool)
 			}); ok {
@@ -489,8 +509,24 @@ func (r *Runner) RunWithObserver(
 		if injectedPrefix {
 			tracePrefix = assistantPrefix
 		}
+		if r.toolCompleter != nil {
+			request.Prompt = r.nativeTracePrompt(
+				messages,
+				stage == StageDecision && result.Route == RouteInspect,
+				requireNativeTool,
+				assistantPrefix,
+			)
+			tracePrefix = assistantPrefix
+		}
 		promptTrace := r.tracePrompt(request, tracePrefix, offered)
-		generated, err := r.generator.Continue(ctx, request, nil)
+		generated, nativeCall, reasoningContent, err := r.generate(
+			ctx,
+			request,
+			messages,
+			stage == StageDecision && result.Route == RouteInspect,
+			requireNativeTool,
+			assistantPrefix,
+		)
 		if err != nil {
 			return result, err
 		}
@@ -521,7 +557,15 @@ func (r *Runner) RunWithObserver(
 			retries++
 			r.observe(Event{Kind: EventRetry, Step: step, Err: err}, observer)
 			if strings.TrimSpace(modelAction) != "" {
-				messages = append(messages, Message{Role: RoleAssistant, Content: modelAction})
+				retryMessage := Message{
+					Role:             RoleAssistant,
+					Content:          modelAction,
+					ReasoningContent: reasoningContent,
+				}
+				if nativeCall != nil {
+					retryMessage.ToolCalls = []toolchat.ToolCall{*nativeCall}
+				}
+				messages = append(messages, retryMessage)
 			}
 			messages = append(messages, Message{
 				Role:    RoleUser,
@@ -658,33 +702,48 @@ func (r *Runner) RunWithObserver(
 		result.Steps[len(result.Steps)-1].ToolResult =
 			append(json.RawMessage(nil), encoded...)
 		r.observe(Event{Kind: EventToolDone, Step: step, Tool: action.Name, Err: err}, observer)
+		callID := fmt.Sprintf("call-%d", step)
+		if nativeCall != nil {
+			callID = nativeCall.ID
+		}
 		toolContent := r.protocol.FormatToolResult(
 			action.Name,
-			fmt.Sprintf("call-%d", step),
+			callID,
 			string(encoded),
 		)
 		toolContent = compactToolResult(task, toolContent)
 		recordedAction := r.protocol.RecordAction(action, generated.Text)
+		var recordedToolCalls []toolchat.ToolCall
+		if nativeCall != nil {
+			recordedToolCalls = []toolchat.ToolCall{*nativeCall}
+		}
 		turnMessages = append(
 			turnMessages,
-			Message{Role: RoleAssistant, Content: recordedAction},
+			Message{
+				Role:             RoleAssistant,
+				Content:          recordedAction,
+				ReasoningContent: reasoningContent,
+				ToolCalls:        recordedToolCalls,
+			},
 			Message{
 				Role:       RoleTool,
 				Name:       action.Name,
-				ToolCallID: fmt.Sprintf("call-%d", step),
+				ToolCallID: callID,
 				Content:    toolContent,
 			},
 		)
 		messages = append(
 			messages,
 			Message{
-				Role:    RoleAssistant,
-				Content: recordedAction,
+				Role:             RoleAssistant,
+				Content:          recordedAction,
+				ReasoningContent: reasoningContent,
+				ToolCalls:        recordedToolCalls,
 			},
 			Message{
 				Role:       RoleTool,
 				Name:       action.Name,
-				ToolCallID: fmt.Sprintf("call-%d", step),
+				ToolCallID: callID,
 				Content:    toolContent,
 			},
 		)
@@ -918,8 +977,11 @@ func (r *Runner) decideRoute(
 		request.Prompt = rendered + " <route>"
 		request.Stops = r.router.Stops()
 		request.MaxOutputTokens = r.options.RouteMaxOutputTokens
+		if r.toolCompleter != nil {
+			request.Prompt = r.nativeTracePrompt(messages, false, false, "<route>")
+		}
 		promptTrace := r.tracePrompt(request, "<route>", nil)
-		generated, err := r.generator.Continue(ctx, request, nil)
+		generated, _, _, err := r.generate(ctx, request, messages, false, false, "<route>")
 		if err != nil {
 			steps = append(steps, RouteStep{
 				Attempt: attempt + 1,
@@ -971,7 +1033,7 @@ func (r *Runner) decideRoute(
 func (r *Runner) History() []Message {
 	r.stateMu.RLock()
 	defer r.stateMu.RUnlock()
-	return append([]Message(nil), r.history...)
+	return cloneMessages(r.history)
 }
 
 // Reset clears committed conversation history. It does not change the tool
@@ -986,8 +1048,16 @@ func (r *Runner) Reset() {
 
 func (r *Runner) commit(messages []Message) {
 	r.stateMu.Lock()
-	r.history = append(r.history, messages...)
+	r.history = append(r.history, cloneMessages(messages)...)
 	r.stateMu.Unlock()
+}
+
+func cloneMessages(messages []Message) []Message {
+	result := append([]Message(nil), messages...)
+	for index := range result {
+		result[index].ToolCalls = append([]toolchat.ToolCall(nil), result[index].ToolCalls...)
+	}
+	return result
 }
 
 func canonicalToolCall(action Action) string {

@@ -13,7 +13,8 @@ Agent Runner
   ├── PromptRenderer：结构化 transcript -> 完整文本前缀
   └── continuation.Generator
         ├── 本地 inference.Session adapter
-        └── rwkv_lightning HTTP adapter
+        ├── rwkv_lightning HTTP adapter
+        └── Chat Completions adapter（可选 chatcompletions build tag）
 ```
 
 `continuation.Generator` 只接收 prompt、采样参数、停止串和输出 token 上限，只返回续写
@@ -127,9 +128,70 @@ endpoint。选择远程续写即代表显式启用这条数据路径。
 `stop_tokens` 接受整数 token ID；客户端显式只发送 EOS `0`，避免服务默认 token 提前截断
 Full think，并继续以 decoded text 匹配协议 stop 序列。
 
-## 5. 后续兼容层
+上游 OpenAI-compatible Chat Completions 使用独立的外层 adapter。默认构建不编译或链接
+OpenAI SDK；调用该 provider 前需要使用官方 SDK 可选构建：
 
-OpenAI 兼容不进入 `continuation.Generator`。API 层成熟后，可以在外层增加双向翻译器：
+```sh
+go build -tags chatcompletions ./cmd/rwkv-cli
+# macOS 完整发行包：./scripts/build-macos.sh --with-chat-completions
+```
+
+adapter 调用示例：
+
+```sh
+export OPENAI_API_KEY='...'
+
+./dist/rwkv-cli agent-eval \
+  --completion chat-completions \
+  --api-url https://example.com/v1/chat/completions \
+  --model other-model \
+  --suite smoke \
+  --output runs/chat-other-model-smoke
+```
+
+隐藏推理默认开启且与正文共享输出预算的上游需要显式关闭上游思考。例如 DeepSeek
+V4-Flash 应增加：
+
+```sh
+  --api-url https://api.deepseek.com/v1/chat/completions \
+  --model deepseek-v4-flash \
+  --chat-thinking disabled \
+  --chat-prompt-mode native-chat \
+  --chat-token-limit-field max-tokens
+```
+
+adapter 使用官方 `github.com/openai/openai-go/v3`，默认采用 `native-chat`，传递真正的
+system/user/assistant messages，并通过官方
+`tools`、`assistant.tool_calls`、`finish_reason: "tool_calls"`、`role: "tool"` 与
+`tool_call_id` 完成工具闭环。工具参数使用 JSON Schema；满足严格子集的工具设置
+`strict: true`。Harness 仍保持“一步一个动作”，所以发送 `parallel_tool_calls: false`：
+首次 inspect 使用 `tool_choice: "required"`，后续决策使用 `auto`，回答阶段不提供工具。
+模型返回的调用 ID、函数名、JSON 对象参数和 finish reason 都会在执行前校验。若上游忽略
+`parallel_tool_calls: false` 返回多个合法调用，adapter 只接纳第一个，剩余动作必须由模型
+在后续轮次重新请求，因此不会扩大 Harness 的单步执行边界。
+具体字段与消息顺序对齐 OpenAI 的 [Function calling guide](https://developers.openai.com/api/docs/guides/function-calling)
+和 [Create chat completion reference](https://developers.openai.com/api/reference/resources/chat/subresources/completions/methods/create)。
+
+`wrapped-continuation` 保留为兼容回退：它把渲染完成的 continuation prompt 放进 user
+message，并继续使用 `rwkv-g1i-envelope-v1` 文本控制帧，不发送上游 native tools。两种
+模式都固定 `stream: false`；`top_k` 和 `penalty_decay` 没有标准 Chat Completions 字段，
+因此不发送并记录为 unsupported sampling。默认输出预算字段是官方推荐的
+`max_completion_tokens`；只接受弃用字段的兼容服务可显式设置
+`--chat-token-limit-field max-tokens`。评测 manifest 记录 prompt transport、输出预算字段和
+上游 thinking 配置。`native-chat` 当前只支持内部 `--thinking off`。
+
+`--chat-thinking` 的默认值是 `auto`，此时不发送厂商扩展，维持通用 Chat Completions
+兼容性。`disabled`/`enabled` 分别发送 `thinking.type=disabled/enabled`，仅用于支持该字段的
+上游。它独立于控制内部 prompt 和协议的 `--thinking off|fast|full`。评测 manifest 会记录
+最终选择的 `upstream_thinking`，便于区分模型行为与 adapter 配置。
+思考模式返回的 `reasoning_content` 会与 assistant tool call 一起保留，并在匹配的 tool
+result 后回传；DeepSeek thinking mode 不支持 `tool_choice: "required"`，因此仅该组合会在
+adapter wire 层降为 `auto`。
+
+## 5. 后续对外兼容层
+
+上游 Chat Completions adapter 已经可以让本项目调用其他模型，但它不等于对外暴露
+OpenAI-compatible server。若要让第三方框架调用本地 RWKV-Agent，可在 API 层增加双向翻译器：
 
 1. OpenAI messages/tools 转换为内部 transcript 和 `ToolSpec`。
 2. 内建 `Action` 转换为 OpenAI tool call 或 assistant message。

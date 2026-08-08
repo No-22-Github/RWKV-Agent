@@ -124,7 +124,12 @@ func TestAgentDefaultsAreDeterministicAndBounded(t *testing.T) {
 	if options.fewShot {
 		t.Fatal("agent enabled few-shot by default before A/B validation")
 	}
-	if options.completion != "local" || options.apiPasswordEnv != "RWKV_API_PASSWORD" {
+	if options.completion != "local" ||
+		options.apiPasswordEnv != "RWKV_API_PASSWORD" ||
+		options.apiKeyEnv != "OPENAI_API_KEY" ||
+		options.chatThinking != "auto" ||
+		options.chatPromptMode != "native-chat" ||
+		options.chatTokenLimit != "max-completion-tokens" {
 		t.Fatalf("agent continuation defaults = %+v", options)
 	}
 	interactive, err := parseRunOptions("agent", []string{"--model", "model"})
@@ -203,6 +208,85 @@ func TestAgentAcceptsRWKVLightningContinuation(t *testing.T) {
 		"--completion", "rwkv-lightning",
 	}); err == nil {
 		t.Fatal("remote agent accepted a missing API URL")
+	}
+}
+
+func TestAgentAcceptsChatCompletionsContinuation(t *testing.T) {
+	t.Parallel()
+
+	options, err := parseRunOptions("agent", []string{
+		"--model", "other-model",
+		"--prompt", "inspect the repository",
+		"--completion", "chat-completions",
+		"--api-url", "https://example.test/v1/chat/completions",
+		"--api-key-env", "OTHER_API_KEY",
+		"--chat-thinking", "disabled",
+		"--chat-prompt-mode", "native-chat",
+		"--chat-token-limit-field", "max-tokens",
+		"--api-header-env", "X-Gateway-Key=OTHER_GATEWAY_KEY",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if options.modelPath != "other-model" ||
+		options.completion != "chat-completions" ||
+		options.apiURL != "https://example.test/v1/chat/completions" ||
+		options.apiKeyEnv != "OTHER_API_KEY" ||
+		options.chatThinking != "disabled" ||
+		options.chatPromptMode != "native-chat" ||
+		options.chatTokenLimit != "max-tokens" ||
+		options.tokenizer != "" ||
+		len(options.apiHeaderEnvs) != 1 {
+		t.Fatalf("Chat Completions options = %+v", options)
+	}
+	if _, err := parseRunOptions("agent", []string{
+		"--model", "other-model",
+		"--prompt", "task",
+		"--completion", "chat-completions",
+	}); err == nil {
+		t.Fatal("Chat Completions agent accepted a missing API URL")
+	}
+	if _, err := parseRunOptions("agent", []string{
+		"--model", "other-model",
+		"--prompt", "task",
+		"--completion", "chat-completions",
+		"--api-url", "https://example.test/v1/chat/completions",
+		"--chat-thinking", "sometimes",
+	}); err == nil {
+		t.Fatal("Chat Completions agent accepted an invalid thinking mode")
+	}
+	if _, err := parseRunOptions("agent", []string{
+		"--model", "local-model",
+		"--prompt", "task",
+		"--chat-thinking", "disabled",
+	}); err == nil {
+		t.Fatal("local agent accepted a Chat Completions thinking mode")
+	}
+	if _, err := parseRunOptions("agent", []string{
+		"--model", "other-model",
+		"--prompt", "task",
+		"--completion", "chat-completions",
+		"--api-url", "https://example.test/v1/chat/completions",
+		"--chat-prompt-mode", "flattened-chat",
+	}); err == nil {
+		t.Fatal("Chat Completions agent accepted an invalid prompt mode")
+	}
+	if _, err := parseRunOptions("agent", []string{
+		"--model", "local-model",
+		"--prompt", "task",
+		"--chat-prompt-mode", "native-chat",
+	}); err == nil {
+		t.Fatal("local agent accepted a Chat Completions prompt mode")
+	}
+	if _, err := parseRunOptions("agent", []string{
+		"--model", "other-model",
+		"--prompt", "task",
+		"--completion", "chat-completions",
+		"--api-url", "https://example.test/v1/chat/completions",
+		"--chat-prompt-mode", "native-chat",
+		"--thinking", "fast",
+	}); err == nil {
+		t.Fatal("native Chat Completions agent accepted internal thinking prefill")
 	}
 }
 
