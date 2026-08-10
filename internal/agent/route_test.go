@@ -2,6 +2,7 @@ package agent
 
 import (
 	"context"
+	"errors"
 	"strings"
 	"testing"
 
@@ -39,6 +40,62 @@ func TestG1IRouteProtocolParsesOnlyKnownRoutes(t *testing.T) {
 		continuation.FinishLength,
 	); err == nil {
 		t.Fatal("length-truncated route accepted")
+	}
+}
+
+func TestG1IRouteProtocolClassifiesRunawayReasoning(t *testing.T) {
+	t.Parallel()
+
+	protocol := G1IRouteProtocol{}
+	runaway := "<think>the user is asking about files, but wait, let me reconsider"
+	for _, testCase := range []struct {
+		name   string
+		value  string
+		finish continuation.FinishReason
+		want   error
+	}{
+		{
+			name:   "unclosed think without a finish reason",
+			value:  runaway,
+			finish: continuation.FinishUnknown,
+			want:   ErrUnclosedThink,
+		},
+		{
+			name:   "unclosed think reported as length",
+			value:  runaway,
+			finish: continuation.FinishLength,
+			want:   ErrUnclosedThink,
+		},
+		{
+			name:   "envelope truncated by the route budget",
+			value:  "respond",
+			finish: continuation.FinishLength,
+			want:   ErrRouteTokenLimit,
+		},
+	} {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+			_, err := protocol.Parse(testCase.value, testCase.finish)
+			if !errors.Is(err, testCase.want) {
+				t.Fatalf("error = %v, want %v", err, testCase.want)
+			}
+			if !errors.Is(err, ErrProtocol) {
+				t.Fatalf("error %v does not wrap ErrProtocol", err)
+			}
+		})
+	}
+	unclosed := protocol.Correction(ErrUnclosedThink)
+	if !strings.Contains(unclosed, "</think>") {
+		t.Fatalf("unclosed think correction omits the closing tag: %q", unclosed)
+	}
+	for _, correction := range []string{
+		unclosed,
+		protocol.Correction(ErrRouteTokenLimit),
+		protocol.Correction(errors.New("other")),
+	} {
+		if !strings.Contains(correction, "<route>respond</route>") {
+			t.Fatalf("route correction omits the contract: %q", correction)
+		}
 	}
 }
 

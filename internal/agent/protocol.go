@@ -2,6 +2,7 @@ package agent
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"regexp"
@@ -19,6 +20,16 @@ const (
 )
 
 var leadingThinkBlocks = regexp.MustCompile(`(?s)\A\s*(?:<think>.*?</think>\s*)+`)
+
+// Protocol failure classes that need targeted correction guidance. They wrap
+// ErrProtocol so existing callers keep matching on that sentinel.
+var (
+	// ErrUnclosedThink marks a response whose leading think block never closed,
+	// which in practice means reasoning ran away until the budget ran out.
+	ErrUnclosedThink = fmt.Errorf("%w: incomplete leading think block", ErrProtocol)
+	// ErrOutputTokenLimit marks a response truncated by the output budget.
+	ErrOutputTokenLimit = fmt.Errorf("%w: model response reached the output token limit", ErrProtocol)
+)
 
 type Action struct {
 	Type      string          `json:"type"`
@@ -136,10 +147,13 @@ func (G1IProtocol) Parse(value string, finish continuation.FinishReason) (Action
 		candidate = strings.TrimSpace(candidate[match[1]:])
 	}
 	if finish == continuation.FinishLength {
-		return Action{}, fmt.Errorf("%w: model response reached the output token limit", ErrProtocol)
+		if strings.HasPrefix(candidate, "<think>") {
+			return Action{}, ErrUnclosedThink
+		}
+		return Action{}, ErrOutputTokenLimit
 	}
 	if strings.HasPrefix(candidate, "<think>") {
-		return Action{}, fmt.Errorf("%w: incomplete leading think block", ErrProtocol)
+		return Action{}, ErrUnclosedThink
 	}
 	const (
 		toolOpen    = "<tool_call>"
@@ -198,8 +212,20 @@ func envelopeContent(candidate string, open string, close string) (string, bool)
 	return strings.TrimSpace(content), false
 }
 
-func (G1IProtocol) Correction(_ error) string {
-	return "Your previous response was invalid. Either answer directly in ordinary text, or output exactly one <tool_call>{\"name\":\"...\",\"arguments\":{...}}</tool_call> and nothing else."
+func (G1IProtocol) Correction(err error) string {
+	const action = "Either answer directly in ordinary text, or output exactly one " +
+		"<tool_call>{\"name\":\"...\",\"arguments\":{...}}</tool_call> and nothing else."
+	switch {
+	case errors.Is(err, ErrUnclosedThink):
+		return "Your previous reasoning never finished and was cut off. Do not restart it. " +
+			"Close the thinking block with </think> immediately, then " + action + " " +
+			"Decide with the evidence you already have instead of reasoning further."
+	case errors.Is(err, ErrOutputTokenLimit):
+		return "Your previous response was cut off by the output limit. Be far more concise. " +
+			"Skip preamble and restated reasoning, then " + action
+	default:
+		return "Your previous response was invalid. " + action
+	}
 }
 
 func (G1IProtocol) RecordAction(action Action, raw string) string {

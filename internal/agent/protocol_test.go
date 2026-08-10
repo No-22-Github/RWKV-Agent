@@ -2,8 +2,10 @@ package agent
 
 import (
 	"encoding/json"
+	"errors"
 	"strings"
 	"testing"
+	"unicode/utf8"
 
 	"github.com/no22/RWKV-Agent/internal/continuation"
 	"github.com/no22/RWKV-Agent/internal/inference"
@@ -115,6 +117,102 @@ func TestG1IProtocolParsesVerifiedEnvelopes(t *testing.T) {
 	}
 	if _, err := protocol.Parse("truncated answer", continuation.FinishLength); err == nil {
 		t.Fatal("length-truncated plain answer was accepted")
+	}
+}
+
+func TestG1IProtocolClassifiesTruncationCauses(t *testing.T) {
+	t.Parallel()
+	protocol := G1IProtocol{}
+	runaway := "<think>let me reconsider that once more"
+	for _, testCase := range []struct {
+		name   string
+		value  string
+		finish continuation.FinishReason
+		want   error
+	}{
+		{
+			name:   "unclosed think without a finish reason",
+			value:  runaway,
+			finish: continuation.FinishUnknown,
+			want:   ErrUnclosedThink,
+		},
+		{
+			name:   "unclosed think reported as length",
+			value:  runaway,
+			finish: continuation.FinishLength,
+			want:   ErrUnclosedThink,
+		},
+		{
+			name:   "plain answer truncated by the budget",
+			value:  "the net outflow is",
+			finish: continuation.FinishLength,
+			want:   ErrOutputTokenLimit,
+		},
+	} {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+			_, err := protocol.Parse(testCase.value, testCase.finish)
+			if !errors.Is(err, testCase.want) {
+				t.Fatalf("error = %v, want %v", err, testCase.want)
+			}
+			if !errors.Is(err, ErrProtocol) {
+				t.Fatalf("error %v does not wrap ErrProtocol", err)
+			}
+		})
+	}
+}
+
+func TestG1IProtocolCorrectionTargetsRunawayReasoning(t *testing.T) {
+	t.Parallel()
+	protocol := G1IProtocol{}
+	unclosed := protocol.Correction(ErrUnclosedThink)
+	if !strings.Contains(unclosed, "</think>") {
+		t.Fatalf("unclosed think correction omits the closing tag: %q", unclosed)
+	}
+	if !strings.Contains(unclosed, "Do not restart") {
+		t.Fatalf("unclosed think correction does not forbid restarting: %q", unclosed)
+	}
+	limit := protocol.Correction(ErrOutputTokenLimit)
+	if !strings.Contains(limit, "concise") {
+		t.Fatalf("token limit correction does not ask for brevity: %q", limit)
+	}
+	generic := protocol.Correction(errors.New("some other failure"))
+	if strings.Contains(generic, "</think>") {
+		t.Fatalf("generic correction leaked think guidance: %q", generic)
+	}
+	for _, correction := range []string{unclosed, limit, generic} {
+		if !strings.Contains(correction, "<tool_call>") {
+			t.Fatalf("correction omits the action contract: %q", correction)
+		}
+	}
+}
+
+func TestRetryEchoDropsRunawayReasoning(t *testing.T) {
+	t.Parallel()
+	runaway := "<think>" + strings.Repeat("wait, let me re-read the task. ", 400)
+	if echo := retryEcho(runaway, ErrUnclosedThink); echo != "" {
+		t.Fatalf("unclosed think was echoed back (%d chars)", len(echo))
+	}
+	if echo := retryEcho(strings.Repeat("x", 4000), ErrOutputTokenLimit); echo != "" {
+		t.Fatalf("long truncated output was echoed back (%d chars)", len(echo))
+	}
+	short := `<tool_call>{"name":"read_file"}`
+	if echo := retryEcho(short, errors.New("invalid tool call")); echo != short {
+		t.Fatalf("short invalid action = %q, want it echoed verbatim", echo)
+	}
+	long := strings.Repeat("汉", 4000)
+	echo := retryEcho(long, errors.New("invalid tool call"))
+	if !strings.HasSuffix(echo, "[truncated]") {
+		t.Fatalf("long echo was not marked truncated: %q", echo[:40])
+	}
+	if runes := []rune(echo); len(runes) > retryEchoBudget+len("\n[truncated]") {
+		t.Fatalf("echo kept %d runes, want at most %d", len(runes), retryEchoBudget)
+	}
+	if !utf8.ValidString(echo) {
+		t.Fatal("echo truncated a multibyte character")
+	}
+	if echo := retryEcho("   ", errors.New("empty")); echo != "" {
+		t.Fatalf("blank action = %q, want empty", echo)
 	}
 }
 

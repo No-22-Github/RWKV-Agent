@@ -1,6 +1,7 @@
 package agent
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -61,6 +62,11 @@ User: What was that title?
 Assistant: <route>respond</route>`)
 }
 
+// ErrRouteTokenLimit marks a route classification truncated by its own budget.
+// The route stage runs on a very small token budget, so a thinking model can
+// exhaust it before emitting the envelope.
+var ErrRouteTokenLimit = fmt.Errorf("%w: route reached the output token limit", ErrProtocol)
+
 func (G1IRouteProtocol) Parse(
 	value string,
 	finish continuation.FinishReason,
@@ -69,8 +75,11 @@ func (G1IRouteProtocol) Parse(
 	if match := leadingThinkBlocks.FindStringIndex(candidate); match != nil && match[0] == 0 {
 		candidate = strings.TrimSpace(candidate[match[1]:])
 	}
+	if strings.HasPrefix(candidate, "<think>") {
+		return "", ErrUnclosedThink
+	}
 	if finish == continuation.FinishLength {
-		return "", fmt.Errorf("%w: route reached the output token limit", ErrProtocol)
+		return "", ErrRouteTokenLimit
 	}
 	const (
 		open  = "<route>"
@@ -91,8 +100,18 @@ func (G1IRouteProtocol) Parse(
 	}
 }
 
-func (G1IRouteProtocol) Correction(_ error) string {
-	return `Your previous route was invalid. Output exactly <route>respond</route> or <route>inspect</route> and nothing else.`
+func (G1IRouteProtocol) Correction(err error) string {
+	const contract = "Output exactly <route>respond</route> or <route>inspect</route> and nothing else."
+	switch {
+	case errors.Is(err, ErrUnclosedThink):
+		return "Your previous reasoning never finished and was cut off. Do not reason about this. " +
+			"Close it with </think> immediately, then classify in one step. " + contract
+	case errors.Is(err, ErrRouteTokenLimit):
+		return "Your previous route was cut off before it produced an envelope. Do not explain. " +
+			contract
+	default:
+		return "Your previous route was invalid. " + contract
+	}
 }
 
 func (G1IRouteProtocol) Stops() []string {

@@ -24,6 +24,32 @@ var (
 	ErrNoWorkspaceEvidence  = errors.New("agent could not obtain workspace evidence")
 )
 
+// retryEchoBudget caps how many runes of a rejected response are echoed back to
+// the model on a protocol retry.
+const retryEchoBudget = 480
+
+// retryEcho condenses a rejected response before it re-enters the transcript.
+// Runaway reasoning is the common cause of a retry, and echoing thousands of
+// characters of it verbatim poisons the context so the retry repeats the same
+// failure. Unclosed thinking is dropped entirely; anything else is truncated.
+func retryEcho(modelAction string, err error) string {
+	trimmed := strings.TrimSpace(modelAction)
+	if trimmed == "" {
+		return ""
+	}
+	if errors.Is(err, ErrUnclosedThink) {
+		return ""
+	}
+	runes := []rune(trimmed)
+	if len(runes) <= retryEchoBudget {
+		return trimmed
+	}
+	if errors.Is(err, ErrOutputTokenLimit) {
+		return ""
+	}
+	return string(runes[:retryEchoBudget]) + "\n[truncated]"
+}
+
 func directResponseControl(mode inference.ThinkingMode) string {
 	prompt := `You are a helpful conversational assistant.
 Answer the current user message directly and naturally in the user's language.
@@ -556,10 +582,11 @@ func (r *Runner) RunWithObserver(
 			}
 			retries++
 			r.observe(Event{Kind: EventRetry, Step: step, Err: err}, observer)
-			if strings.TrimSpace(modelAction) != "" {
+			echoed := retryEcho(modelAction, err)
+			if strings.TrimSpace(echoed) != "" {
 				retryMessage := Message{
 					Role:             RoleAssistant,
-					Content:          modelAction,
+					Content:          echoed,
 					ReasoningContent: reasoningContent,
 				}
 				if nativeCall != nil {
@@ -1019,9 +1046,11 @@ func (r *Runner) decideRoute(
 			return RouteRespond, steps, nil
 		}
 		steps = append(steps, current)
+		if echoed := retryEcho(candidate, parseErr); echoed != "" {
+			messages = append(messages, Message{Role: RoleAssistant, Content: echoed})
+		}
 		messages = append(
 			messages,
-			Message{Role: RoleAssistant, Content: candidate},
 			Message{Role: RoleUser, Content: r.router.Correction(parseErr)},
 		)
 	}

@@ -108,6 +108,75 @@ func TestRunnerExecutesToolThenReturnsFinal(t *testing.T) {
 	}
 }
 
+// TestRunnerRecoversFromRunawayReasoning reproduces the 13B failure mode seen in
+// runs/cmp-rwkv13b-think-boundary: reasoning loops until the output budget is
+// gone, so the response is an unclosed <think> block with no action. The retry
+// must not carry that reasoning back into the prompt, and it must be told to
+// close the block, otherwise it loops the same way and the turn is lost.
+func TestRunnerRecoversFromRunawayReasoning(t *testing.T) {
+	t.Parallel()
+	runaway := "<think>" + strings.Repeat("wait, let me re-read the task. ", 300)
+	var prompts []string
+	generator := continuation.GenerateFunc(func(
+		_ context.Context,
+		request continuation.Request,
+		_ continuation.EventSink,
+	) (continuation.Result, error) {
+		prompts = append(prompts, request.Prompt)
+		if len(prompts) == 1 {
+			// No finish_reason from the server, exactly like the deployment.
+			return continuation.Result{
+				Text:         runaway,
+				FinishReason: continuation.FinishUnknown,
+			}, nil
+		}
+		return continuation.Result{
+			Text:         "EMBER-7",
+			FinishReason: continuation.FinishStop,
+		}, nil
+	})
+	runner, err := NewRunner(generator, nil, Options{
+		MaxSteps:        4,
+		ProtocolRetries: 2,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "Report the project code.")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Output != "EMBER-7" {
+		t.Fatalf("output = %q, want the recovered answer", result.Output)
+	}
+	if len(prompts) != 2 {
+		t.Fatalf("continuation calls = %d, want a single retry", len(prompts))
+	}
+	retry := prompts[1]
+	if strings.Contains(retry, "wait, let me re-read the task") {
+		t.Fatal("retry prompt carried the runaway reasoning back into context")
+	}
+	if !strings.Contains(retry, "</think>") {
+		t.Fatalf("retry prompt lacks the closing-tag instruction:\n%s", retry)
+	}
+	if !errors.Is(errFromStep(result.Steps, 0), ErrUnclosedThink) {
+		t.Fatalf("first step error = %q, want an unclosed think classification",
+			result.Steps[0].ProtocolError)
+	}
+}
+
+// errFromStep re-derives a sentinel from a recorded step so the assertion above
+// reads against the classification rather than a message substring.
+func errFromStep(steps []Step, index int) error {
+	if index >= len(steps) {
+		return nil
+	}
+	if strings.Contains(steps[index].ProtocolError, "incomplete leading think block") {
+		return ErrUnclosedThink
+	}
+	return errors.New(steps[index].ProtocolError)
+}
+
 func TestRunnerSupportsInlineControlPrompt(t *testing.T) {
 	t.Parallel()
 	var prompt string
