@@ -19,20 +19,46 @@ const maxResponseBytes = 4 * 1024 * 1024
 
 var ErrRemote = errors.New("rwkv_lightning continuation error")
 
+// StopTokenMode selects how the request populates rwkv_lightning's stop_tokens.
+type StopTokenMode string
+
+const (
+	// StopTokenText forwards the request's decoded-text stop sequences, which is
+	// the wire type rwkv_lightning documents and expects.
+	StopTokenText StopTokenMode = "text"
+	// StopTokenEOS sends the legacy integer EOS token list.
+	StopTokenEOS StopTokenMode = "eos"
+	// StopTokenNone omits the field so the server applies its own defaults.
+	StopTokenNone StopTokenMode = "none"
+)
+
 type Config struct {
-	Endpoint   string
-	Model      string
-	Password   string
+	Endpoint string
+	Model    string
+	Password string
+	// StopTokenMode selects the stop_tokens wire form. The zero value forwards
+	// the request's decoded-text stops.
+	StopTokenMode StopTokenMode
+	// StopTokenIDs is the integer list used when StopTokenMode is StopTokenEOS.
+	// A nil slice defaults to EOS only.
+	StopTokenIDs []int
+	// Stream selects the SSE transport. The zero value streams, matching the
+	// server default; a false pointer requests one buffered JSON response, which
+	// carries a real finish_reason and avoids the SSE path entirely.
+	Stream     *bool
 	Headers    http.Header
 	HTTPClient *http.Client
 }
 
 type Client struct {
-	endpoint   string
-	model      string
-	password   string
-	headers    http.Header
-	httpClient *http.Client
+	endpoint      string
+	model         string
+	password      string
+	stopTokenMode StopTokenMode
+	stopTokenIDs  []int
+	stream        bool
+	headers       http.Header
+	httpClient    *http.Client
 }
 
 func New(config Config) (*Client, error) {
@@ -55,12 +81,35 @@ func New(config Config) (*Client, error) {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
+	stopTokenMode := config.StopTokenMode
+	if stopTokenMode == "" {
+		stopTokenMode = StopTokenText
+	}
+	switch stopTokenMode {
+	case StopTokenText, StopTokenEOS, StopTokenNone:
+	default:
+		return nil, fmt.Errorf(
+			"%w: stop token mode must be text, eos, or none",
+			continuation.ErrInvalidRequest,
+		)
+	}
+	stopTokenIDs := config.StopTokenIDs
+	if stopTokenIDs == nil {
+		stopTokenIDs = []int{0}
+	}
+	stream := true
+	if config.Stream != nil {
+		stream = *config.Stream
+	}
 	return &Client{
-		endpoint:   endpoint,
-		model:      model,
-		password:   config.Password,
-		headers:    config.Headers.Clone(),
-		httpClient: httpClient,
+		endpoint:      endpoint,
+		model:         model,
+		password:      config.Password,
+		stopTokenMode: stopTokenMode,
+		stopTokenIDs:  stopTokenIDs,
+		stream:        stream,
+		headers:       config.Headers.Clone(),
+		httpClient:    httpClient,
 	}, nil
 }
 
@@ -68,7 +117,7 @@ type requestBody struct {
 	Model          string   `json:"model"`
 	Contents       []string `json:"contents"`
 	MaxTokens      int      `json:"max_tokens"`
-	StopTokens     []int    `json:"stop_tokens"`
+	StopTokens     any      `json:"stop_tokens,omitempty"`
 	Temperature    float32  `json:"temperature"`
 	TopK           int      `json:"top_k"`
 	TopP           float32  `json:"top_p"`
@@ -92,6 +141,20 @@ type streamBody struct {
 	Error json.RawMessage    `json:"error"`
 }
 
+// bufferedBody is the stream=false shape: one OpenAI-style completion object
+// carrying the whole message and a real finish_reason.
+type bufferedBody struct {
+	Choices []struct {
+		Index   int `json:"index"`
+		Message struct {
+			Content string `json:"content"`
+		} `json:"message"`
+		FinishReason string `json:"finish_reason"`
+	} `json:"choices"`
+	Usage continuation.Usage `json:"usage"`
+	Error json.RawMessage    `json:"error"`
+}
+
 func (c *Client) Continue(
 	ctx context.Context,
 	request continuation.Request,
@@ -108,14 +171,14 @@ func (c *Client) Continue(
 		Model:          model,
 		Contents:       []string{request.Prompt},
 		MaxTokens:      request.MaxOutputTokens,
-		StopTokens:     []int{0},
+		StopTokens:     c.serverStopTokens(request.Stops),
 		Temperature:    request.Sampling.Temperature,
 		TopK:           request.Sampling.TopK,
 		TopP:           request.Sampling.TopP,
 		AlphaPresence:  request.Sampling.PresencePenalty,
 		AlphaFrequency: request.Sampling.FrequencyPenalty,
 		AlphaDecay:     request.Sampling.PenaltyDecay,
-		Stream:         true,
+		Stream:         c.stream,
 		ChunkSize:      1,
 		Password:       c.password,
 	})
@@ -164,13 +227,127 @@ func (c *Client) Continue(
 			safeResponseMessage(body, c.password),
 		)
 	}
-	return readStreamResponse(ctx, response.Body, request.Stops, sink, c.password)
+	if !c.stream {
+		return readBufferedResponse(
+			response.Body,
+			request.Stops,
+			request.MaxOutputTokens,
+			sink,
+			c.password,
+		)
+	}
+	return readStreamResponse(
+		ctx,
+		response.Body,
+		request.Stops,
+		request.MaxOutputTokens,
+		sink,
+		c.password,
+	)
+}
+
+// readBufferedResponse handles stream=false. The whole completion arrives at
+// once, so decoded-text stops are applied over the full text rather than
+// incrementally, and the server's finish_reason is preferred when present.
+func readBufferedResponse(
+	body io.Reader,
+	stops []string,
+	maxOutputTokens int,
+	sink continuation.EventSink,
+	secret string,
+) (continuation.Result, error) {
+	payload, err := io.ReadAll(io.LimitReader(body, maxResponseBytes+1))
+	if err != nil {
+		return continuation.Result{}, fmt.Errorf("%w: read response: %v", ErrRemote, err)
+	}
+	if len(payload) > maxResponseBytes {
+		return continuation.Result{}, fmt.Errorf(
+			"%w: response exceeded %d bytes",
+			ErrRemote,
+			maxResponseBytes,
+		)
+	}
+	var buffered bufferedBody
+	if err := json.Unmarshal(payload, &buffered); err != nil {
+		return continuation.Result{}, fmt.Errorf(
+			"%w: decode response: %s",
+			ErrRemote,
+			safeResponseMessage(payload, secret),
+		)
+	}
+	if len(buffered.Error) != 0 && string(buffered.Error) != "null" {
+		return continuation.Result{}, fmt.Errorf(
+			"%w: response error: %s",
+			ErrRemote,
+			safeResponseMessage(buffered.Error, secret),
+		)
+	}
+	text := ""
+	finish := continuation.FinishUnknown
+	found := false
+	for _, choice := range buffered.Choices {
+		if choice.Index != 0 {
+			continue
+		}
+		found = true
+		text = choice.Message.Content
+		if choice.FinishReason != "" {
+			finish = finishReason(choice.FinishReason)
+		}
+		break
+	}
+	if !found {
+		return continuation.Result{}, fmt.Errorf("%w: response has no choices", ErrRemote)
+	}
+	if truncated, stopped := truncateAtStop(text, stops); stopped {
+		text = truncated
+		finish = continuation.FinishStop
+	}
+	if text != "" && sink != nil {
+		if err := sink(continuation.Event{
+			Kind: continuation.EventTextDelta,
+			Text: text,
+		}); err != nil {
+			return continuation.Result{
+				Text:         text,
+				FinishReason: continuation.FinishCancelled,
+				Usage:        buffered.Usage,
+			}, err
+		}
+	}
+	return continuation.Result{
+		Text: text,
+		// Only usage can indicate a length finish here; character count is not a
+		// token count, so pass 0 rather than inventing a token estimate.
+		FinishReason: inferFinishReason(finish, buffered.Usage, 0, maxOutputTokens),
+		Usage:        buffered.Usage,
+	}, nil
+}
+
+// truncateAtStop cuts text at the earliest decoded-text stop sequence. The
+// buffered path has the whole completion up front, so it needs no streaming
+// tail-carry logic.
+func truncateAtStop(value string, stops []string) (string, bool) {
+	cut := len(value)
+	for _, stop := range stops {
+		if stop == "" {
+			continue
+		}
+		if index := strings.Index(value, stop); index >= 0 && index < cut {
+			cut = index
+		}
+	}
+	if cut == len(value) {
+		return value, false
+	}
+	return value[:cut], true
 }
 
 func readStreamResponse(
 	ctx context.Context,
 	body io.Reader,
 	stops []string,
+	maxOutputTokens int,
 	sink continuation.EventSink,
 	secret string,
 ) (continuation.Result, error) {
@@ -182,6 +359,7 @@ func readStreamResponse(
 	usage := continuation.Usage{}
 	sawChoice := false
 	sawDone := false
+	deltas := 0
 	responseBytes := 0
 	emit := func(text string) error {
 		if text == "" {
@@ -237,6 +415,9 @@ func readStreamResponse(
 			if choice.FinishReason != "" {
 				finish = finishReason(choice.FinishReason)
 			}
+			if choice.Delta.Content != "" {
+				deltas++
+			}
 			pending += choice.Delta.Content
 			text, tail, stopped := splitAtStop(pending, stops)
 			if err := emit(text); err != nil {
@@ -281,9 +462,60 @@ func readStreamResponse(
 	}
 	return continuation.Result{
 		Text:         result.String(),
-		FinishReason: finish,
+		FinishReason: inferFinishReason(finish, usage, deltas, maxOutputTokens),
 		Usage:        usage,
 	}, nil
+}
+
+// inferFinishReason recovers a finish reason for deployments that stream none at
+// all, which would otherwise leave every response FinishUnknown and make the
+// action protocol misreport it as a malformed envelope or an incomplete think
+// block. A stream that reached its token budget is a length truncation. A stream
+// that ended below the budget means the server stopped on its own — EOS, or a
+// server-side stop sequence it consumed without echoing — which is a normal stop.
+// chunk_size is 1, so one content delta is one token; usage is preferred when the
+// deployment reports it.
+func inferFinishReason(
+	finish continuation.FinishReason,
+	usage continuation.Usage,
+	deltas int,
+	maxOutputTokens int,
+) continuation.FinishReason {
+	if finish != continuation.FinishUnknown {
+		return finish
+	}
+	generated := deltas
+	if usage.CompletionTokens > 0 {
+		generated = usage.CompletionTokens
+	}
+	if maxOutputTokens > 0 && generated >= maxOutputTokens {
+		return continuation.FinishLength
+	}
+	if generated > 0 {
+		return continuation.FinishStop
+	}
+	return finish
+}
+
+// serverStopTokens renders the configured stop_tokens payload. rwkv_lightning
+// documents stop_tokens as decoded-text strings, so StopTokenText forwards the
+// request's own stop sequences and lets the server stop generating early instead
+// of running to max_tokens and relying only on client-side truncation.
+func (c *Client) serverStopTokens(stops []string) any {
+	switch c.stopTokenMode {
+	case StopTokenEOS:
+		if len(c.stopTokenIDs) == 0 {
+			return nil
+		}
+		return c.stopTokenIDs
+	case StopTokenNone:
+		return nil
+	default:
+		if len(stops) == 0 {
+			return nil
+		}
+		return stops
+	}
 }
 
 func splitAtStop(value string, stops []string) (string, string, bool) {

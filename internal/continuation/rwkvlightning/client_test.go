@@ -106,14 +106,342 @@ func TestClientMapsContinuationRequestAndResponse(t *testing.T) {
 		received.ChunkSize != 1 {
 		t.Fatalf("request = %+v", received)
 	}
-	if len(received.StopTokens) != 1 || received.StopTokens[0] != 0 {
-		t.Fatalf("server stop tokens = %v", received.StopTokens)
-	}
-	if _, exists := receivedFields["stop_tokens"]; !exists {
-		t.Fatal("request omitted explicit EOS stop token")
+	if _, exists := receivedFields["stop_tokens"]; exists {
+		t.Fatal("request sent stop_tokens for a continuation with no stop sequences")
 	}
 	if accessID != "client-id" || accessSecret != "client-secret" {
 		t.Fatalf("access headers = %q, %q", accessID, accessSecret)
+	}
+}
+
+func TestClientStopTokensAreConfigurable(t *testing.T) {
+	t.Parallel()
+	for _, testCase := range []struct {
+		name     string
+		mode     StopTokenMode
+		tokenIDs []int
+		want     string
+	}{
+		{name: "default forwards text stops", want: `["\nUser:"]`},
+		{name: "explicit text mode", mode: StopTokenText, want: `["\nUser:"]`},
+		{name: "omitted", mode: StopTokenNone, want: ""},
+		{name: "legacy EOS", mode: StopTokenEOS, want: "[0]"},
+		{name: "explicit ID list", mode: StopTokenEOS, tokenIDs: []int{0, 261}, want: "[0,261]"},
+	} {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+			var received requestBody
+			var receivedFields map[string]json.RawMessage
+			server := httptest.NewServer(
+				http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+					body, err := io.ReadAll(request.Body)
+					if err != nil {
+						t.Error(err)
+					}
+					if err := json.Unmarshal(body, &received); err != nil {
+						t.Error(err)
+					}
+					if err := json.Unmarshal(body, &receivedFields); err != nil {
+						t.Error(err)
+					}
+					writeSSE(
+						writer,
+						`{"choices":[{"index":0,"delta":{"content":"ok"}}]}`,
+						`{"choices":[{"index":0,"delta":{},"finish_reason":"stop"}]}`,
+					)
+				}),
+			)
+			defer server.Close()
+			client, err := New(Config{
+				Endpoint:      server.URL,
+				Model:         "rwkv7-13b",
+				StopTokenMode: testCase.mode,
+				StopTokenIDs:  testCase.tokenIDs,
+			})
+			if err != nil {
+				t.Fatal(err)
+			}
+			if _, err := client.Continue(context.Background(), validRequest(), nil); err != nil {
+				t.Fatal(err)
+			}
+			stopTokens, exists := receivedFields["stop_tokens"]
+			if exists != (testCase.want != "") {
+				t.Fatalf("stop_tokens present = %v, want %v", exists, testCase.want != "")
+			}
+			if exists && string(stopTokens) != testCase.want {
+				t.Fatalf("stop_tokens = %s, want %s", stopTokens, testCase.want)
+			}
+		})
+	}
+}
+
+func TestClientRejectsUnknownStopTokenMode(t *testing.T) {
+	t.Parallel()
+	if _, err := New(Config{
+		Endpoint:      "https://example.test/v1/chat/completions",
+		Model:         "rwkv7-13b",
+		StopTokenMode: StopTokenMode("token-ids"),
+	}); err == nil {
+		t.Fatal("New accepted an unknown stop token mode")
+	}
+}
+
+func TestInferFinishReasonRecoversLengthWithoutFinishReason(t *testing.T) {
+	t.Parallel()
+	for _, testCase := range []struct {
+		name   string
+		finish continuation.FinishReason
+		usage  continuation.Usage
+		deltas int
+		maxTok int
+		want   continuation.FinishReason
+	}{
+		{
+			name:   "budget exhausted by delta count",
+			finish: continuation.FinishUnknown,
+			deltas: 64,
+			maxTok: 64,
+			want:   continuation.FinishLength,
+		},
+		{
+			name:   "budget exhausted by reported usage",
+			finish: continuation.FinishUnknown,
+			usage:  continuation.Usage{CompletionTokens: 64},
+			deltas: 3,
+			maxTok: 64,
+			want:   continuation.FinishLength,
+		},
+		{
+			name:   "server stopped short of the budget",
+			finish: continuation.FinishUnknown,
+			deltas: 12,
+			maxTok: 64,
+			want:   continuation.FinishStop,
+		},
+		{
+			name:   "explicit finish reason is preserved",
+			finish: continuation.FinishStop,
+			deltas: 64,
+			maxTok: 64,
+			want:   continuation.FinishStop,
+		},
+		{
+			name:   "no budget still reports a normal stop",
+			finish: continuation.FinishUnknown,
+			deltas: 64,
+			maxTok: 0,
+			want:   continuation.FinishStop,
+		},
+		{
+			name:   "empty stream stays unknown",
+			finish: continuation.FinishUnknown,
+			deltas: 0,
+			maxTok: 64,
+			want:   continuation.FinishUnknown,
+		},
+	} {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+			got := inferFinishReason(
+				testCase.finish,
+				testCase.usage,
+				testCase.deltas,
+				testCase.maxTok,
+			)
+			if got != testCase.want {
+				t.Fatalf("finish reason = %q, want %q", got, testCase.want)
+			}
+		})
+	}
+}
+
+func TestClientReportsLengthFinishForTruncatedStream(t *testing.T) {
+	t.Parallel()
+	server := httptest.NewServer(
+		http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+			writeSSE(
+				writer,
+				`{"choices":[{"index":0,"delta":{"content":"a"}}]}`,
+				`{"choices":[{"index":0,"delta":{"content":"b"}}]}`,
+				`{"choices":[{"index":0,"delta":{"content":"c"}}]}`,
+			)
+		}),
+	)
+	defer server.Close()
+	client, err := New(Config{Endpoint: server.URL, Model: "rwkv7-13b"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	request := validRequest()
+	request.MaxOutputTokens = 3
+	result, err := client.Continue(context.Background(), request, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.FinishReason != continuation.FinishLength {
+		t.Fatalf("finish reason = %q, want %q", result.FinishReason, continuation.FinishLength)
+	}
+	if result.Text != "abc" {
+		t.Fatalf("text = %q", result.Text)
+	}
+}
+
+// TestClientReportsStopWhenServerConsumesStopSequence covers the regression that
+// produced 0/18 in runs/v9-rwkv13b-think-boundary. With server-side stops enabled
+// the server halts on the stop sequence and never echoes it, so a correct route
+// arrives as a bare "inspect" with no finish_reason. Reporting FinishUnknown made
+// the protocol reject it as an incomplete envelope; it must be FinishStop.
+func TestClientReportsStopWhenServerConsumesStopSequence(t *testing.T) {
+	t.Parallel()
+	server := httptest.NewServer(
+		http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+			writeSSE(writer, `{"choices":[{"index":0,"delta":{"content":"inspect"}}]}`)
+		}),
+	)
+	defer server.Close()
+	client, err := New(Config{Endpoint: server.URL, Model: "rwkv7-13b"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	request := validRequest()
+	request.MaxOutputTokens = 512
+	request.Stops = []string{"</route>", "\nUser:"}
+	result, err := client.Continue(context.Background(), request, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.FinishReason != continuation.FinishStop {
+		t.Fatalf("finish reason = %q, want %q", result.FinishReason, continuation.FinishStop)
+	}
+	if result.Text != "inspect" {
+		t.Fatalf("text = %q", result.Text)
+	}
+}
+
+// TestClientBufferedTransport covers stream=false, added because this
+// deployment's SSE path degrades to HTTP 200 with an empty body under load. The
+// buffered shape carries a real finish_reason, so nothing has to be inferred.
+func TestClientBufferedTransport(t *testing.T) {
+	t.Parallel()
+	var received requestBody
+	server := httptest.NewServer(
+		http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+			body, err := io.ReadAll(request.Body)
+			if err != nil {
+				t.Error(err)
+			}
+			if err := json.Unmarshal(body, &received); err != nil {
+				t.Error(err)
+			}
+			writer.Header().Set("Content-Type", "application/json")
+			_, _ = writer.Write([]byte(
+				`{"id":"rwkv7-batch","object":"chat.completion","choices":` +
+					`[{"index":0,"message":{"role":"assistant","content":"inspect"},` +
+					`"finish_reason":"stop"}],` +
+					`"usage":{"prompt_tokens":31,"completion_tokens":2}}`,
+			))
+		}),
+	)
+	defer server.Close()
+	buffered := false
+	client, err := New(Config{Endpoint: server.URL, Model: "rwkv7-13b", Stream: &buffered})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var streamed string
+	result, err := client.Continue(
+		context.Background(),
+		validRequest(),
+		func(event continuation.Event) error {
+			streamed += event.Text
+			return nil
+		},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if received.Stream {
+		t.Fatal("buffered client requested stream=true")
+	}
+	if result.Text != "inspect" || streamed != "inspect" {
+		t.Fatalf("text = %q, streamed = %q", result.Text, streamed)
+	}
+	if result.FinishReason != continuation.FinishStop {
+		t.Fatalf("finish reason = %q", result.FinishReason)
+	}
+	if result.Usage.CompletionTokens != 2 || result.Usage.PromptTokens != 31 {
+		t.Fatalf("usage = %+v", result.Usage)
+	}
+}
+
+func TestClientBufferedTransportAppliesStopsAndErrors(t *testing.T) {
+	t.Parallel()
+	for _, testCase := range []struct {
+		name     string
+		body     string
+		wantText string
+		wantErr  bool
+	}{
+		{
+			name: "decoded-text stop truncates the full body",
+			body: `{"choices":[{"index":0,"message":{"content":"done\nUser: next"},` +
+				`"finish_reason":"length"}]}`,
+			wantText: "done",
+		},
+		{
+			name:    "error field surfaces as a remote failure",
+			body:    `{"error":{"message":"model unavailable"}}`,
+			wantErr: true,
+		},
+		{
+			name:    "missing choices is a remote failure",
+			body:    `{"choices":[]}`,
+			wantErr: true,
+		},
+		{
+			name:    "malformed JSON is a remote failure",
+			body:    `not json`,
+			wantErr: true,
+		},
+	} {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+			server := httptest.NewServer(
+				http.HandlerFunc(func(writer http.ResponseWriter, _ *http.Request) {
+					_, _ = writer.Write([]byte(testCase.body))
+				}),
+			)
+			defer server.Close()
+			buffered := false
+			client, err := New(Config{
+				Endpoint: server.URL,
+				Model:    "rwkv7-13b",
+				Stream:   &buffered,
+			})
+			if err != nil {
+				t.Fatal(err)
+			}
+			result, err := client.Continue(context.Background(), validRequest(), nil)
+			if testCase.wantErr {
+				if err == nil {
+					t.Fatalf("expected a remote error, got %+v", result)
+				}
+				if !errors.Is(err, ErrRemote) {
+					t.Fatalf("error %v does not wrap ErrRemote", err)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			if result.Text != testCase.wantText {
+				t.Fatalf("text = %q, want %q", result.Text, testCase.wantText)
+			}
+			// A consumed stop wins over the server's own finish_reason.
+			if result.FinishReason != continuation.FinishStop {
+				t.Fatalf("finish reason = %q", result.FinishReason)
+			}
+		})
 	}
 }
 
