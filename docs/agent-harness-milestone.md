@@ -120,8 +120,34 @@ v9→v10 期间 RWKV 自身的收束改善：思考失控由 6/53 降至 2/51，
 
 已知 Harness 债务：`runner.go` 已累积 15 种以上互相交织的兜底机制（1114 行）；
 decision 阶段 system 指令占 prompt 的 72%（1713/2384 字符），其中多条负向约束是历史
-补丁；`route` 阶段占 26% 的模型调用但两个模型准确率均为 100%，且判错代价极高。
-`think` 前缀“留半个 tag 让模型补”的机械约定可以移除——RWKV 已原生训练该格式。
+补丁。
+
+### 2026-08-10 简化：移除半 tag 约定，route 阶段默认关闭
+
+两项都是减法，均在 rwkv7-g1i-13.3b 上实测。
+
+`think` 前缀改为给出完整标签。原先 prompt 结尾是 `Assistant: <think`，把最后一个 `>`
+留给模型生成，因此需要 `reconstructOutput` 把标签补回，并在 prompt 里用四处文字向模型
+解释这个纯框架侧的机械约定。RWKV 已原生训练该格式，故直接给完整标签并删除两者。
+该改动暴露一个真实缺陷：`leadingThinkBlocks` 原先要求以 `<think>` 开头才剥离推理，而
+开标签改由 prompt 给出后模型输出从块内开始，剥离会失效，整段推理会被当作最终答案提交。
+
+`route` 阶段改为 `--route-stage`，**默认关闭**。它是早期为小模型加的引导脚手架，每轮
+多花一次模型调用。route 判分与断言改为仅在该阶段真实运行时生效：关闭时每轮携带硬编码
+`inspect` 默认值，若照常计分会白送 100% 准确率；manifest 新增 `route_stage` 字段。
+
+| suite | 有 route | 无 route |
+|---|---|---|
+| boundary | 13/18，69 次调用，345s，协议 96.1% | 13/18，**48 次调用，250s，协议 100%** |
+| assistant | 2/6 | **3/6** |
+
+boundary 失败集合完全相同，无任何 case 因此回退。assistant 唯一差异是
+`as_ambiguous_needs_clarify`：模型行为本身正确（输出“请问您想查询哪个城市的天气？”、
+零工具调用），但 route 阶段将其判为 `inspect`，case 仅因 route 断言失败——即该阶段在这
+一题上是唯一的失败来源，而非保护。产物：`runs/v11-rwkv13b-noroute`、
+`runs/v11-rwkv13b-assistant-noroute`、`runs/v11-rwkv13b-assistant-route`。
+
+仅在 13B 上验证。更小的模型可用 `--route-stage` 重新开启。
 
 2026-07-30 的 `rwkv-g1i-13b-4922` 远程 smoke test 覆盖直接回答、`read_file` 和
 `search_text`，三条均完成且未触发协议重试。旧裸 JSON 协议已经删除。协议结构参考

@@ -233,8 +233,9 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		fs.BoolVar(
 			&options.routeStage,
 			"route-stage",
-			true,
-			"run a separate respond/inspect routing call before the decision stage",
+			false,
+			"run a separate respond/inspect routing call before the decision stage; "+
+				"an early scaffold for small models, off by default",
 		)
 		fs.BoolVar(&options.fewShot, "few-shot", false, "enable agent decision trajectory examples")
 		fs.IntVar(

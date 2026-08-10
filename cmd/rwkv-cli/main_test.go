@@ -119,8 +119,11 @@ func TestAgentDefaultsAreDeterministicAndBounded(t *testing.T) {
 	if options.routeMaxTokens != 16 {
 		t.Fatalf("agent route token limit = %d", options.routeMaxTokens)
 	}
-	if !options.routeStage {
-		t.Fatal("agent disabled the route stage by default")
+	// The route stage was an early scaffold for small models. It costs a model
+	// call per turn and 13B-class models route correctly inside the decision
+	// stage, so it is off unless asked for.
+	if options.routeStage {
+		t.Fatal("agent enabled the route stage by default")
 	}
 	if options.workspace != "." || options.maxSteps != 6 {
 		t.Fatalf("agent bounds = %+v", options)
@@ -183,16 +186,26 @@ func TestAgentRouteStageIsConfigurable(t *testing.T) {
 	if disabled.Router != nil || disabled.RouteRenderer != nil {
 		t.Fatalf("route stage disabled but router = %+v", disabled.Router)
 	}
-	parsed, err := parseRunOptions("agent", []string{
-		"--model", "m",
-		"--prompt", "task",
-		"--route-stage=false",
-	})
-	if err != nil {
-		t.Fatal(err)
-	}
-	if parsed.routeStage {
-		t.Fatal("--route-stage=false did not disable the route stage")
+	for _, testCase := range []struct {
+		args []string
+		want bool
+	}{
+		{args: []string{"--route-stage"}, want: true},
+		{args: []string{"--route-stage=true"}, want: true},
+		{args: []string{"--route-stage=false"}, want: false},
+		{args: nil, want: false},
+	} {
+		parsed, err := parseRunOptions("agent", append([]string{
+			"--model", "m",
+			"--prompt", "task",
+		}, testCase.args...))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if parsed.routeStage != testCase.want {
+			t.Fatalf("route stage with %v = %v, want %v",
+				testCase.args, parsed.routeStage, testCase.want)
+		}
 	}
 }
 

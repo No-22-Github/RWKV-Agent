@@ -274,12 +274,23 @@ Agent 默认使用 `temperature=1`、`top-k=1`、`top-p=1` 的确定性解码，
 
 ```text
 --max-steps <2..20>
+--route-stage[=true|false]
 --route-max-tokens <n>
 --decision-max-tokens <n>
 --max-tokens <n>
 --workspace <directory>
 --thinking off|fast|full
 ```
+
+`--route-stage` 在 decision 之前额外跑一次 respond/inspect 分类调用，默认关闭。它是早期
+为小模型加的引导脚手架，每轮多花一次模型调用；13B 级模型在 decision 阶段内部就能正确
+判断该不该调工具。rwkv7-g1i-13.3b 实测：boundary 两种模式都是 13/18，但关闭后模型调用
+由 69 降到 48、耗时由 345s 降到 250s、协议合规由 96.1% 升到 100%，失败集合完全相同；
+assistant 由 2/6 升到 3/6，唯一差异是 `as_ambiguous_needs_clarify` —— 模型行为本身正确
+（追问城市、零工具调用），但 route 阶段把它判成 `inspect`，case 仅因 route 断言失败。
+更小的模型可以用 `--route-stage` 重新开启。开启时 route 判分和断言才生效：关闭时每轮带的
+是硬编码 `inspect` 默认值，计入 route 准确率会白送一个 100%，因此 summary 记为 `n/a`，
+manifest 里同时记录 `route_stage`。
 
 使用 `rwkv_lightning` 的原生续写接口：
 
