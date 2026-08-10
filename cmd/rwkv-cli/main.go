@@ -45,6 +45,7 @@ type runOptions struct {
 	maxTokens          int
 	decisionMaxTokens  int
 	routeMaxTokens     int
+	routeStage         bool
 	tracePromptBytes   int
 	temperature        float64
 	topK               int
@@ -229,6 +230,12 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		fs.IntVar(&options.maxSteps, "max-steps", 6, "maximum model steps including protocol retries")
 		fs.IntVar(&options.decisionMaxTokens, "decision-max-tokens", 96, "maximum generated tokens for tool selection")
 		fs.IntVar(&options.routeMaxTokens, "route-max-tokens", 16, "maximum generated tokens for respond/inspect routing")
+		fs.BoolVar(
+			&options.routeStage,
+			"route-stage",
+			true,
+			"run a separate respond/inspect routing call before the decision stage",
+		)
 		fs.BoolVar(&options.fewShot, "few-shot", false, "enable agent decision trajectory examples")
 		fs.IntVar(
 			&options.tracePromptBytes,
@@ -684,7 +691,7 @@ type noopCloser struct{}
 func (noopCloser) Close() error { return nil }
 
 func agentRunnerOptions(options runOptions, observe func(agent.Event)) agent.Options {
-	return agent.Options{
+	agentOptions := agent.Options{
 		MaxSteps:                options.maxSteps,
 		ProtocolRetries:         1,
 		DecisionMaxOutputTokens: options.decisionMaxTokens,
@@ -693,8 +700,6 @@ func agentRunnerOptions(options runOptions, observe func(agent.Event)) agent.Opt
 		Renderer: agent.RWKVChatRenderer{
 			ThinkingMode: inference.ThinkingMode(options.thinkingMode),
 		},
-		Router:               agent.G1IRouteProtocol{},
-		RouteRenderer:        agent.RWKVChatRenderer{},
 		RouteRetries:         1,
 		RouteMaxOutputTokens: options.routeMaxTokens,
 		TracePromptBytes:     options.tracePromptBytes,
@@ -712,6 +717,11 @@ func agentRunnerOptions(options runOptions, observe func(agent.Event)) agent.Opt
 		},
 		Observe: observe,
 	}
+	if options.routeStage {
+		agentOptions.Router = agent.G1IRouteProtocol{}
+		agentOptions.RouteRenderer = agent.RWKVChatRenderer{}
+	}
+	return agentOptions
 }
 
 func runAgent(args []string) error {

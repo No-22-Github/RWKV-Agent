@@ -19,7 +19,10 @@ const (
 	RWKVPromptRendererV2 = "rwkv-chat-continuation-v2"
 )
 
-var leadingThinkBlocks = regexp.MustCompile(`(?s)\A\s*(?:<think>.*?</think>\s*)+`)
+// leadingThinkBlocks strips reasoning that precedes the action. The opening
+// <think> is optional because the prompt supplies it for the thinking modes, so
+// the model's own output starts inside the block and only closes it.
+var leadingThinkBlocks = regexp.MustCompile(`(?s)\A\s*(?:(?:<think>)?.*?</think>\s*)+`)
 
 // Protocol failure classes that need targeted correction guidance. They wrap
 // ErrProtocol so existing callers keep matching on that sentinel.
@@ -133,9 +136,9 @@ Assistant: VALUE=cedar`)
 func thinkingControl(mode inference.ThinkingMode) string {
 	switch mode {
 	case inference.ThinkingFast:
-		return "Never mix commentary with a tool call. The Assistant prefix ends with <think></think and leaves its final > for you. Generate > first, then output exactly one action. Do not open another <think> block, use Markdown fences around tool JSON, or emit role labels."
+		return "Never mix commentary with a tool call. Output exactly one action. Do not open a <think> block, use Markdown fences around tool JSON, or emit role labels."
 	case inference.ThinkingFull:
-		return "Never mix commentary with a tool call. The Assistant prefix ends with <think and leaves its final > for you. Generate > first, think inside the current block, close it with </think>, then output exactly one action. Do not open another <think> block, use Markdown fences around tool JSON, or emit role labels."
+		return "Never mix commentary with a tool call. Close your thinking with </think>, then output exactly one action. Do not use Markdown fences around tool JSON or emit role labels."
 	default:
 		return "Never mix commentary with a tool call. Do not emit <think>, Markdown fences around tool JSON, or role labels."
 	}
@@ -279,10 +282,10 @@ Unless the user explicitly asks for detail, keep the answer concise and use at m
 	switch thinkingMode {
 	case inference.ThinkingFast:
 		answerControl += `
-The Assistant prefix ends with <think></think and leaves its final > for you. Generate > first, then output only <answer>USER_VISIBLE_ANSWER</answer>. Do not open another <think> block.`
+Output only <answer>USER_VISIBLE_ANSWER</answer>. Do not open a <think> block.`
 	case inference.ThinkingFull:
 		answerControl += `
-The Assistant prefix ends with <think and leaves its final > for you. Generate > first, think inside the current block, close it with </think>, then output only <answer>USER_VISIBLE_ANSWER</answer>. Do not open another <think> block.`
+Close your thinking with </think>, then output only <answer>USER_VISIBLE_ANSWER</answer>.`
 	default:
 		answerControl += `
 Do not expose hidden reasoning. The opening <answer> tag is already supplied. Output only the user-visible answer followed by </answer>.`
@@ -484,9 +487,9 @@ func (renderer RWKVChatRenderer) Render(messages []Message) (string, error) {
 	prompt.WriteString("Assistant:")
 	switch renderer.thinkingMode() {
 	case inference.ThinkingFast:
-		prompt.WriteString(" <think></think")
+		prompt.WriteString(" <think></think>")
 	case inference.ThinkingFull:
-		prompt.WriteString(" <think")
+		prompt.WriteString(" <think>")
 	}
 	return prompt.String(), nil
 }
@@ -506,20 +509,6 @@ func (renderer RWKVChatRenderer) appendAssistantPrefix(prompt, prefix string) (s
 		return prompt, false
 	}
 	return prompt + " " + prefix, true
-}
-
-func (renderer RWKVChatRenderer) reconstructOutput(output string) string {
-	if strings.HasPrefix(strings.TrimSpace(output), "<think>") {
-		return output
-	}
-	switch renderer.thinkingMode() {
-	case inference.ThinkingFast:
-		return "<think></think" + output
-	case inference.ThinkingFull:
-		return "<think" + output
-	default:
-		return output
-	}
 }
 
 func renderRole(role MessageRole) (string, error) {

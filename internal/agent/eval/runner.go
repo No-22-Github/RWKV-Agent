@@ -30,9 +30,6 @@ func Run(ctx context.Context, config Config) (Report, error) {
 	if config.GeneratorFactory == nil {
 		return Report{}, fmt.Errorf("eval generator factory is required")
 	}
-	if config.Runner.Router == nil {
-		return Report{}, fmt.Errorf("eval runner requires a route protocol")
-	}
 	if config.CaseTimeout <= 0 {
 		config.CaseTimeout = defaultCaseTimeout
 	}
@@ -96,6 +93,14 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 	if g1iProtocol, ok := protocol.(agent.G1IProtocol); ok {
 		fewShot = g1iProtocol.FewShot
 	}
+	// The route stage is optional: larger models route correctly inside the
+	// decision stage, so it can be skipped to save a call per turn. Record which
+	// mode ran, because with no router every turn defaults to the inspect route
+	// and route_accuracy would otherwise credit that default as a decision.
+	routeProtocol := ""
+	if config.Runner.Router != nil {
+		routeProtocol = config.Runner.Router.ID()
+	}
 	caseIDs := make([]string, len(config.Cases))
 	for index, testCase := range config.Cases {
 		caseIDs[index] = testCase.ID
@@ -111,7 +116,8 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 			Protocol:                protocol.ID(),
 			Renderer:                renderer.ID(),
 			RouteRenderer:           routeRenderer.ID(),
-			RouteProtocol:           config.Runner.Router.ID(),
+			RouteProtocol:           routeProtocol,
+			RouteStage:              config.Runner.Router != nil,
 			ControlPrompt:           string(controlPrompt),
 			ThinkingMode:            string(thinkingMode),
 			Reasoning:               thinkingMode != inference.ThinkingOff,
@@ -277,7 +283,10 @@ func validateTurn(
 	if runErr != nil {
 		failures = append(failures, "runner error: "+runErr.Error())
 	}
-	if expect.Route != "" && result.Route != expect.Route {
+	// Route is only asserted when the route stage ran. Without it the runner
+	// carries a hardcoded inspect default, so asserting the route would fail
+	// respond-expecting cases on a technicality rather than on behaviour.
+	if expect.Route != "" && len(result.RouteSteps) > 0 && result.Route != expect.Route {
 		failures = append(
 			failures,
 			fmt.Sprintf("route = %q, want %q", result.Route, expect.Route),
@@ -697,7 +706,10 @@ func summarize(
 				summary.Metrics.PlanRejections += turnResult.Result.PlanRejections
 				summary.Metrics.PlanFallbacks += turnResult.Result.PlanFallbacks
 			}
-			if expect.Route != "" {
+			// Only score routing when the route stage actually ran. With the
+			// stage disabled every turn carries the hardcoded inspect default,
+			// and counting that as a decision would report a free 100%.
+			if expect.Route != "" && len(turnResult.Result.RouteSteps) > 0 {
 				summary.Metrics.RouteAccuracy.Total++
 				if turnResult.Result.Route == expect.Route {
 					summary.Metrics.RouteAccuracy.Correct++

@@ -58,9 +58,9 @@ Workspace tools are unavailable for this turn. Do not claim to have inspected fi
 `
 	switch mode {
 	case inference.ThinkingFast:
-		return prompt + "The Assistant prefix ends with <think></think and leaves its final > for you. Generate > first, then answer directly. Do not open another <think> block, output tool calls, or emit role labels."
+		return prompt + "Answer directly. Do not open a <think> block, output tool calls, or emit role labels."
 	case inference.ThinkingFull:
-		return prompt + "The Assistant prefix ends with <think and leaves its final > for you. Generate > first, think inside the current block, close it with </think>, then answer directly. Do not open another <think> block, output tool calls, or emit role labels."
+		return prompt + "Close your thinking with </think>, then answer directly. Do not output tool calls or emit role labels."
 	default:
 		return prompt + "Do not output tool calls, role labels, or hidden reasoning."
 	}
@@ -567,9 +567,6 @@ func (r *Runner) RunWithObserver(
 		result.Steps = append(result.Steps, current)
 
 		modelAction := generated.Text
-		if renderer, ok := r.renderer.(interface{ reconstructOutput(string) string }); ok {
-			modelAction = renderer.reconstructOutput(modelAction)
-		}
 		if injectedPrefix &&
 			!strings.HasPrefix(strings.TrimSpace(modelAction), assistantPrefix) {
 			modelAction = assistantPrefix + modelAction

@@ -113,6 +113,77 @@ func TestRunnerExecutesToolThenReturnsFinal(t *testing.T) {
 // gone, so the response is an unclosed <think> block with no action. The retry
 // must not carry that reasoning back into the prompt, and it must be told to
 // close the block, otherwise it loops the same way and the turn is lost.
+// TestRunnerWithoutRouterStillAnswersAndCallsTools covers --route-stage=false.
+// The route stage exists to steer small models, but it costs a model call per
+// turn and both RWKV 13B and DeepSeek v4-flash route at 100%, so larger models
+// can skip it. With no router the route defaults to inspect; a turn that never
+// attempts a tool must still be allowed to answer, and tool use must still work.
+func TestRunnerWithoutRouterStillAnswersAndCallsTools(t *testing.T) {
+	t.Parallel()
+	for _, testCase := range []struct {
+		name       string
+		outputs    []string
+		task       string
+		wantOutput string
+		wantSteps  int
+	}{
+		{
+			name:       "direct answer needs no tool evidence",
+			outputs:    []string{"你好！有什么可以帮你的？"},
+			task:       "你好",
+			wantOutput: "你好！有什么可以帮你的？",
+			wantSteps:  1,
+		},
+		{
+			name: "tool use still works",
+			outputs: []string{
+				`<tool_call>{"name":"echo","arguments":{"value":"hi"}}</tool_call>`,
+				"The tool returned hi.",
+			},
+			task:       "Use echo.",
+			wantOutput: "The tool returned hi.",
+			wantSteps:  2,
+		},
+	} {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+			calls := 0
+			runner, err := NewRunner(
+				continuation.GenerateFunc(func(
+					_ context.Context,
+					_ continuation.Request,
+					_ continuation.EventSink,
+				) (continuation.Result, error) {
+					calls++
+					return continuation.Result{
+						Text:         testCase.outputs[calls-1],
+						FinishReason: continuation.FinishStop,
+					}, nil
+				}),
+				[]Tool{echoTool{}},
+				// No Router: the route stage is disabled.
+				Options{MaxSteps: 3},
+			)
+			if err != nil {
+				t.Fatal(err)
+			}
+			result, err := runner.Run(context.Background(), testCase.task)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if result.Output != testCase.wantOutput {
+				t.Fatalf("output = %q, want %q", result.Output, testCase.wantOutput)
+			}
+			if len(result.Steps) != testCase.wantSteps {
+				t.Fatalf("steps = %d, want %d", len(result.Steps), testCase.wantSteps)
+			}
+			if len(result.RouteSteps) != 0 {
+				t.Fatalf("route steps = %d, want none", len(result.RouteSteps))
+			}
+		})
+	}
+}
+
 func TestRunnerRecoversFromRunawayReasoning(t *testing.T) {
 	t.Parallel()
 	runaway := "<think>" + strings.Repeat("wait, let me re-read the task. ", 300)
@@ -224,16 +295,16 @@ func TestRunnerRendersThinkingModeAwareControlAndExactBoundary(t *testing.T) {
 		{
 			name:        "fast",
 			mode:        inference.ThinkingFast,
-			response:    ">done",
-			wantControl: "prefix ends with <think></think and leaves its final >",
-			wantSuffix:  "Assistant: <think></think",
+			response:    "done",
+			wantControl: "Output exactly one action.",
+			wantSuffix:  "Assistant: <think></think>",
 		},
 		{
 			name:        "full",
 			mode:        inference.ThinkingFull,
-			response:    ">plan</think>done",
-			wantControl: "prefix ends with <think and leaves its final >",
-			wantSuffix:  "Assistant: <think",
+			response:    "plan</think>done",
+			wantControl: "Close your thinking with </think>",
+			wantSuffix:  "Assistant: <think>",
 		},
 	}
 	for _, test := range tests {
@@ -282,12 +353,12 @@ func TestDirectResponseControlUsesThinkingModeBoundary(t *testing.T) {
 	t.Parallel()
 	fast := directResponseControl(inference.ThinkingFast)
 	full := directResponseControl(inference.ThinkingFull)
-	if !strings.Contains(fast, "prefix ends with <think></think and leaves its final >") ||
-		strings.Contains(fast, "think inside the current block") {
+	if !strings.Contains(fast, "Answer directly.") ||
+		strings.Contains(fast, "Close your thinking") {
 		t.Fatalf("fast control = %q", fast)
 	}
-	if !strings.Contains(full, "prefix ends with <think and leaves its final >") ||
-		!strings.Contains(full, "close it with </think>") {
+	if !strings.Contains(full, "Close your thinking with </think>") ||
+		!strings.Contains(full, "answer directly") {
 		t.Fatalf("full control = %q", full)
 	}
 }

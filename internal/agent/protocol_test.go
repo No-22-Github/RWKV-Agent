@@ -33,15 +33,17 @@ func TestFullThinkingRendererFramesOutputWithoutToolPrefixInjection(t *testing.T
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.HasSuffix(prompt, "Assistant: <think") {
+	if !strings.HasSuffix(prompt, "Assistant: <think>") {
 		t.Fatalf("full thinking prompt = %q", prompt)
 	}
 	framed, injected := renderer.appendAssistantPrefix(prompt, "<tool_call>")
 	if injected || framed != prompt {
 		t.Fatalf("full thinking prefix framing = %q, injected=%v", framed, injected)
 	}
-	output := renderer.reconstructOutput(">inspect</think>\n<tool_call>{\"name\":\"x\",\"arguments\":{}}</tool_call>")
-	action, err := (G1IProtocol{}).Parse(output, continuation.FinishStop)
+	action, err := (G1IProtocol{}).Parse(
+		"reasoning</think>\n<tool_call>{\"name\":\"x\",\"arguments\":{}}</tool_call>",
+		continuation.FinishStop,
+	)
 	if err != nil || action.Type != "tool" {
 		t.Fatalf("full thinking parse = %+v, %v", action, err)
 	}
@@ -54,15 +56,17 @@ func TestFastThinkingRendererUsesExactTokenBoundary(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.HasSuffix(prompt, "Assistant: <think></think") {
+	if !strings.HasSuffix(prompt, "Assistant: <think></think>") {
 		t.Fatalf("fast thinking prompt = %q", prompt)
 	}
 	framed, injected := renderer.appendAssistantPrefix(prompt, "<tool_call>")
 	if injected || framed != prompt {
 		t.Fatalf("fast thinking prefix framing = %q, injected=%v", framed, injected)
 	}
-	output := renderer.reconstructOutput("><tool_call>{\"name\":\"x\",\"arguments\":{}}</tool_call>")
-	action, err := (G1IProtocol{}).Parse(output, continuation.FinishStop)
+	action, err := (G1IProtocol{}).Parse(
+		"<tool_call>{\"name\":\"x\",\"arguments\":{}}</tool_call>",
+		continuation.FinishStop,
+	)
 	if err != nil || action.Type != "tool" {
 		t.Fatalf("fast thinking parse = %+v, %v", action, err)
 	}
@@ -280,13 +284,13 @@ func TestG1IProtocolUsesThinkingModeAwareControl(t *testing.T) {
 		{
 			name:     "fast",
 			mode:     inference.ThinkingFast,
-			want:     "prefix ends with <think></think and leaves its final >",
-			unwanted: "think inside the current block",
+			want:     "Output exactly one action.",
+			unwanted: "Close your thinking",
 		},
 		{
 			name:     "full",
 			mode:     inference.ThinkingFull,
-			want:     "prefix ends with <think and leaves its final >",
+			want:     "Close your thinking with </think>",
 			unwanted: "Do not emit <think>",
 		},
 	}
@@ -365,13 +369,13 @@ func TestG1IProtocolUsesThinkingModeAwareForcedAnswerControl(t *testing.T) {
 		{
 			name:     "fast",
 			mode:     inference.ThinkingFast,
-			want:     "prefix ends with <think></think and leaves its final >",
+			want:     "Output only <answer>USER_VISIBLE_ANSWER</answer>.",
 			unwanted: "opening <answer> tag is already supplied",
 		},
 		{
 			name:     "full",
 			mode:     inference.ThinkingFull,
-			want:     "think inside the current block, close it with </think>",
+			want:     "Close your thinking with </think>",
 			unwanted: "Do not expose hidden reasoning",
 		},
 	}
@@ -448,7 +452,7 @@ func TestRWKVChatRendererBuildsRawContinuationPrompt(t *testing.T) {
 		"User: task",
 		"Assistant: <tool_call>",
 		"Tool: <tool_result>",
-		"Assistant: <think></think",
+		"Assistant: <think></think>",
 	} {
 		if !strings.Contains(prompt, fragment) {
 			t.Fatalf("prompt does not contain %q:\n%s", fragment, prompt)

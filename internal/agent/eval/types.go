@@ -92,6 +92,7 @@ type HarnessMetadata struct {
 	Renderer                string `json:"renderer"`
 	RouteRenderer           string `json:"route_renderer"`
 	RouteProtocol           string `json:"route_protocol"`
+	RouteStage              bool   `json:"route_stage"`
 	ControlPrompt           string `json:"control_prompt"`
 	ThinkingMode            string `json:"thinking_mode"`
 	Reasoning               bool   `json:"reasoning"`

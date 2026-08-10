@@ -72,9 +72,9 @@ func CompileGeneratePrompt(request GenerateRequest) (string, error) {
 	formatted := prompt.String()
 	switch PromptThinkingMode(request.Prompt) {
 	case ThinkingFast:
-		formatted += " <think></think"
+		formatted += " <think></think>"
 	case ThinkingFull:
-		formatted += " <think"
+		formatted += " <think>"
 	}
 	return formatted, nil
 }

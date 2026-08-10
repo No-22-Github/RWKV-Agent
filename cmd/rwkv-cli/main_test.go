@@ -119,6 +119,9 @@ func TestAgentDefaultsAreDeterministicAndBounded(t *testing.T) {
 	if options.routeMaxTokens != 16 {
 		t.Fatalf("agent route token limit = %d", options.routeMaxTokens)
 	}
+	if !options.routeStage {
+		t.Fatal("agent disabled the route stage by default")
+	}
 	if options.workspace != "." || options.maxSteps != 6 {
 		t.Fatalf("agent bounds = %+v", options)
 	}
@@ -166,6 +169,30 @@ func TestAgentDefaultsAreDeterministicAndBounded(t *testing.T) {
 		[]string{"--model", "model", "--prompt", "task", "--route-max-tokens", "0"},
 	); err == nil {
 		t.Fatal("agent accepted a non-positive route token limit")
+	}
+}
+
+func TestAgentRouteStageIsConfigurable(t *testing.T) {
+	t.Parallel()
+
+	enabled := agentRunnerOptions(runOptions{routeStage: true}, nil)
+	if enabled.Router == nil || enabled.RouteRenderer == nil {
+		t.Fatal("route stage enabled but no router was attached")
+	}
+	disabled := agentRunnerOptions(runOptions{routeStage: false}, nil)
+	if disabled.Router != nil || disabled.RouteRenderer != nil {
+		t.Fatalf("route stage disabled but router = %+v", disabled.Router)
+	}
+	parsed, err := parseRunOptions("agent", []string{
+		"--model", "m",
+		"--prompt", "task",
+		"--route-stage=false",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if parsed.routeStage {
+		t.Fatal("--route-stage=false did not disable the route stage")
 	}
 }
 
