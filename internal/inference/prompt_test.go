@@ -19,7 +19,7 @@ func TestCompileGeneratePrompt(t *testing.T) {
 				Messages: []Message{TextMessage(RoleUser, "你好")},
 				Prompt:   PromptOptions{ThinkingMode: ThinkingFull},
 			},
-			want: "User: 你好\n\nAssistant: <think>",
+			want: "User: 你好\n\nAssistant: <think",
 		},
 		{
 			name: "reasoning chat",
@@ -27,7 +27,7 @@ func TestCompileGeneratePrompt(t *testing.T) {
 				Messages: []Message{TextMessage(RoleUser, "你好")},
 				Prompt:   PromptOptions{Reasoning: true},
 			},
-			want: "User: 你好\n\nAssistant: <think></think>",
+			want: "User: 你好\n\nAssistant: <think></think",
 		},
 		{
 			name: "plain chat",

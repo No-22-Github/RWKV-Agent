@@ -19,10 +19,7 @@ const (
 	RWKVPromptRendererV2 = "rwkv-chat-continuation-v2"
 )
 
-// leadingThinkBlocks strips reasoning that precedes the action. The opening
-// <think> is optional because the prompt supplies it for the thinking modes, so
-// the model's own output starts inside the block and only closes it.
-var leadingThinkBlocks = regexp.MustCompile(`(?s)\A\s*(?:(?:<think>)?.*?</think>\s*)+`)
+var leadingThinkBlocks = regexp.MustCompile(`(?s)\A\s*(?:<think>.*?</think>\s*)+`)
 
 // Protocol failure classes that need targeted correction guidance. They wrap
 // ErrProtocol so existing callers keep matching on that sentinel.
@@ -485,11 +482,13 @@ func (renderer RWKVChatRenderer) Render(messages []Message) (string, error) {
 		fmt.Fprintf(&prompt, "%s: %s\n\n", renderedRole, content)
 	}
 	prompt.WriteString("Assistant:")
+	// The final ">" is withheld on purpose; see CompileGeneratePrompt. The model
+	// generates it, and reconstructOutput puts the prefix back before parsing.
 	switch renderer.thinkingMode() {
 	case inference.ThinkingFast:
-		prompt.WriteString(" <think></think>")
+		prompt.WriteString(" <think></think")
 	case inference.ThinkingFull:
-		prompt.WriteString(" <think>")
+		prompt.WriteString(" <think")
 	}
 	return prompt.String(), nil
 }
@@ -509,6 +508,23 @@ func (renderer RWKVChatRenderer) appendAssistantPrefix(prompt, prefix string) (s
 		return prompt, false
 	}
 	return prompt + " " + prefix, true
+}
+
+// reconstructOutput restores the think prefix that Render withheld, so the parser
+// sees a well-formed block. The model's output opens with the ">" that completes
+// the tag Render left unfinished.
+func (renderer RWKVChatRenderer) reconstructOutput(output string) string {
+	if strings.HasPrefix(strings.TrimSpace(output), "<think>") {
+		return output
+	}
+	switch renderer.thinkingMode() {
+	case inference.ThinkingFast:
+		return "<think></think" + output
+	case inference.ThinkingFull:
+		return "<think" + output
+	default:
+		return output
+	}
 }
 
 func renderRole(role MessageRole) (string, error) {

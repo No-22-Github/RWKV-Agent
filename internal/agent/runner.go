@@ -567,6 +567,9 @@ func (r *Runner) RunWithObserver(
 		result.Steps = append(result.Steps, current)
 
 		modelAction := generated.Text
+		if renderer, ok := r.renderer.(interface{ reconstructOutput(string) string }); ok {
+			modelAction = renderer.reconstructOutput(modelAction)
+		}
 		if injectedPrefix &&
 			!strings.HasPrefix(strings.TrimSpace(modelAction), assistantPrefix) {
 			modelAction = assistantPrefix + modelAction

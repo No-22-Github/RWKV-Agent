@@ -164,9 +164,11 @@ rwkv7-model-mlx/
 ```
 
 默认使用 RWKV 官方 G1 常规聊天模板 `User: ...\n\nAssistant:`。`--thinking fast`
-预填充完整的 `Assistant: <think></think>` 后快速续写；`--thinking full`
-预填充 `Assistant: <think>`，由模型生成思考内容、闭合 `</think>` 并回答。RWKV 已原生训练
-该思考格式，因此框架给出完整标签，不再留半个标签让模型补齐。旧参数
+严格预填充 `Assistant: <think></think` 后快速续写；`--thinking full`
+严格预填充 `Assistant: <think`。两者最后的 `>` 都**故意不写入 prompt**，由模型生成：RWKV
+的 tokenizer 会把 `>` 与紧随其后的文本合并切分，若在 prompt 里补上这个括号，续写就会从
+一个训练中不存在的 token 边界开始。full 模式再由模型生成思考内容、闭合 `</think>` 并
+回答；解析前由 `reconstructOutput` 把前缀补回。旧参数
 `--reasoning[=true|false]` 仍分别兼容 `fast/off`；不要把 `<|bos|>` 等伪 special token
 写进 prompt。
 

@@ -288,23 +288,23 @@ func TestRunnerRendersThinkingModeAwareControlAndExactBoundary(t *testing.T) {
 		{
 			name:        "off",
 			mode:        inference.ThinkingOff,
-			response:    "done",
+			response:    ">done",
 			wantControl: "Do not emit <think>",
 			wantSuffix:  "Assistant:",
 		},
 		{
 			name:        "fast",
 			mode:        inference.ThinkingFast,
-			response:    "done",
+			response:    ">done",
 			wantControl: "Output exactly one action.",
-			wantSuffix:  "Assistant: <think></think>",
+			wantSuffix:  "Assistant: <think></think",
 		},
 		{
 			name:        "full",
 			mode:        inference.ThinkingFull,
-			response:    "plan</think>done",
+			response:    ">plan</think>done",
 			wantControl: "Close your thinking with </think>",
-			wantSuffix:  "Assistant: <think>",
+			wantSuffix:  "Assistant: <think",
 		},
 	}
 	for _, test := range tests {

@@ -70,11 +70,15 @@ func CompileGeneratePrompt(request GenerateRequest) (string, error) {
 	prompt.WriteString("Assistant:")
 
 	formatted := prompt.String()
+	// The final ">" is deliberately withheld so the model generates it. RWKV
+	// tokenises ">" together with the text that follows it, so supplying the
+	// closing bracket here would start generation from a token boundary the
+	// model never saw in training.
 	switch PromptThinkingMode(request.Prompt) {
 	case ThinkingFast:
-		formatted += " <think></think>"
+		formatted += " <think></think"
 	case ThinkingFull:
-		formatted += " <think>"
+		formatted += " <think"
 	}
 	return formatted, nil
 }

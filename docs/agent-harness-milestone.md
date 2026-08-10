@@ -126,11 +126,16 @@ decision 阶段 system 指令占 prompt 的 72%（1713/2384 字符），其中�
 
 两项都是减法，均在 rwkv7-g1i-13.3b 上实测。
 
-`think` 前缀改为给出完整标签。原先 prompt 结尾是 `Assistant: <think`，把最后一个 `>`
-留给模型生成，因此需要 `reconstructOutput` 把标签补回，并在 prompt 里用四处文字向模型
-解释这个纯框架侧的机械约定。RWKV 已原生训练该格式，故直接给完整标签并删除两者。
-该改动暴露一个真实缺陷：`leadingThinkBlocks` 原先要求以 `<think>` 开头才剥离推理，而
-开标签改由 prompt 给出后模型输出从块内开始，剥离会失效，整段推理会被当作最终答案提交。
+精简 think 前缀的提示词说明。prompt 原先用四处自然语言向模型解释“前缀结尾是 `<think`、
+最后一个 `>` 留给你生成”这一纯框架侧的机械约定，已全部删除——模型不需要被告知框架细节。
+
+**半 tag 机制本身保留**。曾一度连同说明把 prompt 改为给出完整 `<think>`，这是错的：
+RWKV tokenizer 会把 `>` 与紧随其后的文本合并切分，`Assistant: <think` 与
+`Assistant: <think>` 的 token 序列尾部分别是 `[':', ' <', 'think']` 和
+`[':', ' <', 'think', '>']`。在 prompt 里补上 `>` 会让续写从训练中不存在的 token 边界
+开始。该约定的用途是对齐训练分布，不是风格偏好，对应测试
+`TestFastThinkingRendererUsesExactTokenBoundary`。`reconstructOutput` 是其配套：模型输出
+以 `>` 开头，解析前需补回前缀。
 
 `route` 阶段改为 `--route-stage`，**默认关闭**。它是早期为小模型加的引导脚手架，每轮
 多花一次模型调用。route 判分与断言改为仅在该阶段真实运行时生效：关闭时每轮携带硬编码

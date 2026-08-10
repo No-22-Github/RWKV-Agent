@@ -33,17 +33,19 @@ func TestFullThinkingRendererFramesOutputWithoutToolPrefixInjection(t *testing.T
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.HasSuffix(prompt, "Assistant: <think>") {
+	if !strings.HasSuffix(prompt, "Assistant: <think") {
 		t.Fatalf("full thinking prompt = %q", prompt)
 	}
 	framed, injected := renderer.appendAssistantPrefix(prompt, "<tool_call>")
 	if injected || framed != prompt {
 		t.Fatalf("full thinking prefix framing = %q, injected=%v", framed, injected)
 	}
-	action, err := (G1IProtocol{}).Parse(
-		"reasoning</think>\n<tool_call>{\"name\":\"x\",\"arguments\":{}}</tool_call>",
-		continuation.FinishStop,
+	// The model completes the withheld ">" itself; reconstructOutput restores the
+	// prefix so the reasoning block parses as one unit.
+	output := renderer.reconstructOutput(
+		">reasoning</think>\n<tool_call>{\"name\":\"x\",\"arguments\":{}}</tool_call>",
 	)
+	action, err := (G1IProtocol{}).Parse(output, continuation.FinishStop)
 	if err != nil || action.Type != "tool" {
 		t.Fatalf("full thinking parse = %+v, %v", action, err)
 	}
@@ -56,17 +58,17 @@ func TestFastThinkingRendererUsesExactTokenBoundary(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !strings.HasSuffix(prompt, "Assistant: <think></think>") {
+	if !strings.HasSuffix(prompt, "Assistant: <think></think") {
 		t.Fatalf("fast thinking prompt = %q", prompt)
 	}
 	framed, injected := renderer.appendAssistantPrefix(prompt, "<tool_call>")
 	if injected || framed != prompt {
 		t.Fatalf("fast thinking prefix framing = %q, injected=%v", framed, injected)
 	}
-	action, err := (G1IProtocol{}).Parse(
-		"<tool_call>{\"name\":\"x\",\"arguments\":{}}</tool_call>",
-		continuation.FinishStop,
+	output := renderer.reconstructOutput(
+		"><tool_call>{\"name\":\"x\",\"arguments\":{}}</tool_call>",
 	)
+	action, err := (G1IProtocol{}).Parse(output, continuation.FinishStop)
 	if err != nil || action.Type != "tool" {
 		t.Fatalf("fast thinking parse = %+v, %v", action, err)
 	}
@@ -452,7 +454,7 @@ func TestRWKVChatRendererBuildsRawContinuationPrompt(t *testing.T) {
 		"User: task",
 		"Assistant: <tool_call>",
 		"Tool: <tool_result>",
-		"Assistant: <think></think>",
+		"Assistant: <think></think",
 	} {
 		if !strings.Contains(prompt, fragment) {
 			t.Fatalf("prompt does not contain %q:\n%s", fragment, prompt)
