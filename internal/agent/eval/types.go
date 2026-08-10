@@ -11,7 +11,7 @@ import (
 
 const (
 	SchemaVersion  = 3
-	HarnessVersion = "rwkv-agent-eval-v8"
+	HarnessVersion = "rwkv-agent-eval-v10"
 )
 
 type GeneratorFactory func(

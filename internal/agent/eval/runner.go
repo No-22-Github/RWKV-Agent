@@ -292,7 +292,7 @@ func validateTurn(
 	}
 	actualToolSet := makeToolSet(actualTools)
 	for _, required := range expect.RequiredTools {
-		if _, ok := actualToolSet[required]; !ok {
+		if !toolRequirementMet(required, actualToolSet) {
 			failures = append(
 				failures,
 				fmt.Sprintf("required tool %q was not called", required),
@@ -546,6 +546,61 @@ func stepsWithTools(steps []agent.Step) []agent.Step {
 	return result
 }
 
+// discoveryTools are interchangeable ways to locate a file or value in the
+// workspace. A case that mandates one of them is really asserting that the model
+// investigated rather than guessed, so any of them satisfies that requirement.
+// Forcing a specific one would penalise the cheaper path: search_text can find a
+// file and its value in a single call where list_files plus read_file needs two.
+var discoveryTools = map[string]struct{}{
+	"list_files":  {},
+	"search_text": {},
+	"read_file":   {},
+}
+
+// toolRequirementMet reports whether a required tool was satisfied, treating the
+// discovery tools as one equivalence class. Non-discovery tools still require an
+// exact match, so calculator, fx_convert and friends stay strictly scored.
+func toolRequirementMet(required string, actual map[string]struct{}) bool {
+	if _, ok := actual[required]; ok {
+		return true
+	}
+	if _, isDiscovery := discoveryTools[required]; !isDiscovery {
+		return false
+	}
+	for candidate := range actual {
+		if _, ok := discoveryTools[candidate]; ok {
+			return true
+		}
+	}
+	return false
+}
+
+// requiredCallMet reports which actual step satisfies an expected call, or -1.
+// An exact tool-name match consumes a step one-to-one. Discovery calls also
+// accept any discovery step, and may reuse one that already matched an earlier
+// requirement: a single search_text can locate a file and yield its value, doing
+// the work a case splits into search-then-read. The returned bool reports whether
+// the step should be consumed, so equivalence matches stay reusable.
+func requiredCallMet(call ExpectedCall, actual []agent.Step, used []bool) (int, bool) {
+	for index, step := range actual {
+		if used[index] || step.Tool != call.Name {
+			continue
+		}
+		if argumentsContain(step.ToolArguments, call.Arguments) {
+			return index, true
+		}
+	}
+	if _, isDiscovery := discoveryTools[call.Name]; !isDiscovery {
+		return -1, false
+	}
+	for index, step := range actual {
+		if _, ok := discoveryTools[step.Tool]; ok {
+			return index, false
+		}
+	}
+	return -1, false
+}
+
 func makeToolSet(tools []string) map[string]struct{} {
 	result := make(map[string]struct{}, len(tools))
 	for _, tool := range tools {
@@ -558,16 +613,14 @@ func matchRequiredCalls(actual []agent.Step, expected []ExpectedCall) []bool {
 	matched := make([]bool, len(expected))
 	used := make([]bool, len(actual))
 	for expectedIndex, call := range expected {
-		for actualIndex, step := range actual {
-			if used[actualIndex] ||
-				step.Tool != call.Name ||
-				!argumentsContain(step.ToolArguments, call.Arguments) {
-				continue
-			}
-			used[actualIndex] = true
-			matched[expectedIndex] = true
-			break
+		actualIndex, consume := requiredCallMet(call, actual, used)
+		if actualIndex < 0 {
+			continue
 		}
+		if consume {
+			used[actualIndex] = true
+		}
+		matched[expectedIndex] = true
 	}
 	return matched
 }
@@ -666,7 +719,7 @@ func summarize(
 			}
 			for _, required := range expect.RequiredTools {
 				summary.Metrics.RequiredToolCompletion.Total++
-				if _, ok := actualToolSet[required]; ok {
+				if toolRequirementMet(required, actualToolSet) {
 					summary.Metrics.RequiredToolCompletion.Correct++
 				}
 			}

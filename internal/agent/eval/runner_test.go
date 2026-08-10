@@ -549,6 +549,102 @@ func TestBoundaryScoringMatchesRequiredCallsWithoutOrder(t *testing.T) {
 	assertScore(t, "required call accuracy", summary.Metrics.RequiredCallAccuracy, 2, 2)
 }
 
+// TestBoundaryScoringAcceptsEquivalentDiscoveryPaths mirrors pb_search_read_submit
+// and pb_find_read_submit, where both models reached the correct answer through a
+// different discovery tool than the case names. Locating a value with search_text
+// alone is not a worse trajectory than list_files plus read_file, so it must not
+// be scored as a missing required tool.
+func TestBoundaryScoringAcceptsEquivalentDiscoveryPaths(t *testing.T) {
+	answer := "EMBER-91"
+	result := agent.Result{
+		Route:  agent.RouteInspect,
+		Output: "EMBER-91",
+		Steps: []agent.Step{
+			{
+				Tool:          "search_text",
+				ToolArguments: json.RawMessage(`{"query":"SECRET_CODE"}`),
+			},
+		},
+	}
+	expect := Expectation{
+		Route:         agent.RouteInspect,
+		RequiredTools: []string{"search_text", "read_file"},
+		RequiredCalls: []ExpectedCall{
+			{Name: "search_text", Arguments: map[string]any{"query": "SECRET_CODE"}},
+			{Name: "read_file", Arguments: map[string]any{"path": "logs/run.log"}},
+		},
+		OutputEquals: &answer,
+	}
+	if failures := validateTurn(expect, result, nil); len(failures) != 0 {
+		t.Fatalf("equivalent discovery path was rejected: %v", failures)
+	}
+	summary := summarize(
+		"run",
+		[]Case{{
+			ID:          "equivalent",
+			Description: "Equivalent discovery path.",
+			Turns:       []Turn{{Prompt: "Find SECRET_CODE.", Expect: expect}},
+		}},
+		[]CaseResult{{
+			ID:     "equivalent",
+			Passed: true,
+			Turns:  []TurnResult{{Result: result, Passed: true}},
+		}},
+		nil,
+	)
+	assertScore(t, "required tool completion", summary.Metrics.RequiredToolCompletion, 2, 2)
+	assertScore(t, "required call accuracy", summary.Metrics.RequiredCallAccuracy, 2, 2)
+}
+
+// TestBoundaryScoringStillRequiresInvestigation guards the relaxation: a model
+// that answers with no tool call at all, or that substitutes a non-discovery
+// tool, must still fail.
+func TestBoundaryScoringStillRequiresInvestigation(t *testing.T) {
+	answer := "EMBER-91"
+	expect := Expectation{
+		Route:         agent.RouteInspect,
+		RequiredTools: []string{"read_file"},
+		RequiredCalls: []ExpectedCall{
+			{Name: "read_file", Arguments: map[string]any{"path": "logs/run.log"}},
+		},
+		OutputEquals: &answer,
+	}
+	guessed := agent.Result{
+		Route:  agent.RouteInspect,
+		Output: "EMBER-91",
+	}
+	if failures := validateTurn(expect, guessed, nil); len(failures) == 0 {
+		t.Fatal("a guessed answer with no tool call was accepted")
+	}
+	// calculator is not a discovery tool, so it cannot stand in for a read.
+	substituted := agent.Result{
+		Route:  agent.RouteInspect,
+		Output: "EMBER-91",
+		Steps: []agent.Step{{
+			Tool:          "calculator",
+			ToolArguments: json.RawMessage(`{"expression":"1+1"}`),
+		}},
+	}
+	if failures := validateTurn(expect, substituted, nil); len(failures) == 0 {
+		t.Fatal("a non-discovery tool satisfied a discovery requirement")
+	}
+	// A non-discovery requirement stays strictly matched.
+	strict := Expectation{
+		Route:         agent.RouteInspect,
+		RequiredTools: []string{"calculator"},
+	}
+	discovered := agent.Result{
+		Route: agent.RouteInspect,
+		Steps: []agent.Step{{
+			Tool:          "search_text",
+			ToolArguments: json.RawMessage(`{"query":"x"}`),
+		}},
+	}
+	if failures := validateTurn(strict, discovered, nil); len(failures) == 0 {
+		t.Fatal("a discovery tool satisfied a calculator requirement")
+	}
+}
+
 func TestBoundaryNumericToleranceRequiresPlainNumber(t *testing.T) {
 	expected := 289.13
 	tolerance := 1.5
