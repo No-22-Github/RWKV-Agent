@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/no22/RWKV-Agent/internal/continuation/rwkvlightning"
 	"strings"
 	"testing"
 	"time"
@@ -208,6 +209,73 @@ func TestAgentAcceptsRWKVLightningContinuation(t *testing.T) {
 		"--completion", "rwkv-lightning",
 	}); err == nil {
 		t.Fatal("remote agent accepted a missing API URL")
+	}
+}
+
+func TestRWKVLightningAcceptsThinkingWithDefaultChatPromptMode(t *testing.T) {
+	t.Parallel()
+
+	options, err := parseRunOptions("agent", []string{
+		"--model", "rwkv7-13b",
+		"--prompt", "inspect the repository",
+		"--completion", "rwkv-lightning",
+		"--api-url", "https://example.test/big_batch/completions",
+		"--thinking", "full",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if options.thinkingMode != "full" {
+		t.Fatalf("thinking mode = %q", options.thinkingMode)
+	}
+	if _, err := parseRunOptions("agent", []string{
+		"--model", "model",
+		"--prompt", "task",
+		"--completion", "chat-completions",
+		"--api-url", "https://example.test/v1/chat/completions",
+		"--chat-prompt-mode", "native-chat",
+		"--thinking", "full",
+	}); err == nil {
+		t.Fatal("native-chat accepted a non-off internal thinking mode")
+	}
+}
+
+func TestParseAPIStopTokens(t *testing.T) {
+	t.Parallel()
+
+	for _, testCase := range []struct {
+		value    string
+		wantMode rwkvlightning.StopTokenMode
+		wantIDs  []int
+	}{
+		{value: "", wantMode: rwkvlightning.StopTokenText},
+		{value: "text", wantMode: rwkvlightning.StopTokenText},
+		{value: "TEXT", wantMode: rwkvlightning.StopTokenText},
+		{value: "none", wantMode: rwkvlightning.StopTokenNone},
+		{value: "eos", wantMode: rwkvlightning.StopTokenEOS, wantIDs: []int{0}},
+		{value: "0,261", wantMode: rwkvlightning.StopTokenEOS, wantIDs: []int{0, 261}},
+		{value: " 11 , 12 ", wantMode: rwkvlightning.StopTokenEOS, wantIDs: []int{11, 12}},
+	} {
+		mode, ids, err := parseAPIStopTokens(testCase.value)
+		if err != nil {
+			t.Fatalf("parse %q: %v", testCase.value, err)
+		}
+		if mode != testCase.wantMode {
+			t.Fatalf("parse %q mode = %q, want %q", testCase.value, mode, testCase.wantMode)
+		}
+		if len(ids) != len(testCase.wantIDs) {
+			t.Fatalf("parse %q ids = %v, want %v", testCase.value, ids, testCase.wantIDs)
+		}
+		for index := range testCase.wantIDs {
+			if ids[index] != testCase.wantIDs[index] {
+				t.Fatalf("parse %q ids = %v, want %v", testCase.value, ids, testCase.wantIDs)
+			}
+		}
+	}
+	for _, invalid := range []string{"abc", "-1", "0,", "1,two"} {
+		if _, _, err := parseAPIStopTokens(invalid); err == nil {
+			t.Fatalf("parse %q accepted an invalid stop token list", invalid)
+		}
 	}
 }
 

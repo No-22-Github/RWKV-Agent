@@ -123,10 +123,22 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 远程 Agent 的工具仍在本机执行，但完整 prompt 会包含模型请求过的文件片段并发送到远程
 endpoint。选择远程续写即代表显式启用这条数据路径。
 
-`rwkv_lightning_cuda` 的 raw continuation endpoint 是 `/v1/batch/completions`。它直接接收
-`contents`，不会像 `/v1/chat/completions` 那样重新渲染 role 和 think 前缀。服务端
-`stop_tokens` 接受整数 token ID；客户端显式只发送 EOS `0`，避免服务默认 token 提前截断
-Full think，并继续以 decoded text 匹配协议 stop 序列。
+`rwkv_lightning_cuda` 的 raw continuation 语义由请求体决定：传 `contents` 数组即逐 token
+续写，不重新渲染 role 和 think 前缀；传 `messages` 才会套 chat 模板。客户端始终发送
+`contents`，因此 `/v1/batch/completions`、`/v1/chat/completions` 和
+`/big_batch/completions` 都可用。具体路径取决于部署，可以用 `GET /openapi.json` 枚举。
+
+`stop_tokens` 在 rwkv_lightning 里是 decoded-text 字符串数组（上游示例 `["\nUser:"]`），
+不是整数 token ID；发整数会返回 HTTP 500。默认 `--api-stop-tokens text` 把本轮
+`Protocol.Stops(stage)` 的序列原样转发给服务端，使生成在 stop 处真正停止，而不是生成到
+`max_tokens` 后仅靠客户端 `splitAtStop` 截断。这同时降低延迟和无效算力。`none` 省略字段；
+`eos` 或逗号分隔整数列表保留旧的 token ID 形式，仅供接受整数的部署使用。无论哪种模式，
+客户端都继续做 decoded-text 收束，因此协议边界不依赖服务端行为。
+
+`/big_batch/completions` 只支持 `temperature`（无 `top_k`/`top_p`/penalty），且单请求串行：
+并发第二个请求返回 HTTP 409 `Another big_batch request is already running`。提前关闭 SSE
+连接会让该次生成变成孤儿并继续占用槽位，因此必须把流读到 `data: [DONE]`。需要完整采样
+参数或并发的场景应使用 `/v1/chat/completions`。
 
 上游 OpenAI-compatible Chat Completions 使用独立的外层 adapter。默认构建不编译或链接
 OpenAI SDK；调用该 provider 前需要使用官方 SDK 可选构建：

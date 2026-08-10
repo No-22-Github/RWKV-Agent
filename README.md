@@ -298,11 +298,29 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
   --workspace /absolute/path/to/project
 ```
 
-`--api-url` 是完整 endpoint，不会自动拼接 OpenAI 路径。新版
-`rwkv_lightning_cuda` 应使用保留原始 `contents` 的 `/v1/batch/completions`；不要使用会
-重新套 chat 模板和 think 前缀的 `/v1/chat/completions`。服务端 `stop_tokens` 是整数 token
-ID；客户端只发送 EOS `0`，避免服务默认 token 过早截断 Full think，并在响应中匹配项目的
-decoded-text stop 序列。密码默认从
+`--api-url` 是完整 endpoint，不会自动拼接 OpenAI 路径。`rwkv_lightning_cuda` 必须使用接收
+`contents` 数组的 raw continuation 路径，客户端正是按 `contents` 发送的。路径取决于部署，
+可用 `GET /openapi.json` 确认：`/v1/batch/completions`、`/v1/chat/completions` 与
+`/big_batch/completions` 都可能提供该语义。注意只要请求体传 `contents`（而不是
+`messages`），`/v1/chat/completions` 同样是逐 token 续写，不会重新套 chat 模板或 think
+前缀；传 `messages` 才会。`/big_batch/completions` 语义相同但单请求串行，评测建议用
+`/v1` 路径。
+
+`rwkv_lightning` 的 `stop_tokens` 是 **decoded-text 字符串数组**（上游示例为
+`["\nUser:"]`），不是整数 token ID；发整数会让服务返回 HTTP 500。默认
+`--api-stop-tokens text` 直接转发本轮协议的 stop 序列，让服务端提前停止生成，而不是一路
+生成到 `max_tokens` 再由客户端截断。其他取值：`none` 省略该字段，`eos` 或逗号分隔的整数
+列表沿用旧的 token ID 形式（仅用于兼容接受整数的部署）。客户端始终保留 decoded-text 收束
+作为兜底。`/big_batch/completions` 只支持 `temperature`，且单请求串行、并发返回 HTTP 409，
+所以评测应使用支持全部采样参数的 `/v1/chat/completions`。
+
+`--api-stream` 默认 `true`，走 SSE 逐 token 流式。`--api-stream=false` 改为请求一次性
+JSON 响应：客户端在完整文本上做一次 decoded-text stop 截断，并优先采信响应里的
+`finish_reason`。评测只需要最终文本，因此在流式通路不稳定的部署上应使用非流式——实测
+该部署的 SSE 在一定负载后会退化为 HTTP 200 空响应体，而非流式路径不受影响。交互式
+`agent` 模式会因此失去 token 级输出。
+
+密码默认从
 `RWKV_API_PASSWORD` 读取，也可用 `--api-password-env` 指定其他环境变量；服务没有请求体
 密码时可以不设置。`--api-header-env` 可重复使用，将部署层认证请求头绑定到环境变量，
 凭证不会进入命令行参数或配置文件。远程模型只会收到 Agent 组成的 prompt，但其中会包含

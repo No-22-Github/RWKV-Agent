@@ -68,8 +68,60 @@ Agent step loop；先证明模型能可靠地依据仓库证据回答，再逐�
 - Provider 不可用会进入不可重试的显式降级路径，最终回答 prompt 注入未验证事实清单。
 - `rwkv-agent-eval-v8` 增加独立 6-case `assistant` suite、plan 预留指标、显式弃答指标，
   boundary 同时注册 `calculator` 与 `structured_query`，但仍与 assistant 分轨计分。
+- `rwkv-agent-eval-v9` 修复思考模型的三个收束缺陷，因此与 v8 的分数不可直接比较：
+  - 未闭合 `<think>` 与超出输出预算区分为 `ErrUnclosedThink` / `ErrOutputTokenLimit`
+    两个 sentinel（route 侧对应 `ErrRouteTokenLimit`），不再都落到“envelope 缺失”。
+  - `Correction` 按错误类型分派：失控思考会被要求立即输出 `</think>` 并禁止重开推理。
+  - 协议重试不再把失控推理原文写回 transcript（`retryEcho`），避免二次重试在更脏的
+    上下文里以同样方式失败。decision 和 route 两条重试路径都已修复。
+  - 客户端在服务端不返回 `finish_reason` 时推断：已生成 token 达到预算记为
+    `FinishLength`，低于预算且有输出记为 `FinishStop`。否则 `max_tokens` 截断会被误报成
+    协议格式错误；而启用服务端 stop 后服务会吃掉 stop 序列本身，若仍记为 `FinishUnknown`
+    则正确的 `<route>inspect` 会被判成未闭合信封（实测导致 route 0/18）。
+- `rwkv-agent-eval-v10` 放宽发现类工具判分，因此与 v9 分数不可直接比较：
+  `list_files`/`search_text`/`read_file` 视为一个等价类。`required_tools` 中的发现类要求
+  可由任一发现类工具满足；`required_calls` 中的发现类调用允许复用已匹配的步骤，因为一次
+  `search_text` 确实能完成 case 拆成 search-then-read 两步的工作。非发现类工具
+  （`calculator`、`fx_convert` 等）仍严格按名字匹配。
+  改动动机：v9 下两个模型各有若干 case **答案完全正确却被判失败**，仅因走了 case 未指定
+  但同样有效的发现路径（RWKV 的 `BLUEBIRD`/`EMBER-91`/`COBALT-7` 三题、DeepSeek 的
+  `pb_config_precedence_resolve`）。强制固定工具序列会惩罚更省的路径。
+  实测影响：RWKV 13B 10/18 → 13/18，DeepSeek v4-flash 13/18 → 17/18，
+  `required_tool_completion` 与 `required_call_accuracy` 两侧均升至 100%，且无新增失败。
 - 最终答案提交前拒绝协议标签、role header、整段 JSON 和原始工具 payload；用户看到并写入
   transcript 的是确定性弃答，模型原文仍保留给 `answer_accuracy`，修复发生率单独统计。
+
+### 2026-08-10 v10 基线：RWKV 13B vs DeepSeek v4-flash
+
+18 题 `boundary`，两侧参数一致：思考开启、`--route-max-tokens 512`、
+`--decision-max-tokens 1024`、`--max-tokens 2048`。RWKV 走
+`/v1/chat/completions` + `contents` 纯续写、`--api-stop-tokens text --api-stream=false`。
+
+| 指标 | RWKV 13B | DeepSeek v4-flash |
+|---|---|---|
+| 任务通过 | 13/18 (72.2%) | 17/18 (94.4%) |
+| 答案准确 | 13/18 | 17/18 |
+| 路由准确 | 18/18 (100%) | 18/18 (100%) |
+| 协议合规 | 49/51 (96.1%) | 53/53 (100%) |
+| 必需工具 / 必需调用 | 100% / 100% | 100% / 100% |
+| 禁用工具规避 | 2/2 | 2/2 |
+| 耗时 | 345s | 109s |
+
+产物：`runs/v10-rwkv13b-boundary`、`runs/v10-deepseek-v4flash-boundary`。
+
+工具使用与路由两侧全部打平且满分，差距集中在答案正确性。RWKV 剩余 5 个失败中
+`pb_fx_column_trap`（取错汇率列）和 `pb_log_incident_root_cause`（挑错日志条目）是真实
+能力差距；`pb_loc_interest_8_months`（输出表格而非纯数字，且 `answer_contract_repaired`
+为 0/18 说明契约修复未触发）、`pb_config_precedence_resolve`（未搜索即断言文件不存在）
+仍有 Harness 空间；`pb_eur_trip_card_vs_fx` 是思考失控残留。
+
+v9→v10 期间 RWKV 自身的收束改善：思考失控由 6/53 降至 2/51，耗时由 494s 降至 345s，
+协议合规由 88.7% 升至 96.1%。
+
+已知 Harness 债务：`runner.go` 已累积 15 种以上互相交织的兜底机制（1114 行）；
+decision 阶段 system 指令占 prompt 的 72%（1713/2384 字符），其中多条负向约束是历史
+补丁；`route` 阶段占 26% 的模型调用但两个模型准确率均为 100%，且判错代价极高。
+`think` 前缀“留半个 tag 让模型补”的机械约定可以移除——RWKV 已原生训练该格式。
 
 2026-07-30 的 `rwkv-g1i-13b-4922` 远程 smoke test 覆盖直接回答、`read_file` 和
 `search_text`，三条均完成且未触发协议重试。旧裸 JSON 协议已经删除。协议结构参考

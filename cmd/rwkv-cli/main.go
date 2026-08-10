@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"syscall"
@@ -71,6 +72,8 @@ type runOptions struct {
 	chatPromptExplicit bool
 	chatTokenLimit     string
 	apiPasswordEnv     string
+	apiStopTokens      string
+	apiStream          bool
 	apiHeaderEnvs      stringListFlag
 	evalSuite          string
 	evalSuiteExplicit  bool
@@ -270,6 +273,18 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			"RWKV_API_PASSWORD",
 			"environment variable containing the rwkv_lightning password",
 		)
+		fs.StringVar(
+			&options.apiStopTokens,
+			"api-stop-tokens",
+			"text",
+			"rwkv_lightning stop_tokens form: text, none, eos, or a comma-separated token ID list",
+		)
+		fs.BoolVar(
+			&options.apiStream,
+			"api-stream",
+			true,
+			"stream rwkv_lightning responses over SSE; false requests one buffered response",
+		)
 		fs.Var(
 			&options.apiHeaderEnvs,
 			"api-header-env",
@@ -354,7 +369,8 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		if options.completion != "chat-completions" && options.chatPromptExplicit {
 			return options, errors.New("--chat-prompt-mode requires --completion chat-completions")
 		}
-		if chatPromptMode == chatcompletions.PromptNativeChat &&
+		if options.completion == "chat-completions" &&
+			chatPromptMode == chatcompletions.PromptNativeChat &&
 			options.thinkingMode != string(inference.ThinkingOff) {
 			return options, errors.New("--chat-prompt-mode native-chat requires --thinking off")
 		}
@@ -607,11 +623,18 @@ func newAgentGeneratorSource(
 				close: func() error { return nil },
 			}, nil
 		}
+		stopTokenMode, stopTokenIDs, err := parseAPIStopTokens(options.apiStopTokens)
+		if err != nil {
+			return nil, err
+		}
 		client, err := rwkvlightning.New(rwkvlightning.Config{
-			Endpoint: options.apiURL,
-			Model:    options.modelPath,
-			Password: os.Getenv(options.apiPasswordEnv),
-			Headers:  headers,
+			Endpoint:      options.apiURL,
+			Model:         options.modelPath,
+			Password:      os.Getenv(options.apiPasswordEnv),
+			StopTokenMode: stopTokenMode,
+			StopTokenIDs:  stopTokenIDs,
+			Stream:        &options.apiStream,
+			Headers:       headers,
 		})
 		if err != nil {
 			return nil, fmt.Errorf("initialize remote continuation: %w", err)
@@ -956,6 +979,34 @@ func formatEvalScore(score agenteval.Score) string {
 		return "n/a"
 	}
 	return fmt.Sprintf("%.1f%%", 100*score.Rate)
+}
+
+// parseAPIStopTokens resolves --api-stop-tokens into a rwkv_lightning stop token
+// mode. "text" forwards the protocol's decoded-text stops, which is the wire type
+// rwkv_lightning documents. "none" omits the field, "eos" sends the legacy integer
+// EOS list, and an explicit comma-separated list passes those token IDs through.
+func parseAPIStopTokens(value string) (rwkvlightning.StopTokenMode, []int, error) {
+	switch trimmed := strings.ToLower(strings.TrimSpace(value)); trimmed {
+	case "", "text":
+		return rwkvlightning.StopTokenText, nil, nil
+	case "none":
+		return rwkvlightning.StopTokenNone, nil, nil
+	case "eos":
+		return rwkvlightning.StopTokenEOS, []int{0}, nil
+	default:
+		fields := strings.Split(trimmed, ",")
+		tokens := make([]int, 0, len(fields))
+		for _, field := range fields {
+			token, err := strconv.Atoi(strings.TrimSpace(field))
+			if err != nil || token < 0 {
+				return "", nil, fmt.Errorf(
+					"--api-stop-tokens must be text, none, eos, or a comma-separated list of non-negative token IDs",
+				)
+			}
+			tokens = append(tokens, token)
+		}
+		return rwkvlightning.StopTokenEOS, tokens, nil
+	}
 }
 
 func loadAPIHeaders(mappings []string) (http.Header, error) {
