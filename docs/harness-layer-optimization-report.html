@@ -1,0 +1,942 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RWKV-Agent Harness 层优化实录 · 抄作业版</title>
+  <style>
+    :root {
+      /* light — cool slate paper, deep-teal structure, single amber signal */
+      --paper:      #e9edf0;
+      --surface:    #ffffff;
+      --surface-2:  #f2f5f7;
+      --surface-3:  #e7ecef;
+      --ink:        #14212a;
+      --muted:      #556472;
+      --faint:      #85939d;
+      --line:       #d6dde3;
+      --line-2:     #c1cbd2;
+      --accent:     #0b6b68;
+      --accent-ink: #074c4a;
+      --signal:     #b96912;
+      --signal-bg:  #f7ecdc;
+      --good:       #1c7a51;
+      --good-bg:    #dcefe6;
+      --warn:       #9a6c12;
+      --warn-bg:    #f4ecd8;
+      --bad:        #a8452c;
+      --bad-bg:     #f3e0d9;
+      --code-bg:    #f1f5f6;
+      --code-ink:   #16323a;
+      --shadow:     0 18px 46px rgba(20,33,42,.10);
+      --shadow-sm:  0 6px 18px rgba(20,33,42,.06);
+      --mono: "SF Mono", "JetBrains Mono", "Cascadia Code", ui-monospace, "Menlo", "Consolas", monospace;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+              "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --paper:      #0d1418;
+        --surface:    #131e23;
+        --surface-2:  #182429;
+        --surface-3:  #1e2c32;
+        --ink:        #e7eef1;
+        --muted:      #99a7af;
+        --faint:      #6f7f88;
+        --line:       #26343b;
+        --line-2:     #35474f;
+        --accent:     #3bb6ad;
+        --accent-ink: #86d8cf;
+        --signal:     #e2a34a;
+        --signal-bg:  #2a2216;
+        --good:       #46b483;
+        --good-bg:    #14251d;
+        --warn:       #d9a441;
+        --warn-bg:    #272013;
+        --bad:        #db7a5c;
+        --bad-bg:     #2a1a14;
+        --code-bg:    #0f181d;
+        --code-ink:   #cfe0e2;
+        --shadow:     0 20px 50px rgba(0,0,0,.42);
+        --shadow-sm:  0 6px 18px rgba(0,0,0,.30);
+      }
+    }
+    :root[data-theme="dark"] {
+      --paper:      #0d1418;
+      --surface:    #131e23;
+      --surface-2:  #182429;
+      --surface-3:  #1e2c32;
+      --ink:        #e7eef1;
+      --muted:      #99a7af;
+      --faint:      #6f7f88;
+      --line:       #26343b;
+      --line-2:     #35474f;
+      --accent:     #3bb6ad;
+      --accent-ink: #86d8cf;
+      --signal:     #e2a34a;
+      --signal-bg:  #2a2216;
+      --good:       #46b483;
+      --good-bg:    #14251d;
+      --warn:       #d9a441;
+      --warn-bg:    #272013;
+      --bad:        #db7a5c;
+      --bad-bg:     #2a1a14;
+      --code-bg:    #0f181d;
+      --code-ink:   #cfe0e2;
+      --shadow:     0 20px 50px rgba(0,0,0,.42);
+      --shadow-sm:  0 6px 18px rgba(0,0,0,.30);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--sans);
+      line-height: 1.72;
+      font-size: 16.5px;
+      letter-spacing: .005em;
+      -webkit-font-smoothing: antialiased;
+    }
+    ::selection { background: var(--signal); color: #fff; }
+    a { color: var(--accent); text-underline-offset: 3px; text-decoration-thickness: 1px; }
+
+    .wrap { width: min(1080px, calc(100% - 40px)); margin: 0 auto; }
+    .mono { font-family: var(--mono); }
+    .model-name { font-size: 1.12em; letter-spacing: -.015em; }
+    .tnum { font-variant-numeric: tabular-nums; }
+
+    /* ---------- eyebrow / labels ---------- */
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 12px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* ---------- hero ---------- */
+    header.hero {
+      border-bottom: 1px solid var(--line);
+      background:
+        linear-gradient(180deg, var(--surface), var(--paper));
+    }
+    .hero-inner { padding: 62px 0 46px; }
+    .kicker {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-family: var(--mono); font-size: 12.5px; letter-spacing: .08em;
+      color: var(--muted);
+      padding: 6px 12px; border: 1px solid var(--line-2); border-radius: 999px;
+      background: var(--surface);
+    }
+    .kicker b { color: var(--accent); font-weight: 700; }
+    .beacon {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--signal); box-shadow: 0 0 0 4px var(--signal-bg);
+    }
+    h1 {
+      margin: 26px 0 0;
+      font-size: clamp(33px, 5.4vw, 58px);
+      line-height: 1.1;
+      letter-spacing: -.025em;
+      font-weight: 850;
+      text-wrap: balance;
+      max-width: 20ch;
+    }
+    h1 .hl { color: var(--accent); }
+    .lede {
+      margin: 22px 0 0;
+      max-width: 60ch;
+      font-size: clamp(17px, 2vw, 20px);
+      color: var(--muted);
+    }
+    .lede strong { color: var(--ink); font-weight: 650; }
+
+    .stat-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      margin-top: 40px;
+      background: var(--line);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .stat { background: var(--surface); padding: 20px 20px 18px; }
+    .stat b {
+      display: block;
+      font-family: var(--mono);
+      font-size: clamp(26px, 3.4vw, 34px);
+      font-weight: 700;
+      letter-spacing: -.02em;
+      color: var(--ink);
+      line-height: 1.05;
+    }
+    .stat b .to { color: var(--signal); }
+    .stat span { display: block; margin-top: 8px; font-size: 13px; color: var(--muted); }
+    .stat .unit { color: var(--faint); font-size: 11.5px; letter-spacing: .04em; text-transform: uppercase; font-family: var(--mono); margin-top: 3px; }
+
+    /* ---------- section scaffold ---------- */
+    section { padding: 56px 0; border-bottom: 1px solid var(--line); }
+    .sec-head { margin-bottom: 30px; }
+    .sec-head h2 {
+      margin: 10px 0 0;
+      font-size: clamp(24px, 3.4vw, 34px);
+      letter-spacing: -.02em;
+      font-weight: 800;
+      line-height: 1.16;
+      text-wrap: balance;
+    }
+    .sec-head p { margin: 12px 0 0; max-width: 66ch; color: var(--muted); font-size: 16px; }
+
+    /* ---------- tl;dr ---------- */
+    .tldr { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .tldr .card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 22px;
+      box-shadow: var(--shadow-sm);
+    }
+    .tldr .n { font-family: var(--mono); font-size: 13px; color: var(--signal); font-weight: 700; }
+    .tldr h3 { margin: 10px 0 6px; font-size: 18px; letter-spacing: -.01em; }
+    .tldr p { margin: 0; color: var(--muted); font-size: 14.5px; }
+
+    /* ---------- timeline ---------- */
+    .track { display: flex; flex-direction: column; gap: 0; }
+    .stop {
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      gap: 20px;
+      padding: 18px 0;
+      border-top: 1px solid var(--line);
+      align-items: start;
+    }
+    .stop:first-child { border-top: none; }
+    .stop .ver {
+      font-family: var(--mono);
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--accent);
+    }
+    .stop .ver small { display: block; color: var(--faint); font-weight: 400; font-size: 11px; margin-top: 2px; letter-spacing: .02em; }
+    .stop .body h3 { margin: 0 0 4px; font-size: 16.5px; }
+    .stop .body p { margin: 0; color: var(--muted); font-size: 14.5px; }
+    .score {
+      display: inline-flex; align-items: baseline; gap: 6px;
+      font-family: var(--mono); font-weight: 700; font-size: 14px;
+      padding: 3px 10px; border-radius: 8px;
+      background: var(--surface-3); color: var(--ink);
+      margin-top: 8px;
+    }
+    .score.up { background: var(--good-bg); color: var(--good); }
+    .score .lbl { font-weight: 400; color: var(--muted); font-size: 12px; }
+
+    /* ---------- why (drivers) ---------- */
+    .drivers { display: flex; flex-direction: column; gap: 14px; }
+    .driver {
+      display: grid; grid-template-columns: 44px 1fr; gap: 18px;
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: 14px; padding: 20px 22px;
+    }
+    .driver .idx {
+      font-family: var(--mono); font-weight: 700; font-size: 20px;
+      color: var(--signal);
+      border-right: 1px solid var(--line); padding-right: 8px;
+    }
+    .driver h3 { margin: 0 0 6px; font-size: 17px; }
+    .driver p { margin: 0; color: var(--muted); font-size: 14.5px; }
+    .driver b { color: var(--ink); }
+
+    .proof {
+      margin-top: 22px;
+      border: 1px solid var(--line-2);
+      border-radius: 14px;
+      overflow: hidden;
+      background: var(--surface);
+    }
+    .proof-bar {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 18px;
+      background: var(--surface-3);
+      border-bottom: 1px solid var(--line);
+      font-family: var(--mono); font-size: 12.5px; color: var(--muted);
+      letter-spacing: .03em;
+    }
+    .proof-bar .beacon { background: var(--good); box-shadow: 0 0 0 4px var(--good-bg); }
+    .proof-body { padding: 20px 22px; }
+    .proof-body p { margin: 0 0 14px; }
+    .proof-body p:last-child { margin-bottom: 0; }
+    .proof-body .quote { font-size: 17px; font-weight: 650; letter-spacing: -.01em; color: var(--ink); }
+    table.mini { width: 100%; border-collapse: collapse; margin: 8px 0 16px; font-size: 14px; }
+    table.mini th, table.mini td { text-align: right; padding: 9px 12px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+    table.mini th:first-child, table.mini td:first-child { text-align: left; font-variant-numeric: normal; }
+    table.mini th { font-family: var(--mono); font-size: 11.5px; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+    table.mini td.hold { color: var(--faint); }
+    table.mini td.win { color: var(--good); font-weight: 700; }
+
+    /* ---------- control-frame technique cards ---------- */
+    .theme-block { margin-top: 34px; }
+    .theme-block:first-of-type { margin-top: 26px; }
+    .theme-tag {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 13px; letter-spacing: .04em;
+      margin-bottom: 4px;
+    }
+    .theme-tag .tk {
+      font-family: var(--mono); font-weight: 700; color: var(--signal);
+      background: var(--signal-bg); padding: 3px 9px; border-radius: 6px; font-size: 12px;
+    }
+    .theme-tag h3 { margin: 0; font-size: 19px; letter-spacing: -.01em; font-weight: 750; }
+    .theme-sub { margin: 0 0 16px; color: var(--muted); font-size: 14px; }
+
+    .frames { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .frame {
+      display: flex; flex-direction: column;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 13px;
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+    .frame-bar {
+      display: flex; align-items: center; gap: 9px;
+      padding: 10px 14px;
+      background: var(--code-bg);
+      border-bottom: 1px solid var(--line);
+    }
+    .frame-bar .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line-2); flex: none; }
+    .frame-bar .anchor {
+      font-family: var(--mono); font-size: 11.5px; color: var(--code-ink);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .frame-bar .kind {
+      margin-left: auto; flex: none;
+      font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em;
+      text-transform: uppercase; color: var(--muted);
+      border: 1px solid var(--line-2); border-radius: 5px; padding: 1px 6px;
+    }
+    .frame-body { padding: 16px 18px 18px; }
+    .frame-body h4 { margin: 0 0 12px; font-size: 16px; line-height: 1.4; letter-spacing: -.01em; }
+    .frame-body h4 code { font-family: var(--mono); font-size: .88em; background: var(--code-bg); padding: 1px 5px; border-radius: 5px; color: var(--code-ink); }
+    .dl { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; }
+    .dl dt {
+      font-family: var(--mono); font-size: 11px; font-weight: 700;
+      letter-spacing: .04em; text-transform: uppercase;
+      padding-top: 3px; white-space: nowrap;
+    }
+    .dl dt.p { color: var(--bad); }
+    .dl dt.d { color: var(--accent); }
+    .dl dt.w { color: var(--muted); }
+    .dl dt.c { color: var(--signal); }
+    .dl dd { margin: 0; font-size: 14px; color: var(--ink); }
+    .dl dd.mut { color: var(--muted); }
+    .dl dd code { font-family: var(--mono); font-size: .86em; background: var(--code-bg); padding: 1px 4px; border-radius: 4px; color: var(--code-ink); }
+    .frame-copy {
+      margin-top: 12px; padding: 11px 13px;
+      background: var(--signal-bg); border-radius: 9px;
+      font-size: 13.5px; color: var(--ink);
+      border: 1px solid color-mix(in srgb, var(--signal) 22%, transparent);
+    }
+    .frame-copy b { color: var(--signal); }
+
+    .frame.wide { grid-column: 1 / -1; }
+
+    /* ---------- comparison ---------- */
+    .cmp-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); box-shadow: var(--shadow-sm); }
+    table.cmp { width: 100%; border-collapse: collapse; font-size: 14.5px; min-width: 560px; }
+    table.cmp th, table.cmp td { padding: 13px 16px; border-bottom: 1px solid var(--line); text-align: right; font-variant-numeric: tabular-nums; }
+    table.cmp thead th { background: var(--surface-3); font-family: var(--mono); font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+    table.cmp th:first-child, table.cmp td:first-child { text-align: left; font-variant-numeric: normal; }
+    table.cmp tbody tr:last-child td { border-bottom: none; }
+    table.cmp .rwkv { font-weight: 700; }
+    table.cmp .par td { background: var(--good-bg); }
+    table.cmp .par .flag { color: var(--good); font-weight: 700; }
+    table.cmp .gap .flag { color: var(--bad); font-weight: 700; }
+    .flag { font-family: var(--mono); font-size: 12px; }
+
+    .fails { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 22px; }
+    .fail {
+      background: var(--surface); border: 1px solid var(--line);
+      border-left: 4px solid var(--line-2);
+      border-radius: 0 11px 11px 0; padding: 15px 17px;
+    }
+    .fail.gap { border-left-color: var(--bad); }
+    .fail.room { border-left-color: var(--warn); }
+    .fail.think { border-left-color: var(--accent); }
+    .fail .case { font-family: var(--mono); font-size: 12.5px; color: var(--ink); font-weight: 700; }
+    .fail .verdict { font-size: 11px; font-family: var(--mono); letter-spacing: .05em; text-transform: uppercase; float: right; }
+    .fail.gap .verdict { color: var(--bad); }
+    .fail.room .verdict { color: var(--warn); }
+    .fail.think .verdict { color: var(--accent); }
+    .fail p { margin: 8px 0 0; font-size: 13.5px; color: var(--muted); }
+
+    /* ---------- takeaways ---------- */
+    .takeaways { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .take {
+      display: grid; grid-template-columns: 30px 1fr; gap: 14px;
+      background: var(--surface); border: 1px solid var(--line);
+      border-radius: 13px; padding: 18px 20px;
+    }
+    .take .k { font-family: var(--mono); font-weight: 700; color: var(--accent); font-size: 15px; }
+    .take p { margin: 0; font-size: 14.5px; }
+    .take p b { color: var(--ink); }
+
+    /* ---------- evidence ---------- */
+    .evi { columns: 2; column-gap: 26px; }
+    .evi .row { break-inside: avoid; margin-bottom: 14px; }
+    .evi .row .t { font-family: var(--mono); font-size: 12.5px; color: var(--accent); }
+    .evi .row .d { font-size: 13.5px; color: var(--muted); margin-top: 2px; }
+    .evi code { font-family: var(--mono); font-size: .85em; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; color: var(--code-ink); }
+
+    footer { padding: 34px 0 60px; }
+    footer .note { color: var(--faint); font-size: 12.5px; font-family: var(--mono); letter-spacing: .02em; }
+
+    .caveat {
+      margin-top: 20px; padding: 14px 18px;
+      background: var(--warn-bg); border-radius: 10px;
+      font-size: 13.5px; color: var(--ink);
+      border: 1px solid color-mix(in srgb, var(--warn) 30%, transparent);
+    }
+    .caveat b { color: var(--warn); }
+
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+    @media (max-width: 820px) {
+      .stat-strip { grid-template-columns: 1fr 1fr; }
+      .tldr, .frames, .fails, .takeaways { grid-template-columns: 1fr; }
+      .evi { columns: 1; }
+      .driver { grid-template-columns: 1fr; }
+      .driver .idx { border-right: none; border-bottom: 1px solid var(--line); padding: 0 0 6px; }
+      .stop { grid-template-columns: 1fr; gap: 6px; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+    @media print {
+      body { background: #fff; }
+      section, .frame, .tldr .card, .proof { box-shadow: none; break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap hero-inner">
+      <span class="kicker"><span class="beacon"></span> RWKV-Agent · <b>Harness 层</b>优化实录 · 只讲控制面</span>
+      <h1>模型权重没动，<span class="hl">Harness</span> 把 boundary 从 4/18 做到 13/18</h1>
+      <p class="lede">
+        本报告使用的模型为 <strong class="mono model-name">rwkv7-g1i-13.3b-20260805-ctx16384</strong>。<br>
+        范围只有 Harness 这一层，不涉及推理内核和 UI。下面所有改动都发生在<strong>模型权重不变</strong>的前提下——
+        变的是 Runner、协议、工具契约和判分语义。文档记录这几层的具体做法，
+        以及它们怎么把一个 RWKV7 G1i 13B 续写模型在只读 Agent 任务上的通过率从 4/18 提到 13/18。
+      </p>
+
+      <div class="stat-strip">
+        <div class="stat">
+          <b>4 <span class="to">→</span> 13</b>
+          <span>boundary 任务通过（同一模型）</span>
+          <span class="unit">/ 18 题</span>
+        </div>
+        <div class="stat">
+          <b>29 <span class="to">→</span> 4</b>
+          <span>单轮工具错误</span>
+          <span class="unit">同套 18 题</span>
+        </div>
+        <div class="stat">
+          <b>100%</b>
+          <span>路由 / 必需工具 / 必需调用</span>
+          <span class="unit">与 DeepSeek 打平</span>
+        </div>
+        <div class="stat">
+          <b>13 <span class="to">vs</span> 17</b>
+          <span>答案正确：剩余差距在这里</span>
+          <span class="unit">RWKV7 G1i 13B vs v4-flash</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+
+    <!-- ===== TL;DR ===== -->
+    <section id="tldr">
+      <div class="sec-head">
+        <span class="eyebrow">TL;DR · 三句话</span>
+        <h2>如果只看三点</h2>
+      </div>
+      <div class="tldr">
+        <article class="card">
+          <div class="n">01</div>
+          <h3>分数上升几乎全来自 Harness，不是模型</h3>
+          <p>有一次只改 Harness、模型没动的对照：boundary 8→10、答案 9→12、工具错误 29→16，而模型调用还是 91 次没变，排除了靠多花预算刷分。</p>
+        </article>
+        <article class="card">
+          <div class="n">02</div>
+          <h3>一条纪律：不写题目特判</h3>
+          <p>改的都是通用 Runner 规则、工具边界和判分语义，没有关键词路由，也没有按 case 打补丁。这样分数才可信，失败轨迹拿给模型团队也才有用。</p>
+        </article>
+        <article class="card">
+          <div class="n">03</div>
+          <h3>差距已经从「控制面」挪到了「答案正确性」</h3>
+          <p>对比成熟 API 模型，路由、必需工具、必需调用、禁用工具规避全部满分打平。剩下的 5 题差距里，只有 2 题是真实推理能力，其余仍是 Harness / 判分口径可动的地方。</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===== 版本演进 ===== -->
+    <section id="timeline">
+      <div class="sec-head">
+        <span class="eyebrow">Timeline · 版本演进</span>
+        <h2>从「只能调一次工具」到「能评、能控、能对比」</h2>
+        <p>同一套 18 题只读 <code style="font-family:var(--mono)">boundary</code>（改造自 <code style="font-family:var(--mono)">marty1885/primitive-bench</code>），同一个 RWKV7 G1i 13B 模型，greedy 解码。分数只是其中一条线，收束质量和可归因性是另外两条。</p>
+      </div>
+      <div class="track">
+        <div class="stop">
+          <div class="ver">v1 状态机<small>07.30 立项</small></div>
+          <div class="body">
+            <h3>「一次成功工具后立即回答」</h3>
+            <p>先把安全边界做实：严格 envelope、工作区隔离、只读工具。但单工具状态机完成不了真实任务。</p>
+            <span class="score">4<span class="lbl">/18 通过</span></span>
+          </div>
+        </div>
+        <div class="stop">
+          <div class="ver">v4 混合<small>放开多工具</small></div>
+          <div class="body">
+            <h3>放开连续多工具调用</h3>
+            <p>能力释放到 10/18，但工具调用从 26 涨到 65、错误从 9 到 32，8 题跑到 step 上限没答案。放开容易，收束才是难点。</p>
+            <span class="score up">10<span class="lbl">/18 · 但需收束</span></span>
+          </div>
+        </div>
+        <div class="stop">
+          <div class="ver">v5 收束<small>08.01</small></div>
+          <div class="body">
+            <h3>预填 + 失败恢复 + 强制回答</h3>
+            <p>分数持平 10/18，但工具请求 54→50、错误 23→15、step 超限空答案降到 0，答案分项 10→11。执行质量明显提升。</p>
+            <span class="score">10<span class="lbl">/18 · 质量↑</span></span>
+          </div>
+        </div>
+        <div class="stop">
+          <div class="ver">v9 修复<small>08.06</small></div>
+          <div class="body">
+            <h3>三个证据 / 工具契约缺陷</h3>
+            <p>纯 Harness 修复，模型未换：答案 9→12、工具错误 29→16，两个原本编造答案的 case 拿到真实证据、给出正确事实。</p>
+            <span class="score up">10<span class="lbl">/18 · 答案 12</span></span>
+          </div>
+        </div>
+        <div class="stop">
+          <div class="ver">v10 基线<small>08.10 归档</small></div>
+          <div class="body">
+            <h3>判分尊重等价路径</h3>
+            <p>发现类工具视为等价类后，答案完全正确却因走了「未指定但等价」路径失分的题被纠正。形成可归档基线。</p>
+            <span class="score up">13<span class="lbl">/18 · 答案 13</span></span>
+          </div>
+        </div>
+        <div class="stop">
+          <div class="ver">v11 减法<small>当前 HEAD</small></div>
+          <div class="body">
+            <h3>route 阶段默认关闭</h3>
+            <p>分数不退（13/18），模型调用 69→48（−30%）、耗时 345s→250s（−27%）、协议合规 96.1%→100%。</p>
+            <span class="score up">13<span class="lbl">/18 · 更省更稳</span></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 为什么分数会上升 ===== -->
+    <section id="why">
+      <div class="sec-head">
+        <span class="eyebrow">Why · 分数为什么会涨</span>
+        <h2>三个来源，按诚实程度排序</h2>
+        <p>重点不在涨了多少，而在凭什么说这是真提升。三个来源都能用 trace 独立验证，也都和模型能力分开记账。</p>
+      </div>
+      <div class="drivers">
+        <article class="driver">
+          <div class="idx">1</div>
+          <div>
+            <h3>Harness / 工具契约修复（模型权重没变）</h3>
+            <p>很多「工具错误」不是模型的锅：畸形路径被当成了真实观察、名义绝对路径 <code style="font-family:var(--mono)">/workspace/…</code> 没归一化、不合身的工具在生成错误答案。这些修完，<b>同一个模型</b>就把编造的答案变成了正确事实。</p>
+          </div>
+        </article>
+        <article class="driver">
+          <div class="idx">2</div>
+          <div>
+            <h3>判分语义修正（尊重有效路径）</h3>
+            <p>把 <code style="font-family:var(--mono)">list_files / search_text</code> 这类发现动作当成一个等价类：一次 <code style="font-family:var(--mono)">search_text</code> 就完成「搜到文件 + 读到值」两步工作时，不该因为没走 rubric 指定的固定序列而判失败。这修的是判分器口径，不是模型。</p>
+          </div>
+        </article>
+        <article class="driver">
+          <div class="idx">3</div>
+          <div>
+            <h3>有界收束把「不会停」的模型也接住了</h3>
+            <p>模型学不会「证据够了就停」——18 题里 14 题靠 Harness 强制进入回答阶段。重复调用拒绝、连续失败限流、预留最终回答 step，让「不会停」不再等于「没有答案」。</p>
+          </div>
+        </article>
+      </div>
+
+      <div class="proof">
+        <div class="proof-bar"><span class="beacon"></span> CONTROLLED A/B · runs/api-13b-v8 → v9 · 2026-08-06 · 模型未换</div>
+        <div class="proof-body">
+          <p class="quote">有一次对照实验，唯一的变量是 Harness。</p>
+          <table class="mini">
+            <thead><tr><th>指标</th><th>0805</th><th>0806（仅改 Harness）</th><th>变化</th></tr></thead>
+            <tbody>
+              <tr><td>boundary 严格通过</td><td>8/18</td><td>10/18</td><td class="win">+2</td></tr>
+              <tr><td>答案正确</td><td>9/18</td><td>12/18</td><td class="win">+3</td></tr>
+              <tr><td>工具错误</td><td>29</td><td>16</td><td class="win">−45%</td></tr>
+              <tr><td>模型调用次数</td><td>91</td><td>91</td><td class="hold">0 · 关键</td></tr>
+              <tr><td>assistant / smoke 全指标</td><td colspan="2" style="text-align:center">逐项不变</td><td class="hold">干净对照</td></tr>
+            </tbody>
+          </table>
+          <p>模型调用次数一字没差，<b>提升不是多花预算换来的</b>；assistant 和 smoke 两套逐项不变，说明改动只动了该动的地方。</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 抄作业清单 ===== -->
+    <section id="playbook">
+      <div class="sec-head">
+        <span class="eyebrow">Playbook · 抄作业清单</span>
+        <h2>17 个可以直接抄走的 Harness 招式</h2>
+        <p>每张卡片顶栏是代码锚点（<code style="font-family:var(--mono)">file:line</code> 或测试名），下面按 <b>问题 / 做法 / 为什么 / 抄作业</b> 排。只挑换个项目也用得上的，纯机械的实现细节不列。</p>
+      </div>
+
+      <!-- Theme A -->
+      <div class="theme-block">
+        <div class="theme-tag"><span class="tk">A</span><h3>让弱模型稳定产出合法控制帧</h3></div>
+        <p class="theme-sub">续写式后端（不是原生 function calling）要让模型「开对帧」并不容易。做法是用 prefill 替模型把最容易出错的那步定死，并让 prefix 对齐 tokenizer 的真实边界。</p>
+        <div class="frames">
+
+          <article class="frame">
+            <div class="frame-bar"><span class="dot"></span><span class="anchor">internal/inference/prompt.go:73</span><span class="kind">协议</span></div>
+            <div class="frame-body">
+              <h4>半 tag：prefill 停在 <code>&lt;think</code>，把最后一个 <code>&gt;</code> 留给模型</h4>
+              <dl class="dl">
+                <dt class="p">问题</dt><dd class="mut">给 prompt 补上「看起来完整」的 <code>&lt;think&gt;</code>，续写质量反而崩。</dd>
+                <dt class="d">做法</dt><dd>prefix 结尾故意停在 <code>&lt;think</code>（不带 <code>&gt;</code>），由模型自己生成 <code>&gt;</code>；解析前用 <code>reconstructOutput</code> 把前缀补回。</dd>
+                <dt class="w">为什么</dt><dd class="mut">RWKV tokenizer 把 <code>&gt;</code> 和其后文本合并切分，<code>…&lt;think</code> 与 <code>…&lt;think&gt;</code> 的尾部 token 序列不同。补 <code>&gt;</code> 会让续写从训练分布里<b>不存在的 token 边界</b>开始。</dd>
+                <dt class="c">抄作业</dt><dd>prefill 必须停在训练时真实出现过的 token 边界，别按「肉眼完整的字符串」补全。<code>TestFastThinkingRendererUsesExactTokenBoundary</code> 锁死这条约定。</dd>
+              </dl>
+            </div>
+          </article>
+
+          <article class="frame">
+            <div class="frame-bar"><span class="dot"></span><span class="anchor">internal/agent/protocol.go · ToolPrefix</span><span class="kind">协议</span></div>
+            <div class="frame-body">
+              <h4>首个工具动作预填 <code>&lt;tool_call&gt;</code>，模型只补 JSON 尾部</h4>
+              <dl class="dl">
+                <dt class="p">问题</dt><dd class="mut">让模型自己决定「要不要开帧 + 开什么帧 + 填什么参数」，一步错步步错。</dd>
+                <dt class="d">做法</dt><dd>inspect 路由首次动作把 <code>&lt;tool_call&gt;</code> 作为 assistant 前缀预填；模型只生成受约束的 JSON 尾部，Runner 重建完整 frame 后做严格 envelope/JSON 解析。</dd>
+                <dt class="w">为什么</dt><dd class="mut">把「开帧」这个高频失败点变成确定性的框架动作，模型的自由度收窄到它真正该负责的内容上。</dd>
+                <dt class="c">抄作业</dt><dd>凡是「格式对错」和「内容对错」耦合的地方，用 prefill 把格式那半拆出来交给框架。</dd>
+              </dl>
+            </div>
+          </article>
+
+          <article class="frame wide">
+            <div class="frame-bar"><span class="dot"></span><span class="anchor">internal/agent/runner.go · 第一轮放行纯文本</span><span class="kind">协议</span></div>
+            <div class="frame-body">
+              <h4>混合门控：只有以 <code>&lt;tool_call&gt;</code> 开头的输出才进严格帧解析</h4>
+              <dl class="dl">
+                <dt class="p">问题</dt><dd class="mut">强迫每一次输出都走严格 JSON envelope，会把「本可以直接回答」的简单轮次也逼进协议错误。</dd>
+                <dt class="d">做法</dt><dd>第一轮允许普通文本直接回答；只有以 <code>&lt;tool_call&gt;</code> 开头的输出才进入严格控制帧解析。文本 final 与 G1I 工具控制帧是联合输出语义，共用一套提交边界。</dd>
+                <dt class="c">抄作业</dt><dd>协议严格度要「按需触发」，不是「全程开启」。给不需要工具的路径留一条低摩擦通道，协议合规率和体验都会更好。</dd>
+              </dl>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <!-- Theme B -->
+      <div class="theme-block">
+        <div class="theme-tag"><span class="tk">B</span><h3>不让模型假装完成</h3></div>
+        <p class="theme-sub">答案的真实性由宿主的确定性规则保证，不靠 prompt 请求模型自觉。关键是把「拿到可信观察」和「没拿到」在事务层面分开处理。</p>
+        <div class="frames">
+
+          <article class="frame">
+            <div class="frame-bar"><span class="dot"></span><span class="anchor">internal/agent/runner.go:606, 981</span><span class="kind">证据</span></div>
+            <div class="frame-body">
+              <h4>没有证据就不提交：<code>ErrNoWorkspaceEvidence</code> + 事务回滚</h4>
+              <dl class="dl">
+                <dt class="p">问题</dt><dd class="mut">模型工具全部失败，却照样编一个答案交上去（例：幻觉出 <code>--migration-flag=2.4.0</code>）。</dd>
+                <dt class="d">做法</dt><dd>inspect 轮若有过工具尝试但没有任何可信观察，直接以 <code>ErrNoWorkspaceEvidence</code> 失败并<b>回滚整轮</b>，不生成、不提交无证据答案。</dd>
+                <dt class="c">抄作业</dt><dd>「答案的前提是有可信观察」应当是一条<b>硬约束</b>，而不是 prompt 里的一句请求。</dd>
+              </dl>
+            </div>
+          </article>
+
+          <article class="frame">
+            <div class="frame-bar"><span class="dot"></span><span class="anchor">internal/agent/runner.go:695</span><span class="kind">证据</span></div>
+            <div class="frame-body">
+              <h4>证据可信度分类：参数错误 ≠ 真实观察</h4>
+              <dl class="dl">
+                <dt class="p">问题</dt><dd class="mut">畸形路径报错（裸 <code>fmt.Errorf</code>）被当成「到达过工作区」，点亮了 <code>hasToolEvidence</code>，让回滚失效。</dd>
+                <dt class="d">做法</dt><dd><code>toolEvidence := !errors.Is(err, ErrInvalidToolArguments)</code>：工具<b>触达世界之前</b>被拒的参数错误不算观察；缺失文件（<code>lstat</code>）和运行时失败<b>触达了世界</b>，仍算可信观察。越界拒绝本身也算可报告的观察。</dd>
+                <dt class="c">抄作业</dt><dd>给每一类工具错误明确归类：「还没碰到世界就被参数校验拦下」和「碰到了世界然后失败」是两回事，只有后者能作为回答依据。</dd>
+              </dl>
+            </div>
+          </article>
+
+          <article class="frame wide">
+            <div class="frame-bar"><span class="dot"></span><span class="anchor">internal/agent/protocol.go · 最终答案泄漏校验</span><span class="kind">提交</span></div>
+            <div class="frame-body">
+              <h4>提交前拦截协议泄漏；确定性弃答，但把模型原文留给判分</h4>
+              <dl class="dl">
+                <dt class="p">问题</dt><dd class="mut">模型把协议标签、role header、整段 JSON、原始工具 payload 直接当答案输出给用户。</dd>
+                <dt class="d">做法</dt><dd>提交前拒绝这些泄漏；写进用户 transcript 的是<b>确定性弃答</b>，但模型原文仍单独保留给 <code>answer_accuracy</code>，「答案契约修复率」单列统计。</dd>
+                <dt class="c">抄作业</dt><dd>安全兜底和能力度量要分账：<b>别让安全修复悄悄掩盖模型的真实弱点</b>——否则你会以为模型变好了，其实是兜底在替它答。</dd>
+              </dl>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <!-- Theme C -->
+      <div class="theme-block">
+        <div class="theme-tag"><span class="tk">C</span><h3>有界收束，把失败当成正常路径</h3></div>
+        <p class="theme-sub">Agent 循环常见的三种翻车：无界重试、上下文越滚越脏、跑到 step 上限交白卷。下面几条给每种情况一个确定的出口。</p>
+        <div class="frames">
+
+          <article class="frame">
+            <div class="frame-bar"><span class="dot"></span><span class="anchor">internal/agent/runner.go · 重复/限流/预留</span><span class="kind">收束</span></div>
+            <div class="frame-body">
+              <h4>重复调用拒绝 + 连续失败限流 + 预留最终回答 step</h4>
+              <dl class="dl">
+                <dt class="d">做法</dt><dd>精确重复的调用（无论成功失败）直接拒绝、不执行；同一工具连续失败最多实际执行两次，第三次阻断；任意工具尝试后都<b>预留一个</b>最终回答 step。</dd>
+                <dt class="w">为什么</dt><dd class="mut">模型学不会「够了就停」，那就让「不停」也不会掉进 step 超限的空答案坑：证据不足时收束为「明确限制」，而不是交白卷。</dd>
+                <dt class="c">抄作业</dt><dd>为「模型不肯停」设计确定性出口，比把 <code>MaxSteps</code> 调大有用得多。</dd>
+              </dl>
+            </div>
+          </article>
+
+          <article class="frame">
+            <div class="frame-bar"><span class="dot"></span><span class="anchor">ErrUnclosedThink / ErrOutputTokenLimit</span><span class="kind">收束</span></div>
+            <div class="frame-body">
+              <h4>Correction 要对症：失控推理 → 立即 <code>&lt;/think&gt;</code></h4>
+              <dl class="dl">
+                <dt class="p">问题</dt><dd class="mut">未闭合 <code>&lt;think&gt;</code>、输出预算耗尽，全都笼统归到「envelope 缺失」，纠错提示牛头不对马嘴。</dd>
+                <dt class="d">做法</dt><dd>拆成独立 sentinel（route 侧对应 <code>ErrRouteTokenLimit</code>），按错误类型分派 Correction：失控思考被要求<b>立即输出 <code>&lt;/think&gt;</code> 并禁止重开推理</b>。</dd>
+                <dt class="c">抄作业</dt><dd>通用「格式错了，重来」对失控推理无效。先把失败原因分类，再让纠错提示针对那一类。</dd>
+              </dl>
+            </div>
+          </article>
+
+          <article class="frame">
+            <div class="frame-bar"><span class="dot"></span><span class="anchor">internal/agent/runner.go · retryEcho</span><span class="kind">收束</span></div>
+            <div class="frame-body">
+              <h4>协议重试不把失控原文回写进上下文</h4>
+              <dl class="dl">
+                <dt class="p">问题</dt><dd class="mut">重试时把上一轮的失控推理原文写回 transcript，第二次重试在<b>更脏的上下文</b>里以同样方式再失败。</dd>
+                <dt class="d">做法</dt><dd>重试时丢弃失控原文（<code>retryEcho</code>），decision 和 route 两条重试路径都修。</dd>
+                <dt class="c">抄作业</dt><dd>重试的前提是「上下文比上次干净」，否则重试只是把同一个坑再踩一遍。</dd>
+              </dl>
+            </div>
+          </article>
+
+          <article class="frame">
+            <div class="frame-bar"><span class="dot"></span><span class="anchor">internal/agent/tools.go · /workspace 归一化</span><span class="kind">恢复</span></div>
+            <div class="frame-body">
+              <h4>名义绝对路径归一化：给出正确形状，而不是连试 5 次</h4>
+              <dl class="dl">
+                <dt class="p">问题</dt><dd class="mut">模型看不到真实临时目录根，<code>/workspace/x</code> 是它最合理的猜测，但旧文案不给正确形状，它就连试 5 次直到预算耗尽。</dd>
+                <dt class="d">做法</dt><dd>把名义绝对路径映射成候选相对路径，<b>只接受归一化后确实存在于工作区内</b>的候选；错误文案直接给出修正后的路径形状。<code>/etc/hosts</code> 等真实越界照旧失败。</dd>
+                <dt class="c">抄作业</dt><dd>工具报错的第一职责是「让下一次调用能成功」——把正确形状写进错误信息，比拒绝更有用。</dd>
+              </dl>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <!-- Theme D -->
+      <div class="theme-block">
+        <div class="theme-tag"><span class="tk">D</span><h3>让实验可归因</h3></div>
+        <p class="theme-sub">greedy 解码下，prompt 是唯一能解释输出变化的输入。不记录 prompt、不还原收尾原因，分数一变就只能靠猜。</p>
+        <div class="frames">
+
+          <article class="frame">
+            <div class="frame-bar"><span class="dot"></span><span class="anchor">rwkvlightning/client.go:470 · inferFinishReason</span><span class="kind">度量</span></div>
+            <div class="frame-body">
+              <h4>自己推断 finish_reason：否则协议合规指标整条是错的</h4>
+              <dl class="dl">
+                <dt class="p">问题</dt><dd class="mut">服务端不返回 <code>finish_reason</code>。<code>max_tokens</code> 截断被误报成协议格式错误；启用服务端 stop 后 stop 序列被吃掉，<code>FinishUnknown</code> 会把正确的 <code>&lt;route&gt;inspect</code> 判成未闭合信封——实测直接打成 <b>route 0/18</b>。</dd>
+                <dt class="d">做法</dt><dd>客户端自行推断：生成 token 达到预算记 <code>FinishLength</code>；低于预算且有输出记 <code>FinishStop</code>。</dd>
+                <dt class="c">抄作业</dt><dd>接非流式 / 无 usage 的后端时，收尾原因必须自己从 token 数补出来，否则「协议合规率」是个假指标。</dd>
+              </dl>
+            </div>
+          </article>
+
+          <article class="frame">
+            <div class="frame-bar"><span class="dot"></span><span class="anchor">Step.Request · TracePromptBytes</span><span class="kind">度量</span></div>
+            <div class="frame-body">
+              <h4>trace 记录 prompt 粒度：完整 prompt + 字节数 + 工具清单</h4>
+              <dl class="dl">
+                <dt class="p">问题</dt><dd class="mut">旧 trace 只记 <code>model_output</code>。greedy 下换了工具清单分数就动，但无法归因到底是哪一处 prompt 变化。</dd>
+                <dt class="d">做法</dt><dd>记录每次生成的完整 prompt、字节数、assistant 预填、stop、<code>max_output_tokens</code>，以及 decision 阶段的<b>工具清单</b>；并新增路由每一次尝试的 prompt/输出/解析错误。</dd>
+                <dt class="c">抄作业</dt><dd>greedy 评测里不记 prompt 就没法归因。同参数复跑逐项一致，证明「记录本身不改变行为」。</dd>
+              </dl>
+            </div>
+          </article>
+
+          <article class="frame wide">
+            <div class="frame-bar"><span class="dot"></span><span class="anchor">受控单题 A/B · pb_missing_file_recover</span><span class="kind">度量</span></div>
+            <div class="frame-body">
+              <h4>用 prompt trace 证实：分数漂移的真凶是「工具清单变化」，不是能力退化</h4>
+              <dl class="dl">
+                <dt class="d">证据</dt><dd>唯一差异是工具注册表：decision prompt <code>2622 → 2263</code> 字节，在<b>第 1505 字节首次分歧</b>，差异正是 <code>structured_query</code> 那 359 字节说明行。首个动作因此从 <code>search_text{case_sensitive:true}</code> 变成 <code>{case_sensitive:false}</code>，两者答案都对，只是后者不再经过 rubric 要求的 <code>list_files</code>。</dd>
+                <dt class="c">抄作业</dt><dd>工具清单以 <code>Available tools:</code> 段落渲染进<b>每一个</b> decision prompt——所以撤掉一个工具会连带移动<b>所有 case</b> 的轨迹，哪怕它从不调用那个工具。任何改工具清单的实验，都要同时记录工具清单和 prompt 字节数。</dd>
+              </dl>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <!-- Theme E -->
+      <div class="theme-block">
+        <div class="theme-tag"><span class="tk">E</span><h3>做减法：一次撤工具，一次撤阶段</h3></div>
+        <p class="theme-sub">两次删除都在 RWKV7 G1i 13B 上实测过。前提是先有了 prompt trace，能确认删掉之后分数确实没退，否则不敢动。</p>
+        <div class="frames">
+
+          <article class="frame">
+            <div class="frame-bar"><span class="dot"></span><span class="anchor">撤掉 structured_query · v8→v9</span><span class="kind">减法</span></div>
+            <div class="frame-body">
+              <h4>不合身的工具，比没有工具更差</h4>
+              <dl class="dl">
+                <dt class="p">问题</dt><dd class="mut"><code>structured_query</code> 表达不了多指标 / 列选择 / 跨表；有它时给出 <code>355.72</code>（应 438.72）、<code>$1,499.50</code>（应 1248.50）。</dd>
+                <dt class="d">做法</dt><dd>把它从 boundary 撤出、<code>ComputeTools</code> 收窄为仅 <code>calculator</code>；任务改由 <code>read_file + calculator</code> 组合完成。</dd>
+                <dt class="w">为什么</dt><dd class="mut">撤掉后<b>仅用 <code>read_file</code></b> 两题就答对了，连 calculator 都没用——模型自己的算术本来是对的。是那个不合身的工具在<b>主动制造</b>错误答案。</dd>
+                <dt class="c">抄作业</dt><dd>注册工具前先问「它能不能完整表达任务」。一个只能部分表达的工具，会把模型拽进「可执行但语义错」的答案。</dd>
+              </dl>
+            </div>
+          </article>
+
+          <article class="frame">
+            <div class="frame-bar"><span class="dot"></span><span class="anchor">--route-stage 默认关闭 · v11</span><span class="kind">减法</span></div>
+            <div class="frame-body">
+              <h4>撤掉整个 route 阶段：更省、更稳、分数不退</h4>
+              <dl class="dl">
+                <dt class="p">问题</dt><dd class="mut">route 是早期给小模型的引导脚手架，每轮多花一次模型调用。</dd>
+                <dt class="d">做法</dt><dd>RWKV7 G1i 13B 上改为默认关闭：boundary <b>13/18 不变</b>，模型调用 69→48、耗时 345s→250s、协议 96.1%→100%；assistant 2/6→3/6。</dd>
+                <dt class="w">为什么</dt><dd class="mut">assistant 唯一变好的那题，模型行为本就正确（正确追问、零工具调用），只是被 route 断言误判成失败——这个阶段成了它自己的<b>唯一失败来源</b>。</dd>
+                <dt class="c">抄作业</dt><dd>脚手架要能一键关、并且对够强的模型默认关。判分也要跟着改：阶段不跑时若照常计分会白送 100%，用 manifest 里的 <code>route_stage</code> 字段控制。</dd>
+              </dl>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <!-- Theme F -->
+      <div class="theme-block">
+        <div class="theme-tag"><span class="tk">F</span><h3>判分尊重有效路径，双口径记账</h3></div>
+        <p class="theme-sub">判分器自己会制造假阴性。要把它当成一个变量，和模型能力分开记。</p>
+        <div class="frames">
+
+          <article class="frame">
+            <div class="frame-bar"><span class="dot"></span><span class="anchor">eval/runner.go:558 · discoveryTools</span><span class="kind">判分</span></div>
+            <div class="frame-body">
+              <h4>发现类工具等价类：一次搜索完成两步，不算失败</h4>
+              <dl class="dl">
+                <dt class="p">问题</dt><dd class="mut">v9 下多题答案完全正确，只因没走 rubric 指定的 <code>list→read</code> 固定序列而失分。</dd>
+                <dt class="d">做法</dt><dd>把 <code>list_files / search_text</code> 视为一个等价类：<code>required_tools</code> 的发现要求可由任一发现工具满足，<code>required_calls</code> 允许复用已匹配步骤；非发现工具（<code>calculator</code> 等）仍严格按名匹配。</dd>
+                <dt class="c">抄作业</dt><dd>rubric 要奖励「达成目标」，不是「复述我设想的路径」。强制固定序列会惩罚更省的解法。<code>TestBoundaryScoringAcceptsEquivalentDiscoveryPaths</code> / <code>...StillRequiresInvestigation</code> 一起守住边界。</dd>
+                <dt class="d">效果</dt><dd class="mut">RWKV <b>10/18 → 13/18</b>，DeepSeek 13/18 → 17/18，两侧无新增失败。</dd>
+              </dl>
+            </div>
+          </article>
+
+          <article class="frame">
+            <div class="frame-bar"><span class="dot"></span><span class="anchor">answer_accuracy vs task_success</span><span class="kind">判分</span></div>
+            <div class="frame-body">
+              <h4>严格分和语义分都报，不只报一个</h4>
+              <dl class="dl">
+                <dt class="p">问题</dt><dd class="mut">模型事实全对，但附了解释、或日期写成中文格式，被严格字符串判分打成失败。</dd>
+                <dt class="d">做法</dt><dd>同时报严格口径（如 10/18）和语义口径（如 ~14/18），并把「答案契约修复率」单列。ISO / 中文日期、「不可用」降级措辞都接受二选一。</dd>
+                <dt class="c">抄作业</dt><dd>「格式没遵守」和「事实答错了」是两种失败，混在一个数字里会误导模型训练的优先级。</dd>
+              </dl>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 和 DeepSeek 的差距 ===== -->
+    <section id="gap">
+      <div class="sec-head">
+        <span class="eyebrow">Benchmark · 与成熟模型的差距</span>
+        <h2>差距已经从「控制面」搬到了「答案正确性」</h2>
+        <p>V10 基线，18 题 boundary，两侧参数一致（思考开启、同 route/decision/answer 预算）。RWKV 走 <code style="font-family:var(--mono)">/v1/chat/completions</code> 纯续写，DeepSeek 走原生 function calling——<b>同一个 Harness、同一套判分</b>。</p>
+      </div>
+      <div class="cmp-wrap">
+        <table class="cmp">
+          <thead>
+            <tr><th>指标</th><th><span class="mono">rwkv7-g1i-13.3b-20260805-ctx16384</span></th><th>DeepSeek v4-flash</th><th>读法</th></tr>
+          </thead>
+          <tbody>
+            <tr class="gap"><td>任务通过</td><td class="rwkv">13/18 · 72.2%</td><td>17/18 · 94.4%</td><td><span class="flag">差 4 题</span></td></tr>
+            <tr class="gap"><td>答案准确</td><td class="rwkv">13/18</td><td>17/18</td><td><span class="flag">差距在这</span></td></tr>
+            <tr class="par"><td>路由准确</td><td class="rwkv">18/18</td><td>18/18</td><td><span class="flag">打平</span></td></tr>
+            <tr class="par"><td>必需工具 / 必需调用</td><td class="rwkv">100% / 100%</td><td>100% / 100%</td><td><span class="flag">打平</span></td></tr>
+            <tr class="par"><td>禁用工具规避</td><td class="rwkv">2/2</td><td>2/2</td><td><span class="flag">打平</span></td></tr>
+            <tr><td>协议合规</td><td class="rwkv">49/51 · 96.1%</td><td>53/53 · 100%</td><td><span class="flag" style="color:var(--warn)">几乎打平</span></td></tr>
+            <tr class="gap"><td>端到端耗时</td><td class="rwkv">345s</td><td>109s</td><td><span class="flag">约 3×</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-top:20px;color:var(--muted);max-width:70ch">
+        <b style="color:var(--ink)">工具使用和路由两侧都打平且满分，差距集中在答案正确性上。</b>
+        也就是说协议、权限、收束、证据这层的差距基本被 Harness 抹平了，剩下的是模型推理和判分口径。RWKV 这 5 个失败拆开看：
+      </p>
+      <div class="fails">
+        <article class="fail gap"><span class="verdict">真实能力</span><span class="case">pb_fx_column_trap</span><p>取错了汇率列。属于财务映射的真实推理差距，Harness 无能为力。</p></article>
+        <article class="fail gap"><span class="verdict">真实能力</span><span class="case">pb_log_incident_root_cause</span><p>挑错了日志条目。事实定位错误，同样是模型能力。</p></article>
+        <article class="fail room"><span class="verdict">Harness 空间</span><span class="case">pb_loc_interest_8_months</span><p>输出了表格而非纯数字，且 <code>answer_contract_repaired</code> 为 0/18——说明答案契约修复层还没触发，可补。</p></article>
+        <article class="fail room"><span class="verdict">Harness 空间</span><span class="case">pb_config_precedence_resolve</span><p>没搜索就断言文件不存在。可用「无证据不下结论」的约束进一步收紧。</p></article>
+        <article class="fail think"><span class="verdict">思考失控残留</span><span class="case">pb_eur_trip_card_vs_fx</span><p>思考失控的残留。v9→v10 期间失控已从 6/53 降到 2/51，这是最后的尾巴。</p></article>
+      </div>
+      <div class="caveat">
+        不能只报一个数。这 5 个失败里，2 题是真实推理差距，2 题还是 Harness / 判分口径能动的，1 题是收敛残留。耗时 3× 也是真实差距：续写式多阶段协议本来就比原生 function calling 重。这份报告想做的是<b>把模型该背的和 Harness 该背的分开</b>，而不是用一个总分盖过去。
+      </div>
+    </section>
+
+    <!-- ===== 可迁移原则 ===== -->
+    <section id="takeaways">
+      <div class="sec-head">
+        <span class="eyebrow">Principles · 可迁移的原则</span>
+        <h2>换个项目也成立的六条</h2>
+      </div>
+      <div class="takeaways">
+        <article class="take"><span class="k">01</span><p><b>真实性靠 Controller 强制，不靠 prompt 请求。</b>「没有可信观察就不许提交答案」要写成硬约束和事务回滚。</p></article>
+        <article class="take"><span class="k">02</span><p><b>先能测准，再谈优化。</b>greedy 下记录 prompt 粒度 + 自推 finish_reason，否则协议合规率和归因全是假的。</p></article>
+        <article class="take"><span class="k">03</span><p><b>工具错误要分类。</b>「碰到世界前被拒」和「碰到世界后失败」是两回事，只有后者是证据。</p></article>
+        <article class="take"><span class="k">04</span><p><b>不合身的工具比没工具更差。</b>它会把模型拽进「可执行但语义错」，注册前先确认它能完整表达任务。</p></article>
+        <article class="take"><span class="k">05</span><p><b>为「模型不肯停」设计确定性出口。</b>重复拒绝 + 失败限流 + 预留回答 step，比调大 MaxSteps 有用。</p></article>
+        <article class="take"><span class="k">06</span><p><b>判分器是变量，双口径记账。</b>奖励「达成目标」而非「复述路径」；严格分和语义分都报，别用总分盖过锅。</p></article>
+      </div>
+    </section>
+
+    <!-- ===== 证据附录 ===== -->
+    <section id="evidence" style="border-bottom:none">
+      <div class="sec-head">
+        <span class="eyebrow">Evidence · 项目内证据</span>
+        <h2>每个数字都能在仓库里查到</h2>
+        <p>所有分数来自实际运行产物，按 manifest 与生成时间复核，不按目录名猜版本。</p>
+      </div>
+      <div class="evi">
+        <div class="row"><div class="t">docs/agent-harness-milestone.md</div><div class="d">阶段演进、V10 基线、route 减法实验的一手记录。</div></div>
+        <div class="row"><div class="t">runs/api-13b-v9-evaluation-report-20260806.md</div><div class="d">「模型未换、仅改 Harness」的干净 A/B，及 <code>structured_query</code> 负收益。</div></div>
+        <div class="row"><div class="t">runs/v10-rwkv13b-boundary · v10-deepseek-v4flash-boundary</div><div class="d">V10 基线对比的 <code>summary.json</code> / <code>trace.jsonl</code> 原始产物。</div></div>
+        <div class="row"><div class="t">runs/v11-rwkv13b-noroute</div><div class="d">route 关闭后的 48 次调用 / 250s / 协议 100% 原始产物。</div></div>
+        <div class="row"><div class="t">internal/inference/prompt.go:73</div><div class="d">半 tag token 边界；测试 <code>TestFastThinkingRendererUsesExactTokenBoundary</code>。</div></div>
+        <div class="row"><div class="t">internal/agent/runner.go:695, 981</div><div class="d">证据可信度分类与 <code>ErrNoWorkspaceEvidence</code> 回滚。</div></div>
+        <div class="row"><div class="t">internal/continuation/rwkvlightning/client.go:470</div><div class="d"><code>inferFinishReason</code>：非流式后端的收尾原因推断。</div></div>
+        <div class="row"><div class="t">internal/agent/eval/runner.go:558</div><div class="d"><code>discoveryTools</code> 等价类判分。</div></div>
+      </div>
+      <div class="caveat" style="background:var(--surface-2);border-color:var(--line-2)">
+        <b style="color:var(--accent)">范围声明：</b>本文只讲 Harness / 控制面。推理内核、TUI、原生 FFI、构建脚本一律不在范围内。V10 为已归档基线；V11（route 默认关闭）为当前 HEAD 的实验状态，正式基线待用 HEAD 重跑完整 suite 后确认。
+      </div>
+    </section>
+
+    <footer>
+      <div class="note">RWKV-Agent · Harness 层优化实录 · 数据截至 2026-08-10 · 仅控制面</div>
+    </footer>
+  </main>
+</body>
+</html>
