@@ -1,0 +1,15 @@
+{
+  "name": "arithmetic",
+  "title": "Arithmetic Tool Smoke Test",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "What's 4827 times 391? Call multiply with a=4827 and b=391, then reply with only the product digits.",
+  "tools": "multiply",
+  "environment": {
+    "kind": "emulated",
+    "files": {}
+  },
+  "evaluation": "arithmetic",
+  "max_turns": 6,
+  "suite": "original"
+}

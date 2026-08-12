@@ -1,0 +1,36 @@
+{
+  "name": "multi_file_compare",
+  "title": "Compare Two Files",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "Compare old.txt and new.txt. When you find the first differing line, report it using this exact shape: line N: old_text -> new_text",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "old.txt": [
+        "alpha",
+        "beta",
+        "gamma"
+      ],
+      "new.txt": [
+        "alpha",
+        "beta!",
+        "gamma"
+      ],
+      "README.md": [
+        "Diff report format example (replace with the real first difference you find):",
+        "line 1: aaa -> bbb",
+        "Required shape: line <number>: <old line> -> <new line>"
+      ]
+    },
+    "expected_submit": "line 2: beta -> beta!",
+    "required_tools": [
+      "read_file",
+      "submit"
+    ]
+  },
+  "evaluation": "line_change_submit",
+  "max_turns": 10,
+  "suite": "original"
+}

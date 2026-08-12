@@ -1,0 +1,31 @@
+{
+  "name": "read_only_repo_explain",
+  "title": "Read Only Repo Explain",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "Read-only: explore this tiny repo and report one sentence explaining how the runner works. Include the entrypoint path and the key function names you find.",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "src/run.rs": [
+        "pub fn run_task(task: &str) { let req = build_request(task); send(req); }"
+      ],
+      "src/client.rs": [
+        "pub fn build_request(task: &str) -> String { task.to_string() }"
+      ],
+      "README.md": [
+        "Tiny runner library.",
+        "Your summary should mention the entrypoint file path under src/ and the important function names you see there."
+      ]
+    },
+    "required_tools": [
+      "read_file",
+      "submit"
+    ],
+    "scenario": "read_only_repo_explain"
+  },
+  "evaluation": "repo_explain",
+  "max_turns": 12,
+  "suite": "original"
+}

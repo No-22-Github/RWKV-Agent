@@ -1,0 +1,28 @@
+{
+  "name": "chmod_then_run",
+  "title": "Chmod Then Run",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "hello.py should print something useful, but it may not be executable yet. Get it running and report its stdout.",
+  "tools": "chmod_run_submit",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "hello.py": [
+        "print('READY')"
+      ]
+    },
+    "run_outputs": {
+      "hello.py": "READY"
+    },
+    "expected_submit": "READY",
+    "required_tools": [
+      "run_file",
+      "chmod",
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 12,
+  "suite": "original"
+}

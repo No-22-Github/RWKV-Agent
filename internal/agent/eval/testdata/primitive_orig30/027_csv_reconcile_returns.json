@@ -1,0 +1,40 @@
+{
+  "name": "csv_reconcile_returns",
+  "title": "CSV Reconcile Returns",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "Per README.md: net(sku) = sum(qty*unit_price over all orders rows) minus sum(refund amounts). Do not skip order rows or forget refunds. Submit the top sku as: SKU-XX N.NN",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "orders.csv": [
+        "sku,qty,unit_price",
+        "SKU-17,3,250.00",
+        "SKU-42,4,180.00",
+        "SKU-17,2,299.50",
+        "SKU-09,10,49.95",
+        "SKU-42,1,180.00"
+      ],
+      "refunds.csv": [
+        "sku,amount",
+        "SKU-17,100.50",
+        "SKU-42,180.00",
+        "SKU-09,49.95"
+      ],
+      "README.md": [
+        "net(sku) = sum(qty*unit_price in orders) - sum(amount in refunds).",
+        "Use FILES['orders.csv'] / FILES['refunds.csv'] with gmatch. Lua has no string.split.",
+        "Submit the top sku and net, e.g. SKU-09 12.34 — never the placeholder text SKU-XX."
+      ]
+    },
+    "expected_submit": "SKU-17 1248.50",
+    "required_tools": [
+      "read_file",
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 16,
+  "suite": "original"
+}

@@ -1,0 +1,38 @@
+{
+  "name": "awk_tabs_justify",
+  "title": "Tabs To Aligned Columns",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "align.awk still uses print. README.md gives the exact replacement printf line — copy that line into align.awk unchanged (left-justify / field widths are part of the spec). write_file, run_awk on data.tsv, submit the stdout.",
+  "tools": "awk",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "data.tsv": [
+        "name\tqty\tprice",
+        "apple\t3\t1.20",
+        "pear\t12\t0.75"
+      ],
+      "align.awk": [
+        "BEGIN { FS=\"\\t\" }",
+        "{ print $1, $2, $3 }"
+      ],
+      "README.md": [
+        "Keep the tab FS line.",
+        "Replace the print body with exactly this printf line (widths matter):",
+        "{ printf \"%-6s %2s %5s\\n\", $1, $2, $3 }",
+        "Run align.awk on data.tsv and submit the exact stdout."
+      ]
+    },
+    "expected_submit": "name   qty price\napple   3  1.20\npear   12  0.75",
+    "required_tools": [
+      "write_file",
+      "run_awk",
+      "submit"
+    ],
+    "scenario": "awk_tabs_justify"
+  },
+  "evaluation": "submit",
+  "max_turns": 16,
+  "suite": "original"
+}

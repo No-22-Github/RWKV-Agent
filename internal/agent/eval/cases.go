@@ -217,7 +217,9 @@ func BuiltinSuite(name string) ([]Case, error) {
 		return BoundaryCases()
 	case SuiteAssistant:
 		return AssistantCases()
+	case SuitePrimitive:
+		return PrimitiveCases()
 	default:
-		return nil, fmt.Errorf("unknown Agent eval suite %q; expected smoke, boundary, or assistant", name)
+		return nil, fmt.Errorf("unknown Agent eval suite %q; expected smoke, boundary, assistant, or primitive", name)
 	}
 }

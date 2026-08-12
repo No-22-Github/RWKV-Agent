@@ -11,7 +11,7 @@ import (
 
 const (
 	SchemaVersion  = 3
-	HarnessVersion = "rwkv-agent-eval-v10"
+	HarnessVersion = "rwkv-agent-eval-v12"
 )
 
 type GeneratorFactory func(
@@ -19,15 +19,31 @@ type GeneratorFactory func(
 ) (continuation.Generator, io.Closer, error)
 
 type Case struct {
-	ID                  string            `json:"id"`
-	Description         string            `json:"description"`
-	Category            string            `json:"category,omitempty"`
-	Source              string            `json:"source,omitempty"`
-	Difficulty          string            `json:"difficulty,omitempty"`
-	Files               map[string]string `json:"files,omitempty"`
-	OutsideFiles        map[string]string `json:"outside_files,omitempty"`
-	ProviderUnavailable []string          `json:"provider_unavailable,omitempty"`
-	Turns               []Turn            `json:"turns"`
+	ID                  string             `json:"id"`
+	Description         string             `json:"description"`
+	Category            string             `json:"category,omitempty"`
+	Source              string             `json:"source,omitempty"`
+	Difficulty          string             `json:"difficulty,omitempty"`
+	Files               map[string]string  `json:"files,omitempty"`
+	OutsideFiles        map[string]string  `json:"outside_files,omitempty"`
+	ProviderUnavailable []string           `json:"provider_unavailable,omitempty"`
+	Turns               []Turn             `json:"turns"`
+	Primitive           *PrimitiveMetadata `json:"primitive,omitempty"`
+	primitive           *primitiveRuntime
+}
+
+// PrimitiveMetadata preserves the source-side scoring and emulator contract in
+// run.json for an imported Primitive Bench case. It is populated only by the
+// trusted-directory loader, not by the versioned native case schema.
+type PrimitiveMetadata struct {
+	ToolNames      []string          `json:"tool_names"`
+	Modes          map[string]string `json:"modes,omitempty"`
+	RunOutputs     map[string]string `json:"run_outputs,omitempty"`
+	ExpectedSubmit *string           `json:"expected_submit,omitempty"`
+	Scenario       string            `json:"scenario,omitempty"`
+	Scorer         string            `json:"scorer"`
+	Tolerance      *float64          `json:"tolerance,omitempty"`
+	MaxTurns       int               `json:"max_turns,omitempty"`
 }
 
 type Turn struct {
@@ -94,6 +110,8 @@ type HarnessMetadata struct {
 	RouteProtocol           string `json:"route_protocol"`
 	RouteStage              bool   `json:"route_stage"`
 	ControlPrompt           string `json:"control_prompt"`
+	TaskControl             string `json:"task_control,omitempty"`
+	TerminalTool            string `json:"terminal_tool,omitempty"`
 	ThinkingMode            string `json:"thinking_mode"`
 	Reasoning               bool   `json:"reasoning"`
 	FewShot                 bool   `json:"few_shot"`

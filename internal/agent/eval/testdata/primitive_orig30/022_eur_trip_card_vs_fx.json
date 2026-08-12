@@ -1,0 +1,52 @@
+{
+  "name": "eur_trip_card_vs_fx",
+  "title": "EUR Trip Card Versus FX",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "Follow rate_guide.md: first form gross = EUR amount * EUR spot_sell, then apply the wallet/card multipliers. FILES['...'] are strings (gmatch), not tables. Submit one line: EUR by N.NN or CARD by N.NN",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "bot_rates.tsv": [
+        "currency\tcash_buy\tcash_sell\tspot_buy\tspot_sell",
+        "USD\t31.545\t32.215\t31.87\t32.02",
+        "EUR\t35.73\t37.07\t36.245\t36.845",
+        "JPY\t0.1888\t0.2016\t0.1956\t0.2006",
+        "GBP\t41.47\t43.59\t42.365\t42.995",
+        "CAD\t22.01\t22.92\t22.34\t22.67",
+        "SGD\t24.16\t25.07\t24.63\t24.85",
+        "THB\t0.8348\t1.0248\t0.9452\t0.9912"
+      ],
+      "trip_budget.csv": [
+        "currency,amount",
+        "EUR,2430"
+      ],
+      "rate_guide.md": [
+        "Use EUR spot_sell from bot_rates.tsv (column spot_sell on the EUR row).",
+        "gross = trip EUR amount * EUR spot_sell",
+        "EUR wallet net = gross * (1 - 0.005)",
+        "CARD net = gross * (1 + 0.025)",
+        "Pick the lower net; savings = abs difference with two decimals.",
+        "Submit: EUR by N.NN   or   CARD by N.NN",
+        "run_lua tip: local rates = FILES['bot_rates.tsv']; local budget = FILES['trip_budget.csv']"
+      ],
+      "card_terms.txt": [
+        "Trip amount is in trip_budget.csv (EUR).",
+        "Use EUR spot_sell from bot_rates.tsv (the EUR row, spot_sell column; value 36.845).",
+        "gross = EUR_amount * 36.845",
+        "EUR wallet net = gross * (1 - 0.005)",
+        "CARD net = gross * (1 + 0.025)",
+        "Report cheaper option: EUR by N.NN or CARD by N.NN"
+      ]
+    },
+    "expected_submit": "EUR by 2686.00",
+    "required_tools": [
+      "read_file",
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 16,
+  "suite": "original"
+}

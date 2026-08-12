@@ -1,0 +1,27 @@
+{
+  "name": "csv_sum",
+  "title": "CSV Column Sum",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "Open sales.csv, add up the qty values, and report only the total number.",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "sales.csv": [
+        "item,qty",
+        "apple,5",
+        "pear,12",
+        "plum,25"
+      ]
+    },
+    "expected_submit": "42",
+    "required_tools": [
+      "read_file",
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 12,
+  "suite": "original"
+}

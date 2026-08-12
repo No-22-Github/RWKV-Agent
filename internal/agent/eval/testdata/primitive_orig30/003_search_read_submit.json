@@ -1,0 +1,30 @@
+{
+  "name": "search_read_submit",
+  "title": "Search Read And Submit",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "There's a SECRET_CODE somewhere in this project. Find it and report only the code value.",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "a.txt": [
+        "alpha"
+      ],
+      "logs/run.log": [
+        "SECRET_CODE=EMBER-91"
+      ],
+      "notes.txt": [
+        "beta"
+      ]
+    },
+    "expected_submit": "EMBER-91",
+    "required_tools": [
+      "read_file",
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 10,
+  "suite": "original"
+}

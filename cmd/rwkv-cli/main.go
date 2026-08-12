@@ -132,7 +132,7 @@ func usage() {
   rwkv-cli convert --input <RWKV .pth> --output <MLX model directory>
   rwkv-cli run --model <RWKV .pth or MLX directory> [--prompt <text> | --session <bundle>]
   rwkv-cli agent --model <path or remote model ID> [--prompt <task>] [--ui auto|tui|plain]
-  rwkv-cli agent-eval --model <path or remote model ID> [--suite boundary|smoke|assistant] [--output <directory>]
+  rwkv-cli agent-eval --model <path or remote model ID> [--suite boundary|smoke|assistant|primitive] [--output <directory>]
   rwkv-cli concurrent --model <RWKV .pth or MLX directory> [--concurrency 1..8] [--ui auto|tui|plain]
   rwkv-cli bench --model <RWKV .pth or MLX directory> [--concurrency 1..8]`)
 }
@@ -285,7 +285,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			&options.apiStopTokens,
 			"api-stop-tokens",
 			"text",
-			"rwkv_lightning stop_tokens form: text, none, eos, or a comma-separated token ID list",
+			"rwkv_lightning stop_tokens form: text, cuda, none, eos, or a comma-separated token ID list",
 		)
 		fs.BoolVar(
 			&options.apiStream,
@@ -303,8 +303,13 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			fs.StringVar(&options.ui, "ui", "auto", "agent renderer: auto, tui, or plain")
 			fs.StringVar(&options.workspace, "workspace", ".", "workspace root available to read-only tools")
 		} else {
-			fs.StringVar(&options.evalSuite, "suite", agenteval.SuiteBoundary, "built-in Agent eval suite: boundary, smoke, or assistant")
-			fs.StringVar(&options.evalCasesPath, "cases", "", "versioned custom Agent eval case JSON; conflicts with --suite")
+			fs.StringVar(&options.evalSuite, "suite", agenteval.SuiteBoundary, "built-in Agent eval suite: boundary, smoke, assistant, or primitive")
+			fs.StringVar(
+				&options.evalCasesPath,
+				"cases",
+				"",
+				"versioned Agent eval JSON or trusted Primitive Bench case directory; conflicts with --suite",
+			)
 			fs.StringVar(&options.evalOutput, "output", "", "new directory for run.json, trace.jsonl, and summary.json")
 			fs.Var(&options.evalCaseIDs, "case", "repeatable built-in or file-backed case ID to run")
 			fs.DurationVar(&options.evalCaseTimeout, "case-timeout", 2*time.Minute, "timeout for each isolated eval case")
@@ -402,9 +407,10 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		if name == "agent-eval" {
 			if options.evalSuite != agenteval.SuiteBoundary &&
 				options.evalSuite != agenteval.SuiteSmoke &&
-				options.evalSuite != agenteval.SuiteAssistant {
+				options.evalSuite != agenteval.SuiteAssistant &&
+				options.evalSuite != agenteval.SuitePrimitive {
 				return options, fmt.Errorf(
-					"unsupported Agent eval suite %q; expected boundary, smoke, or assistant",
+					"unsupported Agent eval suite %q; expected boundary, smoke, assistant, or primitive",
 					options.evalSuite,
 				)
 			}
@@ -868,11 +874,20 @@ func runAgentEval(args []string) error {
 		return err
 	}
 	if options.evalCasesPath != "" {
-		cases, err = agenteval.LoadCases(options.evalCasesPath)
+		info, statErr := os.Stat(options.evalCasesPath)
+		if statErr != nil {
+			return fmt.Errorf("inspect Agent eval cases: %w", statErr)
+		}
+		if info.IsDir() {
+			cases, err = agenteval.LoadPrimitiveCases(options.evalCasesPath)
+			suite = agenteval.SuitePrimitive
+		} else {
+			cases, err = agenteval.LoadCases(options.evalCasesPath)
+			suite = "custom"
+		}
 		if err != nil {
 			return fmt.Errorf("load Agent eval cases: %w", err)
 		}
-		suite = "custom"
 	}
 	cases, err = agenteval.SelectCases(cases, options.evalCaseIDs)
 	if err != nil {
@@ -993,13 +1008,21 @@ func formatEvalScore(score agenteval.Score) string {
 }
 
 // parseAPIStopTokens resolves --api-stop-tokens into a rwkv_lightning stop token
-// mode. "text" forwards the protocol's decoded-text stops, which is the wire type
-// rwkv_lightning documents. "none" omits the field, "eos" sends the legacy integer
-// EOS list, and an explicit comma-separated list passes those token IDs through.
+// mode. "text" forwards the protocol's decoded-text stops for the PyTorch server.
+// "cuda" sends the rwkv_lightning_cuda stop IDs needed by the G1I protocol,
+// "none" omits the field, "eos" sends only the legacy integer EOS token, and an
+// explicit comma-separated list passes those token IDs through.
 func parseAPIStopTokens(value string) (rwkvlightning.StopTokenMode, []int, error) {
 	switch trimmed := strings.ToLower(strings.TrimSpace(value)); trimmed {
 	case "", "text":
 		return rwkvlightning.StopTokenText, nil, nil
+	case "cuda":
+		// CUDA stops when any listed token is generated. Token 261 is the
+		// double-newline token used by rwkv_lightning's default User delimiter,
+		// but this Harness also requests System/Tool text stops; treating those
+		// unsupported strings as 261 truncates long JSON tool calls mid-value.
+		// EOS plus the distinctive User token is safe for the G1I envelope.
+		return rwkvlightning.StopTokenEOS, []int{0, 24281}, nil
 	case "none":
 		return rwkvlightning.StopTokenNone, nil, nil
 	case "eos":
@@ -1011,7 +1034,7 @@ func parseAPIStopTokens(value string) (rwkvlightning.StopTokenMode, []int, error
 			token, err := strconv.Atoi(strings.TrimSpace(field))
 			if err != nil || token < 0 {
 				return "", nil, fmt.Errorf(
-					"--api-stop-tokens must be text, none, eos, or a comma-separated list of non-negative token IDs",
+					"--api-stop-tokens must be text, cuda, none, eos, or a comma-separated list of non-negative token IDs",
 				)
 			}
 			tokens = append(tokens, token)

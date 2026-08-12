@@ -750,6 +750,76 @@ func TestRunnerDuplicateFailedCallForcesLimitedAnswer(t *testing.T) {
 	}
 }
 
+func TestRunnerAllowsFailedCallAfterSuccessfulRecoveryAction(t *testing.T) {
+	t.Parallel()
+	outputs := []string{
+		`<tool_call>{"name":"failing","arguments":{"value":"same"}}</tool_call>`,
+		`<tool_call>{"name":"echo","arguments":{"value":"recovered"}}</tool_call>`,
+		`<tool_call>{"name":"failing","arguments":{"value":"same"}}</tool_call>`,
+		"could not verify",
+	}
+	calls := 0
+	executions := 0
+	runner, err := NewRunner(
+		continuation.GenerateFunc(func(
+			context.Context,
+			continuation.Request,
+			continuation.EventSink,
+		) (continuation.Result, error) {
+			result := continuation.Result{Text: outputs[calls], FinishReason: continuation.FinishStop}
+			calls++
+			return result, nil
+		}),
+		[]Tool{&failingTool{calls: &executions}, echoTool{}},
+		Options{MaxSteps: 5},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "Recover, then retry.")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if executions != 2 || result.Output != "could not verify" || result.Steps[2].ToolRejected != "" {
+		t.Fatalf("recovery retry result=%+v executions=%d", result, executions)
+	}
+}
+
+func TestRunnerRequiresTerminalToolBeforeFinal(t *testing.T) {
+	t.Parallel()
+	outputs := []string{
+		"premature answer",
+		`<tool_call>{"name":"echo","arguments":{"value":"submitted"}}</tool_call>`,
+		"submitted",
+	}
+	calls := 0
+	runner, err := NewRunner(
+		continuation.GenerateFunc(func(
+			context.Context,
+			continuation.Request,
+			continuation.EventSink,
+		) (continuation.Result, error) {
+			result := continuation.Result{Text: outputs[calls], FinishReason: continuation.FinishStop}
+			calls++
+			return result, nil
+		}),
+		[]Tool{echoTool{}},
+		Options{MaxSteps: 4, TerminalTool: "echo", TaskControl: "Call echo before final."},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "Submit this answer.")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Output != "submitted" || len(result.Steps) != 3 ||
+		!strings.Contains(result.Steps[0].ProtocolError, "successful echo call required") ||
+		result.Steps[1].Tool != "echo" {
+		t.Fatalf("terminal-tool result = %+v", result)
+	}
+}
+
 func TestRunnerRetriesProtocolOnce(t *testing.T) {
 	t.Parallel()
 	outputs := []string{

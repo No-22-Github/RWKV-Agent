@@ -83,6 +83,9 @@ func ValidateCases(cases []Case) error {
 	}
 	seen := make(map[string]struct{}, len(cases))
 	for _, testCase := range cases {
+		if testCase.Primitive != nil && testCase.primitive == nil {
+			return fmt.Errorf("case %q cannot set reserved primitive metadata in the native case schema", testCase.ID)
+		}
 		if !caseIDPattern.MatchString(testCase.ID) {
 			return fmt.Errorf("invalid eval case ID %q", testCase.ID)
 		}

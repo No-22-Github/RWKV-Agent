@@ -1,0 +1,40 @@
+{
+  "name": "log_incident_root_cause",
+  "title": "Log Incident Root Cause",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "Read deploy.log, app.log, and worker.log once each (prefer reading over long scripts). After the deploy marker timestamp, choose the earliest ERROR that includes request_id across those files. Submit: <service> <CODE> <request_id>.",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "deploy.log": [
+        "2026-07-05T13:50:00Z old deploy complete",
+        "2026-07-05T14:00:00Z deploy marker release=2026.07.05"
+      ],
+      "app.log": [
+        "2026-07-05T13:58:01Z ERROR service=app request_id=req-old code=E_AUTH stale token",
+        "2026-07-05T14:02:10Z WARN service=app request_id=req-7710 code=W_RETRY retrying",
+        "2026-07-05T14:06:01Z ERROR service=app request_id=req-9012 code=E_TIMEOUT downstream timeout"
+      ],
+      "worker.log": [
+        "2026-07-05T13:59:44Z ERROR service=worker request_id=req-old2 code=E_CACHE ignored before deploy",
+        "2026-07-05T14:03:11Z ERROR service=worker request_id=req-8842 code=E_DB_DEADLOCK retry exhausted",
+        "2026-07-05T14:04:20Z ERROR service=worker request_id=req-8843 code=E_QUEUE_FULL queue full"
+      ],
+      "README.md": [
+        "Earliest means smallest timestamp after the deploy marker.",
+        "Worker errors can be earlier than app errors — compare timestamps across files.",
+        "Submit: service CODE request_id"
+      ]
+    },
+    "expected_submit": "worker E_DB_DEADLOCK req-8842",
+    "required_tools": [
+      "read_file",
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 12,
+  "suite": "original"
+}

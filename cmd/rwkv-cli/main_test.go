@@ -291,6 +291,8 @@ func TestParseAPIStopTokens(t *testing.T) {
 		{value: "", wantMode: rwkvlightning.StopTokenText},
 		{value: "text", wantMode: rwkvlightning.StopTokenText},
 		{value: "TEXT", wantMode: rwkvlightning.StopTokenText},
+		{value: "cuda", wantMode: rwkvlightning.StopTokenEOS, wantIDs: []int{0, 24281}},
+		{value: "CUDA", wantMode: rwkvlightning.StopTokenEOS, wantIDs: []int{0, 24281}},
 		{value: "none", wantMode: rwkvlightning.StopTokenNone},
 		{value: "eos", wantMode: rwkvlightning.StopTokenEOS, wantIDs: []int{0}},
 		{value: "0,261", wantMode: rwkvlightning.StopTokenEOS, wantIDs: []int{0, 261}},
@@ -440,12 +442,12 @@ func TestAgentEvalOptionsAreDeterministicAndIsolated(t *testing.T) {
 	}
 	suiteOptions, err := parseRunOptions("agent-eval", []string{
 		"--model", "model",
-		"--suite", "smoke",
+		"--suite", "primitive",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if suiteOptions.evalSuite != "smoke" || !suiteOptions.evalSuiteExplicit {
+	if suiteOptions.evalSuite != "primitive" || !suiteOptions.evalSuiteExplicit {
 		t.Fatalf("explicit suite options = %+v", suiteOptions)
 	}
 	if _, err := parseRunOptions("agent-eval", []string{

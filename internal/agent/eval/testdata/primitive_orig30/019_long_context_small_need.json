@@ -1,0 +1,31 @@
+{
+  "name": "long_context_small_need",
+  "title": "Small Need With Distractor",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "List the files here. The real answer is in the short file — skip the big noisy one. Report only the bare answer token.",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "big.txt": {
+        "repeat": {
+          "text": "noise\n",
+          "count": 120
+        }
+      },
+      "answer.short": [
+        "SPARROW"
+      ]
+    },
+    "expected_submit": "SPARROW",
+    "required_tools": [
+      "list_files",
+      "read_file",
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 10,
+  "suite": "original"
+}

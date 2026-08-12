@@ -106,14 +106,21 @@ type Options struct {
 	ProtocolRetries         int
 	DecisionMaxOutputTokens int
 	ControlPrompt           ControlPromptMode
-	Protocol                ActionProtocol
-	Renderer                PromptRenderer
-	Generation              continuation.Request
-	Observe                 func(Event)
-	Router                  RouteProtocol
-	RouteRenderer           PromptRenderer
-	RouteRetries            int
-	RouteMaxOutputTokens    int
+	// TaskControl adds a suite- or task-specific contract after the generic
+	// tool protocol. It is recorded by eval manifests for reproducibility.
+	TaskControl string
+	// TerminalTool requires this tool to succeed before a plain-text final is
+	// accepted. If the tool is not offered for a particular Runner, the option
+	// is ignored (for example the Primitive arithmetic case has no submit tool).
+	TerminalTool         string
+	Protocol             ActionProtocol
+	Renderer             PromptRenderer
+	Generation           continuation.Request
+	Observe              func(Event)
+	Router               RouteProtocol
+	RouteRenderer        PromptRenderer
+	RouteRetries         int
+	RouteMaxOutputTokens int
 	// TracePromptBytes caps how much of each rendered prompt is recorded.
 	// Zero disables prompt recording entirely; a negative value records the
 	// full prompt with no cap.
@@ -239,6 +246,7 @@ type Runner struct {
 	renderer        PromptRenderer
 	control         string
 	responseControl string
+	terminalTool    string
 	thinkingMode    inference.ThinkingMode
 	router          RouteProtocol
 	routeRenderer   PromptRenderer
@@ -354,6 +362,14 @@ func NewRunner(generator continuation.Generator, tools []Tool, options Options) 
 		}
 		responseControl += strings.TrimRight(capabilities.String(), "\n")
 	}
+	control := toolControlPrompt(options.Protocol, specs, thinkingMode, toolCompleter != nil)
+	if taskControl := strings.TrimSpace(options.TaskControl); taskControl != "" {
+		control += "\n\nTask-specific contract:\n" + taskControl
+	}
+	terminalTool := ""
+	if _, offered := registered[options.TerminalTool]; offered {
+		terminalTool = options.TerminalTool
+	}
 	return &Runner{
 		generator:       generator,
 		toolCompleter:   toolCompleter,
@@ -362,8 +378,9 @@ func NewRunner(generator continuation.Generator, tools []Tool, options Options) 
 		options:         options,
 		protocol:        options.Protocol,
 		renderer:        options.Renderer,
-		control:         toolControlPrompt(options.Protocol, specs, thinkingMode, toolCompleter != nil),
+		control:         control,
 		responseControl: responseControl,
+		terminalTool:    terminalTool,
 		thinkingMode:    thinkingMode,
 		router:          options.Router,
 		routeRenderer:   options.RouteRenderer,
@@ -457,7 +474,8 @@ func (r *Runner) RunWithObserver(
 	turnMessages := []Message{{Role: RoleUser, Content: task}}
 	retries := 0
 	routeViolations := 0
-	seenToolCalls := make(map[string]struct{})
+	seenSuccessfulToolCalls := make(map[string]struct{})
+	failedToolCallEpochs := make(map[string]int)
 	unavailableTools := make(map[string]struct{})
 	var unverified []string
 	successfulToolCalls := 0
@@ -468,12 +486,14 @@ func (r *Runner) RunWithObserver(
 	stage := StageDecision
 	assistantPrefix := ""
 	forceAnswer := false
+	terminalToolCompleted := r.terminalTool == ""
 	if r.router != nil && result.Route == RouteInspect {
 		assistantPrefix = r.protocol.ToolCallPrefix()
 	}
 	for step := 1; step <= r.options.MaxSteps; step++ {
 		if result.Route == RouteInspect &&
 			toolAttempts > 0 &&
+			terminalToolCompleted &&
 			(step == r.options.MaxSteps || forceAnswer) {
 			if !hasToolEvidence {
 				return result, noWorkspaceEvidenceError()
@@ -603,6 +623,29 @@ func (r *Runner) RunWithObserver(
 		retries = 0
 		result.Steps[len(result.Steps)-1].ActionType = action.Type
 		if action.Type == "final" {
+			if !terminalToolCompleted {
+				err = fmt.Errorf(
+					"%w: successful %s call required before final answer",
+					ErrProtocol,
+					r.terminalTool,
+				)
+				result.Steps[len(result.Steps)-1].ProtocolError = err.Error()
+				modelMessage := Message{Role: RoleAssistant, Content: action.Content}
+				turnMessages = append(turnMessages, modelMessage)
+				messages = append(
+					messages,
+					modelMessage,
+					Message{
+						Role: RoleUser,
+						Content: fmt.Sprintf(
+							"The task is not complete: call %s with the real final answer. Plain text is not scored.",
+							r.terminalTool,
+						),
+					},
+				)
+				r.observe(Event{Kind: EventRetry, Step: step, Err: err}, observer)
+				continue
+			}
 			if result.Route == RouteInspect && toolAttempts > 0 && !hasToolEvidence {
 				return result, noWorkspaceEvidenceError()
 			}
@@ -660,12 +703,15 @@ func (r *Runner) RunWithObserver(
 			result.Steps[len(result.Steps)-1].ToolRejected = rejectedProviderUnavailable
 			result.Steps[len(result.Steps)-1].ToolUnavailable = true
 			err = fmt.Errorf("%w: %s", ErrProviderUnavailable, action.Name)
-		} else if _, exists := seenToolCalls[callKey]; exists {
+		} else if _, exists := seenSuccessfulToolCalls[callKey]; exists {
+			duplicate = true
+			result.Steps[len(result.Steps)-1].ToolRejected = rejectedDuplicateCall
+			err = fmt.Errorf("duplicate tool call rejected")
+		} else if epoch, exists := failedToolCallEpochs[callKey]; exists && epoch == successfulToolCalls {
 			duplicate = true
 			result.Steps[len(result.Steps)-1].ToolRejected = rejectedDuplicateCall
 			err = fmt.Errorf("duplicate tool call rejected")
 		} else {
-			seenToolCalls[callKey] = struct{}{}
 			switch {
 			case !ok:
 				result.Steps[len(result.Steps)-1].ToolRejected = rejectedUnknownTool
@@ -698,24 +744,33 @@ func (r *Runner) RunWithObserver(
 				hasToolEvidence = true
 			}
 			if errors.Is(err, ErrProviderUnavailable) {
+				failedToolCallEpochs[callKey] = successfulToolCalls
 				unavailableTools[action.Name] = struct{}{}
 				result.Steps[len(result.Steps)-1].ToolRejected = rejectedProviderUnavailable
 				result.Steps[len(result.Steps)-1].ToolUnavailable = true
 				unverified = appendUnique(unverified, action.Name)
 				forceAnswer = true
 			} else if errors.Is(err, ErrInvalidToolArguments) {
+				failedToolCallEpochs[callKey] = successfulToolCalls
 				// Schema repair attempts have not observed workspace state and
 				// must not consume the runtime failure budget. A corrected call
 				// to the same tool still needs a chance to execute.
 			} else if err == nil {
+				seenSuccessfulToolCalls[callKey] = struct{}{}
+				delete(failedToolCallEpochs, callKey)
 				consecutiveFailedTool = ""
 				consecutiveToolFailures = 0
 			} else if action.Name == consecutiveFailedTool {
+				failedToolCallEpochs[callKey] = successfulToolCalls
 				consecutiveToolFailures++
 			} else {
+				failedToolCallEpochs[callKey] = successfulToolCalls
 				consecutiveFailedTool = action.Name
 				consecutiveToolFailures = 1
 			}
+		}
+		if !executed && err != nil && !duplicate {
+			failedToolCallEpochs[callKey] = successfulToolCalls
 		}
 		payload := toolResult{OK: err == nil, Tool: action.Name, Result: value}
 		if err != nil {
@@ -776,16 +831,21 @@ func (r *Runner) RunWithObserver(
 		)
 		if err == nil {
 			successfulToolCalls++
+			if action.Name == r.terminalTool {
+				terminalToolCompleted = true
+			}
 			messages = append(messages, Message{
 				Role:    RoleUser,
-				Content: r.protocol.PostToolReminder(),
+				Content: r.postToolReminder(terminalToolCompleted),
 			})
 		} else if duplicate {
-			forceAnswer = true
-			result.ForcedAnswerReason = forcedAnswerDuplicateCall
+			if terminalToolCompleted {
+				forceAnswer = true
+				result.ForcedAnswerReason = forcedAnswerDuplicateCall
+			}
 			messages = append(messages, Message{
 				Role:    RoleUser,
-				Content: duplicateToolReminder(successfulToolCalls > 0),
+				Content: r.duplicateToolReminder(successfulToolCalls > 0, terminalToolCompleted),
 			})
 		} else {
 			messages = append(messages, Message{
@@ -795,6 +855,26 @@ func (r *Runner) RunWithObserver(
 		}
 	}
 	return result, ErrMaxSteps
+}
+
+func (r *Runner) postToolReminder(terminalToolCompleted bool) string {
+	if !terminalToolCompleted {
+		return fmt.Sprintf(
+			"Use the Tool results above to continue the current task. Call another tool only for a specific missing fact. When the answer is ready, call %s with the real answer; do not answer in plain text. Never repeat a successful tool call.",
+			r.terminalTool,
+		)
+	}
+	return r.protocol.PostToolReminder()
+}
+
+func (r *Runner) duplicateToolReminder(hasEvidence, terminalToolCompleted bool) string {
+	if !terminalToolCompleted {
+		return fmt.Sprintf(
+			"That tool call was rejected because the exact call already succeeded or failed without any intervening recovery. Do not call it again. If its earlier successful result answers the task, call %s now with that exact result; otherwise choose a different tool for one specific missing fact. Do not answer in plain text.",
+			r.terminalTool,
+		)
+	}
+	return duplicateToolReminder(hasEvidence)
 }
 
 func validateAnswer(output string) []answerViolation {

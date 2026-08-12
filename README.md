@@ -468,8 +468,8 @@ case。默认 `boundary` suite 有 18 个从
 每个 case 使用独立临时工作区；本地推理还会为每个 case 创建全新的 Session，只有同一
 case 的多个 turn 共享 transcript/State。可以用可重复的 `--case` 跑子集，用
 `--case-timeout` 设置单 case 超时，也可以用 `--cases` 载入
-`schema_version: 3` 的自定义 JSON case 文件。`--cases` 与 `--suite` 互斥；输出目录
-必须尚不存在，避免覆盖已有基线。
+`schema_version: 3` 的自定义 JSON case 文件，或一个受信任的 Primitive Bench 声明式
+JSON case 目录。`--cases` 与 `--suite` 互斥；输出目录必须尚不存在，避免覆盖已有基线。
 
 ```sh
 ./dist/rwkv-cli agent-eval \
@@ -492,6 +492,86 @@ Chat Completions 模型使用同一套评测：
   --model other-model \
   --output runs/chat-other-model-smoke
 ```
+
+#### 直接运行 Primitive Bench `agent_cases_orig30`
+
+仓库内置了
+[`RWKV-Vibe/rwkv-Primitive-Bench`](https://github.com/RWKV-Vibe/rwkv-Primitive-Bench)
+`agent_cases_orig30` 的 30-case 固定快照。JSON 会嵌入 CLI，因此本地、CI 和外部模型
+评测使用完全相同的 prompt、fixture 与评分契约，不需要先 clone 上游仓库：
+
+```sh
+./dist/rwkv-cli agent-eval \
+  --model /absolute/path/to/rwkv7-model.pth \
+  --suite primitive \
+  --output runs/primitive-orig30-local
+```
+
+同一入口可以对外部 OpenAI Chat Completions 接口做黑盒测试：
+
+```sh
+export OPENAI_API_KEY='...'
+
+./dist/rwkv-cli agent-eval \
+  --completion chat-completions \
+  --api-url https://example.com/v1/chat/completions \
+  --model other-model \
+  --suite primitive \
+  --output runs/primitive-orig30-external
+```
+
+`rwkv_lightning_cuda` 部署使用 `/v1/batch/completions`，并要求整数形式的
+`stop_tokens`。用 `cuda` 预设即可继续走同一个 Agent Harness；额外 HTTP 头只从环境
+变量读取，不会写入评测产物：
+
+```sh
+export RWKV_CF_ACCESS_CLIENT_ID='...'
+export RWKV_CF_ACCESS_CLIENT_SECRET='...'
+
+./dist/rwkv-cli agent-eval \
+  --completion rwkv-lightning \
+  --api-url https://example.com/v1/batch/completions \
+  --api-header-env CF-Access-Client-Id=RWKV_CF_ACCESS_CLIENT_ID \
+  --api-header-env CF-Access-Client-Secret=RWKV_CF_ACCESS_CLIENT_SECRET \
+  --api-stop-tokens cuda \
+  --model rwkv7-g1i \
+  --suite primitive \
+  --output runs/primitive-orig30-rwkv-cuda
+```
+
+Primitive suite 会逐题采用快照中的原始 `max_turns`（当前为 6–22），而不是用通用
+`--max-steps` 截断较长 case；`run.json` 同时记录本轮最大步数和每题预算，便于复现。
+
+快照固定在上游 commit `416b073d2c5442ae34bfbf8a3b84ed414b5b85ff`；来源说明见
+`internal/agent/eval/testdata/primitive_orig30/UPSTREAM.md`。若要临时比较较新的上游
+checkout，仍可通过 `--cases ../rwkv-Primitive-Bench/agent_cases_orig30` 加载；兼容加载器
+只读取目录中的 `*.json`，不会导入或执行 `cases.py`。
+
+工具对齐遵循“相同公开契约、相同可观察状态变化、使用本 Harness 控制循环”：
+
+| 上游工具 | RWKV-Agent 评测实现 |
+| --- | --- |
+| `multiply` | 64 位整数精确乘法 |
+| `list_files`、`ls`、`stat`、`read_file`、`search` | 每题独立 fixture 工作区中的确定性导航与读取 |
+| `write_file`、`chmod` | 只修改该题隔离工作区与模拟权限位 |
+| `run_file` | 按 case 声明的输出与状态变化执行，不开放 shell |
+| `run_awk` | 受限的三列制表符格式化任务实现，不执行模型 shell |
+| `run_lua` | 只读 `FILES`、`read_file`、虚拟 `io.open/io.lines`；禁用 OS、包加载和宿主文件 I/O |
+| `run_tests` | 根据 case `scenario` 对隔离工作区执行确定性断言 |
+| `submit` | 记录真实提交值并作为终结工具；有该工具时纯文本不能提前结束 case |
+| `list_schedules` | 返回空列表的干扰工具，并由 forbidden-tool 评分检查是否误用 |
+
+工具名称、JSON 参数字段、必填字段和 `additionalProperties: false` 与快照上游 schema
+保持一致，并有契约测试。上游 Harness 对 `bash` 包装、参数别名、虚构绝对路径等错误调用
+进行的猜测与改写不会移植；我们的 Runner 必须用协议约束、精确错误反馈与恢复循环自行处理，
+否则会把上游 Harness 的容错能力混入本 Harness 的得分。Primitive suite 还映射了上游
+`system: "base"` 的必须 `submit` 约束，并使用 1024-token 工具调用预算。
+
+每题使用独立临时工作区；`write_file`、权限位、`run_file`、`run_tests` 和 AWK 都由评测
+专用的受限工具实现，不运行模型写出的 Python 或 shell。`run_lua` 关闭 OS、包加载、
+debug 和宿主文件 I/O，只向代码暴露内存中的 `FILES[path]` 与只读虚拟文件接口；需要该计算工具时先安装 Lua
+（macOS 可用 `brew install lua`）。报告中的 case 会记录固定 commit 的上游文件 URL，
+便于追溯来源。
 
 每次运行原子写入三个文件：
 

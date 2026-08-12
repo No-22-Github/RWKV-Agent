@@ -1,0 +1,29 @@
+{
+  "name": "missing_file_recover",
+  "title": "Recover Missing Filename",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "List the project files — the config is yaml/yml named a bit inconsistently. Open it and report only the token value inside.",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "config.yml": [
+        "token: COBALT-7"
+      ],
+      "README.md": [
+        "Config lives nearby as yaml/yml.",
+        "Submit only the token value from the file, not the filename."
+      ]
+    },
+    "expected_submit": "COBALT-7",
+    "required_tools": [
+      "list_files",
+      "read_file",
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 10,
+  "suite": "original"
+}

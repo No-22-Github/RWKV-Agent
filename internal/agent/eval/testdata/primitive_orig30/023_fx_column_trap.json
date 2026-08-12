@@ -1,0 +1,60 @@
+{
+  "name": "fx_column_trap",
+  "title": "BOT FX Column Trap",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "Read rate_guide.md for the buy_*/sell_* → column map and README.md for FILES usage. Lua patterns use %d (not \\d). Compute net TWD outflow to two decimals.",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "bot_rates.tsv": [
+        "currency\tcash_buy\tcash_sell\tspot_buy\tspot_sell",
+        "USD\t31.545\t32.215\t31.87\t32.02",
+        "EUR\t35.73\t37.07\t36.245\t36.845",
+        "JPY\t0.1888\t0.2016\t0.1956\t0.2006",
+        "GBP\t41.47\t43.59\t42.365\t42.995",
+        "CAD\t22.01\t22.92\t22.34\t22.67",
+        "SGD\t24.16\t25.07\t24.63\t24.85",
+        "THB\t0.8348\t1.0248\t0.9452\t0.9912"
+      ],
+      "rate_guide.md": [
+        "cash_buy: bank buys physical foreign cash from customer.",
+        "cash_sell: bank sells physical foreign cash to customer.",
+        "spot_buy: bank buys non-cash foreign currency from customer.",
+        "spot_sell: bank sells non-cash foreign currency to customer.",
+        "",
+        "Customer order → rate column:",
+        "buy_cash → cash_sell",
+        "buy_spot → spot_sell",
+        "sell_cash → cash_buy",
+        "sell_spot → spot_buy",
+        "",
+        "For each order: twd = amount * rate_for_mapped_column",
+        "outflow = sum(twd for buys) - sum(twd for sells), round to 2 decimals.",
+        "Mini-check: buy_spot EUR 800 uses EUR spot_sell.",
+        "For run_lua, read workspace files with FILES['filename'] (string), not io.open on disk paths. Print the final number/string."
+      ],
+      "orders.csv": [
+        "action,currency,amount",
+        "buy_cash,JPY,150000",
+        "buy_spot,EUR,800",
+        "sell_cash,USD,600",
+        "sell_spot,GBP,300"
+      ],
+      "README.md": [
+        "Parse FILES['bot_rates.tsv'] and FILES['orders.csv']; do not hardcode a blank rates table.",
+        "buy_spot EUR 800 → multiply by EUR spot_sell.",
+        "outflow = buy_twds - sell_twds, two decimals."
+      ]
+    },
+    "expected_submit": "28079.50",
+    "required_tools": [
+      "read_file",
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 16,
+  "suite": "original"
+}

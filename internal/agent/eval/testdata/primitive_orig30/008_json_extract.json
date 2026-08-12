@@ -1,0 +1,24 @@
+{
+  "name": "json_extract",
+  "title": "JSON Nested Extract",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "Open payload.json and report the ticket id nested under meta.",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "payload.json": [
+        "{\"meta\": {\"ticket\": {\"id\": \"TCK-204\"}}}"
+      ]
+    },
+    "expected_submit": "TCK-204",
+    "required_tools": [
+      "read_file",
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 8,
+  "suite": "original"
+}

@@ -33,6 +33,23 @@ func Run(ctx context.Context, config Config) (Report, error) {
 	if config.CaseTimeout <= 0 {
 		config.CaseTimeout = defaultCaseTimeout
 	}
+	if config.Suite == SuitePrimitive {
+		config.Runner.TaskControl = primitiveTaskControl
+		config.Runner.TerminalTool = "submit"
+		// Primitive Bench allows a full 1024-token generation for tool calls;
+		// write_file and run_lua legitimately carry multi-line source in JSON.
+		// The interactive Harness's compact 96-token first-decision budget would
+		// truncate those calls and score a transport artifact instead of agency.
+		config.Runner.DecisionMaxOutputTokens = config.Runner.Generation.MaxOutputTokens
+		// Primitive Bench defines a case-specific max_turns budget. Preserve the
+		// largest effective budget in the harness manifest; runCase applies each
+		// case's exact value instead of the generic CLI fallback.
+		for _, testCase := range config.Cases {
+			if testCase.Primitive != nil && testCase.Primitive.MaxTurns > config.Runner.MaxSteps {
+				config.Runner.MaxSteps = testCase.Primitive.MaxTurns
+			}
+		}
+	}
 	now := config.Now
 	if now == nil {
 		now = time.Now
@@ -119,6 +136,8 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 			RouteProtocol:           routeProtocol,
 			RouteStage:              config.Runner.Router != nil,
 			ControlPrompt:           string(controlPrompt),
+			TaskControl:             config.Runner.TaskControl,
+			TerminalTool:            config.Runner.TerminalTool,
 			ThinkingMode:            string(thinkingMode),
 			Reasoning:               thinkingMode != inference.ThinkingOff,
 			FewShot:                 fewShot,
@@ -159,7 +178,7 @@ func runCase(
 		return result
 	}
 	defer cleanup()
-	tools, err := evalTools(config.Suite, workspace, testCase)
+	tools, primitiveRun, err := evalTools(config.Suite, workspace, testCase)
 	if err != nil {
 		result.Error = fmt.Sprintf("create tools: %v", err)
 		return result
@@ -181,6 +200,9 @@ func runCase(
 	}
 	recording := &recordingGenerator{generator: generator, recorder: recorder}
 	options := config.Runner
+	if testCase.Primitive != nil && testCase.Primitive.MaxTurns > 0 {
+		options.MaxSteps = testCase.Primitive.MaxTurns
+	}
 	runner, err := agent.NewRunner(recording, tools, options)
 	if err != nil {
 		result.Error = fmt.Sprintf("create runner: %v", err)
@@ -207,6 +229,10 @@ func runCase(
 			turnResult.RunnerError = runErr.Error()
 		}
 		turnResult.Failures = validateTurn(turn.Expect, runResult, runErr)
+		turnResult.Failures = append(
+			turnResult.Failures,
+			primitiveFailures(testCase.primitive, primitiveRun, runResult)...,
+		)
 		turnResult.Passed = len(turnResult.Failures) == 0
 		result.Turns = append(result.Turns, turnResult)
 		recorder.turnResult(runResult, runErr)
@@ -227,10 +253,19 @@ type fixedAssistantClock struct{ value time.Time }
 
 func (c fixedAssistantClock) Now() time.Time { return c.value }
 
-func evalTools(suite string, workspace string, testCase Case) ([]agent.Tool, error) {
+func evalTools(
+	suite string,
+	workspace string,
+	testCase Case,
+) ([]agent.Tool, *primitiveExecution, error) {
+	if testCase.primitive != nil {
+		execution := newPrimitiveExecution(workspace, testCase.primitive)
+		tools, err := execution.tools()
+		return tools, execution, err
+	}
 	workspaceTools, err := agent.WorkspaceTools(workspace)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	clock := fixedAssistantClock{value: time.Date(
 		2026,
@@ -249,13 +284,13 @@ func evalTools(suite string, workspace string, testCase Case) ([]agent.Tool, err
 			Workspace: workspace,
 		})
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
-		return append(workspaceTools, compute...), nil
+		return append(workspaceTools, compute...), nil, nil
 	case SuiteAssistant:
 		provider, err := assistanttools.DefaultMockProvider()
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 		for _, name := range testCase.ProviderUnavailable {
 			provider.Unavailable[name] = true
@@ -266,11 +301,11 @@ func evalTools(suite string, workspace string, testCase Case) ([]agent.Tool, err
 			Workspace: workspace,
 		})
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
-		return append(workspaceTools, assistant...), nil
+		return append(workspaceTools, assistant...), nil, nil
 	default:
-		return workspaceTools, nil
+		return workspaceTools, nil, nil
 	}
 }
 
@@ -731,7 +766,7 @@ func summarize(
 			}
 			for _, required := range expect.RequiredTools {
 				summary.Metrics.RequiredToolCompletion.Total++
-				if toolRequirementMet(required, actualToolSet) {
+				if caseToolRequirementMet(testCase, required, actualToolSet) {
 					summary.Metrics.RequiredToolCompletion.Correct++
 				}
 			}
@@ -820,6 +855,18 @@ func summarize(
 	finalizeScore(&summary.Metrics.ExplicitAbstention)
 	finalizeScore(&summary.Metrics.AnswerContractRepaired)
 	return summary
+}
+
+func caseToolRequirementMet(
+	testCase Case,
+	required string,
+	actual map[string]struct{},
+) bool {
+	if testCase.primitive != nil {
+		_, ok := actual[required]
+		return ok
+	}
+	return toolRequirementMet(required, actual)
 }
 
 func finalizeScore(score *Score) {

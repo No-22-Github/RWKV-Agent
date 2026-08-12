@@ -1,0 +1,47 @@
+{
+  "name": "loc_interest_8_months",
+  "title": "Line Of Credit Interest Estimate",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "Read loan_terms.txt and balance_schedule.csv. Compute total LOC interest for every schedule row using the formula in loan_terms.txt. Report the summed interest rounded to 2 decimals (not a balance).",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "loan_terms.txt": [
+        "prime_rate_percent = 6.45",
+        "margin_percent = 1.75",
+        "APR_decimal = (6.45 + 1.75) / 100   # = 0.082",
+        "Each month: interest = balance * APR_decimal * days / 365",
+        "Month 1 sanity check: 4500 * 0.082 * 30 / 365 ≈ 30.33",
+        "Sum months 1..8 and round to 2 decimals."
+      ],
+      "balance_schedule.csv": [
+        "month,balance,days",
+        "1,4500,30",
+        "2,4500,30",
+        "3,6200,30",
+        "4,6200,30",
+        "5,6200,30",
+        "6,5100,30",
+        "7,5100,30",
+        "8,5100,30"
+      ],
+      "README.md": [
+        "In run_lua use FILES['balance_schedule.csv'] — io.open on disk paths will not see these files.",
+        "Skip the CSV header. Do not submit a balance like 5100."
+      ]
+    },
+    "expected_submit": "289.13",
+    "required_tools": [
+      "read_file",
+      "submit"
+    ]
+  },
+  "evaluation": {
+    "scorer": "numeric_submit_tolerance",
+    "tolerance": 1.5
+  },
+  "max_turns": 18,
+  "suite": "original"
+}

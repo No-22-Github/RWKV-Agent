@@ -1,0 +1,27 @@
+{
+  "name": "malformed_edit_recovery",
+  "title": "Recover From Bad Edit Target",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "settings.txt has the wrong color. Change it to green (write_file), then submit exactly the color value green — not tool status text like ok.",
+  "tools": "write",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "settings.txt": [
+        "color=red"
+      ]
+    },
+    "expected_submit": "green",
+    "required_tools": [
+      "list_files",
+      "read_file",
+      "write_file",
+      "submit"
+    ],
+    "scenario": "malformed_edit_recovery"
+  },
+  "evaluation": "file_changed_submit",
+  "max_turns": 14,
+  "suite": "original"
+}
