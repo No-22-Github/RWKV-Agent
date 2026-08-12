@@ -547,6 +547,9 @@ Primitive suite 会逐题采用快照中的原始 `max_turns`（当前为 6–22
 checkout，仍可通过 `--cases ../rwkv-Primitive-Bench/agent_cases_orig30` 加载；兼容加载器
 只读取目录中的 `*.json`，不会导入或执行 `cases.py`。
 
+当前 v12 实测基线与失败分类见
+[`docs/primitive-bench-v12-baseline-2026-08-13.md`](docs/primitive-bench-v12-baseline-2026-08-13.md)。
+
 工具对齐遵循“相同公开契约、相同可观察状态变化、使用本 Harness 控制循环”：
 
 | 上游工具 | RWKV-Agent 评测实现 |
