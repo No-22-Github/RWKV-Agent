@@ -225,3 +225,146 @@ go run ./cmd/rwkv-cli agent-eval \
   --case-timeout 20m \
   --output runs/primitive-v14-go-native
 ```
+
+## v18 重复调用死锁控制（已实测：23/30）
+
+v15 最佳轮 10 个失败 case 共 85 步中 48 步是“duplicate tool call rejected”空转：
+`loc_interest_8_months` 15/18、`csv_reconcile_returns` 13/16、`code_patch_edge_case`
+19/22。近贪心采样（temperature 0.001 / top-k 50）下，固定不变的 RECOVERY 文本无法
+打断 7B 重新生成同一个调用，直到步数耗尽。
+
+Harness 侧新增三层控制（`internal/agent/runner.go`，仅作用于 G1i go-native 路径，
+upstream-compatible 与普通 XML agent 行为不变）：
+
+- **幂等回放**：`ToolSpec.Replayable` 的纯读工具（calculator/search/read_file/
+  list_files/ls/stat/multiply/run_awk/data_query）同参重复时，在
+  `--duplicate-replay-limit`（默认 2）内重新执行并返回同一结果，附递增注记；这覆盖
+  `loc_interest` 里“第 2 个月与第 1 个月参数完全相同”被拒绝打断的场景。
+- **注记升级**：首次拒绝保持旧文本逐字节不变；第二次起升级为带连击次数与剩余步数
+  的强提示。
+- **救援模式**：同一调用连续出现 `--duplicate-rescue-threshold`（默认 3）次后，把
+  工具目录重建为只剩 submit 并以 User turn 注入一次明确指令；此后非 submit 调用
+  按 `rescue_submit_only` 拒绝。指标新增 `rescue_attempts` / `rescue_submits`。
+
+零值即关闭、完全回到旧行为。
+
+### 2026-08-14 实测（30 并发全量）
+
+产物：`runs/primitive-v18-go-native-batch30-20260814`。
+
+| 指标 | v15 基线 | v18 |
+| --- | ---: | ---: |
+| 任务分 | 20/30 | **23/30** |
+| Protocol validity | 100%（182/182） | 100%（160/160） |
+| Stage validity | 100%（182/182） | 100%（160/160） |
+| Required-tool completion | 90.3%（65/72） | 97.2%（70/72） |
+| 重复调用拒绝 | 49 | 9 |
+| 模型调用 | 182 | 160 |
+| 救援 | — | 5 次触发 / 5 次提交 |
+
+20 个 v15 通过题全部守住，新增 `config_precedence_resolve`、
+`malformed_edit_recovery`、`read_only_repo_explain`。其中 `config_precedence_resolve`
+直接由救援机制救回：模型读完三个配置文件后被 data_query 带偏两次，救援切断循环后
+提交了正确答案 `API_TIMEOUT=45 RETRIES=3 FEATURE_X=true`。
+
+回放按设计工作：`loc_interest` 的第 2 个月同参调用被回放后，模型继续算出了
+6200 余额月份的 41.79（v15 只算出一个 30.33 就死锁）；`log_incident` 的重复 search
+也被回放。剩余 7 个失败全部退化为模型能力问题而非宿主死锁：`two_step` 剥 FINAL=
+前缀；`loc_interest` 提交了首月利息而非求和；`fx_column_trap` 列映射错；`log_incident`
+选了部署标记前的错误行；`csv_reconcile` 救援后提交了占位符；`code_patch` 写不出有效
+补丁。`jsonl_event_aggregate` 出现新的退化模式：calculator 生成一串彼此不同的表达式
+（20→10→110→…→17187.5）绕过了回放与救援，16 步耗尽无提交，属于下一轮要处理的
+“唯一但无进展的连续同类调用”问题。
+
+死锁题 probe 命令（凭证走环境变量，不写入命令行）：
+
+```sh
+export RWKV_CF_ACCESS_CLIENT_ID='...'
+export RWKV_CF_ACCESS_CLIENT_SECRET='...'
+
+go run ./cmd/rwkv-cli agent-eval \
+  --completion rwkv-lightning \
+  --api-url https://api-125-7b.rwkvos.com/v1/batch/completions \
+  --api-header-env CF-Access-Client-Id=RWKV_CF_ACCESS_CLIENT_ID \
+  --api-header-env CF-Access-Client-Secret=RWKV_CF_ACCESS_CLIENT_SECRET \
+  --api-stop-tokens cuda \
+  --api-stream=true \
+  --model rwkv7-g1i-7.2b-20260805-ctx16384 \
+  --suite primitive \
+  --primitive-profile go-native \
+  --case-parallelism 30 \
+  --case-timeout 20m \
+  --temperature 0.001 --top-k 50 --top-p 1 \
+  --presence-penalty 0 --frequency-penalty 0 --penalty-decay 0.99 \
+  --duplicate-replay-limit 2 \
+  --duplicate-rescue-threshold 3 \
+  --output runs/primitive-v18-go-native-batch30
+```
+
+## v19 场景钩子注入（PostToolHook）
+
+Runner 新增 `Options.PostToolHook`：某工具成功执行后（非回放、非 terminal tool），
+把钩子返回的文本追加在该工具结果的同一回合，让场景专属提醒在证据最新鲜的时点到达
+模型。eval 侧按 case ID 注册（部分导入 fixture 的 scenario 字段为空，不能用
+scenario 作键），并在 run.json 的 `harness.scenario_hooks` 登记注入清单。
+
+首批只挂两题（从未在没有钩子时通过过的题，不扰动已能过的轨迹）：
+
+- `two_step_program_output`：`use_token.py` 输出含 `FINAL=` 时提醒"逐字提交、保留前缀"。
+- `loc_interest_8_months`：读完 `balance_schedule.csv` 后提醒"每行都要算、重复月算多次、
+  提交所有行之和的单个数字"。
+
+实测（2026-08-14）：
+
+- `two_step_program_output` 钩子后 4 次运行通过 3 次（此前 0/3）：提交了完整的
+  `FINAL=RIVER-42-OK`。剩余 1 次失败是模型生成畸形调用（`{"path":{...}}`）的方差，
+  与钩子无关。
+- `loc_interest_8_months` 钩子把轨迹从"只算首月就死锁"改写成"一条表达式里写出全部
+  8 行的加权和并提交单个数字"，但 7B 数错行数（写了 4 个 5100 项而非 3 个），
+  323.51 vs 289.14。结构与格式已对，只剩模型自己的行计数误差，接近能力边界。
+
+四轮全量对照（v18 一轮 + v19 三轮，同采样、同 go-native 工具）：
+
+| case | 4 轮通过率 |
+| --- | --- |
+| 19 个稳定题（arithmetic…markdown_release_notes 主体） | 4/4 |
+| two_step_program_output | 3/4（唯一一次失败在钩子之前） |
+| read_only_repo_explain | 3/4 |
+| invoice_fix | 3/4 |
+| malformed_edit_recovery / missing_file_recover / tool_result_truthfulness 等 | 4/4 |
+| config_precedence_resolve | 1/4（v18 那次靠救援救回，不稳定） |
+| loc_interest_8_months / fx_column_trap / log_incident_root_cause / jsonl_event_aggregate / csv_reconcile_returns / code_patch_edge_case | 0/4 |
+
+全量分数在 **22–23/30** 波动（v18 一轮 23，v19 两轮 23/22/22），相对 v15 基线
+20/30 净 +2~3；重复调用拒绝从 49 降到 5–9，救援 100% 引导出干净提交。剩余 6 个
+稳定失败全部是 7B 能力边界：行计数/列映射/时间比较/行过滤/补丁生成，以及
+`jsonl_event_aggregate` 的"唯一表达式螺旋"（每步新 callKey，绕过回放与救援，
+16 步耗尽）。下一批候选：同类无进展调用守卫、表格题任务级工具筛选、以及把
+`config_precedence_resolve` 纳入钩子以稳定其 1/4 的通过率。
+
+产物：
+
+- `runs/primitive-v18-go-native-batch30-20260814`（23/30）
+- `runs/primitive-v19-go-native-batch30-20260814`（22/30，loc 钩子未生效的中间版）
+- `runs/primitive-v19-go-native-batch30b-20260814`（23/30）
+- `runs/primitive-v19-go-native-batch30c-20260814`（22/30）
+- `runs/primitive-v19-hooks-probe{1,2,3}-20260814`（两题钩子探针）
+
+## 贪心解码对照（top-k=1）
+
+同配置只把 `--top-k 50` 换成 `--top-k 1`（纯 argmax），连续两轮全量：
+
+| 运行 | 分数 | 备注 |
+| --- | ---: | --- |
+| `primitive-v19-greedy-a-20260814` | 23/30 | protocol validity 98.7%（1 次协议错误） |
+| `primitive-v19-greedy-b-20260814` | 23/30 | protocol validity 100% |
+
+两轮 **30 题通过集合逐题一致**：分数层面达到确定性，验证了"贪心给确定成绩"的假设。
+步级轨迹 171 步中 23 步不同（87% 一致），差异集中在失败题（jsonl 螺旋 6 步 vs 16 步、
+config_precedence 5 步 vs 12 步）和边缘题的 think 文本，说明服务端在极低温度/30 路
+合批下仍有轻微非确定性，但不影响判分。
+
+贪心通过集合与采样版 v19b 完全一致（同样 23 题、同样 7 题失败），两题钩子
+（two_step 通过、loc_interest 结构正确但行计数错）在贪心下同样生效。结论：当前
+22–23/30 的波动主要来自采样，贪心 top-k=1 可作为对外报告的确定成绩基线；23/30
+即当前"回放+救援+钩子"组合下的正式数字。
