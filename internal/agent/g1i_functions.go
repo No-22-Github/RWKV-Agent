@@ -18,7 +18,12 @@ const (
 // G1IFunctionProtocol implements the JSON function-call transcript used to
 // train G1i checkpoints: System: Tools, Assistant: ```json, and User: Function
 // output. It is intentionally separate from the general XML agent protocol.
-type G1IFunctionProtocol struct{}
+type G1IFunctionProtocol struct {
+	// AllowRepeatedCalls preserves the upstream Primitive Bench controller,
+	// which executes identical calls repeatedly. Product-facing Go-native runs
+	// leave this false so the Runner can reject loops and provide recovery.
+	AllowRepeatedCalls bool
+}
 
 func (G1IFunctionProtocol) ID() string { return G1IFunctionProtocolV1 }
 
@@ -34,7 +39,8 @@ func (G1IFunctionProtocol) Instructions(specs []ToolSpec, _ inference.ThinkingMo
 	}
 	computeGuidance := ""
 	if hasToolSpec(specs, "calculator") || hasToolSpec(specs, "data_query") {
-		computeGuidance = "Read relevant task files with read_file first. calculator accepts numeric expressions only; use data_query for multi-row tables. " +
+		computeGuidance = "Read relevant task files with read_file first. calculator accepts only numeric literals, operators, and its listed math functions—never file names, SQL, or prose. " +
+			"For multi-row tables use data_query; filter is a direct column-to-exact-value object and each call performs one operation. " +
 			"Do not repeat a successful call or reread unchanged files. "
 	}
 	return "Tools:\n[\n" + strings.Join(entries, ",\n") + "\n]\n" +
@@ -390,6 +396,11 @@ func (G1IFunctionProtocol) Stops(GenerationStage) []string {
 func preservesToolOrder(protocol ActionProtocol) bool {
 	_, ok := protocol.(G1IFunctionProtocol)
 	return ok
+}
+
+func allowsRepeatedToolCalls(protocol ActionProtocol) bool {
+	value, ok := protocol.(G1IFunctionProtocol)
+	return ok && value.AllowRepeatedCalls
 }
 
 // G1IFunctionRenderer renders the trained continuation transcript. Cases with

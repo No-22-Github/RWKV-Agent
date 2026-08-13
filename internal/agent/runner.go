@@ -22,6 +22,7 @@ var (
 	ErrInvalidToolArguments = errors.New("invalid tool arguments")
 	ErrProviderUnavailable  = errors.New("provider unavailable")
 	ErrNoWorkspaceEvidence  = errors.New("agent could not obtain workspace evidence")
+	ErrStageViolation       = fmt.Errorf("%w: action is not allowed in this generation stage", ErrProtocol)
 )
 
 // retryEchoBudget caps how many runes of a rejected response are echoed back to
@@ -193,6 +194,7 @@ type Step struct {
 	ToolError        string                    `json:"tool_error,omitempty"`
 	ProtocolError    string                    `json:"protocol_error,omitempty"`
 	ProtocolRepaired bool                      `json:"protocol_repaired,omitempty"`
+	StageViolation   bool                      `json:"stage_violation,omitempty"`
 }
 
 // RouteStep records one routing attempt, including the retry a correction
@@ -604,6 +606,20 @@ func (r *Runner) RunWithObserver(
 			modelAction = assistantPrefix + modelAction
 		}
 		action, err := r.protocol.Parse(modelAction, generated.FinishReason)
+		stageActionType := action.Type
+		if stage == StageAnswer && action.Type == "final" && answerContainsToolFrame(action.Content) {
+			stageActionType = "tool"
+		}
+		if err == nil && stage == StageAnswer && stageActionType != "final" {
+			err = fmt.Errorf(
+				"%w: %s action is forbidden during %s",
+				ErrStageViolation,
+				stageActionType,
+				stage,
+			)
+			result.Steps[len(result.Steps)-1].ActionType = stageActionType
+			result.Steps[len(result.Steps)-1].StageViolation = true
+		}
 		if err != nil {
 			result.Steps[len(result.Steps)-1].ProtocolError = err.Error()
 			if retries >= r.options.ProtocolRetries {
@@ -623,9 +639,13 @@ func (r *Runner) RunWithObserver(
 				}
 				messages = append(messages, retryMessage)
 			}
+			correction := r.protocol.Correction(err)
+			if errors.Is(err, ErrStageViolation) {
+				correction = "Tools are unavailable in the final answer stage. Answer the original task now using existing Tool results. Do not output or request another tool call."
+			}
 			messages = append(messages, Message{
 				Role:    RoleUser,
-				Content: r.protocol.Correction(err),
+				Content: correction,
 			})
 			continue
 		}
@@ -721,12 +741,12 @@ func (r *Runner) RunWithObserver(
 			result.Steps[len(result.Steps)-1].ToolRejected = rejectedProviderUnavailable
 			result.Steps[len(result.Steps)-1].ToolUnavailable = true
 			err = fmt.Errorf("%w: %s", ErrProviderUnavailable, action.Name)
-		} else if _, exists := seenSuccessfulToolCalls[callKey]; exists && !preservesToolOrder(r.protocol) {
+		} else if _, exists := seenSuccessfulToolCalls[callKey]; exists && !allowsRepeatedToolCalls(r.protocol) {
 			duplicate = true
 			result.Steps[len(result.Steps)-1].ToolRejected = rejectedDuplicateCall
 			err = fmt.Errorf("duplicate tool call rejected")
 		} else if epoch, exists := failedToolCallEpochs[callKey]; exists &&
-			epoch == successfulToolCalls && !preservesToolOrder(r.protocol) {
+			epoch == successfulToolCalls && !allowsRepeatedToolCalls(r.protocol) {
 			duplicate = true
 			result.Steps[len(result.Steps)-1].ToolRejected = rejectedDuplicateCall
 			err = fmt.Errorf("duplicate tool call rejected")
@@ -735,7 +755,7 @@ func (r *Runner) RunWithObserver(
 			case !ok:
 				result.Steps[len(result.Steps)-1].ToolRejected = rejectedUnknownTool
 				err = fmt.Errorf("unknown tool %q", action.Name)
-			case !preservesToolOrder(r.protocol) && action.Name == consecutiveFailedTool &&
+			case !allowsRepeatedToolCalls(r.protocol) && action.Name == consecutiveFailedTool &&
 				consecutiveToolFailures >= maxConsecutiveToolFailures:
 				recoveryBlocked = true
 				result.Steps[len(result.Steps)-1].ToolRejected = rejectedFailureLimit
@@ -812,7 +832,15 @@ func (r *Runner) RunWithObserver(
 			callID,
 			string(encoded),
 		)
-		if preservesToolOrder(r.protocol) && nativeRepeatStreak >= 1 && action.Name != r.terminalTool {
+		if preservesToolOrder(r.protocol) {
+			switch {
+			case duplicate:
+				toolContent += "\nRECOVERY: This exact call is disabled. Do not repeat it. Use the existing result, change the arguments, choose a different tool, or submit if the task is complete."
+			case err != nil:
+				toolContent += "\nRECOVERY: " + toolFailureReminder(action.Name, err, recoveryBlocked, r.tools)
+			}
+		}
+		if allowsRepeatedToolCalls(r.protocol) && nativeRepeatStreak >= 1 && action.Name != r.terminalTool {
 			toolContent += "\nNOTE: identical tool call repeated. Do not call it again. Take the next step (other file, compute, run_tests, or submit)."
 			if nativeRepeatStreak >= 2 {
 				toolContent += "\nNOTE2: stop repeating. If you already have the answer, call submit now."
@@ -877,18 +905,27 @@ func (r *Runner) RunWithObserver(
 				forceAnswer = true
 				result.ForcedAnswerReason = forcedAnswerDuplicateCall
 			}
-			messages = append(messages, Message{
-				Role:    RoleUser,
-				Content: r.duplicateToolReminder(successfulToolCalls > 0, terminalToolCompleted),
-			})
+			if !preservesToolOrder(r.protocol) {
+				messages = append(messages, Message{
+					Role:    RoleUser,
+					Content: r.duplicateToolReminder(successfulToolCalls > 0, terminalToolCompleted),
+				})
+			}
 		} else {
-			messages = append(messages, Message{
-				Role:    RoleUser,
-				Content: toolFailureReminder(action.Name, err, recoveryBlocked, r.tools),
-			})
+			if !preservesToolOrder(r.protocol) {
+				messages = append(messages, Message{
+					Role:    RoleUser,
+					Content: toolFailureReminder(action.Name, err, recoveryBlocked, r.tools),
+				})
+			}
 		}
 	}
 	return result, ErrMaxSteps
+}
+
+func answerContainsToolFrame(content string) bool {
+	lower := strings.ToLower(strings.TrimSpace(content))
+	return strings.Contains(lower, "<tool_call") || looksLikeBareToolCall(content)
 }
 
 func terminalToolOutput(action Action, value any) string {

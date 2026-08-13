@@ -41,6 +41,27 @@ func TestAssistantToolsRejectInvalidArguments(t *testing.T) {
 	}
 }
 
+func TestLocalToolsExcludeProviderBackedFacts(t *testing.T) {
+	tools, err := LocalTools(Options{Workspace: t.TempDir()})
+	if err != nil {
+		t.Fatal(err)
+	}
+	names := make(map[string]bool, len(tools))
+	for _, tool := range tools {
+		names[tool.Spec().Name] = true
+	}
+	for _, required := range []string{"calculator", "data_query", "datetime"} {
+		if !names[required] {
+			t.Errorf("local tools are missing %q: %v", required, names)
+		}
+	}
+	for _, forbidden := range []string{"weather", "nearest_transit", "transit_hours", "fx_convert"} {
+		if names[forbidden] {
+			t.Errorf("local tools unexpectedly expose provider-backed %q: %v", forbidden, names)
+		}
+	}
+}
+
 func TestDataQueryAggregatesFiltersAndUsesWorkspaceContainment(t *testing.T) {
 	root := t.TempDir()
 	if err := os.Mkdir(filepath.Join(root, "notes"), 0o700); err != nil {

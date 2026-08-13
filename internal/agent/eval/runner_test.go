@@ -312,6 +312,7 @@ func TestRunScoresAndWritesTraceArtifacts(t *testing.T) {
 	assertScore(t, "answer contract repaired", report.Summary.Metrics.AnswerContractRepaired, 0, 2)
 	assertScore(t, "route accuracy", report.Summary.Metrics.RouteAccuracy, 2, 2)
 	assertScore(t, "protocol validity", report.Summary.Metrics.ProtocolValidity, 3, 3)
+	assertScore(t, "stage contract validity", report.Summary.Metrics.StageContractValidity, 3, 3)
 	assertScore(t, "tool selection", report.Summary.Metrics.ToolSelection, 2, 2)
 	assertScore(t, "argument accuracy", report.Summary.Metrics.ArgumentAccuracy, 1, 1)
 	assertScore(t, "no-call accuracy", report.Summary.Metrics.NoCallAccuracy, 1, 1)
@@ -774,6 +775,16 @@ func TestSummarizeRecoveryMetrics(t *testing.T) {
 		metrics.RecoveryBlocks != 1 ||
 		metrics.ForcedAnswers != 1 {
 		t.Fatalf("recovery metrics = %+v", metrics)
+	}
+}
+
+func TestPrimitiveProtocolRepeatPolicyFollowsProfile(t *testing.T) {
+	t.Parallel()
+	if primitiveProtocol(PrimitiveProfileGoNative).AllowRepeatedCalls {
+		t.Fatal("go-native profile must reject repeated calls")
+	}
+	if !primitiveProtocol(PrimitiveProfileUpstream).AllowRepeatedCalls {
+		t.Fatal("upstream-compatible profile must preserve repeated calls")
 	}
 }
 

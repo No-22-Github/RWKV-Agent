@@ -223,12 +223,12 @@ revision，丢弃旧版 native State，再用当前 profile replay。未显式�
 ## 实验性本地优先 Agent 框架
 
 `agent` 命令用于验证第一条 Agent Harness 纵向链路：模型可以在指定工作区内列出文件、
-读取文本、搜索字面量和确定性处理结构化数据，然后基于实际工具结果回答。P0 还注册了
-`weather`、`nearest_transit`、`transit_hours`、`fx_convert`、`calculator`、
-`data_query` 和 `datetime`。其中 `calculator` 与 `data_query` 是不依赖 Provider 的 Go
-原生核心工具：前者提供受限算术与定点格式化，后者提供 CSV/TSV/JSON/JSONL 的过滤、选择、
-分组和聚合。天气、交通和汇率目前使用固定 mock Provider，只用于
-可重复评测，不代表实时数据；工具没有写入、命令执行或真实网络能力。
+读取文本、搜索字面量和确定性处理结构化数据，然后基于实际工具结果回答。普通 `agent`
+默认只注册工作区工具，以及不依赖 Provider 的 `calculator`、`data_query` 和 `datetime`：
+calculator 提供受限算术与定点格式化，data_query 提供 CSV/TSV/JSON/JSONL 的过滤、选择、
+分组和聚合。固定 mock 的 `weather`、`nearest_transit`、`transit_hours` 和 `fx_convert` 仅在
+可重复的 `assistant` 评测 suite 中注册，不会在普通 Agent 中伪装成实时能力。默认工具没有
+写入、命令执行或真实网络能力。
 Agent 只依赖“文本前缀 -> 续写文本”的窄接口，本地模型和 `rwkv_lightning` HTTP 是两种
 可替换 adapter。当前 `rwkv-g1i-envelope-v1` 采用 G1I 已验证的文本 envelope：
 `<tool_call>{"name":...,"arguments":...}</tool_call>` 和

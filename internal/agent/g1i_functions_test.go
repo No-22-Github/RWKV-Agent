@@ -9,6 +9,28 @@ import (
 	"github.com/no22/RWKV-Agent/internal/continuation"
 )
 
+type submitTestTool struct{}
+
+func (submitTestTool) Spec() ToolSpec {
+	return ToolSpec{
+		Name:        "submit",
+		Description: "Submit the final answer.",
+		Arguments:   `{"answer":"string"}`,
+		Parameters:  json.RawMessage(`{"type":"object","properties":{"answer":{"type":"string"}},"required":["answer"],"additionalProperties":false}`),
+		Strict:      true,
+	}
+}
+
+func (submitTestTool) Execute(_ context.Context, raw json.RawMessage) (any, error) {
+	var args struct {
+		Answer string `json:"answer"`
+	}
+	if err := json.Unmarshal(raw, &args); err != nil {
+		return nil, err
+	}
+	return args.Answer, nil
+}
+
 func TestG1IFunctionProtocolRendersNativeCatalogAndContinuation(t *testing.T) {
 	t.Parallel()
 	spec := ToolSpec{
@@ -146,7 +168,7 @@ func TestG1IFunctionRunnerExecutesRepeatedCallsWithOfficialNotes(t *testing.T) {
 		[]Tool{echoTool{}},
 		Options{
 			MaxSteps:     3,
-			Protocol:     G1IFunctionProtocol{},
+			Protocol:     G1IFunctionProtocol{AllowRepeatedCalls: true},
 			Renderer:     G1IFunctionRenderer{HasSubmit: true},
 			TerminalTool: "submit",
 			Generation:   continuation.Request{MaxOutputTokens: 128},
@@ -161,6 +183,47 @@ func TestG1IFunctionRunnerExecutesRepeatedCallsWithOfficialNotes(t *testing.T) {
 	}
 	if len(prompts) != 3 || !strings.Contains(prompts[2], "NOTE: identical tool call repeated") {
 		t.Fatalf("official repeat note missing from third prompt: %v", prompts)
+	}
+}
+
+func TestG1IFunctionRunnerRejectsRepeatedCallsByDefault(t *testing.T) {
+	t.Parallel()
+	responses := []string{
+		`{"name":"echo","arguments":{"value":"same"}}`,
+		`{"name":"echo","arguments":{"value":"same"}}`,
+		`{"name":"submit","arguments":{"answer":"same"}}`,
+	}
+	index := 0
+	runner, err := NewRunner(
+		continuation.GenerateFunc(func(
+			_ context.Context,
+			_ continuation.Request,
+			_ continuation.EventSink,
+		) (continuation.Result, error) {
+			response := responses[index]
+			index++
+			return continuation.Result{Text: response, FinishReason: continuation.FinishStop}, nil
+		}),
+		[]Tool{echoTool{}, submitTestTool{}},
+		Options{
+			MaxSteps:          3,
+			Protocol:          G1IFunctionProtocol{},
+			Renderer:          G1IFunctionRenderer{HasSubmit: true},
+			TerminalTool:      "submit",
+			EndOnTerminalTool: true,
+			Generation:        continuation.Request{MaxOutputTokens: 128},
+		},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "Return same.")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Output != "same" || result.Steps[1].ToolExecuted ||
+		result.Steps[1].ToolRejected != rejectedDuplicateCall {
+		t.Fatalf("hardened repeated call result = %+v", result)
 	}
 }
 

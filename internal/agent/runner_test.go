@@ -700,6 +700,46 @@ func TestRunnerDuplicateCallForcesAnswerFromSuccessfulEvidence(t *testing.T) {
 	}
 }
 
+func TestRunnerRejectsToolCallDuringAnswerStage(t *testing.T) {
+	t.Parallel()
+	outputs := []string{
+		`<tool_call>{"name":"counting_echo","arguments":{"value":"same"}}</tool_call>`,
+		`<tool_call>{"name":"counting_echo","arguments":{"value":"same"}}</tool_call>`,
+		`<tool_call>{"name":"counting_echo","arguments":{"value":"must-not-run"}}</tool_call>`,
+		"final from existing evidence",
+	}
+	generations := 0
+	executions := 0
+	runner, err := NewRunner(
+		continuation.GenerateFunc(func(
+			context.Context,
+			continuation.Request,
+			continuation.EventSink,
+		) (continuation.Result, error) {
+			result := continuation.Result{Text: outputs[generations], FinishReason: continuation.FinishStop}
+			generations++
+			return result, nil
+		}),
+		[]Tool{&countingEchoTool{calls: &executions}},
+		Options{MaxSteps: 4, ProtocolRetries: 1},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "Use echo once, then answer.")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if executions != 1 || result.Output != "final from existing evidence" || len(result.Steps) != 4 {
+		t.Fatalf("answer-stage guard result = %+v, executions = %d", result, executions)
+	}
+	violation := result.Steps[2]
+	if violation.Stage != StageAnswer || violation.ActionType != "tool" ||
+		!violation.StageViolation || !strings.Contains(violation.ProtocolError, ErrStageViolation.Error()) {
+		t.Fatalf("answer-stage violation = %+v", violation)
+	}
+}
+
 func TestRunnerDuplicateFailedCallForcesLimitedAnswer(t *testing.T) {
 	t.Parallel()
 	outputs := []string{

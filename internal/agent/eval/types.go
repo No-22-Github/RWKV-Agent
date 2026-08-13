@@ -11,7 +11,7 @@ import (
 
 const (
 	SchemaVersion  = 3
-	HarnessVersion = "rwkv-agent-eval-v14"
+	HarnessVersion = "rwkv-agent-eval-v15"
 
 	PrimitiveProfileUpstream = "upstream-compatible"
 	PrimitiveProfileGoNative = "go-native"
@@ -161,6 +161,7 @@ type Metrics struct {
 	AnswerAccuracy         Score `json:"answer_accuracy"`
 	RouteAccuracy          Score `json:"route_accuracy"`
 	ProtocolValidity       Score `json:"protocol_validity"`
+	StageContractValidity  Score `json:"stage_contract_validity"`
 	ToolSelection          Score `json:"tool_selection"`
 	ArgumentAccuracy       Score `json:"argument_accuracy"`
 	RequiredToolCompletion Score `json:"required_tool_completion"`
@@ -173,22 +174,23 @@ type Metrics struct {
 	ExplicitAbstention     Score `json:"explicit_abstention"`
 	AnswerContractRepaired Score `json:"answer_contract_repaired"`
 
-	ModelCalls       int   `json:"model_calls"`
-	ToolCalls        int   `json:"tool_calls"`
-	ToolExecutions   int   `json:"tool_executions"`
-	ToolErrors       int   `json:"tool_errors"`
-	RejectedCalls    int   `json:"rejected_tool_calls"`
-	DuplicateCalls   int   `json:"duplicate_tool_calls"`
-	RecoveryBlocks   int   `json:"recovery_blocked_calls"`
-	ForcedAnswers    int   `json:"forced_answers"`
-	ProtocolRetries  int   `json:"protocol_retries"`
-	ProtocolRepairs  int   `json:"protocol_repairs"`
-	RouteFallbacks   int   `json:"route_fallbacks"`
-	PlanRejections   int   `json:"plan_rejections"`
-	PlanFallbacks    int   `json:"plan_fallbacks"`
-	PromptTokens     int   `json:"prompt_tokens"`
-	CompletionTokens int   `json:"completion_tokens"`
-	WallTimeMillis   int64 `json:"wall_time_millis"`
+	ModelCalls           int   `json:"model_calls"`
+	ToolCalls            int   `json:"tool_calls"`
+	ToolExecutions       int   `json:"tool_executions"`
+	ToolErrors           int   `json:"tool_errors"`
+	RejectedCalls        int   `json:"rejected_tool_calls"`
+	DuplicateCalls       int   `json:"duplicate_tool_calls"`
+	RecoveryBlocks       int   `json:"recovery_blocked_calls"`
+	ForcedAnswers        int   `json:"forced_answers"`
+	ProtocolRetries      int   `json:"protocol_retries"`
+	ProtocolRepairs      int   `json:"protocol_repairs"`
+	AnswerStageToolCalls int   `json:"answer_stage_tool_calls"`
+	RouteFallbacks       int   `json:"route_fallbacks"`
+	PlanRejections       int   `json:"plan_rejections"`
+	PlanFallbacks        int   `json:"plan_fallbacks"`
+	PromptTokens         int   `json:"prompt_tokens"`
+	CompletionTokens     int   `json:"completion_tokens"`
+	WallTimeMillis       int64 `json:"wall_time_millis"`
 }
 
 type TurnResult struct {

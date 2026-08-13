@@ -787,18 +787,13 @@ func runAgent(args []string) error {
 	if err != nil {
 		return fmt.Errorf("initialize agent workspace: %w", err)
 	}
-	mockProvider, err := assistanttools.DefaultMockProvider()
-	if err != nil {
-		return fmt.Errorf("initialize assistant mock provider: %w", err)
-	}
-	assistant, err := assistanttools.AssistantTools(assistanttools.Options{
-		Provider:  mockProvider,
+	localTools, err := assistanttools.LocalTools(assistanttools.Options{
 		Workspace: options.workspace,
 	})
 	if err != nil {
-		return fmt.Errorf("initialize assistant tools: %w", err)
+		return fmt.Errorf("initialize local agent tools: %w", err)
 	}
-	tools = append(tools, assistant...)
+	tools = append(tools, localTools...)
 	theme := terminal.NewTheme(terminal.SupportsStyle(os.Stderr))
 	var observe func(agent.Event)
 	if selected == terminal.UIPlain {
@@ -978,13 +973,14 @@ func runAgentEval(args []string) error {
 	metrics := report.Summary.Metrics
 	fmt.Fprintf(
 		os.Stdout,
-		"Agent eval (%s): %d/%d cases passed; answer %s; route %s; protocol %s\n",
+		"Agent eval (%s): %d/%d cases passed; answer %s; route %s; protocol %s; stage %s\n",
 		suite,
 		metrics.TaskSuccess.Correct,
 		metrics.TaskSuccess.Total,
 		formatEvalScore(metrics.AnswerAccuracy),
 		formatEvalScore(metrics.RouteAccuracy),
 		formatEvalScore(metrics.ProtocolValidity),
+		formatEvalScore(metrics.StageContractValidity),
 	)
 	fmt.Fprintf(
 		os.Stdout,

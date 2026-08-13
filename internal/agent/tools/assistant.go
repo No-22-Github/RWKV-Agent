@@ -70,12 +70,9 @@ type systemClock struct{}
 func (systemClock) Now() time.Time { return time.Now() }
 
 func AssistantTools(options Options) ([]agent.Tool, error) {
-	core, err := CoreTools(options)
+	local, err := LocalTools(options)
 	if err != nil {
 		return nil, err
-	}
-	if options.Clock == nil {
-		options.Clock = systemClock{}
 	}
 	tools := []agent.Tool{
 		&weatherTool{provider: options.Provider},
@@ -83,8 +80,7 @@ func AssistantTools(options Options) ([]agent.Tool, error) {
 		&transitHoursTool{provider: options.Provider},
 		&fxConvertTool{provider: options.Provider},
 	}
-	tools = append(tools, core...)
-	return append(tools, &datetimeTool{clock: options.Clock}), nil
+	return append(tools, local...), nil
 }
 
 // CoreTools returns deterministic, provider-free tools that are useful to a
@@ -99,6 +95,19 @@ func CoreTools(options Options) ([]agent.Tool, error) {
 		calculatorTool{},
 		&dataQueryTool{workspace: resolver},
 	}, nil
+}
+
+// LocalTools returns the deterministic tools suitable for the ordinary Agent.
+// Unlike AssistantTools it never exposes provider-backed demo or mock facts.
+func LocalTools(options Options) ([]agent.Tool, error) {
+	core, err := CoreTools(options)
+	if err != nil {
+		return nil, err
+	}
+	if options.Clock == nil {
+		options.Clock = systemClock{}
+	}
+	return append(core, &datetimeTool{clock: options.Clock}), nil
 }
 
 func ComputeTools(options Options) ([]agent.Tool, error) {

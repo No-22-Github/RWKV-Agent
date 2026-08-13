@@ -47,7 +47,7 @@ func Run(ctx context.Context, config Config) (Report, error) {
 			config.PrimitiveProfile != PrimitiveProfileGoNative {
 			return Report{}, fmt.Errorf("unsupported Primitive tool profile %q", config.PrimitiveProfile)
 		}
-		config.Runner.Protocol = agent.G1IFunctionProtocol{}
+		config.Runner.Protocol = primitiveProtocol(config.PrimitiveProfile)
 		config.Runner.Renderer = agent.G1IFunctionRenderer{HasSubmit: true}
 		config.Runner.TaskControl = ""
 		config.Runner.TerminalTool = "submit"
@@ -251,7 +251,7 @@ func runCase(
 	if testCase.Primitive != nil && testCase.Primitive.MaxTurns > 0 {
 		options.MaxSteps = testCase.Primitive.MaxTurns
 		hasSubmit := slices.Contains(testCase.Primitive.ToolNames, "submit")
-		options.Protocol = agent.G1IFunctionProtocol{}
+		options.Protocol = primitiveProtocol(config.PrimitiveProfile)
 		options.Renderer = agent.G1IFunctionRenderer{
 			HasSubmit:   hasSubmit,
 			HasRunTests: slices.Contains(testCase.Primitive.ToolNames, "run_tests"),
@@ -307,6 +307,12 @@ func runCase(
 		result.Passed = false
 	}
 	return result
+}
+
+func primitiveProtocol(profile string) agent.G1IFunctionProtocol {
+	return agent.G1IFunctionProtocol{
+		AllowRepeatedCalls: profile == PrimitiveProfileUpstream,
+	}
 }
 
 type fixedAssistantClock struct{ value time.Time }
@@ -871,6 +877,15 @@ func summarize(
 				if step.ProtocolError == "" {
 					summary.Metrics.ProtocolValidity.Correct++
 				}
+				if step.ActionType != "" || step.StageViolation {
+					summary.Metrics.StageContractValidity.Total++
+					if !step.StageViolation {
+						summary.Metrics.StageContractValidity.Correct++
+					}
+				}
+				if step.Stage == agent.StageAnswer && step.ActionType == "tool" {
+					summary.Metrics.AnswerStageToolCalls++
+				}
 				if step.ProtocolRepaired {
 					summary.Metrics.ProtocolRepairs++
 				}
@@ -920,6 +935,7 @@ func summarize(
 	finalizeScore(&summary.Metrics.AnswerAccuracy)
 	finalizeScore(&summary.Metrics.RouteAccuracy)
 	finalizeScore(&summary.Metrics.ProtocolValidity)
+	finalizeScore(&summary.Metrics.StageContractValidity)
 	finalizeScore(&summary.Metrics.ToolSelection)
 	finalizeScore(&summary.Metrics.ArgumentAccuracy)
 	finalizeScore(&summary.Metrics.RequiredToolCompletion)

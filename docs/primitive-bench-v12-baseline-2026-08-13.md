@@ -127,6 +127,33 @@ Harness v14 新增显式 `--primitive-profile`：默认 `upstream-compatible` �
 因此当前正式 Go-native 成绩为 **20/30**，与同模型上游官方留档 **20/30** 持平；已经达到
 “使用 Go 原生通用工具栈时不低于官方 Lua 框架”的本轮目标。
 
+## v15 通用 Agent 控制面加固
+
+Harness v15 不再改变 Primitive 题库或 Go 原生工具语义，集中修复可以回收到产品框架的控制面
+问题：
+
+- answer 阶段硬拒绝任何工具调用，包括藏在 final 文本里的 bare JSON 或 `<tool_call>`；新增
+  stage contract 指标和 answer-stage tool-call 计数；
+- 将“保持上游工具顺序”和“允许重复执行”拆成两个独立策略。`upstream-compatible` 仍完整保留
+  上游行为，`go-native` 则拒绝同参数重复调用，并把恢复指令放进同一个 Function output 回合；
+- 普通 `agent` 只暴露工作区工具和本地 `calculator`、`data_query`、`datetime`，不再把固定 mock
+  天气、交通、汇率伪装成产品能力；这些 provider-backed 工具仅留在可重复的 assistant eval；
+- G1I 计算提示明确区分 calculator 的纯数值表达式和 data_query 的表格操作，减少把文件名、SQL
+  或自然语言误传给计算器的情况。
+
+同模型、同 30 题、30 并发回归仍为 **20/30**，protocol validity 从 v14 的 **98.9%** 提升到
+**100%（182/182）**，stage contract validity **100%（182/182）**，answer-stage tool calls 为
+**0**；required-tool completion 为 **90.3%（65/72）**。任务分没有回退，剩余 10 题仍集中在
+多步计算/表格聚合、固定输出前缀遗漏、失败后策略循环和代码修复收敛，而不是协议解析。
+
+Toolcall-Bench 的 280 样本格式探测也支持继续使用当前 G1I 主路径：7.2B 的裸提示格式先验不
+可靠，宿主应显式预填 `Assistant: ```json`、在 closing fence 截停，并注入
+`User: Function output:`。因此 v15 没有为了题库引入 Lua，也没有切换到另一套工具标签协议。
+
+本轮回归产物：
+
+- `runs/primitive-v15-go-native-final-healthy-batch30-20260813`
+
 ```sh
 go run ./cmd/rwkv-cli agent-eval \
   --completion rwkv-lightning \
