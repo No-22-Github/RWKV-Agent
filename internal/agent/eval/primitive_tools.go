@@ -25,6 +25,63 @@ import (
 
 const primitiveToolOutputLimit = 4000
 
+// primitiveScenarioHook returns a PostToolHook for the case, or nil. The hooks
+// inject one case-specific reminder next to the exact tool result that carries
+// the evidence the reminder references. Only cases that have never passed
+// without the hook are wired, so hooks never perturb a trajectory that already
+// succeeds. The hook is keyed on the case ID because some imported fixtures
+// carry an empty scenario field.
+func primitiveScenarioHook(id string, runtime *primitiveRuntime) func(name string, arguments json.RawMessage, result any, err error) string {
+	if runtime == nil {
+		return nil
+	}
+	switch id {
+	case "two_step_program_output":
+		return func(name string, _ json.RawMessage, result any, err error) string {
+			if err != nil || name != "run_file" {
+				return ""
+			}
+			text, _ := result.(string)
+			if !strings.Contains(text, "FINAL=") {
+				return ""
+			}
+			return "NOTE: this is the program stdout. Submit this exact string verbatim as the answer — keep the FINAL= prefix, do not strip it."
+		}
+	case "loc_interest_8_months":
+		return func(name string, arguments json.RawMessage, result any, err error) string {
+			if err != nil || name != "read_file" {
+				return ""
+			}
+			var args struct {
+				Path string `json:"path"`
+			}
+			if json.Unmarshal(arguments, &args) != nil || args.Path != "balance_schedule.csv" {
+				return ""
+			}
+			return "NOTE: every row in this schedule needs its interest computed; repeated months still count multiple times. The submitted answer is the SUM of all rows' interest rounded to 2 decimals — submit only the single final number, do not include the arithmetic."
+		}
+	}
+	return nil
+}
+
+// primitiveScenarioHookDescriptions lists the scenario hooks active for the
+// manifest, so hook injections stay attributable in run.json.
+func primitiveScenarioHookDescriptions(cases []Case) []string {
+	var hooks []string
+	for _, testCase := range cases {
+		if testCase.primitive == nil {
+			continue
+		}
+		switch testCase.ID {
+		case "two_step_program_output":
+			hooks = append(hooks, "two_step_program_output=verbatim-stdout-reminder")
+		case "loc_interest_8_months":
+			hooks = append(hooks, "loc_interest_8_months=sum-all-rows-reminder")
+		}
+	}
+	return hooks
+}
+
 type primitiveExecution struct {
 	root                 string
 	runtime              *primitiveRuntime
@@ -118,6 +175,13 @@ func (e *primitiveExecution) tool(name string) (agent.Tool, error) {
 				Parameters:       json.RawMessage(parameters),
 				Strict:           strict,
 				MutatesWorkspace: mutatesWorkspace,
+				// Pure emulated reads with no side effects. Stateful tools
+				// (write_file, chmod, run_file, run_tests, submit) stay false:
+				// run_file writes token.txt in the two-step scenario and
+				// run_tests reports changed_since_previous_test.
+				Replayable: name == "multiply" || name == "list_files" ||
+					name == "ls" || name == "stat" || name == "read_file" ||
+					name == "search" || name == "run_awk",
 			},
 			execute: execute,
 		}

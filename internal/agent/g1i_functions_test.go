@@ -280,3 +280,374 @@ func TestRunnerEndsOnSuccessfulTerminalTool(t *testing.T) {
 		t.Fatalf("terminal result = %+v, calls = %d", result, calls)
 	}
 }
+
+type replayableEchoTool struct {
+	calls *int
+}
+
+func (t *replayableEchoTool) Spec() ToolSpec {
+	return ToolSpec{
+		Name:        "echo",
+		Description: "Return a value.",
+		Arguments:   `{"value":"string"}`,
+		Replayable:  true,
+	}
+}
+
+func (t *replayableEchoTool) Execute(_ context.Context, raw json.RawMessage) (any, error) {
+	if t.calls != nil {
+		*t.calls++
+	}
+	var args struct {
+		Value string `json:"value"`
+	}
+	if err := json.Unmarshal(raw, &args); err != nil {
+		return nil, err
+	}
+	return map[string]string{"value": args.Value}, nil
+}
+
+func g1iRunnerOptions() Options {
+	return Options{
+		MaxSteps:          8,
+		Protocol:          G1IFunctionProtocol{},
+		Renderer:          G1IFunctionRenderer{HasSubmit: true},
+		TerminalTool:      "submit",
+		EndOnTerminalTool: true,
+		Generation:        continuation.Request{MaxOutputTokens: 128},
+	}
+}
+
+// sequenceGenerator replays scripted responses in order.
+func sequenceGenerator(responses []string, prompts *[]string) continuation.Generator {
+	index := 0
+	return continuation.GenerateFunc(func(
+		_ context.Context,
+		request continuation.Request,
+		_ continuation.EventSink,
+	) (continuation.Result, error) {
+		if prompts != nil {
+			*prompts = append(*prompts, request.Prompt)
+		}
+		response := responses[index]
+		index++
+		return continuation.Result{Text: response, FinishReason: continuation.FinishStop}, nil
+	})
+}
+
+func TestG1IFunctionRunnerReplaysReplayableDuplicatesThenRejects(t *testing.T) {
+	t.Parallel()
+	echoCalls := 0
+	options := g1iRunnerOptions()
+	options.DuplicateReplayLimit = 2
+	options.DuplicateRescueThreshold = 0
+	var prompts []string
+	runner, err := NewRunner(
+		sequenceGenerator([]string{
+			`{"name":"echo","arguments":{"value":"same"}}`,
+			`{"name":"echo","arguments":{"value":"same"}}`,
+			`{"name":"echo","arguments":{"value":"same"}}`,
+			`{"name":"submit","arguments":{"answer":"done"}}`,
+		}, &prompts),
+		[]Tool{&replayableEchoTool{calls: &echoCalls}, submitTestTool{}},
+		options,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "Return same.")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Output != "done" || len(result.Steps) != 4 {
+		t.Fatalf("result = %+v", result)
+	}
+	if !result.Steps[0].ToolExecuted || result.Steps[0].ToolRejected != "" {
+		t.Fatalf("first call was not a normal execution: %+v", result.Steps[0])
+	}
+	if !result.Steps[1].ToolExecuted || result.Steps[1].ToolRejected != "" ||
+		result.Steps[1].ToolError != "" {
+		t.Fatalf("first repeat was not replayed: %+v", result.Steps[1])
+	}
+	if result.Steps[2].ToolExecuted ||
+		result.Steps[2].ToolRejected != rejectedDuplicateCall {
+		t.Fatalf("second repeat was not rejected: %+v", result.Steps[2])
+	}
+	if echoCalls != 2 {
+		t.Fatalf("echo executions = %d, want 2 (original + one replay)", echoCalls)
+	}
+	if !strings.Contains(prompts[2], "identical tool call re-executed") {
+		t.Fatalf("replay note missing from third prompt:\n%s", prompts[2])
+	}
+	if !strings.Contains(prompts[3], "STOP repeating") {
+		t.Fatalf("escalated rejection text missing from fourth prompt:\n%s", prompts[3])
+	}
+}
+
+func TestG1IFunctionRunnerDuplicateRejectionEscalates(t *testing.T) {
+	t.Parallel()
+	options := g1iRunnerOptions()
+	options.DuplicateReplayLimit = 0
+	options.DuplicateRescueThreshold = 0
+	var prompts []string
+	runner, err := NewRunner(
+		sequenceGenerator([]string{
+			`{"name":"echo","arguments":{"value":"same"}}`,
+			`{"name":"echo","arguments":{"value":"same"}}`,
+			`{"name":"echo","arguments":{"value":"same"}}`,
+			`{"name":"submit","arguments":{"answer":"done"}}`,
+		}, &prompts),
+		[]Tool{echoTool{}, submitTestTool{}},
+		options,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "Return same.")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Output != "done" ||
+		result.Steps[1].ToolExecuted || result.Steps[1].ToolRejected != rejectedDuplicateCall ||
+		result.Steps[2].ToolExecuted || result.Steps[2].ToolRejected != rejectedDuplicateCall {
+		t.Fatalf("result = %+v", result)
+	}
+	if !strings.Contains(prompts[2], "RECOVERY: This exact call is disabled.") {
+		t.Fatalf("first rejection must keep the legacy text:\n%s", prompts[2])
+	}
+	if !strings.Contains(prompts[3], "STOP repeating") ||
+		!strings.Contains(prompts[3], "steps left") {
+		t.Fatalf("second rejection must escalate:\n%s", prompts[3])
+	}
+	if legacy := strings.LastIndex(prompts[3], "This exact call is disabled."); legacy < 0 ||
+		strings.LastIndex(prompts[3], "STOP repeating") < legacy {
+		t.Fatalf("escalation must follow the legacy text in the transcript:\n%s", prompts[3])
+	}
+}
+
+func TestG1IFunctionRunnerRescueModeSubmitsBestAnswer(t *testing.T) {
+	t.Parallel()
+	options := g1iRunnerOptions()
+	options.DuplicateReplayLimit = 1
+	options.DuplicateRescueThreshold = 2
+	var prompts []string
+	runner, err := NewRunner(
+		sequenceGenerator([]string{
+			`{"name":"echo","arguments":{"value":"same"}}`,
+			`{"name":"echo","arguments":{"value":"same"}}`,
+			`{"name":"submit","arguments":{"answer":"best-effort"}}`,
+		}, &prompts),
+		[]Tool{&replayableEchoTool{}, submitTestTool{}},
+		options,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "Return same.")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Output != "best-effort" || !result.RescueAttempted || !result.RescueSubmitted {
+		t.Fatalf("rescue result = %+v", result)
+	}
+	if !strings.Contains(prompts[2], "Call submit now with your best answer") {
+		t.Fatalf("rescue instruction missing from third prompt:\n%s", prompts[2])
+	}
+	catalog := g1iCatalogText(t, prompts[2])
+	if !strings.Contains(catalog, `"name":"submit"`) || strings.Contains(catalog, `"name":"echo"`) {
+		t.Fatalf("rescue catalog must offer submit only:\n%s", catalog)
+	}
+}
+
+func TestG1IFunctionRunnerRescueModeRejectsOtherTools(t *testing.T) {
+	t.Parallel()
+	options := g1iRunnerOptions()
+	options.DuplicateReplayLimit = 1
+	options.DuplicateRescueThreshold = 2
+	runner, err := NewRunner(
+		sequenceGenerator([]string{
+			`{"name":"echo","arguments":{"value":"same"}}`,
+			`{"name":"echo","arguments":{"value":"same"}}`,
+			`{"name":"echo","arguments":{"value":"same"}}`,
+			`{"name":"submit","arguments":{"answer":"rescued"}}`,
+		}, nil),
+		[]Tool{&replayableEchoTool{}, submitTestTool{}},
+		options,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "Return same.")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Output != "rescued" || !result.RescueAttempted || !result.RescueSubmitted {
+		t.Fatalf("rescue result = %+v", result)
+	}
+	blocked := result.Steps[2]
+	if blocked.ToolExecuted || blocked.ToolRejected != rejectedRescueRestricted ||
+		!strings.Contains(blocked.ToolError, "only submit is available") {
+		t.Fatalf("post-rescue tool call was not restricted: %+v", blocked)
+	}
+}
+
+func TestG1IFunctionRunnerDuplicateControlsDisabledByZero(t *testing.T) {
+	t.Parallel()
+	options := g1iRunnerOptions()
+	options.DuplicateReplayLimit = 0
+	options.DuplicateRescueThreshold = 0
+	var prompts []string
+	runner, err := NewRunner(
+		sequenceGenerator([]string{
+			`{"name":"echo","arguments":{"value":"same"}}`,
+			`{"name":"echo","arguments":{"value":"same"}}`,
+			`{"name":"echo","arguments":{"value":"same"}}`,
+			`{"name":"submit","arguments":{"answer":"done"}}`,
+		}, &prompts),
+		[]Tool{&replayableEchoTool{}, submitTestTool{}},
+		options,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "Return same.")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Output != "done" || result.RescueAttempted || result.RescueSubmitted {
+		t.Fatalf("zero thresholds must preserve strict rejection: %+v", result)
+	}
+	for index := 1; index <= 2; index++ {
+		if result.Steps[index].ToolExecuted || result.Steps[index].ToolRejected != rejectedDuplicateCall {
+			t.Fatalf("step %d was not strictly rejected: %+v", index, result.Steps[index])
+		}
+	}
+	for _, prompt := range prompts {
+		if strings.Contains(prompt, "Call submit now with your best answer") ||
+			strings.Contains(prompt, "identical tool call re-executed") {
+			t.Fatalf("disabled controls leaked into prompt:\n%s", prompt)
+		}
+	}
+}
+
+// g1iCatalogText extracts the System: Tools catalog from a rendered G1i prompt.
+func g1iCatalogText(t *testing.T, prompt string) string {
+	t.Helper()
+	const startMarker = "Tools:\n[\n"
+	const endMarker = "\n]\n"
+	start := strings.Index(prompt, startMarker)
+	if start < 0 {
+		t.Fatalf("catalog start missing from prompt:\n%s", prompt)
+	}
+	start += len(startMarker)
+	end := strings.Index(prompt[start:], endMarker)
+	if end < 0 {
+		t.Fatalf("catalog end missing from prompt:\n%s", prompt)
+	}
+	return prompt[start : start+end]
+}
+
+func TestG1IFunctionRunnerAppliesPostToolHookAfterSuccess(t *testing.T) {
+	t.Parallel()
+	var prompts []string
+	hooked := 0
+	options := g1iRunnerOptions()
+	options.PostToolHook = func(name string, _ json.RawMessage, result any, err error) string {
+		if err != nil {
+			t.Errorf("hook invoked with error: %v", err)
+			return ""
+		}
+		hooked++
+		if name != "echo" {
+			return ""
+		}
+		return "HOOK: remember the value above."
+	}
+	runner, err := NewRunner(
+		sequenceGenerator([]string{
+			`{"name":"echo","arguments":{"value":"one"}}`,
+			`{"name":"submit","arguments":{"answer":"one"}}`,
+		}, &prompts),
+		[]Tool{echoTool{}, submitTestTool{}},
+		options,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "Return one.")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Output != "one" || hooked != 1 {
+		t.Fatalf("result = %+v, hook calls = %d", result, hooked)
+	}
+	if !strings.Contains(prompts[1], "HOOK: remember the value above.") {
+		t.Fatalf("hook text missing from the prompt after the tool result:\n%s", prompts[1])
+	}
+	committed := false
+	for _, message := range runner.History() {
+		if message.Role == RoleTool && strings.Contains(message.Content, "HOOK: remember the value above.") {
+			committed = true
+		}
+	}
+	if !committed {
+		t.Fatalf("hook text was not committed to history: %+v", runner.History())
+	}
+}
+
+func TestG1IFunctionRunnerSkipsPostToolHookOnFailure(t *testing.T) {
+	t.Parallel()
+	hooked := 0
+	options := g1iRunnerOptions()
+	options.PostToolHook = func(string, json.RawMessage, any, error) string {
+		hooked++
+		return "HOOK"
+	}
+	runner, err := NewRunner(
+		sequenceGenerator([]string{
+			`{"name":"failing","arguments":{"value":"x"}}`,
+			`{"name":"submit","arguments":{"answer":"x"}}`,
+		}, nil),
+		[]Tool{&failingTool{calls: new(int)}, submitTestTool{}},
+		options,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := runner.Run(context.Background(), "Fail then submit."); err != nil {
+		t.Fatal(err)
+	}
+	if hooked != 0 {
+		t.Fatalf("hook ran %d times for a failing tool call", hooked)
+	}
+}
+
+func TestG1IFunctionRunnerSkipsPostToolHookOnReplay(t *testing.T) {
+	t.Parallel()
+	hooked := 0
+	options := g1iRunnerOptions()
+	options.DuplicateReplayLimit = 2
+	options.DuplicateRescueThreshold = 0
+	options.PostToolHook = func(string, json.RawMessage, any, error) string {
+		hooked++
+		return "HOOK"
+	}
+	runner, err := NewRunner(
+		sequenceGenerator([]string{
+			`{"name":"echo","arguments":{"value":"same"}}`,
+			`{"name":"echo","arguments":{"value":"same"}}`,
+			`{"name":"submit","arguments":{"answer":"same"}}`,
+		}, nil),
+		[]Tool{&replayableEchoTool{}, submitTestTool{}},
+		options,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := runner.Run(context.Background(), "Return same."); err != nil {
+		t.Fatal(err)
+	}
+	if hooked != 1 {
+		t.Fatalf("hook ran %d times; want once (first execution, not the replay)", hooked)
+	}
+}

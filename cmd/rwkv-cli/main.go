@@ -36,54 +36,56 @@ import (
 )
 
 type runOptions struct {
-	modelPath           string
-	backend             string
-	provider            string
-	tokenizer           string
-	sessionPath         string
-	prompt              string
-	maxTokens           int
-	decisionMaxTokens   int
-	routeMaxTokens      int
-	routeStage          bool
-	tracePromptBytes    int
-	temperature         float64
-	topK                int
-	topP                float64
-	presencePenalty     float64
-	frequencyPenalty    float64
-	penaltyDecay        float64
-	thinkingMode        string
-	thinkingExplicit    bool
-	reasoning           bool
-	reasoningExplicit   bool
-	fewShot             bool
-	autosave            bool
-	nativeState         string
-	concurrency         int
-	concurrentPrompt    string
-	ui                  string
-	workspace           string
-	maxSteps            int
-	completion          string
-	apiURL              string
-	apiKeyEnv           string
-	chatThinking        string
-	chatPromptMode      string
-	chatPromptExplicit  bool
-	chatTokenLimit      string
-	apiPasswordEnv      string
-	apiStopTokens       string
-	apiStream           bool
-	apiHeaderEnvs       stringListFlag
-	evalSuite           string
-	evalSuiteExplicit   bool
-	evalCasesPath       string
-	evalOutput          string
-	evalCaseIDs         stringListFlag
-	evalCaseTimeout     time.Duration
-	evalCaseParallelism int
-	primitiveProfile    string
+	modelPath                string
+	backend                  string
+	provider                 string
+	tokenizer                string
+	sessionPath              string
+	prompt                   string
+	maxTokens                int
+	decisionMaxTokens        int
+	routeMaxTokens           int
+	routeStage               bool
+	tracePromptBytes         int
+	temperature              float64
+	topK                     int
+	topP                     float64
+	presencePenalty          float64
+	frequencyPenalty         float64
+	penaltyDecay             float64
+	thinkingMode             string
+	thinkingExplicit         bool
+	reasoning                bool
+	reasoningExplicit        bool
+	fewShot                  bool
+	autosave                 bool
+	nativeState              string
+	concurrency              int
+	concurrentPrompt         string
+	ui                       string
+	workspace                string
+	maxSteps                 int
+	completion               string
+	apiURL                   string
+	apiKeyEnv                string
+	chatThinking             string
+	chatPromptMode           string
+	chatPromptExplicit       bool
+	chatTokenLimit           string
+	apiPasswordEnv           string
+	apiStopTokens            string
+	apiStream                bool
+	apiHeaderEnvs            stringListFlag
+	evalSuite                string
+	evalSuiteExplicit        bool
+	evalCasesPath            string
+	evalOutput               string
+	evalCaseIDs              stringListFlag
+	evalCaseTimeout          time.Duration
+	evalCaseParallelism      int
+	primitiveProfile         string
+	duplicateReplayLimit     int
+	duplicateRescueThreshold int
 }
 
 type stringListFlag []string
@@ -232,6 +234,20 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		fs.IntVar(&options.maxSteps, "max-steps", 6, "maximum model steps including protocol retries")
 		fs.IntVar(&options.decisionMaxTokens, "decision-max-tokens", 96, "maximum generated tokens for tool selection")
 		fs.IntVar(&options.routeMaxTokens, "route-max-tokens", 16, "maximum generated tokens for respond/inspect routing")
+		fs.IntVar(
+			&options.duplicateReplayLimit,
+			"duplicate-replay-limit",
+			2,
+			"re-execute identical calls to pure read tools (calculator, search, reads) "+
+				"up to this many times before rejecting; 0 disables (Go-native Primitive profile only)",
+		)
+		fs.IntVar(
+			&options.duplicateRescueThreshold,
+			"duplicate-rescue-threshold",
+			3,
+			"switch to submit-only rescue mode after this many consecutive identical calls; "+
+				"0 disables (Go-native Primitive profile only)",
+		)
 		fs.BoolVar(
 			&options.routeStage,
 			"route-stage",
@@ -366,6 +382,12 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 	if agentMode {
 		if options.maxSteps < 2 || options.maxSteps > 20 {
 			return options, errors.New("--max-steps must be between 2 and 20")
+		}
+		if options.duplicateReplayLimit < 0 || options.duplicateReplayLimit > 10 {
+			return options, errors.New("--duplicate-replay-limit must be between 0 and 10")
+		}
+		if options.duplicateRescueThreshold < 0 || options.duplicateRescueThreshold > 20 {
+			return options, errors.New("--duplicate-rescue-threshold must be between 0 and 20")
 		}
 		if options.completion != "local" &&
 			options.completion != "rwkv-lightning" &&
@@ -730,9 +752,11 @@ func agentRunnerOptions(options runOptions, observe func(agent.Event)) agent.Opt
 		Renderer: agent.RWKVChatRenderer{
 			ThinkingMode: inference.ThinkingMode(options.thinkingMode),
 		},
-		RouteRetries:         1,
-		RouteMaxOutputTokens: options.routeMaxTokens,
-		TracePromptBytes:     options.tracePromptBytes,
+		RouteRetries:             1,
+		RouteMaxOutputTokens:     options.routeMaxTokens,
+		TracePromptBytes:         options.tracePromptBytes,
+		DuplicateReplayLimit:     options.duplicateReplayLimit,
+		DuplicateRescueThreshold: options.duplicateRescueThreshold,
 		Generation: continuation.Request{
 			Model:           options.modelPath,
 			MaxOutputTokens: options.maxTokens,

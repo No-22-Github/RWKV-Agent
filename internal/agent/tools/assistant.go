@@ -277,12 +277,14 @@ func (t *fxConvertTool) Execute(ctx context.Context, raw json.RawMessage) (any, 
 type calculatorTool struct{}
 
 func (calculatorTool) Spec() agent.ToolSpec {
-	return strictSpec(
+	spec := strictSpec(
 		"calculator",
 		"Evaluate arithmetic with +, -, *, /, %, parentheses, and abs/min/max/round. Use precision to format decimal or money results.",
 		`{"expression":"string","precision":"optional integer 0..15"}`,
 		`{"type":"object","properties":{"expression":{"type":"string","minLength":1,"maxLength":4096},"precision":{"type":"integer","minimum":0,"maximum":15}},"required":["expression"],"additionalProperties":false}`,
 	)
+	spec.Replayable = true
+	return spec
 }
 
 func (calculatorTool) Execute(_ context.Context, raw json.RawMessage) (any, error) {
@@ -806,12 +808,14 @@ func executeTableAggregate(
 }
 
 func (*dataQueryTool) Spec() agent.ToolSpec {
-	return strictSpec(
+	spec := strictSpec(
 		"data_query",
 		`Query tables; select="spot_sell" with filter={"currency":"EUR"}; sum with operation="sum", field="qty"; group formulas use expression.`,
 		`{"path":"string","filter":{"field":"exact value"},"select":"comma-separated fields","group_by":"comma-separated fields","operation":"count|sum|avg|min|max|distinct_count","field":"numeric field","expression":"numeric row expression"}`,
 		`{"type":"object","properties":{"path":{"type":"string","minLength":1},"filter":{"type":"object","additionalProperties":{}},"select":{"type":"string"},"group_by":{"type":"string"},"operation":{"type":"string","enum":["count","sum","avg","min","max","distinct_count"]},"field":{"type":"string"},"expression":{"type":"string"}},"required":["path"],"additionalProperties":false}`,
 	)
+	spec.Replayable = true
+	return spec
 }
 
 func (t *dataQueryTool) Execute(ctx context.Context, raw json.RawMessage) (any, error) {

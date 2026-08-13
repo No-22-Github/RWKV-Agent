@@ -87,6 +87,7 @@ const (
 	rejectedDuplicateCall       = "duplicate_tool_call"
 	rejectedFailureLimit        = "consecutive_tool_failures"
 	rejectedProviderUnavailable = "provider_unavailable"
+	rejectedRescueRestricted    = "rescue_submit_only"
 )
 
 type ToolSpec struct {
@@ -99,6 +100,12 @@ type ToolSpec struct {
 	// real workspace change while retaining duplicate protection within one
 	// revision.
 	MutatesWorkspace bool
+	// Replayable marks a pure read with no observable side effects (calculator,
+	// search, file listing, reads). When a model repeats the identical call, the
+	// runner may re-execute it up to Options.DuplicateReplayLimit times instead
+	// of rejecting it outright, keeping the transcript moving under near-greedy
+	// decoding. Stateful tools (writes, tests, program runs) must stay false.
+	Replayable bool
 }
 
 type Tool interface {
@@ -128,7 +135,25 @@ type Options struct {
 	// EndOnTerminalTool ends the turn as soon as TerminalTool succeeds. This
 	// matches benchmark protocols where submit is itself the scored final action
 	// and avoids spending an extra model turn on a redundant plain-text answer.
-	EndOnTerminalTool    bool
+	EndOnTerminalTool bool
+	// DuplicateReplayLimit re-executes identical calls to Replayable tools
+	// instead of rejecting them, up to this many consecutive identical calls.
+	// Zero keeps the strict rejection behavior. Only the G1i function protocol
+	// with repeated-call rejection honors this knob; other protocols are
+	// unaffected.
+	DuplicateReplayLimit int
+	// DuplicateRescueThreshold switches the run into submit-only rescue mode
+	// after this many consecutive identical calls (replayed or rejected): the
+	// tool catalog is rebuilt to offer only the terminal tool and one explicit
+	// rescue instruction is injected. Zero disables the rescue switch.
+	DuplicateRescueThreshold int
+	// PostToolHook optionally augments the transcript after a successful tool
+	// execution that was not a duplicate replay. The returned text is appended
+	// right next to the tool result, so a scenario-specific reminder reaches
+	// the model exactly when the evidence it references is fresh. Eval suites
+	// register task-specific hooks here; the generic runner stays
+	// scenario-agnostic.
+	PostToolHook         func(name string, arguments json.RawMessage, result any, err error) string
 	Protocol             ActionProtocol
 	Renderer             PromptRenderer
 	Generation           continuation.Request
@@ -232,6 +257,8 @@ type Result struct {
 	Plan                   *PlanTrace  `json:"plan,omitempty"`
 	PlanRejections         int         `json:"plan_rejections,omitempty"`
 	PlanFallbacks          int         `json:"plan_fallbacks,omitempty"`
+	RescueAttempted        bool        `json:"rescue_attempted,omitempty"`
+	RescueSubmitted        bool        `json:"rescue_submitted,omitempty"`
 }
 
 type answerViolation string
@@ -505,6 +532,9 @@ func (r *Runner) RunWithObserver(
 	consecutiveToolFailures := 0
 	lastNativeCallKey := ""
 	nativeRepeatStreak := 0
+	sameCallStreak := 0
+	lastSameCallKey := ""
+	rescueMode := false
 	workspaceRevision := 0
 	stage := StageDecision
 	assistantPrefix := ""
@@ -738,9 +768,16 @@ func (r *Runner) RunWithObserver(
 			append(json.RawMessage(nil), action.Arguments...)
 		var value any
 		duplicate := false
+		replayed := false
 		recoveryBlocked := false
 		executed := false
 		callKey := canonicalToolCall(action)
+		if callKey == lastSameCallKey {
+			sameCallStreak++
+		} else {
+			lastSameCallKey = callKey
+			sameCallStreak = 1
+		}
 		if preservesToolOrder(r.protocol) {
 			if callKey == lastNativeCallKey {
 				nativeRepeatStreak++
@@ -749,15 +786,41 @@ func (r *Runner) RunWithObserver(
 				nativeRepeatStreak = 0
 			}
 		}
+		rescueRestricted := rescueMode && (r.terminalTool == "" || action.Name != r.terminalTool)
 		if _, unavailable := unavailableTools[action.Name]; unavailable {
 			result.Steps[len(result.Steps)-1].ToolRejected = rejectedProviderUnavailable
 			result.Steps[len(result.Steps)-1].ToolUnavailable = true
 			err = fmt.Errorf("%w: %s", ErrProviderUnavailable, action.Name)
+		} else if rescueRestricted {
+			result.Steps[len(result.Steps)-1].ToolRejected = rejectedRescueRestricted
+			if r.terminalTool == "" {
+				err = errors.New("tools are unavailable after repeated identical calls; answer directly")
+			} else {
+				err = fmt.Errorf(
+					"only %s is available after repeated identical calls",
+					r.terminalTool,
+				)
+			}
 		} else if revision, exists := seenSuccessfulToolCalls[callKey]; exists &&
 			revision == workspaceRevision && !allowsRepeatedToolCalls(r.protocol) {
-			duplicate = true
-			result.Steps[len(result.Steps)-1].ToolRejected = rejectedDuplicateCall
-			err = fmt.Errorf("duplicate tool call rejected")
+			// A repeated successful call to a pure read can be re-executed
+			// within the replay budget instead of rejected: re-running returns
+			// the same result and keeps the transcript moving, which matters
+			// under near-greedy decoding where a rejection otherwise drives
+			// the model into emitting the identical call until the step
+			// budget is exhausted.
+			if ok && tool.Spec().Replayable &&
+				r.options.DuplicateReplayLimit > 0 &&
+				sameCallStreak <= r.options.DuplicateReplayLimit {
+				replayed = true
+				executed = true
+				r.observe(Event{Kind: EventToolStart, Step: step, Tool: action.Name}, observer)
+				value, err = tool.Execute(ctx, action.Arguments)
+			} else {
+				duplicate = true
+				result.Steps[len(result.Steps)-1].ToolRejected = rejectedDuplicateCall
+				err = fmt.Errorf("duplicate tool call rejected")
+			}
 		} else if epoch, exists := failedToolCallEpochs[callKey]; exists &&
 			epoch == successfulToolCalls && !allowsRepeatedToolCalls(r.protocol) {
 			duplicate = true
@@ -850,8 +913,10 @@ func (r *Runner) RunWithObserver(
 		)
 		if preservesToolOrder(r.protocol) {
 			switch {
+			case replayed:
+				toolContent += "\nNOTE: " + duplicateReplayNote(sameCallStreak, r.options.MaxSteps-step)
 			case duplicate:
-				toolContent += "\nRECOVERY: This exact call is disabled. Do not repeat it. Use the existing result, change the arguments, choose a different tool, or submit if the task is complete."
+				toolContent += "\nRECOVERY: " + duplicateRejectionNote(sameCallStreak, r.options.MaxSteps-step)
 			case err != nil:
 				toolContent += "\nRECOVERY: " + toolFailureReminder(action.Name, err, recoveryBlocked, r.tools)
 			}
@@ -860,6 +925,14 @@ func (r *Runner) RunWithObserver(
 			toolContent += "\nNOTE: identical tool call repeated. Do not call it again. Take the next step (other file, compute, run_tests, or submit)."
 			if nativeRepeatStreak >= 2 {
 				toolContent += "\nNOTE2: stop repeating. If you already have the answer, call submit now."
+			}
+		}
+		// A hook after the terminal tool is pointless: the turn ends there and
+		// nothing will ever read the reminder, so it would only pollute the
+		// committed transcript.
+		if err == nil && !replayed && action.Name != r.terminalTool && r.options.PostToolHook != nil {
+			if hook := strings.TrimSpace(r.options.PostToolHook(action.Name, action.Arguments, value, nil)); hook != "" {
+				toolContent += "\n" + hook
 			}
 		}
 		toolContent = compactToolResult(task, toolContent)
@@ -898,6 +971,9 @@ func (r *Runner) RunWithObserver(
 				Content:    toolContent,
 			},
 		)
+		if err == nil && rescueMode && action.Name == r.terminalTool {
+			result.RescueSubmitted = true
+		}
 		if err == nil && action.Name == r.terminalTool && r.options.EndOnTerminalTool {
 			output := terminalToolOutput(action, value)
 			result.OriginalOutput = output
@@ -935,8 +1011,94 @@ func (r *Runner) RunWithObserver(
 				})
 			}
 		}
+		if !rescueMode && r.options.DuplicateRescueThreshold > 0 &&
+			preservesToolOrder(r.protocol) && !allowsRepeatedToolCalls(r.protocol) &&
+			sameCallStreak >= r.options.DuplicateRescueThreshold &&
+			(duplicate || replayed || (err != nil && !executed)) {
+			rescueMode = true
+			result.RescueAttempted = true
+			messages = r.enterRescueMode(messages, sameCallStreak, r.options.MaxSteps-step)
+		}
 	}
 	return result, ErrMaxSteps
+}
+
+// duplicateReplayNote accompanies a re-executed identical call to a Replayable
+// tool. The first repeat keeps the gentle framing; further repeats escalate
+// because the transcript has proven that the model is stuck in a loop.
+func duplicateReplayNote(streak, stepsLeft int) string {
+	if streak <= 2 {
+		return fmt.Sprintf(
+			"identical tool call re-executed: this exact call has now run %d times in a row. The result is unchanged; do not call it again. Take the next step: different arguments, another tool, the next row, or submit if you have the answer.",
+			streak,
+		)
+	}
+	return fmt.Sprintf(
+		"STOP. This identical call has now run %d times in a row and the result will not change. You have %d steps left. Change the arguments, choose a different tool, or submit your best answer now.",
+		streak,
+		stepsLeft,
+	)
+}
+
+// duplicateRejectionNote replaces the fixed rejection text with an escalating
+// one. The first rejection keeps the exact legacy wording so one-off repeats
+// behave byte-for-byte like previous releases; further rejections add the
+// streak count and the remaining budget.
+func duplicateRejectionNote(streak, stepsLeft int) string {
+	if streak < 3 {
+		return "This exact call is disabled. Do not repeat it. Use the existing result, change the arguments, choose a different tool, or submit if the task is complete."
+	}
+	return fmt.Sprintf(
+		"STOP repeating. This identical call has now occurred %d times in a row and it will not be accepted again. You have %d steps left. Change the arguments, choose a different tool, or call submit with your best answer now.",
+		streak,
+		stepsLeft,
+	)
+}
+
+// enterRescueMode rebuilds the tool catalog so only the terminal tool remains
+// and injects one explicit rescue instruction as a User turn. A User turn is
+// more salient to the model than text appended after a Function output.
+func (r *Runner) enterRescueMode(messages []Message, streak, stepsLeft int) []Message {
+	specs := r.rescueToolSpecs()
+	control := toolControlPrompt(r.protocol, specs, r.thinkingMode, r.toolCompleter != nil)
+	for index := range messages {
+		if messages[index].Role == RoleSystem {
+			messages[index] = Message{Role: RoleSystem, Content: control}
+		}
+	}
+	return append(messages, Message{
+		Role:    RoleUser,
+		Content: rescueInstruction(r.terminalTool, streak, stepsLeft),
+	})
+}
+
+func (r *Runner) rescueToolSpecs() []ToolSpec {
+	if r.terminalTool == "" {
+		return nil
+	}
+	for _, spec := range r.toolSpecs {
+		if spec.Name == r.terminalTool {
+			return []ToolSpec{spec}
+		}
+	}
+	return nil
+}
+
+func rescueInstruction(terminalTool string, streak, stepsLeft int) string {
+	if terminalTool == "" {
+		return fmt.Sprintf(
+			"The tools have been disabled because the same call was repeated %d times. You have %d steps left. Answer directly now with your best answer from the results you already have.",
+			streak,
+			stepsLeft,
+		)
+	}
+	return fmt.Sprintf(
+		"The other tools have been disabled because the same call was repeated %d times. You have %d steps left. Call %s now with your best answer in this exact shape: {\"name\":\"%s\",\"arguments\":{\"answer\":\"...\"}}",
+		streak,
+		stepsLeft,
+		terminalTool,
+		terminalTool,
+	)
 }
 
 func workspaceChanged(value any) bool {

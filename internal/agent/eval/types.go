@@ -106,28 +106,31 @@ type ModelMetadata struct {
 }
 
 type HarnessMetadata struct {
-	Version                 string `json:"version"`
-	Protocol                string `json:"protocol"`
-	Renderer                string `json:"renderer"`
-	RouteRenderer           string `json:"route_renderer"`
-	RouteProtocol           string `json:"route_protocol"`
-	RouteStage              bool   `json:"route_stage"`
-	ControlPrompt           string `json:"control_prompt"`
-	TaskControl             string `json:"task_control,omitempty"`
-	TerminalTool            string `json:"terminal_tool,omitempty"`
-	EndOnTerminalTool       bool   `json:"end_on_terminal_tool,omitempty"`
-	ThinkingMode            string `json:"thinking_mode"`
-	Reasoning               bool   `json:"reasoning"`
-	FewShot                 bool   `json:"few_shot"`
-	MaxSteps                int    `json:"max_steps"`
-	ProtocolRetries         int    `json:"protocol_retries"`
-	RouteRetries            int    `json:"route_retries"`
-	AnswerMaxOutputTokens   int    `json:"answer_max_output_tokens"`
-	DecisionMaxOutputTokens int    `json:"decision_max_output_tokens"`
-	RouteMaxOutputTokens    int    `json:"route_max_output_tokens"`
-	TracePromptBytes        int    `json:"trace_prompt_bytes"`
-	CaseParallelism         int    `json:"case_parallelism"`
-	ToolProfile             string `json:"tool_profile,omitempty"`
+	Version                  string   `json:"version"`
+	Protocol                 string   `json:"protocol"`
+	Renderer                 string   `json:"renderer"`
+	RouteRenderer            string   `json:"route_renderer"`
+	RouteProtocol            string   `json:"route_protocol"`
+	RouteStage               bool     `json:"route_stage"`
+	ControlPrompt            string   `json:"control_prompt"`
+	TaskControl              string   `json:"task_control,omitempty"`
+	TerminalTool             string   `json:"terminal_tool,omitempty"`
+	EndOnTerminalTool        bool     `json:"end_on_terminal_tool,omitempty"`
+	ThinkingMode             string   `json:"thinking_mode"`
+	Reasoning                bool     `json:"reasoning"`
+	FewShot                  bool     `json:"few_shot"`
+	MaxSteps                 int      `json:"max_steps"`
+	ProtocolRetries          int      `json:"protocol_retries"`
+	RouteRetries             int      `json:"route_retries"`
+	AnswerMaxOutputTokens    int      `json:"answer_max_output_tokens"`
+	DecisionMaxOutputTokens  int      `json:"decision_max_output_tokens"`
+	RouteMaxOutputTokens     int      `json:"route_max_output_tokens"`
+	TracePromptBytes         int      `json:"trace_prompt_bytes"`
+	CaseParallelism          int      `json:"case_parallelism"`
+	ToolProfile              string   `json:"tool_profile,omitempty"`
+	DuplicateReplayLimit     int      `json:"duplicate_replay_limit"`
+	DuplicateRescueThreshold int      `json:"duplicate_rescue_threshold"`
+	ScenarioHooks            []string `json:"scenario_hooks,omitempty"`
 }
 
 type EnvironmentMetadata struct {
@@ -182,6 +185,8 @@ type Metrics struct {
 	DuplicateCalls       int   `json:"duplicate_tool_calls"`
 	RecoveryBlocks       int   `json:"recovery_blocked_calls"`
 	ForcedAnswers        int   `json:"forced_answers"`
+	RescueAttempts       int   `json:"rescue_attempts"`
+	RescueSubmits        int   `json:"rescue_submits"`
 	ProtocolRetries      int   `json:"protocol_retries"`
 	ProtocolRepairs      int   `json:"protocol_repairs"`
 	AnswerStageToolCalls int   `json:"answer_stage_tool_calls"`

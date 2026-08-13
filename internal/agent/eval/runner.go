@@ -174,28 +174,31 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 		StartedAt:     started,
 		Model:         config.Model,
 		Harness: HarnessMetadata{
-			Version:                 HarnessVersion,
-			Protocol:                protocol.ID(),
-			Renderer:                renderer.ID(),
-			RouteRenderer:           routeRenderer.ID(),
-			RouteProtocol:           routeProtocol,
-			RouteStage:              config.Runner.Router != nil,
-			ControlPrompt:           string(controlPrompt),
-			TaskControl:             config.Runner.TaskControl,
-			TerminalTool:            config.Runner.TerminalTool,
-			EndOnTerminalTool:       config.Runner.EndOnTerminalTool,
-			ThinkingMode:            string(thinkingMode),
-			Reasoning:               thinkingMode != inference.ThinkingOff,
-			FewShot:                 fewShot,
-			MaxSteps:                config.Runner.MaxSteps,
-			ProtocolRetries:         config.Runner.ProtocolRetries,
-			RouteRetries:            config.Runner.RouteRetries,
-			AnswerMaxOutputTokens:   config.Runner.Generation.MaxOutputTokens,
-			DecisionMaxOutputTokens: config.Runner.DecisionMaxOutputTokens,
-			RouteMaxOutputTokens:    config.Runner.RouteMaxOutputTokens,
-			TracePromptBytes:        config.Runner.TracePromptBytes,
-			CaseParallelism:         config.CaseParallelism,
-			ToolProfile:             config.PrimitiveProfile,
+			Version:                  HarnessVersion,
+			Protocol:                 protocol.ID(),
+			Renderer:                 renderer.ID(),
+			RouteRenderer:            routeRenderer.ID(),
+			RouteProtocol:            routeProtocol,
+			RouteStage:               config.Runner.Router != nil,
+			ControlPrompt:            string(controlPrompt),
+			TaskControl:              config.Runner.TaskControl,
+			TerminalTool:             config.Runner.TerminalTool,
+			EndOnTerminalTool:        config.Runner.EndOnTerminalTool,
+			ThinkingMode:             string(thinkingMode),
+			Reasoning:                thinkingMode != inference.ThinkingOff,
+			FewShot:                  fewShot,
+			MaxSteps:                 config.Runner.MaxSteps,
+			ProtocolRetries:          config.Runner.ProtocolRetries,
+			RouteRetries:             config.Runner.RouteRetries,
+			AnswerMaxOutputTokens:    config.Runner.Generation.MaxOutputTokens,
+			DecisionMaxOutputTokens:  config.Runner.DecisionMaxOutputTokens,
+			RouteMaxOutputTokens:     config.Runner.RouteMaxOutputTokens,
+			TracePromptBytes:         config.Runner.TracePromptBytes,
+			CaseParallelism:          config.CaseParallelism,
+			ToolProfile:              config.PrimitiveProfile,
+			DuplicateReplayLimit:     config.Runner.DuplicateReplayLimit,
+			DuplicateRescueThreshold: config.Runner.DuplicateRescueThreshold,
+			ScenarioHooks:            primitiveScenarioHookDescriptions(config.Cases),
 		},
 		Sampling: samplingSnapshot(config.Runner.Generation.Sampling),
 		Environment: EnvironmentMetadata{
@@ -262,6 +265,7 @@ func runCase(
 			options.TerminalTool = "submit"
 			options.EndOnTerminalTool = true
 		}
+		options.PostToolHook = primitiveScenarioHook(testCase.ID, testCase.primitive)
 	}
 	runner, err := agent.NewRunner(recording, tools, options)
 	if err != nil {
@@ -911,6 +915,12 @@ func summarize(
 			}
 			if turnResult.Result.ForcedAnswerReason != "" {
 				summary.Metrics.ForcedAnswers++
+			}
+			if turnResult.Result.RescueAttempted {
+				summary.Metrics.RescueAttempts++
+			}
+			if turnResult.Result.RescueSubmitted {
+				summary.Metrics.RescueSubmits++
 			}
 		}
 	}
