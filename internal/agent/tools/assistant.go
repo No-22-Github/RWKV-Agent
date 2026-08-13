@@ -284,6 +284,7 @@ func (calculatorTool) Spec() agent.ToolSpec {
 		`{"type":"object","properties":{"expression":{"type":"string","minLength":1,"maxLength":4096},"precision":{"type":"integer","minimum":0,"maximum":15}},"required":["expression"],"additionalProperties":false}`,
 	)
 	spec.Replayable = true
+	spec.Example = `{"expression":"4500*0.082*30/365","precision":2}`
 	return spec
 }
 
@@ -815,6 +816,7 @@ func (*dataQueryTool) Spec() agent.ToolSpec {
 		`{"type":"object","properties":{"path":{"type":"string","minLength":1},"filter":{"type":"object","additionalProperties":{}},"select":{"type":"string"},"group_by":{"type":"string"},"operation":{"type":"string","enum":["count","sum","avg","min","max","distinct_count"]},"field":{"type":"string"},"expression":{"type":"string"}},"required":["path"],"additionalProperties":false}`,
 	)
 	spec.Replayable = true
+	spec.Example = `{"path":"orders.csv","operation":"sum","expression":"qty*unit_price","group_by":"sku"}`
 	return spec
 }
 
@@ -1048,10 +1050,18 @@ func aggregateDataRows(rows []map[string]any, specs []dataQueryAggregate) (map[s
 					value = math.Max(value, item)
 				}
 			}
-			result[spec.As] = value
+			result[spec.As] = cleanFloatNoise(value)
 		}
 	}
 	return result, nil
+}
+
+// cleanFloatNoise removes binary accumulation artifacts such as
+// 438.72000000000003 so aggregated money values marshal back as the decimal
+// the source rows actually carry. A 1e-6 round keeps genuine sub-cent
+// precision intact while discarding float64 noise.
+func cleanFloatNoise(value float64) float64 {
+	return math.Round(value*1e6) / 1e6
 }
 
 func dataAggregateValue(row map[string]any, spec dataQueryAggregate) (float64, error) {

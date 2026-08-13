@@ -106,6 +106,11 @@ type ToolSpec struct {
 	// of rejecting it outright, keeping the transcript moving under near-greedy
 	// decoding. Stateful tools (writes, tests, program runs) must stay false.
 	Replayable bool
+	// Example is a rendered JSON example of one valid arguments payload, shown
+	// in the invalid-argument recovery text. Small models copy the schema shape
+	// verbatim ("expression":{"type":"string"}) when the recovery echoes the
+	// schema; a concrete literal example breaks that loop.
+	Example string
 }
 
 type Tool interface {
@@ -1283,6 +1288,14 @@ func toolFailureReminder(
 				name,
 				tool.Spec().Arguments,
 			)
+			if example := strings.TrimSpace(tool.Spec().Example); example != "" {
+				fmt.Fprintf(
+					&prompt,
+					"A valid call uses literal values, never type descriptions: {\"name\":\"%s\",\"arguments\":%s}. ",
+					name,
+					example,
+				)
+			}
 		}
 		prompt.WriteString("Do not add optional limit, byte, offset, or pagination fields unless the schema lists them.")
 		return prompt.String()

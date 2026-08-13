@@ -182,6 +182,7 @@ func (e *primitiveExecution) tool(name string) (agent.Tool, error) {
 				Replayable: name == "multiply" || name == "list_files" ||
 					name == "ls" || name == "stat" || name == "read_file" ||
 					name == "search" || name == "run_awk",
+				Example: primitiveToolExample(name),
 			},
 			execute: execute,
 		}
@@ -296,6 +297,34 @@ func (e *primitiveExecution) tool(name string) (agent.Tool, error) {
 	default:
 		return nil, fmt.Errorf("unsupported Primitive Bench tool %q", name)
 	}
+}
+
+// primitiveToolExample renders one valid arguments payload per tool for the
+// invalid-argument recovery text. Concrete literals keep small models from
+// copying the schema shape ("expression":{"type":"string"}) as if it were a
+// value.
+func primitiveToolExample(name string) string {
+	switch name {
+	case "multiply":
+		return `{"a":4827,"b":391}`
+	case "list_files", "ls":
+		return `{"path":"."}`
+	case "stat", "read_file":
+		return `{"path":"README.md"}`
+	case "write_file":
+		return `{"path":"settings.txt","content":"color=green"}`
+	case "chmod":
+		return `{"path":"script.sh","mode":"755"}`
+	case "run_file":
+		return `{"path":"script.sh"}`
+	case "run_awk":
+		return `{"script_path":"fmt.awk","input_path":"data.txt"}`
+	case "search":
+		return `{"query":"checkout"}`
+	case "submit":
+		return `{"answer":"green"}`
+	}
+	return ""
 }
 
 func (e *primitiveExecution) multiply(_ context.Context, raw json.RawMessage) (any, error) {

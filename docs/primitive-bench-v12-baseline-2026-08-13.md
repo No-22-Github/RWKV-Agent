@@ -388,3 +388,32 @@ config_precedence 5 步 vs 12 步）和边缘题的 think 文本，说明服务�
   逐题一致**，零回归；jsonl 16→11 步，其余题轨迹不受影响。
 
 至此正式确定成绩：**贪心 top-k=1 下 23/30**，回放/救援/螺旋守卫/场景钩子全部开启。
+
+## D 方案实验：任务级工具筛选（负向结果，已撤回）
+
+针对 `jsonl_event_aggregate` / `csv_reconcile_returns` 做了 5 个贪心变体：
+
+1. jsonl 去 calculator + data_query 描述给 sum 行过滤示例：最接近，提交
+   `orders=6 users=6 revenue=438.72`（3 个数字对 2 个，users 应为 5）；
+2. jsonl 示例换成 distinct_count：回退（orders=5 users=5 revenue=224.75）；
+3. 错误回执加具体值示例：模型仍组合不出合法调用；
+4. 场景钩子注入方法级提醒：jsonl 被带离好路径，csv 轨迹与无钩子逐字相同；
+5. jsonl 恢复 calculator + 钩子强制手工路径：失败且 required-tool 掉到 75%。
+
+结论：7B 在贪心下对 data_query 的 schema 组合是硬墙——首次调用必带畸形
+（把 schema 形状 `{"type":"string"}` 当值发），且 csv 的畸形轨迹对提示词变化完全
+锁死。D 方案提分假设被证伪，任务级覆盖全部撤回。jsonl 的 2/3 正确轨迹证明模型
+能理解行级过滤语义，但工具 schema 与模型不匹配，属数据层而非提示层问题。
+
+实验中沉淀的两个保留改动：
+
+- `data_query` 聚合结果 1e-6 圆整（`cleanFloatNoise`）：438.72 不再以
+  `438.72000000000003` 出现在结果里，避免精确匹配 scorer 因浮点噪声判负；
+- `ToolSpec.Example`：参数错误回执在 schema 形状之外附带一个具体值示例，抑制
+  模型照抄 schema 当值的循环。
+
+撤回后的全量贪心回归 `runs/primitive-v21-greedy-batch30b-20260814`：**24/30**，
+`config_precedence_resolve` 本轮通过（该题在 v18 后第 2 次通过，属不稳定边界题），
+其余通过集合与 v20 一致，保留改动零回归。首轮 30 并发遭遇 HTTP 520 风暴作废
+（`runs/primitive-v21-greedy-batch30-20260814`，部署层瞬时故障，同今日早前 13B
+合批事件）。

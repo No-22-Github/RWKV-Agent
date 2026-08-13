@@ -246,3 +246,30 @@ func findTool(t *testing.T, tools []agent.Tool, name string) agent.Tool {
 	t.Fatalf("tool %q not found", name)
 	return nil
 }
+
+func TestAggregateSumMarshalsCleanDecimal(t *testing.T) {
+	rows := []map[string]any{
+		{"amount": 49.99}, {"amount": 80.00}, {"amount": 12.50},
+		{"amount": 100.25}, {"amount": 63.00}, {"amount": 132.98},
+	}
+	result, err := aggregateDataRows(rows, []dataQueryAggregate{{Op: "sum", Field: "amount", As: "value"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	encoded, err := json.Marshal(result["value"])
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(encoded) != "438.72" {
+		t.Fatalf("aggregated sum marshals as %s, want 438.72", encoded)
+	}
+}
+
+func TestCleanFloatNoisePreservesSubCentPrecision(t *testing.T) {
+	if value := cleanFloatNoise(0.1888); value != 0.1888 {
+		t.Fatalf("cleanFloatNoise(0.1888) = %v", value)
+	}
+	if value := cleanFloatNoise(438.72000000000003); value != 438.72 {
+		t.Fatalf("cleanFloatNoise(438.72000000000003) = %v", value)
+	}
+}
