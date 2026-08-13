@@ -183,6 +183,34 @@ Toolcall-Bench 的 280 样本格式探测也支持继续使用当前 G1I 主路�
 
 - `runs/primitive-v15-go-native-13b-final-healthy-batch30-20260813`
 
+## v17 第一批工具层实验
+
+第一批实现分成两层：
+
+- 通用 Runner 用 workspace revision 记录真实修改。成功的读文件或测试只在工作区确实变化后
+  才允许同参数重试；无变化写入返回 `changed=false`，不会伪造一次新的 revision。
+- 新增可选 `TableTools` 能力包，提供 `table_select`、`table_count`、`table_sum`，支持
+  CSV/TSV/JSON/JSONL 的精确过滤、分组、去重计数和行表达式求和。它不默认加入
+  `CoreTools`，由上层在确认任务需要结构化数据时按需装配。
+
+最初将三个表格工具直接加入 Go-native 默认工具目录的 30 并发实验只有 **13/30**：虽然新通过
+了 `jsonl_event_aggregate`，但丢失了 v15 已通过的 8 题，净回退 7 分。这证明 7B 对工具目录
+宽度和描述非常敏感；工具实现正确并不等于应该全局暴露。该默认暴露方案已撤回，失败产物仅作
+负向实验留档：
+
+- `runs/primitive-v17-go-native-first-batch-final-20260813`
+
+恢复 v15 默认工具目录、仅保留 revision/no-op 语义后的完整轮为 **19/30**。相对 v15 丢失
+`search_read_submit`、`invoice_fix`，新增通过 `read_only_repo_explain`；随后对前两题和
+`code_patch_edge_case` 复测，前两题均重新通过，确认单轮净 -1 属于生成波动，不是稳定工具层
+回归。代码修复题仍失败：回执正确识别模型写回原内容和重复测试，但 7B 没有据此生成有效补丁。
+
+- 守分轮：`runs/primitive-v17-go-native-first-batch-safe-final-20260813`
+- 三题复测：`runs/primitive-v17-go-native-first-batch-rerun-3cases-20260813`
+
+因此本批结论不是“多注册几个工具”，而是把结构化数据能力做成可选能力包，并保留可验证的工作区
+状态语义。下一步若要让表格工具稳定贡献分数，应先做任务级工具筛选，而不是继续扩大全局 schema。
+
 ```sh
 go run ./cmd/rwkv-cli agent-eval \
   --completion rwkv-lightning \

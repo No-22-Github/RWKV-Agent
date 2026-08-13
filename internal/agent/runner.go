@@ -95,11 +95,22 @@ type ToolSpec struct {
 	Arguments   string
 	Parameters  json.RawMessage
 	Strict      bool
+	// MutatesWorkspace allows successful reads or tests to be repeated after a
+	// real workspace change while retaining duplicate protection within one
+	// revision.
+	MutatesWorkspace bool
 }
 
 type Tool interface {
 	Spec() ToolSpec
 	Execute(context.Context, json.RawMessage) (any, error)
+}
+
+// WorkspaceMutationResult lets a mutating tool report a successful no-op.
+// Tools marked MutatesWorkspace default to changed when they do not implement
+// this interface.
+type WorkspaceMutationResult interface {
+	WorkspaceChanged() bool
 }
 
 type Options struct {
@@ -483,7 +494,7 @@ func (r *Runner) RunWithObserver(
 	turnMessages := []Message{{Role: RoleUser, Content: task}}
 	retries := 0
 	routeViolations := 0
-	seenSuccessfulToolCalls := make(map[string]struct{})
+	seenSuccessfulToolCalls := make(map[string]int)
 	failedToolCallEpochs := make(map[string]int)
 	unavailableTools := make(map[string]struct{})
 	var unverified []string
@@ -494,6 +505,7 @@ func (r *Runner) RunWithObserver(
 	consecutiveToolFailures := 0
 	lastNativeCallKey := ""
 	nativeRepeatStreak := 0
+	workspaceRevision := 0
 	stage := StageDecision
 	assistantPrefix := ""
 	forceAnswer := false
@@ -741,7 +753,8 @@ func (r *Runner) RunWithObserver(
 			result.Steps[len(result.Steps)-1].ToolRejected = rejectedProviderUnavailable
 			result.Steps[len(result.Steps)-1].ToolUnavailable = true
 			err = fmt.Errorf("%w: %s", ErrProviderUnavailable, action.Name)
-		} else if _, exists := seenSuccessfulToolCalls[callKey]; exists && !allowsRepeatedToolCalls(r.protocol) {
+		} else if revision, exists := seenSuccessfulToolCalls[callKey]; exists &&
+			revision == workspaceRevision && !allowsRepeatedToolCalls(r.protocol) {
 			duplicate = true
 			result.Steps[len(result.Steps)-1].ToolRejected = rejectedDuplicateCall
 			err = fmt.Errorf("duplicate tool call rejected")
@@ -795,8 +808,11 @@ func (r *Runner) RunWithObserver(
 				// must not consume the runtime failure budget. A corrected call
 				// to the same tool still needs a chance to execute.
 			} else if err == nil {
-				seenSuccessfulToolCalls[callKey] = struct{}{}
+				seenSuccessfulToolCalls[callKey] = workspaceRevision
 				delete(failedToolCallEpochs, callKey)
+				if tool.Spec().MutatesWorkspace && workspaceChanged(value) {
+					workspaceRevision++
+				}
 				consecutiveFailedTool = ""
 				consecutiveToolFailures = 0
 			} else if action.Name == consecutiveFailedTool {
@@ -921,6 +937,11 @@ func (r *Runner) RunWithObserver(
 		}
 	}
 	return result, ErrMaxSteps
+}
+
+func workspaceChanged(value any) bool {
+	result, ok := value.(WorkspaceMutationResult)
+	return !ok || result.WorkspaceChanged()
 }
 
 func answerContainsToolFrame(content string) bool {

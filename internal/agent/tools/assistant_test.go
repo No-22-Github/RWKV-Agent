@@ -6,6 +6,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/no22/RWKV-Agent/internal/agent"
@@ -127,6 +128,90 @@ func TestDataQueryGroupsComputedCSVValues(t *testing.T) {
 	result := value.(dataQueryResult)
 	if len(result.Groups) != 2 || result.Groups[0]["sku"] != "SKU-17" || result.Groups[0]["value"] != float64(1349) {
 		t.Fatalf("group result = %+v", result)
+	}
+}
+
+func TestNarrowTableToolsSelectAndAggregateRows(t *testing.T) {
+	root := t.TempDir()
+	if err := os.WriteFile(filepath.Join(root, "events.jsonl"), []byte(
+		"{\"event\":\"checkout\",\"status\":\"success\",\"user\":\"u1\",\"amount\":49.99}\n"+
+			"{\"event\":\"checkout\",\"status\":\"failed\",\"user\":\"u2\",\"amount\":19.99}\n"+
+			"{\"event\":\"checkout\",\"status\":\"success\",\"user\":\"u2\",\"amount\":80}\n",
+	), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	tools, err := TableTools(Options{Workspace: root})
+	if err != nil {
+		t.Fatal(err)
+	}
+	selectTool := findTool(t, tools, "table_select")
+	selected, err := selectTool.Execute(context.Background(), json.RawMessage(`{
+		"path":"events.jsonl",
+		"filter":{"event":"checkout","status":"success"},
+		"columns":"user,amount"
+	}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	selection := selected.(tableSelectResult)
+	if selection.RowsRead != 3 || selection.MatchedRows != 2 || len(selection.Rows) != 2 {
+		t.Fatalf("selection = %+v", selection)
+	}
+
+	aggregateTool := findTool(t, tools, "table_sum")
+	summed, err := aggregateTool.Execute(context.Background(), json.RawMessage(`{
+		"path":"events.jsonl",
+		"filter":{"event":"checkout","status":"success"},
+		"value":"amount"
+	}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	summary := summed.(tableAggregateResult)
+	if summary.RowsRead != 3 || summary.MatchedRows != 2 || summary.Value != float64(129.99) {
+		t.Fatalf("sum = %+v", summary)
+	}
+	countTool := findTool(t, tools, "table_count")
+	distinct, err := countTool.Execute(context.Background(), json.RawMessage(`{
+		"path":"events.jsonl",
+		"filter":{"event":"checkout","status":"success"},
+		"group_by":"user"
+	}`))
+	if err != nil || distinct.(tableAggregateResult).GroupCount != 2 {
+		t.Fatalf("distinct = %+v, error = %v", distinct, err)
+	}
+}
+
+func TestTableAggregateGroupsExpressionsAndGuidesInvalidFields(t *testing.T) {
+	root := t.TempDir()
+	if err := os.WriteFile(filepath.Join(root, "orders.csv"), []byte(
+		"sku,qty,unit_price\nSKU-17,3,250\nSKU-42,4,180\nSKU-17,2,299.5\n",
+	), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	tools, err := TableTools(Options{Workspace: root})
+	if err != nil {
+		t.Fatal(err)
+	}
+	aggregateTool := findTool(t, tools, "table_sum")
+	value, err := aggregateTool.Execute(context.Background(), json.RawMessage(`{
+		"path":"orders.csv",
+		"value":"qty*unit_price",
+		"group_by":"sku"
+	}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	result := value.(tableAggregateResult)
+	if result.RowsRead != 3 || len(result.Groups) != 2 ||
+		result.Groups[0]["sku"] != "SKU-17" || result.Groups[0]["value"] != float64(1349) {
+		t.Fatalf("groups = %+v", result)
+	}
+	_, err = aggregateTool.Execute(context.Background(), json.RawMessage(`{
+		"path":"orders.csv","value":"missing"
+	}`))
+	if !errors.Is(err, agent.ErrInvalidToolArguments) || !strings.Contains(err.Error(), "available columns: qty, sku, unit_price") {
+		t.Fatalf("invalid field error = %v", err)
 	}
 }
 

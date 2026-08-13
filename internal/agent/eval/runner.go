@@ -326,6 +326,7 @@ func evalTools(
 ) ([]agent.Tool, *primitiveExecution, error) {
 	if testCase.primitive != nil {
 		execution := newPrimitiveExecution(workspace, testCase.primitive)
+		execution.goNative = config.PrimitiveProfile == PrimitiveProfileGoNative
 		tools, err := execution.tools()
 		if err != nil {
 			return nil, nil, err

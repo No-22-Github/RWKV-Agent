@@ -26,14 +26,29 @@ import (
 const primitiveToolOutputLimit = 4000
 
 type primitiveExecution struct {
-	root           string
-	runtime        *primitiveRuntime
-	modes          map[string]string
-	testsPassed    bool
-	lastTestOutput string
-	lastRunOutput  string
-	submitted      string
+	root                 string
+	runtime              *primitiveRuntime
+	modes                map[string]string
+	goNative             bool
+	revision             int
+	lastWriteChanged     bool
+	previousTestRevision *int
+	testsPassed          bool
+	lastTestOutput       string
+	lastRunOutput        string
+	submitted            string
 }
+
+type primitiveWriteResult struct {
+	Status   string `json:"status"`
+	Path     string `json:"path"`
+	Changed  bool   `json:"changed"`
+	Revision string `json:"revision"`
+	Lines    int    `json:"lines"`
+	Message  string `json:"message"`
+}
+
+func (r primitiveWriteResult) WorkspaceChanged() bool { return r.Changed }
 
 type limitedPrimitiveOutput struct {
 	buffer    bytes.Buffer
@@ -94,13 +109,15 @@ func (e *primitiveExecution) tools() ([]agent.Tool, error) {
 func (e *primitiveExecution) tool(name string) (agent.Tool, error) {
 	makeTool := func(description, arguments, parameters string, execute func(context.Context, json.RawMessage) (any, error)) agent.Tool {
 		strict := name != "write_file" && name != "list_schedules"
+		mutatesWorkspace := name == "write_file"
 		return primitiveTool{
 			spec: agent.ToolSpec{
-				Name:        name,
-				Description: description,
-				Arguments:   arguments,
-				Parameters:  json.RawMessage(parameters),
-				Strict:      strict,
+				Name:             name,
+				Description:      description,
+				Arguments:        arguments,
+				Parameters:       json.RawMessage(parameters),
+				Strict:           strict,
+				MutatesWorkspace: mutatesWorkspace,
 			},
 			execute: execute,
 		}
@@ -142,8 +159,12 @@ func (e *primitiveExecution) tool(name string) (agent.Tool, error) {
 			e.readFile,
 		), nil
 	case "write_file":
+		description := "Overwrite one file in the isolated project with complete string content or an array of lines."
+		if e.goNative {
+			description = "Write complete file content and report changed=false when the content is identical."
+		}
 		return makeTool(
-			"Overwrite one file in the isolated project with complete string content or an array of lines.",
+			description,
 			`{"path":"relative file path","content":"full text or array of lines"}`,
 			`{"type":"object","properties":{"path":{"type":"string"},"content":{"type":["string","array"],"items":{"type":"string"}}},"required":["path","content"],"additionalProperties":false}`,
 			e.writeFile,
@@ -184,8 +205,12 @@ func (e *primitiveExecution) tool(name string) (agent.Tool, error) {
 			e.search,
 		), nil
 	case "run_tests":
+		description := "Run the case's deterministic emulated test suite and return PASS or FAIL."
+		if e.goNative {
+			description = "Run deterministic tests and report status plus whether the workspace changed since the previous test."
+		}
 		return makeTool(
-			"Run the case's deterministic emulated test suite and return PASS or FAIL.",
+			description,
 			`{}`,
 			`{"type":"object","properties":{},"required":[],"additionalProperties":false}`,
 			e.runTests,
@@ -334,16 +359,39 @@ func (e *primitiveExecution) writeFile(_ context.Context, raw json.RawMessage) (
 		return nil, err
 	}
 	content = stripNumberedReadback(content)
+	changed := true
+	if previous, readErr := os.ReadFile(target); readErr == nil {
+		changed = !bytes.Equal(previous, []byte(content))
+	} else if !errors.Is(readErr, os.ErrNotExist) {
+		return nil, readErr
+	}
 	if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
 		return nil, err
 	}
-	if err := os.WriteFile(target, []byte(content), 0o600); err != nil {
-		return nil, err
+	if changed {
+		if err := os.WriteFile(target, []byte(content), 0o600); err != nil {
+			return nil, err
+		}
+		e.revision++
 	}
 	if _, ok := e.modes[relative]; !ok {
 		e.modes[relative] = "rw-"
 	}
-	return fmt.Sprintf("ok: wrote %s (%d lines)", relative, len(strings.Split(strings.TrimSuffix(content, "\n"), "\n"))), nil
+	lines := len(strings.Split(strings.TrimSuffix(content, "\n"), "\n"))
+	if !e.goNative {
+		return fmt.Sprintf("ok: wrote %s (%d lines)", relative, lines), nil
+	}
+	e.lastWriteChanged = changed
+	status := "changed"
+	message := "File content changed."
+	if !changed {
+		status = "no_change"
+		message = "Content is identical; inspect the requirements before retrying the same edit."
+	}
+	return primitiveWriteResult{
+		Status: status, Path: relative, Changed: changed,
+		Revision: e.revisionID(), Lines: lines, Message: message,
+	}, nil
 }
 
 func (e *primitiveExecution) chmod(_ context.Context, raw json.RawMessage) (any, error) {
@@ -623,7 +671,31 @@ func (e *primitiveExecution) runTests(_ context.Context, raw json.RawMessage) (a
 	default:
 		e.runInvoiceTests()
 	}
-	return e.lastTestOutput, nil
+	if !e.goNative {
+		return e.lastTestOutput, nil
+	}
+	var changedSincePrevious *bool
+	if e.previousTestRevision != nil {
+		changed := *e.previousTestRevision != e.revision
+		changedSincePrevious = &changed
+	}
+	currentRevision := e.revision
+	e.previousTestRevision = &currentRevision
+	status := "FAIL"
+	if e.testsPassed {
+		status = "PASS"
+	}
+	return struct {
+		Status                   string `json:"status"`
+		Output                   string `json:"output"`
+		WorkspaceRevision        string `json:"workspace_revision"`
+		LastWriteChanged         bool   `json:"last_write_changed"`
+		ChangedSincePreviousTest *bool  `json:"changed_since_previous_test,omitempty"`
+	}{status, e.lastTestOutput, e.revisionID(), e.lastWriteChanged, changedSincePrevious}, nil
+}
+
+func (e *primitiveExecution) revisionID() string {
+	return fmt.Sprintf("r%d", e.revision)
 }
 
 func (e *primitiveExecution) runInvoiceTests() {

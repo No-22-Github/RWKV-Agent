@@ -740,6 +740,41 @@ func TestRunnerRejectsToolCallDuringAnswerStage(t *testing.T) {
 	}
 }
 
+func TestRunnerAllowsRepeatedReadAfterWorkspaceMutation(t *testing.T) {
+	t.Parallel()
+	outputs := []string{
+		`<tool_call>{"name":"counting_echo","arguments":{"value":"same"}}</tool_call>`,
+		`<tool_call>{"name":"mutation","arguments":{}}</tool_call>`,
+		`<tool_call>{"name":"counting_echo","arguments":{"value":"same"}}</tool_call>`,
+		"done",
+	}
+	index := 0
+	reads := 0
+	runner, err := NewRunner(
+		continuation.GenerateFunc(func(
+			context.Context,
+			continuation.Request,
+			continuation.EventSink,
+		) (continuation.Result, error) {
+			result := continuation.Result{Text: outputs[index], FinishReason: continuation.FinishStop}
+			index++
+			return result, nil
+		}),
+		[]Tool{&countingEchoTool{calls: &reads}, mutationTool{}},
+		Options{MaxSteps: 4},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "Read, mutate, then read again.")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if reads != 2 || result.Output != "done" || !result.Steps[2].ToolExecuted {
+		t.Fatalf("revision-aware result = %+v, reads = %d", result, reads)
+	}
+}
+
 func TestRunnerDuplicateFailedCallForcesLimitedAnswer(t *testing.T) {
 	t.Parallel()
 	outputs := []string{
@@ -1692,6 +1727,25 @@ func TestRunnerRollsBackMultiToolTurnWhenForcedAnswerFails(t *testing.T) {
 }
 
 type echoTool struct{}
+
+type mutationTool struct{}
+
+type mutationResult struct{ changed bool }
+
+func (r mutationResult) WorkspaceChanged() bool { return r.changed }
+
+func (mutationTool) Spec() ToolSpec {
+	return ToolSpec{
+		Name:             "mutation",
+		Description:      "Mutate the workspace.",
+		Arguments:        `{}`,
+		MutatesWorkspace: true,
+	}
+}
+
+func (mutationTool) Execute(context.Context, json.RawMessage) (any, error) {
+	return mutationResult{changed: true}, nil
+}
 
 func (echoTool) Spec() ToolSpec {
 	return ToolSpec{

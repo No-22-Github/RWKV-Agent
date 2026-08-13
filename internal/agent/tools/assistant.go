@@ -13,6 +13,7 @@ import (
 	"math"
 	"os"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -94,6 +95,21 @@ func CoreTools(options Options) ([]agent.Tool, error) {
 	return []agent.Tool{
 		calculatorTool{},
 		&dataQueryTool{workspace: resolver},
+	}, nil
+}
+
+// TableTools returns optional, action-specific tools for structured data.
+// They are kept out of CoreTools so smaller models are not forced to choose
+// from a wider catalog when a task does not need table operations.
+func TableTools(options Options) ([]agent.Tool, error) {
+	resolver, err := agent.NewWorkspaceResolver(options.Workspace)
+	if err != nil {
+		return nil, err
+	}
+	return []agent.Tool{
+		&tableSelectTool{workspace: resolver},
+		&tableCountTool{workspace: resolver},
+		&tableSumTool{workspace: resolver},
 	}, nil
 }
 
@@ -444,6 +460,349 @@ type dataQueryResult struct {
 	Rows        []map[string]any `json:"rows,omitempty"`
 	Value       any              `json:"value,omitempty"`
 	Groups      []map[string]any `json:"groups,omitempty"`
+}
+
+type tableSelectTool struct{ workspace *agent.WorkspaceResolver }
+
+type tableSelectRequest struct {
+	Path    string         `json:"path"`
+	Filter  map[string]any `json:"filter,omitempty"`
+	Columns string         `json:"columns,omitempty"`
+}
+
+type tableSelectResult struct {
+	RowsRead    int              `json:"rows_read"`
+	MatchedRows int              `json:"matched_rows"`
+	Columns     []string         `json:"columns"`
+	Rows        []map[string]any `json:"rows"`
+}
+
+func (*tableSelectTool) Spec() agent.ToolSpec {
+	return strictSpec(
+		"table_select",
+		"Select filtered table rows; columns is a comma-separated string and filter is a direct column-value object.",
+		`{"path":"string","filter":{"column":"exact value"},"columns":"comma-separated columns"}`,
+		`{"type":"object","properties":{"path":{"type":"string","minLength":1},"filter":{"type":"object","additionalProperties":{}},"columns":{"type":"string"}},"required":["path"],"additionalProperties":false}`,
+	)
+}
+
+func (t *tableSelectTool) Execute(ctx context.Context, raw json.RawMessage) (any, error) {
+	var args tableSelectRequest
+	if err := decodeArguments(raw, &args); err != nil {
+		return nil, err
+	}
+	rows, err := readTableRows(ctx, t.workspace, args.Path)
+	if err != nil {
+		return nil, err
+	}
+	columns := tableColumns(rows)
+	selected := splitDataFields(args.Columns)
+	if err := validateTableFields(selected, columns, "columns"); err != nil {
+		return nil, invalidArguments("%v; available columns: %s", err, strings.Join(columns, ", "))
+	}
+	if err := validateTableFields(sortedMapKeysAny(args.Filter), columns, "filter"); err != nil {
+		return nil, invalidArguments("%v; available columns: %s", err, strings.Join(columns, ", "))
+	}
+	matched := filterDataRows(rows, args.Filter)
+	if len(selected) == 0 {
+		selected = columns
+	}
+	return tableSelectResult{
+		RowsRead:    len(rows),
+		MatchedRows: len(matched),
+		Columns:     selected,
+		Rows:        selectDataRows(matched, selected, 100),
+	}, nil
+}
+
+func readTableRows(
+	ctx context.Context,
+	workspace *agent.WorkspaceResolver,
+	path string,
+) ([]map[string]any, error) {
+	if strings.TrimSpace(path) == "" {
+		return nil, invalidArguments("path is required")
+	}
+	target, err := workspace.Resolve(path)
+	if err != nil {
+		return nil, invalidArguments("path: %v", err)
+	}
+	rows, err := readStructuredRows(ctx, target)
+	if err != nil {
+		return nil, err
+	}
+	return rows, nil
+}
+
+func tableColumns(rows []map[string]any) []string {
+	set := make(map[string]struct{})
+	for _, row := range rows {
+		for name := range row {
+			set[name] = struct{}{}
+		}
+	}
+	columns := make([]string, 0, len(set))
+	for name := range set {
+		columns = append(columns, name)
+	}
+	sort.Strings(columns)
+	return columns
+}
+
+func sortedMapKeysAny(value map[string]any) []string {
+	keys := make([]string, 0, len(value))
+	for key := range value {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	return keys
+}
+
+func validateTableFields(fields, columns []string, label string) error {
+	available := make(map[string]struct{}, len(columns))
+	for _, column := range columns {
+		available[column] = struct{}{}
+	}
+	for _, field := range fields {
+		if _, ok := available[field]; !ok {
+			return fmt.Errorf("%s field %q is missing", label, field)
+		}
+	}
+	return nil
+}
+
+func filterDataRows(rows []map[string]any, filter map[string]any) []map[string]any {
+	matched := make([]map[string]any, 0, len(rows))
+	for _, row := range rows {
+		if dataRowMatches(row, filter) {
+			matched = append(matched, row)
+		}
+	}
+	return matched
+}
+
+func tableAggregateSpec(args tableAggregateRequest) (dataQueryAggregate, error) {
+	op := strings.ToLower(strings.TrimSpace(args.Operation))
+	value := strings.TrimSpace(args.Value)
+	spec := dataQueryAggregate{Op: op, As: "value"}
+	switch op {
+	case "count":
+		if value != "" {
+			return spec, fmt.Errorf("count does not accept value")
+		}
+	case "distinct_count":
+		if value == "" {
+			return spec, fmt.Errorf("distinct_count requires value with one column name")
+		}
+		spec.Field = value
+	case "sum", "avg", "min", "max":
+		if value == "" {
+			return spec, fmt.Errorf("%s requires value with a column or numeric row expression", op)
+		}
+		spec.Expression = value
+	default:
+		return spec, fmt.Errorf("unsupported operation %q", op)
+	}
+	return spec, nil
+}
+
+func tableAggregateExample(path string, columns []string) string {
+	value := "amount"
+	if slices.Contains(columns, "qty") && slices.Contains(columns, "unit_price") {
+		value = "qty*unit_price"
+	} else if len(columns) > 0 {
+		value = columns[0]
+	}
+	encodedPath, _ := json.Marshal(path)
+	encodedValue, _ := json.Marshal(value)
+	return fmt.Sprintf(
+		`{"path":%s,"operation":"sum","value":%s}`,
+		encodedPath,
+		encodedValue,
+	)
+}
+
+func aggregateGroupedRows(
+	rows []map[string]any,
+	groupFields []string,
+	spec dataQueryAggregate,
+) ([]map[string]any, error) {
+	groups := make(map[string][]map[string]any)
+	groupValues := make(map[string][]any)
+	for _, row := range rows {
+		values := make([]any, len(groupFields))
+		for index, field := range groupFields {
+			value, ok := dataFieldValue(row, field)
+			if !ok {
+				return nil, fmt.Errorf("group_by field %q is missing", field)
+			}
+			values[index] = value
+		}
+		encoded, _ := json.Marshal(values)
+		key := string(encoded)
+		groups[key] = append(groups[key], row)
+		groupValues[key] = values
+	}
+	result := make([]map[string]any, 0, len(groups))
+	for key, groupRows := range groups {
+		item := make(map[string]any, len(groupFields)+1)
+		for index, field := range groupFields {
+			item[field] = groupValues[key][index]
+		}
+		values, err := aggregateDataRows(groupRows, []dataQueryAggregate{spec})
+		if err != nil {
+			return nil, fmt.Errorf("group %s: %v", key, err)
+		}
+		item["value"] = values["value"]
+		result = append(result, item)
+	}
+	sort.Slice(result, func(i, j int) bool {
+		left, leftOK := dataNumber(result[i]["value"])
+		right, rightOK := dataNumber(result[j]["value"])
+		if leftOK && rightOK && left != right {
+			return left > right
+		}
+		leftJSON, _ := json.Marshal(result[i])
+		rightJSON, _ := json.Marshal(result[j])
+		return string(leftJSON) < string(rightJSON)
+	})
+	return result, nil
+}
+
+type tableAggregateTool struct{ workspace *agent.WorkspaceResolver }
+
+type tableCountTool struct{ workspace *agent.WorkspaceResolver }
+
+type tableSumTool struct{ workspace *agent.WorkspaceResolver }
+
+type tableAggregateRequest struct {
+	Path      string         `json:"path"`
+	Filter    map[string]any `json:"filter,omitempty"`
+	Operation string         `json:"operation"`
+	Value     string         `json:"value,omitempty"`
+	GroupBy   string         `json:"group_by,omitempty"`
+}
+
+type tableAggregateResult struct {
+	RowsRead    int              `json:"rows_read"`
+	MatchedRows int              `json:"matched_rows"`
+	Operation   string           `json:"operation"`
+	Value       any              `json:"value,omitempty"`
+	GroupCount  int              `json:"group_count,omitempty"`
+	Groups      []map[string]any `json:"groups,omitempty"`
+}
+
+func (*tableAggregateTool) Spec() agent.ToolSpec {
+	return strictSpec(
+		"table_calculator",
+		"Aggregate all matching table rows; value is one column or numeric row expression and group_by is an optional column string.",
+		`{"path":"string","filter":{"column":"exact value"},"operation":"count|sum|avg|min|max|distinct_count","value":"column or numeric row expression","group_by":"optional column"}`,
+		`{"type":"object","properties":{"path":{"type":"string","minLength":1},"filter":{"type":"object","additionalProperties":{}},"operation":{"type":"string","enum":["count","sum","avg","min","max","distinct_count"]},"value":{"type":"string"},"group_by":{"type":"string"}},"required":["path","operation"],"additionalProperties":false}`,
+	)
+}
+
+func (*tableCountTool) Spec() agent.ToolSpec {
+	return strictSpec(
+		"table_count",
+		"Count all matching table rows; group_by optionally also reports the number and counts of distinct groups.",
+		`{"path":"string","filter":{"column":"exact value"},"group_by":"optional column"}`,
+		`{"type":"object","properties":{"path":{"type":"string","minLength":1},"filter":{"type":"object","additionalProperties":{}},"group_by":{"type":"string"}},"required":["path"],"additionalProperties":false}`,
+	)
+}
+
+func (t *tableCountTool) Execute(ctx context.Context, raw json.RawMessage) (any, error) {
+	var args struct {
+		Path    string         `json:"path"`
+		Filter  map[string]any `json:"filter,omitempty"`
+		GroupBy string         `json:"group_by,omitempty"`
+	}
+	if err := decodeArguments(raw, &args); err != nil {
+		return nil, err
+	}
+	return executeTableAggregate(ctx, t.workspace, tableAggregateRequest{
+		Path: args.Path, Filter: args.Filter, Operation: "count", GroupBy: args.GroupBy,
+	})
+}
+
+func (*tableSumTool) Spec() agent.ToolSpec {
+	return strictSpec(
+		"table_sum",
+		"Sum a column or numeric expression across every matching table row; group_by optionally also reports per-group sums.",
+		`{"path":"string","filter":{"column":"exact value"},"value":"required column or numeric row expression","group_by":"optional column"}`,
+		`{"type":"object","properties":{"path":{"type":"string","minLength":1},"filter":{"type":"object","additionalProperties":{}},"value":{"type":"string","minLength":1},"group_by":{"type":"string"}},"required":["path","value"],"additionalProperties":false}`,
+	)
+}
+
+func (t *tableSumTool) Execute(ctx context.Context, raw json.RawMessage) (any, error) {
+	var args struct {
+		Path    string         `json:"path"`
+		Filter  map[string]any `json:"filter,omitempty"`
+		Value   string         `json:"value"`
+		GroupBy string         `json:"group_by,omitempty"`
+	}
+	if err := decodeArguments(raw, &args); err != nil {
+		return nil, err
+	}
+	return executeTableAggregate(ctx, t.workspace, tableAggregateRequest{
+		Path: args.Path, Filter: args.Filter, Operation: "sum", Value: args.Value, GroupBy: args.GroupBy,
+	})
+}
+
+func (t *tableAggregateTool) Execute(ctx context.Context, raw json.RawMessage) (any, error) {
+	var args tableAggregateRequest
+	if err := decodeArguments(raw, &args); err != nil {
+		return nil, err
+	}
+	return executeTableAggregate(ctx, t.workspace, args)
+}
+
+func executeTableAggregate(
+	ctx context.Context,
+	workspace *agent.WorkspaceResolver,
+	args tableAggregateRequest,
+) (any, error) {
+	rows, err := readTableRows(ctx, workspace, args.Path)
+	if err != nil {
+		return nil, err
+	}
+	columns := tableColumns(rows)
+	if err := validateTableFields(sortedMapKeysAny(args.Filter), columns, "filter"); err != nil {
+		return nil, invalidArguments("%v; available columns: %s", err, strings.Join(columns, ", "))
+	}
+	groupFields := splitDataFields(args.GroupBy)
+	if err := validateTableFields(groupFields, columns, "group_by"); err != nil {
+		return nil, invalidArguments("%v; available columns: %s", err, strings.Join(columns, ", "))
+	}
+	spec, err := tableAggregateSpec(args)
+	if err != nil {
+		return nil, invalidArguments("%v; example: %s", err, tableAggregateExample(args.Path, columns))
+	}
+	matched := filterDataRows(rows, args.Filter)
+	result := tableAggregateResult{
+		RowsRead:    len(rows),
+		MatchedRows: len(matched),
+		Operation:   spec.Op,
+	}
+	if len(groupFields) == 0 {
+		values, aggregateErr := aggregateDataRows(matched, []dataQueryAggregate{spec})
+		if aggregateErr != nil {
+			return nil, invalidArguments("%v; available columns: %s", aggregateErr, strings.Join(columns, ", "))
+		}
+		result.Value = values["value"]
+		return result, nil
+	}
+	groups, aggregateErr := aggregateGroupedRows(matched, groupFields, spec)
+	if aggregateErr != nil {
+		return nil, invalidArguments("%v; available columns: %s", aggregateErr, strings.Join(columns, ", "))
+	}
+	overall, aggregateErr := aggregateDataRows(matched, []dataQueryAggregate{spec})
+	if aggregateErr != nil {
+		return nil, invalidArguments("%v; available columns: %s", aggregateErr, strings.Join(columns, ", "))
+	}
+	result.Value = overall["value"]
+	result.GroupCount = len(groups)
+	result.Groups = groups
+	return result, nil
 }
 
 func (*dataQueryTool) Spec() agent.ToolSpec {

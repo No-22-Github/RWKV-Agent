@@ -1,6 +1,7 @@
 package eval
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -484,5 +485,60 @@ func TestPrimitiveGoNativeProfileReplacesLuaWithCoreTools(t *testing.T) {
 	}
 	if names["run_lua"] {
 		t.Errorf("Go-native Primitive profile still exposes run_lua: %v", names)
+	}
+}
+
+func TestPrimitiveGoNativeWriteAndTestsReportWorkspaceProgress(t *testing.T) {
+	t.Parallel()
+	root := t.TempDir()
+	original := "from datetime import datetime\n\n\ndef parse_date(text):\n    return datetime.strptime(text, \"%Y-%m-%d\").date().isoformat()\n"
+	if err := os.WriteFile(filepath.Join(root, "parser.py"), []byte(original), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	execution := newPrimitiveExecution(root, &primitiveRuntime{scenario: "date_parser_patch"})
+	execution.goNative = true
+
+	unchanged, err := execution.writeFile(context.Background(), json.RawMessage(`{
+		"path":"parser.py",
+		"content":"from datetime import datetime\n\n\ndef parse_date(text):\n    return datetime.strptime(text, \"%Y-%m-%d\").date().isoformat()\n"
+	}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	unchangedJSON, _ := json.Marshal(unchanged)
+	if !bytes.Contains(unchangedJSON, []byte(`"changed":false`)) ||
+		!bytes.Contains(unchangedJSON, []byte(`"revision":"r0"`)) {
+		t.Fatalf("unchanged write = %s", unchangedJSON)
+	}
+	firstTest, err := execution.runTests(context.Background(), json.RawMessage(`{}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	firstJSON, _ := json.Marshal(firstTest)
+	if !bytes.Contains(firstJSON, []byte(`"status":"FAIL"`)) ||
+		!bytes.Contains(firstJSON, []byte(`"last_write_changed":false`)) {
+		t.Fatalf("first test = %s", firstJSON)
+	}
+
+	changed, err := execution.writeFile(context.Background(), json.RawMessage(`{
+		"path":"parser.py",
+		"content":"from datetime import datetime\n\n\ndef parse_date(text):\n    return datetime.strptime(text.strip().replace('/', '-'), \"%Y-%m-%d\").date().isoformat()\n"
+	}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	changedJSON, _ := json.Marshal(changed)
+	if !bytes.Contains(changedJSON, []byte(`"changed":true`)) ||
+		!bytes.Contains(changedJSON, []byte(`"revision":"r1"`)) {
+		t.Fatalf("changed write = %s", changedJSON)
+	}
+	secondTest, err := execution.runTests(context.Background(), json.RawMessage(`{}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	secondJSON, _ := json.Marshal(secondTest)
+	if !bytes.Contains(secondJSON, []byte(`"status":"PASS"`)) ||
+		!bytes.Contains(secondJSON, []byte(`"changed_since_previous_test":true`)) {
+		t.Fatalf("second test = %s", secondJSON)
 	}
 }
