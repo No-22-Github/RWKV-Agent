@@ -154,6 +154,35 @@ Toolcall-Bench 的 280 样本格式探测也支持继续使用当前 G1I 主路�
 
 - `runs/primitive-v15-go-native-final-healthy-batch30-20260813`
 
+### 13.3B 追加对照
+
+同日使用 `rwkv7-g1i-13.3b-20260805-ctx16384` 和相同 Harness v15、Go-native profile、
+题库、采样参数及逐题 step budget 做了追加测试。13B 端点在一次合并 30 条 contents 时对全部
+请求返回 `HTTP 400: Invalid JSON`；单题探针可正常生成，因此该 0/30 是 batch 宽度不兼容，
+不是有效模型成绩。将 case parallelism 降到 10 后完成了无传输错误的 30 题全量轮。
+
+| 模型 | 并发/最大 batch | 通过 | Protocol validity | Stage validity | Required tools | 重复调用拒绝 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| G1I 7.2B | 30 | **20/30** | 100.0%（182/182） | 100.0%（182/182） | 90.3%（65/72） | 49 |
+| G1I 13.3B | 10 | **15/30** | 99.1%（214/216） | 100.0%（214/214） | 86.1%（62/72） | 84 |
+
+13.3B 的有效工具执行数与 7.2B 接近（130 vs 132），但总模型调用更多（216 vs 182）、重复
+调用拒绝明显更多（84 vs 49），说明主要退化来自工具策略循环，而不是 JSON 格式能力。13B
+没有发生协议自动修复，7.2B 有 17 次修复；模型规模在这个 Agent harness 上并不呈单调收益。
+13B 的 15 个失败由 7 个 step-limit、7 个 scorer 未满足和 1 个 arithmetic 结果轮空响应组成。
+
+两者通过集合也不完全相同：13B 额外通过了 `config_precedence_resolve`、
+`loc_interest_8_months`、`two_step_program_output`，但丢失了 7.2B 已通过的 8 题。这进一步表明
+后续优化应优先处理循环恢复和任务状态推进，而不是继续堆叠格式提示。
+
+13.3B 有效产物：
+
+- `runs/primitive-v15-go-native-13b-batch10-20260813`
+
+30-wide batch 诊断产物（无效成绩，仅保留服务兼容性证据）：
+
+- `runs/primitive-v15-go-native-13b-final-healthy-batch30-20260813`
+
 ```sh
 go run ./cmd/rwkv-cli agent-eval \
   --completion rwkv-lightning \
