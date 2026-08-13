@@ -40,6 +40,13 @@ func Run(ctx context.Context, config Config) (Report, error) {
 		config.CaseParallelism = len(config.Cases)
 	}
 	if config.Suite == SuitePrimitive {
+		if config.PrimitiveProfile == "" {
+			config.PrimitiveProfile = PrimitiveProfileUpstream
+		}
+		if config.PrimitiveProfile != PrimitiveProfileUpstream &&
+			config.PrimitiveProfile != PrimitiveProfileGoNative {
+			return Report{}, fmt.Errorf("unsupported Primitive tool profile %q", config.PrimitiveProfile)
+		}
 		config.Runner.Protocol = agent.G1IFunctionProtocol{}
 		config.Runner.Renderer = agent.G1IFunctionRenderer{HasSubmit: true}
 		config.Runner.TaskControl = ""
@@ -188,6 +195,7 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 			RouteMaxOutputTokens:    config.Runner.RouteMaxOutputTokens,
 			TracePromptBytes:        config.Runner.TracePromptBytes,
 			CaseParallelism:         config.CaseParallelism,
+			ToolProfile:             config.PrimitiveProfile,
 		},
 		Sampling: samplingSnapshot(config.Runner.Generation.Sampling),
 		Environment: EnvironmentMetadata{
@@ -218,7 +226,7 @@ func runCase(
 		return result
 	}
 	defer cleanup()
-	tools, primitiveRun, err := evalTools(config.Suite, workspace, testCase)
+	tools, primitiveRun, err := evalTools(config, workspace, testCase)
 	if err != nil {
 		result.Error = fmt.Sprintf("create tools: %v", err)
 		return result
@@ -306,13 +314,27 @@ type fixedAssistantClock struct{ value time.Time }
 func (c fixedAssistantClock) Now() time.Time { return c.value }
 
 func evalTools(
-	suite string,
+	config Config,
 	workspace string,
 	testCase Case,
 ) ([]agent.Tool, *primitiveExecution, error) {
 	if testCase.primitive != nil {
 		execution := newPrimitiveExecution(workspace, testCase.primitive)
 		tools, err := execution.tools()
+		if err != nil {
+			return nil, nil, err
+		}
+		if config.PrimitiveProfile == PrimitiveProfileGoNative &&
+			slices.Contains(testCase.primitive.toolNames, "run_lua") {
+			tools = slices.DeleteFunc(tools, func(tool agent.Tool) bool {
+				return tool.Spec().Name == "run_lua"
+			})
+			core, coreErr := assistanttools.CoreTools(assistanttools.Options{Workspace: workspace})
+			if coreErr != nil {
+				return nil, nil, coreErr
+			}
+			tools = append(tools, core...)
+		}
 		return tools, execution, err
 	}
 	workspaceTools, err := agent.WorkspaceTools(workspace)
@@ -329,7 +351,7 @@ func evalTools(
 		0,
 		time.FixedZone("Asia/Shanghai", 8*60*60),
 	)}
-	switch suite {
+	switch config.Suite {
 	case SuiteBoundary:
 		compute, err := assistanttools.ComputeTools(assistanttools.Options{
 			Clock:     clock,

@@ -1,11 +1,12 @@
 package main
 
 import (
-	"github.com/no22/RWKV-Agent/internal/continuation/rwkvlightning"
 	"strings"
 	"testing"
 	"time"
 
+	agenteval "github.com/no22/RWKV-Agent/internal/agent/eval"
+	"github.com/no22/RWKV-Agent/internal/continuation/rwkvlightning"
 	"github.com/no22/RWKV-Agent/internal/terminal"
 )
 
@@ -449,6 +450,23 @@ func TestAgentEvalOptionsAreDeterministicAndIsolated(t *testing.T) {
 	}
 	if suiteOptions.evalSuite != "primitive" || !suiteOptions.evalSuiteExplicit {
 		t.Fatalf("explicit suite options = %+v", suiteOptions)
+	}
+	nativeOptions, err := parseRunOptions("agent-eval", []string{
+		"--model", "model",
+		"--suite", "primitive",
+		"--primitive-profile", "go-native",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if nativeOptions.primitiveProfile != agenteval.PrimitiveProfileGoNative {
+		t.Fatalf("Primitive profile options = %+v", nativeOptions)
+	}
+	if _, err := parseRunOptions("agent-eval", []string{
+		"--model", "model",
+		"--primitive-profile", "unknown",
+	}); err == nil {
+		t.Fatal("agent eval accepted an unknown Primitive profile")
 	}
 	if _, err := parseRunOptions("agent-eval", []string{
 		"--model", "model",

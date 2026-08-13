@@ -7,14 +7,9 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
-	"time"
 
 	"github.com/no22/RWKV-Agent/internal/agent"
 )
-
-type fixedClock struct{ now time.Time }
-
-func (c fixedClock) Now() time.Time { return c.now }
 
 func TestMockProviderContract(t *testing.T) {
 	Run(t, Suite{
@@ -46,65 +41,71 @@ func TestAssistantToolsRejectInvalidArguments(t *testing.T) {
 	}
 }
 
-func TestStructuredQueryUsesWorkspaceContainmentAndCurrentWeek(t *testing.T) {
+func TestDataQueryAggregatesFiltersAndUsesWorkspaceContainment(t *testing.T) {
 	root := t.TempDir()
 	if err := os.Mkdir(filepath.Join(root, "notes"), 0o700); err != nil {
 		t.Fatal(err)
 	}
-	data := []byte("{\"date\":\"2026-08-03\",\"amount\":100}\n" +
-		"{\"date\":\"2026-08-04\",\"amount\":50}\n" +
-		"{\"date\":\"2026-07-31\",\"amount\":900}\n")
+	data := []byte("{\"event\":\"checkout\",\"status\":\"success\",\"user\":\"u1\",\"amount\":100}\n" +
+		"{\"event\":\"checkout\",\"status\":\"success\",\"user\":\"u2\",\"amount\":50}\n" +
+		"{\"event\":\"checkout\",\"status\":\"failed\",\"user\":\"u1\",\"amount\":900}\n")
 	if err := os.WriteFile(filepath.Join(root, "notes", "expenses.jsonl"), data, 0o600); err != nil {
 		t.Fatal(err)
 	}
-	tools, err := AssistantTools(Options{
-		Workspace: root,
-		Clock:     fixedClock{now: time.Date(2026, 8, 4, 10, 0, 0, 0, time.FixedZone("CST", 8*60*60))},
-	})
+	tools, err := CoreTools(Options{Workspace: root})
 	if err != nil {
 		t.Fatal(err)
 	}
-	query := findTool(t, tools, "structured_query")
-	value, err := query.Execute(context.Background(), json.RawMessage(`{"path":"notes","filter":"本周","aggregate":"sum"}`))
+	query := findTool(t, tools, "data_query")
+	value, err := query.Execute(context.Background(), json.RawMessage(`{
+		"path":"notes",
+		"filter":{"event":"checkout","status":"success"},
+		"operation":"sum",
+		"field":"amount"
+	}`))
 	if err != nil {
 		t.Fatal(err)
 	}
-	result := value.(structuredQueryResult)
-	if result.Total != 150 || len(result.MatchedRows) != 2 || len(result.ExcludedRows) != 1 {
+	result := value.(dataQueryResult)
+	if result.MatchedRows != 2 || result.Value != float64(150) {
 		t.Fatalf("query result = %+v", result)
 	}
-	if _, err := query.Execute(context.Background(), json.RawMessage(`{"path":"../outside.jsonl","filter":"","aggregate":"sum"}`)); !errors.Is(err, agent.ErrInvalidToolArguments) {
+	distinct, err := query.Execute(context.Background(), json.RawMessage(`{
+		"path":"notes",
+		"filter":{"event":"checkout","status":"success"},
+		"operation":"distinct_count",
+		"field":"user"
+	}`))
+	if err != nil || distinct.(dataQueryResult).Value != 2 {
+		t.Fatalf("distinct query result = %+v, error = %v", distinct, err)
+	}
+	if _, err := query.Execute(context.Background(), json.RawMessage(`{"path":"../outside.jsonl"}`)); !errors.Is(err, agent.ErrInvalidToolArguments) {
 		t.Fatalf("escape error = %v, want ErrInvalidToolArguments", err)
 	}
 }
 
-func TestStructuredQueryRejectsUnsupportedFilterOperators(t *testing.T) {
+func TestDataQueryGroupsComputedCSVValues(t *testing.T) {
 	root := t.TempDir()
-	if err := os.WriteFile(filepath.Join(root, "rows.jsonl"), []byte("{\"date\":\"2026-08-04\",\"amount\":50}\n"), 0o600); err != nil {
+	if err := os.WriteFile(filepath.Join(root, "orders.csv"), []byte("sku,qty,unit_price\nSKU-17,3,250\nSKU-42,4,180\nSKU-17,2,299.5\n"), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	tools, err := AssistantTools(Options{Workspace: root})
+	tools, err := CoreTools(Options{Workspace: root})
 	if err != nil {
 		t.Fatal(err)
 	}
-	query := findTool(t, tools, "structured_query")
-	for _, filter := range []string{
-		"date >= 2026-08-03",
-		"date <= 2026-08-04",
-		"date != 2026-08-03",
-		"date == 2026-08-04",
-	} {
-		raw, err := json.Marshal(map[string]string{
-			"path":      "rows.jsonl",
-			"filter":    filter,
-			"aggregate": "sum",
-		})
-		if err != nil {
-			t.Fatal(err)
-		}
-		if _, err := query.Execute(context.Background(), raw); !errors.Is(err, agent.ErrInvalidToolArguments) {
-			t.Errorf("filter %q error = %v, want ErrInvalidToolArguments", filter, err)
-		}
+	query := findTool(t, tools, "data_query")
+	value, err := query.Execute(context.Background(), json.RawMessage(`{
+		"path":"orders.csv",
+		"group_by":"sku",
+		"operation":"sum",
+		"expression":"qty*unit_price"
+	}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	result := value.(dataQueryResult)
+	if len(result.Groups) != 2 || result.Groups[0]["sku"] != "SKU-17" || result.Groups[0]["value"] != float64(1349) {
+		t.Fatalf("group result = %+v", result)
 	}
 }
 
@@ -114,11 +115,12 @@ func TestCalculatorEvaluatesOnlyArithmetic(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if value.(struct {
-		Expression string  `json:"expression"`
-		Result     float64 `json:"result"`
-	}).Result <= 0 {
+	if value.(calculatorResult).Result <= 0 {
 		t.Fatalf("calculator result = %+v", value)
+	}
+	rounded, err := tool.Execute(context.Background(), json.RawMessage(`{"expression":"round(abs(-2685.9975), 2)","precision":2}`))
+	if err != nil || rounded.(calculatorResult).Formatted != "2686.00" {
+		t.Fatalf("rounded calculator result = %+v, error = %v", rounded, err)
 	}
 	for _, expression := range []string{"1/0", "foo(1)", "1 < 2"} {
 		raw, _ := json.Marshal(map[string]string{"expression": expression})

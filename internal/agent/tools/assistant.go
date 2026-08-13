@@ -70,36 +70,50 @@ type systemClock struct{}
 func (systemClock) Now() time.Time { return time.Now() }
 
 func AssistantTools(options Options) ([]agent.Tool, error) {
-	resolver, err := agent.NewWorkspaceResolver(options.Workspace)
+	core, err := CoreTools(options)
 	if err != nil {
 		return nil, err
 	}
 	if options.Clock == nil {
 		options.Clock = systemClock{}
 	}
-	return []agent.Tool{
+	tools := []agent.Tool{
 		&weatherTool{provider: options.Provider},
 		&nearestTransitTool{provider: options.Provider},
 		&transitHoursTool{provider: options.Provider},
 		&fxConvertTool{provider: options.Provider},
+	}
+	tools = append(tools, core...)
+	return append(tools, &datetimeTool{clock: options.Clock}), nil
+}
+
+// CoreTools returns deterministic, provider-free tools that are useful to a
+// general-purpose Agent. They are shared by the interactive Agent and the
+// Go-native Primitive Bench profile.
+func CoreTools(options Options) ([]agent.Tool, error) {
+	resolver, err := agent.NewWorkspaceResolver(options.Workspace)
+	if err != nil {
+		return nil, err
+	}
+	return []agent.Tool{
 		calculatorTool{},
-		&structuredQueryTool{workspace: resolver, clock: options.Clock},
-		&datetimeTool{clock: options.Clock},
+		&dataQueryTool{workspace: resolver},
 	}, nil
 }
 
 func ComputeTools(options Options) ([]agent.Tool, error) {
-	all, err := AssistantTools(options)
+	all, err := CoreTools(options)
 	if err != nil {
 		return nil, err
 	}
 	result := make([]agent.Tool, 0, 1)
 	for _, tool := range all {
-		// calculator only. structured_query cannot express the boundary
-		// suite's multi-metric, computed and column-selecting aggregates, so
+		// calculator only. data_query would replace the boundary
+		// suite's structured-data reasoning with a tool contract, so
 		// registering it there replaces the reasoning under test with a tool
 		// contract instead of measuring it. Boundary tasks compose read_file
-		// with calculator; structured_query stays an assistant-suite tool.
+		// with calculator; data_query stays a core/assistant and Go-native
+		// Primitive tool.
 		if tool.Spec().Name == "calculator" {
 			result = append(result, tool)
 		}
@@ -240,15 +254,16 @@ type calculatorTool struct{}
 func (calculatorTool) Spec() agent.ToolSpec {
 	return strictSpec(
 		"calculator",
-		"Evaluate a finite arithmetic expression with +, -, *, /, %, and parentheses.",
-		`{"expression":"string"}`,
-		`{"type":"object","properties":{"expression":{"type":"string","minLength":1,"maxLength":4096}},"required":["expression"],"additionalProperties":false}`,
+		"Evaluate arithmetic with +, -, *, /, %, parentheses, and abs/min/max/round. Use precision to format decimal or money results.",
+		`{"expression":"string","precision":"optional integer 0..15"}`,
+		`{"type":"object","properties":{"expression":{"type":"string","minLength":1,"maxLength":4096},"precision":{"type":"integer","minimum":0,"maximum":15}},"required":["expression"],"additionalProperties":false}`,
 	)
 }
 
 func (calculatorTool) Execute(_ context.Context, raw json.RawMessage) (any, error) {
 	var args struct {
 		Expression string `json:"expression"`
+		Precision  *int   `json:"precision"`
 	}
 	if err := decodeArguments(raw, &args); err != nil {
 		return nil, err
@@ -261,30 +276,48 @@ func (calculatorTool) Execute(_ context.Context, raw json.RawMessage) (any, erro
 	if err != nil {
 		return nil, invalidArguments("invalid expression: %v", err)
 	}
-	result, err := evaluateExpression(parsed)
+	result, err := evaluateExpression(parsed, nil)
 	if err != nil {
 		return nil, invalidArguments("%v", err)
 	}
 	if math.IsNaN(result) || math.IsInf(result, 0) {
 		return nil, invalidArguments("expression result must be finite")
 	}
-	return struct {
-		Expression string  `json:"expression"`
-		Result     float64 `json:"result"`
-	}{Expression: expression, Result: result}, nil
+	if args.Precision != nil && (*args.Precision < 0 || *args.Precision > 15) {
+		return nil, invalidArguments("precision must be between 0 and 15")
+	}
+	formatted := strconv.FormatFloat(result, 'f', -1, 64)
+	if args.Precision != nil {
+		factor := math.Pow10(*args.Precision)
+		result = math.Round(result*factor) / factor
+		formatted = strconv.FormatFloat(result, 'f', *args.Precision, 64)
+	}
+	return calculatorResult{Expression: expression, Result: result, Formatted: formatted}, nil
 }
 
-func evaluateExpression(expression ast.Expr) (float64, error) {
+type calculatorResult struct {
+	Expression string  `json:"expression"`
+	Result     float64 `json:"result"`
+	Formatted  string  `json:"formatted"`
+}
+
+func evaluateExpression(expression ast.Expr, variables map[string]float64) (float64, error) {
 	switch value := expression.(type) {
 	case *ast.BasicLit:
 		if value.Kind != token.INT && value.Kind != token.FLOAT {
 			return 0, fmt.Errorf("only numeric literals are allowed")
 		}
 		return strconv.ParseFloat(value.Value, 64)
+	case *ast.Ident:
+		result, ok := variables[value.Name]
+		if !ok {
+			return 0, fmt.Errorf("unknown numeric field %q", value.Name)
+		}
+		return result, nil
 	case *ast.ParenExpr:
-		return evaluateExpression(value.X)
+		return evaluateExpression(value.X, variables)
 	case *ast.UnaryExpr:
-		operand, err := evaluateExpression(value.X)
+		operand, err := evaluateExpression(value.X, variables)
 		if err != nil {
 			return 0, err
 		}
@@ -297,11 +330,11 @@ func evaluateExpression(expression ast.Expr) (float64, error) {
 			return 0, fmt.Errorf("operator %s is not allowed", value.Op)
 		}
 	case *ast.BinaryExpr:
-		left, err := evaluateExpression(value.X)
+		left, err := evaluateExpression(value.X, variables)
 		if err != nil {
 			return 0, err
 		}
-		right, err := evaluateExpression(value.Y)
+		right, err := evaluateExpression(value.Y, variables)
 		if err != nil {
 			return 0, err
 		}
@@ -325,46 +358,107 @@ func evaluateExpression(expression ast.Expr) (float64, error) {
 		default:
 			return 0, fmt.Errorf("operator %s is not allowed", value.Op)
 		}
+	case *ast.CallExpr:
+		function, ok := value.Fun.(*ast.Ident)
+		if !ok {
+			return 0, fmt.Errorf("only abs, min, max, and round functions are allowed")
+		}
+		arguments := make([]float64, len(value.Args))
+		for index, argument := range value.Args {
+			result, err := evaluateExpression(argument, variables)
+			if err != nil {
+				return 0, err
+			}
+			arguments[index] = result
+		}
+		switch function.Name {
+		case "abs":
+			if len(arguments) != 1 {
+				return 0, fmt.Errorf("abs requires one argument")
+			}
+			return math.Abs(arguments[0]), nil
+		case "min", "max":
+			if len(arguments) < 1 {
+				return 0, fmt.Errorf("%s requires at least one argument", function.Name)
+			}
+			result := arguments[0]
+			for _, argument := range arguments[1:] {
+				if function.Name == "min" {
+					result = math.Min(result, argument)
+				} else {
+					result = math.Max(result, argument)
+				}
+			}
+			return result, nil
+		case "round":
+			if len(arguments) != 1 && len(arguments) != 2 {
+				return 0, fmt.Errorf("round requires a value and optional decimal places")
+			}
+			places := 0
+			if len(arguments) == 2 {
+				places = int(arguments[1])
+				if arguments[1] != float64(places) || places < 0 || places > 15 {
+					return 0, fmt.Errorf("round decimal places must be an integer from 0 to 15")
+				}
+			}
+			factor := math.Pow10(places)
+			return math.Round(arguments[0]*factor) / factor, nil
+		default:
+			return 0, fmt.Errorf("function %q is not allowed", function.Name)
+		}
 	default:
 		return 0, fmt.Errorf("expression contains an unsupported construct")
 	}
 }
 
-type structuredQueryTool struct {
-	workspace *agent.WorkspaceResolver
-	clock     Clock
+type dataQueryTool struct{ workspace *agent.WorkspaceResolver }
+
+type dataQueryAggregate struct {
+	Op         string `json:"op"`
+	Field      string `json:"field,omitempty"`
+	Expression string `json:"expression,omitempty"`
+	As         string `json:"as"`
 }
 
-func (*structuredQueryTool) Spec() agent.ToolSpec {
+type dataQueryRequest struct {
+	Path       string         `json:"path"`
+	Filter     map[string]any `json:"filter,omitempty"`
+	Select     string         `json:"select,omitempty"`
+	GroupBy    string         `json:"group_by,omitempty"`
+	Operation  string         `json:"operation,omitempty"`
+	Field      string         `json:"field,omitempty"`
+	Expression string         `json:"expression,omitempty"`
+}
+
+type dataQueryResult struct {
+	MatchedRows int              `json:"matched_rows"`
+	Rows        []map[string]any `json:"rows,omitempty"`
+	Value       any              `json:"value,omitempty"`
+	Groups      []map[string]any `json:"groups,omitempty"`
+}
+
+func (*dataQueryTool) Spec() agent.ToolSpec {
 	return strictSpec(
-		"structured_query",
-		"Filter JSON, JSONL, or CSV rows deterministically. filter must be empty, 本周/this week, or exact field=value predicates joined by comma or &&; comparison expressions are unsupported. sum/avg use the first numeric amount, total, value, revenue, or result field.",
-		`{"path":"string","filter":"string","aggregate":"sum|count|avg"}`,
-		`{"type":"object","properties":{"path":{"type":"string"},"filter":{"type":"string"},"aggregate":{"type":"string","enum":["sum","count","avg"]}},"required":["path","filter","aggregate"],"additionalProperties":false}`,
+		"data_query",
+		`Query tables; select="spot_sell" with filter={"currency":"EUR"}; sum with operation="sum", field="qty"; group formulas use expression.`,
+		`{"path":"string","filter":{"field":"exact value"},"select":"comma-separated fields","group_by":"comma-separated fields","operation":"count|sum|avg|min|max|distinct_count","field":"numeric field","expression":"numeric row expression"}`,
+		`{"type":"object","properties":{"path":{"type":"string","minLength":1},"filter":{"type":"object","additionalProperties":{}},"select":{"type":"string"},"group_by":{"type":"string"},"operation":{"type":"string","enum":["count","sum","avg","min","max","distinct_count"]},"field":{"type":"string"},"expression":{"type":"string"}},"required":["path"],"additionalProperties":false}`,
 	)
 }
 
-type structuredQueryResult struct {
-	MatchedRows  []map[string]any `json:"matched_rows"`
-	Total        float64          `json:"total"`
-	ExcludedRows []map[string]any `json:"excluded_rows"`
-}
-
-func (t *structuredQueryTool) Execute(ctx context.Context, raw json.RawMessage) (any, error) {
-	var args struct {
-		Path      string `json:"path"`
-		Filter    string `json:"filter"`
-		Aggregate string `json:"aggregate"`
-	}
+func (t *dataQueryTool) Execute(ctx context.Context, raw json.RawMessage) (any, error) {
+	var args dataQueryRequest
 	if err := decodeArguments(raw, &args); err != nil {
 		return nil, err
 	}
 	if strings.TrimSpace(args.Path) == "" {
 		return nil, invalidArguments("path is required")
 	}
-	args.Aggregate = strings.ToLower(strings.TrimSpace(args.Aggregate))
-	if args.Aggregate != "sum" && args.Aggregate != "count" && args.Aggregate != "avg" {
-		return nil, invalidArguments("aggregate must be sum, count, or avg")
+	selectFields := splitDataFields(args.Select)
+	groupFields := splitDataFields(args.GroupBy)
+	aggregate, err := dataQueryAggregateSpec(args)
+	if err != nil {
+		return nil, invalidArguments("%v", err)
 	}
 	target, err := t.workspace.Resolve(args.Path)
 	if err != nil {
@@ -374,45 +468,269 @@ func (t *structuredQueryTool) Execute(ctx context.Context, raw json.RawMessage) 
 	if err != nil {
 		return nil, err
 	}
-	predicates, weekFilter, err := parseFilter(args.Filter)
-	if err != nil {
-		return nil, invalidArguments("filter: %v", err)
-	}
-	result := structuredQueryResult{
-		MatchedRows:  make([]map[string]any, 0, len(rows)),
-		ExcludedRows: make([]map[string]any, 0, len(rows)),
-	}
-	var values []float64
+	matched := make([]map[string]any, 0, len(rows))
 	for _, row := range rows {
-		matched := rowMatches(row, predicates)
-		if matched && weekFilter {
-			matched = rowInCurrentWeek(row, t.clock.Now())
+		if dataRowMatches(row, args.Filter) {
+			matched = append(matched, row)
 		}
-		if !matched {
-			result.ExcludedRows = append(result.ExcludedRows, row)
+	}
+	result := dataQueryResult{MatchedRows: len(matched)}
+	if len(groupFields) == 0 {
+		if aggregate != nil {
+			values, aggregateErr := aggregateDataRows(matched, []dataQueryAggregate{*aggregate})
+			err = aggregateErr
+			if err != nil {
+				return nil, invalidArguments("%v", err)
+			}
+			result.Value = values["value"]
+		}
+		if len(selectFields) > 0 || aggregate == nil {
+			result.Rows = selectDataRows(matched, selectFields, 100)
+		}
+		return result, nil
+	}
+	groups := make(map[string][]map[string]any)
+	groupValues := make(map[string][]any)
+	for _, row := range matched {
+		values := make([]any, len(groupFields))
+		for index, field := range groupFields {
+			value, ok := dataFieldValue(row, field)
+			if !ok {
+				return nil, invalidArguments("group_by field %q is missing", field)
+			}
+			values[index] = value
+		}
+		encoded, _ := json.Marshal(values)
+		key := string(encoded)
+		groups[key] = append(groups[key], row)
+		groupValues[key] = values
+	}
+	keys := make([]string, 0, len(groups))
+	for key := range groups {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	for _, key := range keys {
+		item := make(map[string]any, len(groupFields)+1)
+		for index, field := range groupFields {
+			item[field] = groupValues[key][index]
+		}
+		if aggregate != nil {
+			aggregateValues, aggregateErr := aggregateDataRows(groups[key], []dataQueryAggregate{*aggregate})
+			if aggregateErr != nil {
+				return nil, invalidArguments("group %s: %v", key, aggregateErr)
+			}
+			item["value"] = aggregateValues["value"]
+		}
+		result.Groups = append(result.Groups, item)
+	}
+	return result, nil
+}
+
+func splitDataFields(value string) []string {
+	var result []string
+	for _, field := range strings.Split(value, ",") {
+		if field = strings.TrimSpace(field); field != "" {
+			result = append(result, field)
+		}
+	}
+	return result
+}
+
+func dataQueryAggregateSpec(args dataQueryRequest) (*dataQueryAggregate, error) {
+	op := strings.ToLower(strings.TrimSpace(args.Operation))
+	field := strings.TrimSpace(args.Field)
+	expression := strings.TrimSpace(args.Expression)
+	if op == "" {
+		if field != "" || expression != "" {
+			return nil, fmt.Errorf("field or expression requires operation")
+		}
+		return nil, nil
+	}
+	aggregate := &dataQueryAggregate{Op: op, Field: field, Expression: expression, As: "value"}
+	switch op {
+	case "count":
+		if field != "" || expression != "" {
+			return nil, fmt.Errorf("count does not accept field or expression")
+		}
+	case "distinct_count":
+		if field == "" || expression != "" {
+			return nil, fmt.Errorf("distinct_count requires field and no expression")
+		}
+	case "sum", "avg", "min", "max":
+		if (field == "") == (expression == "") {
+			return nil, fmt.Errorf("%s requires exactly one of field or expression", op)
+		}
+	default:
+		return nil, fmt.Errorf("unsupported operation %q", op)
+	}
+	return aggregate, nil
+}
+
+func dataRowMatches(row map[string]any, filter map[string]any) bool {
+	for field, expected := range filter {
+		actual, ok := dataFieldValue(row, field)
+		if !ok || !dataValuesEqual(actual, expected) {
+			return false
+		}
+	}
+	return true
+}
+
+func dataValuesEqual(left, right any) bool {
+	leftNumber, leftOK := dataNumber(left)
+	rightNumber, rightOK := dataNumber(right)
+	if leftOK && rightOK {
+		return leftNumber == rightNumber
+	}
+	return strings.EqualFold(strings.TrimSpace(fmt.Sprint(left)), strings.TrimSpace(fmt.Sprint(right)))
+}
+
+func dataFieldValue(row map[string]any, field string) (any, bool) {
+	var current any = row
+	for _, part := range strings.Split(field, ".") {
+		object, ok := current.(map[string]any)
+		if !ok {
+			return nil, false
+		}
+		current, ok = object[part]
+		if !ok {
+			return nil, false
+		}
+	}
+	return current, true
+}
+
+func selectDataRows(rows []map[string]any, fields []string, limit int) []map[string]any {
+	if len(rows) > limit {
+		rows = rows[:limit]
+	}
+	result := make([]map[string]any, 0, len(rows))
+	for _, row := range rows {
+		if len(fields) == 0 {
+			result = append(result, row)
 			continue
 		}
-		result.MatchedRows = append(result.MatchedRows, row)
-		if args.Aggregate != "count" {
-			value, ok := numericRowValue(row)
-			if !ok {
-				return nil, fmt.Errorf("matched row has no numeric amount, total, value, revenue, or result field")
+		selected := make(map[string]any, len(fields))
+		for _, field := range fields {
+			if value, ok := dataFieldValue(row, field); ok {
+				selected[field] = value
 			}
-			values = append(values, value)
 		}
+		result = append(result, selected)
 	}
-	switch args.Aggregate {
-	case "count":
-		result.Total = float64(len(result.MatchedRows))
-	case "sum", "avg":
-		for _, value := range values {
-			result.Total += value
-		}
-		if args.Aggregate == "avg" && len(values) > 0 {
-			result.Total /= float64(len(values))
+	return result
+}
+
+func aggregateDataRows(rows []map[string]any, specs []dataQueryAggregate) (map[string]any, error) {
+	result := make(map[string]any, len(specs))
+	for _, spec := range specs {
+		op := strings.ToLower(strings.TrimSpace(spec.Op))
+		switch op {
+		case "count":
+			result[spec.As] = len(rows)
+		case "distinct_count":
+			values := make(map[string]struct{})
+			for _, row := range rows {
+				value, ok := dataFieldValue(row, spec.Field)
+				if !ok {
+					return nil, fmt.Errorf("field %q is missing", spec.Field)
+				}
+				encoded, _ := json.Marshal(value)
+				values[string(encoded)] = struct{}{}
+			}
+			result[spec.As] = len(values)
+		default:
+			values := make([]float64, 0, len(rows))
+			for _, row := range rows {
+				value, err := dataAggregateValue(row, spec)
+				if err != nil {
+					return nil, err
+				}
+				values = append(values, value)
+			}
+			if len(values) == 0 {
+				if op == "sum" {
+					result[spec.As] = float64(0)
+				} else {
+					result[spec.As] = nil
+				}
+				continue
+			}
+			value := values[0]
+			switch op {
+			case "sum", "avg":
+				value = 0
+				for _, item := range values {
+					value += item
+				}
+				if op == "avg" {
+					value /= float64(len(values))
+				}
+			case "min":
+				for _, item := range values[1:] {
+					value = math.Min(value, item)
+				}
+			case "max":
+				for _, item := range values[1:] {
+					value = math.Max(value, item)
+				}
+			}
+			result[spec.As] = value
 		}
 	}
 	return result, nil
+}
+
+func dataAggregateValue(row map[string]any, spec dataQueryAggregate) (float64, error) {
+	if spec.Field != "" {
+		value, ok := dataFieldValue(row, spec.Field)
+		if !ok {
+			return 0, fmt.Errorf("field %q is missing", spec.Field)
+		}
+		number, ok := dataNumber(value)
+		if !ok {
+			return 0, fmt.Errorf("field %q is not numeric", spec.Field)
+		}
+		return number, nil
+	}
+	parsed, err := parser.ParseExpr(spec.Expression)
+	if err != nil {
+		return 0, fmt.Errorf("invalid aggregate expression %q: %v", spec.Expression, err)
+	}
+	variables := make(map[string]float64, len(row))
+	for name, value := range row {
+		if number, ok := dataNumber(value); ok {
+			variables[name] = number
+		}
+	}
+	value, err := evaluateExpression(parsed, variables)
+	if err != nil {
+		return 0, fmt.Errorf("aggregate expression %q: %v", spec.Expression, err)
+	}
+	if math.IsNaN(value) || math.IsInf(value, 0) {
+		return 0, fmt.Errorf("aggregate expression result must be finite")
+	}
+	return value, nil
+}
+
+func dataNumber(value any) (float64, bool) {
+	switch number := value.(type) {
+	case float64:
+		return number, true
+	case float32:
+		return float64(number), true
+	case int:
+		return float64(number), true
+	case json.Number:
+		parsed, err := number.Float64()
+		return parsed, err == nil
+	case string:
+		parsed, err := strconv.ParseFloat(strings.TrimSpace(number), 64)
+		return parsed, err == nil
+	default:
+		return 0, false
+	}
 }
 
 func readStructuredRows(ctx context.Context, target string) ([]map[string]any, error) {
@@ -434,7 +752,7 @@ func readStructuredRows(ctx context.Context, target string) ([]map[string]any, e
 				return nil
 			}
 			switch strings.ToLower(filepath.Ext(path)) {
-			case ".json", ".jsonl", ".csv":
+			case ".json", ".jsonl", ".csv", ".tsv":
 				paths = append(paths, path)
 			}
 			return nil
@@ -462,7 +780,9 @@ func readStructuredFile(path string) ([]map[string]any, error) {
 	}
 	switch strings.ToLower(filepath.Ext(path)) {
 	case ".csv":
-		return decodeCSVRows(data)
+		return decodeDelimitedRows(data, ',')
+	case ".tsv":
+		return decodeDelimitedRows(data, '\t')
 	case ".json":
 		var array []map[string]any
 		decoder := json.NewDecoder(bytes.NewReader(data))
@@ -494,8 +814,9 @@ func readStructuredFile(path string) ([]map[string]any, error) {
 	}
 }
 
-func decodeCSVRows(data []byte) ([]map[string]any, error) {
+func decodeDelimitedRows(data []byte, comma rune) ([]map[string]any, error) {
 	reader := csv.NewReader(bytes.NewReader(data))
+	reader.Comma = comma
 	records, err := reader.ReadAll()
 	if err != nil {
 		return nil, err
@@ -523,66 +844,6 @@ func decodeCSVRows(data []byte) ([]map[string]any, error) {
 	return rows, nil
 }
 
-func parseFilter(value string) (map[string]string, bool, error) {
-	value = strings.TrimSpace(value)
-	if value == "" {
-		return nil, false, nil
-	}
-	week := strings.Contains(value, "本周") || strings.EqualFold(value, "this week")
-	value = strings.ReplaceAll(value, "本周", "")
-	value = strings.ReplaceAll(strings.ToLower(value), "this week", "")
-	value = strings.NewReplacer("&&", ",", ";", ",", "，", ",").Replace(value)
-	predicates := make(map[string]string)
-	for _, item := range strings.Split(value, ",") {
-		item = strings.TrimSpace(item)
-		if item == "" {
-			continue
-		}
-		parts := strings.SplitN(item, "=", 2)
-		if len(parts) != 2 || strings.TrimSpace(parts[0]) == "" {
-			return nil, false, fmt.Errorf("unsupported predicate %q; use field=value", item)
-		}
-		field := strings.TrimSpace(parts[0])
-		expected := strings.TrimSpace(parts[1])
-		if strings.ContainsAny(field, "<>!~") || strings.HasPrefix(expected, "=") {
-			return nil, false, fmt.Errorf("unsupported predicate %q; only exact field=value is supported", item)
-		}
-		predicates[field] = expected
-	}
-	return predicates, week, nil
-}
-
-func rowMatches(row map[string]any, predicates map[string]string) bool {
-	for key, expected := range predicates {
-		actual, ok := row[key]
-		if !ok || !strings.EqualFold(strings.TrimSpace(fmt.Sprint(actual)), expected) {
-			return false
-		}
-	}
-	return true
-}
-
-func rowInCurrentWeek(row map[string]any, now time.Time) bool {
-	var raw string
-	for _, key := range []string{"date", "time", "timestamp", "occurred_at", "created_at"} {
-		if value, ok := row[key]; ok {
-			raw = fmt.Sprint(value)
-			break
-		}
-	}
-	if raw == "" {
-		return false
-	}
-	when, ok := parseRowTime(raw, now.Location())
-	if !ok {
-		return false
-	}
-	weekdayOffset := (int(now.Weekday()) + 6) % 7
-	start := time.Date(now.Year(), now.Month(), now.Day()-weekdayOffset, 0, 0, 0, 0, now.Location())
-	end := start.AddDate(0, 0, 7)
-	return !when.Before(start) && when.Before(end)
-}
-
 func parseRowTime(value string, location *time.Location) (time.Time, bool) {
 	for _, layout := range []string{time.RFC3339, "2006-01-02 15:04:05", "2006-01-02"} {
 		parsed, err := time.ParseInLocation(layout, value, location)
@@ -591,26 +852,6 @@ func parseRowTime(value string, location *time.Location) (time.Time, bool) {
 		}
 	}
 	return time.Time{}, false
-}
-
-func numericRowValue(row map[string]any) (float64, bool) {
-	for _, key := range []string{"amount", "total", "value", "revenue", "result"} {
-		value, ok := row[key]
-		if !ok {
-			continue
-		}
-		switch number := value.(type) {
-		case float64:
-			return number, true
-		case json.Number:
-			parsed, err := number.Float64()
-			return parsed, err == nil
-		case string:
-			parsed, err := strconv.ParseFloat(number, 64)
-			return parsed, err == nil
-		}
-	}
-	return 0, false
 }
 
 type datetimeTool struct{ clock Clock }

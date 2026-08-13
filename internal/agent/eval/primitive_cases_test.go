@@ -336,7 +336,8 @@ func TestPrimitiveSuiteUsesCaseMaxTurns(t *testing.T) {
 	}
 	if report.Manifest.Harness.Protocol != agent.G1IFunctionProtocolV1 ||
 		report.Manifest.Harness.Renderer != agent.G1IFunctionRendererV1 ||
-		!report.Manifest.Harness.EndOnTerminalTool {
+		!report.Manifest.Harness.EndOnTerminalTool ||
+		report.Manifest.Harness.ToolProfile != PrimitiveProfileUpstream {
 		t.Fatalf("Primitive native G1i harness = %+v", report.Manifest.Harness)
 	}
 }
@@ -449,5 +450,39 @@ func TestPrimitiveToolContractsMatchUpstreamSnapshot(t *testing.T) {
 		if !slices.Equal(schema.Required, contract.required) {
 			t.Fatalf("%s required = %v, want %v", spec.Name, schema.Required, contract.required)
 		}
+	}
+}
+
+func TestPrimitiveGoNativeProfileReplacesLuaWithCoreTools(t *testing.T) {
+	t.Parallel()
+
+	runtime := &primitiveRuntime{toolNames: []string{
+		"list_files", "read_file", "run_lua", "submit",
+	}}
+	testCase := Case{
+		Primitive: &PrimitiveMetadata{ToolNames: append([]string(nil), runtime.toolNames...)},
+		primitive: runtime,
+	}
+	tools, execution, err := evalTools(Config{
+		Suite:            SuitePrimitive,
+		PrimitiveProfile: PrimitiveProfileGoNative,
+	}, t.TempDir(), testCase)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if execution == nil {
+		t.Fatal("Go-native Primitive profile did not preserve scoring execution")
+	}
+	names := make(map[string]bool, len(tools))
+	for _, tool := range tools {
+		names[tool.Spec().Name] = true
+	}
+	for _, required := range []string{"list_files", "read_file", "submit", "calculator", "data_query"} {
+		if !names[required] {
+			t.Errorf("Go-native Primitive profile is missing %q: %v", required, names)
+		}
+	}
+	if names["run_lua"] {
+		t.Errorf("Go-native Primitive profile still exposes run_lua: %v", names)
 	}
 }

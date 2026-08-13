@@ -34,25 +34,25 @@
       "description": "Aggregate current-week local expenses and convert the deterministic total.",
       "category": "assistant-dependent",
       "files": {
-        "notes/expenses.jsonl": "{\"date\":\"2026-08-03\",\"item\":\"午餐\",\"amount\":100,\"currency\":\"CNY\"}\n{\"date\":\"2026-08-04\",\"item\":\"交通\",\"amount\":50,\"currency\":\"CNY\"}\n{\"date\":\"2026-07-31\",\"item\":\"旧记录\",\"amount\":900,\"currency\":\"CNY\"}\n"
+        "notes/expenses.jsonl": "{\"date\":\"2026-08-03\",\"week\":\"current\",\"item\":\"午餐\",\"amount\":100,\"currency\":\"CNY\"}\n{\"date\":\"2026-08-04\",\"week\":\"current\",\"item\":\"交通\",\"amount\":50,\"currency\":\"CNY\"}\n{\"date\":\"2026-07-31\",\"week\":\"previous\",\"item\":\"旧记录\",\"amount\":900,\"currency\":\"CNY\"}\n"
       },
       "turns": [
         {
           "prompt": "看一下我 notes 目录里这周的开销记录，一共花了多少，换成美元大概是多少？",
           "expect": {
             "route": "inspect",
-            "tools": ["structured_query", "fx_convert"],
+            "tools": ["data_query", "fx_convert"],
             "calls": [
-              {"name": "structured_query", "arguments": {"path": "notes", "filter": "本周", "aggregate": "sum"}},
+              {"name": "data_query", "arguments": {"path": "notes", "filter": {"week": "current"}, "operation": "sum", "field": "amount"}},
               {"name": "fx_convert", "arguments": {"amount": 150, "from": "CNY", "to": "USD"}}
             ],
             "output_contains": ["150", "21"],
             "output_excludes": ["<tool_call>", "<tool_result>", "Assistant:"],
             "plan": {
               "subtask_count": 2,
-              "waves": [["structured_query"], ["fx_convert"]],
+              "waves": [["data_query"], ["fx_convert"]],
               "references": [
-                {"subtask": 2, "argument": "amount", "source": "$1.total"}
+                {"subtask": 2, "argument": "amount", "source": "$1.value"}
               ]
             }
           }
@@ -65,16 +65,16 @@
       "category": "assistant-degradation",
       "provider_unavailable": ["fx"],
       "files": {
-        "notes/expenses.jsonl": "{\"date\":\"2026-08-03\",\"item\":\"午餐\",\"amount\":100,\"currency\":\"CNY\"}\n{\"date\":\"2026-08-04\",\"item\":\"交通\",\"amount\":50,\"currency\":\"CNY\"}\n{\"date\":\"2026-07-31\",\"item\":\"旧记录\",\"amount\":900,\"currency\":\"CNY\"}\n"
+        "notes/expenses.jsonl": "{\"date\":\"2026-08-03\",\"week\":\"current\",\"item\":\"午餐\",\"amount\":100,\"currency\":\"CNY\"}\n{\"date\":\"2026-08-04\",\"week\":\"current\",\"item\":\"交通\",\"amount\":50,\"currency\":\"CNY\"}\n{\"date\":\"2026-07-31\",\"week\":\"previous\",\"item\":\"旧记录\",\"amount\":900,\"currency\":\"CNY\"}\n"
       },
       "turns": [
         {
           "prompt": "看一下我 notes 目录里这周的开销记录，一共花了多少，换成美元大概是多少？如果汇率不可用，不要猜。",
           "expect": {
             "route": "inspect",
-            "tools": ["structured_query", "fx_convert"],
+            "tools": ["data_query", "fx_convert"],
             "calls": [
-              {"name": "structured_query", "arguments": {"path": "notes", "filter": "本周", "aggregate": "sum"}},
+              {"name": "data_query", "arguments": {"path": "notes", "filter": {"week": "current"}, "operation": "sum", "field": "amount"}},
               {"name": "fx_convert", "arguments": {"amount": 150, "from": "CNY", "to": "USD"}}
             ],
             "output_contains": ["150", "不可用"],
@@ -82,9 +82,9 @@
             "must_state_unverified": ["不可用"],
             "plan": {
               "subtask_count": 2,
-              "waves": [["structured_query"], ["fx_convert"]],
+              "waves": [["data_query"], ["fx_convert"]],
               "references": [
-                {"subtask": 2, "argument": "amount", "source": "$1.total"}
+                {"subtask": 2, "argument": "amount", "source": "$1.value"}
               ]
             }
           }

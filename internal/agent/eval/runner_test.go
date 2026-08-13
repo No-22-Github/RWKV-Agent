@@ -427,13 +427,13 @@ func TestAssistantSuiteMockAcceptance(t *testing.T) {
 		},
 		{
 			generated("inspect"),
-			generated(`<tool_call>{"name":"structured_query","arguments":{"path":"notes","filter":"本周","aggregate":"sum"}}</tool_call>`),
+			generated(`<tool_call>{"name":"data_query","arguments":{"path":"notes","filter":{"week":"current"},"operation":"sum","field":"amount"}}</tool_call>`),
 			generated(`<tool_call>{"name":"fx_convert","arguments":{"amount":150,"from":"CNY","to":"USD"}}</tool_call>`),
 			generated("本周共花费 150 元人民币，约合 21 美元。"),
 		},
 		{
 			generated("inspect"),
-			generated(`<tool_call>{"name":"structured_query","arguments":{"path":"notes","filter":"本周","aggregate":"sum"}}</tool_call>`),
+			generated(`<tool_call>{"name":"data_query","arguments":{"path":"notes","filter":{"week":"current"},"operation":"sum","field":"amount"}}</tool_call>`),
 			generated(`<tool_call>{"name":"fx_convert","arguments":{"amount":150,"from":"CNY","to":"USD"}}</tool_call>`),
 			generated("本周共花费 150 元人民币；汇率服务不可用，美元换算未完成。"),
 		},

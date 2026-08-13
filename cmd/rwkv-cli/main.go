@@ -83,6 +83,7 @@ type runOptions struct {
 	evalCaseIDs         stringListFlag
 	evalCaseTimeout     time.Duration
 	evalCaseParallelism int
+	primitiveProfile    string
 }
 
 type stringListFlag []string
@@ -133,7 +134,7 @@ func usage() {
   rwkv-cli convert --input <RWKV .pth> --output <MLX model directory>
   rwkv-cli run --model <RWKV .pth or MLX directory> [--prompt <text> | --session <bundle>]
   rwkv-cli agent --model <path or remote model ID> [--prompt <task>] [--ui auto|tui|plain]
-  rwkv-cli agent-eval --model <path or remote model ID> [--suite boundary|smoke|assistant|primitive] [--output <directory>]
+  rwkv-cli agent-eval --model <path or remote model ID> [--suite boundary|smoke|assistant|primitive] [--primitive-profile upstream-compatible|go-native] [--output <directory>]
   rwkv-cli concurrent --model <RWKV .pth or MLX directory> [--concurrency 1..8] [--ui auto|tui|plain]
   rwkv-cli bench --model <RWKV .pth or MLX directory> [--concurrency 1..8]`)
 }
@@ -315,6 +316,12 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			fs.Var(&options.evalCaseIDs, "case", "repeatable built-in or file-backed case ID to run")
 			fs.DurationVar(&options.evalCaseTimeout, "case-timeout", 2*time.Minute, "timeout for each isolated eval case")
 			fs.IntVar(&options.evalCaseParallelism, "case-parallelism", 1, "number of eval cases to run concurrently")
+			fs.StringVar(
+				&options.primitiveProfile,
+				"primitive-profile",
+				agenteval.PrimitiveProfileUpstream,
+				"Primitive tool profile: upstream-compatible or go-native",
+			)
 		}
 	case "concurrent":
 		fs.IntVar(&options.concurrency, "concurrency", 4, "number of overlapping sessions")
@@ -408,6 +415,10 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		}
 		if name == "agent-eval" && options.evalCaseParallelism <= 0 {
 			return options, errors.New("--case-parallelism must be positive")
+		}
+		if name == "agent-eval" && options.primitiveProfile != agenteval.PrimitiveProfileUpstream &&
+			options.primitiveProfile != agenteval.PrimitiveProfileGoNative {
+			return options, fmt.Errorf("unsupported Primitive tool profile %q", options.primitiveProfile)
 		}
 		if name == "agent-eval" {
 			if options.evalSuite != agenteval.SuiteBoundary &&
@@ -901,6 +912,9 @@ func runAgentEval(args []string) error {
 			return fmt.Errorf("load Agent eval cases: %w", err)
 		}
 	}
+	if suite != agenteval.SuitePrimitive && options.primitiveProfile != agenteval.PrimitiveProfileUpstream {
+		return errors.New("--primitive-profile go-native requires a Primitive suite or case directory")
+	}
 	cases, err = agenteval.SelectCases(cases, options.evalCaseIDs)
 	if err != nil {
 		return err
@@ -941,12 +955,13 @@ func runAgentEval(args []string) error {
 		model.Backend = string(info.Backend)
 	}
 	report, runErr := agenteval.Run(ctx, agenteval.Config{
-		Cases:           cases,
-		Suite:           suite,
-		Model:           model,
-		Runner:          agentRunnerOptions(options, nil),
-		CaseTimeout:     options.evalCaseTimeout,
-		CaseParallelism: options.evalCaseParallelism,
+		Cases:            cases,
+		Suite:            suite,
+		Model:            model,
+		Runner:           agentRunnerOptions(options, nil),
+		CaseTimeout:      options.evalCaseTimeout,
+		CaseParallelism:  options.evalCaseParallelism,
+		PrimitiveProfile: options.primitiveProfile,
 		GeneratorFactory: func(
 			caseContext context.Context,
 		) (continuation.Generator, io.Closer, error) {

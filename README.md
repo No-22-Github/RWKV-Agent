@@ -225,7 +225,9 @@ revision，丢弃旧版 native State，再用当前 profile replay。未显式�
 `agent` 命令用于验证第一条 Agent Harness 纵向链路：模型可以在指定工作区内列出文件、
 读取文本、搜索字面量和确定性处理结构化数据，然后基于实际工具结果回答。P0 还注册了
 `weather`、`nearest_transit`、`transit_hours`、`fx_convert`、`calculator`、
-`structured_query` 和 `datetime`。天气、交通和汇率目前使用固定 mock Provider，只用于
+`data_query` 和 `datetime`。其中 `calculator` 与 `data_query` 是不依赖 Provider 的 Go
+原生核心工具：前者提供受限算术与定点格式化，后者提供 CSV/TSV/JSON/JSONL 的过滤、选择、
+分组和聚合。天气、交通和汇率目前使用固定 mock Provider，只用于
 可重复评测，不代表实时数据；工具没有写入、命令执行或真实网络能力。
 Agent 只依赖“文本前缀 -> 续写文本”的窄接口，本地模型和 `rwkv_lightning` HTTP 是两种
 可替换 adapter。当前 `rwkv-g1i-envelope-v1` 采用 G1I 已验证的文本 envelope：
@@ -500,12 +502,24 @@ Chat Completions 模型使用同一套评测：
 `agent_cases_orig30` 的 30-case 固定快照。JSON 会嵌入 CLI，因此本地、CI 和外部模型
 评测使用完全相同的 prompt、fixture 与评分契约，不需要先 clone 上游仓库：
 
+Primitive suite 有两种显式工具 profile：
+
+- `upstream-compatible`（默认）保留上游逐题声明的完整工具目录，包括 `run_lua`，用于协议
+  和 Harness 横向对照。
+- `go-native` 保留相同题目、fixture、`max_turns` 和 scorer，但在原题提供 `run_lua` 时以
+  RWKV-Agent 的 `calculator` 与 `data_query` 替代它；文件、测试、提交等评测工具保持不变。
+  这条轨道衡量实际 Go Agent 产品能力，不要求安装 Lua。
+
 ```sh
 ./dist/rwkv-cli agent-eval \
   --model /absolute/path/to/rwkv7-model.pth \
   --suite primitive \
+  --primitive-profile go-native \
   --output runs/primitive-orig30-local
 ```
+
+去掉 `--primitive-profile go-native` 即运行默认的上游兼容轨。`run.json` 的
+`manifest.harness.tool_profile` 会记录实际 profile，避免两种分数被误混。
 
 同一入口可以对外部 OpenAI Chat Completions 接口做黑盒测试：
 
@@ -565,7 +579,11 @@ checkout，仍可通过 `--cases ../rwkv-Primitive-Bench/agent_cases_orig30` 加
 | `list_schedules` | 返回空列表的干扰工具，并由 forbidden-tool 评分检查是否误用 |
 
 工具名称、JSON 参数字段、必填字段和 `additionalProperties: false` 与快照上游 schema
-保持一致，并有契约测试。上游 Harness 对 `bash` 包装、参数别名、虚构绝对路径等错误调用
+在 `upstream-compatible` profile 中保持一致，并有契约测试。`go-native` profile 只替换
+`run_lua`：`calculator` 支持 `+ - * / %`、括号、`abs/min/max/round` 与可选精度；
+`data_query` 支持字段/嵌套字段选择、精确过滤、分组、去重计数，以及字段或安全行表达式的
+`count/sum/avg/min/max/distinct_count`；每次调用只做一种聚合，接口保持适合小模型的扁平
+参数形状。上游 Harness 对 `bash` 包装、参数别名、虚构绝对路径等错误调用
 进行的猜测与改写不会移植；我们的 Runner 必须用协议约束、精确错误反馈与恢复循环自行处理，
 否则会把上游 Harness 的容错能力混入本 Harness 的得分。Primitive suite 还映射了上游
 `system: "base"` 的必须 `submit` 约束，并使用 1024-token 工具调用预算。

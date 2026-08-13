@@ -94,3 +94,47 @@ go run ./cmd/rwkv-cli agent-eval \
 - `runs/primitive-v13-native-g1i-final-batch30-20260813`
 - `runs/primitive-v13-native-g1i-batch30-20m-20260813`
 - `runs/primitive-v13-native-g1i-batch30-20260813`
+
+## v14 Go 原生工具双轨
+
+Harness v14 新增显式 `--primitive-profile`：默认 `upstream-compatible` 继续作为官方协议
+对照；`go-native` 使用完全相同的 30 题、fixture、逐题 `max_turns` 和 scorer，只在题目原本
+提供 `run_lua` 时将其替换为 RWKV-Agent 的 Go 原生核心工具：
+
+- `calculator`：受限算术、`abs/min/max/round`、可选 0–15 位定点结果；
+- `data_query`：CSV/TSV/JSON/JSONL 精确过滤、字段选择、分组，以及
+  `count/sum/avg/min/max/distinct_count`；每次调用执行一个聚合，数值聚合可使用
+  `qty*unit_price` 一类安全行表达式。
+
+普通 `agent` 命令也注册同一套核心工具。这样 Go-native 分数直接反映产品工具栈，Lua 兼容
+能力不再成为产品门槛，同时保留 upstream-compatible 分数用于和官方 Harness 做协议诊断。
+
+### 2026-08-13 实测状态
+
+- 首个无网络错误的 Go-native 原型整轮为 **17/30**，protocol validity 100%，与 v13
+  upstream-compatible 最终轮同分。trace 证明模型会发现新工具，但最初的嵌套多聚合 schema
+  容易被 7B 模型当作参数内容照抄。
+- 最终接口因此收敛为一次一个扁平操作：`operation` + `field` 或 `expression`；最终二进制的
+  `csv_sum` sanity 为 **1/1**，轨迹是 `read_file -> calculator -> submit`。
+- 最终代码的两次 30 并发全量尝试均因部署层 524 作废：第一次 23 个 case 报 HTTP 524，
+  第二次 30/30 都在首个模型调用报 HTTP 524，protocol 分母为 0。它们分别保存在
+  `runs/primitive-v14-go-native-final-batch30-20260813` 和
+  `runs/primitive-v14-go-native-final-batch30-retry-20260813`，不能当作模型或 Agent 分数。
+
+因此当前可引用的 Go-native 整轮仍是原型 **17/30**；最终扁平契约需要等待服务健康窗口再跑
+一次无 524 的 30 并发，才可更新正式对比分数。
+
+```sh
+go run ./cmd/rwkv-cli agent-eval \
+  --completion rwkv-lightning \
+  --api-url https://api-125-7b.rwkvos.com/v1/batch/completions \
+  --api-header-env CF-Access-Client-Id=RWKV_CF_ACCESS_CLIENT_ID \
+  --api-header-env CF-Access-Client-Secret=RWKV_CF_ACCESS_CLIENT_SECRET \
+  --api-stop-tokens cuda \
+  --model rwkv7-g1i-7.2b-20260805-ctx16384 \
+  --suite primitive \
+  --primitive-profile go-native \
+  --case-parallelism 30 \
+  --case-timeout 20m \
+  --output runs/primitive-v14-go-native
+```

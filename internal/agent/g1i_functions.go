@@ -32,10 +32,15 @@ func (G1IFunctionProtocol) Instructions(specs []ToolSpec, _ inference.ThinkingMo
 		encoded, _ := json.Marshal(entry)
 		entries = append(entries, string(encoded))
 	}
+	computeGuidance := ""
+	if hasToolSpec(specs, "calculator") || hasToolSpec(specs, "data_query") {
+		computeGuidance = "Read relevant task files with read_file first. calculator accepts numeric expressions only; use data_query for multi-row tables. " +
+			"Do not repeat a successful call or reread unchanged files. "
+	}
 	return "Tools:\n[\n" + strings.Join(entries, ",\n") + "\n]\n" +
 		"Exact tool names only. Paths are relative (e.g. src/a.txt), never absolute. " +
 		`Call shape: {"name":"read_file","arguments":{"path":"file.txt"}}. ` +
-		"After each Function output, return the next JSON function call. " +
+		computeGuidance + "After each Function output, return the next JSON function call. " +
 		"Finish with submit when it is offered. read_file lines: omit leading 'N: '. Money: two decimals.\n" +
 		"Return only a JSON function call."
 }

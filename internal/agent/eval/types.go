@@ -11,7 +11,10 @@ import (
 
 const (
 	SchemaVersion  = 3
-	HarnessVersion = "rwkv-agent-eval-v13"
+	HarnessVersion = "rwkv-agent-eval-v14"
+
+	PrimitiveProfileUpstream = "upstream-compatible"
+	PrimitiveProfileGoNative = "go-native"
 )
 
 type GeneratorFactory func(
@@ -124,6 +127,7 @@ type HarnessMetadata struct {
 	RouteMaxOutputTokens    int    `json:"route_max_output_tokens"`
 	TracePromptBytes        int    `json:"trace_prompt_bytes"`
 	CaseParallelism         int    `json:"case_parallelism"`
+	ToolProfile             string `json:"tool_profile,omitempty"`
 }
 
 type EnvironmentMetadata struct {
@@ -288,6 +292,7 @@ type Config struct {
 	CaseParallelism  int
 	Now              func() time.Time
 	TempDir          string
+	PrimitiveProfile string
 }
 
 type caseFile struct {
