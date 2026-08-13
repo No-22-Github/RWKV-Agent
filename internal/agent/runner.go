@@ -112,7 +112,11 @@ type Options struct {
 	// TerminalTool requires this tool to succeed before a plain-text final is
 	// accepted. If the tool is not offered for a particular Runner, the option
 	// is ignored (for example the Primitive arithmetic case has no submit tool).
-	TerminalTool         string
+	TerminalTool string
+	// EndOnTerminalTool ends the turn as soon as TerminalTool succeeds. This
+	// matches benchmark protocols where submit is itself the scored final action
+	// and avoids spending an extra model turn on a redundant plain-text answer.
+	EndOnTerminalTool    bool
 	Protocol             ActionProtocol
 	Renderer             PromptRenderer
 	Generation           continuation.Request
@@ -172,22 +176,23 @@ type PromptTrace struct {
 }
 
 type Step struct {
-	Number          int                       `json:"number"`
-	Stage           GenerationStage           `json:"stage"`
-	Request         *PromptTrace              `json:"request,omitempty"`
-	ModelOutput     string                    `json:"model_output"`
-	FinishReason    continuation.FinishReason `json:"finish_reason"`
-	Usage           continuation.Usage        `json:"usage"`
-	ActionType      string                    `json:"action_type,omitempty"`
-	Tool            string                    `json:"tool,omitempty"`
-	ToolArguments   json.RawMessage           `json:"tool_arguments,omitempty"`
-	ToolResult      json.RawMessage           `json:"tool_result,omitempty"`
-	ToolExecuted    bool                      `json:"tool_executed,omitempty"`
-	ToolEvidence    bool                      `json:"tool_evidence,omitempty"`
-	ToolUnavailable bool                      `json:"tool_unavailable,omitempty"`
-	ToolRejected    string                    `json:"tool_rejected_reason,omitempty"`
-	ToolError       string                    `json:"tool_error,omitempty"`
-	ProtocolError   string                    `json:"protocol_error,omitempty"`
+	Number           int                       `json:"number"`
+	Stage            GenerationStage           `json:"stage"`
+	Request          *PromptTrace              `json:"request,omitempty"`
+	ModelOutput      string                    `json:"model_output"`
+	FinishReason     continuation.FinishReason `json:"finish_reason"`
+	Usage            continuation.Usage        `json:"usage"`
+	ActionType       string                    `json:"action_type,omitempty"`
+	Tool             string                    `json:"tool,omitempty"`
+	ToolArguments    json.RawMessage           `json:"tool_arguments,omitempty"`
+	ToolResult       json.RawMessage           `json:"tool_result,omitempty"`
+	ToolExecuted     bool                      `json:"tool_executed,omitempty"`
+	ToolEvidence     bool                      `json:"tool_evidence,omitempty"`
+	ToolUnavailable  bool                      `json:"tool_unavailable,omitempty"`
+	ToolRejected     string                    `json:"tool_rejected_reason,omitempty"`
+	ToolError        string                    `json:"tool_error,omitempty"`
+	ProtocolError    string                    `json:"protocol_error,omitempty"`
+	ProtocolRepaired bool                      `json:"protocol_repaired,omitempty"`
 }
 
 // RouteStep records one routing attempt, including the retry a correction
@@ -338,9 +343,11 @@ func NewRunner(generator continuation.Generator, tools []Tool, options Options) 
 		registered[spec.Name] = tool
 		specs = append(specs, spec)
 	}
-	sort.Slice(specs, func(left, right int) bool {
-		return specs[left].Name < specs[right].Name
-	})
+	if !preservesToolOrder(options.Protocol) {
+		sort.Slice(specs, func(left, right int) bool {
+			return specs[left].Name < specs[right].Name
+		})
+	}
 	var toolCompleter toolchat.Completer
 	if candidate, ok := generator.(toolchat.Completer); ok && candidate.NativeToolCalling() {
 		for _, spec := range specs {
@@ -483,6 +490,8 @@ func (r *Runner) RunWithObserver(
 	hasToolEvidence := false
 	consecutiveFailedTool := ""
 	consecutiveToolFailures := 0
+	lastNativeCallKey := ""
+	nativeRepeatStreak := 0
 	stage := StageDecision
 	assistantPrefix := ""
 	forceAnswer := false
@@ -622,6 +631,7 @@ func (r *Runner) RunWithObserver(
 		}
 		retries = 0
 		result.Steps[len(result.Steps)-1].ActionType = action.Type
+		result.Steps[len(result.Steps)-1].ProtocolRepaired = action.ProtocolRepaired
 		if action.Type == "final" {
 			if !terminalToolCompleted {
 				err = fmt.Errorf(
@@ -699,15 +709,24 @@ func (r *Runner) RunWithObserver(
 		recoveryBlocked := false
 		executed := false
 		callKey := canonicalToolCall(action)
+		if preservesToolOrder(r.protocol) {
+			if callKey == lastNativeCallKey {
+				nativeRepeatStreak++
+			} else {
+				lastNativeCallKey = callKey
+				nativeRepeatStreak = 0
+			}
+		}
 		if _, unavailable := unavailableTools[action.Name]; unavailable {
 			result.Steps[len(result.Steps)-1].ToolRejected = rejectedProviderUnavailable
 			result.Steps[len(result.Steps)-1].ToolUnavailable = true
 			err = fmt.Errorf("%w: %s", ErrProviderUnavailable, action.Name)
-		} else if _, exists := seenSuccessfulToolCalls[callKey]; exists {
+		} else if _, exists := seenSuccessfulToolCalls[callKey]; exists && !preservesToolOrder(r.protocol) {
 			duplicate = true
 			result.Steps[len(result.Steps)-1].ToolRejected = rejectedDuplicateCall
 			err = fmt.Errorf("duplicate tool call rejected")
-		} else if epoch, exists := failedToolCallEpochs[callKey]; exists && epoch == successfulToolCalls {
+		} else if epoch, exists := failedToolCallEpochs[callKey]; exists &&
+			epoch == successfulToolCalls && !preservesToolOrder(r.protocol) {
 			duplicate = true
 			result.Steps[len(result.Steps)-1].ToolRejected = rejectedDuplicateCall
 			err = fmt.Errorf("duplicate tool call rejected")
@@ -716,7 +735,7 @@ func (r *Runner) RunWithObserver(
 			case !ok:
 				result.Steps[len(result.Steps)-1].ToolRejected = rejectedUnknownTool
 				err = fmt.Errorf("unknown tool %q", action.Name)
-			case action.Name == consecutiveFailedTool &&
+			case !preservesToolOrder(r.protocol) && action.Name == consecutiveFailedTool &&
 				consecutiveToolFailures >= maxConsecutiveToolFailures:
 				recoveryBlocked = true
 				result.Steps[len(result.Steps)-1].ToolRejected = rejectedFailureLimit
@@ -793,6 +812,12 @@ func (r *Runner) RunWithObserver(
 			callID,
 			string(encoded),
 		)
+		if preservesToolOrder(r.protocol) && nativeRepeatStreak >= 1 && action.Name != r.terminalTool {
+			toolContent += "\nNOTE: identical tool call repeated. Do not call it again. Take the next step (other file, compute, run_tests, or submit)."
+			if nativeRepeatStreak >= 2 {
+				toolContent += "\nNOTE2: stop repeating. If you already have the answer, call submit now."
+			}
+		}
 		toolContent = compactToolResult(task, toolContent)
 		recordedAction := r.protocol.RecordAction(action, generated.Text)
 		var recordedToolCalls []toolchat.ToolCall
@@ -829,15 +854,24 @@ func (r *Runner) RunWithObserver(
 				Content:    toolContent,
 			},
 		)
+		if err == nil && action.Name == r.terminalTool && r.options.EndOnTerminalTool {
+			output := terminalToolOutput(action, value)
+			result.OriginalOutput = output
+			result.Output = output
+			r.commit(turnMessages)
+			return result, nil
+		}
 		if err == nil {
 			successfulToolCalls++
 			if action.Name == r.terminalTool {
 				terminalToolCompleted = true
 			}
-			messages = append(messages, Message{
-				Role:    RoleUser,
-				Content: r.postToolReminder(terminalToolCompleted),
-			})
+			if reminder := strings.TrimSpace(r.postToolReminder(terminalToolCompleted)); reminder != "" {
+				messages = append(messages, Message{
+					Role:    RoleUser,
+					Content: reminder,
+				})
+			}
 		} else if duplicate {
 			if terminalToolCompleted {
 				forceAnswer = true
@@ -857,7 +891,27 @@ func (r *Runner) RunWithObserver(
 	return result, ErrMaxSteps
 }
 
+func terminalToolOutput(action Action, value any) string {
+	var arguments struct {
+		Answer string `json:"answer"`
+	}
+	if json.Unmarshal(action.Arguments, &arguments) == nil && strings.TrimSpace(arguments.Answer) != "" {
+		return strings.TrimSpace(arguments.Answer)
+	}
+	if text, ok := value.(string); ok {
+		return strings.TrimSpace(text)
+	}
+	encoded, err := json.Marshal(value)
+	if err != nil {
+		return ""
+	}
+	return string(encoded)
+}
+
 func (r *Runner) postToolReminder(terminalToolCompleted bool) string {
+	if preservesToolOrder(r.protocol) {
+		return r.protocol.PostToolReminder()
+	}
 	if !terminalToolCompleted {
 		return fmt.Sprintf(
 			"Use the Tool results above to continue the current task. Call another tool only for a specific missing fact. When the answer is ready, call %s with the real answer; do not answer in plain text. Never repeat a successful tool call.",

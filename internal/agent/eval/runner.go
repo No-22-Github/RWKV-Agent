@@ -33,9 +33,18 @@ func Run(ctx context.Context, config Config) (Report, error) {
 	if config.CaseTimeout <= 0 {
 		config.CaseTimeout = defaultCaseTimeout
 	}
+	if config.CaseParallelism <= 0 {
+		config.CaseParallelism = 1
+	}
+	if config.CaseParallelism > len(config.Cases) {
+		config.CaseParallelism = len(config.Cases)
+	}
 	if config.Suite == SuitePrimitive {
-		config.Runner.TaskControl = primitiveTaskControl
+		config.Runner.Protocol = agent.G1IFunctionProtocol{}
+		config.Runner.Renderer = agent.G1IFunctionRenderer{HasSubmit: true}
+		config.Runner.TaskControl = ""
 		config.Runner.TerminalTool = "submit"
+		config.Runner.EndOnTerminalTool = true
 		// Primitive Bench allows a full 1024-token generation for tool calls;
 		// write_file and run_lua legitimately carry multi-line source in JSON.
 		// The interactive Harness's compact 96-token first-decision budget would
@@ -56,30 +65,59 @@ func Run(ctx context.Context, config Config) (Report, error) {
 	}
 	started := now().UTC()
 	runID := started.Format("20060102T150405.000000000Z")
-	recorder := newTraceRecorder(now)
 	report := Report{
 		Manifest: runManifest(config, runID, started),
 	}
 	report.Summary.RunID = runID
 
-	for _, testCase := range config.Cases {
-		if err := ctx.Err(); err != nil {
-			report.Manifest.CompletedAt = now().UTC()
-			report.Trace = recorder.records()
-			report.Summary = summarize(runID, config.Cases, report.Summary.Cases, report.Trace)
-			report.Summary.Metrics.WallTimeMillis =
-				report.Manifest.CompletedAt.Sub(report.Manifest.StartedAt).Milliseconds()
-			return report, err
+	type caseRun struct {
+		result CaseResult
+		trace  []TraceRecord
+	}
+	runs := make([]caseRun, len(config.Cases))
+	jobs := make(chan int, len(config.Cases))
+	for index := range config.Cases {
+		jobs <- index
+	}
+	close(jobs)
+	var workers sync.WaitGroup
+	workers.Add(config.CaseParallelism)
+	for range config.CaseParallelism {
+		go func() {
+			defer workers.Done()
+			for index := range jobs {
+				if ctx.Err() != nil {
+					return
+				}
+				recorder := newTraceRecorder(now)
+				runs[index] = caseRun{
+					result: runCase(ctx, config, config.Cases[index], recorder),
+					trace:  recorder.records(),
+				}
+			}
+		}()
+	}
+	workers.Wait()
+	for index, run := range runs {
+		if run.result.ID == "" {
+			run.result = CaseResult{
+				ID:          config.Cases[index].ID,
+				Description: config.Cases[index].Description,
+				Category:    config.Cases[index].Category,
+				Error:       context.Cause(ctx).Error(),
+			}
 		}
-		result := runCase(ctx, config, testCase, recorder)
-		report.Summary.Cases = append(report.Summary.Cases, result)
+		report.Summary.Cases = append(report.Summary.Cases, run.result)
+		for _, record := range run.trace {
+			record.Sequence = len(report.Trace) + 1
+			report.Trace = append(report.Trace, record)
+		}
 	}
 	report.Manifest.CompletedAt = now().UTC()
-	report.Trace = recorder.records()
 	report.Summary = summarize(runID, config.Cases, report.Summary.Cases, report.Trace)
 	report.Summary.Metrics.WallTimeMillis =
 		report.Manifest.CompletedAt.Sub(report.Manifest.StartedAt).Milliseconds()
-	return report, nil
+	return report, ctx.Err()
 }
 
 func runManifest(config Config, runID string, started time.Time) RunManifest {
@@ -138,6 +176,7 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 			ControlPrompt:           string(controlPrompt),
 			TaskControl:             config.Runner.TaskControl,
 			TerminalTool:            config.Runner.TerminalTool,
+			EndOnTerminalTool:       config.Runner.EndOnTerminalTool,
 			ThinkingMode:            string(thinkingMode),
 			Reasoning:               thinkingMode != inference.ThinkingOff,
 			FewShot:                 fewShot,
@@ -148,6 +187,7 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 			DecisionMaxOutputTokens: config.Runner.DecisionMaxOutputTokens,
 			RouteMaxOutputTokens:    config.Runner.RouteMaxOutputTokens,
 			TracePromptBytes:        config.Runner.TracePromptBytes,
+			CaseParallelism:         config.CaseParallelism,
 		},
 		Sampling: samplingSnapshot(config.Runner.Generation.Sampling),
 		Environment: EnvironmentMetadata{
@@ -202,6 +242,18 @@ func runCase(
 	options := config.Runner
 	if testCase.Primitive != nil && testCase.Primitive.MaxTurns > 0 {
 		options.MaxSteps = testCase.Primitive.MaxTurns
+		hasSubmit := slices.Contains(testCase.Primitive.ToolNames, "submit")
+		options.Protocol = agent.G1IFunctionProtocol{}
+		options.Renderer = agent.G1IFunctionRenderer{
+			HasSubmit:   hasSubmit,
+			HasRunTests: slices.Contains(testCase.Primitive.ToolNames, "run_tests"),
+		}
+		options.TerminalTool = ""
+		options.EndOnTerminalTool = false
+		if hasSubmit {
+			options.TerminalTool = "submit"
+			options.EndOnTerminalTool = true
+		}
 	}
 	runner, err := agent.NewRunner(recording, tools, options)
 	if err != nil {
@@ -796,6 +848,9 @@ func summarize(
 				summary.Metrics.ProtocolValidity.Total++
 				if step.ProtocolError == "" {
 					summary.Metrics.ProtocolValidity.Correct++
+				}
+				if step.ProtocolRepaired {
+					summary.Metrics.ProtocolRepairs++
 				}
 				if step.Tool != "" {
 					summary.Metrics.ToolCalls++

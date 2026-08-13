@@ -294,7 +294,6 @@ func TestPrimitiveSuiteUsesCaseMaxTurns(t *testing.T) {
 		`<tool_call>{"name":"read_file","arguments":{"path":"README.md"}}</tool_call>`,
 		`<tool_call>{"name":"read_file","arguments":{"path":"src/answer.txt"}}</tool_call>`,
 		`<tool_call>{"name":"submit","arguments":{"answer":"BLUEBIRD"}}</tool_call>`,
-		"BLUEBIRD",
 	}
 	index := 0
 	report, err := Run(context.Background(), Config{
@@ -334,6 +333,11 @@ func TestPrimitiveSuiteUsesCaseMaxTurns(t *testing.T) {
 	}
 	if report.Manifest.Harness.MaxSteps != 10 {
 		t.Fatalf("manifest max steps = %d, want 10", report.Manifest.Harness.MaxSteps)
+	}
+	if report.Manifest.Harness.Protocol != agent.G1IFunctionProtocolV1 ||
+		report.Manifest.Harness.Renderer != agent.G1IFunctionRendererV1 ||
+		!report.Manifest.Harness.EndOnTerminalTool {
+		t.Fatalf("Primitive native G1i harness = %+v", report.Manifest.Harness)
 	}
 }
 

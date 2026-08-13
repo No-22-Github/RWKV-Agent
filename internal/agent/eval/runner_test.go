@@ -5,10 +5,12 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -16,6 +18,67 @@ import (
 	"github.com/no22/RWKV-Agent/internal/continuation"
 	"github.com/no22/RWKV-Agent/internal/continuation/toolchat"
 )
+
+func TestRunExecutesCasesConcurrentlyAndKeepsReportOrder(t *testing.T) {
+	t.Parallel()
+	answer := "ok"
+	cases := make([]Case, 6)
+	for index := range cases {
+		cases[index] = Case{
+			ID:          fmt.Sprintf("parallel-%d", index),
+			Description: "parallel case",
+			Turns: []Turn{{
+				Prompt: "answer ok",
+				Expect: Expectation{Route: agent.RouteInspect, Tools: []string{}, OutputEquals: &answer},
+			}},
+		}
+	}
+	var active atomic.Int64
+	var maximum atomic.Int64
+	report, err := Run(context.Background(), Config{
+		Cases:           cases,
+		Suite:           "custom",
+		CaseParallelism: 6,
+		Runner: agent.Options{
+			MaxSteps:   2,
+			Generation: continuation.Request{MaxOutputTokens: 32},
+		},
+		GeneratorFactory: func(context.Context) (continuation.Generator, io.Closer, error) {
+			return continuation.GenerateFunc(func(context.Context, continuation.Request, continuation.EventSink) (continuation.Result, error) {
+				current := active.Add(1)
+				defer active.Add(-1)
+				for {
+					observed := maximum.Load()
+					if current <= observed || maximum.CompareAndSwap(observed, current) {
+						break
+					}
+				}
+				time.Sleep(20 * time.Millisecond)
+				return continuation.Result{Text: answer, FinishReason: continuation.FinishStop}, nil
+			}), nil, nil
+		},
+		TempDir: t.TempDir(),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if maximum.Load() < 2 {
+		t.Fatalf("maximum active cases = %d, want concurrent execution", maximum.Load())
+	}
+	if report.Manifest.Harness.CaseParallelism != 6 {
+		t.Fatalf("manifest case parallelism = %d", report.Manifest.Harness.CaseParallelism)
+	}
+	for index, result := range report.Summary.Cases {
+		if result.ID != cases[index].ID || !result.Passed {
+			t.Fatalf("result %d = %+v, want ordered passing case %q", index, result, cases[index].ID)
+		}
+	}
+	for index, record := range report.Trace {
+		if record.Sequence != index+1 {
+			t.Fatalf("trace sequence %d = %d", index, record.Sequence)
+		}
+	}
+}
 
 type nativeEvalGenerator struct {
 	requests []toolchat.Request

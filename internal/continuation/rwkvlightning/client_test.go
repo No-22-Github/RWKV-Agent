@@ -9,7 +9,9 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strings"
+	"sync"
 	"testing"
+	"time"
 
 	"github.com/no22/RWKV-Agent/internal/continuation"
 )
@@ -111,6 +113,84 @@ func TestClientMapsContinuationRequestAndResponse(t *testing.T) {
 	}
 	if accessID != "client-id" || accessSecret != "client-secret" {
 		t.Fatalf("access headers = %q, %q", accessID, accessSecret)
+	}
+}
+
+func TestClientCoalescesConcurrentRequestsByChoiceIndex(t *testing.T) {
+	t.Parallel()
+	var mu sync.Mutex
+	requestCount := 0
+	var received requestBody
+	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		mu.Lock()
+		requestCount++
+		mu.Unlock()
+		body, err := io.ReadAll(request.Body)
+		if err != nil {
+			t.Error(err)
+		}
+		if err := json.Unmarshal(body, &received); err != nil {
+			t.Error(err)
+		}
+		chunks := make([]string, 0, len(received.Contents)*2)
+		for index := len(received.Contents) - 1; index >= 0; index-- {
+			chunks = append(chunks, fmt.Sprintf(
+				`{"choices":[{"index":%d,"delta":{"content":%q}}]}`,
+				index,
+				received.Contents[index]+"-ok",
+			))
+		}
+		for index := range received.Contents {
+			chunks = append(chunks, fmt.Sprintf(
+				`{"choices":[{"index":%d,"delta":{},"finish_reason":"stop"}]}`,
+				index,
+			))
+		}
+		writeSSE(writer, chunks...)
+	}))
+	defer server.Close()
+
+	client, err := New(Config{
+		Endpoint:  server.URL,
+		Model:     "rwkv7",
+		BatchWait: 50 * time.Millisecond,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	const count = 3
+	start := make(chan struct{})
+	type response struct {
+		prompt string
+		result continuation.Result
+		err    error
+	}
+	responses := make(chan response, count)
+	for index := 0; index < count; index++ {
+		prompt := fmt.Sprintf("prompt-%d", index)
+		go func() {
+			<-start
+			request := validRequest()
+			request.Prompt = prompt
+			result, callErr := client.Continue(context.Background(), request, nil)
+			responses <- response{prompt: prompt, result: result, err: callErr}
+		}()
+	}
+	close(start)
+	for index := 0; index < count; index++ {
+		response := <-responses
+		if response.err != nil {
+			t.Fatal(response.err)
+		}
+		if response.result.Text != response.prompt+"-ok" ||
+			response.result.FinishReason != continuation.FinishStop {
+			t.Fatalf("response for %q = %+v", response.prompt, response.result)
+		}
+	}
+	mu.Lock()
+	defer mu.Unlock()
+	if requestCount != 1 || len(received.Contents) != count {
+		t.Fatalf("requests = %d, contents = %v", requestCount, received.Contents)
 	}
 }
 

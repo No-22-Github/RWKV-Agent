@@ -11,6 +11,8 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/no22/RWKV-Agent/internal/continuation"
 )
@@ -45,7 +47,11 @@ type Config struct {
 	// Stream selects the SSE transport. The zero value streams, matching the
 	// server default; a false pointer requests one buffered JSON response, which
 	// carries a real finish_reason and avoids the SSE path entirely.
-	Stream     *bool
+	Stream *bool
+	// BatchWait coalesces concurrent Continue calls that have compatible
+	// generation settings into one rwkv_lightning contents[] request. A zero
+	// duration preserves the one-request-per-call behavior.
+	BatchWait  time.Duration
 	Headers    http.Header
 	HTTPClient *http.Client
 }
@@ -57,8 +63,12 @@ type Client struct {
 	stopTokenMode StopTokenMode
 	stopTokenIDs  []int
 	stream        bool
+	batchWait     time.Duration
 	headers       http.Header
 	httpClient    *http.Client
+	batchMu       sync.Mutex
+	batchPending  []*pendingCall
+	batchTimer    *time.Timer
 }
 
 func New(config Config) (*Client, error) {
@@ -108,6 +118,7 @@ func New(config Config) (*Client, error) {
 		stopTokenMode: stopTokenMode,
 		stopTokenIDs:  stopTokenIDs,
 		stream:        stream,
+		batchWait:     config.BatchWait,
 		headers:       config.Headers.Clone(),
 		httpClient:    httpClient,
 	}, nil
@@ -163,6 +174,17 @@ func (c *Client) Continue(
 	if err := continuation.ValidateRequest(request); err != nil {
 		return continuation.Result{}, err
 	}
+	if c.batchWait > 0 {
+		return c.continueBatched(ctx, request, sink)
+	}
+	return c.continueOne(ctx, request, sink)
+}
+
+func (c *Client) continueOne(
+	ctx context.Context,
+	request continuation.Request,
+	sink continuation.EventSink,
+) (continuation.Result, error) {
 	model := strings.TrimSpace(request.Model)
 	if model == "" {
 		model = c.model

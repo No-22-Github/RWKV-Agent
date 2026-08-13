@@ -16,7 +16,6 @@ const (
 	maxPrimitiveCaseCount  = 512
 	maxPrimitiveSuiteBytes = 64 << 20
 	primitiveSourceBase    = "https://github.com/RWKV-Vibe/rwkv-Primitive-Bench/blob/416b073d2c5442ae34bfbf8a3b84ed414b5b85ff"
-	primitiveTaskControl   = `This is an isolated function-calling benchmark. Use only the exact tools offered for this case; never invent shell or bash tools. Offered write_file and chmod tools may modify only the isolated fixture workspace. After each tool result, take the next needed step without looping. read_file uses path. write_file uses path and full content. run_tests takes no arguments and must return PASS before submission when tests are required. If run_file reports permission denied, call chmod and then retry run_file. For table math, inspect every row or use run_lua with FILES[path]. read_file prefixes lines with "N: "; omit that prefix from the submitted value. Format money with two decimals. Finish by calling submit with the real answer whenever submit is offered; a plain-text answer before submit does not complete the case.`
 )
 
 var primitiveToolSets = map[string][]string{

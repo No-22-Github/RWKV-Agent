@@ -32,10 +32,11 @@ var (
 )
 
 type Action struct {
-	Type      string          `json:"type"`
-	Name      string          `json:"name,omitempty"`
-	Arguments json.RawMessage `json:"arguments,omitempty"`
-	Content   string          `json:"content,omitempty"`
+	Type             string          `json:"type"`
+	Name             string          `json:"name,omitempty"`
+	Arguments        json.RawMessage `json:"arguments,omitempty"`
+	Content          string          `json:"content,omitempty"`
+	ProtocolRepaired bool            `json:"protocol_repaired,omitempty"`
 }
 
 type ActionProtocol interface {

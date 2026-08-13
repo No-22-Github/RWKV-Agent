@@ -11,7 +11,7 @@ import (
 
 const (
 	SchemaVersion  = 3
-	HarnessVersion = "rwkv-agent-eval-v12"
+	HarnessVersion = "rwkv-agent-eval-v13"
 )
 
 type GeneratorFactory func(
@@ -112,6 +112,7 @@ type HarnessMetadata struct {
 	ControlPrompt           string `json:"control_prompt"`
 	TaskControl             string `json:"task_control,omitempty"`
 	TerminalTool            string `json:"terminal_tool,omitempty"`
+	EndOnTerminalTool       bool   `json:"end_on_terminal_tool,omitempty"`
 	ThinkingMode            string `json:"thinking_mode"`
 	Reasoning               bool   `json:"reasoning"`
 	FewShot                 bool   `json:"few_shot"`
@@ -122,6 +123,7 @@ type HarnessMetadata struct {
 	DecisionMaxOutputTokens int    `json:"decision_max_output_tokens"`
 	RouteMaxOutputTokens    int    `json:"route_max_output_tokens"`
 	TracePromptBytes        int    `json:"trace_prompt_bytes"`
+	CaseParallelism         int    `json:"case_parallelism"`
 }
 
 type EnvironmentMetadata struct {
@@ -176,6 +178,7 @@ type Metrics struct {
 	RecoveryBlocks   int   `json:"recovery_blocked_calls"`
 	ForcedAnswers    int   `json:"forced_answers"`
 	ProtocolRetries  int   `json:"protocol_retries"`
+	ProtocolRepairs  int   `json:"protocol_repairs"`
 	RouteFallbacks   int   `json:"route_fallbacks"`
 	PlanRejections   int   `json:"plan_rejections"`
 	PlanFallbacks    int   `json:"plan_fallbacks"`
@@ -282,6 +285,7 @@ type Config struct {
 	Runner           agent.Options
 	GeneratorFactory GeneratorFactory
 	CaseTimeout      time.Duration
+	CaseParallelism  int
 	Now              func() time.Time
 	TempDir          string
 }

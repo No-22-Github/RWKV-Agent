@@ -36,52 +36,53 @@ import (
 )
 
 type runOptions struct {
-	modelPath          string
-	backend            string
-	provider           string
-	tokenizer          string
-	sessionPath        string
-	prompt             string
-	maxTokens          int
-	decisionMaxTokens  int
-	routeMaxTokens     int
-	routeStage         bool
-	tracePromptBytes   int
-	temperature        float64
-	topK               int
-	topP               float64
-	presencePenalty    float64
-	frequencyPenalty   float64
-	penaltyDecay       float64
-	thinkingMode       string
-	thinkingExplicit   bool
-	reasoning          bool
-	reasoningExplicit  bool
-	fewShot            bool
-	autosave           bool
-	nativeState        string
-	concurrency        int
-	concurrentPrompt   string
-	ui                 string
-	workspace          string
-	maxSteps           int
-	completion         string
-	apiURL             string
-	apiKeyEnv          string
-	chatThinking       string
-	chatPromptMode     string
-	chatPromptExplicit bool
-	chatTokenLimit     string
-	apiPasswordEnv     string
-	apiStopTokens      string
-	apiStream          bool
-	apiHeaderEnvs      stringListFlag
-	evalSuite          string
-	evalSuiteExplicit  bool
-	evalCasesPath      string
-	evalOutput         string
-	evalCaseIDs        stringListFlag
-	evalCaseTimeout    time.Duration
+	modelPath           string
+	backend             string
+	provider            string
+	tokenizer           string
+	sessionPath         string
+	prompt              string
+	maxTokens           int
+	decisionMaxTokens   int
+	routeMaxTokens      int
+	routeStage          bool
+	tracePromptBytes    int
+	temperature         float64
+	topK                int
+	topP                float64
+	presencePenalty     float64
+	frequencyPenalty    float64
+	penaltyDecay        float64
+	thinkingMode        string
+	thinkingExplicit    bool
+	reasoning           bool
+	reasoningExplicit   bool
+	fewShot             bool
+	autosave            bool
+	nativeState         string
+	concurrency         int
+	concurrentPrompt    string
+	ui                  string
+	workspace           string
+	maxSteps            int
+	completion          string
+	apiURL              string
+	apiKeyEnv           string
+	chatThinking        string
+	chatPromptMode      string
+	chatPromptExplicit  bool
+	chatTokenLimit      string
+	apiPasswordEnv      string
+	apiStopTokens       string
+	apiStream           bool
+	apiHeaderEnvs       stringListFlag
+	evalSuite           string
+	evalSuiteExplicit   bool
+	evalCasesPath       string
+	evalOutput          string
+	evalCaseIDs         stringListFlag
+	evalCaseTimeout     time.Duration
+	evalCaseParallelism int
 }
 
 type stringListFlag []string
@@ -313,6 +314,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			fs.StringVar(&options.evalOutput, "output", "", "new directory for run.json, trace.jsonl, and summary.json")
 			fs.Var(&options.evalCaseIDs, "case", "repeatable built-in or file-backed case ID to run")
 			fs.DurationVar(&options.evalCaseTimeout, "case-timeout", 2*time.Minute, "timeout for each isolated eval case")
+			fs.IntVar(&options.evalCaseParallelism, "case-parallelism", 1, "number of eval cases to run concurrently")
 		}
 	case "concurrent":
 		fs.IntVar(&options.concurrency, "concurrency", 4, "number of overlapping sessions")
@@ -403,6 +405,9 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		}
 		if name == "agent-eval" && options.evalCaseTimeout <= 0 {
 			return options, errors.New("--case-timeout must be positive")
+		}
+		if name == "agent-eval" && options.evalCaseParallelism <= 0 {
+			return options, errors.New("--case-parallelism must be positive")
 		}
 		if name == "agent-eval" {
 			if options.evalSuite != agenteval.SuiteBoundary &&
@@ -641,6 +646,12 @@ func newAgentGeneratorSource(
 		if err != nil {
 			return nil, err
 		}
+		batchWait := time.Duration(0)
+		if options.evalCaseParallelism > 1 {
+			// Match the official Primitive Bench runner: case goroutines share one
+			// short coalescing window and send one contents[] request per turn.
+			batchWait = 10 * time.Millisecond
+		}
 		client, err := rwkvlightning.New(rwkvlightning.Config{
 			Endpoint:      options.apiURL,
 			Model:         options.modelPath,
@@ -648,6 +659,7 @@ func newAgentGeneratorSource(
 			StopTokenMode: stopTokenMode,
 			StopTokenIDs:  stopTokenIDs,
 			Stream:        &options.apiStream,
+			BatchWait:     batchWait,
 			Headers:       headers,
 		})
 		if err != nil {
@@ -929,11 +941,12 @@ func runAgentEval(args []string) error {
 		model.Backend = string(info.Backend)
 	}
 	report, runErr := agenteval.Run(ctx, agenteval.Config{
-		Cases:       cases,
-		Suite:       suite,
-		Model:       model,
-		Runner:      agentRunnerOptions(options, nil),
-		CaseTimeout: options.evalCaseTimeout,
+		Cases:           cases,
+		Suite:           suite,
+		Model:           model,
+		Runner:          agentRunnerOptions(options, nil),
+		CaseTimeout:     options.evalCaseTimeout,
+		CaseParallelism: options.evalCaseParallelism,
 		GeneratorFactory: func(
 			caseContext context.Context,
 		) (continuation.Generator, io.Closer, error) {
@@ -1017,12 +1030,11 @@ func parseAPIStopTokens(value string) (rwkvlightning.StopTokenMode, []int, error
 	case "", "text":
 		return rwkvlightning.StopTokenText, nil, nil
 	case "cuda":
-		// CUDA stops when any listed token is generated. Token 261 is the
-		// double-newline token used by rwkv_lightning's default User delimiter,
-		// but this Harness also requests System/Tool text stops; treating those
-		// unsupported strings as 261 truncates long JSON tool calls mid-value.
-		// EOS plus the distinctive User token is safe for the G1I envelope.
-		return rwkvlightning.StopTokenEOS, []int{0, 24281}, nil
+		// CUDA stops when any listed token is generated. Token 6884 is the JSON
+		// fence used by the native G1i function transcript; 24281 stops before a
+		// generated User continuation. Do not include newline token 261 because
+		// it truncates long JSON arguments mid-value.
+		return rwkvlightning.StopTokenEOS, []int{0, 6884, 24281}, nil
 	case "none":
 		return rwkvlightning.StopTokenNone, nil, nil
 	case "eos":
