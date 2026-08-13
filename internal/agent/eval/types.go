@@ -11,7 +11,7 @@ import (
 
 const (
 	SchemaVersion  = 3
-	HarnessVersion = "rwkv-agent-eval-v15"
+	HarnessVersion = "rwkv-agent-eval-v16"
 
 	PrimitiveProfileUpstream = "upstream-compatible"
 	PrimitiveProfileGoNative = "go-native"

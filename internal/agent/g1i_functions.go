@@ -47,6 +47,8 @@ func (G1IFunctionProtocol) Instructions(specs []ToolSpec, _ inference.ThinkingMo
 		"Exact tool names only. Paths are relative (e.g. src/a.txt), never absolute. " +
 		`Call shape: {"name":"read_file","arguments":{"path":"file.txt"}}. ` +
 		computeGuidance + "After each Function output, return the next JSON function call. " +
+		"Preserve exact paths and identifier names from Function output. " +
+		"When the user requests exact stdout or file content, submit it verbatim, including prefixes and punctuation; do not paraphrase it. " +
 		"Finish with submit when it is offered. read_file lines: omit leading 'N: '. Money: two decimals.\n" +
 		"Return only a JSON function call."
 }

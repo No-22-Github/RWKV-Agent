@@ -44,6 +44,8 @@ func TestG1IFunctionProtocolRendersNativeCatalogAndContinuation(t *testing.T) {
 		"Tools:\n[",
 		`"name":"read_file"`,
 		`"arguments":{"path":{"type":"string"}}`,
+		"Preserve exact paths and identifier names from Function output.",
+		"submit it verbatim, including prefixes and punctuation",
 		"Return only a JSON function call.",
 	} {
 		if !strings.Contains(control, fragment) {
