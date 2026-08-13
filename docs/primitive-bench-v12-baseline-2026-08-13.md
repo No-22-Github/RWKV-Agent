@@ -120,9 +120,12 @@ Harness v14 新增显式 `--primitive-profile`：默认 `upstream-compatible` �
   第二次 30/30 都在首个模型调用报 HTTP 524，protocol 分母为 0。它们分别保存在
   `runs/primitive-v14-go-native-final-batch30-20260813` 和
   `runs/primitive-v14-go-native-final-batch30-retry-20260813`，不能当作模型或 Agent 分数。
+- 服务恢复后的最终无网络错误整轮为 **20/30**，protocol validity **98.9%**（182/184）、
+  required-tool completion **91.7%**（66/72）、forbidden-tool avoidance **100%**（2/2）。
+  产物位于 `runs/primitive-v14-go-native-final-healthy-batch30-20260813`。
 
-因此当前可引用的 Go-native 整轮仍是原型 **17/30**；最终扁平契约需要等待服务健康窗口再跑
-一次无 524 的 30 并发，才可更新正式对比分数。
+因此当前正式 Go-native 成绩为 **20/30**，与同模型上游官方留档 **20/30** 持平；已经达到
+“使用 Go 原生通用工具栈时不低于官方 Lua 框架”的本轮目标。
 
 ```sh
 go run ./cmd/rwkv-cli agent-eval \
