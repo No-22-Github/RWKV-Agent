@@ -130,6 +130,7 @@ type HarnessMetadata struct {
 	ToolProfile              string   `json:"tool_profile,omitempty"`
 	DuplicateReplayLimit     int      `json:"duplicate_replay_limit"`
 	DuplicateRescueThreshold int      `json:"duplicate_rescue_threshold"`
+	SameToolRescueLimit      int      `json:"same_tool_rescue_limit"`
 	ScenarioHooks            []string `json:"scenario_hooks,omitempty"`
 }
 

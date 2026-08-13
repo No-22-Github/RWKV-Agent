@@ -3,6 +3,7 @@ package agent
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"strings"
 	"testing"
 
@@ -649,5 +650,111 @@ func TestG1IFunctionRunnerSkipsPostToolHookOnReplay(t *testing.T) {
 	}
 	if hooked != 1 {
 		t.Fatalf("hook ran %d times; want once (first execution, not the replay)", hooked)
+	}
+}
+
+func TestG1IFunctionRunnerRescueModeAfterSameToolSpiral(t *testing.T) {
+	t.Parallel()
+	options := g1iRunnerOptions()
+	options.DuplicateReplayLimit = 0
+	options.DuplicateRescueThreshold = 0
+	options.SameToolRescueLimit = 8
+	responses := make([]string, 0, 9)
+	options.MaxSteps = 12
+	for index := 1; index <= 8; index++ {
+		responses = append(responses, fmt.Sprintf(`{"name":"echo","arguments":{"value":"v%d"}}`, index))
+	}
+	responses = append(responses, `{"name":"submit","arguments":{"answer":"best-effort"}}`)
+	var prompts []string
+	runner, err := NewRunner(
+		sequenceGenerator(responses, &prompts),
+		[]Tool{echoTool{}, submitTestTool{}},
+		options,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "Keep echoing.")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Output != "best-effort" || !result.RescueAttempted || !result.RescueSubmitted {
+		t.Fatalf("spiral rescue result = %+v", result)
+	}
+	for index := 0; index < 8; index++ {
+		if !result.Steps[index].ToolExecuted || result.Steps[index].ToolRejected != "" {
+			t.Fatalf("step %d was not a plain execution: %+v", index+1, result.Steps[index])
+		}
+	}
+	if result.Steps[8].Tool != "submit" {
+		t.Fatalf("rescue was not followed by submit: %+v", result.Steps[8])
+	}
+	if !strings.Contains(prompts[8], "same tool ran successfully 8 times in a row") {
+		t.Fatalf("spiral rescue reason missing from the ninth prompt:\n%s", prompts[8])
+	}
+}
+
+func TestG1IFunctionRunnerSameToolStreakResetsOnFailure(t *testing.T) {
+	t.Parallel()
+	options := g1iRunnerOptions()
+	options.MaxSteps = 12
+	options.DuplicateReplayLimit = 0
+	options.DuplicateRescueThreshold = 0
+	options.SameToolRescueLimit = 8
+	responses := []string{
+		`{"name":"echo","arguments":{"value":"v1"}}`,
+		`{"name":"echo","arguments":{"value":"v2"}}`,
+		`{"name":"echo","arguments":{"value":"v3"}}`,
+		`{"name":"echo","arguments":{"value":"v4"}}`,
+		`{"name":"failing","arguments":{"value":"x"}}`,
+		`{"name":"echo","arguments":{"value":"v5"}}`,
+		`{"name":"echo","arguments":{"value":"v6"}}`,
+		`{"name":"echo","arguments":{"value":"v7"}}`,
+		`{"name":"echo","arguments":{"value":"v8"}}`,
+		`{"name":"submit","arguments":{"answer":"done"}}`,
+	}
+	runner, err := NewRunner(
+		sequenceGenerator(responses, nil),
+		[]Tool{echoTool{}, &failingTool{calls: new(int)}, submitTestTool{}},
+		options,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "Echo with a failure in between.")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Output != "done" || result.RescueAttempted {
+		t.Fatalf("interleaved failure must reset the streak: %+v", result)
+	}
+}
+
+func TestG1IFunctionRunnerSameToolRescueDisabledByZero(t *testing.T) {
+	t.Parallel()
+	options := g1iRunnerOptions()
+	options.DuplicateReplayLimit = 0
+	options.DuplicateRescueThreshold = 0
+	options.SameToolRescueLimit = 0
+	responses := make([]string, 0, 9)
+	options.MaxSteps = 12
+	for index := 1; index <= 8; index++ {
+		responses = append(responses, fmt.Sprintf(`{"name":"echo","arguments":{"value":"v%d"}}`, index))
+	}
+	responses = append(responses, `{"name":"submit","arguments":{"answer":"done"}}`)
+	runner, err := NewRunner(
+		sequenceGenerator(responses, nil),
+		[]Tool{echoTool{}, submitTestTool{}},
+		options,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "Keep echoing.")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Output != "done" || result.RescueAttempted {
+		t.Fatalf("zero limit must disable the spiral rescue: %+v", result)
 	}
 }

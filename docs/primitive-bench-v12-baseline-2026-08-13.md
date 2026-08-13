@@ -368,3 +368,23 @@ config_precedence 5 步 vs 12 步）和边缘题的 think 文本，说明服务�
 （two_step 通过、loc_interest 结构正确但行计数错）在贪心下同样生效。结论：当前
 22–23/30 的波动主要来自采样，贪心 top-k=1 可作为对外报告的确定成绩基线；23/30
 即当前"回放+救援+钩子"组合下的正式数字。
+
+## v20 同类成功连击救援（same-tool spiral guard）
+
+`jsonl_event_aggregate` 的失败模式是 calculator 连续 14 次**成功**调用、每次表达式
+都不同（新 callKey 每步都绕过重复调用救援）。全量轨迹统计显示所有通过题最长同类
+成功连击为 6（loc_interest 的合法逐月计算），只有 jsonl（14）和 log_incident（10）
+超过 8，因此取 `--same-tool-rescue-limit` 默认 8，零误伤余量 2。
+
+实现为 runner 的 `sameToolSuccessStreak`（工具名变化或任何拒绝/失败即清零，含回放
+的成功能执行 +1），连击达标后复用既有救援通道（submit-only 目录 + User 指令），
+理由文本区分“same call repeated”与“same tool ran successfully N times in a row”。
+
+实测（贪心 top-k=1）：
+
+- 两题 probe：jsonl 8 连击时被切断，16 步空转变 11 步干净提交（答案仍错，但失败
+  信号从“无输出”变为明确提交）；loc_interest 4 步正常走完未触发（误伤对照通过）。
+- 全量 `runs/primitive-v20-greedy-batch30-20260814`：**23/30，通过集合与 v19 贪心
+  逐题一致**，零回归；jsonl 16→11 步，其余题轨迹不受影响。
+
+至此正式确定成绩：**贪心 top-k=1 下 23/30**，回放/救援/螺旋守卫/场景钩子全部开启。

@@ -198,6 +198,7 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 			ToolProfile:              config.PrimitiveProfile,
 			DuplicateReplayLimit:     config.Runner.DuplicateReplayLimit,
 			DuplicateRescueThreshold: config.Runner.DuplicateRescueThreshold,
+			SameToolRescueLimit:      config.Runner.SameToolRescueLimit,
 			ScenarioHooks:            primitiveScenarioHookDescriptions(config.Cases),
 		},
 		Sampling: samplingSnapshot(config.Runner.Generation.Sampling),

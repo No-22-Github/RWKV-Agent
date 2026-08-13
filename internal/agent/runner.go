@@ -147,6 +147,13 @@ type Options struct {
 	// tool catalog is rebuilt to offer only the terminal tool and one explicit
 	// rescue instruction is injected. Zero disables the rescue switch.
 	DuplicateRescueThreshold int
+	// SameToolRescueLimit switches the run into submit-only rescue mode after
+	// this many consecutive successful calls to the same tool with no other
+	// tool or failure in between. It catches spirals where every call carries
+	// fresh arguments (a new duplicate key each step) so the duplicate-based
+	// rescue never fires; the transcript shows the model grinding the same
+	// tool without progress. Zero disables this check.
+	SameToolRescueLimit int
 	// PostToolHook optionally augments the transcript after a successful tool
 	// execution that was not a duplicate replay. The returned text is appended
 	// right next to the tool result, so a scenario-specific reminder reaches
@@ -534,6 +541,8 @@ func (r *Runner) RunWithObserver(
 	nativeRepeatStreak := 0
 	sameCallStreak := 0
 	lastSameCallKey := ""
+	sameToolSuccessStreak := 0
+	lastSameToolName := ""
 	rescueMode := false
 	workspaceRevision := 0
 	stage := StageDecision
@@ -890,6 +899,20 @@ func (r *Runner) RunWithObserver(
 		if !executed && err != nil && !duplicate {
 			failedToolCallEpochs[callKey] = successfulToolCalls
 		}
+		// Consecutive successful calls to one tool with no other tool or
+		// failure in between. Unique argument sets escape the duplicate-key
+		// streak, so a separate counter catches spirals that grind one tool
+		// with fresh arguments on every step.
+		if executed && err == nil {
+			if action.Name == lastSameToolName {
+				sameToolSuccessStreak++
+			} else {
+				lastSameToolName = action.Name
+				sameToolSuccessStreak = 1
+			}
+		} else {
+			sameToolSuccessStreak = 0
+		}
 		payload := toolResult{OK: err == nil, Tool: action.Name, Result: value}
 		if err != nil {
 			payload.Error = err.Error()
@@ -1011,13 +1034,23 @@ func (r *Runner) RunWithObserver(
 				})
 			}
 		}
-		if !rescueMode && r.options.DuplicateRescueThreshold > 0 &&
-			preservesToolOrder(r.protocol) && !allowsRepeatedToolCalls(r.protocol) &&
+		loopStuck := r.options.DuplicateRescueThreshold > 0 &&
 			sameCallStreak >= r.options.DuplicateRescueThreshold &&
-			(duplicate || replayed || (err != nil && !executed)) {
+			(duplicate || replayed || (err != nil && !executed))
+		spiralStuck := r.options.SameToolRescueLimit > 0 &&
+			sameToolSuccessStreak >= r.options.SameToolRescueLimit
+		if !rescueMode && preservesToolOrder(r.protocol) && !allowsRepeatedToolCalls(r.protocol) &&
+			(loopStuck || spiralStuck) {
 			rescueMode = true
 			result.RescueAttempted = true
-			messages = r.enterRescueMode(messages, sameCallStreak, r.options.MaxSteps-step)
+			reason := fmt.Sprintf("the same call was repeated %d times", sameCallStreak)
+			if spiralStuck {
+				reason = fmt.Sprintf(
+					"the same tool ran successfully %d times in a row with no other tool",
+					sameToolSuccessStreak,
+				)
+			}
+			messages = r.enterRescueMode(messages, reason, r.options.MaxSteps-step)
 		}
 	}
 	return result, ErrMaxSteps
@@ -1058,7 +1091,7 @@ func duplicateRejectionNote(streak, stepsLeft int) string {
 // enterRescueMode rebuilds the tool catalog so only the terminal tool remains
 // and injects one explicit rescue instruction as a User turn. A User turn is
 // more salient to the model than text appended after a Function output.
-func (r *Runner) enterRescueMode(messages []Message, streak, stepsLeft int) []Message {
+func (r *Runner) enterRescueMode(messages []Message, reason string, stepsLeft int) []Message {
 	specs := r.rescueToolSpecs()
 	control := toolControlPrompt(r.protocol, specs, r.thinkingMode, r.toolCompleter != nil)
 	for index := range messages {
@@ -1068,7 +1101,7 @@ func (r *Runner) enterRescueMode(messages []Message, streak, stepsLeft int) []Me
 	}
 	return append(messages, Message{
 		Role:    RoleUser,
-		Content: rescueInstruction(r.terminalTool, streak, stepsLeft),
+		Content: rescueInstruction(r.terminalTool, reason, stepsLeft),
 	})
 }
 
@@ -1084,17 +1117,17 @@ func (r *Runner) rescueToolSpecs() []ToolSpec {
 	return nil
 }
 
-func rescueInstruction(terminalTool string, streak, stepsLeft int) string {
+func rescueInstruction(terminalTool, reason string, stepsLeft int) string {
 	if terminalTool == "" {
 		return fmt.Sprintf(
-			"The tools have been disabled because the same call was repeated %d times. You have %d steps left. Answer directly now with your best answer from the results you already have.",
-			streak,
+			"The tools have been disabled because %s. You have %d steps left. Answer directly now with your best answer from the results you already have.",
+			reason,
 			stepsLeft,
 		)
 	}
 	return fmt.Sprintf(
-		"The other tools have been disabled because the same call was repeated %d times. You have %d steps left. Call %s now with your best answer in this exact shape: {\"name\":\"%s\",\"arguments\":{\"answer\":\"...\"}}",
-		streak,
+		"The other tools have been disabled because %s. You have %d steps left. Call %s now with your best answer in this exact shape: {\"name\":\"%s\",\"arguments\":{\"answer\":\"...\"}}",
+		reason,
 		stepsLeft,
 		terminalTool,
 		terminalTool,

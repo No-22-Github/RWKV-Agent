@@ -86,6 +86,7 @@ type runOptions struct {
 	primitiveProfile         string
 	duplicateReplayLimit     int
 	duplicateRescueThreshold int
+	sameToolRescueLimit      int
 }
 
 type stringListFlag []string
@@ -248,6 +249,13 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			"switch to submit-only rescue mode after this many consecutive identical calls; "+
 				"0 disables (Go-native Primitive profile only)",
 		)
+		fs.IntVar(
+			&options.sameToolRescueLimit,
+			"same-tool-rescue-limit",
+			8,
+			"switch to submit-only rescue mode after this many consecutive successful calls "+
+				"to the same tool with no other tool in between; 0 disables (Go-native Primitive profile only)",
+		)
 		fs.BoolVar(
 			&options.routeStage,
 			"route-stage",
@@ -388,6 +396,9 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		}
 		if options.duplicateRescueThreshold < 0 || options.duplicateRescueThreshold > 20 {
 			return options, errors.New("--duplicate-rescue-threshold must be between 0 and 20")
+		}
+		if options.sameToolRescueLimit < 0 || options.sameToolRescueLimit > 50 {
+			return options, errors.New("--same-tool-rescue-limit must be between 0 and 50")
 		}
 		if options.completion != "local" &&
 			options.completion != "rwkv-lightning" &&
@@ -757,6 +768,7 @@ func agentRunnerOptions(options runOptions, observe func(agent.Event)) agent.Opt
 		TracePromptBytes:         options.tracePromptBytes,
 		DuplicateReplayLimit:     options.duplicateReplayLimit,
 		DuplicateRescueThreshold: options.duplicateRescueThreshold,
+		SameToolRescueLimit:      options.sameToolRescueLimit,
 		Generation: continuation.Request{
 			Model:           options.modelPath,
 			MaxOutputTokens: options.maxTokens,
