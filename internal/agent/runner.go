@@ -662,6 +662,17 @@ func (r *Runner) RunWithObserver(
 			modelAction = assistantPrefix + modelAction
 		}
 		action, err := r.protocol.Parse(modelAction, generated.FinishReason)
+		// Some G1i-compatible servers serialize a valid function call in the
+		// assistant content instead of the OpenAI tool_calls field. Preserve the
+		// recovered call as a native transcript item so the following tool result
+		// remains valid Chat Completions history.
+		if err == nil && r.toolCompleter != nil && nativeCall == nil && action.Type == "tool" {
+			nativeCall = &toolchat.ToolCall{
+				ID:        fmt.Sprintf("call-content-%d", step),
+				Name:      action.Name,
+				Arguments: string(action.Arguments),
+			}
+		}
 		stageActionType := action.Type
 		if stage == StageAnswer && action.Type == "final" && answerContainsToolFrame(action.Content) {
 			stageActionType = "tool"

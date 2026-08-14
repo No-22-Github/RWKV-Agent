@@ -78,7 +78,7 @@ func TestG1IProtocolParsesVerifiedEnvelopes(t *testing.T) {
 	t.Parallel()
 	protocol := G1IProtocol{}
 	action, err := protocol.Parse(
-		`<tool_call>{"name":"read_file","arguments":{"path":"README.md"}}</tool_call>`,
+		`><tool_call>{"name":"read_file","arguments":{"path":"README.md"}}</tool_call>`,
 		continuation.FinishUnknown,
 	)
 	if err != nil {
@@ -123,6 +123,53 @@ func TestG1IProtocolParsesVerifiedEnvelopes(t *testing.T) {
 	}
 	if _, err := protocol.Parse("truncated answer", continuation.FinishLength); err == nil {
 		t.Fatal("length-truncated plain answer was accepted")
+	}
+}
+
+func TestG1IProtocolRepairsLegacyXMLToolCall(t *testing.T) {
+	t.Parallel()
+	action, err := (G1IProtocol{}).Parse(
+		">\n<read_file file_path=\"/workspace/project-repo.git/README.md\" />",
+		continuation.FinishStop,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if action.Type != "tool" || action.Name != "read_file" || !action.ProtocolRepaired ||
+		string(action.Arguments) != `{"path":"/workspace/project-repo.git/README.md"}` {
+		t.Fatalf("legacy XML action = %+v", action)
+	}
+}
+
+func TestG1IProtocolRepairsG1iPluralToolCalls(t *testing.T) {
+	t.Parallel()
+	action, err := (G1IProtocol{}).Parse(
+		`><tool_calls>[{"type":"function","function":{"name":"read_file","arguments":"{\"path\":\"README.md\"}"}}]</tool_calls>`,
+		continuation.FinishStop,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if action.Type != "tool" || action.Name != "read_file" || !action.ProtocolRepaired ||
+		string(action.Arguments) != `{"path":"README.md"}` {
+		t.Fatalf("plural tool action = %+v", action)
+	}
+}
+
+func TestG1IProtocolRepairsReadFileAliases(t *testing.T) {
+	t.Parallel()
+	protocol := G1IProtocol{}
+	for _, value := range []string{
+		`<tool_call>{"name":"reader","arguments":{"path":"README.md"}}`,
+		`<tool_call>{"path":"README.md","args":{}}`,
+	} {
+		action, err := protocol.Parse(value, continuation.FinishStop)
+		if err != nil {
+			t.Fatalf("parse %q: %v", value, err)
+		}
+		if action.Name != "read_file" || string(action.Arguments) != `{"path":"README.md"}` || !action.ProtocolRepaired {
+			t.Fatalf("alias action = %+v", action)
+		}
 	}
 }
 

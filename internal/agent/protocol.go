@@ -2,6 +2,7 @@ package agent
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"errors"
 	"fmt"
 	"io"
@@ -182,6 +183,15 @@ func (G1IProtocol) Parse(value string, finish continuation.FinishReason) (Action
 	if strings.HasPrefix(candidate, "<think>") {
 		return Action{}, ErrUnclosedThink
 	}
+	// Some RWKV Chat Completions gateways retain the lone ">" that would
+	// normally close a withheld thinking prefix. It is framing, not answer
+	// content, when the remainder is an explicit tool envelope.
+	if strings.HasPrefix(candidate, ">") {
+		remainder := strings.TrimSpace(strings.TrimPrefix(candidate, ">"))
+		if strings.HasPrefix(remainder, "<tool_call") {
+			candidate = remainder
+		}
+	}
 	const (
 		toolOpen    = "<tool_call>"
 		toolClose   = "</tool_call>"
@@ -197,17 +207,32 @@ func (G1IProtocol) Parse(value string, finish continuation.FinishReason) (Action
 			Name      string          `json:"name"`
 			Arguments json.RawMessage `json:"arguments"`
 		}
+		protocolRepaired := false
+		strictDecoded := true
 		decoder := json.NewDecoder(strings.NewReader(payload))
 		decoder.DisallowUnknownFields()
 		if err := decoder.Decode(&call); err != nil {
-			return Action{}, fmt.Errorf("%w: decode G1I tool call: %v", ErrProtocol, err)
+			strictDecoded = false
+			var object map[string]json.RawMessage
+			var path string
+			if json.Unmarshal([]byte(payload), &object) != nil ||
+				json.Unmarshal(object["path"], &path) != nil || strings.TrimSpace(path) == "" {
+				return Action{}, fmt.Errorf("%w: decode G1I tool call: %v", ErrProtocol, err)
+			}
+			call.Name = "read_file"
+			call.Arguments, _ = json.Marshal(map[string]string{"path": path})
+			protocolRepaired = true
 		}
-		if decoder.Decode(&struct{}{}) != io.EOF ||
+		if call.Name == "reader" || call.Name == "file_reader" {
+			call.Name = "read_file"
+			protocolRepaired = true
+		}
+		if (strictDecoded && decoder.Decode(&struct{}{}) != io.EOF) ||
 			strings.TrimSpace(call.Name) == "" ||
 			!isJSONObject(call.Arguments) {
 			return Action{}, fmt.Errorf("%w: invalid G1I tool call", ErrProtocol)
 		}
-		return Action{Type: "tool", Name: call.Name, Arguments: call.Arguments}, nil
+		return Action{Type: "tool", Name: call.Name, Arguments: call.Arguments, ProtocolRepaired: protocolRepaired}, nil
 	}
 	if strings.HasPrefix(candidate, answerOpen) {
 		content, closed := envelopeContent(candidate, answerOpen, answerClose)
@@ -225,10 +250,79 @@ func (G1IProtocol) Parse(value string, finish continuation.FinishReason) (Action
 	if strings.HasPrefix(candidate, toolClose) {
 		return Action{}, fmt.Errorf("%w: unexpected G1I tool call closing tag", ErrProtocol)
 	}
+	if strings.Contains(candidate, "<tool_calls>") {
+		action, err := (G1IFunctionProtocol{}).Parse(candidate, finish)
+		if err != nil {
+			return Action{}, err
+		}
+		action.ProtocolRepaired = true
+		return action, nil
+	}
+	if action, ok := parseLegacyXMLToolCall(candidate); ok {
+		return action, nil
+	}
 	if looksLikeBareToolCall(candidate) {
 		return Action{}, fmt.Errorf("%w: tool call JSON is missing its G1I envelope", ErrProtocol)
 	}
 	return Action{Type: "final", Content: candidate}, nil
+}
+
+// parseLegacyXMLToolCall recovers the compact self-closing function syntax
+// emitted by some OpenAI-compatible RWKV checkpoints. Native tool_calls remain
+// preferred; this only accepts one complete XML element and still relies on
+// Runner validation to reject unknown tools or arguments.
+func parseLegacyXMLToolCall(value string) (Action, bool) {
+	candidate := strings.TrimSpace(value)
+	if strings.HasPrefix(candidate, ">") {
+		candidate = strings.TrimSpace(strings.TrimPrefix(candidate, ">"))
+	}
+	if !strings.HasPrefix(candidate, "<") || !strings.HasSuffix(candidate, "/>") {
+		return Action{}, false
+	}
+	decoder := xml.NewDecoder(strings.NewReader(candidate))
+	first, err := decoder.Token()
+	if err != nil {
+		return Action{}, false
+	}
+	start, ok := first.(xml.StartElement)
+	if !ok || start.Name.Space != "" || !nativeToolNamePattern.MatchString(start.Name.Local) {
+		return Action{}, false
+	}
+	arguments := make(map[string]string, len(start.Attr))
+	for _, attribute := range start.Attr {
+		if attribute.Name.Space != "" || !nativeToolNamePattern.MatchString(attribute.Name.Local) {
+			return Action{}, false
+		}
+		if _, exists := arguments[attribute.Name.Local]; exists {
+			return Action{}, false
+		}
+		arguments[attribute.Name.Local] = attribute.Value
+	}
+	end, err := decoder.Token()
+	if err != nil {
+		return Action{}, false
+	}
+	closed, ok := end.(xml.EndElement)
+	if !ok || closed.Name != start.Name {
+		return Action{}, false
+	}
+	if _, err := decoder.Token(); err != io.EOF {
+		return Action{}, false
+	}
+	if start.Name.Local == "read_file" {
+		if path, exists := arguments["file_path"]; exists {
+			if _, duplicate := arguments["path"]; duplicate {
+				return Action{}, false
+			}
+			arguments["path"] = path
+			delete(arguments, "file_path")
+		}
+	}
+	encoded, err := json.Marshal(arguments)
+	if err != nil {
+		return Action{}, false
+	}
+	return Action{Type: "tool", Name: start.Name.Local, Arguments: encoded, ProtocolRepaired: true}, true
 }
 
 func envelopeContent(candidate string, open string, close string) (string, bool) {

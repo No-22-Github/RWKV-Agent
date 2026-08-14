@@ -9,7 +9,7 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
-	agentcore "github.com/no22/RWKV-Agent/internal/agent"
+	agentapi "github.com/no22/RWKV-Agent/api"
 	"github.com/no22/RWKV-Agent/internal/terminal"
 )
 
@@ -176,17 +176,17 @@ type fakeSession struct {
 func (s *fakeSession) RunWithObserver(
 	ctx context.Context,
 	prompt string,
-	observe func(agentcore.Event),
-) (agentcore.Result, error) {
+	observe func(agentapi.Event),
+) (agentapi.Result, error) {
 	s.prompts = append(s.prompts, prompt)
 	if s.block {
 		<-ctx.Done()
-		return agentcore.Result{}, ctx.Err()
+		return agentapi.Result{}, ctx.Err()
 	}
-	observe(agentcore.Event{Kind: agentcore.EventModelStart, Step: 1})
-	return agentcore.Result{
+	observe(agentapi.Event{Kind: agentapi.EventModelStart, Step: 1})
+	return agentapi.Result{
 		Output: "answer: " + prompt,
-		Steps:  []agentcore.Step{{Number: 1}},
+		Steps:  []agentapi.Step{{Number: 1}},
 	}, nil
 }
 

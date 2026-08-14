@@ -63,6 +63,36 @@ func TestLocalToolsExcludeProviderBackedFacts(t *testing.T) {
 	}
 }
 
+func TestLocalToolsExposeNativeCompatibleSchemas(t *testing.T) {
+	tools, err := LocalTools(Options{Workspace: t.TempDir()})
+	if err != nil {
+		t.Fatal(err)
+	}
+	calculator := findTool(t, tools, "calculator").Spec()
+	if !calculator.Strict {
+		t.Fatal("calculator should keep strict native tool calling")
+	}
+	var schema struct {
+		Properties map[string]json.RawMessage `json:"properties"`
+		Required   []string                   `json:"required"`
+	}
+	if err := json.Unmarshal(calculator.Parameters, &schema); err != nil {
+		t.Fatal(err)
+	}
+	required := make(map[string]bool, len(schema.Required))
+	for _, name := range schema.Required {
+		required[name] = true
+	}
+	for name := range schema.Properties {
+		if !required[name] {
+			t.Fatalf("strict calculator property %q is not required", name)
+		}
+	}
+	if findTool(t, tools, "data_query").Spec().Strict {
+		t.Fatal("data_query must be non-strict because filter is a free-form object")
+	}
+}
+
 func TestDataQueryAggregatesFiltersAndUsesWorkspaceContainment(t *testing.T) {
 	root := t.TempDir()
 	if err := os.Mkdir(filepath.Join(root, "notes"), 0o700); err != nil {

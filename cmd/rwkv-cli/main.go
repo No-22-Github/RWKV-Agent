@@ -18,9 +18,9 @@ import (
 	"syscall"
 	"time"
 
+	agentapi "github.com/no22/RWKV-Agent/api"
 	"github.com/no22/RWKV-Agent/internal/agent"
 	agenteval "github.com/no22/RWKV-Agent/internal/agent/eval"
-	assistanttools "github.com/no22/RWKV-Agent/internal/agent/tools"
 	concurrentcli "github.com/no22/RWKV-Agent/internal/cli/concurrent"
 	"github.com/no22/RWKV-Agent/internal/continuation"
 	"github.com/no22/RWKV-Agent/internal/continuation/chatcompletions"
@@ -809,40 +809,40 @@ func runAgent(args []string) error {
 	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
-	source, err := newAgentGeneratorSource(ctx, options)
+	service, err := agentapi.NewService(agentapi.Options{Workspace: options.workspace})
 	if err != nil {
 		return err
 	}
-	defer source.Close()
-	generator, generatorCloser, err := source.newGenerator(ctx)
+	defer service.Close()
+	config, err := agentAPIConfig(options)
 	if err != nil {
 		return err
 	}
-	defer generatorCloser.Close()
-	tools, err := agent.WorkspaceTools(options.workspace)
-	if err != nil {
-		return fmt.Errorf("initialize agent workspace: %w", err)
-	}
-	localTools, err := assistanttools.LocalTools(assistanttools.Options{
-		Workspace: options.workspace,
-	})
-	if err != nil {
-		return fmt.Errorf("initialize local agent tools: %w", err)
-	}
-	tools = append(tools, localTools...)
 	theme := terminal.NewTheme(terminal.SupportsStyle(os.Stderr))
-	var observe func(agent.Event)
+	spinner := terminal.StartSpinner(os.Stderr, theme, "Preparing model provider")
+	status, err := service.Configure(ctx, config, nil)
+	if err != nil {
+		spinner.Stop(false, "Model provider failed")
+		return err
+	}
+	spinner.Stop(true, "Model provider ready")
+	session, err := service.NewSession(ctx)
+	if err != nil {
+		return err
+	}
+	defer session.Close()
+	var observe func(agentapi.Event)
 	if selected == terminal.UIPlain {
-		observe = func(event agent.Event) {
+		observe = func(event agentapi.Event) {
 			switch event.Kind {
-			case agent.EventRouteDone:
-				if event.Err != nil {
+			case agentapi.EventRouteDone:
+				if event.Error != "" {
 					fmt.Fprintf(
 						os.Stderr,
-						"%s %s: %v\n",
+						"%s %s: %s\n",
 						theme.Render(theme.Warning, "Route fallback"),
 						event.Route,
-						event.Err,
+						event.Error,
 					)
 				} else {
 					fmt.Fprintf(
@@ -852,26 +852,18 @@ func runAgent(args []string) error {
 						event.Route,
 					)
 				}
-			case agent.EventModelStart:
+			case agentapi.EventModelStart:
 				fmt.Fprintf(os.Stderr, "%s step %d\n", theme.Render(theme.Muted, "Agent"), event.Step)
-			case agent.EventRetry:
+			case agentapi.EventRetry:
 				fmt.Fprintln(os.Stderr, theme.Render(theme.Warning, "Retrying invalid model action"))
-			case agent.EventToolStart:
+			case agentapi.EventToolStart:
 				fmt.Fprintf(os.Stderr, "%s %s\n", theme.Render(theme.Accent, "Tool"), event.Tool)
-			case agent.EventToolDone:
-				if event.Err != nil {
-					fmt.Fprintf(os.Stderr, "%s %s: %v\n", theme.Render(theme.Warning, "Tool failed"), event.Tool, event.Err)
+			case agentapi.EventToolDone:
+				if event.Error != "" {
+					fmt.Fprintf(os.Stderr, "%s %s: %s\n", theme.Render(theme.Warning, "Tool failed"), event.Tool, event.Error)
 				}
 			}
 		}
-	}
-	runner, err := agent.NewRunner(
-		generator,
-		tools,
-		agentRunnerOptions(options, observe),
-	)
-	if err != nil {
-		return err
 	}
 	if selected == terminal.UITUI {
 		provider := options.provider
@@ -882,9 +874,9 @@ func runAgent(args []string) error {
 		}
 		_, err = agenttui.Run(
 			ctx,
-			runner,
+			session,
 			agenttui.Metadata{
-				Model:     filepath.Base(options.modelPath),
+				Model:     filepath.Base(status.Model),
 				Provider:  provider,
 				Workspace: options.workspace,
 				Thinking:  options.thinkingMode,
@@ -898,7 +890,7 @@ func runAgent(args []string) error {
 		}
 		return err
 	}
-	result, err := runner.Run(ctx, options.prompt)
+	result, err := session.RunWithObserver(ctx, options.prompt, observe)
 	if err != nil {
 		if os.Getenv("RWKV_AGENT_DEBUG") == "1" {
 			for _, step := range result.Steps {
@@ -914,6 +906,44 @@ func runAgent(args []string) error {
 	}
 	fmt.Fprintln(os.Stdout, terminal.SanitizeModelText(result.Output))
 	return nil
+}
+
+func agentAPIConfig(options runOptions) (agentapi.Config, error) {
+	headers, err := loadAPIHeaders(options.apiHeaderEnvs)
+	if err != nil {
+		return agentapi.Config{}, err
+	}
+	headerValues := make(map[string]string, len(headers))
+	for name, values := range headers {
+		if len(values) > 0 {
+			headerValues[name] = values[len(values)-1]
+		}
+	}
+	stream := options.apiStream
+	return agentapi.Config{
+		Provider:         agentapi.Provider(options.completion),
+		Model:            options.modelPath,
+		Endpoint:         options.apiURL,
+		APIKey:           os.Getenv(options.apiKeyEnv),
+		Password:         os.Getenv(options.apiPasswordEnv),
+		Headers:          headerValues,
+		TokenizerPath:    options.tokenizer,
+		Backend:          options.backend,
+		NativeProvider:   options.provider,
+		Thinking:         options.thinkingMode,
+		MaxSteps:         options.maxSteps,
+		MaxTokens:        options.maxTokens,
+		Temperature:      options.temperature,
+		TopK:             options.topK,
+		TopP:             options.topP,
+		PresencePenalty:  options.presencePenalty,
+		FrequencyPenalty: options.frequencyPenalty,
+		PenaltyDecay:     options.penaltyDecay,
+		ChatThinking:     options.chatThinking,
+		ChatPromptMode:   options.chatPromptMode,
+		ChatTokenLimit:   options.chatTokenLimit,
+		Stream:           &stream,
+	}, nil
 }
 
 func runAgentEval(args []string) error {

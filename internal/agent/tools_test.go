@@ -129,6 +129,7 @@ func TestWorkspaceToolsNormalizeNotionalAbsolutePaths(t *testing.T) {
 	}
 	for _, path := range []string{
 		"/workspace/logs/deploy.log",
+		"/workspace/project-repo.git/logs/deploy.log",
 		"/logs/deploy.log",
 		"/workspace/workspace/logs/deploy.log",
 		filepath.Join(root, "logs", "deploy.log"),

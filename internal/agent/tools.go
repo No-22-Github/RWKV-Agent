@@ -114,6 +114,12 @@ func (w *workspace) absoluteCandidates(path string) []string {
 			}
 		}
 	}
+	// Harnesses commonly mount a checkout below a virtual /workspace/*.git
+	// directory. Resolve that presentation path back onto this configured root;
+	// resolveRelative still enforces containment and existence.
+	if slash := strings.IndexByte(trimmed, '/'); slash > 0 && strings.HasSuffix(trimmed[:slash], ".git") {
+		candidates = append(candidates, trimmed[slash+1:])
+	}
 	return candidates
 }
 

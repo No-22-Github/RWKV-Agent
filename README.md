@@ -1,5 +1,19 @@
 # RWKV-Agent
 
+## Wails V3 App Demo
+
+The repository includes a Wails V3 beta + TypeScript + React + Vite application that uses the same public `api` package as the CLI and TUI. It supports native macOS windows and a Wails server build that starts on a port without opening an app window.
+
+```sh
+./scripts/build-app.sh
+open -n "./dist/RWKV Agent.app" --args --workspace "$(pwd)"
+
+# Browser-only mode
+./dist/rwkv-app-server --port 8080
+```
+
+The UI can load a local RWKV model, display model status, run multi-turn workspace Agent conversations, and configure remote APIs with arbitrary HTTP headers such as Cloudflare Access credentials. RWKV services use the continuation-native `/v1/batch/completions` path by default; OpenAI Chat Completions is an explicit compatibility option for other models. See [docs/app.md](docs/app.md) for setup and development commands.
+
 RWKV-Agent 当前提供一个可分发的 Apple Silicon macOS 本地 CLI。Go 负责 Conversation 事务、Session 持久化和终端交互；独立的 `librwkv_agent_runtime.dylib` 通过固定版本的 RWKV Mobile tokenizer/sampler 与 MLX FFI 执行推理。运行时不依赖 Python、PyTorch、HTTP 服务或外部进程。
 
 > 当前真正可用的是 Apple Silicon macOS 15+ 源码构建；Windows 和 Linux 是目标平台，

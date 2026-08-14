@@ -10,7 +10,7 @@ import (
 
 	"charm.land/bubbles/v2/textinput"
 	tea "charm.land/bubbletea/v2"
-	agentcore "github.com/no22/RWKV-Agent/internal/agent"
+	agentapi "github.com/no22/RWKV-Agent/api"
 	"github.com/no22/RWKV-Agent/internal/terminal"
 )
 
@@ -22,7 +22,7 @@ type Metadata struct {
 }
 
 type Session interface {
-	RunWithObserver(context.Context, string, func(agentcore.Event)) (agentcore.Result, error)
+	RunWithObserver(context.Context, string, func(agentapi.Event)) (agentapi.Result, error)
 	Reset()
 }
 
@@ -81,9 +81,9 @@ type model struct {
 }
 
 type tickMsg time.Time
-type eventMsg agentcore.Event
+type eventMsg agentapi.Event
 type doneMsg struct {
-	result agentcore.Result
+	result agentapi.Result
 	err    error
 }
 type taskChannelClosedMsg struct{}
@@ -158,7 +158,7 @@ func (m *model) beginTask(prompt string) {
 	go func() {
 		defer close(operationDone)
 		defer close(messages)
-		observe := func(event agentcore.Event) {
+		observe := func(event agentapi.Event) {
 			select {
 			case messages <- eventMsg(event):
 			case <-ctx.Done():
@@ -181,7 +181,7 @@ func (m *model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		}
 		return m, tickCommand()
 	case eventMsg:
-		m.recordEvent(agentcore.Event(value))
+		m.recordEvent(agentapi.Event(value))
 		return m, waitTaskMessage(m.messages)
 	case doneMsg:
 		m.finishTask(value)
@@ -298,42 +298,42 @@ func (m *model) updateMouseWheel(message tea.MouseWheelMsg) (tea.Model, tea.Cmd)
 	return m, nil
 }
 
-func (m *model) recordEvent(event agentcore.Event) {
+func (m *model) recordEvent(event agentapi.Event) {
 	m.step = max(m.step, event.Step)
 	switch event.Kind {
-	case agentcore.EventRouteStart:
+	case agentapi.EventRouteStart:
 		m.activities = append(m.activities, activity{
 			text:  "Routing · checking whether workspace evidence is needed",
 			style: activityAccent,
 		})
-	case agentcore.EventRouteDone:
+	case agentapi.EventRouteDone:
 		text := fmt.Sprintf("Route · %s", event.Route)
 		style := activitySuccess
-		if event.Err != nil {
-			text = fmt.Sprintf("Route · respond fallback: %v", event.Err)
+		if event.Error != "" {
+			text = fmt.Sprintf("Route · respond fallback: %s", event.Error)
 			style = activityWarning
 		}
 		m.activities = append(m.activities, activity{text: text, style: style})
-	case agentcore.EventModelStart:
+	case agentapi.EventModelStart:
 		m.activities = append(m.activities, activity{
 			text:  fmt.Sprintf("Step %d · deciding next action", event.Step),
 			style: activityAccent,
 		})
-	case agentcore.EventRetry:
+	case agentapi.EventRetry:
 		m.activities = append(m.activities, activity{
 			text:  fmt.Sprintf("Step %d · retrying invalid action", event.Step),
 			style: activityWarning,
 		})
-	case agentcore.EventToolStart:
+	case agentapi.EventToolStart:
 		m.activities = append(m.activities, activity{
 			text:  fmt.Sprintf("Step %d · %s", event.Step, event.Tool),
 			style: activityAccent,
 		})
-	case agentcore.EventToolDone:
+	case agentapi.EventToolDone:
 		text := fmt.Sprintf("Step %d · %s complete", event.Step, event.Tool)
 		style := activitySuccess
-		if event.Err != nil {
-			text = fmt.Sprintf("Step %d · %s failed: %v", event.Step, event.Tool, event.Err)
+		if event.Error != "" {
+			text = fmt.Sprintf("Step %d · %s failed: %s", event.Step, event.Tool, event.Error)
 			style = activityWarning
 		}
 		m.activities = append(m.activities, activity{text: text, style: style})

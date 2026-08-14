@@ -281,7 +281,7 @@ func (calculatorTool) Spec() agent.ToolSpec {
 		"calculator",
 		"Evaluate arithmetic with +, -, *, /, %, parentheses, and abs/min/max/round. Use precision to format decimal or money results.",
 		`{"expression":"string","precision":"optional integer 0..15"}`,
-		`{"type":"object","properties":{"expression":{"type":"string","minLength":1,"maxLength":4096},"precision":{"type":"integer","minimum":0,"maximum":15}},"required":["expression"],"additionalProperties":false}`,
+		`{"type":"object","properties":{"expression":{"type":"string","minLength":1,"maxLength":4096},"precision":{"type":["integer","null"],"minimum":0,"maximum":15}},"required":["expression","precision"],"additionalProperties":false}`,
 	)
 	spec.Replayable = true
 	spec.Example = `{"expression":"4500*0.082*30/365","precision":2}`
@@ -815,6 +815,11 @@ func (*dataQueryTool) Spec() agent.ToolSpec {
 		`{"path":"string","filter":{"field":"exact value"},"select":"comma-separated fields","group_by":"comma-separated fields","operation":"count|sum|avg|min|max|distinct_count","field":"numeric field","expression":"numeric row expression"}`,
 		`{"type":"object","properties":{"path":{"type":"string","minLength":1},"filter":{"type":"object","additionalProperties":{}},"select":{"type":"string"},"group_by":{"type":"string"},"operation":{"type":"string","enum":["count","sum","avg","min","max","distinct_count"]},"field":{"type":"string"},"expression":{"type":"string"}},"required":["path"],"additionalProperties":false}`,
 	)
+	// filter is intentionally a free-form object and the remaining fields are
+	// genuinely optional. That contract cannot be represented by the strict
+	// function-schema subset without either rejecting useful column names or
+	// forcing models to emit placeholder values, so advertise it as non-strict.
+	spec.Strict = false
 	spec.Replayable = true
 	spec.Example = `{"path":"orders.csv","operation":"sum","expression":"qty*unit_price","group_by":"sku"}`
 	return spec
