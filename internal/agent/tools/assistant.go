@@ -284,6 +284,8 @@ func (calculatorTool) Spec() agent.ToolSpec {
 		`{"type":"object","properties":{"expression":{"type":"string","minLength":1,"maxLength":4096},"precision":{"type":["integer","null"],"minimum":0,"maximum":15}},"required":["expression","precision"],"additionalProperties":false}`,
 	)
 	spec.Replayable = true
+	spec.Bundle = agent.ToolBundleCompute
+	spec.Permission = agent.PermissionCompute
 	spec.Example = `{"expression":"4500*0.082*30/365","precision":2}`
 	return spec
 }
@@ -821,6 +823,8 @@ func (*dataQueryTool) Spec() agent.ToolSpec {
 	// forcing models to emit placeholder values, so advertise it as non-strict.
 	spec.Strict = false
 	spec.Replayable = true
+	spec.Bundle = agent.ToolBundleCompute
+	spec.Permission = agent.PermissionCompute
 	spec.Example = `{"path":"orders.csv","operation":"sum","expression":"qty*unit_price","group_by":"sku"}`
 	return spec
 }
@@ -1256,7 +1260,9 @@ func (*datetimeTool) Spec() agent.ToolSpec {
 			},
 			"required":["op","args"]
 		}`),
-		Strict: false,
+		Strict:     false,
+		Bundle:     agent.ToolBundleCompute,
+		Permission: agent.PermissionCompute,
 	}
 }
 

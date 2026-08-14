@@ -69,7 +69,7 @@ Workspace tools are unavailable for this turn. Do not claim to have inspected fi
 
 const postToolDecisionReminder = `Use the Tool results above to continue the current task.
 If the evidence is sufficient, answer now. Call another tool only for a specific missing fact.
-Never repeat a successful tool call.`
+Never repeat a successful tool call. Do not open a <think> block or repeat the Tool payload.`
 
 const duplicateToolAnswerReminder = `That tool call was rejected because it repeats a successful call.
 Answer the current task from the evidence already collected.`
@@ -96,6 +96,9 @@ type ToolSpec struct {
 	Arguments   string
 	Parameters  json.RawMessage
 	Strict      bool
+	Bundle      string
+	Permission  ToolPermission
+	Control     bool
 	// MutatesWorkspace allows successful reads or tests to be repeated after a
 	// real workspace change while retaining duplicate protection within one
 	// revision.
@@ -174,6 +177,8 @@ type Options struct {
 	RouteRenderer        PromptRenderer
 	RouteRetries         int
 	RouteMaxOutputTokens int
+	ToolRouter           ToolRouteProtocol
+	ToolBundles          []ToolBundle
 	// TracePromptBytes caps how much of each rendered prompt is recorded.
 	// Zero disables prompt recording entirely; a negative value records the
 	// full prompt with no cap.
@@ -203,11 +208,12 @@ const (
 )
 
 type Event struct {
-	Kind  EventKind
-	Step  int
-	Tool  string
-	Route Route
-	Err   error
+	Kind    EventKind
+	Step    int
+	Tool    string
+	Route   Route
+	Bundles []string
+	Err     error
 }
 
 // PromptTrace records exactly what was sent to the model for one generation.
@@ -253,6 +259,7 @@ type RouteStep struct {
 	Request       *PromptTrace `json:"request,omitempty"`
 	ModelOutput   string       `json:"model_output"`
 	Route         Route        `json:"route,omitempty"`
+	Bundles       []string     `json:"bundles,omitempty"`
 	ProtocolError string       `json:"protocol_error,omitempty"`
 	FailedClosed  bool         `json:"failed_closed,omitempty"`
 }
@@ -265,6 +272,7 @@ type Result struct {
 	AnswerViolations       []string    `json:"answer_violations,omitempty"`
 	Steps                  []Step      `json:"steps"`
 	Route                  Route       `json:"route"`
+	Bundles                []string    `json:"bundles,omitempty"`
 	ForcedAnswerReason     string      `json:"forced_answer_reason,omitempty"`
 	Plan                   *PlanTrace  `json:"plan,omitempty"`
 	PlanRejections         int         `json:"plan_rejections,omitempty"`
@@ -306,6 +314,8 @@ type Runner struct {
 	terminalTool    string
 	thinkingMode    inference.ThinkingMode
 	router          RouteProtocol
+	toolRouter      ToolRouteProtocol
+	toolBundles     []ToolBundle
 	routeRenderer   PromptRenderer
 
 	runMu   sync.Mutex
@@ -357,6 +367,12 @@ func NewRunner(generator continuation.Generator, tools []Tool, options Options) 
 	if options.Router != nil && options.RouteRenderer == nil {
 		options.RouteRenderer = RWKVChatRenderer{}
 	}
+	if options.ToolRouter != nil && options.RouteRenderer == nil {
+		options.RouteRenderer = RWKVChatRenderer{}
+	}
+	if options.Router != nil && options.ToolRouter != nil {
+		return nil, fmt.Errorf("%w: Router and ToolRouter are mutually exclusive", continuation.ErrInvalidRequest)
+	}
 	applyGenerationDefaults(&options.Generation)
 	if options.DecisionMaxOutputTokens == 0 {
 		options.DecisionMaxOutputTokens = 96
@@ -364,7 +380,7 @@ func NewRunner(generator continuation.Generator, tools []Tool, options Options) 
 	if options.DecisionMaxOutputTokens > options.Generation.MaxOutputTokens {
 		options.DecisionMaxOutputTokens = options.Generation.MaxOutputTokens
 	}
-	if options.Router != nil {
+	if options.Router != nil || options.ToolRouter != nil {
 		if options.RouteMaxOutputTokens == 0 {
 			options.RouteMaxOutputTokens = 16
 		}
@@ -394,6 +410,17 @@ func NewRunner(generator continuation.Generator, tools []Tool, options Options) 
 		}
 		registered[spec.Name] = tool
 		specs = append(specs, spec)
+	}
+	if options.ToolRouter != nil {
+		loader, err := newLoadToolsTool(options.ToolBundles)
+		if err != nil {
+			return nil, err
+		}
+		if _, exists := registered[loader.Spec().Name]; exists {
+			return nil, fmt.Errorf("%w: duplicate tool %q", continuation.ErrInvalidRequest, loader.Spec().Name)
+		}
+		registered[loader.Spec().Name] = loader
+		specs = append(specs, loader.Spec())
 	}
 	if !preservesToolOrder(options.Protocol) {
 		sort.Slice(specs, func(left, right int) bool {
@@ -442,6 +469,8 @@ func NewRunner(generator continuation.Generator, tools []Tool, options Options) 
 		terminalTool:    terminalTool,
 		thinkingMode:    thinkingMode,
 		router:          options.Router,
+		toolRouter:      options.ToolRouter,
+		toolBundles:     append([]ToolBundle(nil), options.ToolBundles...),
 		routeRenderer:   options.RouteRenderer,
 	}, nil
 }
@@ -502,7 +531,19 @@ func (r *Runner) RunWithObserver(
 		Steps: make([]Step, 0, r.options.MaxSteps),
 		Route: RouteInspect,
 	}
-	if r.router != nil {
+	activeSpecs := append([]ToolSpec(nil), r.toolSpecs...)
+	activeTools := r.tools
+	if r.toolRouter != nil {
+		decision, routeSteps, routeErr := r.decideToolRoute(ctx, history, task, observer)
+		result.RouteSteps = routeSteps
+		if routeErr != nil {
+			return result, routeErr
+		}
+		result.Route = decision.Route
+		result.Bundles = append([]string(nil), decision.Bundles...)
+		activeSpecs = toolSpecsForBundles(r.toolSpecs, result.Bundles)
+		activeTools = toolsForSpecs(r.tools, activeSpecs)
+	} else if r.router != nil {
 		route, routeSteps, routeErr := r.decideRoute(ctx, history, task, observer)
 		result.RouteSteps = routeSteps
 		if routeErr != nil {
@@ -511,7 +552,7 @@ func (r *Runner) RunWithObserver(
 		result.Route = route
 	}
 	messages := make([]Message, 0, len(history)+2)
-	control := r.control
+	control := r.controlForSpecs(activeSpecs)
 	if result.Route == RouteRespond {
 		control = r.responseControl
 	}
@@ -553,8 +594,8 @@ func (r *Runner) RunWithObserver(
 	stage := StageDecision
 	assistantPrefix := ""
 	forceAnswer := false
-	terminalToolCompleted := r.terminalTool == ""
-	if r.router != nil && result.Route == RouteInspect {
+	terminalToolCompleted := r.terminalTool == "" || result.Route == RouteRespond
+	if (r.router != nil || r.toolRouter != nil) && result.Route == RouteInspect {
 		assistantPrefix = r.protocol.ToolCallPrefix()
 	}
 	for step := 1; step <= r.options.MaxSteps; step++ {
@@ -591,6 +632,11 @@ func (r *Runner) RunWithObserver(
 		request := r.options.Generation
 		request.Prompt = rendered
 		request.Stops = r.protocol.Stops(stage)
+		if protocol, ok := r.protocol.(interface {
+			stopsWithPrefix(GenerationStage, string) []string
+		}); ok {
+			request.Stops = protocol.stopsWithPrefix(stage, assistantPrefix)
+		}
 		if stage == StageDecision &&
 			result.Route == RouteInspect &&
 			successfulToolCalls == 0 {
@@ -616,7 +662,7 @@ func (r *Runner) RunWithObserver(
 		}
 		var offered []string
 		if stage == StageDecision {
-			offered = r.offeredToolNames()
+			offered = offeredToolNames(activeSpecs)
 		}
 		tracePrefix := ""
 		if injectedPrefix {
@@ -625,6 +671,7 @@ func (r *Runner) RunWithObserver(
 		if r.toolCompleter != nil {
 			request.Prompt = r.nativeTracePrompt(
 				messages,
+				activeSpecs,
 				stage == StageDecision && result.Route == RouteInspect,
 				requireNativeTool,
 				assistantPrefix,
@@ -636,6 +683,7 @@ func (r *Runner) RunWithObserver(
 			ctx,
 			request,
 			messages,
+			activeSpecs,
 			stage == StageDecision && result.Route == RouteInspect,
 			requireNativeTool,
 			assistantPrefix,
@@ -787,7 +835,7 @@ func (r *Runner) RunWithObserver(
 
 		toolAttempts++
 		assistantPrefix = ""
-		tool, ok := r.tools[action.Name]
+		tool, ok := activeTools[action.Name]
 		result.Steps[len(result.Steps)-1].Tool = action.Name
 		result.Steps[len(result.Steps)-1].ToolArguments =
 			append(json.RawMessage(nil), action.Arguments...)
@@ -855,7 +903,16 @@ func (r *Runner) RunWithObserver(
 			switch {
 			case !ok:
 				result.Steps[len(result.Steps)-1].ToolRejected = rejectedUnknownTool
-				err = fmt.Errorf("unknown tool %q", action.Name)
+				if hidden, exists := r.tools[action.Name]; exists && hidden.Spec().Bundle != "" {
+					err = fmt.Errorf(
+						"tool %q is not active; call load_tools with {\"bundle\":%q}, then retry %q",
+						action.Name,
+						hidden.Spec().Bundle,
+						action.Name,
+					)
+				} else {
+					err = fmt.Errorf("unknown tool %q", action.Name)
+				}
 			case !allowsRepeatedToolCalls(r.protocol) && action.Name == consecutiveFailedTool &&
 				consecutiveToolFailures >= maxConsecutiveToolFailures:
 				recoveryBlocked = true
@@ -878,7 +935,7 @@ func (r *Runner) RunWithObserver(
 			// evidence gate. Every other executed outcome did reach the
 			// workspace: a missing path or a runtime failure is a real
 			// observation the model may report.
-			toolEvidence := !errors.Is(err, ErrInvalidToolArguments)
+			toolEvidence := !errors.Is(err, ErrInvalidToolArguments) && !tool.Spec().Control
 			result.Steps[len(result.Steps)-1].ToolEvidence = toolEvidence
 			if toolEvidence {
 				hasToolEvidence = true
@@ -957,7 +1014,7 @@ func (r *Runner) RunWithObserver(
 			case duplicate:
 				toolContent += "\nRECOVERY: " + duplicateRejectionNote(sameCallStreak, r.options.MaxSteps-step)
 			case err != nil:
-				toolContent += "\nRECOVERY: " + toolFailureReminder(action.Name, err, recoveryBlocked, r.tools)
+				toolContent += "\nRECOVERY: " + toolFailureReminder(action.Name, err, recoveryBlocked, activeTools)
 			}
 		}
 		if allowsRepeatedToolCalls(r.protocol) && nativeRepeatStreak >= 1 && action.Name != r.terminalTool {
@@ -1022,6 +1079,15 @@ func (r *Runner) RunWithObserver(
 		}
 		if err == nil {
 			successfulToolCalls++
+			if tool.Spec().Control {
+				selection, selectionOK := value.(loadToolsResult)
+				if selectionOK && !containsString(result.Bundles, selection.Bundle) {
+					result.Bundles = append(result.Bundles, selection.Bundle)
+					activeSpecs = toolSpecsForBundles(r.toolSpecs, result.Bundles)
+					activeTools = toolsForSpecs(r.tools, activeSpecs)
+					messages = replaceSystemControl(messages, r.controlForSpecs(activeSpecs))
+				}
+			}
 			if action.Name == r.terminalTool {
 				terminalToolCompleted = true
 			}
@@ -1046,7 +1112,7 @@ func (r *Runner) RunWithObserver(
 			if !preservesToolOrder(r.protocol) {
 				messages = append(messages, Message{
 					Role:    RoleUser,
-					Content: toolFailureReminder(action.Name, err, recoveryBlocked, r.tools),
+					Content: toolFailureReminder(action.Name, err, recoveryBlocked, activeTools),
 				})
 			}
 		}
@@ -1067,9 +1133,42 @@ func (r *Runner) RunWithObserver(
 				)
 			}
 			messages = r.enterRescueMode(messages, reason, r.options.MaxSteps-step)
+			activeSpecs = r.rescueToolSpecs()
+			activeTools = toolsForSpecs(r.tools, activeSpecs)
+		}
+		if result.Route == RouteInspect && !terminalToolCompleted {
+			assistantPrefix = r.protocol.ToolCallPrefix()
 		}
 	}
 	return result, ErrMaxSteps
+}
+
+func (r *Runner) controlForSpecs(specs []ToolSpec) string {
+	control := toolControlPrompt(r.protocol, specs, r.thinkingMode, r.toolCompleter != nil)
+	if taskControl := strings.TrimSpace(r.options.TaskControl); taskControl != "" {
+		control += "\n\nTask-specific contract:\n" + taskControl
+	}
+	return control
+}
+
+func replaceSystemControl(messages []Message, control string) []Message {
+	result := append([]Message(nil), messages...)
+	for index := range result {
+		if result[index].Role == RoleSystem {
+			result[index] = Message{Role: RoleSystem, Content: control}
+			return result
+		}
+	}
+	return append([]Message{{Role: RoleSystem, Content: control}}, result...)
+}
+
+func containsString(values []string, target string) bool {
+	for _, value := range values {
+		if value == target {
+			return true
+		}
+	}
+	return false
 }
 
 // duplicateReplayNote accompanies a re-executed identical call to a Replayable
@@ -1374,13 +1473,13 @@ func (r *Runner) tracePrompt(
 // offeredToolNames lists the tools present in this run's registry. A change to
 // the tool list changes every decision prompt, which under greedy decoding can
 // move unrelated cases; recording it makes that attributable.
-func (r *Runner) offeredToolNames() []string {
-	if len(r.tools) == 0 {
+func offeredToolNames(specs []ToolSpec) []string {
+	if len(specs) == 0 {
 		return nil
 	}
-	names := make([]string, 0, len(r.tools))
-	for name := range r.tools {
-		names = append(names, name)
+	names := make([]string, 0, len(specs))
+	for _, spec := range specs {
+		names = append(names, spec.Name)
 	}
 	sort.Strings(names)
 	return names
@@ -1416,10 +1515,10 @@ func (r *Runner) decideRoute(
 		request.Stops = r.router.Stops()
 		request.MaxOutputTokens = r.options.RouteMaxOutputTokens
 		if r.toolCompleter != nil {
-			request.Prompt = r.nativeTracePrompt(messages, false, false, "<route>")
+			request.Prompt = r.nativeTracePrompt(messages, nil, false, false, "<route>")
 		}
 		promptTrace := r.tracePrompt(request, "<route>", nil)
-		generated, _, _, err := r.generate(ctx, request, messages, false, false, "<route>")
+		generated, _, _, err := r.generate(ctx, request, messages, nil, false, false, "<route>")
 		if err != nil {
 			steps = append(steps, RouteStep{
 				Attempt: attempt + 1,
@@ -1466,6 +1565,75 @@ func (r *Runner) decideRoute(
 		)
 	}
 	return RouteRespond, steps, nil
+}
+
+func (r *Runner) decideToolRoute(
+	ctx context.Context,
+	history []Message,
+	task string,
+	observer func(Event),
+) (ToolRouteDecision, []RouteStep, error) {
+	r.observe(Event{Kind: EventRouteStart}, observer)
+	messages := []Message{{Role: RoleSystem, Content: r.toolRouter.Instructions(r.toolBundles)}}
+	messages = append(messages, routingHistory(history)...)
+	messages = append(messages, Message{Role: RoleUser, Content: task})
+
+	var steps []RouteStep
+	for attempt := 0; attempt <= r.options.RouteRetries; attempt++ {
+		rendered, err := r.routeRenderer.Render(messages)
+		if err != nil {
+			r.observe(Event{Kind: EventRouteDone, Err: err}, observer)
+			return ToolRouteDecision{}, steps, err
+		}
+		request := r.options.Generation
+		request.Prompt = rendered + " <route>"
+		request.Stops = r.toolRouter.Stops()
+		request.MaxOutputTokens = r.options.RouteMaxOutputTokens
+		if r.toolCompleter != nil {
+			request.Prompt = r.nativeTracePrompt(messages, nil, false, false, "<route>")
+		}
+		promptTrace := r.tracePrompt(request, "<route>", nil)
+		generated, _, _, err := r.generate(ctx, request, messages, nil, false, false, "<route>")
+		if err != nil {
+			steps = append(steps, RouteStep{Attempt: attempt + 1, Request: promptTrace})
+			r.observe(Event{Kind: EventRouteDone, Err: err}, observer)
+			return ToolRouteDecision{}, steps, err
+		}
+		candidate := strings.TrimSpace(generated.Text)
+		if !strings.HasPrefix(candidate, "<route>") {
+			candidate = "<route>" + candidate
+		}
+		decision, parseErr := r.toolRouter.Parse(candidate, generated.FinishReason, r.toolBundles)
+		current := RouteStep{
+			Attempt:     attempt + 1,
+			Request:     promptTrace,
+			ModelOutput: generated.Text,
+		}
+		if parseErr == nil {
+			current.Route = decision.Route
+			current.Bundles = append([]string(nil), decision.Bundles...)
+			steps = append(steps, current)
+			r.observe(Event{Kind: EventRouteDone, Route: decision.Route, Bundles: decision.Bundles}, observer)
+			return decision, steps, nil
+		}
+		current.ProtocolError = parseErr.Error()
+		if attempt == r.options.RouteRetries {
+			current.Route = RouteRespond
+			current.FailedClosed = true
+			steps = append(steps, current)
+			r.observe(Event{Kind: EventRouteDone, Route: RouteRespond, Err: parseErr}, observer)
+			return ToolRouteDecision{Route: RouteRespond}, steps, nil
+		}
+		steps = append(steps, current)
+		if echoed := retryEcho(candidate, parseErr); echoed != "" {
+			messages = append(messages, Message{Role: RoleAssistant, Content: echoed})
+		}
+		messages = append(messages, Message{
+			Role:    RoleUser,
+			Content: r.toolRouter.Correction(parseErr, r.toolBundles),
+		})
+	}
+	return ToolRouteDecision{Route: RouteRespond}, steps, nil
 }
 
 // History returns a copy of the committed multi-turn transcript. The control

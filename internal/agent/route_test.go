@@ -43,6 +43,49 @@ func TestG1IRouteProtocolParsesOnlyKnownRoutes(t *testing.T) {
 	}
 }
 
+func TestProgressiveToolRouteSelectsAtMostTwoKnownBundles(t *testing.T) {
+	t.Parallel()
+	protocol := G1IProgressiveToolRouteProtocol{}
+	bundles := DefaultToolBundles()
+	decision, err := protocol.Parse(
+		"<route>inspect:workspace+compute</route>",
+		continuation.FinishStop,
+		bundles,
+	)
+	if err != nil || decision.Route != RouteInspect ||
+		len(decision.Bundles) != 2 || decision.Bundles[0] != ToolBundleWorkspace {
+		t.Fatalf("decision = %+v, %v", decision, err)
+	}
+	for _, value := range []string{
+		"<route>inspect:unknown</route>",
+		"<route>inspect:workspace+compute+web</route>",
+		"<route>inspect:web+web</route>",
+	} {
+		if _, err := protocol.Parse(value, continuation.FinishStop, bundles); err == nil {
+			t.Fatalf("accepted progressive route %q", value)
+		}
+	}
+}
+
+func TestProgressiveToolRouteInstructionsUseConcreteRoutes(t *testing.T) {
+	t.Parallel()
+	protocol := G1IProgressiveToolRouteProtocol{}
+	bundles := DefaultToolBundles()[:2]
+	for name, value := range map[string]string{
+		"instructions": protocol.Instructions(bundles),
+		"correction":   protocol.Correction(errors.New("invalid"), bundles),
+	} {
+		if strings.Contains(value, "BUNDLE") || strings.Contains(value, "NAME") {
+			t.Fatalf("%s contains a placeholder: %q", name, value)
+		}
+		for _, expected := range []string{"<route>respond</route>", "<route>inspect:workspace</route>", "<route>inspect:compute</route>"} {
+			if !strings.Contains(value, expected) {
+				t.Fatalf("%s omits %q: %q", name, expected, value)
+			}
+		}
+	}
+}
+
 func TestG1IRouteProtocolClassifiesRunawayReasoning(t *testing.T) {
 	t.Parallel()
 

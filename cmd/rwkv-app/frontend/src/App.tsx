@@ -9,6 +9,7 @@ import {
   Cpu,
   FileText,
   Folder,
+  Globe2,
   LoaderCircle,
   Menu,
   MessageSquarePlus,
@@ -19,11 +20,13 @@ import {
   SlidersHorizontal,
   Sparkles,
   Trash2,
+  Users,
   X,
 } from 'lucide-react'
 import { Events } from '@wailsio/runtime'
 import * as Backend from '../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/appservice'
 import {
+  AgentProtocol,
   Config,
   ModelState,
   Provider,
@@ -45,6 +48,7 @@ type AgentActivity = {
   step?: number
   tool?: string
   route?: string
+  bundles?: string[]
   error?: string
 }
 
@@ -75,6 +79,17 @@ function App() {
   const [remoteProtocol, setRemoteProtocol] = useState<'rwkv' | 'openai'>('rwkv')
   const [apiKey, setAPIKey] = useState('')
   const [headers, setHeaders] = useState<HeaderRow[]>([])
+  const [agentProtocol, setAgentProtocol] = useState<AgentProtocol>(AgentProtocol.AgentProtocolMarkdown)
+  const [progressiveTools, setProgressiveTools] = useState(true)
+  const [enableWeb, setEnableWeb] = useState(false)
+  const [braveAPIKey, setBraveAPIKey] = useState('')
+  const [tavilyAPIKey, setTavilyAPIKey] = useState('')
+  const [enableSubagents, setEnableSubagents] = useState(false)
+  const [maxActiveBatch, setMaxActiveBatch] = useState(4)
+  const [remoteBatchWaitMS, setRemoteBatchWaitMS] = useState(10)
+  const [subagentMaxParallel, setSubagentMaxParallel] = useState(4)
+  const [subagentMaxSteps, setSubagentMaxSteps] = useState(4)
+  const [subagentTimeoutSeconds, setSubagentTimeoutSeconds] = useState(120)
   const [availableModels, setAvailableModels] = useState<RemoteModel[]>([])
   const [settingsMessage, setSettingsMessage] = useState('')
   const [settingsBusy, setSettingsBusy] = useState(false)
@@ -167,6 +182,7 @@ function App() {
         thinking: 'off',
         maxSteps: 6,
         maxTokens: 1024,
+        ...agentCapabilityConfig(),
       }))
       setStatus(configured)
       setSettingsMessage('本地模型已就绪。')
@@ -198,7 +214,24 @@ function App() {
       rwkvStopTokens: remoteProtocol === 'rwkv' ? 'none' : undefined,
       maxSteps: 6,
       maxTokens: 1024,
+      ...agentCapabilityConfig(),
     })
+  }
+
+  function agentCapabilityConfig() {
+    return {
+      agentProtocol,
+      progressiveTools,
+      enableWeb,
+      braveApiKey: enableWeb ? braveAPIKey.trim() || undefined : undefined,
+      tavilyApiKey: enableWeb ? tavilyAPIKey.trim() || undefined : undefined,
+      enableSubagents,
+      maxActiveBatch,
+      remoteBatchWaitMs: remoteBatchWaitMS,
+      subagentMaxParallel,
+      subagentMaxSteps,
+      subagentTimeoutSeconds,
+    }
   }
 
   async function testRemote() {
@@ -376,6 +409,17 @@ function App() {
               <form className="settings-form" onSubmit={configureLocal}>
                 <label>模型路径<input value={modelPath} onChange={(event) => setModelPath(event.target.value)} placeholder="/absolute/path/to/rwkv7-model.pth" required /></label>
                 <label>Tokenizer 路径 <small>可选，默认自动查找</small><input value={tokenizerPath} onChange={(event) => setTokenizerPath(event.target.value)} placeholder="/path/to/rwkv_vocab_v20230424.txt" /></label>
+                <CapabilitySettings
+                  agentProtocol={agentProtocol} setAgentProtocol={setAgentProtocol}
+                  progressiveTools={progressiveTools} setProgressiveTools={setProgressiveTools}
+                  enableWeb={enableWeb} setEnableWeb={setEnableWeb} braveAPIKey={braveAPIKey} setBraveAPIKey={setBraveAPIKey} tavilyAPIKey={tavilyAPIKey} setTavilyAPIKey={setTavilyAPIKey}
+                  enableSubagents={enableSubagents} setEnableSubagents={setEnableSubagents}
+                  maxActiveBatch={maxActiveBatch} setMaxActiveBatch={setMaxActiveBatch}
+                  remoteBatchWaitMS={remoteBatchWaitMS} setRemoteBatchWaitMS={setRemoteBatchWaitMS}
+                  subagentMaxParallel={subagentMaxParallel} setSubagentMaxParallel={setSubagentMaxParallel}
+                  subagentMaxSteps={subagentMaxSteps} setSubagentMaxSteps={setSubagentMaxSteps}
+                  subagentTimeoutSeconds={subagentTimeoutSeconds} setSubagentTimeoutSeconds={setSubagentTimeoutSeconds}
+                />
                 <div className="info-panel"><Cpu size={17} /><span>支持 Apple Silicon macOS 上的 RWKV-7 .pth 和 MLX safetensors 目录。</span></div>
                 <SettingsFooter busy={settingsBusy} message={settingsMessage} action="加载模型" />
               </form>
@@ -401,6 +445,17 @@ function App() {
                     <button type="button" onClick={() => setHeaders((current) => current.filter((item) => item.id !== row.id))} aria-label="删除 Header"><Trash2 size={16} /></button>
                   </div>
                 ))}
+                <CapabilitySettings
+                  agentProtocol={agentProtocol} setAgentProtocol={setAgentProtocol}
+                  progressiveTools={progressiveTools} setProgressiveTools={setProgressiveTools}
+                  enableWeb={enableWeb} setEnableWeb={setEnableWeb} braveAPIKey={braveAPIKey} setBraveAPIKey={setBraveAPIKey} tavilyAPIKey={tavilyAPIKey} setTavilyAPIKey={setTavilyAPIKey}
+                  enableSubagents={enableSubagents} setEnableSubagents={setEnableSubagents}
+                  maxActiveBatch={maxActiveBatch} setMaxActiveBatch={setMaxActiveBatch}
+                  remoteBatchWaitMS={remoteBatchWaitMS} setRemoteBatchWaitMS={setRemoteBatchWaitMS}
+                  subagentMaxParallel={subagentMaxParallel} setSubagentMaxParallel={setSubagentMaxParallel}
+                  subagentMaxSteps={subagentMaxSteps} setSubagentMaxSteps={setSubagentMaxSteps}
+                  subagentTimeoutSeconds={subagentTimeoutSeconds} setSubagentTimeoutSeconds={setSubagentTimeoutSeconds}
+                />
                 <footer className="settings-footer">
                   <div className="settings-result">{settingsBusy && <LoaderCircle className="spin" size={15} />}{settingsMessage}</div>
                   <div className="footer-actions"><button type="button" className="secondary" onClick={() => void testRemote()} disabled={settingsBusy}>测试并获取模型</button><button type="submit" className="primary" disabled={settingsBusy}>{settingsBusy ? <LoaderCircle className="spin" size={16} /> : <Cloud size={16} />}连接 API</button></div>
@@ -411,6 +466,72 @@ function App() {
         </div>
       )}
     </div>
+  )
+}
+
+type CapabilitySettingsProps = {
+  agentProtocol: AgentProtocol
+  setAgentProtocol: (value: AgentProtocol) => void
+  progressiveTools: boolean
+  setProgressiveTools: (value: boolean) => void
+  enableWeb: boolean
+  setEnableWeb: (value: boolean) => void
+  braveAPIKey: string
+  setBraveAPIKey: (value: string) => void
+  tavilyAPIKey: string
+  setTavilyAPIKey: (value: string) => void
+  enableSubagents: boolean
+  setEnableSubagents: (value: boolean) => void
+  maxActiveBatch: number
+  setMaxActiveBatch: (value: number) => void
+  remoteBatchWaitMS: number
+  setRemoteBatchWaitMS: (value: number) => void
+  subagentMaxParallel: number
+  setSubagentMaxParallel: (value: number) => void
+  subagentMaxSteps: number
+  setSubagentMaxSteps: (value: number) => void
+  subagentTimeoutSeconds: number
+  setSubagentTimeoutSeconds: (value: number) => void
+}
+
+function CapabilitySettings(props: CapabilitySettingsProps) {
+  return (
+    <section className="capability-settings" aria-label="Agent 能力">
+      <div className="capability-heading"><div><strong>Agent 能力</strong><small>按需暴露工具并控制并发预算</small></div></div>
+      <label>工具协议
+        <select aria-label="工具协议" value={props.agentProtocol} onChange={(event) => props.setAgentProtocol(event.target.value as AgentProtocol)}>
+          <option value={AgentProtocol.AgentProtocolMarkdown}>Markdown（推荐）</option>
+          <option value={AgentProtocol.AgentProtocolXML}>XML（兼容模式）</option>
+        </select>
+      </label>
+      <label className="toggle-row">
+        <span><Sparkles size={16} /><span>渐进式工具暴露<small>先选择能力组，再加载具体工具 schema</small></span></span>
+        <input aria-label="渐进式工具暴露" type="checkbox" checked={props.progressiveTools} onChange={(event) => props.setProgressiveTools(event.target.checked)} />
+      </label>
+      <label className="toggle-row">
+        <span><Globe2 size={16} /><span>网页搜索与正文获取<small>Brave Search + Tavily Extract</small></span></span>
+        <input aria-label="网页搜索与正文获取" type="checkbox" checked={props.enableWeb} onChange={(event) => props.setEnableWeb(event.target.checked)} />
+      </label>
+      {props.enableWeb && (
+        <div className="inline-fields capability-fields">
+          <label>Brave API Key<input type="password" value={props.braveAPIKey} onChange={(event) => props.setBraveAPIKey(event.target.value)} placeholder="仅保存在内存" autoComplete="off" required /></label>
+          <label>Tavily API Key<input type="password" value={props.tavilyAPIKey} onChange={(event) => props.setTavilyAPIKey(event.target.value)} placeholder="仅保存在内存" autoComplete="off" required /></label>
+        </div>
+      )}
+      <label className="toggle-row">
+        <span><Users size={16} /><span>并发子 Agent<small>一次派发 2–8 个独立任务，不允许嵌套委派</small></span></span>
+        <input aria-label="并发子 Agent" type="checkbox" checked={props.enableSubagents} onChange={(event) => props.setEnableSubagents(event.target.checked)} />
+      </label>
+      {props.enableSubagents && (
+        <div className="budget-grid">
+          <label>活动批量<input aria-label="活动批量" type="number" min="1" max="8" value={props.maxActiveBatch} onChange={(event) => props.setMaxActiveBatch(Number(event.target.value))} /></label>
+          <label>子 Agent 并发<input aria-label="子 Agent 并发" type="number" min="2" max="8" value={props.subagentMaxParallel} onChange={(event) => props.setSubagentMaxParallel(Number(event.target.value))} /></label>
+          <label>单 Agent 步数<input aria-label="单 Agent 步数" type="number" min="2" max="32" value={props.subagentMaxSteps} onChange={(event) => props.setSubagentMaxSteps(Number(event.target.value))} /></label>
+          <label>批次超时（秒）<input aria-label="批次超时（秒）" type="number" min="1" max="3600" value={props.subagentTimeoutSeconds} onChange={(event) => props.setSubagentTimeoutSeconds(Number(event.target.value))} /></label>
+          <label>远端聚合窗口（毫秒）<input aria-label="远端聚合窗口（毫秒）" type="number" min="0" max="1000" value={props.remoteBatchWaitMS} onChange={(event) => props.setRemoteBatchWaitMS(Number(event.target.value))} /></label>
+        </div>
+      )}
+    </section>
   )
 }
 
@@ -464,6 +585,8 @@ function statusLabel(status: Status) {
 function activityLabel(item?: AgentActivity) {
   if (!item) return '正在思考…'
   if (item.kind === 'model_start') return `步骤 ${item.step || 1} · 正在决定下一步`
+  if (item.kind === 'route_start') return '正在选择能力组'
+  if (item.kind === 'route_done') return item.bundles?.length ? `已加载 ${item.bundles.join('、')} 能力组` : '无需加载工具'
   if (item.kind === 'tool_start') return `步骤 ${item.step} · 正在使用 ${item.tool}`
   if (item.kind === 'tool_done') return `步骤 ${item.step} · ${item.tool} 已完成`
   if (item.kind === 'protocol_retry') return `步骤 ${item.step} · 正在重试`

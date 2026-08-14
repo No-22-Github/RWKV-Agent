@@ -25,6 +25,92 @@ type RouteProtocol interface {
 	Stops() []string
 }
 
+type ToolRouteDecision struct {
+	Route   Route
+	Bundles []string
+}
+
+type ToolRouteProtocol interface {
+	ID() string
+	Instructions([]ToolBundle) string
+	Parse(string, continuation.FinishReason, []ToolBundle) (ToolRouteDecision, error)
+	Correction(error, []ToolBundle) string
+	Stops() []string
+}
+
+type G1IProgressiveToolRouteProtocol struct{}
+
+func (G1IProgressiveToolRouteProtocol) ID() string { return "rwkv-g1i-tool-route-v1" }
+
+func (G1IProgressiveToolRouteProtocol) Instructions(bundles []ToolBundle) string {
+	var prompt strings.Builder
+	prompt.WriteString(`Choose whether the current user message needs NEW tool evidence. Output exactly one route and nothing else.
+Use <route>respond</route> when no new evidence is needed, required arguments are missing, or the user only asks about capabilities.
+Use exactly one of these concrete routes when a capability is needed:`)
+	for _, bundle := range bundles {
+		fmt.Fprintf(&prompt, "\n- <route>inspect:%s</route>: %s", bundle.Name, bundle.Description)
+	}
+	if len(bundles) >= 2 {
+		fmt.Fprintf(
+			&prompt,
+			"\nOnly when two capabilities are genuinely required, join two listed names with +, for example <route>inspect:%s+%s</route>.",
+			bundles[0].Name,
+			bundles[1].Name,
+		)
+	}
+	prompt.WriteString("\nDo not answer the user and do not output placeholder words.")
+	return prompt.String()
+}
+
+func (G1IProgressiveToolRouteProtocol) Parse(value string, finish continuation.FinishReason, bundles []ToolBundle) (ToolRouteDecision, error) {
+	candidate := strings.TrimSpace(value)
+	if finish == continuation.FinishLength {
+		return ToolRouteDecision{}, ErrRouteTokenLimit
+	}
+	payload, closed := envelopeContent(candidate, "<route>", "</route>")
+	if !strings.HasPrefix(candidate, "<route>") || (!closed && finish != continuation.FinishStop) {
+		return ToolRouteDecision{}, fmt.Errorf("%w: progressive route envelope is missing or incomplete", ErrProtocol)
+	}
+	if payload == string(RouteRespond) {
+		return ToolRouteDecision{Route: RouteRespond}, nil
+	}
+	if !strings.HasPrefix(payload, string(RouteInspect)+":") {
+		return ToolRouteDecision{}, fmt.Errorf("%w: invalid progressive route %q", ErrProtocol, payload)
+	}
+	names := strings.Split(strings.TrimPrefix(payload, string(RouteInspect)+":"), "+")
+	if len(names) < 1 || len(names) > 2 {
+		return ToolRouteDecision{}, fmt.Errorf("%w: progressive route must select one or two bundles", ErrProtocol)
+	}
+	known := make(map[string]struct{}, len(bundles))
+	for _, bundle := range bundles {
+		known[bundle.Name] = struct{}{}
+	}
+	seen := make(map[string]struct{}, len(names))
+	for _, name := range names {
+		if _, ok := known[name]; !ok {
+			return ToolRouteDecision{}, fmt.Errorf("%w: unknown tool bundle %q", ErrProtocol, name)
+		}
+		if _, duplicate := seen[name]; duplicate {
+			return ToolRouteDecision{}, fmt.Errorf("%w: duplicate tool bundle %q", ErrProtocol, name)
+		}
+		seen[name] = struct{}{}
+	}
+	return ToolRouteDecision{Route: RouteInspect, Bundles: names}, nil
+}
+
+func (G1IProgressiveToolRouteProtocol) Correction(_ error, bundles []ToolBundle) string {
+	routes := make([]string, 0, len(bundles)+1)
+	routes = append(routes, "<route>respond</route>")
+	for _, bundle := range bundles {
+		routes = append(routes, "<route>inspect:"+bundle.Name+"</route>")
+	}
+	return "Your previous route was invalid. Output exactly one concrete route from this list and nothing else: " + strings.Join(routes, ", ") + "."
+}
+
+func (G1IProgressiveToolRouteProtocol) Stops() []string {
+	return []string{"</route>", "\nUser:", "\nSystem:", "\nTool:"}
+}
+
 // G1IRouteProtocol asks the model whether the committed conversation already
 // contains enough evidence to answer. It deliberately does not expose tool
 // names or schemas.

@@ -244,19 +244,54 @@ calculator 提供受限算术与定点格式化，data_query 提供 CSV/TSV/JSON
 可重复的 `assistant` 评测 suite 中注册，不会在普通 Agent 中伪装成实时能力。默认工具没有
 写入、命令执行或真实网络能力。
 Agent 只依赖“文本前缀 -> 续写文本”的窄接口，本地模型和 `rwkv_lightning` HTTP 是两种
-可替换 adapter。当前 `rwkv-g1i-envelope-v1` 采用 G1I 已验证的文本 envelope：
-`<tool_call>{"name":...,"arguments":...}</tool_call>` 和
-`Tool: <tool_result>...</tool_result>`。第一轮普通文本直接作为最终回答，不要求套
-envelope；因此用户询问 Agent 能力时不需要虚构一次工具调用。
+可替换 adapter。产品默认使用 G1i 训练原生的 Markdown/function transcript：工具目录位于
+`System: Tools:`，工具调用是在 `Assistant:` 后续写的 JSON fenced code block，工具结果以
+`User: Function output:` 回填。`inspect` 路由使用轻量 `submit` 终止工具提交最终可见答案并
+立即结束，避免 7B 在工具结果后继续重复调用；`respond` 路由仍直接回答。旧
+`rwkv-g1i-envelope-v1` XML 协议保留为 `--agent-protocol xml` A/B
+兼容模式，默认值为 `--agent-protocol markdown`。
 
-每轮先由一个不暴露工具 schema 的短 Router prompt 让模型选择 `respond` 或 `inspect`。
-`respond` 使用完全无工具的普通回答 prompt；`inspect` 才进入工具选择阶段。Router 只读取
-最近的已提交 user/assistant 历史，不接收原始工具正文；格式连续失败时安全降级为
-`respond`，Harness 不根据关键词猜测用户意图。成功执行只读工具后，Runner 使用独立
-的短回答 prompt，并按任务相关性压缩过长字符串，再预填 `<answer>`；工具路由示例和完整
-大文件不会继续占用回答阶段上下文。Router 明确选择 `inspect` 后，Runner 会在第一次工具
-选择续写前预填 `<tool_call>`，模型只需继续生成 JSON 和 closing tag，Runner 再重建并
-严格解析完整控制帧。旧裸 JSON 动作协议已在真实 13B 验证通过后移除。
+普通 `agent` 默认启用渐进式工具暴露。每轮先由一个不暴露具体工具 schema 的短 Router
+在 `workspace`、`compute`、`web`、`delegate` 能力组中选择零至两个：`respond` 直接进入
+无工具回答，`inspect:BUNDLE[+BUNDLE]` 只把所选能力组的 schema 交给模型。当前工具不够时，
+模型可以调用控制工具 `load_tools` 再加载一个能力组；未暴露工具即使被模型点名也会被
+Harness 拒绝。Router 只读取最近已提交的 user/assistant 历史，不接收原始工具正文，Harness
+不根据关键词猜测语义。`--progressive-tools=false` 可恢复固定完整目录，便于历史评测对照。
+
+可选 Web 能力由两种服务分工完成：`web_search` 使用 Brave Search 返回标题、URL、摘要和
+来源 ID，`web_fetch` 使用 Tavily Extract 获取最多四个页面的 Markdown 正文。只有显式
+传入 `--web` 且同时提供两个 API Key 时才注册这组工具：
+
+```sh
+export BRAVE_API_KEY='...'
+export TAVILY_API_KEY='...'
+
+./dist/rwkv-cli agent \
+  --web \
+  --model /absolute/path/to/rwkv7-model.pth \
+  --workspace /absolute/path/to/project
+```
+
+可选 `spawn_agents` 一次接收 2–8 个独立任务并发执行，每个任务创建自己的 Session、State
+和 transcript，结果按输入顺序返回。子 Agent 继承工作区、计算和 Web 能力，但不继承
+`delegate`，因此不会递归派生。全部子任务失败时整个工具调用失败；部分成功时保留成功输出
+和逐项错误。启用示例：
+
+```sh
+./dist/rwkv-cli agent \
+  --subagents \
+  --max-active-batch 4 \
+  --subagent-max-parallel 4 \
+  --subagent-max-steps 4 \
+  --subagent-timeout 2m \
+  --remote-batch-wait 10ms \
+  --model /absolute/path/to/rwkv7-model.pth \
+  --workspace /absolute/path/to/project
+```
+
+本地 MLX 通过已有 continuous batching 并行推进独立 Session；RWKV Lightning 在聚合窗口内
+把兼容的并发续写合并成一个 `contents[]` 请求；Chat Completions 则发并发 HTTP 请求。
+`continuation.Generator` 仍保持单请求、传输中立，批处理只发生在 Provider/runtime 层。
 
 ```sh
 ./dist/rwkv-cli agent \
@@ -285,30 +320,21 @@ user/assistant/tool transcript 带入后续工具选择和最终回答阶段。�
 ```
 
 Agent 默认使用 `temperature=1`、`top-k=1`、`top-p=1` 的确定性解码，presence/frequency
-惩罚为 0，`penalty-decay=1`。Router 最多生成 16 token，首次工具选择最多生成 96 token，
+惩罚为 0，`penalty-decay=1`。能力 Router 最多生成 48 token，首次工具选择最多生成 96 token，
 最终回答最多生成 1024 token，并限制为 6 个 Agent step（Router 独立计数）。
 `rwkv_lightning` 在 `top-k=1` 时直接取 argmax，因此 temperature 和 top-p 不参与随机
 采样。可用参数包括：
 
 ```text
 --max-steps <2..20>
---route-stage[=true|false]
+--progressive-tools[=true|false]
+--agent-protocol markdown|xml
 --route-max-tokens <n>
 --decision-max-tokens <n>
 --max-tokens <n>
 --workspace <directory>
 --thinking off|fast|full
 ```
-
-`--route-stage` 在 decision 之前额外跑一次 respond/inspect 分类调用，默认关闭。它是早期
-为小模型加的引导脚手架，每轮多花一次模型调用；13B 级模型在 decision 阶段内部就能正确
-判断该不该调工具。rwkv7-g1i-13.3b 实测：boundary 两种模式都是 13/18，但关闭后模型调用
-由 69 降到 48、耗时由 345s 降到 250s、协议合规由 96.1% 升到 100%，失败集合完全相同；
-assistant 由 2/6 升到 3/6，唯一差异是 `as_ambiguous_needs_clarify` —— 模型行为本身正确
-（追问城市、零工具调用），但 route 阶段把它判成 `inspect`，case 仅因 route 断言失败。
-更小的模型可以用 `--route-stage` 重新开启。开启时 route 判分和断言才生效：关闭时每轮带的
-是硬编码 `inspect` 默认值，计入 route 准确率会白送一个 100%，因此 summary 记为 `n/a`，
-manifest 里同时记录 `route_stage`。
 
 使用 `rwkv_lightning` 的原生续写接口：
 
@@ -445,22 +471,22 @@ go test -tags chatcompletions ./internal/continuation/chatcompletions \
   -run 'TestRemoteChatCompletions(NativeTool)?Integration' -v
 ```
 
-本地 continuation 与 `wrapped-continuation` 中，只有以 `<tool_call>` 开头的输出会进入
-严格 envelope/JSON 解析；其余正常文本是最终回答。畸形工具控制帧只重试一次，之后明确
-失败。`native-chat` 则先校验官方结构化 tool call，再转换为同一内部 Action。动作协议、RWKV prompt 渲染器和续写
-传输分别版本化，未来可以替换工具格式而不修改本地或 HTTP generator。所有工具路径必须
+产品默认在本地 continuation 与 `wrapped-continuation` 中解析 G1i fenced/raw JSON function
+call；`respond` 路由的普通 Markdown 是最终回答，`inspect` 路由则必须通过 `submit` 提交
+最终可见答案。旧 XML wrapper 仍可宽容恢复。畸形工具调用只重试一次，之后明确失败。
+`native-chat` 则先校验官方结构化 tool call，再转换为同一内部 Action。
+动作协议、RWKV prompt 渲染器和续写传输分别版本化，未来可以替换工具格式而不修改本地或
+HTTP generator。所有工具路径必须
 相对 `--workspace`；绝对路径、
 `..` 穿越和指向工作区外的符号链接都会被拒绝。单文件读取限制为 64 KiB，搜索跳过
 `.git`、`build`、`dist` 和 `node_modules`。
 
-每次工具尝试后，Runner 保留完整的本轮 assistant/tool 轨迹，并允许模型继续调用另一个
-不同工具或直接回答。每个成功结果后都会提醒模型只为明确缺失的事实继续调用。失败结果
-会给出确定性的恢复提示；`read_file` 路径不确定时优先提示使用 `list_files` 或
-`search_text` 发现真实路径。同一精确调用无论此前成功或失败都不会再次执行，并直接触发
-收束；同一工具连续执行失败两次后，第三次会被 Controller 拒绝，模型必须改用其他工具或
-回答限制。只要本轮发生过工具尝试，最后一个 Agent step 都会保留给禁用工具、预填
-`<answer>` 的强制回答阶段，证据不足时必须明确说明。成功生成最终回答后才事务化提交整轮
-transcript；生成、协议或 step 失败仍整轮回滚。
+每次工具尝试后，Runner 保留完整的本轮 assistant/function-output 轨迹，并允许模型继续调用
+另一个不同工具；证据充分时调用 `submit`。失败结果会给出确定性的恢复提示；`read_file`
+路径不确定时优先提示使用 `list_files` 或 `search_text` 发现真实路径。同一精确调用无论此前
+成功或失败都不会再次执行；达到重复或同工具连击阈值后，Runner 切换到只暴露 `submit` 的
+收束模式。证据不足时提交内容必须明确说明限制。`submit` 成功后才事务化提交整轮 transcript；
+生成、协议或 step 失败仍整轮回滚。
 
 诊断模型协议错误时可临时设置 `RWKV_AGENT_DEBUG=1`；它会在失败时打印原始模型 step，
 其中可能包含本地文件内容，默认不会启用。

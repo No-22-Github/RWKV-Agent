@@ -118,6 +118,10 @@ func (s *Service) Configure(ctx context.Context, config Config, progress func(St
 
 // NewSession creates one isolated multi-turn Agent loop.
 func (s *Service) NewSession(ctx context.Context) (*Session, error) {
+	return s.newSession(ctx, 0)
+}
+
+func (s *Service) newSession(ctx context.Context, depth int) (*Session, error) {
 	s.mu.RLock()
 	if s.closed {
 		s.mu.RUnlock()
@@ -134,7 +138,7 @@ func (s *Service) NewSession(ctx context.Context) (*Session, error) {
 	if err != nil {
 		return nil, err
 	}
-	configured, err := newSession(s, generator, closer, workspace, status)
+	configured, err := newSessionAtDepth(s, generator, closer, workspace, status, depth)
 	if err != nil {
 		_ = closer.Close()
 		return nil, err
@@ -289,6 +293,45 @@ func normalizeConfig(config Config) (Config, error) {
 	if config.MaxTokens < 1 {
 		return Config{}, fmt.Errorf("maxTokens must be positive")
 	}
+	if config.RouteMaxTokens == 0 {
+		config.RouteMaxTokens = 48
+	}
+	if config.RouteMaxTokens < 1 {
+		return Config{}, fmt.Errorf("routeMaxTokens must be positive")
+	}
+	if config.MaxActiveBatch == 0 {
+		config.MaxActiveBatch = 4
+	}
+	if config.MaxActiveBatch < 1 || config.MaxActiveBatch > 8 {
+		return Config{}, fmt.Errorf("maxActiveBatch must be between 1 and 8")
+	}
+	if config.RemoteBatchWaitMS < 0 || config.RemoteBatchWaitMS > 1000 {
+		return Config{}, fmt.Errorf("remoteBatchWaitMs must be between 0 and 1000")
+	}
+	if config.EnableSubagents && config.RemoteBatchWaitMS == 0 {
+		config.RemoteBatchWaitMS = 10
+	}
+	if config.SubagentMaxParallel == 0 {
+		config.SubagentMaxParallel = 4
+	}
+	if config.SubagentMaxParallel < 2 || config.SubagentMaxParallel > 8 {
+		return Config{}, fmt.Errorf("subagentMaxParallel must be between 2 and 8")
+	}
+	if config.SubagentMaxSteps == 0 {
+		config.SubagentMaxSteps = 4
+	}
+	if config.SubagentMaxSteps < 2 || config.SubagentMaxSteps > 32 {
+		return Config{}, fmt.Errorf("subagentMaxSteps must be between 2 and 32")
+	}
+	if config.SubagentTimeoutSeconds == 0 {
+		config.SubagentTimeoutSeconds = 120
+	}
+	if config.SubagentTimeoutSeconds < 1 || config.SubagentTimeoutSeconds > 3600 {
+		return Config{}, fmt.Errorf("subagentTimeoutSeconds must be between 1 and 3600")
+	}
+	if config.EnableWeb && (strings.TrimSpace(config.BraveAPIKey) == "" || strings.TrimSpace(config.TavilyAPIKey) == "") {
+		return Config{}, fmt.Errorf("enableWeb requires Brave and Tavily API keys")
+	}
 	if config.Temperature == 0 {
 		config.Temperature = 1
 	}
@@ -303,6 +346,12 @@ func normalizeConfig(config Config) (Config, error) {
 	}
 	if config.Thinking == "" {
 		config.Thinking = "off"
+	}
+	if config.AgentProtocol == "" {
+		config.AgentProtocol = AgentProtocolMarkdown
+	}
+	if config.AgentProtocol != AgentProtocolMarkdown && config.AgentProtocol != AgentProtocolXML {
+		return Config{}, fmt.Errorf("unsupported agentProtocol %q", config.AgentProtocol)
 	}
 	if config.Backend == "" {
 		config.Backend = "auto"

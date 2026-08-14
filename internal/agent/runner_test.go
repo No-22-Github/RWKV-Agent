@@ -108,6 +108,133 @@ func TestRunnerExecutesToolThenReturnsFinal(t *testing.T) {
 	}
 }
 
+func TestRunnerProgressivelyExposesOnlySelectedBundle(t *testing.T) {
+	t.Parallel()
+	outputs := []string{
+		`inspect:workspace</route>`,
+		`<tool_call>{"name":"workspace_echo","arguments":{"value":"hello"}}</tool_call>`,
+		`done`,
+	}
+	var prompts []string
+	generator := continuation.GenerateFunc(func(
+		_ context.Context,
+		request continuation.Request,
+		_ continuation.EventSink,
+	) (continuation.Result, error) {
+		prompts = append(prompts, request.Prompt)
+		output := outputs[len(prompts)-1]
+		return continuation.Result{Text: output, FinishReason: continuation.FinishStop}, nil
+	})
+	runner, err := NewRunner(generator, []Tool{
+		bundledEchoTool{name: "workspace_echo", bundle: ToolBundleWorkspace},
+		bundledEchoTool{name: "compute_echo", bundle: ToolBundleCompute},
+	}, Options{
+		MaxSteps:             4,
+		ToolRouter:           G1IProgressiveToolRouteProtocol{},
+		ToolBundles:          DefaultToolBundles(),
+		RouteRenderer:        RWKVChatRenderer{},
+		RouteMaxOutputTokens: 48,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "Use the workspace echo.")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Output != "done" || len(result.Bundles) != 1 || result.Bundles[0] != ToolBundleWorkspace {
+		t.Fatalf("result = %+v", result)
+	}
+	decisionPrompt := prompts[1]
+	if !strings.Contains(decisionPrompt, "workspace_echo") ||
+		!strings.Contains(decisionPrompt, "load_tools") ||
+		strings.Contains(decisionPrompt, "compute_echo") {
+		t.Fatalf("progressive decision prompt = %q", decisionPrompt)
+	}
+}
+
+func TestRunnerLoadToolsExpandsActiveView(t *testing.T) {
+	t.Parallel()
+	outputs := []string{
+		`inspect:workspace</route>`,
+		`<tool_call>{"name":"load_tools","arguments":{"bundle":"compute"}}</tool_call>`,
+		`<tool_call>{"name":"compute_echo","arguments":{"value":"42"}}</tool_call>`,
+		`done`,
+	}
+	var calls int
+	generator := continuation.GenerateFunc(func(
+		_ context.Context,
+		_ continuation.Request,
+		_ continuation.EventSink,
+	) (continuation.Result, error) {
+		output := outputs[calls]
+		calls++
+		return continuation.Result{Text: output, FinishReason: continuation.FinishStop}, nil
+	})
+	runner, err := NewRunner(generator, []Tool{
+		bundledEchoTool{name: "workspace_echo", bundle: ToolBundleWorkspace},
+		bundledEchoTool{name: "compute_echo", bundle: ToolBundleCompute},
+	}, Options{
+		MaxSteps:             5,
+		ToolRouter:           G1IProgressiveToolRouteProtocol{},
+		ToolBundles:          DefaultToolBundles(),
+		RouteRenderer:        RWKVChatRenderer{},
+		RouteMaxOutputTokens: 48,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "Load compute, then use it.")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Output != "done" || len(result.Bundles) != 2 ||
+		result.Steps[0].ToolEvidence || result.Steps[1].Tool != "compute_echo" {
+		t.Fatalf("result = %+v", result)
+	}
+}
+
+func TestRunnerExplainsHowToActivateHiddenKnownTool(t *testing.T) {
+	t.Parallel()
+	outputs := []string{
+		`inspect:workspace</route>`,
+		`<tool_call>{"name":"compute_echo","arguments":{"value":"42"}}</tool_call>`,
+		`<tool_call>{"name":"load_tools","arguments":{"bundle":"compute"}}</tool_call>`,
+		`<tool_call>{"name":"compute_echo","arguments":{"value":"42"}}</tool_call>`,
+		`done`,
+	}
+	var prompts []string
+	runner, err := NewRunner(continuation.GenerateFunc(func(
+		_ context.Context,
+		request continuation.Request,
+		_ continuation.EventSink,
+	) (continuation.Result, error) {
+		prompts = append(prompts, request.Prompt)
+		return continuation.Result{Text: outputs[len(prompts)-1], FinishReason: continuation.FinishStop}, nil
+	}), []Tool{
+		bundledEchoTool{name: "workspace_echo", bundle: ToolBundleWorkspace},
+		bundledEchoTool{name: "compute_echo", bundle: ToolBundleCompute},
+	}, Options{
+		MaxSteps:             5,
+		ToolRouter:           G1IProgressiveToolRouteProtocol{},
+		ToolBundles:          DefaultToolBundles(),
+		RouteRenderer:        RWKVChatRenderer{},
+		RouteMaxOutputTokens: 48,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "Use compute.")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Output != "done" || result.Steps[0].ToolExecuted ||
+		!strings.Contains(result.Steps[0].ToolError, `load_tools with {"bundle":"compute"}`) ||
+		result.Steps[2].Tool != "compute_echo" || !result.Steps[2].ToolExecuted {
+		t.Fatalf("hidden tool recovery = %+v", result)
+	}
+}
+
 // TestRunnerRecoversFromRunawayReasoning reproduces the 13B failure mode seen in
 // runs/cmp-rwkv13b-think-boundary: reasoning loops until the output budget is
 // gone, so the response is an unclosed <think> block with no action. The retry
@@ -1729,6 +1856,30 @@ func TestRunnerRollsBackMultiToolTurnWhenForcedAnswerFails(t *testing.T) {
 type echoTool struct{}
 
 type mutationTool struct{}
+
+type bundledEchoTool struct {
+	name   string
+	bundle string
+}
+
+func (t bundledEchoTool) Spec() ToolSpec {
+	return ToolSpec{
+		Name:        t.name,
+		Description: "Return a value from one capability bundle.",
+		Arguments:   `{"value":"string"}`,
+		Bundle:      t.bundle,
+	}
+}
+
+func (bundledEchoTool) Execute(_ context.Context, raw json.RawMessage) (any, error) {
+	var args struct {
+		Value string `json:"value"`
+	}
+	if err := json.Unmarshal(raw, &args); err != nil {
+		return nil, err
+	}
+	return map[string]string{"value": args.Value}, nil
+}
 
 type mutationResult struct{ changed bool }
 

@@ -10,6 +10,19 @@ import { Create as $Create } from "@wailsio/runtime";
 import * as time$0 from "../../../../time/models.js";
 
 /**
+ * AgentProtocol selects the product-facing tool transcript.
+ */
+export enum AgentProtocol {
+    /**
+     * The Go zero value for the underlying type of the enum.
+     */
+    $zero = "",
+
+    AgentProtocolMarkdown = "markdown",
+    AgentProtocolXML = "xml",
+};
+
+/**
  * Config configures one local or remote model provider. Secret fields are
  * accepted as input but are never included in Status.
  */
@@ -24,8 +37,10 @@ export class Config {
     "backend"?: string;
     "nativeProvider"?: string;
     "thinking"?: string;
+    "agentProtocol"?: AgentProtocol;
     "maxSteps"?: number;
     "maxTokens"?: number;
+    "routeMaxTokens"?: number;
     "temperature"?: number;
     "topK"?: number;
     "topP"?: number;
@@ -37,6 +52,18 @@ export class Config {
     "chatTokenLimit"?: string;
     "stream"?: boolean | null;
     "rwkvStopTokens"?: string;
+    "progressiveTools"?: boolean | null;
+    "enableWeb"?: boolean;
+    "braveApiKey"?: string;
+    "braveEndpoint"?: string;
+    "tavilyApiKey"?: string;
+    "tavilyEndpoint"?: string;
+    "enableSubagents"?: boolean;
+    "maxActiveBatch"?: number;
+    "remoteBatchWaitMs"?: number;
+    "subagentMaxParallel"?: number;
+    "subagentMaxSteps"?: number;
+    "subagentTimeoutSeconds"?: number;
 
     /** Creates a new Config instance. */
     constructor($$source: Partial<Config> = {}) {
@@ -122,6 +149,7 @@ export class RemoteModel {
 export class Result {
     "output": string;
     "route"?: string;
+    "bundles"?: string[];
     "steps": Step[];
     "duration": time$0.Duration;
     "durationMs": number;
@@ -148,10 +176,14 @@ export class Result {
      * Creates a new Result instance from a string or object.
      */
     static createFrom($$source: any = {}): Result {
-        const $$createField2_0 = $$createType2;
+        const $$createField2_0 = $$createType1;
+        const $$createField3_0 = $$createType3;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("bundles" in $$parsedSource) {
+            $$parsedSource["bundles"] = $$createField2_0($$parsedSource["bundles"]);
+        }
         if ("steps" in $$parsedSource) {
-            $$parsedSource["steps"] = $$createField2_0($$parsedSource["steps"]);
+            $$parsedSource["steps"] = $$createField3_0($$parsedSource["steps"]);
         }
         return new Result($$parsedSource as Partial<Result>);
     }
@@ -196,7 +228,7 @@ export class Status {
      * Creates a new Status instance from a string or object.
      */
     static createFrom($$source: any = {}): Status {
-        const $$createField9_0 = $$createType3;
+        const $$createField9_0 = $$createType1;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("headerNames" in $$parsedSource) {
             $$parsedSource["headerNames"] = $$createField9_0($$parsedSource["headerNames"]);
@@ -243,6 +275,6 @@ export class Step {
 
 // Private type creation functions
 const $$createType0 = $Create.Map($Create.Any, $Create.Any);
-const $$createType1 = Step.createFrom;
-const $$createType2 = $Create.Array($$createType1);
-const $$createType3 = $Create.Array($Create.Any);
+const $$createType1 = $Create.Array($Create.Any);
+const $$createType2 = Step.createFrom;
+const $$createType3 = $Create.Array($$createType2);

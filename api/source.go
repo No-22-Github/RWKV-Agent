@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/no22/RWKV-Agent/internal/continuation"
 	"github.com/no22/RWKV-Agent/internal/continuation/chatcompletions"
@@ -78,7 +79,7 @@ func buildSource(ctx context.Context, config Config, progress func(Status)) (gen
 func buildLocalSource(ctx context.Context, config Config, progress func(Status)) (generatorSource, error) {
 	backend := rwkvbackend.New(rwkvbackend.Options{
 		Provider:       config.NativeProvider,
-		MaxActiveBatch: 1,
+		MaxActiveBatch: config.MaxActiveBatch,
 		QueueCapacity:  64,
 	})
 	core, err := inference.NewCore(backend)
@@ -164,6 +165,7 @@ func buildRWKVLightningSource(config Config) (generatorSource, error) {
 		Password:      config.Password,
 		StopTokenMode: rwkvlightning.StopTokenMode(config.RWKVStopTokens),
 		Stream:        config.Stream,
+		BatchWait:     time.Duration(config.RemoteBatchWaitMS) * time.Millisecond,
 		Headers:       headers,
 	})
 	if err != nil {

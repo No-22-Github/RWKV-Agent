@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	agentapi "github.com/no22/RWKV-Agent/api"
 	agenteval "github.com/no22/RWKV-Agent/internal/agent/eval"
 	"github.com/no22/RWKV-Agent/internal/continuation/rwkvlightning"
 	"github.com/no22/RWKV-Agent/internal/terminal"
@@ -117,7 +118,7 @@ func TestAgentDefaultsAreDeterministicAndBounded(t *testing.T) {
 			options.decisionMaxTokens,
 		)
 	}
-	if options.routeMaxTokens != 16 {
+	if options.routeMaxTokens != 48 {
 		t.Fatalf("agent route token limit = %d", options.routeMaxTokens)
 	}
 	// The route stage was an early scaffold for small models. It costs a model
@@ -128,6 +129,15 @@ func TestAgentDefaultsAreDeterministicAndBounded(t *testing.T) {
 	}
 	if options.workspace != "." || options.maxSteps != 6 {
 		t.Fatalf("agent bounds = %+v", options)
+	}
+	if !options.progressiveTools || options.enableWeb || options.enableSubagents ||
+		options.maxActiveBatch != 4 || options.remoteBatchWait != 10*time.Millisecond ||
+		options.subagentMaxParallel != 4 || options.subagentMaxSteps != 4 ||
+		options.subagentTimeout != 2*time.Minute {
+		t.Fatalf("agent capability defaults = %+v", options)
+	}
+	if options.agentProtocol != string(agentapi.AgentProtocolMarkdown) {
+		t.Fatalf("agent protocol = %q", options.agentProtocol)
 	}
 	if options.fewShot {
 		t.Fatal("agent enabled few-shot by default before A/B validation")
@@ -173,6 +183,64 @@ func TestAgentDefaultsAreDeterministicAndBounded(t *testing.T) {
 		[]string{"--model", "model", "--prompt", "task", "--route-max-tokens", "0"},
 	); err == nil {
 		t.Fatal("agent accepted a non-positive route token limit")
+	}
+	if _, err := parseRunOptions(
+		"agent",
+		[]string{"--model", "model", "--prompt", "task", "--agent-protocol", "invalid"},
+	); err == nil {
+		t.Fatal("agent accepted an invalid protocol")
+	}
+}
+
+func TestAgentCapabilityOptionsMapToAPIConfig(t *testing.T) {
+	t.Setenv("TEST_BRAVE_KEY", "brave-secret")
+	t.Setenv("TEST_TAVILY_KEY", "tavily-secret")
+	options, err := parseRunOptions("agent", []string{
+		"--model", "model",
+		"--prompt", "research",
+		"--web",
+		"--brave-api-key-env", "TEST_BRAVE_KEY",
+		"--tavily-api-key-env", "TEST_TAVILY_KEY",
+		"--subagents",
+		"--max-active-batch", "6",
+		"--remote-batch-wait", "15ms",
+		"--subagent-max-parallel", "6",
+		"--subagent-max-steps", "5",
+		"--subagent-timeout", "3m",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	config, err := agentAPIConfig(options)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if config.ProgressiveTools == nil || !*config.ProgressiveTools || !config.EnableWeb ||
+		config.BraveAPIKey != "brave-secret" || config.TavilyAPIKey != "tavily-secret" ||
+		config.RouteMaxTokens != 48 ||
+		!config.EnableSubagents || config.MaxActiveBatch != 6 || config.RemoteBatchWaitMS != 15 ||
+		config.SubagentMaxParallel != 6 || config.SubagentMaxSteps != 5 ||
+		config.SubagentTimeoutSeconds != 180 {
+		t.Fatalf("Agent API config = %+v", config)
+	}
+	if config.AgentProtocol != agentapi.AgentProtocolMarkdown {
+		t.Fatalf("Agent API protocol = %q", config.AgentProtocol)
+	}
+}
+
+func TestAgentCapabilityOptionsRejectInvalidBounds(t *testing.T) {
+	t.Parallel()
+	for _, arguments := range [][]string{
+		{"--max-active-batch", "9"},
+		{"--remote-batch-wait", "1001ms"},
+		{"--subagent-max-parallel", "1"},
+		{"--subagent-max-steps", "1"},
+		{"--subagent-timeout", "61m"},
+	} {
+		base := []string{"--model", "model", "--prompt", "task"}
+		if _, err := parseRunOptions("agent", append(base, arguments...)); err == nil {
+			t.Fatalf("accepted invalid capability arguments %v", arguments)
+		}
 	}
 }
 

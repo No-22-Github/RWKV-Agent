@@ -209,7 +209,9 @@ func (t *listFilesTool) Spec() ToolSpec {
 			"required":["path","max_depth","max_results"],
 			"additionalProperties":false
 		}`),
-		Strict: true,
+		Strict:     true,
+		Bundle:     ToolBundleWorkspace,
+		Permission: PermissionWorkspaceRead,
 	}
 }
 
@@ -313,7 +315,9 @@ func (t *readFileTool) Spec() ToolSpec {
 			"required":["path"],
 			"additionalProperties":false
 		}`),
-		Strict: true,
+		Strict:     true,
+		Bundle:     ToolBundleWorkspace,
+		Permission: PermissionWorkspaceRead,
 	}
 }
 
@@ -395,7 +399,9 @@ func (t *searchTextTool) Spec() ToolSpec {
 			"required":["query","path","case_sensitive","max_results"],
 			"additionalProperties":false
 		}`),
-		Strict: true,
+		Strict:     true,
+		Bundle:     ToolBundleWorkspace,
+		Permission: PermissionWorkspaceRead,
 	}
 }
 

@@ -114,6 +114,72 @@ func TestG1IFunctionProtocolRepairsRawNewlineAndTruncation(t *testing.T) {
 	}
 }
 
+func TestG1IProductFunctionProtocolPreservesMarkdownAnswers(t *testing.T) {
+	t.Parallel()
+	protocol := G1IFunctionProtocol{Product: true}
+	answer := "```go\nfunc main() {}\n```"
+	action, err := protocol.Parse(answer, continuation.FinishStop)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if action.Type != "final" || action.Content != answer {
+		t.Fatalf("Markdown answer = %+v", action)
+	}
+	call, err := protocol.Parse("```json\n"+`{"name":"read_file","arguments":{"path":"README.md"}}`, continuation.FinishStop)
+	if err != nil || call.Type != "tool" || call.Name != "read_file" {
+		t.Fatalf("prefilled function call = %+v, error = %v", call, err)
+	}
+}
+
+func TestG1IProductFunctionRunnerPrefillsEveryToolDecision(t *testing.T) {
+	t.Parallel()
+	responses := []string{
+		`inspect</route>`,
+		`{"name":"echo","arguments":{"value":"BLUEBIRD"}}`,
+		`{"name":"submit","arguments":{"answer":"Result: BLUEBIRD"}}`,
+	}
+	var requests []continuation.Request
+	runner, err := NewRunner(
+		continuation.GenerateFunc(func(
+			_ context.Context,
+			request continuation.Request,
+			_ continuation.EventSink,
+		) (continuation.Result, error) {
+			requests = append(requests, request)
+			return continuation.Result{Text: responses[len(requests)-1], FinishReason: continuation.FinishStop}, nil
+		}),
+		[]Tool{echoTool{}, ProductSubmitTool()},
+		Options{
+			MaxSteps:          3,
+			Protocol:          G1IFunctionProtocol{Product: true},
+			Renderer:          G1IFunctionRenderer{Product: true},
+			Router:            G1IRouteProtocol{},
+			RouteRenderer:     RWKVChatRenderer{},
+			TerminalTool:      "submit",
+			EndOnTerminalTool: true,
+			Generation:        continuation.Request{MaxOutputTokens: 128},
+		},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "Echo BLUEBIRD.")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Output != "Result: BLUEBIRD" || len(requests) != 3 {
+		t.Fatalf("result = %+v, requests = %d", result, len(requests))
+	}
+	if !strings.HasSuffix(requests[1].Prompt, "Assistant: ```json\n") ||
+		!containsString(requests[1].Stops, "```") {
+		t.Fatalf("first decision request = %+v", requests[1])
+	}
+	if !strings.HasSuffix(requests[2].Prompt, "Assistant: ```json\n") || !containsString(requests[2].Stops, "```") ||
+		!strings.Contains(requests[2].Prompt, "User: Function output:\n") {
+		t.Fatalf("second decision request = %+v", requests[2])
+	}
+}
+
 func TestG1IFunctionRunnerDoesNotInjectGenericPostToolReminder(t *testing.T) {
 	t.Parallel()
 	responses := []string{

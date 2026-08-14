@@ -87,6 +87,19 @@ type runOptions struct {
 	duplicateReplayLimit     int
 	duplicateRescueThreshold int
 	sameToolRescueLimit      int
+	agentProtocol            string
+	progressiveTools         bool
+	enableWeb                bool
+	braveAPIKeyEnv           string
+	braveEndpoint            string
+	tavilyAPIKeyEnv          string
+	tavilyEndpoint           string
+	enableSubagents          bool
+	maxActiveBatch           int
+	remoteBatchWait          time.Duration
+	subagentMaxParallel      int
+	subagentMaxSteps         int
+	subagentTimeout          time.Duration
 }
 
 type stringListFlag []string
@@ -232,9 +245,13 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		fs.StringVar(&options.prompt, "prompt", "", "single-turn prompt; omit for the REPL")
 		fs.BoolVar(&options.autosave, "autosave", false, "save the session after each committed turn")
 	case "agent", "agent-eval":
+		routeMaxTokens := 16
+		if name == "agent" {
+			routeMaxTokens = 48
+		}
 		fs.IntVar(&options.maxSteps, "max-steps", 6, "maximum model steps including protocol retries")
 		fs.IntVar(&options.decisionMaxTokens, "decision-max-tokens", 96, "maximum generated tokens for tool selection")
-		fs.IntVar(&options.routeMaxTokens, "route-max-tokens", 16, "maximum generated tokens for respond/inspect routing")
+		fs.IntVar(&options.routeMaxTokens, "route-max-tokens", routeMaxTokens, "maximum generated tokens for capability routing")
 		fs.IntVar(
 			&options.duplicateReplayLimit,
 			"duplicate-replay-limit",
@@ -328,6 +345,19 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			fs.StringVar(&options.prompt, "prompt", "", "task for the read-only repository agent")
 			fs.StringVar(&options.ui, "ui", "auto", "agent renderer: auto, tui, or plain")
 			fs.StringVar(&options.workspace, "workspace", ".", "workspace root available to read-only tools")
+			fs.StringVar(&options.agentProtocol, "agent-protocol", string(agentapi.AgentProtocolMarkdown), "tool transcript: markdown or xml")
+			fs.BoolVar(&options.progressiveTools, "progressive-tools", true, "select one or two capability bundles before exposing full tool schemas")
+			fs.BoolVar(&options.enableWeb, "web", false, "enable Brave web_search and Tavily web_fetch")
+			fs.StringVar(&options.braveAPIKeyEnv, "brave-api-key-env", "BRAVE_API_KEY", "environment variable containing the Brave Search API key")
+			fs.StringVar(&options.braveEndpoint, "brave-endpoint", "", "optional Brave Search API endpoint")
+			fs.StringVar(&options.tavilyAPIKeyEnv, "tavily-api-key-env", "TAVILY_API_KEY", "environment variable containing the Tavily API key")
+			fs.StringVar(&options.tavilyEndpoint, "tavily-endpoint", "", "optional Tavily Extract API endpoint")
+			fs.BoolVar(&options.enableSubagents, "subagents", false, "enable concurrent spawn_agents delegation")
+			fs.IntVar(&options.maxActiveBatch, "max-active-batch", 4, "maximum local active generation batch, 1..8")
+			fs.DurationVar(&options.remoteBatchWait, "remote-batch-wait", 10*time.Millisecond, "RWKV Lightning coalescing window for concurrent Agent requests")
+			fs.IntVar(&options.subagentMaxParallel, "subagent-max-parallel", 4, "maximum tasks in one spawn_agents call, 2..8")
+			fs.IntVar(&options.subagentMaxSteps, "subagent-max-steps", 4, "maximum model steps for each child Agent")
+			fs.DurationVar(&options.subagentTimeout, "subagent-timeout", 2*time.Minute, "wall-clock timeout for one spawn_agents batch")
 		} else {
 			fs.StringVar(&options.evalSuite, "suite", agenteval.SuiteBoundary, "built-in Agent eval suite: boundary, smoke, assistant, primitive-orig30, or primitive-feedback30")
 			fs.StringVar(
@@ -446,6 +476,23 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			strings.TrimSpace(options.prompt) == "" {
 			return options, errors.New("agent --ui plain requires --prompt")
 		}
+		if name == "agent" {
+			if options.maxActiveBatch < 1 || options.maxActiveBatch > 8 {
+				return options, errors.New("--max-active-batch must be between 1 and 8")
+			}
+			if options.remoteBatchWait < 0 || options.remoteBatchWait > time.Second {
+				return options, errors.New("--remote-batch-wait must be between 0 and 1s")
+			}
+			if options.subagentMaxParallel < 2 || options.subagentMaxParallel > 8 {
+				return options, errors.New("--subagent-max-parallel must be between 2 and 8")
+			}
+			if options.subagentMaxSteps < 2 || options.subagentMaxSteps > 32 {
+				return options, errors.New("--subagent-max-steps must be between 2 and 32")
+			}
+			if options.subagentTimeout <= 0 || options.subagentTimeout > time.Hour {
+				return options, errors.New("--subagent-timeout must be between 1ns and 1h")
+			}
+		}
 		if name == "agent-eval" && options.evalCaseTimeout <= 0 {
 			return options, errors.New("--case-timeout must be positive")
 		}
@@ -511,6 +558,10 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 	}
 	if agentMode && options.routeMaxTokens <= 0 {
 		return options, errors.New("invalid agent route token limit")
+	}
+	if name == "agent" && options.agentProtocol != string(agentapi.AgentProtocolMarkdown) &&
+		options.agentProtocol != string(agentapi.AgentProtocolXML) {
+		return options, fmt.Errorf("invalid --agent-protocol %q", options.agentProtocol)
 	}
 	return options, nil
 }
@@ -924,29 +975,44 @@ func agentAPIConfig(options runOptions) (agentapi.Config, error) {
 		}
 	}
 	stream := options.apiStream
+	progressive := options.progressiveTools
 	return agentapi.Config{
-		Provider:         agentapi.Provider(options.completion),
-		Model:            options.modelPath,
-		Endpoint:         options.apiURL,
-		APIKey:           os.Getenv(options.apiKeyEnv),
-		Password:         os.Getenv(options.apiPasswordEnv),
-		Headers:          headerValues,
-		TokenizerPath:    options.tokenizer,
-		Backend:          options.backend,
-		NativeProvider:   options.provider,
-		Thinking:         options.thinkingMode,
-		MaxSteps:         options.maxSteps,
-		MaxTokens:        options.maxTokens,
-		Temperature:      options.temperature,
-		TopK:             options.topK,
-		TopP:             options.topP,
-		PresencePenalty:  options.presencePenalty,
-		FrequencyPenalty: options.frequencyPenalty,
-		PenaltyDecay:     options.penaltyDecay,
-		ChatThinking:     options.chatThinking,
-		ChatPromptMode:   options.chatPromptMode,
-		ChatTokenLimit:   options.chatTokenLimit,
-		Stream:           &stream,
+		Provider:               agentapi.Provider(options.completion),
+		Model:                  options.modelPath,
+		Endpoint:               options.apiURL,
+		APIKey:                 os.Getenv(options.apiKeyEnv),
+		Password:               os.Getenv(options.apiPasswordEnv),
+		Headers:                headerValues,
+		TokenizerPath:          options.tokenizer,
+		Backend:                options.backend,
+		NativeProvider:         options.provider,
+		Thinking:               options.thinkingMode,
+		AgentProtocol:          agentapi.AgentProtocol(options.agentProtocol),
+		MaxSteps:               options.maxSteps,
+		MaxTokens:              options.maxTokens,
+		RouteMaxTokens:         options.routeMaxTokens,
+		Temperature:            options.temperature,
+		TopK:                   options.topK,
+		TopP:                   options.topP,
+		PresencePenalty:        options.presencePenalty,
+		FrequencyPenalty:       options.frequencyPenalty,
+		PenaltyDecay:           options.penaltyDecay,
+		ChatThinking:           options.chatThinking,
+		ChatPromptMode:         options.chatPromptMode,
+		ChatTokenLimit:         options.chatTokenLimit,
+		Stream:                 &stream,
+		ProgressiveTools:       &progressive,
+		EnableWeb:              options.enableWeb,
+		BraveAPIKey:            os.Getenv(options.braveAPIKeyEnv),
+		BraveEndpoint:          options.braveEndpoint,
+		TavilyAPIKey:           os.Getenv(options.tavilyAPIKeyEnv),
+		TavilyEndpoint:         options.tavilyEndpoint,
+		EnableSubagents:        options.enableSubagents,
+		MaxActiveBatch:         options.maxActiveBatch,
+		RemoteBatchWaitMS:      int(options.remoteBatchWait / time.Millisecond),
+		SubagentMaxParallel:    options.subagentMaxParallel,
+		SubagentMaxSteps:       options.subagentMaxSteps,
+		SubagentTimeoutSeconds: int(options.subagentTimeout / time.Second),
 	}, nil
 }
 

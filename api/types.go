@@ -13,6 +13,14 @@ const (
 	ProviderRWKVLightning   Provider = "rwkv-lightning"
 )
 
+// AgentProtocol selects the product-facing tool transcript.
+type AgentProtocol string
+
+const (
+	AgentProtocolMarkdown AgentProtocol = "markdown"
+	AgentProtocolXML      AgentProtocol = "xml"
+)
+
 // ModelState describes the lifecycle state visible to clients.
 type ModelState string
 
@@ -26,29 +34,43 @@ const (
 // Config configures one local or remote model provider. Secret fields are
 // accepted as input but are never included in Status.
 type Config struct {
-	Provider         Provider          `json:"provider"`
-	Model            string            `json:"model"`
-	Endpoint         string            `json:"endpoint,omitempty"`
-	APIKey           string            `json:"apiKey,omitempty"`
-	Password         string            `json:"password,omitempty"`
-	Headers          map[string]string `json:"headers,omitempty"`
-	TokenizerPath    string            `json:"tokenizerPath,omitempty"`
-	Backend          string            `json:"backend,omitempty"`
-	NativeProvider   string            `json:"nativeProvider,omitempty"`
-	Thinking         string            `json:"thinking,omitempty"`
-	MaxSteps         int               `json:"maxSteps,omitempty"`
-	MaxTokens        int               `json:"maxTokens,omitempty"`
-	Temperature      float64           `json:"temperature,omitempty"`
-	TopK             int               `json:"topK,omitempty"`
-	TopP             float64           `json:"topP,omitempty"`
-	PresencePenalty  float64           `json:"presencePenalty,omitempty"`
-	FrequencyPenalty float64           `json:"frequencyPenalty,omitempty"`
-	PenaltyDecay     float64           `json:"penaltyDecay,omitempty"`
-	ChatThinking     string            `json:"chatThinking,omitempty"`
-	ChatPromptMode   string            `json:"chatPromptMode,omitempty"`
-	ChatTokenLimit   string            `json:"chatTokenLimit,omitempty"`
-	Stream           *bool             `json:"stream,omitempty"`
-	RWKVStopTokens   string            `json:"rwkvStopTokens,omitempty"`
+	Provider               Provider          `json:"provider"`
+	Model                  string            `json:"model"`
+	Endpoint               string            `json:"endpoint,omitempty"`
+	APIKey                 string            `json:"apiKey,omitempty"`
+	Password               string            `json:"password,omitempty"`
+	Headers                map[string]string `json:"headers,omitempty"`
+	TokenizerPath          string            `json:"tokenizerPath,omitempty"`
+	Backend                string            `json:"backend,omitempty"`
+	NativeProvider         string            `json:"nativeProvider,omitempty"`
+	Thinking               string            `json:"thinking,omitempty"`
+	AgentProtocol          AgentProtocol     `json:"agentProtocol,omitempty"`
+	MaxSteps               int               `json:"maxSteps,omitempty"`
+	MaxTokens              int               `json:"maxTokens,omitempty"`
+	RouteMaxTokens         int               `json:"routeMaxTokens,omitempty"`
+	Temperature            float64           `json:"temperature,omitempty"`
+	TopK                   int               `json:"topK,omitempty"`
+	TopP                   float64           `json:"topP,omitempty"`
+	PresencePenalty        float64           `json:"presencePenalty,omitempty"`
+	FrequencyPenalty       float64           `json:"frequencyPenalty,omitempty"`
+	PenaltyDecay           float64           `json:"penaltyDecay,omitempty"`
+	ChatThinking           string            `json:"chatThinking,omitempty"`
+	ChatPromptMode         string            `json:"chatPromptMode,omitempty"`
+	ChatTokenLimit         string            `json:"chatTokenLimit,omitempty"`
+	Stream                 *bool             `json:"stream,omitempty"`
+	RWKVStopTokens         string            `json:"rwkvStopTokens,omitempty"`
+	ProgressiveTools       *bool             `json:"progressiveTools,omitempty"`
+	EnableWeb              bool              `json:"enableWeb,omitempty"`
+	BraveAPIKey            string            `json:"braveApiKey,omitempty"`
+	BraveEndpoint          string            `json:"braveEndpoint,omitempty"`
+	TavilyAPIKey           string            `json:"tavilyApiKey,omitempty"`
+	TavilyEndpoint         string            `json:"tavilyEndpoint,omitempty"`
+	EnableSubagents        bool              `json:"enableSubagents,omitempty"`
+	MaxActiveBatch         int               `json:"maxActiveBatch,omitempty"`
+	RemoteBatchWaitMS      int               `json:"remoteBatchWaitMs,omitempty"`
+	SubagentMaxParallel    int               `json:"subagentMaxParallel,omitempty"`
+	SubagentMaxSteps       int               `json:"subagentMaxSteps,omitempty"`
+	SubagentTimeoutSeconds int               `json:"subagentTimeoutSeconds,omitempty"`
 }
 
 // Status is the non-secret model state displayed by clients.
@@ -81,11 +103,12 @@ const (
 
 // Event is a transport-safe Agent loop event.
 type Event struct {
-	Kind  EventKind `json:"kind"`
-	Step  int       `json:"step,omitempty"`
-	Tool  string    `json:"tool,omitempty"`
-	Route string    `json:"route,omitempty"`
-	Error string    `json:"error,omitempty"`
+	Kind    EventKind `json:"kind"`
+	Step    int       `json:"step,omitempty"`
+	Tool    string    `json:"tool,omitempty"`
+	Route   string    `json:"route,omitempty"`
+	Bundles []string  `json:"bundles,omitempty"`
+	Error   string    `json:"error,omitempty"`
 }
 
 // Step is the public trace summary for one model action.
@@ -106,6 +129,7 @@ type Step struct {
 type Result struct {
 	Output     string        `json:"output"`
 	Route      string        `json:"route,omitempty"`
+	Bundles    []string      `json:"bundles,omitempty"`
 	Steps      []Step        `json:"steps"`
 	Duration   time.Duration `json:"duration"`
 	DurationMS int64         `json:"durationMs"`

@@ -22,64 +22,105 @@ Agent Runner
 
 ## 2. 当前内建协议
 
-当前默认动作协议标识为 `rwkv-g1i-envelope-v1`。模型每次生成有两个合法选择：
+当前产品默认动作协议标识为 `rwkv-g1i-functions-product-v1`，prompt renderer 标识为
+`rwkv-g1i-functions-product-continuation-v1`。它复用 G1i checkpoint 的训练 transcript：
 
-1. 直接输出普通文本，作为最终回答；
-2. 需要仓库证据时，输出 G1I 工具控制帧：
+````text
+System: Tools:
+[{"name":"read_file",...}]
 
-```text
-<tool_call>{"name":"read_file","arguments":{"path":"README.md"}}</tool_call>
+User: Read README.md.
+
+Assistant: ```json
+{"name":"read_file","arguments":{"path":"README.md"}}
 ```
 
-```text
-Tool: <tool_result>{"ok":true,...}</tool_result>
+User: Function output:
+1: # RWKV-Agent
+
+Assistant: ```json
+{"name":"submit","arguments":{"answer":"RWKV-Agent"}}
 ```
+````
 
-只有响应从 `<tool_call>` 开始时，本地 `ActionProtocol` 才严格检查完整 envelope 和内部
-JSON；其他非空文本直接完成当前任务。这样普通回答不是协议错误，也不会把正文中讨论的
-`<tool_call>` 字样误执行为工具。解析器只允许移除开头完整的 `<think>...</think>` 块，
-畸形工具控制帧提供一次有界纠错。
-
-prompt 渲染器标识为 `rwkv-chat-continuation-v1`，使用 `System:`、`User:`、
-`Assistant:` 和 G1I 的 `Tool:` role。工具选择阶段给出工具 schema 和少量已验证示例；
-Router 明确选择 `inspect` 后，第一次工具选择在 `Assistant:` 后预填 `<tool_call>`，
-模型只续写 JSON 和 closing tag；Runner 重建完整 envelope 后再交给同一个严格解析器。
-没有 Router 的兼容调用路径不做此前缀约束，普通 `respond` 路由也绝不会预填工具标签。
+Router 明确选择 `inspect` 后，第一次工具选择在 `Assistant:` 后预填 JSON code fence，模型只需
+续写调用对象。`inspect` 路由的后续调用同样预填 JSON fence，并在答案就绪时调用
+`submit`；成功后 Runner 直接取出 `answer` 并结束，不再请求额外 plain-text final。
+`respond` 路由不预填工具格式，可以直接返回包含代码块的普通 Markdown。解析器继续容忍
+raw JSON、字符串化参数、截断 JSON、字段别名和旧 XML 包装，但普通 fenced Markdown 不会
+被误执行为工具。
 
 成功执行一个工具后保留 assistant/tool 消息对，并让模型选择继续调用另一个不同工具或
-直接回答。每个成功结果后追加收束提醒：证据充分就回答，只为明确缺失的事实继续调用，
-且不能重复成功调用。失败结果同样进入 transcript，并给出由 Controller 生成的确定性恢复
-提示；`read_file` 路径失败时优先引导模型用 `list_files` 或 `search_text` 发现真实路径。
+调用 `submit`。训练原生 transcript 不额外注入通用 Agent reminder；失败、重复调用和 rescue
+提示合并进同一个 `Function output` 回合。`read_file` 路径失败时仍由 Controller 引导模型
+用 `list_files` 或 `search_text` 发现真实路径。
 同一精确调用无论成功或失败都只允许出现一次；同一工具实际执行连续失败两次后，第三次
-调用会被拒绝，直到模型改用不同工具或直接回答。
+调用会被拒绝，直到模型改用不同工具或通过 `submit` 说明限制。
 
-只要本轮发生过工具尝试，Runner 都会把最后一个 Agent step 保留给独立回答阶段；再次
-生成同一精确调用会提前切换到该阶段。回答 prompt 替换工具说明、保留此前全部 bounded
-assistant/tool 轨迹、禁用工具并预填 `<answer>`；工具全部失败或证据不足时，回答必须
-明确说明限制。工具选择阶段只使用 `</tool_call>` stop，回答阶段只使用 `</answer>` stop，
-所以总结协议文档时出现工具标签不会被错误截停。过长字符串保留开头和与任务词项最相关
-的窗口，单个字符串最多约 2400 Unicode 字符。
+重复调用达到阈值后，Runner 只保留 `submit` 并要求模型用已有证据提交最佳答案。工具全部
+失败或证据不足时，提交内容必须明确说明限制。过长字符串保留开头和与任务词项最相关的
+窗口，单个字符串最多约 2400 Unicode 字符。
 
-动作协议、prompt 渲染器和续写 adapter 独立版本化。当前支持顺序多工具调用；并行调用、
-显式 planner 和跨工具依赖图仍不属于 v1。
+`rwkv-g1i-envelope-v1` 与 `rwkv-chat-continuation-v1` 仍作为 XML A/B 兼容模式保留。产品 CLI
+使用 `--agent-protocol markdown|xml` 选择，默认 `markdown`；Primitive Bench 继续使用
+独立的 `rwkv-g1i-functions-v1`，产品则使用单独版本化的同类 `submit` 终止语义。
 
-这个混合状态机来自两层验证：
+动作协议、prompt 渲染器和续写 adapter 独立版本化。父 Agent 内仍是顺序多工具状态机；
+`spawn_agents` 可以批量并发运行多个相互独立的子状态机，但显式 planner、子任务依赖图和
+递归委派仍不属于 v1。
 
-- OpenAI Agents、Claude tool loop、LangGraph 和 AI SDK 都把“没有工具调用的文本”视为
-  最终回答，只在出现结构化工具动作时进入 Tool 节点。
-- 当前 G1I 13B 在工具结果后自由选择时会出现“思考决定回答、实际却重复工具调用”的
-  解码偏置，因此 v1 同时允许补充证据，并用重复调用保护和末步回答阶段保证有界收束。
+### 2.1 渐进式工具目录
+
+产品 API 默认使用 `rwkv-g1i-tool-route-v1`。完整工具按权限和用途分为四个能力组：
+
+| 能力组 | 权限 | 当前工具 |
+| --- | --- | --- |
+| `workspace` | `workspace_read` | `list_files`、`read_file`、`search_text` |
+| `compute` | `compute` | `calculator`、`data_query`、`datetime` |
+| `web` | `network_read` | `web_search`、`web_fetch` |
+| `delegate` | `delegate` | `spawn_agents` |
+
+Router 只看到能力组名称和一句描述，输出 `<route>respond</route>`、
+`<route>inspect:BUNDLE</route>` 或最多两个组的
+`<route>inspect:BUNDLE+BUNDLE</route>`。Runner 由此构造本轮活动 ToolSpec 和执行表；隐藏
+工具不能绕过活动表执行。控制工具 `load_tools` 始终可见，只允许加载已启用能力组，并且其
+结果不算外部证据。固定目录仍保留为显式兼容模式，供历史 eval 和 A/B 使用。
+
+### 2.2 Web 和并发子 Agent
+
+Web Provider 接口保持服务商中立。当前 `web_search` 适配 Brave Search，最多返回 10 条
+标题、URL、摘要和来源 ID；`web_fetch` 适配 Tavily Extract，一次获取最多 4 个 HTTP(S)
+页面，并限制响应体和进入 transcript 的正文长度。Web 工具只有在显式启用且 Brave/Tavily
+密钥都存在时注册；状态 API、事件和结果不会返回密钥。
+
+`spawn_agents` 接受 2–8 个独立任务，使用同一个已加载 Service/model 并发创建隔离 Session。
+每个子 Agent 有独立的 recurrent State、transcript、步数和超时预算；子 Session 不注册
+`delegate`，阻止嵌套委派。结果稳定按输入顺序返回，部分失败不丢弃成功结果，全部失败则
+返回工具错误。
+
+这不改变 `continuation.Generator` 的单请求契约。本地 runtime 用 MLX continuous batching
+调度多个 Session；RWKV Lightning adapter 在短 `BatchWait` 窗口内把兼容请求聚合到同一个
+`contents[]`；Chat Completions adapter 使用普通并发请求。批量是 Provider/runtime 优化，
+不是 Agent 协议或核心续写接口的一部分。
+
+这个状态机来自两层验证：
+
+- 通用 Agent 框架都允许普通对话绕过工具循环，因此产品保留 `respond` 路由直接输出
+  Markdown，避免简单问题被强制包装成工具动作。
+- 当前 G1I 7B 在工具结果后自由回答时容易重复工具或无法稳定结束，因此 `inspect` 路由
+  复用评测 transcript 的 function-call 形式，并以 `submit` 作为唯一终止动作。
 
 协议格式参考并复核了
 [`123123213weqw/rwkv-agent`](https://github.com/123123213weqw/rwkv-agent)：
-工具调用与回答都使用 greedy 解码、opening tag 预填、结束标签 stop 和严格结果重建。
+工具调用使用 greedy 解码、opening fence 预填、closing fence stop 和严格结果重建；
+`submit` 参数承载最终答案。
 旧 `agent-json-v1` 裸 JSON 协议已经删除，不保留兼容死代码。
 
 ## 3. rwkv_lightning 映射
 
 HTTP adapter 面向 `rwkv_lightning` 的原生续写请求：
 
-- 完整 prompt 放入 `contents` 的唯一元素。
+- 单请求把完整 prompt 放入 `contents`；启用聚合时，一个 HTTP 请求携带多个并发 prompt。
 - `max_tokens`、`temperature`、`top_k`、`top_p` 和重复惩罚逐字段映射。
 - 第一版固定 `stream: false`。
 - 服务端 `choices[0].message.content` 映射为续写文本。
@@ -116,6 +157,8 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
   --model rwkv7-13b \
   --api-header-env CF-Access-Client-Id=RWKV_CF_ACCESS_CLIENT_ID \
   --api-header-env CF-Access-Client-Secret=RWKV_CF_ACCESS_CLIENT_SECRET \
+  --subagents \
+  --remote-batch-wait 10ms \
   --workspace /absolute/path/to/project \
   --prompt "阅读 README 并概括项目"
 ```

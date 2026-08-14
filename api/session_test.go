@@ -29,9 +29,11 @@ func TestUnifiedSessionReadsREADMEAndReturnsFirstLine(t *testing.T) {
 		Thinking: "off",
 	}
 	outputs := []string{
-		`<tool_call>{"name":"read_file","arguments":{"path":"README.md"}}</tool_call>`,
-		firstLine,
+		`inspect:workspace</route>`,
+		`{"name":"read_file","arguments":{"path":"README.md"}}`,
+		`{"name":"submit","arguments":{"answer":"` + firstLine + `"}}`,
 	}
+	var requests []continuation.Request
 	var mu sync.Mutex
 	generator := continuation.GenerateFunc(func(
 		_ context.Context,
@@ -43,6 +45,7 @@ func TestUnifiedSessionReadsREADMEAndReturnsFirstLine(t *testing.T) {
 		if len(outputs) == 0 {
 			t.Fatalf("unexpected extra generation; prompt=%q", request.Prompt)
 		}
+		requests = append(requests, request)
 		output := outputs[0]
 		outputs = outputs[1:]
 		return continuation.Result{Text: output, FinishReason: continuation.FinishStop}, nil
@@ -62,10 +65,21 @@ func TestUnifiedSessionReadsREADMEAndReturnsFirstLine(t *testing.T) {
 	if result.Output != firstLine {
 		t.Fatalf("output = %q", result.Output)
 	}
+	if len(requests) != 3 || !strings.HasSuffix(requests[1].Prompt, "Assistant: ```json\n") ||
+		!strings.Contains(requests[2].Prompt, "User: Function output:\n") ||
+		!strings.HasSuffix(requests[2].Prompt, "Assistant: ```json\n") {
+		t.Fatalf("Markdown transcript requests = %+v", requests)
+	}
 	if len(result.Steps) != 2 || result.Steps[0].Tool != "read_file" || !result.Steps[0].ToolExecuted {
 		t.Fatalf("steps = %+v", result.Steps)
 	}
-	if len(events) < 4 || events[1].Kind != EventToolStart {
+	toolStarted := false
+	for _, event := range events {
+		if event.Kind == EventToolStart && event.Tool == "read_file" {
+			toolStarted = true
+		}
+	}
+	if !toolStarted {
 		t.Fatalf("events = %+v", events)
 	}
 }

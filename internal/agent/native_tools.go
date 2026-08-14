@@ -93,6 +93,7 @@ func (r *Runner) generate(
 	ctx context.Context,
 	request continuation.Request,
 	messages []Message,
+	toolSpecs []ToolSpec,
 	offerTools bool,
 	requireTool bool,
 	assistantPrefix string,
@@ -111,8 +112,8 @@ func (r *Runner) generate(
 		ParallelToolCalls: false,
 		ToolChoice:        toolchat.ToolChoiceNone,
 	}
-	if offerTools && len(r.toolSpecs) > 0 {
-		chatRequest.Tools = nativeTools(r.toolSpecs)
+	if offerTools && len(toolSpecs) > 0 {
+		chatRequest.Tools = nativeTools(toolSpecs)
 		chatRequest.ToolChoice = toolchat.ToolChoiceAuto
 		chatRequest.AssistantPrefix = ""
 		if requireTool {
@@ -163,6 +164,7 @@ func nativeTools(specs []ToolSpec) []toolchat.Tool {
 
 func (r *Runner) nativeTracePrompt(
 	messages []Message,
+	toolSpecs []ToolSpec,
 	offerTools bool,
 	requireTool bool,
 	assistantPrefix string,
@@ -177,8 +179,8 @@ func (r *Runner) nativeTracePrompt(
 		ToolChoice:      toolchat.ToolChoiceNone,
 		AssistantPrefix: assistantPrefix,
 	}
-	if offerTools && len(r.toolSpecs) > 0 {
-		payload.Tools = nativeTools(r.toolSpecs)
+	if offerTools && len(toolSpecs) > 0 {
+		payload.Tools = nativeTools(toolSpecs)
 		payload.ToolChoice = toolchat.ToolChoiceAuto
 		payload.AssistantPrefix = ""
 		if requireTool {
