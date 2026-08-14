@@ -73,10 +73,42 @@ type DisplayMessage struct {
 // ToolTrace is the compact, presentation-safe record retained beside an
 // assistant message. Full tool payloads remain in the Harness transcript.
 type ToolTrace struct {
-	Step   int    `json:"step"`
-	Tool   string `json:"tool"`
-	Status string `json:"status"`
-	Error  string `json:"error,omitempty"`
+	Step      int              `json:"step"`
+	Tool      string           `json:"tool"`
+	Arguments string           `json:"arguments,omitempty"`
+	Status    string           `json:"status"`
+	Error     string           `json:"error,omitempty"`
+	Retries   []ToolRetryTrace `json:"retries,omitempty"`
+	Subagents []SubagentTrace  `json:"subagents,omitempty"`
+}
+
+type ToolRetryTrace struct {
+	Attempt     int   `json:"attempt"`
+	MaxAttempts int   `json:"maxAttempts"`
+	StatusCode  int   `json:"statusCode,omitempty"`
+	DelayMS     int64 `json:"delayMs"`
+}
+
+type SubagentStep struct {
+	Step      int              `json:"step"`
+	Tool      string           `json:"tool"`
+	Arguments string           `json:"arguments,omitempty"`
+	Status    string           `json:"status"`
+	Error     string           `json:"error,omitempty"`
+	Retries   []ToolRetryTrace `json:"retries,omitempty"`
+}
+
+type SubagentTrace struct {
+	Index      int            `json:"index"`
+	Task       string         `json:"task"`
+	Status     string         `json:"status"`
+	Error      string         `json:"error,omitempty"`
+	Route      string         `json:"route,omitempty"`
+	Bundles    []string       `json:"bundles,omitempty"`
+	DurationMS int64          `json:"durationMs"`
+	Output     string         `json:"output,omitempty"`
+	Sources    []string       `json:"sources,omitempty"`
+	Steps      []SubagentStep `json:"steps,omitempty"`
 }
 
 type Conversation struct {

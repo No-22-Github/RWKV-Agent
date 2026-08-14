@@ -44,7 +44,13 @@ func TestServiceSpawnAgentsUsesConcurrentChildSessions(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer session.Close()
-	result, err := session.Run(context.Background(), "Compare two independent checks.")
+	var eventMu sync.Mutex
+	var events []Event
+	result, err := session.RunWithObserver(context.Background(), "Compare two independent checks.", func(event Event) {
+		eventMu.Lock()
+		events = append(events, event)
+		eventMu.Unlock()
+	})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -55,9 +61,41 @@ func TestServiceSpawnAgentsUsesConcurrentChildSessions(t *testing.T) {
 	if !strings.Contains(toolResult, "child-2") || !strings.Contains(toolResult, "child-3") {
 		t.Fatalf("spawn_agents result = %s", toolResult)
 	}
+	if strings.Contains(toolResult, `"route"`) || strings.Contains(toolResult, `"bundles"`) || strings.Contains(toolResult, `"status"`) {
+		t.Fatalf("presentation trace leaked into parent model payload: %s", toolResult)
+	}
 	if source.maximum.Load() < 2 {
 		t.Fatalf("maximum child concurrency = %d", source.maximum.Load())
 	}
+	children := result.Steps[0].Subagents
+	if len(children) != 2 || children[0].Index != 1 || children[1].Index != 2 {
+		t.Fatalf("subagent traces = %+v", children)
+	}
+	for _, child := range children {
+		if child.Route != "inspect" || len(child.Bundles) != 1 || child.Bundles[0] != "workspace" ||
+			child.Status != "completed" || len(child.Steps) != 2 || child.Steps[0].Tool != "list_files" ||
+			child.Steps[0].Arguments != `{"path":"."}` || child.Steps[1].Tool != "submit" {
+			t.Fatalf("child trace = %+v", child)
+		}
+	}
+	eventMu.Lock()
+	defer eventMu.Unlock()
+	for index := 1; index <= 2; index++ {
+		if !hasSubagentEvent(events, EventSubagentStart, index, "") ||
+			!hasSubagentEvent(events, EventToolStart, index, "list_files") ||
+			!hasSubagentEvent(events, EventSubagentDone, index, "") {
+			t.Fatalf("missing events for child %d: %+v", index, events)
+		}
+	}
+}
+
+func hasSubagentEvent(events []Event, kind EventKind, index int, tool string) bool {
+	for _, event := range events {
+		if event.Kind == kind && event.SubagentIndex == index && event.ParentStep == 1 && event.Tool == tool && event.SubagentTask != "" {
+			return true
+		}
+	}
+	return false
 }
 
 type subagentTestSource struct {
@@ -121,10 +159,16 @@ func (g *subagentTestGenerator) Continue(
 				time.Sleep(time.Millisecond)
 			}
 		}
-		return continuation.Result{Text: `respond</route>`, FinishReason: continuation.FinishStop}, nil
+		return continuation.Result{Text: `inspect:workspace</route>`, FinishReason: continuation.FinishStop}, nil
+	}
+	if call == 2 {
+		return continuation.Result{
+			Text:         `<tool_call>{"name":"list_files","arguments":{"path":"."}}</tool_call>`,
+			FinishReason: continuation.FinishStop,
+		}, nil
 	}
 	return continuation.Result{
-		Text:         "child-" + string(rune('0'+g.id)),
+		Text:         `{"name":"submit","arguments":{"answer":"child-` + string(rune('0'+g.id)) + `"}}`,
 		FinishReason: continuation.FinishStop,
 	}, nil
 }

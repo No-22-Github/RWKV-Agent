@@ -7,6 +7,8 @@ import (
 	"sync/atomic"
 	"testing"
 	"time"
+
+	"github.com/no22/RWKV-Agent/internal/agent"
 )
 
 func TestSpawnAgentsRunsTasksConcurrentlyAndPreservesOrder(t *testing.T) {
@@ -16,13 +18,16 @@ func TestSpawnAgentsRunsTasksConcurrentlyAndPreservesOrder(t *testing.T) {
 	tool := DelegationTools(DelegationOptions{
 		MaxParallel: 4,
 		Timeout:     time.Second,
-		Run: func(_ context.Context, task string) (AgentTaskResult, error) {
+		Run: func(_ context.Context, task string, _ func(agent.Event)) (AgentTaskResult, error) {
 			current := active.Add(1)
 			defer active.Add(-1)
 			for current > maximum.Load() && !maximum.CompareAndSwap(maximum.Load(), current) {
 			}
 			time.Sleep(20 * time.Millisecond)
-			return AgentTaskResult{Output: "done:" + task, Steps: 2}, nil
+			return AgentTaskResult{Output: "done:" + task, Steps: []agent.SubagentStep{
+				{Number: 1, Tool: "read_file", Status: "completed"},
+				{Number: 2, Tool: "submit", Status: "completed"},
+			}}, nil
 		},
 	})[0]
 	value, err := tool.Execute(context.Background(), json.RawMessage(`{"tasks":["official","independent","contradictions"],"max_depth":1}`))
@@ -44,7 +49,7 @@ func TestSpawnAgentsRunsTasksConcurrentlyAndPreservesOrder(t *testing.T) {
 
 func TestSpawnAgentsRejectsSingleTask(t *testing.T) {
 	t.Parallel()
-	tool := DelegationTools(DelegationOptions{Run: func(context.Context, string) (AgentTaskResult, error) {
+	tool := DelegationTools(DelegationOptions{Run: func(context.Context, string, func(agent.Event)) (AgentTaskResult, error) {
 		return AgentTaskResult{}, nil
 	}})[0]
 	if _, err := tool.Execute(context.Background(), json.RawMessage(`{"tasks":["only"]}`)); err == nil {
@@ -54,7 +59,7 @@ func TestSpawnAgentsRejectsSingleTask(t *testing.T) {
 
 func TestSpawnAgentsAcceptsObjectTaskAliases(t *testing.T) {
 	t.Parallel()
-	tool := DelegationTools(DelegationOptions{Run: func(_ context.Context, task string) (AgentTaskResult, error) {
+	tool := DelegationTools(DelegationOptions{Run: func(_ context.Context, task string, _ func(agent.Event)) (AgentTaskResult, error) {
 		return AgentTaskResult{Output: "done:" + task}, nil
 	}})[0]
 	value, err := tool.Execute(context.Background(), json.RawMessage(`{"tasks":[{"task":"official"},{"description":"independent","tools":["calculator"]}]}`))
@@ -70,17 +75,22 @@ func TestSpawnAgentsAcceptsObjectTaskAliases(t *testing.T) {
 
 func TestSpawnAgentsReturnsErrorWhenEveryTaskFails(t *testing.T) {
 	t.Parallel()
-	tool := DelegationTools(DelegationOptions{Run: func(_ context.Context, task string) (AgentTaskResult, error) {
+	tool := DelegationTools(DelegationOptions{Run: func(_ context.Context, task string, _ func(agent.Event)) (AgentTaskResult, error) {
 		return AgentTaskResult{}, fmt.Errorf("%s failed", task)
 	}})[0]
-	if _, err := tool.Execute(context.Background(), json.RawMessage(`{"tasks":["official","independent"]}`)); err == nil || err.Error() != "all 2 delegated tasks failed" {
+	value, err := tool.Execute(context.Background(), json.RawMessage(`{"tasks":["official","independent"]}`))
+	if err == nil || err.Error() != "all 2 delegated tasks failed" {
 		t.Fatalf("error = %v", err)
+	}
+	carrier, ok := value.(agent.SubagentTraceCarrier)
+	if !ok || len(carrier.SubagentTraces()) != 2 || carrier.SubagentTraces()[0].Status != "failed" {
+		t.Fatalf("failed traces = %+v", value)
 	}
 }
 
 func TestSpawnAgentsKeepsPartialResults(t *testing.T) {
 	t.Parallel()
-	tool := DelegationTools(DelegationOptions{Run: func(_ context.Context, task string) (AgentTaskResult, error) {
+	tool := DelegationTools(DelegationOptions{Run: func(_ context.Context, task string, _ func(agent.Event)) (AgentTaskResult, error) {
 		if task == "failed" {
 			return AgentTaskResult{}, fmt.Errorf("unavailable")
 		}
@@ -91,7 +101,9 @@ func TestSpawnAgentsKeepsPartialResults(t *testing.T) {
 		t.Fatal(err)
 	}
 	encoded, _ := json.Marshal(value)
-	if text := string(encoded); !containsJSONFields(text, `"task":"successful","output":"done:successful"`) || !containsJSONFields(text, `"task":"failed"`) || !containsJSONFields(text, `"error":"unavailable"`) {
+	if text := string(encoded); !containsJSONFields(text, `"task":"successful","output":"done:successful"`) ||
+		!containsJSONFields(text, `"task":"failed"`) ||
+		!containsJSONFields(text, `"error":"unavailable"`) {
 		t.Fatalf("result = %s", text)
 	}
 }
@@ -99,7 +111,7 @@ func TestSpawnAgentsKeepsPartialResults(t *testing.T) {
 func TestSpawnAgentsPreservesParentCancellation(t *testing.T) {
 	t.Parallel()
 	contextValue, cancel := context.WithCancel(context.Background())
-	tool := DelegationTools(DelegationOptions{Run: func(ctx context.Context, _ string) (AgentTaskResult, error) {
+	tool := DelegationTools(DelegationOptions{Run: func(ctx context.Context, _ string, _ func(agent.Event)) (AgentTaskResult, error) {
 		<-ctx.Done()
 		return AgentTaskResult{}, ctx.Err()
 	}})[0]

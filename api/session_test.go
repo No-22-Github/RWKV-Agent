@@ -83,3 +83,25 @@ func TestUnifiedSessionReadsREADMEAndReturnsFirstLine(t *testing.T) {
 		t.Fatalf("events = %+v", events)
 	}
 }
+
+func TestOwnerWebProvidersAreSharedAcrossSessions(t *testing.T) {
+	t.Parallel()
+	service, err := NewService(Options{Workspace: t.TempDir()})
+	if err != nil {
+		t.Fatal(err)
+	}
+	config := Config{
+		EnableWeb: true, BraveAPIKey: "brave-secret", TavilyAPIKey: "tavily-secret",
+	}
+	first, err := ownerWebProviders(service, config)
+	if err != nil {
+		t.Fatal(err)
+	}
+	second, err := ownerWebProviders(service, config)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if first != second || first.search != second.search || first.fetch != second.fetch {
+		t.Fatalf("web providers were not shared: first=%p second=%p", first, second)
+	}
+}

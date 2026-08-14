@@ -98,7 +98,18 @@ func TestConversationAndWorkspaceRoundTrip(t *testing.T) {
 		{ID: "m1", Role: "user", Content: "Read README"},
 		{
 			ID: "m2", Role: "assistant", Content: "Done",
-			Trajectory: []ToolTrace{{Step: 1, Tool: "read_file", Status: "completed"}},
+			Trajectory: []ToolTrace{{
+				Step: 1, Tool: "spawn_agents", Arguments: `{"tasks":["check docs","check code"]}`,
+				Status: "completed", Subagents: []SubagentTrace{{
+					Index: 1, Task: "check docs", Status: "completed", Route: "inspect",
+					Bundles: []string{"workspace"}, DurationMS: 1250, Output: "done",
+					Sources: []string{"https://example.test/docs"},
+					Steps: []SubagentStep{{
+						Step: 1, Tool: "web_search", Arguments: `{"query":"RWKV"}`, Status: "completed",
+						Retries: []ToolRetryTrace{{Attempt: 1, MaxAttempts: 5, StatusCode: 429, DelayMS: 2000}},
+					}},
+				}},
+			}},
 		},
 	}
 	conversation.Transcript = []agentapi.ConversationMessage{{Role: "user", Content: "Read README"}}
@@ -114,7 +125,12 @@ func TestConversationAndWorkspaceRoundTrip(t *testing.T) {
 	}
 	if loaded.Title != "Read the project README" || len(loaded.Transcript) != 1 ||
 		len(loaded.Messages) != 2 || len(loaded.Messages[1].Trajectory) != 1 ||
-		loaded.Messages[1].Trajectory[0].Tool != "read_file" {
+		loaded.Messages[1].Trajectory[0].Tool != "spawn_agents" ||
+		len(loaded.Messages[1].Trajectory[0].Subagents) != 1 ||
+		loaded.Messages[1].Trajectory[0].Subagents[0].Steps[0].Arguments != `{"query":"RWKV"}` ||
+		loaded.Messages[1].Trajectory[0].Subagents[0].Steps[0].Retries[0].StatusCode != 429 ||
+		loaded.Messages[1].Trajectory[0].Subagents[0].Steps[0].Retries[0].DelayMS != 2000 ||
+		loaded.Messages[1].Trajectory[0].Subagents[0].Sources[0] != "https://example.test/docs" {
 		t.Fatalf("conversation = %+v", loaded)
 	}
 	summaries, err := store.ListConversations(workspace)

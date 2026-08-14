@@ -9,5 +9,8 @@ export {
     RemoteModel,
     Result,
     Status,
-    Step
+    Step,
+    SubagentStep,
+    SubagentTrace,
+    ToolRetryTrace
 } from "./models.js";

@@ -21,6 +21,7 @@ type Service struct {
 	status    Status
 	config    Config
 	source    generatorSource
+	web       *webProviderSet
 	sessions  map[*Session]struct{}
 	closed    bool
 }
@@ -98,6 +99,7 @@ func (s *Service) Configure(ctx context.Context, config Config, progress func(St
 	s.sessions = make(map[*Session]struct{})
 	s.source = candidate
 	s.config = normalized
+	s.web = nil
 	status := candidate.status()
 	status.Workspace = s.workspace
 	status.UpdatedAt = time.Now()

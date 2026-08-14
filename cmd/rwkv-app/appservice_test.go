@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	agentapi "github.com/no22/RWKV-Agent/api"
@@ -160,16 +162,45 @@ func TestStoredToolTraceKeepsCompactStatus(t *testing.T) {
 	t.Parallel()
 	trace := storedToolTrace(agentapi.Result{Steps: []agentapi.Step{
 		{Number: 1, Stage: "decision"},
-		{Number: 2, Tool: "read_file", ToolResult: `{"large":"payload"}`, ToolExecuted: true},
-		{Number: 3, Tool: "web_fetch", ToolError: "request timed out", ToolExecuted: true},
+		{
+			Number: 2, Tool: "spawn_agents", ToolArguments: `{"tasks":["docs","code"]}`,
+			ToolResult: `{"large":"parent payload must not be copied"}`, ToolExecuted: true,
+			Subagents: []agentapi.SubagentTrace{{
+				Index: 1, Task: "docs", Status: "completed", Route: "inspect",
+				Bundles: []string{"web"}, DurationMS: 850, Output: "found docs",
+				Sources: []string{"https://example.test"},
+				Steps: []agentapi.SubagentStep{{
+					Number: 1, Tool: "web_fetch", Arguments: `{"urls":["https://example.test"]}`,
+					Status: "completed", Retries: []agentapi.ToolRetryTrace{{
+						Attempt: 1, MaxAttempts: 5, StatusCode: 503, DelayMS: 1000,
+					}},
+				}},
+			}},
+		},
+		{
+			Number: 3, Tool: "web_fetch", ToolError: "request timed out", ToolExecuted: true,
+			ToolRetries: []agentapi.ToolRetryTrace{{Attempt: 1, MaxAttempts: 5, DelayMS: 500}},
+		},
 	}})
 	if len(trace) != 2 {
 		t.Fatalf("trace = %+v", trace)
 	}
-	if trace[0].Step != 2 || trace[0].Tool != "read_file" || trace[0].Status != "completed" || trace[0].Error != "" {
+	if trace[0].Step != 2 || trace[0].Tool != "spawn_agents" || trace[0].Status != "completed" || trace[0].Error != "" ||
+		trace[0].Arguments != `{"tasks":["docs","code"]}` || len(trace[0].Subagents) != 1 ||
+		trace[0].Subagents[0].Steps[0].Tool != "web_fetch" || trace[0].Subagents[0].Output != "found docs" ||
+		trace[0].Subagents[0].Steps[0].Retries[0].StatusCode != 503 ||
+		trace[0].Subagents[0].Steps[0].Retries[0].DelayMS != 1000 {
 		t.Fatalf("completed trace = %+v", trace[0])
 	}
-	if trace[1].Status != "failed" || trace[1].Error != "request timed out" {
+	encoded, err := json.Marshal(trace)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(encoded), "parent payload must not be copied") {
+		t.Fatalf("trace retained tool result: %s", encoded)
+	}
+	if trace[1].Status != "failed" || trace[1].Error != "request timed out" ||
+		trace[1].Retries[0].StatusCode != 0 || trace[1].Retries[0].DelayMS != 500 {
 		t.Fatalf("failed trace = %+v", trace[1])
 	}
 }

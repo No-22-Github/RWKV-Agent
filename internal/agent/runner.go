@@ -83,6 +83,7 @@ const (
 	maxConsecutiveToolFailures  = 2
 	forcedAnswerStepBudget      = "step_budget_after_tool_attempt"
 	forcedAnswerDuplicateCall   = "duplicate_tool_call"
+	forcedAnswerProviderFailure = "provider_unavailable"
 	rejectedUnknownTool         = "unknown_tool"
 	rejectedDuplicateCall       = "duplicate_tool_call"
 	rejectedFailureLimit        = "consecutive_tool_failures"
@@ -199,21 +200,42 @@ const (
 type EventKind string
 
 const (
-	EventModelStart EventKind = "model_start"
-	EventRouteStart EventKind = "route_start"
-	EventRouteDone  EventKind = "route_done"
-	EventRetry      EventKind = "protocol_retry"
-	EventToolStart  EventKind = "tool_start"
-	EventToolDone   EventKind = "tool_done"
+	EventModelStart    EventKind = "model_start"
+	EventRouteStart    EventKind = "route_start"
+	EventRouteDone     EventKind = "route_done"
+	EventRetry         EventKind = "protocol_retry"
+	EventToolStart     EventKind = "tool_start"
+	EventToolRetry     EventKind = "tool_retry"
+	EventToolDone      EventKind = "tool_done"
+	EventSubagentStart EventKind = "subagent_start"
+	EventSubagentDone  EventKind = "subagent_done"
 )
 
 type Event struct {
-	Kind    EventKind
-	Step    int
-	Tool    string
-	Route   Route
-	Bundles []string
-	Err     error
+	Kind          EventKind
+	Step          int
+	ParentStep    int
+	Tool          string
+	Arguments     json.RawMessage
+	Route         Route
+	Bundles       []string
+	SubagentIndex int
+	SubagentTask  string
+	DurationMS    int64
+	Attempt       int
+	MaxAttempts   int
+	StatusCode    int
+	DelayMS       int64
+	Err           error
+}
+
+// ToolRetryTrace is a presentation-only record of one transport retry. It is
+// retained with the Step but never rendered into the model transcript.
+type ToolRetryTrace struct {
+	Attempt     int   `json:"attempt"`
+	MaxAttempts int   `json:"max_attempts"`
+	StatusCode  int   `json:"status_code,omitempty"`
+	DelayMS     int64 `json:"delay_ms"`
 }
 
 // PromptTrace records exactly what was sent to the model for one generation.
@@ -249,6 +271,40 @@ type Step struct {
 	ProtocolError    string                    `json:"protocol_error,omitempty"`
 	ProtocolRepaired bool                      `json:"protocol_repaired,omitempty"`
 	StageViolation   bool                      `json:"stage_violation,omitempty"`
+	ToolRetries      []ToolRetryTrace          `json:"tool_retries,omitempty"`
+	Subagents        []SubagentTrace           `json:"subagents,omitempty"`
+}
+
+// SubagentStep is the compact, presentation-safe trace of one child tool call.
+// Tool result bodies are deliberately excluded.
+type SubagentStep struct {
+	Number    int              `json:"number"`
+	Tool      string           `json:"tool"`
+	Arguments json.RawMessage  `json:"arguments,omitempty"`
+	Status    string           `json:"status"`
+	Error     string           `json:"error,omitempty"`
+	Retries   []ToolRetryTrace `json:"retries,omitempty"`
+}
+
+// SubagentTrace records one delegated run without copying large child payloads.
+type SubagentTrace struct {
+	Index      int            `json:"index"`
+	Task       string         `json:"task"`
+	Status     string         `json:"status"`
+	Error      string         `json:"error,omitempty"`
+	Route      Route          `json:"route,omitempty"`
+	Bundles    []string       `json:"bundles,omitempty"`
+	DurationMS int64          `json:"duration_ms"`
+	Output     string         `json:"output,omitempty"`
+	Sources    []string       `json:"sources,omitempty"`
+	Steps      []SubagentStep `json:"steps,omitempty"`
+	StepCount  int            `json:"step_count,omitempty"`
+}
+
+// SubagentTraceCarrier lets delegation tools expose typed presentation traces
+// to the runner without coupling the runner to a concrete tool package.
+type SubagentTraceCarrier interface {
+	SubagentTraces() []SubagentTrace
 }
 
 // RouteStep records one routing attempt, including the retry a correction
@@ -840,6 +896,22 @@ func (r *Runner) RunWithObserver(
 		result.Steps[len(result.Steps)-1].ToolArguments =
 			append(json.RawMessage(nil), action.Arguments...)
 		var value any
+		toolContext := withToolEventObserver(ctx, func(event Event) {
+			if event.Step == 0 {
+				event.Step = step
+			}
+			if event.ParentStep == 0 && (event.Kind != EventToolRetry || event.SubagentIndex != 0) {
+				event.ParentStep = step
+			}
+			if event.Kind == EventToolRetry && event.SubagentIndex == 0 {
+				current := &result.Steps[len(result.Steps)-1]
+				current.ToolRetries = append(current.ToolRetries, ToolRetryTrace{
+					Attempt: event.Attempt, MaxAttempts: event.MaxAttempts,
+					StatusCode: event.StatusCode, DelayMS: event.DelayMS,
+				})
+			}
+			r.observe(event, observer)
+		})
 		duplicate := false
 		replayed := false
 		recoveryBlocked := false
@@ -887,8 +959,8 @@ func (r *Runner) RunWithObserver(
 				sameCallStreak <= r.options.DuplicateReplayLimit {
 				replayed = true
 				executed = true
-				r.observe(Event{Kind: EventToolStart, Step: step, Tool: action.Name}, observer)
-				value, err = tool.Execute(ctx, action.Arguments)
+				r.observe(Event{Kind: EventToolStart, Step: step, Tool: action.Name, Arguments: action.Arguments}, observer)
+				value, err = tool.Execute(toolContext, action.Arguments)
 			} else {
 				duplicate = true
 				result.Steps[len(result.Steps)-1].ToolRejected = rejectedDuplicateCall
@@ -924,8 +996,8 @@ func (r *Runner) RunWithObserver(
 				)
 			default:
 				executed = true
-				r.observe(Event{Kind: EventToolStart, Step: step, Tool: action.Name}, observer)
-				value, err = tool.Execute(ctx, action.Arguments)
+				r.observe(Event{Kind: EventToolStart, Step: step, Tool: action.Name, Arguments: action.Arguments}, observer)
+				value, err = tool.Execute(toolContext, action.Arguments)
 			}
 		}
 		result.Steps[len(result.Steps)-1].ToolExecuted = executed
@@ -991,13 +1063,16 @@ func (r *Runner) RunWithObserver(
 			payload.Error = err.Error()
 			result.Steps[len(result.Steps)-1].ToolError = err.Error()
 		}
+		if carrier, ok := value.(SubagentTraceCarrier); ok {
+			result.Steps[len(result.Steps)-1].Subagents = cloneSubagentTraces(carrier.SubagentTraces())
+		}
 		encoded, marshalErr := json.Marshal(payload)
 		if marshalErr != nil {
 			return result, fmt.Errorf("encode tool result: %w", marshalErr)
 		}
 		result.Steps[len(result.Steps)-1].ToolResult =
 			append(json.RawMessage(nil), encoded...)
-		r.observe(Event{Kind: EventToolDone, Step: step, Tool: action.Name, Err: err}, observer)
+		r.observe(Event{Kind: EventToolDone, Step: step, Tool: action.Name, Arguments: action.Arguments, Err: err}, observer)
 		callID := fmt.Sprintf("call-%d", step)
 		if nativeCall != nil {
 			callID = nativeCall.ID
@@ -1115,6 +1190,19 @@ func (r *Runner) RunWithObserver(
 					Content: toolFailureReminder(action.Name, err, recoveryBlocked, activeTools),
 				})
 			}
+		}
+		if errors.Is(err, ErrProviderUnavailable) && !terminalToolCompleted &&
+			r.terminalTool != "" && !rescueMode {
+			rescueMode = true
+			result.RescueAttempted = true
+			result.ForcedAnswerReason = forcedAnswerProviderFailure
+			messages = r.enterRescueMode(
+				messages,
+				fmt.Sprintf("the %s provider is unavailable", action.Name),
+				r.options.MaxSteps-step,
+			)
+			activeSpecs = r.rescueToolSpecs()
+			activeTools = toolsForSpecs(r.tools, activeSpecs)
 		}
 		loopStuck := r.options.DuplicateRescueThreshold > 0 &&
 			sameCallStreak >= r.options.DuplicateRescueThreshold &&
@@ -1702,6 +1790,38 @@ func (r *Runner) observe(event Event, observer func(Event)) {
 	if observer != nil {
 		observer(event)
 	}
+}
+
+type toolEventObserverKey struct{}
+
+func withToolEventObserver(ctx context.Context, observer func(Event)) context.Context {
+	return context.WithValue(ctx, toolEventObserverKey{}, observer)
+}
+
+// EmitToolEvent forwards a nested tool event through the observer attached by
+// Runner. Calls outside tool execution are harmless no-ops.
+func EmitToolEvent(ctx context.Context, event Event) {
+	observer, _ := ctx.Value(toolEventObserverKey{}).(func(Event))
+	if observer != nil {
+		observer(event)
+	}
+}
+
+func cloneSubagentTraces(values []SubagentTrace) []SubagentTrace {
+	if len(values) == 0 {
+		return nil
+	}
+	result := make([]SubagentTrace, len(values))
+	copy(result, values)
+	for index := range result {
+		result[index].Bundles = append([]string(nil), values[index].Bundles...)
+		result[index].Sources = append([]string(nil), values[index].Sources...)
+		result[index].Steps = append([]SubagentStep(nil), values[index].Steps...)
+		for step := range result[index].Steps {
+			result[index].Steps[step].Arguments = append(json.RawMessage(nil), values[index].Steps[step].Arguments...)
+		}
+	}
+	return result
 }
 
 type toolResult struct {

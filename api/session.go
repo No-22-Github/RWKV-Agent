@@ -28,6 +28,11 @@ type Session struct {
 	closed bool
 }
 
+type webProviderSet struct {
+	search assistanttools.WebSearchProvider
+	fetch  assistanttools.WebFetchProvider
+}
+
 func newSession(
 	owner *Service,
 	generator continuation.Generator,
@@ -57,35 +62,47 @@ func newSessionAtDepth(
 	tools = append(tools, localTools...)
 	config := ownerConfig(owner)
 	if config.EnableWeb {
-		brave, providerErr := assistanttools.NewBraveSearchProvider(assistanttools.BraveConfig{
-			APIKey: config.BraveAPIKey, Endpoint: config.BraveEndpoint,
-		})
+		web, providerErr := ownerWebProviders(owner, config)
 		if providerErr != nil {
-			return nil, fmt.Errorf("initialize Brave search: %w", providerErr)
+			return nil, providerErr
 		}
-		tavily, providerErr := assistanttools.NewTavilyFetchProvider(assistanttools.TavilyConfig{
-			APIKey: config.TavilyAPIKey, Endpoint: config.TavilyEndpoint,
-		})
-		if providerErr != nil {
-			return nil, fmt.Errorf("initialize Tavily fetch: %w", providerErr)
-		}
-		tools = append(tools, assistanttools.WebTools(assistanttools.WebOptions{Search: brave, Fetch: tavily})...)
+		tools = append(tools, assistanttools.WebTools(assistanttools.WebOptions{
+			Search: web.search, Fetch: web.fetch,
+		})...)
 	}
 	if config.EnableSubagents && depth == 0 {
 		tools = append(tools, assistanttools.DelegationTools(assistanttools.DelegationOptions{
 			MaxParallel: config.SubagentMaxParallel,
 			Timeout:     time.Duration(config.SubagentTimeoutSeconds) * time.Second,
-			Run: func(ctx context.Context, task string) (assistanttools.AgentTaskResult, error) {
+			Run: func(ctx context.Context, task string, observer func(agent.Event)) (assistanttools.AgentTaskResult, error) {
 				child, childErr := owner.newSession(ctx, depth+1)
 				if childErr != nil {
 					return assistanttools.AgentTaskResult{}, childErr
 				}
 				defer child.Close()
-				result, runErr := child.Run(ctx, task)
+				result, runErr := child.runWithAgentObserver(ctx, task, observer)
+				steps := make([]agent.SubagentStep, 0, len(result.Steps))
+				for _, step := range result.Steps {
+					if strings.TrimSpace(step.Tool) == "" {
+						continue
+					}
+					status := "completed"
+					if step.ToolError != "" {
+						status = "failed"
+					}
+					steps = append(steps, agent.SubagentStep{
+						Number: step.Number, Tool: step.Tool,
+						Arguments: json.RawMessage(step.ToolArguments), Status: status, Error: step.ToolError,
+						Retries: internalToolRetries(step.ToolRetries),
+					})
+				}
 				return assistanttools.AgentTaskResult{
-					Output:  result.Output,
-					Sources: resultSourceURLs(result),
-					Steps:   len(result.Steps),
+					Output:    result.Output,
+					Sources:   resultSourceURLs(result),
+					Route:     agent.Route(result.Route),
+					Bundles:   append([]string(nil), result.Bundles...),
+					Steps:     steps,
+					StepCount: len(result.Steps),
 				}, runErr
 			},
 		})...)
@@ -205,6 +222,14 @@ func (s *Session) Run(ctx context.Context, prompt string) (Result, error) {
 
 // RunWithObserver executes one Agent turn and reports tool-loop progress.
 func (s *Session) RunWithObserver(ctx context.Context, prompt string, observer func(Event)) (Result, error) {
+	return s.runWithAgentObserver(ctx, prompt, func(event agent.Event) {
+		if observer != nil {
+			observer(publicEvent(event))
+		}
+	})
+}
+
+func (s *Session) runWithAgentObserver(ctx context.Context, prompt string, observer func(agent.Event)) (Result, error) {
 	s.opMu.Lock()
 	defer s.opMu.Unlock()
 	s.mu.RLock()
@@ -214,11 +239,7 @@ func (s *Session) RunWithObserver(ctx context.Context, prompt string, observer f
 		return Result{}, fmt.Errorf("session is closed")
 	}
 	started := time.Now()
-	value, err := s.runner.RunWithObserver(ctx, prompt, func(event agent.Event) {
-		if observer != nil {
-			observer(publicEvent(event))
-		}
-	})
+	value, err := s.runner.RunWithObserver(ctx, prompt, observer)
 	result := publicResult(value, time.Since(started))
 	return result, err
 }
@@ -302,11 +323,20 @@ func (s *Session) Close() error {
 
 func publicEvent(event agent.Event) Event {
 	value := Event{
-		Kind:    EventKind(event.Kind),
-		Step:    event.Step,
-		Tool:    event.Tool,
-		Route:   string(event.Route),
-		Bundles: append([]string(nil), event.Bundles...),
+		Kind:          EventKind(event.Kind),
+		Step:          event.Step,
+		ParentStep:    event.ParentStep,
+		Tool:          event.Tool,
+		Arguments:     string(event.Arguments),
+		Route:         string(event.Route),
+		Bundles:       append([]string(nil), event.Bundles...),
+		SubagentIndex: event.SubagentIndex,
+		SubagentTask:  event.SubagentTask,
+		DurationMS:    event.DurationMS,
+		Attempt:       event.Attempt,
+		MaxAttempts:   event.MaxAttempts,
+		StatusCode:    event.StatusCode,
+		DelayMS:       event.DelayMS,
 	}
 	if event.Err != nil {
 		value.Error = event.Err.Error()
@@ -324,7 +354,7 @@ func publicResult(value agent.Result, duration time.Duration) Result {
 		DurationMS: duration.Milliseconds(),
 	}
 	for _, step := range value.Steps {
-		result.Steps = append(result.Steps, Step{
+		converted := Step{
 			Number:        step.Number,
 			Stage:         string(step.Stage),
 			ModelOutput:   step.ModelOutput,
@@ -335,6 +365,52 @@ func publicResult(value agent.Result, duration time.Duration) Result {
 			ToolResult:    string(step.ToolResult),
 			ToolExecuted:  step.ToolExecuted,
 			ToolError:     step.ToolError,
+			ToolRetries:   publicToolRetries(step.ToolRetries),
+		}
+		for _, subagent := range step.Subagents {
+			child := SubagentTrace{
+				Index: subagent.Index, Task: subagent.Task, Status: subagent.Status,
+				Error: subagent.Error, Route: string(subagent.Route),
+				Bundles: append([]string(nil), subagent.Bundles...), DurationMS: subagent.DurationMS,
+				Output: subagent.Output, Sources: append([]string(nil), subagent.Sources...),
+			}
+			for _, childStep := range subagent.Steps {
+				child.Steps = append(child.Steps, SubagentStep{
+					Number: childStep.Number, Tool: childStep.Tool,
+					Arguments: string(childStep.Arguments), Status: childStep.Status, Error: childStep.Error,
+					Retries: publicToolRetries(childStep.Retries),
+				})
+			}
+			converted.Subagents = append(converted.Subagents, child)
+		}
+		result.Steps = append(result.Steps, converted)
+	}
+	return result
+}
+
+func publicToolRetries(values []agent.ToolRetryTrace) []ToolRetryTrace {
+	if len(values) == 0 {
+		return nil
+	}
+	result := make([]ToolRetryTrace, 0, len(values))
+	for _, value := range values {
+		result = append(result, ToolRetryTrace{
+			Attempt: value.Attempt, MaxAttempts: value.MaxAttempts,
+			StatusCode: value.StatusCode, DelayMS: value.DelayMS,
+		})
+	}
+	return result
+}
+
+func internalToolRetries(values []ToolRetryTrace) []agent.ToolRetryTrace {
+	if len(values) == 0 {
+		return nil
+	}
+	result := make([]agent.ToolRetryTrace, 0, len(values))
+	for _, value := range values {
+		result = append(result, agent.ToolRetryTrace{
+			Attempt: value.Attempt, MaxAttempts: value.MaxAttempts,
+			StatusCode: value.StatusCode, DelayMS: value.DelayMS,
 		})
 	}
 	return result
@@ -400,4 +476,26 @@ func ownerConfig(owner *Service) Config {
 		MaxSteps: 6, MaxTokens: 1024, Temperature: 1, TopK: 1, TopP: 1,
 		PenaltyDecay: 1, Thinking: "off",
 	}
+}
+
+func ownerWebProviders(owner *Service, config Config) (*webProviderSet, error) {
+	owner.mu.Lock()
+	defer owner.mu.Unlock()
+	if owner.web != nil {
+		return owner.web, nil
+	}
+	brave, err := assistanttools.NewBraveSearchProvider(assistanttools.BraveConfig{
+		APIKey: config.BraveAPIKey, Endpoint: config.BraveEndpoint,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("initialize Brave search: %w", err)
+	}
+	tavily, err := assistanttools.NewTavilyFetchProvider(assistanttools.TavilyConfig{
+		APIKey: config.TavilyAPIKey, Endpoint: config.TavilyEndpoint,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("initialize Tavily fetch: %w", err)
+	}
+	owner.web = &webProviderSet{search: brave, fetch: tavily}
+	return owner.web, nil
 }

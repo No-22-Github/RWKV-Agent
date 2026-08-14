@@ -12,6 +12,9 @@ export {
     ConversationView,
     DisplayMessage,
     StoragePaths,
+    SubagentStep,
+    SubagentTrace,
+    ToolRetryTrace,
     ToolTrace,
     WorkspaceItem
 } from "./models.js";

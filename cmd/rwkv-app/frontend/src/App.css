@@ -37,7 +37,7 @@ button { color: inherit; }
 .model-status.loading .status-dot { background: var(--md-custom-color-warning, #e8a73e); }
 .model-status.error .status-dot { background: var(--md-sys-color-error); }
 /* ─── 工具轨迹 ─── */
-.tool-trajectory { display: flex; flex-direction: column; width: min(100%, 430px); margin: 0 0 11px; }
+.tool-trajectory { display: flex; flex-direction: column; width: min(100%, 620px); margin: 0 0 11px; }
 .trajectory-stage { height: 30px; overflow: hidden; -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 16%, #000 84%, transparent 100%); mask-image: linear-gradient(to bottom, transparent 0%, #000 16%, #000 84%, transparent 100%); }
 .trajectory-track { display: flex; flex-direction: column; }
 .trajectory-track.sliding { animation: trajectory-slide-up .26s cubic-bezier(.4, 0, .2, 1) both; }
@@ -55,15 +55,48 @@ button.trajectory-pill:disabled { opacity: 1; }
 .trajectory-body { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .22s cubic-bezier(.05, .7, .1, 1); }
 .trajectory-body.open { grid-template-rows: 1fr; }
 .trajectory-list { min-height: 0; overflow: hidden; list-style: none; margin: 0; padding: 0 0 0 9px; border-left: 2px solid var(--md-sys-color-outline-variant); }
-.trajectory-item { display: flex; align-items: flex-start; gap: 7px; padding: 4px 0 4px 10px; color: var(--md-sys-color-on-surface-variant); opacity: 0; animation: trajectory-item-in .18s cubic-bezier(.05, .7, .1, 1) both; }
+.trajectory-item { display: block; padding: 4px 0 4px 10px; color: var(--md-sys-color-on-surface-variant); opacity: 0; animation: trajectory-item-in .18s cubic-bezier(.05, .7, .1, 1) both; }
 .trajectory-item:first-child { padding-top: 7px; }
 .trajectory-item:last-child { padding-bottom: 6px; }
-.trajectory-item > svg { flex: none; margin-top: 2px; color: var(--md-sys-color-primary); }
-.trajectory-item.failed > svg { color: var(--md-sys-color-error); }
-.trajectory-item > div { min-width: 0; display: flex; align-items: baseline; flex-wrap: wrap; column-gap: 9px; row-gap: 2px; }
+.trajectory-call { display: flex; align-items: flex-start; gap: 7px; min-width: 0; }
+.trajectory-call > svg { flex: none; margin-top: 2px; color: var(--md-sys-color-primary); }
+.trajectory-item.failed .trajectory-call > svg { color: var(--md-sys-color-error); }
+.trajectory-call-copy { min-width: 0; display: flex; align-items: baseline; flex-wrap: wrap; column-gap: 9px; row-gap: 2px; }
 .trajectory-tool { color: var(--md-sys-color-on-surface); font: 12px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; overflow-wrap: anywhere; }
+.trajectory-agent-count { color: var(--md-sys-color-primary); font-family: inherit; }
 .trajectory-step { color: var(--md-sys-color-on-surface-variant); font-size: 11px; white-space: nowrap; }
 .trajectory-error { width: 100%; color: var(--md-sys-color-error); font-size: 11px; line-height: 1.45; overflow-wrap: anywhere; }
+.trajectory-retries { width: 100%; display: flex; flex-direction: column; gap: 2px; margin-top: 2px; }
+.trajectory-retry { display: flex; align-items: center; gap: 5px; color: var(--md-sys-color-tertiary); font-size: 11px; line-height: 1.4; }
+.trajectory-retry > svg { flex: none; }
+.subagent-list { margin: 5px 0 2px 5px; padding-left: 12px; border-left: 1px solid var(--md-sys-color-outline-variant); }
+.subagent-trace { min-width: 0; color: var(--md-sys-color-on-surface-variant); }
+.subagent-trace + .subagent-trace { border-top: 1px solid color-mix(in srgb, var(--md-sys-color-outline-variant) 62%, transparent); }
+.subagent-trace > summary { min-height: 30px; display: grid; grid-template-columns: 14px auto minmax(0, 1fr) auto 14px; align-items: center; gap: 7px; padding: 3px 1px; cursor: pointer; list-style: none; }
+.subagent-trace > summary::-webkit-details-marker { display: none; }
+.subagent-trace > summary > svg:first-child { color: var(--md-sys-color-primary); }
+.subagent-trace.failed > summary > svg:first-child { color: var(--md-sys-color-error); }
+.subagent-title { color: var(--md-sys-color-on-surface); font-size: 12px; font-weight: 600; white-space: nowrap; }
+.subagent-task { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+.subagent-duration { font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: nowrap; }
+.subagent-chevron { transition: transform .18s ease; }
+.subagent-trace[open] .subagent-chevron { transform: rotate(180deg); }
+.subagent-body { padding: 0 2px 8px 21px; min-width: 0; }
+.subagent-route { display: flex; flex-wrap: wrap; gap: 5px 12px; margin: 1px 0 5px; color: var(--md-sys-color-on-surface-variant); font: 11px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.subagent-steps { margin: 0; padding: 0; list-style: none; }
+.subagent-steps > li { display: flex; align-items: flex-start; gap: 7px; padding: 3px 0; min-width: 0; }
+.subagent-steps > li > svg { flex: none; margin-top: 2px; color: var(--md-sys-color-primary); }
+.subagent-steps > li.failed > svg { color: var(--md-sys-color-error); }
+.subagent-steps > li > div { display: flex; flex-wrap: wrap; align-items: baseline; gap: 3px 8px; min-width: 0; }
+.subagent-steps code { max-width: 100%; color: var(--md-sys-color-on-surface-variant); font: 11px/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; overflow-wrap: anywhere; white-space: pre-wrap; }
+.subagent-error { margin-top: 5px; color: var(--md-sys-color-error); font-size: 11px; overflow-wrap: anywhere; }
+.subagent-output, .subagent-sources { margin-top: 7px; font-size: 11px; }
+.subagent-output > span, .subagent-sources > span { display: block; margin-bottom: 3px; color: var(--md-sys-color-on-surface-variant); font-weight: 600; }
+.subagent-output p { max-height: 10em; margin: 0; padding-left: 8px; border-left: 1px solid var(--md-sys-color-outline-variant); color: var(--md-sys-color-on-surface); line-height: 1.5; white-space: pre-wrap; overflow: auto; overflow-wrap: anywhere; }
+.subagent-sources { display: flex; flex-direction: column; gap: 3px; }
+.subagent-sources a { display: flex; align-items: center; gap: 5px; min-width: 0; color: var(--md-sys-color-primary); text-decoration: none; }
+.subagent-sources a:hover { text-decoration: underline; }
+.subagent-sources a span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @keyframes trajectory-item-in { from { transform: translateX(-7px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
 /* ─── Markdown ─── */

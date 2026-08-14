@@ -4,10 +4,13 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
+	"math/rand/v2"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 
@@ -19,7 +22,68 @@ const (
 	defaultTavilyEndpoint  = "https://api.tavily.com/extract"
 	maxWebResponseBytes    = 4 * 1024 * 1024
 	maxFetchedContentRunes = 32 * 1024
+	defaultRetryAttempts   = 5
+	defaultRetryBaseDelay  = 500 * time.Millisecond
+	defaultRetryMaxDelay   = 5 * time.Second
 )
+
+type providerRetryPolicy struct {
+	maxAttempts int
+	baseDelay   time.Duration
+	maxDelay    time.Duration
+	now         func() time.Time
+	jitter      func(time.Duration) time.Duration
+	sleep       func(context.Context, time.Duration) error
+}
+
+type providerRequestGate struct {
+	permit chan struct{}
+}
+
+func newProviderRequestGate() *providerRequestGate {
+	gate := &providerRequestGate{permit: make(chan struct{}, 1)}
+	gate.permit <- struct{}{}
+	return gate
+}
+
+func (g *providerRequestGate) acquire(ctx context.Context) error {
+	select {
+	case <-g.permit:
+		return nil
+	case <-ctx.Done():
+		return ctx.Err()
+	}
+}
+
+func (g *providerRequestGate) release() { g.permit <- struct{}{} }
+
+type providerUnavailableError struct{ message string }
+
+func (e providerUnavailableError) Error() string { return e.message }
+
+func (providerUnavailableError) Unwrap() error { return agent.ErrProviderUnavailable }
+
+type providerRetryExhaustedError struct {
+	attempts int
+	cause    error
+}
+
+func (e providerRetryExhaustedError) Error() string { return e.cause.Error() }
+
+func (e providerRetryExhaustedError) Unwrap() error { return e.cause }
+
+func defaultProviderRetryPolicy() providerRetryPolicy {
+	return providerRetryPolicy{
+		maxAttempts: defaultRetryAttempts,
+		baseDelay:   defaultRetryBaseDelay,
+		maxDelay:    defaultRetryMaxDelay,
+		now:         time.Now,
+		jitter: func(delay time.Duration) time.Duration {
+			return time.Duration(float64(delay) * (0.8 + rand.Float64()*0.4))
+		},
+		sleep: sleepWithContext,
+	}
+}
 
 type WebSearchRequest struct {
 	Query      string
@@ -168,6 +232,8 @@ type BraveSearchProvider struct {
 	apiKey     string
 	endpoint   string
 	httpClient *http.Client
+	retry      providerRetryPolicy
+	gate       *providerRequestGate
 }
 
 func NewBraveSearchProvider(config BraveConfig) (*BraveSearchProvider, error) {
@@ -185,7 +251,10 @@ func NewBraveSearchProvider(config BraveConfig) (*BraveSearchProvider, error) {
 	if client == nil {
 		client = &http.Client{Timeout: 30 * time.Second}
 	}
-	return &BraveSearchProvider{apiKey: config.APIKey, endpoint: endpoint, httpClient: client}, nil
+	return &BraveSearchProvider{
+		apiKey: config.APIKey, endpoint: endpoint, httpClient: client,
+		retry: defaultProviderRetryPolicy(), gate: newProviderRequestGate(),
+	}, nil
 }
 
 func (p *BraveSearchProvider) Search(ctx context.Context, request WebSearchRequest) ([]WebSearchResult, error) {
@@ -196,19 +265,27 @@ func (p *BraveSearchProvider) Search(ctx context.Context, request WebSearchReque
 	query.Set("safesearch", "moderate")
 	query.Set("text_decorations", "false")
 	endpoint.RawQuery = query.Encode()
-	httpRequest, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint.String(), nil)
+	response, attempts, err := doProviderRequest(ctx, "web_search", p.httpClient, p.retry, p.gate, func() (*http.Request, error) {
+		httpRequest, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint.String(), nil)
+		if err != nil {
+			return nil, fmt.Errorf("build Brave request: %w", err)
+		}
+		httpRequest.Header.Set("Accept", "application/json")
+		httpRequest.Header.Set("X-Subscription-Token", p.apiKey)
+		return httpRequest, nil
+	})
 	if err != nil {
-		return nil, fmt.Errorf("build Brave request: %w", err)
-	}
-	httpRequest.Header.Set("Accept", "application/json")
-	httpRequest.Header.Set("X-Subscription-Token", p.apiKey)
-	response, err := p.httpClient.Do(httpRequest)
-	if err != nil {
+		var exhausted providerRetryExhaustedError
+		if errors.As(err, &exhausted) {
+			return nil, providerUnavailableError{message: fmt.Sprintf(
+				"Brave search request failed after %d attempts: %v", exhausted.attempts, exhausted.cause,
+			)}
+		}
 		return nil, fmt.Errorf("Brave search request: %w", err)
 	}
 	defer response.Body.Close()
 	if response.StatusCode < 200 || response.StatusCode >= 300 {
-		return nil, fmt.Errorf("Brave search returned HTTP %s", response.Status)
+		return nil, providerHTTPError("Brave search", response.Status, attempts)
 	}
 	var payload struct {
 		Web struct {
@@ -249,6 +326,8 @@ type TavilyFetchProvider struct {
 	apiKey     string
 	endpoint   string
 	httpClient *http.Client
+	retry      providerRetryPolicy
+	gate       *providerRequestGate
 }
 
 func NewTavilyFetchProvider(config TavilyConfig) (*TavilyFetchProvider, error) {
@@ -266,7 +345,10 @@ func NewTavilyFetchProvider(config TavilyConfig) (*TavilyFetchProvider, error) {
 	if client == nil {
 		client = &http.Client{Timeout: 45 * time.Second}
 	}
-	return &TavilyFetchProvider{apiKey: config.APIKey, endpoint: endpoint, httpClient: client}, nil
+	return &TavilyFetchProvider{
+		apiKey: config.APIKey, endpoint: endpoint, httpClient: client,
+		retry: defaultProviderRetryPolicy(), gate: newProviderRequestGate(),
+	}, nil
 }
 
 func (p *TavilyFetchProvider) Fetch(ctx context.Context, request WebFetchRequest) ([]WebFetchResult, error) {
@@ -279,18 +361,26 @@ func (p *TavilyFetchProvider) Fetch(ctx context.Context, request WebFetchRequest
 	if err != nil {
 		return nil, fmt.Errorf("encode Tavily request: %w", err)
 	}
-	httpRequest, err := http.NewRequestWithContext(ctx, http.MethodPost, p.endpoint, bytes.NewReader(body))
+	response, attempts, err := doProviderRequest(ctx, "web_fetch", p.httpClient, p.retry, p.gate, func() (*http.Request, error) {
+		httpRequest, err := http.NewRequestWithContext(ctx, http.MethodPost, p.endpoint, bytes.NewReader(body))
+		if err != nil {
+			return nil, fmt.Errorf("build Tavily request: %w", err)
+		}
+		httpRequest.Header.Set("Content-Type", "application/json")
+		return httpRequest, nil
+	})
 	if err != nil {
-		return nil, fmt.Errorf("build Tavily request: %w", err)
-	}
-	httpRequest.Header.Set("Content-Type", "application/json")
-	response, err := p.httpClient.Do(httpRequest)
-	if err != nil {
+		var exhausted providerRetryExhaustedError
+		if errors.As(err, &exhausted) {
+			return nil, providerUnavailableError{message: fmt.Sprintf(
+				"Tavily extract request failed after %d attempts: %v", exhausted.attempts, exhausted.cause,
+			)}
+		}
 		return nil, fmt.Errorf("Tavily extract request: %w", err)
 	}
 	defer response.Body.Close()
 	if response.StatusCode < 200 || response.StatusCode >= 300 {
-		return nil, fmt.Errorf("Tavily extract returned HTTP %s", response.Status)
+		return nil, providerHTTPError("Tavily extract", response.Status, attempts)
 	}
 	var payload struct {
 		Results []struct {
@@ -310,6 +400,115 @@ func (p *TavilyFetchProvider) Fetch(ctx context.Context, request WebFetchRequest
 		})
 	}
 	return results, nil
+}
+
+func doProviderRequest(
+	ctx context.Context,
+	tool string,
+	client *http.Client,
+	policy providerRetryPolicy,
+	gate *providerRequestGate,
+	buildRequest func() (*http.Request, error),
+) (*http.Response, int, error) {
+	if err := gate.acquire(ctx); err != nil {
+		return nil, 0, err
+	}
+	defer gate.release()
+
+	for attempt := 1; attempt <= policy.maxAttempts; attempt++ {
+		request, err := buildRequest()
+		if err != nil {
+			return nil, attempt, err
+		}
+		response, err := client.Do(request)
+		if err != nil {
+			if response != nil && response.Body != nil {
+				_ = response.Body.Close()
+			}
+			if ctx.Err() != nil {
+				return nil, attempt, ctx.Err()
+			}
+			if attempt == policy.maxAttempts {
+				return nil, attempt, providerRetryExhaustedError{attempts: attempt, cause: err}
+			}
+			delay := providerRetryDelay("", attempt, policy)
+			emitProviderRetry(ctx, tool, attempt, policy.maxAttempts, 0, delay)
+			if err := policy.sleep(ctx, delay); err != nil {
+				return nil, attempt, err
+			}
+			continue
+		}
+		if !retryableProviderStatus(response.StatusCode) || attempt == policy.maxAttempts {
+			return response, attempt, nil
+		}
+
+		delay := providerRetryDelay(response.Header.Get("Retry-After"), attempt, policy)
+		_, _ = io.Copy(io.Discard, io.LimitReader(response.Body, 64*1024))
+		_ = response.Body.Close()
+		emitProviderRetry(ctx, tool, attempt, policy.maxAttempts, response.StatusCode, delay)
+		if err := policy.sleep(ctx, delay); err != nil {
+			return nil, attempt, err
+		}
+	}
+	panic("unreachable")
+}
+
+func emitProviderRetry(ctx context.Context, tool string, attempt, maxAttempts, statusCode int, delay time.Duration) {
+	agent.EmitToolEvent(ctx, agent.Event{
+		Kind: agent.EventToolRetry, Tool: tool, Attempt: attempt, MaxAttempts: maxAttempts,
+		StatusCode: statusCode, DelayMS: delay.Milliseconds(),
+	})
+}
+
+func providerHTTPError(provider, status string, attempts int) error {
+	message := fmt.Sprintf("%s returned HTTP %s", provider, status)
+	if attempts > 1 {
+		message = fmt.Sprintf("%s after %d attempts", message, attempts)
+	}
+	return providerUnavailableError{message: message}
+}
+
+func retryableProviderStatus(statusCode int) bool {
+	return statusCode == http.StatusTooManyRequests ||
+		statusCode >= http.StatusInternalServerError && statusCode <= 599
+}
+
+func providerRetryDelay(retryAfter string, attempt int, policy providerRetryPolicy) time.Duration {
+	if delay, ok := parseRetryAfter(retryAfter, policy.now()); ok {
+		return min(delay, policy.maxDelay)
+	}
+	delay := policy.baseDelay << (attempt - 1)
+	delay = min(delay, policy.maxDelay)
+	return min(policy.jitter(delay), policy.maxDelay)
+}
+
+func parseRetryAfter(value string, now time.Time) (time.Duration, bool) {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return 0, false
+	}
+	if seconds, err := strconv.ParseInt(value, 10, 64); err == nil {
+		if seconds < 0 {
+			return 0, false
+		}
+		return time.Duration(seconds) * time.Second, true
+	}
+	when, err := http.ParseTime(value)
+	if err != nil {
+		return 0, false
+	}
+	return max(when.Sub(now), 0), true
+}
+
+func sleepWithContext(ctx context.Context, delay time.Duration) error {
+	timer := time.NewTimer(delay)
+	defer timer.Stop()
+	select {
+	case <-timer.C:
+		return nil
+	case <-ctx.Done():
+		return ctx.Err()
+	}
 }
 
 func validateProviderEndpoint(value string) (*url.URL, error) {

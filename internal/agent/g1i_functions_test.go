@@ -352,6 +352,39 @@ type replayableEchoTool struct {
 	calls *int
 }
 
+type retryingWebTool struct{}
+
+func (retryingWebTool) Spec() ToolSpec {
+	return ToolSpec{
+		Name:        "web_search",
+		Description: "Search the web.",
+		Arguments:   `{"query":"string"}`,
+	}
+}
+
+func (retryingWebTool) Execute(ctx context.Context, _ json.RawMessage) (any, error) {
+	EmitToolEvent(ctx, Event{
+		Kind: EventToolRetry, Tool: "web_search", Attempt: 1, MaxAttempts: 5,
+		StatusCode: 429, DelayMS: 2000,
+	})
+	return map[string]string{"title": "Recovered result"}, nil
+}
+
+type unavailableWebTool struct{ calls *int }
+
+func (*unavailableWebTool) Spec() ToolSpec {
+	return ToolSpec{
+		Name:        "web_search",
+		Description: "Search the web.",
+		Arguments:   `{"query":"string"}`,
+	}
+}
+
+func (t *unavailableWebTool) Execute(context.Context, json.RawMessage) (any, error) {
+	*t.calls++
+	return nil, fmt.Errorf("%w: Brave search returned HTTP 429 after 5 attempts", ErrProviderUnavailable)
+}
+
 func (t *replayableEchoTool) Spec() ToolSpec {
 	return ToolSpec{
 		Name:        "echo",
@@ -400,6 +433,84 @@ func sequenceGenerator(responses []string, prompts *[]string) continuation.Gener
 		index++
 		return continuation.Result{Text: response, FinishReason: continuation.FinishStop}, nil
 	})
+}
+
+func TestG1IFunctionRunnerKeepsProviderRetriesOutOfModelContext(t *testing.T) {
+	t.Parallel()
+	var prompts []string
+	var events []Event
+	runner, err := NewRunner(
+		sequenceGenerator([]string{
+			`{"name":"web_search","arguments":{"query":"RWKV"}}`,
+			`{"name":"submit","arguments":{"answer":"recovered"}}`,
+		}, &prompts),
+		[]Tool{retryingWebTool{}, submitTestTool{}},
+		g1iRunnerOptions(),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.RunWithObserver(context.Background(), "Search for RWKV.", func(event Event) {
+		events = append(events, event)
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Output != "recovered" || len(result.Steps) != 2 || len(result.Steps[0].ToolRetries) != 1 {
+		t.Fatalf("result = %+v", result)
+	}
+	retry := result.Steps[0].ToolRetries[0]
+	if retry.Attempt != 1 || retry.MaxAttempts != 5 || retry.StatusCode != 429 || retry.DelayMS != 2000 {
+		t.Fatalf("retry trace = %+v", retry)
+	}
+	retryObserved := false
+	for _, event := range events {
+		if event.Kind == EventToolRetry && event.Tool == "web_search" && event.StatusCode == 429 {
+			retryObserved = true
+			break
+		}
+	}
+	if !retryObserved {
+		t.Fatalf("events = %+v", events)
+	}
+	for _, diagnostic := range []string{"tool_retry", "HTTP 429", "attempt 1/5", "2000"} {
+		if strings.Contains(prompts[1], diagnostic) {
+			t.Fatalf("retry diagnostic %q leaked into model prompt:\n%s", diagnostic, prompts[1])
+		}
+	}
+}
+
+func TestG1IFunctionRunnerOffersOnlySubmitAfterProviderExhaustion(t *testing.T) {
+	t.Parallel()
+	calls := 0
+	var prompts []string
+	runner, err := NewRunner(
+		sequenceGenerator([]string{
+			`{"name":"web_search","arguments":{"query":"RWKV"}}`,
+			`{"name":"submit","arguments":{"answer":"搜索服务暂时不可用，无法完成核验。"}}`,
+		}, &prompts),
+		[]Tool{&unavailableWebTool{calls: &calls}, submitTestTool{}},
+		g1iRunnerOptions(),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "Search for RWKV; do not guess.")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if calls != 1 || result.Output != "搜索服务暂时不可用，无法完成核验。" ||
+		!result.RescueAttempted || !result.RescueSubmitted ||
+		result.ForcedAnswerReason != forcedAnswerProviderFailure {
+		t.Fatalf("result = %+v, web calls = %d", result, calls)
+	}
+	if len(prompts) != 2 || strings.Count(prompts[1], "Brave search returned HTTP 429 after 5 attempts") != 1 {
+		t.Fatalf("final provider failure must appear exactly once:\n%s", prompts[1])
+	}
+	catalog := g1iCatalogText(t, prompts[1])
+	if !strings.Contains(catalog, `"name":"submit"`) || strings.Contains(catalog, `"name":"web_search"`) {
+		t.Fatalf("provider rescue catalog must offer submit only:\n%s", catalog)
+	}
 }
 
 func TestG1IFunctionRunnerReplaysReplayableDuplicatesThenRejects(t *testing.T) {

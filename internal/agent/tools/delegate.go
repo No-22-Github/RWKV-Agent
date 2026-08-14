@@ -12,12 +12,15 @@ import (
 )
 
 type AgentTaskResult struct {
-	Output  string   `json:"output"`
-	Sources []string `json:"sources,omitempty"`
-	Steps   int      `json:"steps,omitempty"`
+	Output    string               `json:"output"`
+	Sources   []string             `json:"sources,omitempty"`
+	Route     agent.Route          `json:"route,omitempty"`
+	Bundles   []string             `json:"bundles,omitempty"`
+	Steps     []agent.SubagentStep `json:"steps,omitempty"`
+	StepCount int                  `json:"step_count,omitempty"`
 }
 
-type AgentTaskRunner func(context.Context, string) (AgentTaskResult, error)
+type AgentTaskRunner func(context.Context, string, func(agent.Event)) (AgentTaskResult, error)
 
 type DelegationOptions struct {
 	Run         AgentTaskRunner
@@ -55,14 +58,41 @@ func (t *spawnAgentsTool) Spec() agent.ToolSpec {
 	}
 }
 
-type delegatedResult struct {
-	Index      int      `json:"index"`
-	Task       string   `json:"task"`
-	Output     string   `json:"output,omitempty"`
-	Sources    []string `json:"sources,omitempty"`
-	Steps      int      `json:"steps,omitempty"`
-	DurationMS int64    `json:"duration_ms"`
-	Error      string   `json:"error,omitempty"`
+type SpawnAgentsResult struct {
+	Results []agent.SubagentTrace `json:"results"`
+}
+
+func (r SpawnAgentsResult) SubagentTraces() []agent.SubagentTrace {
+	return r.Results
+}
+
+// MarshalJSON preserves the tool payload the parent model already sees. The
+// richer route and step trace travels separately through SubagentTraces.
+func (r SpawnAgentsResult) MarshalJSON() ([]byte, error) {
+	type delegatedResult struct {
+		Index      int      `json:"index"`
+		Task       string   `json:"task"`
+		Output     string   `json:"output,omitempty"`
+		Sources    []string `json:"sources,omitempty"`
+		Steps      int      `json:"steps,omitempty"`
+		DurationMS int64    `json:"duration_ms"`
+		Error      string   `json:"error,omitempty"`
+	}
+	results := make([]delegatedResult, 0, len(r.Results))
+	for _, value := range r.Results {
+		stepCount := value.StepCount
+		if stepCount == 0 {
+			stepCount = len(value.Steps)
+		}
+		results = append(results, delegatedResult{
+			Index: value.Index, Task: value.Task, Output: value.Output,
+			Sources: append([]string(nil), value.Sources...), Steps: stepCount,
+			DurationMS: value.DurationMS, Error: value.Error,
+		})
+	}
+	return json.Marshal(struct {
+		Results []delegatedResult `json:"results"`
+	}{Results: results})
 }
 
 func (t *spawnAgentsTool) Execute(ctx context.Context, raw json.RawMessage) (any, error) {
@@ -91,26 +121,49 @@ func (t *spawnAgentsTool) Execute(ctx context.Context, raw json.RawMessage) (any
 	}
 	batchContext, cancel := context.WithTimeout(ctx, t.options.Timeout)
 	defer cancel()
-	results := make([]delegatedResult, len(tasks))
+	results := make([]agent.SubagentTrace, len(tasks))
 	var wait sync.WaitGroup
+	var eventMu sync.Mutex
+	emit := func(event agent.Event) {
+		eventMu.Lock()
+		defer eventMu.Unlock()
+		agent.EmitToolEvent(ctx, event)
+	}
 	wait.Add(len(tasks))
 	for index, task := range tasks {
 		go func() {
 			defer wait.Done()
 			started := time.Now()
-			result, err := t.options.Run(batchContext, task)
-			item := delegatedResult{
+			emit(agent.Event{
+				Kind: agent.EventSubagentStart, SubagentIndex: index + 1, SubagentTask: task,
+			})
+			result, err := t.options.Run(batchContext, task, func(event agent.Event) {
+				event.SubagentIndex = index + 1
+				event.SubagentTask = task
+				emit(event)
+			})
+			item := agent.SubagentTrace{
 				Index:      index + 1,
 				Task:       task,
+				Status:     "completed",
 				Output:     strings.TrimSpace(result.Output),
 				Sources:    append([]string(nil), result.Sources...),
-				Steps:      result.Steps,
+				Route:      result.Route,
+				Bundles:    append([]string(nil), result.Bundles...),
+				Steps:      append([]agent.SubagentStep(nil), result.Steps...),
+				StepCount:  result.StepCount,
 				DurationMS: time.Since(started).Milliseconds(),
 			}
 			if err != nil {
 				item.Error = err.Error()
+				item.Status = "failed"
 			}
 			results[index] = item
+			emit(agent.Event{
+				Kind: agent.EventSubagentDone, SubagentIndex: index + 1, SubagentTask: task,
+				Route: result.Route, Bundles: append([]string(nil), result.Bundles...),
+				DurationMS: item.DurationMS, Err: err,
+			})
 		}()
 	}
 	wait.Wait()
@@ -121,6 +174,7 @@ func (t *spawnAgentsTool) Execute(ctx context.Context, raw json.RawMessage) (any
 		for index := range results {
 			if results[index].Output == "" && results[index].Error == "" {
 				results[index].Error = err.Error()
+				results[index].Status = "failed"
 			}
 		}
 	}
@@ -131,9 +185,9 @@ func (t *spawnAgentsTool) Execute(ctx context.Context, raw json.RawMessage) (any
 		}
 	}
 	if failed == len(results) {
-		return nil, fmt.Errorf("all %d delegated tasks failed", failed)
+		return SpawnAgentsResult{Results: results}, fmt.Errorf("all %d delegated tasks failed", failed)
 	}
-	return map[string]any{"results": results}, nil
+	return SpawnAgentsResult{Results: results}, nil
 }
 
 func normalizeDelegatedTasks(raw json.RawMessage) ([]string, error) {

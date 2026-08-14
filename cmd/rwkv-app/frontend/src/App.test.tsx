@@ -1,20 +1,28 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as Backend from '../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/appservice'
-import { Config, ModelState, Provider, Status } from '../bindings/github.com/no22/RWKV-Agent/api/models'
+import { Config, ModelState, Provider, Result, Status } from '../bindings/github.com/no22/RWKV-Agent/api/models'
 import {
   AppBootstrap,
   ConversationSummary,
   ConversationView,
   DisplayMessage,
   StoragePaths,
+  SubagentStep,
+  SubagentTrace,
+  ToolRetryTrace,
   ToolTrace,
   WorkspaceItem,
 } from '../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/models'
 import App from './App'
 
+const eventHandlers = vi.hoisted(() => new Map<string, (event: { data: unknown }) => void>())
+
 vi.mock('@wailsio/runtime', () => ({
-  Events: { On: () => () => undefined },
+  Events: { On: (name: string, handler: (event: { data: unknown }) => void) => {
+    eventHandlers.set(name, handler)
+    return () => eventHandlers.delete(name)
+  } },
   Call: { ByID: vi.fn() },
   Create: {
     Array: (create: (value: unknown) => unknown) => (values?: unknown[]) => values == null ? values : values.map(create),
@@ -56,6 +64,7 @@ function bootstrap(overrides: Partial<AppBootstrap> = {}) {
 }
 
 beforeEach(() => {
+  eventHandlers.clear()
   vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap())
 })
 
@@ -254,7 +263,28 @@ describe('App', () => {
           role: 'assistant',
           content: '项目说明已读取',
           trajectory: [
-            new ToolTrace({ step: 1, tool: 'list_files', status: 'completed' }),
+            new ToolTrace({
+              step: 1,
+              tool: 'spawn_agents',
+              status: 'completed',
+              subagents: [new SubagentTrace({
+                index: 1,
+                task: '检查官方文档',
+                status: 'completed',
+                route: 'inspect',
+                bundles: ['web'],
+                durationMs: 23200,
+                output: '确认了官方说明',
+                sources: ['https://example.test/docs'],
+                steps: [new SubagentStep({
+                  step: 1,
+                  tool: 'web_fetch',
+                  arguments: '{"urls":["https://example.test/docs"]}',
+                  status: 'completed',
+                  retries: [new ToolRetryTrace({ attempt: 1, maxAttempts: 5, statusCode: 429, delayMs: 2000 })],
+                })],
+              })],
+            }),
             new ToolTrace({ step: 2, tool: 'read_file', status: 'failed', error: '文件暂时不可读' }),
           ],
         }),
@@ -267,12 +297,63 @@ describe('App', () => {
     expect(await screen.findByText('项目说明已读取')).toBeInTheDocument()
     expect(Backend.OpenConversation).toHaveBeenCalledWith('conversation-1')
 
-    const summaryButton = screen.getByRole('button', { name: '完成 2 次工具调用，1 次失败' })
+    const summaryButton = screen.getByRole('button', { name: '完成 2 次工具调用，1 次失败 · 1 个子 Agent' })
     expect(summaryButton).toHaveAttribute('aria-expanded', 'false')
     fireEvent.click(summaryButton)
     expect(summaryButton).toHaveAttribute('aria-expanded', 'true')
-    expect(screen.getByText('list_files')).toBeInTheDocument()
     expect(screen.getByText('步骤 2 · 失败')).toBeInTheDocument()
     expect(screen.getByText('文件暂时不可读')).toBeInTheDocument()
+    expect(screen.getByText('spawn_agents')).toBeInTheDocument()
+    expect(screen.getByText('Agent 1')).toBeInTheDocument()
+    expect(screen.getByText('检查官方文档')).toBeInTheDocument()
+    expect(screen.getByText('web_fetch')).toBeInTheDocument()
+    expect(screen.getByText('{"urls":["https://example.test/docs"]}')).toBeInTheDocument()
+    expect(screen.getByText('尝试 1/5 · HTTP 429 · 2 秒后重试')).toBeInTheDocument()
+    expect(screen.getByText('确认了官方说明')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /https:\/\/example\.test\/docs/ })).toHaveAttribute('href', 'https://example.test/docs')
+  })
+
+  it('groups live child activity under spawn_agents', async () => {
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
+      status: new Status({
+        state: ModelState.ModelReady,
+        model: 'scripted',
+        workspace: '/tmp/RWKV-Agent',
+        hasApiKey: false,
+        updatedAt: new Date().toISOString(),
+      }),
+    }))
+    let resolveChat!: (result: Result) => void
+    vi.mocked(Backend.Chat).mockReturnValue(
+      new Promise((resolve) => { resolveChat = resolve }) as ReturnType<typeof Backend.Chat>,
+    )
+
+    render(<App />)
+    const composer = await screen.findByLabelText('消息')
+    fireEvent.change(composer, { target: { value: '并行检查' } })
+    fireEvent.keyDown(composer, { key: 'Enter' })
+    await waitFor(() => expect(Backend.Chat).toHaveBeenCalledWith('并行检查'))
+
+    const emit = eventHandlers.get('agent:event')
+    expect(emit).toBeDefined()
+    act(() => {
+      emit?.({ data: { kind: 'tool_start', step: 1, tool: 'spawn_agents', arguments: '{"tasks":["检查文档","检查代码"]}' } })
+      emit?.({ data: { kind: 'subagent_start', parentStep: 1, subagentIndex: 1, subagentTask: '检查文档' } })
+      emit?.({ data: { kind: 'route_done', parentStep: 1, subagentIndex: 1, subagentTask: '检查文档', route: 'inspect', bundles: ['web'] } })
+      emit?.({ data: { kind: 'tool_start', parentStep: 1, subagentIndex: 1, subagentTask: '检查文档', step: 1, tool: 'web_search', arguments: '{"query":"RWKV"}' } })
+      emit?.({ data: { kind: 'tool_retry', parentStep: 1, subagentIndex: 1, subagentTask: '检查文档', step: 1, tool: 'web_search', attempt: 1, maxAttempts: 5, statusCode: 429, delayMs: 2000 } })
+    })
+
+    expect(screen.getByText('spawn_agents')).toBeInTheDocument()
+    expect(screen.getByText('Agent 1')).toBeInTheDocument()
+    expect(screen.getByText('检查文档')).toBeInTheDocument()
+    expect(screen.getByText('web_search')).toBeInTheDocument()
+    expect(screen.getByText('{"query":"RWKV"}')).toBeInTheDocument()
+    expect(screen.getByText('bundles: web')).toBeInTheDocument()
+    expect(screen.getByText('尝试 1/5 · HTTP 429 · 2 秒后重试')).toBeInTheDocument()
+
+    await act(async () => {
+      resolveChat(new Result({ output: 'done', steps: [], duration: 0, durationMs: 1 }))
+    })
   })
 })

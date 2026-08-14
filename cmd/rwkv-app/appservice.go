@@ -27,10 +27,42 @@ type DisplayMessage struct {
 }
 
 type ToolTrace struct {
-	Step   int    `json:"step"`
-	Tool   string `json:"tool"`
-	Status string `json:"status"`
-	Error  string `json:"error,omitempty"`
+	Step      int              `json:"step"`
+	Tool      string           `json:"tool"`
+	Arguments string           `json:"arguments,omitempty"`
+	Status    string           `json:"status"`
+	Error     string           `json:"error,omitempty"`
+	Retries   []ToolRetryTrace `json:"retries,omitempty"`
+	Subagents []SubagentTrace  `json:"subagents,omitempty"`
+}
+
+type ToolRetryTrace struct {
+	Attempt     int   `json:"attempt"`
+	MaxAttempts int   `json:"maxAttempts"`
+	StatusCode  int   `json:"statusCode,omitempty"`
+	DelayMS     int64 `json:"delayMs"`
+}
+
+type SubagentStep struct {
+	Step      int              `json:"step"`
+	Tool      string           `json:"tool"`
+	Arguments string           `json:"arguments,omitempty"`
+	Status    string           `json:"status"`
+	Error     string           `json:"error,omitempty"`
+	Retries   []ToolRetryTrace `json:"retries,omitempty"`
+}
+
+type SubagentTrace struct {
+	Index      int            `json:"index"`
+	Task       string         `json:"task"`
+	Status     string         `json:"status"`
+	Error      string         `json:"error,omitempty"`
+	Route      string         `json:"route,omitempty"`
+	Bundles    []string       `json:"bundles,omitempty"`
+	DurationMS int64          `json:"durationMs"`
+	Output     string         `json:"output,omitempty"`
+	Sources    []string       `json:"sources,omitempty"`
+	Steps      []SubagentStep `json:"steps,omitempty"`
 }
 
 type ConversationSummary struct {
@@ -527,7 +559,9 @@ func storedToolTrace(result agentapi.Result) []appstorage.ToolTrace {
 			status = "failed"
 		}
 		trace = append(trace, appstorage.ToolTrace{
-			Step: step.Number, Tool: step.Tool, Status: status, Error: step.ToolError,
+			Step: step.Number, Tool: step.Tool, Arguments: step.ToolArguments,
+			Status: status, Error: step.ToolError, Retries: storedToolRetries(step.ToolRetries),
+			Subagents: storedSubagentTrace(step.Subagents),
 		})
 	}
 	return trace
@@ -540,10 +574,86 @@ func displayToolTrace(values []appstorage.ToolTrace) []ToolTrace {
 	trace := make([]ToolTrace, 0, len(values))
 	for _, value := range values {
 		trace = append(trace, ToolTrace{
-			Step: value.Step, Tool: value.Tool, Status: value.Status, Error: value.Error,
+			Step: value.Step, Tool: value.Tool, Arguments: value.Arguments,
+			Status: value.Status, Error: value.Error, Retries: displayToolRetries(value.Retries),
+			Subagents: displaySubagentTrace(value.Subagents),
 		})
 	}
 	return trace
+}
+
+func storedSubagentTrace(values []agentapi.SubagentTrace) []appstorage.SubagentTrace {
+	if len(values) == 0 {
+		return nil
+	}
+	result := make([]appstorage.SubagentTrace, 0, len(values))
+	for _, value := range values {
+		child := appstorage.SubagentTrace{
+			Index: value.Index, Task: value.Task, Status: value.Status, Error: value.Error,
+			Route: value.Route, Bundles: append([]string(nil), value.Bundles...),
+			DurationMS: value.DurationMS, Output: value.Output,
+			Sources: append([]string(nil), value.Sources...),
+		}
+		for _, step := range value.Steps {
+			child.Steps = append(child.Steps, appstorage.SubagentStep{
+				Step: step.Number, Tool: step.Tool, Arguments: step.Arguments,
+				Status: step.Status, Error: step.Error, Retries: storedToolRetries(step.Retries),
+			})
+		}
+		result = append(result, child)
+	}
+	return result
+}
+
+func displaySubagentTrace(values []appstorage.SubagentTrace) []SubagentTrace {
+	if len(values) == 0 {
+		return nil
+	}
+	result := make([]SubagentTrace, 0, len(values))
+	for _, value := range values {
+		child := SubagentTrace{
+			Index: value.Index, Task: value.Task, Status: value.Status, Error: value.Error,
+			Route: value.Route, Bundles: append([]string(nil), value.Bundles...),
+			DurationMS: value.DurationMS, Output: value.Output,
+			Sources: append([]string(nil), value.Sources...),
+		}
+		for _, step := range value.Steps {
+			child.Steps = append(child.Steps, SubagentStep{
+				Step: step.Step, Tool: step.Tool, Arguments: step.Arguments,
+				Status: step.Status, Error: step.Error, Retries: displayToolRetries(step.Retries),
+			})
+		}
+		result = append(result, child)
+	}
+	return result
+}
+
+func storedToolRetries(values []agentapi.ToolRetryTrace) []appstorage.ToolRetryTrace {
+	if len(values) == 0 {
+		return nil
+	}
+	result := make([]appstorage.ToolRetryTrace, 0, len(values))
+	for _, value := range values {
+		result = append(result, appstorage.ToolRetryTrace{
+			Attempt: value.Attempt, MaxAttempts: value.MaxAttempts,
+			StatusCode: value.StatusCode, DelayMS: value.DelayMS,
+		})
+	}
+	return result
+}
+
+func displayToolRetries(values []appstorage.ToolRetryTrace) []ToolRetryTrace {
+	if len(values) == 0 {
+		return nil
+	}
+	result := make([]ToolRetryTrace, 0, len(values))
+	for _, value := range values {
+		result = append(result, ToolRetryTrace{
+			Attempt: value.Attempt, MaxAttempts: value.MaxAttempts,
+			StatusCode: value.StatusCode, DelayMS: value.DelayMS,
+		})
+	}
+	return result
 }
 
 func workspaceItems(paths []string, active string) []WorkspaceItem {

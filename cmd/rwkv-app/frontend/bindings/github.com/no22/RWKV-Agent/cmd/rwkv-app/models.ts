@@ -219,11 +219,131 @@ export class StoragePaths {
     }
 }
 
+export class SubagentStep {
+    "step": number;
+    "tool": string;
+    "arguments"?: string;
+    "status": string;
+    "error"?: string;
+    "retries"?: ToolRetryTrace[];
+
+    /** Creates a new SubagentStep instance. */
+    constructor($$source: Partial<SubagentStep> = {}) {
+        if (!("step" in $$source)) {
+            this["step"] = 0;
+        }
+        if (!("tool" in $$source)) {
+            this["tool"] = "";
+        }
+        if (!("status" in $$source)) {
+            this["status"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new SubagentStep instance from a string or object.
+     */
+    static createFrom($$source: any = {}): SubagentStep {
+        const $$createField5_0 = $$createType14;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("retries" in $$parsedSource) {
+            $$parsedSource["retries"] = $$createField5_0($$parsedSource["retries"]);
+        }
+        return new SubagentStep($$parsedSource as Partial<SubagentStep>);
+    }
+}
+
+export class SubagentTrace {
+    "index": number;
+    "task": string;
+    "status": string;
+    "error"?: string;
+    "route"?: string;
+    "bundles"?: string[];
+    "durationMs": number;
+    "output"?: string;
+    "sources"?: string[];
+    "steps"?: SubagentStep[];
+
+    /** Creates a new SubagentTrace instance. */
+    constructor($$source: Partial<SubagentTrace> = {}) {
+        if (!("index" in $$source)) {
+            this["index"] = 0;
+        }
+        if (!("task" in $$source)) {
+            this["task"] = "";
+        }
+        if (!("status" in $$source)) {
+            this["status"] = "";
+        }
+        if (!("durationMs" in $$source)) {
+            this["durationMs"] = 0;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new SubagentTrace instance from a string or object.
+     */
+    static createFrom($$source: any = {}): SubagentTrace {
+        const $$createField5_0 = $$createType15;
+        const $$createField8_0 = $$createType15;
+        const $$createField9_0 = $$createType17;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("bundles" in $$parsedSource) {
+            $$parsedSource["bundles"] = $$createField5_0($$parsedSource["bundles"]);
+        }
+        if ("sources" in $$parsedSource) {
+            $$parsedSource["sources"] = $$createField8_0($$parsedSource["sources"]);
+        }
+        if ("steps" in $$parsedSource) {
+            $$parsedSource["steps"] = $$createField9_0($$parsedSource["steps"]);
+        }
+        return new SubagentTrace($$parsedSource as Partial<SubagentTrace>);
+    }
+}
+
+export class ToolRetryTrace {
+    "attempt": number;
+    "maxAttempts": number;
+    "statusCode"?: number;
+    "delayMs": number;
+
+    /** Creates a new ToolRetryTrace instance. */
+    constructor($$source: Partial<ToolRetryTrace> = {}) {
+        if (!("attempt" in $$source)) {
+            this["attempt"] = 0;
+        }
+        if (!("maxAttempts" in $$source)) {
+            this["maxAttempts"] = 0;
+        }
+        if (!("delayMs" in $$source)) {
+            this["delayMs"] = 0;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new ToolRetryTrace instance from a string or object.
+     */
+    static createFrom($$source: any = {}): ToolRetryTrace {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new ToolRetryTrace($$parsedSource as Partial<ToolRetryTrace>);
+    }
+}
+
 export class ToolTrace {
     "step": number;
     "tool": string;
+    "arguments"?: string;
     "status": string;
     "error"?: string;
+    "retries"?: ToolRetryTrace[];
+    "subagents"?: SubagentTrace[];
 
     /** Creates a new ToolTrace instance. */
     constructor($$source: Partial<ToolTrace> = {}) {
@@ -244,7 +364,15 @@ export class ToolTrace {
      * Creates a new ToolTrace instance from a string or object.
      */
     static createFrom($$source: any = {}): ToolTrace {
+        const $$createField5_0 = $$createType14;
+        const $$createField6_0 = $$createType19;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("retries" in $$parsedSource) {
+            $$parsedSource["retries"] = $$createField5_0($$parsedSource["retries"]);
+        }
+        if ("subagents" in $$parsedSource) {
+            $$parsedSource["subagents"] = $$createField6_0($$parsedSource["subagents"]);
+        }
         return new ToolTrace($$parsedSource as Partial<ToolTrace>);
     }
 }
@@ -296,3 +424,10 @@ const $$createType9 = DisplayMessage.createFrom;
 const $$createType10 = $Create.Array($$createType9);
 const $$createType11 = ToolTrace.createFrom;
 const $$createType12 = $Create.Array($$createType11);
+const $$createType13 = ToolRetryTrace.createFrom;
+const $$createType14 = $Create.Array($$createType13);
+const $$createType15 = $Create.Array($Create.Any);
+const $$createType16 = SubagentStep.createFrom;
+const $$createType17 = $Create.Array($$createType16);
+const $$createType18 = SubagentTrace.createFrom;
+const $$createType19 = $Create.Array($$createType18);

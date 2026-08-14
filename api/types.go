@@ -93,36 +93,82 @@ type Status struct {
 type EventKind string
 
 const (
-	EventModelStart EventKind = "model_start"
-	EventRouteStart EventKind = "route_start"
-	EventRouteDone  EventKind = "route_done"
-	EventRetry      EventKind = "protocol_retry"
-	EventToolStart  EventKind = "tool_start"
-	EventToolDone   EventKind = "tool_done"
+	EventModelStart    EventKind = "model_start"
+	EventRouteStart    EventKind = "route_start"
+	EventRouteDone     EventKind = "route_done"
+	EventRetry         EventKind = "protocol_retry"
+	EventToolStart     EventKind = "tool_start"
+	EventToolRetry     EventKind = "tool_retry"
+	EventToolDone      EventKind = "tool_done"
+	EventSubagentStart EventKind = "subagent_start"
+	EventSubagentDone  EventKind = "subagent_done"
 )
 
 // Event is a transport-safe Agent loop event.
 type Event struct {
-	Kind    EventKind `json:"kind"`
-	Step    int       `json:"step,omitempty"`
-	Tool    string    `json:"tool,omitempty"`
-	Route   string    `json:"route,omitempty"`
-	Bundles []string  `json:"bundles,omitempty"`
-	Error   string    `json:"error,omitempty"`
+	Kind          EventKind `json:"kind"`
+	Step          int       `json:"step,omitempty"`
+	ParentStep    int       `json:"parentStep,omitempty"`
+	Tool          string    `json:"tool,omitempty"`
+	Arguments     string    `json:"arguments,omitempty"`
+	Route         string    `json:"route,omitempty"`
+	Bundles       []string  `json:"bundles,omitempty"`
+	SubagentIndex int       `json:"subagentIndex,omitempty"`
+	SubagentTask  string    `json:"subagentTask,omitempty"`
+	DurationMS    int64     `json:"durationMs,omitempty"`
+	Attempt       int       `json:"attempt,omitempty"`
+	MaxAttempts   int       `json:"maxAttempts,omitempty"`
+	StatusCode    int       `json:"statusCode,omitempty"`
+	DelayMS       int64     `json:"delayMs,omitempty"`
+	Error         string    `json:"error,omitempty"`
+}
+
+type ToolRetryTrace struct {
+	Attempt     int   `json:"attempt"`
+	MaxAttempts int   `json:"maxAttempts"`
+	StatusCode  int   `json:"statusCode,omitempty"`
+	DelayMS     int64 `json:"delayMs"`
+}
+
+// SubagentStep is one compact child tool invocation. Tool result bodies are
+// omitted so this trace is safe to retain in presentation storage.
+type SubagentStep struct {
+	Number    int              `json:"number"`
+	Tool      string           `json:"tool"`
+	Arguments string           `json:"arguments,omitempty"`
+	Status    string           `json:"status"`
+	Error     string           `json:"error,omitempty"`
+	Retries   []ToolRetryTrace `json:"retries,omitempty"`
+}
+
+// SubagentTrace is one delegated Agent run attached to its parent tool step.
+type SubagentTrace struct {
+	Index      int            `json:"index"`
+	Task       string         `json:"task"`
+	Status     string         `json:"status"`
+	Error      string         `json:"error,omitempty"`
+	Route      string         `json:"route,omitempty"`
+	Bundles    []string       `json:"bundles,omitempty"`
+	DurationMS int64          `json:"durationMs"`
+	Output     string         `json:"output,omitempty"`
+	Sources    []string       `json:"sources,omitempty"`
+	Steps      []SubagentStep `json:"steps,omitempty"`
 }
 
 // Step is the public trace summary for one model action.
 type Step struct {
-	Number        int    `json:"number"`
-	Stage         string `json:"stage"`
-	ModelOutput   string `json:"modelOutput,omitempty"`
-	FinishReason  string `json:"finishReason,omitempty"`
-	ActionType    string `json:"actionType,omitempty"`
-	Tool          string `json:"tool,omitempty"`
-	ToolArguments string `json:"toolArguments,omitempty"`
-	ToolResult    string `json:"toolResult,omitempty"`
-	ToolExecuted  bool   `json:"toolExecuted,omitempty"`
-	ToolError     string `json:"toolError,omitempty"`
+	Number        int              `json:"number"`
+	Stage         string           `json:"stage"`
+	ModelOutput   string           `json:"modelOutput,omitempty"`
+	FinishReason  string           `json:"finishReason,omitempty"`
+	ActionType    string           `json:"actionType,omitempty"`
+	Tool          string           `json:"tool,omitempty"`
+	ToolArguments string           `json:"toolArguments,omitempty"`
+	ToolResult    string           `json:"toolResult,omitempty"`
+	ToolExecuted  bool             `json:"toolExecuted,omitempty"`
+	ToolError     string           `json:"toolError,omitempty"`
+	ToolRetries   []ToolRetryTrace `json:"toolRetries,omitempty"`
+	Subagents     []SubagentTrace  `json:"subagents,omitempty"`
 }
 
 // Result is one committed Agent turn.

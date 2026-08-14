@@ -52,9 +52,18 @@ type HeaderRow = { id: number; name: string; value: string }
 type AgentActivity = {
   kind: string
   step?: number
+  parentStep?: number
   tool?: string
+  arguments?: string
   route?: string
   bundles?: string[]
+  subagentIndex?: number
+  subagentTask?: string
+  durationMs?: number
+  attempt?: number
+  maxAttempts?: number
+  statusCode?: number
+  delayMs?: number
   error?: string
 }
 
@@ -113,7 +122,7 @@ function App() {
     })
     const offAgent = Events.On('agent:event', (event) => {
       const item = event.data as AgentActivity
-      setActivity((current) => [...current.slice(-39), item])
+      setActivity((current) => [...current, item])
     })
     return () => {
       offStatus()
@@ -200,8 +209,29 @@ function App() {
           trajectory: result.steps.filter((step) => step.tool).map((step) => ({
             step: step.number,
             tool: step.tool || '',
+            arguments: step.toolArguments,
             status: step.toolError ? 'failed' : 'completed',
             error: step.toolError,
+            retries: step.toolRetries,
+            subagents: step.subagents?.map((child) => ({
+              index: child.index,
+              task: child.task,
+              status: child.status as 'completed' | 'failed',
+              error: child.error,
+              route: child.route,
+              bundles: child.bundles,
+              durationMs: child.durationMs,
+              output: child.output,
+              sources: child.sources,
+              steps: child.steps?.map((childStep) => ({
+                step: childStep.number,
+                tool: childStep.tool,
+                arguments: childStep.arguments,
+                status: childStep.status as 'completed' | 'failed',
+                error: childStep.error,
+                retries: childStep.retries,
+              })),
+            })),
           })),
         },
       ])
@@ -695,12 +725,16 @@ function statusLabel(status: Status) {
 
 function activityLabel(item?: AgentActivity) {
   if (!item) return '正在思考…'
-  if (item.kind === 'model_start') return `步骤 ${item.step || 1} · 正在决定下一步`
-  if (item.kind === 'route_start') return '正在选择能力组'
-  if (item.kind === 'route_done') return item.bundles?.length ? `已加载 ${item.bundles.join('、')} 能力组` : '无需加载工具'
-  if (item.kind === 'tool_start') return `步骤 ${item.step} · 正在使用 ${item.tool}`
-  if (item.kind === 'tool_done') return `步骤 ${item.step} · ${item.tool} 已完成`
-  if (item.kind === 'protocol_retry') return `步骤 ${item.step} · 正在重试`
+  const child = item.subagentIndex ? `Agent ${item.subagentIndex} · ` : ''
+  if (item.kind === 'subagent_start') return `Agent ${item.subagentIndex} · 已开始子任务`
+  if (item.kind === 'subagent_done') return `Agent ${item.subagentIndex} · ${item.error ? '子任务失败' : '子任务完成'}`
+  if (item.kind === 'model_start') return `${child}步骤 ${item.step || 1} · 正在决定下一步`
+  if (item.kind === 'route_start') return `${child}正在选择能力组`
+  if (item.kind === 'route_done') return item.bundles?.length ? `${child}已加载 ${item.bundles.join('、')} 能力组` : `${child}无需加载工具`
+  if (item.kind === 'tool_start') return `${child}步骤 ${item.step} · 正在使用 ${item.tool}`
+  if (item.kind === 'tool_retry') return `${child}步骤 ${item.step} · ${item.tool} 自动退避后重试`
+  if (item.kind === 'tool_done') return `${child}步骤 ${item.step} · ${item.tool} 已完成`
+  if (item.kind === 'protocol_retry') return `${child}步骤 ${item.step} · 正在重试`
   return 'Agent 正在工作…'
 }
 
@@ -708,23 +742,87 @@ function activityToolTrace(activity: AgentActivity[]): ToolTrace[] {
   const calls: ToolTrace[] = []
   const callIndexes = new Map<string, number>()
   for (const item of activity) {
+    if (item.subagentIndex) {
+      const parentStep = item.parentStep || 0
+      let parentIndex = calls.findIndex((call) => call.step === parentStep && call.tool === 'spawn_agents')
+      if (parentIndex < 0) {
+        calls.push({ step: parentStep, tool: 'spawn_agents', status: 'running', subagents: [] })
+        parentIndex = calls.length - 1
+      }
+      const parent = calls[parentIndex]
+      const children = [...(parent.subagents || [])]
+      let childIndex = children.findIndex((child) => child.index === item.subagentIndex)
+      if (childIndex < 0) {
+        children.push({ index: item.subagentIndex, task: item.subagentTask || '', status: 'running', steps: [] })
+        childIndex = children.length - 1
+      }
+      const child = { ...children[childIndex], task: item.subagentTask || children[childIndex].task }
+      if (item.kind === 'route_done') {
+        child.route = item.route
+        child.bundles = item.bundles
+      }
+      if (item.kind === 'subagent_done') {
+        child.status = item.error ? 'failed' : 'completed'
+        child.error = item.error
+        child.route = item.route || child.route
+        child.bundles = item.bundles || child.bundles
+        child.durationMs = item.durationMs
+      }
+      if (item.tool) {
+        const steps = [...(child.steps || [])]
+        const existingStep = steps.findIndex((step) => step.step === (item.step || 0) && step.tool === item.tool)
+        const previousStep = existingStep >= 0 ? steps[existingStep] : undefined
+        const retries = item.kind === 'tool_retry'
+          ? [...(previousStep?.retries || []), activityRetry(item)]
+          : previousStep?.retries
+        const nextStep = {
+          step: item.step || 0,
+          tool: item.tool,
+          arguments: item.arguments || previousStep?.arguments,
+          status: item.kind === 'tool_done' ? item.error ? 'failed' as const : 'completed' as const : 'running' as const,
+          error: item.error,
+          retries,
+        }
+        if (existingStep < 0) steps.push(nextStep)
+        else steps[existingStep] = nextStep
+        child.steps = steps
+      }
+      children[childIndex] = child
+      calls[parentIndex] = { ...parent, subagents: children }
+      continue
+    }
     if (!item.tool) continue
     const key = `${item.step || 0}:${item.tool}`
     const existing = callIndexes.get(key)
+    const previousCall = existing === undefined ? undefined : calls[existing]
+    const retries = item.kind === 'tool_retry'
+      ? [...(previousCall?.retries || []), activityRetry(item)]
+      : previousCall?.retries
     const call: ToolTrace = {
       step: item.step || 0,
       tool: item.tool,
+      arguments: item.arguments,
       status: item.kind === 'tool_done' ? item.error ? 'failed' : 'completed' : 'running',
       error: item.error,
+      retries,
     }
     if (existing === undefined) {
       callIndexes.set(key, calls.length)
       calls.push(call)
     } else {
-      calls[existing] = call
+      calls[existing] = { ...calls[existing], ...call, arguments: call.arguments || calls[existing].arguments }
     }
   }
   return calls
+}
+
+function activityRetry(item: AgentActivity) {
+  return {
+    attempt: item.attempt || 0,
+    maxAttempts: item.maxAttempts || 0,
+    statusCode: item.statusCode,
+    delayMs: item.delayMs || 0,
+  }
 }
 
 function errorText(error: unknown) {
