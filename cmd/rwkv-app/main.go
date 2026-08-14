@@ -10,6 +10,8 @@ import (
 	"path/filepath"
 
 	agentapi "github.com/no22/RWKV-Agent/api"
+	"github.com/no22/RWKV-Agent/internal/appstorage"
+	"github.com/no22/RWKV-Agent/internal/netproxy"
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
@@ -21,15 +23,26 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	if err := netproxy.Configure(); err != nil {
+		log.Printf("system proxy unavailable: %v", err)
+	}
 	frontend, err := fs.Sub(embeddedFrontend, "frontend/dist")
 	if err != nil {
 		log.Fatal(err)
+	}
+	storage := appstorage.NewDefault()
+	if !options.workspaceExplicit {
+		if state, stateErr := storage.LoadState(); stateErr == nil && state.Workspace != "" {
+			if info, statErr := os.Stat(state.Workspace); statErr == nil && info.IsDir() {
+				options.workspace = state.Workspace
+			}
+		}
 	}
 	service, err := agentapi.NewService(agentapi.Options{Workspace: options.workspace})
 	if err != nil {
 		log.Fatal(err)
 	}
-	backend := newAppService(service)
+	backend := newAppService(service, storage)
 	app := application.New(application.Options{
 		Name:        "RWKV Agent",
 		Description: "Local-first RWKV workspace agent",
@@ -62,9 +75,10 @@ func main() {
 }
 
 type launchOptions struct {
-	host      string
-	port      int
-	workspace string
+	host              string
+	port              int
+	workspace         string
+	workspaceExplicit bool
 }
 
 func parseOptions(arguments []string) (launchOptions, error) {
@@ -76,6 +90,11 @@ func parseOptions(arguments []string) (launchOptions, error) {
 	if err := flags.Parse(arguments); err != nil {
 		return launchOptions{}, err
 	}
+	flags.Visit(func(value *flag.Flag) {
+		if value.Name == "workspace" {
+			options.workspaceExplicit = true
+		}
+	})
 	if options.port < 1 || options.port > 65535 {
 		return launchOptions{}, fmt.Errorf("port must be between 1 and 65535")
 	}

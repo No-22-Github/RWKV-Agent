@@ -12,7 +12,7 @@ open -n "./dist/RWKV Agent.app" --args --workspace "$(pwd)"
 ./dist/rwkv-app-server --port 8080
 ```
 
-The UI can load a local RWKV model, display model status, run multi-turn workspace Agent conversations, and configure remote APIs with arbitrary HTTP headers such as Cloudflare Access credentials. RWKV services use the continuation-native `/v1/batch/completions` path by default; OpenAI Chat Completions is an explicit compatibility option for other models. See [docs/app.md](docs/app.md) for setup and development commands.
+The UI can load a local RWKV model, display model status, persist workspace conversations and recent projects, and configure remote APIs with arbitrary HTTP headers such as Cloudflare Access credentials. Desktop settings and credentials are stored as plaintext JSON in platform-appropriate XDG/Known Folder locations. RWKV services use the continuation-native `/v1/batch/completions` path by default; OpenAI Chat Completions is an explicit compatibility option for other models. See [docs/app.md](docs/app.md) for storage details, setup, and development commands.
 
 RWKV-Agent 当前提供一个可分发的 Apple Silicon macOS 本地 CLI。Go 负责 Conversation 事务、Session 持久化和终端交互；独立的 `librwkv_agent_runtime.dylib` 通过固定版本的 RWKV Mobile tokenizer/sampler 与 MLX FFI 执行推理。运行时不依赖 Python、PyTorch、HTTP 服务或外部进程。
 

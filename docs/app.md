@@ -75,6 +75,53 @@ secret values are deliberately absent from `Status`. Progressive tool exposure
 is enabled by default; set `ProgressiveTools` to an explicit false pointer only
 for fixed-catalog compatibility.
 
+## Persistent application storage
+
+The app uses `github.com/adrg/xdg` for configuration, durable data, application
+state, and cache locations. It persists:
+
+- the complete model/provider configuration in `settings.json`, including API
+  keys, service passwords, web-provider keys, and custom HTTP header values;
+- display messages and the complete committed Harness transcript for each
+  conversation, including tool calls and tool results;
+- the last workspace, recent workspaces, and the active conversation for each
+  workspace;
+- a dedicated cache directory for application-level disposable data.
+
+Writes use a temporary file followed by an atomic replacement. Directories
+created on POSIX systems use mode `0700` and JSON files use `0600`. Credentials
+are intentionally stored as plaintext JSON in this version; they are not sent
+through Wails status events, but any process or account that can read the user's
+configuration file can read them.
+
+The default locations are:
+
+| Platform | Configuration | Conversations | Application state | Cache |
+| --- | --- | --- | --- | --- |
+| Linux | `~/.config/RWKV-Agent/settings.json` | `~/.local/share/RWKV-Agent/conversations/` | `~/.local/state/RWKV-Agent/app-state.json` | `~/.cache/RWKV-Agent/` |
+| macOS | `~/Library/Application Support/RWKV-Agent/settings.json` | `~/Library/Application Support/RWKV-Agent/conversations/` | `~/Library/Application Support/RWKV-Agent/app-state.json` | `~/Library/Caches/RWKV-Agent/` |
+| Windows | `%LOCALAPPDATA%\RWKV-Agent\settings.json` | `%LOCALAPPDATA%\RWKV-Agent\conversations\` | `%LOCALAPPDATA%\RWKV-Agent\app-state.json` | `%LOCALAPPDATA%\cache\RWKV-Agent\` |
+
+On Windows, the XDG library resolves the `LocalAppData` Known Folder instead of
+assuming that `%LOCALAPPDATA%` contains a particular path. These files remain
+local to the Windows user profile and do not roam with `%APPDATA%`. Windows ACLs
+provide the effective access control; POSIX mode bits such as `0600` are not a
+substitute for ACLs there. Atomic replacement uses Go's Windows rename path,
+which requests replacement of the existing destination, so subsequent saves do
+not require deleting the old settings file first.
+
+The standard `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_STATE_HOME`, and
+`XDG_CACHE_HOME` environment variables override these defaults on every desktop
+platform, including Windows. Passing `--workspace` explicitly overrides the
+remembered workspace. At startup, saved settings hydrate the UI but the app does
+not load a local model or contact a remote provider until the user reconnects.
+
+Deleting the cache directory is safe for application-level disposable data.
+Deleting `settings.json` removes saved provider settings and plaintext
+credentials; deleting `app-state.json` forgets recent/active projects; deleting
+the conversations directory removes chat history. Existing `.rwkvi` inference
+indexes keep their current behavior and are outside this persistence change.
+
 ## Model setup
 
 Open **设置** in the lower-left corner.
@@ -82,8 +129,9 @@ Open **设置** in the lower-left corner.
 - **本地模型** accepts an RWKV-7 `.pth` checkpoint or an MLX safetensors directory. The tokenizer is discovered beside the model, beside the executable, in `dist/assets`, or in the pinned `rwkv-mobile` assets; it can also be selected explicitly.
 - **远端 API** defaults to **RWKV 续写**. It accepts an API base URL, `/v1/models`, or `/v1/batch/completions` and normalizes inference to the continuation-native `/v1/batch/completions` endpoint. Stop sequences are enforced by the Harness client, so the server-specific `stop_tokens` field is omitted by default.
 - **OpenAI 兼容** is the fallback for non-RWKV models and normalizes the same base URL to `/v1/chat/completions`.
-- Both protocols support credentials and arbitrary custom HTTP headers. This includes Cloudflare Access headers. Secret values stay in backend memory and model status exposes only sanitized header names, never values.
+- Both protocols support credentials and arbitrary custom HTTP headers. This includes Cloudflare Access headers. The desktop app saves these values in the local plaintext `settings.json`; model status exposes only sanitized header names, never values.
 - **Agent 能力** defaults to the trained Markdown/function transcript and keeps XML as an explicit compatibility mode. It also enables progressive tool exposure, optional Brave Search + Tavily Extract, and concurrent `spawn_agents` delegation. Web tools require both provider keys. Subagent settings control local active batch, child concurrency/steps/timeout, and the RWKV Lightning request-coalescing window.
+- On macOS, the desktop process uses `HTTP_PROXY`/`HTTPS_PROXY` when present and otherwise reads the explicit HTTP, HTTPS, or SOCKS proxy from `scutil --proxy` at startup. System proxy exceptions and local addresses bypass the proxy. Restart the app after changing macOS proxy settings; PAC auto-configuration is not evaluated yet.
 
 Each child Agent gets an independent Session and transcript. Local MLX uses
 continuous batching, RWKV Lightning coalesces compatible continuations into one
@@ -113,5 +161,6 @@ npm run build
 Run backend checks:
 
 ```sh
-go test ./api ./internal/tui/agent ./cmd/rwkv-cli ./cmd/rwkv-app
+go test ./...
+go vet ./...
 ```

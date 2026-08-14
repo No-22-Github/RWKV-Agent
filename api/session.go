@@ -13,6 +13,7 @@ import (
 	"github.com/no22/RWKV-Agent/internal/agent"
 	assistanttools "github.com/no22/RWKV-Agent/internal/agent/tools"
 	"github.com/no22/RWKV-Agent/internal/continuation"
+	"github.com/no22/RWKV-Agent/internal/continuation/toolchat"
 	"github.com/no22/RWKV-Agent/internal/inference"
 	"github.com/no22/RWKV-Agent/internal/terminal"
 )
@@ -238,6 +239,44 @@ func (s *Session) Reset() {
 	s.runner.Reset()
 }
 
+// History returns a transport-safe copy of the complete committed Harness
+// transcript, including native tool calls and tool results.
+func (s *Session) History() []ConversationMessage {
+	if s == nil || s.runner == nil {
+		return nil
+	}
+	s.opMu.Lock()
+	defer s.opMu.Unlock()
+	s.mu.RLock()
+	closed := s.closed
+	s.mu.RUnlock()
+	if closed {
+		return nil
+	}
+	return publicConversationMessages(s.runner.History())
+}
+
+// RestoreHistory replaces the committed transcript of a newly-created
+// session. The model provider and workspace remain unchanged.
+func (s *Session) RestoreHistory(messages []ConversationMessage) error {
+	if s == nil || s.runner == nil {
+		return fmt.Errorf("session is not initialized")
+	}
+	converted, err := internalConversationMessages(messages)
+	if err != nil {
+		return err
+	}
+	s.opMu.Lock()
+	defer s.opMu.Unlock()
+	s.mu.RLock()
+	closed := s.closed
+	s.mu.RUnlock()
+	if closed {
+		return fmt.Errorf("session is closed")
+	}
+	return s.runner.RestoreHistory(converted)
+}
+
 // Close releases the continuation session.
 func (s *Session) Close() error {
 	if s == nil {
@@ -299,6 +338,54 @@ func publicResult(value agent.Result, duration time.Duration) Result {
 		})
 	}
 	return result
+}
+
+func publicConversationMessages(messages []agent.Message) []ConversationMessage {
+	result := make([]ConversationMessage, 0, len(messages))
+	for _, message := range messages {
+		converted := ConversationMessage{
+			Role:             string(message.Role),
+			Content:          message.Content,
+			ReasoningContent: message.ReasoningContent,
+			Name:             message.Name,
+			ToolCallID:       message.ToolCallID,
+			ToolCalls:        make([]ToolCall, 0, len(message.ToolCalls)),
+		}
+		for _, call := range message.ToolCalls {
+			converted.ToolCalls = append(converted.ToolCalls, ToolCall{
+				ID: call.ID, Name: call.Name, Arguments: call.Arguments,
+			})
+		}
+		result = append(result, converted)
+	}
+	return result
+}
+
+func internalConversationMessages(messages []ConversationMessage) ([]agent.Message, error) {
+	result := make([]agent.Message, 0, len(messages))
+	for index, message := range messages {
+		role := agent.MessageRole(message.Role)
+		switch role {
+		case agent.RoleUser, agent.RoleAssistant, agent.RoleTool:
+		default:
+			return nil, fmt.Errorf("conversation message %d has unsupported role %q", index, message.Role)
+		}
+		converted := agent.Message{
+			Role:             role,
+			Content:          message.Content,
+			ReasoningContent: message.ReasoningContent,
+			Name:             message.Name,
+			ToolCallID:       message.ToolCallID,
+			ToolCalls:        make([]toolchat.ToolCall, 0, len(message.ToolCalls)),
+		}
+		for _, call := range message.ToolCalls {
+			converted.ToolCalls = append(converted.ToolCalls, toolchat.ToolCall{
+				ID: call.ID, Name: call.Name, Arguments: call.Arguments,
+			})
+		}
+		result = append(result, converted)
+	}
+	return result, nil
 }
 
 // ownerConfig returns the configuration snapshot captured by Configure. It is

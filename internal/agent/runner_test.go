@@ -33,6 +33,40 @@ func TestRunnerRequiresTwoStepsForToolConvergence(t *testing.T) {
 	}
 }
 
+func TestRunnerRestoresCompleteCommittedHistory(t *testing.T) {
+	t.Parallel()
+	runner, err := NewRunner(
+		continuation.GenerateFunc(func(context.Context, continuation.Request, continuation.EventSink) (continuation.Result, error) {
+			return continuation.Result{}, nil
+		}),
+		nil,
+		Options{MaxSteps: 2},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	history := []Message{
+		{Role: RoleUser, Content: "Read README.md"},
+		{Role: RoleAssistant, Content: "tool call"},
+		{Role: RoleTool, Name: "read_file", Content: "# Project"},
+		{Role: RoleAssistant, Content: "Project"},
+	}
+	if err := runner.RestoreHistory(history); err != nil {
+		t.Fatal(err)
+	}
+	restored := runner.History()
+	if len(restored) != len(history) || restored[2].Role != RoleTool || restored[2].Name != "read_file" {
+		t.Fatalf("restored history = %+v", restored)
+	}
+	history[0].Content = "mutated"
+	if runner.History()[0].Content != "Read README.md" {
+		t.Fatal("restored history aliases the caller")
+	}
+	if err := runner.RestoreHistory([]Message{{Role: RoleSystem, Content: "injected"}}); err == nil {
+		t.Fatal("system role was accepted in persisted history")
+	}
+}
+
 func TestRunnerExecutesToolThenReturnsFinal(t *testing.T) {
 	t.Parallel()
 	outputs := []string{

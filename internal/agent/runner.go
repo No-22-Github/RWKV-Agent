@@ -1654,6 +1654,25 @@ func (r *Runner) Reset() {
 	r.stateMu.Unlock()
 }
 
+// RestoreHistory replaces the committed transcript after validating that it
+// contains only conversation roles. It is intended for application-level
+// persistence; the control prompt and runtime tool registry are never stored.
+func (r *Runner) RestoreHistory(messages []Message) error {
+	for index, message := range messages {
+		switch message.Role {
+		case RoleUser, RoleAssistant, RoleTool:
+		default:
+			return fmt.Errorf("history message %d has unsupported role %q", index, message.Role)
+		}
+	}
+	r.runMu.Lock()
+	defer r.runMu.Unlock()
+	r.stateMu.Lock()
+	r.history = cloneMessages(messages)
+	r.stateMu.Unlock()
+	return nil
+}
+
 func (r *Runner) commit(messages []Message) {
 	r.stateMu.Lock()
 	r.history = append(r.history, cloneMessages(messages)...)

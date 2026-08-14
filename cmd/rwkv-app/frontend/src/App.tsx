@@ -2,12 +2,10 @@ import { FormEvent, KeyboardEvent, useEffect, useMemo, useRef, useState } from '
 import {
   ArrowUp,
   Bot,
-  Check,
   ChevronDown,
   CirclePlus,
   Cloud,
   Cpu,
-  FileText,
   Folder,
   Globe2,
   LoaderCircle,
@@ -17,7 +15,6 @@ import {
   Plus,
   RotateCcw,
   Settings,
-  SlidersHorizontal,
   Sparkles,
   Trash2,
   Users,
@@ -33,12 +30,21 @@ import {
   Status,
   type RemoteModel,
 } from '../bindings/github.com/no22/RWKV-Agent/api/models'
+import type {
+  AppBootstrap,
+  ConversationSummary,
+  ConversationView,
+  WorkspaceItem,
+} from '../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/models'
+import MarkdownMessage from './MarkdownMessage'
+import ToolTrajectory, { type ToolTrace } from './ToolTrajectory'
 
 type Message = {
-  id: number
+  id: string
   role: 'user' | 'assistant' | 'error'
   content: string
   meta?: string
+  trajectory?: ToolTrace[]
 }
 
 type HeaderRow = { id: number; name: string; value: string }
@@ -66,6 +72,9 @@ let nextHeaderID = 1
 function App() {
   const [status, setStatus] = useState<Status>(emptyStatus)
   const [messages, setMessages] = useState<Message[]>([])
+  const [conversations, setConversations] = useState<ConversationSummary[]>([])
+  const [workspaces, setWorkspaces] = useState<WorkspaceItem[]>([])
+  const [activeConversationID, setActiveConversationID] = useState('')
   const [activity, setActivity] = useState<AgentActivity[]>([])
   const [prompt, setPrompt] = useState('')
   const [busy, setBusy] = useState(false)
@@ -96,7 +105,7 @@ function App() {
   const messagesEnd = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    Backend.Status().then(setStatus).catch((error: unknown) => {
+    Backend.Bootstrap().then(applyBootstrap).catch((error: unknown) => {
       setStatus(new Status({ ...emptyStatus, state: ModelState.ModelError, message: errorText(error) }))
     })
     const offStatus = Events.On('model:status', (event) => {
@@ -104,7 +113,7 @@ function App() {
     })
     const offAgent = Events.On('agent:event', (event) => {
       const item = event.data as AgentActivity
-      setActivity((current) => [...current.slice(-7), item])
+      setActivity((current) => [...current.slice(-39), item])
     })
     return () => {
       offStatus()
@@ -118,9 +127,54 @@ function App() {
 
   const ready = status.state === ModelState.ModelReady
   const workspaceName = useMemo(() => {
-    const parts = status.workspace.split('/').filter(Boolean)
+    const parts = status.workspace.split(/[\\/]/).filter(Boolean)
     return parts.at(-1) || 'Workspace'
   }, [status.workspace])
+
+  function applyBootstrap(value: AppBootstrap) {
+    setStatus(Status.createFrom(value.status))
+    setConversations(value.conversations || [])
+    setWorkspaces(value.workspaces || [])
+    applyConversation(value.conversation || undefined)
+    if (value.hasConfig) applyConfig(value.config)
+    if (value.warning) setSettingsMessage(value.warning)
+  }
+
+  function applyConversation(value?: ConversationView) {
+    setActiveConversationID(value?.id || '')
+    setMessages((value?.messages || []).map((message) => ({
+      id: message.id,
+      role: message.role as Message['role'],
+      content: message.content,
+      meta: message.meta,
+      trajectory: message.trajectory as ToolTrace[] | undefined,
+    })))
+    setActivity([])
+    setPrompt('')
+  }
+
+  function applyConfig(config: Config) {
+    const remote = config.provider === Provider.ProviderRWKVLightning || config.provider === Provider.ProviderChatCompletions
+    setSettingsTab(remote ? 'remote' : 'local')
+    setModelPath(config.provider === Provider.ProviderLocal ? config.model : '')
+    setTokenizerPath(config.tokenizerPath || '')
+    setRemoteEndpoint(remote ? config.endpoint || '' : '')
+    setRemoteModel(remote ? config.model : '')
+    setRemoteProtocol(config.provider === Provider.ProviderChatCompletions ? 'openai' : 'rwkv')
+    setAPIKey(config.provider === Provider.ProviderChatCompletions ? config.apiKey || '' : config.password || '')
+    setHeaders(Object.entries(config.headers || {}).map(([name, value]) => ({ id: nextHeaderID++, name, value: value || '' })))
+    setAgentProtocol(config.agentProtocol || AgentProtocol.AgentProtocolMarkdown)
+    setProgressiveTools(config.progressiveTools ?? true)
+    setEnableWeb(config.enableWeb || false)
+    setBraveAPIKey(config.braveApiKey || '')
+    setTavilyAPIKey(config.tavilyApiKey || '')
+    setEnableSubagents(config.enableSubagents || false)
+    setMaxActiveBatch(config.maxActiveBatch || 4)
+    setRemoteBatchWaitMS(config.remoteBatchWaitMs ?? 10)
+    setSubagentMaxParallel(config.subagentMaxParallel || 4)
+    setSubagentMaxSteps(config.subagentMaxSteps || 4)
+    setSubagentTimeoutSeconds(config.subagentTimeoutSeconds || 120)
+  }
 
   async function submitMessage() {
     const value = prompt.trim()
@@ -132,23 +186,32 @@ function App() {
     }
     setPrompt('')
     setActivity([])
-    setMessages((current) => [...current, { id: nextMessageID++, role: 'user', content: value }])
+    setMessages((current) => [...current, { id: `pending-${nextMessageID++}`, role: 'user', content: value }])
     setBusy(true)
     try {
       const result = await Backend.Chat(value)
       setMessages((current) => [
         ...current,
         {
-          id: nextMessageID++,
+          id: `pending-${nextMessageID++}`,
           role: 'assistant',
           content: result.output,
           meta: `${result.steps.length} 步 · ${(result.durationMs / 1000).toFixed(1)} 秒`,
+          trajectory: result.steps.filter((step) => step.tool).map((step) => ({
+            step: step.number,
+            tool: step.tool || '',
+            status: step.toolError ? 'failed' : 'completed',
+            error: step.toolError,
+          })),
         },
       ])
+      const persisted = await Backend.Bootstrap()
+      setConversations(persisted.conversations || [])
+      setActiveConversationID(persisted.conversation?.id || '')
     } catch (error) {
       setMessages((current) => [
         ...current,
-        { id: nextMessageID++, role: 'error', content: errorText(error) },
+        { id: `error-${nextMessageID++}`, role: 'error', content: errorText(error) },
       ])
     } finally {
       setBusy(false)
@@ -168,6 +231,62 @@ function App() {
     setMessages([])
     setActivity([])
     setPrompt('')
+    setActiveConversationID('')
+  }
+
+  async function openConversation(id: string) {
+    if (busy || id === activeConversationID) return
+    setBusy(true)
+    try {
+      applyConversation(await Backend.OpenConversation(id))
+    } catch (error) {
+      setSettingsMessage(errorText(error))
+    } finally {
+      setBusy(false)
+      setSidebarOpen(false)
+    }
+  }
+
+  async function deleteConversation(id: string) {
+    if (busy) return
+    setBusy(true)
+    try {
+      await Backend.DeleteConversation(id)
+      if (id === activeConversationID) applyConversation()
+      const persisted = await Backend.Bootstrap()
+      setConversations(persisted.conversations || [])
+    } catch (error) {
+      setSettingsMessage(errorText(error))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function chooseWorkspace() {
+    if (busy) return
+    setBusy(true)
+    try {
+      applyBootstrap(await Backend.ChooseWorkspace())
+    } catch (error) {
+      const message = errorText(error)
+      if (!message.toLowerCase().includes('cancel')) setSettingsMessage(message)
+    } finally {
+      setBusy(false)
+      setSidebarOpen(false)
+    }
+  }
+
+  async function openWorkspace(path: string) {
+    if (busy) return
+    setBusy(true)
+    try {
+      applyBootstrap(await Backend.OpenWorkspace(path))
+    } catch (error) {
+      setSettingsMessage(errorText(error))
+    } finally {
+      setBusy(false)
+      setSidebarOpen(false)
+    }
   }
 
   async function configureLocal(event: FormEvent) {
@@ -187,7 +306,6 @@ function App() {
       setStatus(configured)
       setSettingsMessage('本地模型已就绪。')
       setSettingsOpen(false)
-      setMessages([])
     } catch (error) {
       setSettingsMessage(errorText(error))
     } finally {
@@ -258,7 +376,6 @@ function App() {
       setStatus(configured)
       setSettingsMessage('远端模型已就绪。')
       setSettingsOpen(false)
-      setMessages([])
     } catch (error) {
       setSettingsMessage(errorText(error))
     } finally {
@@ -289,16 +406,31 @@ function App() {
         </button>
         <div className="section-heading">
           <span>工作区</span>
-          <div className="section-actions"><SlidersHorizontal size={16} /><Plus size={17} /></div>
+          <button className="section-action" type="button" onClick={() => void chooseWorkspace()} aria-label="打开项目" title="打开项目"><Plus size={17} /></button>
         </div>
-        <div className="workspace-row">
-          <Folder size={18} />
-          <span>{workspaceName}</span>
-        </div>
-        <div className="session-row active"><span>新会话</span></div>
-        {messages.length > 0 && (
-          <div className="session-row"><span>{messages.find((message) => message.role === 'user')?.content}</span><time>刚刚</time></div>
-        )}
+        {workspaces.map((workspace) => (
+          <button
+            type="button"
+            className={`workspace-row ${workspace.active ? 'active' : ''}`}
+            disabled={!workspace.available || busy}
+            onClick={() => void openWorkspace(workspace.path)}
+            title={workspace.path}
+            key={workspace.path}
+          >
+            <Folder size={18} />
+            <span>{workspace.name}</span>
+          </button>
+        ))}
+        <div className="section-heading conversation-heading"><span>对话</span></div>
+        {conversations.length === 0 && <div className="empty-sessions">暂无历史对话</div>}
+        {conversations.map((conversation) => (
+          <div className={`session-row ${conversation.id === activeConversationID ? 'active' : ''}`} key={conversation.id}>
+            <button type="button" onClick={() => void openConversation(conversation.id)} disabled={busy} title={conversation.title}>
+              <span>{conversation.title}</span><time>{relativeTime(conversation.updatedAt)}</time>
+            </button>
+            <button type="button" className="session-delete" onClick={() => void deleteConversation(conversation.id)} disabled={busy} aria-label={`删除对话 ${conversation.title}`} title="删除对话"><Trash2 size={14} /></button>
+          </div>
+        ))}
         <div className="sidebar-spacer" />
         <button className="settings-button" onClick={() => setSettingsOpen(true)}>
           <Settings size={17} />
@@ -309,7 +441,7 @@ function App() {
       <main className={`main ${messages.length > 0 ? 'has-conversation' : ''}`}>
         <header className="topbar">
           <div />
-          <button className={`model-status ${status.state}`} onClick={() => setSettingsOpen(true)}>
+          <button className={`model-status ${status.state}`} onClick={() => setSettingsOpen(true)} title={statusLabel(status)}>
             <span className="status-dot" />
             <span>{statusLabel(status)}</span>
             <ChevronDown size={14} />
@@ -334,6 +466,7 @@ function App() {
               onSubmit={submitMessage}
               onKeyDown={onComposerKeyDown}
               openSettings={() => setSettingsOpen(true)}
+              chooseWorkspace={chooseWorkspace}
             />
             {!ready && (
               <button className="setup-hint" onClick={() => setSettingsOpen(true)}>
@@ -352,7 +485,12 @@ function App() {
                   </div>
                   <div className="message-body">
                     <div className="message-label">{message.role === 'user' ? '你' : message.role === 'error' ? '错误' : 'RWKV Agent'}</div>
-                    <div className="message-content">{message.content}</div>
+                    {message.trajectory && message.trajectory.length > 0 && (
+                      <ToolTrajectory calls={message.trajectory} done />
+                    )}
+                    <div className="message-content">
+                      {message.role === 'assistant' ? <MarkdownMessage content={message.content} /> : message.content}
+                    </div>
                     {message.meta && <div className="message-meta">{message.meta}</div>}
                   </div>
                 </article>
@@ -362,16 +500,7 @@ function App() {
                   <div className="message-avatar"><Bot size={17} /></div>
                   <div className="message-body">
                     <div className="message-label">RWKV Agent</div>
-                    <div className="activity-card">
-                      <LoaderCircle className="spin" size={17} />
-                      <span>{activityLabel(activity.at(-1))}</span>
-                    </div>
-                    {activity.filter((item) => item.tool).slice(-4).map((item, index) => (
-                      <div className="tool-row" key={`${item.kind}-${item.step}-${index}`}>
-                        {item.error ? <X size={14} /> : item.kind === 'tool_done' ? <Check size={14} /> : <FileText size={14} />}
-                        <span>步骤 {item.step} · {item.tool}{item.kind === 'tool_done' ? ' 完成' : ''}</span>
-                      </div>
-                    ))}
+                    <ToolTrajectory calls={activityToolTrace(activity)} done={false} status={activityLabel(activity.at(-1))} />
                   </div>
                 </article>
               )}
@@ -388,6 +517,7 @@ function App() {
                 onSubmit={submitMessage}
                 onKeyDown={onComposerKeyDown}
                 openSettings={() => setSettingsOpen(true)}
+                chooseWorkspace={chooseWorkspace}
               />
             </div>
           </section>
@@ -432,7 +562,7 @@ function App() {
                 <label>API 地址<input value={remoteEndpoint} onChange={(event) => setRemoteEndpoint(event.target.value)} placeholder="https://example.com 或 …/v1/models" required /></label>
                 <div className="inline-fields">
                   <label>模型 ID<input value={remoteModel} onChange={(event) => setRemoteModel(event.target.value)} placeholder="选择或输入模型" required /></label>
-					<label>{remoteProtocol === 'rwkv' ? '服务密码' : 'API Key'} <small>可选</small><input type="password" value={apiKey} onChange={(event) => setAPIKey(event.target.value)} placeholder="仅保存在内存" autoComplete="off" /></label>
+					<label>{remoteProtocol === 'rwkv' ? '服务密码' : 'API Key'} <small>可选</small><input type="password" value={apiKey} onChange={(event) => setAPIKey(event.target.value)} placeholder="保存到本机配置" autoComplete="off" /></label>
                 </div>
                 {availableModels.length > 0 && (
                   <div className="model-pills">{availableModels.slice(0, 8).map((model) => <button type="button" className={remoteModel === model.id ? 'active' : ''} key={model.id} onClick={() => setRemoteModel(model.id)}>{model.id}</button>)}</div>
@@ -514,8 +644,8 @@ function CapabilitySettings(props: CapabilitySettingsProps) {
       </label>
       {props.enableWeb && (
         <div className="inline-fields capability-fields">
-          <label>Brave API Key<input type="password" value={props.braveAPIKey} onChange={(event) => props.setBraveAPIKey(event.target.value)} placeholder="仅保存在内存" autoComplete="off" required /></label>
-          <label>Tavily API Key<input type="password" value={props.tavilyAPIKey} onChange={(event) => props.setTavilyAPIKey(event.target.value)} placeholder="仅保存在内存" autoComplete="off" required /></label>
+          <label>Brave API Key<input type="password" value={props.braveAPIKey} onChange={(event) => props.setBraveAPIKey(event.target.value)} placeholder="保存到本机配置" autoComplete="off" required /></label>
+          <label>Tavily API Key<input type="password" value={props.tavilyAPIKey} onChange={(event) => props.setTavilyAPIKey(event.target.value)} placeholder="保存到本机配置" autoComplete="off" required /></label>
         </div>
       )}
       <label className="toggle-row">
@@ -545,20 +675,25 @@ type ComposerProps = {
   onSubmit: () => Promise<void>
   onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void
   openSettings: () => void
+  chooseWorkspace: () => Promise<void>
 }
 
-function Composer({ prompt, setPrompt, busy, ready, workspace, model, onSubmit, onKeyDown, openSettings }: ComposerProps) {
+function Composer({ prompt, setPrompt, busy, ready, workspace, model, onSubmit, onKeyDown, openSettings, chooseWorkspace }: ComposerProps) {
   return (
     <div className="composer-card">
       <textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} onKeyDown={onKeyDown} placeholder="描述你想要完成的任务" rows={3} disabled={busy} aria-label="消息" />
       <div className="composer-toolbar">
         <div className="composer-options">
           <button type="button" className="round-button" aria-label="添加附件"><Plus size={19} /></button>
-          <button type="button" className="option-chip"><Folder size={15} />{workspace}<ChevronDown size={13} /></button>
-          <button type="button" className="option-chip"><Sparkles size={15} />标准模式<ChevronDown size={13} /></button>
+          <button type="button" className="option-chip" onClick={() => void chooseWorkspace()}><Folder size={15} /><span>{workspace}</span><ChevronDown size={13} /></button>
+          <button type="button" className="option-chip"><Sparkles size={15} /><span>标准模式</span><ChevronDown size={13} /></button>
         </div>
         <div className="composer-actions">
-          <button type="button" className="model-chip" onClick={openSettings}><span className={`mini-dot ${ready ? 'ready' : ''}`} />{model}<ChevronDown size={13} /></button>
+          <button type="button" className="model-chip" onClick={openSettings} title={model}>
+            <span className={`mini-dot ${ready ? 'ready' : ''}`} />
+            <span className="model-chip-name">{model}</span>
+            <ChevronDown size={13} />
+          </button>
           <button type="button" className="send-button" onClick={() => void onSubmit()} disabled={!prompt.trim() || busy} aria-label="发送">{busy ? <LoaderCircle className="spin" size={19} /> : <ArrowUp size={20} />}</button>
         </div>
       </div>
@@ -591,6 +726,43 @@ function activityLabel(item?: AgentActivity) {
   if (item.kind === 'tool_done') return `步骤 ${item.step} · ${item.tool} 已完成`
   if (item.kind === 'protocol_retry') return `步骤 ${item.step} · 正在重试`
   return 'Agent 正在工作…'
+}
+
+function activityToolTrace(activity: AgentActivity[]): ToolTrace[] {
+  const calls: ToolTrace[] = []
+  const callIndexes = new Map<string, number>()
+  for (const item of activity) {
+    if (!item.tool) continue
+    const key = `${item.step || 0}:${item.tool}`
+    const existing = callIndexes.get(key)
+    const call: ToolTrace = {
+      step: item.step || 0,
+      tool: item.tool,
+      status: item.kind === 'tool_done' ? item.error ? 'failed' : 'completed' : 'running',
+      error: item.error,
+    }
+    if (existing === undefined) {
+      callIndexes.set(key, calls.length)
+      calls.push(call)
+    } else {
+      calls[existing] = call
+    }
+  }
+  return calls
+}
+
+function relativeTime(value: string) {
+  const timestamp = new Date(value).getTime()
+  if (!Number.isFinite(timestamp)) return ''
+  const elapsedSeconds = Math.max(0, Math.floor((Date.now() - timestamp) / 1000))
+  if (elapsedSeconds < 60) return '刚刚'
+  const elapsedMinutes = Math.floor(elapsedSeconds / 60)
+  if (elapsedMinutes < 60) return `${elapsedMinutes} 分钟前`
+  const elapsedHours = Math.floor(elapsedMinutes / 60)
+  if (elapsedHours < 24) return `${elapsedHours} 小时前`
+  const elapsedDays = Math.floor(elapsedHours / 24)
+  if (elapsedDays < 7) return `${elapsedDays} 天前`
+  return new Intl.DateTimeFormat('zh-CN', { month: 'numeric', day: 'numeric' }).format(timestamp)
 }
 
 function errorText(error: unknown) {

@@ -5,3 +5,13 @@ import * as AppService from "./appservice.js";
 export {
     AppService
 };
+
+export {
+    AppBootstrap,
+    ConversationSummary,
+    ConversationView,
+    DisplayMessage,
+    StoragePaths,
+    ToolTrace,
+    WorkspaceItem
+} from "./models.js";

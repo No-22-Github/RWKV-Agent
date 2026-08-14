@@ -140,6 +140,25 @@ type RemoteModel struct {
 	ID string `json:"id"`
 }
 
+// ToolCall is one native tool invocation retained in a conversation transcript.
+type ToolCall struct {
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	Arguments string `json:"arguments"`
+}
+
+// ConversationMessage is one complete Harness transcript entry. Unlike the
+// presentation-only chat messages, this also retains tool calls and results so
+// a restored session has the same semantic context as the original session.
+type ConversationMessage struct {
+	Role             string     `json:"role"`
+	Content          string     `json:"content,omitempty"`
+	ReasoningContent string     `json:"reasoningContent,omitempty"`
+	Name             string     `json:"name,omitempty"`
+	ToolCallID       string     `json:"toolCallId,omitempty"`
+	ToolCalls        []ToolCall `json:"toolCalls,omitempty"`
+}
+
 // Options configure a Service independently of a model.
 type Options struct {
 	Workspace string
