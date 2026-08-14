@@ -1,0 +1,28 @@
+{
+  "name": "weighted_vote_winner",
+  "title": "Weighted Vote Winner",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "votes.csv has candidate and weight. Which candidate has the highest total weight? Submit the name.",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "votes.csv": [
+        "candidate,weight",
+        "Oak,2",
+        "Pine,5",
+        "Oak,5",
+        "Maple,6",
+        "Pine,1"
+      ]
+    },
+    "expected_submit": "Oak",
+    "required_tools": [
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 12,
+  "suite": "fb_multihop"
+}

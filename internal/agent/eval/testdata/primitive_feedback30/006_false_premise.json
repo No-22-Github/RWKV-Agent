@@ -1,0 +1,26 @@
+{
+  "name": "false_premise",
+  "title": "False Premise Then Answer",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "inventory.csv supposedly has a SKU named ZX-999. What is its unit price? If that SKU does not exist, submit exactly NONE.",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "inventory.csv": [
+        "sku,name,unit_price",
+        "AA-100,Anchor,12.50",
+        "BB-200,Bolt,3.25",
+        "CC-300,Clamp,7.80"
+      ]
+    },
+    "expected_submit": "NONE",
+    "required_tools": [
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 12,
+  "suite": "fb_weak_binding"
+}

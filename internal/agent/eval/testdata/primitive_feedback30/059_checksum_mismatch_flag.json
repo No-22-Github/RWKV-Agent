@@ -1,0 +1,27 @@
+{
+  "name": "checksum_mismatch_flag",
+  "title": "Checksum Mismatch Flag",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "bytes.txt lists decimal byte values. Sum them, mod 256, compare to checksum.txt. Submit OK if equal else BAD.",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "bytes.txt": [
+        "65",
+        "66"
+      ],
+      "checksum.txt": [
+        "131"
+      ]
+    },
+    "expected_submit": "OK",
+    "required_tools": [
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 12,
+  "suite": "fb_policy"
+}

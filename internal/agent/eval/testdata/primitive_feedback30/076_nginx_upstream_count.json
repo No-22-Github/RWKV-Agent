@@ -1,0 +1,30 @@
+{
+  "name": "nginx_upstream_count",
+  "title": "Nginx Upstream Count",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "How many server lines are under upstream api_backend in nginx.conf? Submit count.",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "nginx.conf": [
+        "upstream api_backend {",
+        "  server 10.0.0.1:8080;",
+        "  server 10.0.0.2:8080;",
+        "  server 10.0.0.3:8080;",
+        "}",
+        "upstream other {",
+        "  server 10.0.1.1:80;",
+        "}"
+      ]
+    },
+    "expected_submit": "3",
+    "required_tools": [
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 12,
+  "suite": "fb_ops"
+}

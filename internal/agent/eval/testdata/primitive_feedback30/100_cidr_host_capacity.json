@@ -1,0 +1,23 @@
+{
+  "name": "cidr_host_capacity",
+  "title": "CIDR Host Capacity",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "net.txt is CIDR. Usable hosts = 2^(32-prefix)-2. Submit usable hosts for this network.",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "net.txt": [
+        "192.168.1.0/30"
+      ]
+    },
+    "expected_submit": "2",
+    "required_tools": [
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 12,
+  "suite": "fb_encoding"
+}

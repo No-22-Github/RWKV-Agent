@@ -1,0 +1,27 @@
+{
+  "name": "meeting_room_conflict",
+  "title": "Meeting Room Conflict",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "Read calendar.csv. A room is busy at 14:00 if start<=14:00 and end>14:00 on 2026-08-05. Submit the name of the room that is not busy.",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "calendar.csv": [
+        "room,date,start,end",
+        "Aurora,2026-08-05,13:00,15:00",
+        "Beacon,2026-08-05,09:00,10:00",
+        "Cedar,2026-08-05,14:00,16:00",
+        "Beacon,2026-08-05,11:00,12:00"
+      ]
+    },
+    "expected_submit": "Beacon",
+    "required_tools": [
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 12,
+  "suite": "fb_entity_bind"
+}

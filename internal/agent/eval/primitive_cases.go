@@ -12,11 +12,33 @@ import (
 )
 
 const (
-	SuitePrimitive         = "primitive"
-	maxPrimitiveCaseCount  = 512
-	maxPrimitiveSuiteBytes = 64 << 20
-	primitiveSourceBase    = "https://github.com/RWKV-Vibe/rwkv-Primitive-Bench/blob/416b073d2c5442ae34bfbf8a3b84ed414b5b85ff"
+	// SuitePrimitive is retained for trusted external Primitive case directories
+	// and as a legacy alias for the original built-in suite.
+	SuitePrimitive           = "primitive"
+	SuitePrimitiveOrig30     = "primitive-orig30"
+	SuitePrimitiveFeedback30 = "primitive-feedback30"
+	maxPrimitiveCaseCount    = 512
+	maxPrimitiveSuiteBytes   = 64 << 20
+	primitiveSourceBase      = "https://github.com/RWKV-Vibe/rwkv-Primitive-Bench/blob/416b073d2c5442ae34bfbf8a3b84ed414b5b85ff"
 )
+
+// CanonicalBuiltinSuiteName maps legacy built-in names to their explicit,
+// dataset-qualified names. External Primitive directories continue to use the
+// generic SuitePrimitive manifest value.
+func CanonicalBuiltinSuiteName(name string) string {
+	if name == SuitePrimitive {
+		return SuitePrimitiveOrig30
+	}
+	return name
+}
+
+// IsPrimitiveSuite reports whether a built-in suite uses the Primitive Bench
+// protocol, case-specific turn budgets, tools, and scoring runtime.
+func IsPrimitiveSuite(name string) bool {
+	return name == SuitePrimitive ||
+		name == SuitePrimitiveOrig30 ||
+		name == SuitePrimitiveFeedback30
+}
 
 var primitiveToolSets = map[string][]string{
 	"multiply":           {"multiply"},

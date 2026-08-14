@@ -1,0 +1,29 @@
+{
+  "name": "openapi_path_method",
+  "title": "OpenAPI Path Method",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "openapi.yaml: which HTTP method is defined for path /health? Submit the method in uppercase.",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "openapi.yaml": [
+        "paths:",
+        "  /health:",
+        "    get:",
+        "      summary: Health",
+        "  /items:",
+        "    post:",
+        "      summary: Create"
+      ]
+    },
+    "expected_submit": "GET",
+    "required_tools": [
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 12,
+  "suite": "fb_ops"
+}

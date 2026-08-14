@@ -1,0 +1,23 @@
+{
+  "name": "snake_to_camel",
+  "title": "Snake To Camel",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "ident.txt is snake_case. Convert to camelCase. Algorithm: split on _; keep part0 as-is; for each later part, uppercase its first character and append. Submit one identifier.",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "ident.txt": [
+        "payment_retry_count"
+      ]
+    },
+    "expected_submit": "paymentRetryCount",
+    "required_tools": [
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 10,
+  "suite": "fb_encoding"
+}

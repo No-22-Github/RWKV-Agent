@@ -1,0 +1,25 @@
+{
+  "name": "boolean_expr_eval",
+  "title": "Boolean Expr Eval",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "flags.env: compute (DEBUG and not PROD) or FORCE using true/false words. Submit true or false.",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "flags.env": [
+        "DEBUG=true",
+        "PROD=true",
+        "FORCE=false"
+      ]
+    },
+    "expected_submit": "false",
+    "required_tools": [
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 12,
+  "suite": "fb_policy"
+}

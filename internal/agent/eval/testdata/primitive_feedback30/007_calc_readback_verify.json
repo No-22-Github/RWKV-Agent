@@ -1,0 +1,30 @@
+{
+  "name": "calc_readback_verify",
+  "title": "Calculation Readback Verify",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "Add every qty in sales.csv. Then read check.txt. If your sum equals the number in check.txt submit that number; otherwise submit MISMATCH.",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "sales.csv": [
+        "item,qty",
+        "apple,5",
+        "pear,12",
+        "plum,8",
+        "kiwi,7"
+      ],
+      "check.txt": [
+        "30"
+      ]
+    },
+    "expected_submit": "MISMATCH",
+    "required_tools": [
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 12,
+  "suite": "fb_weak_binding"
+}

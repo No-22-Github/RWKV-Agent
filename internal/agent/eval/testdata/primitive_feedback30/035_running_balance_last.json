@@ -1,0 +1,27 @@
+{
+  "name": "running_balance_last",
+  "title": "Running Balance Last",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "ledger.txt: start from opening, then apply each delta in order. Submit final balance.",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "ledger.txt": [
+        "opening=1000",
+        "delta=-120",
+        "delta=50",
+        "delta=-30",
+        "delta=10"
+      ]
+    },
+    "expected_submit": "910",
+    "required_tools": [
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 12,
+  "suite": "fb_multihop"
+}

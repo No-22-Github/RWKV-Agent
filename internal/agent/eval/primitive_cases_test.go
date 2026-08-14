@@ -387,6 +387,106 @@ func TestPrimitiveCasesEmbeddedSnapshot(t *testing.T) {
 			t.Fatalf("embedded case %q source = %q", testCase.ID, testCase.Source)
 		}
 	}
+	canonical, err := BuiltinSuite(SuitePrimitiveOrig30)
+	if err != nil {
+		t.Fatal(err)
+	}
+	legacy, err := BuiltinSuite(SuitePrimitive)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(canonical) != primitiveOrig30Count || len(legacy) != primitiveOrig30Count ||
+		CanonicalBuiltinSuiteName(SuitePrimitive) != SuitePrimitiveOrig30 {
+		t.Fatalf(
+			"Primitive orig30 suite routing = canonical:%d legacy:%d alias:%q",
+			len(canonical),
+			len(legacy),
+			CanonicalBuiltinSuiteName(SuitePrimitive),
+		)
+	}
+}
+
+func TestPrimitiveFeedback30CasesEmbeddedSnapshot(t *testing.T) {
+	t.Parallel()
+
+	wantIDs := []string{
+		"lts_eol_status",
+		"repo_path_precise",
+		"false_premise",
+		"calc_readback_verify",
+		"install_command_literal",
+		"id_cross_table_bind",
+		"commit_author_date_bind",
+		"meeting_room_conflict",
+		"branch_pr_author_bind",
+		"top_n_with_tiebreak",
+		"running_balance_last",
+		"weighted_vote_winner",
+		"csv_null_skip_avg",
+		"unique_pair_count",
+		"ratio_safe_divide",
+		"csv_schema_mismatch_cols",
+		"policy_refund_exceeds_cap",
+		"policy_vip_override",
+		"checksum_mismatch_flag",
+		"insufficient_evidence",
+		"boolean_expr_eval",
+		"set_difference_report",
+		"nginx_upstream_count",
+		"dockerfile_user_name",
+		"openapi_path_method",
+		"env_subst_literal",
+		"cidr_host_capacity",
+		"url_query_param",
+		"snake_to_camel",
+		"round_half_up",
+	}
+	cases, err := PrimitiveFeedback30Cases()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(cases) != primitiveFeedback30Count {
+		t.Fatalf("embedded Primitive feedback case count = %d, want %d", len(cases), primitiveFeedback30Count)
+	}
+	gotIDs := make([]string, len(cases))
+	for index, testCase := range cases {
+		gotIDs[index] = testCase.ID
+		if testCase.primitive == nil || testCase.Primitive == nil {
+			t.Fatalf("embedded feedback case %q has no Primitive metadata", testCase.ID)
+		}
+		if !strings.Contains(testCase.Source, "416b073d2c5442ae34bfbf8a3b84ed414b5b85ff/agent_cases_feedback/") {
+			t.Fatalf("embedded feedback case %q source = %q", testCase.ID, testCase.Source)
+		}
+		if !slices.Equal(testCase.primitive.toolNames, primitiveToolSets["nav"]) {
+			t.Fatalf("embedded feedback case %q tools = %v", testCase.ID, testCase.primitive.toolNames)
+		}
+		if testCase.primitive.scorer != "submit" || testCase.primitive.expectedSubmit == nil {
+			t.Fatalf("embedded feedback case %q runtime = %+v", testCase.ID, testCase.primitive)
+		}
+		if !slices.Equal(testCase.Turns[0].Expect.RequiredTools, []string{"submit"}) {
+			t.Fatalf("embedded feedback case %q required tools = %v", testCase.ID, testCase.Turns[0].Expect.RequiredTools)
+		}
+		if testCase.ID == "weighted_vote_winner" {
+			const wantVotes = "candidate,weight\nOak,2\nPine,5\nOak,5\nMaple,6\nPine,1\n"
+			if testCase.Files["votes.csv"] != wantVotes || *testCase.primitive.expectedSubmit != "Oak" {
+				t.Fatalf(
+					"weighted vote correction = votes:%q expected:%q",
+					testCase.Files["votes.csv"],
+					*testCase.primitive.expectedSubmit,
+				)
+			}
+		}
+	}
+	if !slices.Equal(gotIDs, wantIDs) {
+		t.Fatalf("embedded Primitive feedback IDs = %v, want %v", gotIDs, wantIDs)
+	}
+	builtin, err := BuiltinSuite(SuitePrimitiveFeedback30)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(builtin) != primitiveFeedback30Count || !IsPrimitiveSuite(SuitePrimitiveFeedback30) {
+		t.Fatalf("Primitive feedback suite routing = %d cases, primitive=%t", len(builtin), IsPrimitiveSuite(SuitePrimitiveFeedback30))
+	}
 }
 
 func TestPrimitiveToolContractsMatchUpstreamSnapshot(t *testing.T) {

@@ -1,0 +1,23 @@
+{
+  "name": "round_half_up",
+  "title": "Round Half Up",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "Round value in n.txt to integer with half-up. Submit integer.",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "n.txt": [
+        "2.5"
+      ]
+    },
+    "expected_submit": "3",
+    "required_tools": [
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 12,
+  "suite": "fb_encoding"
+}

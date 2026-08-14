@@ -1,0 +1,27 @@
+{
+  "name": "env_subst_literal",
+  "title": "Env Subst Literal",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "template.txt uses ${PORT}. Substitute from values.env and submit the resulting line.",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "template.txt": [
+        "listen ${PORT}"
+      ],
+      "values.env": [
+        "PORT=8443",
+        "HOST=0.0.0.0"
+      ]
+    },
+    "expected_submit": "listen 8443",
+    "required_tools": [
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 12,
+  "suite": "fb_ops"
+}

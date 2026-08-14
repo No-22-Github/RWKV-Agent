@@ -514,7 +514,8 @@ Chat Completions 模型使用同一套评测：
 仓库内置了
 [`RWKV-Vibe/rwkv-Primitive-Bench`](https://github.com/RWKV-Vibe/rwkv-Primitive-Bench)
 `agent_cases_orig30` 的 30-case 固定快照。JSON 会嵌入 CLI，因此本地、CI 和外部模型
-评测使用完全相同的 prompt、fixture 与评分契约，不需要先 clone 上游仓库：
+评测使用完全相同的 prompt、fixture 与评分契约，不需要先 clone 上游仓库。规范 suite
+名称为 `primitive-orig30`；旧名称 `primitive` 仍作为兼容别名接受：
 
 Primitive suite 有两种显式工具 profile：
 
@@ -527,7 +528,7 @@ Primitive suite 有两种显式工具 profile：
 ```sh
 ./dist/rwkv-cli agent-eval \
   --model /absolute/path/to/rwkv7-model.pth \
-  --suite primitive \
+  --suite primitive-orig30 \
   --primitive-profile go-native \
   --output runs/primitive-orig30-local
 ```
@@ -544,7 +545,7 @@ export OPENAI_API_KEY='...'
   --completion chat-completions \
   --api-url https://example.com/v1/chat/completions \
   --model other-model \
-  --suite primitive \
+  --suite primitive-orig30 \
   --output runs/primitive-orig30-external
 ```
 
@@ -563,7 +564,7 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
   --api-header-env CF-Access-Client-Secret=RWKV_CF_ACCESS_CLIENT_SECRET \
   --api-stop-tokens cuda \
   --model rwkv7-g1i \
-  --suite primitive \
+  --suite primitive-orig30 \
   --output runs/primitive-orig30-rwkv-cuda
 ```
 
@@ -577,6 +578,25 @@ checkout，仍可通过 `--cases ../rwkv-Primitive-Bench/agent_cases_orig30` 加
 
 当前 v12 实测基线与失败分类见
 [`docs/primitive-bench-v12-baseline-2026-08-13.md`](docs/primitive-bench-v12-baseline-2026-08-13.md)。
+
+#### 运行精选 Primitive Bench feedback 30 题
+
+仓库还内置了同一上游 commit 的 `agent_cases_feedback` 精选 30 题，作为独立的
+`primitive-feedback30` suite。它补充实体/时间绑定、聚合、策略与拒答、工程配置格式、
+编码和字符串转换，不改变 `primitive-orig30` 原始 30 题的题面、分数或历史可比性：
+
+```sh
+./dist/rwkv-cli agent-eval \
+  --model /absolute/path/to/rwkv7-model.pth \
+  --suite primitive-feedback30 \
+  --primitive-profile go-native \
+  --output runs/primitive-feedback30-local
+```
+
+这 30 题全部沿用上游 `nav` 工具集、`submit` 精确评分和逐题 `max_turns`（10–14）。
+默认仍是 `upstream-compatible`；示例显式选择 `go-native`，以本项目的 `calculator` 和
+`data_query` 替代 `run_lua`。固定题目清单、选择说明和来源信息见
+[`internal/agent/eval/testdata/primitive_feedback30/UPSTREAM.md`](internal/agent/eval/testdata/primitive_feedback30/UPSTREAM.md)。
 
 工具对齐遵循“相同公开契约、相同可观察状态变化、使用本 Harness 控制循环”：
 

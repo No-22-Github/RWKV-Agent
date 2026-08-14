@@ -1,0 +1,27 @@
+{
+  "name": "top_n_with_tiebreak",
+  "title": "Top N With Tiebreak",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "scores.csv: select the row with the maximum score; if multiple rows share that score, choose the name that comes first in alphabetical order. Submit the name.",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "scores.csv": [
+        "name,score",
+        "Zoe,90",
+        "Amy,95",
+        "Ben,95",
+        "Cal,88"
+      ]
+    },
+    "expected_submit": "Amy",
+    "required_tools": [
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 10,
+  "suite": "fb_multihop"
+}

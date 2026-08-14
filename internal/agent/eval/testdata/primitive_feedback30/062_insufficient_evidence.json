@@ -1,0 +1,25 @@
+{
+  "name": "insufficient_evidence",
+  "title": "Insufficient Evidence",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "deploy.log reports hosts. Look specifically for host hx-9. If hx-9 is absent submit INCONCLUSIVE.",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "deploy.log": [
+        "hx-1 OK",
+        "hx-2 OK",
+        "hx-3 FAIL"
+      ]
+    },
+    "expected_submit": "INCONCLUSIVE",
+    "required_tools": [
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 10,
+  "suite": "fb_policy"
+}

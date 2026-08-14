@@ -1,0 +1,32 @@
+{
+  "name": "id_cross_table_bind",
+  "title": "ID Cross Table Binding",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "orders.csv references customer_id. What is the full name of the customer for order ORD-9? Submit First Last.",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "orders.csv": [
+        "order_id,customer_id,total",
+        "ORD-7,C-01,12.00",
+        "ORD-9,C-03,44.50",
+        "ORD-11,C-02,9.99"
+      ],
+      "customers.csv": [
+        "customer_id,first,last",
+        "C-01,Ann,Lee",
+        "C-02,Bo,Kim",
+        "C-03,Cy,Ortiz"
+      ]
+    },
+    "expected_submit": "Cy Ortiz",
+    "required_tools": [
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 12,
+  "suite": "fb_entity_bind"
+}

@@ -1,0 +1,23 @@
+{
+  "name": "url_query_param",
+  "title": "URL Query Param",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "url.txt is a URL. Submit only the value of the q query parameter (not the whole query string).",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "url.txt": [
+        "https://example.com/search?q=widgets&lang=en"
+      ]
+    },
+    "expected_submit": "widgets",
+    "required_tools": [
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 12,
+  "suite": "fb_encoding"
+}

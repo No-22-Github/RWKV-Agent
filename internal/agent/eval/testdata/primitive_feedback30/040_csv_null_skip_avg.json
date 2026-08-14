@@ -1,0 +1,28 @@
+{
+  "name": "csv_null_skip_avg",
+  "title": "CSV Null Skip Average",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "metrics.csv: average the latency_ms column, skipping empty cells. Submit integer average (floor).",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "metrics.csv": [
+        "req,latency_ms",
+        "a,100",
+        "b,",
+        "c,200",
+        "d,150",
+        "e,"
+      ]
+    },
+    "expected_submit": "150",
+    "required_tools": [
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 12,
+  "suite": "fb_multihop"
+}

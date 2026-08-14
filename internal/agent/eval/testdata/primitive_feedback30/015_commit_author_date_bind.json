@@ -1,0 +1,27 @@
+{
+  "name": "commit_author_date_bind",
+  "title": "Commit Author Date Binding",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "Read git_log.txt. Submit the YYYY-MM-DD of the line that contains both author dana and BUG-441.",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "git_log.txt": [
+        "2026-01-10 alice feat: add cache",
+        "2026-01-12 bob fix: typo in README",
+        "2026-01-14 dana fix: BUG-441 null guard",
+        "2026-01-15 dana feat: metrics export",
+        "2026-01-16 carol chore: docs"
+      ]
+    },
+    "expected_submit": "2026-01-14",
+    "required_tools": [
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 12,
+  "suite": "fb_entity_bind"
+}

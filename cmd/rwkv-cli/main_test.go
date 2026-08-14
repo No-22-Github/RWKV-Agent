@@ -443,17 +443,27 @@ func TestAgentEvalOptionsAreDeterministicAndIsolated(t *testing.T) {
 	}
 	suiteOptions, err := parseRunOptions("agent-eval", []string{
 		"--model", "model",
+		"--suite", "primitive-orig30",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if suiteOptions.evalSuite != agenteval.SuitePrimitiveOrig30 || !suiteOptions.evalSuiteExplicit {
+		t.Fatalf("explicit suite options = %+v", suiteOptions)
+	}
+	legacySuiteOptions, err := parseRunOptions("agent-eval", []string{
+		"--model", "model",
 		"--suite", "primitive",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if suiteOptions.evalSuite != "primitive" || !suiteOptions.evalSuiteExplicit {
-		t.Fatalf("explicit suite options = %+v", suiteOptions)
+	if legacySuiteOptions.evalSuite != agenteval.SuitePrimitiveOrig30 {
+		t.Fatalf("legacy Primitive suite was not canonicalized: %+v", legacySuiteOptions)
 	}
 	nativeOptions, err := parseRunOptions("agent-eval", []string{
 		"--model", "model",
-		"--suite", "primitive",
+		"--suite", "primitive-orig30",
 		"--primitive-profile", "go-native",
 	})
 	if err != nil {
@@ -461,6 +471,18 @@ func TestAgentEvalOptionsAreDeterministicAndIsolated(t *testing.T) {
 	}
 	if nativeOptions.primitiveProfile != agenteval.PrimitiveProfileGoNative {
 		t.Fatalf("Primitive profile options = %+v", nativeOptions)
+	}
+	feedbackOptions, err := parseRunOptions("agent-eval", []string{
+		"--model", "model",
+		"--suite", "primitive-feedback30",
+		"--primitive-profile", "go-native",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if feedbackOptions.evalSuite != agenteval.SuitePrimitiveFeedback30 ||
+		feedbackOptions.primitiveProfile != agenteval.PrimitiveProfileGoNative {
+		t.Fatalf("Primitive feedback options = %+v", feedbackOptions)
 	}
 	if _, err := parseRunOptions("agent-eval", []string{
 		"--model", "model",

@@ -1,0 +1,36 @@
+{
+  "name": "repo_path_precise",
+  "title": "Precise Repository Path",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "Where is the production Auth middleware implemented? Report the exact repo-relative file path only.",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "src/auth/middleware.ts": [
+        "export function authMiddleware() { /* production Auth middleware */ }"
+      ],
+      "src/auth/middleware.test.ts": [
+        "test('auth middleware', () => {})"
+      ],
+      "src/legacy/auth_middleware.js": [
+        "// deprecated stub — not production"
+      ],
+      "docs/auth.md": [
+        "Production Auth middleware lives at src/auth/middleware.ts.",
+        "Ignore legacy/ and *.test.ts paths."
+      ],
+      "examples/auth/middleware.ts": [
+        "// example only"
+      ]
+    },
+    "expected_submit": "src/auth/middleware.ts",
+    "required_tools": [
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 14,
+  "suite": "fb_weak_binding"
+}

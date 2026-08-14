@@ -1,0 +1,24 @@
+{
+  "name": "ratio_safe_divide",
+  "title": "Ratio Safe Divide",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "stats.txt has hits and misses. Submit hit_rate percent as integer floor(100*hits/(hits+misses)).",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "stats.txt": [
+        "hits=17",
+        "misses=3"
+      ]
+    },
+    "expected_submit": "85",
+    "required_tools": [
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 12,
+  "suite": "fb_multihop"
+}

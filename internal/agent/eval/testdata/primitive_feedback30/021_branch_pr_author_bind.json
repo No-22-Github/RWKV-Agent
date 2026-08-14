@@ -1,0 +1,28 @@
+{
+  "name": "branch_pr_author_bind",
+  "title": "Branch PR Author Binding",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "In prs.json find the object with head feature/billing-fix and base main and merged true. Submit its author.",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "prs.json": [
+        "[",
+        "  {\"number\": 10, \"author\": \"sam\", \"head\": \"feature/ui\", \"base\": \"main\", \"merged\": true},",
+        "  {\"number\": 11, \"author\": \"lee\", \"head\": \"feature/billing-fix\", \"base\": \"develop\", \"merged\": false},",
+        "  {\"number\": 12, \"author\": \"kai\", \"head\": \"feature/billing-fix\", \"base\": \"main\", \"merged\": true},",
+        "  {\"number\": 13, \"author\": \"kai\", \"head\": \"hotfix/billing\", \"base\": \"main\", \"merged\": true}",
+        "]"
+      ]
+    },
+    "expected_submit": "kai",
+    "required_tools": [
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 10,
+  "suite": "fb_entity_bind"
+}

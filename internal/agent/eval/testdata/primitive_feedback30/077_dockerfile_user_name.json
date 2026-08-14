@@ -1,0 +1,27 @@
+{
+  "name": "dockerfile_user_name",
+  "title": "Dockerfile User Name",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "Dockerfile: find every USER line and submit the username on the final USER line.",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "Dockerfile": [
+        "FROM alpine:3.19",
+        "USER root",
+        "COPY . /app",
+        "USER app",
+        "CMD [\"./run\"]"
+      ]
+    },
+    "expected_submit": "app",
+    "required_tools": [
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 10,
+  "suite": "fb_ops"
+}

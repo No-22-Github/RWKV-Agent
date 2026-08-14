@@ -1,0 +1,27 @@
+{
+  "name": "policy_refund_exceeds_cap",
+  "title": "Policy Refund Exceeds Cap",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "policy.md caps refunds at 50. Request wants 80 for order total 80. Submit ALLOW or DENY.",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "policy.md": [
+        "Refunds cannot exceed min(order_total, 50).",
+        "If request > cap, DENY."
+      ],
+      "request.json": [
+        "{\"order_total\": 80, \"refund_request\": 80}"
+      ]
+    },
+    "expected_submit": "DENY",
+    "required_tools": [
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 12,
+  "suite": "fb_policy"
+}

@@ -39,7 +39,7 @@ func Run(ctx context.Context, config Config) (Report, error) {
 	if config.CaseParallelism > len(config.Cases) {
 		config.CaseParallelism = len(config.Cases)
 	}
-	if config.Suite == SuitePrimitive {
+	if IsPrimitiveSuite(config.Suite) {
 		if config.PrimitiveProfile == "" {
 			config.PrimitiveProfile = PrimitiveProfileUpstream
 		}

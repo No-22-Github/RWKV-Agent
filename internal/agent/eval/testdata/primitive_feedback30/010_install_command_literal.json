@@ -1,0 +1,35 @@
+{
+  "name": "install_command_literal",
+  "title": "Direct Install Command",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "From docs/install.md, what is the exact package install command? Submit that command line only.",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "docs/install.md": [
+        "# Install",
+        "",
+        "Recommended:",
+        "",
+        "```",
+        "pip install hyperframe-kit==2.4.1",
+        "```",
+        "",
+        "Optional extras are documented below and are not the default install command."
+      ],
+      "docs/extras.md": [
+        "pip install 'hyperframe-kit[dev]==2.4.1'",
+        "conda install -c conda-forge hyperframe-kit"
+      ]
+    },
+    "expected_submit": "pip install hyperframe-kit==2.4.1",
+    "required_tools": [
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 12,
+  "suite": "fb_strong_baseline"
+}

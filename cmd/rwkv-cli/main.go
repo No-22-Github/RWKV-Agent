@@ -137,7 +137,7 @@ func usage() {
   rwkv-cli convert --input <RWKV .pth> --output <MLX model directory>
   rwkv-cli run --model <RWKV .pth or MLX directory> [--prompt <text> | --session <bundle>]
   rwkv-cli agent --model <path or remote model ID> [--prompt <task>] [--ui auto|tui|plain]
-  rwkv-cli agent-eval --model <path or remote model ID> [--suite boundary|smoke|assistant|primitive] [--primitive-profile upstream-compatible|go-native] [--output <directory>]
+  rwkv-cli agent-eval --model <path or remote model ID> [--suite boundary|smoke|assistant|primitive-orig30|primitive-feedback30] [--primitive-profile upstream-compatible|go-native] [--output <directory>]
   rwkv-cli concurrent --model <RWKV .pth or MLX directory> [--concurrency 1..8] [--ui auto|tui|plain]
   rwkv-cli bench --model <RWKV .pth or MLX directory> [--concurrency 1..8]`)
 }
@@ -329,7 +329,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			fs.StringVar(&options.ui, "ui", "auto", "agent renderer: auto, tui, or plain")
 			fs.StringVar(&options.workspace, "workspace", ".", "workspace root available to read-only tools")
 		} else {
-			fs.StringVar(&options.evalSuite, "suite", agenteval.SuiteBoundary, "built-in Agent eval suite: boundary, smoke, assistant, or primitive")
+			fs.StringVar(&options.evalSuite, "suite", agenteval.SuiteBoundary, "built-in Agent eval suite: boundary, smoke, assistant, primitive-orig30, or primitive-feedback30")
 			fs.StringVar(
 				&options.evalCasesPath,
 				"cases",
@@ -367,6 +367,9 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			options.chatPromptExplicit = true
 		}
 	})
+	if name == "agent-eval" {
+		options.evalSuite = agenteval.CanonicalBuiltinSuiteName(options.evalSuite)
+	}
 	if options.thinkingExplicit && options.reasoningExplicit {
 		return options, errors.New("--thinking and deprecated --reasoning cannot be used together")
 	}
@@ -457,9 +460,10 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			if options.evalSuite != agenteval.SuiteBoundary &&
 				options.evalSuite != agenteval.SuiteSmoke &&
 				options.evalSuite != agenteval.SuiteAssistant &&
-				options.evalSuite != agenteval.SuitePrimitive {
+				options.evalSuite != agenteval.SuitePrimitiveOrig30 &&
+				options.evalSuite != agenteval.SuitePrimitiveFeedback30 {
 				return options, fmt.Errorf(
-					"unsupported Agent eval suite %q; expected boundary, smoke, assistant, or primitive",
+					"unsupported Agent eval suite %q; expected boundary, smoke, assistant, primitive-orig30, or primitive-feedback30",
 					options.evalSuite,
 				)
 			}
@@ -973,7 +977,7 @@ func runAgentEval(args []string) error {
 			return fmt.Errorf("load Agent eval cases: %w", err)
 		}
 	}
-	if suite != agenteval.SuitePrimitive && options.primitiveProfile != agenteval.PrimitiveProfileUpstream {
+	if !agenteval.IsPrimitiveSuite(suite) && options.primitiveProfile != agenteval.PrimitiveProfileUpstream {
 		return errors.New("--primitive-profile go-native requires a Primitive suite or case directory")
 	}
 	cases, err = agenteval.SelectCases(cases, options.evalCaseIDs)

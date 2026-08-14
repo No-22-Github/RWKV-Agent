@@ -1,0 +1,26 @@
+{
+  "name": "policy_vip_override",
+  "title": "Policy VIP Override",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "May user U9 get free shipping? Submit YES or NO per policy.md and user.json.",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "policy.md": [
+        "Free shipping if cart>=100 OR vip==true."
+      ],
+      "user.json": [
+        "{\"id\":\"U9\",\"vip\":true,\"cart\":40}"
+      ]
+    },
+    "expected_submit": "YES",
+    "required_tools": [
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 12,
+  "suite": "fb_policy"
+}

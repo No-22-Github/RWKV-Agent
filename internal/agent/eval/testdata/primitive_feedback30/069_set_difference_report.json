@@ -1,0 +1,31 @@
+{
+  "name": "set_difference_report",
+  "title": "Set Difference Report",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "IDs in required.txt missing from present.txt, sorted ascending, comma-separated. Submit that list.",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "required.txt": [
+        "1",
+        "2",
+        "3",
+        "5"
+      ],
+      "present.txt": [
+        "2",
+        "5",
+        "9"
+      ]
+    },
+    "expected_submit": "1,3",
+    "required_tools": [
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 12,
+  "suite": "fb_policy"
+}
