@@ -67,7 +67,7 @@ afterEach(() => {
 describe('App', () => {
   it('renders the stable empty conversation layout', async () => {
     render(<App />)
-    expect(screen.getByText('探索智能之境')).toBeInTheDocument()
+    expect(screen.getByText('你好')).toBeInTheDocument()
     expect(screen.getByLabelText('消息')).toBeInTheDocument()
     expect((await screen.findAllByText('RWKV-Agent')).length).toBeGreaterThan(0)
   })
@@ -86,8 +86,9 @@ describe('App', () => {
 
     const { container } = render(<App />)
 
-    await waitFor(() => expect(container.querySelector('.model-chip')).toHaveAttribute('title', model))
-    expect(container.querySelector('.model-chip-name')).toHaveTextContent(model)
+    const modelChipSelector = `.composer-chip[title="${model}"]`
+    await waitFor(() => expect(container.querySelector(modelChipSelector)).not.toBeNull())
+    expect(container.querySelector(modelChipSelector)).toHaveTextContent(model)
   })
 
   it('opens model settings from the empty state', () => {

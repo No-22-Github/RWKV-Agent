@@ -1,10 +1,8 @@
 package main
 
 import (
-	"embed"
 	"flag"
 	"fmt"
-	"io/fs"
 	"log"
 	"os"
 	"path/filepath"
@@ -15,9 +13,6 @@ import (
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
-//go:embed all:frontend/dist
-var embeddedFrontend embed.FS
-
 func main() {
 	options, err := parseOptions(os.Args[1:])
 	if err != nil {
@@ -26,7 +21,7 @@ func main() {
 	if err := netproxy.Configure(); err != nil {
 		log.Printf("system proxy unavailable: %v", err)
 	}
-	frontend, err := fs.Sub(embeddedFrontend, "frontend/dist")
+	frontend, err := frontendAssets()
 	if err != nil {
 		log.Fatal(err)
 	}

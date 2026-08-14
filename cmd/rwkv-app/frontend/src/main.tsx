@@ -1,9 +1,22 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { System } from '@wailsio/runtime'
 import App from './App'
-import './styles.css'
+import { applyDefaultTheme } from './theme'
+import './index.css'
+import './App.css'
 
-document.documentElement.classList.toggle('wails-desktop', window.location.protocol === 'wails:')
+// 仅桌面 macOS webview 会注入 window._wails；据此为隐藏式内嵌标题栏（红绿灯）预留顶部空间。
+function detectMacDesktop(): boolean {
+  try {
+    return typeof window !== 'undefined' && !!(window as unknown as { _wails?: unknown })._wails && System.IsMac()
+  } catch {
+    return false
+  }
+}
+
+document.documentElement.classList.toggle('wails-mac', detectMacDesktop())
+applyDefaultTheme()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
