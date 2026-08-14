@@ -17,28 +17,33 @@ jobs:
   go-test:
     name: Go test
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-go@v5
+      - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
           cache: true
 
-      - name: Build
-        run: go build ./...
+      # API, library and CLI packages are pure Go and do not import Wails, so
+      # they run with the race detector (cgo enabled) without needing GTK.
+      - name: Test library and CLI packages (race)
+        run: go test -race -count=1 ./api/... ./internal/... ./cmd/rwkv-cli/...
 
-      - name: Build (server mode)
-        run: go build -tags server ./cmd/rwkv-app
+      # The desktop app imports Wails v3, whose Linux backend needs
+      # GTK4/WebKitGTK when cgo is enabled. Build and vet it in headless
+      # "server" mode with cgo disabled instead (the same tag scripts/build-app.sh
+      # uses for the server executable, minus the macOS-only mlx tag).
+      - name: Build app (server mode)
+        run: go build -tags server ./...
+        env:
+          CGO_ENABLED: "0"
 
       - name: Vet
-        run: go vet ./...
-
-      # Native (cgo/mlx/converter) and remote integration tests are opt-in via
-      # build tags and environment variables, so they skip automatically here.
-      - name: Test
-        run: go test ./... -count=1 -race
+        run: go vet -tags server ./...
+        env:
+          CGO_ENABLED: "0"
 
   frontend-test:
     name: Frontend test
@@ -48,9 +53,9 @@ jobs:
       run:
         working-directory: cmd/rwkv-app/frontend
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
