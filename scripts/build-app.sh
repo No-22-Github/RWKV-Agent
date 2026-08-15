@@ -21,9 +21,9 @@ echo "[1/5] Preparing the native RWKV runtime..."
 "$repo_root/scripts/build-macos.sh" --with-chat-completions
 
 echo "[2/5] Installing and verifying the React frontend..."
-npm --prefix "$frontend_dir" ci
-npm --prefix "$frontend_dir" test
-npm --prefix "$frontend_dir" run build
+pnpm --dir "$frontend_dir" install --frozen-lockfile
+pnpm --dir "$frontend_dir" test
+pnpm --dir "$frontend_dir" run build
 
 echo "[3/5] Building the Wails V3 desktop executable..."
 (

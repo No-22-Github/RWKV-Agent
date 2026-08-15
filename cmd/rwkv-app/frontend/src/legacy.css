@@ -61,14 +61,26 @@
 
 .app-sidebar button, .app-sidebar input { --wails-draggable: no-drag; }
 
+.settings-sidebar { --wails-draggable: drag; }
+
+.settings-sidebar button, .settings-sidebar input { --wails-draggable: no-drag; }
+
 .app-header { --wails-draggable: drag; }
 
 .app-header button { --wails-draggable: no-drag; }
 
+.settings-header { --wails-draggable: drag; }
+
 /* macOS 内嵌标题栏（红绿灯）预留空间：内容区保持设计稿 52px */
 .wails-mac .app-sidebar { padding-top: 44px; }
 
+.wails-mac .settings-sidebar { padding-top: 44px; }
+
 .wails-mac .app-header { padding-top: 22px; height: 74px; flex-basis: 74px; }
+
+.wails-mac .settings-header { padding-top: 22px; height: 74px; flex-basis: 74px; }
+
+.wails-mac .run-config-dropdown { top: 78px; }
 
 .wails-mac .trace-toolbar { padding-top: 4px; }
 
@@ -94,6 +106,16 @@
   .trace-inspector { width: 280px; flex-basis: 280px; }
 
   .composer > .composer-gutter { display: none; }
+
+  .composer { grid-template-columns: minmax(0, 1fr); gap: 0; }
+
+  .settings-group { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+
+  .settings-group-title { align-items: flex-start; text-align: left; }
+
+  .settings-footer-grid { grid-template-columns: minmax(0, 1fr); gap: 0; }
+
+  .settings-footer-spacer { display: none; }
 }
 
 @media (max-width: 1023px) {

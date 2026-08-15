@@ -91,6 +91,7 @@ describe('App', () => {
     render(<App />)
     expect(screen.getByText('你好')).toBeInTheDocument()
     expect(screen.getByLabelText('消息')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '概括这个仓库的近期进度' })).toBeInTheDocument()
     expect((await screen.findAllByText('RWKV-Agent')).length).toBeGreaterThan(0)
   })
 
@@ -236,6 +237,7 @@ describe('App', () => {
     expect(screen.getByLabelText(/服务密码/)).toHaveValue('saved-password')
     expect(screen.getByLabelText('Header 名称')).toHaveValue('X-Service-Key')
     expect(screen.getByLabelText('Header 值')).toHaveValue('saved-header')
+    expect(screen.getByLabelText('Header 值')).toHaveAttribute('type', 'password')
 
     openSettingsSection('Agent')
     expect(screen.getByLabelText('Brave API Key')).toHaveValue('saved-brave')

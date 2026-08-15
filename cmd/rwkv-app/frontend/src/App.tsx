@@ -279,32 +279,34 @@ function Sidebar({ conversations, workspaces, activeId, busy, open, onCloseSideb
   </>
 }
 
-function ChatView({ messages, activity, busy, ready, workspace, model, capabilities, prompt, setPrompt, onSubmit, onRegenerate, onKeyDown, openSettings, chooseWorkspace, onTrace, messagesEnd }: { messages: Message[]; activity: AgentActivity[]; busy: boolean; ready: boolean; workspace: string; model: string; capabilities: string; prompt: string; setPrompt: (value: string) => void; onSubmit: () => void; onRegenerate: (value: string) => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void; openSettings: () => void; chooseWorkspace: () => Promise<void>; onTrace: (id: string) => void; messagesEnd: React.RefObject<HTMLDivElement | null> }) {
+function ChatView({ messages, activity, busy, ready, workspace, capabilities, prompt, setPrompt, onSubmit, onRegenerate, onKeyDown, onTrace, messagesEnd }: { messages: Message[]; activity: AgentActivity[]; busy: boolean; ready: boolean; workspace: string; model: string; capabilities: string; prompt: string; setPrompt: (value: string) => void; onSubmit: () => void; onRegenerate: (value: string) => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void; openSettings: () => void; chooseWorkspace: () => Promise<void>; onTrace: (id: string) => void; messagesEnd: React.RefObject<HTMLDivElement | null> }) {
   const turns = groupMessagesIntoTurns(messages)
   const empty = turns.length === 0
   const stageRef = useRef<HTMLDivElement>(null)
   const composerHostRef = useRef<HTMLDivElement>(null)
-  const composer = <Composer prompt={prompt} setPrompt={setPrompt} busy={busy} ready={ready} workspace={workspace} model={model} capabilities={capabilities} turnNumber={turns.length + 1} empty={empty} onSubmit={onSubmit} onKeyDown={onKeyDown} openSettings={openSettings} chooseWorkspace={chooseWorkspace} />
+  const composer = <Composer prompt={prompt} setPrompt={setPrompt} busy={busy} ready={ready} workspace={workspace} capabilities={capabilities} turnNumber={turns.length + 1} empty={empty} onSubmit={onSubmit} onKeyDown={onKeyDown} />
 
   useLayoutEffect(() => {
     const stage = stageRef.current
     const host = composerHostRef.current
     if (!stage || !host) return
-    const stageHeight = stage.clientHeight
-    const hostHeight = host.offsetHeight
-    host.style.top = empty
-      ? `${Math.max(24, (stageHeight - hostHeight) / 2)}px`
-      : `${Math.max(0, stageHeight - hostHeight - 28)}px`
-  }, [empty, messages.length])
+    const updatePosition = () => {
+      const stageHeight = stage.clientHeight
+      const hostHeight = host.offsetHeight
+      host.style.top = empty
+        ? `${Math.max(24, (stageHeight - hostHeight) / 2)}px`
+        : `${Math.max(0, stageHeight - hostHeight - 28)}px`
+    }
+    updatePosition()
+    if (typeof ResizeObserver === 'undefined') return
+    const observer = new ResizeObserver(updatePosition)
+    observer.observe(stage)
+    observer.observe(host)
+    return () => observer.disconnect()
+  }, [empty])
 
   return <div className="chat-panel relative flex min-h-0 flex-1 flex-col overflow-hidden">
     <div ref={stageRef} className="chat-stage relative min-h-0 flex-1 overflow-hidden">
-      {empty && <div className="absolute inset-0 flex items-center justify-center pb-36">
-        <div className="flex min-w-0 flex-col items-center gap-[6px] text-center">
-          <span className="font-serif text-[16px] text-brand">你好</span>
-          <h1 className="m-0 font-serif text-[34px] font-semibold leading-[1.35] tracking-[.01em] text-ink">需要我为你做些什么？</h1>
-        </div>
-      </div>}
       {!empty && <div className="conversation-scroll absolute inset-0 mx-auto w-[min(826px,calc(100%-52px))] overflow-auto py-[30px] pb-7">
         {turns.map((turn, index) => <TurnView key={turn.user?.id || turn.response?.id || index} turn={turn} index={index + 1} pending={busy && index === turns.length - 1 && !turn.response} activity={activity} onTrace={onTrace} onRegenerate={onRegenerate} />)}
         <div ref={messagesEnd} />
@@ -351,20 +353,30 @@ function TurnView({ turn, index, pending, activity, onTrace, onRegenerate }: { t
   </article>
 }
 
-function Composer({ prompt, setPrompt, busy, ready, workspace, model, capabilities, turnNumber, empty, onSubmit, onKeyDown, openSettings, chooseWorkspace }: { prompt: string; setPrompt: (value: string) => void; busy: boolean; ready: boolean; workspace: string; model: string; capabilities: string; turnNumber: number; empty?: boolean; onSubmit: () => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void; openSettings: () => void; chooseWorkspace: () => Promise<void> }) {
+function Composer({ prompt, setPrompt, busy, ready, workspace, capabilities, turnNumber, empty, onSubmit, onKeyDown }: { prompt: string; setPrompt: (value: string) => void; busy: boolean; ready: boolean; workspace: string; capabilities: string; turnNumber: number; empty?: boolean; onSubmit: () => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void }) {
   function autoGrow(element: HTMLTextAreaElement) { element.style.height = 'auto'; element.style.height = `${Math.min(element.scrollHeight, 180)}px` }
-  return <div className={`flex gap-[42px] ${empty ? 'items-center' : 'items-center'}`}>
-    <div className="composer-gutter flex w-[112px] flex-none flex-col items-end gap-1 text-[10.5px] leading-[1.7] text-ink-ghost">
+  return <div className={`composer grid grid-cols-[112px_minmax(0,672px)] gap-[42px] ${empty ? 'items-end' : 'items-center'}`}>
+    <div className={`composer-gutter flex w-[112px] flex-none flex-col items-end gap-1 text-right text-[10.5px] leading-[1.7] text-ink-ghost ${empty ? 'pb-[78px]' : ''}`}>
       {!empty && <span className="font-serif text-[19px] font-bold leading-none text-ink-faint">{String(turnNumber).padStart(2, '0')}</span>}
       {!empty && <span className="my-1 h-px w-[34px] bg-line" />}
       <span className="max-w-full truncate text-ink-ghost">工作区<br /><b className="block truncate font-normal text-ink-soft">{workspace}</b></span>
+      {empty && <span className="my-1 h-px w-[34px] bg-line" />}
       <span className="max-w-full truncate text-ink-ghost">能力<br /><b className={`block truncate font-normal ${ready ? 'text-brand' : 'text-ink-soft'}`}>{capabilities}</b></span>
     </div>
-    <div className="min-w-0 flex-1 border-l-[3px] border-line-strong bg-paper-soft transition-[border-color] duration-[120ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none focus-within:border-brand">
-      <textarea aria-label="消息" rows={1} value={prompt} disabled={busy} placeholder="描述你想要完成的任务" className="block w-full min-h-[52px] max-h-[180px] resize-none border-0 bg-transparent p-[13px_15px_6px] text-[14.5px] leading-[1.7] text-ink outline-0 placeholder:text-placeholder" onChange={(event) => { setPrompt(event.target.value); autoGrow(event.target) }} onKeyDown={onKeyDown} />
-      <div className="flex min-h-[42px] items-end justify-end gap-3 px-[12px] pb-[12px] pl-3">
-        <button className="h-[29px] border-0 bg-brand px-[14px] text-[12.5px] font-semibold text-white transition-colors duration-[120ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none disabled:bg-disabled-bg disabled:text-disabled-text" aria-label="发送" onClick={() => void onSubmit()} disabled={!prompt.trim() || busy}>{busy ? <LoaderCircle size={15} className="spin" /> : <>发送<span className="ml-[7px] font-mono text-[10px] opacity-70">⏎</span></>}</button>
+    <div className={`flex min-w-0 flex-col ${empty ? 'gap-[26px]' : ''}`}>
+      {empty && <div className="flex min-w-0 flex-col gap-[6px]">
+        <span className="font-serif text-[16px] text-brand">你好</span>
+        <h1 className="m-0 font-serif text-[34px] font-semibold leading-[1.35] tracking-[.01em] text-ink">需要我为你做些什么？</h1>
+      </div>}
+      <div className="flex min-h-[52px] min-w-0 border-l-[3px] border-line-strong bg-paper-soft transition-[border-color] duration-[120ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none focus-within:border-brand">
+        <textarea aria-label="消息" rows={1} value={prompt} disabled={busy} placeholder="描述你想要完成的任务" className="block min-h-[52px] max-h-[180px] min-w-0 flex-1 resize-none border-0 bg-transparent p-[13px_4px_12px_15px] text-[14.5px] leading-[1.7] text-ink outline-0 placeholder:text-placeholder" onChange={(event) => { setPrompt(event.target.value); autoGrow(event.target) }} onKeyDown={onKeyDown} />
+        <div className="flex flex-none items-end p-[12px_12px_12px_10px]">
+          <button className="h-[29px] border-0 bg-brand px-[14px] text-[12.5px] font-semibold text-white transition-colors duration-[120ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none disabled:bg-disabled-bg disabled:text-disabled-text" aria-label="发送" onClick={() => void onSubmit()} disabled={!prompt.trim() || busy}>{busy ? <LoaderCircle size={15} className="spin" /> : <>发送<span className="ml-[7px] font-mono text-[10px] opacity-70">⏎</span></>}</button>
+        </div>
       </div>
+      {empty && <div className="flex flex-wrap gap-[9px]" aria-label="快速开始">
+        {STARTER_PROMPTS.map((starter) => <button key={starter} className="border border-line bg-card-bg px-3 py-[7px] text-[12px] text-ink-soft hover:border-line-strong hover:text-brand" onClick={() => setPrompt(starter)}>{starter}</button>)}
+      </div>}
     </div>
   </div>
 }
