@@ -64,6 +64,18 @@ function bootstrap(overrides: Partial<AppBootstrap> = {}) {
   })
 }
 
+function openSettings() {
+  fireEvent.click(screen.getByRole('button', { name: '设置' }))
+}
+
+function openSettingsSection(name: string) {
+  fireEvent.click(screen.getByRole('button', { name }))
+}
+
+function switchToRemoteProvider() {
+  fireEvent.click(screen.getByRole('button', { name: '远端 Provider' }))
+}
+
 beforeEach(() => {
   eventHandlers.clear()
   vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap())
@@ -101,12 +113,12 @@ describe('App', () => {
     expect(container.querySelector(modelChipSelector)).toHaveTextContent(model)
   })
 
-  it('opens model settings from the empty state', () => {
+  it('opens the settings page from the sidebar', () => {
     render(<App />)
-    fireEvent.click(screen.getByRole('button', { name: '加载本地模型或连接远端 API' }))
-    expect(screen.getByRole('dialog', { name: '模型设置' })).toBeInTheDocument()
+    openSettings()
+    expect(screen.getByText('设置')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '模型' })).toBeInTheDocument()
     expect(screen.getByText('本地模型')).toBeInTheDocument()
-    expect(screen.getByText('远端 API')).toBeInTheDocument()
   })
 
   it('uses RWKV continuation by default and passes custom HTTP headers', async () => {
@@ -119,14 +131,15 @@ describe('App', () => {
       updatedAt: new Date().toISOString(),
     }))
     render(<App />)
-    fireEvent.click(screen.getByRole('button', { name: '加载本地模型或连接远端 API' }))
-    fireEvent.click(screen.getByRole('button', { name: '远端 API' }))
+    openSettings()
+    switchToRemoteProvider()
+    openSettingsSection('网络与凭证')
     fireEvent.change(screen.getByLabelText('API 地址'), { target: { value: 'https://example.test' } })
     fireEvent.change(screen.getByLabelText('模型 ID'), { target: { value: 'rwkv7-test' } })
     fireEvent.click(screen.getByRole('button', { name: '添加' }))
     fireEvent.change(screen.getByLabelText('Header 名称'), { target: { value: 'CF-Access-Client-Id' } })
     fireEvent.change(screen.getByLabelText('Header 值'), { target: { value: 'secret' } })
-    fireEvent.click(screen.getByRole('button', { name: '连接 API' }))
+    fireEvent.click(screen.getByRole('button', { name: '保存' }))
 
     await waitFor(() => expect(Backend.Configure).toHaveBeenCalledOnce())
     const config = vi.mocked(Backend.Configure).mock.calls[0][0]
@@ -149,10 +162,9 @@ describe('App', () => {
       updatedAt: new Date().toISOString(),
     }))
     render(<App />)
-    fireEvent.click(screen.getByRole('button', { name: '加载本地模型或连接远端 API' }))
-    fireEvent.click(screen.getByRole('button', { name: '远端 API' }))
-    fireEvent.change(screen.getByLabelText('API 地址'), { target: { value: 'https://example.test' } })
-    fireEvent.change(screen.getByLabelText('模型 ID'), { target: { value: 'rwkv7-test' } })
+    openSettings()
+    switchToRemoteProvider()
+    openSettingsSection('Agent')
     fireEvent.click(screen.getByLabelText('网页搜索与正文获取'))
     fireEvent.change(screen.getByLabelText('Brave API Key'), { target: { value: 'brave-secret' } })
     fireEvent.change(screen.getByLabelText('Tavily API Key'), { target: { value: 'tavily-secret' } })
@@ -162,7 +174,7 @@ describe('App', () => {
     fireEvent.change(screen.getByLabelText('单 Agent 步数'), { target: { value: '5' } })
     fireEvent.change(screen.getByLabelText('批次超时（秒）'), { target: { value: '180' } })
     fireEvent.change(screen.getByLabelText('远端聚合窗口（毫秒）'), { target: { value: '15' } })
-    fireEvent.click(screen.getByRole('button', { name: '连接 API' }))
+    fireEvent.click(screen.getByRole('button', { name: '保存' }))
 
     await waitFor(() => expect(Backend.Configure).toHaveBeenCalledOnce())
     const config = vi.mocked(Backend.Configure).mock.calls[0][0]
@@ -189,12 +201,11 @@ describe('App', () => {
       updatedAt: new Date().toISOString(),
     }))
     render(<App />)
-    fireEvent.click(screen.getByRole('button', { name: '加载本地模型或连接远端 API' }))
-    fireEvent.click(screen.getByRole('button', { name: '远端 API' }))
-    fireEvent.change(screen.getByLabelText('API 地址'), { target: { value: 'https://example.test' } })
-    fireEvent.change(screen.getByLabelText('模型 ID'), { target: { value: 'rwkv7-test' } })
+    openSettings()
+    switchToRemoteProvider()
+    openSettingsSection('Agent')
     fireEvent.change(screen.getByLabelText('工具协议'), { target: { value: 'xml' } })
-    fireEvent.click(screen.getByRole('button', { name: '连接 API' }))
+    fireEvent.click(screen.getByRole('button', { name: '保存' }))
 
     await waitFor(() => expect(Backend.Configure).toHaveBeenCalledOnce())
     expect(vi.mocked(Backend.Configure).mock.calls[0][0].agentProtocol).toBe('xml')
@@ -217,13 +228,16 @@ describe('App', () => {
 
     render(<App />)
     await waitFor(() => expect(Backend.Bootstrap).toHaveBeenCalledOnce())
-    fireEvent.click(screen.getByRole('button', { name: '设置' }))
+    openSettings()
+    openSettingsSection('网络与凭证')
 
     expect(screen.getByLabelText('API 地址')).toHaveValue('https://saved.example.test')
     expect(screen.getByLabelText('模型 ID')).toHaveValue('saved-model')
     expect(screen.getByLabelText(/服务密码/)).toHaveValue('saved-password')
     expect(screen.getByLabelText('Header 名称')).toHaveValue('X-Service-Key')
     expect(screen.getByLabelText('Header 值')).toHaveValue('saved-header')
+
+    openSettingsSection('Agent')
     expect(screen.getByLabelText('Brave API Key')).toHaveValue('saved-brave')
     expect(screen.getByLabelText('Tavily API Key')).toHaveValue('saved-tavily')
   })
@@ -249,7 +263,7 @@ describe('App', () => {
     expect(screen.getAllByText('project-b').length).toBeGreaterThan(0)
   })
 
-  it('reopens a saved conversation', async () => {
+  it('reopens a saved conversation and shows subagent cards', async () => {
     const summary = new ConversationSummary({ id: 'conversation-1', title: '检查项目', updatedAt: new Date().toISOString() })
     vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({ conversations: [summary] }))
     vi.mocked(Backend.OpenConversation).mockResolvedValue(new ConversationView({
@@ -300,12 +314,12 @@ describe('App', () => {
     const turn = screen.getByTestId('conversation-turn-1')
     expect(turn).toHaveTextContent('读取 README')
     expect(turn).toHaveTextContent('项目说明已读取')
-    expect(screen.getByText(/STEP 1 · spawn_agents/)).toBeInTheDocument()
-    expect(screen.getByText(/STEP 2 · read_file/)).toBeInTheDocument()
-    expect(screen.queryByText('检查官方文档')).not.toBeInTheDocument()
+    expect(screen.getByText('检查官方文档')).toBeInTheDocument()
     expect(screen.queryByText('{"urls":["https://example.test/docs"]}')).not.toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: '查看轨迹' }))
+    expect(screen.getByText(/STEP 1 · spawn_agents/)).toBeInTheDocument()
+    expect(screen.getByText(/STEP 2 · read_file/)).toBeInTheDocument()
     expect(screen.getByText(/legacyTrajectory/)).toHaveTextContent('检查官方文档')
     expect(screen.getByText(/legacyTrajectory/)).toHaveTextContent('文件暂时不可读')
   })
@@ -383,25 +397,25 @@ describe('App', () => {
         new DisplayMessage({ id: 'trace-assistant', role: 'assistant', content: '已完成读取。', trace }),
       ],
     }))
-    const { container } = render(<App />)
+    render(<App />)
     fireEvent.click(await screen.findByTitle('轨迹验收'))
     expect(await screen.findByText('已完成读取。')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: '查看轨迹' }))
 
-    expect(screen.getByText('Input')).toBeInTheDocument()
-    expect(screen.getByText('Model')).toBeInTheDocument()
-    expect(screen.getByText('Tools')).toBeInTheDocument()
+    expect(screen.getByText('输入')).toBeInTheDocument()
+    expect(screen.getByText('模型')).toBeInTheDocument()
+    expect(screen.getByText('工具')).toBeInTheDocument()
     expect(screen.getAllByText('读取 README').length).toBeGreaterThan(0)
-    fireEvent.click(screen.getByTitle('工具调用 · read_file'))
-    fireEvent.click(screen.getByRole('button', { name: '请求' }))
-    expect(screen.getByText(/arguments/)).toHaveTextContent('README.md')
-    fireEvent.click(screen.getByTitle('工具结果 · read_file'))
-    fireEvent.click(screen.getByRole('button', { name: '结果' }))
-    expect(screen.getByText(/result/)).toHaveTextContent('# RWKV Agent')
-    fireEvent.click(screen.getByTitle('模型响应 · Step 1'))
-    fireEvent.click(screen.getByRole('button', { name: '时序' }))
+    fireEvent.click(screen.getAllByTitle('工具调用 · read_file')[1])
+    fireEvent.click(screen.getByRole('button', { name: '原文' }))
+    expect(screen.getByText(/toolArguments/)).toHaveTextContent('README.md')
+    fireEvent.click(screen.getAllByTitle('工具结果 · read_file')[1])
+    fireEvent.click(screen.getByRole('button', { name: '原文' }))
+    expect(screen.getByText(/toolResult/)).toHaveTextContent('# RWKV Agent')
+    fireEvent.click(screen.getAllByTitle('模型响应 · Step 1')[1])
+    fireEvent.click(screen.getByRole('button', { name: '原文' }))
     expect(screen.getByText(/promptTokens/)).toHaveTextContent('120')
-    fireEvent.click(screen.getByRole('button', { name: '导出 JSONL' }))
+    fireEvent.click(screen.getByRole('button', { name: '导出 trace.jsonl' }))
     await waitFor(() => expect(Backend.ExportTrajectory).toHaveBeenCalledOnce())
     expect(vi.mocked(Backend.ExportTrajectory).mock.calls[0][0]).toContain('读取 README')
   })
@@ -463,11 +477,11 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: '查看轨迹' })).toBeEnabled()
     expect(screen.getByRole('tab', { name: /轨迹/ })).toBeEnabled()
     fireEvent.click(screen.getByRole('button', { name: '查看轨迹' }))
-    expect(screen.getByTitle('用户输入')).toBeInTheDocument()
-    expect(screen.getByTitle('模型响应 · Step 1')).toBeInTheDocument()
-    expect(screen.getByTitle('Agent 运行失败')).toBeInTheDocument()
-    fireEvent.click(screen.getByTitle('模型响应 · Step 1'))
-    fireEvent.click(screen.getByRole('button', { name: '结果' }))
+    expect(screen.getAllByTitle('用户输入')[1]).toBeInTheDocument()
+    expect(screen.getAllByTitle('模型响应 · Step 1')[1]).toBeInTheDocument()
+    expect(screen.getAllByTitle('Agent 运行失败')[1]).toBeInTheDocument()
+    fireEvent.click(screen.getAllByTitle('模型响应 · Step 1')[1])
+    fireEvent.click(screen.getByRole('button', { name: '原文' }))
     expect(screen.getByText(/modelError/)).toHaveTextContent('模型服务返回 503')
   })
 })

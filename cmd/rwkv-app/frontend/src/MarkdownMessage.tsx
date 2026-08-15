@@ -77,40 +77,93 @@ const codeTheme: PrismTheme = {
 }
 
 export default function MarkdownMessage({ content }: MarkdownMessageProps) {
+  const blocks = splitTopLevelBlocks(content)
+  let plainCount = 0
+
   return (
     <div className="md-markdown">
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        skipHtml
-        components={{
-          pre({ children }) {
-            const child = Children.toArray(children)[0]
-            if (!isValidElement<{ className?: string; children?: ReactNode }>(child)) {
-              return <pre>{children}</pre>
-            }
-            return <CodeBlock className={child.props.className} code={textContent(child.props.children).replace(/\n$/, '')} />
-          },
-          table({ children, ...props }) {
-            return (
-              <div className="overflow-x-auto">
-                <table {...props}>{children}</table>
-              </div>
-            )
-          },
-          a({ href, children, ...props }) {
-            const external = /^(?:https?:|mailto:)/i.test(href || '')
-            return (
-              <a {...props} href={href} target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined}>
-                {children}
-              </a>
-            )
-          },
-        }}
-      >
-        {content}
-      </ReactMarkdown>
+      {blocks.map((block, index) => {
+        const isPlain = isPlainParagraph(block)
+        const numbered = isPlain && plainCount++ > 0
+        const markdown = (
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            skipHtml
+            components={{
+              pre({ children }) {
+                const child = Children.toArray(children)[0]
+                if (!isValidElement<{ className?: string; children?: ReactNode }>(child)) {
+                  return <pre>{children}</pre>
+                }
+                return <CodeBlock className={child.props.className} code={textContent(child.props.children).replace(/\n$/, '')} />
+              },
+              table({ children, ...props }) {
+                return (
+                  <div className="overflow-x-auto">
+                    <table {...props}>{children}</table>
+                  </div>
+                )
+              },
+              a({ href, children, ...props }) {
+                const external = /^(?:https?:|mailto:)/i.test(href || '')
+                return (
+                  <a {...props} href={href} target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined}>
+                    {children}
+                  </a>
+                )
+              },
+            }}
+          >
+            {block}
+          </ReactMarkdown>
+        )
+
+        if (!numbered) return <div key={index}>{markdown}</div>
+
+        return (
+          <div key={index} className="answer-para grid grid-cols-[22px_minmax(0,1fr)] items-baseline gap-[12px]">
+            <span className="answer-para-num font-serif text-[15px] font-bold leading-[1.95] text-brand">{plainCount}</span>
+            <div className="min-w-0">{markdown}</div>
+          </div>
+        )
+      })}
     </div>
   )
+}
+
+function splitTopLevelBlocks(content: string): string[] {
+  const lines = content.split('\n')
+  const blocks: string[] = []
+  let current: string[] = []
+  let inFence = false
+  for (const line of lines) {
+    if (/^\s*(```|~~~)/.test(line)) {
+      inFence = !inFence
+      current.push(line)
+      continue
+    }
+    if (!inFence && line.trim() === '') {
+      if (current.length > 0) {
+        blocks.push(current.join('\n'))
+        current = []
+      }
+      continue
+    }
+    current.push(line)
+  }
+  if (current.length > 0) blocks.push(current.join('\n'))
+  return blocks
+}
+
+function isPlainParagraph(block: string): boolean {
+  const trimmed = block.trim()
+  if (!trimmed) return false
+  if (/^(#{1,6})\s/.test(trimmed)) return false
+  if (/^([-*+]|\d+[.)])\s+/.test(trimmed)) return false
+  if (/^```|^~~~/.test(trimmed)) return false
+  if (/^>\s?/.test(trimmed)) return false
+  if (/^\s*\|/.test(trimmed) || trimmed.includes('\n|')) return false
+  return true
 }
 
 function CodeBlock({ className, code }: CodeBlockProps) {

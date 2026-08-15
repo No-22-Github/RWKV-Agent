@@ -8,7 +8,7 @@ interface Props {
   onClose: () => void;
 }
 
-export default function Md3Snackbar({ message, severity = "info", duration = 4000, onClose }: Props) {
+export default function Snackbar({ message, severity = "info", duration = 4000, onClose }: Props) {
   const [exiting, setExiting] = useState(false);
 
   useEffect(() => {
@@ -28,13 +28,13 @@ export default function Md3Snackbar({ message, severity = "info", duration = 400
 
   return (
     <div
-      className={`fixed bottom-6 left-1/2 z-[1100] flex -translate-x-1/2 items-center gap-3 rounded bg-[#332d25] py-3 pl-4 pr-2 text-white shadow-[0_10px_30px_rgba(43,39,33,.35)] transition-all duration-200 ${exiting ? "translate-y-2 opacity-0" : "opacity-100"}`}
+      className={`fixed bottom-6 left-1/2 z-[1100] flex -translate-x-1/2 items-center gap-3 rounded-none bg-ink px-4 py-3 text-white shadow-[0_10px_30px_rgba(43,39,33,.35)] transition-all duration-200 ${exiting ? "translate-y-2 opacity-0" : "opacity-100"}`}
       role="status"
     >
       <Icon className={`flex-none ${iconClass}`} size={20} />
       <span className="text-[13px] leading-5">{message}</span>
       <button
-        className="grid h-7 w-7 flex-none place-items-center rounded text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+        className="grid h-7 w-7 flex-none place-items-center rounded-none text-white/70 transition-colors hover:bg-white/10 hover:text-white"
         onClick={() => setExiting(true)}
         aria-label="关闭"
       >

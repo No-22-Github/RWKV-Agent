@@ -1,5 +1,5 @@
 import { useCallback, useState, type ReactNode } from "react";
-import Md3Snackbar from "./components/shared/Md3Snackbar";
+import Snackbar from "./components/shared/Snackbar";
 import { SnackbarContext, type Severity } from "./snackbar";
 
 interface SnackbarState {
@@ -19,7 +19,7 @@ export function SnackbarProvider({ children }: { children: ReactNode }) {
     <SnackbarContext.Provider value={{ show }}>
       {children}
       {state && (
-        <Md3Snackbar
+        <Snackbar
           key={state.key}
           message={state.message}
           severity={state.severity}

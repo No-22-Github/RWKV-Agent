@@ -2,7 +2,7 @@
  * 保留层：刻意不迁移到 Tailwind 的样式。
  * - @keyframes 与动画类
  * - markdown 排版（作用域 .turn-answer .md-markdown）
- * - gutter 状态圆点（双层伪元素 + --dot 变量）
+ * - gutter 状态圆点（设计稿：5px 实心点）
  * - 轨迹事件行扫描动画（伪元素 + data-state 属性）
  * - Wails 桌面拖拽区与 macOS 内嵌标题栏补丁
  * - 会话删除菜单的 hover/active 显隐（后代选择器）
@@ -23,20 +23,14 @@
 
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
 
-/* gutter 状态圆点：外层 20% 淡圈 + 内层实心点，颜色由 --dot 驱动 */
-.gutter-status i { position: relative; width: 9px; height: 9px; flex: 0 0 9px; border-radius: 50%; background: transparent; --dot: var(--accent-warm); }
-
-.gutter-status i::before { content: ''; position: absolute; inset: 0; border-radius: 50%; background: var(--dot); opacity: .2; }
-
-.gutter-status i::after { content: ''; position: absolute; inset: 27%; border-radius: 50%; background: var(--dot); }
+/* gutter 状态圆点：5px 实心圆，颜色由 --dot 驱动 */
+.gutter-status i { position: relative; width: 5px; height: 5px; flex: 0 0 5px; border-radius: 50%; background: var(--dot); --dot: var(--accent-warm); }
 
 .gutter-status.completed i { --dot: var(--brand); }
 
 .gutter-status.failed i { --dot: var(--danger); }
 
-.gutter-status.running i { --dot: var(--brand-bright); }
-
-.gutter-status.running i::before { animation: gutter-pulse 1.25s ease-in-out infinite; }
+.gutter-status.running i { --dot: var(--brand-bright); animation: gutter-pulse 1.25s ease-in-out infinite; }
 
 /* 轨迹事件行运行时的扫描高光 */
 .trace-event[data-state='running']::after { content: ''; position: absolute; top: 0; bottom: 0; left: -300px; width: 300px; pointer-events: none; background: linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--paper-wash) 70%, transparent) 55%, transparent 100%); animation: trace-row-sweep 2.6s ease-out infinite; }
@@ -48,7 +42,7 @@
 
 .turn-answer .md-markdown p { margin: 0 0 13px; }
 
-.turn-answer .md-markdown h1, .turn-answer .md-markdown h2, .turn-answer .md-markdown h3 { margin: 18px 0 8px; color: var(--ink); font: 650 16px/1.5 var(--font-ui); }
+.turn-answer .md-markdown h1, .turn-answer .md-markdown h2, .turn-answer .md-markdown h3 { margin: 18px 0 8px; color: var(--ink); font: 650 16px/1.5 var(--font-sans); }
 
 .turn-answer .md-markdown ul, .turn-answer .md-markdown ol { margin: 6px 0 14px; padding-left: 24px; }
 
@@ -60,6 +54,8 @@
 
 .turn-answer .md-markdown code:not(pre code) { color: var(--brand); font: 12px var(--mono); }
 
+.turn-answer .md-markdown .answer-para p { margin-bottom: 0; }
+
 /* Wails 拖拽区（侧栏/标题栏可拖动，内部控件不可拖） */
 .app-sidebar { --wails-draggable: drag; }
 
@@ -69,10 +65,10 @@
 
 .app-header button { --wails-draggable: no-drag; }
 
-/* macOS 内嵌标题栏（红绿灯）预留空间 */
+/* macOS 内嵌标题栏（红绿灯）预留空间：内容区保持设计稿 52px */
 .wails-mac .app-sidebar { padding-top: 44px; }
 
-.wails-mac .app-header { padding-top: 22px; height: 70px; flex-basis: 70px; }
+.wails-mac .app-header { padding-top: 22px; height: 74px; flex-basis: 74px; }
 
 .wails-mac .trace-toolbar { padding-top: 4px; }
 
@@ -83,14 +79,35 @@
 
 :where(button, input, textarea, select):focus-visible { outline: 2px solid var(--brand-bright); outline-offset: 2px; }
 
-@media (max-width: 1100px) {
+/* 响应式：≥1180 三栏完整；1024–1180 页边栏折行；<1024 侧栏抽屉化、正文满宽 */
+@media (max-width: 1180px) {
   .app-sidebar { width: 196px; flex-basis: 196px; }
 
-  .conversation-turn, .composer { grid-template-columns: 84px minmax(0, 1fr); gap: 24px; }
+  .conversation-turn { grid-template-columns: minmax(0, 1fr); gap: 0; }
+
+  .turn-gutter { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: flex-start; gap: 8px 14px; text-align: left; }
+
+  .turn-gutter > .gutter-rule, .turn-gutter > .gutter-statuses { display: none; }
+
+  .turn-gutter .gutter-status { justify-content: flex-start; }
 
   .trace-inspector { width: 280px; flex-basis: 280px; }
+
+  .composer > .composer-gutter { display: none; }
+}
+
+@media (max-width: 1023px) {
+  body { min-width: 0; }
+
+  .app-sidebar { box-shadow: 0 12px 40px rgba(60, 50, 35, .2); }
+
+  .sidebar-scrim { display: block; }
+
+  .conversation-turn { grid-template-columns: minmax(0, 1fr); }
+
+  .trace-inspector { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .gutter-status.running i::before, .trace-event[data-state='running']::after, .answer-cursor, .spin { animation: none; }
+  .gutter-status.running i, .trace-event[data-state='running']::after, .answer-cursor, .spin, .composer-anchor { transition: none !important; animation: none !important; }
 }

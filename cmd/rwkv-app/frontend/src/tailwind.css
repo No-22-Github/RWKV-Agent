@@ -1,16 +1,15 @@
 @import "tailwindcss";
 
 /*
- * 暗色模式：theme.ts 通过 html[data-theme] 控制，
+ * 暗色模式：由 index.css 里的 [data-theme=dark] token 块控制，
  * dark: 变体跟随该属性（而不是 Tailwind 默认的 .dark class）。
  */
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 /*
  * 主题映射。
- * 颜色用 var() 间接引用 index.css 里的 legacy token，
- * 而这些 token 又会被 theme.ts 的 MD3 动态换肤逻辑改写，
- * 因此工具类（bg-brand 等）天然跟随运行时主题。
+ * 颜色统一走 index.css 的纸面 token（亮/暗两套静态值），
+ * 工具类（bg-brand 等）通过 var() 自动跟随 data-theme。
  */
 @theme {
   --color-paper: var(--paper);
@@ -18,6 +17,7 @@
   --color-paper-sidebar: var(--paper-sidebar);
   --color-paper-wash: var(--paper-wash);
   --color-ink: var(--ink);
+  --color-ink-strong: var(--ink-strong);
   --color-ink-soft: var(--ink-soft);
   --color-ink-muted: var(--ink-muted);
   --color-ink-faint: var(--ink-faint);
@@ -32,6 +32,14 @@
   --color-warning: var(--warning);
   --color-accent-warm: var(--accent-warm);
   --color-surface-active: var(--surface-active);
+  --color-user-bg: var(--user-bg);
+  --color-user-line: var(--user-line);
+  --color-user-text: var(--user-text);
+  --color-card-bg: var(--card-bg);
+  --color-code-bg: var(--code-bg);
+  --color-placeholder: var(--placeholder);
+  --color-disabled-bg: var(--disabled-bg);
+  --color-disabled-text: var(--disabled-text);
 
   /* 字体：静态值；--font-serif/--font-mono 同时供保留层 CSS 的 var() 引用 */
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", system-ui, sans-serif;

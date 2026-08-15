@@ -2,7 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { System } from '@wailsio/runtime'
 import App from './App'
-import { applyDefaultTheme } from './theme'
+import { applyTheme, getInitialTheme } from './theme'
 import '@fontsource/noto-serif-sc/400.css'
 import '@fontsource/noto-serif-sc/600.css'
 import '@fontsource/jetbrains-mono/400.css'
@@ -21,7 +21,7 @@ function detectMacDesktop(): boolean {
 }
 
 document.documentElement.classList.toggle('wails-mac', detectMacDesktop())
-applyDefaultTheme()
+applyTheme(getInitialTheme())
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
