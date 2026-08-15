@@ -9,6 +9,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"time"
 	"unicode"
 
 	"github.com/no22/RWKV-Agent/internal/continuation"
@@ -201,6 +202,7 @@ type EventKind string
 
 const (
 	EventModelStart    EventKind = "model_start"
+	EventModelDone     EventKind = "model_done"
 	EventRouteStart    EventKind = "route_start"
 	EventRouteDone     EventKind = "route_done"
 	EventRetry         EventKind = "protocol_retry"
@@ -259,6 +261,8 @@ type Step struct {
 	ModelOutput      string                    `json:"model_output"`
 	FinishReason     continuation.FinishReason `json:"finish_reason"`
 	Usage            continuation.Usage        `json:"usage"`
+	ModelDurationMS  int64                     `json:"model_duration_ms,omitempty"`
+	ModelError       string                    `json:"model_error,omitempty"`
 	ActionType       string                    `json:"action_type,omitempty"`
 	Tool             string                    `json:"tool,omitempty"`
 	ToolArguments    json.RawMessage           `json:"tool_arguments,omitempty"`
@@ -273,6 +277,7 @@ type Step struct {
 	StageViolation   bool                      `json:"stage_violation,omitempty"`
 	ToolRetries      []ToolRetryTrace          `json:"tool_retries,omitempty"`
 	Subagents        []SubagentTrace           `json:"subagents,omitempty"`
+	ToolDurationMS   int64                     `json:"tool_duration_ms,omitempty"`
 }
 
 // SubagentStep is the compact, presentation-safe trace of one child tool call.
@@ -318,6 +323,7 @@ type RouteStep struct {
 	Bundles       []string     `json:"bundles,omitempty"`
 	ProtocolError string       `json:"protocol_error,omitempty"`
 	FailedClosed  bool         `json:"failed_closed,omitempty"`
+	DurationMS    int64        `json:"duration_ms,omitempty"`
 }
 
 type Result struct {
@@ -735,6 +741,7 @@ func (r *Runner) RunWithObserver(
 			tracePrefix = assistantPrefix
 		}
 		promptTrace := r.tracePrompt(request, tracePrefix, offered)
+		modelStarted := time.Now()
 		generated, nativeCall, reasoningContent, err := r.generate(
 			ctx,
 			request,
@@ -745,17 +752,25 @@ func (r *Runner) RunWithObserver(
 			assistantPrefix,
 		)
 		if err != nil {
+			modelDuration := time.Since(modelStarted).Milliseconds()
+			result.Steps = append(result.Steps, Step{
+				Number: step, Stage: stage, Request: promptTrace,
+				ModelDurationMS: modelDuration, ModelError: err.Error(),
+			})
+			r.observe(Event{Kind: EventModelDone, Step: step, DurationMS: modelDuration, Err: err}, observer)
 			return result, err
 		}
 		current := Step{
-			Number:       step,
-			Stage:        stage,
-			Request:      promptTrace,
-			ModelOutput:  generated.Text,
-			FinishReason: generated.FinishReason,
-			Usage:        generated.Usage,
+			Number:          step,
+			Stage:           stage,
+			Request:         promptTrace,
+			ModelOutput:     generated.Text,
+			FinishReason:    generated.FinishReason,
+			Usage:           generated.Usage,
+			ModelDurationMS: time.Since(modelStarted).Milliseconds(),
 		}
 		result.Steps = append(result.Steps, current)
+		r.observe(Event{Kind: EventModelDone, Step: step, DurationMS: current.ModelDurationMS}, observer)
 
 		modelAction := generated.Text
 		if renderer, ok := r.renderer.(interface{ reconstructOutput(string) string }); ok {
@@ -912,6 +927,7 @@ func (r *Runner) RunWithObserver(
 			}
 			r.observe(event, observer)
 		})
+		toolStarted := time.Now()
 		duplicate := false
 		replayed := false
 		recoveryBlocked := false
@@ -1001,6 +1017,9 @@ func (r *Runner) RunWithObserver(
 			}
 		}
 		result.Steps[len(result.Steps)-1].ToolExecuted = executed
+		if executed {
+			result.Steps[len(result.Steps)-1].ToolDurationMS = time.Since(toolStarted).Milliseconds()
+		}
 		if executed {
 			// An argument error is rejected before the tool reaches the
 			// workspace, so it observed nothing and must not satisfy the
@@ -1606,11 +1625,13 @@ func (r *Runner) decideRoute(
 			request.Prompt = r.nativeTracePrompt(messages, nil, false, false, "<route>")
 		}
 		promptTrace := r.tracePrompt(request, "<route>", nil)
+		started := time.Now()
 		generated, _, _, err := r.generate(ctx, request, messages, nil, false, false, "<route>")
 		if err != nil {
 			steps = append(steps, RouteStep{
-				Attempt: attempt + 1,
-				Request: promptTrace,
+				Attempt:    attempt + 1,
+				Request:    promptTrace,
+				DurationMS: time.Since(started).Milliseconds(),
 			})
 			r.observe(Event{Kind: EventRouteDone, Err: err}, observer)
 			return "", steps, err
@@ -1624,6 +1645,7 @@ func (r *Runner) decideRoute(
 			Attempt:     attempt + 1,
 			Request:     promptTrace,
 			ModelOutput: generated.Text,
+			DurationMS:  time.Since(started).Milliseconds(),
 		}
 		if parseErr == nil {
 			current.Route = route
@@ -1681,9 +1703,14 @@ func (r *Runner) decideToolRoute(
 			request.Prompt = r.nativeTracePrompt(messages, nil, false, false, "<route>")
 		}
 		promptTrace := r.tracePrompt(request, "<route>", nil)
+		started := time.Now()
 		generated, _, _, err := r.generate(ctx, request, messages, nil, false, false, "<route>")
 		if err != nil {
-			steps = append(steps, RouteStep{Attempt: attempt + 1, Request: promptTrace})
+			steps = append(steps, RouteStep{
+				Attempt:    attempt + 1,
+				Request:    promptTrace,
+				DurationMS: time.Since(started).Milliseconds(),
+			})
 			r.observe(Event{Kind: EventRouteDone, Err: err}, observer)
 			return ToolRouteDecision{}, steps, err
 		}
@@ -1696,6 +1723,7 @@ func (r *Runner) decideToolRoute(
 			Attempt:     attempt + 1,
 			Request:     promptTrace,
 			ModelOutput: generated.Text,
+			DurationMS:  time.Since(started).Milliseconds(),
 		}
 		if parseErr == nil {
 			current.Route = decision.Route

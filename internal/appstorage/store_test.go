@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"testing"
+	"time"
 
 	agentapi "github.com/no22/RWKV-Agent/api"
 )
@@ -94,10 +95,19 @@ func TestConversationAndWorkspaceRoundTrip(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	createdAt := time.Date(2026, time.August, 15, 9, 30, 0, 0, time.UTC)
 	conversation.Messages = []DisplayMessage{
 		{ID: "m1", Role: "user", Content: "Read README"},
 		{
-			ID: "m2", Role: "assistant", Content: "Done",
+			ID: "m2", Role: "assistant", Content: "Done", CreatedAt: createdAt,
+			Trace: &agentapi.Result{
+				Output: "Done", Route: "inspect", Bundles: []string{"workspace"}, DurationMS: 1250,
+				Steps: []agentapi.Step{{
+					Number: 1, Stage: "tool", Request: &agentapi.PromptTrace{Prompt: "Read README", Bytes: 11},
+					Tool: "read_file", ToolArguments: `{"path":"README.md"}`, ToolExecuted: true,
+					ModelDurationMS: 800, ToolDurationMS: 450,
+				}},
+			},
 			Trajectory: []ToolTrace{{
 				Step: 1, Tool: "spawn_agents", Arguments: `{"tasks":["check docs","check code"]}`,
 				Status: "completed", Subagents: []SubagentTrace{{
@@ -130,7 +140,12 @@ func TestConversationAndWorkspaceRoundTrip(t *testing.T) {
 		loaded.Messages[1].Trajectory[0].Subagents[0].Steps[0].Arguments != `{"query":"RWKV"}` ||
 		loaded.Messages[1].Trajectory[0].Subagents[0].Steps[0].Retries[0].StatusCode != 429 ||
 		loaded.Messages[1].Trajectory[0].Subagents[0].Steps[0].Retries[0].DelayMS != 2000 ||
-		loaded.Messages[1].Trajectory[0].Subagents[0].Sources[0] != "https://example.test/docs" {
+		loaded.Messages[1].Trajectory[0].Subagents[0].Sources[0] != "https://example.test/docs" ||
+		loaded.Messages[1].Trace == nil || loaded.Messages[1].Trace.Route != "inspect" ||
+		loaded.Messages[1].Trace.Steps[0].Request.Prompt != "Read README" ||
+		loaded.Messages[1].Trace.Steps[0].ModelDurationMS != 800 ||
+		loaded.Messages[1].Trace.Steps[0].ToolDurationMS != 450 ||
+		!loaded.Messages[1].CreatedAt.Equal(createdAt) {
 		t.Fatalf("conversation = %+v", loaded)
 	}
 	summaries, err := store.ListConversations(workspace)

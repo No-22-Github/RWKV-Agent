@@ -5,12 +5,15 @@ export {
     AgentProtocol,
     Config,
     ModelState,
+    PromptTrace,
     Provider,
     RemoteModel,
     Result,
+    RouteStep,
     Status,
     Step,
     SubagentStep,
     SubagentTrace,
-    ToolRetryTrace
+    ToolRetryTrace,
+    Usage
 } from "./models.js";

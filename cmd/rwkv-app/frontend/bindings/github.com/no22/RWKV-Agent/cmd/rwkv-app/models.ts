@@ -157,6 +157,8 @@ export class DisplayMessage {
     "content": string;
     "meta"?: string;
     "trajectory"?: ToolTrace[];
+    "trace"?: api$0.Result | null;
+    "createdAt"?: string;
 
     /** Creates a new DisplayMessage instance. */
     constructor($$source: Partial<DisplayMessage> = {}) {
@@ -178,9 +180,13 @@ export class DisplayMessage {
      */
     static createFrom($$source: any = {}): DisplayMessage {
         const $$createField4_0 = $$createType12;
+        const $$createField5_0 = $$createType14;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("trajectory" in $$parsedSource) {
             $$parsedSource["trajectory"] = $$createField4_0($$parsedSource["trajectory"]);
+        }
+        if ("trace" in $$parsedSource) {
+            $$parsedSource["trace"] = $$createField5_0($$parsedSource["trace"]);
         }
         return new DisplayMessage($$parsedSource as Partial<DisplayMessage>);
     }
@@ -246,7 +252,7 @@ export class SubagentStep {
      * Creates a new SubagentStep instance from a string or object.
      */
     static createFrom($$source: any = {}): SubagentStep {
-        const $$createField5_0 = $$createType14;
+        const $$createField5_0 = $$createType16;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("retries" in $$parsedSource) {
             $$parsedSource["retries"] = $$createField5_0($$parsedSource["retries"]);
@@ -289,9 +295,9 @@ export class SubagentTrace {
      * Creates a new SubagentTrace instance from a string or object.
      */
     static createFrom($$source: any = {}): SubagentTrace {
-        const $$createField5_0 = $$createType15;
-        const $$createField8_0 = $$createType15;
-        const $$createField9_0 = $$createType17;
+        const $$createField5_0 = $$createType17;
+        const $$createField8_0 = $$createType17;
+        const $$createField9_0 = $$createType19;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("bundles" in $$parsedSource) {
             $$parsedSource["bundles"] = $$createField5_0($$parsedSource["bundles"]);
@@ -364,8 +370,8 @@ export class ToolTrace {
      * Creates a new ToolTrace instance from a string or object.
      */
     static createFrom($$source: any = {}): ToolTrace {
-        const $$createField5_0 = $$createType14;
-        const $$createField6_0 = $$createType19;
+        const $$createField5_0 = $$createType16;
+        const $$createField6_0 = $$createType21;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("retries" in $$parsedSource) {
             $$parsedSource["retries"] = $$createField5_0($$parsedSource["retries"]);
@@ -424,10 +430,12 @@ const $$createType9 = DisplayMessage.createFrom;
 const $$createType10 = $Create.Array($$createType9);
 const $$createType11 = ToolTrace.createFrom;
 const $$createType12 = $Create.Array($$createType11);
-const $$createType13 = ToolRetryTrace.createFrom;
-const $$createType14 = $Create.Array($$createType13);
-const $$createType15 = $Create.Array($Create.Any);
-const $$createType16 = SubagentStep.createFrom;
-const $$createType17 = $Create.Array($$createType16);
-const $$createType18 = SubagentTrace.createFrom;
+const $$createType13 = api$0.Result.createFrom;
+const $$createType14 = $Create.Nullable($$createType13);
+const $$createType15 = ToolRetryTrace.createFrom;
+const $$createType16 = $Create.Array($$createType15);
+const $$createType17 = $Create.Array($Create.Any);
+const $$createType18 = SubagentStep.createFrom;
 const $$createType19 = $Create.Array($$createType18);
+const $$createType20 = SubagentTrace.createFrom;
+const $$createType21 = $Create.Array($$createType20);

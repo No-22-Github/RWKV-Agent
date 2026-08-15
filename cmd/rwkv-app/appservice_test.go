@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+	"time"
 
 	agentapi "github.com/no22/RWKV-Agent/api"
 	"github.com/no22/RWKV-Agent/internal/appstorage"
@@ -202,5 +203,49 @@ func TestStoredToolTraceKeepsCompactStatus(t *testing.T) {
 	if trace[1].Status != "failed" || trace[1].Error != "request timed out" ||
 		trace[1].Retries[0].StatusCode != 0 || trace[1].Retries[0].DelayMS != 500 {
 		t.Fatalf("failed trace = %+v", trace[1])
+	}
+}
+
+func TestPersistTurnKeepsFailedRunTrace(t *testing.T) {
+	t.Parallel()
+	workspace := resolvedWorkspace(t)
+	store := testAppStore(t)
+	service, err := agentapi.NewService(agentapi.Options{Workspace: workspace})
+	if err != nil {
+		t.Fatal(err)
+	}
+	backend := newAppService(service, store)
+	t.Cleanup(func() { _ = backend.Close() })
+
+	result := agentapi.Result{
+		Error:      "model service returned 503",
+		DurationMS: 612,
+		Steps: []agentapi.Step{{
+			Number: 1, Stage: "model", ModelError: "model service returned 503",
+			Request: &agentapi.PromptTrace{Prompt: "inspect failure", Bytes: 15},
+		}},
+	}
+	if err := backend.persistTurn(nil, "inspect failure", "error", result.Error, result, time.Now().UTC()); err != nil {
+		t.Fatal(err)
+	}
+
+	backend.mu.Lock()
+	active := backend.active
+	backend.mu.Unlock()
+	if active == nil || len(active.Messages) != 2 {
+		t.Fatalf("persisted conversation = %+v", active)
+	}
+	failed := active.Messages[1]
+	if failed.Role != "error" || failed.Trace == nil || failed.Trace.Error != result.Error ||
+		len(failed.Trace.Steps) != 1 || failed.Trace.Steps[0].ModelError != result.Error {
+		t.Fatalf("persisted failed message = %+v", failed)
+	}
+
+	reloaded, err := store.LoadConversation(active.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(reloaded.Messages) != 2 || reloaded.Messages[1].Trace == nil || reloaded.Messages[1].Trace.Error != result.Error {
+		t.Fatalf("reloaded failed message = %+v", reloaded.Messages)
 	}
 }

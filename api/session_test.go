@@ -73,6 +73,10 @@ func TestUnifiedSessionReadsREADMEAndReturnsFirstLine(t *testing.T) {
 	if len(result.Steps) != 2 || result.Steps[0].Tool != "read_file" || !result.Steps[0].ToolExecuted {
 		t.Fatalf("steps = %+v", result.Steps)
 	}
+	if len(result.RouteSteps) != 1 || result.RouteSteps[0].Request == nil || result.RouteSteps[0].Request.Prompt == "" ||
+		result.Steps[0].Request == nil || result.Steps[0].Request.Bytes == 0 || result.Steps[0].ToolResult == "" {
+		t.Fatalf("public trace = %+v", result)
+	}
 	toolStarted := false
 	for _, event := range events {
 		if event.Kind == EventToolStart && event.Tool == "read_file" {

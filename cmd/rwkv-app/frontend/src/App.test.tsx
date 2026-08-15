@@ -296,21 +296,17 @@ describe('App', () => {
 
     expect(await screen.findByText('项目说明已读取')).toBeInTheDocument()
     expect(Backend.OpenConversation).toHaveBeenCalledWith('conversation-1')
+    const turn = screen.getByTestId('conversation-turn-1')
+    expect(turn).toHaveTextContent('读取 README')
+    expect(turn).toHaveTextContent('项目说明已读取')
+    expect(screen.getByText(/STEP 1 · spawn_agents/)).toBeInTheDocument()
+    expect(screen.getByText(/STEP 2 · read_file/)).toBeInTheDocument()
+    expect(screen.queryByText('检查官方文档')).not.toBeInTheDocument()
+    expect(screen.queryByText('{"urls":["https://example.test/docs"]}')).not.toBeInTheDocument()
 
-    const summaryButton = screen.getByRole('button', { name: '完成 2 次工具调用，1 次失败 · 1 个子 Agent' })
-    expect(summaryButton).toHaveAttribute('aria-expanded', 'false')
-    fireEvent.click(summaryButton)
-    expect(summaryButton).toHaveAttribute('aria-expanded', 'true')
-    expect(screen.getByText('步骤 2 · 失败')).toBeInTheDocument()
-    expect(screen.getByText('文件暂时不可读')).toBeInTheDocument()
-    expect(screen.getByText('spawn_agents')).toBeInTheDocument()
-    expect(screen.getByText('Agent 1')).toBeInTheDocument()
-    expect(screen.getByText('检查官方文档')).toBeInTheDocument()
-    expect(screen.getByText('web_fetch')).toBeInTheDocument()
-    expect(screen.getByText('{"urls":["https://example.test/docs"]}')).toBeInTheDocument()
-    expect(screen.getByText('尝试 1/5 · HTTP 429 · 2 秒后重试')).toBeInTheDocument()
-    expect(screen.getByText('确认了官方说明')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: /https:\/\/example\.test\/docs/ })).toHaveAttribute('href', 'https://example.test/docs')
+    fireEvent.click(screen.getByRole('button', { name: '查看轨迹' }))
+    expect(screen.getByText(/legacyTrajectory/)).toHaveTextContent('检查官方文档')
+    expect(screen.getByText(/legacyTrajectory/)).toHaveTextContent('文件暂时不可读')
   })
 
   it('groups live child activity under spawn_agents', async () => {
@@ -333,6 +329,7 @@ describe('App', () => {
     fireEvent.change(composer, { target: { value: '并行检查' } })
     fireEvent.keyDown(composer, { key: 'Enter' })
     await waitFor(() => expect(Backend.Chat).toHaveBeenCalledWith('并行检查'))
+    expect(screen.getByLabelText('消息')).toBeInTheDocument()
 
     const emit = eventHandlers.get('agent:event')
     expect(emit).toBeDefined()
@@ -344,16 +341,136 @@ describe('App', () => {
       emit?.({ data: { kind: 'tool_retry', parentStep: 1, subagentIndex: 1, subagentTask: '检查文档', step: 1, tool: 'web_search', attempt: 1, maxAttempts: 5, statusCode: 429, delayMs: 2000 } })
     })
 
-    expect(screen.getByText('spawn_agents')).toBeInTheDocument()
-    expect(screen.getByText('Agent 1')).toBeInTheDocument()
-    expect(screen.getByText('检查文档')).toBeInTheDocument()
-    expect(screen.getByText('web_search')).toBeInTheDocument()
-    expect(screen.getByText('{"query":"RWKV"}')).toBeInTheDocument()
-    expect(screen.getByText('bundles: web')).toBeInTheDocument()
-    expect(screen.getByText('尝试 1/5 · HTTP 429 · 2 秒后重试')).toBeInTheDocument()
+    const runningTurn = screen.getByTestId('conversation-turn-1')
+    expect(runningTurn).toHaveClass('pending')
+    expect(runningTurn).toHaveTextContent('并行检查')
+    // 生成期间正文栏保持干净：工具参数与子任务详情不再出现在对话中央
+    expect(screen.queryByText('{"query":"RWKV"}')).not.toBeInTheDocument()
+    expect(screen.queryByText('检查文档')).not.toBeInTheDocument()
+    // 运行状态只在左侧页边栏以缩略标签呈现
+    expect(screen.getByText(/调用 spawn_agents/)).toBeInTheDocument()
+    expect(screen.getByText(/工具重试 · web_search/)).toBeInTheDocument()
+    expect(screen.getAllByText(/子 Agent 1/).length).toBeGreaterThan(0)
 
     await act(async () => {
       resolveChat(new Result({ output: 'done', steps: [], duration: 0, durationMs: 1 }))
     })
+    await waitFor(() => expect(screen.getByTestId('conversation-turn-1')).not.toHaveClass('pending'))
+    expect(screen.getAllByTestId(/conversation-turn-/)).toHaveLength(1)
+    expect(screen.getByText('done')).toBeInTheDocument()
+  })
+
+  it('opens the trace ledger inspector and exports JSONL', async () => {
+    const trace = new Result({
+      output: '已完成读取。',
+      route: 'inspect',
+      bundles: ['workspace'],
+      routeSteps: [{ attempt: 1, request: { prompt: '路由到 inspect', bytes: 24 }, modelOutput: '{"route":"inspect"}', route: 'inspect', durationMs: 34 }],
+      durationMs: 1234,
+      steps: [
+        { number: 1, stage: 'model', request: { prompt: '读取 README', bytes: 42 }, modelDurationMs: 800, usage: { promptTokens: 120, completionTokens: 20 } },
+        { number: 2, stage: 'tool', tool: 'read_file', toolArguments: '{"path":"README.md"}', toolResult: '# RWKV Agent', toolExecuted: true, toolDurationMs: 400, usage: {} },
+      ],
+    })
+    const summary = new ConversationSummary({ id: 'trace-conversation', title: '轨迹验收', updatedAt: new Date().toISOString() })
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({ conversations: [summary] }))
+    vi.mocked(Backend.OpenConversation).mockResolvedValue(new ConversationView({
+      id: summary.id,
+      title: summary.title,
+      messages: [
+        new DisplayMessage({ id: 'trace-user', role: 'user', content: '读取 README' }),
+        new DisplayMessage({ id: 'trace-assistant', role: 'assistant', content: '已完成读取。', trace }),
+      ],
+    }))
+    const createObjectURL = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:trace')
+    const anchorClick = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined)
+
+    const { container } = render(<App />)
+    fireEvent.click(await screen.findByTitle('轨迹验收'))
+    expect(await screen.findByText('已完成读取。')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '查看轨迹' }))
+
+    expect(screen.getByText('Input')).toBeInTheDocument()
+    expect(screen.getByText('Model')).toBeInTheDocument()
+    expect(screen.getByText('Tools')).toBeInTheDocument()
+    expect(container.querySelector('.turn-prompt')).toHaveTextContent('读取 README')
+    fireEvent.click(screen.getByTitle('工具调用 · read_file'))
+    fireEvent.click(screen.getByRole('button', { name: '请求' }))
+    expect(screen.getByText(/arguments/)).toHaveTextContent('README.md')
+    fireEvent.click(screen.getByTitle('工具结果 · read_file'))
+    fireEvent.click(screen.getByRole('button', { name: '结果' }))
+    expect(screen.getByText(/result/)).toHaveTextContent('# RWKV Agent')
+    fireEvent.click(screen.getByTitle('模型响应 · Step 1'))
+    fireEvent.click(screen.getByRole('button', { name: '时序' }))
+    expect(screen.getByText(/promptTokens/)).toHaveTextContent('120')
+    fireEvent.click(screen.getByRole('button', { name: '导出 JSONL' }))
+    expect(createObjectURL).toHaveBeenCalledOnce()
+    createObjectURL.mockRestore()
+    anchorClick.mockRestore()
+  })
+
+  it('shows legacy tool traces in the trajectory tab', async () => {
+    const summary = new ConversationSummary({ id: 'legacy-conversation', title: '旧轨迹', updatedAt: new Date().toISOString() })
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({ conversations: [summary] }))
+    vi.mocked(Backend.OpenConversation).mockResolvedValue(new ConversationView({
+      id: summary.id,
+      title: summary.title,
+      messages: [
+        new DisplayMessage({ id: 'legacy-assistant', role: 'assistant', content: '旧数据已恢复', createdAt: '0001-01-01T00:00:00.000Z', trajectory: [{ step: 1, tool: 'read_file', status: 'completed' }] }),
+      ],
+    }))
+
+    render(<App />)
+    fireEvent.click(await screen.findByTitle('旧轨迹'))
+    expect(await screen.findByText('旧数据已恢复')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('tab', { name: /轨迹/ }))
+    expect(screen.getByText('STEP 1 · read_file')).toBeInTheDocument()
+    expect(screen.getByText('本地')).toBeInTheDocument()
+  })
+
+  it('restores and opens a failed run trajectory without reloading the page', async () => {
+    const failure = new Result({
+      error: '模型服务返回 503',
+      durationMs: 612,
+      steps: [{
+        number: 1,
+        stage: 'model',
+        request: { prompt: '检查失败原因', bytes: 36 },
+        modelDurationMs: 600,
+        modelError: '模型服务返回 503',
+        usage: {},
+      }],
+    })
+    const failedConversation = new ConversationView({
+      id: 'failed-conversation',
+      title: '检查失败原因',
+      messages: [
+        new DisplayMessage({ id: 'failed-user', role: 'user', content: '检查失败原因' }),
+        new DisplayMessage({ id: 'failed-error', role: 'error', content: '模型服务返回 503', trace: failure }),
+      ],
+    })
+    vi.mocked(Backend.Bootstrap)
+      .mockResolvedValueOnce(bootstrap({ status: new Status({ state: ModelState.ModelReady, model: 'scripted', workspace: '/tmp/RWKV-Agent', hasApiKey: false, updatedAt: new Date().toISOString() }) }))
+      .mockResolvedValueOnce(bootstrap({
+        status: new Status({ state: ModelState.ModelReady, model: 'scripted', workspace: '/tmp/RWKV-Agent', hasApiKey: false, updatedAt: new Date().toISOString() }),
+        conversation: failedConversation,
+      }))
+    vi.mocked(Backend.Chat).mockRejectedValue(new Error('模型服务返回 503'))
+
+    render(<App />)
+    const composer = await screen.findByLabelText('消息')
+    fireEvent.change(composer, { target: { value: '检查失败原因' } })
+    fireEvent.keyDown(composer, { key: 'Enter' })
+
+    expect(await screen.findByText('模型服务返回 503')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '查看轨迹' })).toBeEnabled()
+    expect(screen.getByRole('tab', { name: /轨迹/ })).toBeEnabled()
+    fireEvent.click(screen.getByRole('button', { name: '查看轨迹' }))
+    expect(screen.getByTitle('用户输入')).toBeInTheDocument()
+    expect(screen.getByTitle('模型响应 · Step 1')).toBeInTheDocument()
+    expect(screen.getByTitle('Agent 运行失败')).toBeInTheDocument()
+    fireEvent.click(screen.getByTitle('模型响应 · Step 1'))
+    fireEvent.click(screen.getByRole('button', { name: '结果' }))
+    expect(screen.getByText(/modelError/)).toHaveTextContent('模型服务返回 503')
   })
 })

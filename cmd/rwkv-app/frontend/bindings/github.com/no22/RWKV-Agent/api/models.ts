@@ -106,6 +106,49 @@ export enum ModelState {
 };
 
 /**
+ * PromptTrace is the bounded request snapshot that produced one model output.
+ * It can contain local conversation and workspace content and is intended for
+ * the local trajectory inspector, not telemetry.
+ */
+export class PromptTrace {
+    "prompt": string;
+    "bytes": number;
+    "truncated"?: boolean;
+    "assistantPrefix"?: string;
+    "stops"?: string[];
+    "maxOutputTokens"?: number;
+    "toolsOffered"?: string[];
+
+    /** Creates a new PromptTrace instance. */
+    constructor($$source: Partial<PromptTrace> = {}) {
+        if (!("prompt" in $$source)) {
+            this["prompt"] = "";
+        }
+        if (!("bytes" in $$source)) {
+            this["bytes"] = 0;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new PromptTrace instance from a string or object.
+     */
+    static createFrom($$source: any = {}): PromptTrace {
+        const $$createField4_0 = $$createType1;
+        const $$createField6_0 = $$createType1;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("stops" in $$parsedSource) {
+            $$parsedSource["stops"] = $$createField4_0($$parsedSource["stops"]);
+        }
+        if ("toolsOffered" in $$parsedSource) {
+            $$parsedSource["toolsOffered"] = $$createField6_0($$parsedSource["toolsOffered"]);
+        }
+        return new PromptTrace($$parsedSource as Partial<PromptTrace>);
+    }
+}
+
+/**
  * Provider selects the continuation implementation used by a Service.
  */
 export enum Provider {
@@ -148,9 +191,15 @@ export class RemoteModel {
  */
 export class Result {
     "output": string;
+    "error"?: string;
+    "originalOutput"?: string;
+    "routeSteps"?: RouteStep[];
     "route"?: string;
     "bundles"?: string[];
     "steps": Step[];
+    "answerContractRepaired"?: boolean;
+    "answerViolations"?: string[];
+    "forcedAnswerReason"?: string;
     "duration": time$0.Duration;
     "durationMs": number;
 
@@ -176,16 +225,63 @@ export class Result {
      * Creates a new Result instance from a string or object.
      */
     static createFrom($$source: any = {}): Result {
-        const $$createField2_0 = $$createType1;
-        const $$createField3_0 = $$createType3;
+        const $$createField2_0 = $$createType3;
+        const $$createField4_0 = $$createType1;
+        const $$createField5_0 = $$createType5;
+        const $$createField7_0 = $$createType1;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("routeSteps" in $$parsedSource) {
+            $$parsedSource["routeSteps"] = $$createField2_0($$parsedSource["routeSteps"]);
+        }
         if ("bundles" in $$parsedSource) {
-            $$parsedSource["bundles"] = $$createField2_0($$parsedSource["bundles"]);
+            $$parsedSource["bundles"] = $$createField4_0($$parsedSource["bundles"]);
         }
         if ("steps" in $$parsedSource) {
-            $$parsedSource["steps"] = $$createField3_0($$parsedSource["steps"]);
+            $$parsedSource["steps"] = $$createField5_0($$parsedSource["steps"]);
+        }
+        if ("answerViolations" in $$parsedSource) {
+            $$parsedSource["answerViolations"] = $$createField7_0($$parsedSource["answerViolations"]);
         }
         return new Result($$parsedSource as Partial<Result>);
+    }
+}
+
+/**
+ * RouteStep records one routing generation, including correction retries.
+ */
+export class RouteStep {
+    "attempt": number;
+    "request"?: PromptTrace | null;
+    "modelOutput"?: string;
+    "route"?: string;
+    "bundles"?: string[];
+    "protocolError"?: string;
+    "failedClosed"?: boolean;
+    "durationMs"?: number;
+
+    /** Creates a new RouteStep instance. */
+    constructor($$source: Partial<RouteStep> = {}) {
+        if (!("attempt" in $$source)) {
+            this["attempt"] = 0;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new RouteStep instance from a string or object.
+     */
+    static createFrom($$source: any = {}): RouteStep {
+        const $$createField1_0 = $$createType7;
+        const $$createField4_0 = $$createType1;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("request" in $$parsedSource) {
+            $$parsedSource["request"] = $$createField1_0($$parsedSource["request"]);
+        }
+        if ("bundles" in $$parsedSource) {
+            $$parsedSource["bundles"] = $$createField4_0($$parsedSource["bundles"]);
+        }
+        return new RouteStep($$parsedSource as Partial<RouteStep>);
     }
 }
 
@@ -243,16 +339,27 @@ export class Status {
 export class Step {
     "number": number;
     "stage": string;
+    "request"?: PromptTrace | null;
     "modelOutput"?: string;
     "finishReason"?: string;
+    "usage": Usage;
+    "modelDurationMs"?: number;
+    "modelError"?: string;
     "actionType"?: string;
     "tool"?: string;
     "toolArguments"?: string;
     "toolResult"?: string;
     "toolExecuted"?: boolean;
+    "toolEvidence"?: boolean;
+    "toolUnavailable"?: boolean;
+    "toolRejected"?: string;
     "toolError"?: string;
+    "protocolError"?: string;
+    "protocolRepaired"?: boolean;
+    "stageViolation"?: boolean;
     "toolRetries"?: ToolRetryTrace[];
     "subagents"?: SubagentTrace[];
+    "toolDurationMs"?: number;
 
     /** Creates a new Step instance. */
     constructor($$source: Partial<Step> = {}) {
@@ -262,6 +369,9 @@ export class Step {
         if (!("stage" in $$source)) {
             this["stage"] = "";
         }
+        if (!("usage" in $$source)) {
+            this["usage"] = (new Usage());
+        }
 
         Object.assign(this, $$source);
     }
@@ -270,14 +380,22 @@ export class Step {
      * Creates a new Step instance from a string or object.
      */
     static createFrom($$source: any = {}): Step {
-        const $$createField10_0 = $$createType5;
-        const $$createField11_0 = $$createType7;
+        const $$createField2_0 = $$createType7;
+        const $$createField5_0 = $$createType8;
+        const $$createField19_0 = $$createType10;
+        const $$createField20_0 = $$createType12;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("request" in $$parsedSource) {
+            $$parsedSource["request"] = $$createField2_0($$parsedSource["request"]);
+        }
+        if ("usage" in $$parsedSource) {
+            $$parsedSource["usage"] = $$createField5_0($$parsedSource["usage"]);
+        }
         if ("toolRetries" in $$parsedSource) {
-            $$parsedSource["toolRetries"] = $$createField10_0($$parsedSource["toolRetries"]);
+            $$parsedSource["toolRetries"] = $$createField19_0($$parsedSource["toolRetries"]);
         }
         if ("subagents" in $$parsedSource) {
-            $$parsedSource["subagents"] = $$createField11_0($$parsedSource["subagents"]);
+            $$parsedSource["subagents"] = $$createField20_0($$parsedSource["subagents"]);
         }
         return new Step($$parsedSource as Partial<Step>);
     }
@@ -314,7 +432,7 @@ export class SubagentStep {
      * Creates a new SubagentStep instance from a string or object.
      */
     static createFrom($$source: any = {}): SubagentStep {
-        const $$createField5_0 = $$createType5;
+        const $$createField5_0 = $$createType10;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("retries" in $$parsedSource) {
             $$parsedSource["retries"] = $$createField5_0($$parsedSource["retries"]);
@@ -362,7 +480,7 @@ export class SubagentTrace {
     static createFrom($$source: any = {}): SubagentTrace {
         const $$createField5_0 = $$createType1;
         const $$createField8_0 = $$createType1;
-        const $$createField9_0 = $$createType9;
+        const $$createField9_0 = $$createType14;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("bundles" in $$parsedSource) {
             $$parsedSource["bundles"] = $$createField5_0($$parsedSource["bundles"]);
@@ -407,14 +525,41 @@ export class ToolRetryTrace {
     }
 }
 
+/**
+ * Usage is the token accounting reported by the configured provider.
+ */
+export class Usage {
+    "promptTokens"?: number;
+    "completionTokens"?: number;
+
+    /** Creates a new Usage instance. */
+    constructor($$source: Partial<Usage> = {}) {
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new Usage instance from a string or object.
+     */
+    static createFrom($$source: any = {}): Usage {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new Usage($$parsedSource as Partial<Usage>);
+    }
+}
+
 // Private type creation functions
 const $$createType0 = $Create.Map($Create.Any, $Create.Any);
 const $$createType1 = $Create.Array($Create.Any);
-const $$createType2 = Step.createFrom;
+const $$createType2 = RouteStep.createFrom;
 const $$createType3 = $Create.Array($$createType2);
-const $$createType4 = ToolRetryTrace.createFrom;
+const $$createType4 = Step.createFrom;
 const $$createType5 = $Create.Array($$createType4);
-const $$createType6 = SubagentTrace.createFrom;
-const $$createType7 = $Create.Array($$createType6);
-const $$createType8 = SubagentStep.createFrom;
-const $$createType9 = $Create.Array($$createType8);
+const $$createType6 = PromptTrace.createFrom;
+const $$createType7 = $Create.Nullable($$createType6);
+const $$createType8 = Usage.createFrom;
+const $$createType9 = ToolRetryTrace.createFrom;
+const $$createType10 = $Create.Array($$createType9);
+const $$createType11 = SubagentTrace.createFrom;
+const $$createType12 = $Create.Array($$createType11);
+const $$createType13 = SubagentStep.createFrom;
+const $$createType14 = $Create.Array($$createType13);

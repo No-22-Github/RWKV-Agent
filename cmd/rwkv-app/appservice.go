@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -19,11 +20,13 @@ import (
 // UI. The complete Harness transcript is stored separately and never trimmed
 // down to this view.
 type DisplayMessage struct {
-	ID         string      `json:"id"`
-	Role       string      `json:"role"`
-	Content    string      `json:"content"`
-	Meta       string      `json:"meta,omitempty"`
-	Trajectory []ToolTrace `json:"trajectory,omitempty"`
+	ID         string           `json:"id"`
+	Role       string           `json:"role"`
+	Content    string           `json:"content"`
+	Meta       string           `json:"meta,omitempty"`
+	Trajectory []ToolTrace      `json:"trajectory,omitempty"`
+	Trace      *agentapi.Result `json:"trace,omitempty"`
+	CreatedAt  time.Time        `json:"createdAt,omitempty"`
 }
 
 type ToolTrace struct {
@@ -211,14 +214,27 @@ func (s *AppService) Chat(ctx context.Context, prompt string) (agentapi.Result, 
 	if err != nil {
 		return agentapi.Result{}, err
 	}
+	turnStarted := time.Now().UTC()
 	result, err := session.RunWithObserver(ctx, prompt, func(event agentapi.Event) {
 		s.emit("agent:event", event)
 	})
+	role := "assistant"
+	content := result.Output
 	if err != nil {
+		result.Error = err.Error()
+		role = "error"
+		content = err.Error()
 		s.emit("agent:error", err.Error())
-		return result, err
 	}
-
+	if persistErr := s.persistTurn(session, prompt, role, content, result, turnStarted); persistErr != nil {
+		if err != nil {
+			return result, errors.Join(err, persistErr)
+		}
+		return result, persistErr
+	}
+	return result, err
+}
+func (s *AppService) persistTurn(session *agentapi.Session, prompt, role, content string, result agentapi.Result, turnStarted time.Time) error {
 	s.mu.Lock()
 	active := s.active
 	workspace := s.service.Status().Workspace
@@ -226,34 +242,40 @@ func (s *AppService) Chat(ctx context.Context, prompt string) (agentapi.Result, 
 	if active == nil {
 		created, createErr := appstorage.NewConversation(workspace, prompt)
 		if createErr != nil {
-			return result, createErr
+			return createErr
 		}
 		active = &created
 	}
 	active.Messages = append(active.Messages,
-		appstorage.DisplayMessage{ID: messageID(active.ID, len(active.Messages)), Role: "user", Content: strings.TrimSpace(prompt)},
 		appstorage.DisplayMessage{
-			ID: messageID(active.ID, len(active.Messages)+1), Role: "assistant", Content: result.Output,
+			ID: messageID(active.ID, len(active.Messages)), Role: "user",
+			Content: strings.TrimSpace(prompt), CreatedAt: turnStarted,
+		},
+		appstorage.DisplayMessage{
+			ID: messageID(active.ID, len(active.Messages)+1), Role: role, Content: content,
 			Meta:       fmt.Sprintf("%d 步 · %.1f 秒", len(result.Steps), float64(result.DurationMS)/1000),
 			Trajectory: storedToolTrace(result),
+			Trace:      &result,
+			CreatedAt:  time.Now().UTC(),
 		},
 	)
 	active.Transcript = session.History()
 	if err := s.storage.SaveConversation(*active); err != nil {
-		return result, fmt.Errorf("保存对话失败: %w", err)
+		return fmt.Errorf("保存对话失败: %w", err)
 	}
-	active, err = s.loadSavedConversation(active.ID)
+	saved, err := s.loadSavedConversation(active.ID)
 	if err != nil {
-		return result, fmt.Errorf("重新读取已保存对话失败: %w", err)
+		return fmt.Errorf("重新读取已保存对话失败: %w", err)
 	}
+	active = saved
 	if err := s.storage.SetActiveConversation(workspace, active.ID); err != nil {
-		return result, fmt.Errorf("保存当前对话失败: %w", err)
+		return fmt.Errorf("保存当前对话失败: %w", err)
 	}
 	s.mu.Lock()
 	s.active = active
 	s.mu.Unlock()
 	s.emit("conversation:saved", conversationView(*active))
-	return result, nil
+	return nil
 }
 
 // NewConversation starts a blank durable conversation while preserving the
@@ -539,7 +561,7 @@ func conversationView(value appstorage.Conversation) ConversationView {
 	for _, message := range value.Messages {
 		messages = append(messages, DisplayMessage{
 			ID: message.ID, Role: message.Role, Content: message.Content, Meta: message.Meta,
-			Trajectory: displayToolTrace(message.Trajectory),
+			Trajectory: displayToolTrace(message.Trajectory), Trace: message.Trace, CreatedAt: message.CreatedAt,
 		})
 	}
 	return ConversationView{

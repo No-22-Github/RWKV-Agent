@@ -346,26 +346,53 @@ func publicEvent(event agent.Event) Event {
 
 func publicResult(value agent.Result, duration time.Duration) Result {
 	result := Result{
-		Output:     terminal.SanitizeModelText(value.Output),
-		Route:      string(value.Route),
-		Bundles:    append([]string(nil), value.Bundles...),
-		Steps:      make([]Step, 0, len(value.Steps)),
-		Duration:   duration,
-		DurationMS: duration.Milliseconds(),
+		Output:                 terminal.SanitizeModelText(value.Output),
+		OriginalOutput:         value.OriginalOutput,
+		Route:                  string(value.Route),
+		Bundles:                append([]string(nil), value.Bundles...),
+		Steps:                  make([]Step, 0, len(value.Steps)),
+		AnswerContractRepaired: value.AnswerContractRepaired,
+		AnswerViolations:       append([]string(nil), value.AnswerViolations...),
+		ForcedAnswerReason:     value.ForcedAnswerReason,
+		Duration:               duration,
+		DurationMS:             duration.Milliseconds(),
+	}
+	for _, routeStep := range value.RouteSteps {
+		result.RouteSteps = append(result.RouteSteps, RouteStep{
+			Attempt:       routeStep.Attempt,
+			Request:       publicPromptTrace(routeStep.Request),
+			ModelOutput:   routeStep.ModelOutput,
+			Route:         string(routeStep.Route),
+			Bundles:       append([]string(nil), routeStep.Bundles...),
+			ProtocolError: routeStep.ProtocolError,
+			FailedClosed:  routeStep.FailedClosed,
+			DurationMS:    routeStep.DurationMS,
+		})
 	}
 	for _, step := range value.Steps {
 		converted := Step{
-			Number:        step.Number,
-			Stage:         string(step.Stage),
-			ModelOutput:   step.ModelOutput,
-			FinishReason:  string(step.FinishReason),
-			ActionType:    step.ActionType,
-			Tool:          step.Tool,
-			ToolArguments: string(step.ToolArguments),
-			ToolResult:    string(step.ToolResult),
-			ToolExecuted:  step.ToolExecuted,
-			ToolError:     step.ToolError,
-			ToolRetries:   publicToolRetries(step.ToolRetries),
+			Number:           step.Number,
+			Stage:            string(step.Stage),
+			Request:          publicPromptTrace(step.Request),
+			ModelOutput:      step.ModelOutput,
+			FinishReason:     string(step.FinishReason),
+			Usage:            Usage{PromptTokens: step.Usage.PromptTokens, CompletionTokens: step.Usage.CompletionTokens},
+			ModelDurationMS:  step.ModelDurationMS,
+			ModelError:       step.ModelError,
+			ActionType:       step.ActionType,
+			Tool:             step.Tool,
+			ToolArguments:    string(step.ToolArguments),
+			ToolResult:       string(step.ToolResult),
+			ToolExecuted:     step.ToolExecuted,
+			ToolEvidence:     step.ToolEvidence,
+			ToolUnavailable:  step.ToolUnavailable,
+			ToolRejected:     step.ToolRejected,
+			ToolError:        step.ToolError,
+			ProtocolError:    step.ProtocolError,
+			ProtocolRepaired: step.ProtocolRepaired,
+			StageViolation:   step.StageViolation,
+			ToolRetries:      publicToolRetries(step.ToolRetries),
+			ToolDurationMS:   step.ToolDurationMS,
 		}
 		for _, subagent := range step.Subagents {
 			child := SubagentTrace{
@@ -386,6 +413,21 @@ func publicResult(value agent.Result, duration time.Duration) Result {
 		result.Steps = append(result.Steps, converted)
 	}
 	return result
+}
+
+func publicPromptTrace(value *agent.PromptTrace) *PromptTrace {
+	if value == nil {
+		return nil
+	}
+	return &PromptTrace{
+		Prompt:          value.Prompt,
+		Bytes:           value.Bytes,
+		Truncated:       value.Truncated,
+		AssistantPrefix: value.AssistantPrefix,
+		Stops:           append([]string(nil), value.Stops...),
+		MaxOutputTokens: value.MaxOutputTokens,
+		ToolsOffered:    append([]string(nil), value.ToolsOffered...),
+	}
 }
 
 func publicToolRetries(values []agent.ToolRetryTrace) []ToolRetryTrace {

@@ -94,6 +94,7 @@ type EventKind string
 
 const (
 	EventModelStart    EventKind = "model_start"
+	EventModelDone     EventKind = "model_done"
 	EventRouteStart    EventKind = "route_start"
 	EventRouteDone     EventKind = "route_done"
 	EventRetry         EventKind = "protocol_retry"
@@ -130,6 +131,37 @@ type ToolRetryTrace struct {
 	DelayMS     int64 `json:"delayMs"`
 }
 
+// PromptTrace is the bounded request snapshot that produced one model output.
+// It can contain local conversation and workspace content and is intended for
+// the local trajectory inspector, not telemetry.
+type PromptTrace struct {
+	Prompt          string   `json:"prompt"`
+	Bytes           int      `json:"bytes"`
+	Truncated       bool     `json:"truncated,omitempty"`
+	AssistantPrefix string   `json:"assistantPrefix,omitempty"`
+	Stops           []string `json:"stops,omitempty"`
+	MaxOutputTokens int      `json:"maxOutputTokens,omitempty"`
+	ToolsOffered    []string `json:"toolsOffered,omitempty"`
+}
+
+// Usage is the token accounting reported by the configured provider.
+type Usage struct {
+	PromptTokens     int `json:"promptTokens,omitempty"`
+	CompletionTokens int `json:"completionTokens,omitempty"`
+}
+
+// RouteStep records one routing generation, including correction retries.
+type RouteStep struct {
+	Attempt       int          `json:"attempt"`
+	Request       *PromptTrace `json:"request,omitempty"`
+	ModelOutput   string       `json:"modelOutput,omitempty"`
+	Route         string       `json:"route,omitempty"`
+	Bundles       []string     `json:"bundles,omitempty"`
+	ProtocolError string       `json:"protocolError,omitempty"`
+	FailedClosed  bool         `json:"failedClosed,omitempty"`
+	DurationMS    int64        `json:"durationMs,omitempty"`
+}
+
 // SubagentStep is one compact child tool invocation. Tool result bodies are
 // omitted so this trace is safe to retain in presentation storage.
 type SubagentStep struct {
@@ -157,28 +189,45 @@ type SubagentTrace struct {
 
 // Step is the public trace summary for one model action.
 type Step struct {
-	Number        int              `json:"number"`
-	Stage         string           `json:"stage"`
-	ModelOutput   string           `json:"modelOutput,omitempty"`
-	FinishReason  string           `json:"finishReason,omitempty"`
-	ActionType    string           `json:"actionType,omitempty"`
-	Tool          string           `json:"tool,omitempty"`
-	ToolArguments string           `json:"toolArguments,omitempty"`
-	ToolResult    string           `json:"toolResult,omitempty"`
-	ToolExecuted  bool             `json:"toolExecuted,omitempty"`
-	ToolError     string           `json:"toolError,omitempty"`
-	ToolRetries   []ToolRetryTrace `json:"toolRetries,omitempty"`
-	Subagents     []SubagentTrace  `json:"subagents,omitempty"`
+	Number           int              `json:"number"`
+	Stage            string           `json:"stage"`
+	Request          *PromptTrace     `json:"request,omitempty"`
+	ModelOutput      string           `json:"modelOutput,omitempty"`
+	FinishReason     string           `json:"finishReason,omitempty"`
+	Usage            Usage            `json:"usage"`
+	ModelDurationMS  int64            `json:"modelDurationMs,omitempty"`
+	ModelError       string           `json:"modelError,omitempty"`
+	ActionType       string           `json:"actionType,omitempty"`
+	Tool             string           `json:"tool,omitempty"`
+	ToolArguments    string           `json:"toolArguments,omitempty"`
+	ToolResult       string           `json:"toolResult,omitempty"`
+	ToolExecuted     bool             `json:"toolExecuted,omitempty"`
+	ToolEvidence     bool             `json:"toolEvidence,omitempty"`
+	ToolUnavailable  bool             `json:"toolUnavailable,omitempty"`
+	ToolRejected     string           `json:"toolRejected,omitempty"`
+	ToolError        string           `json:"toolError,omitempty"`
+	ProtocolError    string           `json:"protocolError,omitempty"`
+	ProtocolRepaired bool             `json:"protocolRepaired,omitempty"`
+	StageViolation   bool             `json:"stageViolation,omitempty"`
+	ToolRetries      []ToolRetryTrace `json:"toolRetries,omitempty"`
+	Subagents        []SubagentTrace  `json:"subagents,omitempty"`
+	ToolDurationMS   int64            `json:"toolDurationMs,omitempty"`
 }
 
 // Result is one committed Agent turn.
 type Result struct {
-	Output     string        `json:"output"`
-	Route      string        `json:"route,omitempty"`
-	Bundles    []string      `json:"bundles,omitempty"`
-	Steps      []Step        `json:"steps"`
-	Duration   time.Duration `json:"duration"`
-	DurationMS int64         `json:"durationMs"`
+	Output                 string        `json:"output"`
+	Error                  string        `json:"error,omitempty"`
+	OriginalOutput         string        `json:"originalOutput,omitempty"`
+	RouteSteps             []RouteStep   `json:"routeSteps,omitempty"`
+	Route                  string        `json:"route,omitempty"`
+	Bundles                []string      `json:"bundles,omitempty"`
+	Steps                  []Step        `json:"steps"`
+	AnswerContractRepaired bool          `json:"answerContractRepaired,omitempty"`
+	AnswerViolations       []string      `json:"answerViolations,omitempty"`
+	ForcedAnswerReason     string        `json:"forcedAnswerReason,omitempty"`
+	Duration               time.Duration `json:"duration"`
+	DurationMS             int64         `json:"durationMs"`
 }
 
 // RemoteModel is one model returned by an OpenAI-compatible models endpoint.

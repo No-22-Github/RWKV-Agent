@@ -63,11 +63,13 @@ type State struct {
 }
 
 type DisplayMessage struct {
-	ID         string      `json:"id"`
-	Role       string      `json:"role"`
-	Content    string      `json:"content"`
-	Meta       string      `json:"meta,omitempty"`
-	Trajectory []ToolTrace `json:"trajectory,omitempty"`
+	ID         string           `json:"id"`
+	Role       string           `json:"role"`
+	Content    string           `json:"content"`
+	Meta       string           `json:"meta,omitempty"`
+	Trajectory []ToolTrace      `json:"trajectory,omitempty"`
+	Trace      *agentapi.Result `json:"trace,omitempty"`
+	CreatedAt  time.Time        `json:"createdAt,omitempty"`
 }
 
 // ToolTrace is the compact, presentation-safe record retained beside an
