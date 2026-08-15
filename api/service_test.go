@@ -185,3 +185,15 @@ func TestRemoteStatusDoesNotExposeSecrets(t *testing.T) {
 		t.Fatalf("status leaked a secret: %s", encoded)
 	}
 }
+
+func TestNewServiceEmptyWorkspaceStaysUnset(t *testing.T) {
+	t.Parallel()
+	service, err := NewService(Options{Workspace: ""})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer service.Close()
+	if service.Status().Workspace != "" {
+		t.Fatalf("workspace = %q, want empty (no project open)", service.Status().Workspace)
+	}
+}

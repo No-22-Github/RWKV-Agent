@@ -76,12 +76,20 @@ type launchOptions struct {
 	workspaceExplicit bool
 }
 
+// defaultWorkspace returns "" meaning "no project open": until the user opens
+// a workspace, the agent runs without file tools. A bundle launched through
+// LaunchServices runs with CWD "/", so defaulting to "." would expose the
+// filesystem root as the read-only workspace.
+func defaultWorkspace() string {
+	return ""
+}
+
 func parseOptions(arguments []string) (launchOptions, error) {
 	var options launchOptions
 	flags := flag.NewFlagSet("rwkv-app", flag.ContinueOnError)
 	flags.StringVar(&options.host, "host", "127.0.0.1", "server-mode bind address")
 	flags.IntVar(&options.port, "port", 8080, "server-mode HTTP port")
-	flags.StringVar(&options.workspace, "workspace", ".", "workspace exposed to read-only Agent tools")
+	flags.StringVar(&options.workspace, "workspace", defaultWorkspace(), "workspace exposed to read-only Agent tools")
 	if err := flags.Parse(arguments); err != nil {
 		return launchOptions{}, err
 	}
@@ -93,10 +101,12 @@ func parseOptions(arguments []string) (launchOptions, error) {
 	if options.port < 1 || options.port > 65535 {
 		return launchOptions{}, fmt.Errorf("port must be between 1 and 65535")
 	}
-	absolute, err := filepath.Abs(options.workspace)
-	if err != nil {
-		return launchOptions{}, err
+	if options.workspace != "" {
+		absolute, err := filepath.Abs(options.workspace)
+		if err != nil {
+			return launchOptions{}, err
+		}
+		options.workspace = absolute
 	}
-	options.workspace = absolute
 	return options, nil
 }

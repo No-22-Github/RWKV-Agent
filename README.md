@@ -610,7 +610,7 @@ RWKV_TEST_PTH=/absolute/path/to/rwkv7-model.pth \
 GitHub Actions（`.github/workflows/ci.yml`）包含两个 job：
 
 - Go：race 测试 `api/...`、`internal/...`、`cmd/rwkv-cli/...`；`CGO_ENABLED=0 go build -tags server ./...` 与 vet 验证 Linux headless 构建。
-- Frontend：Node 24 + `npm ci` + `npm test`。
+- Frontend：Node 24 + pnpm 11（`pnpm install --frozen-lockfile` + `pnpm test`）。
 
 ## 11. 项目结构
 

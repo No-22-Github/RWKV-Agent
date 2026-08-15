@@ -73,8 +73,8 @@ func TestServiceSpawnAgentsUsesConcurrentChildSessions(t *testing.T) {
 	}
 	for _, child := range children {
 		if child.Route != "inspect" || len(child.Bundles) != 1 || child.Bundles[0] != "workspace" ||
-			child.Status != "completed" || len(child.Steps) != 2 || child.Steps[0].Tool != "list_files" ||
-			child.Steps[0].Arguments != `{"path":"."}` || child.Steps[1].Tool != "submit" {
+			child.Status != "completed" || len(child.Steps) != 1 || child.Steps[0].Tool != "list_files" ||
+			child.Steps[0].Arguments != `{"path":"."}` {
 			t.Fatalf("child trace = %+v", child)
 		}
 	}
@@ -133,7 +133,7 @@ func (g *subagentTestGenerator) Continue(
 		outputs := []string{
 			`inspect:delegate</route>`,
 			`<tool_call>{"name":"spawn_agents","arguments":{"tasks":["official check","independent check"]}}</tool_call>`,
-			`{"name":"submit","arguments":{"answer":"combined"}}`,
+			`combined`,
 		}
 		return continuation.Result{Text: outputs[call-1], FinishReason: continuation.FinishStop}, nil
 	}
@@ -168,7 +168,7 @@ func (g *subagentTestGenerator) Continue(
 		}, nil
 	}
 	return continuation.Result{
-		Text:         `{"name":"submit","arguments":{"answer":"child-` + string(rune('0'+g.id)) + `"}}`,
+		Text:         `child-` + string(rune('0'+g.id)),
 		FinishReason: continuation.FinishStop,
 	}, nil
 }

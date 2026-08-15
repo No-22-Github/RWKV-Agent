@@ -24,7 +24,7 @@ describe('MarkdownMessage', () => {
     const { container } = render(<MarkdownMessage content={'```ts\nconst answer = 42\n```\n\n<script>alert("unsafe")</script>'} />)
 
     expect(container.querySelector('script')).toBeNull()
-    expect(container.querySelector('.md-markdown-code-pre')).toHaveTextContent('const answer = 42')
+    expect(container.querySelector('pre')).toHaveTextContent('const answer = 42')
     const copyButton = screen.getByRole('button', { name: '复制 TypeScript 代码' })
     fireEvent.click(copyButton)
 
@@ -35,7 +35,7 @@ describe('MarkdownMessage', () => {
   it('treats an unlabelled fence as a block and inline code as inline', () => {
     const { container } = render(<MarkdownMessage content={'`inline`\n\n```\nplain block\n```'} />)
 
-    expect(container.querySelector('.md-markdown-codeblock')).toHaveTextContent('plain block')
+    expect(container.querySelector('pre')).toHaveTextContent('plain block')
     expect(screen.getByRole('button', { name: '复制 Plain text 代码' })).toBeInTheDocument()
     expect(container.querySelector(':not(pre) > code')).toHaveTextContent('inline')
   })

@@ -71,6 +71,15 @@ export function DeleteConversation(id: string): $CancellablePromise<void> {
 }
 
 /**
+ * ExportTrajectory shows a native save dialog and writes the given JSONL
+ * content to the chosen path. Returns the written path, or "" when the user
+ * cancels the dialog.
+ */
+export function ExportTrajectory(content: string): $CancellablePromise<string> {
+    return $Call.ByID(179504977, content);
+}
+
+/**
  * ListRemoteModels verifies remote connectivity and returns model identifiers.
  */
 export function ListRemoteModels(config: api$0.Config): $CancellablePromise<api$0.RemoteModel[]> {

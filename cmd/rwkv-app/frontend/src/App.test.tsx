@@ -43,6 +43,7 @@ vi.mock('../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/appservice', () => 
   OpenWorkspace: vi.fn(),
   OpenConversation: vi.fn(),
   DeleteConversation: vi.fn().mockResolvedValue(undefined),
+  ExportTrajectory: vi.fn().mockResolvedValue('/tmp/exported.jsonl'),
 }))
 
 function bootstrap(overrides: Partial<AppBootstrap> = {}) {
@@ -95,7 +96,7 @@ describe('App', () => {
 
     const { container } = render(<App />)
 
-    const modelChipSelector = `.composer-chip[title="${model}"]`
+    const modelChipSelector = `button[title="${model}"]`
     await waitFor(() => expect(container.querySelector(modelChipSelector)).not.toBeNull())
     expect(container.querySelector(modelChipSelector)).toHaveTextContent(model)
   })
@@ -382,9 +383,6 @@ describe('App', () => {
         new DisplayMessage({ id: 'trace-assistant', role: 'assistant', content: '已完成读取。', trace }),
       ],
     }))
-    const createObjectURL = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:trace')
-    const anchorClick = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined)
-
     const { container } = render(<App />)
     fireEvent.click(await screen.findByTitle('轨迹验收'))
     expect(await screen.findByText('已完成读取。')).toBeInTheDocument()
@@ -393,7 +391,7 @@ describe('App', () => {
     expect(screen.getByText('Input')).toBeInTheDocument()
     expect(screen.getByText('Model')).toBeInTheDocument()
     expect(screen.getByText('Tools')).toBeInTheDocument()
-    expect(container.querySelector('.turn-prompt')).toHaveTextContent('读取 README')
+    expect(screen.getAllByText('读取 README').length).toBeGreaterThan(0)
     fireEvent.click(screen.getByTitle('工具调用 · read_file'))
     fireEvent.click(screen.getByRole('button', { name: '请求' }))
     expect(screen.getByText(/arguments/)).toHaveTextContent('README.md')
@@ -404,9 +402,8 @@ describe('App', () => {
     fireEvent.click(screen.getByRole('button', { name: '时序' }))
     expect(screen.getByText(/promptTokens/)).toHaveTextContent('120')
     fireEvent.click(screen.getByRole('button', { name: '导出 JSONL' }))
-    expect(createObjectURL).toHaveBeenCalledOnce()
-    createObjectURL.mockRestore()
-    anchorClick.mockRestore()
+    await waitFor(() => expect(Backend.ExportTrajectory).toHaveBeenCalledOnce())
+    expect(vi.mocked(Backend.ExportTrajectory).mock.calls[0][0]).toContain('读取 README')
   })
 
   it('shows legacy tool traces in the trajectory tab', async () => {

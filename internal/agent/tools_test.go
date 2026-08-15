@@ -233,3 +233,32 @@ func TestReadFileTruncatesLargeInput(t *testing.T) {
 		}
 	}
 }
+
+func TestWorkspaceToolsUnavailableWithoutRoot(t *testing.T) {
+	t.Parallel()
+	resolver, err := NewWorkspaceResolver("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, resolveErr := resolver.Resolve("README.md"); !strings.Contains(resolveErr.Error(), "没有打开工作区") {
+		t.Fatalf("resolve error = %v, want workspace-unavailable hint", resolveErr)
+	}
+	tools, err := WorkspaceTools("")
+	if err != nil {
+		t.Fatal(err)
+	}
+	byName := make(map[string]Tool)
+	for _, tool := range tools {
+		byName[tool.Spec().Name] = tool
+	}
+	arguments := map[string]string{
+		"list_files":  `{"path":"README.md","max_depth":1,"max_results":10}`,
+		"read_file":   `{"path":"README.md"}`,
+		"search_text": `{"path":".","query":"TODO","max_results":10}`,
+	}
+	for name, raw := range arguments {
+		if _, executeErr := byName[name].Execute(context.Background(), json.RawMessage(raw)); !strings.Contains(executeErr.Error(), "没有打开工作区") {
+			t.Fatalf("%s error = %v, want workspace-unavailable hint", name, executeErr)
+		}
+	}
+}

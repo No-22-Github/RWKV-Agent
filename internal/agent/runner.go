@@ -1104,9 +1104,9 @@ func (r *Runner) RunWithObserver(
 		if preservesToolOrder(r.protocol) {
 			switch {
 			case replayed:
-				toolContent += "\nNOTE: " + duplicateReplayNote(sameCallStreak, r.options.MaxSteps-step)
+				toolContent += "\nNOTE: " + duplicateReplayNote(sameCallStreak, r.options.MaxSteps-step, r.terminalTool)
 			case duplicate:
-				toolContent += "\nRECOVERY: " + duplicateRejectionNote(sameCallStreak, r.options.MaxSteps-step)
+				toolContent += "\nRECOVERY: " + duplicateRejectionNote(sameCallStreak, r.options.MaxSteps-step, r.terminalTool)
 			case err != nil:
 				toolContent += "\nRECOVERY: " + toolFailureReminder(action.Name, err, recoveryBlocked, activeTools)
 			}
@@ -1278,20 +1278,52 @@ func containsString(values []string, target string) bool {
 	return false
 }
 
+// terminalActionPhrase words the turn-ending suggestion in duplicate/rescue
+// notes: through the terminal tool when one is offered, or with a direct
+// answer otherwise (Markdown protocol has no submit gate).
+func terminalActionPhrase(terminalTool, variant string) string {
+	submit := terminalTool != ""
+	switch variant {
+	case "if_answer":
+		if submit {
+			return "submit if you have the answer"
+		}
+		return "answer directly if you have the answer"
+	case "best_now":
+		if submit {
+			return "submit your best answer now"
+		}
+		return "answer directly now with your best answer"
+	case "if_complete":
+		if submit {
+			return "submit if the task is complete"
+		}
+		return "answer directly if the task is complete"
+	case "call_best":
+		if submit {
+			return "call submit with your best answer now"
+		}
+		return "answer directly now with your best answer"
+	}
+	return "answer directly"
+}
+
 // duplicateReplayNote accompanies a re-executed identical call to a Replayable
 // tool. The first repeat keeps the gentle framing; further repeats escalate
 // because the transcript has proven that the model is stuck in a loop.
-func duplicateReplayNote(streak, stepsLeft int) string {
+func duplicateReplayNote(streak, stepsLeft int, terminalTool string) string {
 	if streak <= 2 {
 		return fmt.Sprintf(
-			"identical tool call re-executed: this exact call has now run %d times in a row. The result is unchanged; do not call it again. Take the next step: different arguments, another tool, the next row, or submit if you have the answer.",
+			"identical tool call re-executed: this exact call has now run %d times in a row. The result is unchanged; do not call it again. Take the next step: different arguments, another tool, the next row, or %s.",
 			streak,
+			terminalActionPhrase(terminalTool, "if_answer"),
 		)
 	}
 	return fmt.Sprintf(
-		"STOP. This identical call has now run %d times in a row and the result will not change. You have %d steps left. Change the arguments, choose a different tool, or submit your best answer now.",
+		"STOP. This identical call has now run %d times in a row and the result will not change. You have %d steps left. Change the arguments, choose a different tool, or %s.",
 		streak,
 		stepsLeft,
+		terminalActionPhrase(terminalTool, "best_now"),
 	)
 }
 
@@ -1299,14 +1331,15 @@ func duplicateReplayNote(streak, stepsLeft int) string {
 // one. The first rejection keeps the exact legacy wording so one-off repeats
 // behave byte-for-byte like previous releases; further rejections add the
 // streak count and the remaining budget.
-func duplicateRejectionNote(streak, stepsLeft int) string {
+func duplicateRejectionNote(streak, stepsLeft int, terminalTool string) string {
 	if streak < 3 {
-		return "This exact call is disabled. Do not repeat it. Use the existing result, change the arguments, choose a different tool, or submit if the task is complete."
+		return "This exact call is disabled. Do not repeat it. Use the existing result, change the arguments, choose a different tool, or " + terminalActionPhrase(terminalTool, "if_complete") + "."
 	}
 	return fmt.Sprintf(
-		"STOP repeating. This identical call has now occurred %d times in a row and it will not be accepted again. You have %d steps left. Change the arguments, choose a different tool, or call submit with your best answer now.",
+		"STOP repeating. This identical call has now occurred %d times in a row and it will not be accepted again. You have %d steps left. Change the arguments, choose a different tool, or %s.",
 		streak,
 		stepsLeft,
+		terminalActionPhrase(terminalTool, "call_best"),
 	)
 }
 

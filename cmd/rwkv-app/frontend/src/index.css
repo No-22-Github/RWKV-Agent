@@ -11,6 +11,8 @@
   --ink: #2b2721;
   --ink-soft: #6e675c;
   --ink-muted: #9a9284;
+  --ink-faint: #d6cdbb;
+  --ink-ghost: #b3aa9a;
   --line: #e8e3da;
   --line-strong: #d9d0c1;
   --brand: #1e7c7e;
@@ -19,6 +21,8 @@
   --danger: #b9492f;
   --danger-wash: #f9e7df;
   --warning: #b56b24;
+  --accent-warm: #c9bfa8;
+  --surface-active: #e7e2d8;
   --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", system-ui, sans-serif;
   --font-serif: "Noto Serif SC", "Songti SC", "STSong", serif;
   --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;

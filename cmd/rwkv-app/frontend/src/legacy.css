@@ -1,0 +1,96 @@
+/*
+ * 保留层：刻意不迁移到 Tailwind 的样式。
+ * - @keyframes 与动画类
+ * - markdown 排版（作用域 .turn-answer .md-markdown）
+ * - gutter 状态圆点（双层伪元素 + --dot 变量）
+ * - 轨迹事件行扫描动画（伪元素 + data-state 属性）
+ * - Wails 桌面拖拽区与 macOS 内嵌标题栏补丁
+ * - 会话删除菜单的 hover/active 显隐（后代选择器）
+ * - 全局 focus-visible 与响应式/无障碍媒体查询
+ */
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@keyframes gutter-pulse { 50% { opacity: .35; } }
+
+@keyframes cursor-pulse { 50% { opacity: 0; } }
+
+@keyframes trace-row-sweep { 0% { left: -300px; } 90%, 100% { left: 100%; } }
+
+.spin { animation: spin .8s linear infinite; }
+
+.answer-cursor { display: block; width: 2px; height: 20px; background: var(--brand); animation: cursor-pulse 1s steps(2, end) infinite; }
+
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+
+/* gutter 状态圆点：外层 20% 淡圈 + 内层实心点，颜色由 --dot 驱动 */
+.gutter-status i { position: relative; width: 9px; height: 9px; flex: 0 0 9px; border-radius: 50%; background: transparent; --dot: var(--accent-warm); }
+
+.gutter-status i::before { content: ''; position: absolute; inset: 0; border-radius: 50%; background: var(--dot); opacity: .2; }
+
+.gutter-status i::after { content: ''; position: absolute; inset: 27%; border-radius: 50%; background: var(--dot); }
+
+.gutter-status.completed i { --dot: var(--brand); }
+
+.gutter-status.failed i { --dot: var(--danger); }
+
+.gutter-status.running i { --dot: var(--brand-bright); }
+
+.gutter-status.running i::before { animation: gutter-pulse 1.25s ease-in-out infinite; }
+
+/* 轨迹事件行运行时的扫描高光 */
+.trace-event[data-state='running']::after { content: ''; position: absolute; top: 0; bottom: 0; left: -300px; width: 300px; pointer-events: none; background: linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--paper-wash) 70%, transparent) 55%, transparent 100%); animation: trace-row-sweep 2.6s ease-out infinite; }
+
+/* Markdown 排版（消息正文） */
+.turn-answer .md-markdown > :first-child { margin-top: 0; }
+
+.turn-answer .md-markdown > :last-child { margin-bottom: 0; }
+
+.turn-answer .md-markdown p { margin: 0 0 13px; }
+
+.turn-answer .md-markdown h1, .turn-answer .md-markdown h2, .turn-answer .md-markdown h3 { margin: 18px 0 8px; color: var(--ink); font: 650 16px/1.5 var(--font-ui); }
+
+.turn-answer .md-markdown ul, .turn-answer .md-markdown ol { margin: 6px 0 14px; padding-left: 24px; }
+
+.turn-answer .md-markdown table { width: 100%; border-top: 1.5px solid var(--ink); border-collapse: collapse; font-size: 13px; line-height: 1.55; }
+
+.turn-answer .md-markdown th, .turn-answer .md-markdown td { border-bottom: 1px solid var(--line); padding: 8px 10px; text-align: left; }
+
+.turn-answer .md-markdown th { color: var(--ink-muted); font-size: 10.5px; font-weight: 500; text-transform: uppercase; }
+
+.turn-answer .md-markdown code:not(pre code) { color: var(--brand); font: 12px var(--mono); }
+
+/* Wails 拖拽区（侧栏/标题栏可拖动，内部控件不可拖） */
+.app-sidebar { --wails-draggable: drag; }
+
+.app-sidebar button, .app-sidebar input { --wails-draggable: no-drag; }
+
+.app-header { --wails-draggable: drag; }
+
+.app-header button { --wails-draggable: no-drag; }
+
+/* macOS 内嵌标题栏（红绿灯）预留空间 */
+.wails-mac .app-sidebar { padding-top: 44px; }
+
+.wails-mac .app-header { padding-top: 22px; height: 70px; flex-basis: 70px; }
+
+.wails-mac .trace-toolbar { padding-top: 4px; }
+
+/* 会话删除菜单：行悬停或激活时显示 */
+.conversation-menu { visibility: hidden; }
+
+.conversation-row:hover .conversation-menu, .conversation-row.active .conversation-menu { visibility: visible; }
+
+:where(button, input, textarea, select):focus-visible { outline: 2px solid var(--brand-bright); outline-offset: 2px; }
+
+@media (max-width: 1100px) {
+  .app-sidebar { width: 196px; flex-basis: 196px; }
+
+  .conversation-turn, .composer { grid-template-columns: 84px minmax(0, 1fr); gap: 24px; }
+
+  .trace-inspector { width: 280px; flex-basis: 280px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gutter-status.running i::before, .trace-event[data-state='running']::after, .answer-cursor, .spin { animation: none; }
+}

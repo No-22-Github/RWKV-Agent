@@ -17,6 +17,7 @@ import MarkdownMessage from './MarkdownMessage'
 import type { ToolTrace } from './ToolTrajectory'
 import Md3Dialog from './components/shared/Md3Dialog'
 import Md3TextField from './components/shared/Md3TextField'
+import { useSnackbar } from './snackbar'
 
 type Message = {
   id: string
@@ -99,7 +100,7 @@ export default function App() {
   useEffect(() => { messagesEnd.current?.scrollIntoView({ block: 'end' }) }, [messages, activity])
 
   const ready = status.state === ModelState.ModelReady
-  const workspaceName = useMemo(() => status.workspace.split(/[\\/]/).filter(Boolean).at(-1) || 'Workspace', [status.workspace])
+  const workspaceName = useMemo(() => status.workspace ? status.workspace.split(/[\\/]/).filter(Boolean).at(-1) || status.workspace : '未打开工作区', [status.workspace])
 
   function applyBootstrap(value: AppBootstrap) {
     setStatus(Status.createFrom(value.status)); setConversations(value.conversations || []); setWorkspaces(value.workspaces || [])
@@ -172,70 +173,70 @@ export default function App() {
 
   const traceMessages = messages.filter((message) => message.role !== 'user' && (message.trace || message.trajectory?.length))
   const selectedMessage = traceMessages.find((message) => message.id === selectedTraceID) || traceMessages.at(-1)
-  return <div className="app-shell">
+  return <div className="flex h-full w-full bg-paper">
     <Sidebar conversations={conversations} workspaces={workspaces} activeId={activeConversationID} busy={busy} onNewChat={() => void newConversation()} onChooseWorkspace={() => void chooseWorkspace()} onOpenSettings={() => setSettingsOpen(true)} onOpen={openConversation} onDelete={deleteConversation} onOpenWorkspace={openWorkspace} />
-    <main className="content-area">
-      <header className="app-header">
-        <div className="header-title"><button className="icon-button header-menu" aria-label="导航"><Menu size={18} /></button><span className="brand-mark" /> <strong>{messages.length ? (messages.find((message) => message.role === 'user')?.content || '新对话') : '新对话'}</strong></div>
-        <div className="header-tabs" role="tablist"><button role="tab" aria-selected={activeTab === 'chat'} className={activeTab === 'chat' ? 'active' : ''} onClick={() => setActiveTab('chat')}>对话</button><button role="tab" aria-selected={activeTab === 'trace'} className={activeTab === 'trace' ? 'active' : ''} onClick={() => setActiveTab('trace')} disabled={!traceMessages.length}>轨迹 <span>{traceMessages.length || ''}</span></button></div>
-        <button className="model-select" onClick={() => setSettingsOpen(true)} title={statusLabel(status)} aria-label={!ready ? '加载本地模型或连接远端 API' : undefined}><span className={`status-dot ${ready ? 'ready' : ''}`} /> <span>{status.model || '选择模型'}</span><ChevronDown size={14} /></button>
+    <main className="flex min-w-0 flex-1 flex-col bg-paper">
+      <header className="app-header relative flex h-[62px] flex-none items-end gap-[18px] border-b border-line px-[30px]">
+        <div className="flex h-9 w-[clamp(200px,26vw,340px)] flex-none items-center gap-[9px] pb-2 font-serif text-[15px]"><button className="icon-button hidden" aria-label="导航"><Menu size={18} /></button><span className="brand-mark h-[9px] w-[9px] flex-none rounded-[1px] bg-brand-bright" /> <strong className="min-w-0 truncate font-semibold">{messages.length ? (messages.find((message) => message.role === 'user')?.content || '新对话') : '新对话'}</strong></div>
+        <div className="flex h-9 flex-none items-end gap-[22px]" role="tablist"><button role="tab" aria-selected={activeTab === 'chat'} className={`border-0 border-b-2 border-transparent bg-transparent pb-[9px] text-center font-serif transition-[border-color,color] duration-150 ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none ${activeTab === 'chat' ? 'border-brand text-[16.5px] font-semibold text-ink' : 'text-[14.5px] text-ink-muted'}`} onClick={() => setActiveTab('chat')}>对话</button><button role="tab" aria-selected={activeTab === 'trace'} className={`min-w-[58px] border-0 border-b-2 border-transparent bg-transparent pb-[9px] text-center font-serif transition-[border-color,color] duration-150 ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none ${activeTab === 'trace' ? 'border-brand text-[16.5px] font-semibold text-ink' : 'text-[14.5px] text-ink-muted'}`} onClick={() => setActiveTab('trace')} disabled={!traceMessages.length}>轨迹 <span className="ml-1 font-mono text-[10px] text-ink-muted">{traceMessages.length || ''}</span></button></div>
+        <button className="mb-[9px] ml-auto flex h-7 max-w-[280px] items-center gap-2 overflow-hidden rounded-[2px] border border-line bg-paper-wash px-[9px] text-[11px] text-ink-soft" onClick={() => setSettingsOpen(true)} title={statusLabel(status)} aria-label={!ready ? '加载本地模型或连接远端 API' : undefined}><span className={`h-[6px] w-[6px] flex-none rounded-full ${ready ? 'bg-brand-bright' : 'bg-ink-muted'}`} /> <span className="truncate">{status.model || '选择模型'}</span><ChevronDown size={14} /></button>
       </header>
       {activeTab === 'trace' ? <TraceView messages={traceMessages} selected={selectedMessage} onSelect={setSelectedTraceID} /> : <ChatView messages={messages} activity={activity} busy={busy} ready={ready} workspace={workspaceName} model={status.model || '选择模型'} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onKeyDown={onComposerKeyDown} openSettings={() => setSettingsOpen(true)} chooseWorkspace={chooseWorkspace} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} messagesEnd={messagesEnd} />}
     </main>
     <Md3Dialog open={settingsOpen} onClose={() => setSettingsOpen(false)} title="模型设置" wide>
-      <p className="settings-subtitle">本地模型、远端续写服务与 Agent 能力配置保存在当前 Mac 用户目录。</p>
-      <div className="settings-tabs"><button className={settingsTab === 'local' ? 'active' : ''} onClick={() => setSettingsTab('local')}><Cpu size={16} />本地模型</button><button className={settingsTab === 'remote' ? 'active' : ''} onClick={() => setSettingsTab('remote')}><Cloud size={16} />远端 API</button></div>
-      {settingsTab === 'local' ? <form className="settings-form" onSubmit={configureLocal}><Md3TextField label="模型路径" value={modelPath} onChange={setModelPath} placeholder="/absolute/path/to/rwkv7-model.pth" /><Md3TextField label="Tokenizer 路径（可选，默认自动查找）" value={tokenizerPath} onChange={setTokenizerPath} placeholder="/path/to/rwkv_vocab_v20230424.txt" /><CapabilitySettings {...{ agentProtocol, setAgentProtocol, progressiveTools, setProgressiveTools, enableWeb, setEnableWeb, braveAPIKey, setBraveAPIKey, tavilyAPIKey, setTavilyAPIKey, enableSubagents, setEnableSubagents, maxActiveBatch, setMaxActiveBatch, remoteBatchWaitMS, setRemoteBatchWaitMS, subagentMaxParallel, setSubagentMaxParallel, subagentMaxSteps, setSubagentMaxSteps, subagentTimeoutSeconds, setSubagentTimeoutSeconds }} /><div className="info-panel"><Cpu size={17} /><span>支持 Apple Silicon macOS 上的 RWKV-7 .pth 和 MLX safetensors 目录。</span></div><SettingsFooter busy={settingsBusy} message={settingsMessage} action="加载模型" /></form> : <form className="settings-form" onSubmit={configureRemote}><div className="protocol-switch" aria-label="远端协议"><button type="button" className={remoteProtocol === 'rwkv' ? 'active' : ''} onClick={() => setRemoteProtocol('rwkv')}>RWKV 续写</button><button type="button" className={remoteProtocol === 'openai' ? 'active' : ''} onClick={() => setRemoteProtocol('openai')}>OpenAI 兼容</button></div><Md3TextField label="API 地址" value={remoteEndpoint} onChange={setRemoteEndpoint} placeholder="https://example.com 或 …/v1/models" /><div className="inline-fields"><Md3TextField label="模型 ID" value={remoteModel} onChange={setRemoteModel} placeholder="选择或输入模型" /><Md3TextField label={remoteProtocol === 'rwkv' ? '服务密码（可选）' : 'API Key（可选）'} type="password" value={apiKey} onChange={setAPIKey} placeholder="保存到本机配置" /></div>{availableModels.length > 0 && <div className="model-pills">{availableModels.slice(0, 8).map((model) => <button type="button" className={remoteModel === model.id ? 'active' : ''} key={model.id} onClick={() => setRemoteModel(model.id)}>{model.id}</button>)}</div>}<div className="headers-heading"><div><strong>自定义 HTTP 头</strong><small>支持 Cloudflare Access 等网关</small></div><button type="button" onClick={addHeader}><CirclePlus size={15} />添加</button></div>{headers.map((row) => <div className="header-row" key={row.id}><input aria-label="Header 名称" value={row.name} onChange={(event) => setHeaders((current) => current.map((item) => item.id === row.id ? { ...item, name: event.target.value } : item))} placeholder="CF-Access-Client-Id" /><input aria-label="Header 值" type="password" value={row.value} onChange={(event) => setHeaders((current) => current.map((item) => item.id === row.id ? { ...item, value: event.target.value } : item))} placeholder="Header value" autoComplete="off" /><button type="button" onClick={() => setHeaders((current) => current.filter((item) => item.id !== row.id))} aria-label="删除 Header"><Trash2 size={16} /></button></div>)}<CapabilitySettings {...{ agentProtocol, setAgentProtocol, progressiveTools, setProgressiveTools, enableWeb, setEnableWeb, braveAPIKey, setBraveAPIKey, tavilyAPIKey, setTavilyAPIKey, enableSubagents, setEnableSubagents, maxActiveBatch, setMaxActiveBatch, remoteBatchWaitMS, setRemoteBatchWaitMS, subagentMaxParallel, setSubagentMaxParallel, subagentMaxSteps, setSubagentMaxSteps, subagentTimeoutSeconds, setSubagentTimeoutSeconds }} /><footer className="settings-footer"><div className="settings-result">{settingsBusy && <LoaderCircle className="spin" size={15} />}{settingsMessage}</div><div className="footer-actions"><button type="button" className="secondary" onClick={() => void testRemote()} disabled={settingsBusy}>测试并获取模型</button><button type="submit" className="primary" disabled={settingsBusy}>{settingsBusy ? <LoaderCircle className="spin" size={16} /> : <Cloud size={16} />}连接 API</button></div></footer></form>}
+      <p className="-mt-[6px] mb-[18px] text-[12px] text-ink-muted">本地模型、远端续写服务与 Agent 能力配置保存在当前 Mac 用户目录。</p>
+      <div className="mb-[18px] flex gap-[6px] border-b border-line"><button className={`flex items-center gap-[7px] border-0 border-b-2 border-transparent bg-transparent px-[5px] py-[9px] text-[12px] ${settingsTab === 'local' ? 'border-brand font-semibold text-brand' : 'text-ink-muted'}`} onClick={() => setSettingsTab('local')}><Cpu size={16} />本地模型</button><button className={`flex items-center gap-[7px] border-0 border-b-2 border-transparent bg-transparent px-[5px] py-[9px] text-[12px] ${settingsTab === 'remote' ? 'border-brand font-semibold text-brand' : 'text-ink-muted'}`} onClick={() => setSettingsTab('remote')}><Cloud size={16} />远端 API</button></div>
+      {settingsTab === 'local' ? <form className="flex flex-col gap-[13px]" onSubmit={configureLocal}><Md3TextField label="模型路径" value={modelPath} onChange={setModelPath} placeholder="/absolute/path/to/rwkv7-model.pth" /><Md3TextField label="Tokenizer 路径（可选，默认自动查找）" value={tokenizerPath} onChange={setTokenizerPath} placeholder="/path/to/rwkv_vocab_v20230424.txt" /><CapabilitySettings {...{ agentProtocol, setAgentProtocol, progressiveTools, setProgressiveTools, enableWeb, setEnableWeb, braveAPIKey, setBraveAPIKey, tavilyAPIKey, setTavilyAPIKey, enableSubagents, setEnableSubagents, maxActiveBatch, setMaxActiveBatch, remoteBatchWaitMS, setRemoteBatchWaitMS, subagentMaxParallel, setSubagentMaxParallel, subagentMaxSteps, setSubagentMaxSteps, subagentTimeoutSeconds, setSubagentTimeoutSeconds }} /><div className="flex gap-[9px] bg-brand-wash p-[10px] text-[11px] leading-[1.5] text-brand"><Cpu size={17} /><span>支持 Apple Silicon macOS 上的 RWKV-7 .pth 和 MLX safetensors 目录。</span></div><SettingsFooter busy={settingsBusy} message={settingsMessage} action="加载模型" /></form> : <form className="flex flex-col gap-[13px]" onSubmit={configureRemote}><div className="flex gap-[14px]" aria-label="远端协议"><button type="button" className={`flex items-center gap-[7px] border-0 border-b-2 border-transparent bg-transparent px-[5px] py-[9px] text-[12px] ${remoteProtocol === 'rwkv' ? 'border-brand font-semibold text-brand' : 'text-ink-muted'}`} onClick={() => setRemoteProtocol('rwkv')}>RWKV 续写</button><button type="button" className={`flex items-center gap-[7px] border-0 border-b-2 border-transparent bg-transparent px-[5px] py-[9px] text-[12px] ${remoteProtocol === 'openai' ? 'border-brand font-semibold text-brand' : 'text-ink-muted'}`} onClick={() => setRemoteProtocol('openai')}>OpenAI 兼容</button></div><Md3TextField label="API 地址" value={remoteEndpoint} onChange={setRemoteEndpoint} placeholder="https://example.com 或 …/v1/models" /><div className="grid grid-cols-2 gap-[10px]"><Md3TextField label="模型 ID" value={remoteModel} onChange={setRemoteModel} placeholder="选择或输入模型" /><Md3TextField label={remoteProtocol === 'rwkv' ? '服务密码（可选）' : 'API Key（可选）'} type="password" value={apiKey} onChange={setAPIKey} placeholder="保存到本机配置" /></div>{availableModels.length > 0 && <div className="flex flex-wrap gap-[6px]">{availableModels.slice(0, 8).map((model) => <button type="button" className={`rounded-[2px] border border-line bg-paper-wash px-[7px] py-[5px] font-mono text-[10px] ${remoteModel === model.id ? 'border-brand text-brand' : 'text-ink-soft'}`} key={model.id} onClick={() => setRemoteModel(model.id)}>{model.id}</button>)}</div>}<div className="flex items-center justify-between text-[12px] text-ink-soft"><div><strong>自定义 HTTP 头</strong><small className="mt-[3px] block text-[10px] text-ink-muted">支持 Cloudflare Access 等网关</small></div><button type="button" className="flex items-center gap-[5px] border-0 bg-transparent text-[11px] text-brand" onClick={addHeader}><CirclePlus size={15} />添加</button></div>{headers.map((row) => <div className="grid grid-cols-[1fr_1fr_30px] gap-[7px]" key={row.id}><input aria-label="Header 名称" className="min-w-0 rounded-[2px] border border-line bg-paper-wash px-2 py-[7px] text-[11px] text-ink outline-0" value={row.name} onChange={(event) => setHeaders((current) => current.map((item) => item.id === row.id ? { ...item, name: event.target.value } : item))} placeholder="CF-Access-Client-Id" /><input aria-label="Header 值" className="min-w-0 rounded-[2px] border border-line bg-paper-wash px-2 py-[7px] text-[11px] text-ink outline-0" type="password" value={row.value} onChange={(event) => setHeaders((current) => current.map((item) => item.id === row.id ? { ...item, value: event.target.value } : item))} placeholder="Header value" autoComplete="off" /><button type="button" className="border-0 bg-transparent text-danger" onClick={() => setHeaders((current) => current.filter((item) => item.id !== row.id))} aria-label="删除 Header"><Trash2 size={16} /></button></div>)}<CapabilitySettings {...{ agentProtocol, setAgentProtocol, progressiveTools, setProgressiveTools, enableWeb, setEnableWeb, braveAPIKey, setBraveAPIKey, tavilyAPIKey, setTavilyAPIKey, enableSubagents, setEnableSubagents, maxActiveBatch, setMaxActiveBatch, remoteBatchWaitMS, setRemoteBatchWaitMS, subagentMaxParallel, setSubagentMaxParallel, subagentMaxSteps, setSubagentMaxSteps, subagentTimeoutSeconds, setSubagentTimeoutSeconds }} /><SettingsFooter busy={settingsBusy} message={settingsMessage} action="连接 API" secondary={<button type="button" className="flex items-center gap-[6px] rounded-[2px] border border-line-strong bg-transparent px-[11px] py-[7px] text-[11px] text-ink-soft hover:border-brand hover:text-brand" onClick={() => void testRemote()} disabled={settingsBusy}>测试并获取模型</button>} /></form>}
     </Md3Dialog>
   </div>
 }
 
 function Sidebar({ conversations, workspaces, activeId, busy, onNewChat, onChooseWorkspace, onOpenSettings, onOpen, onDelete, onOpenWorkspace }: { conversations: ConversationSummary[]; workspaces: WorkspaceItem[]; activeId: string; busy: boolean; onNewChat: () => void; onChooseWorkspace: () => void; onOpenSettings: () => void; onOpen: (id: string) => void; onDelete: (id: string) => void; onOpenWorkspace: (path: string) => void }) {
   const [menu, setMenu] = useState<string | null>(null)
-  return <aside className="app-sidebar">
-    <div className="sidebar-brand"><span className="brand-mark" /><span>RWKV Agent</span><span className="sidebar-version">LOCAL</span></div>
-    <button className="new-chat-button" onClick={onNewChat} disabled={busy}><SquarePen size={16} />新的对话 <kbd>⌘N</kbd></button>
-    <button className="workspace-button" onClick={onChooseWorkspace} disabled={busy}><FolderOpen size={16} /><span>打开工作区</span><MoreHorizontal size={15} /></button>
-    {workspaces.length > 0 && <section className="sidebar-section"><div className="sidebar-section-label">工作区</div>{workspaces.map((workspace) => (
-      <button key={workspace.path} className={`workspace-row ${workspace.active ? 'active' : ''}`} onClick={() => onOpenWorkspace(workspace.path)} disabled={!workspace.available || busy} title={workspace.path}><Folder size={14} /><span>{workspace.name}</span>{workspace.active && <i />}</button>
+  return <aside className="app-sidebar flex h-full w-[216px] flex-none flex-col border-r border-line bg-paper-sidebar py-[18px] text-ink">
+    <div className="flex items-center gap-[9px] px-[18px] pb-[18px] font-serif text-[16px] font-semibold tracking-[.02em]"><span className="brand-mark" /><span>RWKV Agent</span><span className="ml-auto font-mono text-[9px] font-medium leading-none text-ink-muted">LOCAL</span></div>
+    <button className="mx-[18px] mb-[14px] flex h-8 items-center justify-center gap-2 border-[1.5px] border-ink bg-transparent px-[10px] text-[12.5px] font-medium text-ink" onClick={onNewChat} disabled={busy}><SquarePen size={16} />新的对话 <kbd className="ml-[2px] font-mono text-[10px] text-ink-muted">⌘N</kbd></button>
+    <button className="mx-[18px] mb-3 flex items-center gap-2 border-0 bg-transparent p-[2px_0] text-[12px] text-ink-soft" onClick={onChooseWorkspace} disabled={busy}><FolderOpen size={16} /><span>打开工作区</span><MoreHorizontal size={15} className="ml-auto" /></button>
+    {workspaces.length > 0 && <section className="mb-[6px] flex flex-col"><div className="px-[18px] pb-[7px] text-[10.5px] font-medium uppercase tracking-[.14em] text-ink-muted">工作区</div>{workspaces.map((workspace) => (
+      <button key={workspace.path} className={`relative mx-[10px] flex items-center gap-[9px] rounded-[3px] border-0 bg-transparent p-[6px_8px] text-left text-[12.5px] ${workspace.active ? 'bg-surface-active font-semibold text-ink' : 'text-ink-soft'}`} onClick={() => onOpenWorkspace(workspace.path)} disabled={!workspace.available || busy} title={workspace.path}><Folder size={14} /><span className="truncate">{workspace.name}</span>{workspace.active && <span className="ml-auto h-[5px] w-[5px] rounded-full bg-brand-bright" />}</button>
     ))}</section>}
-    <section className="sidebar-section recent-section"><div className="sidebar-section-label">近期</div>
-      {conversations.length === 0 ? <div className="sidebar-empty">暂无历史对话</div> : conversations.map((conversation) => (
-        <div key={conversation.id} className={`conversation-row ${conversation.id === activeId ? 'active' : ''}`}>
-          <button onClick={() => onOpen(conversation.id)} title={conversation.title || '未命名会话'}><span className="conversation-title">{conversation.title || '未命名会话'}</span><span className="conversation-time">{relativeTime(conversation.updatedAt)}</span></button>
-          <button className="conversation-menu" aria-label="更多操作" onClick={() => setMenu(menu === conversation.id ? null : conversation.id)}><MoreHorizontal size={15} /></button>
-          {menu === conversation.id && <button className="conversation-delete" onClick={() => { setMenu(null); onDelete(conversation.id) }}><Trash2 size={14} />删除会话</button>}
+    <section className="recent-section min-h-0 flex-1 overflow-y-auto"><div className="px-[18px] pb-[7px] text-[10.5px] font-medium uppercase tracking-[.14em] text-ink-muted">近期</div>
+      {conversations.length === 0 ? <div className="px-[18px] py-2 text-[12px] text-ink-muted">暂无历史对话</div> : conversations.map((conversation) => (
+        <div key={conversation.id} className={`conversation-row relative mx-[10px] flex items-center rounded-[3px] border-0 bg-transparent ${conversation.id === activeId ? 'active bg-surface-active text-ink' : 'text-ink-soft'}`}>
+          <button className="flex min-w-0 flex-1 flex-col gap-[1px] border-0 bg-transparent p-[7px_8px] text-left text-inherit" onClick={() => onOpen(conversation.id)} title={conversation.title || '未命名会话'}><span className="conversation-title truncate text-[12.5px]">{conversation.title || '未命名会话'}</span><span className="text-[10.5px] text-ink-muted">{relativeTime(conversation.updatedAt)}</span></button>
+          <button className="conversation-menu grid h-[26px] w-[26px] place-items-center border-0 bg-transparent text-ink-muted" aria-label="更多操作" onClick={() => setMenu(menu === conversation.id ? null : conversation.id)}><MoreHorizontal size={15} /></button>
+          {menu === conversation.id && <button className="absolute right-2 top-[30px] z-[5] flex items-center gap-[7px] rounded-[3px] border border-line-strong bg-paper-wash p-2 px-[10px] text-[12px] text-danger shadow-[0_8px_20px_rgba(45,33,20,.12)]" onClick={() => { setMenu(null); onDelete(conversation.id) }}><Trash2 size={14} />删除会话</button>}
         </div>
       ))}
     </section>
-    <button className="sidebar-footer-button" onClick={onOpenSettings} aria-label="设置"><Settings size={16} /><span>设置</span><kbd>⌘,</kbd></button>
+    <button className="mt-3 flex items-center gap-[9px] border-0 border-t border-line bg-transparent px-[18px] pb-0 pt-3 text-left text-[12px] text-ink-soft" onClick={onOpenSettings} aria-label="设置"><Settings size={16} /><span className="flex-1">设置</span><kbd className="ml-[2px] font-mono text-[10px] text-ink-muted">⌘,</kbd></button>
   </aside>
 }
 
 function ChatView({ messages, activity, busy, ready, workspace, model, prompt, setPrompt, onSubmit, onKeyDown, openSettings, chooseWorkspace, onTrace, messagesEnd }: { messages: Message[]; activity: AgentActivity[]; busy: boolean; ready: boolean; workspace: string; model: string; prompt: string; setPrompt: (value: string) => void; onSubmit: () => Promise<void>; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void; openSettings: () => void; chooseWorkspace: () => Promise<void>; onTrace: (id: string) => void; messagesEnd: React.RefObject<HTMLDivElement | null> }) {
   const turns = groupMessagesIntoTurns(messages)
   const empty = turns.length === 0
-  const composer = <Composer prompt={prompt} setPrompt={setPrompt} busy={busy} ready={ready} workspace={workspace} model={model} onSubmit={onSubmit} onKeyDown={onKeyDown} openSettings={openSettings} chooseWorkspace={chooseWorkspace} />
-  if (empty) return <div className="chat-panel empty">
-    <div className="empty-layout">
-      <div className="empty-gutter">
-        <span className="empty-meta">工作区<br /><b>{workspace}</b></span>
-        <span className="empty-meta-rule" />
-        <span className="empty-meta">模型<br /><b className={ready ? 'teal' : ''}>{ready ? model : '待配置'}</b></span>
+  const composer = <Composer prompt={prompt} setPrompt={setPrompt} busy={busy} ready={ready} workspace={workspace} model={model} onSubmit={onSubmit} onKeyDown={onKeyDown} openSettings={openSettings} chooseWorkspace={chooseWorkspace} empty={empty} />
+  if (empty) return <div className="chat-panel relative flex min-h-0 flex-1 flex-col items-center justify-center overflow-hidden pb-6">
+    <div className="grid w-[min(826px,calc(100%-60px))] grid-cols-[112px_minmax(0,672px)] items-end gap-[42px]">
+      <div className="flex flex-col items-end gap-[5px] pb-[78px] text-right">
+        <span className="max-w-full overflow-hidden text-[10.5px] leading-[1.7] text-ink-ghost">工作区<br /><b className="block truncate font-normal text-ink-soft">{workspace}</b></span>
+        <span className="my-1 h-px w-[34px] bg-line" />
+        <span className="max-w-full overflow-hidden text-[10.5px] leading-[1.7] text-ink-ghost">模型<br /><b className={`block truncate font-normal ${ready ? 'text-brand' : 'text-ink-soft'}`}>{ready ? model : '待配置'}</b></span>
       </div>
-      <div className="empty-column">
-        <div className="empty-greeting">
-          <span className="empty-hello">你好</span>
-          <h1>需要我为你做些什么？</h1>
+      <div className="flex min-w-0 flex-col gap-[26px]">
+        <div className="flex flex-col gap-[6px]">
+          <span className="font-serif text-[16px] text-brand">你好</span>
+          <h1 className="m-0 font-serif text-[34px] font-semibold leading-[1.35] tracking-[.01em] text-ink">需要我为你做些什么？</h1>
         </div>
         {composer}
-        <div className="starter-chips-row" aria-label="快速开始">{STARTER_PROMPTS.map((item) => <button key={item} type="button" className="starter-chip" onClick={() => setPrompt(item)}>{item}</button>)}</div>
+        <div className="flex flex-wrap gap-[9px]" aria-label="快速开始">{STARTER_PROMPTS.map((item) => <button key={item} type="button" className="rounded-none border border-line bg-[#f8f5ee] px-3 py-[7px] text-[12px] text-ink-soft transition-colors duration-150 hover:border-brand hover:text-brand" onClick={() => setPrompt(item)}>{item}</button>)}</div>
       </div>
     </div>
   </div>
-  return <div className="chat-panel has-conversation">
-    <div className="chat-stage">
-      <div className="conversation-scroll">
+  return <div className="chat-panel relative flex min-h-0 flex-1 flex-col overflow-hidden">
+    <div className="chat-stage relative min-h-0 flex-1">
+      <div className="conversation-scroll absolute inset-0 mx-auto w-[min(826px,calc(100%-52px))] overflow-auto py-[30px] pb-7">
         {turns.map((turn, index) => <TurnView key={turn.user?.id || turn.response?.id || index} turn={turn} index={index + 1} pending={busy && index === turns.length - 1 && !turn.response} activity={activity} onTrace={onTrace} />)}
         <div ref={messagesEnd} />
       </div>
@@ -250,66 +251,75 @@ function TurnView({ turn, index, pending, activity, onTrace }: { turn: ChatTurn;
   const statuses = pending ? liveGutterStatuses(activity) : completedGutterStatuses(response)
   const stats = response?.trace ? traceStats(response.trace) : undefined
   const time = turn.user?.createdAt || response?.createdAt
-  return <article className={`conversation-turn${pending ? ' pending' : ''}${response?.role === 'error' ? ' failed' : ''}`} data-testid={`conversation-turn-${index}`}>
-    <aside className="turn-gutter">
-      <span className="turn-number">{String(index).padStart(2, '0')}</span>
-      <time>{formatTurnTime(time)}</time>
-      <span className="gutter-rule" />
-      <div className="gutter-statuses" aria-label={pending ? 'Agent 运行状态' : 'Agent 完成状态'}>
-        {statuses.map((item, statusIndex) => <div className={`gutter-status ${item.state}`} key={`${item.label}-${statusIndex}`}><span>{item.label}</span><i /></div>)}
+  return <article className={`conversation-turn mb-[42px] grid grid-cols-[112px_minmax(0,672px)] gap-[42px]${pending ? ' pending' : ''}`} data-testid={`conversation-turn-${index}`}>
+    <aside className="turn-gutter flex min-w-0 flex-col items-end gap-[6px] pt-[1px] text-right text-ink-muted">
+      <span className={`text-[19px] font-bold leading-none ${response?.role === 'error' ? 'text-danger' : 'text-ink-faint'}`}>{String(index).padStart(2, '0')}</span>
+      <time className="text-[10.5px] leading-[1.6]">{formatTurnTime(time)}</time>
+      <span className="gutter-rule my-[3px] h-px w-[34px] flex-none bg-line" />
+      <div className="gutter-statuses flex w-full flex-col items-end gap-1" aria-label={pending ? 'Agent 运行状态' : 'Agent 完成状态'}>
+        {statuses.map((item, statusIndex) => <div className={`gutter-status flex w-full items-center justify-end gap-[7px] text-[11px] font-[520] leading-[1.55] ${item.state === 'failed' ? 'failed text-danger' : item.state === 'running' ? 'running text-brand' : item.state === 'completed' ? 'completed text-ink-soft' : 'text-ink-soft'}`} key={`${item.label}-${statusIndex}`}><span className="min-w-0 truncate">{item.label}</span><i /></div>)}
       </div>
-      {(stats || (response?.trajectory?.length && !response.trace)) && <><span className="gutter-rule" /><span className="turn-stats">{stats ? <>{formatDuration(stats.durationMs)}{stats.tokens > 0 && <><br />{stats.tokens.toLocaleString('zh-CN')} tok</>}</> : <>历史摘要<br />工具 {response?.trajectory?.length}</>}</span></>}
+      {(stats || (response?.trajectory?.length && !response.trace)) && <><span className="gutter-rule my-[3px] h-px w-[34px] flex-none bg-line" /><span className="text-[10.5px] leading-[1.6] text-ink-muted">{stats ? <>{formatDuration(stats.durationMs)}{stats.tokens > 0 && <><br />{stats.tokens.toLocaleString('zh-CN')} tok</>}</> : <>历史摘要<br />工具 {response?.trajectory?.length}</>}</span></>}
     </aside>
-    <div className="turn-main">
-      {turn.user && <div className="turn-user"><div className="plain-message">{turn.user.content}</div></div>}
-      {pending && <div className="turn-pending-answer" aria-live="polite"><span className="answer-cursor" /><span className="sr-only">{activityLabel(activity.at(-1))}</span></div>}
-      {response?.role === 'assistant' && <div className="turn-answer"><MarkdownMessage content={response.content} /></div>}
-      {response?.role === 'error' && <div className="turn-error"><X size={15} /><span>{response.content}</span></div>}
-      {response?.meta && <div className="message-meta">{response.meta}</div>}
-      {response && <div className="turn-actions">
-        {response.role === 'assistant' && <button onClick={() => void navigator.clipboard?.writeText(response.content)}>复制</button>}
-        {hasTrace && <button onClick={() => onTrace(response.id)}>查看轨迹</button>}
+    <div className="turn-main flex min-w-0 flex-col gap-4">
+      {turn.user && <div className="flex justify-end"><div className="min-w-[180px] max-w-[82%] border-l-2 border-accent-warm bg-[#f2ede2] p-[11px_15px] text-[13.5px] leading-[1.7] text-[#4a443a] [overflow-wrap:anywhere]">{turn.user.content}</div></div>}
+      {pending && <div className="turn-pending-answer min-h-7 pt-[2px]" aria-live="polite"><span className="answer-cursor" /><span className="sr-only">{activityLabel(activity.at(-1))}</span></div>}
+      {response?.role === 'assistant' && <div className="turn-answer font-serif text-[15.5px] leading-[1.95] text-ink [overflow-wrap:anywhere]"><MarkdownMessage content={response.content} /></div>}
+      {response?.role === 'error' && <div className="flex items-start gap-2 border-l-2 border-danger bg-danger-wash p-[10px_12px] text-[13px] leading-[1.65] text-danger"><X size={15} className="mt-[3px] flex-none" /><span>{response.content}</span></div>}
+      {response?.meta && <div className="font-mono text-[10px] text-ink-muted">{response.meta}</div>}
+      {response && <div className="turn-actions flex gap-4 pt-[2px]">
+        {response.role === 'assistant' && <button className="border-0 bg-transparent p-0 text-[11px] text-ink-muted hover:text-brand" onClick={() => void navigator.clipboard?.writeText(response.content)}>复制</button>}
+        {hasTrace && <button className="border-0 bg-transparent p-0 text-[11px] text-ink-muted hover:text-brand" onClick={() => onTrace(response.id)}>查看轨迹</button>}
       </div>}
     </div>
   </article>
 }
 
-function Composer({ prompt, setPrompt, busy, ready, workspace, model, onSubmit, onKeyDown, openSettings, chooseWorkspace }: { prompt: string; setPrompt: (value: string) => void; busy: boolean; ready: boolean; workspace: string; model: string; onSubmit: () => Promise<void>; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void; openSettings: () => void; chooseWorkspace: () => Promise<void> }) {
+function Composer({ prompt, setPrompt, busy, ready, workspace, model, onSubmit, onKeyDown, openSettings, chooseWorkspace, empty }: { prompt: string; setPrompt: (value: string) => void; busy: boolean; ready: boolean; workspace: string; model: string; onSubmit: () => Promise<void>; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void; openSettings: () => void; chooseWorkspace: () => Promise<void>; empty?: boolean }) {
   function autoGrow(element: HTMLTextAreaElement) { element.style.height = 'auto'; element.style.height = `${Math.min(element.scrollHeight, 180)}px` }
-  return <div className="composer"><div className="composer-gutter"><span>{workspace}</span><span>{ready ? 'Agent 已就绪' : '等待模型'}</span></div><div className="composer-box">
-      <textarea aria-label="消息" rows={1} value={prompt} disabled={busy} placeholder="描述你想要完成的任务" onChange={(event) => { setPrompt(event.target.value); autoGrow(event.target) }} onKeyDown={onKeyDown} />
-      <div className="composer-footer">
-        <div className="composer-context">
-          <button className="composer-chip" onClick={() => void chooseWorkspace()} title={workspace}><Folder size={14} /><span>{workspace}</span></button>
-          <button className="composer-chip" onClick={openSettings} title={model}><span className={`status-dot ${ready ? 'ready' : ''}`} /><span>{model}</span></button>
+  return <div className={`composer z-[2] ${empty ? 'block w-full' : 'mx-auto mb-7 grid w-[min(826px,calc(100%-52px))] grid-cols-[112px_minmax(0,672px)] items-center gap-[42px] self-center'}`}><div className={`composer-gutter flex flex-col items-end gap-1 pt-1 text-[10.5px] leading-[1.5] text-ink-ghost ${empty ? 'hidden' : ''}`}><span className="max-w-full truncate">{workspace}</span><span>{ready ? 'Agent 已就绪' : '等待模型'}</span></div><div className="min-w-0 border-l-[3px] border-line-strong bg-paper-soft transition-[border-color] duration-150 ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none focus-within:border-brand">
+      <textarea aria-label="消息" rows={1} value={prompt} disabled={busy} placeholder="描述你想要完成的任务" className="block w-full min-h-[52px] max-h-[180px] resize-none border-0 bg-transparent p-[13px_15px_6px] leading-[1.7] text-ink outline-0 placeholder:text-ink-muted" onChange={(event) => { setPrompt(event.target.value); autoGrow(event.target) }} onKeyDown={onKeyDown} />
+      <div className="flex min-h-[39px] items-center justify-between gap-3 px-[10px] pb-[9px] pl-3">
+        <div className="flex min-w-0 gap-[7px]">
+          <button className="flex min-w-0 max-w-[210px] items-center gap-[6px] overflow-hidden rounded-[2px] border border-line bg-paper-wash px-2 py-1 text-[10px] text-ink-soft" onClick={() => void chooseWorkspace()} title={workspace}><Folder size={14} /><span className="truncate">{workspace}</span></button>
+          <button className="flex min-w-0 max-w-[210px] items-center gap-[6px] overflow-hidden rounded-[2px] border border-line bg-paper-wash px-2 py-1 text-[10px] text-ink-soft" onClick={openSettings} title={model}><span className={`h-[6px] w-[6px] flex-none rounded-full ${ready ? 'bg-brand-bright' : 'bg-ink-muted'}`} /><span className="truncate">{model}</span></button>
         </div>
-        <button className="send-button" aria-label="发送" onClick={() => void onSubmit()} disabled={!prompt.trim() || busy}>{busy ? <LoaderCircle size={17} className="spin" /> : <ArrowUp size={17} />}</button>
+        <button className="grid h-[30px] w-[30px] place-items-center rounded-[2px] border-0 bg-brand text-white transition-colors duration-150 ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none disabled:bg-[#e4dfd4] disabled:text-ink-muted" aria-label="发送" onClick={() => void onSubmit()} disabled={!prompt.trim() || busy}>{busy ? <LoaderCircle size={17} className="spin" /> : <ArrowUp size={17} />}</button>
       </div>
     </div></div>
 }
 
 function TraceView({ messages, selected, onSelect }: { messages: Message[]; selected?: Message; onSelect: (id: string) => void }) {
   const [query, setQuery] = useState(''); const [inspector, setInspector] = useState(true); const [detail, setDetail] = useState<'summary' | 'request' | 'result' | 'timing'>('summary'); const [selectedEventID, setSelectedEventID] = useState('')
+  const { show } = useSnackbar()
   const visible = messages.filter((message) => !query || `${message.prompt} ${message.content} ${JSON.stringify(message.trace || message.trajectory)}`.toLowerCase().includes(query.toLowerCase()))
   const selectedEvent = selectedEventID ? selected && buildLedgerEvents(selected).find((event) => event.id === selectedEventID) : undefined
   const eventCount = messages.reduce((sum, message) => sum + buildLedgerEvents(message).length, 0)
   const timelineEvents = visible.flatMap((message) => buildLedgerEvents(message).map((event) => ({ event, messageId: message.id })))
-  function exportTrace() { const data = visible.map((message) => JSON.stringify({ id: message.id, role: message.role, prompt: message.prompt, createdAt: message.createdAt, trace: message.trace || { legacyTrajectory: message.trajectory } })).join('\n'); const url = URL.createObjectURL(new Blob([data], { type: 'application/jsonl' })); const anchor = document.createElement('a'); anchor.href = url; anchor.download = 'rwkv-agent-trajectory.jsonl'; anchor.click(); window.setTimeout(() => URL.revokeObjectURL(url), 0) }
+  async function exportTrace() {
+    const data = visible.map((message) => JSON.stringify({ id: message.id, role: message.role, prompt: message.prompt, createdAt: message.createdAt, trace: message.trace || { legacyTrajectory: message.trajectory } })).join('\n')
+    try {
+      const path = await Backend.ExportTrajectory(data)
+      if (path) show(`轨迹已导出：${path.split('/').at(-1)}`, 'success')
+    } catch (error) {
+      show(errorText(error), 'error')
+    }
+  }
   function selectTurn(id: string) { setSelectedEventID(''); onSelect(id) }
   function selectEvent(messageID: string, eventID: string) { onSelect(messageID); setSelectedEventID(eventID) }
-  return <div className="trace-layout">
-    <div className="trace-toolbar"><div className="trace-stats"><strong>{messages.length}</strong><span>轮次</span><strong>{eventCount}</strong><span>事件</span></div><label className="trace-search"><Search size={15} /><input aria-label="搜索轨迹" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索请求、工具或错误" /></label><button className="icon-button" title="导出 JSONL" aria-label="导出 JSONL" onClick={exportTrace}><Download size={16} /></button><button className={`icon-button ${inspector ? 'selected' : ''}`} title="检查器" aria-label="检查器" onClick={() => setInspector(!inspector)}><PanelRight size={16} /></button></div>
+  return <div className="flex min-h-0 flex-1 flex-col">
+    <div className="trace-toolbar flex min-h-[56px] items-center gap-[10px] border-b border-line px-[30px]"><div className="mr-auto flex items-baseline gap-[5px] text-[10px] text-ink-muted"><strong className="ml-[7px] font-mono text-[15px] font-semibold text-ink">{messages.length}</strong><span>轮次</span><strong className="ml-[7px] font-mono text-[15px] font-semibold text-ink">{eventCount}</strong><span>事件</span></div><label className="flex h-[30px] w-[235px] items-center gap-[7px] border border-line bg-paper-wash px-[9px] text-ink-muted"><Search size={15} /><input aria-label="搜索轨迹" className="w-full border-0 bg-transparent text-[11px] text-ink outline-0" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索请求、工具或错误" /></label><button className="icon-button grid h-[30px] w-[30px] place-items-center rounded-[3px] border border-transparent bg-transparent text-ink-soft hover:border-line-strong hover:bg-paper-wash hover:text-brand" title="导出 JSONL" aria-label="导出 JSONL" onClick={exportTrace}><Download size={16} /></button><button className={`icon-button grid h-[30px] w-[30px] place-items-center rounded-[3px] border bg-transparent hover:border-line-strong hover:bg-paper-wash hover:text-brand ${inspector ? 'border-line-strong bg-paper-wash text-brand' : 'border-transparent text-ink-soft'}`} title="检查器" aria-label="检查器" onClick={() => setInspector(!inspector)}><PanelRight size={16} /></button></div>
     {timelineEvents.length > 0 && <TraceTimeline events={timelineEvents} selectedEventID={selectedEventID} onEvent={selectEvent} />}
-    <div className="trace-workspace"><div className="trace-main"><div className="trace-ledger">{visible.map((message, index) => <TraceTurn key={message.id} message={message} index={index + 1} selected={message.id === selected?.id} selectedEventID={selectedEventID} onClick={() => selectTurn(message.id)} onEvent={(eventID) => selectEvent(message.id, eventID)} />)}{visible.length === 0 && <div className="trace-empty">没有匹配的轨迹</div>}</div></div>{inspector && <TraceInspector message={selected} event={selectedEvent} detail={detail} setDetail={setDetail} />}</div>
+    <div className="trace-workspace flex min-h-0 flex-1"><div className="trace-main min-w-0 flex-1 overflow-auto"><div className="mx-auto w-[min(940px,calc(100%-60px))] py-[14px] pb-10">{visible.map((message, index) => <TraceTurn key={message.id} message={message} index={index + 1} selected={message.id === selected?.id} selectedEventID={selectedEventID} onClick={() => selectTurn(message.id)} onEvent={(eventID) => selectEvent(message.id, eventID)} />)}{visible.length === 0 && <div className="py-[50px] text-center text-[12px] text-ink-muted">没有匹配的轨迹</div>}</div></div>{inspector && <TraceInspector message={selected} event={selectedEvent} detail={detail} setDetail={setDetail} />}</div>
   </div>
 }
 
 function TraceTimeline({ events, selectedEventID, onEvent }: { events: { event: LedgerEvent; messageId: string }[]; selectedEventID: string; onEvent: (messageID: string, eventID: string) => void }) {
   const total = events.length || 1
-  return <div className="trace-timeline">
-    <div className="trace-timeline-labels"><span>Input</span><span>Model</span><span>Tools</span></div>
-    <div className="trace-timeline-track">
-      {events.map(({ event, messageId }, index) => <button key={event.id} type="button" className={`trace-span ${event.kind} ${event.state}${event.id === selectedEventID ? ' current' : ''}`} style={{ left: `${(index / total) * 100}%`, width: `calc(${(1 / total) * 100}% - 2px)`, top: `${eventLane(event.kind) * 14 + 7}px` }} onClick={() => onEvent(messageId, event.id)} title={`${event.title}${event.summary ? ' · ' + event.summary : ''}`} aria-label={event.title} />)}
+  return <div className="grid h-[50px] flex-none grid-cols-[44px_minmax(0,1fr)] border-b border-line bg-paper-soft">
+    <div className="trace-timeline-labels relative border-r border-line text-[10px] leading-none text-ink-muted"><span className="absolute right-2 top-[7px]">Input</span><span className="absolute right-2 top-[21px]">Model</span><span className="absolute right-2 top-[35px]">Tools</span></div>
+    <div className="relative overflow-hidden">
+      {events.map(({ event, messageId }, index) => <button key={event.id} type="button" className={`trace-span absolute h-2 min-w-[2px] cursor-pointer rounded-[1px] border-0 p-0 ${SPAN_KIND_CLASS[event.kind] || 'bg-ink-muted opacity-[.78]'}${event.state === 'failed' ? ' bg-danger opacity-100' : ''}${event.id === selectedEventID ? ' opacity-100 shadow-[0_0_0_1px_var(--paper-soft),0_0_0_2px_var(--brand)]' : ' hover:opacity-100'}`} style={{ left: `${(index / total) * 100}%`, width: `calc(${(1 / total) * 100}% - 2px)`, top: `${eventLane(event.kind) * 14 + 7}px` }} onClick={() => onEvent(messageId, event.id)} title={`${event.title}${event.summary ? ' · ' + event.summary : ''}`} aria-label={event.title} />)}
     </div>
   </div>
 }
@@ -317,16 +327,34 @@ function TraceTurn({ message, index, selected, selectedEventID, onClick, onEvent
   const trace = message.trace
   const events = buildLedgerEvents(message)
   const duration = trace?.durationMs || 0
-  return <article className={`trace-turn ${selected ? 'selected' : ''}${message.role === 'error' ? ' failed' : ''}`}>
-    <div className="turn-index">{String(index).padStart(2, '0')}<small>{message.createdAt ? new Date(message.createdAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) : '本地'}</small></div>
-    <div className="turn-content"><button className="trace-turn-heading" onClick={onClick}><span className="turn-summary"><span className="turn-role">TURN {index}</span><span>{events.length} 个事件</span><span>{duration ? formatDuration(duration) : '时长 --'}</span>{trace?.route && <span className="route-chip">{trace.route}</span>}{message.role === 'error' && <span className="route-chip error">失败</span>}</span><span className="turn-prompt">{message.prompt || message.content}</span></button>
-      <div className="turn-events">{events.map((event) => <TraceEventRow key={event.id} event={event} selected={selected && selectedEventID === event.id} onClick={() => onEvent(event.id)} />)}</div>
+  return <article className="mb-[18px] grid w-full grid-cols-[56px_minmax(0,1fr)] gap-4">
+    <div className="flex flex-col items-end gap-[3px] font-serif text-[20px] font-bold leading-none text-ink-faint">{String(index).padStart(2, '0')}<small className="font-mono text-[10px] text-ink-muted">{message.createdAt ? new Date(message.createdAt).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' }) : '本地'}</small></div>
+    <div className="min-w-0"><button className="mb-[6px] block w-full border-0 bg-transparent p-0 text-left text-inherit" onClick={onClick}><span className="flex items-center gap-[10px] text-[10px] text-ink-muted"><span className="font-mono text-[10px] font-semibold tracking-[.04em] text-brand">TURN {index}</span><span>{events.length} 个事件</span><span>{duration ? formatDuration(duration) : '时长 --'}</span>{trace?.route && <span className="route-chip ml-auto rounded-[3px] bg-brand-wash px-[6px] py-[3px] font-mono text-[10px] text-brand">{trace.route}</span>}{message.role === 'error' && <span className="route-chip ml-0 rounded-[3px] bg-danger-wash px-[6px] py-[3px] font-mono text-[10px] text-danger">失败</span>}</span><span className="mt-[6px] block truncate text-[12px] text-ink-soft">{message.prompt || message.content}</span></button>
+      <div className="flex flex-col border-t border-line">{events.map((event) => <TraceEventRow key={event.id} event={event} selected={selected && selectedEventID === event.id} onClick={() => onEvent(event.id)} />)}</div>
     </div>
   </article>
 }
 const ROLE_TAGS: Record<LedgerEvent['kind'], { tag: string; cls: string }> = {
   input: { tag: 'USER', cls: 'user' }, route: { tag: 'ROUTE', cls: 'route' }, model: { tag: 'MODEL', cls: 'model' },
   tool: { tag: 'TOOL', cls: 'tool' }, retry: { tag: 'RETRY', cls: 'retry' }, subagent: { tag: 'AGENT', cls: 'agent' }, output: { tag: 'SUBMIT', cls: 'submit' },
+}
+const SPAN_KIND_CLASS: Record<string, string> = {
+  input: 'bg-brand-bright opacity-100',
+  route: 'bg-accent-warm opacity-100',
+  model: 'bg-[#7c6a9c] opacity-100',
+  output: 'bg-[#7c6a9c] opacity-100',
+  subagent: 'bg-[#a596c4] opacity-100',
+  tool: 'bg-warning opacity-100',
+  retry: 'bg-warning opacity-100',
+}
+const KIND_TAG_CLASS: Record<string, string> = {
+  user: 'text-brand bg-brand-wash',
+  route: 'text-[#7a746a] bg-[#efece5]',
+  model: 'text-[#6a5f8c] bg-[#efecf6]',
+  agent: 'text-[#6a5f8c] bg-[#efecf6]',
+  tool: 'text-warning bg-[#f8ead9]',
+  retry: 'text-warning bg-[#f8ead9]',
+  submit: 'text-[#3f7d5c] bg-[#e7f0ea]',
 }
 const EVENT_TITLE_PREFIX = /^(用户输入|路由请求|路由响应|模型请求|模型响应|协议修复|工具调用|工具结果|工具重试|最终回复)\s*·?\s*/
 function eventLane(kind: LedgerEvent['kind']) { if (kind === 'tool' || kind === 'retry' || kind === 'subagent') return 2; if (kind === 'model' || kind === 'output') return 1; return 0 }
@@ -335,23 +363,25 @@ function isResultEvent(event: LedgerEvent) { return /响应|结果|回复/.test(
 function TraceEventRow({ event, selected, onClick }: { event: LedgerEvent; selected: boolean; onClick: () => void }) {
   const role = ROLE_TAGS[event.kind] || { tag: 'EVENT', cls: 'model' }
   const name = eventName(event)
-  return <button className={`trace-event ${event.kind} ${event.state}${selected ? ' selected' : ''}`} data-state={event.state} title={event.title} onClick={onClick} aria-pressed={selected}>
-    <span className="event-rail" />
-    <span className="event-slot"><span className={`kind-tag ${role.cls}${event.state === 'failed' ? ' failed' : ''}`}>{role.tag}</span></span>
-    <span className="event-body">
-      {name && <span className="event-name">{name}</span>}
-      {event.summary && <>{isResultEvent(event) && <span className="event-arrow" aria-hidden="true">→</span>}<span className="event-payload">{event.summary}</span></>}
+  const railWidth = selected ? 'w-[3px]' : 'w-[2px]'
+  const railColor = event.state === 'failed' ? 'bg-danger' : selected ? 'bg-brand' : 'bg-transparent'
+  return <button className={`trace-event relative grid w-full min-h-[30px] grid-cols-[76px_minmax(0,1fr)] items-center gap-2 overflow-hidden border-0 border-b border-line bg-transparent p-[4px_8px_4px_0] text-left hover:bg-[#f1ede5]${selected ? ' bg-brand-wash' : ''}${selected && event.state === 'failed' ? ' bg-danger-wash' : ''}`} data-state={event.state} title={event.title} onClick={onClick} aria-pressed={selected}>
+    <span className={`event-rail absolute bottom-0 left-0 top-0 ${railWidth} ${railColor}`} />
+    <span className="flex justify-end pl-3"><span className={`kind-tag inline-flex h-[19px] min-w-[52px] items-center justify-center rounded px-[5px] font-mono text-[10px] font-[650] tracking-[.035em] ${KIND_TAG_CLASS[role.cls] || 'text-brand bg-brand-wash'}`}>{role.tag}</span></span>
+    <span className="flex min-w-0 items-baseline gap-[7px] overflow-hidden">
+      {name && <span className="event-name max-w-[46%] flex-none truncate font-mono text-[12px] leading-[18px] text-ink">{name}</span>}
+      {event.summary && <>{isResultEvent(event) && <span className="event-arrow flex-none text-[12px] text-ink-muted" aria-hidden="true">→</span>}<span className={`event-payload min-w-0 flex-1 truncate font-mono text-[12px] leading-[18px] ${event.state === 'failed' ? 'text-danger' : 'text-ink-soft'}`}>{event.summary}</span></>}
     </span>
   </button>
 }
 function TraceInspector({ message, event, detail, setDetail }: { message?: Message; event?: LedgerEvent; detail: 'summary' | 'request' | 'result' | 'timing'; setDetail: (value: 'summary' | 'request' | 'result' | 'timing') => void }) {
   const trace = message?.trace
-  return <aside className="trace-inspector">
-    <div className="inspector-heading"><div><span className="eyebrow">检查器</span><strong>{event?.title || (message ? `Turn ${message.id.split('-').at(-1)}` : '未选择')}</strong>{event && <small>事件 {String(event.order).padStart(2, '0')} · {event.kind}</small>}</div><FileText size={16} /></div>
-    <div className="inspector-tabs">{(['summary', 'request', 'result', 'timing'] as const).map((tab) => <button key={tab} className={detail === tab ? 'active' : ''} onClick={() => setDetail(tab)}>{tab === 'summary' ? '摘要' : tab === 'request' ? '请求' : tab === 'result' ? '结果' : '时序'}</button>)}</div>
-    {message && <div className="sensitive-note">完整请求可能包含对话内容、工具参数或本地文件片段，仅保存在本机。</div>}
-    {detail === 'summary' && event ? <EventSummary event={event} /> : <pre className="inspector-code">{event ? eventInspectorBody(event, detail) : inspectorBody(message, detail)}</pre>}
-    {trace?.answerContractRepaired && <div className="inspector-warning"><X size={14} />答案契约已修复：{trace.forcedAnswerReason || trace.answerViolations?.join(', ')}</div>}
+  return <aside className="trace-inspector w-[320px] flex-none overflow-auto border-l border-line bg-[#f7f3eb]">
+    <div className="flex items-center justify-between px-5 pb-[14px] pt-[22px]"><div className="flex min-w-0 flex-col gap-[5px]"><span className="eyebrow font-mono text-[10px] uppercase text-ink-muted">检查器</span><strong className="truncate text-[14px] font-semibold">{event?.title || (message ? `Turn ${message.id.split('-').at(-1)}` : '未选择')}</strong>{event && <small className="font-mono text-[9px] text-ink-muted">事件 {String(event.order).padStart(2, '0')} · {event.kind}</small>}</div><FileText size={16} /></div>
+    <div className="flex gap-[15px] border-b border-line px-5">{(['summary', 'request', 'result', 'timing'] as const).map((tab) => <button key={tab} className={`border-0 border-b-2 bg-transparent pb-[9px] text-[11px] ${detail === tab ? 'border-brand font-semibold text-brand' : 'border-transparent text-ink-muted'}`} onClick={() => setDetail(tab)}>{tab === 'summary' ? '摘要' : tab === 'request' ? '请求' : tab === 'result' ? '结果' : '时序'}</button>)}</div>
+    {message && <div className="mx-5 mt-4 border-l-2 border-[#d89a55] bg-[#f8eadb] px-[10px] py-2 text-[10px] leading-[1.6] text-warning">完整请求可能包含对话内容、工具参数或本地文件片段，仅保存在本机。</div>}
+    {detail === 'summary' && event ? <EventSummary event={event} /> : <pre className="mx-5 my-[14px] overflow-auto whitespace-pre-wrap font-mono text-[10px] leading-[1.65] text-ink-soft [overflow-wrap:anywhere]">{event ? eventInspectorBody(event, detail) : inspectorBody(message, detail)}</pre>}
+    {trace?.answerContractRepaired && <div className="mx-5 my-[14px] flex gap-[6px] bg-danger-wash p-[9px] text-[10px] leading-[1.5] text-danger"><X size={14} />答案契约已修复：{trace.forcedAnswerReason || trace.answerViolations?.join(', ')}</div>}
   </aside>
 }
 function EventSummary({ event }: { event: LedgerEvent }) {
@@ -361,9 +391,9 @@ function EventSummary({ event }: { event: LedgerEvent }) {
   if (timing?.durationMs) rows.push(['耗时', formatDuration(timing.durationMs)])
   if (timing?.usage?.promptTokens) rows.push(['输入 tokens', timing.usage.promptTokens.toLocaleString('zh-CN')])
   if (timing?.usage?.completionTokens) rows.push(['输出 tokens', timing.usage.completionTokens.toLocaleString('zh-CN')])
-  return <dl className="inspector-overview">
-    {rows.map(([key, value]) => <div key={key}><dt>{key}</dt><dd className={key === '状态' && event.state === 'failed' ? 'error' : ''}>{value}</dd></div>)}
-    {event.summary && <div className="inspector-overview-full"><dt>摘要</dt><dd>{event.summary}</dd></div>}
+  return <dl className="mt-[14px] py-[6px]">
+    {rows.map(([key, value]) => <div key={key} className="grid min-h-[26px] grid-cols-[88px_minmax(0,1fr)] items-center gap-[10px] px-5"><dt className="text-[12px] text-ink-muted">{key}</dt><dd className={`m-0 truncate text-[12px] ${key === '状态' && event.state === 'failed' ? 'text-danger' : 'text-ink'}`}>{value}</dd></div>)}
+    {event.summary && <div className="grid min-h-0 grid-cols-1 items-start gap-[5px] px-5 pt-[10px]"><dt className="text-[12px] text-ink-muted">摘要</dt><dd className="m-0 text-[12px] leading-[1.65] text-ink-soft [overflow-wrap:anywhere]">{event.summary}</dd></div>}
   </dl>
 }
 
@@ -487,18 +517,18 @@ function CapabilitySettings(props: any) {
     ['批次超时（秒）', 'subagentTimeoutSeconds', 'setSubagentTimeoutSeconds', 1, 3600],
     ['远端聚合窗口（毫秒）', 'remoteBatchWaitMS', 'setRemoteBatchWaitMS', 0, 1000],
   ] as const
-  return <section className="capability-settings" aria-label="Agent 能力">
-    <div className="capability-heading"><strong>Agent 能力</strong><small>按需暴露工具并控制并发预算</small></div>
-    <label>工具协议<select aria-label="工具协议" value={props.agentProtocol} onChange={(event) => props.setAgentProtocol(event.target.value as AgentProtocol)}><option value={AgentProtocol.AgentProtocolMarkdown}>Markdown（推荐）</option><option value={AgentProtocol.AgentProtocolXML}>XML（兼容模式）</option></select></label>
+  return <section className="mt-[5px] flex flex-col gap-[10px] border-t border-line pt-[13px]" aria-label="Agent 能力">
+    <div className="flex items-center justify-between text-[12px] text-ink-soft"><strong>Agent 能力</strong><small className="mt-[3px] block text-[10px] text-ink-muted">按需暴露工具并控制并发预算</small></div>
+    <label className="grid grid-cols-[120px_1fr] items-center gap-[10px] text-[11px] text-ink-soft">工具协议<select aria-label="工具协议" className="min-w-0 rounded-[2px] border border-line bg-paper-wash px-2 py-[7px] text-[11px] text-ink outline-0" value={props.agentProtocol} onChange={(event) => props.setAgentProtocol(event.target.value as AgentProtocol)}><option value={AgentProtocol.AgentProtocolMarkdown}>Markdown（推荐）</option><option value={AgentProtocol.AgentProtocolXML}>XML（兼容模式）</option></select></label>
     <Toggle icon={<Sparkles size={16} />} label="渐进式工具暴露" description="先选择能力组，再加载具体工具 schema" checked={props.progressiveTools} onChange={props.setProgressiveTools} />
     <Toggle icon={<Globe2 size={16} />} label="网页搜索与正文获取" description="Brave Search + Tavily Extract" checked={props.enableWeb} onChange={props.setEnableWeb} />
-    {props.enableWeb && <div className="inline-fields capability-fields"><label>Brave API Key<input type="password" value={props.braveAPIKey} onChange={(event) => props.setBraveAPIKey(event.target.value)} required /></label><label>Tavily API Key<input type="password" value={props.tavilyAPIKey} onChange={(event) => props.setTavilyAPIKey(event.target.value)} required /></label></div>}
+    {props.enableWeb && <div className="grid grid-cols-2 gap-[10px]"><label className="flex flex-col gap-[5px] text-[10px] text-ink-muted">Brave API Key<input className="min-w-0 rounded-[2px] border border-line bg-paper-wash px-2 py-[7px] text-[11px] text-ink outline-0" type="password" value={props.braveAPIKey} onChange={(event) => props.setBraveAPIKey(event.target.value)} required /></label><label className="flex flex-col gap-[5px] text-[10px] text-ink-muted">Tavily API Key<input className="min-w-0 rounded-[2px] border border-line bg-paper-wash px-2 py-[7px] text-[11px] text-ink outline-0" type="password" value={props.tavilyAPIKey} onChange={(event) => props.setTavilyAPIKey(event.target.value)} required /></label></div>}
     <Toggle icon={<Users size={16} />} label="并发子 Agent" description="一次派发 2–8 个独立任务，不允许嵌套委派" checked={props.enableSubagents} onChange={props.setEnableSubagents} />
-    {props.enableSubagents && <div className="budget-grid">{budgets.map(([label, key, setter, min, max]) => <label key={key}>{label}<input aria-label={label} type="number" min={min} max={max} value={props[key]} onChange={(event) => props[setter](Number(event.target.value))} /></label>)}</div>}
+    {props.enableSubagents && <div className="grid grid-cols-3 gap-2">{budgets.map(([label, key, setter, min, max]) => <label key={key} className="flex flex-col gap-[5px] text-[10px] text-ink-muted">{label}<input aria-label={label} className="min-w-0 rounded-[2px] border border-line bg-paper-wash px-2 py-[7px] text-[11px] text-ink outline-0" type="number" min={min} max={max} value={props[key]} onChange={(event) => props[setter](Number(event.target.value))} /></label>)}</div>}
   </section>
 }
-function Toggle({ icon, label, description, checked, onChange }: { icon: React.ReactNode; label: string; description: string; checked: boolean; onChange: (value: boolean) => void }) { return <label className="toggle-row"><span>{icon}<span>{label}<small>{description}</small></span></span><input type="checkbox" aria-label={label} checked={checked} onChange={(event) => onChange(event.target.checked)} /></label> }
-function SettingsFooter({ busy, message, action }: { busy: boolean; message: string; action: string }) { return <footer className="settings-footer"><div className="settings-result">{busy && <LoaderCircle className="spin" size={15} />}{message}</div><button type="submit" className="primary" disabled={busy}>{busy ? <LoaderCircle className="spin" size={16} /> : <Cpu size={16} />}{action}</button></footer> }
+function Toggle({ icon, label, description, checked, onChange }: { icon: React.ReactNode; label: string; description: string; checked: boolean; onChange: (value: boolean) => void }) { return <label className="flex items-center justify-between gap-3 text-[11px] text-ink-soft"><span className="flex items-start gap-2"><span>{icon}<span>{label}<small className="mt-[3px] block text-[10px] text-ink-muted">{description}</small></span></span></span><input type="checkbox" aria-label={label} checked={checked} onChange={(event) => onChange(event.target.checked)} className="h-[18px] w-[30px] flex-none cursor-pointer appearance-none rounded-[9px] bg-line-strong p-0 transition-colors after:ml-[2px] after:mt-[2px] after:block after:h-[14px] after:w-[14px] after:rounded-full after:bg-white after:content-[''] after:transition-transform after:duration-200 checked:bg-brand checked:after:translate-x-[12px]" /></label> }
+function SettingsFooter({ busy, message, action, secondary }: { busy: boolean; message: string; action: string; secondary?: React.ReactNode }) { return <footer className="mt-2 flex items-center justify-between gap-3 border-t border-line pt-[14px]"><div className="flex min-w-0 items-center gap-[6px] text-[11px] text-ink-muted">{busy && <LoaderCircle className="spin" size={15} />}{message}</div><div className="flex gap-[7px]">{secondary}<button type="submit" className="flex items-center gap-[6px] rounded-[2px] border border-brand bg-brand px-[11px] py-[7px] text-[11px] text-white" disabled={busy}>{busy ? <LoaderCircle className="spin" size={16} /> : <Cpu size={16} />}{action}</button></div></footer> }
 function ComposerContextLabel() { return null }
 function statusLabel(status: Status) { if (status.state === ModelState.ModelReady) return status.model || '模型已就绪'; if (status.state === ModelState.ModelLoading) return '模型加载中'; if (status.state === ModelState.ModelError) return '模型错误'; return '未选择模型' }
 function relativeTime(value: string) { const timestamp = new Date(value).getTime(); if (!Number.isFinite(timestamp)) return ''; const elapsed = Math.max(0, Math.floor((Date.now() - timestamp) / 1000)); if (elapsed < 60) return '刚刚'; const minutes = Math.floor(elapsed / 60); if (minutes < 60) return `${minutes} 分钟前`; const hours = Math.floor(minutes / 60); if (hours < 24) return `${hours} 小时前`; return `${Math.floor(hours / 24)} 天前` }

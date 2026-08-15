@@ -225,22 +225,22 @@ export class Result {
      * Creates a new Result instance from a string or object.
      */
     static createFrom($$source: any = {}): Result {
-        const $$createField2_0 = $$createType3;
-        const $$createField4_0 = $$createType1;
-        const $$createField5_0 = $$createType5;
-        const $$createField7_0 = $$createType1;
+        const $$createField3_0 = $$createType3;
+        const $$createField5_0 = $$createType1;
+        const $$createField6_0 = $$createType5;
+        const $$createField8_0 = $$createType1;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("routeSteps" in $$parsedSource) {
-            $$parsedSource["routeSteps"] = $$createField2_0($$parsedSource["routeSteps"]);
+            $$parsedSource["routeSteps"] = $$createField3_0($$parsedSource["routeSteps"]);
         }
         if ("bundles" in $$parsedSource) {
-            $$parsedSource["bundles"] = $$createField4_0($$parsedSource["bundles"]);
+            $$parsedSource["bundles"] = $$createField5_0($$parsedSource["bundles"]);
         }
         if ("steps" in $$parsedSource) {
-            $$parsedSource["steps"] = $$createField5_0($$parsedSource["steps"]);
+            $$parsedSource["steps"] = $$createField6_0($$parsedSource["steps"]);
         }
         if ("answerViolations" in $$parsedSource) {
-            $$parsedSource["answerViolations"] = $$createField7_0($$parsedSource["answerViolations"]);
+            $$parsedSource["answerViolations"] = $$createField8_0($$parsedSource["answerViolations"]);
         }
         return new Result($$parsedSource as Partial<Result>);
     }
@@ -382,8 +382,8 @@ export class Step {
     static createFrom($$source: any = {}): Step {
         const $$createField2_0 = $$createType7;
         const $$createField5_0 = $$createType8;
-        const $$createField19_0 = $$createType10;
-        const $$createField20_0 = $$createType12;
+        const $$createField20_0 = $$createType10;
+        const $$createField21_0 = $$createType12;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("request" in $$parsedSource) {
             $$parsedSource["request"] = $$createField2_0($$parsedSource["request"]);
@@ -392,10 +392,10 @@ export class Step {
             $$parsedSource["usage"] = $$createField5_0($$parsedSource["usage"]);
         }
         if ("toolRetries" in $$parsedSource) {
-            $$parsedSource["toolRetries"] = $$createField19_0($$parsedSource["toolRetries"]);
+            $$parsedSource["toolRetries"] = $$createField20_0($$parsedSource["toolRetries"]);
         }
         if ("subagents" in $$parsedSource) {
-            $$parsedSource["subagents"] = $$createField20_0($$parsedSource["subagents"]);
+            $$parsedSource["subagents"] = $$createField21_0($$parsedSource["subagents"]);
         }
         return new Step($$parsedSource as Partial<Step>);
     }

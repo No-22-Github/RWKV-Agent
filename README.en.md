@@ -682,7 +682,7 @@ GitHub Actions (`.github/workflows/ci.yml`) runs two jobs:
 - Go: race tests for `api/...`, `internal/...`, `cmd/rwkv-cli/...`, plus
   `CGO_ENABLED=0 go build -tags server ./...` and vet to verify the Linux headless
   build.
-- Frontend: Node 24, `npm ci`, and `npm test`.
+- Frontend: Node 24 + pnpm 11 (`pnpm install --frozen-lockfile` + `pnpm test`).
 
 ## 11. Project Layout
 

@@ -92,7 +92,7 @@ export default function MarkdownMessage({ content }: MarkdownMessageProps) {
           },
           table({ children, ...props }) {
             return (
-              <div className="md-markdown-table-wrap">
+              <div className="overflow-x-auto">
                 <table {...props}>{children}</table>
               </div>
             )
@@ -140,23 +140,30 @@ function CodeBlock({ className, code }: CodeBlockProps) {
     resetTimer.current = setTimeout(() => setCopyState('idle'), 1500)
   }
 
+  const copyClass =
+    copyState === 'copied' ? 'text-brand' : copyState === 'failed' ? 'text-danger' : 'text-ink-muted hover:text-brand';
+
   return (
-    <div className="md-markdown-codeblock">
-      <div className="md-markdown-codeblock-bar">
-        <span className="md-markdown-codeblock-lang">{label}</span>
-        <button type="button" className={`md-markdown-codeblock-copy ${copyState}`} onClick={() => void copyCode()} aria-label={`复制 ${label} 代码`}>
+    <div className="my-4 overflow-hidden rounded border border-line bg-[#f7f8fa]">
+      <div className="flex items-center justify-between gap-2 border-b border-line bg-[#f1f2f5] px-3 py-1.5">
+        <span className="font-mono text-[10px] font-medium text-ink-muted">{label}</span>
+        <button
+          type="button"
+          className={`flex items-center gap-1 rounded px-2 py-1 font-sans text-[10px] transition-colors ${copyClass}`}
+          onClick={() => void copyCode()}
+          aria-label={`复制 ${label} 代码`}
+        >
           {copyState === 'copied' ? <Check size={14} /> : copyState === 'failed' ? <X size={14} /> : <Copy size={14} />}
           <span>{copyState === 'copied' ? '已复制' : copyState === 'failed' ? '复制失败' : '复制'}</span>
         </button>
       </div>
       <Highlight theme={codeTheme} code={code} language={language}>
         {({ className: prismClassName, style, tokens, getLineProps, getTokenProps }) => (
-          <pre className={`${prismClassName} md-markdown-code-pre`} style={style} tabIndex={0}>
+          <pre className={`${prismClassName} overflow-auto p-3 font-mono text-[12px] leading-relaxed`} style={style} tabIndex={0}>
             <code>
               {tokens.map((line, lineIndex) => (
-                <span {...getLineProps({ line })} className="md-markdown-code-line" key={lineIndex}>
+                <span {...getLineProps({ line })} className="block" key={lineIndex}>
                   {line.map((token, tokenIndex) => <span {...getTokenProps({ token })} key={tokenIndex} />)}
-                  {lineIndex < tokens.length - 1 ? '\n' : null}
                 </span>
               ))}
             </code>

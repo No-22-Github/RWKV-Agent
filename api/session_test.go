@@ -31,7 +31,7 @@ func TestUnifiedSessionReadsREADMEAndReturnsFirstLine(t *testing.T) {
 	outputs := []string{
 		`inspect:workspace</route>`,
 		`{"name":"read_file","arguments":{"path":"README.md"}}`,
-		`{"name":"submit","arguments":{"answer":"` + firstLine + `"}}`,
+		firstLine,
 	}
 	var requests []continuation.Request
 	var mu sync.Mutex
@@ -67,7 +67,7 @@ func TestUnifiedSessionReadsREADMEAndReturnsFirstLine(t *testing.T) {
 	}
 	if len(requests) != 3 || !strings.HasSuffix(requests[1].Prompt, "Assistant: ```json\n") ||
 		!strings.Contains(requests[2].Prompt, "User: Function output:\n") ||
-		!strings.HasSuffix(requests[2].Prompt, "Assistant: ```json\n") {
+		!strings.HasSuffix(requests[2].Prompt, "Assistant:") {
 		t.Fatalf("Markdown transcript requests = %+v", requests)
 	}
 	if len(result.Steps) != 2 || result.Steps[0].Tool != "read_file" || !result.Steps[0].ToolExecuted {

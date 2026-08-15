@@ -22,7 +22,8 @@ const (
 )
 
 type workspace struct {
-	root string
+	root        string
+	unavailable bool
 }
 
 // WorkspaceResolver exposes the existing workspace containment policy to
@@ -60,7 +61,10 @@ func WorkspaceTools(root string) ([]Tool, error) {
 
 func newWorkspace(root string) (*workspace, error) {
 	if root == "" {
-		root = "."
+		// 未打开工作区：解析器保持不可用状态，任何解析都会返回明确错误，
+		// 绝不回退到当前工作目录（.app 经 LaunchServices 启动时 CWD 是 /，
+		// 回退会让文件工具绑定到整个磁盘根）。
+		return &workspace{unavailable: true}, nil
 	}
 	absolute, err := filepath.Abs(root)
 	if err != nil {
@@ -124,6 +128,9 @@ func (w *workspace) absoluteCandidates(path string) []string {
 }
 
 func (w *workspace) resolve(path string) (string, error) {
+	if w == nil || w.unavailable {
+		return "", fmt.Errorf("没有打开工作区：本地文件工具需要先打开一个工作区才能使用。请停止调用文件工具，直接告诉用户先在应用中打开一个工作区（“打开工作区”按钮）")
+	}
 	if path == "" {
 		path = "."
 	}

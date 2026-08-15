@@ -6,3 +6,5 @@ __pycache__/
 /runs/
 /sessions/
 .DS_Store
+.pnpm-store/
+.gocache/

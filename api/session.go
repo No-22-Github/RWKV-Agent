@@ -51,10 +51,13 @@ func newSessionAtDepth(
 	status Status,
 	depth int,
 ) (*Session, error) {
-	tools, err := agent.WorkspaceTools(workspace)
+	// 文件工具始终在目录里（模型能感知该能力）；未打开工作区时它们由
+	// 不可用解析器支撑，调用会返回"请先打开工作区"的明确提示。
+	workspaceTools, err := agent.WorkspaceTools(workspace)
 	if err != nil {
 		return nil, fmt.Errorf("initialize workspace tools: %w", err)
 	}
+	tools := workspaceTools
 	localTools, err := assistanttools.LocalTools(assistanttools.Options{Workspace: workspace})
 	if err != nil {
 		return nil, fmt.Errorf("initialize local tools: %w", err)
@@ -115,15 +118,17 @@ func newSessionAtDepth(
 	sameToolRescueLimit := 8
 	var postToolHook func(string, json.RawMessage, any, error) string
 	if markdownProtocol {
-		tools = append(tools, agent.ProductSubmitTool())
-		terminalTool = "submit"
+		// The Markdown protocol answers directly (plain Markdown or fenced
+		// code) once it has enough evidence; there is no submit gate, so the
+		// model never has to pack the user-visible answer into a JSON tool
+		// argument (which is where Markdown fences get lost).
 		sameToolRescueLimit = 3
 		postToolHook = func(name string, _ json.RawMessage, _ any, _ error) string {
 			switch name {
 			case "web_fetch":
-				return "NEXT: Use the fetched page content above and call submit now. Do not call web_search or web_fetch again."
+				return "NEXT: Use the fetched page content above and answer the user directly now. Do not call web_search or web_fetch again."
 			case "spawn_agents":
-				return "NEXT: Synthesize the ordered child results above and call submit now. Do not spawn another batch."
+				return "NEXT: Synthesize the ordered child results above and answer the user directly now. Do not spawn another batch."
 			default:
 				return ""
 			}
@@ -146,6 +151,10 @@ func newSessionAtDepth(
 		protocol = agent.G1IFunctionProtocol{Product: true}
 		renderer = agent.G1IFunctionRenderer{Product: true}
 	}
+	taskControl := ""
+	if workspace == "" {
+		taskControl = "工作区未打开：本地文件工具（list_files/read_file/search_text）需要先打开一个工作区才能使用。如果用户需要读取或搜索本地文件，请直接告诉用户先在应用中打开一个工作区（例如“打开工作区”按钮），不要尝试调用任何文件工具，也不要假装读取了文件。"
+	}
 	runner, err := agent.NewRunner(generator, tools, agent.Options{
 		MaxSteps:                 config.MaxSteps,
 		ProtocolRetries:          1,
@@ -153,11 +162,12 @@ func newSessionAtDepth(
 		ControlPrompt:            agent.ControlPromptSystem,
 		Protocol:                 protocol,
 		Renderer:                 renderer,
+		TaskControl:              taskControl,
 		DuplicateReplayLimit:     2,
 		DuplicateRescueThreshold: 3,
 		SameToolRescueLimit:      sameToolRescueLimit,
 		TerminalTool:             terminalTool,
-		EndOnTerminalTool:        markdownProtocol,
+		EndOnTerminalTool:        false,
 		PostToolHook:             postToolHook,
 		TracePromptBytes:         agent.DefaultTracePromptBytes,
 		ToolRouter:               toolRouter,

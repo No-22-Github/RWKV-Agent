@@ -170,13 +170,13 @@ cd cmd/rwkv-app
 go run github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0-beta.8 generate bindings -clean -ts
 ```
 
-Run frontend checks (use Node 24 to match CI):
+Run frontend checks (use Node 24 to match CI, pnpm 11):
 
 ```sh
 cd cmd/rwkv-app/frontend
-npm ci
-npm test
-npm run build
+pnpm install --frozen-lockfile
+pnpm test
+pnpm run build
 ```
 
 Run backend checks:

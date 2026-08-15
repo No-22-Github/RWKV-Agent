@@ -26,27 +26,29 @@ type Service struct {
 	closed    bool
 }
 
-// NewService creates an idle application service.
+// NewService creates an idle application service. An empty workspace is a
+// valid "no project open" state: the agent is created without file tools and
+// must ask the user to open a workspace before touching local files.
 func NewService(options Options) (*Service, error) {
 	workspace := strings.TrimSpace(options.Workspace)
-	if workspace == "" {
-		workspace = "."
-	}
-	absolute, err := filepath.Abs(workspace)
-	if err != nil {
-		return nil, fmt.Errorf("resolve workspace: %w", err)
-	}
-	resolved, err := filepath.EvalSymlinks(absolute)
-	if err != nil {
-		return nil, fmt.Errorf("resolve workspace symlinks: %w", err)
+	if workspace != "" {
+		absolute, err := filepath.Abs(workspace)
+		if err != nil {
+			return nil, fmt.Errorf("resolve workspace: %w", err)
+		}
+		resolved, err := filepath.EvalSymlinks(absolute)
+		if err != nil {
+			return nil, fmt.Errorf("resolve workspace symlinks: %w", err)
+		}
+		workspace = resolved
 	}
 	service := &Service{
-		workspace: resolved,
+		workspace: workspace,
 		sessions:  make(map[*Session]struct{}),
 	}
 	service.status = Status{
 		State:     ModelIdle,
-		Workspace: resolved,
+		Workspace: workspace,
 		Message:   "Choose a local model or configure a remote API",
 		UpdatedAt: time.Now(),
 	}

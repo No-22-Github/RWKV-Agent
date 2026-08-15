@@ -133,9 +133,8 @@ func newAppService(service *agentapi.Service, storage *appstorage.Store) *AppSer
 		backend.config = settings.Provider
 		backend.hasConfig = true
 	}
-	if _, err := storage.RememberWorkspace(service.Status().Workspace); err != nil {
-		backend.warning = joinWarning(backend.warning, fmt.Sprintf("保存工作区状态失败：%v", err))
-	}
+	// 不要在这里持久化工作区：启动时的工作区可能是默认值（用户主目录），
+	// 只有用户通过“打开工作区”主动选择后才应该被记住。
 	backend.loadActiveConversation()
 	return backend
 }
@@ -416,6 +415,35 @@ func (s *AppService) OpenWorkspace(path string) (AppBootstrap, error) {
 	s.loadActiveConversation()
 	s.emit("model:status", service.Status())
 	return s.bootstrap()
+}
+
+// ExportTrajectory shows a native save dialog and writes the given JSONL
+// content to the chosen path. Returns the written path, or "" when the user
+// cancels the dialog.
+func (s *AppService) ExportTrajectory(content string) (string, error) {
+	app := s.app
+	if app == nil || app.Dialog == nil {
+		return "", errors.New("桌面窗口不可用")
+	}
+	dialog := app.Dialog.SaveFile()
+	dialog.SetOptions(&application.SaveFileDialogOptions{
+		Title:    "导出轨迹",
+		Filename: "rwkv-agent-trajectory.jsonl",
+		Message:  "将当前可见的轨迹保存为 JSONL",
+	})
+	dialog.AddFilter("JSONL", "*.jsonl")
+	dialog.AddFilter("所有文件", "*")
+	path, err := dialog.PromptForSingleSelection()
+	if err != nil {
+		return "", err
+	}
+	if path == "" {
+		return "", nil // 用户取消
+	}
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		return "", fmt.Errorf("写入轨迹文件失败: %w", err)
+	}
+	return path, nil
 }
 
 // Close releases the current conversation and model provider.

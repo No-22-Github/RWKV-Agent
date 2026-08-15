@@ -72,9 +72,12 @@ func (protocol G1IFunctionProtocol) Instructions(specs []ToolSpec, _ inference.T
 		exactOutputGuidance +
 		"read_file lines: omit leading 'N: '. Money: two decimals.\n"
 	if protocol.Product {
-		completionGuidance := "After each Function output, either call one tool for a specific missing fact or answer the user directly in ordinary Markdown. "
+		completionGuidance := "After each Function output, either call one tool for a specific missing fact or answer the user directly in ordinary Markdown. When the answer contains code, wrap it in a fenced code block with a language tag. " +
+			"Never pack the user-visible answer into a JSON function call; answer directly in Markdown."
 		if hasToolSpec(specs, "submit") {
-			completionGuidance = "After each Function output, call one tool for a specific missing fact or call submit with the exact user-visible answer. Never answer in plain text while submit is offered. "
+			completionGuidance = "After each Function output, either call one tool for a specific missing fact, or call submit with the exact user-visible answer. " +
+				"When the user asks for code or a Markdown-formatted answer, respond directly with fenced code blocks instead of calling submit. " +
+				"Never mix both in one response."
 		}
 		return base + "When new tool evidence is needed, return exactly one fenced JSON function call and nothing else. " +
 			completionGuidance +

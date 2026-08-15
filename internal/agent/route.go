@@ -45,7 +45,7 @@ func (G1IProgressiveToolRouteProtocol) ID() string { return "rwkv-g1i-tool-route
 func (G1IProgressiveToolRouteProtocol) Instructions(bundles []ToolBundle) string {
 	var prompt strings.Builder
 	prompt.WriteString(`Choose whether the current user message needs NEW tool evidence. Output exactly one route and nothing else.
-Use <route>respond</route> when no new evidence is needed, required arguments are missing, or the user only asks about capabilities.
+Use <route>respond</route> when no new evidence is needed, required arguments are missing, or the user only asks about capabilities. Writing or explaining code, math, prose, or general knowledge never requires tool evidence.
 Use exactly one of these concrete routes when a capability is needed:`)
 	for _, bundle := range bundles {
 		fmt.Fprintf(&prompt, "\n- <route>inspect:%s</route>: %s", bundle.Name, bundle.Description)
@@ -58,7 +58,26 @@ Use exactly one of these concrete routes when a capability is needed:`)
 			bundles[1].Name,
 		)
 	}
-	prompt.WriteString("\nDo not answer the user and do not output placeholder words.")
+	prompt.WriteString(`
+Examples:
+User: 写一个Python冒泡排序
+Assistant: <route>respond</route>
+User: 解释什么是快速排序
+Assistant: <route>respond</route>
+User: 你会哪些工具？
+Assistant: <route>respond</route>`)
+	for _, bundle := range bundles {
+		if bundle.Name == ToolBundleWorkspace {
+			fmt.Fprintf(&prompt, `
+User: Read README.md and report its title
+Assistant: <route>inspect:workspace</route>
+User: 搜索代码里所有 TODO
+Assistant: <route>inspect:workspace</route>`)
+			break
+		}
+	}
+	prompt.WriteString(`
+Do not answer the user and do not output placeholder words.`)
 	return prompt.String()
 }
 

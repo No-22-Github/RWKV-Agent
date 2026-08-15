@@ -17,13 +17,15 @@ export default function Md3TextField({
 }: Props) {
   const id = useId();
   const hasValue = value.length > 0 || !!placeholder;
+  const fieldClass = `peer w-full min-h-[46px] rounded-[2px] border border-line-strong bg-paper-wash px-[10px] pb-[6px] pt-[18px] text-[12px] text-ink outline-none transition-[border-color,box-shadow] duration-150 placeholder:text-ink-muted focus:border-brand focus:shadow-[0_0_0_1px_var(--brand)]${error ? " border-danger focus:border-danger" : ""}`;
+  const labelClass = `pointer-events-none absolute left-[10px] transition-[top,font-size,color] duration-150 ${error ? "text-danger" : hasValue ? "text-ink-soft" : "text-ink-muted"} ${hasValue ? "top-[5px] text-[9px]" : "top-[14px] text-[12px]"}`;
 
   return (
-    <div className={`md3-textfield${error ? " md3-textfield--error" : ""}${disabled ? " md3-textfield--disabled" : ""}`}>
+    <div className={`relative min-w-0${disabled ? " opacity-55" : ""}`}>
       {multiline ? (
         <textarea
           id={id}
-          className="md3-textfield-input"
+          className={`${fieldClass} min-h-[92px] resize-y`}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           rows={rows}
@@ -33,7 +35,7 @@ export default function Md3TextField({
       ) : (
         <input
           id={id}
-          className="md3-textfield-input"
+          className={fieldClass}
           type={type}
           value={value}
           onChange={(e) => onChange(e.target.value)}
@@ -41,10 +43,10 @@ export default function Md3TextField({
           placeholder={placeholder}
         />
       )}
-      <label htmlFor={id} className={`md3-textfield-label${hasValue ? " md3-textfield-label--float" : ""}`}>
+      <label htmlFor={id} className={labelClass}>
         {label}
       </label>
-      {error && <span className="md3-textfield-error">{error}</span>}
+      {error && <span className="mt-1 block text-[10px] text-danger">{error}</span>}
     </div>
   );
 }

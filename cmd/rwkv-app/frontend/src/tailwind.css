@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+/*
+ * 暗色模式：theme.ts 通过 html[data-theme] 控制，
+ * dark: 变体跟随该属性（而不是 Tailwind 默认的 .dark class）。
+ */
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+/*
+ * 主题映射。
+ * 颜色用 var() 间接引用 index.css 里的 legacy token，
+ * 而这些 token 又会被 theme.ts 的 MD3 动态换肤逻辑改写，
+ * 因此工具类（bg-brand 等）天然跟随运行时主题。
+ */
+@theme {
+  --color-paper: var(--paper);
+  --color-paper-soft: var(--paper-soft);
+  --color-paper-sidebar: var(--paper-sidebar);
+  --color-paper-wash: var(--paper-wash);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-faint: var(--ink-faint);
+  --color-ink-ghost: var(--ink-ghost);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-brand: var(--brand);
+  --color-brand-bright: var(--brand-bright);
+  --color-brand-wash: var(--brand-wash);
+  --color-danger: var(--danger);
+  --color-danger-wash: var(--danger-wash);
+  --color-warning: var(--warning);
+  --color-accent-warm: var(--accent-warm);
+  --color-surface-active: var(--surface-active);
+
+  /* 字体：静态值；--font-serif/--font-mono 同时供保留层 CSS 的 var() 引用 */
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", system-ui, sans-serif;
+  --font-serif: "Noto Serif SC", "Songti SC", "STSong", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
