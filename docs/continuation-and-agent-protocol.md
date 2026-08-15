@@ -122,7 +122,7 @@ HTTP adapter 面向 `rwkv_lightning` 的原生续写请求：
 
 - 单请求把完整 prompt 放入 `contents`；启用聚合时，一个 HTTP 请求携带多个并发 prompt。
 - `max_tokens`、`temperature`、`top_k`、`top_p` 和重复惩罚逐字段映射。
-- 第一版固定 `stream: false`。
+- 默认 `stream: true`（SSE 逐 token），`--api-stream=false` 切换为一次性 JSON 响应。
 - 服务端 `choices[0].message.content` 映射为续写文本。
 - endpoint 是 CLI 传入的完整 URL，adapter 不拼接固定路径。
 - 密码从指定环境变量读取，错误信息会脱敏。
@@ -177,6 +177,10 @@ endpoint。选择远程续写即代表显式启用这条数据路径。
 `max_tokens` 后仅靠客户端 `splitAtStop` 截断。这同时降低延迟和无效算力。`none` 省略字段；
 `eos` 或逗号分隔整数列表保留旧的 token ID 形式，仅供接受整数的部署使用。无论哪种模式，
 客户端都继续做 decoded-text 收束，因此协议边界不依赖服务端行为。
+
+`--api-stream` 默认 `true`（SSE 逐 token）。实测某部署的 SSE 在一定负载后会退化为
+HTTP 200 空响应体，而非流式路径不受影响；评测只需要最终文本，因此在流式通路不稳定的
+部署上应使用 `--api-stream=false`，代价是交互式 `agent` 失去 token 级输出。
 
 `/big_batch/completions` 只支持 `temperature`（无 `top_k`/`top_p`/penalty），且单请求串行：
 并发第二个请求返回 HTTP 409 `Another big_batch request is already running`。提前关闭 SSE

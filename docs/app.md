@@ -1,10 +1,31 @@
 # RWKV Agent App
 
-The demo application uses Wails V3 beta, TypeScript, React, and Vite. The desktop and browser-only variants embed the same production frontend and bind the same public Go API from `api/`.
+The demo application uses Wails V3 beta, TypeScript, React, and Vite with a Material
+Design 3 frontend. The desktop and browser-only variants embed the same production
+frontend and bind the same public Go API from `api/`.
+
+## Features
+
+- Material Design 3 interface with a navigation drawer, chat session rail, and
+  responsive dialogs.
+- Persistent conversations per workspace: display messages and the complete committed
+  Harness transcript (tool calls and results included) survive restarts and are
+  restorable through the public `api`.
+- Tool trajectories per message: step, tool, arguments, status, error, subagent
+  details, and per-attempt web-provider retries are recorded and rendered in the UI.
+- Resilient `web_search`/`web_fetch`: 429/5xx responses and transport errors retry up
+  to 5 times with exponential backoff (500 ms base, 5 s cap, jitter), honor
+  `Retry-After`, and emit retry events into the trajectory; a gate serializes provider
+  requests.
+- Local model (`.pth` or MLX directory) or remote RWKV continuation / OpenAI-compatible
+  Chat Completions configuration, remote model listing via `GET /v1/models`, arbitrary
+  HTTP headers, and macOS system proxy support.
 
 ## Build on Apple Silicon macOS
 
-The complete build prepares the native MLX runtime, verifies the frontend, and creates both launch modes:
+The complete build prepares the native MLX runtime, verifies the frontend, and creates
+both launch modes. In addition to the native toolchain, the build requires Node.js and
+npm (CI pins Node 24):
 
 ```sh
 ./scripts/build-app.sh
@@ -149,7 +170,7 @@ cd cmd/rwkv-app
 go run github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0-beta.8 generate bindings -clean -ts
 ```
 
-Run frontend checks:
+Run frontend checks (use Node 24 to match CI):
 
 ```sh
 cd cmd/rwkv-app/frontend

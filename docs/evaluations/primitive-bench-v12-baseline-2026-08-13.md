@@ -1,5 +1,8 @@
 # Primitive Bench v12 基线（2026-08-13）
 
+> 本文以 2026-08-13 的 v12 基线为起点，后续 v13–v21 的演进记录持续追加在下方
+> （文件名仍保留最初的 v12 命名，便于历史链接稳定）。
+
 ## 范围
 
 - 数据集：`RWKV-Vibe/rwkv-Primitive-Bench/agent_cases_orig30`，共 30 题。
@@ -108,6 +111,28 @@ Harness v14 新增显式 `--primitive-profile`：默认 `upstream-compatible` �
 
 普通 `agent` 命令也注册同一套核心工具。这样 Go-native 分数直接反映产品工具栈，Lua 兼容
 能力不再成为产品门槛，同时保留 upstream-compatible 分数用于和官方 Harness 做协议诊断。
+
+工具对齐遵循“相同公开契约、相同可观察状态变化、使用本 Harness 控制循环”：
+
+| 上游工具 | RWKV-Agent 评测实现 |
+| --- | --- |
+| `multiply` | 64 位整数精确乘法 |
+| `list_files`、`ls`、`stat`、`read_file`、`search` | 每题独立 fixture 工作区中的确定性导航与读取 |
+| `write_file`、`chmod` | 只修改该题隔离工作区与模拟权限位 |
+| `run_file` | 按 case 声明的输出与状态变化执行，不开放 shell |
+| `run_awk` | 受限的三列制表符格式化任务实现，不执行模型 shell |
+| `run_lua` | 只读 `FILES`、`read_file`、虚拟 `io.open/io.lines`；禁用 OS、包加载和宿主文件 I/O |
+| `run_tests` | 根据 case `scenario` 对隔离工作区执行确定性断言 |
+| `submit` | 记录真实提交值并作为终结工具；有该工具时纯文本不能提前结束 case |
+| `list_schedules` | 返回空列表的干扰工具，并由 forbidden-tool 评分检查是否误用 |
+
+工具名称、JSON 参数字段、必填字段和 `additionalProperties: false` 与快照上游 schema
+在 `upstream-compatible` profile 中保持一致，并有契约测试。`go-native` profile 只替换
+`run_lua`。上游 Harness 对 `bash` 包装、参数别名、虚构绝对路径等错误调用进行的猜测与
+改写不会移植；我们的 Runner 必须用协议约束、精确错误反馈与恢复循环自行处理，否则会把
+上游 Harness 的容错能力混入本 Harness 的得分。`run_lua` 只向代码暴露内存中的
+`FILES[path]` 与只读虚拟文件接口；需要该计算工具时先安装 Lua
+（macOS 可用 `brew install lua`）。
 
 ### 2026-08-13 实测状态
 
