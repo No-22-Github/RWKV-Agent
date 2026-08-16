@@ -97,14 +97,16 @@ type StoragePaths struct {
 }
 
 type AppBootstrap struct {
-	Status        agentapi.Status       `json:"status"`
-	Config        agentapi.Config       `json:"config"`
-	HasConfig     bool                  `json:"hasConfig"`
-	Conversations []ConversationSummary `json:"conversations"`
-	Conversation  *ConversationView     `json:"conversation,omitempty"`
-	Workspaces    []WorkspaceItem       `json:"workspaces"`
-	Paths         StoragePaths          `json:"paths"`
-	Warning       string                `json:"warning,omitempty"`
+	Status           agentapi.Status            `json:"status"`
+	Config           agentapi.Config            `json:"config"`
+	HasConfig        bool                       `json:"hasConfig"`
+	Providers        []appstorage.SavedProvider `json:"providers"`
+	ActiveProviderID string                     `json:"activeProviderId,omitempty"`
+	Conversations    []ConversationSummary      `json:"conversations"`
+	Conversation     *ConversationView          `json:"conversation,omitempty"`
+	Workspaces       []WorkspaceItem            `json:"workspaces"`
+	Paths            StoragePaths               `json:"paths"`
+	Warning          string                     `json:"warning,omitempty"`
 }
 
 // AppService binds durable application state to the public Agent API.
@@ -129,9 +131,16 @@ func newAppService(service *agentapi.Service, storage *appstorage.Store) *AppSer
 	}
 	if settings, err := storage.LoadSettings(); err != nil {
 		backend.warning = joinWarning(backend.warning, fmt.Sprintf("读取设置失败：%v", err))
-	} else if strings.TrimSpace(settings.Provider.Model) != "" {
-		backend.config = settings.Provider
+	} else if cfg := settings.Provider; strings.TrimSpace(cfg.Model) != "" {
+		backend.config = cfg
 		backend.hasConfig = true
+		// 远端配置很轻量（不发网络请求，连通性检查在"测试连接"里），启动时自动连上
+		// 上次使用的远端档案，省去手动重连；本地模型加载较重，仍需用户显式加载。
+		if cfg.Provider != agentapi.ProviderLocal {
+			if _, err := service.Configure(context.Background(), cfg, func(agentapi.Status) {}); err != nil {
+				backend.warning = joinWarning(backend.warning, fmt.Sprintf("自动连接上次的远端失败：%v", err))
+			}
+		}
 	}
 	// 不要在这里持久化工作区：启动时的工作区可能是默认值（用户主目录），
 	// 只有用户通过“打开工作区”主动选择后才应该被记住。
@@ -200,6 +209,30 @@ func (s *AppService) ListRemoteModels(ctx context.Context, config agentapi.Confi
 	service := s.service
 	s.mu.Unlock()
 	return service.ListRemoteModels(ctx, config)
+}
+
+// ActivateProvider 切换到一条已保存的连接档案：取出其 Config 后复用 Configure 完成连接并置为 active。
+func (s *AppService) ActivateProvider(ctx context.Context, id string) (agentapi.Status, error) {
+	settings, err := s.storage.LoadSettings()
+	if err != nil {
+		return agentapi.Status{}, err
+	}
+	for _, entry := range settings.Providers {
+		if entry.ID == id {
+			return s.Configure(ctx, entry.Config)
+		}
+	}
+	return agentapi.Status{}, fmt.Errorf("找不到该连接档案")
+}
+
+// DeleteProvider 删除一条连接档案并返回刷新后的引导状态（不影响当前正在运行的会话）。
+func (s *AppService) DeleteProvider(id string) (AppBootstrap, error) {
+	s.operation.Lock()
+	defer s.operation.Unlock()
+	if _, err := s.storage.RemoveProvider(id); err != nil {
+		return AppBootstrap{}, err
+	}
+	return s.bootstrap()
 }
 
 // Chat runs and durably commits one Agent turn in the active conversation.
@@ -518,9 +551,14 @@ func (s *AppService) bootstrap() (AppBootstrap, error) {
 	if err != nil {
 		return AppBootstrap{}, err
 	}
+	settings, err := s.storage.LoadSettings()
+	if err != nil {
+		return AppBootstrap{}, err
+	}
 	paths := s.storage.Paths()
 	result := AppBootstrap{
 		Status: status, Config: config, HasConfig: hasConfig,
+		Providers: settings.Providers, ActiveProviderID: settings.ActiveID,
 		Conversations: conversationSummaries(summaries),
 		Workspaces:    workspaceItems(state.RecentWorkspaces, status.Workspace),
 		Paths: StoragePaths{

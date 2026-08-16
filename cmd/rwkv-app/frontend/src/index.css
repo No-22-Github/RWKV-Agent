@@ -19,7 +19,8 @@
   --disabled-bg: #e4dfd4;
   --disabled-text: #a9a192;
   --line: #e8e3da;
-  --line-strong: #d9d0c1;
+  --line-soft: #efebe3;
+  --line-strong: #ddd5c7;
   --brand: #1e7c7e;
   --brand-bright: #60bbbd;
   --brand-wash: #e7f3f2;
@@ -57,6 +58,7 @@
   --disabled-bg: #2a251e;
   --disabled-text: #635c51;
   --line: #2a251e;
+  --line-soft: #231f18;
   --line-strong: #3a342b;
   --brand: #60bbbd;
   --brand-bright: #60bbbd;

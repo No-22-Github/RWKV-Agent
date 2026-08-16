@@ -84,7 +84,10 @@ export default function MarkdownMessage({ content }: MarkdownMessageProps) {
     <div className="md-markdown">
       {blocks.map((block, index) => {
         const isPlain = isPlainParagraph(block)
-        const numbered = isPlain && plainCount++ > 0
+        if (isPlain) plainCount++
+        // 首个普通段落作为引言不编号，其后的论点从 1 开始编号（对齐设计稿的「引言 + 编号论点」）
+        const numbered = isPlain && plainCount > 1
+        const pointNumber = plainCount - 1
         const markdown = (
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
@@ -122,7 +125,7 @@ export default function MarkdownMessage({ content }: MarkdownMessageProps) {
 
         return (
           <div key={index} className="answer-para grid grid-cols-[22px_minmax(0,1fr)] items-baseline gap-[12px]">
-            <span className="answer-para-num font-serif text-[15px] font-bold leading-[1.95] text-brand">{plainCount}</span>
+            <span className="answer-para-num font-serif text-[15px] font-bold leading-[1.95] text-brand">{pointNumber}</span>
             <div className="min-w-0">{markdown}</div>
           </div>
         )

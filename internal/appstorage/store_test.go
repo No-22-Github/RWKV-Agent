@@ -56,6 +56,105 @@ func TestSettingsPersistCredentialsAtomically(t *testing.T) {
 	}
 }
 
+func TestSaveActiveProviderUpsertsAndActivates(t *testing.T) {
+	t.Parallel()
+	store := testStore(t)
+	first := agentapi.Config{Provider: agentapi.ProviderRWKVLightning, Endpoint: "https://a.test", Model: "model-a", Password: "p1"}
+	second := agentapi.Config{Provider: agentapi.ProviderChatCompletions, Endpoint: "https://b.test", Model: "model-b", APIKey: "k1"}
+	firstSaved, err := store.SaveActiveProvider(first)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := store.SaveActiveProvider(second); err != nil {
+		t.Fatal(err)
+	}
+	loaded, err := store.LoadSettings()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(loaded.Providers) != 2 {
+		t.Fatalf("expected 2 providers, got %d", len(loaded.Providers))
+	}
+	// 重新保存第一个（同 协议+地址+模型，仅改密钥）→ upsert，不新增，且 active 回到第一个。
+	first.Password = "p2"
+	reSaved, err := store.SaveActiveProvider(first)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if reSaved.ID != firstSaved.ID {
+		t.Fatalf("upsert should reuse id: %s vs %s", reSaved.ID, firstSaved.ID)
+	}
+	loaded, err = store.LoadSettings()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(loaded.Providers) != 2 {
+		t.Fatalf("upsert must not add a duplicate, got %d", len(loaded.Providers))
+	}
+	if loaded.ActiveID != firstSaved.ID {
+		t.Fatalf("active should be re-saved provider, got %s", loaded.ActiveID)
+	}
+	for _, entry := range loaded.Providers {
+		if entry.ID == firstSaved.ID && entry.Config.Password != "p2" {
+			t.Fatalf("upsert must update config, got password %q", entry.Config.Password)
+		}
+	}
+}
+
+func TestLoadSettingsMigratesV1(t *testing.T) {
+	t.Parallel()
+	store := testStore(t)
+	if err := os.MkdirAll(filepath.Dir(store.Paths().ConfigFile), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	v1 := `{"schemaVersion":1,"provider":{"provider":"rwkv-lightning","endpoint":"https://legacy.test","model":"legacy-model","password":"secret"},"updatedAt":"2026-08-15T09:30:00Z"}`
+	if err := os.WriteFile(store.Paths().ConfigFile, []byte(v1), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	loaded, err := store.LoadSettings()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if loaded.SchemaVersion != SettingsSchemaVersion || len(loaded.Providers) != 1 {
+		t.Fatalf("migration failed: %+v", loaded)
+	}
+	if loaded.ActiveID == "" || loaded.Providers[0].ID != loaded.ActiveID {
+		t.Fatalf("migrated provider must be active: %+v", loaded)
+	}
+	if loaded.Providers[0].Config.Model != "legacy-model" || loaded.Providers[0].Config.Password != "secret" {
+		t.Fatalf("migrated config lost fields: %+v", loaded.Providers[0].Config)
+	}
+}
+
+func TestRemoveProviderReassignsActive(t *testing.T) {
+	t.Parallel()
+	store := testStore(t)
+	a, err := store.SaveActiveProvider(agentapi.Config{Provider: agentapi.ProviderRWKVLightning, Endpoint: "https://a.test", Model: "model-a"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, err := store.SaveActiveProvider(agentapi.Config{Provider: agentapi.ProviderRWKVLightning, Endpoint: "https://b.test", Model: "model-b"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	// 删除当前 active（b）→ active 回退到剩下的 a。
+	settings, err := store.RemoveProvider(b.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(settings.Providers) != 1 || settings.ActiveID != a.ID {
+		t.Fatalf("active should fall back to remaining provider: %+v", settings)
+	}
+	// 删除最后一个 → active 清空。
+	settings, err = store.RemoveProvider(a.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(settings.Providers) != 0 || settings.ActiveID != "" {
+		t.Fatalf("active should be empty after removing all: %+v", settings)
+	}
+}
+
 func TestPrepareCreatesApplicationDirectories(t *testing.T) {
 	t.Parallel()
 	store := testStore(t)

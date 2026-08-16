@@ -1,4 +1,4 @@
-import { FormEvent, KeyboardEvent, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { FormEvent, KeyboardEvent, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import {
   ChevronDown, Folder, FolderOpen, LoaderCircle,
   Menu, MoreHorizontal, Settings, SquarePen,
@@ -12,6 +12,7 @@ import {
 import type {
   AppBootstrap, ConversationSummary, ConversationView, WorkspaceItem,
 } from '../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/models'
+import type { SavedProvider } from '../bindings/github.com/no22/RWKV-Agent/internal/appstorage/models'
 import MarkdownMessage from './MarkdownMessage'
 import type { ToolTrace } from './trajectory-types'
 import RunConfigDropdown from './components/RunConfigDropdown'
@@ -91,6 +92,8 @@ export default function App() {
   const [subagentMaxSteps, setSubagentMaxSteps] = useState(4)
   const [subagentTimeoutSeconds, setSubagentTimeoutSeconds] = useState(120)
   const [availableModels, setAvailableModels] = useState<RemoteModel[]>([])
+  const [providers, setProviders] = useState<SavedProvider[]>([])
+  const [activeProviderId, setActiveProviderId] = useState('')
   const [settingsMessage, setSettingsMessage] = useState('')
   const [settingsBusy, setSettingsBusy] = useState(false)
   const [theme, setTheme] = useState<ThemeMode>(() => getInitialTheme())
@@ -136,7 +139,23 @@ export default function App() {
 
   function applyBootstrap(value: AppBootstrap) {
     setStatus(Status.createFrom(value.status)); setConversations(value.conversations || []); setWorkspaces(value.workspaces || [])
+    setProviders(value.providers || []); setActiveProviderId(value.activeProviderId || '')
     applyConversation(value.conversation || undefined); if (value.hasConfig) applyConfig(value.config); if (value.warning) setSettingsMessage(value.warning)
+  }
+  async function refreshProviders() {
+    try { const value = await Backend.Bootstrap(); setProviders(value.providers || []); setActiveProviderId(value.activeProviderId || '') } catch { /* 保存已成功，档案列表刷新失败可忽略 */ }
+  }
+  async function activateProvider(id: string) {
+    if (busy) return
+    setRunConfigOpen(false); setBusy(true)
+    try {
+      const configured = await Backend.ActivateProvider(id); setStatus(configured)
+      const value = await Backend.Bootstrap(); setProviders(value.providers || []); setActiveProviderId(value.activeProviderId || ''); if (value.hasConfig) applyConfig(value.config)
+    } catch (error) { setSettingsMessage(errorText(error)) } finally { setBusy(false) }
+  }
+  async function deleteProvider(id: string) {
+    if (busy) return
+    try { const value = await Backend.DeleteProvider(id); setProviders(value.providers || []); setActiveProviderId(value.activeProviderId || '') } catch (error) { setSettingsMessage(errorText(error)) }
   }
   function applyConversation(value?: ConversationView) {
     setActiveConversationID(value?.id || ''); setActiveTab('chat'); setActivity([]); setPrompt('')
@@ -193,7 +212,7 @@ export default function App() {
 
   async function configureLocal(event: FormEvent) {
     event.preventDefault(); setSettingsBusy(true); setSettingsMessage('正在加载本地模型，这可能需要一些时间…')
-    try { const configured = await Backend.Configure(new Config({ provider: Provider.ProviderLocal, model: modelPath.trim(), tokenizerPath: tokenizerPath.trim() || undefined, thinking: 'off', maxSteps: 6, maxTokens: 1024, ...agentCapabilityConfig() })); setStatus(configured); setSettingsMessage('本地模型已就绪。'); setSettingsOpen(false) }
+    try { const configured = await Backend.Configure(new Config({ provider: Provider.ProviderLocal, model: modelPath.trim(), tokenizerPath: tokenizerPath.trim() || undefined, thinking: 'off', maxSteps: 6, maxTokens: 1024, ...agentCapabilityConfig() })); setStatus(configured); await refreshProviders(); setSettingsMessage('本地模型已就绪。'); setSettingsOpen(false) }
     catch (error) { setSettingsMessage(errorText(error)) } finally { setSettingsBusy(false) }
   }
   function remoteConfig() {
@@ -202,7 +221,7 @@ export default function App() {
   }
   function agentCapabilityConfig() { return { agentProtocol, progressiveTools, enableWeb, braveApiKey: enableWeb ? braveAPIKey.trim() || undefined : undefined, tavilyApiKey: enableWeb ? tavilyAPIKey.trim() || undefined : undefined, enableSubagents, maxActiveBatch, remoteBatchWaitMs: remoteBatchWaitMS, subagentMaxParallel, subagentMaxSteps, subagentTimeoutSeconds } }
   async function testRemote() { setSettingsBusy(true); setSettingsMessage('正在请求 /v1/models…'); try { const models = await Backend.ListRemoteModels(remoteConfig()); setAvailableModels(models); if (!remoteModel && models[0]) setRemoteModel(models[0].id); setSettingsMessage(`连接成功，发现 ${models.length} 个模型。`) } catch (error) { setSettingsMessage(errorText(error)) } finally { setSettingsBusy(false) } }
-  async function configureRemote(event: FormEvent) { event.preventDefault(); setSettingsBusy(true); setSettingsMessage('正在配置远端模型…'); try { const configured = await Backend.Configure(remoteConfig()); setStatus(configured); setSettingsMessage('远端模型已就绪。'); setSettingsOpen(false) } catch (error) { setSettingsMessage(errorText(error)) } finally { setSettingsBusy(false) } }
+  async function configureRemote(event: FormEvent) { event.preventDefault(); setSettingsBusy(true); setSettingsMessage('正在配置远端模型…'); try { const configured = await Backend.Configure(remoteConfig()); setStatus(configured); await refreshProviders(); setSettingsMessage('远端模型已就绪。'); setSettingsOpen(false) } catch (error) { setSettingsMessage(errorText(error)) } finally { setSettingsBusy(false) } }
   function addHeader() { setHeaders((current) => [...current, { id: nextHeaderID++, name: '', value: '' }]) }
 
   const traceMessages = messages.filter((message) => message.role !== 'user' && (message.trace || message.trajectory?.length))
@@ -249,7 +268,7 @@ export default function App() {
         </header>
         {activeTab === 'trace' ? <TraceView messages={traceMessages} selected={selectedMessage} onSelect={setSelectedTraceID} onBackToChat={() => setActiveTab('chat')} /> : <ChatView messages={messages} activity={activity} busy={busy} ready={ready} workspace={workspaceName} model={status.model || '选择模型'} capabilities={capabilities} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={regenerate} onKeyDown={onComposerKeyDown} openSettings={() => setSettingsOpen(true)} chooseWorkspace={chooseWorkspace} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} messagesEnd={messagesEnd} />}
       </main>
-      <RunConfigDropdown open={runConfigOpen} onClose={() => setRunConfigOpen(false)} status={status} ready={ready} availableModels={availableModels} enableWeb={enableWeb} enableSubagents={enableSubagents} progressiveTools={progressiveTools} onToggleWeb={setEnableWeb} onToggleSubagents={setEnableSubagents} onToggleProgressive={setProgressiveTools} onOpenSettings={() => { setRunConfigOpen(false); setSettingsOpen(true) }} />
+      <RunConfigDropdown open={runConfigOpen} onClose={() => setRunConfigOpen(false)} status={status} ready={ready} busy={busy} providers={providers} activeProviderId={activeProviderId} enableWeb={enableWeb} enableSubagents={enableSubagents} progressiveTools={progressiveTools} onActivate={(id) => void activateProvider(id)} onDelete={(id) => void deleteProvider(id)} onToggleWeb={setEnableWeb} onToggleSubagents={setEnableSubagents} onToggleProgressive={setProgressiveTools} onOpenSettings={() => { setRunConfigOpen(false); setSettingsOpen(true) }} />
     </>}
   </div>
 }
@@ -283,37 +302,62 @@ function ChatView({ messages, activity, busy, ready, workspace, capabilities, pr
   const turns = groupMessagesIntoTurns(messages)
   const empty = turns.length === 0
   const stageRef = useRef<HTMLDivElement>(null)
-  const composerHostRef = useRef<HTMLDivElement>(null)
-  const composer = <Composer prompt={prompt} setPrompt={setPrompt} busy={busy} ready={ready} workspace={workspace} capabilities={capabilities} turnNumber={turns.length + 1} empty={empty} onSubmit={onSubmit} onKeyDown={onKeyDown} />
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const anchorRef = useRef<HTMLDivElement>(null)
+  const metrics = useRef({ dockedTop: 0, offset: 0 })
+  const settled = useRef(false)
+  const emptyRef = useRef(empty)
+  emptyRef.current = empty
 
-  useLayoutEffect(() => {
-    const stage = stageRef.current
-    const host = composerHostRef.current
-    if (!stage || !host) return
-    const updatePosition = () => {
-      const stageHeight = stage.clientHeight
-      const hostHeight = host.offsetHeight
-      host.style.top = empty
-        ? `${Math.max(24, (stageHeight - hostHeight) / 2)}px`
-        : `${Math.max(0, stageHeight - hostHeight - 28)}px`
+  // 输入框是同一元素，仅用 transform 位移（不改 top，避免逐帧重排抽搐）。
+  const measure = useCallback(() => {
+    const stage = stageRef.current, anchor = anchorRef.current
+    if (!stage || !anchor) return
+    const stageHeight = stage.clientHeight
+    const anchorHeight = anchor.offsetHeight
+    const dockedTop = Math.max(0, stageHeight - anchorHeight - 28)
+    const centeredTop = Math.max(24, Math.round((stageHeight - anchorHeight) / 2))
+    metrics.current = { dockedTop, offset: centeredTop - dockedTop }
+  }, [])
+  const place = useCallback((animate: boolean) => {
+    const anchor = anchorRef.current
+    if (!anchor) return
+    anchor.style.transition = animate ? '' : 'none' // animate: 交回 CSS 类过渡；否则临时禁用
+    anchor.style.top = `${metrics.current.dockedTop}px`
+    anchor.style.transform = emptyRef.current ? `translateY(${metrics.current.offset}px)` : 'translateY(0)'
+    if (scrollRef.current) scrollRef.current.style.paddingBottom = `${anchor.offsetHeight + 40}px`
+    if (!animate) {
+      void anchor.offsetHeight // 强制回流锁定当前位置，再于下一帧恢复过渡
+      requestAnimationFrame(() => { if (anchorRef.current) anchorRef.current.style.transition = '' })
     }
-    updatePosition()
-    if (typeof ResizeObserver === 'undefined') return
-    const observer = new ResizeObserver(updatePosition)
+  }, [])
+
+  // 空态↔对话态切换：仅此处触发滑动（首次挂载不动画）。
+  useLayoutEffect(() => {
+    measure()
+    place(settled.current)
+    settled.current = true
+  }, [empty, measure, place])
+
+  // 尺寸变化（窗口/输入框伸长）：即时重排，不触发滑动动画。独立挂载一次，避免切换时误重建打断过渡。
+  useLayoutEffect(() => {
+    const stage = stageRef.current, anchor = anchorRef.current
+    if (!stage || !anchor || typeof ResizeObserver === 'undefined') return
+    const observer = new ResizeObserver(() => { measure(); place(false) })
     observer.observe(stage)
-    observer.observe(host)
+    observer.observe(anchor)
     return () => observer.disconnect()
-  }, [empty])
+  }, [measure, place])
 
   return <div className="chat-panel relative flex min-h-0 flex-1 flex-col overflow-hidden">
     <div ref={stageRef} className="chat-stage relative min-h-0 flex-1 overflow-hidden">
-      {!empty && <div className="conversation-scroll absolute inset-0 mx-auto w-[min(826px,calc(100%-52px))] overflow-auto py-[30px] pb-7">
+      {!empty && <div ref={scrollRef} className="conversation-scroll absolute inset-0 mx-auto w-[min(826px,calc(100%-52px))] overflow-auto pt-[30px]">
         {turns.map((turn, index) => <TurnView key={turn.user?.id || turn.response?.id || index} turn={turn} index={index + 1} pending={busy && index === turns.length - 1 && !turn.response} activity={activity} onTrace={onTrace} onRegenerate={onRegenerate} />)}
         <div ref={messagesEnd} />
       </div>}
     </div>
-    <div ref={composerHostRef} className="composer-anchor absolute left-0 right-0 z-[2] mx-auto w-[min(826px,calc(100%-52px))] transition-[top] duration-[420ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none">
-      {composer}
+    <div ref={anchorRef} className="composer-anchor absolute left-0 right-0 z-[2] mx-auto w-[min(826px,calc(100%-52px))] will-change-transform transition-transform duration-[420ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none">
+      <Composer prompt={prompt} setPrompt={setPrompt} busy={busy} ready={ready} workspace={workspace} capabilities={capabilities} empty={empty} onSubmit={onSubmit} onKeyDown={onKeyDown} />
     </div>
   </div>
 }
@@ -353,30 +397,32 @@ function TurnView({ turn, index, pending, activity, onTrace, onRegenerate }: { t
   </article>
 }
 
-function Composer({ prompt, setPrompt, busy, ready, workspace, capabilities, turnNumber, empty, onSubmit, onKeyDown }: { prompt: string; setPrompt: (value: string) => void; busy: boolean; ready: boolean; workspace: string; capabilities: string; turnNumber: number; empty?: boolean; onSubmit: () => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void }) {
+function Composer({ prompt, setPrompt, busy, ready, workspace, capabilities, empty, onSubmit, onKeyDown }: { prompt: string; setPrompt: (value: string) => void; busy: boolean; ready: boolean; workspace: string; capabilities: string; empty?: boolean; onSubmit: () => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void }) {
   function autoGrow(element: HTMLTextAreaElement) { element.style.height = 'auto'; element.style.height = `${Math.min(element.scrollHeight, 180)}px` }
-  return <div className={`composer grid grid-cols-[112px_minmax(0,672px)] gap-[42px] ${empty ? 'items-end' : 'items-center'}`}>
-    <div className={`composer-gutter flex w-[112px] flex-none flex-col items-end gap-1 text-right text-[10.5px] leading-[1.7] text-ink-ghost ${empty ? 'pb-[78px]' : ''}`}>
-      {!empty && <span className="font-serif text-[19px] font-bold leading-none text-ink-faint">{String(turnNumber).padStart(2, '0')}</span>}
-      {!empty && <span className="my-1 h-px w-[34px] bg-line" />}
-      <span className="max-w-full truncate text-ink-ghost">工作区<br /><b className="block truncate font-normal text-ink-soft">{workspace}</b></span>
-      {empty && <span className="my-1 h-px w-[34px] bg-line" />}
-      <span className="max-w-full truncate text-ink-ghost">能力<br /><b className={`block truncate font-normal ${ready ? 'text-brand' : 'text-ink-soft'}`}>{capabilities}</b></span>
+  // 页边栏メタ・挨拶・スターターは全て流外(absolute)：输入框行高恒定，空↔对话仅位移，不改尺寸。
+  return <div className="composer grid grid-cols-[112px_minmax(0,672px)] gap-[42px]">
+    <div className="relative">
+      {/* 页边栏メタ：绝对定位、以输入框中线为中心、用自然高度显示，不撑高输入框行高 */}
+      <div className="composer-gutter absolute inset-x-0 top-1/2 flex -translate-y-1/2 flex-col items-end gap-[7px] text-right text-[10.5px] leading-[1.5] text-ink-ghost">
+        <span className="flex max-w-full flex-col">工作区<b className="truncate font-normal text-ink-soft">{workspace}</b></span>
+        <span className="my-[1px] h-px w-[34px] bg-line" />
+        <span className="flex max-w-full flex-col">能力<b className={`truncate font-normal ${ready ? 'text-brand' : 'text-ink-soft'}`}>{capabilities}</b></span>
+      </div>
     </div>
-    <div className={`flex min-w-0 flex-col ${empty ? 'gap-[26px]' : ''}`}>
-      {empty && <div className="flex min-w-0 flex-col gap-[6px]">
+    <div className="relative min-w-0">
+      <div className={`composer-greeting pointer-events-none absolute inset-x-0 bottom-full mb-[26px] flex flex-col gap-[6px] transition-opacity duration-[240ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none ${empty ? 'opacity-100' : 'opacity-0'}`} aria-hidden={!empty}>
         <span className="font-serif text-[16px] text-brand">你好</span>
         <h1 className="m-0 font-serif text-[34px] font-semibold leading-[1.35] tracking-[.01em] text-ink">需要我为你做些什么？</h1>
-      </div>}
+      </div>
       <div className="flex min-h-[52px] min-w-0 border-l-[3px] border-line-strong bg-paper-soft transition-[border-color] duration-[120ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none focus-within:border-brand">
         <textarea aria-label="消息" rows={1} value={prompt} disabled={busy} placeholder="描述你想要完成的任务" className="block min-h-[52px] max-h-[180px] min-w-0 flex-1 resize-none border-0 bg-transparent p-[13px_4px_12px_15px] text-[14.5px] leading-[1.7] text-ink outline-0 placeholder:text-placeholder" onChange={(event) => { setPrompt(event.target.value); autoGrow(event.target) }} onKeyDown={onKeyDown} />
         <div className="flex flex-none items-end p-[12px_12px_12px_10px]">
           <button className="h-[29px] border-0 bg-brand px-[14px] text-[12.5px] font-semibold text-white transition-colors duration-[120ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none disabled:bg-disabled-bg disabled:text-disabled-text" aria-label="发送" onClick={() => void onSubmit()} disabled={!prompt.trim() || busy}>{busy ? <LoaderCircle size={15} className="spin" /> : <>发送<span className="ml-[7px] font-mono text-[10px] opacity-70">⏎</span></>}</button>
         </div>
       </div>
-      {empty && <div className="flex flex-wrap gap-[9px]" aria-label="快速开始">
-        {STARTER_PROMPTS.map((starter) => <button key={starter} className="border border-line bg-card-bg px-3 py-[7px] text-[12px] text-ink-soft hover:border-line-strong hover:text-brand" onClick={() => setPrompt(starter)}>{starter}</button>)}
-      </div>}
+      <div className={`composer-starters absolute inset-x-0 top-full mt-[9px] flex flex-wrap gap-[9px] transition-opacity duration-[240ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none ${empty ? 'opacity-100' : 'pointer-events-none opacity-0'}`} aria-hidden={!empty} aria-label="快速开始">
+        {STARTER_PROMPTS.map((starter) => <button key={starter} tabIndex={empty ? 0 : -1} className="border border-line bg-card-bg px-3 py-[7px] text-[12px] text-ink-soft hover:border-line-strong hover:text-brand" onClick={() => setPrompt(starter)}>{starter}</button>)}
+      </div>
     </div>
   </div>
 }

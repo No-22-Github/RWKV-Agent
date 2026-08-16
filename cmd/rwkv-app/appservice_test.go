@@ -84,8 +84,11 @@ func TestAppServiceBootstrapsSavedSettingsAndConversation(t *testing.T) {
 	if !bootstrap.HasConfig || bootstrap.Config.Password != "plain-secret" || bootstrap.Config.Headers["X-Service-Key"] != "plain-header" {
 		t.Fatalf("saved config was not restored: %+v", bootstrap.Config)
 	}
-	if bootstrap.Status.State != agentapi.ModelIdle {
-		t.Fatalf("startup unexpectedly configured a provider: %+v", bootstrap.Status)
+	if bootstrap.Status.State != agentapi.ModelReady || bootstrap.Status.Provider != config.Provider || bootstrap.Status.Model != config.Model {
+		t.Fatalf("saved remote provider was not activated: %+v", bootstrap.Status)
+	}
+	if len(bootstrap.Providers) != 1 || bootstrap.ActiveProviderID == "" || bootstrap.Providers[0].ID != bootstrap.ActiveProviderID {
+		t.Fatalf("saved provider profile was not restored: %+v", bootstrap.Providers)
 	}
 	if bootstrap.Conversation == nil || bootstrap.Conversation.ID != conversation.ID || len(bootstrap.Conversation.Messages) != 1 {
 		t.Fatalf("active conversation was not restored: %+v", bootstrap.Conversation)

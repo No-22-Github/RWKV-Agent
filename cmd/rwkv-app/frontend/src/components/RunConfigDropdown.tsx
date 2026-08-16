@@ -1,16 +1,22 @@
 import { useEffect, useRef } from 'react'
-import { ChevronDown, Plus } from 'lucide-react'
-import type { RemoteModel, Status } from '../../bindings/github.com/no22/RWKV-Agent/api/models'
+import { Check, ChevronDown, Plus, Trash2 } from 'lucide-react'
+import type { Status } from '../../bindings/github.com/no22/RWKV-Agent/api/models'
+import { Provider } from '../../bindings/github.com/no22/RWKV-Agent/api/models'
+import type { SavedProvider } from '../../bindings/github.com/no22/RWKV-Agent/internal/appstorage/models'
 
 type Props = {
   open: boolean
   onClose: () => void
   status: Status
   ready: boolean
-  availableModels: RemoteModel[]
+  busy: boolean
+  providers: SavedProvider[]
+  activeProviderId: string
   enableWeb: boolean
   enableSubagents: boolean
   progressiveTools: boolean
+  onActivate: (id: string) => void
+  onDelete: (id: string) => void
   onToggleWeb: (value: boolean) => void
   onToggleSubagents: (value: boolean) => void
   onToggleProgressive: (value: boolean) => void
@@ -18,8 +24,9 @@ type Props = {
 }
 
 export default function RunConfigDropdown({
-  open, onClose, status, ready, availableModels, enableWeb, enableSubagents, progressiveTools,
-  onToggleWeb, onToggleSubagents, onToggleProgressive, onOpenSettings,
+  open, onClose, status, ready, busy, providers, activeProviderId,
+  enableWeb, enableSubagents, progressiveTools,
+  onActivate, onDelete, onToggleWeb, onToggleSubagents, onToggleProgressive, onOpenSettings,
 }: Props) {
   const ref = useRef<HTMLDivElement>(null)
 
@@ -43,29 +50,48 @@ export default function RunConfigDropdown({
 
   return (
     <div ref={ref} className="run-config-dropdown absolute right-[30px] top-[56px] z-[60] flex w-[340px] flex-col border border-line-strong bg-paper-wash shadow-[0_12px_32px_rgba(60,50,35,.16)]">
-      <div className="border-b border-line px-[14px] pb-[9px] pt-[11px] text-[10.5px] uppercase tracking-[.14em] text-ink-muted">本地模型</div>
-      <div className={`flex items-center gap-[11px] border-b border-line px-[14px] py-[10px] ${ready && status.model ? 'bg-brand-wash' : ''}`}>
-        <span className={`h-[5px] w-[5px] flex-none rounded-full ${ready ? 'bg-brand-bright' : 'bg-ink-muted'}`} />
-        <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
-          <span className={`truncate text-[12.5px] ${ready ? 'font-semibold text-ink' : 'text-ink-muted'}`}>{status.model || '未选择本地模型'}</span>
-          <span className="font-mono text-[10px] text-ink-muted">{ready ? '已加载' : '未加载'}</span>
-        </div>
-        {ready && <span className="text-[10.5px] text-brand">当前</span>}
-      </div>
-
-      <div className="border-b border-line px-[14px] pb-[9px] pt-[11px] text-[10.5px] uppercase tracking-[.14em] text-ink-muted">远端 Provider</div>
-      {availableModels.length === 0 ? (
-        <div className="border-b border-line px-[14px] py-[10px] text-[11px] text-ink-muted">尚未连接远端服务</div>
+      <div className="border-b border-line px-[14px] pb-[9px] pt-[11px] text-[10.5px] uppercase tracking-[.14em] text-ink-muted">已保存连接</div>
+      {providers.length === 0 ? (
+        <div className="border-b border-line px-[14px] py-[10px] text-[11px] text-ink-muted">尚无保存的连接，去设置里连接一次即可记住</div>
       ) : (
-        availableModels.slice(0, 4).map((model) => (
-          <div key={model.id} className="flex items-center gap-[11px] border-b border-line px-[14px] py-[10px]">
-            <span className="h-[5px] w-[5px] flex-none rounded-full bg-ink-muted" />
-            <div className="flex min-w-0 flex-1 flex-col gap-[2px]">
-              <span className="truncate text-[12.5px] text-ink">{model.id}</span>
-              <span className="font-mono text-[10px] text-ink-muted">remote</span>
+        providers.map((provider) => {
+          // “当前”看真实连接状态：服务已就绪且正是这条档案。仅仅是"上次用过"（activeProviderId）
+          // 但尚未连接时，仍可点击去连接。
+          const live = ready && provider.id === activeProviderId
+          const lastUsed = !live && provider.id === activeProviderId
+          return (
+            <div key={provider.id} className={`group relative flex items-center gap-[11px] border-b border-line px-[14px] py-[10px] ${live ? 'bg-brand-wash' : ''}`}>
+              <button
+                type="button"
+                className="flex min-w-0 flex-1 items-center gap-[11px] border-0 bg-transparent p-0 text-left disabled:opacity-100"
+                onClick={() => { if (!live) onActivate(provider.id) }}
+                disabled={busy || live}
+                title={live ? '当前连接' : '连接到此 Provider'}
+              >
+                <span className={`h-[5px] w-[5px] flex-none rounded-full ${live ? 'bg-brand-bright' : 'bg-accent-warm'}`} />
+                <span className="flex min-w-0 flex-1 flex-col gap-[2px]">
+                  <span className={`truncate text-[12.5px] ${live ? 'font-semibold text-ink' : 'text-ink'}`}>{provider.label || provider.config.model || '未命名连接'}</span>
+                  <span className="truncate font-mono text-[10px] text-ink-muted">{providerMeta(provider)}</span>
+                </span>
+              </button>
+              {live ? (
+                <span className="flex flex-none items-center gap-[4px] text-[10.5px] text-brand"><Check size={12} />当前</span>
+              ) : (
+                <div className="flex flex-none items-center gap-[6px]">
+                  {lastUsed && <span className="text-[10px] text-ink-muted">上次</span>}
+                  <button
+                    type="button"
+                    className="invisible rounded-[3px] p-[3px] text-ink-muted hover:bg-danger-wash hover:text-danger group-hover:visible"
+                    aria-label={`删除连接 ${provider.label}`}
+                    title="删除此连接"
+                    onClick={() => onDelete(provider.id)}
+                    disabled={busy}
+                  ><Trash2 size={13} /></button>
+                </div>
+              )}
             </div>
-          </div>
-        ))
+          )
+        })
       )}
 
       <button className="flex items-center gap-[9px] border-b border-line px-[14px] py-[10px] text-left text-[12.5px] text-brand hover:bg-paper-soft" onClick={() => { onClose(); onOpenSettings() }}>
@@ -75,7 +101,7 @@ export default function RunConfigDropdown({
 
       <div className="border-b border-line bg-paper-soft px-[14px] pb-[9px] pt-[11px] text-[10.5px] uppercase tracking-[.14em] text-ink-muted">本轮能力</div>
       <DropdownToggle label="Web 搜索与抓取" description="Brave + Tavily" checked={enableWeb} onChange={onToggleWeb} />
-      <DropdownToggle label="子 Agent" description={`spawn_agents 并发上限`} checked={enableSubagents} onChange={onToggleSubagents} />
+      <DropdownToggle label="子 Agent" description="spawn_agents 并发上限" checked={enableSubagents} onChange={onToggleSubagents} />
       <DropdownToggle label="渐进式工具暴露" description="先路由再暴露 schema" checked={progressiveTools} onChange={onToggleProgressive} />
 
       <button className="flex items-center gap-[9px] bg-paper-soft px-[14px] py-[10px] text-left" onClick={() => { onClose(); onOpenSettings() }}>
@@ -85,6 +111,24 @@ export default function RunConfigDropdown({
       </button>
     </div>
   )
+}
+
+function providerMeta(provider: SavedProvider): string {
+  const config = provider.config
+  if (config.provider === Provider.ProviderLocal) return '本地模型'
+  const host = endpointHost(config.endpoint)
+  const kind = config.provider === Provider.ProviderChatCompletions ? 'OpenAI 兼容' : 'RWKV 续写'
+  return host ? `${kind} · ${host}` : kind
+}
+
+function endpointHost(endpoint?: string): string {
+  const value = (endpoint || '').trim()
+  if (!value) return ''
+  try {
+    return new URL(value).host || value
+  } catch {
+    return value.replace(/^https?:\/\//, '').split('/')[0]
+  }
 }
 
 function DropdownToggle({ label, description, checked, onChange }: { label: string; description: string; checked: boolean; onChange: (value: boolean) => void }) {

@@ -134,7 +134,6 @@ describe('App', () => {
     render(<App />)
     openSettings()
     switchToRemoteProvider()
-    openSettingsSection('网络与凭证')
     fireEvent.change(screen.getByLabelText('API 地址'), { target: { value: 'https://example.test' } })
     fireEvent.change(screen.getByLabelText('模型 ID'), { target: { value: 'rwkv7-test' } })
     fireEvent.click(screen.getByRole('button', { name: '添加' }))
@@ -230,7 +229,6 @@ describe('App', () => {
     render(<App />)
     await waitFor(() => expect(Backend.Bootstrap).toHaveBeenCalledOnce())
     openSettings()
-    openSettingsSection('网络与凭证')
 
     expect(screen.getByLabelText('API 地址')).toHaveValue('https://saved.example.test')
     expect(screen.getByLabelText('模型 ID')).toHaveValue('saved-model')

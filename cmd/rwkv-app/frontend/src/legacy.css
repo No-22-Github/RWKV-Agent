@@ -48,7 +48,7 @@
 
 .turn-answer .md-markdown table { width: 100%; border-top: 1.5px solid var(--ink); border-collapse: collapse; font-size: 13px; line-height: 1.55; }
 
-.turn-answer .md-markdown th, .turn-answer .md-markdown td { border-bottom: 1px solid var(--line); padding: 8px 10px; text-align: left; }
+.turn-answer .md-markdown th, .turn-answer .md-markdown td { border-bottom: 1px solid var(--line-soft); padding: 8px 10px; text-align: left; }
 
 .turn-answer .md-markdown th { color: var(--ink-muted); font-size: 10.5px; font-weight: 500; text-transform: uppercase; }
 
@@ -91,6 +91,9 @@
 
 :where(button, input, textarea, select):focus-visible { outline: 2px solid var(--brand-bright); outline-offset: 2px; }
 
+/* 输入框聚焦反馈仅保留左侧 3px 竖条变色，不要整圈 outline（设计稿要求） */
+.composer textarea:focus, .composer textarea:focus-visible { outline: none; }
+
 /* 响应式：≥1180 三栏完整；1024–1180 页边栏折行；<1024 侧栏抽屉化、正文满宽 */
 @media (max-width: 1180px) {
   .app-sidebar { width: 196px; flex-basis: 196px; }
@@ -105,7 +108,7 @@
 
   .trace-inspector { width: 280px; flex-basis: 280px; }
 
-  .composer > .composer-gutter { display: none; }
+  .composer .composer-gutter { display: none; }
 
   .composer { grid-template-columns: minmax(0, 1fr); gap: 0; }
 

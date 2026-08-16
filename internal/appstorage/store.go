@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/url"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -23,10 +24,14 @@ import (
 )
 
 const (
-	SchemaVersion        = 1
-	maxSettingsBytes     = 4 << 20
-	maxStateBytes        = 4 << 20
-	maxConversationBytes = 64 << 20
+	SchemaVersion = 1
+	// SettingsSchemaVersion 独立于 State/Conversation 的 SchemaVersion：
+	// 设置从"单档 Provider"演进为"多档连接档案 + active"，需要单独的版本与迁移，
+	// 而不能连带升 State/Conversation 的版本（否则既有状态/会话会因版本不符而拒读）。
+	SettingsSchemaVersion = 2
+	maxSettingsBytes      = 4 << 20
+	maxStateBytes         = 4 << 20
+	maxConversationBytes  = 64 << 20
 )
 
 type Paths struct {
@@ -50,8 +55,18 @@ func DefaultPaths() Paths {
 
 type Settings struct {
 	SchemaVersion int             `json:"schemaVersion"`
-	Provider      agentapi.Config `json:"provider"`
+	Provider      agentapi.Config `json:"provider"` // 兼容字段：镜像当前 active 档案的 Config（旧版本读取路径仍可用）
+	Providers     []SavedProvider `json:"providers,omitempty"`
+	ActiveID      string          `json:"activeProviderId,omitempty"`
 	UpdatedAt     time.Time       `json:"updatedAt"`
+}
+
+// SavedProvider 是一条可复用的"连接档案/预设"：配置一次、持久化，之后从下拉栏直接切换重连。
+type SavedProvider struct {
+	ID         string          `json:"id"`
+	Label      string          `json:"label"`
+	Config     agentapi.Config `json:"config"`
+	LastUsedAt time.Time       `json:"lastUsedAt"`
 }
 
 type State struct {
@@ -164,23 +179,189 @@ func (s *Store) LoadSettings() (Settings, error) {
 	var value Settings
 	err := readJSON(s.paths.ConfigFile, maxSettingsBytes, &value)
 	if errors.Is(err, os.ErrNotExist) {
-		return Settings{SchemaVersion: SchemaVersion}, nil
+		return Settings{SchemaVersion: SettingsSchemaVersion}, nil
 	}
 	if err != nil {
 		return Settings{}, err
 	}
-	if value.SchemaVersion != SchemaVersion {
+	switch value.SchemaVersion {
+	case SettingsSchemaVersion:
+		return value, nil
+	case 1:
+		// 迁移：把旧的单档 Provider 合成为一条连接档案并置为 active。
+		return migrateSettingsV1(value), nil
+	default:
 		return Settings{}, fmt.Errorf("unsupported settings schema version %d", value.SchemaVersion)
 	}
-	return value, nil
 }
 
-func (s *Store) SaveSettings(config agentapi.Config) error {
+// migrateSettingsV1 把 v1（单档 Provider）转换为 v2（档案列表 + active）。仅在内存中转换，
+// 下次写入时落盘为 v2。
+func migrateSettingsV1(value Settings) Settings {
+	value.SchemaVersion = SettingsSchemaVersion
+	if strings.TrimSpace(value.Provider.Model) == "" {
+		value.Providers = nil
+		value.ActiveID = ""
+		return value
+	}
+	id, err := randomID()
+	if err != nil {
+		id = "migrated"
+	}
+	when := value.UpdatedAt
+	if when.IsZero() {
+		when = time.Now().UTC()
+	}
+	entry := SavedProvider{ID: id, Label: providerLabel(value.Provider), Config: value.Provider, LastUsedAt: when}
+	value.Providers = []SavedProvider{entry}
+	value.ActiveID = id
+	return value
+}
+
+// SaveActiveProvider upsert 一条连接档案（按 协议+地址+模型 去重）、置为 active 并落盘，返回该档案。
+// "连接成功即自动存档"由 appservice.Configure 在成功后调用。
+func (s *Store) SaveActiveProvider(config agentapi.Config) (SavedProvider, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	return writeJSON(s.paths.ConfigFile, Settings{
-		SchemaVersion: SchemaVersion, Provider: config, UpdatedAt: time.Now().UTC(),
-	})
+	settings, err := s.loadLocked()
+	if err != nil {
+		return SavedProvider{}, err
+	}
+	now := time.Now().UTC()
+	key := providerKey(config)
+	var saved SavedProvider
+	found := false
+	for i := range settings.Providers {
+		if providerKey(settings.Providers[i].Config) == key {
+			settings.Providers[i].Config = config
+			settings.Providers[i].LastUsedAt = now
+			if strings.TrimSpace(settings.Providers[i].Label) == "" {
+				settings.Providers[i].Label = providerLabel(config)
+			}
+			saved = settings.Providers[i]
+			found = true
+			break
+		}
+	}
+	if !found {
+		id, idErr := randomID()
+		if idErr != nil {
+			return SavedProvider{}, idErr
+		}
+		saved = SavedProvider{ID: id, Label: providerLabel(config), Config: config, LastUsedAt: now}
+		settings.Providers = append(settings.Providers, saved)
+	}
+	settings.ActiveID = saved.ID
+	settings.Provider = config
+	if err := s.writeSettingsLocked(settings); err != nil {
+		return SavedProvider{}, err
+	}
+	return saved, nil
+}
+
+// RemoveProvider 删除一条档案；若删的是 active，则把 active 指向最近使用的一条（无则清空）。
+func (s *Store) RemoveProvider(id string) (Settings, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	settings, err := s.loadLocked()
+	if err != nil {
+		return Settings{}, err
+	}
+	filtered := settings.Providers[:0:0]
+	for _, entry := range settings.Providers {
+		if entry.ID != id {
+			filtered = append(filtered, entry)
+		}
+	}
+	settings.Providers = filtered
+	if settings.ActiveID == id {
+		settings.ActiveID = ""
+		settings.Provider = agentapi.Config{}
+		var latest *SavedProvider
+		for i := range settings.Providers {
+			if latest == nil || settings.Providers[i].LastUsedAt.After(latest.LastUsedAt) {
+				latest = &settings.Providers[i]
+			}
+		}
+		if latest != nil {
+			settings.ActiveID = latest.ID
+			settings.Provider = latest.Config
+		}
+	}
+	if err := s.writeSettingsLocked(settings); err != nil {
+		return Settings{}, err
+	}
+	return settings, nil
+}
+
+// SaveSettings 保留旧签名：等价于"保存并置为 active"，供既有调用方/测试使用。
+func (s *Store) SaveSettings(config agentapi.Config) error {
+	_, err := s.SaveActiveProvider(config)
+	return err
+}
+
+func (s *Store) loadLocked() (Settings, error) {
+	var value Settings
+	err := readJSON(s.paths.ConfigFile, maxSettingsBytes, &value)
+	if errors.Is(err, os.ErrNotExist) {
+		return Settings{SchemaVersion: SettingsSchemaVersion}, nil
+	}
+	if err != nil {
+		return Settings{}, err
+	}
+	switch value.SchemaVersion {
+	case SettingsSchemaVersion:
+		return value, nil
+	case 1:
+		return migrateSettingsV1(value), nil
+	default:
+		return Settings{}, fmt.Errorf("unsupported settings schema version %d", value.SchemaVersion)
+	}
+}
+
+func (s *Store) writeSettingsLocked(settings Settings) error {
+	settings.SchemaVersion = SettingsSchemaVersion
+	settings.UpdatedAt = time.Now().UTC()
+	return writeJSON(s.paths.ConfigFile, settings)
+}
+
+// providerKey 是去重键：同一 协议+地址(小写)+模型 视为同一档案。
+func providerKey(config agentapi.Config) string {
+	return strings.ToLower(strings.TrimSpace(string(config.Provider))) + "|" +
+		strings.ToLower(strings.TrimSpace(config.Endpoint)) + "|" +
+		strings.TrimSpace(config.Model)
+}
+
+// providerLabel 派生一个可读标签：远端 = "模型 · 主机"，本地退回模型路径末段。
+func providerLabel(config agentapi.Config) string {
+	model := strings.TrimSpace(config.Model)
+	if config.Provider == agentapi.ProviderLocal {
+		if model == "" {
+			return "本地模型"
+		}
+		if idx := strings.LastIndexAny(model, "/\\"); idx >= 0 && idx+1 < len(model) {
+			return model[idx+1:]
+		}
+		return model
+	}
+	host := ""
+	if endpoint := strings.TrimSpace(config.Endpoint); endpoint != "" {
+		if parsed, err := url.Parse(endpoint); err == nil && parsed.Host != "" {
+			host = parsed.Host
+		} else {
+			host = endpoint
+		}
+	}
+	switch {
+	case model != "" && host != "":
+		return model + " · " + host
+	case model != "":
+		return model
+	case host != "":
+		return host
+	default:
+		return "远端连接"
+	}
 }
 
 func (s *Store) LoadState() (State, error) {

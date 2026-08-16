@@ -42,13 +42,14 @@ export default function TraceView({ messages, selected, onSelect, onBackToChat }
     <div className="trace-toolbar flex min-h-[56px] items-center gap-[10px] border-b border-line px-[30px]"><div className="mr-auto flex items-baseline gap-[5px] text-[10px] text-ink-muted"><strong className="ml-[7px] font-mono text-[15px] font-semibold text-ink">{messages.length}</strong><span>轮次</span><strong className="ml-[7px] font-mono text-[15px] font-semibold text-ink">{eventCount}</strong><span>事件</span></div><label className="flex h-[30px] w-[235px] items-center gap-[7px] border border-line bg-paper-wash px-[9px] text-ink-muted"><Search size={15} /><input aria-label="搜索轨迹" className="w-full border-0 bg-transparent text-[11px] text-ink outline-0" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="搜索请求、工具或错误" /></label><button className="grid h-[30px] w-[30px] place-items-center rounded-[3px] border border-transparent bg-transparent text-ink-soft hover:border-line-strong hover:bg-paper-wash hover:text-brand" title="检查器" aria-label="检查器" onClick={() => setInspector(!inspector)}><PanelRight size={16} /></button></div>
     {timelineEvents.length > 0 && <TraceTimeline events={timelineEvents} selectedEventID={selectedEventID} onEvent={selectEvent} />}
     <div className="trace-workspace flex min-h-0 flex-1"><div className="trace-main min-w-0 flex-1 overflow-auto"><div className="mx-auto w-[min(940px,calc(100%-60px))] py-[14px] pb-10">{visible.map((message, index) => <TraceTurn key={message.id} message={message} index={index + 1} selected={message.id === selected?.id} selectedEventID={selectedEventID} onClick={() => selectTurn(message.id)} onEvent={(eventID) => selectEvent(message.id, eventID)} />)}{visible.length === 0 && <div className="py-[50px] text-center text-[12px] text-ink-muted">没有匹配的轨迹</div>}</div></div>{inspector && <TraceInspector message={selected} event={selectedEvent} detail={detail} setDetail={setDetail} onBackToChat={onBackToChat} />}</div>
-    <div className="flex flex-none items-center gap-[22px] border-t-[1.5px] border-ink px-[30px] py-[10px] font-mono text-[10.5px] text-ink-soft">
-      <span>{messages.length} 轮 · {eventCount} 步</span><span className="text-ink-ghost">/</span>
-      <span>LLM {formatDuration(totalTiming(messages).llmMs)} · 工具 {formatDuration(totalTiming(messages).toolMs)}</span><span className="text-ink-ghost">/</span>
-      <span>首 token {formatDuration(totalTiming(messages).firstTokenMs)} · {totalTiming(messages).tokensPerSec} tok/s</span><span className="text-ink-ghost">/</span>
-      <span>缓存 {totalTiming(messages).cachePercent}%</span>
-      <span className="flex-1" />
-      <button className="border-0 bg-transparent p-0 text-[12px] text-brand" onClick={() => void exportTrace()}>导出 trace.jsonl</button>
+    <div className="flex flex-none items-center gap-[16px] border-t-[1.5px] border-ink px-[30px] py-[10px] font-mono text-[10.5px] text-ink-soft">
+      <div className="flex min-w-0 flex-1 items-center gap-[16px] overflow-hidden whitespace-nowrap">
+        <span>{messages.length} 轮 · {eventCount} 步</span><span className="text-ink-ghost">/</span>
+        <span>LLM {formatDuration(totalTiming(messages).llmMs)} · 工具 {formatDuration(totalTiming(messages).toolMs)}</span><span className="text-ink-ghost">/</span>
+        <span>首 token {formatDuration(totalTiming(messages).firstTokenMs)} · {totalTiming(messages).tokensPerSec} tok/s</span><span className="text-ink-ghost">/</span>
+        <span>缓存 {totalTiming(messages).cachePercent}%</span>
+      </div>
+      <button className="flex-none border-0 bg-transparent p-0 text-[12px] text-brand hover:underline" onClick={() => void exportTrace()}>导出 trace.jsonl</button>
     </div>
   </div>
 }
@@ -103,7 +104,7 @@ function TraceEventRow({ event, selected, onClick }: { event: LedgerEvent; selec
   const name = eventName(event)
   const railWidth = selected ? 'w-[3px]' : 'w-[2px]'
   const railColor = event.state === 'failed' ? 'bg-danger' : selected ? 'bg-brand' : 'bg-transparent'
-  return <button className={`trace-event relative grid w-full min-h-[30px] grid-cols-[76px_minmax(0,1fr)] items-center gap-2 overflow-hidden border-0 border-b border-line bg-transparent p-[4px_8px_4px_0] text-left hover:bg-paper-soft${selected ? ' bg-brand-wash' : ''}${selected && event.state === 'failed' ? ' bg-danger-wash' : ''}`} data-state={event.state} title={event.title} onClick={onClick} aria-pressed={selected}>
+  return <button className={`trace-event relative grid w-full min-h-[30px] grid-cols-[76px_minmax(0,1fr)] items-center gap-2 overflow-hidden border-0 border-b border-line-soft bg-transparent p-[4px_8px_4px_0] text-left hover:bg-paper-soft${selected ? ' bg-brand-wash' : ''}${selected && event.state === 'failed' ? ' bg-danger-wash' : ''}`} data-state={event.state} title={event.title} onClick={onClick} aria-pressed={selected}>
     <span className={`absolute bottom-0 left-0 top-0 ${railWidth} ${railColor}`} />
     <span className="flex justify-end pl-3"><span className={`inline-flex font-mono text-[10px] font-medium tracking-[.14em] ${KIND_TAG_CLASS[role.cls] || 'text-brand'}`}>{role.tag}</span></span>
     <span className="flex min-w-0 items-baseline gap-[7px] overflow-hidden">

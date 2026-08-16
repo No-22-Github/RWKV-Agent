@@ -19,11 +19,20 @@ import * as api$0 from "../../api/models.js";
 import * as $models from "./models.js";
 
 /**
+ * ActivateProvider 切换到一条已保存的连接档案：取出其 Config 后复用 Configure 完成连接并置为 active。
+ */
+export function ActivateProvider(id: string): $CancellablePromise<api$0.Status> {
+    return $Call.ByID(537261178, id).then(($result: any) => {
+        return $$createType0($result);
+    });
+}
+
+/**
  * Bootstrap returns all durable state needed to hydrate the frontend.
  */
 export function Bootstrap(): $CancellablePromise<$models.AppBootstrap> {
     return $Call.ByID(4177956144).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
@@ -32,7 +41,7 @@ export function Bootstrap(): $CancellablePromise<$models.AppBootstrap> {
  */
 export function Chat(prompt: string): $CancellablePromise<api$0.Result> {
     return $Call.ByID(3484087444, prompt).then(($result: any) => {
-        return $$createType1($result);
+        return $$createType2($result);
     });
 }
 
@@ -42,7 +51,7 @@ export function Chat(prompt: string): $CancellablePromise<api$0.Result> {
  */
 export function ChooseWorkspace(): $CancellablePromise<$models.AppBootstrap> {
     return $Call.ByID(3272609536).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
@@ -59,7 +68,7 @@ export function Close(): $CancellablePromise<void> {
  */
 export function Configure(config: api$0.Config): $CancellablePromise<api$0.Status> {
     return $Call.ByID(1065098514, config).then(($result: any) => {
-        return $$createType2($result);
+        return $$createType0($result);
     });
 }
 
@@ -68,6 +77,15 @@ export function Configure(config: api$0.Config): $CancellablePromise<api$0.Statu
  */
 export function DeleteConversation(id: string): $CancellablePromise<void> {
     return $Call.ByID(1906186646, id);
+}
+
+/**
+ * DeleteProvider 删除一条连接档案并返回刷新后的引导状态（不影响当前正在运行的会话）。
+ */
+export function DeleteProvider(id: string): $CancellablePromise<$models.AppBootstrap> {
+    return $Call.ByID(3409054988, id).then(($result: any) => {
+        return $$createType1($result);
+    });
 }
 
 /**
@@ -113,7 +131,7 @@ export function OpenConversation(id: string): $CancellablePromise<$models.Conver
  */
 export function OpenWorkspace(path: string): $CancellablePromise<$models.AppBootstrap> {
     return $Call.ByID(928350323, path).then(($result: any) => {
-        return $$createType0($result);
+        return $$createType1($result);
     });
 }
 
@@ -122,14 +140,14 @@ export function OpenWorkspace(path: string): $CancellablePromise<$models.AppBoot
  */
 export function Status(): $CancellablePromise<api$0.Status> {
     return $Call.ByID(838280468).then(($result: any) => {
-        return $$createType2($result);
+        return $$createType0($result);
     });
 }
 
 // Private type creation functions
-const $$createType0 = $models.AppBootstrap.createFrom;
-const $$createType1 = api$0.Result.createFrom;
-const $$createType2 = api$0.Status.createFrom;
+const $$createType0 = api$0.Status.createFrom;
+const $$createType1 = $models.AppBootstrap.createFrom;
+const $$createType2 = api$0.Result.createFrom;
 const $$createType3 = api$0.RemoteModel.createFrom;
 const $$createType4 = $Create.Array($$createType3);
 const $$createType5 = $models.ConversationView.createFrom;

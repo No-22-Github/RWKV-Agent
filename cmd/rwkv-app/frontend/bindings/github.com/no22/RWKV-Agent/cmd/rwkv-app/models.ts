@@ -8,11 +8,16 @@ import { Create as $Create } from "@wailsio/runtime";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
 import * as api$0 from "../../api/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
+import * as appstorage$0 from "../../internal/appstorage/models.js";
 
 export class AppBootstrap {
     "status": api$0.Status;
     "config": api$0.Config;
     "hasConfig": boolean;
+    "providers": appstorage$0.SavedProvider[];
+    "activeProviderId"?: string;
     "conversations": ConversationSummary[];
     "conversation"?: ConversationView | null;
     "workspaces": WorkspaceItem[];
@@ -29,6 +34,9 @@ export class AppBootstrap {
         }
         if (!("hasConfig" in $$source)) {
             this["hasConfig"] = false;
+        }
+        if (!("providers" in $$source)) {
+            this["providers"] = [];
         }
         if (!("conversations" in $$source)) {
             this["conversations"] = [];
@@ -50,9 +58,10 @@ export class AppBootstrap {
         const $$createField0_0 = $$createType0;
         const $$createField1_0 = $$createType1;
         const $$createField3_0 = $$createType3;
-        const $$createField4_0 = $$createType5;
-        const $$createField5_0 = $$createType7;
-        const $$createField6_0 = $$createType8;
+        const $$createField5_0 = $$createType5;
+        const $$createField6_0 = $$createType7;
+        const $$createField7_0 = $$createType9;
+        const $$createField8_0 = $$createType10;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("status" in $$parsedSource) {
             $$parsedSource["status"] = $$createField0_0($$parsedSource["status"]);
@@ -60,17 +69,20 @@ export class AppBootstrap {
         if ("config" in $$parsedSource) {
             $$parsedSource["config"] = $$createField1_0($$parsedSource["config"]);
         }
+        if ("providers" in $$parsedSource) {
+            $$parsedSource["providers"] = $$createField3_0($$parsedSource["providers"]);
+        }
         if ("conversations" in $$parsedSource) {
-            $$parsedSource["conversations"] = $$createField3_0($$parsedSource["conversations"]);
+            $$parsedSource["conversations"] = $$createField5_0($$parsedSource["conversations"]);
         }
         if ("conversation" in $$parsedSource) {
-            $$parsedSource["conversation"] = $$createField4_0($$parsedSource["conversation"]);
+            $$parsedSource["conversation"] = $$createField6_0($$parsedSource["conversation"]);
         }
         if ("workspaces" in $$parsedSource) {
-            $$parsedSource["workspaces"] = $$createField5_0($$parsedSource["workspaces"]);
+            $$parsedSource["workspaces"] = $$createField7_0($$parsedSource["workspaces"]);
         }
         if ("paths" in $$parsedSource) {
-            $$parsedSource["paths"] = $$createField6_0($$parsedSource["paths"]);
+            $$parsedSource["paths"] = $$createField8_0($$parsedSource["paths"]);
         }
         return new AppBootstrap($$parsedSource as Partial<AppBootstrap>);
     }
@@ -137,7 +149,7 @@ export class ConversationView {
      * Creates a new ConversationView instance from a string or object.
      */
     static createFrom($$source: any = {}): ConversationView {
-        const $$createField2_0 = $$createType10;
+        const $$createField2_0 = $$createType12;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("messages" in $$parsedSource) {
             $$parsedSource["messages"] = $$createField2_0($$parsedSource["messages"]);
@@ -179,8 +191,8 @@ export class DisplayMessage {
      * Creates a new DisplayMessage instance from a string or object.
      */
     static createFrom($$source: any = {}): DisplayMessage {
-        const $$createField4_0 = $$createType12;
-        const $$createField5_0 = $$createType14;
+        const $$createField4_0 = $$createType14;
+        const $$createField5_0 = $$createType16;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("trajectory" in $$parsedSource) {
             $$parsedSource["trajectory"] = $$createField4_0($$parsedSource["trajectory"]);
@@ -252,7 +264,7 @@ export class SubagentStep {
      * Creates a new SubagentStep instance from a string or object.
      */
     static createFrom($$source: any = {}): SubagentStep {
-        const $$createField5_0 = $$createType16;
+        const $$createField5_0 = $$createType18;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("retries" in $$parsedSource) {
             $$parsedSource["retries"] = $$createField5_0($$parsedSource["retries"]);
@@ -295,9 +307,9 @@ export class SubagentTrace {
      * Creates a new SubagentTrace instance from a string or object.
      */
     static createFrom($$source: any = {}): SubagentTrace {
-        const $$createField5_0 = $$createType17;
-        const $$createField8_0 = $$createType17;
-        const $$createField9_0 = $$createType19;
+        const $$createField5_0 = $$createType19;
+        const $$createField8_0 = $$createType19;
+        const $$createField9_0 = $$createType21;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("bundles" in $$parsedSource) {
             $$parsedSource["bundles"] = $$createField5_0($$parsedSource["bundles"]);
@@ -370,8 +382,8 @@ export class ToolTrace {
      * Creates a new ToolTrace instance from a string or object.
      */
     static createFrom($$source: any = {}): ToolTrace {
-        const $$createField5_0 = $$createType16;
-        const $$createField6_0 = $$createType21;
+        const $$createField5_0 = $$createType18;
+        const $$createField6_0 = $$createType23;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("retries" in $$parsedSource) {
             $$parsedSource["retries"] = $$createField5_0($$parsedSource["retries"]);
@@ -419,23 +431,25 @@ export class WorkspaceItem {
 // Private type creation functions
 const $$createType0 = api$0.Status.createFrom;
 const $$createType1 = api$0.Config.createFrom;
-const $$createType2 = ConversationSummary.createFrom;
+const $$createType2 = appstorage$0.SavedProvider.createFrom;
 const $$createType3 = $Create.Array($$createType2);
-const $$createType4 = ConversationView.createFrom;
-const $$createType5 = $Create.Nullable($$createType4);
-const $$createType6 = WorkspaceItem.createFrom;
-const $$createType7 = $Create.Array($$createType6);
-const $$createType8 = StoragePaths.createFrom;
-const $$createType9 = DisplayMessage.createFrom;
-const $$createType10 = $Create.Array($$createType9);
-const $$createType11 = ToolTrace.createFrom;
+const $$createType4 = ConversationSummary.createFrom;
+const $$createType5 = $Create.Array($$createType4);
+const $$createType6 = ConversationView.createFrom;
+const $$createType7 = $Create.Nullable($$createType6);
+const $$createType8 = WorkspaceItem.createFrom;
+const $$createType9 = $Create.Array($$createType8);
+const $$createType10 = StoragePaths.createFrom;
+const $$createType11 = DisplayMessage.createFrom;
 const $$createType12 = $Create.Array($$createType11);
-const $$createType13 = api$0.Result.createFrom;
-const $$createType14 = $Create.Nullable($$createType13);
-const $$createType15 = ToolRetryTrace.createFrom;
-const $$createType16 = $Create.Array($$createType15);
-const $$createType17 = $Create.Array($Create.Any);
-const $$createType18 = SubagentStep.createFrom;
-const $$createType19 = $Create.Array($$createType18);
-const $$createType20 = SubagentTrace.createFrom;
+const $$createType13 = ToolTrace.createFrom;
+const $$createType14 = $Create.Array($$createType13);
+const $$createType15 = api$0.Result.createFrom;
+const $$createType16 = $Create.Nullable($$createType15);
+const $$createType17 = ToolRetryTrace.createFrom;
+const $$createType18 = $Create.Array($$createType17);
+const $$createType19 = $Create.Array($Create.Any);
+const $$createType20 = SubagentStep.createFrom;
 const $$createType21 = $Create.Array($$createType20);
+const $$createType22 = SubagentTrace.createFrom;
+const $$createType23 = $Create.Array($$createType22);
