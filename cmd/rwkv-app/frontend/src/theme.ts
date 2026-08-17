@@ -3,10 +3,10 @@ export type ThemeMode = 'light' | 'dark'
 const STORAGE_KEY = 'rwkv-theme-mode'
 
 export function getInitialTheme(): ThemeMode {
-  if (typeof window === 'undefined' || typeof localStorage === 'undefined') return 'light'
-  const saved = localStorage.getItem(STORAGE_KEY)
+  if (typeof window === 'undefined') return 'light'
+  const saved = window.localStorage.getItem(STORAGE_KEY)
   if (saved === 'light' || saved === 'dark') return saved
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  return typeof window.matchMedia === 'function' && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
 export function applyTheme(theme: ThemeMode): void {
@@ -16,7 +16,7 @@ export function applyTheme(theme: ThemeMode): void {
 
 export function setTheme(theme: ThemeMode): ThemeMode {
   applyTheme(theme)
-  if (typeof localStorage !== 'undefined') localStorage.setItem(STORAGE_KEY, theme)
+  if (typeof window !== 'undefined') window.localStorage.setItem(STORAGE_KEY, theme)
   return theme
 }
 
