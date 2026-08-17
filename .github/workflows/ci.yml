@@ -61,7 +61,7 @@ jobs:
 
       - uses: actions/setup-node@v7
         with:
-          node-version: 24
+          node-version: 26
           cache: pnpm
           cache-dependency-path: cmd/rwkv-app/frontend/pnpm-lock.yaml
 
@@ -70,3 +70,6 @@ jobs:
 
       - name: Test
         run: pnpm test
+
+      - name: Build
+        run: pnpm build

@@ -17,6 +17,26 @@ if [[ "$(uname -s)" != "Darwin" || "$(uname -m)" != "arm64" ]]; then
   exit 1
 fi
 
+for command in node pnpm; do
+  if ! command -v "$command" >/dev/null 2>&1; then
+    echo "Missing frontend build tool: $command" >&2
+    echo "Install Node.js 26 and pnpm 11 before building the desktop app." >&2
+    exit 1
+  fi
+done
+
+node_major="$(node -p 'process.versions.node.split(".")[0]')"
+if [[ "$node_major" != "26" ]]; then
+  echo "RWKV Agent desktop builds require Node.js 26.x; found $(node --version)." >&2
+  exit 1
+fi
+
+pnpm_major="$(pnpm --version | cut -d. -f1)"
+if [[ "$pnpm_major" != "11" ]]; then
+  echo "RWKV Agent desktop builds require pnpm 11.x; found $(pnpm --version)." >&2
+  exit 1
+fi
+
 echo "[1/5] Preparing the native RWKV runtime..."
 "$repo_root/scripts/build-macos.sh" --with-chat-completions
 

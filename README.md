@@ -58,7 +58,7 @@ open -n "./dist/RWKV Agent.app" --args --workspace "$(pwd)"
 ./dist/rwkv-app-server --host 127.0.0.1 --port 8080
 ```
 
-构建 App 额外需要 Node.js 与 npm（CI 固定 Node 24）。主要功能：
+构建 App 额外需要 Node.js 26 与 pnpm 11（CI 使用同一版本基线）。主要功能：
 
 - 配置本地 RWKV 模型（`.pth` 或 MLX 目录）或远端 API（RWKV 续写 / OpenAI 兼容），
   显示模型状态，并通过 `GET /v1/models` 拉取远端模型列表。
@@ -79,7 +79,7 @@ open -n "./dist/RWKV Agent.app" --args --workspace "$(pwd)"
 - Xcode（含 Swift 与 Metal Toolchain）
 - CMake 3.25+、Ninja
 - Go 1.26+
-- Node.js 24（仅构建桌面 App 需要）
+- Node.js 26、pnpm 11（仅构建桌面 App 需要）
 - RWKV-7 `.pth` checkpoint，或已转换的 MLX safetensors 模型目录
 
 首次拉取后初始化固定版本的上游依赖，然后检查环境并构建：
@@ -610,7 +610,7 @@ RWKV_TEST_PTH=/absolute/path/to/rwkv7-model.pth \
 GitHub Actions（`.github/workflows/ci.yml`）包含两个 job：
 
 - Go：race 测试 `api/...`、`internal/...`、`cmd/rwkv-cli/...`；`CGO_ENABLED=0 go build -tags server ./...` 与 vet 验证 Linux headless 构建。
-- Frontend：Node 24 + pnpm 11（`pnpm install --frozen-lockfile` + `pnpm test`）。
+- Frontend：Node 26 + pnpm 11（`pnpm install --frozen-lockfile` + `pnpm test` + `pnpm build`）。
 
 ## 11. 项目结构
 

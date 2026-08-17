@@ -3,6 +3,10 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "engines": {
+    "node": ">=26 <27",
+    "pnpm": ">=11 <12"
+  },
   "packageManager": "pnpm@11.7.0",
   "scripts": {
     "dev": "vite",
@@ -25,7 +29,7 @@
     "@tailwindcss/postcss": "^4.3.3",
     "@testing-library/jest-dom": "6.9.1",
     "@testing-library/react": "16.3.2",
-    "@types/node": "24.10.13",
+    "@types/node": "26.2.0",
     "@types/react": "19.2.13",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "6.0.5",

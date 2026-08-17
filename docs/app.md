@@ -24,8 +24,8 @@ frontend and bind the same public Go API from `api/`.
 ## Build on Apple Silicon macOS
 
 The complete build prepares the native MLX runtime, verifies the frontend, and creates
-both launch modes. In addition to the native toolchain, the build requires Node.js and
-npm (CI pins Node 24):
+both launch modes. In addition to the native toolchain, the build requires Node.js 26
+and pnpm 11 (CI uses the same version baseline):
 
 ```sh
 ./scripts/build-app.sh
@@ -170,7 +170,7 @@ cd cmd/rwkv-app
 go run github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0-beta.8 generate bindings -clean -ts
 ```
 
-Run frontend checks (use Node 24 to match CI, pnpm 11):
+Run frontend checks with Node 26 and pnpm 11, matching CI:
 
 ```sh
 cd cmd/rwkv-app/frontend

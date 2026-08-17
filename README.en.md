@@ -59,7 +59,7 @@ open -n "./dist/RWKV Agent.app" --args --workspace "$(pwd)"
 ./dist/rwkv-app-server --host 127.0.0.1 --port 8080
 ```
 
-Building the app additionally requires Node.js and npm (CI pins Node 24). Key features:
+Building the app additionally requires Node.js 26 and pnpm 11 (CI uses the same version baseline). Key features:
 
 - Configures a local RWKV model (`.pth` or MLX directory) or a remote API (RWKV
   continuation / OpenAI-compatible), displays model status, and lists remote models via
@@ -84,7 +84,7 @@ Requirements:
 - Xcode (Swift and Metal toolchains)
 - CMake 3.25+ and Ninja
 - Go 1.26+
-- Node.js 24 (only for the desktop app)
+- Node.js 26 and pnpm 11 (only for the desktop app)
 - An RWKV-7 `.pth` checkpoint, or a converted MLX safetensors model directory
 
 Initialize the pinned upstream dependency, then check and build:
@@ -682,7 +682,7 @@ GitHub Actions (`.github/workflows/ci.yml`) runs two jobs:
 - Go: race tests for `api/...`, `internal/...`, `cmd/rwkv-cli/...`, plus
   `CGO_ENABLED=0 go build -tags server ./...` and vet to verify the Linux headless
   build.
-- Frontend: Node 24 + pnpm 11 (`pnpm install --frozen-lockfile` + `pnpm test`).
+- Frontend: Node 26 + pnpm 11 (`pnpm install --frozen-lockfile` + `pnpm test` + `pnpm build`).
 
 ## 11. Project Layout
 

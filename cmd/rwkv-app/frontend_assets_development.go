@@ -17,7 +17,7 @@ func frontendAssets() (fs.FS, error) {
 	}
 	frontendDir := filepath.Join(filepath.Dir(sourceFile), "frontend", "dist")
 	if _, err := os.Stat(filepath.Join(frontendDir, "index.html")); err != nil {
-		return nil, fmt.Errorf("locate frontend assets: run npm --prefix cmd/rwkv-app/frontend run build: %w", err)
+		return nil, fmt.Errorf("locate frontend assets: run pnpm --dir cmd/rwkv-app/frontend build: %w", err)
 	}
 	return os.DirFS(frontendDir), nil
 }
