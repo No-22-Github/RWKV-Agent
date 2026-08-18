@@ -12,6 +12,7 @@ import (
 type BaselineRunnerOptions struct {
 	Generator       continuation.Generator
 	Model           string
+	Transport       Transport
 	Concurrency     int
 	MaxOutputTokens int
 	MaxPromptChars  int
@@ -22,6 +23,9 @@ type BaselineRunnerOptions struct {
 func RunBaseline(ctx context.Context, cases []Case, options BaselineRunnerOptions) (RunResult, error) {
 	if options.Generator == nil {
 		return RunResult{}, fmt.Errorf("BFCL continuation generator is required")
+	}
+	if options.Transport != TransportRWKVContinuation && options.Transport != TransportChatCompletionsWrapped {
+		return RunResult{}, fmt.Errorf("BFCL baseline transport is required")
 	}
 	if options.Concurrency <= 0 {
 		return RunResult{}, fmt.Errorf("BFCL concurrency must be positive")
@@ -83,7 +87,7 @@ func RunBaseline(ctx context.Context, cases []Case, options BaselineRunnerOption
 func runBaselineCase(parent context.Context, entry Case, options BaselineRunnerOptions) TraceEntry {
 	resultEntry := ResultEntry{ID: entry.ID, Category: entry.Category}
 	trace := TraceEntry{ResultEntry: resultEntry}
-	prompt, err := RenderPrompt(entry, TierBaseline, TransportRWKVContinuation)
+	prompt, err := RenderPrompt(entry, TierBaseline, options.Transport)
 	if err != nil {
 		trace.Error = err.Error()
 		return trace
@@ -103,7 +107,7 @@ func runBaselineCase(parent context.Context, entry Case, options BaselineRunnerO
 		Model:           options.Model,
 		Prompt:          prompt,
 		MaxOutputTokens: options.MaxOutputTokens,
-		Stops:           []string{"```", "\n\nUser:", "\nUser:", "\nSystem:", "</s>"},
+		Stops:           baselineStops(options.Transport),
 		Sampling: continuation.Sampling{
 			Temperature:      options.Temperature,
 			TopK:             1,
@@ -133,4 +137,11 @@ func runBaselineCase(parent context.Context, entry Case, options BaselineRunnerO
 		trace.ParseError = err.Error()
 	}
 	return trace
+}
+
+func baselineStops(transport Transport) []string {
+	if transport == TransportChatCompletionsWrapped {
+		return []string{"```", "\n\nUser:", "\nSystem:", "</s>"}
+	}
+	return []string{"```", "\n\nUser:", "\nUser:", "\nSystem:", "</s>"}
 }

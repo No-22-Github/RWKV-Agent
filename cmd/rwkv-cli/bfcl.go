@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/no22/RWKV-Agent/internal/bfcl"
+	"github.com/no22/RWKV-Agent/internal/continuation"
 	"github.com/no22/RWKV-Agent/internal/continuation/chatcompletions"
 	"github.com/no22/RWKV-Agent/internal/continuation/rwkvlightning"
 )
@@ -24,27 +25,29 @@ const (
 )
 
 type bfclEvalOptions struct {
-	model           string
-	tier            string
-	apiURL          string
-	apiKeyEnv       string
-	apiHeaderEnvs   stringListFlag
-	dataDir         string
-	output          string
-	splits          stringListFlag
-	caseIDs         stringListFlag
-	concurrency     int
-	maxTokens       int
-	maxPromptChars  int
-	temperature     float64
-	caseTimeout     time.Duration
-	apiStopTokens   string
-	apiStream       bool
-	remoteBatchWait time.Duration
-	chatThinking    string
-	chatTokenLimit  string
-	hardware        string
-	serving         string
+	model                string
+	tier                 string
+	transport            string
+	apiURL               string
+	apiKeyEnv            string
+	apiHeaderEnvs        stringListFlag
+	dataDir              string
+	output               string
+	splits               stringListFlag
+	caseIDs              stringListFlag
+	concurrency          int
+	maxTokens            int
+	maxPromptChars       int
+	temperature          float64
+	caseTimeout          time.Duration
+	apiStopTokens        string
+	apiStream            bool
+	remoteBatchWait      time.Duration
+	chatThinking         string
+	chatTemplateThinking string
+	chatTokenLimit       string
+	hardware             string
+	serving              string
 }
 
 func runBFCLEval(args []string) error {
@@ -82,35 +85,59 @@ func runBFCLEval(args []string) error {
 	defer cancel()
 	var result bfcl.RunResult
 	var runErr error
-	transport := "chat-completions-native-fc"
 	if options.tier == "baseline" {
-		stopMode, stopIDs, err := parseAPIStopTokens(options.apiStopTokens)
-		if err != nil {
-			return err
-		}
-		stream := options.apiStream
-		client, err := rwkvlightning.New(rwkvlightning.Config{
-			Endpoint:      options.apiURL,
-			Model:         options.model,
-			StopTokenMode: stopMode,
-			StopTokenIDs:  stopIDs,
-			Stream:        &stream,
-			BatchWait:     options.remoteBatchWait,
-			Headers:       headers,
-		})
-		if err != nil {
-			return fmt.Errorf("initialize BFCL RWKV continuation client: %w", err)
+		var generator continuation.Generator
+		switch options.transport {
+		case string(bfcl.TransportRWKVContinuation):
+			stopMode, stopIDs, err := parseAPIStopTokens(options.apiStopTokens)
+			if err != nil {
+				return err
+			}
+			stream := options.apiStream
+			client, err := rwkvlightning.New(rwkvlightning.Config{
+				Endpoint:      options.apiURL,
+				Model:         options.model,
+				StopTokenMode: stopMode,
+				StopTokenIDs:  stopIDs,
+				Stream:        &stream,
+				BatchWait:     options.remoteBatchWait,
+				Headers:       headers,
+			})
+			if err != nil {
+				return fmt.Errorf("initialize BFCL RWKV continuation client: %w", err)
+			}
+			generator = client
+		case string(bfcl.TransportChatCompletionsWrapped):
+			var chatTemplateEnableThinking *bool
+			if options.chatTemplateThinking != string(chatcompletions.ThinkingAuto) {
+				enableThinking := options.chatTemplateThinking == string(chatcompletions.ThinkingEnabled)
+				chatTemplateEnableThinking = &enableThinking
+			}
+			client, err := chatcompletions.New(chatcompletions.Config{
+				Endpoint:                   options.apiURL,
+				Model:                      options.model,
+				APIKey:                     os.Getenv(options.apiKeyEnv),
+				Thinking:                   chatcompletions.ThinkingMode(options.chatThinking),
+				ChatTemplateEnableThinking: chatTemplateEnableThinking,
+				PromptMode:                 chatcompletions.PromptWrappedContinuation,
+				TokenLimit:                 chatcompletions.TokenLimitField(options.chatTokenLimit),
+				Headers:                    headers,
+			})
+			if err != nil {
+				return fmt.Errorf("initialize BFCL wrapped Chat Completions client: %w", err)
+			}
+			generator = client
 		}
 		result, runErr = bfcl.RunBaseline(ctx, cases, bfcl.BaselineRunnerOptions{
-			Generator:       client,
+			Generator:       generator,
 			Model:           options.model,
+			Transport:       bfcl.Transport(options.transport),
 			Concurrency:     options.concurrency,
 			MaxOutputTokens: options.maxTokens,
 			MaxPromptChars:  options.maxPromptChars,
 			Temperature:     float32(options.temperature),
 			CaseTimeout:     options.caseTimeout,
 		})
-		transport = string(bfcl.TransportRWKVContinuation)
 	} else {
 		client, err := chatcompletions.New(chatcompletions.Config{
 			Endpoint:   options.apiURL,
@@ -149,7 +176,7 @@ func runBFCLEval(args []string) error {
 		EvaluatorVersion: bfclEvaluatorVersion,
 		Model:            options.model,
 		ModelDirName:     bfclModelDirName,
-		Transport:        transport,
+		Transport:        options.transport,
 		Tier:             options.tier,
 		Concurrency:      options.concurrency,
 		Sampling: bfcl.SamplingRecord{
@@ -187,6 +214,7 @@ func parseBFCLEvalOptions(args []string) (bfclEvalOptions, error) {
 	fs := flag.NewFlagSet("bfcl-eval", flag.ContinueOnError)
 	fs.StringVar(&options.model, "model", "", "remote model identifier")
 	fs.StringVar(&options.tier, "tier", "adapter-health", "BFCL tier: adapter-health or baseline")
+	fs.StringVar(&options.transport, "transport", "", "BFCL transport; defaults by tier")
 	fs.StringVar(&options.apiURL, "api-url", "", "full remote inference endpoint URL")
 	fs.StringVar(&options.apiKeyEnv, "api-key-env", "OPENAI_API_KEY", "environment variable containing the API key")
 	fs.Var(&options.apiHeaderEnvs, "api-header-env", "repeatable HTTP_HEADER=ENV_VAR authentication mapping")
@@ -203,6 +231,7 @@ func parseBFCLEvalOptions(args []string) (bfclEvalOptions, error) {
 	fs.BoolVar(&options.apiStream, "api-stream", true, "stream rwkv_lightning responses over SSE")
 	fs.DurationVar(&options.remoteBatchWait, "remote-batch-wait", 10*time.Millisecond, "RWKV Lightning request coalescing window")
 	fs.StringVar(&options.chatThinking, "chat-thinking", string(chatcompletions.ThinkingAuto), "thinking extension: auto, disabled, or enabled")
+	fs.StringVar(&options.chatTemplateThinking, "chat-template-thinking", string(chatcompletions.ThinkingAuto), "chat template thinking: auto, disabled, or enabled")
 	fs.StringVar(&options.chatTokenLimit, "chat-token-limit-field", string(chatcompletions.TokenLimitMaxTokens), "token field: max-completion-tokens or max-tokens")
 	fs.StringVar(&options.hardware, "hardware", "", "serving hardware recorded in run.json")
 	fs.StringVar(&options.serving, "serving", "", "serving configuration recorded in run.json")
@@ -211,6 +240,7 @@ func parseBFCLEvalOptions(args []string) (bfclEvalOptions, error) {
 	}
 	options.model = strings.TrimSpace(options.model)
 	options.tier = strings.TrimSpace(options.tier)
+	options.transport = strings.TrimSpace(options.transport)
 	options.apiURL = strings.TrimSpace(options.apiURL)
 	options.output = strings.TrimSpace(options.output)
 	if options.model == "" || options.apiURL == "" || options.output == "" {
@@ -219,6 +249,19 @@ func parseBFCLEvalOptions(args []string) (bfclEvalOptions, error) {
 	}
 	if options.tier != "adapter-health" && options.tier != "baseline" {
 		return options, fmt.Errorf("unsupported BFCL tier %q", options.tier)
+	}
+	if options.transport == "" {
+		options.transport = "chat-completions-native-fc"
+		if options.tier == "baseline" {
+			options.transport = string(bfcl.TransportRWKVContinuation)
+		}
+	}
+	if options.tier == "adapter-health" && options.transport != "chat-completions-native-fc" {
+		return options, fmt.Errorf("BFCL adapter-health requires chat-completions-native-fc transport")
+	}
+	if options.tier == "baseline" && options.transport != string(bfcl.TransportRWKVContinuation) &&
+		options.transport != string(bfcl.TransportChatCompletionsWrapped) {
+		return options, fmt.Errorf("unsupported BFCL baseline transport %q", options.transport)
 	}
 	options.splits = splitFlagValues(options.splits)
 	if len(options.splits) == 0 {
@@ -236,6 +279,15 @@ func parseBFCLEvalOptions(args []string) (bfclEvalOptions, error) {
 		return options, err
 	}
 	options.chatThinking = string(thinking)
+	chatTemplateThinking, err := chatcompletions.ParseThinkingMode(options.chatTemplateThinking)
+	if err != nil {
+		return options, err
+	}
+	options.chatTemplateThinking = string(chatTemplateThinking)
+	if chatTemplateThinking != chatcompletions.ThinkingAuto &&
+		options.transport != string(bfcl.TransportChatCompletionsWrapped) {
+		return options, fmt.Errorf("--chat-template-thinking requires chat-completions-wrapped transport")
+	}
 	tokenLimit, err := chatcompletions.ParseTokenLimitField(options.chatTokenLimit)
 	if err != nil {
 		return options, err

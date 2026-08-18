@@ -153,7 +153,7 @@ func usage() {
   rwkv-cli run --model <RWKV .pth or MLX directory> [--prompt <text> | --session <bundle>]
   rwkv-cli agent --model <path or remote model ID> [--prompt <task>] [--ui auto|tui|plain]
   rwkv-cli agent-eval --model <path or remote model ID> [--suite boundary|smoke|assistant|primitive-orig30|primitive-feedback30] [--primitive-profile upstream-compatible|go-native] [--output <directory>]
-  rwkv-cli bfcl-eval --model <remote model ID> --api-url <inference URL> --tier <adapter-health|baseline> --split <name> --output <directory>
+  rwkv-cli bfcl-eval --model <remote model ID> --api-url <inference URL> --tier <adapter-health|baseline> [--transport <name>] --split <name> --output <directory>
   rwkv-cli concurrent --model <RWKV .pth or MLX directory> [--concurrency 1..8] [--ui auto|tui|plain]
   rwkv-cli bench --model <RWKV .pth or MLX directory> [--concurrency 1..8]`)
 }

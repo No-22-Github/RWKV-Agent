@@ -39,20 +39,25 @@ type thinkingBody struct {
 	Type ThinkingMode `json:"type"`
 }
 
+type chatTemplateKwargs struct {
+	EnableThinking *bool `json:"enable_thinking,omitempty"`
+}
+
 type requestBody struct {
-	Model               string        `json:"model"`
-	Messages            []message     `json:"messages"`
-	Tools               []requestTool `json:"tools,omitempty"`
-	ToolChoice          string        `json:"tool_choice,omitempty"`
-	ParallelToolCalls   *bool         `json:"parallel_tool_calls,omitempty"`
-	MaxCompletionTokens int           `json:"max_completion_tokens,omitempty"`
-	MaxTokens           int           `json:"max_tokens,omitempty"`
-	Stop                []string      `json:"stop,omitempty"`
-	Temperature         float32       `json:"temperature"`
-	TopP                float32       `json:"top_p"`
-	PresencePenalty     float32       `json:"presence_penalty"`
-	FrequencyPenalty    float32       `json:"frequency_penalty"`
-	Seed                *int64        `json:"seed,omitempty"`
-	Thinking            *thinkingBody `json:"thinking,omitempty"`
-	Stream              bool          `json:"stream"`
+	Model               string              `json:"model"`
+	Messages            []message           `json:"messages"`
+	Tools               []requestTool       `json:"tools,omitempty"`
+	ToolChoice          string              `json:"tool_choice,omitempty"`
+	ParallelToolCalls   *bool               `json:"parallel_tool_calls,omitempty"`
+	MaxCompletionTokens int                 `json:"max_completion_tokens,omitempty"`
+	MaxTokens           int                 `json:"max_tokens,omitempty"`
+	Stop                []string            `json:"stop,omitempty"`
+	Temperature         float32             `json:"temperature"`
+	TopP                float32             `json:"top_p"`
+	PresencePenalty     float32             `json:"presence_penalty"`
+	FrequencyPenalty    float32             `json:"frequency_penalty"`
+	Seed                *int64              `json:"seed,omitempty"`
+	Thinking            *thinkingBody       `json:"thinking,omitempty"`
+	ChatTemplateKwargs  *chatTemplateKwargs `json:"chat_template_kwargs,omitempty"`
+	Stream              bool                `json:"stream"`
 }

@@ -18,12 +18,13 @@ import (
 )
 
 type Client struct {
-	sdk        openai.Client
-	model      string
-	thinking   ThinkingMode
-	promptMode PromptMode
-	tokenLimit TokenLimitField
-	secrets    []string
+	sdk                        openai.Client
+	model                      string
+	thinking                   ThinkingMode
+	chatTemplateEnableThinking *bool
+	promptMode                 PromptMode
+	tokenLimit                 TokenLimitField
+	secrets                    []string
 }
 
 func New(config Config) (*Client, error) {
@@ -46,12 +47,13 @@ func New(config Config) (*Client, error) {
 		}
 	}
 	return &Client{
-		sdk:        openai.NewClient(options...),
-		model:      normalized.model,
-		thinking:   normalized.thinking,
-		promptMode: normalized.promptMode,
-		tokenLimit: normalized.tokenLimit,
-		secrets:    normalized.secrets,
+		sdk:                        openai.NewClient(options...),
+		model:                      normalized.model,
+		thinking:                   normalized.thinking,
+		chatTemplateEnableThinking: normalized.chatTemplateEnableThinking,
+		promptMode:                 normalized.promptMode,
+		tokenLimit:                 normalized.tokenLimit,
+		secrets:                    normalized.secrets,
 	}, nil
 }
 
@@ -259,12 +261,19 @@ func (c *Client) baseParams(
 }
 
 func (c *Client) thinkingOption() []option.RequestOption {
-	if c.thinking == ThinkingAuto {
-		return nil
+	var options []option.RequestOption
+	if c.thinking != ThinkingAuto {
+		options = append(options,
+			option.WithJSONSet("thinking", map[string]string{"type": string(c.thinking)}),
+		)
 	}
-	return []option.RequestOption{
-		option.WithJSONSet("thinking", map[string]string{"type": string(c.thinking)}),
+	if c.chatTemplateEnableThinking != nil {
+		options = append(options, option.WithJSONSet(
+			"chat_template_kwargs.enable_thinking",
+			*c.chatTemplateEnableThinking,
+		))
 	}
+	return options
 }
 
 func reasoningOptions(messages []toolchat.Message) []option.RequestOption {

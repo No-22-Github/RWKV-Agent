@@ -19,14 +19,15 @@ const (
 type Transport string
 
 const (
-	TransportRWKVContinuation Transport = "rwkv-continuation"
+	TransportRWKVContinuation       Transport = "rwkv-continuation"
+	TransportChatCompletionsWrapped Transport = "chat-completions-wrapped"
 )
 
 func RenderPrompt(entry Case, tier Tier, transport Transport) (string, error) {
 	if tier != TierBaseline {
 		return "", fmt.Errorf("unsupported BFCL tier %q", tier)
 	}
-	if transport != TransportRWKVContinuation {
+	if transport != TransportRWKVContinuation && transport != TransportChatCompletionsWrapped {
 		return "", fmt.Errorf("unsupported BFCL transport %q", transport)
 	}
 	if len(entry.Messages) == 0 || len(entry.Functions) == 0 {

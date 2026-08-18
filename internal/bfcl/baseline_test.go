@@ -3,6 +3,7 @@ package bfcl
 import (
 	"context"
 	"encoding/json"
+	"slices"
 	"testing"
 	"time"
 
@@ -12,6 +13,18 @@ import (
 type recordingGenerator struct {
 	requests []continuation.Request
 	results  []continuation.Result
+}
+
+func TestBaselineStopsRespectTransportLimits(t *testing.T) {
+	t.Parallel()
+	rwkvStops := baselineStops(TransportRWKVContinuation)
+	if len(rwkvStops) != 5 || !slices.Contains(rwkvStops, "\nUser:") {
+		t.Fatalf("RWKV stops = %q", rwkvStops)
+	}
+	chatStops := baselineStops(TransportChatCompletionsWrapped)
+	if len(chatStops) != 4 || slices.Contains(chatStops, "\nUser:") {
+		t.Fatalf("Chat Completions stops = %q", chatStops)
+	}
 }
 
 func (generator *recordingGenerator) Continue(
@@ -33,7 +46,8 @@ func TestRunBaselineMakesOneStrictCallPerCase(t *testing.T) {
 	}}
 	cases := []Case{testBaselineCase("simple_python_0"), testBaselineCase("simple_python_1")}
 	result, err := RunBaseline(context.Background(), cases, BaselineRunnerOptions{
-		Generator: generator, Model: "model", Concurrency: 1, MaxOutputTokens: 1024,
+		Generator: generator, Model: "model", Transport: TransportRWKVContinuation,
+		Concurrency: 1, MaxOutputTokens: 1024,
 		MaxPromptChars: 40000, Temperature: 0.001, CaseTimeout: time.Second,
 	})
 	if err != nil {

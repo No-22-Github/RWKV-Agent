@@ -151,6 +151,38 @@ func TestClientMapsOptionalThinkingMode(t *testing.T) {
 	}
 }
 
+func TestClientMapsOptionalChatTemplateThinking(t *testing.T) {
+	t.Parallel()
+	var received requestBody
+	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		if err := json.NewDecoder(request.Body).Decode(&received); err != nil {
+			t.Error(err)
+		}
+		writeJSON(writer, `{"choices":[{"index":0,"message":{"content":"ok"},"finish_reason":"stop"}]}`)
+	}))
+	defer server.Close()
+	enableThinking := false
+	client, err := New(Config{
+		Endpoint:                   server.URL,
+		Model:                      "Qwen/Qwen3-8B-FP8",
+		ChatTemplateEnableThinking: &enableThinking,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := client.Continue(context.Background(), validRequest(), nil); err != nil {
+		t.Fatal(err)
+	}
+	if received.ChatTemplateKwargs == nil ||
+		received.ChatTemplateKwargs.EnableThinking == nil ||
+		*received.ChatTemplateKwargs.EnableThinking {
+		t.Fatalf("chat_template_kwargs = %+v", received.ChatTemplateKwargs)
+	}
+	if received.Thinking != nil {
+		t.Fatalf("thinking = %+v", received.Thinking)
+	}
+}
+
 func TestClientSupportsLegacyMaxTokensCompatibility(t *testing.T) {
 	t.Parallel()
 	var received requestBody

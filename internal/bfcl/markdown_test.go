@@ -29,6 +29,26 @@ func TestRenderPromptPreservesFunctionAndMessageBytes(t *testing.T) {
 	}
 }
 
+func TestRenderPromptUsesSameProtocolAcrossContinuationTransports(t *testing.T) {
+	t.Parallel()
+	entry := Case{
+		ID:        "simple_python_0",
+		Messages:  []Message{{Role: "user", Content: "call it"}},
+		Functions: []json.RawMessage{json.RawMessage(`{"name":"tool","parameters":{"type":"dict"}}`)},
+	}
+	rwkvPrompt, err := RenderPrompt(entry, TierBaseline, TransportRWKVContinuation)
+	if err != nil {
+		t.Fatal(err)
+	}
+	chatPrompt, err := RenderPrompt(entry, TierBaseline, TransportChatCompletionsWrapped)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if rwkvPrompt != chatPrompt {
+		t.Fatalf("transport changed Markdown protocol\nrwkv=%q\nchat=%q", rwkvPrompt, chatPrompt)
+	}
+}
+
 func TestParseMarkdownCallsAcceptsPrefilledAndCompleteFence(t *testing.T) {
 	t.Parallel()
 	for _, value := range []string{

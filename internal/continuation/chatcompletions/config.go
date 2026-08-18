@@ -95,26 +95,28 @@ func ParseTokenLimitField(value string) (TokenLimitField, error) {
 }
 
 type Config struct {
-	Endpoint   string
-	Model      string
-	APIKey     string
-	Thinking   ThinkingMode
-	PromptMode PromptMode
-	TokenLimit TokenLimitField
-	Headers    http.Header
-	HTTPClient *http.Client
+	Endpoint                   string
+	Model                      string
+	APIKey                     string
+	Thinking                   ThinkingMode
+	ChatTemplateEnableThinking *bool
+	PromptMode                 PromptMode
+	TokenLimit                 TokenLimitField
+	Headers                    http.Header
+	HTTPClient                 *http.Client
 }
 
 type normalizedConfig struct {
-	endpoint   string
-	model      string
-	apiKey     string
-	thinking   ThinkingMode
-	promptMode PromptMode
-	tokenLimit TokenLimitField
-	headers    http.Header
-	secrets    []string
-	httpClient *http.Client
+	endpoint                   string
+	model                      string
+	apiKey                     string
+	thinking                   ThinkingMode
+	chatTemplateEnableThinking *bool
+	promptMode                 PromptMode
+	tokenLimit                 TokenLimitField
+	headers                    http.Header
+	secrets                    []string
+	httpClient                 *http.Client
 }
 
 func normalizeConfig(config Config) (normalizedConfig, error) {
@@ -171,16 +173,22 @@ func normalizeConfig(config Config) (normalizedConfig, error) {
 			}
 		}
 	}
+	var chatTemplateEnableThinking *bool
+	if config.ChatTemplateEnableThinking != nil {
+		value := *config.ChatTemplateEnableThinking
+		chatTemplateEnableThinking = &value
+	}
 	return normalizedConfig{
-		endpoint:   endpoint,
-		model:      model,
-		apiKey:     apiKey,
-		thinking:   thinking,
-		promptMode: promptMode,
-		tokenLimit: tokenLimit,
-		headers:    headers,
-		secrets:    secrets,
-		httpClient: httpClient,
+		endpoint:                   endpoint,
+		model:                      model,
+		apiKey:                     apiKey,
+		thinking:                   thinking,
+		chatTemplateEnableThinking: chatTemplateEnableThinking,
+		promptMode:                 promptMode,
+		tokenLimit:                 tokenLimit,
+		headers:                    headers,
+		secrets:                    secrets,
+		httpClient:                 httpClient,
 	}, nil
 }
 

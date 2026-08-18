@@ -19,6 +19,25 @@ func TestParseBFCLEvalOptionsAcceptsM2Baseline(t *testing.T) {
 	}
 }
 
+func TestParseBFCLEvalOptionsAcceptsWrappedQwenBaseline(t *testing.T) {
+	t.Parallel()
+	options, err := parseBFCLEvalOptions([]string{
+		"--model", "Qwen/Qwen3-8B-FP8",
+		"--api-url", "http://example.com/v1/chat/completions",
+		"--tier", "baseline",
+		"--transport", "chat-completions-wrapped",
+		"--chat-template-thinking", "disabled",
+		"--split", "simple_python",
+		"--output", "runs/bfcl/qwen",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if options.transport != "chat-completions-wrapped" || options.chatTemplateThinking != "disabled" {
+		t.Fatalf("options = %+v", options)
+	}
+}
+
 func TestParseBFCLEvalOptionsRestrictsM2Split(t *testing.T) {
 	t.Parallel()
 	_, err := parseBFCLEvalOptions([]string{
