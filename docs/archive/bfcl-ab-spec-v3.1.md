@@ -111,8 +111,8 @@
 
 | 项 | 必须写清 | 取值 |
 |---|---|---|
-| 格式修复触发条件 | 什么样的输出算「格式坏了」 | **待填** |
-| 格式修复的操作集 | 允许做哪些修补,逐条列出 | **待填** |
+| 格式修复触发条件 | 什么样的输出算「格式坏了」 | strict parser 失败,但输出仍是单个完整 JSON object、函数名可精确匹配当前工具 schema,且仅命中 M2.5 `rwkv-wire-compat-v1` 的允许规则 |
+| 格式修复的操作集 | 允许做哪些修补,逐条列出 | `arguments` 最多解包一层;顶层字段若精确匹配函数参数且内层无同名字段则移入 `arguments`;非参数 `id` metadata 可丢弃。除此之外全部拒绝,详见 M2.5 |
 | retry 触发条件 | 解析失败?schema 非法?两者都算? | **待填** |
 | schema 非法参数是否 retry | 是 / 否 | **待填** |
 | retry prompt | 逐字节内容,含是否回传上一次的错误信息 | **待填** |
@@ -127,6 +127,8 @@
 > 理由:一旦兜底能看到答案,测到的就是 **evaluator rescue** 而不是 **harness fallback**,两档之差变成「我们能猜到答案」而不是「我们的框架能救回格式」。这是本设计最致命的一种污染,而且它非常容易在「让某道题过」的动机下悄悄发生(§7.3 第 11 条)。
 >
 > **实现约束:** `internal/bfcl` 包内,兜底代码路径不得 import 任何加载 `possible_answer/` 的模块。加载标准答案的函数放在独立包,由判分侧调用,兜底侧编译期就够不到。
+
+M2.5 只冻结上表前两项。其余八项仍是 M3 前阻塞项。`rwkv-wire-compat-v1` 虽由 RWKV 失败模式触发设计,但进入最终增强档后必须对 RWKV 与 Qwen Markdown 使用完全相同的实现和配置,不得按模型名分支。
 
 ### 2.2c greedy 语义(显式定义)
 
@@ -696,6 +698,24 @@ bfcl evaluate --model <model_dir_name> --test-category simple_python
 3. 手工把某条 result 的 `True` 改成 `true`,**必须**失败。验证 §3.4 的 Python 字面量约束是真的。
 
 > **M2 的意义就是这三条负向测试。** 正向的 accuracy 是多少无所谓,此刻它只是个数字。
+
+### M2.5 —— RWKV wire-format 兼容校准(0.5 天)
+
+保留 M2 strict parser 和 `115/400` 原始结果不变,新增独立 parser mode `rwkv-wire-compat-v1`。M2.5 必须离线重解析 `runs/bfcl/m2-smoke-20260818/trace.jsonl` 的原始 `content`,不得重新调用模型;这样 strict → compat 的差值只来自解析层,不混入并发推理的非确定性。
+
+`rwkv-wire-compat-v1` 只允许以下确定性结构归一化:
+
+1. 外层必须仍是单个、完整、无 trailing content 的 JSON object;函数名必须精确匹配当前题目提供的某个工具。
+2. `arguments` 若为 JSON string,最多解包一次;解包结果必须是单个完整 JSON object。禁止递归解包。
+3. 顶层额外字段若精确匹配已选工具的参数名,且内层 `arguments` 不含同名字段,则原值移入 `arguments`;同名冲突立即失败。
+4. 顶层 `id` 仅在它不是已选工具参数时视为调用 metadata 并丢弃;其他未知字段全部失败。
+5. strict parser 已接受的输出,compat 解析后的函数名和 arguments 字节必须完全相同。
+
+明确禁止修正函数名、参数名、参数值、枚举、类型和大小写;禁止补必填参数、删除 schema 参数、从 prose 中截取 JSON、修复单引号或截断 JSON。compat 代码不得读取 ground truth、`possible_answer/` 或题目 ID 语义。
+
+**产物:** 独立 `runs/bfcl/m2.5-rwkv-wire-compat-v1-<日期>/`,包含 source run、source trace、parser mode、逐题 repair actions、result、summary 和官方 score。M2 strict 与 M2.5 compat 必须在跑分日志中并列,不得用 compat 覆盖 strict 结果。
+
+**验收:** 125 条 strict 已接受输出保持 BFCL result 不变;每种允许修复和每种明确拒绝均有 fixture;离线重解析后调用固定版本官方 evaluator,报告 repaired/仍失败/官方正确数。M2.5 是增强档格式修复的预校准,不是第六个矩阵格。
 
 ### M3 —— 抽样冻结与代表性诊断(1 天)
 

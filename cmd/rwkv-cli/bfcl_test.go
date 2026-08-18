@@ -51,3 +51,19 @@ func TestParseBFCLEvalOptionsRestrictsM2Split(t *testing.T) {
 		t.Fatal("expected M2 split validation error")
 	}
 }
+
+func TestParseBFCLReparseOptions(t *testing.T) {
+	t.Parallel()
+	options, err := parseBFCLReparseOptions([]string{
+		"--source", "runs/bfcl/m2",
+		"--output", "runs/bfcl/m2.5",
+		"--parser", "rwkv-wire-compat-v1",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if options.source != "runs/bfcl/m2" || options.output != "runs/bfcl/m2.5" ||
+		options.parser != "rwkv-wire-compat-v1" {
+		t.Fatalf("options = %+v", options)
+	}
+}

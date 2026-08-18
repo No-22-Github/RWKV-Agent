@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"sort"
 	"strings"
 
 	"github.com/no22/RWKV-Agent/internal/continuation/toolchat"
@@ -18,10 +19,36 @@ const (
 
 type Transport string
 
+type ParserMode string
+
+type ParseOutcome struct {
+	Calls   []toolchat.ToolCall
+	Repairs []string
+}
+
 const (
 	TransportRWKVContinuation       Transport = "rwkv-continuation"
 	TransportChatCompletionsWrapped Transport = "chat-completions-wrapped"
+
+	ParserStrict           ParserMode = "strict"
+	ParserRWKVWireCompatV1 ParserMode = "rwkv-wire-compat-v1"
+
+	RepairArgumentsUnwrapped = "arguments_unwrapped"
+	RepairCallIDDropped      = "call_id_dropped"
 )
+
+func ParseParserMode(value string) (ParserMode, error) {
+	mode := ParserMode(strings.ToLower(strings.TrimSpace(value)))
+	if mode == "" {
+		mode = ParserStrict
+	}
+	switch mode {
+	case ParserStrict, ParserRWKVWireCompatV1:
+		return mode, nil
+	default:
+		return "", fmt.Errorf("unsupported BFCL parser mode %q", value)
+	}
+}
 
 func RenderPrompt(entry Case, tier Tier, transport Transport) (string, error) {
 	if tier != TierBaseline {
@@ -71,6 +98,33 @@ func RenderPrompt(entry Case, tier Tier, transport Transport) (string, error) {
 }
 
 func ParseMarkdownCalls(value string) ([]toolchat.ToolCall, error) {
+	object, err := decodeMarkdownCallObject(value)
+	if err != nil {
+		return nil, err
+	}
+	return parseStrictCallObject(object)
+}
+
+func ParseMarkdownCallsWithMode(
+	value string,
+	functions []json.RawMessage,
+	mode ParserMode,
+) (ParseOutcome, error) {
+	switch mode {
+	case ParserStrict:
+		calls, err := ParseMarkdownCalls(value)
+		return ParseOutcome{Calls: calls}, err
+	case ParserRWKVWireCompatV1:
+		if calls, err := ParseMarkdownCalls(value); err == nil {
+			return ParseOutcome{Calls: calls}, nil
+		}
+		return parseRWKVWireCompatV1(value, functions)
+	default:
+		return ParseOutcome{}, fmt.Errorf("unsupported BFCL parser mode %q", mode)
+	}
+}
+
+func decodeMarkdownCallObject(value string) (map[string]json.RawMessage, error) {
 	candidate := strings.TrimSpace(value)
 	if strings.HasPrefix(candidate, "```json") {
 		candidate = strings.TrimPrefix(candidate, "```json")
@@ -95,6 +149,10 @@ func ParseMarkdownCalls(value string) ([]toolchat.ToolCall, error) {
 		}
 		return nil, fmt.Errorf("decode trailing function call content: %w", err)
 	}
+	return object, nil
+}
+
+func parseStrictCallObject(object map[string]json.RawMessage) ([]toolchat.ToolCall, error) {
 	if len(object) != 2 {
 		return nil, fmt.Errorf("function call must contain exactly name and arguments")
 	}
@@ -116,4 +174,126 @@ func ParseMarkdownCalls(value string) ([]toolchat.ToolCall, error) {
 		return nil, fmt.Errorf("function call arguments contain trailing content")
 	}
 	return []toolchat.ToolCall{{Name: name, Arguments: string(arguments)}}, nil
+}
+
+func parseRWKVWireCompatV1(value string, functions []json.RawMessage) (ParseOutcome, error) {
+	object, err := decodeMarkdownCallObject(value)
+	if err != nil {
+		return ParseOutcome{}, err
+	}
+	var name string
+	if err := json.Unmarshal(object["name"], &name); err != nil || strings.TrimSpace(name) == "" {
+		return ParseOutcome{}, fmt.Errorf("function call name is required")
+	}
+	parameterNames, err := functionParameterNames(functions, name)
+	if err != nil {
+		return ParseOutcome{}, err
+	}
+	arguments := object["arguments"]
+	if len(arguments) == 0 {
+		return ParseOutcome{}, fmt.Errorf("function call arguments are required")
+	}
+	repairs := make([]string, 0, 3)
+	argumentBytes := bytes.TrimSpace(arguments)
+	if len(argumentBytes) > 0 && argumentBytes[0] == '"' {
+		var encoded string
+		if err := json.Unmarshal(argumentBytes, &encoded); err != nil {
+			return ParseOutcome{}, fmt.Errorf("decode stringified function call arguments: %w", err)
+		}
+		argumentBytes = []byte(strings.TrimSpace(encoded))
+		repairs = append(repairs, RepairArgumentsUnwrapped)
+	}
+	argumentObject, err := decodeArgumentObject(argumentBytes)
+	if err != nil {
+		return ParseOutcome{}, err
+	}
+
+	keys := make([]string, 0, len(object))
+	for key := range object {
+		if key != "name" && key != "arguments" {
+			keys = append(keys, key)
+		}
+	}
+	sort.Strings(keys)
+	movedArgument := false
+	for _, key := range keys {
+		if _, isParameter := parameterNames[key]; isParameter {
+			if _, exists := argumentObject[key]; exists {
+				return ParseOutcome{}, fmt.Errorf("top-level function argument %q conflicts with arguments object", key)
+			}
+			argumentObject[key] = object[key]
+			repairs = append(repairs, "top_level_argument_moved:"+key)
+			movedArgument = true
+			continue
+		}
+		if key == "id" {
+			var callID string
+			if err := json.Unmarshal(object[key], &callID); err != nil || strings.TrimSpace(callID) == "" {
+				return ParseOutcome{}, fmt.Errorf("function call id metadata must be a non-empty string")
+			}
+			repairs = append(repairs, RepairCallIDDropped)
+			continue
+		}
+		return ParseOutcome{}, fmt.Errorf("unsupported top-level function call field %q", key)
+	}
+	if movedArgument {
+		argumentBytes, err = json.Marshal(argumentObject)
+		if err != nil {
+			return ParseOutcome{}, fmt.Errorf("encode normalized function call arguments: %w", err)
+		}
+	}
+	return ParseOutcome{
+		Calls:   []toolchat.ToolCall{{Name: name, Arguments: string(argumentBytes)}},
+		Repairs: repairs,
+	}, nil
+}
+
+func decodeArgumentObject(arguments []byte) (map[string]json.RawMessage, error) {
+	decoder := json.NewDecoder(bytes.NewReader(arguments))
+	decoder.UseNumber()
+	var object map[string]json.RawMessage
+	if err := decoder.Decode(&object); err != nil || object == nil {
+		if err == nil {
+			err = fmt.Errorf("arguments must be a JSON object")
+		}
+		return nil, fmt.Errorf("function call arguments must be an object: %w", err)
+	}
+	if _, err := decoder.Token(); err != io.EOF {
+		if err == nil {
+			return nil, fmt.Errorf("function call arguments contain trailing content")
+		}
+		return nil, fmt.Errorf("function call arguments contain trailing content: %w", err)
+	}
+	return object, nil
+}
+
+func functionParameterNames(functions []json.RawMessage, name string) (map[string]struct{}, error) {
+	type functionDefinition struct {
+		Name       string `json:"name"`
+		Parameters struct {
+			Properties map[string]json.RawMessage `json:"properties"`
+		} `json:"parameters"`
+	}
+	var matched *functionDefinition
+	for index, raw := range functions {
+		var definition functionDefinition
+		if err := json.Unmarshal(raw, &definition); err != nil {
+			return nil, fmt.Errorf("decode function schema %d: %w", index, err)
+		}
+		if definition.Name != name {
+			continue
+		}
+		if matched != nil {
+			return nil, fmt.Errorf("duplicate function schema %q", name)
+		}
+		matched = &definition
+	}
+	if matched == nil {
+		return nil, fmt.Errorf("function call name %q is not available", name)
+	}
+	result := make(map[string]struct{}, len(matched.Parameters.Properties))
+	for parameter := range matched.Parameters.Properties {
+		result[parameter] = struct{}{}
+	}
+	return result, nil
 }

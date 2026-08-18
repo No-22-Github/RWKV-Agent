@@ -10,24 +10,27 @@ import (
 )
 
 type Manifest struct {
-	SchemaVersion    int            `json:"schema_version"`
-	StartedAt        time.Time      `json:"started_at"`
-	DataDir          string         `json:"data_dir"`
-	DataCommit       string         `json:"data_commit"`
-	EvaluatorVersion string         `json:"evaluator_version"`
-	Model            string         `json:"model"`
-	ModelDirName     string         `json:"model_dir_name"`
-	Transport        string         `json:"transport"`
-	Tier             string         `json:"tier"`
-	Concurrency      int            `json:"concurrency"`
-	Sampling         SamplingRecord `json:"sampling"`
-	MaxTokens        int            `json:"max_tokens"`
-	MaxPromptChars   int            `json:"max_prompt_chars"`
-	CaseTimeout      string         `json:"case_timeout"`
-	Splits           []string       `json:"splits"`
-	CaseIDs          []string       `json:"case_ids,omitempty"`
-	Hardware         string         `json:"hardware,omitempty"`
-	Serving          string         `json:"serving,omitempty"`
+	SchemaVersion     int            `json:"schema_version"`
+	StartedAt         time.Time      `json:"started_at"`
+	DataDir           string         `json:"data_dir"`
+	DataCommit        string         `json:"data_commit"`
+	EvaluatorVersion  string         `json:"evaluator_version"`
+	Model             string         `json:"model"`
+	ModelDirName      string         `json:"model_dir_name"`
+	Transport         string         `json:"transport"`
+	Tier              string         `json:"tier"`
+	Concurrency       int            `json:"concurrency"`
+	Sampling          SamplingRecord `json:"sampling"`
+	MaxTokens         int            `json:"max_tokens"`
+	MaxPromptChars    int            `json:"max_prompt_chars"`
+	CaseTimeout       string         `json:"case_timeout"`
+	Splits            []string       `json:"splits"`
+	CaseIDs           []string       `json:"case_ids,omitempty"`
+	Hardware          string         `json:"hardware,omitempty"`
+	Serving           string         `json:"serving,omitempty"`
+	ParserMode        string         `json:"parser_mode,omitempty"`
+	SourceRun         string         `json:"source_run,omitempty"`
+	SourceTraceSHA256 string         `json:"source_trace_sha256,omitempty"`
 }
 
 type SamplingRecord struct {
@@ -37,13 +40,15 @@ type SamplingRecord struct {
 }
 
 type Summary struct {
-	Total            int     `json:"total"`
-	Failed           int     `json:"failed"`
-	ParseFailed      int     `json:"parse_failed"`
-	Skipped          int     `json:"skipped"`
-	PromptTokens     int     `json:"prompt_tokens"`
-	CompletionTokens int     `json:"completion_tokens"`
-	ElapsedSeconds   float64 `json:"elapsed_seconds"`
+	Total            int            `json:"total"`
+	Failed           int            `json:"failed"`
+	ParseFailed      int            `json:"parse_failed"`
+	Repaired         int            `json:"repaired,omitempty"`
+	Repairs          map[string]int `json:"repairs,omitempty"`
+	Skipped          int            `json:"skipped"`
+	PromptTokens     int            `json:"prompt_tokens"`
+	CompletionTokens int            `json:"completion_tokens"`
+	ElapsedSeconds   float64        `json:"elapsed_seconds"`
 }
 
 func WriteArtifacts(outputDir string, manifest Manifest, result RunResult) error {
@@ -63,6 +68,8 @@ func WriteArtifacts(outputDir string, manifest Manifest, result RunResult) error
 		Total:            len(result.Trace),
 		Failed:           result.Failed,
 		ParseFailed:      result.ParseFailed,
+		Repaired:         result.Repaired,
+		Repairs:          result.RepairCounts,
 		Skipped:          result.Skipped,
 		PromptTokens:     result.Usage.PromptTokens,
 		CompletionTokens: result.Usage.CompletionTokens,

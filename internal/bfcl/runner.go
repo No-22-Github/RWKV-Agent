@@ -28,19 +28,22 @@ type TraceEntry struct {
 	ToolCalls        []toolchat.ToolCall `json:"tool_calls,omitempty"`
 	PromptBytes      int                 `json:"prompt_bytes,omitempty"`
 	FinishReason     string              `json:"finish_reason,omitempty"`
+	Repairs          []string            `json:"repairs,omitempty"`
 	ParseError       string              `json:"parse_error,omitempty"`
 	Error            string              `json:"error,omitempty"`
 	Skipped          bool                `json:"skipped,omitempty"`
 }
 
 type RunResult struct {
-	Entries     []ResultEntry
-	Trace       []TraceEntry
-	Failed      int
-	ParseFailed int
-	Skipped     int
-	Usage       continuation.Usage
-	Elapsed     time.Duration
+	Entries      []ResultEntry
+	Trace        []TraceEntry
+	Failed       int
+	ParseFailed  int
+	Repaired     int
+	Skipped      int
+	Usage        continuation.Usage
+	RepairCounts map[string]int
+	Elapsed      time.Duration
 }
 
 func RunNative(ctx context.Context, cases []Case, options RunnerOptions) (RunResult, error) {
