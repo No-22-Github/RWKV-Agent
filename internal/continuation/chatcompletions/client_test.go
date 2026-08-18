@@ -308,6 +308,34 @@ func TestThinkingToolsPreserveReasoningAndAvoidRequiredChoice(t *testing.T) {
 	}
 }
 
+func TestNativeToolsAcceptVLLMReasoningField(t *testing.T) {
+	t.Parallel()
+	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		writeJSON(writer, `{
+            "choices":[{
+                "index":0,
+                "message":{"content":null,"reasoning":"vllm trace","tool_calls":[{
+                    "id":"call_1","type":"function",
+                    "function":{"name":"read_file","arguments":"{\"path\":\"README.md\"}"}
+                }]},
+                "finish_reason":"tool_calls"
+            }]
+        }`)
+	}))
+	defer server.Close()
+	client, err := New(Config{Endpoint: server.URL, Model: "native-model", PromptMode: PromptNativeChat})
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := client.Complete(context.Background(), validToolChatRequest(), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.ReasoningContent != "vllm trace" {
+		t.Fatalf("reasoning content = %q", result.ReasoningContent)
+	}
+}
+
 func TestNewRejectsInvalidThinkingMode(t *testing.T) {
 	t.Parallel()
 	_, err := New(Config{

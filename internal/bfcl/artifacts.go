@@ -1,0 +1,99 @@
+package bfcl
+
+import (
+	"bufio"
+	"encoding/json"
+	"fmt"
+	"os"
+	"path/filepath"
+	"time"
+)
+
+type Manifest struct {
+	SchemaVersion    int            `json:"schema_version"`
+	StartedAt        time.Time      `json:"started_at"`
+	DataDir          string         `json:"data_dir"`
+	DataCommit       string         `json:"data_commit"`
+	EvaluatorVersion string         `json:"evaluator_version"`
+	Model            string         `json:"model"`
+	ModelDirName     string         `json:"model_dir_name"`
+	Transport        string         `json:"transport"`
+	Tier             string         `json:"tier"`
+	Concurrency      int            `json:"concurrency"`
+	Sampling         SamplingRecord `json:"sampling"`
+	MaxTokens        int            `json:"max_tokens"`
+	MaxPromptChars   int            `json:"max_prompt_chars"`
+	CaseTimeout      string         `json:"case_timeout"`
+	Splits           []string       `json:"splits"`
+	CaseIDs          []string       `json:"case_ids,omitempty"`
+	Hardware         string         `json:"hardware,omitempty"`
+	Serving          string         `json:"serving,omitempty"`
+}
+
+type SamplingRecord struct {
+	Greedy               bool    `json:"greedy"`
+	TopK                 int     `json:"top_k"`
+	EffectiveTemperature float32 `json:"effective_temperature"`
+}
+
+type Summary struct {
+	Total            int     `json:"total"`
+	Failed           int     `json:"failed"`
+	Skipped          int     `json:"skipped"`
+	PromptTokens     int     `json:"prompt_tokens"`
+	CompletionTokens int     `json:"completion_tokens"`
+	ElapsedSeconds   float64 `json:"elapsed_seconds"`
+}
+
+func WriteArtifacts(outputDir string, manifest Manifest, result RunResult) error {
+	if outputDir == "" {
+		return fmt.Errorf("BFCL output directory is required")
+	}
+	if err := os.MkdirAll(outputDir, 0o700); err != nil {
+		return err
+	}
+	if err := writeJSON(filepath.Join(outputDir, "run.json"), manifest); err != nil {
+		return err
+	}
+	if err := writeTrace(filepath.Join(outputDir, "trace.jsonl"), result.Trace); err != nil {
+		return err
+	}
+	return writeJSON(filepath.Join(outputDir, "summary.json"), Summary{
+		Total:            len(result.Trace),
+		Failed:           result.Failed,
+		Skipped:          result.Skipped,
+		PromptTokens:     result.Usage.PromptTokens,
+		CompletionTokens: result.Usage.CompletionTokens,
+		ElapsedSeconds:   result.Elapsed.Seconds(),
+	})
+}
+
+func writeJSON(path string, value any) error {
+	encoded, err := json.MarshalIndent(value, "", "  ")
+	if err != nil {
+		return err
+	}
+	encoded = append(encoded, '\n')
+	return os.WriteFile(path, encoded, 0o600)
+}
+
+func writeTrace(path string, entries []TraceEntry) error {
+	file, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600)
+	if err != nil {
+		return err
+	}
+	writer := bufio.NewWriter(file)
+	encoder := json.NewEncoder(writer)
+	encoder.SetEscapeHTML(false)
+	for _, entry := range entries {
+		if err := encoder.Encode(entry); err != nil {
+			file.Close()
+			return err
+		}
+	}
+	if err := writer.Flush(); err != nil {
+		file.Close()
+		return err
+	}
+	return file.Close()
+}

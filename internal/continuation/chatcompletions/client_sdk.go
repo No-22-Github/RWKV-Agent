@@ -397,15 +397,17 @@ func sdkUsage(response *openai.ChatCompletion) continuation.Usage {
 }
 
 func reasoningContent(message openai.ChatCompletionMessage) string {
-	field, ok := message.JSON.ExtraFields["reasoning_content"]
-	if !ok {
-		return ""
+	for _, name := range []string{"reasoning_content", "reasoning"} {
+		field, ok := message.JSON.ExtraFields[name]
+		if !ok {
+			continue
+		}
+		var result string
+		if err := json.Unmarshal([]byte(field.Raw()), &result); err == nil {
+			return result
+		}
 	}
-	var result string
-	if err := json.Unmarshal([]byte(field.Raw()), &result); err != nil {
-		return ""
-	}
-	return result
+	return ""
 }
 
 func (c *Client) remoteError(err error) error {
