@@ -39,6 +39,7 @@ type SamplingRecord struct {
 type Summary struct {
 	Total            int     `json:"total"`
 	Failed           int     `json:"failed"`
+	ParseFailed      int     `json:"parse_failed"`
 	Skipped          int     `json:"skipped"`
 	PromptTokens     int     `json:"prompt_tokens"`
 	CompletionTokens int     `json:"completion_tokens"`
@@ -61,6 +62,7 @@ func WriteArtifacts(outputDir string, manifest Manifest, result RunResult) error
 	return writeJSON(filepath.Join(outputDir, "summary.json"), Summary{
 		Total:            len(result.Trace),
 		Failed:           result.Failed,
+		ParseFailed:      result.ParseFailed,
 		Skipped:          result.Skipped,
 		PromptTokens:     result.Usage.PromptTokens,
 		CompletionTokens: result.Usage.CompletionTokens,

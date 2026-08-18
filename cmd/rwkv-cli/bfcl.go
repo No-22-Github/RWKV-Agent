@@ -14,6 +14,7 @@ import (
 
 	"github.com/no22/RWKV-Agent/internal/bfcl"
 	"github.com/no22/RWKV-Agent/internal/continuation/chatcompletions"
+	"github.com/no22/RWKV-Agent/internal/continuation/rwkvlightning"
 )
 
 const (
@@ -23,23 +24,27 @@ const (
 )
 
 type bfclEvalOptions struct {
-	model          string
-	apiURL         string
-	apiKeyEnv      string
-	apiHeaderEnvs  stringListFlag
-	dataDir        string
-	output         string
-	splits         stringListFlag
-	caseIDs        stringListFlag
-	concurrency    int
-	maxTokens      int
-	maxPromptChars int
-	temperature    float64
-	caseTimeout    time.Duration
-	chatThinking   string
-	chatTokenLimit string
-	hardware       string
-	serving        string
+	model           string
+	tier            string
+	apiURL          string
+	apiKeyEnv       string
+	apiHeaderEnvs   stringListFlag
+	dataDir         string
+	output          string
+	splits          stringListFlag
+	caseIDs         stringListFlag
+	concurrency     int
+	maxTokens       int
+	maxPromptChars  int
+	temperature     float64
+	caseTimeout     time.Duration
+	apiStopTokens   string
+	apiStream       bool
+	remoteBatchWait time.Duration
+	chatThinking    string
+	chatTokenLimit  string
+	hardware        string
+	serving         string
 }
 
 func runBFCLEval(args []string) error {
@@ -56,19 +61,6 @@ func runBFCLEval(args []string) error {
 	if err != nil {
 		return err
 	}
-	client, err := chatcompletions.New(chatcompletions.Config{
-		Endpoint:   options.apiURL,
-		Model:      options.model,
-		APIKey:     os.Getenv(options.apiKeyEnv),
-		Thinking:   chatcompletions.ThinkingMode(options.chatThinking),
-		PromptMode: chatcompletions.PromptNativeChat,
-		TokenLimit: chatcompletions.TokenLimitField(options.chatTokenLimit),
-		Headers:    headers,
-	})
-	if err != nil {
-		return fmt.Errorf("initialize BFCL Chat Completions client: %w", err)
-	}
-
 	var cases []bfcl.Case
 	for _, split := range options.splits {
 		loaded, err := bfcl.LoadSplit(options.dataDir, split)
@@ -88,17 +80,62 @@ func runBFCLEval(args []string) error {
 	fmt.Fprintf(os.Stderr, "Running %d cases at concurrency %d\n", len(cases), options.concurrency)
 	ctx, cancel := signalContext()
 	defer cancel()
-	result, err := bfcl.RunNative(ctx, cases, bfcl.RunnerOptions{
-		Completer:       client,
-		Model:           options.model,
-		Concurrency:     options.concurrency,
-		MaxOutputTokens: options.maxTokens,
-		MaxPromptChars:  options.maxPromptChars,
-		Temperature:     float32(options.temperature),
-		CaseTimeout:     options.caseTimeout,
-	})
-	if err != nil {
-		return err
+	var result bfcl.RunResult
+	var runErr error
+	transport := "chat-completions-native-fc"
+	if options.tier == "baseline" {
+		stopMode, stopIDs, err := parseAPIStopTokens(options.apiStopTokens)
+		if err != nil {
+			return err
+		}
+		stream := options.apiStream
+		client, err := rwkvlightning.New(rwkvlightning.Config{
+			Endpoint:      options.apiURL,
+			Model:         options.model,
+			StopTokenMode: stopMode,
+			StopTokenIDs:  stopIDs,
+			Stream:        &stream,
+			BatchWait:     options.remoteBatchWait,
+			Headers:       headers,
+		})
+		if err != nil {
+			return fmt.Errorf("initialize BFCL RWKV continuation client: %w", err)
+		}
+		result, runErr = bfcl.RunBaseline(ctx, cases, bfcl.BaselineRunnerOptions{
+			Generator:       client,
+			Model:           options.model,
+			Concurrency:     options.concurrency,
+			MaxOutputTokens: options.maxTokens,
+			MaxPromptChars:  options.maxPromptChars,
+			Temperature:     float32(options.temperature),
+			CaseTimeout:     options.caseTimeout,
+		})
+		transport = string(bfcl.TransportRWKVContinuation)
+	} else {
+		client, err := chatcompletions.New(chatcompletions.Config{
+			Endpoint:   options.apiURL,
+			Model:      options.model,
+			APIKey:     os.Getenv(options.apiKeyEnv),
+			Thinking:   chatcompletions.ThinkingMode(options.chatThinking),
+			PromptMode: chatcompletions.PromptNativeChat,
+			TokenLimit: chatcompletions.TokenLimitField(options.chatTokenLimit),
+			Headers:    headers,
+		})
+		if err != nil {
+			return fmt.Errorf("initialize BFCL Chat Completions client: %w", err)
+		}
+		result, runErr = bfcl.RunNative(ctx, cases, bfcl.RunnerOptions{
+			Completer:       client,
+			Model:           options.model,
+			Concurrency:     options.concurrency,
+			MaxOutputTokens: options.maxTokens,
+			MaxPromptChars:  options.maxPromptChars,
+			Temperature:     float32(options.temperature),
+			CaseTimeout:     options.caseTimeout,
+		})
+	}
+	if runErr != nil {
+		return runErr
 	}
 	resultDir := filepath.Join(options.output, "result")
 	if err := bfcl.WriteResults(resultDir, bfclModelDirName, result.Entries); err != nil {
@@ -112,8 +149,8 @@ func runBFCLEval(args []string) error {
 		EvaluatorVersion: bfclEvaluatorVersion,
 		Model:            options.model,
 		ModelDirName:     bfclModelDirName,
-		Transport:        "chat-completions-native-fc",
-		Tier:             "adapter-health",
+		Transport:        transport,
+		Tier:             options.tier,
 		Concurrency:      options.concurrency,
 		Sampling: bfcl.SamplingRecord{
 			Greedy:               true,
@@ -132,9 +169,10 @@ func runBFCLEval(args []string) error {
 	}
 	fmt.Fprintf(
 		os.Stderr,
-		"BFCL generation complete: total=%d failed=%d skipped=%d elapsed=%s\n",
+		"BFCL generation complete: total=%d failed=%d parse_failed=%d skipped=%d elapsed=%s\n",
 		len(result.Trace),
 		result.Failed,
+		result.ParseFailed,
 		result.Skipped,
 		result.Elapsed.Round(time.Millisecond),
 	)
@@ -147,8 +185,9 @@ func runBFCLEval(args []string) error {
 func parseBFCLEvalOptions(args []string) (bfclEvalOptions, error) {
 	var options bfclEvalOptions
 	fs := flag.NewFlagSet("bfcl-eval", flag.ContinueOnError)
-	fs.StringVar(&options.model, "model", "", "remote Chat Completions model identifier")
-	fs.StringVar(&options.apiURL, "api-url", "", "full Chat Completions endpoint URL")
+	fs.StringVar(&options.model, "model", "", "remote model identifier")
+	fs.StringVar(&options.tier, "tier", "adapter-health", "BFCL tier: adapter-health or baseline")
+	fs.StringVar(&options.apiURL, "api-url", "", "full remote inference endpoint URL")
 	fs.StringVar(&options.apiKeyEnv, "api-key-env", "OPENAI_API_KEY", "environment variable containing the API key")
 	fs.Var(&options.apiHeaderEnvs, "api-header-env", "repeatable HTTP_HEADER=ENV_VAR authentication mapping")
 	fs.StringVar(&options.dataDir, "data-dir", "third_party/gorilla/berkeley-function-call-leaderboard/bfcl_eval/data", "BFCL data directory")
@@ -160,6 +199,9 @@ func parseBFCLEvalOptions(args []string) (bfclEvalOptions, error) {
 	fs.IntVar(&options.maxPromptChars, "max-prompt-chars", 40000, "skip requests larger than this encoded character count")
 	fs.Float64Var(&options.temperature, "temperature", 0.001, "effective positive greedy temperature")
 	fs.DurationVar(&options.caseTimeout, "case-timeout", 2*time.Minute, "timeout per BFCL case")
+	fs.StringVar(&options.apiStopTokens, "api-stop-tokens", "cuda", "rwkv_lightning stop_tokens form")
+	fs.BoolVar(&options.apiStream, "api-stream", true, "stream rwkv_lightning responses over SSE")
+	fs.DurationVar(&options.remoteBatchWait, "remote-batch-wait", 10*time.Millisecond, "RWKV Lightning request coalescing window")
 	fs.StringVar(&options.chatThinking, "chat-thinking", string(chatcompletions.ThinkingAuto), "thinking extension: auto, disabled, or enabled")
 	fs.StringVar(&options.chatTokenLimit, "chat-token-limit-field", string(chatcompletions.TokenLimitMaxTokens), "token field: max-completion-tokens or max-tokens")
 	fs.StringVar(&options.hardware, "hardware", "", "serving hardware recorded in run.json")
@@ -168,19 +210,26 @@ func parseBFCLEvalOptions(args []string) (bfclEvalOptions, error) {
 		return options, err
 	}
 	options.model = strings.TrimSpace(options.model)
+	options.tier = strings.TrimSpace(options.tier)
 	options.apiURL = strings.TrimSpace(options.apiURL)
 	options.output = strings.TrimSpace(options.output)
 	if options.model == "" || options.apiURL == "" || options.output == "" {
 		fs.Usage()
 		return options, fmt.Errorf("bfcl-eval requires --model, --api-url, and --output")
 	}
+	if options.tier != "adapter-health" && options.tier != "baseline" {
+		return options, fmt.Errorf("unsupported BFCL tier %q", options.tier)
+	}
 	options.splits = splitFlagValues(options.splits)
 	if len(options.splits) == 0 {
 		return options, fmt.Errorf("bfcl-eval requires at least one --split")
 	}
 	if options.concurrency <= 0 || options.maxTokens <= 0 || options.maxPromptChars <= 0 ||
-		options.temperature <= 0 || options.caseTimeout <= 0 {
+		options.temperature <= 0 || options.caseTimeout <= 0 || options.remoteBatchWait < 0 {
 		return options, fmt.Errorf("invalid BFCL limits")
+	}
+	if options.tier == "baseline" && (len(options.splits) != 1 || options.splits[0] != "simple_python") {
+		return options, fmt.Errorf("BFCL M2 baseline requires exactly --split simple_python")
 	}
 	thinking, err := chatcompletions.ParseThinkingMode(options.chatThinking)
 	if err != nil {
