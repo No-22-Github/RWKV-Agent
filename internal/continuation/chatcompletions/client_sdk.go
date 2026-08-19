@@ -22,6 +22,7 @@ type Client struct {
 	model                      string
 	thinking                   ThinkingMode
 	chatTemplateEnableThinking *bool
+	includeTopK                bool
 	promptMode                 PromptMode
 	tokenLimit                 TokenLimitField
 	secrets                    []string
@@ -51,6 +52,7 @@ func New(config Config) (*Client, error) {
 		model:                      normalized.model,
 		thinking:                   normalized.thinking,
 		chatTemplateEnableThinking: normalized.chatTemplateEnableThinking,
+		includeTopK:                normalized.includeTopK,
 		promptMode:                 normalized.promptMode,
 		tokenLimit:                 normalized.tokenLimit,
 		secrets:                    normalized.secrets,
@@ -79,7 +81,7 @@ func (c *Client) Continue(
 			continuation.ErrInvalidRequest,
 		)
 	}
-	if err := continuation.ValidateRequest(request); err != nil {
+	if err := validateChatCompletionsRequest(request); err != nil {
 		return continuation.Result{}, err
 	}
 	if err := validateSampling(request.Sampling); err != nil {
@@ -100,7 +102,9 @@ func (c *Client) Continue(
 		openai.SystemMessage(continuationInstruction),
 		openai.UserMessage(request.Prompt),
 	}
-	response, err := c.sdk.Chat.Completions.New(ctx, params, c.thinkingOption()...)
+	requestOptions := c.thinkingOption()
+	requestOptions = append(requestOptions, c.samplingOptions(request.Sampling)...)
+	response, err := c.sdk.Chat.Completions.New(ctx, params, requestOptions...)
 	if err != nil {
 		if ctx.Err() != nil {
 			return continuation.Result{FinishReason: continuation.FinishCancelled}, ctx.Err()
@@ -167,6 +171,7 @@ func (c *Client) Complete(
 	params.Messages = encodedMessages
 	requestOptions := c.thinkingOption()
 	requestOptions = append(requestOptions, reasoningOptions(messages)...)
+	requestOptions = append(requestOptions, c.samplingOptions(request.Sampling)...)
 	if len(request.Tools) > 0 {
 		params.Tools, err = encodeSDKTools(request.Tools)
 		if err != nil {
@@ -231,6 +236,13 @@ func (c *Client) Complete(
 		}
 	}
 	return result, nil
+}
+
+func (c *Client) samplingOptions(sampling continuation.Sampling) []option.RequestOption {
+	if !c.includeTopK {
+		return nil
+	}
+	return []option.RequestOption{option.WithJSONSet("top_k", sampling.TopK)}
 }
 
 func (c *Client) baseParams(

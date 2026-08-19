@@ -7,6 +7,9 @@ bfcl:
   score_dir: "runs/bfcl/score"
   model_dir_name: "rwkv-agent-bfcl-ab-v1"
 
+  sample_manifest: "configs/bfcl-sample-v2.json"
+  sample_manifest_sha256: "f691e923da092230ca1d6692168fbaabc5425883c29814e9ce028161842b7914"
+
   max_prompt_chars: 40000
   greedy: true
   top_k: 1

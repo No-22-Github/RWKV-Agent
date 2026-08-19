@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/no22/RWKV-Agent/internal/continuation"
@@ -18,6 +19,7 @@ type BaselineRunnerOptions struct {
 	MaxPromptChars  int
 	Temperature     float32
 	CaseTimeout     time.Duration
+	Progress        func(completed, total int)
 }
 
 func RunBaseline(ctx context.Context, cases []Case, options BaselineRunnerOptions) (RunResult, error) {
@@ -30,8 +32,8 @@ func RunBaseline(ctx context.Context, cases []Case, options BaselineRunnerOption
 	if options.Concurrency <= 0 {
 		return RunResult{}, fmt.Errorf("BFCL concurrency must be positive")
 	}
-	if options.MaxOutputTokens <= 0 || options.Temperature <= 0 {
-		return RunResult{}, fmt.Errorf("BFCL sampling limits must be positive")
+	if options.MaxOutputTokens <= 0 || options.Temperature < 0 {
+		return RunResult{}, fmt.Errorf("BFCL sampling limits must be non-negative")
 	}
 	if options.CaseTimeout <= 0 {
 		return RunResult{}, fmt.Errorf("BFCL case timeout must be positive")
@@ -46,12 +48,16 @@ func RunBaseline(ctx context.Context, cases []Case, options BaselineRunnerOption
 	started := time.Now()
 	var wait sync.WaitGroup
 	workerCount := min(options.Concurrency, len(cases))
+	var completed atomic.Int64
 	for range workerCount {
 		wait.Add(1)
 		go func() {
 			defer wait.Done()
 			for current := range jobs {
 				trace[current.index] = runBaselineCase(ctx, current.entry, options)
+				if options.Progress != nil {
+					options.Progress(int(completed.Add(1)), len(cases))
+				}
 			}
 		}()
 	}
@@ -128,11 +134,20 @@ func runBaselineCase(parent context.Context, entry Case, options BaselineRunnerO
 	trace.OutputTokens = completion.Usage.CompletionTokens
 	calls, err := ParseMarkdownCalls(completion.Text)
 	if err != nil {
+		if entry.Category == "irrelevance" || entry.Category == "live_irrelevance" {
+			return trace
+		}
 		trace.ParseError = err.Error()
 		return trace
 	}
 	trace.ToolCalls = calls
-	trace.Result, err = ToResultString(calls, nil, LanguagePython)
+	language := LanguagePython
+	if entry.Category == "simple_java" {
+		language = LanguageJava
+	} else if entry.Category == "simple_javascript" {
+		language = LanguageJavaScript
+	}
+	trace.Result, err = ToResultString(calls, nil, language)
 	if err != nil {
 		trace.ParseError = err.Error()
 	}

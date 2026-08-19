@@ -33,6 +33,7 @@
 
 | 日期 | Run | 比较组 | 模型 | Split | 正确/总数 | 准确率 | 并发 | 解析失败 | 耗时 |
 |---|---|---|---|---|---:|---:|---:|---:|---:|
+| 2026-08-19 | `qwen-markdown-baseline-full-c16-t001-20260819` | `M3-baseline-full-diagnostic` | Qwen3-8B-FP8 | A+B 13 splits | 正样本 2064/2517;负样本 115/1124 | 82.00%;10.23% | 16 | 56 | 603.35s |
 | 2026-08-18 | `m2.5-rwkv-wire-compat-v1-20260818` | `M2.5-parser-calibration` | RWKV7 G1i 7.2B | `simple_python` | 365/400 | 91.25% | 复用源运行 64 | 4 | 离线重解析 0.007s |
 | 2026-08-18 | `qwen-markdown-baseline-simple-python-400-c16-20260818` | `M2-markdown-single-call` | Qwen3-8B-FP8 | `simple_python` | 386/400 | 96.50% | 16 | 0 | 45.48s |
 | 2026-08-18 | `m2-smoke-20260818` | `M2-markdown-single-call` | RWKV7 G1i 7.2B | `simple_python` | 115/400 | 28.75% | 64 | 275 | 132.19s |
@@ -42,6 +43,19 @@
 | 2026-08-18 | `m1-official-handler-20260818` | `M1-official-control` | Qwen3-8B-FP8 | `simple_python` | 381/400 | 95.25% | 8 | N/A | 1402s 三个 split 合计 |
 | 2026-08-18 | `m1-official-handler-20260818` | `M1-official-control` | Qwen3-8B-FP8 | `multiple` | 191/200 | 95.50% | 8 | N/A | 1402s 三个 split 合计 |
 | 2026-08-18 | `m1-official-handler-20260818` | `M1-official-control` | Qwen3-8B-FP8 | `live_simple` | 217/258 | 84.11% | 8 | N/A | 1402s 三个 split 合计 |
+
+## 2026-08-19 — Qwen Markdown baseline A+B 全量诊断
+
+- Run:`runs/bfcl/qwen-markdown-baseline-full-c16-t001-20260819`
+- 比较组:`M3-baseline-full-diagnostic`
+- 模型:`Qwen/Qwen3-8B-FP8`
+- Transport:`chat-completions-wrapped`;thinking disabled
+- 采样:`top_k=1`,显式有效 temperature `0.01`
+- 并发:16;32 并发未通过字节级确定性门禁
+- 生成:3641 题,失败/跳过 0/0,严格解析失败 56,耗时 603.35s
+- 正样本:2064/2517,82.00%;负样本:115/1124,10.23%
+- 主要边界:baseline 的 JSON prefill 对 irrelevance 产生强调用偏置;本轮不是增强档,不得触发 M3 manifest 调整
+- 完整报告:`docs/evaluations/bfcl-v4-qwen-markdown-baseline-full-20260819.md`
 
 ## 2026-08-18 — RWKV M2.5 wire-format compat 离线重解析
 
@@ -139,6 +153,17 @@ M2.5 证明 M2 的主要损失来自 wire-format 错配,但它不是新一次模
 该运行用于证明本地 FP8 服务和固定 evaluator 能复现公开模型行为，不代表 RWKV-Agent native adapter 的协议成绩。
 
 ## 辅助运行索引
+
+## 2026-08-19 — Qwen 原生 FC 官方对齐全量
+
+- Run：`runs/bfcl/qwen-native-fc-full-greedy-t0-c48-m4096-complete-20260819`
+- 比较组：`M1-native-fc` 官方对齐参考格
+- Transport：`chat-completions-native-fc`
+- 题量：13 个 split，共 3641 题；首轮 3503 成功，138 条因 SDK 2 分钟 HTTP timeout 补跑，最终失败/跳过 0/0
+- 并发：48；采样：`temperature=0`；最大 completion tokens：4096；per-case timeout：10m；HTTP timeout：11m
+- 官方评分：non-live overall 87.85%，live overall 80.01%
+- 逐 split 对齐报告：`docs/evaluations/bfcl-v4-qwen-native-fc-alignment-20260819.md`
+- 结论：核心 split 与公开 Qwen3-8B FC 值基本在 2pp 内；`live_parallel_multiple` 低 12.50pp，是当前唯一需要单独解释的显著偏差。48 并发提升吞吐，但未消除 FP8/vLLM 动态批处理非确定性。
 
 | 日期 | 类型 | 产物 | 结论 |
 |---|---|---|---|

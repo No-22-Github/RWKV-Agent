@@ -31,11 +31,15 @@ type Manifest struct {
 	ParserMode        string         `json:"parser_mode,omitempty"`
 	SourceRun         string         `json:"source_run,omitempty"`
 	SourceTraceSHA256 string         `json:"source_trace_sha256,omitempty"`
+	SampleManifest    string         `json:"sample_manifest,omitempty"`
+	SampleVersion     string         `json:"sample_manifest_version,omitempty"`
+	SampleSHA256      string         `json:"sample_manifest_sha256,omitempty"`
 }
 
 type SamplingRecord struct {
 	Greedy               bool    `json:"greedy"`
 	TopK                 int     `json:"top_k"`
+	TopKIncluded         bool    `json:"top_k_included"`
 	EffectiveTemperature float32 `json:"effective_temperature"`
 }
 

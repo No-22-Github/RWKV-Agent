@@ -69,6 +69,68 @@ func TestRunBaselineMakesOneStrictCallPerCase(t *testing.T) {
 	}
 }
 
+func TestRunBaselineAcceptsEmptyResponseForZeroToolIrrelevance(t *testing.T) {
+	t.Parallel()
+	generator := &recordingGenerator{results: []continuation.Result{{
+		Text: "", FinishReason: continuation.FinishStop,
+	}}}
+	result, err := RunBaseline(context.Background(), []Case{{
+		ID:       "live_irrelevance_120-9-0",
+		Category: "live_irrelevance",
+		Messages: []Message{{Role: "user", Content: "weather"}},
+	}}, BaselineRunnerOptions{
+		Generator: generator, Model: "model", Transport: TransportRWKVContinuation,
+		Concurrency: 1, MaxOutputTokens: 1024,
+		MaxPromptChars: 40000, Temperature: 0.001, CaseTimeout: time.Second,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.ParseFailed != 0 || len(result.Entries) != 1 || result.Entries[0].Result != "" {
+		t.Fatalf("result = %+v", result)
+	}
+}
+
+func TestRunBaselineTreatsUndecodableIrrelevanceAsNoCall(t *testing.T) {
+	t.Parallel()
+	generator := &recordingGenerator{results: []continuation.Result{{
+		Text: "I cannot use these tools.", FinishReason: continuation.FinishStop,
+	}}}
+	entry := testBaselineCase("irrelevance_0")
+	entry.Category = "irrelevance"
+	result, err := RunBaseline(context.Background(), []Case{entry}, BaselineRunnerOptions{
+		Generator: generator, Model: "model", Transport: TransportRWKVContinuation,
+		Concurrency: 1, MaxOutputTokens: 1024,
+		MaxPromptChars: 40000, Temperature: 0.001, CaseTimeout: time.Second,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.ParseFailed != 0 || result.Trace[0].ParseError != "" || result.Entries[0].Result != "" {
+		t.Fatalf("result = %+v", result)
+	}
+}
+
+func TestRunBaselineUsesJavaResultEncoding(t *testing.T) {
+	t.Parallel()
+	generator := &recordingGenerator{results: []continuation.Result{{
+		Text: `{"name":"tool","arguments":{"enabled":true,"limit":50}}`, FinishReason: continuation.FinishStop,
+	}}}
+	entry := testBaselineCase("simple_java_0")
+	entry.Category = "simple_java"
+	result, err := RunBaseline(context.Background(), []Case{entry}, BaselineRunnerOptions{
+		Generator: generator, Model: "model", Transport: TransportRWKVContinuation,
+		Concurrency: 1, MaxOutputTokens: 1024,
+		MaxPromptChars: 40000, Temperature: 0.01, CaseTimeout: time.Second,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Entries[0].Result != `[tool(enabled="true", limit="50")]` {
+		t.Fatalf("result = %q", result.Entries[0].Result)
+	}
+}
+
 func testBaselineCase(id string) Case {
 	return Case{
 		ID: id, Category: "simple_python", Messages: []Message{{Role: "user", Content: "call it"}},

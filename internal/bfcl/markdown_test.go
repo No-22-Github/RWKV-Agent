@@ -49,6 +49,27 @@ func TestRenderPromptUsesSameProtocolAcrossContinuationTransports(t *testing.T) 
 	}
 }
 
+func TestRenderPromptPreservesIrrelevanceAssistantHistoryAndAllowsNoCall(t *testing.T) {
+	t.Parallel()
+	entry := Case{
+		ID:       "live_irrelevance_125-11-0",
+		Category: "live_irrelevance",
+		Messages: []Message{
+			{Role: "user", Content: "first"},
+			{Role: "assistant", Content: "prior answer"},
+			{Role: "user", Content: "follow up"},
+		},
+	}
+	prompt, err := RenderPrompt(entry, TierBaseline, TransportRWKVContinuation)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(prompt, "Assistant: prior answer\n\n") ||
+		!strings.Contains(prompt, "If no listed tool is relevant, return no function call.") {
+		t.Fatalf("irrelevance prompt = %q", prompt)
+	}
+}
+
 func TestParseMarkdownCallsAcceptsPrefilledAndCompleteFence(t *testing.T) {
 	t.Parallel()
 	for _, value := range []string{
@@ -62,6 +83,32 @@ func TestParseMarkdownCallsAcceptsPrefilledAndCompleteFence(t *testing.T) {
 		if len(calls) != 1 || calls[0].Name != "math.factorial" || calls[0].Arguments != `{"number":5}` {
 			t.Fatalf("calls = %+v", calls)
 		}
+	}
+}
+
+func TestParseMarkdownCallsAcceptsParallelArray(t *testing.T) {
+	t.Parallel()
+	calls, err := ParseMarkdownCalls(`[{"name":"play","arguments":{"artist":"Taylor Swift"}},{"name":"play","arguments":{"artist":"Maroon 5"}}]`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(calls) != 2 || calls[0].Name != "play" || calls[1].Arguments != `{"artist":"Maroon 5"}` {
+		t.Fatalf("calls = %+v", calls)
+	}
+}
+
+func TestRenderPromptRequestsParallelArray(t *testing.T) {
+	t.Parallel()
+	entry := Case{
+		ID: "parallel_0", Category: "parallel", Messages: []Message{{Role: "user", Content: "play both"}},
+		Functions: []json.RawMessage{json.RawMessage(`{"name":"play","parameters":{"type":"dict"}}`)},
+	}
+	prompt, err := RenderPrompt(entry, TierBaseline, TransportChatCompletionsWrapped)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(prompt, "JSON array of function calls") {
+		t.Fatalf("prompt = %q", prompt)
 	}
 }
 

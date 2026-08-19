@@ -26,6 +26,9 @@ func (completer *recordingCompleter) Complete(
 	completer.mu.Lock()
 	completer.requests = append(completer.requests, request)
 	completer.mu.Unlock()
+	if len(request.Tools) == 0 {
+		return toolchat.Result{FinishReason: continuation.FinishStop}, nil
+	}
 	return toolchat.Result{
 		ToolCalls:    []toolchat.ToolCall{{Name: request.Tools[0].Name, Arguments: `{"value":true}`}},
 		FinishReason: continuation.FinishToolCalls,
@@ -58,6 +61,28 @@ func TestRunNativeMakesExactlyOneCallPerCase(t *testing.T) {
 			request.Sampling.TopK != 1 || request.Sampling.Temperature != 0.001 {
 			t.Fatalf("request = %+v", request)
 		}
+	}
+}
+
+func TestRunNativeZeroToolCaseUsesNoToolChoice(t *testing.T) {
+	t.Parallel()
+	completer := &recordingCompleter{}
+	result, err := RunNative(context.Background(), []Case{{
+		ID: "live_irrelevance_120-9-0", Category: "live_irrelevance",
+		Messages: []Message{{Role: "user", Content: "weather"}},
+	}}, RunnerOptions{
+		Completer: completer, Model: "model", Concurrency: 1, MaxOutputTokens: 1024,
+		MaxPromptChars: 40000, Temperature: 0, CaseTimeout: time.Second,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Failed != 0 || len(completer.requests) != 1 {
+		t.Fatalf("result=%+v requests=%d", result, len(completer.requests))
+	}
+	request := completer.requests[0]
+	if request.ToolChoice != toolchat.ToolChoiceNone || request.ParallelToolCalls || len(request.Tools) != 0 {
+		t.Fatalf("request = %+v", request)
 	}
 }
 

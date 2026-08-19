@@ -244,7 +244,7 @@ A/B 两组所有 split 共享同一 schema,恰好三个字段。真实记录(`si
 
 **b) `parameters.type` 的值是 `"dict"`,不是 JSON Schema 标准的 `"object"`。** 同样,浮点写作 `"float"` 而不是 `"number"`,数组可能是 `"array"` 或 `"tuple"`。**不得把这些「修正」成标准 JSON Schema** —— 判分器按这套自定义类型名做类型检查,改了会导致渲染出的工具文档与判分器预期脱节。
 
-**c) Live 组的 `question[0]` 里可能有 `role: "system"` 的消息。** 实测 `live_simple` 11 条、`live_multiple` 37 条含 system 消息。这是题目自带的业务 system prompt,必须原样注入,不得丢弃、不得与我们自己的 system prompt 拼接顺序搞反。**丢弃会导致这些题必然失败,且失败原因看起来像模型能力问题。**
+**c) Live 组的 `question[0]` 里可能有 `role: "system"` 或历史 `role: "assistant"` 的消息。** 实测 `live_simple` 11 条、`live_multiple` 37 条含 system 消息;A+B 范围内另有 11 条 assistant 历史,均位于 `live_irrelevance`。这些都是题目自带的业务对话,必须按原顺序逐字节注入,不得丢弃、不得与我们自己的 system prompt 拼接顺序搞反。**丢弃会导致这些题必然失败,且失败原因看起来像模型能力问题。**
 
 真实样例(`live_simple_58-27-0`,注意 content 首尾都有换行、行尾有双空格):
 
@@ -256,7 +256,7 @@ A/B 两组所有 split 共享同一 schema,恰好三个字段。真实记录(`si
 
 **d) Live 组的 ID 不是连续整数,格式是 `live_<split>_<n>-<m>-<k>`**(如 `live_simple_0-0-0`、`live_multiple_1-0-1`)。ID 必须原样透传到 result 文件,**不得重编号、不得排序后重排** —— 判分器按 ID 匹配。
 
-**e) `function` 数组长度差异极大。** `simple_*` 恒为 1;`multiple` 是 2–4;`live_multiple` **最多 37 个函数**。
+**e) `function` 数组长度差异极大。** `simple_*` 恒为 1;`multiple` 是 2–4;`live_multiple` **最多 37 个函数**;`live_irrelevance` 有 4 条为 0。空工具只允许出现在 irrelevance 类别,其他 split 遇到空工具仍应报错。
 
 **f) 工具文档体积会超预算。** 实测 `function` 字段序列化后的字符数:
 
@@ -430,8 +430,8 @@ BFCL 的 ID 不是随机序:`simple_*` 大致按贡献批次排列,`live_*` 的 
 
 两个维度都能直接从原始数据算出,不需要跑模型,且都与难度直接相关:
 
-1. **工具个数**:`1` / `2–4` / `5+`
-2. **工具文档长度**:按**该 split 内**的 p33 / p66 切三档(各 split 绝对长度差异极大,不能用全局阈值)
+1. **工具个数**:`0–1` / `2–4` / `5+`。固定数据中的 `live_irrelevance` 有 4 条零工具记录,必须纳入第一档
+2. **工具文档长度**:原始 `function` JSON 字节长度之和,按**该 split 内** nearest-rank p33 / p66 切三档(`≤p33` / `≤p66` / `>p66`;各 split 绝对长度差异极大,不能用全局阈值)
 
 流程(每一步都必须是确定性的,不许有实现者自由裁量的余地):
 

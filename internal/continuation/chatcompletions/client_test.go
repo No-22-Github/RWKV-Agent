@@ -151,6 +151,30 @@ func TestClientMapsOptionalThinkingMode(t *testing.T) {
 	}
 }
 
+func TestClientIncludesProviderTopKWhenEnabled(t *testing.T) {
+	t.Parallel()
+	var receivedFields map[string]json.RawMessage
+	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		if err := json.NewDecoder(request.Body).Decode(&receivedFields); err != nil {
+			t.Error(err)
+		}
+		writeJSON(writer, `{"choices":[{"index":0,"message":{"content":"ok"},"finish_reason":"stop"}]}`)
+	}))
+	defer server.Close()
+	client, err := New(Config{Endpoint: server.URL, Model: "model", IncludeTopK: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	request := validRequest()
+	request.Sampling.Temperature = 0
+	if _, err := client.Continue(context.Background(), request, nil); err != nil {
+		t.Fatal(err)
+	}
+	if string(receivedFields["temperature"]) != "0" || string(receivedFields["top_k"]) != "12" {
+		t.Fatalf("fields = %v", receivedFields)
+	}
+}
+
 func TestClientMapsOptionalChatTemplateThinking(t *testing.T) {
 	t.Parallel()
 	var received requestBody

@@ -100,6 +100,7 @@ type Config struct {
 	APIKey                     string
 	Thinking                   ThinkingMode
 	ChatTemplateEnableThinking *bool
+	IncludeTopK                bool
 	PromptMode                 PromptMode
 	TokenLimit                 TokenLimitField
 	Headers                    http.Header
@@ -112,6 +113,7 @@ type normalizedConfig struct {
 	apiKey                     string
 	thinking                   ThinkingMode
 	chatTemplateEnableThinking *bool
+	includeTopK                bool
 	promptMode                 PromptMode
 	tokenLimit                 TokenLimitField
 	headers                    http.Header
@@ -184,6 +186,7 @@ func normalizeConfig(config Config) (normalizedConfig, error) {
 		apiKey:                     apiKey,
 		thinking:                   thinking,
 		chatTemplateEnableThinking: chatTemplateEnableThinking,
+		includeTopK:                config.IncludeTopK,
 		promptMode:                 promptMode,
 		tokenLimit:                 tokenLimit,
 		headers:                    headers,
@@ -199,7 +202,7 @@ func validateToolChatRequest(request toolchat.Request) error {
 		Stops:           request.Stops,
 		Sampling:        request.Sampling,
 	}
-	if err := continuation.ValidateRequest(validation); err != nil {
+	if err := validateChatCompletionsRequest(validation); err != nil {
 		return err
 	}
 	if err := validateSampling(request.Sampling); err != nil {
@@ -299,6 +302,19 @@ func validateToolChatRequest(request toolchat.Request) error {
 		seen[tool.Name] = struct{}{}
 	}
 	return nil
+}
+
+func validateChatCompletionsRequest(request continuation.Request) error {
+	if request.Sampling.Temperature < 0 {
+		return fmt.Errorf(
+			"%w: temperature cannot be negative",
+			continuation.ErrInvalidRequest,
+		)
+	}
+	if request.Sampling.Temperature == 0 {
+		request.Sampling.Temperature = 1
+	}
+	return continuation.ValidateRequest(request)
 }
 
 func withAssistantPrefix(sources []toolchat.Message, prefix string) []toolchat.Message {

@@ -57,8 +57,8 @@ func RenderPrompt(entry Case, tier Tier, transport Transport) (string, error) {
 	if transport != TransportRWKVContinuation && transport != TransportChatCompletionsWrapped {
 		return "", fmt.Errorf("unsupported BFCL transport %q", transport)
 	}
-	if len(entry.Messages) == 0 || len(entry.Functions) == 0 {
-		return "", fmt.Errorf("BFCL case %q requires messages and functions", entry.ID)
+	if len(entry.Messages) == 0 {
+		return "", fmt.Errorf("BFCL case %q requires messages", entry.ID)
 	}
 
 	var prompt strings.Builder
@@ -73,8 +73,18 @@ func RenderPrompt(entry Case, tier Tier, transport Transport) (string, error) {
 		prompt.Write(function)
 	}
 	prompt.WriteString("\n]\n")
-	prompt.WriteString("Exact tool names only. Return exactly one fenced JSON function call and nothing else. ")
-	prompt.WriteString(`Correct shape: {"name":"TOOL_NAME","arguments":{"ARGUMENT_NAME":"VALUE"}}. `)
+	if entry.Category == "irrelevance" || entry.Category == "live_irrelevance" {
+		prompt.WriteString("Use an exact tool name only when a listed tool can satisfy the request. ")
+		prompt.WriteString("If no listed tool is relevant, return no function call. Otherwise return exactly one fenced JSON function call and nothing else. ")
+	} else if strings.Contains(entry.Category, "parallel") {
+		prompt.WriteString("Exact tool names only. Return exactly one fenced JSON array of function calls and nothing else. ")
+		prompt.WriteString(`Correct shape: [{"name":"TOOL_NAME","arguments":{"ARGUMENT_NAME":"VALUE"}},{"name":"TOOL_NAME","arguments":{"ARGUMENT_NAME":"VALUE"}}]. `)
+	} else {
+		prompt.WriteString("Exact tool names only. Return exactly one fenced JSON function call and nothing else. ")
+	}
+	if !strings.Contains(entry.Category, "parallel") {
+		prompt.WriteString(`Correct shape: {"name":"TOOL_NAME","arguments":{"ARGUMENT_NAME":"VALUE"}}. `)
+	}
 	prompt.WriteString(`Never use this wrong shape: {"name":"TOOL_NAME","arguments":"{\"ARGUMENT_NAME\":\"VALUE\"}"}. `)
 	prompt.WriteString("The arguments value must be a JSON object, never a quoted or escaped JSON string. ")
 	prompt.WriteString("Do not output prose or role labels.\n\n")
@@ -87,6 +97,8 @@ func RenderPrompt(entry Case, tier Tier, transport Transport) (string, error) {
 			prompt.WriteString("System: ")
 		case "user":
 			prompt.WriteString("User: ")
+		case "assistant":
+			prompt.WriteString("Assistant: ")
 		default:
 			return "", fmt.Errorf("BFCL case %q message %d has unsupported role %q", entry.ID, index, message.Role)
 		}
@@ -98,9 +110,28 @@ func RenderPrompt(entry Case, tier Tier, transport Transport) (string, error) {
 }
 
 func ParseMarkdownCalls(value string) ([]toolchat.ToolCall, error) {
-	object, err := decodeMarkdownCallObject(value)
+	raw, err := decodeMarkdownCallValue(value)
 	if err != nil {
 		return nil, err
+	}
+	if len(raw) > 0 && raw[0] == '[' {
+		var objects []map[string]json.RawMessage
+		if err := json.Unmarshal(raw, &objects); err != nil {
+			return nil, fmt.Errorf("decode function call array: %w", err)
+		}
+		calls := make([]toolchat.ToolCall, 0, len(objects))
+		for index, object := range objects {
+			parsed, err := parseStrictCallObject(object)
+			if err != nil {
+				return nil, fmt.Errorf("function call %d: %w", index, err)
+			}
+			calls = append(calls, parsed[0])
+		}
+		return calls, nil
+	}
+	var object map[string]json.RawMessage
+	if err := json.Unmarshal(raw, &object); err != nil {
+		return nil, fmt.Errorf("decode function call: %w", err)
 	}
 	return parseStrictCallObject(object)
 }
@@ -125,6 +156,18 @@ func ParseMarkdownCallsWithMode(
 }
 
 func decodeMarkdownCallObject(value string) (map[string]json.RawMessage, error) {
+	raw, err := decodeMarkdownCallValue(value)
+	if err != nil {
+		return nil, err
+	}
+	var object map[string]json.RawMessage
+	if err := json.Unmarshal(raw, &object); err != nil {
+		return nil, fmt.Errorf("decode function call: %w", err)
+	}
+	return object, nil
+}
+
+func decodeMarkdownCallValue(value string) (json.RawMessage, error) {
 	candidate := strings.TrimSpace(value)
 	if strings.HasPrefix(candidate, "```json") {
 		candidate = strings.TrimPrefix(candidate, "```json")
@@ -139,8 +182,8 @@ func decodeMarkdownCallObject(value string) (map[string]json.RawMessage, error) 
 
 	decoder := json.NewDecoder(strings.NewReader(candidate))
 	decoder.UseNumber()
-	var object map[string]json.RawMessage
-	if err := decoder.Decode(&object); err != nil {
+	var raw json.RawMessage
+	if err := decoder.Decode(&raw); err != nil {
 		return nil, fmt.Errorf("decode function call: %w", err)
 	}
 	if _, err := decoder.Token(); err != io.EOF {
@@ -149,7 +192,7 @@ func decodeMarkdownCallObject(value string) (map[string]json.RawMessage, error) 
 		}
 		return nil, fmt.Errorf("decode trailing function call content: %w", err)
 	}
-	return object, nil
+	return raw, nil
 }
 
 func parseStrictCallObject(object map[string]json.RawMessage) ([]toolchat.ToolCall, error) {

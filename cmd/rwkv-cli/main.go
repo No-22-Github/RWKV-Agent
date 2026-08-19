@@ -130,6 +130,10 @@ func main() {
 		err = runBFCLEval(os.Args[2:])
 	case "bfcl-reparse":
 		err = runBFCLReparse(os.Args[2:])
+	case "bfcl-sample":
+		err = runBFCLSample(os.Args[2:])
+	case "bfcl-sampling-diagnostic":
+		err = runBFCLSamplingDiagnostic(os.Args[2:])
 	case "concurrent":
 		err = runConcurrent(os.Args[2:])
 	case "bench":
@@ -157,6 +161,8 @@ func usage() {
   rwkv-cli agent-eval --model <path or remote model ID> [--suite boundary|smoke|assistant|primitive-orig30|primitive-feedback30] [--primitive-profile upstream-compatible|go-native] [--output <directory>]
   rwkv-cli bfcl-eval --model <remote model ID> --api-url <inference URL> --tier <adapter-health|baseline> [--transport <name>] --split <name> --output <directory>
   rwkv-cli bfcl-reparse --source <BFCL run directory> --parser rwkv-wire-compat-v1 --output <directory>
+  rwkv-cli bfcl-sample [--output configs/bfcl-sample-v1.json | --verify configs/bfcl-sample-v1.json]
+  rwkv-cli bfcl-sampling-diagnostic --score <complete Qwen enhanced score directory>
   rwkv-cli concurrent --model <RWKV .pth or MLX directory> [--concurrency 1..8] [--ui auto|tui|plain]
   rwkv-cli bench --model <RWKV .pth or MLX directory> [--concurrency 1..8]`)
 }

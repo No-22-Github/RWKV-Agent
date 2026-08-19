@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/no22/RWKV-Agent/internal/continuation"
@@ -19,6 +20,7 @@ type RunnerOptions struct {
 	MaxPromptChars  int
 	Temperature     float32
 	CaseTimeout     time.Duration
+	Progress        func(completed, total int)
 }
 
 type TraceEntry struct {
@@ -56,8 +58,8 @@ func RunNative(ctx context.Context, cases []Case, options RunnerOptions) (RunRes
 	if options.Concurrency <= 0 {
 		return RunResult{}, fmt.Errorf("BFCL concurrency must be positive")
 	}
-	if options.MaxOutputTokens <= 0 || options.Temperature <= 0 {
-		return RunResult{}, fmt.Errorf("BFCL sampling limits must be positive")
+	if options.MaxOutputTokens <= 0 || options.Temperature < 0 {
+		return RunResult{}, fmt.Errorf("BFCL sampling limits must be non-negative")
 	}
 	if options.CaseTimeout <= 0 {
 		return RunResult{}, fmt.Errorf("BFCL case timeout must be positive")
@@ -72,12 +74,16 @@ func RunNative(ctx context.Context, cases []Case, options RunnerOptions) (RunRes
 	started := time.Now()
 	var wait sync.WaitGroup
 	workerCount := min(options.Concurrency, len(cases))
+	var completed atomic.Int64
 	for range workerCount {
 		wait.Add(1)
 		go func() {
 			defer wait.Done()
 			for current := range jobs {
 				trace[current.index] = runNativeCase(ctx, current.entry, options)
+				if options.Progress != nil {
+					options.Progress(int(completed.Add(1)), len(cases))
+				}
 			}
 		}()
 	}
@@ -137,12 +143,18 @@ func runNativeCase(parent context.Context, entry Case, options RunnerOptions) Tr
 	ctx, cancel := context.WithTimeout(parent, options.CaseTimeout)
 	defer cancel()
 	trace.ModelCalls = 1
+	toolChoice := toolchat.ToolChoiceAuto
+	parallelToolCalls := true
+	if len(tools) == 0 {
+		toolChoice = toolchat.ToolChoiceNone
+		parallelToolCalls = false
+	}
 	started := time.Now()
 	completion, err := options.Completer.Complete(ctx, toolchat.Request{
 		Model:           options.Model,
 		Messages:        messages,
 		Tools:           tools,
-		ToolChoice:      toolchat.ToolChoiceAuto,
+		ToolChoice:      toolChoice,
 		MaxOutputTokens: options.MaxOutputTokens,
 		Sampling: continuation.Sampling{
 			Temperature:      options.Temperature,
@@ -152,7 +164,7 @@ func runNativeCase(parent context.Context, entry Case, options RunnerOptions) Tr
 			FrequencyPenalty: 0,
 			PenaltyDecay:     1,
 		},
-		ParallelToolCalls: true,
+		ParallelToolCalls: parallelToolCalls,
 	}, nil)
 	trace.Latency = time.Since(started).Seconds()
 	if err != nil {

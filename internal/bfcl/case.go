@@ -83,11 +83,11 @@ func decodeCase(line []byte, category string) (Case, error) {
 		return Case{}, fmt.Errorf("case %q has no messages", record.ID)
 	}
 	for index, message := range record.Question[0] {
-		if message.Role != "system" && message.Role != "user" {
+		if message.Role != "system" && message.Role != "user" && message.Role != "assistant" {
 			return Case{}, fmt.Errorf("case %q message %d has unsupported role %q", record.ID, index, message.Role)
 		}
 	}
-	if len(record.Function) == 0 {
+	if len(record.Function) == 0 && category != "irrelevance" && category != "live_irrelevance" {
 		return Case{}, fmt.Errorf("case %q has no functions", record.ID)
 	}
 	return Case{
