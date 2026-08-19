@@ -1,6 +1,7 @@
 # RWKV-Agent 文档索引
 
-> 根目录 [`README.md`](../README.md) 是入口。这里按用途列出 `docs/` 下的全部文档。
+> 根目录 [`README.md`](../README.md) 是使用入口，[`INDEX.md`](../INDEX.md) 是项目总索引。
+> 这里按用途列出 `docs/` 下的全部文档。
 >
 > [English README](../README.en.md)
 
@@ -29,6 +30,9 @@
 | [evaluations/api-13b-v8-evaluation-report-20260805.md](evaluations/api-13b-v8-evaluation-report-20260805.md) | RWKV 13.3B 20260805 Harness 评测（v8 profile） |
 | [evaluations/api-13b-v9-evaluation-report-20260806.md](evaluations/api-13b-v9-evaluation-report-20260806.md) | 20260806 三项修复后的复测报告 |
 | [evaluations/local-assistant-p0-effect-report-20260804.md](evaluations/local-assistant-p0-effect-report-20260804.md) | 本地优先助手 Agent P0 落地效果报告 |
+| [evaluations/bfcl-v4-ab-m0.md](evaluations/bfcl-v4-ab-m0.md) | BFCL v4 A+B M0 数据、evaluator 与判分入口预热 |
+| [evaluations/bfcl-v4-run-log.md](evaluations/bfcl-v4-run-log.md) | BFCL v4 主跑分日志、正式评分总表与可比性分组 |
+| [evaluations/bfcl-v4-m2.5-wire-compat-20260818.md](evaluations/bfcl-v4-m2.5-wire-compat-20260818.md) | BFCL M2.5 wire-format 兼容重解析校准 |
 
 ## 报告
 
@@ -41,6 +45,7 @@
 
 | 文档 | 说明 |
 | --- | --- |
+| [archive/bfcl-ab-spec-v3.1.md](archive/bfcl-ab-spec-v3.1.md) | BFCL v4 A+B 接入实施规格（历史） |
 | [archive/rwkv-mobile-adoption-and-cli-milestone.md](archive/rwkv-mobile-adoption-and-cli-milestone.md) | RWKV Mobile 采用与 CLI 里程碑（历史计划） |
 | [archive/rwkv-mobile-macos-cli-implementation-plan.md](archive/rwkv-mobile-macos-cli-implementation-plan.md) | RWKV Mobile macOS CLI 实施计划（历史计划） |
 | [archive/rwkv-cli-tui-redesign-plan.md](archive/rwkv-cli-tui-redesign-plan.md) | CLI TUI 重设计计划（历史计划） |
