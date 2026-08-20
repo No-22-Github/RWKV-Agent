@@ -164,6 +164,21 @@ M2.5 证明 M2 的主要损失来自 wire-format 错配,但它不是新一次模
 - 官方评分：non-live overall 87.85%，live overall 80.01%
 - 逐 split 对齐报告：`docs/evaluations/bfcl-v4-qwen-native-fc-alignment-20260819.md`
 - 结论：核心 split 与公开 Qwen3-8B FC 值基本在 2pp 内；`live_parallel_multiple` 低 12.50pp，是当前唯一需要单独解释的显著偏差。48 并发提升吞吐，但未消除 FP8/vLLM 动态批处理非确定性。
+- **2026-08-20 修正：** 上一条末句的归因方向有误，并发不是不确定性来源；同一份运行报告里「`top_k=1` 未改善稳定性且更慢」的结论亦已撤回。见 `docs/evaluations/bfcl-v4-determinism-concurrency-20260820.md`。
+
+## 2026-08-20 — 确定性归因：并发 vs 解码长度
+
+- Run：`runs/bfcl/qwen-native-nothink-t0-c{1,16,48}-probe-*-20260820`（c1 三轮、c16 六轮、c48 六轮）
+- 比较组：确定性诊断，不产出 accuracy，不进矩阵
+- 模型/服务：`Qwen/Qwen3-8B-FP8`，vLLM，FP8，RTX 4060 Ti
+- Transport：`chat-completions-native-fc`；`chat_template_kwargs.enable_thinking=false`
+- Split/题量：`simple_python` 96 题（与 2026-08-19 探针逐 ID 相同）
+- 采样：`temperature=0`，max_tokens 4096
+- 基础设施失败/跳过：0/0
+- 结果：6 轮全稳定题数 c1 **96/96**、c16 94/96、c48 93/96；两两 result 不一致率 c1 0.00%、c16 1.32%、c48 1.60%
+- 检验：c16 对 c48 配对精确二项检验 `b=1`、`c=0`、**p=1.000**（旧 2 轮数据同法为 `b=13`、`c=10`、p=0.678）
+- 结论：**并发度不是不确定性来源。** 主因是 thinking 拉长解码（输出 p50 36 → 258 token，稳定率 95/96 → 84/96）；次因是「是否发生批处理」的固定底噪，并发 1 时归零，16 与 48 之间无可测差异。完整报告：`docs/evaluations/bfcl-v4-determinism-concurrency-20260820.md`
+- 副产物：`--chat-template-thinking` 此前被限制为仅 `chat-completions-wrapped`，本轮开放到原生 FC transport，两条路径共用同一段 `enable_thinking` 推导逻辑
 
 | 日期 | 类型 | 产物 | 结论 |
 |---|---|---|---|

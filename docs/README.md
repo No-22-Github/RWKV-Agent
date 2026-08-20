@@ -33,6 +33,10 @@
 | [evaluations/bfcl-v4-ab-m0.md](evaluations/bfcl-v4-ab-m0.md) | BFCL v4 A+B M0 数据、evaluator 与判分入口预热 |
 | [evaluations/bfcl-v4-run-log.md](evaluations/bfcl-v4-run-log.md) | BFCL v4 主跑分日志、正式评分总表与可比性分组 |
 | [evaluations/bfcl-v4-m2.5-wire-compat-20260818.md](evaluations/bfcl-v4-m2.5-wire-compat-20260818.md) | BFCL M2.5 wire-format 兼容重解析校准 |
+| [evaluations/bfcl-v4-qwen-markdown-baseline-full-20260819.md](evaluations/bfcl-v4-qwen-markdown-baseline-full-20260819.md) | Markdown baseline 全量 3641 题诊断与失败分布 |
+| [evaluations/bfcl-v4-qwen-native-fc-alignment-20260819.md](evaluations/bfcl-v4-qwen-native-fc-alignment-20260819.md) | 原生 FC 全量与公开榜单逐 split 对齐 |
+| [evaluations/bfcl-v4-m3-sampling-20260819.md](evaluations/bfcl-v4-m3-sampling-20260819.md) | M3 抽样冻结、代表性诊断与 manifest v2 |
+| [evaluations/bfcl-v4-determinism-concurrency-20260820.md](evaluations/bfcl-v4-determinism-concurrency-20260820.md) | 确定性归因：并发不是原因，解码长度是 |
 
 ## 报告
 

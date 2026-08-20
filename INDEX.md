@@ -83,6 +83,10 @@
 | [`docs/evaluations/bfcl-v4-run-log.md`](docs/evaluations/bfcl-v4-run-log.md) | BFCL 的主跑分日志和正式评分总表；新增运行统一追加到这里 |
 | [`docs/evaluations/bfcl-v4-ab-m0.md`](docs/evaluations/bfcl-v4-ab-m0.md) | M0 数据、evaluator 和本地判分入口预热 |
 | [`docs/evaluations/bfcl-v4-m2.5-wire-compat-20260818.md`](docs/evaluations/bfcl-v4-m2.5-wire-compat-20260818.md) | 同一批 400 条输出的离线兼容重解析：strict 28.75%，compat 91.25%；不是新模型跑分，二者不能互相替代 |
+| [`docs/evaluations/bfcl-v4-determinism-concurrency-20260820.md`](docs/evaluations/bfcl-v4-determinism-concurrency-20260820.md) | 确定性归因：并发不是原因（c16 对 c48 p=1.000），thinking 拉长解码是主因，批处理有无是次因；含对 08-19 两处表述的修正 |
+| [`docs/evaluations/bfcl-v4-qwen-native-fc-alignment-20260819.md`](docs/evaluations/bfcl-v4-qwen-native-fc-alignment-20260819.md) | Qwen3-8B 原生 FC 全量与公开榜单逐 split 对齐；用作管道体检，不是本项目成绩 |
+| [`docs/evaluations/bfcl-v4-qwen-markdown-baseline-full-20260819.md`](docs/evaluations/bfcl-v4-qwen-markdown-baseline-full-20260819.md) | Markdown baseline 全量诊断；负样本分受 prompt 预填影响，不代表模型拒调能力 |
+| [`docs/evaluations/bfcl-v4-m3-sampling-20260819.md`](docs/evaluations/bfcl-v4-m3-sampling-20260819.md) | M3 抽样冻结与代表性诊断，manifest v1 → v2 |
 | [`docs/archive/bfcl-ab-spec-v3.1.md`](docs/archive/bfcl-ab-spec-v3.1.md) | 已归档的 A+B 接入实施规格，用于追溯评测设计 |
 
 本地 BFCL 证据位于 `runs/bfcl/`，包括 result、score、trace、验收记录和适配器健康检查。该目录不提交；可对外引用的结论必须先写入 `docs/evaluations/`。

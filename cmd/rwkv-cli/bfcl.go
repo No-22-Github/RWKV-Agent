@@ -55,6 +55,17 @@ type bfclEvalOptions struct {
 	serving              string
 }
 
+// chatTemplateEnableThinking maps the tri-state --chat-template-thinking flag to
+// the optional chat_template_kwargs.enable_thinking value. Auto leaves the
+// server default untouched by returning nil.
+func (options bfclEvalOptions) chatTemplateEnableThinking() *bool {
+	if options.chatTemplateThinking == string(chatcompletions.ThinkingAuto) {
+		return nil
+	}
+	enableThinking := options.chatTemplateThinking == string(chatcompletions.ThinkingEnabled)
+	return &enableThinking
+}
+
 func runBFCLEval(args []string) error {
 	options, err := parseBFCLEvalOptions(args)
 	if err != nil {
@@ -131,17 +142,12 @@ func runBFCLEval(args []string) error {
 			}
 			generator = client
 		case string(bfcl.TransportChatCompletionsWrapped):
-			var chatTemplateEnableThinking *bool
-			if options.chatTemplateThinking != string(chatcompletions.ThinkingAuto) {
-				enableThinking := options.chatTemplateThinking == string(chatcompletions.ThinkingEnabled)
-				chatTemplateEnableThinking = &enableThinking
-			}
 			client, err := chatcompletions.New(chatcompletions.Config{
 				Endpoint:                   options.apiURL,
 				Model:                      options.model,
 				APIKey:                     os.Getenv(options.apiKeyEnv),
 				Thinking:                   chatcompletions.ThinkingMode(options.chatThinking),
-				ChatTemplateEnableThinking: chatTemplateEnableThinking,
+				ChatTemplateEnableThinking: options.chatTemplateEnableThinking(),
 				PromptMode:                 chatcompletions.PromptWrappedContinuation,
 				TokenLimit:                 chatcompletions.TokenLimitField(options.chatTokenLimit),
 				IncludeTopK:                options.chatIncludeTopK,
@@ -166,15 +172,16 @@ func runBFCLEval(args []string) error {
 		})
 	} else {
 		client, err := chatcompletions.New(chatcompletions.Config{
-			Endpoint:    options.apiURL,
-			Model:       options.model,
-			APIKey:      os.Getenv(options.apiKeyEnv),
-			Thinking:    chatcompletions.ThinkingMode(options.chatThinking),
-			PromptMode:  chatcompletions.PromptNativeChat,
-			TokenLimit:  chatcompletions.TokenLimitField(options.chatTokenLimit),
-			IncludeTopK: options.chatIncludeTopK,
-			HTTPClient:  &http.Client{Timeout: options.caseTimeout + time.Minute},
-			Headers:     headers,
+			Endpoint:                   options.apiURL,
+			Model:                      options.model,
+			APIKey:                     os.Getenv(options.apiKeyEnv),
+			Thinking:                   chatcompletions.ThinkingMode(options.chatThinking),
+			ChatTemplateEnableThinking: options.chatTemplateEnableThinking(),
+			PromptMode:                 chatcompletions.PromptNativeChat,
+			TokenLimit:                 chatcompletions.TokenLimitField(options.chatTokenLimit),
+			IncludeTopK:                options.chatIncludeTopK,
+			HTTPClient:                 &http.Client{Timeout: options.caseTimeout + time.Minute},
+			Headers:                    headers,
 		})
 		if err != nil {
 			return fmt.Errorf("initialize BFCL Chat Completions client: %w", err)
@@ -336,8 +343,8 @@ func parseBFCLEvalOptions(args []string) (bfclEvalOptions, error) {
 	}
 	options.chatTemplateThinking = string(chatTemplateThinking)
 	if chatTemplateThinking != chatcompletions.ThinkingAuto &&
-		options.transport != string(bfcl.TransportChatCompletionsWrapped) {
-		return options, fmt.Errorf("--chat-template-thinking requires chat-completions-wrapped transport")
+		options.transport == string(bfcl.TransportRWKVContinuation) {
+		return options, fmt.Errorf("--chat-template-thinking requires a Chat Completions transport")
 	}
 	tokenLimit, err := chatcompletions.ParseTokenLimitField(options.chatTokenLimit)
 	if err != nil {
