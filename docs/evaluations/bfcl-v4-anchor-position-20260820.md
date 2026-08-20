@@ -58,7 +58,23 @@
 
 **实际选择仍推荐 `{"name":"`**，理由与歧义无关：前两种需要把函数名写进预填，而在 `multiple` / `live_multiple` 这类多工具题上，预填函数名等于把答案泄漏给模型。`{"name":"` 不需要知道任何题目信息。
 
-参考项目的锚点位置与此一致：`123123213weqw/rwkv-agent` 预填 `<tool_call>{"name":"`（`crates/agent-core/src/protocol.rs:17`），RWKV-LH 预填到 `{` 但配了一个「输出以 `"key":` 开头就补回 `{`」的解析补偿（`model.py:1634-1635`）。
+### 参考项目：三档可变深度，按剩余自由度选择
+
+`123123213weqw/rwkv-agent` 同时维护**三种深度**的锚点，正好把上表的规律走了一遍：
+
+| 深度 | 字面量 | 位置 | 出处 |
+|---|---|---|---|
+| 浅 | `<tool_call>` | 结构起点 | `src/rwkv_agent/state_prompts.py:15,57` |
+| 中 | `<tool_call>{"name":"` | 函数名首字符前 | `crates/agent-core/src/protocol.rs:17` |
+| 深 | `<tool_call>{"name":"web_search","arguments":{"query":"` | 参数值首字符前 | `src/rwkv_search/g1i_tool_call.py:14` |
+
+三档**没有任何一档停在裸的 `{` 上**，且每一档都落在「下一 token 只有一种合法选择」的位置，或干脆落在结构起点。最深那档敢把函数名和参数名都写进预填，前提是该路径只有 `web_search` 一个工具、`query` 一个参数 —— **没有选择空间可泄漏**。
+
+可复用的规则是：**锚点深度按还需要留给模型多少自由度来选**。要模型选工具就停在名字前；工具与参数都已确定就一路填到值前。这与 catalog 收窄可以叠加 —— 收窄到单个工具后，锚点即可顺势加深。
+
+值得注意的是它的动机与我们不同。`g1i_tool_call.py:76-82` 记录的理由是省输出预算（防止模型先写一段隐藏推理），不是防格式错误。但结果是它的解析器**硬拒绝**字符串形态的 `arguments`（`src/rwkv_agent/tool_protocol.py:119-121`：`arguments = value["arguments"]` 后紧跟 `if not isinstance(arguments, dict): raise ValueError("arguments")`），完全没有类似 `rwkv-wire-compat-v1` 的解包逻辑 —— **在这个锚点位置下该问题不出现**。这是「兜底增益可被锚点位置替代」的一个独立佐证。
+
+RWKV-LH 则预填到 `{`（`prompting.py:26-28`），并配了一个「输出以 `"key":` 开头就补回 `{`」的解析补偿（`model.py:1634-1635`）—— 用解析层吸收同一处歧义。
 
 ## 附带发现：`{` + 空格触发特殊分隔符泄漏
 
