@@ -15,8 +15,8 @@ c16 与 c48 的差异经配对检验不显著；把并发从 48 降到 16 不会
 
 同一批 96 题（`simple_python_0..95`，与 2026-08-19 探针逐 ID 相同）、同一服务实例、`temperature=0`、`max_tokens=4096`。唯一变量是并发度与 thinking 开关。
 
-- Endpoint：`http://192.168.1.112:8000/v1/chat/completions`
 - Model：`Qwen/Qwen3-8B-FP8`（vLLM，FP8，`max_model_len=24576`，hermes tool parser，`--reasoning-parser qwen3`）
+- Endpoint：局域网自建 vLLM 服务的 `/v1/chat/completions`
 - Transport：`chat-completions-native-fc`
 - Hardware：NVIDIA GeForce RTX 4060 Ti
 - 数据 commit：`6ea57973c7a6097fd7c5915698c54c17c5b1b6c8`
@@ -120,7 +120,7 @@ result 不一致不是独立现象，是思维链分叉的下游后果。分叉�
 # 每轮换一个 --output；--concurrency 取 1 / 16 / 48
 ./dist/rwkv-cli bfcl-eval \
   --model Qwen/Qwen3-8B-FP8 \
-  --api-url http://192.168.1.112:8000/v1/chat/completions \
+  --api-url <vllm-endpoint>/v1/chat/completions \
   --tier adapter-health \
   --transport chat-completions-native-fc \
   --split simple_python \

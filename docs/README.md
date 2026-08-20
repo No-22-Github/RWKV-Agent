@@ -37,6 +37,7 @@
 | [evaluations/bfcl-v4-qwen-native-fc-alignment-20260819.md](evaluations/bfcl-v4-qwen-native-fc-alignment-20260819.md) | 原生 FC 全量与公开榜单逐 split 对齐 |
 | [evaluations/bfcl-v4-m3-sampling-20260819.md](evaluations/bfcl-v4-m3-sampling-20260819.md) | M3 抽样冻结、代表性诊断与 manifest v2 |
 | [evaluations/bfcl-v4-determinism-concurrency-20260820.md](evaluations/bfcl-v4-determinism-concurrency-20260820.md) | 确定性归因：并发不是原因，解码长度是 |
+| [evaluations/rwkv-g1i-toolcall-abstention-defect-20260820.md](evaluations/rwkv-g1i-toolcall-abstention-defect-20260820.md) | g1i 7.2b/13.3b 弃权缺陷、`arguments` 污染与训练数据污染的模型侧反馈 |
 
 ## 报告
 
