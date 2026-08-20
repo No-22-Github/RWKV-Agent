@@ -16,7 +16,7 @@ Qwen3-8B-FP8 使用 RWKV-Agent Markdown baseline、并发 16、显式 `temperatu
 
 - 模型:`Qwen/Qwen3-8B-FP8`
 - 服务:vLLM,FP8,`max_model_len=24576`
-- Endpoint:`http://192.168.1.112:8000/v1/chat/completions`
+- Endpoint:局域网自建 vLLM 服务的 `/v1/chat/completions`
 - Transport:`chat-completions-wrapped`
 - Chat template thinking:disabled
 - 并发:16

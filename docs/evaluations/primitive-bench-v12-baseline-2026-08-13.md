@@ -39,7 +39,7 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 
 go run ./cmd/rwkv-cli agent-eval \
   --completion rwkv-lightning \
-  --api-url https://api-125-7b.rwkvos.com/v1/batch/completions \
+  --api-url <rwkv-lightning-cuda-endpoint>/v1/batch/completions \
   --api-header-env CF-Access-Client-Id=RWKV_CF_ACCESS_CLIENT_ID \
   --api-header-env CF-Access-Client-Secret=RWKV_CF_ACCESS_CLIENT_SECRET \
   --api-stop-tokens cuda \
@@ -239,7 +239,7 @@ Toolcall-Bench 的 280 样本格式探测也支持继续使用当前 G1I 主路�
 ```sh
 go run ./cmd/rwkv-cli agent-eval \
   --completion rwkv-lightning \
-  --api-url https://api-125-7b.rwkvos.com/v1/batch/completions \
+  --api-url <rwkv-lightning-cuda-endpoint>/v1/batch/completions \
   --api-header-env CF-Access-Client-Id=RWKV_CF_ACCESS_CLIENT_ID \
   --api-header-env CF-Access-Client-Secret=RWKV_CF_ACCESS_CLIENT_SECRET \
   --api-stop-tokens cuda \
@@ -309,7 +309,7 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 
 go run ./cmd/rwkv-cli agent-eval \
   --completion rwkv-lightning \
-  --api-url https://api-125-7b.rwkvos.com/v1/batch/completions \
+  --api-url <rwkv-lightning-cuda-endpoint>/v1/batch/completions \
   --api-header-env CF-Access-Client-Id=RWKV_CF_ACCESS_CLIENT_ID \
   --api-header-env CF-Access-Client-Secret=RWKV_CF_ACCESS_CLIENT_SECRET \
   --api-stop-tokens cuda \

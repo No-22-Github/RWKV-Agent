@@ -4,7 +4,7 @@
 
 Qwen/Qwen3-8B-FP8 通过 RWKV-Agent 原生 Chat Completions tools 路径完成 BFCL v4 A+B 全量 3641 题，并使用固定 `bfcl-eval==2026.3.23` 评分。完整合并格为 3503 条首轮成功结果加 138 条 timeout 补跑结果，最终基础设施失败 0、跳过 0。
 
-- Endpoint: `http://192.168.1.112:8000/v1/chat/completions`
+- Endpoint: local vLLM service `/v1/chat/completions`
 - Model: `Qwen/Qwen3-8B-FP8`
 - Transport: `chat-completions-native-fc`
 - Sampling: `temperature=0`（服务端 greedy），`top_k=1` 记录但未发送 provider 扩展
