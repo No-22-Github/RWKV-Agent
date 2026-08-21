@@ -29,6 +29,33 @@ class Session:
 
 SESSIONS: dict[str, Session] = {}
 
+# Lazily loaded RWKV tokenizer, shared with the E5 context census so the runtime
+# guard and the feasibility numbers cannot disagree.
+TOKENIZER: Any = None
+TOKENIZER_VOCAB_SHA256: str | None = None
+
+
+def _load_tokenizer(vocab_path: str) -> tuple[Any, str]:
+    global TOKENIZER, TOKENIZER_VOCAB_SHA256
+    if TOKENIZER is not None:
+        return TOKENIZER, TOKENIZER_VOCAB_SHA256 or ""
+    import hashlib
+    import importlib.util
+
+    module_path = "third_party/rwkv-mobile/converter/rwkv_src/rwkv_tokenizer.py"
+    spec = importlib.util.spec_from_file_location("rwkv_mobile_tokenizer", module_path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"cannot load RWKV tokenizer implementation: {module_path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    digest = hashlib.sha256(open(vocab_path, "rb").read()).hexdigest()
+    tokenizer = module.RWKV_TOKENIZER(vocab_path)
+    probe = 'System: tokenizer verification\nAssistant: {"name":"pwd","arguments":{}}'
+    if tokenizer.decode(tokenizer.encode(probe)) != probe:
+        raise RuntimeError("RWKV tokenizer round-trip verification failed")
+    TOKENIZER, TOKENIZER_VOCAB_SHA256 = tokenizer, digest
+    return tokenizer, digest
+
 
 def _safe_component(value: str) -> str:
     return re.sub(r"[-./:]", "_", value)
@@ -90,6 +117,17 @@ def _handle(request: dict[str, Any]) -> dict[str, Any]:
             "ok": True,
             "sid": sid,
             "results": _execute(session, calls),
+        }
+    if operation == "count_tokens":
+        tokenizer, digest = _load_tokenizer(str(request["vocab"]))
+        prompt = request.get("prompt")
+        if not isinstance(prompt, str):
+            raise ValueError("prompt must be a string")
+        return {
+            "request_id": request_id,
+            "ok": True,
+            "tokens": len(tokenizer.encode(prompt)),
+            "vocab_sha256": digest,
         }
     if operation == "close":
         sid = str(request["sid"])

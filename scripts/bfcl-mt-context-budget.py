@@ -30,6 +30,16 @@ Tools:
 ["""
 
 
+
+# Mirrors bfcl.MultiTurnAnchor.Prefill. There is no "none" tier: a bare
+# "Assistant: " is what E7 already ran, and the fence is C1's shallowest
+# measured tier.
+ANCHOR_PREFILL = {
+    "fence": "```json\n",
+    "array": "```json\n[",
+    "object": "```json\n{\"name\":\"",
+}
+
 def load_jsonl(path: Path) -> list[dict[str, Any]]:
     return [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
 
@@ -121,7 +131,7 @@ def render_ground_truth_calls(calls: list[str], docs: list[dict[str, Any]]) -> s
     return json.dumps(value, ensure_ascii=False, separators=(",", ":"))
 
 
-def render_prefix(entry: dict[str, Any], docs: list[dict[str, Any]], turn: int, narrowed: list[str] | None) -> str:
+def render_prefix(entry: dict[str, Any], docs: list[dict[str, Any]], turn: int, narrowed: list[str] | None, render_initial_config: bool = False) -> str:
     available = [
         doc["raw"]
         for doc in docs
@@ -132,13 +142,16 @@ def render_prefix(entry: dict[str, Any], docs: list[dict[str, Any]], turn: int, 
         json.dumps(item, ensure_ascii=False, separators=(",", ":"), sort_keys=True)
         for item in available
     )
-    return (
-        SYSTEM_PREFIX
-        + encoded_tools
-        + "\n]\nInitial state:\n"
-        + json.dumps(entry.get("initial_config", {}), ensure_ascii=False, separators=(",", ":"), sort_keys=True)
-        + "\n"
-    )
+    prefix = SYSTEM_PREFIX + encoded_tools + "\n]\n"
+    # v2 drops this block: after the first executed call it is stale and
+    # contradicts the Tool lines, and official never shows state to the model.
+    if render_initial_config:
+        prefix += (
+            "Initial state:\n"
+            + json.dumps(entry.get("initial_config", {}), ensure_ascii=False, separators=(",", ":"), sort_keys=True)
+            + "\n"
+        )
+    return prefix
 
 
 def transcript_message(role: str, content: Any) -> str:
@@ -167,7 +180,7 @@ def cleanup(entry: dict[str, Any], suffix: str) -> None:
             delattr(multi_turn_utils, name)
 
 
-def profile_case(entry: dict[str, Any], ground_truth: list[list[str]], docs: list[dict[str, Any]], split: str, index: int, token_counter: CachedTokenCounter, prompt_budget_tokens: int) -> dict[str, Any]:
+def profile_case(entry: dict[str, Any], ground_truth: list[list[str]], docs: list[dict[str, Any]], split: str, index: int, token_counter: CachedTokenCounter, prompt_budget_tokens: int, anchor: str = "fence", render_initial_config: bool = False) -> dict[str, Any]:
     history = ""
     full_max = 0
     narrow_max = 0
@@ -177,7 +190,12 @@ def profile_case(entry: dict[str, Any], ground_truth: list[list[str]], docs: lis
     suffix = f"{split}_{index}"
 
     def measure(turn: int, narrowed: list[str] | None) -> tuple[int, int]:
-        prompt = render_prefix(entry, docs, turn, narrowed) + history + "Assistant: "
+        prompt = (
+            render_prefix(entry, docs, turn, narrowed, render_initial_config)
+            + history
+            + "Assistant: "
+            + ANCHOR_PREFILL[anchor]
+        )
         return len(prompt), token_counter.count(prompt)
 
     try:
@@ -211,6 +229,8 @@ def profile_case(entry: dict[str, Any], ground_truth: list[list[str]], docs: lis
         "split": split,
         "turns": len(entry["question"]),
         "classes": sorted(entry["involved_classes"]),
+        "anchor": anchor,
+        "render_initial_config": render_initial_config,
         "initial_config_chars": len(json.dumps(entry.get("initial_config", {}), ensure_ascii=False)),
         "gt_result_chars": result_bytes,
         "full_max_chars": full_max,
@@ -294,6 +314,12 @@ def main() -> int:
         type=Path,
         default=Path("runs/bfcl-mt/context-budget.token-cache.json"),
     )
+    parser.add_argument("--anchor", choices=sorted(ANCHOR_PREFILL), default="fence")
+    parser.add_argument(
+        "--render-initial-config",
+        action="store_true",
+        help="reproduce the v1 stale initial_config block (comparison runs only)",
+    )
     args = parser.parse_args()
     if args.context_tokens <= 0 or args.max_output_tokens <= 0:
         parser.error("context and max output token limits must be positive")
@@ -330,6 +356,8 @@ def main() -> int:
                     index,
                     token_counter,
                     prompt_budget_tokens,
+                    args.anchor,
+                    args.render_initial_config,
                 )
             )
     report: dict[str, Any] = {

@@ -21,8 +21,15 @@ type MultiTurnManifest struct {
 	SidecarProtocol          string         `json:"sidecar_protocol"`
 	Split                    string         `json:"split"`
 	CaseID                   string         `json:"case_id"`
+	Anchor                   string         `json:"anchor"`
+	AnchorPrefill            string         `json:"anchor_prefill"`
+	EmptyTurnReachable       bool           `json:"empty_turn_reachable"`
+	RenderInitialConfig      bool           `json:"render_initial_config"`
 	MaxSteps                 int            `json:"max_steps"`
+	MaxTurns                 int            `json:"max_turns,omitempty"`
 	MaxPromptChars           int            `json:"max_prompt_chars"`
+	MaxPromptTokens          int            `json:"max_prompt_tokens,omitempty"`
+	TokenizerVocabSHA256     string         `json:"tokenizer_vocab_sha256,omitempty"`
 	MaxTokens                int            `json:"max_tokens"`
 	RouteMaxTokens           int            `json:"route_max_tokens,omitempty"`
 	RouteRetries             int            `json:"route_retries,omitempty"`

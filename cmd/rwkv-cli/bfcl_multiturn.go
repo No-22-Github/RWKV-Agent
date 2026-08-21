@@ -39,6 +39,7 @@ type bfclMultiTurnOptions struct {
 	routeMaxTokens           int
 	maxPromptChars           int
 	maxSteps                 int
+	maxTurns                 int
 	routeRetries             int
 	duplicateReplayLimit     int
 	duplicateRescueThreshold int
@@ -48,6 +49,10 @@ type bfclMultiTurnOptions struct {
 	apiStopTokens            string
 	apiStream                bool
 	remoteBatchWait          time.Duration
+	anchor                   string
+	renderInitialConfig      bool
+	maxPromptTokens          int
+	tokenizerVocab           string
 	chatThinking             string
 	chatTemplateThinking     string
 	chatTokenLimit           string
@@ -110,11 +115,32 @@ func runBFCLMultiTurn(args []string) error {
 		sidecar.Close()
 		return err
 	}
+	// The token guard shares the E5 census tokenizer through the sidecar so the
+	// manifest's feasible set and the runtime check use one unit.
+	var tokenCounter func(string) (int, error)
+	var tokenizerVocabSHA256 string
+	if options.maxPromptTokens > 0 {
+		vocab := options.tokenizerVocab
+		// Fail fast: load the tokenizer once before the run so a bad vocab path
+		// surfaces here instead of aborting mid-case, and record the digest.
+		if _, sha, err := sidecar.CountTokens(ctx, vocab, "probe"); err != nil {
+			sidecar.Close()
+			return fmt.Errorf("prompt token guard requires a working tokenizer: %w", err)
+		} else {
+			tokenizerVocabSHA256 = sha
+		}
+		tokenCounter = func(prompt string) (int, error) {
+			tokens, _, err := sidecar.CountTokens(ctx, vocab, prompt)
+			return tokens, err
+		}
+	}
 	trace := bfcl.RunMultiTurnCase(ctx, entry, catalog, bfcl.MultiTurnRunnerOptions{
 		Generator: generator, Executor: sidecar, SessionID: sessionID, Model: options.model,
 		Tier: bfcl.Tier(options.tier), Transport: bfcl.Transport(options.transport),
+		Anchor: bfcl.MultiTurnAnchor(options.anchor), RenderInitialConfig: options.renderInitialConfig,
+		MaxPromptTokens: options.maxPromptTokens, TokenCounter: tokenCounter,
 		MaxOutputTokens: options.maxTokens, RouteMaxTokens: options.routeMaxTokens,
-		MaxPromptChars: options.maxPromptChars, MaxSteps: options.maxSteps, RouteRetries: options.routeRetries,
+		MaxPromptChars: options.maxPromptChars, MaxSteps: options.maxSteps, MaxTurns: options.maxTurns, RouteRetries: options.routeRetries,
 		DuplicateReplayLimit: options.duplicateReplayLimit, DuplicateRescueThreshold: options.duplicateRescueThreshold,
 		SameToolRescueLimit: options.sameToolRescueLimit, Temperature: float32(options.temperature), CaseTimeout: options.caseTimeout,
 	})
@@ -133,8 +159,12 @@ func runBFCLMultiTurn(args []string) error {
 	manifest := bfcl.MultiTurnManifest{
 		SchemaVersion: 1, DataCommit: bfclDataCommit, EvaluatorVersion: bfclEvaluatorVersion,
 		Model: options.model, ModelDirName: bfclModelDirName, Tier: options.tier, Transport: options.transport,
-		RenderProtocol: bfcl.MultiTurnRenderProtocolV1, ParserMode: multiTurnParserMode(options.tier), SidecarProtocol: bfclSidecarProtocolV1,
-		Split: options.split, CaseID: options.caseID, MaxSteps: options.maxSteps, MaxPromptChars: options.maxPromptChars,
+		RenderProtocol: bfcl.MultiTurnRenderProtocolV2, ParserMode: multiTurnParserMode(options.tier), SidecarProtocol: bfclSidecarProtocolV1,
+		Anchor: options.anchor, AnchorPrefill: bfcl.MultiTurnAnchor(options.anchor).Prefill(),
+		EmptyTurnReachable:  bfcl.MultiTurnAnchor(options.anchor).EmptyReachable(),
+		RenderInitialConfig: options.renderInitialConfig,
+		MaxPromptTokens:     options.maxPromptTokens, TokenizerVocabSHA256: tokenizerVocabSHA256,
+		Split: options.split, CaseID: options.caseID, MaxSteps: options.maxSteps, MaxTurns: options.maxTurns, MaxPromptChars: options.maxPromptChars,
 		MaxTokens: options.maxTokens, RouteMaxTokens: options.routeMaxTokens, RouteRetries: options.routeRetries,
 		DuplicateReplayLimit: options.duplicateReplayLimit, DuplicateRescueThreshold: options.duplicateRescueThreshold,
 		SameToolRescueLimit: options.sameToolRescueLimit, Sampling: bfcl.SamplingRecord{
@@ -209,11 +239,25 @@ func parseBFCLMultiTurnOptions(args []string) (bfclMultiTurnOptions, error) {
 	fs.IntVar(&options.maxTokens, "max-tokens", bfclMultiTurnDefaultMaxTokens, "maximum tokens per agent step")
 	fs.IntVar(&options.routeMaxTokens, "route-max-tokens", 48, "maximum tokens per route call")
 	fs.IntVar(&options.maxPromptChars, "max-prompt-chars", 0, "optional prompt byte guard; 0 disables it")
+	fs.IntVar(&options.maxPromptTokens, "max-prompt-tokens", 0, "prompt token guard using the RWKV tokenizer; 0 disables it")
+	fs.StringVar(&options.tokenizerVocab, "tokenizer-vocab", "third_party/rwkv-mobile/assets/rwkv_vocab_v20230424.txt", "RWKV vocabulary for the prompt token guard")
+	// Default is fence only because it is C1's shallowest measured tier, not
+	// because it is the right choice; the E7b probe picks the tier.
+	fs.StringVar(&options.anchor, "anchor", string(bfcl.MultiTurnAnchorFence), "prefill anchor: fence, array, object")
+	fs.BoolVar(&options.renderInitialConfig, "render-initial-config", false, "render the stale initial_config block into every step (v1 behaviour)")
 	fs.IntVar(&options.maxSteps, "max-steps", 20, "maximum steps per turn")
+	// Probe-only. A truncated result scores as force_terminated; never use it for a grade.
+	fs.IntVar(&options.maxTurns, "max-turns", 0, "stop after N turns for shape probes; 0 runs every turn")
 	fs.IntVar(&options.routeRetries, "route-retries", 1, "route/protocol correction retries")
-	fs.IntVar(&options.duplicateReplayLimit, "duplicate-replay-limit", 2, "allowed identical calls before rejection")
-	fs.IntVar(&options.duplicateRescueThreshold, "duplicate-rescue-threshold", 3, "duplicate streak that ends the turn")
-	fs.IntVar(&options.sameToolRescueLimit, "same-tool-rescue-limit", 8, "same-tool streak that ends the turn")
+	// Real loops alternate, so rejection counts repeats per turn rather than
+	// consecutive matches. The rescue threshold must exceed the replay limit or
+	// the reject-and-continue path is unreachable.
+	fs.IntVar(&options.duplicateReplayLimit, "duplicate-replay-limit", 2, "repeats of one call per turn before rejection")
+	fs.IntVar(&options.duplicateRescueThreshold, "duplicate-rescue-threshold", 4, "repeats of one call per turn that end the turn")
+	// Read-only exploration (ls, ls, pwd, ls) is correct behaviour and scores
+	// free, so this backstop must not fire on it. GT itself reaches a same-tool
+	// run of 4 in base and 31 in long_context.
+	fs.IntVar(&options.sameToolRescueLimit, "same-tool-rescue-limit", 12, "same-tool streak that ends the turn")
 	fs.Float64Var(&options.temperature, "temperature", 0.001, "effective temperature")
 	fs.DurationVar(&options.caseTimeout, "case-timeout", 10*time.Minute, "whole-case timeout")
 	fs.StringVar(&options.apiStopTokens, "api-stop-tokens", "text", "rwkv_lightning stop token form")
@@ -233,13 +277,23 @@ func parseBFCLMultiTurnOptions(args []string) (bfclMultiTurnOptions, error) {
 	if options.tier != "baseline" && options.tier != "enhanced" {
 		return options, fmt.Errorf("unsupported BFCL multi-turn tier %q", options.tier)
 	}
+	if !bfcl.ValidMultiTurnAnchor(options.anchor) {
+		return options, fmt.Errorf("unsupported BFCL multi-turn anchor %q", options.anchor)
+	}
+	if options.maxPromptTokens < 0 {
+		return options, fmt.Errorf("invalid BFCL multi-turn prompt token guard")
+	}
+	if options.duplicateReplayLimit > 0 && options.duplicateRescueThreshold > 0 &&
+		options.duplicateRescueThreshold <= options.duplicateReplayLimit {
+		return options, fmt.Errorf("--duplicate-rescue-threshold must exceed --duplicate-replay-limit or rejection can never be observed")
+	}
 	if options.transport != string(bfcl.TransportRWKVContinuation) && options.transport != string(bfcl.TransportChatCompletionsWrapped) {
 		return options, fmt.Errorf("unsupported BFCL multi-turn transport %q", options.transport)
 	}
 	if !strings.HasPrefix(options.split, "multi_turn_") || !strings.HasPrefix(options.caseID, options.split+"_") {
 		return options, fmt.Errorf("BFCL multi-turn split/case mismatch")
 	}
-	if options.maxTokens <= 0 || options.routeMaxTokens <= 0 || options.maxPromptChars < 0 || options.maxSteps <= 0 || options.routeRetries < 0 || options.caseTimeout <= 0 || options.temperature < 0 {
+	if options.maxTokens <= 0 || options.routeMaxTokens <= 0 || options.maxPromptChars < 0 || options.maxTurns < 0 || options.maxSteps <= 0 || options.routeRetries < 0 || options.caseTimeout <= 0 || options.temperature < 0 {
 		return options, fmt.Errorf("invalid BFCL multi-turn limits")
 	}
 	if options.temperature == 0 && options.transport == string(bfcl.TransportRWKVContinuation) {
