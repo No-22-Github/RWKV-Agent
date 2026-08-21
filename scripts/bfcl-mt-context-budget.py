@@ -20,9 +20,8 @@ from bfcl_eval.eval_checker.multi_turn_eval import multi_turn_utils
 
 
 SPLITS = ("base", "long_context", "miss_func", "miss_param")
-RWKV_CONTEXT_TOKENS = 16_384
-RWKV_MAX_OUTPUT_TOKENS = 1_024
-RWKV_PROMPT_BUDGET_TOKENS = RWKV_CONTEXT_TOKENS - RWKV_MAX_OUTPUT_TOKENS
+DEFAULT_CONTEXT_TOKENS = 16_384
+DEFAULT_MAX_OUTPUT_TOKENS = 1_024
 HOLDOUT_PROMPT = "I have updated some more functions you can choose from. What about now?"
 SYSTEM_PREFIX = """System: You are a BFCL multi-turn tool agent. Use only the listed tools.
 Return one JSON function-call object in exactly this shape: {"name":"TOOL_NAME","arguments":{"ARGUMENT":"VALUE"}}.
@@ -168,7 +167,7 @@ def cleanup(entry: dict[str, Any], suffix: str) -> None:
             delattr(multi_turn_utils, name)
 
 
-def profile_case(entry: dict[str, Any], ground_truth: list[list[str]], docs: list[dict[str, Any]], split: str, index: int, token_counter: CachedTokenCounter) -> dict[str, Any]:
+def profile_case(entry: dict[str, Any], ground_truth: list[list[str]], docs: list[dict[str, Any]], split: str, index: int, token_counter: CachedTokenCounter, prompt_budget_tokens: int) -> dict[str, Any]:
     history = ""
     full_max = 0
     narrow_max = 0
@@ -218,8 +217,8 @@ def profile_case(entry: dict[str, Any], ground_truth: list[list[str]], docs: lis
         "narrow_max_chars": narrow_max,
         "full_max_tokens": full_token_max,
         "narrow_max_tokens": narrow_token_max,
-        "full_feasible": full_token_max <= RWKV_PROMPT_BUDGET_TOKENS,
-        "narrow_feasible": narrow_token_max <= RWKV_PROMPT_BUDGET_TOKENS,
+        "full_feasible": full_token_max <= prompt_budget_tokens,
+        "narrow_feasible": narrow_token_max <= prompt_budget_tokens,
     }
 
 
@@ -244,7 +243,7 @@ def markdown(report: dict[str, Any]) -> str:
         "",
         f"- Cases: {report['cases']} (200 per split).",
         f"- Exact tokenizer: `{report['tokenizer_path']}` (SHA-256 `{report['tokenizer_sha256']}`).",
-        f"- RWKV total context {RWKV_CONTEXT_TOKENS} tokens minus {RWKV_MAX_OUTPUT_TOKENS} max output tokens leaves a {RWKV_PROMPT_BUDGET_TOKENS}-token prompt budget.",
+        f"- RWKV total context {report['context_tokens']} tokens minus {report['max_output_tokens']} max output tokens leaves a {report['prompt_budget_tokens']}-token prompt budget.",
         "- `full`: all involved-class tool docs available at that turn. `narrow`: ideal GT-class catalog for that turn; this is a feasibility bound, not a model-routing score.",
         "- Prompt growth includes initial_config, all user turns, GT calls, and actual official-backend GT execution results. `path` is not rendered.",
         "- Character counts remain in the JSON as diagnostics only; feasibility uses exact tokenizer output.",
@@ -270,7 +269,7 @@ def markdown(report: dict[str, Any]) -> str:
             f"- Common feasible set for baseline/enhanced RWKV comparison: {report['common_feasible_ids_count']}/800 (the full-catalog set).",
             "- E7 `multi_turn_base_0` is inside both feasible sets. E8 should freeze a manifest from the common feasible IDs; Qwen comparisons should use that same common subset even though its server context can be larger.",
             "",
-            "Machine-readable details: `context-budget.json`.",
+            f"Machine-readable details: `{report['json_artifact']}`.",
             "",
         ]
     )
@@ -286,13 +285,27 @@ def main() -> int:
         type=Path,
         default=Path("third_party/rwkv-mobile/assets/rwkv_vocab_v20230424.txt"),
     )
+    parser.add_argument("--context-tokens", type=int, default=DEFAULT_CONTEXT_TOKENS)
+    parser.add_argument(
+        "--max-output-tokens", type=int, default=DEFAULT_MAX_OUTPUT_TOKENS
+    )
+    parser.add_argument(
+        "--token-cache",
+        type=Path,
+        default=Path("runs/bfcl-mt/context-budget.token-cache.json"),
+    )
     args = parser.parse_args()
+    if args.context_tokens <= 0 or args.max_output_tokens <= 0:
+        parser.error("context and max output token limits must be positive")
+    prompt_budget_tokens = args.context_tokens - args.max_output_tokens
+    if prompt_budget_tokens <= 0:
+        parser.error("max output tokens must be smaller than total context")
     repo = args.repo.resolve()
     output = args.output if args.output.is_absolute() else repo / args.output
     vocab_path = args.tokenizer if args.tokenizer.is_absolute() else repo / args.tokenizer
     tokenizer_sha256 = hashlib.sha256(vocab_path.read_bytes()).hexdigest()
     tokenizer = load_rwkv_tokenizer(repo, vocab_path)
-    cache_path = output.with_suffix(".token-cache.json")
+    cache_path = args.token_cache if args.token_cache.is_absolute() else repo / args.token_cache
     cached_counts: dict[str, int] = {}
     if cache_path.exists():
         cache_payload = json.loads(cache_path.read_text())
@@ -308,15 +321,26 @@ def main() -> int:
         questions = load_jsonl(data_dir / f"BFCL_v4_multi_turn_{split}.json")
         answers = {row["id"]: row["ground_truth"] for row in load_jsonl(data_dir / f"possible_answer/BFCL_v4_multi_turn_{split}.json")}
         for index, entry in enumerate(questions):
-            all_rows.append(profile_case(entry, answers[entry["id"]], load_docs(data_dir, entry), split, index, token_counter))
+            all_rows.append(
+                profile_case(
+                    entry,
+                    answers[entry["id"]],
+                    load_docs(data_dir, entry),
+                    split,
+                    index,
+                    token_counter,
+                    prompt_budget_tokens,
+                )
+            )
     report: dict[str, Any] = {
         "schema_version": 1,
         "cases": len(all_rows),
-        "context_tokens": RWKV_CONTEXT_TOKENS,
-        "max_output_tokens": RWKV_MAX_OUTPUT_TOKENS,
-        "prompt_budget_tokens": RWKV_PROMPT_BUDGET_TOKENS,
+        "context_tokens": args.context_tokens,
+        "max_output_tokens": args.max_output_tokens,
+        "prompt_budget_tokens": prompt_budget_tokens,
         "tokenizer_path": str(vocab_path.relative_to(repo)) if vocab_path.is_relative_to(repo) else str(vocab_path),
         "tokenizer_sha256": tokenizer_sha256,
+        "json_artifact": output.with_suffix(".json").name,
         "rows": all_rows,
         "splits": {},
     }
@@ -337,6 +361,7 @@ def main() -> int:
     report["narrow_feasible_ids_count"] = len(narrow_ids)
     report["common_feasible_ids_count"] = len(full_ids & narrow_ids)
     output.parent.mkdir(parents=True, exist_ok=True)
+    cache_path.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(markdown(report))
     output.with_suffix(".json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")
     cache_path.write_text(

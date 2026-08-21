@@ -58,7 +58,7 @@
 ## 2026-08-21 — E4–E7 multi-turn 前置门禁与单题闭环
 
 - E4 固定了 `bfcl-eval==2026.3.23` 的多轮执行、holdout、公开状态比较和 20-step 语义；确认 `STATELESS_CLASSES=["MathAPI"]`，并纠正数据实际包含单轮 case 的假设。
-- E5 使用仓库固定 RWKV World tokenizer 实际编码全部 800 题完整 prompt：`ctx16384` 扣除每步 1024 max output 后，prompt 预算为 15360 token；全量 catalog 与理想 class 收窄均可行 758/800，共同可行集 758/800；42 个不可行 case 全部来自 `long_context`。此前所有字符/token 比例估算均由本结果取代。
+- E5 使用仓库固定 RWKV World tokenizer 实际编码全部 800 题完整 prompt：`ctx16384` 扣除每步 1024 max output 后，prompt 预算为 15360 token；全量 catalog 与理想 class 收窄均可行 758/800，共同可行集 758/800。按实际可用窗口减半做 8K 敏感性重算（prompt 预算 7168 token）后，全量可行 731/800、理想收窄可行 748/800，收窄新增 17 个 `long_context` case；正式成对评分的共同集仍为 731，17 题仅作为理论覆盖扩展集。此前所有字符/token 比例估算均由本结果取代。
 - E6 sidecar GT 门禁：`multi_turn_base` 官方 200/200；额外 `mkdir` 负向样本 0/1，命中 `multi_turn:instance_state_mismatch`。
 - E7 为辅助运行，不进正式评分总表。Qwen baseline/enhanced、RWKV baseline/enhanced 在 `multi_turn_base_0` 上均完成结果落盘和官方 evaluator，成绩均为 0/1；失败类型依次为 `empty_turn_model_response`、`instance_state_mismatch`、`empty_turn_model_response`、`force_terminated`。
 - E7 证明了结果形状、持久执行、工具结果回喂、事件 trace 与官方判分闭环；它不证明模型答对，亦不可外推总体多轮能力。

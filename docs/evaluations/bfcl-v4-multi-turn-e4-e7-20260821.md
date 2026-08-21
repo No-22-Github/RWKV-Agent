@@ -20,7 +20,7 @@ evaluator：`bfcl-eval==2026.3.23`
 
 ## E5：800 题上下文普查
 
-使用仓库固定的 RWKV World tokenizer 实际编码完整 prompt：实现为 `third_party/rwkv-mobile/converter/rwkv_src/rwkv_tokenizer.py`，词表为 `rwkv_vocab_v20230424.txt`，SHA-256 `e6dee3d4e31b4d5c40ac99508ac6c701ceef4bed681bf2167ce9a908552bca89`。模型总窗口为 16384 token；按 runner 每步 `max_tokens=1024` 预留生成空间后，prompt 安全预算为 15360 token。prompt 包含 initial config、累计 user 消息、GT 调用和官方 backend 的真实 GT 执行结果；不包含 `path`。
+使用仓库固定的 RWKV World tokenizer 实际编码完整 prompt：实现为 `third_party/rwkv-mobile/converter/rwkv_src/rwkv_tokenizer.py`，词表为 `rwkv_vocab_v20230424.txt`，SHA-256 `e6dee3d4e31b4d5c40ac99508ac6c701ceef4bed681bf2167ce9a908552bca89`。prompt 包含 initial config、累计 user 消息、GT 调用和官方 backend 的真实 GT 执行结果；不包含 `path`。先按模型标称总窗口 16384 token 计算；runner 每步 `max_tokens=1024`，因此 prompt 预算为 15360 token。
 
 | Split | 全量 catalog tokens p50/p90/p95/max | 全量可行 | 理想 class 收窄 tokens p50/p90/p95/max | 收窄可行 |
 |---|---:|---:|---:|---:|
@@ -30,6 +30,18 @@ evaluator：`bfcl-eval==2026.3.23`
 | `miss_param` | 3883/4611/4764/5179 | 200/200 | 2967/3530/4193/4825 | 200/200 |
 
 全量 catalog 和理想 class 收窄可行集均为 758/800，因此共同公平集也是 758 题；42 个不可行 case 全部来自 `long_context`。字符数与 token 数在长工具返回上不是稳定比例，先前 3.5 字符/token 得到的 774/783 已废止。CLI 的 `--max-prompt-chars` 只保留为可选 byte guard，默认关闭，不能再用于定义可行集。E7 的 `multi_turn_base_0` 在两套可行集内，既有单题结论不受修正影响。机器可读逐题 token 明细位于 `runs/bfcl-mt/context-budget.json`，摘要位于 `runs/bfcl-mt/context-budget.md`。
+
+考虑到服务实际可用窗口可能小于标称值，又以总上下文 8192 token、仍预留 1024 token 输出、prompt 预算 7168 token 做敏感性重算。token 长度本身不变，仅按更保守阈值重新判定：
+
+| Split | 8K 全量可行 | 8K 理想 class 收窄可行 | 收窄新增 |
+|---|---:|---:|---:|
+| `base` | 200/200 | 200/200 | 0 |
+| `long_context` | 131/200 | 148/200 | 17 |
+| `miss_func` | 200/200 | 200/200 | 0 |
+| `miss_param` | 200/200 | 200/200 | 0 |
+| 合计 | 731/800 | 748/800 | 17 |
+
+因此，“收窄不增加可跑题数”只在 16K 阈值下成立；在保守 8K 阈值下，理想收窄为 17 个 `long_context` case 提供了覆盖扩展。但这个 748 是使用 GT 所需 class 的理论可行上界，不是渐进路由器的实测覆盖：真实路由还可能选错、选多或协议失败。正式 baseline/enhanced 成对评分应冻结共同的 731 题；新增 17 题只能作为 enhanced 的独立覆盖扩展集报告，不能并入成对准确率差值。8K 明细位于 `runs/bfcl-mt/context-budget-8k.json`，摘要位于 `runs/bfcl-mt/context-budget-8k.md`。
 
 ## E6：sidecar 与 GT 门禁
 
