@@ -90,6 +90,27 @@ func TestRenderPromptPreservesIrrelevanceAssistantHistoryAndAllowsNoCall(t *test
 	}
 }
 
+func TestRenderFinishTaskProbeInjectsControlTool(t *testing.T) {
+	t.Parallel()
+	entry := Case{
+		ID:       "irrelevance_0",
+		Category: "irrelevance",
+		Messages: []Message{{Role: "user", Content: "write a poem"}},
+		Functions: []json.RawMessage{
+			json.RawMessage(`{"name":"weather.get","parameters":{"type":"dict"}}`),
+		},
+	}
+	prompt, err := RenderPrompt(entry, TierFinishTaskProbe, TransportRWKVContinuation)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Count(prompt, `"name":"finish_task"`) != 1 ||
+		!strings.Contains(prompt, "call finish_task with an empty arguments object") ||
+		!strings.HasSuffix(prompt, `{"name":"`) {
+		t.Fatalf("finish-task probe prompt = %q", prompt)
+	}
+}
+
 func TestParseMarkdownCallsAcceptsPrefilledAndCompleteFence(t *testing.T) {
 	t.Parallel()
 	for _, value := range []string{

@@ -57,20 +57,22 @@ type TraceEntry struct {
 	ParseError       string              `json:"parse_error,omitempty"`
 	Error            string              `json:"error,omitempty"`
 	Skipped          bool                `json:"skipped,omitempty"`
+	ProbeSelection   string              `json:"probe_selection,omitempty"`
 }
 
 type RunResult struct {
-	Entries      []ResultEntry
-	Trace        []TraceEntry
-	Failed       int
-	ParseFailed  int
-	Repaired     int
-	Retried      int
-	RetryParsed  int
-	Skipped      int
-	Usage        continuation.Usage
-	RepairCounts map[string]int
-	Elapsed      time.Duration
+	Entries         []ResultEntry
+	Trace           []TraceEntry
+	Failed          int
+	ParseFailed     int
+	Repaired        int
+	Retried         int
+	RetryParsed     int
+	Skipped         int
+	Usage           continuation.Usage
+	RepairCounts    map[string]int
+	ProbeSelections map[string]int
+	Elapsed         time.Duration
 }
 
 func RunNative(ctx context.Context, cases []Case, options RunnerOptions) (RunResult, error) {

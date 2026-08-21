@@ -26,6 +26,7 @@
 | `M2-markdown-single-call` | 同一 400 题、同一 Markdown prompt renderer、严格 parser、每题一次调用、官方 evaluator | 相同 Harness 和输出契约下的“模型 + transport/template”系统差异 | 纯模型权重差异或字节级完全同协议差异 |
 | `M2.5-parser-calibration` | 完全复用 RWKV M2 原始 trace,仅切换 parser mode | wire-format compat 对既有输出的可恢复增量 | 新一次模型成绩、生成策略收益或公平矩阵格 |
 | `E1-E2-anchor-v1-v2` | v2 固定 491 题、`bfcl-markdown-anchor-v1`、首轮 prompt hash 相同、并发 8、官方 partial evaluator | 同一服务内 baseline/enhanced 的实测系统差异 | 官方全榜 Overall；有输出漂移时也不可把 E1/E2 全部 delta 归因于 Harness |
+| `E3-finish-task-probe` | 全量 1124 个负样本、额外注入 `finish_task`、strict parser、官方 partial evaluator | 模型是否愿意显式选择 stop tool，以及拦截后的弃权成绩 | E1/E2 矩阵分数；该探针改变了工具表和提示协议 |
 | `validation-only` | 固定 evaluator 与人工构造结果 | 数据、目录、decoder 和错误分支是否闭环 | 模型能力 |
 
 `M2-markdown-single-call` 中，RWKV 直接接收 continuation prompt；Chat Completions 模型还会经过 wrapped system instruction 和服务端 chat template，并受最多 4 个 stop sequence 的接口限制，而 RWKV M2 使用 5 个。因此该组具有强诊断可比性，但不是 transport/template 完全一致的模型级隔离实验。
@@ -34,6 +35,10 @@
 
 | 日期 | Run | 比较组 | 模型 | Split | 正确/总数 | 准确率 | 并发 | 解析失败 | 耗时 |
 |---|---|---|---|---|---:|---:|---:|---:|---:|
+| 2026-08-21 | `e3-rwkv7b-finish-task-c8-full-20260821` | `E3-finish-task-probe` | RWKV7 G1i 7.2B | `irrelevance` | 75/240 | 31.25% | 8 | 0 | 614.63s 两 split 合计 |
+| 2026-08-21 | `e3-rwkv7b-finish-task-c8-full-20260821` | `E3-finish-task-probe` | RWKV7 G1i 7.2B | `live_irrelevance` | 355/884 | 40.16% | 8 | 0 | 614.63s 两 split 合计 |
+| 2026-08-21 | `e3-qwen8b-finish-task-c8-full-20260821` | `E3-finish-task-probe` | Qwen3-8B-FP8 | `irrelevance` | 184/240 | 76.67% | 8 | 0 | 196.11s 两 split 合计 |
+| 2026-08-21 | `e3-qwen8b-finish-task-c8-full-20260821` | `E3-finish-task-probe` | Qwen3-8B-FP8 | `live_irrelevance` | 461/884 | 52.15% | 8 | 0 | 196.11s 两 split 合计 |
 | 2026-08-21 | `e2-rwkv7b-enhanced-anchor2-c8-v2-20260821` | `E1-E2-anchor-v1-v2` | RWKV7 G1i 7.2B | A+B v2 13 splits | 267/491 | 54.38% | 8 | 7 | 450.29s |
 | 2026-08-21 | `e1-rwkv7b-baseline-anchor2-c8-v2-20260821` | `E1-E2-anchor-v1-v2` | RWKV7 G1i 7.2B | A+B v2 13 splits | 266/491 | 54.18% | 8 | 6 | 327.41s |
 | 2026-08-21 | `e2-qwen8b-enhanced-anchor2-c8-v2-20260821` | `E1-E2-anchor-v1-v2` | Qwen3-8B-FP8 | A+B v2 13 splits | 315/491 | 64.15% | 8 | 23 | 141.89s |
@@ -48,6 +53,36 @@
 | 2026-08-18 | `m1-official-handler-20260818` | `M1-official-control` | Qwen3-8B-FP8 | `simple_python` | 381/400 | 95.25% | 8 | N/A | 1402s 三个 split 合计 |
 | 2026-08-18 | `m1-official-handler-20260818` | `M1-official-control` | Qwen3-8B-FP8 | `multiple` | 191/200 | 95.50% | 8 | N/A | 1402s 三个 split 合计 |
 | 2026-08-18 | `m1-official-handler-20260818` | `M1-official-control` | Qwen3-8B-FP8 | `live_simple` | 217/258 | 84.11% | 8 | N/A | 1402s 三个 split 合计 |
+
+## 2026-08-21 — E3 finish_task 全量弃权探针
+
+### 协议与运行冻结项
+
+- Renderer：`bfcl-markdown-finish-task-v1`。在题目原工具表尾部注入无参数控制工具 `finish_task`，描述为“没有任何任务工具适用时结束任务”；单调用 prefill 仍为 `{"name":"`。
+- Harness 分层：trace 的 `tool_calls` 保留模型原始调用并记录 `probe_selection=finish_task|real_tool|no_call|mixed`；只有纯 `finish_task` 被拦截为空 result。真实工具和混合调用仍写入 result，不能借控制工具掩盖错误调用。
+- 数据：BFCL v4 commit `6ea57973c7a6097fd7c5915698c54c17c5b1b6c8`，全量 `irrelevance` 240 + `live_irrelevance` 884，共 1124 题；evaluator `bfcl-eval==2026.3.23`，带 `--partial-eval`。
+- Harness 二进制 SHA-256：`ea7984073dd8df2db4c2beebf91d0cfd587585da7aad1969f391ac7afdf5eacf`；源码基点 `b33acbf0d92d550eaa07e834ccbef5719a725e47`，运行时工作树 dirty，精确实现由 binary hash、`run.json` 与 trace 固化。
+- RWKV：`rwkv7-g1i-7.2b-20260805-ctx16384`，云端 `rwkv_lightning` continuation + SSE + text stop，temperature `0.001`、`concurrency=8`、`remote-batch-wait=50ms`。
+- Qwen：端点注册名 `Qwen/Qwen3-8B-FP8`，本地 vLLM wrapped continuation，thinking disabled、temperature `0`、`concurrency=8`。用户把本地服务描述为 int8，但本轮只确认了服务注册名，未独立核实实际量化格式。
+
+### 模型层选择与判分层结果
+
+| 模型 | Split | `finish_task` | 自然 no-call | 真实工具 | 官方空调用成绩 |
+|---|---|---:|---:|---:|---:|
+| RWKV7 G1i 7.2B | `irrelevance` 240 | 73（30.42%） | 1（0.42%） | 166（69.17%） | 75/240（31.25%） |
+| RWKV7 G1i 7.2B | `live_irrelevance` 884 | 336（38.01%） | 19（2.15%） | 529（59.84%） | 355/884（40.16%） |
+| Qwen3-8B-FP8 | `irrelevance` 240 | 180（75.00%） | 4（1.67%） | 56（23.33%） | 184/240（76.67%） |
+| Qwen3-8B-FP8 | `live_irrelevance` 884 | 439（49.66%） | 22（2.49%） | 423（47.85%） | 461/884（52.15%） |
+
+- RWKV 总体选择：`finish_task` 409/1124（36.39%），自然 no-call 20/1124（1.78%），真实工具 695/1124（61.83%）。Qwen 分别为 619/1124（55.07%）、26/1124（2.31%）、479/1124（42.62%）。两轮基础设施失败/跳过均为 0/0。
+- RWKV `irrelevance` 的官方正确数比 `finish_task + no_call` 多 1：`irrelevance_233` 的真实调用含 Python 关键字参数 `from`，官方 AST decoder 不能解码，按负样本规则判为成功弃权。这是 evaluator 语法口径，不是模型选择了 stop tool；模型层计数以 trace 为准。
+- 结论：显式 stop tool 对两模型都提供了工程增益，但未解决 g1i 的弃权缺陷；RWKV 仍在 61.83% 的全量负样本上选择真实工具。该运行改变工具表与提示协议，只能作为独立 E3 证据，不能并入 E1/E2 baseline/enhanced delta。
+
+正式产物：
+
+- RWKV：`runs/bfcl/e3-rwkv7b-finish-task-c8-full-20260821`
+- Qwen：`runs/bfcl/e3-qwen8b-finish-task-c8-full-20260821`
+- 两目录均含 `run.json`、`summary.json`、`trace.jsonl`、`result/` 和官方 `score/`。
 
 ## 2026-08-21 — E0/E1/E2 anchor-v1 + v2 491 题
 

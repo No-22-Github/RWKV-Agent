@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/no22/RWKV-Agent/internal/continuation"
+	"github.com/no22/RWKV-Agent/internal/continuation/toolchat"
 )
 
 const RetryPromptVersion = "bfcl-markdown-retry-v1"
@@ -35,7 +36,7 @@ func RunBaseline(ctx context.Context, cases []Case, options BaselineRunnerOption
 	if options.Tier == "" {
 		options.Tier = TierBaseline
 	}
-	if options.Tier != TierBaseline && options.Tier != TierEnhanced {
+	if options.Tier != TierBaseline && options.Tier != TierEnhanced && options.Tier != TierFinishTaskProbe {
 		return RunResult{}, fmt.Errorf("unsupported BFCL tier %q", options.Tier)
 	}
 	if options.Transport != TransportRWKVContinuation && options.Transport != TransportChatCompletionsWrapped {
@@ -86,9 +87,10 @@ func RunBaseline(ctx context.Context, cases []Case, options BaselineRunnerOption
 	wait.Wait()
 
 	result := RunResult{
-		Trace:        trace,
-		Elapsed:      time.Since(started),
-		RepairCounts: make(map[string]int),
+		Trace:           trace,
+		Elapsed:         time.Since(started),
+		RepairCounts:    make(map[string]int),
+		ProbeSelections: make(map[string]int),
 	}
 	result.Entries = make([]ResultEntry, 0, len(trace))
 	for _, entry := range trace {
@@ -113,6 +115,9 @@ func RunBaseline(ctx context.Context, cases []Case, options BaselineRunnerOption
 			if entry.Error == "" && entry.ParseError == "" {
 				result.RetryParsed++
 			}
+		}
+		if entry.ProbeSelection != "" {
+			result.ProbeSelections[entry.ProbeSelection]++
 		}
 	}
 	return result, nil
@@ -148,10 +153,10 @@ func runBaselineCase(parent context.Context, entry Case, options BaselineRunnerO
 
 	outcome, parseErr := parseAttempt(entry, &trace.Attempts[0], options.Tier)
 	if parseErr == nil {
-		adoptAttempt(&trace, trace.Attempts[0], outcome)
+		adoptAttempt(&trace, trace.Attempts[0], outcome, options.Tier == TierFinishTaskProbe)
 		return trace
 	}
-	if options.Tier == TierBaseline {
+	if options.Tier == TierBaseline || options.Tier == TierFinishTaskProbe {
 		adoptFailedAttempt(&trace, trace.Attempts[0], parseErr)
 		return trace
 	}
@@ -181,7 +186,7 @@ func runBaselineCase(parent context.Context, entry Case, options BaselineRunnerO
 		adoptFailedAttempt(&trace, trace.Attempts[1], parseErr)
 		return trace
 	}
-	adoptAttempt(&trace, trace.Attempts[1], outcome)
+	adoptAttempt(&trace, trace.Attempts[1], outcome, false)
 	return trace
 }
 
@@ -254,15 +259,39 @@ func parseAttempt(entry Case, attempt *AttemptTrace, tier Tier) (ParseOutcome, e
 	return outcome, nil
 }
 
-func adoptAttempt(trace *TraceEntry, attempt AttemptTrace, outcome ParseOutcome) {
+func adoptAttempt(trace *TraceEntry, attempt AttemptTrace, outcome ParseOutcome, finishTaskProbe bool) {
 	trace.Content = attempt.Content
 	trace.GeneratedContent = attempt.GeneratedContent
 	trace.AssemblyMode = attempt.AssemblyMode
 	trace.FinishReason = attempt.FinishReason
 	trace.ToolCalls = outcome.Calls
 	trace.Repairs = append([]string(nil), outcome.Repairs...)
+	if finishTaskProbe && len(outcome.Calls) == 0 {
+		trace.ProbeSelection = "no_call"
+	}
 	if attempt.NoCall {
 		return
+	}
+	if finishTaskProbe {
+		realCalls := make([]toolchat.ToolCall, 0, len(outcome.Calls))
+		finishCalls := 0
+		for _, call := range outcome.Calls {
+			if call.Name == FinishTaskName {
+				finishCalls++
+				continue
+			}
+			realCalls = append(realCalls, call)
+		}
+		switch {
+		case finishCalls > 0 && len(realCalls) == 0:
+			trace.ProbeSelection = "finish_task"
+			return
+		case finishCalls > 0:
+			trace.ProbeSelection = "mixed"
+		case len(realCalls) > 0:
+			trace.ProbeSelection = "real_tool"
+		}
+		outcome.Calls = realCalls
 	}
 	result, err := ToResultString(outcome.Calls, nil, resultLanguage(trace.Category))
 	if err != nil {

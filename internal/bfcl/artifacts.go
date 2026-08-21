@@ -65,6 +65,7 @@ type Summary struct {
 	PromptTokens     int            `json:"prompt_tokens"`
 	CompletionTokens int            `json:"completion_tokens"`
 	ElapsedSeconds   float64        `json:"elapsed_seconds"`
+	ProbeSelections  map[string]int `json:"probe_selections,omitempty"`
 }
 
 func WriteArtifacts(outputDir string, manifest Manifest, result RunResult) error {
@@ -92,6 +93,7 @@ func WriteArtifacts(outputDir string, manifest Manifest, result RunResult) error
 		PromptTokens:     result.Usage.PromptTokens,
 		CompletionTokens: result.Usage.CompletionTokens,
 		ElapsedSeconds:   result.Elapsed.Seconds(),
+		ProbeSelections:  result.ProbeSelections,
 	})
 }
 

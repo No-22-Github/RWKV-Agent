@@ -14,11 +14,17 @@ import (
 type Tier string
 
 const (
-	TierBaseline Tier = "baseline"
-	TierEnhanced Tier = "enhanced"
+	TierBaseline        Tier = "baseline"
+	TierEnhanced        Tier = "enhanced"
+	TierFinishTaskProbe Tier = "finish-task-probe"
 )
 
 const RenderProtocolAnchorV1 = "bfcl-markdown-anchor-v1"
+const RenderProtocolFinishTaskV1 = "bfcl-markdown-finish-task-v1"
+
+const FinishTaskName = "finish_task"
+
+var finishTaskFunction = json.RawMessage(`{"name":"finish_task","description":"End the task without calling any other tool when no listed tool applies to the user request.","parameters":{"type":"dict","properties":{},"required":[]}}`)
 
 type RenderedPrompt struct {
 	Prompt string
@@ -67,7 +73,7 @@ func RenderPrompt(entry Case, tier Tier, transport Transport) (string, error) {
 }
 
 func RenderPromptWithAnchor(entry Case, tier Tier, transport Transport) (RenderedPrompt, error) {
-	if tier != TierBaseline && tier != TierEnhanced {
+	if tier != TierBaseline && tier != TierEnhanced && tier != TierFinishTaskProbe {
 		return RenderedPrompt{}, fmt.Errorf("unsupported BFCL tier %q", tier)
 	}
 	if transport != TransportRWKVContinuation && transport != TransportChatCompletionsWrapped {
@@ -88,8 +94,17 @@ func RenderPromptWithAnchor(entry Case, tier Tier, transport Transport) (Rendere
 		}
 		prompt.Write(function)
 	}
+	if tier == TierFinishTaskProbe {
+		if len(entry.Functions) > 0 {
+			prompt.WriteString(",\n")
+		}
+		prompt.Write(finishTaskFunction)
+	}
 	prompt.WriteString("\n]\n")
-	if entry.Category == "irrelevance" || entry.Category == "live_irrelevance" {
+	if tier == TierFinishTaskProbe {
+		prompt.WriteString("Use an exact tool name only. If no listed task tool can satisfy the request, call finish_task with an empty arguments object. ")
+		prompt.WriteString("Otherwise call exactly one relevant task tool. Return exactly one fenced JSON function call and nothing else. ")
+	} else if entry.Category == "irrelevance" || entry.Category == "live_irrelevance" {
 		prompt.WriteString("Use an exact tool name only when a listed tool can satisfy the request. ")
 		prompt.WriteString("If no listed tool is relevant, return no function call. Otherwise return exactly one fenced JSON function call and nothing else. ")
 	} else if strings.Contains(entry.Category, "parallel") {

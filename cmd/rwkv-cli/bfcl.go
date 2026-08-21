@@ -123,7 +123,7 @@ func runBFCLEval(args []string) error {
 	defer cancel()
 	var result bfcl.RunResult
 	var runErr error
-	if options.tier == "baseline" || options.tier == "enhanced" {
+	if options.tier == "baseline" || options.tier == "enhanced" || options.tier == "finish-task-probe" {
 		var generator continuation.Generator
 		switch options.transport {
 		case string(bfcl.TransportRWKVContinuation):
@@ -278,7 +278,7 @@ func parseBFCLEvalOptions(args []string) (bfclEvalOptions, error) {
 	var options bfclEvalOptions
 	fs := flag.NewFlagSet("bfcl-eval", flag.ContinueOnError)
 	fs.StringVar(&options.model, "model", "", "remote model identifier")
-	fs.StringVar(&options.tier, "tier", "adapter-health", "BFCL tier: adapter-health, baseline, or enhanced")
+	fs.StringVar(&options.tier, "tier", "adapter-health", "BFCL tier: adapter-health, baseline, enhanced, or finish-task-probe")
 	fs.StringVar(&options.transport, "transport", "", "BFCL transport; defaults by tier")
 	fs.StringVar(&options.apiURL, "api-url", "", "full remote inference endpoint URL")
 	fs.StringVar(&options.apiKeyEnv, "api-key-env", "OPENAI_API_KEY", "environment variable containing the API key")
@@ -316,19 +316,19 @@ func parseBFCLEvalOptions(args []string) (bfclEvalOptions, error) {
 		fs.Usage()
 		return options, fmt.Errorf("bfcl-eval requires --model, --api-url, and --output")
 	}
-	if options.tier != "adapter-health" && options.tier != "baseline" && options.tier != "enhanced" {
+	if options.tier != "adapter-health" && options.tier != "baseline" && options.tier != "enhanced" && options.tier != "finish-task-probe" {
 		return options, fmt.Errorf("unsupported BFCL tier %q", options.tier)
 	}
 	if options.transport == "" {
 		options.transport = "chat-completions-native-fc"
-		if options.tier == "baseline" || options.tier == "enhanced" {
+		if options.tier == "baseline" || options.tier == "enhanced" || options.tier == "finish-task-probe" {
 			options.transport = string(bfcl.TransportRWKVContinuation)
 		}
 	}
 	if options.tier == "adapter-health" && options.transport != "chat-completions-native-fc" {
 		return options, fmt.Errorf("BFCL adapter-health requires chat-completions-native-fc transport")
 	}
-	if (options.tier == "baseline" || options.tier == "enhanced") && options.transport != string(bfcl.TransportRWKVContinuation) &&
+	if (options.tier == "baseline" || options.tier == "enhanced" || options.tier == "finish-task-probe") && options.transport != string(bfcl.TransportRWKVContinuation) &&
 		options.transport != string(bfcl.TransportChatCompletionsWrapped) {
 		return options, fmt.Errorf("unsupported BFCL baseline transport %q", options.transport)
 	}
@@ -350,6 +350,13 @@ func parseBFCLEvalOptions(args []string) (bfclEvalOptions, error) {
 	if (options.tier == "baseline" || options.tier == "enhanced") && (len(options.splits) != 1 || options.splits[0] != "simple_python") {
 		if options.sampleManifest == "" && !options.full && len(options.caseIDs) == 0 {
 			return options, fmt.Errorf("BFCL M2 baseline requires exactly --split simple_python unless --sample-manifest is set")
+		}
+	}
+	if options.tier == "finish-task-probe" {
+		for _, split := range options.splits {
+			if split != "irrelevance" && split != "live_irrelevance" {
+				return options, fmt.Errorf("BFCL finish-task-probe only supports irrelevance and live_irrelevance, got %q", split)
+			}
 		}
 	}
 	if options.full && (options.sampleManifest != "" || len(options.caseIDs) > 0) {
@@ -381,6 +388,9 @@ func parseBFCLEvalOptions(args []string) (bfclEvalOptions, error) {
 }
 
 func markdownRenderProtocol(tier string) string {
+	if tier == "finish-task-probe" {
+		return bfcl.RenderProtocolFinishTaskV1
+	}
 	if tier == "baseline" || tier == "enhanced" {
 		return bfcl.RenderProtocolAnchorV1
 	}
@@ -388,7 +398,7 @@ func markdownRenderProtocol(tier string) string {
 }
 
 func markdownParserMode(tier string) string {
-	if tier == "baseline" {
+	if tier == "baseline" || tier == "finish-task-probe" {
 		return string(bfcl.ParserStrict)
 	}
 	if tier == "enhanced" {

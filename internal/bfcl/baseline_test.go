@@ -315,6 +315,71 @@ func TestRunEnhancedDoesNotHideIrrelevanceToolCall(t *testing.T) {
 	}
 }
 
+func TestRunFinishTaskProbeInterceptsControlCall(t *testing.T) {
+	t.Parallel()
+	generator := &recordingGenerator{results: []continuation.Result{{
+		Text: `finish_task","arguments":{}}`, FinishReason: continuation.FinishStop,
+	}}}
+	entry := testBaselineCase("irrelevance_0")
+	entry.Category = "irrelevance"
+	result, err := RunBaseline(context.Background(), []Case{entry}, BaselineRunnerOptions{
+		Generator: generator, Model: "model", Tier: TierFinishTaskProbe, Transport: TransportRWKVContinuation,
+		Concurrency: 1, MaxOutputTokens: 1024,
+		MaxPromptChars: 40000, Temperature: 0.001, CaseTimeout: time.Second,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	trace := result.Trace[0]
+	if trace.Result != "" || trace.ProbeSelection != "finish_task" ||
+		len(trace.ToolCalls) != 1 || trace.ToolCalls[0].Name != FinishTaskName ||
+		result.ProbeSelections["finish_task"] != 1 {
+		t.Fatalf("result=%+v trace=%+v", result, trace)
+	}
+}
+
+func TestRunFinishTaskProbeKeepsRealToolCallForScoring(t *testing.T) {
+	t.Parallel()
+	generator := &recordingGenerator{results: []continuation.Result{{
+		Text: `math.tool","arguments":{"value":true}}`, FinishReason: continuation.FinishStop,
+	}}}
+	entry := testBaselineCase("irrelevance_0")
+	entry.Category = "irrelevance"
+	result, err := RunBaseline(context.Background(), []Case{entry}, BaselineRunnerOptions{
+		Generator: generator, Model: "model", Tier: TierFinishTaskProbe, Transport: TransportRWKVContinuation,
+		Concurrency: 1, MaxOutputTokens: 1024,
+		MaxPromptChars: 40000, Temperature: 0.001, CaseTimeout: time.Second,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Trace[0].Result != `[math.tool(value=True)]` ||
+		result.Trace[0].ProbeSelection != "real_tool" || result.ProbeSelections["real_tool"] != 1 {
+		t.Fatalf("result=%+v trace=%+v", result, result.Trace[0])
+	}
+}
+
+func TestRunFinishTaskProbeCountsUnparseableResponseAsNoCall(t *testing.T) {
+	t.Parallel()
+	generator := &recordingGenerator{results: []continuation.Result{{
+		Text: "No tool applies.", FinishReason: continuation.FinishStop,
+	}}}
+	entry := testBaselineCase("irrelevance_0")
+	entry.Category = "irrelevance"
+	result, err := RunBaseline(context.Background(), []Case{entry}, BaselineRunnerOptions{
+		Generator: generator, Model: "model", Tier: TierFinishTaskProbe, Transport: TransportRWKVContinuation,
+		Concurrency: 1, MaxOutputTokens: 1024,
+		MaxPromptChars: 40000, Temperature: 0.001, CaseTimeout: time.Second,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Trace[0].Result != "" || result.Trace[0].ProbeSelection != "no_call" ||
+		result.ProbeSelections["no_call"] != 1 {
+		t.Fatalf("result=%+v trace=%+v", result, result.Trace[0])
+	}
+}
+
 func testBaselineCase(id string) Case {
 	return Case{
 		ID: id, Category: "simple_python", Messages: []Message{{Role: "user", Content: "call it"}},

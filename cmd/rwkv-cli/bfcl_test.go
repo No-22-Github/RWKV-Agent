@@ -58,6 +58,40 @@ func TestParseBFCLEvalOptionsAcceptsEnhancedMarkdown(t *testing.T) {
 	}
 }
 
+func TestParseBFCLEvalOptionsAcceptsFinishTaskProbe(t *testing.T) {
+	t.Parallel()
+	options, err := parseBFCLEvalOptions([]string{
+		"--model", "rwkv7-g1i-7.2b",
+		"--api-url", "https://example.com/v1/chat/completions",
+		"--tier", "finish-task-probe",
+		"--transport", "rwkv-continuation",
+		"--split", "irrelevance,live_irrelevance",
+		"--full",
+		"--output", "runs/bfcl/e3",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if options.tier != "finish-task-probe" || len(options.splits) != 2 || !options.full {
+		t.Fatalf("options = %+v", options)
+	}
+}
+
+func TestParseBFCLEvalOptionsRejectsPositiveFinishTaskProbeSplit(t *testing.T) {
+	t.Parallel()
+	_, err := parseBFCLEvalOptions([]string{
+		"--model", "rwkv7-g1i-7.2b",
+		"--api-url", "https://example.com/v1/chat/completions",
+		"--tier", "finish-task-probe",
+		"--split", "simple_python",
+		"--case", "simple_python_0",
+		"--output", "runs/bfcl/e3",
+	})
+	if err == nil {
+		t.Fatal("expected finish-task probe split validation error")
+	}
+}
+
 func TestParseBFCLEvalOptionsRestrictsM2Split(t *testing.T) {
 	t.Parallel()
 	_, err := parseBFCLEvalOptions([]string{
