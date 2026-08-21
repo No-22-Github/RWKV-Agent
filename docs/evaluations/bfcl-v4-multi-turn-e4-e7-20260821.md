@@ -20,16 +20,16 @@ evaluator：`bfcl-eval==2026.3.23`
 
 ## E5：800 题上下文普查
 
-估算使用 3.5 字符/token。模型总窗口为 16384 token；按 runner 每步 `max_tokens=1024` 预留生成空间后，prompt 安全预算为 15360 token，即 53760 字符。prompt 规模包含 initial config、累计 user 消息、GT 调用和官方 backend 的真实 GT 执行结果；不包含 `path`。
+使用仓库固定的 RWKV World tokenizer 实际编码完整 prompt：实现为 `third_party/rwkv-mobile/converter/rwkv_src/rwkv_tokenizer.py`，词表为 `rwkv_vocab_v20230424.txt`，SHA-256 `e6dee3d4e31b4d5c40ac99508ac6c701ceef4bed681bf2167ce9a908552bca89`。模型总窗口为 16384 token；按 runner 每步 `max_tokens=1024` 预留生成空间后，prompt 安全预算为 15360 token。prompt 包含 initial config、累计 user 消息、GT 调用和官方 backend 的真实 GT 执行结果；不包含 `path`。
 
-| Split | 全量 catalog p50/p90/p95/max | 全量可行 | 理想 class 收窄 p50/p90/p95/max | 收窄可行 |
+| Split | 全量 catalog tokens p50/p90/p95/max | 全量可行 | 理想 class 收窄 tokens p50/p90/p95/max | 收窄可行 |
 |---|---:|---:|---:|---:|
-| `base` | 16472/19848/20326/21687 | 200/200 | 12652/14512/18746/20618 | 200/200 |
-| `long_context` | 24063/56297/58852/83591 | 174/200 | 19171/50015/57047/80382 | 183/200 |
-| `miss_func` | 16549/19926/20404/21765 | 200/200 | 12719/14590/18359/20696 | 200/200 |
-| `miss_param` | 16485/19870/20364/21728 | 200/200 | 12690/14535/18746/20670 | 200/200 |
+| `base` | 3876/4605/4751/5176 | 200/200 | 2964/3530/4184/4809 | 200/200 |
+| `long_context` | 6375/27487/29111/47264 | 158/200 | 5424/26663/28358/46550 | 158/200 |
+| `miss_func` | 3895/4623/4769/5194 | 200/200 | 2982/3548/4201/4827 | 200/200 |
+| `miss_param` | 3883/4611/4764/5179 | 200/200 | 2967/3530/4193/4825 | 200/200 |
 
-全量 catalog 可行集为 774/800，理想收窄可行集为 783/800；后续 baseline/enhanced 公平比较应冻结二者共同的 774 题。此前 12288-token 阈值是额外保守口径，不是该权重的严格窗口口径。E7 的 `multi_turn_base_0` 在两套可行集内，既有单题结论不受阈值修正影响。机器可读明细位于 `runs/bfcl-mt/context-budget.json`，摘要位于 `runs/bfcl-mt/context-budget.md`。
+全量 catalog 和理想 class 收窄可行集均为 758/800，因此共同公平集也是 758 题；42 个不可行 case 全部来自 `long_context`。字符数与 token 数在长工具返回上不是稳定比例，先前 3.5 字符/token 得到的 774/783 已废止。CLI 的 `--max-prompt-chars` 只保留为可选 byte guard，默认关闭，不能再用于定义可行集。E7 的 `multi_turn_base_0` 在两套可行集内，既有单题结论不受修正影响。机器可读逐题 token 明细位于 `runs/bfcl-mt/context-budget.json`，摘要位于 `runs/bfcl-mt/context-budget.md`。
 
 ## E6：sidecar 与 GT 门禁
 

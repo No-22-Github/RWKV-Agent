@@ -20,11 +20,7 @@ import (
 
 const bfclSidecarProtocolV1 = "bfcl-python-sidecar-v1"
 
-const (
-	bfclMultiTurnContextTokens         = 16_384
-	bfclMultiTurnDefaultMaxTokens      = 1_024
-	bfclMultiTurnDefaultMaxPromptChars = (bfclMultiTurnContextTokens - bfclMultiTurnDefaultMaxTokens) * 7 / 2
-)
+const bfclMultiTurnDefaultMaxTokens = 1_024
 
 type bfclMultiTurnOptions struct {
 	model                    string
@@ -212,7 +208,7 @@ func parseBFCLMultiTurnOptions(args []string) (bfclMultiTurnOptions, error) {
 	fs.StringVar(&options.sidecarScript, "sidecar-script", "internal/bfcl/pysidecar/server.py", "BFCL execution sidecar script")
 	fs.IntVar(&options.maxTokens, "max-tokens", bfclMultiTurnDefaultMaxTokens, "maximum tokens per agent step")
 	fs.IntVar(&options.routeMaxTokens, "route-max-tokens", 48, "maximum tokens per route call")
-	fs.IntVar(&options.maxPromptChars, "max-prompt-chars", bfclMultiTurnDefaultMaxPromptChars, "maximum encoded prompt characters")
+	fs.IntVar(&options.maxPromptChars, "max-prompt-chars", 0, "optional prompt byte guard; 0 disables it")
 	fs.IntVar(&options.maxSteps, "max-steps", 20, "maximum steps per turn")
 	fs.IntVar(&options.routeRetries, "route-retries", 1, "route/protocol correction retries")
 	fs.IntVar(&options.duplicateReplayLimit, "duplicate-replay-limit", 2, "allowed identical calls before rejection")
@@ -243,7 +239,7 @@ func parseBFCLMultiTurnOptions(args []string) (bfclMultiTurnOptions, error) {
 	if !strings.HasPrefix(options.split, "multi_turn_") || !strings.HasPrefix(options.caseID, options.split+"_") {
 		return options, fmt.Errorf("BFCL multi-turn split/case mismatch")
 	}
-	if options.maxTokens <= 0 || options.routeMaxTokens <= 0 || options.maxPromptChars <= 0 || options.maxSteps <= 0 || options.routeRetries < 0 || options.caseTimeout <= 0 || options.temperature < 0 {
+	if options.maxTokens <= 0 || options.routeMaxTokens <= 0 || options.maxPromptChars < 0 || options.maxSteps <= 0 || options.routeRetries < 0 || options.caseTimeout <= 0 || options.temperature < 0 {
 		return options, fmt.Errorf("invalid BFCL multi-turn limits")
 	}
 	if options.temperature == 0 && options.transport == string(bfcl.TransportRWKVContinuation) {

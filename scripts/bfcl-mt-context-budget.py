@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 import argparse
-import copy
+import ast
+import hashlib
+import importlib.util
 import json
 import math
 import re
@@ -18,11 +20,9 @@ from bfcl_eval.eval_checker.multi_turn_eval import multi_turn_utils
 
 
 SPLITS = ("base", "long_context", "miss_func", "miss_param")
-CHARS_PER_TOKEN = 3.5
 RWKV_CONTEXT_TOKENS = 16_384
 RWKV_MAX_OUTPUT_TOKENS = 1_024
 RWKV_PROMPT_BUDGET_TOKENS = RWKV_CONTEXT_TOKENS - RWKV_MAX_OUTPUT_TOKENS
-RWKV_CHAR_BUDGET = int(CHARS_PER_TOKEN * RWKV_PROMPT_BUDGET_TOKENS)
 HOLDOUT_PROMPT = "I have updated some more functions you can choose from. What about now?"
 SYSTEM_PREFIX = """System: You are a BFCL multi-turn tool agent. Use only the listed tools.
 Return one JSON function-call object in exactly this shape: {"name":"TOOL_NAME","arguments":{"ARGUMENT":"VALUE"}}.
@@ -33,6 +33,34 @@ Tools:
 
 def load_jsonl(path: Path) -> list[dict[str, Any]]:
     return [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
+
+
+def load_rwkv_tokenizer(repo: Path, vocab_path: Path) -> Any:
+    module_path = repo / "third_party/rwkv-mobile/converter/rwkv_src/rwkv_tokenizer.py"
+    spec = importlib.util.spec_from_file_location("rwkv_mobile_tokenizer", module_path)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"cannot load RWKV tokenizer implementation: {module_path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    tokenizer = module.RWKV_TOKENIZER(str(vocab_path))
+    probe = 'System: tokenizer verification\nAssistant: {"name":"pwd","arguments":{}}'
+    if tokenizer.decode(tokenizer.encode(probe)) != probe:
+        raise RuntimeError("RWKV tokenizer round-trip verification failed")
+    return tokenizer
+
+
+class CachedTokenCounter:
+    def __init__(self, tokenizer: Any, counts: dict[str, int] | None = None) -> None:
+        self.tokenizer = tokenizer
+        self.counts = counts or {}
+
+    def count(self, prompt: str) -> int:
+        digest = hashlib.sha256(prompt.encode("utf-8")).hexdigest()
+        count = self.counts.get(digest)
+        if count is None:
+            count = len(self.tokenizer.encode(prompt))
+            self.counts[digest] = count
+        return count
 
 
 def load_docs(data_dir: Path, entry: dict[str, Any]) -> list[dict[str, Any]]:
@@ -62,6 +90,38 @@ def call_classes(calls: list[str], docs: list[dict[str, Any]]) -> list[str]:
     return result
 
 
+def render_ground_truth_calls(calls: list[str], docs: list[dict[str, Any]]) -> str:
+    parameter_names = {
+        doc["name"]: list(doc["raw"].get("parameters", {}).get("properties", {}))
+        for doc in docs
+    }
+    rendered: list[dict[str, Any]] = []
+    for source in calls:
+        expression = ast.parse(source, mode="eval").body
+        if not isinstance(expression, ast.Call):
+            raise ValueError(f"ground-truth entry is not a call: {source}")
+        if isinstance(expression.func, ast.Name):
+            name = expression.func.id
+        elif isinstance(expression.func, ast.Attribute):
+            name = expression.func.attr
+        else:
+            raise ValueError(f"unsupported ground-truth call target: {source}")
+        names = parameter_names.get(name, [])
+        if len(expression.args) > len(names):
+            raise ValueError(f"too many positional arguments in ground-truth call: {source}")
+        arguments = {
+            names[index]: ast.literal_eval(value)
+            for index, value in enumerate(expression.args)
+        }
+        for keyword in expression.keywords:
+            if keyword.arg is None:
+                raise ValueError(f"expanded keyword arguments are unsupported: {source}")
+            arguments[keyword.arg] = ast.literal_eval(keyword.value)
+        rendered.append({"name": name, "arguments": arguments})
+    value: Any = rendered[0] if len(rendered) == 1 else rendered
+    return json.dumps(value, ensure_ascii=False, separators=(",", ":"))
+
+
 def render_prefix(entry: dict[str, Any], docs: list[dict[str, Any]], turn: int, narrowed: list[str] | None) -> str:
     available = [
         doc["raw"]
@@ -77,7 +137,7 @@ def render_prefix(entry: dict[str, Any], docs: list[dict[str, Any]], turn: int, 
         SYSTEM_PREFIX
         + encoded_tools
         + "\n]\nInitial state:\n"
-        + json.dumps(entry.get("initial_config", {}), ensure_ascii=False, separators=(",", ":"))
+        + json.dumps(entry.get("initial_config", {}), ensure_ascii=False, separators=(",", ":"), sort_keys=True)
         + "\n"
     )
 
@@ -108,12 +168,19 @@ def cleanup(entry: dict[str, Any], suffix: str) -> None:
             delattr(multi_turn_utils, name)
 
 
-def profile_case(entry: dict[str, Any], ground_truth: list[list[str]], docs: list[dict[str, Any]], split: str, index: int) -> dict[str, Any]:
+def profile_case(entry: dict[str, Any], ground_truth: list[list[str]], docs: list[dict[str, Any]], split: str, index: int, token_counter: CachedTokenCounter) -> dict[str, Any]:
     history = ""
     full_max = 0
     narrow_max = 0
+    full_token_max = 0
+    narrow_token_max = 0
     result_bytes = 0
     suffix = f"{split}_{index}"
+
+    def measure(turn: int, narrowed: list[str] | None) -> tuple[int, int]:
+        prompt = render_prefix(entry, docs, turn, narrowed) + history + "Assistant: "
+        return len(prompt), token_counter.count(prompt)
+
     try:
         for turn, original_messages in enumerate(entry["question"]):
             messages = original_messages or [{"role": "user", "content": HOLDOUT_PROMPT}]
@@ -121,15 +188,23 @@ def profile_case(entry: dict[str, Any], ground_truth: list[list[str]], docs: lis
                 history += transcript_message(message["role"].title(), message["content"])
             calls = ground_truth[turn]
             narrowed = call_classes(calls, docs)
-            full_max = max(full_max, len(render_prefix(entry, docs, turn, None) + history + "Assistant: "))
-            narrow_max = max(narrow_max, len(render_prefix(entry, docs, turn, narrowed) + history + "Assistant: "))
+            full_chars, full_tokens = measure(turn, None)
+            narrow_chars, narrow_tokens = measure(turn, narrowed)
+            full_max = max(full_max, full_chars)
+            narrow_max = max(narrow_max, narrow_chars)
+            full_token_max = max(full_token_max, full_tokens)
+            narrow_token_max = max(narrow_token_max, narrow_tokens)
             if calls:
                 results = execute(entry, calls, split, suffix)
                 result_bytes += len(json.dumps(results, ensure_ascii=False))
-                history += transcript_message("Assistant", calls)
+                history += transcript_message("Assistant", render_ground_truth_calls(calls, docs))
                 history += transcript_message("Tool", results)
-                full_max = max(full_max, len(render_prefix(entry, docs, turn, None) + history + "Assistant: "))
-                narrow_max = max(narrow_max, len(render_prefix(entry, docs, turn, narrowed) + history + "Assistant: "))
+                full_chars, full_tokens = measure(turn, None)
+                narrow_chars, narrow_tokens = measure(turn, narrowed)
+                full_max = max(full_max, full_chars)
+                narrow_max = max(narrow_max, narrow_chars)
+                full_token_max = max(full_token_max, full_tokens)
+                narrow_token_max = max(narrow_token_max, narrow_tokens)
     finally:
         cleanup(entry, suffix)
     return {
@@ -141,10 +216,10 @@ def profile_case(entry: dict[str, Any], ground_truth: list[list[str]], docs: lis
         "gt_result_chars": result_bytes,
         "full_max_chars": full_max,
         "narrow_max_chars": narrow_max,
-        "full_est_tokens": math.ceil(full_max / CHARS_PER_TOKEN),
-        "narrow_est_tokens": math.ceil(narrow_max / CHARS_PER_TOKEN),
-        "full_feasible": full_max <= RWKV_CHAR_BUDGET,
-        "narrow_feasible": narrow_max <= RWKV_CHAR_BUDGET,
+        "full_max_tokens": full_token_max,
+        "narrow_max_tokens": narrow_token_max,
+        "full_feasible": full_token_max <= RWKV_PROMPT_BUDGET_TOKENS,
+        "narrow_feasible": narrow_token_max <= RWKV_PROMPT_BUDGET_TOKENS,
     }
 
 
@@ -168,17 +243,19 @@ def markdown(report: dict[str, Any]) -> str:
         "# BFCL v4 multi-turn E5 context budget",
         "",
         f"- Cases: {report['cases']} (200 per split).",
-        f"- Conservative estimate: {CHARS_PER_TOKEN:.1f} characters/token; RWKV total context {RWKV_CONTEXT_TOKENS} tokens minus {RWKV_MAX_OUTPUT_TOKENS} max output tokens leaves a {RWKV_PROMPT_BUDGET_TOKENS}-token prompt budget = {RWKV_CHAR_BUDGET} characters.",
+        f"- Exact tokenizer: `{report['tokenizer_path']}` (SHA-256 `{report['tokenizer_sha256']}`).",
+        f"- RWKV total context {RWKV_CONTEXT_TOKENS} tokens minus {RWKV_MAX_OUTPUT_TOKENS} max output tokens leaves a {RWKV_PROMPT_BUDGET_TOKENS}-token prompt budget.",
         "- `full`: all involved-class tool docs available at that turn. `narrow`: ideal GT-class catalog for that turn; this is a feasibility bound, not a model-routing score.",
         "- Prompt growth includes initial_config, all user turns, GT calls, and actual official-backend GT execution results. `path` is not rendered.",
+        "- Character counts remain in the JSON as diagnostics only; feasibility uses exact tokenizer output.",
         "",
-        "| Split | Turns distribution | Full chars p50/p90/p95/max | Full feasible | Narrow chars p50/p90/p95/max | Narrow feasible |",
+        "| Split | Turns distribution | Full tokens p50/p90/p95/max | Full feasible | Narrow tokens p50/p90/p95/max | Narrow feasible |",
         "|---|---|---:|---:|---:|---:|",
     ]
     for split in SPLITS:
         item = report["splits"][split]
-        full = item["full_chars"]
-        narrow = item["narrow_chars"]
+        full = item["full_tokens"]
+        narrow = item["narrow_tokens"]
         turns = ", ".join(f"{key}:{value}" for key, value in item["turns"].items())
         lines.append(
             f"| `{split}` | {turns} | {full['p50']}/{full['p90']}/{full['p95']}/{full['max']} | {item['full_feasible']}/200 | {narrow['p50']}/{narrow['p90']}/{narrow['p95']}/{narrow['max']} | {item['narrow_feasible']}/200 |"
@@ -204,24 +281,42 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo", type=Path, default=Path(__file__).resolve().parents[1])
     parser.add_argument("--output", type=Path, default=Path("runs/bfcl-mt/context-budget.md"))
+    parser.add_argument(
+        "--tokenizer",
+        type=Path,
+        default=Path("third_party/rwkv-mobile/assets/rwkv_vocab_v20230424.txt"),
+    )
     args = parser.parse_args()
     repo = args.repo.resolve()
     output = args.output if args.output.is_absolute() else repo / args.output
+    vocab_path = args.tokenizer if args.tokenizer.is_absolute() else repo / args.tokenizer
+    tokenizer_sha256 = hashlib.sha256(vocab_path.read_bytes()).hexdigest()
+    tokenizer = load_rwkv_tokenizer(repo, vocab_path)
+    cache_path = output.with_suffix(".token-cache.json")
+    cached_counts: dict[str, int] = {}
+    if cache_path.exists():
+        cache_payload = json.loads(cache_path.read_text())
+        if cache_payload.get("tokenizer_sha256") == tokenizer_sha256:
+            cached_counts = {
+                str(key): int(value)
+                for key, value in cache_payload.get("counts", {}).items()
+            }
+    token_counter = CachedTokenCounter(tokenizer, cached_counts)
     data_dir = repo / "third_party/gorilla/berkeley-function-call-leaderboard/bfcl_eval/data"
     all_rows: list[dict[str, Any]] = []
     for split in SPLITS:
         questions = load_jsonl(data_dir / f"BFCL_v4_multi_turn_{split}.json")
         answers = {row["id"]: row["ground_truth"] for row in load_jsonl(data_dir / f"possible_answer/BFCL_v4_multi_turn_{split}.json")}
         for index, entry in enumerate(questions):
-            all_rows.append(profile_case(entry, answers[entry["id"]], load_docs(data_dir, entry), split, index))
+            all_rows.append(profile_case(entry, answers[entry["id"]], load_docs(data_dir, entry), split, index, token_counter))
     report: dict[str, Any] = {
         "schema_version": 1,
         "cases": len(all_rows),
         "context_tokens": RWKV_CONTEXT_TOKENS,
         "max_output_tokens": RWKV_MAX_OUTPUT_TOKENS,
         "prompt_budget_tokens": RWKV_PROMPT_BUDGET_TOKENS,
-        "chars_per_token": CHARS_PER_TOKEN,
-        "char_budget": RWKV_CHAR_BUDGET,
+        "tokenizer_path": str(vocab_path.relative_to(repo)) if vocab_path.is_relative_to(repo) else str(vocab_path),
+        "tokenizer_sha256": tokenizer_sha256,
         "rows": all_rows,
         "splits": {},
     }
@@ -231,6 +326,8 @@ def main() -> int:
             "turns": dict(sorted(Counter(row["turns"] for row in rows).items())),
             "full_chars": aggregate(rows, "full_max_chars"),
             "narrow_chars": aggregate(rows, "narrow_max_chars"),
+            "full_tokens": aggregate(rows, "full_max_tokens"),
+            "narrow_tokens": aggregate(rows, "narrow_max_tokens"),
             "full_feasible": sum(row["full_feasible"] for row in rows),
             "narrow_feasible": sum(row["narrow_feasible"] for row in rows),
         }
@@ -242,6 +339,17 @@ def main() -> int:
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(markdown(report))
     output.with_suffix(".json").write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n")
+    cache_path.write_text(
+        json.dumps(
+            {
+                "schema_version": 1,
+                "tokenizer_sha256": tokenizer_sha256,
+                "counts": token_counter.counts,
+            },
+            separators=(",", ":"),
+        )
+        + "\n"
+    )
     print(output.read_text())
     return 0
 

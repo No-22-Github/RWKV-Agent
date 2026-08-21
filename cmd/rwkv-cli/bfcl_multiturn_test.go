@@ -17,7 +17,7 @@ func TestParseBFCLMultiTurnOptionsAcceptsEnhancedQwen(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if options.tier != "enhanced" || options.transport != "chat-completions-wrapped" || options.maxSteps != 20 || options.maxPromptChars != 53_760 {
+	if options.tier != "enhanced" || options.transport != "chat-completions-wrapped" || options.maxSteps != 20 || options.maxPromptChars != 0 {
 		t.Fatalf("options = %+v", options)
 	}
 }
