@@ -259,11 +259,45 @@ func parseStrictCallObject(object map[string]json.RawMessage) ([]toolchat.ToolCa
 	return []toolchat.ToolCall{{Name: name, Arguments: string(arguments)}}, nil
 }
 
+// parseRWKVWireCompatV1 repairs a single call object or an array of them.
+//
+// The array branch matters only where an anchor commits the model to array
+// shape. Single-turn reaches it just on the parallel splits, where the anchor
+// had already driven stringification to zero, so it went unexercised; the
+// multi-turn array anchor makes every output an array, and without this the
+// enhanced tier has nothing it can repair.
 func parseRWKVWireCompatV1(value string, functions []json.RawMessage) (ParseOutcome, error) {
-	object, err := decodeMarkdownCallObject(value)
+	raw, err := decodeMarkdownCallValue(value)
 	if err != nil {
 		return ParseOutcome{}, err
 	}
+	if len(raw) > 0 && bytes.TrimSpace(raw)[0] == '[' {
+		var elements []map[string]json.RawMessage
+		if err := json.Unmarshal(raw, &elements); err != nil {
+			return ParseOutcome{}, fmt.Errorf("decode function call array: %w", err)
+		}
+		if len(elements) == 0 {
+			return ParseOutcome{}, fmt.Errorf("function call array is empty")
+		}
+		outcome := ParseOutcome{Calls: make([]toolchat.ToolCall, 0, len(elements))}
+		for index, element := range elements {
+			single, err := repairRWKVCallObject(element, functions)
+			if err != nil {
+				return ParseOutcome{}, fmt.Errorf("function call %d: %w", index, err)
+			}
+			outcome.Calls = append(outcome.Calls, single.Calls...)
+			outcome.Repairs = append(outcome.Repairs, single.Repairs...)
+		}
+		return outcome, nil
+	}
+	var object map[string]json.RawMessage
+	if err := json.Unmarshal(raw, &object); err != nil {
+		return ParseOutcome{}, fmt.Errorf("decode function call: %w", err)
+	}
+	return repairRWKVCallObject(object, functions)
+}
+
+func repairRWKVCallObject(object map[string]json.RawMessage, functions []json.RawMessage) (ParseOutcome, error) {
 	var name string
 	if err := json.Unmarshal(object["name"], &name); err != nil || strings.TrimSpace(name) == "" {
 		return ParseOutcome{}, fmt.Errorf("function call name is required")

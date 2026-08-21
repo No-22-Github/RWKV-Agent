@@ -289,6 +289,34 @@ func TestArrayAnchorRefusesToCloseTruncatedOutput(t *testing.T) {
 	}
 }
 
+// Wire-compat repaired only a single top-level object, so under an array anchor
+// it could not reach the stringified-arguments defect at all. Single-turn hides
+// this because the anchor had already driven stringification to zero on the
+// parallel splits.
+func TestWireCompatRepairsStringifiedArgumentsInsideArray(t *testing.T) {
+	t.Parallel()
+	functions := []json.RawMessage{
+		json.RawMessage(`{"name":"ls","parameters":{"type":"dict","properties":{"a":{"type":"boolean"}}}}`),
+		json.RawMessage(`{"name":"cd","parameters":{"type":"dict","properties":{"folder":{"type":"string"}}}}`),
+	}
+	outcome, err := ParseMarkdownCallsWithMode(
+		`[{"name":"ls","arguments":"{\"a\": true}"},{"name":"cd","arguments":"{\"folder\":\"tmp\"}"}]`,
+		functions, ParserRWKVWireCompatV1)
+	if err != nil {
+		t.Fatalf("array of stringified-argument calls was not repaired: %v", err)
+	}
+	if len(outcome.Calls) != 2 || outcome.Calls[0].Name != "ls" || outcome.Calls[1].Name != "cd" {
+		t.Fatalf("calls = %+v", outcome.Calls)
+	}
+	if len(outcome.Repairs) != 2 {
+		t.Fatalf("each element should record its own repair, got %v", outcome.Repairs)
+	}
+	// Strict must still reject it, or the tiers stop differing.
+	if _, err := ParseMarkdownCalls(`[{"name":"ls","arguments":"{\"a\": true}"}]`); err == nil {
+		t.Fatal("strict must not accept stringified arguments")
+	}
+}
+
 func TestMultiTurnAnchorPrefillAndEmptyReachability(t *testing.T) {
 	t.Parallel()
 	for _, testCase := range []struct {
