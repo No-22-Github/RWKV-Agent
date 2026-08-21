@@ -510,6 +510,19 @@ func transcriptContent(step MultiTurnStepTrace) string {
 // It is deliberately conservative: it only appends the terminator when the
 // content is otherwise well formed. Unbalanced braces or an unterminated string
 // mean the model was truncated, which is a genuine failure and must stay one.
+// trimAnchorFence drops a closing fence that matches the opening one the anchor
+// left in the prompt. Because assembly reinstates only the JSON body, the
+// decoder never sees the opener and would read the closer as trailing garbage.
+// The "```" stop keeps this from firing on either current transport, so it is
+// defensive: no recorded run contains a trailing fence.
+func trimAnchorFence(content string) string {
+	trimmed := strings.TrimRight(content, " \t\n")
+	if !strings.HasSuffix(trimmed, "```") {
+		return content
+	}
+	return strings.TrimRight(strings.TrimSuffix(trimmed, "```"), " \t\n")
+}
+
 func closeAnchorArray(content string) (string, bool) {
 	brackets, braces := 0, 0
 	inString, escaped := false, false
@@ -546,6 +559,11 @@ func assembleMultiTurnContent(anchor, generated string) (string, string) {
 		return candidate, "no_anchor"
 	}
 	body := strings.TrimPrefix(anchor, "```json\n")
+	if body != "" {
+		// The opener stayed in the prompt, so a closer here is scaffold too.
+		candidate = trimAnchorFence(candidate)
+		generated = trimAnchorFence(generated)
+	}
 	switch {
 	case body == "" && (strings.HasPrefix(candidate, "{") || strings.HasPrefix(candidate, "[")):
 		return candidate, "self_contained"
