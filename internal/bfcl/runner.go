@@ -23,11 +23,34 @@ type RunnerOptions struct {
 	Progress        func(completed, total int)
 }
 
+type AttemptTrace struct {
+	Attempt          int      `json:"attempt"`
+	PromptSHA256     string   `json:"prompt_sha256"`
+	PrefillAnchor    string   `json:"prefill_anchor"`
+	AssemblyMode     string   `json:"assembly_mode"`
+	GeneratedContent string   `json:"generated_content"`
+	Content          string   `json:"content"`
+	FinishReason     string   `json:"finish_reason,omitempty"`
+	StrictErrorCode  string   `json:"strict_error_code,omitempty"`
+	ParseError       string   `json:"parse_error,omitempty"`
+	Repairs          []string `json:"repairs,omitempty"`
+	NoCall           bool     `json:"no_call,omitempty"`
+	Adopted          bool     `json:"adopted,omitempty"`
+	InputTokens      int      `json:"input_tokens,omitempty"`
+	OutputTokens     int      `json:"output_tokens,omitempty"`
+	Latency          float64  `json:"latency,omitempty"`
+}
+
 type TraceEntry struct {
 	ResultEntry
 	Content          string              `json:"content,omitempty"`
+	GeneratedContent string              `json:"generated_content,omitempty"`
+	PrefillAnchor    string              `json:"prefill_anchor,omitempty"`
+	AssemblyMode     string              `json:"assembly_mode,omitempty"`
+	PromptSHA256     string              `json:"prompt_sha256,omitempty"`
 	ReasoningContent string              `json:"reasoning_content,omitempty"`
 	ToolCalls        []toolchat.ToolCall `json:"tool_calls,omitempty"`
+	Attempts         []AttemptTrace      `json:"attempts,omitempty"`
 	PromptBytes      int                 `json:"prompt_bytes,omitempty"`
 	FinishReason     string              `json:"finish_reason,omitempty"`
 	Repairs          []string            `json:"repairs,omitempty"`
@@ -42,6 +65,8 @@ type RunResult struct {
 	Failed       int
 	ParseFailed  int
 	Repaired     int
+	Retried      int
+	RetryParsed  int
 	Skipped      int
 	Usage        continuation.Usage
 	RepairCounts map[string]int

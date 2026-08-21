@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"slices"
+	"strings"
 	"testing"
 	"time"
 
@@ -27,6 +28,65 @@ func TestBaselineStopsRespectTransportLimits(t *testing.T) {
 	}
 }
 
+func TestAssembleMarkdownContentHandlesContinuationShapes(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name      string
+		anchor    string
+		generated string
+		content   string
+		mode      string
+	}{
+		{
+			name: "deep object continuation", anchor: `{"name":"`,
+			generated: `tool","arguments":{}}`, content: `{"name":"tool","arguments":{}}`,
+			mode: "prefill_continuation",
+		},
+		{
+			name: "self-contained object", anchor: `{"name":"`,
+			generated: `{"name":"tool","arguments":{}}`, content: `{"name":"tool","arguments":{}}`,
+			mode: "self_contained",
+		},
+		{
+			name: "array element continuation", anchor: `[{"name":"`,
+			generated: `{"name":"tool","arguments":{}}]`, content: `[{"name":"tool","arguments":{}}]`,
+			mode: "array_elements",
+		},
+		{
+			name: "deep array continuation", anchor: `[{"name":"`,
+			generated: `tool","arguments":{}}]`, content: `[{"name":"tool","arguments":{}}]`,
+			mode: "prefill_continuation",
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			content, mode := assembleMarkdownContent(test.anchor, test.generated)
+			if content != test.content || mode != test.mode {
+				t.Fatalf("content=%q mode=%q", content, mode)
+			}
+		})
+	}
+}
+
+func TestCorrectedPromptUsesAssembledContentOnce(t *testing.T) {
+	t.Parallel()
+	rendered := RenderedPrompt{
+		Prompt: "User: call it\n\nAssistant: ```json\n{\"name\":\"",
+		Anchor: `{"name":"`,
+	}
+	content := `{"name":"tool","arguments":{"value":invalid}}`
+	prompt := correctedPrompt(rendered, content, "json_syntax")
+	if strings.Count(prompt, content) != 1 {
+		t.Fatalf("assembled content count = %d in %q", strings.Count(prompt, content), prompt)
+	}
+	if strings.Contains(prompt, `{"name":"{"name":"`) {
+		t.Fatalf("prompt duplicated prefill anchor: %q", prompt)
+	}
+	if !strings.HasSuffix(prompt, "Assistant: ```json\n{\"name\":\"") {
+		t.Fatalf("retry suffix = %q", prompt)
+	}
+}
+
 func (generator *recordingGenerator) Continue(
 	_ context.Context,
 	request continuation.Request,
@@ -41,7 +101,7 @@ func (generator *recordingGenerator) Continue(
 func TestRunBaselineMakesOneStrictCallPerCase(t *testing.T) {
 	t.Parallel()
 	generator := &recordingGenerator{results: []continuation.Result{
-		{Text: `{"name":"math.tool","arguments":{"value":true}}`, FinishReason: continuation.FinishStop},
+		{Text: `math.tool","arguments":{"value":true}}`, FinishReason: continuation.FinishStop},
 		{Text: `not a call`, FinishReason: continuation.FinishStop},
 	}}
 	cases := []Case{testBaselineCase("simple_python_0"), testBaselineCase("simple_python_1")}
@@ -58,6 +118,11 @@ func TestRunBaselineMakesOneStrictCallPerCase(t *testing.T) {
 	}
 	if result.Entries[0].Result != `[math.tool(value=True)]` || result.Entries[0].ModelCalls != 1 {
 		t.Fatalf("first result = %+v", result.Entries[0])
+	}
+	if result.Trace[0].GeneratedContent != `math.tool","arguments":{"value":true}}` ||
+		result.Trace[0].Content != `{"name":"math.tool","arguments":{"value":true}}` ||
+		result.Trace[0].PrefillAnchor != `{"name":"` || result.Trace[0].PromptSHA256 == "" {
+		t.Fatalf("first trace = %+v", result.Trace[0])
 	}
 	if result.Entries[1].Result != "" || result.Entries[1].ModelCalls != 1 {
 		t.Fatalf("second result = %+v", result.Entries[1])
@@ -114,7 +179,7 @@ func TestRunBaselineTreatsUndecodableIrrelevanceAsNoCall(t *testing.T) {
 func TestRunBaselineUsesJavaResultEncoding(t *testing.T) {
 	t.Parallel()
 	generator := &recordingGenerator{results: []continuation.Result{{
-		Text: `{"name":"tool","arguments":{"enabled":true,"limit":50}}`, FinishReason: continuation.FinishStop,
+		Text: `tool","arguments":{"enabled":true,"limit":50}}`, FinishReason: continuation.FinishStop,
 	}}}
 	entry := testBaselineCase("simple_java_0")
 	entry.Category = "simple_java"
@@ -128,6 +193,125 @@ func TestRunBaselineUsesJavaResultEncoding(t *testing.T) {
 	}
 	if result.Entries[0].Result != `[tool(enabled="true", limit="50")]` {
 		t.Fatalf("result = %q", result.Entries[0].Result)
+	}
+}
+
+func TestRunBaselineReconstructsParallelArrayAnchor(t *testing.T) {
+	t.Parallel()
+	generator := &recordingGenerator{results: []continuation.Result{{
+		Text:         `play","arguments":{"artist":"A"}},{"name":"play","arguments":{"artist":"B"}}]`,
+		FinishReason: continuation.FinishStop,
+	}}}
+	entry := Case{
+		ID:       "parallel_0",
+		Category: "parallel",
+		Messages: []Message{{Role: "user", Content: "play both"}},
+		Functions: []json.RawMessage{json.RawMessage(
+			`{"name":"play","parameters":{"type":"dict","properties":{"artist":{"type":"string"}}}}`,
+		)},
+	}
+	result, err := RunBaseline(context.Background(), []Case{entry}, BaselineRunnerOptions{
+		Generator: generator, Model: "model", Transport: TransportRWKVContinuation,
+		Concurrency: 1, MaxOutputTokens: 1024,
+		MaxPromptChars: 40000, Temperature: 0.001, CaseTimeout: time.Second,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.ParseFailed != 0 || result.Trace[0].PrefillAnchor != `[{"name":"` ||
+		result.Entries[0].Result != `[play(artist="A"), play(artist="B")]` {
+		t.Fatalf("result=%+v trace=%+v", result, result.Trace[0])
+	}
+}
+
+func TestRunEnhancedRepairsBeforeRetry(t *testing.T) {
+	t.Parallel()
+	generator := &recordingGenerator{results: []continuation.Result{{
+		Text: `math.tool","arguments":"{\"value\":true}"}`, FinishReason: continuation.FinishStop,
+	}}}
+	result, err := RunBaseline(context.Background(), []Case{testBaselineCase("simple_python_0")}, BaselineRunnerOptions{
+		Generator: generator, Model: "model", Tier: TierEnhanced, Transport: TransportRWKVContinuation,
+		Concurrency: 1, MaxOutputTokens: 1024,
+		MaxPromptChars: 40000, Temperature: 0.001, CaseTimeout: time.Second,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(generator.requests) != 1 || result.Repaired != 1 || result.Retried != 0 ||
+		result.Entries[0].Result != `[math.tool(value=True)]` {
+		t.Fatalf("requests=%d result=%+v trace=%+v", len(generator.requests), result, result.Trace[0])
+	}
+	if !slices.Equal(result.Trace[0].Repairs, []string{RepairArgumentsUnwrapped}) {
+		t.Fatalf("repairs = %q", result.Trace[0].Repairs)
+	}
+}
+
+func TestRunEnhancedRetriesOnceAfterCompatFailure(t *testing.T) {
+	t.Parallel()
+	generator := &recordingGenerator{results: []continuation.Result{
+		{Text: `broken`, FinishReason: continuation.FinishStop},
+		{Text: `math.tool","arguments":{"value":true}}`, FinishReason: continuation.FinishStop},
+	}}
+	result, err := RunBaseline(context.Background(), []Case{testBaselineCase("simple_python_0")}, BaselineRunnerOptions{
+		Generator: generator, Model: "model", Tier: TierEnhanced, Transport: TransportRWKVContinuation,
+		Concurrency: 1, MaxOutputTokens: 1024,
+		MaxPromptChars: 40000, Temperature: 0.001, CaseTimeout: time.Second,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(generator.requests) != 2 || result.Retried != 1 || result.RetryParsed != 1 ||
+		result.Entries[0].ModelCalls != 2 || result.Entries[0].Result != `[math.tool(value=True)]` {
+		t.Fatalf("requests=%d result=%+v trace=%+v", len(generator.requests), result, result.Trace[0])
+	}
+	if !strings.Contains(generator.requests[1].Prompt, "error: json_syntax") ||
+		!strings.HasSuffix(generator.requests[1].Prompt, "Assistant: ```json\n{\"name\":\"") {
+		t.Fatalf("retry prompt = %q", generator.requests[1].Prompt)
+	}
+	if len(result.Trace[0].Attempts) != 2 || result.Trace[0].Attempts[0].Adopted ||
+		!result.Trace[0].Attempts[1].Adopted {
+		t.Fatalf("attempts = %+v", result.Trace[0].Attempts)
+	}
+}
+
+func TestRunEnhancedDoesNotRetryIrrelevanceParseFailure(t *testing.T) {
+	t.Parallel()
+	generator := &recordingGenerator{results: []continuation.Result{{
+		Text: "I cannot use these tools.", FinishReason: continuation.FinishStop,
+	}}}
+	entry := testBaselineCase("irrelevance_0")
+	entry.Category = "irrelevance"
+	result, err := RunBaseline(context.Background(), []Case{entry}, BaselineRunnerOptions{
+		Generator: generator, Model: "model", Tier: TierEnhanced, Transport: TransportRWKVContinuation,
+		Concurrency: 1, MaxOutputTokens: 1024,
+		MaxPromptChars: 40000, Temperature: 0.001, CaseTimeout: time.Second,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(generator.requests) != 1 || result.Retried != 0 || result.ParseFailed != 0 ||
+		!result.Trace[0].Attempts[0].NoCall {
+		t.Fatalf("requests=%d result=%+v trace=%+v", len(generator.requests), result, result.Trace[0])
+	}
+}
+
+func TestRunEnhancedDoesNotHideIrrelevanceToolCall(t *testing.T) {
+	t.Parallel()
+	generator := &recordingGenerator{results: []continuation.Result{{
+		Text: `math.tool","arguments":{"value":true}}`, FinishReason: continuation.FinishStop,
+	}}}
+	entry := testBaselineCase("irrelevance_0")
+	entry.Category = "irrelevance"
+	result, err := RunBaseline(context.Background(), []Case{entry}, BaselineRunnerOptions{
+		Generator: generator, Model: "model", Tier: TierEnhanced, Transport: TransportRWKVContinuation,
+		Concurrency: 1, MaxOutputTokens: 1024,
+		MaxPromptChars: 40000, Temperature: 0.001, CaseTimeout: time.Second,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Entries[0].Result != `[math.tool(value=True)]` || result.Trace[0].Attempts[0].NoCall {
+		t.Fatalf("result=%+v trace=%+v", result, result.Trace[0])
 	}
 }
 

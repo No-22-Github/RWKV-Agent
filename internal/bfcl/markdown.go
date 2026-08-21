@@ -15,7 +15,15 @@ type Tier string
 
 const (
 	TierBaseline Tier = "baseline"
+	TierEnhanced Tier = "enhanced"
 )
+
+const RenderProtocolAnchorV1 = "bfcl-markdown-anchor-v1"
+
+type RenderedPrompt struct {
+	Prompt string
+	Anchor string
+}
 
 type Transport string
 
@@ -51,21 +59,29 @@ func ParseParserMode(value string) (ParserMode, error) {
 }
 
 func RenderPrompt(entry Case, tier Tier, transport Transport) (string, error) {
-	if tier != TierBaseline {
-		return "", fmt.Errorf("unsupported BFCL tier %q", tier)
+	rendered, err := RenderPromptWithAnchor(entry, tier, transport)
+	if err != nil {
+		return "", err
+	}
+	return rendered.Prompt, nil
+}
+
+func RenderPromptWithAnchor(entry Case, tier Tier, transport Transport) (RenderedPrompt, error) {
+	if tier != TierBaseline && tier != TierEnhanced {
+		return RenderedPrompt{}, fmt.Errorf("unsupported BFCL tier %q", tier)
 	}
 	if transport != TransportRWKVContinuation && transport != TransportChatCompletionsWrapped {
-		return "", fmt.Errorf("unsupported BFCL transport %q", transport)
+		return RenderedPrompt{}, fmt.Errorf("unsupported BFCL transport %q", transport)
 	}
 	if len(entry.Messages) == 0 {
-		return "", fmt.Errorf("BFCL case %q requires messages", entry.ID)
+		return RenderedPrompt{}, fmt.Errorf("BFCL case %q requires messages", entry.ID)
 	}
 
 	var prompt strings.Builder
 	prompt.WriteString("System: Tools:\n[\n")
 	for index, function := range entry.Functions {
 		if len(function) == 0 || !json.Valid(function) {
-			return "", fmt.Errorf("BFCL case %q function %d is invalid JSON", entry.ID, index)
+			return RenderedPrompt{}, fmt.Errorf("BFCL case %q function %d is invalid JSON", entry.ID, index)
 		}
 		if index > 0 {
 			prompt.WriteString(",\n")
@@ -90,7 +106,7 @@ func RenderPrompt(entry Case, tier Tier, transport Transport) (string, error) {
 	prompt.WriteString("Do not output prose or role labels.\n\n")
 	for index, message := range entry.Messages {
 		if strings.TrimSpace(message.Content) == "" {
-			return "", fmt.Errorf("BFCL case %q message %d is empty", entry.ID, index)
+			return RenderedPrompt{}, fmt.Errorf("BFCL case %q message %d is empty", entry.ID, index)
 		}
 		switch message.Role {
 		case "system":
@@ -100,13 +116,22 @@ func RenderPrompt(entry Case, tier Tier, transport Transport) (string, error) {
 		case "assistant":
 			prompt.WriteString("Assistant: ")
 		default:
-			return "", fmt.Errorf("BFCL case %q message %d has unsupported role %q", entry.ID, index, message.Role)
+			return RenderedPrompt{}, fmt.Errorf("BFCL case %q message %d has unsupported role %q", entry.ID, index, message.Role)
 		}
 		prompt.WriteString(message.Content)
 		prompt.WriteString("\n\n")
 	}
+	anchor := prefillAnchor(entry.Category)
 	prompt.WriteString("Assistant: ```json\n")
-	return prompt.String(), nil
+	prompt.WriteString(anchor)
+	return RenderedPrompt{Prompt: prompt.String(), Anchor: anchor}, nil
+}
+
+func prefillAnchor(category string) string {
+	if strings.Contains(category, "parallel") {
+		return `[{"name":"`
+	}
+	return `{"name":"`
 }
 
 func ParseMarkdownCalls(value string) ([]toolchat.ToolCall, error) {

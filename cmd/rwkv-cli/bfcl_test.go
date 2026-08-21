@@ -38,6 +38,26 @@ func TestParseBFCLEvalOptionsAcceptsWrappedQwenBaseline(t *testing.T) {
 	}
 }
 
+func TestParseBFCLEvalOptionsAcceptsEnhancedMarkdown(t *testing.T) {
+	t.Parallel()
+	options, err := parseBFCLEvalOptions([]string{
+		"--model", "rwkv7-g1i-7.2b",
+		"--api-url", "https://example.com/v1/chat/completions",
+		"--tier", "enhanced",
+		"--transport", "rwkv-continuation",
+		"--split", "simple_python,multiple",
+		"--sample-manifest", "configs/bfcl-sample-v2.json",
+		"--output", "runs/bfcl/e2",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if options.tier != "enhanced" || options.apiStopTokens != "text" ||
+		options.transport != "rwkv-continuation" {
+		t.Fatalf("options = %+v", options)
+	}
+}
+
 func TestParseBFCLEvalOptionsRestrictsM2Split(t *testing.T) {
 	t.Parallel()
 	_, err := parseBFCLEvalOptions([]string{
@@ -67,6 +87,25 @@ func TestParseBFCLEvalOptionsAcceptsFrozenSampleAcrossSplits(t *testing.T) {
 		t.Fatal(err)
 	}
 	if options.sampleManifest != "configs/bfcl-sample-v1.json" || len(options.splits) != 2 {
+		t.Fatalf("options = %+v", options)
+	}
+}
+
+func TestParseBFCLEvalOptionsAcceptsExplicitCasesAcrossSplits(t *testing.T) {
+	t.Parallel()
+	options, err := parseBFCLEvalOptions([]string{
+		"--model", "Qwen/Qwen3-8B-FP8",
+		"--api-url", "http://example.com/v1/chat/completions",
+		"--tier", "baseline",
+		"--transport", "chat-completions-wrapped",
+		"--split", "simple_python,parallel",
+		"--case", "simple_python_0,parallel_0",
+		"--output", "runs/bfcl/e0",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(options.caseIDs) != 2 || options.caseIDs[1] != "parallel_0" {
 		t.Fatalf("options = %+v", options)
 	}
 }

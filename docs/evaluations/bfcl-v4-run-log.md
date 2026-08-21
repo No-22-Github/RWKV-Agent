@@ -25,6 +25,7 @@
 | `M1-official-control` | 官方 `QwenFCHandler`、手工 tool prompt、`/v1/completions` | 本地模型服务与公开 Qwen3-8B FC 分数的复现程度 | RWKV-Agent 原生适配器本身的成绩 |
 | `M2-markdown-single-call` | 同一 400 题、同一 Markdown prompt renderer、严格 parser、每题一次调用、官方 evaluator | 相同 Harness 和输出契约下的“模型 + transport/template”系统差异 | 纯模型权重差异或字节级完全同协议差异 |
 | `M2.5-parser-calibration` | 完全复用 RWKV M2 原始 trace,仅切换 parser mode | wire-format compat 对既有输出的可恢复增量 | 新一次模型成绩、生成策略收益或公平矩阵格 |
+| `E1-E2-anchor-v1-v2` | v2 固定 491 题、`bfcl-markdown-anchor-v1`、首轮 prompt hash 相同、并发 8、官方 partial evaluator | 同一服务内 baseline/enhanced 的实测系统差异 | 官方全榜 Overall；有输出漂移时也不可把 E1/E2 全部 delta 归因于 Harness |
 | `validation-only` | 固定 evaluator 与人工构造结果 | 数据、目录、decoder 和错误分支是否闭环 | 模型能力 |
 
 `M2-markdown-single-call` 中，RWKV 直接接收 continuation prompt；Chat Completions 模型还会经过 wrapped system instruction 和服务端 chat template，并受最多 4 个 stop sequence 的接口限制，而 RWKV M2 使用 5 个。因此该组具有强诊断可比性，但不是 transport/template 完全一致的模型级隔离实验。
@@ -33,6 +34,10 @@
 
 | 日期 | Run | 比较组 | 模型 | Split | 正确/总数 | 准确率 | 并发 | 解析失败 | 耗时 |
 |---|---|---|---|---|---:|---:|---:|---:|---:|
+| 2026-08-21 | `e2-rwkv7b-enhanced-anchor2-c8-v2-20260821` | `E1-E2-anchor-v1-v2` | RWKV7 G1i 7.2B | A+B v2 13 splits | 267/491 | 54.38% | 8 | 7 | 450.29s |
+| 2026-08-21 | `e1-rwkv7b-baseline-anchor2-c8-v2-20260821` | `E1-E2-anchor-v1-v2` | RWKV7 G1i 7.2B | A+B v2 13 splits | 266/491 | 54.18% | 8 | 6 | 327.41s |
+| 2026-08-21 | `e2-qwen8b-enhanced-anchor2-c8-v2-20260821` | `E1-E2-anchor-v1-v2` | Qwen3-8B-FP8 | A+B v2 13 splits | 315/491 | 64.15% | 8 | 23 | 141.89s |
+| 2026-08-21 | `e1-qwen8b-baseline-anchor2-c8-v2-20260821` | `E1-E2-anchor-v1-v2` | Qwen3-8B-FP8 | A+B v2 13 splits | 313/491 | 63.75% | 8 | 23 | 161.89s |
 | 2026-08-19 | `qwen-markdown-baseline-full-c16-t001-20260819` | `M3-baseline-full-diagnostic` | Qwen3-8B-FP8 | A+B 13 splits | 正样本 2064/2517;负样本 115/1124 | 82.00%;10.23% | 16 | 56 | 603.35s |
 | 2026-08-18 | `m2.5-rwkv-wire-compat-v1-20260818` | `M2.5-parser-calibration` | RWKV7 G1i 7.2B | `simple_python` | 365/400 | 91.25% | 复用源运行 64 | 4 | 离线重解析 0.007s |
 | 2026-08-18 | `qwen-markdown-baseline-simple-python-400-c16-20260818` | `M2-markdown-single-call` | Qwen3-8B-FP8 | `simple_python` | 386/400 | 96.50% | 16 | 0 | 45.48s |
@@ -43,6 +48,64 @@
 | 2026-08-18 | `m1-official-handler-20260818` | `M1-official-control` | Qwen3-8B-FP8 | `simple_python` | 381/400 | 95.25% | 8 | N/A | 1402s 三个 split 合计 |
 | 2026-08-18 | `m1-official-handler-20260818` | `M1-official-control` | Qwen3-8B-FP8 | `multiple` | 191/200 | 95.50% | 8 | N/A | 1402s 三个 split 合计 |
 | 2026-08-18 | `m1-official-handler-20260818` | `M1-official-control` | Qwen3-8B-FP8 | `live_simple` | 217/258 | 84.11% | 8 | N/A | 1402s 三个 split 合计 |
+
+## 2026-08-21 — E0/E1/E2 anchor-v1 + v2 491 题
+
+### 运行冻结项与评分口径
+
+- 数据：BFCL v4 commit `6ea57973c7a6097fd7c5915698c54c17c5b1b6c8`；manifest `configs/bfcl-sample-v2.json`，SHA-256 `f691e923da092230ca1d6692168fbaabc5425883c29814e9ce028161842b7914`。
+- evaluator：`bfcl-eval==2026.3.23`，命令带 `--partial-eval`；因此下表是 491 个实际条目的官方 split 分数和加权值，不使用 evaluator 将未跑 multi-turn 等大类按 0 纳入的 `Overall Acc`。
+- Harness 二进制 SHA-256：RWKV E1/E2 与 Qwen E1 为 `c7499db6817283756ce0524d082f8103e678bc9069f222bdd01ce82a2a1bb068`；Qwen E2 在修复 wrapped self-contained retry transcript 后为 `f8e58dc7c103fbd4f8b629a25cad219b4ddac6325e2bbd5daf790e539cdab933`。源码基点均为 `1cb107ae280801647a2fd16c3dd395058afab230`，运行时工作树为 dirty；精确实现由 binary hash、`run.json` 与 trace 固化。修复不改变首轮 renderer 或 parser，只改变首次解析失败后的纠错 transcript。
+- Renderer：两档均为 `bfcl-markdown-anchor-v1`，单调用预填 `{"name":"`，并行预填 `[{"name":"`。两模型 E1/E2 的 491 个首轮 `prompt_sha256` 均逐题相同。
+- Baseline：strict、一次模型调用。Enhanced：strict 失败后尝试 wire-compat；仍失败才用固定纠错 prompt retry 一次。负样本的 strict 解析失败视为 no-call，不 retry。
+- RWKV：`rwkv7-g1i-7.2b-20260805-ctx16384`，`rwkv_lightning` Python，continuation + SSE + text stop，temperature `0.001`，`concurrency=8`，`remote-batch-wait=50ms`。
+- Qwen：`Qwen/Qwen3-8B-FP8`，本地 vLLM，wrapped continuation，thinking disabled，temperature `0`，`concurrency=8`。已知 FP8/batching 有固定底噪；并发用于缩短运行时间，不把跨运行输出漂移解释成并发因果。
+
+### E0 确定性门禁
+
+| 模型/配置 | A/B 生成 | 字节一致 | 耗时 A/B | 结论 |
+|---|---:|---:|---:|---|
+| RWKV c1，batch wait 0 | 各 20/20，失败/解析失败/跳过均 0 | 20/20 | 45.87s / 46.86s | 通过 |
+| RWKV c8，batch wait 50ms | 各 20/20，失败/解析失败/跳过均 0 | 20/20 | 14.37s / 14.63s | 通过；作为正式 E1/E2 配置 |
+| Qwen c1 | 各 20/20，失败/跳过 0，解析失败各 1 | 20/20 | 29.72s / 29.42s | 串行控制通过 |
+| Qwen c8 | 各 20/20，失败/跳过 0，解析失败各 1 | 19/20 | 5.14s / 5.18s | `live_relevance_0-0-0` 的图片尺寸参数漂移；结合 2026-08-20 诊断，作为已知 FP8/batching 底噪接受并发运行 |
+
+RWKV 对比报告：`runs/bfcl/e0-rwkv7b-anchor2-c1-determinism-20260821.json`、`runs/bfcl/e0-rwkv7b-anchor2-c8-batch50-determinism-20260821.json`。Qwen 对比报告：`runs/bfcl/e0-qwen8b-anchor2-c1-determinism-20260821.json`、`runs/bfcl/e0-qwen8b-anchor2-c8-determinism-20260821.json`。更早的 `e0-qwen8b-anchor-c8-a-20260821` 是 anchor 组装修正前的无效实现诊断，不进入任何评分。
+
+### E1/E2 官方分项
+
+| Split | 题数 | RWKV E1 | RWKV E2 | Qwen E1 | Qwen E2 |
+|---|---:|---:|---:|---:|---:|
+| `simple_python` | 40 | 87.50% | 87.50% | 92.50% | 92.50% |
+| `simple_java` | 100 | 37.00% | 37.00% | 54.00% | 52.00% |
+| `simple_javascript` | 15 | 53.33% | 53.33% | 60.00% | 66.67% |
+| `multiple` | 30 | 96.67% | 96.67% | 96.67% | 96.67% |
+| `parallel` | 30 | 86.67% | 86.67% | 76.67% | 76.67% |
+| `parallel_multiple` | 30 | 73.33% | 76.67% | 83.33% | 83.33% |
+| `irrelevance` | 30 | 0.00% | 0.00% | 10.00% | 10.00% |
+| `live_simple` | 60 | 73.33% | 73.33% | 75.00% | 76.67% |
+| `live_multiple` | 40 | 72.50% | 72.50% | 87.50% | 87.50% |
+| `live_parallel` | 16 | 75.00% | 75.00% | 62.50% | 62.50% |
+| `live_parallel_multiple` | 24 | 37.50% | 37.50% | 70.83% | 79.17% |
+| `live_relevance` | 16 | 93.75% | 93.75% | 100.00% | 100.00% |
+| `live_irrelevance` | 60 | 0.00% | 0.00% | 16.67% | 16.67% |
+| **491 题加权** | **491** | **266/491，54.18%** | **267/491，54.38%** | **313/491，63.75%** | **315/491，64.15%** |
+
+### Enhanced 归因与边界
+
+- RWKV E2：retry 7 题，retry 后可解析 0；wire-compat 直接修复 0。E1/E2 首次生成 487/491 相同，4 个输出漂移 ID 为 `parallel_multiple_89`、`live_parallel_multiple_3-2-1`、`live_relevance_1-1-0`、`live_irrelevance_347-81-8`。表面 +1 题来自跨运行输出变化，不是 retry 救回，不能归因于 Harness。
+- Qwen E2：retry 25 题，retry 后可解析 3（`simple_java_36`、`live_simple_107-64-0`、`live_parallel_multiple_23-20-0`）；wire-compat 直接修复 0。E1/E2 首次生成 445/491 相同，最终 BFCL result 451/491 相同。官方加权表面 +2 题，但分项同时有升有降，FP8/batching 漂移与 retry 收益混合，不能把 +0.41 pp 全部当作确定的 Harness 增益。
+- 两模型 E1/E2 的失败/跳过均为 0/0。RWKV E1/E2 strict 最终解析失败为 6/7；Qwen 为 23/23。负样本低分是模型没有弃权，不是 evaluator 或生成基础设施失败。
+- 结论：本轮最可靠的 E2 证据是“机制触发与恢复清单”，不是一次 A/B 分差。若要隔离纯 Harness delta，应冻结同一份首轮输出做离线 parser/retry 模拟，或对 E1/E2 做多轮配对复跑。
+
+正式产物：
+
+- RWKV E1：`runs/bfcl/e1-rwkv7b-baseline-anchor2-c8-v2-20260821`
+- RWKV E2：`runs/bfcl/e2-rwkv7b-enhanced-anchor2-c8-v2-20260821`
+- Qwen E1：`runs/bfcl/e1-qwen8b-baseline-anchor2-c8-v2-20260821`
+- Qwen E2：`runs/bfcl/e2-qwen8b-enhanced-anchor2-c8-v2-20260821`
+- 每个正式目录均含 `run.json`、`summary.json`、`trace.jsonl`、`result/` 和官方 `score/*.csv`。
+- 无效诊断：`runs/bfcl/e2-qwen8b-enhanced-anchor2-c8-v2-invalid-retry-transcript-20260821`。该轮 wrapped self-contained 首答在纠错 transcript 中重复了 prefill anchor，314/491 不进入正式表。
 
 ## 2026-08-19 — Qwen Markdown baseline A+B 全量诊断
 
@@ -151,6 +214,17 @@ M2.5 证明 M2 的主要损失来自 wire-format 错配,但它不是新一次模
 - 与公开 Qwen3-8B FC：三个 split 分别相差 -0.25、-1.00、-0.39 个百分点
 
 该运行用于证明本地 FP8 服务和固定 evaluator 能复现公开模型行为，不代表 RWKV-Agent native adapter 的协议成绩。
+
+## 2026-08-21 — RWKV 后端并发能力探针
+
+- Run：`runs/bfcl/rwkv-probe-concurrency-20260821.py`（探针脚本，含请求格式）
+- 对象：`api-129-7b.rwkvos.com`，`rwkv7-g1i-7.2b-20260805-ctx16384`，owned_by=`rwkv_lightning`（Python 后端）
+- 结论：**支持并发。** 请求内批量（`contents[]`）是设计主路径：16/32/64/96 路同请求 ≈1.2–1.7s；128 路被 Cloudflare 524 杀掉（约 125s，无响应）。
+- 并行 HTTP：≤8 并发全过；16/32 并发有 31–37% 尾部被 CF 524 杀（服务端 FIFO prefill 队列排队超过 CF 限时）。
+- 组合：4 并行 × 16 批量 = 64 路总耗时 2.7s，全部 200；SSE 流式批量正常（多 choice delta + `[DONE]`）。
+- 服务端机制（上游 `RWKV-Vibe/rwkv_lightning` 源码）：FIFO 票据队列 `acquire_prefill_permit`，并行请求排队不拒绝；单请求超 `max_prefill_bsz` 返回 400 `bsz overflow`；客户端断开返回 499。
+- 更正：未解决问题清单 D 节「RWKV endpoint 只能单飞」不适用于本端点（此前观察疑在 CUDA 后端或受客户端超时影响）；矩阵成本不再按单飞估。
+- 推荐跑法：`--concurrency 8 --remote-batch-wait 50ms` 让 harness 合并批量（单请求 ≤64 留安全边距）；另外注意 Python urllib 默认 UA 会被 CF 1010 拦截，浏览器 UA 正常。
 
 ## 辅助运行索引
 

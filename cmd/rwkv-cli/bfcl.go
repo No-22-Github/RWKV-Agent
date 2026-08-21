@@ -2,13 +2,17 @@ package main
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"flag"
 	"fmt"
 	"net/http"
 	"os"
+	"os/exec"
 	"os/signal"
 	"path/filepath"
+	"sort"
 	"strings"
 	"sync"
 	"syscall"
@@ -119,7 +123,7 @@ func runBFCLEval(args []string) error {
 	defer cancel()
 	var result bfcl.RunResult
 	var runErr error
-	if options.tier == "baseline" {
+	if options.tier == "baseline" || options.tier == "enhanced" {
 		var generator continuation.Generator
 		switch options.transport {
 		case string(bfcl.TransportRWKVContinuation):
@@ -162,6 +166,7 @@ func runBFCLEval(args []string) error {
 		result, runErr = bfcl.RunBaseline(ctx, cases, bfcl.BaselineRunnerOptions{
 			Generator:       generator,
 			Model:           options.model,
+			Tier:            bfcl.Tier(options.tier),
 			Transport:       bfcl.Transport(options.transport),
 			Concurrency:     options.concurrency,
 			MaxOutputTokens: options.maxTokens,
@@ -204,9 +209,12 @@ func runBFCLEval(args []string) error {
 	if err := bfcl.WriteResults(resultDir, bfclModelDirName, result.Entries); err != nil {
 		return fmt.Errorf("write BFCL results: %w", err)
 	}
-	if err := bfcl.WriteArtifacts(options.output, bfcl.Manifest{
+	manifest := bfcl.Manifest{
 		SchemaVersion:    1,
 		StartedAt:        started,
+		RepoCommit:       repositoryCommit(),
+		RepoDirty:        repositoryDirty(),
+		BinarySHA256:     executableSHA256(),
 		DataDir:          options.dataDir,
 		DataCommit:       bfclDataCommit,
 		EvaluatorVersion: bfclEvaluatorVersion,
@@ -214,6 +222,7 @@ func runBFCLEval(args []string) error {
 		ModelDirName:     bfclModelDirName,
 		Transport:        options.transport,
 		Tier:             options.tier,
+		RenderProtocol:   markdownRenderProtocol(options.tier),
 		Concurrency:      options.concurrency,
 		Sampling: bfcl.SamplingRecord{
 			Greedy:               options.temperature == 0 || options.chatIncludeTopK || options.transport == string(bfcl.TransportRWKVContinuation),
@@ -228,18 +237,34 @@ func runBFCLEval(args []string) error {
 		CaseIDs:        append([]string(nil), options.caseIDs...),
 		Hardware:       options.hardware,
 		Serving:        options.serving,
+		ParserMode:     markdownParserMode(options.tier),
 		SampleManifest: options.sampleManifest,
 		SampleVersion:  sampleVersion,
 		SampleSHA256:   sampleSHA256,
-	}, result); err != nil {
+	}
+	if options.tier == "enhanced" {
+		manifest.RetryPrompt = bfcl.RetryPromptVersion
+		manifest.RetryMax = 1
+	}
+	if options.transport == string(bfcl.TransportRWKVContinuation) {
+		stream := options.apiStream
+		manifest.APIStopTokens = options.apiStopTokens
+		manifest.APIStream = &stream
+		manifest.RemoteBatchWait = options.remoteBatchWait.String()
+	}
+	manifest.APIHeaderNames = headerNames(headers)
+	if err := bfcl.WriteArtifacts(options.output, manifest, result); err != nil {
 		return fmt.Errorf("write BFCL artifacts: %w", err)
 	}
 	fmt.Fprintf(
 		os.Stderr,
-		"BFCL generation complete: total=%d failed=%d parse_failed=%d skipped=%d elapsed=%s\n",
+		"BFCL generation complete: total=%d failed=%d parse_failed=%d repaired=%d retried=%d retry_parsed=%d skipped=%d elapsed=%s\n",
 		len(result.Trace),
 		result.Failed,
 		result.ParseFailed,
+		result.Repaired,
+		result.Retried,
+		result.RetryParsed,
 		result.Skipped,
 		result.Elapsed.Round(time.Millisecond),
 	)
@@ -253,7 +278,7 @@ func parseBFCLEvalOptions(args []string) (bfclEvalOptions, error) {
 	var options bfclEvalOptions
 	fs := flag.NewFlagSet("bfcl-eval", flag.ContinueOnError)
 	fs.StringVar(&options.model, "model", "", "remote model identifier")
-	fs.StringVar(&options.tier, "tier", "adapter-health", "BFCL tier: adapter-health or baseline")
+	fs.StringVar(&options.tier, "tier", "adapter-health", "BFCL tier: adapter-health, baseline, or enhanced")
 	fs.StringVar(&options.transport, "transport", "", "BFCL transport; defaults by tier")
 	fs.StringVar(&options.apiURL, "api-url", "", "full remote inference endpoint URL")
 	fs.StringVar(&options.apiKeyEnv, "api-key-env", "OPENAI_API_KEY", "environment variable containing the API key")
@@ -269,7 +294,7 @@ func parseBFCLEvalOptions(args []string) (bfclEvalOptions, error) {
 	fs.IntVar(&options.maxPromptChars, "max-prompt-chars", 40000, "skip requests larger than this encoded character count")
 	fs.Float64Var(&options.temperature, "temperature", 0.001, "effective temperature; 0 selects provider greedy mode")
 	fs.DurationVar(&options.caseTimeout, "case-timeout", 2*time.Minute, "timeout per BFCL case")
-	fs.StringVar(&options.apiStopTokens, "api-stop-tokens", "cuda", "rwkv_lightning stop_tokens form")
+	fs.StringVar(&options.apiStopTokens, "api-stop-tokens", "text", "rwkv_lightning stop_tokens form")
 	fs.BoolVar(&options.apiStream, "api-stream", true, "stream rwkv_lightning responses over SSE")
 	fs.DurationVar(&options.remoteBatchWait, "remote-batch-wait", 10*time.Millisecond, "RWKV Lightning request coalescing window")
 	fs.StringVar(&options.chatThinking, "chat-thinking", string(chatcompletions.ThinkingAuto), "thinking extension: auto, disabled, or enabled")
@@ -291,23 +316,24 @@ func parseBFCLEvalOptions(args []string) (bfclEvalOptions, error) {
 		fs.Usage()
 		return options, fmt.Errorf("bfcl-eval requires --model, --api-url, and --output")
 	}
-	if options.tier != "adapter-health" && options.tier != "baseline" {
+	if options.tier != "adapter-health" && options.tier != "baseline" && options.tier != "enhanced" {
 		return options, fmt.Errorf("unsupported BFCL tier %q", options.tier)
 	}
 	if options.transport == "" {
 		options.transport = "chat-completions-native-fc"
-		if options.tier == "baseline" {
+		if options.tier == "baseline" || options.tier == "enhanced" {
 			options.transport = string(bfcl.TransportRWKVContinuation)
 		}
 	}
 	if options.tier == "adapter-health" && options.transport != "chat-completions-native-fc" {
 		return options, fmt.Errorf("BFCL adapter-health requires chat-completions-native-fc transport")
 	}
-	if options.tier == "baseline" && options.transport != string(bfcl.TransportRWKVContinuation) &&
+	if (options.tier == "baseline" || options.tier == "enhanced") && options.transport != string(bfcl.TransportRWKVContinuation) &&
 		options.transport != string(bfcl.TransportChatCompletionsWrapped) {
 		return options, fmt.Errorf("unsupported BFCL baseline transport %q", options.transport)
 	}
 	options.splits = splitFlagValues(options.splits)
+	options.caseIDs = splitFlagValues(options.caseIDs)
 	if len(options.splits) == 0 {
 		return options, fmt.Errorf("bfcl-eval requires at least one --split")
 	}
@@ -321,8 +347,8 @@ func parseBFCLEvalOptions(args []string) (bfclEvalOptions, error) {
 	if options.chatIncludeTopK && options.transport == string(bfcl.TransportRWKVContinuation) {
 		return options, fmt.Errorf("--chat-include-top-k requires a Chat Completions transport")
 	}
-	if options.tier == "baseline" && (len(options.splits) != 1 || options.splits[0] != "simple_python") {
-		if options.sampleManifest == "" && !options.full {
+	if (options.tier == "baseline" || options.tier == "enhanced") && (len(options.splits) != 1 || options.splits[0] != "simple_python") {
+		if options.sampleManifest == "" && !options.full && len(options.caseIDs) == 0 {
 			return options, fmt.Errorf("BFCL M2 baseline requires exactly --split simple_python unless --sample-manifest is set")
 		}
 	}
@@ -352,6 +378,61 @@ func parseBFCLEvalOptions(args []string) (bfclEvalOptions, error) {
 	}
 	options.chatTokenLimit = string(tokenLimit)
 	return options, nil
+}
+
+func markdownRenderProtocol(tier string) string {
+	if tier == "baseline" || tier == "enhanced" {
+		return bfcl.RenderProtocolAnchorV1
+	}
+	return ""
+}
+
+func markdownParserMode(tier string) string {
+	if tier == "baseline" {
+		return string(bfcl.ParserStrict)
+	}
+	if tier == "enhanced" {
+		return string(bfcl.ParserRWKVWireCompatV1)
+	}
+	return ""
+}
+
+func headerNames(headers http.Header) []string {
+	if len(headers) == 0 {
+		return nil
+	}
+	names := make([]string, 0, len(headers))
+	for name := range headers {
+		names = append(names, name)
+	}
+	sort.Strings(names)
+	return names
+}
+
+func repositoryCommit() string {
+	output, err := exec.Command("git", "rev-parse", "HEAD").Output()
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(output))
+}
+
+func repositoryDirty() bool {
+	output, err := exec.Command("git", "status", "--porcelain").Output()
+	return err != nil || len(output) > 0
+}
+
+func executableSHA256() string {
+	path, err := os.Executable()
+	if err != nil {
+		return ""
+	}
+	encoded, err := os.ReadFile(path)
+	if err != nil {
+		return ""
+	}
+	digest := sha256.Sum256(encoded)
+	return hex.EncodeToString(digest[:])
 }
 
 func bfclProgressReporter(started time.Time) func(completed, total int) {

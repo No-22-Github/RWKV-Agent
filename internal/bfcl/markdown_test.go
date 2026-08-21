@@ -21,7 +21,7 @@ func TestRenderPromptPreservesFunctionAndMessageBytes(t *testing.T) {
 	if !strings.Contains(prompt, string(function)) || !strings.Contains(prompt, "User: call it\n exactly  \n\n") {
 		t.Fatalf("prompt did not preserve input bytes:\n%s", prompt)
 	}
-	if !strings.HasSuffix(prompt, "Assistant: ```json\n") {
+	if !strings.HasSuffix(prompt, "Assistant: ```json\n{\"name\":\"") {
 		t.Fatalf("prompt suffix = %q", prompt)
 	}
 	if !strings.Contains(prompt, "arguments value must be a JSON object") {
@@ -46,6 +46,26 @@ func TestRenderPromptUsesSameProtocolAcrossContinuationTransports(t *testing.T) 
 	}
 	if rwkvPrompt != chatPrompt {
 		t.Fatalf("transport changed Markdown protocol\nrwkv=%q\nchat=%q", rwkvPrompt, chatPrompt)
+	}
+}
+
+func TestRenderPromptUsesSameProtocolAcrossTiers(t *testing.T) {
+	t.Parallel()
+	entry := Case{
+		ID:        "simple_python_0",
+		Messages:  []Message{{Role: "user", Content: "call it"}},
+		Functions: []json.RawMessage{json.RawMessage(`{"name":"tool","parameters":{"type":"dict"}}`)},
+	}
+	baseline, err := RenderPrompt(entry, TierBaseline, TransportRWKVContinuation)
+	if err != nil {
+		t.Fatal(err)
+	}
+	enhanced, err := RenderPrompt(entry, TierEnhanced, TransportRWKVContinuation)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if baseline != enhanced {
+		t.Fatalf("tier changed first prompt\nbaseline=%q\nenhanced=%q", baseline, enhanced)
 	}
 }
 
@@ -109,6 +129,9 @@ func TestRenderPromptRequestsParallelArray(t *testing.T) {
 	}
 	if !strings.Contains(prompt, "JSON array of function calls") {
 		t.Fatalf("prompt = %q", prompt)
+	}
+	if !strings.HasSuffix(prompt, `[{"name":"`) {
+		t.Fatalf("parallel prompt anchor = %q", prompt)
 	}
 }
 
