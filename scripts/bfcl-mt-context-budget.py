@@ -19,8 +19,10 @@ from bfcl_eval.eval_checker.multi_turn_eval import multi_turn_utils
 
 SPLITS = ("base", "long_context", "miss_func", "miss_param")
 CHARS_PER_TOKEN = 3.5
-RWKV_USABLE_CONTEXT_TOKENS = 12_288
-RWKV_CHAR_BUDGET = int(CHARS_PER_TOKEN * RWKV_USABLE_CONTEXT_TOKENS)
+RWKV_CONTEXT_TOKENS = 16_384
+RWKV_MAX_OUTPUT_TOKENS = 1_024
+RWKV_PROMPT_BUDGET_TOKENS = RWKV_CONTEXT_TOKENS - RWKV_MAX_OUTPUT_TOKENS
+RWKV_CHAR_BUDGET = int(CHARS_PER_TOKEN * RWKV_PROMPT_BUDGET_TOKENS)
 HOLDOUT_PROMPT = "I have updated some more functions you can choose from. What about now?"
 SYSTEM_PREFIX = """System: You are a BFCL multi-turn tool agent. Use only the listed tools.
 Return one JSON function-call object in exactly this shape: {"name":"TOOL_NAME","arguments":{"ARGUMENT":"VALUE"}}.
@@ -166,7 +168,7 @@ def markdown(report: dict[str, Any]) -> str:
         "# BFCL v4 multi-turn E5 context budget",
         "",
         f"- Cases: {report['cases']} (200 per split).",
-        f"- Conservative estimate: {CHARS_PER_TOKEN:.1f} characters/token; RWKV usable budget {RWKV_USABLE_CONTEXT_TOKENS} tokens = {RWKV_CHAR_BUDGET} characters.",
+        f"- Conservative estimate: {CHARS_PER_TOKEN:.1f} characters/token; RWKV total context {RWKV_CONTEXT_TOKENS} tokens minus {RWKV_MAX_OUTPUT_TOKENS} max output tokens leaves a {RWKV_PROMPT_BUDGET_TOKENS}-token prompt budget = {RWKV_CHAR_BUDGET} characters.",
         "- `full`: all involved-class tool docs available at that turn. `narrow`: ideal GT-class catalog for that turn; this is a feasibility bound, not a model-routing score.",
         "- Prompt growth includes initial_config, all user turns, GT calls, and actual official-backend GT execution results. `path` is not rendered.",
         "",
@@ -212,7 +214,17 @@ def main() -> int:
         answers = {row["id"]: row["ground_truth"] for row in load_jsonl(data_dir / f"possible_answer/BFCL_v4_multi_turn_{split}.json")}
         for index, entry in enumerate(questions):
             all_rows.append(profile_case(entry, answers[entry["id"]], load_docs(data_dir, entry), split, index))
-    report: dict[str, Any] = {"schema_version": 1, "cases": len(all_rows), "rows": all_rows, "splits": {}}
+    report: dict[str, Any] = {
+        "schema_version": 1,
+        "cases": len(all_rows),
+        "context_tokens": RWKV_CONTEXT_TOKENS,
+        "max_output_tokens": RWKV_MAX_OUTPUT_TOKENS,
+        "prompt_budget_tokens": RWKV_PROMPT_BUDGET_TOKENS,
+        "chars_per_token": CHARS_PER_TOKEN,
+        "char_budget": RWKV_CHAR_BUDGET,
+        "rows": all_rows,
+        "splits": {},
+    }
     for split in SPLITS:
         rows = [row for row in all_rows if row["split"] == split]
         report["splits"][split] = {

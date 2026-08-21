@@ -20,16 +20,16 @@ evaluator：`bfcl-eval==2026.3.23`
 
 ## E5：800 题上下文普查
 
-估算使用 3.5 字符/token，RWKV 可用预算 12288 token，即 43008 字符。prompt 规模包含 initial config、累计 user 消息、GT 调用和官方 backend 的真实 GT 执行结果；不包含 `path`。
+估算使用 3.5 字符/token。模型总窗口为 16384 token；按 runner 每步 `max_tokens=1024` 预留生成空间后，prompt 安全预算为 15360 token，即 53760 字符。prompt 规模包含 initial config、累计 user 消息、GT 调用和官方 backend 的真实 GT 执行结果；不包含 `path`。
 
 | Split | 全量 catalog p50/p90/p95/max | 全量可行 | 理想 class 收窄 p50/p90/p95/max | 收窄可行 |
 |---|---:|---:|---:|---:|
 | `base` | 16472/19848/20326/21687 | 200/200 | 12652/14512/18746/20618 | 200/200 |
-| `long_context` | 24063/56297/58852/83591 | 157/200 | 19171/50015/57047/80382 | 160/200 |
+| `long_context` | 24063/56297/58852/83591 | 174/200 | 19171/50015/57047/80382 | 183/200 |
 | `miss_func` | 16549/19926/20404/21765 | 200/200 | 12719/14590/18359/20696 | 200/200 |
 | `miss_param` | 16485/19870/20364/21728 | 200/200 | 12690/14535/18746/20670 | 200/200 |
 
-全量 catalog 可行集为 757/800，理想收窄可行集为 760/800；后续 baseline/enhanced 公平比较应冻结二者共同的 757 题。E7 的 `multi_turn_base_0` 在两套可行集内。机器可读明细位于 `runs/bfcl-mt/context-budget.json`，摘要位于 `runs/bfcl-mt/context-budget.md`。
+全量 catalog 可行集为 774/800，理想收窄可行集为 783/800；后续 baseline/enhanced 公平比较应冻结二者共同的 774 题。此前 12288-token 阈值是额外保守口径，不是该权重的严格窗口口径。E7 的 `multi_turn_base_0` 在两套可行集内，既有单题结论不受阈值修正影响。机器可读明细位于 `runs/bfcl-mt/context-budget.json`，摘要位于 `runs/bfcl-mt/context-budget.md`。
 
 ## E6：sidecar 与 GT 门禁
 

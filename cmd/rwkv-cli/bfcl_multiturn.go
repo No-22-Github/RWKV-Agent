@@ -20,6 +20,12 @@ import (
 
 const bfclSidecarProtocolV1 = "bfcl-python-sidecar-v1"
 
+const (
+	bfclMultiTurnContextTokens         = 16_384
+	bfclMultiTurnDefaultMaxTokens      = 1_024
+	bfclMultiTurnDefaultMaxPromptChars = (bfclMultiTurnContextTokens - bfclMultiTurnDefaultMaxTokens) * 7 / 2
+)
+
 type bfclMultiTurnOptions struct {
 	model                    string
 	tier                     string
@@ -204,9 +210,9 @@ func parseBFCLMultiTurnOptions(args []string) (bfclMultiTurnOptions, error) {
 	fs.StringVar(&options.caseID, "case", "multi_turn_base_0", "single BFCL multi-turn case ID")
 	fs.StringVar(&options.python, "python", ".venv/bin/python", "Python executable with pinned bfcl-eval")
 	fs.StringVar(&options.sidecarScript, "sidecar-script", "internal/bfcl/pysidecar/server.py", "BFCL execution sidecar script")
-	fs.IntVar(&options.maxTokens, "max-tokens", 1024, "maximum tokens per agent step")
+	fs.IntVar(&options.maxTokens, "max-tokens", bfclMultiTurnDefaultMaxTokens, "maximum tokens per agent step")
 	fs.IntVar(&options.routeMaxTokens, "route-max-tokens", 48, "maximum tokens per route call")
-	fs.IntVar(&options.maxPromptChars, "max-prompt-chars", 43008, "maximum encoded prompt characters")
+	fs.IntVar(&options.maxPromptChars, "max-prompt-chars", bfclMultiTurnDefaultMaxPromptChars, "maximum encoded prompt characters")
 	fs.IntVar(&options.maxSteps, "max-steps", 20, "maximum steps per turn")
 	fs.IntVar(&options.routeRetries, "route-retries", 1, "route/protocol correction retries")
 	fs.IntVar(&options.duplicateReplayLimit, "duplicate-replay-limit", 2, "allowed identical calls before rejection")
