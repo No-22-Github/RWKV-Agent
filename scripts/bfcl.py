@@ -24,6 +24,15 @@ class RWKVAgentDecodeOnlyHandler(OSSHandler):
     def inference(self, test_entry, include_input_log, exclude_state_log):
         raise RuntimeError("rwkv-agent BFCL handler is decode-only")
 
+    @override
+    def decode_execute(self, result, has_tool_call_tag):
+        # The Go multi-turn harness persists already-decoded BFCL call strings
+        # as one list per agent step. Single-turn artifacts remain raw strings
+        # and continue through the pinned evaluator's normal decoder.
+        if isinstance(result, list) and all(isinstance(call, str) for call in result):
+            return result
+        return super().decode_execute(result, has_tool_call_tag)
+
 
 def register_decode_only_handler() -> None:
     installed_version = version("bfcl_eval")

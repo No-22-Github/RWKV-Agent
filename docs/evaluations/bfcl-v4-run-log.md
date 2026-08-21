@@ -27,6 +27,7 @@
 | `M2.5-parser-calibration` | 完全复用 RWKV M2 原始 trace,仅切换 parser mode | wire-format compat 对既有输出的可恢复增量 | 新一次模型成绩、生成策略收益或公平矩阵格 |
 | `E1-E2-anchor-v1-v2` | v2 固定 491 题、`bfcl-markdown-anchor-v1`、首轮 prompt hash 相同、并发 8、官方 partial evaluator | 同一服务内 baseline/enhanced 的实测系统差异 | 官方全榜 Overall；有输出漂移时也不可把 E1/E2 全部 delta 归因于 Harness |
 | `E3-finish-task-probe` | 全量 1124 个负样本、额外注入 `finish_task`、strict parser、官方 partial evaluator | 模型是否愿意显式选择 stop tool，以及拦截后的弃权成绩 | E1/E2 矩阵分数；该探针改变了工具表和提示协议 |
+| `E7-multi-turn-single-case` | `multi_turn_base_0`、持久 sidecar、官方 partial evaluator | 多轮 Harness 与 Agent 循环是否闭环、干预事件和单题失败归因 | 模型多轮总体能力或 E8 正式矩阵成绩 |
 | `validation-only` | 固定 evaluator 与人工构造结果 | 数据、目录、decoder 和错误分支是否闭环 | 模型能力 |
 
 `M2-markdown-single-call` 中，RWKV 直接接收 continuation prompt；Chat Completions 模型还会经过 wrapped system instruction 和服务端 chat template，并受最多 4 个 stop sequence 的接口限制，而 RWKV M2 使用 5 个。因此该组具有强诊断可比性，但不是 transport/template 完全一致的模型级隔离实验。
@@ -53,6 +54,16 @@
 | 2026-08-18 | `m1-official-handler-20260818` | `M1-official-control` | Qwen3-8B-FP8 | `simple_python` | 381/400 | 95.25% | 8 | N/A | 1402s 三个 split 合计 |
 | 2026-08-18 | `m1-official-handler-20260818` | `M1-official-control` | Qwen3-8B-FP8 | `multiple` | 191/200 | 95.50% | 8 | N/A | 1402s 三个 split 合计 |
 | 2026-08-18 | `m1-official-handler-20260818` | `M1-official-control` | Qwen3-8B-FP8 | `live_simple` | 217/258 | 84.11% | 8 | N/A | 1402s 三个 split 合计 |
+
+## 2026-08-21 — E4–E7 multi-turn 前置门禁与单题闭环
+
+- E4 固定了 `bfcl-eval==2026.3.23` 的多轮执行、holdout、公开状态比较和 20-step 语义；确认 `STATELESS_CLASSES=["MathAPI"]`，并纠正数据实际包含单轮 case 的假设。
+- E5 普查全部 800 题：12288-token 保守预算下，全量 catalog 可行 757/800，理想 class 收窄可行 760/800，共同可行集 757/800；`multi_turn_base_0` 两档均可行。
+- E6 sidecar GT 门禁：`multi_turn_base` 官方 200/200；额外 `mkdir` 负向样本 0/1，命中 `multi_turn:instance_state_mismatch`。
+- E7 为辅助运行，不进正式评分总表。Qwen baseline/enhanced、RWKV baseline/enhanced 在 `multi_turn_base_0` 上均完成结果落盘和官方 evaluator，成绩均为 0/1；失败类型依次为 `empty_turn_model_response`、`instance_state_mismatch`、`empty_turn_model_response`、`force_terminated`。
+- E7 证明了结果形状、持久执行、工具结果回喂、事件 trace 与官方判分闭环；它不证明模型答对，亦不可外推总体多轮能力。
+
+详细实现、上下文分布和四组 trace 归因：`docs/evaluations/bfcl-v4-multi-turn-e4-e7-20260821.md`。
 
 ## 2026-08-21 — E3 finish_task 全量弃权探针
 

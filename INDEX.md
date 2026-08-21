@@ -86,6 +86,7 @@
 | [`docs/evaluations/bfcl-v4-determinism-concurrency-20260820.md`](docs/evaluations/bfcl-v4-determinism-concurrency-20260820.md) | 确定性归因：并发不是原因（c16 对 c48 p=1.000），thinking 拉长解码是主因，批处理有无是次因；含对 08-19 两处表述的修正 |
 | [`docs/evaluations/rwkv-g1i-toolcall-abstention-defect-20260820.md`](docs/evaluations/rwkv-g1i-toolcall-abstention-defect-20260820.md) | 模型侧反馈：预填锚点后 g1i 7.2b/13.3b 均无法弃权（三种出口 0/240，13.3b 负样本 0.83%）；`arguments` 字符串化为尺寸相关污染；13.3b 无锚点时保留弃权判断（79% vs 17%） |
 | [`docs/evaluations/bfcl-v4-anchor-position-20260820.md`](docs/evaluations/bfcl-v4-anchor-position-20260820.md) | 小优化：锚点延长到 `{"name":"`（并行用 `[{"name":"`），non-live 1000 题 strict 51.10% → 88.90%，超过带兜底的 88.00% |
+| [`docs/evaluations/bfcl-v4-multi-turn-e4-e7-20260821.md`](docs/evaluations/bfcl-v4-multi-turn-e4-e7-20260821.md) | Multi-turn E4–E7：上游判分语义、800 题上下文可行集、sidecar GT 100% 门禁与双模型单题闭环 |
 | [`docs/evaluations/bfcl-v4-qwen-native-fc-alignment-20260819.md`](docs/evaluations/bfcl-v4-qwen-native-fc-alignment-20260819.md) | Qwen3-8B 原生 FC 全量与公开榜单逐 split 对齐；用作管道体检，不是本项目成绩 |
 | [`docs/evaluations/bfcl-v4-qwen-markdown-baseline-full-20260819.md`](docs/evaluations/bfcl-v4-qwen-markdown-baseline-full-20260819.md) | Markdown baseline 全量诊断；负样本分受 prompt 预填影响，不代表模型拒调能力 |
 | [`docs/evaluations/bfcl-v4-m3-sampling-20260819.md`](docs/evaluations/bfcl-v4-m3-sampling-20260819.md) | M3 抽样冻结与代表性诊断，manifest v1 → v2 |
