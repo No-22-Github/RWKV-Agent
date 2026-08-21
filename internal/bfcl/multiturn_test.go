@@ -317,6 +317,75 @@ func TestWireCompatRepairsStringifiedArgumentsInsideArray(t *testing.T) {
 	}
 }
 
+// The control tool is a turn-end signal, never an executable call. It must not
+// reach the simulator or the official result, and per E3 only a pure
+// finish_task counts -- mixing it with real calls cannot hide those calls.
+func TestFinishToolEndsTurnWithoutExecuting(t *testing.T) {
+	t.Parallel()
+	generator := &recordingGenerator{results: []continuation.Result{
+		{Text: `[{"name":"mkdir","arguments":{"dir_name":"temp"}}]`, FinishReason: continuation.FinishStop},
+		{Text: `[{"name":"finish_task","arguments":{}}]`, FinishReason: continuation.FinishStop},
+	}}
+	executor := &recordingMultiTurnExecutor{}
+	trace := RunMultiTurnCase(context.Background(), singleTurnMkdirCase(), mkdirPwdCatalog(), MultiTurnRunnerOptions{
+		Generator: generator, Executor: executor, SessionID: "test", Model: "model",
+		Tier: TierBaseline, Transport: TransportRWKVContinuation, Anchor: MultiTurnAnchorFence,
+		FinishTool: true, MaxSteps: 20, MaxOutputTokens: 256, CaseTimeout: time.Second,
+	})
+	if trace.Turns[0].EndedBy != "finish_task" {
+		t.Fatalf("ended_by = %q, want finish_task", trace.Turns[0].EndedBy)
+	}
+	if len(executor.calls) != 1 || executor.calls[0][0] != `mkdir(dir_name="temp")` {
+		t.Fatalf("control tool must not be executed, got %#v", executor.calls)
+	}
+	// Only the real call may appear in the official result.
+	encoded, err := json.Marshal(trace.Result)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if strings.Contains(string(encoded), FinishTaskName) {
+		t.Fatalf("control tool leaked into the official result: %s", encoded)
+	}
+	if !strings.Contains(string(encoded), "mkdir") {
+		t.Fatalf("real call missing from result: %s", encoded)
+	}
+	// The tool must be offered, and the rule restated at the decision point.
+	if !slices.Contains(trace.Turns[0].Catalog, FinishTaskName) {
+		t.Fatalf("catalog does not offer the control tool: %v", trace.Turns[0].Catalog)
+	}
+	if !strings.Contains(generator.requests[0].Prompt, multiTurnFinishReminder) {
+		t.Fatal("prompt does not restate the turn-end rule before the decision")
+	}
+}
+
+// A finish_task mixed with real calls keeps the real calls and does not end the
+// turn, so the control tool cannot be used to suppress a wrong call.
+func TestFinishToolMixedWithRealCallsKeepsRealCalls(t *testing.T) {
+	t.Parallel()
+	generator := &recordingGenerator{results: []continuation.Result{
+		{Text: `[{"name":"finish_task","arguments":{}},{"name":"mkdir","arguments":{"dir_name":"temp"}}]`, FinishReason: continuation.FinishStop},
+		{Text: `[{"name":"finish_task","arguments":{}}]`, FinishReason: continuation.FinishStop},
+	}}
+	executor := &recordingMultiTurnExecutor{}
+	trace := RunMultiTurnCase(context.Background(), singleTurnMkdirCase(), mkdirPwdCatalog(), MultiTurnRunnerOptions{
+		Generator: generator, Executor: executor, SessionID: "test", Model: "model",
+		Tier: TierBaseline, Transport: TransportRWKVContinuation, Anchor: MultiTurnAnchorFence,
+		FinishTool: true, MaxSteps: 20, MaxOutputTokens: 256, CaseTimeout: time.Second,
+	})
+	if len(executor.calls) != 1 || executor.calls[0][0] != `mkdir(dir_name="temp")` {
+		t.Fatalf("real call in a mixed response must still execute, got %#v", executor.calls)
+	}
+	var mixed bool
+	for _, event := range trace.Events {
+		if event.Kind == "finish_task_mixed" {
+			mixed = true
+		}
+	}
+	if !mixed {
+		t.Fatalf("mixed selection was not recorded: %+v", trace.Events)
+	}
+}
+
 func TestMultiTurnAnchorPrefillAndEmptyReachability(t *testing.T) {
 	t.Parallel()
 	for _, testCase := range []struct {
@@ -351,7 +420,7 @@ func TestMultiTurnPromptOmitsStaleInitialConfigByDefault(t *testing.T) {
 	entry := singleTurnMkdirCase()
 	entry.InitialConfig = map[string]any{"GorillaFileSystem": map[string]any{"root": "workspace"}}
 	transcript := []multiTurnTranscript{{Role: "User", Content: "make temp"}}
-	prompt, err := RenderMultiTurnPrompt(entry, mkdirPwdCatalog().Functions, transcript, MultiTurnAnchorObject, false)
+	prompt, err := RenderMultiTurnPrompt(entry, mkdirPwdCatalog().Functions, transcript, MultiTurnAnchorObject, false, false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -361,7 +430,7 @@ func TestMultiTurnPromptOmitsStaleInitialConfigByDefault(t *testing.T) {
 	if !strings.HasSuffix(prompt, "Assistant: ```json\n{\"name\":\"") {
 		t.Fatalf("prompt does not end with the anchor: %q", prompt[max(0, len(prompt)-40):])
 	}
-	legacy, err := RenderMultiTurnPrompt(entry, mkdirPwdCatalog().Functions, transcript, MultiTurnAnchorFence, true)
+	legacy, err := RenderMultiTurnPrompt(entry, mkdirPwdCatalog().Functions, transcript, MultiTurnAnchorFence, true, false)
 	if err != nil {
 		t.Fatal(err)
 	}

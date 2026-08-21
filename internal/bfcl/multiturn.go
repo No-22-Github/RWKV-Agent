@@ -21,6 +21,21 @@ const MultiTurnRenderProtocolV1 = "bfcl-multi-turn-json-v1"
 // lines above it; official never shows state to the model at all.
 const MultiTurnRenderProtocolV2 = "bfcl-multi-turn-json-v2"
 
+// MultiTurnRenderProtocolFinishV1 adds the turn-end control tool. Reuses E3's
+// tool name so the single-turn abstention probe and this share one identifier,
+// but the description asks about turn completion rather than tool relevance --
+// a judgement made after acting, with execution results in hand.
+const MultiTurnRenderProtocolFinishV1 = "bfcl-multi-turn-json-finish-v1"
+
+var multiTurnFinishFunction = json.RawMessage(`{"name":"finish_task","description":"Call this with empty arguments when the current turn's request is already satisfied by the results so far and no further tool call is needed.","parameters":{"type":"dict","properties":{},"required":[]}}`)
+
+// multiTurnFinishReminder restates the exit immediately before the decision.
+// Diagnosis: with the rule only in the system preamble the model called again
+// even under the free fence anchor; restated here it ends the turn correctly.
+const multiTurnFinishClass = "__control__"
+
+const multiTurnFinishReminder = "If the current turn's request is already satisfied by the results above, call finish_task with empty arguments. Otherwise issue the next call."
+
 // MultiTurnAnchor selects the prefill anchor. Anchors that force a JSON object
 // make an empty turn-ending response unreachable, so the choice is measured by
 // the E7b probe rather than inferred. See bfcl-v4-anchor-position-20260820.md.
@@ -68,14 +83,19 @@ type MultiTurnExecutor interface {
 }
 
 type MultiTurnRunnerOptions struct {
-	Generator                continuation.Generator
-	Executor                 MultiTurnExecutor
-	SessionID                string
-	Model                    string
-	Tier                     Tier
-	Transport                Transport
-	Anchor                   MultiTurnAnchor
-	RenderInitialConfig      bool
+	Generator continuation.Generator
+	Executor  MultiTurnExecutor
+	SessionID string
+	Model     string
+	Tier      Tier
+	Transport Transport
+	Anchor    MultiTurnAnchor
+	// FinishTool injects the E3 control tool and a per-step restatement of the
+	// turn-end rule. Official ends a turn when the model emits no call, which for
+	// a chat model means prose; the anchor forbids prose, so without an explicit
+	// exit no turn ever ends on its own (0 of 207 turns across both anchors).
+	FinishTool          bool
+	RenderInitialConfig bool
 	MaxOutputTokens          int
 	RouteMaxTokens           int
 	MaxPromptChars           int
@@ -135,6 +155,7 @@ type MultiTurnStepTrace struct {
 	ExecutionCalls   []string            `json:"execution_calls,omitempty"`
 	ExecutionResults []string            `json:"execution_results,omitempty"`
 	ParseError       string              `json:"parse_error,omitempty"`
+	ProbeSelection   string              `json:"probe_selection,omitempty"`
 	Repairs          []string            `json:"repairs,omitempty"`
 	InputTokens      int                 `json:"input_tokens,omitempty"`
 	OutputTokens     int                 `json:"output_tokens,omitempty"`
@@ -289,6 +310,10 @@ func RunMultiTurnCase(parent context.Context, entry MultiTurnCase, catalog Multi
 			}
 			available = selected
 		}
+		if options.FinishTool {
+			available = append(append([]MultiTurnFunction(nil), available...),
+				MultiTurnFunction{Name: FinishTaskName, Class: multiTurnFinishClass, Raw: multiTurnFinishFunction})
+		}
 		turnTrace.Catalog = MultiTurnFunctionNames(available)
 		turnResult := make([][]string, 0)
 		// Real loops alternate (cd document / cd workspace), so comparing only
@@ -339,6 +364,33 @@ func RunMultiTurnCase(parent context.Context, entry MultiTurnCase, catalog Multi
 				transcript = append(transcript, multiTurnTranscript{Role: "Assistant", Content: transcriptContent(stepTrace)})
 				turnTrace.EndedBy = "empty_response"
 				break
+			}
+			// The control tool is a turn-end signal, not an executable call: it
+			// must never reach the simulator or the official result. Following
+			// E3, only a pure finish_task counts -- mixing it with real calls
+			// cannot be used to hide those calls.
+			if options.FinishTool {
+				real := make([]toolchat.ToolCall, 0, len(calls))
+				finishes := 0
+				for _, call := range calls {
+					if call.Name == FinishTaskName {
+						finishes++
+						continue
+					}
+					real = append(real, call)
+				}
+				if finishes > 0 && len(real) == 0 {
+					trace.Events = append(trace.Events, MultiTurnEvent{Kind: "finish_task_selected", Turn: turnIndex, Step: step})
+					turnTrace.Steps[len(turnTrace.Steps)-1].ProbeSelection = "finish_task"
+					transcript = append(transcript, multiTurnTranscript{Role: "Assistant", Content: transcriptContent(stepTrace)})
+					turnTrace.EndedBy = "finish_task"
+					break
+				}
+				if finishes > 0 {
+					trace.Events = append(trace.Events, MultiTurnEvent{Kind: "finish_task_mixed", Turn: turnIndex, Step: step})
+					turnTrace.Steps[len(turnTrace.Steps)-1].ProbeSelection = "mixed"
+					calls = real
+				}
 			}
 			parseRetries = 0
 			executionCalls, encodeErr := MultiTurnExecutionCalls(calls)
@@ -420,7 +472,7 @@ func droppedClasses(involved []string, selected []MultiTurnFunction) []string {
 
 func runMultiTurnStep(ctx context.Context, transcript []multiTurnTranscript, entry MultiTurnCase, functions []MultiTurnFunction, turn, step int, options MultiTurnRunnerOptions) (MultiTurnStepTrace, []toolchat.ToolCall, bool, error) {
 	anchor := options.Anchor.Prefill()
-	prompt, err := RenderMultiTurnPrompt(entry, functions, transcript, options.Anchor, options.RenderInitialConfig)
+	prompt, err := RenderMultiTurnPrompt(entry, functions, transcript, options.Anchor, options.RenderInitialConfig, options.FinishTool)
 	trace := MultiTurnStepTrace{Step: step, PromptBytes: len(prompt), PromptSHA256: promptSHA256(prompt), PrefillAnchor: anchor}
 	if err != nil {
 		return trace, nil, false, err
@@ -592,7 +644,7 @@ func assembleMultiTurnContent(anchor, generated string) (string, string) {
 	return continued, "prefill_continuation"
 }
 
-func RenderMultiTurnPrompt(entry MultiTurnCase, functions []MultiTurnFunction, transcript []multiTurnTranscript, anchor MultiTurnAnchor, renderInitialConfig bool) (string, error) {
+func RenderMultiTurnPrompt(entry MultiTurnCase, functions []MultiTurnFunction, transcript []multiTurnTranscript, anchor MultiTurnAnchor, renderInitialConfig, finishTool bool) (string, error) {
 	initial, err := json.Marshal(entry.InitialConfig)
 	if err != nil {
 		return "", err
@@ -633,6 +685,9 @@ Tools:
 			prompt.Write(encoded)
 		}
 		prompt.WriteByte('\n')
+	}
+	if finishTool {
+		fmt.Fprintf(&prompt, "User: %s\n", multiTurnFinishReminder)
 	}
 	prompt.WriteString("Assistant: ")
 	prompt.WriteString(anchor.Prefill())

@@ -25,6 +25,7 @@ type MultiTurnManifest struct {
 	AnchorPrefill            string         `json:"anchor_prefill"`
 	EmptyTurnReachable       bool           `json:"empty_turn_reachable"`
 	RenderInitialConfig      bool           `json:"render_initial_config"`
+	FinishTool               bool           `json:"finish_tool"`
 	MaxSteps                 int            `json:"max_steps"`
 	MaxTurns                 int            `json:"max_turns,omitempty"`
 	MaxPromptChars           int            `json:"max_prompt_chars"`

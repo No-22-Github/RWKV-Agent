@@ -51,6 +51,7 @@ type bfclMultiTurnOptions struct {
 	remoteBatchWait          time.Duration
 	anchor                   string
 	renderInitialConfig      bool
+	finishTool               bool
 	maxPromptTokens          int
 	tokenizerVocab           string
 	chatThinking             string
@@ -138,6 +139,7 @@ func runBFCLMultiTurn(args []string) error {
 		Generator: generator, Executor: sidecar, SessionID: sessionID, Model: options.model,
 		Tier: bfcl.Tier(options.tier), Transport: bfcl.Transport(options.transport),
 		Anchor: bfcl.MultiTurnAnchor(options.anchor), RenderInitialConfig: options.renderInitialConfig,
+		FinishTool:      options.finishTool,
 		MaxPromptTokens: options.maxPromptTokens, TokenCounter: tokenCounter,
 		MaxOutputTokens: options.maxTokens, RouteMaxTokens: options.routeMaxTokens,
 		MaxPromptChars: options.maxPromptChars, MaxSteps: options.maxSteps, MaxTurns: options.maxTurns, RouteRetries: options.routeRetries,
@@ -159,11 +161,11 @@ func runBFCLMultiTurn(args []string) error {
 	manifest := bfcl.MultiTurnManifest{
 		SchemaVersion: 1, DataCommit: bfclDataCommit, EvaluatorVersion: bfclEvaluatorVersion,
 		Model: options.model, ModelDirName: bfclModelDirName, Tier: options.tier, Transport: options.transport,
-		RenderProtocol: bfcl.MultiTurnRenderProtocolV2, ParserMode: multiTurnParserMode(options.tier), SidecarProtocol: bfclSidecarProtocolV1,
+		RenderProtocol: multiTurnRenderProtocol(options.finishTool), ParserMode: multiTurnParserMode(options.tier), SidecarProtocol: bfclSidecarProtocolV1,
 		Anchor: options.anchor, AnchorPrefill: bfcl.MultiTurnAnchor(options.anchor).Prefill(),
 		EmptyTurnReachable:  bfcl.MultiTurnAnchor(options.anchor).EmptyReachable(),
-		RenderInitialConfig: options.renderInitialConfig,
-		MaxPromptTokens:     options.maxPromptTokens, TokenizerVocabSHA256: tokenizerVocabSHA256,
+		RenderInitialConfig: options.renderInitialConfig, FinishTool: options.finishTool,
+		MaxPromptTokens: options.maxPromptTokens, TokenizerVocabSHA256: tokenizerVocabSHA256,
 		Split: options.split, CaseID: options.caseID, MaxSteps: options.maxSteps, MaxTurns: options.maxTurns, MaxPromptChars: options.maxPromptChars,
 		MaxTokens: options.maxTokens, RouteMaxTokens: options.routeMaxTokens, RouteRetries: options.routeRetries,
 		DuplicateReplayLimit: options.duplicateReplayLimit, DuplicateRescueThreshold: options.duplicateRescueThreshold,
@@ -244,6 +246,7 @@ func parseBFCLMultiTurnOptions(args []string) (bfclMultiTurnOptions, error) {
 	// Default is fence only because it is C1's shallowest measured tier, not
 	// because it is the right choice; the E7b probe picks the tier.
 	fs.StringVar(&options.anchor, "anchor", string(bfcl.MultiTurnAnchorFence), "prefill anchor: fence, array, object")
+	fs.BoolVar(&options.finishTool, "finish-tool", false, "inject the finish_task turn-end control tool and restate the rule each step")
 	fs.BoolVar(&options.renderInitialConfig, "render-initial-config", false, "render the stale initial_config block into every step (v1 behaviour)")
 	fs.IntVar(&options.maxSteps, "max-steps", 20, "maximum steps per turn")
 	// Probe-only. A truncated result scores as force_terminated; never use it for a grade.
@@ -300,6 +303,13 @@ func parseBFCLMultiTurnOptions(args []string) (bfclMultiTurnOptions, error) {
 		return options, fmt.Errorf("--temperature 0 requires Chat Completions transport")
 	}
 	return options, nil
+}
+
+func multiTurnRenderProtocol(finishTool bool) string {
+	if finishTool {
+		return bfcl.MultiTurnRenderProtocolFinishV1
+	}
+	return bfcl.MultiTurnRenderProtocolV2
 }
 
 func multiTurnParserMode(tier string) string {
