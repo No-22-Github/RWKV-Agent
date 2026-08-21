@@ -52,6 +52,7 @@ type bfclMultiTurnOptions struct {
 	anchor                   string
 	renderInitialConfig      bool
 	finishTool               bool
+	caseConcurrency          int
 	maxPromptTokens          int
 	tokenizerVocab           string
 	chatThinking             string
@@ -65,28 +66,11 @@ func runBFCLMultiTurn(args []string) error {
 	if err != nil {
 		return err
 	}
-	if _, err := os.Stat(options.output); err == nil {
-		return fmt.Errorf("BFCL multi-turn output already exists: %s", options.output)
-	} else if !errors.Is(err, os.ErrNotExist) {
-		return err
-	}
 	cases, err := bfcl.LoadMultiTurnSplit(options.dataDir, options.split)
 	if err != nil {
 		return err
 	}
-	var entry bfcl.MultiTurnCase
-	found := false
-	for _, candidate := range cases {
-		if candidate.ID == options.caseID {
-			entry = candidate
-			found = true
-			break
-		}
-	}
-	if !found {
-		return fmt.Errorf("BFCL multi-turn case %q was not found in %s", options.caseID, options.split)
-	}
-	catalog, err := bfcl.LoadMultiTurnCatalog(options.dataDir, entry)
+	selected, err := selectMultiTurnCases(cases, options)
 	if err != nil {
 		return err
 	}
@@ -94,12 +78,30 @@ func runBFCLMultiTurn(args []string) error {
 	if err != nil {
 		return err
 	}
+	// One generator shared by every case in flight. This is the whole point of
+	// running cases in one process: rwkv_lightning batches within a request, so
+	// BatchWait can only coalesce calls that reach the same client. One process
+	// per case leaves batchPending at length one and degrades to parallel HTTP,
+	// which is what the endpoint drops connections on.
 	generator, err := bfclMultiTurnGenerator(options, headers)
 	if err != nil {
 		return err
 	}
 	repoRoot, err := os.Getwd()
 	if err != nil {
+		return err
+	}
+	if len(selected) > 1 {
+		return runBFCLMultiTurnCells(selected, options, generator, headers, repoRoot)
+	}
+	entry := selected[0]
+	catalog, err := bfcl.LoadMultiTurnCatalog(options.dataDir, entry)
+	if err != nil {
+		return err
+	}
+	if _, err := os.Stat(options.output); err == nil {
+		return fmt.Errorf("BFCL multi-turn output already exists: %s", options.output)
+	} else if !errors.Is(err, os.ErrNotExist) {
 		return err
 	}
 	sidecar, err := pysidecar.Start(pysidecar.Config{Python: options.python, Script: options.sidecarScript, WorkingDir: repoRoot})
@@ -135,17 +137,7 @@ func runBFCLMultiTurn(args []string) error {
 			return tokens, err
 		}
 	}
-	trace := bfcl.RunMultiTurnCase(ctx, entry, catalog, bfcl.MultiTurnRunnerOptions{
-		Generator: generator, Executor: sidecar, SessionID: sessionID, Model: options.model,
-		Tier: bfcl.Tier(options.tier), Transport: bfcl.Transport(options.transport),
-		Anchor: bfcl.MultiTurnAnchor(options.anchor), RenderInitialConfig: options.renderInitialConfig,
-		FinishTool:      options.finishTool,
-		MaxPromptTokens: options.maxPromptTokens, TokenCounter: tokenCounter,
-		MaxOutputTokens: options.maxTokens, RouteMaxTokens: options.routeMaxTokens,
-		MaxPromptChars: options.maxPromptChars, MaxSteps: options.maxSteps, MaxTurns: options.maxTurns, RouteRetries: options.routeRetries,
-		DuplicateReplayLimit: options.duplicateReplayLimit, DuplicateRescueThreshold: options.duplicateRescueThreshold,
-		SameToolRescueLimit: options.sameToolRescueLimit, Temperature: float32(options.temperature), CaseTimeout: options.caseTimeout,
-	})
+	trace := bfcl.RunMultiTurnCase(ctx, entry, catalog, multiTurnRunnerOptions(options, generator, sidecar, sessionID, tokenCounter))
 	closeSessionErr := sidecar.CloseSession(context.Background(), sessionID)
 	closeErr := sidecar.Close()
 	if closeSessionErr != nil {
@@ -157,6 +149,43 @@ func runBFCLMultiTurn(args []string) error {
 	if err := bfcl.WriteMultiTurnResult(filepath.Join(options.output, "result"), bfclModelDirName, trace); err != nil {
 		return err
 	}
+	manifest := multiTurnManifest(options, headers, tokenizerVocabSHA256)
+	manifest.CaseID = entry.ID
+	if err := bfcl.WriteMultiTurnArtifacts(options.output, manifest, trace); err != nil {
+		return err
+	}
+	fmt.Fprintf(os.Stderr, "BFCL multi-turn complete: case=%s tier=%s turns=%d model_calls=%d route_calls=%d max_prompt_bytes=%d error=%q\n", trace.ID, trace.Tier, len(trace.Turns), trace.ModelCalls, trace.RouteCalls, trace.MaxPromptBytes, trace.Error)
+	if trace.Error != "" {
+		return fmt.Errorf("BFCL multi-turn run failed: %s", trace.Error)
+	}
+	return nil
+}
+
+// multiTurnRunnerOptions is shared by the single-case and multi-case paths so a
+// cell and a one-off run cannot drift apart in configuration.
+func multiTurnRunnerOptions(
+	options bfclMultiTurnOptions,
+	generator continuation.Generator,
+	executor bfcl.MultiTurnExecutor,
+	sessionID string,
+	tokenCounter func(string) (int, error),
+) bfcl.MultiTurnRunnerOptions {
+	return bfcl.MultiTurnRunnerOptions{
+		Generator: generator, Executor: executor, SessionID: sessionID, Model: options.model,
+		Tier: bfcl.Tier(options.tier), Transport: bfcl.Transport(options.transport),
+		Anchor: bfcl.MultiTurnAnchor(options.anchor), RenderInitialConfig: options.renderInitialConfig,
+		FinishTool:      options.finishTool,
+		MaxPromptTokens: options.maxPromptTokens, TokenCounter: tokenCounter,
+		MaxOutputTokens: options.maxTokens, RouteMaxTokens: options.routeMaxTokens,
+		MaxPromptChars: options.maxPromptChars, MaxSteps: options.maxSteps, MaxTurns: options.maxTurns,
+		RouteRetries:         options.routeRetries,
+		DuplicateReplayLimit: options.duplicateReplayLimit, DuplicateRescueThreshold: options.duplicateRescueThreshold,
+		SameToolRescueLimit: options.sameToolRescueLimit, Temperature: float32(options.temperature),
+		CaseTimeout: options.caseTimeout,
+	}
+}
+
+func multiTurnManifest(options bfclMultiTurnOptions, headers http.Header, tokenizerVocabSHA256 string) bfcl.MultiTurnManifest {
 	stream := options.apiStream
 	manifest := bfcl.MultiTurnManifest{
 		SchemaVersion: 1, DataCommit: bfclDataCommit, EvaluatorVersion: bfclEvaluatorVersion,
@@ -166,7 +195,8 @@ func runBFCLMultiTurn(args []string) error {
 		EmptyTurnReachable:  bfcl.MultiTurnAnchor(options.anchor).EmptyReachable(),
 		RenderInitialConfig: options.renderInitialConfig, FinishTool: options.finishTool,
 		MaxPromptTokens: options.maxPromptTokens, TokenizerVocabSHA256: tokenizerVocabSHA256,
-		Split: options.split, CaseID: options.caseID, MaxSteps: options.maxSteps, MaxTurns: options.maxTurns, MaxPromptChars: options.maxPromptChars,
+		Split: options.split, CaseID: options.caseID, MaxSteps: options.maxSteps, MaxTurns: options.maxTurns,
+		MaxPromptChars: options.maxPromptChars, CaseConcurrency: options.caseConcurrency,
 		MaxTokens: options.maxTokens, RouteMaxTokens: options.routeMaxTokens, RouteRetries: options.routeRetries,
 		DuplicateReplayLimit: options.duplicateReplayLimit, DuplicateRescueThreshold: options.duplicateRescueThreshold,
 		SameToolRescueLimit: options.sameToolRescueLimit, Sampling: bfcl.SamplingRecord{
@@ -179,14 +209,7 @@ func runBFCLMultiTurn(args []string) error {
 		manifest.APIStream = &stream
 		manifest.RemoteBatchWait = options.remoteBatchWait.String()
 	}
-	if err := bfcl.WriteMultiTurnArtifacts(options.output, manifest, trace); err != nil {
-		return err
-	}
-	fmt.Fprintf(os.Stderr, "BFCL multi-turn complete: case=%s tier=%s turns=%d model_calls=%d route_calls=%d max_prompt_bytes=%d error=%q\n", trace.ID, trace.Tier, len(trace.Turns), trace.ModelCalls, trace.RouteCalls, trace.MaxPromptBytes, trace.Error)
-	if trace.Error != "" {
-		return fmt.Errorf("BFCL multi-turn run failed: %s", trace.Error)
-	}
-	return nil
+	return manifest
 }
 
 func bfclMultiTurnGenerator(options bfclMultiTurnOptions, headers http.Header) (continuation.Generator, error) {
@@ -248,6 +271,9 @@ func parseBFCLMultiTurnOptions(args []string) (bfclMultiTurnOptions, error) {
 	fs.StringVar(&options.anchor, "anchor", string(bfcl.MultiTurnAnchorFence), "prefill anchor: fence, array, object")
 	fs.BoolVar(&options.finishTool, "finish-tool", false, "inject the finish_task turn-end control tool and restate the rule each step")
 	fs.BoolVar(&options.renderInitialConfig, "render-initial-config", false, "render the stale initial_config block into every step (v1 behaviour)")
+	// Cases in one process share one generator, so BatchWait coalesces their
+	// calls into a single contents[] request -- the endpoint's real batching.
+	fs.IntVar(&options.caseConcurrency, "case-concurrency", 1, "cases in flight when --case is a list or all")
 	fs.IntVar(&options.maxSteps, "max-steps", 20, "maximum steps per turn")
 	// Probe-only. A truncated result scores as force_terminated; never use it for a grade.
 	fs.IntVar(&options.maxTurns, "max-turns", 0, "stop after N turns for shape probes; 0 runs every turn")
@@ -293,10 +319,17 @@ func parseBFCLMultiTurnOptions(args []string) (bfclMultiTurnOptions, error) {
 	if options.transport != string(bfcl.TransportRWKVContinuation) && options.transport != string(bfcl.TransportChatCompletionsWrapped) {
 		return options, fmt.Errorf("unsupported BFCL multi-turn transport %q", options.transport)
 	}
-	if !strings.HasPrefix(options.split, "multi_turn_") || !strings.HasPrefix(options.caseID, options.split+"_") {
+	if !strings.HasPrefix(options.split, "multi_turn_") {
 		return options, fmt.Errorf("BFCL multi-turn split/case mismatch")
 	}
-	if options.maxTokens <= 0 || options.routeMaxTokens <= 0 || options.maxPromptChars < 0 || options.maxTurns < 0 || options.maxSteps <= 0 || options.routeRetries < 0 || options.caseTimeout <= 0 || options.temperature < 0 {
+	if options.caseID != "all" {
+		for _, id := range strings.Split(options.caseID, ",") {
+			if !strings.HasPrefix(strings.TrimSpace(id), options.split+"_") {
+				return options, fmt.Errorf("BFCL multi-turn split/case mismatch: %q", id)
+			}
+		}
+	}
+	if options.maxTokens <= 0 || options.routeMaxTokens <= 0 || options.maxPromptChars < 0 || options.maxTurns < 0 || options.caseConcurrency < 1 || options.maxSteps <= 0 || options.routeRetries < 0 || options.caseTimeout <= 0 || options.temperature < 0 {
 		return options, fmt.Errorf("invalid BFCL multi-turn limits")
 	}
 	if options.temperature == 0 && options.transport == string(bfcl.TransportRWKVContinuation) {

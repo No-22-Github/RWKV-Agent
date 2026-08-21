@@ -26,6 +26,7 @@ type MultiTurnManifest struct {
 	EmptyTurnReachable       bool           `json:"empty_turn_reachable"`
 	RenderInitialConfig      bool           `json:"render_initial_config"`
 	FinishTool               bool           `json:"finish_tool"`
+	CaseConcurrency          int            `json:"case_concurrency,omitempty"`
 	MaxSteps                 int            `json:"max_steps"`
 	MaxTurns                 int            `json:"max_turns,omitempty"`
 	MaxPromptChars           int            `json:"max_prompt_chars"`
