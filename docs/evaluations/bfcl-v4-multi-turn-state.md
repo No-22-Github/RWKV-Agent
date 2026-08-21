@@ -65,6 +65,81 @@ RWKV 在 `fence`/`array` 的失败是 C1 记录的 `arguments` 字符串化缺�
 
 这也解开了锚点两难：`object` 的 RWKV 20/20 原本代价是 `[]` 不可达，换 `finish_task` 后代价消失。
 
+## 4a. 轮次终结接线与门禁验证
+
+`--finish-tool` 注入 E3 的 `finish_task` 并在每步决策前重述规则。拦截沿用 E3 纪律：只有**纯** `finish_task` 终结本轮，且它绝不进模拟器、绝不进官方 result；与真实调用混合时保留真实调用、不终结（控制工具不能掩盖错误调用）。渲染协议 `bfcl-multi-turn-json-finish-v1`。
+
+单题门禁（`multi_turn_base_0`，`object` 锚点）：
+
+| 模型 | 无 finish-tool | 有 finish-tool | 轮退出 |
+|---|---:|---:|---|
+| Qwen | 80 调用 | **44** | `finish_task` ×2、`step_limit` ×2 |
+| RWKV | 80 调用 | **10** | `finish_task` ×4 |
+
+机制在两个模型上都生效，复读消失。**但 RWKV 出现假阳性**：turn0 是 `cd, cd, finish_task`，而 GT 需要 `cd`+`mkdir`+`mv` —— 没做完就宣布完成。这个方向的错误直接判负，比复读更糟，必须在整体结果里单独量化（对比「挂在第几轮」与 GT 轮数）。
+
+## 4b. 并发执行方式
+
+端点是公司内网、支持高并发，因此 E8 用**单题 CLI × `xargs -P`** 取得并发，不建批量 runner：每题独立进程、独立 sidecar、独立模拟器状态，隔离性强于进程内批量，且天然可重入（worker 跳过已存在目录）。
+
+踩过的坑，重跑时注意：
+
+- 构建**必须** `-tags chatcompletions`，否则 Qwen 路径在发请求前失败。
+- 传输参数要写进文件由 worker 读，不能走环境变量或 argv —— `xargs` 命令行会超长，且凭据不该进 argv（只传环境变量**名**）。
+- macOS bash 3.2 没有 `mapfile`，用 `while read` 构数组。
+- 并发追加同一个 `progress.log` 会丢行，**进度以 `case-*/` 目录数为准**。
+- 后台驱动的进程树会被回收，前台分批跑（可重入）更可靠。
+
+## 4c. E8 首个格位结果：Qwen baseline（200 题，已完成）
+
+`multi_turn_base` 全 200 题，`object` 锚点 + `--finish-tool`，baseline 档，并发 16。
+
+产物：`runs/bfcl-mt/e8-qwen-baseline-multi_turn_base-20260821`（每题一个 `case-N/` 子目录）
+
+| 项 | 值 |
+|---|---:|
+| **官方分（`--partial-eval`）** | **38/200 = 19.00%** |
+| 模型调用 | 2639（≈13 次/题） |
+| 轮次总数 | 734 |
+| **`finish_task` 终结** | **559** |
+| `step_limit` 终结 | 28 |
+| `parse_error` 终结 | 147 |
+| infrastructure 失败 | 0 |
+
+官方失败类型：`instance_state_mismatch` 73、`empty_turn_model_response` 64、`execution_response_mismatch` 25。
+
+**这是本轮最重要的结果，两个维度都变了：**
+
+1. **轮次终结从「完全不存在」变成「主要路径」** —— 734 轮里 559 轮由模型自己终结，撞上限的只有 28。对比修复前：207 轮里 **0** 个自然终结。§6.7 的「挂在第几轮」这个首要诊断指标因此第一次可用。
+2. **分数从 10% 到 19%** —— 同锚点、同题集口径下（此前 `object` 无 finish-tool 是 2/20 = 10%），接近翻倍。调用量从 80 次/题降到 13 次/题，约 6 倍。
+
+需要注意的代价与待查项：
+
+- **147 个 parse_error 轮次（占 20%）是 `object` 锚点对 Qwen 的代价** —— 探针 A2 显示 Qwen 在该档首步只有 13/20，而 `array`/`fence` 都是 17/20。锚点是为 RWKV 选的（20/20 vs 12/20），Qwen 在付这个账。若最终只报 RWKV，这个代价可以接受；若要两模型横比，需在报告里明写锚点对 Qwen 不利。
+- `empty_turn_model_response` 64 例需要拆开归因：可能来自 parse_error（该轮无产出），也可能来自 `finish_task` 假阳性（未做完就终结）。**两者方向相反，必须分开读**，拆法是比对失败轮次与 GT 轮数。
+- 假阳性风险已在 §4a 的 RWKV 单题上观察到，需在全量结果里量化。
+
+## 4d. 未完成的格位
+
+| 格 | 状态 |
+|---|---|
+| Qwen baseline | ✅ 200/200，19.00% |
+| RWKV baseline | ⏸ 最后确认 63/200，进程状态未知（工具通道故障，见下） |
+| Qwen enhanced | ❌ 未开始 |
+| RWKV enhanced | ❌ 未开始 |
+
+重跑方式（worker 跳过已存在目录，可直接重入）：
+
+```bash
+go build -tags chatcompletions -o dist/rwkv-cli ./cmd/rwkv-cli
+bash /tmp/e8run.sh rwkv baseline  multi_turn_base 16 e8   # 续跑
+bash /tmp/e8run.sh qwen enhanced  multi_turn_base 16 e8
+bash /tmp/e8run.sh rwkv enhanced  multi_turn_base 16 e8
+bash /tmp/e8score.sh runs/bfcl-mt/<cell-dir> multi_turn_base
+```
+
+`/tmp/e8run.sh` 与 `/tmp/e8score.sh` 在 `/tmp`，会被系统清理；若已丢失，按 §4b 的约束重建（参数写文件、`while read` 构数组、进度数目录、前台分批）。**建议下次把这两个脚本移进 `scripts/`**，它们已经是正式产物而不是探针。
+
 ## 5. E8 准入门禁
 
 手册没有这两条，必须先过：
