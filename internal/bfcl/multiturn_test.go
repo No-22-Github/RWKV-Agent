@@ -232,6 +232,63 @@ func TestRouteRespondTurnMarshalsAsEmptyArrayNotNull(t *testing.T) {
 	}
 }
 
+// The array anchor opens a bracket the model does not close: it writes one
+// complete call object and stops. Probe A recorded 13/20 Qwen cases failing on
+// exactly this while the call itself was correct, which made the array tier look
+// like the worst option for Qwen when it is the best.
+func TestArrayAnchorClosesItsOwnBracket(t *testing.T) {
+	t.Parallel()
+	for _, testCase := range []struct {
+		name      string
+		generated string
+		want      string
+		mode      string
+	}{{
+		name:      "complete object missing the array terminator",
+		generated: `{"name":"mkdir","arguments":{"dir_name":"Projects"}}`,
+		want:      `[{"name":"mkdir","arguments":{"dir_name":"Projects"}}]`,
+		mode:      "array_elements_closed",
+	}, {
+		name:      "model closed the array itself",
+		generated: `{"name":"ls","arguments":{"a":true}}]`,
+		want:      `[{"name":"ls","arguments":{"a":true}}]`,
+		mode:      "array_elements",
+	}, {
+		// A brace inside a string must not be counted as structure.
+		name:      "brace inside a string value",
+		generated: `{"name":"echo","arguments":{"text":"a{b}c["}}`,
+		want:      `[{"name":"echo","arguments":{"text":"a{b}c["}}]`,
+		mode:      "array_elements_closed",
+	}} {
+		content, mode := assembleMultiTurnContent("```json\n[", testCase.generated)
+		if content != testCase.want || mode != testCase.mode {
+			t.Errorf("%s: content=%q mode=%q, want %q/%q", testCase.name, content, mode, testCase.want, testCase.mode)
+			continue
+		}
+		if _, err := ParseMarkdownCalls(content); err != nil {
+			t.Errorf("%s: assembled content does not parse: %v", testCase.name, err)
+		}
+	}
+}
+
+// Truncation is a real model failure and must not be repaired into a pass.
+func TestArrayAnchorRefusesToCloseTruncatedOutput(t *testing.T) {
+	t.Parallel()
+	for _, generated := range []string{
+		`{"name":"get_watchlist","arguments":{"`, // unterminated string
+		`{"name":"a","arguments":{"x":1}`,        // unbalanced brace
+		`{"name":"a","arguments":{"path":"c:\\`,  // trailing escape
+	} {
+		content, mode := assembleMultiTurnContent("```json\n[", generated)
+		if strings.HasSuffix(mode, "_closed") {
+			t.Errorf("truncated output %q was closed into %q", generated, content)
+		}
+		if _, err := ParseMarkdownCalls(content); err == nil {
+			t.Errorf("truncated output %q parsed successfully as %q", generated, content)
+		}
+	}
+}
+
 func TestMultiTurnAnchorPrefillAndEmptyReachability(t *testing.T) {
 	t.Parallel()
 	for _, testCase := range []struct {

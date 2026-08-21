@@ -500,6 +500,44 @@ func transcriptContent(step MultiTurnStepTrace) string {
 	return step.GeneratedContent
 }
 
+// closeAnchorArray closes the bracket the array anchor itself opened.
+//
+// With the bare "[" anchor the model writes one complete call object and stops,
+// because from its side the object is the whole answer; the array terminator is
+// scaffold the harness introduced. Probe A measured 13/20 Qwen cases failing on
+// exactly this missing "]" while the call itself was correct.
+//
+// It is deliberately conservative: it only appends the terminator when the
+// content is otherwise well formed. Unbalanced braces or an unterminated string
+// mean the model was truncated, which is a genuine failure and must stay one.
+func closeAnchorArray(content string) (string, bool) {
+	brackets, braces := 0, 0
+	inString, escaped := false, false
+	for _, symbol := range content {
+		switch {
+		case escaped:
+			escaped = false
+		case symbol == '\\' && inString:
+			escaped = true
+		case symbol == '"':
+			inString = !inString
+		case inString:
+		case symbol == '[':
+			brackets++
+		case symbol == ']':
+			brackets--
+		case symbol == '{':
+			braces++
+		case symbol == '}':
+			braces--
+		}
+	}
+	if inString || escaped || braces != 0 || brackets <= 0 {
+		return content, false
+	}
+	return content + strings.Repeat("]", brackets), true
+}
+
 // assembleMultiTurnContent mirrors assembleMarkdownContent: wrapped transports
 // sometimes echo the anchor, so a self-contained answer must not be re-prefixed.
 func assembleMultiTurnContent(anchor, generated string) (string, string) {
@@ -512,13 +550,28 @@ func assembleMultiTurnContent(anchor, generated string) (string, string) {
 	case body == "" && (strings.HasPrefix(candidate, "{") || strings.HasPrefix(candidate, "[")):
 		return candidate, "self_contained"
 	case body == "[" && strings.HasPrefix(candidate, "["):
+		if closed, ok := closeAnchorArray(candidate); ok {
+			return closed, "self_contained_closed"
+		}
 		return candidate, "self_contained"
 	case body == "[" && strings.HasPrefix(candidate, `{"name":"`):
+		if closed, ok := closeAnchorArray("[" + candidate); ok {
+			return closed, "array_elements_closed"
+		}
 		return "[" + candidate, "array_elements"
 	case body == `{"name":"` && strings.HasPrefix(candidate, `{"name":"`):
 		return candidate, "self_contained"
 	}
-	return body + generated, "prefill_continuation"
+	continued := body + generated
+	if body == "[" {
+		// RWKV usually writes its own "]" here, in which case the scan is
+		// balanced and this is a no-op; it only fires when the terminator is
+		// missing.
+		if closed, ok := closeAnchorArray(continued); ok {
+			return closed, "prefill_continuation_closed"
+		}
+	}
+	return continued, "prefill_continuation"
 }
 
 func RenderMultiTurnPrompt(entry MultiTurnCase, functions []MultiTurnFunction, transcript []multiTurnTranscript, anchor MultiTurnAnchor, renderInitialConfig bool) (string, error) {
