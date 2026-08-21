@@ -3,12 +3,25 @@ package bfcl
 import (
 	"context"
 	"encoding/json"
+	"slices"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/no22/RWKV-Agent/internal/continuation"
 )
+
+func TestMultiTurnStopsRespectTransportLimits(t *testing.T) {
+	t.Parallel()
+	rwkvStops := multiTurnStops(TransportRWKVContinuation)
+	if len(rwkvStops) != 6 || !slices.Contains(rwkvStops, "\nTool:") || !slices.Contains(rwkvStops, "</s>") {
+		t.Fatalf("RWKV multi-turn stops = %q", rwkvStops)
+	}
+	chatStops := multiTurnStops(TransportChatCompletionsWrapped)
+	if len(chatStops) != 4 || !slices.Contains(chatStops, "\nTool:") || slices.Contains(chatStops, "</s>") {
+		t.Fatalf("Chat Completions multi-turn stops = %q", chatStops)
+	}
+}
 
 type recordingMultiTurnExecutor struct {
 	calls [][]string

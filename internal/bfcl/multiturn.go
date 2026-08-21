@@ -478,7 +478,16 @@ func runMultiTurnStep(ctx context.Context, transcript []multiTurnTranscript, ent
 // then parse as part of the same step. baselineStops is left untouched so the
 // frozen E1/E2 single-turn renders stay byte-identical.
 func multiTurnStops(transport Transport) []string {
-	return append(baselineStops(transport), "\nTool:")
+	stops := baselineStops(transport)
+	if transport == TransportChatCompletionsWrapped {
+		// Chat Completions accepts at most four stop sequences. The wrapped
+		// baseline already uses all four slots, so replace the redundant EOS
+		// marker with the multi-turn Tool role guard. The provider terminates at
+		// EOS itself; stopping before a fabricated Tool turn is specific to this
+		// protocol and cannot be recovered after generation.
+		stops = stops[:len(stops)-1]
+	}
+	return append(stops, "\nTool:")
 }
 
 // transcriptContent prefers the anchor-assembled content so the recorded
