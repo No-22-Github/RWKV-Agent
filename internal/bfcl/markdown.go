@@ -41,8 +41,9 @@ type ParseOutcome struct {
 }
 
 const (
-	TransportRWKVContinuation       Transport = "rwkv-continuation"
-	TransportChatCompletionsWrapped Transport = "chat-completions-wrapped"
+	TransportRWKVContinuation        Transport = "rwkv-continuation"
+	TransportChatCompletionsWrapped  Transport = "chat-completions-wrapped"
+	TransportChatCompletionsNativeFC Transport = "chat-completions-native-fc"
 
 	ParserStrict           ParserMode = "strict"
 	ParserRWKVWireCompatV1 ParserMode = "rwkv-wire-compat-v1"

@@ -84,6 +84,10 @@ type MultiTurnExecutor interface {
 
 type MultiTurnRunnerOptions struct {
 	Generator continuation.Generator
+	// Completer drives the native chat-completions tool path. It is set (and used
+	// instead of Generator) only when Transport is TransportChatCompletionsNativeFC.
+	// The RWKV backend has no native FC, so it always runs through Generator.
+	Completer toolchat.Completer
 	Executor  MultiTurnExecutor
 	SessionID string
 	Model     string
@@ -151,6 +155,12 @@ type MultiTurnStepTrace struct {
 	AssemblyMode     string              `json:"assembly_mode,omitempty"`
 	GeneratedContent string              `json:"generated_content"`
 	Content          string              `json:"content,omitempty"`
+	// FinishReason is the provider stop reason (native path). "length" with no
+	// tool_calls means the model ran out of budget mid-response -- a runaway
+	// reasoning block under thinking -- which counts as a model failure, not an
+	// exclusion. Scan for it to tell an inadequate --max-tokens from genuine
+	// non-convergence.
+	FinishReason     string              `json:"finish_reason,omitempty"`
 	ToolCalls        []toolchat.ToolCall `json:"tool_calls,omitempty"`
 	ExecutionCalls   []string            `json:"execution_calls,omitempty"`
 	ExecutionResults []string            `json:"execution_results,omitempty"`
@@ -220,6 +230,32 @@ func (trace *MultiTurnTrace) fail(err error) {
 type multiTurnTranscript struct {
 	Role    string
 	Content any
+	// ToolCalls and CallIDs are native-only and additive: the wrapped renderer
+	// (RenderMultiTurnPrompt) reads only Role and Content, so populating these
+	// leaves every wrapped prompt byte-identical. The native stepper reconstructs
+	// structured assistant tool_calls and tool_call_id-linked results from them.
+	ToolCalls []toolchat.ToolCall
+	CallIDs   []string
+}
+
+// turnStepper runs one model decision and normalizes it to tool calls,
+// regardless of wire protocol. noCall reports an empty call list, which is the
+// turn-end signal (for native FC an empty tool_calls response is exactly the
+// official "model emitted no call" termination). Everything the main loop does
+// above this seam -- finish_task selection, dedup, loop-rescue, execution,
+// result accumulation -- already operates on []toolchat.ToolCall and is shared.
+type turnStepper interface {
+	Step(ctx context.Context, transcript []multiTurnTranscript, entry MultiTurnCase, functions []MultiTurnFunction, names map[string]string, turn, step int, options MultiTurnRunnerOptions) (MultiTurnStepTrace, []toolchat.ToolCall, bool, error)
+}
+
+// wrappedStepper is the continuation/markdown protocol: render a flat transcript
+// with a prefill anchor, call Generator.Continue, reassemble, and parse the
+// generated text into calls. It delegates to the frozen runMultiTurnStep so the
+// wrapped render path stays byte-for-byte what E1/E2/E8 recorded.
+type wrappedStepper struct{}
+
+func (wrappedStepper) Step(ctx context.Context, transcript []multiTurnTranscript, entry MultiTurnCase, functions []MultiTurnFunction, _ map[string]string, turn, step int, options MultiTurnRunnerOptions) (MultiTurnStepTrace, []toolchat.ToolCall, bool, error) {
+	return runMultiTurnStep(ctx, transcript, entry, functions, turn, step, options)
 }
 
 func RunMultiTurnCase(parent context.Context, entry MultiTurnCase, catalog MultiTurnCatalog, options MultiTurnRunnerOptions) MultiTurnTrace {
@@ -246,6 +282,30 @@ func RunMultiTurnCase(parent context.Context, entry MultiTurnCase, catalog Multi
 	}
 	if options.Anchor == "" {
 		options.Anchor = MultiTurnAnchorFence
+	}
+	// Pick the wire protocol once. Native FC (Qwen's own tool-calling, the
+	// official-comparable path) speaks structured tool_calls and needs a global
+	// sanitized->original name map to un-sanitize before the simulator; wrapped
+	// leaves names nil and behaves exactly as the frozen runs did.
+	native := options.Transport == TransportChatCompletionsNativeFC
+	var stepper turnStepper = wrappedStepper{}
+	var names map[string]string
+	if native {
+		if options.Completer == nil {
+			trace.Error = "BFCL multi-turn native FC transport requires a completer"
+			return trace
+		}
+		if options.Tier != TierBaseline {
+			trace.Error = "BFCL multi-turn native FC currently supports only the baseline tier"
+			return trace
+		}
+		built, err := multiTurnNativeNames(catalog.Functions)
+		if err != nil {
+			trace.Error = err.Error()
+			return trace
+		}
+		names = built
+		stepper = nativeStepper{completer: options.Completer}
 	}
 	ctx, cancel := context.WithTimeout(parent, options.CaseTimeout)
 	defer cancel()
@@ -323,7 +383,7 @@ func RunMultiTurnCase(parent context.Context, entry MultiTurnCase, catalog Multi
 		sameToolStreak := 0
 		parseRetries := 0
 		for step := 0; step < options.MaxSteps; step++ {
-			stepTrace, calls, noCall, err := runMultiTurnStep(ctx, transcript, entry, available, turnIndex, step, options)
+			stepTrace, calls, noCall, err := stepper.Step(ctx, transcript, entry, available, names, turnIndex, step, options)
 			turnTrace.Steps = append(turnTrace.Steps, stepTrace)
 			trace.ModelCalls++
 			trace.InputTokens += stepTrace.InputTokens
@@ -393,7 +453,7 @@ func RunMultiTurnCase(parent context.Context, entry MultiTurnCase, catalog Multi
 				}
 			}
 			parseRetries = 0
-			executionCalls, encodeErr := MultiTurnExecutionCalls(calls)
+			executionCalls, encodeErr := multiTurnExecutionCalls(calls, names)
 			if encodeErr != nil {
 				turnTrace.Steps[len(turnTrace.Steps)-1].ParseError = encodeErr.Error()
 				turnTrace.EndedBy = "result_encoding_error"
@@ -437,7 +497,10 @@ func RunMultiTurnCase(parent context.Context, entry MultiTurnCase, catalog Multi
 			turnResult = append(turnResult, executionCalls)
 			turnTrace.Steps[len(turnTrace.Steps)-1].ExecutionCalls = executionCalls
 			turnTrace.Steps[len(turnTrace.Steps)-1].ExecutionResults = results
-			transcript = append(transcript, multiTurnTranscript{Role: "Assistant", Content: transcriptContent(stepTrace)}, multiTurnTranscript{Role: "Tool", Content: results})
+			// ToolCalls/CallIDs are additive and native-only: they let the native
+			// stepper rebuild the assistant tool_calls and match each tool result to
+			// its call id on the next step. The wrapped renderer ignores them.
+			transcript = append(transcript, multiTurnTranscript{Role: "Assistant", Content: transcriptContent(stepTrace), ToolCalls: calls}, multiTurnTranscript{Role: "Tool", Content: results, CallIDs: toolCallIDs(calls)})
 			for _, result := range results {
 				if strings.HasPrefix(result, "Error during execution:") {
 					trace.Events = append(trace.Events, MultiTurnEvent{Kind: "execution_error_feedback", Turn: turnIndex, Step: step, ExecutionError: result})
@@ -695,15 +758,33 @@ Tools:
 }
 
 func MultiTurnExecutionCalls(calls []toolchat.ToolCall) ([]string, error) {
+	return multiTurnExecutionCalls(calls, nil)
+}
+
+// multiTurnExecutionCalls renders calls to executable Python strings for the
+// simulator. names maps sanitized native tool names back to their originals
+// (dot-bearing BFCL names get `.`->`_` for the OpenAI tools array); it is nil on
+// the wrapped path, where the model already emits original names.
+func multiTurnExecutionCalls(calls []toolchat.ToolCall, names map[string]string) ([]string, error) {
 	result := make([]string, 0, len(calls))
 	for _, call := range calls {
-		encoded, err := ToResultString([]toolchat.ToolCall{call}, nil, LanguagePython)
+		encoded, err := ToResultString([]toolchat.ToolCall{call}, names, LanguagePython)
 		if err != nil {
 			return nil, err
 		}
 		result = append(result, strings.TrimSuffix(strings.TrimPrefix(encoded, "["), "]"))
 	}
 	return result, nil
+}
+
+// toolCallIDs extracts the provider-assigned call ids so native tool-result
+// messages can reference them. Wrapped calls carry no ids and ignore the result.
+func toolCallIDs(calls []toolchat.ToolCall) []string {
+	ids := make([]string, len(calls))
+	for index, call := range calls {
+		ids[index] = call.ID
+	}
+	return ids
 }
 
 func multiTurnCallSignature(calls []toolchat.ToolCall) string {
