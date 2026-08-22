@@ -5,7 +5,7 @@
 > [`README.en.md`](README.en.md)。`docs/` 内部的逐文件索引见
 > [`docs/README.md`](docs/README.md)。
 >
-> 最后更新：2026-08-20
+> 最后更新：2026-08-22
 
 ## 快速定位
 
@@ -87,6 +87,9 @@
 | [`docs/evaluations/rwkv-g1i-toolcall-abstention-defect-20260820.md`](docs/evaluations/rwkv-g1i-toolcall-abstention-defect-20260820.md) | 模型侧反馈：预填锚点后 g1i 7.2b/13.3b 均无法弃权（三种出口 0/240，13.3b 负样本 0.83%）；`arguments` 字符串化为尺寸相关污染；13.3b 无锚点时保留弃权判断（79% vs 17%） |
 | [`docs/evaluations/bfcl-v4-anchor-position-20260820.md`](docs/evaluations/bfcl-v4-anchor-position-20260820.md) | 小优化：锚点延长到 `{"name":"`（并行用 `[{"name":"`），non-live 1000 题 strict 51.10% → 88.90%，超过带兜底的 88.00% |
 | [`docs/evaluations/bfcl-v4-multi-turn-e4-e7-20260821.md`](docs/evaluations/bfcl-v4-multi-turn-e4-e7-20260821.md) | Multi-turn E4–E7：上游判分语义、800 题上下文可行集、sidecar GT 100% 门禁与双模型单题闭环 |
+| [`docs/evaluations/bfcl-v4-e8-qwen-enhanced-base-20260822.md`](docs/evaluations/bfcl-v4-e8-qwen-enhanced-base-20260822.md) | E8 Qwen enhanced `multi_turn_base`：57/200，含 baseline 对照、失败迁移、干预事件与冻结归档 |
+| [`docs/evaluations/bfcl-v4-run-log.md`](docs/evaluations/bfcl-v4-run-log.md)（E9 条目）| E9 原生 FC 多轮校准：Qwen 作校准仪，native no-think 23.5% / thinking 子集 35.3% 对齐官方 Base 50.5%；RWKV baseline 4.5%、enhanced 路由协议不适用；turn seam 设计见多轮状态文档 §8 |
+| [`archive/bfcl-v4-e8-qwen-enhanced-base-20260822/README.md`](archive/bfcl-v4-e8-qwen-enhanced-base-20260822/README.md) | E8 Qwen enhanced 的 200 条合并结果、机器可读汇总、官方分数摘要与哈希 |
 | [`docs/evaluations/bfcl-v4-qwen-native-fc-alignment-20260819.md`](docs/evaluations/bfcl-v4-qwen-native-fc-alignment-20260819.md) | Qwen3-8B 原生 FC 全量与公开榜单逐 split 对齐；用作管道体检，不是本项目成绩 |
 | [`docs/evaluations/bfcl-v4-qwen-markdown-baseline-full-20260819.md`](docs/evaluations/bfcl-v4-qwen-markdown-baseline-full-20260819.md) | Markdown baseline 全量诊断；负样本分受 prompt 预填影响，不代表模型拒调能力 |
 | [`docs/evaluations/bfcl-v4-m3-sampling-20260819.md`](docs/evaluations/bfcl-v4-m3-sampling-20260819.md) | M3 抽样冻结与代表性诊断，manifest v1 → v2 |

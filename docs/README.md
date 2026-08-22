@@ -40,6 +40,7 @@
 | [evaluations/rwkv-g1i-toolcall-abstention-defect-20260820.md](evaluations/rwkv-g1i-toolcall-abstention-defect-20260820.md) | g1i 7.2b/13.3b 弃权缺陷、`arguments` 污染与训练数据污染的模型侧反馈 |
 | [evaluations/bfcl-v4-anchor-position-20260820.md](evaluations/bfcl-v4-anchor-position-20260820.md) | 预填锚点位置：strict 51.10% → 88.90%，兜底增益可被锚点位置替代 |
 | [evaluations/bfcl-v4-multi-turn-e4-e7-20260821.md](evaluations/bfcl-v4-multi-turn-e4-e7-20260821.md) | BFCL multi-turn E4–E7：上游核对、800 题上下文普查、sidecar GT 门禁与单题闭环 |
+| [evaluations/bfcl-v4-e8-qwen-enhanced-base-20260822.md](evaluations/bfcl-v4-e8-qwen-enhanced-base-20260822.md) | BFCL E8 Qwen enhanced：`multi_turn_base` 57/200、失败迁移与冻结归档 |
 
 ## 报告
 

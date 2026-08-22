@@ -1,6 +1,6 @@
 # BFCL v4 多轮：当前状态与 E8 准入
 
-日期：2026-08-21。**本文是多轮实验的当前事实源。**
+首次记录：2026-08-21；最近更新：2026-08-22。**本文是多轮实验的当前事实源。**
 
 仓库外的 `RWKV-Agent-BFCL-实验手册-20260821.md` 退役为历史计划文档：它的 E5 阈值口径已废、且未定义多轮锚点与轮次终结（见 §4）。仓库外两份交接与探针报告是过程记录，结论以本文为准。
 
@@ -119,14 +119,24 @@ RWKV 在 `fence`/`array` 的失败是 C1 记录的 `arguments` 字符串化缺�
 - `empty_turn_model_response` 64 例需要拆开归因：可能来自 parse_error（该轮无产出），也可能来自 `finish_task` 假阳性（未做完就终结）。**两者方向相反，必须分开读**，拆法是比对失败轮次与 GT 轮数。
 - 假阳性风险已在 §4a 的 RWKV 单题上观察到，需在全量结果里量化。
 
-## 4d. 未完成的格位
+## 4d. 格位状态（2026-08-22 更新）
 
 | 格 | 状态 |
 |---|---|
-| Qwen baseline | ✅ 200/200，19.00% |
-| RWKV baseline | ⏸ 最后确认 63/200，进程状态未知（工具通道故障，见下） |
-| Qwen enhanced | ❌ 未开始 |
-| RWKV enhanced | ❌ 未开始 |
+| Qwen baseline (wrapped) | ✅ 200/200，19.00% |
+| Qwen enhanced (wrapped) | ✅ 200/200，**57/200 = 28.50%**；已评分归档 |
+| RWKV baseline (wrapped) | ✅ 200/200，**9/200 = 4.50%**（8 个远端超时已删-重跑补齐） |
+| RWKV enhanced (wrapped) | ❌ **路由协议不适用，不出分**（见下） |
+| **Qwen native-FC (E9)** | ✅ no-think 200/200 = **23.50%**；thinking 60 题子集干净 51 = **35.29%** |
+
+**口径重定（重要）：** wrapped/anchor 档是为 RWKV（无原生 FC）设计的协议，Qwen 在其中被迫非原生运行，其分（19/28.5%）**不可与官方对齐**。E9 新增原生 FC 路径后，Qwen 的**头条数是 native 23.5%（no-think）/ 35.3%（thinking 子集）**，对齐官方 Base 50.5% 口径；wrapped 档降级为「同输出契约下的系统诊断」。详见 run-log 的 E9 条目与 §8。
+
+RWKV enhanced 首跑 200/200 全 `route_respond`、0.00%——根因是 `G1IProgressiveToolRouteProtocol` 严格前缀解析拒绝了 RWKV 的前置散文 + 未闭合标签。修 parser（容忍散文/think、定位匹配）+ route 预算 48→256 重跑后**仍全 respond**：1468 个路由生成仅 257 含标签，其余为未闭合标签或协议幻觉。**结论：g1i-7.2b 无法稳定遵循渐进路由协议**，这是有价值的负面结论，不凑分数。parser 修复保留（真 bug）。
+
+Qwen enhanced 相对 baseline 观测提升 19 题、9.50 pp。空轮失败 64→13，
+但状态不匹配 73→94、执行返回不匹配 25→36，说明增强档主要把失败从“未形成有效轮次”
+推进成“进入执行后仍做错”。完整归档与 Harness 事件分布见
+`docs/evaluations/bfcl-v4-e8-qwen-enhanced-base-20260822.md`。
 
 重跑方式（worker 跳过已存在目录，可直接重入）：
 
@@ -159,3 +169,27 @@ bash /tmp/e8score.sh runs/bfcl-mt/<cell-dir> multi_turn_base
 - E0 的「逐字节一致」门禁**不适用多轮**（解码长、有状态、首步分叉后全变），多轮确定性需另定口径。
 - respond 分支至今零真机覆盖（有单测）。
 - 不得向运行时泄露 `possible_answer/`、GT class 或 `path`；`pysidecar/dependency_test.go` 强制。
+
+## 8. Turn seam：多轮支持原生 chat 工具协议（2026-08-22）
+
+**动机与背景见 run-log 的 E9 条目。** 核心：多轮 harness 原先写死 wrapped-continuation，Qwen 从没走过自己的原生 FC，导致其多轮分不可与官方对齐、校准价值为零。
+
+### 设计
+
+抽一条协议无关的 turn seam（`internal/bfcl/multiturn.go` 的 `turnStepper`），一步「跑模型 → 归一到 `[]toolchat.ToolCall`」，两个实现：
+
+- `wrappedStepper`：委托原 `runMultiTurnStep`（markdown 渲染 + anchor + 文本解析 + wire-compat）。**行为字节不变** —— RWKV 走这条（它无原生 FC）。
+- `nativeStepper`（`multiturn_native.go`）：`toolchat.Completer.Complete`，原生 tools 数组 + 结构化 tool_calls，**空 tool_calls 即官方轮次终结**。无 anchor、无 finish_task、无 wire-compat、无 markdown 前言（这些都是为「模型把 JSON 当文本吐」而生的补丁，原生不需要）。Qwen 校准走这条。
+
+`multiTurnTranscript` 加 native-only 字段 `ToolCalls`/`CallIDs`（**加法式**：wrapped 渲染只读 `Role`+`Content`，字节恒等由单测 `TestAdditiveTranscriptFieldsDoNotChangeWrappedRender` 守）。解析边界之上（loop-rescue、dedup、catalog 收窄、finish_task 选择、executor、artifacts）本就协议无关，无需改。
+
+### 踩过的坑（重跑必看）
+
+1. **thinking 静默 0 分**：thinking on 时推理块吃光 `--max-tokens`，轮次截断为空 tool_calls，被读成「自然终结」→ 静默判 0。防护：native 拒绝 `--chat-template-thinking auto`（必须显式 on/off）；运行期截断守卫记录 `finish_reason`，`length`+无 calls 计为该失败轮次（对齐官方，不剔除）；thinking on 需 `--max-tokens >= 4096`（实测 8192 仍有尾部发散，用 12288）。
+2. **turn-end 空 assistant 消息**：Qwen 终结轮返回空 content + 空 tool_calls，回放成空 assistant 消息会被 API 拒（`assistant message requires content or tool_calls`）。native 消息映射跳过这类空条目。
+3. **名字消歧**：native tools 把 `.`→`_`（OpenAI 不允许点号），执行前用 names 映射还原；multi_turn 名多为扁平，但含点名必须透传。
+4. **FP8 下思考发散**：60 题里 9 个超时/截断，按基础设施口径剔除分母。
+
+### 路由 parser 修复（enhanced 副产物）
+
+`G1IProgressiveToolRouteProtocol.Parse` 原要求 `<route>` 严格前缀，拒绝了模型的前置散文/think 块。修为：剥前导 think、`strings.Index` 定位标签（不要求前缀）。这是真 bug 修复、保留。但 RWKV enhanced 重跑证明该模型仍无法稳定遵循此协议（未闭合标签 + 协议幻觉），故 RWKV enhanced 不出分。

@@ -1,0 +1,104 @@
+{
+  "case_count": 200,
+  "event_case_counts": {
+    "correction_retry": 87,
+    "duplicate_rejected": 62,
+    "execution_error_feedback": 28,
+    "finish_task_selected": 198,
+    "loop_rescue": 52,
+    "narrowing_dropped_class": 133,
+    "route_decision": 200,
+    "route_degraded": 1,
+    "route_retry": 181
+  },
+  "events": {
+    "correction_retry": 142,
+    "duplicate_rejected": 150,
+    "execution_error_feedback": 52,
+    "finish_task_selected": 654,
+    "loop_rescue": 61,
+    "narrowing_dropped_class": 459,
+    "route_decision": 733,
+    "route_degraded": 1,
+    "route_retry": 437
+  },
+  "first_id": "multi_turn_base_0",
+  "last_id": "multi_turn_base_199",
+  "official_score": {
+    "accuracy": 0.285,
+    "artifacts_sha256": {
+      "score/data_agentic.csv": "db7f76a76e2cb0dec14d5b2eba6e8eca40b0e96701fa2f33563ae58c4391629c",
+      "score/data_format_sensitivity.csv": "3d5c8210a5c67acba4203cc106377ede07dd196c063348d866f6927ea2d4a61a",
+      "score/data_live.csv": "bc2fdcff248727014dce03b5df19251711807c1fdfc312a03c9be5cb40385b6e",
+      "score/data_multi_turn.csv": "be84deaa6acbc515e98f6b04eea0f34f0cba691034ddbfc58846ea688a8cd058",
+      "score/data_non_live.csv": "e826c06774a74235d5af17ffa379cba3298d44eca187ea760b11a30dcaefb031",
+      "score/data_overall.csv": "50bae199b2167587a19d0a62bdfe992e7fb7539b3ab5ee391370b68061c3f4df",
+      "score/rwkv-agent-bfcl-ab-v1/multi_turn/BFCL_v4_multi_turn_base_score.json": "74bdbbc24a0c8d4a95f42dadd31b38b3cb978edd393f15571aa1f098177d694c"
+    },
+    "correct_count": 57,
+    "failure_types": {
+      "multi_turn:empty_turn_model_response": 13,
+      "multi_turn:execution_response_mismatch": 36,
+      "multi_turn:instance_state_mismatch": 94
+    },
+    "total_count": 200
+  },
+  "result_path": "result/rwkv-agent-bfcl-ab-v1/multi_turn/BFCL_v4_multi_turn_base_result.json",
+  "result_sha256": "499ce416c15262d08801a89038258a29aec862681759e2e1584a5d06fb87d87e",
+  "run_config": {
+    "anchor": "object",
+    "anchor_prefill": "```json\n{\"name\":\"",
+    "binary_sha256": "aaf77d95ebffd43d6760eb9607c243de179c1b8b90d2d255d1a5f7e93bed9ba0",
+    "data_commit": "6ea57973c7a6097fd7c5915698c54c17c5b1b6c8",
+    "duplicate_replay_limit": 2,
+    "duplicate_rescue_threshold": 4,
+    "empty_turn_reachable": false,
+    "evaluator_version": "2026.3.23",
+    "finish_tool": true,
+    "max_prompt_chars": 0,
+    "max_prompt_tokens": 15360,
+    "max_steps": 20,
+    "max_tokens": 1024,
+    "model": "Qwen/Qwen3-8B-FP8",
+    "model_dir_name": "rwkv-agent-bfcl-ab-v1",
+    "parser_mode": "rwkv-wire-compat-v1",
+    "render_initial_config": false,
+    "render_protocol": "bfcl-multi-turn-json-finish-v1",
+    "repo_commit": "2fba06dfc271b4abc41fe3e6adbcdd00ea990628",
+    "route_max_tokens": 48,
+    "route_retries": 1,
+    "same_tool_rescue_limit": 12,
+    "sampling": {
+      "effective_temperature": 0,
+      "greedy": true,
+      "top_k": 1,
+      "top_k_included": false
+    },
+    "schema_version": 1,
+    "sidecar_protocol": "bfcl-python-sidecar-v1",
+    "split": "multi_turn_base",
+    "tier": "enhanced",
+    "tokenizer_vocab_sha256": "e6dee3d4e31b4d5c40ac99508ac6c701ceef4bed681bf2167ce9a908552bca89",
+    "transport": "chat-completions-wrapped"
+  },
+  "run_config_sha256": "5020a9455dae1120327960f08e123a58435ec952907a84e2942b0347505f1ebe",
+  "schema_version": 1,
+  "split": "multi_turn_base",
+  "summary": {
+    "cases": 200,
+    "events": 2689,
+    "input_tokens": 6226632,
+    "latency_seconds": 3309.001372737999,
+    "model_calls": 3599,
+    "output_tokens": 49446,
+    "route_calls": 1170,
+    "steps": 2429,
+    "turns": 734
+  },
+  "turn_exits": {
+    "finish_task": 654,
+    "loop_rescue": 61,
+    "parse_error": 7,
+    "route_respond": 12
+  }
+}

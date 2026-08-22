@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "model": "Qwen/Qwen3-8B-FP8",
+  "tier": "enhanced",
+  "category": "multi_turn_base",
+  "evaluator_version": "2026.3.23",
+  "partial_eval": true,
+  "correct_count": 57,
+  "total_count": 200,
+  "accuracy": 0.285,
+  "failure_types": {
+    "multi_turn:empty_turn_model_response": 13,
+    "multi_turn:execution_response_mismatch": 36,
+    "multi_turn:instance_state_mismatch": 94
+  },
+  "result_sha256": "499ce416c15262d08801a89038258a29aec862681759e2e1584a5d06fb87d87e",
+  "official_score_jsonl_sha256": "74bdbbc24a0c8d4a95f42dadd31b38b3cb978edd393f15571aa1f098177d694c",
+  "data_multi_turn_csv_sha256": "be84deaa6acbc515e98f6b04eea0f34f0cba691034ddbfc58846ea688a8cd058"
+}

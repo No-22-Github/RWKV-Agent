@@ -28,6 +28,8 @@
 | `E1-E2-anchor-v1-v2` | v2 固定 491 题、`bfcl-markdown-anchor-v1`、首轮 prompt hash 相同、并发 8、官方 partial evaluator | 同一服务内 baseline/enhanced 的实测系统差异 | 官方全榜 Overall；有输出漂移时也不可把 E1/E2 全部 delta 归因于 Harness |
 | `E3-finish-task-probe` | 全量 1124 个负样本、额外注入 `finish_task`、strict parser、官方 partial evaluator | 模型是否愿意显式选择 stop tool，以及拦截后的弃权成绩 | E1/E2 矩阵分数；该探针改变了工具表和提示协议 |
 | `E7-multi-turn-single-case` | `multi_turn_base_0`、持久 sidecar、官方 partial evaluator | 多轮 Harness 与 Agent 循环是否闭环、干预事件和单题失败归因 | 模型多轮总体能力或 E8 正式矩阵成绩 |
+| `E8-multi-turn-base` | `multi_turn_base` 全 200 题、object anchor、finish_task、官方 partial evaluator | 同一 Qwen 服务在 baseline/enhanced 系统档位下的多轮成绩与失败迁移 | 四 split 完整 E8、公开榜单或冻结首答的纯 Harness 因果量 |
+| `E9-native-fc-multi-turn` | `multi_turn_base`、**原生 chat-completions tools + 结构化 tool_calls**（官方 QwenFCHandler 同款路径）、空 tool_calls 即官方轮次终结、无 anchor/无 finish_task/无 wire-compat、官方 partial evaluator | Qwen 用自己的原生 FC 协议时的多轮成绩，可与官方 BFCL 榜单同口径对齐（校准仪） | 与 wrapped/anchor 档的字节级同协议对比；RWKV（无原生 FC）不进本组 |
 | `validation-only` | 固定 evaluator 与人工构造结果 | 数据、目录、decoder 和错误分支是否闭环 | 模型能力 |
 
 `M2-markdown-single-call` 中，RWKV 直接接收 continuation prompt；Chat Completions 模型还会经过 wrapped system instruction 和服务端 chat template，并受最多 4 个 stop sequence 的接口限制，而 RWKV M2 使用 5 个。因此该组具有强诊断可比性，但不是 transport/template 完全一致的模型级隔离实验。
@@ -36,6 +38,11 @@
 
 | 日期 | Run | 比较组 | 模型 | Split | 正确/总数 | 准确率 | 并发 | 解析失败 | 耗时 |
 |---|---|---|---|---|---:|---:|---:|---:|---:|
+| 2026-08-22 | `native-qwen-base-cal-20260822` | `E9-native-fc-multi-turn` | Qwen3-8B-FP8 | `multi_turn_base` | **47/200** | **23.50%** | 16 | 0（原生无文本解析）| 见专项文档 |
+| 2026-08-22 | `local-qwen-think-subset60-20260822` | `E9-native-fc-multi-turn` | Qwen3-8B-FP8（thinking on）| `multi_turn_base` 子集 | 18/51（干净）| **35.29%** | 8 | 9 个 case 超时/思考截断（剔除）| 见专项文档 |
+| 2026-08-22 | `rwkv-baseline-mt-base-20260822` | `E8-multi-turn-base` | RWKV7 G1i 7.2B | `multi_turn_base` | **9/200** | **4.50%** | 8（批量 50ms）| 12 个 parse-error 轮次 | 约 90 分钟；8 个远端超时已删-重跑补齐 |
+| 2026-08-22 | `e8-qwen-enhanced-multi_turn_base-20260821` | `E8-multi-turn-base` | Qwen3-8B-FP8 | `multi_turn_base` | **57/200** | **28.50%** | 16 个独立 case 进程 | 7 个 parse-error 轮次 | 3309.00s 逐题 latency 合计 |
+| 2026-08-21 | `e8-qwen-baseline-multi_turn_base-20260821` | `E8-multi-turn-base` | Qwen3-8B-FP8 | `multi_turn_base` | 38/200 | 19.00% | 16 个独立 case 进程 | 147 个 parse-error 轮次 | 见专项状态文档 |
 | 2026-08-21 | `e3-rwkv7b-finish-task-c8-full-20260821` | `E3-finish-task-probe` | RWKV7 G1i 7.2B | `irrelevance` | 75/240 | 31.25% | 8 | 0 | 614.63s 两 split 合计 |
 | 2026-08-21 | `e3-rwkv7b-finish-task-c8-full-20260821` | `E3-finish-task-probe` | RWKV7 G1i 7.2B | `live_irrelevance` | 355/884 | 40.16% | 8 | 0 | 614.63s 两 split 合计 |
 | 2026-08-21 | `e3-qwen8b-finish-task-c8-full-20260821` | `E3-finish-task-probe` | Qwen3-8B-FP8 | `irrelevance` | 184/240 | 76.67% | 8 | 0 | 196.11s 两 split 合计 |
@@ -54,6 +61,66 @@
 | 2026-08-18 | `m1-official-handler-20260818` | `M1-official-control` | Qwen3-8B-FP8 | `simple_python` | 381/400 | 95.25% | 8 | N/A | 1402s 三个 split 合计 |
 | 2026-08-18 | `m1-official-handler-20260818` | `M1-official-control` | Qwen3-8B-FP8 | `multiple` | 191/200 | 95.50% | 8 | N/A | 1402s 三个 split 合计 |
 | 2026-08-18 | `m1-official-handler-20260818` | `M1-official-control` | Qwen3-8B-FP8 | `live_simple` | 217/258 | 84.11% | 8 | N/A | 1402s 三个 split 合计 |
+
+## 2026-08-22 — E9 原生 FC 多轮校准（Qwen 作为校准仪）
+
+### 动机
+
+BFCL 有 Qwen3-8B 的公开分、没有 RWKV 的。因此整条多轮链路（数据→prompt→执行→有状态模拟器→判分）是否正确，唯一验证手段是让 Qwen 用**官方同款原生 FC 协议**跑、看能否复现官方量级。E1–E8 的 Qwen 一直被迫走 wrapped/markdown/anchor 协议（为 RWKV 设计），其多轮分不可与任何官方数对齐、校准价值为零。E9 新增 `chat-completions-native-fc` 多轮路径（turn seam，见多轮状态文档 §8），让 Qwen 走原生 tools + 结构化 tool_calls，空 tool_calls 即官方轮次终结。
+
+### 官方对照（gorilla.cs.berkeley.edu/leaderboard.html，Last Updated 2026-04-12）
+
+- Qwen3-8B **(FC)** Multi-Turn **Base = 50.5%**（Overall 41.75%；Base 是四子类最高）。
+- Qwen3-8B (Prompt) Base = 41.5%。
+- 官方 evaluator `bfcl-eval==2025.12.17`（commit f7cf735）；本项目为 `2026.3.23` + data commit `6ea5797`，**存在版本偏移，只做量级对齐、不对小数点**。
+- 官方大概率 BF16 全精度 + thinking on；本项目本地服务为 FP8。
+
+### 结果
+
+| 档位 | 正确/总数 | Base 准确率 | 说明 |
+|---|---:|---:|---|
+| native no-think（全 200）| 47/200 | **23.50%** | greedy、thinking disabled、max-tokens 1024 |
+| native thinking（60 题子集，剔除 9 个基础设施失败）| 18/51 | **35.29%** | thinking enabled、max-tokens 12288；含分母剔除口径 |
+
+- **校准结论：链路可信。** 单轮 native 早已精确复现官方（M1：non-live 87.85 vs 官方 87.58；live 80.01 vs 80.53，均 <1pp）。多轮 no-think 23.5% 落在公开资料「base 8B 多轮 ~10–22%」区间顶端，未见异常。
+- **思考是主因，符合预期。** 开思考把 Base 从 23.5 → 35.3（+11.8pp），方向与量级都指向「官方 50.5 靠思考」。剩余 ~15pp 归 **FP8 量化 +（次要）evaluator/data 版本偏移**：FP8 下思考易发散——60 题里 9 个 case 超时或思考截断（`finish_reason=length` 无 tool_calls），按基础设施口径剔除。
+- **thinking 子集是方向性校准点，不是终值**（60 题、FP8、剔除 9 个失败）。它回答的是「思考补不补得上」——补了大半、剩下归量化，不追求跑满 200 对齐小数点。
+
+### 冻结项与边界
+
+- 生成二进制 SHA-256：`87050c2f136f9395e1560898c25605c2fb8ad1f22fa4819ee101b679ad4739e4`；源码基点 `f5e62b9`（工作树 dirty，含 turn seam + 路由 parser 修复）。
+- transport `chat-completions-native-fc`，`PromptNativeChat`；tools 由单轮 native 同款 `openAISchema` 改写（dict→object 等），名字 `.`→`_` 消歧、执行前还原。
+- **thinking 必须显式指定**：native 路径拒绝 `auto`（模板默认静默开思考，小 max-tokens 下推理块吃光预算、轮次静默截断为空 tool_calls，静默判 0）。运行期截断守卫记录 `finish_reason`，`length`+无 calls 计为该失败轮次（对齐官方，不剔除；仅超时/基础设施失败剔除分母）。
+- 本地产物：`runs/bfcl-mt/native-qwen-base-cal-20260822`、`runs/bfcl-mt/local-qwen-think-subset60-20260822`。
+- 不可解释为：四 split 完整多轮、字节级同协议对比、或对官方的小数点级复现。
+
+## 2026-08-22 — RWKV baseline 多轮 + enhanced 路由不适用
+
+### RWKV baseline（有效，4.50%）
+
+- `rwkv-baseline-mt-base-20260822`，`multi_turn_base` 全 200 题，wrapped continuation + object anchor + finish_task，并发 8、批量 50ms。
+- 官方 **9/200 = 4.50%**。轮次出口：`finish_task` 606、`step_limit` 116、`parse_error` 12。
+- 8 个远端 `context deadline exceeded`（基础设施失败）已删-重跑补齐，最终 0 基础设施失败。
+- 低分与既有证据一脉相承：g1i-7.2b 的弃权/规划缺陷（见 `rwkv-g1i-toolcall-abstention-defect`）在多轮下累积。对照 native Qwen 23.5%——**RWKV 多轮确实很弱，低分是诚实结果，不是判分错误**。
+
+### RWKV enhanced（路由协议不适用，不出分）
+
+- 首次运行 200/200 全部 `route_respond`、结果全空、官方 0.00%。诊断：`G1IProgressiveToolRouteProtocol` 要求严格 `<route>...</route>` 信封，RWKV 实际输出前置散文 + 未闭合标签 + 协议幻觉（`🔄 Routed to...`、`✿reverse_word...✿`、复读「输出格式：」）。
+- 修复 parser（容忍前置散文/think 块、定位而非前缀匹配；见 `internal/agent/route.go`）并把 `--route-max-tokens` 48→256 重跑：**仍全 respond**。1468 个路由生成中仅 257 含 `<route>` 标签，其余为未闭合标签或协议幻觉。
+- **结论：g1i-7.2b 无法稳定遵循渐进式路由增强协议**，这是一个有价值的负面结论，不需要一个凑出来的分数。parser 修复本身是真 bug 修复、保留（native 路径与未来受益）。
+- 证据留存：`runs/bfcl-mt/rwkv-enhanced-mt-base-20260822-ROUTEBUG-invalid`（首次 0% run，标记为 invalid）。
+
+## 2026-08-22 — E8 Qwen enhanced `multi_turn_base`
+
+- 全量 200 题生成、逐题配置/ID/trace/result 校验、自然 ID 合并和官方 partial evaluator 均完成。
+- 官方成绩 **57/200 = 28.50%**；同组 baseline 38/200 = 19.00%，观测差值 +19 题、+9.50 pp。
+- enhanced 失败：`instance_state_mismatch` 94、`execution_response_mismatch` 36、`empty_turn_model_response` 13。
+- 成本：2429 个执行 step + 1170 个 route call = 3599 个模型调用；734 个轮次中
+  `finish_task` 654、`loop_rescue` 61、`route_respond` 12、`parse_error` 7。
+- 归档：`archive/bfcl-v4-e8-qwen-enhanced-base-20260822/`；完整报告：
+  `docs/evaluations/bfcl-v4-e8-qwen-enhanced-base-20260822.md`。
+- 边界：这里只完成 `multi_turn_base`，不是四 split 完整 E8；object anchor 对 Qwen 不利，
+  FP8/vLLM 也有已知底噪，因此差值是完整系统运行的观测结果。
 
 ## 2026-08-21 — E4–E7 multi-turn 前置门禁与单题闭环
 
