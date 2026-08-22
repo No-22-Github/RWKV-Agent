@@ -83,11 +83,30 @@ Do not answer the user and do not output placeholder words.`)
 
 func (G1IProgressiveToolRouteProtocol) Parse(value string, finish continuation.FinishReason, bundles []ToolBundle) (ToolRouteDecision, error) {
 	candidate := strings.TrimSpace(value)
-	if finish == continuation.FinishLength {
-		return ToolRouteDecision{}, ErrRouteTokenLimit
+	// Strip a leading think block first, like G1IRouteProtocol does: a reasoning
+	// model opens its answer with <think>...</think> before the envelope.
+	if match := leadingThinkBlocks.FindStringIndex(candidate); match != nil && match[0] == 0 {
+		candidate = strings.TrimSpace(candidate[match[1]:])
 	}
-	payload, closed := envelopeContent(candidate, "<route>", "</route>")
-	if !strings.HasPrefix(candidate, "<route>") || (!closed && finish != continuation.FinishStop) {
+	// Locate the envelope anywhere, not only at the very start. RWKV routinely
+	// prefaces the tag with prose ("我需要先创建目标目录...\n<route>inspect:X</route>");
+	// requiring <route> as a strict prefix rejected every such (correct) route and
+	// degraded the whole turn to respond. A complete envelope is authoritative
+	// regardless of finish_reason; only when none is present does a length-
+	// truncated generation fall back to the token-limit error.
+	open, closeTag := "<route>", "</route>"
+	start := strings.Index(candidate, open)
+	if start < 0 {
+		if finish == continuation.FinishLength {
+			return ToolRouteDecision{}, ErrRouteTokenLimit
+		}
+		return ToolRouteDecision{}, fmt.Errorf("%w: progressive route envelope is missing or incomplete", ErrProtocol)
+	}
+	payload, closed := envelopeContent(candidate[start:], open, closeTag)
+	if !closed && finish != continuation.FinishStop {
+		if finish == continuation.FinishLength {
+			return ToolRouteDecision{}, ErrRouteTokenLimit
+		}
 		return ToolRouteDecision{}, fmt.Errorf("%w: progressive route envelope is missing or incomplete", ErrProtocol)
 	}
 	if payload == string(RouteRespond) {
