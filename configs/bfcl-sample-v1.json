@@ -1,0 +1,811 @@
+{
+  "schema_version": 1,
+  "manifest_version": "v1",
+  "data_commit": "6ea57973c7a6097fd7c5915698c54c17c5b1b6c8",
+  "algorithm": "bfcl-ab-stratified-hare-v1",
+  "document_length": "sum of original function JSON byte lengths",
+  "percentile_method": "nearest-rank p33/p66; buckets are \u003c=p33, \u003c=p66, \u003ep66",
+  "tool_count_buckets": "0-1, 2-4, 5+; zero-tool cases exist only in live_irrelevance",
+  "splits": [
+    {
+      "category": "simple_python",
+      "population": 400,
+      "sample_size": 40,
+      "p33_bytes": 484,
+      "p66_bytes": 558,
+      "strata": [
+        {
+          "tool_bucket": 0,
+          "length_bucket": 0,
+          "population": 132,
+          "sample_size": 13
+        },
+        {
+          "tool_bucket": 0,
+          "length_bucket": 1,
+          "population": 132,
+          "sample_size": 13
+        },
+        {
+          "tool_bucket": 0,
+          "length_bucket": 2,
+          "population": 136,
+          "sample_size": 14
+        }
+      ],
+      "ids": [
+        "simple_python_0",
+        "simple_python_2",
+        "simple_python_5",
+        "simple_python_14",
+        "simple_python_35",
+        "simple_python_44",
+        "simple_python_49",
+        "simple_python_51",
+        "simple_python_74",
+        "simple_python_79",
+        "simple_python_91",
+        "simple_python_96",
+        "simple_python_105",
+        "simple_python_117",
+        "simple_python_130",
+        "simple_python_142",
+        "simple_python_148",
+        "simple_python_165",
+        "simple_python_168",
+        "simple_python_177",
+        "simple_python_192",
+        "simple_python_199",
+        "simple_python_201",
+        "simple_python_222",
+        "simple_python_234",
+        "simple_python_235",
+        "simple_python_250",
+        "simple_python_264",
+        "simple_python_273",
+        "simple_python_277",
+        "simple_python_292",
+        "simple_python_299",
+        "simple_python_305",
+        "simple_python_314",
+        "simple_python_325",
+        "simple_python_338",
+        "simple_python_353",
+        "simple_python_360",
+        "simple_python_369",
+        "simple_python_375"
+      ]
+    },
+    {
+      "category": "simple_java",
+      "population": 100,
+      "sample_size": 20,
+      "p33_bytes": 510,
+      "p66_bytes": 587,
+      "strata": [
+        {
+          "tool_bucket": 0,
+          "length_bucket": 0,
+          "population": 33,
+          "sample_size": 7
+        },
+        {
+          "tool_bucket": 0,
+          "length_bucket": 1,
+          "population": 33,
+          "sample_size": 6
+        },
+        {
+          "tool_bucket": 0,
+          "length_bucket": 2,
+          "population": 34,
+          "sample_size": 7
+        }
+      ],
+      "ids": [
+        "simple_java_0",
+        "simple_java_1",
+        "simple_java_4",
+        "simple_java_7",
+        "simple_java_16",
+        "simple_java_19",
+        "simple_java_26",
+        "simple_java_27",
+        "simple_java_38",
+        "simple_java_42",
+        "simple_java_45",
+        "simple_java_50",
+        "simple_java_51",
+        "simple_java_61",
+        "simple_java_67",
+        "simple_java_69",
+        "simple_java_76",
+        "simple_java_81",
+        "simple_java_85",
+        "simple_java_87"
+      ]
+    },
+    {
+      "category": "simple_javascript",
+      "population": 50,
+      "sample_size": 15,
+      "p33_bytes": 568,
+      "p66_bytes": 688,
+      "strata": [
+        {
+          "tool_bucket": 0,
+          "length_bucket": 0,
+          "population": 17,
+          "sample_size": 5
+        },
+        {
+          "tool_bucket": 0,
+          "length_bucket": 1,
+          "population": 16,
+          "sample_size": 5
+        },
+        {
+          "tool_bucket": 0,
+          "length_bucket": 2,
+          "population": 17,
+          "sample_size": 5
+        }
+      ],
+      "ids": [
+        "simple_javascript_0",
+        "simple_javascript_1",
+        "simple_javascript_5",
+        "simple_javascript_6",
+        "simple_javascript_12",
+        "simple_javascript_16",
+        "simple_javascript_17",
+        "simple_javascript_20",
+        "simple_javascript_21",
+        "simple_javascript_27",
+        "simple_javascript_28",
+        "simple_javascript_32",
+        "simple_javascript_35",
+        "simple_javascript_39",
+        "simple_javascript_46"
+      ]
+    },
+    {
+      "category": "multiple",
+      "population": 200,
+      "sample_size": 30,
+      "p33_bytes": 1140,
+      "p66_bytes": 1526,
+      "strata": [
+        {
+          "tool_bucket": 1,
+          "length_bucket": 0,
+          "population": 66,
+          "sample_size": 10
+        },
+        {
+          "tool_bucket": 1,
+          "length_bucket": 1,
+          "population": 66,
+          "sample_size": 10
+        },
+        {
+          "tool_bucket": 1,
+          "length_bucket": 2,
+          "population": 68,
+          "sample_size": 10
+        }
+      ],
+      "ids": [
+        "multiple_0",
+        "multiple_1",
+        "multiple_4",
+        "multiple_12",
+        "multiple_21",
+        "multiple_25",
+        "multiple_32",
+        "multiple_37",
+        "multiple_42",
+        "multiple_50",
+        "multiple_58",
+        "multiple_64",
+        "multiple_73",
+        "multiple_80",
+        "multiple_85",
+        "multiple_92",
+        "multiple_101",
+        "multiple_103",
+        "multiple_117",
+        "multiple_124",
+        "multiple_127",
+        "multiple_133",
+        "multiple_139",
+        "multiple_151",
+        "multiple_152",
+        "multiple_157",
+        "multiple_167",
+        "multiple_168",
+        "multiple_179",
+        "multiple_191"
+      ]
+    },
+    {
+      "category": "parallel",
+      "population": 200,
+      "sample_size": 30,
+      "p33_bytes": 465,
+      "p66_bytes": 542,
+      "strata": [
+        {
+          "tool_bucket": 0,
+          "length_bucket": 0,
+          "population": 66,
+          "sample_size": 10
+        },
+        {
+          "tool_bucket": 0,
+          "length_bucket": 1,
+          "population": 66,
+          "sample_size": 10
+        },
+        {
+          "tool_bucket": 0,
+          "length_bucket": 2,
+          "population": 68,
+          "sample_size": 10
+        }
+      ],
+      "ids": [
+        "parallel_0",
+        "parallel_1",
+        "parallel_2",
+        "parallel_11",
+        "parallel_19",
+        "parallel_23",
+        "parallel_37",
+        "parallel_43",
+        "parallel_44",
+        "parallel_48",
+        "parallel_63",
+        "parallel_71",
+        "parallel_72",
+        "parallel_75",
+        "parallel_87",
+        "parallel_95",
+        "parallel_101",
+        "parallel_104",
+        "parallel_112",
+        "parallel_120",
+        "parallel_125",
+        "parallel_134",
+        "parallel_138",
+        "parallel_141",
+        "parallel_158",
+        "parallel_160",
+        "parallel_161",
+        "parallel_174",
+        "parallel_178",
+        "parallel_189"
+      ]
+    },
+    {
+      "category": "parallel_multiple",
+      "population": 200,
+      "sample_size": 30,
+      "p33_bytes": 992,
+      "p66_bytes": 1371,
+      "strata": [
+        {
+          "tool_bucket": 1,
+          "length_bucket": 0,
+          "population": 66,
+          "sample_size": 10
+        },
+        {
+          "tool_bucket": 1,
+          "length_bucket": 1,
+          "population": 66,
+          "sample_size": 10
+        },
+        {
+          "tool_bucket": 1,
+          "length_bucket": 2,
+          "population": 68,
+          "sample_size": 10
+        }
+      ],
+      "ids": [
+        "parallel_multiple_0",
+        "parallel_multiple_3",
+        "parallel_multiple_7",
+        "parallel_multiple_17",
+        "parallel_multiple_20",
+        "parallel_multiple_28",
+        "parallel_multiple_38",
+        "parallel_multiple_41",
+        "parallel_multiple_42",
+        "parallel_multiple_50",
+        "parallel_multiple_61",
+        "parallel_multiple_68",
+        "parallel_multiple_73",
+        "parallel_multiple_75",
+        "parallel_multiple_89",
+        "parallel_multiple_92",
+        "parallel_multiple_101",
+        "parallel_multiple_105",
+        "parallel_multiple_110",
+        "parallel_multiple_117",
+        "parallel_multiple_125",
+        "parallel_multiple_135",
+        "parallel_multiple_143",
+        "parallel_multiple_146",
+        "parallel_multiple_148",
+        "parallel_multiple_154",
+        "parallel_multiple_160",
+        "parallel_multiple_172",
+        "parallel_multiple_182",
+        "parallel_multiple_191"
+      ]
+    },
+    {
+      "category": "irrelevance",
+      "population": 240,
+      "sample_size": 30,
+      "p33_bytes": 480,
+      "p66_bytes": 552,
+      "strata": [
+        {
+          "tool_bucket": 0,
+          "length_bucket": 0,
+          "population": 80,
+          "sample_size": 10
+        },
+        {
+          "tool_bucket": 0,
+          "length_bucket": 1,
+          "population": 79,
+          "sample_size": 10
+        },
+        {
+          "tool_bucket": 0,
+          "length_bucket": 2,
+          "population": 81,
+          "sample_size": 10
+        }
+      ],
+      "ids": [
+        "irrelevance_0",
+        "irrelevance_2",
+        "irrelevance_10",
+        "irrelevance_11",
+        "irrelevance_19",
+        "irrelevance_30",
+        "irrelevance_40",
+        "irrelevance_48",
+        "irrelevance_58",
+        "irrelevance_69",
+        "irrelevance_75",
+        "irrelevance_84",
+        "irrelevance_90",
+        "irrelevance_100",
+        "irrelevance_105",
+        "irrelevance_106",
+        "irrelevance_122",
+        "irrelevance_125",
+        "irrelevance_140",
+        "irrelevance_142",
+        "irrelevance_147",
+        "irrelevance_164",
+        "irrelevance_170",
+        "irrelevance_180",
+        "irrelevance_187",
+        "irrelevance_188",
+        "irrelevance_202",
+        "irrelevance_209",
+        "irrelevance_214",
+        "irrelevance_224"
+      ]
+    },
+    {
+      "category": "live_simple",
+      "population": 258,
+      "sample_size": 30,
+      "p33_bytes": 590,
+      "p66_bytes": 768,
+      "strata": [
+        {
+          "tool_bucket": 0,
+          "length_bucket": 0,
+          "population": 86,
+          "sample_size": 10
+        },
+        {
+          "tool_bucket": 0,
+          "length_bucket": 1,
+          "population": 85,
+          "sample_size": 10
+        },
+        {
+          "tool_bucket": 0,
+          "length_bucket": 2,
+          "population": 87,
+          "sample_size": 10
+        }
+      ],
+      "ids": [
+        "live_simple_0-0-0",
+        "live_simple_1-1-0",
+        "live_simple_9-3-5",
+        "live_simple_18-3-14",
+        "live_simple_26-6-0",
+        "live_simple_35-12-0",
+        "live_simple_43-17-3",
+        "live_simple_57-26-1",
+        "live_simple_59-28-0",
+        "live_simple_61-29-1",
+        "live_simple_83-44-0",
+        "live_simple_86-47-0",
+        "live_simple_87-48-0",
+        "live_simple_100-59-1",
+        "live_simple_107-64-0",
+        "live_simple_126-82-0",
+        "live_simple_132-85-0",
+        "live_simple_136-89-0",
+        "live_simple_143-95-0",
+        "live_simple_152-95-9",
+        "live_simple_160-95-17",
+        "live_simple_167-99-1",
+        "live_simple_178-103-1",
+        "live_simple_186-111-0",
+        "live_simple_199-116-7",
+        "live_simple_214-117-6",
+        "live_simple_223-117-15",
+        "live_simple_229-120-0",
+        "live_simple_230-121-0",
+        "live_simple_245-127-0"
+      ]
+    },
+    {
+      "category": "live_multiple",
+      "population": 1053,
+      "sample_size": 40,
+      "p33_bytes": 2487,
+      "p66_bytes": 4174,
+      "strata": [
+        {
+          "tool_bucket": 1,
+          "length_bucket": 0,
+          "population": 370,
+          "sample_size": 14
+        },
+        {
+          "tool_bucket": 1,
+          "length_bucket": 1,
+          "population": 252,
+          "sample_size": 10
+        },
+        {
+          "tool_bucket": 1,
+          "length_bucket": 2,
+          "population": 80,
+          "sample_size": 3
+        },
+        {
+          "tool_bucket": 2,
+          "length_bucket": 0,
+          "population": 3,
+          "sample_size": 0
+        },
+        {
+          "tool_bucket": 2,
+          "length_bucket": 1,
+          "population": 92,
+          "sample_size": 3
+        },
+        {
+          "tool_bucket": 2,
+          "length_bucket": 2,
+          "population": 256,
+          "sample_size": 10
+        }
+      ],
+      "ids": [
+        "live_multiple_0-0-0",
+        "live_multiple_8-4-0",
+        "live_multiple_23-5-0",
+        "live_multiple_30-10-0",
+        "live_multiple_63-25-0",
+        "live_multiple_103-43-1",
+        "live_multiple_121-46-0",
+        "live_multiple_156-59-0",
+        "live_multiple_159-62-0",
+        "live_multiple_178-75-0",
+        "live_multiple_206-91-0",
+        "live_multiple_236-106-2",
+        "live_multiple_274-127-9",
+        "live_multiple_292-130-1",
+        "live_multiple_318-132-8",
+        "live_multiple_343-133-7",
+        "live_multiple_368-134-13",
+        "live_multiple_422-141-11",
+        "live_multiple_445-144-5",
+        "live_multiple_471-145-22",
+        "live_multiple_478-146-3",
+        "live_multiple_538-152-0",
+        "live_multiple_564-155-4",
+        "live_multiple_578-156-4",
+        "live_multiple_581-157-2",
+        "live_multiple_613-159-6",
+        "live_multiple_621-160-1",
+        "live_multiple_674-162-16",
+        "live_multiple_700-164-16",
+        "live_multiple_720-165-7",
+        "live_multiple_768-171-1",
+        "live_multiple_780-173-2",
+        "live_multiple_794-175-0",
+        "live_multiple_830-178-5",
+        "live_multiple_874-182-11",
+        "live_multiple_893-185-3",
+        "live_multiple_909-188-0",
+        "live_multiple_925-191-13",
+        "live_multiple_966-208-0",
+        "live_multiple_1013-242-0"
+      ]
+    },
+    {
+      "category": "live_parallel",
+      "population": 16,
+      "sample_size": 16,
+      "p33_bytes": 612,
+      "p66_bytes": 864,
+      "strata": [
+        {
+          "tool_bucket": 0,
+          "length_bucket": 0,
+          "population": 6,
+          "sample_size": 6
+        },
+        {
+          "tool_bucket": 0,
+          "length_bucket": 1,
+          "population": 5,
+          "sample_size": 5
+        },
+        {
+          "tool_bucket": 0,
+          "length_bucket": 2,
+          "population": 3,
+          "sample_size": 3
+        },
+        {
+          "tool_bucket": 1,
+          "length_bucket": 2,
+          "population": 2,
+          "sample_size": 2
+        }
+      ],
+      "ids": [
+        "live_parallel_0-0-0",
+        "live_parallel_1-0-1",
+        "live_parallel_2-0-2",
+        "live_parallel_3-0-3",
+        "live_parallel_4-1-0",
+        "live_parallel_5-2-0",
+        "live_parallel_6-3-0",
+        "live_parallel_7-3-1",
+        "live_parallel_8-4-0",
+        "live_parallel_9-5-0",
+        "live_parallel_10-6-0",
+        "live_parallel_11-7-0",
+        "live_parallel_12-8-0",
+        "live_parallel_13-9-0",
+        "live_parallel_14-10-0",
+        "live_parallel_15-11-0"
+      ]
+    },
+    {
+      "category": "live_parallel_multiple",
+      "population": 24,
+      "sample_size": 24,
+      "p33_bytes": 1450,
+      "p66_bytes": 3935,
+      "strata": [
+        {
+          "tool_bucket": 1,
+          "length_bucket": 0,
+          "population": 8,
+          "sample_size": 8
+        },
+        {
+          "tool_bucket": 1,
+          "length_bucket": 1,
+          "population": 6,
+          "sample_size": 6
+        },
+        {
+          "tool_bucket": 2,
+          "length_bucket": 1,
+          "population": 2,
+          "sample_size": 2
+        },
+        {
+          "tool_bucket": 2,
+          "length_bucket": 2,
+          "population": 8,
+          "sample_size": 8
+        }
+      ],
+      "ids": [
+        "live_parallel_multiple_0-0-0",
+        "live_parallel_multiple_1-1-0",
+        "live_parallel_multiple_2-2-0",
+        "live_parallel_multiple_3-2-1",
+        "live_parallel_multiple_4-3-0",
+        "live_parallel_multiple_5-4-0",
+        "live_parallel_multiple_6-5-0",
+        "live_parallel_multiple_7-6-0",
+        "live_parallel_multiple_8-7-0",
+        "live_parallel_multiple_9-8-0",
+        "live_parallel_multiple_10-9-0",
+        "live_parallel_multiple_11-10-0",
+        "live_parallel_multiple_12-10-1",
+        "live_parallel_multiple_13-11-0",
+        "live_parallel_multiple_14-12-0",
+        "live_parallel_multiple_15-13-0",
+        "live_parallel_multiple_16-14-0",
+        "live_parallel_multiple_17-15-0",
+        "live_parallel_multiple_18-16-0",
+        "live_parallel_multiple_19-16-1",
+        "live_parallel_multiple_20-17-0",
+        "live_parallel_multiple_21-18-0",
+        "live_parallel_multiple_22-19-0",
+        "live_parallel_multiple_23-20-0"
+      ]
+    },
+    {
+      "category": "live_relevance",
+      "population": 16,
+      "sample_size": 16,
+      "p33_bytes": 1714,
+      "p66_bytes": 3020,
+      "strata": [
+        {
+          "tool_bucket": 0,
+          "length_bucket": 0,
+          "population": 5,
+          "sample_size": 5
+        },
+        {
+          "tool_bucket": 1,
+          "length_bucket": 0,
+          "population": 1,
+          "sample_size": 1
+        },
+        {
+          "tool_bucket": 1,
+          "length_bucket": 1,
+          "population": 6,
+          "sample_size": 6
+        },
+        {
+          "tool_bucket": 1,
+          "length_bucket": 2,
+          "population": 1,
+          "sample_size": 1
+        },
+        {
+          "tool_bucket": 2,
+          "length_bucket": 2,
+          "population": 3,
+          "sample_size": 3
+        }
+      ],
+      "ids": [
+        "live_relevance_0-0-0",
+        "live_relevance_1-1-0",
+        "live_relevance_2-2-0",
+        "live_relevance_3-3-0",
+        "live_relevance_4-4-0",
+        "live_relevance_5-5-0",
+        "live_relevance_6-6-0",
+        "live_relevance_7-7-0",
+        "live_relevance_8-8-0",
+        "live_relevance_9-9-0",
+        "live_relevance_10-10-0",
+        "live_relevance_11-11-0",
+        "live_relevance_12-12-0",
+        "live_relevance_13-13-0",
+        "live_relevance_14-14-0",
+        "live_relevance_15-15-0"
+      ]
+    },
+    {
+      "category": "live_irrelevance",
+      "population": 884,
+      "sample_size": 30,
+      "p33_bytes": 985,
+      "p66_bytes": 2760,
+      "strata": [
+        {
+          "tool_bucket": 0,
+          "length_bucket": 0,
+          "population": 287,
+          "sample_size": 10
+        },
+        {
+          "tool_bucket": 0,
+          "length_bucket": 1,
+          "population": 171,
+          "sample_size": 6
+        },
+        {
+          "tool_bucket": 0,
+          "length_bucket": 2,
+          "population": 54,
+          "sample_size": 2
+        },
+        {
+          "tool_bucket": 1,
+          "length_bucket": 0,
+          "population": 5,
+          "sample_size": 0
+        },
+        {
+          "tool_bucket": 1,
+          "length_bucket": 1,
+          "population": 131,
+          "sample_size": 4
+        },
+        {
+          "tool_bucket": 1,
+          "length_bucket": 2,
+          "population": 89,
+          "sample_size": 3
+        },
+        {
+          "tool_bucket": 2,
+          "length_bucket": 1,
+          "population": 20,
+          "sample_size": 1
+        },
+        {
+          "tool_bucket": 2,
+          "length_bucket": 2,
+          "population": 127,
+          "sample_size": 4
+        }
+      ],
+      "ids": [
+        "live_irrelevance_0-0-0",
+        "live_irrelevance_6-0-6",
+        "live_irrelevance_10-1-0",
+        "live_irrelevance_38-2-26",
+        "live_irrelevance_67-2-55",
+        "live_irrelevance_96-2-84",
+        "live_irrelevance_103-3-0",
+        "live_irrelevance_106-5-0",
+        "live_irrelevance_134-13-0",
+        "live_irrelevance_164-21-0",
+        "live_irrelevance_177-29-0",
+        "live_irrelevance_227-35-2",
+        "live_irrelevance_233-38-1",
+        "live_irrelevance_277-60-2",
+        "live_irrelevance_320-76-18",
+        "live_irrelevance_362-81-23",
+        "live_irrelevance_390-81-51",
+        "live_irrelevance_435-108-1",
+        "live_irrelevance_446-116-0",
+        "live_irrelevance_491-142-2",
+        "live_irrelevance_507-149-0",
+        "live_irrelevance_546-168-9",
+        "live_irrelevance_570-178-0",
+        "live_irrelevance_593-188-0",
+        "live_irrelevance_620-196-1",
+        "live_irrelevance_688-223-3",
+        "live_irrelevance_689-224-0",
+        "live_irrelevance_695-225-5",
+        "live_irrelevance_769-278-0",
+        "live_irrelevance_816-314-0"
+      ]
+    }
+  ]
+}

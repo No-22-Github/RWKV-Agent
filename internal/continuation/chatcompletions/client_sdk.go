@@ -18,12 +18,14 @@ import (
 )
 
 type Client struct {
-	sdk        openai.Client
-	model      string
-	thinking   ThinkingMode
-	promptMode PromptMode
-	tokenLimit TokenLimitField
-	secrets    []string
+	sdk                        openai.Client
+	model                      string
+	thinking                   ThinkingMode
+	chatTemplateEnableThinking *bool
+	includeTopK                bool
+	promptMode                 PromptMode
+	tokenLimit                 TokenLimitField
+	secrets                    []string
 }
 
 func New(config Config) (*Client, error) {
@@ -46,12 +48,14 @@ func New(config Config) (*Client, error) {
 		}
 	}
 	return &Client{
-		sdk:        openai.NewClient(options...),
-		model:      normalized.model,
-		thinking:   normalized.thinking,
-		promptMode: normalized.promptMode,
-		tokenLimit: normalized.tokenLimit,
-		secrets:    normalized.secrets,
+		sdk:                        openai.NewClient(options...),
+		model:                      normalized.model,
+		thinking:                   normalized.thinking,
+		chatTemplateEnableThinking: normalized.chatTemplateEnableThinking,
+		includeTopK:                normalized.includeTopK,
+		promptMode:                 normalized.promptMode,
+		tokenLimit:                 normalized.tokenLimit,
+		secrets:                    normalized.secrets,
 	}, nil
 }
 
@@ -77,7 +81,7 @@ func (c *Client) Continue(
 			continuation.ErrInvalidRequest,
 		)
 	}
-	if err := continuation.ValidateRequest(request); err != nil {
+	if err := validateChatCompletionsRequest(request); err != nil {
 		return continuation.Result{}, err
 	}
 	if err := validateSampling(request.Sampling); err != nil {
@@ -98,7 +102,9 @@ func (c *Client) Continue(
 		openai.SystemMessage(continuationInstruction),
 		openai.UserMessage(request.Prompt),
 	}
-	response, err := c.sdk.Chat.Completions.New(ctx, params, c.thinkingOption()...)
+	requestOptions := c.thinkingOption()
+	requestOptions = append(requestOptions, c.samplingOptions(request.Sampling)...)
+	response, err := c.sdk.Chat.Completions.New(ctx, params, requestOptions...)
 	if err != nil {
 		if ctx.Err() != nil {
 			return continuation.Result{FinishReason: continuation.FinishCancelled}, ctx.Err()
@@ -165,6 +171,7 @@ func (c *Client) Complete(
 	params.Messages = encodedMessages
 	requestOptions := c.thinkingOption()
 	requestOptions = append(requestOptions, reasoningOptions(messages)...)
+	requestOptions = append(requestOptions, c.samplingOptions(request.Sampling)...)
 	if len(request.Tools) > 0 {
 		params.Tools, err = encodeSDKTools(request.Tools)
 		if err != nil {
@@ -231,6 +238,13 @@ func (c *Client) Complete(
 	return result, nil
 }
 
+func (c *Client) samplingOptions(sampling continuation.Sampling) []option.RequestOption {
+	if !c.includeTopK {
+		return nil
+	}
+	return []option.RequestOption{option.WithJSONSet("top_k", sampling.TopK)}
+}
+
 func (c *Client) baseParams(
 	model string,
 	maxOutputTokens int,
@@ -259,12 +273,19 @@ func (c *Client) baseParams(
 }
 
 func (c *Client) thinkingOption() []option.RequestOption {
-	if c.thinking == ThinkingAuto {
-		return nil
+	var options []option.RequestOption
+	if c.thinking != ThinkingAuto {
+		options = append(options,
+			option.WithJSONSet("thinking", map[string]string{"type": string(c.thinking)}),
+		)
 	}
-	return []option.RequestOption{
-		option.WithJSONSet("thinking", map[string]string{"type": string(c.thinking)}),
+	if c.chatTemplateEnableThinking != nil {
+		options = append(options, option.WithJSONSet(
+			"chat_template_kwargs.enable_thinking",
+			*c.chatTemplateEnableThinking,
+		))
 	}
+	return options
 }
 
 func reasoningOptions(messages []toolchat.Message) []option.RequestOption {
@@ -397,15 +418,17 @@ func sdkUsage(response *openai.ChatCompletion) continuation.Usage {
 }
 
 func reasoningContent(message openai.ChatCompletionMessage) string {
-	field, ok := message.JSON.ExtraFields["reasoning_content"]
-	if !ok {
-		return ""
+	for _, name := range []string{"reasoning_content", "reasoning"} {
+		field, ok := message.JSON.ExtraFields[name]
+		if !ok {
+			continue
+		}
+		var result string
+		if err := json.Unmarshal([]byte(field.Raw()), &result); err == nil {
+			return result
+		}
 	}
-	var result string
-	if err := json.Unmarshal([]byte(field.Raw()), &result); err != nil {
-		return ""
-	}
-	return result
+	return ""
 }
 
 func (c *Client) remoteError(err error) error {

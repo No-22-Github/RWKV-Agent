@@ -1,0 +1,406 @@
+package main
+
+import (
+	"context"
+	"errors"
+	"flag"
+	"fmt"
+	"net/http"
+	"os"
+	"path/filepath"
+	"strings"
+	"time"
+
+	"github.com/no22/RWKV-Agent/internal/bfcl"
+	"github.com/no22/RWKV-Agent/internal/bfcl/pysidecar"
+	"github.com/no22/RWKV-Agent/internal/continuation"
+	"github.com/no22/RWKV-Agent/internal/continuation/chatcompletions"
+	"github.com/no22/RWKV-Agent/internal/continuation/rwkvlightning"
+	"github.com/no22/RWKV-Agent/internal/continuation/toolchat"
+)
+
+const bfclSidecarProtocolV1 = "bfcl-python-sidecar-v1"
+
+const bfclMultiTurnDefaultMaxTokens = 1_024
+
+type bfclMultiTurnOptions struct {
+	model                    string
+	tier                     string
+	transport                string
+	apiURL                   string
+	apiKeyEnv                string
+	apiHeaderEnvs            stringListFlag
+	dataDir                  string
+	output                   string
+	split                    string
+	caseID                   string
+	python                   string
+	sidecarScript            string
+	maxTokens                int
+	routeMaxTokens           int
+	maxPromptChars           int
+	maxSteps                 int
+	maxTurns                 int
+	routeRetries             int
+	duplicateReplayLimit     int
+	duplicateRescueThreshold int
+	sameToolRescueLimit      int
+	temperature              float64
+	caseTimeout              time.Duration
+	apiStopTokens            string
+	apiStream                bool
+	remoteBatchWait          time.Duration
+	anchor                   string
+	renderInitialConfig      bool
+	finishTool               bool
+	caseConcurrency          int
+	maxPromptTokens          int
+	tokenizerVocab           string
+	chatThinking             string
+	chatTemplateThinking     string
+	chatTokenLimit           string
+	chatIncludeTopK          bool
+}
+
+func runBFCLMultiTurn(args []string) error {
+	options, err := parseBFCLMultiTurnOptions(args)
+	if err != nil {
+		return err
+	}
+	cases, err := bfcl.LoadMultiTurnSplit(options.dataDir, options.split)
+	if err != nil {
+		return err
+	}
+	selected, err := selectMultiTurnCases(cases, options)
+	if err != nil {
+		return err
+	}
+	headers, err := loadAPIHeaders(options.apiHeaderEnvs)
+	if err != nil {
+		return err
+	}
+	// One generator shared by every case in flight. This is the whole point of
+	// running cases in one process: rwkv_lightning batches within a request, so
+	// BatchWait can only coalesce calls that reach the same client. One process
+	// per case leaves batchPending at length one and degrades to parallel HTTP,
+	// which is what the endpoint drops connections on.
+	generator, err := bfclMultiTurnGenerator(options, headers)
+	if err != nil {
+		return err
+	}
+	repoRoot, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	if len(selected) > 1 {
+		return runBFCLMultiTurnCells(selected, options, generator, headers, repoRoot)
+	}
+	entry := selected[0]
+	catalog, err := bfcl.LoadMultiTurnCatalog(options.dataDir, entry)
+	if err != nil {
+		return err
+	}
+	if _, err := os.Stat(options.output); err == nil {
+		return fmt.Errorf("BFCL multi-turn output already exists: %s", options.output)
+	} else if !errors.Is(err, os.ErrNotExist) {
+		return err
+	}
+	sidecar, err := pysidecar.Start(pysidecar.Config{Python: options.python, Script: options.sidecarScript, WorkingDir: repoRoot})
+	if err != nil {
+		return err
+	}
+	ctx, cancel := signalContext()
+	defer cancel()
+	sessionID, err := sidecar.NewSession(ctx, pysidecar.SessionOptions{
+		ID: options.caseID + "-" + options.tier, InitialConfig: entry.InitialConfig,
+		InvolvedClasses: entry.InvolvedClasses, LongContext: strings.Contains(options.split, "long_context"), TestEntryID: entry.ID,
+	})
+	if err != nil {
+		sidecar.Close()
+		return err
+	}
+	// The token guard shares the E5 census tokenizer through the sidecar so the
+	// manifest's feasible set and the runtime check use one unit.
+	var tokenCounter func(string) (int, error)
+	var tokenizerVocabSHA256 string
+	if options.maxPromptTokens > 0 {
+		vocab := options.tokenizerVocab
+		// Fail fast: load the tokenizer once before the run so a bad vocab path
+		// surfaces here instead of aborting mid-case, and record the digest.
+		if _, sha, err := sidecar.CountTokens(ctx, vocab, "probe"); err != nil {
+			sidecar.Close()
+			return fmt.Errorf("prompt token guard requires a working tokenizer: %w", err)
+		} else {
+			tokenizerVocabSHA256 = sha
+		}
+		tokenCounter = func(prompt string) (int, error) {
+			tokens, _, err := sidecar.CountTokens(ctx, vocab, prompt)
+			return tokens, err
+		}
+	}
+	trace := bfcl.RunMultiTurnCase(ctx, entry, catalog, multiTurnRunnerOptions(options, generator, sidecar, sessionID, tokenCounter))
+	closeSessionErr := sidecar.CloseSession(context.Background(), sessionID)
+	closeErr := sidecar.Close()
+	if closeSessionErr != nil {
+		return closeSessionErr
+	}
+	if closeErr != nil {
+		return closeErr
+	}
+	if err := bfcl.WriteMultiTurnResult(filepath.Join(options.output, "result"), bfclModelDirName, trace); err != nil {
+		return err
+	}
+	manifest := multiTurnManifest(options, headers, tokenizerVocabSHA256)
+	manifest.CaseID = entry.ID
+	if err := bfcl.WriteMultiTurnArtifacts(options.output, manifest, trace); err != nil {
+		return err
+	}
+	fmt.Fprintf(os.Stderr, "BFCL multi-turn complete: case=%s tier=%s turns=%d model_calls=%d route_calls=%d max_prompt_bytes=%d error=%q\n", trace.ID, trace.Tier, len(trace.Turns), trace.ModelCalls, trace.RouteCalls, trace.MaxPromptBytes, trace.Error)
+	if trace.Error != "" {
+		return fmt.Errorf("BFCL multi-turn run failed: %s", trace.Error)
+	}
+	return nil
+}
+
+// multiTurnRunnerOptions is shared by the single-case and multi-case paths so a
+// cell and a one-off run cannot drift apart in configuration.
+func multiTurnRunnerOptions(
+	options bfclMultiTurnOptions,
+	generator continuation.Generator,
+	executor bfcl.MultiTurnExecutor,
+	sessionID string,
+	tokenCounter func(string) (int, error),
+) bfcl.MultiTurnRunnerOptions {
+	// On the native FC transport the shared chatcompletions Client is also a
+	// toolchat.Completer; surface it so RunMultiTurnCase takes the native path.
+	var completer toolchat.Completer
+	if options.transport == string(bfcl.TransportChatCompletionsNativeFC) {
+		if candidate, ok := generator.(toolchat.Completer); ok && candidate.NativeToolCalling() {
+			completer = candidate
+		}
+	}
+	return bfcl.MultiTurnRunnerOptions{
+		Generator: generator, Completer: completer, Executor: executor, SessionID: sessionID, Model: options.model,
+		Tier: bfcl.Tier(options.tier), Transport: bfcl.Transport(options.transport),
+		Anchor: bfcl.MultiTurnAnchor(options.anchor), RenderInitialConfig: options.renderInitialConfig,
+		FinishTool:      options.finishTool,
+		MaxPromptTokens: options.maxPromptTokens, TokenCounter: tokenCounter,
+		MaxOutputTokens: options.maxTokens, RouteMaxTokens: options.routeMaxTokens,
+		MaxPromptChars: options.maxPromptChars, MaxSteps: options.maxSteps, MaxTurns: options.maxTurns,
+		RouteRetries:         options.routeRetries,
+		DuplicateReplayLimit: options.duplicateReplayLimit, DuplicateRescueThreshold: options.duplicateRescueThreshold,
+		SameToolRescueLimit: options.sameToolRescueLimit, Temperature: float32(options.temperature),
+		CaseTimeout: options.caseTimeout,
+	}
+}
+
+func multiTurnManifest(options bfclMultiTurnOptions, headers http.Header, tokenizerVocabSHA256 string) bfcl.MultiTurnManifest {
+	stream := options.apiStream
+	manifest := bfcl.MultiTurnManifest{
+		SchemaVersion: 1, DataCommit: bfclDataCommit, EvaluatorVersion: bfclEvaluatorVersion,
+		Model: options.model, ModelDirName: bfclModelDirName, Tier: options.tier, Transport: options.transport,
+		RenderProtocol: multiTurnRenderProtocol(options.transport, options.finishTool), ParserMode: multiTurnParserMode(options.transport, options.tier), SidecarProtocol: bfclSidecarProtocolV1,
+		Anchor: options.anchor, AnchorPrefill: bfcl.MultiTurnAnchor(options.anchor).Prefill(),
+		EmptyTurnReachable:  bfcl.MultiTurnAnchor(options.anchor).EmptyReachable(),
+		RenderInitialConfig: options.renderInitialConfig, FinishTool: options.finishTool,
+		MaxPromptTokens: options.maxPromptTokens, TokenizerVocabSHA256: tokenizerVocabSHA256,
+		Split: options.split, CaseID: options.caseID, MaxSteps: options.maxSteps, MaxTurns: options.maxTurns,
+		MaxPromptChars: options.maxPromptChars, CaseConcurrency: options.caseConcurrency,
+		MaxTokens: options.maxTokens, RouteMaxTokens: options.routeMaxTokens, RouteRetries: options.routeRetries,
+		DuplicateReplayLimit: options.duplicateReplayLimit, DuplicateRescueThreshold: options.duplicateRescueThreshold,
+		SameToolRescueLimit: options.sameToolRescueLimit, Sampling: bfcl.SamplingRecord{
+			Greedy: options.temperature == 0 || options.transport == string(bfcl.TransportRWKVContinuation), TopK: 1,
+			TopKIncluded: options.chatIncludeTopK || options.transport == string(bfcl.TransportRWKVContinuation), EffectiveTemperature: float32(options.temperature),
+		}, RepoCommit: repositoryCommit(), RepoDirty: repositoryDirty(), BinarySHA256: executableSHA256(), APIHeaderNames: headerNames(headers),
+	}
+	if options.transport == string(bfcl.TransportRWKVContinuation) {
+		manifest.APIStopTokens = options.apiStopTokens
+		manifest.APIStream = &stream
+		manifest.RemoteBatchWait = options.remoteBatchWait.String()
+	}
+	return manifest
+}
+
+func bfclMultiTurnGenerator(options bfclMultiTurnOptions, headers http.Header) (continuation.Generator, error) {
+	switch options.transport {
+	case string(bfcl.TransportRWKVContinuation):
+		stopMode, stopIDs, err := parseAPIStopTokens(options.apiStopTokens)
+		if err != nil {
+			return nil, err
+		}
+		stream := options.apiStream
+		return rwkvlightning.New(rwkvlightning.Config{Endpoint: options.apiURL, Model: options.model, StopTokenMode: stopMode, StopTokenIDs: stopIDs, Stream: &stream, BatchWait: options.remoteBatchWait, Headers: headers})
+	case string(bfcl.TransportChatCompletionsWrapped), string(bfcl.TransportChatCompletionsNativeFC):
+		thinking, err := chatcompletions.ParseThinkingMode(options.chatThinking)
+		if err != nil {
+			return nil, err
+		}
+		templateThinking, err := chatcompletions.ParseThinkingMode(options.chatTemplateThinking)
+		if err != nil {
+			return nil, err
+		}
+		var enableThinking *bool
+		if templateThinking != chatcompletions.ThinkingAuto {
+			value := templateThinking == chatcompletions.ThinkingEnabled
+			enableThinking = &value
+		}
+		// The chatcompletions Client satisfies both Generator (wrapped) and
+		// toolchat.Completer (native); the prompt mode picks which methods work.
+		promptMode := chatcompletions.PromptWrappedContinuation
+		if options.transport == string(bfcl.TransportChatCompletionsNativeFC) {
+			promptMode = chatcompletions.PromptNativeChat
+		}
+		return chatcompletions.New(chatcompletions.Config{
+			Endpoint: options.apiURL, Model: options.model, APIKey: os.Getenv(options.apiKeyEnv), Thinking: thinking,
+			ChatTemplateEnableThinking: enableThinking, PromptMode: promptMode,
+			TokenLimit: chatcompletions.TokenLimitField(options.chatTokenLimit), IncludeTopK: options.chatIncludeTopK,
+			HTTPClient: &http.Client{Timeout: options.caseTimeout + time.Minute}, Headers: headers,
+		})
+	default:
+		return nil, fmt.Errorf("unsupported BFCL multi-turn transport %q", options.transport)
+	}
+}
+
+func parseBFCLMultiTurnOptions(args []string) (bfclMultiTurnOptions, error) {
+	var options bfclMultiTurnOptions
+	fs := flag.NewFlagSet("bfcl-mt-eval", flag.ContinueOnError)
+	fs.StringVar(&options.model, "model", "", "remote model identifier")
+	fs.StringVar(&options.tier, "tier", "baseline", "multi-turn tier: baseline or enhanced")
+	fs.StringVar(&options.transport, "transport", string(bfcl.TransportRWKVContinuation), "continuation transport")
+	fs.StringVar(&options.apiURL, "api-url", "", "full remote inference endpoint URL")
+	fs.StringVar(&options.apiKeyEnv, "api-key-env", "OPENAI_API_KEY", "environment variable containing API key")
+	fs.Var(&options.apiHeaderEnvs, "api-header-env", "repeatable HTTP_HEADER=ENV_VAR authentication mapping")
+	fs.StringVar(&options.dataDir, "data-dir", "third_party/gorilla/berkeley-function-call-leaderboard/bfcl_eval/data", "BFCL data directory")
+	fs.StringVar(&options.output, "output", "", "new output directory")
+	fs.StringVar(&options.split, "split", "multi_turn_base", "BFCL multi-turn split")
+	fs.StringVar(&options.caseID, "case", "multi_turn_base_0", "single BFCL multi-turn case ID")
+	fs.StringVar(&options.python, "python", ".venv/bin/python", "Python executable with pinned bfcl-eval")
+	fs.StringVar(&options.sidecarScript, "sidecar-script", "internal/bfcl/pysidecar/server.py", "BFCL execution sidecar script")
+	fs.IntVar(&options.maxTokens, "max-tokens", bfclMultiTurnDefaultMaxTokens, "maximum tokens per agent step")
+	fs.IntVar(&options.routeMaxTokens, "route-max-tokens", 48, "maximum tokens per route call")
+	fs.IntVar(&options.maxPromptChars, "max-prompt-chars", 0, "optional prompt byte guard; 0 disables it")
+	fs.IntVar(&options.maxPromptTokens, "max-prompt-tokens", 0, "prompt token guard using the RWKV tokenizer; 0 disables it")
+	fs.StringVar(&options.tokenizerVocab, "tokenizer-vocab", "third_party/rwkv-mobile/assets/rwkv_vocab_v20230424.txt", "RWKV vocabulary for the prompt token guard")
+	// Default is fence only because it is C1's shallowest measured tier, not
+	// because it is the right choice; the E7b probe picks the tier.
+	fs.StringVar(&options.anchor, "anchor", string(bfcl.MultiTurnAnchorFence), "prefill anchor: fence, array, object")
+	fs.BoolVar(&options.finishTool, "finish-tool", false, "inject the finish_task turn-end control tool and restate the rule each step")
+	fs.BoolVar(&options.renderInitialConfig, "render-initial-config", false, "render the stale initial_config block into every step (v1 behaviour)")
+	// Cases in one process share one generator, so BatchWait coalesces their
+	// calls into a single contents[] request -- the endpoint's real batching.
+	fs.IntVar(&options.caseConcurrency, "case-concurrency", 1, "cases in flight when --case is a list or all")
+	fs.IntVar(&options.maxSteps, "max-steps", 20, "maximum steps per turn")
+	// Probe-only. A truncated result scores as force_terminated; never use it for a grade.
+	fs.IntVar(&options.maxTurns, "max-turns", 0, "stop after N turns for shape probes; 0 runs every turn")
+	fs.IntVar(&options.routeRetries, "route-retries", 1, "route/protocol correction retries")
+	// Real loops alternate, so rejection counts repeats per turn rather than
+	// consecutive matches. The rescue threshold must exceed the replay limit or
+	// the reject-and-continue path is unreachable.
+	fs.IntVar(&options.duplicateReplayLimit, "duplicate-replay-limit", 2, "repeats of one call per turn before rejection")
+	fs.IntVar(&options.duplicateRescueThreshold, "duplicate-rescue-threshold", 4, "repeats of one call per turn that end the turn")
+	// Read-only exploration (ls, ls, pwd, ls) is correct behaviour and scores
+	// free, so this backstop must not fire on it. GT itself reaches a same-tool
+	// run of 4 in base and 31 in long_context.
+	fs.IntVar(&options.sameToolRescueLimit, "same-tool-rescue-limit", 12, "same-tool streak that ends the turn")
+	fs.Float64Var(&options.temperature, "temperature", 0.001, "effective temperature")
+	fs.DurationVar(&options.caseTimeout, "case-timeout", 10*time.Minute, "whole-case timeout")
+	fs.StringVar(&options.apiStopTokens, "api-stop-tokens", "text", "rwkv_lightning stop token form")
+	fs.BoolVar(&options.apiStream, "api-stream", true, "stream rwkv_lightning responses")
+	fs.DurationVar(&options.remoteBatchWait, "remote-batch-wait", 0, "RWKV request coalescing window")
+	fs.StringVar(&options.chatThinking, "chat-thinking", string(chatcompletions.ThinkingAuto), "Chat Completions thinking mode")
+	fs.StringVar(&options.chatTemplateThinking, "chat-template-thinking", string(chatcompletions.ThinkingAuto), "chat template thinking mode")
+	fs.StringVar(&options.chatTokenLimit, "chat-token-limit-field", string(chatcompletions.TokenLimitMaxTokens), "Chat Completions token limit field")
+	fs.BoolVar(&options.chatIncludeTopK, "chat-include-top-k", false, "include provider top_k")
+	if err := fs.Parse(args); err != nil {
+		return options, err
+	}
+	options.model, options.apiURL, options.output = strings.TrimSpace(options.model), strings.TrimSpace(options.apiURL), strings.TrimSpace(options.output)
+	if options.model == "" || options.apiURL == "" || options.output == "" || options.caseID == "" {
+		return options, fmt.Errorf("bfcl-mt-eval requires --model, --api-url, --case, and --output")
+	}
+	if options.tier != "baseline" && options.tier != "enhanced" {
+		return options, fmt.Errorf("unsupported BFCL multi-turn tier %q", options.tier)
+	}
+	if !bfcl.ValidMultiTurnAnchor(options.anchor) {
+		return options, fmt.Errorf("unsupported BFCL multi-turn anchor %q", options.anchor)
+	}
+	if options.maxPromptTokens < 0 {
+		return options, fmt.Errorf("invalid BFCL multi-turn prompt token guard")
+	}
+	if options.duplicateReplayLimit > 0 && options.duplicateRescueThreshold > 0 &&
+		options.duplicateRescueThreshold <= options.duplicateReplayLimit {
+		return options, fmt.Errorf("--duplicate-rescue-threshold must exceed --duplicate-replay-limit or rejection can never be observed")
+	}
+	if options.transport != string(bfcl.TransportRWKVContinuation) &&
+		options.transport != string(bfcl.TransportChatCompletionsWrapped) &&
+		options.transport != string(bfcl.TransportChatCompletionsNativeFC) {
+		return options, fmt.Errorf("unsupported BFCL multi-turn transport %q", options.transport)
+	}
+	// Native FC is the official-comparable calibration path: the model's own tool
+	// channel ends a turn by emitting no call, so the wrapped-only knobs (anchor,
+	// finish_task, initial_config) do not apply, and only the baseline tier -- the
+	// raw agent loop with no enhancement -- reproduces the official protocol.
+	if options.transport == string(bfcl.TransportChatCompletionsNativeFC) {
+		if options.tier != "baseline" {
+			return options, fmt.Errorf("native FC multi-turn currently supports only the baseline tier")
+		}
+		if options.finishTool {
+			return options, fmt.Errorf("native FC multi-turn does not use --finish-tool: an empty tool_calls response is the native turn end")
+		}
+		if options.renderInitialConfig {
+			return options, fmt.Errorf("native FC multi-turn does not render --render-initial-config")
+		}
+		// Thinking must be an explicit choice. Qwen3 is trained as a reasoning
+		// model, so thinking on is the official-faithful config; thinking off is the
+		// faster diagnostic. The dangerous mode is auto (the template default),
+		// where thinking is silently on and, under a small --max-tokens, the
+		// reasoning block truncates the turn to empty tool_calls (silent 0). With an
+		// explicit choice the runtime truncation guard (finish_reason=length + no
+		// calls) fails such a case loudly instead, and thinking on needs a generous
+		// --max-tokens (>=4096) for the reasoning plus the call.
+		if options.chatTemplateThinking == string(chatcompletions.ThinkingAuto) {
+			return options, fmt.Errorf("native FC multi-turn requires --chat-template-thinking to be explicitly enabled or disabled (auto uses the template default, which silently truncates turns under a small --max-tokens); thinking on is official-faithful but needs --max-tokens >= 4096")
+		}
+	}
+	if !strings.HasPrefix(options.split, "multi_turn_") {
+		return options, fmt.Errorf("BFCL multi-turn split/case mismatch")
+	}
+	if options.caseID != "all" {
+		for _, id := range strings.Split(options.caseID, ",") {
+			if !strings.HasPrefix(strings.TrimSpace(id), options.split+"_") {
+				return options, fmt.Errorf("BFCL multi-turn split/case mismatch: %q", id)
+			}
+		}
+	}
+	if options.maxTokens <= 0 || options.routeMaxTokens <= 0 || options.maxPromptChars < 0 || options.maxTurns < 0 || options.caseConcurrency < 1 || options.maxSteps <= 0 || options.routeRetries < 0 || options.caseTimeout <= 0 || options.temperature < 0 {
+		return options, fmt.Errorf("invalid BFCL multi-turn limits")
+	}
+	if options.temperature == 0 && options.transport == string(bfcl.TransportRWKVContinuation) {
+		return options, fmt.Errorf("--temperature 0 requires Chat Completions transport")
+	}
+	return options, nil
+}
+
+const multiTurnNativeRenderProtocol = "bfcl-multi-turn-native-fc-v1"
+
+func multiTurnRenderProtocol(transport string, finishTool bool) string {
+	if transport == string(bfcl.TransportChatCompletionsNativeFC) {
+		// Native FC has no markdown render: the tools array and chat template do it.
+		return multiTurnNativeRenderProtocol
+	}
+	if finishTool {
+		return bfcl.MultiTurnRenderProtocolFinishV1
+	}
+	return bfcl.MultiTurnRenderProtocolV2
+}
+
+func multiTurnParserMode(transport, tier string) string {
+	if transport == string(bfcl.TransportChatCompletionsNativeFC) {
+		// Calls arrive structured; there is no text to parse or repair.
+		return string(bfcl.TransportChatCompletionsNativeFC)
+	}
+	if tier == "enhanced" {
+		return string(bfcl.ParserRWKVWireCompatV1)
+	}
+	return string(bfcl.ParserStrict)
+}

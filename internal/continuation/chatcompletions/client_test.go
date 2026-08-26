@@ -151,6 +151,62 @@ func TestClientMapsOptionalThinkingMode(t *testing.T) {
 	}
 }
 
+func TestClientIncludesProviderTopKWhenEnabled(t *testing.T) {
+	t.Parallel()
+	var receivedFields map[string]json.RawMessage
+	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		if err := json.NewDecoder(request.Body).Decode(&receivedFields); err != nil {
+			t.Error(err)
+		}
+		writeJSON(writer, `{"choices":[{"index":0,"message":{"content":"ok"},"finish_reason":"stop"}]}`)
+	}))
+	defer server.Close()
+	client, err := New(Config{Endpoint: server.URL, Model: "model", IncludeTopK: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	request := validRequest()
+	request.Sampling.Temperature = 0
+	if _, err := client.Continue(context.Background(), request, nil); err != nil {
+		t.Fatal(err)
+	}
+	if string(receivedFields["temperature"]) != "0" || string(receivedFields["top_k"]) != "12" {
+		t.Fatalf("fields = %v", receivedFields)
+	}
+}
+
+func TestClientMapsOptionalChatTemplateThinking(t *testing.T) {
+	t.Parallel()
+	var received requestBody
+	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		if err := json.NewDecoder(request.Body).Decode(&received); err != nil {
+			t.Error(err)
+		}
+		writeJSON(writer, `{"choices":[{"index":0,"message":{"content":"ok"},"finish_reason":"stop"}]}`)
+	}))
+	defer server.Close()
+	enableThinking := false
+	client, err := New(Config{
+		Endpoint:                   server.URL,
+		Model:                      "Qwen/Qwen3-8B-FP8",
+		ChatTemplateEnableThinking: &enableThinking,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := client.Continue(context.Background(), validRequest(), nil); err != nil {
+		t.Fatal(err)
+	}
+	if received.ChatTemplateKwargs == nil ||
+		received.ChatTemplateKwargs.EnableThinking == nil ||
+		*received.ChatTemplateKwargs.EnableThinking {
+		t.Fatalf("chat_template_kwargs = %+v", received.ChatTemplateKwargs)
+	}
+	if received.Thinking != nil {
+		t.Fatalf("thinking = %+v", received.Thinking)
+	}
+}
+
 func TestClientSupportsLegacyMaxTokensCompatibility(t *testing.T) {
 	t.Parallel()
 	var received requestBody
@@ -305,6 +361,34 @@ func TestThinkingToolsPreserveReasoningAndAvoidRequiredChoice(t *testing.T) {
 	}
 	if result.ReasoningContent != "inspect first" || len(result.ToolCalls) != 1 {
 		t.Fatalf("result = %+v", result)
+	}
+}
+
+func TestNativeToolsAcceptVLLMReasoningField(t *testing.T) {
+	t.Parallel()
+	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		writeJSON(writer, `{
+            "choices":[{
+                "index":0,
+                "message":{"content":null,"reasoning":"vllm trace","tool_calls":[{
+                    "id":"call_1","type":"function",
+                    "function":{"name":"read_file","arguments":"{\"path\":\"README.md\"}"}
+                }]},
+                "finish_reason":"tool_calls"
+            }]
+        }`)
+	}))
+	defer server.Close()
+	client, err := New(Config{Endpoint: server.URL, Model: "native-model", PromptMode: PromptNativeChat})
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := client.Complete(context.Background(), validToolChatRequest(), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.ReasoningContent != "vllm trace" {
+		t.Fatalf("reasoning content = %q", result.ReasoningContent)
 	}
 }
 

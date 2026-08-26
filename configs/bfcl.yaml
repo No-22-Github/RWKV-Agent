@@ -1,0 +1,20 @@
+bfcl:
+  data_dir: "third_party/gorilla/berkeley-function-call-leaderboard/bfcl_eval/data"
+  data_commit: "6ea57973c7a6097fd7c5915698c54c17c5b1b6c8"
+  evaluator_version: "2026.3.23"
+
+  result_dir: "runs/bfcl/result"
+  score_dir: "runs/bfcl/score"
+  model_dir_name: "rwkv-agent-bfcl-ab-v1"
+
+  sample_manifest: "configs/bfcl-sample-v2.json"
+  sample_manifest_sha256: "f691e923da092230ca1d6692168fbaabc5425883c29814e9ce028161842b7914"
+
+  max_prompt_chars: 40000
+  greedy: true
+  top_k: 1
+  max_tokens: 1024
+
+  splits:
+    non_live: [simple_python, simple_java, simple_javascript, multiple, parallel, parallel_multiple, irrelevance]
+    live: [live_simple, live_multiple, live_parallel, live_parallel_multiple, live_relevance, live_irrelevance]

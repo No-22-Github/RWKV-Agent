@@ -126,6 +126,16 @@ func main() {
 		err = runAgent(os.Args[2:])
 	case "agent-eval":
 		err = runAgentEval(os.Args[2:])
+	case "bfcl-eval":
+		err = runBFCLEval(os.Args[2:])
+	case "bfcl-mt-eval":
+		err = runBFCLMultiTurn(os.Args[2:])
+	case "bfcl-reparse":
+		err = runBFCLReparse(os.Args[2:])
+	case "bfcl-sample":
+		err = runBFCLSample(os.Args[2:])
+	case "bfcl-sampling-diagnostic":
+		err = runBFCLSamplingDiagnostic(os.Args[2:])
 	case "concurrent":
 		err = runConcurrent(os.Args[2:])
 	case "bench":
@@ -151,6 +161,11 @@ func usage() {
   rwkv-cli run --model <RWKV .pth or MLX directory> [--prompt <text> | --session <bundle>]
   rwkv-cli agent --model <path or remote model ID> [--prompt <task>] [--ui auto|tui|plain]
   rwkv-cli agent-eval --model <path or remote model ID> [--suite boundary|smoke|assistant|primitive-orig30|primitive-feedback30] [--primitive-profile upstream-compatible|go-native] [--output <directory>]
+  rwkv-cli bfcl-eval --model <remote model ID> --api-url <inference URL> --tier <adapter-health|baseline|enhanced|finish-task-probe> [--transport <name>] --split <name> --output <directory>
+  rwkv-cli bfcl-mt-eval --model <remote model ID> --api-url <inference URL> --tier <baseline|enhanced> --case multi_turn_base_0 --output <directory>
+  rwkv-cli bfcl-reparse --source <BFCL run directory> --parser rwkv-wire-compat-v1 --output <directory>
+  rwkv-cli bfcl-sample [--output configs/bfcl-sample-v1.json | --verify configs/bfcl-sample-v1.json]
+  rwkv-cli bfcl-sampling-diagnostic --score <complete Qwen enhanced score directory>
   rwkv-cli concurrent --model <RWKV .pth or MLX directory> [--concurrency 1..8] [--ui auto|tui|plain]
   rwkv-cli bench --model <RWKV .pth or MLX directory> [--concurrency 1..8]`)
 }

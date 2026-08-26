@@ -6,6 +6,8 @@ __pycache__/
 /dist/
 /runs/
 /sessions/
+/.file_locks/
+/third_party/gorilla/
 .DS_Store
 .pnpm-store/
 .gocache/

@@ -644,6 +644,7 @@ archive/              历史评测基线归档
 
 | 分类 | 文档 |
 | --- | --- |
+| 总索引 | [项目文档、评测与跑分索引](INDEX.md) |
 | 上手 | [macOS 从零上手](docs/getting-started-macos.md) · [桌面 App](docs/app.md) |
 | 设计 | [推理核心设计](docs/inference-core-design.md) · [直接 PTH 加载](docs/direct-pth-loading.md) |
 | Agent | [续写接口与 Agent 协议](docs/continuation-and-agent-protocol.md) · [Harness 里程碑](docs/agent-harness-milestone.md) |
@@ -651,7 +652,8 @@ archive/              历史评测基线归档
 | 报告 | [docs/reports/](docs/reports/)（Harness 层优化报告中英版） |
 | 归档 | [docs/archive/](docs/archive/)（旧实施计划与验证文档） |
 
-完整索引见 [docs/README.md](docs/README.md)。
+仓库级总索引见 [INDEX.md](INDEX.md)；`docs/` 逐文件索引见
+[docs/README.md](docs/README.md)。
 
 ## 13. 分发与许可证
 

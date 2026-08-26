@@ -718,6 +718,7 @@ archive/              Archived evaluation baselines
 
 | Category | Documents |
 | --- | --- |
+| Project index | [Documentation, evaluations, and run artifacts](INDEX.md) |
 | Getting started | [macOS from scratch](docs/getting-started-macos.md) · [Desktop app](docs/app.md) |
 | Design | [Inference core design](docs/inference-core-design.md) · [Direct PTH loading](docs/direct-pth-loading.md) |
 | Agent | [Continuation and Agent protocol](docs/continuation-and-agent-protocol.md) · [Harness milestone](docs/agent-harness-milestone.md) |
@@ -725,7 +726,8 @@ archive/              Archived evaluation baselines
 | Reports | [docs/reports/](docs/reports/) (Harness-layer optimization reports, CN/EN) |
 | Archive | [docs/archive/](docs/archive/) (legacy implementation plans and validation notes) |
 
-Most deep-dive documents are currently written in Chinese; the full index is
+Most deep-dive documents are currently written in Chinese. The repository-wide index
+is in [INDEX.md](INDEX.md); the file-by-file `docs/` index is in
 [docs/README.md](docs/README.md).
 
 ## 13. Distribution and License

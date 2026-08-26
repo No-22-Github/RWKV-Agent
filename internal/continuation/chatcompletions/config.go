@@ -95,26 +95,30 @@ func ParseTokenLimitField(value string) (TokenLimitField, error) {
 }
 
 type Config struct {
-	Endpoint   string
-	Model      string
-	APIKey     string
-	Thinking   ThinkingMode
-	PromptMode PromptMode
-	TokenLimit TokenLimitField
-	Headers    http.Header
-	HTTPClient *http.Client
+	Endpoint                   string
+	Model                      string
+	APIKey                     string
+	Thinking                   ThinkingMode
+	ChatTemplateEnableThinking *bool
+	IncludeTopK                bool
+	PromptMode                 PromptMode
+	TokenLimit                 TokenLimitField
+	Headers                    http.Header
+	HTTPClient                 *http.Client
 }
 
 type normalizedConfig struct {
-	endpoint   string
-	model      string
-	apiKey     string
-	thinking   ThinkingMode
-	promptMode PromptMode
-	tokenLimit TokenLimitField
-	headers    http.Header
-	secrets    []string
-	httpClient *http.Client
+	endpoint                   string
+	model                      string
+	apiKey                     string
+	thinking                   ThinkingMode
+	chatTemplateEnableThinking *bool
+	includeTopK                bool
+	promptMode                 PromptMode
+	tokenLimit                 TokenLimitField
+	headers                    http.Header
+	secrets                    []string
+	httpClient                 *http.Client
 }
 
 func normalizeConfig(config Config) (normalizedConfig, error) {
@@ -171,16 +175,23 @@ func normalizeConfig(config Config) (normalizedConfig, error) {
 			}
 		}
 	}
+	var chatTemplateEnableThinking *bool
+	if config.ChatTemplateEnableThinking != nil {
+		value := *config.ChatTemplateEnableThinking
+		chatTemplateEnableThinking = &value
+	}
 	return normalizedConfig{
-		endpoint:   endpoint,
-		model:      model,
-		apiKey:     apiKey,
-		thinking:   thinking,
-		promptMode: promptMode,
-		tokenLimit: tokenLimit,
-		headers:    headers,
-		secrets:    secrets,
-		httpClient: httpClient,
+		endpoint:                   endpoint,
+		model:                      model,
+		apiKey:                     apiKey,
+		thinking:                   thinking,
+		chatTemplateEnableThinking: chatTemplateEnableThinking,
+		includeTopK:                config.IncludeTopK,
+		promptMode:                 promptMode,
+		tokenLimit:                 tokenLimit,
+		headers:                    headers,
+		secrets:                    secrets,
+		httpClient:                 httpClient,
 	}, nil
 }
 
@@ -191,7 +202,7 @@ func validateToolChatRequest(request toolchat.Request) error {
 		Stops:           request.Stops,
 		Sampling:        request.Sampling,
 	}
-	if err := continuation.ValidateRequest(validation); err != nil {
+	if err := validateChatCompletionsRequest(validation); err != nil {
 		return err
 	}
 	if err := validateSampling(request.Sampling); err != nil {
@@ -291,6 +302,19 @@ func validateToolChatRequest(request toolchat.Request) error {
 		seen[tool.Name] = struct{}{}
 	}
 	return nil
+}
+
+func validateChatCompletionsRequest(request continuation.Request) error {
+	if request.Sampling.Temperature < 0 {
+		return fmt.Errorf(
+			"%w: temperature cannot be negative",
+			continuation.ErrInvalidRequest,
+		)
+	}
+	if request.Sampling.Temperature == 0 {
+		request.Sampling.Temperature = 1
+	}
+	return continuation.ValidateRequest(request)
 }
 
 func withAssistantPrefix(sources []toolchat.Message, prefix string) []toolchat.Message {

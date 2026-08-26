@@ -67,6 +67,36 @@ func TestProgressiveToolRouteSelectsAtMostTwoKnownBundles(t *testing.T) {
 	}
 }
 
+// RWKV prefaces the route tag with prose or a leading think block instead of
+// emitting <route> at position 0. A complete envelope must be honored wherever
+// it appears; requiring a strict prefix degraded every such turn to respond.
+func TestProgressiveToolRouteToleratesPreambleBeforeEnvelope(t *testing.T) {
+	t.Parallel()
+	protocol := G1IProgressiveToolRouteProtocol{}
+	bundles := DefaultToolBundles()
+	ws := ToolBundleWorkspace
+	for _, testCase := range []struct {
+		name   string
+		value  string
+		finish continuation.FinishReason
+	}{
+		{"prose preamble", "我需要先查看目录结构。\n<route>inspect:" + ws + "</route>", continuation.FinishStop},
+		{"leading think block", "<think>the user wants a file</think>\n<route>inspect:" + ws + "</route>", continuation.FinishStop},
+		{"prose then unclosed under stop", "let me check.\n<route>inspect:" + ws, continuation.FinishStop},
+	} {
+		decision, err := protocol.Parse(testCase.value, testCase.finish, bundles)
+		if err != nil || decision.Route != RouteInspect || len(decision.Bundles) != 1 || decision.Bundles[0] != ws {
+			t.Fatalf("%s: decision=%+v err=%v", testCase.name, decision, err)
+		}
+	}
+	// A different envelope (the model used <tool_use> instead of <route>) still
+	// has no <route> tag, so it is a genuine miss -- and if truncated, a token
+	// limit error so the caller can retry with more budget.
+	if _, err := protocol.Parse("<tool_use><tool_name>inspect:workspace", continuation.FinishLength, bundles); !errors.Is(err, ErrRouteTokenLimit) {
+		t.Fatalf("truncated non-route envelope should report token limit, got %v", err)
+	}
+}
+
 func TestProgressiveToolRouteInstructionsUseConcreteRoutes(t *testing.T) {
 	t.Parallel()
 	protocol := G1IProgressiveToolRouteProtocol{}
