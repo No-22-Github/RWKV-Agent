@@ -11,7 +11,7 @@
 ## 当前状态
 
 - **可用**：Apple Silicon macOS 15+ 源码构建 —— CLI/TUI、Wails V3 桌面 App、headless server。
-- **实验性**：只读 Agent 框架与评测，当前 Harness 版本为 `rwkv-agent-eval-v18`。
+- **实验性**：只读 Agent 框架与评测，当前 Harness 版本为 `rwkv-agent-eval-v19`。
 - **平台**：Windows 尚无可用入口；Linux 已在 CI 验证 `-tags server` 构建（远程
   provider 场景），本地 MLX 模型与桌面窗口尚未落地。
 - **分发**：技术链路已经可用，公开分发前仍需确认上游授权并选择项目许可证。
@@ -466,9 +466,14 @@ go test -tags chatcompletions ./internal/continuation/chatcompletions \
 ```
 
 每个 case 使用独立临时工作区；本地推理为每个 case 创建全新 Session。`--case` 可重复选
-子集，`--cases` 可载入 `schema_version: 3` 的自定义 JSON case 文件或受信任的 Primitive
+子集，`--cases` 可载入 `schema_version: 4` 的自定义 JSON case 文件或受信任的 Primitive
 Bench 目录，`--case-timeout` 设单 case 超时，`--case-parallelism` 设并发度。`--cases` 与
 `--suite` 互斥；输出目录必须尚不存在。
+
+Case schema v4 可用 `require_active_no_call` 和 `forbid_route_fallback` 把“主动不调用”设为
+显式成功条件。Run schema v5 在 manifest 冻结 scorer/outcome taxonomy 版本，并在 summary
+分别报告 `active_no_call`、route/decision 协议合法率、outcome 分布和分类解析失败；普通文本
+final 仍是合法输出，fail-closed 与兼容修复不再混入主动 no-call。
 
 远程评测直接复用同一入口：
 

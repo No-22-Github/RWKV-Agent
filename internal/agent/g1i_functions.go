@@ -154,9 +154,16 @@ func looksLikeG1IFunctionFence(value string) bool {
 func (protocol G1IFunctionProtocol) Parse(value string, finish continuation.FinishReason) (Action, error) {
 	candidate := strings.TrimSpace(value)
 	protocolRepaired := false
+	originalFailure := ProtocolFailureClass("")
+	markOriginalFailure := func(class ProtocolFailureClass) {
+		if originalFailure == "" {
+			originalFailure = class
+		}
+	}
 	if index := strings.LastIndex(candidate, "</think>"); index >= 0 {
 		candidate = strings.TrimSpace(candidate[index+len("</think>"):])
 		protocolRepaired = true
+		markOriginalFailure(ProtocolFailureToolEnvelopeMissing)
 	}
 	if protocol.Product && strings.HasPrefix(candidate, "```") && !looksLikeG1IFunctionFence(candidate) {
 		return Action{Type: "final", Content: candidate}, nil
@@ -168,10 +175,14 @@ func (protocol G1IFunctionProtocol) Parse(value string, finish continuation.Fini
 		}
 		var calls []json.RawMessage
 		if err := json.Unmarshal([]byte(strings.TrimSpace(body)), &calls); err != nil || len(calls) != 1 {
-			return Action{}, fmt.Errorf("%w: G1i tool_calls must contain exactly one call", ErrProtocol)
+			if err != nil {
+				return Action{}, fmt.Errorf("%w: decode G1i tool_calls: %v", ErrToolJSONDecode, err)
+			}
+			return Action{}, fmt.Errorf("%w: G1i tool_calls must contain exactly one call", ErrToolShapeInvalid)
 		}
 		candidate = string(calls[0])
 		protocolRepaired = true
+		markOriginalFailure(ProtocolFailureToolEnvelopeMissing)
 	} else if start := strings.Index(candidate, "<tool_call>"); start >= 0 {
 		candidate = candidate[start+len("<tool_call>"):]
 		if end := strings.Index(candidate, "</tool_call>"); end >= 0 {
@@ -179,6 +190,7 @@ func (protocol G1IFunctionProtocol) Parse(value string, finish continuation.Fini
 		}
 		candidate = strings.TrimSpace(candidate)
 		protocolRepaired = true
+		markOriginalFailure(ProtocolFailureToolEnvelopeMissing)
 	}
 	candidate = strings.TrimPrefix(candidate, "```json")
 	candidate = strings.TrimPrefix(candidate, "```")
@@ -203,18 +215,23 @@ func (protocol G1IFunctionProtocol) Parse(value string, finish continuation.Fini
 	var object map[string]json.RawMessage
 	decoder := json.NewDecoder(strings.NewReader(repaired))
 	if err := decoder.Decode(&call); err != nil {
-		return Action{}, fmt.Errorf("%w: decode G1i function call: %v", ErrProtocol, err)
+		return Action{}, fmt.Errorf("%w: decode G1i function call: %v", ErrToolJSONDecode, err)
 	}
 	_ = json.Unmarshal([]byte(repaired), &object)
 	protocolRepaired = protocolRepaired || repaired != candidate
+	if repaired != candidate {
+		markOriginalFailure(ProtocolFailureToolJSONDecode)
+	}
 	if function, ok := rawJSONObject(object["function"]); ok {
 		if name := rawJSONString(function["name"]); call.Name == "" && name != "" {
 			call.Name = name
 			protocolRepaired = true
+			markOriginalFailure(ProtocolFailureToolShapeInvalid)
 		}
 		if len(call.Arguments) == 0 {
 			call.Arguments = firstRaw(function, "arguments", "args", "parameters")
 			protocolRepaired = true
+			markOriginalFailure(ProtocolFailureToolShapeInvalid)
 		}
 	}
 	if call.Name == "" {
@@ -222,6 +239,7 @@ func (protocol G1IFunctionProtocol) Parse(value string, finish continuation.Fini
 			if name := rawJSONString(object[key]); name != "" && !strings.Contains(name, " ") {
 				call.Name = strings.TrimSpace(name)
 				protocolRepaired = true
+				markOriginalFailure(ProtocolFailureToolShapeInvalid)
 				break
 			}
 		}
@@ -230,6 +248,7 @@ func (protocol G1IFunctionProtocol) Parse(value string, finish continuation.Fini
 		call.Arguments = firstRaw(object, "args", "parameters")
 		if len(call.Arguments) > 0 {
 			protocolRepaired = true
+			markOriginalFailure(ProtocolFailureToolShapeInvalid)
 		}
 	}
 	if len(call.Arguments) == 0 {
@@ -244,6 +263,7 @@ func (protocol G1IFunctionProtocol) Parse(value string, finish continuation.Fini
 		if len(hoisted) > 0 {
 			call.Arguments, _ = json.Marshal(hoisted)
 			protocolRepaired = true
+			markOriginalFailure(ProtocolFailureToolShapeInvalid)
 		}
 	}
 	if len(call.Arguments) > 0 && call.Arguments[0] == '"' {
@@ -251,6 +271,7 @@ func (protocol G1IFunctionProtocol) Parse(value string, finish continuation.Fini
 		if err := json.Unmarshal(call.Arguments, &encodedArguments); err == nil {
 			call.Arguments = json.RawMessage(repairG1IFunctionJSON(encodedArguments))
 			protocolRepaired = true
+			markOriginalFailure(ProtocolFailureToolShapeInvalid)
 		}
 	}
 	if arguments, ok := rawJSONObject(call.Arguments); ok &&
@@ -264,22 +285,27 @@ func (protocol G1IFunctionProtocol) Parse(value string, finish continuation.Fini
 				call.Arguments, _ = json.Marshal(arguments)
 			}
 			protocolRepaired = true
+			markOriginalFailure(ProtocolFailureToolShapeInvalid)
 		}
 	}
 	if call.Name == "" {
 		if arguments, ok := rawJSONObject(call.Arguments); ok {
 			call.Name = inferG1IToolName(arguments)
 			protocolRepaired = call.Name != ""
+			if protocolRepaired {
+				markOriginalFailure(ProtocolFailureToolShapeInvalid)
+			}
 		}
 	}
 	if decoder.Decode(&struct{}{}) != io.EOF || strings.TrimSpace(call.Name) == "" || !isJSONObject(call.Arguments) {
-		return Action{}, fmt.Errorf("%w: invalid G1i function call", ErrProtocol)
+		return Action{}, fmt.Errorf("%w: invalid G1i function call", ErrToolShapeInvalid)
 	}
 	return Action{
-		Type:             "tool",
-		Name:             call.Name,
-		Arguments:        call.Arguments,
-		ProtocolRepaired: protocolRepaired,
+		Type:                    "tool",
+		Name:                    call.Name,
+		Arguments:               call.Arguments,
+		ProtocolRepaired:        protocolRepaired,
+		OriginalProtocolFailure: originalFailure,
 	}, nil
 }
 

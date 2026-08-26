@@ -12,7 +12,7 @@
 ## Current Status
 
 - **Usable**: source builds on Apple Silicon, macOS 15+ — CLI/TUI, the Wails V3 desktop app, and a headless server.
-- **Experimental**: the read-only Agent framework and evaluation harness (`rwkv-agent-eval-v18`).
+- **Experimental**: the read-only Agent framework and evaluation harness (`rwkv-agent-eval-v19`).
 - **Platforms**: Windows has no usable entry point yet. Linux `-tags server` builds are verified in CI (remote-provider scenarios); the local MLX model and desktop window are not available there yet.
 - **Distribution**: the technical packaging chain works, but upstream licenses must be confirmed and a project license chosen before public distribution.
 
@@ -517,9 +517,16 @@ Runner parameters as `agent`:
 
 Every case gets an isolated temporary workspace; local inference creates a fresh
 Session per case. Use repeatable `--case` flags for subsets, `--cases` for versioned
-`schema_version: 3` JSON case files or a trusted Primitive Bench directory,
+`schema_version: 4` JSON case files or a trusted Primitive Bench directory,
 `--case-timeout` for per-case timeouts, and `--case-parallelism` for concurrency.
 `--cases` and `--suite` are mutually exclusive; the output directory must not exist.
+
+Case schema v4 can make deliberate abstention an explicit success condition with
+`require_active_no_call` and `forbid_route_fallback`. Run schema v5 freezes the
+scorer and outcome-taxonomy versions in the manifest and reports `active_no_call`,
+separate route/decision protocol validity, outcome counts, and classified parse
+failures. Ordinary-text finals remain valid; fail-closed routing and compatibility
+repairs no longer receive active no-call credit.
 
 Remote evaluation reuses the same entry point:
 

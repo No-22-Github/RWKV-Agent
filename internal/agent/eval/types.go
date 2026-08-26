@@ -10,9 +10,11 @@ import (
 )
 
 const (
-	CaseSchemaVersion = 3
-	RunSchemaVersion  = 4
-	HarnessVersion    = "rwkv-agent-eval-v18"
+	CaseSchemaVersion      = 4
+	RunSchemaVersion       = 5
+	HarnessVersion         = "rwkv-agent-eval-v19"
+	ScorerVersion          = "rwkv-agent-eval-scorer-v1"
+	OutcomeTaxonomyVersion = "rwkv-agent-outcome-v1"
 
 	PrimitiveProfileUpstream = "upstream-compatible"
 	PrimitiveProfileGoNative = "go-native"
@@ -70,6 +72,8 @@ type Expectation struct {
 	Tolerance           *float64         `json:"tolerance,omitempty"`
 	Plan                *PlanExpectation `json:"plan,omitempty"`
 	MustStateUnverified []string         `json:"must_state_unverified,omitempty"`
+	RequireActiveNoCall bool             `json:"require_active_no_call,omitempty"`
+	ForbidRouteFallback bool             `json:"forbid_route_fallback,omitempty"`
 }
 
 type PlanExpectation struct {
@@ -108,6 +112,8 @@ type ModelMetadata struct {
 
 type HarnessMetadata struct {
 	Version                  string   `json:"version"`
+	ScorerVersion            string   `json:"scorer_version"`
+	OutcomeTaxonomyVersion   string   `json:"outcome_taxonomy_version"`
 	Protocol                 string   `json:"protocol"`
 	Renderer                 string   `json:"renderer"`
 	RouteRenderer            string   `json:"route_renderer"`
@@ -162,49 +168,69 @@ type Score struct {
 	Rate    float64 `json:"rate"`
 }
 
-type Metrics struct {
-	TaskSuccess            Score `json:"task_success"`
-	AnswerAccuracy         Score `json:"answer_accuracy"`
-	RouteAccuracy          Score `json:"route_accuracy"`
-	ProtocolValidity       Score `json:"protocol_validity"`
-	StageContractValidity  Score `json:"stage_contract_validity"`
-	ToolSelection          Score `json:"tool_selection"`
-	ArgumentAccuracy       Score `json:"argument_accuracy"`
-	RequiredToolCompletion Score `json:"required_tool_completion"`
-	ForbiddenToolAvoidance Score `json:"forbidden_tool_avoidance"`
-	RequiredCallAccuracy   Score `json:"required_call_accuracy"`
-	NoCallAccuracy         Score `json:"no_call_accuracy"`
-	PlanSubtaskCount       Score `json:"plan_subtask_count"`
-	PlanWaveOrder          Score `json:"plan_wave_order"`
-	PlanReferenceUse       Score `json:"plan_reference_use"`
-	ExplicitAbstention     Score `json:"explicit_abstention"`
-	AnswerContractRepaired Score `json:"answer_contract_repaired"`
+type TurnOutcome string
 
-	ModelCalls           int   `json:"model_calls"`
-	ToolCalls            int   `json:"tool_calls"`
-	ToolExecutions       int   `json:"tool_executions"`
-	ToolErrors           int   `json:"tool_errors"`
-	RejectedCalls        int   `json:"rejected_tool_calls"`
-	DuplicateCalls       int   `json:"duplicate_tool_calls"`
-	RecoveryBlocks       int   `json:"recovery_blocked_calls"`
-	ForcedAnswers        int   `json:"forced_answers"`
-	RescueAttempts       int   `json:"rescue_attempts"`
-	RescueSubmits        int   `json:"rescue_submits"`
-	ProtocolRetries      int   `json:"protocol_retries"`
-	ProtocolRepairs      int   `json:"protocol_repairs"`
-	AnswerStageToolCalls int   `json:"answer_stage_tool_calls"`
-	RouteFallbacks       int   `json:"route_fallbacks"`
-	PlanRejections       int   `json:"plan_rejections"`
-	PlanFallbacks        int   `json:"plan_fallbacks"`
-	PromptTokens         int   `json:"prompt_tokens"`
-	CompletionTokens     int   `json:"completion_tokens"`
-	WallTimeMillis       int64 `json:"wall_time_millis"`
+const (
+	OutcomeExplicitRespond       TurnOutcome = "explicit_respond"
+	OutcomeDirectFinal           TurnOutcome = "direct_final"
+	OutcomeCalledTool            TurnOutcome = "called_tool"
+	OutcomeRouteFailedClosed     TurnOutcome = "route_failed_closed"
+	OutcomeToolEnvelopeMissing   TurnOutcome = "tool_envelope_missing"
+	OutcomeToolJSONDecodeFailed  TurnOutcome = "tool_json_decode_failed"
+	OutcomeToolShapeInvalid      TurnOutcome = "tool_shape_invalid"
+	OutcomeProtocolRepaired      TurnOutcome = "protocol_repaired"
+	OutcomeDecisionProtocolError TurnOutcome = "decision_protocol_invalid"
+)
+
+type Metrics struct {
+	TaskSuccess              Score `json:"task_success"`
+	AnswerAccuracy           Score `json:"answer_accuracy"`
+	RouteAccuracy            Score `json:"route_accuracy"`
+	ProtocolValidity         Score `json:"protocol_validity"`
+	StageContractValidity    Score `json:"stage_contract_validity"`
+	ToolSelection            Score `json:"tool_selection"`
+	ArgumentAccuracy         Score `json:"argument_accuracy"`
+	RequiredToolCompletion   Score `json:"required_tool_completion"`
+	ForbiddenToolAvoidance   Score `json:"forbidden_tool_avoidance"`
+	RequiredCallAccuracy     Score `json:"required_call_accuracy"`
+	NoCallAccuracy           Score `json:"no_call_accuracy"`
+	ActiveNoCall             Score `json:"active_no_call"`
+	RouteProtocolValidity    Score `json:"route_protocol_validity"`
+	DecisionProtocolValidity Score `json:"decision_protocol_validity"`
+	PlanSubtaskCount         Score `json:"plan_subtask_count"`
+	PlanWaveOrder            Score `json:"plan_wave_order"`
+	PlanReferenceUse         Score `json:"plan_reference_use"`
+	ExplicitAbstention       Score `json:"explicit_abstention"`
+	AnswerContractRepaired   Score `json:"answer_contract_repaired"`
+
+	ModelCalls           int                                `json:"model_calls"`
+	ToolCalls            int                                `json:"tool_calls"`
+	ToolExecutions       int                                `json:"tool_executions"`
+	ToolErrors           int                                `json:"tool_errors"`
+	RejectedCalls        int                                `json:"rejected_tool_calls"`
+	DuplicateCalls       int                                `json:"duplicate_tool_calls"`
+	RecoveryBlocks       int                                `json:"recovery_blocked_calls"`
+	ForcedAnswers        int                                `json:"forced_answers"`
+	RescueAttempts       int                                `json:"rescue_attempts"`
+	RescueSubmits        int                                `json:"rescue_submits"`
+	ProtocolRetries      int                                `json:"protocol_retries"`
+	ProtocolRepairs      int                                `json:"protocol_repairs"`
+	AnswerStageToolCalls int                                `json:"answer_stage_tool_calls"`
+	RouteFallbacks       int                                `json:"route_fallbacks"`
+	PlanRejections       int                                `json:"plan_rejections"`
+	PlanFallbacks        int                                `json:"plan_fallbacks"`
+	PromptTokens         int                                `json:"prompt_tokens"`
+	CompletionTokens     int                                `json:"completion_tokens"`
+	WallTimeMillis       int64                              `json:"wall_time_millis"`
+	Outcomes             map[TurnOutcome]int                `json:"outcomes"`
+	ParseFailuresByClass map[agent.ProtocolFailureClass]int `json:"parse_failures_by_class"`
 }
 
 type TurnResult struct {
 	Number      int          `json:"number"`
 	Prompt      string       `json:"prompt"`
 	Result      agent.Result `json:"result"`
+	Outcome     TurnOutcome  `json:"outcome"`
 	RunnerError string       `json:"runner_error,omitempty"`
 	Failures    []string     `json:"failures,omitempty"`
 	Passed      bool         `json:"passed"`
@@ -271,8 +297,9 @@ type RunnerEventTrace struct {
 }
 
 type TurnTrace struct {
-	Result agent.Result `json:"result"`
-	Error  string       `json:"error,omitempty"`
+	Result  agent.Result `json:"result"`
+	Outcome TurnOutcome  `json:"outcome"`
+	Error   string       `json:"error,omitempty"`
 }
 
 type TraceRecord struct {

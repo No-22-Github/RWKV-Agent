@@ -174,6 +174,8 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 		Model:         config.Model,
 		Harness: HarnessMetadata{
 			Version:                  HarnessVersion,
+			ScorerVersion:            ScorerVersion,
+			OutcomeTaxonomyVersion:   OutcomeTaxonomyVersion,
 			Protocol:                 protocol.ID(),
 			Renderer:                 renderer.ID(),
 			RouteRenderer:            routeRenderer.ID(),
@@ -306,9 +308,10 @@ func runCase(
 			},
 		)
 		turnResult := TurnResult{
-			Number: turnNumber,
-			Prompt: turn.Prompt,
-			Result: runResult,
+			Number:  turnNumber,
+			Prompt:  turn.Prompt,
+			Result:  runResult,
+			Outcome: classifyTurnOutcome(runResult),
 		}
 		if runErr != nil {
 			turnResult.RunnerError = runErr.Error()
@@ -320,7 +323,7 @@ func runCase(
 		)
 		turnResult.Passed = len(turnResult.Failures) == 0
 		result.Turns = append(result.Turns, turnResult)
-		recorder.turnResult(runResult, runErr)
+		recorder.turnResult(runResult, turnResult.Outcome, runErr)
 		if !turnResult.Passed {
 			result.Passed = false
 		}
@@ -423,6 +426,13 @@ func validateTurn(
 	var failures []string
 	if runErr != nil {
 		failures = append(failures, "runner error: "+runErr.Error())
+	}
+	outcome := classifyTurnOutcome(result)
+	if expect.RequireActiveNoCall && !isActiveNoCall(result, outcome) {
+		failures = append(failures, fmt.Sprintf("active no-call required, outcome = %q", outcome))
+	}
+	if expect.ForbidRouteFallback && routeFailedClosed(result) {
+		failures = append(failures, "route fallback is forbidden")
 	}
 	// Route is only asserted when the route stage ran. Without it the runner
 	// carries a hardcoded inspect default, so asserting the route would fail
@@ -790,6 +800,65 @@ func modelAnswer(result agent.Result) string {
 	return result.Output
 }
 
+func classifyTurnOutcome(result agent.Result) TurnOutcome {
+	if routeFailedClosed(result) {
+		return OutcomeRouteFailedClosed
+	}
+	for _, step := range result.Steps {
+		if step.ProtocolError == "" || step.ProtocolFailure == "" {
+			continue
+		}
+		switch step.ProtocolFailure {
+		case agent.ProtocolFailureToolEnvelopeMissing:
+			return OutcomeToolEnvelopeMissing
+		case agent.ProtocolFailureToolJSONDecode:
+			return OutcomeToolJSONDecodeFailed
+		case agent.ProtocolFailureToolShapeInvalid:
+			return OutcomeToolShapeInvalid
+		}
+	}
+	for _, step := range result.Steps {
+		if step.ProtocolRepaired {
+			return OutcomeProtocolRepaired
+		}
+	}
+	for _, step := range result.Steps {
+		if step.ProtocolError != "" || step.ModelError != "" {
+			return OutcomeDecisionProtocolError
+		}
+	}
+	for _, step := range result.Steps {
+		if step.ActionType == "tool" || step.Tool != "" {
+			return OutcomeCalledTool
+		}
+	}
+	if result.Route == agent.RouteRespond && len(result.RouteSteps) > 0 {
+		return OutcomeExplicitRespond
+	}
+	for _, step := range result.Steps {
+		if step.ActionType == "final" {
+			return OutcomeDirectFinal
+		}
+	}
+	return OutcomeDecisionProtocolError
+}
+
+func routeFailedClosed(result agent.Result) bool {
+	for _, step := range result.RouteSteps {
+		if step.FailedClosed {
+			return true
+		}
+	}
+	return false
+}
+
+func isActiveNoCall(result agent.Result, outcome TurnOutcome) bool {
+	if outcome != OutcomeExplicitRespond && outcome != OutcomeDirectFinal {
+		return false
+	}
+	return len(stepTools(result.Steps)) == 0
+}
+
 func summarize(
 	runID string,
 	cases []Case,
@@ -797,6 +866,8 @@ func summarize(
 	trace []TraceRecord,
 ) Summary {
 	summary := Summary{RunID: runID, Cases: results}
+	summary.Metrics.Outcomes = make(map[TurnOutcome]int)
+	summary.Metrics.ParseFailuresByClass = make(map[agent.ProtocolFailureClass]int)
 	byID := make(map[string]Case, len(cases))
 	for _, testCase := range cases {
 		byID[testCase.ID] = testCase
@@ -812,6 +883,11 @@ func summarize(
 				break
 			}
 			expect := testCase.Turns[index].Expect
+			outcome := turnResult.Outcome
+			if outcome == "" {
+				outcome = classifyTurnOutcome(turnResult.Result)
+			}
+			summary.Metrics.Outcomes[outcome]++
 			if hasAnswerExpectation(expect) {
 				summary.Metrics.AnswerAccuracy.Total++
 				answer := modelAnswer(turnResult.Result)
@@ -868,6 +944,10 @@ func summarize(
 					if len(actualTools) == 0 {
 						summary.Metrics.NoCallAccuracy.Correct++
 					}
+					summary.Metrics.ActiveNoCall.Total++
+					if isActiveNoCall(turnResult.Result, outcome) {
+						summary.Metrics.ActiveNoCall.Correct++
+					}
 				}
 			}
 			for _, required := range expect.RequiredTools {
@@ -915,6 +995,16 @@ func summarize(
 				if step.ProtocolRepaired {
 					summary.Metrics.ProtocolRepairs++
 				}
+				if step.ProtocolFailure != "" {
+					summary.Metrics.ParseFailuresByClass[step.ProtocolFailure]++
+				}
+				if step.Stage == agent.StageDecision {
+					summary.Metrics.DecisionProtocolValidity.Total++
+					if step.ModelError == "" && step.ProtocolError == "" &&
+						!step.ProtocolRepaired && step.ProtocolFailure == "" {
+						summary.Metrics.DecisionProtocolValidity.Correct++
+					}
+				}
 				if step.Tool != "" {
 					summary.Metrics.ToolCalls++
 				}
@@ -932,6 +1022,12 @@ func summarize(
 					summary.Metrics.DuplicateCalls++
 				case "consecutive_tool_failures":
 					summary.Metrics.RecoveryBlocks++
+				}
+			}
+			for _, routeStep := range turnResult.Result.RouteSteps {
+				summary.Metrics.RouteProtocolValidity.Total++
+				if routeStep.ProtocolError == "" && !routeStep.FailedClosed {
+					summary.Metrics.RouteProtocolValidity.Correct++
 				}
 			}
 			if turnResult.Result.ForcedAnswerReason != "" {
@@ -974,6 +1070,9 @@ func summarize(
 	finalizeScore(&summary.Metrics.ForbiddenToolAvoidance)
 	finalizeScore(&summary.Metrics.RequiredCallAccuracy)
 	finalizeScore(&summary.Metrics.NoCallAccuracy)
+	finalizeScore(&summary.Metrics.ActiveNoCall)
+	finalizeScore(&summary.Metrics.RouteProtocolValidity)
+	finalizeScore(&summary.Metrics.DecisionProtocolValidity)
 	finalizeScore(&summary.Metrics.PlanSubtaskCount)
 	finalizeScore(&summary.Metrics.PlanWaveOrder)
 	finalizeScore(&summary.Metrics.PlanReferenceUse)
@@ -1045,8 +1144,8 @@ func (r *traceRecorder) runnerEvent(event agent.Event) {
 	r.append(TraceRecord{Kind: "runner_event", RunnerEvent: value})
 }
 
-func (r *traceRecorder) turnResult(result agent.Result, err error) {
-	value := &TurnTrace{Result: result}
+func (r *traceRecorder) turnResult(result agent.Result, outcome TurnOutcome, err error) {
+	value := &TurnTrace{Result: result, Outcome: outcome}
 	if err != nil {
 		value.Error = err.Error()
 	}
