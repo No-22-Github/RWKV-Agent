@@ -524,6 +524,65 @@ func TestDirectResponseControlUsesThinkingModeBoundary(t *testing.T) {
 	}
 }
 
+func TestRoutePromptFramingRequiresThinkingOff(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name     string
+		renderer RWKVChatRenderer
+		wantErr  bool
+	}{
+		{name: "zero-value"},
+		{name: "off", renderer: RWKVChatRenderer{ThinkingMode: inference.ThinkingOff}},
+		{name: "fast", renderer: RWKVChatRenderer{ThinkingMode: inference.ThinkingFast}, wantErr: true},
+		{name: "full", renderer: RWKVChatRenderer{ThinkingMode: inference.ThinkingFull}, wantErr: true},
+		{name: "legacy-reasoning", renderer: RWKVChatRenderer{Reasoning: true}, wantErr: true},
+	}
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+			var prompts []string
+			runner, err := NewRunner(
+				continuation.GenerateFunc(func(
+					_ context.Context,
+					request continuation.Request,
+					_ continuation.EventSink,
+				) (continuation.Result, error) {
+					prompts = append(prompts, request.Prompt)
+					if len(prompts) == 1 {
+						return continuation.Result{Text: "respond</route>", FinishReason: continuation.FinishStop}, nil
+					}
+					return continuation.Result{Text: "done", FinishReason: continuation.FinishStop}, nil
+				}),
+				nil,
+				Options{
+					Router:        G1IRouteProtocol{},
+					RouteRenderer: test.renderer,
+				},
+			)
+			if test.wantErr {
+				if err == nil || !errors.Is(err, continuation.ErrInvalidRequest) ||
+					!strings.Contains(err.Error(), `route renderer must use thinking mode "off"`) {
+					t.Fatalf("NewRunner error = %v", err)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			if _, err := runner.Run(context.Background(), "hello"); err != nil {
+				t.Fatal(err)
+			}
+			if len(prompts) != 2 || !strings.HasSuffix(prompts[0], "Assistant: <route>") {
+				t.Fatalf("route prompt boundary = %q", prompts)
+			}
+			if strings.Contains(prompts[0], "Assistant: <think") {
+				t.Fatalf("route prompt opened a think block: %q", prompts[0])
+			}
+		})
+	}
+}
+
 func TestRunnerRoutesCasualGreetingWithoutWorkspaceTools(t *testing.T) {
 	t.Parallel()
 

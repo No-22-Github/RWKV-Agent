@@ -17,6 +17,7 @@ import (
 	"github.com/no22/RWKV-Agent/internal/agent"
 	"github.com/no22/RWKV-Agent/internal/continuation"
 	"github.com/no22/RWKV-Agent/internal/continuation/toolchat"
+	"github.com/no22/RWKV-Agent/internal/inference"
 )
 
 func TestRunExecutesCasesConcurrentlyAndKeepsReportOrder(t *testing.T) {
@@ -307,6 +308,11 @@ func TestRunScoresAndWritesTraceArtifacts(t *testing.T) {
 	if !report.Manifest.Harness.FewShot {
 		t.Fatalf("few-shot profile was not recorded: %+v", report.Manifest.Harness)
 	}
+	if report.Manifest.SchemaVersion != RunSchemaVersion ||
+		report.Manifest.Harness.ThinkingMode != string(inference.ThinkingOff) ||
+		report.Manifest.Harness.RouteThinkingMode != string(inference.ThinkingOff) {
+		t.Fatalf("thinking modes were not recorded independently: %+v", report.Manifest.Harness)
+	}
 	assertScore(t, "task success", report.Summary.Metrics.TaskSuccess, 2, 2)
 	assertScore(t, "answer accuracy", report.Summary.Metrics.AnswerAccuracy, 2, 2)
 	assertScore(t, "answer contract repaired", report.Summary.Metrics.AnswerContractRepaired, 0, 2)
@@ -402,6 +408,36 @@ func TestRunScoresAndWritesTraceArtifacts(t *testing.T) {
 	if _, err := WriteArtifacts(output, report); err == nil ||
 		!strings.Contains(err.Error(), "already exists") {
 		t.Fatalf("existing output error = %v", err)
+	}
+}
+
+func TestRunManifestSeparatesDecisionAndRouteThinkingModes(t *testing.T) {
+	t.Parallel()
+	manifest := runManifest(Config{
+		Cases: []Case{{ID: "one"}},
+		Runner: agent.Options{
+			Renderer:      agent.RWKVChatRenderer{ThinkingMode: inference.ThinkingFull},
+			Router:        agent.G1IRouteProtocol{},
+			RouteRenderer: agent.RWKVChatRenderer{ThinkingMode: inference.ThinkingOff},
+		},
+	}, "run", time.Unix(0, 0).UTC())
+	if manifest.SchemaVersion != RunSchemaVersion ||
+		manifest.Harness.ThinkingMode != string(inference.ThinkingFull) ||
+		manifest.Harness.RouteThinkingMode != string(inference.ThinkingOff) ||
+		!manifest.Harness.RouteStage {
+		t.Fatalf("manifest harness = %+v", manifest.Harness)
+	}
+	toolRouteManifest := runManifest(Config{
+		Cases: []Case{{ID: "one"}},
+		Runner: agent.Options{
+			ToolRouter:    agent.G1IProgressiveToolRouteProtocol{},
+			RouteRenderer: agent.RWKVChatRenderer{},
+		},
+	}, "tool-route", time.Unix(0, 0).UTC())
+	if !toolRouteManifest.Harness.RouteStage ||
+		toolRouteManifest.Harness.RouteProtocol != (agent.G1IProgressiveToolRouteProtocol{}).ID() ||
+		toolRouteManifest.Harness.RouteThinkingMode != string(inference.ThinkingOff) {
+		t.Fatalf("tool route manifest harness = %+v", toolRouteManifest.Harness)
 	}
 }
 
