@@ -3,9 +3,10 @@ package eval
 import "fmt"
 
 const (
-	SuiteBoundary  = "boundary"
-	SuiteSmoke     = "smoke"
-	SuiteAssistant = "assistant"
+	SuiteBoundary    = "boundary"
+	SuiteSmoke       = "smoke"
+	SuiteAssistant   = "assistant"
+	SuiteBFCLProduct = "bfcl-product"
 )
 
 func BuiltinCases() []Case {
@@ -217,13 +218,15 @@ func BuiltinSuite(name string) ([]Case, error) {
 		return BoundaryCases()
 	case SuiteAssistant:
 		return AssistantCases()
+	case SuiteBFCLProduct:
+		return BFCLProductCases()
 	case SuitePrimitive, SuitePrimitiveOrig30:
 		return PrimitiveCases()
 	case SuitePrimitiveFeedback30:
 		return PrimitiveFeedback30Cases()
 	default:
 		return nil, fmt.Errorf(
-			"unknown Agent eval suite %q; expected smoke, boundary, assistant, primitive-orig30, or primitive-feedback30",
+			"unknown Agent eval suite %q; expected smoke, boundary, assistant, bfcl-product, primitive-orig30, or primitive-feedback30",
 			name,
 		)
 	}

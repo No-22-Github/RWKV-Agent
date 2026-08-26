@@ -359,7 +359,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			fs.IntVar(&options.subagentMaxSteps, "subagent-max-steps", 4, "maximum model steps for each child Agent")
 			fs.DurationVar(&options.subagentTimeout, "subagent-timeout", 2*time.Minute, "wall-clock timeout for one spawn_agents batch")
 		} else {
-			fs.StringVar(&options.evalSuite, "suite", agenteval.SuiteBoundary, "built-in Agent eval suite: boundary, smoke, assistant, primitive-orig30, or primitive-feedback30")
+			fs.StringVar(&options.evalSuite, "suite", agenteval.SuiteBoundary, "built-in Agent eval suite: boundary, smoke, assistant, bfcl-product, primitive-orig30, or primitive-feedback30")
 			fs.StringVar(
 				&options.evalCasesPath,
 				"cases",
@@ -507,10 +507,11 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			if options.evalSuite != agenteval.SuiteBoundary &&
 				options.evalSuite != agenteval.SuiteSmoke &&
 				options.evalSuite != agenteval.SuiteAssistant &&
+				options.evalSuite != agenteval.SuiteBFCLProduct &&
 				options.evalSuite != agenteval.SuitePrimitiveOrig30 &&
 				options.evalSuite != agenteval.SuitePrimitiveFeedback30 {
 				return options, fmt.Errorf(
-					"unsupported Agent eval suite %q; expected boundary, smoke, assistant, primitive-orig30, or primitive-feedback30",
+					"unsupported Agent eval suite %q; expected boundary, smoke, assistant, bfcl-product, primitive-orig30, or primitive-feedback30",
 					options.evalSuite,
 				)
 			}

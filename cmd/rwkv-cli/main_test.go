@@ -519,6 +519,16 @@ func TestAgentEvalOptionsAreDeterministicAndIsolated(t *testing.T) {
 	if suiteOptions.evalSuite != agenteval.SuitePrimitiveOrig30 || !suiteOptions.evalSuiteExplicit {
 		t.Fatalf("explicit suite options = %+v", suiteOptions)
 	}
+	bfclProductOptions, err := parseRunOptions("agent-eval", []string{
+		"--model", "model",
+		"--suite", agenteval.SuiteBFCLProduct,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bfclProductOptions.evalSuite != agenteval.SuiteBFCLProduct || !bfclProductOptions.evalSuiteExplicit {
+		t.Fatalf("BFCL product suite options = %+v", bfclProductOptions)
+	}
 	legacySuiteOptions, err := parseRunOptions("agent-eval", []string{
 		"--model", "model",
 		"--suite", "primitive",

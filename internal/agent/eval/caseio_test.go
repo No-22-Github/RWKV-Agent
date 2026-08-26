@@ -37,6 +37,29 @@ func TestBuiltinCasesValidate(t *testing.T) {
 	if len(assistant) != 6 {
 		t.Fatalf("assistant cases = %d, want 6", len(assistant))
 	}
+	bfclProduct, err := BFCLProductCases()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(bfclProduct) != 60 {
+		t.Fatalf("BFCL product cases = %d, want 60", len(bfclProduct))
+	}
+	categoryCounts := map[string]int{}
+	for _, testCase := range bfclProduct {
+		categoryCounts[testCase.Category]++
+	}
+	for _, category := range []string{"bfcl-irrelevance", "bfcl-missing-required", "bfcl-multiturn"} {
+		if categoryCounts[category] != 20 {
+			t.Fatalf("BFCL product category %q = %d, want 20", category, categoryCounts[category])
+		}
+	}
+	builtin, err := BuiltinSuite(SuiteBFCLProduct)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(builtin) != len(bfclProduct) {
+		t.Fatalf("BFCL product builtin routing = %d, want %d", len(builtin), len(bfclProduct))
+	}
 }
 
 func TestLoadCasesUsesStrictVersionedSchema(t *testing.T) {

@@ -30,6 +30,7 @@
 | [evaluations/api-13b-v9-evaluation-report-20260806.md](evaluations/api-13b-v9-evaluation-report-20260806.md) | 20260806 三项修复后的复测报告 |
 | [evaluations/local-assistant-p0-effect-report-20260804.md](evaluations/local-assistant-p0-effect-report-20260804.md) | 本地优先助手 Agent P0 落地效果报告 |
 | [evaluations/bfcl-v4-ab-main-integration-20260826.md](evaluations/bfcl-v4-ab-main-integration-20260826.md) | BFCL v4 A+B 分支收口、证据边界与主线迁移说明 |
+| [evaluations/bfcl-v4-product-suite-20260826.md](evaluations/bfcl-v4-product-suite-20260826.md) | 60 题 BFCL 产品语义迁移 suite 与运行边界 |
 
 ## 报告
 

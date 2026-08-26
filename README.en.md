@@ -24,7 +24,7 @@ Feature highlights:
 - Agent: read-only workspace tools, `calculator`/`data_query`/`datetime`, optional Brave/Tavily web tools, and `spawn_agents` delegation
 - Remote: native `rwkv_lightning` continuation; OpenAI-compatible Chat Completions behind an optional build tag
 - Desktop app: Wails V3 + React + Material Design 3, persistent conversations, tool trajectories, web retries
-- Evaluation: 5 built-in suites with reproducible trace artifacts
+- Evaluation: 6 built-in suites with reproducible trace artifacts
 
 For a first run, follow [macOS from scratch](docs/getting-started-macos.md) (in Chinese).
 
@@ -144,7 +144,7 @@ dist/
 rwkv-cli convert --input <RWKV .pth> --output <MLX model directory>
 rwkv-cli run --model <RWKV .pth or MLX directory> [--prompt <text> | --session <bundle>]
 rwkv-cli agent --model <path or remote model ID> [--prompt <task>] [--ui auto|tui|plain]
-rwkv-cli agent-eval --model <path or remote model ID> [--suite boundary|smoke|assistant|primitive-orig30|primitive-feedback30]
+rwkv-cli agent-eval --model <path or remote model ID> [--suite boundary|smoke|assistant|bfcl-product|primitive-orig30|primitive-feedback30]
 rwkv-cli concurrent --model <RWKV .pth or MLX directory> [--concurrency 1..8]
 rwkv-cli bench --model <RWKV .pth or MLX directory> [--concurrency 1..8]
 ```
@@ -505,6 +505,7 @@ Runner parameters as `agent`:
 | `boundary` (default) | 18 read-only cases adapted from [marty1885/primitive-bench](https://github.com/marty1885/primitive-bench) |
 | `smoke` | 10 protocol and safety contract regressions |
 | `assistant` | 6 weather/transit, cost/FX, provider-unavailable, single-intent, and ambiguous follow-up cases |
+| `bfcl-product` | 60 BFCL-derived product cases covering active no-call, missing arguments, and multi-turn decisions |
 | `primitive-orig30` | The upstream `agent_cases_orig30` 30-case pinned snapshot (legacy name `primitive` still accepted) |
 | `primitive-feedback30` | The curated 30 cases from the upstream `agent_cases_feedback` at the same commit |
 

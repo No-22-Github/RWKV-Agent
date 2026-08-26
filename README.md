@@ -24,7 +24,7 @@
 - Agent：工作区只读工具、`calculator`/`data_query`/`datetime`、可选 Brave/Tavily Web 与 `spawn_agents` 子代理
 - 远程：`rwkv_lightning` 原生续写；OpenAI-compatible Chat Completions（可选 build tag）
 - 桌面 App：Wails V3 + React + Material Design 3，持久会话、工具轨迹、Web 重试
-- 评测：5 个内置 suite + 可复现 trace 产物
+- 评测：6 个内置 suite + 可复现 trace 产物
 
 第一次使用请直接看 [macOS 从零上手](docs/getting-started-macos.md)。
 
@@ -136,7 +136,7 @@ dist/
 rwkv-cli convert --input <RWKV .pth> --output <MLX model directory>
 rwkv-cli run --model <RWKV .pth or MLX directory> [--prompt <text> | --session <bundle>]
 rwkv-cli agent --model <path or remote model ID> [--prompt <task>] [--ui auto|tui|plain]
-rwkv-cli agent-eval --model <path or remote model ID> [--suite boundary|smoke|assistant|primitive-orig30|primitive-feedback30]
+rwkv-cli agent-eval --model <path or remote model ID> [--suite boundary|smoke|assistant|bfcl-product|primitive-orig30|primitive-feedback30]
 rwkv-cli concurrent --model <RWKV .pth or MLX directory> [--concurrency 1..8]
 rwkv-cli bench --model <RWKV .pth or MLX directory> [--concurrency 1..8]
 ```
@@ -455,6 +455,7 @@ go test -tags chatcompletions ./internal/continuation/chatcompletions \
 | `boundary`（默认） | 18 个从 [marty1885/primitive-bench](https://github.com/marty1885/primitive-bench) 只读任务改造的 case |
 | `smoke` | 10 个协议与安全契约回归 |
 | `assistant` | 6 个天气/交通、开销/汇率、Provider 不可用、单意图与歧义追问 |
+| `bfcl-product` | 60 个从 BFCL 语义转化的产品题：主动不调用、缺参追问与多轮决策 |
 | `primitive-orig30` | 上游 `agent_cases_orig30` 的 30-case 固定快照（旧名 `primitive` 仍可用） |
 | `primitive-feedback30` | 同一上游 commit 的 `agent_cases_feedback` 精选 30 题 |
 
