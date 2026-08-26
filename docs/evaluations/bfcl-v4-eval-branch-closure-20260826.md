@@ -96,23 +96,72 @@ E9 说明原生 FC 路径可以运行并接受官方 partial evaluator 检验；
 | BFCL JSON anchor、`finish_task`、`no_tool` | 不直接进入产品协议；先做单因子 A/B |
 | wire-compat parser | 只记录可恢复量；不能把 repaired 输出算作原始协议成功 |
 
-## 6. 归档与发布状态
+## 6. 归档清单与发布状态
+
+### 6.1 源码边界
+
+2026-08-26 收口审计时的精确边界如下：
+
+| 项目 | 值 | 状态 |
+| --- | --- | --- |
+| 本地及远端 `main` | `351c140099b815673d3fe579abb86ccf3ba56a37` | 同步 |
+| BFCL 实现快照 | `d0e82237484e0cd5146f847d1f84d6d7170e8e6f` | 工作区在审计开始时干净 |
+| 相对 `main` | 36 commits | 不整分支合并 |
+| 远端同名分支 | `1cb107a` | 本地 ahead 20，尚未发布 |
+| annotated archive tag | 无 | 建议在最终纯文档 closure commit 上创建，尚未执行 |
+
+`d0e8223` 已完成 G2：正式 eval 现在分别记录主动 no-call、route fail-closed、普通 final、
+tool-like extraction failure 和兼容修复；case schema v4 可显式要求 `require_active_no_call`
+与 `forbid_route_fallback`。旧 case 未声明新门槛时，`task_success` 口径保持不变。
+
+### 6.2 仓库内 compact archive
 
 当前已提交的 E8 小型机器可读归档位于
 [`archive/bfcl-v4-e8-qwen-enhanced-base-20260822/`](../../archive/bfcl-v4-e8-qwen-enhanced-base-20260822/)。
-仓库外完整 run 和 `rwkv-abstention-lab` 仍以各自 manifest、路径和 SHA-256 清单保存。
+本次重新计算得到：
+
+| 文件 | SHA-256 |
+| --- | --- |
+| `archive.json` | `0ab6f4988e04afc04860a90c53cfce830f66f25c743c06efd2ddda5a93484b4b` |
+| `official-score-summary.json` | `1195828b2747ff3a9a2bd0492ab425336731569f8f86441553f37544a810f476` |
+| `result.jsonl` | `499ce416c15262d08801a89038258a29aec862681759e2e1584a5d06fb87d87e` |
+| `data_multi_turn.csv` | `be84deaa6acbc515e98f6b04eea0f34f0cba691034ddbfc58846ea688a8cd058` |
+| `README.md` | `0f55e4a0519d1ed08d81d8e00458ebc9c802da233115e9fed5b747479a4f6ebf` |
+
+其中 `result.jsonl` 与 `data_multi_turn.csv` 的重算值分别匹配 `archive.json` 内的
+`result_sha256` 和官方 score artifact hash。仓库外完整 run 和 `rwkv-abstention-lab` 仍以
+各自 manifest、路径和 SHA-256 清单保存，不能用本 compact archive 代替其完整 provenance。
 
 分支 push、annotated archive tag 以及回到 `main` 都是后续显式发布步骤；本文完成并不代表这些
 远端动作已经执行。正式引用某个 run 时仍须检查其源码 commit、`repo_dirty`、binary hash、
 manifest 和原始/归档哈希是否一致。
 
-## 7. 收口后的下一步
+## 7. 精选迁移的可移植性实测
 
-1. 先让正式 Agent eval 区分主动 `respond`、普通 final、route fail-closed、tool-like parse
-   failure 和 Harness repair。
-2. 再用 schema-only trap tools 导入 BFCL `irrelevance`，分别跑 router-off decision suite 与
+在从本地 `main@351c140` 创建的临时 detached worktree 中做了不提交、不保留的移植验证；
+主工作树和 `main` 引用均未改变。
+
+| 候选 | 实测结果 | 迁移决定 |
+| --- | --- | --- |
+| `d603749 docs(eval): reconcile BFCL and abstention conclusions` | 直接 cherry-pick 会在 `INDEX.md`、`docs/README.md` 和 main 不存在的 BFCL 专项报告上冲突 | 不整提交迁移；在 main 单独整理一份无断链的综合结论 |
+| `1d2e1a6 fix(agent): make route prompt framing explicit and reproducible` | 可直接应用到 `main@351c140`；`internal/agent` 与 `internal/agent/eval` 测试通过 | 第一个 focused 代码迁移 |
+| `d0e8223 feat(eval): classify active abstention and protocol failures` | 在 `1d2e1a6` 之后可直接应用；case/run schema 与内置 case 同步 | 第二个 focused 代码迁移 |
+| `ef8b99a fix(agent): tolerate prose and think blocks before the route envelope` | 未进入本轮 main 移植序列 | 留到产品题库上的 route parser 单因子 A/B |
+
+顺序应用 `1d2e1a6`、`d0e8223` 后，临时 main worktree 的 `git diff --cached --check` 和
+`go test ./...` 全部通过；只有现有 macOS linker deployment-target warning。这个验证只证明
+补丁与本地 main 基线兼容，不代表已经切换、提交或发布 main。
+
+## 8. 收口后的执行顺序
+
+1. 当前分支只再形成一个更新本文的纯文档 closure commit，并审阅完整分支状态。
+2. 得到明确发布指令后，push 同名分支，并在最终 closure commit 上创建 annotated archive tag；
+   推荐 tag 名为 `archive/bfcl-v4-ab-20260826`。
+3. 切回 main 前先 fetch，确认本地/远端 main 仍可 fast-forward；然后按顺序迁移 `1d2e1a6`、
+   `d0e8223`，综合结论文档按 main 的实际文档树重新整理，不 cherry-pick `d603749`。
+4. main 上的下一项功能是 schema-only probe tools；随后分别建立 router-off decision suite 与
    router-on route suite。
-3. 加入“缺 required 参数应追问 / 补齐后应调用”的成对题。
-4. 每个 Harness 行为改动单独 A/B；保留正样本、解析有效率、延迟和调用成本护栏。
+5. 再加入 BFCL `irrelevance` 分层回归、缺 required 参数的正反配对题和三种多轮决策形状。
+6. 每个 Harness 行为改动单独 A/B；保留正样本、解析有效率、延迟和调用成本护栏。
 
 在这些产品协议证据出现前，lab 的最佳输出偏好只作为候选因子，不作为新的产品默认行为。

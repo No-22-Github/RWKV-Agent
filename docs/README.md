@@ -25,7 +25,7 @@
 
 | 文档 | 说明 |
 | --- | --- |
-| [evaluations/bfcl-v4-eval-branch-closure-20260826.md](evaluations/bfcl-v4-eval-branch-closure-20260826.md) | BFCL 分支当前结论入口：E8/E9、abstention lab 勘误、评分边界与迁移范围 |
+| [evaluations/bfcl-v4-eval-branch-closure-20260826.md](evaluations/bfcl-v4-eval-branch-closure-20260826.md) | BFCL 分支收口入口：E8/E9、lab 勘误、归档哈希、评分边界与 main 迁移验证 |
 | [evaluations/primitive-bench-v12-baseline-2026-08-13.md](evaluations/primitive-bench-v12-baseline-2026-08-13.md) | Primitive Bench v12 基线，以及 v13–v21 演进、失败分类与政策记录 |
 | [evaluations/api-13b-evaluation-report-20260803.md](evaluations/api-13b-evaluation-report-20260803.md) | RWKV G1I 13B Harness 实测问题报告（2026-08-03） |
 | [evaluations/api-13b-v8-evaluation-report-20260805.md](evaluations/api-13b-v8-evaluation-report-20260805.md) | RWKV 13.3B 20260805 Harness 评测（v8 profile） |

@@ -80,7 +80,7 @@
 
 | 文档或证据 | 结论定位 |
 | --- | --- |
-| [`docs/evaluations/bfcl-v4-eval-branch-closure-20260826.md`](docs/evaluations/bfcl-v4-eval-branch-closure-20260826.md) | 当前 BFCL 分支结论入口：统一 E8/E9、7.2b abstention lab 勘误、评分分母和产品迁移边界 |
+| [`docs/evaluations/bfcl-v4-eval-branch-closure-20260826.md`](docs/evaluations/bfcl-v4-eval-branch-closure-20260826.md) | BFCL 分支收口入口：统一 E8/E9 与 7.2b lab 勘误，冻结源码/归档哈希，并记录 focused commit 的 main 可移植性 |
 | [`docs/evaluations/bfcl-v4-run-log.md`](docs/evaluations/bfcl-v4-run-log.md) | BFCL 的主跑分日志和正式评分总表；新增运行统一追加到这里 |
 | [`docs/evaluations/bfcl-v4-ab-m0.md`](docs/evaluations/bfcl-v4-ab-m0.md) | M0 数据、evaluator 和本地判分入口预热 |
 | [`docs/evaluations/bfcl-v4-m2.5-wire-compat-20260818.md`](docs/evaluations/bfcl-v4-m2.5-wire-compat-20260818.md) | 同一批 400 条输出的离线兼容重解析：strict 28.75%，compat 91.25%；不是新模型跑分，二者不能互相替代 |
