@@ -5,7 +5,7 @@
 > [`README.en.md`](README.en.md)。`docs/` 内部的逐文件索引见
 > [`docs/README.md`](docs/README.md)。
 >
-> 最后更新：2026-08-22
+> 最后更新：2026-08-26
 
 ## 快速定位
 
@@ -80,15 +80,16 @@
 
 | 文档或证据 | 结论定位 |
 | --- | --- |
+| [`docs/evaluations/bfcl-v4-eval-branch-closure-20260826.md`](docs/evaluations/bfcl-v4-eval-branch-closure-20260826.md) | 当前 BFCL 分支结论入口：统一 E8/E9、7.2b abstention lab 勘误、评分分母和产品迁移边界 |
 | [`docs/evaluations/bfcl-v4-run-log.md`](docs/evaluations/bfcl-v4-run-log.md) | BFCL 的主跑分日志和正式评分总表；新增运行统一追加到这里 |
 | [`docs/evaluations/bfcl-v4-ab-m0.md`](docs/evaluations/bfcl-v4-ab-m0.md) | M0 数据、evaluator 和本地判分入口预热 |
 | [`docs/evaluations/bfcl-v4-m2.5-wire-compat-20260818.md`](docs/evaluations/bfcl-v4-m2.5-wire-compat-20260818.md) | 同一批 400 条输出的离线兼容重解析：strict 28.75%，compat 91.25%；不是新模型跑分，二者不能互相替代 |
 | [`docs/evaluations/bfcl-v4-determinism-concurrency-20260820.md`](docs/evaluations/bfcl-v4-determinism-concurrency-20260820.md) | 确定性归因：并发不是原因（c16 对 c48 p=1.000），thinking 拉长解码是主因，批处理有无是次因；含对 08-19 两处表述的修正 |
-| [`docs/evaluations/rwkv-g1i-toolcall-abstention-defect-20260820.md`](docs/evaluations/rwkv-g1i-toolcall-abstention-defect-20260820.md) | 模型侧反馈：预填锚点后 g1i 7.2b/13.3b 均无法弃权（三种出口 0/240，13.3b 负样本 0.83%）；`arguments` 字符串化为尺寸相关污染；13.3b 无锚点时保留弃权判断（79% vs 17%） |
+| [`docs/evaluations/rwkv-g1i-toolcall-abstention-defect-20260820.md`](docs/evaluations/rwkv-g1i-toolcall-abstention-defect-20260820.md) | 历史诊断，核心“预填后必然无法弃权”已被 2026-08-25 的 7.2b 复测修正；13.3b 未复测，现行解释以分支收口说明为准 |
 | [`docs/evaluations/bfcl-v4-anchor-position-20260820.md`](docs/evaluations/bfcl-v4-anchor-position-20260820.md) | 小优化：锚点延长到 `{"name":"`（并行用 `[{"name":"`），non-live 1000 题 strict 51.10% → 88.90%，超过带兜底的 88.00% |
 | [`docs/evaluations/bfcl-v4-multi-turn-e4-e7-20260821.md`](docs/evaluations/bfcl-v4-multi-turn-e4-e7-20260821.md) | Multi-turn E4–E7：上游判分语义、800 题上下文可行集、sidecar GT 100% 门禁与双模型单题闭环 |
 | [`docs/evaluations/bfcl-v4-e8-qwen-enhanced-base-20260822.md`](docs/evaluations/bfcl-v4-e8-qwen-enhanced-base-20260822.md) | E8 Qwen enhanced `multi_turn_base`：57/200，含 baseline 对照、失败迁移、干预事件与冻结归档 |
-| [`docs/evaluations/bfcl-v4-run-log.md`](docs/evaluations/bfcl-v4-run-log.md)（E9 条目）| E9 原生 FC 多轮校准：Qwen 作校准仪，native no-think 23.5% / thinking 子集 35.3% 对齐官方 Base 50.5%；RWKV baseline 4.5%、enhanced 路由协议不适用；turn seam 设计见多轮状态文档 §8 |
+| [`docs/evaluations/bfcl-v4-run-log.md`](docs/evaluations/bfcl-v4-run-log.md)（E9 条目）| E9 原生 FC 多轮诊断：Qwen no-think 47/200 = 23.5%；thinking 主结果 18/60 = 30.0%，18/51 仅为条件指标；reasoning history 修复并同池重跑前不量化增益 |
 | [`archive/bfcl-v4-e8-qwen-enhanced-base-20260822/README.md`](archive/bfcl-v4-e8-qwen-enhanced-base-20260822/README.md) | E8 Qwen enhanced 的 200 条合并结果、机器可读汇总、官方分数摘要与哈希 |
 | [`docs/evaluations/bfcl-v4-qwen-native-fc-alignment-20260819.md`](docs/evaluations/bfcl-v4-qwen-native-fc-alignment-20260819.md) | Qwen3-8B 原生 FC 全量与公开榜单逐 split 对齐；用作管道体检，不是本项目成绩 |
 | [`docs/evaluations/bfcl-v4-qwen-markdown-baseline-full-20260819.md`](docs/evaluations/bfcl-v4-qwen-markdown-baseline-full-20260819.md) | Markdown baseline 全量诊断；负样本分受 prompt 预填影响，不代表模型拒调能力 |

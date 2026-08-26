@@ -131,7 +131,7 @@ parallel / parallel_multiple  →  Assistant: ```json\n[{"name":"
 
 ## 限制
 
-- **这是 harness 侧的约束补偿，不是模型缺陷被修复。** 模型「把 `arguments` 写成转义字符串」的倾向仍然存在，在模型自主开标签（不预填）的场景下会复现。数据侧的成因仍需排查，见 [`rwkv-g1i-toolcall-abstention-defect-20260820.md`](rwkv-g1i-toolcall-abstention-defect-20260820.md) 附带发现一。
+- **这是 harness 侧的约束补偿，不是模型缺陷被修复。** 模型「把 `arguments` 写成转义字符串」的倾向仍然存在，且后续 7.2b lab 证明它会随锚点精确空格发生大幅切换。旧报告保留为历史诊断；当前勘误和迁移边界见 [`bfcl-v4-eval-branch-closure-20260826.md`](bfcl-v4-eval-branch-closure-20260826.md)。
 - **只测了 7.2b、只测了 non-live 四个 split（1000 题）。** 全部 `live_*` 未测；`live_multiple` 最多 37 个工具，长工具表下行为未知。13.3b 未测，其 Markdown 下字符串化本就为 0/400，预期收益小。
 - **负样本预期变差且未测。** `{"name":"` 的约束强于围栏，弃权只会更难；`irrelevance` / `live_irrelevance` 本轮未跑。该改动是用负样本换正样本与零兜底，方向明确但幅度未量化。
 - 表中 `none` 列的 strict 值即 M2 基线口径；`现状+兜底` 列为 `rwkv-wire-compat-v1`。两列与新锚点列使用同一批渲染字节，仅锚点后缀不同。

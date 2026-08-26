@@ -127,9 +127,9 @@ RWKV 在 `fence`/`array` 的失败是 C1 记录的 `arguments` 字符串化缺�
 | Qwen enhanced (wrapped) | ✅ 200/200，**57/200 = 28.50%**；已评分归档 |
 | RWKV baseline (wrapped) | ✅ 200/200，**9/200 = 4.50%**（8 个远端超时已删-重跑补齐） |
 | RWKV enhanced (wrapped) | ❌ **路由协议不适用，不出分**（见下） |
-| **Qwen native-FC (E9)** | ✅ no-think 200/200 = **23.50%**；thinking 60 题子集干净 51 = **35.29%** |
+| **Qwen native-FC (E9)** | ✅ no-think 47/200 = **23.50%**；thinking 预选 60 题主结果 **18/60 = 30.00%**（18/51 = 35.29% 仅为条件完成样本） |
 
-**口径重定（重要）：** wrapped/anchor 档是为 RWKV（无原生 FC）设计的协议，Qwen 在其中被迫非原生运行，其分（19/28.5%）**不可与官方对齐**。E9 新增原生 FC 路径后，Qwen 的**头条数是 native 23.5%（no-think）/ 35.3%（thinking 子集）**，对齐官方 Base 50.5% 口径；wrapped 档降级为「同输出契约下的系统诊断」。详见 run-log 的 E9 条目与 §8。
+**口径重定（重要）：** wrapped/anchor 档是为 RWKV（无原生 FC）设计的协议，Qwen 在其中被迫非原生运行，其分（19/28.5%）**不可与官方对齐**。E9 的头条数是 native no-think 23.5% 和 thinking 原始 60 题分母 30.0%；后者题池不同且 reasoning history 未完整回放，不能量化 thinking 增益，也不能声称已对齐官方 Base 50.5%。wrapped 档继续只作「同输出契约下的系统诊断」。详见 run-log 的 E9 条目与收口说明。
 
 RWKV enhanced 首跑 200/200 全 `route_respond`、0.00%——根因是 `G1IProgressiveToolRouteProtocol` 严格前缀解析拒绝了 RWKV 的前置散文 + 未闭合标签。修 parser（容忍散文/think、定位匹配）+ route 预算 48→256 重跑后**仍全 respond**：1468 个路由生成仅 257 含标签，其余为未闭合标签或协议幻觉。**结论：g1i-7.2b 无法稳定遵循渐进路由协议**，这是有价值的负面结论，不凑分数。parser 修复保留（真 bug）。
 
@@ -188,7 +188,7 @@ bash /tmp/e8score.sh runs/bfcl-mt/<cell-dir> multi_turn_base
 1. **thinking 静默 0 分**：thinking on 时推理块吃光 `--max-tokens`，轮次截断为空 tool_calls，被读成「自然终结」→ 静默判 0。防护：native 拒绝 `--chat-template-thinking auto`（必须显式 on/off）；运行期截断守卫记录 `finish_reason`，`length`+无 calls 计为该失败轮次（对齐官方，不剔除）；thinking on 需 `--max-tokens >= 4096`（实测 8192 仍有尾部发散，用 12288）。
 2. **turn-end 空 assistant 消息**：Qwen 终结轮返回空 content + 空 tool_calls，回放成空 assistant 消息会被 API 拒（`assistant message requires content or tool_calls`）。native 消息映射跳过这类空条目。
 3. **名字消歧**：native tools 把 `.`→`_`（OpenAI 不允许点号），执行前用 names 映射还原；multi_turn 名多为扁平，但含点名必须透传。
-4. **FP8 下思考发散**：60 题里 9 个超时/截断，按基础设施口径剔除分母。
+4. **thinking 运行失败必须拆开记录**：预选 60 题中 9 个 case 出现 `context deadline exceeded`，另有 9 个 case 出现 `finish_reason=length`，5 个重合。头条分母保留 60；18/51 只能作为条件完成样本指标，`length` 不得作为基础设施失败剔除。
 
 ### 路由 parser 修复（enhanced 副产物）
 

@@ -25,6 +25,7 @@
 
 | 文档 | 说明 |
 | --- | --- |
+| [evaluations/bfcl-v4-eval-branch-closure-20260826.md](evaluations/bfcl-v4-eval-branch-closure-20260826.md) | BFCL 分支当前结论入口：E8/E9、abstention lab 勘误、评分边界与迁移范围 |
 | [evaluations/primitive-bench-v12-baseline-2026-08-13.md](evaluations/primitive-bench-v12-baseline-2026-08-13.md) | Primitive Bench v12 基线，以及 v13–v21 演进、失败分类与政策记录 |
 | [evaluations/api-13b-evaluation-report-20260803.md](evaluations/api-13b-evaluation-report-20260803.md) | RWKV G1I 13B Harness 实测问题报告（2026-08-03） |
 | [evaluations/api-13b-v8-evaluation-report-20260805.md](evaluations/api-13b-v8-evaluation-report-20260805.md) | RWKV 13.3B 20260805 Harness 评测（v8 profile） |
@@ -37,7 +38,7 @@
 | [evaluations/bfcl-v4-qwen-native-fc-alignment-20260819.md](evaluations/bfcl-v4-qwen-native-fc-alignment-20260819.md) | 原生 FC 全量与公开榜单逐 split 对齐 |
 | [evaluations/bfcl-v4-m3-sampling-20260819.md](evaluations/bfcl-v4-m3-sampling-20260819.md) | M3 抽样冻结、代表性诊断与 manifest v2 |
 | [evaluations/bfcl-v4-determinism-concurrency-20260820.md](evaluations/bfcl-v4-determinism-concurrency-20260820.md) | 确定性归因：并发不是原因，解码长度是 |
-| [evaluations/rwkv-g1i-toolcall-abstention-defect-20260820.md](evaluations/rwkv-g1i-toolcall-abstention-defect-20260820.md) | g1i 7.2b/13.3b 弃权缺陷、`arguments` 污染与训练数据污染的模型侧反馈 |
+| [evaluations/rwkv-g1i-toolcall-abstention-defect-20260820.md](evaluations/rwkv-g1i-toolcall-abstention-defect-20260820.md) | 历史弃权诊断；核心全称结论已被 7.2b 复测修正，13.3b 未复测 |
 | [evaluations/bfcl-v4-anchor-position-20260820.md](evaluations/bfcl-v4-anchor-position-20260820.md) | 预填锚点位置：strict 51.10% → 88.90%，兜底增益可被锚点位置替代 |
 | [evaluations/bfcl-v4-multi-turn-e4-e7-20260821.md](evaluations/bfcl-v4-multi-turn-e4-e7-20260821.md) | BFCL multi-turn E4–E7：上游核对、800 题上下文普查、sidecar GT 门禁与单题闭环 |
 | [evaluations/bfcl-v4-e8-qwen-enhanced-base-20260822.md](evaluations/bfcl-v4-e8-qwen-enhanced-base-20260822.md) | BFCL E8 Qwen enhanced：`multi_turn_base` 57/200、失败迁移与冻结归档 |

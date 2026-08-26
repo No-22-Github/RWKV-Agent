@@ -39,7 +39,7 @@
 | 日期 | Run | 比较组 | 模型 | Split | 正确/总数 | 准确率 | 并发 | 解析失败 | 耗时 |
 |---|---|---|---|---|---:|---:|---:|---:|---:|
 | 2026-08-22 | `native-qwen-base-cal-20260822` | `E9-native-fc-multi-turn` | Qwen3-8B-FP8 | `multi_turn_base` | **47/200** | **23.50%** | 16 | 0（原生无文本解析）| 见专项文档 |
-| 2026-08-22 | `local-qwen-think-subset60-20260822` | `E9-native-fc-multi-turn` | Qwen3-8B-FP8（thinking on）| `multi_turn_base` 子集 | 18/51（干净）| **35.29%** | 8 | 9 个 case 超时/思考截断（剔除）| 见专项文档 |
+| 2026-08-22 | `local-qwen-think-subset60-20260822` | `E9-native-fc-multi-turn` | Qwen3-8B-FP8（thinking on）| `multi_turn_base` 预选 60 题 | **18/60** | **30.00%** | 8 | 9 个 deadline case；另有 9 个 `length` case，5 个重合 | 18/51 = 35.29% 仅为条件完成样本指标 |
 | 2026-08-22 | `rwkv-baseline-mt-base-20260822` | `E8-multi-turn-base` | RWKV7 G1i 7.2B | `multi_turn_base` | **9/200** | **4.50%** | 8（批量 50ms）| 12 个 parse-error 轮次 | 约 90 分钟；8 个远端超时已删-重跑补齐 |
 | 2026-08-22 | `e8-qwen-enhanced-multi_turn_base-20260821` | `E8-multi-turn-base` | Qwen3-8B-FP8 | `multi_turn_base` | **57/200** | **28.50%** | 16 个独立 case 进程 | 7 个 parse-error 轮次 | 3309.00s 逐题 latency 合计 |
 | 2026-08-21 | `e8-qwen-baseline-multi_turn_base-20260821` | `E8-multi-turn-base` | Qwen3-8B-FP8 | `multi_turn_base` | 38/200 | 19.00% | 16 个独立 case 进程 | 147 个 parse-error 轮次 | 见专项状态文档 |
@@ -80,15 +80,15 @@ BFCL 有 Qwen3-8B 的公开分、没有 RWKV 的。因此整条多轮链路（�
 | 档位 | 正确/总数 | Base 准确率 | 说明 |
 |---|---:|---:|---|
 | native no-think（全 200）| 47/200 | **23.50%** | greedy、thinking disabled、max-tokens 1024 |
-| native thinking（60 题子集，剔除 9 个基础设施失败）| 18/51 | **35.29%** | thinking enabled、max-tokens 12288；含分母剔除口径 |
+| native thinking（预选 60 题）| **18/60** | **30.00%** | thinking enabled、max-tokens 12288；18/51 = 35.29% 仅为剔除 9 个 deadline case 后的条件指标 |
 
-- **校准结论：链路可信。** 单轮 native 早已精确复现官方（M1：non-live 87.85 vs 官方 87.58；live 80.01 vs 80.53，均 <1pp）。多轮 no-think 23.5% 落在公开资料「base 8B 多轮 ~10–22%」区间顶端，未见异常。
-- **思考是主因，符合预期。** 开思考把 Base 从 23.5 → 35.3（+11.8pp），方向与量级都指向「官方 50.5 靠思考」。剩余 ~15pp 归 **FP8 量化 +（次要）evaluator/data 版本偏移**：FP8 下思考易发散——60 题里 9 个 case 超时或思考截断（`finish_reason=length` 无 tool_calls），按基础设施口径剔除。
-- **thinking 子集是方向性校准点，不是终值**（60 题、FP8、剔除 9 个失败）。它回答的是「思考补不补得上」——补了大半、剩下归量化，不追求跑满 200 对齐小数点。
+- **实现诊断：原生链路可运行。** 单轮 native 曾与官方量级接近；多轮原生路径也能完成生成、执行和官方 partial evaluator 判分。但 no-think 47/200 仍明显低于所引公开 Base 50.5%，因此这里只能称实现闭环，不能称官方校准闭合。
+- **thinking 主结果是 18/60 = 30.00%。** 9 个 `context deadline exceeded` 没有预先冻结排除规则，必须保留在头条分母；18/51 = 35.29% 只作条件完成样本指标。另有 9 个 case 出现 `finish_reason=length`，其中 5 个与 deadline case 重合；`length` 属于既定预算下的模型收敛失败，不得剔除。
+- **停止 reasoning 因果归因。** no-think 为全 200、thinking 为预选 60，且 native 多轮历史没有保存并回放 `ReasoningContent`。修复历史回放并用同一冻结题池重跑前，不报告 thinking 增益，也不把与公开分的剩余差距归因给 FP8。
 
 ### 冻结项与边界
 
-- 生成二进制 SHA-256：`87050c2f136f9395e1560898c25605c2fb8ad1f22fa4819ee101b679ad4739e4`；源码基点 `f5e62b9`（工作树 dirty，含 turn seam + 路由 parser 修复）。
+- 文档曾记录生成二进制 SHA-256 `87050c2f136f9395e1560898c25605c2fb8ad1f22fa4819ee101b679ad4739e4`；原始 no-think/thinking run 的 manifest 记录了不同 binary hash，且运行时 `repo_dirty: true`。正式复现必须以各 run 自身 manifest 为准，不能用此单一摘要 hash 代替。
 - transport `chat-completions-native-fc`，`PromptNativeChat`；tools 由单轮 native 同款 `openAISchema` 改写（dict→object 等），名字 `.`→`_` 消歧、执行前还原。
 - **thinking 必须显式指定**：native 路径拒绝 `auto`（模板默认静默开思考，小 max-tokens 下推理块吃光预算、轮次静默截断为空 tool_calls，静默判 0）。运行期截断守卫记录 `finish_reason`，`length`+无 calls 计为该失败轮次（对齐官方，不剔除；仅超时/基础设施失败剔除分母）。
 - 本地产物：`runs/bfcl-mt/native-qwen-base-cal-20260822`、`runs/bfcl-mt/local-qwen-think-subset60-20260822`。
@@ -101,7 +101,7 @@ BFCL 有 Qwen3-8B 的公开分、没有 RWKV 的。因此整条多轮链路（�
 - `rwkv-baseline-mt-base-20260822`，`multi_turn_base` 全 200 题，wrapped continuation + object anchor + finish_task，并发 8、批量 50ms。
 - 官方 **9/200 = 4.50%**。轮次出口：`finish_task` 606、`step_limit` 116、`parse_error` 12。
 - 8 个远端 `context deadline exceeded`（基础设施失败）已删-重跑补齐，最终 0 基础设施失败。
-- 低分与既有证据一脉相承：g1i-7.2b 的弃权/规划缺陷（见 `rwkv-g1i-toolcall-abstention-defect`）在多轮下累积。对照 native Qwen 23.5%——**RWKV 多轮确实很弱，低分是诚实结果，不是判分错误**。
+- 4.50% 是该 wrapped continuation + object anchor + `finish_task` 系统的有效结果；它显示当前系统在多轮上很弱，但不能再用已被复测修正的“预填后必然无法弃权”解释全部差距。弃权输出偏好的最新结论与产品边界见 [`bfcl-v4-eval-branch-closure-20260826.md`](bfcl-v4-eval-branch-closure-20260826.md)。
 
 ### RWKV enhanced（路由协议不适用，不出分）
 
