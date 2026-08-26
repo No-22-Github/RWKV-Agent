@@ -26,6 +26,18 @@ jobs:
           go-version-file: go.mod
           cache: true
 
+      - name: Checkout pinned BFCL data
+        uses: actions/checkout@v7
+        with:
+          repository: ShishirPatil/gorilla
+          ref: 6ea57973c7a6097fd7c5915698c54c17c5b1b6c8
+          path: third_party/gorilla
+          sparse-checkout: berkeley-function-call-leaderboard/bfcl_eval/data
+          sparse-checkout-cone-mode: true
+
+      - name: Verify BFCL data revision
+        run: test "$(git -C third_party/gorilla rev-parse HEAD)" = "6ea57973c7a6097fd7c5915698c54c17c5b1b6c8"
+
       # API, library and CLI packages are pure Go and do not import Wails, so
       # they run with the race detector (cgo enabled) without needing GTK.
       - name: Test library and CLI packages (race)
