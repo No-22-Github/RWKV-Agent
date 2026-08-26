@@ -11,7 +11,7 @@
 ## 当前状态
 
 - **可用**：Apple Silicon macOS 15+ 源码构建 —— CLI/TUI、Wails V3 桌面 App、headless server。
-- **实验性**：只读 Agent 框架与评测，当前 Harness 版本为 `rwkv-agent-eval-v17`。
+- **实验性**：只读 Agent 框架与评测，当前 Harness 版本为 `rwkv-agent-eval-v18`。
 - **平台**：Windows 尚无可用入口；Linux 已在 CI 验证 `-tags server` 构建（远程
   provider 场景），本地 MLX 模型与桌面窗口尚未落地。
 - **分发**：技术链路已经可用，公开分发前仍需确认上游授权并选择项目许可证。

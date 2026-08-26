@@ -10,8 +10,9 @@ import (
 )
 
 const (
-	SchemaVersion  = 3
-	HarnessVersion = "rwkv-agent-eval-v17"
+	CaseSchemaVersion = 3
+	RunSchemaVersion  = 4
+	HarnessVersion    = "rwkv-agent-eval-v18"
 
 	PrimitiveProfileUpstream = "upstream-compatible"
 	PrimitiveProfileGoNative = "go-native"
@@ -117,6 +118,7 @@ type HarnessMetadata struct {
 	TerminalTool             string   `json:"terminal_tool,omitempty"`
 	EndOnTerminalTool        bool     `json:"end_on_terminal_tool,omitempty"`
 	ThinkingMode             string   `json:"thinking_mode"`
+	RouteThinkingMode        string   `json:"route_thinking_mode"`
 	Reasoning                bool     `json:"reasoning"`
 	FewShot                  bool     `json:"few_shot"`
 	MaxSteps                 int      `json:"max_steps"`

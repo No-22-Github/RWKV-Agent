@@ -435,6 +435,17 @@ func NewRunner(generator continuation.Generator, tools []Tool, options Options) 
 	if options.Router != nil && options.ToolRouter != nil {
 		return nil, fmt.Errorf("%w: Router and ToolRouter are mutually exclusive", continuation.ErrInvalidRequest)
 	}
+	if options.Router != nil || options.ToolRouter != nil {
+		routeThinkingMode := rendererThinkingMode(options.RouteRenderer)
+		if routeThinkingMode != inference.ThinkingOff {
+			return nil, fmt.Errorf(
+				"%w: route renderer must use thinking mode %q; got %q",
+				continuation.ErrInvalidRequest,
+				inference.ThinkingOff,
+				routeThinkingMode,
+			)
+		}
+	}
 	applyGenerationDefaults(&options.Generation)
 	if options.DecisionMaxOutputTokens == 0 {
 		options.DecisionMaxOutputTokens = 96
@@ -546,6 +557,37 @@ func rendererThinkingMode(renderer PromptRenderer) inference.ThinkingMode {
 	default:
 		return inference.ThinkingOff
 	}
+}
+
+type assistantPrefixAppender interface {
+	appendAssistantPrefix(string, string) (string, bool)
+}
+
+// appendAssistantPrefix is the single framing seam for continuation prefixes.
+// A renderer may reject injection when its final bytes already open another
+// protocol block (for example RWKV full/fast thinking). Renderers without an
+// explicit seam retain the legacy space-separated continuation framing.
+func appendAssistantPrefix(renderer PromptRenderer, prompt, prefix string) (string, bool) {
+	if prefix == "" {
+		return prompt, false
+	}
+	if appender, ok := renderer.(assistantPrefixAppender); ok {
+		return appender.appendAssistantPrefix(prompt, prefix)
+	}
+	return prompt + " " + prefix, true
+}
+
+func appendRequiredAssistantPrefix(renderer PromptRenderer, prompt, prefix string) (string, error) {
+	framed, injected := appendAssistantPrefix(renderer, prompt, prefix)
+	if !injected {
+		return "", fmt.Errorf(
+			"%w: renderer %q cannot safely inject required assistant prefix %q",
+			continuation.ErrInvalidRequest,
+			renderer.ID(),
+			prefix,
+		)
+	}
+	return framed, nil
 }
 
 func applyGenerationDefaults(request *continuation.Request) {
@@ -710,17 +752,11 @@ func (r *Runner) RunWithObserver(
 			successfulToolCalls == 0
 		injectedPrefix := false
 		if assistantPrefix != "" && r.toolCompleter == nil {
-			if renderer, ok := r.renderer.(interface {
-				appendAssistantPrefix(string, string) (string, bool)
-			}); ok {
-				request.Prompt, injectedPrefix = renderer.appendAssistantPrefix(
-					request.Prompt,
-					assistantPrefix,
-				)
-			} else {
-				request.Prompt += " " + assistantPrefix
-				injectedPrefix = true
-			}
+			request.Prompt, injectedPrefix = appendAssistantPrefix(
+				r.renderer,
+				request.Prompt,
+				assistantPrefix,
+			)
 		}
 		var offered []string
 		if stage == StageDecision {
@@ -1651,7 +1687,11 @@ func (r *Runner) decideRoute(
 			return "", steps, err
 		}
 		request := r.options.Generation
-		request.Prompt = rendered + " <route>"
+		request.Prompt, err = appendRequiredAssistantPrefix(r.routeRenderer, rendered, "<route>")
+		if err != nil {
+			r.observe(Event{Kind: EventRouteDone, Err: err}, observer)
+			return "", steps, err
+		}
 		request.Stops = r.router.Stops()
 		request.MaxOutputTokens = r.options.RouteMaxOutputTokens
 		if r.toolCompleter != nil {
@@ -1729,7 +1769,11 @@ func (r *Runner) decideToolRoute(
 			return ToolRouteDecision{}, steps, err
 		}
 		request := r.options.Generation
-		request.Prompt = rendered + " <route>"
+		request.Prompt, err = appendRequiredAssistantPrefix(r.routeRenderer, rendered, "<route>")
+		if err != nil {
+			r.observe(Event{Kind: EventRouteDone, Err: err}, observer)
+			return ToolRouteDecision{}, steps, err
+		}
 		request.Stops = r.toolRouter.Stops()
 		request.MaxOutputTokens = r.options.RouteMaxOutputTokens
 		if r.toolCompleter != nil {

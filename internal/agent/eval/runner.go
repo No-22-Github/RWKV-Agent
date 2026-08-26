@@ -144,13 +144,8 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 	if controlPrompt == "" {
 		controlPrompt = agent.ControlPromptSystem
 	}
-	thinkingMode := inference.ThinkingOff
-	if rwkvRenderer, ok := renderer.(agent.RWKVChatRenderer); ok {
-		thinkingMode = rwkvRenderer.ThinkingMode
-		if thinkingMode == "" && rwkvRenderer.Reasoning {
-			thinkingMode = inference.ThinkingFast
-		}
-	}
+	thinkingMode := evalRendererThinkingMode(renderer)
+	routeThinkingMode := evalRendererThinkingMode(routeRenderer)
 	fewShot := false
 	if g1iProtocol, ok := protocol.(agent.G1IProtocol); ok {
 		fewShot = g1iProtocol.FewShot
@@ -160,15 +155,19 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 	// mode ran, because with no router every turn defaults to the inspect route
 	// and route_accuracy would otherwise credit that default as a decision.
 	routeProtocol := ""
-	if config.Runner.Router != nil {
+	switch {
+	case config.Runner.Router != nil:
 		routeProtocol = config.Runner.Router.ID()
+	case config.Runner.ToolRouter != nil:
+		routeProtocol = config.Runner.ToolRouter.ID()
 	}
+	routeStage := config.Runner.Router != nil || config.Runner.ToolRouter != nil
 	caseIDs := make([]string, len(config.Cases))
 	for index, testCase := range config.Cases {
 		caseIDs[index] = testCase.ID
 	}
 	return RunManifest{
-		SchemaVersion: SchemaVersion,
+		SchemaVersion: RunSchemaVersion,
 		RunID:         runID,
 		Suite:         config.Suite,
 		StartedAt:     started,
@@ -179,12 +178,13 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 			Renderer:                 renderer.ID(),
 			RouteRenderer:            routeRenderer.ID(),
 			RouteProtocol:            routeProtocol,
-			RouteStage:               config.Runner.Router != nil,
+			RouteStage:               routeStage,
 			ControlPrompt:            string(controlPrompt),
 			TaskControl:              config.Runner.TaskControl,
 			TerminalTool:             config.Runner.TerminalTool,
 			EndOnTerminalTool:        config.Runner.EndOnTerminalTool,
 			ThinkingMode:             string(thinkingMode),
+			RouteThinkingMode:        string(routeThinkingMode),
 			Reasoning:                thinkingMode != inference.ThinkingOff,
 			FewShot:                  fewShot,
 			MaxSteps:                 config.Runner.MaxSteps,
@@ -210,6 +210,26 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 		CaseIDs: caseIDs,
 		Cases:   config.Cases,
 	}
+}
+
+func evalRendererThinkingMode(renderer agent.PromptRenderer) inference.ThinkingMode {
+	switch renderer := renderer.(type) {
+	case agent.RWKVChatRenderer:
+		if renderer.ThinkingMode != "" {
+			return renderer.ThinkingMode
+		}
+		if renderer.Reasoning {
+			return inference.ThinkingFast
+		}
+	case *agent.RWKVChatRenderer:
+		if renderer.ThinkingMode != "" {
+			return renderer.ThinkingMode
+		}
+		if renderer.Reasoning {
+			return inference.ThinkingFast
+		}
+	}
+	return inference.ThinkingOff
 }
 
 func runCase(

@@ -40,11 +40,11 @@ func decodeCases(data []byte) ([]Case, error) {
 	if decoder.Decode(&struct{}{}) != io.EOF {
 		return nil, fmt.Errorf("decode cases: trailing JSON value")
 	}
-	if value.SchemaVersion != SchemaVersion {
+	if value.SchemaVersion != CaseSchemaVersion {
 		return nil, fmt.Errorf(
 			"unsupported case schema version %d; expected %d",
 			value.SchemaVersion,
-			SchemaVersion,
+			CaseSchemaVersion,
 		)
 	}
 	if err := ValidateCases(value.Cases); err != nil {

@@ -12,7 +12,7 @@
 ## Current Status
 
 - **Usable**: source builds on Apple Silicon, macOS 15+ — CLI/TUI, the Wails V3 desktop app, and a headless server.
-- **Experimental**: the read-only Agent framework and evaluation harness (`rwkv-agent-eval-v17`).
+- **Experimental**: the read-only Agent framework and evaluation harness (`rwkv-agent-eval-v18`).
 - **Platforms**: Windows has no usable entry point yet. Linux `-tags server` builds are verified in CI (remote-provider scenarios); the local MLX model and desktop window are not available there yet.
 - **Distribution**: the technical packaging chain works, but upstream licenses must be confirmed and a project license chosen before public distribution.
 
