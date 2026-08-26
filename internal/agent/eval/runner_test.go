@@ -322,6 +322,15 @@ func TestRunScoresAndWritesTraceArtifacts(t *testing.T) {
 	assertScore(t, "tool selection", report.Summary.Metrics.ToolSelection, 2, 2)
 	assertScore(t, "argument accuracy", report.Summary.Metrics.ArgumentAccuracy, 1, 1)
 	assertScore(t, "no-call accuracy", report.Summary.Metrics.NoCallAccuracy, 1, 1)
+	assertScore(t, "active no-call", report.Summary.Metrics.ActiveNoCall, 1, 1)
+	assertScore(t, "route protocol validity", report.Summary.Metrics.RouteProtocolValidity, 2, 2)
+	assertScore(t, "decision protocol validity", report.Summary.Metrics.DecisionProtocolValidity, 3, 3)
+	if report.Summary.Cases[0].Turns[0].Outcome != OutcomeExplicitRespond ||
+		report.Summary.Cases[1].Turns[0].Outcome != OutcomeCalledTool ||
+		report.Summary.Metrics.Outcomes[OutcomeExplicitRespond] != 1 ||
+		report.Summary.Metrics.Outcomes[OutcomeCalledTool] != 1 {
+		t.Fatalf("outcomes = %+v", report.Summary.Metrics.Outcomes)
+	}
 	if report.Summary.Metrics.ModelCalls != 5 ||
 		report.Summary.Metrics.ToolCalls != 1 ||
 		report.Summary.Metrics.ToolExecutions != 1 ||
@@ -422,6 +431,8 @@ func TestRunManifestSeparatesDecisionAndRouteThinkingModes(t *testing.T) {
 		},
 	}, "run", time.Unix(0, 0).UTC())
 	if manifest.SchemaVersion != RunSchemaVersion ||
+		manifest.Harness.ScorerVersion != ScorerVersion ||
+		manifest.Harness.OutcomeTaxonomyVersion != OutcomeTaxonomyVersion ||
 		manifest.Harness.ThinkingMode != string(inference.ThinkingFull) ||
 		manifest.Harness.RouteThinkingMode != string(inference.ThinkingOff) ||
 		!manifest.Harness.RouteStage {
@@ -438,6 +449,210 @@ func TestRunManifestSeparatesDecisionAndRouteThinkingModes(t *testing.T) {
 		toolRouteManifest.Harness.RouteProtocol != (agent.G1IProgressiveToolRouteProtocol{}).ID() ||
 		toolRouteManifest.Harness.RouteThinkingMode != string(inference.ThinkingOff) {
 		t.Fatalf("tool route manifest harness = %+v", toolRouteManifest.Harness)
+	}
+}
+
+func TestEvalOutcomeTaxonomyExposesNoCallAndToolParseFailures(t *testing.T) {
+	tests := []struct {
+		name              string
+		script            []continuation.Result
+		router            agent.RouteProtocol
+		expect            Expectation
+		wantOutcome       TurnOutcome
+		wantPassed        bool
+		wantActiveNoCall  Score
+		wantRouteValidity Score
+		wantDecisionValid Score
+		wantFailureClass  agent.ProtocolFailureClass
+	}{
+		{
+			name:   "explicit respond",
+			script: []continuation.Result{generated("respond"), generated("OK")},
+			router: agent.G1IRouteProtocol{},
+			expect: Expectation{
+				Route:               agent.RouteRespond,
+				Tools:               []string{},
+				OutputEquals:        stringPointerForTest("OK"),
+				RequireActiveNoCall: true,
+				ForbidRouteFallback: true,
+			},
+			wantOutcome:       OutcomeExplicitRespond,
+			wantPassed:        true,
+			wantActiveNoCall:  Score{Correct: 1, Total: 1, Rate: 1},
+			wantRouteValidity: Score{Correct: 1, Total: 1, Rate: 1},
+			wantDecisionValid: Score{Correct: 1, Total: 1, Rate: 1},
+		},
+		{
+			name:   "ordinary final",
+			script: []continuation.Result{generated("OK")},
+			expect: Expectation{
+				Tools:               []string{},
+				OutputEquals:        stringPointerForTest("OK"),
+				RequireActiveNoCall: true,
+			},
+			wantOutcome:       OutcomeDirectFinal,
+			wantPassed:        true,
+			wantActiveNoCall:  Score{Correct: 1, Total: 1, Rate: 1},
+			wantDecisionValid: Score{Correct: 1, Total: 1, Rate: 1},
+		},
+		{
+			name:   "route garbage preserves legacy task success",
+			script: []continuation.Result{generated("garbage"), generated("OK")},
+			router: agent.G1IRouteProtocol{},
+			expect: Expectation{
+				Route:        agent.RouteRespond,
+				Tools:        []string{},
+				OutputEquals: stringPointerForTest("OK"),
+			},
+			wantOutcome:       OutcomeRouteFailedClosed,
+			wantPassed:        true,
+			wantActiveNoCall:  Score{Total: 1},
+			wantRouteValidity: Score{Total: 1},
+			wantDecisionValid: Score{Correct: 1, Total: 1, Rate: 1},
+		},
+		{
+			name:              "bare tool JSON",
+			script:            []continuation.Result{generated(`{"name":"read_file","arguments":{"path":"README.md"}}`)},
+			expect:            Expectation{Tools: []string{}},
+			wantOutcome:       OutcomeToolEnvelopeMissing,
+			wantPassed:        false,
+			wantActiveNoCall:  Score{Total: 1},
+			wantDecisionValid: Score{Total: 1},
+			wantFailureClass:  agent.ProtocolFailureToolEnvelopeMissing,
+		},
+		{
+			name:              "damaged tool envelope",
+			script:            []continuation.Result{generated(`<tool_call>{"name":"read_file","arguments":`)},
+			expect:            Expectation{Tools: []string{}},
+			wantOutcome:       OutcomeToolJSONDecodeFailed,
+			wantPassed:        false,
+			wantActiveNoCall:  Score{Total: 1},
+			wantDecisionValid: Score{Total: 1},
+			wantFailureClass:  agent.ProtocolFailureToolJSONDecode,
+		},
+		{
+			name:              "invalid tool shape",
+			script:            []continuation.Result{generated(`<tool_call>{"name":"","arguments":[]}</tool_call>`)},
+			expect:            Expectation{Tools: []string{}},
+			wantOutcome:       OutcomeToolShapeInvalid,
+			wantPassed:        false,
+			wantActiveNoCall:  Score{Total: 1},
+			wantDecisionValid: Score{Total: 1},
+			wantFailureClass:  agent.ProtocolFailureToolShapeInvalid,
+		},
+	}
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			index := 0
+			report, err := Run(context.Background(), Config{
+				Cases: []Case{{
+					ID:          "taxonomy",
+					Description: "Exercise a fixed protocol outcome.",
+					Turns:       []Turn{{Prompt: "respond", Expect: testCase.expect}},
+				}},
+				Runner: agent.Options{
+					MaxSteps:      2,
+					Protocol:      agent.G1IProtocol{},
+					Renderer:      agent.RWKVChatRenderer{},
+					Router:        testCase.router,
+					RouteRenderer: agent.RWKVChatRenderer{},
+					Generation:    continuation.Request{MaxOutputTokens: 64},
+				},
+				GeneratorFactory: func(context.Context) (continuation.Generator, io.Closer, error) {
+					return continuation.GenerateFunc(func(context.Context, continuation.Request, continuation.EventSink) (continuation.Result, error) {
+						if index >= len(testCase.script) {
+							return continuation.Result{}, errors.New("unexpected generation")
+						}
+						result := testCase.script[index]
+						index++
+						return result, nil
+					}), nil, nil
+				},
+				CaseTimeout: time.Second,
+				TempDir:     t.TempDir(),
+			})
+			if err != nil {
+				t.Fatal(err)
+			}
+			turn := report.Summary.Cases[0].Turns[0]
+			if turn.Outcome != testCase.wantOutcome || turn.Passed != testCase.wantPassed {
+				t.Fatalf("turn = %+v", turn)
+			}
+			if report.Summary.Metrics.ActiveNoCall != testCase.wantActiveNoCall ||
+				report.Summary.Metrics.RouteProtocolValidity != testCase.wantRouteValidity ||
+				report.Summary.Metrics.DecisionProtocolValidity != testCase.wantDecisionValid {
+				t.Fatalf("protocol metrics = %+v", report.Summary.Metrics)
+			}
+			if report.Summary.Metrics.Outcomes[testCase.wantOutcome] != 1 {
+				t.Fatalf("outcomes = %+v", report.Summary.Metrics.Outcomes)
+			}
+			if testCase.wantFailureClass != "" &&
+				report.Summary.Metrics.ParseFailuresByClass[testCase.wantFailureClass] != 1 {
+				t.Fatalf("parse failures = %+v", report.Summary.Metrics.ParseFailuresByClass)
+			}
+			if testCase.wantOutcome == OutcomeRouteFailedClosed {
+				strict := testCase.expect
+				strict.RequireActiveNoCall = true
+				strict.ForbidRouteFallback = true
+				failures := validateTurn(strict, turn.Result, nil)
+				if len(failures) != 2 ||
+					!strings.Contains(failures[0], "active no-call") ||
+					!strings.Contains(failures[1], "route fallback") {
+					t.Fatalf("strict no-call failures = %v", failures)
+				}
+			}
+		})
+	}
+}
+
+func TestEvalRepairedOutcomeKeepsOriginalFailureClass(t *testing.T) {
+	script := []continuation.Result{
+		generated(`<read_file path="README.md" />`),
+		generated("OK"),
+	}
+	index := 0
+	report, err := Run(context.Background(), Config{
+		Cases: []Case{{
+			ID:          "repaired",
+			Description: "Record a repaired legacy tool call.",
+			Files:       map[string]string{"README.md": "OK\n"},
+			Turns: []Turn{{
+				Prompt: "Read README.md.",
+				Expect: Expectation{
+					Tools:        []string{"read_file"},
+					OutputEquals: stringPointerForTest("OK"),
+				},
+			}},
+		}},
+		Runner: agent.Options{
+			MaxSteps:   2,
+			Protocol:   agent.G1IProtocol{},
+			Renderer:   agent.RWKVChatRenderer{},
+			Generation: continuation.Request{MaxOutputTokens: 64},
+		},
+		GeneratorFactory: func(context.Context) (continuation.Generator, io.Closer, error) {
+			return continuation.GenerateFunc(func(context.Context, continuation.Request, continuation.EventSink) (continuation.Result, error) {
+				result := script[index]
+				index++
+				return result, nil
+			}), nil, nil
+		},
+		CaseTimeout: time.Second,
+		TempDir:     t.TempDir(),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	turn := report.Summary.Cases[0].Turns[0]
+	if !turn.Passed || turn.Outcome != OutcomeProtocolRepaired {
+		t.Fatalf("turn = %+v", turn)
+	}
+	if got := turn.Result.Steps[0].ProtocolFailure; got != agent.ProtocolFailureToolEnvelopeMissing {
+		t.Fatalf("original failure class = %q", got)
+	}
+	if report.Summary.Metrics.ProtocolRepairs != 1 ||
+		report.Summary.Metrics.ParseFailuresByClass[agent.ProtocolFailureToolEnvelopeMissing] != 1 {
+		t.Fatalf("repair metrics = %+v", report.Summary.Metrics)
 	}
 }
 

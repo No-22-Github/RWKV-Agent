@@ -126,6 +126,43 @@ func TestG1IProtocolParsesVerifiedEnvelopes(t *testing.T) {
 	}
 }
 
+func TestG1IProtocolClassifiesToolExtractionFailures(t *testing.T) {
+	t.Parallel()
+	protocol := G1IProtocol{}
+	tests := []struct {
+		name  string
+		value string
+		want  error
+	}{
+		{
+			name:  "missing envelope",
+			value: `{"name":"read_file","arguments":{"path":"README.md"}}`,
+			want:  ErrToolEnvelopeMissing,
+		},
+		{
+			name:  "damaged JSON",
+			value: `<tool_call>{"name":"read_file","arguments":`,
+			want:  ErrToolJSONDecode,
+		},
+		{
+			name:  "invalid shape",
+			value: `<tool_call>{"name":"","arguments":[]}</tool_call>`,
+			want:  ErrToolShapeInvalid,
+		},
+	}
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			_, err := protocol.Parse(testCase.value, continuation.FinishStop)
+			if !errors.Is(err, testCase.want) {
+				t.Fatalf("parse error = %v, want %v", err, testCase.want)
+			}
+			if ProtocolFailureClassOf(err) == "" {
+				t.Fatalf("parse error has no stable failure class: %v", err)
+			}
+		})
+	}
+}
+
 func TestG1IProtocolRepairsLegacyXMLToolCall(t *testing.T) {
 	t.Parallel()
 	action, err := (G1IProtocol{}).Parse(
@@ -136,6 +173,7 @@ func TestG1IProtocolRepairsLegacyXMLToolCall(t *testing.T) {
 		t.Fatal(err)
 	}
 	if action.Type != "tool" || action.Name != "read_file" || !action.ProtocolRepaired ||
+		action.OriginalProtocolFailure != ProtocolFailureToolEnvelopeMissing ||
 		string(action.Arguments) != `{"path":"/workspace/project-repo.git/README.md"}` {
 		t.Fatalf("legacy XML action = %+v", action)
 	}

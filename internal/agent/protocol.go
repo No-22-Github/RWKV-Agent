@@ -30,14 +30,48 @@ var (
 	ErrUnclosedThink = fmt.Errorf("%w: incomplete leading think block", ErrProtocol)
 	// ErrOutputTokenLimit marks a response truncated by the output budget.
 	ErrOutputTokenLimit = fmt.Errorf("%w: model response reached the output token limit", ErrProtocol)
+	// ErrToolEnvelopeMissing marks tool-like output that omitted the protocol's
+	// required tool-call envelope.
+	ErrToolEnvelopeMissing = fmt.Errorf("%w: tool call envelope missing", ErrProtocol)
+	// ErrToolJSONDecode marks a recognized tool envelope whose JSON payload
+	// could not be decoded.
+	ErrToolJSONDecode = fmt.Errorf("%w: tool call JSON decode failed", ErrProtocol)
+	// ErrToolShapeInvalid marks a decoded tool call with an invalid name or
+	// arguments shape.
+	ErrToolShapeInvalid = fmt.Errorf("%w: tool call shape invalid", ErrProtocol)
 )
 
+type ProtocolFailureClass string
+
+const (
+	ProtocolFailureToolEnvelopeMissing ProtocolFailureClass = "tool_envelope_missing"
+	ProtocolFailureToolJSONDecode      ProtocolFailureClass = "tool_json_decode_failed"
+	ProtocolFailureToolShapeInvalid    ProtocolFailureClass = "tool_shape_invalid"
+)
+
+// ProtocolFailureClassOf returns a stable class only for tool extraction
+// failures. Ordinary final text and unrelated protocol failures remain
+// unclassified rather than being mislabeled as tool-like output.
+func ProtocolFailureClassOf(err error) ProtocolFailureClass {
+	switch {
+	case errors.Is(err, ErrToolEnvelopeMissing):
+		return ProtocolFailureToolEnvelopeMissing
+	case errors.Is(err, ErrToolJSONDecode):
+		return ProtocolFailureToolJSONDecode
+	case errors.Is(err, ErrToolShapeInvalid):
+		return ProtocolFailureToolShapeInvalid
+	default:
+		return ""
+	}
+}
+
 type Action struct {
-	Type             string          `json:"type"`
-	Name             string          `json:"name,omitempty"`
-	Arguments        json.RawMessage `json:"arguments,omitempty"`
-	Content          string          `json:"content,omitempty"`
-	ProtocolRepaired bool            `json:"protocol_repaired,omitempty"`
+	Type                    string               `json:"type"`
+	Name                    string               `json:"name,omitempty"`
+	Arguments               json.RawMessage      `json:"arguments,omitempty"`
+	Content                 string               `json:"content,omitempty"`
+	ProtocolRepaired        bool                 `json:"protocol_repaired,omitempty"`
+	OriginalProtocolFailure ProtocolFailureClass `json:"original_protocol_failure,omitempty"`
 }
 
 type ActionProtocol interface {
@@ -201,7 +235,7 @@ func (G1IProtocol) Parse(value string, finish continuation.FinishReason) (Action
 	if strings.HasPrefix(candidate, toolOpen) {
 		payload, closed := envelopeContent(candidate, toolOpen, toolClose)
 		if !closed && finish != continuation.FinishStop {
-			return Action{}, fmt.Errorf("%w: incomplete G1I tool call envelope", ErrProtocol)
+			return Action{}, fmt.Errorf("%w: incomplete G1I tool call envelope", ErrToolJSONDecode)
 		}
 		var call struct {
 			Name      string          `json:"name"`
@@ -217,7 +251,7 @@ func (G1IProtocol) Parse(value string, finish continuation.FinishReason) (Action
 			var path string
 			if json.Unmarshal([]byte(payload), &object) != nil ||
 				json.Unmarshal(object["path"], &path) != nil || strings.TrimSpace(path) == "" {
-				return Action{}, fmt.Errorf("%w: decode G1I tool call: %v", ErrProtocol, err)
+				return Action{}, fmt.Errorf("%w: decode G1I tool call: %v", ErrToolJSONDecode, err)
 			}
 			call.Name = "read_file"
 			call.Arguments, _ = json.Marshal(map[string]string{"path": path})
@@ -230,9 +264,19 @@ func (G1IProtocol) Parse(value string, finish continuation.FinishReason) (Action
 		if (strictDecoded && decoder.Decode(&struct{}{}) != io.EOF) ||
 			strings.TrimSpace(call.Name) == "" ||
 			!isJSONObject(call.Arguments) {
-			return Action{}, fmt.Errorf("%w: invalid G1I tool call", ErrProtocol)
+			return Action{}, fmt.Errorf("%w: invalid G1I tool call", ErrToolShapeInvalid)
 		}
-		return Action{Type: "tool", Name: call.Name, Arguments: call.Arguments, ProtocolRepaired: protocolRepaired}, nil
+		originalFailure := ProtocolFailureClass("")
+		if protocolRepaired {
+			originalFailure = ProtocolFailureToolShapeInvalid
+		}
+		return Action{
+			Type:                    "tool",
+			Name:                    call.Name,
+			Arguments:               call.Arguments,
+			ProtocolRepaired:        protocolRepaired,
+			OriginalProtocolFailure: originalFailure,
+		}, nil
 	}
 	if strings.HasPrefix(candidate, answerOpen) {
 		content, closed := envelopeContent(candidate, answerOpen, answerClose)
@@ -248,7 +292,7 @@ func (G1IProtocol) Parse(value string, finish continuation.FinishReason) (Action
 		return Action{}, fmt.Errorf("%w: empty model response", ErrProtocol)
 	}
 	if strings.HasPrefix(candidate, toolClose) {
-		return Action{}, fmt.Errorf("%w: unexpected G1I tool call closing tag", ErrProtocol)
+		return Action{}, fmt.Errorf("%w: unexpected G1I tool call closing tag", ErrToolShapeInvalid)
 	}
 	if strings.Contains(candidate, "<tool_calls>") {
 		action, err := (G1IFunctionProtocol{}).Parse(candidate, finish)
@@ -256,13 +300,16 @@ func (G1IProtocol) Parse(value string, finish continuation.FinishReason) (Action
 			return Action{}, err
 		}
 		action.ProtocolRepaired = true
+		if action.OriginalProtocolFailure == "" {
+			action.OriginalProtocolFailure = ProtocolFailureToolEnvelopeMissing
+		}
 		return action, nil
 	}
 	if action, ok := parseLegacyXMLToolCall(candidate); ok {
 		return action, nil
 	}
 	if looksLikeBareToolCall(candidate) {
-		return Action{}, fmt.Errorf("%w: tool call JSON is missing its G1I envelope", ErrProtocol)
+		return Action{}, fmt.Errorf("%w: tool call JSON is missing its G1I envelope", ErrToolEnvelopeMissing)
 	}
 	return Action{Type: "final", Content: candidate}, nil
 }
@@ -322,7 +369,13 @@ func parseLegacyXMLToolCall(value string) (Action, bool) {
 	if err != nil {
 		return Action{}, false
 	}
-	return Action{Type: "tool", Name: start.Name.Local, Arguments: encoded, ProtocolRepaired: true}, true
+	return Action{
+		Type:                    "tool",
+		Name:                    start.Name.Local,
+		Arguments:               encoded,
+		ProtocolRepaired:        true,
+		OriginalProtocolFailure: ProtocolFailureToolEnvelopeMissing,
+	}, true
 }
 
 func envelopeContent(candidate string, open string, close string) (string, bool) {

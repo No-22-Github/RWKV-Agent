@@ -41,7 +41,7 @@ func TestBuiltinCasesValidate(t *testing.T) {
 
 func TestLoadCasesUsesStrictVersionedSchema(t *testing.T) {
 	valid := `{
-		  "schema_version": 3,
+		  "schema_version": 4,
 	  "cases": [{
 	    "id": "read",
 	    "description": "Read a fixture.",
@@ -77,7 +77,7 @@ func TestLoadCasesUsesStrictVersionedSchema(t *testing.T) {
 		t.Fatalf("unknown field error = %v", err)
 	}
 
-	wrongVersion := strings.Replace(valid, `"schema_version": 3`, `"schema_version": 1`, 1)
+	wrongVersion := strings.Replace(valid, `"schema_version": 4`, `"schema_version": 1`, 1)
 	if err := os.WriteFile(path, []byte(wrongVersion), 0o600); err != nil {
 		t.Fatal(err)
 	}
@@ -122,6 +122,29 @@ func TestValidateCasesAcceptsBoundaryExpectations(t *testing.T) {
 	if err := ValidateCases(cases); err == nil ||
 		!strings.Contains(err.Error(), "repeats required tool") {
 		t.Fatalf("duplicate required tool error = %v", err)
+	}
+}
+
+func TestValidateCasesRequiresExactEmptyToolsForActiveNoCall(t *testing.T) {
+	testCase := Case{
+		ID:          "active-no-call",
+		Description: "Require a deliberate no-call decision.",
+		Turns: []Turn{{
+			Prompt: "Ask for missing arguments.",
+			Expect: Expectation{
+				ForbiddenTools:      []string{"read_file"},
+				RequireActiveNoCall: true,
+			},
+		}},
+	}
+	if err := ValidateCases([]Case{testCase}); err == nil ||
+		!strings.Contains(err.Error(), "exact empty list") {
+		t.Fatalf("active no-call validation error = %v", err)
+	}
+	testCase.Turns[0].Expect.Tools = []string{}
+	testCase.Turns[0].Expect.ForbiddenTools = nil
+	if err := ValidateCases([]Case{testCase}); err != nil {
+		t.Fatal(err)
 	}
 }
 

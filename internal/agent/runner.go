@@ -273,6 +273,7 @@ type Step struct {
 	ToolRejected     string                    `json:"tool_rejected_reason,omitempty"`
 	ToolError        string                    `json:"tool_error,omitempty"`
 	ProtocolError    string                    `json:"protocol_error,omitempty"`
+	ProtocolFailure  ProtocolFailureClass      `json:"protocol_failure,omitempty"`
 	ProtocolRepaired bool                      `json:"protocol_repaired,omitempty"`
 	StageViolation   bool                      `json:"stage_violation,omitempty"`
 	ToolRetries      []ToolRetryTrace          `json:"tool_retries,omitempty"`
@@ -844,6 +845,7 @@ func (r *Runner) RunWithObserver(
 		}
 		if err != nil {
 			result.Steps[len(result.Steps)-1].ProtocolError = err.Error()
+			result.Steps[len(result.Steps)-1].ProtocolFailure = ProtocolFailureClassOf(err)
 			if retries >= r.options.ProtocolRetries {
 				return result, err
 			}
@@ -874,6 +876,7 @@ func (r *Runner) RunWithObserver(
 		retries = 0
 		result.Steps[len(result.Steps)-1].ActionType = action.Type
 		result.Steps[len(result.Steps)-1].ProtocolRepaired = action.ProtocolRepaired
+		result.Steps[len(result.Steps)-1].ProtocolFailure = action.OriginalProtocolFailure
 		if action.Type == "final" {
 			if !terminalToolCompleted {
 				err = fmt.Errorf(

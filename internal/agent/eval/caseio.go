@@ -131,6 +131,14 @@ func ValidateCases(cases []Case) error {
 					turn.Expect.Route,
 				)
 			}
+			if turn.Expect.RequireActiveNoCall &&
+				(turn.Expect.Tools == nil || len(turn.Expect.Tools) != 0) {
+				return fmt.Errorf(
+					"case %q turn %d requires active no-call but does not declare tools as an exact empty list",
+					testCase.ID,
+					index+1,
+				)
+			}
 			if turn.Expect.Tools == nil &&
 				len(turn.Expect.RequiredTools) == 0 &&
 				len(turn.Expect.ForbiddenTools) == 0 &&

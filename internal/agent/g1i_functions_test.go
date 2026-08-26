@@ -85,7 +85,9 @@ func TestG1IFunctionProtocolRepairsRawNewlineAndTruncation(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if action.Name != "write_file" || !action.ProtocolRepaired || string(action.Arguments) != `{"path":"a.txt","content":"one\ntwo"}` {
+	if action.Name != "write_file" || !action.ProtocolRepaired ||
+		action.OriginalProtocolFailure != ProtocolFailureToolJSONDecode ||
+		string(action.Arguments) != `{"path":"a.txt","content":"one\ntwo"}` {
 		t.Fatalf("repaired action = %+v", action)
 	}
 	action, err = protocol.Parse(`{"name":"read_file","arguments":{"path":"README.md"`, continuation.FinishLength)
