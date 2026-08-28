@@ -62,9 +62,10 @@ Agent step loop；先证明模型能可靠地依据仓库证据回答，再逐�
   隔离临时工作区，本地模式使用独立 inference Session，同一 case 内保留多轮状态。
 - 评测原子写入 `run.json`、`trace.jsonl` 和 `summary.json`；记录模型/协议/采样版本、
   原始 continuation、Runner/tool 事件和分项指标，失败 case 也保留诊断产物。
-- `rwkv-agent-eval-v19` / run schema v5 冻结 scorer 与 outcome taxonomy 版本；case schema
+- `rwkv-agent-eval-v20` / run schema v6 冻结 scorer 与 outcome taxonomy 版本；case schema
   v4 增加主动 no-call 和禁止 route fallback 的显式门槛，并分别统计 route/decision 协议
-  合法率、兼容修复和工具抽取失败类别。
+  合法率、兼容修复和工具抽取失败类别；v6 另记录 Product profile 的 `semantic_no_tool`、
+  `decision_fake_think` 与独立 `semantic_no_call` outcome。
 - 内置 suite 拆成 10-case `smoke` 和默认 18-case `boundary`；后者改造自
   `marty1885/primitive-bench@e0af1723` 的只读任务，并记录分类、来源和难度。
 - 边界判分支持无序必需工具、禁止工具、参数子集调用、严格答案和数值容差；保留 smoke

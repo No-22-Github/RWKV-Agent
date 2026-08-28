@@ -65,37 +65,6 @@ type loadToolsResult struct {
 	Bundle string `json:"bundle"`
 }
 
-type submitTool struct{}
-
-// ProductSubmitTool returns the lightweight terminal action used by the
-// trained Markdown/function transcript. The Runner extracts the answer from
-// its arguments and ends the turn immediately after successful validation.
-func ProductSubmitTool() Tool { return submitTool{} }
-
-func (submitTool) Spec() ToolSpec {
-	return ToolSpec{
-		Name:        "submit",
-		Description: "Submit the final user-visible answer and end the current task.",
-		Arguments:   `{"answer":"final answer"}`,
-		Parameters:  json.RawMessage(`{"type":"object","properties":{"answer":{"type":"string"}},"required":["answer"],"additionalProperties":false}`),
-		Strict:      true,
-		Control:     true,
-	}
-}
-
-func (submitTool) Execute(_ context.Context, raw json.RawMessage) (any, error) {
-	var args struct {
-		Answer string `json:"answer"`
-	}
-	if err := decodeArguments(raw, &args); err != nil {
-		return nil, err
-	}
-	if strings.TrimSpace(args.Answer) == "" {
-		return nil, fmt.Errorf("%w: submit answer is required", ErrInvalidToolArguments)
-	}
-	return args.Answer, nil
-}
-
 func newLoadToolsTool(bundles []ToolBundle) (*loadToolsTool, error) {
 	known := make(map[string]struct{}, len(bundles))
 	for _, bundle := range bundles {

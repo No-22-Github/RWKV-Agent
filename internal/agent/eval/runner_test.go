@@ -452,6 +452,133 @@ func TestRunManifestSeparatesDecisionAndRouteThinkingModes(t *testing.T) {
 	}
 }
 
+func TestRunManifestRecordsProductProfileExperiments(t *testing.T) {
+	t.Parallel()
+	manifest := runManifest(Config{
+		Cases: []Case{{ID: "one"}},
+		Suite: SuiteBFCLProduct,
+		Runner: agent.ProductHarnessOptions(agent.ProductHarnessConfig{
+			ProgressiveTools:  true,
+			ToolBundles:       agent.DefaultToolBundles()[:1],
+			SemanticNoTool:    true,
+			DecisionFakeThink: true,
+		}),
+	}, "product", time.Unix(0, 0).UTC())
+	if manifest.Harness.Protocol != agent.G1IProductFunctionProtocolV1 ||
+		manifest.Harness.Renderer != agent.G1IProductFunctionRendererV1 ||
+		manifest.Harness.RouteProtocol != (agent.G1IProgressiveToolRouteProtocol{}).ID() ||
+		!manifest.Harness.RouteStage ||
+		!manifest.Harness.SemanticNoTool ||
+		!manifest.Harness.DecisionFakeThink ||
+		manifest.Harness.TerminalTool != "" || manifest.Harness.EndOnTerminalTool {
+		t.Fatalf("product manifest harness = %+v", manifest.Harness)
+	}
+}
+
+func TestBFCLProductRunsSharedProgressiveProfile(t *testing.T) {
+	t.Parallel()
+	responses := []continuation.Result{
+		generated("respond</route>"),
+		generated("4"),
+	}
+	report, err := Run(context.Background(), Config{
+		Cases: []Case{{
+			ID:          "product-no-call",
+			Description: "Answer a stable arithmetic question without a tool.",
+			Turns: []Turn{{
+				Prompt: "What is two plus two?",
+				Expect: Expectation{
+					Route:        agent.RouteRespond,
+					Tools:        []string{},
+					OutputEquals: stringPointerForTest("4"),
+				},
+			}},
+		}},
+		Suite: SuiteBFCLProduct,
+		Model: ModelMetadata{Identifier: "scripted-product", Completion: "test"},
+		Runner: agent.ProductHarnessOptions(agent.ProductHarnessConfig{
+			MaxSteps:                2,
+			DecisionMaxOutputTokens: 32,
+			RouteMaxOutputTokens:    16,
+			ProgressiveTools:        true,
+			ToolBundles:             agent.DefaultToolBundles(),
+			Generation: continuation.Request{
+				Model:           "scripted-product",
+				MaxOutputTokens: 64,
+				Sampling: continuation.Sampling{
+					Temperature:  1,
+					TopK:         1,
+					TopP:         1,
+					PenaltyDecay: 1,
+				},
+			},
+		}),
+		GeneratorFactory: func(context.Context) (continuation.Generator, io.Closer, error) {
+			index := 0
+			return continuation.GenerateFunc(func(
+				context.Context,
+				continuation.Request,
+				continuation.EventSink,
+			) (continuation.Result, error) {
+				if index >= len(responses) {
+					return continuation.Result{}, errors.New("unexpected product generation")
+				}
+				result := responses[index]
+				index++
+				return result, nil
+			}), nil, nil
+		},
+		CaseTimeout: time.Second,
+		TempDir:     t.TempDir(),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(report.Summary.Cases) != 1 || !report.Summary.Cases[0].Passed ||
+		report.Summary.Cases[0].Turns[0].Outcome != OutcomeExplicitRespond ||
+		report.Manifest.Harness.Protocol != agent.G1IProductFunctionProtocolV1 ||
+		report.Manifest.Harness.RouteProtocol != (agent.G1IProgressiveToolRouteProtocol{}).ID() {
+		t.Fatalf("product report = %+v", report)
+	}
+}
+
+func TestSemanticNoToolIsAnActiveNoCallOutcome(t *testing.T) {
+	t.Parallel()
+	result := agent.Result{
+		Route: agent.RouteInspect,
+		Steps: []agent.Step{
+			{Stage: agent.StageDecision, ActionType: agent.ActionTypeNoTool},
+			{Stage: agent.StageAnswer, ActionType: agent.ActionTypeFinal},
+		},
+		Output: "direct answer",
+	}
+	if outcome := classifyTurnOutcome(result); outcome != OutcomeSemanticNoCall ||
+		!isActiveNoCall(result, outcome) {
+		t.Fatalf("semantic no-call outcome = %q", outcome)
+	}
+}
+
+func TestBFCLProductRejectsLegacyHarnessProfile(t *testing.T) {
+	t.Parallel()
+	_, err := Run(context.Background(), Config{
+		Cases: []Case{{
+			ID:          "legacy",
+			Description: "Reject a stale product eval profile.",
+			Turns:       []Turn{{Prompt: "answer", Expect: Expectation{Tools: []string{}}}},
+		}},
+		Suite:  SuiteBFCLProduct,
+		Runner: agent.Options{Protocol: agent.G1IProtocol{}, Renderer: agent.RWKVChatRenderer{}},
+		GeneratorFactory: func(context.Context) (continuation.Generator, io.Closer, error) {
+			return continuation.GenerateFunc(func(context.Context, continuation.Request, continuation.EventSink) (continuation.Result, error) {
+				return generated("answer"), nil
+			}), nil, nil
+		},
+	})
+	if err == nil || !strings.Contains(err.Error(), "shared product Harness profile") {
+		t.Fatalf("legacy bfcl-product error = %v", err)
+	}
+}
+
 func TestEvalOutcomeTaxonomyExposesNoCallAndToolParseFailures(t *testing.T) {
 	tests := []struct {
 		name              string

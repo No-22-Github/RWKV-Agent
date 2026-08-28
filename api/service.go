@@ -303,6 +303,12 @@ func normalizeConfig(config Config) (Config, error) {
 	if config.RouteMaxTokens < 1 {
 		return Config{}, fmt.Errorf("routeMaxTokens must be positive")
 	}
+	if config.DecisionMaxTokens == 0 {
+		config.DecisionMaxTokens = 96
+	}
+	if config.DecisionMaxTokens < 1 {
+		return Config{}, fmt.Errorf("decisionMaxTokens must be positive")
+	}
 	if config.MaxActiveBatch == 0 {
 		config.MaxActiveBatch = 4
 	}
@@ -356,6 +362,15 @@ func normalizeConfig(config Config) (Config, error) {
 	}
 	if config.AgentProtocol != AgentProtocolMarkdown && config.AgentProtocol != AgentProtocolXML {
 		return Config{}, fmt.Errorf("unsupported agentProtocol %q", config.AgentProtocol)
+	}
+	if config.AgentProtocol == AgentProtocolXML && (config.SemanticNoTool || config.DecisionFakeThink) {
+		return Config{}, fmt.Errorf("semanticNoTool and decisionFakeThink require the markdown Agent protocol")
+	}
+	if config.AgentProtocol == AgentProtocolMarkdown && config.Thinking != "off" {
+		return Config{}, fmt.Errorf(
+			"thinking mode %q requires the XML compatibility Agent protocol; use decisionFakeThink for the product text experiment",
+			config.Thinking,
+		)
 	}
 	if config.Backend == "" {
 		config.Backend = "auto"

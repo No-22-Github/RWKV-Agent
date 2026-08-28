@@ -66,9 +66,17 @@ type Action struct {
 	Name                    string               `json:"name,omitempty"`
 	Arguments               json.RawMessage      `json:"arguments,omitempty"`
 	Content                 string               `json:"content,omitempty"`
+	NoToolRationale         string               `json:"no_tool_rationale,omitempty"`
+	NoToolAnswer            string               `json:"no_tool_answer,omitempty"`
 	ProtocolRepaired        bool                 `json:"protocol_repaired,omitempty"`
 	OriginalProtocolFailure ProtocolFailureClass `json:"original_protocol_failure,omitempty"`
 }
+
+const (
+	ActionTypeFinal  = "final"
+	ActionTypeTool   = "tool"
+	ActionTypeNoTool = "no_tool"
+)
 
 type ActionProtocol interface {
 	ID() string

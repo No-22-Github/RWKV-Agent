@@ -88,6 +88,60 @@ func TestUnifiedSessionReadsREADMEAndReturnsFirstLine(t *testing.T) {
 	}
 }
 
+func TestSessionProductExperimentsUseSharedTextProfile(t *testing.T) {
+	t.Parallel()
+	workspace := t.TempDir()
+	service, err := NewService(Options{Workspace: workspace})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer service.Close()
+	progressive := false
+	service.config = Config{
+		Provider: ProviderRWKVLightning, Model: "scripted", MaxSteps: 2,
+		MaxTokens: 128, RouteMaxTokens: 48,
+		Temperature: 1, TopK: 1, TopP: 1, PenaltyDecay: 1,
+		AgentProtocol: AgentProtocolMarkdown, ProgressiveTools: &progressive,
+		SemanticNoTool: true, DecisionFakeThink: true,
+	}
+	outputs := []string{
+		`>{"name":"no_tool","arguments":{"reason":"No tool is needed for this question.","answer":"Candidate text."}}`,
+	}
+	var requests []continuation.Request
+	generator := continuation.GenerateFunc(func(
+		_ context.Context,
+		request continuation.Request,
+		_ continuation.EventSink,
+	) (continuation.Result, error) {
+		requests = append(requests, request)
+		return continuation.Result{Text: outputs[len(requests)-1], FinishReason: continuation.FinishStop}, nil
+	})
+	session, err := newSession(
+		service,
+		generator,
+		io.NopCloser(strings.NewReader("")),
+		workspace,
+		Status{Model: "scripted"},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer session.Close()
+	result, err := session.Run(context.Background(), "Answer this self-contained question.")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Output != "Candidate text." || len(result.Steps) != 1 ||
+		result.Steps[0].ActionType != "no_tool" || result.Steps[0].ToolExecuted ||
+		result.Steps[0].ToolEvidence ||
+		result.Steps[0].NoToolRationale != "No tool is needed for this question." ||
+		result.Steps[0].NoToolAnswer != "Candidate text." ||
+		!strings.HasSuffix(requests[0].Prompt, "Assistant: <think></think") ||
+		len(requests) != 1 {
+		t.Fatalf("product experiment result = %+v, requests = %+v", result, requests)
+	}
+}
+
 func TestOwnerWebProvidersAreSharedAcrossSessions(t *testing.T) {
 	t.Parallel()
 	service, err := NewService(Options{Workspace: t.TempDir()})

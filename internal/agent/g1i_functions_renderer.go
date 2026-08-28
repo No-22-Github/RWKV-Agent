@@ -9,9 +9,10 @@ import (
 // submit always stay in function-call mode. Arithmetic answers directly after
 // their tool result; invoice cases switch to direct answer only after PASS.
 type G1IFunctionRenderer struct {
-	HasSubmit   bool
-	HasRunTests bool
-	Product     bool
+	HasSubmit         bool
+	HasRunTests       bool
+	Product           bool
+	DecisionFakeThink bool
 }
 
 func (renderer G1IFunctionRenderer) ID() string {
@@ -59,6 +60,9 @@ func (G1IFunctionRenderer) appendAssistantPrefix(prompt, prefix string) (string,
 		return prompt, false
 	}
 	if strings.HasSuffix(prompt, "Assistant:") && strings.HasPrefix(prefix, "```") {
+		return prompt + " " + prefix, true
+	}
+	if strings.HasSuffix(prompt, "Assistant:") && prefix == G1IDecisionFakeThinkPrefix {
 		return prompt + " " + prefix, true
 	}
 	return prompt + prefix, prefix != ""

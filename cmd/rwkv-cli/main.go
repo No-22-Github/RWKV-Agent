@@ -45,6 +45,7 @@ type runOptions struct {
 	maxTokens                int
 	decisionMaxTokens        int
 	routeMaxTokens           int
+	routeMaxTokensExplicit   bool
 	routeStage               bool
 	tracePromptBytes         int
 	temperature              float64
@@ -87,8 +88,12 @@ type runOptions struct {
 	duplicateReplayLimit     int
 	duplicateRescueThreshold int
 	sameToolRescueLimit      int
+	sameToolRescueExplicit   bool
 	agentProtocol            string
 	progressiveTools         bool
+	progressiveToolsExplicit bool
+	semanticNoTool           bool
+	decisionFakeThink        bool
 	enableWeb                bool
 	braveAPIKeyEnv           string
 	braveEndpoint            string
@@ -160,7 +165,7 @@ func usage() {
   rwkv-cli convert --input <RWKV .pth> --output <MLX model directory>
   rwkv-cli run --model <RWKV .pth or MLX directory> [--prompt <text> | --session <bundle>]
   rwkv-cli agent --model <path or remote model ID> [--prompt <task>] [--ui auto|tui|plain]
-  rwkv-cli agent-eval --model <path or remote model ID> [--suite boundary|smoke|assistant|primitive-orig30|primitive-feedback30] [--primitive-profile upstream-compatible|go-native] [--output <directory>]
+  rwkv-cli agent-eval --model <path or remote model ID> [--suite boundary|smoke|assistant|bfcl-product|primitive-orig30|primitive-feedback30] [--primitive-profile upstream-compatible|go-native] [--output <directory>]
   rwkv-cli bfcl-eval --model <remote model ID> --api-url <inference URL> --tier <adapter-health|baseline|enhanced|finish-task-probe> [--transport <name>] --split <name> --output <directory>
   rwkv-cli bfcl-mt-eval --model <remote model ID> --api-url <inference URL> --tier <baseline|enhanced> --case multi_turn_base_0 --output <directory>
   rwkv-cli bfcl-reparse --source <BFCL run directory> --parser rwkv-wire-compat-v1 --output <directory>
@@ -267,35 +272,8 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		fs.IntVar(&options.maxSteps, "max-steps", 6, "maximum model steps including protocol retries")
 		fs.IntVar(&options.decisionMaxTokens, "decision-max-tokens", 96, "maximum generated tokens for tool selection")
 		fs.IntVar(&options.routeMaxTokens, "route-max-tokens", routeMaxTokens, "maximum generated tokens for capability routing")
-		fs.IntVar(
-			&options.duplicateReplayLimit,
-			"duplicate-replay-limit",
-			2,
-			"re-execute identical calls to pure read tools (calculator, search, reads) "+
-				"up to this many times before rejecting; 0 disables (Go-native Primitive profile only)",
-		)
-		fs.IntVar(
-			&options.duplicateRescueThreshold,
-			"duplicate-rescue-threshold",
-			3,
-			"switch to submit-only rescue mode after this many consecutive identical calls; "+
-				"0 disables (Go-native Primitive profile only)",
-		)
-		fs.IntVar(
-			&options.sameToolRescueLimit,
-			"same-tool-rescue-limit",
-			8,
-			"switch to submit-only rescue mode after this many consecutive successful calls "+
-				"to the same tool with no other tool in between; 0 disables (Go-native Primitive profile only)",
-		)
-		fs.BoolVar(
-			&options.routeStage,
-			"route-stage",
-			false,
-			"run a separate respond/inspect routing call before the decision stage; "+
-				"an early scaffold for small models, off by default",
-		)
-		fs.BoolVar(&options.fewShot, "few-shot", false, "enable agent decision trajectory examples")
+		fs.BoolVar(&options.semanticNoTool, "semantic-no-tool", false, "enable the experimental text-only no_tool abstention action")
+		fs.BoolVar(&options.decisionFakeThink, "decision-fake-think", false, "enable the experimental half-open fake-think prefix on unanchored tool decisions")
 		fs.IntVar(
 			&options.tracePromptBytes,
 			"trace-prompt-bytes",
@@ -374,6 +352,32 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			fs.IntVar(&options.subagentMaxSteps, "subagent-max-steps", 4, "maximum model steps for each child Agent")
 			fs.DurationVar(&options.subagentTimeout, "subagent-timeout", 2*time.Minute, "wall-clock timeout for one spawn_agents batch")
 		} else {
+			fs.BoolVar(&options.progressiveTools, "progressive-tools", false, "use the product progressive capability router (bfcl-product only; enabled there by default)")
+			fs.IntVar(
+				&options.duplicateReplayLimit,
+				"duplicate-replay-limit",
+				2,
+				"re-execute identical calls to pure read tools up to this many times before rejecting; 0 disables (product and Go-native Primitive profiles)",
+			)
+			fs.IntVar(
+				&options.duplicateRescueThreshold,
+				"duplicate-rescue-threshold",
+				3,
+				"enter rescue mode after this many consecutive identical calls; 0 disables (product and Go-native Primitive profiles)",
+			)
+			fs.IntVar(
+				&options.sameToolRescueLimit,
+				"same-tool-rescue-limit",
+				8,
+				"enter rescue mode after this many consecutive successful calls to one tool; 0 disables (product and Go-native Primitive profiles)",
+			)
+			fs.BoolVar(
+				&options.routeStage,
+				"route-stage",
+				false,
+				"run the XML compatibility respond/inspect router before the decision stage",
+			)
+			fs.BoolVar(&options.fewShot, "few-shot", false, "enable XML Agent decision trajectory examples")
 			fs.StringVar(&options.evalSuite, "suite", agenteval.SuiteBoundary, "built-in Agent eval suite: boundary, smoke, assistant, bfcl-product, primitive-orig30, or primitive-feedback30")
 			fs.StringVar(
 				&options.evalCasesPath,
@@ -410,10 +414,27 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			options.evalSuiteExplicit = true
 		case "chat-prompt-mode":
 			options.chatPromptExplicit = true
+		case "route-max-tokens":
+			options.routeMaxTokensExplicit = true
+		case "same-tool-rescue-limit":
+			options.sameToolRescueExplicit = true
+		case "progressive-tools":
+			options.progressiveToolsExplicit = true
 		}
 	})
 	if name == "agent-eval" {
 		options.evalSuite = agenteval.CanonicalBuiltinSuiteName(options.evalSuite)
+		if options.evalSuite == agenteval.SuiteBFCLProduct {
+			if !options.progressiveToolsExplicit {
+				options.progressiveTools = true
+			}
+			if !options.routeMaxTokensExplicit {
+				options.routeMaxTokens = 48
+			}
+			if !options.sameToolRescueExplicit {
+				options.sameToolRescueLimit = agent.ProductSameToolRescueLimit
+			}
+		}
 	}
 	if options.thinkingExplicit && options.reasoningExplicit {
 		return options, errors.New("--thinking and deprecated --reasoning cannot be used together")
@@ -533,6 +554,13 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			if options.evalCasesPath != "" && options.evalSuiteExplicit {
 				return options, errors.New("--suite and --cases cannot be used together")
 			}
+			if options.evalSuite != agenteval.SuiteBFCLProduct &&
+				(options.semanticNoTool || options.decisionFakeThink || options.progressiveToolsExplicit) {
+				return options, errors.New("--semantic-no-tool, --decision-fake-think, and --progressive-tools are product-profile options and require --suite bfcl-product")
+			}
+			if options.evalSuite == agenteval.SuiteBFCLProduct && options.routeStage {
+				return options, errors.New("--route-stage is the XML compatibility router; bfcl-product uses --progressive-tools")
+			}
 		}
 	}
 	if options.tokenizer == "" && !(agentMode && options.completion != "local") {
@@ -578,6 +606,18 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 	if name == "agent" && options.agentProtocol != string(agentapi.AgentProtocolMarkdown) &&
 		options.agentProtocol != string(agentapi.AgentProtocolXML) {
 		return options, fmt.Errorf("invalid --agent-protocol %q", options.agentProtocol)
+	}
+	if name == "agent" && options.agentProtocol == string(agentapi.AgentProtocolXML) &&
+		(options.semanticNoTool || options.decisionFakeThink) {
+		return options, errors.New("--semantic-no-tool and --decision-fake-think require --agent-protocol markdown")
+	}
+	if name == "agent" && options.agentProtocol == string(agentapi.AgentProtocolMarkdown) &&
+		options.thinkingMode != string(inference.ThinkingOff) {
+		return options, errors.New("--thinking fast/full requires --agent-protocol xml; use --decision-fake-think for the product text experiment")
+	}
+	if name == "agent-eval" && options.evalSuite == agenteval.SuiteBFCLProduct &&
+		options.thinkingMode != string(inference.ThinkingOff) {
+		return options, errors.New("--thinking fast/full is not part of the bfcl-product profile; use --decision-fake-think for the product text experiment")
 	}
 	return options, nil
 }
@@ -824,7 +864,35 @@ type noopCloser struct{}
 
 func (noopCloser) Close() error { return nil }
 
-func agentRunnerOptions(options runOptions, observe func(agent.Event)) agent.Options {
+func agentRunnerOptions(options runOptions, suite string, observe func(agent.Event)) agent.Options {
+	if suite == agenteval.SuiteBFCLProduct {
+		return agent.ProductHarnessOptions(agent.ProductHarnessConfig{
+			MaxSteps:                 options.maxSteps,
+			DecisionMaxOutputTokens:  options.decisionMaxTokens,
+			RouteMaxOutputTokens:     options.routeMaxTokens,
+			TracePromptBytes:         options.tracePromptBytes,
+			DuplicateReplayLimit:     options.duplicateReplayLimit,
+			DuplicateRescueThreshold: options.duplicateRescueThreshold,
+			SameToolRescueLimit:      options.sameToolRescueLimit,
+			Generation: continuation.Request{
+				Model:           options.modelPath,
+				MaxOutputTokens: options.maxTokens,
+				Sampling: continuation.Sampling{
+					Temperature:      float32(options.temperature),
+					TopK:             options.topK,
+					TopP:             float32(options.topP),
+					PresencePenalty:  float32(options.presencePenalty),
+					FrequencyPenalty: float32(options.frequencyPenalty),
+					PenaltyDecay:     float32(options.penaltyDecay),
+				},
+			},
+			ProgressiveTools:  options.progressiveTools,
+			ToolBundles:       agent.DefaultToolBundles(),
+			SemanticNoTool:    options.semanticNoTool,
+			DecisionFakeThink: options.decisionFakeThink,
+			Observe:           observe,
+		})
+	}
 	agentOptions := agent.Options{
 		MaxSteps:                options.maxSteps,
 		ProtocolRetries:         1,
@@ -992,6 +1060,7 @@ func agentAPIConfig(options runOptions) (agentapi.Config, error) {
 	}
 	stream := options.apiStream
 	progressive := options.progressiveTools
+	tracePromptBytes := options.tracePromptBytes
 	return agentapi.Config{
 		Provider:               agentapi.Provider(options.completion),
 		Model:                  options.modelPath,
@@ -1004,9 +1073,13 @@ func agentAPIConfig(options runOptions) (agentapi.Config, error) {
 		NativeProvider:         options.provider,
 		Thinking:               options.thinkingMode,
 		AgentProtocol:          agentapi.AgentProtocol(options.agentProtocol),
+		SemanticNoTool:         options.semanticNoTool,
+		DecisionFakeThink:      options.decisionFakeThink,
 		MaxSteps:               options.maxSteps,
 		MaxTokens:              options.maxTokens,
+		DecisionMaxTokens:      options.decisionMaxTokens,
 		RouteMaxTokens:         options.routeMaxTokens,
+		TracePromptBytes:       &tracePromptBytes,
 		Temperature:            options.temperature,
 		TopK:                   options.topK,
 		TopP:                   options.topP,
@@ -1105,7 +1178,7 @@ func runAgentEval(args []string) error {
 		Cases:            cases,
 		Suite:            suite,
 		Model:            model,
-		Runner:           agentRunnerOptions(options, nil),
+		Runner:           agentRunnerOptions(options, suite, nil),
 		CaseTimeout:      options.evalCaseTimeout,
 		CaseParallelism:  options.evalCaseParallelism,
 		PrimitiveProfile: options.primitiveProfile,

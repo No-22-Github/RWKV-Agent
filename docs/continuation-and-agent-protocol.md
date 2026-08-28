@@ -22,8 +22,21 @@ Agent Runner
 
 ## 2. 当前内建协议
 
-当前产品默认动作协议标识为 `rwkv-g1i-functions-product-v1`，prompt renderer 标识为
-`rwkv-g1i-functions-product-continuation-v1`。它复用 G1i checkpoint 的训练 transcript：
+协议没有被强行合并成一套字节格式；统一的是产品构造入口和层级边界：
+
+| Profile | 动作协议 / renderer | 用途与终止语义 |
+| --- | --- | --- |
+| 产品默认 | `rwkv-g1i-functions-product-v1` / `rwkv-g1i-functions-product-continuation-v1` | Markdown/function 文本续写；工具后直接输出普通 Markdown，无 `submit` gate |
+| XML 兼容 | `rwkv-g1i-envelope-v1` / `rwkv-chat-continuation-v1` | `--agent-protocol xml` 的历史 A/B，可使用 off/fast/full thinking |
+| Primitive | `rwkv-g1i-functions-v1` / `rwkv-g1i-functions-continuation-v1` | benchmark 专用逐题目录与 `submit` 终止，不代表产品默认 |
+| BFCL wrapped | `internal/bfcl` 的对象/数组 anchor 与 strict/wire-compat parser | BFCL 官方/诊断评测专用，不进入 Agent 产品 prompt |
+| 原生 function calling | Chat Completions `tools/tool_calls` | Provider 外层结构化调用；不伪造 `no_tool` 等 API tool |
+
+App 和 `bfcl-product` 统一通过 `agent.ProductHarnessOptions` 构造产品 profile；它集中绑定
+protocol、renderer、可选 progressive Router 和循环策略。Primitive、BFCL wrapped 与 XML
+继续使用独立入口，防止评测协议字节漂移到产品。
+
+产品 profile 复用 G1i checkpoint 的训练 transcript：
 
 ````text
 System: Tools:
@@ -38,38 +51,63 @@ Assistant: ```json
 User: Function output:
 1: # RWKV-Agent
 
-Assistant: ```json
-{"name":"submit","arguments":{"answer":"RWKV-Agent"}}
-```
+Assistant: RWKV-Agent
 ````
 
 Router 明确选择 `inspect` 后，第一次工具选择在 `Assistant:` 后预填 JSON code fence，模型只需
-续写调用对象。`inspect` 路由的后续调用同样预填 JSON fence，并在答案就绪时调用
-`submit`；成功后 Runner 直接取出 `answer` 并结束，不再请求额外 plain-text final。
-`respond` 路由不预填工具格式，可以直接返回包含代码块的普通 Markdown。解析器继续容忍
-raw JSON、字符串化参数、截断 JSON、字段别名和旧 XML 包装，但普通 fenced Markdown 不会
-被误执行为工具。
+续写调用对象。工具结果之后回到未锚定的 `Assistant:`：模型可以为具体缺失事实再输出一个
+fenced JSON 调用，也可以直接返回包含代码块的普通 Markdown。`respond` 路由同样不预填工具
+格式并直接回答。产品不注册 `submit`，最终答案不需要放进 JSON 字符串。解析器继续容忍 raw
+JSON、字符串化参数、截断 JSON、字段别名和旧 XML 包装，但普通 fenced Markdown 不会被误
+执行为工具；修复行为仍在 trace 中保留原始失败分类。
 
 成功执行一个工具后保留 assistant/tool 消息对，并让模型选择继续调用另一个不同工具或
-调用 `submit`。训练原生 transcript 不额外注入通用 Agent reminder；失败、重复调用和 rescue
-提示合并进同一个 `Function output` 回合。`read_file` 路径失败时仍由 Controller 引导模型
-用 `list_files` 或 `search_text` 发现真实路径。
+直接回答。训练原生 transcript 不额外注入通用 Agent reminder；失败、重复调用和 rescue
+提示合并进同一个 `Function output` 回合。`read_file` 路径失败时仍由 Controller 引导模型用
+`list_files` 或 `search_text` 发现真实路径。
 同一精确调用无论成功或失败都只允许出现一次；同一工具实际执行连续失败两次后，第三次
-调用会被拒绝，直到模型改用不同工具或通过 `submit` 说明限制。
+调用会被拒绝，直到模型改用不同工具或直接说明限制。
 
-重复调用达到阈值后，Runner 只保留 `submit` 并要求模型用已有证据提交最佳答案。工具全部
-失败或证据不足时，提交内容必须明确说明限制。过长字符串保留开头和与任务词项最相关的
-窗口，单个字符串最多约 2400 Unicode 字符。
+重复调用达到阈值后，Runner 禁用其他工具并要求模型用已有证据直接给出最佳答案。工具全部
+失败或证据不足时，答案必须明确说明限制。过长字符串保留开头和与任务词项最相关的窗口，
+单个字符串最多约 2400 Unicode 字符。
 
 `rwkv-g1i-envelope-v1` 与 `rwkv-chat-continuation-v1` 仍作为 XML A/B 兼容模式保留。产品 CLI
 使用 `--agent-protocol markdown|xml` 选择，默认 `markdown`；Primitive Bench 继续使用
-独立的 `rwkv-g1i-functions-v1`，产品则使用单独版本化的同类 `submit` 终止语义。
+独立的 `rwkv-g1i-functions-v1` 与 benchmark `submit` 终止语义。
 
 动作协议、prompt 渲染器和续写 adapter 独立版本化。父 Agent 内仍是顺序多工具状态机；
 `spawn_agents` 可以批量并发运行多个相互独立的子状态机，但显式 planner、子任务依赖图和
 递归委派仍不属于 v1。
 
-### 2.1 渐进式工具目录
+### 2.1 模型偏好实验开关
+
+两个开关默认关闭，并只改变产品文本续写 profile：
+
+- `semanticNoTool` / `--semantic-no-tool`：在文本工具目录中加入协议伪动作 `no_tool`。只接受
+  精确名称；参数只能为空对象，或包含可选字符串 `reason` / `answer`，未知字段与非字符串值
+  继续 fail closed。非空 `answer` 优先、否则 `reason` 直接作为本轮用户可见 final；Runner
+  不查执行表、不执行工具、不生成假的 Function output 或 evidence。原始动作、解释字段和
+  parser repair 仍写入 Step/trace，App 以“无需工具”事件显示。只有空参数保留为切到
+  `StageAnswer` 再生成普通文本的兼容路径。评测 outcome 单独记为 `semantic_no_call`。
+- `decisionFakeThink` / `--decision-fake-think`：只在 `StageDecision + inspect + 当前没有其他
+  assistant prefix` 时，把 prompt 精确结束为 `Assistant: <think></think`。末尾 `>` 由模型
+  续写；Harness 在解析前移除自己注入并由模型闭合的前缀，因此不会伪记 parser repair。
+
+fake-think 不用于 answer stage、`respond` 路由、已有 fence/object/array anchor 或原生 function
+calling。`no_tool` 也不注册为原生 API tool。启用任一开关而 Provider 实际走 native tool
+calling 时，Runner 明确拒绝配置，避免静默改变实验含义。精确空格、换行和半开字节是实验
+变量，不能“格式化”为更自然的形式。
+
+`reason` / `answer` 是模型生成的用户沟通文字，不是外部事实来源：它们可以进入最终回复和
+UI，但不能让 `toolExecuted` / `toolEvidence` 变成 true。若 answer stage 中的 `no_tool` 因
+阶段契约被拒绝，UI 仍保留其解释供审计，并明确标为未接受，不能伪装成成功 abstention。
+
+Product profile 固定使用 thinking off。`--thinking fast/full` 只属于 XML 兼容 profile；
+Product 上的半开 think 字节实验使用独立的 `decisionFakeThink` 开关，避免参数被静默忽略或
+两套 renderer 语义混用。
+
+### 2.2 渐进式工具目录
 
 产品 API 默认使用 `rwkv-g1i-tool-route-v1`。完整工具按权限和用途分为四个能力组：
 
@@ -86,7 +124,7 @@ Router 只看到能力组名称和一句描述，输出 `<route>respond</route>`
 工具不能绕过活动表执行。控制工具 `load_tools` 始终可见，只允许加载已启用能力组，并且其
 结果不算外部证据。固定目录仍保留为显式兼容模式，供历史 eval 和 A/B 使用。
 
-### 2.2 Web 和并发子 Agent
+### 2.3 Web 和并发子 Agent
 
 Web Provider 接口保持服务商中立。当前 `web_search` 适配 Brave Search，最多返回 10 条
 标题、URL、摘要和来源 ID；`web_fetch` 适配 Tavily Extract，一次获取最多 4 个 HTTP(S)
@@ -107,13 +145,14 @@ Web Provider 接口保持服务商中立。当前 `web_search` 适配 Brave Sear
 
 - 通用 Agent 框架都允许普通对话绕过工具循环，因此产品保留 `respond` 路由直接输出
   Markdown，避免简单问题被强制包装成工具动作。
-- 当前 G1I 7B 在工具结果后自由回答时容易重复工具或无法稳定结束，因此 `inspect` 路由
-  复用评测 transcript 的 function-call 形式，并以 `submit` 作为唯一终止动作。
+- 当前 G1I 7B 对协议前缀、空格和语义 escape name 高度敏感，因此产品只把 `no_tool` 与
+  half-open fake-think 暴露为默认关闭的可追踪开关，必须在产品 60 题上做单因子 A/B 后再
+  决定默认值。
 
 协议格式参考并复核了
 [`123123213weqw/rwkv-agent`](https://github.com/123123213weqw/rwkv-agent)：
 工具调用使用 greedy 解码、opening fence 预填、closing fence stop 和严格结果重建；
-`submit` 参数承载最终答案。
+产品仅复用工具调用 transcript，不复用 benchmark `submit` 终止语义。
 旧 `agent-json-v1` 裸 JSON 协议已经删除，不保留兼容死代码。
 
 ## 3. rwkv_lightning 映射

@@ -8,9 +8,30 @@ import (
 	"testing"
 
 	"github.com/no22/RWKV-Agent/internal/continuation"
+	"github.com/no22/RWKV-Agent/internal/continuation/toolchat"
 )
 
 type submitTestTool struct{}
+
+type nativeProductTestGenerator struct{}
+
+func (*nativeProductTestGenerator) Continue(
+	context.Context,
+	continuation.Request,
+	continuation.EventSink,
+) (continuation.Result, error) {
+	return continuation.Result{}, nil
+}
+
+func (*nativeProductTestGenerator) Complete(
+	context.Context,
+	toolchat.Request,
+	continuation.EventSink,
+) (toolchat.Result, error) {
+	return toolchat.Result{}, nil
+}
+
+func (*nativeProductTestGenerator) NativeToolCalling() bool { return true }
 
 func (submitTestTool) Spec() ToolSpec {
 	return ToolSpec{
@@ -133,6 +154,266 @@ func TestG1IProductFunctionProtocolPreservesMarkdownAnswers(t *testing.T) {
 	}
 }
 
+func TestG1IProductSemanticNoToolPreservesModelRationale(t *testing.T) {
+	t.Parallel()
+	protocol := G1IFunctionProtocol{Product: true, SemanticNoTool: true}
+	control := protocol.Instructions([]ToolSpec{{
+		Name:        "read_file",
+		Description: "Read one file.",
+		Arguments:   `{"path":"relative path"}`,
+		Parameters:  json.RawMessage(`{"type":"object","properties":{"path":{"type":"string"}},"required":["path"]}`),
+	}}, "")
+	if !strings.Contains(control, `"name":"no_tool"`) ||
+		!strings.Contains(control, `"reason":{"type":"string"}`) ||
+		!strings.Contains(control, `{"name":"no_tool","arguments":{"reason":"brief complete user-facing response"}}`) ||
+		!strings.Contains(control, "reason becomes the final reply without another generation") {
+		t.Fatalf("semantic no_tool is absent from product control:\n%s", control)
+	}
+	action, err := protocol.Parse(`{"name":"no_tool","arguments":{}}`, continuation.FinishStop)
+	if err != nil || action.Type != ActionTypeNoTool || action.Name != SemanticNoToolName ||
+		string(action.Arguments) != `{}` || action.ProtocolRepaired {
+		t.Fatalf("semantic no_tool action = %+v, error = %v", action, err)
+	}
+	explained, err := protocol.Parse(
+		`{"name":"no_tool","arguments":{"reason":"No workspace lookup is needed.","answer":"Four."}}`,
+		continuation.FinishStop,
+	)
+	if err != nil || explained.Type != ActionTypeNoTool ||
+		explained.NoToolRationale != "No workspace lookup is needed." || explained.NoToolAnswer != "Four." ||
+		string(explained.Arguments) != `{"reason":"No workspace lookup is needed.","answer":"Four."}` {
+		t.Fatalf("explained semantic no_tool action = %+v, error = %v", explained, err)
+	}
+	hoisted, err := protocol.Parse(
+		`{"name":"no_tool","reason":"No workspace lookup is needed."}`,
+		continuation.FinishStop,
+	)
+	if err != nil || hoisted.NoToolRationale != "No workspace lookup is needed." ||
+		!hoisted.ProtocolRepaired || hoisted.OriginalProtocolFailure != ProtocolFailureToolShapeInvalid {
+		t.Fatalf("hoisted semantic no_tool action = %+v, error = %v", hoisted, err)
+	}
+	for _, invalid := range []string{
+		`{"name":"no_tool","arguments":{"reason":false}}`,
+		`{"name":"no_tool","arguments":{"bundle":"workspace"}}`,
+	} {
+		if _, err := protocol.Parse(invalid, continuation.FinishStop); err == nil ||
+			!strings.Contains(err.Error(), "no_tool argument") {
+			t.Fatalf("invalid no_tool %s error = %v", invalid, err)
+		}
+	}
+	ordinary, err := (G1IFunctionProtocol{Product: true}).Parse(
+		`{"name":"no_tool","arguments":{}}`,
+		continuation.FinishStop,
+	)
+	if err != nil || ordinary.Type != ActionTypeTool {
+		t.Fatalf("disabled no_tool action = %+v, error = %v", ordinary, err)
+	}
+}
+
+func TestProductHarnessSemanticNoToolTransitionsToAnswerWithoutExecution(t *testing.T) {
+	t.Parallel()
+	responses := []string{
+		`{"name":"no_tool","arguments":{"reason":"This can be answered from general knowledge.","answer":"2 + 2 is 4."}}`,
+	}
+	var requests []continuation.Request
+	runner, err := NewRunner(
+		continuation.GenerateFunc(func(
+			_ context.Context,
+			request continuation.Request,
+			_ continuation.EventSink,
+		) (continuation.Result, error) {
+			requests = append(requests, request)
+			return continuation.Result{Text: responses[len(requests)-1], FinishReason: continuation.FinishStop}, nil
+		}),
+		[]Tool{echoTool{}},
+		ProductHarnessOptions(ProductHarnessConfig{
+			MaxSteps:                2,
+			DecisionMaxOutputTokens: 96,
+			TracePromptBytes:        -1,
+			Generation:              continuation.Request{MaxOutputTokens: 128},
+			SemanticNoTool:          true,
+		}),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "Explain 2 + 2 without tools.")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result.Output != "2 + 2 is 4." || result.OriginalOutput != "2 + 2 is 4." || len(result.Steps) != 1 ||
+		result.Steps[0].ActionType != ActionTypeNoTool || result.Steps[0].Tool != "" ||
+		result.Steps[0].ToolExecuted || result.Steps[0].ToolEvidence ||
+		result.Steps[0].NoToolRationale != "This can be answered from general knowledge." ||
+		result.Steps[0].NoToolAnswer != "2 + 2 is 4." {
+		t.Fatalf("semantic no_tool result = %+v", result)
+	}
+	if len(requests) != 1 {
+		t.Fatalf("semantic no_tool requests = %+v", requests)
+	}
+	if history := runner.History(); len(history) != 2 || history[0].Role != RoleUser || history[1].Role != RoleAssistant {
+		t.Fatalf("semantic no_tool committed history = %+v", history)
+	}
+}
+
+func TestProductHarnessSemanticNoToolUsesRationaleWhenAnswerIsMissing(t *testing.T) {
+	t.Parallel()
+	runner, err := NewRunner(
+		continuation.GenerateFunc(func(
+			context.Context,
+			continuation.Request,
+			continuation.EventSink,
+		) (continuation.Result, error) {
+			return continuation.Result{
+				Text:         `{"name":"no_tool","arguments":{"reason":"No workspace lookup is needed."}}`,
+				FinishReason: continuation.FinishStop,
+			}, nil
+		}),
+		[]Tool{echoTool{}},
+		ProductHarnessOptions(ProductHarnessConfig{
+			MaxSteps:                2,
+			DecisionMaxOutputTokens: 96,
+			Generation:              continuation.Request{MaxOutputTokens: 128},
+			SemanticNoTool:          true,
+		}),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "Explain why tools are unnecessary.")
+	if err != nil || result.Output != "No workspace lookup is needed." ||
+		len(result.Steps) != 1 || result.Steps[0].NoToolRationale != result.Output ||
+		result.Steps[0].ToolExecuted || result.Steps[0].ToolEvidence {
+		t.Fatalf("rationale-only semantic no_tool result = %+v, error = %v", result, err)
+	}
+}
+
+func TestProductHarnessDecisionFakeThinkUsesExactUnanchoredPrefix(t *testing.T) {
+	t.Parallel()
+	responses := []string{
+		`>{"name":"no_tool","arguments":{}}`,
+		"Direct answer.",
+	}
+	var requests []continuation.Request
+	runner, err := NewRunner(
+		continuation.GenerateFunc(func(
+			_ context.Context,
+			request continuation.Request,
+			_ continuation.EventSink,
+		) (continuation.Result, error) {
+			requests = append(requests, request)
+			return continuation.Result{Text: responses[len(requests)-1], FinishReason: continuation.FinishStop}, nil
+		}),
+		[]Tool{echoTool{}},
+		ProductHarnessOptions(ProductHarnessConfig{
+			MaxSteps:                2,
+			DecisionMaxOutputTokens: 96,
+			TracePromptBytes:        -1,
+			Generation:              continuation.Request{MaxOutputTokens: 128},
+			SemanticNoTool:          true,
+			DecisionFakeThink:       true,
+		}),
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "Answer without tools.")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(requests) != 2 || !strings.HasSuffix(requests[0].Prompt, "Assistant: "+G1IDecisionFakeThinkPrefix) {
+		t.Fatalf("fake-think first request = %+v", requests[0])
+	}
+	if result.Steps[0].Request == nil ||
+		result.Steps[0].Request.AssistantPrefix != G1IDecisionFakeThinkPrefix ||
+		result.Steps[0].ProtocolRepaired ||
+		result.Steps[0].ProtocolFailure != "" ||
+		result.Steps[0].ActionType != ActionTypeNoTool ||
+		result.Steps[1].Stage != StageAnswer ||
+		strings.Contains(requests[1].Prompt, "Assistant: "+G1IDecisionFakeThinkPrefix) {
+		t.Fatalf("fake-think result = %+v, requests = %+v", result, requests)
+	}
+}
+
+func TestProductHarnessOptionsOwnsProductProtocolPair(t *testing.T) {
+	t.Parallel()
+	options := ProductHarnessOptions(ProductHarnessConfig{
+		ProgressiveTools:         true,
+		ToolBundles:              DefaultToolBundles()[:1],
+		SemanticNoTool:           true,
+		DecisionFakeThink:        true,
+		DuplicateReplayLimit:     ProductDuplicateReplayLimit,
+		DuplicateRescueThreshold: ProductDuplicateRescueThreshold,
+		SameToolRescueLimit:      ProductSameToolRescueLimit,
+	})
+	protocol, protocolOK := options.Protocol.(G1IFunctionProtocol)
+	renderer, rendererOK := options.Renderer.(G1IFunctionRenderer)
+	if !protocolOK || protocol.ID() != G1IProductFunctionProtocolV1 || !protocol.SemanticNoTool ||
+		!rendererOK || renderer.ID() != G1IProductFunctionRendererV1 || !renderer.DecisionFakeThink ||
+		options.ToolRouter == nil || options.ToolRouter.ID() != (G1IProgressiveToolRouteProtocol{}).ID() ||
+		options.TerminalTool != "" || options.EndOnTerminalTool ||
+		options.DuplicateReplayLimit != ProductDuplicateReplayLimit ||
+		options.DuplicateRescueThreshold != ProductDuplicateRescueThreshold ||
+		options.SameToolRescueLimit != ProductSameToolRescueLimit {
+		t.Fatalf("product Harness options = %+v", options)
+	}
+}
+
+func TestProductHarnessDefaultSwitchesPreserveProtocolBytes(t *testing.T) {
+	t.Parallel()
+	specs := []ToolSpec{{
+		Name:        "read_file",
+		Description: "Read one file.",
+		Arguments:   `{"path":"relative file path"}`,
+		Parameters:  json.RawMessage(`{"type":"object","properties":{"path":{"type":"string"}},"required":["path"]}`),
+	}}
+	baselineProtocol := G1IFunctionProtocol{Product: true}
+	baselineRenderer := G1IFunctionRenderer{Product: true}
+	options := ProductHarnessOptions(ProductHarnessConfig{})
+	profileProtocol, ok := options.Protocol.(G1IFunctionProtocol)
+	if !ok {
+		t.Fatalf("product protocol type = %T", options.Protocol)
+	}
+	profileRenderer, ok := options.Renderer.(G1IFunctionRenderer)
+	if !ok {
+		t.Fatalf("product renderer type = %T", options.Renderer)
+	}
+	wantControl := baselineProtocol.Instructions(specs, "")
+	gotControl := profileProtocol.Instructions(specs, "")
+	if gotControl != wantControl {
+		t.Fatalf("default-off product control changed:\nwant %q\n got %q", wantControl, gotControl)
+	}
+	messages := []Message{
+		{Role: RoleSystem, Content: wantControl},
+		{Role: RoleUser, Content: "Read README.md."},
+	}
+	wantPrompt, err := baselineRenderer.Render(messages)
+	if err != nil {
+		t.Fatal(err)
+	}
+	gotPrompt, err := profileRenderer.Render(messages)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if gotPrompt != wantPrompt {
+		t.Fatalf("default-off product prompt changed:\nwant %q\n got %q", wantPrompt, gotPrompt)
+	}
+}
+
+func TestProductTextExperimentsRejectNativeToolCalling(t *testing.T) {
+	t.Parallel()
+	_, err := NewRunner(
+		&nativeProductTestGenerator{},
+		nil,
+		ProductHarnessOptions(ProductHarnessConfig{
+			MaxSteps:       2,
+			SemanticNoTool: true,
+		}),
+	)
+	if !strings.Contains(fmt.Sprint(err), "cannot be used with native tool calling") {
+		t.Fatalf("native product experiment error = %v", err)
+	}
+}
+
 func TestG1IProductFunctionRunnerPrefillsEveryToolDecision(t *testing.T) {
 	t.Parallel()
 	responses := []string{
@@ -150,7 +431,7 @@ func TestG1IProductFunctionRunnerPrefillsEveryToolDecision(t *testing.T) {
 			requests = append(requests, request)
 			return continuation.Result{Text: responses[len(requests)-1], FinishReason: continuation.FinishStop}, nil
 		}),
-		[]Tool{echoTool{}, ProductSubmitTool()},
+		[]Tool{echoTool{}, submitTestTool{}},
 		Options{
 			MaxSteps:          3,
 			Protocol:          G1IFunctionProtocol{Product: true},

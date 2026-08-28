@@ -114,15 +114,12 @@ func newSessionAtDepth(
 		config.MaxSteps = config.SubagentMaxSteps
 	}
 	markdownProtocol := config.AgentProtocol != AgentProtocolXML
-	terminalTool := ""
-	sameToolRescueLimit := 8
 	var postToolHook func(string, json.RawMessage, any, error) string
 	if markdownProtocol {
 		// The Markdown protocol answers directly (plain Markdown or fenced
 		// code) once it has enough evidence; there is no submit gate, so the
 		// model never has to pack the user-visible answer into a JSON tool
 		// argument (which is where Markdown fences get lost).
-		sameToolRescueLimit = 3
 		postToolHook = func(name string, _ json.RawMessage, _ any, _ error) string {
 			switch name {
 			case "web_fetch":
@@ -135,59 +132,68 @@ func newSessionAtDepth(
 		}
 	}
 	toolBundles := agent.EnabledToolBundles(tools, agent.DefaultToolBundles())
-	var toolRouter agent.ToolRouteProtocol
-	var routeRenderer agent.PromptRenderer
-	if progressiveToolsEnabled(config.ProgressiveTools) {
-		toolRouter = agent.G1IProgressiveToolRouteProtocol{}
-		routeRenderer = agent.RWKVChatRenderer{}
-	}
-	var protocol agent.ActionProtocol
-	var renderer agent.PromptRenderer
-	switch config.AgentProtocol {
-	case AgentProtocolXML:
-		protocol = agent.G1IProtocol{}
-		renderer = agent.RWKVChatRenderer{ThinkingMode: inference.ThinkingMode(config.Thinking)}
-	default:
-		protocol = agent.G1IFunctionProtocol{Product: true}
-		renderer = agent.G1IFunctionRenderer{Product: true}
-	}
 	taskControl := ""
 	if workspace == "" {
 		taskControl = "工作区未打开：本地文件工具（list_files/read_file/search_text）需要先打开一个工作区才能使用。如果用户需要读取或搜索本地文件，请直接告诉用户先在应用中打开一个工作区（例如“打开工作区”按钮），不要尝试调用任何文件工具，也不要假装读取了文件。"
 	}
-	runner, err := agent.NewRunner(generator, tools, agent.Options{
-		MaxSteps:                 config.MaxSteps,
-		ProtocolRetries:          1,
-		DecisionMaxOutputTokens:  min(96, config.MaxTokens),
-		ControlPrompt:            agent.ControlPromptSystem,
-		Protocol:                 protocol,
-		Renderer:                 renderer,
-		TaskControl:              taskControl,
-		DuplicateReplayLimit:     2,
-		DuplicateRescueThreshold: 3,
-		SameToolRescueLimit:      sameToolRescueLimit,
-		TerminalTool:             terminalTool,
-		EndOnTerminalTool:        false,
-		PostToolHook:             postToolHook,
-		TracePromptBytes:         agent.DefaultTracePromptBytes,
-		ToolRouter:               toolRouter,
-		ToolBundles:              toolBundles,
-		RouteRenderer:            routeRenderer,
-		RouteRetries:             1,
-		RouteMaxOutputTokens:     min(config.RouteMaxTokens, config.MaxTokens),
-		Generation: continuation.Request{
-			Model:           status.Model,
-			MaxOutputTokens: config.MaxTokens,
-			Sampling: continuation.Sampling{
-				Temperature:      float32(config.Temperature),
-				TopK:             config.TopK,
-				TopP:             float32(config.TopP),
-				PresencePenalty:  float32(config.PresencePenalty),
-				FrequencyPenalty: float32(config.FrequencyPenalty),
-				PenaltyDecay:     float32(config.PenaltyDecay),
-			},
+	generation := continuation.Request{
+		Model:           status.Model,
+		MaxOutputTokens: config.MaxTokens,
+		Sampling: continuation.Sampling{
+			Temperature:      float32(config.Temperature),
+			TopK:             config.TopK,
+			TopP:             float32(config.TopP),
+			PresencePenalty:  float32(config.PresencePenalty),
+			FrequencyPenalty: float32(config.FrequencyPenalty),
+			PenaltyDecay:     float32(config.PenaltyDecay),
 		},
-	})
+	}
+	tracePromptBytes := agent.DefaultTracePromptBytes
+	if config.TracePromptBytes != nil {
+		tracePromptBytes = *config.TracePromptBytes
+	}
+	var runnerOptions agent.Options
+	if markdownProtocol {
+		runnerOptions = agent.ProductHarnessOptions(agent.ProductHarnessConfig{
+			MaxSteps:                 config.MaxSteps,
+			DecisionMaxOutputTokens:  min(config.DecisionMaxTokens, config.MaxTokens),
+			RouteMaxOutputTokens:     min(config.RouteMaxTokens, config.MaxTokens),
+			TracePromptBytes:         tracePromptBytes,
+			DuplicateReplayLimit:     agent.ProductDuplicateReplayLimit,
+			DuplicateRescueThreshold: agent.ProductDuplicateRescueThreshold,
+			SameToolRescueLimit:      agent.ProductSameToolRescueLimit,
+			Generation:               generation,
+			ProgressiveTools:         progressiveToolsEnabled(config.ProgressiveTools),
+			ToolBundles:              toolBundles,
+			SemanticNoTool:           config.SemanticNoTool,
+			DecisionFakeThink:        config.DecisionFakeThink,
+			TaskControl:              taskControl,
+			PostToolHook:             postToolHook,
+		})
+	} else {
+		runnerOptions = agent.Options{
+			MaxSteps:                 config.MaxSteps,
+			ProtocolRetries:          1,
+			DecisionMaxOutputTokens:  min(config.DecisionMaxTokens, config.MaxTokens),
+			ControlPrompt:            agent.ControlPromptSystem,
+			Protocol:                 agent.G1IProtocol{},
+			Renderer:                 agent.RWKVChatRenderer{ThinkingMode: inference.ThinkingMode(config.Thinking)},
+			TaskControl:              taskControl,
+			DuplicateReplayLimit:     agent.ProductDuplicateReplayLimit,
+			DuplicateRescueThreshold: agent.ProductDuplicateRescueThreshold,
+			SameToolRescueLimit:      8,
+			TracePromptBytes:         tracePromptBytes,
+			Generation:               generation,
+		}
+		if progressiveToolsEnabled(config.ProgressiveTools) {
+			runnerOptions.ToolRouter = agent.G1IProgressiveToolRouteProtocol{}
+			runnerOptions.ToolBundles = toolBundles
+			runnerOptions.RouteRenderer = agent.RWKVChatRenderer{}
+			runnerOptions.RouteRetries = 1
+			runnerOptions.RouteMaxOutputTokens = min(config.RouteMaxTokens, config.MaxTokens)
+		}
+	}
+	runner, err := agent.NewRunner(generator, tools, runnerOptions)
 	if err != nil {
 		return nil, err
 	}
@@ -403,6 +409,8 @@ func publicResult(value agent.Result, duration time.Duration) Result {
 			StageViolation:   step.StageViolation,
 			ToolRetries:      publicToolRetries(step.ToolRetries),
 			ToolDurationMS:   step.ToolDurationMS,
+			NoToolRationale:  step.NoToolRationale,
+			NoToolAnswer:     step.NoToolAnswer,
 		}
 		for _, subagent := range step.Subagents {
 			child := SubagentTrace{

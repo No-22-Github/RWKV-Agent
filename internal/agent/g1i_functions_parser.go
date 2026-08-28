@@ -9,6 +9,8 @@ import (
 	"github.com/no22/RWKV-Agent/internal/continuation"
 )
 
+const SemanticNoToolName = "no_tool"
+
 func looksLikeG1IFunctionFence(value string) bool {
 	candidate := strings.TrimSpace(value)
 	if !strings.HasPrefix(candidate, "```json") {
@@ -49,7 +51,7 @@ func (protocol G1IFunctionProtocol) Parse(value string, finish continuation.Fini
 		markOriginalFailure(ProtocolFailureToolEnvelopeMissing)
 	}
 	if protocol.Product && strings.HasPrefix(candidate, "```") && !looksLikeG1IFunctionFence(candidate) {
-		return Action{Type: "final", Content: candidate}, nil
+		return Action{Type: ActionTypeFinal, Content: candidate}, nil
 	}
 	if start := strings.Index(candidate, "<tool_calls>"); start >= 0 {
 		body := candidate[start+len("<tool_calls>"):]
@@ -88,7 +90,7 @@ func (protocol G1IFunctionProtocol) Parse(value string, finish continuation.Fini
 		if candidate == "" {
 			return Action{}, fmt.Errorf("%w: empty G1i function response", ErrProtocol)
 		}
-		return Action{Type: "final", Content: candidate}, nil
+		return Action{Type: ActionTypeFinal, Content: candidate}, nil
 	}
 	repaired := repairG1IFunctionJSON(candidate)
 	var call struct {
@@ -183,13 +185,54 @@ func (protocol G1IFunctionProtocol) Parse(value string, finish continuation.Fini
 	if decoder.Decode(&struct{}{}) != io.EOF || strings.TrimSpace(call.Name) == "" || !isJSONObject(call.Arguments) {
 		return Action{}, fmt.Errorf("%w: invalid G1i function call", ErrToolShapeInvalid)
 	}
+	if protocol.Product && protocol.SemanticNoTool && call.Name == SemanticNoToolName {
+		rationale, answer, err := parseSemanticNoToolArguments(call.Arguments)
+		if err != nil {
+			return Action{}, err
+		}
+		return Action{
+			Type:                    ActionTypeNoTool,
+			Name:                    call.Name,
+			Arguments:               call.Arguments,
+			NoToolRationale:         rationale,
+			NoToolAnswer:            answer,
+			ProtocolRepaired:        protocolRepaired,
+			OriginalProtocolFailure: originalFailure,
+		}, nil
+	}
 	return Action{
-		Type:                    "tool",
+		Type:                    ActionTypeTool,
 		Name:                    call.Name,
 		Arguments:               call.Arguments,
 		ProtocolRepaired:        protocolRepaired,
 		OriginalProtocolFailure: originalFailure,
 	}, nil
+}
+
+func parseSemanticNoToolArguments(raw json.RawMessage) (string, string, error) {
+	var arguments map[string]json.RawMessage
+	if json.Unmarshal(raw, &arguments) != nil || arguments == nil {
+		return "", "", fmt.Errorf("%w: no_tool arguments must be an object", ErrToolShapeInvalid)
+	}
+	values := make(map[string]string, len(arguments))
+	for name, encoded := range arguments {
+		if name != "reason" && name != "answer" {
+			return "", "", fmt.Errorf(
+				"%w: no_tool arguments only allow optional string fields reason and answer",
+				ErrToolShapeInvalid,
+			)
+		}
+		var value string
+		if json.Unmarshal(encoded, &value) != nil {
+			return "", "", fmt.Errorf(
+				"%w: no_tool argument %s must be a string",
+				ErrToolShapeInvalid,
+				name,
+			)
+		}
+		values[name] = strings.TrimSpace(value)
+	}
+	return values["reason"], values["answer"], nil
 }
 
 func firstRaw(object map[string]json.RawMessage, keys ...string) json.RawMessage {

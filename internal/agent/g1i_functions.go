@@ -25,6 +25,9 @@ type G1IFunctionProtocol struct {
 	// Product preserves ordinary Markdown answers on direct-response routes
 	// while using the trained fenced-JSON transcript for tool decisions.
 	Product bool
+	// SemanticNoTool enables the text-only no_tool protocol action. It is a
+	// model-visible abstention signal, not an executable or native API tool.
+	SemanticNoTool bool
 }
 
 func (protocol G1IFunctionProtocol) ID() string {
@@ -38,6 +41,15 @@ func (protocol G1IFunctionProtocol) Instructions(specs []ToolSpec, _ inference.T
 	catalog := make([]g1iCatalogEntry, 0, len(specs))
 	for _, spec := range specs {
 		catalog = append(catalog, makeG1ICatalogEntry(spec))
+	}
+	if protocol.Product && protocol.SemanticNoTool {
+		catalog = append(catalog, g1iCatalogEntry{
+			Name:        SemanticNoToolName,
+			Description: "Indicate that none of the offered tools is needed. Put a brief, complete user-facing response in reason; it becomes the final reply.",
+			Arguments: map[string]json.RawMessage{
+				"reason": json.RawMessage(`{"type":"string"}`),
+			},
+		})
 	}
 	entries := make([]string, 0, len(catalog))
 	for _, entry := range catalog {
@@ -71,6 +83,9 @@ func (protocol G1IFunctionProtocol) Instructions(specs []ToolSpec, _ inference.T
 	if protocol.Product {
 		completionGuidance := "After each Function output, either call one tool for a specific missing fact or answer the user directly in ordinary Markdown. When the answer contains code, wrap it in a fenced code block with a language tag. " +
 			"Never pack the user-visible answer into a JSON function call; answer directly in Markdown."
+		if protocol.SemanticNoTool {
+			completionGuidance = `When none of the offered tools is needed, return {"name":"no_tool","arguments":{"reason":"brief complete user-facing response"}}; reason becomes the final reply without another generation. This no_tool form is the only exception to the rule against packing user-visible text into a function call. ` + completionGuidance
+		}
 		if hasToolSpec(specs, "submit") {
 			completionGuidance = "After each Function output, either call one tool for a specific missing fact, or call submit with the exact user-visible answer. " +
 				"When the user asks for code or a Markdown-formatted answer, respond directly with fenced code blocks instead of calling submit. " +

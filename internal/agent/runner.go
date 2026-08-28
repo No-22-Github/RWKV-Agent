@@ -146,6 +146,23 @@ func NewRunner(generator continuation.Generator, tools []Tool, options Options) 
 		toolCompleter = candidate
 	}
 	thinkingMode := rendererThinkingMode(options.Renderer)
+	semanticNoTool := protocolSemanticNoTool(options.Protocol)
+	decisionFakeThink := rendererDecisionFakeThink(options.Renderer)
+	if semanticNoTool || decisionFakeThink {
+		if toolCompleter != nil {
+			return nil, fmt.Errorf(
+				"%w: semantic no_tool and decision fake-think are text-continuation experiments and cannot be used with native tool calling",
+				continuation.ErrInvalidRequest,
+			)
+		}
+		if !isProductG1IFunctionProtocol(options.Protocol) ||
+			!isProductG1IFunctionRenderer(options.Renderer) {
+			return nil, fmt.Errorf(
+				"%w: product experiments require the product G1i function protocol and renderer",
+				continuation.ErrInvalidRequest,
+			)
+		}
+	}
 	responseControl := directResponseControl(thinkingMode)
 	if len(specs) > 0 {
 		var capabilities strings.Builder
@@ -166,22 +183,68 @@ func NewRunner(generator continuation.Generator, tools []Tool, options Options) 
 		terminalTool = options.TerminalTool
 	}
 	return &Runner{
-		generator:       generator,
-		toolCompleter:   toolCompleter,
-		tools:           registered,
-		toolSpecs:       append([]ToolSpec(nil), specs...),
-		options:         options,
-		protocol:        options.Protocol,
-		renderer:        options.Renderer,
-		control:         control,
-		responseControl: responseControl,
-		terminalTool:    terminalTool,
-		thinkingMode:    thinkingMode,
-		router:          options.Router,
-		toolRouter:      options.ToolRouter,
-		toolBundles:     append([]ToolBundle(nil), options.ToolBundles...),
-		routeRenderer:   options.RouteRenderer,
+		generator:         generator,
+		toolCompleter:     toolCompleter,
+		tools:             registered,
+		toolSpecs:         append([]ToolSpec(nil), specs...),
+		options:           options,
+		protocol:          options.Protocol,
+		renderer:          options.Renderer,
+		control:           control,
+		responseControl:   responseControl,
+		terminalTool:      terminalTool,
+		thinkingMode:      thinkingMode,
+		semanticNoTool:    semanticNoTool,
+		decisionFakeThink: decisionFakeThink,
+		router:            options.Router,
+		toolRouter:        options.ToolRouter,
+		toolBundles:       append([]ToolBundle(nil), options.ToolBundles...),
+		routeRenderer:     options.RouteRenderer,
 	}, nil
+}
+
+func isProductG1IFunctionProtocol(protocol ActionProtocol) bool {
+	switch protocol := protocol.(type) {
+	case G1IFunctionProtocol:
+		return protocol.Product
+	case *G1IFunctionProtocol:
+		return protocol != nil && protocol.Product
+	default:
+		return false
+	}
+}
+
+func isProductG1IFunctionRenderer(renderer PromptRenderer) bool {
+	switch renderer := renderer.(type) {
+	case G1IFunctionRenderer:
+		return renderer.Product
+	case *G1IFunctionRenderer:
+		return renderer != nil && renderer.Product
+	default:
+		return false
+	}
+}
+
+func protocolSemanticNoTool(protocol ActionProtocol) bool {
+	switch protocol := protocol.(type) {
+	case G1IFunctionProtocol:
+		return protocol.Product && protocol.SemanticNoTool
+	case *G1IFunctionProtocol:
+		return protocol != nil && protocol.Product && protocol.SemanticNoTool
+	default:
+		return false
+	}
+}
+
+func rendererDecisionFakeThink(renderer PromptRenderer) bool {
+	switch renderer := renderer.(type) {
+	case G1IFunctionRenderer:
+		return renderer.Product && renderer.DecisionFakeThink
+	case *G1IFunctionRenderer:
+		return renderer != nil && renderer.Product && renderer.DecisionFakeThink
+	default:
+		return false
+	}
 }
 
 func rendererThinkingMode(renderer PromptRenderer) inference.ThinkingMode {

@@ -9,8 +9,12 @@ import (
 
 func (protocol G1IFunctionProtocol) Correction(error) string {
 	if protocol.Product {
-		return "Either answer the user directly in ordinary Markdown, or return one fenced JSON function call with this shape: " +
+		correction := "Either answer the user directly in ordinary Markdown, or return one fenced JSON function call with this shape: " +
 			`{"name":"TOOL_NAME","arguments":{...}}.`
+		if protocol.SemanticNoTool {
+			correction += ` When no offered tool is needed, use {"name":"no_tool","arguments":{"reason":"brief complete user-facing response"}}; reason becomes the final reply.`
+		}
+		return correction
 	}
 	return `Return only one JSON function call with this shape: {"name":"TOOL_NAME","arguments":{...}}.`
 }

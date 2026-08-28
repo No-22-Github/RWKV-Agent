@@ -12,7 +12,7 @@
 ## Current Status
 
 - **Usable**: source builds on Apple Silicon, macOS 15+ — CLI/TUI, the Wails V3 desktop app, and a headless server.
-- **Experimental**: the read-only Agent framework and evaluation harness (`rwkv-agent-eval-v19`).
+- **Experimental**: the read-only Agent framework and evaluation harness (`rwkv-agent-eval-v20`).
 - **Platforms**: Windows has no usable entry point yet. Linux `-tags server` builds are verified in CI (remote-provider scenarios); the local MLX model and desktop window are not available there yet.
 - **Distribution**: the technical packaging chain works, but upstream licenses must be confirmed and a project license chosen before public distribution.
 
@@ -269,9 +269,10 @@ write, command-execution, or real-network capability.
 
 The product default is the G1i-trained Markdown/function transcript: tools are listed
 under `System: Tools:`, a tool call is a JSON fenced code block continued after
-`Assistant:`, and results are returned as `User: Function output:`. The `inspect`
-route ends with a lightweight `submit` that commits the final visible answer and stops
-immediately; the `respond` route answers directly. The legacy
+`Assistant:`, and results are returned as `User: Function output:`. Once an `inspect`
+turn has enough evidence it answers directly in ordinary Markdown; the product profile
+does not register `submit`, so fenced code never has to be packed into a JSON argument.
+The `respond` route also answers directly. The legacy
 `rwkv-g1i-envelope-v1` XML protocol remains available as `--agent-protocol xml` for
 A/B compatibility.
 
@@ -310,12 +311,11 @@ Common flags:
 --max-steps <2..20>                  --progressive-tools[=true|false]
 --agent-protocol markdown|xml        --route-max-tokens <n>
 --decision-max-tokens <n>            --max-tokens <n>
---workspace <directory>              --thinking off|fast|full
+--workspace <directory>              --thinking off|fast|full (XML compatibility only)
 --ui auto|tui|plain                  --prompt <task>
 --web                                --subagents
---few-shot                            --route-stage
---trace-prompt-bytes <n>             --duplicate-replay-limit <n>
---duplicate-rescue-threshold <n>     --same-tool-rescue-limit <n>
+--semantic-no-tool                   --decision-fake-think
+--trace-prompt-bytes <n>
 --brave-endpoint <url>               --tavily-endpoint <url>
 --max-active-batch <1..8>            --subagent-max-parallel <2..8>
 --subagent-max-steps <n>             --subagent-timeout <duration>
@@ -326,11 +326,15 @@ The Agent uses deterministic decoding by default: `temperature=1`, `top-k=1`,
 `top-p=1`, zero presence/frequency penalties, and `penalty-decay=1`. The Router
 generates at most 48 tokens, the first tool selection at most 96 tokens, the final
 answer at most 1024 tokens, with a limit of 6 Agent steps (the Router is counted
-separately). `--few-shot` is an off-by-default experiment that injects example
-trajectories at initial decision, after a successful tool result, and at forced-answer
-time; measured runs showed strong prompt anchoring, so it is kept only for experiments
-and reproduction. `--route-stage` is also off by default and kept as an early scaffold
-for small models.
+separately). Product experiment switches default off. `--few-shot`, the legacy
+`--route-stage`, and Primitive duplicate/rescue knobs are `agent-eval` options only;
+they are no longer exposed as apparently active `agent` flags that never enter the App
+profile.
+
+The product Markdown profile fixes internal thinking to `off`; `--thinking fast/full`
+remains available only with the `--agent-protocol xml` compatibility profile. Use the
+separate `--decision-fake-think` switch for the product half-open think-byte experiment
+so the two renderer semantics cannot be mixed silently.
 
 ### Optional Web and Subagents
 
@@ -379,11 +383,11 @@ Every tool path must be relative to `--workspace`; absolute paths, `..` traversa
 symlinks pointing outside the workspace are rejected. Single-file reads are limited to
 64 KiB, and search skips `.git`, `build`, `dist`, and `node_modules`. After each tool
 attempt the Runner keeps the full assistant/function-output trajectory and lets the
-model call a different tool, or `submit` once the evidence is sufficient. Failures
+model call a different tool or answer directly once the evidence is sufficient. Failures
 return deterministic recovery hints, and the exact same call is never executed twice.
-After duplicate or same-tool-streak thresholds the Runner switches to a submit-only
-rescue mode; when evidence is insufficient, the submission must state its limitations.
-The whole turn commits transactionally only after `submit` succeeds; generation,
+After duplicate or same-tool-streak thresholds the Runner disables further tools and
+requests the best grounded direct answer; insufficient evidence must be stated plainly.
+The whole turn commits transactionally only after a valid final answer; generation,
 protocol, or step failures roll the turn back. Set `RWKV_AGENT_DEBUG=1` to print raw
 model steps when diagnosing protocol errors (it may include local file content and is
 off by default).
@@ -497,8 +501,10 @@ for the complete mapping details.
 
 ## 8. Agent Evaluation
 
-`agent-eval` runs fixed cases with exactly the same Router, prompt, sampling, and
-Runner parameters as `agent`:
+`agent-eval` uses an explicit profile per suite. `bfcl-product` is constructed through
+the same `ProductHarnessOptions` entry point as the App (Markdown/function plus the
+progressive Router); Primitive, wrapped BFCL, and XML regression protocols remain
+separate so benchmark bytes do not leak into the product profile:
 
 | Suite | Contents |
 | --- | --- |
@@ -523,11 +529,24 @@ Session per case. Use repeatable `--case` flags for subsets, `--cases` for versi
 `--cases` and `--suite` are mutually exclusive; the output directory must not exist.
 
 Case schema v4 can make deliberate abstention an explicit success condition with
-`require_active_no_call` and `forbid_route_fallback`. Run schema v5 freezes the
-scorer and outcome-taxonomy versions in the manifest and reports `active_no_call`,
-separate route/decision protocol validity, outcome counts, and classified parse
-failures. Ordinary-text finals remain valid; fail-closed routing and compatibility
-repairs no longer receive active no-call credit.
+`require_active_no_call` and `forbid_route_fallback`. Run schema v6 freezes the scorer,
+outcome taxonomy, product protocol/renderer, Router, and both experiment switches in
+the manifest. It reports `active_no_call`, separate route/decision protocol validity,
+outcome counts, and classified parse failures. `semantic_no_call`, ordinary-text finals,
+fail-closed routing, and compatibility repairs remain distinct.
+
+`bfcl-product` enables the progressive Router by default. Two 7B-targeted experiment
+switches default off. `--semantic-no-tool` accepts a text-protocol `no_tool` action whose
+arguments are either empty or contain optional string `reason` / `answer` fields. A
+non-empty `answer` takes precedence; otherwise `reason` becomes the user-visible final
+reply. The raw fields remain in the trace and the App's no-tool event, but never count as
+a tool execution or evidence. Empty arguments retain the compatibility path into a
+direct-answer stage; unknown fields and non-string values are rejected.
+`--decision-fake-think` prefills the exact half-open `<think></think` only on unanchored
+inspect decisions. Both are text-continuation experiments, never native API tools, and
+are rejected with native function calling. `--progressive-tools=false` is available for
+no-Router calibration; its route metric has no denominator and is not a product Router
+score.
 
 Remote evaluation reuses the same entry point:
 

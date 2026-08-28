@@ -6,6 +6,7 @@ import (
 	"time"
 
 	agentapi "github.com/no22/RWKV-Agent/api"
+	"github.com/no22/RWKV-Agent/internal/agent"
 	agenteval "github.com/no22/RWKV-Agent/internal/agent/eval"
 	"github.com/no22/RWKV-Agent/internal/continuation/rwkvlightning"
 	"github.com/no22/RWKV-Agent/internal/terminal"
@@ -207,6 +208,10 @@ func TestAgentCapabilityOptionsMapToAPIConfig(t *testing.T) {
 		"--subagent-max-parallel", "6",
 		"--subagent-max-steps", "5",
 		"--subagent-timeout", "3m",
+		"--decision-max-tokens", "77",
+		"--trace-prompt-bytes", "1234",
+		"--semantic-no-tool",
+		"--decision-fake-think",
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -217,7 +222,9 @@ func TestAgentCapabilityOptionsMapToAPIConfig(t *testing.T) {
 	}
 	if config.ProgressiveTools == nil || !*config.ProgressiveTools || !config.EnableWeb ||
 		config.BraveAPIKey != "brave-secret" || config.TavilyAPIKey != "tavily-secret" ||
-		config.RouteMaxTokens != 48 ||
+		config.RouteMaxTokens != 48 || config.DecisionMaxTokens != 77 ||
+		config.TracePromptBytes == nil || *config.TracePromptBytes != 1234 ||
+		!config.SemanticNoTool || !config.DecisionFakeThink ||
 		!config.EnableSubagents || config.MaxActiveBatch != 6 || config.RemoteBatchWaitMS != 15 ||
 		config.SubagentMaxParallel != 6 || config.SubagentMaxSteps != 5 ||
 		config.SubagentTimeoutSeconds != 180 {
@@ -244,14 +251,14 @@ func TestAgentCapabilityOptionsRejectInvalidBounds(t *testing.T) {
 	}
 }
 
-func TestAgentRouteStageIsConfigurable(t *testing.T) {
+func TestAgentEvalXMLRouteStageIsConfigurable(t *testing.T) {
 	t.Parallel()
 
-	enabled := agentRunnerOptions(runOptions{routeStage: true}, nil)
+	enabled := agentRunnerOptions(runOptions{routeStage: true}, agenteval.SuiteBoundary, nil)
 	if enabled.Router == nil || enabled.RouteRenderer == nil {
 		t.Fatal("route stage enabled but no router was attached")
 	}
-	disabled := agentRunnerOptions(runOptions{routeStage: false}, nil)
+	disabled := agentRunnerOptions(runOptions{routeStage: false}, agenteval.SuiteBoundary, nil)
 	if disabled.Router != nil || disabled.RouteRenderer != nil {
 		t.Fatalf("route stage disabled but router = %+v", disabled.Router)
 	}
@@ -264,9 +271,9 @@ func TestAgentRouteStageIsConfigurable(t *testing.T) {
 		{args: []string{"--route-stage=false"}, want: false},
 		{args: nil, want: false},
 	} {
-		parsed, err := parseRunOptions("agent", append([]string{
+		parsed, err := parseRunOptions("agent-eval", append([]string{
 			"--model", "m",
-			"--prompt", "task",
+			"--suite", agenteval.SuiteBoundary,
 		}, testCase.args...))
 		if err != nil {
 			t.Fatal(err)
@@ -321,21 +328,28 @@ func TestAgentAcceptsRWKVLightningContinuation(t *testing.T) {
 	}
 }
 
-func TestRWKVLightningAcceptsThinkingWithDefaultChatPromptMode(t *testing.T) {
+func TestProductAgentRejectsIgnoredThinkingMode(t *testing.T) {
 	t.Parallel()
 
-	options, err := parseRunOptions("agent", []string{
+	if _, err := parseRunOptions("agent", []string{
 		"--model", "rwkv7-13b",
 		"--prompt", "inspect the repository",
 		"--completion", "rwkv-lightning",
 		"--api-url", "https://example.test/big_batch/completions",
 		"--thinking", "full",
-	})
-	if err != nil {
-		t.Fatal(err)
+	}); err == nil {
+		t.Fatal("product markdown Agent accepted an ignored thinking mode")
 	}
-	if options.thinkingMode != "full" {
-		t.Fatalf("thinking mode = %q", options.thinkingMode)
+	options, err := parseRunOptions("agent", []string{
+		"--model", "rwkv7-13b",
+		"--prompt", "inspect the repository",
+		"--completion", "rwkv-lightning",
+		"--api-url", "https://example.test/big_batch/completions",
+		"--agent-protocol", "xml",
+		"--thinking", "full",
+	})
+	if err != nil || options.thinkingMode != "full" {
+		t.Fatalf("XML thinking options = %+v, error = %v", options, err)
 	}
 	if _, err := parseRunOptions("agent", []string{
 		"--model", "model",
@@ -346,6 +360,13 @@ func TestRWKVLightningAcceptsThinkingWithDefaultChatPromptMode(t *testing.T) {
 		"--thinking", "full",
 	}); err == nil {
 		t.Fatal("native-chat accepted a non-off internal thinking mode")
+	}
+	if _, err := parseRunOptions("agent-eval", []string{
+		"--model", "model",
+		"--suite", agenteval.SuiteBFCLProduct,
+		"--thinking", "fast",
+	}); err == nil {
+		t.Fatal("bfcl-product accepted an ignored thinking mode")
 	}
 }
 
@@ -528,6 +549,37 @@ func TestAgentEvalOptionsAreDeterministicAndIsolated(t *testing.T) {
 	}
 	if bfclProductOptions.evalSuite != agenteval.SuiteBFCLProduct || !bfclProductOptions.evalSuiteExplicit {
 		t.Fatalf("BFCL product suite options = %+v", bfclProductOptions)
+	}
+	if !bfclProductOptions.progressiveTools || bfclProductOptions.routeMaxTokens != 48 ||
+		bfclProductOptions.sameToolRescueLimit != agent.ProductSameToolRescueLimit {
+		t.Fatalf("BFCL product profile defaults = %+v", bfclProductOptions)
+	}
+	bfclRunner := agentRunnerOptions(bfclProductOptions, agenteval.SuiteBFCLProduct, nil)
+	if bfclRunner.Protocol.ID() != agent.G1IProductFunctionProtocolV1 ||
+		bfclRunner.Renderer.ID() != agent.G1IProductFunctionRendererV1 ||
+		bfclRunner.ToolRouter == nil ||
+		bfclRunner.ToolRouter.ID() != (agent.G1IProgressiveToolRouteProtocol{}).ID() {
+		t.Fatalf("BFCL product Runner options = %+v", bfclRunner)
+	}
+	experimentalOptions, err := parseRunOptions("agent-eval", []string{
+		"--model", "model",
+		"--suite", agenteval.SuiteBFCLProduct,
+		"--semantic-no-tool",
+		"--decision-fake-think",
+		"--progressive-tools=false",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !experimentalOptions.semanticNoTool || !experimentalOptions.decisionFakeThink || experimentalOptions.progressiveTools {
+		t.Fatalf("BFCL product experiments = %+v", experimentalOptions)
+	}
+	if _, err := parseRunOptions("agent-eval", []string{
+		"--model", "model",
+		"--suite", agenteval.SuiteBoundary,
+		"--semantic-no-tool",
+	}); err == nil {
+		t.Fatal("non-product eval accepted a product experiment switch")
 	}
 	legacySuiteOptions, err := parseRunOptions("agent-eval", []string{
 		"--model", "model",

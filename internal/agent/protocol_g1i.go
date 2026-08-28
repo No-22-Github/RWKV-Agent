@@ -200,7 +200,7 @@ func (G1IProtocol) Parse(value string, finish continuation.FinishReason) (Action
 		if content == "" {
 			return Action{}, fmt.Errorf("%w: empty G1I answer", ErrProtocol)
 		}
-		return Action{Type: "final", Content: content}, nil
+		return Action{Type: ActionTypeFinal, Content: content}, nil
 	}
 	if candidate == "" {
 		return Action{}, fmt.Errorf("%w: empty model response", ErrProtocol)
@@ -225,7 +225,7 @@ func (G1IProtocol) Parse(value string, finish continuation.FinishReason) (Action
 	if looksLikeBareToolCall(candidate) {
 		return Action{}, fmt.Errorf("%w: tool call JSON is missing its G1I envelope", ErrToolEnvelopeMissing)
 	}
-	return Action{Type: "final", Content: candidate}, nil
+	return Action{Type: ActionTypeFinal, Content: candidate}, nil
 }
 
 // parseLegacyXMLToolCall recovers the compact self-closing function syntax

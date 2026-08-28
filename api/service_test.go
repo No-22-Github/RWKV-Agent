@@ -76,7 +76,10 @@ func TestAgentCapabilityDefaults(t *testing.T) {
 	if config.AgentProtocol != AgentProtocolMarkdown {
 		t.Fatalf("AgentProtocol = %q", config.AgentProtocol)
 	}
-	if config.RouteMaxTokens != 48 || config.MaxActiveBatch != 4 || config.SubagentMaxParallel != 4 || config.SubagentMaxSteps != 4 || config.SubagentTimeoutSeconds != 120 {
+	if config.SemanticNoTool || config.DecisionFakeThink {
+		t.Fatalf("product experiments must default off: %+v", config)
+	}
+	if config.RouteMaxTokens != 48 || config.DecisionMaxTokens != 96 || config.MaxActiveBatch != 4 || config.SubagentMaxParallel != 4 || config.SubagentMaxSteps != 4 || config.SubagentTimeoutSeconds != 120 {
 		t.Fatalf("capability defaults = %+v", config)
 	}
 }
@@ -97,6 +100,30 @@ func TestAgentProtocolCompatibilityMode(t *testing.T) {
 		AgentProtocol: "invalid",
 	}); err == nil {
 		t.Fatal("invalid Agent protocol accepted")
+	}
+	if _, err := normalizeConfig(Config{
+		Provider: ProviderRWKVLightning,
+		Model:    "model", Endpoint: "https://example.test",
+		AgentProtocol:  AgentProtocolXML,
+		SemanticNoTool: true,
+	}); err == nil {
+		t.Fatal("XML Agent protocol accepted a product text experiment")
+	}
+	if _, err := normalizeConfig(Config{
+		Provider: ProviderRWKVLightning,
+		Model:    "model", Endpoint: "https://example.test",
+		AgentProtocol: AgentProtocolMarkdown,
+		Thinking:      "fast",
+	}); err == nil {
+		t.Fatal("markdown Agent protocol accepted an ignored thinking mode")
+	}
+	if _, err := normalizeConfig(Config{
+		Provider: ProviderRWKVLightning,
+		Model:    "model", Endpoint: "https://example.test",
+		AgentProtocol: AgentProtocolXML,
+		Thinking:      "full",
+	}); err != nil {
+		t.Fatalf("XML Agent protocol rejected thinking mode: %v", err)
 	}
 }
 

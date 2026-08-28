@@ -45,9 +45,13 @@ type Config struct {
 	NativeProvider         string            `json:"nativeProvider,omitempty"`
 	Thinking               string            `json:"thinking,omitempty"`
 	AgentProtocol          AgentProtocol     `json:"agentProtocol,omitempty"`
+	SemanticNoTool         bool              `json:"semanticNoTool,omitempty"`
+	DecisionFakeThink      bool              `json:"decisionFakeThink,omitempty"`
 	MaxSteps               int               `json:"maxSteps,omitempty"`
 	MaxTokens              int               `json:"maxTokens,omitempty"`
+	DecisionMaxTokens      int               `json:"decisionMaxTokens,omitempty"`
 	RouteMaxTokens         int               `json:"routeMaxTokens,omitempty"`
+	TracePromptBytes       *int              `json:"tracePromptBytes,omitempty"`
 	Temperature            float64           `json:"temperature,omitempty"`
 	TopK                   int               `json:"topK,omitempty"`
 	TopP                   float64           `json:"topP,omitempty"`
@@ -212,6 +216,8 @@ type Step struct {
 	ToolRetries      []ToolRetryTrace `json:"toolRetries,omitempty"`
 	Subagents        []SubagentTrace  `json:"subagents,omitempty"`
 	ToolDurationMS   int64            `json:"toolDurationMs,omitempty"`
+	NoToolRationale  string           `json:"noToolRationale,omitempty"`
+	NoToolAnswer     string           `json:"noToolAnswer,omitempty"`
 }
 
 // Result is one committed Agent turn.

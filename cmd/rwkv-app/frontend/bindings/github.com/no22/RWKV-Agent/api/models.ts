@@ -38,9 +38,13 @@ export class Config {
     "nativeProvider"?: string;
     "thinking"?: string;
     "agentProtocol"?: AgentProtocol;
+    "semanticNoTool"?: boolean;
+    "decisionFakeThink"?: boolean;
     "maxSteps"?: number;
     "maxTokens"?: number;
+    "decisionMaxTokens"?: number;
     "routeMaxTokens"?: number;
+    "tracePromptBytes"?: number | null;
     "temperature"?: number;
     "topK"?: number;
     "topP"?: number;
@@ -360,6 +364,8 @@ export class Step {
     "toolRetries"?: ToolRetryTrace[];
     "subagents"?: SubagentTrace[];
     "toolDurationMs"?: number;
+    "noToolRationale"?: string;
+    "noToolAnswer"?: string;
 
     /** Creates a new Step instance. */
     constructor($$source: Partial<Step> = {}) {

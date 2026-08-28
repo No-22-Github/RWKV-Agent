@@ -11,10 +11,10 @@ import (
 
 const (
 	CaseSchemaVersion      = 4
-	RunSchemaVersion       = 5
-	HarnessVersion         = "rwkv-agent-eval-v19"
+	RunSchemaVersion       = 6
+	HarnessVersion         = "rwkv-agent-eval-v20"
 	ScorerVersion          = "rwkv-agent-eval-scorer-v1"
-	OutcomeTaxonomyVersion = "rwkv-agent-outcome-v1"
+	OutcomeTaxonomyVersion = "rwkv-agent-outcome-v2"
 
 	PrimitiveProfileUpstream = "upstream-compatible"
 	PrimitiveProfileGoNative = "go-native"
@@ -111,6 +111,8 @@ type ModelMetadata struct {
 }
 
 type HarnessMetadata struct {
+	SemanticNoTool           bool     `json:"semantic_no_tool"`
+	DecisionFakeThink        bool     `json:"decision_fake_think"`
 	Version                  string   `json:"version"`
 	ScorerVersion            string   `json:"scorer_version"`
 	OutcomeTaxonomyVersion   string   `json:"outcome_taxonomy_version"`
@@ -173,6 +175,7 @@ type TurnOutcome string
 const (
 	OutcomeExplicitRespond       TurnOutcome = "explicit_respond"
 	OutcomeDirectFinal           TurnOutcome = "direct_final"
+	OutcomeSemanticNoCall        TurnOutcome = "semantic_no_call"
 	OutcomeCalledTool            TurnOutcome = "called_tool"
 	OutcomeRouteFailedClosed     TurnOutcome = "route_failed_closed"
 	OutcomeToolEnvelopeMissing   TurnOutcome = "tool_envelope_missing"

@@ -197,6 +197,10 @@ type Step struct {
 	ToolRetries      []ToolRetryTrace          `json:"tool_retries,omitempty"`
 	Subagents        []SubagentTrace           `json:"subagents,omitempty"`
 	ToolDurationMS   int64                     `json:"tool_duration_ms,omitempty"`
+	// NoToolRationale and NoToolAnswer retain model-authored abstention text for
+	// presentation and audit. They are never tool evidence.
+	NoToolRationale string `json:"no_tool_rationale,omitempty"`
+	NoToolAnswer    string `json:"no_tool_answer,omitempty"`
 }
 
 // SubagentStep is the compact, presentation-safe trace of one child tool call.
@@ -283,21 +287,23 @@ type PlanSubtaskTrace struct {
 }
 
 type Runner struct {
-	generator       continuation.Generator
-	toolCompleter   toolchat.Completer
-	tools           map[string]Tool
-	toolSpecs       []ToolSpec
-	options         Options
-	protocol        ActionProtocol
-	renderer        PromptRenderer
-	control         string
-	responseControl string
-	terminalTool    string
-	thinkingMode    inference.ThinkingMode
-	router          RouteProtocol
-	toolRouter      ToolRouteProtocol
-	toolBundles     []ToolBundle
-	routeRenderer   PromptRenderer
+	generator         continuation.Generator
+	toolCompleter     toolchat.Completer
+	tools             map[string]Tool
+	toolSpecs         []ToolSpec
+	options           Options
+	protocol          ActionProtocol
+	renderer          PromptRenderer
+	control           string
+	responseControl   string
+	terminalTool      string
+	thinkingMode      inference.ThinkingMode
+	semanticNoTool    bool
+	decisionFakeThink bool
+	router            RouteProtocol
+	toolRouter        ToolRouteProtocol
+	toolBundles       []ToolBundle
+	routeRenderer     PromptRenderer
 
 	runMu   sync.Mutex
 	stateMu sync.RWMutex

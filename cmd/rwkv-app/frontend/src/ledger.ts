@@ -70,6 +70,25 @@ export function buildLedgerEvents(message: LedgerMessage): LedgerEvent[] {
     if (step.request) add({ id: `${prefix}:model-request`, kind: 'model', title: `模型请求 · Step ${step.number}`, summary: `${step.stage || 'decision'} · ${step.request.bytes || 0} bytes`, state: 'completed', request: step.request, timing: { durationMs: step.modelDurationMs }, raw: step })
     const modelError = step.modelError || step.protocolError
     add({ id: `${prefix}:model-response`, kind: 'model', title: `模型响应 · Step ${step.number}`, summary: shortValue(modelError || step.modelOutput || step.actionType || '空响应'), state: modelError ? 'failed' : 'completed', result: { modelOutput: step.modelOutput, finishReason: step.finishReason, actionType: step.actionType, protocolError: step.protocolError, modelError: step.modelError, usage: step.usage }, timing: { durationMs: step.modelDurationMs, usage: step.usage }, raw: step })
+    if (step.actionType === 'no_tool') {
+      const noToolFailure = step.protocolError || (step.stageViolation ? '当前阶段不接受 no_tool' : '')
+      add({
+        id: `${prefix}:no-tool`,
+        kind: 'model',
+        title: `无需工具 · Step ${step.number}`,
+        summary: shortValue(step.noToolRationale || step.noToolAnswer || noToolFailure || '模型决定直接回答'),
+        state: noToolFailure ? 'failed' : 'completed',
+        result: {
+          rationale: step.noToolRationale,
+          candidateAnswer: step.noToolAnswer,
+          accepted: !noToolFailure,
+          toolExecuted: false,
+          toolEvidence: false,
+          error: noToolFailure || undefined,
+        },
+        raw: step,
+      })
+    }
     if (step.protocolError) add({ id: `${prefix}:protocol-retry`, kind: 'retry', title: `协议修复 · Step ${step.number}`, summary: shortValue(step.protocolError), state: step.modelError ? 'failed' : 'completed', request: { correctionFor: step.protocolError }, result: { repaired: step.protocolRepaired, stageViolation: step.stageViolation }, raw: step })
     if (step.tool) {
       add({ id: `${prefix}:tool-call`, kind: 'tool', title: `工具调用 · ${step.tool}`, summary: shortValue(step.toolArguments || '无参数'), state: step.toolError || step.toolRejected ? 'failed' : 'completed', request: { tool: step.tool, arguments: parseJSONValue(step.toolArguments) }, timing: { durationMs: step.toolDurationMs }, raw: step })

@@ -11,7 +11,7 @@
 ## 当前状态
 
 - **可用**：Apple Silicon macOS 15+ 源码构建 —— CLI/TUI、Wails V3 桌面 App、headless server。
-- **实验性**：只读 Agent 框架与评测，当前 Harness 版本为 `rwkv-agent-eval-v19`。
+- **实验性**：只读 Agent 框架与评测，当前 Harness 版本为 `rwkv-agent-eval-v20`。
 - **平台**：Windows 尚无可用入口；Linux 已在 CI 验证 `-tags server` 构建（远程
   provider 场景），本地 MLX 模型与桌面窗口尚未落地。
 - **分发**：技术链路已经可用，公开分发前仍需确认上游授权并选择项目许可证。
@@ -246,8 +246,9 @@ tokenizer 不匹配仍会拒绝。迁移后的 autosave 写入新 revision，不
 
 产品默认使用 G1i 训练原生的 Markdown/function transcript：工具目录位于 `System: Tools:`，
 工具调用是 `Assistant:` 后续写的 JSON fenced code block，工具结果以
-`User: Function output:` 回填。`inspect` 路由通过轻量 `submit` 提交最终可见答案并立即
-结束；`respond` 路由直接回答。旧 `rwkv-g1i-envelope-v1` XML 协议保留为
+`User: Function output:` 回填。`inspect` 获得足够证据后直接输出普通 Markdown，不注册
+`submit`，因此代码块不会被迫塞入 JSON 参数；`respond` 路由也直接回答。旧
+`rwkv-g1i-envelope-v1` XML 协议保留为
 `--agent-protocol xml` 的 A/B 兼容模式。
 
 渐进式工具暴露默认开启：每轮先由不暴露具体 schema 的短 Router 在 `workspace`、
@@ -281,12 +282,11 @@ user/assistant/tool transcript 带入后续阶段。`/new` 或 `/reset` 清空�
 --max-steps <2..20>                  --progressive-tools[=true|false]
 --agent-protocol markdown|xml        --route-max-tokens <n>
 --decision-max-tokens <n>            --max-tokens <n>
---workspace <directory>              --thinking off|fast|full
+--workspace <directory>              --thinking off|fast|full（仅 XML 兼容协议）
 --ui auto|tui|plain                  --prompt <task>
 --web                                --subagents
---few-shot                            --route-stage
---trace-prompt-bytes <n>             --duplicate-replay-limit <n>
---duplicate-rescue-threshold <n>     --same-tool-rescue-limit <n>
+--semantic-no-tool                   --decision-fake-think
+--trace-prompt-bytes <n>
 --brave-endpoint <url>               --tavily-endpoint <url>
 --max-active-batch <1..8>            --subagent-max-parallel <2..8>
 --subagent-max-steps <n>             --subagent-timeout <duration>
@@ -295,10 +295,13 @@ user/assistant/tool transcript 带入后续阶段。`/new` 或 `/reset` 清空�
 
 Agent 默认使用确定性解码：`temperature=1`、`top-k=1`、`top-p=1`，presence/frequency
 惩罚为 0、`penalty-decay=1`。能力 Router 最多生成 48 token，首次工具选择最多 96 token，
-最终回答最多 1024 token，并限制为 6 个 Agent step（Router 独立计数）。`--few-shot` 是
-默认关闭的实验开关：它在初始决策、成功工具结果后和强制回答阶段注入示例轨迹；实测会
-产生明显 prompt anchoring，仅用于实验与复现。`--route-stage` 同样默认关闭，保留给早期
-小模型 scaffold。
+最终回答最多 1024 token，并限制为 6 个 Agent step（Router 独立计数）。产品实验开关默认
+关闭；`--few-shot`、旧 `--route-stage` 和 Primitive 的重复/救援参数只属于 `agent-eval`，
+不再作为看似可用但实际不进入 App profile 的 `agent` 参数暴露。
+
+Product Markdown profile 固定使用 `--thinking off`；`--thinking fast/full` 只保留给
+`--agent-protocol xml` 兼容 A/B。Product 的半开 think 字节实验必须使用独立的
+`--decision-fake-think` 开关，避免把两种 renderer 语义混成一套。
 
 ### 可选 Web 与子代理
 
@@ -343,9 +346,9 @@ Provider/runtime 层。
 所有工具路径必须相对 `--workspace`；绝对路径、`..` 穿越和指向工作区外的符号链接都会被
 拒绝。单文件读取限制为 64 KiB，搜索跳过 `.git`、`build`、`dist` 和 `node_modules`。
 每次工具尝试后 Runner 保留完整的 assistant/function-output 轨迹，允许模型继续调用不同
-工具，证据充分时调用 `submit`；失败结果给出确定性恢复提示，同一精确调用不会再次执行。
-达到重复或同工具连击阈值后，Runner 切换到只暴露 `submit` 的收束模式；证据不足时提交
-内容必须明确说明限制。`submit` 成功后才事务化提交整轮 transcript，生成、协议或 step
+工具，证据充分时直接回答；失败结果给出确定性恢复提示，同一精确调用不会再次执行。
+达到重复或同工具连击阈值后，Runner 禁用后续工具并要求基于已有证据直接给出最佳答案；
+证据不足时必须明确说明限制。合法 final 产生后才事务化提交整轮 transcript，生成、协议或 step
 失败仍整轮回滚。诊断协议错误可临时设置 `RWKV_AGENT_DEBUG=1`（会打印可能包含本地文件
 内容的原始模型 step，默认不启用）。
 
@@ -448,7 +451,9 @@ go test -tags chatcompletions ./internal/continuation/chatcompletions \
 
 ## 8. Agent 评测
 
-`agent-eval` 使用与 `agent` 完全相同的 Router、prompt、采样和 Runner 参数运行固定 case：
+`agent-eval` 按 suite 使用显式 profile。`bfcl-product` 通过和 App 相同的
+`ProductHarnessOptions` 入口构造 Markdown/function + progressive Router；Primitive、BFCL
+原始包装协议和 XML 回归各自保持独立，避免把 benchmark 字节协议混进产品：
 
 | Suite | 内容 |
 | --- | --- |
@@ -472,9 +477,20 @@ Bench 目录，`--case-timeout` 设单 case 超时，`--case-parallelism` 设并
 `--suite` 互斥；输出目录必须尚不存在。
 
 Case schema v4 可用 `require_active_no_call` 和 `forbid_route_fallback` 把“主动不调用”设为
-显式成功条件。Run schema v5 在 manifest 冻结 scorer/outcome taxonomy 版本，并在 summary
-分别报告 `active_no_call`、route/decision 协议合法率、outcome 分布和分类解析失败；普通文本
-final 仍是合法输出，fail-closed 与兼容修复不再混入主动 no-call。
+显式成功条件。Run schema v6 在 manifest 冻结 scorer/outcome taxonomy、产品协议/renderer、
+Router 和两个实验开关，并在 summary 分别报告 `active_no_call`、route/decision 协议合法率、
+outcome 分布和分类解析失败；`semantic_no_call`、普通文本 final、fail-closed 与兼容修复互不
+混记。
+
+`bfcl-product` 默认开启 progressive Router。两个 7B 定向实验开关默认关闭：
+`--semantic-no-tool` 允许文本协议输出 `no_tool`，参数只能为空，或包含可选字符串
+`reason` / `answer`。非空 `answer` 优先、否则 `reason` 直接成为用户可见最终回复；原始字段
+同时保留在 trace 和 App 的“无需工具”事件里，但不算工具执行或 evidence。空参数保留为进入
+直接回答阶段的兼容路径，未知字段和非字符串值仍拒绝。`--decision-fake-think` 只在未锚定的
+inspect decision 上预填精确的半开 `<think></think`。两者只适用于文本续写，不会注册成
+原生 API tool；原生 function calling 会拒绝该组合。显式
+`--progressive-tools=false` 可用于无 Router 校准，但此时 route 指标没有分母，不能当作
+产品 Router 成绩。
 
 远程评测直接复用同一入口：
 

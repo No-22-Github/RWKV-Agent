@@ -423,7 +423,12 @@ func classifyTurnOutcome(result agent.Result) TurnOutcome {
 		}
 	}
 	for _, step := range result.Steps {
-		if step.ActionType == "tool" || step.Tool != "" {
+		if step.ActionType == agent.ActionTypeNoTool {
+			return OutcomeSemanticNoCall
+		}
+	}
+	for _, step := range result.Steps {
+		if step.ActionType == agent.ActionTypeTool || step.Tool != "" {
 			return OutcomeCalledTool
 		}
 	}
@@ -431,7 +436,7 @@ func classifyTurnOutcome(result agent.Result) TurnOutcome {
 		return OutcomeExplicitRespond
 	}
 	for _, step := range result.Steps {
-		if step.ActionType == "final" {
+		if step.ActionType == agent.ActionTypeFinal {
 			return OutcomeDirectFinal
 		}
 	}
@@ -448,7 +453,9 @@ func routeFailedClosed(result agent.Result) bool {
 }
 
 func isActiveNoCall(result agent.Result, outcome TurnOutcome) bool {
-	if outcome != OutcomeExplicitRespond && outcome != OutcomeDirectFinal {
+	if outcome != OutcomeExplicitRespond &&
+		outcome != OutcomeDirectFinal &&
+		outcome != OutcomeSemanticNoCall {
 		return false
 	}
 	return len(stepTools(result.Steps)) == 0
@@ -584,7 +591,7 @@ func summarize(
 						summary.Metrics.StageContractValidity.Correct++
 					}
 				}
-				if step.Stage == agent.StageAnswer && step.ActionType == "tool" {
+				if step.Stage == agent.StageAnswer && step.ActionType == agent.ActionTypeTool {
 					summary.Metrics.AnswerStageToolCalls++
 				}
 				if step.ProtocolRepaired {

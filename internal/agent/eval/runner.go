@@ -58,6 +58,13 @@ func Run(ctx context.Context, config Config) (Report, error) {
 			}
 		}
 	}
+	if config.Suite == SuiteBFCLProduct {
+		if config.Runner.Protocol == nil || config.Runner.Renderer == nil ||
+			config.Runner.Protocol.ID() != agent.G1IProductFunctionProtocolV1 ||
+			config.Runner.Renderer.ID() != agent.G1IProductFunctionRendererV1 {
+			return Report{}, fmt.Errorf("bfcl-product requires the shared product Harness profile")
+		}
+	}
 	now := config.Now
 	if now == nil {
 		now = time.Now
@@ -138,6 +145,7 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 	}
 	thinkingMode := evalRendererThinkingMode(renderer)
 	routeThinkingMode := evalRendererThinkingMode(routeRenderer)
+	semanticNoTool, decisionFakeThink := productExperimentFlags(protocol, renderer)
 	fewShot := false
 	if g1iProtocol, ok := protocol.(agent.G1IProtocol); ok {
 		fewShot = g1iProtocol.FewShot
@@ -193,6 +201,8 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 			DuplicateReplayLimit:     config.Runner.DuplicateReplayLimit,
 			DuplicateRescueThreshold: config.Runner.DuplicateRescueThreshold,
 			SameToolRescueLimit:      config.Runner.SameToolRescueLimit,
+			SemanticNoTool:           semanticNoTool,
+			DecisionFakeThink:        decisionFakeThink,
 			ScenarioHooks:            primitiveScenarioHookDescriptions(config.Cases),
 		},
 		Sampling: samplingSnapshot(config.Runner.Generation.Sampling),
@@ -204,6 +214,24 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 		CaseIDs: caseIDs,
 		Cases:   config.Cases,
 	}
+}
+
+func productExperimentFlags(protocol agent.ActionProtocol, renderer agent.PromptRenderer) (bool, bool) {
+	semanticNoTool := false
+	switch protocol := protocol.(type) {
+	case agent.G1IFunctionProtocol:
+		semanticNoTool = protocol.Product && protocol.SemanticNoTool
+	case *agent.G1IFunctionProtocol:
+		semanticNoTool = protocol != nil && protocol.Product && protocol.SemanticNoTool
+	}
+	decisionFakeThink := false
+	switch renderer := renderer.(type) {
+	case agent.G1IFunctionRenderer:
+		decisionFakeThink = renderer.Product && renderer.DecisionFakeThink
+	case *agent.G1IFunctionRenderer:
+		decisionFakeThink = renderer != nil && renderer.Product && renderer.DecisionFakeThink
+	}
+	return semanticNoTool, decisionFakeThink
 }
 
 func evalRendererThinkingMode(renderer agent.PromptRenderer) inference.ThinkingMode {
@@ -266,6 +294,13 @@ func runCase(
 	}
 	recording := &recordingGenerator{generator: generator, recorder: recorder}
 	options := config.Runner
+	if options.ToolRouter != nil {
+		catalog := options.ToolBundles
+		if len(catalog) == 0 {
+			catalog = agent.DefaultToolBundles()
+		}
+		options.ToolBundles = agent.EnabledToolBundles(tools, catalog)
+	}
 	if testCase.Primitive != nil && testCase.Primitive.MaxTurns > 0 {
 		options.MaxSteps = testCase.Primitive.MaxTurns
 		hasSubmit := slices.Contains(testCase.Primitive.ToolNames, "submit")

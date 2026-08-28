@@ -11,6 +11,11 @@ import (
 	"github.com/no22/RWKV-Agent/internal/continuation/toolchat"
 )
 
+// G1IDecisionFakeThinkPrefix is the exact half-open prefix measured by the G1i
+// abstention experiments. The final '>' and any answer bytes must come from the
+// model. Whitespace is part of this protocol variable.
+const G1IDecisionFakeThinkPrefix = "<think></think"
+
 type runnerTurn struct {
 	r        *Runner
 	ctx      context.Context
@@ -152,12 +157,24 @@ func (turn *runnerTurn) run() (Result, error) {
 			}
 			continue
 		}
-		if action.Type == "final" {
+		if action.Type == ActionTypeFinal {
 			done, finalErr := turn.finishFinalAction(step, action)
 			if finalErr != nil {
 				return turn.result, finalErr
 			}
 			if done {
+				return turn.result, nil
+			}
+			continue
+		}
+		if action.Type == ActionTypeNoTool {
+			if turn.result.Route == RouteRespond {
+				if err := turn.retryRespondRoute(step, modelStep.modelAction); err != nil {
+					return turn.result, err
+				}
+				continue
+			}
+			if turn.acceptSemanticNoTool(action, modelStep) {
 				return turn.result, nil
 			}
 			continue
@@ -231,6 +248,12 @@ func (turn *runnerTurn) generateModelStep(step int) (turnModelStep, error) {
 		turn.result.Route == RouteInspect &&
 		turn.successfulToolCalls == 0
 	injectedPrefix := false
+	if turn.assistantPrefix == "" &&
+		r.decisionFakeThink &&
+		turn.stage == StageDecision &&
+		turn.result.Route == RouteInspect {
+		turn.assistantPrefix = G1IDecisionFakeThinkPrefix
+	}
 	if turn.assistantPrefix != "" && r.toolCompleter == nil {
 		request.Prompt, injectedPrefix = appendAssistantPrefix(
 			r.renderer,
@@ -302,6 +325,12 @@ func (turn *runnerTurn) generateModelStep(step int) (turnModelStep, error) {
 		!strings.HasPrefix(strings.TrimSpace(modelAction), turn.assistantPrefix) {
 		modelAction = turn.assistantPrefix + modelAction
 	}
+	if injectedPrefix && turn.assistantPrefix == G1IDecisionFakeThinkPrefix {
+		completedPrefix := G1IDecisionFakeThinkPrefix + ">"
+		if strings.HasPrefix(strings.TrimSpace(modelAction), completedPrefix) {
+			modelAction = strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(modelAction), completedPrefix))
+		}
+	}
 	return turnModelStep{
 		generated:        generated,
 		nativeCall:       nativeCall,
@@ -318,6 +347,9 @@ func (turn *runnerTurn) parseModelAction(
 		modelStep.modelAction,
 		modelStep.generated.FinishReason,
 	)
+	if err == nil && action.Type == ActionTypeNoTool && !turn.r.semanticNoTool {
+		err = fmt.Errorf("%w: semantic no_tool is disabled", ErrProtocol)
+	}
 	// Some G1i-compatible servers serialize a valid function call in the
 	// assistant content instead of the OpenAI tool_calls field. Preserve the
 	// recovered call as a native transcript item so the following tool result
@@ -325,7 +357,7 @@ func (turn *runnerTurn) parseModelAction(
 	if err == nil &&
 		turn.r.toolCompleter != nil &&
 		modelStep.nativeCall == nil &&
-		action.Type == "tool" {
+		action.Type == ActionTypeTool {
 		modelStep.nativeCall = &toolchat.ToolCall{
 			ID:        fmt.Sprintf("call-content-%d", step),
 			Name:      action.Name,
@@ -334,9 +366,9 @@ func (turn *runnerTurn) parseModelAction(
 	}
 	stageActionType := action.Type
 	if turn.stage == StageAnswer &&
-		action.Type == "final" &&
+		action.Type == ActionTypeFinal &&
 		answerContainsToolFrame(action.Content) {
-		stageActionType = "tool"
+		stageActionType = ActionTypeTool
 	}
 	if err == nil && turn.stage == StageAnswer && stageActionType != "final" {
 		err = fmt.Errorf(
@@ -355,6 +387,49 @@ func (turn *runnerTurn) parseModelAction(
 		turn.currentStep().ProtocolFailure = action.OriginalProtocolFailure
 	}
 	return action, err
+}
+
+func (turn *runnerTurn) acceptSemanticNoTool(action Action, modelStep turnModelStep) bool {
+	current := turn.currentStep()
+	current.NoToolRationale = action.NoToolRationale
+	current.NoToolAnswer = action.NoToolAnswer
+	if output := firstNonEmpty(action.NoToolAnswer, action.NoToolRationale); output != "" {
+		turn.commitFinalText(output)
+		return true
+	}
+	recorded := turn.r.protocol.RecordAction(action, modelStep.generated.Text)
+	// The decision protocol and its no_tool catalog must not leak into the
+	// following answer generation. Keep the accepted action in transcript for
+	// audit, but replace the system control with the same direct-response
+	// control used by an explicit respond route.
+	turn.messages = replaceSystemControl(turn.messages, turn.r.responseControl)
+	turn.messages = append(
+		turn.messages,
+		Message{
+			Role:             RoleAssistant,
+			Content:          recorded,
+			ReasoningContent: modelStep.reasoningContent,
+		},
+		Message{
+			Role: RoleUser,
+			Content: "The no_tool decision with empty arguments was accepted. No tool will be executed. " +
+				"No user-facing reason or answer was provided, and no tool evidence exists. " +
+				"Answer the original current task directly in ordinary Markdown now. " +
+				"Do not output another function call or repeat the no_tool action.",
+		},
+	)
+	turn.assistantPrefix = "Assistant:"
+	turn.stage = StageAnswer
+	return false
+}
+
+func firstNonEmpty(values ...string) string {
+	for _, value := range values {
+		if value = strings.TrimSpace(value); value != "" {
+			return value
+		}
+	}
+	return ""
 }
 
 func (turn *runnerTurn) retryProtocolAction(
@@ -417,9 +492,14 @@ func (turn *runnerTurn) finishFinalAction(step int, action Action) (bool, error)
 	if turn.result.Route == RouteInspect && turn.toolAttempts > 0 && !turn.hasToolEvidence {
 		return false, noWorkspaceEvidenceError()
 	}
-	turn.result.OriginalOutput = action.Content
-	violations := validateAnswer(action.Content)
-	committedOutput := action.Content
+	turn.commitFinalText(action.Content)
+	return true, nil
+}
+
+func (turn *runnerTurn) commitFinalText(content string) {
+	turn.result.OriginalOutput = content
+	violations := validateAnswer(content)
+	committedOutput := content
 	if len(violations) > 0 {
 		turn.result.AnswerContractRepaired = true
 		turn.result.AnswerViolations = make([]string, len(violations))
@@ -434,7 +514,6 @@ func (turn *runnerTurn) finishFinalAction(step int, action Action) (bool, error)
 		Content: committedOutput,
 	})
 	turn.r.commit(turn.turnMessages)
-	return true, nil
 }
 
 func (turn *runnerTurn) retryRespondRoute(step int, modelAction string) error {
