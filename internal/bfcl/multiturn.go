@@ -13,12 +13,10 @@ import (
 	"github.com/no22/RWKV-Agent/internal/continuation/toolchat"
 )
 
-const MultiTurnRenderProtocolV1 = "bfcl-multi-turn-json-v1"
-
 // MultiTurnRenderProtocolV2 drops the stale initial_config block and supports a
-// prefill anchor. V1 re-rendered initial_config into every step even after tool
-// calls had changed the simulator state, so the block contradicted the Tool
-// lines above it; official never shows state to the model at all.
+// prefill anchor. The retired v1 re-rendered initial_config into every step even
+// after tool calls had changed the simulator state, so the block contradicted
+// the Tool lines above it; official never shows state to the model at all.
 const MultiTurnRenderProtocolV2 = "bfcl-multi-turn-json-v2"
 
 // MultiTurnRenderProtocolFinishV1 adds the turn-end control tool. Reuses E3's

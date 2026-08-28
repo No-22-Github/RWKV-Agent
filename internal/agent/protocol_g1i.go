@@ -14,10 +14,14 @@ import (
 
 type G1IProtocol struct {
 	FewShot bool
+	// SemanticNoTool offers the same text-only abstention action the product
+	// profile uses, expressed in this transcript's envelope. It is a protocol
+	// pseudo-action: the Runner never executes it and never records evidence.
+	SemanticNoTool bool
 }
 
 func (G1IProtocol) ID() string {
-	return G1IActionProtocolV1
+	return G1IEnvelopeProtocolV1
 }
 
 func (protocol G1IProtocol) Instructions(
@@ -41,6 +45,15 @@ Available tools:
 `)
 	for _, spec := range specs {
 		fmt.Fprintf(&prompt, "- %s: %s Arguments: %s\n", spec.Name, spec.Description, spec.Arguments)
+	}
+	if protocol.SemanticNoTool {
+		fmt.Fprintf(
+			&prompt,
+			"- %s: Indicate that none of the offered tools is needed. "+
+				"Put a brief, complete user-facing response in reason; it becomes the final reply. "+
+				`Arguments: {"reason":"brief complete user-facing response"}`+"\n",
+			SemanticNoToolName,
+		)
 	}
 	prompt.WriteString(`
 Examples:
@@ -117,7 +130,7 @@ func thinkingControl(mode inference.ThinkingMode) string {
 	}
 }
 
-func (G1IProtocol) Parse(value string, finish continuation.FinishReason) (Action, error) {
+func (protocol G1IProtocol) Parse(value string, finish continuation.FinishReason) (Action, error) {
 	candidate := strings.TrimSpace(value)
 	if match := leadingThinkBlocks.FindStringIndex(candidate); match != nil && match[0] == 0 {
 		candidate = strings.TrimSpace(candidate[match[1]:])
@@ -184,8 +197,23 @@ func (G1IProtocol) Parse(value string, finish continuation.FinishReason) (Action
 		if protocolRepaired {
 			originalFailure = ProtocolFailureToolShapeInvalid
 		}
+		if protocol.SemanticNoTool && call.Name == SemanticNoToolName {
+			rationale, answer, err := parseSemanticNoToolArguments(call.Arguments)
+			if err != nil {
+				return Action{}, err
+			}
+			return Action{
+				Type:                    ActionTypeNoTool,
+				Name:                    call.Name,
+				Arguments:               call.Arguments,
+				NoToolRationale:         rationale,
+				NoToolAnswer:            answer,
+				ProtocolRepaired:        protocolRepaired,
+				OriginalProtocolFailure: originalFailure,
+			}, nil
+		}
 		return Action{
-			Type:                    "tool",
+			Type:                    ActionTypeTool,
 			Name:                    call.Name,
 			Arguments:               call.Arguments,
 			ProtocolRepaired:        protocolRepaired,

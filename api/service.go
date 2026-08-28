@@ -12,6 +12,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/no22/RWKV-Agent/internal/agent"
 )
 
 // Service owns the configured provider and creates isolated Agent sessions.
@@ -304,7 +306,14 @@ func normalizeConfig(config Config) (Config, error) {
 		return Config{}, fmt.Errorf("routeMaxTokens must be positive")
 	}
 	if config.DecisionMaxTokens == 0 {
-		config.DecisionMaxTokens = 96
+		// The right decision budget depends on the transcript: the XML envelope
+		// lets the model reason before committing to an action and needs far
+		// more room than the fenced-JSON anchor. See the constants in
+		// internal/agent for the measurements.
+		config.DecisionMaxTokens = agent.DefaultDecisionMaxOutputTokens
+		if config.AgentProtocol == AgentProtocolXML {
+			config.DecisionMaxTokens = agent.DefaultXMLDecisionMaxOutputTokens
+		}
 	}
 	if config.DecisionMaxTokens < 1 {
 		return Config{}, fmt.Errorf("decisionMaxTokens must be positive")
@@ -363,8 +372,26 @@ func normalizeConfig(config Config) (Config, error) {
 	if config.AgentProtocol != AgentProtocolMarkdown && config.AgentProtocol != AgentProtocolXML {
 		return Config{}, fmt.Errorf("unsupported agentProtocol %q", config.AgentProtocol)
 	}
-	if config.AgentProtocol == AgentProtocolXML && (config.SemanticNoTool || config.DecisionFakeThink) {
-		return Config{}, fmt.Errorf("semanticNoTool and decisionFakeThink require the markdown Agent protocol")
+	if config.AgentProtocol == AgentProtocolXML {
+		// XML is a supported product transcript, not a deprecated one, so
+		// selecting it never fails. Both product prefill switches default off
+		// here: there is no JSON fence for deepToolAnchor to extend, and the
+		// model selected no_tool 0 times under XML on the 60-case product suite
+		// (versus 44 under markdown) because this transcript already answers
+		// directly. An explicit opt-in is still honored.
+		off := false
+		config.DeepToolAnchor = &off
+		if config.SemanticNoTool == nil {
+			config.SemanticNoTool = &off
+		}
+		// decisionFakeThink stays an error: the XML renderer prefills its own
+		// think block from Thinking, so the two would fight over the same
+		// assistant prefix.
+		if config.DecisionFakeThink {
+			return Config{}, fmt.Errorf(
+				"decisionFakeThink is the product-profile think experiment; use thinking fast or full with the XML Agent protocol",
+			)
+		}
 	}
 	if config.AgentProtocol == AgentProtocolMarkdown && config.Thinking != "off" {
 		return Config{}, fmt.Errorf(

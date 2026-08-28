@@ -300,6 +300,7 @@ type Runner struct {
 	thinkingMode      inference.ThinkingMode
 	semanticNoTool    bool
 	decisionFakeThink bool
+	closedFakeThink   bool
 	router            RouteProtocol
 	toolRouter        ToolRouteProtocol
 	toolBundles       []ToolBundle

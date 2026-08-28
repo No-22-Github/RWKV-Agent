@@ -324,6 +324,14 @@ func readBufferedResponse(
 	if truncated, stopped := truncateAtStop(text, stops); stopped {
 		text = truncated
 		finish = continuation.FinishStop
+	} else if finish == continuation.FinishStop && buffered.Usage.CompletionTokens == 0 {
+		// Some rwkv_lightning deployments answer every buffered request with
+		// "stop" and no usage, even when the response was cut off by
+		// max_tokens. Taking that at face value makes the action protocol
+		// report a truncated think block as a malformed envelope instead of a
+		// budget exhaustion, which is a very different diagnosis. Re-derive it
+		// the same way the streaming path does when the server is silent.
+		finish = continuation.FinishUnknown
 	}
 	if text != "" && sink != nil {
 		if err := sink(continuation.Event{

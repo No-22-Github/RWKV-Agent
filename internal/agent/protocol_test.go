@@ -15,7 +15,7 @@ func TestProtocolAndRendererHaveIndependentVersions(t *testing.T) {
 	t.Parallel()
 	protocol := G1IProtocol{}
 	renderer := RWKVChatRenderer{}
-	if protocol.ID() != G1IActionProtocolV1 {
+	if protocol.ID() != G1IEnvelopeProtocolV1 {
 		t.Fatalf("protocol ID = %q", protocol.ID())
 	}
 	if protocol.ToolCallPrefix() != "<tool_call>" {
@@ -522,6 +522,53 @@ func TestG1IProtocolCompactsToolResultsForContinuation(t *testing.T) {
 	}
 	if len([]rune(compacted)) >= len([]rune(longContent)) {
 		t.Fatal("tool result was not compacted")
+	}
+}
+
+// TestG1IProtocolSemanticNoTool pins the XML transcript's own no_tool action.
+// Both product-facing profiles now offer the same abstention semantics, each in
+// its own envelope, so the two can be compared on the same eval cases.
+func TestG1IProtocolSemanticNoTool(t *testing.T) {
+	t.Parallel()
+	specs := []ToolSpec{{
+		Name:        "read_file",
+		Description: "Read one file.",
+		Arguments:   `{"path":"relative file path"}`,
+		Parameters:  json.RawMessage(`{"type":"object","properties":{"path":{"type":"string"}}}`),
+	}}
+	enabled := G1IProtocol{SemanticNoTool: true}
+	if control := enabled.Instructions(specs, inference.ThinkingOff); !strings.Contains(
+		control, "- "+SemanticNoToolName+":",
+	) {
+		t.Fatalf("no_tool missing from the XML catalog:\n%s", control)
+	}
+	if control := (G1IProtocol{}).Instructions(specs, inference.ThinkingOff); strings.Contains(
+		control, SemanticNoToolName,
+	) {
+		t.Fatalf("no_tool leaked into the default XML catalog:\n%s", control)
+	}
+	call := `<tool_call>{"name":"no_tool","arguments":{"reason":"Nothing to inspect."}}</tool_call>`
+	action, err := enabled.Parse(call, continuation.FinishStop)
+	if err != nil {
+		t.Fatalf("parse xml no_tool: %v", err)
+	}
+	if action.Type != ActionTypeNoTool || action.Name != SemanticNoToolName ||
+		action.NoToolRationale != "Nothing to inspect." {
+		t.Fatalf("xml no_tool action = %+v", action)
+	}
+	// With the switch off the same bytes stay an ordinary tool call, so the
+	// Runner rejects it as an unknown tool instead of silently abstaining.
+	action, err = (G1IProtocol{}).Parse(call, continuation.FinishStop)
+	if err != nil || action.Type != ActionTypeTool || action.Name != SemanticNoToolName {
+		t.Fatalf("default xml action = %+v, err = %v", action, err)
+	}
+	// Argument validation is shared with the product profile: unknown fields
+	// must fail closed rather than be treated as an abstention.
+	if _, err := enabled.Parse(
+		`<tool_call>{"name":"no_tool","arguments":{"unexpected":"x"}}</tool_call>`,
+		continuation.FinishStop,
+	); err == nil {
+		t.Fatal("xml no_tool accepted an unknown argument")
 	}
 }
 

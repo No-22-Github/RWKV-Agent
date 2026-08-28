@@ -93,7 +93,11 @@ type runOptions struct {
 	progressiveTools         bool
 	progressiveToolsExplicit bool
 	semanticNoTool           bool
+	semanticNoToolExplicit   bool
 	decisionFakeThink        bool
+	closedFakeThink          bool
+	deepToolAnchor           bool
+	deepToolAnchorExplicit   bool
 	enableWeb                bool
 	braveAPIKeyEnv           string
 	braveEndpoint            string
@@ -270,10 +274,20 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			routeMaxTokens = 48
 		}
 		fs.IntVar(&options.maxSteps, "max-steps", 6, "maximum model steps including protocol retries")
-		fs.IntVar(&options.decisionMaxTokens, "decision-max-tokens", 96, "maximum generated tokens for tool selection")
+		// 0 means "let the harness pick": the fenced-JSON profile needs ~96 while
+		// the XML envelope reasons first and needs ~512. See runner.go.
+		fs.IntVar(&options.decisionMaxTokens, "decision-max-tokens", 0, "maximum generated tokens for tool selection; 0 uses the per-protocol default")
 		fs.IntVar(&options.routeMaxTokens, "route-max-tokens", routeMaxTokens, "maximum generated tokens for capability routing")
-		fs.BoolVar(&options.semanticNoTool, "semantic-no-tool", false, "enable the experimental text-only no_tool abstention action")
+		fs.BoolVar(&options.semanticNoTool, "semantic-no-tool", true, "emit the text-only no_tool abstention action on the product profile")
 		fs.BoolVar(&options.decisionFakeThink, "decision-fake-think", false, "enable the experimental half-open fake-think prefix on unanchored tool decisions")
+		fs.BoolVar(&options.closedFakeThink, "closed-fake-think", false, "prefill the fully closed think block instead of the half-open one; requires --decision-fake-think")
+		fs.BoolVar(
+			&options.deepToolAnchor,
+			"deep-tool-anchor",
+			true,
+			"extend the product decision prefill from the bare fence to the object and name keys; "+
+				"removes syntactic abstention, so pair it with --semantic-no-tool",
+		)
 		fs.IntVar(
 			&options.tracePromptBytes,
 			"trace-prompt-bytes",
@@ -380,6 +394,12 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			fs.BoolVar(&options.fewShot, "few-shot", false, "enable XML Agent decision trajectory examples")
 			fs.StringVar(&options.evalSuite, "suite", agenteval.SuiteBoundary, "built-in Agent eval suite: boundary, smoke, assistant, bfcl-product, primitive-orig30, or primitive-feedback30")
 			fs.StringVar(
+				&options.agentProtocol,
+				"agent-protocol",
+				string(agentapi.AgentProtocolMarkdown),
+				"product transcript for --suite bfcl-product: markdown or xml",
+			)
+			fs.StringVar(
 				&options.evalCasesPath,
 				"cases",
 				"",
@@ -420,6 +440,10 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			options.sameToolRescueExplicit = true
 		case "progressive-tools":
 			options.progressiveToolsExplicit = true
+		case "semantic-no-tool":
+			options.semanticNoToolExplicit = true
+		case "deep-tool-anchor":
+			options.deepToolAnchorExplicit = true
 		}
 	})
 	if name == "agent-eval" {
@@ -427,6 +451,14 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		if options.evalSuite == agenteval.SuiteBFCLProduct {
 			if !options.progressiveToolsExplicit {
 				options.progressiveTools = true
+			}
+			// The product profile defaults; agent-eval registers these flags as
+			// off so non-product suites stay unaffected, so re-apply them here.
+			if !options.semanticNoToolExplicit {
+				options.semanticNoTool = true
+			}
+			if !options.deepToolAnchorExplicit {
+				options.deepToolAnchor = true
 			}
 			if !options.routeMaxTokensExplicit {
 				options.routeMaxTokens = 48
@@ -555,8 +587,9 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 				return options, errors.New("--suite and --cases cannot be used together")
 			}
 			if options.evalSuite != agenteval.SuiteBFCLProduct &&
-				(options.semanticNoTool || options.decisionFakeThink || options.progressiveToolsExplicit) {
-				return options, errors.New("--semantic-no-tool, --decision-fake-think, and --progressive-tools are product-profile options and require --suite bfcl-product")
+				(options.semanticNoToolExplicit || options.decisionFakeThink ||
+					options.deepToolAnchorExplicit || options.progressiveToolsExplicit) {
+				return options, errors.New("--semantic-no-tool, --deep-tool-anchor, --decision-fake-think, and --progressive-tools are product-profile options and require --suite bfcl-product")
 			}
 			if options.evalSuite == agenteval.SuiteBFCLProduct && options.routeStage {
 				return options, errors.New("--route-stage is the XML compatibility router; bfcl-product uses --progressive-tools")
@@ -597,7 +630,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		options.penaltyDecay <= 0 || options.penaltyDecay > 1 {
 		return options, errors.New("invalid sampling options")
 	}
-	if agentMode && options.decisionMaxTokens <= 0 {
+	if agentMode && options.decisionMaxTokens < 0 {
 		return options, errors.New("invalid agent decision token limit")
 	}
 	if agentMode && options.routeMaxTokens <= 0 {
@@ -607,17 +640,61 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		options.agentProtocol != string(agentapi.AgentProtocolXML) {
 		return options, fmt.Errorf("invalid --agent-protocol %q", options.agentProtocol)
 	}
-	if name == "agent" && options.agentProtocol == string(agentapi.AgentProtocolXML) &&
-		(options.semanticNoTool || options.decisionFakeThink) {
-		return options, errors.New("--semantic-no-tool and --decision-fake-think require --agent-protocol markdown")
+	if name == "agent" && options.agentProtocol == string(agentapi.AgentProtocolXML) {
+		// The XML envelope is a supported compatibility profile, not a
+		// deprecated one: <tool_call> closes more reliably than the JSON fence
+		// (20/20 and 15/20 versus 16/20 and 10/20 on 13.3b/7.2b), it carries
+		// more complete arguments, and </tool_call> cannot collide with fenced
+		// content the way the product profile's "```" stop can. So selecting it
+		// never fails, and it implements no_tool in its own envelope.
+		//
+		// Both product prefill switches are off by default here. --deep-tool-anchor
+		// has no JSON fence to extend. --semantic-no-tool is available but unused:
+		// on the 60-case product suite the model selected no_tool 0 times under
+		// XML versus 44 times under markdown, because this transcript already
+		// answers directly without opening a call envelope. Offering it only
+		// lengthens the catalog, so it stays opt-in.
+		options.deepToolAnchor = false
+		if !options.semanticNoToolExplicit {
+			options.semanticNoTool = false
+		}
+		// --decision-fake-think stays an error here rather than a silent drop:
+		// the XML renderer prefills its own think block via --thinking, so the
+		// two would fight over the same assistant prefix and the run would not
+		// mean what the flag says.
+		if options.decisionFakeThink {
+			return options, errors.New(
+				"--decision-fake-think is the product-profile think experiment; " +
+					"use --thinking fast or --thinking full with --agent-protocol xml",
+			)
+		}
 	}
 	if name == "agent" && options.agentProtocol == string(agentapi.AgentProtocolMarkdown) &&
 		options.thinkingMode != string(inference.ThinkingOff) {
 		return options, errors.New("--thinking fast/full requires --agent-protocol xml; use --decision-fake-think for the product text experiment")
 	}
 	if name == "agent-eval" && options.evalSuite == agenteval.SuiteBFCLProduct &&
+		options.agentProtocol != string(agentapi.AgentProtocolXML) &&
 		options.thinkingMode != string(inference.ThinkingOff) {
-		return options, errors.New("--thinking fast/full is not part of the bfcl-product profile; use --decision-fake-think for the product text experiment")
+		return options, errors.New("--thinking fast/full is not part of the markdown bfcl-product profile; use --decision-fake-think, or --agent-protocol xml")
+	}
+	if options.closedFakeThink && !options.decisionFakeThink {
+		return options, errors.New("--closed-fake-think selects the shape of the fake-think prefill and requires --decision-fake-think")
+	}
+	if name == "agent-eval" && options.agentProtocol != string(agentapi.AgentProtocolMarkdown) &&
+		options.agentProtocol != string(agentapi.AgentProtocolXML) {
+		return options, fmt.Errorf("invalid --agent-protocol %q", options.agentProtocol)
+	}
+	if name == "agent-eval" && options.agentProtocol == string(agentapi.AgentProtocolXML) {
+		if options.evalSuite != agenteval.SuiteBFCLProduct {
+			return options, errors.New("--agent-protocol xml applies to --suite bfcl-product")
+		}
+		// No JSON fence to extend, and no_tool measured 0 selections on this
+		// transcript, so both stay opt-in here too.
+		options.deepToolAnchor = false
+		if !options.semanticNoToolExplicit {
+			options.semanticNoTool = false
+		}
 	}
 	return options, nil
 }
@@ -866,6 +943,38 @@ func (noopCloser) Close() error { return nil }
 
 func agentRunnerOptions(options runOptions, suite string, observe func(agent.Event)) agent.Options {
 	if suite == agenteval.SuiteBFCLProduct {
+		// The suite accepts either product-facing transcript so the two can be
+		// compared on the same cases. XML has no JSON fence, so the deep anchor
+		// does not apply there; no_tool exists in both.
+		if options.agentProtocol == string(agentapi.AgentProtocolXML) {
+			return agent.XMLHarnessOptions(agent.XMLHarnessConfig{
+				MaxSteps:                 options.maxSteps,
+				DecisionMaxOutputTokens:  options.decisionMaxTokens,
+				RouteMaxOutputTokens:     options.routeMaxTokens,
+				TracePromptBytes:         options.tracePromptBytes,
+				DuplicateReplayLimit:     options.duplicateReplayLimit,
+				DuplicateRescueThreshold: options.duplicateRescueThreshold,
+				SameToolRescueLimit:      options.sameToolRescueLimit,
+				Generation: continuation.Request{
+					Model:           options.modelPath,
+					MaxOutputTokens: options.maxTokens,
+					Sampling: continuation.Sampling{
+						Temperature:      float32(options.temperature),
+						TopK:             options.topK,
+						TopP:             float32(options.topP),
+						PresencePenalty:  float32(options.presencePenalty),
+						FrequencyPenalty: float32(options.frequencyPenalty),
+						PenaltyDecay:     float32(options.penaltyDecay),
+					},
+				},
+				ProgressiveTools: options.progressiveTools,
+				ToolBundles:      agent.DefaultToolBundles(),
+				SemanticNoTool:   options.semanticNoTool,
+				ThinkingMode:     inference.ThinkingMode(options.thinkingMode),
+				FewShot:          options.fewShot,
+				Observe:          observe,
+			})
+		}
 		return agent.ProductHarnessOptions(agent.ProductHarnessConfig{
 			MaxSteps:                 options.maxSteps,
 			DecisionMaxOutputTokens:  options.decisionMaxTokens,
@@ -890,19 +999,14 @@ func agentRunnerOptions(options runOptions, suite string, observe func(agent.Eve
 			ToolBundles:       agent.DefaultToolBundles(),
 			SemanticNoTool:    options.semanticNoTool,
 			DecisionFakeThink: options.decisionFakeThink,
+			ClosedFakeThink:   options.closedFakeThink,
+			DeepToolAnchor:    options.deepToolAnchor,
 			Observe:           observe,
 		})
 	}
-	agentOptions := agent.Options{
-		MaxSteps:                options.maxSteps,
-		ProtocolRetries:         1,
-		DecisionMaxOutputTokens: options.decisionMaxTokens,
-		ControlPrompt:           agent.ControlPromptSystem,
-		Protocol:                agent.G1IProtocol{FewShot: options.fewShot},
-		Renderer: agent.RWKVChatRenderer{
-			ThinkingMode: inference.ThinkingMode(options.thinkingMode),
-		},
-		RouteRetries:             1,
+	agentOptions := agent.XMLHarnessOptions(agent.XMLHarnessConfig{
+		MaxSteps:                 options.maxSteps,
+		DecisionMaxOutputTokens:  options.decisionMaxTokens,
 		RouteMaxOutputTokens:     options.routeMaxTokens,
 		TracePromptBytes:         options.tracePromptBytes,
 		DuplicateReplayLimit:     options.duplicateReplayLimit,
@@ -920,11 +1024,16 @@ func agentRunnerOptions(options runOptions, suite string, observe func(agent.Eve
 				PenaltyDecay:     float32(options.penaltyDecay),
 			},
 		},
-		Observe: observe,
-	}
+		ThinkingMode: inference.ThinkingMode(options.thinkingMode),
+		FewShot:      options.fewShot,
+		Observe:      observe,
+	})
+	// The eval CLI keeps the older respond/inspect router as a separate stage,
+	// rather than the progressive tool router the product profile uses.
 	if options.routeStage {
 		agentOptions.Router = agent.G1IRouteProtocol{}
 		agentOptions.RouteRenderer = agent.RWKVChatRenderer{}
+		agentOptions.RouteRetries = 1
 	}
 	return agentOptions
 }
@@ -1060,6 +1169,8 @@ func agentAPIConfig(options runOptions) (agentapi.Config, error) {
 	}
 	stream := options.apiStream
 	progressive := options.progressiveTools
+	semanticNoTool := options.semanticNoTool
+	deepToolAnchor := options.deepToolAnchor
 	tracePromptBytes := options.tracePromptBytes
 	return agentapi.Config{
 		Provider:               agentapi.Provider(options.completion),
@@ -1073,8 +1184,9 @@ func agentAPIConfig(options runOptions) (agentapi.Config, error) {
 		NativeProvider:         options.provider,
 		Thinking:               options.thinkingMode,
 		AgentProtocol:          agentapi.AgentProtocol(options.agentProtocol),
-		SemanticNoTool:         options.semanticNoTool,
+		SemanticNoTool:         &semanticNoTool,
 		DecisionFakeThink:      options.decisionFakeThink,
+		DeepToolAnchor:         &deepToolAnchor,
 		MaxSteps:               options.maxSteps,
 		MaxTokens:              options.maxTokens,
 		DecisionMaxTokens:      options.decisionMaxTokens,

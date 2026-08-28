@@ -27,14 +27,29 @@ Agent Runner
 | Profile | 动作协议 / renderer | 用途与终止语义 |
 | --- | --- | --- |
 | 产品默认 | `rwkv-g1i-functions-product-v1` / `rwkv-g1i-functions-product-continuation-v1` | Markdown/function 文本续写；工具后直接输出普通 Markdown，无 `submit` gate |
-| XML 兼容 | `rwkv-g1i-envelope-v1` / `rwkv-chat-continuation-v1` | `--agent-protocol xml` 的历史 A/B，可使用 off/fast/full thinking |
+| XML 兼容 | `rwkv-g1i-envelope-v1` / `rwkv-chat-continuation-v2` | `--agent-protocol xml`，长期支持的兼容 profile；闭合更可靠、终止符不与围栏内容冲突，可使用 off/fast/full thinking |
 | Primitive | `rwkv-g1i-functions-v1` / `rwkv-g1i-functions-continuation-v1` | benchmark 专用逐题目录与 `submit` 终止，不代表产品默认 |
 | BFCL wrapped | `internal/bfcl` 的对象/数组 anchor 与 strict/wire-compat parser | BFCL 官方/诊断评测专用，不进入 Agent 产品 prompt |
 | 原生 function calling | Chat Completions `tools/tool_calls` | Provider 外层结构化调用；不伪造 `no_tool` 等 API tool |
 
-App 和 `bfcl-product` 统一通过 `agent.ProductHarnessOptions` 构造产品 profile；它集中绑定
-protocol、renderer、可选 progressive Router 和循环策略。Primitive、BFCL wrapped 与 XML
-继续使用独立入口，防止评测协议字节漂移到产品。
+两个面向调用方的 profile 各有唯一构造入口，都在 `internal/agent/harness_profile.go`：
+
+| 构造器 | 使用方 |
+| --- | --- |
+| `agent.ProductHarnessOptions` | App、`rwkv-cli agent --agent-protocol markdown`（默认）、`bfcl-product` suite |
+| `agent.XMLHarnessOptions` | `--agent-protocol xml`、`agent-eval` 的非产品 suite |
+
+调用方不再手写 `agent.Options` 字面量，protocol/renderer 配对、progressive Router 接线和
+循环策略都由构造器持有。循环策略常量（`ProductDuplicateReplayLimit` = 2、
+`ProductDuplicateRescueThreshold` = 3、`ProductSameToolRescueLimit` = 3）两个 profile 共用：
+它描述的是模型的重复调用习惯，不是 transcript 格式的属性，因此没有按 profile 分叉的依据。
+`TestHarnessProfilesShareLoopPolicyDefaults` 锁住这一点。
+
+Primitive 与 BFCL wrapped 继续使用各自的独立入口，防止评测协议字节漂移到产品。
+
+协议、renderer 和 route 的 ID 常量集中在 `internal/agent/protocol_core.go` 一个 block 里。
+这些字符串逐字节进入 eval manifest，归档 run 只有在拼写不变时才可比，因此新增 profile
+应该在该 block 加一行，而不是在 `ID()` 方法里内联字面量。
 
 产品 profile 复用 G1i checkpoint 的训练 transcript：
 
@@ -72,9 +87,32 @@ JSON、字符串化参数、截断 JSON、字段别名和旧 XML 包装，但普
 失败或证据不足时，答案必须明确说明限制。过长字符串保留开头和与任务词项最相关的窗口，
 单个字符串最多约 2400 Unicode 字符。
 
-`rwkv-g1i-envelope-v1` 与 `rwkv-chat-continuation-v1` 仍作为 XML A/B 兼容模式保留。产品 CLI
-使用 `--agent-protocol markdown|xml` 选择，默认 `markdown`；Primitive Bench 继续使用
-独立的 `rwkv-g1i-functions-v1` 与 benchmark `submit` 终止语义。
+`rwkv-g1i-envelope-v1` 与 `rwkv-chat-continuation-v2` 是长期支持的 XML 兼容 profile，
+不是待淘汰的历史分支。它在三个方面结构性优于 fenced JSON：
+
+- **闭合更积极。** `RWKV-Toolcall-Bench` 给定框架开头后的闭合率：`<tool_call>` 20/20
+  (13.3b) 与 15/20 (7.2b)，fenced JSON 为 16/20 与 10/20。
+- **参数更完整。** `rwkv-abstention-lab` 无预填时 required-complete 94%（XML）对
+  68%（markdown）；配合 fast-think 为 100% 对 98%。
+- **终止符不与内容冲突。** 产品 profile 在决策回合把 ` ``` ` 作为停止串，因此参数中
+  含围栏的调用（例如写入带代码块的 Markdown）会被从中间截断；XML 停在 `</tool_call>`，
+  该终止符不会与工具参数内容碰撞。当前只读产品工具集触发不到这一点，但它是协议层
+  的边界，选型时应计入。
+
+两个 profile 都实现 `no_tool` 语义弃权，各自用自己的信封表达：产品用 fenced JSON，
+XML 用 `<tool_call>{"name":"no_tool","arguments":{"reason":"..."}}</tool_call>`。参数校验
+与 Runner 语义完全共用——不查执行表、不执行工具、`toolExecuted`/`toolEvidence` 恒为
+false、未知字段 fail closed。因此 `--suite bfcl-product` 接受两种 profile，可以在同一批
+题上直接对照；benchmark profile（Primitive、BFCL wrapped）仍被拒绝，因为终止语义不同。
+
+产品默认仍是 markdown profile：它复用 G1i 训练 transcript。选择由
+`--agent-protocol markdown|xml` 控制，默认 `markdown`，`agent` 和 `agent-eval` 都支持。
+**选择 XML 永不失败**：只有 `deepToolAnchor` 会被归一化关闭，因为这个 transcript 没有
+JSON 围栏可延长。唯一仍然报错的是 `decisionFakeThink`——XML renderer 由 `--thinking`
+预填自己的 think 块，两者会争夺同一个 assistant prefix，静默忽略会让实验含义失真；
+XML 上要做 think 实验应直接用 `--thinking fast/full`。
+
+Primitive Bench 继续使用独立的 `rwkv-g1i-functions-v1` 与 benchmark `submit` 终止语义。
 
 动作协议、prompt 渲染器和续写 adapter 独立版本化。父 Agent 内仍是顺序多工具状态机；
 `spawn_agents` 可以批量并发运行多个相互独立的子状态机，但显式 planner、子任务依赖图和
@@ -93,9 +131,24 @@ JSON、字符串化参数、截断 JSON、字段别名和旧 XML 包装，但普
 - `decisionFakeThink` / `--decision-fake-think`：只在 `StageDecision + inspect + 当前没有其他
   assistant prefix` 时，把 prompt 精确结束为 `Assistant: <think></think`。末尾 `>` 由模型
   续写；Harness 在解析前移除自己注入并由模型闭合的前缀，因此不会伪记 parser repair。
+  `closedFakeThink` / `--closed-fake-think` 改填完整的 `<think></think>`。半开不是笔误：
+  实测该 tokenizer 上 `>` 与 `>{` 都是 1 个 token（后者合并），留着 `>` 让模型能一步进入
+  结构化输出。**两者在 60 题上均已被否定**（各 17/60，低于不干预），因为它们都必须关掉
+  `deepToolAnchor`，而撤掉围栏会让模型漂移到 XML 信封。压制思考把误调用从 1/20 推到
+  19–20/20；正确方向是给足决策预算让模型想完，见下条。
+
+- `deepToolAnchor` / `--deep-tool-anchor`：把产品决策锚点从裸 fence ` ```json\n` 延长为
+  ` ```json\n{"name":"`。2026-08-28 在 7B 实测（greedy，n=25/cell）：浅锚点把整个
+  `arguments` 形状交还给模型习惯，约 50% 输出成 `"arguments":"{\"k\":\"v\"}"` 字符串化
+  形态（正是指令里两句话明确禁止的形状，靠 parser 容错兜住）；深锚点下字符串化归零。
+  紧凑拼写（冒号后无空格）必须与 `Instructions` 里的 JSON 示例一致，lab 实测一个空格
+  会让正样本从 198/200 掉到 38/200。深锚点同时移除全部句法弃权出口，因此只能与
+  `semanticNoTool` 一起评估，不能单独开启。锚点深度不改变协议 ID：它是预填字节实验，
+  归档 run 仍需跨深度可比。
 
 fake-think 不用于 answer stage、`respond` 路由、已有 fence/object/array anchor 或原生 function
-calling。`no_tool` 也不注册为原生 API tool。启用任一开关而 Provider 实际走 native tool
+calling。因此 `deepToolAnchor` 开启时 fake-think 自动让位 —— 锚点已占据 assistant prefix
+位置，两个开关可以共存而互不干扰。`no_tool` 也不注册为原生 API tool。启用任一开关而 Provider 实际走 native tool
 calling 时，Runner 明确拒绝配置，避免静默改变实验含义。精确空格、换行和半开字节是实验
 变量，不能“格式化”为更自然的形式。
 
@@ -106,6 +159,20 @@ UI，但不能让 `toolExecuted` / `toolEvidence` 变成 true。若 answer stage
 Product profile 固定使用 thinking off。`--thinking fast/full` 只属于 XML 兼容 profile；
 Product 上的半开 think 字节实验使用独立的 `decisionFakeThink` 开关，避免参数被静默忽略或
 两套 renderer 语义混用。
+
+### 2.1.1 决策预算按 protocol 取默认
+
+`decision_max_output_tokens` 不是全局常量，而是 transcript 的属性：fenced-JSON profile
+预填围栏锚点把模型直接推进调用对象，96 token 足够；XML 信封让模型先推理再决定，96 会把
+思考截断在句子中间，动作协议随即把它误判为畸形信封。
+
+因此 `NewRunner` 在调用方未指定时按 protocol 选择：markdown `DefaultDecisionMaxOutputTokens`
+= 96，XML `DefaultXMLDecisionMaxOutputTokens` = 512。CLI 的 `--decision-max-tokens 0` 与
+API 的零值都表示"由 harness 决定"。60 题实测：XML 从 24/60 升到 33/60（`+9/-0`,
+`p=0.0039`），markdown 从 24/60 降到 22/60（噪声内），1024 与 512 无差异。
+
+该值仍受 `Generation.MaxOutputTokens` 夹取——默认答案预算 256 时 XML 实际只拿到 256，
+要用满 512 需同时提高 `--max-tokens`。
 
 ### 2.2 渐进式工具目录
 

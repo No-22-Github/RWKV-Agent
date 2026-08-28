@@ -8,8 +8,6 @@ import (
 	"github.com/no22/RWKV-Agent/internal/continuation"
 )
 
-const G1IRouteProtocolV1 = "rwkv-g1i-route-v1"
-
 type Route string
 
 const (
@@ -40,7 +38,7 @@ type ToolRouteProtocol interface {
 
 type G1IProgressiveToolRouteProtocol struct{}
 
-func (G1IProgressiveToolRouteProtocol) ID() string { return "rwkv-g1i-tool-route-v1" }
+func (G1IProgressiveToolRouteProtocol) ID() string { return G1IToolRouteProtocolV1 }
 
 func (G1IProgressiveToolRouteProtocol) Instructions(bundles []ToolBundle) string {
 	var prompt strings.Builder

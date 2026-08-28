@@ -112,12 +112,25 @@ func TestAgentDefaultsAreDeterministicAndBounded(t *testing.T) {
 		options.penaltyDecay != 1 {
 		t.Fatalf("agent sampling defaults = %+v", options)
 	}
-	if options.maxTokens != 1024 || options.decisionMaxTokens != 96 {
+	// 0 defers to the per-protocol default: the fenced-JSON profile needs ~96,
+	// the XML envelope reasons first and needs ~512.
+	if options.maxTokens != 1024 || options.decisionMaxTokens != 0 {
 		t.Fatalf(
 			"agent token limits = answer:%d decision:%d",
 			options.maxTokens,
 			options.decisionMaxTokens,
 		)
+	}
+	explicit, err := parseRunOptions("agent", []string{
+		"--model", "model", "--prompt", "task", "--decision-max-tokens", "512",
+	})
+	if err != nil || explicit.decisionMaxTokens != 512 {
+		t.Fatalf("explicit decision limit = %d, err = %v", explicit.decisionMaxTokens, err)
+	}
+	if _, err := parseRunOptions("agent", []string{
+		"--model", "model", "--prompt", "task", "--decision-max-tokens", "-1",
+	}); err == nil {
+		t.Fatal("agent accepted a negative decision token limit")
 	}
 	if options.routeMaxTokens != 48 {
 		t.Fatalf("agent route token limit = %d", options.routeMaxTokens)
@@ -173,11 +186,12 @@ func TestAgentDefaultsAreDeterministicAndBounded(t *testing.T) {
 	); err == nil {
 		t.Fatal("agent accepted a step limit without room for a final answer")
 	}
-	if _, err := parseRunOptions(
+	// 0 is now the "use the per-protocol default" sentinel, not an error.
+	if zero, err := parseRunOptions(
 		"agent",
 		[]string{"--model", "model", "--prompt", "task", "--decision-max-tokens", "0"},
-	); err == nil {
-		t.Fatal("agent accepted a non-positive decision token limit")
+	); err != nil || zero.decisionMaxTokens != 0 {
+		t.Fatalf("explicit zero decision limit = %d, err = %v", zero.decisionMaxTokens, err)
 	}
 	if _, err := parseRunOptions(
 		"agent",
@@ -224,7 +238,7 @@ func TestAgentCapabilityOptionsMapToAPIConfig(t *testing.T) {
 		config.BraveAPIKey != "brave-secret" || config.TavilyAPIKey != "tavily-secret" ||
 		config.RouteMaxTokens != 48 || config.DecisionMaxTokens != 77 ||
 		config.TracePromptBytes == nil || *config.TracePromptBytes != 1234 ||
-		!config.SemanticNoTool || !config.DecisionFakeThink ||
+		config.SemanticNoTool == nil || !*config.SemanticNoTool || !config.DecisionFakeThink ||
 		!config.EnableSubagents || config.MaxActiveBatch != 6 || config.RemoteBatchWaitMS != 15 ||
 		config.SubagentMaxParallel != 6 || config.SubagentMaxSteps != 5 ||
 		config.SubagentTimeoutSeconds != 180 {
@@ -350,6 +364,38 @@ func TestProductAgentRejectsIgnoredThinkingMode(t *testing.T) {
 	})
 	if err != nil || options.thinkingMode != "full" {
 		t.Fatalf("XML thinking options = %+v, error = %v", options, err)
+	}
+	// Both product prefill switches default off on XML: no JSON fence to
+	// extend, and no_tool measured 0 selections on this transcript.
+	if options.semanticNoTool || options.deepToolAnchor {
+		t.Fatalf("XML run defaulted product switches on: %+v", options)
+	}
+	explicit, err := parseRunOptions("agent", []string{
+		"--model", "rwkv7-13b",
+		"--prompt", "inspect the repository",
+		"--completion", "rwkv-lightning",
+		"--api-url", "https://example.test/big_batch/completions",
+		"--agent-protocol", "xml",
+		"--semantic-no-tool", "--deep-tool-anchor",
+	})
+	if err != nil {
+		t.Fatalf("XML rejected the product prefill switches: %v", err)
+	}
+	// An explicit opt-in is honored so the comparison stays re-runnable.
+	if !explicit.semanticNoTool || explicit.deepToolAnchor {
+		t.Fatalf("XML resolved explicit product switches wrongly: %+v", explicit)
+	}
+	// decisionFakeThink is the one that still errors, because the XML renderer
+	// prefills its own think block from --thinking.
+	if _, err := parseRunOptions("agent", []string{
+		"--model", "rwkv7-13b",
+		"--prompt", "task",
+		"--completion", "rwkv-lightning",
+		"--api-url", "https://example.test/big_batch/completions",
+		"--agent-protocol", "xml",
+		"--decision-fake-think",
+	}); err == nil {
+		t.Fatal("XML accepted --decision-fake-think")
 	}
 	if _, err := parseRunOptions("agent", []string{
 		"--model", "model",
@@ -507,7 +553,7 @@ func TestAgentEvalOptionsAreDeterministicAndIsolated(t *testing.T) {
 	if options.topK != 1 ||
 		options.topP != 1 ||
 		options.maxTokens != 1024 ||
-		options.decisionMaxTokens != 96 ||
+		options.decisionMaxTokens != 0 ||
 		options.routeMaxTokens != 16 {
 		t.Fatalf("agent eval defaults = %+v", options)
 	}

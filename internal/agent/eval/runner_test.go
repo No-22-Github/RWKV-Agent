@@ -558,24 +558,46 @@ func TestSemanticNoToolIsAnActiveNoCallOutcome(t *testing.T) {
 	}
 }
 
-func TestBFCLProductRejectsLegacyHarnessProfile(t *testing.T) {
+func TestBFCLProductAcceptsBothProductTranscripts(t *testing.T) {
 	t.Parallel()
-	_, err := Run(context.Background(), Config{
-		Cases: []Case{{
-			ID:          "legacy",
-			Description: "Reject a stale product eval profile.",
-			Turns:       []Turn{{Prompt: "answer", Expect: Expectation{Tools: []string{}}}},
-		}},
-		Suite:  SuiteBFCLProduct,
-		Runner: agent.Options{Protocol: agent.G1IProtocol{}, Renderer: agent.RWKVChatRenderer{}},
-		GeneratorFactory: func(context.Context) (continuation.Generator, io.Closer, error) {
-			return continuation.GenerateFunc(func(context.Context, continuation.Request, continuation.EventSink) (continuation.Result, error) {
-				return generated("answer"), nil
-			}), nil, nil
-		},
-	})
-	if err == nil || !strings.Contains(err.Error(), "shared product Harness profile") {
-		t.Fatalf("legacy bfcl-product error = %v", err)
+	newConfig := func(runner agent.Options) Config {
+		return Config{
+			Cases: []Case{{
+				ID:          "profile",
+				Description: "Accept either product-facing transcript.",
+				Turns:       []Turn{{Prompt: "answer", Expect: Expectation{Tools: []string{}}}},
+			}},
+			Suite:  SuiteBFCLProduct,
+			Runner: runner,
+			GeneratorFactory: func(context.Context) (continuation.Generator, io.Closer, error) {
+				return continuation.GenerateFunc(func(context.Context, continuation.Request, continuation.EventSink) (continuation.Result, error) {
+					return generated("answer"), nil
+				}), nil, nil
+			},
+		}
+	}
+	// The XML envelope is a supported product transcript, so this suite runs it:
+	// comparing the two on the same cases is the point.
+	report, err := Run(context.Background(), newConfig(agent.Options{
+		MaxSteps: 2,
+		Protocol: agent.G1IProtocol{SemanticNoTool: true},
+		Renderer: agent.RWKVChatRenderer{},
+	}))
+	if err != nil {
+		t.Fatalf("xml bfcl-product error = %v", err)
+	}
+	if report.Manifest.Harness.Protocol != agent.G1IEnvelopeProtocolV1 ||
+		!report.Manifest.Harness.SemanticNoTool {
+		t.Fatalf("xml manifest = %+v", report.Manifest.Harness)
+	}
+	// A benchmark profile still cannot: its termination semantics differ.
+	_, err = Run(context.Background(), newConfig(agent.Options{
+		MaxSteps: 2,
+		Protocol: agent.G1IFunctionProtocol{},
+		Renderer: agent.G1IFunctionRenderer{HasSubmit: true},
+	}))
+	if err == nil || !strings.Contains(err.Error(), "product-facing Harness profile") {
+		t.Fatalf("benchmark bfcl-product error = %v", err)
 	}
 }
 

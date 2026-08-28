@@ -55,7 +55,7 @@ Agent step loop；先证明模型能可靠地依据仓库证据回答，再逐�
 - 独立的 `continuation.Generator`、`ActionProtocol` 和 `PromptRenderer` 接口。
 - 本地 inference Session 续写 adapter。
 - `rwkv_lightning` 非流式 HTTP 续写 adapter；endpoint 可配置，密码来自环境变量。
-- `rwkv-g1i-envelope-v1` 与 `rwkv-chat-continuation-v1` 独立版本标识。
+- `rwkv-g1i-envelope-v1` 与 `rwkv-chat-continuation-v2` 独立版本标识。
 - 协议、循环、路径越界、截断、搜索与读取的无模型单元测试。
 - 回答阶段对长字符串保留开头和任务相关窗口，单个字符串约束为 2400 Unicode 字符。
 - `rwkv-cli agent-eval` 可运行内置或 `schema_version: 4` 的自定义 case；每个 case

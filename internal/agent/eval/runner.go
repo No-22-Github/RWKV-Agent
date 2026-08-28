@@ -59,10 +59,14 @@ func Run(ctx context.Context, config Config) (Report, error) {
 		}
 	}
 	if config.Suite == SuiteBFCLProduct {
-		if config.Runner.Protocol == nil || config.Runner.Renderer == nil ||
-			config.Runner.Protocol.ID() != agent.G1IProductFunctionProtocolV1 ||
-			config.Runner.Renderer.ID() != agent.G1IProductFunctionRendererV1 {
-			return Report{}, fmt.Errorf("bfcl-product requires the shared product Harness profile")
+		// Both product-facing transcripts may run this suite: comparing them on
+		// the same cases is the point. Benchmark profiles (Primitive, BFCL
+		// wrapped) still cannot, because their termination semantics differ.
+		_, xmlProfile := config.Runner.Protocol.(agent.G1IProtocol)
+		if !agent.OptionsProductProfile(config.Runner).Complete() && !xmlProfile {
+			return Report{}, fmt.Errorf(
+				"bfcl-product requires a product-facing Harness profile (markdown or xml)",
+			)
 		}
 	}
 	now := config.Now
@@ -145,7 +149,7 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 	}
 	thinkingMode := evalRendererThinkingMode(renderer)
 	routeThinkingMode := evalRendererThinkingMode(routeRenderer)
-	semanticNoTool, decisionFakeThink := productExperimentFlags(protocol, renderer)
+	productProfile := agent.ProductProfileOf(protocol, renderer)
 	fewShot := false
 	if g1iProtocol, ok := protocol.(agent.G1IProtocol); ok {
 		fewShot = g1iProtocol.FewShot
@@ -201,8 +205,9 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 			DuplicateReplayLimit:     config.Runner.DuplicateReplayLimit,
 			DuplicateRescueThreshold: config.Runner.DuplicateRescueThreshold,
 			SameToolRescueLimit:      config.Runner.SameToolRescueLimit,
-			SemanticNoTool:           semanticNoTool,
-			DecisionFakeThink:        decisionFakeThink,
+			SemanticNoTool:           evalSemanticNoTool(protocol),
+			DecisionFakeThink:        productProfile.DecisionFakeThink,
+			DeepToolAnchor:           productProfile.DeepToolAnchor,
 			ScenarioHooks:            primitiveScenarioHookDescriptions(config.Cases),
 		},
 		Sampling: samplingSnapshot(config.Runner.Generation.Sampling),
@@ -214,24 +219,6 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 		CaseIDs: caseIDs,
 		Cases:   config.Cases,
 	}
-}
-
-func productExperimentFlags(protocol agent.ActionProtocol, renderer agent.PromptRenderer) (bool, bool) {
-	semanticNoTool := false
-	switch protocol := protocol.(type) {
-	case agent.G1IFunctionProtocol:
-		semanticNoTool = protocol.Product && protocol.SemanticNoTool
-	case *agent.G1IFunctionProtocol:
-		semanticNoTool = protocol != nil && protocol.Product && protocol.SemanticNoTool
-	}
-	decisionFakeThink := false
-	switch renderer := renderer.(type) {
-	case agent.G1IFunctionRenderer:
-		decisionFakeThink = renderer.Product && renderer.DecisionFakeThink
-	case *agent.G1IFunctionRenderer:
-		decisionFakeThink = renderer != nil && renderer.Product && renderer.DecisionFakeThink
-	}
-	return semanticNoTool, decisionFakeThink
 }
 
 func evalRendererThinkingMode(renderer agent.PromptRenderer) inference.ThinkingMode {
@@ -362,6 +349,19 @@ func runCase(
 		result.Passed = false
 	}
 	return result
+}
+
+// evalSemanticNoTool reports the no_tool switch for either product-facing
+// transcript, so an XML A/B cell records the factor it actually varied.
+func evalSemanticNoTool(protocol agent.ActionProtocol) bool {
+	switch typed := protocol.(type) {
+	case agent.G1IFunctionProtocol:
+		return typed.Product && typed.SemanticNoTool
+	case agent.G1IProtocol:
+		return typed.SemanticNoTool
+	default:
+		return false
+	}
 }
 
 func primitiveProtocol(profile string) agent.G1IFunctionProtocol {

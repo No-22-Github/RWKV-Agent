@@ -9,6 +9,7 @@ import (
 
 	"github.com/no22/RWKV-Agent/internal/continuation"
 	"github.com/no22/RWKV-Agent/internal/continuation/toolchat"
+	"github.com/no22/RWKV-Agent/internal/inference"
 )
 
 type submitTestTool struct{}
@@ -355,6 +356,252 @@ func TestProductHarnessOptionsOwnsProductProtocolPair(t *testing.T) {
 		options.DuplicateRescueThreshold != ProductDuplicateRescueThreshold ||
 		options.SameToolRescueLimit != ProductSameToolRescueLimit {
 		t.Fatalf("product Harness options = %+v", options)
+	}
+}
+
+func TestDeepToolAnchorPrefillAndParse(t *testing.T) {
+	t.Parallel()
+	deep := G1IFunctionProtocol{Product: true, SemanticNoTool: true, DeepToolAnchor: true}
+	shallow := G1IFunctionProtocol{Product: true, SemanticNoTool: true}
+	if got := deep.ToolCallPrefix(); got != "```json\n"+G1IDeepToolAnchorSuffix {
+		t.Fatalf("deep prefix = %q", got)
+	}
+	if got := shallow.ToolCallPrefix(); got != "```json\n" {
+		t.Fatalf("shallow prefix = %q", got)
+	}
+	// Anchor depth is a prefill byte experiment, not a new protocol: eval
+	// manifests must keep comparing runs across the two depths.
+	if deep.ID() != shallow.ID() {
+		t.Fatalf("anchor depth changed the protocol ID: %q vs %q", deep.ID(), shallow.ID())
+	}
+	// The runner reassembles the injected prefix with the model continuation
+	// before parsing, so the parser sees a whole fenced call either way.
+	for _, testCase := range []struct {
+		name       string
+		completion string
+		wantType   string
+		wantName   string
+		wantReason string
+	}{{
+		name:       "tool call",
+		completion: `read_file","arguments":{"path":"README.md"}}` + "\n```",
+		wantType:   ActionTypeTool,
+		wantName:   "read_file",
+	}, {
+		name:       "semantic no_tool",
+		completion: `no_tool","arguments":{"reason":"Nothing to inspect."}}` + "\n```",
+		wantType:   ActionTypeNoTool,
+		wantName:   SemanticNoToolName,
+		wantReason: "Nothing to inspect.",
+	}} {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+			action, err := deep.Parse(
+				deep.ToolCallPrefix()+testCase.completion,
+				continuation.FinishStop,
+			)
+			if err != nil {
+				t.Fatalf("parse: %v", err)
+			}
+			if action.Type != testCase.wantType || action.Name != testCase.wantName ||
+				action.NoToolRationale != testCase.wantReason {
+				t.Fatalf("action = %+v", action)
+			}
+		})
+	}
+}
+
+// TestDeepToolAnchorMatchesInstructionExamples guards the single most fragile
+// byte sequence in the product profile. rwkv-abstention-lab measured that
+// changing this prefill to `{"name": "` (one space after the colon) drops
+// simple_python from 198/200 to 38/200 on 7B, and that the anchor style must
+// match the JSON examples in the control prompt: the model copies whichever
+// spelling it is shown and never reverts to its own preference.
+func TestDeepToolAnchorMatchesInstructionExamples(t *testing.T) {
+	t.Parallel()
+	if G1IDeepToolAnchorSuffix != `{"name":"` {
+		t.Fatalf("deep anchor bytes changed: %q", G1IDeepToolAnchorSuffix)
+	}
+	specs := []ToolSpec{{
+		Name:        "read_file",
+		Description: "Read one file.",
+		Arguments:   `{"path":"relative file path"}`,
+		Parameters:  json.RawMessage(`{"type":"object","properties":{"path":{"type":"string"}}}`),
+	}}
+	protocol := G1IFunctionProtocol{Product: true, SemanticNoTool: true, DeepToolAnchor: true}
+	control := protocol.Instructions(specs, "")
+	// Every JSON call example in the control prompt must open with the exact
+	// anchor bytes, or the prefill and the instructions disagree.
+	for _, marker := range []string{"Call shape: ", "return "} {
+		index := strings.Index(control, marker+`{"name":`)
+		if index < 0 {
+			continue
+		}
+		example := control[index+len(marker):]
+		if !strings.HasPrefix(example, G1IDeepToolAnchorSuffix) {
+			t.Fatalf("example after %q does not start with the anchor: %q", marker, example[:40])
+		}
+	}
+	if strings.Contains(control, `{"name": "`) || strings.Contains(control, `{ "name"`) {
+		t.Fatalf("control prompt contains a spaced JSON example; it must match the compact anchor:\n%s", control)
+	}
+	// The correction text is shown after a protocol failure, so it must not
+	// teach a different spelling either.
+	if correction := protocol.Correction(nil); strings.Contains(correction, `{"name": "`) {
+		t.Fatalf("correction uses a spaced example: %q", correction)
+	}
+}
+
+func TestXMLHarnessOptionsOwnsEnvelopeProtocolPair(t *testing.T) {
+	t.Parallel()
+	options := XMLHarnessOptions(XMLHarnessConfig{
+		MaxSteps:                 6,
+		ProgressiveTools:         true,
+		ToolBundles:              DefaultToolBundles()[:1],
+		RouteMaxOutputTokens:     24,
+		ThinkingMode:             inference.ThinkingFast,
+		FewShot:                  true,
+		DuplicateReplayLimit:     ProductDuplicateReplayLimit,
+		DuplicateRescueThreshold: ProductDuplicateRescueThreshold,
+		SameToolRescueLimit:      ProductSameToolRescueLimit,
+	})
+	protocol, protocolOK := options.Protocol.(G1IProtocol)
+	renderer, rendererOK := options.Renderer.(RWKVChatRenderer)
+	if !protocolOK || protocol.ID() != G1IEnvelopeProtocolV1 || !protocol.FewShot ||
+		!rendererOK || renderer.ID() != RWKVPromptRendererV2 ||
+		renderer.thinkingMode() != inference.ThinkingFast {
+		t.Fatalf("xml harness protocol pair = %+v", options)
+	}
+	// The XML profile must never be mistaken for the product profile, whatever
+	// its other switches say.
+	if OptionsProductProfile(options) != (ProductProfile{}) {
+		t.Fatalf("xml options report a product profile: %+v", OptionsProductProfile(options))
+	}
+	if options.ToolRouter == nil || options.RouteRetries != 1 ||
+		options.RouteMaxOutputTokens != 24 || options.TerminalTool != "" {
+		t.Fatalf("xml harness routing = %+v", options)
+	}
+	// The route stage is always thinking-off even when the decision stage
+	// prefills a think block; NewRunner rejects anything else.
+	if rendererThinkingMode(options.RouteRenderer) != inference.ThinkingOff {
+		t.Fatalf("xml route renderer thinking = %q", rendererThinkingMode(options.RouteRenderer))
+	}
+}
+
+func TestHarnessProfilesShareLoopPolicyDefaults(t *testing.T) {
+	t.Parallel()
+	product := ProductHarnessOptions(ProductHarnessConfig{
+		DuplicateReplayLimit:     ProductDuplicateReplayLimit,
+		DuplicateRescueThreshold: ProductDuplicateRescueThreshold,
+		SameToolRescueLimit:      ProductSameToolRescueLimit,
+	})
+	xml := XMLHarnessOptions(XMLHarnessConfig{
+		DuplicateReplayLimit:     ProductDuplicateReplayLimit,
+		DuplicateRescueThreshold: ProductDuplicateRescueThreshold,
+		SameToolRescueLimit:      ProductSameToolRescueLimit,
+	})
+	// Loop policy describes the model's looping habits, not the transcript
+	// format, so the two profiles must not drift apart on these limits.
+	if product.DuplicateReplayLimit != xml.DuplicateReplayLimit ||
+		product.DuplicateRescueThreshold != xml.DuplicateRescueThreshold ||
+		product.SameToolRescueLimit != xml.SameToolRescueLimit ||
+		product.ProtocolRetries != xml.ProtocolRetries ||
+		product.ControlPrompt != xml.ControlPrompt {
+		t.Fatalf("loop policy drift:\nproduct %+v\n    xml %+v", product, xml)
+	}
+}
+
+func TestProductProfileOfRequiresBothProductHalves(t *testing.T) {
+	t.Parallel()
+	cases := []struct {
+		name     string
+		protocol ActionProtocol
+		renderer PromptRenderer
+		want     ProductProfile
+	}{{
+		name:     "product pair with experiments",
+		protocol: G1IFunctionProtocol{Product: true, SemanticNoTool: true},
+		renderer: G1IFunctionRenderer{Product: true, DecisionFakeThink: true},
+		want: ProductProfile{
+			Protocol: true, Renderer: true,
+			SemanticNoTool: true, DecisionFakeThink: true,
+		},
+	}, {
+		name:     "product pair defaults off",
+		protocol: G1IFunctionProtocol{Product: true},
+		renderer: G1IFunctionRenderer{Product: true},
+		want:     ProductProfile{Protocol: true, Renderer: true},
+	}, {
+		// A benchmark protocol carrying the same field must not be reported as
+		// an enabled product experiment.
+		name:     "benchmark protocol with experiment field set",
+		protocol: G1IFunctionProtocol{SemanticNoTool: true},
+		renderer: G1IFunctionRenderer{HasSubmit: true, DecisionFakeThink: true},
+		want:     ProductProfile{},
+	}, {
+		name:     "half product pair",
+		protocol: G1IFunctionProtocol{Product: true, SemanticNoTool: true},
+		renderer: G1IFunctionRenderer{HasSubmit: true},
+		want:     ProductProfile{Protocol: true, SemanticNoTool: true},
+	}, {
+		name:     "xml envelope profile",
+		protocol: G1IProtocol{},
+		renderer: RWKVChatRenderer{},
+		want:     ProductProfile{},
+	}, {
+		name:     "nil pair",
+		protocol: nil,
+		renderer: nil,
+		want:     ProductProfile{},
+	}}
+	for _, testCase := range cases {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+			got := ProductProfileOf(testCase.protocol, testCase.renderer)
+			if got != testCase.want {
+				t.Fatalf("profile = %+v, want %+v", got, testCase.want)
+			}
+			if got.Complete() != (testCase.want.Protocol && testCase.want.Renderer) {
+				t.Fatalf("Complete() = %v for %+v", got.Complete(), got)
+			}
+			wantExperimental := testCase.want.SemanticNoTool || testCase.want.DecisionFakeThink
+			if got.Experimental() != wantExperimental {
+				t.Fatalf("Experimental() = %v for %+v", got.Experimental(), got)
+			}
+		})
+	}
+}
+
+func TestOptionsProductProfileMatchesProductHarness(t *testing.T) {
+	t.Parallel()
+	profile := OptionsProductProfile(ProductHarnessOptions(ProductHarnessConfig{
+		SemanticNoTool:    true,
+		DecisionFakeThink: true,
+		DeepToolAnchor:    true,
+	}))
+	if !profile.Complete() || !profile.Experimental() ||
+		!profile.SemanticNoTool || !profile.DecisionFakeThink || !profile.DeepToolAnchor {
+		t.Fatalf("product harness profile = %+v", profile)
+	}
+	if plain := OptionsProductProfile(Options{}); plain != (ProductProfile{}) {
+		t.Fatalf("empty options profile = %+v", plain)
+	}
+	// Each switch must reach the profile on its own, so a single-factor A/B
+	// cell records exactly the factor it varied.
+	anchorOnly := OptionsProductProfile(ProductHarnessOptions(ProductHarnessConfig{
+		DeepToolAnchor: true,
+	}))
+	if !anchorOnly.DeepToolAnchor || anchorOnly.SemanticNoTool || anchorOnly.DecisionFakeThink {
+		t.Fatalf("anchor-only profile = %+v", anchorOnly)
+	}
+	if !anchorOnly.Experimental() {
+		t.Fatal("deep anchor alone must count as an experiment")
+	}
+	// The prefill actually changes; the pairing is what the eval measures.
+	deep := ProductHarnessOptions(ProductHarnessConfig{DeepToolAnchor: true})
+	shallow := ProductHarnessOptions(ProductHarnessConfig{})
+	if deep.Protocol.ToolCallPrefix() == shallow.Protocol.ToolCallPrefix() {
+		t.Fatalf("deep anchor did not change the prefill: %q", deep.Protocol.ToolCallPrefix())
 	}
 }
 

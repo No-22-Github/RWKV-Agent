@@ -84,7 +84,7 @@ func NewRunner(generator continuation.Generator, tools []Tool, options Options) 
 	}
 	applyGenerationDefaults(&options.Generation)
 	if options.DecisionMaxOutputTokens == 0 {
-		options.DecisionMaxOutputTokens = 96
+		options.DecisionMaxOutputTokens = defaultDecisionMaxOutputTokens(options.Protocol)
 	}
 	if options.DecisionMaxOutputTokens > options.Generation.MaxOutputTokens {
 		options.DecisionMaxOutputTokens = options.Generation.MaxOutputTokens
@@ -146,19 +146,22 @@ func NewRunner(generator continuation.Generator, tools []Tool, options Options) 
 		toolCompleter = candidate
 	}
 	thinkingMode := rendererThinkingMode(options.Renderer)
-	semanticNoTool := protocolSemanticNoTool(options.Protocol)
-	decisionFakeThink := rendererDecisionFakeThink(options.Renderer)
-	if semanticNoTool || decisionFakeThink {
+	profile := OptionsProductProfile(options)
+	// no_tool is implemented by both product-facing transcripts, so it is not
+	// gated on the product pair; the fence prefill experiments still are.
+	semanticNoTool := semanticNoToolEnabled(options.Protocol)
+	decisionFakeThink := profile.DecisionFakeThink
+	closedFakeThink := rendererClosedFakeThink(options.Renderer)
+	if semanticNoTool || profile.Experimental() {
 		if toolCompleter != nil {
 			return nil, fmt.Errorf(
 				"%w: semantic no_tool and decision fake-think are text-continuation experiments and cannot be used with native tool calling",
 				continuation.ErrInvalidRequest,
 			)
 		}
-		if !isProductG1IFunctionProtocol(options.Protocol) ||
-			!isProductG1IFunctionRenderer(options.Renderer) {
+		if profile.Experimental() && !profile.Complete() {
 			return nil, fmt.Errorf(
-				"%w: product experiments require the product G1i function protocol and renderer",
+				"%w: the fence prefill experiments require the product G1i function protocol and renderer",
 				continuation.ErrInvalidRequest,
 			)
 		}
@@ -196,6 +199,7 @@ func NewRunner(generator continuation.Generator, tools []Tool, options Options) 
 		thinkingMode:      thinkingMode,
 		semanticNoTool:    semanticNoTool,
 		decisionFakeThink: decisionFakeThink,
+		closedFakeThink:   closedFakeThink,
 		router:            options.Router,
 		toolRouter:        options.ToolRouter,
 		toolBundles:       append([]ToolBundle(nil), options.ToolBundles...),
@@ -203,59 +207,106 @@ func NewRunner(generator continuation.Generator, tools []Tool, options Options) 
 	}, nil
 }
 
-func isProductG1IFunctionProtocol(protocol ActionProtocol) bool {
-	switch protocol := protocol.(type) {
+// ProductProfile describes which product text-continuation profile an Options
+// value selects, and which of its default-off model-preference experiments are
+// enabled. Both the Runner's own configuration validation and eval manifest
+// recording read the profile through here, so the two cannot disagree about
+// what counts as a product run.
+type ProductProfile struct {
+	// Protocol and Renderer report whether each half of the pair is the product
+	// variant. The experiments below require both.
+	Protocol bool
+	Renderer bool
+	// SemanticNoTool, DecisionFakeThink and DeepToolAnchor are only ever true on
+	// a product profile; a benchmark protocol carrying the same field reports
+	// false.
+	SemanticNoTool    bool
+	DecisionFakeThink bool
+	DeepToolAnchor    bool
+}
+
+// Complete reports whether both halves of the product pair are present.
+func (profile ProductProfile) Complete() bool {
+	return profile.Protocol && profile.Renderer
+}
+
+// Experimental reports whether any default-off model-preference experiment is
+// enabled for this run.
+func (profile ProductProfile) Experimental() bool {
+	return profile.SemanticNoTool || profile.DecisionFakeThink || profile.DeepToolAnchor
+}
+
+// ProductProfileOf inspects a protocol and renderer pair. Callers holding an
+// Options value should use OptionsProductProfile instead.
+func ProductProfileOf(protocol ActionProtocol, renderer PromptRenderer) ProductProfile {
+	functionProtocol, _ := protocol.(G1IFunctionProtocol)
+	functionRenderer, _ := renderer.(G1IFunctionRenderer)
+	profile := ProductProfile{
+		Protocol: functionProtocol.Product,
+		Renderer: functionRenderer.Product,
+	}
+	profile.SemanticNoTool = profile.Protocol && functionProtocol.SemanticNoTool
+	profile.DecisionFakeThink = profile.Renderer && functionRenderer.DecisionFakeThink
+	profile.DeepToolAnchor = profile.Protocol && functionProtocol.DeepToolAnchor
+	return profile
+}
+
+// Decision-stage output budgets. The right value is a property of the
+// transcript, not of the model: the fenced-JSON profile prefills an anchor that
+// drops the model straight into a call object, so it needs very little room,
+// while the XML envelope lets the model reason before it commits to an action.
+//
+// Measured on the 60-case product suite (7B, no router): raising the XML budget
+// from 96 to 512 moved task success 24/60 -> 33/60 (+9/-0, p=0.0039) and
+// protocol validity 82% -> 97%, because at 96 the think block was cut off
+// mid-sentence and scored as a malformed envelope. The same change on the
+// fenced profile moved it 24/60 -> 22/60, i.e. nothing outside noise. 1024 was
+// indistinguishable from 512 (+0/-0), so 512 is the knee.
+const (
+	DefaultDecisionMaxOutputTokens    = 96
+	DefaultXMLDecisionMaxOutputTokens = 512
+)
+
+// defaultDecisionMaxOutputTokens picks the decision budget for a protocol when
+// the caller did not set one.
+func defaultDecisionMaxOutputTokens(protocol ActionProtocol) int {
+	if _, ok := protocol.(G1IProtocol); ok {
+		return DefaultXMLDecisionMaxOutputTokens
+	}
+	return DefaultDecisionMaxOutputTokens
+}
+
+// semanticNoToolEnabled reports whether the protocol offers the text-only
+// no_tool abstention action. Both product-facing transcripts implement it, each
+// in its own envelope, so this is deliberately not gated on the product pair.
+func semanticNoToolEnabled(protocol ActionProtocol) bool {
+	switch typed := protocol.(type) {
 	case G1IFunctionProtocol:
-		return protocol.Product
-	case *G1IFunctionProtocol:
-		return protocol != nil && protocol.Product
+		return typed.Product && typed.SemanticNoTool
+	case G1IProtocol:
+		return typed.SemanticNoTool
 	default:
 		return false
 	}
 }
 
-func isProductG1IFunctionRenderer(renderer PromptRenderer) bool {
-	switch renderer := renderer.(type) {
-	case G1IFunctionRenderer:
-		return renderer.Product
-	case *G1IFunctionRenderer:
-		return renderer != nil && renderer.Product
-	default:
-		return false
-	}
+// OptionsProductProfile reports the product profile an Options value selects.
+func OptionsProductProfile(options Options) ProductProfile {
+	return ProductProfileOf(options.Protocol, options.Renderer)
 }
 
-func protocolSemanticNoTool(protocol ActionProtocol) bool {
-	switch protocol := protocol.(type) {
-	case G1IFunctionProtocol:
-		return protocol.Product && protocol.SemanticNoTool
-	case *G1IFunctionProtocol:
-		return protocol != nil && protocol.Product && protocol.SemanticNoTool
-	default:
-		return false
-	}
-}
-
-func rendererDecisionFakeThink(renderer PromptRenderer) bool {
-	switch renderer := renderer.(type) {
-	case G1IFunctionRenderer:
-		return renderer.Product && renderer.DecisionFakeThink
-	case *G1IFunctionRenderer:
-		return renderer != nil && renderer.Product && renderer.DecisionFakeThink
-	default:
-		return false
-	}
+// rendererClosedFakeThink selects the fully closed think prefill. It only
+// matters when DecisionFakeThink is also on.
+func rendererClosedFakeThink(renderer PromptRenderer) bool {
+	typed, ok := renderer.(G1IFunctionRenderer)
+	return ok && typed.Product && typed.DecisionFakeThink && typed.ClosedFakeThink
 }
 
 func rendererThinkingMode(renderer PromptRenderer) inference.ThinkingMode {
-	switch renderer := renderer.(type) {
-	case RWKVChatRenderer:
-		return renderer.thinkingMode()
-	case *RWKVChatRenderer:
-		return renderer.thinkingMode()
-	default:
-		return inference.ThinkingOff
+	if chat, ok := renderer.(RWKVChatRenderer); ok {
+		return chat.thinkingMode()
 	}
+	return inference.ThinkingOff
 }
 
 type assistantPrefixAppender interface {

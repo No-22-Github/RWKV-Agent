@@ -119,6 +119,172 @@ transport error。中间一组并发 30 的 semantic run 出现 16 个 HTTP 524�
 更早一组仍提示“下一次续写再回答”的 terminal run 为 23/60、23/60，也因 prompt 字节已被
 最终语义替换而不作为主结果。
 
+### 锚点深度 × 语义出口 2×2（2026-08-28，默认值已据此变更）
+
+在 `api-7b.rwkvos.com`（`rwkv7-g1i-7.2b-20260805-ctx16384`）上跑同一 60 题，
+`case_parallelism=8`，`--api-stop-tokens cuda`。baseline 复现前一节的 12/60，
+逐题一致，因此四格可比。
+
+| cell | 开关 | task success | irrelevance | missing-req | multiturn | protocol repaired | model calls |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| baseline | 均关闭 | 12/60 | 2/20 | 10/20 | 0/20 | 17/218 (7.8%) | 358 |
+| semantic | `semantic-no-tool` | 23/60 | 2/20 | 11/20 | 10/20 | 12/131 (9.2%) | 313 |
+| deep-anchor | `deep-tool-anchor` | 12/60 | 2/20 | 10/20 | 0/20 | 6/211 (2.8%) | 355 |
+| **deep-semantic** | 两者均开 | **24/60** | 2/20 | 12/20 | 10/20 | **0/131 (0.0%)** | 316 |
+
+成对 exact McNemar 对 baseline：semantic `+11/-0` `p=0.000977`；deep-anchor
+`+0/-0` `p=1.000000`；deep-semantic `+12/-0` `p=0.000488`。deep-semantic 对
+semantic 是 `+1/-0`（多过 `bfcl_supplied_simple_python_35`），落在噪声内。
+
+两个开关正交，各自负责不同的东西：
+
+- `semantic-no-tool` 改任务能力。净增逐题都是 10 个 `bfcl_state_multi_turn_base_*`
+  加 `bfcl_supplied_simple_python_1`，与前一节记录的增益来源一致。`irrelevance`
+  四格恒为 2/20，因此收益机制是"用解释性 no-call 收尾中间状态、减少重复生成"，
+  **不能宣称一般拒调能力提高**。
+- `deep-tool-anchor` 只改格式稳定性。单开逐题 `+0/-0`——通过的是完全同一批题——
+  但 protocol repair 率 7.8% → 2.8%，与 semantic 叠加后归零。先前担心的
+  "深锚点移除句法弃权出口会拖低 irrelevance"没有出现。
+
+据此把两个开关的产品默认改为开启（`decisionFakeThink` 仍默认关闭，本轮及前一节
+都未显示额外任务收益）。开关本身保留，可显式关闭，以便后续在 13.3b 上做同样对照。
+仍是单一 7B checkpoint、单次运行、60 题的结果；`irrelevance` 在四格中无区分度，
+说明该题库在拒调维度上测不动，需要另行扩样本。
+
+### XML 与 markdown 两个产品 transcript 对照（2026-08-28）
+
+`no_tool` 已在 XML 信封中实现，参数校验和 Runner 语义与产品 profile 完全共用，因此
+`--suite bfcl-product` 同时接受两种 transcript，可在同一批 60 题上直接对照。同一端点、
+同一 `--api-stop-tokens cuda`、`case_parallelism=8`。
+
+| cell | task | answer | tool sel | arguments | protocol | stage | route |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| md-baseline | 12/60 | 11/41 | 12/61 | 21/31 | 235/296 | 237/296 | 42/61 |
+| md-semantic | 23/60 | 42/60 | 34/80 | 17/40 | 190/224 | 205/224 | 53/80 |
+| md-deep-semantic（当前默认） | **24/60** | 41/60 | 34/80 | 22/40 | 192/224 | 208/224 | 52/80 |
+| xml-baseline | 21/60 | 39/60 | 42/80 | **34/40** | **236/240** | **236/236** | 62/80 |
+| xml-semantic | 20/60 | 34/60 | 43/80 | 31/40 | 225/228 | 225/225 | 61/80 |
+| xml-fast（`--thinking fast`） | 21/60 | **46/60** | 41/80 | 33/40 | 228/236 | 228/228 | **62/80** |
+| xml-full（`--thinking full`） | 15/60 | 28/59 | 50/79 | 24/39 | 109/161 | 109/109 | 61/79 |
+
+结论分三条：
+
+- **task success 上 markdown 领先 3 题（24 vs 21），但 `+0/-3`、`p=0.25`，未达显著。**
+  其余每项 XML 都赢，且差距更大：参数正确率 85% 对 55%，stage contract 100% 对 93%，
+  protocol validity 98% 对 86%。失败模式不同——XML 是"该停时没停"（多调工具），
+  markdown 是格式错。
+- **`no_tool` 在 XML 上 0 次触发**（markdown 44 次）。该 transcript 默认出口本就是直接
+  输出普通文本，不像 fenced JSON 开了围栏就必须补完调用，因此语义出口没有用武之地。
+  据此 XML 上该开关默认关闭，显式开启仍生效。
+- **`--thinking full` 显著有害**：`+0/-6`、`p=0.0312`，protocol validity 塌到 68%——完整
+  推理撑爆 decision 预算，think 块未闭合即被截断。`--thinking fast` 在 task 上持平
+  （`+1/-1`），但 answer accuracy 39/60 → 46/60 为全场最高，作用在答案表达而非工具决策。
+
+### 失败归因：瓶颈在路由层，不在动作协议（2026-08-28）
+
+对 xml-baseline 的 39 道失败题逐条分类后，最大一块与协议选择无关：
+
+| 分组 | 失败数 | 主要形态 |
+| --- | ---: | --- |
+| `bfcl-irrelevance` | 18/20 | 路由判成 `inspect`，随后被迫调用工具 |
+| `bfcl-multiturn`（recovery） | 10/10 | 工具序列错 + 答案内容错 |
+| `bfcl-missing-required` | 9/20 | 选错工具（`want search_text` 却调 `read_file`/`list_files`） |
+
+irrelevance 那 18 题的机制是：路由把纯知识题判成 `inspect`，模型于是被迫进入工具循环
+并越挖越深（实测有连续三次 `list_files` 递增 `max_depth`），最终答案其实算对了，但
+`active no-call required` 与 `tools want []` 两项检查失败而整题判负。
+
+关键在于 **xml-baseline 与 md-deep-semantic 在这 20 题上都是 18/20 路由错判，完全相同**。
+路由是动作协议之前的一次独立短生成（`rwkv-g1i-tool-route-v1`，48 token），两个 profile
+共用同一 renderer 与同一段 prompt，因此这 18 题的成败与选哪个动作协议无关——这也解释了
+为什么全部七格的 irrelevance 恒为 2/20。
+
+推论：该题库在拒调维度上测不动，不是题目问题，而是瓶颈位于路由层，动作协议改动无法触及。
+后续优化的杠杆在路由 prompt 本身（它当前的 `respond` 示例只覆盖"写代码/解释概念"，未覆盖
+"解方程"这类纯计算题），而不是继续调协议或停止策略。
+
+### 决策预算是 transcript 的属性，不是全局常量（2026-08-28）
+
+上一节把 irrelevance 恒为 2/20 归因于路由层。关掉路由后复查发现归因只对了一半：
+误调用确实从 18/20 降到 1–3/20，但 irrelevance 没涨，17 题改栽在
+`answer contract repaired: [protocol_tag]`。逐条查看原文，那些 `<think>` 块**停在句子
+中间**——不是模型忘了闭合，是 `decision_max_output_tokens=96` 把它砍断了：
+
+```
+...the closest integer to 30 is 30. So answer: 30.
+We should respond with            ← 预算耗尽
+```
+
+抬高决策预算后（其余配置不变，无路由）：
+
+| cell | task | irrelevance | miss-req | multiturn | answer | arguments | protocol |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| md-deep-semantic（当前默认，96） | 24/60 | 2/20 | 12/20 | 10/20 | 41/60 | 22/40 | 192/224 |
+| md-d512（有路由） | 22/60 | 2/20 | 12/20 | 8/20 | 38/59 | 21/39 | 191/226 |
+| md-d512-noroute | 20/60 | 10/20 | 10/20 | **0/20** | 21/55 | 9/35 | 113/150 |
+| xml-noroute（96） | 24/60 | 4/20 | 11/20 | 9/20 | 38/60 | 33/40 | 147/180 |
+| **xml-d512** | **33/60** | **12/20** | 12/20 | 9/20 | 42/60 | **34/40** | **184/189** |
+| xml-d1024 | 33/60 | 12/20 | 12/20 | 9/20 | 42/60 | 34/40 | 187/191 |
+| xml-d512 复现 | 31/60 | — | — | — | — | — | 97.4% |
+
+- `xml-d512` vs `xml-noroute(96)`：`+9/-0`、`p=0.0039`；vs 当前默认：`+10/-1`、`p=0.0117`。
+- `xml-d1024` vs `xml-d512`：`+0/-0`，512 已是拐点。
+- 同条件（都无路由、都 512）`xml-d512` vs `md-d512-noroute`：**`+16/-3`、`p=0.0044`**。
+
+**96 是为 fenced-JSON 调的值。** 该 profile 预填围栏锚点把模型直接推进调用对象，几乎
+不花思考预算；XML 信封让模型先推理再决定，96 天然不够。因此
+`decision_max_output_tokens` 改为按 protocol 取默认（markdown 96 / XML 512），此前所有
+XML 与 markdown 的对比都是在对 XML 不利的预算下做出的。
+
+注意该值仍受 `Generation.MaxOutputTokens` 夹取，默认答案预算 256 时 XML 实际只能拿到
+256；要用满 512 需同时给出足够的 `--max-tokens`。
+
+另一条结论是 markdown 对路由的依赖是结构性的：`md-d512-noroute` 的 irrelevance 从 2/20
+升到 10/20，但 multiturn 塌到 0/20，总分反而跌到 20。路由替它筛掉简单题，代价是
+irrelevance 上不去。XML 两项都拿得住，不需要这层托底。
+
+同时修复一个客户端缺陷：该后端在 batch 端点恒返回 `finish_reason: "stop"` 且不返回
+usage，即使响应被 `max_tokens` 截断（`max_tokens=5` 实测输出停在 `<think>好的` 仍报
+stop）。非流式路径此前全盘接受该字段，导致"预算耗尽"被动作协议误诊为"畸形信封"。现改为
+在无 usage 时不盲信，与流式路径一致。
+
+### 路由层在 XML 上是净负担（2026-08-28）
+
+把"换协议"和"关路由"拆成两个决策后实测，二者不可分：
+
+| 配置 | task | irrelevance | miss-req | multiturn | irrelevance 被判成 inspect |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| markdown + 路由（当前默认，96） | 24/60 | 2/20 | 12/20 | 10/20 | 18/20 |
+| markdown 无路由 + 512 | 20/60 | 10/20 | 10/20 | **0/20** | — |
+| XML + 路由 + 512 | 21/60 | 2/20 | 11/20 | 8/20 | 18/20 |
+| **XML 无路由 + 512** | **33/60** | **12/20** | 12/20 | 9/20 | — |
+
+XML 的两格只差路由开关，相差 12 题且几乎全在 irrelevance。因果是明确的：路由在这 20 题上
+有 18/20 判成 `inspect`，模型随即被迫进入工具循环——**路由否决了模型本来正确的拒调判断**
+（无路由时模型自己拿到 12/20）。因此 XML 的收益必须配合无路由，无法只换协议而保留路由架构。
+
+三次独立复现 XML 无路由 + 512：33 / 31 / 33，均值 32.3、标准差 1.2。对当前默认的成对检验
+分别为 `+10/-1`（p=0.0117）、`+11/-4`（p=0.1185）、`+10/-1`（p=0.0117）——三次方向一致。
+
+路由对 markdown 仍有价值：拿掉后它的 multiturn 塌到 0/20。但那是在补 fenced-JSON profile
+自身的短板，不是通用收益。若切换默认，需同时接受：失去 `respond` 快速通道（简单对话也进
+工具循环，与省下的一次路由调用大致抵消）、App 的"渐进式工具暴露"开关对 XML 失去意义、
+`route_accuracy` 变为 0/0 而历史 run 不可直接对比。
+
+### 已排除：fake-think 三变体（2026-08-28）
+
+`--decision-fake-think`（半开 `<think></think`）与新增的 `--closed-fake-think`
+（完整 `<think></think>`）在 markdown 上结果几乎相同（均 17/60，protocol 47%），且都比
+不做干预更差。token 层面实测 `>` 与 `>{` 均为 1 个 token（`>{` 合并），完整闭合确实切断
+该合并路径，但这个差异在 60 题上未改变任何一题。
+
+真正的变量是二者都必须关掉 `deepToolAnchor`——它们抢同一个 assistant prefix 位置。撤掉
+围栏后模型漂移到 XML `<tool_call>` 信封，泄漏 15 → 33/37 次，空响应 19 → 85/89 次。这
+反过来说明深锚点的作用不止格式：它把模型钉在 fenced JSON 上。
+
+三种变体（不干预 / 半开 / 闭合）已穷尽该方向。压制思考会把误调用从 1/20 推到 19–20/20；
+正确方向相反——给模型想完的预算。
+
 ## 后续扩展
 
 先用这 60 题建立产品协议基线，再按失败分布增加题目。扩展仍应保持独立题库、正反配对和单因子 A/B；BFCL 的 `finish_task`、anchor 字节和官方判分逻辑不直接进入产品默认协议。`no_tool` 只作为默认关闭、可追踪、文本续写限定的产品实验开关，不能用 BFCL 结果直接证明默认产品增益。

@@ -38,8 +38,9 @@ export class Config {
     "nativeProvider"?: string;
     "thinking"?: string;
     "agentProtocol"?: AgentProtocol;
-    "semanticNoTool"?: boolean;
+    "semanticNoTool"?: boolean | null;
     "decisionFakeThink"?: boolean;
+    "deepToolAnchor"?: boolean | null;
     "maxSteps"?: number;
     "maxTokens"?: number;
     "decisionMaxTokens"?: number;

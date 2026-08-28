@@ -28,9 +28,11 @@ func TestUnifiedSessionReadsREADMEAndReturnsFirstLine(t *testing.T) {
 		MaxTokens: 256, Temperature: 1, TopK: 1, TopP: 1, PenaltyDecay: 1,
 		Thinking: "off",
 	}
+	// The product profile prefills `{"name":"` (deep anchor, on by default), so
+	// the model only continues from inside the object.
 	outputs := []string{
 		`inspect:workspace</route>`,
-		`{"name":"read_file","arguments":{"path":"README.md"}}`,
+		`read_file","arguments":{"path":"README.md"}}` + "\n```",
 		firstLine,
 	}
 	var requests []continuation.Request
@@ -65,7 +67,8 @@ func TestUnifiedSessionReadsREADMEAndReturnsFirstLine(t *testing.T) {
 	if result.Output != firstLine {
 		t.Fatalf("output = %q", result.Output)
 	}
-	if len(requests) != 3 || !strings.HasSuffix(requests[1].Prompt, "Assistant: ```json\n") ||
+	if len(requests) != 3 ||
+		!strings.HasSuffix(requests[1].Prompt, "Assistant: ```json\n"+`{"name":"`) ||
 		!strings.Contains(requests[2].Prompt, "User: Function output:\n") ||
 		!strings.HasSuffix(requests[2].Prompt, "Assistant:") {
 		t.Fatalf("Markdown transcript requests = %+v", requests)
@@ -102,7 +105,7 @@ func TestSessionProductExperimentsUseSharedTextProfile(t *testing.T) {
 		MaxTokens: 128, RouteMaxTokens: 48,
 		Temperature: 1, TopK: 1, TopP: 1, PenaltyDecay: 1,
 		AgentProtocol: AgentProtocolMarkdown, ProgressiveTools: &progressive,
-		SemanticNoTool: true, DecisionFakeThink: true,
+		SemanticNoTool: boolPointer(true), DecisionFakeThink: true,
 	}
 	outputs := []string{
 		`>{"name":"no_tool","arguments":{"reason":"No tool is needed for this question.","answer":"Candidate text."}}`,
@@ -139,6 +142,85 @@ func TestSessionProductExperimentsUseSharedTextProfile(t *testing.T) {
 		!strings.HasSuffix(requests[0].Prompt, "Assistant: <think></think") ||
 		len(requests) != 1 {
 		t.Fatalf("product experiment result = %+v, requests = %+v", result, requests)
+	}
+}
+
+// TestSessionXMLProtocolUsesEnvelopeProfile pins the byte shape of the
+// --agent-protocol xml branch after it moved from a hand-written agent.Options
+// literal to agent.XMLHarnessOptions: the XML control frame, the half-open
+// think prefix that only this profile supports, and the <tool_call> envelope.
+func TestSessionXMLProtocolUsesEnvelopeProfile(t *testing.T) {
+	t.Parallel()
+	workspace := t.TempDir()
+	const firstLine = "# XML profile fixture"
+	if err := os.WriteFile(
+		filepath.Join(workspace, "README.md"),
+		[]byte(firstLine+"\n"),
+		0o600,
+	); err != nil {
+		t.Fatal(err)
+	}
+	service, err := NewService(Options{Workspace: workspace})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer service.Close()
+	progressive := false
+	service.config = Config{
+		Provider: ProviderRWKVLightning, Model: "scripted", MaxSteps: 4,
+		MaxTokens: 256, DecisionMaxTokens: 128, RouteMaxTokens: 48,
+		Temperature: 1, TopK: 1, TopP: 1, PenaltyDecay: 1,
+		AgentProtocol: AgentProtocolXML, ProgressiveTools: &progressive,
+		Thinking: "fast",
+	}
+	outputs := []string{
+		`><tool_call>{"name":"read_file","arguments":{"path":"README.md"}}</tool_call>`,
+		`>` + firstLine,
+	}
+	var requests []continuation.Request
+	generator := continuation.GenerateFunc(func(
+		_ context.Context,
+		request continuation.Request,
+		_ continuation.EventSink,
+	) (continuation.Result, error) {
+		requests = append(requests, request)
+		return continuation.Result{
+			Text:         outputs[len(requests)-1],
+			FinishReason: continuation.FinishStop,
+		}, nil
+	})
+	session, err := newSession(
+		service,
+		generator,
+		io.NopCloser(strings.NewReader("")),
+		workspace,
+		Status{Model: "scripted"},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer session.Close()
+	result, err := session.Run(context.Background(), "Read README.md and report its title.")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(requests) != 2 {
+		t.Fatalf("xml profile made %d model calls: %+v", len(requests), requests)
+	}
+	// The XML control frame, not the product Tools: catalog.
+	if !strings.Contains(requests[0].Prompt, "<tool_call>{\"name\":\"TOOL_NAME\"") ||
+		strings.Contains(requests[0].Prompt, "System: Tools:\n[") {
+		t.Fatalf("xml control prompt = %q", requests[0].Prompt)
+	}
+	// Only the XML renderer prefills the half-open think prefix.
+	if !strings.HasSuffix(requests[0].Prompt, "Assistant: <think></think") {
+		t.Fatalf("xml decision prompt tail = %q", requests[0].Prompt)
+	}
+	if result.Steps[0].Tool != "read_file" || !result.Steps[0].ToolExecuted {
+		t.Fatalf("xml tool step = %+v", result.Steps[0])
+	}
+	if !strings.Contains(result.Output, firstLine) {
+		t.Fatalf("xml output = %q", result.Output)
 	}
 }
 

@@ -76,8 +76,17 @@ func TestAgentCapabilityDefaults(t *testing.T) {
 	if config.AgentProtocol != AgentProtocolMarkdown {
 		t.Fatalf("AgentProtocol = %q", config.AgentProtocol)
 	}
-	if config.SemanticNoTool || config.DecisionFakeThink {
-		t.Fatalf("product experiments must default off: %+v", config)
+	// semanticNoTool and deepToolAnchor now default on for the product profile
+	// (60-case paired A/B: +12/-0, p=0.000488, repair rate 0/131). Unset stays
+	// nil so a client can still turn either one off.
+	if config.SemanticNoTool != nil || config.DeepToolAnchor != nil {
+		t.Fatalf("unset product switches must stay nil: %+v", config)
+	}
+	if !productSwitchEnabled(config.SemanticNoTool) || !productSwitchEnabled(config.DeepToolAnchor) {
+		t.Fatalf("product switches must default on: %+v", config)
+	}
+	if config.DecisionFakeThink {
+		t.Fatalf("decisionFakeThink must default off: %+v", config)
 	}
 	if config.RouteMaxTokens != 48 || config.DecisionMaxTokens != 96 || config.MaxActiveBatch != 4 || config.SubagentMaxParallel != 4 || config.SubagentMaxSteps != 4 || config.SubagentTimeoutSeconds != 120 {
 		t.Fatalf("capability defaults = %+v", config)
@@ -101,13 +110,44 @@ func TestAgentProtocolCompatibilityMode(t *testing.T) {
 	}); err == nil {
 		t.Fatal("invalid Agent protocol accepted")
 	}
-	if _, err := normalizeConfig(Config{
+	// XML is a supported product transcript, so selecting it never fails.
+	// Unset switches default off there: no JSON fence for deepToolAnchor to
+	// extend, and no_tool measured 0 selections on this transcript.
+	xml, err := normalizeConfig(Config{
+		Provider: ProviderRWKVLightning,
+		Model:    "model", Endpoint: "https://example.test",
+		AgentProtocol: AgentProtocolXML,
+	})
+	if err != nil {
+		t.Fatalf("XML Agent protocol rejected: %v", err)
+	}
+	if productSwitchEnabled(xml.SemanticNoTool) || productSwitchEnabled(xml.DeepToolAnchor) {
+		t.Fatalf("XML config defaulted product switches on: %+v", xml)
+	}
+	// An explicit no_tool opt-in is still honored, so the comparison can be
+	// re-run; deepToolAnchor has nothing to extend and stays off regardless.
+	explicit, err := normalizeConfig(Config{
 		Provider: ProviderRWKVLightning,
 		Model:    "model", Endpoint: "https://example.test",
 		AgentProtocol:  AgentProtocolXML,
-		SemanticNoTool: true,
+		SemanticNoTool: boolPointer(true),
+		DeepToolAnchor: boolPointer(true),
+	})
+	if err != nil {
+		t.Fatalf("XML Agent protocol rejected the product switches: %v", err)
+	}
+	if !productSwitchEnabled(explicit.SemanticNoTool) || productSwitchEnabled(explicit.DeepToolAnchor) {
+		t.Fatalf("XML config resolved explicit switches wrongly: %+v", explicit)
+	}
+	// decisionFakeThink still errors: the XML renderer prefills its own think
+	// block, so the two would fight over the same assistant prefix.
+	if _, err := normalizeConfig(Config{
+		Provider: ProviderRWKVLightning,
+		Model:    "model", Endpoint: "https://example.test",
+		AgentProtocol:     AgentProtocolXML,
+		DecisionFakeThink: true,
 	}); err == nil {
-		t.Fatal("XML Agent protocol accepted a product text experiment")
+		t.Fatal("XML Agent protocol accepted decisionFakeThink")
 	}
 	if _, err := normalizeConfig(Config{
 		Provider: ProviderRWKVLightning,
@@ -224,3 +264,5 @@ func TestNewServiceEmptyWorkspaceStaysUnset(t *testing.T) {
 		t.Fatalf("workspace = %q, want empty (no project open)", service.Status().Workspace)
 	}
 }
+
+func boolPointer(value bool) *bool { return &value }

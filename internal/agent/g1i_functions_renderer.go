@@ -9,10 +9,14 @@ import (
 // submit always stay in function-call mode. Arithmetic answers directly after
 // their tool result; invoice cases switch to direct answer only after PASS.
 type G1IFunctionRenderer struct {
-	HasSubmit         bool
-	HasRunTests       bool
-	Product           bool
+	HasSubmit   bool
+	HasRunTests bool
+	Product     bool
+	// DecisionFakeThink prefills a think block on unanchored tool decisions.
+	// ClosedFakeThink selects the fully closed form instead of the half-open
+	// one; it has no effect unless DecisionFakeThink is set.
 	DecisionFakeThink bool
+	ClosedFakeThink   bool
 }
 
 func (renderer G1IFunctionRenderer) ID() string {
@@ -62,7 +66,8 @@ func (G1IFunctionRenderer) appendAssistantPrefix(prompt, prefix string) (string,
 	if strings.HasSuffix(prompt, "Assistant:") && strings.HasPrefix(prefix, "```") {
 		return prompt + " " + prefix, true
 	}
-	if strings.HasSuffix(prompt, "Assistant:") && prefix == G1IDecisionFakeThinkPrefix {
+	if strings.HasSuffix(prompt, "Assistant:") &&
+		(prefix == G1IDecisionFakeThinkPrefix || prefix == G1IDecisionClosedThinkPrefix) {
 		return prompt + " " + prefix, true
 	}
 	return prompt + prefix, prefix != ""

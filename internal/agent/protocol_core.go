@@ -10,10 +10,32 @@ import (
 	"github.com/no22/RWKV-Agent/internal/inference"
 )
 
+// Protocol, renderer and route identifiers are a public contract: eval
+// manifests record them verbatim, so archived runs stay comparable only while
+// each string keeps its exact spelling. They live together here so that adding
+// a profile means adding one line to this block rather than an inline literal
+// next to an ID method.
 const (
-	G1IActionProtocolV1  = "rwkv-g1i-envelope-v1"
-	RWKVPromptRendererV1 = "rwkv-chat-continuation-v1"
+	// G1IEnvelopeProtocolV1 is the XML <tool_call>/<answer> envelope protocol
+	// kept for --agent-protocol xml A/B runs.
+	G1IEnvelopeProtocolV1 = "rwkv-g1i-envelope-v1"
+	// G1IFunctionProtocolV1 is the benchmark fenced-JSON function protocol with
+	// submit termination. G1IProductFunctionProtocolV1 is its product variant,
+	// which answers in Markdown instead of gating on submit.
+	G1IFunctionProtocolV1        = "rwkv-g1i-functions-v1"
+	G1IProductFunctionProtocolV1 = "rwkv-g1i-functions-product-v1"
+
+	// RWKVPromptRendererV2 renders the XML-compatible chat transcript.
 	RWKVPromptRendererV2 = "rwkv-chat-continuation-v2"
+	// G1IFunctionRendererV1 renders the trained G1i function transcript.
+	// G1IProductFunctionRendererV1 is its product variant.
+	G1IFunctionRendererV1        = "rwkv-g1i-functions-continuation-v1"
+	G1IProductFunctionRendererV1 = "rwkv-g1i-functions-product-continuation-v1"
+
+	// G1IRouteProtocolV1 is the respond/inspect route. G1IToolRouteProtocolV1
+	// is the progressive variant that also selects tool bundles.
+	G1IRouteProtocolV1     = "rwkv-g1i-route-v1"
+	G1IToolRouteProtocolV1 = "rwkv-g1i-tool-route-v1"
 )
 
 var leadingThinkBlocks = regexp.MustCompile(`(?s)\A\s*(?:<think>.*?</think>\s*)+`)
@@ -101,3 +123,20 @@ const (
 	StageDecision GenerationStage = "decision"
 	StageAnswer   GenerationStage = "answer"
 )
+
+// Protocol capability predicates. The Runner branches on these instead of
+// naming a concrete protocol type at each call site.
+
+// preservesToolOrder reports whether the protocol keeps the assistant/tool
+// message pair in transcript order rather than folding results into one turn.
+func preservesToolOrder(protocol ActionProtocol) bool {
+	_, ok := protocol.(G1IFunctionProtocol)
+	return ok
+}
+
+// allowsRepeatedToolCalls reports whether the protocol lets an identical call
+// run again. Only the upstream Primitive Bench controller does.
+func allowsRepeatedToolCalls(protocol ActionProtocol) bool {
+	value, ok := protocol.(G1IFunctionProtocol)
+	return ok && value.AllowRepeatedCalls
+}

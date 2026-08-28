@@ -7,13 +7,6 @@ import (
 	"github.com/no22/RWKV-Agent/internal/inference"
 )
 
-const (
-	G1IFunctionProtocolV1        = "rwkv-g1i-functions-v1"
-	G1IProductFunctionProtocolV1 = "rwkv-g1i-functions-product-v1"
-	G1IFunctionRendererV1        = "rwkv-g1i-functions-continuation-v1"
-	G1IProductFunctionRendererV1 = "rwkv-g1i-functions-product-continuation-v1"
-)
-
 // G1IFunctionProtocol implements the JSON function-call transcript used to
 // train G1i checkpoints: System: Tools, Assistant: ```json, and User: Function
 // output. It is intentionally separate from the general XML agent protocol.
@@ -28,6 +21,12 @@ type G1IFunctionProtocol struct {
 	// SemanticNoTool enables the text-only no_tool protocol action. It is a
 	// model-visible abstention signal, not an executable or native API tool.
 	SemanticNoTool bool
+	// DeepToolAnchor extends the product decision prefill from the bare fence to
+	// `{"name":"`. Measured on 7B: the shallow fence leaves the arguments shape
+	// to the model, which stringifies it in about half of all calls; the deep
+	// anchor drops that to zero. It also removes every syntactic abstention
+	// exit, so it must only be evaluated together with SemanticNoTool.
+	DeepToolAnchor bool
 }
 
 func (protocol G1IFunctionProtocol) ID() string {

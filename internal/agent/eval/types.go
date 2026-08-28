@@ -113,6 +113,7 @@ type ModelMetadata struct {
 type HarnessMetadata struct {
 	SemanticNoTool           bool     `json:"semantic_no_tool"`
 	DecisionFakeThink        bool     `json:"decision_fake_think"`
+	DeepToolAnchor           bool     `json:"deep_tool_anchor"`
 	Version                  string   `json:"version"`
 	ScorerVersion            string   `json:"scorer_version"`
 	OutcomeTaxonomyVersion   string   `json:"outcome_taxonomy_version"`

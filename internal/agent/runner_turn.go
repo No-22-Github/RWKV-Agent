@@ -14,7 +14,18 @@ import (
 // G1IDecisionFakeThinkPrefix is the exact half-open prefix measured by the G1i
 // abstention experiments. The final '>' and any answer bytes must come from the
 // model. Whitespace is part of this protocol variable.
+//
+// Half-open is not an accident. Measured on this tokenizer: ">" is one token
+// and ">{" is also one token, so withholding the ">" lets the model emit it
+// merged with the byte that opens a structured payload. Closing the tag here
+// removes that merged path and forces a fresh token instead.
 const G1IDecisionFakeThinkPrefix = "<think></think"
+
+// G1IDecisionClosedThinkPrefix closes the block in the prompt, so the model
+// cannot open one at all. It costs the merged ">{" continuation above, and it
+// is newline-sensitive: the abstention lab measured that appending "\n\n" makes
+// 10/80 completions resume thinking, so nothing may follow these bytes.
+const G1IDecisionClosedThinkPrefix = "<think></think>"
 
 type runnerTurn struct {
 	r        *Runner
@@ -253,6 +264,9 @@ func (turn *runnerTurn) generateModelStep(step int) (turnModelStep, error) {
 		turn.stage == StageDecision &&
 		turn.result.Route == RouteInspect {
 		turn.assistantPrefix = G1IDecisionFakeThinkPrefix
+		if r.closedFakeThink {
+			turn.assistantPrefix = G1IDecisionClosedThinkPrefix
+		}
 	}
 	if turn.assistantPrefix != "" && r.toolCompleter == nil {
 		request.Prompt, injectedPrefix = appendAssistantPrefix(
@@ -325,10 +339,21 @@ func (turn *runnerTurn) generateModelStep(step int) (turnModelStep, error) {
 		!strings.HasPrefix(strings.TrimSpace(modelAction), turn.assistantPrefix) {
 		modelAction = turn.assistantPrefix + modelAction
 	}
-	if injectedPrefix && turn.assistantPrefix == G1IDecisionFakeThinkPrefix {
-		completedPrefix := G1IDecisionFakeThinkPrefix + ">"
-		if strings.HasPrefix(strings.TrimSpace(modelAction), completedPrefix) {
-			modelAction = strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(modelAction), completedPrefix))
+	// Remove the think prefix the harness injected and the model closed, so the
+	// parser never records a repair for bytes we supplied ourselves. The
+	// half-open form is closed by the model's own ">"; the closed form is
+	// already whole in the prompt and is echoed back verbatim, if at all.
+	if injectedPrefix {
+		switch turn.assistantPrefix {
+		case G1IDecisionFakeThinkPrefix:
+			completed := G1IDecisionFakeThinkPrefix + ">"
+			if trimmed := strings.TrimSpace(modelAction); strings.HasPrefix(trimmed, completed) {
+				modelAction = strings.TrimSpace(strings.TrimPrefix(trimmed, completed))
+			}
+		case G1IDecisionClosedThinkPrefix:
+			if trimmed := strings.TrimSpace(modelAction); strings.HasPrefix(trimmed, G1IDecisionClosedThinkPrefix) {
+				modelAction = strings.TrimSpace(strings.TrimPrefix(trimmed, G1IDecisionClosedThinkPrefix))
+			}
 		}
 	}
 	return turnModelStep{

@@ -46,11 +46,20 @@ func (G1IFunctionProtocol) FormatToolResult(_ string, _ string, payload string) 
 	return strings.TrimSpace(string(result.Result))
 }
 
+// G1IDeepToolAnchorSuffix is the exact byte sequence appended to the product
+// fence when DeepToolAnchor is on. The compact spelling (no space after the
+// colon) must match the JSON examples in Instructions: on 7B a single space
+// here flips the model into stringified arguments.
+const G1IDeepToolAnchorSuffix = `{"name":"`
+
 func (protocol G1IFunctionProtocol) ToolCallPrefix() string {
-	if protocol.Product {
-		return "```json\n"
+	if !protocol.Product {
+		return ""
 	}
-	return ""
+	if protocol.DeepToolAnchor {
+		return "```json\n" + G1IDeepToolAnchorSuffix
+	}
+	return "```json\n"
 }
 func (G1IFunctionProtocol) PostToolReminder() string { return "" }
 func (protocol G1IFunctionProtocol) PrepareAnswer(messages []Message, unverified []string, _ inference.ThinkingMode) ([]Message, string) {
@@ -78,14 +87,4 @@ func (protocol G1IFunctionProtocol) stopsWithPrefix(stage GenerationStage, prefi
 		return append([]string{"```"}, stops...)
 	}
 	return stops
-}
-
-func preservesToolOrder(protocol ActionProtocol) bool {
-	_, ok := protocol.(G1IFunctionProtocol)
-	return ok
-}
-
-func allowsRepeatedToolCalls(protocol ActionProtocol) bool {
-	value, ok := protocol.(G1IFunctionProtocol)
-	return ok && value.AllowRepeatedCalls
 }

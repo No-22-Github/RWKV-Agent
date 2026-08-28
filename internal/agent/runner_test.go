@@ -2066,3 +2066,79 @@ func (echoTool) Execute(_ context.Context, raw json.RawMessage) (any, error) {
 	}
 	return map[string]string{"value": args.Value}, nil
 }
+
+// TestDecisionBudgetDefaultsPerProtocol pins the per-transcript decision
+// budget. On the 60-case product suite (7B, no router) the XML envelope moved
+// 24/60 -> 33/60 when this went from 96 to 512, because at 96 its think block
+// was cut off mid-sentence and scored as a malformed envelope; the fenced-JSON
+// profile moved 24/60 -> 22/60, i.e. nothing.
+func TestDecisionBudgetDefaultsPerProtocol(t *testing.T) {
+	t.Parallel()
+	for _, testCase := range []struct {
+		name     string
+		options  Options
+		expected int
+	}{{
+		// The decision budget is still capped by the answer budget, so the XML
+		// default only materializes when the run has room for it.
+		name: "xml envelope reasons before acting",
+		options: Options{
+			MaxSteps:   2,
+			Protocol:   G1IProtocol{},
+			Renderer:   RWKVChatRenderer{},
+			Generation: continuation.Request{MaxOutputTokens: 1024},
+		},
+		expected: DefaultXMLDecisionMaxOutputTokens,
+	}, {
+		name:     "xml default is clamped by a small answer budget",
+		options:  Options{MaxSteps: 2, Protocol: G1IProtocol{}, Renderer: RWKVChatRenderer{}},
+		expected: 256,
+	}, {
+		name: "fenced json is anchored straight into a call",
+		options: Options{
+			MaxSteps: 2,
+			Protocol: G1IFunctionProtocol{Product: true},
+			Renderer: G1IFunctionRenderer{Product: true},
+		},
+		expected: DefaultDecisionMaxOutputTokens,
+	}, {
+		// NewRunner defaults a nil protocol to the XML envelope, so the XML
+		// budget applies here too (clamped by the 256 answer default).
+		name:     "unset protocol inherits the xml default",
+		options:  Options{MaxSteps: 2},
+		expected: 256,
+	}} {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+			runner, err := NewRunner(budgetTestGenerator(), nil, testCase.options)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if runner.options.DecisionMaxOutputTokens != testCase.expected {
+				t.Fatalf("decision budget = %d, want %d",
+					runner.options.DecisionMaxOutputTokens, testCase.expected)
+			}
+		})
+	}
+	// An explicit value always wins over the per-protocol default.
+	runner, err := NewRunner(budgetTestGenerator(), nil, Options{
+		MaxSteps: 2, DecisionMaxOutputTokens: 64, Protocol: G1IProtocol{},
+		Generation: continuation.Request{MaxOutputTokens: 1024},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if runner.options.DecisionMaxOutputTokens != 64 {
+		t.Fatalf("explicit budget = %d", runner.options.DecisionMaxOutputTokens)
+	}
+}
+
+func budgetTestGenerator() continuation.Generator {
+	return continuation.GenerateFunc(func(
+		context.Context,
+		continuation.Request,
+		continuation.EventSink,
+	) (continuation.Result, error) {
+		return continuation.Result{}, nil
+	})
+}

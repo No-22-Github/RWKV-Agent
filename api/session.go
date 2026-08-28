@@ -165,33 +165,27 @@ func newSessionAtDepth(
 			Generation:               generation,
 			ProgressiveTools:         progressiveToolsEnabled(config.ProgressiveTools),
 			ToolBundles:              toolBundles,
-			SemanticNoTool:           config.SemanticNoTool,
+			SemanticNoTool:           productSwitchEnabled(config.SemanticNoTool),
 			DecisionFakeThink:        config.DecisionFakeThink,
+			DeepToolAnchor:           productSwitchEnabled(config.DeepToolAnchor),
 			TaskControl:              taskControl,
 			PostToolHook:             postToolHook,
 		})
 	} else {
-		runnerOptions = agent.Options{
+		runnerOptions = agent.XMLHarnessOptions(agent.XMLHarnessConfig{
 			MaxSteps:                 config.MaxSteps,
-			ProtocolRetries:          1,
 			DecisionMaxOutputTokens:  min(config.DecisionMaxTokens, config.MaxTokens),
-			ControlPrompt:            agent.ControlPromptSystem,
-			Protocol:                 agent.G1IProtocol{},
-			Renderer:                 agent.RWKVChatRenderer{ThinkingMode: inference.ThinkingMode(config.Thinking)},
-			TaskControl:              taskControl,
+			RouteMaxOutputTokens:     min(config.RouteMaxTokens, config.MaxTokens),
+			TracePromptBytes:         tracePromptBytes,
 			DuplicateReplayLimit:     agent.ProductDuplicateReplayLimit,
 			DuplicateRescueThreshold: agent.ProductDuplicateRescueThreshold,
-			SameToolRescueLimit:      8,
-			TracePromptBytes:         tracePromptBytes,
+			SameToolRescueLimit:      agent.ProductSameToolRescueLimit,
 			Generation:               generation,
-		}
-		if progressiveToolsEnabled(config.ProgressiveTools) {
-			runnerOptions.ToolRouter = agent.G1IProgressiveToolRouteProtocol{}
-			runnerOptions.ToolBundles = toolBundles
-			runnerOptions.RouteRenderer = agent.RWKVChatRenderer{}
-			runnerOptions.RouteRetries = 1
-			runnerOptions.RouteMaxOutputTokens = min(config.RouteMaxTokens, config.MaxTokens)
-		}
+			ProgressiveTools:         progressiveToolsEnabled(config.ProgressiveTools),
+			ToolBundles:              toolBundles,
+			TaskControl:              taskControl,
+			ThinkingMode:             inference.ThinkingMode(config.Thinking),
+		})
 	}
 	runner, err := agent.NewRunner(generator, tools, runnerOptions)
 	if err != nil {
@@ -201,6 +195,12 @@ func newSessionAtDepth(
 }
 
 func progressiveToolsEnabled(value *bool) bool {
+	return value == nil || *value
+}
+
+// productSwitchEnabled resolves a tri-state product switch. Unset means the
+// product default, which is on for both semantic no_tool and the deep anchor.
+func productSwitchEnabled(value *bool) bool {
 	return value == nil || *value
 }
 
