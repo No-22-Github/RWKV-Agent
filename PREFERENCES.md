@@ -285,6 +285,13 @@ read_lines 的 end_line 按 strict integer 声明时，模型仍发 null；
 **结论：文件编辑工具保持实验性（--file-tools 门控，默认关闭）。
 阻塞项是 E6-2/E6-3 的终止/谎报问题，不是工具形态；形态选 Form B。**
 
+### E6 补充（class-3 e2e 期间实测，test/e2e/）
+
+| 编号 | 结论 | 数据 |
+| --- | --- | --- |
+| E6-6 | 路由器对 delegate 请求同样需要 few-shot 示例，否则判为 respond | 加 delegation 示例前 2/3 任务路由错误；加后全部正确路由 |
+| E6-7 | **模型会把 catalog 里数组参数的嵌套 schema 当成参数值复制**（`tasks == {"items":...,"type":"array"}`） | catalog 平铺为 `"array of string"` 后该失败消失（`internal/agent/g1i_functions.go` makeG1ICatalogEntry） |
+
 ## 对 Harness 的可执行含义（续）
 
 7. fetch 结果 token 预算 ≤8k（P1-1 降解点留余量）；超过 ~4k 的单页用

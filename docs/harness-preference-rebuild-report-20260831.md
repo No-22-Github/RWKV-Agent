@@ -72,6 +72,25 @@
 
 ### 文件工具工作流（E6，test/filetools-ab/，8 题 × 两形态 × 6 轮迭代）
 
+#### 外部对照：Claude Code / Aider / OpenHands 的文件工具设计
+
+按任务要求联网调研三家（2026-08-31；来源：`code.claude.com/docs/en/tools`、
+`aider.chat/docs/more/edit-formats.html`、OpenHands `software-agent-sdk` 的
+`openhands-tools/openhands/tools/file_editor/definition.py`），要点与 7B
+实测对照：
+
+| 外部设计 | 要点 | 与 7B 实测的对照 |
+| --- | --- | --- |
+| Claude Code Read | 输出带行号；`offset`/`limit` 分页；整读超 token 上限返回首页 + "PARTIAL view" 提示续读 | 与 Form A/B 的 `read_lines`（行号 + 200 行分页）同构，方向一致。我们的分页参数为 nullable+默认值（E6-5），比必填参数更适配 7B 的 null 习惯 |
+| Claude Code Edit | `old_string`/`new_string` 逐字节精确且唯一，`replace_all`，先 Read 后 Edit | 不采纳：7B 连参数形状都会错（E6-5），逐字节匹配会把"参数错"升级成重试死循环。其"先读后改"门控思想与 E6-3（谎报完成）呼应，留作后续 no_tool 门控参考 |
+| Aider 编辑格式 | `whole`（整文件，最简单）、`diff`（SEARCH/REPLACE 块）、`diff-fenced`（Gemini 系）、`udiff`（GPT-4 Turbo，反 lazy coding）、editor-diff/whole；格式按模型 family 配对 | **Aider 的"whole 最简单、对弱模型友好"与实测同向**：Form B（whole）required-tool 88.9-100% vs Form A 50-60%。diff/udiff 需要更强输出一致性，7B 上未实测，本轮不给 |
+| OpenHands file_editor | `view/create/str_replace/insert/undo_edit`；view 为 cat -n 风格行号 + `view_range`（1-based，[start,-1] 到文件尾）；old_str 须精确匹配唯一连续行；长输出 `<response clipped>` 截断 | `view` 行号+范围与 read_lines 同构；`str_replace` 不采纳（同 Edit）；`undo_edit` 有价值但增加工具数量，未采纳；截断标记思路与 E1 的 truncated 标记一致 |
+
+结论：三家共同点中，行号分页读被实测直接支持并采纳；精确字符串编辑
+（Claude Code Edit / OpenHands str_replace / Aider diff 家族）属于强模型
+格式，7B 实测（E6-3/E6-5）不支持照抄；whole-file（Aider）与 Form B 实测
+互相印证。**Form B 同时有内部数据与外部旁证；Form A 淘汰。**
+
 | 编号 | 结论 | 数据 |
 | --- | --- | --- |
 | E6-1 | 两形态机制都可用；Form B（whole，2 工具）required-tool 完成率更高 | 最终轮 B 100% vs A 60%；历史轮 B 88.9-100% vs A 50-60% |
@@ -93,7 +112,9 @@
 | `internal/agent/g1i_functions_transcript.go` | `FormatToolResult` 将 spawn_agents 的 raw JSON 渲染为逐条带来源标签的块（`--- Sub-agent N: <sources> --- / Task / Result`）；JSON wire 格式不变 | P4-1/P4-4/P3-1：raw JSON batch 11/20 → 块状 14-16/20（E2 验证 `test/probes/p4-subagent-feedback/out/e2-verify2/`） |
 | `internal/agent/runner_turn.go` | 产品 profile 的决策锚点不再依赖路由器存在：非 respond 路由一律武装（DecisionFakeThink 模式除外；XML 协议保持原路由门控） | P1-1 vs P1-2：无锚点决策从 2k token 起降解 |
 | `internal/agent/route.go` | workspace bundle 为可编辑（`Editable`）时，路由 few-shot 增加两条编辑示例 | E6-4：路由器把编辑任务判为 respond |
-| `internal/agent/tool_registry.go` | `ToolBundle.Editable`；新增 `PermissionWorkspaceWrite` | E6-4 |
+| `internal/agent/tool_registry.go` | `ToolBundle.Editable`/`Delegation`；新增 `PermissionWorkspaceWrite` | E6-4、class-3 e2e |
+| `internal/agent/g1i_functions.go`（catalog 压缩） | 数组参数平铺为 `"array of string"`，不再向模型展示嵌套数组 schema | class-3 e2e 实测：模型把嵌套 schema 当参数值复制（`tasks == {"items":...,"type":"array"}`），平铺后消失 |
+| `internal/agent/eval/runner.go`、`cmd/rwkv-cli/main.go` | eval 接线 fixture 版 spawn_agents（`--subagent-fixture`：关键词匹配 → 固定输出 + 来源），第三类失败可在 agent-eval 内复现 | 任务第三步/第四步要求；E6-4、class-3 e2e |
 | `internal/agent/tools/fileedit.go`（新增） | 文件编辑工具两种形态：Form A lines（read_lines/write_file/replace_lines/append_file）与 Form B whole（read_lines/write_file）；工作区 containment、分页读上限 200 行、可空行号默认值 | E6-1/5；任务指定"不要 str_replace"（old_str 死循环风险） |
 | `internal/agent/g1i_functions.go` | 提供写工具时收紧 no_tool 描述（禁止谎报文件操作） | E6-3（部分有效；完整解决见遗留） |
 | `internal/agent/harness_profile.go`、`api/session.go`、`api/types.go`、`cmd/rwkv-cli/main.go` | `--compress-fetch` / `--file-tools lines|whole` 旗标与 App 配置面贯通；custom `--cases` 现在尊重 `--agent-protocol markdown`（此前被静默忽略，E6 期间发现并修正；内建套件保持原映射） | 使实验可从 CLI 复现 |
@@ -173,9 +194,35 @@
   0/5、5/5）。
 - 结论：三类失败在端到端层由模型工作流纪律主导，本轮改动既不伤（回归双
   套件零变化）也不推不动的那部分；显式"两个来源都查一下"类提问（class 2
-  带纠正指令）可达 5/5，与 P3-1/P3-2 的探针结论一致。class 3（spawn_agents）
-  无法经 agent-eval 复现（runner 未接线 delegate 工具，见遗留），其证据由
-  P4/E2 探针承担。
+  带纠正指令）可达 5/5，与 P3-1/P3-2 的探针结论一致。
+
+### 端到端验证补遗：第三类失败（子 Agent 复核，test/e2e/subagent-run-{1..5}/）
+
+为覆盖第三类失败，给 eval 接线了 **fixture 版 spawn_agents**
+（`--subagent-fixture <file>`：按关键词匹配子任务文本 → 固定输出 + 来源
+URL，无需嵌套模型调用；`evalTools` 在配置存在时注册 DelegationTools）。
+过程中实测出两个新的 harness 级失败并修复：
+
+1. **路由器把 delegate 请求判为 respond**（工具不可用）——与 E6-4 同构，
+   加两条 delegation few-shot 示例（`ToolBundle.Delegation` 门控，默认
+   关闭，不影响 bfcl-product 基线）后 route 正确。
+2. **模型把 catalog 里的数组参数 schema 当成参数值复制**
+   （`tasks == {"items":...,"type":"array"}`，调用里根本没有任务数组）——
+   `makeG1ICatalogEntry` 对数组属性平铺为 `"array of string"` 后该失败消失。
+
+修复后的端到端结果（3 题 × 5 次重复，全部触发 spawn_agents 且协议合规
+100%）：
+
+| 任务 | 通过率 | 说明 |
+| --- | --- | --- |
+| e2e-subagent-official-first（正确子 Agent 排第一） | **0/5** | 复现 P4 近因效应：采纳错误的最后一条 |
+| e2e-subagent-official-last（正确子 Agent 排最后） | **5/5** | 近因偏差反而帮了正确答案 |
+| e2e-subagent-wrong-prior（提问先引用错误数值） | **0/5** | 错误先验锚定了最终回答 |
+
+结论：第三类失败在端到端层复现，且方向与 P4 探针一致（近因 + 先验锚定）；
+catalog 数组参数平铺与 delegation 路由示例两处修复为实测必需。旧二进制
+无 fixture 接线，无法对同一题集跑旧 Harness——第三类的新旧对照由 P4/E2
+探针承担（old-json 11/20 vs new-blocks 14-16/20），此处如实记录。
 
 ### 无效实验（明确记录）
 
@@ -234,9 +281,11 @@ token/主题变量/配色、未替换组件库。
    能正确调工具、能读回结果，但没有"收尾作答"的纪律；no_tool 又会被滥用于
    谎报。建议下一轮专门研究"证据门控的 no_tool"（要求 reason 引用既有
    Function output 的内容）或"答案阶段强制 + 工具调用软修复"的可行性。
-2. **agent-eval 未接线 web/delegate 工具**：`--web`/`--subagents` 旗标对
-   评测 runner 实际无效（工具装配在 `evalTools` 中缺失），压缩与子 Agent 的
-   端到端验证只能经 App 或探针覆盖。建议给 eval 补 fixture 版 provider。
+2. **agent-eval 的 web 工具仍未接线**：delegate 已通过
+   `--subagent-fixture` 接入（fixture 版 spawn_agents，本轮交付）；`--web`
+   旗标对评测 runner 仍实际无效（`evalTools` 未装配 web 工具），压缩与
+   web_fetch 的端到端验证只能经探针覆盖。建议给 eval 补 fixture 版
+   web provider。
 3. **压缩提示词仅覆盖英文合成页**：P5 的正文是英文合成文本；中文长页的
    保留率与压缩长度未测（估算器对 CJK 的偏置方向是安全的，但压缩效果未验证）。
 4. **近因偏差未消除**（P3-2/P4-1）：合并回喂 + 来源标签缓解后仍存在；可尝试
@@ -252,6 +301,6 @@ token/主题变量/配色、未替换组件库。
 - 探针与数据：`test/probes/{p1-long-context,p2-tool-result-feedback,p3-multi-source,p4-subagent-feedback,p5-compression}/out/`
 - 基线与回归：`test/baseline/`（main 与 rebuild 两代、多轮）
 - 文件工具对照：`test/filetools-ab/`
-- 端到端：`test/e2e/`
+- 端到端（含第三类 fixture spawn）：`test/e2e/`（`subagent-run-{1..5}/`、`subagent-fixture.json`）
 - 偏好原始结论：仓库根 `PREFERENCES.md`
 - 框架约定来源：`/Users/no22/Projects/rwkv-abstention-lab`、`/Users/no22/Projects/RWKV-Toolcall-Bench`
