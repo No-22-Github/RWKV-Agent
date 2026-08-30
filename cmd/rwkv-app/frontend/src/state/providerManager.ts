@@ -26,6 +26,20 @@ function providerDraftSignature(label: string, config: Config): string {
 let nextHeaderID = 1
 
 /*
+ * Agent 能力与预算的默认值。与后端 api/service.go normalizeConfig 中的缺省值
+ * 一一对应：后端调整默认值时这里必须同步，否则脏标记签名会静默漂移。
+ */
+const DEFAULT_AGENT_LIMITS = {
+  maxSteps: 6,
+  maxTokens: 1024,
+  maxActiveBatch: 4,
+  remoteBatchWaitMS: 10,
+  subagentMaxParallel: 4,
+  subagentMaxSteps: 4,
+  subagentTimeoutSeconds: 120,
+}
+
+/*
  * 连接档案域的唯一状态所有者：档案列表、编辑器表单、脏标记与全部档案动作。
  * App 只保留聊天/会话域状态，通过这里的方法操作设置。
  */
@@ -53,11 +67,11 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   const [braveAPIKey, setBraveAPIKey] = useState('')
   const [tavilyAPIKey, setTavilyAPIKey] = useState('')
   const [enableSubagents, setEnableSubagents] = useState(false)
-  const [maxActiveBatch, setMaxActiveBatch] = useState(4)
-  const [remoteBatchWaitMS, setRemoteBatchWaitMS] = useState(10)
-  const [subagentMaxParallel, setSubagentMaxParallel] = useState(4)
-  const [subagentMaxSteps, setSubagentMaxSteps] = useState(4)
-  const [subagentTimeoutSeconds, setSubagentTimeoutSeconds] = useState(120)
+  const [maxActiveBatch, setMaxActiveBatch] = useState(DEFAULT_AGENT_LIMITS.maxActiveBatch)
+  const [remoteBatchWaitMS, setRemoteBatchWaitMS] = useState(DEFAULT_AGENT_LIMITS.remoteBatchWaitMS)
+  const [subagentMaxParallel, setSubagentMaxParallel] = useState(DEFAULT_AGENT_LIMITS.subagentMaxParallel)
+  const [subagentMaxSteps, setSubagentMaxSteps] = useState(DEFAULT_AGENT_LIMITS.subagentMaxSteps)
+  const [subagentTimeoutSeconds, setSubagentTimeoutSeconds] = useState(DEFAULT_AGENT_LIMITS.subagentTimeoutSeconds)
   const [availableModels, setAvailableModels] = useState<RemoteModel[]>([])
   const [settingsMessage, setSettingsMessage] = useState('')
   const [settingsBusy, setSettingsBusy] = useState(false)
@@ -78,7 +92,9 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       provider: Provider.ProviderLocal,
       model: modelPath.trim(), tokenizerPath: tokenizerPath.trim() || undefined,
       endpoint: undefined, apiKey: undefined, password: undefined, headers: undefined,
-      thinking: 'off', maxSteps: 6, maxTokens: 1024, ...agentCapabilityConfig(),
+      thinking: 'off',
+      maxSteps: DEFAULT_AGENT_LIMITS.maxSteps, maxTokens: DEFAULT_AGENT_LIMITS.maxTokens,
+      ...agentCapabilityConfig(),
     })
   }
   function remoteConfig() {
@@ -94,7 +110,8 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       chatPromptMode: 'native-chat', chatThinking: 'disabled',
       stream: remoteProtocol === 'rwkv' ? false : undefined,
       rwkvStopTokens: remoteProtocol === 'rwkv' ? 'none' : undefined,
-      maxSteps: 6, maxTokens: 1024, ...agentCapabilityConfig(),
+      maxSteps: DEFAULT_AGENT_LIMITS.maxSteps, maxTokens: DEFAULT_AGENT_LIMITS.maxTokens,
+      ...agentCapabilityConfig(),
     })
   }
   function providerDraftConfig() { return settingsTab === 'local' ? localConfig() : remoteConfig() }
@@ -119,8 +136,12 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     setHeaders(Object.entries(config.headers || {}).map(([name, value]) => ({ id: nextHeaderID++, name, value: value || '' })))
     setAgentProtocol(config.agentProtocol || AgentProtocol.AgentProtocolXML); setProgressiveTools(config.progressiveTools ?? false)
     setEnableWeb(config.enableWeb || false); setBraveAPIKey(config.braveApiKey || ''); setTavilyAPIKey(config.tavilyApiKey || '')
-    setEnableSubagents(config.enableSubagents || false); setMaxActiveBatch(config.maxActiveBatch || 4); setRemoteBatchWaitMS(config.remoteBatchWaitMs ?? 10)
-    setSubagentMaxParallel(config.subagentMaxParallel || 4); setSubagentMaxSteps(config.subagentMaxSteps || 4); setSubagentTimeoutSeconds(config.subagentTimeoutSeconds || 120)
+    setEnableSubagents(config.enableSubagents || false)
+    setMaxActiveBatch(config.maxActiveBatch || DEFAULT_AGENT_LIMITS.maxActiveBatch)
+    setRemoteBatchWaitMS(config.remoteBatchWaitMs ?? DEFAULT_AGENT_LIMITS.remoteBatchWaitMS)
+    setSubagentMaxParallel(config.subagentMaxParallel || DEFAULT_AGENT_LIMITS.subagentMaxParallel)
+    setSubagentMaxSteps(config.subagentMaxSteps || DEFAULT_AGENT_LIMITS.subagentMaxSteps)
+    setSubagentTimeoutSeconds(config.subagentTimeoutSeconds || DEFAULT_AGENT_LIMITS.subagentTimeoutSeconds)
   }
 
   function applyProviderBootstrapState(value: AppBootstrap) {
@@ -144,7 +165,8 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       provider: Provider.ProviderRWKVLightning,
       model: '', endpoint: '', apiKey: undefined, password: undefined, headers: {},
       chatPromptMode: 'native-chat', chatThinking: 'disabled', stream: false, rwkvStopTokens: 'none',
-      maxSteps: 6, maxTokens: 1024, ...agentCapabilityConfig(),
+      maxSteps: DEFAULT_AGENT_LIMITS.maxSteps, maxTokens: DEFAULT_AGENT_LIMITS.maxTokens,
+      ...agentCapabilityConfig(),
     })
     setDraftInitialized(false)
     setEditingProviderId('')
