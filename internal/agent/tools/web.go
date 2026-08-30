@@ -18,14 +18,38 @@ import (
 )
 
 const (
-	defaultBraveEndpoint   = "https://api.search.brave.com/res/v1/web/search"
-	defaultTavilyEndpoint  = "https://api.tavily.com/extract"
-	maxWebResponseBytes    = 4 * 1024 * 1024
-	maxFetchedContentRunes = 32 * 1024
-	defaultRetryAttempts   = 5
-	defaultRetryBaseDelay  = 500 * time.Millisecond
-	defaultRetryMaxDelay   = 5 * time.Second
+	defaultBraveEndpoint  = "https://api.search.brave.com/res/v1/web/search"
+	defaultTavilyEndpoint = "https://api.tavily.com/extract"
+	maxWebResponseBytes   = 4 * 1024 * 1024
+	defaultRetryAttempts  = 5
+	defaultRetryBaseDelay = 500 * time.Millisecond
+	defaultRetryMaxDelay  = 5 * time.Second
 )
+
+// Fetched pages share one token budget per call. P1 probes on this model
+// (test/probes/p1-long-context, PREFERENCES.md P1-1) measured decision format
+// compliance at 40/40 up to 10k injected tokens and 30-32/40 at 20k, so the
+// budget sits below the measured degradation point and leaves room for the
+// control prompt, history, and the answer itself. The old 32k-rune cap was
+// fine for English (~6k tokens) but passed ~32k tokens of Chinese through.
+const maxFetchedContentTokens = 8 * 1024
+
+// estimateTokens approximates RWKV World tokenizer counts without a vocab:
+// ASCII text measured 3.85-5.42 chars/token across P1 body types (so 4.0 is
+// near-exact for list-heavy text and overestimates prose by up to ~30%), and
+// CJK is charged 1.1 tokens per rune. Overestimation is the safe direction:
+// it only makes slicing earlier.
+func estimateTokens(text string) int {
+	tokens := 0.0
+	for _, r := range text {
+		if r < 128 {
+			tokens += 0.25
+		} else {
+			tokens += 1.1
+		}
+	}
+	return int(tokens)
+}
 
 type providerRetryPolicy struct {
 	maxAttempts int
@@ -212,12 +236,34 @@ func (t *webFetchTool) Execute(ctx context.Context, raw json.RawMessage) (any, e
 	if err != nil {
 		return nil, err
 	}
+	// Share one token budget across the fetched pages, in URL order. A page
+	// that fits entirely leaves its remainder for later pages; a page that
+	// exhausts the budget is rune-sliced and flagged.
+	budget := maxFetchedContentTokens
 	for index := range results {
-		runes := []rune(results[index].Content)
-		if len(runes) > maxFetchedContentRunes {
-			results[index].Content = string(runes[:maxFetchedContentRunes])
+		if budget <= 0 {
+			results[index].Content = ""
 			results[index].Truncated = true
+			continue
 		}
+		if estimateTokens(results[index].Content) <= budget {
+			budget -= estimateTokens(results[index].Content)
+			continue
+		}
+		runes := []rune(results[index].Content)
+		// Binary search the longest prefix that fits the remaining budget.
+		low, high := 0, len(runes)
+		for low < high {
+			mid := (low + high + 1) / 2
+			if estimateTokens(string(runes[:mid])) <= budget {
+				low = mid
+			} else {
+				high = mid - 1
+			}
+		}
+		results[index].Content = string(runes[:low])
+		results[index].Truncated = true
+		budget = 0
 	}
 	return map[string]any{"pages": results}, nil
 }

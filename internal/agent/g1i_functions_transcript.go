@@ -2,6 +2,7 @@ package agent
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/no22/RWKV-Agent/internal/inference"
@@ -39,11 +40,55 @@ func (G1IFunctionProtocol) FormatToolResult(_ string, _ string, payload string) 
 	if !result.OK {
 		return "ERROR: " + result.Error
 	}
+	if text := renderSubagentResults(result.Result); text != "" {
+		return text
+	}
 	var text string
 	if json.Unmarshal(result.Result, &text) == nil {
 		return text
 	}
 	return strings.TrimSpace(string(result.Result))
+}
+
+// renderSubagentResults formats spawn_agents payloads as one labeled block per
+// sub-agent. P4 probes (test/probes/p4-subagent-feedback, PREFERENCES.md P4-1)
+// measured a strong recency bias: with two raw-JSON sub-agent results fed back
+// sequentially the parent adopted the wrong (most recent) result 60-70% of the
+// time when the correct one came first, and P4-4/P3-1 showed that merging into
+// one output with per-source labels is what recovers accuracy. The JSON wire
+// format from SpawnAgentsResult is unchanged; only this transcript rendering
+// differs.
+func renderSubagentResults(raw json.RawMessage) string {
+	var spawn struct {
+		Results []struct {
+			Index   int      `json:"index"`
+			Task    string   `json:"task"`
+			Output  string   `json:"output,omitempty"`
+			Sources []string `json:"sources,omitempty"`
+			Error   string   `json:"error,omitempty"`
+		} `json:"results"`
+	}
+	if json.Unmarshal(raw, &spawn) != nil || len(spawn.Results) == 0 {
+		return ""
+	}
+	var blocks strings.Builder
+	for _, entry := range spawn.Results {
+		number := entry.Index + 1
+		blocks.WriteString(fmt.Sprintf("--- Sub-agent %d ---\n", number))
+		if entry.Task != "" {
+			blocks.WriteString("Task: " + entry.Task + "\n")
+		}
+		if entry.Error != "" {
+			blocks.WriteString("Error: " + entry.Error + "\n")
+		} else {
+			blocks.WriteString("Result: " + entry.Output + "\n")
+		}
+		if len(entry.Sources) > 0 {
+			blocks.WriteString("Sources: " + strings.Join(entry.Sources, ", ") + "\n")
+		}
+		blocks.WriteString("\n")
+	}
+	return strings.TrimRight(blocks.String(), "\n")
 }
 
 // G1IDeepToolAnchorSuffix is the exact byte sequence appended to the product
