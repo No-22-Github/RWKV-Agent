@@ -1,4 +1,4 @@
-import type { TraceRecord, TraceTurn } from '../../ledger'
+import type { TraceTurn } from '../../ledger'
 
 /** 搜索索引的逐记录条目：命中判断只做小写子串。 */
 export type SearchIndexEntry = { recordId: string; haystack: string }
@@ -44,8 +44,4 @@ export function debounce<A extends unknown[]>(fn: (...args: A) => void, delayMs:
       fn(...args)
     }, delayMs)
   }
-}
-
-export function collectVisibleRecords(turns: readonly TraceTurn[]): TraceRecord[] {
-  return turns.flatMap((turn) => turn.records)
 }

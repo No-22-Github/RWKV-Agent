@@ -32,11 +32,11 @@ func TestSettingsPersistCredentialsAtomically(t *testing.T) {
 		Password: "service-secret",
 		Headers:  map[string]string{"CF-Access-Client-Secret": "header-secret"},
 	}
-	if err := store.SaveSettings(config); err != nil {
+	if _, err := store.SaveProvider("", "", config, true); err != nil {
 		t.Fatal(err)
 	}
 	config.Password = "updated-secret"
-	if err := store.SaveSettings(config); err != nil {
+	if _, err := store.SaveProvider("", "", config, true); err != nil {
 		t.Fatal(err)
 	}
 	loaded, err := store.LoadSettings()
@@ -56,16 +56,16 @@ func TestSettingsPersistCredentialsAtomically(t *testing.T) {
 	}
 }
 
-func TestSaveActiveProviderUpsertsAndActivates(t *testing.T) {
+func TestSaveProviderBlankIDUpsertsAndActivates(t *testing.T) {
 	t.Parallel()
 	store := testStore(t)
 	first := agentapi.Config{Provider: agentapi.ProviderRWKVLightning, Endpoint: "https://a.test", Model: "model-a", Password: "p1"}
 	second := agentapi.Config{Provider: agentapi.ProviderChatCompletions, Endpoint: "https://b.test", Model: "model-b", APIKey: "k1"}
-	firstSaved, err := store.SaveActiveProvider(first)
+	firstSaved, err := store.SaveProvider("", "", first, true)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err := store.SaveActiveProvider(second); err != nil {
+	if _, err := store.SaveProvider("", "", second, true); err != nil {
 		t.Fatal(err)
 	}
 	loaded, err := store.LoadSettings()
@@ -77,7 +77,7 @@ func TestSaveActiveProviderUpsertsAndActivates(t *testing.T) {
 	}
 	// 重新保存第一个（同 协议+地址+模型，仅改密钥）→ upsert，不新增，且 active 回到第一个。
 	first.Password = "p2"
-	reSaved, err := store.SaveActiveProvider(first)
+	reSaved, err := store.SaveProvider("", "", first, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -104,9 +104,9 @@ func TestSaveActiveProviderUpsertsAndActivates(t *testing.T) {
 func TestSaveProviderDraftUpdatesByIDWithoutChangingActive(t *testing.T) {
 	t.Parallel()
 	store := testStore(t)
-	active, err := store.SaveActiveProvider(agentapi.Config{
+	active, err := store.SaveProvider("", "", agentapi.Config{
 		Provider: agentapi.ProviderRWKVLightning, Endpoint: "https://active.test", Model: "active-model",
-	})
+	}, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -166,11 +166,11 @@ func TestLoadSettingsMigratesV1(t *testing.T) {
 func TestRemoveProviderReassignsActive(t *testing.T) {
 	t.Parallel()
 	store := testStore(t)
-	a, err := store.SaveActiveProvider(agentapi.Config{Provider: agentapi.ProviderRWKVLightning, Endpoint: "https://a.test", Model: "model-a"})
+	a, err := store.SaveProvider("", "", agentapi.Config{Provider: agentapi.ProviderRWKVLightning, Endpoint: "https://a.test", Model: "model-a"}, true)
 	if err != nil {
 		t.Fatal(err)
 	}
-	b, err := store.SaveActiveProvider(agentapi.Config{Provider: agentapi.ProviderRWKVLightning, Endpoint: "https://b.test", Model: "model-b"})
+	b, err := store.SaveProvider("", "", agentapi.Config{Provider: agentapi.ProviderRWKVLightning, Endpoint: "https://b.test", Model: "model-b"}, true)
 	if err != nil {
 		t.Fatal(err)
 	}

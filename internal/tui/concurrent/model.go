@@ -165,10 +165,6 @@ func (m *model) Update(message tea.Msg) (tea.Model, tea.Cmd) {
 		m.input.SetWidth(max(value.Width-8, 12))
 	case tickMsg:
 		if m.runner != nil {
-			select {
-			case <-m.runner.Dirty():
-			default:
-			}
 			m.snapshot = m.runner.Snapshot()
 		}
 		return m, tickCommand()

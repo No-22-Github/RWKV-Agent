@@ -196,18 +196,6 @@ func ParseMarkdownCallsWithMode(
 	}
 }
 
-func decodeMarkdownCallObject(value string) (map[string]json.RawMessage, error) {
-	raw, err := decodeMarkdownCallValue(value)
-	if err != nil {
-		return nil, err
-	}
-	var object map[string]json.RawMessage
-	if err := json.Unmarshal(raw, &object); err != nil {
-		return nil, fmt.Errorf("decode function call: %w", err)
-	}
-	return object, nil
-}
-
 func decodeMarkdownCallValue(value string) (json.RawMessage, error) {
 	candidate := strings.TrimSpace(value)
 	if strings.HasPrefix(candidate, "```json") {

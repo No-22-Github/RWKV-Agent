@@ -674,8 +674,6 @@ func aggregateGroupedRows(
 	return result, nil
 }
 
-type tableAggregateTool struct{ workspace *agent.WorkspaceResolver }
-
 type tableCountTool struct{ workspace *agent.WorkspaceResolver }
 
 type tableSumTool struct{ workspace *agent.WorkspaceResolver }
@@ -695,15 +693,6 @@ type tableAggregateResult struct {
 	Value       any              `json:"value,omitempty"`
 	GroupCount  int              `json:"group_count,omitempty"`
 	Groups      []map[string]any `json:"groups,omitempty"`
-}
-
-func (*tableAggregateTool) Spec() agent.ToolSpec {
-	return strictSpec(
-		"table_calculator",
-		"Aggregate all matching table rows; value is one column or numeric row expression and group_by is an optional column string.",
-		`{"path":"string","filter":{"column":"exact value"},"operation":"count|sum|avg|min|max|distinct_count","value":"column or numeric row expression","group_by":"optional column"}`,
-		`{"type":"object","properties":{"path":{"type":"string","minLength":1},"filter":{"type":"object","additionalProperties":{}},"operation":{"type":"string","enum":["count","sum","avg","min","max","distinct_count"]},"value":{"type":"string"},"group_by":{"type":"string"}},"required":["path","operation"],"additionalProperties":false}`,
-	)
 }
 
 func (*tableCountTool) Spec() agent.ToolSpec {
@@ -751,14 +740,6 @@ func (t *tableSumTool) Execute(ctx context.Context, raw json.RawMessage) (any, e
 	return executeTableAggregate(ctx, t.workspace, tableAggregateRequest{
 		Path: args.Path, Filter: args.Filter, Operation: "sum", Value: args.Value, GroupBy: args.GroupBy,
 	})
-}
-
-func (t *tableAggregateTool) Execute(ctx context.Context, raw json.RawMessage) (any, error) {
-	var args tableAggregateRequest
-	if err := decodeArguments(raw, &args); err != nil {
-		return nil, err
-	}
-	return executeTableAggregate(ctx, t.workspace, args)
 }
 
 func executeTableAggregate(

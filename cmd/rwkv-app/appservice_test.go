@@ -59,7 +59,7 @@ func TestAppServiceBootstrapsSavedSettingsAndConversation(t *testing.T) {
 		Password: "plain-secret",
 		Headers:  map[string]string{"X-Service-Key": "plain-header"},
 	}
-	if err := store.SaveSettings(config); err != nil {
+	if _, err := store.SaveProvider("", "", config, true); err != nil {
 		t.Fatal(err)
 	}
 	conversation := testConversation(t, store, workspace, "Saved conversation", "hello")
@@ -105,7 +105,7 @@ func TestAppServiceSavesDraftWithoutReplacingRuntimeProvider(t *testing.T) {
 	activeConfig := agentapi.Config{
 		Provider: agentapi.ProviderRWKVLightning, Endpoint: "https://active.test", Model: "active-model",
 	}
-	active, err := store.SaveActiveProvider(activeConfig)
+	active, err := store.SaveProvider("", "", activeConfig, true)
 	if err != nil {
 		t.Fatal(err)
 	}

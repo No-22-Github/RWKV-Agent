@@ -30,7 +30,6 @@ type Runner struct {
 	outputs       []strings.Builder
 	conversations []*conversation.Conversation
 	elapsedBase   time.Duration
-	dirty         chan struct{}
 	done          chan struct{}
 	running       bool
 	closed        bool
@@ -61,13 +60,8 @@ func NewRunner(model inference.Model, options Options) (*Runner, error) {
 			Sessions: sessions,
 		},
 		outputs: make([]strings.Builder, options.Concurrency),
-		dirty:   make(chan struct{}, 1),
 		done:    make(chan struct{}),
 	}, nil
-}
-
-func (r *Runner) Dirty() <-chan struct{} {
-	return r.dirty
 }
 
 func (r *Runner) Done() <-chan struct{} {
@@ -104,7 +98,6 @@ func (r *Runner) Run(ctx context.Context) (Summary, error) {
 	r.snapshot.StartedAt = time.Now()
 	r.snapshot.Phase = RunPreparing
 	r.mu.Unlock()
-	r.notify()
 
 	conversations := make([]*conversation.Conversation, r.opts.Concurrency)
 	for index := range conversations {
@@ -123,7 +116,6 @@ func (r *Runner) Run(ctx context.Context) (Summary, error) {
 	r.mu.Lock()
 	r.snapshot.Phase = RunRunning
 	r.mu.Unlock()
-	r.notify()
 
 	start := make(chan struct{})
 	var wait sync.WaitGroup
@@ -173,7 +165,6 @@ func (r *Runner) Run(ctx context.Context) (Summary, error) {
 	}
 	final := cloneSnapshot(r.snapshot)
 	r.mu.Unlock()
-	r.notify()
 
 	summary := summaryFromSnapshot(final)
 	if err := sessionErrors(final.Sessions); err != nil {
@@ -234,7 +225,6 @@ func (r *Runner) FollowUp(
 	session.DecodeTPS = 0
 	session.Elapsed = 0
 	r.mu.Unlock()
-	r.notify()
 
 	started := time.Now()
 	result, err := current.Turn(
@@ -287,7 +277,6 @@ func (r *Runner) FollowUp(
 		r.snapshot.Phase = RunCompleted
 	}
 	r.mu.Unlock()
-	r.notify()
 	return result, err
 }
 
@@ -324,7 +313,6 @@ func (r *Runner) consumeFollowUpEvent(
 		}
 	}
 	r.mu.Unlock()
-	r.notify()
 	return nil
 }
 
@@ -379,7 +367,6 @@ func (r *Runner) consumeEvent(
 		}
 	}
 	r.mu.Unlock()
-	r.notify()
 	return nil
 }
 
@@ -419,7 +406,6 @@ func (r *Runner) completeSession(index int, result inference.GenerateResult, err
 		session.Phase = PhaseDone
 	}
 	r.mu.Unlock()
-	r.notify()
 }
 
 func (r *Runner) finishPreparationFailure(index int, err error) {
@@ -435,7 +421,6 @@ func (r *Runner) finishPreparationFailure(index int, err error) {
 	r.snapshot.Done = true
 	r.calculateTotals(&r.snapshot)
 	r.mu.Unlock()
-	r.notify()
 }
 
 func (r *Runner) calculateTotals(snapshot *RunSnapshot) {
@@ -464,13 +449,6 @@ func summaryFromSnapshot(snapshot RunSnapshot) Summary {
 		Elapsed:        snapshot.Elapsed,
 		AggregateTPS:   snapshot.AggregateTPS,
 		Cancelled:      snapshot.Phase == RunCancelled,
-	}
-}
-
-func (r *Runner) notify() {
-	select {
-	case r.dirty <- struct{}{}:
-	default:
 	}
 }
 

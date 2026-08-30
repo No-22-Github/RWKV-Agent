@@ -175,11 +175,6 @@ func (s *AppService) Status() agentapi.Status {
 	return service.Status()
 }
 
-// Configure 保留旧入口：配置、保存并立即使用一条按连接键去重的档案。
-func (s *AppService) Configure(ctx context.Context, config agentapi.Config) (agentapi.Status, error) {
-	return s.ConfigureProvider(ctx, "", "", config)
-}
-
 // ConfigureProvider 保存指定档案并把它切换为真实运行连接。传入 id 后允许修改地址或模型而不复制档案。
 func (s *AppService) ConfigureProvider(ctx context.Context, id string, label string, config agentapi.Config) (agentapi.Status, error) {
 	s.operation.Lock()
@@ -338,11 +333,11 @@ func (s *AppService) persistTurn(session *agentapi.Session, prompt, role, conten
 	if err := s.storage.SaveConversation(*active); err != nil {
 		return fmt.Errorf("保存对话失败: %w", err)
 	}
-	saved, err := s.loadSavedConversation(active.ID)
+	savedValue, err := s.storage.LoadConversation(active.ID)
 	if err != nil {
 		return fmt.Errorf("重新读取已保存对话失败: %w", err)
 	}
-	active = saved
+	active = &savedValue
 	if err := s.storage.SetActiveConversation(workspace, active.ID); err != nil {
 		return fmt.Errorf("保存当前对话失败: %w", err)
 	}
@@ -659,14 +654,6 @@ func (s *AppService) loadActiveConversation() {
 	s.mu.Lock()
 	s.active = &value
 	s.mu.Unlock()
-}
-
-func (s *AppService) loadSavedConversation(id string) (*appstorage.Conversation, error) {
-	value, err := s.storage.LoadConversation(id)
-	if err != nil {
-		return nil, err
-	}
-	return &value, nil
 }
 
 func (s *AppService) emit(name string, data ...any) {

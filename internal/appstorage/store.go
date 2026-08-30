@@ -287,11 +287,6 @@ func (s *Store) SaveProvider(id string, label string, config agentapi.Config, ac
 	return saved, nil
 }
 
-// SaveActiveProvider 保留旧行为：按连接键 upsert，并把成功连接的档案置为 active。
-func (s *Store) SaveActiveProvider(config agentapi.Config) (SavedProvider, error) {
-	return s.SaveProvider("", "", config, true)
-}
-
 // RemoveProvider 删除一条档案；若删的是 active，则把 active 指向最近使用的一条（无则清空）。
 func (s *Store) RemoveProvider(id string) (Settings, error) {
 	s.mu.Lock()
@@ -325,12 +320,6 @@ func (s *Store) RemoveProvider(id string) (Settings, error) {
 		return Settings{}, err
 	}
 	return settings, nil
-}
-
-// SaveSettings 保留旧签名：等价于"保存并置为 active"，供既有调用方/测试使用。
-func (s *Store) SaveSettings(config agentapi.Config) error {
-	_, err := s.SaveActiveProvider(config)
-	return err
 }
 
 func (s *Store) loadLocked() (Settings, error) {
