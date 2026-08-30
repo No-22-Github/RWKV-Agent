@@ -32,24 +32,10 @@ const (
 // budget sits below the measured degradation point and leaves room for the
 // control prompt, history, and the answer itself. The old 32k-rune cap was
 // fine for English (~6k tokens) but passed ~32k tokens of Chinese through.
+// Sizing uses agent.EstimateTokens, shared with transcript compression.
 const maxFetchedContentTokens = 8 * 1024
 
-// estimateTokens approximates RWKV World tokenizer counts without a vocab:
-// ASCII text measured 3.85-5.42 chars/token across P1 body types (so 4.0 is
-// near-exact for list-heavy text and overestimates prose by up to ~30%), and
-// CJK is charged 1.1 tokens per rune. Overestimation is the safe direction:
-// it only makes slicing earlier.
-func estimateTokens(text string) int {
-	tokens := 0.0
-	for _, r := range text {
-		if r < 128 {
-			tokens += 0.25
-		} else {
-			tokens += 1.1
-		}
-	}
-	return int(tokens)
-}
+func estimateTokens(text string) int { return agent.EstimateTokens(text) }
 
 type providerRetryPolicy struct {
 	maxAttempts int

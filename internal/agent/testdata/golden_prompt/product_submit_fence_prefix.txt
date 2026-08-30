@@ -1,6 +1,6 @@
 ### step 1
 max_output_tokens: 96
-stops: ["\n\nUser:" "\nUser:" "\nSystem:" "</s>"]
+stops: ["```" "\n\nUser:" "\nUser:" "\nSystem:" "</s>"]
 prompt: <<<GOLDEN
 System: Tools:
 [
@@ -12,7 +12,8 @@ When new tool evidence is needed, return exactly one fenced JSON function call a
 
 User: Check the echo tool
 
-Assistant:
+Assistant: ```json
+
 GOLDEN
 ### step 2
 max_output_tokens: 256

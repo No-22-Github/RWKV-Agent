@@ -312,10 +312,20 @@ func (turn *runnerTurn) appendToolTranscript(
 	if modelStep.nativeCall != nil {
 		callID = modelStep.nativeCall.ID
 	}
+	feedbackPayload := string(turn.currentStep().ToolResult)
+	if action.Name == "web_fetch" && execution.err == nil && !execution.replayed &&
+		r.options.CompressFetch {
+		// Query-aware compression (PREFERENCES.md P5-1..P5-3): the original
+		// payload stays in Step.ToolResult; only the feedback copy shrinks.
+		if compressed, changed := turn.compressWebFetchFeedback(turn.ctx, feedbackPayload); changed {
+			turn.currentStep().ToolResultFeedback = json.RawMessage(compressed)
+			feedbackPayload = compressed
+		}
+	}
 	toolContent := r.protocol.FormatToolResult(
 		action.Name,
 		callID,
-		string(turn.currentStep().ToolResult),
+		feedbackPayload,
 	)
 	if preservesToolOrder(r.protocol) {
 		switch {

@@ -84,6 +84,7 @@ type runOptions struct {
 	evalCaseIDs              stringListFlag
 	evalCaseTimeout          time.Duration
 	evalCaseParallelism      int
+	evalFileToolForm         string
 	primitiveProfile         string
 	duplicateReplayLimit     int
 	duplicateRescueThreshold int
@@ -95,6 +96,7 @@ type runOptions struct {
 	semanticNoTool           bool
 	semanticNoToolExplicit   bool
 	decisionFakeThink        bool
+	compressFetch            bool
 	closedFakeThink          bool
 	deepToolAnchor           bool
 	deepToolAnchorExplicit   bool
@@ -355,6 +357,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			fs.StringVar(&options.agentProtocol, "agent-protocol", string(agentapi.AgentProtocolXML), "tool transcript: xml (default) or markdown")
 			fs.BoolVar(&options.progressiveTools, "progressive-tools", false, "route to one or two capability bundles before exposing tool schemas")
 			fs.BoolVar(&options.enableWeb, "web", false, "enable Brave web_search and Tavily web_fetch")
+			fs.BoolVar(&options.compressFetch, "compress-fetch", false, "compress long web_fetch results with a query-aware extraction before they enter the transcript")
 			fs.StringVar(&options.braveAPIKeyEnv, "brave-api-key-env", "BRAVE_API_KEY", "environment variable containing the Brave Search API key")
 			fs.StringVar(&options.braveEndpoint, "brave-endpoint", "", "optional Brave Search API endpoint")
 			fs.StringVar(&options.tavilyAPIKeyEnv, "tavily-api-key-env", "TAVILY_API_KEY", "environment variable containing the Tavily API key")
@@ -409,6 +412,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			fs.Var(&options.evalCaseIDs, "case", "repeatable built-in or file-backed case ID to run")
 			fs.DurationVar(&options.evalCaseTimeout, "case-timeout", 2*time.Minute, "timeout for each isolated eval case")
 			fs.IntVar(&options.evalCaseParallelism, "case-parallelism", 1, "number of eval cases to run concurrently")
+			fs.StringVar(&options.evalFileToolForm, "file-tools", "", "optional file-editing toolset for custom suites: lines (A) or whole (B)")
 			fs.StringVar(
 				&options.primitiveProfile,
 				"primitive-profile",
@@ -597,9 +601,10 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 				return options, errors.New("--suite and --cases cannot be used together")
 			}
 			if options.evalSuite != agenteval.SuiteBFCLProduct &&
+				options.evalCasesPath == "" &&
 				(options.semanticNoToolExplicit || options.decisionFakeThink ||
 					options.deepToolAnchorExplicit || options.progressiveToolsExplicit) {
-				return options, errors.New("--semantic-no-tool, --deep-tool-anchor, --decision-fake-think, and --progressive-tools are product-profile options and require --suite bfcl-product")
+				return options, errors.New("--semantic-no-tool, --deep-tool-anchor, --decision-fake-think, and --progressive-tools are product-profile options and require --suite bfcl-product or a custom --cases file")
 			}
 			if options.evalSuite == agenteval.SuiteBFCLProduct && options.routeStage {
 				return options, errors.New("--route-stage is the XML compatibility router; bfcl-product uses --progressive-tools")
@@ -951,6 +956,24 @@ type noopCloser struct{}
 
 func (noopCloser) Close() error { return nil }
 
+// evalToolBundles returns the default bundles, with the workspace description
+// extended to cover file editing when the file-edit toolset is enabled. The
+// progressive router routes on these descriptions: with the read-only wording
+// it judged edit tasks as needing no tool evidence (E6 finding).
+func evalToolBundles(options runOptions) []agent.ToolBundle {
+	bundles := agent.DefaultToolBundles()
+	if options.evalFileToolForm == "" {
+		return bundles
+	}
+	for index := range bundles {
+		if bundles[index].Name == agent.ToolBundleWorkspace {
+			bundles[index].Description = "Read, create, and edit files inside the configured workspace."
+			bundles[index].Editable = true
+		}
+	}
+	return bundles
+}
+
 func agentRunnerOptions(options runOptions, suite string, observe func(agent.Event)) agent.Options {
 	if suite == agenteval.SuiteBFCLProduct {
 		// The suite accepts either product-facing transcript so the two can be
@@ -1006,7 +1029,40 @@ func agentRunnerOptions(options runOptions, suite string, observe func(agent.Eve
 				},
 			},
 			ProgressiveTools:  options.progressiveTools,
-			ToolBundles:       agent.DefaultToolBundles(),
+			ToolBundles:       evalToolBundles(options),
+			SemanticNoTool:    options.semanticNoTool,
+			DecisionFakeThink: options.decisionFakeThink,
+			ClosedFakeThink:   options.closedFakeThink,
+			DeepToolAnchor:    options.deepToolAnchor,
+			Observe:           observe,
+		})
+	}
+	if options.agentProtocol == string(agentapi.AgentProtocolMarkdown) {
+		// Custom suites honor --agent-protocol markdown by running the same
+		// product-facing profile as bfcl-product; before this branch the flag
+		// was silently ignored here (found during the E6 file-tool A/B).
+		return agent.ProductHarnessOptions(agent.ProductHarnessConfig{
+			MaxSteps:                 options.maxSteps,
+			DecisionMaxOutputTokens:  options.decisionMaxTokens,
+			RouteMaxOutputTokens:     options.routeMaxTokens,
+			TracePromptBytes:         options.tracePromptBytes,
+			DuplicateReplayLimit:     options.duplicateReplayLimit,
+			DuplicateRescueThreshold: options.duplicateRescueThreshold,
+			SameToolRescueLimit:      options.sameToolRescueLimit,
+			Generation: continuation.Request{
+				Model:           options.modelPath,
+				MaxOutputTokens: options.maxTokens,
+				Sampling: continuation.Sampling{
+					Temperature:      float32(options.temperature),
+					TopK:             options.topK,
+					TopP:             float32(options.topP),
+					PresencePenalty:  float32(options.presencePenalty),
+					FrequencyPenalty: float32(options.frequencyPenalty),
+					PenaltyDecay:     float32(options.penaltyDecay),
+				},
+			},
+			ProgressiveTools:  options.progressiveTools,
+			ToolBundles:       evalToolBundles(options),
 			SemanticNoTool:    options.semanticNoTool,
 			DecisionFakeThink: options.decisionFakeThink,
 			ClosedFakeThink:   options.closedFakeThink,
@@ -1196,6 +1252,7 @@ func agentAPIConfig(options runOptions) (agentapi.Config, error) {
 		AgentProtocol:          agentapi.AgentProtocol(options.agentProtocol),
 		SemanticNoTool:         &semanticNoTool,
 		DecisionFakeThink:      options.decisionFakeThink,
+		CompressFetch:          options.compressFetch,
 		DeepToolAnchor:         &deepToolAnchor,
 		MaxSteps:               options.maxSteps,
 		MaxTokens:              options.maxTokens,
@@ -1304,6 +1361,7 @@ func runAgentEval(args []string) error {
 		CaseTimeout:      options.evalCaseTimeout,
 		CaseParallelism:  options.evalCaseParallelism,
 		PrimitiveProfile: options.primitiveProfile,
+		FileToolForm:     options.evalFileToolForm,
 		GeneratorFactory: func(
 			caseContext context.Context,
 		) (continuation.Generator, io.Closer, error) {

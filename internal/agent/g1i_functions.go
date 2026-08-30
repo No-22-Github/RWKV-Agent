@@ -42,9 +42,16 @@ func (protocol G1IFunctionProtocol) Instructions(specs []ToolSpec, _ inference.T
 		catalog = append(catalog, makeG1ICatalogEntry(spec))
 	}
 	if protocol.Product && protocol.SemanticNoTool {
+		description := "Indicate that none of the offered tools is needed. Put a brief, complete user-facing response in reason; it becomes the final reply."
+		if hasMutatingToolSpec(specs) {
+			// E6 finding: with file-editing tools offered, the model used
+			// no_tool to CLAIM edits were done without calling any tool.
+			// The description forbids claiming work instead of doing it.
+			description += " Never claim that a file was read, created, or modified; the tools do all file work."
+		}
 		catalog = append(catalog, g1iCatalogEntry{
 			Name:        SemanticNoToolName,
-			Description: "Indicate that none of the offered tools is needed. Put a brief, complete user-facing response in reason; it becomes the final reply.",
+			Description: description,
 			Arguments: map[string]json.RawMessage{
 				"reason": json.RawMessage(`{"type":"string"}`),
 			},
@@ -99,6 +106,17 @@ type g1iCatalogEntry struct {
 	Name        string                     `json:"name"`
 	Description string                     `json:"description"`
 	Arguments   map[string]json.RawMessage `json:"arguments"`
+}
+
+// hasMutatingToolSpec reports whether any offered tool mutates workspace
+// state (used to tighten the semantic no_tool description, see E6).
+func hasMutatingToolSpec(specs []ToolSpec) bool {
+	for _, spec := range specs {
+		if spec.MutatesWorkspace {
+			return true
+		}
+	}
+	return false
 }
 
 func makeG1ICatalogEntry(spec ToolSpec) g1iCatalogEntry {

@@ -13,8 +13,11 @@ type ToolPermission string
 const (
 	PermissionCompute       ToolPermission = "compute"
 	PermissionWorkspaceRead ToolPermission = "workspace_read"
-	PermissionNetworkRead   ToolPermission = "network_read"
-	PermissionDelegate      ToolPermission = "delegate"
+	// PermissionWorkspaceWrite marks tools that create or modify workspace
+	// files (E6 file-edit toolset).
+	PermissionWorkspaceWrite ToolPermission = "workspace_write"
+	PermissionNetworkRead    ToolPermission = "network_read"
+	PermissionDelegate       ToolPermission = "delegate"
 )
 
 const (
@@ -27,6 +30,9 @@ const (
 type ToolBundle struct {
 	Name        string
 	Description string
+	// Editable marks bundles whose tools can modify workspace files. The
+	// router adds edit-task few-shot examples for these (E6 finding).
+	Editable bool
 }
 
 func DefaultToolBundles() []ToolBundle {

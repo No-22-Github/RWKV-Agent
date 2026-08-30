@@ -133,7 +133,20 @@ func (turn *runnerTurn) initialize() error {
 	turn.assembleTurnMessages(history, control)
 
 	turn.terminalToolCompleted = r.terminalTool == "" || turn.result.Route == RouteRespond
-	if (r.router != nil || r.toolRouter != nil) && turn.result.Route == RouteInspect {
+	// Arm the decision prefill on every non-respond route of the product
+	// profile. P1 probes (PREFERENCES.md P1-1 vs P1-2) measured unanchored
+	// product decisions degrading from 2k tokens of context while anchored
+	// decisions held 40/40 to 10k, so the anchor no longer depends on a
+	// router being configured. The DecisionFakeThink experiment owns the
+	// prefix in its mode, so arming skips it. Other protocols (the XML
+	// envelope) keep their router-gated prefix policy.
+	if fn, ok := r.protocol.(G1IFunctionProtocol); ok && fn.Product {
+		if turn.result.Route != RouteRespond {
+			if renderer, ok := r.renderer.(G1IFunctionRenderer); !ok || !renderer.DecisionFakeThink {
+				turn.assistantPrefix = fn.ToolCallPrefix()
+			}
+		}
+	} else if (r.router != nil || r.toolRouter != nil) && turn.result.Route == RouteInspect {
 		turn.assistantPrefix = r.protocol.ToolCallPrefix()
 	}
 	return nil

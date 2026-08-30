@@ -219,6 +219,7 @@ func sessionRunnerOptions(
 			DeepToolAnchor:           productSwitchEnabled(config.DeepToolAnchor),
 			TaskControl:              taskControl,
 			PostToolHook:             postToolHook,
+			CompressFetch:            config.CompressFetch,
 		})
 	}
 	return agent.XMLHarnessOptions(agent.XMLHarnessConfig{
@@ -234,6 +235,7 @@ func sessionRunnerOptions(
 		ToolBundles:              toolBundles,
 		TaskControl:              taskControl,
 		ThinkingMode:             inference.ThinkingMode(config.Thinking),
+		CompressFetch:            config.CompressFetch,
 	})
 }
 

@@ -403,6 +403,15 @@ func evalTools(
 	if err != nil {
 		return nil, nil, err
 	}
+	if config.FileToolForm != "" {
+		// E6 A/B: the file-editing toolset rides on non-primitive suites so
+		// custom case files can exercise both forms with identical tasks.
+		editTools, editErr := assistanttools.FileEditTools(workspace, assistanttools.FileEditForm(config.FileToolForm))
+		if editErr != nil {
+			return nil, nil, editErr
+		}
+		workspaceTools = append(workspaceTools, editTools...)
+	}
 	clock := fixedAssistantClock{value: time.Date(
 		2026,
 		time.August,

@@ -334,6 +334,9 @@ type Config struct {
 	Now              func() time.Time
 	TempDir          string
 	PrimitiveProfile string
+	// FileToolForm optionally appends the file-editing toolset ("lines" or
+	// "whole", see tools.FileEditForm) to non-primitive suites.
+	FileToolForm string
 }
 
 type caseFile struct {
