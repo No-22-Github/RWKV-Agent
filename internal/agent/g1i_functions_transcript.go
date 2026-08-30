@@ -74,7 +74,11 @@ func renderSubagentResults(raw json.RawMessage) string {
 	var blocks strings.Builder
 	for _, entry := range spawn.Results {
 		number := entry.Index + 1
-		blocks.WriteString(fmt.Sprintf("--- Sub-agent %d ---\n", number))
+		if len(entry.Sources) > 0 {
+			blocks.WriteString(fmt.Sprintf("--- Sub-agent %d: %s ---\n", number, strings.Join(entry.Sources, ", ")))
+		} else {
+			blocks.WriteString(fmt.Sprintf("--- Sub-agent %d ---\n", number))
+		}
 		if entry.Task != "" {
 			blocks.WriteString("Task: " + entry.Task + "\n")
 		}
@@ -82,9 +86,6 @@ func renderSubagentResults(raw json.RawMessage) string {
 			blocks.WriteString("Error: " + entry.Error + "\n")
 		} else {
 			blocks.WriteString("Result: " + entry.Output + "\n")
-		}
-		if len(entry.Sources) > 0 {
-			blocks.WriteString("Sources: " + strings.Join(entry.Sources, ", ") + "\n")
 		}
 		blocks.WriteString("\n")
 	}
