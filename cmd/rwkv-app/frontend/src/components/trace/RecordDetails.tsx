@@ -26,7 +26,6 @@ function detailTabs(record: TraceRecord): DetailTabItem[] {
   if (detail.subSteps?.length) tabs.push({ id: 'substeps', label: '子步骤' })
   if (detail.output) tabs.push({ id: 'output', label: '输出' })
   if (record.kind === 'output' && detail.answerContractRepaired) tabs.push({ id: 'repair', label: '修复对比' })
-  if (record.kind === 'output') tabs.push({ id: 'raw', label: '原文' })
   if (detail.retries?.length) tabs.push({ id: 'retries', label: '重试' })
   tabs.push({ id: 'raw', label: '原文' })
   return tabs
