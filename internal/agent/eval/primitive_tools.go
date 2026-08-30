@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"io/fs"
 	"math"
 	"os"
@@ -332,7 +331,7 @@ func (e *primitiveExecution) multiply(_ context.Context, raw json.RawMessage) (a
 		A json.Number `json:"a"`
 		B json.Number `json:"b"`
 	}
-	if err := decodePrimitiveArguments(raw, &args); err != nil {
+	if err := agent.DecodeToolArguments(raw, &args); err != nil {
 		return nil, err
 	}
 	a, err := strconv.ParseInt(args.A.String(), 10, 64)
@@ -350,7 +349,7 @@ func (e *primitiveExecution) listFiles(_ context.Context, raw json.RawMessage) (
 	var args struct {
 		Path string `json:"path"`
 	}
-	if err := decodePrimitiveArguments(raw, &args); err != nil {
+	if err := agent.DecodeToolArguments(raw, &args); err != nil {
 		return nil, err
 	}
 	relative, _, err := e.resolve(args.Path, false)
@@ -437,7 +436,7 @@ func (e *primitiveExecution) writeFile(_ context.Context, raw json.RawMessage) (
 		Path    string          `json:"path"`
 		Content json.RawMessage `json:"content"`
 	}
-	if err := decodePrimitiveArguments(raw, &args); err != nil {
+	if err := agent.DecodeToolArguments(raw, &args); err != nil {
 		return nil, err
 	}
 	relative, target, err := e.resolve(args.Path, false)
@@ -492,7 +491,7 @@ func (e *primitiveExecution) chmod(_ context.Context, raw json.RawMessage) (any,
 		Path string `json:"path"`
 		Mode string `json:"mode"`
 	}
-	if err := decodePrimitiveArguments(raw, &args); err != nil {
+	if err := agent.DecodeToolArguments(raw, &args); err != nil {
 		return nil, err
 	}
 	relative, _, err := e.resolve(args.Path, true)
@@ -547,7 +546,7 @@ func (e *primitiveExecution) runAWK(_ context.Context, raw json.RawMessage) (any
 		ScriptPath string `json:"script_path"`
 		InputPath  string `json:"input_path"`
 	}
-	if err := decodePrimitiveArguments(raw, &args); err != nil {
+	if err := agent.DecodeToolArguments(raw, &args); err != nil {
 		return nil, err
 	}
 	_, scriptTarget, err := e.resolve(args.ScriptPath, true)
@@ -587,7 +586,7 @@ func (e *primitiveExecution) runLua(ctx context.Context, raw json.RawMessage) (a
 	var args struct {
 		Code string `json:"code"`
 	}
-	if err := decodePrimitiveArguments(raw, &args); err != nil {
+	if err := agent.DecodeToolArguments(raw, &args); err != nil {
 		return nil, err
 	}
 	if strings.TrimSpace(args.Code) == "" {
@@ -699,7 +698,7 @@ func (e *primitiveExecution) search(_ context.Context, raw json.RawMessage) (any
 	var args struct {
 		Query string `json:"query"`
 	}
-	if err := decodePrimitiveArguments(raw, &args); err != nil {
+	if err := agent.DecodeToolArguments(raw, &args); err != nil {
 		return nil, err
 	}
 	if args.Query == "" {
@@ -726,7 +725,7 @@ func (e *primitiveExecution) search(_ context.Context, raw json.RawMessage) (any
 
 func (e *primitiveExecution) runTests(_ context.Context, raw json.RawMessage) (any, error) {
 	var args struct{}
-	if err := decodePrimitiveArguments(raw, &args); err != nil {
+	if err := agent.DecodeToolArguments(raw, &args); err != nil {
 		return nil, err
 	}
 	switch e.runtime.scenario {
@@ -814,7 +813,7 @@ func (e *primitiveExecution) submit(_ context.Context, raw json.RawMessage) (any
 	var args struct {
 		Answer any `json:"answer"`
 	}
-	if err := decodePrimitiveArguments(raw, &args); err != nil {
+	if err := agent.DecodeToolArguments(raw, &args); err != nil {
 		return nil, err
 	}
 	answer := ""
@@ -844,7 +843,7 @@ func (e *primitiveExecution) decodePath(raw json.RawMessage, mustExist bool) (st
 	var args struct {
 		Path string `json:"path"`
 	}
-	if err := decodePrimitiveArguments(raw, &args); err != nil {
+	if err := agent.DecodeToolArguments(raw, &args); err != nil {
 		return "", "", err
 	}
 	return e.resolve(args.Path, mustExist)
@@ -942,19 +941,6 @@ func (e *primitiveExecution) modeFor(name string) string {
 func (e *primitiveExecution) readWorkspaceText(name string) string {
 	data, _ := os.ReadFile(filepath.Join(e.root, filepath.FromSlash(name)))
 	return string(data)
-}
-
-func decodePrimitiveArguments(raw json.RawMessage, target any) error {
-	decoder := json.NewDecoder(bytes.NewReader(raw))
-	decoder.UseNumber()
-	decoder.DisallowUnknownFields()
-	if err := decoder.Decode(target); err != nil {
-		return fmt.Errorf("%w: %v", agent.ErrInvalidToolArguments, err)
-	}
-	if decoder.Decode(&struct{}{}) != io.EOF {
-		return fmt.Errorf("%w: trailing JSON data", agent.ErrInvalidToolArguments)
-	}
-	return nil
 }
 
 func decodePrimitiveWriteContent(raw json.RawMessage) (string, error) {

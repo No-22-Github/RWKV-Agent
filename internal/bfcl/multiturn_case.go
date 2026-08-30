@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -66,34 +65,7 @@ func LoadMultiTurnSplit(dataDir, category string) ([]MultiTurnCase, error) {
 	if !strings.HasPrefix(category, "multi_turn_") || strings.ContainsAny(category, `/\\`) {
 		return nil, fmt.Errorf("invalid BFCL multi-turn category %q", category)
 	}
-	path := filepath.Join(dataDir, "BFCL_v4_"+category+".json")
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, fmt.Errorf("open BFCL split %q: %w", category, err)
-	}
-	defer file.Close()
-	reader := bufio.NewReader(file)
-	var cases []MultiTurnCase
-	for lineNumber := 1; ; lineNumber++ {
-		line, readErr := reader.ReadBytes('\n')
-		if len(bytes.TrimSpace(line)) > 0 {
-			entry, decodeErr := decodeMultiTurnCase(line, category)
-			if decodeErr != nil {
-				return nil, fmt.Errorf("decode %s line %d: %w", path, lineNumber, decodeErr)
-			}
-			cases = append(cases, entry)
-		}
-		if readErr != nil {
-			if readErr == io.EOF {
-				break
-			}
-			return nil, fmt.Errorf("read %s: %w", path, readErr)
-		}
-	}
-	if len(cases) == 0 {
-		return nil, fmt.Errorf("BFCL split %q is empty", category)
-	}
-	return cases, nil
+	return readJSONLSplit(dataDir, category, decodeMultiTurnCase)
 }
 
 func decodeMultiTurnCase(line []byte, category string) (MultiTurnCase, error) {

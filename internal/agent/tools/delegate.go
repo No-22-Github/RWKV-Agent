@@ -100,7 +100,7 @@ func (t *spawnAgentsTool) Execute(ctx context.Context, raw json.RawMessage) (any
 		Tasks    json.RawMessage `json:"tasks"`
 		MaxDepth json.RawMessage `json:"max_depth"`
 	}
-	if err := decodeArguments(raw, &args); err != nil {
+	if err := agent.DecodeToolArguments(raw, &args); err != nil {
 		return nil, err
 	}
 	tasks, err := normalizeDelegatedTasks(args.Tasks)

@@ -155,14 +155,7 @@ func (r *Runner) Run(ctx context.Context) (Summary, error) {
 	r.snapshot.MaxNativeBatch = r.model.Capabilities().MaxObservedBatch
 	r.snapshot.Done = true
 	r.calculateTotals(&r.snapshot)
-	switch {
-	case errors.Is(ctx.Err(), context.Canceled), errors.Is(ctx.Err(), context.DeadlineExceeded):
-		r.snapshot.Phase = RunCancelled
-	case sessionErrors(r.snapshot.Sessions) != nil:
-		r.snapshot.Phase = RunFailed
-	default:
-		r.snapshot.Phase = RunCompleted
-	}
+	r.snapshot.Phase = runPhaseFor(ctx.Err(), sessionErrors(r.snapshot.Sessions))
 	final := cloneSnapshot(r.snapshot)
 	r.mu.Unlock()
 
@@ -232,7 +225,7 @@ func (r *Runner) FollowUp(
 		prompt,
 		r.opts.Turn,
 		func(event inference.GenerationEvent) error {
-			return r.consumeFollowUpEvent(ctx, index, started, event)
+			return r.consumeEvent(ctx, index, started, event)
 		},
 	)
 
@@ -247,6 +240,33 @@ func (r *Runner) FollowUp(
 	session.FinishReason = result.FinishReason
 	session.DecodeTPS = result.Timings.DecodeTokensPerSecond
 	session.Elapsed = time.Since(started)
+	applySessionOutcome(session, result, err)
+	r.snapshot.Elapsed = r.elapsedBase + time.Since(r.snapshot.StartedAt)
+	r.elapsedBase = r.snapshot.Elapsed
+	r.snapshot.MaxNativeBatch = r.model.Capabilities().MaxObservedBatch
+	r.snapshot.Done = true
+	r.calculateTotals(&r.snapshot)
+	r.snapshot.Phase = runPhaseFor(ctx.Err(), err)
+	r.mu.Unlock()
+	return result, err
+}
+
+// runPhaseFor maps a finished turn onto the run-level phase: a cancelled
+// context wins over turn errors, and any other error fails the run.
+func runPhaseFor(ctxErr, turnErr error) RunPhase {
+	switch {
+	case errors.Is(ctxErr, context.Canceled), errors.Is(ctxErr, context.DeadlineExceeded):
+		return RunCancelled
+	case turnErr != nil:
+		return RunFailed
+	default:
+		return RunCompleted
+	}
+}
+
+// applySessionOutcome records one finished turn on its session, preserving a
+// previously recorded finish reason when the turn was cancelled or failed.
+func applySessionOutcome(session *SessionSnapshot, result inference.GenerateResult, err error) {
 	session.Err = err
 	switch {
 	case errors.Is(err, context.Canceled), errors.Is(err, context.DeadlineExceeded),
@@ -263,57 +283,6 @@ func (r *Runner) FollowUp(
 	default:
 		session.Phase = PhaseDone
 	}
-	r.snapshot.Elapsed = r.elapsedBase + time.Since(r.snapshot.StartedAt)
-	r.elapsedBase = r.snapshot.Elapsed
-	r.snapshot.MaxNativeBatch = r.model.Capabilities().MaxObservedBatch
-	r.snapshot.Done = true
-	r.calculateTotals(&r.snapshot)
-	switch {
-	case errors.Is(err, context.Canceled), errors.Is(err, context.DeadlineExceeded):
-		r.snapshot.Phase = RunCancelled
-	case err != nil:
-		r.snapshot.Phase = RunFailed
-	default:
-		r.snapshot.Phase = RunCompleted
-	}
-	r.mu.Unlock()
-	return result, err
-}
-
-func (r *Runner) consumeFollowUpEvent(
-	ctx context.Context,
-	index int,
-	started time.Time,
-	event inference.GenerationEvent,
-) error {
-	if err := ctx.Err(); err != nil {
-		return err
-	}
-	r.mu.Lock()
-	session := &r.snapshot.Sessions[index]
-	switch event.Kind {
-	case inference.EventStarted:
-		session.Phase = PhasePrefill
-	case inference.EventPrefillProgress:
-		session.Phase = PhasePrefill
-		if event.Progress != nil {
-			session.PrefillDone = int(event.Progress.Completed)
-			session.PrefillTotal = int(event.Progress.Total)
-		}
-	case inference.EventOutputDelta:
-		if event.Delta != nil {
-			session.Phase = PhaseGenerating
-			r.outputs[index].WriteString(event.Delta.Text)
-			if len(event.Delta.Tokens) > 0 {
-				session.OutputTokens += len(event.Delta.Tokens)
-			} else {
-				session.OutputTokens++
-			}
-			session.Elapsed = time.Since(started)
-		}
-	}
-	r.mu.Unlock()
-	return nil
 }
 
 func (r *Runner) Close() error {
@@ -389,22 +358,7 @@ func (r *Runner) completeSession(index int, result inference.GenerateResult, err
 	session.FinishReason = result.FinishReason
 	session.DecodeTPS = result.Timings.DecodeTokensPerSecond
 	session.Elapsed = time.Since(r.snapshot.StartedAt)
-	session.Err = err
-	switch {
-	case errors.Is(err, context.Canceled), errors.Is(err, context.DeadlineExceeded),
-		result.FinishReason == inference.FinishCancelled:
-		session.Phase = PhaseCancelled
-		if session.FinishReason == "" {
-			session.FinishReason = inference.FinishCancelled
-		}
-	case err != nil:
-		session.Phase = PhaseError
-		if session.FinishReason == "" {
-			session.FinishReason = inference.FinishError
-		}
-	default:
-		session.Phase = PhaseDone
-	}
+	applySessionOutcome(session, result, err)
 	r.mu.Unlock()
 }
 

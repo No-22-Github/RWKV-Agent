@@ -106,23 +106,47 @@ func writeJSON(path string, value any) error {
 	return os.WriteFile(path, encoded, 0o600)
 }
 
-func writeTrace(path string, entries []TraceEntry) error {
+// jsonlFile buffers one JSON-lines file: every Encode writes a line with HTML
+// escaping off, matching the trace formats the reparse tooling reads back.
+type jsonlFile struct {
+	file    *os.File
+	writer  *bufio.Writer
+	encoder *json.Encoder
+}
+
+func newJSONLFile(path string) (*jsonlFile, error) {
 	file, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	writer := bufio.NewWriter(file)
 	encoder := json.NewEncoder(writer)
 	encoder.SetEscapeHTML(false)
+	return &jsonlFile{file: file, writer: writer, encoder: encoder}, nil
+}
+
+func (j *jsonlFile) Encode(value any) error {
+	return j.encoder.Encode(value)
+}
+
+func (j *jsonlFile) Close() error {
+	if err := j.writer.Flush(); err != nil {
+		j.file.Close()
+		return err
+	}
+	return j.file.Close()
+}
+
+func writeTrace(path string, entries []TraceEntry) error {
+	file, err := newJSONLFile(path)
+	if err != nil {
+		return err
+	}
 	for _, entry := range entries {
-		if err := encoder.Encode(entry); err != nil {
+		if err := file.Encode(entry); err != nil {
 			file.Close()
 			return err
 		}
-	}
-	if err := writer.Flush(); err != nil {
-		file.Close()
-		return err
 	}
 	return file.Close()
 }

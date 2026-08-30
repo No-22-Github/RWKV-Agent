@@ -105,7 +105,7 @@ func (t *loadToolsTool) Execute(_ context.Context, raw json.RawMessage) (any, er
 	var args struct {
 		Bundle string `json:"bundle"`
 	}
-	if err := decodeArguments(raw, &args); err != nil {
+	if err := DecodeToolArguments(raw, &args); err != nil {
 		return nil, err
 	}
 	if _, ok := t.bundles[args.Bundle]; !ok {

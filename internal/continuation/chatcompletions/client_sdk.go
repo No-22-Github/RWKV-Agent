@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/no22/RWKV-Agent/internal/continuation"
+	"github.com/no22/RWKV-Agent/internal/continuation/httputil"
 	"github.com/no22/RWKV-Agent/internal/continuation/toolchat"
 	"github.com/openai/openai-go/v3"
 	"github.com/openai/openai-go/v3/option"
@@ -121,7 +122,7 @@ func (c *Client) Continue(
 			ErrRemote,
 		)
 	}
-	text, stopped := truncateAtStop(choice.Message.Content, request.Stops)
+	text, stopped := httputil.TruncateAtStop(choice.Message.Content, request.Stops)
 	finish := finishReason(choice.FinishReason)
 	if stopped {
 		finish = continuation.FinishStop
@@ -217,7 +218,7 @@ func (c *Client) Complete(
 	if !request.ParallelToolCalls && len(calls) > 1 {
 		calls = calls[:1]
 	}
-	content, stopped := truncateAtStop(choice.Message.Content, request.Stops)
+	content, stopped := httputil.TruncateAtStop(choice.Message.Content, request.Stops)
 	finish := finishReason(choice.FinishReason)
 	if stopped {
 		finish = continuation.FinishStop
@@ -446,13 +447,13 @@ func (c *Client) remoteError(err error) error {
 			"%w: HTTP %d: %s",
 			ErrRemote,
 			apiError.StatusCode,
-			safeResponseMessage([]byte(body), c.secrets...),
+			httputil.SafeResponseMessage([]byte(body), c.secrets...),
 		)
 	}
 	return fmt.Errorf(
 		"%w: request failed: %s",
 		ErrRemote,
-		safeResponseMessage([]byte(err.Error()), c.secrets...),
+		httputil.SafeResponseMessage([]byte(err.Error()), c.secrets...),
 	)
 }
 

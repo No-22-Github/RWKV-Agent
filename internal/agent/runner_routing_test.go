@@ -139,7 +139,7 @@ func TestDecideToolRouteRecordsRetryStepsThenSelectsBundle(t *testing.T) {
 			ToolBundles:          DefaultToolBundles(),
 			RouteRetries:         1,
 			Generation:           continuation.Request{MaxOutputTokens: 16},
-		TracePromptBytes:     4096,
+			TracePromptBytes:     4096,
 			RouteMaxOutputTokens: 16,
 		})
 	if err != nil {

@@ -1,7 +1,6 @@
 package bfcl
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -111,15 +110,13 @@ func multiTurnNativeNames(functions []MultiTurnFunction) (map[string]string, err
 }
 
 // MultiTurnNativeTools converts this turn's function docs into a native tools
-// array, reusing the single-turn schema rewrite (dict->object, float->number,
+// array through the shared schema rewrite (dict->object, float->number,
 // tuple/list->array, any->string) so both paths present identical schemas.
 func MultiTurnNativeTools(functions []MultiTurnFunction) ([]toolchat.Tool, error) {
 	tools := make([]toolchat.Tool, 0, len(functions))
 	for _, function := range functions {
-		decoder := json.NewDecoder(bytes.NewReader(function.Raw))
-		decoder.UseNumber()
-		var definition functionDefinition
-		if err := decoder.Decode(&definition); err != nil {
+		definition, err := decodeFunctionDefinition(function.Raw)
+		if err != nil {
 			return nil, fmt.Errorf("multi-turn function %q: %w", function.Name, err)
 		}
 		if strings.TrimSpace(definition.Name) == "" {

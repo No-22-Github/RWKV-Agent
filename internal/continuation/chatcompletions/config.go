@@ -5,12 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"net/url"
 	"regexp"
 	"strings"
 	"time"
 
 	"github.com/no22/RWKV-Agent/internal/continuation"
+	"github.com/no22/RWKV-Agent/internal/continuation/httputil"
 	"github.com/no22/RWKV-Agent/internal/continuation/toolchat"
 )
 
@@ -123,24 +123,8 @@ type normalizedConfig struct {
 
 func normalizeConfig(config Config) (normalizedConfig, error) {
 	endpoint := strings.TrimSpace(config.Endpoint)
-	parsed, err := url.Parse(endpoint)
-	if err != nil || parsed.Scheme == "" || parsed.Host == "" {
-		return normalizedConfig{}, fmt.Errorf(
-			"%w: endpoint must be an absolute HTTP(S) URL",
-			continuation.ErrInvalidRequest,
-		)
-	}
-	if parsed.Scheme != "http" && parsed.Scheme != "https" {
-		return normalizedConfig{}, fmt.Errorf(
-			"%w: endpoint scheme must be HTTP or HTTPS",
-			continuation.ErrInvalidRequest,
-		)
-	}
-	if parsed.User != nil {
-		return normalizedConfig{}, fmt.Errorf(
-			"%w: endpoint must not contain credentials",
-			continuation.ErrInvalidRequest,
-		)
+	if err := httputil.ValidateEndpoint(endpoint); err != nil {
+		return normalizedConfig{}, err
 	}
 	model := strings.TrimSpace(config.Model)
 	if model == "" {
@@ -338,19 +322,6 @@ func withAssistantPrefix(sources []toolchat.Message, prefix string) []toolchat.M
 	return append([]toolchat.Message{{Role: toolchat.RoleSystem, Content: instruction}}, result...)
 }
 
-func truncateAtStop(value string, stops []string) (string, bool) {
-	stopIndex := len(value)
-	for _, stop := range stops {
-		if index := strings.Index(value, stop); index >= 0 && index < stopIndex {
-			stopIndex = index
-		}
-	}
-	if stopIndex == len(value) {
-		return value, false
-	}
-	return value[:stopIndex], true
-}
-
 func isJSONObject(value json.RawMessage) bool {
 	var object map[string]json.RawMessage
 	return len(value) != 0 && json.Unmarshal(value, &object) == nil && object != nil
@@ -370,24 +341,6 @@ func validateSampling(sampling continuation.Sampling) error {
 		)
 	}
 	return nil
-}
-
-func safeResponseMessage(body []byte, secrets ...string) string {
-	const limit = 512
-	value := strings.TrimSpace(string(body))
-	value = strings.Join(strings.Fields(value), " ")
-	for _, secret := range secrets {
-		if secret != "" {
-			value = strings.ReplaceAll(value, secret, "[REDACTED]")
-		}
-	}
-	if len(value) > limit {
-		value = value[:limit] + "..."
-	}
-	if value == "" {
-		return "empty response"
-	}
-	return value
 }
 
 func finishReason(value string) continuation.FinishReason {

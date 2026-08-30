@@ -245,11 +245,9 @@ func parseAttempt(entry Case, attempt *AttemptTrace, tier Tier) (ParseOutcome, e
 		attempt.ParseError = strictErr.Error()
 		return ParseOutcome{}, strictErr
 	}
-	outcome, compatErr := ParseMarkdownCallsWithMode(
-		attempt.Content,
-		entry.Functions,
-		ParserRWKVWireCompatV1,
-	)
+	// The strict attempt above already ran, so go straight to the compat
+	// rewrite instead of re-running ParseMarkdownCalls inside WithMode.
+	outcome, compatErr := parseRWKVWireCompatV1(attempt.Content, entry.Functions)
 	if compatErr != nil {
 		attempt.ParseError = compatErr.Error()
 		return ParseOutcome{}, compatErr

@@ -15,18 +15,32 @@ type functionDefinition struct {
 	Parameters  json.RawMessage `json:"parameters"`
 }
 
+// decodeFunctionDefinition decodes one BFCL function document. Callers own the
+// error labeling, tool naming, and the openAISchema rewrite.
+func decodeFunctionDefinition(raw json.RawMessage) (functionDefinition, error) {
+	decoder := json.NewDecoder(bytes.NewReader(raw))
+	decoder.UseNumber()
+	var definition functionDefinition
+	if err := decoder.Decode(&definition); err != nil {
+		return definition, err
+	}
+	return definition, nil
+}
+
 func NativeTools(entry Case) ([]toolchat.Tool, map[string]string, error) {
 	tools := make([]toolchat.Tool, 0, len(entry.Functions))
 	originalNames := make(map[string]string, len(entry.Functions))
 	for index, raw := range entry.Functions {
-		decoder := json.NewDecoder(bytes.NewReader(raw))
-		decoder.UseNumber()
-		var definition functionDefinition
-		if err := decoder.Decode(&definition); err != nil {
+		definition, err := decodeFunctionDefinition(raw)
+		if err != nil {
 			return nil, nil, fmt.Errorf("case %q function %d: %w", entry.ID, index, err)
 		}
 		if strings.TrimSpace(definition.Name) == "" {
 			return nil, nil, fmt.Errorf("case %q function %d has no name", entry.ID, index)
+		}
+		parameters, err := openAISchema(definition.Parameters)
+		if err != nil {
+			return nil, nil, fmt.Errorf("case %q function %q parameters: %w", entry.ID, definition.Name, err)
 		}
 		name := strings.ReplaceAll(definition.Name, ".", "_")
 		if previous, exists := originalNames[name]; exists && previous != definition.Name {
@@ -37,10 +51,6 @@ func NativeTools(entry Case) ([]toolchat.Tool, map[string]string, error) {
 				definition.Name,
 				name,
 			)
-		}
-		parameters, err := openAISchema(definition.Parameters)
-		if err != nil {
-			return nil, nil, fmt.Errorf("case %q function %q parameters: %w", entry.ID, definition.Name, err)
 		}
 		originalNames[name] = definition.Name
 		tools = append(tools, toolchat.Tool{

@@ -1,7 +1,6 @@
 package bfcl
 
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -73,18 +72,11 @@ func WriteMultiTurnArtifacts(outputDir string, manifest MultiTurnManifest, trace
 		return err
 	}
 	tracePath := filepath.Join(outputDir, "trace.jsonl")
-	file, err := os.OpenFile(tracePath, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0o600)
+	file, err := newJSONLFile(tracePath)
 	if err != nil {
 		return err
 	}
-	writer := bufio.NewWriter(file)
-	encoder := json.NewEncoder(writer)
-	encoder.SetEscapeHTML(false)
-	if err := encoder.Encode(trace); err != nil {
-		file.Close()
-		return err
-	}
-	if err := writer.Flush(); err != nil {
+	if err := file.Encode(trace); err != nil {
 		file.Close()
 		return err
 	}

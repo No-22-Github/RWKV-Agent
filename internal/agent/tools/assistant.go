@@ -161,7 +161,7 @@ func (t *weatherTool) Execute(ctx context.Context, raw json.RawMessage) (any, er
 	var args struct {
 		City string `json:"city"`
 	}
-	if err := decodeArguments(raw, &args); err != nil {
+	if err := agent.DecodeToolArguments(raw, &args); err != nil {
 		return nil, err
 	}
 	args.City = strings.TrimSpace(args.City)
@@ -189,7 +189,7 @@ func (t *nearestTransitTool) Execute(ctx context.Context, raw json.RawMessage) (
 	var args struct {
 		Kind string `json:"kind"`
 	}
-	if err := decodeArguments(raw, &args); err != nil {
+	if err := agent.DecodeToolArguments(raw, &args); err != nil {
 		return nil, err
 	}
 	args.Kind = strings.ToLower(strings.TrimSpace(args.Kind))
@@ -217,7 +217,7 @@ func (t *transitHoursTool) Execute(ctx context.Context, raw json.RawMessage) (an
 	var args struct {
 		Station string `json:"station"`
 	}
-	if err := decodeArguments(raw, &args); err != nil {
+	if err := agent.DecodeToolArguments(raw, &args); err != nil {
 		return nil, err
 	}
 	args.Station = strings.TrimSpace(args.Station)
@@ -247,7 +247,7 @@ func (t *fxConvertTool) Execute(ctx context.Context, raw json.RawMessage) (any, 
 		From   string      `json:"from"`
 		To     string      `json:"to"`
 	}
-	if err := decodeArguments(raw, &args); err != nil {
+	if err := agent.DecodeToolArguments(raw, &args); err != nil {
 		return nil, err
 	}
 	amount, err := args.Amount.Float64()
@@ -295,7 +295,7 @@ func (calculatorTool) Execute(_ context.Context, raw json.RawMessage) (any, erro
 		Expression string `json:"expression"`
 		Precision  *int   `json:"precision"`
 	}
-	if err := decodeArguments(raw, &args); err != nil {
+	if err := agent.DecodeToolArguments(raw, &args); err != nil {
 		return nil, err
 	}
 	expression := strings.TrimSpace(args.Expression)
@@ -493,7 +493,7 @@ func (*tableSelectTool) Spec() agent.ToolSpec {
 
 func (t *tableSelectTool) Execute(ctx context.Context, raw json.RawMessage) (any, error) {
 	var args tableSelectRequest
-	if err := decodeArguments(raw, &args); err != nil {
+	if err := agent.DecodeToolArguments(raw, &args); err != nil {
 		return nil, err
 	}
 	rows, err := readTableRows(ctx, t.workspace, args.Path)
@@ -710,7 +710,7 @@ func (t *tableCountTool) Execute(ctx context.Context, raw json.RawMessage) (any,
 		Filter  map[string]any `json:"filter,omitempty"`
 		GroupBy string         `json:"group_by,omitempty"`
 	}
-	if err := decodeArguments(raw, &args); err != nil {
+	if err := agent.DecodeToolArguments(raw, &args); err != nil {
 		return nil, err
 	}
 	return executeTableAggregate(ctx, t.workspace, tableAggregateRequest{
@@ -734,7 +734,7 @@ func (t *tableSumTool) Execute(ctx context.Context, raw json.RawMessage) (any, e
 		Value   string         `json:"value"`
 		GroupBy string         `json:"group_by,omitempty"`
 	}
-	if err := decodeArguments(raw, &args); err != nil {
+	if err := agent.DecodeToolArguments(raw, &args); err != nil {
 		return nil, err
 	}
 	return executeTableAggregate(ctx, t.workspace, tableAggregateRequest{
@@ -812,7 +812,7 @@ func (*dataQueryTool) Spec() agent.ToolSpec {
 
 func (t *dataQueryTool) Execute(ctx context.Context, raw json.RawMessage) (any, error) {
 	var args dataQueryRequest
-	if err := decodeArguments(raw, &args); err != nil {
+	if err := agent.DecodeToolArguments(raw, &args); err != nil {
 		return nil, err
 	}
 	if strings.TrimSpace(args.Path) == "" {
@@ -1262,7 +1262,7 @@ func (t *datetimeTool) Execute(_ context.Context, raw json.RawMessage) (any, err
 		Op   string          `json:"op"`
 		Args json.RawMessage `json:"args"`
 	}
-	if err := decodeArguments(raw, &request); err != nil {
+	if err := agent.DecodeToolArguments(raw, &request); err != nil {
 		return nil, err
 	}
 	switch strings.ToLower(strings.TrimSpace(request.Op)) {
@@ -1277,7 +1277,7 @@ func (t *datetimeTool) Execute(_ context.Context, raw json.RawMessage) (any, err
 			Left  string `json:"left"`
 			Right string `json:"right"`
 		}
-		if err := decodeArguments(request.Args, &args); err != nil {
+		if err := agent.DecodeToolArguments(request.Args, &args); err != nil {
 			return nil, err
 		}
 		left, leftOK := parseRowTime(args.Left, t.clock.Now().Location())
@@ -1297,7 +1297,7 @@ func (t *datetimeTool) Execute(_ context.Context, raw json.RawMessage) (any, err
 			Time     string `json:"time"`
 			Duration string `json:"duration"`
 		}
-		if err := decodeArguments(request.Args, &args); err != nil {
+		if err := agent.DecodeToolArguments(request.Args, &args); err != nil {
 			return nil, err
 		}
 		base, ok := parseRowTime(args.Time, t.clock.Now().Location())
@@ -1312,19 +1312,6 @@ func (t *datetimeTool) Execute(_ context.Context, raw json.RawMessage) (any, err
 	default:
 		return nil, invalidArguments("op must be now, compare, or add")
 	}
-}
-
-func decodeArguments(raw json.RawMessage, target any) error {
-	decoder := json.NewDecoder(bytes.NewReader(raw))
-	decoder.DisallowUnknownFields()
-	decoder.UseNumber()
-	if err := decoder.Decode(target); err != nil {
-		return invalidArguments("%v", err)
-	}
-	if decoder.Decode(&struct{}{}) != io.EOF {
-		return invalidArguments("trailing data")
-	}
-	return nil
 }
 
 func invalidArguments(format string, args ...any) error {

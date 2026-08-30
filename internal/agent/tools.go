@@ -241,7 +241,7 @@ type listFilesResult struct {
 
 func (t *listFilesTool) Execute(ctx context.Context, raw json.RawMessage) (any, error) {
 	var args listFilesArgs
-	if err := decodeArguments(raw, &args); err != nil {
+	if err := DecodeToolArguments(raw, &args); err != nil {
 		return nil, err
 	}
 	if args.MaxDepth == 0 {
@@ -340,7 +340,7 @@ type readFileResult struct {
 
 func (t *readFileTool) Execute(ctx context.Context, raw json.RawMessage) (any, error) {
 	var args readFileArgs
-	if err := decodeArguments(raw, &args); err != nil {
+	if err := DecodeToolArguments(raw, &args); err != nil {
 		return nil, err
 	}
 	if args.Path == "" {
@@ -432,7 +432,7 @@ type searchTextResult struct {
 
 func (t *searchTextTool) Execute(ctx context.Context, raw json.RawMessage) (any, error) {
 	var args searchTextArgs
-	if err := decodeArguments(raw, &args); err != nil {
+	if err := DecodeToolArguments(raw, &args); err != nil {
 		return nil, err
 	}
 	if args.Query == "" {
@@ -533,9 +533,14 @@ func searchFile(path, query string, caseSensitive bool, limit int) ([]searchMatc
 	return matches, false, scanner.Err()
 }
 
-func decodeArguments(raw json.RawMessage, target any) error {
+// DecodeToolArguments decodes a tool arguments payload strictly: unknown
+// fields and trailing data are rejected so a malformed call surfaces as an
+// argument error rather than a silently ignored one. UseNumber keeps numeric
+// literals exact until the tool validates them.
+func DecodeToolArguments(raw json.RawMessage, target any) error {
 	decoder := json.NewDecoder(bytes.NewReader(raw))
 	decoder.DisallowUnknownFields()
+	decoder.UseNumber()
 	if err := decoder.Decode(target); err != nil {
 		return fmt.Errorf("%w: %v", ErrInvalidToolArguments, err)
 	}

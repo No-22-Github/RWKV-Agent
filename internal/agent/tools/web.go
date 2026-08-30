@@ -149,7 +149,7 @@ func (t *webSearchTool) Execute(ctx context.Context, raw json.RawMessage) (any, 
 		Query      string `json:"query"`
 		MaxResults int    `json:"max_results"`
 	}
-	if err := decodeArguments(raw, &args); err != nil {
+	if err := agent.DecodeToolArguments(raw, &args); err != nil {
 		return nil, err
 	}
 	args.Query = strings.TrimSpace(args.Query)
@@ -192,7 +192,7 @@ func (t *webFetchTool) Execute(ctx context.Context, raw json.RawMessage) (any, e
 		URLs       []string        `json:"urls"`
 		MaxResults json.RawMessage `json:"max_results"`
 	}
-	if err := decodeArguments(raw, &args); err != nil {
+	if err := agent.DecodeToolArguments(raw, &args); err != nil {
 		return nil, err
 	}
 	if len(args.URLs) < 1 || len(args.URLs) > 4 {

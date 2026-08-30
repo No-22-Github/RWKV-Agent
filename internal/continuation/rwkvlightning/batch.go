@@ -2,16 +2,15 @@ package rwkvlightning
 
 import (
 	"bufio"
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"io"
-	"net/http"
 	"strings"
 	"time"
 
 	"github.com/no22/RWKV-Agent/internal/continuation"
+	"github.com/no22/RWKV-Agent/internal/continuation/httputil"
 )
 
 type pendingCall struct {
@@ -122,74 +121,26 @@ func (c *Client) executeBatch(calls []*pendingCall) {
 	for index, call := range active {
 		contents[index] = call.request.Prompt
 	}
-	encoded, err := json.Marshal(requestBody{
-		Model:          model,
-		Contents:       contents,
-		MaxTokens:      request.MaxOutputTokens,
-		StopTokens:     c.serverStopTokens(request.Stops),
-		Temperature:    request.Sampling.Temperature,
-		TopK:           request.Sampling.TopK,
-		TopP:           request.Sampling.TopP,
-		AlphaPresence:  request.Sampling.PresencePenalty,
-		AlphaFrequency: request.Sampling.FrequencyPenalty,
-		AlphaDecay:     request.Sampling.PenaltyDecay,
-		Stream:         c.stream,
-		ChunkSize:      1,
-		Password:       c.password,
-	})
+	encoded, err := c.encodeRequestBody(model, contents, request)
 	if err != nil {
-		c.deliverBatchError(active, fmt.Errorf("%w: encode request: %v", ErrRemote, err))
+		c.deliverBatchError(active, err)
 		return
 	}
 
 	requestContext, cancel := batchRequestContext(active)
 	defer cancel()
-	httpRequest, err := http.NewRequestWithContext(
-		requestContext,
-		http.MethodPost,
-		c.endpoint,
-		bytes.NewReader(encoded),
-	)
-	if err != nil {
-		c.deliverBatchError(active, fmt.Errorf("%w: build request: %v", ErrRemote, err))
-		return
-	}
-	for name, values := range c.headers {
-		for _, value := range values {
-			httpRequest.Header.Add(name, value)
-		}
-	}
-	httpRequest.Header.Set("Content-Type", "application/json")
-	response, err := c.httpClient.Do(httpRequest)
+	response, err := c.post(requestContext, encoded)
 	if err != nil {
 		if requestContext.Err() != nil {
 			c.deliverBatchError(active, requestContext.Err())
 		} else {
-			c.deliverBatchError(active, fmt.Errorf("%w: request failed: %v", ErrRemote, err))
+			c.deliverBatchError(active, err)
 		}
 		return
 	}
 	defer response.Body.Close()
 	if response.StatusCode < 200 || response.StatusCode >= 300 {
-		body, readErr := io.ReadAll(io.LimitReader(response.Body, maxResponseBytes+1))
-		if readErr != nil {
-			c.deliverBatchError(active, fmt.Errorf("%w: read error response: %v", ErrRemote, readErr))
-			return
-		}
-		if len(body) > maxResponseBytes {
-			c.deliverBatchError(active, fmt.Errorf(
-				"%w: error response exceeded %d bytes",
-				ErrRemote,
-				maxResponseBytes,
-			))
-			return
-		}
-		c.deliverBatchError(active, fmt.Errorf(
-			"%w: HTTP %d: %s",
-			ErrRemote,
-			response.StatusCode,
-			safeResponseMessage(body, c.password),
-		))
+		c.deliverBatchError(active, c.responseError(response))
 		return
 	}
 
@@ -286,7 +237,7 @@ func readBatchStreamResponse(
 			streamErr = fmt.Errorf(
 				"%w: stream error: %s",
 				ErrRemote,
-				safeResponseMessage(chunk.Error, secret),
+				httputil.SafeResponseMessage(chunk.Error, secret),
 			)
 			break
 		}
@@ -403,14 +354,14 @@ func readBatchBufferedResponse(
 		return batchOutcomesWithError(len(calls), fmt.Errorf(
 			"%w: decode response: %s",
 			ErrRemote,
-			safeResponseMessage(payload, secret),
+			httputil.SafeResponseMessage(payload, secret),
 		))
 	}
 	if len(buffered.Error) != 0 && string(buffered.Error) != "null" {
 		return batchOutcomesWithError(len(calls), fmt.Errorf(
 			"%w: response error: %s",
 			ErrRemote,
-			safeResponseMessage(buffered.Error, secret),
+			httputil.SafeResponseMessage(buffered.Error, secret),
 		))
 	}
 	found := make([]bool, len(calls))
@@ -421,7 +372,7 @@ func readBatchBufferedResponse(
 		found[choice.Index] = true
 		text := choice.Message.Content
 		finish := finishReason(choice.FinishReason)
-		if truncated, stopped := truncateAtStop(text, calls[choice.Index].request.Stops); stopped {
+		if truncated, stopped := httputil.TruncateAtStop(text, calls[choice.Index].request.Stops); stopped {
 			text = truncated
 			finish = continuation.FinishStop
 		}

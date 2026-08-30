@@ -9,12 +9,12 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"net/url"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/no22/RWKV-Agent/internal/continuation"
+	"github.com/no22/RWKV-Agent/internal/continuation/httputil"
 )
 
 const maxResponseBytes = 4 * 1024 * 1024
@@ -73,15 +73,8 @@ type Client struct {
 
 func New(config Config) (*Client, error) {
 	endpoint := strings.TrimSpace(config.Endpoint)
-	parsed, err := url.Parse(endpoint)
-	if err != nil || parsed.Scheme == "" || parsed.Host == "" {
-		return nil, fmt.Errorf("%w: endpoint must be an absolute HTTP(S) URL", continuation.ErrInvalidRequest)
-	}
-	if parsed.Scheme != "http" && parsed.Scheme != "https" {
-		return nil, fmt.Errorf("%w: endpoint scheme must be HTTP or HTTPS", continuation.ErrInvalidRequest)
-	}
-	if parsed.User != nil {
-		return nil, fmt.Errorf("%w: endpoint must not contain credentials", continuation.ErrInvalidRequest)
+	if err := httputil.ValidateEndpoint(endpoint); err != nil {
+		return nil, err
 	}
 	model := strings.TrimSpace(config.Model)
 	if model == "" {
@@ -180,18 +173,17 @@ func (c *Client) Continue(
 	return c.continueOne(ctx, request, sink)
 }
 
-func (c *Client) continueOne(
-	ctx context.Context,
+// encodeRequestBody renders one rwkv_lightning request. Every call in a
+// coalesced batch shares the model, stop tokens, and sampling, so only the
+// contents differ between the single and batch paths.
+func (c *Client) encodeRequestBody(
+	model string,
+	contents []string,
 	request continuation.Request,
-	sink continuation.EventSink,
-) (continuation.Result, error) {
-	model := strings.TrimSpace(request.Model)
-	if model == "" {
-		model = c.model
-	}
+) ([]byte, error) {
 	encoded, err := json.Marshal(requestBody{
 		Model:          model,
-		Contents:       []string{request.Prompt},
+		Contents:       contents,
 		MaxTokens:      request.MaxOutputTokens,
 		StopTokens:     c.serverStopTokens(request.Stops),
 		Temperature:    request.Sampling.Temperature,
@@ -205,8 +197,15 @@ func (c *Client) continueOne(
 		Password:       c.password,
 	})
 	if err != nil {
-		return continuation.Result{}, fmt.Errorf("%w: encode request: %v", ErrRemote, err)
+		return nil, fmt.Errorf("%w: encode request: %v", ErrRemote, err)
 	}
+	return encoded, nil
+}
+
+// post sends one JSON request. A done request context surfaces as the bare
+// context error so callers can map it to FinishCancelled; transport failures
+// wrap ErrRemote.
+func (c *Client) post(ctx context.Context, encoded []byte) (*http.Response, error) {
 	httpRequest, err := http.NewRequestWithContext(
 		ctx,
 		http.MethodPost,
@@ -214,7 +213,7 @@ func (c *Client) continueOne(
 		bytes.NewReader(encoded),
 	)
 	if err != nil {
-		return continuation.Result{}, fmt.Errorf("%w: build request: %v", ErrRemote, err)
+		return nil, fmt.Errorf("%w: build request: %v", ErrRemote, err)
 	}
 	for name, values := range c.headers {
 		for _, value := range values {
@@ -225,29 +224,53 @@ func (c *Client) continueOne(
 	response, err := c.httpClient.Do(httpRequest)
 	if err != nil {
 		if ctx.Err() != nil {
-			return continuation.Result{FinishReason: continuation.FinishCancelled}, ctx.Err()
+			return nil, ctx.Err()
 		}
-		return continuation.Result{}, fmt.Errorf("%w: request failed: %v", ErrRemote, err)
+		return nil, fmt.Errorf("%w: request failed: %v", ErrRemote, err)
+	}
+	return response, nil
+}
+
+// responseError renders a non-2xx response as a redacted remote error.
+func (c *Client) responseError(response *http.Response) error {
+	body, readErr := io.ReadAll(io.LimitReader(response.Body, maxResponseBytes+1))
+	if readErr != nil {
+		return fmt.Errorf("%w: read error response: %v", ErrRemote, readErr)
+	}
+	if len(body) > maxResponseBytes {
+		return fmt.Errorf("%w: error response exceeded %d bytes", ErrRemote, maxResponseBytes)
+	}
+	return fmt.Errorf(
+		"%w: HTTP %d: %s",
+		ErrRemote,
+		response.StatusCode,
+		httputil.SafeResponseMessage(body, c.password),
+	)
+}
+
+func (c *Client) continueOne(
+	ctx context.Context,
+	request continuation.Request,
+	sink continuation.EventSink,
+) (continuation.Result, error) {
+	model := strings.TrimSpace(request.Model)
+	if model == "" {
+		model = c.model
+	}
+	encoded, err := c.encodeRequestBody(model, []string{request.Prompt}, request)
+	if err != nil {
+		return continuation.Result{}, err
+	}
+	response, err := c.post(ctx, encoded)
+	if err != nil {
+		if ctx.Err() != nil {
+			return continuation.Result{FinishReason: continuation.FinishCancelled}, err
+		}
+		return continuation.Result{}, err
 	}
 	defer response.Body.Close()
 	if response.StatusCode < 200 || response.StatusCode >= 300 {
-		body, readErr := io.ReadAll(io.LimitReader(response.Body, maxResponseBytes+1))
-		if readErr != nil {
-			return continuation.Result{}, fmt.Errorf("%w: read error response: %v", ErrRemote, readErr)
-		}
-		if len(body) > maxResponseBytes {
-			return continuation.Result{}, fmt.Errorf(
-				"%w: error response exceeded %d bytes",
-				ErrRemote,
-				maxResponseBytes,
-			)
-		}
-		return continuation.Result{}, fmt.Errorf(
-			"%w: HTTP %d: %s",
-			ErrRemote,
-			response.StatusCode,
-			safeResponseMessage(body, c.password),
-		)
+		return continuation.Result{}, c.responseError(response)
 	}
 	if !c.stream {
 		return readBufferedResponse(
@@ -294,14 +317,14 @@ func readBufferedResponse(
 		return continuation.Result{}, fmt.Errorf(
 			"%w: decode response: %s",
 			ErrRemote,
-			safeResponseMessage(payload, secret),
+			httputil.SafeResponseMessage(payload, secret),
 		)
 	}
 	if len(buffered.Error) != 0 && string(buffered.Error) != "null" {
 		return continuation.Result{}, fmt.Errorf(
 			"%w: response error: %s",
 			ErrRemote,
-			safeResponseMessage(buffered.Error, secret),
+			httputil.SafeResponseMessage(buffered.Error, secret),
 		)
 	}
 	text := ""
@@ -321,7 +344,7 @@ func readBufferedResponse(
 	if !found {
 		return continuation.Result{}, fmt.Errorf("%w: response has no choices", ErrRemote)
 	}
-	if truncated, stopped := truncateAtStop(text, stops); stopped {
+	if truncated, stopped := httputil.TruncateAtStop(text, stops); stopped {
 		text = truncated
 		finish = continuation.FinishStop
 	} else if finish == continuation.FinishStop && buffered.Usage.CompletionTokens == 0 {
@@ -352,25 +375,6 @@ func readBufferedResponse(
 		FinishReason: inferFinishReason(finish, buffered.Usage, 0, maxOutputTokens),
 		Usage:        buffered.Usage,
 	}, nil
-}
-
-// truncateAtStop cuts text at the earliest decoded-text stop sequence. The
-// buffered path has the whole completion up front, so it needs no streaming
-// tail-carry logic.
-func truncateAtStop(value string, stops []string) (string, bool) {
-	cut := len(value)
-	for _, stop := range stops {
-		if stop == "" {
-			continue
-		}
-		if index := strings.Index(value, stop); index >= 0 && index < cut {
-			cut = index
-		}
-	}
-	if cut == len(value) {
-		return value, false
-	}
-	return value[:cut], true
 }
 
 func readStreamResponse(
@@ -431,7 +435,7 @@ func readStreamResponse(
 			return continuation.Result{}, fmt.Errorf(
 				"%w: stream error: %s",
 				ErrRemote,
-				safeResponseMessage(chunk.Error, secret),
+				httputil.SafeResponseMessage(chunk.Error, secret),
 			)
 		}
 		if chunk.Usage != (continuation.Usage{}) {
@@ -569,22 +573,6 @@ func splitAtStop(value string, stops []string) (string, string, bool) {
 	}
 	safeBytes := len(value) - tailBytes
 	return value[:safeBytes], value[safeBytes:], false
-}
-
-func safeResponseMessage(body []byte, secret string) string {
-	const limit = 512
-	value := strings.TrimSpace(string(body))
-	value = strings.Join(strings.Fields(value), " ")
-	if secret != "" {
-		value = strings.ReplaceAll(value, secret, "[REDACTED]")
-	}
-	if len(value) > limit {
-		value = value[:limit] + "..."
-	}
-	if value == "" {
-		return "empty response"
-	}
-	return value
 }
 
 func finishReason(value string) continuation.FinishReason {

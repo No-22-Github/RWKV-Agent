@@ -35,6 +35,17 @@ func LoadSplit(dataDir, category string) ([]Case, error) {
 	if category == "" || strings.ContainsAny(category, `/\\`) {
 		return nil, fmt.Errorf("invalid BFCL category %q", category)
 	}
+	return readJSONLSplit(dataDir, category, decodeCase)
+}
+
+// readJSONLSplit reads one BFCL_v4_<category>.json JSONL file, decoding each
+// non-blank line with decode. The shared loop is why the single-turn and
+// multi-turn loaders report identical open/read/empty errors.
+func readJSONLSplit[T any](
+	dataDir string,
+	category string,
+	decode func(line []byte, category string) (T, error),
+) ([]T, error) {
 	path := filepath.Join(dataDir, "BFCL_v4_"+category+".json")
 	file, err := os.Open(path)
 	if err != nil {
@@ -43,11 +54,11 @@ func LoadSplit(dataDir, category string) ([]Case, error) {
 	defer file.Close()
 
 	reader := bufio.NewReader(file)
-	var cases []Case
+	var cases []T
 	for lineNumber := 1; ; lineNumber++ {
 		line, readErr := reader.ReadBytes('\n')
 		if len(bytes.TrimSpace(line)) > 0 {
-			entry, decodeErr := decodeCase(line, category)
+			entry, decodeErr := decode(line, category)
 			if decodeErr != nil {
 				return nil, fmt.Errorf("decode %s line %d: %w", path, lineNumber, decodeErr)
 			}

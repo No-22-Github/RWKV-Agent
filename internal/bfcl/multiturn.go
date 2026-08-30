@@ -571,7 +571,9 @@ func runMultiTurnStep(ctx context.Context, transcript []multiTurnTranscript, ent
 		for _, function := range functions {
 			rawFunctions = append(rawFunctions, function.Raw)
 		}
-		outcome, compatErr := ParseMarkdownCallsWithMode(trace.Content, rawFunctions, ParserRWKVWireCompatV1)
+		// parseErr came from the strict ParseMarkdownCalls above, so skip the
+		// redundant strict attempt inside ParseMarkdownCallsWithMode.
+		outcome, compatErr := parseRWKVWireCompatV1(trace.Content, rawFunctions)
 		if compatErr == nil {
 			calls = outcome.Calls
 			trace.Repairs = outcome.Repairs

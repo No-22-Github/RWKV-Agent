@@ -70,14 +70,23 @@ func (options bfclEvalOptions) chatTemplateEnableThinking() *bool {
 	return &enableThinking
 }
 
+// requireFreshOutput rejects an output path that already exists so a rerun
+// never mixes artifacts from two runs.
+func requireFreshOutput(path, label string) error {
+	if _, err := os.Stat(path); err == nil {
+		return fmt.Errorf("%s already exists: %s", label, path)
+	} else if !errors.Is(err, os.ErrNotExist) {
+		return err
+	}
+	return nil
+}
+
 func runBFCLEval(args []string) error {
 	options, err := parseBFCLEvalOptions(args)
 	if err != nil {
 		return err
 	}
-	if _, err := os.Stat(options.output); err == nil {
-		return fmt.Errorf("BFCL output already exists: %s", options.output)
-	} else if !errors.Is(err, os.ErrNotExist) {
+	if err := requireFreshOutput(options.output, "BFCL output"); err != nil {
 		return err
 	}
 	headers, err := loadAPIHeaders(options.apiHeaderEnvs)
