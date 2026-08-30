@@ -32,7 +32,7 @@ export default function Snackbar({ message, severity = "info", duration = 4000, 
       role="status"
     >
       <Icon className={`flex-none ${iconClass}`} size={20} />
-      <span className="text-[13px] leading-5">{message}</span>
+      <span className="text-sm leading-5">{message}</span>
       <button
         className="grid h-7 w-7 flex-none place-items-center rounded-none text-white/70 transition-colors hover:bg-white/10 hover:text-white"
         onClick={() => setExiting(true)}

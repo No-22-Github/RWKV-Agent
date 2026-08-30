@@ -6,20 +6,18 @@ import {
 } from 'lucide-react'
 import { Events } from '@wailsio/runtime'
 import * as Backend from '../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/appservice'
-import {
-  AgentProtocol, Config, ModelState, Provider, Status, type RemoteModel, type Result, type Step,
-} from '../bindings/github.com/no22/RWKV-Agent/api/models'
+import { ModelState, Status, type Result, type Step } from '../bindings/github.com/no22/RWKV-Agent/api/models'
 import type {
   AppBootstrap, ConversationSummary, ConversationView, WorkspaceItem,
 } from '../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/models'
-import type { SavedProvider } from '../bindings/github.com/no22/RWKV-Agent/internal/appstorage/models'
 import MarkdownMessage from './MarkdownMessage'
 import type { ToolTrace } from './trajectory-types'
 import RunConfigDropdown from './components/RunConfigDropdown'
 import SettingsPage from './components/SettingsPage'
 import SubagentCards from './components/SubagentCards'
 import TraceView from './components/TraceView'
-import { buildLedgerEvents, formatDuration, parseJSONValue, shortValue, traceStats } from './ledger'
+import { buildTraceTurns, flattenTraceRecords, formatDuration, parseJSONValue, shortValue, traceStats, type TraceRecord } from './ledger'
+import { useProviderManager } from './state/providerManager'
 import { getInitialTheme, toggleTheme, type ThemeMode } from './theme'
 
 type Message = {
@@ -32,7 +30,6 @@ type Message = {
   trace?: Result
   createdAt?: string
 }
-type HeaderRow = { id: number; name: string; value: string }
 type AgentActivity = {
   kind: string; step?: number; parentStep?: number; tool?: string; arguments?: string; route?: string
   bundles?: string[]; subagentIndex?: number; subagentTask?: string; durationMs?: number
@@ -56,22 +53,6 @@ type LedgerEvent = {
 const emptyStatus = new Status({ state: ModelState.ModelIdle, workspace: '', hasApiKey: false, updatedAt: new Date(0).toISOString(), message: '正在连接后端…' })
 const STARTER_PROMPTS = ['概括这个仓库的近期进度', '找出最近改动可能引入的风险', '解释这个项目的整体架构']
 let nextMessageID = 1
-let nextHeaderID = 1
-
-function stableValue(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(stableValue)
-  if (value && typeof value === 'object') {
-    return Object.fromEntries(Object.entries(value as Record<string, unknown>)
-      .filter(([, item]) => item !== undefined)
-      .sort(([left], [right]) => left.localeCompare(right))
-      .map(([key, item]) => [key, stableValue(item)]))
-  }
-  return value
-}
-
-function providerDraftSignature(label: string, config: Config): string {
-  return JSON.stringify(stableValue({ label: label.trim(), config }))
-}
 
 export default function App() {
   const [status, setStatus] = useState<Status>(emptyStatus)
@@ -84,41 +65,13 @@ export default function App() {
   const [busy, setBusy] = useState(false)
   const [activeTab, setActiveTab] = useState<'chat' | 'trace'>('chat')
   const [selectedTraceID, setSelectedTraceID] = useState('')
-  const [settingsOpen, setSettingsOpen] = useState(false)
   const [runConfigOpen, setRunConfigOpen] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [settingsTab, setSettingsTab] = useState<'local' | 'remote'>('local')
-  const [modelPath, setModelPath] = useState('')
-  const [tokenizerPath, setTokenizerPath] = useState('')
-  const [remoteEndpoint, setRemoteEndpoint] = useState('')
-  const [remoteModel, setRemoteModel] = useState('')
-  const [remoteProtocol, setRemoteProtocol] = useState<'rwkv' | 'openai'>('rwkv')
-  const [apiKey, setAPIKey] = useState('')
-  const [headers, setHeaders] = useState<HeaderRow[]>([])
-  const [agentProtocol, setAgentProtocol] = useState<AgentProtocol>(AgentProtocol.AgentProtocolXML)
-  const [progressiveTools, setProgressiveTools] = useState(false)
-  const [enableWeb, setEnableWeb] = useState(false)
-  const [braveAPIKey, setBraveAPIKey] = useState('')
-  const [tavilyAPIKey, setTavilyAPIKey] = useState('')
-  const [enableSubagents, setEnableSubagents] = useState(false)
-  const [maxActiveBatch, setMaxActiveBatch] = useState(4)
-  const [remoteBatchWaitMS, setRemoteBatchWaitMS] = useState(10)
-  const [subagentMaxParallel, setSubagentMaxParallel] = useState(4)
-  const [subagentMaxSteps, setSubagentMaxSteps] = useState(4)
-  const [subagentTimeoutSeconds, setSubagentTimeoutSeconds] = useState(120)
-  const [availableModels, setAvailableModels] = useState<RemoteModel[]>([])
-  const [providers, setProviders] = useState<SavedProvider[]>([])
-  const [activeProviderId, setActiveProviderId] = useState('')
-  const [runtimeProviderId, setRuntimeProviderId] = useState('')
-  const [editingProviderId, setEditingProviderId] = useState('')
-  const [draftLabel, setDraftLabel] = useState('')
-  const [draftBaseConfig, setDraftBaseConfig] = useState<Config>(() => new Config())
-  const [draftSnapshot, setDraftSnapshot] = useState('')
-  const [draftInitialized, setDraftInitialized] = useState(false)
-  const [settingsMessage, setSettingsMessage] = useState('')
-  const [settingsBusy, setSettingsBusy] = useState(false)
   const [theme, setTheme] = useState<ThemeMode>(() => getInitialTheme())
   const messagesEnd = useRef<HTMLDivElement>(null)
+  const ready = status.state === ModelState.ModelReady
+  const manager = useProviderManager({ onStatus: setStatus, ready })
+  const { settingsOpen } = manager
 
   useEffect(() => {
     Backend.Bootstrap().then(applyBootstrap).catch((error: unknown) => setStatus(new Status({ ...emptyStatus, state: ModelState.ModelError, message: errorText(error) })))
@@ -136,10 +89,10 @@ export default function App() {
       if (event.key.toLowerCase() === 'n') {
         event.preventDefault()
         void newConversation()
-      } else if (event.key === ',') {
+          } else if (event.key === ',') {
         event.preventDefault()
         setRunConfigOpen(false)
-        openSettings()
+        manager.openSettings()
       } else if (event.key.toLowerCase() === 'k') {
         event.preventDefault()
         document.querySelector<HTMLTextAreaElement>('textarea[aria-label="消息"]')?.focus()
@@ -148,20 +101,14 @@ export default function App() {
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [busy, providers, runtimeProviderId, activeProviderId])
+  }, [busy])
 
-  const ready = status.state === ModelState.ModelReady
-  const draftConfigValue = providerDraftConfig()
-  const draftSignature = providerDraftSignature(draftLabel, draftConfigValue)
-  const draftDirty = draftInitialized && draftSignature !== draftSnapshot
-  const draftIsRunning = ready && editingProviderId !== '' && editingProviderId === runtimeProviderId && !draftDirty
-  useEffect(() => {
-    if (!settingsOpen || draftInitialized) return
-    setDraftSnapshot(draftSignature)
-    setDraftInitialized(true)
-  }, [settingsOpen, draftInitialized, draftSignature])
   const workspaceName = useMemo(() => status.workspace ? status.workspace.split(/[\\/]/).filter(Boolean).at(-1) || status.workspace : '未打开工作区', [status.workspace])
-  const capabilities = [enableWeb ? 'web' : null, enableSubagents ? 'subagents' : null].filter(Boolean).join(' · ') || '无'
+  // 能力指示的单一事实源：当前运行中档案的已保存配置，而非正在编辑的草稿。
+  const runtimeProvider = manager.providers.find((provider) => provider.id === manager.runtimeProviderId)
+  const capabilities = ready && runtimeProvider
+    ? [runtimeProvider.config.enableWeb ? 'web' : null, runtimeProvider.config.enableSubagents ? 'subagents' : null].filter(Boolean).join(' · ') || '无'
+    : '无'
 
   function handleToggleTheme() {
     setTheme((current) => toggleTheme(current))
@@ -169,110 +116,18 @@ export default function App() {
 
   function applyBootstrap(value: AppBootstrap) {
     setStatus(Status.createFrom(value.status)); setConversations(value.conversations || []); setWorkspaces(value.workspaces || [])
-    applyProviderBootstrapState(value)
-    applyConversation(value.conversation || undefined); if (value.hasConfig) applyConfig(value.config); if (value.warning) setSettingsMessage(value.warning)
+    manager.applyProviderBootstrapState(value)
+    applyConversation(value.conversation || undefined); if (value.hasConfig) manager.applyConfig(value.config); if (value.warning) manager.setSettingsMessage(value.warning)
   }
-  function applyProviderBootstrapState(value: AppBootstrap) {
-    setProviders(value.providers || [])
-    setActiveProviderId(value.activeProviderId || '')
-    setRuntimeProviderId(value.runtimeProviderId || '')
-  }
-  function beginEditingProvider(provider: SavedProvider) {
-    const config = Config.createFrom(provider.config)
-    setDraftInitialized(false)
-    setEditingProviderId(provider.id)
-    setDraftLabel(provider.label || provider.config.model || '未命名连接')
-    setDraftBaseConfig(config)
-    setAvailableModels([])
-    applyConfig(config)
-  }
-  function beginNewProvider() {
-    const config = new Config({
-      ...draftBaseConfig,
-      provider: Provider.ProviderRWKVLightning,
-      model: '', endpoint: '', apiKey: undefined, password: undefined, headers: {},
-      chatPromptMode: 'native-chat', chatThinking: 'disabled', stream: false, rwkvStopTokens: 'none',
-      maxSteps: 6, maxTokens: 1024, ...agentCapabilityConfig(),
-    })
-    setDraftInitialized(false)
-    setEditingProviderId('')
-    setDraftLabel('')
-    setDraftBaseConfig(config)
-    setAvailableModels([])
-    applyConfig(config)
-  }
-  function openSettings() {
-    const preferred = providers.find((provider) => provider.id === runtimeProviderId)
-      || providers.find((provider) => provider.id === activeProviderId)
-      || providers[0]
-    if (preferred) beginEditingProvider(preferred)
-    else beginNewProvider()
-    setSettingsMessage('')
-    setSettingsOpen(true)
-  }
-  function closeSettings() {
-    if (draftDirty) {
-      setSettingsMessage('当前草稿还有未保存更改。请先保存，或点击“放弃更改”后返回对话。')
-      return
-    }
-    setSettingsOpen(false)
-  }
-  function discardDraft() {
-    const current = providers.find((provider) => provider.id === editingProviderId)
-    if (current) beginEditingProvider(current)
-    else beginNewProvider()
-    setSettingsMessage('已放弃未保存更改。')
-  }
-  function editProvider(id: string) {
-    if (id === editingProviderId) return
-    if (draftDirty) {
-      setSettingsMessage('请先保存或放弃当前草稿，再切换到其他连接档案。')
-      return
-    }
-    const provider = providers.find((item) => item.id === id)
-    if (provider) {
-      beginEditingProvider(provider)
-      setSettingsMessage('')
-    }
-  }
-  function createProviderDraft() {
-    if (draftDirty) {
-      setSettingsMessage('请先保存或放弃当前草稿，再新建连接。')
-      return
-    }
-    beginNewProvider()
-    setSettingsMessage('新连接尚未保存，当前运行连接不会改变。')
-  }
-  async function refreshProviders() {
-    try {
-      const value = await Backend.Bootstrap()
-      applyProviderBootstrapState(value)
-      return value
-    } catch {
-      return undefined
-    }
-  }
-  async function activateProvider(id: string) {
+  async function activateProviderNow(id: string) {
     if (busy) return
     setRunConfigOpen(false); setBusy(true)
-    try {
-      const configured = await Backend.ActivateProvider(id); setStatus(configured)
-      const value = await Backend.Bootstrap(); applyProviderBootstrapState(value); if (value.hasConfig) applyConfig(value.config)
-    } catch (error) { setSettingsMessage(errorText(error)) } finally { setBusy(false) }
+    try { await manager.activateProvider(id) } catch (error) { manager.setSettingsMessage(errorText(error)) } finally { setBusy(false) }
   }
-  async function deleteProvider(id: string) {
+  async function deleteProviderNow(id: string) {
     if (busy) return
-    try {
-      const value = await Backend.DeleteProvider(id)
-      applyProviderBootstrapState(value)
-      if (settingsOpen && id === editingProviderId) {
-        const next = value.providers.find((provider) => provider.id === value.runtimeProviderId)
-          || value.providers.find((provider) => provider.id === value.activeProviderId)
-          || value.providers[0]
-        if (next) beginEditingProvider(next)
-        else beginNewProvider()
-      }
-    } catch (error) { setSettingsMessage(errorText(error)) }
+    setBusy(true)
+    try { await manager.deleteProvider(id) } catch (error) { manager.setSettingsMessage(errorText(error)) } finally { setBusy(false) }
   }
   function applyConversation(value?: ConversationView) {
     setActiveConversationID(value?.id || ''); setActiveTab('chat'); setActivity([]); setPrompt('')
@@ -287,20 +142,9 @@ export default function App() {
       }
     }))
   }
-  function applyConfig(config: Config) {
-    const remote = config.provider === Provider.ProviderRWKVLightning || config.provider === Provider.ProviderChatCompletions
-    setSettingsTab(remote ? 'remote' : 'local'); setModelPath(config.provider === Provider.ProviderLocal ? config.model : '')
-    setTokenizerPath(config.tokenizerPath || ''); setRemoteEndpoint(remote ? config.endpoint || '' : ''); setRemoteModel(remote ? config.model : '')
-    setRemoteProtocol(config.provider === Provider.ProviderChatCompletions ? 'openai' : 'rwkv'); setAPIKey(config.provider === Provider.ProviderChatCompletions ? config.apiKey || '' : config.password || '')
-    setHeaders(Object.entries(config.headers || {}).map(([name, value]) => ({ id: nextHeaderID++, name, value: value || '' })))
-    setAgentProtocol(config.agentProtocol || AgentProtocol.AgentProtocolXML); setProgressiveTools(config.progressiveTools ?? false)
-    setEnableWeb(config.enableWeb || false); setBraveAPIKey(config.braveApiKey || ''); setTavilyAPIKey(config.tavilyApiKey || '')
-    setEnableSubagents(config.enableSubagents || false); setMaxActiveBatch(config.maxActiveBatch || 4); setRemoteBatchWaitMS(config.remoteBatchWaitMs ?? 10)
-    setSubagentMaxParallel(config.subagentMaxParallel || 4); setSubagentMaxSteps(config.subagentMaxSteps || 4); setSubagentTimeoutSeconds(config.subagentTimeoutSeconds || 120)
-  }
   async function sendMessage(value: string) {
     const content = value.trim(); if (!content || busy) return
-    if (!ready) { openSettings(); setSettingsMessage('请先选择一个已保存连接，或新建草稿后点击“保存并使用”。'); return }
+    if (!ready) { manager.openSettings(); manager.setSettingsMessage('请先选择一个已保存连接，或新建草稿后点击“保存并使用”。'); return }
     setPrompt(''); setActivity([]); setMessages((current) => [...current, { id: `pending-${nextMessageID++}`, role: 'user', content, createdAt: new Date().toISOString() }]); setBusy(true)
     try {
       const result = await Backend.Chat(content)
@@ -322,100 +166,28 @@ export default function App() {
   function regenerate(value: string) { void sendMessage(value) }
   function onComposerKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void sendMessage(prompt) } }
   async function newConversation() { if (busy) return; await Backend.NewConversation(); setMessages([]); setActivity([]); setPrompt(''); setActiveConversationID(''); setActiveTab('chat') }
-  async function openConversation(id: string) { if (busy || id === activeConversationID) return; setBusy(true); try { applyConversation(await Backend.OpenConversation(id)) } catch (error) { setSettingsMessage(errorText(error)) } finally { setBusy(false) } }
-  async function deleteConversation(id: string) { if (busy) return; setBusy(true); try { await Backend.DeleteConversation(id); if (id === activeConversationID) applyConversation(); const persisted = await Backend.Bootstrap(); setConversations(persisted.conversations || []) } catch (error) { setSettingsMessage(errorText(error)) } finally { setBusy(false) } }
-  async function chooseWorkspace() { if (busy) return; setBusy(true); try { applyBootstrap(await Backend.ChooseWorkspace()) } catch (error) { if (!errorText(error).toLowerCase().includes('cancel')) setSettingsMessage(errorText(error)) } finally { setBusy(false) } }
-  async function openWorkspace(path: string) { if (busy) return; setBusy(true); try { applyBootstrap(await Backend.OpenWorkspace(path)) } catch (error) { setSettingsMessage(errorText(error)) } finally { setBusy(false) } }
-
-  function localConfig() {
-    return new Config({
-      ...draftBaseConfig,
-      provider: Provider.ProviderLocal,
-      model: modelPath.trim(), tokenizerPath: tokenizerPath.trim() || undefined,
-      endpoint: undefined, apiKey: undefined, password: undefined, headers: undefined,
-      thinking: 'off', maxSteps: 6, maxTokens: 1024, ...agentCapabilityConfig(),
-    })
-  }
-  function remoteConfig() {
-    const headerMap = Object.fromEntries(headers.map((row) => [row.name.trim(), row.value.trim()] as const).filter(([name]) => name.length > 0))
-    return new Config({ ...draftBaseConfig, provider: remoteProtocol === 'rwkv' ? Provider.ProviderRWKVLightning : Provider.ProviderChatCompletions, model: remoteModel.trim() || availableModels[0]?.id || '', endpoint: remoteEndpoint.trim(), apiKey: remoteProtocol === 'openai' ? apiKey.trim() || undefined : undefined, password: remoteProtocol === 'rwkv' ? apiKey.trim() || undefined : undefined, headers: headerMap, tokenizerPath: undefined, chatPromptMode: 'native-chat', chatThinking: 'disabled', stream: remoteProtocol === 'rwkv' ? false : undefined, rwkvStopTokens: remoteProtocol === 'rwkv' ? 'none' : undefined, maxSteps: 6, maxTokens: 1024, ...agentCapabilityConfig() })
-  }
-  function providerDraftConfig() { return settingsTab === 'local' ? localConfig() : remoteConfig() }
-  function agentCapabilityConfig() { return { agentProtocol, progressiveTools, enableWeb, braveApiKey: enableWeb ? braveAPIKey.trim() || undefined : undefined, tavilyApiKey: enableWeb ? tavilyAPIKey.trim() || undefined : undefined, enableSubagents, maxActiveBatch, remoteBatchWaitMs: remoteBatchWaitMS, subagentMaxParallel, subagentMaxSteps, subagentTimeoutSeconds } }
-  async function testRemote() { setSettingsBusy(true); setSettingsMessage('正在请求 /v1/models…'); try { const models = await Backend.ListRemoteModels(remoteConfig()); setAvailableModels(models); if (!remoteModel && models[0]) setRemoteModel(models[0].id); setSettingsMessage(`连接成功，发现 ${models.length} 个模型。`) } catch (error) { setSettingsMessage(errorText(error)) } finally { setSettingsBusy(false) } }
-  async function saveProviderDraft() {
-    setSettingsBusy(true)
-    setSettingsMessage('正在保存连接档案…')
-    try {
-      const saved = await Backend.SaveProvider(editingProviderId, draftLabel.trim(), draftConfigValue)
-      await refreshProviders()
-      beginEditingProvider(saved)
-      setSettingsMessage(ready ? '档案已保存，当前运行连接没有改变。' : '档案已保存，尚未连接。')
-    } catch (error) {
-      setSettingsMessage(errorText(error))
-    } finally {
-      setSettingsBusy(false)
-    }
-  }
-  async function saveAndUseProviderDraft() {
-    setSettingsBusy(true)
-    setSettingsMessage(settingsTab === 'local' ? '正在保存并加载本地模型，这可能需要一些时间…' : '正在保存并切换远端连接…')
-    try {
-      const configured = await Backend.ConfigureProvider(editingProviderId, draftLabel.trim(), draftConfigValue)
-      setStatus(configured)
-      const value = await refreshProviders()
-      const running = value?.providers.find((provider) => provider.id === value.runtimeProviderId)
-      if (running) beginEditingProvider(running)
-      else setDraftSnapshot(providerDraftSignature(draftLabel, draftConfigValue))
-      setSettingsMessage('已保存并切换为当前运行连接。')
-    } catch (error) {
-      setSettingsMessage(errorText(error))
-    } finally {
-      setSettingsBusy(false)
-    }
-  }
+  async function openConversation(id: string) { if (busy || id === activeConversationID) return; setBusy(true); try { applyConversation(await Backend.OpenConversation(id)) } catch (error) { manager.setSettingsMessage(errorText(error)) } finally { setBusy(false) } }
+  async function deleteConversation(id: string) { if (busy) return; setBusy(true); try { await Backend.DeleteConversation(id); if (id === activeConversationID) applyConversation(); const persisted = await Backend.Bootstrap(); setConversations(persisted.conversations || []) } catch (error) { manager.setSettingsMessage(errorText(error)) } finally { setBusy(false) } }
+  async function chooseWorkspace() { if (busy) return; setBusy(true); try { applyBootstrap(await Backend.ChooseWorkspace()) } catch (error) { if (!errorText(error).toLowerCase().includes('cancel')) manager.setSettingsMessage(errorText(error)) } finally { setBusy(false) } }
+  async function openWorkspace(path: string) { if (busy) return; setBusy(true); try { applyBootstrap(await Backend.OpenWorkspace(path)) } catch (error) { manager.setSettingsMessage(errorText(error)) } finally { setBusy(false) } }
 
   const traceMessages = messages.filter((message) => message.role !== 'user' && (message.trace || message.trajectory?.length))
   const selectedMessage = traceMessages.find((message) => message.id === selectedTraceID) || traceMessages.at(-1)
   const turns = groupMessagesIntoTurns(messages)
-  const settingsProps = {
-    status, ready, settingsTab, setSettingsTab,
-    providers, activeProviderId, runtimeProviderId, editingProviderId,
-    draftLabel, setDraftLabel, draftDirty, draftIsRunning,
-    modelPath, setModelPath, tokenizerPath, setTokenizerPath,
-    remoteEndpoint, setRemoteEndpoint, remoteModel, setRemoteModel,
-    remoteProtocol, setRemoteProtocol, apiKey, setAPIKey, headers, setHeaders,
-    agentProtocol, setAgentProtocol, progressiveTools, setProgressiveTools,
-    enableWeb, setEnableWeb, braveAPIKey, setBraveAPIKey, tavilyAPIKey, setTavilyAPIKey,
-    enableSubagents, setEnableSubagents, maxActiveBatch, setMaxActiveBatch,
-    remoteBatchWaitMS, setRemoteBatchWaitMS, subagentMaxParallel, setSubagentMaxParallel,
-    subagentMaxSteps, setSubagentMaxSteps, subagentTimeoutSeconds, setSubagentTimeoutSeconds,
-    availableModels, setAvailableModels, settingsMessage, settingsBusy,
-    workspaceName, onChooseWorkspace: chooseWorkspace,
-    onTestRemote: () => void testRemote(),
-    onEditProvider: editProvider,
-    onNewProvider: createProviderDraft,
-    onDeleteProvider: (id: string) => void deleteProvider(id),
-    onDiscardDraft: discardDraft,
-    onSaveDraft: () => void saveProviderDraft(),
-    onSaveAndUseDraft: () => void saveAndUseProviderDraft(),
-    onClose: closeSettings,
-    theme, onToggleTheme: handleToggleTheme,
-  }
 
   return <div className="flex h-full w-full bg-paper">
-    {settingsOpen ? <SettingsPage {...settingsProps} /> : <>
-      <Sidebar conversations={conversations} workspaces={workspaces} activeId={activeConversationID} busy={busy} open={sidebarOpen} onCloseSidebar={() => setSidebarOpen(false)} onNewChat={() => void newConversation()} onChooseWorkspace={() => void chooseWorkspace()} onOpenSettings={openSettings} onOpen={openConversation} onDelete={deleteConversation} onOpenWorkspace={openWorkspace} />
+    {settingsOpen ? <SettingsPage manager={manager} status={status} ready={ready} onChooseWorkspace={chooseWorkspace} theme={theme} onToggleTheme={handleToggleTheme} onActivateProvider={(id) => void activateProviderNow(id)} onDeleteProvider={(id) => void deleteProviderNow(id)} /> : <>
+      <Sidebar conversations={conversations} workspaces={workspaces} activeId={activeConversationID} busy={busy} open={sidebarOpen} onCloseSidebar={() => setSidebarOpen(false)} onNewChat={() => void newConversation()} onChooseWorkspace={() => void chooseWorkspace()} onOpenSettings={manager.openSettings} onOpen={openConversation} onDelete={deleteConversation} onOpenWorkspace={openWorkspace} />
       <main className="flex min-w-0 flex-1 flex-col bg-paper">
-        <header className="app-header relative flex h-[52px] flex-none items-end gap-[18px] border-b border-line px-[30px]">
+        <header className="app-header relative flex h-(--header-h) flex-none items-end gap-[18px] border-b border-line px-[30px]">
           <button className="sidebar-toggle mr-[-6px] grid h-8 w-8 flex-none place-items-center border-0 bg-transparent text-ink-soft lg:hidden" aria-label="打开导航" onClick={() => setSidebarOpen(true)}><Menu size={18} /></button>
           <div className="flex h-9 flex-none items-end gap-[22px]" role="tablist">
-            <button role="tab" aria-selected={activeTab === 'chat'} className={`border-0 border-b-2 bg-transparent pb-[9px] font-serif text-[14.5px] transition-[border-color,color] duration-[180ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none ${activeTab === 'chat' ? 'border-brand font-semibold text-ink' : 'border-transparent text-ink-muted'}`} onClick={() => setActiveTab('chat')}>对话</button>
-            <button role="tab" aria-selected={activeTab === 'trace'} className={`min-w-[58px] border-0 border-b-2 bg-transparent pb-[9px] text-center font-serif text-[14.5px] transition-[border-color,color] duration-[180ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none ${activeTab === 'trace' ? 'border-brand font-semibold text-ink' : 'border-transparent text-ink-muted'}`} onClick={() => setActiveTab('trace')} disabled={!traceMessages.length}>轨迹 <span className="ml-1 font-mono text-[10px] text-ink-muted">{traceMessages.length || ''}</span></button>
+            <button role="tab" aria-selected={activeTab === 'chat'} className={`border-0 border-b-2 bg-transparent pb-[9px] font-serif text-md transition-[border-color,color] duration-[180ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none ${activeTab === 'chat' ? 'border-brand font-semibold text-ink' : 'border-transparent text-ink-muted'}`} onClick={() => setActiveTab('chat')}>对话</button>
+            <button role="tab" aria-selected={activeTab === 'trace'} className={`min-w-[58px] border-0 border-b-2 bg-transparent pb-[9px] text-center font-serif text-md transition-[border-color,color] duration-[180ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none ${activeTab === 'trace' ? 'border-brand font-semibold text-ink' : 'border-transparent text-ink-muted'}`} onClick={() => setActiveTab('trace')} disabled={!traceMessages.length}>轨迹 <span className="ml-1 font-mono text-2xs text-ink-muted">{traceMessages.length || ''}</span></button>
           </div>
           <div className="ml-auto flex items-center gap-[14px] pb-[11px]">
-            <span className="hidden text-[11px] text-ink-ghost sm:inline">{turns.length} 轮 · 已保存</span>
-            <button className="flex h-[28px] items-center gap-[9px] border border-line bg-paper-wash px-[10px] text-[11.5px] text-ink-soft" onClick={() => setRunConfigOpen((value) => !value)} title={status.model || '运行配置'}>
+            <span className="hidden text-xs text-ink-ghost sm:inline">{turns.length} 轮 · 已保存</span>
+            <button className="flex h-[28px] items-center gap-[9px] border border-line bg-paper-wash px-[10px] text-xs text-ink-soft" onClick={() => setRunConfigOpen((value) => !value)} title={status.model || '运行配置'}>
               <span className={`h-[5px] w-[5px] flex-none rounded-full ${ready ? 'bg-brand-bright' : 'bg-ink-muted'}`} />
               <span className="max-w-[180px] truncate text-ink">{status.model || '选择模型'}</span>
               {ready && <><span className="h-[12px] w-px flex-none bg-line" /><span className="text-ink-muted">{capabilities}</span></>}
@@ -423,9 +195,9 @@ export default function App() {
             </button>
           </div>
         </header>
-        {activeTab === 'trace' ? <TraceView messages={traceMessages} selected={selectedMessage} onSelect={setSelectedTraceID} onBackToChat={() => setActiveTab('chat')} /> : <ChatView messages={messages} activity={activity} busy={busy} ready={ready} workspace={workspaceName} model={status.model || '选择模型'} capabilities={capabilities} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={regenerate} onKeyDown={onComposerKeyDown} openSettings={openSettings} chooseWorkspace={chooseWorkspace} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} messagesEnd={messagesEnd} />}
+        {activeTab === 'trace' ? <TraceView messages={traceMessages} selected={selectedMessage} onSelect={setSelectedTraceID} onBackToChat={() => setActiveTab('chat')} /> : <ChatView messages={messages} activity={activity} busy={busy} ready={ready} workspace={workspaceName} model={status.model || '选择模型'} capabilities={capabilities} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={regenerate} onKeyDown={onComposerKeyDown} openSettings={manager.openSettings} chooseWorkspace={chooseWorkspace} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} messagesEnd={messagesEnd} />}
       </main>
-      <RunConfigDropdown open={runConfigOpen} onClose={() => setRunConfigOpen(false)} status={status} ready={ready} busy={busy} providers={providers} activeProviderId={activeProviderId} runtimeProviderId={runtimeProviderId} enableWeb={enableWeb} enableSubagents={enableSubagents} progressiveTools={progressiveTools} onActivate={(id) => void activateProvider(id)} onDelete={(id) => void deleteProvider(id)} onToggleWeb={setEnableWeb} onToggleSubagents={setEnableSubagents} onToggleProgressive={setProgressiveTools} onOpenSettings={() => { setRunConfigOpen(false); openSettings() }} />
+      <RunConfigDropdown open={runConfigOpen} onClose={() => setRunConfigOpen(false)} ready={ready} busy={busy} providers={manager.providers} runtimeProviderId={manager.runtimeProviderId} onActivate={(id) => void activateProviderNow(id)} onOpenSettings={() => { setRunConfigOpen(false); manager.openSettings() }} />
     </>}
   </div>
 }
@@ -434,23 +206,23 @@ function Sidebar({ conversations, workspaces, activeId, busy, open, onCloseSideb
   const [menu, setMenu] = useState<string | null>(null)
   return <>
     {open && <div className="sidebar-scrim fixed inset-0 z-[40] bg-[rgba(43,39,33,.34)] lg:hidden" onClick={onCloseSidebar} />}
-    <aside className={`app-sidebar fixed inset-y-0 left-0 z-[50] flex h-full w-[216px] flex-none flex-col border-r border-line bg-paper-sidebar py-[18px] text-ink transition-transform duration-200 motion-reduce:transition-none lg:static lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
-      <div className="flex items-center gap-[9px] px-[18px] pb-[18px] font-serif text-[16px] font-semibold tracking-[.02em]"><span className="h-[9px] w-[9px] flex-none rounded-[1px] bg-brand-bright" /><span>RWKV</span><span className="ml-auto font-mono text-[9px] font-medium leading-none text-ink-muted">⌘K</span></div>
-      <button className="mx-[18px] mb-[14px] flex h-8 items-center justify-center gap-2 border-[1.5px] border-ink bg-transparent px-[10px] text-[12.5px] font-medium text-ink" onClick={onNewChat} disabled={busy}><SquarePen size={16} />新的对话 <kbd className="ml-[2px] font-mono text-[10px] text-ink-muted">⌘N</kbd></button>
-      <button className="mx-[18px] mb-3 flex items-center gap-2 border-0 bg-transparent p-[2px_0] text-[12px] text-ink-soft" onClick={onChooseWorkspace} disabled={busy}><FolderOpen size={16} /><span>打开工作区</span><MoreHorizontal size={15} className="ml-auto" /></button>
-      {workspaces.length > 0 && <section className="mb-[6px] flex flex-col"><div className="px-[18px] pb-[7px] text-[10.5px] font-medium uppercase tracking-[.14em] text-ink-muted">工作区</div>{workspaces.map((workspace) => (
-        <button key={workspace.path} className={`relative mx-[10px] flex items-center gap-[9px] rounded-[3px] border-0 bg-transparent p-[6px_8px] text-left text-[12.5px] ${workspace.active ? 'bg-surface-active font-semibold text-ink' : 'text-ink-soft'}`} onClick={() => onOpenWorkspace(workspace.path)} disabled={!workspace.available || busy} title={workspace.path}><Folder size={14} /><span className="truncate">{workspace.name}</span>{workspace.active && <span className="ml-auto h-[5px] w-[5px] rounded-full bg-brand-bright" />}</button>
+    <aside className={`app-sidebar fixed inset-y-0 left-0 z-[50] flex h-full w-(--sidebar-w) flex-none flex-col border-r border-line bg-paper-sidebar py-[18px] text-ink transition-transform duration-200 motion-reduce:transition-none lg:static lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+      <div className="flex items-center gap-[9px] px-[18px] pb-[18px] font-serif text-lg font-semibold tracking-[.02em]"><span className="h-[9px] w-[9px] flex-none rounded-[1px] bg-brand-bright" /><span>RWKV</span><span className="ml-auto font-mono text-2xs font-medium leading-none text-ink-muted">⌘K</span></div>
+      <button className="mx-[18px] mb-[14px] flex h-8 items-center justify-center gap-2 border-[1.5px] border-ink bg-transparent px-[10px] text-sm font-medium text-ink" onClick={onNewChat} disabled={busy}><SquarePen size={16} />新的对话 <kbd className="ml-[2px] font-mono text-2xs text-ink-muted">⌘N</kbd></button>
+      <button className="mx-[18px] mb-3 flex items-center gap-2 border-0 bg-transparent p-[2px_0] text-sm text-ink-soft" onClick={onChooseWorkspace} disabled={busy}><FolderOpen size={16} /><span>打开工作区</span><MoreHorizontal size={15} className="ml-auto" /></button>
+      {workspaces.length > 0 && <section className="mb-[6px] flex flex-col"><div className="px-[18px] pb-[7px] text-2xs font-medium uppercase tracking-[.14em] text-ink-muted">工作区</div>{workspaces.map((workspace) => (
+        <button key={workspace.path} className={`relative mx-[10px] flex items-center gap-[9px] rounded-[3px] border-0 bg-transparent p-[6px_8px] text-left text-sm ${workspace.active ? 'bg-surface-active font-semibold text-ink' : 'text-ink-soft'}`} onClick={() => onOpenWorkspace(workspace.path)} disabled={!workspace.available || busy} title={workspace.path}><Folder size={14} /><span className="truncate">{workspace.name}</span>{workspace.active && <span className="ml-auto h-[5px] w-[5px] rounded-full bg-brand-bright" />}</button>
       ))}</section>}
-      <section className="min-h-0 flex-1 overflow-y-auto"><div className="px-[18px] pb-[7px] text-[10.5px] font-medium uppercase tracking-[.14em] text-ink-muted">近期</div>
-        {conversations.length === 0 ? <div className="px-[18px] py-2 text-[12px] text-ink-muted">暂无历史对话</div> : conversations.map((conversation) => (
+      <section className="min-h-0 flex-1 overflow-y-auto"><div className="px-[18px] pb-[7px] text-2xs font-medium uppercase tracking-[.14em] text-ink-muted">近期</div>
+        {conversations.length === 0 ? <div className="px-[18px] py-2 text-sm text-ink-muted">暂无历史对话</div> : conversations.map((conversation) => (
           <div key={conversation.id} className={`conversation-row relative mx-[10px] flex items-center rounded-[3px] border-0 bg-transparent ${conversation.id === activeId ? 'active bg-surface-active text-ink' : 'text-ink-soft'}`}>
-            <button className="flex min-w-0 flex-1 flex-col gap-[1px] border-0 bg-transparent p-[7px_8px] text-left text-inherit" onClick={() => onOpen(conversation.id)} title={conversation.title || '未命名会话'}><span className="truncate text-[12.5px]">{conversation.title || '未命名会话'}</span><span className="text-[10.5px] text-ink-muted">{relativeTime(conversation.updatedAt)}</span></button>
+            <button className="flex min-w-0 flex-1 flex-col gap-[1px] border-0 bg-transparent p-[7px_8px] text-left text-inherit" onClick={() => onOpen(conversation.id)} title={conversation.title || '未命名会话'}><span className="truncate text-sm">{conversation.title || '未命名会话'}</span><span className="text-2xs text-ink-muted">{relativeTime(conversation.updatedAt)}</span></button>
             <button className="conversation-menu grid h-[26px] w-[26px] place-items-center border-0 bg-transparent text-ink-muted" aria-label="更多操作" onClick={() => setMenu(menu === conversation.id ? null : conversation.id)}><MoreHorizontal size={15} /></button>
-            {menu === conversation.id && <button className="absolute right-2 top-[30px] z-[5] flex items-center gap-[7px] rounded-[3px] border border-line-strong bg-paper-wash p-2 px-[10px] text-[12px] text-danger shadow-[0_8px_20px_rgba(45,33,20,.12)]" onClick={() => { setMenu(null); onDelete(conversation.id) }}><Trash2 size={14} />删除会话</button>}
+            {menu === conversation.id && <button className="absolute right-2 top-[30px] z-[5] flex items-center gap-[7px] rounded-[3px] border border-line-strong bg-paper-wash p-2 px-[10px] text-sm text-danger shadow-[0_8px_20px_rgba(45,33,20,.12)]" onClick={() => { setMenu(null); onDelete(conversation.id) }}><Trash2 size={14} />删除会话</button>}
           </div>
         ))}
       </section>
-      <button className="mt-3 flex items-center gap-[9px] border-0 border-t border-line bg-transparent px-[18px] pb-0 pt-3 text-left text-[12px] text-ink-soft" onClick={onOpenSettings} aria-label="设置"><Settings size={16} /><span className="flex-1">设置</span><kbd className="ml-[2px] font-mono text-[10px] text-ink-muted">⌘,</kbd></button>
+      <button className="mt-3 flex items-center gap-[9px] border-0 border-t border-line bg-transparent px-[18px] pb-0 pt-3 text-left text-sm text-ink-soft" onClick={onOpenSettings} aria-label="设置"><Settings size={16} /><span className="flex-1">设置</span><kbd className="ml-[2px] font-mono text-2xs text-ink-muted">⌘,</kbd></button>
     </aside>
   </>
 }
@@ -508,12 +280,12 @@ function ChatView({ messages, activity, busy, ready, workspace, capabilities, pr
 
   return <div className="chat-panel relative flex min-h-0 flex-1 flex-col overflow-hidden">
     <div ref={stageRef} className="chat-stage relative min-h-0 flex-1 overflow-hidden">
-      {!empty && <div ref={scrollRef} className="conversation-scroll absolute inset-0 mx-auto w-[min(826px,calc(100%-52px))] overflow-auto pt-[30px]">
+      {!empty && <div ref={scrollRef} className="conversation-scroll absolute inset-0 mx-auto content-narrow overflow-auto pt-[30px]">
         {turns.map((turn, index) => <TurnView key={turn.user?.id || turn.response?.id || index} turn={turn} index={index + 1} pending={busy && index === turns.length - 1 && !turn.response} activity={activity} onTrace={onTrace} onRegenerate={onRegenerate} />)}
         <div ref={messagesEnd} />
       </div>}
     </div>
-    <div ref={anchorRef} className="composer-anchor absolute left-0 right-0 z-[2] mx-auto w-[min(826px,calc(100%-52px))] will-change-transform transition-transform duration-[420ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none">
+    <div ref={anchorRef} className="composer-anchor absolute left-0 right-0 z-[2] mx-auto content-narrow will-change-transform transition-transform duration-[420ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none">
       <Composer prompt={prompt} setPrompt={setPrompt} busy={busy} ready={ready} workspace={workspace} capabilities={capabilities} empty={empty} onSubmit={onSubmit} onKeyDown={onKeyDown} />
     </div>
   </div>
@@ -527,28 +299,28 @@ function TurnView({ turn, index, pending, activity, onTrace, onRegenerate }: { t
   const statuses = pending ? liveGutterStatuses(activity) : completedGutterStatuses(response)
   const stats = response?.trace ? traceStats(response.trace) : undefined
   const time = turn.user?.createdAt || response?.createdAt
-  return <article className={`conversation-turn mb-[42px] grid grid-cols-[112px_minmax(0,672px)] gap-[42px]${pending ? ' pending' : ''}`} data-testid={`conversation-turn-${index}`}>
+  return <article className={`conversation-turn mb-[42px] grid turn-grid${pending ? ' pending' : ''}`} data-testid={`conversation-turn-${index}`}>
     <aside className="turn-gutter flex min-w-0 flex-col items-end gap-[6px] pt-[1px] text-right text-ink-muted">
-      <span className={`font-serif text-[19px] font-bold leading-none ${response?.role === 'error' ? 'text-danger' : 'text-ink-faint'}`}>{String(index).padStart(2, '0')}</span>
-      <time className="text-[10.5px] leading-[1.6]">{formatTurnTime(time)}</time>
+      <span className={`font-serif text-xl font-bold leading-none ${response?.role === 'error' ? 'text-danger' : 'text-ink-faint'}`}>{String(index).padStart(2, '0')}</span>
+      <time className="text-2xs leading-[1.6]">{formatTurnTime(time)}</time>
       <span className="my-[3px] h-px w-[34px] flex-none bg-line" />
       <div className="gutter-statuses flex w-full flex-col items-end gap-1" aria-label={pending ? 'Agent 运行状态' : 'Agent 完成状态'}>
-        {statuses.map((item, statusIndex) => <div className={`gutter-status flex w-full items-center justify-end gap-[7px] text-[10.5px] leading-[1.55] ${item.state === 'failed' ? 'failed text-danger' : item.state === 'running' ? 'running text-brand' : item.state === 'completed' ? 'completed text-ink-soft' : 'text-ink-soft'}`} key={`${item.label}-${statusIndex}`}><span className="min-w-0 truncate">{item.label}</span><i /></div>)}
+        {statuses.map((item, statusIndex) => <div className={`gutter-status flex w-full items-center justify-end gap-[7px] text-2xs leading-[1.55] ${item.state === 'failed' ? 'failed text-danger' : item.state === 'running' ? 'running text-brand' : item.state === 'completed' ? 'completed text-ink-soft' : 'text-ink-soft'}`} key={`${item.label}-${statusIndex}`}><span className="min-w-0 truncate">{item.label}</span><i /></div>)}
       </div>
-      {subagentCount > 0 && <div className="mt-[2px] flex items-start gap-[7px] text-[10.5px] leading-[1.5] text-ink-ghost"><span>{subagentCount} 路并发<br />见右侧</span><svg width="11" height="26" viewBox="0 0 11 26" fill="none" stroke="var(--brand)" strokeWidth="1.2" className="flex-none"><path d="M5.5 0v6M5.5 6c0 4 4.5 3 4.5 7v13M5.5 6c0 4-4.5 3-4.5 7v13M5.5 6v20" /></svg></div>}
-      {(stats || (response?.trajectory?.length && !response.trace)) && <><span className="my-[3px] h-px w-[34px] flex-none bg-line" /><span className="text-[10.5px] leading-[1.6] text-ink-muted">{stats ? <>{formatDuration(stats.durationMs)}{stats.tokens > 0 && <><br />{stats.tokens.toLocaleString('zh-CN')} tok</>}</> : <>历史摘要<br />工具 {response?.trajectory?.length}</>}</span></>}
+      {subagentCount > 0 && <div className="mt-[2px] flex items-start gap-[7px] text-2xs leading-[1.5] text-ink-ghost"><span>{subagentCount} 路并发<br />见右侧</span><svg width="11" height="26" viewBox="0 0 11 26" fill="none" stroke="var(--brand)" strokeWidth="1.2" className="flex-none"><path d="M5.5 0v6M5.5 6c0 4 4.5 3 4.5 7v13M5.5 6c0 4-4.5 3-4.5 7v13M5.5 6v20" /></svg></div>}
+      {(stats || (response?.trajectory?.length && !response.trace)) && <><span className="my-[3px] h-px w-[34px] flex-none bg-line" /><span className="text-2xs leading-[1.6] text-ink-muted">{stats ? <>{formatDuration(stats.durationMs)}{stats.tokens > 0 && <><br />{stats.tokens.toLocaleString('zh-CN')} tok</>}</> : <>历史摘要<br />工具 {response?.trajectory?.length}</>}</span></>}
     </aside>
     <div className="turn-main flex min-w-0 flex-col gap-4">
-      {turn.user && <div className="flex justify-end"><div className="min-w-[180px] max-w-[82%] border-l-2 border-user-line bg-user-bg p-[11px_15px] text-[13.5px] leading-[1.7] text-user-text [overflow-wrap:anywhere]">{turn.user.content}</div></div>}
+      {turn.user && <div className="flex justify-end"><div className="min-w-[180px] max-w-[82%] border-l-2 border-user-line bg-user-bg p-[11px_15px] text-base leading-[1.7] text-user-text [overflow-wrap:anywhere]">{turn.user.content}</div></div>}
       {pending && <div className="turn-pending-answer min-h-7 pt-[2px]" aria-live="polite"><span className="answer-cursor" /><span className="sr-only">{activityLabel(activity.at(-1))}</span></div>}
-      {response?.role === 'assistant' && <div className="turn-answer font-serif text-[15.5px] leading-[1.95] text-ink [overflow-wrap:anywhere]"><MarkdownMessage content={response.content} /></div>}
-      {response?.role === 'error' && <div className="flex items-start gap-2 border-l-2 border-danger bg-danger-wash p-[10px_12px] text-[13px] leading-[1.65] text-danger"><X size={15} className="mt-[3px] flex-none" /><span>{response.content}</span></div>}
+      {response?.role === 'assistant' && <div className="turn-answer font-serif text-md leading-[1.95] text-ink [overflow-wrap:anywhere]"><MarkdownMessage content={response.content} /></div>}
+      {response?.role === 'error' && <div className="flex items-start gap-2 border-l-2 border-danger bg-danger-wash p-[10px_12px] text-sm leading-[1.65] text-danger"><X size={15} className="mt-[3px] flex-none" /><span>{response.content}</span></div>}
       {subagentCount > 0 && response && <SubagentCards trajectory={response.trajectory} done={!pending} />}
-      {response?.meta && <div className="font-mono text-[10px] text-ink-muted">{response.meta}</div>}
+      {response?.meta && <div className="font-mono text-2xs text-ink-muted">{response.meta}</div>}
       {response && <div className="turn-actions flex gap-4 pt-[2px]">
-        {response.role === 'assistant' && <button className="border-0 bg-transparent p-0 text-[11px] text-ink-muted hover:text-brand" onClick={() => void navigator.clipboard?.writeText(response.content)}>复制</button>}
-        {response.role === 'assistant' && turn.user && <button className="border-0 bg-transparent p-0 text-[11px] text-ink-muted hover:text-brand" onClick={() => onRegenerate(turn.user?.content || '')}>重新生成</button>}
-        {hasTrace && <button className="border-0 bg-transparent p-0 text-[11px] text-ink-muted hover:text-brand" onClick={() => onTrace(response.id)}>查看轨迹</button>}
+        {response.role === 'assistant' && <button className="border-0 bg-transparent p-0 text-xs text-ink-muted hover:text-brand" onClick={() => void navigator.clipboard?.writeText(response.content)}>复制</button>}
+        {response.role === 'assistant' && turn.user && <button className="border-0 bg-transparent p-0 text-xs text-ink-muted hover:text-brand" onClick={() => onRegenerate(turn.user?.content || '')}>重新生成</button>}
+        {hasTrace && <button className="border-0 bg-transparent p-0 text-xs text-ink-muted hover:text-brand" onClick={() => onTrace(response.id)}>查看轨迹</button>}
       </div>}
     </div>
   </article>
@@ -557,10 +329,10 @@ function TurnView({ turn, index, pending, activity, onTrace, onRegenerate }: { t
 function Composer({ prompt, setPrompt, busy, ready, workspace, capabilities, empty, onSubmit, onKeyDown }: { prompt: string; setPrompt: (value: string) => void; busy: boolean; ready: boolean; workspace: string; capabilities: string; empty?: boolean; onSubmit: () => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void }) {
   function autoGrow(element: HTMLTextAreaElement) { element.style.height = 'auto'; element.style.height = `${Math.min(element.scrollHeight, 180)}px` }
   // 页边栏メタ・挨拶・スターターは全て流外(absolute)：输入框行高恒定，空↔对话仅位移，不改尺寸。
-  return <div className="composer grid grid-cols-[112px_minmax(0,672px)] gap-[42px]">
+  return <div className="composer grid turn-grid">
     <div className="relative">
       {/* 页边栏メタ：绝对定位、以输入框中线为中心、用自然高度显示，不撑高输入框行高 */}
-      <div className="composer-gutter absolute inset-x-0 top-1/2 flex -translate-y-1/2 flex-col items-end gap-[7px] text-right text-[10.5px] leading-[1.5] text-ink-ghost">
+      <div className="composer-gutter absolute inset-x-0 top-1/2 flex -translate-y-1/2 flex-col items-end gap-[7px] text-right text-2xs leading-[1.5] text-ink-ghost">
         <span className="flex max-w-full flex-col">工作区<b className="truncate font-normal text-ink-soft">{workspace}</b></span>
         <span className="my-[1px] h-px w-[34px] bg-line" />
         <span className="flex max-w-full flex-col">能力<b className={`truncate font-normal ${ready ? 'text-brand' : 'text-ink-soft'}`}>{capabilities}</b></span>
@@ -568,17 +340,17 @@ function Composer({ prompt, setPrompt, busy, ready, workspace, capabilities, emp
     </div>
     <div className="relative min-w-0">
       <div className={`composer-greeting pointer-events-none absolute inset-x-0 bottom-full mb-[26px] flex flex-col gap-[6px] transition-opacity duration-[240ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none ${empty ? 'opacity-100' : 'opacity-0'}`} aria-hidden={!empty}>
-        <span className="font-serif text-[16px] text-brand">你好</span>
-        <h1 className="m-0 font-serif text-[34px] font-semibold leading-[1.35] tracking-[.01em] text-ink">需要我为你做些什么？</h1>
+        <span className="font-serif text-lg text-brand">你好</span>
+        <h1 className="m-0 font-serif text-display font-semibold leading-[1.35] tracking-[.01em] text-ink">需要我为你做些什么？</h1>
       </div>
       <div className="flex min-h-[52px] min-w-0 border-l-[3px] border-line-strong bg-paper-soft transition-[border-color] duration-[120ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none focus-within:border-brand">
-        <textarea aria-label="消息" rows={1} value={prompt} disabled={busy} placeholder="描述你想要完成的任务" className="block min-h-[52px] max-h-[180px] min-w-0 flex-1 resize-none border-0 bg-transparent p-[13px_4px_12px_15px] text-[14.5px] leading-[1.7] text-ink outline-0 placeholder:text-placeholder" onChange={(event) => { setPrompt(event.target.value); autoGrow(event.target) }} onKeyDown={onKeyDown} />
+        <textarea aria-label="消息" rows={1} value={prompt} disabled={busy} placeholder="描述你想要完成的任务" className="block min-h-[52px] max-h-[180px] min-w-0 flex-1 resize-none border-0 bg-transparent p-[13px_4px_12px_15px] text-md leading-[1.7] text-ink outline-0 placeholder:text-placeholder" onChange={(event) => { setPrompt(event.target.value); autoGrow(event.target) }} onKeyDown={onKeyDown} />
         <div className="flex flex-none items-end p-[12px_12px_12px_10px]">
-          <button className="h-[29px] border-0 bg-brand px-[14px] text-[12.5px] font-semibold text-white transition-colors duration-[120ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none disabled:bg-disabled-bg disabled:text-disabled-text" aria-label="发送" onClick={() => void onSubmit()} disabled={!prompt.trim() || busy}>{busy ? <LoaderCircle size={15} className="spin" /> : <>发送<span className="ml-[7px] font-mono text-[10px] opacity-70">⏎</span></>}</button>
+          <button className="h-[29px] border-0 bg-brand px-[14px] text-sm font-semibold text-white transition-colors duration-[120ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none disabled:bg-disabled-bg disabled:text-disabled-text" aria-label="发送" onClick={() => void onSubmit()} disabled={!prompt.trim() || busy}>{busy ? <LoaderCircle size={15} className="spin" /> : <>发送<span className="ml-[7px] font-mono text-2xs opacity-70">⏎</span></>}</button>
         </div>
       </div>
       <div className={`composer-starters absolute inset-x-0 top-full mt-[9px] flex flex-wrap gap-[9px] transition-opacity duration-[240ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none ${empty ? 'opacity-100' : 'pointer-events-none opacity-0'}`} aria-hidden={!empty} aria-label="快速开始">
-        {STARTER_PROMPTS.map((starter) => <button key={starter} tabIndex={empty ? 0 : -1} className="border border-line bg-card-bg px-3 py-[7px] text-[12px] text-ink-soft hover:border-line-strong hover:text-brand" onClick={() => setPrompt(starter)}>{starter}</button>)}
+        {STARTER_PROMPTS.map((starter) => <button key={starter} tabIndex={empty ? 0 : -1} className="border border-line bg-card-bg px-3 py-[7px] text-sm text-ink-soft hover:border-line-strong hover:text-brand" onClick={() => setPrompt(starter)}>{starter}</button>)}
       </div>
     </div>
   </div>
@@ -651,17 +423,25 @@ function groupMessagesIntoTurns(messages: Message[]) {
 
 function completedGutterStatuses(message?: Message): GutterStatus[] {
   if (!message) return [{ label: '等待响应', state: 'idle' }]
-  const events = buildLedgerEvents(message).filter((event) => event.kind !== 'input')
-  if (events.length === 0) return [{ label: message.role === 'error' ? '运行失败' : '回答完成', state: message.role === 'error' ? 'failed' : 'completed' }]
-  return events.slice(-6).map((event) => ({ label: gutterEventLabel(event), state: event.state }))
+  const records = flattenTraceRecords(buildTraceTurns([message])).filter((record) => record.kind !== 'user')
+  if (records.length === 0) return [{ label: message.role === 'error' ? '运行失败' : '回答完成', state: message.role === 'error' ? 'failed' : 'completed' }]
+  return records.slice(-6).map((record, index) => ({ label: gutterEventLabel(record.title, records.length - Math.min(records.length, 6) + index + 1), state: record.state }))
 }
 
 function liveGutterStatuses(events: AgentActivity[]): GutterStatus[] {
   if (events.length === 0) return [{ label: '正在思考', state: 'running' }]
-  return liveLedgerEvents(events).slice(-6).map((event) => ({ label: gutterEventLabel(event), state: event.state }))
+  return liveLedgerEvents(events).slice(-6).map((event) => ({ label: gutterEventLabel(event.title, event.order), state: event.state }))
 }
 
-function gutterEventLabel(event: LedgerEvent) { return `${String(event.order).padStart(2, '0')} ${event.title.replace(/ · Step \d+/, '').replace('工具调用 · ', '调用 ').replace('工具结果 · ', '结果 ').replace('模型请求', '请求模型').replace('模型响应', '模型回复')}` }
+function gutterEventLabel(title: string, order: number) {
+  return `${String(order).padStart(2, '0')} ${title
+    .replace(' · 决策', '')
+    .replace(/ · Step \d+/, '')
+    .replace('工具调用 · ', '调用 ')
+    .replace('工具结果 · ', '结果 ')
+    .replace('模型请求', '请求模型')
+    .replace('模型响应', '模型回复')}`
+}
 
 function activityLabel(item?: AgentActivity) { if (!item) return '正在思考…'; const child = item.subagentIndex ? `Agent ${item.subagentIndex} · ` : ''; if (item.kind === 'subagent_start') return `Agent ${item.subagentIndex} · 已开始子任务`; if (item.kind === 'subagent_done') return `Agent ${item.subagentIndex} · ${item.error ? '子任务失败' : '子任务完成'}`; if (item.kind === 'model_start') return `${child}步骤 ${item.step || 1} · 正在决定下一步`; if (item.kind === 'route_start') return `${child}正在选择能力组`; if (item.kind === 'tool_start') return `${child}步骤 ${item.step} · 正在使用 ${item.tool}`; if (item.kind === 'tool_retry') return `${child}步骤 ${item.step} · ${item.tool} 自动退避后重试`; if (item.kind === 'tool_done') return `${child}步骤 ${item.step} · ${item.tool} 已完成`; return 'Agent 正在工作…' }
 function relativeTime(value: string) { const timestamp = new Date(value).getTime(); if (!Number.isFinite(timestamp)) return ''; const elapsed = Math.max(0, Math.floor((Date.now() - timestamp) / 1000)); if (elapsed < 60) return '刚刚'; const minutes = Math.floor(elapsed / 60); if (minutes < 60) return `${minutes} 分钟前`; const hours = Math.floor(minutes / 60); if (hours < 24) return `${hours} 小时前`; return `${Math.floor(hours / 24)} 天前` }

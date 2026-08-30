@@ -125,7 +125,7 @@ export default function MarkdownMessage({ content }: MarkdownMessageProps) {
 
         return (
           <div key={index} className="answer-para grid grid-cols-[22px_minmax(0,1fr)] items-baseline gap-[12px]">
-            <span className="answer-para-num font-serif text-[15px] font-bold leading-[1.95] text-brand">{pointNumber}</span>
+            <span className="answer-para-num font-serif text-md font-bold leading-[1.95] text-brand">{pointNumber}</span>
             <div className="min-w-0">{markdown}</div>
           </div>
         )
@@ -202,10 +202,10 @@ function CodeBlock({ className, code }: CodeBlockProps) {
   return (
     <div className="my-4 overflow-hidden rounded border border-line bg-[#f7f8fa]">
       <div className="flex items-center justify-between gap-2 border-b border-line bg-[#f1f2f5] px-3 py-1.5">
-        <span className="font-mono text-[10px] font-medium text-ink-muted">{label}</span>
+        <span className="font-mono text-2xs font-medium text-ink-muted">{label}</span>
         <button
           type="button"
-          className={`flex items-center gap-1 rounded px-2 py-1 font-sans text-[10px] transition-colors ${copyClass}`}
+          className={`flex items-center gap-1 rounded px-2 py-1 font-sans text-2xs transition-colors ${copyClass}`}
           onClick={() => void copyCode()}
           aria-label={`复制 ${label} 代码`}
         >
@@ -215,7 +215,7 @@ function CodeBlock({ className, code }: CodeBlockProps) {
       </div>
       <Highlight theme={codeTheme} code={code} language={language}>
         {({ className: prismClassName, style, tokens, getLineProps, getTokenProps }) => (
-          <pre className={`${prismClassName} overflow-auto p-3 font-mono text-[12px] leading-relaxed`} style={style} tabIndex={0}>
+          <pre className={`${prismClassName} overflow-auto p-3 font-mono text-sm leading-relaxed`} style={style} tabIndex={0}>
             <code>
               {tokens.map((line, lineIndex) => (
                 <span {...getLineProps({ line })} className="block" key={lineIndex}>

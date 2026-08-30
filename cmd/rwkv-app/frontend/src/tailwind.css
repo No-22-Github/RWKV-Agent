@@ -37,13 +37,51 @@
   --color-user-line: var(--user-line);
   --color-user-text: var(--user-text);
   --color-card-bg: var(--card-bg);
-  --color-code-bg: var(--code-bg);
   --color-placeholder: var(--placeholder);
   --color-disabled-bg: var(--disabled-bg);
   --color-disabled-text: var(--disabled-text);
+
+  /*
+   * 字号 token：8 档，只管字号。
+   * line-height 一律 inherit（与原先 text-[Npx] 任意值行为一致），
+   * 行高仍由继承或显式 leading-* 类决定。
+   */
+  --text-2xs: 10px;
+  --text-2xs--line-height: inherit;
+  --text-xs: 11.5px;
+  --text-xs--line-height: inherit;
+  --text-sm: 12.5px;
+  --text-sm--line-height: inherit;
+  --text-base: 13.5px;
+  --text-base--line-height: inherit;
+  --text-md: 15px;
+  --text-md--line-height: inherit;
+  --text-lg: 16px;
+  --text-lg--line-height: inherit;
+  --text-xl: 20px;
+  --text-xl--line-height: inherit;
+  --text-display: 34px;
+  --text-display--line-height: inherit;
 
   /* 字体：静态值；--font-serif/--font-mono 同时供保留层 CSS 的 var() 引用 */
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", system-ui, sans-serif;
   --font-serif: "Noto Serif SC", "Songti SC", "STSong", serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/*
+ * 布局组件类：反复出现的三栏/正文宽度收敛到 index.css 的布局 token。
+ * 响应式覆盖仍在 legacy.css（未分层样式优先级高于 layer 内规则）。
+ */
+@layer components {
+  /* 轮次/输入框/设置分组的「页边栏 + 正文」栅格 */
+  .turn-grid {
+    grid-template-columns: var(--col-gutter) minmax(0, var(--col-content));
+    gap: var(--gutter-gap);
+  }
+
+  /* 对话区正文宽度 */
+  .content-narrow {
+    width: min(var(--content-narrow), calc(100% - 52px));
+  }
 }

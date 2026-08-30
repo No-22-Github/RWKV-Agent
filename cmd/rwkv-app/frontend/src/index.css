@@ -33,10 +33,16 @@
   --user-line: #c9bfa8;
   --user-text: #4a443a;
   --card-bg: #f8f5ee;
-  --code-bg: #f7f8fa;
-  --code-header: #f1f2f5;
   --font-serif: "Noto Serif SC", "Songti SC", "STSong", serif;
   --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  /* 布局 token：供 tailwind.css 的组件类与宽高任意值引用 */
+  --sidebar-w: 216px;
+  --header-h: 52px;
+  --col-gutter: 112px;
+  --col-content: 672px;
+  --gutter-gap: 42px;
+  --content-narrow: 826px;
 }
 
 [data-theme="dark"] {
@@ -72,8 +78,6 @@
   --user-line: #4a4238;
   --user-text: #c7c0b2;
   --card-bg: #1e1a15;
-  --code-bg: #221e18;
-  --code-header: #1b1814;
 }
 
 * { box-sizing: border-box; }

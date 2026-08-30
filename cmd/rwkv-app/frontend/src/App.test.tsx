@@ -1,4 +1,4 @@
-import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as Backend from '../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/appservice'
 import { AgentProtocol, Config, ModelState, Provider, Result, Status } from '../bindings/github.com/no22/RWKV-Agent/api/models'
@@ -184,7 +184,6 @@ describe('App', () => {
     render(<App />)
     openSettings()
     switchToRemoteProvider()
-    openSettingsSection('Agent')
     fireEvent.click(screen.getByLabelText('网页搜索与正文获取'))
     fireEvent.change(screen.getByLabelText('Brave API Key'), { target: { value: 'brave-secret' } })
     fireEvent.change(screen.getByLabelText('Tavily API Key'), { target: { value: 'tavily-secret' } })
@@ -223,7 +222,6 @@ describe('App', () => {
     render(<App />)
     openSettings()
     switchToRemoteProvider()
-    openSettingsSection('Agent')
     fireEvent.change(screen.getByLabelText('工具协议'), { target: { value: 'markdown' } })
     fireEvent.click(screen.getByRole('button', { name: '保存并使用' }))
 
@@ -265,10 +263,10 @@ describe('App', () => {
     openSettings()
     fireEvent.change(screen.getByLabelText('连接名称'), { target: { value: 'Unsaved connection' } })
 
-    expect(await screen.findByText('未保存草稿')).toBeInTheDocument()
+    expect(await screen.findByText('未保存更改')).toBeInTheDocument()
   })
 
-  it('keeps the runtime banner independent from the profile being edited', async () => {
+  it('keeps the running badge on the list row while editing another profile', async () => {
     const runtime = savedRemoteProvider({}, { id: 'runtime-provider', label: 'Runtime connection' })
     const backup = savedRemoteProvider({
       endpoint: 'https://backup.example.test',
@@ -300,12 +298,12 @@ describe('App', () => {
     fireEvent.click(screen.getByRole('button', { name: /^Backup connection/ }))
 
     expect(screen.getByLabelText('连接名称')).toHaveValue('Backup connection')
-    expect(screen.getByText('当前运行连接').parentElement).toHaveTextContent('Runtime connection')
-    expect(screen.getByRole('button', { name: /^Runtime connection/ })).toHaveTextContent('运行中')
-    expect(screen.getByRole('button', { name: /^Backup connection/ })).toHaveTextContent('编辑中')
+    expect(screen.getByText('当前运行：').parentElement).toHaveTextContent('Runtime connection')
+    expect(screen.getByText('运行中')).toBeInTheDocument()
+    expect(screen.getByText('已保存')).toBeInTheDocument()
   })
 
-  it('blocks profile switching while the current draft is dirty', async () => {
+  it('asks for confirmation when switching away from a dirty draft and applies the choice', async () => {
     const first = savedRemoteProvider({}, { id: 'first-provider', label: 'First connection' })
     const second = savedRemoteProvider({ model: 'second-model' }, { id: 'second-provider', label: 'Second connection' })
     vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
@@ -322,7 +320,102 @@ describe('App', () => {
     fireEvent.click(screen.getByRole('button', { name: /^Second connection/ }))
 
     expect(screen.getByLabelText('连接名称')).toHaveValue('First connection')
-    expect(await screen.findByText('请先保存或放弃当前草稿，再切换到其他连接档案。')).toBeInTheDocument()
+    const dialog = await screen.findByRole('dialog', { name: '有未保存的更改' })
+    expect(dialog).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: '放弃更改' }))
+    expect(await screen.findByLabelText('连接名称')).toHaveValue('Second connection')
+    expect(Backend.SaveProvider).not.toHaveBeenCalled()
+  })
+
+  it('saves through the confirm dialog when switching profiles', async () => {
+    const first = savedRemoteProvider({}, { id: 'first-provider', label: 'First connection' })
+    const second = savedRemoteProvider({ model: 'second-model' }, { id: 'second-provider', label: 'Second connection' })
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
+      config: first.config,
+      hasConfig: true,
+      providers: [first, second],
+      activeProviderId: first.id,
+    }))
+    vi.mocked(Backend.SaveProvider).mockResolvedValue(first)
+
+    render(<App />)
+    await waitFor(() => expect(Backend.Bootstrap).toHaveBeenCalledOnce())
+    openSettings()
+    fireEvent.change(screen.getByLabelText('模型 ID'), { target: { value: 'edited-model' } })
+    fireEvent.click(screen.getByRole('button', { name: /^Second connection/ }))
+    const dialog = await screen.findByRole('dialog', { name: '有未保存的更改' })
+    fireEvent.click(within(dialog).getByRole('button', { name: '保存' }))
+
+    await waitFor(() => expect(Backend.SaveProvider).toHaveBeenCalledOnce())
+    expect(vi.mocked(Backend.SaveProvider).mock.calls[0][0]).toBe('first-provider')
+    expect(await screen.findByLabelText('连接名称')).toHaveValue('Second connection')
+  })
+
+  it('activates a saved provider from the connection list', async () => {
+    const provider = savedRemoteProvider({}, { id: 'p1', label: 'Solo connection' })
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
+      providers: [provider],
+      activeProviderId: provider.id,
+    }))
+    vi.mocked(Backend.ActivateProvider).mockResolvedValue(new Status({
+      state: ModelState.ModelReady,
+      provider: Provider.ProviderRWKVLightning,
+      model: provider.config.model,
+      workspace: '/tmp/RWKV-Agent',
+      hasApiKey: false,
+      updatedAt: new Date().toISOString(),
+    }))
+
+    render(<App />)
+    await waitFor(() => expect(Backend.Bootstrap).toHaveBeenCalledOnce())
+    openSettings()
+    fireEvent.click(screen.getByRole('button', { name: '使用' }))
+
+    await waitFor(() => expect(Backend.ActivateProvider).toHaveBeenCalledOnce())
+    expect(vi.mocked(Backend.ActivateProvider).mock.calls[0][0]).toBe('p1')
+  })
+
+  it('derives the capability indicator from the running profile, not the draft', async () => {
+    const runtime = savedRemoteProvider({ enableWeb: true, enableSubagents: true }, { id: 'runtime-provider', label: 'Runtime connection' })
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
+      status: new Status({
+        state: ModelState.ModelReady,
+        provider: Provider.ProviderRWKVLightning,
+        endpoint: runtime.config.endpoint,
+        model: runtime.config.model,
+        workspace: '/tmp/RWKV-Agent',
+        hasApiKey: false,
+        updatedAt: new Date().toISOString(),
+      }),
+      config: runtime.config,
+      hasConfig: true,
+      providers: [runtime],
+      activeProviderId: runtime.id,
+      runtimeProviderId: runtime.id,
+    }))
+
+    render(<App />)
+    expect((await screen.findAllByText('web · subagents')).length).toBeGreaterThan(0)
+    openSettings()
+    fireEvent.click(screen.getByLabelText('网页搜索与正文获取'))
+    expect(screen.getByLabelText('网页搜索与正文获取')).not.toBeChecked()
+
+    fireEvent.keyDown(window, { key: 'Escape' })
+    fireEvent.click(await screen.findByRole('button', { name: '放弃更改' }))
+    expect((await screen.findAllByText('web · subagents')).length).toBeGreaterThan(0)
+  })
+
+  it('closes via Escape with confirmation when the draft is dirty', async () => {
+    render(<App />)
+    openSettings()
+    fireEvent.change(screen.getByLabelText('连接名称'), { target: { value: 'Esc draft' } })
+
+    fireEvent.keyDown(window, { key: 'Escape' })
+    expect(await screen.findByRole('dialog', { name: '有未保存的更改' })).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: '放弃更改' }))
+    await waitFor(() => expect(screen.queryByLabelText('连接名称')).not.toBeInTheDocument())
   })
 
   it('preserves an explicitly saved Markdown and Router selection', async () => {
@@ -341,7 +434,6 @@ describe('App', () => {
     render(<App />)
     await waitFor(() => expect(Backend.Bootstrap).toHaveBeenCalledOnce())
     openSettings()
-    openSettingsSection('Agent')
 
     expect(screen.getByLabelText('工具协议')).toHaveValue('markdown')
     expect(screen.getByLabelText('渐进式工具路由')).toBeChecked()
@@ -374,7 +466,6 @@ describe('App', () => {
     expect(screen.getByLabelText('Header 值')).toHaveValue('saved-header')
     expect(screen.getByLabelText('Header 值')).toHaveAttribute('type', 'password')
 
-    openSettingsSection('Agent')
     expect(screen.getByLabelText('工具协议')).toHaveValue('xml')
     expect(screen.getByLabelText('渐进式工具路由')).not.toBeChecked()
     expect(screen.getByLabelText('Brave API Key')).toHaveValue('saved-brave')
@@ -457,10 +548,11 @@ describe('App', () => {
     expect(screen.queryByText('{"urls":["https://example.test/docs"]}')).not.toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: '查看轨迹' }))
-    expect(screen.getByText(/STEP 1 · spawn_agents/)).toBeInTheDocument()
-    expect(screen.getByText(/STEP 2 · read_file/)).toBeInTheDocument()
-    expect(screen.getByText(/legacyTrajectory/)).toHaveTextContent('检查官方文档')
-    expect(screen.getByText(/legacyTrajectory/)).toHaveTextContent('文件暂时不可读')
+    expect(screen.getAllByText('spawn_agents').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('read_file').length).toBeGreaterThan(0)
+    fireEvent.click(screen.getByRole('button', { name: /spawn_agents/ }))
+    fireEvent.click(screen.getByRole('tab', { name: '原文' }))
+    expect(screen.getByText(/legacySubagents/)).toHaveTextContent('检查官方文档')
   })
 
   it('groups live child activity under spawn_agents', async () => {
@@ -541,19 +633,23 @@ describe('App', () => {
     expect(await screen.findByText('已完成读取。')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: '查看轨迹' }))
 
-    expect(screen.getByText('输入')).toBeInTheDocument()
-    expect(screen.getByText('模型')).toBeInTheDocument()
-    expect(screen.getByText('工具')).toBeInTheDocument()
+    expect((screen.getAllByText('输入')).length).toBeGreaterThan(0)
+    expect((screen.getAllByText('模型')).length).toBeGreaterThan(0)
+    expect((screen.getAllByText('工具')).length).toBeGreaterThan(0)
     expect(screen.getAllByText('读取 README').length).toBeGreaterThan(0)
-    fireEvent.click(screen.getAllByTitle('工具调用 · read_file')[1])
-    fireEvent.click(screen.getByRole('button', { name: '原文' }))
-    expect(screen.getByText(/toolArguments/)).toHaveTextContent('README.md')
-    fireEvent.click(screen.getAllByTitle('工具结果 · read_file')[1])
-    fireEvent.click(screen.getByRole('button', { name: '原文' }))
-    expect(screen.getByText(/toolResult/)).toHaveTextContent('# RWKV Agent')
-    fireEvent.click(screen.getAllByTitle('模型响应 · Step 1')[1])
-    fireEvent.click(screen.getByRole('button', { name: '原文' }))
-    expect(screen.getByText(/promptTokens/)).toHaveTextContent('120')
+
+    fireEvent.click(screen.getByRole('button', { name: /Step 1 · 决策/ }))
+    fireEvent.click(screen.getByRole('tab', { name: '请求' }))
+    expect((screen.getAllByText(/读取 README/)).length).toBeGreaterThan(0)
+
+    // 调用默认折叠：先展开再点工具记录
+    fireEvent.click(screen.getByRole('button', { name: '调用' }))
+    fireEvent.click(screen.getByRole('button', { name: /read_file/ }))
+    fireEvent.click(screen.getByRole('tab', { name: '参数' }))
+    expect(screen.getByText(/README\.md/)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('tab', { name: '结果' }))
+    expect((screen.getAllByText(/# RWKV Agent/)).length).toBeGreaterThan(0)
+
     fireEvent.click(screen.getByRole('button', { name: '导出 trace.jsonl' }))
     await waitFor(() => expect(Backend.ExportTrajectory).toHaveBeenCalledOnce())
     expect(vi.mocked(Backend.ExportTrajectory).mock.calls[0][0]).toContain('读取 README')
@@ -574,8 +670,8 @@ describe('App', () => {
     fireEvent.click(await screen.findByTitle('旧轨迹'))
     expect(await screen.findByText('旧数据已恢复')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('tab', { name: /轨迹/ }))
-    expect(screen.getByText('STEP 1 · read_file')).toBeInTheDocument()
-    expect(screen.getByText('本地')).toBeInTheDocument()
+    expect(screen.getByText('TURN 1')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /read_file/ })).toBeInTheDocument()
   })
 
   it('restores and opens a failed run trajectory without reloading the page', async () => {
@@ -616,11 +712,203 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: '查看轨迹' })).toBeEnabled()
     expect(screen.getByRole('tab', { name: /轨迹/ })).toBeEnabled()
     fireEvent.click(screen.getByRole('button', { name: '查看轨迹' }))
-    expect(screen.getAllByTitle('用户输入')[1]).toBeInTheDocument()
-    expect(screen.getAllByTitle('模型响应 · Step 1')[1]).toBeInTheDocument()
-    expect(screen.getAllByTitle('Agent 运行失败')[1]).toBeInTheDocument()
-    fireEvent.click(screen.getAllByTitle('模型响应 · Step 1')[1])
-    fireEvent.click(screen.getByRole('button', { name: '原文' }))
+    expect((screen.getAllByText(/用户输入/)).length).toBeGreaterThan(0)
+    expect((screen.getAllByText(/模型服务返回 503/)).length).toBeGreaterThan(0)
+    fireEvent.click(screen.getByRole('button', { name: /Step 1 · 决策/ }))
+    fireEvent.click(screen.getByRole('tab', { name: '原文' }))
     expect(screen.getByText(/modelError/)).toHaveTextContent('模型服务返回 503')
+  })
+
+
+
+  it('toggles the raw tab between formatted and JSON views', async () => {
+    const trace = new Result({
+      output: '完成',
+      steps: [
+        { number: 1, stage: 'tool', request: { prompt: '带换行的请求\n第二行内容', bytes: 30 }, tool: 'web_search', toolArguments: '{"query":"x"}', toolResult: 'ok', toolExecuted: true, usage: {} },
+      ],
+      durationMs: 100,
+    })
+    const summary = new ConversationSummary({ id: 'raw-conversation', title: '原文验证', updatedAt: new Date().toISOString() })
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({ conversations: [summary] }))
+    vi.mocked(Backend.OpenConversation).mockResolvedValue(new ConversationView({
+      id: summary.id,
+      title: summary.title,
+      messages: [
+        new DisplayMessage({ id: 'raw-user', role: 'user', content: '带换行的请求\n第二行内容' }),
+        new DisplayMessage({ id: 'raw-assistant', role: 'assistant', content: '完成', trace }),
+      ],
+    }))
+
+    render(<App />)
+    fireEvent.click(await screen.findByTitle('原文验证'))
+    expect(await screen.findByText('完成')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '查看轨迹' }))
+    fireEvent.click(document.querySelector('[data-record-row$=":s1:message"] button') as Element)
+    fireEvent.click(screen.getByRole('tab', { name: '原文' }))
+
+    // 默认规整视图：字段平铺，长文本保留真实换行（不存在 JSON 转义的 \n 字面量）
+    expect(screen.getByText('原文 JSON')).toBeInTheDocument()
+    const formatted = screen.getByText(/prompt:/)
+    expect(formatted).toHaveTextContent('带换行的请求')
+    expect(formatted.textContent).not.toContain('\\n')
+
+    fireEvent.click(screen.getByRole('button', { name: '原文 JSON' }))
+    const raw = screen.getByText(/"prompt"/)
+    expect(raw.textContent).toContain('\\n')
+  })
+
+  it('switches to wall-clock projection when records carry start times', async () => {
+    const trace = new Result({
+      output: '完成',
+      startedAtMs: Date.UTC(2026, 0, 1, 12, 0, 0),
+      steps: [
+        { number: 1, stage: 'tool', startedAtMs: Date.UTC(2026, 0, 1, 12, 0, 100), modelDurationMs: 100, tool: 'web_search', toolStartedAtMs: Date.UTC(2026, 0, 1, 12, 0, 300), toolDurationMs: 200, usage: {} },
+      ],
+      durationMs: 500,
+    })
+    const summary = new ConversationSummary({ id: 'wallclock-conversation', title: '墙钟验证', updatedAt: new Date().toISOString() })
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({ conversations: [summary] }))
+    vi.mocked(Backend.OpenConversation).mockResolvedValue(new ConversationView({
+      id: summary.id,
+      title: summary.title,
+      messages: [
+        new DisplayMessage({ id: 'wallclock-user', role: 'user', content: '搜索一下' }),
+        new DisplayMessage({ id: 'wallclock-assistant', role: 'assistant', content: '完成', trace }),
+      ],
+    }))
+
+    render(<App />)
+    fireEvent.click(await screen.findByTitle('墙钟验证'))
+    expect(await screen.findByText('完成')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '查看轨迹' }))
+
+    // 时刻/墙钟按钮可用（所有记录都有开始时间）
+    const wallButton = screen.getByRole('button', { name: '墙钟' })
+    expect(wallButton).toBeEnabled()
+    const slider = screen.getByRole('slider', { name: /时间轴总览/ })
+    fireEvent.click(wallButton)
+    expect(slider.getAttribute('aria-valuetext')).toMatch(/^\d{2}:\d{2}:\d{2}\.\d{3}$/)
+
+    // 详情面板展示开始时间行（调用默认折叠，先展开）
+    fireEvent.click(screen.getByRole('button', { name: '调用' }))
+    fireEvent.click(screen.getByRole('button', { name: /web_search/ }))
+    expect(screen.getByText('开始时间')).toBeInTheDocument()
+  })
+
+  it('keeps wall-clock projections disabled for legacy traces without timestamps', async () => {
+    const summary = new ConversationSummary({ id: 'legacy-wall-conversation', title: '旧墙钟验证', updatedAt: new Date().toISOString() })
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({ conversations: [summary] }))
+    vi.mocked(Backend.OpenConversation).mockResolvedValue(new ConversationView({
+      id: summary.id,
+      title: summary.title,
+      messages: [
+        new DisplayMessage({ id: 'legacy-wall-assistant', role: 'assistant', content: '旧数据', trajectory: [{ step: 1, tool: 'read_file', status: 'completed' }] }),
+      ],
+    }))
+
+    render(<App />)
+    fireEvent.click(await screen.findByTitle('旧墙钟验证'))
+    expect(await screen.findByText('旧数据')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('tab', { name: /轨迹/ }))
+    // 旧轨迹直接不提供墙钟入口，只保留时序/时长
+    expect(screen.queryByRole('button', { name: '墙钟' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '时序' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '时长' })).toBeInTheDocument()
+  })
+
+  it('folds tool calls by default and toggles from the toolbar and the row chevron', async () => {
+    const trace = new Result({
+      output: '完成',
+      steps: [
+        { number: 1, stage: 'tool', tool: 'web_search', toolArguments: '{"query":"x"}', toolResult: 'ok', toolExecuted: true, toolDurationMs: 50, modelDurationMs: 800, usage: {} },
+      ],
+      durationMs: 900,
+    })
+    const summary = new ConversationSummary({ id: 'fold-conversation', title: '折叠验证', updatedAt: new Date().toISOString() })
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({ conversations: [summary] }))
+    vi.mocked(Backend.OpenConversation).mockResolvedValue(new ConversationView({
+      id: summary.id,
+      title: summary.title,
+      messages: [
+        new DisplayMessage({ id: 'fold-user', role: 'user', content: '搜索一下' }),
+        new DisplayMessage({ id: 'fold-assistant', role: 'assistant', content: '完成', trace }),
+      ],
+    }))
+
+    render(<App />)
+    fireEvent.click(await screen.findByTitle('折叠验证'))
+    expect(await screen.findByText('完成')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '查看轨迹' }))
+
+    expect(screen.queryByRole('button', { name: /web_search/ })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '调用' })).toHaveAttribute('aria-pressed', 'false')
+
+    fireEvent.click(screen.getByRole('button', { name: '调用' }))
+    expect(screen.getByRole('button', { name: /web_search/ })).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: '折叠 Step 1 · 决策 的调用' }))
+    expect(screen.queryByRole('button', { name: /web_search/ })).not.toBeInTheDocument()
+  })
+
+  it('filters the ledger by search query and reports the match count', async () => {
+    const trace = new Result({
+      output: '完成',
+      steps: [
+        { number: 1, stage: 'tool', tool: 'web_search', toolArguments: '{"query":"x"}', toolResult: 'ok', toolExecuted: true, toolDurationMs: 50, usage: {} },
+      ],
+      durationMs: 100,
+    })
+    const summary = new ConversationSummary({ id: 'search-conversation', title: '搜索验证', updatedAt: new Date().toISOString() })
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({ conversations: [summary] }))
+    vi.mocked(Backend.OpenConversation).mockResolvedValue(new ConversationView({
+      id: summary.id,
+      title: summary.title,
+      messages: [
+        new DisplayMessage({ id: 'search-user', role: 'user', content: '搜索一下' }),
+        new DisplayMessage({ id: 'search-assistant', role: 'assistant', content: '完成', trace }),
+      ],
+    }))
+
+    render(<App />)
+    fireEvent.click(await screen.findByTitle('搜索验证'))
+    expect(await screen.findByText('完成')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '查看轨迹' }))
+
+    fireEvent.change(screen.getByLabelText('搜索轨迹'), { target: { value: 'web_search' } })
+    expect(await screen.findByText('1 条命中')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /web_search/ })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /最终回复/ })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /用户输入/ })).not.toBeInTheDocument()
+  })
+
+  it('switches the timeline projection between sequence and duration', async () => {
+    const trace = new Result({
+      output: '完成',
+      steps: [
+        { number: 1, stage: 'tool', tool: 'web_search', toolArguments: '{"query":"x"}', toolResult: 'ok', toolExecuted: true, toolDurationMs: 50, modelDurationMs: 800, usage: {} },
+      ],
+      durationMs: 900,
+    })
+    const summary = new ConversationSummary({ id: 'timeline-conversation', title: '时间轴验证', updatedAt: new Date().toISOString() })
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({ conversations: [summary] }))
+    vi.mocked(Backend.OpenConversation).mockResolvedValue(new ConversationView({
+      id: summary.id,
+      title: summary.title,
+      messages: [
+        new DisplayMessage({ id: 'timeline-user', role: 'user', content: '搜索一下' }),
+        new DisplayMessage({ id: 'timeline-assistant', role: 'assistant', content: '完成', trace }),
+      ],
+    }))
+
+    render(<App />)
+    fireEvent.click(await screen.findByTitle('时间轴验证'))
+    expect(await screen.findByText('完成')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '查看轨迹' }))
+
+    const slider = screen.getByRole('slider', { name: /时间轴总览/ })
+    expect(slider).toHaveAttribute('aria-valuetext', '4 条记录')
+    fireEvent.click(screen.getByRole('button', { name: '时长' }))
+    expect(slider).toHaveAttribute('aria-valuetext', '850 ms')
   })
 })
