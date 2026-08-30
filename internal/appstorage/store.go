@@ -135,6 +135,8 @@ type Conversation struct {
 	Title         string                         `json:"title"`
 	CreatedAt     time.Time                      `json:"createdAt"`
 	UpdatedAt     time.Time                      `json:"updatedAt"`
+	// PinnedAt marks sidebar-pinned conversations; nil means unpinned.
+	PinnedAt      *time.Time                     `json:"pinnedAt,omitempty"`
 	Messages      []DisplayMessage               `json:"messages"`
 	Transcript    []agentapi.ConversationMessage `json:"transcript"`
 }
@@ -144,6 +146,7 @@ type Summary struct {
 	Workspace string    `json:"workspace"`
 	Title     string    `json:"title"`
 	UpdatedAt time.Time `json:"updatedAt"`
+	Pinned    bool      `json:"pinned"`
 }
 
 type Store struct {
@@ -507,10 +510,57 @@ func (s *Store) ListConversations(workspace string) ([]Summary, error) {
 		}
 		result = append(result, Summary{
 			ID: value.ID, Workspace: value.Workspace, Title: value.Title, UpdatedAt: value.UpdatedAt,
+			Pinned: value.PinnedAt != nil,
 		})
 	}
-	sort.Slice(result, func(i, j int) bool { return result[i].UpdatedAt.After(result[j].UpdatedAt) })
+	sort.Slice(result, func(i, j int) bool {
+		if result[i].Pinned != result[j].Pinned {
+			return result[i].Pinned
+		}
+		return result[i].UpdatedAt.After(result[j].UpdatedAt)
+	})
 	return result, nil
+}
+
+// RenameConversation updates the display title without touching UpdatedAt.
+func (s *Store) RenameConversation(id, title string) error {
+	if !validID(id) {
+		return fmt.Errorf("invalid conversation ID")
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	var value Conversation
+	if err := readJSON(s.conversationPath(id), maxConversationBytes, &value); err != nil {
+		return err
+	}
+	if value.SchemaVersion != SchemaVersion || value.ID != id {
+		return fmt.Errorf("invalid conversation document")
+	}
+	value.Title = cleanTitle(title)
+	return writeJSON(s.conversationPath(id), value)
+}
+
+// SetConversationPinned pins or unpins a conversation without touching UpdatedAt.
+func (s *Store) SetConversationPinned(id string, pinned bool) error {
+	if !validID(id) {
+		return fmt.Errorf("invalid conversation ID")
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	var value Conversation
+	if err := readJSON(s.conversationPath(id), maxConversationBytes, &value); err != nil {
+		return err
+	}
+	if value.SchemaVersion != SchemaVersion || value.ID != id {
+		return fmt.Errorf("invalid conversation document")
+	}
+	if pinned {
+		now := time.Now().UTC()
+		value.PinnedAt = &now
+	} else {
+		value.PinnedAt = nil
+	}
+	return writeJSON(s.conversationPath(id), value)
 }
 
 func (s *Store) DeleteConversation(id string) error {

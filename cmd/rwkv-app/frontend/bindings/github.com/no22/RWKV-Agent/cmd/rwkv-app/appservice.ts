@@ -148,12 +148,26 @@ export function PreviewSystemPrompt(config: api$0.Config): $CancellablePromise<a
 }
 
 /**
+ * RenameConversation updates a conversation's display title.
+ */
+export function RenameConversation(id: string, title: string): $CancellablePromise<void> {
+    return $Call.ByID(2911493027, id, title);
+}
+
+/**
  * SaveProvider 只保存编辑草稿，不连接服务，也不替换当前会话使用的 provider。
  */
 export function SaveProvider(id: string, label: string, config: api$0.Config): $CancellablePromise<appstorage$0.SavedProvider> {
     return $Call.ByID(5308806, id, label, config).then(($result: any) => {
         return $$createType7($result);
     });
+}
+
+/**
+ * SetConversationPinned pins or unpins a conversation in the sidebar.
+ */
+export function SetConversationPinned(id: string, pinned: boolean): $CancellablePromise<void> {
+    return $Call.ByID(233989379, id, pinned);
 }
 
 /**
