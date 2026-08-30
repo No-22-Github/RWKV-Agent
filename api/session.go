@@ -370,6 +370,7 @@ func publicResult(value agent.Result, duration time.Duration) Result {
 		AnswerContractRepaired: value.AnswerContractRepaired,
 		AnswerViolations:       append([]string(nil), value.AnswerViolations...),
 		ForcedAnswerReason:     value.ForcedAnswerReason,
+		StartedAtMS:            value.StartedAtMS,
 		Duration:               duration,
 		DurationMS:             duration.Milliseconds(),
 	}
@@ -382,17 +383,25 @@ func publicResult(value agent.Result, duration time.Duration) Result {
 			Bundles:       append([]string(nil), routeStep.Bundles...),
 			ProtocolError: routeStep.ProtocolError,
 			FailedClosed:  routeStep.FailedClosed,
+			StartedAtMS:   routeStep.StartedAtMS,
 			DurationMS:    routeStep.DurationMS,
 		})
 	}
 	for _, step := range value.Steps {
 		converted := Step{
-			Number:           step.Number,
-			Stage:            string(step.Stage),
-			Request:          publicPromptTrace(step.Request),
-			ModelOutput:      step.ModelOutput,
-			FinishReason:     string(step.FinishReason),
-			Usage:            Usage{PromptTokens: step.Usage.PromptTokens, CompletionTokens: step.Usage.CompletionTokens},
+			Number:       step.Number,
+			Stage:        string(step.Stage),
+			Request:      publicPromptTrace(step.Request),
+			ModelOutput:  step.ModelOutput,
+			FinishReason: string(step.FinishReason),
+			Usage: Usage{
+				PromptTokens:     step.Usage.PromptTokens,
+				CompletionTokens: step.Usage.CompletionTokens,
+				CacheReadTokens:  step.Usage.PromptCacheReadTokens,
+				CacheWriteTokens: step.Usage.PromptCacheWriteTokens,
+				ReasoningTokens:  step.Usage.ReasoningTokens,
+			},
+			StartedAtMS:      step.StartedAtMS,
 			ModelDurationMS:  step.ModelDurationMS,
 			ModelError:       step.ModelError,
 			ActionType:       step.ActionType,
@@ -416,8 +425,9 @@ func publicResult(value agent.Result, duration time.Duration) Result {
 			child := SubagentTrace{
 				Index: subagent.Index, Task: subagent.Task, Status: subagent.Status,
 				Error: subagent.Error, Route: string(subagent.Route),
-				Bundles: append([]string(nil), subagent.Bundles...), DurationMS: subagent.DurationMS,
-				Output: subagent.Output, Sources: append([]string(nil), subagent.Sources...),
+				Bundles: append([]string(nil), subagent.Bundles...), StartedAtMS: subagent.StartedAtMS,
+				DurationMS: subagent.DurationMS,
+				Output:     subagent.Output, Sources: append([]string(nil), subagent.Sources...),
 			}
 			for _, childStep := range subagent.Steps {
 				child.Steps = append(child.Steps, SubagentStep{

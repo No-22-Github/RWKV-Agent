@@ -40,6 +40,10 @@ const (
 type Usage struct {
 	PromptTokens     int `json:"prompt_tokens"`
 	CompletionTokens int `json:"completion_tokens"`
+	// 细分来自 OpenAI 兼容响应的 usage details；本地与 RWKV 续写后端保持零值。
+	PromptCacheReadTokens  int `json:"prompt_cache_read_tokens,omitempty"`
+	PromptCacheWriteTokens int `json:"prompt_cache_write_tokens,omitempty"`
+	ReasoningTokens        int `json:"reasoning_tokens,omitempty"`
 }
 
 type Result struct {

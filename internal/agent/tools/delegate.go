@@ -143,16 +143,17 @@ func (t *spawnAgentsTool) Execute(ctx context.Context, raw json.RawMessage) (any
 				emit(event)
 			})
 			item := agent.SubagentTrace{
-				Index:      index + 1,
-				Task:       task,
-				Status:     "completed",
-				Output:     strings.TrimSpace(result.Output),
-				Sources:    append([]string(nil), result.Sources...),
-				Route:      result.Route,
-				Bundles:    append([]string(nil), result.Bundles...),
-				Steps:      append([]agent.SubagentStep(nil), result.Steps...),
-				StepCount:  result.StepCount,
-				DurationMS: time.Since(started).Milliseconds(),
+				Index:       index + 1,
+				Task:        task,
+				Status:      "completed",
+				Output:      strings.TrimSpace(result.Output),
+				Sources:     append([]string(nil), result.Sources...),
+				Route:       result.Route,
+				Bundles:     append([]string(nil), result.Bundles...),
+				Steps:       append([]agent.SubagentStep(nil), result.Steps...),
+				StepCount:   result.StepCount,
+				StartedAtMS: started.UnixMilli(),
+				DurationMS:  time.Since(started).Milliseconds(),
 			}
 			if err != nil {
 				item.Error = err.Error()

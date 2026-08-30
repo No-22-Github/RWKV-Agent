@@ -100,9 +100,10 @@ func (r *Runner) decideRoute(
 		generated, _, _, err := r.generate(ctx, request, messages, nil, false, false, "<route>")
 		if err != nil {
 			steps = append(steps, RouteStep{
-				Attempt:    attempt + 1,
-				Request:    promptTrace,
-				DurationMS: time.Since(started).Milliseconds(),
+				Attempt:     attempt + 1,
+				Request:     promptTrace,
+				StartedAtMS: started.UnixMilli(),
+				DurationMS:  time.Since(started).Milliseconds(),
 			})
 			r.observe(Event{Kind: EventRouteDone, Err: err}, observer)
 			return "", steps, err
@@ -116,6 +117,7 @@ func (r *Runner) decideRoute(
 			Attempt:     attempt + 1,
 			Request:     promptTrace,
 			ModelOutput: generated.Text,
+			StartedAtMS: started.UnixMilli(),
 			DurationMS:  time.Since(started).Milliseconds(),
 		}
 		if parseErr == nil {
@@ -182,9 +184,10 @@ func (r *Runner) decideToolRoute(
 		generated, _, _, err := r.generate(ctx, request, messages, nil, false, false, "<route>")
 		if err != nil {
 			steps = append(steps, RouteStep{
-				Attempt:    attempt + 1,
-				Request:    promptTrace,
-				DurationMS: time.Since(started).Milliseconds(),
+				Attempt:     attempt + 1,
+				Request:     promptTrace,
+				StartedAtMS: started.UnixMilli(),
+				DurationMS:  time.Since(started).Milliseconds(),
 			})
 			r.observe(Event{Kind: EventRouteDone, Err: err}, observer)
 			return ToolRouteDecision{}, steps, err
@@ -198,6 +201,7 @@ func (r *Runner) decideToolRoute(
 			Attempt:     attempt + 1,
 			Request:     promptTrace,
 			ModelOutput: generated.Text,
+			StartedAtMS: started.UnixMilli(),
 			DurationMS:  time.Since(started).Milliseconds(),
 		}
 		if parseErr == nil {

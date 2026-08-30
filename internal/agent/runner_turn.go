@@ -82,7 +82,7 @@ func newRunnerTurn(
 		ctx:                     ctx,
 		task:                    task,
 		observer:                observer,
-		result:                  Result{Steps: make([]Step, 0, r.options.MaxSteps), Route: RouteInspect},
+		result:                  Result{StartedAtMS: time.Now().UnixMilli(), Steps: make([]Step, 0, r.options.MaxSteps), Route: RouteInspect},
 		activeSpecs:             append([]ToolSpec(nil), r.toolSpecs...),
 		activeTools:             r.tools,
 		turnMessages:            []Message{{Role: RoleUser, Content: task}},
@@ -308,6 +308,7 @@ func (turn *runnerTurn) generateModelStep(step int) (turnModelStep, error) {
 		modelDuration := time.Since(modelStarted).Milliseconds()
 		turn.result.Steps = append(turn.result.Steps, Step{
 			Number: step, Stage: turn.stage, Request: promptTrace,
+			StartedAtMS:     modelStarted.UnixMilli(),
 			ModelDurationMS: modelDuration, ModelError: err.Error(),
 		})
 		r.observe(
@@ -323,6 +324,7 @@ func (turn *runnerTurn) generateModelStep(step int) (turnModelStep, error) {
 		ModelOutput:     generated.Text,
 		FinishReason:    generated.FinishReason,
 		Usage:           generated.Usage,
+		StartedAtMS:     modelStarted.UnixMilli(),
 		ModelDurationMS: time.Since(modelStarted).Milliseconds(),
 	}
 	turn.result.Steps = append(turn.result.Steps, current)

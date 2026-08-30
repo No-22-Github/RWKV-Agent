@@ -12,6 +12,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/openai/openai-go/v3"
+
 	"github.com/no22/RWKV-Agent/internal/continuation"
 	"github.com/no22/RWKV-Agent/internal/continuation/toolchat"
 )
@@ -700,3 +702,38 @@ func (f roundTripFunc) RoundTrip(request *http.Request) (*http.Response, error) 
 }
 
 var _ http.RoundTripper = roundTripFunc(nil)
+
+func TestSDKUsageExtractsCacheAndReasoningDetails(t *testing.T) {
+	response := openai.ChatCompletion{
+		Usage: openai.CompletionUsage{
+			PromptTokens:     100,
+			CompletionTokens: 20,
+			PromptTokensDetails: openai.CompletionUsagePromptTokensDetails{
+				CachedTokens:     40,
+				CacheWriteTokens: 8,
+			},
+			CompletionTokensDetails: openai.CompletionUsageCompletionTokensDetails{
+				ReasoningTokens: 5,
+			},
+		},
+	}
+
+	usage := sdkUsage(&response)
+	if usage.PromptTokens != 100 || usage.CompletionTokens != 20 {
+		t.Fatalf("base tokens changed: %+v", usage)
+	}
+	if usage.PromptCacheReadTokens != 40 {
+		t.Fatalf("cache read = %d, want 40", usage.PromptCacheReadTokens)
+	}
+	if usage.PromptCacheWriteTokens != 8 {
+		t.Fatalf("cache write = %d, want 8", usage.PromptCacheWriteTokens)
+	}
+	if usage.ReasoningTokens != 5 {
+		t.Fatalf("reasoning = %d, want 5", usage.ReasoningTokens)
+	}
+
+	bare := sdkUsage(&openai.ChatCompletion{})
+	if bare.PromptCacheReadTokens != 0 || bare.PromptCacheWriteTokens != 0 || bare.ReasoningTokens != 0 {
+		t.Fatalf("bare usage should keep zero details: %+v", bare)
+	}
+}

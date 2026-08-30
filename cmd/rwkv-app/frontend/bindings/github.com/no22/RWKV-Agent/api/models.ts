@@ -210,6 +210,7 @@ export class Result {
     "output": string;
     "error"?: string;
     "originalOutput"?: string;
+    "startedAtMs"?: number;
     "routeSteps"?: RouteStep[];
     "route"?: string;
     "bundles"?: string[];
@@ -268,6 +269,7 @@ export class Result {
  */
 export class RouteStep {
     "attempt": number;
+    "startedAtMs"?: number;
     "request"?: PromptTrace | null;
     "modelOutput"?: string;
     "route"?: string;
@@ -356,6 +358,7 @@ export class Status {
 export class Step {
     "number": number;
     "stage": string;
+    "startedAtMs"?: number;
     "request"?: PromptTrace | null;
     "modelOutput"?: string;
     "finishReason"?: string;
@@ -377,6 +380,7 @@ export class Step {
     "toolRetries"?: ToolRetryTrace[];
     "subagents"?: SubagentTrace[];
     "toolDurationMs"?: number;
+    "toolStartedAtMs"?: number;
     "noToolRationale"?: string;
     "noToolAnswer"?: string;
 
@@ -470,6 +474,7 @@ export class SubagentTrace {
     "error"?: string;
     "route"?: string;
     "bundles"?: string[];
+    "startedAtMs"?: number;
     "durationMs": number;
     "output"?: string;
     "sources"?: string[];
@@ -550,6 +555,9 @@ export class ToolRetryTrace {
 export class Usage {
     "promptTokens"?: number;
     "completionTokens"?: number;
+    "cacheReadTokens"?: number;
+    "cacheWriteTokens"?: number;
+    "reasoningTokens"?: number;
 
     /** Creates a new Usage instance. */
     constructor($$source: Partial<Usage> = {}) {

@@ -155,15 +155,21 @@ type PromptTrace struct {
 	ToolsOffered    []string `json:"toolsOffered,omitempty"`
 }
 
-// Usage is the token accounting reported by the configured provider.
+// Usage is the token accounting reported by the configured provider. The
+// cache and reasoning breakdowns come from OpenAI-compatible usage details and
+// stay zero for the local and RWKV continuation backends.
 type Usage struct {
 	PromptTokens     int `json:"promptTokens,omitempty"`
 	CompletionTokens int `json:"completionTokens,omitempty"`
+	CacheReadTokens  int `json:"cacheReadTokens,omitempty"`
+	CacheWriteTokens int `json:"cacheWriteTokens,omitempty"`
+	ReasoningTokens  int `json:"reasoningTokens,omitempty"`
 }
 
 // RouteStep records one routing generation, including correction retries.
 type RouteStep struct {
 	Attempt       int          `json:"attempt"`
+	StartedAtMS   int64        `json:"startedAtMs,omitempty"`
 	Request       *PromptTrace `json:"request,omitempty"`
 	ModelOutput   string       `json:"modelOutput,omitempty"`
 	Route         string       `json:"route,omitempty"`
@@ -186,16 +192,17 @@ type SubagentStep struct {
 
 // SubagentTrace is one delegated Agent run attached to its parent tool step.
 type SubagentTrace struct {
-	Index      int            `json:"index"`
-	Task       string         `json:"task"`
-	Status     string         `json:"status"`
-	Error      string         `json:"error,omitempty"`
-	Route      string         `json:"route,omitempty"`
-	Bundles    []string       `json:"bundles,omitempty"`
-	DurationMS int64          `json:"durationMs"`
-	Output     string         `json:"output,omitempty"`
-	Sources    []string       `json:"sources,omitempty"`
-	Steps      []SubagentStep `json:"steps,omitempty"`
+	Index       int            `json:"index"`
+	Task        string         `json:"task"`
+	Status      string         `json:"status"`
+	Error       string         `json:"error,omitempty"`
+	Route       string         `json:"route,omitempty"`
+	Bundles     []string       `json:"bundles,omitempty"`
+	StartedAtMS int64          `json:"startedAtMs,omitempty"`
+	DurationMS  int64          `json:"durationMs"`
+	Output      string         `json:"output,omitempty"`
+	Sources     []string       `json:"sources,omitempty"`
+	Steps       []SubagentStep `json:"steps,omitempty"`
 }
 
 // Step is the public trace summary for one model action.
@@ -206,6 +213,7 @@ type Step struct {
 	ModelOutput      string           `json:"modelOutput,omitempty"`
 	FinishReason     string           `json:"finishReason,omitempty"`
 	Usage            Usage            `json:"usage"`
+	StartedAtMS      int64            `json:"startedAtMs,omitempty"`
 	ModelDurationMS  int64            `json:"modelDurationMs,omitempty"`
 	ModelError       string           `json:"modelError,omitempty"`
 	ActionType       string           `json:"actionType,omitempty"`
@@ -223,6 +231,7 @@ type Step struct {
 	ToolRetries      []ToolRetryTrace `json:"toolRetries,omitempty"`
 	Subagents        []SubagentTrace  `json:"subagents,omitempty"`
 	ToolDurationMS   int64            `json:"toolDurationMs,omitempty"`
+	ToolStartedAtMS  int64            `json:"toolStartedAtMs,omitempty"`
 	NoToolRationale  string           `json:"noToolRationale,omitempty"`
 	NoToolAnswer     string           `json:"noToolAnswer,omitempty"`
 }
@@ -232,6 +241,7 @@ type Result struct {
 	Output                 string        `json:"output"`
 	Error                  string        `json:"error,omitempty"`
 	OriginalOutput         string        `json:"originalOutput,omitempty"`
+	StartedAtMS            int64         `json:"startedAtMs,omitempty"`
 	RouteSteps             []RouteStep   `json:"routeSteps,omitempty"`
 	Route                  string        `json:"route,omitempty"`
 	Bundles                []string      `json:"bundles,omitempty"`

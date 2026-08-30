@@ -179,6 +179,7 @@ type Step struct {
 	ModelOutput      string                    `json:"model_output"`
 	FinishReason     continuation.FinishReason `json:"finish_reason"`
 	Usage            continuation.Usage        `json:"usage"`
+	StartedAtMS      int64                     `json:"model_started_at_ms,omitempty"`
 	ModelDurationMS  int64                     `json:"model_duration_ms,omitempty"`
 	ModelError       string                    `json:"model_error,omitempty"`
 	ActionType       string                    `json:"action_type,omitempty"`
@@ -197,6 +198,7 @@ type Step struct {
 	ToolRetries      []ToolRetryTrace          `json:"tool_retries,omitempty"`
 	Subagents        []SubagentTrace           `json:"subagents,omitempty"`
 	ToolDurationMS   int64                     `json:"tool_duration_ms,omitempty"`
+	ToolStartedAtMS  int64                     `json:"tool_started_at_ms,omitempty"`
 	// NoToolRationale and NoToolAnswer retain model-authored abstention text for
 	// presentation and audit. They are never tool evidence.
 	NoToolRationale string `json:"no_tool_rationale,omitempty"`
@@ -216,17 +218,18 @@ type SubagentStep struct {
 
 // SubagentTrace records one delegated run without copying large child payloads.
 type SubagentTrace struct {
-	Index      int            `json:"index"`
-	Task       string         `json:"task"`
-	Status     string         `json:"status"`
-	Error      string         `json:"error,omitempty"`
-	Route      Route          `json:"route,omitempty"`
-	Bundles    []string       `json:"bundles,omitempty"`
-	DurationMS int64          `json:"duration_ms"`
-	Output     string         `json:"output,omitempty"`
-	Sources    []string       `json:"sources,omitempty"`
-	Steps      []SubagentStep `json:"steps,omitempty"`
-	StepCount  int            `json:"step_count,omitempty"`
+	Index       int            `json:"index"`
+	Task        string         `json:"task"`
+	Status      string         `json:"status"`
+	Error       string         `json:"error,omitempty"`
+	Route       Route          `json:"route,omitempty"`
+	Bundles     []string       `json:"bundles,omitempty"`
+	StartedAtMS int64          `json:"started_at_ms,omitempty"`
+	DurationMS  int64          `json:"duration_ms"`
+	Output      string         `json:"output,omitempty"`
+	Sources     []string       `json:"sources,omitempty"`
+	Steps       []SubagentStep `json:"steps,omitempty"`
+	StepCount   int            `json:"step_count,omitempty"`
 }
 
 // SubagentTraceCarrier lets delegation tools expose typed presentation traces
@@ -240,6 +243,7 @@ type SubagentTraceCarrier interface {
 // not be traced to the history or instructions that caused it.
 type RouteStep struct {
 	Attempt       int          `json:"attempt"`
+	StartedAtMS   int64        `json:"started_at_ms,omitempty"`
 	Request       *PromptTrace `json:"request,omitempty"`
 	ModelOutput   string       `json:"model_output"`
 	Route         Route        `json:"route,omitempty"`
@@ -252,6 +256,7 @@ type RouteStep struct {
 type Result struct {
 	Output                 string      `json:"output"`
 	OriginalOutput         string      `json:"original_output"`
+	StartedAtMS            int64       `json:"started_at_ms,omitempty"`
 	RouteSteps             []RouteStep `json:"route_steps,omitempty"`
 	AnswerContractRepaired bool        `json:"answer_contract_repaired,omitempty"`
 	AnswerViolations       []string    `json:"answer_violations,omitempty"`

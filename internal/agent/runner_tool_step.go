@@ -166,6 +166,7 @@ func (turn *runnerTurn) executeTool(step int, action Action) (toolExecution, err
 
 	current.ToolExecuted = execution.executed
 	if execution.executed {
+		current.ToolStartedAtMS = toolStarted.UnixMilli()
 		current.ToolDurationMS = time.Since(toolStarted).Milliseconds()
 		turn.recordExecutedToolOutcome(action, execution)
 	}

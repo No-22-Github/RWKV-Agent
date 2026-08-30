@@ -411,10 +411,14 @@ func firstSDKChoice(response *openai.ChatCompletion) (openai.ChatCompletionChoic
 }
 
 func sdkUsage(response *openai.ChatCompletion) continuation.Usage {
-	return continuation.Usage{
+	usage := continuation.Usage{
 		PromptTokens:     int(response.Usage.PromptTokens),
 		CompletionTokens: int(response.Usage.CompletionTokens),
 	}
+	usage.PromptCacheReadTokens = int(response.Usage.PromptTokensDetails.CachedTokens)
+	usage.PromptCacheWriteTokens = int(response.Usage.PromptTokensDetails.CacheWriteTokens)
+	usage.ReasoningTokens = int(response.Usage.CompletionTokensDetails.ReasoningTokens)
+	return usage
 }
 
 func reasoningContent(message openai.ChatCompletionMessage) string {
