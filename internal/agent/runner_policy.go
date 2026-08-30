@@ -314,24 +314,41 @@ func toolFailureReminder(
 	} else {
 		prompt.WriteString("Do not repeat the same call. ")
 	}
-	switch name {
-	case "read_file":
-		if _, hasList := tools["list_files"]; hasList {
-			if _, hasSearch := tools["search_text"]; hasSearch {
-				prompt.WriteString(
-					"If the path is uncertain, use list_files or search_text before another read_file call. ",
-				)
-			}
-		}
-	case "list_files":
-		if _, hasSearch := tools["search_text"]; hasSearch {
-			prompt.WriteString(
-				"Try an existing parent directory or workspace root, or use search_text for a known literal. ",
-			)
-		}
+	if hint := toolFailureHint(name, tools); hint != "" {
+		prompt.WriteString(hint)
 	}
 	prompt.WriteString("Choose a different useful tool or answer with the limitation. Do not guess.")
 	return prompt.String()
+}
+
+// toolFailureHint is the per-tool recovery guidance appended when a listed
+// companion tool is offered. The texts are byte-stable transcript contract, so
+// new entries belong in this table rather than in ad-hoc branches.
+var toolFailureHints = map[string]struct {
+	companions []string
+	hint       string
+}{
+	"read_file": {
+		companions: []string{"list_files", "search_text"},
+		hint:       "If the path is uncertain, use list_files or search_text before another read_file call. ",
+	},
+	"list_files": {
+		companions: []string{"search_text"},
+		hint:       "Try an existing parent directory or workspace root, or use search_text for a known literal. ",
+	},
+}
+
+func toolFailureHint(name string, tools map[string]Tool) string {
+	entry, ok := toolFailureHints[name]
+	if !ok {
+		return ""
+	}
+	for _, companion := range entry.companions {
+		if _, offered := tools[companion]; !offered {
+			return ""
+		}
+	}
+	return entry.hint
 }
 
 // tracePrompt captures a generation request. The prompt is recorded verbatim up
