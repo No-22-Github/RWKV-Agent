@@ -108,7 +108,7 @@ export default function SettingsPage({ manager, status, ready, onChooseWorkspace
         {section === '连接'
           ? <ConnectionsSection manager={manager} ready={ready} onActivateProvider={onActivateProvider} onDeleteProvider={onDeleteProvider} />
           : section === 'Agent'
-            ? <AgentBehaviorSection manager={manager} ready={ready} />
+            ? <AgentBehaviorSection manager={manager} />
             : <GeneralSection status={status} onChooseWorkspace={onChooseWorkspace} theme={theme} onToggleTheme={onToggleTheme} />}
       </main>
 

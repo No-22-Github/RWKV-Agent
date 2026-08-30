@@ -94,6 +94,43 @@ function openAgentSection() {
   openSettingsSection('Agent')
 }
 
+const readyStatus = () => new Status({
+  state: ModelState.ModelReady,
+  provider: Provider.ProviderRWKVLightning,
+  model: 'rwkv7-test',
+  workspace: '/tmp/RWKV-Agent',
+  hasApiKey: false,
+  updatedAt: new Date().toISOString(),
+})
+
+/* 种子一个正在运行的远端档案：Agent 分区的自动应用会直接 ConfigureProvider。 */
+function bootstrapWithRunningProvider(config: Partial<Config> = {}, profile: Partial<SavedProvider> = {}) {
+  const provider = savedRemoteProvider(config, profile)
+  vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
+    status: new Status({
+      state: ModelState.ModelReady,
+      provider: Provider.ProviderRWKVLightning,
+      model: 'rwkv7-test',
+      workspace: '/tmp/RWKV-Agent',
+      hasApiKey: false,
+      updatedAt: new Date().toISOString(),
+    }),
+    config: provider.config,
+    hasConfig: true,
+    providers: [provider],
+    activeProviderId: provider.id,
+    runtimeProviderId: provider.id,
+  }))
+  vi.mocked(Backend.ConfigureProvider).mockResolvedValue(readyStatus())
+  vi.mocked(Backend.SaveProvider).mockResolvedValue(provider)
+  return provider
+}
+
+/* 等 Bootstrap 的档案列表真正水合（模型徽标渲染）再打开设置，否则会走新建草稿分支。 */
+async function waitRuntimeReady() {
+  await screen.findAllByText('rwkv7-test')
+}
+
 function switchToRemoteProvider() {
   fireEvent.click(screen.getByRole('button', { name: '远端 Provider' }))
 }
@@ -184,18 +221,11 @@ describe('App', () => {
     expect(config.enableSubagents).toBe(false)
   })
 
-  it('passes web credentials and concurrent subagent budgets', async () => {
-    vi.mocked(Backend.ConfigureProvider).mockResolvedValue(new Status({
-      state: ModelState.ModelReady,
-      provider: Provider.ProviderRWKVLightning,
-      model: 'rwkv7-test',
-      workspace: '/tmp/RWKV-Agent',
-      hasApiKey: false,
-      updatedAt: new Date().toISOString(),
-    }))
+  it('passes web credentials and concurrent subagent budgets through auto-apply', async () => {
+    bootstrapWithRunningProvider()
     render(<App />)
+    await waitRuntimeReady()
     openSettings()
-    switchToRemoteProvider()
     openAgentSection()
     fireEvent.click(screen.getByLabelText('网页搜索与正文获取'))
     fireEvent.change(screen.getByLabelText('Brave API Key'), { target: { value: 'brave-secret' } })
@@ -206,9 +236,8 @@ describe('App', () => {
     fireEvent.change(screen.getByLabelText('单 Agent 步数'), { target: { value: '5' } })
     fireEvent.change(screen.getByLabelText('批次超时（秒）'), { target: { value: '180' } })
     fireEvent.change(screen.getByLabelText('远端聚合窗口（毫秒）'), { target: { value: '15' } })
-    fireEvent.click(screen.getByRole('button', { name: '保存并使用' }))
 
-    await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalledOnce())
+    await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalled(), { timeout: 3000 })
     const config = vi.mocked(Backend.ConfigureProvider).mock.calls[0][2]
     expect(config).toMatchObject({
       enableWeb: true,
@@ -221,66 +250,70 @@ describe('App', () => {
       subagentMaxSteps: 5,
       subagentTimeoutSeconds: 180,
     })
+    expect(await screen.findByText('已自动生效')).toBeInTheDocument()
   })
 
   it('allows the Markdown protocol to be selected explicitly', async () => {
-    vi.mocked(Backend.ConfigureProvider).mockResolvedValue(new Status({
-      state: ModelState.ModelReady,
-      provider: Provider.ProviderRWKVLightning,
-      model: 'rwkv7-test',
-      workspace: '/tmp/RWKV-Agent',
-      hasApiKey: false,
-      updatedAt: new Date().toISOString(),
-    }))
+    bootstrapWithRunningProvider()
     render(<App />)
+    await waitRuntimeReady()
     openSettings()
-    switchToRemoteProvider()
     openAgentSection()
     fireEvent.change(screen.getByLabelText('工具协议'), { target: { value: 'markdown' } })
-    fireEvent.click(screen.getByRole('button', { name: '保存并使用' }))
 
-    await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalledOnce())
+    await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalled(), { timeout: 3000 })
     expect(vi.mocked(Backend.ConfigureProvider).mock.calls[0][2].agentProtocol).toBe('markdown')
   })
 
-  it('submits the selected thinking mode with the XML protocol', async () => {
-    vi.mocked(Backend.ConfigureProvider).mockResolvedValue(new Status({
-      state: ModelState.ModelReady,
-      provider: Provider.ProviderRWKVLightning,
-      model: 'rwkv7-test',
-      workspace: '/tmp/RWKV-Agent',
-      hasApiKey: false,
-      updatedAt: new Date().toISOString(),
-    }))
+  it('submits the selected thinking mode through auto-apply', async () => {
+    bootstrapWithRunningProvider()
     render(<App />)
+    await waitRuntimeReady()
     openSettings()
-    switchToRemoteProvider()
     openAgentSection()
     fireEvent.change(screen.getByLabelText('思考模式'), { target: { value: 'fast' } })
-    fireEvent.click(screen.getByRole('button', { name: '保存并使用' }))
 
-    await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalledOnce())
+    await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalled(), { timeout: 3000 })
     expect(vi.mocked(Backend.ConfigureProvider).mock.calls[0][2].thinking).toBe('fast')
   })
 
-  it('submits the personal task contract with the profile', async () => {
-    vi.mocked(Backend.ConfigureProvider).mockResolvedValue(new Status({
-      state: ModelState.ModelReady,
-      provider: Provider.ProviderRWKVLightning,
-      model: 'rwkv7-test',
-      workspace: '/tmp/RWKV-Agent',
-      hasApiKey: false,
-      updatedAt: new Date().toISOString(),
-    }))
+  it('submits the personal task contract through auto-apply', async () => {
+    bootstrapWithRunningProvider()
     render(<App />)
+    await waitRuntimeReady()
     openSettings()
-    switchToRemoteProvider()
     openAgentSection()
     fireEvent.change(screen.getByLabelText('附加任务约定'), { target: { value: '  回答使用中文。  ' } })
-    fireEvent.click(screen.getByRole('button', { name: '保存并使用' }))
 
-    await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalledOnce())
+    await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalled(), { timeout: 3000 })
     expect(vi.mocked(Backend.ConfigureProvider).mock.calls[0][2].taskControl).toBe('回答使用中文。')
+  })
+
+  it('auto-saves a non-running profile without reconnecting', async () => {
+    const provider = bootstrapWithRunningProvider()
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
+      status: new Status({
+        state: ModelState.ModelReady,
+        provider: Provider.ProviderRWKVLightning,
+        model: 'rwkv7-test',
+        workspace: '/tmp/RWKV-Agent',
+        hasApiKey: false,
+        updatedAt: new Date().toISOString(),
+      }),
+      config: provider.config,
+      hasConfig: true,
+      providers: [provider],
+      activeProviderId: provider.id,
+    }))
+    render(<App />)
+    await waitRuntimeReady()
+    openSettings()
+    openAgentSection()
+    fireEvent.change(screen.getByLabelText('思考模式'), { target: { value: 'fast' } })
+
+    await waitFor(() => expect(Backend.SaveProvider).toHaveBeenCalled(), { timeout: 3000 })
+    expect(Backend.ConfigureProvider).not.toHaveBeenCalled()
+    expect(await screen.findByText('已自动保存')).toBeInTheDocument()
   })
 
   it('previews the system prompt in the Agent section', async () => {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   AgentPromptPreview, AgentProtocol, Config, Provider, Status, type RemoteModel,
 } from '../../bindings/github.com/no22/RWKV-Agent/api/models'
@@ -37,6 +37,30 @@ const DEFAULT_AGENT_LIMITS = {
   subagentMaxParallel: 4,
   subagentMaxSteps: 4,
   subagentTimeoutSeconds: 120,
+}
+
+/*
+ * Agent 行为字段的签名：只覆盖 Agent 分区的开关（协议、思考、约定、网页、子
+ * Agent 与预算），连接身份字段（地址、密钥、名称）不参与。自动保存/重连以它为
+ * 触发器，因此打开设置或编辑连接字段永远不会引发重连。缺省值归一必须与上面
+ * DEFAULT_AGENT_LIMITS 及后端 normalizeConfig 保持一致。
+ */
+function agentBehaviorSignatureOf(config: Config): string {
+  return JSON.stringify(stableValue({
+    agentProtocol: config.agentProtocol || AgentProtocol.AgentProtocolXML,
+    thinking: config.thinking || 'off',
+    taskControl: (config.taskControl || '').trim() || undefined,
+    progressiveTools: config.progressiveTools ?? false,
+    enableWeb: config.enableWeb || false,
+    braveApiKey: config.enableWeb ? config.braveApiKey || undefined : undefined,
+    tavilyApiKey: config.enableWeb ? config.tavilyApiKey || undefined : undefined,
+    enableSubagents: config.enableSubagents || false,
+    maxActiveBatch: config.maxActiveBatch || DEFAULT_AGENT_LIMITS.maxActiveBatch,
+    remoteBatchWaitMs: config.remoteBatchWaitMs ?? DEFAULT_AGENT_LIMITS.remoteBatchWaitMS,
+    subagentMaxParallel: config.subagentMaxParallel || DEFAULT_AGENT_LIMITS.subagentMaxParallel,
+    subagentMaxSteps: config.subagentMaxSteps || DEFAULT_AGENT_LIMITS.subagentMaxSteps,
+    subagentTimeoutSeconds: config.subagentTimeoutSeconds || DEFAULT_AGENT_LIMITS.subagentTimeoutSeconds,
+  }))
 }
 
 /*
@@ -80,6 +104,8 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   const [previewOpen, setPreviewOpen] = useState(true)
   const [previewBusy, setPreviewBusy] = useState(false)
   const [taskControl, setTaskControl] = useState('')
+  const [autoApplyNote, setAutoApplyNote] = useState('')
+  const appliedAgentSignatureRef = useRef('')
 
   function agentCapabilityConfig() {
     return {
@@ -124,6 +150,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   const draftSignature = providerDraftSignature(draftLabel, draftConfigValue)
   const draftDirty = draftInitialized && draftSignature !== draftSnapshot
   const draftIsRunning = ready && editingProviderId !== '' && editingProviderId === runtimeProviderId && !draftDirty
+  const agentBehaviorSignature = agentBehaviorSignatureOf(draftConfigValue)
 
   useEffect(() => {
     if (!settingsOpen || draftInitialized) return
@@ -159,6 +186,45 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settingsOpen, previewOpen, settingsTab, agentProtocol, thinking, progressiveTools, enableWeb, enableSubagents, taskControl])
 
+  /*
+   * Agent 行为自动应用：分区里的开关变化后防抖落盘。编辑的是运行中的远端档案时
+   * 直接 ConfigureProvider（保存 + 激活 + 重连一体），更改即时生效；本地模型档案
+   * 与未运行的档案只自动保存——本地重连意味着重新加载模型，不能由敲字触发；
+   * 新建草稿（尚无档案 ID）不自动落盘，仍由连接页的保存动作建立档案。
+   */
+  useEffect(() => {
+    if (!settingsOpen || !draftInitialized || settingsBusy) return
+    if (editingProviderId === '') return
+    if (agentBehaviorSignature === appliedAgentSignatureRef.current) return
+    const timer = setTimeout(() => {
+      const config = providerDraftConfig()
+      const remote = config.provider !== Provider.ProviderLocal
+      const running = editingProviderId !== '' && editingProviderId === runtimeProviderId
+      const apply = async () => {
+        setAutoApplyNote(running && remote ? '正在应用…' : '正在自动保存…')
+        if (running && remote) {
+          const status = await Backend.ConfigureProvider(editingProviderId, draftLabel.trim(), config)
+          onStatus(status)
+          await refreshProviders()
+          setAutoApplyNote('已自动生效')
+        } else {
+          await Backend.SaveProvider(editingProviderId, draftLabel.trim(), config)
+          await refreshProviders()
+          setAutoApplyNote(running ? '已自动保存；本地模型将在下次连接时生效' : '已自动保存')
+        }
+        // 自动应用后把脏基线推到当前值：切换档案/关闭设置不再弹确认框。
+        appliedAgentSignatureRef.current = agentBehaviorSignatureOf(config)
+        setDraftSnapshot(providerDraftSignature(draftLabel, config))
+      }
+      apply().catch((error) => {
+        setAutoApplyNote('')
+        setSettingsMessage(error instanceof Error ? error.message : String(error))
+      })
+    }, 800)
+    return () => clearTimeout(timer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settingsOpen, draftInitialized, settingsBusy, editingProviderId, runtimeProviderId, agentBehaviorSignature, draftLabel])
+
   function applyConfig(config: Config) {
     const remote = config.provider === Provider.ProviderRWKVLightning || config.provider === Provider.ProviderChatCompletions
     setSettingsTab(remote ? 'remote' : 'local'); setModelPath(config.provider === Provider.ProviderLocal ? config.model : '')
@@ -176,6 +242,9 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     setSubagentMaxParallel(config.subagentMaxParallel || DEFAULT_AGENT_LIMITS.subagentMaxParallel)
     setSubagentMaxSteps(config.subagentMaxSteps || DEFAULT_AGENT_LIMITS.subagentMaxSteps)
     setSubagentTimeoutSeconds(config.subagentTimeoutSeconds || DEFAULT_AGENT_LIMITS.subagentTimeoutSeconds)
+    // 水合即基线：自动应用效果只看这里之后的增量，打开设置永远不会触发重连。
+    appliedAgentSignatureRef.current = agentBehaviorSignatureOf(config)
+    setAutoApplyNote('')
   }
 
   function applyProviderBootstrapState(value: AppBootstrap) {
@@ -328,6 +397,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     settingsMessage, setSettingsMessage, settingsBusy,
     promptPreview, previewOpen, setPreviewOpen, previewBusy,
     taskControl, setTaskControl,
+    autoApplyNote,
     // 派生
     draftConfigValue,
     // 动作

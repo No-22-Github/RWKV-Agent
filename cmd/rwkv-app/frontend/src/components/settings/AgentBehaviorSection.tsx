@@ -2,19 +2,17 @@ import { Globe2, Users } from 'lucide-react'
 import { AgentProtocol } from '../../../bindings/github.com/no22/RWKV-Agent/api/models'
 import type { ProviderManager } from '../../state/providerManager'
 import { Field, GroupTitle, Toggle } from './ui'
-import ProfileFooter from './ProfileFooter'
 
 type Props = {
   manager: ProviderManager
-  ready: boolean
 }
 
 /*
- * Agent 行为分区：工具协议、思考模式、系统提示词预览、网页搜索与子 Agent。
- * 字段仍随当前编辑的连接档案保存（Config 的一部分），只是与连接身份表单分开渲染，
- * 让两侧的信息量都保持在小格子能承受的范围。删除连接留在连接页（那里有列表上下文）。
+ * Agent 行为分区：工具协议、思考模式、附加约定、系统提示词预览、网页搜索与
+ * 子 Agent。字段随当前编辑的连接档案自动保存；编辑运行中的远端档案时自动重连，
+ * 更改即时生效——因此本分区没有保存按钮。删除连接等身份操作在连接页。
  */
-export default function AgentBehaviorSection({ manager, ready }: Props) {
+export default function AgentBehaviorSection({ manager }: Props) {
   const budgets = [
     ['活动批量', 'maxActiveBatch', 'setMaxActiveBatch', 1, 8],
     ['子 Agent 并发', 'subagentMaxParallel', 'setSubagentMaxParallel', 2, 8],
@@ -27,8 +25,13 @@ export default function AgentBehaviorSection({ manager, ready }: Props) {
     <div className="flex min-w-0 flex-1 flex-col">
       <div className="flex min-w-0 flex-1 flex-col overflow-auto">
         <div className="mx-auto w-[min(720px,calc(100%-56px))] flex-none pb-[24px] pt-[22px]">
+          <div className="mb-[10px] flex items-center justify-between gap-[12px]">
+            <GroupTitle title="Agent 行为" hint="自动保存；编辑运行中的远端档案时即时生效" />
+            {manager.autoApplyNote && (
+              <span className="flex-none font-mono text-2xs text-ink-ghost">{manager.autoApplyNote}</span>
+            )}
+          </div>
           <section>
-            <GroupTitle title="Agent 行为" hint="随当前编辑的连接档案保存，保存并使用后生效" />
             <Toggle label="渐进式工具路由" description="可选：先由短 Router 选择能力组，再暴露 schema" checked={manager.progressiveTools} onChange={manager.setProgressiveTools} />
             <div className="flex items-center justify-between gap-[20px] border-b border-line-soft py-[11px]">
               <span className="flex min-w-0 flex-1 flex-col gap-[2px]">
@@ -119,13 +122,6 @@ export default function AgentBehaviorSection({ manager, ready }: Props) {
           </section>
         </div>
       </div>
-      <ProfileFooter
-        manager={manager}
-        ready={ready}
-        onTestRemote={() => void manager.testRemote()}
-        onSave={() => void manager.saveProviderDraft()}
-        onSaveAndUse={() => void manager.saveAndUseProviderDraft()}
-      />
     </div>
   )
 }
