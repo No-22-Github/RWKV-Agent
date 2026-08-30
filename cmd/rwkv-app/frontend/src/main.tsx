@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { System } from '@wailsio/runtime'
 import App from './App'
+import { SnackbarProvider } from './snackbar-context'
 import { applyTheme, getInitialTheme } from './theme'
 import '@fontsource/noto-serif-sc/400.css'
 import '@fontsource/noto-serif-sc/600.css'
@@ -27,6 +28,8 @@ applyTheme(getInitialTheme())
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <SnackbarProvider>
+      <App />
+    </SnackbarProvider>
   </StrictMode>,
 )
