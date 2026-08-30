@@ -33,6 +33,10 @@ type ToolBundle struct {
 	// Editable marks bundles whose tools can modify workspace files. The
 	// router adds edit-task few-shot examples for these (E6 finding).
 	Editable bool
+	// Delegation marks the sub-agent bundle. The router adds delegation
+	// few-shot examples for it (class-3 e2e finding: otherwise delegate
+	// requests route to respond).
+	Delegation bool
 }
 
 func DefaultToolBundles() []ToolBundle {

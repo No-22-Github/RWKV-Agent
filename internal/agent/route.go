@@ -84,6 +84,16 @@ Assistant: <route>inspect:workspace</route>`)
 			break
 		}
 	}
+	for _, bundle := range bundles {
+		if bundle.Delegation {
+			fmt.Fprintf(&prompt, `
+User: Use spawn_agents to research %s from the official register and any public source
+Assistant: <route>inspect:%s</route>
+User: Delegate two subtasks: summarize report-a.md and summarize report-b.md
+Assistant: <route>inspect:%s</route>`, bundle.Name, bundle.Name, bundle.Name)
+			break
+		}
+	}
 	prompt.WriteString(`
 Do not answer the user and do not output placeholder words.`)
 	return prompt.String()

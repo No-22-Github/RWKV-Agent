@@ -337,6 +337,17 @@ type Config struct {
 	// FileToolForm optionally appends the file-editing toolset ("lines" or
 	// "whole", see tools.FileEditForm) to non-primitive suites.
 	FileToolForm string
+	// SubagentFixture optionally appends a fixture-backed spawn_agents tool.
+	// Each entry matches a subtask by keyword (case-insensitive substring) and
+	// returns the canned output, so class-3 (sub-agent) e2e tasks run
+	// deterministically without network or nested model calls.
+	SubagentFixture []SubagentFixtureEntry
+}
+
+type SubagentFixtureEntry struct {
+	Match   string   `json:"match"`
+	Output  string   `json:"output"`
+	Sources []string `json:"sources,omitempty"`
 }
 
 type caseFile struct {

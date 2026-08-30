@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"context"
+	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
@@ -85,6 +86,7 @@ type runOptions struct {
 	evalCaseTimeout          time.Duration
 	evalCaseParallelism      int
 	evalFileToolForm         string
+	evalSubagentFixture      string
 	primitiveProfile         string
 	duplicateReplayLimit     int
 	duplicateRescueThreshold int
@@ -413,6 +415,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			fs.DurationVar(&options.evalCaseTimeout, "case-timeout", 2*time.Minute, "timeout for each isolated eval case")
 			fs.IntVar(&options.evalCaseParallelism, "case-parallelism", 1, "number of eval cases to run concurrently")
 			fs.StringVar(&options.evalFileToolForm, "file-tools", "", "optional file-editing toolset for custom suites: lines (A) or whole (B)")
+			fs.StringVar(&options.evalSubagentFixture, "subagent-fixture", "", "JSON file mapping subtask keywords to canned outputs, enabling a fixture-backed spawn_agents for custom suites")
 			fs.StringVar(
 				&options.primitiveProfile,
 				"primitive-profile",
@@ -956,19 +959,38 @@ type noopCloser struct{}
 
 func (noopCloser) Close() error { return nil }
 
+// subagentFixtureEntries loads the keyword->output mapping for the fixture
+// spawn_agents tool; an empty path disables the tool.
+func subagentFixtureEntries(path string) []agenteval.SubagentFixtureEntry {
+	if path == "" {
+		return nil
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "subagent-fixture: %v\n", err)
+		os.Exit(1)
+	}
+	var entries []agenteval.SubagentFixtureEntry
+	if err := json.Unmarshal(data, &entries); err != nil {
+		fmt.Fprintf(os.Stderr, "subagent-fixture: %v\n", err)
+		os.Exit(1)
+	}
+	return entries
+}
+
 // evalToolBundles returns the default bundles, with the workspace description
 // extended to cover file editing when the file-edit toolset is enabled. The
 // progressive router routes on these descriptions: with the read-only wording
 // it judged edit tasks as needing no tool evidence (E6 finding).
 func evalToolBundles(options runOptions) []agent.ToolBundle {
 	bundles := agent.DefaultToolBundles()
-	if options.evalFileToolForm == "" {
-		return bundles
-	}
 	for index := range bundles {
-		if bundles[index].Name == agent.ToolBundleWorkspace {
+		if bundles[index].Name == agent.ToolBundleWorkspace && options.evalFileToolForm != "" {
 			bundles[index].Description = "Read, create, and edit files inside the configured workspace."
 			bundles[index].Editable = true
+		}
+		if bundles[index].Name == agent.ToolBundleDelegate && options.evalSubagentFixture != "" {
+			bundles[index].Delegation = true
 		}
 	}
 	return bundles
@@ -1365,6 +1387,7 @@ func runAgentEval(args []string) error {
 		CaseParallelism:  options.evalCaseParallelism,
 		PrimitiveProfile: options.primitiveProfile,
 		FileToolForm:     options.evalFileToolForm,
+		SubagentFixture:  subagentFixtureEntries(options.evalSubagentFixture),
 		GeneratorFactory: func(
 			caseContext context.Context,
 		) (continuation.Generator, io.Closer, error) {

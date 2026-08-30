@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"runtime"
 	"slices"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/no22/RWKV-Agent/internal/agent"
 	assistanttools "github.com/no22/RWKV-Agent/internal/agent/tools"
+	tools "github.com/no22/RWKV-Agent/internal/agent/tools"
 	"github.com/no22/RWKV-Agent/internal/inference"
 )
 
@@ -287,6 +289,9 @@ func runCase(
 			catalog = agent.DefaultToolBundles()
 		}
 		options.ToolBundles = agent.EnabledToolBundles(tools, catalog)
+		for _, bundle := range options.ToolBundles {
+			println("DEBUG bundle " + bundle.Name + " editable=" + fmt.Sprint(bundle.Editable) + " delegation=" + fmt.Sprint(bundle.Delegation))
+		}
 	}
 	if testCase.Primitive != nil && testCase.Primitive.MaxTurns > 0 {
 		options.MaxSteps = testCase.Primitive.MaxTurns
@@ -411,6 +416,28 @@ func evalTools(
 			return nil, nil, editErr
 		}
 		workspaceTools = append(workspaceTools, editTools...)
+	}
+	if len(config.SubagentFixture) > 0 {
+		// Class-3 e2e: a fixture-backed spawn_agents. Subtasks are matched by
+		// keyword so the parent's model-authored task strings resolve to
+		// deterministic canned outputs without nested model calls.
+		fixture := config.SubagentFixture
+		run := func(_ context.Context, task string, _ func(agent.Event)) (tools.AgentTaskResult, error) {
+			lowered := strings.ToLower(task)
+			for _, entry := range fixture {
+				if entry.Match != "" && strings.Contains(lowered, strings.ToLower(entry.Match)) {
+					return tools.AgentTaskResult{Output: entry.Output, Sources: entry.Sources, StepCount: 2}, nil
+				}
+			}
+			fallback := fixture[len(fixture)-1]
+			return tools.AgentTaskResult{Output: fallback.Output, Sources: fallback.Sources, StepCount: 2}, nil
+		}
+		delegation := assistanttools.DelegationTools(assistanttools.DelegationOptions{
+			Run:         run,
+			MaxParallel: 4,
+			Timeout:     time.Minute,
+		})
+		workspaceTools = append(workspaceTools, delegation...)
 	}
 	clock := fixedAssistantClock{value: time.Date(
 		2026,

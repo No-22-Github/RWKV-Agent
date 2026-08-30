@@ -137,6 +137,24 @@ func makeG1ICatalogEntry(spec ToolSpec) g1iCatalogEntry {
 		if json.Unmarshal(raw, &property) != nil {
 			continue
 		}
+		// Array properties flatten to a readable "array of T" string. Measured on
+		// 7B (class-3 e2e, test/e2e/subagent-smoke): when the catalog showed the
+		// nested array schema, the model copied the schema object as the
+		// argument VALUE (tasks == {"items":...,"type":"array"}), so the call
+		// carried no tasks at all. A flat string leaves nothing to copy.
+		if typeRaw, ok := property["type"]; ok && string(typeRaw) == `"array"` {
+			items := "string"
+			if itemsRaw, ok := property["items"]; ok {
+				var itemsSchema struct {
+					Type string `json:"type"`
+				}
+				if json.Unmarshal(itemsRaw, &itemsSchema) == nil && itemsSchema.Type != "" {
+					items = itemsSchema.Type
+				}
+			}
+			arguments[name] = json.RawMessage(`"array of ` + items + `"`)
+			continue
+		}
 		compact := make(map[string]json.RawMessage, 3)
 		for _, key := range []string{"type", "enum", "items"} {
 			if value, ok := property[key]; ok {
