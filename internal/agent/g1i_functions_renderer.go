@@ -3,6 +3,8 @@ package agent
 import (
 	"fmt"
 	"strings"
+
+	"github.com/no22/RWKV-Agent/internal/inference"
 )
 
 // G1IFunctionRenderer renders the trained continuation transcript. Cases with
@@ -38,9 +40,9 @@ func (renderer G1IFunctionRenderer) Render(messages []Message) (string, error) {
 		}
 		switch message.Role {
 		case RoleSystem:
-			fmt.Fprintf(&prompt, "System: %s\n\n", cleanMessageText(message.Content))
+			fmt.Fprintf(&prompt, "System: %s\n\n", inference.CleanChatText(inference.Role(message.Role), message.Content))
 		case RoleUser:
-			fmt.Fprintf(&prompt, "User: %s\n\n", cleanMessageText(message.Content))
+			fmt.Fprintf(&prompt, "User: %s\n\n", inference.CleanChatText(inference.Role(message.Role), message.Content))
 		case RoleAssistant:
 			fmt.Fprintf(&prompt, "Assistant: %s\n\n", message.Content)
 		case RoleTool:

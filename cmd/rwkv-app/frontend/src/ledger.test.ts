@@ -265,4 +265,63 @@ describe('leading think block handling', () => {
     expect(message?.detail.thinking).toBeUndefined()
     expect(message?.text).toContain('read_file')
   })
+
+  it('drops the fast-thinking framing ">" before a protocol action in summaries', () => {
+    // 快思考预填把 think 闭合符扣在 prompt 末尾，模型首字节是补位的 ">"。
+    const trace = new Result({
+      output: 'ok',
+      steps: [
+        new Step({
+          number: 1,
+          stage: 'decision',
+          actionType: 'tool',
+          modelOutput: '>\n<tool_call>{"name":"web_search","arguments":{"query":"win10"}}</tool_call>',
+        }),
+      ],
+      duration: 0,
+      durationMs: 10,
+    })
+
+    const message = flattenTraceRecords(buildTraceTurns([{ id: 'fast-1', role: 'assistant', content: 'ok', trace }]))
+      .find((record) => record.kind === 'message')
+
+    expect(message?.text.startsWith('>')).toBe(false)
+    expect(message?.text).toContain('<tool_call>')
+    // 原始字节保留给原文视图。
+    expect(message?.detail.modelOutput).toBe('>\n<tool_call>{"name":"web_search","arguments":{"query":"win10"}}</tool_call>')
+  })
+
+  it('unwraps the full-thinking framing ">" so the model think block still splits', () => {
+    const trace = new Result({
+      output: '答案',
+      steps: [
+        new Step({
+          number: 1,
+          stage: 'decision',
+          modelOutput: '><think>需要先搜索。</think><tool_call>{"name":"web_search"}</tool_call>',
+        }),
+      ],
+      duration: 0,
+      durationMs: 10,
+    })
+
+    const message = flattenTraceRecords(buildTraceTurns([{ id: 'fast-2', role: 'assistant', content: '答案', trace }]))
+      .find((record) => record.kind === 'message')
+
+    expect(message?.detail.thinking).toBe('需要先搜索。')
+    expect(message?.text).toContain('<tool_call>')
+    expect(message?.text.startsWith('>')).toBe(false)
+  })
+
+  it('keeps a leading ">" that is ordinary Markdown quoting, not framing', () => {
+    const trace = new Result({
+      output: '> 引用的内容',
+      steps: [new Step({ number: 1, stage: 'decision', modelOutput: '> 引用的内容' })],
+      duration: 0,
+      durationMs: 10,
+    })
+    const message = flattenTraceRecords(buildTraceTurns([{ id: 'fast-3', role: 'assistant', content: '> 引用的内容', trace }]))
+      .find((record) => record.kind === 'message')
+    expect(message?.text).toContain('> 引用的内容')
+  })
 })

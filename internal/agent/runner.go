@@ -57,7 +57,7 @@ func NewRunner(generator continuation.Generator, tools []Tool, options Options) 
 			)
 		}
 	}
-	control, responseControl := buildControlPrompts(options, specs, thinkingMode, toolCompleter != nil)
+	responseControl := responseControlPrompt(specs, thinkingMode)
 	terminalTool := ""
 	if _, offered := registered[options.TerminalTool]; offered {
 		terminalTool = options.TerminalTool
@@ -70,7 +70,6 @@ func NewRunner(generator continuation.Generator, tools []Tool, options Options) 
 		options:           options,
 		protocol:          options.Protocol,
 		renderer:          options.Renderer,
-		control:           control,
 		responseControl:   responseControl,
 		terminalTool:      terminalTool,
 		thinkingMode:      thinkingMode,
@@ -221,30 +220,22 @@ func nativeCompleterFor(generator continuation.Generator, specs []ToolSpec) (too
 	return candidate, nil
 }
 
-// buildControlPrompts renders the decision-stage control prompt and the
-// direct-response control used on the respond route and answer stages.
-func buildControlPrompts(
-	options Options,
-	specs []ToolSpec,
-	thinkingMode inference.ThinkingMode,
-	native bool,
-) (control string, responseControl string) {
-	responseControl = directResponseControl(thinkingMode)
-	if len(specs) > 0 {
-		var capabilities strings.Builder
-		capabilities.WriteString(
-			"\nOnly when the user asks about your capabilities, describe these read-only capabilities:\n",
-		)
-		for _, spec := range specs {
-			fmt.Fprintf(&capabilities, "- %s: %s\n", spec.Name, spec.Description)
-		}
-		responseControl += strings.TrimRight(capabilities.String(), "\n")
+// responseControlPrompt renders the direct-response control used on the
+// respond route and after an accepted abstention. It advertises the read-only
+// capabilities so capability questions stay answerable without tools.
+func responseControlPrompt(specs []ToolSpec, thinkingMode inference.ThinkingMode) string {
+	responseControl := directResponseControl(thinkingMode)
+	if len(specs) == 0 {
+		return responseControl
 	}
-	control = toolControlPrompt(options.Protocol, specs, thinkingMode, native)
-	if taskControl := strings.TrimSpace(options.TaskControl); taskControl != "" {
-		control += "\n\nTask-specific contract:\n" + taskControl
+	var capabilities strings.Builder
+	capabilities.WriteString(
+		"\nOnly when the user asks about your capabilities, describe these read-only capabilities:\n",
+	)
+	for _, spec := range specs {
+		fmt.Fprintf(&capabilities, "- %s: %s\n", spec.Name, spec.Description)
 	}
-	return control, responseControl
+	return responseControl + strings.TrimRight(capabilities.String(), "\n")
 }
 
 // ProductProfile describes which product text-continuation profile an Options

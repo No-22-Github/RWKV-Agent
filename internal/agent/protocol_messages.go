@@ -51,25 +51,20 @@ func (renderer RWKVChatRenderer) Render(messages []Message) (string, error) {
 		if strings.TrimSpace(message.Content) == "" {
 			return "", fmt.Errorf("render agent prompt: %s message is empty", message.Role)
 		}
+		label, ok := inference.ChatRoleLabel(inference.Role(message.Role))
+		if !ok {
+			return "", fmt.Errorf("render agent prompt: unknown role %q", message.Role)
+		}
 		content := message.Content
-		renderedRole, err := renderRole(message.Role)
-		if err != nil {
-			return "", err
-		}
 		if message.Role != RoleAssistant {
-			content = cleanMessageText(content)
+			content = inference.CleanChatText(inference.Role(message.Role), content)
 		}
-		fmt.Fprintf(&prompt, "%s: %s\n\n", renderedRole, content)
+		fmt.Fprintf(&prompt, "%s: %s\n\n", label, content)
 	}
-	prompt.WriteString("Assistant:")
-	// The final ">" is withheld on purpose; see CompileGeneratePrompt. The model
-	// generates it, and reconstructOutput puts the prefix back before parsing.
-	switch renderer.thinkingMode() {
-	case inference.ThinkingFast:
-		prompt.WriteString(" <think></think")
-	case inference.ThinkingFull:
-		prompt.WriteString(" <think")
-	}
+	// The final ">" is withheld on purpose; see AppendAssistantOpening. The
+	// model generates it, and reconstructOutput puts the prefix back before
+	// parsing.
+	inference.AppendAssistantOpening(&prompt, renderer.thinkingMode())
 	return prompt.String(), nil
 }
 
@@ -99,36 +94,12 @@ func (renderer RWKVChatRenderer) reconstructOutput(output string) string {
 	}
 	switch renderer.thinkingMode() {
 	case inference.ThinkingFast:
-		return "<think></think" + output
+		return inference.ThinkBlockFast + output
 	case inference.ThinkingFull:
-		return "<think" + output
+		return inference.ThinkBlockFull + output
 	default:
 		return output
 	}
-}
-
-func renderRole(role MessageRole) (string, error) {
-	switch role {
-	case RoleSystem:
-		return "System", nil
-	case RoleUser:
-		return "User", nil
-	case RoleAssistant:
-		return "Assistant", nil
-	case RoleTool:
-		return "Tool", nil
-	default:
-		return "", fmt.Errorf("render agent prompt: unknown role %q", role)
-	}
-}
-
-func cleanMessageText(text string) string {
-	text = strings.ReplaceAll(text, "\r\n", "\n")
-	text = strings.ReplaceAll(text, "\r", "\n")
-	for strings.Contains(text, "\n\n") {
-		text = strings.ReplaceAll(text, "\n\n", "\n")
-	}
-	return strings.TrimSpace(text)
 }
 
 func isJSONObject(value json.RawMessage) bool {

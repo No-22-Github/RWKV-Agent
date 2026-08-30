@@ -9,6 +9,7 @@ import (
 
 	"github.com/no22/RWKV-Agent/internal/continuation"
 	"github.com/no22/RWKV-Agent/internal/continuation/toolchat"
+	"github.com/no22/RWKV-Agent/internal/inference"
 )
 
 // G1IDecisionFakeThinkPrefix is the exact half-open prefix measured by the G1i
@@ -19,13 +20,13 @@ import (
 // and ">{" is also one token, so withholding the ">" lets the model emit it
 // merged with the byte that opens a structured payload. Closing the tag here
 // removes that merged path and forces a fresh token instead.
-const G1IDecisionFakeThinkPrefix = "<think></think"
+const G1IDecisionFakeThinkPrefix = inference.ThinkBlockFast
 
 // G1IDecisionClosedThinkPrefix closes the block in the prompt, so the model
 // cannot open one at all. It costs the merged ">{" continuation above, and it
 // is newline-sensitive: the abstention lab measured that appending "\n\n" makes
 // 10/80 completions resume thinking, so nothing may follow these bytes.
-const G1IDecisionClosedThinkPrefix = "<think></think>"
+const G1IDecisionClosedThinkPrefix = inference.ThinkBlockClosed
 
 type runnerTurn struct {
 	r        *Runner
@@ -129,11 +130,20 @@ func (turn *runnerTurn) initialize() error {
 	if turn.result.Route == RouteRespond {
 		control = r.responseControl
 	}
-	turn.messages = make([]Message, 0, len(history)+2)
-	turn.messages = append(turn.messages, Message{Role: RoleSystem, Content: control})
-	turn.messages = append(turn.messages, history...)
-	turn.messages = append(turn.messages, Message{Role: RoleUser, Content: turn.task})
-	if r.options.ControlPrompt == ControlPromptInline {
+	turn.assembleTurnMessages(history, control)
+
+	turn.terminalToolCompleted = r.terminalTool == "" || turn.result.Route == RouteRespond
+	if (r.router != nil || r.toolRouter != nil) && turn.result.Route == RouteInspect {
+		turn.assistantPrefix = r.protocol.ToolCallPrefix()
+	}
+	return nil
+}
+
+// assembleTurnMessages expands the committed history plus the new task into
+// the first decision transcript under the active control prompt. The control
+// prompt is framing, not conversation data, so it never enters History.
+func (turn *runnerTurn) assembleTurnMessages(history []Message, control string) {
+	if turn.r.options.ControlPrompt == ControlPromptInline {
 		label := "Repository task:"
 		if turn.result.Route == RouteRespond {
 			label = "Current user message:"
@@ -143,13 +153,12 @@ func (turn *runnerTurn) initialize() error {
 			Role:    RoleUser,
 			Content: control + "\n\n" + label + "\n" + turn.task,
 		})
+		return
 	}
-
-	turn.terminalToolCompleted = r.terminalTool == "" || turn.result.Route == RouteRespond
-	if (r.router != nil || r.toolRouter != nil) && turn.result.Route == RouteInspect {
-		turn.assistantPrefix = r.protocol.ToolCallPrefix()
-	}
-	return nil
+	turn.messages = make([]Message, 0, len(history)+2)
+	turn.messages = append(turn.messages, Message{Role: RoleSystem, Content: control})
+	turn.messages = append(turn.messages, history...)
+	turn.messages = append(turn.messages, Message{Role: RoleUser, Content: turn.task})
 }
 
 func (turn *runnerTurn) run() (Result, error) {
@@ -237,61 +246,22 @@ func (turn *runnerTurn) prepareAnswerStage(step int) error {
 func (turn *runnerTurn) generateModelStep(step int) (turnModelStep, error) {
 	r := turn.r
 	r.observe(Event{Kind: EventModelStart, Step: step}, turn.observer)
-	rendered, err := r.renderer.Render(turn.messages)
+	turn.resolveDecisionPrefix()
+	compiled, err := r.compileStep(turn.stepPromptInput())
 	if err != nil {
 		return turnModelStep{}, err
 	}
-	request := r.options.Generation
-	request.Prompt = rendered
-	request.Stops = r.protocol.Stops(turn.stage)
-	if protocol, ok := r.protocol.(interface {
-		stopsWithPrefix(GenerationStage, string) []string
-	}); ok {
-		request.Stops = protocol.stopsWithPrefix(turn.stage, turn.assistantPrefix)
-	}
-	if turn.stage == StageDecision &&
-		turn.result.Route == RouteInspect &&
-		turn.successfulToolCalls == 0 {
-		request.MaxOutputTokens = r.options.DecisionMaxOutputTokens
-	}
-	requireNativeTool := r.toolCompleter != nil &&
-		turn.stage == StageDecision &&
-		turn.result.Route == RouteInspect &&
-		turn.successfulToolCalls == 0
-	injectedPrefix := turn.prepareDecisionPrefix(&request)
-	var offered []string
-	if turn.stage == StageDecision {
-		offered = offeredToolNames(turn.activeSpecs)
-	}
-	tracePrefix := ""
-	if injectedPrefix {
-		tracePrefix = turn.assistantPrefix
-	}
-	if r.toolCompleter != nil {
-		request.Prompt = r.nativeTracePrompt(
-			turn.messages,
-			turn.activeSpecs,
-			turn.stage == StageDecision && turn.result.Route == RouteInspect,
-			requireNativeTool,
-			turn.assistantPrefix,
-		)
-		tracePrefix = turn.assistantPrefix
-	}
-	promptTrace := r.tracePrompt(request, tracePrefix, offered)
 	modelStarted := time.Now()
 	generated, nativeCall, reasoningContent, err := r.generate(
 		turn.ctx,
-		request,
+		compiled,
 		turn.messages,
 		turn.activeSpecs,
-		turn.stage == StageDecision && turn.result.Route == RouteInspect,
-		requireNativeTool,
-		turn.assistantPrefix,
 	)
 	if err != nil {
 		modelDuration := time.Since(modelStarted).Milliseconds()
 		turn.result.Steps = append(turn.result.Steps, Step{
-			Number: step, Stage: turn.stage, Request: promptTrace,
+			Number: step, Stage: turn.stage, Request: compiled.Trace,
 			StartedAtMS:     modelStarted.UnixMilli(),
 			ModelDurationMS: modelDuration, ModelError: err.Error(),
 		})
@@ -304,7 +274,7 @@ func (turn *runnerTurn) generateModelStep(step int) (turnModelStep, error) {
 	current := Step{
 		Number:          step,
 		Stage:           turn.stage,
-		Request:         promptTrace,
+		Request:         compiled.Trace,
 		ModelOutput:     generated.Text,
 		FinishReason:    generated.FinishReason,
 		Usage:           generated.Usage,
@@ -317,7 +287,7 @@ func (turn *runnerTurn) generateModelStep(step int) (turnModelStep, error) {
 		turn.observer,
 	)
 
-	modelAction := turn.postProcessModelOutput(generated.Text, injectedPrefix)
+	modelAction := turn.postProcessModelOutput(generated.Text, compiled.InjectedPrefix)
 	return turnModelStep{
 		generated:        generated,
 		nativeCall:       nativeCall,
@@ -326,30 +296,38 @@ func (turn *runnerTurn) generateModelStep(step int) (turnModelStep, error) {
 	}, nil
 }
 
-// prepareDecisionPrefix injects the framing prefix the decision stage expects:
-// the fake-think experiment prefix on product runs, or the protocol's own tool
-// call prefix already recorded on the turn. It reports whether the prefix was
-// appended to the rendered prompt itself.
-func (turn *runnerTurn) prepareDecisionPrefix(request *continuation.Request) bool {
+// stepPromptInput translates the turn state into the compiler input: the
+// decision budget and the native tool switches apply to a first decision step
+// on the inspect route, and the offered catalog follows the active specs.
+func (turn *runnerTurn) stepPromptInput() stepPromptInput {
 	r := turn.r
-	injectedPrefix := false
-	if turn.assistantPrefix == "" &&
-		r.decisionFakeThink &&
-		turn.stage == StageDecision &&
-		turn.result.Route == RouteInspect {
-		turn.assistantPrefix = G1IDecisionFakeThinkPrefix
-		if r.closedFakeThink {
-			turn.assistantPrefix = G1IDecisionClosedThinkPrefix
-		}
+	decision := turn.stage == StageDecision && turn.result.Route == RouteInspect
+	return stepPromptInput{
+		messages:       turn.messages,
+		stage:          turn.stage,
+		prefix:         turn.assistantPrefix,
+		decisionBudget: decision && turn.successfulToolCalls == 0,
+		specs:          turn.activeSpecs,
+		offerNative:    decision,
+		requireNative:  decision && r.toolCompleter != nil && turn.successfulToolCalls == 0,
 	}
-	if turn.assistantPrefix != "" && r.toolCompleter == nil {
-		request.Prompt, injectedPrefix = appendAssistantPrefix(
-			r.renderer,
-			request.Prompt,
-			turn.assistantPrefix,
-		)
+}
+
+// resolveDecisionPrefix arms the fake-think experiment prefix when the
+// decision stage has no route prefix yet. It is the turn-policy half of the
+// framing: compileStep performs the actual injection.
+func (turn *runnerTurn) resolveDecisionPrefix() {
+	r := turn.r
+	if turn.assistantPrefix != "" || !r.decisionFakeThink {
+		return
 	}
-	return injectedPrefix
+	if turn.stage != StageDecision || turn.result.Route != RouteInspect {
+		return
+	}
+	turn.assistantPrefix = G1IDecisionFakeThinkPrefix
+	if r.closedFakeThink {
+		turn.assistantPrefix = G1IDecisionClosedThinkPrefix
+	}
 }
 
 // postProcessModelOutput restores withheld framing and strips the think prefix

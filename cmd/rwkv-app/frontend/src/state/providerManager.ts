@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import {
-  AgentProtocol, Config, Provider, Status, type RemoteModel,
+  AgentPromptPreview, AgentProtocol, Config, Provider, Status, type RemoteModel,
 } from '../../bindings/github.com/no22/RWKV-Agent/api/models'
 import type { AppBootstrap } from '../../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/models'
 import type { SavedProvider } from '../../bindings/github.com/no22/RWKV-Agent/internal/appstorage/models'
@@ -62,6 +62,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   const [apiKey, setAPIKey] = useState('')
   const [headers, setHeaders] = useState<HeaderRow[]>([])
   const [agentProtocol, setAgentProtocol] = useState<AgentProtocol>(AgentProtocol.AgentProtocolXML)
+  const [thinking, setThinking] = useState<'off' | 'fast' | 'full'>('off')
   const [progressiveTools, setProgressiveTools] = useState(false)
   const [enableWeb, setEnableWeb] = useState(false)
   const [braveAPIKey, setBraveAPIKey] = useState('')
@@ -75,10 +76,14 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   const [availableModels, setAvailableModels] = useState<RemoteModel[]>([])
   const [settingsMessage, setSettingsMessage] = useState('')
   const [settingsBusy, setSettingsBusy] = useState(false)
+  const [promptPreview, setPromptPreview] = useState<AgentPromptPreview | null>(null)
+  const [previewOpen, setPreviewOpen] = useState(true)
+  const [previewBusy, setPreviewBusy] = useState(false)
+  const [taskControl, setTaskControl] = useState('')
 
   function agentCapabilityConfig() {
     return {
-      agentProtocol, progressiveTools, enableWeb,
+      agentProtocol, thinking, taskControl: taskControl.trim() || undefined, progressiveTools, enableWeb,
       braveApiKey: enableWeb ? braveAPIKey.trim() || undefined : undefined,
       tavilyApiKey: enableWeb ? tavilyAPIKey.trim() || undefined : undefined,
       enableSubagents, maxActiveBatch, remoteBatchWaitMs: remoteBatchWaitMS,
@@ -92,7 +97,6 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       provider: Provider.ProviderLocal,
       model: modelPath.trim(), tokenizerPath: tokenizerPath.trim() || undefined,
       endpoint: undefined, apiKey: undefined, password: undefined, headers: undefined,
-      thinking: 'off',
       maxSteps: DEFAULT_AGENT_LIMITS.maxSteps, maxTokens: DEFAULT_AGENT_LIMITS.maxTokens,
       ...agentCapabilityConfig(),
     })
@@ -128,13 +132,43 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settingsOpen, draftInitialized])
 
+  /*
+   * 系统提示词预览：设置页打开且展开时拉取，影响提示词的开关变化后防抖刷新。
+   * 草稿的其他字段（地址、密钥、采样）不影响提示词，不触发刷新。
+   */
+  useEffect(() => {
+    if (!settingsOpen || !previewOpen) return
+    let cancelled = false
+    const timer = setTimeout(() => {
+      setPreviewBusy(true)
+      Backend.PreviewSystemPrompt(providerDraftConfig())
+        .then((value) => {
+          if (!cancelled) setPromptPreview(value)
+        })
+        .catch((error) => {
+          if (!cancelled) setSettingsMessage(error instanceof Error ? error.message : String(error))
+        })
+        .finally(() => {
+          if (!cancelled) setPreviewBusy(false)
+        })
+    }, 350)
+    return () => {
+      cancelled = true
+      clearTimeout(timer)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settingsOpen, previewOpen, settingsTab, agentProtocol, thinking, progressiveTools, enableWeb, enableSubagents, taskControl])
+
   function applyConfig(config: Config) {
     const remote = config.provider === Provider.ProviderRWKVLightning || config.provider === Provider.ProviderChatCompletions
     setSettingsTab(remote ? 'remote' : 'local'); setModelPath(config.provider === Provider.ProviderLocal ? config.model : '')
     setTokenizerPath(config.tokenizerPath || ''); setRemoteEndpoint(remote ? config.endpoint || '' : ''); setRemoteModel(remote ? config.model : '')
     setRemoteProtocol(config.provider === Provider.ProviderChatCompletions ? 'openai' : 'rwkv'); setAPIKey(config.provider === Provider.ProviderChatCompletions ? config.apiKey || '' : config.password || '')
     setHeaders(Object.entries(config.headers || {}).map(([name, value]) => ({ id: nextHeaderID++, name, value: value || '' })))
-    setAgentProtocol(config.agentProtocol || AgentProtocol.AgentProtocolXML); setProgressiveTools(config.progressiveTools ?? false)
+    setAgentProtocol(config.agentProtocol || AgentProtocol.AgentProtocolXML)
+    setThinking((config.thinking as 'off' | 'fast' | 'full') || 'off')
+    setTaskControl(config.taskControl || '')
+    setProgressiveTools(config.progressiveTools ?? false)
     setEnableWeb(config.enableWeb || false); setBraveAPIKey(config.braveApiKey || ''); setTavilyAPIKey(config.tavilyApiKey || '')
     setEnableSubagents(config.enableSubagents || false)
     setMaxActiveBatch(config.maxActiveBatch || DEFAULT_AGENT_LIMITS.maxActiveBatch)
@@ -248,7 +282,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       const saved = await Backend.SaveProvider(editingProviderId, draftLabel.trim(), draftConfigValue)
       await refreshProviders()
       beginEditingProvider(saved)
-      setSettingsMessage(ready ? '档案已保存，当前运行连接没有改变。' : '档案已保存，尚未连接。')
+      setSettingsMessage(ready ? '档案已保存；当前运行连接保持不变，要使更改生效请点「保存并使用」。' : '档案已保存，尚未连接。')
       return true
     } catch (error) {
       setSettingsMessage(error instanceof Error ? error.message : String(error))
@@ -285,13 +319,15 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     modelPath, setModelPath, tokenizerPath, setTokenizerPath,
     remoteEndpoint, setRemoteEndpoint, remoteModel, setRemoteModel,
     remoteProtocol, setRemoteProtocol, apiKey, setAPIKey, headers, setHeaders,
-    agentProtocol, setAgentProtocol, progressiveTools, setProgressiveTools,
+    agentProtocol, setAgentProtocol, thinking, setThinking, progressiveTools, setProgressiveTools,
     enableWeb, setEnableWeb, braveAPIKey, setBraveAPIKey, tavilyAPIKey, setTavilyAPIKey,
     enableSubagents, setEnableSubagents, maxActiveBatch, setMaxActiveBatch,
     remoteBatchWaitMS, setRemoteBatchWaitMS, subagentMaxParallel, setSubagentMaxParallel,
     subagentMaxSteps, setSubagentMaxSteps, subagentTimeoutSeconds, setSubagentTimeoutSeconds,
     availableModels, setAvailableModels,
     settingsMessage, setSettingsMessage, settingsBusy,
+    promptPreview, previewOpen, setPreviewOpen, previewBusy,
+    taskControl, setTaskControl,
     // 派生
     draftConfigValue,
     // 动作

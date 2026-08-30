@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/no22/RWKV-Agent/internal/agent"
+	"github.com/no22/RWKV-Agent/internal/inference"
 )
 
 // Service owns the configured provider and creates isolated Agent sessions.
@@ -125,6 +126,59 @@ func (s *Service) Configure(ctx context.Context, config Config, progress func(St
 // NewSession creates one isolated multi-turn Agent loop.
 func (s *Service) NewSession(ctx context.Context) (*Session, error) {
 	return s.newSession(ctx, 0)
+}
+
+// AgentPromptPreview is the read-only system prompt view behind the settings
+// preview: what a session with this configuration would send, assembled for
+// the service workspace with the full depth-0 tool catalog.
+type AgentPromptPreview struct {
+	Control         string   `json:"control"`
+	ResponseControl string   `json:"responseControl"`
+	ToolNames       []string `json:"toolNames"`
+	ProtocolID      string   `json:"protocolId"`
+	RendererID      string   `json:"rendererId"`
+	ThinkingMode    string   `json:"thinkingMode"`
+	Native          bool     `json:"native"`
+}
+
+// PreviewAgentPrompt assembles the prompt contract for a draft configuration
+// without opening a session and without touching the running connection.
+// Model and endpoint fields do not influence the prompt and are not validated
+// here; the transcript switches (protocol, thinking, tool toggles) are.
+func (s *Service) PreviewAgentPrompt(config Config) (AgentPromptPreview, error) {
+	s.mu.RLock()
+	workspace := s.workspace
+	s.mu.RUnlock()
+	if config.Thinking == "" {
+		config.Thinking = "off"
+	}
+	if err := applyProtocolDefaults(&config); err != nil {
+		return AgentPromptPreview{}, err
+	}
+	tools, err := assembleSessionTools(config, nil, workspace, 0)
+	if err != nil {
+		return AgentPromptPreview{}, err
+	}
+	options := sessionRunnerOptions(
+		config,
+		Status{Workspace: workspace},
+		workspace,
+		tools,
+		config.AgentProtocol != AgentProtocolXML,
+	)
+	preview, err := agent.PreviewPrompts(options, tools, config.Provider == ProviderChatCompletions)
+	if err != nil {
+		return AgentPromptPreview{}, err
+	}
+	return AgentPromptPreview{
+		Control:         preview.Control,
+		ResponseControl: preview.ResponseControl,
+		ToolNames:       preview.ToolNames,
+		ProtocolID:      preview.ProtocolID,
+		RendererID:      preview.RendererID,
+		ThinkingMode:    string(preview.ThinkingMode),
+		Native:          preview.Native,
+	}, nil
 }
 
 func (s *Service) newSession(ctx context.Context, depth int) (*Session, error) {
@@ -422,6 +476,11 @@ func applyConfigDefaults(config *Config) error {
 
 // applyProtocolDefaults enforces the per-transcript prefill contract.
 func applyProtocolDefaults(config *Config) error {
+	// The renderer only implements off, fast, and full; any other value would
+	// silently degrade to no prefill, so reject it at configuration time.
+	if _, err := inference.ParseThinkingMode(config.Thinking); err != nil {
+		return fmt.Errorf("invalid thinking mode %q: use off, fast, or full", config.Thinking)
+	}
 	if config.AgentProtocol == AgentProtocolXML {
 		// XML is a supported product transcript, not a deprecated one, so
 		// selecting it never fails. Both product prefill switches default off

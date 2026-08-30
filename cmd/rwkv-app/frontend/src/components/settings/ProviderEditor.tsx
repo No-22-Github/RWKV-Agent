@@ -1,7 +1,7 @@
-import { Cloud, Cpu, Globe2, Plus, Trash2, Users } from 'lucide-react'
-import { AgentProtocol } from '../../../bindings/github.com/no22/RWKV-Agent/api/models'
+import { Cloud, Cpu, Plus, Trash2 } from 'lucide-react'
 import type { ProviderManager } from '../../state/providerManager'
-import { Field, GroupTitle, Toggle } from './ui'
+import { Field, GroupTitle } from './ui'
+import ProfileFooter from './ProfileFooter'
 
 type Props = {
   manager: ProviderManager
@@ -12,20 +12,14 @@ type Props = {
   onRequestDelete: () => void
 }
 
-/* 右侧编辑器：点列表中的档案进入，表单即档案本身；底部为该档案的动作。 */
+/* 右侧编辑器：点列表中的档案进入，表单即档案本身。只承载连接身份：模型来源与凭据；
+ * 工具协议、思考模式、网页、子 Agent 等行为字段在独立的 Agent 分区。 */
 export default function ProviderEditor({ manager, ready, onTestRemote, onSave, onSaveAndUse, onRequestDelete }: Props) {
   const isNew = manager.editingProviderId === ''
   const headerRows = manager.headers
   const addHeader = () => manager.setHeaders([...headerRows, { id: Date.now(), name: '', value: '' }])
   const updateHeader = (id: number, patch: Partial<{ name: string; value: string }>) => manager.setHeaders(headerRows.map((row) => row.id === id ? { ...row, ...patch } : row))
   const removeHeader = (id: number) => manager.setHeaders(headerRows.filter((row) => row.id !== id))
-  const budgets = [
-    ['活动批量', 'maxActiveBatch', 'setMaxActiveBatch', 1, 8],
-    ['子 Agent 并发', 'subagentMaxParallel', 'setSubagentMaxParallel', 2, 8],
-    ['单 Agent 步数', 'subagentMaxSteps', 'setSubagentMaxSteps', 2, 32],
-    ['批次超时（秒）', 'subagentTimeoutSeconds', 'setSubagentTimeoutSeconds', 1, 3600],
-    ['远端聚合窗口（毫秒）', 'remoteBatchWaitMS', 'setRemoteBatchWaitMS', 0, 1000],
-  ] as const
 
   return (
     <div className="flex min-w-0 flex-1 flex-col">
@@ -51,10 +45,10 @@ export default function ProviderEditor({ manager, ready, onTestRemote, onSave, o
             )}
           </header>
           {isNew && (
-            <p className="mb-0 mt-[12px] text-xs leading-[1.65] text-ink-muted">填写连接信息后点击「保存」存为档案；「保存并使用」会保存并立即切换为当前运行连接。</p>
+            <p className="mb-0 mt-[12px] text-xs leading-[1.65] text-ink-muted">填写连接信息后点击「保存」存为档案；「保存并使用」会保存并立即切换为当前运行连接。工具协议与思考模式在「Agent」分区。</p>
           )}
 
-          <section className="mt-[18px]">
+          <section className="mt-[18px] pb-[24px]">
             <GroupTitle title="模型来源" />
             <div className="flex items-center gap-[10px] pt-[10px]">
               <div className="flex border border-line bg-paper-soft p-[2px]">
@@ -93,61 +87,10 @@ export default function ProviderEditor({ manager, ready, onTestRemote, onSave, o
               </>
             )}
           </section>
-
-          <section className="mt-[22px] pb-[24px]">
-            <GroupTitle title="Agent 行为" hint="随档案保存，保存并使用后生效" />
-            <Toggle label="渐进式工具路由" description="可选：先由短 Router 选择能力组，再暴露 schema" checked={manager.progressiveTools} onChange={manager.setProgressiveTools} />
-            <div className="flex items-center justify-between gap-[20px] border-b border-line-soft py-[11px]">
-              <span className="flex min-w-0 flex-1 flex-col gap-[2px]">
-                <span className="text-base text-ink-strong">工具协议</span>
-                <span className="text-xs leading-[1.55] text-ink-muted">XML 默认直达工具决策；Markdown 保留为可选模式</span>
-              </span>
-              <select aria-label="工具协议" className="h-[36px] w-[170px] flex-none border border-line bg-paper-wash px-[8px] text-base text-ink outline-0 focus:border-brand" value={manager.agentProtocol} onChange={(event) => manager.setAgentProtocol(event.target.value as AgentProtocol)}>
-                <option value={AgentProtocol.AgentProtocolXML}>XML（推荐）</option>
-                <option value={AgentProtocol.AgentProtocolMarkdown}>Markdown（可选）</option>
-              </select>
-            </div>
-            <Toggle icon={<Globe2 size={15} />} label="网页搜索与正文获取" description="Brave Search + Tavily Extract" checked={manager.enableWeb} onChange={manager.setEnableWeb} />
-            {manager.enableWeb && (
-              <div className="grid grid-cols-2 gap-[10px] pt-[4px]">
-                <Field label="Brave API Key" value={manager.braveAPIKey} onChange={manager.setBraveAPIKey} type="password" />
-                <Field label="Tavily API Key" value={manager.tavilyAPIKey} onChange={manager.setTavilyAPIKey} type="password" />
-              </div>
-            )}
-            <Toggle icon={<Users size={15} />} label="并发子 Agent" description="一次派发 2–8 个独立任务，不允许嵌套委派" checked={manager.enableSubagents} onChange={manager.setEnableSubagents} />
-            {manager.enableSubagents && (
-              <div className="grid grid-cols-3 gap-2 pt-[4px]">
-                {budgets.map(([label, key, setter, min, max]) => (
-                  <label key={key} className="flex flex-col gap-[5px] text-sm text-ink-muted">
-                    {label}
-                    <input aria-label={label} className="rounded-none border border-line bg-paper-wash px-2 py-[8px] text-base text-ink outline-0" type="number" min={min} max={max} value={manager[key]} onChange={(event) => manager[setter](Number(event.target.value))} />
-                  </label>
-                ))}
-              </div>
-            )}
-          </section>
         </div>
       </div>
 
-      {manager.settingsMessage && (
-        <div className="flex-none border-t border-line-soft px-[28px] py-[8px]">
-          <span className="block truncate text-xs text-ink-muted" title={manager.settingsMessage}>{manager.settingsMessage}</span>
-        </div>
-      )}
-      <footer className="flex flex-none items-center gap-[10px] border-t border-line bg-paper-soft px-[28px] py-[12px]">
-        <button
-          className="h-[32px] border border-danger bg-transparent px-[12px] text-sm text-danger disabled:opacity-40"
-          onClick={onRequestDelete}
-          disabled={isNew || manager.settingsBusy}
-          aria-label="删除连接"
-        ><Trash2 size={13} className="mr-[6px] inline align-[-2px]" />删除连接</button>
-        <span className="flex-1" />
-        {manager.settingsTab === 'remote' && (
-          <button className="h-[32px] border border-line bg-transparent px-[12px] text-sm text-ink disabled:opacity-40" onClick={onTestRemote} disabled={manager.settingsBusy}>测试连接</button>
-        )}
-        <button className="h-[32px] border border-ink bg-transparent px-[13px] text-sm font-medium text-ink disabled:opacity-40" onClick={onSave} disabled={!manager.draftDirty || manager.settingsBusy}>{manager.settingsBusy ? '处理中…' : '保存'}</button>
-        <button className="h-[32px] border-0 bg-brand px-[15px] text-sm font-medium text-white disabled:opacity-40" onClick={onSaveAndUse} disabled={manager.draftIsRunning || manager.settingsBusy} title={ready ? undefined : '当前未连接，保存后将建立连接'}>{manager.settingsBusy ? '处理中…' : '保存并使用'}</button>
-      </footer>
+      <ProfileFooter manager={manager} ready={ready} onTestRemote={onTestRemote} onSave={onSave} onSaveAndUse={onSaveAndUse} onRequestDelete={onRequestDelete} />
     </div>
   )
 }

@@ -10,6 +10,60 @@ import { Create as $Create } from "@wailsio/runtime";
 import * as time$0 from "../../../../time/models.js";
 
 /**
+ * AgentPromptPreview is the read-only system prompt view behind the settings
+ * preview: what a session with this configuration would send, assembled for
+ * the service workspace with the full depth-0 tool catalog.
+ */
+export class AgentPromptPreview {
+    "control": string;
+    "responseControl": string;
+    "toolNames": string[];
+    "protocolId": string;
+    "rendererId": string;
+    "thinkingMode": string;
+    "native": boolean;
+
+    /** Creates a new AgentPromptPreview instance. */
+    constructor($$source: Partial<AgentPromptPreview> = {}) {
+        if (!("control" in $$source)) {
+            this["control"] = "";
+        }
+        if (!("responseControl" in $$source)) {
+            this["responseControl"] = "";
+        }
+        if (!("toolNames" in $$source)) {
+            this["toolNames"] = [];
+        }
+        if (!("protocolId" in $$source)) {
+            this["protocolId"] = "";
+        }
+        if (!("rendererId" in $$source)) {
+            this["rendererId"] = "";
+        }
+        if (!("thinkingMode" in $$source)) {
+            this["thinkingMode"] = "";
+        }
+        if (!("native" in $$source)) {
+            this["native"] = false;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new AgentPromptPreview instance from a string or object.
+     */
+    static createFrom($$source: any = {}): AgentPromptPreview {
+        const $$createField2_0 = $$createType0;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("toolNames" in $$parsedSource) {
+            $$parsedSource["toolNames"] = $$createField2_0($$parsedSource["toolNames"]);
+        }
+        return new AgentPromptPreview($$parsedSource as Partial<AgentPromptPreview>);
+    }
+}
+
+/**
  * AgentProtocol selects the product-facing tool transcript. The zero value
  * resolves to XML; Markdown remains an explicit option.
  */
@@ -41,10 +95,12 @@ export class Config {
     "agentProtocol"?: AgentProtocol;
 
     /**
-     * SemanticNoTool and DeepToolAnchor default to enabled only on the explicit
-     * Markdown product profile. The default XML profile disables both because it
-     * can answer directly without opening a tool envelope.
+     * TaskControl is the user's free-text contract appended verbatim after the
+     * transcript's system prompt ("Task-specific contract:" block). It is the
+     * supported personalization surface; the protocol-owned instructions stay
+     * immutable so the measured transcript contract cannot be broken here.
      */
+    "taskControl"?: string;
     "semanticNoTool"?: boolean | null;
     "decisionFakeThink"?: boolean;
     "deepToolAnchor"?: boolean | null;
@@ -98,7 +154,7 @@ export class Config {
      * Creates a new Config instance from a string or object.
      */
     static createFrom($$source: any = {}): Config {
-        const $$createField5_0 = $$createType0;
+        const $$createField5_0 = $$createType1;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("headers" in $$parsedSource) {
             $$parsedSource["headers"] = $$createField5_0($$parsedSource["headers"]);
@@ -152,8 +208,8 @@ export class PromptTrace {
      * Creates a new PromptTrace instance from a string or object.
      */
     static createFrom($$source: any = {}): PromptTrace {
-        const $$createField4_0 = $$createType1;
-        const $$createField6_0 = $$createType1;
+        const $$createField4_0 = $$createType0;
+        const $$createField6_0 = $$createType0;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("stops" in $$parsedSource) {
             $$parsedSource["stops"] = $$createField4_0($$parsedSource["stops"]);
@@ -243,22 +299,22 @@ export class Result {
      * Creates a new Result instance from a string or object.
      */
     static createFrom($$source: any = {}): Result {
-        const $$createField3_0 = $$createType3;
-        const $$createField5_0 = $$createType1;
-        const $$createField6_0 = $$createType5;
-        const $$createField8_0 = $$createType1;
+        const $$createField4_0 = $$createType3;
+        const $$createField6_0 = $$createType0;
+        const $$createField7_0 = $$createType5;
+        const $$createField9_0 = $$createType0;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("routeSteps" in $$parsedSource) {
-            $$parsedSource["routeSteps"] = $$createField3_0($$parsedSource["routeSteps"]);
+            $$parsedSource["routeSteps"] = $$createField4_0($$parsedSource["routeSteps"]);
         }
         if ("bundles" in $$parsedSource) {
-            $$parsedSource["bundles"] = $$createField5_0($$parsedSource["bundles"]);
+            $$parsedSource["bundles"] = $$createField6_0($$parsedSource["bundles"]);
         }
         if ("steps" in $$parsedSource) {
-            $$parsedSource["steps"] = $$createField6_0($$parsedSource["steps"]);
+            $$parsedSource["steps"] = $$createField7_0($$parsedSource["steps"]);
         }
         if ("answerViolations" in $$parsedSource) {
-            $$parsedSource["answerViolations"] = $$createField8_0($$parsedSource["answerViolations"]);
+            $$parsedSource["answerViolations"] = $$createField9_0($$parsedSource["answerViolations"]);
         }
         return new Result($$parsedSource as Partial<Result>);
     }
@@ -291,14 +347,14 @@ export class RouteStep {
      * Creates a new RouteStep instance from a string or object.
      */
     static createFrom($$source: any = {}): RouteStep {
-        const $$createField1_0 = $$createType7;
-        const $$createField4_0 = $$createType1;
+        const $$createField2_0 = $$createType7;
+        const $$createField5_0 = $$createType0;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("request" in $$parsedSource) {
-            $$parsedSource["request"] = $$createField1_0($$parsedSource["request"]);
+            $$parsedSource["request"] = $$createField2_0($$parsedSource["request"]);
         }
         if ("bundles" in $$parsedSource) {
-            $$parsedSource["bundles"] = $$createField4_0($$parsedSource["bundles"]);
+            $$parsedSource["bundles"] = $$createField5_0($$parsedSource["bundles"]);
         }
         return new RouteStep($$parsedSource as Partial<RouteStep>);
     }
@@ -343,7 +399,7 @@ export class Status {
      * Creates a new Status instance from a string or object.
      */
     static createFrom($$source: any = {}): Status {
-        const $$createField9_0 = $$createType1;
+        const $$createField9_0 = $$createType0;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("headerNames" in $$parsedSource) {
             $$parsedSource["headerNames"] = $$createField9_0($$parsedSource["headerNames"]);
@@ -358,11 +414,11 @@ export class Status {
 export class Step {
     "number": number;
     "stage": string;
-    "startedAtMs"?: number;
     "request"?: PromptTrace | null;
     "modelOutput"?: string;
     "finishReason"?: string;
     "usage": Usage;
+    "startedAtMs"?: number;
     "modelDurationMs"?: number;
     "modelError"?: string;
     "actionType"?: string;
@@ -405,8 +461,8 @@ export class Step {
     static createFrom($$source: any = {}): Step {
         const $$createField2_0 = $$createType7;
         const $$createField5_0 = $$createType8;
-        const $$createField20_0 = $$createType10;
-        const $$createField21_0 = $$createType12;
+        const $$createField21_0 = $$createType10;
+        const $$createField22_0 = $$createType12;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("request" in $$parsedSource) {
             $$parsedSource["request"] = $$createField2_0($$parsedSource["request"]);
@@ -415,10 +471,10 @@ export class Step {
             $$parsedSource["usage"] = $$createField5_0($$parsedSource["usage"]);
         }
         if ("toolRetries" in $$parsedSource) {
-            $$parsedSource["toolRetries"] = $$createField20_0($$parsedSource["toolRetries"]);
+            $$parsedSource["toolRetries"] = $$createField21_0($$parsedSource["toolRetries"]);
         }
         if ("subagents" in $$parsedSource) {
-            $$parsedSource["subagents"] = $$createField21_0($$parsedSource["subagents"]);
+            $$parsedSource["subagents"] = $$createField22_0($$parsedSource["subagents"]);
         }
         return new Step($$parsedSource as Partial<Step>);
     }
@@ -502,18 +558,18 @@ export class SubagentTrace {
      * Creates a new SubagentTrace instance from a string or object.
      */
     static createFrom($$source: any = {}): SubagentTrace {
-        const $$createField5_0 = $$createType1;
-        const $$createField8_0 = $$createType1;
-        const $$createField9_0 = $$createType14;
+        const $$createField5_0 = $$createType0;
+        const $$createField9_0 = $$createType0;
+        const $$createField10_0 = $$createType14;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("bundles" in $$parsedSource) {
             $$parsedSource["bundles"] = $$createField5_0($$parsedSource["bundles"]);
         }
         if ("sources" in $$parsedSource) {
-            $$parsedSource["sources"] = $$createField8_0($$parsedSource["sources"]);
+            $$parsedSource["sources"] = $$createField9_0($$parsedSource["sources"]);
         }
         if ("steps" in $$parsedSource) {
-            $$parsedSource["steps"] = $$createField9_0($$parsedSource["steps"]);
+            $$parsedSource["steps"] = $$createField10_0($$parsedSource["steps"]);
         }
         return new SubagentTrace($$parsedSource as Partial<SubagentTrace>);
     }
@@ -550,7 +606,9 @@ export class ToolRetryTrace {
 }
 
 /**
- * Usage is the token accounting reported by the configured provider.
+ * Usage is the token accounting reported by the configured provider. The
+ * cache and reasoning breakdowns come from OpenAI-compatible usage details and
+ * stay zero for the local and RWKV continuation backends.
  */
 export class Usage {
     "promptTokens"?: number;
@@ -575,8 +633,8 @@ export class Usage {
 }
 
 // Private type creation functions
-const $$createType0 = $Create.Map($Create.Any, $Create.Any);
-const $$createType1 = $Create.Array($Create.Any);
+const $$createType0 = $Create.Array($Create.Any);
+const $$createType1 = $Create.Map($Create.Any, $Create.Any);
 const $$createType2 = RouteStep.createFrom;
 const $$createType3 = $Create.Array($$createType2);
 const $$createType4 = Step.createFrom;

@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Copy, X } from 'lucide-react'
 import MarkdownMessage from '../../MarkdownMessage'
-import { formatDuration, formatStartedAt, parseJSONValue, type TraceRecord, type TraceRecordDetail, type TraceTurn, turnSummary } from '../../ledger'
+import { formatDuration, formatStartedAt, parseJSONValue, splitModelOutput, type TraceRecord, type TraceRecordDetail, type TraceTurn, turnSummary } from '../../ledger'
 import { kindLabel } from './labels'
 
 const DETAILS_MIN_WIDTH = 320
@@ -172,10 +172,7 @@ function ContentTab({ record, tab }: { record: TraceRecord; tab: string }) {
   if (tab === 'arguments') return <PreBlock label="调用参数" value={pretty(detail.arguments)} />
   if (tab === 'result') return <PreBlock label="工具结果" value={pretty(detail.result)} error={record.isError} />
   if (tab === 'model-output') {
-    const thinking = detail.thinking || ''
-    const rest = detail.modelOutput
-      ? detail.modelOutput.replace(/^\s*<think>[\s\S]*?<\/think>/, '').replace(/^\s*<think>[\s\S]*$/, '').trim()
-      : ''
+    const { thinking, rest } = splitModelOutput(detail.modelOutput)
     return (
       <div className="px-5 pt-[10px]">
         {thinking && (

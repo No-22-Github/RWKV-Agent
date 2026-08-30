@@ -12,6 +12,65 @@ const (
 	PromptTemplateVersion = 3
 )
 
+// Think-block byte constants shared by every g1 chat transcript writer.
+//
+// The final ">" of the fast block is deliberately withheld from the prompt:
+// RWKV tokenises ">" together with the text that follows it, so supplying the
+// closing bracket would start generation from a token boundary the model
+// never saw in training. The model's own first byte completes the tag; the
+// output post-processing puts the prefix back before parsing.
+const (
+	ThinkBlockFast   = "<think></think"
+	ThinkBlockFull   = "<think"
+	ThinkBlockClosed = "<think></think>"
+)
+
+// ChatRoleLabel returns the transcript label of a message role in the g1
+// chat template. ok is false for roles that have no label.
+func ChatRoleLabel(role Role) (label string, ok bool) {
+	switch role {
+	case RoleSystem:
+		return "System", true
+	case RoleUser:
+		return "User", true
+	case RoleAssistant:
+		return "Assistant", true
+	case RoleTool:
+		return "Tool", true
+	default:
+		return "", false
+	}
+}
+
+// CleanChatText normalizes non-assistant transcript text: line endings
+// collapse, blank lines vanish, and outer space is trimmed. Assistant text is
+// returned verbatim because it is protocol payload (tool envelopes and think
+// blocks are byte-sensitive).
+func CleanChatText(role Role, text string) string {
+	if role != RoleSystem && role != RoleUser && role != RoleTool {
+		return text
+	}
+	text = strings.ReplaceAll(text, "\r\n", "\n")
+	text = strings.ReplaceAll(text, "\r", "\n")
+	for strings.Contains(text, "\n\n") {
+		text = strings.ReplaceAll(text, "\n\n", "\n")
+	}
+	return strings.TrimSpace(text)
+}
+
+// AppendAssistantOpening writes the assistant role opening and, for thinking
+// modes, the withheld think prefix the model must complete. It is the single
+// source of the transcript's final bytes.
+func AppendAssistantOpening(builder *strings.Builder, mode ThinkingMode) {
+	builder.WriteString("Assistant:")
+	switch mode {
+	case ThinkingFast:
+		builder.WriteString(" " + ThinkBlockFast)
+	case ThinkingFull:
+		builder.WriteString(" " + ThinkBlockFull)
+	}
+}
+
 func DefaultPromptProfile(reasoning bool) PromptProfile {
 	mode := ThinkingOff
 	if reasoning {
@@ -64,23 +123,11 @@ func CompileGeneratePrompt(request GenerateRequest) (string, error) {
 		if err != nil {
 			return "", err
 		}
-		text = cleanPromptText(message.Role, text)
+		text = CleanChatText(message.Role, text)
 		fmt.Fprintf(&prompt, "%s: %s\n\n", role, text)
 	}
-	prompt.WriteString("Assistant:")
-
-	formatted := prompt.String()
-	// The final ">" is deliberately withheld so the model generates it. RWKV
-	// tokenises ">" together with the text that follows it, so supplying the
-	// closing bracket here would start generation from a token boundary the
-	// model never saw in training.
-	switch PromptThinkingMode(request.Prompt) {
-	case ThinkingFast:
-		formatted += " <think></think"
-	case ThinkingFull:
-		formatted += " <think"
-	}
-	return formatted, nil
+	AppendAssistantOpening(&prompt, PromptThinkingMode(request.Prompt))
+	return prompt.String(), nil
 }
 
 func PromptThinkingMode(options PromptOptions) ThinkingMode {
@@ -127,7 +174,7 @@ func CompileCommittedPrompt(messages []Message, _ PromptOptions) (string, error)
 		if err != nil {
 			return "", err
 		}
-		text = cleanPromptText(message.Role, text)
+		text = CleanChatText(message.Role, text)
 		fmt.Fprintf(&prompt, "%s: %s\n\n", role, text)
 	}
 	return prompt.String(), nil
@@ -198,29 +245,10 @@ func messageText(message Message) (string, error) {
 	return text.String(), nil
 }
 
-func cleanPromptText(role Role, text string) string {
-	if role != RoleSystem && role != RoleUser && role != RoleTool {
-		return text
-	}
-	text = strings.ReplaceAll(text, "\r\n", "\n")
-	text = strings.ReplaceAll(text, "\r", "\n")
-	for strings.Contains(text, "\n\n") {
-		text = strings.ReplaceAll(text, "\n\n", "\n")
-	}
-	return strings.TrimSpace(text)
-}
-
 func promptRole(role Role) (string, error) {
-	switch role {
-	case RoleSystem:
-		return "System", nil
-	case RoleUser:
-		return "User", nil
-	case RoleAssistant:
-		return "Assistant", nil
-	case RoleTool:
-		return "Tool", nil
-	default:
+	label, ok := ChatRoleLabel(role)
+	if !ok {
 		return "", errors.Join(ErrInvalidArgument, fmt.Errorf("unknown message role %q", role))
 	}
+	return label, nil
 }

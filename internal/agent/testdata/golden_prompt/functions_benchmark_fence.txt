@@ -1,0 +1,41 @@
+### step 1
+max_output_tokens: 96
+stops: ["```" "\n\nUser:" "\nUser:" "</s>"]
+prompt: <<<GOLDEN
+System: Tools:
+[
+{"name":"echo","description":"Return a value.","arguments":{}},
+{"name":"submit","description":"Submit the final answer.","arguments":{"answer":{"type":"string"}}}
+]
+Exact tool names only. Paths are relative (e.g. src/a.txt), never absolute. Call shape: {"name":"read_file","arguments":{"path":"file.txt"}}. Preserve exact paths and identifier names from Function output. When the user requests exact stdout or file content, return it verbatim, including prefixes and punctuation; do not paraphrase it. read_file lines: omit leading 'N: '. Money: two decimals.
+After each Function output, return the next JSON function call. Finish with submit when it is offered. Return only a JSON function call.
+
+User: Check the echo tool
+
+Assistant: ```json
+
+GOLDEN
+### step 2
+max_output_tokens: 256
+stops: ["```" "\n\nUser:" "\nUser:" "</s>"]
+prompt: <<<GOLDEN
+System: Tools:
+[
+{"name":"echo","description":"Return a value.","arguments":{}},
+{"name":"submit","description":"Submit the final answer.","arguments":{"answer":{"type":"string"}}}
+]
+Exact tool names only. Paths are relative (e.g. src/a.txt), never absolute. Call shape: {"name":"read_file","arguments":{"path":"file.txt"}}. Preserve exact paths and identifier names from Function output. When the user requests exact stdout or file content, return it verbatim, including prefixes and punctuation; do not paraphrase it. read_file lines: omit leading 'N: '. Money: two decimals.
+After each Function output, return the next JSON function call. Finish with submit when it is offered. Return only a JSON function call.
+
+User: Check the echo tool
+
+Assistant: ```json
+{"name":"echo","arguments":{"value":"ping"}}
+```
+
+User: Function output:
+{"value":"ping"}
+
+Assistant: ```json
+
+GOLDEN

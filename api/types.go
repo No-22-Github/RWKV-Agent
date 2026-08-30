@@ -46,12 +46,14 @@ type Config struct {
 	NativeProvider string            `json:"nativeProvider,omitempty"`
 	Thinking       string            `json:"thinking,omitempty"`
 	AgentProtocol  AgentProtocol     `json:"agentProtocol,omitempty"`
-	// SemanticNoTool and DeepToolAnchor default to enabled only on the explicit
-	// Markdown product profile. The default XML profile disables both because it
-	// can answer directly without opening a tool envelope.
-	SemanticNoTool    *bool   `json:"semanticNoTool,omitempty"`
-	DecisionFakeThink bool    `json:"decisionFakeThink,omitempty"`
-	DeepToolAnchor    *bool   `json:"deepToolAnchor,omitempty"`
+	// TaskControl is the user's free-text contract appended verbatim after the
+	// transcript's system prompt ("Task-specific contract:" block). It is the
+	// supported personalization surface; the protocol-owned instructions stay
+	// immutable so the measured transcript contract cannot be broken here.
+	TaskControl       string `json:"taskControl,omitempty"`
+	SemanticNoTool    *bool  `json:"semanticNoTool,omitempty"`
+	DecisionFakeThink bool   `json:"decisionFakeThink,omitempty"`
+	DeepToolAnchor    *bool  `json:"deepToolAnchor,omitempty"`
 	MaxSteps          int     `json:"maxSteps,omitempty"`
 	MaxTokens         int     `json:"maxTokens,omitempty"`
 	DecisionMaxTokens int     `json:"decisionMaxTokens,omitempty"`

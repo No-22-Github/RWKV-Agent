@@ -1,20 +1,16 @@
 import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as Backend from '../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/appservice'
-import { AgentProtocol, Config, ModelState, Provider, Result, Status } from '../bindings/github.com/no22/RWKV-Agent/api/models'
+import { AgentProtocol, AgentPromptPreview, Config, ModelState, Provider, Result, Status } from '../bindings/github.com/no22/RWKV-Agent/api/models'
 import {
   AppBootstrap,
   ConversationSummary,
   ConversationView,
   DisplayMessage,
   StoragePaths,
-  SubagentStep,
-  SubagentTrace,
-  ToolRetryTrace,
-  ToolTrace,
   WorkspaceItem,
 } from '../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/models'
-import { SavedProvider } from '../bindings/github.com/no22/RWKV-Agent/internal/appstorage/models'
+import { SavedProvider, SubagentStep, SubagentTrace, ToolRetryTrace, ToolTrace } from '../bindings/github.com/no22/RWKV-Agent/internal/appstorage/models'
 import App from './App'
 
 const eventHandlers = vi.hoisted(() => new Map<string, (event: { data: unknown }) => void>())
@@ -43,6 +39,7 @@ vi.mock('../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/appservice', () => 
   ActivateProvider: vi.fn(),
   DeleteProvider: vi.fn(),
   ListRemoteModels: vi.fn(),
+  PreviewSystemPrompt: vi.fn(),
   NewConversation: vi.fn().mockResolvedValue(undefined),
   ChooseWorkspace: vi.fn(),
   OpenWorkspace: vi.fn(),
@@ -92,6 +89,11 @@ function openSettingsSection(name: string) {
   fireEvent.click(screen.getByRole('button', { name }))
 }
 
+/* 工具协议、思考模式、网页与子 Agent 字段在设置页的 Agent 分区。 */
+function openAgentSection() {
+  openSettingsSection('Agent')
+}
+
 function switchToRemoteProvider() {
   fireEvent.click(screen.getByRole('button', { name: '远端 Provider' }))
 }
@@ -99,6 +101,15 @@ function switchToRemoteProvider() {
 beforeEach(() => {
   eventHandlers.clear()
   vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap())
+  vi.mocked(Backend.PreviewSystemPrompt).mockResolvedValue(new AgentPromptPreview({
+    control: 'preview-prompt',
+    responseControl: '',
+    toolNames: ['list_files'],
+    protocolId: 'rwkv-g1i-envelope-v1',
+    rendererId: 'rwkv-chat-continuation-v2',
+    thinkingMode: 'off',
+    native: false,
+  }))
 })
 
 afterEach(() => {
@@ -139,6 +150,7 @@ describe('App', () => {
     openSettings()
     expect(screen.getByText('设置')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '连接' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Agent' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: '本地模型' })).toBeInTheDocument()
   })
 
@@ -184,6 +196,7 @@ describe('App', () => {
     render(<App />)
     openSettings()
     switchToRemoteProvider()
+    openAgentSection()
     fireEvent.click(screen.getByLabelText('网页搜索与正文获取'))
     fireEvent.change(screen.getByLabelText('Brave API Key'), { target: { value: 'brave-secret' } })
     fireEvent.change(screen.getByLabelText('Tavily API Key'), { target: { value: 'tavily-secret' } })
@@ -222,11 +235,86 @@ describe('App', () => {
     render(<App />)
     openSettings()
     switchToRemoteProvider()
+    openAgentSection()
     fireEvent.change(screen.getByLabelText('工具协议'), { target: { value: 'markdown' } })
     fireEvent.click(screen.getByRole('button', { name: '保存并使用' }))
 
     await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalledOnce())
     expect(vi.mocked(Backend.ConfigureProvider).mock.calls[0][2].agentProtocol).toBe('markdown')
+  })
+
+  it('submits the selected thinking mode with the XML protocol', async () => {
+    vi.mocked(Backend.ConfigureProvider).mockResolvedValue(new Status({
+      state: ModelState.ModelReady,
+      provider: Provider.ProviderRWKVLightning,
+      model: 'rwkv7-test',
+      workspace: '/tmp/RWKV-Agent',
+      hasApiKey: false,
+      updatedAt: new Date().toISOString(),
+    }))
+    render(<App />)
+    openSettings()
+    switchToRemoteProvider()
+    openAgentSection()
+    fireEvent.change(screen.getByLabelText('思考模式'), { target: { value: 'fast' } })
+    fireEvent.click(screen.getByRole('button', { name: '保存并使用' }))
+
+    await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalledOnce())
+    expect(vi.mocked(Backend.ConfigureProvider).mock.calls[0][2].thinking).toBe('fast')
+  })
+
+  it('submits the personal task contract with the profile', async () => {
+    vi.mocked(Backend.ConfigureProvider).mockResolvedValue(new Status({
+      state: ModelState.ModelReady,
+      provider: Provider.ProviderRWKVLightning,
+      model: 'rwkv7-test',
+      workspace: '/tmp/RWKV-Agent',
+      hasApiKey: false,
+      updatedAt: new Date().toISOString(),
+    }))
+    render(<App />)
+    openSettings()
+    switchToRemoteProvider()
+    openAgentSection()
+    fireEvent.change(screen.getByLabelText('附加任务约定'), { target: { value: '  回答使用中文。  ' } })
+    fireEvent.click(screen.getByRole('button', { name: '保存并使用' }))
+
+    await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalledOnce())
+    expect(vi.mocked(Backend.ConfigureProvider).mock.calls[0][2].taskControl).toBe('回答使用中文。')
+  })
+
+  it('previews the system prompt in the Agent section', async () => {
+    vi.mocked(Backend.PreviewSystemPrompt).mockResolvedValue(new AgentPromptPreview({
+      control: 'You are a local-first assistant with read-only tools.',
+      responseControl: '',
+      toolNames: ['list_files', 'datetime'],
+      protocolId: 'rwkv-g1i-envelope-v1',
+      rendererId: 'rwkv-chat-continuation-v2',
+      thinkingMode: 'off',
+      native: false,
+    }))
+    render(<App />)
+    openSettings()
+    switchToRemoteProvider()
+    openAgentSection()
+    // 预览默认展开：设置页打开即按当前草稿拉取。
+    expect(screen.getByRole('button', { name: '预览系统提示词' })).toHaveTextContent('收起')
+
+    expect(await screen.findByText(/You are a local-first assistant/)).toBeInTheDocument()
+    expect(screen.getByText(/协议 rwkv-g1i-envelope-v1/)).toBeInTheDocument()
+    expect(screen.getByText(/工具 2 项/)).toBeInTheDocument()
+  })
+
+  it('resets the thinking mode when the Markdown protocol is selected', async () => {    render(<App />)
+    openSettings()
+    switchToRemoteProvider()
+    openAgentSection()
+    fireEvent.change(screen.getByLabelText('思考模式'), { target: { value: 'fast' } })
+    expect(screen.getByLabelText('思考模式')).toHaveValue('fast')
+    fireEvent.change(screen.getByLabelText('工具协议'), { target: { value: 'markdown' } })
+
+    expect(screen.getByLabelText('思考模式')).toHaveValue('off')
+    expect(screen.getByLabelText('思考模式')).toBeDisabled()
   })
 
   it('saves a draft without switching the runtime connection', async () => {
@@ -398,6 +486,7 @@ describe('App', () => {
     render(<App />)
     expect((await screen.findAllByText('web · subagents')).length).toBeGreaterThan(0)
     openSettings()
+    openAgentSection()
     fireEvent.click(screen.getByLabelText('网页搜索与正文获取'))
     expect(screen.getByLabelText('网页搜索与正文获取')).not.toBeChecked()
 
@@ -434,6 +523,7 @@ describe('App', () => {
     render(<App />)
     await waitFor(() => expect(Backend.Bootstrap).toHaveBeenCalledOnce())
     openSettings()
+    openAgentSection()
 
     expect(screen.getByLabelText('工具协议')).toHaveValue('markdown')
     expect(screen.getByLabelText('渐进式工具路由')).toBeChecked()
@@ -466,6 +556,7 @@ describe('App', () => {
     expect(screen.getByLabelText('Header 值')).toHaveValue('saved-header')
     expect(screen.getByLabelText('Header 值')).toHaveAttribute('type', 'password')
 
+    openAgentSection()
     expect(screen.getByLabelText('工具协议')).toHaveValue('xml')
     expect(screen.getByLabelText('渐进式工具路由')).not.toBeChecked()
     expect(screen.getByLabelText('Brave API Key')).toHaveValue('saved-brave')

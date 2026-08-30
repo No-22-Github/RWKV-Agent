@@ -178,6 +178,14 @@ func TestAgentProtocolCompatibilityMode(t *testing.T) {
 	}); err != nil {
 		t.Fatalf("XML Agent protocol rejected thinking mode: %v", err)
 	}
+	if _, err := normalizeConfig(Config{
+		Provider: ProviderRWKVLightning,
+		Model:    "model", Endpoint: "https://example.test",
+		AgentProtocol: AgentProtocolXML,
+		Thinking:      "banana",
+	}); err == nil {
+		t.Fatal("XML Agent protocol accepted an unknown thinking mode")
+	}
 }
 
 func TestSubagentsEnableRemoteBatchCoalescingByDefault(t *testing.T) {
@@ -188,6 +196,68 @@ func TestSubagentsEnableRemoteBatchCoalescingByDefault(t *testing.T) {
 	}
 	if config.RemoteBatchWaitMS != 10 {
 		t.Fatalf("RemoteBatchWaitMS = %d", config.RemoteBatchWaitMS)
+	}
+}
+
+func TestPreviewAgentPromptAssemblesTranscriptContract(t *testing.T) {
+	t.Parallel()
+	service, err := NewService(Options{Workspace: t.TempDir()})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer func() { _ = service.Close() }()
+
+	preview, err := service.PreviewAgentPrompt(Config{
+		Provider:      ProviderRWKVLightning,
+		Model:         "rwkv7-test",
+		Endpoint:      "https://example.test",
+		AgentProtocol: AgentProtocolXML,
+		Thinking:      "fast",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if preview.ProtocolID != "rwkv-g1i-envelope-v1" {
+		t.Fatalf("protocol id = %q", preview.ProtocolID)
+	}
+	if preview.ThinkingMode != "fast" {
+		t.Fatalf("thinking mode = %q", preview.ThinkingMode)
+	}
+	if preview.Native {
+		t.Fatal("lightning preview reported the native tool variant")
+	}
+	offered := strings.Join(preview.ToolNames, ",")
+	if !strings.Contains(offered, "list_files") || !strings.Contains(offered, "datetime") {
+		t.Fatalf("tool catalog is missing workspace/local tools: %q", offered)
+	}
+	if !strings.Contains(preview.Control, "Exact output") && !strings.Contains(preview.Control, "tool_call") {
+		t.Fatalf("control does not look like the XML transcript contract:\n%s", preview.Control[:min(len(preview.Control), 300)])
+	}
+
+	// 个性化约定原文追加在 Task-specific contract 块内。
+	withContract, err := service.PreviewAgentPrompt(Config{
+		Provider:      ProviderRWKVLightning,
+		Model:         "rwkv7-test",
+		Endpoint:      "https://example.test",
+		AgentProtocol: AgentProtocolXML,
+		TaskControl:   " 回答使用中文。 ",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(withContract.Control, "Task-specific contract:\n回答使用中文。") {
+		t.Fatalf("preview control is missing the personal task contract:\n%s", withContract.Control)
+	}
+
+	// 协议契约校验在预览路径同样生效：Markdown 不支持思考模式。
+	if _, err := service.PreviewAgentPrompt(Config{
+		Provider:      ProviderRWKVLightning,
+		Model:         "rwkv7-test",
+		Endpoint:      "https://example.test",
+		AgentProtocol: AgentProtocolMarkdown,
+		Thinking:      "fast",
+	}); err == nil {
+		t.Fatal("markdown preview accepted fast thinking")
 	}
 }
 

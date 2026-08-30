@@ -51,7 +51,7 @@ func newSessionAtDepth(
 	status Status,
 	depth int,
 ) (*Session, error) {
-	tools, err := assembleSessionTools(owner, workspace, depth)
+	tools, err := assembleSessionTools(ownerConfig(owner), owner, workspace, depth)
 	if err != nil {
 		return nil, err
 	}
@@ -71,8 +71,10 @@ func newSessionAtDepth(
 // assembleSessionTools builds the tool catalog for one session depth: workspace
 // and local tools are always offered, web and delegation tools follow their
 // config switches, and delegation is only wired at depth 0. The delegation
-// closure compacts each child result into a presentation-safe summary.
-func assembleSessionTools(owner *Service, workspace string, depth int) ([]agent.Tool, error) {
+// closure compacts each child result into a presentation-safe summary. The
+// config is passed explicitly so prompts can be previewed for a draft; owner
+// may be nil for such previews, in which case nothing executes.
+func assembleSessionTools(config Config, owner *Service, workspace string, depth int) ([]agent.Tool, error) {
 	// 文件工具始终在目录里（模型能感知该能力）；未打开工作区时它们由
 	// 不可用解析器支撑，调用会返回"请先打开工作区"的明确提示。
 	workspaceTools, err := agent.WorkspaceTools(workspace)
@@ -85,9 +87,8 @@ func assembleSessionTools(owner *Service, workspace string, depth int) ([]agent.
 		return nil, fmt.Errorf("initialize local tools: %w", err)
 	}
 	tools = append(tools, localTools...)
-	config := ownerConfig(owner)
 	if config.EnableWeb {
-		web, providerErr := ownerWebProviders(owner, config)
+		web, providerErr := webProvidersFor(owner, config)
 		if providerErr != nil {
 			return nil, providerErr
 		}
@@ -109,6 +110,10 @@ func assembleSessionTools(owner *Service, workspace string, depth int) ([]agent.
 // the full child trace into the compact per-step summary the parent sees.
 func delegateToChildSession(owner *Service, depth int) func(context.Context, string, func(agent.Event)) (assistanttools.AgentTaskResult, error) {
 	return func(ctx context.Context, task string, observer func(agent.Event)) (assistanttools.AgentTaskResult, error) {
+		if owner == nil {
+			// Preview assemblies wire the catalog without a live service.
+			return assistanttools.AgentTaskResult{}, fmt.Errorf("delegation is not available in this context")
+		}
 		child, childErr := owner.newSession(ctx, depth)
 		if childErr != nil {
 			return assistanttools.AgentTaskResult{}, childErr
@@ -172,6 +177,14 @@ func sessionRunnerOptions(
 	taskControl := ""
 	if workspace == "" {
 		taskControl = "工作区未打开：本地文件工具（list_files/read_file/search_text）需要先打开一个工作区才能使用。如果用户需要读取或搜索本地文件，请直接告诉用户先在应用中打开一个工作区（例如“打开工作区”按钮），不要尝试调用任何文件工具，也不要假装读取了文件。"
+	}
+	// The user's personal contract rides in the same Task-specific block,
+	// after any system hint, and reaches the prompt verbatim.
+	if user := strings.TrimSpace(config.TaskControl); user != "" {
+		if taskControl != "" {
+			taskControl += "\n\n"
+		}
+		taskControl += user
 	}
 	generation := continuation.Request{
 		Model:           status.Model,
@@ -584,6 +597,25 @@ func ownerWebProviders(owner *Service, config Config) (*webProviderSet, error) {
 	if owner.web != nil {
 		return owner.web, nil
 	}
+	web, err := newWebProviders(config)
+	if err != nil {
+		return nil, err
+	}
+	owner.web = web
+	return web, nil
+}
+
+// webProvidersFor returns the cached provider set for live sessions and a
+// fresh uncached set for previews (nil owner): a preview must never write its
+// draft credentials into the runtime cache.
+func webProvidersFor(owner *Service, config Config) (*webProviderSet, error) {
+	if owner != nil {
+		return ownerWebProviders(owner, config)
+	}
+	return newWebProviders(config)
+}
+
+func newWebProviders(config Config) (*webProviderSet, error) {
 	brave, err := assistanttools.NewBraveSearchProvider(assistanttools.BraveConfig{
 		APIKey: config.BraveAPIKey, Endpoint: config.BraveEndpoint,
 	})
@@ -596,6 +628,5 @@ func ownerWebProviders(owner *Service, config Config) (*webProviderSet, error) {
 	if err != nil {
 		return nil, fmt.Errorf("initialize Tavily fetch: %w", err)
 	}
-	owner.web = &webProviderSet{search: brave, fetch: tavily}
-	return owner.web, nil
+	return &webProviderSet{search: brave, fetch: tavily}, nil
 }

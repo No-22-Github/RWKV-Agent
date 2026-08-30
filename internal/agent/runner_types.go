@@ -299,7 +299,6 @@ type Runner struct {
 	options           Options
 	protocol          ActionProtocol
 	renderer          PromptRenderer
-	control           string
 	responseControl   string
 	terminalTool      string
 	thinkingMode      inference.ThinkingMode

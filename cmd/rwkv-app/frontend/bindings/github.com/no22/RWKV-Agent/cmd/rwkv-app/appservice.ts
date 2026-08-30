@@ -66,15 +66,6 @@ export function Close(): $CancellablePromise<void> {
 }
 
 /**
- * Configure 保留旧入口：配置、保存并立即使用一条按连接键去重的档案。
- */
-export function Configure(config: api$0.Config): $CancellablePromise<api$0.Status> {
-    return $Call.ByID(1065098514, config).then(($result: any) => {
-        return $$createType0($result);
-    });
-}
-
-/**
  * ConfigureProvider 保存指定档案并把它切换为真实运行连接。传入 id 后允许修改地址或模型而不复制档案。
  */
 export function ConfigureProvider(id: string, label: string, config: api$0.Config): $CancellablePromise<api$0.Status> {
@@ -147,11 +138,21 @@ export function OpenWorkspace(path: string): $CancellablePromise<$models.AppBoot
 }
 
 /**
+ * PreviewSystemPrompt renders the system prompts a session for this draft
+ * configuration would start from. It never touches the running connection.
+ */
+export function PreviewSystemPrompt(config: api$0.Config): $CancellablePromise<api$0.AgentPromptPreview> {
+    return $Call.ByID(766505949, config).then(($result: any) => {
+        return $$createType6($result);
+    });
+}
+
+/**
  * SaveProvider 只保存编辑草稿，不连接服务，也不替换当前会话使用的 provider。
  */
 export function SaveProvider(id: string, label: string, config: api$0.Config): $CancellablePromise<appstorage$0.SavedProvider> {
     return $Call.ByID(5308806, id, label, config).then(($result: any) => {
-        return $$createType6($result);
+        return $$createType7($result);
     });
 }
 
@@ -171,4 +172,5 @@ const $$createType2 = api$0.Result.createFrom;
 const $$createType3 = api$0.RemoteModel.createFrom;
 const $$createType4 = $Create.Array($$createType3);
 const $$createType5 = $models.ConversationView.createFrom;
-const $$createType6 = appstorage$0.SavedProvider.createFrom;
+const $$createType6 = api$0.AgentPromptPreview.createFrom;
+const $$createType7 = appstorage$0.SavedProvider.createFrom;

@@ -160,50 +160,22 @@ export class ConversationView {
 }
 
 /**
- * DisplayMessage is one presentation-level message retained for the desktop
- * UI. The complete Harness transcript is stored separately and never trimmed
- * down to this view.
+ * The presentation message and tool-trace shapes are owned by appstorage (the
+ * same values are persisted and served to the UI verbatim); these aliases keep
+ * the short names the UI layer reads. DisplayMessage is one presentation-level
+ * message retained for the desktop UI; the complete Harness transcript is
+ * stored separately and never trimmed down to this view.
  */
-export class DisplayMessage {
-    "id": string;
-    "role": string;
-    "content": string;
-    "meta"?: string;
-    "trajectory"?: ToolTrace[];
-    "trace"?: api$0.Result | null;
-    "createdAt"?: string;
+export const DisplayMessage = appstorage$0.DisplayMessage;
 
-    /** Creates a new DisplayMessage instance. */
-    constructor($$source: Partial<DisplayMessage> = {}) {
-        if (!("id" in $$source)) {
-            this["id"] = "";
-        }
-        if (!("role" in $$source)) {
-            this["role"] = "";
-        }
-        if (!("content" in $$source)) {
-            this["content"] = "";
-        }
-
-        Object.assign(this, $$source);
-    }
-
-    /**
-     * Creates a new DisplayMessage instance from a string or object.
-     */
-    static createFrom($$source: any = {}): DisplayMessage {
-        const $$createField4_0 = $$createType14;
-        const $$createField5_0 = $$createType16;
-        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
-        if ("trajectory" in $$parsedSource) {
-            $$parsedSource["trajectory"] = $$createField4_0($$parsedSource["trajectory"]);
-        }
-        if ("trace" in $$parsedSource) {
-            $$parsedSource["trace"] = $$createField5_0($$parsedSource["trace"]);
-        }
-        return new DisplayMessage($$parsedSource as Partial<DisplayMessage>);
-    }
-}
+/**
+ * The presentation message and tool-trace shapes are owned by appstorage (the
+ * same values are persisted and served to the UI verbatim); these aliases keep
+ * the short names the UI layer reads. DisplayMessage is one presentation-level
+ * message retained for the desktop UI; the complete Harness transcript is
+ * stored separately and never trimmed down to this view.
+ */
+export type DisplayMessage = appstorage$0.DisplayMessage;
 
 export class StoragePaths {
     "configFile": string;
@@ -235,164 +207,6 @@ export class StoragePaths {
     static createFrom($$source: any = {}): StoragePaths {
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         return new StoragePaths($$parsedSource as Partial<StoragePaths>);
-    }
-}
-
-export class SubagentStep {
-    "step": number;
-    "tool": string;
-    "arguments"?: string;
-    "status": string;
-    "error"?: string;
-    "retries"?: ToolRetryTrace[];
-
-    /** Creates a new SubagentStep instance. */
-    constructor($$source: Partial<SubagentStep> = {}) {
-        if (!("step" in $$source)) {
-            this["step"] = 0;
-        }
-        if (!("tool" in $$source)) {
-            this["tool"] = "";
-        }
-        if (!("status" in $$source)) {
-            this["status"] = "";
-        }
-
-        Object.assign(this, $$source);
-    }
-
-    /**
-     * Creates a new SubagentStep instance from a string or object.
-     */
-    static createFrom($$source: any = {}): SubagentStep {
-        const $$createField5_0 = $$createType18;
-        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
-        if ("retries" in $$parsedSource) {
-            $$parsedSource["retries"] = $$createField5_0($$parsedSource["retries"]);
-        }
-        return new SubagentStep($$parsedSource as Partial<SubagentStep>);
-    }
-}
-
-export class SubagentTrace {
-    "index": number;
-    "task": string;
-    "status": string;
-    "error"?: string;
-    "route"?: string;
-    "bundles"?: string[];
-    "durationMs": number;
-    "output"?: string;
-    "sources"?: string[];
-    "steps"?: SubagentStep[];
-
-    /** Creates a new SubagentTrace instance. */
-    constructor($$source: Partial<SubagentTrace> = {}) {
-        if (!("index" in $$source)) {
-            this["index"] = 0;
-        }
-        if (!("task" in $$source)) {
-            this["task"] = "";
-        }
-        if (!("status" in $$source)) {
-            this["status"] = "";
-        }
-        if (!("durationMs" in $$source)) {
-            this["durationMs"] = 0;
-        }
-
-        Object.assign(this, $$source);
-    }
-
-    /**
-     * Creates a new SubagentTrace instance from a string or object.
-     */
-    static createFrom($$source: any = {}): SubagentTrace {
-        const $$createField5_0 = $$createType19;
-        const $$createField8_0 = $$createType19;
-        const $$createField9_0 = $$createType21;
-        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
-        if ("bundles" in $$parsedSource) {
-            $$parsedSource["bundles"] = $$createField5_0($$parsedSource["bundles"]);
-        }
-        if ("sources" in $$parsedSource) {
-            $$parsedSource["sources"] = $$createField8_0($$parsedSource["sources"]);
-        }
-        if ("steps" in $$parsedSource) {
-            $$parsedSource["steps"] = $$createField9_0($$parsedSource["steps"]);
-        }
-        return new SubagentTrace($$parsedSource as Partial<SubagentTrace>);
-    }
-}
-
-export class ToolRetryTrace {
-    "attempt": number;
-    "maxAttempts": number;
-    "statusCode"?: number;
-    "delayMs": number;
-
-    /** Creates a new ToolRetryTrace instance. */
-    constructor($$source: Partial<ToolRetryTrace> = {}) {
-        if (!("attempt" in $$source)) {
-            this["attempt"] = 0;
-        }
-        if (!("maxAttempts" in $$source)) {
-            this["maxAttempts"] = 0;
-        }
-        if (!("delayMs" in $$source)) {
-            this["delayMs"] = 0;
-        }
-
-        Object.assign(this, $$source);
-    }
-
-    /**
-     * Creates a new ToolRetryTrace instance from a string or object.
-     */
-    static createFrom($$source: any = {}): ToolRetryTrace {
-        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
-        return new ToolRetryTrace($$parsedSource as Partial<ToolRetryTrace>);
-    }
-}
-
-export class ToolTrace {
-    "step": number;
-    "tool": string;
-    "arguments"?: string;
-    "status": string;
-    "error"?: string;
-    "retries"?: ToolRetryTrace[];
-    "subagents"?: SubagentTrace[];
-
-    /** Creates a new ToolTrace instance. */
-    constructor($$source: Partial<ToolTrace> = {}) {
-        if (!("step" in $$source)) {
-            this["step"] = 0;
-        }
-        if (!("tool" in $$source)) {
-            this["tool"] = "";
-        }
-        if (!("status" in $$source)) {
-            this["status"] = "";
-        }
-
-        Object.assign(this, $$source);
-    }
-
-    /**
-     * Creates a new ToolTrace instance from a string or object.
-     */
-    static createFrom($$source: any = {}): ToolTrace {
-        const $$createField5_0 = $$createType18;
-        const $$createField6_0 = $$createType23;
-        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
-        if ("retries" in $$parsedSource) {
-            $$parsedSource["retries"] = $$createField5_0($$parsedSource["retries"]);
-        }
-        if ("subagents" in $$parsedSource) {
-            $$parsedSource["subagents"] = $$createField6_0($$parsedSource["subagents"]);
-        }
-        return new ToolTrace($$parsedSource as Partial<ToolTrace>);
     }
 }
 
@@ -441,16 +255,5 @@ const $$createType7 = $Create.Nullable($$createType6);
 const $$createType8 = WorkspaceItem.createFrom;
 const $$createType9 = $Create.Array($$createType8);
 const $$createType10 = StoragePaths.createFrom;
-const $$createType11 = DisplayMessage.createFrom;
+const $$createType11 = appstorage$0.DisplayMessage.createFrom;
 const $$createType12 = $Create.Array($$createType11);
-const $$createType13 = ToolTrace.createFrom;
-const $$createType14 = $Create.Array($$createType13);
-const $$createType15 = api$0.Result.createFrom;
-const $$createType16 = $Create.Nullable($$createType15);
-const $$createType17 = ToolRetryTrace.createFrom;
-const $$createType18 = $Create.Array($$createType17);
-const $$createType19 = $Create.Array($Create.Any);
-const $$createType20 = SubagentStep.createFrom;
-const $$createType21 = $Create.Array($$createType20);
-const $$createType22 = SubagentTrace.createFrom;
-const $$createType23 = $Create.Array($$createType22);

@@ -6,14 +6,29 @@ import (
 	"fmt"
 	"strings"
 	"unicode"
+
+	"github.com/no22/RWKV-Agent/internal/inference"
 )
 
-func (r *Runner) controlForSpecs(specs []ToolSpec) string {
-	control := toolControlPrompt(r.protocol, specs, r.thinkingMode, r.toolCompleter != nil)
-	if taskControl := strings.TrimSpace(r.options.TaskControl); taskControl != "" {
-		control += "\n\nTask-specific contract:\n" + taskControl
+// controlPromptFor assembles the decision-stage control prompt: the protocol
+// instructions followed by an optional task contract. The Runner and the
+// settings preview share it, so a preview can never drift from enforcement.
+func controlPromptFor(
+	protocol ActionProtocol,
+	specs []ToolSpec,
+	thinkingMode inference.ThinkingMode,
+	native bool,
+	taskControl string,
+) string {
+	control := toolControlPrompt(protocol, specs, thinkingMode, native)
+	if task := strings.TrimSpace(taskControl); task != "" {
+		control += "\n\nTask-specific contract:\n" + task
 	}
 	return control
+}
+
+func (r *Runner) controlForSpecs(specs []ToolSpec) string {
+	return controlPromptFor(r.protocol, specs, r.thinkingMode, r.toolCompleter != nil, r.options.TaskControl)
 }
 
 func replaceSystemControl(messages []Message, control string) []Message {

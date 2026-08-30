@@ -79,25 +79,14 @@ func (r *Runner) decideRoute(
 
 	var steps []RouteStep
 	for attempt := 0; attempt <= r.options.RouteRetries; attempt++ {
-		rendered, err := r.routeRenderer.Render(messages)
+		compiled, err := r.compileRoute(messages, r.router.Stops())
 		if err != nil {
 			r.observe(Event{Kind: EventRouteDone, Err: err}, observer)
 			return "", steps, err
 		}
-		request := r.options.Generation
-		request.Prompt, err = appendRequiredAssistantPrefix(r.routeRenderer, rendered, "<route>")
-		if err != nil {
-			r.observe(Event{Kind: EventRouteDone, Err: err}, observer)
-			return "", steps, err
-		}
-		request.Stops = r.router.Stops()
-		request.MaxOutputTokens = r.options.RouteMaxOutputTokens
-		if r.toolCompleter != nil {
-			request.Prompt = r.nativeTracePrompt(messages, nil, false, false, "<route>")
-		}
-		promptTrace := r.tracePrompt(request, "<route>", nil)
+		promptTrace := compiled.Trace
 		started := time.Now()
-		generated, _, _, err := r.generate(ctx, request, messages, nil, false, false, "<route>")
+		generated, _, _, err := r.generate(ctx, compiled, messages, nil)
 		if err != nil {
 			steps = append(steps, RouteStep{
 				Attempt:     attempt + 1,
@@ -163,25 +152,14 @@ func (r *Runner) decideToolRoute(
 
 	var steps []RouteStep
 	for attempt := 0; attempt <= r.options.RouteRetries; attempt++ {
-		rendered, err := r.routeRenderer.Render(messages)
+		compiled, err := r.compileRoute(messages, r.toolRouter.Stops())
 		if err != nil {
 			r.observe(Event{Kind: EventRouteDone, Err: err}, observer)
 			return ToolRouteDecision{}, steps, err
 		}
-		request := r.options.Generation
-		request.Prompt, err = appendRequiredAssistantPrefix(r.routeRenderer, rendered, "<route>")
-		if err != nil {
-			r.observe(Event{Kind: EventRouteDone, Err: err}, observer)
-			return ToolRouteDecision{}, steps, err
-		}
-		request.Stops = r.toolRouter.Stops()
-		request.MaxOutputTokens = r.options.RouteMaxOutputTokens
-		if r.toolCompleter != nil {
-			request.Prompt = r.nativeTracePrompt(messages, nil, false, false, "<route>")
-		}
-		promptTrace := r.tracePrompt(request, "<route>", nil)
+		promptTrace := compiled.Trace
 		started := time.Now()
-		generated, _, _, err := r.generate(ctx, request, messages, nil, false, false, "<route>")
+		generated, _, _, err := r.generate(ctx, compiled, messages, nil)
 		if err != nil {
 			steps = append(steps, RouteStep{
 				Attempt:     attempt + 1,

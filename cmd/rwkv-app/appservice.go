@@ -135,6 +135,15 @@ func (s *AppService) Status() agentapi.Status {
 	return service.Status()
 }
 
+// PreviewSystemPrompt renders the system prompts a session for this draft
+// configuration would start from. It never touches the running connection.
+func (s *AppService) PreviewSystemPrompt(config agentapi.Config) (agentapi.AgentPromptPreview, error) {
+	s.mu.Lock()
+	service := s.service
+	s.mu.Unlock()
+	return service.PreviewAgentPrompt(config)
+}
+
 // ConfigureProvider 保存指定档案并把它切换为真实运行连接。传入 id 后允许修改地址或模型而不复制档案。
 func (s *AppService) ConfigureProvider(ctx context.Context, id string, label string, config agentapi.Config) (agentapi.Status, error) {
 	s.operation.Lock()
