@@ -262,48 +262,19 @@ func RunMultiTurnCase(parent context.Context, entry MultiTurnCase, catalog Multi
 		trace.Error = "BFCL multi-turn generator, executor, and session are required"
 		return trace
 	}
-	if options.Tier != TierBaseline && options.Tier != TierEnhanced {
-		trace.Error = fmt.Sprintf("unsupported BFCL multi-turn tier %q", options.Tier)
+	options, err := prepareMultiTurnOptions(options)
+	if err != nil {
+		trace.Error = err.Error()
 		return trace
-	}
-	if options.MaxSteps <= 0 {
-		options.MaxSteps = 20
-	}
-	if options.RouteMaxTokens <= 0 {
-		options.RouteMaxTokens = 48
-	}
-	if options.MaxOutputTokens <= 0 {
-		options.MaxOutputTokens = 1024
-	}
-	if options.CaseTimeout <= 0 {
-		options.CaseTimeout = 2 * time.Minute
-	}
-	if options.Anchor == "" {
-		options.Anchor = MultiTurnAnchorFence
 	}
 	// Pick the wire protocol once. Native FC (Qwen's own tool-calling, the
 	// official-comparable path) speaks structured tool_calls and needs a global
 	// sanitized->original name map to un-sanitize before the simulator; wrapped
 	// leaves names nil and behaves exactly as the frozen runs did.
-	native := options.Transport == TransportChatCompletionsNativeFC
-	var stepper turnStepper = wrappedStepper{}
-	var names map[string]string
-	if native {
-		if options.Completer == nil {
-			trace.Error = "BFCL multi-turn native FC transport requires a completer"
-			return trace
-		}
-		if options.Tier != TierBaseline {
-			trace.Error = "BFCL multi-turn native FC currently supports only the baseline tier"
-			return trace
-		}
-		built, err := multiTurnNativeNames(catalog.Functions)
-		if err != nil {
-			trace.Error = err.Error()
-			return trace
-		}
-		names = built
-		stepper = nativeStepper{completer: options.Completer}
+	stepper, names, err := selectMultiTurnStepper(options, catalog)
+	if err != nil {
+		trace.Error = err.Error()
+		return trace
 	}
 	ctx, cancel := context.WithTimeout(parent, options.CaseTimeout)
 	defer cancel()
@@ -428,15 +399,9 @@ func RunMultiTurnCase(parent context.Context, entry MultiTurnCase, catalog Multi
 			// E3, only a pure finish_task counts -- mixing it with real calls
 			// cannot be used to hide those calls.
 			if options.FinishTool {
-				real := make([]toolchat.ToolCall, 0, len(calls))
+				var real []toolchat.ToolCall
 				finishes := 0
-				for _, call := range calls {
-					if call.Name == FinishTaskName {
-						finishes++
-						continue
-					}
-					real = append(real, call)
-				}
+				real, finishes = filterFinishToolCalls(calls)
 				if finishes > 0 && len(real) == 0 {
 					trace.Events = append(trace.Events, MultiTurnEvent{Kind: "finish_task_selected", Turn: turnIndex, Step: step})
 					turnTrace.Steps[len(turnTrace.Steps)-1].ProbeSelection = "finish_task"
@@ -517,6 +482,65 @@ func RunMultiTurnCase(parent context.Context, entry MultiTurnCase, catalog Multi
 
 // droppedClasses lists involved classes that narrowing removed from this turn's
 // catalog. It reads only the test entry and the router's own decision.
+// prepareMultiTurnOptions validates the runner requirements and fills the
+// unset budgets and the default anchor.
+func prepareMultiTurnOptions(options MultiTurnRunnerOptions) (MultiTurnRunnerOptions, error) {
+	if options.Tier != TierBaseline && options.Tier != TierEnhanced {
+		return options, fmt.Errorf("unsupported BFCL multi-turn tier %q", options.Tier)
+	}
+	if options.MaxSteps <= 0 {
+		options.MaxSteps = 20
+	}
+	if options.RouteMaxTokens <= 0 {
+		options.RouteMaxTokens = 48
+	}
+	if options.MaxOutputTokens <= 0 {
+		options.MaxOutputTokens = 1024
+	}
+	if options.CaseTimeout <= 0 {
+		options.CaseTimeout = 2 * time.Minute
+	}
+	if options.Anchor == "" {
+		options.Anchor = MultiTurnAnchorFence
+	}
+	return options, nil
+}
+
+// selectMultiTurnStepper chooses the wrapped or native-FC stepper and, for
+// native FC, builds the sanitized->original name map.
+func selectMultiTurnStepper(
+	options MultiTurnRunnerOptions,
+	catalog MultiTurnCatalog,
+) (turnStepper, map[string]string, error) {
+	if options.Transport != TransportChatCompletionsNativeFC {
+		return wrappedStepper{}, nil, nil
+	}
+	if options.Completer == nil {
+		return nil, nil, fmt.Errorf("BFCL multi-turn native FC transport requires a completer")
+	}
+	if options.Tier != TierBaseline {
+		return nil, nil, fmt.Errorf("BFCL multi-turn native FC currently supports only the baseline tier")
+	}
+	names, err := multiTurnNativeNames(catalog.Functions)
+	if err != nil {
+		return nil, nil, err
+	}
+	return nativeStepper{completer: options.Completer}, names, nil
+}
+
+// filterFinishToolCalls splits the pure finish_task signal from real calls.
+func filterFinishToolCalls(calls []toolchat.ToolCall) (real []toolchat.ToolCall, finishes int) {
+	real = make([]toolchat.ToolCall, 0, len(calls))
+	for _, call := range calls {
+		if call.Name == FinishTaskName {
+			finishes++
+			continue
+		}
+		real = append(real, call)
+	}
+	return real, finishes
+}
+
 func droppedClasses(involved []string, selected []MultiTurnFunction) []string {
 	kept := make(map[string]struct{}, len(selected))
 	for _, function := range selected {

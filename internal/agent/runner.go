@@ -25,125 +25,16 @@ func NewRunner(generator continuation.Generator, tools []Tool, options Options) 
 	if generator == nil {
 		return nil, fmt.Errorf("%w: continuation generator is required", continuation.ErrInvalidRequest)
 	}
-	if options.MaxSteps <= 0 {
-		options.MaxSteps = 6
+	if err := applyRunnerDefaults(&options); err != nil {
+		return nil, err
 	}
-	if options.MaxSteps < 2 {
-		return nil, fmt.Errorf(
-			"%w: at least two steps are required to reserve a final answer after tool use",
-			continuation.ErrInvalidRequest,
-		)
+	registered, specs, err := registerTools(tools, options)
+	if err != nil {
+		return nil, err
 	}
-	if options.ProtocolRetries < 0 {
-		return nil, fmt.Errorf("%w: protocol retries cannot be negative", continuation.ErrInvalidRequest)
-	}
-	if options.RouteRetries < 0 {
-		return nil, fmt.Errorf("%w: route retries cannot be negative", continuation.ErrInvalidRequest)
-	}
-	if options.DecisionMaxOutputTokens < 0 {
-		return nil, fmt.Errorf(
-			"%w: decision output token limit cannot be negative",
-			continuation.ErrInvalidRequest,
-		)
-	}
-	if options.ControlPrompt == "" {
-		options.ControlPrompt = ControlPromptSystem
-	}
-	if options.ControlPrompt != ControlPromptSystem && options.ControlPrompt != ControlPromptInline {
-		return nil, fmt.Errorf(
-			"%w: invalid control prompt mode %q",
-			continuation.ErrInvalidRequest,
-			options.ControlPrompt,
-		)
-	}
-	if options.Protocol == nil {
-		options.Protocol = G1IProtocol{}
-	}
-	if options.Renderer == nil {
-		options.Renderer = RWKVChatRenderer{}
-	}
-	if options.Router != nil && options.RouteRenderer == nil {
-		options.RouteRenderer = RWKVChatRenderer{}
-	}
-	if options.ToolRouter != nil && options.RouteRenderer == nil {
-		options.RouteRenderer = RWKVChatRenderer{}
-	}
-	if options.Router != nil && options.ToolRouter != nil {
-		return nil, fmt.Errorf("%w: Router and ToolRouter are mutually exclusive", continuation.ErrInvalidRequest)
-	}
-	if options.Router != nil || options.ToolRouter != nil {
-		routeThinkingMode := rendererThinkingMode(options.RouteRenderer)
-		if routeThinkingMode != inference.ThinkingOff {
-			return nil, fmt.Errorf(
-				"%w: route renderer must use thinking mode %q; got %q",
-				continuation.ErrInvalidRequest,
-				inference.ThinkingOff,
-				routeThinkingMode,
-			)
-		}
-	}
-	applyGenerationDefaults(&options.Generation)
-	if options.DecisionMaxOutputTokens == 0 {
-		options.DecisionMaxOutputTokens = defaultDecisionMaxOutputTokens(options.Protocol)
-	}
-	if options.DecisionMaxOutputTokens > options.Generation.MaxOutputTokens {
-		options.DecisionMaxOutputTokens = options.Generation.MaxOutputTokens
-	}
-	if options.Router != nil || options.ToolRouter != nil {
-		if options.RouteMaxOutputTokens == 0 {
-			options.RouteMaxOutputTokens = 16
-		}
-		if options.RouteMaxOutputTokens < 1 {
-			return nil, fmt.Errorf(
-				"%w: route output token limit must be positive",
-				continuation.ErrInvalidRequest,
-			)
-		}
-		if options.RouteMaxOutputTokens > options.Generation.MaxOutputTokens {
-			options.RouteMaxOutputTokens = options.Generation.MaxOutputTokens
-		}
-	}
-
-	registered := make(map[string]Tool, len(tools))
-	specs := make([]ToolSpec, 0, len(tools))
-	for _, tool := range tools {
-		if tool == nil {
-			return nil, fmt.Errorf("%w: nil tool", continuation.ErrInvalidRequest)
-		}
-		spec := tool.Spec()
-		if spec.Name == "" || spec.Description == "" || spec.Arguments == "" {
-			return nil, fmt.Errorf("%w: incomplete tool specification", continuation.ErrInvalidRequest)
-		}
-		if _, exists := registered[spec.Name]; exists {
-			return nil, fmt.Errorf("%w: duplicate tool %q", continuation.ErrInvalidRequest, spec.Name)
-		}
-		registered[spec.Name] = tool
-		specs = append(specs, spec)
-	}
-	if options.ToolRouter != nil {
-		loader, err := newLoadToolsTool(options.ToolBundles)
-		if err != nil {
-			return nil, err
-		}
-		if _, exists := registered[loader.Spec().Name]; exists {
-			return nil, fmt.Errorf("%w: duplicate tool %q", continuation.ErrInvalidRequest, loader.Spec().Name)
-		}
-		registered[loader.Spec().Name] = loader
-		specs = append(specs, loader.Spec())
-	}
-	if !preservesToolOrder(options.Protocol) {
-		sort.Slice(specs, func(left, right int) bool {
-			return specs[left].Name < specs[right].Name
-		})
-	}
-	var toolCompleter toolchat.Completer
-	if candidate, ok := generator.(toolchat.Completer); ok && candidate.NativeToolCalling() {
-		for _, spec := range specs {
-			if err := validateNativeToolSpec(spec); err != nil {
-				return nil, err
-			}
-		}
-		toolCompleter = candidate
+	toolCompleter, err := nativeCompleterFor(generator, specs)
+	if err != nil {
+		return nil, err
 	}
 	thinkingMode := rendererThinkingMode(options.Renderer)
 	profile := OptionsProductProfile(options)
@@ -166,21 +57,7 @@ func NewRunner(generator continuation.Generator, tools []Tool, options Options) 
 			)
 		}
 	}
-	responseControl := directResponseControl(thinkingMode)
-	if len(specs) > 0 {
-		var capabilities strings.Builder
-		capabilities.WriteString(
-			"\nOnly when the user asks about your capabilities, describe these read-only capabilities:\n",
-		)
-		for _, spec := range specs {
-			fmt.Fprintf(&capabilities, "- %s: %s\n", spec.Name, spec.Description)
-		}
-		responseControl += strings.TrimRight(capabilities.String(), "\n")
-	}
-	control := toolControlPrompt(options.Protocol, specs, thinkingMode, toolCompleter != nil)
-	if taskControl := strings.TrimSpace(options.TaskControl); taskControl != "" {
-		control += "\n\nTask-specific contract:\n" + taskControl
-	}
+	control, responseControl := buildControlPrompts(options, specs, thinkingMode, toolCompleter != nil)
 	terminalTool := ""
 	if _, offered := registered[options.TerminalTool]; offered {
 		terminalTool = options.TerminalTool
@@ -205,6 +82,169 @@ func NewRunner(generator continuation.Generator, tools []Tool, options Options) 
 		toolBundles:       append([]ToolBundle(nil), options.ToolBundles...),
 		routeRenderer:     options.RouteRenderer,
 	}, nil
+}
+
+// applyRunnerDefaults fills the unset knobs and validates the value domains and
+// cross-constraints (step budget, control-prompt mode, router exclusivity, and
+// output token budgets). It mutates options in place.
+func applyRunnerDefaults(options *Options) error {
+	if options.MaxSteps <= 0 {
+		options.MaxSteps = 6
+	}
+	if options.MaxSteps < 2 {
+		return fmt.Errorf(
+			"%w: at least two steps are required to reserve a final answer after tool use",
+			continuation.ErrInvalidRequest,
+		)
+	}
+	if options.ProtocolRetries < 0 {
+		return fmt.Errorf("%w: protocol retries cannot be negative", continuation.ErrInvalidRequest)
+	}
+	if options.RouteRetries < 0 {
+		return fmt.Errorf("%w: route retries cannot be negative", continuation.ErrInvalidRequest)
+	}
+	if options.DecisionMaxOutputTokens < 0 {
+		return fmt.Errorf(
+			"%w: decision output token limit cannot be negative",
+			continuation.ErrInvalidRequest,
+		)
+	}
+	if options.ControlPrompt == "" {
+		options.ControlPrompt = ControlPromptSystem
+	}
+	if options.ControlPrompt != ControlPromptSystem && options.ControlPrompt != ControlPromptInline {
+		return fmt.Errorf(
+			"%w: invalid control prompt mode %q",
+			continuation.ErrInvalidRequest,
+			options.ControlPrompt,
+		)
+	}
+	if options.Protocol == nil {
+		options.Protocol = G1IProtocol{}
+	}
+	if options.Renderer == nil {
+		options.Renderer = RWKVChatRenderer{}
+	}
+	if (options.Router != nil || options.ToolRouter != nil) && options.RouteRenderer == nil {
+		options.RouteRenderer = RWKVChatRenderer{}
+	}
+	if options.Router != nil && options.ToolRouter != nil {
+		return fmt.Errorf("%w: Router and ToolRouter are mutually exclusive", continuation.ErrInvalidRequest)
+	}
+	if options.Router != nil || options.ToolRouter != nil {
+		routeThinkingMode := rendererThinkingMode(options.RouteRenderer)
+		if routeThinkingMode != inference.ThinkingOff {
+			return fmt.Errorf(
+				"%w: route renderer must use thinking mode %q; got %q",
+				continuation.ErrInvalidRequest,
+				inference.ThinkingOff,
+				routeThinkingMode,
+			)
+		}
+	}
+	applyGenerationDefaults(&options.Generation)
+	if options.DecisionMaxOutputTokens == 0 {
+		options.DecisionMaxOutputTokens = defaultDecisionMaxOutputTokens(options.Protocol)
+	}
+	if options.DecisionMaxOutputTokens > options.Generation.MaxOutputTokens {
+		options.DecisionMaxOutputTokens = options.Generation.MaxOutputTokens
+	}
+	if options.Router != nil || options.ToolRouter != nil {
+		if options.RouteMaxOutputTokens == 0 {
+			options.RouteMaxOutputTokens = 16
+		}
+		if options.RouteMaxOutputTokens < 1 {
+			return fmt.Errorf(
+				"%w: route output token limit must be positive",
+				continuation.ErrInvalidRequest,
+			)
+		}
+		if options.RouteMaxOutputTokens > options.Generation.MaxOutputTokens {
+			options.RouteMaxOutputTokens = options.Generation.MaxOutputTokens
+		}
+	}
+	return nil
+}
+
+// registerTools validates the tool catalog and builds the registry. When the
+// progressive bundle router is configured, the load_tools control tool joins
+// the catalog. Specs keep catalog order for order-preserving protocols and are
+// sorted by name otherwise.
+func registerTools(tools []Tool, options Options) (map[string]Tool, []ToolSpec, error) {
+	registered := make(map[string]Tool, len(tools))
+	specs := make([]ToolSpec, 0, len(tools))
+	for _, tool := range tools {
+		if tool == nil {
+			return nil, nil, fmt.Errorf("%w: nil tool", continuation.ErrInvalidRequest)
+		}
+		spec := tool.Spec()
+		if spec.Name == "" || spec.Description == "" || spec.Arguments == "" {
+			return nil, nil, fmt.Errorf("%w: incomplete tool specification", continuation.ErrInvalidRequest)
+		}
+		if _, exists := registered[spec.Name]; exists {
+			return nil, nil, fmt.Errorf("%w: duplicate tool %q", continuation.ErrInvalidRequest, spec.Name)
+		}
+		registered[spec.Name] = tool
+		specs = append(specs, spec)
+	}
+	if options.ToolRouter != nil {
+		loader, err := newLoadToolsTool(options.ToolBundles)
+		if err != nil {
+			return nil, nil, err
+		}
+		if _, exists := registered[loader.Spec().Name]; exists {
+			return nil, nil, fmt.Errorf("%w: duplicate tool %q", continuation.ErrInvalidRequest, loader.Spec().Name)
+		}
+		registered[loader.Spec().Name] = loader
+		specs = append(specs, loader.Spec())
+	}
+	if !preservesToolOrder(options.Protocol) {
+		sort.Slice(specs, func(left, right int) bool {
+			return specs[left].Name < specs[right].Name
+		})
+	}
+	return registered, specs, nil
+}
+
+// nativeCompleterFor adopts the generator's native tool-calling surface when it
+// has one and every spec satisfies the native schema contract.
+func nativeCompleterFor(generator continuation.Generator, specs []ToolSpec) (toolchat.Completer, error) {
+	candidate, ok := generator.(toolchat.Completer)
+	if !ok || !candidate.NativeToolCalling() {
+		return nil, nil
+	}
+	for _, spec := range specs {
+		if err := validateNativeToolSpec(spec); err != nil {
+			return nil, err
+		}
+	}
+	return candidate, nil
+}
+
+// buildControlPrompts renders the decision-stage control prompt and the
+// direct-response control used on the respond route and answer stages.
+func buildControlPrompts(
+	options Options,
+	specs []ToolSpec,
+	thinkingMode inference.ThinkingMode,
+	native bool,
+) (control string, responseControl string) {
+	responseControl = directResponseControl(thinkingMode)
+	if len(specs) > 0 {
+		var capabilities strings.Builder
+		capabilities.WriteString(
+			"\nOnly when the user asks about your capabilities, describe these read-only capabilities:\n",
+		)
+		for _, spec := range specs {
+			fmt.Fprintf(&capabilities, "- %s: %s\n", spec.Name, spec.Description)
+		}
+		responseControl += strings.TrimRight(capabilities.String(), "\n")
+	}
+	control = toolControlPrompt(options.Protocol, specs, thinkingMode, native)
+	if taskControl := strings.TrimSpace(options.TaskControl); taskControl != "" {
+		control += "\n\nTask-specific contract:\n" + taskControl
+	}
+	return control, responseControl
 }
 
 // ProductProfile describes which product text-continuation profile an Options

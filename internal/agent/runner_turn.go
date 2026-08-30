@@ -258,23 +258,7 @@ func (turn *runnerTurn) generateModelStep(step int) (turnModelStep, error) {
 		turn.stage == StageDecision &&
 		turn.result.Route == RouteInspect &&
 		turn.successfulToolCalls == 0
-	injectedPrefix := false
-	if turn.assistantPrefix == "" &&
-		r.decisionFakeThink &&
-		turn.stage == StageDecision &&
-		turn.result.Route == RouteInspect {
-		turn.assistantPrefix = G1IDecisionFakeThinkPrefix
-		if r.closedFakeThink {
-			turn.assistantPrefix = G1IDecisionClosedThinkPrefix
-		}
-	}
-	if turn.assistantPrefix != "" && r.toolCompleter == nil {
-		request.Prompt, injectedPrefix = appendAssistantPrefix(
-			r.renderer,
-			request.Prompt,
-			turn.assistantPrefix,
-		)
-	}
+	injectedPrefix := turn.prepareDecisionPrefix(&request)
 	var offered []string
 	if turn.stage == StageDecision {
 		offered = offeredToolNames(turn.activeSpecs)
@@ -333,7 +317,48 @@ func (turn *runnerTurn) generateModelStep(step int) (turnModelStep, error) {
 		turn.observer,
 	)
 
-	modelAction := generated.Text
+	modelAction := turn.postProcessModelOutput(generated.Text, injectedPrefix)
+	return turnModelStep{
+		generated:        generated,
+		nativeCall:       nativeCall,
+		reasoningContent: reasoningContent,
+		modelAction:      modelAction,
+	}, nil
+}
+
+// prepareDecisionPrefix injects the framing prefix the decision stage expects:
+// the fake-think experiment prefix on product runs, or the protocol's own tool
+// call prefix already recorded on the turn. It reports whether the prefix was
+// appended to the rendered prompt itself.
+func (turn *runnerTurn) prepareDecisionPrefix(request *continuation.Request) bool {
+	r := turn.r
+	injectedPrefix := false
+	if turn.assistantPrefix == "" &&
+		r.decisionFakeThink &&
+		turn.stage == StageDecision &&
+		turn.result.Route == RouteInspect {
+		turn.assistantPrefix = G1IDecisionFakeThinkPrefix
+		if r.closedFakeThink {
+			turn.assistantPrefix = G1IDecisionClosedThinkPrefix
+		}
+	}
+	if turn.assistantPrefix != "" && r.toolCompleter == nil {
+		request.Prompt, injectedPrefix = appendAssistantPrefix(
+			r.renderer,
+			request.Prompt,
+			turn.assistantPrefix,
+		)
+	}
+	return injectedPrefix
+}
+
+// postProcessModelOutput restores withheld framing and strips the think prefix
+// the harness injected and the model closed, so the parser never records a
+// repair for bytes we supplied ourselves. The half-open form is closed by the
+// model's own ">"; the closed form is already whole in the prompt and is
+// echoed back verbatim, if at all.
+func (turn *runnerTurn) postProcessModelOutput(modelAction string, injectedPrefix bool) string {
+	r := turn.r
 	if renderer, ok := r.renderer.(interface{ reconstructOutput(string) string }); ok {
 		modelAction = renderer.reconstructOutput(modelAction)
 	}
@@ -341,29 +366,21 @@ func (turn *runnerTurn) generateModelStep(step int) (turnModelStep, error) {
 		!strings.HasPrefix(strings.TrimSpace(modelAction), turn.assistantPrefix) {
 		modelAction = turn.assistantPrefix + modelAction
 	}
-	// Remove the think prefix the harness injected and the model closed, so the
-	// parser never records a repair for bytes we supplied ourselves. The
-	// half-open form is closed by the model's own ">"; the closed form is
-	// already whole in the prompt and is echoed back verbatim, if at all.
-	if injectedPrefix {
-		switch turn.assistantPrefix {
-		case G1IDecisionFakeThinkPrefix:
-			completed := G1IDecisionFakeThinkPrefix + ">"
-			if trimmed := strings.TrimSpace(modelAction); strings.HasPrefix(trimmed, completed) {
-				modelAction = strings.TrimSpace(strings.TrimPrefix(trimmed, completed))
-			}
-		case G1IDecisionClosedThinkPrefix:
-			if trimmed := strings.TrimSpace(modelAction); strings.HasPrefix(trimmed, G1IDecisionClosedThinkPrefix) {
-				modelAction = strings.TrimSpace(strings.TrimPrefix(trimmed, G1IDecisionClosedThinkPrefix))
-			}
+	if !injectedPrefix {
+		return modelAction
+	}
+	switch turn.assistantPrefix {
+	case G1IDecisionFakeThinkPrefix:
+		completed := G1IDecisionFakeThinkPrefix + ">"
+		if trimmed := strings.TrimSpace(modelAction); strings.HasPrefix(trimmed, completed) {
+			modelAction = strings.TrimSpace(strings.TrimPrefix(trimmed, completed))
+		}
+	case G1IDecisionClosedThinkPrefix:
+		if trimmed := strings.TrimSpace(modelAction); strings.HasPrefix(trimmed, G1IDecisionClosedThinkPrefix) {
+			modelAction = strings.TrimSpace(strings.TrimPrefix(trimmed, G1IDecisionClosedThinkPrefix))
 		}
 	}
-	return turnModelStep{
-		generated:        generated,
-		nativeCall:       nativeCall,
-		reasoningContent: reasoningContent,
-		modelAction:      modelAction,
-	}, nil
+	return modelAction
 }
 
 func (turn *runnerTurn) parseModelAction(

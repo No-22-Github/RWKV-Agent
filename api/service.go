@@ -287,23 +287,36 @@ func normalizeConfig(config Config) (Config, error) {
 	if config.Model == "" {
 		return Config{}, fmt.Errorf("model is required")
 	}
+	if err := applyConfigDefaults(&config); err != nil {
+		return Config{}, err
+	}
+	if err := resolveProviderConfig(&config); err != nil {
+		return Config{}, err
+	}
+	return config, nil
+}
+
+// applyConfigDefaults fills unset knobs and validates their ranges, including
+// the transcript-dependent decision budget and the protocol/experiment
+// cross-constraints.
+func applyConfigDefaults(config *Config) error {
 	if config.MaxSteps == 0 {
 		config.MaxSteps = 6
 	}
 	if config.MaxSteps < 2 {
-		return Config{}, fmt.Errorf("maxSteps must be at least 2")
+		return fmt.Errorf("maxSteps must be at least 2")
 	}
 	if config.MaxTokens == 0 {
 		config.MaxTokens = 1024
 	}
 	if config.MaxTokens < 1 {
-		return Config{}, fmt.Errorf("maxTokens must be positive")
+		return fmt.Errorf("maxTokens must be positive")
 	}
 	if config.RouteMaxTokens == 0 {
 		config.RouteMaxTokens = 48
 	}
 	if config.RouteMaxTokens < 1 {
-		return Config{}, fmt.Errorf("routeMaxTokens must be positive")
+		return fmt.Errorf("routeMaxTokens must be positive")
 	}
 	// Resolve the transcript before selecting protocol-specific defaults. The XML
 	// envelope is the product default and needs the larger decision budget below;
@@ -313,7 +326,7 @@ func normalizeConfig(config Config) (Config, error) {
 		config.AgentProtocol = AgentProtocolXML
 	}
 	if config.AgentProtocol != AgentProtocolMarkdown && config.AgentProtocol != AgentProtocolXML {
-		return Config{}, fmt.Errorf("unsupported agentProtocol %q", config.AgentProtocol)
+		return fmt.Errorf("unsupported agentProtocol %q", config.AgentProtocol)
 	}
 	if config.DecisionMaxTokens == 0 {
 		// The right decision budget depends on the transcript: the XML envelope
@@ -326,16 +339,16 @@ func normalizeConfig(config Config) (Config, error) {
 		}
 	}
 	if config.DecisionMaxTokens < 1 {
-		return Config{}, fmt.Errorf("decisionMaxTokens must be positive")
+		return fmt.Errorf("decisionMaxTokens must be positive")
 	}
 	if config.MaxActiveBatch == 0 {
 		config.MaxActiveBatch = 4
 	}
 	if config.MaxActiveBatch < 1 || config.MaxActiveBatch > 8 {
-		return Config{}, fmt.Errorf("maxActiveBatch must be between 1 and 8")
+		return fmt.Errorf("maxActiveBatch must be between 1 and 8")
 	}
 	if config.RemoteBatchWaitMS < 0 || config.RemoteBatchWaitMS > 1000 {
-		return Config{}, fmt.Errorf("remoteBatchWaitMs must be between 0 and 1000")
+		return fmt.Errorf("remoteBatchWaitMs must be between 0 and 1000")
 	}
 	if config.EnableSubagents && config.RemoteBatchWaitMS == 0 {
 		config.RemoteBatchWaitMS = 10
@@ -344,22 +357,22 @@ func normalizeConfig(config Config) (Config, error) {
 		config.SubagentMaxParallel = 4
 	}
 	if config.SubagentMaxParallel < 2 || config.SubagentMaxParallel > 8 {
-		return Config{}, fmt.Errorf("subagentMaxParallel must be between 2 and 8")
+		return fmt.Errorf("subagentMaxParallel must be between 2 and 8")
 	}
 	if config.SubagentMaxSteps == 0 {
 		config.SubagentMaxSteps = 4
 	}
 	if config.SubagentMaxSteps < 2 || config.SubagentMaxSteps > 32 {
-		return Config{}, fmt.Errorf("subagentMaxSteps must be between 2 and 32")
+		return fmt.Errorf("subagentMaxSteps must be between 2 and 32")
 	}
 	if config.SubagentTimeoutSeconds == 0 {
 		config.SubagentTimeoutSeconds = 120
 	}
 	if config.SubagentTimeoutSeconds < 1 || config.SubagentTimeoutSeconds > 3600 {
-		return Config{}, fmt.Errorf("subagentTimeoutSeconds must be between 1 and 3600")
+		return fmt.Errorf("subagentTimeoutSeconds must be between 1 and 3600")
 	}
 	if config.EnableWeb && (strings.TrimSpace(config.BraveAPIKey) == "" || strings.TrimSpace(config.TavilyAPIKey) == "") {
-		return Config{}, fmt.Errorf("enableWeb requires Brave and Tavily API keys")
+		return fmt.Errorf("enableWeb requires Brave and Tavily API keys")
 	}
 	if config.Temperature == 0 {
 		config.Temperature = 1
@@ -376,32 +389,8 @@ func normalizeConfig(config Config) (Config, error) {
 	if config.Thinking == "" {
 		config.Thinking = "off"
 	}
-	if config.AgentProtocol == AgentProtocolXML {
-		// XML is a supported product transcript, not a deprecated one, so
-		// selecting it never fails. Both product prefill switches default off
-		// here: there is no JSON fence for deepToolAnchor to extend, and the
-		// model selected no_tool 0 times under XML on the 60-case product suite
-		// (versus 44 under markdown) because this transcript already answers
-		// directly. An explicit opt-in is still honored.
-		off := false
-		config.DeepToolAnchor = &off
-		if config.SemanticNoTool == nil {
-			config.SemanticNoTool = &off
-		}
-		// decisionFakeThink stays an error: the XML renderer prefills its own
-		// think block from Thinking, so the two would fight over the same
-		// assistant prefix.
-		if config.DecisionFakeThink {
-			return Config{}, fmt.Errorf(
-				"decisionFakeThink is the product-profile think experiment; use thinking fast or full with the XML Agent protocol",
-			)
-		}
-	}
-	if config.AgentProtocol == AgentProtocolMarkdown && config.Thinking != "off" {
-		return Config{}, fmt.Errorf(
-			"thinking mode %q requires the XML Agent protocol; use decisionFakeThink for the Markdown text experiment",
-			config.Thinking,
-		)
+	if err := applyProtocolDefaults(config); err != nil {
+		return err
 	}
 	if config.Backend == "" {
 		config.Backend = "auto"
@@ -426,32 +415,71 @@ func normalizeConfig(config Config) (Config, error) {
 	if config.Temperature <= 0 || config.TopK <= 0 || config.TopP <= 0 || config.TopP > 1 ||
 		config.PresencePenalty < 0 || config.FrequencyPenalty < 0 ||
 		config.PenaltyDecay <= 0 || config.PenaltyDecay > 1 {
-		return Config{}, fmt.Errorf("invalid sampling options")
+		return fmt.Errorf("invalid sampling options")
 	}
+	return nil
+}
+
+// applyProtocolDefaults enforces the per-transcript prefill contract.
+func applyProtocolDefaults(config *Config) error {
+	if config.AgentProtocol == AgentProtocolXML {
+		// XML is a supported product transcript, not a deprecated one, so
+		// selecting it never fails. Both product prefill switches default off
+		// here: there is no JSON fence for deepToolAnchor to extend, and the
+		// model selected no_tool 0 times under XML on the 60-case product suite
+		// (versus 44 under markdown) because this transcript already answers
+		// directly. An explicit opt-in is still honored.
+		off := false
+		config.DeepToolAnchor = &off
+		if config.SemanticNoTool == nil {
+			config.SemanticNoTool = &off
+		}
+		// decisionFakeThink stays an error: the XML renderer prefills its own
+		// think block from Thinking, so the two would fight over the same
+		// assistant prefix.
+		if config.DecisionFakeThink {
+			return fmt.Errorf(
+				"decisionFakeThink is the product-profile think experiment; use thinking fast or full with the XML Agent protocol",
+			)
+		}
+	}
+	if config.AgentProtocol == AgentProtocolMarkdown && config.Thinking != "off" {
+		return fmt.Errorf(
+			"thinking mode %q requires the XML Agent protocol; use decisionFakeThink for the Markdown text experiment",
+			config.Thinking,
+		)
+	}
+	return nil
+}
+
+// resolveProviderConfig validates the provider-specific path and endpoint
+// fields once the generic knobs are settled.
+func resolveProviderConfig(config *Config) error {
 	switch config.Provider {
 	case ProviderLocal:
 		absolute, err := filepath.Abs(config.Model)
 		if err != nil {
-			return Config{}, fmt.Errorf("resolve model path: %w", err)
+			return fmt.Errorf("resolve model path: %w", err)
 		}
 		config.Model = absolute
-		config.TokenizerPath, err = ResolveTokenizer(config.Model, config.TokenizerPath)
+		tokenizerPath, err := ResolveTokenizer(config.Model, config.TokenizerPath)
 		if err != nil {
-			return Config{}, err
+			return err
 		}
+		config.TokenizerPath = tokenizerPath
 	case ProviderChatCompletions, ProviderRWKVLightning:
 		parsed, err := url.Parse(config.Endpoint)
 		if err != nil || parsed.Scheme == "" || parsed.Host == "" ||
 			(parsed.Scheme != "http" && parsed.Scheme != "https") || parsed.User != nil {
-			return Config{}, fmt.Errorf("endpoint must be an absolute HTTP(S) URL without credentials")
+			return fmt.Errorf("endpoint must be an absolute HTTP(S) URL without credentials")
 		}
 		if _, _, err := validatedHeaders(config.Headers); err != nil {
-			return Config{}, err
+			return err
 		}
 	default:
-		return Config{}, fmt.Errorf("unsupported provider %q", config.Provider)
+		return fmt.Errorf("unsupported provider %q", config.Provider)
 	}
-	return config, nil
+	return nil
 }
 
 func publicEndpoint(config Config) string {

@@ -51,6 +51,28 @@ func newSessionAtDepth(
 	status Status,
 	depth int,
 ) (*Session, error) {
+	tools, err := assembleSessionTools(owner, workspace, depth)
+	if err != nil {
+		return nil, err
+	}
+	config := ownerConfig(owner)
+	if depth > 0 {
+		config.MaxSteps = config.SubagentMaxSteps
+	}
+	markdownProtocol := config.AgentProtocol != AgentProtocolXML
+	runnerOptions := sessionRunnerOptions(config, status, workspace, tools, markdownProtocol)
+	runner, err := agent.NewRunner(generator, tools, runnerOptions)
+	if err != nil {
+		return nil, err
+	}
+	return &Session{owner: owner, runner: runner, closer: closer}, nil
+}
+
+// assembleSessionTools builds the tool catalog for one session depth: workspace
+// and local tools are always offered, web and delegation tools follow their
+// config switches, and delegation is only wired at depth 0. The delegation
+// closure compacts each child result into a presentation-safe summary.
+func assembleSessionTools(owner *Service, workspace string, depth int) ([]agent.Tool, error) {
 	// 文件工具始终在目录里（模型能感知该能力）；未打开工作区时它们由
 	// 不可用解析器支撑，调用会返回"请先打开工作区"的明确提示。
 	workspaceTools, err := agent.WorkspaceTools(workspace)
@@ -77,43 +99,58 @@ func newSessionAtDepth(
 		tools = append(tools, assistanttools.DelegationTools(assistanttools.DelegationOptions{
 			MaxParallel: config.SubagentMaxParallel,
 			Timeout:     time.Duration(config.SubagentTimeoutSeconds) * time.Second,
-			Run: func(ctx context.Context, task string, observer func(agent.Event)) (assistanttools.AgentTaskResult, error) {
-				child, childErr := owner.newSession(ctx, depth+1)
-				if childErr != nil {
-					return assistanttools.AgentTaskResult{}, childErr
-				}
-				defer child.Close()
-				result, runErr := child.runWithAgentObserver(ctx, task, observer)
-				steps := make([]agent.SubagentStep, 0, len(result.Steps))
-				for _, step := range result.Steps {
-					if strings.TrimSpace(step.Tool) == "" {
-						continue
-					}
-					status := "completed"
-					if step.ToolError != "" {
-						status = "failed"
-					}
-					steps = append(steps, agent.SubagentStep{
-						Number: step.Number, Tool: step.Tool,
-						Arguments: json.RawMessage(step.ToolArguments), Status: status, Error: step.ToolError,
-						Retries: internalToolRetries(step.ToolRetries),
-					})
-				}
-				return assistanttools.AgentTaskResult{
-					Output:    result.Output,
-					Sources:   resultSourceURLs(result),
-					Route:     agent.Route(result.Route),
-					Bundles:   append([]string(nil), result.Bundles...),
-					Steps:     steps,
-					StepCount: len(result.Steps),
-				}, runErr
-			},
+			Run:         delegateToChildSession(owner, depth+1),
 		})...)
 	}
-	if depth > 0 {
-		config.MaxSteps = config.SubagentMaxSteps
+	return tools, nil
+}
+
+// delegateToChildSession runs one delegated task on a child session and converts
+// the full child trace into the compact per-step summary the parent sees.
+func delegateToChildSession(owner *Service, depth int) func(context.Context, string, func(agent.Event)) (assistanttools.AgentTaskResult, error) {
+	return func(ctx context.Context, task string, observer func(agent.Event)) (assistanttools.AgentTaskResult, error) {
+		child, childErr := owner.newSession(ctx, depth)
+		if childErr != nil {
+			return assistanttools.AgentTaskResult{}, childErr
+		}
+		defer child.Close()
+		result, runErr := child.runWithAgentObserver(ctx, task, observer)
+		steps := make([]agent.SubagentStep, 0, len(result.Steps))
+		for _, step := range result.Steps {
+			if strings.TrimSpace(step.Tool) == "" {
+				continue
+			}
+			status := "completed"
+			if step.ToolError != "" {
+				status = "failed"
+			}
+			steps = append(steps, agent.SubagentStep{
+				Number: step.Number, Tool: step.Tool,
+				Arguments: json.RawMessage(step.ToolArguments), Status: status, Error: step.ToolError,
+				Retries: internalToolRetries(step.ToolRetries),
+			})
+		}
+		return assistanttools.AgentTaskResult{
+			Output:    result.Output,
+			Sources:   resultSourceURLs(result),
+			Route:     agent.Route(result.Route),
+			Bundles:   append([]string(nil), result.Bundles...),
+			Steps:     steps,
+			StepCount: len(result.Steps),
+		}, runErr
 	}
-	markdownProtocol := config.AgentProtocol != AgentProtocolXML
+}
+
+// sessionRunnerOptions assembles the harness Options for one session: the
+// Markdown protocol uses the product profile with its post-tool reminders, the
+// XML profile carries the thinking mode instead.
+func sessionRunnerOptions(
+	config Config,
+	status Status,
+	workspace string,
+	tools []agent.Tool,
+	markdownProtocol bool,
+) agent.Options {
 	var postToolHook func(string, json.RawMessage, any, error) string
 	if markdownProtocol {
 		// The Markdown protocol answers directly (plain Markdown or fenced
@@ -152,9 +189,8 @@ func newSessionAtDepth(
 	if config.TracePromptBytes != nil {
 		tracePromptBytes = *config.TracePromptBytes
 	}
-	var runnerOptions agent.Options
 	if markdownProtocol {
-		runnerOptions = agent.ProductHarnessOptions(agent.ProductHarnessConfig{
+		return agent.ProductHarnessOptions(agent.ProductHarnessConfig{
 			MaxSteps:                 config.MaxSteps,
 			DecisionMaxOutputTokens:  min(config.DecisionMaxTokens, config.MaxTokens),
 			RouteMaxOutputTokens:     min(config.RouteMaxTokens, config.MaxTokens),
@@ -171,27 +207,21 @@ func newSessionAtDepth(
 			TaskControl:              taskControl,
 			PostToolHook:             postToolHook,
 		})
-	} else {
-		runnerOptions = agent.XMLHarnessOptions(agent.XMLHarnessConfig{
-			MaxSteps:                 config.MaxSteps,
-			DecisionMaxOutputTokens:  min(config.DecisionMaxTokens, config.MaxTokens),
-			RouteMaxOutputTokens:     min(config.RouteMaxTokens, config.MaxTokens),
-			TracePromptBytes:         tracePromptBytes,
-			DuplicateReplayLimit:     agent.ProductDuplicateReplayLimit,
-			DuplicateRescueThreshold: agent.ProductDuplicateRescueThreshold,
-			SameToolRescueLimit:      agent.ProductSameToolRescueLimit,
-			Generation:               generation,
-			ProgressiveTools:         progressiveToolsEnabled(config.ProgressiveTools),
-			ToolBundles:              toolBundles,
-			TaskControl:              taskControl,
-			ThinkingMode:             inference.ThinkingMode(config.Thinking),
-		})
 	}
-	runner, err := agent.NewRunner(generator, tools, runnerOptions)
-	if err != nil {
-		return nil, err
-	}
-	return &Session{owner: owner, runner: runner, closer: closer}, nil
+	return agent.XMLHarnessOptions(agent.XMLHarnessConfig{
+		MaxSteps:                 config.MaxSteps,
+		DecisionMaxOutputTokens:  min(config.DecisionMaxTokens, config.MaxTokens),
+		RouteMaxOutputTokens:     min(config.RouteMaxTokens, config.MaxTokens),
+		TracePromptBytes:         tracePromptBytes,
+		DuplicateReplayLimit:     agent.ProductDuplicateReplayLimit,
+		DuplicateRescueThreshold: agent.ProductDuplicateRescueThreshold,
+		SameToolRescueLimit:      agent.ProductSameToolRescueLimit,
+		Generation:               generation,
+		ProgressiveTools:         progressiveToolsEnabled(config.ProgressiveTools),
+		ToolBundles:              toolBundles,
+		TaskControl:              taskControl,
+		ThinkingMode:             inference.ThinkingMode(config.Thinking),
+	})
 }
 
 func progressiveToolsEnabled(value *bool) bool {

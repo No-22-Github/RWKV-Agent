@@ -1,6 +1,7 @@
 package agent
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -40,15 +41,12 @@ func (turn *runnerTurn) runToolAction(
 	return turn.advanceAfterTool(step, action, execution), nil
 }
 
-func (turn *runnerTurn) executeTool(step int, action Action) (toolExecution, error) {
+// toolEventContext attaches the per-step event observer: nested tool events
+// gain this step number, retry traces are recorded on the step, and everything
+// forwards to the runner observer.
+func (turn *runnerTurn) toolEventContext(step int, current *Step) context.Context {
 	r := turn.r
-	current := turn.currentStep()
-	tool, known := turn.activeTools[action.Name]
-	execution := toolExecution{
-		tool:    tool,
-		callKey: canonicalToolCall(action),
-	}
-	toolContext := withToolEventObserver(turn.ctx, func(event Event) {
+	return withToolEventObserver(turn.ctx, func(event Event) {
 		if event.Step == 0 {
 			event.Step = step
 		}
@@ -63,7 +61,13 @@ func (turn *runnerTurn) executeTool(step int, action Action) (toolExecution, err
 		}
 		r.observe(event, turn.observer)
 	})
-	toolStarted := time.Now()
+}
+
+// recordCallStreaks advances the identical-call counters the duplicate gates
+// and recovery notes read: one streak per protocol family, since the fenced
+// transcript counts every repeat while the native path counts resets.
+func (turn *runnerTurn) recordCallStreaks(action Action, execution *toolExecution) {
+	r := turn.r
 	if execution.callKey == turn.lastSameCallKey {
 		turn.sameCallStreak++
 	} else {
@@ -78,6 +82,51 @@ func (turn *runnerTurn) executeTool(step int, action Action) (toolExecution, err
 			turn.nativeRepeatStreak = 0
 		}
 	}
+}
+
+func (turn *runnerTurn) executeTool(step int, action Action) (toolExecution, error) {
+	current := turn.currentStep()
+	tool, known := turn.activeTools[action.Name]
+	execution := toolExecution{
+		tool:    tool,
+		callKey: canonicalToolCall(action),
+	}
+	toolContext := turn.toolEventContext(step, current)
+	toolStarted := time.Now()
+	turn.recordCallStreaks(action, &execution)
+	turn.applyToolGates(step, action, &execution, current, toolContext, known)
+
+	current.ToolExecuted = execution.executed
+	if execution.executed {
+		current.ToolStartedAtMS = toolStarted.UnixMilli()
+		current.ToolDurationMS = time.Since(toolStarted).Milliseconds()
+		turn.recordExecutedToolOutcome(action, execution)
+	}
+	if !execution.executed && execution.err != nil && !execution.duplicate {
+		turn.failedToolCallEpochs[execution.callKey] = turn.successfulToolCalls
+	}
+	turn.recordToolStreak(action, execution)
+
+	if err := turn.recordToolResult(step, action, execution, current); err != nil {
+		return execution, err
+	}
+	return execution, nil
+}
+
+// applyToolGates decides the fate of one requested call: provider and rescue
+// availability, duplicate protection (with replayable re-execution), the
+// consecutive-failure block, and finally execution itself. It returns with
+// execution.executed or execution.err set.
+func (turn *runnerTurn) applyToolGates(
+	step int,
+	action Action,
+	execution *toolExecution,
+	current *Step,
+	toolContext context.Context,
+	known bool,
+) {
+	r := turn.r
+	tool := execution.tool
 
 	rescueRestricted := turn.rescueMode &&
 		(r.terminalTool == "" || action.Name != r.terminalTool)
@@ -163,18 +212,16 @@ func (turn *runnerTurn) executeTool(step int, action Action) (toolExecution, err
 			execution.value, execution.err = tool.Execute(toolContext, action.Arguments)
 		}
 	}
+}
 
-	current.ToolExecuted = execution.executed
-	if execution.executed {
-		current.ToolStartedAtMS = toolStarted.UnixMilli()
-		current.ToolDurationMS = time.Since(toolStarted).Milliseconds()
-		turn.recordExecutedToolOutcome(action, execution)
-	}
-	if !execution.executed && execution.err != nil && !execution.duplicate {
-		turn.failedToolCallEpochs[execution.callKey] = turn.successfulToolCalls
-	}
-	turn.recordToolStreak(action, execution)
-
+// recordToolResult marshals the tool outcome into the step trace and emits the
+// tool_done event.
+func (turn *runnerTurn) recordToolResult(
+	step int,
+	action Action,
+	execution toolExecution,
+	current *Step,
+) error {
 	payload := toolResult{
 		OK:     execution.err == nil,
 		Tool:   action.Name,
@@ -189,17 +236,17 @@ func (turn *runnerTurn) executeTool(step int, action Action) (toolExecution, err
 	}
 	encoded, err := json.Marshal(payload)
 	if err != nil {
-		return execution, fmt.Errorf("encode tool result: %w", err)
+		return fmt.Errorf("encode tool result: %w", err)
 	}
 	current.ToolResult = append(json.RawMessage(nil), encoded...)
-	r.observe(
+	turn.r.observe(
 		Event{
 			Kind: EventToolDone, Step: step, Tool: action.Name,
 			Arguments: action.Arguments, Err: execution.err,
 		},
 		turn.observer,
 	)
-	return execution, nil
+	return nil
 }
 
 func (turn *runnerTurn) recordExecutedToolOutcome(

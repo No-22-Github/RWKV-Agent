@@ -643,24 +643,7 @@ func summarize(
 			}
 		}
 	}
-	for _, record := range trace {
-		if record.ModelCall != nil {
-			summary.Metrics.ModelCalls++
-			summary.Metrics.PromptTokens += record.ModelCall.Response.Usage.PromptTokens
-			summary.Metrics.CompletionTokens +=
-				record.ModelCall.Response.Usage.CompletionTokens
-		}
-		if record.RunnerEvent != nil {
-			switch record.RunnerEvent.Kind {
-			case agent.EventRetry:
-				summary.Metrics.ProtocolRetries++
-			case agent.EventRouteDone:
-				if record.RunnerEvent.Error != "" {
-					summary.Metrics.RouteFallbacks++
-				}
-			}
-		}
-	}
+	accumulateTraceMetrics(&summary, trace)
 	finalizeScore(&summary.Metrics.TaskSuccess)
 	finalizeScore(&summary.Metrics.AnswerAccuracy)
 	finalizeScore(&summary.Metrics.RouteAccuracy)
@@ -681,6 +664,29 @@ func summarize(
 	finalizeScore(&summary.Metrics.ExplicitAbstention)
 	finalizeScore(&summary.Metrics.AnswerContractRepaired)
 	return summary
+}
+
+// accumulateTraceMetrics folds the raw trace records (model calls and runner
+// events) into the run-level counters.
+func accumulateTraceMetrics(summary *Summary, trace []TraceRecord) {
+	for _, record := range trace {
+		if record.ModelCall != nil {
+			summary.Metrics.ModelCalls++
+			summary.Metrics.PromptTokens += record.ModelCall.Response.Usage.PromptTokens
+			summary.Metrics.CompletionTokens +=
+				record.ModelCall.Response.Usage.CompletionTokens
+		}
+		if record.RunnerEvent != nil {
+			switch record.RunnerEvent.Kind {
+			case agent.EventRetry:
+				summary.Metrics.ProtocolRetries++
+			case agent.EventRouteDone:
+				if record.RunnerEvent.Error != "" {
+					summary.Metrics.RouteFallbacks++
+				}
+			}
+		}
+	}
 }
 
 func caseToolRequirementMet(
