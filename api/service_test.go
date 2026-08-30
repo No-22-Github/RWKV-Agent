@@ -70,26 +70,39 @@ func TestAgentCapabilityDefaults(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if config.ProgressiveTools != nil || !progressiveToolsEnabled(config.ProgressiveTools) {
+	if config.ProgressiveTools != nil || progressiveToolsEnabled(config.ProgressiveTools) {
 		t.Fatalf("ProgressiveTools = %v", config.ProgressiveTools)
 	}
-	if config.AgentProtocol != AgentProtocolMarkdown {
+	if config.AgentProtocol != AgentProtocolXML {
 		t.Fatalf("AgentProtocol = %q", config.AgentProtocol)
 	}
-	// semanticNoTool and deepToolAnchor now default on for the product profile
-	// (60-case paired A/B: +12/-0, p=0.000488, repair rate 0/131). Unset stays
-	// nil so a client can still turn either one off.
-	if config.SemanticNoTool != nil || config.DeepToolAnchor != nil {
-		t.Fatalf("unset product switches must stay nil: %+v", config)
-	}
-	if !productSwitchEnabled(config.SemanticNoTool) || !productSwitchEnabled(config.DeepToolAnchor) {
-		t.Fatalf("product switches must default on: %+v", config)
+	// The default XML profile answers directly, so neither product-only prefill
+	// switch is useful and the optional capability Router stays off.
+	if config.SemanticNoTool == nil || config.DeepToolAnchor == nil ||
+		productSwitchEnabled(config.SemanticNoTool) || productSwitchEnabled(config.DeepToolAnchor) {
+		t.Fatalf("XML switches must default off: %+v", config)
 	}
 	if config.DecisionFakeThink {
 		t.Fatalf("decisionFakeThink must default off: %+v", config)
 	}
-	if config.RouteMaxTokens != 48 || config.DecisionMaxTokens != 96 || config.MaxActiveBatch != 4 || config.SubagentMaxParallel != 4 || config.SubagentMaxSteps != 4 || config.SubagentTimeoutSeconds != 120 {
+	if config.RouteMaxTokens != 48 || config.DecisionMaxTokens != 512 || config.MaxActiveBatch != 4 || config.SubagentMaxParallel != 4 || config.SubagentMaxSteps != 4 || config.SubagentTimeoutSeconds != 120 {
 		t.Fatalf("capability defaults = %+v", config)
+	}
+}
+
+func TestMarkdownProtocolRemainsAnExplicitOption(t *testing.T) {
+	t.Parallel()
+	config, err := normalizeConfig(Config{
+		Provider: ProviderRWKVLightning, Model: "model", Endpoint: "https://example.test",
+		AgentProtocol: AgentProtocolMarkdown,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if config.AgentProtocol != AgentProtocolMarkdown || config.DecisionMaxTokens != 96 ||
+		progressiveToolsEnabled(config.ProgressiveTools) ||
+		!productSwitchEnabled(config.SemanticNoTool) || !productSwitchEnabled(config.DeepToolAnchor) {
+		t.Fatalf("explicit Markdown config = %+v", config)
 	}
 }
 

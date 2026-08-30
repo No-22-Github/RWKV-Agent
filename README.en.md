@@ -267,22 +267,17 @@ mock `weather`, `nearest_transit`, `transit_hours`, and `fx_convert` tools are o
 registered in the repeatable `assistant` evaluation suite. Default tools have no
 write, command-execution, or real-network capability.
 
-The product default is the G1i-trained Markdown/function transcript: tools are listed
-under `System: Tools:`, a tool call is a JSON fenced code block continued after
-`Assistant:`, and results are returned as `User: Function output:`. Once an `inspect`
-turn has enough evidence it answers directly in ordinary Markdown; the product profile
-does not register `submit`, so fenced code never has to be packed into a JSON argument.
-The `respond` route also answers directly. The legacy
-`rwkv-g1i-envelope-v1` XML protocol remains available as `--agent-protocol xml` for
-A/B compatibility.
+The product default is the `rwkv-g1i-envelope-v1` XML transcript with no separate
+Router. A tool call is `<tool_call>{"name":"TOOL_NAME","arguments":{...}}</tool_call>`,
+results return as `<tool_result>...</tool_result>`, and messages that need no tool are
+answered as ordinary text. The complete enabled tool catalog is available directly to
+the action protocol; no preliminary `<route>` generation runs.
 
-Progressive tool exposure is enabled by default: a short Router that never sees tool
-schemas first selects zero to two capability bundles among `workspace`, `compute`,
-`web`, and `delegate`. `respond` answers without tools; `inspect:BUNDLE[+BUNDLE]`
-exposes only the selected bundles' schemas. When the current tools are insufficient,
-the model can call the control tool `load_tools` to load another enabled bundle;
-naming a hidden tool is rejected by the Harness. `--progressive-tools=false` restores
-the fixed full catalog.
+The G1i-trained Markdown/function transcript remains available explicitly with
+`--agent-protocol markdown`. The progressive Router is also an opt-in through
+`--progressive-tools=true`: it selects zero to two bundles among `workspace`,
+`compute`, `web`, and `delegate`, exposes only those schemas, and lets `load_tools`
+load another enabled bundle.
 
 ```sh
 ./dist/rwkv-cli agent \
@@ -311,7 +306,7 @@ Common flags:
 --max-steps <2..20>                  --progressive-tools[=true|false]
 --agent-protocol markdown|xml        --route-max-tokens <n>
 --decision-max-tokens <n>            --max-tokens <n>
---workspace <directory>              --thinking off|fast|full (XML compatibility only)
+--workspace <directory>              --thinking off|fast|full (XML only)
 --ui auto|tui|plain                  --prompt <task>
 --web                                --subagents
 --semantic-no-tool                   --decision-fake-think
@@ -323,17 +318,17 @@ Common flags:
 ```
 
 The Agent uses deterministic decoding by default: `temperature=1`, `top-k=1`,
-`top-p=1`, zero presence/frequency penalties, and `penalty-decay=1`. The Router
-generates at most 48 tokens, the first tool selection at most 96 tokens, the final
-answer at most 1024 tokens, with a limit of 6 Agent steps (the Router is counted
-separately). Product experiment switches default off. `--few-shot`, the legacy
-`--route-stage`, and Primitive duplicate/rescue knobs are `agent-eval` options only;
-they are no longer exposed as apparently active `agent` flags that never enter the App
+`top-p=1`, zero presence/frequency penalties, and `penalty-decay=1`. The default XML
+decision receives at most 512 tokens, the final answer at most 1024 tokens, with a
+limit of 6 Agent steps. When explicitly enabled, the progressive Router gets 48 tokens
+and is counted separately. XML defaults `semantic-no-tool` and `deep-tool-anchor` off.
+`--few-shot`, the legacy `--route-stage`, and Primitive duplicate/rescue knobs are
+`agent-eval` options only. They are no longer exposed as apparently active `agent` flags that never enter the App
 profile.
 
-The product Markdown profile fixes internal thinking to `off`; `--thinking fast/full`
-remains available only with the `--agent-protocol xml` compatibility profile. Use the
-separate `--decision-fake-think` switch for the product half-open think-byte experiment
+The Markdown profile fixes internal thinking to `off`; the default XML profile directly
+supports `--thinking fast/full`. Use the separate `--decision-fake-think` switch for the
+Markdown half-open think-byte experiment
 so the two renderer semantics cannot be mixed silently.
 
 ### Optional Web and Subagents
@@ -501,10 +496,10 @@ for the complete mapping details.
 
 ## 8. Agent Evaluation
 
-`agent-eval` uses an explicit profile per suite. `bfcl-product` is constructed through
-the same `ProductHarnessOptions` entry point as the App (Markdown/function plus the
-progressive Router); Primitive, wrapped BFCL, and XML regression protocols remain
-separate so benchmark bytes do not leak into the product profile:
+`agent-eval` uses an explicit, archived profile per suite and does not inherit the
+App/CLI product defaults. `bfcl-product` keeps its frozen Markdown/function plus
+progressive-Router baseline through `ProductHarnessOptions`; Primitive, wrapped BFCL,
+and XML comparison protocols remain separate so historical run semantics do not drift:
 
 | Suite | Contents |
 | --- | --- |

@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import {
-  ArrowLeft, Cloud, Cpu, FolderOpen, Globe2, Moon, Plus, Sun, Trash2, Users,
+  ArrowLeft, Check, Cloud, Cpu, FolderOpen, Globe2, Moon, Plus, Sun, Trash2, Users,
 } from 'lucide-react'
-import { AgentProtocol, type RemoteModel, type Status } from '../../bindings/github.com/no22/RWKV-Agent/api/models'
+import { AgentProtocol, ModelState, Provider, type RemoteModel, type Status } from '../../bindings/github.com/no22/RWKV-Agent/api/models'
+import type { SavedProvider } from '../../bindings/github.com/no22/RWKV-Agent/internal/appstorage/models'
 import type { ThemeMode } from '../theme'
 
 type HeaderRow = { id: number; name: string; value: string }
@@ -10,6 +11,14 @@ type HeaderRow = { id: number; name: string; value: string }
 type Props = {
   status: Status
   ready: boolean
+  providers: SavedProvider[]
+  activeProviderId: string
+  runtimeProviderId: string
+  editingProviderId: string
+  draftLabel: string
+  setDraftLabel: (value: string) => void
+  draftDirty: boolean
+  draftIsRunning: boolean
   settingsTab: 'local' | 'remote'
   setSettingsTab: (tab: 'local' | 'remote') => void
   modelPath: string
@@ -49,25 +58,28 @@ type Props = {
   subagentTimeoutSeconds: number
   setSubagentTimeoutSeconds: (value: number) => void
   availableModels: RemoteModel[]
-  setAvailableModels: (value: RemoteModel[]) => void
   settingsMessage: string
   settingsBusy: boolean
   workspaceName: string
   onChooseWorkspace: () => void
   onTestRemote: () => void
-  onSaveLocal: () => void
-  onSaveRemote: () => void
+  onEditProvider: (id: string) => void
+  onNewProvider: () => void
+  onDeleteProvider: (id: string) => void
+  onDiscardDraft: () => void
+  onSaveDraft: () => void
+  onSaveAndUseDraft: () => void
   onClose: () => void
   theme: ThemeMode
   onToggleTheme: () => void
 }
 
-const NAV_ITEMS = ['模型', 'Agent', '工作区', '外观'] as const
+const NAV_ITEMS = ['连接', 'Agent', '工作区', '外观'] as const
 type Section = (typeof NAV_ITEMS)[number]
 
 export default function SettingsPage(props: Props) {
-  const [section, setSection] = useState<Section>('模型')
-  const { settingsTab, setSettingsTab } = props
+  const [section, setSection] = useState<Section>('连接')
+  const showDraftActions = section === '连接' || section === 'Agent'
 
   return (
     <div className="flex h-full w-full bg-paper text-ink">
@@ -87,77 +99,153 @@ export default function SettingsPage(props: Props) {
       </aside>
 
       <main className="flex min-w-0 flex-1 flex-col">
-        <header className="settings-header flex h-[52px] flex-none items-end border-b border-line px-[30px] pb-[10px]">
+        <header className="settings-header flex h-[52px] flex-none items-end gap-[10px] border-b border-line px-[30px] pb-[10px]">
           <span className="font-serif text-[16px] font-semibold">{section}</span>
+          {section === '连接' && <span className="text-[10.5px] text-ink-ghost">管理档案不会自动改变当前运行连接</span>}
         </header>
 
         <div className="flex min-h-0 flex-1 justify-center overflow-auto">
-          <div className="settings-content w-[min(826px,calc(100%-52px))] min-w-0 py-[30px]">
-            {section === '模型' && <ModelSection {...props} />}
+          <div className={`settings-content min-w-0 py-[24px] ${section === '连接' ? 'w-[min(1040px,calc(100%-44px))]' : 'w-[min(826px,calc(100%-52px))]'}`}>
+            {section === '连接' && <ConnectionSection {...props} />}
             {section === 'Agent' && <AgentSection {...props} />}
             {section === '工作区' && <WorkspaceSection {...props} />}
             {section === '外观' && <AppearanceSection {...props} />}
           </div>
         </div>
 
-        <footer className="flex flex-none justify-center pb-[24px] pt-[16px]">
-          <div className="settings-footer-grid grid w-[min(826px,calc(100%-52px))] grid-cols-[112px_minmax(0,672px)] gap-[42px]">
-            <span className="settings-footer-spacer" />
-            <div className="flex items-center gap-[12px] border-t-[1.5px] border-ink pt-[13px]">
-              <span className="text-[12px] text-ink-muted">配置保存在 ~/Library/Application Support/RWKV-Agent</span>
-              <span className="flex-1" />
-              <button className="h-[32px] border-[1.5px] border-ink bg-transparent px-[14px] text-[13px] font-medium text-ink" onClick={() => void props.onTestRemote()} disabled={props.settingsBusy}>测试连接</button>
-              <button className="h-[32px] border-0 bg-brand px-[16px] text-[13px] font-medium text-white" onClick={() => { if (settingsTab === 'local') props.onSaveLocal(); else props.onSaveRemote() }} disabled={props.settingsBusy}>{props.settingsBusy ? '保存中…' : '保存'}</button>
-            </div>
-          </div>
-        </footer>
+        {showDraftActions && <DraftActions {...props} section={section} />}
       </main>
     </div>
   )
 }
 
-function ModelSection(props: Props) {
+function ConnectionSection(props: Props) {
   const addHeader = () => props.setHeaders([...props.headers, { id: Date.now(), name: '', value: '' }])
   const updateHeader = (id: number, patch: Partial<HeaderRow>) => props.setHeaders(props.headers.map((row) => row.id === id ? { ...row, ...patch } : row))
   const removeHeader = (id: number) => props.setHeaders(props.headers.filter((row) => row.id !== id))
+  const runtime = props.providers.find((provider) => provider.id === props.runtimeProviderId)
+  const runtimeLabel = props.ready ? runtime?.label || props.status.model || '未命名运行连接' : '当前没有运行连接'
+  const runtimeMeta = props.ready
+    ? [providerKind(props.status.provider), props.status.model, endpointHost(props.status.endpoint)].filter(Boolean).join(' · ')
+    : props.status.state === ModelState.ModelError ? props.status.message || '连接失败' : '选择已保存档案，或创建新草稿后点击“保存并使用”'
+
   return (
-    <div className="flex flex-col gap-[30px]">
-      <SettingsGroup title="连接" hint="远端续写服务或本地模型。远端连接会在成功后自动记住，可在顶栏下拉直接切换。">
-        <div className="mb-[14px] flex gap-[18px] border-b border-line-soft">
-          <button className={`flex items-center gap-[7px] border-0 border-b-2 bg-transparent px-1 pb-[9px] pt-2 text-[13.5px] ${props.settingsTab === 'remote' ? 'border-brand font-semibold text-brand' : 'border-transparent text-ink-muted'}`} onClick={() => props.setSettingsTab('remote')}><Cloud size={16} />远端 Provider</button>
-          <button className={`flex items-center gap-[7px] border-0 border-b-2 bg-transparent px-1 pb-[9px] pt-2 text-[13.5px] ${props.settingsTab === 'local' ? 'border-brand font-semibold text-brand' : 'border-transparent text-ink-muted'}`} onClick={() => props.setSettingsTab('local')}><Cpu size={16} />本地模型</button>
+    <div className="flex flex-col gap-[22px]">
+      <section className="grid min-h-[52px] grid-cols-[minmax(0,1fr)_auto] items-center gap-[18px] border-b border-line-soft pb-[14px]">
+        <div className="flex min-w-0 items-center gap-[11px]">
+          <span className={`h-[8px] w-[8px] flex-none rounded-full ${props.ready ? 'bg-brand-bright' : props.status.state === ModelState.ModelError ? 'bg-danger' : 'bg-ink-muted'}`} />
+          <span className="min-w-0">
+            <span className="flex min-w-0 items-baseline gap-[8px]">
+              <span className="flex-none text-[10px] uppercase tracking-[.12em] text-ink-muted">当前运行连接</span>
+              <strong className="truncate text-[13.5px] font-semibold text-ink">{runtimeLabel}</strong>
+            </span>
+            <span className="mt-[2px] block truncate font-mono text-[10px] text-ink-muted">{runtimeMeta}</span>
+          </span>
         </div>
-        {props.settingsTab === 'local' ? (
-          <div className="flex flex-col gap-[13px]">
-            <Field label="模型路径" value={props.modelPath} onChange={props.setModelPath} placeholder="/absolute/path/to/rwkv7-model.pth" />
-            <Field label="Tokenizer 路径（可选，默认自动查找）" value={props.tokenizerPath} onChange={props.setTokenizerPath} placeholder="/path/to/rwkv_vocab_v20230424.txt" />
-          </div>
+        <span className="max-w-[270px] text-right text-[10.5px] leading-[1.5] text-ink-muted">
+          {props.ready && !props.runtimeProviderId ? '运行快照与已保存档案不同' : '编辑草稿不会影响正在进行的对话'}
+        </span>
+      </section>
+
+      <section className="border-b border-line-soft pb-[18px]">
+        <div className="mb-[10px] flex items-center gap-[8px]">
+          <strong className="text-[12px] font-semibold">已保存连接</strong>
+          <span className="font-mono text-[10px] text-ink-ghost">{props.providers.length}</span>
+          <button className="ml-auto flex items-center gap-[5px] border-0 bg-transparent px-0 py-[5px] text-[11.5px] text-brand" onClick={props.onNewProvider}><Plus size={14} />新建连接</button>
+        </div>
+        {props.providers.length === 0 ? (
+          <div className="py-[6px] text-[11px] leading-[1.65] text-ink-muted">还没有保存的连接。当前可以直接编辑下方草稿。</div>
         ) : (
-          <div className="flex flex-col gap-[13px]">
-            <div className="flex gap-[14px]" aria-label="远端协议">
-              <button type="button" className={`border-0 border-b-2 bg-transparent px-[5px] py-[7px] text-[13.5px] ${props.remoteProtocol === 'rwkv' ? 'border-brand font-semibold text-brand' : 'border-transparent text-ink-muted'}`} onClick={() => props.setRemoteProtocol('rwkv')}>RWKV 续写</button>
-              <button type="button" className={`border-0 border-b-2 bg-transparent px-[5px] py-[7px] text-[13.5px] ${props.remoteProtocol === 'openai' ? 'border-brand font-semibold text-brand' : 'border-transparent text-ink-muted'}`} onClick={() => props.setRemoteProtocol('openai')}>OpenAI 兼容</button>
-            </div>
-            <Field label="API 地址" value={props.remoteEndpoint} onChange={props.setRemoteEndpoint} placeholder="https://example.com 或 …/v1/models" />
-            <Field label="模型 ID" value={props.remoteModel} onChange={props.setRemoteModel} placeholder="rwkv7-g1i-13.3b" list={props.availableModels.map((m) => m.id)} />
-            <Field label={props.remoteProtocol === 'rwkv' ? '服务密码' : 'API Key'} value={props.apiKey} onChange={props.setAPIKey} type="password" />
+          <div className="flex flex-wrap gap-[8px]">
+            {props.providers.map((provider) => {
+            const selected = provider.id === props.editingProviderId
+            const running = props.ready && provider.id === props.runtimeProviderId
+            const lastUsed = !running && provider.id === props.activeProviderId
+            return (
+              <div key={provider.id} className="group relative min-w-0">
+                <button className={`flex min-h-[58px] w-[210px] min-w-0 items-center gap-[9px] border px-[12px] py-[9px] pr-[34px] text-left ${selected ? 'border-brand bg-surface-active' : 'border-line-soft bg-transparent hover:border-line'}`} onClick={() => props.onEditProvider(provider.id)}>
+                  <span className={`h-[6px] w-[6px] flex-none rounded-full ${running ? 'bg-brand-bright' : 'bg-accent-warm'}`} />
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-[12px] font-medium text-ink">{provider.label || provider.config.model || '未命名连接'}</span>
+                    <span className="mt-[2px] block truncate font-mono text-[9.5px] text-ink-muted">{providerMeta(provider)}</span>
+                    <span className={`mt-[3px] block text-[9.5px] ${running ? 'text-brand' : selected ? 'text-ink-soft' : 'text-ink-ghost'}`}>{running ? '运行中' : selected ? '编辑中' : lastUsed ? '上次使用' : '已保存'}</span>
+                  </span>
+                </button>
+                <button className="absolute right-[5px] top-[5px] grid h-[25px] w-[25px] place-items-center border-0 bg-transparent text-ink-ghost opacity-60 hover:bg-danger-wash hover:text-danger group-hover:opacity-100" onClick={() => props.onDeleteProvider(provider.id)} aria-label={`删除连接 ${provider.label || provider.config.model}`} disabled={props.settingsBusy}><Trash2 size={12} /></button>
+              </div>
+            )
+            })}
           </div>
         )}
-      </SettingsGroup>
+      </section>
 
-      {props.settingsTab === 'remote' && (
-        <SettingsGroup title="请求头" hint="可选，按需添加（随连接一并保存）">
-          {props.headers.map((row) => (
-            <div key={row.id} className="flex items-end gap-[8px]">
-              <div className="flex-1"><Field label="Header 名称" value={row.name} onChange={(value) => updateHeader(row.id, { name: value })} /></div>
-              <div className="flex-1"><Field label="Header 值" value={row.value} onChange={(value) => updateHeader(row.id, { value: value })} type="password" /></div>
-              <button className="grid h-[42px] w-[42px] flex-none place-items-center border border-line bg-transparent text-ink-muted" onClick={() => removeHeader(row.id)} aria-label={`删除 Header ${row.name || row.id}`}><Trash2 size={16} /></button>
+      <section className="flex max-w-[820px] min-w-0 flex-col">
+        <div className="flex min-h-[62px] items-end gap-[16px] border-b border-line pb-[12px]">
+          <div className="min-w-0 flex-1">
+            <span className="block text-[10px] uppercase tracking-[.12em] text-ink-muted">{props.editingProviderId ? '编辑档案副本' : '新连接草稿'}</span>
+            <input aria-label="连接名称" className="mt-[3px] h-[28px] w-full border-0 bg-transparent px-0 text-[15px] font-semibold text-ink outline-0 placeholder:text-ink-ghost" value={props.draftLabel} placeholder="未命名连接" onChange={(event) => props.setDraftLabel(event.target.value)} />
+          </div>
+          <div className="flex flex-none items-center gap-[10px]">
+            {props.draftDirty ? <span className="border border-warning bg-warning/10 px-[8px] py-[4px] text-[10px] text-warning">未保存草稿</span>
+              : props.draftIsRunning ? <span className="flex items-center gap-[4px] text-[10.5px] text-brand"><Check size={12} />正在使用</span>
+                : <span className="text-[10.5px] text-ink-muted">已保存</span>}
+            <div className="flex border border-line bg-paper-soft p-[2px]">
+              <button aria-label="远端 Provider" className={`flex h-[28px] items-center gap-[5px] border-0 px-[9px] text-[11.5px] ${props.settingsTab === 'remote' ? 'bg-paper font-medium text-brand shadow-sm' : 'bg-transparent text-ink-muted'}`} onClick={() => props.setSettingsTab('remote')}><Cloud size={13} />远端</button>
+              <button aria-label="本地模型" className={`flex h-[28px] items-center gap-[5px] border-0 px-[9px] text-[11.5px] ${props.settingsTab === 'local' ? 'bg-paper font-medium text-brand shadow-sm' : 'bg-transparent text-ink-muted'}`} onClick={() => props.setSettingsTab('local')}><Cpu size={13} />本地</button>
             </div>
-          ))}
-          <button className="flex items-center gap-[7px] self-start border-0 bg-transparent px-0 py-[7px] text-[13.5px] text-brand" onClick={addHeader}><Plus size={15} />添加</button>
-        </SettingsGroup>
-      )}
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-[16px] pt-[18px]">
+          {props.settingsTab === 'local' ? (
+            <div className="flex flex-col gap-[8px]">
+              <Field label="模型路径" value={props.modelPath} onChange={props.setModelPath} placeholder="/absolute/path/to/rwkv7-model.pth" />
+              <Field label="Tokenizer 路径（可选，默认自动查找）" value={props.tokenizerPath} onChange={props.setTokenizerPath} placeholder="/path/to/rwkv_vocab_v20230424.txt" />
+            </div>
+          ) : (
+            <>
+              <label className="flex flex-col gap-[6px] text-[11px] text-ink-muted">
+                接口协议
+                <select aria-label="远端协议" className="h-[40px] border border-line bg-paper-wash px-[10px] text-[13px] text-ink outline-0 focus:border-brand" value={props.remoteProtocol} onChange={(event) => props.setRemoteProtocol(event.target.value as 'rwkv' | 'openai')}>
+                  <option value="rwkv">RWKV 续写</option>
+                  <option value="openai">OpenAI 兼容</option>
+                </select>
+              </label>
+              <Field label="API 地址" value={props.remoteEndpoint} onChange={props.setRemoteEndpoint} placeholder="https://example.com 或 …/v1/models" />
+              <Field label="模型 ID" value={props.remoteModel} onChange={props.setRemoteModel} placeholder="rwkv7-g1i-13.3b" list={props.availableModels.map((model) => model.id)} />
+              <Field label={props.remoteProtocol === 'rwkv' ? '服务密码' : 'API Key'} value={props.apiKey} onChange={props.setAPIKey} type="password" />
+              <div className="mt-[2px] border-t border-line-soft pt-[12px]">
+                <div className="mb-[7px] flex items-center gap-[8px]"><strong className="text-[12px] font-semibold">请求头</strong><span className="text-[10.5px] text-ink-muted">可选，随档案保存</span></div>
+                {props.headers.map((row) => (
+                  <div key={row.id} className="flex items-end gap-[8px]">
+                    <div className="flex-1"><Field label="Header 名称" value={row.name} onChange={(value) => updateHeader(row.id, { name: value })} /></div>
+                    <div className="flex-1"><Field label="Header 值" value={row.value} onChange={(value) => updateHeader(row.id, { value })} type="password" /></div>
+                    <button className="mb-[6px] grid h-[40px] w-[40px] flex-none place-items-center border border-line bg-transparent text-ink-muted" onClick={() => removeHeader(row.id)} aria-label={`删除 Header ${row.name || row.id}`}><Trash2 size={15} /></button>
+                  </div>
+                ))}
+                <button className="flex items-center gap-[6px] border-0 bg-transparent px-0 py-[7px] text-[12.5px] text-brand" onClick={addHeader}><Plus size={14} />添加请求头</button>
+              </div>
+            </>
+          )}
+        </div>
+      </section>
     </div>
+  )
+}
+
+function DraftActions(props: Props & { section: Section }) {
+  return (
+    <footer className="flex flex-none justify-center border-t border-line bg-paper-wash px-[22px] py-[13px]">
+      <div className={`flex w-full min-w-0 items-center gap-[9px] ${props.section === '连接' ? 'max-w-[1040px]' : 'max-w-[826px]'}`}>
+        <span className="min-w-0 flex-1 truncate text-[11px] text-ink-muted" title={props.settingsMessage || undefined}>
+          {props.settingsMessage || (props.draftDirty ? '草稿有未保存更改；当前运行连接不受影响。' : props.draftIsRunning ? '此档案与当前运行连接一致。' : '选择“保存并使用”才会切换运行连接。')}
+        </span>
+        <button className="h-[32px] border-0 bg-transparent px-[10px] text-[12px] text-ink-muted disabled:opacity-40" onClick={props.onDiscardDraft} disabled={!props.draftDirty || props.settingsBusy}>放弃更改</button>
+        {props.section === '连接' && props.settingsTab === 'remote' && <button className="h-[32px] border border-ink bg-transparent px-[12px] text-[12.5px] text-ink" onClick={props.onTestRemote} disabled={props.settingsBusy}>测试草稿</button>}
+        <button className="h-[32px] border border-ink bg-transparent px-[13px] text-[12.5px] font-medium text-ink disabled:opacity-40" onClick={props.onSaveDraft} disabled={!props.draftDirty || props.settingsBusy}>{props.settingsBusy ? '处理中…' : '保存'}</button>
+        <button className="h-[32px] border-0 bg-brand px-[15px] text-[12.5px] font-medium text-white disabled:opacity-40" onClick={props.onSaveAndUseDraft} disabled={props.draftIsRunning || props.settingsBusy}>{props.settingsBusy ? '处理中…' : '保存并使用'}</button>
+      </div>
+    </footer>
   )
 }
 
@@ -172,12 +260,18 @@ function AgentSection(props: Props) {
 
   return (
     <div className="flex flex-col gap-[30px]">
+      <SettingsGroup title="当前草稿" hint="这些能力会保存到正在编辑的连接档案">
+        <Row label="连接档案" description={props.draftLabel || '新连接草稿'}>
+          <span className={`text-[11px] ${props.draftDirty ? 'text-warning' : 'text-ink-muted'}`}>{props.draftDirty ? '未保存' : props.draftIsRunning ? '正在使用' : '已保存'}</span>
+        </Row>
+      </SettingsGroup>
+
       <SettingsGroup title="推理" hint="影响每一轮生成">
-        <Toggle label="渐进式工具暴露" description="每轮先由短 Router 选择能力组，再暴露 schema" checked={props.progressiveTools} onChange={props.setProgressiveTools} />
-        <Row label="Agent 协议" description="markdown（G1i 原生）或 xml 兼容模式">
+        <Toggle label="渐进式工具路由" description="可选：先由短 Router 选择能力组，再暴露 schema" checked={props.progressiveTools} onChange={props.setProgressiveTools} />
+        <Row label="Agent 协议" description="XML 默认直达工具决策；Markdown 保留为可选模式">
           <select aria-label="工具协议" className="rounded-none border border-line bg-paper-wash px-2 py-[8px] text-[13.5px] text-ink outline-0" value={props.agentProtocol} onChange={(event) => props.setAgentProtocol(event.target.value as AgentProtocol)}>
-            <option value={AgentProtocol.AgentProtocolMarkdown}>Markdown（推荐）</option>
-            <option value={AgentProtocol.AgentProtocolXML}>XML（兼容模式）</option>
+            <option value={AgentProtocol.AgentProtocolXML}>XML（推荐）</option>
+            <option value={AgentProtocol.AgentProtocolMarkdown}>Markdown（可选）</option>
           </select>
         </Row>
       </SettingsGroup>
@@ -250,11 +344,11 @@ function Row({ label, description, children }: { label: string; description?: st
 }
 
 function Field({ label, value, onChange, placeholder, type = 'text', list }: { label: string; value: string; onChange: (value: string) => void; placeholder?: string; type?: string; list?: string[] }) {
-  const id = label
+  const id = label.replace(/\s+/g, '-')
   return (
-    <label className="flex flex-col gap-[5px] py-[6px] text-[12px] text-ink-muted">
+    <label className="flex flex-col gap-[5px] py-[6px] text-[11.5px] text-ink-muted">
       <span>{label}</span>
-      <input id={id} aria-label={label} className="h-[42px] w-full rounded-none border border-line bg-paper-wash px-[11px] text-[14px] text-ink outline-0 placeholder:text-ink-ghost focus:border-brand" type={type} value={value} placeholder={placeholder} list={list ? `${id}-list` : undefined} onChange={(event) => onChange(event.target.value)} />
+      <input id={id} aria-label={label} className="h-[40px] w-full rounded-none border border-line bg-paper-wash px-[10px] text-[13.5px] text-ink outline-0 placeholder:text-ink-ghost focus:border-brand" type={type} value={value} placeholder={placeholder} list={list ? `${id}-list` : undefined} onChange={(event) => onChange(event.target.value)} />
       {list && list.length > 0 && <datalist id={`${id}-list`}>{list.map((item) => <option key={item} value={item} />)}</datalist>}
     </label>
   )
@@ -273,4 +367,28 @@ function Toggle({ icon, label, description, checked, onChange }: { icon?: React.
       <input type="checkbox" aria-label={label} checked={checked} onChange={(event) => onChange(event.target.checked)} className="h-[18px] w-[32px] flex-none cursor-pointer appearance-none rounded-[9px] bg-line-strong p-0 transition-colors after:ml-[2px] after:mt-[2px] after:block after:h-[13px] after:w-[13px] after:rounded-full after:bg-white after:content-[''] after:transition-transform after:duration-200 checked:bg-brand checked:after:translate-x-[15px]" />
     </label>
   )
+}
+
+function providerMeta(provider: SavedProvider): string {
+  if (provider.config.provider === Provider.ProviderLocal) return `本地模型 · ${provider.config.model.split(/[\\/]/).at(-1) || provider.config.model}`
+  const kind = providerKind(provider.config.provider)
+  const host = endpointHost(provider.config.endpoint)
+  return [kind, host].filter(Boolean).join(' · ')
+}
+
+function providerKind(provider?: Provider): string {
+  if (provider === Provider.ProviderLocal) return '本地模型'
+  if (provider === Provider.ProviderChatCompletions) return 'OpenAI 兼容'
+  if (provider === Provider.ProviderRWKVLightning) return 'RWKV 续写'
+  return ''
+}
+
+function endpointHost(endpoint?: string): string {
+  const value = (endpoint || '').trim()
+  if (!value) return ''
+  try {
+    return new URL(value).host || value
+  } catch {
+    return value.replace(/^https?:\/\//, '').split('/')[0]
+  }
 }

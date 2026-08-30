@@ -44,7 +44,7 @@ type ProductHarnessConfig struct {
 	Observe        func(Event)
 }
 
-// ProductHarnessOptions is the single constructor for the product Markdown
+// ProductHarnessOptions is the single constructor for the optional Markdown
 // continuation profile. It owns the protocol/renderer pairing, the optional
 // progressive router, and the loop-policy wiring that must match between the
 // App and product evals.
@@ -79,8 +79,8 @@ func ProductHarnessOptions(config ProductHarnessConfig) Options {
 	return options
 }
 
-// XMLHarnessConfig contains the knobs for the XML envelope compatibility
-// profile. It mirrors ProductHarnessConfig except for the fields that only the
+// XMLHarnessConfig contains the knobs for the default XML envelope profile. It
+// mirrors ProductHarnessConfig except for the fields that only the
 // XML transcript supports.
 type XMLHarnessConfig struct {
 	MaxSteps                 int
@@ -107,8 +107,8 @@ type XMLHarnessConfig struct {
 	FewShot bool
 }
 
-// XMLHarnessOptions is the single constructor for the XML envelope
-// compatibility profile (--agent-protocol xml). It exists so the App and the
+// XMLHarnessOptions is the single constructor for the default XML envelope
+// profile (--agent-protocol xml). It exists so the App and the
 // CLI stop hand-rolling the same Options literal and drifting apart on the
 // loop-policy limits.
 func XMLHarnessOptions(config XMLHarnessConfig) Options {

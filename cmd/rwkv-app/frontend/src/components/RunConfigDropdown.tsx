@@ -12,6 +12,7 @@ type Props = {
   busy: boolean
   providers: SavedProvider[]
   activeProviderId: string
+  runtimeProviderId: string
   enableWeb: boolean
   enableSubagents: boolean
   progressiveTools: boolean
@@ -24,7 +25,7 @@ type Props = {
 }
 
 export default function RunConfigDropdown({
-  open, onClose, status, ready, busy, providers, activeProviderId,
+  open, onClose, status, ready, busy, providers, activeProviderId, runtimeProviderId,
   enableWeb, enableSubagents, progressiveTools,
   onActivate, onDelete, onToggleWeb, onToggleSubagents, onToggleProgressive, onOpenSettings,
 }: Props) {
@@ -55,9 +56,7 @@ export default function RunConfigDropdown({
         <div className="border-b border-line px-[14px] py-[10px] text-[11px] text-ink-muted">尚无保存的连接，去设置里连接一次即可记住</div>
       ) : (
         providers.map((provider) => {
-          // “当前”看真实连接状态：服务已就绪且正是这条档案。仅仅是"上次用过"（activeProviderId）
-          // 但尚未连接时，仍可点击去连接。
-          const live = ready && provider.id === activeProviderId
+          const live = ready && provider.id === runtimeProviderId
           const lastUsed = !live && provider.id === activeProviderId
           return (
             <div key={provider.id} className={`group relative flex items-center gap-[11px] border-b border-line px-[14px] py-[10px] ${live ? 'bg-brand-wash' : ''}`}>
@@ -102,7 +101,7 @@ export default function RunConfigDropdown({
       <div className="border-b border-line bg-paper-soft px-[14px] pb-[9px] pt-[11px] text-[10.5px] uppercase tracking-[.14em] text-ink-muted">本轮能力</div>
       <DropdownToggle label="Web 搜索与抓取" description="Brave + Tavily" checked={enableWeb} onChange={onToggleWeb} />
       <DropdownToggle label="子 Agent" description="spawn_agents 并发上限" checked={enableSubagents} onChange={onToggleSubagents} />
-      <DropdownToggle label="渐进式工具暴露" description="先路由再暴露 schema" checked={progressiveTools} onChange={onToggleProgressive} />
+      <DropdownToggle label="渐进式工具路由" description="可选：先路由再暴露 schema" checked={progressiveTools} onChange={onToggleProgressive} />
 
       <button className="flex items-center gap-[9px] bg-paper-soft px-[14px] py-[10px] text-left" onClick={() => { onClose(); onOpenSettings() }}>
         <span className="flex-1 text-[12px] text-ink-soft">采样、步数与协议</span>

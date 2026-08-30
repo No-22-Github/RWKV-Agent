@@ -218,9 +218,9 @@ func migrateSettingsV1(value Settings) Settings {
 	return value
 }
 
-// SaveActiveProvider upsert 一条连接档案（按 协议+地址+模型 去重）、置为 active 并落盘，返回该档案。
-// "连接成功即自动存档"由 appservice.Configure 在成功后调用。
-func (s *Store) SaveActiveProvider(config agentapi.Config) (SavedProvider, error) {
+// SaveProvider 保存一条连接档案。传入 id 时按档案更新，即使地址或模型发生变化也不会复制旧档案；
+// id 为空时按 协议+地址+模型 去重。activate 只控制是否把该档案设为下次启动使用的 active 档案。
+func (s *Store) SaveProvider(id string, label string, config agentapi.Config, activate bool) (SavedProvider, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	settings, err := s.loadLocked()
@@ -229,34 +229,67 @@ func (s *Store) SaveActiveProvider(config agentapi.Config) (SavedProvider, error
 	}
 	now := time.Now().UTC()
 	key := providerKey(config)
-	var saved SavedProvider
-	found := false
-	for i := range settings.Providers {
-		if providerKey(settings.Providers[i].Config) == key {
-			settings.Providers[i].Config = config
-			settings.Providers[i].LastUsedAt = now
-			if strings.TrimSpace(settings.Providers[i].Label) == "" {
-				settings.Providers[i].Label = providerLabel(config)
+	target := -1
+	cleanID := strings.TrimSpace(id)
+	if cleanID != "" {
+		for i := range settings.Providers {
+			if settings.Providers[i].ID == cleanID {
+				target = i
+				break
 			}
-			saved = settings.Providers[i]
-			found = true
-			break
+		}
+		if target < 0 {
+			return SavedProvider{}, fmt.Errorf("provider profile %q not found", cleanID)
 		}
 	}
-	if !found {
+	for i := range settings.Providers {
+		if providerKey(settings.Providers[i].Config) != key {
+			continue
+		}
+		if target < 0 {
+			target = i
+			break
+		}
+		if i != target {
+			return SavedProvider{}, fmt.Errorf("another provider profile already uses this provider, endpoint, and model")
+		}
+	}
+	cleanLabel := strings.TrimSpace(label)
+	if cleanLabel == "" {
+		cleanLabel = providerLabel(config)
+	}
+	if target < 0 {
 		id, idErr := randomID()
 		if idErr != nil {
 			return SavedProvider{}, idErr
 		}
-		saved = SavedProvider{ID: id, Label: providerLabel(config), Config: config, LastUsedAt: now}
-		settings.Providers = append(settings.Providers, saved)
+		settings.Providers = append(settings.Providers, SavedProvider{
+			ID: id, Label: cleanLabel, Config: config, LastUsedAt: now,
+		})
+		target = len(settings.Providers) - 1
+	} else {
+		settings.Providers[target].Label = cleanLabel
+		settings.Providers[target].Config = config
+		if activate || settings.Providers[target].LastUsedAt.IsZero() {
+			settings.Providers[target].LastUsedAt = now
+		}
 	}
-	settings.ActiveID = saved.ID
-	settings.Provider = config
+	saved := settings.Providers[target]
+	if activate {
+		settings.ActiveID = saved.ID
+		settings.Provider = saved.Config
+	} else if settings.ActiveID == saved.ID {
+		settings.Provider = saved.Config
+	}
 	if err := s.writeSettingsLocked(settings); err != nil {
 		return SavedProvider{}, err
 	}
 	return saved, nil
+}
+
+// SaveActiveProvider 保留旧行为：按连接键 upsert，并把成功连接的档案置为 active。
+func (s *Store) SaveActiveProvider(config agentapi.Config) (SavedProvider, error) {
+	return s.SaveProvider("", "", config, true)
 }
 
 // RemoveProvider 删除一条档案；若删的是 active，则把 active 指向最近使用的一条（无则清空）。

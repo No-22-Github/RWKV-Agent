@@ -90,8 +90,73 @@ func TestAppServiceBootstrapsSavedSettingsAndConversation(t *testing.T) {
 	if len(bootstrap.Providers) != 1 || bootstrap.ActiveProviderID == "" || bootstrap.Providers[0].ID != bootstrap.ActiveProviderID {
 		t.Fatalf("saved provider profile was not restored: %+v", bootstrap.Providers)
 	}
+	if bootstrap.RuntimeProviderID != bootstrap.ActiveProviderID {
+		t.Fatalf("restored remote provider was not marked as running: %+v", bootstrap)
+	}
 	if bootstrap.Conversation == nil || bootstrap.Conversation.ID != conversation.ID || len(bootstrap.Conversation.Messages) != 1 {
 		t.Fatalf("active conversation was not restored: %+v", bootstrap.Conversation)
+	}
+}
+
+func TestAppServiceSavesDraftWithoutReplacingRuntimeProvider(t *testing.T) {
+	t.Parallel()
+	workspace := resolvedWorkspace(t)
+	store := testAppStore(t)
+	activeConfig := agentapi.Config{
+		Provider: agentapi.ProviderRWKVLightning, Endpoint: "https://active.test", Model: "active-model",
+	}
+	active, err := store.SaveActiveProvider(activeConfig)
+	if err != nil {
+		t.Fatal(err)
+	}
+	service, err := agentapi.NewService(agentapi.Options{Workspace: workspace})
+	if err != nil {
+		t.Fatal(err)
+	}
+	backend := newAppService(service, store)
+	t.Cleanup(func() { _ = backend.Close() })
+
+	draftConfig := agentapi.Config{
+		Provider: agentapi.ProviderRWKVLightning, Endpoint: "https://draft.test/v1/models", Model: "draft-model",
+	}
+	draft, err := backend.SaveProvider("", "Draft", draftConfig)
+	if err != nil {
+		t.Fatal(err)
+	}
+	bootstrap, err := backend.Bootstrap()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bootstrap.RuntimeProviderID != active.ID || bootstrap.ActiveProviderID != active.ID || bootstrap.Status.Model != activeConfig.Model {
+		t.Fatalf("saving draft changed runtime provider: %+v", bootstrap)
+	}
+
+	status, err := backend.ConfigureProvider(t.Context(), draft.ID, "Draft", draftConfig)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if status.State != agentapi.ModelReady || status.Model != draftConfig.Model {
+		t.Fatalf("configured status = %+v", status)
+	}
+	bootstrap, err = backend.Bootstrap()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bootstrap.RuntimeProviderID != draft.ID || bootstrap.ActiveProviderID != draft.ID {
+		t.Fatalf("configured draft was not active: %+v", bootstrap)
+	}
+
+	edited := draftConfig
+	edited.Model = "edited-model"
+	if _, err := backend.SaveProvider(draft.ID, "Edited", edited); err != nil {
+		t.Fatal(err)
+	}
+	bootstrap, err = backend.Bootstrap()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bootstrap.RuntimeProviderID != "" || bootstrap.Status.Model != draftConfig.Model {
+		t.Fatalf("editing the running profile should leave an unmatched runtime snapshot: %+v", bootstrap)
 	}
 }
 

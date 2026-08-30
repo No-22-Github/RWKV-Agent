@@ -278,14 +278,14 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		// the XML envelope reasons first and needs ~512. See runner.go.
 		fs.IntVar(&options.decisionMaxTokens, "decision-max-tokens", 0, "maximum generated tokens for tool selection; 0 uses the per-protocol default")
 		fs.IntVar(&options.routeMaxTokens, "route-max-tokens", routeMaxTokens, "maximum generated tokens for capability routing")
-		fs.BoolVar(&options.semanticNoTool, "semantic-no-tool", true, "emit the text-only no_tool abstention action on the product profile")
+		fs.BoolVar(&options.semanticNoTool, "semantic-no-tool", false, "offer no_tool on the Markdown profile; defaults on when Markdown is selected")
 		fs.BoolVar(&options.decisionFakeThink, "decision-fake-think", false, "enable the experimental half-open fake-think prefix on unanchored tool decisions")
 		fs.BoolVar(&options.closedFakeThink, "closed-fake-think", false, "prefill the fully closed think block instead of the half-open one; requires --decision-fake-think")
 		fs.BoolVar(
 			&options.deepToolAnchor,
 			"deep-tool-anchor",
-			true,
-			"extend the product decision prefill from the bare fence to the object and name keys; "+
+			false,
+			"extend the Markdown decision prefill from the bare fence to the object and name keys; defaults on with Markdown and "+
 				"removes syntactic abstention, so pair it with --semantic-no-tool",
 		)
 		fs.IntVar(
@@ -352,8 +352,8 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			fs.StringVar(&options.prompt, "prompt", "", "task for the read-only repository agent")
 			fs.StringVar(&options.ui, "ui", "auto", "agent renderer: auto, tui, or plain")
 			fs.StringVar(&options.workspace, "workspace", ".", "workspace root available to read-only tools")
-			fs.StringVar(&options.agentProtocol, "agent-protocol", string(agentapi.AgentProtocolMarkdown), "tool transcript: markdown or xml")
-			fs.BoolVar(&options.progressiveTools, "progressive-tools", true, "select one or two capability bundles before exposing full tool schemas")
+			fs.StringVar(&options.agentProtocol, "agent-protocol", string(agentapi.AgentProtocolXML), "tool transcript: xml (default) or markdown")
+			fs.BoolVar(&options.progressiveTools, "progressive-tools", false, "route to one or two capability bundles before exposing tool schemas")
 			fs.BoolVar(&options.enableWeb, "web", false, "enable Brave web_search and Tavily web_fetch")
 			fs.StringVar(&options.braveAPIKeyEnv, "brave-api-key-env", "BRAVE_API_KEY", "environment variable containing the Brave Search API key")
 			fs.StringVar(&options.braveEndpoint, "brave-endpoint", "", "optional Brave Search API endpoint")
@@ -466,6 +466,16 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			if !options.sameToolRescueExplicit {
 				options.sameToolRescueLimit = agent.ProductSameToolRescueLimit
 			}
+		}
+	}
+	if name == "agent" && options.agentProtocol == string(agentapi.AgentProtocolMarkdown) {
+		// Preserve the validated Markdown pair when that profile is selected
+		// explicitly; the default XML profile keeps both switches off.
+		if !options.semanticNoToolExplicit {
+			options.semanticNoTool = true
+		}
+		if !options.deepToolAnchorExplicit {
+			options.deepToolAnchor = true
 		}
 	}
 	if options.thinkingExplicit && options.reasoningExplicit {
@@ -641,8 +651,8 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		return options, fmt.Errorf("invalid --agent-protocol %q", options.agentProtocol)
 	}
 	if name == "agent" && options.agentProtocol == string(agentapi.AgentProtocolXML) {
-		// The XML envelope is a supported compatibility profile, not a
-		// deprecated one: <tool_call> closes more reliably than the JSON fence
+		// The XML envelope is the supported product default: <tool_call> closes
+		// more reliably than the JSON fence
 		// (20/20 and 15/20 versus 16/20 and 10/20 on 13.3b/7.2b), it carries
 		// more complete arguments, and </tool_call> cannot collide with fenced
 		// content the way the product profile's "```" stop can. So selecting it

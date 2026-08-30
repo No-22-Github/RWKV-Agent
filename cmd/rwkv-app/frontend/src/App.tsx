@@ -1,4 +1,4 @@
-import { FormEvent, KeyboardEvent, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { KeyboardEvent, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import {
   ChevronDown, Folder, FolderOpen, LoaderCircle,
   Menu, MoreHorizontal, Settings, SquarePen,
@@ -58,6 +58,21 @@ const STARTER_PROMPTS = ['概括这个仓库的近期进度', '找出最近改�
 let nextMessageID = 1
 let nextHeaderID = 1
 
+function stableValue(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(stableValue)
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(Object.entries(value as Record<string, unknown>)
+      .filter(([, item]) => item !== undefined)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([key, item]) => [key, stableValue(item)]))
+  }
+  return value
+}
+
+function providerDraftSignature(label: string, config: Config): string {
+  return JSON.stringify(stableValue({ label: label.trim(), config }))
+}
+
 export default function App() {
   const [status, setStatus] = useState<Status>(emptyStatus)
   const [messages, setMessages] = useState<Message[]>([])
@@ -80,8 +95,8 @@ export default function App() {
   const [remoteProtocol, setRemoteProtocol] = useState<'rwkv' | 'openai'>('rwkv')
   const [apiKey, setAPIKey] = useState('')
   const [headers, setHeaders] = useState<HeaderRow[]>([])
-  const [agentProtocol, setAgentProtocol] = useState<AgentProtocol>(AgentProtocol.AgentProtocolMarkdown)
-  const [progressiveTools, setProgressiveTools] = useState(true)
+  const [agentProtocol, setAgentProtocol] = useState<AgentProtocol>(AgentProtocol.AgentProtocolXML)
+  const [progressiveTools, setProgressiveTools] = useState(false)
   const [enableWeb, setEnableWeb] = useState(false)
   const [braveAPIKey, setBraveAPIKey] = useState('')
   const [tavilyAPIKey, setTavilyAPIKey] = useState('')
@@ -94,6 +109,12 @@ export default function App() {
   const [availableModels, setAvailableModels] = useState<RemoteModel[]>([])
   const [providers, setProviders] = useState<SavedProvider[]>([])
   const [activeProviderId, setActiveProviderId] = useState('')
+  const [runtimeProviderId, setRuntimeProviderId] = useState('')
+  const [editingProviderId, setEditingProviderId] = useState('')
+  const [draftLabel, setDraftLabel] = useState('')
+  const [draftBaseConfig, setDraftBaseConfig] = useState<Config>(() => new Config())
+  const [draftSnapshot, setDraftSnapshot] = useState('')
+  const [draftInitialized, setDraftInitialized] = useState(false)
   const [settingsMessage, setSettingsMessage] = useState('')
   const [settingsBusy, setSettingsBusy] = useState(false)
   const [theme, setTheme] = useState<ThemeMode>(() => getInitialTheme())
@@ -118,7 +139,7 @@ export default function App() {
       } else if (event.key === ',') {
         event.preventDefault()
         setRunConfigOpen(false)
-        setSettingsOpen(true)
+        openSettings()
       } else if (event.key.toLowerCase() === 'k') {
         event.preventDefault()
         document.querySelector<HTMLTextAreaElement>('textarea[aria-label="消息"]')?.focus()
@@ -127,9 +148,18 @@ export default function App() {
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [busy])
+  }, [busy, providers, runtimeProviderId, activeProviderId])
 
   const ready = status.state === ModelState.ModelReady
+  const draftConfigValue = providerDraftConfig()
+  const draftSignature = providerDraftSignature(draftLabel, draftConfigValue)
+  const draftDirty = draftInitialized && draftSignature !== draftSnapshot
+  const draftIsRunning = ready && editingProviderId !== '' && editingProviderId === runtimeProviderId && !draftDirty
+  useEffect(() => {
+    if (!settingsOpen || draftInitialized) return
+    setDraftSnapshot(draftSignature)
+    setDraftInitialized(true)
+  }, [settingsOpen, draftInitialized, draftSignature])
   const workspaceName = useMemo(() => status.workspace ? status.workspace.split(/[\\/]/).filter(Boolean).at(-1) || status.workspace : '未打开工作区', [status.workspace])
   const capabilities = [enableWeb ? 'web' : null, enableSubagents ? 'subagents' : null].filter(Boolean).join(' · ') || '无'
 
@@ -139,23 +169,110 @@ export default function App() {
 
   function applyBootstrap(value: AppBootstrap) {
     setStatus(Status.createFrom(value.status)); setConversations(value.conversations || []); setWorkspaces(value.workspaces || [])
-    setProviders(value.providers || []); setActiveProviderId(value.activeProviderId || '')
+    applyProviderBootstrapState(value)
     applyConversation(value.conversation || undefined); if (value.hasConfig) applyConfig(value.config); if (value.warning) setSettingsMessage(value.warning)
   }
+  function applyProviderBootstrapState(value: AppBootstrap) {
+    setProviders(value.providers || [])
+    setActiveProviderId(value.activeProviderId || '')
+    setRuntimeProviderId(value.runtimeProviderId || '')
+  }
+  function beginEditingProvider(provider: SavedProvider) {
+    const config = Config.createFrom(provider.config)
+    setDraftInitialized(false)
+    setEditingProviderId(provider.id)
+    setDraftLabel(provider.label || provider.config.model || '未命名连接')
+    setDraftBaseConfig(config)
+    setAvailableModels([])
+    applyConfig(config)
+  }
+  function beginNewProvider() {
+    const config = new Config({
+      ...draftBaseConfig,
+      provider: Provider.ProviderRWKVLightning,
+      model: '', endpoint: '', apiKey: undefined, password: undefined, headers: {},
+      chatPromptMode: 'native-chat', chatThinking: 'disabled', stream: false, rwkvStopTokens: 'none',
+      maxSteps: 6, maxTokens: 1024, ...agentCapabilityConfig(),
+    })
+    setDraftInitialized(false)
+    setEditingProviderId('')
+    setDraftLabel('')
+    setDraftBaseConfig(config)
+    setAvailableModels([])
+    applyConfig(config)
+  }
+  function openSettings() {
+    const preferred = providers.find((provider) => provider.id === runtimeProviderId)
+      || providers.find((provider) => provider.id === activeProviderId)
+      || providers[0]
+    if (preferred) beginEditingProvider(preferred)
+    else beginNewProvider()
+    setSettingsMessage('')
+    setSettingsOpen(true)
+  }
+  function closeSettings() {
+    if (draftDirty) {
+      setSettingsMessage('当前草稿还有未保存更改。请先保存，或点击“放弃更改”后返回对话。')
+      return
+    }
+    setSettingsOpen(false)
+  }
+  function discardDraft() {
+    const current = providers.find((provider) => provider.id === editingProviderId)
+    if (current) beginEditingProvider(current)
+    else beginNewProvider()
+    setSettingsMessage('已放弃未保存更改。')
+  }
+  function editProvider(id: string) {
+    if (id === editingProviderId) return
+    if (draftDirty) {
+      setSettingsMessage('请先保存或放弃当前草稿，再切换到其他连接档案。')
+      return
+    }
+    const provider = providers.find((item) => item.id === id)
+    if (provider) {
+      beginEditingProvider(provider)
+      setSettingsMessage('')
+    }
+  }
+  function createProviderDraft() {
+    if (draftDirty) {
+      setSettingsMessage('请先保存或放弃当前草稿，再新建连接。')
+      return
+    }
+    beginNewProvider()
+    setSettingsMessage('新连接尚未保存，当前运行连接不会改变。')
+  }
   async function refreshProviders() {
-    try { const value = await Backend.Bootstrap(); setProviders(value.providers || []); setActiveProviderId(value.activeProviderId || '') } catch { /* 保存已成功，档案列表刷新失败可忽略 */ }
+    try {
+      const value = await Backend.Bootstrap()
+      applyProviderBootstrapState(value)
+      return value
+    } catch {
+      return undefined
+    }
   }
   async function activateProvider(id: string) {
     if (busy) return
     setRunConfigOpen(false); setBusy(true)
     try {
       const configured = await Backend.ActivateProvider(id); setStatus(configured)
-      const value = await Backend.Bootstrap(); setProviders(value.providers || []); setActiveProviderId(value.activeProviderId || ''); if (value.hasConfig) applyConfig(value.config)
+      const value = await Backend.Bootstrap(); applyProviderBootstrapState(value); if (value.hasConfig) applyConfig(value.config)
     } catch (error) { setSettingsMessage(errorText(error)) } finally { setBusy(false) }
   }
   async function deleteProvider(id: string) {
     if (busy) return
-    try { const value = await Backend.DeleteProvider(id); setProviders(value.providers || []); setActiveProviderId(value.activeProviderId || '') } catch (error) { setSettingsMessage(errorText(error)) }
+    try {
+      const value = await Backend.DeleteProvider(id)
+      applyProviderBootstrapState(value)
+      if (settingsOpen && id === editingProviderId) {
+        const next = value.providers.find((provider) => provider.id === value.runtimeProviderId)
+          || value.providers.find((provider) => provider.id === value.activeProviderId)
+          || value.providers[0]
+        if (next) beginEditingProvider(next)
+        else beginNewProvider()
+      }
+    } catch (error) { setSettingsMessage(errorText(error)) }
   }
   function applyConversation(value?: ConversationView) {
     setActiveConversationID(value?.id || ''); setActiveTab('chat'); setActivity([]); setPrompt('')
@@ -176,14 +293,14 @@ export default function App() {
     setTokenizerPath(config.tokenizerPath || ''); setRemoteEndpoint(remote ? config.endpoint || '' : ''); setRemoteModel(remote ? config.model : '')
     setRemoteProtocol(config.provider === Provider.ProviderChatCompletions ? 'openai' : 'rwkv'); setAPIKey(config.provider === Provider.ProviderChatCompletions ? config.apiKey || '' : config.password || '')
     setHeaders(Object.entries(config.headers || {}).map(([name, value]) => ({ id: nextHeaderID++, name, value: value || '' })))
-    setAgentProtocol(config.agentProtocol || AgentProtocol.AgentProtocolMarkdown); setProgressiveTools(config.progressiveTools ?? true)
+    setAgentProtocol(config.agentProtocol || AgentProtocol.AgentProtocolXML); setProgressiveTools(config.progressiveTools ?? false)
     setEnableWeb(config.enableWeb || false); setBraveAPIKey(config.braveApiKey || ''); setTavilyAPIKey(config.tavilyApiKey || '')
     setEnableSubagents(config.enableSubagents || false); setMaxActiveBatch(config.maxActiveBatch || 4); setRemoteBatchWaitMS(config.remoteBatchWaitMs ?? 10)
     setSubagentMaxParallel(config.subagentMaxParallel || 4); setSubagentMaxSteps(config.subagentMaxSteps || 4); setSubagentTimeoutSeconds(config.subagentTimeoutSeconds || 120)
   }
   async function sendMessage(value: string) {
     const content = value.trim(); if (!content || busy) return
-    if (!ready) { setSettingsOpen(true); setSettingsMessage('请先加载本地模型或配置远端 API。'); return }
+    if (!ready) { openSettings(); setSettingsMessage('请先选择一个已保存连接，或新建草稿后点击“保存并使用”。'); return }
     setPrompt(''); setActivity([]); setMessages((current) => [...current, { id: `pending-${nextMessageID++}`, role: 'user', content, createdAt: new Date().toISOString() }]); setBusy(true)
     try {
       const result = await Backend.Chat(content)
@@ -210,25 +327,61 @@ export default function App() {
   async function chooseWorkspace() { if (busy) return; setBusy(true); try { applyBootstrap(await Backend.ChooseWorkspace()) } catch (error) { if (!errorText(error).toLowerCase().includes('cancel')) setSettingsMessage(errorText(error)) } finally { setBusy(false) } }
   async function openWorkspace(path: string) { if (busy) return; setBusy(true); try { applyBootstrap(await Backend.OpenWorkspace(path)) } catch (error) { setSettingsMessage(errorText(error)) } finally { setBusy(false) } }
 
-  async function configureLocal(event: FormEvent) {
-    event.preventDefault(); setSettingsBusy(true); setSettingsMessage('正在加载本地模型，这可能需要一些时间…')
-    try { const configured = await Backend.Configure(new Config({ provider: Provider.ProviderLocal, model: modelPath.trim(), tokenizerPath: tokenizerPath.trim() || undefined, thinking: 'off', maxSteps: 6, maxTokens: 1024, ...agentCapabilityConfig() })); setStatus(configured); await refreshProviders(); setSettingsMessage('本地模型已就绪。'); setSettingsOpen(false) }
-    catch (error) { setSettingsMessage(errorText(error)) } finally { setSettingsBusy(false) }
+  function localConfig() {
+    return new Config({
+      ...draftBaseConfig,
+      provider: Provider.ProviderLocal,
+      model: modelPath.trim(), tokenizerPath: tokenizerPath.trim() || undefined,
+      endpoint: undefined, apiKey: undefined, password: undefined, headers: undefined,
+      thinking: 'off', maxSteps: 6, maxTokens: 1024, ...agentCapabilityConfig(),
+    })
   }
   function remoteConfig() {
     const headerMap = Object.fromEntries(headers.map((row) => [row.name.trim(), row.value.trim()] as const).filter(([name]) => name.length > 0))
-    return new Config({ provider: remoteProtocol === 'rwkv' ? Provider.ProviderRWKVLightning : Provider.ProviderChatCompletions, model: remoteModel.trim() || availableModels[0]?.id || '', endpoint: remoteEndpoint.trim(), apiKey: remoteProtocol === 'openai' ? apiKey.trim() || undefined : undefined, password: remoteProtocol === 'rwkv' ? apiKey.trim() || undefined : undefined, headers: headerMap, chatPromptMode: 'native-chat', chatThinking: 'disabled', stream: remoteProtocol === 'rwkv' ? false : undefined, rwkvStopTokens: remoteProtocol === 'rwkv' ? 'none' : undefined, maxSteps: 6, maxTokens: 1024, ...agentCapabilityConfig() })
+    return new Config({ ...draftBaseConfig, provider: remoteProtocol === 'rwkv' ? Provider.ProviderRWKVLightning : Provider.ProviderChatCompletions, model: remoteModel.trim() || availableModels[0]?.id || '', endpoint: remoteEndpoint.trim(), apiKey: remoteProtocol === 'openai' ? apiKey.trim() || undefined : undefined, password: remoteProtocol === 'rwkv' ? apiKey.trim() || undefined : undefined, headers: headerMap, tokenizerPath: undefined, chatPromptMode: 'native-chat', chatThinking: 'disabled', stream: remoteProtocol === 'rwkv' ? false : undefined, rwkvStopTokens: remoteProtocol === 'rwkv' ? 'none' : undefined, maxSteps: 6, maxTokens: 1024, ...agentCapabilityConfig() })
   }
+  function providerDraftConfig() { return settingsTab === 'local' ? localConfig() : remoteConfig() }
   function agentCapabilityConfig() { return { agentProtocol, progressiveTools, enableWeb, braveApiKey: enableWeb ? braveAPIKey.trim() || undefined : undefined, tavilyApiKey: enableWeb ? tavilyAPIKey.trim() || undefined : undefined, enableSubagents, maxActiveBatch, remoteBatchWaitMs: remoteBatchWaitMS, subagentMaxParallel, subagentMaxSteps, subagentTimeoutSeconds } }
   async function testRemote() { setSettingsBusy(true); setSettingsMessage('正在请求 /v1/models…'); try { const models = await Backend.ListRemoteModels(remoteConfig()); setAvailableModels(models); if (!remoteModel && models[0]) setRemoteModel(models[0].id); setSettingsMessage(`连接成功，发现 ${models.length} 个模型。`) } catch (error) { setSettingsMessage(errorText(error)) } finally { setSettingsBusy(false) } }
-  async function configureRemote(event: FormEvent) { event.preventDefault(); setSettingsBusy(true); setSettingsMessage('正在配置远端模型…'); try { const configured = await Backend.Configure(remoteConfig()); setStatus(configured); await refreshProviders(); setSettingsMessage('远端模型已就绪。'); setSettingsOpen(false) } catch (error) { setSettingsMessage(errorText(error)) } finally { setSettingsBusy(false) } }
-  function addHeader() { setHeaders((current) => [...current, { id: nextHeaderID++, name: '', value: '' }]) }
+  async function saveProviderDraft() {
+    setSettingsBusy(true)
+    setSettingsMessage('正在保存连接档案…')
+    try {
+      const saved = await Backend.SaveProvider(editingProviderId, draftLabel.trim(), draftConfigValue)
+      await refreshProviders()
+      beginEditingProvider(saved)
+      setSettingsMessage(ready ? '档案已保存，当前运行连接没有改变。' : '档案已保存，尚未连接。')
+    } catch (error) {
+      setSettingsMessage(errorText(error))
+    } finally {
+      setSettingsBusy(false)
+    }
+  }
+  async function saveAndUseProviderDraft() {
+    setSettingsBusy(true)
+    setSettingsMessage(settingsTab === 'local' ? '正在保存并加载本地模型，这可能需要一些时间…' : '正在保存并切换远端连接…')
+    try {
+      const configured = await Backend.ConfigureProvider(editingProviderId, draftLabel.trim(), draftConfigValue)
+      setStatus(configured)
+      const value = await refreshProviders()
+      const running = value?.providers.find((provider) => provider.id === value.runtimeProviderId)
+      if (running) beginEditingProvider(running)
+      else setDraftSnapshot(providerDraftSignature(draftLabel, draftConfigValue))
+      setSettingsMessage('已保存并切换为当前运行连接。')
+    } catch (error) {
+      setSettingsMessage(errorText(error))
+    } finally {
+      setSettingsBusy(false)
+    }
+  }
 
   const traceMessages = messages.filter((message) => message.role !== 'user' && (message.trace || message.trajectory?.length))
   const selectedMessage = traceMessages.find((message) => message.id === selectedTraceID) || traceMessages.at(-1)
   const turns = groupMessagesIntoTurns(messages)
   const settingsProps = {
     status, ready, settingsTab, setSettingsTab,
+    providers, activeProviderId, runtimeProviderId, editingProviderId,
+    draftLabel, setDraftLabel, draftDirty, draftIsRunning,
     modelPath, setModelPath, tokenizerPath, setTokenizerPath,
     remoteEndpoint, setRemoteEndpoint, remoteModel, setRemoteModel,
     remoteProtocol, setRemoteProtocol, apiKey, setAPIKey, headers, setHeaders,
@@ -240,15 +393,19 @@ export default function App() {
     availableModels, setAvailableModels, settingsMessage, settingsBusy,
     workspaceName, onChooseWorkspace: chooseWorkspace,
     onTestRemote: () => void testRemote(),
-    onSaveLocal: () => void configureLocal(new Event('submit') as unknown as FormEvent),
-    onSaveRemote: () => void configureRemote(new Event('submit') as unknown as FormEvent),
-    onClose: () => setSettingsOpen(false),
+    onEditProvider: editProvider,
+    onNewProvider: createProviderDraft,
+    onDeleteProvider: (id: string) => void deleteProvider(id),
+    onDiscardDraft: discardDraft,
+    onSaveDraft: () => void saveProviderDraft(),
+    onSaveAndUseDraft: () => void saveAndUseProviderDraft(),
+    onClose: closeSettings,
     theme, onToggleTheme: handleToggleTheme,
   }
 
   return <div className="flex h-full w-full bg-paper">
     {settingsOpen ? <SettingsPage {...settingsProps} /> : <>
-      <Sidebar conversations={conversations} workspaces={workspaces} activeId={activeConversationID} busy={busy} open={sidebarOpen} onCloseSidebar={() => setSidebarOpen(false)} onNewChat={() => void newConversation()} onChooseWorkspace={() => void chooseWorkspace()} onOpenSettings={() => setSettingsOpen(true)} onOpen={openConversation} onDelete={deleteConversation} onOpenWorkspace={openWorkspace} />
+      <Sidebar conversations={conversations} workspaces={workspaces} activeId={activeConversationID} busy={busy} open={sidebarOpen} onCloseSidebar={() => setSidebarOpen(false)} onNewChat={() => void newConversation()} onChooseWorkspace={() => void chooseWorkspace()} onOpenSettings={openSettings} onOpen={openConversation} onDelete={deleteConversation} onOpenWorkspace={openWorkspace} />
       <main className="flex min-w-0 flex-1 flex-col bg-paper">
         <header className="app-header relative flex h-[52px] flex-none items-end gap-[18px] border-b border-line px-[30px]">
           <button className="sidebar-toggle mr-[-6px] grid h-8 w-8 flex-none place-items-center border-0 bg-transparent text-ink-soft lg:hidden" aria-label="打开导航" onClick={() => setSidebarOpen(true)}><Menu size={18} /></button>
@@ -266,9 +423,9 @@ export default function App() {
             </button>
           </div>
         </header>
-        {activeTab === 'trace' ? <TraceView messages={traceMessages} selected={selectedMessage} onSelect={setSelectedTraceID} onBackToChat={() => setActiveTab('chat')} /> : <ChatView messages={messages} activity={activity} busy={busy} ready={ready} workspace={workspaceName} model={status.model || '选择模型'} capabilities={capabilities} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={regenerate} onKeyDown={onComposerKeyDown} openSettings={() => setSettingsOpen(true)} chooseWorkspace={chooseWorkspace} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} messagesEnd={messagesEnd} />}
+        {activeTab === 'trace' ? <TraceView messages={traceMessages} selected={selectedMessage} onSelect={setSelectedTraceID} onBackToChat={() => setActiveTab('chat')} /> : <ChatView messages={messages} activity={activity} busy={busy} ready={ready} workspace={workspaceName} model={status.model || '选择模型'} capabilities={capabilities} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={regenerate} onKeyDown={onComposerKeyDown} openSettings={openSettings} chooseWorkspace={chooseWorkspace} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} messagesEnd={messagesEnd} />}
       </main>
-      <RunConfigDropdown open={runConfigOpen} onClose={() => setRunConfigOpen(false)} status={status} ready={ready} busy={busy} providers={providers} activeProviderId={activeProviderId} enableWeb={enableWeb} enableSubagents={enableSubagents} progressiveTools={progressiveTools} onActivate={(id) => void activateProvider(id)} onDelete={(id) => void deleteProvider(id)} onToggleWeb={setEnableWeb} onToggleSubagents={setEnableSubagents} onToggleProgressive={setProgressiveTools} onOpenSettings={() => { setRunConfigOpen(false); setSettingsOpen(true) }} />
+      <RunConfigDropdown open={runConfigOpen} onClose={() => setRunConfigOpen(false)} status={status} ready={ready} busy={busy} providers={providers} activeProviderId={activeProviderId} runtimeProviderId={runtimeProviderId} enableWeb={enableWeb} enableSubagents={enableSubagents} progressiveTools={progressiveTools} onActivate={(id) => void activateProvider(id)} onDelete={(id) => void deleteProvider(id)} onToggleWeb={setEnableWeb} onToggleSubagents={setEnableSubagents} onToggleProgressive={setProgressiveTools} onOpenSettings={() => { setRunConfigOpen(false); openSettings() }} />
     </>}
   </div>
 }

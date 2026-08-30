@@ -12,7 +12,7 @@ import (
 	"github.com/no22/RWKV-Agent/internal/continuation"
 )
 
-func TestUnifiedSessionReadsREADMEAndReturnsFirstLine(t *testing.T) {
+func TestUnifiedSessionDefaultsToXMLWithoutRouter(t *testing.T) {
 	t.Parallel()
 	workspace := t.TempDir()
 	const firstLine = "# RWKV Agent acceptance fixture"
@@ -23,16 +23,19 @@ func TestUnifiedSessionReadsREADMEAndReturnsFirstLine(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	service.config = Config{
-		Provider: ProviderChatCompletions, Model: "scripted", MaxSteps: 4,
-		MaxTokens: 256, Temperature: 1, TopK: 1, TopP: 1, PenaltyDecay: 1,
+	config, err := normalizeConfig(Config{
+		Provider: ProviderChatCompletions, Model: "scripted", Endpoint: "https://example.test/v1/chat/completions", MaxSteps: 4,
+		MaxTokens: 1024, Temperature: 1, TopK: 1, TopP: 1, PenaltyDecay: 1,
 		Thinking: "off",
+	})
+	if err != nil {
+		t.Fatal(err)
 	}
-	// The product profile prefills `{"name":"` (deep anchor, on by default), so
-	// the model only continues from inside the object.
+	service.config = config
+	// With no Router the XML decision stage chooses directly between a complete
+	// tool envelope and ordinary final text.
 	outputs := []string{
-		`inspect:workspace</route>`,
-		`read_file","arguments":{"path":"README.md"}}` + "\n```",
+		`<tool_call>{"name":"read_file","arguments":{"path":"README.md"}}</tool_call>`,
 		firstLine,
 	}
 	var requests []continuation.Request
@@ -67,26 +70,31 @@ func TestUnifiedSessionReadsREADMEAndReturnsFirstLine(t *testing.T) {
 	if result.Output != firstLine {
 		t.Fatalf("output = %q", result.Output)
 	}
-	if len(requests) != 3 ||
-		!strings.HasSuffix(requests[1].Prompt, "Assistant: ```json\n"+`{"name":"`) ||
-		!strings.Contains(requests[2].Prompt, "User: Function output:\n") ||
-		!strings.HasSuffix(requests[2].Prompt, "Assistant:") {
-		t.Fatalf("Markdown transcript requests = %+v", requests)
+	if len(requests) != 2 || requests[0].MaxOutputTokens != 512 ||
+		!strings.Contains(requests[0].Prompt, `<tool_call>{"name":"TOOL_NAME"`) ||
+		!strings.HasSuffix(requests[0].Prompt, "Assistant:") ||
+		!strings.Contains(requests[1].Prompt, "Tool: <tool_result>") ||
+		!strings.HasSuffix(requests[1].Prompt, "Assistant:") {
+		t.Fatalf("XML transcript requests = %+v", requests)
 	}
 	if len(result.Steps) != 2 || result.Steps[0].Tool != "read_file" || !result.Steps[0].ToolExecuted {
 		t.Fatalf("steps = %+v", result.Steps)
 	}
-	if len(result.RouteSteps) != 1 || result.RouteSteps[0].Request == nil || result.RouteSteps[0].Request.Prompt == "" ||
-		result.Steps[0].Request == nil || result.Steps[0].Request.Bytes == 0 || result.Steps[0].ToolResult == "" {
+	if len(result.RouteSteps) != 0 || result.Steps[0].Request == nil ||
+		result.Steps[0].Request.Bytes == 0 || result.Steps[0].ToolResult == "" {
 		t.Fatalf("public trace = %+v", result)
 	}
 	toolStarted := false
+	routeStarted := false
 	for _, event := range events {
 		if event.Kind == EventToolStart && event.Tool == "read_file" {
 			toolStarted = true
 		}
+		if event.Kind == EventRouteStart {
+			routeStarted = true
+		}
 	}
-	if !toolStarted {
+	if !toolStarted || routeStarted {
 		t.Fatalf("events = %+v", events)
 	}
 }

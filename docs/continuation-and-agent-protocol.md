@@ -26,8 +26,8 @@ Agent Runner
 
 | Profile | 动作协议 / renderer | 用途与终止语义 |
 | --- | --- | --- |
-| 产品默认 | `rwkv-g1i-functions-product-v1` / `rwkv-g1i-functions-product-continuation-v1` | Markdown/function 文本续写；工具后直接输出普通 Markdown，无 `submit` gate |
-| XML 兼容 | `rwkv-g1i-envelope-v1` / `rwkv-chat-continuation-v2` | `--agent-protocol xml`，长期支持的兼容 profile；闭合更可靠、终止符不与围栏内容冲突，可使用 off/fast/full thinking |
+| 产品默认 | `rwkv-g1i-envelope-v1` / `rwkv-chat-continuation-v2` | XML 工具信封、普通文本 final；默认无 Router，可使用 off/fast/full thinking |
+| Markdown 可选 | `rwkv-g1i-functions-product-v1` / `rwkv-g1i-functions-product-continuation-v1` | `--agent-protocol markdown`；工具后直接输出普通 Markdown，无 `submit` gate |
 | Primitive | `rwkv-g1i-functions-v1` / `rwkv-g1i-functions-continuation-v1` | benchmark 专用逐题目录与 `submit` 终止，不代表产品默认 |
 | BFCL wrapped | `internal/bfcl` 的对象/数组 anchor 与 strict/wire-compat parser | BFCL 官方/诊断评测专用，不进入 Agent 产品 prompt |
 | 原生 function calling | Chat Completions `tools/tool_calls` | Provider 外层结构化调用；不伪造 `no_tool` 等 API tool |
@@ -36,8 +36,8 @@ Agent Runner
 
 | 构造器 | 使用方 |
 | --- | --- |
-| `agent.ProductHarnessOptions` | App、`rwkv-cli agent --agent-protocol markdown`（默认）、`bfcl-product` suite |
-| `agent.XMLHarnessOptions` | `--agent-protocol xml`、`agent-eval` 的非产品 suite |
+| `agent.XMLHarnessOptions` | App、`rwkv-cli agent`（默认 XML）及 XML 产品评测 |
+| `agent.ProductHarnessOptions` | 显式 `--agent-protocol markdown` 与冻结的 `bfcl-product` Markdown 基线 |
 
 调用方不再手写 `agent.Options` 字面量，protocol/renderer 配对、progressive Router 接线和
 循环策略都由构造器持有。循环策略常量（`ProductDuplicateReplayLimit` = 2、
@@ -51,7 +51,7 @@ Primitive 与 BFCL wrapped 继续使用各自的独立入口，防止评测协�
 这些字符串逐字节进入 eval manifest，归档 run 只有在拼写不变时才可比，因此新增 profile
 应该在该 block 加一行，而不是在 `ID()` 方法里内联字面量。
 
-产品 profile 复用 G1i checkpoint 的训练 transcript：
+可选 Markdown profile 复用 G1i checkpoint 的训练 transcript：
 
 ````text
 System: Tools:
@@ -87,8 +87,8 @@ JSON、字符串化参数、截断 JSON、字段别名和旧 XML 包装，但普
 失败或证据不足时，答案必须明确说明限制。过长字符串保留开头和与任务词项最相关的窗口，
 单个字符串最多约 2400 Unicode 字符。
 
-`rwkv-g1i-envelope-v1` 与 `rwkv-chat-continuation-v2` 是长期支持的 XML 兼容 profile，
-不是待淘汰的历史分支。它在三个方面结构性优于 fenced JSON：
+`rwkv-g1i-envelope-v1` 与 `rwkv-chat-continuation-v2` 是产品默认 XML profile。它在三个
+方面结构性优于 fenced JSON：
 
 - **闭合更积极。** `RWKV-Toolcall-Bench` 给定框架开头后的闭合率：`<tool_call>` 20/20
   (13.3b) 与 15/20 (7.2b)，fenced JSON 为 16/20 与 10/20。
@@ -105,12 +105,12 @@ XML 用 `<tool_call>{"name":"no_tool","arguments":{"reason":"..."}}</tool_call>`
 false、未知字段 fail closed。因此 `--suite bfcl-product` 接受两种 profile，可以在同一批
 题上直接对照；benchmark profile（Primitive、BFCL wrapped）仍被拒绝，因为终止语义不同。
 
-产品默认仍是 markdown profile：它复用 G1i 训练 transcript。选择由
-`--agent-protocol markdown|xml` 控制，默认 `markdown`，`agent` 和 `agent-eval` 都支持。
-**选择 XML 永不失败**：只有 `deepToolAnchor` 会被归一化关闭，因为这个 transcript 没有
-JSON 围栏可延长。唯一仍然报错的是 `decisionFakeThink`——XML renderer 由 `--thinking`
-预填自己的 think 块，两者会争夺同一个 assistant prefix，静默忽略会让实验含义失真；
-XML 上要做 think 实验应直接用 `--thinking fast/full`。
+选择由 `--agent-protocol xml|markdown` 控制，产品入口默认 `xml`。默认同时关闭 progressive
+Router，模型直接看到完整的已启用工具目录，并在一个阶段里选择普通文本 final 或完整
+`<tool_call>{JSON}</tool_call>`。XML 下 `deepToolAnchor` 与 `semanticNoTool` 默认关闭：前者没有
+JSON 围栏可延长，后者会增加目录长度但模型本来就能直接回答。`decisionFakeThink` 仍然报错，
+因为 XML renderer 由 `--thinking` 预填自己的 think 块；XML 上应直接用
+`--thinking fast/full`。
 
 Primitive Bench 继续使用独立的 `rwkv-g1i-functions-v1` 与 benchmark `submit` 终止语义。
 
@@ -156,8 +156,8 @@ calling 时，Runner 明确拒绝配置，避免静默改变实验含义。精�
 UI，但不能让 `toolExecuted` / `toolEvidence` 变成 true。若 answer stage 中的 `no_tool` 因
 阶段契约被拒绝，UI 仍保留其解释供审计，并明确标为未接受，不能伪装成成功 abstention。
 
-Product profile 固定使用 thinking off。`--thinking fast/full` 只属于 XML 兼容 profile；
-Product 上的半开 think 字节实验使用独立的 `decisionFakeThink` 开关，避免参数被静默忽略或
+Markdown profile 固定使用 thinking off。默认 XML profile 支持 `--thinking fast/full`；
+Markdown 上的半开 think 字节实验使用独立的 `decisionFakeThink` 开关，避免参数被静默忽略或
 两套 renderer 语义混用。
 
 ### 2.1.1 决策预算按 protocol 取默认
@@ -176,7 +176,8 @@ API 的零值都表示"由 harness 决定"。60 题实测：XML 从 24/60 升到
 
 ### 2.2 渐进式工具目录
 
-产品 API 默认使用 `rwkv-g1i-tool-route-v1`。完整工具按权限和用途分为四个能力组：
+产品 API 默认不安装 Router，完整的已启用工具目录直接交给 XML 动作协议。可选的
+`rwkv-g1i-tool-route-v1` 仍按权限和用途把工具分为四个能力组：
 
 | 能力组 | 权限 | 当前工具 |
 | --- | --- | --- |
@@ -185,11 +186,12 @@ API 的零值都表示"由 harness 决定"。60 题实测：XML 从 24/60 升到
 | `web` | `network_read` | `web_search`、`web_fetch` |
 | `delegate` | `delegate` | `spawn_agents` |
 
-Router 只看到能力组名称和一句描述，输出 `<route>respond</route>`、
+显式设置 `progressiveTools=true` 或 `--progressive-tools=true` 后，Router 只看到能力组名称和
+一句描述，输出 `<route>respond</route>`、
 `<route>inspect:BUNDLE</route>` 或最多两个组的
 `<route>inspect:BUNDLE+BUNDLE</route>`。Runner 由此构造本轮活动 ToolSpec 和执行表；隐藏
 工具不能绕过活动表执行。控制工具 `load_tools` 始终可见，只允许加载已启用能力组，并且其
-结果不算外部证据。固定目录仍保留为显式兼容模式，供历史 eval 和 A/B 使用。
+结果不算外部证据。关闭 Router 时不会生成 route event，评测的 route 指标没有分母。
 
 ### 2.3 Web 和并发子 Agent
 
@@ -208,13 +210,10 @@ Web Provider 接口保持服务商中立。当前 `web_search` 适配 Brave Sear
 `contents[]`；Chat Completions adapter 使用普通并发请求。批量是 Provider/runtime 优化，
 不是 Agent 协议或核心续写接口的一部分。
 
-这个状态机来自两层验证：
-
-- 通用 Agent 框架都允许普通对话绕过工具循环，因此产品保留 `respond` 路由直接输出
-  Markdown，避免简单问题被强制包装成工具动作。
-- 当前 G1I 7B 对协议前缀、空格和语义 escape name 高度敏感，因此产品只把 `no_tool` 与
-  half-open fake-think 暴露为默认关闭的可追踪开关，必须在产品 60 题上做单因子 A/B 后再
-  决定默认值。
+这个默认来自同一 60 题产品 suite 的三次复现：XML 无路由 + 512 token 为 33/60、31/60、
+33/60；XML 加 Router 为 21/60，Markdown 加 Router 为 24/60。Router 在 irrelevance 题中
+把 18/20 判成 `inspect`，覆盖了 XML 模型本来正确的直接回答选择。历史评测仍用 manifest
+冻结自己的 route/profile，不随 App 默认自动改变。
 
 协议格式参考并复核了
 [`123123213weqw/rwkv-agent`](https://github.com/123123213weqw/rwkv-agent)：

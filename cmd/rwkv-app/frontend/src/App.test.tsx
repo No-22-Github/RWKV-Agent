@@ -1,7 +1,7 @@
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as Backend from '../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/appservice'
-import { Config, ModelState, Provider, Result, Status } from '../bindings/github.com/no22/RWKV-Agent/api/models'
+import { AgentProtocol, Config, ModelState, Provider, Result, Status } from '../bindings/github.com/no22/RWKV-Agent/api/models'
 import {
   AppBootstrap,
   ConversationSummary,
@@ -14,6 +14,7 @@ import {
   ToolTrace,
   WorkspaceItem,
 } from '../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/models'
+import { SavedProvider } from '../bindings/github.com/no22/RWKV-Agent/internal/appstorage/models'
 import App from './App'
 
 const eventHandlers = vi.hoisted(() => new Map<string, (event: { data: unknown }) => void>())
@@ -37,6 +38,10 @@ vi.mock('../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/appservice', () => 
   Status: vi.fn().mockResolvedValue({ state: 'idle', workspace: '/tmp/RWKV-Agent', hasApiKey: false, updatedAt: new Date().toISOString() }),
   Chat: vi.fn(),
   Configure: vi.fn(),
+  ConfigureProvider: vi.fn(),
+  SaveProvider: vi.fn(),
+  ActivateProvider: vi.fn(),
+  DeleteProvider: vi.fn(),
   ListRemoteModels: vi.fn(),
   NewConversation: vi.fn().mockResolvedValue(undefined),
   ChooseWorkspace: vi.fn(),
@@ -61,6 +66,21 @@ function bootstrap(overrides: Partial<AppBootstrap> = {}) {
     workspaces: [new WorkspaceItem({ path: '/tmp/RWKV-Agent', name: 'RWKV-Agent', available: true, active: true })],
     paths: new StoragePaths(),
     ...overrides,
+  })
+}
+
+function savedRemoteProvider(config: Partial<Config> = {}, profile: Partial<SavedProvider> = {}) {
+  return new SavedProvider({
+    id: 'saved-provider',
+    label: 'Saved connection',
+    config: new Config({
+      provider: Provider.ProviderRWKVLightning,
+      endpoint: 'https://saved.example.test',
+      model: 'saved-model',
+      ...config,
+    }),
+    lastUsedAt: new Date().toISOString(),
+    ...profile,
   })
 }
 
@@ -118,12 +138,12 @@ describe('App', () => {
     render(<App />)
     openSettings()
     expect(screen.getByText('设置')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: '模型' })).toBeInTheDocument()
-    expect(screen.getByText('本地模型')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '连接' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '本地模型' })).toBeInTheDocument()
   })
 
   it('uses RWKV continuation by default and passes custom HTTP headers', async () => {
-    vi.mocked(Backend.Configure).mockResolvedValue(new Status({
+    vi.mocked(Backend.ConfigureProvider).mockResolvedValue(new Status({
       state: ModelState.ModelReady,
       provider: Provider.ProviderRWKVLightning,
       model: 'rwkv7-test',
@@ -136,24 +156,24 @@ describe('App', () => {
     switchToRemoteProvider()
     fireEvent.change(screen.getByLabelText('API 地址'), { target: { value: 'https://example.test' } })
     fireEvent.change(screen.getByLabelText('模型 ID'), { target: { value: 'rwkv7-test' } })
-    fireEvent.click(screen.getByRole('button', { name: '添加' }))
+    fireEvent.click(screen.getByRole('button', { name: '添加请求头' }))
     fireEvent.change(screen.getByLabelText('Header 名称'), { target: { value: 'CF-Access-Client-Id' } })
     fireEvent.change(screen.getByLabelText('Header 值'), { target: { value: 'secret' } })
-    fireEvent.click(screen.getByRole('button', { name: '保存' }))
+    fireEvent.click(screen.getByRole('button', { name: '保存并使用' }))
 
-    await waitFor(() => expect(Backend.Configure).toHaveBeenCalledOnce())
-    const config = vi.mocked(Backend.Configure).mock.calls[0][0]
+    await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalledOnce())
+    const config = vi.mocked(Backend.ConfigureProvider).mock.calls[0][2]
     expect(config.provider).toBe('rwkv-lightning')
     expect(config.rwkvStopTokens).toBe('none')
     expect(config.stream).toBe(false)
     expect(config.headers).toEqual({ 'CF-Access-Client-Id': 'secret' })
-    expect(config.agentProtocol).toBe('markdown')
-    expect(config.progressiveTools).toBe(true)
+    expect(config.agentProtocol).toBe('xml')
+    expect(config.progressiveTools).toBe(false)
     expect(config.enableSubagents).toBe(false)
   })
 
   it('passes web credentials and concurrent subagent budgets', async () => {
-    vi.mocked(Backend.Configure).mockResolvedValue(new Status({
+    vi.mocked(Backend.ConfigureProvider).mockResolvedValue(new Status({
       state: ModelState.ModelReady,
       provider: Provider.ProviderRWKVLightning,
       model: 'rwkv7-test',
@@ -174,10 +194,10 @@ describe('App', () => {
     fireEvent.change(screen.getByLabelText('单 Agent 步数'), { target: { value: '5' } })
     fireEvent.change(screen.getByLabelText('批次超时（秒）'), { target: { value: '180' } })
     fireEvent.change(screen.getByLabelText('远端聚合窗口（毫秒）'), { target: { value: '15' } })
-    fireEvent.click(screen.getByRole('button', { name: '保存' }))
+    fireEvent.click(screen.getByRole('button', { name: '保存并使用' }))
 
-    await waitFor(() => expect(Backend.Configure).toHaveBeenCalledOnce())
-    const config = vi.mocked(Backend.Configure).mock.calls[0][0]
+    await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalledOnce())
+    const config = vi.mocked(Backend.ConfigureProvider).mock.calls[0][2]
     expect(config).toMatchObject({
       enableWeb: true,
       braveApiKey: 'brave-secret',
@@ -191,8 +211,8 @@ describe('App', () => {
     })
   })
 
-  it('allows the XML compatibility protocol to be selected', async () => {
-    vi.mocked(Backend.Configure).mockResolvedValue(new Status({
+  it('allows the Markdown protocol to be selected explicitly', async () => {
+    vi.mocked(Backend.ConfigureProvider).mockResolvedValue(new Status({
       state: ModelState.ModelReady,
       provider: Provider.ProviderRWKVLightning,
       model: 'rwkv7-test',
@@ -204,26 +224,143 @@ describe('App', () => {
     openSettings()
     switchToRemoteProvider()
     openSettingsSection('Agent')
-    fireEvent.change(screen.getByLabelText('工具协议'), { target: { value: 'xml' } })
+    fireEvent.change(screen.getByLabelText('工具协议'), { target: { value: 'markdown' } })
+    fireEvent.click(screen.getByRole('button', { name: '保存并使用' }))
+
+    await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalledOnce())
+    expect(vi.mocked(Backend.ConfigureProvider).mock.calls[0][2].agentProtocol).toBe('markdown')
+  })
+
+  it('saves a draft without switching the runtime connection', async () => {
+    const saved = savedRemoteProvider({
+      endpoint: 'https://draft.example.test',
+      model: 'draft-model',
+    }, {
+      id: 'draft-provider',
+      label: 'Draft connection',
+    })
+    vi.mocked(Backend.SaveProvider).mockResolvedValue(saved)
+
+    render(<App />)
+    openSettings()
+    switchToRemoteProvider()
+    fireEvent.change(screen.getByLabelText('连接名称'), { target: { value: 'Draft connection' } })
+    fireEvent.change(screen.getByLabelText('API 地址'), { target: { value: 'https://draft.example.test' } })
+    fireEvent.change(screen.getByLabelText('模型 ID'), { target: { value: 'draft-model' } })
     fireEvent.click(screen.getByRole('button', { name: '保存' }))
 
-    await waitFor(() => expect(Backend.Configure).toHaveBeenCalledOnce())
-    expect(vi.mocked(Backend.Configure).mock.calls[0][0].agentProtocol).toBe('xml')
+    await waitFor(() => expect(Backend.SaveProvider).toHaveBeenCalledOnce())
+    expect(Backend.ConfigureProvider).not.toHaveBeenCalled()
+    expect(vi.mocked(Backend.SaveProvider).mock.calls[0][0]).toBe('')
+    expect(vi.mocked(Backend.SaveProvider).mock.calls[0][1]).toBe('Draft connection')
+    expect(vi.mocked(Backend.SaveProvider).mock.calls[0][2]).toMatchObject({
+      endpoint: 'https://draft.example.test',
+      model: 'draft-model',
+    })
+    expect(await screen.findByText('档案已保存，尚未连接。')).toBeInTheDocument()
+  })
+
+  it('marks edited fields as an unsaved draft', async () => {
+    render(<App />)
+    openSettings()
+    fireEvent.change(screen.getByLabelText('连接名称'), { target: { value: 'Unsaved connection' } })
+
+    expect(await screen.findByText('未保存草稿')).toBeInTheDocument()
+  })
+
+  it('keeps the runtime banner independent from the profile being edited', async () => {
+    const runtime = savedRemoteProvider({}, { id: 'runtime-provider', label: 'Runtime connection' })
+    const backup = savedRemoteProvider({
+      endpoint: 'https://backup.example.test',
+      model: 'backup-model',
+    }, {
+      id: 'backup-provider',
+      label: 'Backup connection',
+    })
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
+      status: new Status({
+        state: ModelState.ModelReady,
+        provider: Provider.ProviderRWKVLightning,
+        endpoint: runtime.config.endpoint,
+        model: runtime.config.model,
+        workspace: '/tmp/RWKV-Agent',
+        hasApiKey: false,
+        updatedAt: new Date().toISOString(),
+      }),
+      config: runtime.config,
+      hasConfig: true,
+      providers: [runtime, backup],
+      activeProviderId: runtime.id,
+      runtimeProviderId: runtime.id,
+    }))
+
+    render(<App />)
+    await waitFor(() => expect(Backend.Bootstrap).toHaveBeenCalledOnce())
+    openSettings()
+    fireEvent.click(screen.getByRole('button', { name: /^Backup connection/ }))
+
+    expect(screen.getByLabelText('连接名称')).toHaveValue('Backup connection')
+    expect(screen.getByText('当前运行连接').parentElement).toHaveTextContent('Runtime connection')
+    expect(screen.getByRole('button', { name: /^Runtime connection/ })).toHaveTextContent('运行中')
+    expect(screen.getByRole('button', { name: /^Backup connection/ })).toHaveTextContent('编辑中')
+  })
+
+  it('blocks profile switching while the current draft is dirty', async () => {
+    const first = savedRemoteProvider({}, { id: 'first-provider', label: 'First connection' })
+    const second = savedRemoteProvider({ model: 'second-model' }, { id: 'second-provider', label: 'Second connection' })
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
+      config: first.config,
+      hasConfig: true,
+      providers: [first, second],
+      activeProviderId: first.id,
+    }))
+
+    render(<App />)
+    await waitFor(() => expect(Backend.Bootstrap).toHaveBeenCalledOnce())
+    openSettings()
+    fireEvent.change(screen.getByLabelText('模型 ID'), { target: { value: 'edited-model' } })
+    fireEvent.click(screen.getByRole('button', { name: /^Second connection/ }))
+
+    expect(screen.getByLabelText('连接名称')).toHaveValue('First connection')
+    expect(await screen.findByText('请先保存或放弃当前草稿，再切换到其他连接档案。')).toBeInTheDocument()
+  })
+
+  it('preserves an explicitly saved Markdown and Router selection', async () => {
+    const provider = savedRemoteProvider({
+      agentProtocol: AgentProtocol.AgentProtocolMarkdown,
+      progressiveTools: true,
+    })
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
+      config: provider.config,
+      hasConfig: true,
+      providers: [provider],
+      activeProviderId: provider.id,
+      runtimeProviderId: provider.id,
+    }))
+
+    render(<App />)
+    await waitFor(() => expect(Backend.Bootstrap).toHaveBeenCalledOnce())
+    openSettings()
+    openSettingsSection('Agent')
+
+    expect(screen.getByLabelText('工具协议')).toHaveValue('markdown')
+    expect(screen.getByLabelText('渐进式工具路由')).toBeChecked()
   })
 
   it('hydrates saved provider settings and plaintext credentials', async () => {
+    const provider = savedRemoteProvider({
+      password: 'saved-password',
+      headers: { 'X-Service-Key': 'saved-header' },
+      enableWeb: true,
+      braveApiKey: 'saved-brave',
+      tavilyApiKey: 'saved-tavily',
+    })
     vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
-      config: new Config({
-        provider: Provider.ProviderRWKVLightning,
-        endpoint: 'https://saved.example.test',
-        model: 'saved-model',
-        password: 'saved-password',
-        headers: { 'X-Service-Key': 'saved-header' },
-        enableWeb: true,
-        braveApiKey: 'saved-brave',
-        tavilyApiKey: 'saved-tavily',
-      }),
+      config: provider.config,
       hasConfig: true,
+      providers: [provider],
+      activeProviderId: provider.id,
+      runtimeProviderId: provider.id,
     }))
 
     render(<App />)
@@ -238,6 +375,8 @@ describe('App', () => {
     expect(screen.getByLabelText('Header 值')).toHaveAttribute('type', 'password')
 
     openSettingsSection('Agent')
+    expect(screen.getByLabelText('工具协议')).toHaveValue('xml')
+    expect(screen.getByLabelText('渐进式工具路由')).not.toBeChecked()
     expect(screen.getByLabelText('Brave API Key')).toHaveValue('saved-brave')
     expect(screen.getByLabelText('Tavily API Key')).toHaveValue('saved-tavily')
   })

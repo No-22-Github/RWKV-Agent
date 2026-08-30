@@ -13,7 +13,8 @@ const (
 	ProviderRWKVLightning   Provider = "rwkv-lightning"
 )
 
-// AgentProtocol selects the product-facing tool transcript.
+// AgentProtocol selects the product-facing tool transcript. The zero value
+// resolves to XML; Markdown remains an explicit option.
 type AgentProtocol string
 
 const (
@@ -45,40 +46,42 @@ type Config struct {
 	NativeProvider string            `json:"nativeProvider,omitempty"`
 	Thinking       string            `json:"thinking,omitempty"`
 	AgentProtocol  AgentProtocol     `json:"agentProtocol,omitempty"`
-	// SemanticNoTool and DeepToolAnchor default to enabled on the product
-	// profile; nil means "use the default". A 60-case paired A/B on 7B put the
-	// pair at +12/-0 (p=0.000488) with the protocol repair rate at 0/131.
-	SemanticNoTool         *bool   `json:"semanticNoTool,omitempty"`
-	DecisionFakeThink      bool    `json:"decisionFakeThink,omitempty"`
-	DeepToolAnchor         *bool   `json:"deepToolAnchor,omitempty"`
-	MaxSteps               int     `json:"maxSteps,omitempty"`
-	MaxTokens              int     `json:"maxTokens,omitempty"`
-	DecisionMaxTokens      int     `json:"decisionMaxTokens,omitempty"`
-	RouteMaxTokens         int     `json:"routeMaxTokens,omitempty"`
-	TracePromptBytes       *int    `json:"tracePromptBytes,omitempty"`
-	Temperature            float64 `json:"temperature,omitempty"`
-	TopK                   int     `json:"topK,omitempty"`
-	TopP                   float64 `json:"topP,omitempty"`
-	PresencePenalty        float64 `json:"presencePenalty,omitempty"`
-	FrequencyPenalty       float64 `json:"frequencyPenalty,omitempty"`
-	PenaltyDecay           float64 `json:"penaltyDecay,omitempty"`
-	ChatThinking           string  `json:"chatThinking,omitempty"`
-	ChatPromptMode         string  `json:"chatPromptMode,omitempty"`
-	ChatTokenLimit         string  `json:"chatTokenLimit,omitempty"`
-	Stream                 *bool   `json:"stream,omitempty"`
-	RWKVStopTokens         string  `json:"rwkvStopTokens,omitempty"`
-	ProgressiveTools       *bool   `json:"progressiveTools,omitempty"`
-	EnableWeb              bool    `json:"enableWeb,omitempty"`
-	BraveAPIKey            string  `json:"braveApiKey,omitempty"`
-	BraveEndpoint          string  `json:"braveEndpoint,omitempty"`
-	TavilyAPIKey           string  `json:"tavilyApiKey,omitempty"`
-	TavilyEndpoint         string  `json:"tavilyEndpoint,omitempty"`
-	EnableSubagents        bool    `json:"enableSubagents,omitempty"`
-	MaxActiveBatch         int     `json:"maxActiveBatch,omitempty"`
-	RemoteBatchWaitMS      int     `json:"remoteBatchWaitMs,omitempty"`
-	SubagentMaxParallel    int     `json:"subagentMaxParallel,omitempty"`
-	SubagentMaxSteps       int     `json:"subagentMaxSteps,omitempty"`
-	SubagentTimeoutSeconds int     `json:"subagentTimeoutSeconds,omitempty"`
+	// SemanticNoTool and DeepToolAnchor default to enabled only on the explicit
+	// Markdown product profile. The default XML profile disables both because it
+	// can answer directly without opening a tool envelope.
+	SemanticNoTool    *bool   `json:"semanticNoTool,omitempty"`
+	DecisionFakeThink bool    `json:"decisionFakeThink,omitempty"`
+	DeepToolAnchor    *bool   `json:"deepToolAnchor,omitempty"`
+	MaxSteps          int     `json:"maxSteps,omitempty"`
+	MaxTokens         int     `json:"maxTokens,omitempty"`
+	DecisionMaxTokens int     `json:"decisionMaxTokens,omitempty"`
+	RouteMaxTokens    int     `json:"routeMaxTokens,omitempty"`
+	TracePromptBytes  *int    `json:"tracePromptBytes,omitempty"`
+	Temperature       float64 `json:"temperature,omitempty"`
+	TopK              int     `json:"topK,omitempty"`
+	TopP              float64 `json:"topP,omitempty"`
+	PresencePenalty   float64 `json:"presencePenalty,omitempty"`
+	FrequencyPenalty  float64 `json:"frequencyPenalty,omitempty"`
+	PenaltyDecay      float64 `json:"penaltyDecay,omitempty"`
+	ChatThinking      string  `json:"chatThinking,omitempty"`
+	ChatPromptMode    string  `json:"chatPromptMode,omitempty"`
+	ChatTokenLimit    string  `json:"chatTokenLimit,omitempty"`
+	Stream            *bool   `json:"stream,omitempty"`
+	RWKVStopTokens    string  `json:"rwkvStopTokens,omitempty"`
+	// ProgressiveTools enables the optional capability Router. Nil defaults to
+	// false so the XML decision stage owns tool selection directly.
+	ProgressiveTools       *bool  `json:"progressiveTools,omitempty"`
+	EnableWeb              bool   `json:"enableWeb,omitempty"`
+	BraveAPIKey            string `json:"braveApiKey,omitempty"`
+	BraveEndpoint          string `json:"braveEndpoint,omitempty"`
+	TavilyAPIKey           string `json:"tavilyApiKey,omitempty"`
+	TavilyEndpoint         string `json:"tavilyEndpoint,omitempty"`
+	EnableSubagents        bool   `json:"enableSubagents,omitempty"`
+	MaxActiveBatch         int    `json:"maxActiveBatch,omitempty"`
+	RemoteBatchWaitMS      int    `json:"remoteBatchWaitMs,omitempty"`
+	SubagentMaxParallel    int    `json:"subagentMaxParallel,omitempty"`
+	SubagentMaxSteps       int    `json:"subagentMaxSteps,omitempty"`
+	SubagentTimeoutSeconds int    `json:"subagentTimeoutSeconds,omitempty"`
 }
 
 // Status is the non-secret model state displayed by clients.

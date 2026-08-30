@@ -195,11 +195,11 @@ func newSessionAtDepth(
 }
 
 func progressiveToolsEnabled(value *bool) bool {
-	return value == nil || *value
+	return value != nil && *value
 }
 
-// productSwitchEnabled resolves a tri-state product switch. Unset means the
-// product default, which is on for both semantic no_tool and the deep anchor.
+// productSwitchEnabled resolves a tri-state Markdown-profile switch. Unset is
+// on for semantic no_tool and the deep anchor; XML normalization supplies false.
 func productSwitchEnabled(value *bool) bool {
 	return value == nil || *value
 }

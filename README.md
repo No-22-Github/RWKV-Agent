@@ -244,18 +244,15 @@ tokenizer 不匹配仍会拒绝。迁移后的 autosave 写入新 revision，不
 `nearest_transit`、`transit_hours`、`fx_convert` 只在可重复的 `assistant` 评测 suite 中
 注册。默认工具没有写入、命令执行或真实网络能力。
 
-产品默认使用 G1i 训练原生的 Markdown/function transcript：工具目录位于 `System: Tools:`，
-工具调用是 `Assistant:` 后续写的 JSON fenced code block，工具结果以
-`User: Function output:` 回填。`inspect` 获得足够证据后直接输出普通 Markdown，不注册
-`submit`，因此代码块不会被迫塞入 JSON 参数；`respond` 路由也直接回答。旧
-`rwkv-g1i-envelope-v1` XML 协议保留为
-`--agent-protocol xml` 的 A/B 兼容模式。
+产品默认使用 `rwkv-g1i-envelope-v1` XML transcript，并让模型在一个决策阶段内直接选择动作。
+工具调用格式为 `<tool_call>{"name":"TOOL_NAME","arguments":{...}}</tool_call>`，工具结果以
+`<tool_result>...</tool_result>` 回填；不需要工具时直接输出普通文本。默认不运行独立 Router，
+因此不会先生成 `<route>`，完整的已启用工具目录直接交给动作协议。
 
-渐进式工具暴露默认开启：每轮先由不暴露具体 schema 的短 Router 在 `workspace`、
-`compute`、`web`、`delegate` 能力组中选择零至两个；`respond` 直接进入无工具回答，
-`inspect:BUNDLE[+BUNDLE]` 只把所选能力组的 schema 交给模型。当前工具不够时模型可以调用
-控制工具 `load_tools` 再加载一个能力组；未暴露工具即使被模型点名也会被拒绝。
-`--progressive-tools=false` 恢复固定完整目录。
+G1i 训练原生的 Markdown/function transcript 保留为显式
+`--agent-protocol markdown` 选项。渐进式 Router 也保留为
+`--progressive-tools=true`：它先在 `workspace`、`compute`、`web`、`delegate` 能力组中选择
+零至两个，再只暴露所选 schema，并允许通过 `load_tools` 加载另一个已启用能力组。
 
 ```sh
 ./dist/rwkv-cli agent \
@@ -282,7 +279,7 @@ user/assistant/tool transcript 带入后续阶段。`/new` 或 `/reset` 清空�
 --max-steps <2..20>                  --progressive-tools[=true|false]
 --agent-protocol markdown|xml        --route-max-tokens <n>
 --decision-max-tokens <n>            --max-tokens <n>
---workspace <directory>              --thinking off|fast|full（仅 XML 兼容协议）
+--workspace <directory>              --thinking off|fast|full（仅 XML 协议）
 --ui auto|tui|plain                  --prompt <task>
 --web                                --subagents
 --semantic-no-tool                   --decision-fake-think
@@ -294,13 +291,13 @@ user/assistant/tool transcript 带入后续阶段。`/new` 或 `/reset` 清空�
 ```
 
 Agent 默认使用确定性解码：`temperature=1`、`top-k=1`、`top-p=1`，presence/frequency
-惩罚为 0、`penalty-decay=1`。能力 Router 最多生成 48 token，首次工具选择最多 96 token，
-最终回答最多 1024 token，并限制为 6 个 Agent step（Router 独立计数）。产品实验开关默认
-关闭；`--few-shot`、旧 `--route-stage` 和 Primitive 的重复/救援参数只属于 `agent-eval`，
-不再作为看似可用但实际不进入 App profile 的 `agent` 参数暴露。
+惩罚为 0、`penalty-decay=1`。默认 XML 工具决策最多 512 token，最终回答最多 1024 token，
+并限制为 6 个 Agent step；显式开启 progressive Router 时，路由最多生成 48 token 且独立
+计数。XML 下 `semantic-no-tool` 与 `deep-tool-anchor` 默认关闭；`--few-shot`、旧
+`--route-stage` 和 Primitive 的重复/救援参数只属于 `agent-eval`。
 
-Product Markdown profile 固定使用 `--thinking off`；`--thinking fast/full` 只保留给
-`--agent-protocol xml` 兼容 A/B。Product 的半开 think 字节实验必须使用独立的
+Markdown profile 固定使用 `--thinking off`；`--thinking fast/full` 由默认 XML profile
+直接支持。Markdown 的半开 think 字节实验必须使用独立的
 `--decision-fake-think` 开关，避免把两种 renderer 语义混成一套。
 
 ### 可选 Web 与子代理
@@ -451,9 +448,9 @@ go test -tags chatcompletions ./internal/continuation/chatcompletions \
 
 ## 8. Agent 评测
 
-`agent-eval` 按 suite 使用显式 profile。`bfcl-product` 通过和 App 相同的
-`ProductHarnessOptions` 入口构造 Markdown/function + progressive Router；Primitive、BFCL
-原始包装协议和 XML 回归各自保持独立，避免把 benchmark 字节协议混进产品：
+`agent-eval` 按 suite 使用显式、可归档的 profile，不继承 App/CLI 的产品默认值。
+`bfcl-product` 继续通过 `ProductHarnessOptions` 构造冻结的 Markdown/function + progressive
+Router 基线；Primitive、BFCL 原始包装协议和 XML 对照各自保持独立，避免历史口径漂移：
 
 | Suite | 内容 |
 | --- | --- |

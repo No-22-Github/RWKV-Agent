@@ -4,8 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/url"
 	"os"
 	"path/filepath"
+	"reflect"
 	"runtime"
 	"strings"
 	"sync"
@@ -97,31 +99,33 @@ type StoragePaths struct {
 }
 
 type AppBootstrap struct {
-	Status           agentapi.Status            `json:"status"`
-	Config           agentapi.Config            `json:"config"`
-	HasConfig        bool                       `json:"hasConfig"`
-	Providers        []appstorage.SavedProvider `json:"providers"`
-	ActiveProviderID string                     `json:"activeProviderId,omitempty"`
-	Conversations    []ConversationSummary      `json:"conversations"`
-	Conversation     *ConversationView          `json:"conversation,omitempty"`
-	Workspaces       []WorkspaceItem            `json:"workspaces"`
-	Paths            StoragePaths               `json:"paths"`
-	Warning          string                     `json:"warning,omitempty"`
+	Status            agentapi.Status            `json:"status"`
+	Config            agentapi.Config            `json:"config"`
+	HasConfig         bool                       `json:"hasConfig"`
+	Providers         []appstorage.SavedProvider `json:"providers"`
+	ActiveProviderID  string                     `json:"activeProviderId,omitempty"`
+	RuntimeProviderID string                     `json:"runtimeProviderId,omitempty"`
+	Conversations     []ConversationSummary      `json:"conversations"`
+	Conversation      *ConversationView          `json:"conversation,omitempty"`
+	Workspaces        []WorkspaceItem            `json:"workspaces"`
+	Paths             StoragePaths               `json:"paths"`
+	Warning           string                     `json:"warning,omitempty"`
 }
 
 // AppService binds durable application state to the public Agent API.
 type AppService struct {
-	operation sync.Mutex
-	mu        sync.Mutex
-	service   *agentapi.Service
-	storage   *appstorage.Store
-	session   *agentapi.Session
-	active    *appstorage.Conversation
-	config    agentapi.Config
-	hasConfig bool
-	app       *application.App
-	warning   string
-	closed    bool
+	operation         sync.Mutex
+	mu                sync.Mutex
+	service           *agentapi.Service
+	storage           *appstorage.Store
+	session           *agentapi.Session
+	active            *appstorage.Conversation
+	config            agentapi.Config
+	hasConfig         bool
+	runtimeProviderID string
+	app               *application.App
+	warning           string
+	closed            bool
 }
 
 func newAppService(service *agentapi.Service, storage *appstorage.Store) *AppService {
@@ -139,6 +143,8 @@ func newAppService(service *agentapi.Service, storage *appstorage.Store) *AppSer
 		if cfg.Provider != agentapi.ProviderLocal {
 			if _, err := service.Configure(context.Background(), cfg, func(agentapi.Status) {}); err != nil {
 				backend.warning = joinWarning(backend.warning, fmt.Sprintf("自动连接上次的远端失败：%v", err))
+			} else {
+				backend.runtimeProviderID = settings.ActiveID
 			}
 		}
 	}
@@ -169,11 +175,19 @@ func (s *AppService) Status() agentapi.Status {
 	return service.Status()
 }
 
-// Configure replaces the active provider and persists the complete settings,
-// including credentials, in the XDG configuration file.
+// Configure 保留旧入口：配置、保存并立即使用一条按连接键去重的档案。
 func (s *AppService) Configure(ctx context.Context, config agentapi.Config) (agentapi.Status, error) {
+	return s.ConfigureProvider(ctx, "", "", config)
+}
+
+// ConfigureProvider 保存指定档案并把它切换为真实运行连接。传入 id 后允许修改地址或模型而不复制档案。
+func (s *AppService) ConfigureProvider(ctx context.Context, id string, label string, config agentapi.Config) (agentapi.Status, error) {
 	s.operation.Lock()
 	defer s.operation.Unlock()
+	return s.configureProvider(ctx, id, label, config)
+}
+
+func (s *AppService) configureProvider(ctx context.Context, id string, label string, config agentapi.Config) (agentapi.Status, error) {
 	s.mu.Lock()
 	if s.closed {
 		s.mu.Unlock()
@@ -193,14 +207,38 @@ func (s *AppService) Configure(ctx context.Context, config agentapi.Config) (age
 	if err != nil {
 		return status, err
 	}
-	if err := s.storage.SaveSettings(config); err != nil {
+	saved, err := s.storage.SaveProvider(id, label, config, true)
+	if err != nil {
 		return status, fmt.Errorf("模型已配置，但保存设置失败: %w", err)
 	}
 	s.mu.Lock()
 	s.config = config
 	s.hasConfig = true
+	s.runtimeProviderID = saved.ID
 	s.mu.Unlock()
 	return status, nil
+}
+
+// SaveProvider 只保存编辑草稿，不连接服务，也不替换当前会话使用的 provider。
+func (s *AppService) SaveProvider(id string, label string, config agentapi.Config) (appstorage.SavedProvider, error) {
+	if err := validateProviderDraft(config); err != nil {
+		return appstorage.SavedProvider{}, err
+	}
+	s.operation.Lock()
+	defer s.operation.Unlock()
+	saved, err := s.storage.SaveProvider(id, label, config, false)
+	if err != nil {
+		return appstorage.SavedProvider{}, err
+	}
+	s.mu.Lock()
+	status := s.service.Status()
+	if status.State == agentapi.ModelReady && reflect.DeepEqual(s.config, saved.Config) {
+		s.runtimeProviderID = saved.ID
+	} else if s.runtimeProviderID == saved.ID {
+		s.runtimeProviderID = ""
+	}
+	s.mu.Unlock()
+	return saved, nil
 }
 
 // ListRemoteModels verifies remote connectivity and returns model identifiers.
@@ -219,7 +257,7 @@ func (s *AppService) ActivateProvider(ctx context.Context, id string) (agentapi.
 	}
 	for _, entry := range settings.Providers {
 		if entry.ID == id {
-			return s.Configure(ctx, entry.Config)
+			return s.ConfigureProvider(ctx, entry.ID, entry.Label, entry.Config)
 		}
 	}
 	return agentapi.Status{}, fmt.Errorf("找不到该连接档案")
@@ -232,6 +270,11 @@ func (s *AppService) DeleteProvider(id string) (AppBootstrap, error) {
 	if _, err := s.storage.RemoveProvider(id); err != nil {
 		return AppBootstrap{}, err
 	}
+	s.mu.Lock()
+	if s.runtimeProviderID == id {
+		s.runtimeProviderID = ""
+	}
+	s.mu.Unlock()
 	return s.bootstrap()
 }
 
@@ -438,6 +481,7 @@ func (s *AppService) OpenWorkspace(path string) (AppBootstrap, error) {
 	s.service = service
 	s.session = nil
 	s.active = nil
+	s.runtimeProviderID = ""
 	s.mu.Unlock()
 	if oldSession != nil {
 		_ = oldSession.Close()
@@ -539,6 +583,7 @@ func (s *AppService) bootstrap() (AppBootstrap, error) {
 	service := s.service
 	config := s.config
 	hasConfig := s.hasConfig
+	runtimeProviderID := s.runtimeProviderID
 	active := s.active
 	warning := s.warning
 	s.mu.Unlock()
@@ -558,7 +603,7 @@ func (s *AppService) bootstrap() (AppBootstrap, error) {
 	paths := s.storage.Paths()
 	result := AppBootstrap{
 		Status: status, Config: config, HasConfig: hasConfig,
-		Providers: settings.Providers, ActiveProviderID: settings.ActiveID,
+		Providers: settings.Providers, ActiveProviderID: settings.ActiveID, RuntimeProviderID: runtimeProviderID,
 		Conversations: conversationSummaries(summaries),
 		Workspaces:    workspaceItems(state.RecentWorkspaces, status.Workspace),
 		Paths: StoragePaths{
@@ -572,6 +617,25 @@ func (s *AppService) bootstrap() (AppBootstrap, error) {
 		result.Conversation = &view
 	}
 	return result, nil
+}
+
+func validateProviderDraft(config agentapi.Config) error {
+	if strings.TrimSpace(config.Model) == "" {
+		return fmt.Errorf("模型 ID 或本地模型路径不能为空")
+	}
+	switch config.Provider {
+	case agentapi.ProviderLocal:
+		return nil
+	case agentapi.ProviderChatCompletions, agentapi.ProviderRWKVLightning:
+		parsed, err := url.Parse(strings.TrimSpace(config.Endpoint))
+		if err != nil || parsed.Scheme == "" || parsed.Host == "" || parsed.User != nil ||
+			(parsed.Scheme != "http" && parsed.Scheme != "https") {
+			return fmt.Errorf("API 地址必须是不含凭据的 HTTP(S) 绝对地址")
+		}
+		return nil
+	default:
+		return fmt.Errorf("不支持的 Provider %q", config.Provider)
+	}
 }
 
 func (s *AppService) loadActiveConversation() {

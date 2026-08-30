@@ -2,8 +2,8 @@
 
 状态：Phase 1 部分完成
 
-> 历史说明：本文记录早期 XML Harness 里程碑，不代表当前产品默认协议。当前默认的
-> Markdown/function transcript、`submit` 终止语义和渐进式工具目录见
+> 历史说明：本文记录早期 XML Harness 里程碑；具体字节和旧 Router 设计不代表当前实现。
+> 当前默认的 XML 无路由 profile、可选 Markdown/function transcript 和渐进式工具目录见
 > [`continuation-and-agent-protocol.md`](continuation-and-agent-protocol.md)。
 
 目标：在现有 macOS 本地推理、Conversation 和 State 能力之上，建立可测试、可约束的

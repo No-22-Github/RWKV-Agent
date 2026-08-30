@@ -18,6 +18,7 @@ export class AppBootstrap {
     "hasConfig": boolean;
     "providers": appstorage$0.SavedProvider[];
     "activeProviderId"?: string;
+    "runtimeProviderId"?: string;
     "conversations": ConversationSummary[];
     "conversation"?: ConversationView | null;
     "workspaces": WorkspaceItem[];
@@ -58,10 +59,10 @@ export class AppBootstrap {
         const $$createField0_0 = $$createType0;
         const $$createField1_0 = $$createType1;
         const $$createField3_0 = $$createType3;
-        const $$createField5_0 = $$createType5;
-        const $$createField6_0 = $$createType7;
-        const $$createField7_0 = $$createType9;
-        const $$createField8_0 = $$createType10;
+        const $$createField6_0 = $$createType5;
+        const $$createField7_0 = $$createType7;
+        const $$createField8_0 = $$createType9;
+        const $$createField9_0 = $$createType10;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("status" in $$parsedSource) {
             $$parsedSource["status"] = $$createField0_0($$parsedSource["status"]);
@@ -73,16 +74,16 @@ export class AppBootstrap {
             $$parsedSource["providers"] = $$createField3_0($$parsedSource["providers"]);
         }
         if ("conversations" in $$parsedSource) {
-            $$parsedSource["conversations"] = $$createField5_0($$parsedSource["conversations"]);
+            $$parsedSource["conversations"] = $$createField6_0($$parsedSource["conversations"]);
         }
         if ("conversation" in $$parsedSource) {
-            $$parsedSource["conversation"] = $$createField6_0($$parsedSource["conversation"]);
+            $$parsedSource["conversation"] = $$createField7_0($$parsedSource["conversation"]);
         }
         if ("workspaces" in $$parsedSource) {
-            $$parsedSource["workspaces"] = $$createField7_0($$parsedSource["workspaces"]);
+            $$parsedSource["workspaces"] = $$createField8_0($$parsedSource["workspaces"]);
         }
         if ("paths" in $$parsedSource) {
-            $$parsedSource["paths"] = $$createField8_0($$parsedSource["paths"]);
+            $$parsedSource["paths"] = $$createField9_0($$parsedSource["paths"]);
         }
         return new AppBootstrap($$parsedSource as Partial<AppBootstrap>);
     }

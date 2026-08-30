@@ -305,6 +305,16 @@ func normalizeConfig(config Config) (Config, error) {
 	if config.RouteMaxTokens < 1 {
 		return Config{}, fmt.Errorf("routeMaxTokens must be positive")
 	}
+	// Resolve the transcript before selecting protocol-specific defaults. The XML
+	// envelope is the product default and needs the larger decision budget below;
+	// leaving the zero value unresolved here would accidentally assign it the
+	// fenced-JSON budget.
+	if config.AgentProtocol == "" {
+		config.AgentProtocol = AgentProtocolXML
+	}
+	if config.AgentProtocol != AgentProtocolMarkdown && config.AgentProtocol != AgentProtocolXML {
+		return Config{}, fmt.Errorf("unsupported agentProtocol %q", config.AgentProtocol)
+	}
 	if config.DecisionMaxTokens == 0 {
 		// The right decision budget depends on the transcript: the XML envelope
 		// lets the model reason before committing to an action and needs far
@@ -366,12 +376,6 @@ func normalizeConfig(config Config) (Config, error) {
 	if config.Thinking == "" {
 		config.Thinking = "off"
 	}
-	if config.AgentProtocol == "" {
-		config.AgentProtocol = AgentProtocolMarkdown
-	}
-	if config.AgentProtocol != AgentProtocolMarkdown && config.AgentProtocol != AgentProtocolXML {
-		return Config{}, fmt.Errorf("unsupported agentProtocol %q", config.AgentProtocol)
-	}
 	if config.AgentProtocol == AgentProtocolXML {
 		// XML is a supported product transcript, not a deprecated one, so
 		// selecting it never fails. Both product prefill switches default off
@@ -395,7 +399,7 @@ func normalizeConfig(config Config) (Config, error) {
 	}
 	if config.AgentProtocol == AgentProtocolMarkdown && config.Thinking != "off" {
 		return Config{}, fmt.Errorf(
-			"thinking mode %q requires the XML compatibility Agent protocol; use decisionFakeThink for the product text experiment",
+			"thinking mode %q requires the XML Agent protocol; use decisionFakeThink for the Markdown text experiment",
 			config.Thinking,
 		)
 	}

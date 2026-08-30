@@ -16,8 +16,8 @@ import (
 // a profile means adding one line to this block rather than an inline literal
 // next to an ID method.
 const (
-	// G1IEnvelopeProtocolV1 is the XML <tool_call>/<answer> envelope protocol
-	// kept for --agent-protocol xml A/B runs.
+	// G1IEnvelopeProtocolV1 is the default product XML <tool_call>/<answer>
+	// envelope protocol.
 	G1IEnvelopeProtocolV1 = "rwkv-g1i-envelope-v1"
 	// G1IFunctionProtocolV1 is the benchmark fenced-JSON function protocol with
 	// submit termination. G1IProductFunctionProtocolV1 is its product variant,
@@ -25,7 +25,7 @@ const (
 	G1IFunctionProtocolV1        = "rwkv-g1i-functions-v1"
 	G1IProductFunctionProtocolV1 = "rwkv-g1i-functions-product-v1"
 
-	// RWKVPromptRendererV2 renders the XML-compatible chat transcript.
+	// RWKVPromptRendererV2 renders the XML chat transcript.
 	RWKVPromptRendererV2 = "rwkv-chat-continuation-v2"
 	// G1IFunctionRendererV1 renders the trained G1i function transcript.
 	// G1IProductFunctionRendererV1 is its product variant.

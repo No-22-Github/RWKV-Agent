@@ -101,6 +101,43 @@ func TestSaveActiveProviderUpsertsAndActivates(t *testing.T) {
 	}
 }
 
+func TestSaveProviderDraftUpdatesByIDWithoutChangingActive(t *testing.T) {
+	t.Parallel()
+	store := testStore(t)
+	active, err := store.SaveActiveProvider(agentapi.Config{
+		Provider: agentapi.ProviderRWKVLightning, Endpoint: "https://active.test", Model: "active-model",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	draft, err := store.SaveProvider("", "Draft connection", agentapi.Config{
+		Provider: agentapi.ProviderChatCompletions, Endpoint: "https://draft.test", Model: "draft-model",
+	}, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	updatedConfig := draft.Config
+	updatedConfig.Endpoint = "https://edited.test"
+	updatedConfig.Model = "edited-model"
+	updated, err := store.SaveProvider(draft.ID, "Edited draft", updatedConfig, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if updated.ID != draft.ID || updated.Label != "Edited draft" || updated.Config.Endpoint != "https://edited.test" {
+		t.Fatalf("updated provider = %+v", updated)
+	}
+	loaded, err := store.LoadSettings()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(loaded.Providers) != 2 {
+		t.Fatalf("editing by id must not create a duplicate: %+v", loaded.Providers)
+	}
+	if loaded.ActiveID != active.ID || loaded.Provider.Model != active.Config.Model {
+		t.Fatalf("saving a draft changed active provider: %+v", loaded)
+	}
+}
+
 func TestLoadSettingsMigratesV1(t *testing.T) {
 	t.Parallel()
 	store := testStore(t)

@@ -144,14 +144,25 @@ func TestAgentDefaultsAreDeterministicAndBounded(t *testing.T) {
 	if options.workspace != "." || options.maxSteps != 6 {
 		t.Fatalf("agent bounds = %+v", options)
 	}
-	if !options.progressiveTools || options.enableWeb || options.enableSubagents ||
+	if options.progressiveTools || options.enableWeb || options.enableSubagents ||
 		options.maxActiveBatch != 4 || options.remoteBatchWait != 10*time.Millisecond ||
 		options.subagentMaxParallel != 4 || options.subagentMaxSteps != 4 ||
 		options.subagentTimeout != 2*time.Minute {
 		t.Fatalf("agent capability defaults = %+v", options)
 	}
-	if options.agentProtocol != string(agentapi.AgentProtocolMarkdown) {
+	if options.agentProtocol != string(agentapi.AgentProtocolXML) {
 		t.Fatalf("agent protocol = %q", options.agentProtocol)
+	}
+	if options.semanticNoTool || options.deepToolAnchor {
+		t.Fatalf("XML product switches defaulted on: %+v", options)
+	}
+	config, err := agentAPIConfig(options)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if config.AgentProtocol != agentapi.AgentProtocolXML ||
+		config.ProgressiveTools == nil || *config.ProgressiveTools {
+		t.Fatalf("default Agent API config = %+v", config)
 	}
 	if options.fewShot {
 		t.Fatal("agent enabled few-shot by default before A/B validation")
@@ -213,6 +224,8 @@ func TestAgentCapabilityOptionsMapToAPIConfig(t *testing.T) {
 	options, err := parseRunOptions("agent", []string{
 		"--model", "model",
 		"--prompt", "research",
+		"--agent-protocol", "markdown",
+		"--progressive-tools=true",
 		"--web",
 		"--brave-api-key-env", "TEST_BRAVE_KEY",
 		"--tavily-api-key-env", "TEST_TAVILY_KEY",
@@ -350,6 +363,7 @@ func TestProductAgentRejectsIgnoredThinkingMode(t *testing.T) {
 		"--prompt", "inspect the repository",
 		"--completion", "rwkv-lightning",
 		"--api-url", "https://example.test/big_batch/completions",
+		"--agent-protocol", "markdown",
 		"--thinking", "full",
 	}); err == nil {
 		t.Fatal("product markdown Agent accepted an ignored thinking mode")

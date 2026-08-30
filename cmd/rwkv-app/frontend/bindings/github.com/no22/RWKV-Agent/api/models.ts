@@ -10,7 +10,8 @@ import { Create as $Create } from "@wailsio/runtime";
 import * as time$0 from "../../../../time/models.js";
 
 /**
- * AgentProtocol selects the product-facing tool transcript.
+ * AgentProtocol selects the product-facing tool transcript. The zero value
+ * resolves to XML; Markdown remains an explicit option.
  */
 export enum AgentProtocol {
     /**
@@ -38,6 +39,12 @@ export class Config {
     "nativeProvider"?: string;
     "thinking"?: string;
     "agentProtocol"?: AgentProtocol;
+
+    /**
+     * SemanticNoTool and DeepToolAnchor default to enabled only on the explicit
+     * Markdown product profile. The default XML profile disables both because it
+     * can answer directly without opening a tool envelope.
+     */
     "semanticNoTool"?: boolean | null;
     "decisionFakeThink"?: boolean;
     "deepToolAnchor"?: boolean | null;
@@ -57,6 +64,11 @@ export class Config {
     "chatTokenLimit"?: string;
     "stream"?: boolean | null;
     "rwkvStopTokens"?: string;
+
+    /**
+     * ProgressiveTools enables the optional capability Router. Nil defaults to
+     * false so the XML decision stage owns tool selection directly.
+     */
     "progressiveTools"?: boolean | null;
     "enableWeb"?: boolean;
     "braveApiKey"?: string;
