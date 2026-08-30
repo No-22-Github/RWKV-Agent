@@ -1037,10 +1037,13 @@ func agentRunnerOptions(options runOptions, suite string, observe func(agent.Eve
 			Observe:           observe,
 		})
 	}
-	if options.agentProtocol == string(agentapi.AgentProtocolMarkdown) {
+	if options.evalCasesPath != "" && options.agentProtocol == string(agentapi.AgentProtocolMarkdown) {
 		// Custom suites honor --agent-protocol markdown by running the same
 		// product-facing profile as bfcl-product; before this branch the flag
 		// was silently ignored here (found during the E6 file-tool A/B).
+		// Built-in suites keep their established mapping: boundary and the
+		// primitive suites run the XML envelope regardless of the flag, so
+		// their baselines stay comparable.
 		return agent.ProductHarnessOptions(agent.ProductHarnessConfig{
 			MaxSteps:                 options.maxSteps,
 			DecisionMaxOutputTokens:  options.decisionMaxTokens,

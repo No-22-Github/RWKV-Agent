@@ -210,3 +210,86 @@ P3 结构化并列给每块来源标注了 URL 与自述（官方 vs wiki），�
 5. 双来源顺序回喂有 −15 pp 近因效应（P3-2）；harness 若必须顺序回喂，
    不能依赖模型"记住"更早的来源，需要结构化并列。
 6. 提前关闭工具链不能直接得到最终回答（P2-3）。
+
+---
+
+## P5 长页压缩（test/probes/p5-compression/）
+
+设置：长页（5k/10k token，P1 prose 体）在 60% 深度埋入一句带答案数值的
+事实句；三种压缩提示词形态（extract 逐句摘抄 / summary 摘要 / bullets
+要点列表）× 有无 fast-think 预填（`Assistant: <think></think`）。阶段 A
+测压缩输出是否保留答案数值；阶段 B 把压缩页喂回产品决策，测答案是否进
+入模型输出。
+
+### P5-1 逐句摘抄 + fast-think 预填是最优压缩形态
+
+阶段 A 保留率（x/10）：extract+ft = 10/10（5k）· 9/10（10k）；bullets+ft =
+10/10 · 7/10；summary+ft = 8/10 · 6/10；全部 raw（无预填）形态 =
+3-4/10（10k）～7-9/10（5k）。压缩长度：extract+ft 平均 ~110 字符，
+raw 形态 1100-1900 字符。目录：`out/p5-stage-a2/`。
+
+### P5-2 整页喂回时模型在页内"找不到"答案，改为再抓取；压缩页喂回则正确作答
+
+阶段 B（答案数值进入模型调用，x/10）：extract+ft = 9/10（5k）· 8/10（10k）；
+bullets+ft = 10/10 · 7/10；**整页对照 = 1/10（5k）· 0/10（10k）**。整页喂回
+时 20 格里 11 次再次 web_fetch、7 次改 web_search——模型不在长页里检索答案，
+而是发起更多工具调用。目录：`out/p5-stage-b/`、`out/p5-stage-a2/`。
+
+### P5-3 压缩调用本身必须带 fast-think 预填
+
+无预填时压缩输出以 `<think>` 开头并跑偏（幻觉"没有相关句子"）：
+extract raw 5k = 4/10 vs extract+ft 10/10。与 P1-7 同一机制在工具性
+提示词上的复现。目录：`out/p5-stage-a{,2}/`。
+
+---
+
+## E6 文件工具对照（test/filetools-ab/，6 轮迭代）
+
+设置：8 个文件编辑任务（建文件 / 追加 / 改值 / 换块 / 删行 / 两步 /
+大文件定位编辑）× 两种形态。Form A（lines）= read_lines + write_file +
+replace_lines + append_file；Form B（whole）= read_lines + write_file
+（编辑 = 读后整文件重写）。产品 Markdown 协议 + 深锚点 + 路由器，
+贪心，n=8/轮。
+
+### E6-1 两种形态的工具机制都能工作，差异在 required-tool 完成率
+
+最终轮：Form B required-tool 完成 100%，Form A 60%；历史轮 Form B
+88.9-100%，Form A 50-60%。协议合规 76-92%（两形态相当）。选择 **Form B
+（whole）**：工具更少、参数面更平、完成率更高。Form A 的 replace_lines
+没有转化为优势。目录：`test/filetools-ab/run-form-{a,b}/summary.json`。
+
+### E6-2 无 no_tool 出口时模型无法终止工具循环
+
+去掉 semantic no_tool 后（route 100% 正确、工具调用正确），模型在编辑
+成功后反复 read_file 直到步数耗尽（answer 0-12.5%）。no_tool 是 7B 唯一
+的"我做完了"信号。目录：`run-form-{a,b}/trace.jsonl`。
+
+### E6-3 有 no_tool 时模型用它谎报完成
+
+带 no_tool 时，模型在不调用任何工具的情况下输出"已追加/已修改"的
+reason（fabricated completion），required-tool 完成率跌至 0-60%。
+收紧 no_tool 描述（"never claim a file was read, created, or modified"）
+只部分改善（required 53-64%）。目录：`run-form-{a,b}/summary.json`。
+
+### E6-4 路由器需要编辑类 few-shot 示例
+
+workspace bundle 描述只写"读取/搜索"时，路由器把编辑任务判为
+respond（工具不可用）——加两条编辑示例后 route 100% 正确。
+目录：`run-form-{a,b}/trace.jsonl`（route 决策）。
+
+### E6-5 模型把可选整数发成 null
+
+read_lines 的 end_line 按 strict integer 声明时，模型仍发 null；
+改为 nullable + 默认值（与 list_files 风格一致）后该错误消失。
+
+**结论：文件编辑工具保持实验性（--file-tools 门控，默认关闭）。
+阻塞项是 E6-2/E6-3 的终止/谎报问题，不是工具形态；形态选 Form B。**
+
+## 对 Harness 的可执行含义（续）
+
+7. fetch 结果 token 预算 ≤8k（P1-1 降解点留余量）；超过 ~4k 的单页用
+   query-aware 摘抄压缩（P5-1/2/3），压缩前后原文都留轨迹。
+8. 子 Agent 结果以带来源标签的块状单条回喂（P4-4/P4-5/P3-1 验证：
+   correct_first 11→14-15/20）。
+9. 文件工具选 Form B（whole），实验性门控（E6-1）；待 E6-2/E6-3 解决后
+   再默认启用。
