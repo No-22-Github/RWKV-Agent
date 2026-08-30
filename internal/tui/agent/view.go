@@ -12,6 +12,7 @@ import (
 	"charm.land/lipgloss/v2"
 	"github.com/charmbracelet/x/ansi"
 	"github.com/no22/RWKV-Agent/internal/terminal"
+	"github.com/no22/RWKV-Agent/internal/tui/tuiutil"
 )
 
 func (m *model) View() tea.View {
@@ -45,7 +46,7 @@ func (m *model) View() tea.View {
 			" %s Working on step %d · %s",
 			spinnerFrame(m.elapsed),
 			max(m.step, 1),
-			formatDuration(m.elapsed),
+			tuiutil.FormatDuration(m.elapsed),
 		)
 	}
 	footer := " Enter submit · wheel/↑/↓ scroll · Ctrl-C cancel task · Esc quit "
@@ -88,7 +89,7 @@ func (m *model) renderConversation(width, height int) string {
 	contentWidth := max(width-2, 1)
 	contentHeight := max(height-2, 1)
 	lines := m.conversationLines(contentWidth)
-	body := tailWindow(lines, contentHeight, m.scroll)
+	body := tuiutil.TailWindow(lines, contentHeight, m.scroll)
 	for len(body) < contentHeight {
 		body = append(body, "")
 	}
@@ -102,12 +103,12 @@ func (m *model) conversationLines(contentWidth int) []string {
 	lines := []string{m.theme.Title.Render(" Conversation")}
 	for _, item := range m.turns {
 		lines = append(lines, "")
-		lines = append(lines, wrappedStyledLines(
+		lines = append(lines, tuiutil.WrappedLines(
 			m.theme.Prompt.Render("You ›")+" "+terminal.SanitizeModelText(item.prompt),
 			contentWidth,
 		)...)
 		if item.output != "" {
-			lines = append(lines, wrappedStyledLines(
+			lines = append(lines, tuiutil.WrappedLines(
 				m.theme.Success.Render("Agent ›")+" "+item.output,
 				contentWidth,
 			)...)
@@ -117,7 +118,7 @@ func (m *model) conversationLines(contentWidth int) []string {
 			if errors.Is(item.err, context.Canceled) {
 				label = "Cancelled › "
 			}
-			lines = append(lines, wrappedStyledLines(
+			lines = append(lines, tuiutil.WrappedLines(
 				m.theme.Warning.Render(label)+terminal.SanitizeModelText(item.err.Error()),
 				contentWidth,
 			)...)
@@ -125,7 +126,7 @@ func (m *model) conversationLines(contentWidth int) []string {
 	}
 	if m.current != "" {
 		lines = append(lines, "")
-		lines = append(lines, wrappedStyledLines(
+		lines = append(lines, tuiutil.WrappedLines(
 			m.theme.Prompt.Render("You ›")+" "+terminal.SanitizeModelText(m.current),
 			contentWidth,
 		)...)
@@ -181,29 +182,6 @@ func (m *model) renderActivity(width, height int) string {
 		Render(strings.Join(lines, "\n"))
 }
 
-func wrappedStyledLines(value string, width int) []string {
-	if value == "" {
-		return nil
-	}
-	rendered := lipgloss.NewStyle().Width(max(width, 1)).Render(value)
-	return strings.Split(rendered, "\n")
-}
-
-func tailWindow(lines []string, height, scroll int) []string {
-	if height <= 0 || len(lines) == 0 {
-		return nil
-	}
-	maxScroll := max(0, len(lines)-height)
-	scroll = min(max(scroll, 0), maxScroll)
-	end := len(lines) - scroll
-	start := max(0, end-height)
-	result := append([]string(nil), lines[start:end]...)
-	if start > 0 && len(result) > 0 {
-		result[0] = ansi.Truncate("…"+result[0], lipgloss.Width(result[0]), "…")
-	}
-	return result
-}
-
 func (m *model) conversationGeometry() (width, height int) {
 	width = max(m.width, 40)
 	screenHeight := max(m.height, 12)
@@ -236,13 +214,4 @@ func spinnerFrame(elapsed time.Duration) string {
 	frames := []string{"◐", "◓", "◑", "◒"}
 	index := int(elapsed/(100*time.Millisecond)) % len(frames)
 	return frames[index]
-}
-
-func formatDuration(value time.Duration) string {
-	if value <= 0 {
-		return "00:00.0"
-	}
-	minutes := int(value.Minutes())
-	seconds := value.Seconds() - float64(minutes*60)
-	return fmt.Sprintf("%02d:%04.1f", minutes, seconds)
 }

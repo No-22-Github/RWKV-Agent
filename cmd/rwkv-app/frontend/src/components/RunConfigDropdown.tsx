@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { hostOf } from '../endpoint'
 import { Check, Plus } from 'lucide-react'
 import { Provider, type Status } from '../../bindings/github.com/no22/RWKV-Agent/api/models'
 import type { SavedProvider } from '../../bindings/github.com/no22/RWKV-Agent/internal/appstorage/models'
@@ -77,7 +78,7 @@ export default function RunConfigDropdown({ open, onClose, ready, busy, provider
 function providerMeta(provider: SavedProvider): string {
   const config = provider.config
   if (config.provider === Provider.ProviderLocal) return '本地模型'
-  const host = endpointHost(config.endpoint)
+  const host = hostOf(config.endpoint)
   const kind = config.provider === Provider.ProviderChatCompletions ? 'OpenAI 兼容' : 'RWKV 续写'
   return host ? `${kind} · ${host}` : kind
 }

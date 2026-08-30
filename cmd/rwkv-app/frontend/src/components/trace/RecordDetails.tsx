@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Copy, X } from 'lucide-react'
 import MarkdownMessage from '../../MarkdownMessage'
 import { formatDuration, formatStartedAt, parseJSONValue, type TraceRecord, type TraceRecordDetail, type TraceTurn, turnSummary } from '../../ledger'
+import { kindLabel } from './labels'
 
 const DETAILS_MIN_WIDTH = 320
 const DETAILS_MAX_WIDTH = 720
@@ -274,10 +275,6 @@ function formatDetailReadable(detail: TraceRecordDetail): string {
       return `${key}: ${JSON.stringify(value, null, 2)}`
     })
     .join('\n\n')
-}
-
-function kindLabel(kind: TraceRecord['kind']): string {
-  return ({ user: 'USER', route: 'ROUTE', message: 'MSG', tool: 'TOOL', subtool: 'AGENT', output: 'OUT' })[kind]
 }
 
 function promptMeta(detail: TraceRecordDetail) {

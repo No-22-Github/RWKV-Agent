@@ -4,6 +4,7 @@ import { Provider } from '../../../bindings/github.com/no22/RWKV-Agent/api/model
 import type { SavedProvider } from '../../../bindings/github.com/no22/RWKV-Agent/internal/appstorage/models'
 import type { ProviderManager } from '../../state/providerManager'
 import ConfirmDialog from '../ConfirmDialog'
+import { hostOf } from '../../endpoint'
 import ProviderEditor from './ProviderEditor'
 
 type Props = {
@@ -165,12 +166,3 @@ function ProviderRow({ provider, running, selected, dirty, menuOpen, onToggleMen
   )
 }
 
-function hostOf(endpoint?: string): string {
-  const value = (endpoint || '').trim()
-  if (!value) return ''
-  try {
-    return new URL(value).host || value
-  } catch {
-    return value.replace(/^https?:\/\//, '').split('/')[0]
-  }
-}

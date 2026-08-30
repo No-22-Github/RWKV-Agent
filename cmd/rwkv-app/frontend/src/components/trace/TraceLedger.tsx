@@ -7,6 +7,7 @@ import {
   type TraceTurn,
   turnSummary,
 } from '../../ledger'
+import { KIND_LABELS } from './labels'
 import { prefixOffsets, VIRTUALIZE_THRESHOLD, virtualWindow } from './virtual-rows'
 
 type FoldState = { defaultCollapsed: boolean; overrides: Set<string> }
@@ -22,10 +23,6 @@ type Props = {
   onToggleTurn: (turnRecordId: string) => void
   onToggleCall: (ownerRecordId: string) => void
   scrollTargetTurnId: string
-}
-
-const KIND_LABEL: Record<TraceRecordKind, string> = {
-  user: 'USER', route: 'ROUTE', message: 'MSG', tool: 'TOOL', subtool: 'AGENT', output: 'OUT',
 }
 
 const KIND_CLASS: Record<TraceRecordKind, string> = {
@@ -167,7 +164,7 @@ export default function TraceLedger({
                 title={record.text}
               >
                 <span className="text-right font-mono text-2xs text-ink-ghost">#{record.index}</span>
-                <span className={`text-left font-mono text-2xs font-medium tracking-[.1em] ${KIND_CLASS[record.kind]}`}>{KIND_LABEL[record.kind]}</span>
+                <span className={`text-left font-mono text-2xs font-medium tracking-[.1em] ${KIND_CLASS[record.kind]}`}>{KIND_LABELS[record.kind]}</span>
                 <span className="flex min-w-0 items-baseline gap-[7px] overflow-hidden">
                   <span className="max-w-[38%] flex-none truncate font-mono text-xs text-ink">{record.title}</span>
                   <span className={`min-w-0 flex-1 truncate font-mono text-xs ${record.isError ? 'text-danger' : 'text-ink-soft'}`}>{record.text}</span>

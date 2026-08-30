@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"os/exec"
 	"strings"
-	"time"
 
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/charmbracelet/x/ansi"
 	concurrentcli "github.com/no22/RWKV-Agent/internal/cli/concurrent"
 	"github.com/no22/RWKV-Agent/internal/terminal"
+	"github.com/no22/RWKV-Agent/internal/tui/tuiutil"
 )
 
 func (m *model) View() tea.View {
@@ -50,7 +50,7 @@ func (m *model) renderHeader(snapshot concurrentcli.RunSnapshot, width int) stri
 		m.meta.Concurrency,
 		snapshot.Phase,
 	)
-	right := formatDuration(snapshot.Elapsed) + " "
+	right := tuiutil.FormatDuration(snapshot.Elapsed) + " "
 	padding := max(1, width-lipgloss.Width(left)-lipgloss.Width(right))
 	line := left + strings.Repeat(" ", padding) + right
 	return ansi.Truncate(line, width, "")
@@ -120,8 +120,8 @@ func (m *model) renderPane(
 	title := fmt.Sprintf(" Session %d · %s%s", session.Index, phase, status)
 	title = ansi.Truncate(title, contentWidth, "…")
 
-	lines := wrappedLines(terminal.SanitizeModelText(session.Output), contentWidth)
-	body := tailWindow(lines, bodyHeight, scroll)
+	lines := tuiutil.WrappedLines(terminal.SanitizeModelText(session.Output), contentWidth)
+	body := tuiutil.TailWindow(lines, bodyHeight, scroll)
 	for len(body) < bodyHeight {
 		body = append(body, "")
 	}
@@ -129,7 +129,7 @@ func (m *model) renderPane(
 	if session.Phase == concurrentcli.PhaseDone ||
 		session.Phase == concurrentcli.PhaseCancelled ||
 		session.Phase == concurrentcli.PhaseError {
-		footer += " · " + formatDuration(session.Elapsed)
+		footer += " · " + tuiutil.FormatDuration(session.Elapsed)
 	}
 	if session.FinishReason != "" {
 		footer += " · " + string(session.FinishReason)
@@ -213,36 +213,6 @@ func (m *model) phaseStyle(phase concurrentcli.SessionPhase) lipgloss.Style {
 	default:
 		return m.theme.Muted
 	}
-}
-
-func wrappedLines(value string, width int) []string {
-	if value == "" {
-		return nil
-	}
-	rendered := lipgloss.NewStyle().Width(max(width, 1)).Render(value)
-	return strings.Split(rendered, "\n")
-}
-
-func tailWindow(lines []string, height, scroll int) []string {
-	if height <= 0 || len(lines) == 0 {
-		return nil
-	}
-	end := max(0, len(lines)-max(scroll, 0))
-	start := max(0, end-height)
-	result := append([]string(nil), lines[start:end]...)
-	if start > 0 && len(result) > 0 {
-		result[0] = ansi.Truncate("…"+result[0], lipgloss.Width(result[0]), "…")
-	}
-	return result
-}
-
-func formatDuration(value time.Duration) string {
-	if value <= 0 {
-		return "00:00.0"
-	}
-	minutes := int(value.Minutes())
-	seconds := value.Seconds() - float64(minutes*60)
-	return fmt.Sprintf("%02d:%04.1f", minutes, seconds)
 }
 
 func copyCommand(value string) tea.Cmd {

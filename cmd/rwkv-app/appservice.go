@@ -8,7 +8,6 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
-	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -18,57 +17,18 @@ import (
 	"github.com/wailsapp/wails/v3/pkg/application"
 )
 
-// DisplayMessage is one presentation-level message retained for the desktop
-// UI. The complete Harness transcript is stored separately and never trimmed
-// down to this view.
-type DisplayMessage struct {
-	ID         string           `json:"id"`
-	Role       string           `json:"role"`
-	Content    string           `json:"content"`
-	Meta       string           `json:"meta,omitempty"`
-	Trajectory []ToolTrace      `json:"trajectory,omitempty"`
-	Trace      *agentapi.Result `json:"trace,omitempty"`
-	CreatedAt  time.Time        `json:"createdAt,omitempty"`
-}
-
-type ToolTrace struct {
-	Step      int              `json:"step"`
-	Tool      string           `json:"tool"`
-	Arguments string           `json:"arguments,omitempty"`
-	Status    string           `json:"status"`
-	Error     string           `json:"error,omitempty"`
-	Retries   []ToolRetryTrace `json:"retries,omitempty"`
-	Subagents []SubagentTrace  `json:"subagents,omitempty"`
-}
-
-type ToolRetryTrace struct {
-	Attempt     int   `json:"attempt"`
-	MaxAttempts int   `json:"maxAttempts"`
-	StatusCode  int   `json:"statusCode,omitempty"`
-	DelayMS     int64 `json:"delayMs"`
-}
-
-type SubagentStep struct {
-	Step      int              `json:"step"`
-	Tool      string           `json:"tool"`
-	Arguments string           `json:"arguments,omitempty"`
-	Status    string           `json:"status"`
-	Error     string           `json:"error,omitempty"`
-	Retries   []ToolRetryTrace `json:"retries,omitempty"`
-}
-
-type SubagentTrace struct {
-	Index      int            `json:"index"`
-	Task       string         `json:"task"`
-	Status     string         `json:"status"`
-	Error      string         `json:"error,omitempty"`
-	Route      string         `json:"route,omitempty"`
-	Bundles    []string       `json:"bundles,omitempty"`
-	DurationMS int64          `json:"durationMs"`
-	Output     string         `json:"output,omitempty"`
-	Sources    []string       `json:"sources,omitempty"`
-	Steps      []SubagentStep `json:"steps,omitempty"`
-}
+// The presentation message and tool-trace shapes are owned by appstorage (the
+// same values are persisted and served to the UI verbatim); these aliases keep
+// the short names the UI layer reads. DisplayMessage is one presentation-level
+// message retained for the desktop UI; the complete Harness transcript is
+// stored separately and never trimmed down to this view.
+type (
+	DisplayMessage = appstorage.DisplayMessage
+	ToolTrace      = appstorage.ToolTrace
+	ToolRetryTrace = appstorage.ToolRetryTrace
+	SubagentStep   = appstorage.SubagentStep
+	SubagentTrace  = appstorage.SubagentTrace
+)
 
 type ConversationSummary struct {
 	ID        string    `json:"id"`
@@ -385,7 +345,7 @@ func (s *AppService) OpenConversation(id string) (ConversationView, error) {
 	}
 	s.mu.Lock()
 	workspace := s.service.Status().Workspace
-	if !sameWorkspace(value.Workspace, workspace) {
+	if !appstorage.SamePath(value.Workspace, workspace) {
 		s.mu.Unlock()
 		return ConversationView{}, fmt.Errorf("conversation belongs to another workspace")
 	}
@@ -648,7 +608,7 @@ func (s *AppService) loadActiveConversation() {
 		return
 	}
 	value, err := s.storage.LoadConversation(id)
-	if err != nil || !sameWorkspace(value.Workspace, workspace) {
+	if err != nil || !appstorage.SamePath(value.Workspace, workspace) {
 		return
 	}
 	s.mu.Lock()
@@ -678,7 +638,7 @@ func conversationView(value appstorage.Conversation) ConversationView {
 	for _, message := range value.Messages {
 		messages = append(messages, DisplayMessage{
 			ID: message.ID, Role: message.Role, Content: message.Content, Meta: message.Meta,
-			Trajectory: displayToolTrace(message.Trajectory), Trace: message.Trace, CreatedAt: message.CreatedAt,
+			Trajectory: message.Trajectory, Trace: message.Trace, CreatedAt: message.CreatedAt,
 		})
 	}
 	return ConversationView{
@@ -701,21 +661,6 @@ func storedToolTrace(result agentapi.Result) []appstorage.ToolTrace {
 			Step: step.Number, Tool: step.Tool, Arguments: step.ToolArguments,
 			Status: status, Error: step.ToolError, Retries: storedToolRetries(step.ToolRetries),
 			Subagents: storedSubagentTrace(step.Subagents),
-		})
-	}
-	return trace
-}
-
-func displayToolTrace(values []appstorage.ToolTrace) []ToolTrace {
-	if len(values) == 0 {
-		return nil
-	}
-	trace := make([]ToolTrace, 0, len(values))
-	for _, value := range values {
-		trace = append(trace, ToolTrace{
-			Step: value.Step, Tool: value.Tool, Arguments: value.Arguments,
-			Status: value.Status, Error: value.Error, Retries: displayToolRetries(value.Retries),
-			Subagents: displaySubagentTrace(value.Subagents),
 		})
 	}
 	return trace
@@ -744,29 +689,6 @@ func storedSubagentTrace(values []agentapi.SubagentTrace) []appstorage.SubagentT
 	return result
 }
 
-func displaySubagentTrace(values []appstorage.SubagentTrace) []SubagentTrace {
-	if len(values) == 0 {
-		return nil
-	}
-	result := make([]SubagentTrace, 0, len(values))
-	for _, value := range values {
-		child := SubagentTrace{
-			Index: value.Index, Task: value.Task, Status: value.Status, Error: value.Error,
-			Route: value.Route, Bundles: append([]string(nil), value.Bundles...),
-			DurationMS: value.DurationMS, Output: value.Output,
-			Sources: append([]string(nil), value.Sources...),
-		}
-		for _, step := range value.Steps {
-			child.Steps = append(child.Steps, SubagentStep{
-				Step: step.Step, Tool: step.Tool, Arguments: step.Arguments,
-				Status: step.Status, Error: step.Error, Retries: displayToolRetries(step.Retries),
-			})
-		}
-		result = append(result, child)
-	}
-	return result
-}
-
 func storedToolRetries(values []agentapi.ToolRetryTrace) []appstorage.ToolRetryTrace {
 	if len(values) == 0 {
 		return nil
@@ -781,38 +703,15 @@ func storedToolRetries(values []agentapi.ToolRetryTrace) []appstorage.ToolRetryT
 	return result
 }
 
-func displayToolRetries(values []appstorage.ToolRetryTrace) []ToolRetryTrace {
-	if len(values) == 0 {
-		return nil
-	}
-	result := make([]ToolRetryTrace, 0, len(values))
-	for _, value := range values {
-		result = append(result, ToolRetryTrace{
-			Attempt: value.Attempt, MaxAttempts: value.MaxAttempts,
-			StatusCode: value.StatusCode, DelayMS: value.DelayMS,
-		})
-	}
-	return result
-}
-
 func workspaceItems(paths []string, active string) []WorkspaceItem {
 	result := make([]WorkspaceItem, 0, len(paths))
 	for _, path := range paths {
 		info, err := os.Stat(path)
 		result = append(result, WorkspaceItem{
-			Path: path, Name: filepath.Base(path), Available: err == nil && info.IsDir(), Active: sameWorkspace(path, active),
+			Path: path, Name: filepath.Base(path), Available: err == nil && info.IsDir(), Active: appstorage.SamePath(path, active),
 		})
 	}
 	return result
-}
-
-func sameWorkspace(left, right string) bool {
-	left = filepath.Clean(left)
-	right = filepath.Clean(right)
-	if runtime.GOOS == "windows" {
-		return strings.EqualFold(left, right)
-	}
-	return left == right
 }
 
 func messageID(conversationID string, index int) string {

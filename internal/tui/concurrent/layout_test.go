@@ -8,6 +8,7 @@ import (
 	"charm.land/lipgloss/v2"
 	concurrentcli "github.com/no22/RWKV-Agent/internal/cli/concurrent"
 	"github.com/no22/RWKV-Agent/internal/terminal"
+	"github.com/no22/RWKV-Agent/internal/tui/tuiutil"
 )
 
 func TestComputeLayout(t *testing.T) {
@@ -65,8 +66,8 @@ func TestTailWindowAndSanitizationHandleWideText(t *testing.T) {
 	t.Parallel()
 
 	value := terminal.SanitizeModelText("第一行🙂\n第二行\033[2J\n第三行\n第四行")
-	lines := wrappedLines(value, 12)
-	window := tailWindow(lines, 2, 0)
+	lines := tuiutil.WrappedLines(value, 12)
+	window := tuiutil.TailWindow(lines, 2, 0)
 	if len(window) != 2 {
 		t.Fatalf("window lines = %d", len(window))
 	}

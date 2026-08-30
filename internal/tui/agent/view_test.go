@@ -11,6 +11,7 @@ import (
 	"charm.land/lipgloss/v2"
 	agentapi "github.com/no22/RWKV-Agent/api"
 	"github.com/no22/RWKV-Agent/internal/terminal"
+	"github.com/no22/RWKV-Agent/internal/tui/tuiutil"
 )
 
 func TestViewFitsWideAndNarrowTerminals(t *testing.T) {
@@ -67,7 +68,7 @@ func TestTailWindowClampsOverscrollToAFullViewport(t *testing.T) {
 	t.Parallel()
 
 	lines := []string{"one", "two", "three", "four", "five", "six"}
-	window := tailWindow(lines, 3, 100)
+	window := tuiutil.TailWindow(lines, 3, 100)
 	if got, want := strings.Join(window, ","), "one,two,three"; got != want {
 		t.Fatalf("overscrolled window = %q, want %q", got, want)
 	}

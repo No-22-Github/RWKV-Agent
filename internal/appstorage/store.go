@@ -175,24 +175,11 @@ func (s *Store) Prepare() error {
 	return nil
 }
 
+// LoadSettings 读取当前连接档案设置；文件缺失返回零值 v2，v1 旧格式在内存中迁移。
 func (s *Store) LoadSettings() (Settings, error) {
-	var value Settings
-	err := readJSON(s.paths.ConfigFile, maxSettingsBytes, &value)
-	if errors.Is(err, os.ErrNotExist) {
-		return Settings{SchemaVersion: SettingsSchemaVersion}, nil
-	}
-	if err != nil {
-		return Settings{}, err
-	}
-	switch value.SchemaVersion {
-	case SettingsSchemaVersion:
-		return value, nil
-	case 1:
-		// 迁移：把旧的单档 Provider 合成为一条连接档案并置为 active。
-		return migrateSettingsV1(value), nil
-	default:
-		return Settings{}, fmt.Errorf("unsupported settings schema version %d", value.SchemaVersion)
-	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.loadLocked()
 }
 
 // migrateSettingsV1 把 v1（单档 Provider）转换为 v2（档案列表 + active）。仅在内存中转换，
@@ -515,7 +502,7 @@ func (s *Store) ListConversations(workspace string) ([]Summary, error) {
 		}
 		id := strings.TrimSuffix(entry.Name(), ".json")
 		value, loadErr := s.LoadConversation(id)
-		if loadErr != nil || !samePath(value.Workspace, workspace) {
+		if loadErr != nil || !SamePath(value.Workspace, workspace) {
 			continue
 		}
 		result = append(result, Summary{
@@ -646,7 +633,7 @@ func cleanTitle(value string) string {
 func prependUniquePath(values []string, value string, limit int) []string {
 	result := []string{value}
 	for _, candidate := range values {
-		if candidate == "" || samePath(candidate, value) {
+		if candidate == "" || SamePath(candidate, value) {
 			continue
 		}
 		result = append(result, candidate)
@@ -657,7 +644,8 @@ func prependUniquePath(values []string, value string, limit int) []string {
 	return result
 }
 
-func samePath(left, right string) bool {
+// SamePath compares two filesystem paths after cleaning, case-insensitively on Windows.
+func SamePath(left, right string) bool {
 	left = filepath.Clean(left)
 	right = filepath.Clean(right)
 	if runtime.GOOS == "windows" {
