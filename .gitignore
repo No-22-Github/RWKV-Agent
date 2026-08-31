@@ -12,3 +12,4 @@ __pycache__/
 .pnpm-store/
 .gocache/
 .zcode/
+test/e2e-calibrated/tools/env.local.json
