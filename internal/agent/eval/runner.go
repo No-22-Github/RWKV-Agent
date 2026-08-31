@@ -211,6 +211,9 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 			DecisionFakeThink:        productProfile.DecisionFakeThink,
 			DeepToolAnchor:           productProfile.DeepToolAnchor,
 			ScenarioHooks:            primitiveScenarioHookDescriptions(config.Cases),
+			CompressFetch:            config.Runner.CompressFetch,
+			WebFixture:               len(config.WebFixture) > 0,
+			SubagentFixture:          len(config.SubagentFixture) > 0,
 		},
 		Sampling: samplingSnapshot(config.Runner.Generation.Sampling),
 		Environment: EnvironmentMetadata{
@@ -289,9 +292,6 @@ func runCase(
 			catalog = agent.DefaultToolBundles()
 		}
 		options.ToolBundles = agent.EnabledToolBundles(tools, catalog)
-		for _, bundle := range options.ToolBundles {
-			println("DEBUG bundle " + bundle.Name + " editable=" + fmt.Sprint(bundle.Editable) + " delegation=" + fmt.Sprint(bundle.Delegation))
-		}
 	}
 	if testCase.Primitive != nil && testCase.Primitive.MaxTurns > 0 {
 		options.MaxSteps = testCase.Primitive.MaxTurns
@@ -438,6 +438,16 @@ func evalTools(
 			Timeout:     time.Minute,
 		})
 		workspaceTools = append(workspaceTools, delegation...)
+	}
+	if len(config.WebFixture) > 0 {
+		// Web e2e: fixture-backed web_search and web_fetch, matched by keyword
+		// or URL substring, so fetch compression (E5) can be exercised in the
+		// evaluation runner without network access.
+		fixture := webFixtureProviders{entries: config.WebFixture}
+		workspaceTools = append(workspaceTools, tools.WebTools(tools.WebOptions{
+			Search: fixture,
+			Fetch:  fixture,
+		})...)
 	}
 	clock := fixedAssistantClock{value: time.Date(
 		2026,

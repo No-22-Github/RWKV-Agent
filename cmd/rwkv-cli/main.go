@@ -87,6 +87,7 @@ type runOptions struct {
 	evalCaseParallelism      int
 	evalFileToolForm         string
 	evalSubagentFixture      string
+	evalWebFixture           string
 	primitiveProfile         string
 	duplicateReplayLimit     int
 	duplicateRescueThreshold int
@@ -416,6 +417,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			fs.IntVar(&options.evalCaseParallelism, "case-parallelism", 1, "number of eval cases to run concurrently")
 			fs.StringVar(&options.evalFileToolForm, "file-tools", "", "optional file-editing toolset for custom suites: lines (A) or whole (B)")
 			fs.StringVar(&options.evalSubagentFixture, "subagent-fixture", "", "JSON file mapping subtask keywords to canned outputs, enabling a fixture-backed spawn_agents for custom suites")
+			fs.StringVar(&options.evalWebFixture, "web-fixture", "", "JSON file mapping query/URL keywords to canned search results and pages, enabling fixture-backed web_search and web_fetch for custom suites")
 			fs.StringVar(
 				&options.primitiveProfile,
 				"primitive-profile",
@@ -978,6 +980,25 @@ func subagentFixtureEntries(path string) []agenteval.SubagentFixtureEntry {
 	return entries
 }
 
+// webFixtureEntries loads the keyword->page mapping for the fixture web tools;
+// an empty path disables the tools.
+func webFixtureEntries(path string) []agenteval.WebFixtureEntry {
+	if path == "" {
+		return nil
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "web-fixture: %v\n", err)
+		os.Exit(1)
+	}
+	var entries []agenteval.WebFixtureEntry
+	if err := json.Unmarshal(data, &entries); err != nil {
+		fmt.Fprintf(os.Stderr, "web-fixture: %v\n", err)
+		os.Exit(1)
+	}
+	return entries
+}
+
 // evalToolBundles returns the default bundles, with the workspace description
 // extended to cover file editing when the file-edit toolset is enabled. The
 // progressive router routes on these descriptions: with the read-only wording
@@ -1027,6 +1048,7 @@ func agentRunnerOptions(options runOptions, suite string, observe func(agent.Eve
 				SemanticNoTool:   options.semanticNoTool,
 				ThinkingMode:     inference.ThinkingMode(options.thinkingMode),
 				FewShot:          options.fewShot,
+				CompressFetch:    options.compressFetch,
 				Observe:          observe,
 			})
 		}
@@ -1056,6 +1078,7 @@ func agentRunnerOptions(options runOptions, suite string, observe func(agent.Eve
 			DecisionFakeThink: options.decisionFakeThink,
 			ClosedFakeThink:   options.closedFakeThink,
 			DeepToolAnchor:    options.deepToolAnchor,
+			CompressFetch:     options.compressFetch,
 			Observe:           observe,
 		})
 	}
@@ -1092,6 +1115,7 @@ func agentRunnerOptions(options runOptions, suite string, observe func(agent.Eve
 			DecisionFakeThink: options.decisionFakeThink,
 			ClosedFakeThink:   options.closedFakeThink,
 			DeepToolAnchor:    options.deepToolAnchor,
+			CompressFetch:     options.compressFetch,
 			Observe:           observe,
 		})
 	}
@@ -1388,6 +1412,7 @@ func runAgentEval(args []string) error {
 		PrimitiveProfile: options.primitiveProfile,
 		FileToolForm:     options.evalFileToolForm,
 		SubagentFixture:  subagentFixtureEntries(options.evalSubagentFixture),
+		WebFixture:       webFixtureEntries(options.evalWebFixture),
 		GeneratorFactory: func(
 			caseContext context.Context,
 		) (continuation.Generator, io.Closer, error) {

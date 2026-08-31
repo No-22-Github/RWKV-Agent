@@ -143,6 +143,9 @@ type HarnessMetadata struct {
 	DuplicateRescueThreshold int      `json:"duplicate_rescue_threshold"`
 	SameToolRescueLimit      int      `json:"same_tool_rescue_limit"`
 	ScenarioHooks            []string `json:"scenario_hooks,omitempty"`
+	CompressFetch            bool     `json:"compress_fetch,omitempty"`
+	WebFixture               bool     `json:"web_fixture,omitempty"`
+	SubagentFixture          bool     `json:"subagent_fixture,omitempty"`
 }
 
 type EnvironmentMetadata struct {
@@ -342,6 +345,11 @@ type Config struct {
 	// returns the canned output, so class-3 (sub-agent) e2e tasks run
 	// deterministically without network or nested model calls.
 	SubagentFixture []SubagentFixtureEntry
+	// WebFixture optionally appends fixture-backed web_search and web_fetch
+	// tools. Entries match queries and URLs by keyword (case-insensitive
+	// substring), so web-tool e2e tasks run deterministically without network
+	// access and fetch compression can be validated end to end.
+	WebFixture []WebFixtureEntry
 }
 
 type SubagentFixtureEntry struct {

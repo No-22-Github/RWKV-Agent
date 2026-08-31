@@ -28,7 +28,7 @@ func (G1IFunctionProtocol) RecordAction(action Action, _ string) string {
 	return "```json\n" + string(payload) + "\n```"
 }
 
-func (G1IFunctionProtocol) FormatToolResult(_ string, _ string, payload string) string {
+func (G1IFunctionProtocol) FormatToolResult(toolName string, _ string, payload string) string {
 	var result struct {
 		OK     bool            `json:"ok"`
 		Result json.RawMessage `json:"result"`
@@ -40,8 +40,13 @@ func (G1IFunctionProtocol) FormatToolResult(_ string, _ string, payload string) 
 	if !result.OK {
 		return "ERROR: " + result.Error
 	}
-	if text := renderSubagentResults(result.Result); text != "" {
-		return text
+	// Block rendering is for spawn_agents only: web_search payloads also carry
+	// a "results" array, and passing them through here dropped every title,
+	// URL, and snippet (found when wiring the fixture web provider in round 2).
+	if toolName == "spawn_agents" {
+		if text := renderSubagentResults(result.Result); text != "" {
+			return text
+		}
 	}
 	var text string
 	if json.Unmarshal(result.Result, &text) == nil {
