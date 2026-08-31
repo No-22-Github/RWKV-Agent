@@ -221,6 +221,11 @@ func readableScalarHint(property map[string]json.RawMessage) string {
 		return ""
 	}
 	hint := name
+	// Nullable unions are optional parameters; saying so keeps the model from
+	// inventing values just to fill the slot.
+	if raw, ok := property["type"]; ok && strings.Contains(string(raw), `"null"`) {
+		hint = "optional " + hint
+	}
 	var minimum, maximum *float64
 	if raw, ok := property["minimum"]; ok {
 		_ = json.Unmarshal(raw, &minimum)
@@ -230,8 +235,6 @@ func readableScalarHint(property map[string]json.RawMessage) string {
 	}
 	if minimum != nil && maximum != nil {
 		hint = fmt.Sprintf("%s %d..%d", name, int(*minimum), int(*maximum))
-	} else if name == "integer" || name == "number" {
-		hint = name + " value"
 	}
 	return hint
 }
