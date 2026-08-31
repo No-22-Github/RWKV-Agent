@@ -423,9 +423,24 @@ func evalTools(
 		// deterministic canned outputs without nested model calls.
 		fixture := config.SubagentFixture
 		run := func(_ context.Context, task string, _ func(agent.Event)) (tools.AgentTaskResult, error) {
-			lowered := strings.ToLower(task)
+			lowered := normalizeSubtaskText(task)
 			for _, entry := range fixture {
 				if entry.Match != "" && strings.Contains(lowered, strings.ToLower(entry.Match)) {
+					return tools.AgentTaskResult{Output: entry.Output, Sources: entry.Sources, StepCount: 2}, nil
+				}
+			}
+			for _, entry := range fixture {
+				if len(entry.MatchAll) == 0 {
+					continue
+				}
+				matched := true
+				for _, keyword := range entry.MatchAll {
+					if !strings.Contains(lowered, normalizeSubtaskText(keyword)) {
+						matched = false
+						break
+					}
+				}
+				if matched {
 					return tools.AgentTaskResult{Output: entry.Output, Sources: entry.Sources, StepCount: 2}, nil
 				}
 			}
@@ -445,8 +460,9 @@ func evalTools(
 		// evaluation runner without network access.
 		fixture := webFixtureProviders{entries: config.WebFixture}
 		workspaceTools = append(workspaceTools, tools.WebTools(tools.WebOptions{
-			Search: fixture,
-			Fetch:  fixture,
+			Search:            fixture,
+			Fetch:             fixture,
+			FetchBudgetTokens: config.FetchBudgetTokens,
 		})...)
 	}
 	clock := fixedAssistantClock{value: time.Date(

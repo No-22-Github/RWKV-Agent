@@ -39,9 +39,18 @@ type ProductHarnessConfig struct {
 	// DeepToolAnchor extends the decision prefill to `{"name":"`. It removes
 	// every syntactic abstention exit, so pair it with SemanticNoTool.
 	DeepToolAnchor bool
-	TaskControl    string
-	PostToolHook   func(string, json.RawMessage, any, error) string
-	Observe        func(Event)
+	// NoToolGate applies harness-level enforcement to the semantic no_tool
+	// exit (round-2 step 4): "state" or "evidence"; "" keeps model-only.
+	NoToolGate string
+	// AnswerStageLead forces the answer stage this many steps before the step
+	// budget ends and grants one dedicated answer-stage re-ask (0 = off).
+	AnswerStageLead int
+	// SubagentRawFeedback renders spawn_agents feedback as raw JSON (pre-E2
+	// behaviour); production keeps the block rendering. Round-2 step-5 A/B.
+	SubagentRawFeedback bool
+	TaskControl         string
+	PostToolHook        func(string, json.RawMessage, any, error) string
+	Observe             func(Event)
 	// CompressFetch enables query-aware compression of long web_fetch results
 	// before they enter the transcript (PREFERENCES.md P5-1..P5-3).
 	CompressFetch bool
@@ -65,9 +74,10 @@ func ProductHarnessOptions(config ProductHarnessConfig) Options {
 		SameToolRescueLimit:      config.SameToolRescueLimit,
 		PostToolHook:             config.PostToolHook,
 		Protocol: G1IFunctionProtocol{
-			Product:        true,
-			SemanticNoTool: config.SemanticNoTool,
-			DeepToolAnchor: config.DeepToolAnchor,
+			Product:             true,
+			SemanticNoTool:      config.SemanticNoTool,
+			DeepToolAnchor:      config.DeepToolAnchor,
+			SubagentRawFeedback: config.SubagentRawFeedback,
 		},
 		Renderer: G1IFunctionRenderer{
 			Product:           true,
@@ -78,6 +88,8 @@ func ProductHarnessOptions(config ProductHarnessConfig) Options {
 		Observe:          config.Observe,
 		TracePromptBytes: config.TracePromptBytes,
 		CompressFetch:    config.CompressFetch,
+		NoToolGate:       config.NoToolGate,
+		AnswerStageLead:  config.AnswerStageLead,
 	}
 	applyProgressiveTools(&options, config.ProgressiveTools, config.ToolBundles, config.RouteMaxOutputTokens)
 	return options

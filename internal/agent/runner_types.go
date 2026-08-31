@@ -107,6 +107,24 @@ type Options struct {
 	// before they enter the transcript (PREFERENCES.md P5-1..P5-3). The raw
 	// tool result stays in the step trace; only the feedback copy shrinks.
 	CompressFetch bool
+	// NoToolGate applies harness-level enforcement to the semantic no_tool
+	// exit (round-2, step 4; round-1 measured the two-sided failure: without
+	// an exit the model loops to step exhaustion, with one it claims
+	// completion without evidence — E6-2/E6-3). "" keeps the model-only
+	// decision. "state" accepts no_tool only after at least one successful
+	// tool call in the turn (the catalog hides no_tool until then and late
+	// emissions are rejected). "evidence" additionally requires the reason
+	// to cite content that appears in an actual Function output of this turn
+	// (10-char normalized shingle match); otherwise the exit is rejected and
+	// the model must retry.
+	NoToolGate string
+	// AnswerStageLead forces the answer stage this many steps before the step
+	// budget is exhausted (0 = only at MaxSteps, as before) and gives
+	// answer-stage tool violations one dedicated re-ask that does not consume
+	// the protocol retry budget. With lead=1 and MaxSteps=6 the model gets a
+	// real answer-stage attempt at step 5 and a strict re-ask at step 6,
+	// instead of one attempt at step 6 that dies on its first violation.
+	AnswerStageLead int
 }
 
 // DefaultTracePromptBytes keeps a full boundary-sized prompt while bounding a

@@ -130,12 +130,17 @@ type WebFetchProvider interface {
 type WebOptions struct {
 	Search WebSearchProvider
 	Fetch  WebFetchProvider
+	// FetchBudgetTokens overrides the shared per-call token budget for fetched
+	// pages (0 = the P1-1-calibrated default). Exists only so round-2's E1
+	// re-judgment can A/B the budget against an emulation of the old 32k-rune
+	// cap; production keeps the default.
+	FetchBudgetTokens int
 }
 
 func WebTools(options WebOptions) []agent.Tool {
 	return []agent.Tool{
 		&webSearchTool{provider: options.Search},
-		&webFetchTool{provider: options.Fetch},
+		&webFetchTool{provider: options.Fetch, budgetTokens: options.FetchBudgetTokens},
 	}
 }
 
@@ -182,7 +187,10 @@ func (t *webSearchTool) Execute(ctx context.Context, raw json.RawMessage) (any, 
 	return map[string]any{"query": args.Query, "results": results}, nil
 }
 
-type webFetchTool struct{ provider WebFetchProvider }
+type webFetchTool struct {
+	provider     WebFetchProvider
+	budgetTokens int
+}
 
 func (*webFetchTool) Spec() agent.ToolSpec {
 	return agent.ToolSpec{
@@ -226,6 +234,9 @@ func (t *webFetchTool) Execute(ctx context.Context, raw json.RawMessage) (any, e
 	// that fits entirely leaves its remainder for later pages; a page that
 	// exhausts the budget is rune-sliced and flagged.
 	budget := maxFetchedContentTokens
+	if t.budgetTokens > 0 {
+		budget = t.budgetTokens
+	}
 	for index := range results {
 		if budget <= 0 {
 			results[index].Content = ""

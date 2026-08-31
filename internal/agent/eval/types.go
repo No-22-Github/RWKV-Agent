@@ -345,6 +345,9 @@ type Config struct {
 	// returns the canned output, so class-3 (sub-agent) e2e tasks run
 	// deterministically without network or nested model calls.
 	SubagentFixture []SubagentFixtureEntry
+	// FetchBudgetTokens overrides the per-call token budget of fixture-backed
+	// and fixture-less web tools (0 = default); round-2 E1 re-judgment A/B.
+	FetchBudgetTokens int
 	// WebFixture optionally appends fixture-backed web_search and web_fetch
 	// tools. Entries match queries and URLs by keyword (case-insensitive
 	// substring), so web-tool e2e tasks run deterministically without network
@@ -356,6 +359,11 @@ type SubagentFixtureEntry struct {
 	Match   string   `json:"match"`
 	Output  string   `json:"output"`
 	Sources []string `json:"sources,omitempty"`
+	// MatchAll requires every keyword (case-insensitive substring, hyphens
+	// and spaces treated as equal) to appear in the subtask text. Class-3
+	// candidates need subject AND source discrimination in one entry; a
+	// single Match keyword cannot express that across shared subjects.
+	MatchAll []string `json:"match_all,omitempty"`
 }
 
 type caseFile struct {

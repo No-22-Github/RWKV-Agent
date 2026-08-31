@@ -210,7 +210,7 @@ export default function App() {
 }
 
 function Sidebar({ conversations, workspaces, activeId, busy, open, onCloseSidebar, onNewChat, onChooseWorkspace, onOpenSettings, onOpen, onDelete, onRename, onTogglePin, onOpenWorkspace }: { conversations: ConversationSummary[]; workspaces: WorkspaceItem[]; activeId: string; busy: boolean; open: boolean; onCloseSidebar: () => void; onNewChat: () => void; onChooseWorkspace: () => void; onOpenSettings: () => void; onOpen: (id: string) => void; onDelete: (id: string) => void; onRename: (id: string, title: string) => Promise<void>; onTogglePin: (id: string, pinned: boolean) => Promise<void>; onOpenWorkspace: (path: string) => void }) {
-  const [menu, setMenu] = useState<string | null>(null)
+  const [menu, setMenu] = useState<{ id: string; up: boolean } | null>(null)
   const [renaming, setRenaming] = useState<string | null>(null)
   const [renameValue, setRenameValue] = useState('')
   const [deleteTarget, setDeleteTarget] = useState<ConversationSummary | null>(null)
@@ -231,6 +231,18 @@ function Sidebar({ conversations, workspaces, activeId, busy, open, onCloseSideb
     return () => { document.removeEventListener('pointerdown', onPointerDown); document.removeEventListener('keydown', onKeyDown) }
   }, [menu, renaming])
 
+  // 列表视口下方放不下菜单（约 128px 高）时向上弹出，避免末行菜单被裁剪。
+  function toggleMenu(id: string, event: React.MouseEvent<HTMLButtonElement>) {
+    if (menu?.id === id) { setMenu(null); return }
+    let up = false
+    const list = event.currentTarget.closest('section')
+    if (list) {
+      const listRect = list.getBoundingClientRect()
+      const buttonRect = event.currentTarget.getBoundingClientRect()
+      up = listRect.bottom - buttonRect.bottom < 132
+    }
+    setMenu({ id, up })
+  }
   function startRename(conversation: ConversationSummary) {
     setMenu(null); setRenaming(conversation.id); setRenameValue(conversation.title || '')
   }
@@ -252,9 +264,9 @@ function Sidebar({ conversations, workspaces, activeId, busy, open, onCloseSideb
         {conversations.length === 0 ? <div className="px-[18px] py-2 text-sm text-ink-muted">暂无历史对话</div> : conversations.map((conversation) => (
           <div key={conversation.id} className={`conversation-row relative mx-[10px] flex items-center rounded-[3px] border-0 bg-transparent ${conversation.id === activeId ? 'active bg-surface-active text-ink' : 'text-ink-soft'}`}>
             {renaming === conversation.id ? <div className="flex min-w-0 flex-1 p-[5px_8px]"><input autoFocus aria-label="重命名会话" className="min-w-0 flex-1 border border-line-strong bg-paper px-[7px] py-[4px] text-sm text-ink outline-none focus:border-brand" value={renameValue} onChange={(event) => setRenameValue(event.target.value)} onBlur={() => commitRename(conversation.id)} onKeyDown={(event) => { if (event.key === 'Enter') commitRename(conversation.id); if (event.key === 'Escape') setRenaming(null) }} /></div> : <button className="flex min-w-0 flex-1 flex-col gap-[1px] border-0 bg-transparent p-[7px_8px] text-left text-inherit" onClick={() => onOpen(conversation.id)} title={conversation.title || '未命名会话'}><span className="flex min-w-0 items-center gap-[5px] truncate text-sm">{conversation.pinned && <Pin size={11} className="flex-none text-brand" aria-label="已置顶" />}{conversation.title || '未命名会话'}</span><span className="text-2xs text-ink-muted">{relativeTime(conversation.updatedAt)}</span></button>}
-            <button className="conversation-menu grid h-[26px] w-[26px] place-items-center border-0 bg-transparent text-ink-muted" aria-label={`会话“${conversation.title || '未命名会话'}”的更多操作`} aria-haspopup="menu" aria-expanded={menu === conversation.id} onClick={() => setMenu(menu === conversation.id ? null : conversation.id)}><MoreHorizontal size={15} /></button>
-            {menu === conversation.id && (
-              <div data-conversation-menu className="absolute right-2 top-[30px] z-[5] flex min-w-[128px] flex-col rounded-[3px] border border-line-strong bg-paper-wash py-[3px] shadow-[0_8px_20px_rgba(45,33,20,.12)]" role="menu" aria-label="会话操作">
+            <button className="conversation-menu grid h-[26px] w-[26px] place-items-center border-0 bg-transparent text-ink-muted" aria-label={`会话“${conversation.title || '未命名会话'}”的更多操作`} aria-haspopup="menu" aria-expanded={menu?.id === conversation.id} onClick={(event) => toggleMenu(conversation.id, event)}><MoreHorizontal size={15} /></button>
+            {menu?.id === conversation.id && (
+              <div data-conversation-menu className={`absolute right-2 z-[5] flex min-w-[128px] flex-col rounded-[3px] border border-line-strong bg-paper-wash py-[3px] shadow-[0_8px_20px_rgba(45,33,20,.12)] ${menu.up ? 'bottom-[30px]' : 'top-[30px]'}`} role="menu" aria-label="会话操作">
                 <button role="menuitem" className="flex items-center gap-[7px] border-0 bg-transparent px-[10px] py-[7px] text-left text-sm text-ink hover:bg-surface-active" onClick={() => { setMenu(null); void onTogglePin(conversation.id, !conversation.pinned) }}><Pin size={14} />{conversation.pinned ? '取消置顶' : '置顶'}</button>
                 <button role="menuitem" className="flex items-center gap-[7px] border-0 bg-transparent px-[10px] py-[7px] text-left text-sm text-ink hover:bg-surface-active" onClick={() => startRename(conversation)}><PenLine size={14} />重命名</button>
                 <button role="menuitem" className="flex items-center gap-[7px] border-0 bg-transparent px-[10px] py-[7px] text-left text-sm text-danger hover:bg-surface-active" onClick={() => { setMenu(null); setDeleteTarget(conversation) }}><Trash2 size={14} />删除会话</button>

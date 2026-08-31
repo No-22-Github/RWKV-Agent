@@ -27,6 +27,11 @@ type G1IFunctionProtocol struct {
 	// anchor drops that to zero. It also removes every syntactic abstention
 	// exit, so it must only be evaluated together with SemanticNoTool.
 	DeepToolAnchor bool
+	// SubagentRawFeedback feeds spawn_agents results back as raw JSON, the
+	// pre-E2 round-1 behaviour. Exists only so the E2 re-judgment (false_hit
+	// as the primary metric, round-2 step 5) can A/B the block rendering
+	// against the exact previous format; production keeps block rendering.
+	SubagentRawFeedback bool
 }
 
 func (protocol G1IFunctionProtocol) ID() string {

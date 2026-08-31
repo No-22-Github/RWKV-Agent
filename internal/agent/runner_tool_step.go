@@ -414,6 +414,10 @@ func (turn *runnerTurn) advanceAfterTool(
 	}
 	if execution.err == nil {
 		turn.successfulToolCalls++
+		if turn.r.options.NoToolGate == "state" && turn.successfulToolCalls == 1 {
+			// State gate: the first successful call earns the no_tool exit.
+			turn.revealNoTool()
+		}
 		if execution.tool.Spec().Control {
 			selection, ok := execution.value.(loadToolsResult)
 			if ok && !containsString(turn.result.Bundles, selection.Bundle) {
