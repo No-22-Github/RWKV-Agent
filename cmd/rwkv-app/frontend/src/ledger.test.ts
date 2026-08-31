@@ -1,6 +1,15 @@
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { Result, Step, Usage } from '../bindings/github.com/no22/RWKV-Agent/api/models'
 import { buildTraceTurns, flattenTraceRecords } from './ledger'
+
+vi.mock('@wailsio/runtime', () => ({
+  Create: {
+    Array: (create: (value: unknown) => unknown) => (values?: unknown[]) => values == null ? values : values.map(create),
+    Map: () => (value: unknown) => value,
+    Nullable: (create: (value: unknown) => unknown) => (value: unknown) => value == null ? value : create(value),
+    Any: (value: unknown) => value,
+  },
+}))
 
 describe('trajectory record ledger', () => {
   it('merges the no-tool decision into the message record instead of a separate event', () => {
