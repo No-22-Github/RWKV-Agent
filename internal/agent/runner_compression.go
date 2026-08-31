@@ -104,7 +104,13 @@ func (turn *runnerTurn) compressWebFetchFeedback(
 	var parsed struct {
 		OK     bool `json:"ok"`
 		Result struct {
+			// The page fields mirror tools.WebFetchResult's wire format
+			// (source_id, url, content, truncated): this struct is re-marshaled
+			// into the transcript, so any field it does not carry would be
+			// silently dropped from every compressed page while uncompressed
+			// pages keep it. Keep the two in sync when the payload grows.
 			Pages []struct {
+				SourceID  string `json:"source_id"`
 				URL       string `json:"url"`
 				Content   string `json:"content"`
 				Truncated bool   `json:"truncated,omitempty"`

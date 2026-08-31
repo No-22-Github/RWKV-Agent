@@ -221,8 +221,12 @@ func readableScalarHint(property map[string]json.RawMessage) string {
 		return ""
 	}
 	hint := name
-	// Nullable unions are optional parameters; saying so keeps the model from
-	// inventing values just to fill the slot.
+	// Nullable unions read as optional parameters; saying so keeps the model
+	// from inventing values just to fill the slot. A shown range takes
+	// precedence and drops the annotation (below): the shipped round-3 catalog
+	// and zh e2e traces render max_results as "integer 1..10", which is the
+	// form the final window validated - wording is a prompt change and needs a
+	// re-run, so keep the range form as measured.
 	if raw, ok := property["type"]; ok && strings.Contains(string(raw), `"null"`) {
 		hint = "optional " + hint
 	}

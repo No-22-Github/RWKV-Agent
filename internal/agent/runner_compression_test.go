@@ -157,9 +157,9 @@ func TestCompressWebFetchFeedbackParallelPreservesOrder(t *testing.T) {
 	}
 	turn := &runnerTurn{r: runner, ctx: context.Background(), task: "task"}
 	payload := `{"ok":true,"result":{"pages":[` +
-		`{"url":"https://a.example","content":"` + strings.Repeat("a", 100) + `"},` +
-		`{"url":"https://b.example","content":"short"},` +
-		`{"url":"https://c.example","content":"` + strings.Repeat("c", 100) + `"}]}}`
+		`{"source_id":"page-1","url":"https://a.example","content":"` + strings.Repeat("a", 100) + `"},` +
+		`{"source_id":"page-2","url":"https://b.example","content":"short"},` +
+		`{"source_id":"page-3","url":"https://c.example","content":"` + strings.Repeat("c", 100) + `"}]}}`
 	got, changed := turn.compressWebFetchFeedback(turn.ctx, payload)
 	if !changed {
 		t.Fatal("expected compression to change the payload")
@@ -167,6 +167,7 @@ func TestCompressWebFetchFeedbackParallelPreservesOrder(t *testing.T) {
 	var parsed struct {
 		Result struct {
 			Pages []struct {
+				SourceID  string `json:"source_id"`
 				URL       string `json:"url"`
 				Content   string `json:"content"`
 				Truncated bool   `json:"truncated,omitempty"`
@@ -177,6 +178,9 @@ func TestCompressWebFetchFeedbackParallelPreservesOrder(t *testing.T) {
 		t.Fatalf("decode: %v", err)
 	}
 	pages := parsed.Result.Pages
+	if pages[0].SourceID != "page-1" || pages[2].SourceID != "page-3" {
+		t.Fatalf("source_id dropped by the compression rewrite: %+v", pages)
+	}
 	if pages[0].Content == "short" || len(pages[0].Content) == 100 {
 		t.Fatalf("page 0 not replaced: %q", pages[0].Content)
 	}

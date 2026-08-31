@@ -329,12 +329,6 @@ answer 0/10、决策继续读下一文件——**事实无法归属到任务主�
 answer 格 40/40 输出工具调用),单文件低负载基本遵守——负载越大收尾纪律
 越差,与第二轮"单文件 4.7k–5k 悬崖先崩工作流纪律"一致。
 
-### P6-6 大负载下答案阶段指令被系统性违反
-
-"tools are now unavailable" 指令在多文件/分页回喂下大量被违反(v1 e 条件
-answer 格 40/40 输出工具调用),单文件低负载基本遵守——负载越大收尾纪律
-越差,与第二轮"单文件 4.7k–5k 悬崖先崩工作流纪律"一致。
-
 ### P6-7 行号因子:给不给 "N: " 前缀(补测维度,run3)
 
 2×2 全因子(行号 × 事实位置,factlast/factfirst × 5×1.5k,n=10,run3 同窗):
@@ -426,6 +420,16 @@ P6-1 证明模型从不自发检索,故编排只能**强制**(模拟 search_text
    钝感(本窗口测得 ≈0),中带格仍必须同窗配对。
 8. **Go tokenizer fixture 测试依赖 submodule 词表**;CI/新环境需先
    `git submodule update --init`(测试会 skip 而非 fail)。
+9. **no_tool 的 reason 参数在 catalog 里仍是 schema 对象形态**
+   (`{"type":"string"}`,不经 makeG1ICatalogEntry 拍平;合并前 review 发现)。
+   E6-7 同型残留:给什么形态 7B 就抄什么形态。zh 三臂未触发(模型 3 步内
+   直接走答案),但"中文任务 + no_tool"组合下存在被逐字复制为参数值的
+   同型风险;下一轮若拍平需同步评估 golden 并重跑相关格。
+10. **App 端压缩默认不可用**:`sessionRunnerOptions` 只在 local provider 下
+    解析词表(远端 provider 的 TokenizerPath 为空 -> TokenCount nil ->
+    压缩关闭),UI 亦未暴露 compressFetch 开关。0/25 -> 20/25 的收益目前
+    只在 CLI/eval 通道兑现;桌面端接线(远端 provider 的词表解析 + 设置
+    项)留待产品决策。
 
 ## 引用索引
 
