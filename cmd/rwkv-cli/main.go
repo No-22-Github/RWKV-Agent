@@ -32,6 +32,7 @@ import (
 	rwkvbackend "github.com/no22/RWKV-Agent/internal/inference/backend/rwkvmobile"
 	"github.com/no22/RWKV-Agent/internal/native/converter"
 	"github.com/no22/RWKV-Agent/internal/terminal"
+	"github.com/no22/RWKV-Agent/internal/tokenizer"
 	agenttui "github.com/no22/RWKV-Agent/internal/tui/agent"
 	concurrenttui "github.com/no22/RWKV-Agent/internal/tui/concurrent"
 )
@@ -1034,6 +1035,42 @@ func evalToolBundles(options runOptions) []agent.ToolBundle {
 	return bundles
 }
 
+// resolveTokenCounter loads the RWKV World vocabulary for in-process real
+// token counting (round-3 step 1). It prefers an explicit --tokenizer, then
+// the model-adjacent vocabulary, then the bundled repo copy; when nothing can
+// be loaded it returns (nil, "", nil) and the documented fallback applies:
+// the fetch-compression hook stays off (never armed on the estimator) and web
+// budget slicing falls back to the estimator. An explicitly requested
+// vocabulary that fails to load is a hard error — silently dropping the real
+// counter would silently change experiment semantics.
+func resolveTokenCounter(options runOptions, command string) (func(string) int, string, error) {
+	vocabPath := options.tokenizer
+	explicit := vocabPath != ""
+	if !explicit {
+		if bundled, err := bundledTokenizerPath(); err == nil {
+			vocabPath = bundled
+		} else if strings.EqualFold(filepath.Ext(options.modelPath), ".pth") {
+			// Local-model runs without an explicit vocabulary previously
+			// required one (bundledTokenizerPath failed → parseRunOptions
+			// already surfaced the error), so this branch only records intent.
+			vocabPath = ""
+		}
+	}
+	if vocabPath == "" {
+		fmt.Fprintf(os.Stderr, "%s: no World vocabulary found; fetch compression stays off and the web budget falls back to the estimator (round-3 step 1 fallback behavior)\n", command)
+		return nil, "", nil
+	}
+	world, err := tokenizer.OpenWorldCached(vocabPath)
+	if err != nil {
+		if explicit {
+			return nil, "", err
+		}
+		fmt.Fprintf(os.Stderr, "%s: vocabulary %s unusable (%v); fetch compression stays off and the web budget falls back to the estimator\n", command, vocabPath, err)
+		return nil, "", nil
+	}
+	return world.Count, world.SHA256(), nil
+}
+
 func agentRunnerOptions(options runOptions, suite string, observe func(agent.Event)) agent.Options {
 	if suite == agenteval.SuiteBFCLProduct {
 		// The suite accepts either product-facing transcript so the two can be
@@ -1396,6 +1433,10 @@ func runAgentEval(args []string) error {
 			"agent-eval-"+time.Now().UTC().Format("20060102-150405.000000000"),
 		)
 	}
+	tokenCount, vocabSHA, err := resolveTokenCounter(options, "agent-eval")
+	if err != nil {
+		return err
+	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	source, err := newAgentGeneratorSource(ctx, options)
@@ -1426,17 +1467,19 @@ func runAgentEval(args []string) error {
 		model.Backend = string(info.Backend)
 	}
 	report, runErr := agenteval.Run(ctx, agenteval.Config{
-		Cases:             cases,
-		Suite:             suite,
-		Model:             model,
-		Runner:            agentRunnerOptions(options, suite, nil),
-		CaseTimeout:       options.evalCaseTimeout,
-		CaseParallelism:   options.evalCaseParallelism,
-		PrimitiveProfile:  options.primitiveProfile,
-		FileToolForm:      options.evalFileToolForm,
-		SubagentFixture:   subagentFixtureEntries(options.evalSubagentFixture),
-		WebFixture:        webFixtureEntries(options.evalWebFixture),
-		FetchBudgetTokens: options.fetchBudgetTokens,
+		Cases:                 cases,
+		Suite:                 suite,
+		Model:                 model,
+		Runner:                agentRunnerOptions(options, suite, nil),
+		TokenCount:            tokenCount,
+		TokenCountVocabSHA256: vocabSHA,
+		CaseTimeout:           options.evalCaseTimeout,
+		CaseParallelism:       options.evalCaseParallelism,
+		PrimitiveProfile:      options.primitiveProfile,
+		FileToolForm:          options.evalFileToolForm,
+		SubagentFixture:       subagentFixtureEntries(options.evalSubagentFixture),
+		WebFixture:            webFixtureEntries(options.evalWebFixture),
+		FetchBudgetTokens:     options.fetchBudgetTokens,
 		GeneratorFactory: func(
 			caseContext context.Context,
 		) (continuation.Generator, io.Closer, error) {

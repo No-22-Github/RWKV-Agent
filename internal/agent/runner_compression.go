@@ -20,10 +20,14 @@ import (
 // The raw tool result stays in the step trace (Step.ToolResult); only the
 // transcript feedback uses the compressed copy (Step.ToolResultFeedback).
 
-// FetchCompressionThresholdTokens is the estimated-token size above which a
-// fetched page is compressed. P5 measured retrieval failure already at 5k
-// tokens (full page 1/10 vs compressed 9/10), well below the P1-1 format
-// degradation point (10k-20k), so the threshold sits under 5k.
+// FetchCompressionThresholdTokens is the real-token size (World vocabulary,
+// counted in-process via Options.TokenCount) above which a fetched page is
+// compressed. P5 measured retrieval failure already at 5k real tokens (full
+// page 1/10 vs compressed 9/10), well below the P1-1 format degradation point
+// (10k-20k), so the threshold sits under 5k. The estimated-token regime
+// (pre-round-3) armed this hook at ~3.0-3.1k real tokens on English prose
+// because EstimateTokens overestimates English by ~35%; with real counting the
+// constant means what it says on every script.
 const FetchCompressionThresholdTokens = 4096
 
 // FetchCompressionMaxOutputTokens bounds the extraction call itself.
@@ -37,7 +41,12 @@ const compressionFastThinkSuffix = " <think></think"
 // EstimateTokens approximates RWKV World tokenizer counts without a vocab:
 // P1 bodies measured 3.85-5.42 ASCII chars/token (so 4.0 is near-exact for
 // list-heavy text and overestimates prose by up to ~30%), and CJK is charged
-// 1.1 tokens per rune. Overestimation only makes budgeting earlier.
+// 1.1 tokens per rune. Round-3 census (test/round3/token-census) measured the
+// actual bias: +16-40% on English prose/code but −2-4% on lists and Chinese.
+// Round-3 step 1 removed it from every threshold decision: the compression
+// hook has NO estimator fallback (Options.TokenCount nil = compression off),
+// and the web tools use it only as the fetch-budget fallback where an early
+// cut is the safe direction. It must not gain new callers.
 func EstimateTokens(text string) int {
 	tokens := 0.0
 	for _, r := range text {
@@ -73,9 +82,20 @@ func (turn *runnerTurn) compressWebFetchFeedback(
 	if len(parsed.Result.Pages) == 0 {
 		return payload, false
 	}
+	if turn.r.options.TokenCount == nil {
+		// No in-process vocabulary (pure remote provider without a bundled
+		// vocab). Compression stays off: arming it on agent.EstimateTokens is
+		// forbidden (round-3 step 1) because the estimator's bias direction
+		// depends on the script — it underestimates Chinese pages by ~2%, so
+		// a CJK page just over the real threshold could read as under it, and
+		// the extract instruction is exactly what pollutes pages when it
+		// fails (P5-ZH-1). Feeding the whole page is the known fail-open
+		// behavior; a missed compression wastes nothing.
+		return payload, false
+	}
 	changed := false
 	for index, page := range parsed.Result.Pages {
-		if EstimateTokens(page.Content) <= FetchCompressionThresholdTokens {
+		if turn.r.options.TokenCount(page.Content) <= FetchCompressionThresholdTokens {
 			continue
 		}
 		compressed, err := turn.r.extractRelevantContent(ctx, turn.task, page.Content)

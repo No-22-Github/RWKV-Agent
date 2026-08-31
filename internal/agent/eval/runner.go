@@ -214,6 +214,7 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 			CompressFetch:            config.Runner.CompressFetch,
 			WebFixture:               len(config.WebFixture) > 0,
 			SubagentFixture:          len(config.SubagentFixture) > 0,
+			TokenCountVocabSHA256:    config.TokenCountVocabSHA256,
 		},
 		Sampling: samplingSnapshot(config.Runner.Generation.Sampling),
 		Environment: EnvironmentMetadata{
@@ -309,6 +310,7 @@ func runCase(
 		}
 		options.PostToolHook = primitiveScenarioHook(testCase.ID, testCase.primitive)
 	}
+	options.TokenCount = config.TokenCount
 	runner, err := agent.NewRunner(recording, tools, options)
 	if err != nil {
 		result.Error = fmt.Sprintf("create runner: %v", err)
@@ -463,6 +465,7 @@ func evalTools(
 			Search:            fixture,
 			Fetch:             fixture,
 			FetchBudgetTokens: config.FetchBudgetTokens,
+			TokenCount:        config.TokenCount,
 		})...)
 	}
 	clock := fixedAssistantClock{value: time.Date(

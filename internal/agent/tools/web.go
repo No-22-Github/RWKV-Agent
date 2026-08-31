@@ -32,10 +32,18 @@ const (
 // budget sits below the measured degradation point and leaves room for the
 // control prompt, history, and the answer itself. The old 32k-rune cap was
 // fine for English (~6k tokens) but passed ~32k tokens of Chinese through.
-// Sizing uses agent.EstimateTokens, shared with transcript compression.
+// The budget is enforced on REAL World-vocabulary tokens (round-3 step 1) via
+// WebOptions.TokenCount; when no vocabulary is available the char-ratio
+// estimator takes over as a deliberate fallback: its English bias (+16-40%)
+// cuts earlier than nominal, and its residual underestimate on list-heavy and
+// Chinese text is measured at only −2-4% (test/round3/token-census) — the
+// error bars of the least harmful direction for a context-safety budget.
 const maxFetchedContentTokens = 8 * 1024
 
-func estimateTokens(text string) int { return agent.EstimateTokens(text) }
+// fallbackEstimateTokens is the estimator used only when WebOptions.TokenCount
+// is nil (no local vocabulary). Kept as a named indirection so the fallback's
+// single call site documents the safety reasoning instead of burying it.
+func fallbackEstimateTokens(text string) int { return agent.EstimateTokens(text) }
 
 type providerRetryPolicy struct {
 	maxAttempts int
@@ -135,12 +143,16 @@ type WebOptions struct {
 	// re-judgment can A/B the budget against an emulation of the old 32k-rune
 	// cap; production keeps the default.
 	FetchBudgetTokens int
+	// TokenCount counts tokens with the real RWKV World vocabulary (round-3
+	// step 1). Nil falls back to the char-ratio estimator for the budget only;
+	// see maxFetchedContentTokens for the direction-of-error reasoning.
+	TokenCount func(string) int
 }
 
 func WebTools(options WebOptions) []agent.Tool {
 	return []agent.Tool{
 		&webSearchTool{provider: options.Search},
-		&webFetchTool{provider: options.Fetch, budgetTokens: options.FetchBudgetTokens},
+		&webFetchTool{provider: options.Fetch, budgetTokens: options.FetchBudgetTokens, tokenCount: options.TokenCount},
 	}
 }
 
@@ -190,6 +202,19 @@ func (t *webSearchTool) Execute(ctx context.Context, raw json.RawMessage) (any, 
 type webFetchTool struct {
 	provider     WebFetchProvider
 	budgetTokens int
+	tokenCount   func(string) int
+}
+
+// countTokens prefers the real World-vocabulary counter and only falls back to
+// the estimator without one (round-3 step 1c: the two constants — fetch budget
+// and compression threshold — are no longer allowed to share one biased ruler;
+// the budget's fallback error direction is documented on
+// maxFetchedContentTokens, the threshold has no estimator fallback at all).
+func (t *webFetchTool) countTokens(text string) int {
+	if t.tokenCount != nil {
+		return t.tokenCount(text)
+	}
+	return fallbackEstimateTokens(text)
 }
 
 func (*webFetchTool) Spec() agent.ToolSpec {
@@ -243,8 +268,8 @@ func (t *webFetchTool) Execute(ctx context.Context, raw json.RawMessage) (any, e
 			results[index].Truncated = true
 			continue
 		}
-		if estimateTokens(results[index].Content) <= budget {
-			budget -= estimateTokens(results[index].Content)
+		if t.countTokens(results[index].Content) <= budget {
+			budget -= t.countTokens(results[index].Content)
 			continue
 		}
 		runes := []rune(results[index].Content)
@@ -252,7 +277,7 @@ func (t *webFetchTool) Execute(ctx context.Context, raw json.RawMessage) (any, e
 		low, high := 0, len(runes)
 		for low < high {
 			mid := (low + high + 1) / 2
-			if estimateTokens(string(runes[:mid])) <= budget {
+			if t.countTokens(string(runes[:mid])) <= budget {
 				low = mid
 			} else {
 				high = mid - 1

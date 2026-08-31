@@ -54,6 +54,9 @@ type ProductHarnessConfig struct {
 	// CompressFetch enables query-aware compression of long web_fetch results
 	// before they enter the transcript (PREFERENCES.md P5-1..P5-3).
 	CompressFetch bool
+	// TokenCount counts tokens with the real World vocabulary (round-3 step 1);
+	// nil keeps the compression hook off. See agent.Options.TokenCount.
+	TokenCount func(string) int
 }
 
 // ProductHarnessOptions is the single constructor for the optional Markdown
@@ -88,6 +91,7 @@ func ProductHarnessOptions(config ProductHarnessConfig) Options {
 		Observe:          config.Observe,
 		TracePromptBytes: config.TracePromptBytes,
 		CompressFetch:    config.CompressFetch,
+		TokenCount:       config.TokenCount,
 		NoToolGate:       config.NoToolGate,
 		AnswerStageLead:  config.AnswerStageLead,
 	}
@@ -124,6 +128,9 @@ type XMLHarnessConfig struct {
 	// CompressFetch enables query-aware compression of long web_fetch results
 	// before they enter the transcript (PREFERENCES.md P5-1..P5-3).
 	CompressFetch bool
+	// TokenCount counts tokens with the real World vocabulary (round-3 step 1);
+	// nil keeps the compression hook off. See agent.Options.TokenCount.
+	TokenCount func(string) int
 }
 
 // XMLHarnessOptions is the single constructor for the default XML envelope
@@ -152,6 +159,7 @@ func XMLHarnessOptions(config XMLHarnessConfig) Options {
 		Observe:          config.Observe,
 		TracePromptBytes: config.TracePromptBytes,
 		CompressFetch:    config.CompressFetch,
+		TokenCount:       config.TokenCount,
 	}
 	applyProgressiveTools(&options, config.ProgressiveTools, config.ToolBundles, config.RouteMaxOutputTokens)
 	return options

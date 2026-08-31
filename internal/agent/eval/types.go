@@ -146,6 +146,7 @@ type HarnessMetadata struct {
 	CompressFetch            bool     `json:"compress_fetch,omitempty"`
 	WebFixture               bool     `json:"web_fixture,omitempty"`
 	SubagentFixture          bool     `json:"subagent_fixture,omitempty"`
+	TokenCountVocabSHA256    string   `json:"token_count_vocab_sha256,omitempty"`
 }
 
 type EnvironmentMetadata struct {
@@ -348,6 +349,14 @@ type Config struct {
 	// FetchBudgetTokens overrides the per-call token budget of fixture-backed
 	// and fixture-less web tools (0 = default); round-2 E1 re-judgment A/B.
 	FetchBudgetTokens int
+	// TokenCount counts tokens with the real World vocabulary in-process
+	// (round-3 step 1). Nil keeps the fetch-compression hook off and makes the
+	// web tools fall back to the estimator for budget slicing. The vocabulary
+	// SHA-256 rides in the harness manifest via TokenCountVocabSHA256.
+	TokenCount func(string) int
+	// TokenCountVocabSHA256 pins the vocabulary that produced every real token
+	// count in this run ("" = estimator fallback).
+	TokenCountVocabSHA256 string
 	// WebFixture optionally appends fixture-backed web_search and web_fetch
 	// tools. Entries match queries and URLs by keyword (case-insensitive
 	// substring), so web-tool e2e tasks run deterministically without network

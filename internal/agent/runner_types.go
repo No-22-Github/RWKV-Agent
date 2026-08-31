@@ -107,6 +107,17 @@ type Options struct {
 	// before they enter the transcript (PREFERENCES.md P5-1..P5-3). The raw
 	// tool result stays in the step trace; only the feedback copy shrinks.
 	CompressFetch bool
+	// TokenCount counts tokens with the real RWKV World vocabulary in-process
+	// (round-3 step 1; agent.EstimateTokens is no longer allowed to decide
+	// thresholds — its bias is +16-40% on English prose/code but −2-4% on
+	// lists and Chinese, measured in test/round3/token-census). It gates the
+	// fetch-compression threshold. Nil means no local vocabulary is available:
+	// the compression hook then stays OFF entirely (arming compression on the
+	// estimator would drag pages that should stay whole into an extract call
+	// whose failure mode is page pollution), while the web tools fall back to
+	// the estimator for budget slicing only, where an early cut is the safe
+	// direction.
+	TokenCount func(string) int
 	// NoToolGate applies harness-level enforcement to the semantic no_tool
 	// exit (round-2, step 4; round-1 measured the two-sided failure: without
 	// an exit the model loops to step exhaustion, with one it claims
