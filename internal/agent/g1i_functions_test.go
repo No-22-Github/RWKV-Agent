@@ -66,7 +66,7 @@ func TestG1IFunctionProtocolRendersNativeCatalogAndContinuation(t *testing.T) {
 	for _, fragment := range []string{
 		"Tools:\n[",
 		`"name":"read_file"`,
-		`"arguments":{"path":{"type":"string"}}`,
+		`"arguments":{"path":"string"}`,
 		"Preserve exact paths and identifier names from Function output.",
 		"return it verbatim, including prefixes and punctuation",
 		"Return only a JSON function call.",

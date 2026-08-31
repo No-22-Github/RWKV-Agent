@@ -2,6 +2,7 @@ package agent
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/no22/RWKV-Agent/internal/inference"
@@ -160,6 +161,19 @@ func makeG1ICatalogEntry(spec ToolSpec) g1iCatalogEntry {
 			arguments[name] = json.RawMessage(`"array of ` + items + `"`)
 			continue
 		}
+		// Scalar and union-type properties flatten the same way. Measured in
+		// the round-3 zh e2e three-arm: web_search max_results rendered as
+		// {"type":["integer","null"]} got copied verbatim as the argument
+		// value on Chinese task prompts ({"query":...,"max_results":{"type":
+		// ["integer","null"]}}), rejecting every search call until the step
+		// budget died. Enum values stay structured: they are literals the
+		// model is meant to copy.
+		if _, hasEnum := property["enum"]; !hasEnum {
+			if readable := readableScalarHint(property); readable != "" {
+				arguments[name] = json.RawMessage(`"` + readable + `"`)
+				continue
+			}
+		}
 		compact := make(map[string]json.RawMessage, 3)
 		for _, key := range []string{"type", "enum", "items"} {
 			if value, ok := property[key]; ok {
@@ -173,4 +187,51 @@ func makeG1ICatalogEntry(spec ToolSpec) g1iCatalogEntry {
 		arguments[name] = encoded
 	}
 	return g1iCatalogEntry{Name: spec.Name, Description: description, Arguments: arguments}
+}
+
+// readableScalarHint renders a non-enum scalar or union-type schema as the
+// flat placeholder the catalog shows the model ("integer 1..10"); "" means no
+// readable form applies and the caller falls back to the compact schema.
+func readableScalarHint(property map[string]json.RawMessage) string {
+	typeRaw, ok := property["type"]
+	if !ok {
+		return ""
+	}
+	var typeName any
+	if err := json.Unmarshal(typeRaw, &typeName); err != nil {
+		return ""
+	}
+	name := ""
+	switch value := typeName.(type) {
+	case string:
+		name = value
+	case []any:
+		// Union: use the first non-null member; a nullable integer is an
+		// integer for catalog purposes.
+		for _, member := range value {
+			if memberName, ok := member.(string); ok && memberName != "null" {
+				name = memberName
+				break
+			}
+		}
+		if name == "" {
+			return ""
+		}
+	default:
+		return ""
+	}
+	hint := name
+	var minimum, maximum *float64
+	if raw, ok := property["minimum"]; ok {
+		_ = json.Unmarshal(raw, &minimum)
+	}
+	if raw, ok := property["maximum"]; ok {
+		_ = json.Unmarshal(raw, &maximum)
+	}
+	if minimum != nil && maximum != nil {
+		hint = fmt.Sprintf("%s %d..%d", name, int(*minimum), int(*maximum))
+	} else if name == "integer" || name == "number" {
+		hint = name + " value"
+	}
+	return hint
 }
