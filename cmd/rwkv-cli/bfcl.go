@@ -132,7 +132,7 @@ func runBFCLEval(args []string) error {
 	defer cancel()
 	var result bfcl.RunResult
 	var runErr error
-	if options.tier == "baseline" || options.tier == "enhanced" || options.tier == "finish-task-probe" {
+	if options.tier == "baseline" || options.tier == "enhanced" || options.tier == "finish-task-probe" || options.tier == "xml-baseline" || options.tier == "xml-anchor" {
 		var generator continuation.Generator
 		switch options.transport {
 		case string(bfcl.TransportRWKVContinuation):
@@ -287,7 +287,7 @@ func parseBFCLEvalOptions(args []string) (bfclEvalOptions, error) {
 	var options bfclEvalOptions
 	fs := flag.NewFlagSet("bfcl-eval", flag.ContinueOnError)
 	fs.StringVar(&options.model, "model", "", "remote model identifier")
-	fs.StringVar(&options.tier, "tier", "adapter-health", "BFCL tier: adapter-health, baseline, enhanced, or finish-task-probe")
+	fs.StringVar(&options.tier, "tier", "adapter-health", "BFCL tier: adapter-health, baseline, enhanced, finish-task-probe, xml-baseline, or xml-anchor")
 	fs.StringVar(&options.transport, "transport", "", "BFCL transport; defaults by tier")
 	fs.StringVar(&options.apiURL, "api-url", "", "full remote inference endpoint URL")
 	fs.StringVar(&options.apiKeyEnv, "api-key-env", "OPENAI_API_KEY", "environment variable containing the API key")
@@ -325,12 +325,12 @@ func parseBFCLEvalOptions(args []string) (bfclEvalOptions, error) {
 		fs.Usage()
 		return options, fmt.Errorf("bfcl-eval requires --model, --api-url, and --output")
 	}
-	if options.tier != "adapter-health" && options.tier != "baseline" && options.tier != "enhanced" && options.tier != "finish-task-probe" {
+	if options.tier != "adapter-health" && options.tier != "baseline" && options.tier != "enhanced" && options.tier != "finish-task-probe" && options.tier != "xml-baseline" && options.tier != "xml-anchor" {
 		return options, fmt.Errorf("unsupported BFCL tier %q", options.tier)
 	}
 	if options.transport == "" {
 		options.transport = "chat-completions-native-fc"
-		if options.tier == "baseline" || options.tier == "enhanced" || options.tier == "finish-task-probe" {
+		if options.tier == "baseline" || options.tier == "enhanced" || options.tier == "finish-task-probe" || options.tier == "xml-baseline" || options.tier == "xml-anchor" {
 			options.transport = string(bfcl.TransportRWKVContinuation)
 		}
 	}
@@ -359,6 +359,11 @@ func parseBFCLEvalOptions(args []string) (bfclEvalOptions, error) {
 	if (options.tier == "baseline" || options.tier == "enhanced") && (len(options.splits) != 1 || options.splits[0] != "simple_python") {
 		if options.sampleManifest == "" && !options.full && len(options.caseIDs) == 0 {
 			return options, fmt.Errorf("BFCL M2 baseline requires exactly --split simple_python unless --sample-manifest is set")
+		}
+	}
+	if options.tier == "xml-baseline" || options.tier == "xml-anchor" {
+		if options.sampleManifest == "" && !options.full && len(options.caseIDs) == 0 && len(options.splits) != 1 {
+			return options, fmt.Errorf("BFCL XML tier requires exactly one --split unless --sample-manifest, --full, or --case is set")
 		}
 	}
 	if options.tier == "finish-task-probe" {
@@ -403,6 +408,12 @@ func markdownRenderProtocol(tier string) string {
 	if tier == "baseline" || tier == "enhanced" {
 		return bfcl.RenderProtocolAnchorV1
 	}
+	if tier == "xml-baseline" {
+		return bfcl.RenderProtocolG1IXMLV1
+	}
+	if tier == "xml-anchor" {
+		return bfcl.RenderProtocolG1IXMLAnchorV1
+	}
 	return ""
 }
 
@@ -412,6 +423,9 @@ func markdownParserMode(tier string) string {
 	}
 	if tier == "enhanced" {
 		return string(bfcl.ParserRWKVWireCompatV1)
+	}
+	if tier == "xml-baseline" || tier == "xml-anchor" {
+		return string(bfcl.ParserStrict)
 	}
 	return ""
 }

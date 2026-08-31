@@ -36,10 +36,14 @@ func RunBaseline(ctx context.Context, cases []Case, options BaselineRunnerOption
 	if options.Tier == "" {
 		options.Tier = TierBaseline
 	}
-	if options.Tier != TierBaseline && options.Tier != TierEnhanced && options.Tier != TierFinishTaskProbe {
+	if options.Tier != TierBaseline && options.Tier != TierEnhanced && options.Tier != TierFinishTaskProbe && options.Tier != TierXMLBaseline && options.Tier != TierXMLAnchor {
 		return RunResult{}, fmt.Errorf("unsupported BFCL tier %q", options.Tier)
 	}
-	if options.Transport != TransportRWKVContinuation && options.Transport != TransportChatCompletionsWrapped {
+	if options.Tier == TierXMLBaseline || options.Tier == TierXMLAnchor {
+		if options.Transport != TransportRWKVContinuation {
+			return RunResult{}, fmt.Errorf("BFCL XML tier requires the %s transport", TransportRWKVContinuation)
+		}
+	} else if options.Transport != TransportRWKVContinuation && options.Transport != TransportChatCompletionsWrapped {
 		return RunResult{}, fmt.Errorf("BFCL Markdown transport is required")
 	}
 	if options.Concurrency <= 0 {
@@ -124,6 +128,9 @@ func RunBaseline(ctx context.Context, cases []Case, options BaselineRunnerOption
 }
 
 func runBaselineCase(parent context.Context, entry Case, options BaselineRunnerOptions) TraceEntry {
+	if options.Tier == TierXMLBaseline || options.Tier == TierXMLAnchor {
+		return runXMLCase(parent, entry, options)
+	}
 	resultEntry := ResultEntry{ID: entry.ID, Category: entry.Category}
 	trace := TraceEntry{ResultEntry: resultEntry}
 	rendered, err := RenderPromptWithAnchor(entry, options.Tier, options.Transport)
