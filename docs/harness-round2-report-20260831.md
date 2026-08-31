@@ -8,7 +8,7 @@
   服务端稳定触发 HTTP 500 "empty response"，第一轮 e2e 的实际配置即 none）
 - 实验通道：`rwkv-cli agent-eval` custom `--cases`（产品 markdown + 深锚点 +
   语义 no_tool + progressive router + max-steps 6），校准与所有 A/B 均为每题
-  5 次独立运行；题目集与校准数据在 `test/e2e-calibrated/`
+  5 次独立运行；临时题目集与校准原始数据已从仓库历史清除
 - 已知环境常量：贪心输出约 5% 不稳定，且为**批组成依赖**（同一 prompt 在不同
   批组成下输出可漂移）；所有 ±1 格的结论都按噪声对待，关键结论要求跨运行复现
 
@@ -16,8 +16,8 @@
 
 ## 一、题集校准记录（本轮最重要资产）
 
-完整记录见 [`test/e2e-calibrated/CALIBRATION.md`](../../test/e2e-calibrated/CALIBRATION.md)。
-方法：三类失败各造一批候选（难度围绕已知失败模式铺开），每题用当时二进制跑
+原始校准工作区已清理；本节保留方法、冻结规则和最终数字。方法：三类失败各造
+一批候选（难度围绕已知失败模式铺开），每题用当时二进制跑
 5 次，只保留 1/5–4/5；冻结规则先于实验数据固定（类内按 (通过数,id) 交替分入
 调优/留出）。
 
@@ -112,8 +112,8 @@ runner 实际无效（旗标只接了交互式 agent；本轮修复接线，见"
 
 ## 三、中文长页压缩结论（第三步，探针层）
 
-完整数据在 `test/probes/p5-zh-compression/`（真实 zh.wikipedia 文本，28 篇，
-World 词表实测 5k/10k token 页，60% 深度埋点，10 实例/格，4 轮提示词迭代）。
+实验使用真实 zh.wikipedia 文本 28 篇、World 词表实测 5k/10k token 页、
+60% 深度埋点、10 实例/格和 4 轮提示词迭代；原始临时数据已清理。
 PREFERENCES.md 已按格式追加 P5-ZH-1..4。摘要：
 
 | 形态（均 +fast-think） | 阶段 A 保留率（5k/10k） | 阶段 B 数值进入（5k/10k） |
@@ -288,8 +288,7 @@ e2e 结构性复现是 P4-1 本身：official-first 0/5（fh=5/5）vs official-l
 
 ## 八、回归护栏
 
-最终二进制（含 compress-fetch 默认开启与全部本轮改动）复跑两套护栏套件
-（`test/round2/`）：
+最终二进制（含 compress-fetch 默认开启与全部本轮改动）复跑两套护栏套件：
 
 | 套件 | 本轮 | 第一轮基线 | 判定 |
 | --- | --- | --- | --- |
@@ -360,7 +359,5 @@ bfcl-product 无 web 工具），分数持平符合预期。
 
 ## 引用索引
 
-- 题集与校准：`test/e2e-calibrated/`（candidates/、calibration/ 含各 A/B 臂、frozen/、CALIBRATION.md）
-- 回归护栏复跑：`test/round2/`（boundary-final、bfcl-product-final）
-- 中文压缩：`test/probes/p5-zh-compression/`（out/p5zh-stage-a{,2,3,4}、stage-b{,2,-factonly}、counts.json）
+- 题集、校准、回归护栏和中文压缩的原始临时工作区已从仓库历史清除。
 - 偏好原始结论：仓库根 `PREFERENCES.md`（P5-ZH 节）

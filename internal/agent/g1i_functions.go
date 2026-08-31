@@ -144,7 +144,7 @@ func makeG1ICatalogEntry(spec ToolSpec) g1iCatalogEntry {
 			continue
 		}
 		// Array properties flatten to a readable "array of T" string. Measured on
-		// 7B (class-3 e2e, test/e2e/subagent-smoke): when the catalog showed the
+		// 7B class-3 e2e probes: when the catalog showed the
 		// nested array schema, the model copied the schema object as the
 		// argument VALUE (tasks == {"items":...,"type":"array"}), so the call
 		// carried no tasks at all. A flat string leaves nothing to copy.

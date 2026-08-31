@@ -38,13 +38,13 @@
     §四）。P6 探针（round-3）把成因拆开：检索工具零主动使用、决策端充分性
     判断失败、跨轮遗忘（含自信否认形态）——见 P6 节。
 
-本文件逐条列出在 `test/probes/` 中实测出的模型偏好。每条附 x/n 计数和实验
-目录；写不出数字的条目不收录。所有探针走 `/v1/batch/completions` 裸续写、
+本文件逐条列出本轮临时实验中实测出的模型偏好。每条附 x/n 计数；写不出
+数字的条目不收录。所有探针走 `/v1/batch/completions` 裸续写、
 贪心解码（temperature 0.001 / top_k 1 / top_p 1 / penalty 归零）、CF Access
 认证，prompt 结构逐字节镜像产品 Markdown 协议
-（`rwkv-g1i-functions-product-v1`，与 `test/baseline/main-bfcl-product-20260831/
-trace.jsonl` 中的真实请求核对）。分类全部事后进行，原始输出保留在
-`cells.jsonl`，可复核。
+（`rwkv-g1i-functions-product-v1`，并与当时保存的真实请求核对）。分类全部
+事后进行；原始临时工作区已从源码仓库及其重写后的历史中清除，量化结论保留
+在本文和三份 Harness 报告中。
 
 环境：模型 `rwkv7-g1i-7.2b-20260805-ctx16384`，端点 `api-7b.rwkvos.com`，
 服务器 `available_bsz≈165`。已知该后端在贪心下约 5% 输出不稳定（见"方法
@@ -58,7 +58,7 @@ trace.jsonl` 中的真实请求核对）。分类全部事后进行，原始输�
 
 ---
 
-## P1 长上下文降解（test/probes/p1-long-context/）
+## P1 长上下文降解
 
 设置：固定"抓取网页后决定下一步"的任务，注入正文铺 500/2k/5k/10k/20k
 token × 4 种正文类型（prose 干净散文 / code 含成对代码块 / lists 密集列表 /
@@ -77,7 +77,7 @@ repetitive 重复结构）× 10 实例；deep 锚点（`Assistant: ```json\n{"na
 | 20k | 30/40 · 32/40 |
 
 降解点在 10k 与 20k 之间；20k 档两次运行都只有 75–80%。
-目录：`test/probes/p1-long-context/out/p1-long-context{,-confirm}/counts.md`。
+对应的原始逐格文件已随临时实验工作区清理。
 
 ### P1-2 bare（无锚点）自由续写从 2k 开始降解，5k–10k 崩溃
 
@@ -127,7 +127,7 @@ bare 前缀下输出以 `<think>` 开头的比例：500 = 2/40，2k = 8/40，5k 
 
 ---
 
-## P2 工具结果回填格式（test/probes/p2-tool-result-feedback/）
+## P2 工具结果回填格式
 
 设置：同一份 ~350 token 短页 + 同一份计算结果，五种回填包裹
 （plain = 现行产品形态 `User: Function output:\n<text>`、json = JSON 包裹、
@@ -159,7 +159,7 @@ P1-1）。目录：`out/p2-supplement/cells.jsonl`。
 
 ---
 
-## P3 双来源冲突（test/probes/p3-multi-source/）
+## P3 双来源冲突
 
 设置：两来源就同一事实给出冲突数值（正确来源带权威信号：官方域名 URL +
 "primary register" 文本；错误来源为社区 wiki），2×2×2×2 全因子（顺序拼接 /
@@ -190,7 +190,7 @@ structured noann/nocmp = 19/20 vs ann/nocmp = 20/20；sequential/ann 两次
 
 ---
 
-## P4 子 Agent 结果回填（test/probes/p4-subagent-feedback/）
+## P4 子 Agent 结果回填
 
 设置：同 P3 的冲突结构，来源换成 spawn_agents 子 Agent 结果（JSON 形态
 逐字节镜像 `delegate.go` 的回喂格式）；batch = 两条结果合并进一个 Function
@@ -230,7 +230,7 @@ P3 结构化并列给每块来源标注了 URL 与自述（官方 vs wiki），�
 
 ---
 
-## P5 长页压缩（test/probes/p5-compression/）
+## P5 长页压缩
 
 设置：长页（5k/10k token，P1 prose 体）在 60% 深度埋入一句带答案数值的
 事实句；三种压缩提示词形态（extract 逐句摘抄 / summary 摘要 / bullets
@@ -260,7 +260,7 @@ extract raw 5k = 4/10 vs extract+ft 10/10。与 P1-7 同一机制在工具性
 
 ---
 
-## E6 文件工具对照（test/filetools-ab/，6 轮迭代）
+## E6 文件工具对照（6 轮迭代）
 
 设置：8 个文件编辑任务（建文件 / 追加 / 改值 / 换块 / 删行 / 两步 /
 大文件定位编辑）× 两种形态。Form A（lines）= read_lines + write_file +
@@ -273,7 +273,7 @@ replace_lines + append_file；Form B（whole）= read_lines + write_file
 最终轮：Form B required-tool 完成 100%，Form A 60%；历史轮 Form B
 88.9-100%，Form A 50-60%。协议合规 76-92%（两形态相当）。选择 **Form B
 （whole）**：工具更少、参数面更平、完成率更高。Form A 的 replace_lines
-没有转化为优势。目录：`test/filetools-ab/run-form-{a,b}/summary.json`。
+没有转化为优势。原始逐轮文件已随临时实验工作区清理。
 
 ### E6-2 无 no_tool 出口时模型无法终止工具循环
 
@@ -302,14 +302,14 @@ read_lines 的 end_line 按 strict integer 声明时，模型仍发 null；
 **结论：文件编辑工具保持实验性（--file-tools 门控，默认关闭）。
 阻塞项是 E6-2/E6-3 的终止/谎报问题，不是工具形态；形态选 Form B。**
 
-### E6 补充（class-3 e2e 期间实测，test/e2e/）
+### E6 补充（class-3 e2e 期间实测）
 
 | 编号 | 结论 | 数据 |
 | --- | --- | --- |
 | E6-6 | 路由器对 delegate 请求同样需要 few-shot 示例，否则判为 respond | 加 delegation 示例前 2/3 任务路由错误；加后全部正确路由 |
 | E6-7 | **模型会把 catalog 里数组参数的嵌套 schema 当成参数值复制**（`tasks == {"items":...,"type":"array"}`） | catalog 平铺为 `"array of string"` 后该失败消失（`internal/agent/g1i_functions.go` makeG1ICatalogEntry） |
 
-## P5-ZH 中文长页压缩（test/probes/p5-zh-compression/，第二轮 2026-08-31）
+## P5-ZH 中文长页压缩（第二轮 2026-08-31）
 
 设置：真实中文网页文本（zh.wikipedia 28 篇，词表真实分词），5k/10k token 页，
 60% 深度埋一条带数值的事实句（虚构天文台名 + 唯一数值），10 实例/格；压缩
@@ -324,7 +324,7 @@ read_lines 的 end_line 按 strict integer 声明时，模型仍发 null；
 | P5-ZH-3 | **中文决策阶段本身没有问题，瓶颈在压缩输出形态**：把埋点句原文单独喂回决策 → 20/20、0 次再搜索；clean-summary 压缩页喂回只有 6/10·6/10（残余回声/开场白输出触发再搜索）；现行英文 extract 指令的压缩页喂回 2/10·1/10；整页对照 0/10·0/10（复现 P5-2） | fact-only：10/10·10/10；clean-summary-zh-ft：6/10·6/10（再搜索 4/10·7/10）；extract-en-ft：2/10·1/10；full：0/10·0/10 |
 | P5-ZH-4 | 分类方法修正：模型在决策阶段用英文作答时把 6412 写成 "6,412"，原始子串计数会漏判成功；涉及数值的计数必须做千分位/全角归一化 | 归一化前 clean-summary 阶段 B 计为 3/10·3/10，归一化后 6/10·6/10 |
 
-## P6 检索纪律分解（test/probes/p6-retrieval/，第三轮 2026-08-31）
+## P6 检索纪律分解（第三轮 2026-08-31）
 
 设置：英文任务（find the annual visitor count ... in the workspace files），
 5 个 report-*.txt 的真实 prose 正文（真词表逐 token 标定），事实句带唯一

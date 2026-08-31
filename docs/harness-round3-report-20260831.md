@@ -21,16 +21,15 @@ token。第三轮起运行时全部改用真词表进程内计数(1b/1c),估算�
 
 - 词表 `third_party/rwkv-mobile/assets/rwkv_vocab_v20230424.txt`
   (sha256 `e6dee3d4…552bca89`,submodule 已 init)。
-- 计数实现:trie 贪心最长匹配(`test/probes/common/rwkv_tokenizer.py`,
-  镜像 rwkv_lightning_cuda `rwkv_trie.hpp`)——与生成全部语料的实现相同,
+- 计数实现:trie 贪心最长匹配(镜像 rwkv_lightning_cuda `rwkv_trie.hpp`)——
+  与生成全部语料的临时实现相同,
   因此本普查是"对已构造对象的复核",不是换尺子重造。
 - 交叉验证:与 pysidecar `count_tokens` 用的 converter 表驱动实现
   (`rwkv_mobile/converter/rwkv_src/rwkv_tokenizer.py`)对比 8 篇跨语系文本,
   0 分歧;Go 重实现(`internal/tokenizer`)对 93 篇 / 551,860 token 的语料
   fixture 逐文本计数一致(`go test ./internal/tokenizer/`)。
-- 脚本:`test/round3/token-census/census.py`(372 行数据,
-  `census.json` / `census.md`);Go fixture 由
-  `emit_go_fixture.py` 生成到 `internal/tokenizer/testdata/`。
+- 临时普查脚本处理 372 行数据；Go fixture 由同轮生成器写入
+  `internal/tokenizer/testdata/`，生成器与其他临时实验文件已清理。
   **本步零 API 调用。**
 
 ### 标称档位 → 实际 token 数
@@ -125,7 +124,7 @@ fetch 预算对列表页放过 ~4% 超额——方向与"安全"相反,只是幅
   12-gram(去空白/小写后唯一 gram 占比 <0.35 且 gram 数 ≥20)。命中即判
   压缩失败,**真的回退原页**(fail open),不再让非空垃圾替换整页。
 - **标定**:对 P5-ZH 四轮指令迭代 + P5-EN 的全部 440 条已存压缩输出
-  (`test/round3/compression-fix/calibrate_detector.py` → detector.md/json)
+  使用临时标定脚本扫描阈值
   扫描阈值:循环形态样本(如同一"原文句子/翻译"块抄到 256 token 截断)的
   唯一行占比实测 0.24–0.46、n-gram 占比 0.13–0.43;干净摘要/摘抄全部
   ≥6 行才可能命中且唯一率 1.0 或行数 <6,规则带 guard 不会误伤。
@@ -188,10 +187,9 @@ schema 对象,中文任务下模型**逐字复制该对象作参数值**,web_sea
 
 ## 三、同窗补跑(第三步)
 
-✅ 全部同窗交错完成(每对臂逐格背靠背,3 并发)。工具:
-`test/round3/e2e-ab/run_ab.py`,完整 artifacts(含 prompt trace)保留在
-`test/round3/e2e-ab/out/`。**本节同时记录了两个失败的中间窗口**(数据保留,
-见 3.4),它们本身是意外发现。
+✅ 全部同窗交错完成(每对臂逐格背靠背,3 并发)。临时运行脚本与完整
+artifacts(含 prompt trace)已从仓库历史清除；**本节仍记录两个失败的中间
+窗口**(见 3.4),它们本身是意外发现。
 
 ### 3.1 压缩 OFF/ON 同窗对照(EN 诊断集,各 5 次)
 
@@ -247,7 +245,7 @@ schema 对象,中文任务下模型**逐字复制该对象作参数值**,web_sea
 
 ### 3.4 中间窗口(失败实验,如实记录)
 
-最终窗口之前有两次完整尝试,数据保留在 `test/round3/e2e-ab/out/_intermediate-*`:
+最终窗口之前有两次完整尝试；原始数据已清理，失败结论保留如下：
 
 1. **窗口 A(c1-zh 缺 CASE_FILES 映射)**:脚本错误,无数据。
 2. **窗口 B(pre-catalog 二进制)**:我先把 catalog 拍平为
@@ -278,7 +276,7 @@ e2e 窗口 B)显示**所有臂 0 分**,排查发现是数值字符串被严格�
 
 ## 四、检索纪律探针(第四步,✅)
 
-P6 探针(`test/probes/p6-retrieval/`,PREFERENCES.md P6 节):英文取数任务,
+P6 探针(PREFERENCES.md P6 节):英文取数任务,
 真实 prose 正文(真词表逐 token 标定),工具回喂格式逐字节镜像 runtime,
 deep 锚点决策格 + PrepareAnswer 同款答案格,n=10/格,run1=320 格 +
 run2=80 格(分页修正轮)+ run3=140 格(行号因子 + 强制编排,补齐目标
@@ -433,15 +431,7 @@ P6-1 证明模型从不自发检索,故编排只能**强制**(模拟 search_text
 
 ## 引用索引
 
-- 真实 token 普查:`test/round3/token-census/`(census.py、census.json/md、
-  detector 之外的 Go fixture 生成器 emit_go_fixture.py)
 - Go tokenizer:`internal/tokenizer/`(world.go + 551,860 token fixture 测试)
-- 压缩修复:第二节;检测器标定 `test/round3/compression-fix/`
-  (calibrate_detector.py、detector.md/json、stage_b_echo_ab.py 及其 out/)
-- 同窗 A/B:`test/round3/e2e-ab/`(run_ab.py、zh5k-case/fixture、out/ 全量
-  artifacts 含两个失败中间窗口)
-- 回归护栏:`test/round3/guardrails/`(boundary-final、bfcl-product-final)
-- 检索纪律探针:`test/probes/p6-retrieval/`(probes.py、probes_v2.py、
-  probes_v3.py、classify.py、out/p6-run1、out/p6-run2-pagerepair、
-  out/p6-run3-gaph)
+- token 普查、检测器标定、同窗 A/B、回归护栏和检索探针的原始临时工作区
+  已从仓库历史清除；本文保留方法、汇总结果和失败窗口。
 - 偏好原始结论:仓库根 `PREFERENCES.md`(总索引 + P6 节)

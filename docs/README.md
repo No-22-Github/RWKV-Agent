@@ -49,7 +49,7 @@
 
 | 文档 | 说明 |
 | --- | --- |
-| [harness-preference-rebuild-report-20260831.md](harness-preference-rebuild-report-20260831.md) | 偏好重建报告：P1–P5 探针结论、Harness 改动清单、实验记录（含无效实验）、App 打磨、遗留问题；配套仓库根 `PREFERENCES.md` 与 `test/` 原始数据 |
+| [harness-preference-rebuild-report-20260831.md](harness-preference-rebuild-report-20260831.md) | 偏好重建报告：P1–P5 探针结论、Harness 改动清单、实验记录（含无效实验）、App 打磨、遗留问题；配套仓库根 `PREFERENCES.md`，临时原始数据已从历史清理 |
 | [reports/harness-layer-optimization-report.html](reports/harness-layer-optimization-report.html) | Harness 层优化报告（中文 HTML） |
 | [reports/harness-layer-optimization-report-en.html](reports/harness-layer-optimization-report-en.html) | Harness 层优化报告（English HTML） |
 

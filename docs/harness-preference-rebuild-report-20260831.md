@@ -3,8 +3,8 @@
 分支 `feat/harness-preference-rebuild`（与 main 同起点 1f912cb，全部工作在分支上）。
 本轮方法：**先用高并发 API 测出模型自身的输出偏好，再围绕偏好重建 Harness**；
 没有实验结论支撑的改动一律不进代码。逐条偏好的完整数据在仓库根
-[`PREFERENCES.md`](../../PREFERENCES.md)；全部原始输出、分类与计数保留在
-`test/` 下并已提交。
+[`PREFERENCES.md`](../../PREFERENCES.md)。原始输出、分类与计数曾保存在临时
+实验工作区；该工作区已从源码仓库及其重写后的历史中清除，本文保留汇总结论。
 
 - 模型：`rwkv7-g1i-7.2b-20260805-ctx16384`
 - 端点：`api-7b.rwkvos.com`（rwkv_lightning_cuda，`/v1/batch/completions`，贪心
@@ -17,9 +17,9 @@
 
 ## 一、模型偏好结论（PREFERENCES.md 成文摘要）
 
-每条格式：结论 + x/n（两次独立运行分别给出，run1 / run2）+ 实验目录。
+每条格式：结论 + x/n（两次独立运行分别给出，run1 / run2）。
 
-### 长上下文（P1，test/probes/p1-long-context/）
+### 长上下文（P1）
 
 400 格（2 锚点 × 5 长度 × 4 正文类型 × 10 实例），全量跑两遍，逐格分类
 一致率 345/400 = 86.2%，分歧集中在 10k/20k 边缘格，条目级结论复现。
@@ -34,7 +34,7 @@
 | P1-6 | 模型从不主动弃权；退化时产出坏格式而非 no_tool | no_tool 选择次数在全部 400 格中为 0 |
 | P1-7 | 无锚点时自发 `<think>` 且随长度增加；深锚点下为 0 | bare：500 = 2/40 → 10k = 30/40；deep：0/200（两跑） |
 
-### 工具结果回填（P2，test/probes/p2-tool-result-feedback/）
+### 工具结果回填（P2）
 
 | 编号 | 结论 | 数据 |
 | --- | --- | --- |
@@ -42,7 +42,7 @@
 | P2-2 | 长结果下 plain 与 JSON 包裹降解速度相同 | 5k/10k × 2 跑 = 全部 10/10（合计 40/40） |
 | P2-3 | 工具链未闭合时 answer 阶段模型拒绝作答、坚持先调工具 | 100 条 answer 里 94 条输出 calculator 调用而非回答 |
 
-### 多来源冲突（P3，test/probes/p3-multi-source/）
+### 多来源冲突（P3）
 
 16 条件全因子 × 20 实例 × 2 跑，条件级结论逐格复现。
 
@@ -52,7 +52,7 @@
 | P3-2 | 顺序拼接下存在轻度**近因**效应（更信最后一条） | sequential：correct_first 17/20·17/20，correct_last 20/20·20/20（−15 pp） |
 | P3-3 | 预标注冲突与"要求比对"提示词均无可靠效果 | 开/关差 ≤1 格（n=20，噪声内） |
 
-### 子 Agent 回填（P4，test/probes/p4-subagent-feedback/）
+### 子 Agent 回填（P4）
 
 | 编号 | 结论 | 数据 |
 | --- | --- | --- |
@@ -62,7 +62,7 @@
 | P4-4 | 合并为单条回喂显著缓解（不能消除）近因偏差 | batch correct_first 11-12/20 vs separate 6-7/20 |
 | P4-5 | 子 Agent 结果缺少"来源权威信号"时正确率上限明显更低 | P3 结构化 95-100% vs P4 batch 55-85%（唯一结构差异是逐条来源标签） |
 
-### 长页压缩（P5，test/probes/p5-compression/）
+### 长页压缩（P5）
 
 | 编号 | 结论 | 数据 |
 | --- | --- | --- |
@@ -70,7 +70,7 @@
 | P5-2 | **整页喂回时模型不在页内检索答案，改为再抓取；压缩页喂回则正确作答** | 阶段 B 答案进入调用：extract+ft 9/10·8/10；**整页 1/10·0/10**（20 格中 11 次再 web_fetch、7 次改 web_search） |
 | P5-3 | 压缩调用必须带 fast-think 预填（P1-7 同机制） | extract raw 5k = 4/10 vs extract+ft 10/10 |
 
-### 文件工具工作流（E6，test/filetools-ab/，8 题 × 两形态 × 6 轮迭代）
+### 文件工具工作流（E6，8 题 × 两形态 × 6 轮迭代）
 
 #### 外部对照：Claude Code / Aider / OpenHands 的文件工具设计
 
@@ -109,7 +109,7 @@
 | `internal/agent/runner_compression.go`（新增） | query-aware 摘抄压缩：页超过 4096 估算 token 时，用同一模型 + fast-think 预填执行"逐句摘抄"，回喂压缩版；原始 payload 保留在 `Step.ToolResult`，压缩副本在 `Step.ToolResultFeedback`；失败 fail-open | P5-1/2/3（整页 1/20 vs 压缩 17/20；压缩保留 19/20 仅在带预填时成立） |
 | `internal/agent/runner_tool_step.go` | web_fetch 成功后、回喂前调用压缩钩子（`CompressFetch` 选项开启时） | 同上 |
 | `internal/agent/runner_types.go` | `Options.CompressFetch`；`Step.ToolResultFeedback` | 同上 |
-| `internal/agent/g1i_functions_transcript.go` | `FormatToolResult` 将 spawn_agents 的 raw JSON 渲染为逐条带来源标签的块（`--- Sub-agent N: <sources> --- / Task / Result`）；JSON wire 格式不变 | P4-1/P4-4/P3-1：raw JSON batch 11/20 → 块状 14-16/20（E2 验证 `test/probes/p4-subagent-feedback/out/e2-verify2/`） |
+| `internal/agent/g1i_functions_transcript.go` | `FormatToolResult` 将 spawn_agents 的 raw JSON 渲染为逐条带来源标签的块（`--- Sub-agent N: <sources> --- / Task / Result`）；JSON wire 格式不变 | P4-1/P4-4/P3-1：raw JSON batch 11/20 → 块状 14-16/20（E2 验证） |
 | `internal/agent/runner_turn.go` | 产品 profile 的决策锚点不再依赖路由器存在：非 respond 路由一律武装（DecisionFakeThink 模式除外；XML 协议保持原路由门控） | P1-1 vs P1-2：无锚点决策从 2k token 起降解 |
 | `internal/agent/route.go` | workspace bundle 为可编辑（`Editable`）时，路由 few-shot 增加两条编辑示例 | E6-4：路由器把编辑任务判为 respond |
 | `internal/agent/tool_registry.go` | `ToolBundle.Editable`/`Delegation`；新增 `PermissionWorkspaceWrite` | E6-4、class-3 e2e |
@@ -177,7 +177,7 @@
 
 - boundary：基线 7/18；重建二进制 6/18 · 6/18 · 6/18；**旧二进制复跑
   6/18 · 6/18**——6/18 是两版共享的众数，7/18 是单次好抽样；protocol 97.0% 与
-  required 100% 完全一致（`test/baseline/main-boundary-20260831`,
+  required 100% 完全一致（`main-boundary-20260831`,
   `rebuild-boundary-20260831{,-r2,-r3}`, `main-boundary-20260831-r{2,3}`）。
 - bfcl-product：基线 24/60，重建 24/60；answer 70%=70%、route 65%=65%、
   protocol 85.6%≈85.3%、no_call 55%=55%（`rebuild-bfcl-product-20260831`）。
@@ -185,7 +185,7 @@
   塌到 1/18（协议被翻转成 product markdown）；当轮定位并修复（分支仅对
   custom `--cases` 生效），随后按上述复跑证明无回归。
 
-### 端到端验证（test/e2e/，4 题 × 5 次重复 × 新旧二进制）
+### 端到端验证（4 题 × 5 次重复 × 新旧二进制）
 
 - 新二进制（custom 套件 + 产品 markdown + 深锚点 + 路由器）：
   e2e-long-extract-5k 0/5、-10k 0/5、e2e-conflict-two-files 0/5、
@@ -196,7 +196,7 @@
   套件零变化）也不推不动的那部分；显式"两个来源都查一下"类提问（class 2
   带纠正指令）可达 5/5，与 P3-1/P3-2 的探针结论一致。
 
-### 端到端验证补遗：第三类失败（子 Agent 复核，test/e2e/subagent-run-{1..5}/）
+### 端到端验证补遗：第三类失败（子 Agent 复核，5 次运行）
 
 为覆盖第三类失败，给 eval 接线了 **fixture 版 spawn_agents**
 （`--subagent-fixture <file>`：按关键词匹配子任务文本 → 固定输出 + 来源
@@ -298,9 +298,7 @@ token/主题变量/配色、未替换组件库。
 
 ## 引用索引
 
-- 探针与数据：`test/probes/{p1-long-context,p2-tool-result-feedback,p3-multi-source,p4-subagent-feedback,p5-compression}/out/`
-- 基线与回归：`test/baseline/`（main 与 rebuild 两代、多轮）
-- 文件工具对照：`test/filetools-ab/`
-- 端到端（含第三类 fixture spawn）：`test/e2e/`（`subagent-run-{1..5}/`、`subagent-fixture.json`）
-- 偏好原始结论：仓库根 `PREFERENCES.md`
+- 原始探针、基线、文件工具对照与端到端临时工作区已从仓库历史清除。
+- 偏好量化结论：仓库根 `PREFERENCES.md`。
+- 本报告保留重建过程、汇总数字和实现映射。
 - 框架约定来源：`/Users/no22/Projects/rwkv-abstention-lab`、`/Users/no22/Projects/RWKV-Toolcall-Bench`

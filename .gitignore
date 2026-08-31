@@ -12,10 +12,4 @@ __pycache__/
 .pnpm-store/
 .gocache/
 .zcode/
-test/e2e-calibrated/tools/env.local.json
-
-# local build artifacts
-# (e2e-ab binaries: the pre/post arm binaries stay on disk for re-runs;
-# rebuild from the round1-round2-boundary tag / branch tip when missing)
-test/round3/guardrails/bin/
-test/round3/e2e-ab/bin/
+/test/

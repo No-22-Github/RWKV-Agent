@@ -110,7 +110,7 @@ type Options struct {
 	// TokenCount counts tokens with the real RWKV World vocabulary in-process
 	// (round-3 step 1; agent.EstimateTokens is no longer allowed to decide
 	// thresholds — its bias is +16-40% on English prose/code but −2-4% on
-	// lists and Chinese, measured in test/round3/token-census). It gates the
+	// lists and Chinese, measured by the round-3 token census). It gates the
 	// fetch-compression threshold. Nil means no local vocabulary is available:
 	// the compression hook then stays OFF entirely (arming compression on the
 	// estimator would drag pages that should stay whole into an extract call

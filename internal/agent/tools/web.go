@@ -27,7 +27,7 @@ const (
 )
 
 // Fetched pages share one token budget per call. P1 probes on this model
-// (test/probes/p1-long-context, PREFERENCES.md P1-1) measured decision format
+// (PREFERENCES.md P1-1) measured decision format
 // compliance at 40/40 up to 10k injected tokens and 30-32/40 at 20k, so the
 // budget sits below the measured degradation point and leaves room for the
 // control prompt, history, and the answer itself. The old 32k-rune cap was
@@ -36,7 +36,7 @@ const (
 // WebOptions.TokenCount; when no vocabulary is available the char-ratio
 // estimator takes over as a deliberate fallback: its English bias (+16-40%)
 // cuts earlier than nominal, and its residual underestimate on list-heavy and
-// Chinese text is measured at only −2-4% (test/round3/token-census) — the
+// Chinese text is measured at only −2-4% by the round-3 token census — the
 // error bars of the least harmful direction for a context-safety budget.
 const maxFetchedContentTokens = 8 * 1024
 

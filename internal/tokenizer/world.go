@@ -3,9 +3,9 @@
 // estimator (agent.EstimateTokens) everywhere a token count decides harness
 // behavior: the fetch budget and the fetch-compression threshold (round 3,
 // step 1). The greedy longest-match byte trie mirrors
-// rwkv_lightning_cuda/include/rwkv_trie.hpp, the same algorithm the corpus
-// builders (test/probes/common/rwkv_tokenizer.py) and the BFCL pysidecar
-// count_tokens op use, so all channels share one ruler; the fixture test
+// rwkv_lightning_cuda/include/rwkv_trie.hpp, the same algorithm the temporary
+// corpus builder and the BFCL pysidecar count_tokens op use, so all channels
+// share one ruler; the fixture test
 // world_test.go verifies per-text count equality against 551,860 Python-counted
 // tokens spanning every corpus family.
 package tokenizer

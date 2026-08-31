@@ -11,7 +11,7 @@ import (
 
 // Query-aware compression of long fetched pages.
 //
-// Evidence (test/probes/p5-compression, PREFERENCES.md P5-1..P5-3): with a
+// Evidence (PREFERENCES.md P5-1..P5-3): with a
 // full 5k-10k-token page fed back, the next decision collapses into re-fetch
 // loops (1/20 carried the page's answer into the call); with a verbatim
 // extraction produced by this same model under a half-open think prefill,
@@ -19,7 +19,7 @@ import (
 // without (P1-7: spontaneous <think> drift grows with context length), and
 // shrinks ~5k/10k-token pages to ~110 chars.
 //
-// Round-3 (P5-ZH-1..3, test/probes/p5-zh-compression): the English extract
+// Round-3 (PREFERENCES.md P5-ZH-1..3): the English extract
 // instruction loops verbatim on Chinese pages (retention 2/10·2/10), so the
 // instruction switches on the page language — Chinese pages use the
 // content-locked summary form (≤3 sentences, original wording only, no task
@@ -29,8 +29,7 @@ import (
 // task-echo prefix ("根据您提供的文本…" meta text the decision model reads as
 // non-page content and answers with a re-search, P5-ZH-3). Either form falls
 // back to the original page or is stripped, respectively; the detector
-// thresholds are calibrated on 480 saved compression outputs in
-// test/round3/compression-fix (calibrate_detector.py).
+// thresholds are calibrated on 480 saved compression outputs from round 3.
 //
 // The raw tool result stays in the step trace (Step.ToolResult); only the
 // transcript feedback uses the compressed copy (Step.ToolResultFeedback).
@@ -76,7 +75,7 @@ const englishExtractInstruction = "Copy every sentence of the page that is relev
 // EstimateTokens approximates RWKV World tokenizer counts without a vocab:
 // P1 bodies measured 3.85-5.42 ASCII chars/token (so 4.0 is near-exact for
 // list-heavy text and overestimates prose by up to ~30%), and CJK is charged
-// 1.1 tokens per rune. Round-3 census (test/round3/token-census) measured the
+// 1.1 tokens per rune. The round-3 token census measured the
 // actual bias: +16-40% on English prose/code but −2-4% on lists and Chinese.
 // Round-3 step 1 removed it from every threshold decision: the compression
 // hook has NO estimator fallback (Options.TokenCount nil = compression off),
@@ -320,7 +319,7 @@ func stripEchoPrefix(output string) string {
 }
 
 // Degenerate-output thresholds, calibrated on 480 saved compression outputs
-// (test/round3/compression-fix, calibrate_detector.py): the verbatim repeat
+// during round 3: the verbatim repeat
 // loop form — whole lines or multi-line blocks copied until the 256-token
 // budget truncates — shows up as low unique-line share (0.24-0.46 measured on
 // loop outputs vs 1.0 on clean summaries/extractions), long identical-line
