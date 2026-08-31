@@ -2,10 +2,13 @@ package agent
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"slices"
 	"strings"
 	"time"
+	"unicode"
 
 	"github.com/no22/RWKV-Agent/internal/continuation"
 	"github.com/no22/RWKV-Agent/internal/continuation/toolchat"
@@ -63,6 +66,7 @@ type runnerTurn struct {
 	assistantPrefix         string
 	forceAnswer             bool
 	terminalToolCompleted   bool
+	answerViolations        int
 }
 
 type turnModelStep struct {
@@ -130,10 +134,29 @@ func (turn *runnerTurn) initialize() error {
 	if turn.result.Route == RouteRespond {
 		control = r.responseControl
 	}
+	if r.options.NoToolGate == "state" && turn.successfulToolCalls == 0 {
+		// State gate: the exit must not exist before any tool evidence; a
+		// no_tool emitted here could only be a fabricated completion.
+		turn.activeSpecs = dropNoToolSpec(turn.activeSpecs)
+		control = r.controlForSpecs(turn.activeSpecs)
+	}
 	turn.assembleTurnMessages(history, control)
 
 	turn.terminalToolCompleted = r.terminalTool == "" || turn.result.Route == RouteRespond
-	if (r.router != nil || r.toolRouter != nil) && turn.result.Route == RouteInspect {
+	// Arm the decision prefill on every non-respond route of the product
+	// profile. P1 probes (PREFERENCES.md P1-1 vs P1-2) measured unanchored
+	// product decisions degrading from 2k tokens of context while anchored
+	// decisions held 40/40 to 10k, so the anchor no longer depends on a
+	// router being configured. The DecisionFakeThink experiment owns the
+	// prefix in its mode, so arming skips it. Other protocols (the XML
+	// envelope) keep their router-gated prefix policy.
+	if fn, ok := r.protocol.(G1IFunctionProtocol); ok && fn.Product {
+		if turn.result.Route != RouteRespond {
+			if renderer, ok := r.renderer.(G1IFunctionRenderer); !ok || !renderer.DecisionFakeThink {
+				turn.assistantPrefix = fn.ToolCallPrefix()
+			}
+		}
+	} else if (r.router != nil || r.toolRouter != nil) && turn.result.Route == RouteInspect {
 		turn.assistantPrefix = r.protocol.ToolCallPrefix()
 	}
 	return nil
@@ -188,6 +211,10 @@ func (turn *runnerTurn) run() (Result, error) {
 			continue
 		}
 		if action.Type == ActionTypeNoTool {
+			if turn.r.options.NoToolGate != "" && turn.noToolGateRejects(action) {
+				turn.rejectNoTool(step, action, modelStep)
+				continue
+			}
 			if turn.result.Route == RouteRespond {
 				if err := turn.retryRespondRoute(step, modelStep.modelAction); err != nil {
 					return turn.result, err
@@ -219,8 +246,17 @@ func (turn *runnerTurn) run() (Result, error) {
 func (turn *runnerTurn) prepareAnswerStage(step int) error {
 	if turn.result.Route != RouteInspect ||
 		turn.toolAttempts == 0 ||
-		!turn.terminalToolCompleted ||
-		(step != turn.r.options.MaxSteps && !turn.forceAnswer) {
+		!turn.terminalToolCompleted {
+		return nil
+	}
+	// Round-1 forced the answer only at MaxSteps, so with ProtocolRetries=1 a
+	// model that still emitted a tool call there died on its first violation.
+	// AnswerStageLead starts the stage earlier to leave room for one re-ask.
+	forcedAtStep := step == turn.r.options.MaxSteps
+	if lead := turn.r.options.AnswerStageLead; lead > 0 && step == turn.r.options.MaxSteps-lead {
+		forcedAtStep = true
+	}
+	if !forcedAtStep && !turn.forceAnswer {
 		return nil
 	}
 	if !turn.hasToolEvidence {
@@ -454,6 +490,123 @@ func firstNonEmpty(values ...string) string {
 	return ""
 }
 
+// dropNoToolSpec removes the semantic no_tool action from a spec list so the
+// catalog (and its instructions) stop offering the exit.
+func dropNoToolSpec(specs []ToolSpec) []ToolSpec {
+	return slices.DeleteFunc(append([]ToolSpec(nil), specs...), func(spec ToolSpec) bool {
+		return spec.Name == SemanticNoToolName
+	})
+}
+
+// noToolGateRejects reports whether the harness must refuse this no_tool
+// action under the configured gate. Rejection is policy, not parsing: the
+// action itself is protocol-valid.
+func (turn *runnerTurn) noToolGateRejects(action Action) bool {
+	switch turn.r.options.NoToolGate {
+	case "state":
+		return turn.successfulToolCalls == 0
+	case "evidence":
+		return !turn.reasonCitesEvidence(action)
+	default:
+		return false
+	}
+}
+
+// rejectNoTool records the refusal and re-asks with the gate-specific
+// correction. It does not consume the protocol retry budget: the emission is
+// valid protocol shape, and the step budget bounds repetition.
+func (turn *runnerTurn) rejectNoTool(step int, action Action, modelStep turnModelStep) {
+	current := turn.currentStep()
+	current.ToolRejected = "no_tool_gate"
+	if echoed := retryEcho(modelStep.modelAction, nil); strings.TrimSpace(echoed) != "" {
+		turn.messages = append(turn.messages, Message{
+			Role:             RoleAssistant,
+			Content:          echoed,
+			ReasoningContent: modelStep.reasoningContent,
+		})
+	}
+	turn.messages = append(turn.messages, Message{
+		Role:    RoleUser,
+		Content: noToolGateRejectionNote(turn.r.options.NoToolGate),
+	})
+	turn.r.observe(Event{Kind: EventRetry, Step: step, Err: errors.New("no_tool rejected by " + turn.r.options.NoToolGate + " gate")}, turn.observer)
+}
+
+// noToolGateRejectionNote words the harness refusal for each gate mode.
+func noToolGateRejectionNote(gate string) string {
+	if gate == "state" {
+		return ("no_tool was rejected: no tool has run successfully in this task yet, " +
+			"so there is no evidence to report. Call a suitable tool first; " +
+			"no_tool becomes available only after a tool call succeeds.")
+	}
+	return ("no_tool was rejected: the reason does not cite any actual Function output of this task. " +
+		"Call a tool to obtain evidence first, or cite the Function output verbatim in the reason.")
+}
+
+// noToolEvidenceShingle is the normalized-citation length the evidence gate
+// requires: 10 consecutive letters/digits/CJK runes copied from a Function
+// output. Shorter matches fire on boilerplate; the model's cited values,
+// names, and phrases reach it easily.
+const noToolEvidenceShingle = 10
+
+// normalizeEvidence keeps only lowercase ASCII letters, digits, and CJK
+// runes, so JSON escaping, whitespace, punctuation, and case differences
+// between the reason and the raw payload cannot hide a citation.
+func normalizeEvidence(text string) string {
+	var builder strings.Builder
+	for _, r := range strings.ToLower(text) {
+		switch {
+		case r >= 'a' && r <= 'z', r >= '0' && r <= '9', unicode.Is(unicode.Han, r):
+			builder.WriteRune(r)
+		}
+	}
+	return builder.String()
+}
+
+// reasonCitesEvidence checks the no_tool reason against every raw tool
+// payload of this turn: the reason must reproduce at least one shingle of
+// actual Function output content (compressed feedback is a subset of the raw
+// payload, so citations of either match).
+func (turn *runnerTurn) reasonCitesEvidence(action Action) bool {
+	reason := normalizeEvidence(firstNonEmpty(action.NoToolAnswer, action.NoToolRationale))
+	runes := []rune(reason)
+	if len(runes) < noToolEvidenceShingle {
+		return false
+	}
+	var corpus strings.Builder
+	for _, step := range turn.result.Steps {
+		if len(step.ToolResult) == 0 {
+			continue
+		}
+		var decoded any
+		if json.Unmarshal(step.ToolResult, &decoded) == nil {
+			corpus.WriteString(normalizeEvidence(fmt.Sprint(decoded)))
+		} else {
+			corpus.WriteString(normalizeEvidence(string(step.ToolResult)))
+		}
+	}
+	hay := corpus.String()
+	for start := 0; start+noToolEvidenceShingle <= len(runes); start++ {
+		if strings.Contains(hay, string(runes[start:start+noToolEvidenceShingle])) {
+			return true
+		}
+	}
+	return false
+}
+
+// revealNoTool restores the semantic no_tool action (hidden at turn start by
+// the state gate) once a tool call has succeeded, and re-renders the control
+// so the catalog and instructions carry the exit again.
+func (turn *runnerTurn) revealNoTool() {
+	r := turn.r
+	if len(turn.result.Bundles) > 0 {
+		turn.activeSpecs = toolSpecsForBundles(r.toolSpecs, turn.result.Bundles)
+	} else {
+		turn.activeSpecs = append([]ToolSpec(nil), r.toolSpecs...)
+	}
+	turn.messages = replaceSystemControl(turn.messages, r.controlForSpecs(turn.activeSpecs))
+}
+
 func (turn *runnerTurn) retryProtocolAction(
 	step int,
 	modelStep turnModelStep,
@@ -462,6 +615,30 @@ func (turn *runnerTurn) retryProtocolAction(
 	current := turn.currentStep()
 	current.ProtocolError = err.Error()
 	current.ProtocolFailure = ProtocolFailureClassOf(err)
+	// AnswerStageLead gives answer-stage tool violations one dedicated re-ask
+	// that does not consume the protocol retry budget: the forced answer is
+	// the harness's own termination device, so the model gets a strict second
+	// chance instead of dying on its first violation (round-1's answer 0-12.5%
+	// at step exhaustion).
+	if errors.Is(err, ErrStageViolation) && turn.stage == StageAnswer &&
+		turn.r.options.AnswerStageLead > 0 && turn.answerViolations == 0 {
+		turn.answerViolations++
+		turn.r.observe(Event{Kind: EventRetry, Step: step, Err: errors.New("answer-stage violation re-ask")}, turn.observer)
+		if echoed := retryEcho(modelStep.modelAction, err); strings.TrimSpace(echoed) != "" {
+			turn.messages = append(turn.messages, Message{
+				Role:             RoleAssistant,
+				Content:          echoed,
+				ReasoningContent: modelStep.reasoningContent,
+			})
+		}
+		turn.messages = append(turn.messages, Message{
+			Role: RoleUser,
+			Content: "Answer the original current task in ordinary Markdown NOW using the Function outputs above. " +
+				"This is your final answer; tool calls are forbidden.",
+		})
+		turn.assistantPrefix = "Assistant:"
+		return nil
+	}
 	if turn.retries >= turn.r.options.ProtocolRetries {
 		return err
 	}

@@ -50,10 +50,10 @@ type Config struct {
 	// transcript's system prompt ("Task-specific contract:" block). It is the
 	// supported personalization surface; the protocol-owned instructions stay
 	// immutable so the measured transcript contract cannot be broken here.
-	TaskControl       string `json:"taskControl,omitempty"`
-	SemanticNoTool    *bool  `json:"semanticNoTool,omitempty"`
-	DecisionFakeThink bool   `json:"decisionFakeThink,omitempty"`
-	DeepToolAnchor    *bool  `json:"deepToolAnchor,omitempty"`
+	TaskControl       string  `json:"taskControl,omitempty"`
+	SemanticNoTool    *bool   `json:"semanticNoTool,omitempty"`
+	DecisionFakeThink bool    `json:"decisionFakeThink,omitempty"`
+	DeepToolAnchor    *bool   `json:"deepToolAnchor,omitempty"`
 	MaxSteps          int     `json:"maxSteps,omitempty"`
 	MaxTokens         int     `json:"maxTokens,omitempty"`
 	DecisionMaxTokens int     `json:"decisionMaxTokens,omitempty"`
@@ -72,18 +72,21 @@ type Config struct {
 	RWKVStopTokens    string  `json:"rwkvStopTokens,omitempty"`
 	// ProgressiveTools enables the optional capability Router. Nil defaults to
 	// false so the XML decision stage owns tool selection directly.
-	ProgressiveTools       *bool  `json:"progressiveTools,omitempty"`
-	EnableWeb              bool   `json:"enableWeb,omitempty"`
-	BraveAPIKey            string `json:"braveApiKey,omitempty"`
-	BraveEndpoint          string `json:"braveEndpoint,omitempty"`
-	TavilyAPIKey           string `json:"tavilyApiKey,omitempty"`
-	TavilyEndpoint         string `json:"tavilyEndpoint,omitempty"`
-	EnableSubagents        bool   `json:"enableSubagents,omitempty"`
-	MaxActiveBatch         int    `json:"maxActiveBatch,omitempty"`
-	RemoteBatchWaitMS      int    `json:"remoteBatchWaitMs,omitempty"`
-	SubagentMaxParallel    int    `json:"subagentMaxParallel,omitempty"`
-	SubagentMaxSteps       int    `json:"subagentMaxSteps,omitempty"`
-	SubagentTimeoutSeconds int    `json:"subagentTimeoutSeconds,omitempty"`
+	ProgressiveTools *bool  `json:"progressiveTools,omitempty"`
+	EnableWeb        bool   `json:"enableWeb,omitempty"`
+	BraveAPIKey      string `json:"braveApiKey,omitempty"`
+	BraveEndpoint    string `json:"braveEndpoint,omitempty"`
+	TavilyAPIKey     string `json:"tavilyApiKey,omitempty"`
+	TavilyEndpoint   string `json:"tavilyEndpoint,omitempty"`
+	EnableSubagents  bool   `json:"enableSubagents,omitempty"`
+	// CompressFetch enables query-aware compression of long web_fetch results
+	// before they enter the agent transcript (PREFERENCES.md P5-1..P5-3).
+	CompressFetch          bool `json:"compressFetch,omitempty"`
+	MaxActiveBatch         int  `json:"maxActiveBatch,omitempty"`
+	RemoteBatchWaitMS      int  `json:"remoteBatchWaitMs,omitempty"`
+	SubagentMaxParallel    int  `json:"subagentMaxParallel,omitempty"`
+	SubagentMaxSteps       int  `json:"subagentMaxSteps,omitempty"`
+	SubagentTimeoutSeconds int  `json:"subagentTimeoutSeconds,omitempty"`
 }
 
 // Status is the non-secret model state displayed by clients.

@@ -71,6 +71,26 @@ User: Read README.md and report its title
 Assistant: <route>inspect:workspace</route>
 User: 搜索代码里所有 TODO
 Assistant: <route>inspect:workspace</route>`)
+			// Editing requests must also route to the workspace tools. Without
+			// an edit example the router judged "add a line to notes.txt" as
+			// needing no tool evidence (E6 file-tool finding).
+			if bundle.Editable {
+				fmt.Fprintf(&prompt, `
+User: 把 config.ini 里的 retries 改成 5
+Assistant: <route>inspect:workspace</route>
+User: Create a file named todo.txt with three items
+Assistant: <route>inspect:workspace</route>`)
+			}
+			break
+		}
+	}
+	for _, bundle := range bundles {
+		if bundle.Delegation {
+			fmt.Fprintf(&prompt, `
+User: Use spawn_agents to research %s from the official register and any public source
+Assistant: <route>inspect:%s</route>
+User: Delegate two subtasks: summarize report-a.md and summarize report-b.md
+Assistant: <route>inspect:%s</route>`, bundle.Name, bundle.Name, bundle.Name)
 			break
 		}
 	}

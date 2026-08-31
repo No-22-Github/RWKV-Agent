@@ -385,7 +385,7 @@ func (protocol G1IProtocol) PrepareAnswer(
 	thinkingMode inference.ThinkingMode,
 ) ([]Message, string) {
 	prepared := make([]Message, 0, len(messages)+1)
-		answerControl := `You are the final local-assistant answer stage. Tools are unavailable.
+	answerControl := `You are the final local-assistant answer stage. Tools are unavailable.
 Answer the current task directly in the user's language using the full supplied conversation and Tool results.
 ` + PolicyUntrustedData + ` ` + PolicyNoInventedFacts + `
 If the Tool results do not establish the requested answer, state the limitation clearly.

@@ -16,6 +16,7 @@ import (
 	"github.com/no22/RWKV-Agent/internal/continuation/toolchat"
 	"github.com/no22/RWKV-Agent/internal/inference"
 	"github.com/no22/RWKV-Agent/internal/terminal"
+	"github.com/no22/RWKV-Agent/internal/tokenizer"
 )
 
 // Session is an isolated, multi-turn Agent conversation.
@@ -156,6 +157,17 @@ func sessionRunnerOptions(
 	tools []agent.Tool,
 	markdownProtocol bool,
 ) agent.Options {
+	// Real-token counting for the fetch-compression hook and the web budget
+	// (round-3 step 1). Best effort: without a loadable vocabulary TokenCount
+	// stays nil, which keeps the compression hook off (it must never arm on
+	// the estimator) and makes the web budget fall back to the estimator —
+	// never the reverse.
+	var tokenCount func(string) int
+	if strings.TrimSpace(config.TokenizerPath) != "" {
+		if world, err := tokenizer.OpenWorldCached(config.TokenizerPath); err == nil {
+			tokenCount = world.Count
+		}
+	}
 	var postToolHook func(string, json.RawMessage, any, error) string
 	if markdownProtocol {
 		// The Markdown protocol answers directly (plain Markdown or fenced
@@ -219,6 +231,8 @@ func sessionRunnerOptions(
 			DeepToolAnchor:           productSwitchEnabled(config.DeepToolAnchor),
 			TaskControl:              taskControl,
 			PostToolHook:             postToolHook,
+			CompressFetch:            config.CompressFetch,
+			TokenCount:               tokenCount,
 		})
 	}
 	return agent.XMLHarnessOptions(agent.XMLHarnessConfig{
@@ -234,6 +248,8 @@ func sessionRunnerOptions(
 		ToolBundles:              toolBundles,
 		TaskControl:              taskControl,
 		ThinkingMode:             inference.ThinkingMode(config.Thinking),
+		CompressFetch:            config.CompressFetch,
+		TokenCount:               tokenCount,
 	})
 }
 

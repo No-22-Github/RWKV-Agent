@@ -334,6 +334,16 @@ func validateFixturePath(path string) error {
 	return nil
 }
 
+// normalizeSubtaskText makes keyword matching tolerant of the model's
+// punctuation and casing: case-folded, hyphens and underscores become spaces
+// so "bramblewick-register" matches "Bramblewick register".
+func normalizeSubtaskText(text string) string {
+	lowered := strings.ToLower(text)
+	lowered = strings.ReplaceAll(lowered, "-", " ")
+	lowered = strings.ReplaceAll(lowered, "_", " ")
+	return lowered
+}
+
 func firstPathPart(path string) string {
 	value, _, _ := strings.Cut(path, "/")
 	return value

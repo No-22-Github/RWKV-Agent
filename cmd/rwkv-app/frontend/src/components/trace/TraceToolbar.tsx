@@ -1,3 +1,4 @@
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { FoldVertical, PanelRight, Search, UnfoldVertical } from 'lucide-react'
 
 export type TraceTimelineMode = 'sequence' | 'duration' | 'actual'
@@ -18,35 +19,63 @@ type Props = {
   onToggleInspector: () => void
 }
 
-/* 轨迹工具栏：时间轴投影、双层折叠全开全关、搜索。 */
+// 稳定引用：避免 effect 依赖每次渲染重建的数组。
+const MODES_SHORT: TraceTimelineMode[] = ['sequence', 'duration']
+const MODES_ALL: TraceTimelineMode[] = ['sequence', 'duration', 'actual']
+
+/* 轨迹工具栏：时间轴投影（滑动指示条）、双层折叠全开全关、搜索。 */
 export default function TraceToolbar({
   mode, onModeChange, hasWallClock, allTurnsCollapsed, onToggleAllTurns,
   allCallsExpanded, onToggleAllCalls, searchQuery, onSearchQueryChange,
   matchCount, inspectorOpen, onToggleInspector,
 }: Props) {
+  const groupRef = useRef<HTMLDivElement>(null)
+  const [thumb, setThumb] = useState({ left: 0, width: 0, ready: false })
+
+  const modes = hasWallClock ? MODES_ALL : MODES_SHORT
+
+  // 滑动指示条：测量当前激活分段的位置与宽度，切换时用 transform 过渡。
+  useLayoutEffect(() => {
+    const group = groupRef.current
+    if (!group) return
+    const index = modes.indexOf(mode)
+    const buttons = group.querySelectorAll('button[data-mode]')
+    const active = buttons[index] as HTMLElement | undefined
+    if (active) setThumb({ left: active.offsetLeft, width: active.offsetWidth, ready: true })
+  }, [mode, hasWallClock, modes])
+
+  useEffect(() => {
+    const group = groupRef.current
+    if (!group || typeof ResizeObserver === 'undefined') return
+    const observer = new ResizeObserver(() => {
+      const index = modes.indexOf(mode)
+      const active = group.querySelectorAll('button[data-mode]')[index] as HTMLElement | undefined
+      if (active) setThumb((current) => ({ ...current, left: active.offsetLeft, width: active.offsetWidth }))
+    })
+    observer.observe(group)
+    return () => observer.disconnect()
+  }, [mode, modes])
+
   return (
     <div className="flex min-h-[48px] flex-none items-center gap-[14px] border-b border-line px-[30px]" role="toolbar" aria-label="轨迹工具栏">
-      <div className="flex border border-line bg-paper-soft p-[2px]">
-        <button
-          aria-pressed={mode === 'sequence'}
-          className={`flex h-[26px] items-center border-0 px-[9px] text-xs ${mode === 'sequence' ? 'bg-paper font-medium text-brand shadow-sm' : 'bg-transparent text-ink-muted'}`}
-          onClick={() => onModeChange('sequence')}
-          title="每个操作等宽排列"
-        >时序</button>
-        <button
-          aria-pressed={mode === 'duration'}
-          className={`flex h-[26px] items-center border-0 px-[9px] text-xs ${mode === 'duration' ? 'bg-paper font-medium text-brand shadow-sm' : 'bg-transparent text-ink-muted'}`}
-          onClick={() => onModeChange('duration')}
-          title="按记录耗时绘制（压缩空闲）"
-        >时长</button>
-        {hasWallClock && (
-          <button
-            aria-pressed={mode === 'actual'}
-            className={`flex h-[26px] items-center border-0 px-[9px] text-xs ${mode === 'actual' ? 'bg-paper font-medium text-brand shadow-sm' : 'bg-transparent text-ink-muted'}`}
-            onClick={() => onModeChange('actual')}
-            title="真实耗时按真实时刻摆放（完整甘特图）"
-          >墙钟</button>
+      <div ref={groupRef} className="relative flex border border-line bg-paper-soft p-[2px]">
+        {thumb.ready && (
+          <span
+            aria-hidden
+            className="absolute bottom-[2px] top-[2px] bg-paper shadow-sm transition-[transform,width] duration-[180ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none"
+            style={{ transform: `translateX(${thumb.left}px)`, width: thumb.width }}
+          />
         )}
+        {modes.map((value) => (
+          <button
+            key={value}
+            data-mode={value}
+            aria-pressed={mode === value}
+            className={`relative z-[1] flex h-[26px] items-center border-0 px-[9px] text-xs transition-colors duration-[160ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none ${mode === value ? 'bg-transparent font-medium text-brand' : 'bg-transparent text-ink-muted hover:text-ink'}`}
+            onClick={() => onModeChange(value)}
+            title={value === 'sequence' ? '每个操作等宽排列' : value === 'duration' ? '按记录耗时绘制（压缩空闲）' : '真实耗时按真实时刻摆放（完整甘特图）'}
+          >{value === 'sequence' ? '时序' : value === 'duration' ? '时长' : '墙钟'}</button>
+        ))}
       </div>
       <span className="h-[16px] w-px flex-none bg-line" />
       <button

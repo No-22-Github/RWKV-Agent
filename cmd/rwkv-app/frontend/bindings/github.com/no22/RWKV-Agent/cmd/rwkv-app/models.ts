@@ -93,6 +93,7 @@ export class ConversationSummary {
     "id": string;
     "title": string;
     "updatedAt": string;
+    "pinned": boolean;
 
     /** Creates a new ConversationSummary instance. */
     constructor($$source: Partial<ConversationSummary> = {}) {
@@ -104,6 +105,9 @@ export class ConversationSummary {
         }
         if (!("updatedAt" in $$source)) {
             this["updatedAt"] = "0001-01-01T00:00:00.000Z";
+        }
+        if (!("pinned" in $$source)) {
+            this["pinned"] = false;
         }
 
         Object.assign(this, $$source);

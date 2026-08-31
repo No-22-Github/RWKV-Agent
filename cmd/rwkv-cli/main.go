@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"context"
+	"encoding/json"
 	"errors"
 	"flag"
 	"fmt"
@@ -31,6 +32,7 @@ import (
 	rwkvbackend "github.com/no22/RWKV-Agent/internal/inference/backend/rwkvmobile"
 	"github.com/no22/RWKV-Agent/internal/native/converter"
 	"github.com/no22/RWKV-Agent/internal/terminal"
+	"github.com/no22/RWKV-Agent/internal/tokenizer"
 	agenttui "github.com/no22/RWKV-Agent/internal/tui/agent"
 	concurrenttui "github.com/no22/RWKV-Agent/internal/tui/concurrent"
 )
@@ -84,6 +86,9 @@ type runOptions struct {
 	evalCaseIDs              stringListFlag
 	evalCaseTimeout          time.Duration
 	evalCaseParallelism      int
+	evalFileToolForm         string
+	evalSubagentFixture      string
+	evalWebFixture           string
 	primitiveProfile         string
 	duplicateReplayLimit     int
 	duplicateRescueThreshold int
@@ -95,6 +100,11 @@ type runOptions struct {
 	semanticNoTool           bool
 	semanticNoToolExplicit   bool
 	decisionFakeThink        bool
+	compressFetch            bool
+	noToolGate               string
+	answerStageLead          int
+	fetchBudgetTokens        int
+	subagentRawFeedback      bool
 	closedFakeThink          bool
 	deepToolAnchor           bool
 	deepToolAnchorExplicit   bool
@@ -355,6 +365,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			fs.StringVar(&options.agentProtocol, "agent-protocol", string(agentapi.AgentProtocolXML), "tool transcript: xml (default) or markdown")
 			fs.BoolVar(&options.progressiveTools, "progressive-tools", false, "route to one or two capability bundles before exposing tool schemas")
 			fs.BoolVar(&options.enableWeb, "web", false, "enable Brave web_search and Tavily web_fetch")
+			fs.BoolVar(&options.compressFetch, "compress-fetch", true, "compress long web_fetch results with a query-aware extraction before they enter the transcript (round-2 e2e: 0/25 → 25/25 on long-page tasks; pass =false for the A/B)")
 			fs.StringVar(&options.braveAPIKeyEnv, "brave-api-key-env", "BRAVE_API_KEY", "environment variable containing the Brave Search API key")
 			fs.StringVar(&options.braveEndpoint, "brave-endpoint", "", "optional Brave Search API endpoint")
 			fs.StringVar(&options.tavilyAPIKeyEnv, "tavily-api-key-env", "TAVILY_API_KEY", "environment variable containing the Tavily API key")
@@ -409,6 +420,14 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			fs.Var(&options.evalCaseIDs, "case", "repeatable built-in or file-backed case ID to run")
 			fs.DurationVar(&options.evalCaseTimeout, "case-timeout", 2*time.Minute, "timeout for each isolated eval case")
 			fs.IntVar(&options.evalCaseParallelism, "case-parallelism", 1, "number of eval cases to run concurrently")
+			fs.StringVar(&options.evalFileToolForm, "file-tools", "", "optional file-editing toolset for custom suites: lines (A) or whole (B)")
+			fs.StringVar(&options.evalSubagentFixture, "subagent-fixture", "", "JSON file mapping subtask keywords to canned outputs, enabling a fixture-backed spawn_agents for custom suites")
+			fs.StringVar(&options.evalWebFixture, "web-fixture", "", "JSON file mapping query/URL keywords to canned search results and pages, enabling fixture-backed web_search and web_fetch for custom suites")
+			fs.BoolVar(&options.compressFetch, "compress-fetch", true, "compress long web_fetch results with a query-aware extraction before they enter the transcript (web-tool custom suites; round-2 e2e: 0/25 → 25/25; pass =false for the A/B)")
+			fs.StringVar(&options.noToolGate, "no-tool-gate", "", "harness-level no_tool enforcement for product-profile suites: state (after one successful tool call) or evidence (reason must cite Function output)")
+			fs.IntVar(&options.answerStageLead, "answer-stage-lead", 0, "force the answer stage this many steps before the budget ends and grant one dedicated answer-stage re-ask (0 = off)")
+			fs.IntVar(&options.fetchBudgetTokens, "fetch-budget-tokens", 0, "override the shared web_fetch token budget (0 = 8192 default); E1 re-judgment A/B")
+			fs.BoolVar(&options.subagentRawFeedback, "subagent-raw-feedback", false, "feed spawn_agents results back as raw JSON (pre-E2 behaviour); E2 re-judgment A/B")
 			fs.StringVar(
 				&options.primitiveProfile,
 				"primitive-profile",
@@ -597,9 +616,18 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 				return options, errors.New("--suite and --cases cannot be used together")
 			}
 			if options.evalSuite != agenteval.SuiteBFCLProduct &&
+				options.evalCasesPath == "" &&
 				(options.semanticNoToolExplicit || options.decisionFakeThink ||
-					options.deepToolAnchorExplicit || options.progressiveToolsExplicit) {
-				return options, errors.New("--semantic-no-tool, --deep-tool-anchor, --decision-fake-think, and --progressive-tools are product-profile options and require --suite bfcl-product")
+					options.deepToolAnchorExplicit || options.progressiveToolsExplicit ||
+					options.noToolGate != "" || options.answerStageLead != 0 ||
+					options.subagentRawFeedback) {
+				return options, errors.New("--semantic-no-tool, --deep-tool-anchor, --decision-fake-think, --progressive-tools, --no-tool-gate, and --answer-stage-lead are product-profile options and require --suite bfcl-product or a custom --cases file")
+			}
+			if options.noToolGate != "" && options.noToolGate != "state" && options.noToolGate != "evidence" {
+				return options, errors.New("invalid --no-tool-gate: use state or evidence")
+			}
+			if options.answerStageLead < 0 || options.answerStageLead > 3 {
+				return options, errors.New("--answer-stage-lead must be between 0 and 3")
 			}
 			if options.evalSuite == agenteval.SuiteBFCLProduct && options.routeStage {
 				return options, errors.New("--route-stage is the XML compatibility router; bfcl-product uses --progressive-tools")
@@ -951,6 +979,98 @@ type noopCloser struct{}
 
 func (noopCloser) Close() error { return nil }
 
+// subagentFixtureEntries loads the keyword->output mapping for the fixture
+// spawn_agents tool; an empty path disables the tool.
+func subagentFixtureEntries(path string) []agenteval.SubagentFixtureEntry {
+	if path == "" {
+		return nil
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "subagent-fixture: %v\n", err)
+		os.Exit(1)
+	}
+	var entries []agenteval.SubagentFixtureEntry
+	if err := json.Unmarshal(data, &entries); err != nil {
+		fmt.Fprintf(os.Stderr, "subagent-fixture: %v\n", err)
+		os.Exit(1)
+	}
+	return entries
+}
+
+// webFixtureEntries loads the keyword->page mapping for the fixture web tools;
+// an empty path disables the tools.
+func webFixtureEntries(path string) []agenteval.WebFixtureEntry {
+	if path == "" {
+		return nil
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "web-fixture: %v\n", err)
+		os.Exit(1)
+	}
+	var entries []agenteval.WebFixtureEntry
+	if err := json.Unmarshal(data, &entries); err != nil {
+		fmt.Fprintf(os.Stderr, "web-fixture: %v\n", err)
+		os.Exit(1)
+	}
+	return entries
+}
+
+// evalToolBundles returns the default bundles, with the workspace description
+// extended to cover file editing when the file-edit toolset is enabled. The
+// progressive router routes on these descriptions: with the read-only wording
+// it judged edit tasks as needing no tool evidence (E6 finding).
+func evalToolBundles(options runOptions) []agent.ToolBundle {
+	bundles := agent.DefaultToolBundles()
+	for index := range bundles {
+		if bundles[index].Name == agent.ToolBundleWorkspace && options.evalFileToolForm != "" {
+			bundles[index].Description = "Read, create, and edit files inside the configured workspace."
+			bundles[index].Editable = true
+		}
+		if bundles[index].Name == agent.ToolBundleDelegate && options.evalSubagentFixture != "" {
+			bundles[index].Delegation = true
+		}
+	}
+	return bundles
+}
+
+// resolveTokenCounter loads the RWKV World vocabulary for in-process real
+// token counting (round-3 step 1). It prefers an explicit --tokenizer, then
+// the model-adjacent vocabulary, then the bundled repo copy; when nothing can
+// be loaded it returns (nil, "", nil) and the documented fallback applies:
+// the fetch-compression hook stays off (never armed on the estimator) and web
+// budget slicing falls back to the estimator. An explicitly requested
+// vocabulary that fails to load is a hard error — silently dropping the real
+// counter would silently change experiment semantics.
+func resolveTokenCounter(options runOptions, command string) (func(string) int, string, error) {
+	vocabPath := options.tokenizer
+	explicit := vocabPath != ""
+	if !explicit {
+		if bundled, err := bundledTokenizerPath(); err == nil {
+			vocabPath = bundled
+		} else if strings.EqualFold(filepath.Ext(options.modelPath), ".pth") {
+			// Local-model runs without an explicit vocabulary previously
+			// required one (bundledTokenizerPath failed → parseRunOptions
+			// already surfaced the error), so this branch only records intent.
+			vocabPath = ""
+		}
+	}
+	if vocabPath == "" {
+		fmt.Fprintf(os.Stderr, "%s: no World vocabulary found; fetch compression stays off and the web budget falls back to the estimator (round-3 step 1 fallback behavior)\n", command)
+		return nil, "", nil
+	}
+	world, err := tokenizer.OpenWorldCached(vocabPath)
+	if err != nil {
+		if explicit {
+			return nil, "", err
+		}
+		fmt.Fprintf(os.Stderr, "%s: vocabulary %s unusable (%v); fetch compression stays off and the web budget falls back to the estimator\n", command, vocabPath, err)
+		return nil, "", nil
+	}
+	return world.Count, world.SHA256(), nil
+}
+
 func agentRunnerOptions(options runOptions, suite string, observe func(agent.Event)) agent.Options {
 	if suite == agenteval.SuiteBFCLProduct {
 		// The suite accepts either product-facing transcript so the two can be
@@ -982,6 +1102,7 @@ func agentRunnerOptions(options runOptions, suite string, observe func(agent.Eve
 				SemanticNoTool:   options.semanticNoTool,
 				ThinkingMode:     inference.ThinkingMode(options.thinkingMode),
 				FewShot:          options.fewShot,
+				CompressFetch:    options.compressFetch,
 				Observe:          observe,
 			})
 		}
@@ -1005,13 +1126,57 @@ func agentRunnerOptions(options runOptions, suite string, observe func(agent.Eve
 					PenaltyDecay:     float32(options.penaltyDecay),
 				},
 			},
-			ProgressiveTools:  options.progressiveTools,
-			ToolBundles:       agent.DefaultToolBundles(),
-			SemanticNoTool:    options.semanticNoTool,
-			DecisionFakeThink: options.decisionFakeThink,
-			ClosedFakeThink:   options.closedFakeThink,
-			DeepToolAnchor:    options.deepToolAnchor,
-			Observe:           observe,
+			ProgressiveTools:    options.progressiveTools,
+			ToolBundles:         evalToolBundles(options),
+			SemanticNoTool:      options.semanticNoTool,
+			DecisionFakeThink:   options.decisionFakeThink,
+			ClosedFakeThink:     options.closedFakeThink,
+			DeepToolAnchor:      options.deepToolAnchor,
+			CompressFetch:       options.compressFetch,
+			NoToolGate:          options.noToolGate,
+			AnswerStageLead:     options.answerStageLead,
+			SubagentRawFeedback: options.subagentRawFeedback,
+			Observe:             observe,
+		})
+	}
+	if options.evalCasesPath != "" && options.agentProtocol == string(agentapi.AgentProtocolMarkdown) {
+		// Custom suites honor --agent-protocol markdown by running the same
+		// product-facing profile as bfcl-product; before this branch the flag
+		// was silently ignored here (found during the E6 file-tool A/B).
+		// Built-in suites keep their established mapping: boundary and the
+		// primitive suites run the XML envelope regardless of the flag, so
+		// their baselines stay comparable.
+		return agent.ProductHarnessOptions(agent.ProductHarnessConfig{
+			MaxSteps:                 options.maxSteps,
+			DecisionMaxOutputTokens:  options.decisionMaxTokens,
+			RouteMaxOutputTokens:     options.routeMaxTokens,
+			TracePromptBytes:         options.tracePromptBytes,
+			DuplicateReplayLimit:     options.duplicateReplayLimit,
+			DuplicateRescueThreshold: options.duplicateRescueThreshold,
+			SameToolRescueLimit:      options.sameToolRescueLimit,
+			Generation: continuation.Request{
+				Model:           options.modelPath,
+				MaxOutputTokens: options.maxTokens,
+				Sampling: continuation.Sampling{
+					Temperature:      float32(options.temperature),
+					TopK:             options.topK,
+					TopP:             float32(options.topP),
+					PresencePenalty:  float32(options.presencePenalty),
+					FrequencyPenalty: float32(options.frequencyPenalty),
+					PenaltyDecay:     float32(options.penaltyDecay),
+				},
+			},
+			ProgressiveTools:    options.progressiveTools,
+			ToolBundles:         evalToolBundles(options),
+			SemanticNoTool:      options.semanticNoTool,
+			DecisionFakeThink:   options.decisionFakeThink,
+			ClosedFakeThink:     options.closedFakeThink,
+			DeepToolAnchor:      options.deepToolAnchor,
+			CompressFetch:       options.compressFetch,
+			NoToolGate:          options.noToolGate,
+			AnswerStageLead:     options.answerStageLead,
+			SubagentRawFeedback: options.subagentRawFeedback,
+			Observe:             observe,
 		})
 	}
 	agentOptions := agent.XMLHarnessOptions(agent.XMLHarnessConfig{
@@ -1196,6 +1361,7 @@ func agentAPIConfig(options runOptions) (agentapi.Config, error) {
 		AgentProtocol:          agentapi.AgentProtocol(options.agentProtocol),
 		SemanticNoTool:         &semanticNoTool,
 		DecisionFakeThink:      options.decisionFakeThink,
+		CompressFetch:          options.compressFetch,
 		DeepToolAnchor:         &deepToolAnchor,
 		MaxSteps:               options.maxSteps,
 		MaxTokens:              options.maxTokens,
@@ -1267,6 +1433,10 @@ func runAgentEval(args []string) error {
 			"agent-eval-"+time.Now().UTC().Format("20060102-150405.000000000"),
 		)
 	}
+	tokenCount, vocabSHA, err := resolveTokenCounter(options, "agent-eval")
+	if err != nil {
+		return err
+	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 	source, err := newAgentGeneratorSource(ctx, options)
@@ -1297,13 +1467,19 @@ func runAgentEval(args []string) error {
 		model.Backend = string(info.Backend)
 	}
 	report, runErr := agenteval.Run(ctx, agenteval.Config{
-		Cases:            cases,
-		Suite:            suite,
-		Model:            model,
-		Runner:           agentRunnerOptions(options, suite, nil),
-		CaseTimeout:      options.evalCaseTimeout,
-		CaseParallelism:  options.evalCaseParallelism,
-		PrimitiveProfile: options.primitiveProfile,
+		Cases:                 cases,
+		Suite:                 suite,
+		Model:                 model,
+		Runner:                agentRunnerOptions(options, suite, nil),
+		TokenCount:            tokenCount,
+		TokenCountVocabSHA256: vocabSHA,
+		CaseTimeout:           options.evalCaseTimeout,
+		CaseParallelism:       options.evalCaseParallelism,
+		PrimitiveProfile:      options.primitiveProfile,
+		FileToolForm:          options.evalFileToolForm,
+		SubagentFixture:       subagentFixtureEntries(options.evalSubagentFixture),
+		WebFixture:            webFixtureEntries(options.evalWebFixture),
+		FetchBudgetTokens:     options.fetchBudgetTokens,
 		GeneratorFactory: func(
 			caseContext context.Context,
 		) (continuation.Generator, io.Closer, error) {

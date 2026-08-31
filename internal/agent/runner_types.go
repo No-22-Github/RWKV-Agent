@@ -103,6 +103,39 @@ type Options struct {
 	// Zero disables prompt recording entirely; a negative value records the
 	// full prompt with no cap.
 	TracePromptBytes int
+	// CompressFetch enables query-aware compression of long web_fetch results
+	// before they enter the transcript (PREFERENCES.md P5-1..P5-3). The raw
+	// tool result stays in the step trace; only the feedback copy shrinks.
+	CompressFetch bool
+	// TokenCount counts tokens with the real RWKV World vocabulary in-process
+	// (round-3 step 1; agent.EstimateTokens is no longer allowed to decide
+	// thresholds — its bias is +16-40% on English prose/code but −2-4% on
+	// lists and Chinese, measured in test/round3/token-census). It gates the
+	// fetch-compression threshold. Nil means no local vocabulary is available:
+	// the compression hook then stays OFF entirely (arming compression on the
+	// estimator would drag pages that should stay whole into an extract call
+	// whose failure mode is page pollution), while the web tools fall back to
+	// the estimator for budget slicing only, where an early cut is the safe
+	// direction.
+	TokenCount func(string) int
+	// NoToolGate applies harness-level enforcement to the semantic no_tool
+	// exit (round-2, step 4; round-1 measured the two-sided failure: without
+	// an exit the model loops to step exhaustion, with one it claims
+	// completion without evidence — E6-2/E6-3). "" keeps the model-only
+	// decision. "state" accepts no_tool only after at least one successful
+	// tool call in the turn (the catalog hides no_tool until then and late
+	// emissions are rejected). "evidence" additionally requires the reason
+	// to cite content that appears in an actual Function output of this turn
+	// (10-char normalized shingle match); otherwise the exit is rejected and
+	// the model must retry.
+	NoToolGate string
+	// AnswerStageLead forces the answer stage this many steps before the step
+	// budget is exhausted (0 = only at MaxSteps, as before) and gives
+	// answer-stage tool violations one dedicated re-ask that does not consume
+	// the protocol retry budget. With lead=1 and MaxSteps=6 the model gets a
+	// real answer-stage attempt at step 5 and a strict re-ask at step 6,
+	// instead of one attempt at step 6 that dies on its first violation.
+	AnswerStageLead int
 }
 
 // DefaultTracePromptBytes keeps a full boundary-sized prompt while bounding a
@@ -173,32 +206,35 @@ type PromptTrace struct {
 }
 
 type Step struct {
-	Number           int                       `json:"number"`
-	Stage            GenerationStage           `json:"stage"`
-	Request          *PromptTrace              `json:"request,omitempty"`
-	ModelOutput      string                    `json:"model_output"`
-	FinishReason     continuation.FinishReason `json:"finish_reason"`
-	Usage            continuation.Usage        `json:"usage"`
-	StartedAtMS      int64                     `json:"model_started_at_ms,omitempty"`
-	ModelDurationMS  int64                     `json:"model_duration_ms,omitempty"`
-	ModelError       string                    `json:"model_error,omitempty"`
-	ActionType       string                    `json:"action_type,omitempty"`
-	Tool             string                    `json:"tool,omitempty"`
-	ToolArguments    json.RawMessage           `json:"tool_arguments,omitempty"`
-	ToolResult       json.RawMessage           `json:"tool_result,omitempty"`
-	ToolExecuted     bool                      `json:"tool_executed,omitempty"`
-	ToolEvidence     bool                      `json:"tool_evidence,omitempty"`
-	ToolUnavailable  bool                      `json:"tool_unavailable,omitempty"`
-	ToolRejected     string                    `json:"tool_rejected_reason,omitempty"`
-	ToolError        string                    `json:"tool_error,omitempty"`
-	ProtocolError    string                    `json:"protocol_error,omitempty"`
-	ProtocolFailure  ProtocolFailureClass      `json:"protocol_failure,omitempty"`
-	ProtocolRepaired bool                      `json:"protocol_repaired,omitempty"`
-	StageViolation   bool                      `json:"stage_violation,omitempty"`
-	ToolRetries      []ToolRetryTrace          `json:"tool_retries,omitempty"`
-	Subagents        []SubagentTrace           `json:"subagents,omitempty"`
-	ToolDurationMS   int64                     `json:"tool_duration_ms,omitempty"`
-	ToolStartedAtMS  int64                     `json:"tool_started_at_ms,omitempty"`
+	Number          int                       `json:"number"`
+	Stage           GenerationStage           `json:"stage"`
+	Request         *PromptTrace              `json:"request,omitempty"`
+	ModelOutput     string                    `json:"model_output"`
+	FinishReason    continuation.FinishReason `json:"finish_reason"`
+	Usage           continuation.Usage        `json:"usage"`
+	StartedAtMS     int64                     `json:"model_started_at_ms,omitempty"`
+	ModelDurationMS int64                     `json:"model_duration_ms,omitempty"`
+	ModelError      string                    `json:"model_error,omitempty"`
+	ActionType      string                    `json:"action_type,omitempty"`
+	Tool            string                    `json:"tool,omitempty"`
+	ToolArguments   json.RawMessage           `json:"tool_arguments,omitempty"`
+	ToolResult      json.RawMessage           `json:"tool_result,omitempty"`
+	// ToolResultFeedback holds the transcript copy of the tool result when
+	// query-aware compression replaced it (PREFERENCES.md P5-1..P5-3).
+	ToolResultFeedback json.RawMessage      `json:"tool_result_feedback,omitempty"`
+	ToolExecuted       bool                 `json:"tool_executed,omitempty"`
+	ToolEvidence       bool                 `json:"tool_evidence,omitempty"`
+	ToolUnavailable    bool                 `json:"tool_unavailable,omitempty"`
+	ToolRejected       string               `json:"tool_rejected_reason,omitempty"`
+	ToolError          string               `json:"tool_error,omitempty"`
+	ProtocolError      string               `json:"protocol_error,omitempty"`
+	ProtocolFailure    ProtocolFailureClass `json:"protocol_failure,omitempty"`
+	ProtocolRepaired   bool                 `json:"protocol_repaired,omitempty"`
+	StageViolation     bool                 `json:"stage_violation,omitempty"`
+	ToolRetries        []ToolRetryTrace     `json:"tool_retries,omitempty"`
+	Subagents          []SubagentTrace      `json:"subagents,omitempty"`
+	ToolDurationMS     int64                `json:"tool_duration_ms,omitempty"`
+	ToolStartedAtMS    int64                `json:"tool_started_at_ms,omitempty"`
 	// NoToolRationale and NoToolAnswer retain model-authored abstention text for
 	// presentation and audit. They are never tool evidence.
 	NoToolRationale string `json:"no_tool_rationale,omitempty"`

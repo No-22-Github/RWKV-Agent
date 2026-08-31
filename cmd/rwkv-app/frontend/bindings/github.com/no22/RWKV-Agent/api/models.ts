@@ -132,6 +132,12 @@ export class Config {
     "tavilyApiKey"?: string;
     "tavilyEndpoint"?: string;
     "enableSubagents"?: boolean;
+
+    /**
+     * CompressFetch enables query-aware compression of long web_fetch results
+     * before they enter the agent transcript (PREFERENCES.md P5-1..P5-3).
+     */
+    "compressFetch"?: boolean;
     "maxActiveBatch"?: number;
     "remoteBatchWaitMs"?: number;
     "subagentMaxParallel"?: number;

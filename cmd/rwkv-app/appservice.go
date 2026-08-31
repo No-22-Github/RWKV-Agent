@@ -34,6 +34,7 @@ type ConversationSummary struct {
 	ID        string    `json:"id"`
 	Title     string    `json:"title"`
 	UpdatedAt time.Time `json:"updatedAt"`
+	Pinned    bool      `json:"pinned"`
 }
 
 type ConversationView struct {
@@ -371,6 +372,23 @@ func (s *AppService) OpenConversation(id string) (ConversationView, error) {
 	return conversationView(value), nil
 }
 
+// RenameConversation updates a conversation's display title.
+func (s *AppService) RenameConversation(id string, title string) error {
+	s.operation.Lock()
+	defer s.operation.Unlock()
+	if err := s.storage.RenameConversation(id, strings.TrimSpace(title)); err != nil {
+		return err
+	}
+	return nil
+}
+
+// SetConversationPinned pins or unpins a conversation in the sidebar.
+func (s *AppService) SetConversationPinned(id string, pinned bool) error {
+	s.operation.Lock()
+	defer s.operation.Unlock()
+	return s.storage.SetConversationPinned(id, pinned)
+}
+
 // DeleteConversation removes one saved conversation.
 func (s *AppService) DeleteConversation(id string) error {
 	s.operation.Lock()
@@ -637,7 +655,7 @@ func (s *AppService) emit(name string, data ...any) {
 func conversationSummaries(values []appstorage.Summary) []ConversationSummary {
 	result := make([]ConversationSummary, 0, len(values))
 	for _, value := range values {
-		result = append(result, ConversationSummary{ID: value.ID, Title: value.Title, UpdatedAt: value.UpdatedAt})
+		result = append(result, ConversationSummary{ID: value.ID, Title: value.Title, UpdatedAt: value.UpdatedAt, Pinned: value.Pinned})
 	}
 	return result
 }

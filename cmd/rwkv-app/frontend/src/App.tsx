@@ -1,7 +1,7 @@
 import { KeyboardEvent, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import {
   ChevronDown, Folder, FolderOpen, LoaderCircle,
-  Menu, MoreHorizontal, Settings, SquarePen,
+  Menu, MoreHorizontal, PenLine, Pin, Settings, SquarePen,
   Trash2, X,
 } from 'lucide-react'
 import { Events } from '@wailsio/runtime'
@@ -11,6 +11,7 @@ import type {
   AppBootstrap, ConversationSummary, ConversationView, WorkspaceItem,
 } from '../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/models'
 import MarkdownMessage from './MarkdownMessage'
+import ConfirmDialog from './components/ConfirmDialog'
 import type { ToolTrace } from './trajectory-types'
 import RunConfigDropdown from './components/RunConfigDropdown'
 import SettingsPage from './components/SettingsPage'
@@ -170,6 +171,12 @@ export default function App() {
   async function deleteConversation(id: string) { if (busy) return; setBusy(true); try { await Backend.DeleteConversation(id); if (id === activeConversationID) applyConversation(); const persisted = await Backend.Bootstrap(); setConversations(persisted.conversations || []) } catch (error) { manager.setSettingsMessage(errorText(error)) } finally { setBusy(false) } }
   async function chooseWorkspace() { if (busy) return; setBusy(true); try { applyBootstrap(await Backend.ChooseWorkspace()) } catch (error) { if (!errorText(error).toLowerCase().includes('cancel')) manager.setSettingsMessage(errorText(error)) } finally { setBusy(false) } }
   async function openWorkspace(path: string) { if (busy) return; setBusy(true); try { applyBootstrap(await Backend.OpenWorkspace(path)) } catch (error) { manager.setSettingsMessage(errorText(error)) } finally { setBusy(false) } }
+  async function renameConversation(id: string, title: string) {
+    try { await Backend.RenameConversation(id, title); const persisted = await Backend.Bootstrap(); setConversations(persisted.conversations || []) } catch (error) { manager.setSettingsMessage(errorText(error)) }
+  }
+  async function togglePinConversation(id: string, pinned: boolean) {
+    try { await Backend.SetConversationPinned(id, pinned); const persisted = await Backend.Bootstrap(); setConversations(persisted.conversations || []) } catch (error) { manager.setSettingsMessage(errorText(error)) }
+  }
 
   const traceMessages = messages.filter((message) => message.role !== 'user' && (message.trace || message.trajectory?.length))
   const selectedMessage = traceMessages.find((message) => message.id === selectedTraceID) || traceMessages.at(-1)
@@ -177,17 +184,17 @@ export default function App() {
 
   return <div className="flex h-full w-full bg-paper">
     {settingsOpen ? <SettingsPage manager={manager} status={status} ready={ready} onChooseWorkspace={chooseWorkspace} theme={theme} onToggleTheme={handleToggleTheme} onActivateProvider={(id) => void activateProviderNow(id)} onDeleteProvider={(id) => void deleteProviderNow(id)} /> : <>
-      <Sidebar conversations={conversations} workspaces={workspaces} activeId={activeConversationID} busy={busy} open={sidebarOpen} onCloseSidebar={() => setSidebarOpen(false)} onNewChat={() => void newConversation()} onChooseWorkspace={() => void chooseWorkspace()} onOpenSettings={manager.openSettings} onOpen={openConversation} onDelete={deleteConversation} onOpenWorkspace={openWorkspace} />
+      <Sidebar conversations={conversations} workspaces={workspaces} activeId={activeConversationID} busy={busy} open={sidebarOpen} onCloseSidebar={() => setSidebarOpen(false)} onNewChat={() => void newConversation()} onChooseWorkspace={() => void chooseWorkspace()} onOpenSettings={manager.openSettings} onOpen={openConversation} onDelete={deleteConversation} onRename={renameConversation} onTogglePin={togglePinConversation} onOpenWorkspace={openWorkspace} />
       <main className="flex min-w-0 flex-1 flex-col bg-paper">
         <header className="app-header relative flex h-(--header-h) flex-none items-end gap-[18px] border-b border-line px-[30px]">
-          <button className="sidebar-toggle mr-[-6px] grid h-8 w-8 flex-none place-items-center border-0 bg-transparent text-ink-soft lg:hidden" aria-label="打开导航" onClick={() => setSidebarOpen(true)}><Menu size={18} /></button>
+          <button className="sidebar-toggle relative mr-[-6px] grid h-8 w-8 flex-none place-items-center border-0 bg-transparent text-ink-soft before:absolute before:inset-[-6px] before:content-[''] lg:hidden" aria-label="打开导航" onClick={() => setSidebarOpen(true)}><Menu size={18} /></button>
           <div className="flex h-9 flex-none items-end gap-[22px]" role="tablist">
-            <button role="tab" aria-selected={activeTab === 'chat'} className={`border-0 border-b-2 bg-transparent pb-[9px] font-serif text-md transition-[border-color,color] duration-[180ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none ${activeTab === 'chat' ? 'border-brand font-semibold text-ink' : 'border-transparent text-ink-muted'}`} onClick={() => setActiveTab('chat')}>对话</button>
-            <button role="tab" aria-selected={activeTab === 'trace'} className={`min-w-[58px] border-0 border-b-2 bg-transparent pb-[9px] text-center font-serif text-md transition-[border-color,color] duration-[180ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none ${activeTab === 'trace' ? 'border-brand font-semibold text-ink' : 'border-transparent text-ink-muted'}`} onClick={() => setActiveTab('trace')} disabled={!traceMessages.length}>轨迹 <span className="ml-1 font-mono text-2xs text-ink-muted">{traceMessages.length || ''}</span></button>
+            <button role="tab" aria-selected={activeTab === 'chat'} className={`relative border-0 border-b-2 bg-transparent pb-[9px] font-serif text-md transition-[border-color,color] duration-[180ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none before:absolute before:inset-x-0 before:bottom-0 before:top-[-15px] before:content-[''] ${activeTab === 'chat' ? 'border-brand font-semibold text-ink' : 'border-transparent text-ink-muted'}`} onClick={() => setActiveTab('chat')}>对话</button>
+            <button role="tab" aria-selected={activeTab === 'trace'} className={`relative min-w-[58px] border-0 border-b-2 bg-transparent pb-[9px] text-center font-serif text-md transition-[border-color,color] duration-[180ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none before:absolute before:inset-x-0 before:bottom-0 before:top-[-15px] before:content-[''] ${activeTab === 'trace' ? 'border-brand font-semibold text-ink' : 'border-transparent text-ink-muted'}`} onClick={() => setActiveTab('trace')} disabled={!traceMessages.length}>轨迹 <span className="ml-1 font-mono text-2xs text-ink-muted">{traceMessages.length || ''}</span></button>
           </div>
           <div className="ml-auto flex items-center gap-[14px] pb-[11px]">
             <span className="hidden text-xs text-ink-ghost sm:inline">{turns.length} 轮 · 已保存</span>
-            <button className="flex h-[28px] items-center gap-[9px] border border-line bg-paper-wash px-[10px] text-xs text-ink-soft" onClick={() => setRunConfigOpen((value) => !value)} title={status.model || '运行配置'}>
+            <button className="relative flex h-[28px] items-center gap-[9px] border border-line bg-paper-wash px-[10px] text-xs text-ink-soft before:absolute before:inset-x-0 before:inset-y-[-8px] before:content-['']" aria-haspopup="dialog" aria-expanded={runConfigOpen} onClick={() => setRunConfigOpen((value) => !value)} title={status.model || '运行配置'}>
               <span className={`h-[5px] w-[5px] flex-none rounded-full ${ready ? 'bg-brand-bright' : 'bg-ink-muted'}`} />
               <span className="max-w-[180px] truncate text-ink">{status.model || '选择模型'}</span>
               {ready && <><span className="h-[12px] w-px flex-none bg-line" /><span className="text-ink-muted">{capabilities}</span></>}
@@ -202,11 +209,51 @@ export default function App() {
   </div>
 }
 
-function Sidebar({ conversations, workspaces, activeId, busy, open, onCloseSidebar, onNewChat, onChooseWorkspace, onOpenSettings, onOpen, onDelete, onOpenWorkspace }: { conversations: ConversationSummary[]; workspaces: WorkspaceItem[]; activeId: string; busy: boolean; open: boolean; onCloseSidebar: () => void; onNewChat: () => void; onChooseWorkspace: () => void; onOpenSettings: () => void; onOpen: (id: string) => void; onDelete: (id: string) => void; onOpenWorkspace: (path: string) => void }) {
-  const [menu, setMenu] = useState<string | null>(null)
+function Sidebar({ conversations, workspaces, activeId, busy, open, onCloseSidebar, onNewChat, onChooseWorkspace, onOpenSettings, onOpen, onDelete, onRename, onTogglePin, onOpenWorkspace }: { conversations: ConversationSummary[]; workspaces: WorkspaceItem[]; activeId: string; busy: boolean; open: boolean; onCloseSidebar: () => void; onNewChat: () => void; onChooseWorkspace: () => void; onOpenSettings: () => void; onOpen: (id: string) => void; onDelete: (id: string) => void; onRename: (id: string, title: string) => Promise<void>; onTogglePin: (id: string, pinned: boolean) => Promise<void>; onOpenWorkspace: (path: string) => void }) {
+  const [menu, setMenu] = useState<{ id: string; up: boolean } | null>(null)
+  const [renaming, setRenaming] = useState<string | null>(null)
+  const [renameValue, setRenameValue] = useState('')
+  const [deleteTarget, setDeleteTarget] = useState<ConversationSummary | null>(null)
+  const sidebarRef = useRef<HTMLElement>(null)
+
+  // 点击侧栏空白处或按 Esc 时收起会话菜单/重命名（HIG：菜单可经外部交互关闭）。
+  useEffect(() => {
+    if (!menu && !renaming) return
+    function onPointerDown(event: PointerEvent) {
+      if (event.target instanceof Element && event.target.closest('[data-conversation-menu],input[aria-label="重命名会话"]')) return
+      setMenu(null); setRenaming(null)
+    }
+    function onKeyDown(event: globalThis.KeyboardEvent) {
+      if (event.key === 'Escape') { setMenu(null); setRenaming(null) }
+    }
+    document.addEventListener('pointerdown', onPointerDown)
+    document.addEventListener('keydown', onKeyDown)
+    return () => { document.removeEventListener('pointerdown', onPointerDown); document.removeEventListener('keydown', onKeyDown) }
+  }, [menu, renaming])
+
+  // 列表视口下方放不下菜单（约 128px 高）时向上弹出，避免末行菜单被裁剪。
+  function toggleMenu(id: string, event: React.MouseEvent<HTMLButtonElement>) {
+    if (menu?.id === id) { setMenu(null); return }
+    let up = false
+    const list = event.currentTarget.closest('section')
+    if (list) {
+      const listRect = list.getBoundingClientRect()
+      const buttonRect = event.currentTarget.getBoundingClientRect()
+      up = listRect.bottom - buttonRect.bottom < 132
+    }
+    setMenu({ id, up })
+  }
+  function startRename(conversation: ConversationSummary) {
+    setMenu(null); setRenaming(conversation.id); setRenameValue(conversation.title || '')
+  }
+  function commitRename(id: string) {
+    const title = renameValue.trim()
+    setRenaming(null)
+    if (title) void onRename(id, title)
+  }
   return <>
     {open && <div className="sidebar-scrim fixed inset-0 z-[40] bg-[rgba(43,39,33,.34)] lg:hidden" onClick={onCloseSidebar} />}
-    <aside className={`app-sidebar fixed inset-y-0 left-0 z-[50] flex h-full w-(--sidebar-w) flex-none flex-col border-r border-line bg-paper-sidebar py-[18px] text-ink transition-transform duration-200 motion-reduce:transition-none lg:static lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+    <aside ref={sidebarRef} className={`app-sidebar fixed inset-y-0 left-0 z-[50] flex h-full w-(--sidebar-w) flex-none flex-col border-r border-line bg-paper-sidebar py-[18px] text-ink transition-transform duration-200 motion-reduce:transition-none lg:static lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
       <div className="flex items-center gap-[9px] px-[18px] pb-[18px] font-serif text-lg font-semibold tracking-[.02em]"><span className="h-[9px] w-[9px] flex-none rounded-[1px] bg-brand-bright" /><span>RWKV</span><span className="ml-auto font-mono text-2xs font-medium leading-none text-ink-muted">⌘K</span></div>
       <button className="mx-[18px] mb-[14px] flex h-8 items-center justify-center gap-2 border-[1.5px] border-ink bg-transparent px-[10px] text-sm font-medium text-ink" onClick={onNewChat} disabled={busy}><SquarePen size={16} />新的对话 <kbd className="ml-[2px] font-mono text-2xs text-ink-muted">⌘N</kbd></button>
       <button className="mx-[18px] mb-3 flex items-center gap-2 border-0 bg-transparent p-[2px_0] text-sm text-ink-soft" onClick={onChooseWorkspace} disabled={busy}><FolderOpen size={16} /><span>打开工作区</span><MoreHorizontal size={15} className="ml-auto" /></button>
@@ -216,12 +263,19 @@ function Sidebar({ conversations, workspaces, activeId, busy, open, onCloseSideb
       <section className="min-h-0 flex-1 overflow-y-auto"><div className="px-[18px] pb-[7px] text-2xs font-medium uppercase tracking-[.14em] text-ink-muted">近期</div>
         {conversations.length === 0 ? <div className="px-[18px] py-2 text-sm text-ink-muted">暂无历史对话</div> : conversations.map((conversation) => (
           <div key={conversation.id} className={`conversation-row relative mx-[10px] flex items-center rounded-[3px] border-0 bg-transparent ${conversation.id === activeId ? 'active bg-surface-active text-ink' : 'text-ink-soft'}`}>
-            <button className="flex min-w-0 flex-1 flex-col gap-[1px] border-0 bg-transparent p-[7px_8px] text-left text-inherit" onClick={() => onOpen(conversation.id)} title={conversation.title || '未命名会话'}><span className="truncate text-sm">{conversation.title || '未命名会话'}</span><span className="text-2xs text-ink-muted">{relativeTime(conversation.updatedAt)}</span></button>
-            <button className="conversation-menu grid h-[26px] w-[26px] place-items-center border-0 bg-transparent text-ink-muted" aria-label="更多操作" onClick={() => setMenu(menu === conversation.id ? null : conversation.id)}><MoreHorizontal size={15} /></button>
-            {menu === conversation.id && <button className="absolute right-2 top-[30px] z-[5] flex items-center gap-[7px] rounded-[3px] border border-line-strong bg-paper-wash p-2 px-[10px] text-sm text-danger shadow-[0_8px_20px_rgba(45,33,20,.12)]" onClick={() => { setMenu(null); onDelete(conversation.id) }}><Trash2 size={14} />删除会话</button>}
+            {renaming === conversation.id ? <div className="flex min-w-0 flex-1 p-[5px_8px]"><input autoFocus aria-label="重命名会话" className="min-w-0 flex-1 border border-line-strong bg-paper px-[7px] py-[4px] text-sm text-ink outline-none focus:border-brand" value={renameValue} onChange={(event) => setRenameValue(event.target.value)} onBlur={() => commitRename(conversation.id)} onKeyDown={(event) => { if (event.key === 'Enter') commitRename(conversation.id); if (event.key === 'Escape') setRenaming(null) }} /></div> : <button className="flex min-w-0 flex-1 flex-col gap-[1px] border-0 bg-transparent p-[7px_8px] text-left text-inherit" onClick={() => onOpen(conversation.id)} title={conversation.title || '未命名会话'}><span className="flex min-w-0 items-center gap-[5px] truncate text-sm">{conversation.pinned && <Pin size={11} className="flex-none text-brand" aria-label="已置顶" />}{conversation.title || '未命名会话'}</span><span className="text-2xs text-ink-muted">{relativeTime(conversation.updatedAt)}</span></button>}
+            <button className="conversation-menu grid h-[26px] w-[26px] place-items-center border-0 bg-transparent text-ink-muted" aria-label={`会话“${conversation.title || '未命名会话'}”的更多操作`} aria-haspopup="menu" aria-expanded={menu?.id === conversation.id} onClick={(event) => toggleMenu(conversation.id, event)}><MoreHorizontal size={15} /></button>
+            {menu?.id === conversation.id && (
+              <div data-conversation-menu className={`absolute right-2 z-[5] flex min-w-[128px] flex-col rounded-[3px] border border-line-strong bg-paper-wash py-[3px] shadow-[0_8px_20px_rgba(45,33,20,.12)] ${menu.up ? 'bottom-[30px]' : 'top-[30px]'}`} role="menu" aria-label="会话操作">
+                <button role="menuitem" className="flex items-center gap-[7px] border-0 bg-transparent px-[10px] py-[7px] text-left text-sm text-ink hover:bg-surface-active" onClick={() => { setMenu(null); void onTogglePin(conversation.id, !conversation.pinned) }}><Pin size={14} />{conversation.pinned ? '取消置顶' : '置顶'}</button>
+                <button role="menuitem" className="flex items-center gap-[7px] border-0 bg-transparent px-[10px] py-[7px] text-left text-sm text-ink hover:bg-surface-active" onClick={() => startRename(conversation)}><PenLine size={14} />重命名</button>
+                <button role="menuitem" className="flex items-center gap-[7px] border-0 bg-transparent px-[10px] py-[7px] text-left text-sm text-danger hover:bg-surface-active" onClick={() => { setMenu(null); setDeleteTarget(conversation) }}><Trash2 size={14} />删除会话</button>
+              </div>
+            )}
           </div>
         ))}
       </section>
+      <ConfirmDialog open={deleteTarget !== null} title="删除会话" body={deleteTarget ? `将删除“${deleteTarget.title || '未命名会话'}”及其全部消息，此操作无法撤销。` : ''} onClose={() => setDeleteTarget(null)} actions={[{ label: '取消', onClick: () => setDeleteTarget(null) }, { label: '删除', variant: 'danger', onClick: () => { const target = deleteTarget; setDeleteTarget(null); if (target) onDelete(target.id) } }]} />
       <button className="mt-3 flex items-center gap-[9px] border-0 border-t border-line bg-transparent px-[18px] pb-0 pt-3 text-left text-sm text-ink-soft" onClick={onOpenSettings} aria-label="设置"><Settings size={16} /><span className="flex-1">设置</span><kbd className="ml-[2px] font-mono text-2xs text-ink-muted">⌘,</kbd></button>
     </aside>
   </>

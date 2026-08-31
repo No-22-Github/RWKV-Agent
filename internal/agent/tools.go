@@ -10,6 +10,8 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"reflect"
+	"strconv"
 	"strings"
 	"unicode/utf8"
 
@@ -537,7 +539,17 @@ func searchFile(path, query string, caseSensitive bool, limit int) ([]searchMatc
 // fields and trailing data are rejected so a malformed call surfaces as an
 // argument error rather than a silently ignored one. UseNumber keeps numeric
 // literals exact until the tool validates them.
+//
+// One deliberate leniency: a numeric target field accepts a JSON string that
+// parses exactly as a number ("10" for an integer). Measured in the round-3
+// zh e2e: once the catalog renders max_results as a flat "integer 1..10"
+// placeholder, the model reliably emits "10" as a string, and rejecting it
+// costs the whole step budget to a duplicate-call loop (the strict path was
+// added for malformed STRUCTURE, not for scalar spelling).
 func DecodeToolArguments(raw json.RawMessage, target any) error {
+	if coerced, changed := coerceNumericArgumentStrings(raw, target); changed {
+		raw = coerced
+	}
 	decoder := json.NewDecoder(bytes.NewReader(raw))
 	decoder.DisallowUnknownFields()
 	decoder.UseNumber()
@@ -548,6 +560,65 @@ func DecodeToolArguments(raw json.RawMessage, target any) error {
 		return fmt.Errorf("%w: trailing data", ErrInvalidToolArguments)
 	}
 	return nil
+}
+
+// coerceNumericArgumentStrings rewrites top-level string values to numeric
+// literals when the matching target field is numeric and the string parses
+// exactly as one. Non-numeric strings, unknown fields, and nested values are
+// left untouched so the strict decoder still judges them.
+func coerceNumericArgumentStrings(raw json.RawMessage, target any) (json.RawMessage, bool) {
+	var fields map[string]json.RawMessage
+	if json.Unmarshal(raw, &fields) != nil {
+		return raw, false
+	}
+	targetType := reflect.TypeOf(target)
+	if targetType == nil || targetType.Kind() != reflect.Pointer || targetType.Elem().Kind() != reflect.Struct {
+		return raw, false
+	}
+	structType := targetType.Elem()
+	numericKinds := map[reflect.Kind]bool{
+		reflect.Int: true, reflect.Int8: true, reflect.Int16: true,
+		reflect.Int32: true, reflect.Int64: true,
+		reflect.Uint: true, reflect.Uint8: true, reflect.Uint16: true,
+		reflect.Uint32: true, reflect.Uint64: true,
+		reflect.Float32: true, reflect.Float64: true,
+	}
+	numericFields := map[string]reflect.StructField{}
+	for i := 0; i < structType.NumField(); i++ {
+		field := structType.Field(i)
+		jsonName := strings.Split(field.Tag.Get("json"), ",")[0]
+		if jsonName == "" {
+			jsonName = field.Name
+		}
+		if numericKinds[field.Type.Kind()] {
+			numericFields[jsonName] = field
+		}
+	}
+	changed := false
+	for name, value := range fields {
+		if _, ok := numericFields[name]; !ok {
+			continue
+		}
+		var text string
+		if json.Unmarshal(value, &text) != nil {
+			continue
+		}
+		if _, err := strconv.ParseInt(text, 10, 64); err != nil {
+			if _, floatErr := strconv.ParseFloat(text, 64); floatErr != nil {
+				continue
+			}
+		}
+		fields[name] = json.RawMessage(text)
+		changed = true
+	}
+	if !changed {
+		return raw, false
+	}
+	encoded, err := json.Marshal(fields)
+	if err != nil {
+		return raw, false
+	}
+	return encoded, true
 }
 
 func shouldSkipDirectory(name string) bool {

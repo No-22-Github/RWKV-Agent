@@ -2,6 +2,7 @@ package agent
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 
 	"github.com/no22/RWKV-Agent/internal/inference"
@@ -27,6 +28,11 @@ type G1IFunctionProtocol struct {
 	// anchor drops that to zero. It also removes every syntactic abstention
 	// exit, so it must only be evaluated together with SemanticNoTool.
 	DeepToolAnchor bool
+	// SubagentRawFeedback feeds spawn_agents results back as raw JSON, the
+	// pre-E2 round-1 behaviour. Exists only so the E2 re-judgment (false_hit
+	// as the primary metric, round-2 step 5) can A/B the block rendering
+	// against the exact previous format; production keeps block rendering.
+	SubagentRawFeedback bool
 }
 
 func (protocol G1IFunctionProtocol) ID() string {
@@ -42,9 +48,16 @@ func (protocol G1IFunctionProtocol) Instructions(specs []ToolSpec, _ inference.T
 		catalog = append(catalog, makeG1ICatalogEntry(spec))
 	}
 	if protocol.Product && protocol.SemanticNoTool {
+		description := "Indicate that none of the offered tools is needed. Put a brief, complete user-facing response in reason; it becomes the final reply."
+		if hasMutatingToolSpec(specs) {
+			// E6 finding: with file-editing tools offered, the model used
+			// no_tool to CLAIM edits were done without calling any tool.
+			// The description forbids claiming work instead of doing it.
+			description += " Never claim that a file was read, created, or modified; the tools do all file work."
+		}
 		catalog = append(catalog, g1iCatalogEntry{
 			Name:        SemanticNoToolName,
-			Description: "Indicate that none of the offered tools is needed. Put a brief, complete user-facing response in reason; it becomes the final reply.",
+			Description: description,
 			Arguments: map[string]json.RawMessage{
 				"reason": json.RawMessage(`{"type":"string"}`),
 			},
@@ -101,6 +114,17 @@ type g1iCatalogEntry struct {
 	Arguments   map[string]json.RawMessage `json:"arguments"`
 }
 
+// hasMutatingToolSpec reports whether any offered tool mutates workspace
+// state (used to tighten the semantic no_tool description, see E6).
+func hasMutatingToolSpec(specs []ToolSpec) bool {
+	for _, spec := range specs {
+		if spec.MutatesWorkspace {
+			return true
+		}
+	}
+	return false
+}
+
 func makeG1ICatalogEntry(spec ToolSpec) g1iCatalogEntry {
 	description := strings.TrimSpace(spec.Description)
 	if index := strings.IndexAny(description, ".!?"); index >= 0 {
@@ -119,6 +143,37 @@ func makeG1ICatalogEntry(spec ToolSpec) g1iCatalogEntry {
 		if json.Unmarshal(raw, &property) != nil {
 			continue
 		}
+		// Array properties flatten to a readable "array of T" string. Measured on
+		// 7B (class-3 e2e, test/e2e/subagent-smoke): when the catalog showed the
+		// nested array schema, the model copied the schema object as the
+		// argument VALUE (tasks == {"items":...,"type":"array"}), so the call
+		// carried no tasks at all. A flat string leaves nothing to copy.
+		if typeRaw, ok := property["type"]; ok && string(typeRaw) == `"array"` {
+			items := "string"
+			if itemsRaw, ok := property["items"]; ok {
+				var itemsSchema struct {
+					Type string `json:"type"`
+				}
+				if json.Unmarshal(itemsRaw, &itemsSchema) == nil && itemsSchema.Type != "" {
+					items = itemsSchema.Type
+				}
+			}
+			arguments[name] = json.RawMessage(`"array of ` + items + `"`)
+			continue
+		}
+		// Scalar and union-type properties flatten the same way. Measured in
+		// the round-3 zh e2e three-arm: web_search max_results rendered as
+		// {"type":["integer","null"]} got copied verbatim as the argument
+		// value on Chinese task prompts ({"query":...,"max_results":{"type":
+		// ["integer","null"]}}), rejecting every search call until the step
+		// budget died. Enum values stay structured: they are literals the
+		// model is meant to copy.
+		if _, hasEnum := property["enum"]; !hasEnum {
+			if readable := readableScalarHint(property); readable != "" {
+				arguments[name] = json.RawMessage(`"` + readable + `"`)
+				continue
+			}
+		}
 		compact := make(map[string]json.RawMessage, 3)
 		for _, key := range []string{"type", "enum", "items"} {
 			if value, ok := property[key]; ok {
@@ -132,4 +187,58 @@ func makeG1ICatalogEntry(spec ToolSpec) g1iCatalogEntry {
 		arguments[name] = encoded
 	}
 	return g1iCatalogEntry{Name: spec.Name, Description: description, Arguments: arguments}
+}
+
+// readableScalarHint renders a non-enum scalar or union-type schema as the
+// flat placeholder the catalog shows the model ("integer 1..10"); "" means no
+// readable form applies and the caller falls back to the compact schema.
+func readableScalarHint(property map[string]json.RawMessage) string {
+	typeRaw, ok := property["type"]
+	if !ok {
+		return ""
+	}
+	var typeName any
+	if err := json.Unmarshal(typeRaw, &typeName); err != nil {
+		return ""
+	}
+	name := ""
+	switch value := typeName.(type) {
+	case string:
+		name = value
+	case []any:
+		// Union: use the first non-null member; a nullable integer is an
+		// integer for catalog purposes.
+		for _, member := range value {
+			if memberName, ok := member.(string); ok && memberName != "null" {
+				name = memberName
+				break
+			}
+		}
+		if name == "" {
+			return ""
+		}
+	default:
+		return ""
+	}
+	hint := name
+	// Nullable unions read as optional parameters; saying so keeps the model
+	// from inventing values just to fill the slot. A shown range takes
+	// precedence and drops the annotation (below): the shipped round-3 catalog
+	// and zh e2e traces render max_results as "integer 1..10", which is the
+	// form the final window validated - wording is a prompt change and needs a
+	// re-run, so keep the range form as measured.
+	if raw, ok := property["type"]; ok && strings.Contains(string(raw), `"null"`) {
+		hint = "optional " + hint
+	}
+	var minimum, maximum *float64
+	if raw, ok := property["minimum"]; ok {
+		_ = json.Unmarshal(raw, &minimum)
+	}
+	if raw, ok := property["maximum"]; ok {
+		_ = json.Unmarshal(raw, &maximum)
+	}
+	if minimum != nil && maximum != nil {
+		hint = fmt.Sprintf("%s %d..%d", name, int(*minimum), int(*maximum))
+	}
+	return hint
 }

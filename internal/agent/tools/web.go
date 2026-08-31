@@ -18,14 +18,32 @@ import (
 )
 
 const (
-	defaultBraveEndpoint   = "https://api.search.brave.com/res/v1/web/search"
-	defaultTavilyEndpoint  = "https://api.tavily.com/extract"
-	maxWebResponseBytes    = 4 * 1024 * 1024
-	maxFetchedContentRunes = 32 * 1024
-	defaultRetryAttempts   = 5
-	defaultRetryBaseDelay  = 500 * time.Millisecond
-	defaultRetryMaxDelay   = 5 * time.Second
+	defaultBraveEndpoint  = "https://api.search.brave.com/res/v1/web/search"
+	defaultTavilyEndpoint = "https://api.tavily.com/extract"
+	maxWebResponseBytes   = 4 * 1024 * 1024
+	defaultRetryAttempts  = 5
+	defaultRetryBaseDelay = 500 * time.Millisecond
+	defaultRetryMaxDelay  = 5 * time.Second
 )
+
+// Fetched pages share one token budget per call. P1 probes on this model
+// (test/probes/p1-long-context, PREFERENCES.md P1-1) measured decision format
+// compliance at 40/40 up to 10k injected tokens and 30-32/40 at 20k, so the
+// budget sits below the measured degradation point and leaves room for the
+// control prompt, history, and the answer itself. The old 32k-rune cap was
+// fine for English (~6k tokens) but passed ~32k tokens of Chinese through.
+// The budget is enforced on REAL World-vocabulary tokens (round-3 step 1) via
+// WebOptions.TokenCount; when no vocabulary is available the char-ratio
+// estimator takes over as a deliberate fallback: its English bias (+16-40%)
+// cuts earlier than nominal, and its residual underestimate on list-heavy and
+// Chinese text is measured at only −2-4% (test/round3/token-census) — the
+// error bars of the least harmful direction for a context-safety budget.
+const maxFetchedContentTokens = 8 * 1024
+
+// fallbackEstimateTokens is the estimator used only when WebOptions.TokenCount
+// is nil (no local vocabulary). Kept as a named indirection so the fallback's
+// single call site documents the safety reasoning instead of burying it.
+func fallbackEstimateTokens(text string) int { return agent.EstimateTokens(text) }
 
 type providerRetryPolicy struct {
 	maxAttempts int
@@ -120,12 +138,21 @@ type WebFetchProvider interface {
 type WebOptions struct {
 	Search WebSearchProvider
 	Fetch  WebFetchProvider
+	// FetchBudgetTokens overrides the shared per-call token budget for fetched
+	// pages (0 = the P1-1-calibrated default). Exists only so round-2's E1
+	// re-judgment can A/B the budget against an emulation of the old 32k-rune
+	// cap; production keeps the default.
+	FetchBudgetTokens int
+	// TokenCount counts tokens with the real RWKV World vocabulary (round-3
+	// step 1). Nil falls back to the char-ratio estimator for the budget only;
+	// see maxFetchedContentTokens for the direction-of-error reasoning.
+	TokenCount func(string) int
 }
 
 func WebTools(options WebOptions) []agent.Tool {
 	return []agent.Tool{
 		&webSearchTool{provider: options.Search},
-		&webFetchTool{provider: options.Fetch},
+		&webFetchTool{provider: options.Fetch, budgetTokens: options.FetchBudgetTokens, tokenCount: options.TokenCount},
 	}
 }
 
@@ -172,7 +199,23 @@ func (t *webSearchTool) Execute(ctx context.Context, raw json.RawMessage) (any, 
 	return map[string]any{"query": args.Query, "results": results}, nil
 }
 
-type webFetchTool struct{ provider WebFetchProvider }
+type webFetchTool struct {
+	provider     WebFetchProvider
+	budgetTokens int
+	tokenCount   func(string) int
+}
+
+// countTokens prefers the real World-vocabulary counter and only falls back to
+// the estimator without one (round-3 step 1c: the two constants — fetch budget
+// and compression threshold — are no longer allowed to share one biased ruler;
+// the budget's fallback error direction is documented on
+// maxFetchedContentTokens, the threshold has no estimator fallback at all).
+func (t *webFetchTool) countTokens(text string) int {
+	if t.tokenCount != nil {
+		return t.tokenCount(text)
+	}
+	return fallbackEstimateTokens(text)
+}
 
 func (*webFetchTool) Spec() agent.ToolSpec {
 	return agent.ToolSpec{
@@ -212,12 +255,37 @@ func (t *webFetchTool) Execute(ctx context.Context, raw json.RawMessage) (any, e
 	if err != nil {
 		return nil, err
 	}
+	// Share one token budget across the fetched pages, in URL order. A page
+	// that fits entirely leaves its remainder for later pages; a page that
+	// exhausts the budget is rune-sliced and flagged.
+	budget := maxFetchedContentTokens
+	if t.budgetTokens > 0 {
+		budget = t.budgetTokens
+	}
 	for index := range results {
-		runes := []rune(results[index].Content)
-		if len(runes) > maxFetchedContentRunes {
-			results[index].Content = string(runes[:maxFetchedContentRunes])
+		if budget <= 0 {
+			results[index].Content = ""
 			results[index].Truncated = true
+			continue
 		}
+		if t.countTokens(results[index].Content) <= budget {
+			budget -= t.countTokens(results[index].Content)
+			continue
+		}
+		runes := []rune(results[index].Content)
+		// Binary search the longest prefix that fits the remaining budget.
+		low, high := 0, len(runes)
+		for low < high {
+			mid := (low + high + 1) / 2
+			if t.countTokens(string(runes[:mid])) <= budget {
+				low = mid
+			} else {
+				high = mid - 1
+			}
+		}
+		results[index].Content = string(runes[:low])
+		results[index].Truncated = true
+		budget = 0
 	}
 	return map[string]any{"pages": results}, nil
 }

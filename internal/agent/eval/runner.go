@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"runtime"
 	"slices"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/no22/RWKV-Agent/internal/agent"
 	assistanttools "github.com/no22/RWKV-Agent/internal/agent/tools"
+	tools "github.com/no22/RWKV-Agent/internal/agent/tools"
 	"github.com/no22/RWKV-Agent/internal/inference"
 )
 
@@ -209,6 +211,10 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 			DecisionFakeThink:        productProfile.DecisionFakeThink,
 			DeepToolAnchor:           productProfile.DeepToolAnchor,
 			ScenarioHooks:            primitiveScenarioHookDescriptions(config.Cases),
+			CompressFetch:            config.Runner.CompressFetch,
+			WebFixture:               len(config.WebFixture) > 0,
+			SubagentFixture:          len(config.SubagentFixture) > 0,
+			TokenCountVocabSHA256:    config.TokenCountVocabSHA256,
 		},
 		Sampling: samplingSnapshot(config.Runner.Generation.Sampling),
 		Environment: EnvironmentMetadata{
@@ -304,6 +310,7 @@ func runCase(
 		}
 		options.PostToolHook = primitiveScenarioHook(testCase.ID, testCase.primitive)
 	}
+	options.TokenCount = config.TokenCount
 	runner, err := agent.NewRunner(recording, tools, options)
 	if err != nil {
 		result.Error = fmt.Sprintf("create runner: %v", err)
@@ -402,6 +409,64 @@ func evalTools(
 	workspaceTools, err := agent.WorkspaceTools(workspace)
 	if err != nil {
 		return nil, nil, err
+	}
+	if config.FileToolForm != "" {
+		// E6 A/B: the file-editing toolset rides on non-primitive suites so
+		// custom case files can exercise both forms with identical tasks.
+		editTools, editErr := assistanttools.FileEditTools(workspace, assistanttools.FileEditForm(config.FileToolForm))
+		if editErr != nil {
+			return nil, nil, editErr
+		}
+		workspaceTools = append(workspaceTools, editTools...)
+	}
+	if len(config.SubagentFixture) > 0 {
+		// Class-3 e2e: a fixture-backed spawn_agents. Subtasks are matched by
+		// keyword so the parent's model-authored task strings resolve to
+		// deterministic canned outputs without nested model calls.
+		fixture := config.SubagentFixture
+		run := func(_ context.Context, task string, _ func(agent.Event)) (tools.AgentTaskResult, error) {
+			lowered := normalizeSubtaskText(task)
+			for _, entry := range fixture {
+				if entry.Match != "" && strings.Contains(lowered, strings.ToLower(entry.Match)) {
+					return tools.AgentTaskResult{Output: entry.Output, Sources: entry.Sources, StepCount: 2}, nil
+				}
+			}
+			for _, entry := range fixture {
+				if len(entry.MatchAll) == 0 {
+					continue
+				}
+				matched := true
+				for _, keyword := range entry.MatchAll {
+					if !strings.Contains(lowered, normalizeSubtaskText(keyword)) {
+						matched = false
+						break
+					}
+				}
+				if matched {
+					return tools.AgentTaskResult{Output: entry.Output, Sources: entry.Sources, StepCount: 2}, nil
+				}
+			}
+			fallback := fixture[len(fixture)-1]
+			return tools.AgentTaskResult{Output: fallback.Output, Sources: fallback.Sources, StepCount: 2}, nil
+		}
+		delegation := assistanttools.DelegationTools(assistanttools.DelegationOptions{
+			Run:         run,
+			MaxParallel: 4,
+			Timeout:     time.Minute,
+		})
+		workspaceTools = append(workspaceTools, delegation...)
+	}
+	if len(config.WebFixture) > 0 {
+		// Web e2e: fixture-backed web_search and web_fetch, matched by keyword
+		// or URL substring, so fetch compression (E5) can be exercised in the
+		// evaluation runner without network access.
+		fixture := webFixtureProviders{entries: config.WebFixture}
+		workspaceTools = append(workspaceTools, tools.WebTools(tools.WebOptions{
+			Search:            fixture,
+			Fetch:             fixture,
+			FetchBudgetTokens: config.FetchBudgetTokens,
+			TokenCount:        config.TokenCount,
+		})...)
 	}
 	clock := fixedAssistantClock{value: time.Date(
 		2026,

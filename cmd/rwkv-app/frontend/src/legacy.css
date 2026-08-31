@@ -84,10 +84,11 @@
 
 .wails-mac .trace-toolbar { padding-top: 4px; }
 
-/* 会话删除菜单：行悬停或激活时显示 */
+/* 会话菜单：行悬停、激活或键盘聚焦时显示（HIG：纯悬停触达对键盘与触屏用户不可用） */
 .conversation-menu { visibility: hidden; }
 
-.conversation-row:hover .conversation-menu, .conversation-row.active .conversation-menu { visibility: visible; }
+.conversation-row:hover .conversation-menu, .conversation-row:focus-within .conversation-menu,
+.conversation-row.active .conversation-menu { visibility: visible; }
 
 :where(button, input, textarea, select):focus-visible { outline: 2px solid var(--brand-bright); outline-offset: 2px; }
 

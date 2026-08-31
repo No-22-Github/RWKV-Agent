@@ -262,3 +262,23 @@ func TestWorkspaceToolsUnavailableWithoutRoot(t *testing.T) {
 		}
 	}
 }
+
+func TestDecodeToolArgumentsCoercesNumericStrings(t *testing.T) {
+	var args struct {
+		Query      string `json:"query"`
+		MaxResults int    `json:"max_results"`
+		Limit      int    `json:"limit"`
+	}
+	raw := json.RawMessage(`{"query":"q","max_results":"10"}`)
+	if err := DecodeToolArguments(raw, &args); err != nil {
+		t.Fatalf("coercing decode failed: %v", err)
+	}
+	if args.MaxResults != 10 || args.Query != "q" {
+		t.Fatalf("coerced values wrong: %+v", args)
+	}
+	// Non-numeric strings for numeric fields stay rejected.
+	raw = json.RawMessage(`{"query":"q","max_results":"many"}`)
+	if err := DecodeToolArguments(raw, &args); err == nil {
+		t.Fatal("non-numeric string must stay rejected for an integer field")
+	}
+}
