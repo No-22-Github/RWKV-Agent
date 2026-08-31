@@ -5,7 +5,8 @@
 分界标记)。模型/端点/贪心采样/`--api-stop-tokens none` 同前两轮;所有 A/B
 两臂同窗交错运行(第二轮第九节的纪律)。
 
-状态标记:✅ 完成 · 🚧 进行中 · ⬜ 未开始。本报告随各步增量更新。
+状态标记:✅ 完成。第一~五步全部完成;护栏达标(3.5);失败实验与踩坑
+如实记录于 2.5/3.4/3.6 与第六节。本报告随各步增量更新而成。
 
 ---
 
@@ -171,6 +172,18 @@ fail-open 保原页)。
 下标写回,页序不变;`go test -race` 通过)。单测断言低于阈值页不被触碰、
 页序保持。
 
+### 2.5 计划外:catalog 占位符与解码宽容(第三步发现的 blocking bug)
+
+中文三臂首轮暴露:catalog 把 `max_results` 渲染成 `{"type":["integer","null"]}`
+schema 对象,中文任务下模型**逐字复制该对象作参数值**,web_search 连续被拒
+到步数耗尽(E6-7 同型——数组修了,union 标量没修)。两处落地:
+
+1. 标量/union 占位符拍平为可读字符串(`"optional integer 1..10"`,nullable
+   标注 optional;enum 保留字面值),golden prompts 同步更新(d36b984)。
+2. 拍平后模型改为发 `"10"`(字符串),严格解码再次全拒(窗口 B,见 3.4)
+   → 数值目标字段宽容接受精确数字字符串(`9e15334`,单测覆盖;非数字
+   字符串、未知字段、尾随数据仍严格拒绝)。
+
 ---
 
 ## 三、同窗补跑(第三步)
@@ -244,32 +257,133 @@ fail-open 保原页)。
    模型的"参数值模板"——给什么形态,7B 就抄什么形态;拍平必须同时考虑
    解码端能接受什么。**
 
-### 3.5 回归护栏
+### 3.5 回归护栏(✅ 最终二进制复跑)
 
-⬜ boundary / bfcl-product 待最终二进制复跑(见 3.6)。
+| 套件 | 本轮 | 第二轮基线 | 判定 |
+| --- | --- | --- | --- |
+| boundary(XML 协议) | **6/18**(protocol 100%、required 100%) | 众数 6/18(单次好抽样 7/18) | **等于众数基线**;唯一差格 pb_json_extract(True→False),±1 格漂移形态 |
+| bfcl-product(产品 markdown) | **24/60**(answer 45/60、route 52/80、protocol 86.8%) | 24/60(answer 42/60、route 52/80) | task_success 持平,answer +3 ✓ |
 
-### 3.6 boundary / bfcl-product 复跑结果
+boundary 6/18 踩线通过(第二轮自定的判定基准是"新旧二进制 5 次复跑的
+众数 6/18";7/18 本身标注为单次好抽样)。工具调用总步数 226→204(catalog
+修复后调用更早成功),协议有效率不掉。
 
-见第五节(与最终提交二进制一起跑)。
+### 3.6 与预期不符的过程记录
+
+见 3.4(两个失败窗口)。另:catalog 拍平后第一次护栏前哨(3 workers 的
+e2e 窗口 B)显示**所有臂 0 分**,排查发现是数值字符串被严格解码拒绝而非
+机制回归——已在 9e15334 修复并重跑全部窗口。
 
 ---
 
-## 四、检索纪律探针(第四步)
+## 四、检索纪律探针(第四步,✅)
 
-⬜ 待第四步。
+P6 探针(`test/probes/p6-retrieval/`,PREFERENCES.md P6 节):英文取数任务,
+真实 prose 正文(真词表逐 token 标定),工具回喂格式逐字节镜像 runtime,
+deep 锚点决策格 + PrepareAnswer 同款答案格,n=10/格,run1=320 格 +
+run2=80 格(分页修正轮),零 API 预算浪费(全部有效)。**目标是把 e2e
+多文件循环(list_files → read_file → search_text → 打转)的成因拆开;
+三种候选成因拿到了不同的、部分反直觉的证据。**
+
+### P6-1 不会用检索工具:成立,且是"零主动使用"
+
+拿到含文件大小的 list_files 结果后,模型**从不**主动 search_text(0/40,
+跨"文件大小 × 有无 search_text"4 条件),一律从 report-1.txt 开始顺序整读。
+e2e 循环里出现的 search_text 是读取失败后的被动反应。**修复含义:任何
+"教模型构造更好的查询词"类改动都无的放矢——它根本不发查询。**
+
+### P6-2 决策端"充分性判断"失败:循环的主驱动
+
+把**整份**事实文件读完喂回后,决策端仍以 search_text 继续而不是 no_tool
+(单文件 8-10/10 继续;5×1.5k 多文件 no_tool 仅 0-4/10);伴随幻觉工具名
+(count_lines、search_in_workspace)。答案能力与收尾判断**解耦**(见 P6-3):
+模型答得出,却不说"答得出"。这就是 e2e 循环地板的直接机制。
+
+### P6-3 读回提取本身基本完好(整读场景)
+
+强制答案时携带率 8-10/10(单文件 2.5k、多文件最后读 1.5k),埋点深度 90%
+时降到 6/10。**"读回来了但定位不到"在整读场景不成立**(轻度尾部衰减)。
+
+### P6-4 读了就忘:成立,形态危险(本轮最重要发现)
+
+同一 5×1.5k 负载,只改事实文件在读取顺序中的位置:最后读 = 10/10 携带;
+第 3 个读(后随 2 次) = **0/10**;第 1 个读(后随 4 次) = 6/10 且其中
+4/10 是**自信否认**——"The 2024 operations summary is not present in any
+of the workspace files",而事实句逐字躺在上下文里。另有幻觉路径
+(`.github/workflows/ci-cd.yml`、`path:"none"`)与答案阶段 <think> 跑偏。
+P4-1 的近因偏差在文件读取域复现,并直接解释多文件 e2e 循环:**早先读到的
+内容对后续决策功能性失效,模型只能重读。**
+
+### P6-5 分页窗:提取有效当且仅当窗口携带身份上下文
+
+v1 设计缺陷反而产出了结论:窗口含事实但不含文件标题(事实句无主体名)时,
+answer 0/10、决策继续读下一文件——**事实无法归属到任务主体**。v2 头部窗口
+(标题+事实都在窗内)恢复 8/10(750-token 窗),1500-token 窗反而 3/10
+(更大窗口无收益);出窗条件模型正确继续、无误报完成。**修复含义:分页读
+工具必须在每个窗口内嵌路径/标题行,否则没有价值。**
+
+### P6-6 大负载下答案阶段指令被系统性违反
+
+"tools are now unavailable" 指令在多文件/分页回喂下大量被违反(v1 e 条件
+answer 格 40/40 输出工具调用),单文件低负载基本遵守——负载越大收尾纪律
+越差,与第二轮"单文件 4.7k–5k 悬崖先崩工作流纪律"一致。
+
+### 下一步建议(本轮只出方案,未做修复 A/B)
+
+1. **小改可试**:答案阶段对"数值来源"的强制复述(P6-4 的否认形态是 e2e
+   false_hit 的直接来源);决策端在"最后一条 Function output 已含任务主体
+   关键词"时注入一行 sufficiency 提示(P6-2)。
+2. **大改不动手**:给 read_file 加带身份头的分页窗工具(每窗内嵌
+   `path + token window` 头)值得一轮独立探针;跨轮遗忘( forgetting)若要
+   修,方向是 harness 侧的读取摘要缓存(把早先读到的关键句压缩为带出处
+   的回执),改动面大,需先在探针层验证"回执"能否抵御 P6-4 的遗忘曲线。
 
 ---
 
-## 五、其他(HIG / PREFERENCES 整理)
+## 五、其他(HIG / PREFERENCES 整理,✅)
 
-⬜ 待第五步。
+- **顶栏 44px 触控目标(第二轮推荐方案)已实施**:侧栏开关(32→44px)、
+  两个标签(→44px)、运行配置按钮(28→44px)用 `::before` 不可见命中层
+  扩展(`before:absolute` + inset 扩展),视觉零变化、布局零位移、不动设计
+  token;前端 52/52 通过。
+- **PREFERENCES.md 已整理**:三处"对 Harness 的可执行含义"(原第 195、
+  295、319 行)合并为开头"总索引"一节(11 条,含第三轮状态更新);
+  P6 节按既有格式追加。
 
 ---
 
 ## 六、遗留与建议
 
-(随各步增量补充)
+1. **clean-summary 历史措辞未随 probes_zh.py 提交**(cells 只存 prompt
+   sha256):round-3 运行时指令按 P5-ZH-2 文字规格重写,端到端 10/10 验收
+   通过;但"探针获胜措辞"与"运行时措辞"可能逐字不同——后续探针脚本
+   迭代务必随改随提交。
+2. **boundary 6/18 踩线**:pb_json_extract 单格漂移;若后续轮次继续掉,
+   需查 catalog 拍平/数值宽容对 XML 协议套件的间接影响(本轮 protocol/
+   required 均 100%,无结构回归迹象)。
+3. **估算器未彻底退役**:EstimateTokens 仅剩 fetch 预算回退一个调用点
+   (tools/web.go fallback),已加注释禁止新调用方;彻底删除需要先给
+   纯远程模式定义无词表时的预算语义(压缩钩子已经这样做了)。
+4. **P6-4 的修复方向**(答案阶段强制复述来源 / 读取回执缓存)改动面中到
+   大,留待下一轮;round-3 未做修复 A/B(按约定,第四步只出结论)。
+5. **P5-ZH 阶段 B 的"取数收尾"残余**(第二轮 6/10·6/10 → 本轮回声剥离
+   无效):与 P6-2/P6-4 同族,应并入下一轮的收尾纪律修复统一处理。
+6. **bfcl-product no_call_accuracy 仍未动**(同第一、二轮遗留)。
+7. **批组成漂移纪律不变**:本轮所有 A/B 同窗交错;天花板/地板格对漂移
+   钝感(本窗口测得 ≈0),中带格仍必须同窗配对。
+8. **Go tokenizer fixture 测试依赖 submodule 词表**;CI/新环境需先
+   `git submodule update --init`(测试会 skip 而非 fail)。
 
-1. 【新】Go tokenizer 与 Python 三实现(trie/converter/pysidecar)在语料
-   fixture 上等价,但 fixture 只覆盖语料族样本;若未来换词表文件,需重跑
-   `emit_go_fixture.py` 再生成真值。
+## 引用索引
+
+- 真实 token 普查:`test/round3/token-census/`(census.py、census.json/md、
+  detector 之外的 Go fixture 生成器 emit_go_fixture.py)
+- Go tokenizer:`internal/tokenizer/`(world.go + 551,860 token fixture 测试)
+- 压缩修复:第二节;检测器标定 `test/round3/compression-fix/`
+  (calibrate_detector.py、detector.md/json、stage_b_echo_ab.py 及其 out/)
+- 同窗 A/B:`test/round3/e2e-ab/`(run_ab.py、zh5k-case/fixture、out/ 全量
+  artifacts 含两个失败中间窗口)
+- 回归护栏:`test/round3/guardrails/`(boundary-final、bfcl-product-final)
+- 检索纪律探针:`test/probes/p6-retrieval/`(probes.py、probes_v2.py、
+  classify.py、out/p6-run1、out/p6-run2-pagerepair)
+- 偏好原始结论:仓库根 `PREFERENCES.md`(总索引 + P6 节)

@@ -13,3 +13,6 @@ __pycache__/
 .gocache/
 .zcode/
 test/e2e-calibrated/tools/env.local.json
+
+# local build artifacts
+test/round3/guardrails/bin/
