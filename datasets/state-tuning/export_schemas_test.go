@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"os"
 	"sort"
+	"strings"
 	"testing"
 
 	"github.com/no22/RWKV-Agent/internal/agent"
@@ -23,11 +24,15 @@ var wanted = map[string]bool{
 	"datetime": true, "spawn_agents": true,
 }
 
-// openAIFunction is the shape a chat-completions tools array expects.
+// openAIFunction is the shape a chat-completions tools array expects, plus the
+// product's own compact Arguments hint. The hint is hand-written in the Go
+// source and is what G1IProtocol.Instructions prints in the tool catalog, so a
+// renderer must reuse it verbatim rather than synthesising one from Parameters.
 type openAIFunction struct {
 	Name        string          `json:"name"`
 	Description string          `json:"description"`
 	Parameters  json.RawMessage `json:"parameters"`
+	Arguments   string          `json:"arguments_hint"`
 }
 
 func TestExportToolSchemas(t *testing.T) {
@@ -63,10 +68,14 @@ func TestExportToolSchemas(t *testing.T) {
 		if compact, err = compactJSON(spec.Parameters); err != nil {
 			t.Fatalf("tool %q parameters: %v", spec.Name, err)
 		}
+		if strings.TrimSpace(spec.Arguments) == "" {
+			t.Errorf("tool %q has no Arguments hint", spec.Name)
+		}
 		out[spec.Name] = openAIFunction{
 			Name:        spec.Name,
 			Description: spec.Description,
 			Parameters:  compact,
+			Arguments:   spec.Arguments,
 		}
 	}
 

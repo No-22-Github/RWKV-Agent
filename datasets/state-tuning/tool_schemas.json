@@ -19,7 +19,8 @@
         "content"
       ],
       "type": "object"
-    }
+    },
+    "arguments_hint": "{\"path\":\"relative file path\",\"content\":\"lines to append\"}"
   },
   "datetime": {
     "name": "datetime",
@@ -44,7 +45,8 @@
         "args"
       ],
       "type": "object"
-    }
+    },
+    "arguments_hint": "{\"op\":\"now|compare|add\",\"args\":{...}}"
   },
   "read_lines": {
     "name": "read_lines",
@@ -79,7 +81,8 @@
         "end_line"
       ],
       "type": "object"
-    }
+    },
+    "arguments_hint": "{\"path\":\"relative file path\",\"start_line\":\"optional integer \u003e= 1\",\"end_line\":\"optional integer \u003e= start_line\"}"
   },
   "replace_lines": {
     "name": "replace_lines",
@@ -111,7 +114,8 @@
         "content"
       ],
       "type": "object"
-    }
+    },
+    "arguments_hint": "{\"path\":\"relative file path\",\"start_line\":\"integer \u003e= 1\",\"end_line\":\"integer \u003e= start_line\",\"content\":\"replacement lines\"}"
   },
   "spawn_agents": {
     "name": "spawn_agents",
@@ -134,7 +138,8 @@
         "tasks"
       ],
       "type": "object"
-    }
+    },
+    "arguments_hint": "{\"tasks\":[\"independent subtask\", \"independent subtask\"]}"
   },
   "web_fetch": {
     "name": "web_fetch",
@@ -155,7 +160,8 @@
         "urls"
       ],
       "type": "object"
-    }
+    },
+    "arguments_hint": "{\"urls\":[\"https://example.com/page\"]}"
   },
   "web_search": {
     "name": "web_search",
@@ -182,7 +188,8 @@
         "max_results"
       ],
       "type": "object"
-    }
+    },
+    "arguments_hint": "{\"query\":\"search query\",\"max_results\":\"integer 1..10\"}"
   },
   "write_file": {
     "name": "write_file",
@@ -204,6 +211,7 @@
         "content"
       ],
       "type": "object"
-    }
+    },
+    "arguments_hint": "{\"path\":\"relative file path\",\"content\":\"full file content\"}"
   }
 }
