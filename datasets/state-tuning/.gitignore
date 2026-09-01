@@ -1,0 +1,10 @@
+# Derived data stays out of the repo.
+#
+# train/ is a free, deterministic re-render: `go run ./datasets/state-tuning/render`
+# with the same --seed reproduces it byte for byte from semantic/.
+# collected/ is a teacher QC pass; its findings belong in commit messages and in
+# the `audit` field of the affected case, not as a committed transcript.
+#
+# semantic/ is the actual source and stays tracked.
+collected/
+train/
