@@ -66,7 +66,7 @@ type readLinesTool struct{ workspace *agent.WorkspaceResolver }
 func (t *readLinesTool) Spec() agent.ToolSpec {
 	return agent.ToolSpec{
 		Name:        "read_lines",
-		Description: "Read lines start..end (1-based, inclusive) of a workspace text file. Output lines are numbered; at most 200 lines per call. Omit the lines to read the whole file.",
+		Description: "Read lines start..end (1-based, inclusive) of a workspace text file. Output lines are numbered; at most 200 lines per call. Omit the lines to read from line 1, up to 200 lines; the result reports total_lines so you can page through a longer file.",
 		Arguments:   `{"path":"relative file path","start_line":"optional integer >= 1","end_line":"optional integer >= start_line"}`,
 		Parameters: json.RawMessage(`{
 			"type":"object",

@@ -1,0 +1,283 @@
+"""QC gates for state-tuning semantic batches.
+
+Usage:
+    python3 qc_batch.py semantic/batch-001.json [more.json ...]
+
+Exit code is the number of hard failures. Gates prefixed GATE are hard;
+WARN lines are for human review.
+"""
+import json
+import re
+import sys
+import glob
+import collections
+
+SCHEMA = {
+    'read_lines': {'path', 'start_line', 'end_line'},
+    'write_file': {'path', 'content'},
+    'replace_lines': {'path', 'start_line', 'end_line', 'content'},
+    'append_file': {'path', 'content'},
+    'web_search': {'query', 'max_results'},
+    'web_fetch': {'urls'},
+    'datetime': {'op', 'args'},
+    'spawn_agents': {'tasks'},
+}
+# Keys the tool's JSON Schema declares in "required". Nullable-but-required
+# keys must be present as null, never omitted (fileedit.go:78).
+REQUIRED = {
+    'read_lines': {'path', 'start_line', 'end_line'},
+    'write_file': {'path', 'content'},
+    'replace_lines': {'path', 'start_line', 'end_line', 'content'},
+    'append_file': {'path', 'content'},
+    'web_search': {'query'},
+    'web_fetch': {'urls'},
+    'datetime': {'op'},
+    'spawn_agents': {'tasks'},
+}
+SUBTYPES = {'pure_knowledge', 'pure_calculation', 'chitchat',
+            'trap_capability', 'near_neighbor', 'positive'}
+
+# Real JSON Schemas exported from the Go source by export_schemas_test.go.
+# Validating against these catches maxItems/enum/minimum violations that a
+# key-name check cannot see.
+_SCHEMA_FILE = __file__.rsplit('/', 1)[0] + '/tool_schemas.json'
+try:
+    TOOL_SCHEMAS = {k: v['parameters']
+                    for k, v in json.load(open(_SCHEMA_FILE)).items()}
+except (OSError, ValueError):
+    TOOL_SCHEMAS = {}
+
+
+def validate_against_schema(schema, value, path='args'):
+    """Minimal JSON Schema check for the subset the tool schemas use."""
+    errors = []
+    types = schema.get('type')
+    if types:
+        allowed = types if isinstance(types, list) else [types]
+        ok = any(
+            (t == 'object' and isinstance(value, dict)) or
+            (t == 'array' and isinstance(value, list)) or
+            (t == 'string' and isinstance(value, str)) or
+            (t == 'integer' and isinstance(value, int) and not isinstance(value, bool)) or
+            (t == 'number' and isinstance(value, (int, float)) and not isinstance(value, bool)) or
+            (t == 'boolean' and isinstance(value, bool)) or
+            (t == 'null' and value is None)
+            for t in allowed)
+        if not ok:
+            errors.append(f'{path}: want {allowed}, got {type(value).__name__}')
+            return errors
+    if 'enum' in schema and value not in schema['enum']:
+        errors.append(f'{path}: {value!r} not in {schema["enum"]}')
+    if isinstance(value, str):
+        if 'minLength' in schema and len(value) < schema['minLength']:
+            errors.append(f'{path}: shorter than minLength {schema["minLength"]}')
+        if 'maxLength' in schema and len(value) > schema['maxLength']:
+            errors.append(f'{path}: longer than maxLength {schema["maxLength"]}')
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        if 'minimum' in schema and value < schema['minimum']:
+            errors.append(f'{path}: {value} below minimum {schema["minimum"]}')
+        if 'maximum' in schema and value > schema['maximum']:
+            errors.append(f'{path}: {value} above maximum {schema["maximum"]}')
+    if isinstance(value, list):
+        if 'minItems' in schema and len(value) < schema['minItems']:
+            errors.append(f'{path}: {len(value)} items, minItems {schema["minItems"]}')
+        if 'maxItems' in schema and len(value) > schema['maxItems']:
+            errors.append(f'{path}: {len(value)} items, maxItems {schema["maxItems"]}')
+        item_schema = schema.get('items')
+        if item_schema:
+            for index, item in enumerate(value):
+                errors += validate_against_schema(item_schema, item, f'{path}[{index}]')
+    if isinstance(value, dict):
+        props = schema.get('properties') or {}
+        for key in schema.get('required') or ():
+            if key not in value:
+                errors.append(f'{path}: required key {key!r} missing')
+        if schema.get('additionalProperties') is False:
+            for key in value:
+                if key not in props:
+                    errors.append(f'{path}: unexpected key {key!r}')
+        for key, sub in props.items():
+            if key in value:
+                errors += validate_against_schema(sub, value[key], f'{path}.{key}')
+    return errors
+THINK_MAX_TOKENS = 80  # verify precisely with internal/tokenizer; this is a char-based guard
+BAD_THINK = re.compile(r'\b(wait|actually|hmm|let me reconsider)\b', re.I)
+BAD_THINK_ZH = re.compile(r'(让我|重新考虑|等等|不过话说)')
+ENUMERATED = re.compile(r'(^|\s)(1\.|2\.|首先|其次|第一|第二)')
+CONTAM = re.compile(r'\bsubmit\b|list_files|read_file\b|run_file|chmod|'
+                    r'run_tests|run_awk|run_lua|BFCL|expected_submit')
+# A concrete object: a path-like token, a URL, a digit run, a Chinese numeral
+# quantity, or a capitalised named entity. Note \b\d+\b does NOT work here:
+# CJK chars are \w in Python, so "9月1日" has no word boundary around the 9.
+OBJ = re.compile(r'[\w./-]+\.(?:ya?ml|json|jsonl|md|txt|py|csv|tsv|log|toml|ini|conf|js|ts|go)'
+                 r'|https?://[\w./?=&%-]+'
+                 r'|\d+'
+                 r'|[一二三四五六七八九十百千]+(?=[个条行页天月日次])'
+                 r'|\b[A-Z][A-Za-z]{2,}(?:\.[a-z]+)?\b')
+
+
+def objects(text):
+    return set(m.group(0).lower() for m in OBJ.finditer(text))
+
+
+def tokens(text):
+    return set(re.findall(r'[一-鿿]|[a-z_]+', text.lower()))
+
+
+def main(paths):
+    cases = []
+    for p in paths:
+        loaded = json.load(open(p))
+        for c in loaded:
+            c['_src'] = p.split('/')[-1]
+        cases.extend(loaded)
+    print(f'loaded {len(cases)} cases from {len(paths)} file(s)')
+
+    fails = collections.defaultdict(list)
+    warns = collections.defaultdict(list)
+    sub = collections.Counter()
+    lang = collections.Counter()
+    ids = collections.Counter()
+    bysub = collections.defaultdict(list)
+
+    for c in cases:
+        cid = c.get('id', '<no-id>')
+        ids[cid] += 1
+        st = c.get('subtype')
+        sub[st] += 1
+        lang[c.get('lang')] += 1
+        bysub[st].append(c)
+        if st not in SUBTYPES:
+            fails['GATE0_bad_subtype'].append((cid, st))
+        ts = set(c.get('tools') or ())
+        if not ts <= set(SCHEMA):
+            fails['GATE0_unknown_tool'].append((cid, sorted(ts - set(SCHEMA))))
+        if not 3 <= len(ts) <= 6:
+            fails['GATE0_subset_size'].append((cid, len(ts)))
+
+        action = c.get('action')
+        if action == 'abstain':
+            if c.get('call') is not None:
+                fails['GATE1_abstain_has_call'].append(cid)
+        elif action == 'call':
+            call = c.get('call')
+            if not isinstance(call, dict):
+                fails['GATE1_call_not_object'].append(cid)
+            else:
+                name, args = call.get('name'), call.get('arguments')
+                if name not in SCHEMA:
+                    fails['GATE1_bad_tool_name'].append((cid, name))
+                else:
+                    if name not in ts:
+                        fails['GATE2_tool_not_visible'].append((cid, name, sorted(ts)))
+                    if not isinstance(args, dict):
+                        fails['GATE1_args_not_object'].append((cid, type(args).__name__))
+                    else:
+                        extra = set(args) - SCHEMA[name]
+                        missing = REQUIRED[name] - set(args)
+                        if extra:
+                            fails['GATE1_args_extra'].append((cid, name, sorted(extra)))
+                        if missing:
+                            fails['GATE1b_required_key_omitted'].append(
+                                (cid, name, sorted(missing)))
+                        schema = TOOL_SCHEMAS.get(name)
+                        if schema:
+                            for problem in validate_against_schema(schema, args):
+                                fails['GATE1c_schema_violation'].append(
+                                    (cid, name, problem))
+        else:
+            fails['GATE0_bad_action'].append((cid, action))
+
+        think = (c.get('think') or '').strip()
+        if not think:
+            fails['GATE4_think_empty'].append(cid)
+        if BAD_THINK.search(think) or BAD_THINK_ZH.search(think):
+            fails['GATE4_think_selfdoubt'].append((cid, think[:40]))
+        if ENUMERATED.search(think):
+            fails['GATE4_think_enumerated'].append((cid, think[:40]))
+
+        answer = c.get('answer') or ''
+        cjk = bool(re.search(r'[一-鿿]', answer))
+        if c.get('lang') == 'zh' and not cjk:
+            fails['GATE6_lang_mismatch'].append(cid)
+        if c.get('lang') == 'en' and cjk:
+            fails['GATE6_lang_mismatch'].append(cid)
+        if CONTAM.search(json.dumps(c, ensure_ascii=False)):
+            fails['GATE7_contamination'].append(cid)
+
+    for cid, n in ids.items():
+        if n > 1:
+            fails['GATE0_duplicate_id'].append((cid, n))
+
+    # GATE8: near_neighbor must share a concrete object with a positive and
+    # name a paired tool. This is what catches "generic domain knowledge"
+    # masquerading as a near neighbour.
+    positives = bysub.get('positive', [])
+    pos_objs = set()
+    for c in positives:
+        pos_objs |= objects(c.get('user', ''))
+    for c in bysub.get('near_neighbor', []):
+        cid = c['id']
+        pair = c.get('paired_with')
+        if not pair:
+            fails['GATE8_no_paired_with'].append(cid)
+        elif pair not in (c.get('tools') or ()):
+            fails['GATE8_pair_not_visible'].append((cid, pair))
+        if not objects(c.get('user', '')):
+            fails['GATE8_no_concrete_object'].append((cid, c.get('user', '')[:46]))
+    # A near_neighbor is only useful when the corpus also holds the positive it
+    # is one word away from, sharing the same concrete object. Report the ones
+    # that stand alone — they still test restraint, but they do not test the
+    # boundary, which is the point of the subtype.
+    unpaired = []
+    for c in bysub.get('near_neighbor', []):
+        if not (objects(c.get('user', '')) & pos_objs):
+            unpaired.append(c['id'])
+    if unpaired:
+        warns['WARN_nn_without_paired_positive'].append(
+            f'{len(unpaired)}/{len(bysub.get("near_neighbor", []))}: '
+            + ','.join(unpaired[:10]))
+
+    # WARN: trap_capability phrasing balance
+    traps = bysub.get('trap_capability', [])
+    explicit = [c['id'] for c in traps
+                if any(t in (c.get('user') or '') for t in SCHEMA)]
+    if traps:
+        ratio = len(explicit) / len(traps)
+        line = f'{len(explicit)}/{len(traps)} spell a literal tool name ({ratio:.0%})'
+        (warns if ratio <= 0.45 else fails)['WARN_trap_phrasing_skew'].append(line)
+
+    # GATE5: near-duplicate user strings across the whole corpus
+    seen = [(c['id'], tokens(c.get('user', ''))) for c in cases]
+    for i in range(len(seen)):
+        for j in range(i + 1, len(seen)):
+            a, b = seen[i][1], seen[j][1]
+            if a and b:
+                jac = len(a & b) / len(a | b)
+                if jac > 0.7:
+                    fails['GATE5_near_duplicate'].append(
+                        (seen[i][0], seen[j][0], round(jac, 2)))
+
+    print('subtypes', dict(sub))
+    print('lang', dict(lang), f'zh={lang["zh"]/max(len(cases),1):.0%}')
+    print()
+    hard = 0
+    for key in sorted(fails):
+        rows = fails[key]
+        hard += len(rows)
+        print(f'{key}: {len(rows)}')
+        for row in rows[:8]:
+            print('    ', row)
+    for key in sorted(warns):
+        rows = warns[key]
+        print(f'{key}: {len(rows)}')
+        for row in rows[:8]:
+            print('    ', row)
+    print()
+    print('HARD FAILURES:', hard)
+    return hard
+
+
+if __name__ == '__main__':
+    args = sys.argv[1:] or sorted(glob.glob('datasets/state-tuning/semantic/batch-*.json'))
+    sys.exit(min(main(args), 120))

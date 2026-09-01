@@ -1,0 +1,209 @@
+{
+  "append_file": {
+    "name": "append_file",
+    "description": "Append the given lines to the end of a workspace text file. Creates the file when it does not exist.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "content": {
+          "description": "Text to append.",
+          "type": "string"
+        },
+        "path": {
+          "description": "Workspace-relative file path.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "content"
+      ],
+      "type": "object"
+    }
+  },
+  "datetime": {
+    "name": "datetime",
+    "description": "Read, compare, or add to dates and times deterministically.",
+    "parameters": {
+      "properties": {
+        "args": {
+          "description": "now uses {}; compare uses left and right; add uses time and duration.",
+          "type": "object"
+        },
+        "op": {
+          "enum": [
+            "now",
+            "compare",
+            "add"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "op",
+        "args"
+      ],
+      "type": "object"
+    }
+  },
+  "read_lines": {
+    "name": "read_lines",
+    "description": "Read lines start..end (1-based, inclusive) of a workspace text file. Output lines are numbered; at most 200 lines per call. Omit the lines to read from line 1, up to 200 lines; the result reports total_lines so you can page through a longer file.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "end_line": {
+          "description": "Optional last line, default start_line+199.",
+          "minimum": 1,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "path": {
+          "description": "Workspace-relative file path.",
+          "type": "string"
+        },
+        "start_line": {
+          "description": "Optional first line, default 1.",
+          "minimum": 1,
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "path",
+        "start_line",
+        "end_line"
+      ],
+      "type": "object"
+    }
+  },
+  "replace_lines": {
+    "name": "replace_lines",
+    "description": "Replace lines start..end (1-based, inclusive) of a workspace text file with the given content lines. Other lines stay unchanged.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "content": {
+          "description": "Replacement text; may be empty to delete the range.",
+          "type": "string"
+        },
+        "end_line": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "path": {
+          "description": "Workspace-relative file path.",
+          "type": "string"
+        },
+        "start_line": {
+          "minimum": 1,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "path",
+        "start_line",
+        "end_line",
+        "content"
+      ],
+      "type": "object"
+    }
+  },
+  "spawn_agents": {
+    "name": "spawn_agents",
+    "description": "Run 2 to 4 independent Agent subtasks concurrently and return ordered results.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "tasks": {
+          "items": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "type": "string"
+          },
+          "maxItems": 4,
+          "minItems": 2,
+          "type": "array"
+        }
+      },
+      "required": [
+        "tasks"
+      ],
+      "type": "object"
+    }
+  },
+  "web_fetch": {
+    "name": "web_fetch",
+    "description": "Fetch readable Markdown content for up to four public web pages with Tavily Extract.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "urls": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 4,
+          "minItems": 1,
+          "type": "array"
+        }
+      },
+      "required": [
+        "urls"
+      ],
+      "type": "object"
+    }
+  },
+  "web_search": {
+    "name": "web_search",
+    "description": "Search the public web with Brave and return titles, URLs, snippets, and source IDs.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "max_results": {
+          "maximum": 10,
+          "minimum": 1,
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "query": {
+          "maxLength": 500,
+          "minLength": 1,
+          "type": "string"
+        }
+      },
+      "required": [
+        "query",
+        "max_results"
+      ],
+      "type": "object"
+    }
+  },
+  "write_file": {
+    "name": "write_file",
+    "description": "Create or overwrite a workspace text file with the given content. The content becomes the whole file.",
+    "parameters": {
+      "additionalProperties": false,
+      "properties": {
+        "content": {
+          "description": "Complete new file content.",
+          "type": "string"
+        },
+        "path": {
+          "description": "Workspace-relative file path.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "path",
+        "content"
+      ],
+      "type": "object"
+    }
+  }
+}
