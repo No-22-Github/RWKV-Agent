@@ -174,12 +174,23 @@ def tokens(text):
 
 def main(paths):
     cases = []
+    skipped = []
     for p in paths:
-        loaded = json.load(open(p))
+        try:
+            loaded = json.load(open(p))
+        except ValueError as err:
+            # A batch still being written in chunks is not yet valid JSON.
+            # Report it and carry on rather than failing the whole corpus run.
+            skipped.append((p.split('/')[-1], str(err)[:60]))
+            continue
         for c in loaded:
             c['_src'] = p.split('/')[-1]
         cases.extend(loaded)
-    print(f'loaded {len(cases)} cases from {len(paths)} file(s)')
+    print(f'loaded {len(cases)} cases from {len(paths) - len(skipped)} file(s)')
+    for name, err in skipped:
+        print(f'  SKIPPED (incomplete JSON): {name} — {err}')
+    if not cases:
+        return 0
 
     fails = collections.defaultdict(list)
     warns = collections.defaultdict(list)
