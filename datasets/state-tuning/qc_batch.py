@@ -150,14 +150,17 @@ def validate_against_schema(schema, value, path='args'):
     return errors
 THINK_MAX_TOKENS = 80  # verify precisely with internal/tokenizer; this is a char-based guard
 BAD_THINK = re.compile(r'\b(wait|actually|hmm|let me reconsider)\b', re.I)
-BAD_THINK_ZH = re.compile(r'(让我|重新考虑|等等|不过话说)')
+# Self-doubt only. A bare 让我 is too broad: "不是让我现在改" is an ordinary
+# negation, not hesitation, and matching it rejects well-formed think lines.
+BAD_THINK_ZH = re.compile(r'(让我(重新|再)[想考看]|重新考虑|^等等|，等等|不过话说|不对，)')
 ENUMERATED = re.compile(r'(^|\s)(1\.|2\.|首先|其次|第一|第二)')
 CONTAM = re.compile(r'\bsubmit\b|list_files|read_file\b|run_file|chmod|'
                     r'run_tests|run_awk|run_lua|BFCL|expected_submit')
 # A concrete object: a path-like token, a URL, a digit run, a Chinese numeral
 # quantity, or a capitalised named entity. Note \b\d+\b does NOT work here:
 # CJK chars are \w in Python, so "9月1日" has no word boundary around the 9.
-OBJ = re.compile(r'[\w./-]+\.(?:ya?ml|json|jsonl|md|txt|py|csv|tsv|log|toml|ini|conf|js|ts|go)'
+OBJ = re.compile(r'[\w./-]+\.(?:ya?ml|json|jsonl|md|txt|py|csv|tsv|log|toml|ini'
+                 r'|conf|js|ts|go|sh|bash|sql|env|lock|rs|java|rb|php|xml|html)'
                  r'|https?://[\w./?=&%-]+'
                  r'|\d+'
                  r'|[一二三四五六七八九十百千]+(?=[个条行页天月日次])'
