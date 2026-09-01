@@ -104,9 +104,20 @@ positive would, and still need no tool evidence. Use all three roughly evenly:
   `如果 utils.py 有 350 行，用 read_lines 要调用几次才能读完？`
 - **B advice before action** — same object AND action, asks whether/how not do-it.
   `把 handler.py 第 30 到 35 行替换掉之前，要不要先备份一下？`
-- **C query design** — same intent, asks how to formulate rather than to execute.
-  Must NOT carry execution intent: `搜 X 用什么关键词更容易命中` is fine,
-  `我想搜 X` is not — that reads as a request and the label becomes ambiguous.
+- ~~**C query design**~~ — **retired 2026-09-01, do not write these.** The idea
+  was to ask how to formulate a request rather than to execute it. It cannot
+  work: a query-design question needs a concrete search target to qualify as a
+  near neighbour, but naming that target creates execution intent, and the two
+  requirements are mutually exclusive. All four attempts were labelled `call` by
+  the teacher, and rewriting them to drop the intent also dropped the concrete
+  object, so they became ordinary `pure_knowledge`.
+
+Pattern B has a narrower trap worth stating: it fails when answering the advice
+would genuinely benefit from reading the file. `把 handler.py 第 30 到 35 行替换掉
+之前要不要先备份` holds, because backing up is a policy question. `Dockerfile 第
+12 到 15 行改成多阶段构建以后，后面那些 COPY 指令会受影响吗` does not, because
+judging the knock-on effect really does want the file. Keep the advice
+self-contained.
 
 ### `trap_capability` phrasing
 

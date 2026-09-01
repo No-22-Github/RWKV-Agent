@@ -164,6 +164,11 @@ def main():
     parser.add_argument('--limit', type=int, default=0)
     parser.add_argument('--refresh', action='store_true')
     parser.add_argument('--dry-run', action='store_true')
+    parser.add_argument('--abstain-only', action='store_true',
+                        help='QC pass: only send cases labelled abstain. These are '
+                             'where an ambiguous question does real damage, since a '
+                             'wrong label teaches noise into the one disposition '
+                             'this round trains.')
     args = parser.parse_args()
 
     schemas = load_schemas()
@@ -181,6 +186,8 @@ def main():
                     done.add(json.loads(line)['id'])
         cases = json.load(open(path))
         pending = [c for c in cases if c['id'] not in done]
+        if args.abstain_only:
+            pending = [c for c in pending if c['action'] == 'abstain']
         if args.limit:
             pending = pending[:args.limit]
         print(f'{name}: {len(cases)} cases, {len(done)} cached, '
