@@ -18,7 +18,14 @@ Never invent, rename, or extend them.
 | `append_file` | Append the given lines to the end of a workspace text file. Creates the file when it does not exist. | `{"path":str,"content":str}` |
 | `web_search` | Search the public web with Brave and return titles, URLs, snippets, and source IDs. | `{"query":str,"max_results":int 1..10}` |
 | `web_fetch` | Fetch readable Markdown content for up to four public web pages with Tavily Extract. | `{"urls":[str]}` (max 4) |
-| `datetime` | Read, compare, or add to dates and times deterministically. | `{"op":"now"\|"compare"\|"add","args":{...}}` — `now` uses `{}`; `compare` uses `left`/`right`; `add` uses `time`/`duration` |
+| `datetime` | Read, compare, or add to dates and times deterministically. | `{"op":"now","args":{}}`; `{"op":"compare","args":{"left":...,"right":...}}`; `{"op":"add","args":{"time":...,"duration":...}}` |
+
+`datetime` has one trap worth stating explicitly, because the schema types
+`args` only as `object` and the real contract lives in `assistant.go`:
+
+- `time`, `left`, `right` accept RFC3339, `YYYY-MM-DD HH:MM:SS`, or `YYYY-MM-DD`.
+- `duration` goes through Go's `time.ParseDuration`, which has **no day unit**.
+  `"45d"` is an error; 45 days is `"1080h"`. Legal units are ns, us, ms, s, m, h.
 | `spawn_agents` | Run 2 to 4 independent Agent subtasks concurrently and return ordered results. | `{"tasks":[str,...]}` — **2 to 4 items**, never more |
 
 `tool_schemas.json` in this directory is the authoritative copy, exported from

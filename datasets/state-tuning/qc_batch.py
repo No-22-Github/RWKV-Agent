@@ -48,6 +48,54 @@ except (OSError, ValueError):
     TOOL_SCHEMAS = {}
 
 
+# datetime.args is typed only as "object" in the schema, so its real contract
+# lives in the Go implementation (assistant.go): parseRowTime accepts RFC3339,
+# "YYYY-MM-DD HH:MM:SS", or "YYYY-MM-DD"; duration goes through Go's
+# time.ParseDuration, which has NO day unit -- "45d" is an error, "1080h" is not.
+GO_DURATION = re.compile(r'^-?(\d+(\.\d+)?(ns|us|µs|ms|s|m|h))+$')
+TIME_FORMATS = (
+    re.compile(r'^\d{4}-\d{2}-\d{2}$'),
+    re.compile(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$'),
+    re.compile(r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$'),
+)
+
+
+def check_datetime(args):
+    errors = []
+    op = args.get('op')
+    inner = args.get('args')
+    if not isinstance(inner, dict):
+        return [f'args must be an object, got {type(inner).__name__}']
+    if op == 'now':
+        if inner:
+            errors.append(f'op=now takes empty args, got keys {sorted(inner)}')
+    elif op == 'compare':
+        for key in ('left', 'right'):
+            value = inner.get(key)
+            if value is None:
+                errors.append(f'op=compare needs {key!r}')
+            elif not any(p.match(str(value)) for p in TIME_FORMATS):
+                errors.append(f'{key}={value!r} is not RFC3339 or YYYY-MM-DD')
+        for key in set(inner) - {'left', 'right'}:
+            errors.append(f'op=compare: unexpected key {key!r}')
+    elif op == 'add':
+        value = inner.get('time')
+        if value is None:
+            errors.append("op=add needs 'time'")
+        elif not any(p.match(str(value)) for p in TIME_FORMATS):
+            errors.append(f'time={value!r} is not RFC3339 or YYYY-MM-DD')
+        duration = inner.get('duration')
+        if duration is None:
+            errors.append("op=add needs 'duration'")
+        elif not GO_DURATION.match(str(duration)):
+            errors.append(
+                f'duration={duration!r} is not a Go duration '
+                '(ns/us/ms/s/m/h only; there is no day unit)')
+        for key in set(inner) - {'time', 'duration'}:
+            errors.append(f'op=add: unexpected key {key!r}')
+    return errors
+
+
 def validate_against_schema(schema, value, path='args'):
     """Minimal JSON Schema check for the subset the tool schemas use."""
     errors = []
@@ -185,6 +233,10 @@ def main(paths):
                             for problem in validate_against_schema(schema, args):
                                 fails['GATE1c_schema_violation'].append(
                                     (cid, name, problem))
+                        if name == 'datetime':
+                            for problem in check_datetime(args):
+                                fails['GATE1d_datetime_args'].append(
+                                    (cid, problem))
         else:
             fails['GATE0_bad_action'].append((cid, action))
 
