@@ -85,6 +85,35 @@ func buildSpecs(
 	return specs, names, nil
 }
 
+// toolCallEnvelope renders one call through the product's own RecordAction, so
+// the trained key order is the order the runner writes when it commits a call
+// back into a transcript ({"name":…,"arguments":…}). Marshalling a
+// map[string]any here instead would sort the keys and train the reverse order,
+// which is also the reverse of the envelope the instructions themselves show.
+//
+// Arguments are unmarshalled and re-marshalled first: that canonicalises the
+// semantic layer's spacing and makes a stringified arguments value impossible
+// to smuggle into the target.
+func toolCallEnvelope(name string, raw json.RawMessage) (string, error) {
+	var arguments any
+	if err := json.Unmarshal(raw, &arguments); err != nil {
+		return "", fmt.Errorf("arguments are not JSON: %w", err)
+	}
+	canonical, err := json.Marshal(arguments)
+	if err != nil {
+		return "", err
+	}
+	envelope := (agent.G1IProtocol{}).RecordAction(agent.Action{
+		Type:      agent.ActionTypeTool,
+		Name:      name,
+		Arguments: canonical,
+	}, "")
+	if !strings.HasPrefix(envelope, "<tool_call>") {
+		return "", fmt.Errorf("RecordAction did not produce a tool_call envelope for %q", name)
+	}
+	return envelope, nil
+}
+
 // buildCompletion assembles the assistant target. For a thinking mode the first
 // byte is the ">" that Render withheld; omitting it would train a token
 // boundary inference never produces.
@@ -95,21 +124,11 @@ func buildCompletion(entry semanticCase, mode inference.ThinkingMode) (string, e
 		if entry.Call == nil {
 			return "", fmt.Errorf("action=call with no call")
 		}
-		var arguments any
-		if err := json.Unmarshal(entry.Call.Arguments, &arguments); err != nil {
-			return "", fmt.Errorf("arguments are not JSON: %w", err)
-		}
-		// Re-marshal so the trained bytes carry a canonical object rather than
-		// whatever spacing the semantic layer happened to use, and so a
-		// stringified arguments value could never reach the target.
-		encoded, err := json.Marshal(map[string]any{
-			"name":      entry.Call.Name,
-			"arguments": arguments,
-		})
+		envelope, err := toolCallEnvelope(entry.Call.Name, entry.Call.Arguments)
 		if err != nil {
 			return "", err
 		}
-		body = "<tool_call>" + string(encoded) + "</tool_call>"
+		body = envelope
 	case "abstain":
 		if strings.TrimSpace(entry.Answer) == "" {
 			return "", fmt.Errorf("action=abstain with empty answer")

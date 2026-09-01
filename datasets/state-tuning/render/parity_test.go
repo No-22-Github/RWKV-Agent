@@ -174,7 +174,9 @@ func TestCompletionStartsAtWithheldBracket(t *testing.T) {
 		prefix string
 	}{
 		{"abstain", abstain, ">你好！"},
-		{"call", call, `><tool_call>{"arguments":`},
+		// Key order is the product's, not Go's map order. Asserting
+		// {"arguments": here is what let the reversed order ship.
+		{"call", call, `><tool_call>{"name":`},
 	} {
 		t.Run(testCase.name, func(t *testing.T) {
 			record, err := renderCase(testCase.entry, schemas,
@@ -225,4 +227,53 @@ func TestToolOrderShuffles(t *testing.T) {
 	if len(firstPositions) < 3 {
 		t.Errorf("tool order barely varies across renders: %v", firstPositions)
 	}
+}
+
+// TestShippedCorpusIsFastThink guards the artifact on disk rather than the
+// renderer. train/ is derived and gitignored, so nothing else notices if it is
+// re-rendered with --thinking off: every prompt would then end at a bare
+// "Assistant:" and every completion would start with a space. A state tuned on
+// those bytes and served under thinking=fast (or the reverse) loses the
+// abstention behaviour this corpus exists to teach, which is the one failure
+// mode that looks like a bad model rather than a bad build.
+func TestShippedCorpusIsFastThink(t *testing.T) {
+	path := filepath.Join(repoRoot(t), "datasets/state-tuning/train/train.jsonl")
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Skipf("no rendered corpus at %s: %v", path, err)
+	}
+	lines := strings.Split(strings.TrimSpace(string(data)), "\n")
+	calls := 0
+	for index, line := range lines {
+		var record trainingRecord
+		if err := json.Unmarshal([]byte(line), &record); err != nil {
+			t.Fatalf("line %d: %v", index+1, err)
+		}
+		if !strings.HasSuffix(record.Prompt, inference.ThinkBlockFast) {
+			t.Fatalf("line %d (%s): prompt does not end at the half-open think tag; re-render with --thinking fast",
+				index+1, record.ID)
+		}
+		if !strings.HasPrefix(record.Completion, ">") {
+			t.Fatalf("line %d (%s): completion must open with the withheld bracket, got %q",
+				index+1, record.ID, record.Completion[:min(12, len(record.Completion))])
+		}
+		if record.Text != record.Prompt+record.Completion {
+			t.Fatalf("line %d (%s): text is not prompt+completion", index+1, record.ID)
+		}
+		if !strings.Contains(record.Completion, "<tool_call>") {
+			continue
+		}
+		calls++
+		// The envelope must carry the product's key order. Go's map marshalling
+		// sorts keys and would train {"arguments":…,"name":…}, the reverse of
+		// both RecordAction and the instructions' own example.
+		if !strings.Contains(record.Completion, `<tool_call>{"name":`) {
+			t.Fatalf("line %d (%s): tool_call key order is not the product's: %q",
+				index+1, record.ID, record.Completion[:min(60, len(record.Completion))])
+		}
+	}
+	if calls == 0 {
+		t.Fatal("corpus contains no tool_call samples; the renderer or the semantic layer is wrong")
+	}
+	t.Logf("checked %d samples, %d with tool calls", len(lines), calls)
 }

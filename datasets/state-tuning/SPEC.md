@@ -218,3 +218,37 @@ limits, parameters, or behaviours.
 
 `python3 datasets/state-tuning/qc_batch.py <file>` must report 0 hard failures.
 `python3 datasets/state-tuning/view.py -s <subtype>` renders a readable view.
+
+## Serving contract
+
+The corpus is rendered with `--thinking fast` (the renderer's default), so every
+prompt ends at the half-open `<think></think` and every completion opens with
+the withheld `>`. `TestShippedCorpusIsFastThink` fails if the artifact on disk
+ever stops matching that.
+
+A state tuned on those bytes must be served on the matching pair, because the
+format is part of the artifact rather than a cosmetic choice — the scarletwolf
+bench measured a 9-point drop and halved abstention purely from changing the
+assistant prefix:
+
+| knob | required value | product default |
+|---|---|---|
+| `agentProtocol` | `xml` | `xml` (`api/service.go:379`) — already right |
+| `thinking` | `fast` | **`off`** (`api/service.go:443`) — must be set |
+
+`thinking: off` is the trap. `AppendAssistantOpening` then writes a bare
+`Assistant:` (`internal/inference/prompt.go:64`), and the XML path only injects
+the `<tool_call>` anchor when a router is configured
+(`internal/agent/runner_turn.go:159`), which progressive tools leave off by
+default. The state would meet a prefix it never saw in training.
+
+`thinking: fast` with `agentProtocol: xml` is valid: the Markdown-only guard at
+`api/service.go:505` does not apply, and the XML path forces `DeepToolAnchor`
+and `SemanticNoTool` off, so no other prefix competes for the same bytes.
+
+Tool-call key order is the product's, `{"name":…,"arguments":…}`, produced by
+calling `G1IProtocol.RecordAction` rather than marshalling a `map[string]any`
+(Go sorts map keys, which yields the reverse of both `RecordAction` and the
+example inside the instructions). Inner argument keys stay alphabetical, which
+does differ from the `arguments_hint` order shown in the same prompt; the
+product has no opinion there because it passes the model's own bytes through.
