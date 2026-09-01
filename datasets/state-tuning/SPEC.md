@@ -40,6 +40,81 @@ OTHERWISE answer directly in ordinary text. Greetings, thanks, casual talk, and
 anything answerable from knowledge must be answered directly. Never invoke a
 tool merely because it is available.
 
+## Multi-step cases
+
+A multi-step task is **not** one training sample. Under the XML protocol each
+step is a separate generation whose prompt carries the accumulated transcript,
+so a three-step task expands into three single-turn samples — exactly the shape
+`ChatProcessor` accepts. The renderer does the expansion; a multi-step case is
+authored once, as a `steps` array.
+
+```jsonc
+{
+  "id": "multi-0001",
+  "subtype": "multi_step",
+  "lang": "zh",
+  "tools": ["web_search", "web_fetch", "write_file", "read_lines"],
+  "user": "查一下 RWKV7 的论文结论，整理成 notes/rwkv7.md",
+  "steps": [
+    {"action": "call",
+     "call": {"name": "web_search", "arguments": {"query": "RWKV7 论文 结论", "max_results": 5}},
+     "result": {"ok": true, "tool": "web_search",
+                "result": {"query": "RWKV7 论文 结论",
+                           "results": [{"source_id": "s1", "title": "RWKV-7 Goose",
+                                        "url": "https://arxiv.org/abs/2503.14456",
+                                        "snippet": "线性注意力的状态演化改进……"}]}},
+     "think": "先要检索到论文出处，再谈整理。"},
+    {"action": "call",
+     "call": {"name": "web_fetch", "arguments": {"urls": ["https://arxiv.org/abs/2503.14456"]}},
+     "result": {"ok": true, "tool": "web_fetch",
+                "result": {"pages": [{"url": "https://arxiv.org/abs/2503.14456",
+                                      "content": "RWKV-7 引入动态状态演化……"}]}},
+     "think": "有了链接，取正文才能写出结论。"},
+    {"action": "call",
+     "call": {"name": "write_file", "arguments": {"path": "notes/rwkv7.md", "content": "# RWKV7\n\n- 动态状态演化"}},
+     "result": {"ok": true, "tool": "write_file", "result": {"path": "notes/rwkv7.md", "bytes": 32}},
+     "think": "证据齐了，落盘。"},
+    {"action": "answer",
+     "answer": "已把 RWKV7 的核心结论整理进 notes/rwkv7.md，要点是动态状态演化。",
+     "think": "文件已写成，回报结果。"}
+  ]
+}
+```
+
+Rules:
+
+- Every step but the last is `action: "call"` and carries a `result`. The final
+  step is `action: "answer"` and carries `answer` — it renders against the
+  answer-stage prefix `Assistant: <answer>`, a third completion shape the
+  single-turn corpus does not cover at all.
+- A step may also be `action: "abstain"` with an `answer`, for a task that
+  turns out to need no further evidence. Use this sparingly; it is the
+  single-turn corpus's job.
+- **`result` must match the tool's real result shape**, since a state trained on
+  invented envelopes learns to read a payload the tools never produce. The real
+  shapes, from the implementations:
+
+| tool | `result` |
+|---|---|
+| `read_lines` | `{"path","start_line","end_line","total_lines","content"}` — content lines are prefixed `N: ` |
+| `write_file` | `{"path","bytes"}` |
+| `replace_lines` | `{"path","replaced_from","replaced_to","total_lines"}` |
+| `append_file` | `{"path","appended_bytes"}` |
+| `web_search` | `{"query","results":[{"source_id","title","url","snippet","published_at"?}]}` |
+| `web_fetch` | `{"pages":[{"url","content","truncated"?}]}` |
+| `datetime` `now` | `{"time":"<RFC3339>"}` |
+| `datetime` `compare` | `{"left","right","relation":-1\|0\|1}` |
+| `datetime` `add` | `{"time","duration","result"}` |
+| `spawn_agents` | `{"results":[…subagent traces…]}` |
+
+  The envelope around it is always `{"ok":true,"tool":"<name>","result":<above>}`.
+  A failing step uses `{"ok":false,"tool":"<name>","error":"<message>"}`.
+- Steps must be genuinely sequential: each call needs something an earlier step
+  produced. A task whose steps are independent belongs to `spawn_agents`, not to
+  a multi-step chain.
+- Never repeat a successful call — the runner rejects duplicates, so training
+  one teaches a move that gets refused.
+
 ## Case schema
 
 ```json

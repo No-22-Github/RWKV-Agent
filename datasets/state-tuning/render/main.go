@@ -47,9 +47,23 @@ type semanticCase struct {
 		Name      string          `json:"name"`
 		Arguments json.RawMessage `json:"arguments"`
 	} `json:"call"`
-	Answer     string `json:"answer"`
-	Think      string `json:"think"`
-	PairedWith string `json:"paired_with"`
+	Answer     string         `json:"answer"`
+	Think      string         `json:"think"`
+	PairedWith string         `json:"paired_with"`
+	Steps      []semanticStep `json:"steps"`
+}
+
+// semanticStep is one turn of a multi_step case. Every step but the last is a
+// call carrying the tool's real result shape; the last is the answer stage.
+type semanticStep struct {
+	Action string `json:"action"`
+	Call   *struct {
+		Name      string          `json:"name"`
+		Arguments json.RawMessage `json:"arguments"`
+	} `json:"call"`
+	Result json.RawMessage `json:"result"`
+	Answer string          `json:"answer"`
+	Think  string          `json:"think"`
 }
 
 // toolSchema mirrors one entry in tool_schemas.json, exported from Go by
@@ -74,6 +88,10 @@ type trainingRecord struct {
 	Text       string   `json:"text"`
 	ToolOrder  []string `json:"tool_order"`
 	PromptSHA  string   `json:"prompt_sha256"`
+	// StepOf and StepIndex are set only for multi_step expansions, so a sample
+	// can be traced back to the chain it came from.
+	StepOf    int `json:"step_of,omitempty"`
+	StepIndex int `json:"step_index,omitempty"`
 }
 
 func main() {
@@ -111,6 +129,14 @@ func main() {
 	shuffler := rand.New(rand.NewSource(*seed))
 	records := make([]trainingRecord, 0, len(cases))
 	for _, entry := range cases {
+		if len(entry.Steps) > 0 {
+			expanded, err := expandMultiStep(entry, schemas, mode, shuffler)
+			if err != nil {
+				fail(fmt.Errorf("case %s: %w", entry.ID, err))
+			}
+			records = append(records, expanded...)
+			continue
+		}
 		record, err := renderCase(entry, schemas, mode, shuffler)
 		if err != nil {
 			fail(fmt.Errorf("case %s: %w", entry.ID, err))

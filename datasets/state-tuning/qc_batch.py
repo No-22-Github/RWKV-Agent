@@ -35,7 +35,21 @@ REQUIRED = {
     'spawn_agents': {'tasks'},
 }
 SUBTYPES = {'pure_knowledge', 'pure_calculation', 'chitchat',
-            'trap_capability', 'near_neighbor', 'positive'}
+            'trap_capability', 'near_neighbor', 'positive', 'multi_step'}
+
+# Result shapes the tools actually return, from their Go implementations. A
+# state trained on an invented envelope learns to read a payload the tools never
+# produce, so the keys are checked rather than trusted.
+RESULT_KEYS = {
+    'read_lines': {'path', 'start_line', 'end_line', 'total_lines', 'content'},
+    'write_file': {'path', 'bytes'},
+    'replace_lines': {'path', 'replaced_from', 'replaced_to', 'total_lines'},
+    'append_file': {'path', 'appended_bytes'},
+    'web_search': {'query', 'results'},
+    'web_fetch': {'pages'},
+    'datetime': None,   # shape varies by op; checked separately
+    'spawn_agents': {'results'},
+}
 
 # Real JSON Schemas exported from the Go source by export_schemas_test.go.
 # Validating against these catches maxItems/enum/minimum violations that a
@@ -217,63 +231,158 @@ def main(paths):
         if not 3 <= len(ts) <= 6:
             fails['GATE0_subset_size'].append((cid, len(ts)))
 
-        action = c.get('action')
-        if action == 'abstain':
-            if c.get('call') is not None:
-                fails['GATE1_abstain_has_call'].append(cid)
-        elif action == 'call':
-            call = c.get('call')
-            if not isinstance(call, dict):
-                fails['GATE1_call_not_object'].append(cid)
-            else:
-                name, args = call.get('name'), call.get('arguments')
-                if name not in SCHEMA:
-                    fails['GATE1_bad_tool_name'].append((cid, name))
+        # multi_step cases carry action/call/think/answer inside `steps`, not at
+        # the top level (see SPEC.md's worked example) -- GATE10 below checks
+        # those per-step instead of duplicating the checks here.
+        if st != 'multi_step':
+            action = c.get('action')
+            if action == 'abstain':
+                if c.get('call') is not None:
+                    fails['GATE1_abstain_has_call'].append(cid)
+            elif action == 'call':
+                call = c.get('call')
+                if not isinstance(call, dict):
+                    fails['GATE1_call_not_object'].append(cid)
                 else:
-                    if name not in ts:
-                        fails['GATE2_tool_not_visible'].append((cid, name, sorted(ts)))
-                    if not isinstance(args, dict):
-                        fails['GATE1_args_not_object'].append((cid, type(args).__name__))
+                    name, args = call.get('name'), call.get('arguments')
+                    if name not in SCHEMA:
+                        fails['GATE1_bad_tool_name'].append((cid, name))
                     else:
-                        extra = set(args) - SCHEMA[name]
-                        missing = REQUIRED[name] - set(args)
-                        if extra:
-                            fails['GATE1_args_extra'].append((cid, name, sorted(extra)))
-                        if missing:
-                            fails['GATE1b_required_key_omitted'].append(
-                                (cid, name, sorted(missing)))
-                        schema = TOOL_SCHEMAS.get(name)
-                        if schema:
-                            for problem in validate_against_schema(schema, args):
-                                fails['GATE1c_schema_violation'].append(
-                                    (cid, name, problem))
-                        if name == 'datetime':
-                            for problem in check_datetime(args):
-                                fails['GATE1d_datetime_args'].append(
-                                    (cid, problem))
-        else:
-            fails['GATE0_bad_action'].append((cid, action))
+                        if name not in ts:
+                            fails['GATE2_tool_not_visible'].append((cid, name, sorted(ts)))
+                        if not isinstance(args, dict):
+                            fails['GATE1_args_not_object'].append((cid, type(args).__name__))
+                        else:
+                            extra = set(args) - SCHEMA[name]
+                            missing = REQUIRED[name] - set(args)
+                            if extra:
+                                fails['GATE1_args_extra'].append((cid, name, sorted(extra)))
+                            if missing:
+                                fails['GATE1b_required_key_omitted'].append(
+                                    (cid, name, sorted(missing)))
+                            schema = TOOL_SCHEMAS.get(name)
+                            if schema:
+                                for problem in validate_against_schema(schema, args):
+                                    fails['GATE1c_schema_violation'].append(
+                                        (cid, name, problem))
+                            if name == 'datetime':
+                                for problem in check_datetime(args):
+                                    fails['GATE1d_datetime_args'].append(
+                                        (cid, problem))
+            else:
+                fails['GATE0_bad_action'].append((cid, action))
 
-        think = (c.get('think') or '').strip()
-        if not think:
-            fails['GATE4_think_empty'].append(cid)
-        if BAD_THINK.search(think) or BAD_THINK_ZH.search(think):
-            fails['GATE4_think_selfdoubt'].append((cid, think[:40]))
-        if ENUMERATED.search(think):
-            fails['GATE4_think_enumerated'].append((cid, think[:40]))
+            think = (c.get('think') or '').strip()
+            if not think:
+                fails['GATE4_think_empty'].append(cid)
+            if BAD_THINK.search(think) or BAD_THINK_ZH.search(think):
+                fails['GATE4_think_selfdoubt'].append((cid, think[:40]))
+            if ENUMERATED.search(think):
+                fails['GATE4_think_enumerated'].append((cid, think[:40]))
 
-        answer = c.get('answer') or ''
-        cjk = bool(re.search(r'[一-鿿]', answer))
-        if c.get('lang') == 'zh' and not cjk:
-            fails['GATE6_lang_mismatch'].append(cid)
-        if c.get('lang') == 'en' and cjk:
-            fails['GATE6_lang_mismatch'].append(cid)
+            answer = c.get('answer') or ''
+            cjk = bool(re.search(r'[一-鿿]', answer))
+            if c.get('lang') == 'zh' and not cjk:
+                fails['GATE6_lang_mismatch'].append(cid)
+            if c.get('lang') == 'en' and cjk:
+                fails['GATE6_lang_mismatch'].append(cid)
         if CONTAM.search(json.dumps(c, ensure_ascii=False)):
             fails['GATE7_contamination'].append(cid)
 
     for cid, n in ids.items():
         if n > 1:
             fails['GATE0_duplicate_id'].append((cid, n))
+
+    # GATE10: multi_step chains. Each step but the last is a call carrying a
+    # result in the tool's real shape; the last is the answer stage.
+    for c in bysub.get('multi_step', []):
+        cid = c['id']
+        steps = c.get('steps') or []
+        if len(steps) < 2:
+            fails['GATE10_too_few_steps'].append((cid, len(steps)))
+            continue
+        if len(steps) > 5:
+            fails['GATE10_too_many_steps'].append((cid, len(steps)))
+        seen_calls = []
+        for index, step in enumerate(steps):
+            last = index == len(steps) - 1
+            action = step.get('action')
+            if not last and action != 'call':
+                fails['GATE10_nonfinal_not_call'].append((cid, index, action))
+                continue
+            if last and action not in ('answer', 'abstain'):
+                fails['GATE10_final_not_answer'].append((cid, action))
+
+            # Per-step think/language checks mirror GATE4/GATE6, since a
+            # multi_step case's think and answer text lives on each step
+            # rather than at the case's top level.
+            step_think = (step.get('think') or '').strip()
+            if not step_think:
+                fails['GATE4_think_empty'].append((cid, index))
+            if BAD_THINK.search(step_think) or BAD_THINK_ZH.search(step_think):
+                fails['GATE4_think_selfdoubt'].append((cid, index, step_think[:40]))
+            if ENUMERATED.search(step_think):
+                fails['GATE4_think_enumerated'].append((cid, index, step_think[:40]))
+
+            if action != 'call':
+                step_answer = (step.get('answer') or '').strip()
+                if not step_answer:
+                    fails['GATE10_answer_empty'].append((cid, index))
+                cjk = bool(re.search(r'[一-鿿]', step_answer))
+                if c.get('lang') == 'zh' and not cjk:
+                    fails['GATE6_lang_mismatch'].append((cid, index))
+                if c.get('lang') == 'en' and cjk:
+                    fails['GATE6_lang_mismatch'].append((cid, index))
+                continue
+            call = step.get('call') or {}
+            name, args = call.get('name'), call.get('arguments')
+            if name not in SCHEMA:
+                fails['GATE10_bad_tool'].append((cid, index, name))
+                continue
+            if name not in (c.get('tools') or ()):
+                fails['GATE10_tool_not_visible'].append((cid, index, name))
+            if not isinstance(args, dict):
+                fails['GATE1_args_not_object'].append((cid, index))
+            else:
+                schema = TOOL_SCHEMAS.get(name)
+                if schema:
+                    for problem in validate_against_schema(schema, args):
+                        fails['GATE1c_schema_violation'].append((cid, index, problem))
+                if name == 'datetime':
+                    for problem in check_datetime(args):
+                        fails['GATE1d_datetime_args'].append((cid, index, problem))
+            # The runner rejects a repeated successful call, so training one
+            # teaches a move that gets refused.
+            signature = json.dumps([name, args], sort_keys=True, ensure_ascii=False)
+            if signature in seen_calls:
+                fails['GATE10_duplicate_call'].append((cid, index, name))
+            seen_calls.append(signature)
+            # Result envelope and payload shape.
+            result = step.get('result')
+            if not isinstance(result, dict):
+                fails['GATE10_result_missing'].append((cid, index))
+                continue
+            if result.get('tool') != name:
+                fails['GATE10_result_tool_mismatch'].append(
+                    (cid, index, result.get('tool'), name))
+            if result.get('ok') is True:
+                payload = result.get('result')
+                wanted = RESULT_KEYS.get(name)
+                if wanted is not None:
+                    if not isinstance(payload, dict):
+                        fails['GATE10_result_payload_shape'].append(
+                            (cid, index, type(payload).__name__))
+                    else:
+                        missing = wanted - set(payload)
+                        extra = set(payload) - wanted
+                        if missing:
+                            fails['GATE10_result_keys_missing'].append(
+                                (cid, index, name, sorted(missing)))
+                        if extra:
+                            fails['GATE10_result_keys_extra'].append(
+                                (cid, index, name, sorted(extra)))
+            elif result.get('ok') is not False:
+                fails['GATE10_result_no_ok'].append((cid, index))
 
     # GATE8: near_neighbor must share a concrete object with a positive and
     # name a paired tool. This is what catches "generic domain knowledge"
