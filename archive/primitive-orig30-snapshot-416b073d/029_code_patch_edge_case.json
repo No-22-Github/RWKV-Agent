@@ -3,7 +3,7 @@
   "title": "Code Patch Edge Case",
   "mode": "benchmark",
   "system": "base",
-  "prompt": "read_file parser.py and NOTES.md. write_file parser.py so it does what NOTES.md says (strip whitespace and accept slash dates as well as ISO). run_tests; if FAIL, write_file again with both fixes. submit the words tests passed (not PASS).",
+  "prompt": "NOTES.md and README.md describe what parse_date must accept. Edit parser.py with write_file only, run_tests until PASS, submit: tests passed",
   "tools": "write",
   "environment": {
     "kind": "emulated",

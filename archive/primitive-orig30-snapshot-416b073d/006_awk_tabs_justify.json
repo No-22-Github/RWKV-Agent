@@ -3,7 +3,7 @@
   "title": "Tabs To Aligned Columns",
   "mode": "benchmark",
   "system": "base",
-  "prompt": "read_file README.md first. write_file align.awk as exactly two lines copied from README.md: BEGIN { FS=\"\\t\" } and { printf \"%-6s %2s %5s\\n\", $1, $2, $3 } (keep the { } around printf, the hyphen in %-, and the \\n). run_awk with script_path=align.awk and input_path=data.tsv. If stdout starts with ERROR, write_file again — never submit an ERROR. Submit the aligned table.",
+  "prompt": "align.awk still uses print. README.md gives the exact replacement printf line — copy that line into align.awk unchanged (left-justify / field widths are part of the spec). write_file, run_awk on data.tsv, submit the stdout.",
   "tools": "awk",
   "environment": {
     "kind": "emulated",

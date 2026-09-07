@@ -3,7 +3,7 @@
   "title": "Invoice Code Repair",
   "mode": "benchmark",
   "system": "base",
-  "prompt": "Read NOTES.md first: tax uses the amount after discount, not the raw subtotal. write_file invoice.py, run_tests; if FAIL still mentions tax, the taxable base is still wrong. Submit a short summary only after PASS.",
+  "prompt": "The invoice calculator is failing its unit tests. Read NOTES.md, fix invoice.py, call run_tests until PASS, then submit a short summary. Do not finish before tests pass.",
   "tools": [
     "list_files",
     "read_file",

@@ -3,7 +3,7 @@
   "title": "Recover From Bad Edit Target",
   "mode": "benchmark",
   "system": "base",
-  "prompt": "Call list_files on '.', then read_file settings.txt, then write_file the full file with color=green (keep the color= key, do not write only the word green). Submit green.",
+  "prompt": "settings.txt has the wrong color. Change it to green (write_file), then submit exactly the color value green — not tool status text like ok.",
   "tools": "write",
   "environment": {
     "kind": "emulated",

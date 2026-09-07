@@ -3,7 +3,7 @@
   "title": "CSV Reconcile Returns",
   "mode": "benchmark",
   "system": "base",
-  "prompt": "read_file orders.csv and refunds.csv. Lua has no continue. for line in io.lines('orders.csv') do local sku,qty,price=line:match('([^,]+),([^,]+),([^,]+)') if tonumber(qty) then nets[sku]=(nets[sku] or 0)+tonumber(qty)*tonumber(price) end end. Subtract refunds the same way. print(string.format('%s %.2f', best_sku, best_net)) then submit that one line.",
+  "prompt": "Per README.md: net(sku) = sum(qty*unit_price over all orders rows) minus sum(refund amounts). Do not skip order rows or forget refunds. Submit the top sku as: SKU-XX N.NN",
   "tools": "nav",
   "environment": {
     "kind": "emulated",

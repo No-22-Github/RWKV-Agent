@@ -3,7 +3,7 @@
   "title": "EUR Trip Card Versus FX",
   "mode": "benchmark",
   "system": "base",
-  "prompt": "read_file bot_rates.tsv, trip_budget.csv, rate_guide.md. Do not call io.lines on a variable. Use path strings: for line in io.lines('bot_rates.tsv') do ... end. On the line that starts with EUR, tonumber the last tab field (spot_sell). amount = tonumber(FILES['trip_budget.csv']:match(',(%d+)')). Follow rate_guide.md; print(string.format('%s by %.2f', choice, saved)); submit that line. If Lua errors, rewrite the loop — do not repeat io.lines(budget):match.",
+  "prompt": "Follow rate_guide.md: first form gross = EUR amount * EUR spot_sell, then apply the wallet/card multipliers. FILES['...'] are strings (gmatch), not tables. Submit one line: EUR by N.NN or CARD by N.NN",
   "tools": "nav",
   "environment": {
     "kind": "emulated",

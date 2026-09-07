@@ -19,7 +19,7 @@ const (
 	SuitePrimitiveFeedback30 = "primitive-feedback30"
 	maxPrimitiveCaseCount    = 512
 	maxPrimitiveSuiteBytes   = 64 << 20
-	primitiveSourceBase      = "https://github.com/RWKV-Vibe/rwkv-Primitive-Bench/blob/416b073d2c5442ae34bfbf8a3b84ed414b5b85ff"
+	primitiveSourceBase      = "https://github.com/RWKV-Vibe/rwkv-Primitive-Bench/blob/0350023f99a31133fb30eb32dacf779f196827d4"
 )
 
 // CanonicalBuiltinSuiteName maps legacy built-in names to their explicit,

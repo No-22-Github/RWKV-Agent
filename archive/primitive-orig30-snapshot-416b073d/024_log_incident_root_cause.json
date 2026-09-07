@@ -3,7 +3,7 @@
   "title": "Log Incident Root Cause",
   "mode": "benchmark",
   "system": "base",
-  "prompt": "list_files '.', then read_file deploy.log, app.log, worker.log. Do not search. Do not use run_lua. Submit exactly three tokens: service CODE request_id (service= value, code= value, request_id= value). Skip ERROR lines that contain stale or before deploy. Among remaining ERROR lines, pick the smallest timestamp after the deploy marker — check worker.log as well as app.log.",
+  "prompt": "Read deploy.log, app.log, and worker.log once each (prefer reading over long scripts). After the deploy marker timestamp, choose the earliest ERROR that includes request_id across those files. Submit: <service> <CODE> <request_id>.",
   "tools": "nav",
   "environment": {
     "kind": "emulated",
@@ -35,6 +35,6 @@
     ]
   },
   "evaluation": "submit",
-  "max_turns": 16,
+  "max_turns": 12,
   "suite": "original"
 }

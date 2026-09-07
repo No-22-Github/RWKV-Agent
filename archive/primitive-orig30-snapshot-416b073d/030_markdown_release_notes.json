@@ -1,0 +1,41 @@
+{
+  "name": "markdown_release_notes",
+  "title": "Markdown Release Notes",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "We're rolling 2.4.0. Check CHANGELOG.md and docs/migration.md for the required CLI migration flag, then report only that flag string.",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "CHANGELOG.md": [
+        "# Changelog",
+        "",
+        "## 2.5.0",
+        "- No breaking changes.",
+        "",
+        "## 2.4.0",
+        "- BREAKING: auth middleware defaults to v2. See docs/migration.md.",
+        "",
+        "## 2.3.0",
+        "- Legacy auth flag was --legacy-auth."
+      ],
+      "docs/migration.md": [
+        "# Migration",
+        "",
+        "For version 2.4.0, set --enable-v2-auth during rollout. Do not use --legacy-auth for 2.4.0."
+      ],
+      "package.json": [
+        "{\"name\": \"demo\", \"version\": \"2.4.0\"}"
+      ]
+    },
+    "expected_submit": "--enable-v2-auth",
+    "required_tools": [
+      "read_file",
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 12,
+  "suite": "original"
+}

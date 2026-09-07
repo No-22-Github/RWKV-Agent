@@ -3,7 +3,7 @@
   "title": "Read Only Repo Explain",
   "mode": "benchmark",
   "system": "base",
-  "prompt": "Read src/run.rs and src/client.rs. Submit one sentence that includes the src/ entrypoint path and every function name that appears in those two files.",
+  "prompt": "Read-only: explore this tiny repo and report one sentence explaining how the runner works. Include the entrypoint path and the key function names you find.",
   "tools": "nav",
   "environment": {
     "kind": "emulated",

@@ -1,0 +1,32 @@
+{
+  "name": "find_read_submit",
+  "title": "Find Obvious File And Submit",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "There's an answer buried in this little project. Start with list_files on '.', follow the README with relative paths, read the answer file, and submit only that bare token.",
+  "tools": "nav",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "README.md": [
+        "Look in src/answer.txt.",
+        "When you find the answer, submit only the bare token (no line-number prefix)."
+      ],
+      "src/answer.txt": [
+        "BLUEBIRD"
+      ],
+      "notes/todo.txt": [
+        "nothing"
+      ]
+    },
+    "expected_submit": "BLUEBIRD",
+    "required_tools": [
+      "list_files",
+      "read_file",
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 10,
+  "suite": "original"
+}

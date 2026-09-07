@@ -3,7 +3,7 @@
   "title": "CSV Column Sum",
   "mode": "benchmark",
   "system": "base",
-  "prompt": "Call read_file on sales.csv first. Data rows are item,qty (comma, then digits). ^%d+$ matches none of those rows. Sum qty with FILES['sales.csv']:gmatch on comma-plus-digits, then submit the integer.",
+  "prompt": "Open sales.csv, add up the qty values, and report only the total number.",
   "tools": "nav",
   "environment": {
     "kind": "emulated",

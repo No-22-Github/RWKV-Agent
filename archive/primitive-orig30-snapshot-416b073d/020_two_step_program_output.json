@@ -3,7 +3,7 @@
   "title": "Two Step Program Output",
   "mode": "benchmark",
   "system": "base",
-  "prompt": "run_file make_token.py, then run_file use_token.py. Submit use_token.py stdout as a whole line, including the FINAL= prefix — do not drop characters before the token.",
+  "prompt": "Run make_token.py, then use_token.py. Report use_token.py's stdout exactly as printed — keep the FINAL= prefix, do not strip it.",
   "tools": "run_file_submit",
   "environment": {
     "kind": "emulated",

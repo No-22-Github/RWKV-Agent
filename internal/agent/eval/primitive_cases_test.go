@@ -383,7 +383,7 @@ func TestPrimitiveCasesEmbeddedSnapshot(t *testing.T) {
 		if testCase.primitive == nil || testCase.Primitive == nil {
 			t.Fatalf("embedded case %q has no Primitive metadata", testCase.ID)
 		}
-		if !strings.Contains(testCase.Source, "416b073d2c5442ae34bfbf8a3b84ed414b5b85ff/agent_cases_orig30/") {
+		if !strings.Contains(testCase.Source, "0350023f99a31133fb30eb32dacf779f196827d4/agent_cases_orig30/") {
 			t.Fatalf("embedded case %q source = %q", testCase.ID, testCase.Source)
 		}
 	}
@@ -454,7 +454,7 @@ func TestPrimitiveFeedback30CasesEmbeddedSnapshot(t *testing.T) {
 		if testCase.primitive == nil || testCase.Primitive == nil {
 			t.Fatalf("embedded feedback case %q has no Primitive metadata", testCase.ID)
 		}
-		if !strings.Contains(testCase.Source, "416b073d2c5442ae34bfbf8a3b84ed414b5b85ff/agent_cases_feedback/") {
+		if !strings.Contains(testCase.Source, "0350023f99a31133fb30eb32dacf779f196827d4/agent_cases_feedback/") {
 			t.Fatalf("embedded feedback case %q source = %q", testCase.ID, testCase.Source)
 		}
 		if !slices.Equal(testCase.primitive.toolNames, primitiveToolSets["nav"]) {

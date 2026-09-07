@@ -7,6 +7,8 @@
 
 - 数据集：`RWKV-Vibe/rwkv-Primitive-Bench/agent_cases_orig30`，共 30 题。
 - 上游快照：`416b073d2c5442ae34bfbf8a3b84ed414b5b85ff`。
+
+> 注：本文分数基于旧快照 `416b073d2c5442ae34bfbf8a3b84ed414b5b85ff`，与新快照 `0350023f99a31133fb30eb32dacf779f196827d4` 不可比。
 - RWKV-Agent：`c94a35b`，Harness `rwkv-agent-eval-v12`。
 - 模型：`rwkv7-g1i-7.2b-20260805-ctx16384`。
 - 接口：`rwkv_lightning_cuda /v1/batch/completions`。

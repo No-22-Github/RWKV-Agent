@@ -571,7 +571,7 @@ export OPENAI_API_KEY='...'
 
 The repository embeds a pinned snapshot of
 [`RWKV-Vibe/rwkv-Primitive-Bench`](https://github.com/RWKV-Vibe/rwkv-Primitive-Bench)
-at commit `416b073d2c5442ae34bfbf8a3b84ed414b5b85ff`. The JSON is embedded in the CLI,
+at commit `0350023f99a31133fb30eb32dacf779f196827d4`. The JSON is embedded in the CLI,
 so local, CI, and external-model evaluations use identical prompts, fixtures, and
 scoring contracts without cloning the upstream repository.
 
@@ -624,6 +624,8 @@ output is a UTC-timestamped `runs/agent-eval-*` directory.
 The complete v12 baseline, v13–v21 evolution, reproduction commands, and policy notes
 are in
 [docs/evaluations/primitive-bench-v12-baseline-2026-08-13.md](docs/evaluations/primitive-bench-v12-baseline-2026-08-13.md).
+The historical baseline scores above were recorded against the old case-bank
+snapshot and are not comparable with the new snapshot.
 
 ## 9. Concurrency Dashboard
 

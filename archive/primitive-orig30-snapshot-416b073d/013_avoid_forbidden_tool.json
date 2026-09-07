@@ -1,0 +1,27 @@
+{
+  "name": "avoid_forbidden_tool",
+  "title": "Avoid Forbidden Tool",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "Read answer.txt and report exactly that answer. Schedule tools are irrelevant here — leave them alone.",
+  "tools": "nav_plus_schedule",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "answer.txt": [
+        "MANGO"
+      ]
+    },
+    "expected_submit": "MANGO",
+    "required_tools": [
+      "read_file",
+      "submit"
+    ],
+    "forbidden_tools": [
+      "list_schedules"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 8,
+  "suite": "original"
+}

@@ -1,15 +1,16 @@
 {
-  "name": "invoice_fix",
-  "title": "Invoice Code Repair",
+  "name": "invoice_fix_with_schedule_distractor",
+  "title": "Invoice Repair With Schedule Distractor",
   "mode": "benchmark",
   "system": "base",
-  "prompt": "Read NOTES.md first: tax uses the amount after discount, not the raw subtotal. write_file invoice.py, run_tests; if FAIL still mentions tax, the taxable base is still wrong. Submit a short summary only after PASS.",
+  "prompt": "The invoice calculator is failing its unit tests. Read NOTES.md, fix invoice.py, and do not finish until the tests show PASS — then give a one-line summary of the fix. Ignore anything about schedules.",
   "tools": [
     "list_files",
     "read_file",
     "write_file",
     "search",
     "run_tests",
+    "list_schedules",
     "submit"
   ],
   "environment": {
@@ -62,7 +63,10 @@
         "Preferred shape: discounted = subtotal - discount; tax = discounted * tax_rate; total = discounted + tax + shipping.",
         "After editing, invoke the project's test runner (the run_tests function) until it prints PASS, then submit a short summary of the change."
       ]
-    }
+    },
+    "forbidden_tools": [
+      "list_schedules"
+    ]
   },
   "evaluation": "invoice",
   "max_turns": 22,

@@ -3,7 +3,7 @@
   "title": "JSONL Event Aggregate",
   "mode": "benchmark",
   "system": "base",
-  "prompt": "read_file events.jsonl. for line in io.lines('events.jsonl') do local ev=json.decode(line). Every checkout+success row counts: users[ev.user]=true for each of them (not only the first user). After the loop: local nusers=0; for _ in pairs(users) do nusers=nusers+1 end. print(string.format('orders=%d users=%d revenue=%.2f', orders, nusers, revenue)) then submit that line.",
+  "prompt": "Read events.jsonl and README.md. For every line with checkout and success (include the last line): count it, track distinct users, and add that line's amount into revenue. Submit one line: orders=N users=N revenue=N.NN",
   "tools": "nav",
   "environment": {
     "kind": "emulated",

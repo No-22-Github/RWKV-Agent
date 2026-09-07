@@ -1,8 +1,11 @@
 # Primitive Bench `agent_cases_feedback` curated 30-case snapshot
 
-- Source: <https://github.com/RWKV-Vibe/rwkv-Primitive-Bench/tree/416b073d2c5442ae34bfbf8a3b84ed414b5b85ff/agent_cases_feedback>
-- Commit: `416b073d2c5442ae34bfbf8a3b84ed414b5b85ff`
+- Source: <https://github.com/RWKV-Vibe/rwkv-Primitive-Bench/tree/0350023f99a31133fb30eb32dacf779f196827d4/agent_cases_feedback>
+- Commit: `0350023f99a31133fb30eb32dacf779f196827d4`
 - Imported: 2026-08-14
+- Updated: 2026-09-07 (provenance pointer only: the selected files are
+  byte-identical between the prior commit `416b073d2c5442ae34bfbf8a3b84ed414b5b85ff`
+  and this commit; `agent_cases_feedback` was unchanged upstream in between)
 - Files: 29 unmodified JSON cases plus one audited correction selected from the
   upstream 112-case `agent_cases_feedback` suite
 

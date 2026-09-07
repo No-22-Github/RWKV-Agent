@@ -516,7 +516,7 @@ export OPENAI_API_KEY='...'
 ### Primitive Bench 双轨
 
 仓库内置 [`RWKV-Vibe/rwkv-Primitive-Bench`](https://github.com/RWKV-Vibe/rwkv-Primitive-Bench)
-commit `416b073d2c5442ae34bfbf8a3b84ed414b5b85ff` 的固定快照，JSON 嵌入 CLI，本地、CI
+commit `0350023f99a31133fb30eb32dacf779f196827d4` 的固定快照，JSON 嵌入 CLI，本地、CI
 和外部模型评测使用完全相同的 prompt、fixture 与评分契约，不需要先 clone 上游仓库。
 
 两种显式工具 profile：
@@ -559,6 +559,7 @@ suite 逐题采用快照中的原始 `max_turns`（6–22），并用 1024-token
 
 完整的 v12 基线、v13–v21 演进、复跑命令与政策记录见
 [docs/evaluations/primitive-bench-v12-baseline-2026-08-13.md](docs/evaluations/primitive-bench-v12-baseline-2026-08-13.md)。
+上方历史基线分数基于旧版题库快照，与新快照不可比。
 
 ## 9. 并发 Dashboard
 

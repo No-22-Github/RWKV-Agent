@@ -3,7 +3,7 @@
   "title": "BOT FX Column Trap",
   "mode": "benchmark",
   "system": "base",
-  "prompt": "read_file rate_guide.md, bot_rates.tsv, orders.csv. Per currency store all five TSV fields, not only column 2. gmatch on tabs, not %S+ (tabs are not spaces). Arrows in rate_guide.md: buy_cash → cash_sell, buy_spot → spot_sell, sell_cash → cash_buy, sell_spot → spot_buy. action is buy_cash/buy_spot/sell_cash/sell_spot (not the word buy). buys add, sells subtract. print two-decimal outflow then submit.",
+  "prompt": "Read rate_guide.md for the buy_*/sell_* → column map and README.md for FILES usage. Lua patterns use %d (not \\d). Compute net TWD outflow to two decimals.",
   "tools": "nav",
   "environment": {
     "kind": "emulated",

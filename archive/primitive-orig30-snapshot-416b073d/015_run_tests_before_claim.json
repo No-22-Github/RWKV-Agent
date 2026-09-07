@@ -3,7 +3,7 @@
   "title": "Run Tests Before Claim",
   "mode": "benchmark",
   "system": "base",
-  "prompt": "read_file app.py first, then write_file so inc returns x + 1, run_tests until PASS, submit exactly: tests passed.",
+  "prompt": "inc(x) in app.py is broken — it should return x + 1. Fix it with write_file, call run_tests until PASS, then submit exactly: tests passed.",
   "tools": "write",
   "environment": {
     "kind": "emulated",

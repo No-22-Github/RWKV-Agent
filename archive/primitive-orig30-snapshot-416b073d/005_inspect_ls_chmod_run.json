@@ -1,0 +1,33 @@
+{
+  "name": "inspect_ls_chmod_run",
+  "title": "Inspect Mode Then Run",
+  "mode": "benchmark",
+  "system": "base",
+  "prompt": "Check the permission bits on the files here, fix tool.py if needed so it can run as a script (do not reimplement it), run it, and report its stdout.",
+  "tools": "run",
+  "environment": {
+    "kind": "emulated",
+    "files": {
+      "tool.py": [
+        "print('booting')"
+      ],
+      "README.md": [
+        "Run tool.py as a script after checking permissions.",
+        "Submit the process stdout, not a guess from the source."
+      ]
+    },
+    "run_outputs": {
+      "tool.py": "LAUNCHED"
+    },
+    "expected_submit": "LAUNCHED",
+    "required_tools": [
+      "ls",
+      "chmod",
+      "run_file",
+      "submit"
+    ]
+  },
+  "evaluation": "submit",
+  "max_turns": 12,
+  "suite": "original"
+}

@@ -3,7 +3,7 @@
   "title": "Line Of Credit Interest Estimate",
   "mode": "benchmark",
   "system": "base",
-  "prompt": "Call read_file on loan_terms.txt and balance_schedule.csv first. loan_terms.txt already states APR_decimal (do not add the raw label lines together — tonumber the numbers). for line in io.lines('balance_schedule.csv') do; skip the header; interest = balance * APR_decimal * days / 365. If run_lua errors, change the code (do not repeat it). string.format('%.2f', sum) then submit that.",
+  "prompt": "Read loan_terms.txt and balance_schedule.csv. Compute total LOC interest for every schedule row using the formula in loan_terms.txt. Report the summed interest rounded to 2 decimals (not a balance).",
   "tools": "nav",
   "environment": {
     "kind": "emulated",
