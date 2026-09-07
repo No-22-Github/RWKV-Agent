@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"io"
+	"os"
 	"sync"
 	"testing"
 	"time"
@@ -16,73 +17,44 @@ import (
 	"github.com/no22/RWKV-Agent/internal/inference/backend/mock"
 )
 
+const (
+	// ptyRunBudget bounds one full PTY interaction, so it has to stay larger
+	// than the sum of the individual wait deadlines below: a loaded runner
+	// that spends the whole wait budget must still have room to send the
+	// scripted keys before the context expires.
+	ptyRunBudget = 20 * time.Second
+	// ptyWaitTimeout bounds a single wait for expected terminal output.
+	ptyWaitTimeout = 5 * time.Second
+	// ptyDrainTimeout bounds how long teardown waits for the TUI to release
+	// the PTY before closing the descriptors anyway.
+	ptyDrainTimeout = 5 * time.Second
+)
+
 func TestPTYAlternateScreenResizeAndCleanExit(t *testing.T) {
 	t.Setenv("TERM", "xterm-256color")
 
 	model := tuiMockModel(t, mock.Config{Output: "你好🙂", ChunkSize: 1})
-	factory := tuiRunnerFactory(model, 4)
-	master, slave, err := pty.Open()
-	if err != nil {
-		t.Fatal(err)
-	}
-	defer master.Close()
-	defer slave.Close()
-	if err := pty.Setsize(master, &pty.Winsize{Cols: 120, Rows: 32}); err != nil {
-		t.Fatal(err)
-	}
-
-	var output lockedBuffer
-	readDone := make(chan struct{})
-	go func() {
-		_, _ = io.Copy(&output, master)
-		close(readDone)
-	}()
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	finished := make(chan struct {
-		summary concurrentcli.Summary
-		err     error
-	}, 1)
-	go func() {
-		summary, runErr := Run(
-			ctx,
-			factory,
-			Metadata{Model: "mock", Provider: "mlx", Concurrency: 4},
-			slave,
-			slave,
-		)
-		finished <- struct {
-			summary concurrentcli.Summary
-			err     error
-		}{summary, runErr}
-	}()
+	session := startPTYSession(t, model, 4, pty.Winsize{Cols: 120, Rows: 32})
 
 	time.Sleep(150 * time.Millisecond)
-	if err := pty.Setsize(master, &pty.Winsize{Cols: 80, Rows: 24}); err != nil {
+	if err := pty.Setsize(session.master, &pty.Winsize{Cols: 80, Rows: 24}); err != nil {
 		t.Fatal(err)
 	}
 	time.Sleep(150 * time.Millisecond)
-	if _, err := master.Write([]byte("q")); err != nil {
+	if _, err := session.master.Write([]byte("q")); err != nil {
 		t.Fatal(err)
 	}
 
-	select {
-	case result := <-finished:
-		if result.err != nil {
-			t.Fatal(result.err)
-		}
-		if result.summary.Sessions != 4 || result.summary.Cancelled {
-			t.Fatalf("summary = %+v", result.summary)
-		}
-	case <-ctx.Done():
-		t.Fatal("TUI did not exit after q")
+	result := session.waitExit(t, "TUI")
+	if result.err != nil {
+		t.Fatal(result.err)
 	}
-	_ = slave.Close()
-	_ = master.Close()
-	<-readDone
+	if result.summary.Sessions != 4 || result.summary.Cancelled {
+		t.Fatalf("summary = %+v", result.summary)
+	}
+	session.stop(t)
 
-	rendered := output.String()
+	rendered := session.output.String()
 	if !bytes.Contains([]byte(rendered), []byte("\033[?1049h")) {
 		t.Fatalf("alternate-screen enter sequence missing: %q", rendered)
 	}
@@ -113,75 +85,39 @@ func TestPTYMouseSelectsPaneAndContinuesConversation(t *testing.T) {
 	t.Setenv("TERM", "xterm-256color")
 
 	model := tuiMockModel(t, mock.Config{Output: "answer", ChunkSize: 1})
-	factory := tuiRunnerFactory(model, 1)
-	master, slave, err := pty.Open()
-	if err != nil {
+	session := startPTYSession(t, model, 1, pty.Winsize{Cols: 100, Rows: 24})
+
+	waitForPTYOutput(t, session.output, "click/Enter continue")
+	if _, err := session.master.Write([]byte("\033[<0;4;4M\033[<0;4;4m")); err != nil {
 		t.Fatal(err)
 	}
-	defer master.Close()
-	defer slave.Close()
-	if err := pty.Setsize(master, &pty.Winsize{Cols: 100, Rows: 24}); err != nil {
+	waitForPTYOutput(t, session.output, "Ask")
+	if _, err := session.master.Write([]byte("follow up\r")); err != nil {
+		t.Fatal(err)
+	}
+	waitForPTYOutput(t, session.output, "12 tokens")
+	// ctrl+c blurs the follow-up input so the next q reaches the top level.
+	// A bare ESC would work too, but a terminal parser is free to read "ESC"
+	// followed by another key as one alt+key sequence, which drops both and
+	// leaves the TUI waiting for a quit that never arrives.
+	if _, err := session.master.Write([]byte{0x03}); err != nil {
+		t.Fatal(err)
+	}
+	time.Sleep(100 * time.Millisecond)
+	if _, err := session.master.Write([]byte("q")); err != nil {
 		t.Fatal(err)
 	}
 
-	var output lockedBuffer
-	readDone := make(chan struct{})
-	go func() {
-		_, _ = io.Copy(&output, master)
-		close(readDone)
-	}()
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	finished := make(chan struct {
-		summary concurrentcli.Summary
-		err     error
-	}, 1)
-	go func() {
-		summary, runErr := Run(
-			ctx,
-			factory,
-			Metadata{Model: "mock", Provider: "mlx", Concurrency: 1},
-			slave,
-			slave,
-		)
-		finished <- struct {
-			summary concurrentcli.Summary
-			err     error
-		}{summary, runErr}
-	}()
+	result := session.waitExit(t, "mouse follow-up flow")
+	if result.err != nil {
+		t.Fatal(result.err)
+	}
+	if result.summary.Tokens != 12 {
+		t.Fatalf("summary = %+v, want two 6-token answers", result.summary)
+	}
+	session.stop(t)
 
-	waitForPTYOutput(t, &output, "click/Enter continue", 2*time.Second)
-	if _, err := master.Write([]byte("\033[<0;4;4M\033[<0;4;4m")); err != nil {
-		t.Fatal(err)
-	}
-	waitForPTYOutput(t, &output, "Ask", 2*time.Second)
-	if _, err := master.Write([]byte("follow up\r")); err != nil {
-		t.Fatal(err)
-	}
-	waitForPTYOutput(t, &output, "12 tokens", 2*time.Second)
-	if _, err := master.Write([]byte{0x1b}); err != nil {
-		t.Fatal(err)
-	}
-	time.Sleep(50 * time.Millisecond)
-	if _, err := master.Write([]byte("q")); err != nil {
-		t.Fatal(err)
-	}
-
-	select {
-	case result := <-finished:
-		if result.err != nil {
-			t.Fatal(result.err)
-		}
-		if result.summary.Tokens != 12 {
-			t.Fatalf("summary = %+v, want two 6-token answers", result.summary)
-		}
-	case <-ctx.Done():
-		t.Fatalf("mouse follow-up flow did not exit: %q", output.String())
-	}
-	_ = slave.Close()
-	_ = master.Close()
-	<-readDone
-	rendered := output.String()
+	rendered := session.output.String()
 	if !bytes.Contains([]byte(rendered), []byte("follow up")) ||
 		!bytes.Contains([]byte(rendered), []byte("You")) {
 		t.Fatalf("follow-up transcript was not rendered: %q", rendered)
@@ -196,67 +132,121 @@ func testPTYCancelKey(t *testing.T, key []byte) {
 		Started:  started,
 		Continue: make(chan struct{}),
 	})
-	factory := tuiRunnerFactory(model, 4)
+	session := startPTYSession(t, model, 4, pty.Winsize{Cols: 100, Rows: 24})
+
+	select {
+	case <-started:
+	case <-time.After(ptyWaitTimeout):
+		t.Fatal("generation did not start")
+	}
+	if _, err := session.master.Write(key); err != nil {
+		t.Fatal(err)
+	}
+
+	result := session.waitExit(t, "TUI")
+	if !errors.Is(result.err, context.Canceled) {
+		t.Fatalf("Run error = %v, want context.Canceled", result.err)
+	}
+	if !result.summary.Cancelled {
+		t.Fatalf("summary = %+v, want cancelled", result.summary)
+	}
+	session.stop(t)
+
+	if !bytes.Contains(session.output.Bytes(), []byte("\033[?1049l")) {
+		t.Fatal("alternate screen was not restored after cancellation")
+	}
+}
+
+type ptyResult struct {
+	summary concurrentcli.Summary
+	err     error
+}
+
+// ptySession owns one scripted TUI run over a PTY: it streams the terminal
+// output into a buffer and drives Run on its own goroutine.
+type ptySession struct {
+	master   *os.File
+	slave    *os.File
+	output   *lockedBuffer
+	finished chan ptyResult
+	exited   chan struct{}
+	cancel   context.CancelFunc
+	readDone chan struct{}
+	stopOnce sync.Once
+}
+
+func startPTYSession(t *testing.T, model inference.Model, concurrency int, size pty.Winsize) *ptySession {
+	t.Helper()
 	master, slave, err := pty.Open()
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer master.Close()
-	defer slave.Close()
-	if err := pty.Setsize(master, &pty.Winsize{Cols: 100, Rows: 24}); err != nil {
+	if err := pty.Setsize(master, &size); err != nil {
+		_ = master.Close()
+		_ = slave.Close()
 		t.Fatal(err)
 	}
 
-	var output lockedBuffer
-	readDone := make(chan struct{})
+	session := &ptySession{
+		master:   master,
+		slave:    slave,
+		output:   &lockedBuffer{},
+		finished: make(chan ptyResult, 1),
+		exited:   make(chan struct{}),
+		readDone: make(chan struct{}),
+	}
 	go func() {
-		_, _ = io.Copy(&output, master)
-		close(readDone)
+		_, _ = io.Copy(session.output, master)
+		close(session.readDone)
 	}()
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	finished := make(chan struct {
-		summary concurrentcli.Summary
-		err     error
-	}, 1)
+
+	ctx, cancel := context.WithTimeout(context.Background(), ptyRunBudget)
+	session.cancel = cancel
 	go func() {
+		defer close(session.exited)
 		summary, runErr := Run(
 			ctx,
-			factory,
-			Metadata{Model: "mock", Provider: "mlx", Concurrency: 4},
+			tuiRunnerFactory(model, concurrency),
+			Metadata{Model: "mock", Provider: "mlx", Concurrency: concurrency},
 			slave,
 			slave,
 		)
-		finished <- struct {
-			summary concurrentcli.Summary
-			err     error
-		}{summary, runErr}
+		session.finished <- ptyResult{summary: summary, err: runErr}
 	}()
 
-	select {
-	case <-started:
-	case <-ctx.Done():
-		t.Fatal("generation did not start")
-	}
-	if _, err := master.Write(key); err != nil {
-		t.Fatal(err)
-	}
-	select {
-	case result := <-finished:
-		if !errors.Is(result.err, context.Canceled) {
-			t.Fatalf("Run error = %v, want context.Canceled", result.err)
+	t.Cleanup(func() { session.stop(t) })
+	return session
+}
+
+// stop releases the PTY. It always waits for Run to return before closing the
+// descriptors: bubbletea keeps reading the slave fd from its own goroutine, so
+// closing it while the TUI is still running trips the race detector.
+func (s *ptySession) stop(t *testing.T) {
+	t.Helper()
+	s.stopOnce.Do(func() {
+		s.cancel()
+		select {
+		case <-s.exited:
+		case <-time.After(ptyDrainTimeout):
 		}
-		if !result.summary.Cancelled {
-			t.Fatalf("summary = %+v, want cancelled", result.summary)
+		_ = s.slave.Close()
+		_ = s.master.Close()
+		select {
+		case <-s.readDone:
+		case <-time.After(ptyDrainTimeout):
 		}
-	case <-ctx.Done():
-		t.Fatal("TUI did not exit after cancel key")
-	}
-	_ = slave.Close()
-	_ = master.Close()
-	<-readDone
-	if !bytes.Contains(output.Bytes(), []byte("\033[?1049l")) {
-		t.Fatal("alternate screen was not restored after cancellation")
+	})
+}
+
+// waitExit blocks until the TUI returns or the run budget expires.
+func (s *ptySession) waitExit(t *testing.T, what string) ptyResult {
+	t.Helper()
+	select {
+	case result := <-s.finished:
+		return result
+	case <-time.After(ptyRunBudget):
+		t.Fatalf("%s did not exit: %q", what, s.output.String())
+		return ptyResult{}
 	}
 }
 
@@ -304,9 +294,9 @@ func (b *lockedBuffer) Bytes() []byte {
 	return append([]byte(nil), b.Buffer.Bytes()...)
 }
 
-func waitForPTYOutput(t *testing.T, output *lockedBuffer, text string, timeout time.Duration) {
+func waitForPTYOutput(t *testing.T, output *lockedBuffer, text string) {
 	t.Helper()
-	deadline := time.Now().Add(timeout)
+	deadline := time.Now().Add(ptyWaitTimeout)
 	for time.Now().Before(deadline) {
 		if bytes.Contains(output.Bytes(), []byte(text)) {
 			return
