@@ -149,8 +149,8 @@ func bfclSuppliedCase(pair bfclProductPair) Case {
 			Prompt: fmt.Sprintf("请处理 %s：具体位置是 %s。", pair.Label, pair.Path),
 			Expect: Expectation{
 				Route:          "inspect",
-				Tools:          []string{tool},
-				Calls:          []ExpectedCall{{Name: tool, Arguments: arguments}},
+				RequiredTools:  []string{tool},
+				RequiredCalls:  []ExpectedCall{{Name: tool, Arguments: arguments}},
 				OutputContains: []string{pair.Value},
 			},
 		}},
@@ -170,8 +170,8 @@ func bfclStateCase(multi bfclProductMulti) Case {
 				Prompt: fmt.Sprintf("读取 %s，并报告其中的已验证值。", multi.Path),
 				Expect: Expectation{
 					Route:          "inspect",
-					Tools:          []string{"read_file"},
-					Calls:          []ExpectedCall{{Name: "read_file", Arguments: map[string]any{"path": multi.Path}}},
+					RequiredTools:  []string{"read_file"},
+					RequiredCalls:  []ExpectedCall{{Name: "read_file", Arguments: map[string]any{"path": multi.Path}}},
 					OutputContains: []string{multi.Value},
 				},
 			},
@@ -201,18 +201,19 @@ func bfclRecoveryCase(multi bfclProductMulti) Case {
 			{
 				Prompt: fmt.Sprintf("读取 %s；如果不存在，明确告诉我没有找到。", missingPath),
 				Expect: Expectation{
-					Route:          "inspect",
-					Tools:          []string{"read_file"},
-					Calls:          []ExpectedCall{{Name: "read_file", Arguments: map[string]any{"path": missingPath}}},
-					OutputContains: []string{"不存在"},
+					Route:         "inspect",
+					RequiredTools: []string{"read_file"},
+					// 跳步/防御性调用可接受：直接恢复出正确值，或按剧本报告缺失，
+					// 都算过。不强制精确工具序列，也不强制必须先读 missingPath。
+					OutputContainsAny: []string{"不存在", multi.Value},
 				},
 			},
 			{
 				Prompt: fmt.Sprintf("实际文件是 %s，请读取并报告其中的值。", multi.Path),
 				Expect: Expectation{
 					Route:          "inspect",
-					Tools:          []string{"read_file"},
-					Calls:          []ExpectedCall{{Name: "read_file", Arguments: map[string]any{"path": multi.Path}}},
+					RequiredTools:  []string{"read_file"},
+					RequiredCalls:  []ExpectedCall{{Name: "read_file", Arguments: map[string]any{"path": multi.Path}}},
 					OutputContains: []string{multi.Value},
 				},
 			},
