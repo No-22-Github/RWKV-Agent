@@ -256,8 +256,8 @@ func (e *primitiveExecution) tool(name string) (agent.Tool, error) {
 		), nil
 	case "run_lua":
 		return makeTool(
-			"Run Lua for calculation with task files available as FILES[path]. Host I/O, packages, OS, and debug APIs are disabled.",
-			`{"code":"Lua source using FILES[path] and print"}`,
+			"Run Lua for calculation. Files are strings at FILES['path']; also read_file('path'). Output ONLY via print (a bare return prints nothing). Forbidden: FILES.name dot access, host io.lines/io.open paths, json library, os/package/require.",
+			`{"code":"local text = FILES['a.txt']; print(#text)"}`,
 			`{"type":"object","properties":{"code":{"type":"string"}},"required":["code"],"additionalProperties":false}`,
 			e.runLua,
 		), nil
@@ -327,22 +327,17 @@ func primitiveToolExample(name string) string {
 }
 
 func (e *primitiveExecution) multiply(_ context.Context, raw json.RawMessage) (any, error) {
+	// int64 (not json.Number) so the shared DecodeToolArguments coercion
+	// accepts string-spelled integers like {"a":"4827"}; the strict path was
+	// meant for malformed structure, not scalar spelling.
 	var args struct {
-		A json.Number `json:"a"`
-		B json.Number `json:"b"`
+		A int64 `json:"a"`
+		B int64 `json:"b"`
 	}
 	if err := agent.DecodeToolArguments(raw, &args); err != nil {
 		return nil, err
 	}
-	a, err := strconv.ParseInt(args.A.String(), 10, 64)
-	if err != nil {
-		return nil, fmt.Errorf("%w: a must be an integer", agent.ErrInvalidToolArguments)
-	}
-	b, err := strconv.ParseInt(args.B.String(), 10, 64)
-	if err != nil {
-		return nil, fmt.Errorf("%w: b must be an integer", agent.ErrInvalidToolArguments)
-	}
-	return strconv.FormatInt(a*b, 10), nil
+	return strconv.FormatInt(args.A*args.B, 10), nil
 }
 
 func (e *primitiveExecution) listFiles(_ context.Context, raw json.RawMessage) (any, error) {
