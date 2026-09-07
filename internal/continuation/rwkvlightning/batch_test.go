@@ -183,11 +183,17 @@ func TestClientBatchBufferedAppliesStopsAndReportsMissingChoice(t *testing.T) {
 		defer server.Close()
 
 		results := runBatchedCalls(t, batchClient(t, server, false), []string{"p0", "p1"}, nil)
-		if got := results["p0"].result; got.Text != "alpha" || got.FinishReason != continuation.FinishStop {
-			t.Fatalf("p0 = %+v (want stop-truncated alpha)", got)
+		// Which caller lands on choice 0 depends on who joins the batch first,
+		// so assert on the set of texts instead of on a fixed prompt order.
+		texts := make(map[string]bool, len(results))
+		for prompt, result := range results {
+			if result.result.FinishReason != continuation.FinishStop {
+				t.Fatalf("call %q finish = %q", prompt, result.result.FinishReason)
+			}
+			texts[result.result.Text] = true
 		}
-		if got := results["p1"].result; got.Text != "beta" || got.FinishReason != continuation.FinishStop {
-			t.Fatalf("p1 = %+v", got)
+		if len(texts) != 2 || !texts["alpha"] || !texts["beta"] {
+			t.Fatalf("texts = %v, want stop-truncated alpha and beta", texts)
 		}
 	})
 
@@ -201,12 +207,24 @@ func TestClientBatchBufferedAppliesStopsAndReportsMissingChoice(t *testing.T) {
 		defer server.Close()
 
 		results := runBatchedCalls(t, batchClient(t, server, false), []string{"p0", "p1"}, nil)
-		if got := results["p0"]; got.err != nil || got.result.Text != "only-zero" {
-			t.Fatalf("p0 = %+v err = %v", got.result, got.err)
+		// Either caller may be the one that joined the batch second, so only
+		// the split matters: one answer, one isolated missing-choice failure.
+		var answered, missing int
+		for prompt, result := range results {
+			switch {
+			case result.err == nil:
+				answered++
+				if result.result.Text != "only-zero" {
+					t.Fatalf("call %q text = %q, want only-zero", prompt, result.result.Text)
+				}
+			case errors.Is(result.err, ErrRemote) && strings.Contains(result.err.Error(), "no choice for index 1"):
+				missing++
+			default:
+				t.Fatalf("call %q error = %v, want missing-choice remote error", prompt, result.err)
+			}
 		}
-		got := results["p1"]
-		if !errors.Is(got.err, ErrRemote) || !strings.Contains(got.err.Error(), "no choice for index 1") {
-			t.Fatalf("p1 error = %v, want missing-choice remote error", got.err)
+		if answered != 1 || missing != 1 {
+			t.Fatalf("answered = %d missing = %d, want one of each", answered, missing)
 		}
 	})
 }
