@@ -51,7 +51,11 @@ type Config struct {
 	// BatchWait coalesces concurrent Continue calls that have compatible
 	// generation settings into one rwkv_lightning contents[] request. A zero
 	// duration preserves the one-request-per-call behavior.
-	BatchWait  time.Duration
+	BatchWait time.Duration
+	// StateID is the default uploaded-state identifier applied to every
+	// generation that does not carry one of its own. Empty leaves the server's
+	// zero-initialized state in charge.
+	StateID    string
 	Headers    http.Header
 	HTTPClient *http.Client
 }
@@ -60,6 +64,7 @@ type Client struct {
 	endpoint      string
 	model         string
 	password      string
+	stateID       string
 	stopTokenMode StopTokenMode
 	stopTokenIDs  []int
 	stream        bool
@@ -75,10 +80,6 @@ func New(config Config) (*Client, error) {
 	endpoint := strings.TrimSpace(config.Endpoint)
 	if err := httputil.ValidateEndpoint(endpoint); err != nil {
 		return nil, err
-	}
-	model := strings.TrimSpace(config.Model)
-	if model == "" {
-		return nil, fmt.Errorf("%w: model is required", continuation.ErrInvalidRequest)
 	}
 	httpClient := config.HTTPClient
 	if httpClient == nil {
@@ -106,8 +107,9 @@ func New(config Config) (*Client, error) {
 	}
 	return &Client{
 		endpoint:      endpoint,
-		model:         model,
+		model:         strings.TrimSpace(config.Model),
 		password:      config.Password,
+		stateID:       strings.TrimSpace(config.StateID),
 		stopTokenMode: stopTokenMode,
 		stopTokenIDs:  stopTokenIDs,
 		stream:        stream,
@@ -130,6 +132,7 @@ type requestBody struct {
 	AlphaDecay     float32  `json:"alpha_decay"`
 	Stream         bool     `json:"stream"`
 	ChunkSize      int      `json:"chunk_size"`
+	StateID        string   `json:"state_id,omitempty"`
 	Password       string   `json:"password,omitempty"`
 }
 
@@ -174,13 +177,18 @@ func (c *Client) Continue(
 }
 
 // encodeRequestBody renders one rwkv_lightning request. Every call in a
-// coalesced batch shares the model, stop tokens, and sampling, so only the
-// contents differ between the single and batch paths.
+// coalesced batch shares the model, state, stop tokens, and sampling, so only
+// the contents differ between the single and batch paths.
 func (c *Client) encodeRequestBody(
 	model string,
 	contents []string,
 	request continuation.Request,
 ) ([]byte, error) {
+	// The model is enforced here rather than in New so a model-less client can
+	// still manage uploaded states; only a real generation needs a model.
+	if strings.TrimSpace(model) == "" {
+		return nil, fmt.Errorf("%w: model is required", continuation.ErrInvalidRequest)
+	}
 	encoded, err := json.Marshal(requestBody{
 		Model:          model,
 		Contents:       contents,
@@ -194,6 +202,7 @@ func (c *Client) encodeRequestBody(
 		AlphaDecay:     request.Sampling.PenaltyDecay,
 		Stream:         c.stream,
 		ChunkSize:      1,
+		StateID:        c.effectiveStateID(request),
 		Password:       c.password,
 	})
 	if err != nil {
@@ -202,23 +211,42 @@ func (c *Client) encodeRequestBody(
 	return encoded, nil
 }
 
-// post sends one JSON request. A done request context surfaces as the bare
-// context error so callers can map it to FinishCancelled; transport failures
-// wrap ErrRemote.
-func (c *Client) post(ctx context.Context, encoded []byte) (*http.Response, error) {
-	httpRequest, err := http.NewRequestWithContext(
-		ctx,
-		http.MethodPost,
-		c.endpoint,
-		bytes.NewReader(encoded),
-	)
+// effectiveStateID resolves the state for one request: the per-request override
+// wins, otherwise the client-level default.
+func (c *Client) effectiveStateID(request continuation.Request) string {
+	if strings.TrimSpace(request.StateID) != "" {
+		return strings.TrimSpace(request.StateID)
+	}
+	return c.stateID
+}
+
+// newRequest builds a request with the configured headers applied. It is the
+// shared constructor for the inference post and the state-management calls.
+func (c *Client) newRequest(
+	ctx context.Context,
+	method string,
+	url string,
+	body io.Reader,
+) (*http.Request, error) {
+	request, err := http.NewRequestWithContext(ctx, method, url, body)
 	if err != nil {
 		return nil, fmt.Errorf("%w: build request: %v", ErrRemote, err)
 	}
 	for name, values := range c.headers {
 		for _, value := range values {
-			httpRequest.Header.Add(name, value)
+			request.Header.Add(name, value)
 		}
+	}
+	return request, nil
+}
+
+// post sends one JSON request. A done request context surfaces as the bare
+// context error so callers can map it to FinishCancelled; transport failures
+// wrap ErrRemote.
+func (c *Client) post(ctx context.Context, encoded []byte) (*http.Response, error) {
+	httpRequest, err := c.newRequest(ctx, http.MethodPost, c.endpoint, bytes.NewReader(encoded))
+	if err != nil {
+		return nil, err
 	}
 	httpRequest.Header.Set("Content-Type", "application/json")
 	response, err := c.httpClient.Do(httpRequest)

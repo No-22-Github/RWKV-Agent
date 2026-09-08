@@ -639,3 +639,65 @@ func (f roundTripFunc) RoundTrip(request *http.Request) (*http.Response, error) 
 }
 
 var _ http.RoundTripper = roundTripFunc(nil)
+
+func TestStateIDThreading(t *testing.T) {
+	t.Parallel()
+	testCases := []struct {
+		name      string
+		configID  string
+		requestID string
+		want      string
+	}{
+		{name: "config default", configID: "state-default", want: "state-default"},
+		{name: "request override wins", configID: "state-default", requestID: "state-request", want: "state-request"},
+		{name: "request only", requestID: "state-request", want: "state-request"},
+		{name: "omitted when empty", want: ""},
+	}
+	for _, testCase := range testCases {
+		testCase := testCase
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+			var received map[string]json.RawMessage
+			server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+				body, _ := io.ReadAll(request.Body)
+				_ = json.Unmarshal(body, &received)
+				writeSSE(
+					writer,
+					`{"choices":[{"index":0,"delta":{"content":"ok"}}]}`,
+					`{"choices":[{"index":0,"delta":{},"finish_reason":"stop"}]}`,
+				)
+			}))
+			defer server.Close()
+			client, err := New(Config{
+				Endpoint: server.URL,
+				Model:    "rwkv7",
+				StateID:  testCase.configID,
+			})
+			if err != nil {
+				t.Fatal(err)
+			}
+			request := validRequest()
+			request.StateID = testCase.requestID
+			if _, err := client.Continue(context.Background(), request, nil); err != nil {
+				t.Fatal(err)
+			}
+			raw, exists := received["state_id"]
+			if testCase.want == "" {
+				if exists {
+					t.Fatalf("state_id = %s, want omitted", raw)
+				}
+				return
+			}
+			if !exists {
+				t.Fatal("state_id missing from request body")
+			}
+			var got string
+			if err := json.Unmarshal(raw, &got); err != nil {
+				t.Fatal(err)
+			}
+			if got != testCase.want {
+				t.Errorf("state_id = %q, want %q", got, testCase.want)
+			}
+		})
+	}
+}

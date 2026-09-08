@@ -70,6 +70,9 @@ type Config struct {
 	ChatTokenLimit    string  `json:"chatTokenLimit,omitempty"`
 	Stream            *bool   `json:"stream,omitempty"`
 	RWKVStopTokens    string  `json:"rwkvStopTokens,omitempty"`
+	// StateID reuses an uploaded rwkv_lightning state for every generation in
+	// this provider. Empty leaves the server's zero-initialized state in charge.
+	StateID string `json:"stateId,omitempty"`
 	// ProgressiveTools enables the optional capability Router. Nil defaults to
 	// false so the XML decision stage owns tool selection directly.
 	ProgressiveTools *bool  `json:"progressiveTools,omitempty"`

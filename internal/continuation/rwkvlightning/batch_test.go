@@ -394,3 +394,54 @@ func TestBatchRequestContextUsesEarliestDeadline(t *testing.T) {
 		t.Fatal("expected a plain cancellable context without caller deadlines")
 	}
 }
+
+func TestClientBatchSeparatesStates(t *testing.T) {
+	t.Parallel()
+	var mu sync.Mutex
+	requestCount := 0
+	contentsPerRequest := 0
+	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		var received requestBody
+		body, err := io.ReadAll(request.Body)
+		if err != nil {
+			t.Error(err)
+		}
+		if err := json.Unmarshal(body, &received); err != nil {
+			t.Error(err)
+		}
+		mu.Lock()
+		requestCount++
+		contentsPerRequest = len(received.Contents)
+		mu.Unlock()
+		writeSSE(writer,
+			`{"choices":[{"index":0,"delta":{"content":"ok"}}]}`,
+			`{"choices":[{"index":0,"delta":{},"finish_reason":"stop"}]}`,
+		)
+	}))
+	defer server.Close()
+
+	client, err := New(Config{
+		Endpoint:  server.URL,
+		Model:     "rwkv7",
+		BatchWait: 100 * time.Millisecond,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	results := runBatchedCalls(t, client, []string{"p0", "p1"}, func(index int, request *continuation.Request) {
+		request.StateID = "state-" + string(rune('a'+index))
+	})
+	for prompt, result := range results {
+		if result.err != nil {
+			t.Fatalf("call %q failed: %v", prompt, result.err)
+		}
+		if result.result.Text != "ok" {
+			t.Fatalf("call %q text = %q", prompt, result.result.Text)
+		}
+	}
+	mu.Lock()
+	defer mu.Unlock()
+	if requestCount != 2 || contentsPerRequest != 1 {
+		t.Fatalf("requests = %d contents = %d, want two single-call requests", requestCount, contentsPerRequest)
+	}
+}

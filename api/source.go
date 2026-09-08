@@ -163,6 +163,7 @@ func buildRWKVLightningSource(config Config) (generatorSource, error) {
 		Endpoint:      normalizeRWKVEndpoint(config.Endpoint),
 		Model:         config.Model,
 		Password:      config.Password,
+		StateID:       config.StateID,
 		StopTokenMode: rwkvlightning.StopTokenMode(config.RWKVStopTokens),
 		Stream:        config.Stream,
 		BatchWait:     time.Duration(config.RemoteBatchWaitMS) * time.Millisecond,

@@ -86,12 +86,14 @@ func (c *Client) batchCompatibilityKey(request continuation.Request) string {
 		StopTokens any
 		Sampling   continuation.Sampling
 		Stream     bool
+		StateID    string
 	}{
 		Model:      model,
 		MaxTokens:  request.MaxOutputTokens,
 		StopTokens: c.serverStopTokens(request.Stops),
 		Sampling:   request.Sampling,
 		Stream:     c.stream,
+		StateID:    c.effectiveStateID(request),
 	})
 	return string(encoded)
 }

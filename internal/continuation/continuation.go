@@ -25,6 +25,10 @@ type Request struct {
 	MaxOutputTokens int
 	Stops           []string
 	Sampling        Sampling
+	// StateID reuses a previously uploaded rwkv_lightning state for this
+	// generation. Empty omits the field and uses the server's zero state; the
+	// backend may still supply a client-level default.
+	StateID string
 }
 
 type FinishReason string

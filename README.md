@@ -131,6 +131,7 @@ dist/
 | `agent-eval` | 固定 case 的 Agent 评测，产出 run/trace/summary |
 | `concurrent` | 1–8 路并发生成与选中续聊 dashboard |
 | `bench` | `concurrent` 的 plain 渲染别名，适合脚本与 CI |
+| `state` | 向 rwkv_lightning 部署上传/列出/删除序列化 State（`.pth`） |
 
 ```text
 rwkv-cli convert --input <RWKV .pth> --output <MLX model directory>
@@ -139,6 +140,9 @@ rwkv-cli agent --model <path or remote model ID> [--prompt <task>] [--ui auto|tu
 rwkv-cli agent-eval --model <path or remote model ID> [--suite boundary|smoke|assistant|bfcl-product|primitive-orig30|primitive-feedback30]
 rwkv-cli concurrent --model <RWKV .pth or MLX directory> [--concurrency 1..8]
 rwkv-cli bench --model <RWKV .pth or MLX directory> [--concurrency 1..8]
+rwkv-cli state upload --api-url <URL> [--api-header-env HEADER=ENV ...] --file <state .pth>
+rwkv-cli state list --api-url <URL> [--api-header-env HEADER=ENV ...]
+rwkv-cli state delete --api-url <URL> [--api-header-env HEADER=ENV ...] --state-id <state_id>
 ```
 
 ## 4. 模型加载与转换
@@ -387,6 +391,46 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 - 密码默认从 `RWKV_API_PASSWORD` 读取（`--api-password-env` 可改）；`--api-header-env`
   可重复使用，凭证不进入命令行参数或配置文件。远程模型会收到 Agent 组成的 prompt，
   其中可能包含模型主动读取的本地文件片段。
+
+#### 上传并复用 State
+
+`rwkv_lightning` 部署（`rwkv_lightning_cuda`）可以把序列化 RWKV State（如微调后导出的
+`.pth`，含状态张量）上传到服务端，再用返回的 `state_id` 让后续每次生成都从该状态续写。
+状态由服务端保存在进程内临时目录，退出或调用 delete 后消失。
+
+```sh
+export RWKV_CF_ACCESS_CLIENT_ID='...'
+export RWKV_CF_ACCESS_CLIENT_SECRET='...'
+
+# 上传，stdout 打印 state_id
+./dist/rwkv-cli state upload \
+  --api-url https://api-7b.rwkvos.com/v1/models \
+  --api-header-env CF-Access-Client-Id=RWKV_CF_ACCESS_CLIENT_ID \
+  --api-header-env CF-Access-Client-Secret=RWKV_CF_ACCESS_CLIENT_SECRET \
+  --file ./runs/nekoqa200_7.2b_s42_e2.pth
+
+# 列出 / 删除
+./dist/rwkv-cli state list --api-url ... --api-header-env ...
+./dist/rwkv-cli state delete --api-url ... --api-header-env ... --state-id state-xxxx
+
+# 复用：agent/agent-eval 的每次生成都带上该 state_id
+./dist/rwkv-cli agent \
+  --completion rwkv-lightning \
+  --api-url https://api-7b.rwkvos.com/v1/models \
+  --model rwkv7-13b \
+  --api-header-env CF-Access-Client-Id=RWKV_CF_ACCESS_CLIENT_ID \
+  --api-header-env CF-Access-Client-Secret=RWKV_CF_ACCESS_CLIENT_SECRET \
+  --state-id state-xxxx \
+  --workspace /absolute/path/to/project
+```
+
+- `state` 子命令只管理状态，不需要 `--model`；`--api-url` 传部署地址即可（`/v1/models`、
+  `/v1/batch/completions` 或裸域名均可识别）。
+- 上传的 State 必须是 PyTorch 存档，`bfloat16`/`float32` 张量会被服务端转换为部署配置的
+  WKV 运行精度；上传上限 512 MiB。
+- 复用后同一 `state_id` 可以继续用于 `/v1/chat/completions`、`/v1/batch/completions`、
+  `/translate/v1/batch-translate` 与 `/state/chat/completions`；连续 Agent 步骤会从同一
+  状态持续续写，适合把微调后的口吻/知识固化进整个工作区会话。
 
 ### OpenAI-compatible Chat Completions
 

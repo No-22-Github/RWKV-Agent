@@ -79,6 +79,7 @@ type runOptions struct {
 	apiStopTokens            string
 	apiStream                bool
 	apiHeaderEnvs            stringListFlag
+	stateID                  string
 	evalSuite                string
 	evalSuiteExplicit        bool
 	evalCasesPath            string
@@ -159,6 +160,8 @@ func main() {
 		err = runConcurrent(os.Args[2:])
 	case "bench":
 		err = runConcurrent(append(os.Args[2:], "--ui", "plain"))
+	case "state":
+		err = runState(os.Args[2:])
 	case "convert":
 		err = convertModel(os.Args[2:])
 	default:
@@ -186,7 +189,142 @@ func usage() {
   rwkv-cli bfcl-sample [--output configs/bfcl-sample-v1.json | --verify configs/bfcl-sample-v1.json]
   rwkv-cli bfcl-sampling-diagnostic --score <complete Qwen enhanced score directory>
   rwkv-cli concurrent --model <RWKV .pth or MLX directory> [--concurrency 1..8] [--ui auto|tui|plain]
-  rwkv-cli bench --model <RWKV .pth or MLX directory> [--concurrency 1..8]`)
+  rwkv-cli bench --model <RWKV .pth or MLX directory> [--concurrency 1..8]
+  rwkv-cli state upload --api-url <URL> [--api-password-env ENV] [--api-header-env HEADER=ENV ...] --file <state .pth>
+  rwkv-cli state list --api-url <URL> [--api-password-env ENV] [--api-header-env HEADER=ENV ...]
+  rwkv-cli state delete --api-url <URL> [--api-password-env ENV] [--api-header-env HEADER=ENV ...] --state-id <state_id>`)
+}
+
+// stateFlags are the connection flags shared by every state subcommand. State
+// management is model-independent, so no --model is required.
+type stateFlags struct {
+	apiURL         string
+	apiPasswordEnv string
+	apiHeaderEnvs  stringListFlag
+}
+
+func registerStateFlags(fs *flag.FlagSet, flags *stateFlags) {
+	fs.StringVar(&flags.apiURL, "api-url", "", "rwkv_lightning API base URL")
+	fs.StringVar(
+		&flags.apiPasswordEnv,
+		"api-password-env",
+		"RWKV_API_PASSWORD",
+		"environment variable containing the rwkv_lightning password",
+	)
+	fs.Var(
+		&flags.apiHeaderEnvs,
+		"api-header-env",
+		"repeatable HTTP_HEADER=ENV_VAR mapping for deployment authentication",
+	)
+}
+
+func (f stateFlags) client() (*rwkvlightning.Client, error) {
+	headers, err := loadAPIHeaders(f.apiHeaderEnvs)
+	if err != nil {
+		return nil, err
+	}
+	return rwkvlightning.New(rwkvlightning.Config{
+		Endpoint: f.apiURL,
+		Password: os.Getenv(f.apiPasswordEnv),
+		Headers:  headers,
+	})
+}
+
+func runState(args []string) error {
+	if len(args) == 0 {
+		return errors.New("state requires a subcommand: upload, list, or delete")
+	}
+	switch args[0] {
+	case "upload":
+		return runStateUpload(args[1:])
+	case "list":
+		return runStateList(args[1:])
+	case "delete":
+		return runStateDelete(args[1:])
+	default:
+		return fmt.Errorf("unknown state subcommand %q; use upload, list, or delete", args[0])
+	}
+}
+
+func runStateUpload(args []string) error {
+	var flags stateFlags
+	fs := flag.NewFlagSet("state upload", flag.ContinueOnError)
+	registerStateFlags(fs, &flags)
+	file := fs.String("file", "", "serialized RWKV state file (.pth)")
+	if err := fs.Parse(args); err != nil {
+		return err
+	}
+	if strings.TrimSpace(*file) == "" {
+		return errors.New("state upload requires --file")
+	}
+	client, err := flags.client()
+	if err != nil {
+		return err
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+	defer cancel()
+	state, err := client.UploadState(ctx, *file)
+	if err != nil {
+		return fmt.Errorf("upload state: %w", err)
+	}
+	fmt.Fprintln(os.Stdout, state.StateID)
+	return nil
+}
+
+func runStateList(args []string) error {
+	var flags stateFlags
+	fs := flag.NewFlagSet("state list", flag.ContinueOnError)
+	registerStateFlags(fs, &flags)
+	if err := fs.Parse(args); err != nil {
+		return err
+	}
+	client, err := flags.client()
+	if err != nil {
+		return err
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	states, err := client.ListStates(ctx)
+	if err != nil {
+		return fmt.Errorf("list states: %w", err)
+	}
+	fmt.Fprintln(os.Stdout, "state_id\tfilename\tsize_bytes\ttensor_count\tcreated")
+	for _, state := range states {
+		fmt.Fprintf(
+			os.Stdout,
+			"%s\t%s\t%d\t%d\t%d\n",
+			state.StateID,
+			state.Filename,
+			state.SizeBytes,
+			state.TensorCount,
+			state.Created,
+		)
+	}
+	return nil
+}
+
+func runStateDelete(args []string) error {
+	var flags stateFlags
+	fs := flag.NewFlagSet("state delete", flag.ContinueOnError)
+	registerStateFlags(fs, &flags)
+	stateID := fs.String("state-id", "", "state_id returned by state upload")
+	if err := fs.Parse(args); err != nil {
+		return err
+	}
+	if strings.TrimSpace(*stateID) == "" {
+		return errors.New("state delete requires --state-id")
+	}
+	client, err := flags.client()
+	if err != nil {
+		return err
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	if err := client.DeleteState(ctx, *stateID); err != nil {
+		return fmt.Errorf("delete state: %w", err)
+	}
+	fmt.Fprintf(os.Stdout, "deleted %s\n", strings.TrimSpace(*stateID))
+	return nil
 }
 
 func convertModel(args []string) error {
@@ -352,6 +490,12 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			"api-stream",
 			true,
 			"stream rwkv_lightning responses over SSE; false requests one buffered response",
+		)
+		fs.StringVar(
+			&options.stateID,
+			"state-id",
+			"",
+			"reuse an uploaded rwkv_lightning state for every generation (state state upload)",
 		)
 		fs.Var(
 			&options.apiHeaderEnvs,
@@ -926,6 +1070,7 @@ func newAgentGeneratorSource(
 			Endpoint:      options.apiURL,
 			Model:         options.modelPath,
 			Password:      os.Getenv(options.apiPasswordEnv),
+			StateID:       options.stateID,
 			StopTokenMode: stopTokenMode,
 			StopTokenIDs:  stopTokenIDs,
 			Stream:        &options.apiStream,
@@ -1353,6 +1498,7 @@ func agentAPIConfig(options runOptions) (agentapi.Config, error) {
 		Endpoint:               options.apiURL,
 		APIKey:                 os.Getenv(options.apiKeyEnv),
 		Password:               os.Getenv(options.apiPasswordEnv),
+		StateID:                options.stateID,
 		Headers:                headerValues,
 		TokenizerPath:          options.tokenizer,
 		Backend:                options.backend,

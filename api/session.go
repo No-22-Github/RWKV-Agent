@@ -201,6 +201,7 @@ func sessionRunnerOptions(
 	generation := continuation.Request{
 		Model:           status.Model,
 		MaxOutputTokens: config.MaxTokens,
+		StateID:         config.StateID,
 		Sampling: continuation.Sampling{
 			Temperature:      float32(config.Temperature),
 			TopK:             config.TopK,
