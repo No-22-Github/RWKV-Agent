@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/no22/RWKV-Agent/internal/agent"
+	"github.com/no22/RWKV-Agent/internal/agent/wire"
 	"github.com/no22/RWKV-Agent/internal/inference"
 )
 
@@ -382,18 +383,23 @@ func applyConfigDefaults(config *Config) error {
 	if config.AgentProtocol != AgentProtocolMarkdown && config.AgentProtocol != AgentProtocolXML {
 		return fmt.Errorf("unsupported agentProtocol %q", config.AgentProtocol)
 	}
-	if config.DecisionMaxTokens == 0 {
+	if config.DecisionMaxTokens == 0 && strings.TrimSpace(config.Profile) == "" {
 		// The right decision budget depends on the transcript: the XML envelope
 		// lets the model reason before committing to an action and needs far
 		// more room than the fenced-JSON anchor. See the constants in
 		// internal/agent for the measurements.
+		//
+		// With an explicit wire profile the budget stays 0 so NewRunner picks
+		// the per-format default of the profile's actual format, instead of
+		// inheriting the budget of the legacy AgentProtocol field.
 		config.DecisionMaxTokens = agent.DefaultDecisionMaxOutputTokens
 		if config.AgentProtocol == AgentProtocolXML {
 			config.DecisionMaxTokens = agent.DefaultXMLDecisionMaxOutputTokens
 		}
 	}
-	if config.DecisionMaxTokens < 1 {
-		return fmt.Errorf("decisionMaxTokens must be positive")
+	if config.DecisionMaxTokens < 0 ||
+		(config.DecisionMaxTokens == 0 && strings.TrimSpace(config.Profile) == "") {
+		return fmt.Errorf("decisionMaxTokens must be positive (0 is allowed with an explicit profile)")
 	}
 	if config.MaxActiveBatch == 0 {
 		config.MaxActiveBatch = 4
@@ -480,6 +486,23 @@ func applyProtocolDefaults(config *Config) error {
 	// silently degrade to no prefill, so reject it at configuration time.
 	if _, err := inference.ParseThinkingMode(config.Thinking); err != nil {
 		return fmt.Errorf("invalid thinking mode %q: use off, fast, or full", config.Thinking)
+	}
+	if strings.TrimSpace(config.Profile) != "" || strings.TrimSpace(config.Wire) != "" {
+		// An explicit wire profile or override list owns the per-protocol
+		// prefill contract, so the normalization below must not silently
+		// override it (for example md-fakethink-v1 with the default XML
+		// protocol).
+		if strings.TrimSpace(config.Profile) != "" {
+			if _, _, err := wire.Resolve(config.Profile); err != nil {
+				return fmt.Errorf("invalid profile: %w", err)
+			}
+		}
+		if strings.TrimSpace(config.Wire) != "" {
+			if _, err := wire.ParseOverrides(config.Wire); err != nil {
+				return fmt.Errorf("invalid wire overrides: %w", err)
+			}
+		}
+		return nil
 	}
 	if config.AgentProtocol == AgentProtocolXML {
 		// XML is a supported product transcript, not a deprecated one, so

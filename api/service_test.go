@@ -106,6 +106,83 @@ func TestMarkdownProtocolRemainsAnExplicitOption(t *testing.T) {
 	}
 }
 
+// TestWireProfileOverridesProtocolDefaults locks the contract that an explicit
+// wire profile owns the format/thinking/prefill axes: the per-protocol
+// normalization (which would force the XML product switches off) must not run.
+func TestWireProfileOverridesProtocolDefaults(t *testing.T) {
+	t.Parallel()
+	config, err := normalizeConfig(Config{
+		Provider: ProviderRWKVLightning,
+		Model:    "model", Endpoint: "https://example.test",
+		AgentProtocol: AgentProtocolXML,
+		Profile:       "md-v1+gate-state",
+	})
+	if err != nil {
+		t.Fatalf("profile config rejected: %v", err)
+	}
+	options := sessionRunnerOptions(
+		config,
+		Status{Model: "model"},
+		t.TempDir(),
+		nil,
+		config.AgentProtocol == AgentProtocolMarkdown,
+	)
+	if options.Wire == nil {
+		t.Fatal("session options did not carry the applied wire spec")
+	}
+	canonical := options.Wire.Canonical()
+	if !strings.Contains(canonical, "format=md-fence") ||
+		!strings.Contains(canonical, "abstain=no-tool+gate-state") {
+		t.Fatalf("wire canonical = %q", canonical)
+	}
+	if _, err := normalizeConfig(Config{
+		Provider: ProviderRWKVLightning,
+		Model:    "model", Endpoint: "https://example.test",
+		Profile: "nope-v1",
+	}); err == nil {
+		t.Fatal("invalid profile accepted")
+	}
+}
+
+// TestWireOverridesComposeOnProtocolDefaults locks the longhand entry point on
+// the app side: Config.Wire sets individual axes on top of the per-protocol
+// defaults, so a caller can pair any thinking mode with any tool format.
+func TestWireOverridesComposeOnProtocolDefaults(t *testing.T) {
+	t.Parallel()
+	config, err := normalizeConfig(Config{
+		Provider: ProviderRWKVLightning,
+		Model:    "model", Endpoint: "https://example.test",
+		AgentProtocol: AgentProtocolXML,
+		Wire:          "format=md-fence,prefill=fence,abstain=no-tool",
+	})
+	if err != nil {
+		t.Fatalf("wire override config rejected: %v", err)
+	}
+	options := sessionRunnerOptions(
+		config,
+		Status{Model: "model"},
+		t.TempDir(),
+		nil,
+		config.AgentProtocol == AgentProtocolMarkdown,
+	)
+	if options.Wire == nil {
+		t.Fatal("session options did not carry the overridden wire spec")
+	}
+	canonical := options.Wire.Canonical()
+	if !strings.Contains(canonical, "format=md-fence") ||
+		!strings.Contains(canonical, "prefill=fence") ||
+		!strings.Contains(canonical, "abstain=no-tool") {
+		t.Fatalf("wire canonical = %q", canonical)
+	}
+	if _, err := normalizeConfig(Config{
+		Provider: ProviderRWKVLightning,
+		Model:    "model", Endpoint: "https://example.test",
+		Wire: "nope=xml",
+	}); err == nil {
+		t.Fatal("invalid wire override accepted")
+	}
+}
+
 func TestAgentProtocolCompatibilityMode(t *testing.T) {
 	t.Parallel()
 	config, err := normalizeConfig(Config{

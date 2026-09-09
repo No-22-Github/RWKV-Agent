@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"regexp"
 
+	"github.com/no22/RWKV-Agent/internal/agent/wire"
 	"github.com/no22/RWKV-Agent/internal/continuation"
 	"github.com/no22/RWKV-Agent/internal/inference"
 )
@@ -37,8 +37,6 @@ const (
 	G1IRouteProtocolV1     = "rwkv-g1i-route-v1"
 	G1IToolRouteProtocolV1 = "rwkv-g1i-tool-route-v1"
 )
-
-var leadingThinkBlocks = regexp.MustCompile(`(?s)\A\s*(?:<think>.*?</think>\s*)+`)
 
 // Protocol failure classes that need targeted correction guidance. They wrap
 // ErrProtocol so existing callers keep matching on that sentinel.
@@ -92,6 +90,10 @@ type Action struct {
 	NoToolAnswer            string               `json:"no_tool_answer,omitempty"`
 	ProtocolRepaired        bool                 `json:"protocol_repaired,omitempty"`
 	OriginalProtocolFailure ProtocolFailureClass `json:"original_protocol_failure,omitempty"`
+	// Repairs lists the tolerant-recovery stages that produced this action, in
+	// first-seen order. It is the machine-readable half of ProtocolRepaired:
+	// a run can be compared by which recoveries fired, not just how many.
+	Repairs []wire.Repair `json:"repairs,omitempty"`
 }
 
 const (
@@ -107,7 +109,6 @@ type ActionProtocol interface {
 	Correction(error) string
 	RecordAction(Action, string) string
 	FormatToolResult(name string, callID string, payload string) string
-	ToolCallPrefix() string
 	PostToolReminder() string
 	PrepareAnswer(
 		messages []Message,

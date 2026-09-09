@@ -10,9 +10,9 @@ import (
 	"time"
 	"unicode"
 
+	"github.com/no22/RWKV-Agent/internal/agent/wire"
 	"github.com/no22/RWKV-Agent/internal/continuation"
 	"github.com/no22/RWKV-Agent/internal/continuation/toolchat"
-	"github.com/no22/RWKV-Agent/internal/inference"
 )
 
 // G1IDecisionFakeThinkPrefix is the exact half-open prefix measured by the G1i
@@ -23,13 +23,16 @@ import (
 // and ">{" is also one token, so withholding the ">" lets the model emit it
 // merged with the byte that opens a structured payload. Closing the tag here
 // removes that merged path and forces a fresh token instead.
-const G1IDecisionFakeThinkPrefix = inference.ThinkBlockFast
+//
+// The bytes live in the wire package next to the prefill axis that selects
+// them; this alias keeps the historical exported name for callers and tests.
+const G1IDecisionFakeThinkPrefix = wire.FakeThinkHalfPrefix
 
 // G1IDecisionClosedThinkPrefix closes the block in the prompt, so the model
 // cannot open one at all. It costs the merged ">{" continuation above, and it
 // is newline-sensitive: the abstention lab measured that appending "\n\n" makes
 // 10/80 completions resume thinking, so nothing may follow these bytes.
-const G1IDecisionClosedThinkPrefix = inference.ThinkBlockClosed
+const G1IDecisionClosedThinkPrefix = wire.FakeThinkClosedPrefix
 
 type runnerTurn struct {
 	r        *Runner
@@ -64,9 +67,12 @@ type runnerTurn struct {
 	workspaceRevision       int
 	stage                   GenerationStage
 	assistantPrefix         string
-	forceAnswer             bool
-	terminalToolCompleted   bool
-	answerViolations        int
+	// frame is the prefill resolved for the current decision generation; the
+	// output post-processing strips exactly these bytes back off.
+	frame                 wire.Frame
+	forceAnswer           bool
+	terminalToolCompleted bool
+	answerViolations      int
 }
 
 type turnModelStep struct {
@@ -143,22 +149,10 @@ func (turn *runnerTurn) initialize() error {
 	turn.assembleTurnMessages(history, control)
 
 	turn.terminalToolCompleted = r.terminalTool == "" || turn.result.Route == RouteRespond
-	// Arm the decision prefill on every non-respond route of the product
-	// profile. P1 probes (PREFERENCES.md P1-1 vs P1-2) measured unanchored
-	// product decisions degrading from 2k tokens of context while anchored
-	// decisions held 40/40 to 10k, so the anchor no longer depends on a
-	// router being configured. The DecisionFakeThink experiment owns the
-	// prefix in its mode, so arming skips it. Other protocols (the XML
-	// envelope) keep their router-gated prefix policy.
-	if fn, ok := r.protocol.(G1IFunctionProtocol); ok && fn.Product {
-		if turn.result.Route != RouteRespond {
-			if renderer, ok := r.renderer.(G1IFunctionRenderer); !ok || !renderer.DecisionFakeThink {
-				turn.assistantPrefix = fn.ToolCallPrefix()
-			}
-		}
-	} else if (r.router != nil || r.toolRouter != nil) && turn.result.Route == RouteInspect {
-		turn.assistantPrefix = r.protocol.ToolCallPrefix()
-	}
+	// The decision prefill is not armed here. Every decision generation calls
+	// resolveFrame, which asks the wire spec for the opening of the current
+	// state, so the policy lives in exactly one place instead of being
+	// re-derived at each tool/retry transition.
 	return nil
 }
 
@@ -272,6 +266,8 @@ func (turn *runnerTurn) prepareAnswerStage(step int) error {
 	}
 	turn.messages = answerMessages
 	turn.assistantPrefix = prefix
+	// The answer stage owns its own opening; no decision-stage frame applies.
+	turn.frame = wire.Frame{}
 	turn.stage = StageAnswer
 	if turn.result.ForcedAnswerReason == "" {
 		turn.result.ForcedAnswerReason = forcedAnswerStepBudget
@@ -282,7 +278,7 @@ func (turn *runnerTurn) prepareAnswerStage(step int) error {
 func (turn *runnerTurn) generateModelStep(step int) (turnModelStep, error) {
 	r := turn.r
 	r.observe(Event{Kind: EventModelStart, Step: step}, turn.observer)
-	turn.resolveDecisionPrefix()
+	turn.resolveFrame()
 	compiled, err := r.compileStep(turn.stepPromptInput())
 	if err != nil {
 		return turnModelStep{}, err
@@ -349,50 +345,50 @@ func (turn *runnerTurn) stepPromptInput() stepPromptInput {
 	}
 }
 
-// resolveDecisionPrefix arms the fake-think experiment prefix when the
-// decision stage has no route prefix yet. It is the turn-policy half of the
-// framing: compileStep performs the actual injection.
-func (turn *runnerTurn) resolveDecisionPrefix() {
-	r := turn.r
-	if turn.assistantPrefix != "" || !r.decisionFakeThink {
+// resolveFrame computes the decision-stage assistant opening from the wire
+// spec and the current turn state. It is the single owner of the prefill for a
+// decision generation: initialize, tool transitions, rejections and retries no
+// longer mutate the prefix, they only change the state the frame reads.
+func (turn *runnerTurn) resolveFrame() {
+	if turn.stage != StageDecision {
 		return
 	}
-	if turn.stage != StageDecision || turn.result.Route != RouteInspect {
-		return
-	}
-	turn.assistantPrefix = G1IDecisionFakeThinkPrefix
-	if r.closedFakeThink {
-		turn.assistantPrefix = G1IDecisionClosedThinkPrefix
-	}
+	turn.frame = turn.r.wire.DecisionFrame(wire.DecisionState{
+		Inspect:          turn.result.Route == RouteInspect,
+		AfterTool:        turn.toolAttempts > 0,
+		TerminalComplete: turn.terminalToolCompleted,
+	})
+	turn.assistantPrefix = turn.frame.Text
 }
 
-// postProcessModelOutput restores withheld framing and strips the think prefix
-// the harness injected and the model closed, so the parser never records a
-// repair for bytes we supplied ourselves. The half-open form is closed by the
-// model's own ">"; the closed form is already whole in the prompt and is
-// echoed back verbatim, if at all.
+// postProcessModelOutput restores withheld framing and strips the prefill the
+// harness injected, so the parser never records a repair for bytes we supplied
+// ourselves. The half-open fake-think form is closed by the model's own ">";
+// the closed form is already whole in the prompt and is echoed back verbatim,
+// if at all. Format anchors (envelope, fence) are left in place: the protocol
+// parser owns their framing.
 func (turn *runnerTurn) postProcessModelOutput(modelAction string, injectedPrefix bool) string {
 	r := turn.r
 	if renderer, ok := r.renderer.(interface{ reconstructOutput(string) string }); ok {
 		modelAction = renderer.reconstructOutput(modelAction)
 	}
-	if injectedPrefix &&
-		!strings.HasPrefix(strings.TrimSpace(modelAction), turn.assistantPrefix) {
-		modelAction = turn.assistantPrefix + modelAction
-	}
-	if !injectedPrefix {
+	if !injectedPrefix || turn.assistantPrefix == "" {
 		return modelAction
 	}
-	switch turn.assistantPrefix {
-	case G1IDecisionFakeThinkPrefix:
-		completed := G1IDecisionFakeThinkPrefix + ">"
-		if trimmed := strings.TrimSpace(modelAction); strings.HasPrefix(trimmed, completed) {
-			modelAction = strings.TrimSpace(strings.TrimPrefix(trimmed, completed))
-		}
-	case G1IDecisionClosedThinkPrefix:
-		if trimmed := strings.TrimSpace(modelAction); strings.HasPrefix(trimmed, G1IDecisionClosedThinkPrefix) {
-			modelAction = strings.TrimSpace(strings.TrimPrefix(trimmed, G1IDecisionClosedThinkPrefix))
-		}
+	// The injected prefix is reconstructed for every stage: the decision frame
+	// (envelope/fence/fake-think) and the answer-stage opening (<answer>, or
+	// "Assistant:" where the renderer accepts it) both rely on it.
+	if !strings.HasPrefix(strings.TrimSpace(modelAction), turn.assistantPrefix) {
+		modelAction = turn.assistantPrefix + modelAction
+	}
+	// Only the decision frame owns bytes the harness must strip again. The
+	// guard on Text keeps a stale frame from a previous decision step from
+	// touching answer-stage output.
+	if turn.frame.Strip == "" || turn.frame.Text != turn.assistantPrefix {
+		return modelAction
+	}
+	if trimmed := strings.TrimSpace(modelAction); strings.HasPrefix(trimmed, turn.frame.Strip) {
+		modelAction = strings.TrimSpace(strings.TrimPrefix(trimmed, turn.frame.Strip))
 	}
 	return modelAction
 }
@@ -443,6 +439,7 @@ func (turn *runnerTurn) parseModelAction(
 		turn.currentStep().ActionType = action.Type
 		turn.currentStep().ProtocolRepaired = action.ProtocolRepaired
 		turn.currentStep().ProtocolFailure = action.OriginalProtocolFailure
+		turn.currentStep().ProtocolRepairs = append([]wire.Repair(nil), action.Repairs...)
 	}
 	return action, err
 }
@@ -477,6 +474,7 @@ func (turn *runnerTurn) acceptSemanticNoTool(action Action, modelStep turnModelS
 		},
 	)
 	turn.assistantPrefix = "Assistant:"
+	turn.frame = wire.Frame{}
 	turn.stage = StageAnswer
 	return false
 }

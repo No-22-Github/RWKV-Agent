@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/no22/RWKV-Agent/internal/agent"
+	"github.com/no22/RWKV-Agent/internal/agent/wire"
 	"github.com/no22/RWKV-Agent/internal/continuation"
 	"github.com/no22/RWKV-Agent/internal/continuation/toolchat"
 )
@@ -52,13 +53,13 @@ const (
 func (anchor MultiTurnAnchor) Prefill() string {
 	switch anchor {
 	case MultiTurnAnchorArray:
-		return "```json\n["
+		return wire.FencePrefix + "["
 	case MultiTurnAnchorObject:
-		return "```json\n{\"name\":\""
+		return wire.DeepFencePrefix
 	case MultiTurnAnchorFence:
-		return "```json\n"
+		return wire.FencePrefix
 	default:
-		return "```json\n"
+		return wire.FencePrefix
 	}
 }
 
@@ -711,12 +712,12 @@ func assembleMultiTurnContent(anchor, generated string) (string, string) {
 			return closed, "self_contained_closed"
 		}
 		return candidate, "self_contained"
-	case body == "[" && strings.HasPrefix(candidate, `{"name":"`):
+	case body == "[" && strings.HasPrefix(candidate, wire.CallBodyAnchor):
 		if closed, ok := closeAnchorArray("[" + candidate); ok {
 			return closed, "array_elements_closed"
 		}
 		return "[" + candidate, "array_elements"
-	case body == `{"name":"` && strings.HasPrefix(candidate, `{"name":"`):
+	case body == wire.CallBodyAnchor && strings.HasPrefix(candidate, wire.CallBodyAnchor):
 		return candidate, "self_contained"
 	}
 	continued := body + generated

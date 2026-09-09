@@ -4,11 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"regexp"
 	"strings"
 	"time"
 
 	"github.com/no22/RWKV-Agent/internal/agent"
+	"github.com/no22/RWKV-Agent/internal/agent/wire"
 	"github.com/no22/RWKV-Agent/internal/continuation"
 	"github.com/no22/RWKV-Agent/internal/continuation/toolchat"
 	"github.com/no22/RWKV-Agent/internal/inference"
@@ -33,18 +33,15 @@ const RenderProtocolG1IXMLAnchorV1 = "bfcl-g1i-xml-anchor-v1"
 
 // XMLAnchor is the envelope prefill appended after the closed think block. The
 // model continues with the tool name; parallel cases close the first envelope
-// and open further ones.
-const XMLAnchor = `<tool_call>{"name":"`
+// and open further ones. The bytes come from the shared wire constants so the
+// benchmark and the product harness cannot drift.
+const XMLAnchor = wire.EnvelopePrefix + wire.CallBodyAnchor
 
 // BFCL single-turn parallel splits expect every call inside one response, so
 // parallel categories replace the product "exactly one tool call" contract
 // with a multi-envelope one. This mirrors the markdown renderer, which swaps
 // in its own array instruction for the same splits.
 const xmlParallelContract = "Parallel contract: when several calls are needed, output one <tool_call> block per call in the same response, with no text between blocks."
-
-// Same pattern as agent.protocol_core.go leadingThinkBlocks; kept local because
-// the agent regex is unexported. Update both together.
-var xmlLeadingThinkBlocks = regexp.MustCompile(`(?s)\A\s*(?:<think>.*?</think>\s*)+`)
 
 // RenderPromptXML builds the product XML transcript for one BFCL case. The
 // anchor records the withheld think-prefix so traces show what the model must
@@ -118,16 +115,8 @@ func RenderPromptXML(entry Case, thinkingMode inference.ThinkingMode) (RenderedP
 // answer (zero calls, not an error), and a final envelope truncated by a stop
 // token is accepted while a length truncation is a parse failure.
 func ParseXMLCalls(value string, finish continuation.FinishReason) ([]toolchat.ToolCall, error) {
-	candidate := strings.TrimSpace(value)
-	if match := xmlLeadingThinkBlocks.FindStringIndex(candidate); match != nil && match[0] == 0 {
-		candidate = strings.TrimSpace(candidate[match[1]:])
-	}
-	if strings.HasPrefix(candidate, ">") {
-		remainder := strings.TrimSpace(strings.TrimPrefix(candidate, ">"))
-		if strings.HasPrefix(remainder, "<tool_call") {
-			candidate = remainder
-		}
-	}
+	candidate := wire.StripLeadingThinkBlocks(strings.TrimSpace(value))
+	candidate = wire.TrimWithheldOpening(candidate)
 	if strings.HasPrefix(candidate, "<think>") {
 		return nil, fmt.Errorf("unclosed think block")
 	}
@@ -135,8 +124,8 @@ func ParseXMLCalls(value string, finish continuation.FinishReason) ([]toolchat.T
 		return nil, nil
 	}
 	const (
-		toolOpen  = "<tool_call>"
-		toolClose = "</tool_call>"
+		toolOpen  = wire.EnvelopePrefix
+		toolClose = wire.EnvelopeClose
 	)
 	if !strings.HasPrefix(candidate, toolOpen) {
 		return nil, nil
@@ -216,8 +205,8 @@ func xmlRenderPromptAnchored(entry Case, thinkingMode inference.ThinkingMode) (R
 }
 
 // xmlClosedThinkPrefix wraps anchored bodies so the parser strips the think
-// block with its usual leading-think rule.
-const xmlClosedThinkPrefix = "<think></think>"
+// block with its usual leading-think rule. Shared with the product harness.
+const xmlClosedThinkPrefix = wire.FakeThinkClosedPrefix
 
 // assembleXMLAnchoredContent mirrors assembleMarkdownContent: the anchor lives
 // in the prompt, so the parser only sees it if the completion is glued back.

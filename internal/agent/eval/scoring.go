@@ -470,6 +470,7 @@ func summarize(
 	summary := Summary{RunID: runID, Cases: results}
 	summary.Metrics.Outcomes = make(map[TurnOutcome]int)
 	summary.Metrics.ParseFailuresByClass = make(map[agent.ProtocolFailureClass]int)
+	summary.Metrics.RepairsByID = make(map[string]int)
 	byID := make(map[string]Case, len(cases))
 	for _, testCase := range cases {
 		byID[testCase.ID] = testCase
@@ -596,6 +597,9 @@ func summarize(
 				}
 				if step.ProtocolRepaired {
 					summary.Metrics.ProtocolRepairs++
+				}
+				for _, repair := range step.ProtocolRepairs {
+					summary.Metrics.RepairsByID[string(repair)]++
 				}
 				if step.ProtocolFailure != "" {
 					summary.Metrics.ParseFailuresByClass[step.ProtocolFailure]++

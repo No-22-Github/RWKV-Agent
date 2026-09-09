@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/no22/RWKV-Agent/internal/agent/wire"
 	"github.com/no22/RWKV-Agent/internal/inference"
 )
 
@@ -101,16 +102,19 @@ func renderSubagentResults(raw json.RawMessage) string {
 // fence when DeepToolAnchor is on. The compact spelling (no space after the
 // colon) must match the JSON examples in Instructions: on 7B a single space
 // here flips the model into stringified arguments.
-const G1IDeepToolAnchorSuffix = `{"name":"`
+const G1IDeepToolAnchorSuffix = wire.CallBodyAnchor
 
+// ToolCallPrefix returns the product fence bytes. The runner no longer calls
+// it — wire.Spec.DecisionFrame owns the prefill policy — but the bytes stay
+// single-sourced here for tests and callers that need the raw constant.
 func (protocol G1IFunctionProtocol) ToolCallPrefix() string {
 	if !protocol.Product {
 		return ""
 	}
 	if protocol.DeepToolAnchor {
-		return "```json\n" + G1IDeepToolAnchorSuffix
+		return wire.DeepFencePrefix
 	}
-	return "```json\n"
+	return wire.FencePrefix
 }
 func (G1IFunctionProtocol) PostToolReminder() string { return "" }
 func (protocol G1IFunctionProtocol) PrepareAnswer(messages []Message, unverified []string, _ inference.ThinkingMode) ([]Message, string) {

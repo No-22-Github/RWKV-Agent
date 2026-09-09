@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"sync"
 
+	"github.com/no22/RWKV-Agent/internal/agent/wire"
 	"github.com/no22/RWKV-Agent/internal/continuation"
 	"github.com/no22/RWKV-Agent/internal/continuation/toolchat"
 	"github.com/no22/RWKV-Agent/internal/inference"
@@ -136,6 +137,10 @@ type Options struct {
 	// real answer-stage attempt at step 5 and a strict re-ask at step 6,
 	// instead of one attempt at step 6 that dies on its first violation.
 	AnswerStageLead int
+	// Wire, when set, is the canonical description of this configuration. It
+	// is validated against the runtime fields at NewRunner time and recorded
+	// in eval manifests; nil derives the description from the fields above.
+	Wire *wire.Spec
 }
 
 // DefaultTracePromptBytes keeps a full boundary-sized prompt while bounding a
@@ -230,11 +235,14 @@ type Step struct {
 	ProtocolError      string               `json:"protocol_error,omitempty"`
 	ProtocolFailure    ProtocolFailureClass `json:"protocol_failure,omitempty"`
 	ProtocolRepaired   bool                 `json:"protocol_repaired,omitempty"`
-	StageViolation     bool                 `json:"stage_violation,omitempty"`
-	ToolRetries        []ToolRetryTrace     `json:"tool_retries,omitempty"`
-	Subagents          []SubagentTrace      `json:"subagents,omitempty"`
-	ToolDurationMS     int64                `json:"tool_duration_ms,omitempty"`
-	ToolStartedAtMS    int64                `json:"tool_started_at_ms,omitempty"`
+	// ProtocolRepairs names the tolerant-recovery stages that fired, so a run
+	// can be compared by which repairs happened, not just how many.
+	ProtocolRepairs []wire.Repair    `json:"protocol_repairs,omitempty"`
+	StageViolation  bool             `json:"stage_violation,omitempty"`
+	ToolRetries     []ToolRetryTrace `json:"tool_retries,omitempty"`
+	Subagents       []SubagentTrace  `json:"subagents,omitempty"`
+	ToolDurationMS  int64            `json:"tool_duration_ms,omitempty"`
+	ToolStartedAtMS int64            `json:"tool_started_at_ms,omitempty"`
 	// NoToolRationale and NoToolAnswer retain model-authored abstention text for
 	// presentation and audit. They are never tool evidence.
 	NoToolRationale string `json:"no_tool_rationale,omitempty"`
@@ -328,23 +336,25 @@ type PlanSubtaskTrace struct {
 }
 
 type Runner struct {
-	generator         continuation.Generator
-	toolCompleter     toolchat.Completer
-	tools             map[string]Tool
-	toolSpecs         []ToolSpec
-	options           Options
-	protocol          ActionProtocol
-	renderer          PromptRenderer
-	responseControl   string
-	terminalTool      string
-	thinkingMode      inference.ThinkingMode
-	semanticNoTool    bool
-	decisionFakeThink bool
-	closedFakeThink   bool
-	router            RouteProtocol
-	toolRouter        ToolRouteProtocol
-	toolBundles       []ToolBundle
-	routeRenderer     PromptRenderer
+	generator       continuation.Generator
+	toolCompleter   toolchat.Completer
+	tools           map[string]Tool
+	toolSpecs       []ToolSpec
+	options         Options
+	protocol        ActionProtocol
+	renderer        PromptRenderer
+	responseControl string
+	terminalTool    string
+	thinkingMode    inference.ThinkingMode
+	semanticNoTool  bool
+	// wire is the canonical description of this run's model-facing framing.
+	// It is derived (or validated) at construction and owns the prefill policy
+	// through DecisionFrame.
+	wire          wire.Spec
+	router        RouteProtocol
+	toolRouter    ToolRouteProtocol
+	toolBundles   []ToolBundle
+	routeRenderer PromptRenderer
 
 	runMu   sync.Mutex
 	stateMu sync.RWMutex

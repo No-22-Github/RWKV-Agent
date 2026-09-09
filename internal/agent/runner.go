@@ -41,8 +41,6 @@ func NewRunner(generator continuation.Generator, tools []Tool, options Options) 
 	// no_tool is implemented by both product-facing transcripts, so it is not
 	// gated on the product pair; the fence prefill experiments still are.
 	semanticNoTool := semanticNoToolEnabled(options.Protocol)
-	decisionFakeThink := profile.DecisionFakeThink
-	closedFakeThink := rendererClosedFakeThink(options.Renderer)
 	if semanticNoTool || profile.Experimental() {
 		if toolCompleter != nil {
 			return nil, fmt.Errorf(
@@ -57,29 +55,36 @@ func NewRunner(generator continuation.Generator, tools []Tool, options Options) 
 			)
 		}
 	}
+	// The wire spec is the single description of the model-facing framing.
+	// Deriving it here means a legacy combination that the spec rejects (for
+	// example a deep anchor with no abstention exit) fails at construction
+	// instead of silently changing what the model sees.
+	wireSpec, err := WireSpecOf(options)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %v", continuation.ErrInvalidRequest, err)
+	}
 	responseControl := responseControlPrompt(specs, thinkingMode)
 	terminalTool := ""
 	if _, offered := registered[options.TerminalTool]; offered {
 		terminalTool = options.TerminalTool
 	}
 	return &Runner{
-		generator:         generator,
-		toolCompleter:     toolCompleter,
-		tools:             registered,
-		toolSpecs:         append([]ToolSpec(nil), specs...),
-		options:           options,
-		protocol:          options.Protocol,
-		renderer:          options.Renderer,
-		responseControl:   responseControl,
-		terminalTool:      terminalTool,
-		thinkingMode:      thinkingMode,
-		semanticNoTool:    semanticNoTool,
-		decisionFakeThink: decisionFakeThink,
-		closedFakeThink:   closedFakeThink,
-		router:            options.Router,
-		toolRouter:        options.ToolRouter,
-		toolBundles:       append([]ToolBundle(nil), options.ToolBundles...),
-		routeRenderer:     options.RouteRenderer,
+		generator:       generator,
+		toolCompleter:   toolCompleter,
+		tools:           registered,
+		toolSpecs:       append([]ToolSpec(nil), specs...),
+		options:         options,
+		protocol:        options.Protocol,
+		renderer:        options.Renderer,
+		responseControl: responseControl,
+		terminalTool:    terminalTool,
+		thinkingMode:    thinkingMode,
+		semanticNoTool:  semanticNoTool,
+		wire:            wireSpec,
+		router:          options.Router,
+		toolRouter:      options.ToolRouter,
+		toolBundles:     append([]ToolBundle(nil), options.ToolBundles...),
+		routeRenderer:   options.RouteRenderer,
 	}, nil
 }
 
@@ -324,13 +329,6 @@ func semanticNoToolEnabled(protocol ActionProtocol) bool {
 // OptionsProductProfile reports the product profile an Options value selects.
 func OptionsProductProfile(options Options) ProductProfile {
 	return ProductProfileOf(options.Protocol, options.Renderer)
-}
-
-// rendererClosedFakeThink selects the fully closed think prefill. It only
-// matters when DecisionFakeThink is also on.
-func rendererClosedFakeThink(renderer PromptRenderer) bool {
-	typed, ok := renderer.(G1IFunctionRenderer)
-	return ok && typed.Product && typed.DecisionFakeThink && typed.ClosedFakeThink
 }
 
 func rendererThinkingMode(renderer PromptRenderer) inference.ThinkingMode {

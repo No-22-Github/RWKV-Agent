@@ -33,7 +33,7 @@ func Run(ctx context.Context, config Config) (Report, error) {
 	if config.CaseParallelism > len(config.Cases) {
 		config.CaseParallelism = len(config.Cases)
 	}
-	if IsPrimitiveSuite(config.Suite) {
+	if SuiteFor(config.Suite).Primitive {
 		if config.PrimitiveProfile == "" {
 			config.PrimitiveProfile = PrimitiveProfileUpstream
 		}
@@ -41,24 +41,10 @@ func Run(ctx context.Context, config Config) (Report, error) {
 			config.PrimitiveProfile != PrimitiveProfileGoNative {
 			return Report{}, fmt.Errorf("unsupported Primitive tool profile %q", config.PrimitiveProfile)
 		}
-		config.Runner.Protocol = primitiveProtocol(config.PrimitiveProfile)
-		config.Runner.Renderer = agent.G1IFunctionRenderer{HasSubmit: true}
-		config.Runner.TaskControl = ""
-		config.Runner.TerminalTool = "submit"
-		config.Runner.EndOnTerminalTool = true
-		// Primitive Bench allows a full 1024-token generation for tool calls;
-		// write_file and run_lua legitimately carry multi-line source in JSON.
-		// The interactive Harness's compact 96-token first-decision budget would
-		// truncate those calls and score a transport artifact instead of agency.
-		config.Runner.DecisionMaxOutputTokens = config.Runner.Generation.MaxOutputTokens
-		// Primitive Bench defines a case-specific max_turns budget. Preserve the
-		// largest effective budget in the harness manifest; runCase applies each
-		// case's exact value instead of the generic CLI fallback.
-		for _, testCase := range config.Cases {
-			if testCase.Primitive != nil && testCase.Primitive.MaxTurns > config.Runner.MaxSteps {
-				config.Runner.MaxSteps = testCase.Primitive.MaxTurns
-			}
-		}
+		// The primitive transcript, terminal tool and step budget are resolved
+		// per case by resolveCaseOptions; Run no longer rewrites the shared
+		// Runner options, so the manifest and the executed configuration come
+		// from the same resolver.
 	}
 	if config.Suite == SuiteBFCLProduct {
 		// Both product-facing transcripts may run this suite: comparing them on
@@ -172,6 +158,93 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 	for index, testCase := range config.Cases {
 		caseIDs[index] = testCase.ID
 	}
+	// The canonical wire spec is the machine-readable identity of the
+	// model-facing configuration. A legacy combination that the spec rejects
+	// is recorded rather than dropped, so a silent prefill conflict (for
+	// example XML + thinking + router) is visible in run.json.
+	wireSpec, wireErr := agent.WireSpecOf(config.Runner)
+	wireConflict := ""
+	if wireErr != nil {
+		wireConflict = wireErr.Error()
+	}
+	wirePreset, _ := wireSpec.MatchPreset()
+	// Per-case effective configuration: the suite-level fields above cannot
+	// describe a per-case terminal tool, step budget or transcript.
+	caseWires := make([]CaseWireRecord, 0, len(config.Cases))
+	resolved := make([]agent.Options, 0, len(config.Cases))
+	for _, testCase := range config.Cases {
+		record := CaseWireRecord{ID: testCase.ID}
+		options, err := resolveCaseOptions(config, testCase)
+		if err != nil {
+			record.WireConflict = err.Error()
+			caseWires = append(caseWires, record)
+			continue
+		}
+		spec, specErr := agent.WireSpecOf(options)
+		record.WireCanonical = spec.Canonical()
+		record.WireHash = spec.Hash()
+		record.WirePreset, _ = spec.MatchPreset()
+		if specErr != nil {
+			record.WireConflict = specErr.Error()
+		}
+		record.TerminalTool = options.TerminalTool
+		record.MaxSteps = options.MaxSteps
+		record.DecisionMaxOutputTokens = options.DecisionMaxOutputTokens
+		caseWires = append(caseWires, record)
+		resolved = append(resolved, options)
+	}
+	// Suite-level summary: preserve the historical aggregate meaning for
+	// readers of harness.* while CaseWires stays authoritative. A field that
+	// differs across cases falls back to the base value (for a mixed primitive
+	// suite, terminal_tool is empty rather than the misleading "submit").
+	summaryProtocol, summaryRenderer := protocol.ID(), renderer.ID()
+	summaryTerminal := config.Runner.TerminalTool
+	summaryEndOnTerminal := config.Runner.EndOnTerminalTool
+	summaryMaxSteps := config.Runner.MaxSteps
+	summaryDecisionBudget := config.Runner.DecisionMaxOutputTokens
+	if len(resolved) > 0 {
+		first := resolved[0]
+		protocolID, rendererID := "", ""
+		sameProtocol := first.Protocol != nil
+		sameRenderer := first.Renderer != nil
+		if sameProtocol {
+			protocolID = first.Protocol.ID()
+		}
+		if sameRenderer {
+			rendererID = first.Renderer.ID()
+		}
+		terminal := first.TerminalTool
+		endOnTerminal := first.EndOnTerminalTool
+		decisionBudget := first.DecisionMaxOutputTokens
+		sameTerminal, sameEnd, sameDecision := true, true, true
+		for _, options := range resolved[1:] {
+			sameProtocol = sameProtocol && options.Protocol != nil && options.Protocol.ID() == protocolID
+			sameRenderer = sameRenderer && options.Renderer != nil && options.Renderer.ID() == rendererID
+			sameTerminal = sameTerminal && options.TerminalTool == terminal
+			sameEnd = sameEnd && options.EndOnTerminalTool == endOnTerminal
+			sameDecision = sameDecision && options.DecisionMaxOutputTokens == decisionBudget
+		}
+		if sameProtocol {
+			summaryProtocol = protocolID
+		}
+		if sameRenderer {
+			summaryRenderer = rendererID
+		}
+		if sameTerminal {
+			summaryTerminal = terminal
+		}
+		if sameEnd {
+			summaryEndOnTerminal = endOnTerminal
+		}
+		if sameDecision {
+			summaryDecisionBudget = decisionBudget
+		}
+		for _, options := range resolved {
+			if options.MaxSteps > summaryMaxSteps {
+				summaryMaxSteps = options.MaxSteps
+			}
+		}
+	}
 	return RunManifest{
 		SchemaVersion: RunSchemaVersion,
 		RunID:         runID,
@@ -182,24 +255,24 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 			Version:                  HarnessVersion,
 			ScorerVersion:            ScorerVersion,
 			OutcomeTaxonomyVersion:   OutcomeTaxonomyVersion,
-			Protocol:                 protocol.ID(),
-			Renderer:                 renderer.ID(),
+			Protocol:                 summaryProtocol,
+			Renderer:                 summaryRenderer,
 			RouteRenderer:            routeRenderer.ID(),
 			RouteProtocol:            routeProtocol,
 			RouteStage:               routeStage,
 			ControlPrompt:            string(controlPrompt),
 			TaskControl:              config.Runner.TaskControl,
-			TerminalTool:             config.Runner.TerminalTool,
-			EndOnTerminalTool:        config.Runner.EndOnTerminalTool,
+			TerminalTool:             summaryTerminal,
+			EndOnTerminalTool:        summaryEndOnTerminal,
 			ThinkingMode:             string(thinkingMode),
 			RouteThinkingMode:        string(routeThinkingMode),
 			Reasoning:                thinkingMode != inference.ThinkingOff,
 			FewShot:                  fewShot,
-			MaxSteps:                 config.Runner.MaxSteps,
+			MaxSteps:                 summaryMaxSteps,
 			ProtocolRetries:          config.Runner.ProtocolRetries,
 			RouteRetries:             config.Runner.RouteRetries,
 			AnswerMaxOutputTokens:    config.Runner.Generation.MaxOutputTokens,
-			DecisionMaxOutputTokens:  config.Runner.DecisionMaxOutputTokens,
+			DecisionMaxOutputTokens:  summaryDecisionBudget,
 			RouteMaxOutputTokens:     config.Runner.RouteMaxOutputTokens,
 			TracePromptBytes:         config.Runner.TracePromptBytes,
 			CaseParallelism:          config.CaseParallelism,
@@ -215,6 +288,10 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 			WebFixture:               len(config.WebFixture) > 0,
 			SubagentFixture:          len(config.SubagentFixture) > 0,
 			TokenCountVocabSHA256:    config.TokenCountVocabSHA256,
+			WireCanonical:            wireSpec.Canonical(),
+			WireHash:                 wireSpec.Hash(),
+			WirePreset:               wirePreset,
+			WireConflict:             wireConflict,
 		},
 		Sampling: samplingSnapshot(config.Runner.Generation.Sampling),
 		Environment: EnvironmentMetadata{
@@ -222,8 +299,9 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 			Arch:      runtime.GOARCH,
 			GoVersion: runtime.Version(),
 		},
-		CaseIDs: caseIDs,
-		Cases:   config.Cases,
+		CaseIDs:   caseIDs,
+		CaseWires: caseWires,
+		Cases:     config.Cases,
 	}
 }
 
@@ -286,29 +364,17 @@ func runCase(
 		}()
 	}
 	recording := &recordingGenerator{generator: generator, recorder: recorder}
-	options := config.Runner
+	options, err := resolveCaseOptions(config, testCase)
+	if err != nil {
+		result.Error = fmt.Sprintf("resolve case options: %v", err)
+		return result
+	}
 	if options.ToolRouter != nil {
 		catalog := options.ToolBundles
 		if len(catalog) == 0 {
 			catalog = agent.DefaultToolBundles()
 		}
 		options.ToolBundles = agent.EnabledToolBundles(tools, catalog)
-	}
-	if testCase.Primitive != nil && testCase.Primitive.MaxTurns > 0 {
-		options.MaxSteps = testCase.Primitive.MaxTurns
-		hasSubmit := slices.Contains(testCase.Primitive.ToolNames, "submit")
-		options.Protocol = primitiveProtocol(config.PrimitiveProfile)
-		options.Renderer = agent.G1IFunctionRenderer{
-			HasSubmit:   hasSubmit,
-			HasRunTests: slices.Contains(testCase.Primitive.ToolNames, "run_tests"),
-		}
-		options.TerminalTool = ""
-		options.EndOnTerminalTool = false
-		if hasSubmit {
-			options.TerminalTool = "submit"
-			options.EndOnTerminalTool = true
-		}
-		options.PostToolHook = primitiveScenarioHook(testCase.ID, testCase.primitive)
 	}
 	options.TokenCount = config.TokenCount
 	runner, err := agent.NewRunner(recording, tools, options)

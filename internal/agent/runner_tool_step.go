@@ -28,7 +28,6 @@ func (turn *runnerTurn) runToolAction(
 	modelStep turnModelStep,
 ) (bool, error) {
 	turn.toolAttempts++
-	turn.assistantPrefix = ""
 	current := turn.currentStep()
 	current.Tool = action.Name
 	current.ToolArguments = append(json.RawMessage(nil), action.Arguments...)
@@ -513,8 +512,7 @@ func (turn *runnerTurn) advanceAfterTool(
 		turn.activeSpecs = r.rescueToolSpecs()
 		turn.activeTools = toolsForSpecs(r.tools, turn.activeSpecs)
 	}
-	if turn.result.Route == RouteInspect && !turn.terminalToolCompleted {
-		turn.assistantPrefix = r.protocol.ToolCallPrefix()
-	}
+	// The next decision's prefill is resolved by runnerTurn.resolveFrame from
+	// the wire spec and this step's state; nothing to re-arm here.
 	return false
 }

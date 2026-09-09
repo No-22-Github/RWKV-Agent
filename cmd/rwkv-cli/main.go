@@ -22,6 +22,7 @@ import (
 	agentapi "github.com/no22/RWKV-Agent/api"
 	"github.com/no22/RWKV-Agent/internal/agent"
 	agenteval "github.com/no22/RWKV-Agent/internal/agent/eval"
+	"github.com/no22/RWKV-Agent/internal/agent/wire"
 	concurrentcli "github.com/no22/RWKV-Agent/internal/cli/concurrent"
 	"github.com/no22/RWKV-Agent/internal/continuation"
 	"github.com/no22/RWKV-Agent/internal/continuation/chatcompletions"
@@ -96,6 +97,13 @@ type runOptions struct {
 	sameToolRescueLimit      int
 	sameToolRescueExplicit   bool
 	agentProtocol            string
+	agentProtocolExplicit    bool
+	profile                  string
+	profileExplicit          bool
+	wireOverrides            string
+	strictSpec               bool
+	listProfiles             bool
+	explainProfile           string
 	progressiveTools         bool
 	progressiveToolsExplicit bool
 	semanticNoTool           bool
@@ -507,6 +515,8 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			fs.StringVar(&options.ui, "ui", "auto", "agent renderer: auto, tui, or plain")
 			fs.StringVar(&options.workspace, "workspace", ".", "workspace root available to read-only tools")
 			fs.StringVar(&options.agentProtocol, "agent-protocol", string(agentapi.AgentProtocolXML), "tool transcript: xml (default) or markdown")
+			fs.StringVar(&options.profile, "profile", "", "wire profile: preset name (xml-v1, md-v1), preset+modifiers (md-v1+anchor+gate-state), or a canonical spec; overrides --agent-protocol and the individual prefill switches (list them with `agent-eval --list-profiles`)")
+			fs.StringVar(&options.wireOverrides, "wire", "", "longhand wire axis overrides on top of the suite default or --profile: comma-separated key=value (format, thinking, prefill, abstain, terminal, route, catalog, control, feedback, subagent), e.g. \"format=md-fence,prefill=fence\"")
 			fs.BoolVar(&options.progressiveTools, "progressive-tools", false, "route to one or two capability bundles before exposing tool schemas")
 			fs.BoolVar(&options.enableWeb, "web", false, "enable Brave web_search and Tavily web_fetch")
 			fs.BoolVar(&options.compressFetch, "compress-fetch", true, "compress long web_fetch results with a query-aware extraction before they enter the transcript (round-2 e2e: 0/25 → 25/25 on long-page tasks; pass =false for the A/B)")
@@ -537,8 +547,10 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			fs.IntVar(
 				&options.sameToolRescueLimit,
 				"same-tool-rescue-limit",
-				8,
-				"enter rescue mode after this many consecutive successful calls to one tool; 0 disables (product and Go-native Primitive profiles)",
+				agent.ProductSameToolRescueLimit,
+				"enter rescue mode after this many consecutive successful calls to one tool; 0 disables "+
+					"(product and Go-native Primitive profiles). Unified with the product constant; "+
+					"the historical eval value 8 is an explicit experiment, pass it explicitly",
 			)
 			fs.BoolVar(
 				&options.routeStage,
@@ -553,6 +565,38 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 				"agent-protocol",
 				string(agentapi.AgentProtocolMarkdown),
 				"product transcript for --suite bfcl-product: markdown or xml",
+			)
+			fs.StringVar(
+				&options.profile,
+				"profile",
+				"",
+				"wire profile: preset name, preset+modifiers (md-v1+anchor+gate-state), or a canonical spec; "+
+					"overrides --agent-protocol and the individual prefill switches",
+			)
+			fs.StringVar(
+				&options.wireOverrides,
+				"wire",
+				"",
+				"longhand wire axis overrides on top of the suite default or --profile: comma-separated "+
+					"key=value (format, thinking, prefill, abstain, terminal, route, catalog, control, "+
+					"feedback, subagent), e.g. \"format=md-fence,prefill=fence\"",
+			)
+			fs.BoolVar(
+				&options.listProfiles,
+				"list-profiles",
+				false,
+				"print the registered wire profiles and exit (no model required)")
+			fs.StringVar(
+				&options.explainProfile,
+				"explain-profile",
+				"",
+				"print the resolved wire spec, hash, and control prompt for a profile and exit (no model required)",
+			)
+			fs.BoolVar(
+				&options.strictSpec,
+				"strict-spec",
+				false,
+				"reject an ad-hoc wire combination: require the effective spec to match a registered preset",
 			)
 			fs.StringVar(
 				&options.evalCasesPath,
@@ -607,6 +651,10 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			options.semanticNoToolExplicit = true
 		case "deep-tool-anchor":
 			options.deepToolAnchorExplicit = true
+		case "profile":
+			options.profileExplicit = true
+		case "agent-protocol":
+			options.agentProtocolExplicit = true
 		}
 	})
 	if name == "agent-eval" {
@@ -627,6 +675,9 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 				options.routeMaxTokens = 48
 			}
 			if !options.sameToolRescueExplicit {
+				// Defensive: the flag default is already the product
+				// constant, but bfcl-product must never drift from it if a
+				// future default changes.
 				options.sameToolRescueLimit = agent.ProductSameToolRescueLimit
 			}
 		}
@@ -639,6 +690,55 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		}
 		if !options.deepToolAnchorExplicit {
 			options.deepToolAnchor = true
+		}
+	}
+	if options.profile != "" {
+		// A wire profile owns the axes it spells out. Mixing it with the
+		// legacy per-axis switches would make the run depend on flag order,
+		// which is exactly the drift the profile exists to remove.
+		switch {
+		case options.agentProtocolExplicit:
+			return options, errors.New("--profile and --agent-protocol select the same axis; put the format in the profile")
+		case options.semanticNoToolExplicit, options.deepToolAnchorExplicit,
+			options.progressiveToolsExplicit, options.decisionFakeThink,
+			options.closedFakeThink, options.noToolGate != "",
+			options.answerStageLead != 0, options.subagentRawFeedback,
+			options.fewShot, options.routeStage:
+			return options, errors.New(
+				"--profile cannot be combined with the individual prefill/route/abstain switches; " +
+					"put them in the profile instead (for example md-v1+anchor+gate-state)",
+			)
+		case options.thinkingExplicit && options.thinkingMode != string(inference.ThinkingOff):
+			return options, errors.New(
+				"--profile and --thinking select the same axis; " +
+					"put the thinking mode in the profile (for example xml-v1+think-fast)",
+			)
+		}
+		if _, _, err := wire.Resolve(options.profile); err != nil {
+			return options, fmt.Errorf("invalid --profile: %w", err)
+		}
+	}
+	if options.wireOverrides != "" {
+		// The longhand form may sit on top of a preset, but not on top of the
+		// legacy switches: two sources for the same axis would make the run
+		// depend on flag order.
+		if _, err := wire.ParseOverrides(options.wireOverrides); err != nil {
+			return options, fmt.Errorf("invalid --wire: %w", err)
+		}
+		switch {
+		case options.agentProtocolExplicit, options.semanticNoToolExplicit,
+			options.deepToolAnchorExplicit, options.progressiveToolsExplicit,
+			options.decisionFakeThink, options.closedFakeThink, options.noToolGate != "",
+			options.answerStageLead != 0, options.subagentRawFeedback,
+			options.fewShot, options.routeStage:
+			return options, errors.New(
+				"--wire cannot be combined with the individual legacy switches; " +
+					"put those axes in --wire or use a profile",
+			)
+		case options.thinkingExplicit && options.thinkingMode != string(inference.ThinkingOff):
+			return options, errors.New(
+				"--wire and --thinking select the same axis; put thinking in --wire (thinking=fast)",
+			)
 		}
 	}
 	if options.thinkingExplicit && options.reasoningExplicit {
@@ -758,6 +858,13 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			}
 			if options.evalCasesPath != "" && options.evalSuiteExplicit {
 				return options, errors.New("--suite and --cases cannot be used together")
+			}
+			if (options.profile != "" || options.wireOverrides != "") &&
+				agenteval.IsPrimitiveSuite(options.evalSuite) {
+				return options, errors.New(
+					"--profile/--wire are not wired for primitive suites yet: the suite still pins the " +
+						"per-case transcript, renderer and terminal tool",
+				)
 			}
 			if options.evalSuite != agenteval.SuiteBFCLProduct &&
 				options.evalCasesPath == "" &&
@@ -1251,38 +1358,7 @@ func agentRunnerOptions(options runOptions, suite string, observe func(agent.Eve
 				Observe:          observe,
 			})
 		}
-		return agent.ProductHarnessOptions(agent.ProductHarnessConfig{
-			MaxSteps:                 options.maxSteps,
-			DecisionMaxOutputTokens:  options.decisionMaxTokens,
-			RouteMaxOutputTokens:     options.routeMaxTokens,
-			TracePromptBytes:         options.tracePromptBytes,
-			DuplicateReplayLimit:     options.duplicateReplayLimit,
-			DuplicateRescueThreshold: options.duplicateRescueThreshold,
-			SameToolRescueLimit:      options.sameToolRescueLimit,
-			Generation: continuation.Request{
-				Model:           options.modelPath,
-				MaxOutputTokens: options.maxTokens,
-				Sampling: continuation.Sampling{
-					Temperature:      float32(options.temperature),
-					TopK:             options.topK,
-					TopP:             float32(options.topP),
-					PresencePenalty:  float32(options.presencePenalty),
-					FrequencyPenalty: float32(options.frequencyPenalty),
-					PenaltyDecay:     float32(options.penaltyDecay),
-				},
-			},
-			ProgressiveTools:    options.progressiveTools,
-			ToolBundles:         evalToolBundles(options),
-			SemanticNoTool:      options.semanticNoTool,
-			DecisionFakeThink:   options.decisionFakeThink,
-			ClosedFakeThink:     options.closedFakeThink,
-			DeepToolAnchor:      options.deepToolAnchor,
-			CompressFetch:       options.compressFetch,
-			NoToolGate:          options.noToolGate,
-			AnswerStageLead:     options.answerStageLead,
-			SubagentRawFeedback: options.subagentRawFeedback,
-			Observe:             observe,
-		})
+		return productRunnerOptions(options, observe)
 	}
 	if options.evalCasesPath != "" && options.agentProtocol == string(agentapi.AgentProtocolMarkdown) {
 		// Custom suites honor --agent-protocol markdown by running the same
@@ -1291,38 +1367,7 @@ func agentRunnerOptions(options runOptions, suite string, observe func(agent.Eve
 		// Built-in suites keep their established mapping: boundary and the
 		// primitive suites run the XML envelope regardless of the flag, so
 		// their baselines stay comparable.
-		return agent.ProductHarnessOptions(agent.ProductHarnessConfig{
-			MaxSteps:                 options.maxSteps,
-			DecisionMaxOutputTokens:  options.decisionMaxTokens,
-			RouteMaxOutputTokens:     options.routeMaxTokens,
-			TracePromptBytes:         options.tracePromptBytes,
-			DuplicateReplayLimit:     options.duplicateReplayLimit,
-			DuplicateRescueThreshold: options.duplicateRescueThreshold,
-			SameToolRescueLimit:      options.sameToolRescueLimit,
-			Generation: continuation.Request{
-				Model:           options.modelPath,
-				MaxOutputTokens: options.maxTokens,
-				Sampling: continuation.Sampling{
-					Temperature:      float32(options.temperature),
-					TopK:             options.topK,
-					TopP:             float32(options.topP),
-					PresencePenalty:  float32(options.presencePenalty),
-					FrequencyPenalty: float32(options.frequencyPenalty),
-					PenaltyDecay:     float32(options.penaltyDecay),
-				},
-			},
-			ProgressiveTools:    options.progressiveTools,
-			ToolBundles:         evalToolBundles(options),
-			SemanticNoTool:      options.semanticNoTool,
-			DecisionFakeThink:   options.decisionFakeThink,
-			ClosedFakeThink:     options.closedFakeThink,
-			DeepToolAnchor:      options.deepToolAnchor,
-			CompressFetch:       options.compressFetch,
-			NoToolGate:          options.noToolGate,
-			AnswerStageLead:     options.answerStageLead,
-			SubagentRawFeedback: options.subagentRawFeedback,
-			Observe:             observe,
-		})
+		return productRunnerOptions(options, observe)
 	}
 	agentOptions := agent.XMLHarnessOptions(agent.XMLHarnessConfig{
 		MaxSteps:                 options.maxSteps,
@@ -1332,21 +1377,10 @@ func agentRunnerOptions(options runOptions, suite string, observe func(agent.Eve
 		DuplicateReplayLimit:     options.duplicateReplayLimit,
 		DuplicateRescueThreshold: options.duplicateRescueThreshold,
 		SameToolRescueLimit:      options.sameToolRescueLimit,
-		Generation: continuation.Request{
-			Model:           options.modelPath,
-			MaxOutputTokens: options.maxTokens,
-			Sampling: continuation.Sampling{
-				Temperature:      float32(options.temperature),
-				TopK:             options.topK,
-				TopP:             float32(options.topP),
-				PresencePenalty:  float32(options.presencePenalty),
-				FrequencyPenalty: float32(options.frequencyPenalty),
-				PenaltyDecay:     float32(options.penaltyDecay),
-			},
-		},
-		ThinkingMode: inference.ThinkingMode(options.thinkingMode),
-		FewShot:      options.fewShot,
-		Observe:      observe,
+		Generation:               evalGenerationRequest(options),
+		ThinkingMode:             inference.ThinkingMode(options.thinkingMode),
+		FewShot:                  options.fewShot,
+		Observe:                  observe,
 	})
 	// The eval CLI keeps the older respond/inspect router as a separate stage,
 	// rather than the progressive tool router the product profile uses.
@@ -1356,6 +1390,50 @@ func agentRunnerOptions(options runOptions, suite string, observe func(agent.Eve
 		agentOptions.RouteRetries = 1
 	}
 	return agentOptions
+}
+
+// evalGenerationRequest is the single model/sampling request builder for the
+// eval harness, so the profile constructors cannot drift on sampling.
+func evalGenerationRequest(options runOptions) continuation.Request {
+	return continuation.Request{
+		Model:           options.modelPath,
+		MaxOutputTokens: options.maxTokens,
+		Sampling: continuation.Sampling{
+			Temperature:      float32(options.temperature),
+			TopK:             options.topK,
+			TopP:             float32(options.topP),
+			PresencePenalty:  float32(options.presencePenalty),
+			FrequencyPenalty: float32(options.frequencyPenalty),
+			PenaltyDecay:     float32(options.penaltyDecay),
+		},
+	}
+}
+
+// productRunnerOptions is the single Markdown product profile constructor for
+// the eval CLI (bfcl-product and custom markdown suites). It exists so the two
+// call sites cannot drift on the prefill/abstain/loop wiring.
+func productRunnerOptions(options runOptions, observe func(agent.Event)) agent.Options {
+	return agent.ProductHarnessOptions(agent.ProductHarnessConfig{
+		MaxSteps:                 options.maxSteps,
+		DecisionMaxOutputTokens:  options.decisionMaxTokens,
+		RouteMaxOutputTokens:     options.routeMaxTokens,
+		TracePromptBytes:         options.tracePromptBytes,
+		DuplicateReplayLimit:     options.duplicateReplayLimit,
+		DuplicateRescueThreshold: options.duplicateRescueThreshold,
+		SameToolRescueLimit:      options.sameToolRescueLimit,
+		Generation:               evalGenerationRequest(options),
+		ProgressiveTools:         options.progressiveTools,
+		ToolBundles:              evalToolBundles(options),
+		SemanticNoTool:           options.semanticNoTool,
+		DecisionFakeThink:        options.decisionFakeThink,
+		ClosedFakeThink:          options.closedFakeThink,
+		DeepToolAnchor:           options.deepToolAnchor,
+		CompressFetch:            options.compressFetch,
+		NoToolGate:               options.noToolGate,
+		AnswerStageLead:          options.answerStageLead,
+		SubagentRawFeedback:      options.subagentRawFeedback,
+		Observe:                  observe,
+	})
 }
 
 func runAgent(args []string) error {
@@ -1505,6 +1583,8 @@ func agentAPIConfig(options runOptions) (agentapi.Config, error) {
 		NativeProvider:         options.provider,
 		Thinking:               options.thinkingMode,
 		AgentProtocol:          agentapi.AgentProtocol(options.agentProtocol),
+		Profile:                options.profile,
+		Wire:                   options.wireOverrides,
 		SemanticNoTool:         &semanticNoTool,
 		DecisionFakeThink:      options.decisionFakeThink,
 		CompressFetch:          options.compressFetch,
@@ -1540,6 +1620,9 @@ func agentAPIConfig(options runOptions) (agentapi.Config, error) {
 }
 
 func runAgentEval(args []string) error {
+	if handled, err := runWireProfileQuery(args); handled {
+		return err
+	}
 	options, err := parseRunOptions("agent-eval", args)
 	if err != nil {
 		return err
@@ -1612,11 +1695,15 @@ func runAgentEval(args []string) error {
 		model.Quantization = info.Quantization
 		model.Backend = string(info.Backend)
 	}
+	runnerOptions, err := agentEvalRunnerOptions(options, suite)
+	if err != nil {
+		return err
+	}
 	report, runErr := agenteval.Run(ctx, agenteval.Config{
 		Cases:                 cases,
 		Suite:                 suite,
 		Model:                 model,
-		Runner:                agentRunnerOptions(options, suite, nil),
+		Runner:                runnerOptions,
 		TokenCount:            tokenCount,
 		TokenCountVocabSHA256: vocabSHA,
 		CaseTimeout:           options.evalCaseTimeout,
@@ -1671,6 +1758,162 @@ func runAgentEval(args []string) error {
 		)
 	}
 	return nil
+}
+
+// agentEvalRunnerOptions resolves the suite's default harness options and
+// applies an explicit --profile on top. The profile is the single source of
+// truth for the axes it spells out; the suite keeps the loop defaults and the
+// tool/fixture wiring.
+func agentEvalRunnerOptions(options runOptions, suite string) (agent.Options, error) {
+	runner := agentRunnerOptions(options, suite, nil)
+	if (options.profile != "" || options.wireOverrides != "") && agenteval.IsPrimitiveSuite(suite) {
+		return agent.Options{}, errors.New(
+			"--profile/--wire are not wired for primitive suites yet: the suite still pins the " +
+				"per-case transcript, renderer and terminal tool",
+		)
+	}
+	if options.profile != "" {
+		spec, _, err := wire.Resolve(options.profile)
+		if err != nil {
+			return agent.Options{}, fmt.Errorf("resolve --profile: %w", err)
+		}
+		applied, err := agent.OptionsWithWire(runner, spec)
+		if err != nil {
+			return agent.Options{}, fmt.Errorf("apply --profile: %w", err)
+		}
+		runner = applied
+	}
+	if options.wireOverrides != "" {
+		// The longhand form composes on top of the suite default or a preset:
+		// only the axes named in --wire change.
+		overrides, err := wire.ParseOverrides(options.wireOverrides)
+		if err != nil {
+			return agent.Options{}, fmt.Errorf("parse --wire: %w", err)
+		}
+		spec, specErr := agent.WireSpecOf(runner)
+		if specErr != nil {
+			return agent.Options{}, fmt.Errorf("describe base wire spec: %w", specErr)
+		}
+		overridden, err := spec.WithOverrides(overrides)
+		if err != nil {
+			return agent.Options{}, fmt.Errorf("apply --wire: %w", err)
+		}
+		applied, err := agent.OptionsWithWire(runner, overridden)
+		if err != nil {
+			return agent.Options{}, fmt.Errorf("apply --wire: %w", err)
+		}
+		runner = applied
+	}
+	if options.strictSpec {
+		// The discipline knob: an experiment must be a named point, so its
+		// result can be looked up later by preset name instead of a hash.
+		spec, specErr := agent.WireSpecOf(runner)
+		if specErr != nil {
+			return agent.Options{}, fmt.Errorf("--strict-spec: %w", specErr)
+		}
+		if _, ok := spec.MatchPreset(); !ok {
+			return agent.Options{}, fmt.Errorf(
+				"--strict-spec: the effective wire spec matches no registered preset "+
+					"(canonical: %s); register it or drop --strict-spec",
+				spec.Canonical(),
+			)
+		}
+	}
+	return runner, nil
+}
+
+// runWireProfileQuery handles the model-less profile inspection flags before
+// parseRunOptions requires --model. It reports whether the command was handled.
+func runWireProfileQuery(args []string) (bool, error) {
+	list := false
+	explain := ""
+	overrides := ""
+	for index := 0; index < len(args); index++ {
+		switch {
+		case args[index] == "--list-profiles":
+			list = true
+		case strings.HasPrefix(args[index], "--list-profiles="):
+			list = args[index] != "--list-profiles=false"
+		case args[index] == "--explain-profile":
+			if index+1 < len(args) {
+				explain = args[index+1]
+				index++
+			}
+		case strings.HasPrefix(args[index], "--explain-profile="):
+			explain = strings.TrimPrefix(args[index], "--explain-profile=")
+		case args[index] == "--wire":
+			if index+1 < len(args) {
+				overrides = args[index+1]
+				index++
+			}
+		case strings.HasPrefix(args[index], "--wire="):
+			overrides = strings.TrimPrefix(args[index], "--wire=")
+		}
+	}
+	if !list && explain == "" {
+		return false, nil
+	}
+	if list {
+		fmt.Println("Registered wire profiles:")
+		for _, name := range wire.Names() {
+			spec, _ := wire.Lookup(name)
+			fmt.Printf("  %-22s %s\n", name, spec.Short())
+		}
+		fmt.Printf("\nModifiers: %s\n", strings.Join(wire.ModifierNames(), ", "))
+		return true, nil
+	}
+	spec, preset, err := wire.Resolve(explain)
+	if err != nil {
+		return true, err
+	}
+	if overrides != "" {
+		parsed, err := wire.ParseOverrides(overrides)
+		if err != nil {
+			return true, fmt.Errorf("invalid --wire: %w", err)
+		}
+		spec, err = spec.WithOverrides(parsed)
+		if err != nil {
+			return true, err
+		}
+	}
+	if preset == "" {
+		preset = "(ad-hoc)"
+	}
+	fmt.Printf("preset:    %s\n", preset)
+	fmt.Printf("canonical: %s\n", spec.Canonical())
+	fmt.Printf("hash:      %s\n", spec.Hash())
+	fmt.Printf("short:     %s\n", spec.Short())
+	repairs := spec.ParseRepairs()
+	names := make([]string, 0, len(repairs))
+	for _, repair := range repairs {
+		names = append(names, string(repair))
+	}
+	fmt.Printf("recoveries: %s\n", strings.Join(names, ", "))
+
+	options, err := agent.OptionsWithWire(agent.Options{
+		MaxSteps:   6,
+		Generation: continuation.Request{MaxOutputTokens: 1024},
+	}, spec)
+	if err != nil {
+		return true, err
+	}
+	dir, err := os.MkdirTemp("", "wire-explain-")
+	if err != nil {
+		return true, nil
+	}
+	defer os.RemoveAll(dir)
+	tools, err := agent.WorkspaceTools(dir)
+	if err != nil {
+		return true, nil
+	}
+	preview, err := agent.PreviewPrompts(options, tools, spec.Transport == wire.TransportNative)
+	if err != nil {
+		return true, err
+	}
+	fmt.Printf("\nprotocol:  %s\nrenderer:  %s\nthinking:  %s\n",
+		preview.ProtocolID, preview.RendererID, preview.ThinkingMode)
+	fmt.Printf("\ncontrol prompt:\n%s\n", preview.Control)
+	return true, nil
 }
 
 func reportCompletionCompatibility(options runOptions) {

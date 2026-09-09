@@ -8,6 +8,7 @@ import (
 	"io"
 	"strings"
 
+	"github.com/no22/RWKV-Agent/internal/agent/wire"
 	"github.com/no22/RWKV-Agent/internal/continuation"
 	"github.com/no22/RWKV-Agent/internal/inference"
 )
@@ -130,10 +131,7 @@ func thinkingControl(mode inference.ThinkingMode) string {
 }
 
 func (protocol G1IProtocol) Parse(value string, finish continuation.FinishReason) (Action, error) {
-	candidate := strings.TrimSpace(value)
-	if match := leadingThinkBlocks.FindStringIndex(candidate); match != nil && match[0] == 0 {
-		candidate = strings.TrimSpace(candidate[match[1]:])
-	}
+	candidate := wire.StripLeadingThinkBlocks(strings.TrimSpace(value))
 	if finish == continuation.FinishLength {
 		if strings.HasPrefix(candidate, "<think>") {
 			return Action{}, ErrUnclosedThink
@@ -146,15 +144,10 @@ func (protocol G1IProtocol) Parse(value string, finish continuation.FinishReason
 	// Some RWKV Chat Completions gateways retain the lone ">" that would
 	// normally close a withheld thinking prefix. It is framing, not answer
 	// content, when the remainder is an explicit tool envelope.
-	if strings.HasPrefix(candidate, ">") {
-		remainder := strings.TrimSpace(strings.TrimPrefix(candidate, ">"))
-		if strings.HasPrefix(remainder, "<tool_call") {
-			candidate = remainder
-		}
-	}
+	candidate = wire.TrimWithheldOpening(candidate)
 	const (
-		toolOpen    = "<tool_call>"
-		toolClose   = "</tool_call>"
+		toolOpen    = wire.EnvelopePrefix
+		toolClose   = wire.EnvelopeClose
 		answerOpen  = "<answer>"
 		answerClose = "</answer>"
 	)
@@ -167,7 +160,7 @@ func (protocol G1IProtocol) Parse(value string, finish continuation.FinishReason
 			Name      string          `json:"name"`
 			Arguments json.RawMessage `json:"arguments"`
 		}
-		protocolRepaired := false
+		repairs := &repairLog{}
 		strictDecoded := true
 		decoder := json.NewDecoder(strings.NewReader(payload))
 		decoder.DisallowUnknownFields()
@@ -181,11 +174,11 @@ func (protocol G1IProtocol) Parse(value string, finish continuation.FinishReason
 			}
 			call.Name = "read_file"
 			call.Arguments, _ = json.Marshal(map[string]string{"path": path})
-			protocolRepaired = true
+			repairs.mark(wire.RepairPathArgument)
 		}
 		if call.Name == "reader" || call.Name == "file_reader" {
 			call.Name = "read_file"
-			protocolRepaired = true
+			repairs.mark(wire.RepairToolRenamed)
 		}
 		if (strictDecoded && decoder.Decode(&struct{}{}) != io.EOF) ||
 			strings.TrimSpace(call.Name) == "" ||
@@ -193,7 +186,7 @@ func (protocol G1IProtocol) Parse(value string, finish continuation.FinishReason
 			return Action{}, fmt.Errorf("%w: invalid G1I tool call", ErrToolShapeInvalid)
 		}
 		originalFailure := ProtocolFailureClass("")
-		if protocolRepaired {
+		if repairs.any() {
 			originalFailure = ProtocolFailureToolShapeInvalid
 		}
 		if protocol.SemanticNoTool && call.Name == SemanticNoToolName {
@@ -207,16 +200,18 @@ func (protocol G1IProtocol) Parse(value string, finish continuation.FinishReason
 				Arguments:               call.Arguments,
 				NoToolRationale:         rationale,
 				NoToolAnswer:            answer,
-				ProtocolRepaired:        protocolRepaired,
+				ProtocolRepaired:        repairs.any(),
 				OriginalProtocolFailure: originalFailure,
+				Repairs:                 repairs.list(),
 			}, nil
 		}
 		return Action{
 			Type:                    ActionTypeTool,
 			Name:                    call.Name,
 			Arguments:               call.Arguments,
-			ProtocolRepaired:        protocolRepaired,
+			ProtocolRepaired:        repairs.any(),
 			OriginalProtocolFailure: originalFailure,
+			Repairs:                 repairs.list(),
 		}, nil
 	}
 	if strings.HasPrefix(candidate, answerOpen) {
@@ -241,6 +236,7 @@ func (protocol G1IProtocol) Parse(value string, finish continuation.FinishReason
 			return Action{}, err
 		}
 		action.ProtocolRepaired = true
+		action.Repairs = append([]wire.Repair{wire.RepairEnvelopeRecovered}, action.Repairs...)
 		if action.OriginalProtocolFailure == "" {
 			action.OriginalProtocolFailure = ProtocolFailureToolEnvelopeMissing
 		}
@@ -297,6 +293,7 @@ func parseLegacyXMLToolCall(value string) (Action, bool) {
 	if _, err := decoder.Token(); err != io.EOF {
 		return Action{}, false
 	}
+	repairs := []wire.Repair{wire.RepairLegacyXMLCall}
 	if start.Name.Local == "read_file" {
 		if path, exists := arguments["file_path"]; exists {
 			if _, duplicate := arguments["path"]; duplicate {
@@ -304,6 +301,7 @@ func parseLegacyXMLToolCall(value string) (Action, bool) {
 			}
 			arguments["path"] = path
 			delete(arguments, "file_path")
+			repairs = append(repairs, wire.RepairXMLPathAlias)
 		}
 	}
 	encoded, err := json.Marshal(arguments)
@@ -316,6 +314,7 @@ func parseLegacyXMLToolCall(value string) (Action, bool) {
 		Arguments:               encoded,
 		ProtocolRepaired:        true,
 		OriginalProtocolFailure: ProtocolFailureToolEnvelopeMissing,
+		Repairs:                 repairs,
 	}, true
 }
 
@@ -364,8 +363,11 @@ func (G1IProtocol) FormatToolResult(_ string, _ string, payload string) string {
 	return "<tool_result>" + payload + "</tool_result>"
 }
 
+// ToolCallPrefix returns the envelope bytes. The runner no longer calls it —
+// wire.Spec.DecisionFrame owns the prefill policy — but the bytes stay
+// single-sourced here for tests and callers that need the raw constant.
 func (G1IProtocol) ToolCallPrefix() string {
-	return "<tool_call>"
+	return wire.EnvelopePrefix
 }
 
 func (protocol G1IProtocol) PostToolReminder() string {

@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/no22/RWKV-Agent/internal/agent/wire"
 	"github.com/no22/RWKV-Agent/internal/continuation"
 	"github.com/no22/RWKV-Agent/internal/continuation/toolchat"
 	"github.com/no22/RWKV-Agent/internal/inference"
@@ -598,10 +599,24 @@ func TestOptionsProductProfileMatchesProductHarness(t *testing.T) {
 		t.Fatal("deep anchor alone must count as an experiment")
 	}
 	// The prefill actually changes; the pairing is what the eval measures.
-	deep := ProductHarnessOptions(ProductHarnessConfig{DeepToolAnchor: true})
-	shallow := ProductHarnessOptions(ProductHarnessConfig{})
-	if deep.Protocol.ToolCallPrefix() == shallow.Protocol.ToolCallPrefix() {
-		t.Fatalf("deep anchor did not change the prefill: %q", deep.Protocol.ToolCallPrefix())
+	deep := ProductHarnessOptions(ProductHarnessConfig{DeepToolAnchor: true, SemanticNoTool: true})
+	shallow := ProductHarnessOptions(ProductHarnessConfig{SemanticNoTool: true})
+	deepSpec, err := WireSpecOf(deep)
+	if err != nil {
+		t.Fatal(err)
+	}
+	shallowSpec, err := WireSpecOf(shallow)
+	if err != nil {
+		t.Fatal(err)
+	}
+	state := wire.DecisionState{Inspect: true}
+	deepFrame := deepSpec.DecisionFrame(state)
+	shallowFrame := shallowSpec.DecisionFrame(state)
+	if deepFrame.Text == shallowFrame.Text {
+		t.Fatalf("deep anchor did not change the prefill: %q", deepFrame.Text)
+	}
+	if deepFrame.Text != wire.DeepFencePrefix || shallowFrame.Text != wire.FencePrefix {
+		t.Fatalf("prefill = %q / %q", deepFrame.Text, shallowFrame.Text)
 	}
 }
 

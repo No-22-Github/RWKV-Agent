@@ -8,6 +8,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/no22/RWKV-Agent/internal/agent/wire"
 	"github.com/no22/RWKV-Agent/internal/continuation/toolchat"
 )
 
@@ -145,9 +146,9 @@ func RenderPromptWithAnchor(entry Case, tier Tier, transport Transport) (Rendere
 
 func prefillAnchor(category string) string {
 	if strings.Contains(category, "parallel") {
-		return `[{"name":"`
+		return wire.ArrayCallAnchor
 	}
-	return `{"name":"`
+	return wire.CallBodyAnchor
 }
 
 func ParseMarkdownCalls(value string) ([]toolchat.ToolCall, error) {

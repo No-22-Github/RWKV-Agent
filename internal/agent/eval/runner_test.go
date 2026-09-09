@@ -313,6 +313,17 @@ func TestRunScoresAndWritesTraceArtifacts(t *testing.T) {
 		report.Manifest.Harness.RouteThinkingMode != string(inference.ThinkingOff) {
 		t.Fatalf("thinking modes were not recorded independently: %+v", report.Manifest.Harness)
 	}
+	if report.Manifest.Harness.WireCanonical == "" || report.Manifest.Harness.WireHash == "" {
+		t.Fatalf("wire spec was not recorded: %+v", report.Manifest.Harness)
+	}
+	if !strings.Contains(report.Manifest.Harness.WireCanonical, "prefill=envelope") ||
+		!strings.Contains(report.Manifest.Harness.WireCanonical, "control=fewshot") ||
+		report.Manifest.Harness.WireConflict != "" {
+		t.Fatalf("wire canonical = %q conflict = %q",
+			report.Manifest.Harness.WireCanonical,
+			report.Manifest.Harness.WireConflict,
+		)
+	}
 	assertScore(t, "task success", report.Summary.Metrics.TaskSuccess, 2, 2)
 	assertScore(t, "answer accuracy", report.Summary.Metrics.AnswerAccuracy, 2, 2)
 	assertScore(t, "answer contract repaired", report.Summary.Metrics.AnswerContractRepaired, 0, 2)
@@ -803,6 +814,16 @@ func TestEvalRepairedOutcomeKeepsOriginalFailureClass(t *testing.T) {
 		report.Summary.Metrics.ParseFailuresByClass[agent.ProtocolFailureToolEnvelopeMissing] != 1 {
 		t.Fatalf("repair metrics = %+v", report.Summary.Metrics)
 	}
+	if len(turn.Result.Steps[0].ProtocolRepairs) == 0 {
+		t.Fatalf("step did not record repair IDs: %+v", turn.Result.Steps[0])
+	}
+	repairTotal := 0
+	for _, count := range report.Summary.Metrics.RepairsByID {
+		repairTotal += count
+	}
+	if repairTotal != 1 {
+		t.Fatalf("repair ID counts = %+v", report.Summary.Metrics.RepairsByID)
+	}
 }
 
 func TestAssistantSuiteMockAcceptance(t *testing.T) {
@@ -1222,6 +1243,105 @@ func decodeJSONFile(t *testing.T, path string, target any) {
 	}
 }
 
+// TestManifestRecordsPerCaseWire locks the P4 contract: the suite-level
+// harness fields are only an aggregate summary, and the per-case records carry
+// the configuration that actually executes (transcript, terminal tool, step
+// budget, decision budget).
+func TestManifestRecordsPerCaseWire(t *testing.T) {
+	t.Parallel()
+	expected := "42"
+	cases := []Case{
+		{
+			ID:          "with_submit",
+			Description: "submit-terminated case",
+			Turns:       []Turn{{Prompt: "ping"}},
+			Primitive:   &PrimitiveMetadata{ToolNames: []string{"echo", "submit"}, MaxTurns: 7},
+		},
+		{
+			ID:          "without_submit",
+			Description: "arithmetic case without a terminal tool",
+			Turns:       []Turn{{Prompt: "ping"}},
+			Primitive:   &PrimitiveMetadata{ToolNames: []string{"echo"}, MaxTurns: 4},
+			primitive: &primitiveRuntime{
+				toolNames:      []string{"echo"},
+				scorer:         "submit",
+				expectedSubmit: &expected,
+			},
+		},
+	}
+	config := Config{
+		Cases: cases,
+		Suite: SuitePrimitive,
+		Runner: agent.Options{
+			MaxSteps:   2,
+			Generation: continuation.Request{Model: "scripted", MaxOutputTokens: 128},
+		},
+	}
+	manifest := runManifest(config, "run", time.Now().UTC())
+	if len(manifest.CaseWires) != 2 {
+		t.Fatalf("case wires = %+v", manifest.CaseWires)
+	}
+	withSubmit := manifest.CaseWires[0]
+	if withSubmit.TerminalTool != "submit" || withSubmit.MaxSteps != 7 ||
+		!strings.Contains(withSubmit.WireCanonical, "transcript=benchmark") ||
+		withSubmit.DecisionMaxOutputTokens != 128 {
+		t.Fatalf("submit case wire = %+v", withSubmit)
+	}
+	if withSubmit.WirePreset != "primitive-v1" {
+		t.Fatalf("submit case preset = %q, want primitive-v1", withSubmit.WirePreset)
+	}
+	withoutSubmit := manifest.CaseWires[1]
+	if withoutSubmit.TerminalTool != "" || withoutSubmit.MaxSteps != 4 ||
+		!strings.Contains(withoutSubmit.WireCanonical, "terminal=none") {
+		t.Fatalf("submit-less case wire = %+v", withoutSubmit)
+	}
+	if withoutSubmit.WirePreset != "" {
+		t.Fatalf("submit-less case matched preset %q", withoutSubmit.WirePreset)
+	}
+	// Mixed terminal contracts have no single suite-level value; the aggregate
+	// must not claim "submit" for the whole run.
+	if manifest.Harness.TerminalTool != "" || manifest.Harness.MaxSteps != 7 {
+		t.Fatalf("suite summary = %+v", manifest.Harness)
+	}
+}
+
 type noopTestCloser struct{}
 
 func (noopTestCloser) Close() error { return nil }
+
+// TestRunManifestRecordsWireConflict locks the visibility contract for a legacy
+// combination the canonical spec rejects: a product Markdown deep anchor with no
+// abstention exit. The runner refuses it at construction (P2), but a manifest
+// built from raw options must still record the reason instead of reporting a
+// clean configuration.
+func TestRunManifestRecordsWireConflict(t *testing.T) {
+	t.Parallel()
+	config := Config{
+		Cases: []Case{{
+			ID:          "wire_conflict_case",
+			Description: "manifest contract only",
+			Turns:       []Turn{{Prompt: "ping"}},
+		}},
+		Suite: SuiteSmoke,
+		Runner: agent.Options{
+			MaxSteps: 3,
+			Protocol: agent.G1IFunctionProtocol{
+				Product:        true,
+				DeepToolAnchor: true,
+			},
+			Renderer:   agent.G1IFunctionRenderer{Product: true},
+			Generation: continuation.Request{Model: "scripted", MaxOutputTokens: 64},
+		},
+	}
+	manifest := runManifest(config, "run", time.Now().UTC())
+	if manifest.Harness.WireCanonical == "" || manifest.Harness.WireHash == "" {
+		t.Fatalf("wire spec missing: %+v", manifest.Harness)
+	}
+	if !strings.Contains(manifest.Harness.WireConflict, "prefill.requires-abstain") {
+		t.Fatalf("wire conflict = %q, want prefill.requires-abstain", manifest.Harness.WireConflict)
+	}
+	if !strings.Contains(manifest.Harness.WireCanonical, "prefill=deep-fence") ||
+		!strings.Contains(manifest.Harness.WireCanonical, "abstain=none") {
+		t.Fatalf("wire canonical = %q", manifest.Harness.WireCanonical)
+	}
+}

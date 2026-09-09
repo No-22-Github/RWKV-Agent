@@ -10,6 +10,7 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/no22/RWKV-Agent/internal/agent/wire"
 	"github.com/no22/RWKV-Agent/internal/continuation"
 	"github.com/no22/RWKV-Agent/internal/continuation/toolchat"
 )
@@ -322,14 +323,14 @@ func accumulateAttempt(trace *TraceEntry, attempt AttemptTrace) {
 
 func assembleMarkdownContent(anchor, generated string) (string, string) {
 	candidate := strings.TrimSpace(generated)
-	if anchor == `[{"name":"` {
+	if anchor == wire.ArrayCallAnchor {
 		switch {
 		case strings.HasPrefix(candidate, `[`):
 			return candidate, "self_contained"
-		case strings.HasPrefix(candidate, `{"name":"`):
+		case strings.HasPrefix(candidate, wire.CallBodyAnchor):
 			return "[" + candidate, "array_elements"
 		}
-	} else if strings.HasPrefix(candidate, `{"name":"`) {
+	} else if strings.HasPrefix(candidate, wire.CallBodyAnchor) {
 		return candidate, "self_contained"
 	}
 	return anchor + generated, "prefill_continuation"

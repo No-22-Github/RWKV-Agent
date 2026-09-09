@@ -11,7 +11,7 @@ import (
 
 const (
 	CaseSchemaVersion      = 4
-	RunSchemaVersion       = 6
+	RunSchemaVersion       = 8
 	HarnessVersion         = "rwkv-agent-eval-v20"
 	ScorerVersion          = "rwkv-agent-eval-scorer-v1"
 	OutcomeTaxonomyVersion = "rwkv-agent-outcome-v2"
@@ -147,12 +147,43 @@ type HarnessMetadata struct {
 	WebFixture               bool     `json:"web_fixture,omitempty"`
 	SubagentFixture          bool     `json:"subagent_fixture,omitempty"`
 	TokenCountVocabSHA256    string   `json:"token_count_vocab_sha256,omitempty"`
+	// WireCanonical and WireHash identify the exact model-facing
+	// configuration (format x thinking x prefill x action space x loop). They
+	// are derived from the runtime options by agent.WireSpecOf, so an archived
+	// run can be compared and reproduced from its manifest alone.
+	WireCanonical string `json:"wire_canonical,omitempty"`
+	WireHash      string `json:"wire_hash,omitempty"`
+	// WireConflict records a legacy option combination that the canonical spec
+	// rejects (for example XML + thinking + router, whose envelope prefix the
+	// runner silently drops). The run still executes with the legacy fields
+	// until P2 turns the conflict into a hard error.
+	WireConflict string `json:"wire_conflict,omitempty"`
+	// WirePreset names the registered preset the effective spec matches, or is
+	// empty for an ad-hoc combination. Anonymous combinations stay traceable
+	// through wire_canonical/wire_hash.
+	WirePreset string `json:"wire_preset,omitempty"`
 }
 
 type EnvironmentMetadata struct {
 	OS        string `json:"os"`
 	Arch      string `json:"arch"`
 	GoVersion string `json:"go_version"`
+}
+
+// CaseWireRecord is the effective harness configuration of one case. The
+// suite-level HarnessMetadata cannot describe a per-case terminal tool, step
+// budget or transcript, so the manifest carries the resolved values here. A
+// case whose options the canonical spec rejects records the reason instead of
+// silently reporting the suite-level values.
+type CaseWireRecord struct {
+	ID                      string `json:"id"`
+	WireCanonical           string `json:"wire_canonical,omitempty"`
+	WireHash                string `json:"wire_hash,omitempty"`
+	WirePreset              string `json:"wire_preset,omitempty"`
+	WireConflict            string `json:"wire_conflict,omitempty"`
+	TerminalTool            string `json:"terminal_tool,omitempty"`
+	MaxSteps                int    `json:"max_steps,omitempty"`
+	DecisionMaxOutputTokens int    `json:"decision_max_output_tokens,omitempty"`
 }
 
 type RunManifest struct {
@@ -166,6 +197,7 @@ type RunManifest struct {
 	Sampling      SamplingSnapshot    `json:"sampling"`
 	Environment   EnvironmentMetadata `json:"environment"`
 	CaseIDs       []string            `json:"case_ids"`
+	CaseWires     []CaseWireRecord    `json:"case_wires,omitempty"`
 	Cases         []Case              `json:"cases"`
 }
 
@@ -232,6 +264,10 @@ type Metrics struct {
 	WallTimeMillis       int64                              `json:"wall_time_millis"`
 	Outcomes             map[TurnOutcome]int                `json:"outcomes"`
 	ParseFailuresByClass map[agent.ProtocolFailureClass]int `json:"parse_failures_by_class"`
+	// RepairsByID counts which tolerant-recovery stage fired. A prompt or
+	// format change that silently pushes work into the parser shows up here as
+	// a repair-count shift instead of a flat score.
+	RepairsByID map[string]int `json:"repairs_by_id,omitempty"`
 }
 
 type TurnResult struct {

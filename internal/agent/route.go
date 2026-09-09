@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/no22/RWKV-Agent/internal/agent/wire"
 	"github.com/no22/RWKV-Agent/internal/continuation"
 )
 
@@ -103,9 +104,7 @@ func (G1IProgressiveToolRouteProtocol) Parse(value string, finish continuation.F
 	candidate := strings.TrimSpace(value)
 	// Strip a leading think block first, like G1IRouteProtocol does: a reasoning
 	// model opens its answer with <think>...</think> before the envelope.
-	if match := leadingThinkBlocks.FindStringIndex(candidate); match != nil && match[0] == 0 {
-		candidate = strings.TrimSpace(candidate[match[1]:])
-	}
+	candidate = wire.StripLeadingThinkBlocks(candidate)
 	// Locate the envelope anywhere, not only at the very start. RWKV routinely
 	// prefaces the tag with prose ("我需要先创建目标目录...\n<route>inspect:X</route>");
 	// requiring <route> as a strict prefix rejected every such (correct) route and
@@ -214,9 +213,7 @@ func (G1IRouteProtocol) Parse(
 	finish continuation.FinishReason,
 ) (Route, error) {
 	candidate := strings.TrimSpace(value)
-	if match := leadingThinkBlocks.FindStringIndex(candidate); match != nil && match[0] == 0 {
-		candidate = strings.TrimSpace(candidate[match[1]:])
-	}
+	candidate = wire.StripLeadingThinkBlocks(candidate)
 	if strings.HasPrefix(candidate, "<think>") {
 		return "", ErrUnclosedThink
 	}

@@ -6,6 +6,7 @@ import (
 	"io"
 	"strings"
 
+	"github.com/no22/RWKV-Agent/internal/agent/wire"
 	"github.com/no22/RWKV-Agent/internal/continuation"
 )
 
@@ -38,17 +39,20 @@ func looksLikeG1IFunctionFence(value string) bool {
 
 func (protocol G1IFunctionProtocol) Parse(value string, finish continuation.FinishReason) (Action, error) {
 	candidate := strings.TrimSpace(value)
-	protocolRepaired := false
+	repairs := &repairLog{}
 	originalFailure := ProtocolFailureClass("")
 	markOriginalFailure := func(class ProtocolFailureClass) {
 		if originalFailure == "" {
 			originalFailure = class
 		}
 	}
+	markRepair := func(repair wire.Repair, class ProtocolFailureClass) {
+		repairs.mark(repair)
+		markOriginalFailure(class)
+	}
 	if index := strings.LastIndex(candidate, "</think>"); index >= 0 {
 		candidate = strings.TrimSpace(candidate[index+len("</think>"):])
-		protocolRepaired = true
-		markOriginalFailure(ProtocolFailureToolEnvelopeMissing)
+		markRepair(wire.RepairThinkStripped, ProtocolFailureToolEnvelopeMissing)
 	}
 	if protocol.Product && strings.HasPrefix(candidate, "```") && !looksLikeG1IFunctionFence(candidate) {
 		return Action{Type: ActionTypeFinal, Content: candidate}, nil
@@ -66,16 +70,14 @@ func (protocol G1IFunctionProtocol) Parse(value string, finish continuation.Fini
 			return Action{}, fmt.Errorf("%w: G1i tool_calls must contain exactly one call", ErrToolShapeInvalid)
 		}
 		candidate = string(calls[0])
-		protocolRepaired = true
-		markOriginalFailure(ProtocolFailureToolEnvelopeMissing)
+		markRepair(wire.RepairArrayEnvelope, ProtocolFailureToolEnvelopeMissing)
 	} else if start := strings.Index(candidate, "<tool_call>"); start >= 0 {
 		candidate = candidate[start+len("<tool_call>"):]
 		if end := strings.Index(candidate, "</tool_call>"); end >= 0 {
 			candidate = candidate[:end]
 		}
 		candidate = strings.TrimSpace(candidate)
-		protocolRepaired = true
-		markOriginalFailure(ProtocolFailureToolEnvelopeMissing)
+		markRepair(wire.RepairEnvelopeRecovered, ProtocolFailureToolEnvelopeMissing)
 	}
 	candidate = strings.TrimPrefix(candidate, "```json")
 	candidate = strings.TrimPrefix(candidate, "```")
@@ -103,28 +105,24 @@ func (protocol G1IFunctionProtocol) Parse(value string, finish continuation.Fini
 		return Action{}, fmt.Errorf("%w: decode G1i function call: %v", ErrToolJSONDecode, err)
 	}
 	_ = json.Unmarshal([]byte(repaired), &object)
-	protocolRepaired = protocolRepaired || repaired != candidate
 	if repaired != candidate {
-		markOriginalFailure(ProtocolFailureToolJSONDecode)
+		markRepair(wire.RepairJSONRepaired, ProtocolFailureToolJSONDecode)
 	}
 	if function, ok := rawJSONObject(object["function"]); ok {
 		if name := rawJSONString(function["name"]); call.Name == "" && name != "" {
 			call.Name = name
-			protocolRepaired = true
-			markOriginalFailure(ProtocolFailureToolShapeInvalid)
+			markRepair(wire.RepairFunctionWrapper, ProtocolFailureToolShapeInvalid)
 		}
 		if len(call.Arguments) == 0 {
 			call.Arguments = firstRaw(function, "arguments", "args", "parameters")
-			protocolRepaired = true
-			markOriginalFailure(ProtocolFailureToolShapeInvalid)
+			markRepair(wire.RepairFunctionWrapper, ProtocolFailureToolShapeInvalid)
 		}
 	}
 	if call.Name == "" {
 		for _, key := range []string{"command", "cmd", "tool"} {
 			if name := rawJSONString(object[key]); name != "" && !strings.Contains(name, " ") {
 				call.Name = strings.TrimSpace(name)
-				protocolRepaired = true
-				markOriginalFailure(ProtocolFailureToolShapeInvalid)
+				markRepair(wire.RepairKeyAlias, ProtocolFailureToolShapeInvalid)
 				break
 			}
 		}
@@ -132,8 +130,7 @@ func (protocol G1IFunctionProtocol) Parse(value string, finish continuation.Fini
 	if len(call.Arguments) == 0 {
 		call.Arguments = firstRaw(object, "args", "parameters")
 		if len(call.Arguments) > 0 {
-			protocolRepaired = true
-			markOriginalFailure(ProtocolFailureToolShapeInvalid)
+			markRepair(wire.RepairKeyAlias, ProtocolFailureToolShapeInvalid)
 		}
 	}
 	if len(call.Arguments) == 0 {
@@ -147,16 +144,14 @@ func (protocol G1IFunctionProtocol) Parse(value string, finish continuation.Fini
 		}
 		if len(hoisted) > 0 {
 			call.Arguments, _ = json.Marshal(hoisted)
-			protocolRepaired = true
-			markOriginalFailure(ProtocolFailureToolShapeInvalid)
+			markRepair(wire.RepairArgumentsHoisted, ProtocolFailureToolShapeInvalid)
 		}
 	}
 	if len(call.Arguments) > 0 && call.Arguments[0] == '"' {
 		var encodedArguments string
 		if err := json.Unmarshal(call.Arguments, &encodedArguments); err == nil {
 			call.Arguments = json.RawMessage(repairG1IFunctionJSON(encodedArguments))
-			protocolRepaired = true
-			markOriginalFailure(ProtocolFailureToolShapeInvalid)
+			markRepair(wire.RepairStringifiedArguments, ProtocolFailureToolShapeInvalid)
 		}
 	}
 	if arguments, ok := rawJSONObject(call.Arguments); ok &&
@@ -169,16 +164,14 @@ func (protocol G1IFunctionProtocol) Parse(value string, finish continuation.Fini
 				delete(arguments, "name")
 				call.Arguments, _ = json.Marshal(arguments)
 			}
-			protocolRepaired = true
-			markOriginalFailure(ProtocolFailureToolShapeInvalid)
+			markRepair(wire.RepairNestedName, ProtocolFailureToolShapeInvalid)
 		}
 	}
 	if call.Name == "" {
 		if arguments, ok := rawJSONObject(call.Arguments); ok {
-			call.Name = inferG1IToolName(arguments)
-			protocolRepaired = call.Name != ""
-			if protocolRepaired {
-				markOriginalFailure(ProtocolFailureToolShapeInvalid)
+			if inferred := inferG1IToolName(arguments); inferred != "" {
+				call.Name = inferred
+				markRepair(wire.RepairNameInferred, ProtocolFailureToolShapeInvalid)
 			}
 		}
 	}
@@ -196,16 +189,18 @@ func (protocol G1IFunctionProtocol) Parse(value string, finish continuation.Fini
 			Arguments:               call.Arguments,
 			NoToolRationale:         rationale,
 			NoToolAnswer:            answer,
-			ProtocolRepaired:        protocolRepaired,
+			ProtocolRepaired:        repairs.any(),
 			OriginalProtocolFailure: originalFailure,
+			Repairs:                 repairs.list(),
 		}, nil
 	}
 	return Action{
 		Type:                    ActionTypeTool,
 		Name:                    call.Name,
 		Arguments:               call.Arguments,
-		ProtocolRepaired:        protocolRepaired,
+		ProtocolRepaired:        repairs.any(),
 		OriginalProtocolFailure: originalFailure,
+		Repairs:                 repairs.list(),
 	}, nil
 }
 

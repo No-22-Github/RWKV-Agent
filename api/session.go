@@ -12,6 +12,7 @@ import (
 
 	"github.com/no22/RWKV-Agent/internal/agent"
 	assistanttools "github.com/no22/RWKV-Agent/internal/agent/tools"
+	"github.com/no22/RWKV-Agent/internal/agent/wire"
 	"github.com/no22/RWKV-Agent/internal/continuation"
 	"github.com/no22/RWKV-Agent/internal/continuation/toolchat"
 	"github.com/no22/RWKV-Agent/internal/inference"
@@ -215,8 +216,9 @@ func sessionRunnerOptions(
 	if config.TracePromptBytes != nil {
 		tracePromptBytes = *config.TracePromptBytes
 	}
+	var options agent.Options
 	if markdownProtocol {
-		return agent.ProductHarnessOptions(agent.ProductHarnessConfig{
+		options = agent.ProductHarnessOptions(agent.ProductHarnessConfig{
 			MaxSteps:                 config.MaxSteps,
 			DecisionMaxOutputTokens:  min(config.DecisionMaxTokens, config.MaxTokens),
 			RouteMaxOutputTokens:     min(config.RouteMaxTokens, config.MaxTokens),
@@ -235,23 +237,48 @@ func sessionRunnerOptions(
 			CompressFetch:            config.CompressFetch,
 			TokenCount:               tokenCount,
 		})
+	} else {
+		options = agent.XMLHarnessOptions(agent.XMLHarnessConfig{
+			MaxSteps:                 config.MaxSteps,
+			DecisionMaxOutputTokens:  min(config.DecisionMaxTokens, config.MaxTokens),
+			RouteMaxOutputTokens:     min(config.RouteMaxTokens, config.MaxTokens),
+			TracePromptBytes:         tracePromptBytes,
+			DuplicateReplayLimit:     agent.ProductDuplicateReplayLimit,
+			DuplicateRescueThreshold: agent.ProductDuplicateRescueThreshold,
+			SameToolRescueLimit:      agent.ProductSameToolRescueLimit,
+			Generation:               generation,
+			ProgressiveTools:         progressiveToolsEnabled(config.ProgressiveTools),
+			ToolBundles:              toolBundles,
+			TaskControl:              taskControl,
+			ThinkingMode:             inference.ThinkingMode(config.Thinking),
+			CompressFetch:            config.CompressFetch,
+			TokenCount:               tokenCount,
+		})
 	}
-	return agent.XMLHarnessOptions(agent.XMLHarnessConfig{
-		MaxSteps:                 config.MaxSteps,
-		DecisionMaxOutputTokens:  min(config.DecisionMaxTokens, config.MaxTokens),
-		RouteMaxOutputTokens:     min(config.RouteMaxTokens, config.MaxTokens),
-		TracePromptBytes:         tracePromptBytes,
-		DuplicateReplayLimit:     agent.ProductDuplicateReplayLimit,
-		DuplicateRescueThreshold: agent.ProductDuplicateRescueThreshold,
-		SameToolRescueLimit:      agent.ProductSameToolRescueLimit,
-		Generation:               generation,
-		ProgressiveTools:         progressiveToolsEnabled(config.ProgressiveTools),
-		ToolBundles:              toolBundles,
-		TaskControl:              taskControl,
-		ThinkingMode:             inference.ThinkingMode(config.Thinking),
-		CompressFetch:            config.CompressFetch,
-		TokenCount:               tokenCount,
-	})
+	if strings.TrimSpace(config.Profile) != "" {
+		// normalizeConfig validated the profile, so a failure here would mean
+		// the base profile and the wire profile disagree; in that case the
+		// base options stay in force rather than silently half-applying.
+		if spec, _, err := wire.Resolve(config.Profile); err == nil {
+			if applied, applyErr := agent.OptionsWithWire(options, spec); applyErr == nil {
+				options = applied
+			}
+		}
+	}
+	if strings.TrimSpace(config.Wire) != "" {
+		// The longhand overrides compose on top of the profile/default: only
+		// the named axes change, and normalizeConfig already validated them.
+		if overrides, err := wire.ParseOverrides(config.Wire); err == nil {
+			if spec, specErr := agent.WireSpecOf(options); specErr == nil {
+				if overridden, overrideErr := spec.WithOverrides(overrides); overrideErr == nil {
+					if applied, applyErr := agent.OptionsWithWire(options, overridden); applyErr == nil {
+						options = applied
+					}
+				}
+			}
+		}
+	}
+	return options
 }
 
 func progressiveToolsEnabled(value *bool) bool {

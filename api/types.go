@@ -46,6 +46,17 @@ type Config struct {
 	NativeProvider string            `json:"nativeProvider,omitempty"`
 	Thinking       string            `json:"thinking,omitempty"`
 	AgentProtocol  AgentProtocol     `json:"agentProtocol,omitempty"`
+	// Profile is the canonical wire profile (preset name, preset+modifiers, or
+	// a canonical spec). When set it owns the format, thinking, prefill,
+	// abstention, terminal and loop axes, and the per-protocol defaults below
+	// are not applied. List the registered profiles with
+	// `rwkv-cli agent-eval --list-profiles`.
+	Profile string `json:"profile,omitempty"`
+	// Wire is the longhand axis override list ("format=md-fence,prefill=fence").
+	// It composes on top of Profile or the per-protocol defaults, so a caller
+	// can combine any thinking mode with any tool format without inventing a
+	// preset. Keys are the canonical axis names.
+	Wire string `json:"wire,omitempty"`
 	// TaskControl is the user's free-text contract appended verbatim after the
 	// transcript's system prompt ("Task-specific contract:" block). It is the
 	// supported personalization surface; the protocol-owned instructions stay

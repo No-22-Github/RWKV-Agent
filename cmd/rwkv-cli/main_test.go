@@ -736,3 +736,220 @@ func TestLoadAPIHeadersFromEnvironment(t *testing.T) {
 		t.Fatal("missing environment variable accepted")
 	}
 }
+
+func TestWireProfileFlagWiring(t *testing.T) {
+	t.Parallel()
+	// A profile is accepted for the product-facing suites and reaches the
+	// parsed options; the suite keeps its own loop defaults.
+	options, err := parseRunOptions("agent-eval", []string{
+		"--model", "model",
+		"--suite", agenteval.SuiteBFCLProduct,
+		"--profile", "md-v1+anchor+gate-state",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if options.profile != "md-v1+anchor+gate-state" || !options.profileExplicit {
+		t.Fatalf("profile = %q explicit = %v", options.profile, options.profileExplicit)
+	}
+	runner, err := agentEvalRunnerOptions(options, agenteval.SuiteBFCLProduct)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if runner.Wire == nil {
+		t.Fatal("applied profile did not reach Options.Wire")
+	}
+	if !strings.Contains(runner.Wire.Canonical(), "abstain=no-tool+gate-state") {
+		t.Fatalf("wire canonical = %q", runner.Wire.Canonical())
+	}
+	if runner.MaxSteps != options.maxSteps || runner.SameToolRescueLimit != options.sameToolRescueLimit {
+		t.Fatalf("suite loop defaults were not preserved: %+v", runner)
+	}
+
+	// Mixing the profile with a per-axis switch is a configuration error, not
+	// a silent last-writer-wins.
+	for _, args := range [][]string{
+		{"--profile", "md-v1", "--agent-protocol", "xml"},
+		{"--profile", "md-v1", "--semantic-no-tool"},
+		{"--profile", "md-v1", "--deep-tool-anchor"},
+		{"--profile", "md-v1", "--thinking", "fast"},
+		{"--profile", "md-v1", "--route-stage"},
+	} {
+		_, err := parseRunOptions("agent-eval", append([]string{
+			"--model", "model",
+			"--suite", agenteval.SuiteBFCLProduct,
+		}, args...))
+		if err == nil || !strings.Contains(err.Error(), "--profile") {
+			t.Fatalf("parseRunOptions(%v) err = %v, want a --profile conflict", args, err)
+		}
+	}
+
+	// Primitive suites still own their per-case protocol and renderer.
+	if _, err := parseRunOptions("agent-eval", []string{
+		"--model", "model",
+		"--suite", agenteval.SuitePrimitiveOrig30,
+		"--profile", "primitive-v1",
+	}); err == nil {
+		t.Fatal("primitive suite accepted --profile before P4")
+	}
+
+	// The agent command carries the profile into the API config.
+	agentOptions, err := parseRunOptions("agent", []string{
+		"--model", "model",
+		"--prompt", "inspect",
+		"--profile", "md-v1",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	config, err := agentAPIConfig(agentOptions)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if config.Profile != "md-v1" {
+		t.Fatalf("api config profile = %q", config.Profile)
+	}
+}
+
+// TestEvalSameToolRescueLimitUnifiedWithProduct locks the 2026-09-08 decision:
+// every agent-eval suite starts from the product constant 3, and the historical
+// eval value 8 is an explicit experiment, not a default.
+func TestEvalSameToolRescueLimitUnifiedWithProduct(t *testing.T) {
+	t.Parallel()
+	for _, suite := range []string{agenteval.SuiteBoundary, agenteval.SuiteSmoke, agenteval.SuitePrimitiveOrig30} {
+		options, err := parseRunOptions("agent-eval", []string{"--model", "model", "--suite", suite})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if options.sameToolRescueLimit != agent.ProductSameToolRescueLimit {
+			t.Fatalf("suite %s same-tool rescue = %d, want %d",
+				suite, options.sameToolRescueLimit, agent.ProductSameToolRescueLimit)
+		}
+	}
+	experiment, err := parseRunOptions("agent-eval", []string{
+		"--model", "model",
+		"--suite", agenteval.SuiteBoundary,
+		"--same-tool-rescue-limit", "8",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if experiment.sameToolRescueLimit != 8 || !experiment.sameToolRescueExplicit {
+		t.Fatalf("explicit experiment value = %+v", experiment)
+	}
+}
+
+func TestWireProfileQueryDoesNotRequireModel(t *testing.T) {
+	t.Parallel()
+	handled, err := runWireProfileQuery([]string{"--list-profiles"})
+	if !handled || err != nil {
+		t.Fatalf("list-profiles handled = %v err = %v", handled, err)
+	}
+	handled, err = runWireProfileQuery([]string{"--explain-profile", "md-v1+gate-state"})
+	if !handled || err != nil {
+		t.Fatalf("explain-profile handled = %v err = %v", handled, err)
+	}
+	if handled, err := runWireProfileQuery([]string{"--model", "m"}); handled || err != nil {
+		t.Fatalf("unrelated args handled = %v err = %v", handled, err)
+	}
+	if handled, err := runWireProfileQuery([]string{"--explain-profile", "nope-v1"}); !handled || err == nil {
+		t.Fatalf("unknown profile handled = %v err = %v", handled, err)
+	}
+}
+
+// TestWireLonghandOverrides locks the free-composition entry point: --wire sets
+// individual axes on top of the suite default or a preset, so a thinking mode
+// and a tool format can be paired without a registered preset.
+func TestWireLonghandOverrides(t *testing.T) {
+	t.Parallel()
+	parse := func(args ...string) (runOptions, error) {
+		return parseRunOptions("agent-eval", append([]string{
+			"--model", "model",
+			"--suite", agenteval.SuiteBFCLProduct,
+		}, args...))
+	}
+
+	// Longhand axes on the suite default.
+	options, err := parse("--wire", "format=md-fence,prefill=fence,abstain=no-tool")
+	if err != nil {
+		t.Fatal(err)
+	}
+	runner, err := agentEvalRunnerOptions(options, agenteval.SuiteBFCLProduct)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if runner.Wire == nil {
+		t.Fatal("--wire did not reach Options.Wire")
+	}
+	canonical := runner.Wire.Canonical()
+	if !strings.Contains(canonical, "prefill=fence") || !strings.Contains(canonical, "abstain=no-tool") {
+		t.Fatalf("canonical = %q", canonical)
+	}
+
+	// Compose on top of a preset: xml-v1 + fast thinking drops the envelope
+	// prefill because the half-open think block owns the opening.
+	options, err = parse("--profile", "xml-v1", "--wire", "thinking=fast")
+	if err != nil {
+		t.Fatal(err)
+	}
+	runner, err = agentEvalRunnerOptions(options, agenteval.SuiteBFCLProduct)
+	if err != nil {
+		t.Fatal(err)
+	}
+	canonical = runner.Wire.Canonical()
+	if !strings.Contains(canonical, "format=xml") || !strings.Contains(canonical, "thinking=fast") ||
+		!strings.Contains(canonical, "prefill=none") {
+		t.Fatalf("composed canonical = %q", canonical)
+	}
+
+	// The legacy switches and --wire are two sources for the same axis.
+	if _, err := parse("--wire", "format=md-fence", "--deep-tool-anchor"); err == nil ||
+		!strings.Contains(err.Error(), "--wire") {
+		t.Fatalf("legacy switch with --wire err = %v", err)
+	}
+	if _, err := parse("--wire", "nope=xml"); err == nil ||
+		!strings.Contains(err.Error(), "unknown --wire key") {
+		t.Fatalf("unknown --wire key err = %v", err)
+	}
+	if _, err := parseRunOptions("agent-eval", []string{
+		"--model", "model",
+		"--suite", agenteval.SuitePrimitiveOrig30,
+		"--wire", "format=xml",
+	}); err == nil {
+		t.Fatal("primitive suite accepted --wire")
+	}
+
+	// The agent command carries the override list into the API config.
+	agentOptions, err := parseRunOptions("agent", []string{
+		"--model", "model",
+		"--prompt", "inspect",
+		"--wire", "format=md-fence,prefill=fence",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	config, err := agentAPIConfig(agentOptions)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if config.Wire != "format=md-fence,prefill=fence" {
+		t.Fatalf("api config wire = %q", config.Wire)
+	}
+
+	// --strict-spec accepts a registered point and rejects an ad-hoc one.
+	strictOptions, err := parse("--strict-spec", "--profile", "md-v1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := agentEvalRunnerOptions(strictOptions, agenteval.SuiteBFCLProduct); err != nil {
+		t.Fatalf("registered preset rejected by --strict-spec: %v", err)
+	}
+	adHocOptions, err := parse("--strict-spec", "--wire", "terminal=echo")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := agentEvalRunnerOptions(adHocOptions, agenteval.SuiteBFCLProduct); err == nil ||
+		!strings.Contains(err.Error(), "--strict-spec") {
+		t.Fatalf("ad-hoc spec accepted by --strict-spec: %v", err)
+	}
+}
