@@ -496,6 +496,12 @@ go test -tags chatcompletions ./internal/continuation/chatcompletions \
 `bfcl-product` 继续通过 `ProductHarnessOptions` 构造冻结的 Markdown/function + progressive
 Router 基线；Primitive、BFCL 原始包装协议和 XML 对照各自保持独立，避免历史口径漂移：
 
+> 模型侧的全部参数（format/thinking/prefill/abstain/terminal/route/catalog/control/loop 等）
+> 现在由一份统一的 wire 配置描述，用 `--profile <preset>` 简写或 `--wire key=value,...` 长写选择；
+> 完整的参数表、旧参数对照、loop 默认值和远程部署注意事项见
+> [`docs/wire-configuration.md`](docs/wire-configuration.md)。
+> `agent-eval --list-profiles` 列出注册点，`--explain-profile <spec>` 打印解析后的字节。
+
 | Suite | 内容 |
 | --- | --- |
 | `boundary`（默认） | 18 个从 [marty1885/primitive-bench](https://github.com/marty1885/primitive-bench) 只读任务改造的 case |

@@ -24,6 +24,12 @@ Agent Runner
 
 协议没有被强行合并成一套字节格式；统一的是产品构造入口和层级边界：
 
+> **参数统一入口**：format / thinking / prefill / abstain / terminal / route / catalog /
+> control / loop 等全部模型侧参数由 `internal/agent/wire.Spec` 描述。CLI 用
+> `--profile <preset>`（简写）或 `--wire key=value,...`（长写）选择，两者归一化成同一个
+> canonical/hash 并写入 `run.json`。完整参数表与旧参数对照见
+> [`wire-configuration.md`](wire-configuration.md)。
+
 | Profile | 动作协议 / renderer | 用途与终止语义 |
 | --- | --- | --- |
 | 产品默认 | `rwkv-g1i-envelope-v1` / `rwkv-chat-continuation-v2` | XML 工具信封、普通文本 final；默认无 Router，可使用 off/fast/full thinking |

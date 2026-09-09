@@ -6,15 +6,12 @@ import (
 )
 
 // DocsMarkdown renders the profile table, the axis domain and the recovery
-// vocabulary from the registry and the enums. The checked-in copy under
-// docs/refactor/ is compared by a test, so a new preset, axis value or repair
-// ID cannot land without the documentation following.
+// vocabulary from the registry and the enums. It is embedded between the
+// generated markers in docs/wire-configuration.md and compared by a test, so a
+// new preset, axis value or repair ID cannot land without the documentation
+// following.
 func DocsMarkdown() string {
 	var out strings.Builder
-	out.WriteString("# Wire profiles (generated)\n\n")
-	out.WriteString("Generated from the wire registry by " +
-		"`go test ./internal/agent/wire -update-wire-docs`. Do not edit by hand.\n\n")
-
 	out.WriteString("## Registered presets\n\n")
 	out.WriteString("| preset | canonical | short |\n| --- | --- | --- |\n")
 	for _, name := range Names() {
