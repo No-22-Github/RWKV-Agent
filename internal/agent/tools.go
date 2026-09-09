@@ -540,14 +540,21 @@ func searchFile(path, query string, caseSensitive bool, limit int) ([]searchMatc
 // argument error rather than a silently ignored one. UseNumber keeps numeric
 // literals exact until the tool validates them.
 //
-// One deliberate leniency: a numeric target field accepts a JSON string that
-// parses exactly as a number ("10" for an integer). Measured in the round-3
-// zh e2e: once the catalog renders max_results as a flat "integer 1..10"
-// placeholder, the model reliably emits "10" as a string, and rejecting it
-// costs the whole step budget to a duplicate-call loop (the strict path was
-// added for malformed STRUCTURE, not for scalar spelling).
+// Two deliberate leniencies cover scalar spelling only, never structure:
+//   - a numeric target field accepts a JSON string that parses exactly as a
+//     number ("10" for an integer). Measured in the round-3 zh e2e: once the
+//     catalog renders max_results as a flat "integer 1..10" placeholder, the
+//     model reliably emits "10" as a string, and rejecting it costs the whole
+//     step budget to a duplicate-call loop.
+//   - a bool target field accepts the strings "true" and "false"
+//     (case-insensitive). Measured on the g1j 7B product suite: the model
+//     spells search_text's case_sensitive as "true", the first call was
+//     rejected, and the identical retry was then blocked as a duplicate, so
+//     the turn died with no evidence.
+//
+// The strict path exists for malformed STRUCTURE, not for scalar spelling.
 func DecodeToolArguments(raw json.RawMessage, target any) error {
-	if coerced, changed := coerceNumericArgumentStrings(raw, target); changed {
+	if coerced, changed := coerceScalarArgumentStrings(raw, target); changed {
 		raw = coerced
 	}
 	decoder := json.NewDecoder(bytes.NewReader(raw))
@@ -562,11 +569,12 @@ func DecodeToolArguments(raw json.RawMessage, target any) error {
 	return nil
 }
 
-// coerceNumericArgumentStrings rewrites top-level string values to numeric
-// literals when the matching target field is numeric and the string parses
-// exactly as one. Non-numeric strings, unknown fields, and nested values are
-// left untouched so the strict decoder still judges them.
-func coerceNumericArgumentStrings(raw json.RawMessage, target any) (json.RawMessage, bool) {
+// coerceScalarArgumentStrings rewrites top-level string values to the literal
+// scalar the target field expects: a numeric field accepts a string that
+// parses exactly as a number, and a bool field accepts "true"/"false"
+// (case-insensitive). Everything else — non-parsing strings, unknown fields,
+// nested values — is left untouched so the strict decoder still judges it.
+func coerceScalarArgumentStrings(raw json.RawMessage, target any) (json.RawMessage, bool) {
 	var fields map[string]json.RawMessage
 	if json.Unmarshal(raw, &fields) != nil {
 		return raw, false
@@ -584,32 +592,50 @@ func coerceNumericArgumentStrings(raw json.RawMessage, target any) (json.RawMess
 		reflect.Float32: true, reflect.Float64: true,
 	}
 	numericFields := map[string]reflect.StructField{}
+	boolFields := map[string]struct{}{}
 	for i := 0; i < structType.NumField(); i++ {
 		field := structType.Field(i)
 		jsonName := strings.Split(field.Tag.Get("json"), ",")[0]
 		if jsonName == "" {
 			jsonName = field.Name
 		}
-		if numericKinds[field.Type.Kind()] {
+		switch {
+		case numericKinds[field.Type.Kind()]:
 			numericFields[jsonName] = field
+		case field.Type.Kind() == reflect.Bool:
+			boolFields[jsonName] = struct{}{}
 		}
 	}
 	changed := false
 	for name, value := range fields {
-		if _, ok := numericFields[name]; !ok {
-			continue
-		}
-		var text string
-		if json.Unmarshal(value, &text) != nil {
-			continue
-		}
-		if _, err := strconv.ParseInt(text, 10, 64); err != nil {
-			if _, floatErr := strconv.ParseFloat(text, 64); floatErr != nil {
+		if _, ok := numericFields[name]; ok {
+			var text string
+			if json.Unmarshal(value, &text) != nil {
 				continue
 			}
+			if _, err := strconv.ParseInt(text, 10, 64); err != nil {
+				if _, floatErr := strconv.ParseFloat(text, 64); floatErr != nil {
+					continue
+				}
+			}
+			fields[name] = json.RawMessage(text)
+			changed = true
+			continue
 		}
-		fields[name] = json.RawMessage(text)
-		changed = true
+		if _, ok := boolFields[name]; ok {
+			var text string
+			if json.Unmarshal(value, &text) != nil {
+				continue
+			}
+			switch strings.ToLower(strings.TrimSpace(text)) {
+			case "true":
+				fields[name] = json.RawMessage("true")
+				changed = true
+			case "false":
+				fields[name] = json.RawMessage("false")
+				changed = true
+			}
+		}
 	}
 	if !changed {
 		return raw, false

@@ -282,3 +282,41 @@ func TestDecodeToolArgumentsCoercesNumericStrings(t *testing.T) {
 		t.Fatal("non-numeric string must stay rejected for an integer field")
 	}
 }
+
+// TestDecodeToolArgumentsCoercesBoolStrings locks the g1j finding: the model
+// spells search_text's case_sensitive as "true", and rejecting that spelling
+// turned one bad call into a duplicate-blocked dead end with no evidence.
+func TestDecodeToolArgumentsCoercesBoolStrings(t *testing.T) {
+	var args struct {
+		Query         string `json:"query"`
+		CaseSensitive bool   `json:"case_sensitive"`
+		MaxResults    int    `json:"max_results"`
+	}
+	raw := json.RawMessage(`{"query":"q","case_sensitive":"true","max_results":"5"}`)
+	if err := DecodeToolArguments(raw, &args); err != nil {
+		t.Fatalf("coercing decode failed: %v", err)
+	}
+	if !args.CaseSensitive || args.MaxResults != 5 || args.Query != "q" {
+		t.Fatalf("coerced values wrong: %+v", args)
+	}
+	// Case and surrounding whitespace are tolerated; other spellings are not.
+	raw = json.RawMessage(`{"query":"q","case_sensitive":" FALSE "}`)
+	if err := DecodeToolArguments(raw, &args); err != nil {
+		t.Fatalf("case-insensitive bool decode failed: %v", err)
+	}
+	if args.CaseSensitive {
+		t.Fatalf("false was coerced to true: %+v", args)
+	}
+	for _, bad := range []string{`"1"`, `"yes"`, `"on"`, `""`} {
+		raw = json.RawMessage(`{"query":"q","case_sensitive":` + bad + `}`)
+		if err := DecodeToolArguments(raw, &args); err == nil {
+			t.Fatalf("bool spelling %s must stay rejected", bad)
+		}
+	}
+	// A real JSON bool keeps working, and a string never coerces into a
+	// non-bool field.
+	raw = json.RawMessage(`{"query":"q","case_sensitive":true}`)
+	if err := DecodeToolArguments(raw, &args); err != nil || !args.CaseSensitive {
+		t.Fatalf("native bool decode failed: %v %+v", err, args)
+	}
+}
