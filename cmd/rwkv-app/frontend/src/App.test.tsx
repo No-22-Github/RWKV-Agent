@@ -71,7 +71,7 @@ function savedRemoteProvider(config: Partial<Config> = {}, profile: Partial<Save
     id: 'saved-provider',
     label: 'Saved connection',
     config: new Config({
-      provider: Provider.ProviderRWKVLightning,
+      provider: Provider.ProviderRWKVLightningCUDA,
       endpoint: 'https://saved.example.test',
       model: 'saved-model',
       ...config,
@@ -96,7 +96,7 @@ function openAgentSection() {
 
 const readyStatus = () => new Status({
   state: ModelState.ModelReady,
-  provider: Provider.ProviderRWKVLightning,
+  provider: Provider.ProviderRWKVLightningCUDA,
   model: 'rwkv7-test',
   workspace: '/tmp/RWKV-Agent',
   hasApiKey: false,
@@ -109,7 +109,7 @@ function bootstrapWithRunningProvider(config: Partial<Config> = {}, profile: Par
   vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
     status: new Status({
       state: ModelState.ModelReady,
-      provider: Provider.ProviderRWKVLightning,
+      provider: Provider.ProviderRWKVLightningCUDA,
       model: 'rwkv7-test',
       workspace: '/tmp/RWKV-Agent',
       hasApiKey: false,
@@ -194,7 +194,7 @@ describe('App', () => {
   it('uses RWKV continuation by default and passes custom HTTP headers', async () => {
     vi.mocked(Backend.ConfigureProvider).mockResolvedValue(new Status({
       state: ModelState.ModelReady,
-      provider: Provider.ProviderRWKVLightning,
+      provider: Provider.ProviderRWKVLightningCUDA,
       model: 'rwkv7-test',
       workspace: '/tmp/RWKV-Agent',
       hasApiKey: false,
@@ -212,13 +212,34 @@ describe('App', () => {
 
     await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalledOnce())
     const config = vi.mocked(Backend.ConfigureProvider).mock.calls[0][2]
-    expect(config.provider).toBe('rwkv-lightning')
-    expect(config.rwkvStopTokens).toBe('none')
+    expect(config.provider).toBe('rwkv-lightning-cuda')
+    expect(config.rwkvStopTokens).toBe('eos')
     expect(config.stream).toBe(false)
     expect(config.headers).toEqual({ 'CF-Access-Client-Id': 'secret' })
     expect(config.agentProtocol).toBe('xml')
     expect(config.progressiveTools).toBe(false)
     expect(config.enableSubagents).toBe(false)
+  })
+
+  it.each([
+    ['python', Provider.ProviderRWKVLightningPython, 'text'],
+    ['cuda', Provider.ProviderRWKVLightningCUDA, 'eos'],
+    ['openai', Provider.ProviderChatCompletions, undefined],
+  ] as const)('saves a new %s connection with its own backend identity', async (protocol, provider, stops) => {
+    render(<App />)
+    openSettings()
+    switchToRemoteProvider()
+    fireEvent.change(screen.getByLabelText('远端协议'), { target: { value: protocol } })
+    fireEvent.change(screen.getByLabelText('API 地址'), { target: { value: 'https://example.test' } })
+    fireEvent.change(screen.getByLabelText('模型 ID'), { target: { value: 'test-model' } })
+    fireEvent.change(screen.getByLabelText(protocol === 'openai' ? 'API Key' : '服务密码'), { target: { value: 'test-secret' } })
+    fireEvent.click(screen.getByRole('button', { name: '保存并使用' }))
+    await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalledOnce())
+    const config = vi.mocked(Backend.ConfigureProvider).mock.calls[0][2]
+    expect(config.provider).toBe(provider)
+    expect(config.rwkvStopTokens).toBe(stops)
+    expect(protocol === 'openai' ? config.apiKey : config.password).toBe('test-secret')
+    expect(config.agentProtocol).toBe('xml')
   })
 
   it('passes web credentials and concurrent subagent budgets through auto-apply', async () => {
@@ -294,7 +315,7 @@ describe('App', () => {
     vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
       status: new Status({
         state: ModelState.ModelReady,
-        provider: Provider.ProviderRWKVLightning,
+        provider: Provider.ProviderRWKVLightningCUDA,
         model: 'rwkv7-test',
         workspace: '/tmp/RWKV-Agent',
         hasApiKey: false,
@@ -399,7 +420,7 @@ describe('App', () => {
     vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
       status: new Status({
         state: ModelState.ModelReady,
-        provider: Provider.ProviderRWKVLightning,
+        provider: Provider.ProviderRWKVLightningCUDA,
         endpoint: runtime.config.endpoint,
         model: runtime.config.model,
         workspace: '/tmp/RWKV-Agent',
@@ -481,7 +502,7 @@ describe('App', () => {
     }))
     vi.mocked(Backend.ActivateProvider).mockResolvedValue(new Status({
       state: ModelState.ModelReady,
-      provider: Provider.ProviderRWKVLightning,
+      provider: Provider.ProviderRWKVLightningCUDA,
       model: provider.config.model,
       workspace: '/tmp/RWKV-Agent',
       hasApiKey: false,
@@ -502,7 +523,7 @@ describe('App', () => {
     vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
       status: new Status({
         state: ModelState.ModelReady,
-        provider: Provider.ProviderRWKVLightning,
+        provider: Provider.ProviderRWKVLightningCUDA,
         endpoint: runtime.config.endpoint,
         model: runtime.config.model,
         workspace: '/tmp/RWKV-Agent',

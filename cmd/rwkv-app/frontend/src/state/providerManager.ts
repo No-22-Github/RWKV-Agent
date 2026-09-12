@@ -6,6 +6,12 @@ import type { AppBootstrap } from '../../bindings/github.com/no22/RWKV-Agent/cmd
 import type { SavedProvider } from '../../bindings/github.com/no22/RWKV-Agent/internal/appstorage/models'
 import * as Backend from '../../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/appservice'
 
+const REMOTE_BACKENDS = {
+  openai: { provider: Provider.ProviderChatCompletions, stops: undefined },
+  python: { provider: Provider.ProviderRWKVLightningPython, stops: 'text' },
+  cuda: { provider: Provider.ProviderRWKVLightningCUDA, stops: 'eos' },
+} as const
+
 export type HeaderRow = { id: number; name: string; value: string }
 
 function stableValue(value: unknown): unknown {
@@ -82,7 +88,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   const [tokenizerPath, setTokenizerPath] = useState('')
   const [remoteEndpoint, setRemoteEndpoint] = useState('')
   const [remoteModel, setRemoteModel] = useState('')
-  const [remoteProtocol, setRemoteProtocol] = useState<'rwkv' | 'openai'>('rwkv')
+  const [remoteProtocol, setRemoteProtocol] = useState<keyof typeof REMOTE_BACKENDS>('cuda')
   const [apiKey, setAPIKey] = useState('')
   const [headers, setHeaders] = useState<HeaderRow[]>([])
   const [agentProtocol, setAgentProtocol] = useState<AgentProtocol>(AgentProtocol.AgentProtocolXML)
@@ -128,18 +134,20 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     })
   }
   function remoteConfig() {
+    const backend = REMOTE_BACKENDS[remoteProtocol]
+    const stops = draftBaseConfig.provider === backend.provider ? draftBaseConfig.rwkvStopTokens || backend.stops : backend.stops
     const headerMap = Object.fromEntries(headers.map((row) => [row.name.trim(), row.value.trim()] as const).filter(([name]) => name.length > 0))
     return new Config({
       ...draftBaseConfig,
-      provider: remoteProtocol === 'rwkv' ? Provider.ProviderRWKVLightning : Provider.ProviderChatCompletions,
+      provider: backend.provider,
       model: remoteModel.trim() || availableModels[0]?.id || '',
       endpoint: remoteEndpoint.trim(),
       apiKey: remoteProtocol === 'openai' ? apiKey.trim() || undefined : undefined,
-      password: remoteProtocol === 'rwkv' ? apiKey.trim() || undefined : undefined,
+      password: remoteProtocol !== 'openai' ? apiKey.trim() || undefined : undefined,
       headers: headerMap, tokenizerPath: undefined,
       chatPromptMode: 'native-chat', chatThinking: 'disabled',
-      stream: remoteProtocol === 'rwkv' ? false : undefined,
-      rwkvStopTokens: remoteProtocol === 'rwkv' ? 'none' : undefined,
+      stream: remoteProtocol !== 'openai' ? draftBaseConfig.stream ?? false : undefined,
+      rwkvStopTokens: remoteProtocol === 'openai' ? undefined : stops,
       maxSteps: DEFAULT_AGENT_LIMITS.maxSteps, maxTokens: DEFAULT_AGENT_LIMITS.maxTokens,
       ...agentCapabilityConfig(),
     })
@@ -226,10 +234,10 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   }, [settingsOpen, draftInitialized, settingsBusy, editingProviderId, runtimeProviderId, agentBehaviorSignature, draftLabel])
 
   function applyConfig(config: Config) {
-    const remote = config.provider === Provider.ProviderRWKVLightning || config.provider === Provider.ProviderChatCompletions
+    const remote = config.provider === Provider.ProviderRWKVLightningPython || config.provider === Provider.ProviderRWKVLightningCUDA || config.provider === Provider.ProviderChatCompletions
     setSettingsTab(remote ? 'remote' : 'local'); setModelPath(config.provider === Provider.ProviderLocal ? config.model : '')
     setTokenizerPath(config.tokenizerPath || ''); setRemoteEndpoint(remote ? config.endpoint || '' : ''); setRemoteModel(remote ? config.model : '')
-    setRemoteProtocol(config.provider === Provider.ProviderChatCompletions ? 'openai' : 'rwkv'); setAPIKey(config.provider === Provider.ProviderChatCompletions ? config.apiKey || '' : config.password || '')
+    setRemoteProtocol(config.provider === Provider.ProviderChatCompletions ? 'openai' : config.provider === Provider.ProviderRWKVLightningPython ? 'python' : 'cuda'); setAPIKey(config.provider === Provider.ProviderChatCompletions ? config.apiKey || '' : config.password || '')
     setHeaders(Object.entries(config.headers || {}).map(([name, value]) => ({ id: nextHeaderID++, name, value: value || '' })))
     setAgentProtocol(config.agentProtocol || AgentProtocol.AgentProtocolXML)
     setThinking((config.thinking as 'off' | 'fast' | 'full') || 'off')
@@ -265,9 +273,9 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   function beginNewProvider() {
     const config = new Config({
       ...draftBaseConfig,
-      provider: Provider.ProviderRWKVLightning,
+      provider: Provider.ProviderRWKVLightningCUDA,
       model: '', endpoint: '', apiKey: undefined, password: undefined, headers: {},
-      chatPromptMode: 'native-chat', chatThinking: 'disabled', stream: false, rwkvStopTokens: 'none',
+      chatPromptMode: 'native-chat', chatThinking: 'disabled', stream: false, rwkvStopTokens: 'eos',
       maxSteps: DEFAULT_AGENT_LIMITS.maxSteps, maxTokens: DEFAULT_AGENT_LIMITS.maxTokens,
       ...agentCapabilityConfig(),
     })

@@ -361,6 +361,19 @@ Provider/runtime 层。
 
 ## 7. 远程 Provider
 
+统一支持四种后端，模板和工具调用格式仍由独立的 wire/profile 层控制：
+
+| `--completion` / API `provider` | 后端 |
+| --- | --- |
+| `chat-completions` | 标准 Chat Completions（可选构建，支持原生工具调用） |
+| `rwkv-lightning-python` | Python Lightning，`/v1/chat/completions` 原始续写 |
+| `rwkv-lightning-cuda` | C++/CUDA Lightning，`/v1/batch/completions` 原始续写 |
+| `local` | 本地推理 |
+
+仅接受上述四个明确标识。旧 `rwkv-lightning` 标识已删除，现有连接需重新选择 Python 或 CUDA。
+远端地址支持服务根地址、`/v1` 或完整 API 路径；停止参数和状态支持差异见
+[后端接口约定](docs/continuation-and-agent-protocol.md#4-cli)。
+
 ### rwkv_lightning 原生续写
 
 ```sh
@@ -369,7 +382,7 @@ export RWKV_CF_ACCESS_CLIENT_ID='...'      # Cloudflare Access 部署时需要
 export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 
 ./dist/rwkv-cli agent \
-  --completion rwkv-lightning \
+  --completion rwkv-lightning-cuda \
   --api-url https://example.com/v1/batch/completions \
   --model rwkv7-13b \
   --api-header-env CF-Access-Client-Id=RWKV_CF_ACCESS_CLIENT_ID \
@@ -379,12 +392,11 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 
 要点：
 
-- `--api-url` 是完整 endpoint，不会自动拼接 OpenAI 路径；客户端按 `contents` 发送，
-  `/v1/batch/completions`、`/v1/chat/completions` 与 `/big_batch/completions` 都可能提供
-  该语义（用 `GET /openapi.json` 确认）。
-- `stop_tokens` 是 **decoded-text 字符串数组**（不是整数 token ID）。默认
-  `--api-stop-tokens text` 直接转发本轮协议的 stop 序列；`cuda` 预设用于要求整数 token ID
-  的 `rwkv_lightning_cuda` 部署；`none` 省略该字段，`eos` 或逗号分隔整数沿用旧形式。
+- `--api-url` 支持根地址和完整 API 路径。Python 使用 `/v1/chat/completions`，
+  CUDA 使用 `/v1/batch/completions`；两者都发送 `contents[]`，不会重新渲染 prompt。
+- Python 默认发送 decoded-text 字符串停止序列；CUDA 默认发送整数 EOS `[0]`，
+  文本停止由客户端处理。`none` 省略字段并使用服务端默认值；也可显式给出
+  逗号分隔整数列表。
 - `--api-stream` 默认 `true`（SSE 逐 token）；`--api-stream=false` 请求一次性 JSON 响应，
   在 SSE 不稳定的部署上更可靠，但交互式 `agent` 会失去 token 级输出。
 - `rwkv_lightning` 在 `top-k=1` 时直接取 argmax，temperature 和 top-p 不参与随机采样。
@@ -415,7 +427,7 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 
 # 复用：agent/agent-eval 的每次生成都带上该 state_id
 ./dist/rwkv-cli agent \
-  --completion rwkv-lightning \
+  --completion rwkv-lightning-cuda \
   --api-url https://api-7b.rwkvos.com/v1/models \
   --model rwkv7-13b \
   --api-header-env CF-Access-Client-Id=RWKV_CF_ACCESS_CLIENT_ID \
@@ -544,7 +556,7 @@ inspect decision 上预填精确的半开 `<think></think`。两者只适用于�
 ```sh
 ./dist/rwkv-cli agent-eval \
   --suite smoke \
-  --completion rwkv-lightning \
+  --completion rwkv-lightning-cuda \
   --api-url https://example.com/v1/batch/completions \
   --model rwkv7-13b \
   --case read_exact_file \
@@ -584,7 +596,7 @@ commit `0350023f99a31133fb30eb32dacf779f196827d4` 的固定快照，JSON 嵌入 
   --output runs/primitive-orig30-local
 ```
 
-`rwkv_lightning_cuda` 部署要求整数形式的 `stop_tokens`，用 `--api-stop-tokens cuda`
+`rwkv_lightning_cuda` 部署要求整数形式的 `stop_tokens`，用 `--api-stop-tokens 0,6884,24281`
 预设即可走同一个 Harness；额外 HTTP header 只从环境变量读取，不写入评测产物。Primitive
 suite 逐题采用快照中的原始 `max_turns`（6–22），并用 1024-token 工具调用预算；`run.json`
 的 `manifest.harness.tool_profile` 记录实际 profile，避免两种分数被误混。

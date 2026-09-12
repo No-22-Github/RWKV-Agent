@@ -79,7 +79,7 @@ function providerMeta(provider: SavedProvider): string {
   const config = provider.config
   if (config.provider === Provider.ProviderLocal) return '本地模型'
   const host = hostOf(config.endpoint)
-  const kind = config.provider === Provider.ProviderChatCompletions ? 'OpenAI 兼容' : 'RWKV 续写'
+  const kind = config.provider === Provider.ProviderChatCompletions ? 'OpenAI 兼容' : config.provider === Provider.ProviderRWKVLightningPython ? 'Lightning Python' : 'Lightning CUDA'
   return host ? `${kind} · ${host}` : kind
 }
 

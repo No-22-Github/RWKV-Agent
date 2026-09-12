@@ -27,7 +27,7 @@ func TestRemoteAgentReadsREADME(t *testing.T) {
 	defer cancel()
 	stream := false
 	_, err = service.Configure(ctx, Config{
-		Provider: ProviderRWKVLightning,
+		Provider: ProviderRWKVLightningCUDA,
 		Endpoint: endpoint,
 		Model:    model,
 		Headers: map[string]string{

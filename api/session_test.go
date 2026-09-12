@@ -109,7 +109,7 @@ func TestSessionProductExperimentsUseSharedTextProfile(t *testing.T) {
 	defer service.Close()
 	progressive := false
 	service.config = Config{
-		Provider: ProviderRWKVLightning, Model: "scripted", MaxSteps: 2,
+		Provider: ProviderRWKVLightningCUDA, Model: "scripted", MaxSteps: 2,
 		MaxTokens: 128, RouteMaxTokens: 48,
 		Temperature: 1, TopK: 1, TopP: 1, PenaltyDecay: 1,
 		AgentProtocol: AgentProtocolMarkdown, ProgressiveTools: &progressive,
@@ -175,7 +175,7 @@ func TestSessionXMLProtocolUsesEnvelopeProfile(t *testing.T) {
 	defer service.Close()
 	progressive := false
 	service.config = Config{
-		Provider: ProviderRWKVLightning, Model: "scripted", MaxSteps: 4,
+		Provider: ProviderRWKVLightningCUDA, Model: "scripted", MaxSteps: 4,
 		MaxTokens: 256, DecisionMaxTokens: 128, RouteMaxTokens: 48,
 		Temperature: 1, TopK: 1, TopP: 1, PenaltyDecay: 1,
 		AgentProtocol: AgentProtocolXML, ProgressiveTools: &progressive,

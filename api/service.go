@@ -15,6 +15,7 @@ import (
 
 	"github.com/no22/RWKV-Agent/internal/agent"
 	"github.com/no22/RWKV-Agent/internal/agent/wire"
+	"github.com/no22/RWKV-Agent/internal/continuation/provider"
 	"github.com/no22/RWKV-Agent/internal/inference"
 )
 
@@ -227,10 +228,10 @@ func (s *Service) ListRemoteModels(ctx context.Context, config Config) ([]Remote
 	if config.Provider == "" {
 		config.Provider = ProviderChatCompletions
 	}
-	if config.Provider != ProviderChatCompletions && config.Provider != ProviderRWKVLightning {
+	if !provider.IsRemote(string(config.Provider)) {
 		return nil, fmt.Errorf("model discovery requires a remote provider")
 	}
-	endpoint := normalizeModelsEndpoint(config.Endpoint)
+	endpoint := provider.Endpoint(config.Endpoint, "models")
 	parsed, err := url.Parse(endpoint)
 	if err != nil || parsed.Scheme == "" || parsed.Host == "" ||
 		(parsed.Scheme != "http" && parsed.Scheme != "https") || parsed.User != nil {
@@ -245,7 +246,11 @@ func (s *Service) ListRemoteModels(ctx context.Context, config Config) ([]Remote
 		return nil, err
 	}
 	request.Header = headers
-	if apiKey := strings.TrimSpace(config.APIKey); apiKey != "" {
+	apiKey := strings.TrimSpace(config.APIKey)
+	if provider.IsLightning(string(config.Provider)) && apiKey == "" {
+		apiKey = strings.TrimSpace(config.Password)
+	}
+	if apiKey != "" {
 		request.Header.Set("Authorization", "Bearer "+apiKey)
 	}
 	response, err := (&http.Client{Timeout: 30 * time.Second}).Do(request)
@@ -468,10 +473,9 @@ func applyConfigDefaults(config *Config) error {
 		config.ChatTokenLimit = "max-completion-tokens"
 	}
 	if config.RWKVStopTokens == "" {
-		// Keep stop handling under Harness control. The client still truncates
-		// decoded text locally, while omitting server-specific stop token forms.
-		config.RWKVStopTokens = "none"
+		config.RWKVStopTokens = provider.DefaultStopTokens(string(config.Provider))
 	}
+
 	if config.Temperature <= 0 || config.TopK <= 0 || config.TopP <= 0 || config.TopP > 1 ||
 		config.PresencePenalty < 0 || config.FrequencyPenalty < 0 ||
 		config.PenaltyDecay <= 0 || config.PenaltyDecay > 1 {
@@ -549,7 +553,7 @@ func resolveProviderConfig(config *Config) error {
 			return err
 		}
 		config.TokenizerPath = tokenizerPath
-	case ProviderChatCompletions, ProviderRWKVLightning:
+	case ProviderChatCompletions, ProviderRWKVLightningPython, ProviderRWKVLightningCUDA:
 		parsed, err := url.Parse(config.Endpoint)
 		if err != nil || parsed.Scheme == "" || parsed.Host == "" ||
 			(parsed.Scheme != "http" && parsed.Scheme != "https") || parsed.User != nil {
@@ -566,10 +570,10 @@ func resolveProviderConfig(config *Config) error {
 
 func publicEndpoint(config Config) string {
 	if config.Provider == ProviderChatCompletions && strings.TrimSpace(config.Endpoint) != "" {
-		return normalizeChatEndpoint(config.Endpoint)
+		return provider.CompletionEndpoint(provider.ChatCompletions, config.Endpoint)
 	}
-	if config.Provider == ProviderRWKVLightning && strings.TrimSpace(config.Endpoint) != "" {
-		return normalizeRWKVEndpoint(config.Endpoint)
+	if provider.IsLightning(string(config.Provider)) && strings.TrimSpace(config.Endpoint) != "" {
+		return provider.CompletionEndpoint(string(config.Provider), config.Endpoint)
 	}
 	return strings.TrimSpace(config.Endpoint)
 }

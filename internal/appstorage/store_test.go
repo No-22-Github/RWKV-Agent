@@ -26,7 +26,7 @@ func TestSettingsPersistCredentialsAtomically(t *testing.T) {
 	t.Parallel()
 	store := testStore(t)
 	config := agentapi.Config{
-		Provider: agentapi.ProviderRWKVLightning,
+		Provider: agentapi.ProviderRWKVLightningCUDA,
 		Endpoint: "https://example.test",
 		Model:    "rwkv7-test",
 		Password: "service-secret",
@@ -59,7 +59,7 @@ func TestSettingsPersistCredentialsAtomically(t *testing.T) {
 func TestSaveProviderBlankIDUpsertsAndActivates(t *testing.T) {
 	t.Parallel()
 	store := testStore(t)
-	first := agentapi.Config{Provider: agentapi.ProviderRWKVLightning, Endpoint: "https://a.test", Model: "model-a", Password: "p1"}
+	first := agentapi.Config{Provider: agentapi.ProviderRWKVLightningCUDA, Endpoint: "https://a.test", Model: "model-a", Password: "p1"}
 	second := agentapi.Config{Provider: agentapi.ProviderChatCompletions, Endpoint: "https://b.test", Model: "model-b", APIKey: "k1"}
 	firstSaved, err := store.SaveProvider("", "", first, true)
 	if err != nil {
@@ -105,7 +105,7 @@ func TestSaveProviderDraftUpdatesByIDWithoutChangingActive(t *testing.T) {
 	t.Parallel()
 	store := testStore(t)
 	active, err := store.SaveProvider("", "", agentapi.Config{
-		Provider: agentapi.ProviderRWKVLightning, Endpoint: "https://active.test", Model: "active-model",
+		Provider: agentapi.ProviderRWKVLightningCUDA, Endpoint: "https://active.test", Model: "active-model",
 	}, true)
 	if err != nil {
 		t.Fatal(err)
@@ -144,7 +144,7 @@ func TestLoadSettingsMigratesV1(t *testing.T) {
 	if err := os.MkdirAll(filepath.Dir(store.Paths().ConfigFile), 0o700); err != nil {
 		t.Fatal(err)
 	}
-	v1 := `{"schemaVersion":1,"provider":{"provider":"rwkv-lightning","endpoint":"https://legacy.test","model":"legacy-model","password":"secret"},"updatedAt":"2026-08-15T09:30:00Z"}`
+	v1 := `{"schemaVersion":1,"provider":{"provider":"rwkv-lightning-cuda","endpoint":"https://legacy.test","model":"legacy-model","password":"secret"},"updatedAt":"2026-08-15T09:30:00Z"}`
 	if err := os.WriteFile(store.Paths().ConfigFile, []byte(v1), 0o600); err != nil {
 		t.Fatal(err)
 	}
@@ -166,11 +166,11 @@ func TestLoadSettingsMigratesV1(t *testing.T) {
 func TestRemoveProviderReassignsActive(t *testing.T) {
 	t.Parallel()
 	store := testStore(t)
-	a, err := store.SaveProvider("", "", agentapi.Config{Provider: agentapi.ProviderRWKVLightning, Endpoint: "https://a.test", Model: "model-a"}, true)
+	a, err := store.SaveProvider("", "", agentapi.Config{Provider: agentapi.ProviderRWKVLightningCUDA, Endpoint: "https://a.test", Model: "model-a"}, true)
 	if err != nil {
 		t.Fatal(err)
 	}
-	b, err := store.SaveProvider("", "", agentapi.Config{Provider: agentapi.ProviderRWKVLightning, Endpoint: "https://b.test", Model: "model-b"}, true)
+	b, err := store.SaveProvider("", "", agentapi.Config{Provider: agentapi.ProviderRWKVLightningCUDA, Endpoint: "https://b.test", Model: "model-b"}, true)
 	if err != nil {
 		t.Fatal(err)
 	}

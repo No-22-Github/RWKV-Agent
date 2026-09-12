@@ -13,7 +13,6 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"sync"
 	"syscall"
@@ -27,6 +26,7 @@ import (
 	"github.com/no22/RWKV-Agent/internal/continuation"
 	"github.com/no22/RWKV-Agent/internal/continuation/chatcompletions"
 	localcontinuation "github.com/no22/RWKV-Agent/internal/continuation/local"
+	completionprovider "github.com/no22/RWKV-Agent/internal/continuation/provider"
 	"github.com/no22/RWKV-Agent/internal/continuation/rwkvlightning"
 	"github.com/no22/RWKV-Agent/internal/conversation"
 	"github.com/no22/RWKV-Agent/internal/inference"
@@ -454,7 +454,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			&options.completion,
 			"completion",
 			"local",
-			"continuation provider: local, rwkv-lightning, or chat-completions (optional build)",
+			"continuation provider: local, chat-completions (optional build), rwkv-lightning-python, rwkv-lightning-cuda",
 		)
 		fs.StringVar(&options.apiURL, "api-url", "", "full remote continuation endpoint URL")
 		fs.StringVar(
@@ -491,7 +491,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			&options.apiStopTokens,
 			"api-stop-tokens",
 			"text",
-			"rwkv_lightning stop_tokens form: text, cuda, none, eos, or a comma-separated token ID list",
+			"rwkv_lightning stop_tokens form: text, none, eos, or a comma-separated token ID list",
 		)
 		fs.BoolVar(
 			&options.apiStream,
@@ -631,8 +631,11 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 	if err := fs.Parse(args); err != nil {
 		return options, err
 	}
+	apiStopsExplicit := false
 	fs.Visit(func(value *flag.Flag) {
 		switch value.Name {
+		case "api-stop-tokens":
+			apiStopsExplicit = true
 		case "thinking":
 			options.thinkingExplicit = true
 		case "reasoning":
@@ -757,6 +760,9 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 	}
 	options.thinkingMode = string(mode)
 	options.reasoning = mode != inference.ThinkingOff
+	if !apiStopsExplicit && completionprovider.IsLightning(options.completion) {
+		options.apiStopTokens = completionprovider.DefaultStopTokens(options.completion)
+	}
 	if options.modelPath == "" {
 		fs.Usage()
 		return options, fmt.Errorf("%s requires --model", name)
@@ -774,9 +780,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		if options.sameToolRescueLimit < 0 || options.sameToolRescueLimit > 50 {
 			return options, errors.New("--same-tool-rescue-limit must be between 0 and 50")
 		}
-		if options.completion != "local" &&
-			options.completion != "rwkv-lightning" &&
-			options.completion != "chat-completions" {
+		if !completionprovider.Valid(options.completion) {
 			return options, fmt.Errorf("unsupported continuation provider %q", options.completion)
 		}
 		if options.completion != "local" && strings.TrimSpace(options.apiURL) == "" {
@@ -1143,46 +1147,22 @@ func newAgentGeneratorSource(
 		if err != nil {
 			return nil, err
 		}
-		if options.completion == "chat-completions" {
-			client, err := chatcompletions.New(chatcompletions.Config{
-				Endpoint:   options.apiURL,
-				Model:      options.modelPath,
-				APIKey:     os.Getenv(options.apiKeyEnv),
-				Thinking:   chatcompletions.ThinkingMode(options.chatThinking),
-				PromptMode: chatcompletions.PromptMode(options.chatPromptMode),
-				TokenLimit: chatcompletions.TokenLimitField(options.chatTokenLimit),
-				Headers:    headers,
-			})
-			if err != nil {
-				return nil, fmt.Errorf("initialize Chat Completions continuation: %w", err)
-			}
-			return &agentGeneratorSource{
-				newGenerator: func(context.Context) (continuation.Generator, io.Closer, error) {
-					return client, noopCloser{}, nil
-				},
-				close: func() error { return nil },
-			}, nil
-		}
-		stopTokenMode, stopTokenIDs, err := parseAPIStopTokens(options.apiStopTokens)
-		if err != nil {
-			return nil, err
+		credential := os.Getenv(options.apiPasswordEnv)
+		if options.completion == completionprovider.ChatCompletions {
+			credential = os.Getenv(options.apiKeyEnv)
 		}
 		batchWait := time.Duration(0)
 		if options.evalCaseParallelism > 1 {
-			// Match the official Primitive Bench runner: case goroutines share one
-			// short coalescing window and send one contents[] request per turn.
 			batchWait = 10 * time.Millisecond
 		}
-		client, err := rwkvlightning.New(rwkvlightning.Config{
-			Endpoint:      options.apiURL,
-			Model:         options.modelPath,
-			Password:      os.Getenv(options.apiPasswordEnv),
-			StateID:       options.stateID,
-			StopTokenMode: stopTokenMode,
-			StopTokenIDs:  stopTokenIDs,
-			Stream:        &options.apiStream,
-			BatchWait:     batchWait,
-			Headers:       headers,
+		client, err := completionprovider.NewRemote(completionprovider.Config{
+			Kind: options.completion, Endpoint: options.apiURL, Model: options.modelPath,
+			Credential: credential, Headers: headers,
+			ChatThinking:   chatcompletions.ThinkingMode(options.chatThinking),
+			ChatPromptMode: chatcompletions.PromptMode(options.chatPromptMode),
+			ChatTokenLimit: chatcompletions.TokenLimitField(options.chatTokenLimit),
+			StopTokens:     options.apiStopTokens, StateID: options.stateID,
+			Stream: &options.apiStream, BatchWait: batchWait,
 		})
 		if err != nil {
 			return nil, fmt.Errorf("initialize remote continuation: %w", err)
@@ -1604,6 +1584,7 @@ func agentAPIConfig(options runOptions) (agentapi.Config, error) {
 		ChatPromptMode:         options.chatPromptMode,
 		ChatTokenLimit:         options.chatTokenLimit,
 		Stream:                 &stream,
+		RWKVStopTokens:         options.apiStopTokens,
 		ProgressiveTools:       &progressive,
 		EnableWeb:              options.enableWeb,
 		BraveAPIKey:            os.Getenv(options.braveAPIKeyEnv),
@@ -1943,39 +1924,9 @@ func formatEvalScore(score agenteval.Score) string {
 	return fmt.Sprintf("%.1f%%", 100*score.Rate)
 }
 
-// parseAPIStopTokens resolves --api-stop-tokens into a rwkv_lightning stop token
-// mode. "text" forwards the protocol's decoded-text stops for the PyTorch server.
-// "cuda" sends the rwkv_lightning_cuda stop IDs needed by the G1I protocol,
-// "none" omits the field, "eos" sends only the legacy integer EOS token, and an
-// explicit comma-separated list passes those token IDs through.
+// parseAPIStopTokens delegates API and CLI stop settings to the transport layer.
 func parseAPIStopTokens(value string) (rwkvlightning.StopTokenMode, []int, error) {
-	switch trimmed := strings.ToLower(strings.TrimSpace(value)); trimmed {
-	case "", "text":
-		return rwkvlightning.StopTokenText, nil, nil
-	case "cuda":
-		// CUDA stops when any listed token is generated. Token 6884 is the JSON
-		// fence used by the native G1i function transcript; 24281 stops before a
-		// generated User continuation. Do not include newline token 261 because
-		// it truncates long JSON arguments mid-value.
-		return rwkvlightning.StopTokenEOS, []int{0, 6884, 24281}, nil
-	case "none":
-		return rwkvlightning.StopTokenNone, nil, nil
-	case "eos":
-		return rwkvlightning.StopTokenEOS, []int{0}, nil
-	default:
-		fields := strings.Split(trimmed, ",")
-		tokens := make([]int, 0, len(fields))
-		for _, field := range fields {
-			token, err := strconv.Atoi(strings.TrimSpace(field))
-			if err != nil || token < 0 {
-				return "", nil, fmt.Errorf(
-					"--api-stop-tokens must be text, cuda, none, eos, or a comma-separated list of non-negative token IDs",
-				)
-			}
-			tokens = append(tokens, token)
-		}
-		return rwkvlightning.StopTokenEOS, tokens, nil
-	}
+	return completionprovider.ParseStopTokens(value)
 }
 
 func loadAPIHeaders(mappings []string) (http.Header, error) {

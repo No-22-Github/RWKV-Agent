@@ -396,6 +396,11 @@ scope. Protocol boundaries, tool permissions, and the state machine are describe
 
 ## 7. Remote Providers
 
+Four explicit backends share the continuation contract: `local`, `chat-completions`,
+`rwkv-lightning-python`, and `rwkv-lightning-cuda`. The ambiguous `rwkv-lightning`
+name has been removed; select Python or CUDA again for existing connections.
+Templates and tool formats stay in the separate wire/profile layer.
+
 ### rwkv_lightning native continuation
 
 ```sh
@@ -404,7 +409,7 @@ export RWKV_CF_ACCESS_CLIENT_ID='...'      # required for Cloudflare Access depl
 export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 
 ./dist/rwkv-cli agent \
-  --completion rwkv-lightning \
+  --completion rwkv-lightning-cuda \
   --api-url https://example.com/v1/batch/completions \
   --model rwkv7-13b \
   --api-header-env CF-Access-Client-Id=RWKV_CF_ACCESS_CLIENT_ID \
@@ -414,14 +419,12 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 
 Notes:
 
-- `--api-url` is the full endpoint; no OpenAI path is appended. The client sends
-  `contents`, so `/v1/batch/completions`, `/v1/chat/completions`, and
-  `/big_batch/completions` may all provide the semantics (check `GET /openapi.json`).
-- `stop_tokens` is a **decoded-text string array** (not integer token IDs). The
-  default `--api-stop-tokens text` forwards the current protocol's stop sequences;
-  the `cuda` preset serves `rwkv_lightning_cuda` deployments that require integer token
-  IDs; `none` omits the field, and `eos` or a comma-separated integer list keep the old
-  form.
+- `--api-url` accepts a service root or a full API path. Python uses
+  `/v1/chat/completions`; CUDA uses `/v1/batch/completions`. Both send the
+  already-rendered prompt in `contents[]`.
+- Python defaults to decoded-text stops; CUDA defaults to integer EOS `[0]`.
+  Both enforce text stops on the client. `none` uses server defaults; a
+  comma-separated integer list selects custom CUDA tokens.
 - `--api-stream` defaults to `true` (SSE, token by token); `--api-stream=false` requests
   one buffered JSON response, which is more reliable on deployments with unstable SSE
   but removes token-level output for interactive `agent` runs.
@@ -548,7 +551,7 @@ Remote evaluation reuses the same entry point:
 ```sh
 ./dist/rwkv-cli agent-eval \
   --suite smoke \
-  --completion rwkv-lightning \
+  --completion rwkv-lightning-cuda \
   --api-url https://example.com/v1/batch/completions \
   --model rwkv7-13b \
   --case read_exact_file \
@@ -592,7 +595,7 @@ Two explicit tool profiles:
 ```
 
 `rwkv_lightning_cuda` deployments require integer `stop_tokens`; the
-`--api-stop-tokens cuda` preset keeps the same Harness working. Extra HTTP headers are
+`--api-stop-tokens 0,6884,24281` setting keeps the same Harness working. Extra HTTP headers are
 read only from environment variables and never written to artifacts. Primitive suites
 use each case's original `max_turns` (6–22) and a 1024-token tool-call budget;
 `run.json` records the actual profile in `manifest.harness.tool_profile` so the two

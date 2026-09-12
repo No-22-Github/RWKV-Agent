@@ -21,9 +21,9 @@ func TestServiceSpawnAgentsUsesConcurrentChildSessions(t *testing.T) {
 	progressive := true
 	source := &subagentTestSource{}
 	service.source = source
-	service.status = Status{State: ModelReady, Provider: ProviderRWKVLightning, Model: "scripted"}
+	service.status = Status{State: ModelReady, Provider: ProviderRWKVLightningCUDA, Model: "scripted"}
 	service.config = Config{
-		Provider:               ProviderRWKVLightning,
+		Provider:               ProviderRWKVLightningCUDA,
 		Model:                  "scripted",
 		MaxSteps:               4,
 		MaxTokens:              256,

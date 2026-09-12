@@ -53,7 +53,7 @@ func TestAppServiceBootstrapsSavedSettingsAndConversation(t *testing.T) {
 	workspace := resolvedWorkspace(t)
 	store := testAppStore(t)
 	config := agentapi.Config{
-		Provider: agentapi.ProviderRWKVLightning,
+		Provider: agentapi.ProviderRWKVLightningCUDA,
 		Endpoint: "https://example.test",
 		Model:    "rwkv-test",
 		Password: "plain-secret",
@@ -103,7 +103,7 @@ func TestAppServiceSavesDraftWithoutReplacingRuntimeProvider(t *testing.T) {
 	workspace := resolvedWorkspace(t)
 	store := testAppStore(t)
 	activeConfig := agentapi.Config{
-		Provider: agentapi.ProviderRWKVLightning, Endpoint: "https://active.test", Model: "active-model",
+		Provider: agentapi.ProviderRWKVLightningCUDA, Endpoint: "https://active.test", Model: "active-model",
 	}
 	active, err := store.SaveProvider("", "", activeConfig, true)
 	if err != nil {
@@ -117,7 +117,7 @@ func TestAppServiceSavesDraftWithoutReplacingRuntimeProvider(t *testing.T) {
 	t.Cleanup(func() { _ = backend.Close() })
 
 	draftConfig := agentapi.Config{
-		Provider: agentapi.ProviderRWKVLightning, Endpoint: "https://draft.test/v1/models", Model: "draft-model",
+		Provider: agentapi.ProviderRWKVLightningCUDA, Endpoint: "https://draft.test/v1/models", Model: "draft-model",
 	}
 	draft, err := backend.SaveProvider("", "Draft", draftConfig)
 	if err != nil {

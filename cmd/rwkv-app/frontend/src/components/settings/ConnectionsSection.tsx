@@ -136,7 +136,7 @@ function ProviderRow({ provider, running, selected, dirty, menuOpen, onToggleMen
 }) {
   const meta = provider.config.provider === Provider.ProviderLocal
     ? `本地模型 · ${provider.config.model.split(/[\\/]/).at(-1) || provider.config.model}`
-    : [provider.config.provider === Provider.ProviderChatCompletions ? 'OpenAI 兼容' : 'RWKV 续写', hostOf(provider.config.endpoint)].filter(Boolean).join(' · ')
+    : [provider.config.provider === Provider.ProviderChatCompletions ? 'OpenAI 兼容' : provider.config.provider === Provider.ProviderRWKVLightningPython ? 'Lightning Python' : 'Lightning CUDA', hostOf(provider.config.endpoint)].filter(Boolean).join(' · ')
   return (
     <div className={`group relative mb-[4px] flex items-stretch border px-[8px] py-[7px] ${selected ? 'border-brand bg-surface-active' : 'border-transparent hover:border-line hover:bg-paper-wash'}`}>
       <button className="flex min-w-0 flex-1 items-center gap-[9px] border-0 bg-transparent p-0 text-left" onClick={onEdit} title={provider.label || provider.config.model || '未命名连接'}>

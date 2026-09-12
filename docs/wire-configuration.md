@@ -31,7 +31,7 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 
 ./dist/rwkv-cli agent-eval \
   --model rwkv7-g1j-7.2b-20260831-ctx16384 \
-  --completion rwkv-lightning \
+  --completion rwkv-lightning-cuda \
   --api-url https://<host>/v1/batch/completions \
   --api-header-env CF-Access-Client-Id=RWKV_CF_ACCESS_CLIENT_ID \
   --api-header-env CF-Access-Client-Secret=RWKV_CF_ACCESS_CLIENT_SECRET \
@@ -246,7 +246,7 @@ suite 默认差异：
   `choices[0].message.content`。
 - `stop_tokens` 的形态随部署而异：
   - 有的部署接受 decoded-text 字符串数组（`--api-stop-tokens text`，默认）；
-  - `rwkv_lightning_cuda` 一系可能要求整数 token ID（`--api-stop-tokens cuda`）；
+  - `rwkv_lightning_cuda` 一系可能要求整数 token ID（`--api-stop-tokens 0,6884,24281`）；
   - **实测 api-7b.rwkvos.com 对任何 `stop_tokens` 都返回 HTTP 500**，必须 `--api-stop-tokens none`。
   连通性排查顺序：`none` → `text` → `cuda`。
 - `--api-stream=false` 返回一次性 JSON，评测更稳；`true` 走 SSE。
@@ -271,6 +271,6 @@ agent-eval --suite bfcl-product --case-parallelism 60 ...
 agent-eval --suite bfcl-product --wire "prefill=fence,abstain=no-tool+gate-evidence" ...
 
 # 交互式：与评测同一份配置
-agent --profile xml-v1 --completion rwkv-lightning --api-url ... --model ... \
+agent --profile xml-v1 --completion rwkv-lightning-cuda --api-url ... --model ... \
       --api-stop-tokens none --api-stream=false --workspace /path/to/project --prompt "..."
 ```

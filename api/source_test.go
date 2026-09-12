@@ -1,6 +1,9 @@
 package api
 
-import "testing"
+import (
+	"github.com/no22/RWKV-Agent/internal/continuation/provider"
+	"testing"
+)
 
 func TestNormalizeOpenAIEndpoints(t *testing.T) {
 	t.Parallel()
@@ -25,10 +28,10 @@ func TestNormalizeOpenAIEndpoints(t *testing.T) {
 			models: "https://example.test/v1/models",
 		},
 	} {
-		if got := normalizeChatEndpoint(testCase.input); got != testCase.chat {
+		if got := provider.CompletionEndpoint(provider.ChatCompletions, testCase.input); got != testCase.chat {
 			t.Fatalf("chat endpoint for %q = %q", testCase.input, got)
 		}
-		if got := normalizeModelsEndpoint(testCase.input); got != testCase.models {
+		if got := provider.Endpoint(testCase.input, "models"); got != testCase.models {
 			t.Fatalf("models endpoint for %q = %q", testCase.input, got)
 		}
 	}
@@ -42,10 +45,10 @@ func TestNormalizeRWKVEndpoints(t *testing.T) {
 		"https://example.test/v1/models",
 		"https://example.test/v1/batch/completions",
 	} {
-		if got := normalizeRWKVEndpoint(input); got != "https://example.test/v1/batch/completions" {
+		if got := provider.CompletionEndpoint(provider.LightningCUDA, input); got != "https://example.test/v1/batch/completions" {
 			t.Fatalf("RWKV endpoint for %q = %q", input, got)
 		}
-		if got := normalizeModelsEndpoint(normalizeRWKVEndpoint(input)); got != "https://example.test/v1/models" {
+		if got := provider.Endpoint(provider.CompletionEndpoint(provider.LightningCUDA, input), "models"); got != "https://example.test/v1/models" {
 			t.Fatalf("models endpoint for %q = %q", input, got)
 		}
 	}
@@ -53,7 +56,7 @@ func TestNormalizeRWKVEndpoints(t *testing.T) {
 
 func TestNormalizeUnversionedRWKVModelsEndpoint(t *testing.T) {
 	t.Parallel()
-	got := normalizeModelsEndpoint("https://example.test/batch/completions")
+	got := provider.Endpoint("https://example.test/batch/completions", "models")
 	if got != "https://example.test/v1/models" {
 		t.Fatalf("models endpoint = %q", got)
 	}

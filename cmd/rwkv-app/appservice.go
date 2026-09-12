@@ -608,7 +608,7 @@ func validateProviderDraft(config agentapi.Config) error {
 	switch config.Provider {
 	case agentapi.ProviderLocal:
 		return nil
-	case agentapi.ProviderChatCompletions, agentapi.ProviderRWKVLightning:
+	case agentapi.ProviderChatCompletions, agentapi.ProviderRWKVLightningPython, agentapi.ProviderRWKVLightningCUDA:
 		parsed, err := url.Parse(strings.TrimSpace(config.Endpoint))
 		if err != nil || parsed.Scheme == "" || parsed.Host == "" || parsed.User != nil ||
 			(parsed.Scheme != "http" && parsed.Scheme != "https") {

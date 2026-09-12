@@ -49,24 +49,24 @@ func TestListRemoteModelsUsesBearerAndCustomHeaders(t *testing.T) {
 	}
 }
 
-func TestRWKVConfigurationDefaultsToClientControlledStops(t *testing.T) {
+func TestRWKVCUDAConfigurationDefaultsToEOS(t *testing.T) {
 	t.Parallel()
 	config, err := normalizeConfig(Config{
-		Provider: ProviderRWKVLightning,
+		Provider: ProviderRWKVLightningCUDA,
 		Endpoint: "https://example.test",
 		Model:    "rwkv7-test",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if config.RWKVStopTokens != "none" {
-		t.Fatalf("RWKVStopTokens = %q, want none", config.RWKVStopTokens)
+	if config.RWKVStopTokens != "eos" {
+		t.Fatalf("RWKVStopTokens = %q, want eos", config.RWKVStopTokens)
 	}
 }
 
 func TestAgentCapabilityDefaults(t *testing.T) {
 	t.Parallel()
-	config, err := normalizeConfig(Config{Provider: ProviderRWKVLightning, Model: "model", Endpoint: "https://example.test"})
+	config, err := normalizeConfig(Config{Provider: ProviderRWKVLightningCUDA, Model: "model", Endpoint: "https://example.test"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -93,7 +93,7 @@ func TestAgentCapabilityDefaults(t *testing.T) {
 func TestMarkdownProtocolRemainsAnExplicitOption(t *testing.T) {
 	t.Parallel()
 	config, err := normalizeConfig(Config{
-		Provider: ProviderRWKVLightning, Model: "model", Endpoint: "https://example.test",
+		Provider: ProviderRWKVLightningCUDA, Model: "model", Endpoint: "https://example.test",
 		AgentProtocol: AgentProtocolMarkdown,
 	})
 	if err != nil {
@@ -112,7 +112,7 @@ func TestMarkdownProtocolRemainsAnExplicitOption(t *testing.T) {
 func TestWireProfileOverridesProtocolDefaults(t *testing.T) {
 	t.Parallel()
 	config, err := normalizeConfig(Config{
-		Provider: ProviderRWKVLightning,
+		Provider: ProviderRWKVLightningCUDA,
 		Model:    "model", Endpoint: "https://example.test",
 		AgentProtocol: AgentProtocolXML,
 		Profile:       "md-v1+gate-state",
@@ -136,7 +136,7 @@ func TestWireProfileOverridesProtocolDefaults(t *testing.T) {
 		t.Fatalf("wire canonical = %q", canonical)
 	}
 	if _, err := normalizeConfig(Config{
-		Provider: ProviderRWKVLightning,
+		Provider: ProviderRWKVLightningCUDA,
 		Model:    "model", Endpoint: "https://example.test",
 		Profile: "nope-v1",
 	}); err == nil {
@@ -150,7 +150,7 @@ func TestWireProfileOverridesProtocolDefaults(t *testing.T) {
 func TestWireOverridesComposeOnProtocolDefaults(t *testing.T) {
 	t.Parallel()
 	config, err := normalizeConfig(Config{
-		Provider: ProviderRWKVLightning,
+		Provider: ProviderRWKVLightningCUDA,
 		Model:    "model", Endpoint: "https://example.test",
 		AgentProtocol: AgentProtocolXML,
 		Wire:          "format=md-fence,prefill=fence,abstain=no-tool",
@@ -175,7 +175,7 @@ func TestWireOverridesComposeOnProtocolDefaults(t *testing.T) {
 		t.Fatalf("wire canonical = %q", canonical)
 	}
 	if _, err := normalizeConfig(Config{
-		Provider: ProviderRWKVLightning,
+		Provider: ProviderRWKVLightningCUDA,
 		Model:    "model", Endpoint: "https://example.test",
 		Wire: "nope=xml",
 	}); err == nil {
@@ -186,7 +186,7 @@ func TestWireOverridesComposeOnProtocolDefaults(t *testing.T) {
 func TestAgentProtocolCompatibilityMode(t *testing.T) {
 	t.Parallel()
 	config, err := normalizeConfig(Config{
-		Provider: ProviderRWKVLightning,
+		Provider: ProviderRWKVLightningCUDA,
 		Model:    "model", Endpoint: "https://example.test",
 		AgentProtocol: AgentProtocolXML,
 	})
@@ -194,7 +194,7 @@ func TestAgentProtocolCompatibilityMode(t *testing.T) {
 		t.Fatalf("XML config = %+v, error = %v", config, err)
 	}
 	if _, err := normalizeConfig(Config{
-		Provider: ProviderRWKVLightning,
+		Provider: ProviderRWKVLightningCUDA,
 		Model:    "model", Endpoint: "https://example.test",
 		AgentProtocol: "invalid",
 	}); err == nil {
@@ -204,7 +204,7 @@ func TestAgentProtocolCompatibilityMode(t *testing.T) {
 	// Unset switches default off there: no JSON fence for deepToolAnchor to
 	// extend, and no_tool measured 0 selections on this transcript.
 	xml, err := normalizeConfig(Config{
-		Provider: ProviderRWKVLightning,
+		Provider: ProviderRWKVLightningCUDA,
 		Model:    "model", Endpoint: "https://example.test",
 		AgentProtocol: AgentProtocolXML,
 	})
@@ -217,7 +217,7 @@ func TestAgentProtocolCompatibilityMode(t *testing.T) {
 	// An explicit no_tool opt-in is still honored, so the comparison can be
 	// re-run; deepToolAnchor has nothing to extend and stays off regardless.
 	explicit, err := normalizeConfig(Config{
-		Provider: ProviderRWKVLightning,
+		Provider: ProviderRWKVLightningCUDA,
 		Model:    "model", Endpoint: "https://example.test",
 		AgentProtocol:  AgentProtocolXML,
 		SemanticNoTool: boolPointer(true),
@@ -232,7 +232,7 @@ func TestAgentProtocolCompatibilityMode(t *testing.T) {
 	// decisionFakeThink still errors: the XML renderer prefills its own think
 	// block, so the two would fight over the same assistant prefix.
 	if _, err := normalizeConfig(Config{
-		Provider: ProviderRWKVLightning,
+		Provider: ProviderRWKVLightningCUDA,
 		Model:    "model", Endpoint: "https://example.test",
 		AgentProtocol:     AgentProtocolXML,
 		DecisionFakeThink: true,
@@ -240,7 +240,7 @@ func TestAgentProtocolCompatibilityMode(t *testing.T) {
 		t.Fatal("XML Agent protocol accepted decisionFakeThink")
 	}
 	if _, err := normalizeConfig(Config{
-		Provider: ProviderRWKVLightning,
+		Provider: ProviderRWKVLightningCUDA,
 		Model:    "model", Endpoint: "https://example.test",
 		AgentProtocol: AgentProtocolMarkdown,
 		Thinking:      "fast",
@@ -248,7 +248,7 @@ func TestAgentProtocolCompatibilityMode(t *testing.T) {
 		t.Fatal("markdown Agent protocol accepted an ignored thinking mode")
 	}
 	if _, err := normalizeConfig(Config{
-		Provider: ProviderRWKVLightning,
+		Provider: ProviderRWKVLightningCUDA,
 		Model:    "model", Endpoint: "https://example.test",
 		AgentProtocol: AgentProtocolXML,
 		Thinking:      "full",
@@ -256,7 +256,7 @@ func TestAgentProtocolCompatibilityMode(t *testing.T) {
 		t.Fatalf("XML Agent protocol rejected thinking mode: %v", err)
 	}
 	if _, err := normalizeConfig(Config{
-		Provider: ProviderRWKVLightning,
+		Provider: ProviderRWKVLightningCUDA,
 		Model:    "model", Endpoint: "https://example.test",
 		AgentProtocol: AgentProtocolXML,
 		Thinking:      "banana",
@@ -267,7 +267,7 @@ func TestAgentProtocolCompatibilityMode(t *testing.T) {
 
 func TestSubagentsEnableRemoteBatchCoalescingByDefault(t *testing.T) {
 	t.Parallel()
-	config, err := normalizeConfig(Config{Provider: ProviderRWKVLightning, Model: "model", Endpoint: "https://example.test", EnableSubagents: true})
+	config, err := normalizeConfig(Config{Provider: ProviderRWKVLightningCUDA, Model: "model", Endpoint: "https://example.test", EnableSubagents: true})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -285,7 +285,7 @@ func TestPreviewAgentPromptAssemblesTranscriptContract(t *testing.T) {
 	defer func() { _ = service.Close() }()
 
 	preview, err := service.PreviewAgentPrompt(Config{
-		Provider:      ProviderRWKVLightning,
+		Provider:      ProviderRWKVLightningCUDA,
 		Model:         "rwkv7-test",
 		Endpoint:      "https://example.test",
 		AgentProtocol: AgentProtocolXML,
@@ -313,7 +313,7 @@ func TestPreviewAgentPromptAssemblesTranscriptContract(t *testing.T) {
 
 	// 个性化约定原文追加在 Task-specific contract 块内。
 	withContract, err := service.PreviewAgentPrompt(Config{
-		Provider:      ProviderRWKVLightning,
+		Provider:      ProviderRWKVLightningCUDA,
 		Model:         "rwkv7-test",
 		Endpoint:      "https://example.test",
 		AgentProtocol: AgentProtocolXML,
@@ -328,7 +328,7 @@ func TestPreviewAgentPromptAssemblesTranscriptContract(t *testing.T) {
 
 	// 协议契约校验在预览路径同样生效：Markdown 不支持思考模式。
 	if _, err := service.PreviewAgentPrompt(Config{
-		Provider:      ProviderRWKVLightning,
+		Provider:      ProviderRWKVLightningCUDA,
 		Model:         "rwkv7-test",
 		Endpoint:      "https://example.test",
 		AgentProtocol: AgentProtocolMarkdown,
@@ -340,7 +340,7 @@ func TestPreviewAgentPromptAssemblesTranscriptContract(t *testing.T) {
 
 func TestSingleLocalBatchRemainsValidWithoutSubagents(t *testing.T) {
 	t.Parallel()
-	config, err := normalizeConfig(Config{Provider: ProviderRWKVLightning, Model: "model", Endpoint: "https://example.test", MaxActiveBatch: 1})
+	config, err := normalizeConfig(Config{Provider: ProviderRWKVLightningCUDA, Model: "model", Endpoint: "https://example.test", MaxActiveBatch: 1})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -387,7 +387,7 @@ func TestRemoteStatusDoesNotExposeSecrets(t *testing.T) {
 	}
 	defer service.Close()
 	status, err := service.Configure(context.Background(), Config{
-		Provider: ProviderRWKVLightning,
+		Provider: ProviderRWKVLightningCUDA,
 		Endpoint: "https://example.test",
 		Model:    "rwkv7-test",
 		Password: "service-password",
@@ -426,3 +426,53 @@ func TestNewServiceEmptyWorkspaceStaysUnset(t *testing.T) {
 }
 
 func boolPointer(value bool) *bool { return &value }
+
+func TestExplicitLightningProviders(t *testing.T) {
+	for _, tc := range []struct {
+		kind        Provider
+		stop, route string
+	}{
+		{ProviderRWKVLightningPython, "text", "/v1/chat/completions"},
+		{ProviderRWKVLightningCUDA, "eos", "/v1/batch/completions"},
+	} {
+		t.Run(string(tc.kind), func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.URL.Path != "/v1/models" || r.Header.Get("Authorization") != "Bearer test-password" {
+					t.Errorf("discovery path/auth mismatch")
+				}
+				_, _ = w.Write([]byte(`{"data":[{"id":"test"}]}`))
+			}))
+			defer server.Close()
+			config, err := normalizeConfig(Config{Provider: tc.kind, Endpoint: server.URL, Model: "test", Password: "test-password"})
+			if err != nil {
+				t.Fatal(err)
+			}
+			if config.RWKVStopTokens != tc.stop || publicEndpoint(config) != server.URL+tc.route {
+				t.Fatalf("unexpected defaults %+v", config)
+			}
+			source, err := buildSource(context.Background(), config, nil)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer source.close()
+			if source.status().Provider != tc.kind {
+				t.Fatal("provider identity lost")
+			}
+			service, err := NewService(Options{Workspace: t.TempDir()})
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer service.Close()
+			if _, err := service.ListRemoteModels(context.Background(), config); err != nil {
+				t.Fatal(err)
+			}
+		})
+	}
+}
+
+func TestAmbiguousLightningProviderIsRejected(t *testing.T) {
+	_, err := normalizeConfig(Config{Provider: Provider("rwkv-lightning"), Endpoint: "https://example.test", Model: "test"})
+	if err == nil || !strings.Contains(err.Error(), "unsupported provider") {
+		t.Fatalf("obsolete backend accepted: %v", err)
+	}
+}

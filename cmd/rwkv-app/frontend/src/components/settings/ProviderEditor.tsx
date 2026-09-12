@@ -65,14 +65,15 @@ export default function ProviderEditor({ manager, ready, onTestRemote, onSave, o
               <>
                 <label className="mt-[8px] flex flex-col gap-[6px] text-xs text-ink-muted">
                   接口协议
-                  <select aria-label="远端协议" className="h-[40px] border border-line bg-paper-wash px-[10px] text-base text-ink outline-0 focus:border-brand" value={manager.remoteProtocol} onChange={(event) => manager.setRemoteProtocol(event.target.value as 'rwkv' | 'openai')}>
-                    <option value="rwkv">RWKV 续写</option>
+                  <select aria-label="远端协议" className="h-[40px] border border-line bg-paper-wash px-[10px] text-base text-ink outline-0 focus:border-brand" value={manager.remoteProtocol} onChange={(event) => manager.setRemoteProtocol(event.target.value as 'python' | 'cuda' | 'openai')}>
+                    <option value="python">RWKV Lightning Python</option>
+                    <option value="cuda">RWKV Lightning CUDA</option>
                     <option value="openai">OpenAI 兼容</option>
                   </select>
                 </label>
                 <Field label="API 地址" value={manager.remoteEndpoint} onChange={manager.setRemoteEndpoint} placeholder="https://example.com 或 …/v1/models" />
                 <Field label="模型 ID" value={manager.remoteModel} onChange={manager.setRemoteModel} placeholder="rwkv7-g1i-13.3b" list={manager.availableModels.map((model) => model.id)} />
-                <Field label={manager.remoteProtocol === 'rwkv' ? '服务密码' : 'API Key'} value={manager.apiKey} onChange={manager.setAPIKey} type="password" />
+                <Field label={manager.remoteProtocol !== 'openai' ? '服务密码' : 'API Key'} value={manager.apiKey} onChange={manager.setAPIKey} type="password" />
                 <div className="mt-[2px] border-t border-line-soft pt-[12px]">
                   <div className="mb-[7px] flex items-center gap-[8px]"><strong className="text-sm font-semibold">请求头</strong><span className="text-xs text-ink-muted">可选，随档案保存</span></div>
                   {headerRows.map((row) => (

@@ -332,7 +332,7 @@ func TestAgentAcceptsRWKVLightningContinuation(t *testing.T) {
 	options, err := parseRunOptions("agent", []string{
 		"--model", "rwkv7-13b",
 		"--prompt", "inspect the repository",
-		"--completion", "rwkv-lightning",
+		"--completion", "rwkv-lightning-python",
 		"--api-url", "https://example.test/v1/chat/completions",
 		"--api-header-env", "CF-Access-Client-Id=RWKV_CF_ACCESS_CLIENT_ID",
 		"--api-header-env", "CF-Access-Client-Secret=RWKV_CF_ACCESS_CLIENT_SECRET",
@@ -349,7 +349,7 @@ func TestAgentAcceptsRWKVLightningContinuation(t *testing.T) {
 	if _, err := parseRunOptions("agent", []string{
 		"--model", "rwkv7-13b",
 		"--prompt", "task",
-		"--completion", "rwkv-lightning",
+		"--completion", "rwkv-lightning-python",
 	}); err == nil {
 		t.Fatal("remote agent accepted a missing API URL")
 	}
@@ -361,7 +361,7 @@ func TestProductAgentRejectsIgnoredThinkingMode(t *testing.T) {
 	if _, err := parseRunOptions("agent", []string{
 		"--model", "rwkv7-13b",
 		"--prompt", "inspect the repository",
-		"--completion", "rwkv-lightning",
+		"--completion", "rwkv-lightning-python",
 		"--api-url", "https://example.test/big_batch/completions",
 		"--agent-protocol", "markdown",
 		"--thinking", "full",
@@ -371,7 +371,7 @@ func TestProductAgentRejectsIgnoredThinkingMode(t *testing.T) {
 	options, err := parseRunOptions("agent", []string{
 		"--model", "rwkv7-13b",
 		"--prompt", "inspect the repository",
-		"--completion", "rwkv-lightning",
+		"--completion", "rwkv-lightning-python",
 		"--api-url", "https://example.test/big_batch/completions",
 		"--agent-protocol", "xml",
 		"--thinking", "full",
@@ -387,7 +387,7 @@ func TestProductAgentRejectsIgnoredThinkingMode(t *testing.T) {
 	explicit, err := parseRunOptions("agent", []string{
 		"--model", "rwkv7-13b",
 		"--prompt", "inspect the repository",
-		"--completion", "rwkv-lightning",
+		"--completion", "rwkv-lightning-python",
 		"--api-url", "https://example.test/big_batch/completions",
 		"--agent-protocol", "xml",
 		"--semantic-no-tool", "--deep-tool-anchor",
@@ -404,7 +404,7 @@ func TestProductAgentRejectsIgnoredThinkingMode(t *testing.T) {
 	if _, err := parseRunOptions("agent", []string{
 		"--model", "rwkv7-13b",
 		"--prompt", "task",
-		"--completion", "rwkv-lightning",
+		"--completion", "rwkv-lightning-python",
 		"--api-url", "https://example.test/big_batch/completions",
 		"--agent-protocol", "xml",
 		"--decision-fake-think",
@@ -441,8 +441,7 @@ func TestParseAPIStopTokens(t *testing.T) {
 		{value: "", wantMode: rwkvlightning.StopTokenText},
 		{value: "text", wantMode: rwkvlightning.StopTokenText},
 		{value: "TEXT", wantMode: rwkvlightning.StopTokenText},
-		{value: "cuda", wantMode: rwkvlightning.StopTokenEOS, wantIDs: []int{0, 6884, 24281}},
-		{value: "CUDA", wantMode: rwkvlightning.StopTokenEOS, wantIDs: []int{0, 6884, 24281}},
+		{value: "0,6884,24281", wantMode: rwkvlightning.StopTokenEOS, wantIDs: []int{0, 6884, 24281}},
 		{value: "none", wantMode: rwkvlightning.StopTokenNone},
 		{value: "eos", wantMode: rwkvlightning.StopTokenEOS, wantIDs: []int{0}},
 		{value: "0,261", wantMode: rwkvlightning.StopTokenEOS, wantIDs: []int{0, 261}},
@@ -464,7 +463,7 @@ func TestParseAPIStopTokens(t *testing.T) {
 			}
 		}
 	}
-	for _, invalid := range []string{"abc", "-1", "0,", "1,two"} {
+	for _, invalid := range []string{"cuda", "CUDA", "abc", "-1", "0,", "1,two"} {
 		if _, _, err := parseAPIStopTokens(invalid); err == nil {
 			t.Fatalf("parse %q accepted an invalid stop token list", invalid)
 		}
@@ -700,13 +699,13 @@ func TestAgentEvalAcceptsRemoteContinuation(t *testing.T) {
 
 	options, err := parseRunOptions("agent-eval", []string{
 		"--model", "rwkv7-13b",
-		"--completion", "rwkv-lightning",
+		"--completion", "rwkv-lightning-python",
 		"--api-url", "https://example.test/v1/chat/completions",
 	})
 	if err != nil {
 		t.Fatal(err)
 	}
-	if options.completion != "rwkv-lightning" ||
+	if options.completion != "rwkv-lightning-python" ||
 		options.apiURL == "" ||
 		options.tokenizer != "" ||
 		options.evalCaseTimeout != 2*time.Minute {
@@ -951,5 +950,30 @@ func TestWireLonghandOverrides(t *testing.T) {
 	if _, err := agentEvalRunnerOptions(adHocOptions, agenteval.SuiteBFCLProduct); err == nil ||
 		!strings.Contains(err.Error(), "--strict-spec") {
 		t.Fatalf("ad-hoc spec accepted by --strict-spec: %v", err)
+	}
+}
+
+func TestExplicitLightningCLIProviders(t *testing.T) {
+	for _, tc := range []struct{ kind, stop string }{
+		{"rwkv-lightning-python", "text"}, {"rwkv-lightning-cuda", "eos"},
+	} {
+		options, err := parseRunOptions("agent", []string{"--completion", tc.kind, "--api-url", "https://example.test", "--model", "test", "--prompt", "hello"})
+		if err != nil {
+			t.Fatal(err)
+		}
+		config, err := agentAPIConfig(options)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if string(config.Provider) != tc.kind || config.RWKVStopTokens != tc.stop {
+			t.Fatalf("lost backend settings: %s %s", config.Provider, config.RWKVStopTokens)
+		}
+	}
+}
+
+func TestAmbiguousLightningCLIProviderIsRejected(t *testing.T) {
+	_, err := parseRunOptions("agent", []string{"--completion", "rwkv-lightning", "--api-url", "https://example.test", "--model", "test", "--prompt", "hello"})
+	if err == nil {
+		t.Fatal("ambiguous backend accepted")
 	}
 }

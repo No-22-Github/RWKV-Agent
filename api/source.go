@@ -14,7 +14,7 @@ import (
 	"github.com/no22/RWKV-Agent/internal/continuation"
 	"github.com/no22/RWKV-Agent/internal/continuation/chatcompletions"
 	localcontinuation "github.com/no22/RWKV-Agent/internal/continuation/local"
-	"github.com/no22/RWKV-Agent/internal/continuation/rwkvlightning"
+	"github.com/no22/RWKV-Agent/internal/continuation/provider"
 	"github.com/no22/RWKV-Agent/internal/inference"
 	rwkvbackend "github.com/no22/RWKV-Agent/internal/inference/backend/rwkvmobile"
 )
@@ -67,10 +67,8 @@ func buildSource(ctx context.Context, config Config, progress func(Status)) (gen
 	switch config.Provider {
 	case ProviderLocal:
 		return buildLocalSource(ctx, config, progress)
-	case ProviderChatCompletions:
-		return buildChatCompletionsSource(config)
-	case ProviderRWKVLightning:
-		return buildRWKVLightningSource(config)
+	case ProviderChatCompletions, ProviderRWKVLightningPython, ProviderRWKVLightningCUDA:
+		return buildRemoteSource(config)
 	default:
 		return nil, fmt.Errorf("unsupported provider %q", config.Provider)
 	}
@@ -122,117 +120,36 @@ func buildLocalSource(ctx context.Context, config Config, progress func(Status))
 	}, nil
 }
 
-func buildChatCompletionsSource(config Config) (generatorSource, error) {
+func buildRemoteSource(config Config) (generatorSource, error) {
 	headers, names, err := validatedHeaders(config.Headers)
 	if err != nil {
 		return nil, err
 	}
-	client, err := chatcompletions.New(chatcompletions.Config{
-		Endpoint:   normalizeChatEndpoint(config.Endpoint),
-		Model:      config.Model,
-		APIKey:     config.APIKey,
-		Thinking:   chatcompletions.ThinkingMode(config.ChatThinking),
-		PromptMode: chatcompletions.PromptMode(config.ChatPromptMode),
-		TokenLimit: chatcompletions.TokenLimitField(config.ChatTokenLimit),
-		Headers:    headers,
+	credential := config.Password
+	if config.Provider == ProviderChatCompletions {
+		credential = config.APIKey
+	}
+	client, err := provider.NewRemote(provider.Config{
+		Kind: string(config.Provider), Endpoint: config.Endpoint, Model: config.Model,
+		Credential: credential, Headers: headers,
+		ChatThinking:   chatcompletions.ThinkingMode(config.ChatThinking),
+		ChatPromptMode: chatcompletions.PromptMode(config.ChatPromptMode),
+		ChatTokenLimit: chatcompletions.TokenLimitField(config.ChatTokenLimit),
+		StopTokens:     config.RWKVStopTokens, StateID: config.StateID,
+		Stream: config.Stream, BatchWait: time.Duration(config.RemoteBatchWaitMS) * time.Millisecond,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("initialize Chat Completions continuation: %w", err)
+		return nil, fmt.Errorf("initialize %s: %w", config.Provider, err)
 	}
 	return &remoteSource{
 		generator: client,
 		base: Status{
-			State:       ModelReady,
-			Provider:    ProviderChatCompletions,
-			Model:       config.Model,
-			Endpoint:    normalizeChatEndpoint(config.Endpoint),
-			Backend:     "openai-compatible",
-			Message:     "Remote model configured",
-			HeaderNames: names,
-			HasAPIKey:   strings.TrimSpace(config.APIKey) != "",
+			State: ModelReady, Provider: config.Provider, Model: config.Model,
+			Endpoint: provider.CompletionEndpoint(string(config.Provider), config.Endpoint),
+			Backend:  string(config.Provider), Message: "Remote model configured",
+			HeaderNames: names, HasAPIKey: strings.TrimSpace(credential) != "",
 		},
 	}, nil
-}
-
-func buildRWKVLightningSource(config Config) (generatorSource, error) {
-	headers, names, err := validatedHeaders(config.Headers)
-	if err != nil {
-		return nil, err
-	}
-	client, err := rwkvlightning.New(rwkvlightning.Config{
-		Endpoint:      normalizeRWKVEndpoint(config.Endpoint),
-		Model:         config.Model,
-		Password:      config.Password,
-		StateID:       config.StateID,
-		StopTokenMode: rwkvlightning.StopTokenMode(config.RWKVStopTokens),
-		Stream:        config.Stream,
-		BatchWait:     time.Duration(config.RemoteBatchWaitMS) * time.Millisecond,
-		Headers:       headers,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("initialize RWKV Lightning continuation: %w", err)
-	}
-	return &remoteSource{
-		generator: client,
-		base: Status{
-			State:       ModelReady,
-			Provider:    ProviderRWKVLightning,
-			Model:       config.Model,
-			Endpoint:    normalizeRWKVEndpoint(config.Endpoint),
-			Backend:     "rwkv-lightning",
-			Message:     "Remote model configured",
-			HeaderNames: names,
-			HasAPIKey:   strings.TrimSpace(config.Password) != "",
-		},
-	}, nil
-}
-
-func normalizeRWKVEndpoint(value string) string {
-	value = strings.TrimRight(strings.TrimSpace(value), "/")
-	switch {
-	case strings.HasSuffix(value, "/v1/models"):
-		return strings.TrimSuffix(value, "/models") + "/batch/completions"
-	case strings.HasSuffix(value, "/v1/batch/completions"), strings.HasSuffix(value, "/batch/completions"):
-		return value
-	case strings.HasSuffix(value, "/v1"):
-		return value + "/batch/completions"
-	default:
-		return value + "/v1/batch/completions"
-	}
-}
-
-func normalizeChatEndpoint(value string) string {
-	value = strings.TrimRight(strings.TrimSpace(value), "/")
-	switch {
-	case strings.HasSuffix(value, "/v1/models"):
-		return strings.TrimSuffix(value, "/models") + "/chat/completions"
-	case strings.HasSuffix(value, "/v1/chat/completions"), strings.HasSuffix(value, "/chat/completions"):
-		return value
-	case strings.HasSuffix(value, "/v1"):
-		return value + "/chat/completions"
-	default:
-		return value + "/v1/chat/completions"
-	}
-}
-
-func normalizeModelsEndpoint(value string) string {
-	value = strings.TrimRight(strings.TrimSpace(value), "/")
-	switch {
-	case strings.HasSuffix(value, "/v1/models"):
-		return value
-	case strings.HasSuffix(value, "/v1/batch/completions"):
-		return strings.TrimSuffix(value, "/batch/completions") + "/models"
-	case strings.HasSuffix(value, "/batch/completions"):
-		return strings.TrimSuffix(value, "/batch/completions") + "/v1/models"
-	case strings.HasSuffix(value, "/v1/chat/completions"):
-		return strings.TrimSuffix(value, "/chat/completions") + "/models"
-	case strings.HasSuffix(value, "/chat/completions"):
-		return strings.TrimSuffix(value, "/chat/completions") + "/models"
-	case strings.HasSuffix(value, "/v1"):
-		return value + "/models"
-	default:
-		return value + "/v1/models"
-	}
 }
 
 func validatedHeaders(values map[string]string) (http.Header, []string, error) {

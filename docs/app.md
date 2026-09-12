@@ -74,7 +74,7 @@ one model source, and creates isolated multi-turn `Session` values:
 ```go
 service, err := api.NewService(api.Options{Workspace: "/path/to/repository"})
 status, err := service.Configure(ctx, api.Config{
-    Provider:          api.ProviderRWKVLightning,
+    Provider:          api.ProviderRWKVLightningCUDA,
     Endpoint:          "https://example.com",
     Model:             "rwkv7-model",
     Headers:           map[string]string{"CF-Access-Client-Id": clientID},
@@ -89,9 +89,10 @@ session, err := service.NewSession(ctx)
 result, err := session.Run(ctx, "Read README.md and return its first line.")
 ```
 
-`ProviderLocal` uses the native MLX continuation, `ProviderRWKVLightning` uses
-the RWKV continuation endpoint, and `ProviderChatCompletions` is the compatibility
-adapter. `Status`, `Event`, `Step`, and `Result` are transport-safe public types;
+`ProviderLocal` uses local inference, `ProviderRWKVLightningPython` uses Python
+Lightning raw continuation, `ProviderRWKVLightningCUDA` uses CUDA batch continuation,
+and `ProviderChatCompletions` uses standard Chat Completions with native tool support.
+The ambiguous `rwkv-lightning` provider is no longer accepted. `Status`, `Event`, `Step`, and `Result` are transport-safe public types;
 secret values are deliberately absent from `Status`. Progressive tool exposure
 is enabled by default; set `ProgressiveTools` to an explicit false pointer only
 for fixed-catalog compatibility.

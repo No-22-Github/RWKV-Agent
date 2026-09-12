@@ -238,7 +238,8 @@ export enum Provider {
 
     ProviderLocal = "local",
     ProviderChatCompletions = "chat-completions",
-    ProviderRWKVLightning = "rwkv-lightning",
+    ProviderRWKVLightningPython = "rwkv-lightning-python",
+    ProviderRWKVLightningCUDA = "rwkv-lightning-cuda",
 };
 
 /**

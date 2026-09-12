@@ -8,9 +8,10 @@ import "time"
 type Provider string
 
 const (
-	ProviderLocal           Provider = "local"
-	ProviderChatCompletions Provider = "chat-completions"
-	ProviderRWKVLightning   Provider = "rwkv-lightning"
+	ProviderLocal               Provider = "local"
+	ProviderChatCompletions     Provider = "chat-completions"
+	ProviderRWKVLightningPython Provider = "rwkv-lightning-python"
+	ProviderRWKVLightningCUDA   Provider = "rwkv-lightning-cuda"
 )
 
 // AgentProtocol selects the product-facing tool transcript. The zero value

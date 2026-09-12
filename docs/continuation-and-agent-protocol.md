@@ -263,7 +263,7 @@ export RWKV_CF_ACCESS_CLIENT_ID='...'
 export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 
 ./dist/rwkv-cli agent \
-  --completion rwkv-lightning \
+  --completion rwkv-lightning-cuda \
   --api-url https://example.com/v1/batch/completions \
   --model rwkv7-13b \
   --api-header-env CF-Access-Client-Id=RWKV_CF_ACCESS_CLIENT_ID \
@@ -277,17 +277,38 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 远程 Agent 的工具仍在本机执行，但完整 prompt 会包含模型请求过的文件片段并发送到远程
 endpoint。选择远程续写即代表显式启用这条数据路径。
 
-`rwkv_lightning_cuda` 的 raw continuation 语义由请求体决定：传 `contents` 数组即逐 token
-续写，不重新渲染 role 和 think 前缀；传 `messages` 才会套 chat 模板。客户端始终发送
-`contents`，因此 `/v1/batch/completions`、`/v1/chat/completions` 和
-`/big_batch/completions` 都可用。具体路径取决于部署，可以用 `GET /openapi.json` 枚举。
+应用 API、桌面连接和 CLI 使用同一后端选择与远端构造层
+（`internal/continuation/provider`）。API 和 CLI 将共同字段映射到一份 `provider.Config`，
+通过同一个 `NewRemote` 构造远端适配器；默认停止策略也只在该层定义：
 
-`stop_tokens` 在 rwkv_lightning 里是 decoded-text 字符串数组（上游示例 `["\nUser:"]`），
-不是整数 token ID；发整数会返回 HTTP 500。默认 `--api-stop-tokens text` 把本轮
-`Protocol.Stops(stage)` 的序列原样转发给服务端，使生成在 stop 处真正停止，而不是生成到
-`max_tokens` 后仅靠客户端 `splitAtStop` 截断。这同时降低延迟和无效算力。`none` 省略字段；
-`eos` 或逗号分隔整数列表保留旧的 token ID 形式，仅供接受整数的部署使用。无论哪种模式，
-客户端都继续做 decoded-text 收束，因此协议边界不依赖服务端行为。
+| 后端标识 | 传输 | 默认停止方式 |
+| --- | --- | --- |
+| `chat-completions` | `/v1/chat/completions`，标准 `messages`，支持原生工具调用 | Chat Completions adapter |
+| `rwkv-lightning-python` | `/v1/chat/completions`，原样 `contents[]` | decoded-text 字符串 |
+| `rwkv-lightning-cuda` | `/v1/batch/completions`，原样 `contents[]` | 整数 EOS `[0]` |
+| `local` | 本地 inference Session | 本地停止处理 |
+
+四者都向 Agent 提供 `continuation.Generator`；标准 Chat Completions 额外保留原生
+`toolchat` 能力。对话模板、思考预填与工具格式继续由现有 wire/profile 层负责。
+Python 与 CUDA 共用流式、批处理、取消和响应解析，但显式校验各自的请求约定。
+
+CUDA 的 chat 路由会套聊天模板，不能代替 batch 路由传递已渲染 prompt。Python 的
+同名 chat 路由直接消费 `contents[]`。地址可以填服务根路径、`/v1`、模型列表或
+上述 completion 路径；统一解析器会根据后端选择正确路由，保留部署前缀和查询参数。
+参考：[Python 路由源码](https://github.com/RWKV-Vibe/rwkv_lightning/blob/main/API_servers/router/v1_routes.py)、
+[CUDA API](https://github.com/Alic-Li/rwkv_lightning_cuda#http-api-examples)。
+
+`--api-stop-tokens` 和应用 `rwkvStopTokens` 共用解析规则：`text`、`eos`、`none`
+或逗号分隔整数列表。显式 Python 后端拒绝整数列表；显式 CUDA 后端拒绝 text。
+CUDA 默认仅 EOS，避免默认换行 token 截断工具参数，也不把特定工具格式的 token
+写入后端默认值。两者仍在客户端执行 decoded-text 停止。`none` 表示省略字段，
+**服务端仍会应用自身默认值**。不再提供与特定工具格式绑定的 `cuda` 停止预设；
+需要该 token 集合时显式填写 `0,6884,24281`。
+
+旧 `rwkv-lightning` 标识已删除，API、CLI 和桌面只接受四个明确后端。
+旧连接需重新选择 Python 或 CUDA，不做自动猜测或迁移。
+Python 原始续写路由不使用上传的 `state_id`，因此该后端会拒绝此参数；CUDA 保留上传
+state 支持。CUDA 请求里的 `model` 不会触发服务端切换模型，需事先在服务端加载所需模型。
 
 `--api-stream` 默认 `true`（SSE 逐 token）。实测某部署的 SSE 在一定负载后会退化为
 HTTP 200 空响应体，而非流式路径不受影响；评测只需要最终文本，因此在流式通路不稳定的
