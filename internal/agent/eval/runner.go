@@ -50,7 +50,7 @@ func Run(ctx context.Context, config Config) (Report, error) {
 		// Both product-facing transcripts may run this suite: comparing them on
 		// the same cases is the point. Benchmark profiles (Primitive, BFCL
 		// wrapped) still cannot, because their termination semantics differ.
-		_, xmlProfile := config.Runner.Protocol.(agent.G1IProtocol)
+		_, xmlProfile := config.Runner.Protocol.(agent.G1Protocol)
 		if !agent.OptionsProductProfile(config.Runner).Complete() && !xmlProfile {
 			return Report{}, fmt.Errorf(
 				"bfcl-product requires a product-facing Harness profile (markdown or xml)",
@@ -121,7 +121,7 @@ func Run(ctx context.Context, config Config) (Report, error) {
 func runManifest(config Config, runID string, started time.Time) RunManifest {
 	protocol := config.Runner.Protocol
 	if protocol == nil {
-		protocol = agent.G1IProtocol{}
+		protocol = agent.G1Protocol{}
 	}
 	renderer := config.Runner.Renderer
 	if renderer == nil {
@@ -139,8 +139,8 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 	routeThinkingMode := evalRendererThinkingMode(routeRenderer)
 	productProfile := agent.ProductProfileOf(protocol, renderer)
 	fewShot := false
-	if g1iProtocol, ok := protocol.(agent.G1IProtocol); ok {
-		fewShot = g1iProtocol.FewShot
+	if g1Protocol, ok := protocol.(agent.G1Protocol); ok {
+		fewShot = g1Protocol.FewShot
 	}
 	// The route stage is optional: larger models route correctly inside the
 	// decision stage, so it can be skipped to save a call per turn. Record which
@@ -428,17 +428,17 @@ func runCase(
 // transcript, so an XML A/B cell records the factor it actually varied.
 func evalSemanticNoTool(protocol agent.ActionProtocol) bool {
 	switch typed := protocol.(type) {
-	case agent.G1IFunctionProtocol:
+	case agent.G1FunctionProtocol:
 		return typed.Product && typed.SemanticNoTool
-	case agent.G1IProtocol:
+	case agent.G1Protocol:
 		return typed.SemanticNoTool
 	default:
 		return false
 	}
 }
 
-func primitiveProtocol(profile string) agent.G1IFunctionProtocol {
-	return agent.G1IFunctionProtocol{
+func primitiveProtocol(profile string) agent.G1FunctionProtocol {
+	return agent.G1FunctionProtocol{
 		AllowRepeatedCalls: profile == PrimitiveProfileUpstream,
 	}
 }

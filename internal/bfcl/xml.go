@@ -16,11 +16,11 @@ import (
 
 // TierXMLBaseline runs the frozen BFCL cases through the product XML envelope
 // protocol instead of the wrapped markdown anchor. The transcript mirrors the
-// App default: the G1I control prompt with the case's function catalog as tool
+// App default: the G1 control prompt with the case's function catalog as tool
 // specs, fast-thinking prefill, and no answer-stage or router seam.
 const TierXMLBaseline Tier = "xml-baseline"
 
-const RenderProtocolG1IXMLV1 = "bfcl-g1i-xml-v1"
+const RenderProtocolG1XMLV1 = "bfcl-g1-xml-v1"
 
 // TierXMLAnchor is TierXMLBaseline plus a deep prefill anchor: the prompt ends
 // with a closed fast-think block and `<tool_call>{"name":"`, so the model must
@@ -29,7 +29,7 @@ const RenderProtocolG1IXMLV1 = "bfcl-g1i-xml-v1"
 // exists, so no-call-expected cases are forced into a call.
 const TierXMLAnchor Tier = "xml-anchor"
 
-const RenderProtocolG1IXMLAnchorV1 = "bfcl-g1i-xml-anchor-v1"
+const RenderProtocolG1XMLAnchorV1 = "bfcl-g1-xml-anchor-v1"
 
 // XMLAnchor is the envelope prefill appended after the closed think block. The
 // model continues with the tool name; parallel cases close the first envelope
@@ -78,7 +78,7 @@ func RenderPromptXML(entry Case, thinkingMode inference.ThinkingMode) (RenderedP
 			Arguments:   strings.TrimSpace(string(definition.Parameters)),
 		})
 	}
-	instructions := (agent.G1IProtocol{}).Instructions(specs, thinkingMode)
+	instructions := (agent.G1Protocol{}).Instructions(specs, thinkingMode)
 	if strings.Contains(entry.Category, "parallel") {
 		instructions += "\n" + xmlParallelContract
 	}
@@ -140,7 +140,7 @@ func ParseXMLCalls(value string, finish continuation.FinishReason) ([]toolchat.T
 		end := strings.Index(rest, toolClose)
 		if end < 0 {
 			if finish != continuation.FinishStop {
-				return nil, fmt.Errorf("unterminated G1I tool call envelope")
+				return nil, fmt.Errorf("unterminated G1 tool call envelope")
 			}
 			object, err := decodeXMLCallPayload(strings.TrimSpace(rest))
 			if err != nil {
@@ -172,11 +172,11 @@ func ParseXMLCalls(value string, finish continuation.FinishReason) ([]toolchat.T
 
 func decodeXMLCallPayload(payload string) (map[string]json.RawMessage, error) {
 	if payload == "" {
-		return nil, fmt.Errorf("empty G1I tool call envelope")
+		return nil, fmt.Errorf("empty G1 tool call envelope")
 	}
 	var object map[string]json.RawMessage
 	if err := json.Unmarshal([]byte(payload), &object); err != nil {
-		return nil, fmt.Errorf("decode G1I tool call: %w", err)
+		return nil, fmt.Errorf("decode G1 tool call: %w", err)
 	}
 	return object, nil
 }

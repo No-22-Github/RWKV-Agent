@@ -614,10 +614,10 @@ func TestAgentEvalOptionsAreDeterministicAndIsolated(t *testing.T) {
 		t.Fatalf("BFCL product profile defaults = %+v", bfclProductOptions)
 	}
 	bfclRunner := agentRunnerOptions(bfclProductOptions, agenteval.SuiteBFCLProduct, nil)
-	if bfclRunner.Protocol.ID() != agent.G1IProductFunctionProtocolV1 ||
-		bfclRunner.Renderer.ID() != agent.G1IProductFunctionRendererV1 ||
+	if bfclRunner.Protocol.ID() != agent.G1ProductFunctionProtocolV1 ||
+		bfclRunner.Renderer.ID() != agent.G1ProductFunctionRendererV1 ||
 		bfclRunner.ToolRouter == nil ||
-		bfclRunner.ToolRouter.ID() != (agent.G1IProgressiveToolRouteProtocol{}).ID() {
+		bfclRunner.ToolRouter.ID() != (agent.G1ProgressiveToolRouteProtocol{}).ID() {
 		t.Fatalf("BFCL product Runner options = %+v", bfclRunner)
 	}
 	experimentalOptions, err := parseRunOptions("agent-eval", []string{

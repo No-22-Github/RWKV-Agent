@@ -15,7 +15,7 @@ import (
 	"github.com/no22/RWKV-Agent/internal/continuation/toolchat"
 )
 
-// G1IDecisionFakeThinkPrefix is the exact half-open prefix measured by the G1i
+// G1DecisionFakeThinkPrefix is the exact half-open prefix measured by the G1
 // abstention experiments. The final '>' and any answer bytes must come from the
 // model. Whitespace is part of this protocol variable.
 //
@@ -26,13 +26,13 @@ import (
 //
 // The bytes live in the wire package next to the prefill axis that selects
 // them; this alias keeps the historical exported name for callers and tests.
-const G1IDecisionFakeThinkPrefix = wire.FakeThinkHalfPrefix
+const G1DecisionFakeThinkPrefix = wire.FakeThinkHalfPrefix
 
-// G1IDecisionClosedThinkPrefix closes the block in the prompt, so the model
+// G1DecisionClosedThinkPrefix closes the block in the prompt, so the model
 // cannot open one at all. It costs the merged ">{" continuation above, and it
 // is newline-sensitive: the abstention lab measured that appending "\n\n" makes
 // 10/80 completions resume thinking, so nothing may follow these bytes.
-const G1IDecisionClosedThinkPrefix = wire.FakeThinkClosedPrefix
+const G1DecisionClosedThinkPrefix = wire.FakeThinkClosedPrefix
 
 type runnerTurn struct {
 	r        *Runner
@@ -404,7 +404,7 @@ func (turn *runnerTurn) parseModelAction(
 	if err == nil && action.Type == ActionTypeNoTool && !turn.r.semanticNoTool {
 		err = fmt.Errorf("%w: semantic no_tool is disabled", ErrProtocol)
 	}
-	// Some G1i-compatible servers serialize a valid function call in the
+	// Some G1-compatible servers serialize a valid function call in the
 	// assistant content instead of the OpenAI tool_calls field. Preserve the
 	// recovered call as a native transcript item so the following tool result
 	// remains valid Chat Completions history.

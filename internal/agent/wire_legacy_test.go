@@ -93,7 +93,7 @@ func TestWireSpecOfReachableCells(t *testing.T) {
 			name: "xml respond-inspect router",
 			options: func() Options {
 				options := legacyXMLOptions(inference.ThinkingOff, false)
-				options.Router = G1IRouteProtocol{}
+				options.Router = G1RouteProtocol{}
 				options.RouteRenderer = RWKVChatRenderer{}
 				options.RouteRetries = 1
 				return options
@@ -152,8 +152,8 @@ func TestWireSpecOfReachableCells(t *testing.T) {
 			name: "primitive upstream",
 			options: Options{
 				MaxSteps:          8,
-				Protocol:          G1IFunctionProtocol{AllowRepeatedCalls: true},
-				Renderer:          G1IFunctionRenderer{HasSubmit: true},
+				Protocol:          G1FunctionProtocol{AllowRepeatedCalls: true},
+				Renderer:          G1FunctionRenderer{HasSubmit: true},
 				TerminalTool:      "submit",
 				EndOnTerminalTool: true,
 				Generation:        legacyGeneration(),
@@ -175,8 +175,8 @@ func TestWireSpecOfReachableCells(t *testing.T) {
 			name: "primitive go-native",
 			options: Options{
 				MaxSteps:   8,
-				Protocol:   G1IFunctionProtocol{},
-				Renderer:   G1IFunctionRenderer{},
+				Protocol:   G1FunctionProtocol{},
+				Renderer:   G1FunctionRenderer{},
 				Generation: legacyGeneration(),
 			},
 			check: func(t *testing.T, spec wire.Spec) {
@@ -197,7 +197,7 @@ func TestWireSpecOfReachableCells(t *testing.T) {
 				// Deriving it this way keeps the documented XML + thinking
 				// combination valid instead of reporting a conflict.
 				options := legacyXMLOptions(inference.ThinkingFast, false)
-				options.Router = G1IRouteProtocol{}
+				options.Router = G1RouteProtocol{}
 				options.RouteRenderer = RWKVChatRenderer{}
 				options.RouteRetries = 1
 				return options
@@ -323,14 +323,14 @@ func TestOptionsWithWireAppliesPreset(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	protocol, ok := options.Protocol.(G1IFunctionProtocol)
+	protocol, ok := options.Protocol.(G1FunctionProtocol)
 	if !ok {
 		t.Fatalf("protocol type %T", options.Protocol)
 	}
 	if !protocol.Product || !protocol.SemanticNoTool || !protocol.DeepToolAnchor {
 		t.Fatalf("protocol = %+v", protocol)
 	}
-	renderer, ok := options.Renderer.(G1IFunctionRenderer)
+	renderer, ok := options.Renderer.(G1FunctionRenderer)
 	if !ok || !renderer.Product {
 		t.Fatalf("renderer = %#v", options.Renderer)
 	}
@@ -359,8 +359,8 @@ func TestNewRunnerRejectsInvalidWireSpec(t *testing.T) {
 		MaxSteps: 3,
 		// A deep anchor removes every syntactic abstention exit; without
 		// no_tool the model has no legal way to stop calling tools.
-		Protocol: G1IFunctionProtocol{Product: true, DeepToolAnchor: true},
-		Renderer: G1IFunctionRenderer{Product: true},
+		Protocol: G1FunctionProtocol{Product: true, DeepToolAnchor: true},
+		Renderer: G1FunctionRenderer{Product: true},
 	})
 	if err == nil || !strings.Contains(err.Error(), "prefill.requires-abstain") {
 		t.Fatalf("NewRunner error = %v, want prefill.requires-abstain", err)

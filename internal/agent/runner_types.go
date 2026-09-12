@@ -67,7 +67,7 @@ type Options struct {
 	EndOnTerminalTool bool
 	// DuplicateReplayLimit re-executes identical calls to Replayable tools
 	// instead of rejecting them, up to this many consecutive identical calls.
-	// Zero keeps the strict rejection behavior. Only the G1i function protocol
+	// Zero keeps the strict rejection behavior. Only the G1 function protocol
 	// with repeated-call rejection honors this knob; other protocols are
 	// unaffected.
 	DuplicateReplayLimit int

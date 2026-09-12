@@ -16,26 +16,26 @@ import (
 // a profile means adding one line to this block rather than an inline literal
 // next to an ID method.
 const (
-	// G1IEnvelopeProtocolV1 is the default product XML <tool_call>/<answer>
+	// G1EnvelopeProtocolV1 is the default product XML <tool_call>/<answer>
 	// envelope protocol.
-	G1IEnvelopeProtocolV1 = "rwkv-g1i-envelope-v1"
-	// G1IFunctionProtocolV1 is the benchmark fenced-JSON function protocol with
-	// submit termination. G1IProductFunctionProtocolV1 is its product variant,
+	G1EnvelopeProtocolV1 = "rwkv-g1-envelope-v1"
+	// G1FunctionProtocolV1 is the benchmark fenced-JSON function protocol with
+	// submit termination. G1ProductFunctionProtocolV1 is its product variant,
 	// which answers in Markdown instead of gating on submit.
-	G1IFunctionProtocolV1        = "rwkv-g1i-functions-v1"
-	G1IProductFunctionProtocolV1 = "rwkv-g1i-functions-product-v1"
+	G1FunctionProtocolV1        = "rwkv-g1-functions-v1"
+	G1ProductFunctionProtocolV1 = "rwkv-g1-functions-product-v1"
 
 	// RWKVPromptRendererV2 renders the XML chat transcript.
 	RWKVPromptRendererV2 = "rwkv-chat-continuation-v2"
-	// G1IFunctionRendererV1 renders the trained G1i function transcript.
-	// G1IProductFunctionRendererV1 is its product variant.
-	G1IFunctionRendererV1        = "rwkv-g1i-functions-continuation-v1"
-	G1IProductFunctionRendererV1 = "rwkv-g1i-functions-product-continuation-v1"
+	// G1FunctionRendererV1 renders the trained G1 function transcript.
+	// G1ProductFunctionRendererV1 is its product variant.
+	G1FunctionRendererV1        = "rwkv-g1-functions-continuation-v1"
+	G1ProductFunctionRendererV1 = "rwkv-g1-functions-product-continuation-v1"
 
-	// G1IRouteProtocolV1 is the respond/inspect route. G1IToolRouteProtocolV1
+	// G1RouteProtocolV1 is the respond/inspect route. G1ToolRouteProtocolV1
 	// is the progressive variant that also selects tool bundles.
-	G1IRouteProtocolV1     = "rwkv-g1i-route-v1"
-	G1IToolRouteProtocolV1 = "rwkv-g1i-tool-route-v1"
+	G1RouteProtocolV1     = "rwkv-g1-route-v1"
+	G1ToolRouteProtocolV1 = "rwkv-g1-tool-route-v1"
 )
 
 // Protocol failure classes that need targeted correction guidance. They wrap
@@ -131,13 +131,13 @@ const (
 // preservesToolOrder reports whether the protocol keeps the assistant/tool
 // message pair in transcript order rather than folding results into one turn.
 func preservesToolOrder(protocol ActionProtocol) bool {
-	_, ok := protocol.(G1IFunctionProtocol)
+	_, ok := protocol.(G1FunctionProtocol)
 	return ok
 }
 
 // allowsRepeatedToolCalls reports whether the protocol lets an identical call
 // run again. Only the upstream Primitive Bench controller does.
 func allowsRepeatedToolCalls(protocol ActionProtocol) bool {
-	value, ok := protocol.(G1IFunctionProtocol)
+	value, ok := protocol.(G1FunctionProtocol)
 	return ok && value.AllowRepeatedCalls
 }

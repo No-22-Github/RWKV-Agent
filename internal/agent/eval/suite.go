@@ -55,7 +55,7 @@ func resolveCaseOptions(config Config, testCase Case) (agent.Options, error) {
 		return options, nil
 	}
 	hasSubmit := slices.Contains(testCase.Primitive.ToolNames, "submit")
-	options.Renderer = agent.G1IFunctionRenderer{
+	options.Renderer = agent.G1FunctionRenderer{
 		HasSubmit:   hasSubmit,
 		HasRunTests: slices.Contains(testCase.Primitive.ToolNames, "run_tests"),
 	}

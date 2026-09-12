@@ -335,11 +335,11 @@ func TestPrimitiveSuiteUsesCaseMaxTurns(t *testing.T) {
 	if report.Manifest.Harness.MaxSteps != 10 {
 		t.Fatalf("manifest max steps = %d, want 10", report.Manifest.Harness.MaxSteps)
 	}
-	if report.Manifest.Harness.Protocol != agent.G1IFunctionProtocolV1 ||
-		report.Manifest.Harness.Renderer != agent.G1IFunctionRendererV1 ||
+	if report.Manifest.Harness.Protocol != agent.G1FunctionProtocolV1 ||
+		report.Manifest.Harness.Renderer != agent.G1FunctionRendererV1 ||
 		!report.Manifest.Harness.EndOnTerminalTool ||
 		report.Manifest.Harness.ToolProfile != PrimitiveProfileUpstream {
-		t.Fatalf("Primitive native G1i harness = %+v", report.Manifest.Harness)
+		t.Fatalf("Primitive native G1 harness = %+v", report.Manifest.Harness)
 	}
 }
 

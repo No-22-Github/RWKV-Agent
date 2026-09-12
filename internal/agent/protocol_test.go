@@ -13,9 +13,9 @@ import (
 
 func TestProtocolAndRendererHaveIndependentVersions(t *testing.T) {
 	t.Parallel()
-	protocol := G1IProtocol{}
+	protocol := G1Protocol{}
 	renderer := RWKVChatRenderer{}
-	if protocol.ID() != G1IEnvelopeProtocolV1 {
+	if protocol.ID() != G1EnvelopeProtocolV1 {
 		t.Fatalf("protocol ID = %q", protocol.ID())
 	}
 	if protocol.ToolCallPrefix() != "<tool_call>" {
@@ -45,7 +45,7 @@ func TestFullThinkingRendererFramesOutputWithoutToolPrefixInjection(t *testing.T
 	output := renderer.reconstructOutput(
 		">reasoning</think>\n<tool_call>{\"name\":\"x\",\"arguments\":{}}</tool_call>",
 	)
-	action, err := (G1IProtocol{}).Parse(output, continuation.FinishStop)
+	action, err := (G1Protocol{}).Parse(output, continuation.FinishStop)
 	if err != nil || action.Type != "tool" {
 		t.Fatalf("full thinking parse = %+v, %v", action, err)
 	}
@@ -68,15 +68,15 @@ func TestFastThinkingRendererUsesExactTokenBoundary(t *testing.T) {
 	output := renderer.reconstructOutput(
 		"><tool_call>{\"name\":\"x\",\"arguments\":{}}</tool_call>",
 	)
-	action, err := (G1IProtocol{}).Parse(output, continuation.FinishStop)
+	action, err := (G1Protocol{}).Parse(output, continuation.FinishStop)
 	if err != nil || action.Type != "tool" {
 		t.Fatalf("fast thinking parse = %+v, %v", action, err)
 	}
 }
 
-func TestG1IProtocolParsesVerifiedEnvelopes(t *testing.T) {
+func TestG1ProtocolParsesVerifiedEnvelopes(t *testing.T) {
 	t.Parallel()
-	protocol := G1IProtocol{}
+	protocol := G1Protocol{}
 	action, err := protocol.Parse(
 		`><tool_call>{"name":"read_file","arguments":{"path":"README.md"}}</tool_call>`,
 		continuation.FinishUnknown,
@@ -126,9 +126,9 @@ func TestG1IProtocolParsesVerifiedEnvelopes(t *testing.T) {
 	}
 }
 
-func TestG1IProtocolClassifiesToolExtractionFailures(t *testing.T) {
+func TestG1ProtocolClassifiesToolExtractionFailures(t *testing.T) {
 	t.Parallel()
-	protocol := G1IProtocol{}
+	protocol := G1Protocol{}
 	tests := []struct {
 		name  string
 		value string
@@ -163,9 +163,9 @@ func TestG1IProtocolClassifiesToolExtractionFailures(t *testing.T) {
 	}
 }
 
-func TestG1IProtocolRepairsLegacyXMLToolCall(t *testing.T) {
+func TestG1ProtocolRepairsLegacyXMLToolCall(t *testing.T) {
 	t.Parallel()
-	action, err := (G1IProtocol{}).Parse(
+	action, err := (G1Protocol{}).Parse(
 		">\n<read_file file_path=\"/workspace/project-repo.git/README.md\" />",
 		continuation.FinishStop,
 	)
@@ -179,9 +179,9 @@ func TestG1IProtocolRepairsLegacyXMLToolCall(t *testing.T) {
 	}
 }
 
-func TestG1IProtocolRepairsG1iPluralToolCalls(t *testing.T) {
+func TestG1ProtocolRepairsG1PluralToolCalls(t *testing.T) {
 	t.Parallel()
-	action, err := (G1IProtocol{}).Parse(
+	action, err := (G1Protocol{}).Parse(
 		`><tool_calls>[{"type":"function","function":{"name":"read_file","arguments":"{\"path\":\"README.md\"}"}}]</tool_calls>`,
 		continuation.FinishStop,
 	)
@@ -194,9 +194,9 @@ func TestG1IProtocolRepairsG1iPluralToolCalls(t *testing.T) {
 	}
 }
 
-func TestG1IProtocolRepairsReadFileAliases(t *testing.T) {
+func TestG1ProtocolRepairsReadFileAliases(t *testing.T) {
 	t.Parallel()
-	protocol := G1IProtocol{}
+	protocol := G1Protocol{}
 	for _, value := range []string{
 		`<tool_call>{"name":"reader","arguments":{"path":"README.md"}}`,
 		`<tool_call>{"path":"README.md","args":{}}`,
@@ -211,9 +211,9 @@ func TestG1IProtocolRepairsReadFileAliases(t *testing.T) {
 	}
 }
 
-func TestG1IProtocolClassifiesTruncationCauses(t *testing.T) {
+func TestG1ProtocolClassifiesTruncationCauses(t *testing.T) {
 	t.Parallel()
-	protocol := G1IProtocol{}
+	protocol := G1Protocol{}
 	runaway := "<think>let me reconsider that once more"
 	for _, testCase := range []struct {
 		name   string
@@ -253,9 +253,9 @@ func TestG1IProtocolClassifiesTruncationCauses(t *testing.T) {
 	}
 }
 
-func TestG1IProtocolCorrectionTargetsRunawayReasoning(t *testing.T) {
+func TestG1ProtocolCorrectionTargetsRunawayReasoning(t *testing.T) {
 	t.Parallel()
-	protocol := G1IProtocol{}
+	protocol := G1Protocol{}
 	unclosed := protocol.Correction(ErrUnclosedThink)
 	if !strings.Contains(unclosed, "</think>") {
 		t.Fatalf("unclosed think correction omits the closing tag: %q", unclosed)
@@ -307,9 +307,9 @@ func TestRetryEchoDropsRunawayReasoning(t *testing.T) {
 	}
 }
 
-func TestG1IProtocolUsesStageSpecificStops(t *testing.T) {
+func TestG1ProtocolUsesStageSpecificStops(t *testing.T) {
 	t.Parallel()
-	protocol := G1IProtocol{}
+	protocol := G1Protocol{}
 	decision := strings.Join(protocol.Stops(StageDecision), "\x00")
 	answer := strings.Join(protocol.Stops(StageAnswer), "\x00")
 	if !strings.Contains(decision, "</tool_call>") ||
@@ -322,15 +322,15 @@ func TestG1IProtocolUsesStageSpecificStops(t *testing.T) {
 	}
 }
 
-func TestG1IProtocolAddsFewShotDecisionTrajectories(t *testing.T) {
+func TestG1ProtocolAddsFewShotDecisionTrajectories(t *testing.T) {
 	t.Parallel()
 	specs := []ToolSpec{{
 		Name:        "read_file",
 		Description: "Read a file.",
 		Arguments:   `{"path":"relative file path"}`,
 	}}
-	baseline := (G1IProtocol{}).Instructions(specs, inference.ThinkingOff)
-	fewShot := (G1IProtocol{FewShot: true}).Instructions(specs, inference.ThinkingOff)
+	baseline := (G1Protocol{}).Instructions(specs, inference.ThinkingOff)
+	fewShot := (G1Protocol{FewShot: true}).Instructions(specs, inference.ThinkingOff)
 	if strings.Contains(baseline, "Additional complete decision trajectories") {
 		t.Fatalf("baseline unexpectedly contains few-shot trajectories: %q", baseline)
 	}
@@ -345,16 +345,16 @@ func TestG1IProtocolAddsFewShotDecisionTrajectories(t *testing.T) {
 			t.Fatalf("few-shot instructions do not contain %q:\n%s", fragment, fewShot)
 		}
 	}
-	if strings.Contains((G1IProtocol{}).PostToolReminder(), "Decision patterns") ||
+	if strings.Contains((G1Protocol{}).PostToolReminder(), "Decision patterns") ||
 		!strings.Contains(
-			(G1IProtocol{FewShot: true}).PostToolReminder(),
+			(G1Protocol{FewShot: true}).PostToolReminder(),
 			"Call one different tool only for a specific missing fact",
 		) {
 		t.Fatalf("post-tool reminders were not profile-specific")
 	}
 }
 
-func TestG1IProtocolUsesThinkingModeAwareControl(t *testing.T) {
+func TestG1ProtocolUsesThinkingModeAwareControl(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name     string
@@ -385,7 +385,7 @@ func TestG1IProtocolUsesThinkingModeAwareControl(t *testing.T) {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
-			instructions := (G1IProtocol{}).Instructions(nil, test.mode)
+			instructions := (G1Protocol{}).Instructions(nil, test.mode)
 			if !strings.Contains(instructions, test.want) ||
 				strings.Contains(instructions, test.unwanted) {
 				t.Fatalf("instructions = %q", instructions)
@@ -394,9 +394,9 @@ func TestG1IProtocolUsesThinkingModeAwareControl(t *testing.T) {
 	}
 }
 
-func TestG1IProtocolPreparesAnswerWithFullToolTranscript(t *testing.T) {
+func TestG1ProtocolPreparesAnswerWithFullToolTranscript(t *testing.T) {
 	t.Parallel()
-	protocol := G1IProtocol{}
+	protocol := G1Protocol{}
 	messages, prefix := protocol.PrepareAnswer([]Message{
 		{Role: RoleSystem, Content: "tool instructions"},
 		{Role: RoleUser, Content: "compare files"},
@@ -428,10 +428,10 @@ func TestG1IProtocolPreparesAnswerWithFullToolTranscript(t *testing.T) {
 	}
 }
 
-func TestG1IProtocolAddsFewShotOutputContractsToForcedAnswer(t *testing.T) {
+func TestG1ProtocolAddsFewShotOutputContractsToForcedAnswer(t *testing.T) {
 	t.Parallel()
-	baseline, _ := (G1IProtocol{}).PrepareAnswer(nil, nil, inference.ThinkingOff)
-	fewShot, _ := (G1IProtocol{FewShot: true}).PrepareAnswer(nil, nil, inference.ThinkingOff)
+	baseline, _ := (G1Protocol{}).PrepareAnswer(nil, nil, inference.ThinkingOff)
+	fewShot, _ := (G1Protocol{FewShot: true}).PrepareAnswer(nil, nil, inference.ThinkingOff)
 	if strings.Contains(baseline[0].Content, "Output-contract examples") ||
 		!strings.Contains(fewShot[0].Content, "Answer with only the flag") ||
 		!strings.Contains(fewShot[0].Content, "SKU-17 1248.50") {
@@ -439,7 +439,7 @@ func TestG1IProtocolAddsFewShotOutputContractsToForcedAnswer(t *testing.T) {
 	}
 }
 
-func TestG1IProtocolUsesThinkingModeAwareForcedAnswerControl(t *testing.T) {
+func TestG1ProtocolUsesThinkingModeAwareForcedAnswerControl(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name     string
@@ -470,7 +470,7 @@ func TestG1IProtocolUsesThinkingModeAwareForcedAnswerControl(t *testing.T) {
 		test := test
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
-			messages, _ := (G1IProtocol{}).PrepareAnswer(nil, nil, test.mode)
+			messages, _ := (G1Protocol{}).PrepareAnswer(nil, nil, test.mode)
 			control := messages[0].Content
 			if !strings.Contains(control, test.want) || strings.Contains(control, test.unwanted) {
 				t.Fatalf("control = %q", control)
@@ -479,9 +479,9 @@ func TestG1IProtocolUsesThinkingModeAwareForcedAnswerControl(t *testing.T) {
 	}
 }
 
-func TestG1IProtocolListsUnverifiedFactsInAnswerStage(t *testing.T) {
+func TestG1ProtocolListsUnverifiedFactsInAnswerStage(t *testing.T) {
 	t.Parallel()
-	messages, _ := (G1IProtocol{}).PrepareAnswer(
+	messages, _ := (G1Protocol{}).PrepareAnswer(
 		nil,
 		[]string{"fx_convert", "weather"},
 		inference.ThinkingOff,
@@ -494,7 +494,7 @@ func TestG1IProtocolListsUnverifiedFactsInAnswerStage(t *testing.T) {
 	}
 }
 
-func TestG1IProtocolCompactsToolResultsForContinuation(t *testing.T) {
+func TestG1ProtocolCompactsToolResultsForContinuation(t *testing.T) {
 	t.Parallel()
 	longContent := "# Project\n" + strings.Repeat("irrelevant material ", 300) +
 		"\nThe requested sentinel is ORANGE-42.\n" +
@@ -525,10 +525,10 @@ func TestG1IProtocolCompactsToolResultsForContinuation(t *testing.T) {
 	}
 }
 
-// TestG1IProtocolSemanticNoTool pins the XML transcript's own no_tool action.
+// TestG1ProtocolSemanticNoTool pins the XML transcript's own no_tool action.
 // Both product-facing profiles now offer the same abstention semantics, each in
 // its own envelope, so the two can be compared on the same eval cases.
-func TestG1IProtocolSemanticNoTool(t *testing.T) {
+func TestG1ProtocolSemanticNoTool(t *testing.T) {
 	t.Parallel()
 	specs := []ToolSpec{{
 		Name:        "read_file",
@@ -536,13 +536,13 @@ func TestG1IProtocolSemanticNoTool(t *testing.T) {
 		Arguments:   `{"path":"relative file path"}`,
 		Parameters:  json.RawMessage(`{"type":"object","properties":{"path":{"type":"string"}}}`),
 	}}
-	enabled := G1IProtocol{SemanticNoTool: true}
+	enabled := G1Protocol{SemanticNoTool: true}
 	if control := enabled.Instructions(specs, inference.ThinkingOff); !strings.Contains(
 		control, "- "+SemanticNoToolName+":",
 	) {
 		t.Fatalf("no_tool missing from the XML catalog:\n%s", control)
 	}
-	if control := (G1IProtocol{}).Instructions(specs, inference.ThinkingOff); strings.Contains(
+	if control := (G1Protocol{}).Instructions(specs, inference.ThinkingOff); strings.Contains(
 		control, SemanticNoToolName,
 	) {
 		t.Fatalf("no_tool leaked into the default XML catalog:\n%s", control)
@@ -558,7 +558,7 @@ func TestG1IProtocolSemanticNoTool(t *testing.T) {
 	}
 	// With the switch off the same bytes stay an ordinary tool call, so the
 	// Runner rejects it as an unknown tool instead of silently abstaining.
-	action, err = (G1IProtocol{}).Parse(call, continuation.FinishStop)
+	action, err = (G1Protocol{}).Parse(call, continuation.FinishStop)
 	if err != nil || action.Type != ActionTypeTool || action.Name != SemanticNoToolName {
 		t.Fatalf("default xml action = %+v, err = %v", action, err)
 	}

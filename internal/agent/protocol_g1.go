@@ -13,7 +13,7 @@ import (
 	"github.com/no22/RWKV-Agent/internal/inference"
 )
 
-type G1IProtocol struct {
+type G1Protocol struct {
 	FewShot bool
 	// SemanticNoTool offers the same text-only abstention action the product
 	// profile uses, expressed in this transcript's envelope. It is a protocol
@@ -21,11 +21,11 @@ type G1IProtocol struct {
 	SemanticNoTool bool
 }
 
-func (G1IProtocol) ID() string {
-	return G1IEnvelopeProtocolV1
+func (G1Protocol) ID() string {
+	return G1EnvelopeProtocolV1
 }
 
-func (protocol G1IProtocol) Instructions(
+func (protocol G1Protocol) Instructions(
 	specs []ToolSpec,
 	thinkingMode inference.ThinkingMode,
 ) string {
@@ -130,7 +130,7 @@ func thinkingControl(mode inference.ThinkingMode) string {
 	}
 }
 
-func (protocol G1IProtocol) Parse(value string, finish continuation.FinishReason) (Action, error) {
+func (protocol G1Protocol) Parse(value string, finish continuation.FinishReason) (Action, error) {
 	candidate := wire.StripLeadingThinkBlocks(strings.TrimSpace(value))
 	if finish == continuation.FinishLength {
 		if strings.HasPrefix(candidate, "<think>") {
@@ -154,7 +154,7 @@ func (protocol G1IProtocol) Parse(value string, finish continuation.FinishReason
 	if strings.HasPrefix(candidate, toolOpen) {
 		payload, closed := envelopeContent(candidate, toolOpen, toolClose)
 		if !closed && finish != continuation.FinishStop {
-			return Action{}, fmt.Errorf("%w: incomplete G1I tool call envelope", ErrToolJSONDecode)
+			return Action{}, fmt.Errorf("%w: incomplete G1 tool call envelope", ErrToolJSONDecode)
 		}
 		var call struct {
 			Name      string          `json:"name"`
@@ -170,7 +170,7 @@ func (protocol G1IProtocol) Parse(value string, finish continuation.FinishReason
 			var path string
 			if json.Unmarshal([]byte(payload), &object) != nil ||
 				json.Unmarshal(object["path"], &path) != nil || strings.TrimSpace(path) == "" {
-				return Action{}, fmt.Errorf("%w: decode G1I tool call: %v", ErrToolJSONDecode, err)
+				return Action{}, fmt.Errorf("%w: decode G1 tool call: %v", ErrToolJSONDecode, err)
 			}
 			call.Name = "read_file"
 			call.Arguments, _ = json.Marshal(map[string]string{"path": path})
@@ -183,7 +183,7 @@ func (protocol G1IProtocol) Parse(value string, finish continuation.FinishReason
 		if (strictDecoded && decoder.Decode(&struct{}{}) != io.EOF) ||
 			strings.TrimSpace(call.Name) == "" ||
 			!isJSONObject(call.Arguments) {
-			return Action{}, fmt.Errorf("%w: invalid G1I tool call", ErrToolShapeInvalid)
+			return Action{}, fmt.Errorf("%w: invalid G1 tool call", ErrToolShapeInvalid)
 		}
 		originalFailure := ProtocolFailureClass("")
 		if repairs.any() {
@@ -217,10 +217,10 @@ func (protocol G1IProtocol) Parse(value string, finish continuation.FinishReason
 	if strings.HasPrefix(candidate, answerOpen) {
 		content, closed := envelopeContent(candidate, answerOpen, answerClose)
 		if !closed && finish != continuation.FinishStop {
-			return Action{}, fmt.Errorf("%w: incomplete G1I answer envelope", ErrProtocol)
+			return Action{}, fmt.Errorf("%w: incomplete G1 answer envelope", ErrProtocol)
 		}
 		if content == "" {
-			return Action{}, fmt.Errorf("%w: empty G1I answer", ErrProtocol)
+			return Action{}, fmt.Errorf("%w: empty G1 answer", ErrProtocol)
 		}
 		return Action{Type: ActionTypeFinal, Content: content}, nil
 	}
@@ -228,10 +228,10 @@ func (protocol G1IProtocol) Parse(value string, finish continuation.FinishReason
 		return Action{}, fmt.Errorf("%w: empty model response", ErrProtocol)
 	}
 	if strings.HasPrefix(candidate, toolClose) {
-		return Action{}, fmt.Errorf("%w: unexpected G1I tool call closing tag", ErrToolShapeInvalid)
+		return Action{}, fmt.Errorf("%w: unexpected G1 tool call closing tag", ErrToolShapeInvalid)
 	}
 	if strings.Contains(candidate, "<tool_calls>") {
-		action, err := (G1IFunctionProtocol{}).Parse(candidate, finish)
+		action, err := (G1FunctionProtocol{}).Parse(candidate, finish)
 		if err != nil {
 			return Action{}, err
 		}
@@ -246,7 +246,7 @@ func (protocol G1IProtocol) Parse(value string, finish continuation.FinishReason
 		return action, nil
 	}
 	if looksLikeBareToolCall(candidate) {
-		return Action{}, fmt.Errorf("%w: tool call JSON is missing its G1I envelope", ErrToolEnvelopeMissing)
+		return Action{}, fmt.Errorf("%w: tool call JSON is missing its G1 envelope", ErrToolEnvelopeMissing)
 	}
 	return Action{Type: ActionTypeFinal, Content: candidate}, nil
 }
@@ -326,7 +326,7 @@ func envelopeContent(candidate string, open string, close string) (string, bool)
 	return strings.TrimSpace(content), false
 }
 
-func (G1IProtocol) Correction(err error) string {
+func (G1Protocol) Correction(err error) string {
 	const action = "Either answer directly in ordinary text, or output exactly one " +
 		"<tool_call>{\"name\":\"...\",\"arguments\":{...}}</tool_call> and nothing else."
 	switch {
@@ -342,7 +342,7 @@ func (G1IProtocol) Correction(err error) string {
 	}
 }
 
-func (G1IProtocol) RecordAction(action Action, raw string) string {
+func (G1Protocol) RecordAction(action Action, raw string) string {
 	if action.Type != "tool" {
 		return raw
 	}
@@ -359,18 +359,18 @@ func (G1IProtocol) RecordAction(action Action, raw string) string {
 	return "<tool_call>" + string(payload) + "</tool_call>"
 }
 
-func (G1IProtocol) FormatToolResult(_ string, _ string, payload string) string {
+func (G1Protocol) FormatToolResult(_ string, _ string, payload string) string {
 	return "<tool_result>" + payload + "</tool_result>"
 }
 
 // ToolCallPrefix returns the envelope bytes. The runner no longer calls it —
 // wire.Spec.DecisionFrame owns the prefill policy — but the bytes stay
 // single-sourced here for tests and callers that need the raw constant.
-func (G1IProtocol) ToolCallPrefix() string {
+func (G1Protocol) ToolCallPrefix() string {
 	return wire.EnvelopePrefix
 }
 
-func (protocol G1IProtocol) PostToolReminder() string {
+func (protocol G1Protocol) PostToolReminder() string {
 	if !protocol.FewShot {
 		return postToolDecisionReminder
 	}
@@ -381,7 +381,7 @@ Follow these decision patterns:
 Answer now if the requested facts are present. Call one different tool only for a specific missing fact. Never repeat a successful call.`
 }
 
-func (protocol G1IProtocol) PrepareAnswer(
+func (protocol G1Protocol) PrepareAnswer(
 	messages []Message,
 	unverified []string,
 	thinkingMode inference.ThinkingMode,
@@ -437,7 +437,7 @@ Answer the original current task using the Tool results above. If they are insuf
 	return prepared, "<answer>"
 }
 
-func (G1IProtocol) Stops(stage GenerationStage) []string {
+func (G1Protocol) Stops(stage GenerationStage) []string {
 	stops := []string{"\nUser:", "\nSystem:", "\nTool:"}
 	if stage == StageAnswer {
 		return append([]string{"</answer>"}, stops...)

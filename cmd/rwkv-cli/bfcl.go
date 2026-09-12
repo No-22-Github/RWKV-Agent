@@ -409,10 +409,10 @@ func markdownRenderProtocol(tier string) string {
 		return bfcl.RenderProtocolAnchorV1
 	}
 	if tier == "xml-baseline" {
-		return bfcl.RenderProtocolG1IXMLV1
+		return bfcl.RenderProtocolG1XMLV1
 	}
 	if tier == "xml-anchor" {
-		return bfcl.RenderProtocolG1IXMLAnchorV1
+		return bfcl.RenderProtocolG1XMLAnchorV1
 	}
 	return ""
 }

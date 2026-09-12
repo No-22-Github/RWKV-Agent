@@ -17,7 +17,7 @@ func TestPreviewPromptsMatchRunnerControl(t *testing.T) {
 	options := Options{
 		MaxSteps:    3,
 		TaskControl: "Always answer in Chinese.",
-		Protocol:    G1IProtocol{},
+		Protocol:    G1Protocol{},
 		Renderer:    RWKVChatRenderer{ThinkingMode: inference.ThinkingFast},
 	}
 	tools := []Tool{echoTool{}}
@@ -41,7 +41,7 @@ func TestPreviewPromptsMatchRunnerControl(t *testing.T) {
 	if !strings.Contains(preview.Control, "Task-specific contract:\nAlways answer in Chinese.") {
 		t.Fatalf("preview control is missing the task contract:\n%s", preview.Control)
 	}
-	if preview.ProtocolID != G1IEnvelopeProtocolV1 {
+	if preview.ProtocolID != G1EnvelopeProtocolV1 {
 		t.Fatalf("protocol id = %q", preview.ProtocolID)
 	}
 	if preview.ThinkingMode != inference.ThinkingFast {

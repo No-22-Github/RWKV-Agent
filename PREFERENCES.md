@@ -42,7 +42,7 @@
 数字的条目不收录。所有探针走 `/v1/batch/completions` 裸续写、
 贪心解码（temperature 0.001 / top_k 1 / top_p 1 / penalty 归零）、CF Access
 认证，prompt 结构逐字节镜像产品 Markdown 协议
-（`rwkv-g1i-functions-product-v1`，并与当时保存的真实请求核对）。分类全部
+（`rwkv-g1-functions-product-v1`，并与当时保存的真实请求核对）。分类全部
 事后进行；原始临时工作区已从源码仓库及其重写后的历史中清除，量化结论保留
 在本文和三份 Harness 报告中。
 
@@ -307,7 +307,7 @@ read_lines 的 end_line 按 strict integer 声明时，模型仍发 null；
 | 编号 | 结论 | 数据 |
 | --- | --- | --- |
 | E6-6 | 路由器对 delegate 请求同样需要 few-shot 示例，否则判为 respond | 加 delegation 示例前 2/3 任务路由错误；加后全部正确路由 |
-| E6-7 | **模型会把 catalog 里数组参数的嵌套 schema 当成参数值复制**（`tasks == {"items":...,"type":"array"}`） | catalog 平铺为 `"array of string"` 后该失败消失（`internal/agent/g1i_functions.go` makeG1ICatalogEntry） |
+| E6-7 | **模型会把 catalog 里数组参数的嵌套 schema 当成参数值复制**（`tasks == {"items":...,"type":"array"}`） | catalog 平铺为 `"array of string"` 后该失败消失（`internal/agent/g1_functions.go` makeG1CatalogEntry） |
 
 ## P5-ZH 中文长页压缩（第二轮 2026-08-31）
 

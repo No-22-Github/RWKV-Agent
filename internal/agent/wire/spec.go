@@ -33,7 +33,7 @@ const (
 	// chat transcript.
 	FormatXML Format = "xml"
 	// FormatMDFence is the fenced-JSON function transcript used to train the
-	// G1i checkpoints.
+	// G1 checkpoints.
 	FormatMDFence Format = "md-fence"
 )
 

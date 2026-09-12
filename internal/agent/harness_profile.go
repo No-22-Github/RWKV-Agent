@@ -76,13 +76,13 @@ func ProductHarnessOptions(config ProductHarnessConfig) Options {
 		DuplicateRescueThreshold: config.DuplicateRescueThreshold,
 		SameToolRescueLimit:      config.SameToolRescueLimit,
 		PostToolHook:             config.PostToolHook,
-		Protocol: G1IFunctionProtocol{
+		Protocol: G1FunctionProtocol{
 			Product:             true,
 			SemanticNoTool:      config.SemanticNoTool,
 			DeepToolAnchor:      config.DeepToolAnchor,
 			SubagentRawFeedback: config.SubagentRawFeedback,
 		},
-		Renderer: G1IFunctionRenderer{
+		Renderer: G1FunctionRenderer{
 			Product:           true,
 			DecisionFakeThink: config.DecisionFakeThink,
 			ClosedFakeThink:   config.ClosedFakeThink,
@@ -150,7 +150,7 @@ func XMLHarnessOptions(config XMLHarnessConfig) Options {
 		DuplicateRescueThreshold: config.DuplicateRescueThreshold,
 		SameToolRescueLimit:      config.SameToolRescueLimit,
 		PostToolHook:             config.PostToolHook,
-		Protocol: G1IProtocol{
+		Protocol: G1Protocol{
 			FewShot:        config.FewShot,
 			SemanticNoTool: config.SemanticNoTool,
 		},
@@ -177,7 +177,7 @@ func applyProgressiveTools(
 	if !enabled {
 		return
 	}
-	options.ToolRouter = G1IProgressiveToolRouteProtocol{}
+	options.ToolRouter = G1ProgressiveToolRouteProtocol{}
 	options.ToolBundles = append([]ToolBundle(nil), bundles...)
 	options.RouteRenderer = RWKVChatRenderer{}
 	options.RouteRetries = 1

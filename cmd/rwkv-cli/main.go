@@ -1365,7 +1365,7 @@ func agentRunnerOptions(options runOptions, suite string, observe func(agent.Eve
 	// The eval CLI keeps the older respond/inspect router as a separate stage,
 	// rather than the progressive tool router the product profile uses.
 	if options.routeStage {
-		agentOptions.Router = agent.G1IRouteProtocol{}
+		agentOptions.Router = agent.G1RouteProtocol{}
 		agentOptions.RouteRenderer = agent.RWKVChatRenderer{}
 		agentOptions.RouteRetries = 1
 	}
@@ -1914,7 +1914,7 @@ func chatToolTransport(promptMode string) string {
 	if promptMode == string(chatcompletions.PromptNativeChat) {
 		return "native"
 	}
-	return "g1i-text"
+	return "g1-text"
 }
 
 func formatEvalScore(score agenteval.Score) string {

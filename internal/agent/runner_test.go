@@ -164,7 +164,7 @@ func TestRunnerProgressivelyExposesOnlySelectedBundle(t *testing.T) {
 		bundledEchoTool{name: "compute_echo", bundle: ToolBundleCompute},
 	}, Options{
 		MaxSteps:             4,
-		ToolRouter:           G1IProgressiveToolRouteProtocol{},
+		ToolRouter:           G1ProgressiveToolRouteProtocol{},
 		ToolBundles:          DefaultToolBundles(),
 		RouteRenderer:        RWKVChatRenderer{},
 		RouteMaxOutputTokens: 48,
@@ -210,7 +210,7 @@ func TestRunnerLoadToolsExpandsActiveView(t *testing.T) {
 		bundledEchoTool{name: "compute_echo", bundle: ToolBundleCompute},
 	}, Options{
 		MaxSteps:             5,
-		ToolRouter:           G1IProgressiveToolRouteProtocol{},
+		ToolRouter:           G1ProgressiveToolRouteProtocol{},
 		ToolBundles:          DefaultToolBundles(),
 		RouteRenderer:        RWKVChatRenderer{},
 		RouteMaxOutputTokens: 48,
@@ -250,7 +250,7 @@ func TestRunnerExplainsHowToActivateHiddenKnownTool(t *testing.T) {
 		bundledEchoTool{name: "compute_echo", bundle: ToolBundleCompute},
 	}, Options{
 		MaxSteps:             5,
-		ToolRouter:           G1IProgressiveToolRouteProtocol{},
+		ToolRouter:           G1ProgressiveToolRouteProtocol{},
 		ToolBundles:          DefaultToolBundles(),
 		RouteRenderer:        RWKVChatRenderer{},
 		RouteMaxOutputTokens: 48,
@@ -556,7 +556,7 @@ func TestRoutePromptFramingRequiresThinkingOff(t *testing.T) {
 				}),
 				nil,
 				Options{
-					Router:        G1IRouteProtocol{},
+					Router:        G1RouteProtocol{},
 					RouteRenderer: test.renderer,
 				},
 			)
@@ -607,7 +607,7 @@ func TestRunnerRoutesCasualGreetingWithoutWorkspaceTools(t *testing.T) {
 		}),
 		[]Tool{echoTool{}},
 		Options{
-			Router:               G1IRouteProtocol{},
+			Router:               G1RouteProtocol{},
 			RouteMaxOutputTokens: 16,
 		},
 	)
@@ -661,7 +661,7 @@ func TestRunnerRejectsToolAttemptForCasualGreeting(t *testing.T) {
 		Options{
 			MaxSteps:        3,
 			ProtocolRetries: 1,
-			Router:          G1IRouteProtocol{},
+			Router:          G1RouteProtocol{},
 		},
 	)
 	if err != nil {
@@ -711,7 +711,7 @@ func TestRunnerCanUseMultipleSuccessfulToolsBeforeAnswer(t *testing.T) {
 		Options{
 			MaxSteps:                3,
 			DecisionMaxOutputTokens: 256,
-			Protocol:                G1IProtocol{},
+			Protocol:                G1Protocol{},
 			Generation: continuation.Request{
 				MaxOutputTokens: 1024,
 			},
@@ -1340,7 +1340,7 @@ func TestRunnerRecordsPromptTraceForEveryGeneration(t *testing.T) {
 		tools,
 		Options{
 			MaxSteps:         3,
-			Router:           G1IRouteProtocol{},
+			Router:           G1RouteProtocol{},
 			RouteRenderer:    RWKVChatRenderer{},
 			RouteRetries:     1,
 			TracePromptBytes: DefaultTracePromptBytes,
@@ -1673,7 +1673,7 @@ func TestRunnerDoesNotRouteFromRolledBackUngroundedTurn(t *testing.T) {
 		tools,
 		Options{
 			MaxSteps:             4,
-			Router:               G1IRouteProtocol{},
+			Router:               G1RouteProtocol{},
 			RouteMaxOutputTokens: 16,
 		},
 	)
@@ -1723,7 +1723,7 @@ func TestRunnerPrefillsFirstInspectToolCall(t *testing.T) {
 		[]Tool{echoTool{}},
 		Options{
 			MaxSteps: 3,
-			Router:   G1IRouteProtocol{},
+			Router:   G1RouteProtocol{},
 		},
 	)
 	if err != nil {
@@ -2084,21 +2084,21 @@ func TestDecisionBudgetDefaultsPerProtocol(t *testing.T) {
 		name: "xml envelope reasons before acting",
 		options: Options{
 			MaxSteps:   2,
-			Protocol:   G1IProtocol{},
+			Protocol:   G1Protocol{},
 			Renderer:   RWKVChatRenderer{},
 			Generation: continuation.Request{MaxOutputTokens: 1024},
 		},
 		expected: DefaultXMLDecisionMaxOutputTokens,
 	}, {
 		name:     "xml default is clamped by a small answer budget",
-		options:  Options{MaxSteps: 2, Protocol: G1IProtocol{}, Renderer: RWKVChatRenderer{}},
+		options:  Options{MaxSteps: 2, Protocol: G1Protocol{}, Renderer: RWKVChatRenderer{}},
 		expected: 256,
 	}, {
 		name: "fenced json is anchored straight into a call",
 		options: Options{
 			MaxSteps: 2,
-			Protocol: G1IFunctionProtocol{Product: true},
-			Renderer: G1IFunctionRenderer{Product: true},
+			Protocol: G1FunctionProtocol{Product: true},
+			Renderer: G1FunctionRenderer{Product: true},
 		},
 		expected: DefaultDecisionMaxOutputTokens,
 	}, {
@@ -2122,7 +2122,7 @@ func TestDecisionBudgetDefaultsPerProtocol(t *testing.T) {
 	}
 	// An explicit value always wins over the per-protocol default.
 	runner, err := NewRunner(budgetTestGenerator(), nil, Options{
-		MaxSteps: 2, DecisionMaxOutputTokens: 64, Protocol: G1IProtocol{},
+		MaxSteps: 2, DecisionMaxOutputTokens: 64, Protocol: G1Protocol{},
 		Generation: continuation.Request{MaxOutputTokens: 1024},
 	})
 	if err != nil {

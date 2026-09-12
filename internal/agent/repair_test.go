@@ -22,73 +22,73 @@ func TestParserReportsRepairIDs(t *testing.T) {
 	}{
 		{
 			name:     "fenced parser strips a leading think block",
-			protocol: G1IFunctionProtocol{Product: true},
+			protocol: G1FunctionProtocol{Product: true},
 			value:    `<think>let me check</think>{"name":"echo","arguments":{"value":"x"}}`,
 			want:     []wire.Repair{wire.RepairThinkStripped},
 		},
 		{
 			name:     "fenced parser recovers the xml envelope",
-			protocol: G1IFunctionProtocol{Product: true},
+			protocol: G1FunctionProtocol{Product: true},
 			value:    `<tool_call>{"name":"echo","arguments":{"value":"x"}}</tool_call>`,
 			want:     []wire.Repair{wire.RepairEnvelopeRecovered},
 		},
 		{
 			name:     "fenced parser accepts the tool_calls array",
-			protocol: G1IFunctionProtocol{},
+			protocol: G1FunctionProtocol{},
 			value:    `<tool_calls>[{"name":"echo","arguments":{"value":"x"}}]</tool_calls>`,
 			want:     []wire.Repair{wire.RepairArrayEnvelope},
 		},
 		{
 			name:     "fenced parser flattens the function wrapper",
-			protocol: G1IFunctionProtocol{Product: true},
+			protocol: G1FunctionProtocol{Product: true},
 			value:    `{"function":{"name":"echo","arguments":{"value":"x"}}}`,
 			want:     []wire.Repair{wire.RepairFunctionWrapper},
 		},
 		{
 			name:     "fenced parser accepts key aliases",
-			protocol: G1IFunctionProtocol{Product: true},
+			protocol: G1FunctionProtocol{Product: true},
 			value:    `{"command":"echo","args":{"value":"x"}}`,
 			want:     []wire.Repair{wire.RepairKeyAlias},
 		},
 		{
 			name:     "fenced parser hoists unknown keys",
-			protocol: G1IFunctionProtocol{Product: true},
+			protocol: G1FunctionProtocol{Product: true},
 			value:    `{"name":"echo","value":"x"}`,
 			want:     []wire.Repair{wire.RepairArgumentsHoisted},
 		},
 		{
 			name:     "fenced parser parses stringified arguments",
-			protocol: G1IFunctionProtocol{Product: true},
+			protocol: G1FunctionProtocol{Product: true},
 			value:    `{"name":"echo","arguments":"{\"value\":\"x\"}"}`,
 			want:     []wire.Repair{wire.RepairStringifiedArguments},
 		},
 		{
 			name:     "fenced parser infers a missing tool name",
-			protocol: G1IFunctionProtocol{Product: true},
+			protocol: G1FunctionProtocol{Product: true},
 			value:    `{"path":"notes/a.txt"}`,
 			want:     []wire.Repair{wire.RepairArgumentsHoisted, wire.RepairNameInferred},
 		},
 		{
 			name:     "xml parser recovers a bare path payload",
-			protocol: G1IProtocol{},
+			protocol: G1Protocol{},
 			value:    `<tool_call>{"path":"notes/a.txt"}</tool_call>`,
 			want:     []wire.Repair{wire.RepairPathArgument},
 		},
 		{
 			name:     "xml parser renames a legacy tool",
-			protocol: G1IProtocol{},
+			protocol: G1Protocol{},
 			value:    `<tool_call>{"name":"reader","arguments":{"path":"notes/a.txt"}}</tool_call>`,
 			want:     []wire.Repair{wire.RepairToolRenamed},
 		},
 		{
 			name:     "xml parser accepts the legacy self-closing call",
-			protocol: G1IProtocol{},
+			protocol: G1Protocol{},
 			value:    `<read_file file_path="notes/a.txt"/>`,
 			want:     []wire.Repair{wire.RepairLegacyXMLCall, wire.RepairXMLPathAlias},
 		},
 		{
 			name:     "clean call records no repair",
-			protocol: G1IFunctionProtocol{Product: true},
+			protocol: G1FunctionProtocol{Product: true},
 			value:    `{"name":"echo","arguments":{"value":"x"}}`,
 			want:     nil,
 		},
@@ -112,7 +112,7 @@ func TestParserReportsRepairIDs(t *testing.T) {
 			// Every emitted ID must be inside the transcript's declared
 			// recovery vocabulary.
 			spec := wire.Default()
-			if _, ok := testCase.protocol.(G1IFunctionProtocol); ok {
+			if _, ok := testCase.protocol.(G1FunctionProtocol); ok {
 				spec.Format = wire.FormatMDFence
 			}
 			for _, repair := range action.Repairs {

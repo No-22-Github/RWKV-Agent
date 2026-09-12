@@ -86,7 +86,7 @@
 | [`docs/evaluations/bfcl-v4-ab-m0.md`](docs/evaluations/bfcl-v4-ab-m0.md) | M0 数据、evaluator 和本地判分入口预热 |
 | [`docs/evaluations/bfcl-v4-m2.5-wire-compat-20260818.md`](docs/evaluations/bfcl-v4-m2.5-wire-compat-20260818.md) | 同一批 400 条输出的离线兼容重解析：strict 28.75%，compat 91.25%；不是新模型跑分，二者不能互相替代 |
 | [`docs/evaluations/bfcl-v4-determinism-concurrency-20260820.md`](docs/evaluations/bfcl-v4-determinism-concurrency-20260820.md) | 确定性归因：并发不是原因（c16 对 c48 p=1.000），thinking 拉长解码是主因，批处理有无是次因；含对 08-19 两处表述的修正 |
-| [`docs/evaluations/rwkv-g1i-toolcall-abstention-defect-20260820.md`](docs/evaluations/rwkv-g1i-toolcall-abstention-defect-20260820.md) | 历史诊断，核心“预填后必然无法弃权”已被 2026-08-25 的 7.2b 复测修正；13.3b 未复测，现行解释以分支收口说明为准 |
+| [`docs/evaluations/rwkv-g1-toolcall-abstention-defect-20260820.md`](docs/evaluations/rwkv-g1-toolcall-abstention-defect-20260820.md) | 历史诊断，核心“预填后必然无法弃权”已被 2026-08-25 的 7.2b 复测修正；13.3b 未复测，现行解释以分支收口说明为准 |
 | [`docs/evaluations/bfcl-v4-anchor-position-20260820.md`](docs/evaluations/bfcl-v4-anchor-position-20260820.md) | 小优化：锚点延长到 `{"name":"`（并行用 `[{"name":"`），non-live 1000 题 strict 51.10% → 88.90%，超过带兜底的 88.00% |
 | [`docs/evaluations/bfcl-v4-multi-turn-e4-e7-20260821.md`](docs/evaluations/bfcl-v4-multi-turn-e4-e7-20260821.md) | Multi-turn E4–E7：上游判分语义、800 题上下文可行集、sidecar GT 100% 门禁与双模型单题闭环 |
 | [`docs/evaluations/bfcl-v4-e8-qwen-enhanced-base-20260822.md`](docs/evaluations/bfcl-v4-e8-qwen-enhanced-base-20260822.md) | E8 Qwen enhanced `multi_turn_base`：57/200，含 baseline 对照、失败迁移、干预事件与冻结归档 |
@@ -118,7 +118,7 @@
 | [`docs/archive/rwkv-cli-tui-redesign-plan.md`](docs/archive/rwkv-cli-tui-redesign-plan.md) | CLI TUI 重设计计划 |
 | [`docs/archive/macos-cli-implementation-validation.md`](docs/archive/macos-cli-implementation-validation.md) | macOS CLI 实现验证记录 |
 | [`docs/archive/local-assistant-agent-plan.md`](docs/archive/local-assistant-agent-plan.md) | 本地助手 Agent 实施计划 |
-| [`docs/archive/rwkv-g1i-13b-agent-data-feedback.md`](docs/archive/rwkv-g1i-13b-agent-data-feedback.md) | 早期 G1I 13B Agent 数据反馈 |
+| [`docs/archive/rwkv-g1i-13b-agent-data-feedback.md`](docs/archive/rwkv-g1i-13b-agent-data-feedback.md) | 早期 G1 13B Agent 数据反馈 |
 
 ## 运行产物约定
 

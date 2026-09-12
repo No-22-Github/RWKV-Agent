@@ -142,7 +142,7 @@ beforeEach(() => {
     control: 'preview-prompt',
     responseControl: '',
     toolNames: ['list_files'],
-    protocolId: 'rwkv-g1i-envelope-v1',
+    protocolId: 'rwkv-g1-envelope-v1',
     rendererId: 'rwkv-chat-continuation-v2',
     thinkingMode: 'off',
     native: false,
@@ -342,7 +342,7 @@ describe('App', () => {
       control: 'You are a local-first assistant with read-only tools.',
       responseControl: '',
       toolNames: ['list_files', 'datetime'],
-      protocolId: 'rwkv-g1i-envelope-v1',
+      protocolId: 'rwkv-g1-envelope-v1',
       rendererId: 'rwkv-chat-continuation-v2',
       thinkingMode: 'off',
       native: false,
@@ -355,7 +355,7 @@ describe('App', () => {
     expect(screen.getByRole('button', { name: '预览系统提示词' })).toHaveTextContent('收起')
 
     expect(await screen.findByText(/You are a local-first assistant/)).toBeInTheDocument()
-    expect(screen.getByText(/协议 rwkv-g1i-envelope-v1/)).toBeInTheDocument()
+    expect(screen.getByText(/协议 rwkv-g1-envelope-v1/)).toBeInTheDocument()
     expect(screen.getByText(/工具 2 项/)).toBeInTheDocument()
   })
 

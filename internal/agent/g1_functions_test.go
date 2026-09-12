@@ -55,7 +55,7 @@ func (submitTestTool) Execute(_ context.Context, raw json.RawMessage) (any, erro
 	return args.Answer, nil
 }
 
-func TestG1IFunctionProtocolRendersNativeCatalogAndContinuation(t *testing.T) {
+func TestG1FunctionProtocolRendersNativeCatalogAndContinuation(t *testing.T) {
 	t.Parallel()
 	spec := ToolSpec{
 		Name:        "read_file",
@@ -63,7 +63,7 @@ func TestG1IFunctionProtocolRendersNativeCatalogAndContinuation(t *testing.T) {
 		Arguments:   `{"path":"relative file path"}`,
 		Parameters:  json.RawMessage(`{"type":"object","properties":{"path":{"type":"string","description":"Relative path"}},"required":["path"]}`),
 	}
-	control := (G1IFunctionProtocol{}).Instructions([]ToolSpec{spec}, "")
+	control := (G1FunctionProtocol{}).Instructions([]ToolSpec{spec}, "")
 	for _, fragment := range []string{
 		"Tools:\n[",
 		`"name":"read_file"`,
@@ -76,7 +76,7 @@ func TestG1IFunctionProtocolRendersNativeCatalogAndContinuation(t *testing.T) {
 			t.Fatalf("native control omits %q:\n%s", fragment, control)
 		}
 	}
-	renderer := G1IFunctionRenderer{HasSubmit: true}
+	renderer := G1FunctionRenderer{HasSubmit: true}
 	prompt, err := renderer.Render([]Message{
 		{Role: RoleSystem, Content: control},
 		{Role: RoleUser, Content: "Read README.md."},
@@ -101,9 +101,9 @@ func TestG1IFunctionProtocolRendersNativeCatalogAndContinuation(t *testing.T) {
 	}
 }
 
-func TestG1IFunctionProtocolRepairsRawNewlineAndTruncation(t *testing.T) {
+func TestG1FunctionProtocolRepairsRawNewlineAndTruncation(t *testing.T) {
 	t.Parallel()
-	protocol := G1IFunctionProtocol{}
+	protocol := G1FunctionProtocol{}
 	action, err := protocol.Parse("```json\n"+`{"name":"write_file","arguments":{"path":"a.txt","content":"one`+"\n"+`two"}}`+"\n```", continuation.FinishStop)
 	if err != nil {
 		t.Fatal(err)
@@ -139,9 +139,9 @@ func TestG1IFunctionProtocolRepairsRawNewlineAndTruncation(t *testing.T) {
 	}
 }
 
-func TestG1IProductFunctionProtocolPreservesMarkdownAnswers(t *testing.T) {
+func TestG1ProductFunctionProtocolPreservesMarkdownAnswers(t *testing.T) {
 	t.Parallel()
-	protocol := G1IFunctionProtocol{Product: true}
+	protocol := G1FunctionProtocol{Product: true}
 	answer := "```go\nfunc main() {}\n```"
 	action, err := protocol.Parse(answer, continuation.FinishStop)
 	if err != nil {
@@ -156,9 +156,9 @@ func TestG1IProductFunctionProtocolPreservesMarkdownAnswers(t *testing.T) {
 	}
 }
 
-func TestG1IProductSemanticNoToolPreservesModelRationale(t *testing.T) {
+func TestG1ProductSemanticNoToolPreservesModelRationale(t *testing.T) {
 	t.Parallel()
-	protocol := G1IFunctionProtocol{Product: true, SemanticNoTool: true}
+	protocol := G1FunctionProtocol{Product: true, SemanticNoTool: true}
 	control := protocol.Instructions([]ToolSpec{{
 		Name:        "read_file",
 		Description: "Read one file.",
@@ -202,7 +202,7 @@ func TestG1IProductSemanticNoToolPreservesModelRationale(t *testing.T) {
 			t.Fatalf("invalid no_tool %s error = %v", invalid, err)
 		}
 	}
-	ordinary, err := (G1IFunctionProtocol{Product: true}).Parse(
+	ordinary, err := (G1FunctionProtocol{Product: true}).Parse(
 		`{"name":"no_tool","arguments":{}}`,
 		continuation.FinishStop,
 	)
@@ -322,16 +322,16 @@ func TestProductHarnessDecisionFakeThinkUsesExactUnanchoredPrefix(t *testing.T) 
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(requests) != 2 || !strings.HasSuffix(requests[0].Prompt, "Assistant: "+G1IDecisionFakeThinkPrefix) {
+	if len(requests) != 2 || !strings.HasSuffix(requests[0].Prompt, "Assistant: "+G1DecisionFakeThinkPrefix) {
 		t.Fatalf("fake-think first request = %+v", requests[0])
 	}
 	if result.Steps[0].Request == nil ||
-		result.Steps[0].Request.AssistantPrefix != G1IDecisionFakeThinkPrefix ||
+		result.Steps[0].Request.AssistantPrefix != G1DecisionFakeThinkPrefix ||
 		result.Steps[0].ProtocolRepaired ||
 		result.Steps[0].ProtocolFailure != "" ||
 		result.Steps[0].ActionType != ActionTypeNoTool ||
 		result.Steps[1].Stage != StageAnswer ||
-		strings.Contains(requests[1].Prompt, "Assistant: "+G1IDecisionFakeThinkPrefix) {
+		strings.Contains(requests[1].Prompt, "Assistant: "+G1DecisionFakeThinkPrefix) {
 		t.Fatalf("fake-think result = %+v, requests = %+v", result, requests)
 	}
 }
@@ -347,11 +347,11 @@ func TestProductHarnessOptionsOwnsProductProtocolPair(t *testing.T) {
 		DuplicateRescueThreshold: ProductDuplicateRescueThreshold,
 		SameToolRescueLimit:      ProductSameToolRescueLimit,
 	})
-	protocol, protocolOK := options.Protocol.(G1IFunctionProtocol)
-	renderer, rendererOK := options.Renderer.(G1IFunctionRenderer)
-	if !protocolOK || protocol.ID() != G1IProductFunctionProtocolV1 || !protocol.SemanticNoTool ||
-		!rendererOK || renderer.ID() != G1IProductFunctionRendererV1 || !renderer.DecisionFakeThink ||
-		options.ToolRouter == nil || options.ToolRouter.ID() != (G1IProgressiveToolRouteProtocol{}).ID() ||
+	protocol, protocolOK := options.Protocol.(G1FunctionProtocol)
+	renderer, rendererOK := options.Renderer.(G1FunctionRenderer)
+	if !protocolOK || protocol.ID() != G1ProductFunctionProtocolV1 || !protocol.SemanticNoTool ||
+		!rendererOK || renderer.ID() != G1ProductFunctionRendererV1 || !renderer.DecisionFakeThink ||
+		options.ToolRouter == nil || options.ToolRouter.ID() != (G1ProgressiveToolRouteProtocol{}).ID() ||
 		options.TerminalTool != "" || options.EndOnTerminalTool ||
 		options.DuplicateReplayLimit != ProductDuplicateReplayLimit ||
 		options.DuplicateRescueThreshold != ProductDuplicateRescueThreshold ||
@@ -362,9 +362,9 @@ func TestProductHarnessOptionsOwnsProductProtocolPair(t *testing.T) {
 
 func TestDeepToolAnchorPrefillAndParse(t *testing.T) {
 	t.Parallel()
-	deep := G1IFunctionProtocol{Product: true, SemanticNoTool: true, DeepToolAnchor: true}
-	shallow := G1IFunctionProtocol{Product: true, SemanticNoTool: true}
-	if got := deep.ToolCallPrefix(); got != "```json\n"+G1IDeepToolAnchorSuffix {
+	deep := G1FunctionProtocol{Product: true, SemanticNoTool: true, DeepToolAnchor: true}
+	shallow := G1FunctionProtocol{Product: true, SemanticNoTool: true}
+	if got := deep.ToolCallPrefix(); got != "```json\n"+G1DeepToolAnchorSuffix {
 		t.Fatalf("deep prefix = %q", got)
 	}
 	if got := shallow.ToolCallPrefix(); got != "```json\n" {
@@ -420,8 +420,8 @@ func TestDeepToolAnchorPrefillAndParse(t *testing.T) {
 // spelling it is shown and never reverts to its own preference.
 func TestDeepToolAnchorMatchesInstructionExamples(t *testing.T) {
 	t.Parallel()
-	if G1IDeepToolAnchorSuffix != `{"name":"` {
-		t.Fatalf("deep anchor bytes changed: %q", G1IDeepToolAnchorSuffix)
+	if G1DeepToolAnchorSuffix != `{"name":"` {
+		t.Fatalf("deep anchor bytes changed: %q", G1DeepToolAnchorSuffix)
 	}
 	specs := []ToolSpec{{
 		Name:        "read_file",
@@ -429,7 +429,7 @@ func TestDeepToolAnchorMatchesInstructionExamples(t *testing.T) {
 		Arguments:   `{"path":"relative file path"}`,
 		Parameters:  json.RawMessage(`{"type":"object","properties":{"path":{"type":"string"}}}`),
 	}}
-	protocol := G1IFunctionProtocol{Product: true, SemanticNoTool: true, DeepToolAnchor: true}
+	protocol := G1FunctionProtocol{Product: true, SemanticNoTool: true, DeepToolAnchor: true}
 	control := protocol.Instructions(specs, "")
 	// Every JSON call example in the control prompt must open with the exact
 	// anchor bytes, or the prefill and the instructions disagree.
@@ -439,7 +439,7 @@ func TestDeepToolAnchorMatchesInstructionExamples(t *testing.T) {
 			continue
 		}
 		example := control[index+len(marker):]
-		if !strings.HasPrefix(example, G1IDeepToolAnchorSuffix) {
+		if !strings.HasPrefix(example, G1DeepToolAnchorSuffix) {
 			t.Fatalf("example after %q does not start with the anchor: %q", marker, example[:40])
 		}
 	}
@@ -466,9 +466,9 @@ func TestXMLHarnessOptionsOwnsEnvelopeProtocolPair(t *testing.T) {
 		DuplicateRescueThreshold: ProductDuplicateRescueThreshold,
 		SameToolRescueLimit:      ProductSameToolRescueLimit,
 	})
-	protocol, protocolOK := options.Protocol.(G1IProtocol)
+	protocol, protocolOK := options.Protocol.(G1Protocol)
 	renderer, rendererOK := options.Renderer.(RWKVChatRenderer)
-	if !protocolOK || protocol.ID() != G1IEnvelopeProtocolV1 || !protocol.FewShot ||
+	if !protocolOK || protocol.ID() != G1EnvelopeProtocolV1 || !protocol.FewShot ||
 		!rendererOK || renderer.ID() != RWKVPromptRendererV2 ||
 		renderer.thinkingMode() != inference.ThinkingFast {
 		t.Fatalf("xml harness protocol pair = %+v", options)
@@ -521,32 +521,32 @@ func TestProductProfileOfRequiresBothProductHalves(t *testing.T) {
 		want     ProductProfile
 	}{{
 		name:     "product pair with experiments",
-		protocol: G1IFunctionProtocol{Product: true, SemanticNoTool: true},
-		renderer: G1IFunctionRenderer{Product: true, DecisionFakeThink: true},
+		protocol: G1FunctionProtocol{Product: true, SemanticNoTool: true},
+		renderer: G1FunctionRenderer{Product: true, DecisionFakeThink: true},
 		want: ProductProfile{
 			Protocol: true, Renderer: true,
 			SemanticNoTool: true, DecisionFakeThink: true,
 		},
 	}, {
 		name:     "product pair defaults off",
-		protocol: G1IFunctionProtocol{Product: true},
-		renderer: G1IFunctionRenderer{Product: true},
+		protocol: G1FunctionProtocol{Product: true},
+		renderer: G1FunctionRenderer{Product: true},
 		want:     ProductProfile{Protocol: true, Renderer: true},
 	}, {
 		// A benchmark protocol carrying the same field must not be reported as
 		// an enabled product experiment.
 		name:     "benchmark protocol with experiment field set",
-		protocol: G1IFunctionProtocol{SemanticNoTool: true},
-		renderer: G1IFunctionRenderer{HasSubmit: true, DecisionFakeThink: true},
+		protocol: G1FunctionProtocol{SemanticNoTool: true},
+		renderer: G1FunctionRenderer{HasSubmit: true, DecisionFakeThink: true},
 		want:     ProductProfile{},
 	}, {
 		name:     "half product pair",
-		protocol: G1IFunctionProtocol{Product: true, SemanticNoTool: true},
-		renderer: G1IFunctionRenderer{HasSubmit: true},
+		protocol: G1FunctionProtocol{Product: true, SemanticNoTool: true},
+		renderer: G1FunctionRenderer{HasSubmit: true},
 		want:     ProductProfile{Protocol: true, SemanticNoTool: true},
 	}, {
 		name:     "xml envelope profile",
-		protocol: G1IProtocol{},
+		protocol: G1Protocol{},
 		renderer: RWKVChatRenderer{},
 		want:     ProductProfile{},
 	}, {
@@ -628,14 +628,14 @@ func TestProductHarnessDefaultSwitchesPreserveProtocolBytes(t *testing.T) {
 		Arguments:   `{"path":"relative file path"}`,
 		Parameters:  json.RawMessage(`{"type":"object","properties":{"path":{"type":"string"}},"required":["path"]}`),
 	}}
-	baselineProtocol := G1IFunctionProtocol{Product: true}
-	baselineRenderer := G1IFunctionRenderer{Product: true}
+	baselineProtocol := G1FunctionProtocol{Product: true}
+	baselineRenderer := G1FunctionRenderer{Product: true}
 	options := ProductHarnessOptions(ProductHarnessConfig{})
-	profileProtocol, ok := options.Protocol.(G1IFunctionProtocol)
+	profileProtocol, ok := options.Protocol.(G1FunctionProtocol)
 	if !ok {
 		t.Fatalf("product protocol type = %T", options.Protocol)
 	}
-	profileRenderer, ok := options.Renderer.(G1IFunctionRenderer)
+	profileRenderer, ok := options.Renderer.(G1FunctionRenderer)
 	if !ok {
 		t.Fatalf("product renderer type = %T", options.Renderer)
 	}
@@ -676,7 +676,7 @@ func TestProductTextExperimentsRejectNativeToolCalling(t *testing.T) {
 	}
 }
 
-func TestG1IProductFunctionRunnerPrefillsEveryToolDecision(t *testing.T) {
+func TestG1ProductFunctionRunnerPrefillsEveryToolDecision(t *testing.T) {
 	t.Parallel()
 	responses := []string{
 		`inspect</route>`,
@@ -696,9 +696,9 @@ func TestG1IProductFunctionRunnerPrefillsEveryToolDecision(t *testing.T) {
 		[]Tool{echoTool{}, submitTestTool{}},
 		Options{
 			MaxSteps:          3,
-			Protocol:          G1IFunctionProtocol{Product: true},
-			Renderer:          G1IFunctionRenderer{Product: true},
-			Router:            G1IRouteProtocol{},
+			Protocol:          G1FunctionProtocol{Product: true},
+			Renderer:          G1FunctionRenderer{Product: true},
+			Router:            G1RouteProtocol{},
 			RouteRenderer:     RWKVChatRenderer{},
 			TerminalTool:      "submit",
 			EndOnTerminalTool: true,
@@ -725,7 +725,7 @@ func TestG1IProductFunctionRunnerPrefillsEveryToolDecision(t *testing.T) {
 	}
 }
 
-func TestG1IFunctionRunnerDoesNotInjectGenericPostToolReminder(t *testing.T) {
+func TestG1FunctionRunnerDoesNotInjectGenericPostToolReminder(t *testing.T) {
 	t.Parallel()
 	responses := []string{
 		`{"name":"echo","arguments":{"value":"one"}}`,
@@ -744,8 +744,8 @@ func TestG1IFunctionRunnerDoesNotInjectGenericPostToolReminder(t *testing.T) {
 		[]Tool{echoTool{}},
 		Options{
 			MaxSteps:          2,
-			Protocol:          G1IFunctionProtocol{},
-			Renderer:          G1IFunctionRenderer{HasSubmit: true},
+			Protocol:          G1FunctionProtocol{},
+			Renderer:          G1FunctionRenderer{HasSubmit: true},
 			TerminalTool:      "submit",
 			EndOnTerminalTool: false,
 			Generation:        continuation.Request{MaxOutputTokens: 128},
@@ -764,7 +764,7 @@ func TestG1IFunctionRunnerDoesNotInjectGenericPostToolReminder(t *testing.T) {
 	}
 }
 
-func TestG1IFunctionRunnerExecutesRepeatedCallsWithOfficialNotes(t *testing.T) {
+func TestG1FunctionRunnerExecutesRepeatedCallsWithOfficialNotes(t *testing.T) {
 	t.Parallel()
 	var prompts []string
 	runner, err := NewRunner(
@@ -782,8 +782,8 @@ func TestG1IFunctionRunnerExecutesRepeatedCallsWithOfficialNotes(t *testing.T) {
 		[]Tool{echoTool{}},
 		Options{
 			MaxSteps:     3,
-			Protocol:     G1IFunctionProtocol{AllowRepeatedCalls: true},
-			Renderer:     G1IFunctionRenderer{HasSubmit: true},
+			Protocol:     G1FunctionProtocol{AllowRepeatedCalls: true},
+			Renderer:     G1FunctionRenderer{HasSubmit: true},
 			TerminalTool: "submit",
 			Generation:   continuation.Request{MaxOutputTokens: 128},
 		},
@@ -800,7 +800,7 @@ func TestG1IFunctionRunnerExecutesRepeatedCallsWithOfficialNotes(t *testing.T) {
 	}
 }
 
-func TestG1IFunctionRunnerRejectsRepeatedCallsByDefault(t *testing.T) {
+func TestG1FunctionRunnerRejectsRepeatedCallsByDefault(t *testing.T) {
 	t.Parallel()
 	responses := []string{
 		`{"name":"echo","arguments":{"value":"same"}}`,
@@ -821,8 +821,8 @@ func TestG1IFunctionRunnerRejectsRepeatedCallsByDefault(t *testing.T) {
 		[]Tool{echoTool{}, submitTestTool{}},
 		Options{
 			MaxSteps:          3,
-			Protocol:          G1IFunctionProtocol{},
-			Renderer:          G1IFunctionRenderer{HasSubmit: true},
+			Protocol:          G1FunctionProtocol{},
+			Renderer:          G1FunctionRenderer{HasSubmit: true},
 			TerminalTool:      "submit",
 			EndOnTerminalTool: true,
 			Generation:        continuation.Request{MaxOutputTokens: 128},
@@ -841,23 +841,23 @@ func TestG1IFunctionRunnerRejectsRepeatedCallsByDefault(t *testing.T) {
 	}
 }
 
-func TestG1IFunctionRendererAllowsExpectedPlainAnswers(t *testing.T) {
+func TestG1FunctionRendererAllowsExpectedPlainAnswers(t *testing.T) {
 	t.Parallel()
 	messages := []Message{
 		{Role: RoleSystem, Content: "Tools: []"},
 		{Role: RoleUser, Content: "Calculate."},
 		{Role: RoleTool, Content: "42"},
 	}
-	arithmetic, err := (G1IFunctionRenderer{}).Render(messages)
+	arithmetic, err := (G1FunctionRenderer{}).Render(messages)
 	if err != nil || !strings.HasSuffix(arithmetic, "Assistant:") || strings.HasSuffix(arithmetic, "```json\n") {
 		t.Fatalf("arithmetic prompt = %q, error = %v", arithmetic, err)
 	}
-	invoice, err := (G1IFunctionRenderer{HasRunTests: true}).Render(messages)
+	invoice, err := (G1FunctionRenderer{HasRunTests: true}).Render(messages)
 	if err != nil || !strings.HasSuffix(invoice, "Assistant: ```json\n") {
 		t.Fatalf("pre-PASS invoice prompt = %q, error = %v", invoice, err)
 	}
 	messages[len(messages)-1].Content = "PASS\ntests passed"
-	invoice, err = (G1IFunctionRenderer{HasRunTests: true}).Render(messages)
+	invoice, err = (G1FunctionRenderer{HasRunTests: true}).Render(messages)
 	if err != nil || !strings.HasSuffix(invoice, "Assistant:") {
 		t.Fatalf("post-PASS invoice prompt = %q, error = %v", invoice, err)
 	}
@@ -874,8 +874,8 @@ func TestRunnerEndsOnSuccessfulTerminalTool(t *testing.T) {
 		[]Tool{echoTool{}},
 		Options{
 			MaxSteps:          2,
-			Protocol:          G1IFunctionProtocol{},
-			Renderer:          G1IFunctionRenderer{HasSubmit: true},
+			Protocol:          G1FunctionProtocol{},
+			Renderer:          G1FunctionRenderer{HasSubmit: true},
 			TerminalTool:      "echo",
 			EndOnTerminalTool: true,
 			Generation:        continuation.Request{MaxOutputTokens: 128},
@@ -952,11 +952,11 @@ func (t *replayableEchoTool) Execute(_ context.Context, raw json.RawMessage) (an
 	return map[string]string{"value": args.Value}, nil
 }
 
-func g1iRunnerOptions() Options {
+func g1RunnerOptions() Options {
 	return Options{
 		MaxSteps:          8,
-		Protocol:          G1IFunctionProtocol{},
-		Renderer:          G1IFunctionRenderer{HasSubmit: true},
+		Protocol:          G1FunctionProtocol{},
+		Renderer:          G1FunctionRenderer{HasSubmit: true},
 		TerminalTool:      "submit",
 		EndOnTerminalTool: true,
 		Generation:        continuation.Request{MaxOutputTokens: 128},
@@ -980,7 +980,7 @@ func sequenceGenerator(responses []string, prompts *[]string) continuation.Gener
 	})
 }
 
-func TestG1IFunctionRunnerKeepsProviderRetriesOutOfModelContext(t *testing.T) {
+func TestG1FunctionRunnerKeepsProviderRetriesOutOfModelContext(t *testing.T) {
 	t.Parallel()
 	var prompts []string
 	var events []Event
@@ -990,7 +990,7 @@ func TestG1IFunctionRunnerKeepsProviderRetriesOutOfModelContext(t *testing.T) {
 			`{"name":"submit","arguments":{"answer":"recovered"}}`,
 		}, &prompts),
 		[]Tool{retryingWebTool{}, submitTestTool{}},
-		g1iRunnerOptions(),
+		g1RunnerOptions(),
 	)
 	if err != nil {
 		t.Fatal(err)
@@ -1025,7 +1025,7 @@ func TestG1IFunctionRunnerKeepsProviderRetriesOutOfModelContext(t *testing.T) {
 	}
 }
 
-func TestG1IFunctionRunnerOffersOnlySubmitAfterProviderExhaustion(t *testing.T) {
+func TestG1FunctionRunnerOffersOnlySubmitAfterProviderExhaustion(t *testing.T) {
 	t.Parallel()
 	calls := 0
 	var prompts []string
@@ -1035,7 +1035,7 @@ func TestG1IFunctionRunnerOffersOnlySubmitAfterProviderExhaustion(t *testing.T) 
 			`{"name":"submit","arguments":{"answer":"搜索服务暂时不可用，无法完成核验。"}}`,
 		}, &prompts),
 		[]Tool{&unavailableWebTool{calls: &calls}, submitTestTool{}},
-		g1iRunnerOptions(),
+		g1RunnerOptions(),
 	)
 	if err != nil {
 		t.Fatal(err)
@@ -1052,16 +1052,16 @@ func TestG1IFunctionRunnerOffersOnlySubmitAfterProviderExhaustion(t *testing.T) 
 	if len(prompts) != 2 || strings.Count(prompts[1], "Brave search returned HTTP 429 after 5 attempts") != 1 {
 		t.Fatalf("final provider failure must appear exactly once:\n%s", prompts[1])
 	}
-	catalog := g1iCatalogText(t, prompts[1])
+	catalog := g1CatalogText(t, prompts[1])
 	if !strings.Contains(catalog, `"name":"submit"`) || strings.Contains(catalog, `"name":"web_search"`) {
 		t.Fatalf("provider rescue catalog must offer submit only:\n%s", catalog)
 	}
 }
 
-func TestG1IFunctionRunnerReplaysReplayableDuplicatesThenRejects(t *testing.T) {
+func TestG1FunctionRunnerReplaysReplayableDuplicatesThenRejects(t *testing.T) {
 	t.Parallel()
 	echoCalls := 0
-	options := g1iRunnerOptions()
+	options := g1RunnerOptions()
 	options.DuplicateReplayLimit = 2
 	options.DuplicateRescueThreshold = 0
 	var prompts []string
@@ -1107,9 +1107,9 @@ func TestG1IFunctionRunnerReplaysReplayableDuplicatesThenRejects(t *testing.T) {
 	}
 }
 
-func TestG1IFunctionRunnerDuplicateRejectionEscalates(t *testing.T) {
+func TestG1FunctionRunnerDuplicateRejectionEscalates(t *testing.T) {
 	t.Parallel()
-	options := g1iRunnerOptions()
+	options := g1RunnerOptions()
 	options.DuplicateReplayLimit = 0
 	options.DuplicateRescueThreshold = 0
 	var prompts []string
@@ -1148,9 +1148,9 @@ func TestG1IFunctionRunnerDuplicateRejectionEscalates(t *testing.T) {
 	}
 }
 
-func TestG1IFunctionRunnerRescueModeSubmitsBestAnswer(t *testing.T) {
+func TestG1FunctionRunnerRescueModeSubmitsBestAnswer(t *testing.T) {
 	t.Parallel()
-	options := g1iRunnerOptions()
+	options := g1RunnerOptions()
 	options.DuplicateReplayLimit = 1
 	options.DuplicateRescueThreshold = 2
 	var prompts []string
@@ -1176,15 +1176,15 @@ func TestG1IFunctionRunnerRescueModeSubmitsBestAnswer(t *testing.T) {
 	if !strings.Contains(prompts[2], "Call submit now with your best answer") {
 		t.Fatalf("rescue instruction missing from third prompt:\n%s", prompts[2])
 	}
-	catalog := g1iCatalogText(t, prompts[2])
+	catalog := g1CatalogText(t, prompts[2])
 	if !strings.Contains(catalog, `"name":"submit"`) || strings.Contains(catalog, `"name":"echo"`) {
 		t.Fatalf("rescue catalog must offer submit only:\n%s", catalog)
 	}
 }
 
-func TestG1IFunctionRunnerRescueModeRejectsOtherTools(t *testing.T) {
+func TestG1FunctionRunnerRescueModeRejectsOtherTools(t *testing.T) {
 	t.Parallel()
-	options := g1iRunnerOptions()
+	options := g1RunnerOptions()
 	options.DuplicateReplayLimit = 1
 	options.DuplicateRescueThreshold = 2
 	runner, err := NewRunner(
@@ -1214,9 +1214,9 @@ func TestG1IFunctionRunnerRescueModeRejectsOtherTools(t *testing.T) {
 	}
 }
 
-func TestG1IFunctionRunnerDuplicateControlsDisabledByZero(t *testing.T) {
+func TestG1FunctionRunnerDuplicateControlsDisabledByZero(t *testing.T) {
 	t.Parallel()
-	options := g1iRunnerOptions()
+	options := g1RunnerOptions()
 	options.DuplicateReplayLimit = 0
 	options.DuplicateRescueThreshold = 0
 	var prompts []string
@@ -1253,8 +1253,8 @@ func TestG1IFunctionRunnerDuplicateControlsDisabledByZero(t *testing.T) {
 	}
 }
 
-// g1iCatalogText extracts the System: Tools catalog from a rendered G1i prompt.
-func g1iCatalogText(t *testing.T, prompt string) string {
+// g1CatalogText extracts the System: Tools catalog from a rendered G1 prompt.
+func g1CatalogText(t *testing.T, prompt string) string {
 	t.Helper()
 	const startMarker = "Tools:\n[\n"
 	const endMarker = "\n]\n"
@@ -1270,11 +1270,11 @@ func g1iCatalogText(t *testing.T, prompt string) string {
 	return prompt[start : start+end]
 }
 
-func TestG1IFunctionRunnerAppliesPostToolHookAfterSuccess(t *testing.T) {
+func TestG1FunctionRunnerAppliesPostToolHookAfterSuccess(t *testing.T) {
 	t.Parallel()
 	var prompts []string
 	hooked := 0
-	options := g1iRunnerOptions()
+	options := g1RunnerOptions()
 	options.PostToolHook = func(name string, _ json.RawMessage, result any, err error) string {
 		if err != nil {
 			t.Errorf("hook invoked with error: %v", err)
@@ -1318,10 +1318,10 @@ func TestG1IFunctionRunnerAppliesPostToolHookAfterSuccess(t *testing.T) {
 	}
 }
 
-func TestG1IFunctionRunnerSkipsPostToolHookOnFailure(t *testing.T) {
+func TestG1FunctionRunnerSkipsPostToolHookOnFailure(t *testing.T) {
 	t.Parallel()
 	hooked := 0
-	options := g1iRunnerOptions()
+	options := g1RunnerOptions()
 	options.PostToolHook = func(string, json.RawMessage, any, error) string {
 		hooked++
 		return "HOOK"
@@ -1345,10 +1345,10 @@ func TestG1IFunctionRunnerSkipsPostToolHookOnFailure(t *testing.T) {
 	}
 }
 
-func TestG1IFunctionRunnerSkipsPostToolHookOnReplay(t *testing.T) {
+func TestG1FunctionRunnerSkipsPostToolHookOnReplay(t *testing.T) {
 	t.Parallel()
 	hooked := 0
-	options := g1iRunnerOptions()
+	options := g1RunnerOptions()
 	options.DuplicateReplayLimit = 2
 	options.DuplicateRescueThreshold = 0
 	options.PostToolHook = func(string, json.RawMessage, any, error) string {
@@ -1375,9 +1375,9 @@ func TestG1IFunctionRunnerSkipsPostToolHookOnReplay(t *testing.T) {
 	}
 }
 
-func TestG1IFunctionRunnerRescueModeAfterSameToolSpiral(t *testing.T) {
+func TestG1FunctionRunnerRescueModeAfterSameToolSpiral(t *testing.T) {
 	t.Parallel()
-	options := g1iRunnerOptions()
+	options := g1RunnerOptions()
 	options.DuplicateReplayLimit = 0
 	options.DuplicateRescueThreshold = 0
 	options.SameToolRescueLimit = 8
@@ -1416,9 +1416,9 @@ func TestG1IFunctionRunnerRescueModeAfterSameToolSpiral(t *testing.T) {
 	}
 }
 
-func TestG1IFunctionRunnerSameToolStreakResetsOnFailure(t *testing.T) {
+func TestG1FunctionRunnerSameToolStreakResetsOnFailure(t *testing.T) {
 	t.Parallel()
-	options := g1iRunnerOptions()
+	options := g1RunnerOptions()
 	options.MaxSteps = 12
 	options.DuplicateReplayLimit = 0
 	options.DuplicateRescueThreshold = 0
@@ -1452,9 +1452,9 @@ func TestG1IFunctionRunnerSameToolStreakResetsOnFailure(t *testing.T) {
 	}
 }
 
-func TestG1IFunctionRunnerSameToolRescueDisabledByZero(t *testing.T) {
+func TestG1FunctionRunnerSameToolRescueDisabledByZero(t *testing.T) {
 	t.Parallel()
-	options := g1iRunnerOptions()
+	options := g1RunnerOptions()
 	options.DuplicateReplayLimit = 0
 	options.DuplicateRescueThreshold = 0
 	options.SameToolRescueLimit = 0

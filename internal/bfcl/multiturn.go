@@ -836,7 +836,7 @@ func routeMultiTurn(ctx context.Context, transcript []multiTurnTranscript, entry
 	for _, className := range entry.InvolvedClasses {
 		bundles = append(bundles, agent.ToolBundle{Name: className, Description: "BFCL functions provided by " + className + "."})
 	}
-	protocol := agent.G1IProgressiveToolRouteProtocol{}
+	protocol := agent.G1ProgressiveToolRouteProtocol{}
 	prompt := "System: " + protocol.Instructions(bundles) + "\n"
 	for _, message := range transcript {
 		content, ok := message.Content.(string)

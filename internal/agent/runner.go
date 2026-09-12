@@ -50,7 +50,7 @@ func NewRunner(generator continuation.Generator, tools []Tool, options Options) 
 		}
 		if profile.Experimental() && !profile.Complete() {
 			return nil, fmt.Errorf(
-				"%w: the fence prefill experiments require the product G1i function protocol and renderer",
+				"%w: the fence prefill experiments require the product G1 function protocol and renderer",
 				continuation.ErrInvalidRequest,
 			)
 		}
@@ -124,7 +124,7 @@ func applyRunnerDefaults(options *Options) error {
 		)
 	}
 	if options.Protocol == nil {
-		options.Protocol = G1IProtocol{}
+		options.Protocol = G1Protocol{}
 	}
 	if options.Renderer == nil {
 		options.Renderer = RWKVChatRenderer{}
@@ -275,8 +275,8 @@ func (profile ProductProfile) Experimental() bool {
 // ProductProfileOf inspects a protocol and renderer pair. Callers holding an
 // Options value should use OptionsProductProfile instead.
 func ProductProfileOf(protocol ActionProtocol, renderer PromptRenderer) ProductProfile {
-	functionProtocol, _ := protocol.(G1IFunctionProtocol)
-	functionRenderer, _ := renderer.(G1IFunctionRenderer)
+	functionProtocol, _ := protocol.(G1FunctionProtocol)
+	functionRenderer, _ := renderer.(G1FunctionRenderer)
 	profile := ProductProfile{
 		Protocol: functionProtocol.Product,
 		Renderer: functionRenderer.Product,
@@ -306,7 +306,7 @@ const (
 // defaultDecisionMaxOutputTokens picks the decision budget for a protocol when
 // the caller did not set one.
 func defaultDecisionMaxOutputTokens(protocol ActionProtocol) int {
-	if _, ok := protocol.(G1IProtocol); ok {
+	if _, ok := protocol.(G1Protocol); ok {
 		return DefaultXMLDecisionMaxOutputTokens
 	}
 	return DefaultDecisionMaxOutputTokens
@@ -317,9 +317,9 @@ func defaultDecisionMaxOutputTokens(protocol ActionProtocol) int {
 // in its own envelope, so this is deliberately not gated on the product pair.
 func semanticNoToolEnabled(protocol ActionProtocol) bool {
 	switch typed := protocol.(type) {
-	case G1IFunctionProtocol:
+	case G1FunctionProtocol:
 		return typed.Product && typed.SemanticNoTool
-	case G1IProtocol:
+	case G1Protocol:
 		return typed.SemanticNoTool
 	default:
 		return false

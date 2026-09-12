@@ -248,12 +248,12 @@ tokenizer 不匹配仍会拒绝。迁移后的 autosave 写入新 revision，不
 `nearest_transit`、`transit_hours`、`fx_convert` 只在可重复的 `assistant` 评测 suite 中
 注册。默认工具没有写入、命令执行或真实网络能力。
 
-产品默认使用 `rwkv-g1i-envelope-v1` XML transcript，并让模型在一个决策阶段内直接选择动作。
+产品默认使用 `rwkv-g1-envelope-v1` XML transcript，并让模型在一个决策阶段内直接选择动作。
 工具调用格式为 `<tool_call>{"name":"TOOL_NAME","arguments":{...}}</tool_call>`，工具结果以
 `<tool_result>...</tool_result>` 回填；不需要工具时直接输出普通文本。默认不运行独立 Router，
 因此不会先生成 `<route>`，完整的已启用工具目录直接交给动作协议。
 
-G1i 训练原生的 Markdown/function transcript 保留为显式
+G1 训练原生的 Markdown/function transcript 保留为显式
 `--agent-protocol markdown` 选项。渐进式 Router 也保留为
 `--progressive-tools=true`：它先在 `workspace`、`compute`、`web`、`delegate` 能力组中选择
 零至两个，再只暴露所选 schema，并允许通过 `load_tools` 加载另一个已启用能力组。
@@ -613,7 +613,7 @@ suite 逐题采用快照中的原始 `max_turns`（6–22），并用 1024-token
 ### 当前基线
 
 - Primitive `upstream-compatible`：v12 有效基线 13/30（7.2B，替换一次网络失败后）；
-  native-G1i 协议分支最终 17/30，同一模型上游官方留档 20/30。
+  native-G1 协议分支最终 17/30，同一模型上游官方留档 20/30。
 - Primitive `go-native`（贪心 `top-k=1`）：正式成绩 23/30（v19/v20 稳定通过集合），
   v21b 单轮 24/30，其中 `config_precedence_resolve` 为不稳定边界题（通过率约 25–30%）。
 - `boundary` 与 smoke 的历史演进、v8/v9 修复复测和失败分类，见

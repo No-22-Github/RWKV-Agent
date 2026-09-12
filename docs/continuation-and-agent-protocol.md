@@ -32,9 +32,9 @@ Agent Runner
 
 | Profile | 动作协议 / renderer | 用途与终止语义 |
 | --- | --- | --- |
-| 产品默认 | `rwkv-g1i-envelope-v1` / `rwkv-chat-continuation-v2` | XML 工具信封、普通文本 final；默认无 Router，可使用 off/fast/full thinking |
-| Markdown 可选 | `rwkv-g1i-functions-product-v1` / `rwkv-g1i-functions-product-continuation-v1` | `--agent-protocol markdown`；工具后直接输出普通 Markdown，无 `submit` gate |
-| Primitive | `rwkv-g1i-functions-v1` / `rwkv-g1i-functions-continuation-v1` | benchmark 专用逐题目录与 `submit` 终止，不代表产品默认 |
+| 产品默认 | `rwkv-g1-envelope-v1` / `rwkv-chat-continuation-v2` | XML 工具信封、普通文本 final；默认无 Router，可使用 off/fast/full thinking |
+| Markdown 可选 | `rwkv-g1-functions-product-v1` / `rwkv-g1-functions-product-continuation-v1` | `--agent-protocol markdown`；工具后直接输出普通 Markdown，无 `submit` gate |
+| Primitive | `rwkv-g1-functions-v1` / `rwkv-g1-functions-continuation-v1` | benchmark 专用逐题目录与 `submit` 终止，不代表产品默认 |
 | BFCL wrapped | `internal/bfcl` 的对象/数组 anchor 与 strict/wire-compat parser | BFCL 官方/诊断评测专用，不进入 Agent 产品 prompt |
 | 原生 function calling | Chat Completions `tools/tool_calls` | Provider 外层结构化调用；不伪造 `no_tool` 等 API tool |
 
@@ -57,7 +57,7 @@ Primitive 与 BFCL wrapped 继续使用各自的独立入口，防止评测协�
 这些字符串逐字节进入 eval manifest，归档 run 只有在拼写不变时才可比，因此新增 profile
 应该在该 block 加一行，而不是在 `ID()` 方法里内联字面量。
 
-可选 Markdown profile 复用 G1i checkpoint 的训练 transcript：
+可选 Markdown profile 复用 G1 checkpoint 的训练 transcript：
 
 ````text
 System: Tools:
@@ -93,7 +93,7 @@ JSON、字符串化参数、截断 JSON、字段别名和旧 XML 包装，但普
 失败或证据不足时，答案必须明确说明限制。过长字符串保留开头和与任务词项最相关的窗口，
 单个字符串最多约 2400 Unicode 字符。
 
-`rwkv-g1i-envelope-v1` 与 `rwkv-chat-continuation-v2` 是产品默认 XML profile。它在三个
+`rwkv-g1-envelope-v1` 与 `rwkv-chat-continuation-v2` 是产品默认 XML profile。它在三个
 方面结构性优于 fenced JSON：
 
 - **闭合更积极。** `RWKV-Toolcall-Bench` 给定框架开头后的闭合率：`<tool_call>` 20/20
@@ -118,7 +118,7 @@ JSON 围栏可延长，后者会增加目录长度但模型本来就能直接回
 因为 XML renderer 由 `--thinking` 预填自己的 think 块；XML 上应直接用
 `--thinking fast/full`。
 
-Primitive Bench 继续使用独立的 `rwkv-g1i-functions-v1` 与 benchmark `submit` 终止语义。
+Primitive Bench 继续使用独立的 `rwkv-g1-functions-v1` 与 benchmark `submit` 终止语义。
 
 动作协议、prompt 渲染器和续写 adapter 独立版本化。父 Agent 内仍是顺序多工具状态机；
 `spawn_agents` 可以批量并发运行多个相互独立的子状态机，但显式 planner、子任务依赖图和
@@ -183,7 +183,7 @@ API 的零值都表示"由 harness 决定"。60 题实测：XML 从 24/60 升到
 ### 2.2 渐进式工具目录
 
 产品 API 默认不安装 Router，完整的已启用工具目录直接交给 XML 动作协议。可选的
-`rwkv-g1i-tool-route-v1` 仍按权限和用途把工具分为四个能力组：
+`rwkv-g1-tool-route-v1` 仍按权限和用途把工具分为四个能力组：
 
 | 能力组 | 权限 | 当前工具 |
 | --- | --- | --- |
@@ -364,7 +364,7 @@ system/user/assistant messages，并通过官方
 和 [Create chat completion reference](https://developers.openai.com/api/reference/resources/chat/subresources/completions/methods/create)。
 
 `wrapped-continuation` 保留为兼容回退：它把渲染完成的 continuation prompt 放进 user
-message，并继续使用 `rwkv-g1i-envelope-v1` 文本控制帧，不发送上游 native tools。两种
+message，并继续使用 `rwkv-g1-envelope-v1` 文本控制帧，不发送上游 native tools。两种
 模式都固定 `stream: false`；`top_k` 和 `penalty_decay` 没有标准 Chat Completions 字段，
 因此不发送并记录为 unsupported sampling。默认输出预算字段是官方推荐的
 `max_completion_tokens`；只接受弃用字段的兼容服务可显式设置
@@ -452,6 +452,6 @@ Agent 行为；后续若继续尝试，应避免包含可复制的静态事实�
 
 基准优先复用
 [`marty1885/primitive-bench`](https://github.com/marty1885/primitive-bench) 的 30 个
-文件型任务、隔离环境、required/forbidden tool 和精确评分规则。它的 G1I completion
+文件型任务、隔离环境、required/forbidden tool 和精确评分规则。它的 G1 completion
 runner 同样使用 greedy 解码，并把工具触发与 schema 约束的 JSON 参数生成拆开。接入时
 应适配本项目的 `continuation.Generator`，不把 OpenAI 兼容层下沉到底层续写接口。

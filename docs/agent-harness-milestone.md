@@ -39,8 +39,8 @@ Agent step loop；先证明模型能可靠地依据仓库证据回答，再逐�
   工具 schema 或原始 tool payload，Harness 只解析路由结果，不使用关键词意图启发式。
 - `respond` 路由不开放工具；Router 协议重试后仍失败则 fail closed 到 `respond`。
 - `inspect` 路由首次工具动作预填 `<tool_call>`，Runner 重建完整 frame 后严格解析。
-- `tool` / `final` 两类 G1I envelope 动作及严格字段校验。
-- 普通文本 final 与 G1I 工具控制帧的联合输出语义。
+- `tool` / `final` 两类 G1 envelope 动作及严格字段校验。
+- 普通文本 final 与 G1 工具控制帧的联合输出语义。
 - 一次协议纠错重试和 2–20 step 硬上限；至少两步才能在工具后保留最终回答。
 - 工作区相对路径、`..`、绝对路径和符号链接越界检查。
 - 64 KiB 单文件上限、2 MiB 搜索文件上限和结果数量上限。
@@ -55,7 +55,7 @@ Agent step loop；先证明模型能可靠地依据仓库证据回答，再逐�
 - 独立的 `continuation.Generator`、`ActionProtocol` 和 `PromptRenderer` 接口。
 - 本地 inference Session 续写 adapter。
 - `rwkv_lightning` 非流式 HTTP 续写 adapter；endpoint 可配置，密码来自环境变量。
-- `rwkv-g1i-envelope-v1` 与 `rwkv-chat-continuation-v2` 独立版本标识。
+- `rwkv-g1-envelope-v1` 与 `rwkv-chat-continuation-v2` 独立版本标识。
 - 协议、循环、路径越界、截断、搜索与读取的无模型单元测试。
 - 回答阶段对长字符串保留开头和任务相关窗口，单个字符串约束为 2400 Unicode 字符。
 - `rwkv-cli agent-eval` 可运行内置或 `schema_version: 4` 的自定义 case；每个 case

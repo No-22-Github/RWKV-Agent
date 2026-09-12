@@ -12,7 +12,7 @@ import (
 
 const SemanticNoToolName = "no_tool"
 
-func looksLikeG1IFunctionFence(value string) bool {
+func looksLikeG1FunctionFence(value string) bool {
 	candidate := strings.TrimSpace(value)
 	if !strings.HasPrefix(candidate, "```json") {
 		return false
@@ -37,7 +37,7 @@ func looksLikeG1IFunctionFence(value string) bool {
 	return false
 }
 
-func (protocol G1IFunctionProtocol) Parse(value string, finish continuation.FinishReason) (Action, error) {
+func (protocol G1FunctionProtocol) Parse(value string, finish continuation.FinishReason) (Action, error) {
 	candidate := strings.TrimSpace(value)
 	repairs := &repairLog{}
 	originalFailure := ProtocolFailureClass("")
@@ -54,7 +54,7 @@ func (protocol G1IFunctionProtocol) Parse(value string, finish continuation.Fini
 		candidate = strings.TrimSpace(candidate[index+len("</think>"):])
 		markRepair(wire.RepairThinkStripped, ProtocolFailureToolEnvelopeMissing)
 	}
-	if protocol.Product && strings.HasPrefix(candidate, "```") && !looksLikeG1IFunctionFence(candidate) {
+	if protocol.Product && strings.HasPrefix(candidate, "```") && !looksLikeG1FunctionFence(candidate) {
 		return Action{Type: ActionTypeFinal, Content: candidate}, nil
 	}
 	if start := strings.Index(candidate, "<tool_calls>"); start >= 0 {
@@ -65,9 +65,9 @@ func (protocol G1IFunctionProtocol) Parse(value string, finish continuation.Fini
 		var calls []json.RawMessage
 		if err := json.Unmarshal([]byte(strings.TrimSpace(body)), &calls); err != nil || len(calls) != 1 {
 			if err != nil {
-				return Action{}, fmt.Errorf("%w: decode G1i tool_calls: %v", ErrToolJSONDecode, err)
+				return Action{}, fmt.Errorf("%w: decode G1 tool_calls: %v", ErrToolJSONDecode, err)
 			}
-			return Action{}, fmt.Errorf("%w: G1i tool_calls must contain exactly one call", ErrToolShapeInvalid)
+			return Action{}, fmt.Errorf("%w: G1 tool_calls must contain exactly one call", ErrToolShapeInvalid)
 		}
 		candidate = string(calls[0])
 		markRepair(wire.RepairArrayEnvelope, ProtocolFailureToolEnvelopeMissing)
@@ -90,11 +90,11 @@ func (protocol G1IFunctionProtocol) Parse(value string, finish continuation.Fini
 			return Action{}, ErrOutputTokenLimit
 		}
 		if candidate == "" {
-			return Action{}, fmt.Errorf("%w: empty G1i function response", ErrProtocol)
+			return Action{}, fmt.Errorf("%w: empty G1 function response", ErrProtocol)
 		}
 		return Action{Type: ActionTypeFinal, Content: candidate}, nil
 	}
-	repaired := repairG1IFunctionJSON(candidate)
+	repaired := repairG1FunctionJSON(candidate)
 	var call struct {
 		Name      string          `json:"name"`
 		Arguments json.RawMessage `json:"arguments"`
@@ -102,7 +102,7 @@ func (protocol G1IFunctionProtocol) Parse(value string, finish continuation.Fini
 	var object map[string]json.RawMessage
 	decoder := json.NewDecoder(strings.NewReader(repaired))
 	if err := decoder.Decode(&call); err != nil {
-		return Action{}, fmt.Errorf("%w: decode G1i function call: %v", ErrToolJSONDecode, err)
+		return Action{}, fmt.Errorf("%w: decode G1 function call: %v", ErrToolJSONDecode, err)
 	}
 	_ = json.Unmarshal([]byte(repaired), &object)
 	if repaired != candidate {
@@ -150,7 +150,7 @@ func (protocol G1IFunctionProtocol) Parse(value string, finish continuation.Fini
 	if len(call.Arguments) > 0 && call.Arguments[0] == '"' {
 		var encodedArguments string
 		if err := json.Unmarshal(call.Arguments, &encodedArguments); err == nil {
-			call.Arguments = json.RawMessage(repairG1IFunctionJSON(encodedArguments))
+			call.Arguments = json.RawMessage(repairG1FunctionJSON(encodedArguments))
 			markRepair(wire.RepairStringifiedArguments, ProtocolFailureToolShapeInvalid)
 		}
 	}
@@ -169,14 +169,14 @@ func (protocol G1IFunctionProtocol) Parse(value string, finish continuation.Fini
 	}
 	if call.Name == "" {
 		if arguments, ok := rawJSONObject(call.Arguments); ok {
-			if inferred := inferG1IToolName(arguments); inferred != "" {
+			if inferred := inferG1ToolName(arguments); inferred != "" {
 				call.Name = inferred
 				markRepair(wire.RepairNameInferred, ProtocolFailureToolShapeInvalid)
 			}
 		}
 	}
 	if decoder.Decode(&struct{}{}) != io.EOF || strings.TrimSpace(call.Name) == "" || !isJSONObject(call.Arguments) {
-		return Action{}, fmt.Errorf("%w: invalid G1i function call", ErrToolShapeInvalid)
+		return Action{}, fmt.Errorf("%w: invalid G1 function call", ErrToolShapeInvalid)
 	}
 	if protocol.Product && protocol.SemanticNoTool && call.Name == SemanticNoToolName {
 		rationale, answer, err := parseSemanticNoToolArguments(call.Arguments)
@@ -255,7 +255,7 @@ func rawJSONObject(raw json.RawMessage) (map[string]json.RawMessage, bool) {
 	return object, true
 }
 
-func inferG1IToolName(arguments map[string]json.RawMessage) string {
+func inferG1ToolName(arguments map[string]json.RawMessage) string {
 	hasValue := func(keys ...string) bool {
 		for _, key := range keys {
 			raw, ok := arguments[key]
@@ -288,7 +288,7 @@ func inferG1IToolName(arguments map[string]json.RawMessage) string {
 	return ""
 }
 
-func repairG1IFunctionJSON(value string) string {
+func repairG1FunctionJSON(value string) string {
 	var output strings.Builder
 	inString := false
 	escaped := false

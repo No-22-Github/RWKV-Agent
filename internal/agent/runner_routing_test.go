@@ -37,7 +37,7 @@ func TestDecideRouteRecordsRetryStepsThenSucceeds(t *testing.T) {
 	}, &prompts)
 	runner, err := NewRunner(generator, []Tool{echoTool{}}, Options{
 		MaxSteps:             4,
-		Router:               G1IRouteProtocol{},
+		Router:               G1RouteProtocol{},
 		RouteRetries:         1,
 		Generation:           continuation.Request{MaxOutputTokens: 16},
 		TracePromptBytes:     4096,
@@ -93,7 +93,7 @@ func TestDecideRouteFailsClosedToRespondAfterRetries(t *testing.T) {
 	}, &prompts)
 	runner, err := NewRunner(generator, nil, Options{
 		MaxSteps:             2,
-		Router:               G1IRouteProtocol{},
+		Router:               G1RouteProtocol{},
 		RouteRetries:         1,
 		Generation:           continuation.Request{MaxOutputTokens: 16},
 		TracePromptBytes:     4096,
@@ -135,7 +135,7 @@ func TestDecideToolRouteRecordsRetryStepsThenSelectsBundle(t *testing.T) {
 		[]Tool{bundledEchoTool{name: "echo", bundle: ToolBundleWorkspace}},
 		Options{
 			MaxSteps:             4,
-			ToolRouter:           G1IProgressiveToolRouteProtocol{},
+			ToolRouter:           G1ProgressiveToolRouteProtocol{},
 			ToolBundles:          DefaultToolBundles(),
 			RouteRetries:         1,
 			Generation:           continuation.Request{MaxOutputTokens: 16},

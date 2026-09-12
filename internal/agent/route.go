@@ -37,11 +37,11 @@ type ToolRouteProtocol interface {
 	Stops() []string
 }
 
-type G1IProgressiveToolRouteProtocol struct{}
+type G1ProgressiveToolRouteProtocol struct{}
 
-func (G1IProgressiveToolRouteProtocol) ID() string { return G1IToolRouteProtocolV1 }
+func (G1ProgressiveToolRouteProtocol) ID() string { return G1ToolRouteProtocolV1 }
 
-func (G1IProgressiveToolRouteProtocol) Instructions(bundles []ToolBundle) string {
+func (G1ProgressiveToolRouteProtocol) Instructions(bundles []ToolBundle) string {
 	var prompt strings.Builder
 	prompt.WriteString(`Choose whether the current user message needs NEW tool evidence. Output exactly one route and nothing else.
 Use <route>respond</route> when no new evidence is needed, required arguments are missing, or the user only asks about capabilities. Writing or explaining code, math, prose, or general knowledge never requires tool evidence.
@@ -100,9 +100,9 @@ Do not answer the user and do not output placeholder words.`)
 	return prompt.String()
 }
 
-func (G1IProgressiveToolRouteProtocol) Parse(value string, finish continuation.FinishReason, bundles []ToolBundle) (ToolRouteDecision, error) {
+func (G1ProgressiveToolRouteProtocol) Parse(value string, finish continuation.FinishReason, bundles []ToolBundle) (ToolRouteDecision, error) {
 	candidate := strings.TrimSpace(value)
-	// Strip a leading think block first, like G1IRouteProtocol does: a reasoning
+	// Strip a leading think block first, like G1RouteProtocol does: a reasoning
 	// model opens its answer with <think>...</think> before the envelope.
 	candidate = wire.StripLeadingThinkBlocks(candidate)
 	// Locate the envelope anywhere, not only at the very start. RWKV routinely
@@ -153,7 +153,7 @@ func (G1IProgressiveToolRouteProtocol) Parse(value string, finish continuation.F
 	return ToolRouteDecision{Route: RouteInspect, Bundles: names}, nil
 }
 
-func (G1IProgressiveToolRouteProtocol) Correction(_ error, bundles []ToolBundle) string {
+func (G1ProgressiveToolRouteProtocol) Correction(_ error, bundles []ToolBundle) string {
 	routes := make([]string, 0, len(bundles)+1)
 	routes = append(routes, "<route>respond</route>")
 	for _, bundle := range bundles {
@@ -162,20 +162,20 @@ func (G1IProgressiveToolRouteProtocol) Correction(_ error, bundles []ToolBundle)
 	return "Your previous route was invalid. Output exactly one concrete route from this list and nothing else: " + strings.Join(routes, ", ") + "."
 }
 
-func (G1IProgressiveToolRouteProtocol) Stops() []string {
+func (G1ProgressiveToolRouteProtocol) Stops() []string {
 	return []string{"</route>", "\nUser:", "\nSystem:", "\nTool:"}
 }
 
-// G1IRouteProtocol asks the model whether the committed conversation already
+// G1RouteProtocol asks the model whether the committed conversation already
 // contains enough evidence to answer. It deliberately does not expose tool
 // names or schemas.
-type G1IRouteProtocol struct{}
+type G1RouteProtocol struct{}
 
-func (G1IRouteProtocol) ID() string {
-	return G1IRouteProtocolV1
+func (G1RouteProtocol) ID() string {
+	return G1RouteProtocolV1
 }
 
-func (G1IRouteProtocol) Instructions() string {
+func (G1RouteProtocol) Instructions() string {
 	return strings.TrimSpace(`Classify whether answering the current user message correctly requires NEW evidence from available read-only tools.
 Output exactly one route and nothing else:
 - <route>respond</route>: casual conversation, general knowledge, questions about which tools/capabilities are available, or an answer already supported by the committed conversation.
@@ -208,7 +208,7 @@ Assistant: <route>respond</route>`)
 // exhaust it before emitting the envelope.
 var ErrRouteTokenLimit = fmt.Errorf("%w: route reached the output token limit", ErrProtocol)
 
-func (G1IRouteProtocol) Parse(
+func (G1RouteProtocol) Parse(
 	value string,
 	finish continuation.FinishReason,
 ) (Route, error) {
@@ -239,7 +239,7 @@ func (G1IRouteProtocol) Parse(
 	}
 }
 
-func (G1IRouteProtocol) Correction(err error) string {
+func (G1RouteProtocol) Correction(err error) string {
 	const contract = "Output exactly <route>respond</route> or <route>inspect</route> and nothing else."
 	switch {
 	case errors.Is(err, ErrUnclosedThink):
@@ -253,7 +253,7 @@ func (G1IRouteProtocol) Correction(err error) string {
 	}
 }
 
-func (G1IRouteProtocol) Stops() []string {
+func (G1RouteProtocol) Stops() []string {
 	return []string{"</route>", "\nUser:", "\nSystem:", "\nTool:"}
 }
 

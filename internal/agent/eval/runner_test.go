@@ -153,9 +153,9 @@ func TestRunPreservesNativeToolCompleterThroughRecording(t *testing.T) {
 			MaxSteps:                3,
 			ProtocolRetries:         1,
 			DecisionMaxOutputTokens: 32,
-			Protocol:                agent.G1IProtocol{},
+			Protocol:                agent.G1Protocol{},
 			Renderer:                agent.RWKVChatRenderer{},
-			Router:                  agent.G1IRouteProtocol{},
+			Router:                  agent.G1RouteProtocol{},
 			RouteRenderer:           agent.RWKVChatRenderer{},
 			RouteRetries:            1,
 			RouteMaxOutputTokens:    8,
@@ -269,9 +269,9 @@ func TestRunScoresAndWritesTraceArtifacts(t *testing.T) {
 			MaxSteps:                3,
 			ProtocolRetries:         1,
 			DecisionMaxOutputTokens: 32,
-			Protocol:                agent.G1IProtocol{FewShot: true},
+			Protocol:                agent.G1Protocol{FewShot: true},
 			Renderer:                agent.RWKVChatRenderer{},
-			Router:                  agent.G1IRouteProtocol{},
+			Router:                  agent.G1RouteProtocol{},
 			RouteRenderer:           agent.RWKVChatRenderer{},
 			RouteRetries:            1,
 			RouteMaxOutputTokens:    8,
@@ -437,7 +437,7 @@ func TestRunManifestSeparatesDecisionAndRouteThinkingModes(t *testing.T) {
 		Cases: []Case{{ID: "one"}},
 		Runner: agent.Options{
 			Renderer:      agent.RWKVChatRenderer{ThinkingMode: inference.ThinkingFull},
-			Router:        agent.G1IRouteProtocol{},
+			Router:        agent.G1RouteProtocol{},
 			RouteRenderer: agent.RWKVChatRenderer{ThinkingMode: inference.ThinkingOff},
 		},
 	}, "run", time.Unix(0, 0).UTC())
@@ -452,12 +452,12 @@ func TestRunManifestSeparatesDecisionAndRouteThinkingModes(t *testing.T) {
 	toolRouteManifest := runManifest(Config{
 		Cases: []Case{{ID: "one"}},
 		Runner: agent.Options{
-			ToolRouter:    agent.G1IProgressiveToolRouteProtocol{},
+			ToolRouter:    agent.G1ProgressiveToolRouteProtocol{},
 			RouteRenderer: agent.RWKVChatRenderer{},
 		},
 	}, "tool-route", time.Unix(0, 0).UTC())
 	if !toolRouteManifest.Harness.RouteStage ||
-		toolRouteManifest.Harness.RouteProtocol != (agent.G1IProgressiveToolRouteProtocol{}).ID() ||
+		toolRouteManifest.Harness.RouteProtocol != (agent.G1ProgressiveToolRouteProtocol{}).ID() ||
 		toolRouteManifest.Harness.RouteThinkingMode != string(inference.ThinkingOff) {
 		t.Fatalf("tool route manifest harness = %+v", toolRouteManifest.Harness)
 	}
@@ -475,9 +475,9 @@ func TestRunManifestRecordsProductProfileExperiments(t *testing.T) {
 			DecisionFakeThink: true,
 		}),
 	}, "product", time.Unix(0, 0).UTC())
-	if manifest.Harness.Protocol != agent.G1IProductFunctionProtocolV1 ||
-		manifest.Harness.Renderer != agent.G1IProductFunctionRendererV1 ||
-		manifest.Harness.RouteProtocol != (agent.G1IProgressiveToolRouteProtocol{}).ID() ||
+	if manifest.Harness.Protocol != agent.G1ProductFunctionProtocolV1 ||
+		manifest.Harness.Renderer != agent.G1ProductFunctionRendererV1 ||
+		manifest.Harness.RouteProtocol != (agent.G1ProgressiveToolRouteProtocol{}).ID() ||
 		!manifest.Harness.RouteStage ||
 		!manifest.Harness.SemanticNoTool ||
 		!manifest.Harness.DecisionFakeThink ||
@@ -547,8 +547,8 @@ func TestBFCLProductRunsSharedProgressiveProfile(t *testing.T) {
 	}
 	if len(report.Summary.Cases) != 1 || !report.Summary.Cases[0].Passed ||
 		report.Summary.Cases[0].Turns[0].Outcome != OutcomeExplicitRespond ||
-		report.Manifest.Harness.Protocol != agent.G1IProductFunctionProtocolV1 ||
-		report.Manifest.Harness.RouteProtocol != (agent.G1IProgressiveToolRouteProtocol{}).ID() {
+		report.Manifest.Harness.Protocol != agent.G1ProductFunctionProtocolV1 ||
+		report.Manifest.Harness.RouteProtocol != (agent.G1ProgressiveToolRouteProtocol{}).ID() {
 		t.Fatalf("product report = %+v", report)
 	}
 }
@@ -591,21 +591,21 @@ func TestBFCLProductAcceptsBothProductTranscripts(t *testing.T) {
 	// comparing the two on the same cases is the point.
 	report, err := Run(context.Background(), newConfig(agent.Options{
 		MaxSteps: 2,
-		Protocol: agent.G1IProtocol{SemanticNoTool: true},
+		Protocol: agent.G1Protocol{SemanticNoTool: true},
 		Renderer: agent.RWKVChatRenderer{},
 	}))
 	if err != nil {
 		t.Fatalf("xml bfcl-product error = %v", err)
 	}
-	if report.Manifest.Harness.Protocol != agent.G1IEnvelopeProtocolV1 ||
+	if report.Manifest.Harness.Protocol != agent.G1EnvelopeProtocolV1 ||
 		!report.Manifest.Harness.SemanticNoTool {
 		t.Fatalf("xml manifest = %+v", report.Manifest.Harness)
 	}
 	// A benchmark profile still cannot: its termination semantics differ.
 	_, err = Run(context.Background(), newConfig(agent.Options{
 		MaxSteps: 2,
-		Protocol: agent.G1IFunctionProtocol{},
-		Renderer: agent.G1IFunctionRenderer{HasSubmit: true},
+		Protocol: agent.G1FunctionProtocol{},
+		Renderer: agent.G1FunctionRenderer{HasSubmit: true},
 	}))
 	if err == nil || !strings.Contains(err.Error(), "product-facing Harness profile") {
 		t.Fatalf("benchmark bfcl-product error = %v", err)
@@ -628,7 +628,7 @@ func TestEvalOutcomeTaxonomyExposesNoCallAndToolParseFailures(t *testing.T) {
 		{
 			name:   "explicit respond",
 			script: []continuation.Result{generated("respond"), generated("OK")},
-			router: agent.G1IRouteProtocol{},
+			router: agent.G1RouteProtocol{},
 			expect: Expectation{
 				Route:               agent.RouteRespond,
 				Tools:               []string{},
@@ -658,7 +658,7 @@ func TestEvalOutcomeTaxonomyExposesNoCallAndToolParseFailures(t *testing.T) {
 		{
 			name:   "route garbage preserves legacy task success",
 			script: []continuation.Result{generated("garbage"), generated("OK")},
-			router: agent.G1IRouteProtocol{},
+			router: agent.G1RouteProtocol{},
 			expect: Expectation{
 				Route:        agent.RouteRespond,
 				Tools:        []string{},
@@ -712,7 +712,7 @@ func TestEvalOutcomeTaxonomyExposesNoCallAndToolParseFailures(t *testing.T) {
 				}},
 				Runner: agent.Options{
 					MaxSteps:      2,
-					Protocol:      agent.G1IProtocol{},
+					Protocol:      agent.G1Protocol{},
 					Renderer:      agent.RWKVChatRenderer{},
 					Router:        testCase.router,
 					RouteRenderer: agent.RWKVChatRenderer{},
@@ -786,7 +786,7 @@ func TestEvalRepairedOutcomeKeepsOriginalFailureClass(t *testing.T) {
 		}},
 		Runner: agent.Options{
 			MaxSteps:   2,
-			Protocol:   agent.G1IProtocol{},
+			Protocol:   agent.G1Protocol{},
 			Renderer:   agent.RWKVChatRenderer{},
 			Generation: continuation.Request{MaxOutputTokens: 64},
 		},
@@ -867,9 +867,9 @@ func TestAssistantSuiteMockAcceptance(t *testing.T) {
 		Model: ModelMetadata{Identifier: "scripted", Backend: "test", Provider: "test", Completion: "test"},
 		Runner: agent.Options{
 			MaxSteps:      6,
-			Protocol:      agent.G1IProtocol{},
+			Protocol:      agent.G1Protocol{},
 			Renderer:      agent.RWKVChatRenderer{},
-			Router:        agent.G1IRouteProtocol{},
+			Router:        agent.G1RouteProtocol{},
 			RouteRenderer: agent.RWKVChatRenderer{},
 			Generation: continuation.Request{
 				Model:           "scripted",
@@ -1325,11 +1325,11 @@ func TestRunManifestRecordsWireConflict(t *testing.T) {
 		Suite: SuiteSmoke,
 		Runner: agent.Options{
 			MaxSteps: 3,
-			Protocol: agent.G1IFunctionProtocol{
+			Protocol: agent.G1FunctionProtocol{
 				Product:        true,
 				DeepToolAnchor: true,
 			},
-			Renderer:   agent.G1IFunctionRenderer{Product: true},
+			Renderer:   agent.G1FunctionRenderer{Product: true},
 			Generation: continuation.Request{Model: "scripted", MaxOutputTokens: 64},
 		},
 	}

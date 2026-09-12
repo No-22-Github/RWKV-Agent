@@ -294,7 +294,7 @@ func TestPreviewAgentPromptAssemblesTranscriptContract(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if preview.ProtocolID != "rwkv-g1i-envelope-v1" {
+	if preview.ProtocolID != "rwkv-g1-envelope-v1" {
 		t.Fatalf("protocol id = %q", preview.ProtocolID)
 	}
 	if preview.ThinkingMode != "fast" {

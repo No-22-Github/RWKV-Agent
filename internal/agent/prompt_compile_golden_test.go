@@ -113,7 +113,7 @@ func TestGoldenPromptXMLToolThenFinal(t *testing.T) {
 		t,
 		Options{
 			MaxSteps: 3,
-			Protocol: G1IProtocol{},
+			Protocol: G1Protocol{},
 			Renderer: RWKVChatRenderer{},
 		},
 		[]Tool{echoTool{}},
@@ -136,7 +136,7 @@ func TestGoldenPromptXMLThinkingFast(t *testing.T) {
 		t,
 		Options{
 			MaxSteps: 2,
-			Protocol: G1IProtocol{},
+			Protocol: G1Protocol{},
 			Renderer: RWKVChatRenderer{ThinkingMode: inference.ThinkingFast},
 		},
 		// The fast prompt withholds the closing ">" of the think prefix, so the
@@ -155,7 +155,7 @@ func TestGoldenPromptXMLThinkingFull(t *testing.T) {
 		t,
 		Options{
 			MaxSteps: 2,
-			Protocol: G1IProtocol{},
+			Protocol: G1Protocol{},
 			Renderer: RWKVChatRenderer{ThinkingMode: inference.ThinkingFull},
 		},
 		// The full prompt withholds the ">" that opens the think block; the
@@ -174,7 +174,7 @@ func TestGoldenPromptXMLAnswerStage(t *testing.T) {
 		t,
 		Options{
 			MaxSteps: 2,
-			Protocol: G1IProtocol{},
+			Protocol: G1Protocol{},
 			Renderer: RWKVChatRenderer{},
 		},
 		[]Tool{echoTool{}},
@@ -197,8 +197,8 @@ func TestGoldenPromptProductFencedToolThenAnswer(t *testing.T) {
 		t,
 		Options{
 			MaxSteps: 3,
-			Protocol: G1IFunctionProtocol{Product: true},
-			Renderer: G1IFunctionRenderer{Product: true},
+			Protocol: G1FunctionProtocol{Product: true},
+			Renderer: G1FunctionRenderer{Product: true},
 		},
 		[]Tool{echoTool{}},
 		[]string{
@@ -222,8 +222,8 @@ func TestGoldenPromptProductSubmitFencePrefix(t *testing.T) {
 		t,
 		Options{
 			MaxSteps:          2,
-			Protocol:          G1IFunctionProtocol{Product: true},
-			Renderer:          G1IFunctionRenderer{Product: true},
+			Protocol:          G1FunctionProtocol{Product: true},
+			Renderer:          G1FunctionRenderer{Product: true},
 			TerminalTool:      "submit",
 			EndOnTerminalTool: true,
 		},
@@ -247,8 +247,8 @@ func TestGoldenPromptFunctionsBenchmarkFence(t *testing.T) {
 		t,
 		Options{
 			MaxSteps:          2,
-			Protocol:          G1IFunctionProtocol{},
-			Renderer:          G1IFunctionRenderer{HasSubmit: true, HasRunTests: true},
+			Protocol:          G1FunctionProtocol{},
+			Renderer:          G1FunctionRenderer{HasSubmit: true, HasRunTests: true},
 			TerminalTool:      "submit",
 			EndOnTerminalTool: true,
 		},

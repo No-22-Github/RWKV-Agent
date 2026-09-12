@@ -29,7 +29,7 @@ func WireSpecOf(options Options) (wire.Spec, error) {
 	case nil:
 		// applyRunnerDefaults selects the XML protocol; the default spec
 		// already describes it.
-	case G1IProtocol:
+	case G1Protocol:
 		spec.Format = wire.FormatXML
 		spec.Transcript = wire.TranscriptProduct
 		spec.Thinking = wire.Thinking(rendererThinkingMode(options.Renderer))
@@ -47,7 +47,7 @@ func WireSpecOf(options Options) (wire.Spec, error) {
 			// with thinking on, there is no envelope prefill at all.
 			spec.Prefill = wire.PrefillEnvelope
 		}
-	case G1IFunctionProtocol:
+	case G1FunctionProtocol:
 		spec.Format = wire.FormatMDFence
 		spec.Transcript = wire.TranscriptProduct
 		if !protocol.Product {
@@ -61,7 +61,7 @@ func WireSpecOf(options Options) (wire.Spec, error) {
 		}
 		allowRepeated = protocol.AllowRepeatedCalls
 		spec.Prefill = wire.PrefillFence
-		if renderer, ok := options.Renderer.(G1IFunctionRenderer); ok {
+		if renderer, ok := options.Renderer.(G1FunctionRenderer); ok {
 			switch {
 			case renderer.DecisionFakeThink && renderer.ClosedFakeThink:
 				spec.Prefill = wire.PrefillFakeThinkClosed
@@ -129,20 +129,20 @@ func OptionsWithWire(base Options, spec wire.Spec) (Options, error) {
 	options := base
 	switch spec.Format {
 	case wire.FormatXML:
-		options.Protocol = G1IProtocol{
+		options.Protocol = G1Protocol{
 			FewShot:        spec.Control == wire.ControlFewShot,
 			SemanticNoTool: spec.Abstain != wire.AbstainNone,
 		}
 		options.Renderer = RWKVChatRenderer{ThinkingMode: inference.ThinkingMode(spec.Thinking)}
 	case wire.FormatMDFence:
-		options.Protocol = G1IFunctionProtocol{
+		options.Protocol = G1FunctionProtocol{
 			Product:             spec.Transcript == wire.TranscriptProduct,
 			SemanticNoTool:      spec.Abstain != wire.AbstainNone,
 			DeepToolAnchor:      spec.Prefill == wire.PrefillDeepFence,
 			SubagentRawFeedback: spec.SubagentFeedback == wire.SubagentFeedbackRaw,
 			AllowRepeatedCalls:  spec.Loop.AllowRepeatedCalls,
 		}
-		renderer := G1IFunctionRenderer{Product: spec.Transcript == wire.TranscriptProduct}
+		renderer := G1FunctionRenderer{Product: spec.Transcript == wire.TranscriptProduct}
 		switch spec.Prefill {
 		case wire.PrefillFakeThinkHalf:
 			renderer.DecisionFakeThink = true
@@ -165,11 +165,11 @@ func OptionsWithWire(base Options, spec wire.Spec) (Options, error) {
 		options.Router = nil
 		options.ToolRouter = nil
 	case wire.RouteRespondInspect:
-		options.Router = G1IRouteProtocol{}
+		options.Router = G1RouteProtocol{}
 		options.ToolRouter = nil
 		options.RouteRenderer = RWKVChatRenderer{}
 	case wire.RouteProgressive:
-		options.ToolRouter = G1IProgressiveToolRouteProtocol{}
+		options.ToolRouter = G1ProgressiveToolRouteProtocol{}
 		options.Router = nil
 		options.RouteRenderer = RWKVChatRenderer{}
 	default:

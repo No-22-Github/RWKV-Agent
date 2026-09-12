@@ -9,10 +9,10 @@ import (
 	"github.com/no22/RWKV-Agent/internal/continuation"
 )
 
-func TestG1IRouteProtocolParsesOnlyKnownRoutes(t *testing.T) {
+func TestG1RouteProtocolParsesOnlyKnownRoutes(t *testing.T) {
 	t.Parallel()
 
-	protocol := G1IRouteProtocol{}
+	protocol := G1RouteProtocol{}
 	for input, want := range map[string]Route{
 		"<route>respond</route>": RouteRespond,
 		"<route>inspect</route>": RouteInspect,
@@ -45,7 +45,7 @@ func TestG1IRouteProtocolParsesOnlyKnownRoutes(t *testing.T) {
 
 func TestProgressiveToolRouteSelectsAtMostTwoKnownBundles(t *testing.T) {
 	t.Parallel()
-	protocol := G1IProgressiveToolRouteProtocol{}
+	protocol := G1ProgressiveToolRouteProtocol{}
 	bundles := DefaultToolBundles()
 	decision, err := protocol.Parse(
 		"<route>inspect:workspace+compute</route>",
@@ -72,7 +72,7 @@ func TestProgressiveToolRouteSelectsAtMostTwoKnownBundles(t *testing.T) {
 // it appears; requiring a strict prefix degraded every such turn to respond.
 func TestProgressiveToolRouteToleratesPreambleBeforeEnvelope(t *testing.T) {
 	t.Parallel()
-	protocol := G1IProgressiveToolRouteProtocol{}
+	protocol := G1ProgressiveToolRouteProtocol{}
 	bundles := DefaultToolBundles()
 	ws := ToolBundleWorkspace
 	for _, testCase := range []struct {
@@ -99,7 +99,7 @@ func TestProgressiveToolRouteToleratesPreambleBeforeEnvelope(t *testing.T) {
 
 func TestProgressiveToolRouteInstructionsUseConcreteRoutes(t *testing.T) {
 	t.Parallel()
-	protocol := G1IProgressiveToolRouteProtocol{}
+	protocol := G1ProgressiveToolRouteProtocol{}
 	bundles := DefaultToolBundles()[:2]
 	for name, value := range map[string]string{
 		"instructions": protocol.Instructions(bundles),
@@ -116,10 +116,10 @@ func TestProgressiveToolRouteInstructionsUseConcreteRoutes(t *testing.T) {
 	}
 }
 
-func TestG1IRouteProtocolClassifiesRunawayReasoning(t *testing.T) {
+func TestG1RouteProtocolClassifiesRunawayReasoning(t *testing.T) {
 	t.Parallel()
 
-	protocol := G1IRouteProtocol{}
+	protocol := G1RouteProtocol{}
 	runaway := "<think>the user is asking about files, but wait, let me reconsider"
 	for _, testCase := range []struct {
 		name   string
@@ -222,7 +222,7 @@ func TestInvalidRouteFallsBackToRespondWithoutTools(t *testing.T) {
 		}),
 		[]Tool{echoTool{}},
 		Options{
-			Router:       G1IRouteProtocol{},
+			Router:       G1RouteProtocol{},
 			RouteRetries: 1,
 		},
 	)

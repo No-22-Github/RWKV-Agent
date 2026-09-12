@@ -28,12 +28,12 @@ func wireGoldenCells() []goldenCell {
 	productBase := func(deepAnchor, fakeThink, closedThink bool) Options {
 		return Options{
 			MaxSteps: 3,
-			Protocol: G1IFunctionProtocol{
+			Protocol: G1FunctionProtocol{
 				Product:        true,
 				SemanticNoTool: true,
 				DeepToolAnchor: deepAnchor,
 			},
-			Renderer: G1IFunctionRenderer{
+			Renderer: G1FunctionRenderer{
 				Product:           true,
 				DecisionFakeThink: fakeThink,
 				ClosedFakeThink:   closedThink,
@@ -43,7 +43,7 @@ func wireGoldenCells() []goldenCell {
 	xmlBase := func() Options {
 		return Options{
 			MaxSteps: 3,
-			Protocol: G1IProtocol{},
+			Protocol: G1Protocol{},
 			Renderer: RWKVChatRenderer{},
 		}
 	}
@@ -73,8 +73,8 @@ func wireGoldenCells() []goldenCell {
 			Options: productBase(false, true, true),
 			Tools:   []Tool{echoTool{}},
 			Outputs: []string{
-				G1IDecisionClosedThinkPrefix + toolCall,
-				G1IDecisionClosedThinkPrefix + "All done.",
+				G1DecisionClosedThinkPrefix + toolCall,
+				G1DecisionClosedThinkPrefix + "All done.",
 			},
 			Task: "Check the echo tool",
 		},
@@ -143,7 +143,7 @@ func wireGoldenCells() []goldenCell {
 			Options: func() Options {
 				options := xmlBase()
 				options.MaxSteps = 4
-				options.Router = G1IRouteProtocol{}
+				options.Router = G1RouteProtocol{}
 				options.RouteRenderer = RWKVChatRenderer{}
 				options.RouteRetries = 1
 				options.RouteMaxOutputTokens = 8
@@ -165,7 +165,7 @@ func wireGoldenCells() []goldenCell {
 			Options: func() Options {
 				options := xmlBase()
 				options.MaxSteps = 3
-				options.Router = G1IRouteProtocol{}
+				options.Router = G1RouteProtocol{}
 				options.RouteRenderer = RWKVChatRenderer{}
 				options.RouteRetries = 1
 				options.RouteMaxOutputTokens = 8
@@ -191,7 +191,7 @@ func wireGoldenCells() []goldenCell {
 			Options: func() Options {
 				options := xmlBase()
 				options.MaxSteps = 4
-				options.ToolRouter = G1IProgressiveToolRouteProtocol{}
+				options.ToolRouter = G1ProgressiveToolRouteProtocol{}
 				options.RouteRenderer = RWKVChatRenderer{}
 				options.ToolBundles = DefaultToolBundles()
 				options.RouteRetries = 1

@@ -6,7 +6,7 @@ import (
 )
 
 func TestDelegationRouteExamples(t *testing.T) {
-	prompt := G1IProgressiveToolRouteProtocol{}.Instructions([]ToolBundle{
+	prompt := G1ProgressiveToolRouteProtocol{}.Instructions([]ToolBundle{
 		{Name: ToolBundleWorkspace, Description: "files"},
 		{Name: ToolBundleDelegate, Description: "delegate", Delegation: true},
 	})

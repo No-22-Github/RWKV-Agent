@@ -267,13 +267,13 @@ mock `weather`, `nearest_transit`, `transit_hours`, and `fx_convert` tools are o
 registered in the repeatable `assistant` evaluation suite. Default tools have no
 write, command-execution, or real-network capability.
 
-The product default is the `rwkv-g1i-envelope-v1` XML transcript with no separate
+The product default is the `rwkv-g1-envelope-v1` XML transcript with no separate
 Router. A tool call is `<tool_call>{"name":"TOOL_NAME","arguments":{...}}</tool_call>`,
 results return as `<tool_result>...</tool_result>`, and messages that need no tool are
 answered as ordinary text. The complete enabled tool catalog is available directly to
 the action protocol; no preliminary `<route>` generation runs.
 
-The G1i-trained Markdown/function transcript remains available explicitly with
+The G1-trained Markdown/function transcript remains available explicitly with
 `--agent-protocol markdown`. The progressive Router is also an opt-in through
 `--progressive-tools=true`: it selects zero to two bundles among `workspace`,
 `compute`, `web`, and `delegate`, exposes only those schemas, and lets `load_tools`
@@ -616,7 +616,7 @@ output is a UTC-timestamped `runs/agent-eval-*` directory.
 ### Current Baselines
 
 - Primitive `upstream-compatible`: effective v12 baseline 13/30 (7.2B, with one
-  network-failed case re-run); the native-G1i protocol branch reached 17/30, versus the
+  network-failed case re-run); the native-G1 protocol branch reached 17/30, versus the
   upstream official archive of 20/30 on the same model.
 - Primitive `go-native` (greedy `top-k=1`): official score 23/30 (stable pass set in
   v19/v20); the v21b single run reached 24/30, with `config_precedence_resolve` an

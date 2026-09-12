@@ -8,10 +8,10 @@ import (
 	"github.com/no22/RWKV-Agent/internal/inference"
 )
 
-// G1IFunctionProtocol implements the JSON function-call transcript used to
-// train G1i checkpoints: System: Tools, Assistant: ```json, and User: Function
+// G1FunctionProtocol implements the JSON function-call transcript used to
+// train G1 checkpoints: System: Tools, Assistant: ```json, and User: Function
 // output. It is intentionally separate from the general XML agent protocol.
-type G1IFunctionProtocol struct {
+type G1FunctionProtocol struct {
 	// AllowRepeatedCalls preserves the upstream Primitive Bench controller,
 	// which executes identical calls repeatedly. Product-facing Go-native runs
 	// leave this false so the Runner can reject loops and provide recovery.
@@ -35,17 +35,17 @@ type G1IFunctionProtocol struct {
 	SubagentRawFeedback bool
 }
 
-func (protocol G1IFunctionProtocol) ID() string {
+func (protocol G1FunctionProtocol) ID() string {
 	if protocol.Product {
-		return G1IProductFunctionProtocolV1
+		return G1ProductFunctionProtocolV1
 	}
-	return G1IFunctionProtocolV1
+	return G1FunctionProtocolV1
 }
 
-func (protocol G1IFunctionProtocol) Instructions(specs []ToolSpec, _ inference.ThinkingMode) string {
-	catalog := make([]g1iCatalogEntry, 0, len(specs))
+func (protocol G1FunctionProtocol) Instructions(specs []ToolSpec, _ inference.ThinkingMode) string {
+	catalog := make([]g1CatalogEntry, 0, len(specs))
 	for _, spec := range specs {
-		catalog = append(catalog, makeG1ICatalogEntry(spec))
+		catalog = append(catalog, makeG1CatalogEntry(spec))
 	}
 	if protocol.Product && protocol.SemanticNoTool {
 		description := "Indicate that none of the offered tools is needed. Put a brief, complete user-facing response in reason; it becomes the final reply."
@@ -55,7 +55,7 @@ func (protocol G1IFunctionProtocol) Instructions(specs []ToolSpec, _ inference.T
 			// The description forbids claiming work instead of doing it.
 			description += " Never claim that a file was read, created, or modified; the tools do all file work."
 		}
-		catalog = append(catalog, g1iCatalogEntry{
+		catalog = append(catalog, g1CatalogEntry{
 			Name:        SemanticNoToolName,
 			Description: description,
 			Arguments: map[string]json.RawMessage{
@@ -108,7 +108,7 @@ func (protocol G1IFunctionProtocol) Instructions(specs []ToolSpec, _ inference.T
 		"Finish with submit when it is offered. Return only a JSON function call."
 }
 
-type g1iCatalogEntry struct {
+type g1CatalogEntry struct {
 	Name        string                     `json:"name"`
 	Description string                     `json:"description"`
 	Arguments   map[string]json.RawMessage `json:"arguments"`
@@ -125,7 +125,7 @@ func hasMutatingToolSpec(specs []ToolSpec) bool {
 	return false
 }
 
-func makeG1ICatalogEntry(spec ToolSpec) g1iCatalogEntry {
+func makeG1CatalogEntry(spec ToolSpec) g1CatalogEntry {
 	description := strings.TrimSpace(spec.Description)
 	if index := strings.IndexAny(description, ".!?"); index >= 0 {
 		description = strings.TrimSpace(description[:index+1])
@@ -186,7 +186,7 @@ func makeG1ICatalogEntry(spec ToolSpec) g1iCatalogEntry {
 		encoded, _ := json.Marshal(compact)
 		arguments[name] = encoded
 	}
-	return g1iCatalogEntry{Name: spec.Name, Description: description, Arguments: arguments}
+	return g1CatalogEntry{Name: spec.Name, Description: description, Arguments: arguments}
 }
 
 // readableScalarHint renders a non-enum scalar or union-type schema as the
