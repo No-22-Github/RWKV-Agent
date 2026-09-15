@@ -25,10 +25,23 @@ type G1Protocol struct {
 	// every instruction sentence are unchanged.
 	AlignQwen36 bool
 	// NoCallDemo adds one substantive no-call demonstration to the examples: a
-	// real question the tool catalog cannot improve on, answered directly. It
+	// real question the tools cannot improve on, answered directly. It
 	// is the R1.5 probe for whether the abstention behavior is evocable in
 	// context at all (the two base examples are trivia).
 	NoCallDemo bool
+	// GreetingExamples reduces the example block to the greeting no-call pair
+	// only (R3 intermediate state).
+	GreetingExamples bool
+	// BareExamples removes the example block entirely (R3 full cut). It wins
+	// over GreetingExamples; the control axis keeps the two from combining
+	// with the few-shot trajectory block.
+	BareExamples bool
+	// OneStage merges the answer stage into the decision transcript: the
+	// forced-answer preparation appends only the plain-text nudge user turn —
+	// no answer-control system block, no <answer> prefill. The runner still
+	// marks the generation as StageAnswer so the answer-now contract is
+	// enforced harness-side.
+	OneStage bool
 }
 
 func (G1Protocol) ID() string {
@@ -68,6 +81,10 @@ After a Tool result, make the same choice again: call one tool if more evidence 
 			)
 		}
 	}
+	if protocol.BareExamples {
+		// R3 full cut: no example block at all.
+		return strings.TrimSpace(prompt.String())
+	}
 	prompt.WriteString(`
 Examples:
 User: 你好
@@ -76,6 +93,9 @@ Assistant: 你好！有什么我可以帮你的吗？`)
 		prompt.WriteString(`
 User: 底 10 高 5 的三角形面积是多少？
 Assistant: 25 平方米。`)
+	}
+	if protocol.GreetingExamples {
+		return strings.TrimSpace(prompt.String())
 	}
 	prompt.WriteString(`
 User: What tools can you use?
@@ -494,6 +514,21 @@ func (protocol G1Protocol) PrepareAnswer(
 	unverified []string,
 	thinkingMode inference.ThinkingMode,
 ) ([]Message, string) {
+	if protocol.OneStage {
+		// Merged stages: keep the whole transcript as-is (the control prompt
+		// and catalog stay in place) and append only the plain-text nudge.
+		// The empty prefix tells the runner not to prefill any envelope.
+		prepared := append([]Message(nil), messages...)
+		instruction := `Tool execution is complete and tools are now unavailable.
+Answer the original current task directly in ordinary text using the Tool results above. Do not call another tool or repeat the Tool results. If they are insufficient, say what could not be verified.`
+		if len(unverified) > 0 {
+			instruction += "\nThe following requested facts could not be verified because their providers were unavailable:\n- " +
+				strings.Join(unverified, "\n- ") +
+				"\nState each limitation explicitly. Do not invent a value, quote, rate, time, or conversion for any listed item."
+		}
+		prepared = append(prepared, Message{Role: RoleUser, Content: instruction})
+		return prepared, ""
+	}
 	prepared := make([]Message, 0, len(messages)+1)
 	answerControl := `You are the final local-assistant answer stage. Tools are unavailable.
 Answer the current task directly in the user's language using the full supplied conversation and Tool results.

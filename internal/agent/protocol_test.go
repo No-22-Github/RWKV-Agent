@@ -706,3 +706,67 @@ func TestG1ProtocolAlignQwen36IncludesNoToolInToolsArray(t *testing.T) {
 		t.Fatalf("aligned no_tool instructions lost the tools array:\n%s", aligned)
 	}
 }
+
+func TestG1ProtocolExampleBlockVariants(t *testing.T) {
+	t.Parallel()
+	specs := []ToolSpec{
+		{Name: "list_files", Description: "List files.", Arguments: `{}`},
+		{Name: "read_file", Description: "Read a file.", Arguments: `{"path":"relative file path"}`},
+	}
+	base := (G1Protocol{}).Instructions(specs, inference.ThinkingOff)
+	greeting := (G1Protocol{GreetingExamples: true}).Instructions(specs, inference.ThinkingOff)
+	bare := (G1Protocol{BareExamples: true}).Instructions(specs, inference.ThinkingOff)
+	for _, fragment := range []string{"Examples:", "User: 你好", "User: What tools can you use?", "Find files under docs", "Read README.md"} {
+		if !strings.Contains(base, fragment) {
+			t.Fatalf("base example block lost %q", fragment)
+		}
+	}
+	for _, fragment := range []string{"User: 你好", "Assistant: 你好！有什么我可以帮你的吗？"} {
+		if !strings.Contains(greeting, fragment) {
+			t.Fatalf("greeting example block lost %q:\n%s", fragment, greeting)
+		}
+	}
+	for _, fragment := range []string{"What tools can you use?", "Find files under docs", "Read README.md"} {
+		if strings.Contains(greeting, fragment) {
+			t.Fatalf("greeting example block unexpectedly contains %q:\n%s", fragment, greeting)
+		}
+	}
+	for _, fragment := range []string{"Examples:", "User: 你好", "What tools"} {
+		if strings.Contains(bare, fragment) {
+			t.Fatalf("bare instructions unexpectedly contain %q:\n%s", fragment, bare)
+		}
+	}
+	if !strings.Contains(bare, "<tool_call>") {
+		t.Fatalf("bare instructions lost the action contract:\n%s", bare)
+	}
+}
+
+func TestG1ProtocolOneStagePrepareAnswerKeepsTranscript(t *testing.T) {
+	t.Parallel()
+	protocol := G1Protocol{AlignQwen36: true, OneStage: true}
+	messages := []Message{
+		{Role: RoleSystem, Content: "control"},
+		{Role: RoleUser, Content: "task"},
+		{Role: RoleAssistant, Content: `<tool_call>{"name":"read_file","arguments":{"path":"a.txt"}}</tool_call>`},
+		{Role: RoleUser, Content: "<tool_response>{\"ok\":true}</tool_response>"},
+	}
+	answerMessages, prefix := protocol.PrepareAnswer(messages, nil, inference.ThinkingOff)
+	if prefix != "" {
+		t.Fatalf("one-stage prefix = %q, want empty", prefix)
+	}
+	if len(answerMessages) != len(messages)+1 {
+		t.Fatalf("one-stage answer messages = %d, want %d", len(answerMessages), len(messages)+1)
+	}
+	if answerMessages[0].Content != "control" {
+		t.Fatalf("one-stage dropped the transcript head: %q", answerMessages[0].Content)
+	}
+	nudge := answerMessages[len(answerMessages)-1]
+	if nudge.Role != RoleUser || strings.Contains(nudge.Content, "<answer>") {
+		t.Fatalf("one-stage nudge = %+v", nudge)
+	}
+	// Two-stage keeps the dedicated answer-control system block and envelope.
+	twoMessages, twoPrefix := (G1Protocol{AlignQwen36: true}).PrepareAnswer(messages, nil, inference.ThinkingOff)
+	if twoPrefix != "<answer>" || twoMessages[0].Role != RoleSystem || twoMessages[0].Content == "control" {
+		t.Fatalf("two-stage contract drifted: prefix=%q head=%+v", twoPrefix, twoMessages[0])
+	}
+}

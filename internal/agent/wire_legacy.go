@@ -36,11 +36,20 @@ func WireSpecOf(options Options) (wire.Spec, error) {
 		if protocol.AlignQwen36 {
 			spec.Align = wire.AlignQwen36
 		}
+		if protocol.OneStage {
+			spec.Stages = wire.StagesOne
+		}
 		if protocol.FewShot {
 			spec.Control = wire.ControlFewShot
 		}
 		if protocol.NoCallDemo {
 			spec.Control = wire.ControlBaseNoCall
+		}
+		if protocol.GreetingExamples {
+			spec.Control = wire.ControlGreeting
+		}
+		if protocol.BareExamples {
+			spec.Control = wire.ControlBare
 		}
 		if protocol.SemanticNoTool {
 			spec.Abstain = wire.AbstainNoTool
@@ -136,10 +145,13 @@ func OptionsWithWire(base Options, spec wire.Spec) (Options, error) {
 	switch spec.Format {
 	case wire.FormatXML:
 		options.Protocol = G1Protocol{
-			FewShot:        spec.Control == wire.ControlFewShot,
-			NoCallDemo:     spec.Control == wire.ControlBaseNoCall,
-			SemanticNoTool: spec.Abstain != wire.AbstainNone,
-			AlignQwen36:    spec.Align == wire.AlignQwen36,
+			FewShot:          spec.Control == wire.ControlFewShot,
+			NoCallDemo:       spec.Control == wire.ControlBaseNoCall,
+			GreetingExamples: spec.Control == wire.ControlGreeting,
+			BareExamples:     spec.Control == wire.ControlBare,
+			SemanticNoTool:   spec.Abstain != wire.AbstainNone,
+			AlignQwen36:      spec.Align == wire.AlignQwen36,
+			OneStage:         spec.Stages == wire.StagesOne,
 		}
 		options.Renderer = RWKVChatRenderer{ThinkingMode: inference.ThinkingMode(spec.Thinking)}
 	case wire.FormatMDFence:
