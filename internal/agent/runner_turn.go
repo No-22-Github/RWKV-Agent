@@ -261,7 +261,13 @@ func (turn *runnerTurn) prepareAnswerStage(step int) error {
 		turn.unverified,
 		turn.r.thinkingMode,
 	)
-	if len(answerMessages) == 0 || strings.TrimSpace(prefix) == "" {
+	if len(answerMessages) == 0 {
+		return fmt.Errorf("%w: protocol did not prepare an answer stage", ErrProtocol)
+	}
+	// The merged one-stage contract keeps the transcript intact and returns an
+	// empty prefix: no <answer> envelope is prefilled, the model answers in
+	// ordinary text. The two-stage contract must own an envelope prefix.
+	if prefix == "" && turn.r.wire.Stages != wire.StagesOne {
 		return fmt.Errorf("%w: protocol did not prepare an answer stage", ErrProtocol)
 	}
 	turn.messages = answerMessages

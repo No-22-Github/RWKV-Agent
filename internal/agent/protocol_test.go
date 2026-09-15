@@ -593,3 +593,180 @@ func TestRWKVChatRendererBuildsRawContinuationPrompt(t *testing.T) {
 		}
 	}
 }
+
+func TestG1ProtocolAlignQwen36SwapsTagsAndCatalog(t *testing.T) {
+	t.Parallel()
+	specs := []ToolSpec{{
+		Name:        "read_file",
+		Description: "Read a file.",
+		Arguments:   `{"path":"relative file path"}`,
+	}}
+	legacy := (G1Protocol{}).Instructions(specs, inference.ThinkingOff)
+	aligned := (G1Protocol{AlignQwen36: true}).Instructions(specs, inference.ThinkingOff)
+	alignedFewShot := (G1Protocol{AlignQwen36: true, FewShot: true}).Instructions(specs, inference.ThinkingOff)
+	for _, fragment := range []string{"Available tools:", "- read_file:", "Tool: <tool_result>"} {
+		if strings.Contains(aligned, fragment) {
+			t.Fatalf("aligned instructions unexpectedly contain %q:\n%s", fragment, aligned)
+		}
+		if strings.Contains(alignedFewShot, fragment) {
+			t.Fatalf("aligned few-shot instructions unexpectedly contain %q:\n%s", fragment, alignedFewShot)
+		}
+	}
+	for _, fragment := range []string{
+		`<tools>[`,
+		`{"name":"read_file","description":"Read a file.","arguments":{"path":"relative file path"}}`,
+		`]`,
+		`</tools>`,
+		`User: <tool_response>{"ok":true,"tool":"read_file","result":"1: # Example"}</tool_response>`,
+	} {
+		if !strings.Contains(aligned, fragment) {
+			t.Fatalf("aligned instructions do not contain %q:\n%s", fragment, aligned)
+		}
+	}
+	if strings.Count(alignedFewShot, "<tool_response>") != 6 {
+		t.Fatalf("aligned few-shot tool results = %d, want 6 (1 example + 5 trajectory results):\n%s",
+			strings.Count(alignedFewShot, "<tool_response>"), alignedFewShot)
+	}
+	// The legacy shape keeps its own bytes.
+	for _, fragment := range []string{"Available tools:", "- read_file:", "Tool: <tool_result>"} {
+		if !strings.Contains(legacy, fragment) {
+			t.Fatalf("legacy instructions lost %q:\n%s", fragment, legacy)
+		}
+	}
+	if got := (G1Protocol{AlignQwen36: true}).FormatToolResult("read_file", "call-1", "{}"); got != "<tool_response>{}</tool_response>" {
+		t.Fatalf("aligned tool result = %q", got)
+	}
+	if got := (G1Protocol{}).FormatToolResult("read_file", "call-1", "{}"); got != "<tool_result>{}</tool_result>" {
+		t.Fatalf("legacy tool result = %q", got)
+	}
+}
+
+func TestG1ProtocolAcceptsResultEnvelopeEchoes(t *testing.T) {
+	t.Parallel()
+	for _, align := range []bool{true, false} {
+		for _, open := range []string{"<tool_response>", "<tool_result>"} {
+			output := open + `<tool_call>{"name":"read_file","arguments":{"path":"a.txt"}}</tool_call>` + "</" + open[1:]
+			action, err := (G1Protocol{AlignQwen36: align}).Parse(output, continuation.FinishStop)
+			if err != nil {
+				t.Fatalf("parse %q: %v", output, err)
+			}
+			if action.Type != ActionTypeTool || action.Name != "read_file" {
+				t.Fatalf("action = %+v", action)
+			}
+			if !action.ProtocolRepaired {
+				t.Fatalf("echoed result envelope was not marked repaired")
+			}
+		}
+	}
+}
+
+func TestG1ProtocolNoCallDemoAddsSubstantiveExample(t *testing.T) {
+	t.Parallel()
+	specs := []ToolSpec{{
+		Name:        "read_file",
+		Description: "Read a file.",
+		Arguments:   `{"path":"relative file path"}`,
+	}}
+	base := (G1Protocol{AlignQwen36: true}).Instructions(specs, inference.ThinkingOff)
+	probe := (G1Protocol{AlignQwen36: true, NoCallDemo: true}).Instructions(specs, inference.ThinkingOff)
+	for _, fragment := range []string{
+		"User: 底 10 高 5 的三角形面积是多少？",
+		"Assistant: 25 平方米。",
+	} {
+		if strings.Contains(base, fragment) {
+			t.Fatalf("base instructions unexpectedly contain %q", fragment)
+		}
+		if !strings.Contains(probe, fragment) {
+			t.Fatalf("probe instructions do not contain %q:\n%s", fragment, probe)
+		}
+	}
+	if !strings.Contains(probe, "User: What tools can you use?") ||
+		strings.Index(probe, "Assistant: 25 平方米。") > strings.Index(probe, "User: What tools can you use?") {
+		t.Fatalf("no-call demo is not placed with the base examples:\n%s", probe)
+	}
+}
+
+func TestG1ProtocolAlignQwen36IncludesNoToolInToolsArray(t *testing.T) {
+	t.Parallel()
+	specs := []ToolSpec{{
+		Name:        "read_file",
+		Description: "Read a file.",
+		Arguments:   `{"path":"relative file path"}`,
+	}}
+	aligned := (G1Protocol{AlignQwen36: true, SemanticNoTool: true}).Instructions(specs, inference.ThinkingOff)
+	for _, fragment := range []string{
+		`{"name":"no_tool","description":"Indicate that none of the offered tools is needed.`,
+		`"arguments":{"reason":"brief complete user-facing response"}`,
+	} {
+		if !strings.Contains(aligned, fragment) {
+			t.Fatalf("aligned no_tool entry missing %q:\n%s", fragment, aligned)
+		}
+	}
+	if !strings.Contains(aligned, "<tools>[") || !strings.Contains(aligned, "</tools>") {
+		t.Fatalf("aligned no_tool instructions lost the tools array:\n%s", aligned)
+	}
+}
+
+func TestG1ProtocolExampleBlockVariants(t *testing.T) {
+	t.Parallel()
+	specs := []ToolSpec{
+		{Name: "list_files", Description: "List files.", Arguments: `{}`},
+		{Name: "read_file", Description: "Read a file.", Arguments: `{"path":"relative file path"}`},
+	}
+	base := (G1Protocol{}).Instructions(specs, inference.ThinkingOff)
+	greeting := (G1Protocol{GreetingExamples: true}).Instructions(specs, inference.ThinkingOff)
+	bare := (G1Protocol{BareExamples: true}).Instructions(specs, inference.ThinkingOff)
+	for _, fragment := range []string{"Examples:", "User: 你好", "User: What tools can you use?", "Find files under docs", "Read README.md"} {
+		if !strings.Contains(base, fragment) {
+			t.Fatalf("base example block lost %q", fragment)
+		}
+	}
+	for _, fragment := range []string{"User: 你好", "Assistant: 你好！有什么我可以帮你的吗？"} {
+		if !strings.Contains(greeting, fragment) {
+			t.Fatalf("greeting example block lost %q:\n%s", fragment, greeting)
+		}
+	}
+	for _, fragment := range []string{"What tools can you use?", "Find files under docs", "Read README.md"} {
+		if strings.Contains(greeting, fragment) {
+			t.Fatalf("greeting example block unexpectedly contains %q:\n%s", fragment, greeting)
+		}
+	}
+	for _, fragment := range []string{"Examples:", "User: 你好", "What tools"} {
+		if strings.Contains(bare, fragment) {
+			t.Fatalf("bare instructions unexpectedly contain %q:\n%s", fragment, bare)
+		}
+	}
+	if !strings.Contains(bare, "<tool_call>") {
+		t.Fatalf("bare instructions lost the action contract:\n%s", bare)
+	}
+}
+
+func TestG1ProtocolOneStagePrepareAnswerKeepsTranscript(t *testing.T) {
+	t.Parallel()
+	protocol := G1Protocol{AlignQwen36: true, OneStage: true}
+	messages := []Message{
+		{Role: RoleSystem, Content: "control"},
+		{Role: RoleUser, Content: "task"},
+		{Role: RoleAssistant, Content: `<tool_call>{"name":"read_file","arguments":{"path":"a.txt"}}</tool_call>`},
+		{Role: RoleUser, Content: "<tool_response>{\"ok\":true}</tool_response>"},
+	}
+	answerMessages, prefix := protocol.PrepareAnswer(messages, nil, inference.ThinkingOff)
+	if prefix != "" {
+		t.Fatalf("one-stage prefix = %q, want empty", prefix)
+	}
+	if len(answerMessages) != len(messages)+1 {
+		t.Fatalf("one-stage answer messages = %d, want %d", len(answerMessages), len(messages)+1)
+	}
+	if answerMessages[0].Content != "control" {
+		t.Fatalf("one-stage dropped the transcript head: %q", answerMessages[0].Content)
+	}
+	nudge := answerMessages[len(answerMessages)-1]
+	if nudge.Role != RoleUser || strings.Contains(nudge.Content, "<answer>") {
+		t.Fatalf("one-stage nudge = %+v", nudge)
+	}
+	// Two-stage keeps the dedicated answer-control system block and envelope.
+	twoMessages, twoPrefix := (G1Protocol{AlignQwen36: true}).PrepareAnswer(messages, nil, inference.ThinkingOff)
+	if twoPrefix != "<answer>" || twoMessages[0].Role != RoleSystem || twoMessages[0].Content == "control" {
+		t.Fatalf("two-stage contract drifted: prefix=%q head=%+v", twoPrefix, twoMessages[0])
+	}
+}

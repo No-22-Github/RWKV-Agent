@@ -78,6 +78,12 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 | `control` | `base` \| `fewshot` | `base` | `base` | `--few-shot` |
 | `feedback` | `raw` \| `compress-fetch` | `raw` | `raw` | `--compress-fetch` |
 | `subagent` | `block` \| `raw` | `block` | `block` | `--subagent-raw-feedback` |
+| `align` | `legacy` \| `qwen36` | `legacy` | `legacy` | — |
+
+`align=qwen36` 是 G1K 语料对齐配置：工具结果改由 user 轮承载并包 `<tool_response>`，
+工具目录从 markdown 列表改为 `<tools>` 内的 JSON 数组；动作信封 `<tool_call>`、指令
+文字与目录内容均不变。仅支持 `format=xml` + `transcript=product` + `transport=text`；
+解析器同时接受新旧两种结果包络（模型回显结果信封记 `envelope_recovered` 修复）。
 
 跨轴约束（违反会在构造期报错，不会静默改字节）：
 
@@ -114,17 +120,17 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 
 | preset | canonical | short |
 | --- | --- | --- |
-| `bfcl-md-v1` | `format=md-fence;transcript=product;transport=text;thinking=off;prefill=deep-fence;abstain=no-tool;terminal=none;route=progressive;catalog=progressive;control=base;feedback=raw;subagent=block;loop=0,0,0,0,0,0,0,0,0,0,false` | `md-fence+deep-fence+no-tool+route-progressive+progressive` |
-| `bfcl-xml-v1` | `format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=none;terminal=none;route=progressive;catalog=progressive;control=base;feedback=raw;subagent=block;loop=0,0,0,0,0,0,0,0,0,0,false` | `route-progressive+progressive` |
-| `default` | `format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=none;terminal=none;route=none;catalog=full;control=base;feedback=raw;subagent=block;loop=0,0,0,0,0,0,0,0,0,0,false` | `default` |
-| `md-fakethink-v1` | `format=md-fence;transcript=product;transport=text;thinking=off;prefill=fake-think-half;abstain=no-tool;terminal=none;route=none;catalog=full;control=base;feedback=raw;subagent=block;loop=0,0,0,0,0,0,0,0,0,0,false` | `md-fence+fake-think-half+no-tool` |
-| `md-fence-v1` | `format=md-fence;transcript=product;transport=text;thinking=off;prefill=fence;abstain=no-tool;terminal=none;route=none;catalog=full;control=base;feedback=raw;subagent=block;loop=0,0,0,0,0,0,0,0,0,0,false` | `md-fence+fence+no-tool` |
-| `md-v1` | `format=md-fence;transcript=product;transport=text;thinking=off;prefill=deep-fence;abstain=no-tool;terminal=none;route=none;catalog=full;control=base;feedback=raw;subagent=block;loop=0,0,0,0,0,0,0,0,0,0,false` | `md-fence+deep-fence+no-tool` |
-| `native-v1` | `format=xml;transcript=product;transport=native;thinking=off;prefill=none;abstain=none;terminal=none;route=none;catalog=full;control=base;feedback=raw;subagent=block;loop=0,0,0,0,0,0,0,0,0,0,false` | `native` |
-| `primitive-v1` | `format=md-fence;transcript=benchmark;transport=text;thinking=off;prefill=fence;abstain=none;terminal=submit;route=none;catalog=full;control=base;feedback=raw;subagent=block;loop=0,0,0,0,0,0,0,0,0,0,false` | `md-fence+benchmark+fence+submit` |
-| `xml-progressive-v1` | `format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=none;terminal=none;route=progressive;catalog=progressive;control=base;feedback=raw;subagent=block;loop=0,0,0,0,0,0,0,0,0,0,false` | `route-progressive+progressive` |
-| `xml-route-v1` | `format=xml;transcript=product;transport=text;thinking=off;prefill=envelope;abstain=none;terminal=none;route=respond-inspect;catalog=full;control=base;feedback=raw;subagent=block;loop=0,0,0,0,0,0,0,0,0,0,false` | `envelope+route-respond-inspect` |
-| `xml-v1` | `format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=none;terminal=none;route=none;catalog=full;control=base;feedback=raw;subagent=block;loop=0,0,0,0,0,0,0,0,0,0,false` | `default` |
+| `bfcl-md-v1` | `format=md-fence;transcript=product;transport=text;thinking=off;prefill=deep-fence;abstain=no-tool;terminal=none;route=progressive;catalog=progressive;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false` | `md-fence+deep-fence+no-tool+route-progressive+progressive` |
+| `bfcl-xml-v1` | `format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=none;terminal=none;route=progressive;catalog=progressive;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false` | `route-progressive+progressive` |
+| `default` | `format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=none;terminal=none;route=none;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false` | `default` |
+| `md-fakethink-v1` | `format=md-fence;transcript=product;transport=text;thinking=off;prefill=fake-think-half;abstain=no-tool;terminal=none;route=none;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false` | `md-fence+fake-think-half+no-tool` |
+| `md-fence-v1` | `format=md-fence;transcript=product;transport=text;thinking=off;prefill=fence;abstain=no-tool;terminal=none;route=none;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false` | `md-fence+fence+no-tool` |
+| `md-v1` | `format=md-fence;transcript=product;transport=text;thinking=off;prefill=deep-fence;abstain=no-tool;terminal=none;route=none;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false` | `md-fence+deep-fence+no-tool` |
+| `native-v1` | `format=xml;transcript=product;transport=native;thinking=off;prefill=none;abstain=none;terminal=none;route=none;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false` | `native` |
+| `primitive-v1` | `format=md-fence;transcript=benchmark;transport=text;thinking=off;prefill=fence;abstain=none;terminal=submit;route=none;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false` | `md-fence+benchmark+fence+submit` |
+| `xml-progressive-v1` | `format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=none;terminal=none;route=progressive;catalog=progressive;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false` | `route-progressive+progressive` |
+| `xml-route-v1` | `format=xml;transcript=product;transport=text;thinking=off;prefill=envelope;abstain=none;terminal=none;route=respond-inspect;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false` | `envelope+route-respond-inspect` |
+| `xml-v1` | `format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=none;terminal=none;route=none;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false` | `default` |
 
 ## Axis domain
 
@@ -139,7 +145,7 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 | `terminal` | `none`, `any tool name (e.g. submit)` |
 | `route` | `none`, `respond-inspect`, `progressive` |
 | `catalog` | `full`, `progressive` |
-| `control` | `base`, `fewshot` |
+| `control` | `base`, `base-nocall`, `greeting`, `bare`, `fewshot` |
 | `feedback` | `raw`, `compress-fetch` |
 | `subagent` | `block`, `raw` |
 
@@ -152,11 +158,11 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 
 ## Modifiers
 
-`anchor`, `compress-fetch`, `deep-fence`, `envelope`, `fake-think`, `fake-think-closed`, `fence`, `fewshot`, `gate-evidence`, `gate-state`, `native`, `no-tool`, `prefill-none`, `progressive`, `raw-subagent`, `route-progressive`, `route-respond`, `submit`, `think-fast`, `think-full`, `think-off`
+`align-legacy`, `align-qwen36`, `anchor`, `bare`, `base-nocall`, `compress-fetch`, `deep-fence`, `envelope`, `fake-think`, `fake-think-closed`, `fence`, `fewshot`, `gate-evidence`, `gate-state`, `greeting`, `native`, `no-tool`, `one-stage`, `prefill-none`, `progressive`, `raw-subagent`, `route-progressive`, `route-respond`, `submit`, `think-fast`, `think-full`, `think-off`, `two-stage`
 
 ## Override keys
 
-`abstain`, `catalog`, `control`, `feedback`, `format`, `prefill`, `route`, `subagent`, `terminal`, `thinking`, `transcript`, `transport`
+`abstain`, `align`, `catalog`, `control`, `feedback`, `format`, `prefill`, `route`, `stages`, `subagent`, `terminal`, `thinking`, `transcript`, `transport`
 <!-- END GENERATED: wire-profiles -->
 
 ---

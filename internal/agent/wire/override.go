@@ -22,6 +22,8 @@ var overrideSetters = map[string]func(*Spec, string){
 	"control":    func(s *Spec, v string) { s.Control = Control(v) },
 	"feedback":   func(s *Spec, v string) { s.Feedback = Feedback(v) },
 	"subagent":   func(s *Spec, v string) { s.SubagentFeedback = SubagentFeedback(v) },
+	"align":      func(s *Spec, v string) { s.Align = Align(v) },
+	"stages":     func(s *Spec, v string) { s.Stages = Stages(v) },
 }
 
 // OverrideKeys lists the axes a `--wire` override may set, sorted.

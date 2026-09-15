@@ -121,8 +121,17 @@ const (
 type Control string
 
 const (
-	ControlBase    Control = "base"
+	// ControlBase is the standard control prompt.
+	ControlBase Control = "base"
+	// ControlFewShot adds the full decision-trajectory examples.
 	ControlFewShot Control = "fewshot"
+	// ControlBaseNoCall adds one substantive no-call demonstration: a real
+	// question the tools cannot improve on, answered directly. R1.5 probe.
+	ControlBaseNoCall Control = "base-nocall"
+	// ControlGreeting keeps only the greeting no-call example.
+	ControlGreeting Control = "greeting"
+	// ControlBare removes the example block entirely. R3 few-shot cut.
+	ControlBare Control = "bare"
 )
 
 // Feedback is the tool-result rendering policy.
@@ -139,6 +148,32 @@ type SubagentFeedback string
 const (
 	SubagentFeedbackBlock SubagentFeedback = "block"
 	SubagentFeedbackRaw   SubagentFeedback = "raw"
+)
+
+// Stages selects whether terminal answers run through a dedicated answer
+// stage (two) or the model keeps living in the single decision transcript and
+// answers in ordinary text (one). The forced-answer nudge stays harness-side.
+type Stages string
+
+const (
+	// StagesTwo is the g1i-era two-stage contract with the <answer> envelope.
+	StagesTwo Stages = "two"
+	// StagesOne merges the stages: no <answer> envelope, plain-text finals.
+	StagesOne Stages = "one"
+)
+
+// Align selects the transcript tag convention. The G1 checkpoints were trained
+// on a Qwen3.6-style tool transcript: tool results ride in the user turn
+// wrapped in <tool_response>, and the catalog is a JSON schema array inside
+// <tools>. The legacy g1i product wire renders results on a Tool: role line
+// wrapped in <tool_result> and lists the catalog as markdown.
+type Align string
+
+const (
+	// AlignLegacy is the g1i-era product XML byte shape.
+	AlignLegacy Align = "legacy"
+	// AlignQwen36 matches the Qwen3.6-style tool corpus shape.
+	AlignQwen36 Align = "qwen36"
 )
 
 // Loop is the loop policy. The fallback mechanisms (duplicate replay,
@@ -177,6 +212,8 @@ type Spec struct {
 	Control          Control
 	Feedback         Feedback
 	SubagentFeedback SubagentFeedback
+	Align            Align
+	Stages           Stages
 	Loop             Loop
 }
 
@@ -195,6 +232,8 @@ func Default() Spec {
 		Control:          ControlBase,
 		Feedback:         FeedbackRaw,
 		SubagentFeedback: SubagentFeedbackBlock,
+		Align:            AlignLegacy,
+		Stages:           StagesTwo,
 	}
 }
 
@@ -236,6 +275,12 @@ func (s Spec) Normalize(base Spec) Spec {
 	}
 	if result.SubagentFeedback == "" {
 		result.SubagentFeedback = base.SubagentFeedback
+	}
+	if result.Align == "" {
+		result.Align = base.Align
+	}
+	if result.Stages == "" {
+		result.Stages = base.Stages
 	}
 	if result.Loop.Zero() {
 		result.Loop = base.Loop
@@ -301,13 +346,35 @@ func (s Spec) Validate() error {
 		return fail("catalog.unknown", fmt.Sprintf("unknown catalog %q", s.Catalog), "full, progressive")
 	}
 	if !known(ControlValues, s.Control) {
-		return fail("control.unknown", fmt.Sprintf("unknown control %q", s.Control), "base, fewshot")
+		return fail("control.unknown", fmt.Sprintf("unknown control %q", s.Control), "base, base-nocall, greeting, bare, fewshot")
 	}
 	if !known(FeedbackValues, s.Feedback) {
 		return fail("feedback.unknown", fmt.Sprintf("unknown feedback %q", s.Feedback), "raw, compress-fetch")
 	}
 	if !known(SubagentFeedbackValues, s.SubagentFeedback) {
 		return fail("subagent_feedback.unknown", fmt.Sprintf("unknown subagent feedback %q", s.SubagentFeedback), "block, raw")
+	}
+	if !known(AlignValues, s.Align) {
+		return fail("align.unknown", fmt.Sprintf("unknown align %q", s.Align), "legacy, qwen36")
+	}
+	if !known(StagesValues, s.Stages) {
+		return fail("stages.unknown", fmt.Sprintf("unknown stages %q", s.Stages), "two, one")
+	}
+	// The merged stage is a G1Protocol product mechanism; the benchmark
+	// transcript keeps its trained submit-terminated shape.
+	if s.Stages == StagesOne && (s.Format != FormatXML || s.Transcript != TranscriptProduct) {
+		return fail("stages.unsupported", "stages=one requires format=xml and transcript=product",
+			"use stages=two for md-fence and benchmark transcripts")
+	}
+	// The aligned tags and catalog are G1Protocol (product XML) mechanisms; the
+	// benchmark transcript keeps its trained fenced shape.
+	if s.Align == AlignQwen36 && (s.Format != FormatXML || s.Transcript != TranscriptProduct) {
+		return fail("align.unsupported", "align=qwen36 requires format=xml and transcript=product",
+			"use align=legacy for md-fence and benchmark transcripts")
+	}
+	if s.Align == AlignQwen36 && s.Transport == TransportNative {
+		return fail("align.unsupported", "align=qwen36 requires transport=text",
+			"native tool calling has no text tags to align")
 	}
 
 	// C2: the product fenced transcript has no think slot.
@@ -369,8 +436,9 @@ func (s Spec) Validate() error {
 		return fail("transport.prefill", "native tool calling offers no assistant prefill when tools are present",
 			"set prefill=none")
 	}
-	if s.Control == ControlFewShot && s.Format != FormatXML {
-		return fail("control.unsupported", "control=fewshot requires format=xml", "use control=base")
+	if (s.Control == ControlFewShot || s.Control == ControlBaseNoCall ||
+		s.Control == ControlGreeting || s.Control == ControlBare) && s.Format != FormatXML {
+		return fail("control.unsupported", fmt.Sprintf("control=%s requires format=xml", s.Control), "use control=base")
 	}
 	// The no_tool pseudo-action is only offered by the product transcripts.
 	if s.Abstain != AbstainNone && s.Transcript != TranscriptProduct {
@@ -412,10 +480,10 @@ func (s Spec) Canonical() string {
 	loop := s.Loop
 	return fmt.Sprintf(
 		"format=%s;transcript=%s;transport=%s;thinking=%s;prefill=%s;abstain=%s;terminal=%s;"+
-			"route=%s;catalog=%s;control=%s;feedback=%s;subagent=%s;"+
+			"route=%s;catalog=%s;control=%s;feedback=%s;subagent=%s;align=%s;stages=%s;"+
 			"loop=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%t",
 		s.Format, s.Transcript, s.Transport, s.Thinking, s.Prefill, s.Abstain, s.Terminal,
-		s.Route, s.Catalog, s.Control, s.Feedback, s.SubagentFeedback,
+		s.Route, s.Catalog, s.Control, s.Feedback, s.SubagentFeedback, s.Align, s.Stages,
 		loop.MaxSteps, loop.ProtocolRetries, loop.RouteRetries,
 		loop.DecisionMaxOutputTokens, loop.AnswerMaxOutputTokens, loop.RouteMaxOutputTokens,
 		loop.DuplicateReplayLimit, loop.DuplicateRescueThreshold, loop.SameToolRescueLimit,
@@ -455,6 +523,8 @@ func (s Spec) Short() string {
 	add(s.Control != base.Control, string(s.Control))
 	add(s.Feedback != base.Feedback, string(s.Feedback))
 	add(s.SubagentFeedback != base.SubagentFeedback, string(s.SubagentFeedback))
+	add(s.Align != base.Align, "align-"+string(s.Align))
+	add(s.Stages != base.Stages, string(s.Stages)+"-stage")
 	if !s.Loop.Zero() {
 		parts = append(parts, "loop")
 	}
@@ -482,9 +552,11 @@ var (
 	TerminalValues         = []string{string(TerminalNone), string(TerminalSubmit)}
 	RouteValues            = []string{string(RouteNone), string(RouteRespondInspect), string(RouteProgressive)}
 	CatalogValues          = []string{string(CatalogFull), string(CatalogProgressive)}
-	ControlValues          = []string{string(ControlBase), string(ControlFewShot)}
+	ControlValues          = []string{string(ControlBase), string(ControlBaseNoCall), string(ControlGreeting), string(ControlBare), string(ControlFewShot)}
 	FeedbackValues         = []string{string(FeedbackRaw), string(FeedbackCompressFetch)}
 	SubagentFeedbackValues = []string{string(SubagentFeedbackBlock), string(SubagentFeedbackRaw)}
+	AlignValues            = []string{string(AlignLegacy), string(AlignQwen36)}
+	StagesValues           = []string{string(StagesTwo), string(StagesOne)}
 )
 
 const (
