@@ -38,9 +38,15 @@
 2. **违反率 ≠ 价值。** "Never invoke tools merely because they are available" 被
    20/20 违反，但同时是出口轮唯一首步弃权 case 的行为锚点（R2 砍掉它该题确定性翻挂）。
    "规则写了但错误照样发生"筛选法会误杀弱锚定训诫。
-3. **出口必要非充分。** no_tool 出口把"打满 6 步强制 answer"变成"探索后明确弃权"
-   （forced_answers 54→8、总字节 −23%），但 9/10 的弃权发生在浪费 1-3 步之后，且引入
-   工具报错后放弃的新失败模式。分数持平，字节与行为结构净改善。
+3. **出口的收益依 regime 而变，最终基座上是第二大杠杆。** 带示例块时（R1 基座）
+   分数持平（41→41），只是字节 −23%、forced_answers 54→8；但在 bare 基座上隔离实测
+   （`bare+one-stage` 无出口对照）：**34/60 vs 49/60（−15 题）**——multiturn 全灭
+   （9/20，10 个 recovery 全挂）、irrelevance 12→7/20、forced_answers 0→31、
+   protocol 99.5%→83.2%、stage 88.1%。机制：bare 删掉示范后，`no_tool` 成为目录里
+   唯一"非执行动作"的样本，承担全部干净收尾；拿掉后多轮收束 churn 到强制 answer，
+   在 answer 位置继续发工具调用（11 次 stage violation）+ think 泄漏翻 4 倍（22 个
+   protocol_invalid）。注意反面：boundary 上出口是减分的（报错后被当放弃口）——
+   no_tool 是"no-call 型任务的收尾器"，不是万能弃权器。
 
 ## 跨套件定音分数卡（同日同端点，G1K）
 
