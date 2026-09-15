@@ -685,3 +685,24 @@ func TestG1ProtocolNoCallDemoAddsSubstantiveExample(t *testing.T) {
 		t.Fatalf("no-call demo is not placed with the base examples:\n%s", probe)
 	}
 }
+
+func TestG1ProtocolAlignQwen36IncludesNoToolInToolsArray(t *testing.T) {
+	t.Parallel()
+	specs := []ToolSpec{{
+		Name:        "read_file",
+		Description: "Read a file.",
+		Arguments:   `{"path":"relative file path"}`,
+	}}
+	aligned := (G1Protocol{AlignQwen36: true, SemanticNoTool: true}).Instructions(specs, inference.ThinkingOff)
+	for _, fragment := range []string{
+		`{"name":"no_tool","description":"Indicate that none of the offered tools is needed.`,
+		`"arguments":{"reason":"brief complete user-facing response"}`,
+	} {
+		if !strings.Contains(aligned, fragment) {
+			t.Fatalf("aligned no_tool entry missing %q:\n%s", fragment, aligned)
+		}
+	}
+	if !strings.Contains(aligned, "<tools>[") || !strings.Contains(aligned, "</tools>") {
+		t.Fatalf("aligned no_tool instructions lost the tools array:\n%s", aligned)
+	}
+}
