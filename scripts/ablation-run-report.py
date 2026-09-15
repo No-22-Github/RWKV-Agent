@@ -34,6 +34,50 @@ def case_success(case: dict) -> bool:
     return bool(case.get("passed"))
 
 
+def irrelevance_gradient(case: dict, case_entries: list[dict]) -> dict:
+    """Continuous movement metrics for one no-call-expected case.
+
+    task_success is all-or-nothing and the category sits on the floor, so the
+    ablation rounds are judged on these: average tool calls per case and how
+    often the first decision step already opens a <tool_call>.
+    """
+    tool_call_steps = 0
+    first_is_tool_call = False
+    steps_seen = 0
+    for entry in case_entries:
+        if entry.get("kind") != "model_call":
+            continue
+        call = entry.get("model_call", {})
+        stage = call.get("stage")
+        text = call.get("response", {}).get("text", "") or ""
+        if stage == "decision":
+            steps_seen += 1
+            if "<tool_call>" in text:
+                tool_call_steps += 1
+                if steps_seen == 1:
+                    first_is_tool_call = True
+    return {
+        "tool_call_steps": tool_call_steps,
+        "first_step_is_tool_call": first_is_tool_call,
+    }
+
+
+def irrelevance_gradient_from_trace(run_dir: Path, ids: list[str]) -> dict[str, dict]:
+    """Read trace.jsonl once and collect per-case gradient metrics."""
+    wanted = set(ids)
+    by_case: dict[str, list[dict]] = {case_id: [] for case_id in ids}
+    trace = run_dir / "trace.jsonl"
+    if not trace.is_file():
+        return {}
+    with trace.open("r", encoding="utf-8") as source:
+        for line in source:
+            entry = json.loads(line)
+            case_id = entry.get("case_id")
+            if case_id in wanted:
+                by_case[case_id].append(entry)
+    return {case_id: irrelevance_gradient({"id": case_id}, entries) for case_id, entries in by_case.items()}
+
+
 def prompt_bytes(case: dict) -> tuple[int, int]:
     """Return (first decision prompt bytes, total request bytes) for a case."""
     first = 0
@@ -70,6 +114,9 @@ def analyse_run(run_dir: Path) -> dict:
     fixed_prefix = sorted(first_bytes.values())
     median_first = fixed_prefix[len(fixed_prefix) // 2] if fixed_prefix else 0
 
+    irrelevance_ids = [case["id"] for case in cases if case.get("category") == "bfcl-irrelevance"]
+    gradient = irrelevance_gradient_from_trace(run_dir, irrelevance_ids)
+
     return {
         "run_dir": str(run_dir),
         "task_success": metrics.get("task_success", {}),
@@ -88,6 +135,7 @@ def analyse_run(run_dir: Path) -> dict:
         "total_prompt_bytes": total_bytes,
         "median_first_prompt_bytes": median_first,
         "sum_total_prompt_bytes": sum(total_bytes.values()),
+        "irrelevance_gradient": gradient,
     }
 
 
@@ -142,6 +190,15 @@ def print_run(run: dict) -> None:
     )
     if run["repairs_by_id"]:
         print(f"repairs: {run['repairs_by_id']}")
+    gradient = run.get("irrelevance_gradient") or {}
+    if gradient:
+        calls = [item["tool_call_steps"] for item in gradient.values()]
+        first = sum(1 for item in gradient.values() if item["first_step_is_tool_call"])
+        average = sum(calls) / len(calls) if calls else 0.0
+        print(
+            f"irrelevance gradient: {average:.2f} tool calls/case "
+            f"(n={len(calls)}), first-step tool_call {first}/{len(calls)}"
+        )
     print(
         f"prompt bytes: median first decision {run['median_first_prompt_bytes']}, "
         f"sum all requests {run['sum_total_prompt_bytes']}"
