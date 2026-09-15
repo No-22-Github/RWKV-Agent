@@ -6,6 +6,7 @@ __pycache__/
 /dist/
 /runs/
 /sessions/
+/datasets/
 /.file_locks/
 /third_party/gorilla/
 .DS_Store
