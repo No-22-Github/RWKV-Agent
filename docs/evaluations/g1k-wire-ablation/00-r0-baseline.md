@@ -1,5 +1,7 @@
 # G1K wire 消融 R0：干净基线（2026-09-15）
 
+> [← 返回消融总结](wire-ablation-g1k-summary-20260915.md) | 下一轮：[R1 标签对齐 →](01-r1-align.md)
+
 分支 `ablation/g1k-format`。目的：格式/调用约定消融（R0–R4）的起点——在 G1K 上用当前
 wire 原封不动跑 bfcl-product 60 题三遍，拿三类拆项分数和三遍波动，重排后续砍除顺序。
 老模型（g1j）上的分数全部作废。

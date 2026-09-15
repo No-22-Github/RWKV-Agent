@@ -5,7 +5,7 @@
 > [`README.en.md`](README.en.md)。`docs/` 内部的逐文件索引见
 > [`docs/README.md`](docs/README.md)。
 >
-> 最后更新：2026-08-26
+> 最后更新：2026-09-15
 
 ## 快速定位
 
@@ -14,12 +14,15 @@
 | 安装、构建和基本使用 | [`README.md`](README.md) | 项目主入口、CLI、Provider、Agent 和测试说明 |
 | macOS 从零运行 | [`docs/getting-started-macos.md`](docs/getting-started-macos.md) | 环境、模型准备、构建、运行、更新和常见问题 |
 | 桌面 App 与公开 API | [`docs/app.md`](docs/app.md) | Wails App、headless server、存储和开发说明 |
-| 当前续写与 Agent 协议 | [`docs/continuation-and-agent-protocol.md`](docs/continuation-and-agent-protocol.md) | 内建续写协议、渐进式工具和远程 Provider 边界 |
+| **工具调用与对话格式总览** | [`docs/tool-and-wire-formats.md`](docs/tool-and-wire-formats.md) | **★ 统一格式门户 ★**：分层设计、G1K 推荐格式、矩阵对比与演进 |
+| **G1K 对齐语料格式契约** | [`docs/corpus-g1k-wire-format.md`](docs/corpus-g1k-wire-format.md) | 数据侧逐字节契约：System、`<tools>`、User `<tool_response>`、纯文本终答 |
+| **Wire 运行时配置指南** | [`docs/wire-configuration.md`](docs/wire-configuration.md) | Spec 参数全表、Profile 预设、CLI/API 统一入口（受单测锁守护） |
+| **G1K Wire 消融旗舰总结** | [`docs/evaluations/g1k-wire-ablation/wire-ablation-g1k-summary-20260915.md`](docs/evaluations/g1k-wire-ablation/wire-ablation-g1k-summary-20260915.md) | R0–R4 全轮实测、定音分数卡（40→49 题，请求字节 −56%）、语料靶子 |
+| **Harness 偏好重建三部曲** | [`docs/evaluations/preference-rebuild-20260831/`](docs/evaluations/preference-rebuild-20260831/) | 配套根目录 [`PREFERENCES.md`](PREFERENCES.md)，记录 P1–P5 探针、量尺重建与真词表收敛 |
+| 现行 60 题产品语义评测集 | [`docs/evaluations/bfcl-v4-product-suite-20260826.md`](docs/evaluations/bfcl-v4-product-suite-20260826.md) | bfcl-product 规格与测试边界，G1K 消融主测试集 |
 | 推理核心和 State 设计 | [`docs/inference-core-design.md`](docs/inference-core-design.md) | 分层、生命周期、State、调度和契约测试 |
-| 当前已提交的 13B 边界基线 | [`archive/v10-baseline/README.md`](archive/v10-baseline/README.md) | v10 RWKV 13B 为 13/18；同版本内比较，附原始证据 |
 | Primitive Bench 演进 | [`docs/evaluations/primitive-bench-v12-baseline-2026-08-13.md`](docs/evaluations/primitive-bench-v12-baseline-2026-08-13.md) | v12 基线以及 v13–v21 的实验、复跑和政策记录 |
-| BFCL 当前进度 | [`docs/evaluations/bfcl-v4-run-log.md`](docs/evaluations/bfcl-v4-run-log.md) | 固定环境、正式评分总表、可比性分组和辅助运行 |
-| Harness 优化总结 | [`docs/reports/harness-layer-optimization-report.html`](docs/reports/harness-layer-optimization-report.html) | 中文长报告；另有英文版 |
+| Harness 优化总结长报告 | [`docs/reports/harness-layer-optimization-report.html`](docs/reports/harness-layer-optimization-report.html) | 中文长报告（17 招实战经验）；另有英文版 |
 
 ## 如何理解评测材料
 
@@ -36,10 +39,12 @@
 
 | 文档 | 状态与用途 |
 | --- | --- |
+| [`docs/tool-and-wire-formats.md`](docs/tool-and-wire-formats.md) | **★ 工具格式与对话协议门户 ★**：分层机制、推荐格式、全景矩阵与演进历程 |
+| [`docs/corpus-g1k-wire-format.md`](docs/corpus-g1k-wire-format.md) | G1K 对齐语料格式契约：数据清洗/生产逐字节规范 |
+| [`docs/wire-configuration.md`](docs/wire-configuration.md) | Agent Wire Spec 参数全表、Profile 预设与 CLI/API 配置指南 |
+| [`docs/continuation-and-agent-protocol.md`](docs/continuation-and-agent-protocol.md) | 当前续写接口与 Agent 协议分层实现 |
 | [`docs/inference-core-design.md`](docs/inference-core-design.md) | 当前推理核心设计：backend、State、调度、并发与契约 |
 | [`docs/direct-pth-loading.md`](docs/direct-pth-loading.md) | 当前 `.pth` 直载链路：mmap、索引缓存和转换路径 |
-| [`docs/continuation-and-agent-protocol.md`](docs/continuation-and-agent-protocol.md) | 当前续写接口和 Agent 协议边界 |
-| [`docs/agent-harness-milestone.md`](docs/agent-harness-milestone.md) | 早期只读 XML Harness 里程碑；历史参考，不是当前默认协议 |
 
 ## 上手与产品文档
 
@@ -49,22 +54,26 @@
 | [`README.en.md`](README.en.md) | English README |
 | [`docs/getting-started-macos.md`](docs/getting-started-macos.md) | macOS 完整上手指南 |
 | [`docs/app.md`](docs/app.md) | 桌面 App、浏览器模式与公开 API |
-| [`docs/README.md`](docs/README.md) | `docs/` 目录的逐文件索引 |
+| [`docs/README.md`](docs/README.md) | `docs/` 目录的逐文件多级索引 |
 
 ## 评测与基线
 
-### Agent 边界与 Harness
+### G1K Wire 格式消融实验 (2026-09-15 现行基线)
 
 | 文档或证据 | 结论定位 |
 | --- | --- |
-| [`archive/v10-baseline/README.md`](archive/v10-baseline/README.md) | 当前已提交的 v10 基线入口；RWKV 13B 13/18，DeepSeek v4 Flash 17/18；v8/v9/v10 不跨版本比较 |
-| [`archive/v10-baseline/`](archive/v10-baseline/) | 六组冻结证据，每组包含运行配置、逐条 trace 和汇总 |
-| [`docs/evaluations/api-13b-v9-evaluation-report-20260806.md`](docs/evaluations/api-13b-v9-evaluation-report-20260806.md) | v9 三项 Harness 修复后的完整复测报告 |
-| [`docs/evaluations/api-13b-v8-evaluation-report-20260805.md`](docs/evaluations/api-13b-v8-evaluation-report-20260805.md) | v8 profile 的 13.3B Harness 评测 |
-| [`docs/evaluations/api-13b-evaluation-report-20260803.md`](docs/evaluations/api-13b-evaluation-report-20260803.md) | 早期 13B Harness 问题报告 |
-| [`docs/evaluations/local-assistant-p0-effect-report-20260804.md`](docs/evaluations/local-assistant-p0-effect-report-20260804.md) | 本地优先助手 P0 落地效果 |
+| [`docs/evaluations/g1k-wire-ablation/wire-ablation-g1k-summary-20260915.md`](docs/evaluations/g1k-wire-ablation/wire-ablation-g1k-summary-20260915.md) | **现行消融旗舰**：全轮对比表（R0–R4）、跨套件分数卡（40→49/60）、三条核心教训与语料靶子 |
+| [`docs/evaluations/g1k-wire-ablation/`](docs/evaluations/g1k-wire-ablation/) | 逐轮报告：00-r0 基线、01-r1 标签对齐、02-r1.5 示范探针、03-exit 出口轮、04-r2 砍训诫、05-r3 砍示例块、06-r4 两阶段合一 |
+| [`docs/evaluations/bfcl-v4-product-suite-20260826.md`](docs/evaluations/bfcl-v4-product-suite-20260826.md) | 现行 60 题产品语义测试集（bfcl-product），消融评测基准 |
 
-本地原始运行通常位于 `runs/agent-eval-*`、`runs/api-13b-*`、`runs/deepseek-*` 和 `runs/cmp-*`。优先阅读报告或归档 README，再按其中记录的运行目录查看原始证据。
+### Harness 偏好重建三部曲 (2026-08-31)
+
+| 文档或证据 | 结论定位 |
+| --- | --- |
+| [`PREFERENCES.md`](PREFERENCES.md) | 模型偏好与 16 条工程落地规则总纲（合并自原三处分节，置顶执行含义） |
+| [`docs/evaluations/preference-rebuild-20260831/harness-preference-rebuild-report-20260831.md`](docs/evaluations/preference-rebuild-20260831/harness-preference-rebuild-report-20260831.md) | 第一轮偏好重建报告：P1–P5 探针结论、16 条规则与改动清单 |
+| [`docs/evaluations/preference-rebuild-20260831/harness-round2-report-20260831.md`](docs/evaluations/preference-rebuild-20260831/harness-round2-report-20260831.md) | 第二轮量尺重建：题集校准、首次发现 4.5k–5k 长提取工作流悬崖 |
+| [`docs/evaluations/preference-rebuild-20260831/harness-round3-report-20260831.md`](docs/evaluations/preference-rebuild-20260831/harness-round3-report-20260831.md) | 第三轮真词表计数、压缩修复与检索纪律：精确重标悬崖为 4673–5021 tokens |
 
 ### Primitive Bench
 
@@ -74,37 +83,36 @@
 | [`internal/agent/eval/testdata/primitive_orig30/UPSTREAM.md`](internal/agent/eval/testdata/primitive_orig30/UPSTREAM.md) | 原始 30 题快照的来源说明 |
 | [`internal/agent/eval/testdata/primitive_feedback30/UPSTREAM.md`](internal/agent/eval/testdata/primitive_feedback30/UPSTREAM.md) | 反馈集 30 题快照的来源说明 |
 
-本地运行以 `runs/primitive-*` 和 `runs/api125-*` 为主。文件名中的版本号表示 Harness/实验阶段，不应脱离主记录单独解释为稳定回归结论。
-
-### BFCL v4
+### BFCL v4 历史评测攻坚 (2026-08-18 ~ 2026-08-26 归档)
 
 | 文档或证据 | 结论定位 |
 | --- | --- |
-| [`docs/evaluations/bfcl-v4-ab-main-integration-20260826.md`](docs/evaluations/bfcl-v4-ab-main-integration-20260826.md) | BFCL loader、renderer/parser、单轮/多轮 runner、sidecar、CLI 与样本/归档已整体迁移到 main；产品默认协议保持独立 |
-| [`docs/evaluations/bfcl-v4-eval-branch-closure-20260826.md`](docs/evaluations/bfcl-v4-eval-branch-closure-20260826.md) | BFCL 分支收口历史入口：统一 E8/E9 与 7.2b lab 勘误，记录评分边界与归档哈希 |
-| [`docs/evaluations/bfcl-v4-run-log.md`](docs/evaluations/bfcl-v4-run-log.md) | BFCL 的主跑分日志和正式评分总表；新增运行统一追加到这里 |
-| [`docs/evaluations/bfcl-v4-ab-m0.md`](docs/evaluations/bfcl-v4-ab-m0.md) | M0 数据、evaluator 和本地判分入口预热 |
-| [`docs/evaluations/bfcl-v4-m2.5-wire-compat-20260818.md`](docs/evaluations/bfcl-v4-m2.5-wire-compat-20260818.md) | 同一批 400 条输出的离线兼容重解析：strict 28.75%，compat 91.25%；不是新模型跑分，二者不能互相替代 |
-| [`docs/evaluations/bfcl-v4-determinism-concurrency-20260820.md`](docs/evaluations/bfcl-v4-determinism-concurrency-20260820.md) | 确定性归因：并发不是原因（c16 对 c48 p=1.000），thinking 拉长解码是主因，批处理有无是次因；含对 08-19 两处表述的修正 |
-| [`docs/evaluations/rwkv-g1-toolcall-abstention-defect-20260820.md`](docs/evaluations/rwkv-g1-toolcall-abstention-defect-20260820.md) | 历史诊断，核心“预填后必然无法弃权”已被 2026-08-25 的 7.2b 复测修正；13.3b 未复测，现行解释以分支收口说明为准 |
-| [`docs/evaluations/bfcl-v4-anchor-position-20260820.md`](docs/evaluations/bfcl-v4-anchor-position-20260820.md) | 小优化：锚点延长到 `{"name":"`（并行用 `[{"name":"`），non-live 1000 题 strict 51.10% → 88.90%，超过带兜底的 88.00% |
-| [`docs/evaluations/bfcl-v4-multi-turn-e4-e7-20260821.md`](docs/evaluations/bfcl-v4-multi-turn-e4-e7-20260821.md) | Multi-turn E4–E7：上游判分语义、800 题上下文可行集、sidecar GT 100% 门禁与双模型单题闭环 |
-| [`docs/evaluations/bfcl-v4-e8-qwen-enhanced-base-20260822.md`](docs/evaluations/bfcl-v4-e8-qwen-enhanced-base-20260822.md) | E8 Qwen enhanced `multi_turn_base`：57/200，含 baseline 对照、失败迁移、干预事件与冻结归档 |
-| [`docs/evaluations/bfcl-v4-run-log.md`](docs/evaluations/bfcl-v4-run-log.md)（E9 条目）| E9 原生 FC 多轮诊断：Qwen no-think 47/200 = 23.5%；thinking 主结果 18/60 = 30.0%，18/51 仅为条件指标；reasoning history 修复并同池重跑前不量化增益 |
-| [`archive/bfcl-v4-e8-qwen-enhanced-base-20260822/README.md`](archive/bfcl-v4-e8-qwen-enhanced-base-20260822/README.md) | E8 Qwen enhanced 的 200 条合并结果、机器可读汇总、官方分数摘要与哈希 |
-| [`docs/evaluations/bfcl-v4-qwen-native-fc-alignment-20260819.md`](docs/evaluations/bfcl-v4-qwen-native-fc-alignment-20260819.md) | Qwen3-8B 原生 FC 全量与公开榜单逐 split 对齐；用作管道体检，不是本项目成绩 |
-| [`docs/evaluations/bfcl-v4-qwen-markdown-baseline-full-20260819.md`](docs/evaluations/bfcl-v4-qwen-markdown-baseline-full-20260819.md) | Markdown baseline 全量诊断；负样本分受 prompt 预填影响，不代表模型拒调能力 |
-| [`docs/evaluations/bfcl-v4-m3-sampling-20260819.md`](docs/evaluations/bfcl-v4-m3-sampling-20260819.md) | M3 抽样冻结与代表性诊断，manifest v1 → v2 |
-| [`docs/archive/bfcl-ab-spec-v3.1.md`](docs/archive/bfcl-ab-spec-v3.1.md) | 已归档的 A+B 接入实施规格，用于追溯评测设计 |
+| [`docs/evaluations/historical-bfcl-v4/bfcl-v4-eval-branch-closure-20260826.md`](docs/evaluations/historical-bfcl-v4/bfcl-v4-eval-branch-closure-20260826.md) | BFCL 分支收口历史入口：统一 E8/E9 与 7.2b lab 勘误，记录评分边界与归档哈希 |
+| [`docs/evaluations/historical-bfcl-v4/bfcl-v4-ab-main-integration-20260826.md`](docs/evaluations/historical-bfcl-v4/bfcl-v4-ab-main-integration-20260826.md) | BFCL loader、renderer/parser、单轮/多轮 runner、sidecar、CLI 与样本/归档已整体迁移到 main |
+| [`docs/evaluations/historical-bfcl-v4/bfcl-v4-run-log.md`](docs/evaluations/historical-bfcl-v4/bfcl-v4-run-log.md) | BFCL 的主跑分日志和正式评分总表（分支收口后冻结） |
+| [`docs/evaluations/historical-bfcl-v4/bfcl-v4-anchor-position-20260820.md`](docs/evaluations/historical-bfcl-v4/bfcl-v4-anchor-position-20260820.md) | 锚点延长到 `{"name":"`，non-live 1000 题 strict 51.10% → 88.90% |
+| [`docs/evaluations/historical-bfcl-v4/bfcl-v4-determinism-concurrency-20260820.md`](docs/evaluations/historical-bfcl-v4/bfcl-v4-determinism-concurrency-20260820.md) | 确定性归因：并发不是原因，thinking 拉长解码是主因 |
+| [`docs/evaluations/historical-bfcl-v4/rwkv-g1i-toolcall-abstention-defect-20260820.md`](docs/evaluations/historical-bfcl-v4/rwkv-g1i-toolcall-abstention-defect-20260820.md) | 历史诊断，核心“预填后必然无法弃权”已被 7.2b 复测修正（见收口说明） |
+| [`docs/evaluations/historical-bfcl-v4/bfcl-v4-multi-turn-e4-e7-20260821.md`](docs/evaluations/historical-bfcl-v4/bfcl-v4-multi-turn-e4-e7-20260821.md) | Multi-turn E4–E7：上游判分语义、800 题上下文可行集与单题闭环 |
+| [`docs/evaluations/historical-bfcl-v4/bfcl-v4-e8-qwen-enhanced-base-20260822.md`](docs/evaluations/historical-bfcl-v4/bfcl-v4-e8-qwen-enhanced-base-20260822.md) | E8 Qwen enhanced `multi_turn_base`：57/200 对照与冻结归档 |
+| [`docs/evaluations/historical-bfcl-v4/`](docs/evaluations/historical-bfcl-v4/) | 完整 14 份报告，含 `ab-m0`、`m2.5-wire-compat`、`m3-sampling`、`qwen-markdown` 等过程记录 |
 
-本地 BFCL 证据位于 `runs/bfcl/`，包括 result、score、trace、验收记录和适配器健康检查。该目录不提交；可对外引用的结论必须先写入 `docs/evaluations/`。
+### G1I 13B 早期探索基线 (2026-08-03 ~ 2026-08-06 归档)
+
+| 文档或证据 | 结论定位 |
+| --- | --- |
+| [`archive/v10-baseline/README.md`](archive/v10-baseline/README.md) | 早期提交的 v10 基线入口；RWKV 13B 13/18，DeepSeek v4 Flash 17/18 |
+| [`docs/evaluations/historical-g1i-13b/api-13b-v9-evaluation-report-20260806.md`](docs/evaluations/historical-g1i-13b/api-13b-v9-evaluation-report-20260806.md) | v9 三项 Harness 修复报告（10/18 严格任务，撤除 `structured_query` 关键发现） |
+| [`docs/evaluations/historical-g1i-13b/api-13b-v8-evaluation-report-20260805.md`](docs/evaluations/historical-g1i-13b/api-13b-v8-evaluation-report-20260805.md) | v8 profile 的 13.3B Harness 评测 |
+| [`docs/evaluations/historical-g1i-13b/api-13b-evaluation-report-20260803.md`](docs/evaluations/historical-g1i-13b/api-13b-evaluation-report-20260803.md) | 早期 13B Harness 问题报告 |
+| [`docs/evaluations/historical-g1i-13b/local-assistant-p0-effect-report-20260804.md`](docs/evaluations/historical-g1i-13b/local-assistant-p0-effect-report-20260804.md) | 本地优先助手 P0 落地效果报告 |
 
 ## 长报告
 
 | 文档 | 说明 |
 | --- | --- |
-| [`docs/reports/harness-layer-optimization-report.html`](docs/reports/harness-layer-optimization-report.html) | Harness 层优化实录，中文版 |
-| [`docs/reports/harness-layer-optimization-report-en.html`](docs/reports/harness-layer-optimization-report-en.html) | Harness Optimization Report, English version |
+| [`docs/reports/harness-layer-optimization-report.html`](docs/reports/harness-layer-optimization-report.html) | Harness 层优化实录 · 抄作业版，中文版 |
+| [`docs/reports/harness-layer-optimization-report-en.html`](docs/reports/harness-layer-optimization-report-en.html) | Harness Layer Optimization Report, English version |
 
 ## 历史归档文档
 
@@ -112,7 +120,8 @@
 
 | 文档 | 历史主题 |
 | --- | --- |
-| [`docs/archive/bfcl-ab-spec-v3.1.md`](docs/archive/bfcl-ab-spec-v3.1.md) | BFCL v4 A+B 接入实施规格 |
+| [`docs/archive/agent-harness-milestone.md`](docs/archive/agent-harness-milestone.md) | 早期只读 XML Harness 里程碑（历史参考，从 docs/ 迁入） |
+| [`docs/archive/bfcl-ab-spec-v3.1.md`](docs/archive/bfcl-ab-spec-v3.1.md) | BFCL v4 A+B 接入实施规格（历史设计） |
 | [`docs/archive/rwkv-mobile-adoption-and-cli-milestone.md`](docs/archive/rwkv-mobile-adoption-and-cli-milestone.md) | RWKV Mobile 采用与 CLI 里程碑 |
 | [`docs/archive/rwkv-mobile-macos-cli-implementation-plan.md`](docs/archive/rwkv-mobile-macos-cli-implementation-plan.md) | RWKV Mobile macOS CLI 实施计划 |
 | [`docs/archive/rwkv-cli-tui-redesign-plan.md`](docs/archive/rwkv-cli-tui-redesign-plan.md) | CLI TUI 重设计计划 |

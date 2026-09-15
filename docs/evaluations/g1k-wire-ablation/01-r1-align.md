@@ -1,5 +1,7 @@
 # G1K wire 消融 R1：标签对齐（2026-09-15）
 
+> [← 返回消融总结](wire-ablation-g1k-summary-20260915.md) | [← 上一轮：R0 基线](00-r0-baseline.md) | 下一轮：[R1.5 示范探针 →](02-r1.5-probe-nocall.md)
+
 分支 `ablation/g1k-format`。R1 = wire 新轴 `align=qwen36`（`--profile xml-v1+align-qwen36`），
 在 R0 基线（40/60，`align=legacy`）之上只动标签和承载位置：
 

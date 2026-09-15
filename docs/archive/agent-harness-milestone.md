@@ -4,7 +4,7 @@
 
 > 历史说明：本文记录早期 XML Harness 里程碑；具体字节和旧 Router 设计不代表当前实现。
 > 当前默认的 XML 无路由 profile、可选 Markdown/function transcript 和渐进式工具目录见
-> [`continuation-and-agent-protocol.md`](continuation-and-agent-protocol.md)。
+> [`continuation-and-agent-protocol.md`](../continuation-and-agent-protocol.md)。
 
 目标：在现有 macOS 本地推理、Conversation 和 State 能力之上，建立可测试、可约束的
 Agent step loop；先证明模型能可靠地依据仓库证据回答，再逐步开放有副作用的能力。

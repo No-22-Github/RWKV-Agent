@@ -1,5 +1,7 @@
 # Harness 第二轮报告：量尺重建与重判（2026-08-31）
 
+> [← 返回三部曲目录](README.md) | [← 上一轮：第一轮偏好探针](harness-preference-rebuild-report-20260831.md) | 下一轮：[第三轮：真实计数与收敛 →](harness-round3-report-20260831.md)
+
 分支 `feat/harness-round2`（自 `feat/harness-preference-rebuild` 切出，两轮 diff
 独立可 review）。本轮目标**不是继续加功能**，而是先修量尺（第一轮的 4 道 e2e
 全是地板/天花板，测不出中等幅度改进），再用修好的尺子重判第一轮改动。

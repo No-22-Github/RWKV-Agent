@@ -117,7 +117,7 @@ tool-like extraction failure 和兼容修复；case schema v4 可显式要求 `r
 ### 6.2 仓库内 compact archive
 
 当前已提交的 E8 小型机器可读归档位于
-[`archive/bfcl-v4-e8-qwen-enhanced-base-20260822/`](../../archive/bfcl-v4-e8-qwen-enhanced-base-20260822/)。
+[`archive/bfcl-v4-e8-qwen-enhanced-base-20260822/`](../../../archive/bfcl-v4-e8-qwen-enhanced-base-20260822/)。
 本次重新计算得到：
 
 | 文件 | SHA-256 |

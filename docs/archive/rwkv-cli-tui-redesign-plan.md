@@ -13,7 +13,7 @@
 
 - [RWKV Mobile macOS CLI 完整实施计划](rwkv-mobile-macos-cli-implementation-plan.md)
 - [macOS CLI 实施与验证记录](macos-cli-implementation-validation.md)
-- [跨平台推理核心设计](inference-core-design.md)
+- [跨平台推理核心设计](../inference-core-design.md)
 
 ## 1. 背景与结论
 

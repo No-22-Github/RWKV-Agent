@@ -1,5 +1,10 @@
 # RWKV7-G1i-7.2B 输出偏好（Harness 重建的唯一输入）
 
+> 偏好重建完整评测三部曲详见 [`docs/evaluations/preference-rebuild-20260831/`](docs/evaluations/preference-rebuild-20260831/)：
+> - [第一轮：偏好测绘报告（P1–P5 探针）](docs/evaluations/preference-rebuild-20260831/harness-preference-rebuild-report-20260831.md)
+> - [第二轮：量尺重建与重判（4.5k–5k 提取悬崖）](docs/evaluations/preference-rebuild-20260831/harness-round2-report-20260831.md)
+> - [第三轮：真实计数、压缩修复与检索纪律](docs/evaluations/preference-rebuild-20260831/harness-round3-report-20260831.md)
+
 ## 对 Harness 的可执行含义（总索引；合并自原三处分节，round-3 起置顶）
 
 以下不是新的观测，是工程推论；依据编号指向下文实测条目。状态更新直接写在

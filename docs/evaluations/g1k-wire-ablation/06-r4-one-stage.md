@@ -1,5 +1,7 @@
 # G1K wire 消融 R4：两阶段合一、去 `<answer>` 包络（2026-09-15，采纳）
 
+> [← 返回消融总结](wire-ablation-g1k-summary-20260915.md) | [← 上一轮：R3 砍示例块](05-r3-bare.md) | [查看语料格式契约 →](../../corpus-g1k-wire-format.md)
+
 分支 `ablation/g1k-format`。R4 = wire 新轴 `stages=one`（`xml-v1+align-qwen36+no-tool+bare+one-stage`），
 跑在 R3-bare 基座（49/60）上。口径按修订计划：成本优化立项，验收 = 零回归。
 

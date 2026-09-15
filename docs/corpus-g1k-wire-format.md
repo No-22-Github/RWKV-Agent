@@ -2,8 +2,8 @@
 
 用途：供语料生产/清洗侧对齐模型可见字节。本文档的每个字节块都从评测 trace
 （`runs/ablation-g1k/r4-one-stage`）与实现（`internal/agent/protocol_g1.go`、
-`internal/inference/prompt.go`）逐字取证。背景与实验依据见
-[`wire-ablation-g1k-summary-20260915.md`](evaluations/wire-ablation-g1k-summary-20260915.md)。
+`internal/inference/prompt.go`）逐字取证。格式总览见 [`docs/tool-and-wire-formats.md`](tool-and-wire-formats.md)，实验依据见
+[`evaluations/g1k-wire-ablation/wire-ablation-g1k-summary-20260915.md`](evaluations/g1k-wire-ablation/wire-ablation-g1k-summary-20260915.md)。
 
 ## 0. wire 身份
 

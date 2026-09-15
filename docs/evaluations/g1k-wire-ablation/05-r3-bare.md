@@ -1,5 +1,7 @@
 # G1K wire 消融 R3：砍示例块（2026-09-15，结论：整块砍，采纳入基座）
 
+> [← 返回消融总结](wire-ablation-g1k-summary-20260915.md) | [← 上一轮：R2 砍训诫](04-r2-cutoff-rules.md) | 下一轮：[R4 两阶段合一 →](06-r4-one-stage.md)
+
 分支 `ablation/g1k-format`。R3 = `control` 轴两个新变体，跑在出口轮基座
 （`align-qwen36+no-tool`，41/60）上：
 

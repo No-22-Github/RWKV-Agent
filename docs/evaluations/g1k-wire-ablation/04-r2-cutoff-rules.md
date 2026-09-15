@@ -1,5 +1,7 @@
 # G1K wire 消融 R2：砍已被证伪的训诫（2026-09-15，结论：驳回）
 
+> [← 返回消融总结](wire-ablation-g1k-summary-20260915.md) | [← 上一轮：no-tool 出口](03-exit-notool.md) | 下一轮：[R3 砍示例块 →](05-r3-bare.md)
+
 分支 `ablation/g1k-format`。按 R0 拆项筛选法，砍掉两条"规则写了但对应错误照样发生"
 的训诫句（R0 中均 20/20 违反）：
 

@@ -1,9 +1,11 @@
 # Harness 偏好重建报告（2026-08-31）
 
+> [← 返回三部曲目录](README.md) | [根目录规则：PREFERENCES.md](../../../PREFERENCES.md) | 下一轮：[第二轮：量尺重建 →](harness-round2-report-20260831.md)
+
 分支 `feat/harness-preference-rebuild`（与 main 同起点 1f912cb，全部工作在分支上）。
 本轮方法：**先用高并发 API 测出模型自身的输出偏好，再围绕偏好重建 Harness**；
 没有实验结论支撑的改动一律不进代码。逐条偏好的完整数据在仓库根
-[`PREFERENCES.md`](../../PREFERENCES.md)。原始输出、分类与计数曾保存在临时
+[`PREFERENCES.md`](../../../PREFERENCES.md)。原始输出、分类与计数曾保存在临时
 实验工作区；该工作区已从源码仓库及其重写后的历史中清除，本文保留汇总结论。
 
 - 模型：`rwkv7-g1i-7.2b-20260805-ctx16384`

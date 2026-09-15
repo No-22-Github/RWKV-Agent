@@ -1,5 +1,7 @@
 # Harness 第三轮报告:真实计数、压缩修复、检索纪律(2026-08-31,进行中)
 
+> [← 返回三部曲目录](README.md) | [← 上一轮：第二轮量尺重建](harness-round2-report-20260831.md) | [根目录规则：PREFERENCES.md](../../../PREFERENCES.md)
+
 分支 `feat/harness-round3`(自 `feat/harness-round2` 切出)。`ea6440c` 已打 tag
 `round1-round2-boundary`(第一轮/第二轮分界,第一轮分支未推送,该 tag 是唯一
 分界标记)。模型/端点/贪心采样/`--api-stop-tokens none` 同前两轮;所有 A/B

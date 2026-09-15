@@ -1,5 +1,7 @@
 # G1K wire 消融：no-tool 出口轮（2026-09-15）
 
+> [← 返回消融总结](wire-ablation-g1k-summary-20260915.md) | [← 上一轮：R1.5 探针](02-r1.5-probe-nocall.md) | 下一轮：[R2 砍训诫 →](04-r2-cutoff-rules.md)
+
 分支 `ablation/g1k-format`。R1.5 示范探针驳回后，本轮按单变量纪律跑在 R1 基座上：
 `--profile xml-v1+align-qwen36+no-tool`（`abstain=no-tool`，不带示范）——检验"到底是
 框架问题还是出口问题"的关键对照。

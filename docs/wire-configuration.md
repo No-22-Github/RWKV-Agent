@@ -85,6 +85,8 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 文字与目录内容均不变。仅支持 `format=xml` + `transcript=product` + `transport=text`；
 解析器同时接受新旧两种结果包络（模型回显结果信封记 `envelope_recovered` 修复）。
 
+> 格式体系总览见 [`docs/tool-and-wire-formats.md`](tool-and-wire-formats.md)，G1K wire 格式消融完整实验报告见 [`docs/evaluations/g1k-wire-ablation/wire-ablation-g1k-summary-20260915.md`](evaluations/g1k-wire-ablation/wire-ablation-g1k-summary-20260915.md)，下游对齐语料契约见 [`docs/corpus-g1k-wire-format.md`](corpus-g1k-wire-format.md)。
+
 跨轴约束（违反会在构造期报错，不会静默改字节）：
 
 - `thinking=fast/full` 已经占用 assistant opening ⇒ `prefill` 必须是 `none`；

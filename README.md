@@ -356,8 +356,8 @@ Provider/runtime 层。
 当前 CLI `agent` 支持进程内多轮交互，但还没有自己的 transcript 保存/恢复；桌面 App 已
 通过公开 `api` 持久化会话与历史。上下文压缩、写文件审批和命令执行仍不在范围内。
 协议边界、工具权限与状态机设计见
-[docs/continuation-and-agent-protocol.md](docs/continuation-and-agent-protocol.md) 与
-[docs/agent-harness-milestone.md](docs/agent-harness-milestone.md)。
+[docs/continuation-and-agent-protocol.md](docs/continuation-and-agent-protocol.md) 与历史里程碑
+[docs/archive/agent-harness-milestone.md](docs/archive/agent-harness-milestone.md)。
 
 ## 7. 远程 Provider
 
@@ -723,10 +723,10 @@ archive/              历史评测基线归档
 | 总索引 | [项目文档、评测与跑分索引](INDEX.md) |
 | 上手 | [macOS 从零上手](docs/getting-started-macos.md) · [桌面 App](docs/app.md) |
 | 设计 | [推理核心设计](docs/inference-core-design.md) · [直接 PTH 加载](docs/direct-pth-loading.md) |
-| Agent | [续写接口与 Agent 协议](docs/continuation-and-agent-protocol.md) · [Harness 里程碑](docs/agent-harness-milestone.md) |
-| 评测 | [docs/evaluations/](docs/evaluations/)（v12 基线与 v13–v21 演进、API 13B 报告、P0 落地报告） |
+| 协议与格式 | [工具与对话格式总览](docs/tool-and-wire-formats.md) · [G1K 语料契约](docs/corpus-g1k-wire-format.md) · [Wire 配置指南](docs/wire-configuration.md) · [续写与 Agent 协议](docs/continuation-and-agent-protocol.md) |
+| 评测 | [docs/evaluations/](docs/evaluations/)（G1K 消融、60 题题集、偏好三部曲、BFCL 历史） |
 | 报告 | [docs/reports/](docs/reports/)（Harness 层优化报告中英版） |
-| 归档 | [docs/archive/](docs/archive/)（旧实施计划与验证文档） |
+| 归档 | [docs/archive/](docs/archive/)（旧 Harness 里程碑、实施计划与验证文档） |
 
 仓库级总索引见 [INDEX.md](INDEX.md)；`docs/` 逐文件索引见
 [docs/README.md](docs/README.md)。
