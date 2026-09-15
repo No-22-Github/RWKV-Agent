@@ -42,6 +42,28 @@
    （forced_answers 54→8、总字节 −23%），但 9/10 的弃权发生在浪费 1-3 步之后，且引入
    工具报错后放弃的新失败模式。分数持平，字节与行为结构净改善。
 
+## 跨套件定音分数卡（同日同端点，G1K）
+
+| 套件（题数） | legacy R0-wire | 最终配置 | Δ | 说明 |
+| --- | --- | --- | --- | --- |
+| bfcl-product（60） | 40/60 | **49/60** | +9 | 混合负载，irrelevance 驱动 |
+| assistant（6） | 1/6 | **3/6** | +2 | 多轮对话+工具 |
+| smoke（10） | 2/10 | **4/10** | +2 | 端到端链路 |
+| boundary（18） | **4/18** | 0/18 | **−4** | 严格工具序列+精确参数 |
+
+boundary 归因链（逐变量）：legacy 4/18 → `align` 无出口 2/18 → +出口 1/18（8 次
+semantic_no_call＝该调工具时弃权）→ +bare 0/18（12 次 direct_final＝凭空作答）。
+**结论：最终配置是"弃权友好、示范自由"的形状，在 bfcl-product/assistant/smoke 上全面
+占优；boundary 型重工具负载（严格工具序列、精确参数、多步执行）对 G1K 本就最难，
+新配置每一项收益在它身上全部反向。生产默认应按负载分流：**
+
+- 混合/含大量无工具需求任务（bfcl-product 形态）：`xml-v1+align-qwen36+no-tool+bare+one-stage`。
+- 重工具任务（boundary 形态）：保留示例块、关掉出口的 legacy `xml-v1`（本次 4/18 最好）；
+  或等语料把"该调工具就调"训练回来后再重估。
+
+未跑：primitive-orig30/feedback30（benchmark transcript 家族，`--profile` 不适用）；
+BFCL 官方 3641 题（仓库外 runner，本次未跑）。
+
 ## 语料建议（state tuning 的靶子）
 
 格式契约已由 R1/R4 钉死：`System(+<tools> JSON 数组)` / `User` / `Assistant:
