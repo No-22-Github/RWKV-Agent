@@ -593,3 +593,69 @@ func TestRWKVChatRendererBuildsRawContinuationPrompt(t *testing.T) {
 		}
 	}
 }
+
+func TestG1ProtocolAlignQwen36SwapsTagsAndCatalog(t *testing.T) {
+	t.Parallel()
+	specs := []ToolSpec{{
+		Name:        "read_file",
+		Description: "Read a file.",
+		Arguments:   `{"path":"relative file path"}`,
+	}}
+	legacy := (G1Protocol{}).Instructions(specs, inference.ThinkingOff)
+	aligned := (G1Protocol{AlignQwen36: true}).Instructions(specs, inference.ThinkingOff)
+	alignedFewShot := (G1Protocol{AlignQwen36: true, FewShot: true}).Instructions(specs, inference.ThinkingOff)
+	for _, fragment := range []string{"Available tools:", "- read_file:", "Tool: <tool_result>"} {
+		if strings.Contains(aligned, fragment) {
+			t.Fatalf("aligned instructions unexpectedly contain %q:\n%s", fragment, aligned)
+		}
+		if strings.Contains(alignedFewShot, fragment) {
+			t.Fatalf("aligned few-shot instructions unexpectedly contain %q:\n%s", fragment, alignedFewShot)
+		}
+	}
+	for _, fragment := range []string{
+		`<tools>[`,
+		`{"name":"read_file","description":"Read a file.","arguments":{"path":"relative file path"}}`,
+		`]`,
+		`</tools>`,
+		`User: <tool_response>{"ok":true,"tool":"read_file","result":"1: # Example"}</tool_response>`,
+	} {
+		if !strings.Contains(aligned, fragment) {
+			t.Fatalf("aligned instructions do not contain %q:\n%s", fragment, aligned)
+		}
+	}
+	if strings.Count(alignedFewShot, "<tool_response>") != 6 {
+		t.Fatalf("aligned few-shot tool results = %d, want 6 (1 example + 5 trajectory results):\n%s",
+			strings.Count(alignedFewShot, "<tool_response>"), alignedFewShot)
+	}
+	// The legacy shape keeps its own bytes.
+	for _, fragment := range []string{"Available tools:", "- read_file:", "Tool: <tool_result>"} {
+		if !strings.Contains(legacy, fragment) {
+			t.Fatalf("legacy instructions lost %q:\n%s", fragment, legacy)
+		}
+	}
+	if got := (G1Protocol{AlignQwen36: true}).FormatToolResult("read_file", "call-1", "{}"); got != "<tool_response>{}</tool_response>" {
+		t.Fatalf("aligned tool result = %q", got)
+	}
+	if got := (G1Protocol{}).FormatToolResult("read_file", "call-1", "{}"); got != "<tool_result>{}</tool_result>" {
+		t.Fatalf("legacy tool result = %q", got)
+	}
+}
+
+func TestG1ProtocolAcceptsResultEnvelopeEchoes(t *testing.T) {
+	t.Parallel()
+	for _, align := range []bool{true, false} {
+		for _, open := range []string{"<tool_response>", "<tool_result>"} {
+			output := open + `<tool_call>{"name":"read_file","arguments":{"path":"a.txt"}}</tool_call>` + "</" + open[1:]
+			action, err := (G1Protocol{AlignQwen36: align}).Parse(output, continuation.FinishStop)
+			if err != nil {
+				t.Fatalf("parse %q: %v", output, err)
+			}
+			if action.Type != ActionTypeTool || action.Name != "read_file" {
+				t.Fatalf("action = %+v", action)
+			}
+			if !action.ProtocolRepaired {
+				t.Fatalf("echoed result envelope was not marked repaired")
+			}
+		}
+	}
+}

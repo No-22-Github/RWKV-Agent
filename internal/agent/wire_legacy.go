@@ -33,6 +33,9 @@ func WireSpecOf(options Options) (wire.Spec, error) {
 		spec.Format = wire.FormatXML
 		spec.Transcript = wire.TranscriptProduct
 		spec.Thinking = wire.Thinking(rendererThinkingMode(options.Renderer))
+		if protocol.AlignQwen36 {
+			spec.Align = wire.AlignQwen36
+		}
 		if protocol.FewShot {
 			spec.Control = wire.ControlFewShot
 		}
@@ -132,6 +135,7 @@ func OptionsWithWire(base Options, spec wire.Spec) (Options, error) {
 		options.Protocol = G1Protocol{
 			FewShot:        spec.Control == wire.ControlFewShot,
 			SemanticNoTool: spec.Abstain != wire.AbstainNone,
+			AlignQwen36:    spec.Align == wire.AlignQwen36,
 		}
 		options.Renderer = RWKVChatRenderer{ThinkingMode: inference.ThinkingMode(spec.Thinking)}
 	case wire.FormatMDFence:

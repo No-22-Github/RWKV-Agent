@@ -19,6 +19,11 @@ type G1Protocol struct {
 	// profile uses, expressed in this transcript's envelope. It is a protocol
 	// pseudo-action: the Runner never executes it and never records evidence.
 	SemanticNoTool bool
+	// AlignQwen36 switches the transcript tags to the aligned shape: tool
+	// results ride in the user turn wrapped in <tool_response> and the catalog
+	// is a JSON array inside <tools>. The action envelope (<tool_call>) and
+	// every instruction sentence are unchanged.
+	AlignQwen36 bool
 }
 
 func (G1Protocol) ID() string {
@@ -40,20 +45,23 @@ Greetings, thanks, casual conversation, and questions that do not need new tool 
 After a Tool result, make the same choice again: call one tool if more evidence is needed, or answer directly.
 `)
 	prompt.WriteString(thinkingControl(thinkingMode))
-	prompt.WriteString("\n" + PolicyNoInvention + `
-Available tools:
-`)
-	for _, spec := range specs {
-		fmt.Fprintf(&prompt, "- %s: %s Arguments: %s\n", spec.Name, spec.Description, spec.Arguments)
-	}
-	if protocol.SemanticNoTool {
-		fmt.Fprintf(
-			&prompt,
-			"- %s: Indicate that none of the offered tools is needed. "+
-				"Put a brief, complete user-facing response in reason; it becomes the final reply. "+
-				`Arguments: {"reason":"brief complete user-facing response"}`+"\n",
-			SemanticNoToolName,
-		)
+	prompt.WriteString("\n" + PolicyNoInvention + "\n")
+	if protocol.AlignQwen36 {
+		prompt.WriteString("<tools>" + protocol.renderToolsJSON(specs) + "</tools>\n")
+	} else {
+		prompt.WriteString("Available tools:\n")
+		for _, spec := range specs {
+			fmt.Fprintf(&prompt, "- %s: %s Arguments: %s\n", spec.Name, spec.Description, spec.Arguments)
+		}
+		if protocol.SemanticNoTool {
+			fmt.Fprintf(
+				&prompt,
+				"- %s: Indicate that none of the offered tools is needed. "+
+					"Put a brief, complete user-facing response in reason; it becomes the final reply. "+
+					`Arguments: {"reason":"brief complete user-facing response"}`+"\n",
+				SemanticNoToolName,
+			)
+		}
 	}
 	prompt.WriteString(`
 Examples:
@@ -67,34 +75,49 @@ User: Find files under docs.
 Assistant: <tool_call>{"name":"list_files","arguments":{"path":"docs"}}</tool_call>`)
 	}
 	if hasToolSpec(specs, "read_file") {
-		prompt.WriteString(`
+		result := `{"ok":true,"tool":"read_file","result":"1: # Example"}`
+		if protocol.AlignQwen36 {
+			prompt.WriteString(`
 User: Read README.md and report its title.
 Assistant: <tool_call>{"name":"read_file","arguments":{"path":"README.md"}}</tool_call>
-Tool: <tool_result>{"ok":true,"tool":"read_file","result":"1: # Example"}</tool_result>
+User: ` + protocol.toolResponseEnvelope(result) + `
 Assistant: Example`)
+		} else {
+			prompt.WriteString(`
+User: Read README.md and report its title.
+Assistant: <tool_call>{"name":"read_file","arguments":{"path":"README.md"}}</tool_call>
+Tool: <tool_result>` + result + `</tool_result>
+Assistant: Example`)
+		}
 	}
 	if protocol.FewShot {
+		resultLine := func(payload string) string {
+			if protocol.AlignQwen36 {
+				return "User: " + protocol.toolResponseEnvelope(payload)
+			}
+			return "Tool: <tool_result>" + payload + "</tool_result>"
+		}
 		prompt.WriteString(`
 
 Additional complete decision trajectories follow. Learn when to stop or continue, but never copy their paths or facts.
 
 User: Read notes/title.txt and output only its first line.
 Assistant: <tool_call>{"name":"read_file","arguments":{"path":"notes/title.txt"}}</tool_call>
-Tool: <tool_result>{"ok":true,"tool":"read_file","result":{"path":"notes/title.txt","content":"Project Aurora\nOwner: Example"}}</tool_result>
+` + resultLine(`{"ok":true,"tool":"read_file","result":{"path":"notes/title.txt","content":"Project Aurora\nOwner: Example"}}`) + `
 Assistant: Project Aurora
 
 User: Find the migration flag for version 3.1.
 Assistant: <tool_call>{"name":"search_text","arguments":{"query":"3.1","path":"docs","case_sensitive":false,"max_results":20}}</tool_call>
-Tool: <tool_result>{"ok":true,"tool":"search_text","result":{"matches":[{"path":"docs/migrate.md","line":8,"text":"Version 3.1 migration"}]}}</tool_result>
+` + resultLine(`{"ok":true,"tool":"search_text","result":{"matches":[{"path":"docs/migrate.md","line":8,"text":"Version 3.1 migration"}]}}`) + `
 Assistant: <tool_call>{"name":"read_file","arguments":{"path":"docs/migrate.md"}}</tool_call>
-Tool: <tool_result>{"ok":true,"tool":"read_file","result":{"path":"docs/migrate.md","content":"For version 3.1 use --sample-v3."}}</tool_result>
+` + resultLine(`{"ok":true,"tool":"read_file","result":{"path":"docs/migrate.md","content":"For version 3.1 use --sample-v3."}}`) + `
 Assistant: --sample-v3
 
 User: Read config/app.txt and report its value.
 Assistant: <tool_call>{"name":"read_file","arguments":{"path":"config/app.txt","max_bytes":64}}</tool_call>
-Tool: <tool_result>{"ok":false,"tool":"read_file","error":"invalid tool arguments: unknown field max_bytes; exact shape is {path}"}</tool_result>
+` + resultLine(`{"ok":false,"tool":"read_file","error":"invalid tool arguments: unknown field max_bytes; exact shape is {path}"}`) + `
 Assistant: <tool_call>{"name":"read_file","arguments":{"path":"config/app.txt"}}</tool_call>
-Tool: <tool_result>{"ok":true,"tool":"read_file","result":{"path":"config/app.txt","content":"VALUE=cedar"}}</tool_result>
+` + resultLine(`{"ok":true,"tool":"read_file","result":{"path":"config/app.txt","content":"VALUE=cedar"}}`) + `
 Assistant: VALUE=cedar`)
 	}
 	return strings.TrimSpace(prompt.String())
@@ -117,6 +140,55 @@ func toolAccessDescription(specs []ToolSpec) string {
 		}
 	}
 	return "read-only tools"
+}
+
+// toolResponseEnvelope wraps a tool-result payload in the aligned tag. The
+// legacy tag lives inline in FormatToolResult and the example strings.
+func (protocol G1Protocol) toolResponseEnvelope(payload string) string {
+	return "<tool_response>" + payload + "</tool_response>"
+}
+
+// renderToolsJSON renders the catalog as the JSON array the markdown training
+// transcript uses, one compact entry per line. Entries keep the product
+// catalog's own description and flat arguments string, so only the container
+// changes relative to the legacy markdown list.
+func (protocol G1Protocol) renderToolsJSON(specs []ToolSpec) string {
+	type catalogEntry struct {
+		Name        string          `json:"name"`
+		Description string          `json:"description"`
+		Arguments   json.RawMessage `json:"arguments"`
+	}
+	entries := make([]string, 0, len(specs)+1)
+	appendEntry := func(name, description, arguments string) {
+		encodedArguments := arguments
+		if !json.Valid([]byte(arguments)) {
+			encoded, err := json.Marshal(arguments)
+			if err != nil {
+				return
+			}
+			encodedArguments = string(encoded)
+		}
+		encoded, err := json.Marshal(catalogEntry{
+			Name:        name,
+			Description: description,
+			Arguments:   json.RawMessage(encodedArguments),
+		})
+		if err != nil {
+			return
+		}
+		entries = append(entries, string(encoded))
+	}
+	for _, spec := range specs {
+		appendEntry(spec.Name, spec.Description, spec.Arguments)
+	}
+	if protocol.SemanticNoTool {
+		appendEntry(
+			SemanticNoToolName,
+			"Indicate that none of the offered tools is needed. Put a brief, complete user-facing response in reason; it becomes the final reply.",
+			`{"reason":"brief complete user-facing response"}`,
+		)
+	}
+	return "[\n" + strings.Join(entries, ",\n") + "\n]"
 }
 
 func thinkingControl(mode inference.ThinkingMode) string {
@@ -229,6 +301,28 @@ func (protocol G1Protocol) Parse(value string, finish continuation.FinishReason)
 	}
 	if strings.HasPrefix(candidate, toolClose) {
 		return Action{}, fmt.Errorf("%w: unexpected G1 tool call closing tag", ErrToolShapeInvalid)
+	}
+	// The aligned transcript delivers tool results in the user turn, so the
+	// model may echo that envelope around its own action. Accept both the
+	// aligned and the legacy result tag, strip one envelope, and re-parse the
+	// content so scoring stays comparable across the two shapes.
+	if strings.HasPrefix(candidate, "<tool_response>") || strings.HasPrefix(candidate, "<tool_result>") {
+		open := "<tool_response>"
+		if strings.HasPrefix(candidate, "<tool_result>") {
+			open = "<tool_result>"
+		}
+		inner, _ := envelopeContent(candidate, open, "</"+open[1:])
+		if strings.TrimSpace(inner) != "" {
+			action, err := protocol.Parse(inner, finish)
+			if err == nil {
+				action.ProtocolRepaired = true
+				action.Repairs = append([]wire.Repair{wire.RepairEnvelopeRecovered}, action.Repairs...)
+				if action.OriginalProtocolFailure == "" {
+					action.OriginalProtocolFailure = ProtocolFailureToolEnvelopeMissing
+				}
+			}
+			return action, err
+		}
 	}
 	if strings.Contains(candidate, "<tool_calls>") {
 		action, err := (G1FunctionProtocol{}).Parse(candidate, finish)
@@ -359,7 +453,10 @@ func (G1Protocol) RecordAction(action Action, raw string) string {
 	return "<tool_call>" + string(payload) + "</tool_call>"
 }
 
-func (G1Protocol) FormatToolResult(_ string, _ string, payload string) string {
+func (protocol G1Protocol) FormatToolResult(_ string, _ string, payload string) string {
+	if protocol.AlignQwen36 {
+		return protocol.toolResponseEnvelope(payload)
+	}
 	return "<tool_result>" + payload + "</tool_result>"
 }
 

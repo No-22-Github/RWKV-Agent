@@ -161,6 +161,9 @@ var modifiers = map[string]func(Spec) Spec{
 	"fewshot": func(s Spec) Spec { s.Control = ControlFewShot; return s },
 	"native":  func(s Spec) Spec { s.Transport = TransportNative; s.Prefill = PrefillNone; return s },
 
+	"align-qwen36": func(s Spec) Spec { s.Align = AlignQwen36; return s },
+	"align-legacy": func(s Spec) Spec { s.Align = AlignLegacy; return s },
+
 	"compress-fetch": func(s Spec) Spec { s.Feedback = FeedbackCompressFetch; return s },
 	"raw-subagent":   func(s Spec) Spec { s.SubagentFeedback = SubagentFeedbackRaw; return s },
 }
@@ -221,9 +224,9 @@ func init() {
 func parseCanonical(value string) (Spec, error) {
 	spec := Spec{}
 	fields := strings.Split(value, ";")
-	if len(fields) != 13 {
+	if len(fields) != 14 {
 		return Spec{}, fail("resolve.canonical-fields",
-			fmt.Sprintf("canonical spec has %d fields, want 13", len(fields)),
+			fmt.Sprintf("canonical spec has %d fields, want 14", len(fields)),
 			"copy the string printed by `eval explain`")
 	}
 	seen := map[string]bool{}
@@ -261,6 +264,8 @@ func parseCanonical(value string) (Spec, error) {
 			spec.Feedback = Feedback(raw)
 		case "subagent":
 			spec.SubagentFeedback = SubagentFeedback(raw)
+		case "align":
+			spec.Align = Align(raw)
 		case "loop":
 			loop, err := parseLoop(raw)
 			if err != nil {

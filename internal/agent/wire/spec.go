@@ -141,6 +141,20 @@ const (
 	SubagentFeedbackRaw   SubagentFeedback = "raw"
 )
 
+// Align selects the transcript tag convention. The G1 checkpoints were trained
+// on a Qwen3.6-style tool transcript: tool results ride in the user turn
+// wrapped in <tool_response>, and the catalog is a JSON schema array inside
+// <tools>. The legacy g1i product wire renders results on a Tool: role line
+// wrapped in <tool_result> and lists the catalog as markdown.
+type Align string
+
+const (
+	// AlignLegacy is the g1i-era product XML byte shape.
+	AlignLegacy Align = "legacy"
+	// AlignQwen36 matches the Qwen3.6-style tool corpus shape.
+	AlignQwen36 Align = "qwen36"
+)
+
 // Loop is the loop policy. The fallback mechanisms (duplicate replay,
 // duplicate rescue, same-tool rescue, answer-stage lead) trigger on these
 // counters, so they are part of the reproducible contract.
@@ -177,6 +191,7 @@ type Spec struct {
 	Control          Control
 	Feedback         Feedback
 	SubagentFeedback SubagentFeedback
+	Align            Align
 	Loop             Loop
 }
 
@@ -195,6 +210,7 @@ func Default() Spec {
 		Control:          ControlBase,
 		Feedback:         FeedbackRaw,
 		SubagentFeedback: SubagentFeedbackBlock,
+		Align:            AlignLegacy,
 	}
 }
 
@@ -236,6 +252,9 @@ func (s Spec) Normalize(base Spec) Spec {
 	}
 	if result.SubagentFeedback == "" {
 		result.SubagentFeedback = base.SubagentFeedback
+	}
+	if result.Align == "" {
+		result.Align = base.Align
 	}
 	if result.Loop.Zero() {
 		result.Loop = base.Loop
@@ -308,6 +327,19 @@ func (s Spec) Validate() error {
 	}
 	if !known(SubagentFeedbackValues, s.SubagentFeedback) {
 		return fail("subagent_feedback.unknown", fmt.Sprintf("unknown subagent feedback %q", s.SubagentFeedback), "block, raw")
+	}
+	if !known(AlignValues, s.Align) {
+		return fail("align.unknown", fmt.Sprintf("unknown align %q", s.Align), "legacy, qwen36")
+	}
+	// The aligned tags and catalog are G1Protocol (product XML) mechanisms; the
+	// benchmark transcript keeps its trained fenced shape.
+	if s.Align == AlignQwen36 && (s.Format != FormatXML || s.Transcript != TranscriptProduct) {
+		return fail("align.unsupported", "align=qwen36 requires format=xml and transcript=product",
+			"use align=legacy for md-fence and benchmark transcripts")
+	}
+	if s.Align == AlignQwen36 && s.Transport == TransportNative {
+		return fail("align.unsupported", "align=qwen36 requires transport=text",
+			"native tool calling has no text tags to align")
 	}
 
 	// C2: the product fenced transcript has no think slot.
@@ -412,10 +444,10 @@ func (s Spec) Canonical() string {
 	loop := s.Loop
 	return fmt.Sprintf(
 		"format=%s;transcript=%s;transport=%s;thinking=%s;prefill=%s;abstain=%s;terminal=%s;"+
-			"route=%s;catalog=%s;control=%s;feedback=%s;subagent=%s;"+
+			"route=%s;catalog=%s;control=%s;feedback=%s;subagent=%s;align=%s;"+
 			"loop=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%t",
 		s.Format, s.Transcript, s.Transport, s.Thinking, s.Prefill, s.Abstain, s.Terminal,
-		s.Route, s.Catalog, s.Control, s.Feedback, s.SubagentFeedback,
+		s.Route, s.Catalog, s.Control, s.Feedback, s.SubagentFeedback, s.Align,
 		loop.MaxSteps, loop.ProtocolRetries, loop.RouteRetries,
 		loop.DecisionMaxOutputTokens, loop.AnswerMaxOutputTokens, loop.RouteMaxOutputTokens,
 		loop.DuplicateReplayLimit, loop.DuplicateRescueThreshold, loop.SameToolRescueLimit,
@@ -455,6 +487,7 @@ func (s Spec) Short() string {
 	add(s.Control != base.Control, string(s.Control))
 	add(s.Feedback != base.Feedback, string(s.Feedback))
 	add(s.SubagentFeedback != base.SubagentFeedback, string(s.SubagentFeedback))
+	add(s.Align != base.Align, "align-"+string(s.Align))
 	if !s.Loop.Zero() {
 		parts = append(parts, "loop")
 	}
@@ -485,6 +518,7 @@ var (
 	ControlValues          = []string{string(ControlBase), string(ControlFewShot)}
 	FeedbackValues         = []string{string(FeedbackRaw), string(FeedbackCompressFetch)}
 	SubagentFeedbackValues = []string{string(SubagentFeedbackBlock), string(SubagentFeedbackRaw)}
+	AlignValues            = []string{string(AlignLegacy), string(AlignQwen36)}
 )
 
 const (

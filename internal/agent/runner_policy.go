@@ -219,6 +219,7 @@ func validateAnswer(output string) []answerViolation {
 
 	for _, tag := range []string{
 		"<tool_call", "</tool_call", "<tool_result", "</tool_result",
+		"<tool_response", "</tool_response",
 		"<answer", "</answer", "<think", "</think",
 	} {
 		if strings.Contains(lower, tag) {
