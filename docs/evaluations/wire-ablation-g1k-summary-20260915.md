@@ -61,8 +61,19 @@ semantic_no_call＝该调工具时弃权）→ +bare 0/18（12 次 direct_final�
 - 重工具任务（boundary 形态）：保留示例块、关掉出口的 legacy `xml-v1`（本次 4/18 最好）；
   或等语料把"该调工具就调"训练回来后再重估。
 
-未跑：primitive-orig30/feedback30（benchmark transcript 家族，`--profile` 不适用）；
-BFCL 官方 3641 题（仓库外 runner，本次未跑）。
+未跑：BFCL 官方 3641 题（仓库外 runner，本次未跑）。
+
+Primitive 两套（fixture 内嵌，`--profile` 不适用——它们跑的是训练期 benchmark
+transcript（md-fence+submit），不受本次消融 wire 的影响，是纯模型级数字）：
+
+| 套件（题数） | G1K（2026-09-15） | 历史参照（09-07/09-09，api-7b 基模） |
+| --- | --- | --- |
+| primitive-orig30（30） | **20/30**（answer 100%，protocol 99.5%） | 18-21/30 |
+| primitive-feedback30（30） | **16/30**（protocol 100%） | — |
+
+值得注意：orig30 用的是**训练期 transcript 形状**，G1K 在其上表现正常（20/30、
+answer 100%）——与 boundary（产品 XML + 严格工具序列）的挣扎形成对照，进一步支持
+"G1K 的工具调用行为强依赖 transcript 形状与任务先验的匹配"这一结论。
 
 ## 语料建议（state tuning 的靶子）
 
