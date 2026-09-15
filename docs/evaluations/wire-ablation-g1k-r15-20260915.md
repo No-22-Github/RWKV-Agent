@@ -1,0 +1,52 @@
+# G1K wire 消融 R1.5：实质性 no-call 示范探针（2026-09-15）
+
+分支 `ablation/g1k-format`。R1.5 = `control=base-nocall`（`--profile
+xml-v1+align-qwen36+base-nocall`）：在 R1 的示例块里加一条实质性 no-call 示范，其余一字不改：
+
+```
+User: 底 10 高 5 的三角形面积是多少？
+Assistant: 25 平方米。
+```
+
+这是整个消融里信息量最大的一次运行：两条基础示范（你好 / What tools）都是琐碎形状，
+而 20/20 失败的恰是"实质性问题 + 工具目录就摆在那 + 答案在脑子里"。探针检验的是
+**该行为在上下文里是否可唤起**。
+
+## 结果：全指标阴性，红灯
+
+| 指标 | R1 align | R1.5 +示范 | Δ |
+| --- | --- | --- | --- |
+| task_success | 41/60 | 39/60 | **−2** |
+| irrelevance | 1/20 | 0/20 | −1（R1 的唯一得分翻回去） |
+| missing-required | 20/20 | 19/20 | −1（supplied_44 被扰动） |
+| answer_accuracy | 60/60 | 59/60 | −1 |
+| **irrelevance 平均工具调用** | **2.80** | **2.95** | **+0.15（更差）** |
+| irrelevance 首步 tool_call | 19/20 | 20/20 | 回到满劣 |
+| 首个 decision prompt（中位） | 2057 B | 2134 B | +77 B |
+
+两条关键轨迹：
+
+1. **irrelevance_0（与示范同题同答案）**：示范就在上下文里，模型仍先发
+   `search_text{"query":"area of a triangle",...}` → `list_files`（重复）→ 强制 answer，
+   answer 阶段自己算出 "25 square meters"。**答案它有，行为不动**——不是知识缺口，
+   是不认为自己该直接回答。连同事实示范都不迁移，排除"差一个触发样例"的解释。
+2. **bfcl_supplied_simple_python_44**（新增回归）：把"处理 BUILD-STATUS，位置
+   logs/run.log"理解错——对文件路径调 `list_files`、搜文件名而非标签——最终答
+   "文件不存在"。示范的加入扰动了这个原本正确的 case 的解码路径。
+
+## 判读（按预设）
+
+- 探针无效 ⇒ **行为唤不起来**。给一条（甚至同事实的）示范不足以逆转"把一切任务
+  框架成工作区检索"的倾向。
+- state tuning 要补的不是格式先验（R1 已钉死），而是更硬的东西——4000 条那个规模的
+  语料计划需要重估：需要成规模的"实质性 no-call"正样本 + 对照形状，而不是靠 few-shot
+  在推理期临时搭桥。
+
+## 决定
+
+- 示范**不保留**（驳回）；`control=base-nocall` 变体与实现留作基础设施（已测试、已入文档），
+  供 state tuning 之后复测。
+- 下一轮 no-tool 出口（`abstain=no-tool`）按单变量纪律跑在 **R1 基座**上
+  （`xml-v1+align-qwen36+no-tool`，不带示范）：示范已证伪，带它只会污染对照；
+  该轮因此成为"框架问题还是出口问题"的关键对照。
+- 产物 `runs/ablation-g1k/r15-nocall-demo`。

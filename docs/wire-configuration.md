@@ -145,7 +145,7 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 | `terminal` | `none`, `any tool name (e.g. submit)` |
 | `route` | `none`, `respond-inspect`, `progressive` |
 | `catalog` | `full`, `progressive` |
-| `control` | `base`, `fewshot` |
+| `control` | `base`, `base-nocall`, `fewshot` |
 | `feedback` | `raw`, `compress-fetch` |
 | `subagent` | `block`, `raw` |
 
@@ -158,7 +158,7 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 
 ## Modifiers
 
-`align-legacy`, `align-qwen36`, `anchor`, `compress-fetch`, `deep-fence`, `envelope`, `fake-think`, `fake-think-closed`, `fence`, `fewshot`, `gate-evidence`, `gate-state`, `native`, `no-tool`, `prefill-none`, `progressive`, `raw-subagent`, `route-progressive`, `route-respond`, `submit`, `think-fast`, `think-full`, `think-off`
+`align-legacy`, `align-qwen36`, `anchor`, `base-nocall`, `compress-fetch`, `deep-fence`, `envelope`, `fake-think`, `fake-think-closed`, `fence`, `fewshot`, `gate-evidence`, `gate-state`, `native`, `no-tool`, `prefill-none`, `progressive`, `raw-subagent`, `route-progressive`, `route-respond`, `submit`, `think-fast`, `think-full`, `think-off`
 
 ## Override keys
 

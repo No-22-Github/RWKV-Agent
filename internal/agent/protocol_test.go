@@ -659,3 +659,29 @@ func TestG1ProtocolAcceptsResultEnvelopeEchoes(t *testing.T) {
 		}
 	}
 }
+
+func TestG1ProtocolNoCallDemoAddsSubstantiveExample(t *testing.T) {
+	t.Parallel()
+	specs := []ToolSpec{{
+		Name:        "read_file",
+		Description: "Read a file.",
+		Arguments:   `{"path":"relative file path"}`,
+	}}
+	base := (G1Protocol{AlignQwen36: true}).Instructions(specs, inference.ThinkingOff)
+	probe := (G1Protocol{AlignQwen36: true, NoCallDemo: true}).Instructions(specs, inference.ThinkingOff)
+	for _, fragment := range []string{
+		"User: 底 10 高 5 的三角形面积是多少？",
+		"Assistant: 25 平方米。",
+	} {
+		if strings.Contains(base, fragment) {
+			t.Fatalf("base instructions unexpectedly contain %q", fragment)
+		}
+		if !strings.Contains(probe, fragment) {
+			t.Fatalf("probe instructions do not contain %q:\n%s", fragment, probe)
+		}
+	}
+	if !strings.Contains(probe, "User: What tools can you use?") ||
+		strings.Index(probe, "Assistant: 25 平方米。") > strings.Index(probe, "User: What tools can you use?") {
+		t.Fatalf("no-call demo is not placed with the base examples:\n%s", probe)
+	}
+}

@@ -24,6 +24,11 @@ type G1Protocol struct {
 	// is a JSON array inside <tools>. The action envelope (<tool_call>) and
 	// every instruction sentence are unchanged.
 	AlignQwen36 bool
+	// NoCallDemo adds one substantive no-call demonstration to the examples: a
+	// real question the tool catalog cannot improve on, answered directly. It
+	// is the R1.5 probe for whether the abstention behavior is evocable in
+	// context at all (the two base examples are trivia).
+	NoCallDemo bool
 }
 
 func (G1Protocol) ID() string {
@@ -66,7 +71,13 @@ After a Tool result, make the same choice again: call one tool if more evidence 
 	prompt.WriteString(`
 Examples:
 User: 你好
-Assistant: 你好！有什么我可以帮你的吗？
+Assistant: 你好！有什么我可以帮你的吗？`)
+	if protocol.NoCallDemo {
+		prompt.WriteString(`
+User: 底 10 高 5 的三角形面积是多少？
+Assistant: 25 平方米。`)
+	}
+	prompt.WriteString(`
 User: What tools can you use?
 Assistant: Describe only the tools listed above.`)
 	if hasToolSpec(specs, "list_files") {

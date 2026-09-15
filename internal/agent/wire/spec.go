@@ -121,8 +121,13 @@ const (
 type Control string
 
 const (
-	ControlBase    Control = "base"
+	// ControlBase is the standard control prompt.
+	ControlBase Control = "base"
+	// ControlFewShot adds the full decision-trajectory examples.
 	ControlFewShot Control = "fewshot"
+	// ControlBaseNoCall adds one substantive no-call demonstration: a real
+	// question the tools cannot improve on, answered directly. R1.5 probe.
+	ControlBaseNoCall Control = "base-nocall"
 )
 
 // Feedback is the tool-result rendering policy.
@@ -320,7 +325,7 @@ func (s Spec) Validate() error {
 		return fail("catalog.unknown", fmt.Sprintf("unknown catalog %q", s.Catalog), "full, progressive")
 	}
 	if !known(ControlValues, s.Control) {
-		return fail("control.unknown", fmt.Sprintf("unknown control %q", s.Control), "base, fewshot")
+		return fail("control.unknown", fmt.Sprintf("unknown control %q", s.Control), "base, base-nocall, fewshot")
 	}
 	if !known(FeedbackValues, s.Feedback) {
 		return fail("feedback.unknown", fmt.Sprintf("unknown feedback %q", s.Feedback), "raw, compress-fetch")
@@ -401,8 +406,8 @@ func (s Spec) Validate() error {
 		return fail("transport.prefill", "native tool calling offers no assistant prefill when tools are present",
 			"set prefill=none")
 	}
-	if s.Control == ControlFewShot && s.Format != FormatXML {
-		return fail("control.unsupported", "control=fewshot requires format=xml", "use control=base")
+	if (s.Control == ControlFewShot || s.Control == ControlBaseNoCall) && s.Format != FormatXML {
+		return fail("control.unsupported", fmt.Sprintf("control=%s requires format=xml", s.Control), "use control=base")
 	}
 	// The no_tool pseudo-action is only offered by the product transcripts.
 	if s.Abstain != AbstainNone && s.Transcript != TranscriptProduct {
@@ -515,7 +520,7 @@ var (
 	TerminalValues         = []string{string(TerminalNone), string(TerminalSubmit)}
 	RouteValues            = []string{string(RouteNone), string(RouteRespondInspect), string(RouteProgressive)}
 	CatalogValues          = []string{string(CatalogFull), string(CatalogProgressive)}
-	ControlValues          = []string{string(ControlBase), string(ControlFewShot)}
+	ControlValues          = []string{string(ControlBase), string(ControlBaseNoCall), string(ControlFewShot)}
 	FeedbackValues         = []string{string(FeedbackRaw), string(FeedbackCompressFetch)}
 	SubagentFeedbackValues = []string{string(SubagentFeedbackBlock), string(SubagentFeedbackRaw)}
 	AlignValues            = []string{string(AlignLegacy), string(AlignQwen36)}

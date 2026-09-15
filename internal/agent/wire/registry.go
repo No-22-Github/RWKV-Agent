@@ -158,7 +158,8 @@ var modifiers = map[string]func(Spec) Spec{
 		return s
 	},
 
-	"fewshot": func(s Spec) Spec { s.Control = ControlFewShot; return s },
+	"fewshot":      func(s Spec) Spec { s.Control = ControlFewShot; return s },
+	"base-nocall":  func(s Spec) Spec { s.Control = ControlBaseNoCall; return s },
 	"native":  func(s Spec) Spec { s.Transport = TransportNative; s.Prefill = PrefillNone; return s },
 
 	"align-qwen36": func(s Spec) Spec { s.Align = AlignQwen36; return s },
