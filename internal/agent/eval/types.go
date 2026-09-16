@@ -10,7 +10,10 @@ import (
 )
 
 const (
-	CaseSchemaVersion      = 4
+	CaseSchemaVersion      = 5
+	// caseSchemaVersionLegacy keeps v4 case files loadable unchanged; a v4
+	// file simply has no tags / case-level web fixture / case-level expect.
+	caseSchemaVersionLegacy = 4
 	RunSchemaVersion       = 8
 	HarnessVersion         = "rwkv-agent-eval-v20"
 	ScorerVersion          = "rwkv-agent-eval-scorer-v1"
@@ -25,17 +28,64 @@ type GeneratorFactory func(
 ) (continuation.Generator, io.Closer, error)
 
 type Case struct {
-	ID                  string             `json:"id"`
-	Description         string             `json:"description"`
-	Category            string             `json:"category,omitempty"`
-	Source              string             `json:"source,omitempty"`
-	Difficulty          string             `json:"difficulty,omitempty"`
-	Files               map[string]string  `json:"files,omitempty"`
-	OutsideFiles        map[string]string  `json:"outside_files,omitempty"`
-	ProviderUnavailable []string           `json:"provider_unavailable,omitempty"`
-	Turns               []Turn             `json:"turns"`
-	Primitive           *PrimitiveMetadata `json:"primitive,omitempty"`
-	primitive           *primitiveRuntime
+	ID          string `json:"id"`
+	Description string `json:"description"`
+	Category    string `json:"category,omitempty"`
+	Source      string `json:"source,omitempty"`
+	Difficulty  string `json:"difficulty,omitempty"`
+	Files       map[string]string `json:"files,omitempty"`
+	OutsideFiles map[string]string `json:"outside_files,omitempty"`
+	ProviderUnavailable []string `json:"provider_unavailable,omitempty"`
+	// Tags is a schema-v5 passthrough object (scenario/traps/level/status/...)
+	// carried into run.json, summary and traces untouched. The harness only
+	// interprets tags.status (draft gating for --include-draft).
+	Tags map[string]any `json:"tags,omitempty"`
+	// WebFixture (v5) attaches a per-case fixture so a bank of web tasks cannot
+	// cross-contaminate through one shared keyword map. Empty falls back to the
+	// suite-level fixture for legacy custom suites.
+	WebFixture []WebFixtureEntry `json:"web_fixture,omitempty"`
+	// Expect (v5) holds case-level result expectations evaluated after the
+	// final turn against the workspace state and the whole transcript.
+	Expect *CaseExpect `json:"expect,omitempty"`
+	Turns     []Turn             `json:"turns"`
+	Primitive *PrimitiveMetadata `json:"primitive,omitempty"`
+	primitive *primitiveRuntime
+}
+
+// CaseExpect carries the v5 case-level expectations. Unlike turn expectations,
+// which score per-turn model output, these score end state: files on disk, an
+// offline script run against a copy of the final workspace, and per-tool call
+// budgets counted over the whole case (including duplicate-rejected calls, so
+// the harness cannot hide a loop behind duplicate rejection).
+type CaseExpect struct {
+	Files    map[string]FileExpectation `json:"files,omitempty"`
+	Run      *RunExpectation            `json:"run,omitempty"`
+	MaxCalls map[string]int             `json:"max_calls,omitempty"`
+}
+
+// FileExpectation scores one path of the final workspace. At most one of
+// equals / contains / absent / unchanged may be set; unchanged compares
+// byte-for-byte against the initial fixture (which must exist in files).
+type FileExpectation struct {
+	Equals    *string  `json:"equals,omitempty"`
+	Contains  []string `json:"contains,omitempty"`
+	Absent    bool     `json:"absent,omitempty"`
+	Unchanged bool     `json:"unchanged,omitempty"`
+}
+
+// RunExpectation executes a workspace script offline against a copy of the
+// final workspace: python3 -I -S (isolated site-packages), a hard timeout,
+// and stdout compared line by line (trailing \r ignored). The sandbox root
+// holds workspace/ (the copy) plus hidden/ (HiddenFiles), so scripts can be
+// re-run on second inputs the model never saw. Network isolation is
+// best-effort: the runner strips the environment but cannot guarantee it on
+// every platform, which the bank docs call out.
+type RunExpectation struct {
+	Path            string            `json:"path"`
+	Args            []string          `json:"args,omitempty"`
+	ExpectedStdout  string            `json:"expected_stdout"`
+	HiddenFiles     map[string]string `json:"hidden_files,omitempty"`
+	TimeoutMillis   int               `json:"timeout_millis,omitempty"`
 }
 
 // PrimitiveMetadata preserves the source-side scoring and emulator contract in
@@ -147,6 +197,18 @@ type HarnessMetadata struct {
 	WebFixture               bool     `json:"web_fixture,omitempty"`
 	SubagentFixture          bool     `json:"subagent_fixture,omitempty"`
 	TokenCountVocabSHA256    string   `json:"token_count_vocab_sha256,omitempty"`
+	// ToolCatalog names the registered tool catalog ("work-v1" for the work
+	// bank's fixed twelve-tool directory); ToolCatalogHash pins the exact
+	// schemas offered, so a catalog change invalidates ledger comparability.
+	ToolCatalog     string `json:"tool_catalog,omitempty"`
+	ToolCatalogHash string `json:"tool_catalog_hash,omitempty"`
+	// WireProfile records the raw --profile string (ad-hoc modifier chains do
+	// not match a preset, so WirePreset alone cannot recover the input).
+	WireProfile string `json:"wire_profile,omitempty"`
+	// StateID/StateSHA256 identify a reused rwkv_lightning state; the digest
+	// is over the state ID string (the harness never sees the .pth bytes).
+	StateID     string `json:"state_id,omitempty"`
+	StateSHA256 string `json:"state_sha256,omitempty"`
 	// WireCanonical and WireHash identify the exact model-facing
 	// configuration (format x thinking x prefill x action space x loop). They
 	// are derived from the runtime options by agent.WireSpecOf, so an archived
@@ -284,9 +346,22 @@ type CaseResult struct {
 	ID          string       `json:"id"`
 	Description string       `json:"description"`
 	Category    string       `json:"category,omitempty"`
+	Tags        map[string]any `json:"tags,omitempty"`
 	Turns       []TurnResult `json:"turns"`
-	Error       string       `json:"error,omitempty"`
-	Passed      bool         `json:"passed"`
+	// Failures holds case-level (end-state) violations: expect.files,
+	// expect.run and expect.max_calls. Turn-level failures stay on the turns.
+	Failures []string `json:"failures,omitempty"`
+	Error    string   `json:"error,omitempty"`
+	Passed   bool     `json:"passed"`
+	// Per-case intervention counters (H3): how much harness assistance this
+	// case consumed, aggregated from the embedded turn results so the ledger
+	// can separate rescue-assisted passes from clean ones.
+	ToolCalls       int `json:"tool_calls,omitempty"`
+	DuplicateRejects int `json:"duplicate_rejects,omitempty"`
+	Rescues         int `json:"rescues,omitempty"`
+	RescueSubmits   int `json:"rescue_submits,omitempty"`
+	ForcedAnswers   int `json:"forced_answers,omitempty"`
+	ProtocolRepairs int `json:"protocol_repairs,omitempty"`
 }
 
 type Summary struct {
@@ -398,6 +473,15 @@ type Config struct {
 	// substring), so web-tool e2e tasks run deterministically without network
 	// access and fetch compression can be validated end to end.
 	WebFixture []WebFixtureEntry
+	// ToolCatalog selects a registered fixed tool catalog ("work-v1"); it
+	// replaces the per-suite toolset so every bank case faces the same
+	// directory, with the fixed clock and always-on web tools.
+	ToolCatalog string
+	// WireProfile records the raw --profile input for the manifest.
+	WireProfile string
+	// StateID/StateSHA256 record a reused rwkv_lightning state in the manifest.
+	StateID     string
+	StateSHA256 string
 }
 
 type SubagentFixtureEntry struct {

@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"strings"
 )
 
@@ -30,6 +31,82 @@ func LoadCases(path string) ([]Case, error) {
 	return decodeCases(data)
 }
 
+// LoadCasesDir recursively loads bank-style single-case case.json files
+// (schema v5: a bare Case object per file) below root. Cases whose
+// tags.status is "draft" are skipped unless includeDraft is set. Files are
+// read in sorted path order so a bank directory produces a deterministic
+// case order.
+func LoadCasesDir(root string, includeDraft bool) ([]Case, error) {
+	var cases []Case
+	seenIDs := make(map[string]string)
+	err := filepath.WalkDir(root, func(path string, entry os.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+		if entry.IsDir() {
+			switch entry.Name() {
+			case ".git", "build", "dist", "node_modules":
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		if entry.Name() != "case.json" {
+			return nil
+		}
+		handle, err := os.Open(path)
+		if err != nil {
+			return err
+		}
+		defer handle.Close()
+		data, err := io.ReadAll(io.LimitReader(handle, maxCaseFileBytes+1))
+		if err != nil {
+			return err
+		}
+		if len(data) > maxCaseFileBytes {
+			return fmt.Errorf("%s: case file exceeds %d bytes", path, maxCaseFileBytes)
+		}
+		var testCase Case
+		decoder := json.NewDecoder(strings.NewReader(string(data)))
+		decoder.DisallowUnknownFields()
+		if err := decoder.Decode(&testCase); err != nil {
+			return fmt.Errorf("decode %s: %w", path, err)
+		}
+		if decoder.Decode(&struct{}{}) != io.EOF {
+			return fmt.Errorf("decode %s: trailing JSON value", path)
+		}
+		if !includeDraft && caseIsDraft(testCase) {
+			return nil
+		}
+		if err := ValidateCases([]Case{testCase}); err != nil {
+			return fmt.Errorf("%s: %w", path, err)
+		}
+		if previous, duplicate := seenIDs[testCase.ID]; duplicate {
+			return fmt.Errorf("duplicate eval case ID %q in %s and %s", testCase.ID, previous, path)
+		}
+		seenIDs[testCase.ID] = path
+		cases = append(cases, testCase)
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	if len(cases) == 0 {
+		return nil, fmt.Errorf("no case.json files found below %s", root)
+	}
+	slices.SortFunc(cases, func(a, b Case) int {
+		return strings.Compare(a.ID, b.ID)
+	})
+	return cases, nil
+}
+
+func caseIsDraft(testCase Case) bool {
+	if testCase.Tags == nil {
+		return false
+	}
+	status, ok := testCase.Tags["status"].(string)
+	return ok && status == "draft"
+}
+
 func decodeCases(data []byte) ([]Case, error) {
 	var value caseFile
 	decoder := json.NewDecoder(strings.NewReader(string(data)))
@@ -40,11 +117,13 @@ func decodeCases(data []byte) ([]Case, error) {
 	if decoder.Decode(&struct{}{}) != io.EOF {
 		return nil, fmt.Errorf("decode cases: trailing JSON value")
 	}
-	if value.SchemaVersion != CaseSchemaVersion {
+	if value.SchemaVersion != CaseSchemaVersion &&
+		value.SchemaVersion != caseSchemaVersionLegacy {
 		return nil, fmt.Errorf(
-			"unsupported case schema version %d; expected %d",
+			"unsupported case schema version %d; expected %d or %d",
 			value.SchemaVersion,
 			CaseSchemaVersion,
+			caseSchemaVersionLegacy,
 		)
 	}
 	if err := ValidateCases(value.Cases); err != nil {
@@ -85,6 +164,15 @@ func ValidateCases(cases []Case) error {
 	for _, testCase := range cases {
 		if testCase.Primitive != nil && testCase.primitive == nil {
 			return fmt.Errorf("case %q cannot set reserved primitive metadata in the native case schema", testCase.ID)
+		}
+		if err := validateCaseExpect(testCase); err != nil {
+			return err
+		}
+		if !caseIsDraft(testCase) {
+			if status, ok := testCase.Tags["status"].(string); ok &&
+				status != "draft" && status != "reviewed" && status != "frozen" {
+				return fmt.Errorf("case %q has invalid tags.status %q", testCase.ID, status)
+			}
 		}
 		if !caseIDPattern.MatchString(testCase.ID) {
 			return fmt.Errorf("invalid eval case ID %q", testCase.ID)
@@ -142,7 +230,9 @@ func ValidateCases(cases []Case) error {
 			if turn.Expect.Tools == nil &&
 				len(turn.Expect.RequiredTools) == 0 &&
 				len(turn.Expect.ForbiddenTools) == 0 &&
-				len(turn.Expect.RequiredCalls) == 0 {
+				len(turn.Expect.RequiredCalls) == 0 &&
+				!turnDeclaresResultExpectation(turn.Expect) &&
+				!caseDeclaresResultExpectation(testCase) {
 				return fmt.Errorf(
 					"case %q turn %d must declare exact, required, or forbidden tool expectations",
 					testCase.ID,
@@ -232,8 +322,122 @@ func ValidateCases(cases []Case) error {
 	return nil
 }
 
-func validateToolSets(caseID string, turn int, expect Expectation) error {
-	required := make(map[string]struct{}, len(expect.RequiredTools))
+// turnDeclaresResultExpectation reports whether a turn expects a result
+// (answer or output contract) rather than only tool behavior, which is the
+// v5 relaxation of the "every turn must declare tool expectations" rule.
+func turnDeclaresResultExpectation(expect Expectation) bool {
+	return expect.ExpectedNumber != nil ||
+		expect.OutputEquals != nil ||
+		len(expect.OutputContains) > 0 ||
+		len(expect.OutputContainsAny) > 0 ||
+		len(expect.OutputExcludes) > 0
+}
+
+// caseDeclaresResultExpectation reports whether the case-level expect block
+// scores end state (files / offline run / call budgets), which also releases
+// turns from declaring tool expectations.
+func caseDeclaresResultExpectation(testCase Case) bool {
+	if testCase.Expect == nil {
+		return false
+	}
+	return len(testCase.Expect.Files) > 0 ||
+		testCase.Expect.Run != nil ||
+		len(testCase.Expect.MaxCalls) > 0
+}
+
+func validateCaseExpect(testCase Case) error {
+	if testCase.Expect == nil {
+		return nil
+	}
+	expect := testCase.Expect
+	for path, fileExpect := range expect.Files {
+		if err := validateFixturePath(path); err != nil {
+			return fmt.Errorf("case %q expect.files %q: %w", testCase.ID, path, err)
+		}
+		set := 0
+		if fileExpect.Equals != nil {
+			set++
+		}
+		if len(fileExpect.Contains) > 0 {
+			set++
+		}
+		if fileExpect.Absent {
+			set++
+		}
+		if fileExpect.Unchanged {
+			set++
+		}
+		if set > 1 {
+			return fmt.Errorf(
+				"case %q expect.files %q combines equals/contains/absent/unchanged",
+				testCase.ID,
+				path,
+			)
+		}
+		if set == 0 {
+			return fmt.Errorf(
+				"case %q expect.files %q declares no expectation",
+				testCase.ID,
+				path,
+			)
+		}
+		if fileExpect.Unchanged {
+			if _, initial := testCase.Files[path]; !initial {
+				return fmt.Errorf(
+					"case %q expect.files %q unchanged requires the file in files",
+					testCase.ID,
+					path,
+				)
+			}
+		}
+		if fileExpect.Absent {
+			if _, initial := testCase.Files[path]; initial {
+				return fmt.Errorf(
+					"case %q expect.files %q absent cannot apply to an initial fixture file",
+					testCase.ID,
+					path,
+				)
+			}
+		}
+	}
+	if run := expect.Run; run != nil {
+		if strings.TrimSpace(run.Path) == "" {
+			return fmt.Errorf("case %q expect.run requires a script path", testCase.ID)
+		}
+		if err := validateFixturePath(run.Path); err != nil {
+			return fmt.Errorf("case %q expect.run %q: %w", testCase.ID, run.Path, err)
+		}
+		if _, scripted := testCase.Files[run.Path]; !scripted {
+			return fmt.Errorf(
+				"case %q expect.run script %q must exist in files (the model may rewrite it, but the bank ships a reference)",
+				testCase.ID,
+				run.Path,
+			)
+		}
+		if run.TimeoutMillis < 0 {
+			return fmt.Errorf("case %q expect.run timeout_millis must be non-negative", testCase.ID)
+		}
+		for path := range run.HiddenFiles {
+			if err := validateFixturePath(path); err != nil {
+				return fmt.Errorf("case %q expect.run hidden file %q: %w", testCase.ID, path, err)
+			}
+			if firstPathPart(path) == "workspace" {
+				return fmt.Errorf("case %q expect.run hidden file cannot enter the workspace", testCase.ID)
+			}
+		}
+	}
+	for tool, budget := range expect.MaxCalls {
+		if strings.TrimSpace(tool) == "" {
+			return fmt.Errorf("case %q expect.max_calls has an empty tool name", testCase.ID)
+		}
+		if budget < 1 {
+			return fmt.Errorf("case %q expect.max_calls[%q] must be at least 1", testCase.ID, tool)
+		}
+	}
+	return nil
+}
+
+func validateToolSets(caseID string, turn int, expect Expectation) error {	required := make(map[string]struct{}, len(expect.RequiredTools))
 	for _, name := range expect.RequiredTools {
 		name = strings.TrimSpace(name)
 		if name == "" {

@@ -33,6 +33,10 @@ type WebFixtureEntry struct {
 	Title   string `json:"title,omitempty"`
 	Snippet string `json:"snippet,omitempty"`
 	Content string `json:"content,omitempty"`
+	// PublishedAt rides into WebSearchResult.PublishedAt (RFC3339 or the
+	// upstream Brave age form) so bank web tasks can plant stale-vs-fresh
+	// source discrimination without hand-written result objects.
+	PublishedAt string `json:"published_at,omitempty"`
 }
 
 type webFixtureProviders struct {
@@ -53,10 +57,11 @@ func (f webFixtureProviders) Search(
 			continue
 		}
 		results = append(results, tools.WebSearchResult{
-			SourceID: fmt.Sprintf("web-%d", len(results)+1),
-			Title:    entry.Title,
-			URL:      entry.URL,
-			Snippet:  entry.Snippet,
+			SourceID:    fmt.Sprintf("web-%d", len(results)+1),
+			Title:       entry.Title,
+			URL:         entry.URL,
+			Snippet:     entry.Snippet,
+			PublishedAt: entry.PublishedAt,
 		})
 		if len(results) >= request.MaxResults {
 			break

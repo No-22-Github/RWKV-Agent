@@ -182,13 +182,47 @@ func (w *workspace) resolveRelative(path string) (string, error) {
 	}
 	target, err := filepath.EvalSymlinks(filepath.Join(w.root, clean))
 	if err != nil {
-		return "", err
+		// The path does not exist yet. A write tool must be able to name new
+		// files, so resolve the longest existing prefix (symlinks inside it
+		// are still evaluated) and append the lexically-clean remainder;
+		// containment below is enforced against the joined target.
+		target, err = w.resolveNotYetExisting(filepath.Join(w.root, clean))
+		if err != nil {
+			return "", err
+		}
 	}
 	relative, err := filepath.Rel(w.root, target)
 	if err != nil || relative == ".." || strings.HasPrefix(relative, ".."+string(filepath.Separator)) {
 		return "", fmt.Errorf("path escapes the workspace")
 	}
 	return target, nil
+}
+
+// resolveNotYetExisting maps a path whose tail does not exist onto a target
+// inside the workspace: the longest existing prefix is resolved through
+// symlinks, the missing remainder is appended lexically (it derives from an
+// already-cleaned relative path, so it cannot traverse).
+func (w *workspace) resolveNotYetExisting(joined string) (string, error) {
+	existing := joined
+	remainder := ""
+	for {
+		if _, err := os.Lstat(existing); err == nil {
+			break
+		} else if !os.IsNotExist(err) {
+			return "", err
+		}
+		if existing == w.root {
+			return "", fmt.Errorf("path escapes the workspace")
+		}
+		parent := filepath.Dir(existing)
+		remainder = filepath.Clean(filepath.Join(filepath.Base(existing), remainder))
+		existing = parent
+	}
+	resolved, err := filepath.EvalSymlinks(existing)
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(resolved, remainder), nil
 }
 
 func (w *workspace) relative(path string) string {

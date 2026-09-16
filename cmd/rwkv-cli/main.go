@@ -91,6 +91,9 @@ type runOptions struct {
 	evalFileToolForm         string
 	evalSubagentFixture      string
 	evalWebFixture           string
+	evalToolCatalog          string
+	evalIncludeDraft         bool
+	seed                     int64
 	primitiveProfile         string
 	duplicateReplayLimit     int
 	duplicateRescueThreshold int
@@ -621,6 +624,24 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 				"primitive-profile",
 				agenteval.PrimitiveProfileUpstream,
 				"Primitive tool profile: upstream-compatible or go-native",
+			)
+			fs.StringVar(
+				&options.evalToolCatalog,
+				"tool-catalog",
+				"",
+				"register a fixed tool catalog for --cases suites: work-v1 (twelve tools, fixed clock, always-on fixture web tools)",
+			)
+			fs.BoolVar(
+				&options.evalIncludeDraft,
+				"include-draft",
+				false,
+				"when --cases is a bank directory, also load cases whose tags.status is draft",
+			)
+			fs.Int64Var(
+				&options.seed,
+				"seed",
+				0,
+				"sampling seed recorded in the manifest; honored by chat-completions providers, ignored by rwkv_lightning (server reseeds per call)",
 			)
 		}
 	case "concurrent":
@@ -1375,7 +1396,7 @@ func agentRunnerOptions(options runOptions, suite string, observe func(agent.Eve
 // evalGenerationRequest is the single model/sampling request builder for the
 // eval harness, so the profile constructors cannot drift on sampling.
 func evalGenerationRequest(options runOptions) continuation.Request {
-	return continuation.Request{
+	request := continuation.Request{
 		Model:           options.modelPath,
 		MaxOutputTokens: options.maxTokens,
 		Sampling: continuation.Sampling{
@@ -1387,6 +1408,39 @@ func evalGenerationRequest(options runOptions) continuation.Request {
 			PenaltyDecay:     float32(options.penaltyDecay),
 		},
 	}
+	if options.seed != 0 {
+		seed := options.seed
+		request.Sampling.Seed = &seed
+	}
+	return request
+}
+
+// hasBankCaseFiles reports whether the directory holds bank-style single-case
+// case.json files (schema v5), which routes --cases to the bank loader
+// instead of the trusted Primitive directory loader.
+func hasBankCaseFiles(root string) bool {
+	found := false
+	_ = filepath.WalkDir(root, func(path string, entry os.DirEntry, err error) error {
+		if err != nil || found {
+			if found {
+				return filepath.SkipAll
+			}
+			return nil
+		}
+		if entry.IsDir() {
+			switch entry.Name() {
+			case ".git", "build", "dist", "node_modules":
+				return filepath.SkipDir
+			}
+			return nil
+		}
+		if entry.Name() == "case.json" {
+			found = true
+			return filepath.SkipAll
+		}
+		return nil
+	})
+	return found
 }
 
 // productRunnerOptions is the single Markdown product profile constructor for
@@ -1620,8 +1674,15 @@ func runAgentEval(args []string) error {
 			return fmt.Errorf("inspect Agent eval cases: %w", statErr)
 		}
 		if info.IsDir() {
-			cases, err = agenteval.LoadPrimitiveCases(options.evalCasesPath)
-			suite = agenteval.SuitePrimitive
+			if hasBankCaseFiles(options.evalCasesPath) {
+				// Bank directory: recursive single-case case.json files
+				// (schema v5). Draft gating rides on tags.status.
+				cases, err = agenteval.LoadCasesDir(options.evalCasesPath, options.evalIncludeDraft)
+				suite = "workbank"
+			} else {
+				cases, err = agenteval.LoadPrimitiveCases(options.evalCasesPath)
+				suite = agenteval.SuitePrimitive
+			}
 		} else {
 			cases, err = agenteval.LoadCases(options.evalCasesPath)
 			suite = "custom"
@@ -1629,6 +1690,12 @@ func runAgentEval(args []string) error {
 		if err != nil {
 			return fmt.Errorf("load Agent eval cases: %w", err)
 		}
+	}
+	if options.evalToolCatalog != "" && options.evalToolCatalog != agenteval.WorkToolCatalogName {
+		return fmt.Errorf("unsupported --tool-catalog %q (known: %s)", options.evalToolCatalog, agenteval.WorkToolCatalogName)
+	}
+	if options.evalToolCatalog == agenteval.WorkToolCatalogName && suite == agenteval.SuitePrimitive {
+		return errors.New("--tool-catalog work-v1 requires a bank case directory or custom case file, not a Primitive suite")
 	}
 	if !agenteval.IsPrimitiveSuite(suite) && options.primitiveProfile != agenteval.PrimitiveProfileUpstream {
 		return errors.New("--primitive-profile go-native requires a Primitive suite or case directory")
@@ -1694,6 +1761,9 @@ func runAgentEval(args []string) error {
 		SubagentFixture:       subagentFixtureEntries(options.evalSubagentFixture),
 		WebFixture:            webFixtureEntries(options.evalWebFixture),
 		FetchBudgetTokens:     options.fetchBudgetTokens,
+		ToolCatalog:           options.evalToolCatalog,
+		WireProfile:           options.profile,
+		StateID:               options.stateID,
 		GeneratorFactory: func(
 			caseContext context.Context,
 		) (continuation.Generator, io.Closer, error) {

@@ -2,7 +2,11 @@ package eval
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
+	"os"
+	"path/filepath"
 	"runtime"
 	"slices"
 	"strings"
@@ -168,6 +172,32 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 		wireConflict = wireErr.Error()
 	}
 	wirePreset, _ := wireSpec.MatchPreset()
+	// State identity: the harness never sees the .pth bytes, so a reused
+	// rwkv_lightning state is fingerprinted by digesting its ID string.
+	stateSHA256 := config.StateSHA256
+	if stateSHA256 == "" && config.StateID != "" {
+		digest := sha256.Sum256([]byte(config.StateID))
+		stateSHA256 = hex.EncodeToString(digest[:])
+	}
+	// Tool catalog identity: build the registered catalog once (schemas do
+	// not depend on fixtures) and pin its schema hash in the manifest.
+	toolCatalogHash := ""
+	if config.ToolCatalog == WorkToolCatalogName {
+		root, err := os.MkdirTemp(config.TempDir, "rwkv-agent-catalog-")
+		if err != nil {
+			toolCatalogHash = ""
+		} else {
+			workspace := filepath.Join(root, "workspace")
+			toolCatalogHash = ""
+			if err := os.MkdirAll(workspace, 0o700); err == nil {
+				catalog, catalogErr := buildWorkToolCatalog(workspace, nil, 0, nil)
+				if catalogErr == nil {
+					toolCatalogHash = workToolCatalogHash(catalog)
+				}
+			}
+			_ = os.RemoveAll(root)
+		}
+	}
 	// Per-case effective configuration: the suite-level fields above cannot
 	// describe a per-case terminal tool, step budget or transcript.
 	caseWires := make([]CaseWireRecord, 0, len(config.Cases))
@@ -288,6 +318,11 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 			WebFixture:               len(config.WebFixture) > 0,
 			SubagentFixture:          len(config.SubagentFixture) > 0,
 			TokenCountVocabSHA256:    config.TokenCountVocabSHA256,
+			ToolCatalog:              config.ToolCatalog,
+			ToolCatalogHash:          toolCatalogHash,
+			WireProfile:              config.WireProfile,
+			StateID:                  config.StateID,
+			StateSHA256:              stateSHA256,
 			WireCanonical:            wireSpec.Canonical(),
 			WireHash:                 wireSpec.Hash(),
 			WirePreset:               wirePreset,
@@ -335,6 +370,7 @@ func runCase(
 		ID:          testCase.ID,
 		Description: testCase.Description,
 		Category:    testCase.Category,
+		Tags:        testCase.Tags,
 		Turns:       make([]TurnResult, 0, len(testCase.Turns)),
 	}
 	workspace, cleanup, err := createWorkspace(config.TempDir, testCase)
@@ -421,6 +457,9 @@ func runCase(
 	if len(result.Turns) != len(testCase.Turns) {
 		result.Passed = false
 	}
+	// Case-level end-state expectations (v5) score the final workspace and the
+	// whole transcript after the last turn, before the deferred cleanup.
+	evaluateCaseExpect(caseContext, workspace, testCase, &result)
 	return result
 }
 
@@ -452,6 +491,27 @@ func evalTools(
 	workspace string,
 	testCase Case,
 ) ([]agent.Tool, *primitiveExecution, error) {
+	if config.ToolCatalog == WorkToolCatalogName && testCase.primitive == nil {
+		// The fixed bank catalog: every case faces the same twelve tools, the
+		// same fixed clock, and web tools registered even when the case
+		// fixture is empty (empty search results / deterministic not-found).
+		// Case-level fixtures win over the suite-level map to keep a bank of
+		// web tasks from cross-contaminating through one shared keyword set.
+		fixture := testCase.WebFixture
+		if len(fixture) == 0 {
+			fixture = config.WebFixture
+		}
+		catalog, err := buildWorkToolCatalog(
+			workspace,
+			fixture,
+			config.FetchBudgetTokens,
+			config.TokenCount,
+		)
+		if err != nil {
+			return nil, nil, err
+		}
+		return catalog, nil, nil
+	}
 	if testCase.primitive != nil {
 		execution := newPrimitiveExecution(workspace, testCase.primitive)
 		execution.goNative = config.PrimitiveProfile == PrimitiveProfileGoNative

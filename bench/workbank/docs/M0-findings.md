@@ -62,3 +62,15 @@
 1. TR-NUMFMT/TR-MISSING 的「不注意会得到的错误答案」改为描述 data_query 报错/空结果后的典型手算错误，而不是「工具自动清洗导致错值」（工具不会清洗）。
 2. TR-TRUNC 埋 read_file 64KB 截断（truncated 标志可见）；不要指望 read_lines 读长文件（静默 64KB 截断是双刃， lint 会按场景提示）。
 3. web 题页面 token 量按 4096（压缩线）/ 8192（硬截断）两档设计。
+
+## 9. 新发现：工作区工具不创建目录（出题约束 + lint 规则）
+
+`workspace.resolve`（internal/agent/tools.go:175-193）对相对路径做 `filepath.EvalSymlinks`，
+**中间目录不存在直接 ENOENT**，`write_file` 的 MkdirAll 永远走不到——模型无法向
+不存在的子目录写文件（无 mkdir 工具）。这是交互 agent 的既有行为，不在 H1 四项
+范围内、不改；对题库的处理：
+
+- **出题规则**：凡要求写入 `dir/xxx` 的题，`files` 必须预置该目录的占位文件（如 `dir/.keep`）。
+- M2 的 lint.py 落一条机器检查：`expect.files` / 题面引用的写入目标目录必须在 `files` 中存在。
+- 附带语义：这也是合法的 ERR 轴素材（模型遇到写失败应换路径或报告），但**不得**作为
+  未声明的陷阱——要么预置目录，要么在 NOTES/tag 里如实声明。
