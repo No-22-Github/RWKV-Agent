@@ -260,6 +260,19 @@ def materialize_case_dir(case_dir, case, files_override=None):
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(content if isinstance(content, str) else str(content),
                           encoding="utf-8")
+    if override:
+        # The bank contract (HANDOFF section 2.2) lets verify.py read fixtures
+        # either from case.json or from its working directory. The sabotage
+        # must be visible to both styles, so rewrite the copied case.json too.
+        case_copy = tmp / "case.json"
+        if case_copy.is_file():
+            embedded = json.loads(case_copy.read_text(encoding="utf-8"))
+            embedded_files = embedded.get("files") or {}
+            for rel, content in override.items():
+                embedded_files[rel] = content
+            embedded["files"] = embedded_files
+            case_copy.write_text(json.dumps(embedded, ensure_ascii=False),
+                                 encoding="utf-8")
     return tmp
 
 
