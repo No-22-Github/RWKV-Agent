@@ -14,3 +14,6 @@ The question asks for the outcome of the run; the only outcome evidence is the p
 ## Reviewer notes
 - verify_all prints a `verify_shape_unknown` warning for this case by design: verify.py outputs the computed contains/excludes lists, and verify_all only compares expected_number/output_equals shapes. The case still passes (ok: true); the warning reflects verify_all's limited shape table, not a mismatch.
 - Sabotage check: ci/*.txt sorts ahead of .py/.md files, and its first non-empty line is the FAILED line; deleting it flips the computed count to "0 failed", so verify.py's output diverges.
+
+## Reviewer notes (post solve-check repair)
+- v1 repair: the paste being possibly incomplete gave the decoy summary line a defensible reading (a solver trusted '2 failed' because tails are usually truncated). The prompt now states the paste is the complete run output, so the enumerated evidence (1 FAILED / 1 SKIPPED of 8) is authoritative and the answer is unique; the trap (trusting the summary claim) is unchanged.

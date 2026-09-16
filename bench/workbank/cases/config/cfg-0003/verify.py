@@ -24,7 +24,7 @@ in_list = False
 for line in files["docs/flag-guide.md"].splitlines():
     stripped = line.strip()
     if stripped.startswith("#"):
-        in_list = stripped.lower().startswith("# beta allowlist")
+        in_list = "beta allowlist" in stripped.lower()
         continue
     if in_list and stripped.startswith("- "):
         allowlist.add(stripped[2:].strip())

@@ -25,3 +25,6 @@ references an order present in the April register, and no other
 adjustment source exists in the workspace. Once the "$" mark and the
 thousands commas are stripped the arithmetic is a plain sum minus a
 plain sum, and all ten order rows are distinct April orders.
+
+## Reviewer notes (post review repair)
+- v1 repair: the registered TR-NUMFMT decoy 2304.68 was not derivable by any consistent parsing error (reviewer recompute). Under the unified misread (comma treated as decimal point on every formatted amount) gross = 2163.26 and net = 2163.26 - 945.90 = 1217.36; that value is now the registered decoy.

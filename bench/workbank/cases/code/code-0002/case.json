@@ -31,7 +31,7 @@
   },
   "turns": [
     {
-      "prompt": "Last night's invoice test job went red and the on-call engineer pasted the console tail into the repo at ci/invoice_run_214.txt. Before I page the billing on-call, tell me how many tests failed and how many were skipped in that run. Answer in the form '<N> failed, <M> skipped'. Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+      "prompt": "Last night's invoice test job went red and the on-call engineer pasted the console tail into the repo at ci/invoice_run_214.txt. The paste is the complete output of that run: every test it executed is listed. Before I page the billing on-call, tell me how many tests failed and how many were skipped in that run. Answer in the form '<N> failed, <M> skipped'. Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
       "expect": {
         "output_contains": [
           "1 failed",
