@@ -21,10 +21,10 @@
     "family": "fam-code-nav-01",
     "ref_calls": 6,
     "fixture_bytes": 3074,
-    "status": "draft",
+    "status": "reviewed",
     "version": 1,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": "human:delegated-20260917"
   },
   "files": {
     "docs/audit.md": "FIXME(audit): re-run this sweep once the October cutover lands.\n# Marker audit — Ledgerline control service\n\nCounting rule (agreed 2026-03-14): a tracked marker is a whole line given\nover to the tag — in Python files a whole-line comment (indentation is\nfine), in docs and runbooks the first word of the line. Tags tucked\nmid-line, inside message strings or trailing remarks, are not part of the\naudit count.\n\nThe 2026-08-19 sweep recorded 12 tracked markers across the service.\n\n| area      | markers |\n|-----------|---------|\n| auth      | 4       |\n| billing   | 5       |\n| inventory | 3       |\n",

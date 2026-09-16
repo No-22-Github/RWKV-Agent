@@ -18,10 +18,10 @@
     "family": "fam-script-etl-01",
     "ref_calls": 4,
     "fixture_bytes": 2802,
-    "status": "draft",
+    "status": "reviewed",
     "version": 1,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": "human:delegated-20260917"
   },
   "files": {
     "README.md": "Growth reporting - what counts as an \"active workspace\"\n=======================================================\nProduct analytics definition, v4 (owner: growth PM group)\n\nA workspace counts as active in the weekly report when at least one\nsuccessful sign-in from its members falls inside the reporting\nwindow:\n\n  - The window is the 30 days ending on the report date, counting\n    both the first and the last day. This report closes on\n    2026-09-08, so the window is 2026-08-10 through 2026-09-08,\n    both dates included.\n  - Failed sign-ins never count as activity.\n  - Sign-ins after the report date belong to the next report and\n    are left out of this one.\n\nThe report lists the active workspace ids, one per line, under the\ntwo summary lines the script prints.\n",

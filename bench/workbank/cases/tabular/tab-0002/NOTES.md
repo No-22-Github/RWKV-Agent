@@ -19,3 +19,5 @@ All six invoices were issued inside Q1 2026, and every credit references
 one of those six invoices, so the whole export is in scope. The README
 pins the direction of the credit amounts (positive figure, reduces the
 balance), and no other adjustment source exists in the workspace.
+
+<!-- WORKBANK-CANARY-b4e90f15 : this file must never enter training corpora -->

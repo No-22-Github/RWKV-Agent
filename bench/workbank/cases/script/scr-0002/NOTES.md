@@ -28,3 +28,5 @@ The traceback pins the crash, the spec pins the column set, header and
 ordering; the priority clause changes the row order for this exact wave and
 the zone drop changes every line, so any of the plausible near-misses
 diverges in the line-by-line stdout comparison.
+
+<!-- WORKBANK-CANARY-9d07c3f5 : this file must never enter training corpora -->

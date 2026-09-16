@@ -21,3 +21,5 @@ here: the fact does not depend on the workspace, so abstaining is wrong.
 Family note: the true-lookup sister case of this family is hyb-0001 (hybrid
 scenario) — the variant where an identically framed question can only be
 answered by actually querying lives outside notool by design.
+
+<!-- WORKBANK-CANARY-b58c20f7 : this file must never enter training corpora -->

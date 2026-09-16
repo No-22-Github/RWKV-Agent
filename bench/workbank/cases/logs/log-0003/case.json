@@ -18,10 +18,10 @@
     "family": "fam-log-events-01",
     "ref_calls": 4,
     "fixture_bytes": 2751,
-    "status": "draft",
+    "status": "reviewed",
     "version": 1,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": "human:delegated-20260917"
   },
   "files": {
     "logs/carrier-webhook.log": "2026/09/01 00:03:11 ERROR [carrier-webhook] rq-8d21a4c3 E_LABEL_REJECT carrier=MeridianExpress parcel=PRS-55810 reason=weight_mismatch declared_kg=12.40 limit_kg=30\n2026/09/01 08:14:52 INFO [carrier-webhook] rq-1c95e2b7 webhook_accepted carrier=MeridianExpress parcel=PRS-55812 event=pod_picked_up\n01-09-2026 11:47:03 ERROR [carrier-webhook] rq-4be70f19 E_LABEL_REJECT carrier=KestrelLogistics parcel=PRS-55831 reason=bad_zip zone=EOB2\n2026/09/01 14:40:26 WARN [carrier-webhook] rq-c3a81d05 webhook_slow carrier=MeridianExpress parcel=PRS-55829 latency_ms=2451\nSep 1, 2026 18:05:38 ERROR [carrier-webhook] rq-9d02c7e4 E_LABEL_REJECT carrier=MeridianExpress parcel=PRS-55844 reason=weight_mismatch declared_kg=21.85 limit_kg=30\n2026/09/01 21:33:09 INFO [carrier-webhook] rq-f15b83a2 webhook_accepted carrier=KestrelLogistics parcel=PRS-55851 event=parcel_scanned\n02-09-2026 02:19:44 ERROR [carrier-webhook] rq-b8e13c60 E_LABEL_REJECT carrier=BlueCraneFreight parcel=PRS-55866 reason=bad_zip zone=WC1A\n2026/09/02 09:26:17 ERROR [carrier-webhook] rq-2fa9d841 E_LABEL_REJECT carrier=MeridianExpress parcel=PRS-55872 reason=weight_mismatch declared_kg=32.10 limit_kg=30\n02-09-2026 13:52:28 ERROR [carrier-webhook] rq-e94c20b3 E_LABEL_REJECT carrier=KestrelLogistics parcel=PRS-55890 reason=dims_overflow length_cm=92\nSep 2, 2026 17:08:53 WARN [carrier-webhook] rq-70b4e19c webhook_slow carrier=BlueCraneFreight parcel=PRS-55895 latency_ms=1893\n2026/09/02 23:41:05 ERROR [carrier-webhook] rq-c571a8e2 E_LABEL_REJECT carrier=MeridianExpress parcel=PRS-55908 reason=weight_mismatch declared_kg=30.62 limit_kg=30\n03-09-2026 00:17:32 ERROR [carrier-webhook] rq-a1f64d08 E_LABEL_REJECT carrier=MeridianExpress parcel=PRS-55921 reason=dims_overflow length_cm=104\nSep 3, 2026 06:44:19 ERROR [carrier-webhook] rq-3b80c2f5 E_LABEL_REJECT carrier=KestrelLogistics parcel=PRS-55934 reason=bad_zip zone=EOB7\n2026/09/03 12:29:46 INFO [carrier-webhook] rq-58d1e3a9 webhook_accepted carrier=MeridianExpress parcel=PRS-55940 event=delivered\n",

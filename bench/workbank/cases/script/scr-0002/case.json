@@ -18,10 +18,10 @@
     "family": "fam-script-etl-01",
     "ref_calls": 4,
     "fixture_bytes": 2739,
-    "status": "draft",
+    "status": "reviewed",
     "version": 1,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": "human:delegated-20260917"
   },
   "files": {
     "README.md": "On-call notes - outbound tooling, night of 2026-09-11\n=====================================================\n\nThe nightly manifest job for wave 61 crashed again right after the\nexport refresh. Console capture from the scheduler:\n\nTraceback (most recent call last):\n  File \"/opt/warehouse/pick_pack.py\", line 30, in <module>\n    print(fmt(row))\n  File \"/opt/warehouse/pick_pack.py\", line 15, in fmt\n    carrier = row[\"carrier\"]\nKeyError: 'carrier'\n\nThe scheduler runs pick_pack.py against wave_61.csv from a scratch\ndirectory, so whatever we do to it, it has to keep working no matter\nwhich directory it is launched from.\n",

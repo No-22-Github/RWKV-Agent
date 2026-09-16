@@ -15,3 +15,5 @@ The configuration reference is the vendor documentation page and its table marks
 3. what is the default batch size in oxcart
 4. oxcart docs batch_size default
 5. oxcart ingest batch_size out-of-the-box value
+
+<!-- WORKBANK-CANARY-b4a17c93 : this file must never enter training corpora -->

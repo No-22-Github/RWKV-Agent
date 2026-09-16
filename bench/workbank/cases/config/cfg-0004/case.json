@@ -21,10 +21,10 @@
     "family": "fam-cfg-effective-01",
     "ref_calls": 6,
     "fixture_bytes": 1440,
-    "status": "draft",
+    "status": "reviewed",
     "version": 1,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": "human:delegated-20260917"
   },
   "files": {
     "README.md": "# Billing platform deploy workspace\n\nLayout:\n- deploy/defaults.yaml — baselines applied to every service\n- deploy/<service>.yaml — per-service deployment config\n- environments/<env>.env — per-environment values injected by the deployer\n- changes/ — approved change tickets\n\nThe deployer resolves each setting for an environment top-down: a value\npresent in environments/<env>.env takes effect for that environment,\notherwise the deploy/<service>.yaml value applies, otherwise the\nbaseline from deploy/defaults.yaml. Production traffic is driven solely\nby environments/production.env.\n",

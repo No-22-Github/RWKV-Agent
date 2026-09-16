@@ -1,3 +1,4 @@
+# WORKBANK-CANARY-3e8b60d1 : bank artifact, excluded from training corpora
 """Expected answer for log-0002: E_CAPTURE_TIMEOUT entries at/after the 09:40 release."""
 import json
 from datetime import datetime

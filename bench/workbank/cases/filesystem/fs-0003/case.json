@@ -18,10 +18,10 @@
     "family": "fam-fs-inventory-01",
     "ref_calls": 4,
     "fixture_bytes": 728,
-    "status": "draft",
+    "status": "reviewed",
     "version": 1,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": "human:delegated-20260917"
   },
   "files": {
     "README.md": "Meridian Fulfillment - network roster.\n\nEvery fulfillment center keeps a roster.csv listing on-call pager\nextensions by role. sites/roseburg/ is the active fulfillment center;\nthe Ardmore building closed in March 2026 and its roster is kept\nunder sites/ardmore/ for payroll history only.\n",

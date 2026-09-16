@@ -18,10 +18,10 @@
     "family": "fam-log-events-01",
     "ref_calls": 4,
     "fixture_bytes": 4211,
-    "status": "draft",
+    "status": "reviewed",
     "version": 1,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": "human:delegated-20260917"
   },
   "files": {
     "logs/payments-api.log": "2026-09-16 09:40:11 ERROR [payments-api] rq-7c31a9f4 POST /v2/payment_intents/capture E_CAPTURE_TIMEOUT gateway=StraitsPay attempt 3 of 3 intent=pay_9d21c7 amount=217.35\n2026-09-16 09:40:31 INFO [payments-api] rq-1b84e20a POST /v2/payment_intents/capture capture_ok intent=pay_9d21d2 amount=58.20\n2026-09-16 09:41:26 ERROR [payments-api] rq-e502f9c3 POST /v2/payment_intents/capture E_CAPTURE_TIMEOUT gateway=StraitsPay attempt 3 of 3 intent=pay_9d22a1 amount=1943.80\n2026-09-16 09:44:53 ERROR [payments-api] rq-9ab71d02 POST /v2/payment_intents/capture E_CAPTURE_TIMEOUT gateway=StraitsPay attempt 3 of 3 intent=pay_9d23b8 amount=1320.45\n2026-09-16 09:47:19 WARN [payments-api] rq-3f6c81ba POST /v2/payment_intents/capture capture_latency_degraded p95_ms=4120\n2026-09-16 09:52:07 ERROR [payments-api] rq-c81d4ea7 POST /v2/payment_intents/capture E_CAPTURE_TIMEOUT gateway=StraitsPay attempt 3 of 3 intent=pay_9d24c5 amount=92.70\n2026-09-16 10:01:42 INFO [payments-api] rq-5e93b0d1 POST /v2/payment_intents/capture capture_ok intent=pay_9d31a0 amount=401.25\n2026-09-16 10:24:15 INFO [payments-api] rolling hotfix r2.31.1 deployed; StraitsPay adapter reverted to v2\n2026-09-16 10:31:58 INFO [payments-api] rq-a27d61c9 POST /v2/payment_intents/capture capture_ok intent=pay_9d32f4 amount=610.95\n",

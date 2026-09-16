@@ -7,3 +7,5 @@
 4. compare the issue dates read from the two titles and reply "45 days" (4)
 ## Why the answer is unique
 Both memos print their issue dates in their titles, and the March memo states it replaces the November memo; on the fixed clock (2026-09-16) only the 45-day window is in force. The reply format follows the memos' own phrasing ("within 45 days"), and the answer contract forces a single final answer. verify.py parses each memo's date from its title line and the window from its body, so deleting a title line is detected (verify exits non-zero).
+
+<!-- WORKBANK-CANARY-5d0f3b62 : this file must never enter training corpora -->

@@ -18,10 +18,10 @@
     "family": "fam-doc-minutes-01",
     "ref_calls": 4,
     "fixture_bytes": 1528,
-    "status": "draft",
+    "status": "reviewed",
     "version": 1,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": "human:delegated-20260917"
   },
   "files": {
     "policy/expense-policy.md": "# Expense policy (revision 4, approved 3 February 2026)\n\nScope: reimbursable costs incurred by employees while travelling for work\nand while working from a registered home workplace.\n\n## Hotel stays\nReimburse the actual invoice up to EUR 180.00 per night. Above the cap,\nattach the budget owner's approval before booking.\n\n## Meals while travelling\nA flat EUR 52.80 per day is paid for calendar days with an overnight stay.\nAlcohol is never reimbursable.\n\n## Mobile voice plans\nEmployees with a company phone may claim EUR 24.50 per month of the\npersonal subscription fee. Data-only SIMs are not covered.\n\n## Home office equipment\nDesks, chairs and monitors for a registered home workplace are reimbursed\nonce per three-year cycle up to EUR 350.00, receipts attached.\n\n## Coworking day passes\nDay passes up to EUR 31.00 are reimbursed with the venue invoice.\n",

@@ -18,10 +18,10 @@
     "family": "fam-nt-reflex-01",
     "ref_calls": 0,
     "fixture_bytes": 1264,
-    "status": "draft",
+    "status": "reviewed",
     "version": 1,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": "human:delegated-20260917"
   },
   "files": {
     "README.md": "# Trust & Safety review workspace\n\nMonthly exports and contact notes for the quarterly account review.\n\n- exports/  monthly batch exports pulled from the session store\n- notes/    contact book and review checklist\n\nOwner: trust-safety ops rotation.\n",

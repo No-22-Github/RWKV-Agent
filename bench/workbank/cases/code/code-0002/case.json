@@ -18,10 +18,10 @@
     "family": "fam-code-nav-01",
     "ref_calls": 3,
     "fixture_bytes": 3389,
-    "status": "draft",
+    "status": "reviewed",
     "version": 1,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": "human:delegated-20260917"
   },
   "files": {
     "ci/invoice_run_214.txt": "tests/billing/test_invoice.py::test_void_after_partial_refund FAILED [ 12%]\ntests/billing/test_invoice.py::test_rounding_on_credit_note PASSED [ 25%]\ntests/billing/test_invoice.py::test_pay_by_ait_skipped_on_staging SKIPPED [ 37%]\ntests/billing/test_invoice.py::test_due_date_extension PASSED [ 50%]\ntests/billing/test_invoice.py::test_partial_allocation_order PASSED [ 62%]\ntests/billing/test_invoice.py::test_duplicate_reference_guard PASSED [ 75%]\ntests/billing/test_invoice.py::test_currency_lock_on_posting PASSED [ 87%]\ntests/billing/test_invoice.py::test_autopay_fallback_threshold PASSED [100%]\n========================= 2 failed, 1 skipped in 0.41s =========================\n",

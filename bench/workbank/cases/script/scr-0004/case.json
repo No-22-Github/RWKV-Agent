@@ -18,10 +18,10 @@
     "family": "fam-script-etl-01",
     "ref_calls": 6,
     "fixture_bytes": 2952,
-    "status": "draft",
+    "status": "reviewed",
     "version": 1,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": "human:delegated-20260917"
   },
   "files": {
     "README.md": "Settlement reporting - finance ops\n==================================\n\nreport.py builds the monthly settlement totals for the EU entity.\nThe scheduler always launches it as `python3 report.py` with the\nproject root as its working directory, never from anywhere else.\n\nAcquirer batches arrive as transactions-*.csv extracts and land in\nwhatever folder the drop account saves them to - some months they\nsit right at the root, other months they end up nested under a\nbatch folder. The report must sweep the entire project tree from\nthe launch directory and include every transactions-*.csv it finds\nno matter how deep it sits, so late-arriving extracts are never\nmissed.\n",

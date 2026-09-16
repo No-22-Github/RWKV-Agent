@@ -1,3 +1,4 @@
+# WORKBANK-CANARY-9f2c41a7 : bank artifact, excluded from training corpora
 """Expected answer for log-0001: ERROR entries on 2026-09-15 in the checkout log."""
 import json
 

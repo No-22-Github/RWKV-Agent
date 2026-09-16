@@ -18,3 +18,5 @@
 Once the documented resolution order is applied, exactly one value is in
 effect for max_connections: 950. The other two layers' values (600, 200)
 are the decoys, and no other key is asked about.
+
+<!-- WORKBANK-CANARY-52be7d10 : this file must never enter training corpora -->

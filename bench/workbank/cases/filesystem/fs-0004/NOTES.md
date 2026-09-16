@@ -12,3 +12,5 @@
 
 ## Why the answer is unique
 Grouping all nine .svg files under assets/ by exact content leaves exactly one group with two members (the two cairn_badge.svg copies). The squall pair differs in bytes, every other glyph appears once, and the count of .svg file entries is fixed at nine regardless of how the tree is walked.
+
+<!-- WORKBANK-CANARY-e2f83b56 : this file must never enter training corpora -->

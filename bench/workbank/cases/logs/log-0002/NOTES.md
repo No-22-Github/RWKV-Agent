@@ -9,3 +9,5 @@
 
 ## Why the answer is unique
 The prompt anchors the boundary to the 09:40 release. The rotated segment ends at the 09:38:51 deploy line and contains no capture timeouts on Sep 16 (its burst is Sep 15 evening), so exactly the four current-segment errors remain. No other error code matches, and the count does not hinge on inclusive/exclusive edge interpretation: the nearest pre-boundary line is 09:38:51 and the first failure is 09:40:11.
+
+<!-- WORKBANK-CANARY-3e8b60d1 : this file must never enter training corpora -->

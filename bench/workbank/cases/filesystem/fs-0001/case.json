@@ -12,10 +12,10 @@
     "family": "fam-fs-inventory-01",
     "ref_calls": 2,
     "fixture_bytes": 1559,
-    "status": "draft",
+    "status": "reviewed",
     "version": 1,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": "human:delegated-20260917"
   },
   "files": {
     "README.md": "Harbor & Vine Markets - finance data room.\n\nexports/ holds the extracts finance pulls every Friday: the chain-wide\ntotals ledger for the current quarter and the most recent weekly\nstore-level extract. notes/ holds buyer memos. exports/archive/ is\nreserved for cold-storage moves.\n",

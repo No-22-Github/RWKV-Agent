@@ -1,3 +1,4 @@
+# WORKBANK-CANARY-7c45e2b9 : bank artifact, excluded from training corpora
 """Expected answer for log-0003: label rejections on Sep 1-2, 2026 (dash stamps are day-first)."""
 import json
 import re

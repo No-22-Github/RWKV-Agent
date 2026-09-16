@@ -14,10 +14,10 @@
     "family": "fam-hyb-ratetrip-01",
     "ref_calls": 3,
     "fixture_bytes": 972,
-    "status": "draft",
+    "status": "reviewed",
     "version": 1,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": "human:delegated-20260917"
   },
   "files": {
     "README.md": "Registered office of Nordvik Rail (framework agreement, clause 2): Willemskade 14, 3022 AA Rotterdam\n\n# Skylark Journeys — Nordvik Rail onboarding folder\n\nWorking papers for the Nordvik Rail reseller partnership.\n\n- partners/ — commercial terms agreed in the framework agreement\n- bookings/ — sample extracts from the July booking log\n\nThe signature annex must reproduce the carrier's registered office address exactly as recorded above.\n",

@@ -16,3 +16,5 @@ The changelog is the vendor's own release history and its newest entry (3.0.0, 2
 3. what is deltastream's default checkpoint cadence
 4. deltastream checkpoint_interval_secs out-of-the-box setting
 5. deltastream docs default checkpoint seconds
+
+<!-- WORKBANK-CANARY-7e2d90f4 : this file must never enter training corpora -->

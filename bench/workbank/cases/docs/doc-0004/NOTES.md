@@ -10,3 +10,5 @@
 5. write_file ops/checklist.md: header with 2026-06-02 plus the three circular-31 steps and the signed-NDA requirement (5)
 ## Why the answer is unique
 Circular 31 explicitly replaces circular 52, so exactly one circular is in force on the fixed clock (2026-09-16); the minutes confirm this and add exactly one agreed onboarding requirement, while their two Action lines are one-off tasks rather than onboarding requirements. The prompt pins the header to the issue date of the governing circular and requires the source wording, so every contains substring is determined. verify.py recomputes the checklist from circular 31 and the minutes and takes the header date from circular 31's title line, so corrupting that line is detected (verify exits non-zero).
+
+<!-- WORKBANK-CANARY-2b8f60d3 : this file must never enter training corpora -->

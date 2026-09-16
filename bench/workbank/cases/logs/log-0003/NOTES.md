@@ -9,3 +9,5 @@
 
 ## Why the answer is unique
 The interval is the calendar days Sep 1-2 inclusive. Under the documented convention exactly 7 rejection lines fall inside (3 on Sep 1, 4 on Sep 2). The two Sep 3 rejections stay outside under every reading of their stamps (03-09-2026 and Sep 3, 2026), and no other line kind matches the event code.
+
+<!-- WORKBANK-CANARY-7c45e2b9 : this file must never enter training corpora -->

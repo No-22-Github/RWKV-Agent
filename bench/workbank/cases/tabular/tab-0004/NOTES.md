@@ -8,7 +8,7 @@
   out and the model must re-parse the text by hand. Reading the comma as
   a decimal marker - "$12,036.40" taken as 12.0364, "$1,129.90" as
   1.1299, and so on for every thousands-separated amount - collapses the
-  gross to 3250.58 and the net to about 2304.68 (registered decoy)
+  gross to 3250.58 and the net to about 1217.36 (registered decoy)
   instead of 23609.60.
 
 ## Reference solution
@@ -27,4 +27,6 @@ thousands commas are stripped the arithmetic is a plain sum minus a
 plain sum, and all ten order rows are distinct April orders.
 
 ## Reviewer notes (post review repair)
-- v1 repair: the registered TR-NUMFMT decoy 2304.68 was not derivable by any consistent parsing error (reviewer recompute). Under the unified misread (comma treated as decimal point on every formatted amount) gross = 2163.26 and net = 2163.26 - 945.90 = 1217.36; that value is now the registered decoy.
+- v1 repair: the registered TR-NUMFMT decoy 1217.36 was not derivable by any consistent parsing error (reviewer recompute). Under the unified misread (comma treated as decimal point on every formatted amount) gross = 2163.26 and net = 2163.26 - 945.90 = 1217.36; that value is now the registered decoy.
+
+<!-- WORKBANK-CANARY-e59f08b3 : this file must never enter training corpora -->

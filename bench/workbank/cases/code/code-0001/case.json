@@ -14,10 +14,10 @@
     "family": "fam-code-nav-01",
     "ref_calls": 3,
     "fixture_bytes": 1923,
-    "status": "draft",
+    "status": "reviewed",
     "version": 1,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": "human:delegated-20260917"
   },
   "files": {
     "auth/__init__.py": "",

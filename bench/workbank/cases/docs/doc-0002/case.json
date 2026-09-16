@@ -18,10 +18,10 @@
     "family": "fam-doc-minutes-01",
     "ref_calls": 4,
     "fixture_bytes": 1124,
-    "status": "draft",
+    "status": "reviewed",
     "version": 1,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": "human:delegated-20260917"
   },
   "files": {
     "policy/expense-window-memo.md": "# Expense window memo (issued 9 March 2026)\n\nTo: all staff\nFrom: Nadia Okafor, head of finance operations\n\nFollowing the year-end audit of travel spend, expense reports must reach\nthe finance system within 45 days of the end of a business trip. Claims\nfiled after that are returned unpaid.\n\nThis memo applies to trips ending on or after 1 April 2026 and replaces\nthe 60-day window set by the claims timing memo of 12 November 2025.\n",

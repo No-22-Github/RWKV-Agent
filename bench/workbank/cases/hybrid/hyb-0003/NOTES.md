@@ -16,3 +16,5 @@ Only one changelog exists and its entries carry ISO dates, so exactly one entry 
 3. farebook current version
 4. farebook project release notes
 5. farebook library version history
+
+<!-- WORKBANK-CANARY-91e6c47a : this file must never enter training corpora -->

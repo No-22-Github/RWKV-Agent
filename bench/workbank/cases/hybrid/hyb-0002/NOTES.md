@@ -16,3 +16,5 @@ One rate sheet (effective 11 September 2026) quotes a single pair, and the page'
 3. cascade trust foreign exchange quotations
 4. cascade trust desk rate for dollars
 5. cascade trust currency rates september
+
+<!-- WORKBANK-CANARY-a3f85d02 : this file must never enter training corpora -->

@@ -19,3 +19,5 @@ The allowlist in the handbook is exhaustive and express_checkout is
 absent from it, so the tenant switch cannot take effect; every other
 flag's merged state is unambiguous from the same two files plus the
 handbook, leaving no second reading of the question.
+
+<!-- WORKBANK-CANARY-c07a48e3 : this file must never enter training corpora -->

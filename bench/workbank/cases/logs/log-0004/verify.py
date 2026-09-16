@@ -1,3 +1,4 @@
+# WORKBANK-CANARY-d18a04f3 : bank artifact, excluded from training corpora
 """Expected answer for log-0004: FF_ROUTE_FAIL records inside the rate-sheet incident window."""
 import json
 from datetime import datetime

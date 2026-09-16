@@ -7,3 +7,5 @@
 4. reply UNKNOWN (4)
 ## Why the answer is unique
 The policy's scope line and its section titles enumerate every covered category, and none covers connectivity; the booking guide and the contacts sheet do not mention it either. The answer contract makes abstention explicit, so UNKNOWN is the only correct reply. verify.py derives the answer by scanning the policy's sections for connectivity terms (absent here), and its header check on the policy title line makes corruption of that line detectable (verify exits non-zero).
+
+<!-- WORKBANK-CANARY-9e44a7c1 : this file must never enter training corpora -->

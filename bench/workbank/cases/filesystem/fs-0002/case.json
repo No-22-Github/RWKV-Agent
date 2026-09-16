@@ -18,10 +18,10 @@
     "family": "fam-fs-inventory-01",
     "ref_calls": 4,
     "fixture_bytes": 798,
-    "status": "draft",
+    "status": "reviewed",
     "version": 1,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": "human:delegated-20260917"
   },
   "files": {
     "README.md": "Solstice Video - platform config.\n\nconfig/ holds the service defaults: playback.yaml covers the player,\nsubtitles.yaml covers captions. Viewer watch-history rules moved into\ntheir own file during the April 2026 governance cleanup; they used to\nlive in config/retention.yml.\n",

@@ -15,3 +15,5 @@ Exactly one postal address appears anywhere in the workspace (README.md line 1).
 3. nordvik rail company postal address
 4. nordvik rail where is the company registered
 5. nordvik rail official address
+
+<!-- WORKBANK-CANARY-7c4e21b9 : this file must never enter training corpora -->

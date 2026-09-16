@@ -12,10 +12,10 @@
     "family": "fam-script-etl-01",
     "ref_calls": 3,
     "fixture_bytes": 1769,
-    "status": "draft",
+    "status": "reviewed",
     "version": 1,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": "human:delegated-20260917"
   },
   "files": {
     "data.json": "{\n  \"exported_at\": \"2026-09-01T06:12:40Z\",\n  \"source\": \"ledger-invoicing/nightly\",\n  \"invoices\": [\n    {\"invoice_id\": \"INV-2044\", \"issued\": \"2025-11-03\", \"account\": \"Ridgeway Fitness Depot\", \"total_cents\": 74563},\n    {\"invoice_id\": \"INV-2281\", \"issued\": \"2025-12-18\", \"account\": \"Cantina Solera\", \"total_cents\": 12910},\n    {\"invoice_id\": \"INV-2417\", \"issued\": \"2026-02-27\", \"account\": \"Bluemarsh Logistics\", \"total_cents\": 184920},\n    {\"invoice_id\": \"INV-2563\", \"issued\": \"2026-05-09\", \"account\": \"Okada Ceramic Studio\", \"total_cents\": 32005},\n    {\"invoice_id\": \"INV-2688\", \"issued\": \"2026-07-21\", \"account\": \"Fernbrook Dairy Co-op\", \"total_cents\": 889477},\n    {\"invoice_id\": \"INV-2754\", \"issued\": \"2026-08-30\", \"account\": \"Tessellate Web Media\", \"total_cents\": 2314600}\n  ]\n}\n",

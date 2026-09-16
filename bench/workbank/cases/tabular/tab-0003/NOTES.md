@@ -17,3 +17,5 @@ row can only be the same order written again, not a second line item.
 Every repeated row is byte-identical down to order_id and qty, so no
 split-by-quantity or partial-repeat reading exists, and the question asks
 for orders rather than rows.
+
+<!-- WORKBANK-CANARY-2a68d3c7 : this file must never enter training corpora -->

@@ -23,3 +23,5 @@
 The ticket names one approved value (1200) and staging has exactly one
 winning source (environments/staging.env), so the only passing end state
 is MAX_CONNECTIONS=1200 there with environments/production.env unchanged.
+
+<!-- WORKBANK-CANARY-6b1f95d2 : this file must never enter training corpora -->

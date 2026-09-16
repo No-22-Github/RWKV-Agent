@@ -12,3 +12,5 @@ There is exactly one data file; every row belongs to June 2026, and
 line_total is a plain decimal column with no formatted cells, gaps or
 repeats. The README fixes the meaning of line_total (per-order charge
 including tax), so the sum has a single reading.
+
+<!-- WORKBANK-CANARY-7c1d44a2 : this file must never enter training corpora -->

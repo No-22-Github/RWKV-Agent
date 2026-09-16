@@ -20,10 +20,10 @@
     "family": "fam-nt-reflex-01",
     "ref_calls": 0,
     "fixture_bytes": 852,
-    "status": "draft",
+    "status": "reviewed",
     "version": 1,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": "human:delegated-20260917"
   },
   "files": {
     "README.md": "# Platform ops workspace\n\nIncident follow-ups for the September storefront launch.\n\n- incidents/  write-ups and timelines for launch-week events\n- edges/      CDN edge site inventory used for capacity notes\n\nOwner: platform ops rotation.\n",

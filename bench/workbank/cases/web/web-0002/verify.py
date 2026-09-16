@@ -1,3 +1,4 @@
+# WORKBANK-CANARY-7e2d90f4 : bank artifact, excluded from training corpora
 import json
 import re
 

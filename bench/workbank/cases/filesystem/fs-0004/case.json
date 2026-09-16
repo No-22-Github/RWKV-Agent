@@ -21,10 +21,10 @@
     "family": "fam-fs-inventory-01",
     "ref_calls": 6,
     "fixture_bytes": 2140,
-    "status": "draft",
+    "status": "reviewed",
     "version": 1,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": "human:delegated-20260917"
   },
   "files": {
     "README.md": "Cairn & Cloud Outfitters - storefront artwork library.\n\nassets/ holds every mark and glyph on the storefront: logos/ for\nbrand marks, icons/ for interface glyphs (seasonal variants live in\nassets/seasonal/), and marketing/ for campaign art. The cairn badge\nhas kept its current name since the spring 2026 rebrand; earlier\nbuilds shipped it as cairn-badge.svg.\n",

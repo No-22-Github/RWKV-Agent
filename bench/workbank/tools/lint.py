@@ -18,7 +18,7 @@ single --case directory against docs/tag-vocab.json and the authoring rules:
   dir_structure               (j) <scenario>/<id>/ with <abbrev>-<4 digits>
   verify                      (k) verify.py exists, stdlib only, references case.json
   notes                       (k) NOTES.md sections (web/hyb: 5 alternative phrasings)
-  author.status               (l) author llm:* implies status draft
+  author.status               (l) author llm:* implies draft unless a human: reviewer is set
   id.unique                   (m) ids unique across the bank
 
 Output: one JSON object {"case_id", "rule", "detail"} per violation on stdout,
@@ -290,9 +290,15 @@ def check_case(case_dir, case, ctx, rel_parts, violations, fixed_notes):
     for rule, detail in notes_violations(case_dir, cid, scenario if isinstance(scenario, str) else ""):
         bad(rule, detail)
 
-    # (l) llm-authored cases stay draft
+    # (l) llm-authored cases stay draft until a human reviewer takes
+    # ownership (reviewer starts with "human:"), then reviewed is allowed.
     author = tags.get("author")
-    if isinstance(author, str) and author.startswith("llm:") and tags.get("status") != "draft":
+    reviewer = tags.get("reviewer")
+    human_reviewed = isinstance(reviewer, str) and reviewer.startswith("human:")
+    if (
+        isinstance(author, str) and author.startswith("llm:")
+        and not human_reviewed and tags.get("status") != "draft"
+    ):
         bad("author.status", f"author {author!r} requires status 'draft', got {tags.get('status')!r}")
 
 

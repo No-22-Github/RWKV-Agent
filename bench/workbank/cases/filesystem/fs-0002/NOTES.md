@@ -9,3 +9,5 @@
 
 ## Why the answer is unique
 Exactly one .yaml file on disk defines retention periods (its first key is the retention block; playback.yaml and subtitles.yaml cover unrelated settings). The .yml path exists only in prose. No second YAML file on disk is a plausible candidate, so the path answer is unambiguous.
+
+<!-- WORKBANK-CANARY-b85d02ef : this file must never enter training corpora -->

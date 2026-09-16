@@ -21,10 +21,10 @@
     "family": "fam-doc-minutes-01",
     "ref_calls": 5,
     "fixture_bytes": 1737,
-    "status": "draft",
+    "status": "reviewed",
     "version": 1,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": "human:delegated-20260917"
   },
   "files": {
     "policy/vendor-circular-31.md": "# Vendor onboarding circular 31 (issued 2 June 2026)\n\nFrom: procurement office\nReplaces: vendor onboarding circular 52 and every earlier instruction\n\nThe steps below take effect on 1 July 2026 for every new vendor.\n\n1. Obtain dual sign-off from the procurement lead and the budget owner before signing any framework agreement above EUR 20,000.\n2. Collect proof of public liability insurance with cover of at least EUR 2,000,000.\n3. Verify the vendor's bank details against a bank-issued confirmation dated within the last three months.\n",

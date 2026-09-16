@@ -21,10 +21,10 @@
     "family": "fam-hyb-ratetrip-01",
     "ref_calls": 6,
     "fixture_bytes": 633,
-    "status": "draft",
+    "status": "reviewed",
     "version": 1,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": "human:delegated-20260917"
   },
   "files": {
     "invoices.csv": "invoice_id,client,issued,amount_gbp\nINV-2201,Harrow & Vale Ltd,2026-08-06,2318.60\nINV-2208,Calder Marine Services,2026-08-13,419.05\nINV-2215,Ordsall Print Works,2026-08-19,8740.00\nINV-2223,Bracken Ridge Farm Shop,2026-08-26,96.40\nINV-2231,Tullimore & Sons,2026-08-31,1105.95\n",

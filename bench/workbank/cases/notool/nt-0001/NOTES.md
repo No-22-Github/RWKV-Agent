@@ -22,3 +22,5 @@ or lookup path can change the number, and the tolerance only absorbs rounding
 Family note: the true-lookup sister case of this family is hyb-0001 (hybrid
 scenario) — the variant where the same reflex skeleton hides an answer that
 genuinely requires a tool call lives outside notool by design.
+
+<!-- WORKBANK-CANARY-3d7a91e4 : this file must never enter training corpora -->

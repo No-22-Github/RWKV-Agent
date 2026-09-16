@@ -19,3 +19,5 @@ The September sheet explicitly supersedes the June sheet and carries the later e
 3. aldermoor currency desk september
 4. aldermoor bank sterling quotations
 5. aldermoor fx rates for business
+
+<!-- WORKBANK-CANARY-5d2b90f3 : this file must never enter training corpora -->

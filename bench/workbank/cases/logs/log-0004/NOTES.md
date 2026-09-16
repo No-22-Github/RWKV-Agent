@@ -11,3 +11,5 @@
 
 ## Why the answer is unique
 The glossary defines FF_ROUTE_FAIL as a failed fulfillment attempt and route_cancelled as no attempt created, so the attempt count is the FF_ROUTE_FAIL count. The window is pinned by two marker lines with wide margins: the nearest in-window failure is 13:09:15 (about two minutes after the start marker) and the nearest out-of-window failure is 15:52:10 (over 20 minutes after the end marker). Every in-window failure trails a Meridian rejection by 1-4 seconds and every rejection pairs with exactly one gateway record (8 failures, 3 cancellations), so no reading of the pairing changes the total.
+
+<!-- WORKBANK-CANARY-d18a04f3 : this file must never enter training corpora -->

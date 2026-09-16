@@ -30,3 +30,5 @@ left open; every merchant's net is positive and no merchant exists only
 through internal rows, so there is no omit-vs-print-zero ambiguity. The
 byte-exact stdout comparison closes the case, and the hidden September
 extract makes one-true-output robust against hardcoding.
+
+<!-- WORKBANK-CANARY-3f9b70c8 : this file must never enter training corpora -->

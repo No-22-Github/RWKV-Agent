@@ -27,3 +27,5 @@ the only correct output is the 7-workspace report with window
 inside the window) and WS-4471 (successes only after the report date) stay
 excluded under both windows, and no account sits exactly on 2026-09-08/09
 except WS-4455 (inside for both).
+
+<!-- WORKBANK-CANARY-e58a1d42 : this file must never enter training corpora -->

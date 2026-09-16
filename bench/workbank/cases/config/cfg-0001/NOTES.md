@@ -10,3 +10,5 @@
 services/notify-hub.yaml is the only deployment config for notify-hub and
 contains exactly one port key; the asset inventory and README carry no port
 information, so no second reading of the question is possible.
+
+<!-- WORKBANK-CANARY-9f34c1ab : this file must never enter training corpora -->

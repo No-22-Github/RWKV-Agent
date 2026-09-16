@@ -1,3 +1,4 @@
+# WORKBANK-CANARY-52be7d10 : bank artifact, excluded from training corpora
 import json
 
 case = json.load(open("case.json"))

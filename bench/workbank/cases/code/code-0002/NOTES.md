@@ -17,3 +17,5 @@ The question asks for the outcome of the run; the only outcome evidence is the p
 
 ## Reviewer notes (post solve-check repair)
 - v1 repair: the paste being possibly incomplete gave the decoy summary line a defensible reading (a solver trusted '2 failed' because tails are usually truncated). The prompt now states the paste is the complete run output, so the enumerated evidence (1 FAILED / 1 SKIPPED of 8) is authoritative and the answer is unique; the trap (trusting the summary claim) is unchanged.
+
+<!-- WORKBANK-CANARY-b05d3f81 : this file must never enter training corpora -->

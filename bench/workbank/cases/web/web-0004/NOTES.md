@@ -18,3 +18,5 @@ The changelog is the vendor's release history and its newest entry (4.2.0, 2026-
 3. how many shards does ferrocache create by default
 4. ferrocache shard_count out-of-the-box setting
 5. ferrocache docs default shard count
+
+<!-- WORKBANK-CANARY-09d4f7b2 : this file must never enter training corpora -->

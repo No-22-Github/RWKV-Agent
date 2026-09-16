@@ -18,10 +18,10 @@
     "family": "fam-hyb-ratetrip-01",
     "ref_calls": 4,
     "fixture_bytes": 554,
-    "status": "draft",
+    "status": "reviewed",
     "version": 1,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": "human:delegated-20260917"
   },
   "files": {
     "README.md": "# Brindleworks booking service\n\nQuoting and ticketing service for the sales desk.\n\n- service/ — application code and dependency pins\n- Deployments run on an offline host; dependencies come from the internal mirror.\n\nLibrary release histories are published by each maintainer on their project pages.\n",

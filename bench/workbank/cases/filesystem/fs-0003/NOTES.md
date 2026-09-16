@@ -9,3 +9,5 @@
 
 ## Why the answer is unique
 The active roster has exactly one shift_lead row (night, extension 4417); site_manager and loader rows carry other extensions. The retired roster is out of scope by the README's site status, and its own shift_lead rows are not a single unambiguous alternative anyway.
+
+<!-- WORKBANK-CANARY-71c4d9a0 : this file must never enter training corpora -->

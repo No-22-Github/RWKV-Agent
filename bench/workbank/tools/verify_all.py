@@ -350,6 +350,17 @@ def verify_case(case_dir):
         checks.append({"check": "verify_output", "ok": False,
                        "error": "verify.py stdout is not JSON: %s" % perr})
         return {"case": case_id, "ok": False, "checks": checks}
+    # Offline-run cases: verify.py must independently derive the same stdout
+    # the harness will compare the model script against. Without this the
+    # expect side of expect.run was never cross-checked (audit W-finding).
+    run_exp = (case.get("expect") or {}).get("run") or {}
+    if run_exp.get("expected_stdout") is not None and "expected_stdout" in obj:
+        same = obj.get("expected_stdout") == run_exp["expected_stdout"]
+        checks.append({"check": "run_expect_match", "ok": same,
+                       "detail": "verify.py expected_stdout %s expect.run.expected_stdout"
+                                 % ("matches" if same else "DIFFERS from")})
+        if not same:
+            return {"case": case_id, "ok": False, "checks": checks}
     matched, mdetail = matches_expectation(obj, numbers, output_equals, file_exp)
     if matched is None:
         checks.append({"check": "verify_shape", "ok": True,

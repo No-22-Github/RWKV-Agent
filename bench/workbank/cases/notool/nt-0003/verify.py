@@ -1,3 +1,4 @@
+# WORKBANK-CANARY-9e41d06c : bank artifact, excluded from training corpora
 import json
 
 # The fixed work-v1 tool directory has no email/messaging capability, so the

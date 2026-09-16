@@ -12,10 +12,10 @@
     "family": "fam-cfg-effective-01",
     "ref_calls": 2,
     "fixture_bytes": 638,
-    "status": "draft",
+    "status": "reviewed",
     "version": 1,
     "author": "llm:glm-drafter",
-    "reviewer": null
+    "reviewer": "human:delegated-20260917"
   },
   "files": {
     "services/notify-hub.yaml": "# notify-hub — outbound notification dispatcher (email, SMS, push)\nservice: notify-hub\nowner: platform-messaging\nport: 8431\nrequest_timeout_seconds: 45\nmax_inflight: 256\nretry_backoff_ms: 250\nreplicas: 3\nimage: registry.internal/notify-hub:2026.7.2\nlog_level: info\n",

@@ -7,3 +7,5 @@
 
 ## Why the answer is unique
 Exactly one file is largest: the chain-wide totals CSV outweighs the weekly extract by several hundred bytes, and the README and memos are far smaller. The empty archive placeholder can never be the maximum. Sizes are on-disk byte counts as reported by the workspace listing.
+
+<!-- WORKBANK-CANARY-3e7a19c4 : this file must never enter training corpora -->
