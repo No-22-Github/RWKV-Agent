@@ -1,0 +1,37 @@
+{
+  "id": "code-0001",
+  "description": "Locate the definition of the vault advisory-lock helper in a small Python control plane. WORKBANK-CANARY-7c41a9e2",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "locate_definition",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-code-nav-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1923,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "auth/__init__.py": "",
+    "auth/session.py": "\"\"\"Advisory locking for cardholder vault edits.\"\"\"\n\nimport time\n\nLOCK_TTL_SECONDS = 45\nMAX_RENEWALS = 2\n\n_ACTIVE = {}\n\n\nclass LockBusy(Exception):\n    \"\"\"Raised when two operators race for the same vault slot.\"\"\"\n\n\ndef acquire_session_lock(vault_id, operator):\n    \"\"\"Take the advisory lock that guards cardholder vault edits.\"\"\"\n    now = time.monotonic()\n    held = _ACTIVE.get(vault_id)\n    if held and now - held[1] < LOCK_TTL_SECONDS:\n        raise LockBusy(vault_id)\n    _ACTIVE[vault_id] = (operator, now)\n    return _ACTIVE[vault_id]\n\n\ndef renew_session_lock(vault_id, operator):\n    held = _ACTIVE.get(vault_id)\n    if not held or held[0] != operator:\n        return False\n    _ACTIVE[vault_id] = (operator, time.monotonic())\n    return True\n\n\ndef release_session_lock(vault_id, operator):\n    held = _ACTIVE.get(vault_id)\n    if held and held[0] == operator:\n        del _ACTIVE[vault_id]\n        return True\n    return False\n",
+    "billing/invoice.py": "\"\"\"Invoice posting for the card services ledger.\"\"\"\n\nfrom datetime import date\n\nfrom auth.session import acquire_session_lock, release_session_lock\n\nPOSTING_CUTOFF = \"18:30\"\n\n\ndef post_invoice(ledger, invoice, operator):\n    lock = acquire_session_lock(invoice.vault_id, operator)\n    if lock is None:\n        return False\n    try:\n        ledger.append((date.today(), invoice.reference, invoice.amount_cents))\n    finally:\n        release_session_lock(invoice.vault_id, operator)\n    return True\n",
+    "inventory/reorder.py": "\"\"\"Reorder-point tracking for warehouse stock.\"\"\"\n\nLOW_STOCK_BUFFER = 12\n\n\ndef suggest_reorder(sku, on_hand, weekly_velocity):\n    if on_hand <= LOW_STOCK_BUFFER * weekly_velocity:\n        return (sku, max(weekly_velocity * 6, 24))\n    return None\n",
+    "readme": "Card services control plane.\n\nauth/       vault sessions and advisory locking\nbilling/    invoice posting for card services\ninventory/  warehouse reorder points\n\nRun the suite from the repo root; the nightly job lives with the platform team.\n"
+  },
+  "turns": [
+    {
+      "prompt": "A cardholder-data auditor is walking our senior engineer through the cardholder vault this week and asked where the advisory lock on vault edits is taken. In which file, and on which line, is the function acquire_session_lock defined? Give the location as <relative path>:<line number>. Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "auth/session.py:15"
+      }
+    }
+  ]
+}

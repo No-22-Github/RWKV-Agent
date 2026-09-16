@@ -1,0 +1,57 @@
+{
+  "id": "doc-0004",
+  "description": "Vendor onboarding checklist of the requirements currently in force, compiled from the procurement documents. WORKBANK-CANARY-2b8f60d3",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-SUPERSEDE",
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": null,
+      "TR-MULTISRC": null
+    },
+    "axes": [
+      "VER",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "fam-doc-minutes-01",
+    "ref_calls": 5,
+    "fixture_bytes": 1737,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "policy/vendor-circular-31.md": "# Vendor onboarding circular 31 (issued 2 June 2026)\n\nFrom: procurement office\nReplaces: vendor onboarding circular 52 and every earlier instruction\n\nThe steps below take effect on 1 July 2026 for every new vendor.\n\n1. Obtain dual sign-off from the procurement lead and the budget owner before signing any framework agreement above EUR 20,000.\n2. Collect proof of public liability insurance with cover of at least EUR 2,000,000.\n3. Verify the vendor's bank details against a bank-issued confirmation dated within the last three months.\n",
+    "policy/vendor-circular-52.md": "# Vendor onboarding circular 52 (issued 14 October 2025)\n\nFrom: procurement office\n\nKeep the following on file for every new vendor:\n\n1. Sign-off from the procurement lead before signing any framework agreement.\n2. Proof of public liability insurance with cover of at least EUR 1,000,000.\n3. The completed vendor questionnaire, faxed to the shared procurement line.\n",
+    "vendor-review-minutes-2026-08-19.md": "# Vendor review - minutes, 19 August 2026, room 2.14\n\nAttendees: Renata Fonseca, Kwame Asante, Petra Vogel (legal)\n\nThe panel reviewed onboarding quality under circular 31, in force since\n1 July 2026, and the summer vendor intake.\n\nAgreed: a signed NDA must be in place before any product sample is handed to a vendor.\n\nAction: Petra Vogel to retire the shared fax line for vendor paperwork.\nAction: Renata Fonseca to draft the autumn vendor day agenda.\n",
+    "readme.md": "# Procurement documents\n\nCirculars from the procurement office define the vendor onboarding steps;\nreview minutes are kept alongside them.\n",
+    "supplier-quarterly-scorecard-q2.md": "# Supplier quarterly scorecard, Q2 2026\n\nOn-time delivery: Helios Parts 96.4%, Nordwind Freight 91.2%, Cobalt Packaging 93.8%\nQuality escapes: Helios Parts 2, Nordwind Freight 5, Cobalt Packaging 0\nOpen corrective actions: 7 (three past due)\n",
+    "ops/.keep": ""
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "Several documents in the workspace describe what our team must do when onboarding a new vendor. Create ops/checklist.md listing every onboarding requirement that is currently in force, one per line as a '- ' bullet, copying each requirement's wording from its source document. Begin the file with the line '# Vendor onboarding checklist - YYYY-MM-DD', where the date is the issue date of the circular currently in force, in ISO format. When finished, reply DONE."
+    }
+  ],
+  "expect": {
+    "files": {
+      "ops/checklist.md": {
+        "contains": [
+          "# Vendor onboarding checklist",
+          "2026-06-02",
+          "dual sign-off",
+          "EUR 2,000,000",
+          "bank details",
+          "signed NDA"
+        ]
+      }
+    }
+  }
+}

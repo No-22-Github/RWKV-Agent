@@ -1,0 +1,46 @@
+{
+  "id": "scr-0002",
+  "description": "Repair the crashed pick-pack manifest script and make its stdout follow the warehouse spec, including the priority-first ordering clause. WORKBANK-CANARY-9d07c3f5",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_from_traceback",
+    "traps": [
+      "TR-RULEFILE"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": null
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-script-etl-01",
+    "ref_calls": 4,
+    "fixture_bytes": 2739,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "On-call notes - outbound tooling, night of 2026-09-11\n=====================================================\n\nThe nightly manifest job for wave 61 crashed again right after the\nexport refresh. Console capture from the scheduler:\n\nTraceback (most recent call last):\n  File \"/opt/warehouse/pick_pack.py\", line 30, in <module>\n    print(fmt(row))\n  File \"/opt/warehouse/pick_pack.py\", line 15, in fmt\n    carrier = row[\"carrier\"]\nKeyError: 'carrier'\n\nThe scheduler runs pick_pack.py against wave_61.csv from a scratch\ndirectory, so whatever we do to it, it has to keep working no matter\nwhich directory it is launched from.\n",
+    "pick_pack.py": "\"\"\"Nightly pick-pack manifest for outbound waves.\n\nReads the wave CSV that sits next to this script and prints the\nmanifest to stdout, whatever directory the scheduler launches\nit from.\n\"\"\"\nimport csv\nfrom pathlib import Path\n\nBASE = Path(__file__).resolve().parent\nWAVE = BASE / \"wave_61.csv\"\n\n\ndef fmt(row):\n    carrier = row[\"carrier\"]\n    return \",\".join([\n        row[\"order_id\"],\n        carrier,\n        row[\"units\"],\n        row[\"priority\"],\n        row[\"zone\"],\n    ])\n\n\ndef main():\n    with open(WAVE, newline=\"\", encoding=\"utf-8\") as fh:\n        rows = list(csv.DictReader(fh))\n    print(\"order_id,carrier,units,priority,zone\")\n    for row in rows:\n        print(fmt(row))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+    "wave_61.csv": "order_id,carrier_service,priority,zone,units\nW61-1042,Mistral Parcel,no,Z4,6\nW61-1017,Cobalt Freight,yes,Z2,18\nW61-1033,Aerolith Express,no,Z1,4\nW61-1009,Mistral Parcel,no,Z3,11\nW61-1051,Aerolith Express,yes,Z4,9\nW61-1026,Cobalt Freight,no,Z2,24\nW61-1038,Mistral Parcel,no,Z1,2\nW61-1014,Aerolith Express,no,Z3,15\nW61-1047,Cobalt Freight,no,Z4,7\nW61-1055,Mistral Parcel,no,Z2,12\n",
+    "outbound_spec.md": "Outbound manifest format - warehouse ops, spec v3 (2026-08-04)\n==============================================================\n\nThe nightly manifest is printed to standard output as CSV.\n\nColumns, in this order:\n  order_id, carrier_service, units, priority\nThe zone column is for the loaders only and is never printed.\n\nLine 1 is the header:\n  order_id,carrier_service,units,priority\n\nOrdering of the data lines:\n  - Shipments flagged priority=yes come first. Among themselves they\n    are ordered by order_id, ascending.\n  - Every other shipment follows afterwards, grouped by\n    carrier_service in alphabetical order; within the same carrier,\n    by order_id ascending.\n\nThe manifest carries exactly one line per input shipment, and every\nvalue is copied through unchanged.\n",
+    "forklift_checklist.txt": "Daily forklift checklist - bay 2\nForklift FL-07: mast chains oiled 2026-09-08, battery check due 2026-09-21\nForklift FL-12: tyre wear flagged, maintenance ticket WL-3391 open\nForklift FL-03: inspection passed 2026-09-02, next due 2027-03-02\n"
+  },
+  "expect": {
+    "run": {
+      "path": "pick_pack.py",
+      "timeout_millis": 10000,
+      "expected_stdout": "order_id,carrier_service,units,priority\nW61-1017,Cobalt Freight,18,yes\nW61-1051,Aerolith Express,9,yes\nW61-1014,Aerolith Express,15,no\nW61-1033,Aerolith Express,4,no\nW61-1026,Cobalt Freight,24,no\nW61-1047,Cobalt Freight,7,no\nW61-1009,Mistral Parcel,11,no\nW61-1038,Mistral Parcel,2,no\nW61-1042,Mistral Parcel,6,no\nW61-1055,Mistral Parcel,12,no"
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Last night the nightly manifest job for wave 61 crashed, and the on-call notes with the traceback are in README.md. Repair pick_pack.py so the job runs again and prints the manifest exactly the way warehouse ops laid it out. When finished, reply DONE.",
+      "expect": {}
+    }
+  ]
+}

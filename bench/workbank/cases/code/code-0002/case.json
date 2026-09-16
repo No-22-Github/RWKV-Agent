@@ -1,0 +1,46 @@
+{
+  "id": "code-0002",
+  "description": "Report the true failed and skipped test counts from a pasted console tail whose summary line disagrees with the per-test evidence. WORKBANK-CANARY-b05d3f81",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "report_test_result",
+    "traps": [
+      "TR-CLAIM"
+    ],
+    "trap_decoys": {
+      "TR-CLAIM": "2 failed, 1 skipped"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-code-nav-01",
+    "ref_calls": 3,
+    "fixture_bytes": 3389,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "ci/invoice_run_214.txt": "tests/billing/test_invoice.py::test_void_after_partial_refund FAILED [ 12%]\ntests/billing/test_invoice.py::test_rounding_on_credit_note PASSED [ 25%]\ntests/billing/test_invoice.py::test_pay_by_ait_skipped_on_staging SKIPPED [ 37%]\ntests/billing/test_invoice.py::test_due_date_extension PASSED [ 50%]\ntests/billing/test_invoice.py::test_partial_allocation_order PASSED [ 62%]\ntests/billing/test_invoice.py::test_duplicate_reference_guard PASSED [ 75%]\ntests/billing/test_invoice.py::test_currency_lock_on_posting PASSED [ 87%]\ntests/billing/test_invoice.py::test_autopay_fallback_threshold PASSED [100%]\n========================= 2 failed, 1 skipped in 0.41s =========================\n",
+    "billing/invoice.py": "\"\"\"Invoice voids and refunds for the card services ledger.\"\"\"\n\nVOID_WINDOW_HOURS = 72\n\n\nclass InvoiceError(Exception):\n    \"\"\"Raised when a void cannot be applied to a posted invoice.\"\"\"\n\n\ndef void_invoice(ledger, invoice_id, refunded_cents, operator):\n    \"\"\"Void a posted invoice and record the refund against it.\"\"\"\n    entry = ledger.find(invoice_id)\n    if entry is None:\n        raise InvoiceError(\"no such invoice\")\n    if refunded_cents > entry[1]:\n        raise InvoiceError(\"refund exceeds posted amount\")\n    ledger.append_void(invoice_id, refunded_cents, operator)\n    return entry[1] - refunded_cents\n",
+    "tests/billing/test_invoice.py": "import pytest\n\nfrom billing.invoice import InvoiceError, void_invoice\n\n\nclass FakeLedger:\n\n    def __init__(self, entries):\n        self.entries = {e[0]: e for e in entries}\n        self.voids = []\n\n    def find(self, invoice_id):\n        return self.entries.get(invoice_id)\n\n    def append_void(self, invoice_id, cents, operator):\n        self.voids.append((invoice_id, cents, operator))\n\n\ndef test_void_after_partial_refund():\n    ledger = FakeLedger([(\"INV-5102\", 4150, \"kbell\", \"2026-09-02\")])\n    assert void_invoice(ledger, \"INV-5102\", 0, \"kbell\") == 0\n\n\ndef test_rounding_on_credit_note():\n    ledger = FakeLedger([(\"INV-5103\", 9999, \"dmoreau\", \"2026-09-04\")])\n    assert void_invoice(ledger, \"INV-5103\", 41, \"dmoreau\") == 9958\n\n\n@pytest.mark.skip(reason=\"pay-by-ait is disabled on the staging mirror\")\ndef test_pay_by_ait_skipped_on_staging():\n    \"\"\"Exercised only once the staging mirror accepts pay-by-ait.\"\"\"\n\n\ndef test_due_date_extension():\n    ledger = FakeLedger([(\"INV-5104\", 2500, \"kbell\", \"2026-09-05\")])\n    assert void_invoice(ledger, \"INV-5104\", 0, \"khara\") == 2500\n\n\ndef test_partial_allocation_order():\n    ledger = FakeLedger([(\"INV-5105\", 7300, \"dmoreau\", \"2026-09-08\")])\n    assert void_invoice(ledger, \"INV-5105\", 300, \"dmoreau\") == 7000\n\n\ndef test_duplicate_reference_guard():\n    ledger = FakeLedger([(\"INV-5106\", 1200, \"kbell\", \"2026-09-10\")])\n    assert void_invoice(ledger, \"INV-5106\", 0, \"kbell\") == 1200\n\n\ndef test_currency_lock_on_posting():\n    ledger = FakeLedger([(\"INV-5107\", 8600, \"khara\", \"2026-09-11\")])\n    assert void_invoice(ledger, \"INV-5107\", 0, \"khara\") == 8600\n\n\ndef test_autopay_fallback_threshold():\n    ledger = FakeLedger([(\"INV-5108\", 640, \"dmoreau\", \"2026-09-12\")])\n    try:\n        void_invoice(ledger, \"INV-5108\", 99999, \"dmoreau\")\n    except InvoiceError:\n        pass\n",
+    "readme.md": "# Card services ledger\n\nbilling/          invoice voids and refunds\ntests/billing/    suite for the ledger service\nci/               console tails pasted from the nightly runners\n\nThe nightly invoice job runs after the treasury close; pages go to billing on-call.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Last night's invoice test job went red and the on-call engineer pasted the console tail into the repo at ci/invoice_run_214.txt. Before I page the billing on-call, tell me how many tests failed and how many were skipped in that run. Answer in the form '<N> failed, <M> skipped'. Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+      "expect": {
+        "output_contains": [
+          "1 failed",
+          "1 skipped"
+        ],
+        "output_excludes": [
+          "2 failed"
+        ]
+      }
+    }
+  ]
+}

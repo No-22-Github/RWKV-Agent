@@ -1,0 +1,63 @@
+{
+  "id": "hyb-0004",
+  "description": "Euro value of August sterling invoices at the prevailing desk sheet; a June sheet outranks the September revision and the column guide separates sell and buy quotations. WORKBANK-CANARY-5d2b90f3",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_calc",
+    "traps": [
+      "TR-DIRMAP",
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-DIRMAP": 14975.08,
+      "TR-SUPERSEDE": 14588.34
+    },
+    "axes": [
+      "CHN",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-ratetrip-01",
+    "ref_calls": 6,
+    "fixture_bytes": 633,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "invoices.csv": "invoice_id,client,issued,amount_gbp\nINV-2201,Harrow & Vale Ltd,2026-08-06,2318.60\nINV-2208,Calder Marine Services,2026-08-13,419.05\nINV-2215,Ordsall Print Works,2026-08-19,8740.00\nINV-2223,Bracken Ridge Farm Shop,2026-08-26,96.40\nINV-2231,Tullimore & Sons,2026-08-31,1105.95\n",
+    "README.md": "# Pelagic Analytics — receivables ledger\n\ninvoices.csv lists the August invoices to UK clients; amount_gbp is the invoiced amount in pounds sterling.\n\nTreasury publishes the monthly cash report in euros.\n",
+    "clients/harrow-vale.md": "# Harrow & Vale Ltd — account note\n\nRegional garden-centre chain. Renewed the analytics retainer in June 2026: GBP 1,850 per month for twelve months.\n"
+  },
+  "web_fixture": [
+    {
+      "query_match": "aldermoor",
+      "url": "https://www.aldermoor.example/fx/desk-rates",
+      "url_match": "www.aldermoor.example/fx/desk-rates",
+      "title": "Aldermoor Bank — FX desk rates",
+      "snippet": "Business desk quotations for GBP/EUR settlement trades, effective 15 June 2026.",
+      "content": "# Aldermoor Bank — FX desk rates\n\nBusiness desk quotations for settlement trades. Effective 15 June 2026.\n\n| Pair | We sell GBP | We buy GBP |\n| --- | --- | --- |\n| GBP/EUR | 1.1725 | 1.1505 |\n\nColumn guide: quotations express euros per 1 pound sterling. \"We sell GBP\" applies when you purchase pounds from the desk. \"We buy GBP\" applies when the desk purchases pounds from you, for example when sterling receipts are converted into euros.\n",
+      "published_at": "2026-06-18"
+    },
+    {
+      "query_match": "aldermoor",
+      "url": "https://www.aldermoor.example/fx/desk-rates-september",
+      "url_match": "www.aldermoor.example/fx/desk-rates-september",
+      "title": "Aldermoor Bank — FX desk rates, September revision",
+      "snippet": "Revised business desk quotations for GBP/EUR, effective 8 September 2026. Replaces the June sheet.",
+      "content": "# Aldermoor Bank — FX desk rates, September revision\n\nRevised business desk quotations for settlement trades. Effective 8 September 2026. This sheet supersedes the June sheet.\n\n| Pair | We sell GBP | We buy GBP |\n| --- | --- | --- |\n| GBP/EUR | 1.1810 | 1.1630 |\n\nColumn guide: quotations express euros per 1 pound sterling. \"We sell GBP\" applies when you purchase pounds from the desk. \"We buy GBP\" applies when the desk purchases pounds from you, for example when sterling receipts are converted into euros.\n",
+      "published_at": "2026-09-10"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "Pelagic Analytics bills several UK clients in pounds sterling; the August invoices are listed with their sterling amounts. Treasury needs the combined euro value of those invoices at Aldermoor Bank's prevailing desk rates for the monthly cash report. What should the cash report show? Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 14746.84,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

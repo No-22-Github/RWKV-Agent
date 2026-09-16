@@ -1,0 +1,37 @@
+{
+  "id": "log-0001",
+  "description": "Count ERROR entries for one day in a single service log. WORKBANK-CANARY-9f2c41a7",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-log-events-01",
+    "ref_calls": 3,
+    "fixture_bytes": 2738,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "logs/checkout-api.log": "2026-09-15 14:03:22.184 ERROR [checkout-api] rq-9c41f2a8 POST /v1/carts/checkout PGW_TIMEOUT gateway=AuroraPay attempt 3 of 3 order=ORD-58231 total=1487.25\n2026-09-15 14:05:10.377 INFO [checkout-api] rq-b2d84e10 POST /v1/carts/checkout cart_priced items=3 total=84.10\n2026-09-15 14:17:45.902 WARN [checkout-api] rq-77c0d1a5 POST /v1/carts/checkout slow_pricing elapsed_ms=2451\n2026-09-15 14:20:31.559 INFO [checkout-api] rq-e91b7c44 POST /v1/carts/checkout cart_priced items=2 total=1249.00\n2026-09-15 14:32:09.512 ERROR [checkout-api] rq-4fa02b97 POST /v1/carts/checkout PGW_TIMEOUT gateway=AuroraPay attempt 3 of 3 order=ORD-58310 total=2380.75\n2026-09-15 14:41:08.264 INFO [checkout-api] rq-c58e19d2 GET /v1/carts/ORD-58245 cart_fetched\n2026-09-15 14:55:31.108 WARN [checkout-api] rq-a30f6b81 POST /v1/carts/checkout retry_scheduled attempt=2 delay_s=5\n2026-09-15 15:02:57.830 INFO [checkout-api] rq-f71c92ae POST /v1/carts/checkout cart_priced items=5 total=149.50\n2026-09-15 15:04:18.220 ERROR [checkout-api] rq-2b9e40c7 POST /v1/carts/checkout PGW_DECLINED gateway=AuroraPay order=ORD-58377 total=86.40 reason=do_not_honor\n2026-09-15 15:12:33.570 WARN [checkout-api] rq-d4810ea9 GET /v1/carts/ORD-58302 stale_quote age_s=121\n2026-09-15 15:15:44.916 INFO [checkout-api] rq-8e27b3f5 POST /v1/carts/checkout cart_priced items=1 total=412.60\n2026-09-15 15:21:56.733 ERROR [checkout-api] rq-3cd7f811 POST /v1/carts/checkout PGW_TIMEOUT gateway=AuroraPay attempt 3 of 3 order=ORD-58402 total=97.35\n2026-09-15 15:30:19.482 INFO [checkout-api] rq-5a1c68bd POST /v1/carts/checkout cart_priced items=4 total=2310.40\n2026-09-15 15:38:02.401 ERROR [checkout-api] rq-b90d24ef POST /v1/carts/checkout PGW_TIMEOUT gateway=AuroraPay attempt 3 of 3 order=ORD-58419 total=318.90\n2026-09-15 15:44:27.650 INFO [checkout-api] rq-6e13a9c0 GET /v1/carts/ORD-58377 cart_fetched\n2026-09-15 15:49:40.067 ERROR [checkout-api] rq-1f84c3ba POST /v1/carts/checkout PGW_TIMEOUT gateway=AuroraPay attempt 3 of 3 order=ORD-58433 total=523.15\n2026-09-15 15:52:11.394 INFO [checkout-api] rq-9ab5d7e2 POST /v1/carts/checkout cart_priced items=2 total=68.20\n2026-09-15 15:58:04.721 INFO [checkout-api] rq-c2f60a18 POST /v1/carts/checkout cart_priced items=3 total=920.55\n",
+    "README.md": "# checkout-api workspace\n\ncheckout-api prices carts and hands orders to the AuroraPay gateway at checkout.\n\nlogs/checkout-api.log is the application log for 2026-09-15 (daily rotation).\n",
+    "docs/checkout-runbook.md": "# Checkout on-call runbook\n\n- Dashboards: Grafana folder \"checkout-api\" (golden signals).\n- Escalation: payments-platform on-call, PagerDuty rota \"checkout-primary\".\n- Pricing SLO: 99.9% of price calls under 250 ms.\n- This deployment serves the EMEA afternoon window; traffic in the log starts around 14:00 UTC.\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "How many ERROR entries did the checkout service log on September 15? Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 6,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

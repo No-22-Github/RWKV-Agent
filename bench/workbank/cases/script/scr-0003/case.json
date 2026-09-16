@@ -1,0 +1,45 @@
+{
+  "id": "scr-0003",
+  "description": "Fix the weekly active-workspace report script whose window boundary contradicts the documented product definition. WORKBANK-CANARY-e58a1d42",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_output",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-script-etl-01",
+    "ref_calls": 4,
+    "fixture_bytes": 2802,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "Growth reporting - what counts as an \"active workspace\"\n=======================================================\nProduct analytics definition, v4 (owner: growth PM group)\n\nA workspace counts as active in the weekly report when at least one\nsuccessful sign-in from its members falls inside the reporting\nwindow:\n\n  - The window is the 30 days ending on the report date, counting\n    both the first and the last day. This report closes on\n    2026-09-08, so the window is 2026-08-10 through 2026-09-08,\n    both dates included.\n  - Failed sign-ins never count as activity.\n  - Sign-ins after the report date belong to the next report and\n    are left out of this one.\n\nThe report lists the active workspace ids, one per line, under the\ntwo summary lines the script prints.\n",
+    "weekly_active.py": "\"\"\"Weekly active-workspace report for the growth review.\n\nReads signins.csv, which sits next to this script, and prints the\nreport to standard output. Safe to run from any directory.\n\"\"\"\nimport csv\nfrom datetime import date, datetime, timedelta\nfrom pathlib import Path\n\nBASE = Path(__file__).resolve().parent\nREPORT_END = date(2026, 9, 8)\nWINDOW_DAYS = 30\n\n\ndef active_accounts():\n    start = REPORT_END - timedelta(days=WINDOW_DAYS)\n    active = set()\n    with open(BASE / \"signins.csv\", newline=\"\", encoding=\"utf-8\") as fh:\n        for row in csv.DictReader(fh):\n            if row[\"status\"] != \"success\":\n                continue\n            day = datetime.fromisoformat(row[\"signed_in_at\"]).date()\n            if start <= day <= REPORT_END:\n                active.add(row[\"account_id\"])\n    return start, sorted(active)\n\n\ndef main():\n    start, ids = active_accounts()\n    print(\"weekly active workspaces: %d\" % len(ids))\n    print(\"window: %s..%s\" % (start.isoformat(), REPORT_END.isoformat()))\n    for workspace in ids:\n        print(workspace)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+    "signins.csv": "account_id,signed_in_at,status\nWS-4377,2026-08-05T10:14:22,success\nWS-4377,2026-08-05T10:16:03,failed\nWS-4388,2026-08-14T09:02:41,failed\nWS-4388,2026-09-01T15:40:12,failed\nWS-4388,2026-09-11T08:55:37,success\nWS-4390,2026-08-19T11:21:08,success\nWS-4390,2026-08-19T11:24:55,failed\nWS-4402,2026-08-10T09:12:44,success\nWS-4417,2026-08-09T23:58:19,success\nWS-4423,2026-08-30T19:03:26,success\nWS-4423,2026-09-05T07:47:10,failed\nWS-4423,2026-09-06T13:02:31,success\nWS-4449,2026-09-02T16:29:58,success\nWS-4455,2026-09-08T18:04:02,success\nWS-4462,2026-08-25T12:38:47,success\nWS-4471,2026-09-09T10:11:29,success\nWS-4471,2026-09-12T17:45:16,success\nWS-4480,2026-08-12T14:57:33,success\nWS-4480,2026-08-27T09:26:04,failed\n",
+    "push_copy_notes.txt": "Push copy backlog - growth wiki sync, 2026-09-09\n- day-7 nudge: mention the streak freeze, keep it under 90 chars\n- reactivation: lead with the new podcast-scoring mode\n- winback (lapsed 60d): free month offer, softer subject line\n"
+  },
+  "expect": {
+    "run": {
+      "path": "weekly_active.py",
+      "timeout_millis": 10000,
+      "expected_stdout": "weekly active workspaces: 7\nwindow: 2026-08-10..2026-09-08\nWS-4390\nWS-4402\nWS-4423\nWS-4449\nWS-4455\nWS-4462\nWS-4480"
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The growth team flagged this week's active-workspace report: the numbers it prints don't line up with the product group's documented definition of an active workspace. Fix weekly_active.py so its printed report follows that definition exactly. When finished, reply DONE.",
+      "expect": {}
+    }
+  ]
+}

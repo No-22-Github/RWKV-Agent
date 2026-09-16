@@ -1,0 +1,35 @@
+{
+  "id": "cfg-0001",
+  "description": "Effective TCP port of the notify-hub service from its deployment yaml. WORKBANK-CANARY-9f34c1ab",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-cfg-effective-01",
+    "ref_calls": 2,
+    "fixture_bytes": 638,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "services/notify-hub.yaml": "# notify-hub — outbound notification dispatcher (email, SMS, push)\nservice: notify-hub\nowner: platform-messaging\nport: 8431\nrequest_timeout_seconds: 45\nmax_inflight: 256\nretry_backoff_ms: 250\nreplicas: 3\nimage: registry.internal/notify-hub:2026.7.2\nlog_level: info\n",
+    "README.md": "# Delivery platform workspace\n\nThe messaging squad keeps one deployment config per service under\nservices/. A value written in a service's yaml is the value the service\nruns with.\n\nops/asset-inventory.csv lists the machines this fleet is deployed on.\n",
+    "ops/asset-inventory.csv": "hostname,rack,units,purchased_on\nmsg-node-01,R12,2,2025-11-04\nmsg-node-02,R12,2,2025-11-04\nmsg-node-03,R14,2,2026-01-22\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "We are putting the notify-hub service behind a new load balancer and need the exact TCP port it listens on. Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 8431,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

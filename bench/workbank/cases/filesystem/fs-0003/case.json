@@ -1,0 +1,42 @@
+{
+  "id": "fs-0003",
+  "description": "Pager extension for the shift lead at the live fulfillment center; a closed site keeps an identically named roster. WORKBANK-CANARY-71c4d9a0",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "find_file",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 3926
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-fs-inventory-01",
+    "ref_calls": 4,
+    "fixture_bytes": 728,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "Meridian Fulfillment - network roster.\n\nEvery fulfillment center keeps a roster.csv listing on-call pager\nextensions by role. sites/roseburg/ is the active fulfillment center;\nthe Ardmore building closed in March 2026 and its roster is kept\nunder sites/ardmore/ for payroll history only.\n",
+    "sites/roseburg/roster.csv": "site_code,role,shift,pager_extension\nRSB-04,site_manager,day,3305\nRSB-04,shift_lead,night,4417\nRSB-04,loader,night,5182\n",
+    "sites/ardmore/roster.csv": "site_code,role,shift,pager_extension\nARD-11,site_manager,day,2210\nARD-11,shift_lead,night,3926\nARD-11,shift_lead,day,3904\nARD-11,loader,night,4761\nARD-11,loader,day,4129\n",
+    "ops/dock_schedule_2026-08.txt": "Roseburg dock schedule - August 2026.\n\nDoor 1: inbound pallets, 05:00-11:00\nDoor 2: outbound parcels, 06:00-14:00\nDoor 3: returns triage, 12:00-18:00\n",
+    "training/.keep": ""
+  },
+  "turns": [
+    {
+      "prompt": "Night dispatch needs the pager extension for the shift lead at our active fulfillment site. Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 4417,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

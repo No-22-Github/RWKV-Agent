@@ -1,0 +1,41 @@
+{
+  "id": "cfg-0003",
+  "description": "Tenant feature flag state after merging tenant overrides into defaults under the flag handbook. WORKBANK-CANARY-c07a48e3",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "merge",
+    "traps": [
+      "TR-RULEFILE"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": "yes"
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-effective-01",
+    "ref_calls": 4,
+    "fixture_bytes": 1057,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "flags/defaults.yaml": "express_checkout: false\ninstant_payout: true\nloyalty_multiplier_v2: true\ndark_mode_dashboard: true\nbulk_importer: false\n",
+    "flags/tenants/atlasgrocer.yaml": "# Tenant overrides for atlasgrocer (grocery chain, EU rollout)\ninstant_payout: false\nexpress_checkout: true\nbulk_importer: false\n",
+    "docs/flag-guide.md": "# Feature flag handbook — tenant merges\n\nDefaults for every flag live in flags/defaults.yaml. A tenant file in\nflags/tenants/<tenant>.yaml may switch flags for that tenant only.\n\nMerge semantics:\n\n- A tenant file may turn a default-on flag off for its tenant.\n- Turning on a default-off flag from a tenant file works only for flags\n  listed in the beta allowlist at the bottom of this file; anything else\n  stays off for that tenant.\n- Flags absent from the tenant file keep their default.\n\nBeta allowlist (tenant files may switch these on):\n\n- loyalty_multiplier_v2\n- bulk_importer\n",
+    "README.md": "# Flag service workspace\n\nflags/defaults.yaml lists the default state of every feature flag.\nflags/tenants/ holds one override file per tenant. How a tenant file\nmerges with the defaults is described in docs/flag-guide.md.\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "Quick check before the atlasgrocer rollout next week: is express_checkout enabled for that tenant? Answer yes or no. Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "no"
+      }
+    }
+  ]
+}

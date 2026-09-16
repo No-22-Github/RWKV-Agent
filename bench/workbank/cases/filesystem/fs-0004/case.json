@@ -1,0 +1,54 @@
+{
+  "id": "fs-0004",
+  "description": "Artwork audit: count the .svg files under assets and name the file stored twice with identical content; a same-name near-pair and a retired badge name interfere. WORKBANK-CANARY-e2f83b56",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "duplicates",
+    "traps": [
+      "TR-DECOY",
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "weather_squall.svg",
+      "TR-NEARNAME": "cairn-badge.svg"
+    },
+    "axes": [
+      "OBS",
+      "ERR"
+    ],
+    "level": "L2",
+    "family": "fam-fs-inventory-01",
+    "ref_calls": 6,
+    "fixture_bytes": 2140,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "Cairn & Cloud Outfitters - storefront artwork library.\n\nassets/ holds every mark and glyph on the storefront: logos/ for\nbrand marks, icons/ for interface glyphs (seasonal variants live in\nassets/seasonal/), and marketing/ for campaign art. The cairn badge\nhas kept its current name since the spring 2026 rebrand; earlier\nbuilds shipped it as cairn-badge.svg.\n",
+    "assets/logos/cairn_badge.svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\"><path d=\"M6 26 L16 6 L26 26 Z\" fill=\"#2e5d4b\"/><rect x=\"13\" y=\"22\" width=\"6\" height=\"4\" fill=\"#c8b273\"/></svg>",
+    "assets/archive/cairn_badge.svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\"><path d=\"M6 26 L16 6 L26 26 Z\" fill=\"#2e5d4b\"/><rect x=\"13\" y=\"22\" width=\"6\" height=\"4\" fill=\"#c8b273\"/></svg>",
+    "assets/icons/weather_squall.svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\"><path d=\"M4 20 C10 8 22 8 28 20\" stroke=\"#3b6ea5\" stroke-width=\"3\" fill=\"none\"/><circle cx=\"16\" cy=\"24\" r=\"3\" fill=\"#3b6ea5\"/></svg>",
+    "assets/seasonal/weather_squall.svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\"><path d=\"M4 20 C10 8 22 8 28 20\" stroke=\"#7a4fa3\" stroke-width=\"3\" fill=\"none\"/><circle cx=\"16\" cy=\"24\" r=\"4\" fill=\"#7a4fa3\"/></svg>",
+    "assets/icons/compass_rose.svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\"><path d=\"M16 3 L19 16 L16 29 L13 16 Z\" fill=\"#20415e\"/><circle cx=\"16\" cy=\"16\" r=\"2.5\" fill=\"#c8b273\"/></svg>",
+    "assets/seasonal/frost_counter.svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\"><path d=\"M12 2 L14 10 L22 12 L14 14 L12 22 L10 14 L2 12 L10 10 Z\" fill=\"#7fb2d9\"/></svg>",
+    "assets/marketing/hero_ridge.svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\"><rect width=\"640\" height=\"220\" fill=\"#e9f1ea\"/><path d=\"M0 180 L140 90 L260 150 L400 60 L640 170 L640 220 L0 220 Z\" fill=\"#2e5d4b\"/></svg>",
+    "assets/marketing/hero_ridge_frame.svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 640 220\"><rect width=\"640\" height=\"220\" fill=\"#f4ead9\"/><path d=\"M0 180 L140 90 L260 150 L400 60 L640 170 L640 220 L0 220 Z\" fill=\"#b0713e\"/></svg>",
+    "assets/marketing/trailhead_tile.svg": "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 48 48\"><path d=\"M8 40 L24 8 L40 40 Z\" fill=\"#c8b273\"/><circle cx=\"24\" cy=\"34\" r=\"4\" fill=\"#20415e\"/></svg>",
+    "assets/marketing/autumn_brief.txt": "Autumn campaign brief - ridge line hero.\n\nLead with the ridge artwork at 640x220; social crops use the framed\nvariant. Palette stays moss and sand; no sunset gradient this\nseason.\n",
+    "assets/video/.keep": ""
+  },
+  "turns": [
+    {
+      "prompt": "Design ops is auditing the storefront artwork library this week. How many .svg files live under assets/, and which single file sits in two folders with byte-identical content? State the count and the duplicated file's name. Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+      "expect": {
+        "output_contains": [
+          "9",
+          "cairn_badge.svg"
+        ]
+      }
+    }
+  ]
+}

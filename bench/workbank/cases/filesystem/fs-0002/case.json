@@ -1,0 +1,42 @@
+{
+  "id": "fs-0002",
+  "description": "Locate the config file that defines viewer watch-history retention; prose docs still cite a retired .yml path. WORKBANK-CANARY-b85d02ef",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "find_file",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": "config/retention.yml"
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-fs-inventory-01",
+    "ref_calls": 4,
+    "fixture_bytes": 798,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "Solstice Video - platform config.\n\nconfig/ holds the service defaults: playback.yaml covers the player,\nsubtitles.yaml covers captions. Viewer watch-history rules moved into\ntheir own file during the April 2026 governance cleanup; they used to\nlive in config/retention.yml.\n",
+    "config/history_retention.yaml": "retention:\n  watch_events: P540D\n  search_queries: P180D\n  support_chats: P730D\n  compiled_profiles: P1095D\n",
+    "config/playback.yaml": "playback:\n  default_quality: auto\n  max_bitrate_kbps: 8600\n  resume_window_days: 30\n  autoplay_next: true\n",
+    "config/subtitles.yaml": "subtitles:\n  default_language: en\n  fallback_language: es\n  font_size_px: 18\n  burn_in_default: false\n",
+    "docs/data_governance_notes.md": "Data governance notes - 2026-04-11.\n\nThe viewer watch-history schedule moved out of the shared player\nconfig into a dedicated file under config/. Migration reference:\nconfig/retention.yml (until 2026-04-11).\n",
+    "jobs/.keep": ""
+  },
+  "turns": [
+    {
+      "prompt": "Our privacy office is assembling the records schedule and needs the workspace path of the file that defines how long viewer watch-history records are kept. Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "config/history_retention.yaml"
+      }
+    }
+  ]
+}

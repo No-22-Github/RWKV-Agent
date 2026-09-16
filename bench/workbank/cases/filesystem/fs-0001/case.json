@@ -1,0 +1,37 @@
+{
+  "id": "fs-0001",
+  "description": "Cold-storage audit of a finance data room; the answer is the byte size of the single largest file. WORKBANK-CANARY-3e7a19c4",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "largest",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-fs-inventory-01",
+    "ref_calls": 2,
+    "fixture_bytes": 1559,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "Harbor & Vine Markets - finance data room.\n\nexports/ holds the extracts finance pulls every Friday: the chain-wide\ntotals ledger for the current quarter and the most recent weekly\nstore-level extract. notes/ holds buyer memos. exports/archive/ is\nreserved for cold-storage moves.\n",
+    "exports/chain_wide_totals_2026-08.csv": "week_ending,region,stores_reporting,net_sales_usd,avg_basket_usd\n2026-08-07,north,41,382114.27,9.42\n2026-08-07,south,37,341876.10,8.65\n2026-08-07,coastal,23,297430.83,10.14\n2026-08-14,north,41,395502.64,9.51\n2026-08-14,south,37,336209.45,8.49\n2026-08-14,coastal,23,301887.92,10.22\n2026-08-21,north,41,409671.38,9.63\n2026-08-21,south,37,348554.71,8.72\n2026-08-21,coastal,23,312265.06,10.35\n2026-08-28,north,41,421330.15,9.78\n2026-08-28,south,37,352941.29,8.81\n2026-08-28,coastal,23,318974.60,10.41\n",
+    "exports/weekly_sales_2026-06.csv": "week_ending,store_code,net_sales_usd,avg_basket_usd\n2026-06-05,HV-104,18247.33,9.12\n2026-06-05,HV-219,12003.87,8.44\n2026-06-05,HV-337,15980.05,9.87\n2026-06-12,HV-104,17998.61,9.03\n2026-06-12,HV-219,12455.28,8.61\n2026-06-12,HV-337,16410.72,10.02\n2026-06-19,HV-104,19420.14,9.35\n2026-06-19,HV-219,11890.53,8.28\n2026-06-19,HV-337,15733.96,9.74\n",
+    "exports/archive/.keep": "",
+    "notes/buyer_memo_coffee.md": "Buyer memo - coffee program, week 34.\n\nRowan Bend peaberry lots sell through faster at coastal stores;\nshift two pallets from the north DC in September. Watch the\nHarbor Blend margin once the new roaster contract starts.\n",
+    "notes/buyer_memo_dairy.md": "Buyer memo - dairy resets.\n\nCooler resets finish at the Coastal Plaza and Milltown stores in\nthe first week of September; expect a small dip in yogurt sales\nwhile the planogram settles. Oat drink facings stay unchanged.\n"
+  },
+  "turns": [
+    {
+      "prompt": "We are moving the finance data room to cold storage and budgeting by file footprint. What is the size in bytes of the largest file in the workspace? Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 497,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

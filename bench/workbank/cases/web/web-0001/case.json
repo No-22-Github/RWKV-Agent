@@ -1,0 +1,58 @@
+{
+  "id": "web-0001",
+  "description": "Default oxcart ingest batch_size per the configuration reference; plain L0 lookup. WORKBANK-CANARY-b4a17c93",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-web-release-01",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "oxcart",
+      "url": "https://docs.oxcart.dev/en/stable/configuration/",
+      "url_match": "docs.oxcart.dev/en/stable/configuration",
+      "title": "Configuration reference - oxcart documentation",
+      "snippet": "Reference for every oxcart configuration option with its type and default value, grouped by subsystem.",
+      "content": "# Configuration reference\n\nThis page lists every oxcart configuration option with its type and default value. Options are grouped by subsystem. All options can be set in `oxcart.toml` or overridden per job.\n\n## Ingest pipeline\n\n| Option | Type | Default | Description |\n| --- | --- | --- | --- |\n| batch_size | integer | 512 | Maximum number of records buffered per ingest batch before a flush is triggered. |\n| input_backlog | integer | 4096 | Records kept in memory per partition while a sink is slow. |\n| flush_workers | integer | 8 | Worker threads dedicated to sink flushes. |\n\n## Sinks\n\n| Option | Type | Default | Description |\n| --- | --- | --- | --- |\n| sink_retries | integer | 3 | Attempts per failed sink write before the batch is parked. |\n| sink_timeout_ms | integer | 2500 | Per-write timeout for network sinks. |\n\n## Health\n\n`oxcart doctor` validates a configuration file against this reference and prints every option that differs from the shipped value.\n\nLast reviewed 2026-06-18.",
+      "published_at": "2026-06-18"
+    },
+    {
+      "query_match": "oxcart",
+      "url": "https://github.com/oxcart/oxcart",
+      "url_match": "github.com/oxcart/oxcart",
+      "title": "oxcart/oxcart: fault-tolerant stream ingest toolkit",
+      "snippet": "Open-source ingest toolkit with pluggable sinks, exactly-once checkpoints, and a TOML-first configuration model.",
+      "content": "# oxcart\n\nFault-tolerant stream ingestion for small teams. oxcart sits between your producers and your sinks, buffers bursts, and flushes with exactly-once semantics.\n\n- Pluggable sinks: Kafka, S3, Postgres, webhooks\n- Checkpointed deliveries with at-least-once and exactly-once modes\n- Single static binary, TOML configuration\n\n## Quick start\n\n```\nbrew install oxcart\noxcart init --sink s3://acme-raw-events\noxcart run\n```\n\n## Status\n\noxcart runs in production at several mid-size data teams. The documentation site carries the full configuration reference and release notes.\n\nMIT licensed. Maintained by the oxcart contributors.",
+      "published_at": "2026-04-02"
+    },
+    {
+      "query_match": "oxcart",
+      "url": "https://www.metisdatajournal.com/articles/ingest-tooling-shootout",
+      "url_match": "metisdatajournal.com/articles/ingest-tooling-shootout",
+      "title": "Shootout: six open-source ingest tools compared",
+      "snippet": "We benchmarked six ingestion tools, including oxcart, on throughput, memory ceiling, and recovery time.",
+      "content": "# Shootout: six open-source ingest tools compared\n\nWe ran six ingestion tools through the same synthetic workload: 40k events/second, bursty producers, one deliberately slow sink.\n\n## Results overview\n\n| Tool | Throughput | Recovery after kill -9 | Config surface |\n| --- | --- | --- | --- |\n| deltastream | 38k ev/s | 11 s | large |\n| oxcart | 36k ev/s | 4 s | moderate |\n| rivetgate | 31k ev/s | 9 s | small |\n\n## Notes on oxcart\n\noxcart recovered fastest in our kill -9 test, and its TOML file was the easiest to review line by line. Benchmarks say little about shipped settings, though: every tool in this comparison starts conservative and rewards tuning.\n\nPublished 2026-02-11.",
+      "published_at": "2026-02-11"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "I'm about to tune our oxcart ingest pipeline and want to note the baseline first. What is the default value of the batch_size setting in oxcart's configuration? Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "512"
+      }
+    }
+  ]
+}

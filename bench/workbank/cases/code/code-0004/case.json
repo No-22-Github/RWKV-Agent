@@ -1,0 +1,45 @@
+{
+  "id": "code-0004",
+  "description": "Count line-initial work markers repo-wide while rejecting a string-literal marker and a stale audit claim. WORKBANK-CANARY-f1930b58",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "count_markers",
+    "traps": [
+      "TR-DECOY",
+      "TR-CLAIM"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 10,
+      "TR-CLAIM": 12
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "fam-code-nav-01",
+    "ref_calls": 6,
+    "fixture_bytes": 3074,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "docs/audit.md": "FIXME(audit): re-run this sweep once the October cutover lands.\n# Marker audit — Ledgerline control service\n\nCounting rule (agreed 2026-03-14): a tracked marker is a whole line given\nover to the tag — in Python files a whole-line comment (indentation is\nfine), in docs and runbooks the first word of the line. Tags tucked\nmid-line, inside message strings or trailing remarks, are not part of the\naudit count.\n\nThe 2026-08-19 sweep recorded 12 tracked markers across the service.\n\n| area      | markers |\n|-----------|---------|\n| auth      | 4       |\n| billing   | 5       |\n| inventory | 3       |\n",
+    "readme.md": "# Ledgerline control service\n\nCard-issuing control plane: session vault, dunning ladders and warehouse\nreorder planning.\n\nWork items are tracked with the two standard marker tags; the counting\nconvention and the running audit live in docs/audit.md. The October cutover\nchecklist is owned by the platform team.\n",
+    "auth/session.py": "\"\"\"Session vault for cardholder sessions.\"\"\"\n\nVAULT_TTL_MINUTES = 45\nRENEWAL_LIMIT = 2\n\n# FIXME: retire the shared vault map once the redis mirror lands\n_ACTIVE = {}\n\n\ndef touch_session(vault_id, operator, now):\n    held = _ACTIVE.get(vault_id)\n    if held and now - held[1] > VAULT_TTL_MINUTES * 60:\n        _ACTIVE.pop(vault_id, None)\n        return None\n    _ACTIVE[vault_id] = (operator, now)\n    return _ACTIVE[vault_id]\n\n\ndef drop_session(vault_id, operator):\n    # TODO: emit an audit event when one operator drops another's session\n    held = _ACTIVE.get(vault_id)\n    if held and held[0] == operator:\n        del _ACTIVE[vault_id]\n    return True\n",
+    "billing/dunning.py": "\"\"\"Dunning ladder for overdue card accounts.\"\"\"\n\n\nclass DunningError(Exception):\n    \"\"\"Raised when the ladder cannot proceed for an account.\"\"\"\n\n\nLADDER_STEPS = (3, 7, 14)\nPAUSE_GRACE_DAYS = 5\n\n\ndef next_step(days_overdue):\n    for step, threshold in enumerate(LADDER_STEPS):\n        if days_overdue <= threshold:\n            return step\n    raise DunningError(\"FIXME: pause the retry ladder for this account\")\n\n\ndef pause_account(account, days_overdue):\n    # TODO: wire the pause flag into the nightly ledger export\n    return days_overdue > LADDER_STEPS[-1] + PAUSE_GRACE_DAYS\n\n\ndef resume_account(account):\n    # TODO: notify the collections queue when an account resumes\n    # FIXME: ladder state is not persisted across restarts yet\n    return \"resumed\"\n",
+    "inventory/reorder.py": "\"\"\"Reorder planning for warehouse stock.\"\"\"\n\nREORDER_BUFFER_WEEKS = 6\nPALLETS_PER_PICK_FACE = 12\n\n\ndef plan_reorder(sku, on_hand, weekly_velocity):\n    if on_hand < weekly_velocity * REORDER_BUFFER_WEEKS:\n        # FIXME: held stock inflates on_hand until the nightly sweep runs\n        on_hand = on_hand + PALLETS_PER_PICK_FACE\n    return (sku, on_hand)\n\n\ndef split_batch(pallets):\n    # TODO: respect pick-face capacity once layout v2 ships\n    faces = []\n    while pallets > 0:\n        faces.append(min(pallets, PALLETS_PER_PICK_FACE))\n        pallets = pallets - PALLETS_PER_PICK_FACE\n    return faces\n\n\ndef forecast(weekly_velocity, weeks):\n    # TODO: replace the flat forecast with the seasonal index\n    return weekly_velocity * weeks\n"
+  },
+  "turns": [
+    {
+      "prompt": "The platform team wants the size of our cleanup backlog ahead of the October cutover. Count the tracked TODO or FIXME markers across the whole service and give me the total. Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 9,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

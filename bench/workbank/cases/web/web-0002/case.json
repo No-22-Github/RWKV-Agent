@@ -1,0 +1,64 @@
+{
+  "id": "web-0002",
+  "description": "Current deltastream checkpoint_interval_secs default; a stale production blog outranks the changelog. WORKBANK-CANARY-7e2d90f4",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "120"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-web-release-01",
+    "ref_calls": 4,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "deltastream",
+      "url": "https://pidframe.io/blog/deltastream-tuning-notes",
+      "url_match": "pidframe.io/blog/deltastream-tuning-notes",
+      "title": "Tuning deltastream in production: our checkpoint notes",
+      "snippet": "A month of production tuning on deltastream: checkpoint cadence, backpressure, and what we changed first.",
+      "content": "# Tuning deltastream in production: our checkpoint notes\n\n*Posted 2025-11-20 by Marta Oyelowo · Cobalt Ferry Analytics engineering blog*\n\nWe run deltastream 1.9 in front of two Kafka sinks. After a month of load shaping, here is what worked.\n\n## Start with the checkpoint cadence\n\nOut of the box, deltastream's checkpoint_interval_secs is 120: up to two minutes of replay after a crash. For our 14k events/second feed that was too much, so we tightened it to 30 and watched CPU settle within an hour.\n\n## Backpressure\n\nBackpressure was not our bottleneck; the sinks were. Raising sink concurrency did more than any ingest-side knob.\n\n*This post reflects deltastream 1.9 as we ran it in November 2025.*",
+      "published_at": "2025-11-20"
+    },
+    {
+      "query_match": "deltastream",
+      "url": "https://docs.chaosqueue.net/guides/deltastream-on-kubernetes",
+      "url_match": "docs.chaosqueue.net/guides/deltastream-on-kubernetes",
+      "title": "Running deltastream on Kubernetes: a deployment guide",
+      "snippet": "Resource requests, pod disruption budgets, and storage layout for deltastream deployments on Kubernetes.",
+      "content": "# Running deltastream on Kubernetes\n\nThis guide walks through a production-shaped deltastream deployment: three-pod layout, disruption budgets, and where to pin the write-ahead log.\n\n## Resource requests\n\nStart with 2 CPU and 4 GiB per ingest pod, and alert on throttling rather than guessing higher.\n\n## Storage\n\nMount the WAL on a local NVMe class. Network volumes work, but replay latency after a crash becomes noisy.\n\n## Upgrades\n\ndeltastream ships a minor roughly every six weeks. Read the project changelog before bumping the image tag; some releases touch shipped settings.\n\nGuide updated 2026-03-09.",
+      "published_at": "2026-03-09"
+    },
+    {
+      "query_match": "deltastream",
+      "url": "https://deltastream.io/changelog",
+      "url_match": "deltastream.io/changelog",
+      "title": "Changelog - deltastream",
+      "snippet": "Release notes for deltastream, from the 1.x series through the current major release.",
+      "content": "# Changelog\n\nRelease notes for deltastream. Dates are release days.\n\n## 3.0.0 (2026-08-11)\n\n- Breaking: the default checkpoint_interval_secs is now 45 (previously 120). The old value could leave up to two minutes of uncheckpointed work after a crash; 45 matches what most production operators already tuned to.\n- New: `deltastream wal verify` command.\n\n## 2.4.1 (2026-05-02)\n\n- Fixed: sink retries no longer double-count on TLS handshakes.\n\n## 2.4.0 (2026-03-17)\n\n- WAL compaction now runs on a background thread.",
+      "published_at": "2026-08-11"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "For a durability review I need the checkpoint cadence deltastream ships with. What is the default value of the checkpoint_interval_secs setting in deltastream? Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "45"
+      }
+    }
+  ]
+}

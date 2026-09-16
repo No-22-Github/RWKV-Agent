@@ -1,0 +1,55 @@
+{
+  "id": "hyb-0001",
+  "description": "Registered office address of the rail partner for a signature annex; the address is recorded in the workspace while the partner's web pages carry none. WORKBANK-CANARY-7c4e21b9",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "local_first",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-hyb-ratetrip-01",
+    "ref_calls": 3,
+    "fixture_bytes": 972,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "Registered office of Nordvik Rail (framework agreement, clause 2): Willemskade 14, 3022 AA Rotterdam\n\n# Skylark Journeys — Nordvik Rail onboarding folder\n\nWorking papers for the Nordvik Rail reseller partnership.\n\n- partners/ — commercial terms agreed in the framework agreement\n- bookings/ — sample extracts from the July booking log\n\nThe signature annex must reproduce the carrier's registered office address exactly as recorded above.\n",
+    "partners/nordvik-rail-terms.md": "# Nordvik Rail — commercial terms (framework agreement summary)\n\n- Tariff 2026: EUR 34.00 per traveller per segment, second class\n- Group discount: 12% from ten travellers upwards\n- Amendments: free of charge until 72 hours before departure\n- Settlement: monthly consolidated invoice, net 30 days\n",
+    "bookings/july-sample.md": "# July booking log — sample extract\n\n| booking_ref | departure | pax | total_eur |\n| --- | --- | --- | --- |\n| SJ-70112 | 2026-07-08 | 2 | 412.00 |\n| SJ-70118 | 2026-07-15 | 1 | 188.50 |\n| SJ-70125 | 2026-07-22 | 4 | 1260.00 |\n"
+  },
+  "web_fixture": [
+    {
+      "query_match": "nordvik",
+      "url": "https://www.nordvitrail.example/",
+      "url_match": "www.nordvitrail.example",
+      "title": "Nordvik Rail — rail freight and wagon leasing",
+      "snippet": "Nordvik Rail operates scheduled freight services and leases rolling stock across the Rhine corridor.",
+      "content": "# Nordvik Rail\n\nScheduled freight services, wagon leasing and terminal handling across the Rhine corridor. Fleet of 340 wagons. Sales enquiries: sales@nordvitrail.example.\n",
+      "published_at": "2026-07-02"
+    },
+    {
+      "query_match": "nordvik",
+      "url": "https://www.nordvitrail.example/timetables",
+      "url_match": "www.nordvitrail.example/timetables",
+      "title": "Nordvik Rail — seasonal timetables",
+      "snippet": "Summer 2026 timetables for the Utrecht-Gelsenkirchen and Antwerp-Lille freight corridors.",
+      "content": "# Seasonal timetables — summer 2026\n\nUtrecht-Gelsenkirchen: daily departures 05:40 and 19:10.\nAntwerp-Lille: weekdays 07:05.\nBooking cut-off is 18:00 the day before departure.\n",
+      "published_at": "2026-05-14"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "Skylark Journeys is preparing the signature annex for its reseller agreement with Nordvik Rail and must quote the carrier's registered office address exactly. What is the registered office address of Nordvik Rail? Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "Willemskade 14, 3022 AA Rotterdam"
+      }
+    }
+  ]
+}

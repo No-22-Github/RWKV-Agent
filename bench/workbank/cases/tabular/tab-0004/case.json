@@ -1,0 +1,44 @@
+{
+  "id": "tab-0004",
+  "description": "Net April 2026 retail revenue after refunds stored as positive, dollar-formatted amounts. WORKBANK-CANARY-e59f08b3",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "reconcile",
+    "traps": [
+      "TR-SIGN",
+      "TR-NUMFMT"
+    ],
+    "trap_decoys": {
+      "TR-SIGN": 25501.4,
+      "TR-NUMFMT": 2304.68
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-tab-recon-01",
+    "ref_calls": 4,
+    "fixture_bytes": 1146,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "orders_april.csv": "order_id,order_date,customer,sku,amount\nLH-2201,2026-04-02,Jordan Pike,PND-3310,\"$1,129.90\"\nLH-2202,2026-04-05,Camille Dubois,TBL-8801,\"$342.60\"\nLH-2203,2026-04-07,Ravi Iyengar,LVA-5540,\"$4,918.20\"\nLH-2204,2026-04-11,Freya Lindholm,BUL-2214,\"$64.75\"\nLH-2205,2026-04-14,Mateo Vargas,PND-3320,\"$1,088.40\"\nLH-2206,2026-04-18,Adaeze Nwosu,TBL-8803,\"$685.20\"\nLH-2207,2026-04-21,Henrik Dahl,LVA-7700,\"$12,036.40\"\nLH-2208,2026-04-24,Yuki Tanaka,BUL-2220,\"$128.30\"\nLH-2209,2026-04-27,Petra Vogel,FLR-9025,\"$3,241.75\"\nLH-2210,2026-04-30,Desmond Achike,FLR-1104,\"$920.00\"\n",
+    "refunds_april.csv": "refund_id,order_id,amount\nRF-118,LH-2201,\"$129.90\"\nRF-121,LH-2203,\"$491.82\"\nRF-126,LH-2209,\"$324.18\"\n",
+    "README.md": "# Lumenhaus Lighting - April 2026 billing extract\n\norders_april.csv is the order register for April 2026 and\nrefunds_april.csv lists refunds issued against those orders. Each refund\namount is stored as a positive figure and reduces the revenue recognized\non the referenced order. Amounts are in USD.\n",
+    "ops/warehouse-log.txt": "Warehouse notes, week of 2026-04-20\n- Two pendant fixtures returned to stock after QA re-check.\n- Pallet L-7 shrink-wrapped for Friday freight.\n- Dimmer module restock due next week.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Lumenhaus Lighting's April 2026 order register and the matching refund log are in the workspace. What was our net revenue for April 2026 after refunds? Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 23609.6,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "id": "hyb-0002",
+  "description": "Euro value of August US-storefront orders at the bank's desk sheet; the sheet's column guide separates the sell and buy quotations. WORKBANK-CANARY-a3f85d02",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_calc",
+    "traps": [
+      "TR-DIRMAP"
+    ],
+    "trap_decoys": {
+      "TR-DIRMAP": 9951.0
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-ratetrip-01",
+    "ref_calls": 4,
+    "fixture_bytes": 484,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "orders.csv": "order_id,order_date,amount_usd\nUS-10418,2026-08-03,1284.50\nUS-10427,2026-08-09,96.25\nUS-10433,2026-08-14,7420.00\nUS-10441,2026-08-21,1899.25\n",
+    "README.md": "# Fernwood Supplies — storefront exports\n\norders.csv is the August export from the US storefront; amount_usd is the amount charged, in US dollars.\n",
+    "notes/packaging-guide.md": "# Packing guide — warehouse reference\n\n- Standard carton: 60 x 40 x 40 cm, max 18.5 kg\n- Pallet: 120 x 80 cm, at most three carton layers\n- Fragile stickers are mandatory for glassware orders\n"
+  },
+  "web_fixture": [
+    {
+      "query_match": "cascade trust",
+      "url": "https://fx.cascadetrust.example/desk-rates",
+      "url_match": "fx.cascadetrust.example/desk-rates",
+      "title": "Cascade Trust & Savings — FX desk rates",
+      "snippet": "Business desk quotations for USD/EUR settlement trades, effective 11 September 2026.",
+      "content": "# Cascade Trust & Savings — FX desk rates\n\nBusiness desk quotations for settlement trades. Effective 11 September 2026.\n\n| Pair | We sell USD | We buy USD |\n| --- | --- | --- |\n| USD/EUR | 0.9300 | 0.9165 |\n\nColumn guide: quotations express euros per 1 US dollar. \"We sell USD\" applies when you purchase US dollars from the desk. \"We buy USD\" applies when the desk purchases US dollars from you, for example when dollar receipts are converted into euros.\n",
+      "published_at": "2026-09-11"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "Our US storefront booked its August orders with the dollar amount charged for each one. For the month-end close, finance needs their total value in euros, converted at Cascade Trust's desk rates. What is that total in euros? Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 9806.55,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

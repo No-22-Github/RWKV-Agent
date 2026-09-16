@@ -1,0 +1,66 @@
+{
+  "id": "web-0004",
+  "description": "Current ferrocache shard_count default; vague snippets force fetching, stale community pages carry the old value. WORKBANK-CANARY-09d4f7b2",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-WEBSTALE",
+      "TR-SNIPPETVAGUE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "128",
+      "TR-SNIPPETVAGUE": "64"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L2",
+    "family": "fam-web-release-01",
+    "ref_calls": 5,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "ferrocache",
+      "url": "https://cachefolk.net/ferrocache-shard-defaults",
+      "url_match": "cachefolk.net/ferrocache-shard-defaults",
+      "title": "Ferrocache shard defaults over the years - community recap",
+      "snippet": "A community recap of ferrocache shard defaults across versions, starting from the original 64-shard layout.",
+      "content": "# Ferrocache shard defaults over the years\n\nA community-maintained recap of how ferrocache's shard layout evolved, last touched 2026-08-14.\n\n## Defaults by series\n\n| Series | Default shard_count |\n| --- | --- |\n| 1.x | 64 |\n| 2.x | 128 |\n\nThe 1.x layout with 64 shards is where most of the old tuning folklore comes from. When the 2.x engine landed, the default doubled to 128 and most capacity guides were rewritten around that number.",
+      "published_at": "2026-08-14"
+    },
+    {
+      "query_match": "ferrocache",
+      "url": "https://ferrumwheel.net/blog/ferrocache-shard-tuning",
+      "url_match": "ferrumwheel.net/blog/ferrocache-shard-tuning",
+      "title": "Shard sizing ferrocache in production: our notes",
+      "snippet": "Our shard sizing notes from a year of ferrocache in front of a 9 TB hot set.",
+      "content": "# Shard sizing ferrocache in production: our notes\n\n*Posted 2025-10-14 by Ines Kovač · Ferrum Wheel engineering blog*\n\nWe have been running ferrocache 2.6 in front of a 9 TB hot set at Lanternpeer since the spring. Some sizing notes.\n\n## Shard count\n\nOut of the box, ferrocache 2.6 creates 128 shards, and for our hit rate that was a sound starting point: CPU stayed under 40% per node and hot-key contention never reached the p99.\n\n## When to deviate\n\nRaise the shard count only when eviction churn shows up in the dashboards. Memory per shard is the constraint, not CPU.",
+      "published_at": "2025-10-14"
+    },
+    {
+      "query_match": "ferrocache",
+      "url": "https://ferrocache.io/changelog",
+      "url_match": "ferrocache.io/changelog",
+      "title": "Changelog - ferrocache",
+      "snippet": "Release notes for ferrocache across the 2.x, 3.x and 4.x series.",
+      "content": "# Changelog\n\nRelease notes for ferrocache. Dates are release days.\n\n## 4.2.0 (2026-07-30)\n\n- The default shard_count is now 256, up from 128. The reworked per-shard index structure needs less resident memory, so doubling the count no longer costs what it used to, and hot-key contention drops sharply on wide caches.\n- New eviction telemetry endpoint at /metrics/eviction.\n\n## 4.1.0 (2026-04-21)\n\n- Eviction sweep interval is now configurable at runtime.\n\n## 3.2.0 (2026-01-12)\n\n- Read path fast-fails on corrupt segments instead of retrying.",
+      "published_at": "2026-07-30"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "Our capacity sheet for the spring launch needs the shard count ferrocache ships with. What is the default value of the shard_count setting in ferrocache? Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "256"
+      }
+    }
+  ]
+}

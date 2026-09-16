@@ -1,0 +1,38 @@
+{
+  "id": "nt-0002",
+  "description": "Default HTTPS port asked in a service-onboarding wrapper; stable world knowledge despite lookup-flavoured framing. WORKBANK-CANARY-b58c20f7",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "stable_fact",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "80"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-reflex-01",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "We are onboarding a partner feed onto the Meridian ingest gateway, and the security reviewer wants the listener documented before sign-off. Which port does HTTPS use by default? Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "443",
+        "tools": [],
+        "require_active_no_call": true
+      }
+    }
+  ]
+}

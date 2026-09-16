@@ -1,0 +1,35 @@
+{
+  "id": "nt-0001",
+  "description": "Convert a steady 2.5 MiB/s backup throughput into MB per hour; answerable with zero tool calls. WORKBANK-CANARY-3d7a91e4",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-reflex-01",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "Our backup pipeline writes at a steady 2.5 MiB/s. Finance tracks egress costs in MB per hour, so give me this throughput expressed in MB per hour. Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 9437.184,
+        "tolerance": 0.01,
+        "tools": [],
+        "require_active_no_call": true
+      }
+    }
+  ]
+}

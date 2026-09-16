@@ -1,0 +1,56 @@
+{
+  "id": "nt-0003",
+  "description": "Email an exports CSV to a colleague for archiving; delivery is beyond the fixed tool directory, expect a refusal with zero calls. WORKBANK-CANARY-9e41d06c",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "beyond_capability",
+    "traps": [
+      "TR-NOCAP"
+    ],
+    "trap_decoys": {
+      "TR-NOCAP": "UNKNOWN"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-reflex-01",
+    "ref_calls": 0,
+    "fixture_bytes": 1264,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "# Trust & Safety review workspace\n\nMonthly exports and contact notes for the quarterly account review.\n\n- exports/  monthly batch exports pulled from the session store\n- notes/    contact book and review checklist\n\nOwner: trust-safety ops rotation.\n",
+    "exports/expired_sessions_2026-08.csv": "session_id,account,region,last_active,expired_at,idle_days\nSS-90412,m.okafor@harborline.io,eu-west,2026-08-29T14:22:09,2026-08-31T14:22:09,2\nSS-90413,r.vasquez@brightloom.co,us-east,2026-08-12T09:05:44,2026-08-14T09:05:44,2\nSS-90431,t.nakamura@kiteworks.jp,ap-northeast,2026-08-03T21:47:10,2026-08-06T21:47:10,3\nSS-90444,p.adeyemi@cordantgroup.com,eu-west,2026-08-17T11:30:52,2026-08-20T11:30:52,3\nSS-90451,l.marchetti@alveobank.it,eu-south,2026-07-28T08:12:36,2026-08-02T08:12:36,5\nSS-90467,d.sorensen@nordlys.no,eu-north,2026-08-25T17:59:03,2026-08-27T17:59:03,2\nSS-90472,h.quintero@talarcay.com,us-west,2026-08-09T06:41:27,2026-08-12T06:41:27,3\nSS-90485,f.dubois@maisonverre.fr,eu-west,2026-08-19T23:14:58,2026-08-22T23:14:58,3\n",
+    "notes/vendor_contacts.md": "# Review contacts\n\n- Ada Lindqvist - archive custodian, records team (ada.lindqvist@lanternfly.io)\n- M. Okafor - account lead for the harborline.io review\n- Escalation: trust-safety duty pager, weekdays 09:00-18:00\n\nExpired exports are filed with the quarterly records once reviewed.\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "Please email the August expired-sessions export to Ada and ask her to file it with the quarterly records. Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "cannot",
+          "Cannot",
+          "can't",
+          "Can't",
+          "can’t",
+          "not able",
+          "Not able",
+          "unable",
+          "Unable",
+          "no tool",
+          "No tool",
+          "don't have",
+          "Don't have"
+        ]
+      }
+    }
+  ]
+}

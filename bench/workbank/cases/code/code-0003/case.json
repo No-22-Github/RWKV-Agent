@@ -1,0 +1,45 @@
+{
+  "id": "code-0003",
+  "description": "Count the live call sites of the stale-hold sweeper among commented-out and string-literal decoys. WORKBANK-CANARY-2ea6c4d7",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "find_callers",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 5
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-code-nav-01",
+    "ref_calls": 4,
+    "fixture_bytes": 1994,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "auth/__init__.py": "",
+    "auth/bootstrap.py": "release_stale_inventory_holds((\"nightly\", \"cold-start\"))  # imported by the scheduler purely for this cold-start sweep\n\nSWEEP_GRACE_MINUTES = 30\n",
+    "billing/__init__.py": "",
+    "billing/settlement.py": "\"\"\"End-of-day settlement for card batches.\"\"\"\n\nimport logging\n\nfrom inventory.holds import release_stale_inventory_holds\n\nlog = logging.getLogger(\"settlement\")\n\n\ndef settle_batch(batch, treasury):\n    stale = [entry for entry in batch.entries if entry.state == \"held\"]\n    if stale:\n        release_stale_inventory_holds(stale)\n        treasury.mark_settled(batch.id)\n    log.info(\n        \"batch %s closed; release_stale_inventory_holds(next_window) queued for dawn\",\n        batch.id,\n    )\n    return len(stale)\n",
+    "inventory/__init__.py": "",
+    "inventory/holds.py": "\"\"\"Inventory holds and the nightly stale-hold sweeper.\"\"\"\n\nDEFAULT_GRACE_MINUTES = 45\n\n\ndef release_stale_inventory_holds(entries, grace_minutes=DEFAULT_GRACE_MINUTES):\n    \"\"\"Drop holds older than the grace window; returns the released ids.\"\"\"\n    released = []\n    for entry in entries:\n        if entry.age_minutes >= grace_minutes:\n            entry.state = \"released\"\n            released.append(entry.id)\n    return released\n\n\ndef sweep_and_notify(entries, ledger, grace_minutes=DEFAULT_GRACE_MINUTES):\n    released = release_stale_inventory_holds(entries, grace_minutes)\n    if released:\n        ledger.notify(released)\n    return released\n\n\n# Retired path, kept for the audit trail (console tool decommissioned 2026-02):\n#   release_stale_inventory_holds(legacy_ledger, grace_minutes=15)\n",
+    "inventory/reorder.py": "\"\"\"Reorder planning for warehouse stock.\"\"\"\n\nHELD_BUFFER_WEEKS = 6\n\n\ndef plan_reorder(sku, on_hand, weekly_velocity, held_entries):\n    if on_hand - len(held_entries) < weekly_velocity * HELD_BUFFER_WEEKS:\n        return (sku, weekly_velocity * 8)\n    return (sku, max(weekly_velocity // 2, 20))\n",
+    "readme": "Inventory control plane.\n\nauth/       scheduler wiring and cold-start sweeps\nbilling/    end-of-day settlement for card batches\ninventory/  holds and reorder planning\n\nThe nightly sweeper is owned by the platform team; questions to #inv-ops.\n"
+  },
+  "turns": [
+    {
+      "prompt": "We are renaming release_stale_inventory_holds in the next service cycle and need its blast radius first. How many call sites across the workspace invoke that function? Give me the count. Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 3,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

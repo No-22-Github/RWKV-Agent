@@ -1,0 +1,41 @@
+{
+  "id": "doc-0003",
+  "description": "Home internet cost reimbursement under the expense policy. WORKBANK-CANARY-9e44a7c1",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "EUR 50 per month"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-doc-minutes-01",
+    "ref_calls": 4,
+    "fixture_bytes": 1528,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "policy/expense-policy.md": "# Expense policy (revision 4, approved 3 February 2026)\n\nScope: reimbursable costs incurred by employees while travelling for work\nand while working from a registered home workplace.\n\n## Hotel stays\nReimburse the actual invoice up to EUR 180.00 per night. Above the cap,\nattach the budget owner's approval before booking.\n\n## Meals while travelling\nA flat EUR 52.80 per day is paid for calendar days with an overnight stay.\nAlcohol is never reimbursable.\n\n## Mobile voice plans\nEmployees with a company phone may claim EUR 24.50 per month of the\npersonal subscription fee. Data-only SIMs are not covered.\n\n## Home office equipment\nDesks, chairs and monitors for a registered home workplace are reimbursed\nonce per three-year cycle up to EUR 350.00, receipts attached.\n\n## Coworking day passes\nDay passes up to EUR 31.00 are reimbursed with the venue invoice.\n",
+    "policy/travel-booking-guide.md": "# Travel booking guide\n\nBook rail before air for single-leg trips under 400 km, and make every\nbooking through the corporate portal so the invoice lands in the archive.\n\nChanges made less than 24 hours before departure need a short written note\nfrom the budget owner; the travel desk cannot process them otherwise.\n\nQuestions: travel desk, building 1, desk 12.\n",
+    "readme.md": "# Finance documents\n\nThe expense policy is the binding reference for reimbursements; the travel\nbooking guide only covers how trips are booked.\n",
+    "travel-desk-contacts.md": "# Travel desk contacts\n\nBooking changes: Marta Kowalczyk, building 5, desk 41\nLost invoices: shared drive, folder receipts\nDuty phone during a trip: extension 5177\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "An employee asked the help desk how much of a monthly home internet bill the company pays back. What does our expense policy say about this? Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "UNKNOWN"
+      }
+    }
+  ]
+}

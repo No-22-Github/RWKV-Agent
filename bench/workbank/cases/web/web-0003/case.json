@@ -1,0 +1,64 @@
+{
+  "id": "web-0003",
+  "description": "quillmark preview server default port; the top result's page is gone and the answer lives on the second link. WORKBANK-CANARY-c5813e6a",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-FETCHFAIL"
+    ],
+    "trap_decoys": {
+      "TR-FETCHFAIL": "UNKNOWN"
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-web-release-01",
+    "ref_calls": 4,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "quillmark",
+      "url": "https://wiki.quillmark.io/configuration",
+      "url_match": "wiki.quillmark.io/configuration",
+      "title": "quillmark - Configuration reference (community wiki)",
+      "snippet": "Every quillmark configuration key explained, including the built-in preview server and its default values.",
+      "content": "# Page not found\n\nThe page you requested could not be found.\n\nIt may have been renamed, moved, or deleted. Check the address for typos, or start again from the wiki front page.",
+      "published_at": "2025-12-04"
+    },
+    {
+      "query_match": "quillmark",
+      "url": "https://docs.quillmark.dev/reference/serve/",
+      "url_match": "docs.quillmark.dev/reference/serve",
+      "title": "serve command reference - quillmark documentation",
+      "snippet": "Command-line reference for quillmark serve, including binding, drafts, and rebuild options.",
+      "content": "# serve command reference\n\n`quillmark serve` builds the site in memory and hosts it on a local web server for previewing.\n\n## Options\n\n| Flag | Default | Description |\n| --- | --- | --- |\n| --port | 8630 | TCP port the preview server binds to. |\n| --bind | 127.0.0.1 | Interface to bind. Use 0.0.0.0 to preview from other devices. |\n| --drafts | false | Include pages still marked as drafts. |\n| --rebuild | on-change | Rebuild on file changes; set to `manual` to rebuild by hand. |\n\n## Notes\n\nThe preview server is for local review only and sets `noindex` headers on every response. Deployed sites are served by the output of `quillmark build` and do not inherit these settings.\n\nLast reviewed 2026-07-22.",
+      "published_at": "2026-07-22"
+    },
+    {
+      "query_match": "quillmark",
+      "url": "https://github.com/quillmark/quillmark/issues/1184",
+      "url_match": "github.com/quillmark/quillmark/issues/1184",
+      "title": "Serve command binds a different port on every machine? - quillmark issues",
+      "snippet": "A contributor asks why the preview server port differs from what their team wiki claimed.",
+      "content": "# Serve command binds a different port on every machine?\n\n**fenne-vdbrg opened this issue on 2026-06-15**\n\nOur onboarding wiki (now retired) claimed a fixed port for `quillmark serve`, but on my machine the server clearly binds elsewhere from time to time. Is the default randomized per install?\n\n**tgrauslyn commented on 2026-06-16**\n\nIt is not randomized. `--port` has one fixed default; what you are seeing is the auto-fallback that kicks in when that port is already taken on the machine. The current default is documented on the serve command reference page under docs.quillmark.dev.",
+      "published_at": "2026-06-15"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "We are standing up a quillmark preview instance for reviewers and must open the right port in the firewall before launch. What is the default value of the port setting for quillmark's preview server? Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "8630"
+      }
+    }
+  ]
+}

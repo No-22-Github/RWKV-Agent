@@ -1,0 +1,73 @@
+{
+  "id": "hyb-0003",
+  "description": "Align the farebook pin in service/requirements.txt with the project changelog; an announcement post for release 3.4.0 outranks the changelog in search. WORKBANK-CANARY-91e6c47a",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_edit",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": "3.4.0"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-ratetrip-01",
+    "ref_calls": 4,
+    "fixture_bytes": 554,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "# Brindleworks booking service\n\nQuoting and ticketing service for the sales desk.\n\n- service/ — application code and dependency pins\n- Deployments run on an offline host; dependencies come from the internal mirror.\n\nLibrary release histories are published by each maintainer on their project pages.\n",
+    "service/requirements.txt": "farebook==3.2.0\nticketr==0.9.4\nwaitline==1.8.1\n",
+    "service/booking_api.py": "from farebook import FareTable\n\n\ndef quote(fare_table: FareTable, segment: str) -> float:\n    \"\"\"Return the second-class fare for one segment.\"\"\"\n    return fare_table.price(segment, travel_class=\"second\")\n"
+  },
+  "web_fixture": [
+    {
+      "query_match": "farebook",
+      "url": "https://farebook.example/news/3-4-0-multi-currency",
+      "url_match": "farebook.example/news/3-4-0-multi-currency",
+      "title": "Farebook 3.4.0 is here — multi-currency fare tables",
+      "snippet": "The release every integration team was waiting for: Farebook 3.4.0 brings multi-currency fare tables and smarter refund proration.",
+      "content": "# Farebook 3.4.0 is here\n\nPublished 11 February 2026.\n\nFarebook 3.4.0 brings multi-currency fare tables and smarter refund proration. Upgrade from any 3.x release in one step.\n",
+      "published_at": "2026-02-11"
+    },
+    {
+      "query_match": "farebook",
+      "url": "https://farebook.example/changelog",
+      "url_match": "farebook.example/changelog",
+      "title": "Farebook changelog",
+      "snippet": "Release history for the farebook library.",
+      "content": "# Farebook changelog\n\n## 3.6.2 (2026-08-18)\n\nMaintenance release: fixes a rounding error in refund proration.\n\n## 3.4.0 (2026-02-11)\n\nFeature release: multi-currency fare tables.\n",
+      "published_at": "2026-08-18"
+    }
+  ],
+  "expect": {
+    "files": {
+      "service/requirements.txt": {
+        "contains": [
+          "farebook==3.6.2",
+          "ticketr==0.9.4",
+          "waitline==1.8.1"
+        ]
+      },
+      "README.md": {
+        "unchanged": true
+      },
+      "service/booking_api.py": {
+        "unchanged": true
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Our booking service pins the farebook library in service/requirements.txt. The maintainers have shipped a release more recent than the one we pin; bring the pin in line with the version documented on the farebook project's changelog page. When finished, reply DONE."
+    }
+  ]
+}

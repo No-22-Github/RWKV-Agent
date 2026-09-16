@@ -1,0 +1,41 @@
+{
+  "id": "doc-0002",
+  "description": "Expense submission window under the memo currently in force. WORKBANK-CANARY-5d0f3b62",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": "60 days"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-doc-minutes-01",
+    "ref_calls": 4,
+    "fixture_bytes": 1124,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "policy/expense-window-memo.md": "# Expense window memo (issued 9 March 2026)\n\nTo: all staff\nFrom: Nadia Okafor, head of finance operations\n\nFollowing the year-end audit of travel spend, expense reports must reach\nthe finance system within 45 days of the end of a business trip. Claims\nfiled after that are returned unpaid.\n\nThis memo applies to trips ending on or after 1 April 2026 and replaces\nthe 60-day window set by the claims timing memo of 12 November 2025.\n",
+    "policy/claims-timing-memo.md": "# Claims timing memo (issued 12 November 2025)\n\nTo: all staff\nFrom: Nadia Okafor, head of finance operations\n\nTo smooth the quarter-end closing, expense reports must reach the finance\nsystem within 60 days of the end of a business trip. This window applies\nto every trip ending on or after 1 December 2025 and widens the previous\n30-day limit.\n",
+    "readme.md": "# Finance operations documents\n\nMemos from the finance operations team are collected here. The travel desk\nhandles bookings and lost invoices; questions about claim windows go to\nfinance-ops.\n",
+    "travel-desk-contacts.md": "# Travel desk contacts\n\nBooking changes: Felix Aldana, building 1, desk 12\nLost invoices: finance archive, floor 3\nDuty phone during a trip: extension 4402\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "Staff keep asking how long they have to file travel claims. Under the rule that applies today, how many days after the end of a business trip must an expense report reach the finance system? Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "45 days"
+      }
+    }
+  ]
+}

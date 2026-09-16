@@ -1,0 +1,42 @@
+{
+  "id": "tab-0002",
+  "description": "Amount owed to a SaaS vendor for Q1 2026 after service credits that are stored as positive amounts. WORKBANK-CANARY-b4e90f15",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "reconcile",
+    "traps": [
+      "TR-SIGN"
+    ],
+    "trap_decoys": {
+      "TR-SIGN": 18672.9
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-recon-01",
+    "ref_calls": 4,
+    "fixture_bytes": 920,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "invoices.csv": "invoice_id,issue_date,service,amount\nHAN-8841,2026-01-05,Pipeline runs,4836.40\nHAN-8847,2026-01-28,Seat licenses,1240.00\nHAN-8853,2026-02-09,Pipeline runs,5118.75\nHAN-8861,2026-02-23,Premium support,690.00\nHAN-8868,2026-03-14,Seat licenses,1352.20\nHAN-8874,2026-03-30,Pipeline runs,4644.10\n",
+    "credit-notes.csv": "credit_id,invoice_id,amount\nHC-301,HAN-8841,336.40\nHC-302,HAN-8853,214.75\nHC-303,HAN-8868,96.20\nHC-304,HAN-8874,144.10\n",
+    "README.md": "# Harborlane Analytics - billing export\n\ninvoices.csv lists the amounts Harborlane Analytics billed us, one row\nper invoice. credit-notes.csv lists service credits Harborlane issued\nagainst those invoices. Each credit amount is recorded as a positive\nfigure and reduces the balance due on the invoice it references.\n",
+    "account/contacts.md": "# Account contacts\n\nHarborlane Analytics CSM: Yusuf Okafor (yusuf.okafor@harborlane.io)\nOur billing escalation: Renata Quill, accounts-payable@draymont.org\nContract renewal window opens 2026-08.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Harborlane Analytics bills us monthly and occasionally issues service credits against those invoices; their billing export is in the workspace. After accounting for everything they credited back, how much do we owe them in total for the first quarter of 2026? Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 17090.0,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

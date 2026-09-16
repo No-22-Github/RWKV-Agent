@@ -1,0 +1,41 @@
+{
+  "id": "tab-0003",
+  "description": "Order count from a storefront export that contains byte-identical re-exported rows. WORKBANK-CANARY-2a68d3c7",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 23
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-recon-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1981,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "orders_march.csv": "order_id,order_date,customer_email,sku,qty,item_total\nTC-3074,2026-03-03,nadia.petrova@ridgepost.net,TNT-3310,1,342.50\nTC-3057,2026-03-04,ellis.mbeki@zephyrbox.org,SLP-4402,2,258.00\nTC-3091,2026-03-06,hana.suzuki@kitsunebrew.jp,HDR-9056,1,48.75\nTC-3102,2026-03-07,callum.reyes@pinedrop.com,CMP-7731,1,129.90\nTC-3062,2026-03-09,ines.fournier@vellummail.fr,TNT-3310,2,685.00\nTC-3117,2026-03-10,bartosz.kowalski@orbitnote.pl,HIK-1187,1,187.25\nTC-3088,2026-03-12,leila.haddad@cedarlane.co,HDR-9056,3,131.25\nTC-3138,2026-03-13,marcus.oyelaran@ironbark.au,SLP-4402,1,129.00\nTC-3045,2026-03-15,sofie.andersen@fjordmail.no,CMP-7731,2,255.80\nTC-3079,2026-03-16,diego.fuentes@rioverde.ar,HIK-1187,2,374.50\nTC-3121,2026-03-18,anika.sharma@peacockpost.in,TNT-3310,1,342.50\nTC-3095,2026-03-20,tomasz.lis@balticbyte.pl,HDR-9056,2,97.50\nTC-3140,2026-03-22,grace.okonkwo@lagoonpress.ng,SLP-4402,3,387.00\nTC-3113,2026-03-23,felix.braun@steigmail.de,CMP-7731,1,127.90\nTC-3051,2026-03-25,meilin.chao@bambooshut.cn,HIK-1187,1,187.25\nTC-3129,2026-03-26,ruben.salazar@altamar.mx,TNT-9901,1,1240.00\nTC-3133,2026-03-28,astrid.nilsen@nordlys.no,SLP-4402,1,129.00\nTC-3107,2026-03-29,kwame.mensah@accracraft.gh,HDR-9056,4,175.00\nTC-3146,2026-03-30,iona.macleod@heathermail.uk,CMP-7731,2,259.60\nTC-3074,2026-03-03,nadia.petrova@ridgepost.net,TNT-3310,1,342.50\nTC-3091,2026-03-06,hana.suzuki@kitsunebrew.jp,HDR-9056,1,48.75\nTC-3138,2026-03-13,marcus.oyelaran@ironbark.au,SLP-4402,1,129.00\nTC-3074,2026-03-03,nadia.petrova@ridgepost.net,TNT-3310,1,342.50\n",
+    "README.md": "# Trailcrest Outfitters - storefront order export\n\nNightly job pulls completed orders from the storefront database into a\nmonthly CSV. One row per order.\n\nColumns: order_id, order_date, customer_email, sku, qty, item_total.\nitem_total is the charge for the order in USD.\n",
+    "ops/runbook.txt": "Storefront sync runbook (excerpt)\n- Sync window: 01:00-01:40 local store time.\n- Export bucket: s3://trailcrest-ops/storefront/\n- Row layout follows the schema documented in README.md.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Trailcrest Outfitters' ordering system writes completed orders into a monthly export; the March 2026 file is in the workspace. How many orders did we take that month? Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 19,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

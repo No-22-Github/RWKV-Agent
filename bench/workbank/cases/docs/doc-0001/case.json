@@ -1,0 +1,47 @@
+{
+  "id": "doc-0001",
+  "description": "Pull the action items out of the HR operations review minutes into a dated todo list. WORKBANK-CANARY-7c2e91af",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "extract_items",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-doc-minutes-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1258,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "Minutes-2026-06-08-hr-operations.md": "# HR operations review - 8 June 2026, seminar room 4B\n\nAttendees: Priya Raghavan, Tomas Lindqvist, Mei-Lin Chao, Doug Whitmore (chair)\n\nThe panel reviewed the spring recruitment numbers and the payroll migration plan, then fixed the scope of the July policy refresh.\n\nDecisions\n- The payroll migration moves to cutover on 18 July.\n- The intern cohort starts with a shorter first-week schedule.\n\nAction items\n- Priya Raghavan to renew the employee assistance program contract before 30 June 2026.\n- Tomas Lindqvist to circulate the revised travel claim form by 12 June 2026.\n- Mei-Lin Chao to book the benefits fair venue for 24 September 2026.\n\nNext review: 13 July 2026, seminar room 4B.\n",
+    "readme.md": "# Team documents\n\nMinutes-*.md files are the records of past HR operations meetings. The\ntasks/ folder holds the running to-do list for the group.\n\nFor the September office move see office-relocation-faq.md.\n",
+    "office-relocation-faq.md": "# Office relocation FAQ (September 2026)\n\nQ: When do desks move?\nA: Building 2 floors move on 5 September; building 3 follows on 12 September.\n\nQ: Can I box my own monitors?\nA: No, facilities packs and transports all monitors; raise a ticket.\n\nQ: Where do visitors check in during the move?\nA: Temporary reception is in the building 1 lobby until 30 September.\n",
+    "tasks/.keep": ""
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "The last HR operations review produced a set of action items. Create tasks/todo.md that starts with the line '# Open action items - YYYY-MM-DD', where the date is the meeting date in ISO format, followed by one line for every action item recorded in the meeting document, keeping each item's wording. When finished, reply DONE."
+    }
+  ],
+  "expect": {
+    "files": {
+      "tasks/todo.md": {
+        "contains": [
+          "# Open action items",
+          "2026-06-08",
+          "renew the employee assistance program contract",
+          "revised travel claim form",
+          "benefits fair venue"
+        ]
+      }
+    }
+  }
+}

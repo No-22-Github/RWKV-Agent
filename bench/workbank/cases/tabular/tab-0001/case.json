@@ -1,0 +1,37 @@
+{
+  "id": "tab-0001",
+  "description": "Plain revenue sum over a single retail order export (June 2026); no traps. WORKBANK-CANARY-7c1d44a2",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-tab-recon-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1156,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "orders_june.csv": "order_id,order_date,customer,sku,qty,line_total\nCH-61041,2026-06-03,Marisol Vega,KET-2210,1,89.90\nCH-61042,2026-06-05,Tobias Lindqvist,LMP-8845,2,158.00\nCH-61043,2026-06-08,Amara Osei,BKP-7734,1,1264.50\nCH-61044,2026-06-09,Daren Whitfield,COF-3328,3,238.50\nCH-61045,2026-06-11,Ingrid Halvorsen,DST-5561,1,62.25\nCH-61046,2026-06-13,Kenji Watanabe,KET-2210,2,179.80\nCH-61047,2026-06-16,Priya Raghunathan,TRN-1902,4,396.00\nCH-61048,2026-06-19,Gustavo Peralta,LMP-8845,1,79.00\nCH-61049,2026-06-22,Naomi Bergstrom,BKP-7734,2,2529.00\nCH-61050,2026-06-24,Oliver Trask,COF-3328,1,79.50\nCH-61051,2026-06-27,Fatima Al-Rashid,DST-5561,6,373.50\nCH-61052,2026-06-30,Rosa Delgado,TRN-1902,1,99.00\n",
+    "README.md": "# Copperkettle Home & Kitchen - storefront orders\n\nMonthly export from the storefront order system, one row per order.\n\nColumns: order_id, order_date, customer, sku, qty, line_total.\nline_total is the charge for the order in USD, including tax.\n",
+    "ops/stockroom-audit.txt": "Stockroom audit, week of 2026-07-06 (T. Okonjo)\nShelf B4 kettle cartons: count OK.\nShelf C1 lamp cartons: two crushed, repacked.\nShelf D2 pack stock: reserve low, reorder point reached.\nNo value adjustments recorded this cycle.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Copperkettle Home & Kitchen exported its June 2026 storefront orders for the bookkeeping close. What was the total revenue across those orders? Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 5548.95,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

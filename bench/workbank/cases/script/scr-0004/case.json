@@ -1,0 +1,50 @@
+{
+  "id": "scr-0004",
+  "description": "Rebuild the settlement report script that sweeps nested transaction extracts and totals them per the finance spec; a second hidden input set guards against hardcoding. WORKBANK-CANARY-3f9b70c8",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "write_new",
+    "traps": [
+      "TR-RULEFILE"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": null
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "fam-script-etl-01",
+    "ref_calls": 6,
+    "fixture_bytes": 2952,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "Settlement reporting - finance ops\n==================================\n\nreport.py builds the monthly settlement totals for the EU entity.\nThe scheduler always launches it as `python3 report.py` with the\nproject root as its working directory, never from anywhere else.\n\nAcquirer batches arrive as transactions-*.csv extracts and land in\nwhatever folder the drop account saves them to - some months they\nsit right at the root, other months they end up nested under a\nbatch folder. The report must sweep the entire project tree from\nthe launch directory and include every transactions-*.csv it finds\nno matter how deep it sits, so late-arriving extracts are never\nmissed.\n",
+    "settlement_spec.md": "Monthly settlement report - finance spec v5 (2026-08-30)\n========================================================\n\nThe report is printed to standard output:\n\n  <merchant_id>,<settled_cents>\n  ... one line per merchant, ascending by merchant_id ...\n  total,<grand_total_cents>\n\nHow a row counts towards the report:\n  - status=settled rows only; pending and failed rows never reach\n    the report.\n  - type=payment adds amount_cents to its merchant's figure;\n    type=refund subtracts it.\n  - channel=internal rows settle inside the group and are left out\n    of the report entirely, even settled ones.\n\nThe grand total is the sum of the merchant lines printed above it.\n",
+    "transactions-2026-07-eu.csv": "tx_id,posted,merchant_id,channel,type,status,amount_cents\nTX-88041,2026-07-03T11:20:45,MER-3014,card,payment,settled,49900\nTX-88042,2026-07-05T09:02:13,MER-3014,card,refund,settled,4990\nTX-88057,2026-07-09T17:41:02,MER-3027,card,payment,settled,23175\nTX-88063,2026-07-12T08:15:59,MER-3052,internal,payment,settled,158000\nTX-88071,2026-07-16T13:37:28,MER-3068,card,payment,settled,189700\nTX-88079,2026-07-21T19:56:34,MER-3027,card,payment,failed,41000\nTX-88083,2026-07-24T10:09:51,MER-3052,card,payment,settled,76550\nTX-88091,2026-07-29T22:18:07,MER-3014,card,payment,pending,12500\nTX-88097,2026-07-31T14:33:40,MER-3068,card,refund,settled,9350\n",
+    "transactions-2026-08-eu.csv": "tx_id,posted,merchant_id,channel,type,status,amount_cents\nTX-88412,2026-08-04T12:44:19,MER-3052,card,payment,settled,5800\nTX-88418,2026-08-06T20:27:36,MER-3091,card,payment,settled,940000\nTX-88425,2026-08-09T07:58:44,MER-3014,card,payment,settled,33225\nTX-88431,2026-08-13T16:11:27,MER-3091,card,refund,settled,47000\nTX-88440,2026-08-17T11:35:52,MER-3068,internal,refund,settled,66000\nTX-88447,2026-08-21T18:49:05,MER-3027,card,payment,settled,125900\nTX-88455,2026-08-24T09:23:18,MER-3091,card,payment,settled,15025\nTX-88462,2026-08-28T21:07:53,MER-3052,card,payment,failed,2400000\n",
+    "report.py": "\"\"\"Monthly settlement totals for the EU entity.\n\nPlaceholder: the old reporting stack was retired and this rebuild\nis pending. The scheduler still calls this file every morning.\n\"\"\"\n\nraise SystemExit(\"report.py: implementation missing\")\n",
+    "acquirer_rota.txt": "Acquirer on-call rota, Q3 2026\nJul  Delta Card Services  -  L. Brennan\nAug  Delta Card Services  -  P. Okonkwo\nSep  Meridian Pay          -  L. Brennan\n"
+  },
+  "expect": {
+    "run": {
+      "path": "report.py",
+      "timeout_millis": 10000,
+      "hidden_files": {
+        "hidden/transactions-2026-09-eu.csv": "tx_id,posted,merchant_id,channel,type,status,amount_cents\nTX-88701,2026-09-02T10:31:22,MER-3106,card,payment,settled,67400\nTX-88708,2026-09-04T15:22:09,MER-3014,internal,payment,settled,450000\nTX-88715,2026-09-08T19:44:51,MER-3052,card,refund,settled,30000\nTX-88722,2026-09-11T08:16:37,MER-3106,card,payment,settled,15275\nTX-88729,2026-09-14T13:59:04,MER-3027,internal,payment,settled,73400\nTX-88736,2026-09-16T21:38:48,MER-3068,card,payment,settled,55425\nTX-88742,2026-09-16T22:05:19,MER-3106,card,refund,settled,2250\n"
+      },
+      "expected_stdout": "MER-3014,78135\nMER-3027,149075\nMER-3052,52350\nMER-3068,235775\nMER-3091,908025\nMER-3106,80425\ntotal,1503785"
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Finance needs the monthly settlement report rebuilt: report.py is an empty shell. Launched from the project root, it has to sweep every settlement extract under the project tree, wherever the acquirer batches were saved, and print the totals in the layout the finance team's spec defines. When finished, reply DONE.",
+      "expect": {}
+    }
+  ]
+}
