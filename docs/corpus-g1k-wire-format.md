@@ -36,6 +36,7 @@ Choose one action:
 - If new tool evidence is needed, output exactly one tool call and nothing else:
   <tool_call>{"name":"TOOL_NAME","arguments":{...}}</tool_call>
 - Otherwise, answer the user directly in ordinary text without an envelope.
+Greetings, thanks, casual conversation, and questions that do not need new tool evidence must be answered directly. Never invoke tools merely because they are available.
 After a Tool result, make the same choice again: call one tool if more evidence is needed, or answer directly.
 Never mix commentary with a tool call. Do not emit <think>, Markdown fences around tool JSON, or role labels.
 Never invent file content.
@@ -127,6 +128,7 @@ Choose one action:
 - If new tool evidence is needed, output exactly one tool call and nothing else:
   <tool_call>{"name":"TOOL_NAME","arguments":{...}}</tool_call>
 - Otherwise, answer the user directly in ordinary text without an envelope.
+Greetings, thanks, casual conversation, and questions that do not need new tool evidence must be answered directly. Never invoke tools merely because they are available.
 After a Tool result, make the same choice again: call one tool if more evidence is needed, or answer directly.
 Never mix commentary with a tool call. Do not emit <think>, Markdown fences around tool JSON, or role labels.
 Never invent file content.
@@ -168,7 +170,12 @@ Assistant: 25 square meters.
 
 1. **实质性 no-call 正样本**：工具目录在场 + 问题可凭知识作答 → 直接文本回答
    （G1K 现状 12/20，训练前 0-2/20；单条 in-context 示范救不动，必须靠训练）。
-2. **think 纪律**：assistant 轮永不以 `<think>` 开头（现状 5 个协议失败全为此）。
+2. **think 纪律（已有实测）**：assistant 轮永不以任何 `<think>` 形态开头。空 think
+   仪式不是中性前缀——`thinking=fast` 预填 `<think></think` 实测把首步 tool_call 从
+   1/20 拉回 19/20（irrelevance 12→1/20，bfcl 49→35，见
+   `evaluations/g1k-wire-ablation/07-think-fast.md`）：它是"已思考→现在行动"的暗示。
+   本契约按 `thinking=off` 走，语料不得引入 think 开头；若 state tuning 决定保留
+   qwen36 的空 think 开头，须整体切换 thinking=fast 并保证 think 后内容即目标行为。
 3. **报错后继续**：`{"ok":false,…}` / RECOVERY 之后换路重试或如实作答，**不是**
    `no_tool` 放弃（现状 1 例倒退）。
 4. **终答精度**：直接给所求值，不复述工具结果、不加前缀寒暄。
