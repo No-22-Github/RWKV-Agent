@@ -156,6 +156,14 @@ func (c *Client) Complete(
 			continuation.ErrInvalidRequest,
 		)
 	}
+	// Native tool calling does not lean on upstream stop sequences; the
+	// harness truncates locally against the full list. Upstream OpenAI-style
+	// APIs cap the stop field at four, so send a prefix and keep the full
+	// list for local truncation.
+	fullStops := request.Stops
+	if len(request.Stops) > 4 {
+		request.Stops = request.Stops[:4]
+	}
 	if err := validateToolChatRequest(request); err != nil {
 		return toolchat.Result{}, err
 	}
@@ -218,7 +226,7 @@ func (c *Client) Complete(
 	if !request.ParallelToolCalls && len(calls) > 1 {
 		calls = calls[:1]
 	}
-	content, stopped := httputil.TruncateAtStop(choice.Message.Content, request.Stops)
+	content, stopped := httputil.TruncateAtStop(choice.Message.Content, fullStops)
 	finish := finishReason(choice.FinishReason)
 	if stopped {
 		finish = continuation.FinishStop
