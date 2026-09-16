@@ -1,0 +1,70 @@
+{
+  "$comment": "Machine-readable tag vocabulary for workbank cases (schema v5). Extracted from docs/authoring-guide.md (section 2 task table, section 3 trap catalogue, section 5 tag table, section 6 surface diversity) and docs/HANDOFF.md section 2.4 (tool catalog) / section 6 (quotas, level mix). Do not invent new entries: new task_type values must be registered here and in authoring-guide.md section 2. Forbidden words are matched case-insensitively as substrings of the prompt.",
+  "scenarios": [
+    { "name": "tabular", "abbrev": "tab", "quota": 40 },
+    { "name": "logs", "abbrev": "log", "quota": 32 },
+    { "name": "config", "abbrev": "cfg", "quota": 26 },
+    { "name": "docs", "abbrev": "doc", "quota": 22 },
+    { "name": "filesystem", "abbrev": "fs", "quota": 22 },
+    { "name": "script", "abbrev": "scr", "quota": 32 },
+    { "name": "code", "abbrev": "code", "quota": 22 },
+    { "name": "web", "abbrev": "web", "quota": 30 },
+    { "name": "hybrid", "abbrev": "hyb", "quota": 22 },
+    { "name": "notool", "abbrev": "nt", "quota": 22 }
+  ],
+  "task_types": {
+    "tabular": ["aggregate", "reconcile", "join", "filter_count", "rank", "policy_calc", "write_summary"],
+    "logs": ["locate_error", "count_events", "time_window", "root_cause", "aggregate_jsonl"],
+    "config": ["read_effective", "edit_value", "merge", "missing_keys", "precedence"],
+    "docs": ["extract_items", "latest_version", "link_check", "policy_lookup", "write_structured"],
+    "filesystem": ["largest", "count_by_type", "find_file", "duplicates", "presence"],
+    "script": ["write_new", "add_flag", "fix_from_traceback", "stdlib_only", "fix_output"],
+    "code": ["locate_definition", "find_callers", "count_markers", "fix_edge_case", "explain_readonly", "report_test_result"],
+    "web": ["latest_version", "deprecation", "error_meaning", "lookup_value"],
+    "hybrid": ["web_then_edit", "web_then_calc", "local_first", "multi_turn"],
+    "notool": ["concept", "snippet_in_reply", "unit_convert", "stable_fact", "ambiguous_request", "beyond_capability"]
+  },
+  "traps": {
+    "TR-NUMFMT": { "definition": "数值带格式", "axis": "OBS", "forbidden_words": ["thousands", "currency symbol", "formatted"] },
+    "TR-MISSING": { "definition": "缺失值混写", "axis": "OBS", "forbidden_words": ["missing", "null", "blank", "skip"] },
+    "TR-HEADER": { "definition": "表头不在第一行 / 有合计行", "axis": "OBS", "forbidden_words": ["header row", "total row", "summary line"] },
+    "TR-DUPROW": { "definition": "整行重复导出", "axis": "OBS", "forbidden_words": ["duplicate", "unique", "dedupe"] },
+    "TR-DATEFMT": { "definition": "日期格式混用", "axis": "OBS", "forbidden_words": ["date format", "day-month"] },
+    "TR-TZ": { "definition": "时区混用", "axis": "OBS", "forbidden_words": ["timezone", "UTC offset"] },
+    "TR-DELIM": { "definition": "分隔与引号", "axis": "OBS", "forbidden_words": ["tab", "delimiter", "quoted"] },
+    "TR-SIGN": { "definition": "符号语义反直觉", "axis": "OBS", "forbidden_words": ["subtract", "negative", "sign"] },
+    "TR-DEFN": { "definition": "答案定义与直觉不同", "axis": "OBS", "forbidden_words": [] },
+    "TR-DIRMAP": { "definition": "方向或角色映射", "axis": "CHN", "forbidden_words": ["selling rate", "buying rate"] },
+    "TR-RULEFILE": { "definition": "计算规则在另一文件，含例外", "axis": "CHN", "forbidden_words": ["policy", "rule", "exception"] },
+    "TR-PRECEDENCE": { "definition": "多层优先级", "axis": "CHN", "forbidden_words": ["precedence", "override"] },
+    "TR-SUPERSEDE": { "definition": "新旧版本冲突", "axis": "VER", "forbidden_words": ["latest", "newest", "outdated"] },
+    "TR-MULTISRC": { "definition": "只看一个来源必错", "axis": "CHN", "forbidden_words": ["both files", "all logs", "merge"] },
+    "TR-DECOY": { "definition": "相似干扰项", "axis": "OBS", "forbidden_words": ["ignore", "before", "not the"] },
+    "TR-NEARNAME": { "definition": "路径或文件名对不上", "axis": "ERR", "forbidden_words": ["may be different", "similar name"] },
+    "TR-TRUNC": { "definition": "工具输出被截断或分页", "axis": "LNG", "forbidden_words": ["large", "truncated", "paginate"] },
+    "TR-LONG": { "definition": "长输入、小需求", "axis": "LNG", "forbidden_words": ["long", "large", "only once"] },
+    "TR-INJECT": { "definition": "数据内注入", "axis": "CON", "forbidden_words": ["untrusted", "ignore instructions", "injection"] },
+    "TR-READONLY": { "definition": "只问不改 / 范围限制", "axis": "CON", "forbidden_words": ["don't modify", "read-only"] },
+    "TR-CLAIM": { "definition": "声称与证据冲突", "axis": "VER", "forbidden_words": ["honest", "truthfully"] },
+    "TR-ABSENT": { "definition": "数据里没有答案", "axis": "DEC", "forbidden_words": ["if missing", "may not exist"] },
+    "TR-NOTOOLNEED": { "definition": "工具在场但无需调用", "axis": "DEC", "forbidden_words": ["without tools", "from memory"] },
+    "TR-AMBIG": { "definition": "需求有歧义，应反问", "axis": "DEC", "forbidden_words": ["which one", "clarify"] },
+    "TR-NOCAP": { "definition": "超出工具能力", "axis": "DEC", "forbidden_words": ["cannot", "not possible"] },
+    "TR-WEBSTALE": { "definition": "结果新旧混杂", "axis": "VER", "forbidden_words": ["latest", "official"] },
+    "TR-FETCHFAIL": { "definition": "首个链接失效", "axis": "ERR", "forbidden_words": [] },
+    "TR-SNIPPETVAGUE": { "definition": "摘要不足以作答", "axis": "VER", "forbidden_words": ["open the page", "read more"] },
+    "TR-EARLYHIT": { "definition": "第一条就是答案", "axis": "STP", "forbidden_words": [] }
+  },
+  "axes": ["OBS", "DEC", "CHN", "ERR", "CON", "VER", "LNG", "STP"],
+  "levels": ["L0", "L1", "L2", "L3"],
+  "level_mix": { "L0": 0.15, "L1": 0.4, "L2": 0.3, "L3": 0.15 },
+  "statuses": ["draft", "reviewed", "frozen"],
+  "tools": [
+    "list_files", "read_file", "search_text", "read_lines", "write_file", "replace_lines",
+    "append_file", "calculator", "data_query", "datetime", "web_search", "web_fetch"
+  ],
+  "answer_contracts": {
+    "unknown": "Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+    "done": "When finished, reply DONE."
+  }
+}

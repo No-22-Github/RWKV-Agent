@@ -1,0 +1,54 @@
+{
+  "id": "web-9001",
+  "description": "Latest Northwind API version per the official changelog. WORKBANK-CANARY-cafef00d",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "2.3.0"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:test",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "northwind",
+      "url": "https://blog.examplearchive.com/northwind-api-versions",
+      "url_match": "blog.examplearchive.com/northwind-api-versions",
+      "title": "Northwind API version history (community)",
+      "snippet": "Community-maintained list of Northwind API releases; most recent entry is 2.3.0.",
+      "content": "# Northwind API version history\n\n## 2.3.0 (2025-11-02)\n\nCurrent stable release.\n",
+      "published_at": "2025-11-02"
+    },
+    {
+      "query_match": "northwind changelog",
+      "url": "https://docs.northwind.example/changelog",
+      "url_match": "docs.northwind.example/changelog",
+      "title": "Northwind changelog",
+      "snippet": "Northwind API changelog.",
+      "content": "# Changelog\n\n## 3.1.0 (2026-08-14)\n\nStable release.\n\n## 2.3.0 (2025-11-02)\n\nOld release.\n",
+      "published_at": "2026-08-14"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "What is the current stable version of the Northwind API? Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "3.1.0"
+      }
+    }
+  ]
+}

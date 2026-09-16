@@ -1,0 +1,40 @@
+{
+  "id": "tab-9001",
+  "description": "Net August revenue after refunds; refunds stored as positive amounts. WORKBANK-CANARY-3f9a1c2e",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "reconcile",
+    "traps": [
+      "TR-SIGN"
+    ],
+    "trap_decoys": {
+      "TR-SIGN": 17206.8
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-reconcile-99",
+    "ref_calls": 3,
+    "fixture_bytes": 180,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:test",
+    "reviewer": null
+  },
+  "files": {
+    "orders.csv": "order_id,date,amount\nA-1041,2026-08-02,1129.90\nA-1042,2026-08-09,15947.00\n",
+    "refunds.csv": "refund_id,order_id,amount\nR-77,A-1041,129.90\n",
+    "README.md": "refunds.csv lists refunded amounts for orders in orders.csv.\n"
+  },
+  "turns": [
+    {
+      "prompt": "What was our net revenue for August 2026 after refunds? Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 16947.0,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}
