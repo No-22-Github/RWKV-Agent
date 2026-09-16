@@ -1,10 +1,30 @@
 # G1K wire 消融 07：think-fast 前缀（空 think 仪式）（2026-09-16，驳回）
 
 分支 `ablation/g1k-format`。动机：bare 基座上 think 泄漏是活的失败模式
-（`decision_protocol_invalid` = 自开 `<think>` 被决策预算截断；无出口对照里 22 个），
-而 think-fast 的半开前缀 `<think></think`（XML 路径即 `thinking=fast`，C1 配
-`prefill=none`）机制上正好掐死这条路。g1i（60 题 17/60，md-fence 语境）与 g1j
-（39→36）各有阴性先验，但 G1K bare 的失败形状可能翻转权衡——实测。
+（`decision_protocol_invalid`；无出口对照里 22 个），而 think-fast 的半开前缀
+`<think></think`（XML 路径即 `thinking=fast`，C1 配 `prefill=none`）机制上正好掐死
+这条路。g1i（60 题 17/60，md-fence 语境）与 g1j（39→36）各有阴性先验，但 G1K bare
+的失败形状可能翻转权衡——实测。
+
+## 轨迹层结论（先读这个）：think 泄漏的真凶是"答案在 think 里 → EOS"训练脚本
+
+对最终配置全部 5 个 `decision_protocol_invalid` case 的逐字节取证（全部
+`finish=stop`、446–2369 字符，**远小于 512 决策预算，不是预算截断**）：
+
+- 模型自开 `<think>` 后**真的在推理，且常常算出正确答案**：irrelevance_0 写出
+  `area = (10*5)/2 = 25 square meters. We have no tool needed. We can just answer.`；
+  irrelevance_7 算出 ∫3x²=124（正确）；irrelevance_11 在 "That's 30. But maybe…"
+  里打转 2200 字符。
+- 然后模型**不闭合 `</think>` 直接结束生成**——qwen36 训练脚本是
+  "空 think → 答案 → EOS"，长推理里一旦产出"像答案的字符串"，行尾 EOS 被错误地
+  提前触发（答案还在 think 里）。重试的 Correction 文本会被原样引用进新的 think
+  （"…Decide with the evidence you already have instead of reasoning further."），
+  再度不闭合而死。
+- 更深一层：多处出现**许可寻求**——`But we must follow the instruction: "If new tool
+  evidence is needed, output exactly one tool call…"`——模型在 think 里背诵行动契约、
+  拿不准"直接回答是否合法"。这是 bare 删示范后的锚定缺口（no_tool 出口部分补偿了它）。
+- 推论：这 5 例的推理内容是对的，死在收尾脚本上。**no-think 语料行（thinking=off
+  契约）正好重训掉这个 EOS 脚本**；state tuning 后此失败模式应消失。
 
 配置：`xml-v1+align-qwen36+no-tool+bare+one-stage+think-fast`，bfcl-product +
 boundary 双验，与最终配置同日对照。
