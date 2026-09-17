@@ -17,3 +17,9 @@
 - tab-0004 补裸小数格式声明（v3）。
 - 跑分配置 v2：--max-steps 10 --same-tool-rescue-limit 6（可测量性修复：默认参数挡死 ref_calls≥5 的 L2 参考路径，证据见 reports/matrix-pilot40.md §3）。
 - G1K 分层补标签 193 条；6 道双零 L2 逐题复核归档（4 case_fault / 2 model_fault）。
+
+## 2026-09-17 (v2 重测)
+
+- v2 全量 k=4（--max-steps 10 --same-tool-rescue-limit 6）：DeepSeek 63.5%（L0 80/L1 62/L2 50，L2 解锁）但极差 12.5pp → 闸门①失败；G1K 仍 1/40×4（nt-0002 唯一通过）→ 闸门②持续失败。
+- G1K 并发 40 实测单轮 2–3 分钟（RWKV 批量解码近免费），v1 的 deadline 是 2 分钟默认超时所致。
+- 最终判决：未过闸（v1 测量无效已修；v2 剩两项真发现——G1K 收尾纪律缺陷、N=40 样本量不足）。
