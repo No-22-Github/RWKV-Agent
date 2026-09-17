@@ -92,7 +92,30 @@
 - 现象：思考内容泄漏进正文，解析失败，重试后再次泄漏
 - 关联 mode：FM-PROTOCOL（次：FM-LOOP）
 - 证据：G1K · 消融后最终 wire · 剩余失分靶子中 5 个（见 RWKV-Agent `docs/evaluations/g1k-wire-ablation/` 与 07-think-fast 轮修正）
-- workbank 复现：未跑
+- workbank 复现：`closeout-*-g1k`（2026-09-17，harness v21，贪心，并发 40）· **首步 think 不闭合**：workbank V0/V1/V2/V3 = 4/4/4/4 题（cfg-0003、log-0001、log-0004、web-0001 为主），噪声跑 par8 = 4/5；bfcl-product 6/6/5/5（全部集中在 irrelevance 与首步）；boundary 0；DeepSeek 0。usermsg 变体对该现象无影响（连续 User 不是诱因）
+- 控制实验：V0–V3 改变连续 User 结构与 answer 阶段收尾，首步 think 不闭合率不变（4/40）→ 与 transcript 尾部结构无关
+
+### D-010 工具调用中的训练残留绝对路径
+- 状态：观察
+- 现象：模型在工具参数里使用 `/home/node/.openclaw/...`、`/workspace/...` 等训练残留绝对路径约定；harness 的 absoluteCandidates 映射会容忍其中一部分
+- 关联 mode：FM-PROTOCOL（次：FM-NOREAD，路径错导致读不到时）
+- 证据：
+  - v2-g1k-k0（harness v20）：40 题中 34 次绝对路径参数
+  - **宿主路径泄漏已于 harness v21 修复**（工具报错一律改为工作区相对路径；修复前 v1/v2 首轮跑在 doc-0002 各泄漏 1 次宿主 temp 路径）。修复后重测：closeout v0/v1/v2/v3 = 15/17/9/15 次绝对路径调用——**泄漏消除后仍稳定出现，判定为模型习惯（训练残留），不是被泄漏诱导**
+- workbank 复现：见上（4 个变体 run 均复现）
+- 备注：harness 侧可观测性改进（记录 path-mapping 命中次数）仍未做，留待扩量期
+
+### D-011 answer 阶段复读上一条 tool_call
+- 状态：候选
+- 现象：进入 answer 阶段后，模型输出与 transcript 中最近一条 assistant tool_call **逐字节相同**（或复读更早的调用 / 编造新调用），0 次纯文本收尾；被拒绝后原样再发直至触顶
+- 诱因假设：~~连续 User 消息离分布外~~（**已被控制实验否定**，见下）。当前未归因；方向性猜测：吸引子是 transcript 里自己的 tool_call 历史本身，与 User 块结构无关——V3 回滚被拒输出后，模型转而复读更早的成功调用（earlier-call 复读 0 → 6/39）
+- 关联 mode：FM-LOOP（次：FM-PROTOCOL）
+- 证据：
+  - v2-g1k-k0：34 次 answer 生成，22 次逐字节复读上一条 + 4 次复读更早 + 0 次纯文本
+  - closeout V0（干净基线）：23/34 复读上一条（67.6%），纯文本 0
+- workbank 复现：`closeout-v{0,1,2,3}-g1k` + 2 个噪声跑 · 6 个 run 全部复现 · 涉及全部 10 个 scenario 的多步题
+- 控制实验：**已做**（2026-09-17，usermsg 轴）。V1 合并连续 User / V2 再去 nudge / V3 再回滚被拒输出+换无目录 System+单条收尾指令，三轮均通过「每次生成前 ≤1 连续 User」的逐轨迹断言；结果：通过数 3/40 不变、题级翻转 0、收尾率 11.8%→10.8%→10.5%→**0%**、复读率 67.6%→59.5%→81.6%→**87.2%**。连续 User 假设未被证实；最干净的 V3 反而最差
+- 探针题：无（下一轮：fake think 前缀叠加在基线 wire 上，不与 usermsg 混合）
 
 ### D-005 需要工具时以 no-call 弃权
 - 状态：观察

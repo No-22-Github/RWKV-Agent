@@ -34,3 +34,11 @@
 - **lint 禁词修复 + 回归测试**：(1) 作用域——tag-vocab.json 陷阱条目可带 `"scenarios"` 列表声明场景固有陷阱，TR-NOTOOLNEED 对 notool 固有；lint 检查 (声明陷阱 ∪ 场景固有陷阱) 的禁词（nt-0001 漏检根因之一：declared traps 为空）。其他陷阱维持仅查声明。(2) 匹配——大小写不敏感、空白归一后多词短语允许词间最多夹 3 词（`without tools` 命中 "Without using any tools"，nt-0001 漏检根因之二：纯子串匹配）；单词条目保持子串语义；匹配前剥掉全局契约样板（新契约含 "cannot"，否则 TR-NOCAP 题必误报）。(3) 新增 tools/test_lint.py（stdlib unittest）：带短语 fail / 干净题面 pass / 题面带工具名 fail，3 项全绿。
 - 自动闸门：lint 40/40 零违规；verify_all 40/40 通过（doc-0002 经 output_equals_any 路径匹配，sabotage 检出正常）。
 - bank_version = sha256:324d0ea9e319fa73154e689c95a17a738859845d9f5350aae934747ad40e1f66（out/workbank.json，40 题 reviewed）。
+
+## 2026-09-17 (closeout — harness/判分/跑分)
+
+- harness v21：`firstcall` 轴（workbank 默认 auto，修 DeepSeek 首步 tool_choice=required）；workbank 套件救援上限默认 0/0；answer 阶段接受 `no_tool{reason}` 作为最终输出；工具报错不再泄漏宿主绝对路径（含 search_text 补漏）；绝对路径拒绝示例中性化。
+- scorer v2：`expected_number` 比较前去前导货币符号（$ € £ ¥）与千分位逗号，其余多余文字仍判失败；新增 expect 字段 `output_equals_any`（doc-0002 使用）。
+- eval 计数：Step.Channel 区分 text/native；native 不再计入文本协议违规；新增 `native_protocol_validity`；manifest 记录实际发送的采样参数与生效 loop（修 `--profile` 下 wire_hash 不含 loop 的问题）。
+- 账本 ledger.py：入账字段新增 case_parallelism、完整 sampling、loop 上限、channel、按通道的 protocol_invalid_rate。作废并移除 6 个被 search_text 泄漏污染的 workbank run 与 1 个 token 预算不一致的 deepseek run 的旧行后重跑入账（披露见 reports/closeout-20260917.md §6）。
+- Part B 实验：wire 轴 `usermsg=split|merged|no-nudge|rewrite`（修饰项 `+merge-users*`），V1–V3 golden 测试与 `tools/check_user_runs.py` 轨迹断言。结果：**连续 User 假设未被证实**（四变体 workbank 均 3/40、零翻转；V3 收尾率 0/39 反而最差），不选胜出变体，usermsg 留在修饰项不并入产品默认 wire。详见 reports/closeout-20260917.md。
