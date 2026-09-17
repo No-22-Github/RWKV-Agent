@@ -19,7 +19,7 @@
     "ref_calls": 4,
     "fixture_bytes": 728,
     "status": "reviewed",
-    "version": 1,
+    "version": 2,
     "author": "llm:glm-drafter",
     "reviewer": "human:delegated-20260917"
   },
@@ -32,7 +32,7 @@
   },
   "turns": [
     {
-      "prompt": "Night dispatch needs the pager extension for the shift lead at our active fulfillment site. Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+      "prompt": "Night dispatch needs the pager extension for the shift lead at our active fulfillment site. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
       "expect": {
         "expected_number": 4417,
         "tolerance": 0.01

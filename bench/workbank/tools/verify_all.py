@@ -12,8 +12,9 @@ recursively under --cases):
      - {"expected_number": x}        compared against turns[].expect.expected_number
      - {"files": {path: content}}    compared against expect.files equals/contains
      - {"expected_string": s} / {"expected": s} — the string is tried against
-       every output_equals (exact) and every expected_number (numeric, with
-       tolerance). web-9001 in testdata uses this shape.
+       every output_equals (exact) and output_equals_any entry (exact, any-of)
+       and every expected_number (numeric, with tolerance). web-9001 in
+       testdata uses this shape.
    Any other shape records a `verify_shape_unknown` warning, not a failure.
 2. Sabotage test: materialize the case into a second temp dir with the
    fixture files corrupted (if an expected_number exists, increment the first
@@ -99,7 +100,7 @@ def parse_verify_stdout(stdout):
 
 
 def case_expectations(case):
-    """Collect (expected_numbers, output_equals, expect.files) from a case."""
+    """Collect (expected_numbers, output_equals + output_equals_any, expect.files) from a case."""
     numbers, output_equals = [], []
     for turn in case.get("turns") or []:
         if not isinstance(turn, dict):
@@ -114,6 +115,9 @@ def case_expectations(case):
         oe = exp.get("output_equals")
         if isinstance(oe, str):
             output_equals.append(oe)
+        oea = exp.get("output_equals_any")
+        if isinstance(oea, list):
+            output_equals.extend(s for s in oea if isinstance(s, str))
     file_exp = {}
     case_exp = case.get("expect") or {}
     if isinstance(case_exp.get("files"), dict):

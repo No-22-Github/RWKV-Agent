@@ -960,6 +960,88 @@ func TestRunnerRejectsToolCallDuringAnswerStage(t *testing.T) {
 	}
 }
 
+// TestRunnerAnswerStageAcceptsSemanticNoTool locks the semantic no_tool exit
+// in the answer stage: the model may close a forced answer with
+// no_tool{reason}, and the reason becomes the final answer instead of dying
+// on a stage violation (observed killing a correct answer in the workbank
+// log-0001 trace).
+func TestRunnerAnswerStageAcceptsSemanticNoTool(t *testing.T) {
+	t.Parallel()
+	outputs := []string{
+		`<tool_call>{"name":"counting_echo","arguments":{"value":"same"}}</tool_call>`,
+		`<tool_call>{"name":"no_tool","arguments":{"reason":"six ERROR entries"}}</tool_call>`,
+	}
+	generations := 0
+	executions := 0
+	runner, err := NewRunner(
+		continuation.GenerateFunc(func(
+			context.Context,
+			continuation.Request,
+			continuation.EventSink,
+		) (continuation.Result, error) {
+			result := continuation.Result{Text: outputs[generations], FinishReason: continuation.FinishStop}
+			generations++
+			return result, nil
+		}),
+		[]Tool{&countingEchoTool{calls: &executions}},
+		Options{MaxSteps: 2, Protocol: G1Protocol{SemanticNoTool: true, OneStage: true}},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "Read the log and answer.")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if executions != 1 || result.Output != "six ERROR entries" || len(result.Steps) != 2 {
+		t.Fatalf("answer-stage no_tool result = %+v, executions = %d", result, executions)
+	}
+	closing := result.Steps[1]
+	if closing.Stage != StageAnswer || closing.ActionType != ActionTypeNoTool ||
+		closing.ProtocolError != "" || closing.StageViolation ||
+		closing.NoToolRationale != "six ERROR entries" {
+		t.Fatalf("answer-stage no_tool step = %+v", closing)
+	}
+}
+
+// TestRunnerAnswerStageRejectsEmptyNoTool keeps the empty payload on the
+// protocol retry path: a no_tool without reason or answer carries no final
+// text, so it is a protocol error, never a committed empty answer.
+func TestRunnerAnswerStageRejectsEmptyNoTool(t *testing.T) {
+	t.Parallel()
+	outputs := []string{
+		`<tool_call>{"name":"counting_echo","arguments":{"value":"same"}}</tool_call>`,
+		`<tool_call>{"name":"no_tool","arguments":{}}</tool_call>`,
+	}
+	generations := 0
+	executions := 0
+	runner, err := NewRunner(
+		continuation.GenerateFunc(func(
+			context.Context,
+			continuation.Request,
+			continuation.EventSink,
+		) (continuation.Result, error) {
+			result := continuation.Result{Text: outputs[generations], FinishReason: continuation.FinishStop}
+			generations++
+			return result, nil
+		}),
+		[]Tool{&countingEchoTool{calls: &executions}},
+		Options{MaxSteps: 2, ProtocolRetries: 1, Protocol: G1Protocol{SemanticNoTool: true, OneStage: true}},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := runner.Run(context.Background(), "Read the log and answer.")
+	if !errors.Is(err, ErrMaxSteps) {
+		t.Fatalf("empty no_tool err = %v, want ErrMaxSteps", err)
+	}
+	closing := result.Steps[1]
+	if closing.Stage != StageAnswer || closing.StageViolation ||
+		!strings.Contains(closing.ProtocolError, "no_tool") || result.Output != "" {
+		t.Fatalf("empty no_tool step = %+v output = %q", closing, result.Output)
+	}
+}
+
 func TestRunnerAllowsRepeatedReadAfterWorkspaceMutation(t *testing.T) {
 	t.Parallel()
 	outputs := []string{

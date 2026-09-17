@@ -19,7 +19,7 @@
     "ref_calls": 4,
     "fixture_bytes": 4211,
     "status": "reviewed",
-    "version": 1,
+    "version": 2,
     "author": "llm:glm-drafter",
     "reviewer": "human:delegated-20260917"
   },
@@ -32,7 +32,7 @@
   "web_fixture": [],
   "turns": [
     {
-      "prompt": "Since this morning's 09:40 release went out, capture requests on the payments service keep timing out at the gateway. How many capture-timeout failures has payments-api logged from that moment on? Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+      "prompt": "Since this morning's 09:40 release went out, capture requests on the payments service keep timing out at the gateway. How many capture-timeout failures has payments-api logged from that moment on? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
       "expect": {
         "expected_number": 4,
         "tolerance": 0.01

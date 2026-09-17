@@ -10,7 +10,7 @@
 
 1. **题面（每轮 prompt）不得出现 12 个工具名**，也不得出现本题陷阱的题面禁词（tag-vocab.json 里每个陷阱的 forbidden_words）。题面只讲业务目标，不讲步骤、不提示陷阱。
 2. **答案契约逐字节**追加在最后一轮 prompt 末尾：
-   - 数字/字符串答案题：`Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.`
+   - 数字/字符串答案题：`Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.`
    - 写文件/写脚本题（有 expect.files 或 expect.run）：`When finished, reply DONE.`
 3. `description` 末尾：` WORKBANK-CANARY-<8位hex>`（每题不同）。
 4. **陷阱**：L1 恰 1 个 trap；L2 恰 2 个；L0 无 trap。每个 trap 必须在 `tags.trap_decoys` 里有键，值=「不注意会得到的错误答案」，且 ≠ 正确答案（数值题给数值）；写文件类可 null。

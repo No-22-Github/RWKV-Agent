@@ -13,7 +13,7 @@
     "ref_calls": 3,
     "fixture_bytes": 0,
     "status": "reviewed",
-    "version": 1,
+    "version": 2,
     "author": "llm:glm-drafter",
     "reviewer": "human:delegated-20260917"
   },
@@ -49,7 +49,7 @@
   ],
   "turns": [
     {
-      "prompt": "I'm about to tune our oxcart ingest pipeline and want to note the baseline first. What is the default value of the batch_size setting in oxcart's configuration? Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+      "prompt": "I'm about to tune our oxcart ingest pipeline and want to note the baseline first. What is the default value of the batch_size setting in oxcart's configuration? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
       "expect": {
         "output_equals": "512"
       }

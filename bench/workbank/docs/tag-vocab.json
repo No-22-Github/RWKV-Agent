@@ -1,5 +1,5 @@
 {
-  "$comment": "Machine-readable tag vocabulary for workbank cases (schema v5). Extracted from docs/authoring-guide.md (section 2 task table, section 3 trap catalogue, section 5 tag table, section 6 surface diversity) and docs/HANDOFF.md section 2.4 (tool catalog) / section 6 (quotas, level mix). Do not invent new entries: new task_type values must be registered here and in authoring-guide.md section 2. Forbidden words are matched case-insensitively as substrings of the prompt.",
+  "$comment": "Machine-readable tag vocabulary for workbank cases (schema v5). Extracted from docs/authoring-guide.md (section 2 task table, section 3 trap catalogue, section 5 tag table, section 6 surface diversity) and docs/HANDOFF.md section 2.4 (tool catalog) / section 6 (quotas, level mix). Do not invent new entries: new task_type values must be registered here and in authoring-guide.md section 2. Forbidden words are matched case-insensitively against the whitespace-normalized prompt: a multi-word phrase matches when its words appear in order with at most 3 extra words between consecutive phrase words. A trap entry may carry a 'scenarios' list: its forbidden words then apply to every case of those scenarios even when the case does not declare the trap.",
   "scenarios": [
     { "name": "tabular", "abbrev": "tab", "quota": 40 },
     { "name": "logs", "abbrev": "log", "quota": 32 },
@@ -47,7 +47,7 @@
     "TR-READONLY": { "definition": "只问不改 / 范围限制", "axis": "CON", "forbidden_words": ["don't modify", "read-only"] },
     "TR-CLAIM": { "definition": "声称与证据冲突", "axis": "VER", "forbidden_words": ["honest", "truthfully"] },
     "TR-ABSENT": { "definition": "数据里没有答案", "axis": "DEC", "forbidden_words": ["if missing", "may not exist"] },
-    "TR-NOTOOLNEED": { "definition": "工具在场但无需调用", "axis": "DEC", "forbidden_words": ["without tools", "from memory"] },
+    "TR-NOTOOLNEED": { "definition": "工具在场但无需调用", "axis": "DEC", "forbidden_words": ["without tools", "from memory"], "scenarios": ["notool"] },
     "TR-AMBIG": { "definition": "需求有歧义，应反问", "axis": "DEC", "forbidden_words": ["which one", "clarify"] },
     "TR-NOCAP": { "definition": "超出工具能力", "axis": "DEC", "forbidden_words": ["cannot", "not possible"] },
     "TR-WEBSTALE": { "definition": "结果新旧混杂", "axis": "VER", "forbidden_words": ["latest", "official"] },
@@ -64,7 +64,7 @@
     "append_file", "calculator", "data_query", "datetime", "web_search", "web_fetch"
   ],
   "answer_contracts": {
-    "unknown": "Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+    "unknown": "Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
     "done": "When finished, reply DONE."
   }
 }

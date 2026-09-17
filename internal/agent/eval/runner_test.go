@@ -1345,3 +1345,180 @@ func TestRunManifestRecordsWireConflict(t *testing.T) {
 		t.Fatalf("wire canonical = %q", manifest.Harness.WireCanonical)
 	}
 }
+
+// nativeScriptGenerator plays a fixed list of Chat Completions responses, so
+// native-channel eval tests can script both structured tool calls and
+// content-serialized envelopes.
+type nativeScriptGenerator struct {
+	responses []toolchat.Result
+	index     int
+}
+
+func (*nativeScriptGenerator) Continue(
+	context.Context,
+	continuation.Request,
+	continuation.EventSink,
+) (continuation.Result, error) {
+	return continuation.Result{}, errors.New("native script unexpectedly used text continuation")
+}
+
+func (*nativeScriptGenerator) NativeToolCalling() bool { return true }
+
+func (g *nativeScriptGenerator) Complete(
+	_ context.Context,
+	_ toolchat.Request,
+	_ continuation.EventSink,
+) (toolchat.Result, error) {
+	if g.index >= len(g.responses) {
+		return toolchat.Result{}, errors.New("unexpected native completion")
+	}
+	result := g.responses[g.index]
+	g.index++
+	return result, nil
+}
+
+var _ continuation.Generator = (*nativeScriptGenerator)(nil)
+var _ toolchat.Completer = (*nativeScriptGenerator)(nil)
+
+// TestNativeChannelDoesNotRecordTextWireProtocolMarkers locks Fix 5: on the
+// native channel the harness synthesizes the <tool_call> envelope itself, so
+// a structured provider call recovered by the fenced parser must not be
+// counted as a model protocol violation (165 of 206 v2-deepseek-k0 steps were
+// mislabeled this way). Native decision steps are scored by
+// native_protocol_validity instead.
+func TestNativeChannelDoesNotRecordTextWireProtocolMarkers(t *testing.T) {
+	t.Parallel()
+	generator := &nativeScriptGenerator{responses: []toolchat.Result{
+		{
+			// A structured provider call: the harness serializes it into the
+			// XML envelope, which the fenced parser recovers with the
+			// envelope_recovered repair — a text-wire concept that must not
+			// reach the step.
+			Content:      "I will read the requested file.",
+			FinishReason: continuation.FinishToolCalls,
+			ToolCalls: []toolchat.ToolCall{{
+				ID:        "call-native",
+				Name:      "read_file",
+				Arguments: `{"path":"facts.txt"}`,
+			}},
+			Usage: continuation.Usage{PromptTokens: 3, CompletionTokens: 5},
+		},
+		{
+			Content:      "The code is TRACE-2048.",
+			FinishReason: continuation.FinishStop,
+			Usage:        continuation.Usage{PromptTokens: 4, CompletionTokens: 2},
+		},
+	}}
+	report, err := Run(context.Background(), Config{
+		Cases: []Case{{
+			ID:          "native-repair",
+			Description: "Structured native call must not count as a repair.",
+			Files:       map[string]string{"facts.txt": "TRACE-2048\n"},
+			Turns: []Turn{{
+				Prompt: "Read facts.txt and report its code.",
+				Expect: Expectation{
+					Tools:          []string{"read_file"},
+					OutputContains: []string{"TRACE-2048"},
+				},
+			}},
+		}},
+		Model: ModelMetadata{Identifier: "native", Completion: "chat-completions"},
+		Runner: agent.Options{
+			MaxSteps:                3,
+			ProtocolRetries:         1,
+			DecisionMaxOutputTokens: 64,
+			Protocol:                agent.G1FunctionProtocol{Product: true},
+			Renderer:                agent.G1FunctionRenderer{Product: true},
+			Generation:              continuation.Request{Model: "native", MaxOutputTokens: 64},
+		},
+		GeneratorFactory: func(context.Context) (continuation.Generator, io.Closer, error) {
+			return generator, nil, nil
+		},
+		CaseTimeout: time.Second,
+		TempDir:     t.TempDir(),
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	metrics := report.Summary.Metrics
+	if metrics.TaskSuccess.Correct != 1 {
+		t.Fatalf("native case did not pass: %+v", report.Summary.Cases[0])
+	}
+	assertScore(t, "native protocol validity", metrics.NativeProtocolValidity, 2, 2)
+	assertScore(t, "decision protocol validity", metrics.DecisionProtocolValidity, 0, 0)
+	if metrics.ProtocolRepairs != 0 ||
+		len(metrics.RepairsByID) != 0 ||
+		len(metrics.ParseFailuresByClass) != 0 {
+		t.Fatalf("native channel leaked text-wire counters: %+v", metrics)
+	}
+	turn := report.Summary.Cases[0].Turns[0]
+	if turn.Outcome != OutcomeCalledTool {
+		t.Fatalf("native outcome = %q, want %q", turn.Outcome, OutcomeCalledTool)
+	}
+	for index, step := range turn.Result.Steps {
+		if step.Channel != agent.ChannelNative {
+			t.Fatalf("step %d channel = %q, want native", index, step.Channel)
+		}
+		if step.ProtocolRepaired || step.ProtocolFailure != "" || len(step.ProtocolRepairs) != 0 {
+			t.Fatalf("step %d recorded text-wire markers: %+v", index, step)
+		}
+	}
+}
+
+// TestRunManifestRecordsActuallySentSampling locks Fix 6: the run-level
+// sampling record drops the keys the backend does not accept
+// (Model.UnsupportedSampling), so a chat-completions manifest does not claim
+// a top_k/penalty_decay the API never received.
+func TestRunManifestRecordsActuallySentSampling(t *testing.T) {
+	t.Parallel()
+	seed := int64(7)
+	config := Config{
+		Cases: []Case{{ID: "one"}},
+		Runner: agent.Options{
+			MaxSteps: 3,
+			Generation: continuation.Request{
+				MaxOutputTokens: 64,
+				Sampling: continuation.Sampling{
+					Temperature:      0.3,
+					TopK:             40,
+					TopP:             0.9,
+					PresencePenalty:  0.5,
+					FrequencyPenalty: 0.25,
+					PenaltyDecay:     0.99,
+					Seed:             &seed,
+				},
+			},
+		},
+	}
+	rwkv := runManifest(config, "run", time.Unix(0, 0).UTC())
+	for _, key := range []string{
+		"temperature", "top_k", "top_p", "presence_penalty", "frequency_penalty", "penalty_decay", "seed",
+	} {
+		if _, ok := rwkv.Sampling[key]; !ok {
+			t.Fatalf("rwkv sampling missing %q: %v", key, rwkv.Sampling)
+		}
+	}
+
+	chat := config
+	chat.Model = ModelMetadata{
+		Completion:          "chat-completions",
+		UnsupportedSampling: []string{"top_k", "penalty_decay"},
+	}
+	manifest := runManifest(chat, "run", time.Unix(0, 0).UTC())
+	for _, dropped := range []string{"top_k", "penalty_decay"} {
+		if _, ok := manifest.Sampling[dropped]; ok {
+			t.Fatalf("chat-completions sampling still records %q: %v", dropped, manifest.Sampling)
+		}
+	}
+	for _, kept := range []string{"temperature", "top_p", "presence_penalty", "frequency_penalty", "seed"} {
+		if _, ok := manifest.Sampling[kept]; !ok {
+			t.Fatalf("chat-completions sampling missing %q: %v", kept, manifest.Sampling)
+		}
+	}
+	if manifest.Sampling["temperature"] != float32(0.3) || manifest.Sampling["seed"] != int64(7) {
+		t.Fatalf("sampling values = %v", manifest.Sampling)
+	}
+	if HarnessVersion != "rwkv-agent-eval-v21" || ScorerVersion != "rwkv-agent-eval-scorer-v2" {
+		t.Fatalf("versions = %q/%q", HarnessVersion, ScorerVersion)
+	}
+}

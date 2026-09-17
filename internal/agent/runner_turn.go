@@ -205,6 +205,16 @@ func (turn *runnerTurn) run() (Result, error) {
 			continue
 		}
 		if action.Type == ActionTypeNoTool {
+			if turn.stage == StageAnswer {
+				// Entering the answer stage already required tool evidence, so
+				// the no_tool gate does not apply here: the reason is the final
+				// answer. parseModelAction rejected an empty payload.
+				current := turn.currentStep()
+				current.NoToolRationale = action.NoToolRationale
+				current.NoToolAnswer = action.NoToolAnswer
+				turn.commitFinalText(firstNonEmpty(action.NoToolAnswer, action.NoToolRationale))
+				return turn.result, nil
+			}
 			if turn.r.options.NoToolGate != "" && turn.noToolGateRejects(action) {
 				turn.rejectNoTool(step, action, modelStep)
 				continue
@@ -296,10 +306,14 @@ func (turn *runnerTurn) generateModelStep(step int) (turnModelStep, error) {
 		turn.messages,
 		turn.activeSpecs,
 	)
+	channel := ChannelText
+	if r.toolCompleter != nil {
+		channel = ChannelNative
+	}
 	if err != nil {
 		modelDuration := time.Since(modelStarted).Milliseconds()
 		turn.result.Steps = append(turn.result.Steps, Step{
-			Number: step, Stage: turn.stage, Request: compiled.Trace,
+			Number: step, Stage: turn.stage, Channel: channel, Request: compiled.Trace,
 			StartedAtMS:     modelStarted.UnixMilli(),
 			ModelDurationMS: modelDuration, ModelError: err.Error(),
 		})
@@ -312,6 +326,7 @@ func (turn *runnerTurn) generateModelStep(step int) (turnModelStep, error) {
 	current := Step{
 		Number:          step,
 		Stage:           turn.stage,
+		Channel:         channel,
 		Request:         compiled.Trace,
 		ModelOutput:     generated.Text,
 		FinishReason:    generated.FinishReason,
@@ -347,7 +362,8 @@ func (turn *runnerTurn) stepPromptInput() stepPromptInput {
 		decisionBudget: decision && turn.successfulToolCalls == 0,
 		specs:          turn.activeSpecs,
 		offerNative:    decision,
-		requireNative:  decision && r.toolCompleter != nil && turn.successfulToolCalls == 0,
+		requireNative: decision && r.toolCompleter != nil && turn.successfulToolCalls == 0 &&
+			r.options.NativeFirstCall != "auto",
 	}
 }
 
@@ -430,7 +446,15 @@ func (turn *runnerTurn) parseModelAction(
 		answerContainsToolFrame(action.Content) {
 		stageActionType = ActionTypeTool
 	}
-	if err == nil && turn.stage == StageAnswer && stageActionType != "final" {
+	if err == nil && turn.stage == StageAnswer &&
+		action.Type == ActionTypeNoTool &&
+		firstNonEmpty(action.NoToolAnswer, action.NoToolRationale) == "" {
+		// An empty no_tool carries no answer; it takes the protocol retry path
+		// instead of committing an empty final.
+		err = fmt.Errorf("%w: no_tool in the answer stage must carry a reason or answer", ErrProtocol)
+	}
+	if err == nil && turn.stage == StageAnswer &&
+		stageActionType != ActionTypeFinal && stageActionType != ActionTypeNoTool {
 		err = fmt.Errorf(
 			"%w: %s action is forbidden during %s",
 			ErrStageViolation,
@@ -443,9 +467,15 @@ func (turn *runnerTurn) parseModelAction(
 	if err == nil {
 		turn.retries = 0
 		turn.currentStep().ActionType = action.Type
-		turn.currentStep().ProtocolRepaired = action.ProtocolRepaired
-		turn.currentStep().ProtocolFailure = action.OriginalProtocolFailure
-		turn.currentStep().ProtocolRepairs = append([]wire.Repair(nil), action.Repairs...)
+		if turn.currentStep().Channel != ChannelNative {
+			// Tolerant-recovery markers describe the text wire only. On the
+			// native channel the provider produces structured calls and the
+			// harness synthesizes the envelope itself, so counting its
+			// recovery as a model protocol violation would mislabel the run.
+			turn.currentStep().ProtocolRepaired = action.ProtocolRepaired
+			turn.currentStep().ProtocolFailure = action.OriginalProtocolFailure
+			turn.currentStep().ProtocolRepairs = append([]wire.Repair(nil), action.Repairs...)
+		}
 	}
 	return action, err
 }

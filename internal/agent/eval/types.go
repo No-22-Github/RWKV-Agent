@@ -10,14 +10,14 @@ import (
 )
 
 const (
-	CaseSchemaVersion      = 5
+	CaseSchemaVersion = 5
 	// caseSchemaVersionLegacy keeps v4 case files loadable unchanged; a v4
 	// file simply has no tags / case-level web fixture / case-level expect.
 	caseSchemaVersionLegacy = 4
-	RunSchemaVersion       = 8
-	HarnessVersion         = "rwkv-agent-eval-v20"
-	ScorerVersion          = "rwkv-agent-eval-scorer-v1"
-	OutcomeTaxonomyVersion = "rwkv-agent-outcome-v2"
+	RunSchemaVersion        = 8
+	HarnessVersion          = "rwkv-agent-eval-v21"
+	ScorerVersion           = "rwkv-agent-eval-scorer-v2"
+	OutcomeTaxonomyVersion  = "rwkv-agent-outcome-v2"
 
 	PrimitiveProfileUpstream = "upstream-compatible"
 	PrimitiveProfileGoNative = "go-native"
@@ -28,14 +28,14 @@ type GeneratorFactory func(
 ) (continuation.Generator, io.Closer, error)
 
 type Case struct {
-	ID          string `json:"id"`
-	Description string `json:"description"`
-	Category    string `json:"category,omitempty"`
-	Source      string `json:"source,omitempty"`
-	Difficulty  string `json:"difficulty,omitempty"`
-	Files       map[string]string `json:"files,omitempty"`
-	OutsideFiles map[string]string `json:"outside_files,omitempty"`
-	ProviderUnavailable []string `json:"provider_unavailable,omitempty"`
+	ID                  string            `json:"id"`
+	Description         string            `json:"description"`
+	Category            string            `json:"category,omitempty"`
+	Source              string            `json:"source,omitempty"`
+	Difficulty          string            `json:"difficulty,omitempty"`
+	Files               map[string]string `json:"files,omitempty"`
+	OutsideFiles        map[string]string `json:"outside_files,omitempty"`
+	ProviderUnavailable []string          `json:"provider_unavailable,omitempty"`
 	// Tags is a schema-v5 passthrough object (scenario/traps/level/status/...)
 	// carried into run.json, summary and traces untouched. The harness only
 	// interprets tags.status (draft gating for --include-draft).
@@ -46,7 +46,7 @@ type Case struct {
 	WebFixture []WebFixtureEntry `json:"web_fixture,omitempty"`
 	// Expect (v5) holds case-level result expectations evaluated after the
 	// final turn against the workspace state and the whole transcript.
-	Expect *CaseExpect `json:"expect,omitempty"`
+	Expect    *CaseExpect        `json:"expect,omitempty"`
 	Turns     []Turn             `json:"turns"`
 	Primitive *PrimitiveMetadata `json:"primitive,omitempty"`
 	primitive *primitiveRuntime
@@ -81,11 +81,11 @@ type FileExpectation struct {
 // best-effort: the runner strips the environment but cannot guarantee it on
 // every platform, which the bank docs call out.
 type RunExpectation struct {
-	Path            string            `json:"path"`
-	Args            []string          `json:"args,omitempty"`
-	ExpectedStdout  string            `json:"expected_stdout"`
-	HiddenFiles     map[string]string `json:"hidden_files,omitempty"`
-	TimeoutMillis   int               `json:"timeout_millis,omitempty"`
+	Path           string            `json:"path"`
+	Args           []string          `json:"args,omitempty"`
+	ExpectedStdout string            `json:"expected_stdout"`
+	HiddenFiles    map[string]string `json:"hidden_files,omitempty"`
+	TimeoutMillis  int               `json:"timeout_millis,omitempty"`
 }
 
 // PrimitiveMetadata preserves the source-side scoring and emulator contract in
@@ -115,6 +115,7 @@ type Expectation struct {
 	ForbiddenTools      []string         `json:"forbidden_tools,omitempty"`
 	RequiredCalls       []ExpectedCall   `json:"required_calls,omitempty"`
 	OutputEquals        *string          `json:"output_equals,omitempty"`
+	OutputEqualsAny     []string         `json:"output_equals_any,omitempty"`
 	OutputContains      []string         `json:"output_contains,omitempty"`
 	OutputContainsAny   []string         `json:"output_contains_any,omitempty"`
 	OutputExcludes      []string         `json:"output_excludes,omitempty"`
@@ -249,18 +250,21 @@ type CaseWireRecord struct {
 }
 
 type RunManifest struct {
-	SchemaVersion int                 `json:"schema_version"`
-	RunID         string              `json:"run_id"`
-	Suite         string              `json:"suite"`
-	StartedAt     time.Time           `json:"started_at"`
-	CompletedAt   time.Time           `json:"completed_at"`
-	Model         ModelMetadata       `json:"model"`
-	Harness       HarnessMetadata     `json:"harness"`
-	Sampling      SamplingSnapshot    `json:"sampling"`
-	Environment   EnvironmentMetadata `json:"environment"`
-	CaseIDs       []string            `json:"case_ids"`
-	CaseWires     []CaseWireRecord    `json:"case_wires,omitempty"`
-	Cases         []Case              `json:"cases"`
+	SchemaVersion int             `json:"schema_version"`
+	RunID         string          `json:"run_id"`
+	Suite         string          `json:"suite"`
+	StartedAt     time.Time       `json:"started_at"`
+	CompletedAt   time.Time       `json:"completed_at"`
+	Model         ModelMetadata   `json:"model"`
+	Harness       HarnessMetadata `json:"harness"`
+	// Sampling records the sampling keys actually sent to the backend: keys
+	// listed in Model.UnsupportedSampling are omitted, so a chat-completions
+	// manifest does not claim a top_k/penalty_decay the API never received.
+	Sampling    map[string]any      `json:"sampling"`
+	Environment EnvironmentMetadata `json:"environment"`
+	CaseIDs     []string            `json:"case_ids"`
+	CaseWires   []CaseWireRecord    `json:"case_wires,omitempty"`
+	Cases       []Case              `json:"cases"`
 }
 
 type Score struct {
@@ -299,11 +303,15 @@ type Metrics struct {
 	ActiveNoCall             Score `json:"active_no_call"`
 	RouteProtocolValidity    Score `json:"route_protocol_validity"`
 	DecisionProtocolValidity Score `json:"decision_protocol_validity"`
-	PlanSubtaskCount         Score `json:"plan_subtask_count"`
-	PlanWaveOrder            Score `json:"plan_wave_order"`
-	PlanReferenceUse         Score `json:"plan_reference_use"`
-	ExplicitAbstention       Score `json:"explicit_abstention"`
-	AnswerContractRepaired   Score `json:"answer_contract_repaired"`
+	// NativeProtocolValidity scores native-channel decision steps only: the
+	// structured provider call either produced a decodable action or it did
+	// not. Text-wire repair markers do not exist on this channel.
+	NativeProtocolValidity Score `json:"native_protocol_validity"`
+	PlanSubtaskCount       Score `json:"plan_subtask_count"`
+	PlanWaveOrder          Score `json:"plan_wave_order"`
+	PlanReferenceUse       Score `json:"plan_reference_use"`
+	ExplicitAbstention     Score `json:"explicit_abstention"`
+	AnswerContractRepaired Score `json:"answer_contract_repaired"`
 
 	ModelCalls           int                                `json:"model_calls"`
 	ToolCalls            int                                `json:"tool_calls"`
@@ -343,11 +351,11 @@ type TurnResult struct {
 }
 
 type CaseResult struct {
-	ID          string       `json:"id"`
-	Description string       `json:"description"`
-	Category    string       `json:"category,omitempty"`
+	ID          string         `json:"id"`
+	Description string         `json:"description"`
+	Category    string         `json:"category,omitempty"`
 	Tags        map[string]any `json:"tags,omitempty"`
-	Turns       []TurnResult `json:"turns"`
+	Turns       []TurnResult   `json:"turns"`
 	// Failures holds case-level (end-state) violations: expect.files,
 	// expect.run and expect.max_calls. Turn-level failures stay on the turns.
 	Failures []string `json:"failures,omitempty"`
@@ -356,12 +364,12 @@ type CaseResult struct {
 	// Per-case intervention counters (H3): how much harness assistance this
 	// case consumed, aggregated from the embedded turn results so the ledger
 	// can separate rescue-assisted passes from clean ones.
-	ToolCalls       int `json:"tool_calls,omitempty"`
+	ToolCalls        int `json:"tool_calls,omitempty"`
 	DuplicateRejects int `json:"duplicate_rejects,omitempty"`
-	Rescues         int `json:"rescues,omitempty"`
-	RescueSubmits   int `json:"rescue_submits,omitempty"`
-	ForcedAnswers   int `json:"forced_answers,omitempty"`
-	ProtocolRepairs int `json:"protocol_repairs,omitempty"`
+	Rescues          int `json:"rescues,omitempty"`
+	RescueSubmits    int `json:"rescue_submits,omitempty"`
+	ForcedAnswers    int `json:"forced_answers,omitempty"`
+	ProtocolRepairs  int `json:"protocol_repairs,omitempty"`
 }
 
 type Summary struct {

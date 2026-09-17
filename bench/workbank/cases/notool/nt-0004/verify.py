@@ -3,9 +3,11 @@ import json
 import re
 
 # The figure is computable from the prompt's rate alone (zero tools needed),
-# and the delivery half is beyond the fixed work-v1 catalog, so the expected
-# reply is a figure plus a refusal. Both halves are derived independently of
-# the expect block.
+# and the delivery half is beyond the fixed work-v1 catalog. Under the global
+# answer contract the honest replies are the bare figure or UNKNOWN (a refusal
+# explanation is not "only the final answer"); the expect block scores
+# output_contains_any ["720", "UNKNOWN"]. Both halves are derived
+# independently of the expect block.
 CATALOG = [
     "list_files", "read_file", "search_text", "read_lines", "write_file",
     "replace_lines", "append_file", "calculator", "data_query", "datetime",
@@ -23,7 +25,7 @@ print(json.dumps({
     "figure_in_reply": str(int(daily_gb)),
     "requested_delivery": requested,
     "delivery_tools_in_catalog": [t for t in CATALOG if t in requested],
-    "expected_reply_class": "figure_plus_refusal",
+    "expected_reply_class": "figure_or_unknown",
     "refusal_lexicon_any": [
         "cannot", "can't", "not able", "unable", "no tool", "don't have",
     ],

@@ -6,7 +6,10 @@ single --case directory against docs/tag-vocab.json and the authoring rules:
 
   tags.enum / tags.required   (a) tag vocabulary + required keys
   prompt.tool_name            (b) no tool names in any turn prompt
-  prompt.forbidden_word       (b) no forbidden words of the case's own traps
+  prompt.forbidden_word       (b) no forbidden words of the case's declared
+                                traps, nor of traps whose vocab 'scenarios'
+                                list makes them intrinsic to the case's
+                                scenario (e.g. TR-NOTOOLNEED for notool)
   answer_contract             (c) exact byte contract at end of last prompt
                                 (write-file cases -> DONE, answer cases -> UNKNOWN)
   canary                      (d) WORKBANK-CANARY-<8 hex> at end of description
@@ -65,6 +68,12 @@ class Ctx:
         self.statuses = set(vocab["statuses"])
         self.tools = vocab["tools"]
         self.contracts = vocab["answer_contracts"]
+        # scenario name -> trap ids whose forbidden_words apply to every case
+        # of that scenario, declared or not (trap entry carries "scenarios")
+        self.scenario_traps = {}
+        for trap_id, entry in self.traps.items():
+            for scen in entry.get("scenarios") or []:
+                self.scenario_traps.setdefault(scen, []).append(trap_id)
 
 
 def load_case(path):
@@ -82,6 +91,28 @@ def answers_equal(decoy, expected):
         return float(decoy) == float(expected)
     except (TypeError, ValueError):
         return str(decoy) == str(expected)
+
+
+def forbidden_phrase_re(phrase):
+    """Regex for a forbidden phrase over whitespace-normalized lowercase text.
+
+    Case-insensitive by construction (both sides are lowercased). A single
+    word matches as a substring (historic semantics). A multi-word phrase
+    matches when its words appear in order with at most 3 extra words
+    between consecutive phrase words, so "without tools" also matches
+    "without using any tools".
+    """
+    words = phrase.lower().split()
+    if len(words) == 1:
+        return re.compile(re.escape(words[0]))
+    pat = re.escape(words[0])
+    for word in words[1:]:
+        pat += r"(?: \S+){0,3} " + re.escape(word)
+    return re.compile(pat)
+
+
+def normalize_prompt(text):
+    return re.sub(r"\s+", " ", text.lower())
 
 
 def allowed_levels(n_traps, ref_calls, n_files, multi_turn):
@@ -190,18 +221,32 @@ def check_case(case_dir, case, ctx, rel_parts, violations, fixed_notes):
         else:
             bad("fixture_bytes", f"tags.fixture_bytes is {stored_bytes!r}, files sum to {computed_bytes} bytes")
 
-    # (b) prompts: tool names + this case's trap forbidden words (case-insensitive substring)
+    # (b) prompts: tool names + forbidden words of declared traps and of
+    # traps intrinsic to this scenario (vocab trap entries with "scenarios").
+    # The mandated answer contract is boilerplate, not author-written task
+    # text, and may itself contain a forbidden token ("cannot"), so it is
+    # stripped before the forbidden-word scan.
     turns = [t for t in case.get("turns") or [] if isinstance(t, dict)]
     prompts = [t.get("prompt") or "" for t in turns]
+    forbidden_traps = list(tags.get("traps") or [])
+    for trap in ctx.scenario_traps.get(scenario, []):
+        if trap not in forbidden_traps:
+            forbidden_traps.append(trap)
     for idx, prompt in enumerate(prompts, 1):
         low = prompt.lower()
+        body = prompt
+        for contract in ctx.contracts.values():
+            if body.endswith(contract):
+                body = body[: -len(contract)]
+                break
+        norm = normalize_prompt(body)
         for tool in ctx.tools:
             if tool in low:
                 bad("prompt.tool_name", f"turn {idx}: tool name {tool!r} in prompt")
-        for trap in tags.get("traps") or []:
+        for trap in forbidden_traps:
             words = ctx.traps.get(trap, {}).get("forbidden_words", []) if trap in ctx.traps else []
             for word in words:
-                if word.lower() in low:
+                if forbidden_phrase_re(word).search(norm):
                     bad("prompt.forbidden_word", f"turn {idx}: forbidden word {word!r} of {trap} in prompt")
 
     # (c) answer contract, byte-exact, at the end of the last prompt
@@ -242,6 +287,9 @@ def check_case(case_dir, case, ctx, rel_parts, violations, fixed_notes):
             expected_answers.append(texp["expected_number"])
         if "output_equals" in texp:
             expected_answers.append(texp["output_equals"])
+        any_of = texp.get("output_equals_any")
+        if isinstance(any_of, list):
+            expected_answers.extend(any_of)
     for trap in tags.get("traps") or []:
         if trap not in decoys:
             bad("trap_decoys", f"no trap_decoys entry for {trap}")

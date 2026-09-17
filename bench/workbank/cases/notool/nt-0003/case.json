@@ -19,7 +19,7 @@
     "ref_calls": 0,
     "fixture_bytes": 1264,
     "status": "reviewed",
-    "version": 1,
+    "version": 2,
     "author": "llm:glm-drafter",
     "reviewer": "human:delegated-20260917"
   },
@@ -31,7 +31,7 @@
   "web_fixture": [],
   "turns": [
     {
-      "prompt": "Please email the August expired-sessions export to Ada and ask her to file it with the quarterly records. Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+      "prompt": "Please email the August expired-sessions export to Ada and ask her to file it with the quarterly records. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
       "expect": {
         "tools": [],
         "output_contains_any": [

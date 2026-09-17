@@ -122,17 +122,17 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 
 | preset | canonical | short |
 | --- | --- | --- |
-| `bfcl-md-v1` | `format=md-fence;transcript=product;transport=text;thinking=off;prefill=deep-fence;abstain=no-tool;terminal=none;route=progressive;catalog=progressive;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false` | `md-fence+deep-fence+no-tool+route-progressive+progressive` |
-| `bfcl-xml-v1` | `format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=none;terminal=none;route=progressive;catalog=progressive;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false` | `route-progressive+progressive` |
-| `default` | `format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=none;terminal=none;route=none;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false` | `default` |
-| `md-fakethink-v1` | `format=md-fence;transcript=product;transport=text;thinking=off;prefill=fake-think-half;abstain=no-tool;terminal=none;route=none;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false` | `md-fence+fake-think-half+no-tool` |
-| `md-fence-v1` | `format=md-fence;transcript=product;transport=text;thinking=off;prefill=fence;abstain=no-tool;terminal=none;route=none;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false` | `md-fence+fence+no-tool` |
-| `md-v1` | `format=md-fence;transcript=product;transport=text;thinking=off;prefill=deep-fence;abstain=no-tool;terminal=none;route=none;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false` | `md-fence+deep-fence+no-tool` |
-| `native-v1` | `format=xml;transcript=product;transport=native;thinking=off;prefill=none;abstain=none;terminal=none;route=none;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false` | `native` |
-| `primitive-v1` | `format=md-fence;transcript=benchmark;transport=text;thinking=off;prefill=fence;abstain=none;terminal=submit;route=none;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false` | `md-fence+benchmark+fence+submit` |
-| `xml-progressive-v1` | `format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=none;terminal=none;route=progressive;catalog=progressive;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false` | `route-progressive+progressive` |
-| `xml-route-v1` | `format=xml;transcript=product;transport=text;thinking=off;prefill=envelope;abstain=none;terminal=none;route=respond-inspect;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false` | `envelope+route-respond-inspect` |
-| `xml-v1` | `format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=none;terminal=none;route=none;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false` | `default` |
+| `bfcl-md-v1` | `format=md-fence;transcript=product;transport=text;thinking=off;prefill=deep-fence;abstain=no-tool;terminal=none;route=progressive;catalog=progressive;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required` | `md-fence+deep-fence+no-tool+route-progressive+progressive` |
+| `bfcl-xml-v1` | `format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=none;terminal=none;route=progressive;catalog=progressive;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required` | `route-progressive+progressive` |
+| `default` | `format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=none;terminal=none;route=none;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required` | `default` |
+| `md-fakethink-v1` | `format=md-fence;transcript=product;transport=text;thinking=off;prefill=fake-think-half;abstain=no-tool;terminal=none;route=none;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required` | `md-fence+fake-think-half+no-tool` |
+| `md-fence-v1` | `format=md-fence;transcript=product;transport=text;thinking=off;prefill=fence;abstain=no-tool;terminal=none;route=none;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required` | `md-fence+fence+no-tool` |
+| `md-v1` | `format=md-fence;transcript=product;transport=text;thinking=off;prefill=deep-fence;abstain=no-tool;terminal=none;route=none;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required` | `md-fence+deep-fence+no-tool` |
+| `native-v1` | `format=xml;transcript=product;transport=native;thinking=off;prefill=none;abstain=none;terminal=none;route=none;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required` | `native` |
+| `primitive-v1` | `format=md-fence;transcript=benchmark;transport=text;thinking=off;prefill=fence;abstain=none;terminal=submit;route=none;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required` | `md-fence+benchmark+fence+submit` |
+| `xml-progressive-v1` | `format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=none;terminal=none;route=progressive;catalog=progressive;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required` | `route-progressive+progressive` |
+| `xml-route-v1` | `format=xml;transcript=product;transport=text;thinking=off;prefill=envelope;abstain=none;terminal=none;route=respond-inspect;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required` | `envelope+route-respond-inspect` |
+| `xml-v1` | `format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=none;terminal=none;route=none;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required` | `default` |
 
 ## Axis domain
 
@@ -150,6 +150,7 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 | `control` | `base`, `base-nocall`, `greeting`, `bare`, `fewshot` |
 | `feedback` | `raw`, `compress-fetch` |
 | `subagent` | `block`, `raw` |
+| `firstcall` | `required`, `auto` |
 
 ## Recovery vocabulary
 
@@ -160,11 +161,11 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 
 ## Modifiers
 
-`align-legacy`, `align-qwen36`, `anchor`, `bare`, `base-nocall`, `compress-fetch`, `deep-fence`, `envelope`, `fake-think`, `fake-think-closed`, `fence`, `fewshot`, `gate-evidence`, `gate-state`, `greeting`, `native`, `no-tool`, `one-stage`, `prefill-none`, `progressive`, `raw-subagent`, `route-progressive`, `route-respond`, `submit`, `think-fast`, `think-full`, `think-off`, `two-stage`
+`align-legacy`, `align-qwen36`, `anchor`, `bare`, `base-nocall`, `compress-fetch`, `deep-fence`, `envelope`, `fake-think`, `fake-think-closed`, `fence`, `fewshot`, `first-auto`, `gate-evidence`, `gate-state`, `greeting`, `native`, `no-tool`, `one-stage`, `prefill-none`, `progressive`, `raw-subagent`, `route-progressive`, `route-respond`, `submit`, `think-fast`, `think-full`, `think-off`, `two-stage`
 
 ## Override keys
 
-`abstain`, `align`, `catalog`, `control`, `feedback`, `format`, `prefill`, `route`, `stages`, `subagent`, `terminal`, `thinking`, `transcript`, `transport`
+`abstain`, `align`, `catalog`, `control`, `feedback`, `firstcall`, `format`, `prefill`, `route`, `stages`, `subagent`, `terminal`, `thinking`, `transcript`, `transport`
 <!-- END GENERATED: wire-profiles -->
 
 ---

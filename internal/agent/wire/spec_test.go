@@ -281,3 +281,48 @@ func TestShortListsOnlyDeviations(t *testing.T) {
 		}
 	}
 }
+
+// TestFirstCallAxis locks the native first-step tool_choice axis: it rides the
+// canonical string and hash like every other axis, resolves as a modifier,
+// and round-trips through the canonical spelling.
+func TestFirstCallAxis(t *testing.T) {
+	t.Parallel()
+	base := Default()
+	if base.FirstCall != FirstCallRequired {
+		t.Fatalf("default firstcall = %q, want required", base.FirstCall)
+	}
+	if !strings.HasSuffix(base.Canonical(), ";firstcall=required") {
+		t.Fatalf("canonical = %q, want the firstcall axis last", base.Canonical())
+	}
+	auto := base
+	auto.FirstCall = FirstCallAuto
+	if auto.Hash() == base.Hash() {
+		t.Fatal("hash must change when firstcall changes")
+	}
+	parsed, _, err := Resolve(auto.Canonical())
+	if err != nil {
+		t.Fatalf("Resolve(canonical with firstcall): %v", err)
+	}
+	if !parsed.Equal(auto) {
+		t.Fatalf("canonical round trip drifted:\nwant %s\n got %s", auto.Canonical(), parsed.Canonical())
+	}
+	resolved, _, err := Resolve("xml-v1+first-auto")
+	if err != nil {
+		t.Fatalf("Resolve(xml-v1+first-auto): %v", err)
+	}
+	if resolved.FirstCall != FirstCallAuto {
+		t.Fatalf("first-auto modifier firstcall = %q", resolved.FirstCall)
+	}
+	if short := auto.Short(); !strings.Contains(short, "first-auto") {
+		t.Fatalf("short = %q, missing first-auto", short)
+	}
+	unknown := base
+	unknown.FirstCall = "force"
+	err = unknown.Validate()
+	if err == nil {
+		t.Fatal("unknown firstcall value accepted")
+	}
+	if specErr, ok := err.(*SpecError); !ok || specErr.Code != "firstcall.unknown" {
+		t.Fatalf("Validate error = %v, want code firstcall.unknown", err)
+	}
+}

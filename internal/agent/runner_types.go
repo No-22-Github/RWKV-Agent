@@ -137,6 +137,11 @@ type Options struct {
 	// real answer-stage attempt at step 5 and a strict re-ask at step 6,
 	// instead of one attempt at step 6 that dies on its first violation.
 	AnswerStageLead int
+	// NativeFirstCall selects the native tool_choice on the first decision
+	// step: "" or "required" forces a tool call (the product default); "auto"
+	// lets the model answer directly. It is inert without a native tool
+	// completer.
+	NativeFirstCall string
 	// Wire, when set, is the canonical description of this configuration. It
 	// is validated against the runtime fields at NewRunner time and recorded
 	// in eval manifests; nil derives the description from the fields above.
@@ -210,9 +215,18 @@ type PromptTrace struct {
 	ToolsOffered    []string `json:"tools_offered,omitempty"`
 }
 
+// Step channel values: text steps go through the text-continuation protocol,
+// native steps through a structured provider tool call. Text-wire concepts
+// (repairs, envelope failure classes) only apply to the text channel.
+const (
+	ChannelText   = "text"
+	ChannelNative = "native"
+)
+
 type Step struct {
 	Number          int                       `json:"number"`
 	Stage           GenerationStage           `json:"stage"`
+	Channel         string                    `json:"channel,omitempty"`
 	Request         *PromptTrace              `json:"request,omitempty"`
 	ModelOutput     string                    `json:"model_output"`
 	FinishReason    continuation.FinishReason `json:"finish_reason"`

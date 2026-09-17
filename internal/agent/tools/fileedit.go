@@ -142,7 +142,7 @@ func (t *readLinesTool) Execute(ctx context.Context, raw json.RawMessage) (any, 
 	}
 	lines, err := readFileLines(target, fileEditMaxReadByte)
 	if err != nil {
-		return nil, err
+		return nil, t.workspace.RelativizeError(err)
 	}
 	if err := ctx.Err(); err != nil {
 		return nil, err
@@ -241,10 +241,10 @@ func (t *writeFileTool) Execute(ctx context.Context, raw json.RawMessage) (any, 
 		return nil, err
 	}
 	if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
-		return nil, err
+		return nil, t.workspace.RelativizeError(err)
 	}
 	if err := os.WriteFile(target, []byte(args.Content), 0o644); err != nil {
-		return nil, err
+		return nil, t.workspace.RelativizeError(err)
 	}
 	return map[string]any{"path": args.Path, "bytes": len(args.Content)}, nil
 }
@@ -298,7 +298,7 @@ func (t *replaceLinesTool) Execute(ctx context.Context, raw json.RawMessage) (an
 	}
 	lines, err := readFileLines(target, fileEditMaxReadByte)
 	if err != nil {
-		return nil, err
+		return nil, t.workspace.RelativizeError(err)
 	}
 	if args.EndLine > len(lines) {
 		return nil, fmt.Errorf("%w: end_line %d beyond last line %d", agent.ErrInvalidToolArguments, args.EndLine, len(lines))
@@ -313,7 +313,7 @@ func (t *replaceLinesTool) Execute(ctx context.Context, raw json.RawMessage) (an
 	updated := append(append([]string{}, lines[:args.StartLine-1]...), replacement...)
 	updated = append(updated, lines[args.EndLine:]...)
 	if err := writeFileLines(target, updated); err != nil {
-		return nil, err
+		return nil, t.workspace.RelativizeError(err)
 	}
 	return map[string]any{
 		"path": args.Path, "replaced_from": args.StartLine,
@@ -369,11 +369,11 @@ func (t *appendFileTool) Execute(ctx context.Context, raw json.RawMessage) (any,
 	}
 	handle, err := os.OpenFile(target, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 	if err != nil {
-		return nil, err
+		return nil, t.workspace.RelativizeError(err)
 	}
 	defer handle.Close()
 	if _, err := handle.WriteString(args.Content); err != nil {
-		return nil, err
+		return nil, t.workspace.RelativizeError(err)
 	}
 	return map[string]any{"path": args.Path, "appended_bytes": len(args.Content)}, nil
 }

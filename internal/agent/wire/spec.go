@@ -162,6 +162,19 @@ const (
 	StagesOne Stages = "one"
 )
 
+// FirstCall is the native-transport tool_choice for the first decision step.
+// It is inert on the text transport: the axis only reaches the provider when
+// a native tool completer is present.
+type FirstCall string
+
+const (
+	// FirstCallRequired forces a tool call on the first decision step. This is
+	// the product default.
+	FirstCallRequired FirstCall = "required"
+	// FirstCallAuto lets the model answer directly on the first step.
+	FirstCallAuto FirstCall = "auto"
+)
+
 // Align selects the transcript tag convention. The G1 checkpoints were trained
 // on a Qwen3.6-style tool transcript: tool results ride in the user turn
 // wrapped in <tool_response>, and the catalog is a JSON schema array inside
@@ -214,6 +227,7 @@ type Spec struct {
 	SubagentFeedback SubagentFeedback
 	Align            Align
 	Stages           Stages
+	FirstCall        FirstCall
 	Loop             Loop
 }
 
@@ -234,6 +248,7 @@ func Default() Spec {
 		SubagentFeedback: SubagentFeedbackBlock,
 		Align:            AlignLegacy,
 		Stages:           StagesTwo,
+		FirstCall:        FirstCallRequired,
 	}
 }
 
@@ -281,6 +296,9 @@ func (s Spec) Normalize(base Spec) Spec {
 	}
 	if result.Stages == "" {
 		result.Stages = base.Stages
+	}
+	if result.FirstCall == "" {
+		result.FirstCall = base.FirstCall
 	}
 	if result.Loop.Zero() {
 		result.Loop = base.Loop
@@ -359,6 +377,9 @@ func (s Spec) Validate() error {
 	}
 	if !known(StagesValues, s.Stages) {
 		return fail("stages.unknown", fmt.Sprintf("unknown stages %q", s.Stages), "two, one")
+	}
+	if !known(FirstCallValues, s.FirstCall) {
+		return fail("firstcall.unknown", fmt.Sprintf("unknown first call policy %q", s.FirstCall), "required, auto")
 	}
 	// The merged stage is a G1Protocol product mechanism; the benchmark
 	// transcript keeps its trained submit-terminated shape.
@@ -481,13 +502,13 @@ func (s Spec) Canonical() string {
 	return fmt.Sprintf(
 		"format=%s;transcript=%s;transport=%s;thinking=%s;prefill=%s;abstain=%s;terminal=%s;"+
 			"route=%s;catalog=%s;control=%s;feedback=%s;subagent=%s;align=%s;stages=%s;"+
-			"loop=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%t",
+			"loop=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%t;firstcall=%s",
 		s.Format, s.Transcript, s.Transport, s.Thinking, s.Prefill, s.Abstain, s.Terminal,
 		s.Route, s.Catalog, s.Control, s.Feedback, s.SubagentFeedback, s.Align, s.Stages,
 		loop.MaxSteps, loop.ProtocolRetries, loop.RouteRetries,
 		loop.DecisionMaxOutputTokens, loop.AnswerMaxOutputTokens, loop.RouteMaxOutputTokens,
 		loop.DuplicateReplayLimit, loop.DuplicateRescueThreshold, loop.SameToolRescueLimit,
-		loop.AnswerStageLead, loop.AllowRepeatedCalls,
+		loop.AnswerStageLead, loop.AllowRepeatedCalls, s.FirstCall,
 	)
 }
 
@@ -525,6 +546,7 @@ func (s Spec) Short() string {
 	add(s.SubagentFeedback != base.SubagentFeedback, string(s.SubagentFeedback))
 	add(s.Align != base.Align, "align-"+string(s.Align))
 	add(s.Stages != base.Stages, string(s.Stages)+"-stage")
+	add(s.FirstCall != base.FirstCall, "first-"+string(s.FirstCall))
 	if !s.Loop.Zero() {
 		parts = append(parts, "loop")
 	}
@@ -557,6 +579,7 @@ var (
 	SubagentFeedbackValues = []string{string(SubagentFeedbackBlock), string(SubagentFeedbackRaw)}
 	AlignValues            = []string{string(AlignLegacy), string(AlignQwen36)}
 	StagesValues           = []string{string(StagesTwo), string(StagesOne)}
+	FirstCallValues        = []string{string(FirstCallRequired), string(FirstCallAuto)}
 )
 
 const (

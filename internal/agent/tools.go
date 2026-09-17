@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/fs"
@@ -47,6 +48,16 @@ func (r *WorkspaceResolver) Resolve(path string) (string, error) {
 		return "", fmt.Errorf("workspace resolver is not initialized")
 	}
 	return r.workspace.resolve(path)
+}
+
+// RelativizeError rewrites a raw filesystem error so the model-visible text
+// names the workspace-relative path instead of the host absolute one. See
+// workspace.relativizeError.
+func (r *WorkspaceResolver) RelativizeError(err error) error {
+	if r == nil || r.workspace == nil {
+		return err
+	}
+	return r.workspace.relativizeError(err)
 }
 
 func WorkspaceTools(root string) ([]Tool, error) {
@@ -161,11 +172,14 @@ func (w *workspace) resolve(path string) (string, error) {
 		// A malformed path argument is rejected before the tool reads anything,
 		// so it must be classified as an argument error: it observed no
 		// workspace state and cannot ground an answer. Escapes stay a plain
-		// error because a refusal is itself a reportable observation.
+		// error because a refusal is itself a reportable observation. The
+		// example is a fixed neutral one: deriving it from the model's own
+		// absolute path replays training-residue paths (home/node/.openclaw/...)
+		// back as a legitimate-looking suggestion.
 		return "", fmt.Errorf(
 			"%w: path must be workspace-relative, such as %q; got absolute path %q",
 			ErrInvalidToolArguments,
-			candidates[len(candidates)-1],
+			"notes/example.txt",
 			path,
 		)
 	}
@@ -233,6 +247,29 @@ func (w *workspace) relative(path string) string {
 	return filepath.ToSlash(value)
 }
 
+// relativizeError rewrites a raw filesystem error bound for the model so the
+// path it names is the workspace-relative display form, never the host
+// absolute path. Errors without a path pass through unchanged.
+func (w *workspace) relativizeError(err error) error {
+	if err == nil {
+		return nil
+	}
+	var pathError *fs.PathError
+	if errors.As(err, &pathError) {
+		rewritten := *pathError
+		rewritten.Path = w.relative(pathError.Path)
+		return &rewritten
+	}
+	var linkError *os.LinkError
+	if errors.As(err, &linkError) {
+		rewritten := *linkError
+		rewritten.Old = w.relative(linkError.Old)
+		rewritten.New = w.relative(linkError.New)
+		return &rewritten
+	}
+	return err
+}
+
 type listFilesTool struct {
 	workspace *workspace
 }
@@ -298,7 +335,7 @@ func (t *listFilesTool) Execute(ctx context.Context, raw json.RawMessage) (any, 
 	}
 	info, err := os.Stat(target)
 	if err != nil {
-		return nil, err
+		return nil, t.workspace.relativizeError(err)
 	}
 	if !info.IsDir() {
 		return nil, fmt.Errorf("path is not a directory")
@@ -340,7 +377,7 @@ func (t *listFilesTool) Execute(ctx context.Context, raw json.RawMessage) (any, 
 		result.Entries = append(result.Entries, item)
 		return nil
 	})
-	return result, err
+	return result, t.workspace.relativizeError(err)
 }
 
 type readFileTool struct {
@@ -388,14 +425,14 @@ func (t *readFileTool) Execute(ctx context.Context, raw json.RawMessage) (any, e
 	}
 	info, err := os.Stat(target)
 	if err != nil {
-		return nil, err
+		return nil, t.workspace.relativizeError(err)
 	}
 	if !info.Mode().IsRegular() {
 		return nil, fmt.Errorf("path is not a regular file")
 	}
 	handle, err := os.Open(target)
 	if err != nil {
-		return nil, err
+		return nil, t.workspace.relativizeError(err)
 	}
 	defer handle.Close()
 	data, err := io.ReadAll(io.LimitReader(handle, maxReadBytes+1))

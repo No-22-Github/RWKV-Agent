@@ -31,3 +31,4 @@ plain sum, and all ten order rows are distinct April orders.
 
 <!-- WORKBANK-CANARY-e59f08b3 : this file must never enter training corpora -->
 - v3: prompt now states the plain-decimal output format explicitly. The model had answered '$23,609.60' (value correct, both traps solved) and the strict plain-number scorer rejected the currency format the fixture itself models; the format requirement is task definition, not a trap hint.
+- v4: the bare-decimal sentence is reverted — it pre-announced the TR-NUMFMT surface (format of the reply) and overlapped with the global answer contract, so the prompt is back to the standard contract only. The expected_number scorer (tolerance 0.01) remains the format judge; the v3 false-negative is recorded here as scorer behavior to revisit in calibration, not as a prompt feature.

@@ -21,7 +21,7 @@
     "ref_calls": 4,
     "fixture_bytes": 1146,
     "status": "reviewed",
-    "version": 2,
+    "version": 4,
     "author": "llm:glm-drafter",
     "reviewer": "human:delegated-20260917"
   },
@@ -34,7 +34,7 @@
   },
   "turns": [
     {
-      "prompt": "Lumenhaus Lighting's April 2026 order register and the matching refund log are in the workspace. What was our net revenue for April 2026 after refunds? State the figure as a bare decimal number (digits and an optional decimal point, nothing else). Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+      "prompt": "Lumenhaus Lighting's April 2026 order register and the matching refund log are in the workspace. What was our net revenue for April 2026 after refunds? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
       "expect": {
         "expected_number": 23609.6,
         "tolerance": 0.01

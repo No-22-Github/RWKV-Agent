@@ -8,6 +8,7 @@ import (
 	agentapi "github.com/no22/RWKV-Agent/api"
 	"github.com/no22/RWKV-Agent/internal/agent"
 	agenteval "github.com/no22/RWKV-Agent/internal/agent/eval"
+	"github.com/no22/RWKV-Agent/internal/agent/wire"
 	"github.com/no22/RWKV-Agent/internal/continuation/rwkvlightning"
 	"github.com/no22/RWKV-Agent/internal/terminal"
 )
@@ -810,6 +811,79 @@ func TestWireProfileFlagWiring(t *testing.T) {
 	}
 }
 
+// TestWorkbankSuiteDefaults locks the bank-suite measurement defaults: the
+// rescue mechanisms and the native first-step tool_choice=required escalation
+// mask the behaviour the bank measures, so they default off/auto for the
+// workbank case directory while explicit flags and every other suite keep the
+// product defaults.
+func TestWorkbankSuiteDefaults(t *testing.T) {
+	t.Parallel()
+	parse := func(args ...string) runOptions {
+		t.Helper()
+		options, err := parseRunOptions("agent-eval", append([]string{"--model", "model"}, args...))
+		if err != nil {
+			t.Fatal(err)
+		}
+		return options
+	}
+
+	bank, err := agentEvalRunnerOptions(parse("--cases", "bank"), "workbank")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bank.SameToolRescueLimit != 0 || bank.DuplicateRescueThreshold != 0 {
+		t.Fatalf("workbank rescues = %d/%d, want 0/0",
+			bank.SameToolRescueLimit, bank.DuplicateRescueThreshold)
+	}
+	if bank.NativeFirstCall != "auto" {
+		t.Fatalf("workbank native first call = %q, want auto", bank.NativeFirstCall)
+	}
+
+	explicit, err := agentEvalRunnerOptions(parse(
+		"--cases", "bank",
+		"--same-tool-rescue-limit", "8",
+		"--duplicate-rescue-threshold", "5",
+		"--native-first-call", "required",
+	), "workbank")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if explicit.SameToolRescueLimit != 8 || explicit.DuplicateRescueThreshold != 5 ||
+		explicit.NativeFirstCall != "required" {
+		t.Fatalf("explicit workbank options = %+v", explicit)
+	}
+
+	nonBank, err := agentEvalRunnerOptions(parse("--suite", agenteval.SuiteBoundary), agenteval.SuiteBoundary)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if nonBank.SameToolRescueLimit != agent.ProductSameToolRescueLimit ||
+		nonBank.DuplicateRescueThreshold != agent.ProductDuplicateRescueThreshold {
+		t.Fatalf("non-bank rescues = %d/%d, want the product defaults",
+			nonBank.SameToolRescueLimit, nonBank.DuplicateRescueThreshold)
+	}
+	if nonBank.NativeFirstCall != "required" {
+		t.Fatalf("non-bank native first call = %q, want required", nonBank.NativeFirstCall)
+	}
+
+	// The profile path must not clobber the bank default, and the recorded
+	// spec must carry the value that actually runs.
+	profiled, err := agentEvalRunnerOptions(parse("--cases", "bank", "--profile", "xml-v1"), "workbank")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if profiled.NativeFirstCall != "auto" || profiled.Wire == nil ||
+		profiled.Wire.FirstCall != wire.FirstCallAuto {
+		t.Fatalf("profiled workbank first call = %q wire = %+v", profiled.NativeFirstCall, profiled.Wire)
+	}
+
+	if _, err := parseRunOptions("agent-eval", []string{
+		"--model", "model", "--suite", agenteval.SuiteBoundary, "--native-first-call", "force",
+	}); err == nil {
+		t.Fatal("invalid --native-first-call accepted")
+	}
+}
+
 // TestEvalSameToolRescueLimitUnifiedWithProduct locks the 2026-09-08 decision:
 // every agent-eval suite starts from the product constant 3, and the historical
 // eval value 8 is an explicit experiment, not a default.
@@ -975,5 +1049,70 @@ func TestAmbiguousLightningCLIProviderIsRejected(t *testing.T) {
 	_, err := parseRunOptions("agent", []string{"--completion", "rwkv-lightning", "--api-url", "https://example.test", "--model", "test", "--prompt", "hello"})
 	if err == nil {
 		t.Fatal("ambiguous backend accepted")
+	}
+}
+
+// TestAgentEvalRecordsEffectiveLoopInWireSpec locks Fix 6: after --profile
+// resolution the recorded wire spec must carry the loop that actually runs
+// (CLI flags and suite defaults), not the preset's zero loop, so
+// wire_canonical/wire_hash distinguish runs with different loop config.
+func TestAgentEvalRecordsEffectiveLoopInWireSpec(t *testing.T) {
+	t.Parallel()
+	parse := func(args ...string) runOptions {
+		t.Helper()
+		options, err := parseRunOptions("agent-eval", append([]string{
+			"--model", "model",
+			"--suite", agenteval.SuiteBFCLProduct,
+		}, args...))
+		if err != nil {
+			t.Fatal(err)
+		}
+		return options
+	}
+
+	runner, err := agentEvalRunnerOptions(
+		parse("--profile", "xml-v1", "--max-steps", "10"),
+		agenteval.SuiteBFCLProduct,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if runner.Wire == nil {
+		t.Fatal("applied profile did not reach Options.Wire")
+	}
+	canonical := runner.Wire.Canonical()
+	if !strings.Contains(canonical, "loop=10,") {
+		t.Fatalf("canonical records a zero loop: %q", canonical)
+	}
+	zeroLoop := *runner.Wire
+	zeroLoop.Loop = wire.Loop{}
+	if runner.Wire.Hash() == zeroLoop.Hash() {
+		t.Fatalf("hash does not reflect the loop config: %q", canonical)
+	}
+	// Every recorded loop field mirrors the final runtime options.
+	loop := runner.Wire.Loop
+	if loop.MaxSteps != runner.MaxSteps ||
+		loop.ProtocolRetries != runner.ProtocolRetries ||
+		loop.RouteRetries != runner.RouteRetries ||
+		loop.DecisionMaxOutputTokens != runner.DecisionMaxOutputTokens ||
+		loop.AnswerMaxOutputTokens != runner.Generation.MaxOutputTokens ||
+		loop.RouteMaxOutputTokens != runner.RouteMaxOutputTokens ||
+		loop.DuplicateReplayLimit != runner.DuplicateReplayLimit ||
+		loop.DuplicateRescueThreshold != runner.DuplicateRescueThreshold ||
+		loop.SameToolRescueLimit != runner.SameToolRescueLimit ||
+		loop.AnswerStageLead != runner.AnswerStageLead {
+		t.Fatalf("recorded loop = %+v does not mirror runtime %+v", loop, runner)
+	}
+
+	// A different --max-steps must produce a different wire identity.
+	other, err := agentEvalRunnerOptions(
+		parse("--profile", "xml-v1", "--max-steps", "6"),
+		agenteval.SuiteBFCLProduct,
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if other.Wire.Hash() == runner.Wire.Hash() {
+		t.Fatalf("max-steps 6 and 10 share a wire hash: %q", runner.Wire.Canonical())
 	}
 }

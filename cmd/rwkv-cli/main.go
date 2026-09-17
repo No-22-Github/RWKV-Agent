@@ -97,8 +97,10 @@ type runOptions struct {
 	primitiveProfile         string
 	duplicateReplayLimit     int
 	duplicateRescueThreshold int
+	duplicateRescueExplicit  bool
 	sameToolRescueLimit      int
 	sameToolRescueExplicit   bool
+	nativeFirstCall          string
 	agentProtocol            string
 	agentProtocolExplicit    bool
 	profile                  string
@@ -555,6 +557,13 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 					"(product and Go-native Primitive profiles). Unified with the product constant; "+
 					"the historical eval value 8 is an explicit experiment, pass it explicitly",
 			)
+			fs.StringVar(
+				&options.nativeFirstCall,
+				"native-first-call",
+				"",
+				"native first-step tool choice: required or auto; default is auto for a bank case "+
+					"directory, required otherwise",
+			)
 			fs.BoolVar(
 				&options.routeStage,
 				"route-stage",
@@ -669,6 +678,8 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			options.routeMaxTokensExplicit = true
 		case "same-tool-rescue-limit":
 			options.sameToolRescueExplicit = true
+		case "duplicate-rescue-threshold":
+			options.duplicateRescueExplicit = true
 		case "progressive-tools":
 			options.progressiveToolsExplicit = true
 		case "semantic-no-tool":
@@ -901,6 +912,10 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			}
 			if options.noToolGate != "" && options.noToolGate != "state" && options.noToolGate != "evidence" {
 				return options, errors.New("invalid --no-tool-gate: use state or evidence")
+			}
+			if options.nativeFirstCall != "" && options.nativeFirstCall != "required" &&
+				options.nativeFirstCall != "auto" {
+				return options, errors.New("invalid --native-first-call: use required or auto")
 			}
 			if options.answerStageLead < 0 || options.answerStageLead > 3 {
 				return options, errors.New("--answer-stage-lead must be between 0 and 3")
@@ -1816,7 +1831,10 @@ func runAgentEval(args []string) error {
 // truth for the axes it spells out; the suite keeps the loop defaults and the
 // tool/fixture wiring.
 func agentEvalRunnerOptions(options runOptions, suite string) (agent.Options, error) {
+	bank := suite == "workbank"
+	options = applyBankSuiteDefaults(options, bank)
 	runner := agentRunnerOptions(options, suite, nil)
+	runner.NativeFirstCall = resolveNativeFirstCall(options.nativeFirstCall, bank)
 	if (options.profile != "" || options.wireOverrides != "") && agenteval.IsPrimitiveSuite(suite) {
 		return agent.Options{}, errors.New(
 			"--profile/--wire are not wired for primitive suites yet: the suite still pins the " +
@@ -1855,6 +1873,16 @@ func agentEvalRunnerOptions(options runOptions, suite string) (agent.Options, er
 		}
 		runner = applied
 	}
+	// OptionsWithWire translates the spec's firstcall axis into the runtime
+	// field, but the CLI default (explicit flag, then bank, then required) is
+	// not expressible as a preset value. Reconcile so the recorded spec
+	// matches what actually runs.
+	runner = reconcileNativeFirstCall(runner, options.nativeFirstCall, bank)
+	// The recorded spec must describe the loop that actually runs: presets
+	// carry a zero loop and the CLI/suite supplies the concrete budgets, so
+	// without this reconciliation every --profile run would record
+	// loop=0,0,0,... regardless of --max-steps and friends.
+	runner = reconcileWireLoop(runner)
 	if options.strictSpec {
 		// The discipline knob: an experiment must be a named point, so its
 		// result can be looked up later by preset name instead of a hash.
@@ -1871,6 +1899,88 @@ func agentEvalRunnerOptions(options runOptions, suite string) (agent.Options, er
 		}
 	}
 	return runner, nil
+}
+
+// applyBankSuiteDefaults switches the measurement-oriented defaults of the
+// workbank case directory: the rescue mechanisms mask the looping behaviour
+// the bank measures, so they default off (duplicate rejection itself stays;
+// it is an informative error counted in the ledger). Explicit flags win.
+func applyBankSuiteDefaults(options runOptions, bank bool) runOptions {
+	if !bank {
+		return options
+	}
+	if !options.sameToolRescueExplicit {
+		options.sameToolRescueLimit = 0
+	}
+	if !options.duplicateRescueExplicit {
+		options.duplicateRescueThreshold = 0
+	}
+	return options
+}
+
+// resolveNativeFirstCall applies the CLI default for the native first-step
+// tool choice: an explicit value wins, the bank suite relaxes to auto, and
+// everything else keeps the product required.
+func resolveNativeFirstCall(value string, bank bool) string {
+	if value != "" {
+		return value
+	}
+	if bank {
+		return "auto"
+	}
+	return "required"
+}
+
+// reconcileNativeFirstCall makes the runtime field and the recorded wire spec
+// agree on the effective first-step tool choice after profile resolution.
+// OptionsWithWire already applied the spec's firstcall axis; the CLI default
+// (explicit flag, then bank, then required) only overrides a spec that did
+// not select auto itself.
+func reconcileNativeFirstCall(runner agent.Options, value string, bank bool) agent.Options {
+	effective := resolveNativeFirstCall(value, bank)
+	if value == "" && runner.NativeFirstCall == "auto" {
+		// The profile spelled out firstcall=auto; with no explicit flag there
+		// is no CLI default to apply on top of an explicit spec choice.
+		effective = "auto"
+	}
+	runner.NativeFirstCall = effective
+	if runner.Wire != nil && string(runner.Wire.FirstCall) != effective {
+		spec := *runner.Wire
+		spec.FirstCall = wire.FirstCall(effective)
+		runner.Wire = &spec
+	}
+	return runner
+}
+
+// reconcileWireLoop writes the final effective loop policy back into the
+// recorded wire spec. OptionsWithWire only applies a preset's loop when the
+// preset spells one out, so after resolution the runtime fields (CLI flags
+// and suite defaults) are authoritative and the recorded spec must mirror
+// them for wire_canonical/wire_hash to identify the actual configuration.
+func reconcileWireLoop(runner agent.Options) agent.Options {
+	if runner.Wire == nil {
+		return runner
+	}
+	allowRepeated := false
+	if protocol, ok := runner.Protocol.(agent.G1FunctionProtocol); ok {
+		allowRepeated = protocol.AllowRepeatedCalls
+	}
+	spec := *runner.Wire
+	spec.Loop = wire.Loop{
+		MaxSteps:                 runner.MaxSteps,
+		ProtocolRetries:          runner.ProtocolRetries,
+		RouteRetries:             runner.RouteRetries,
+		DecisionMaxOutputTokens:  runner.DecisionMaxOutputTokens,
+		AnswerMaxOutputTokens:    runner.Generation.MaxOutputTokens,
+		RouteMaxOutputTokens:     runner.RouteMaxOutputTokens,
+		DuplicateReplayLimit:     runner.DuplicateReplayLimit,
+		DuplicateRescueThreshold: runner.DuplicateRescueThreshold,
+		SameToolRescueLimit:      runner.SameToolRescueLimit,
+		AnswerStageLead:          runner.AnswerStageLead,
+		AllowRepeatedCalls:       allowRepeated,
+	}
+	runner.Wire = &spec
+	return runner
 }
 
 // runWireProfileQuery handles the model-less profile inspection flags before

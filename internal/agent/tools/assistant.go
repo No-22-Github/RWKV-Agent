@@ -534,7 +534,7 @@ func readTableRows(
 	}
 	rows, err := readStructuredRows(ctx, target)
 	if err != nil {
-		return nil, err
+		return nil, workspace.RelativizeError(err)
 	}
 	return rows, nil
 }
@@ -830,7 +830,7 @@ func (t *dataQueryTool) Execute(ctx context.Context, raw json.RawMessage) (any, 
 	}
 	rows, err := readStructuredRows(ctx, target)
 	if err != nil {
-		return nil, err
+		return nil, t.workspace.RelativizeError(err)
 	}
 	matched := make([]map[string]any, 0, len(rows))
 	for _, row := range rows {

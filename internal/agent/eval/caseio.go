@@ -285,6 +285,24 @@ func ValidateCases(cases []Case) error {
 					)
 				}
 			}
+			if len(turn.Expect.OutputEqualsAny) > 0 {
+				if turn.Expect.OutputEquals != nil {
+					return fmt.Errorf(
+						"case %q turn %d cannot combine output_equals with output_equals_any",
+						testCase.ID,
+						index+1,
+					)
+				}
+				for _, alternative := range turn.Expect.OutputEqualsAny {
+					if strings.TrimSpace(alternative) == "" {
+						return fmt.Errorf(
+							"case %q turn %d has an empty output_equals_any entry",
+							testCase.ID,
+							index+1,
+						)
+					}
+				}
+			}
 			if turn.Expect.ExpectedNumber != nil {
 				if turn.Expect.OutputEquals != nil {
 					return fmt.Errorf(
@@ -328,6 +346,7 @@ func ValidateCases(cases []Case) error {
 func turnDeclaresResultExpectation(expect Expectation) bool {
 	return expect.ExpectedNumber != nil ||
 		expect.OutputEquals != nil ||
+		len(expect.OutputEqualsAny) > 0 ||
 		len(expect.OutputContains) > 0 ||
 		len(expect.OutputContainsAny) > 0 ||
 		len(expect.OutputExcludes) > 0
@@ -437,7 +456,8 @@ func validateCaseExpect(testCase Case) error {
 	return nil
 }
 
-func validateToolSets(caseID string, turn int, expect Expectation) error {	required := make(map[string]struct{}, len(expect.RequiredTools))
+func validateToolSets(caseID string, turn int, expect Expectation) error {
+	required := make(map[string]struct{}, len(expect.RequiredTools))
 	for _, name := range expect.RequiredTools {
 		name = strings.TrimSpace(name)
 		if name == "" {

@@ -26,4 +26,5 @@ genuinely requires a tool call lives outside notool by design.
 <!-- WORKBANK-CANARY-3d7a91e4 : this file must never enter training corpora -->
 
 ## Reviewer notes (post gate-fail repair)
+- v2 (closeout): removed "Without using any tools, " from the prompt — it is a TR-NOTOOLNEED forbidden phrase ("without tools") that leaked in because the case declares no traps and lint only checked declared traps. The no-call requirement is already judged by expect tools:[], so the phrase was a redundant hint.
 - v2: require_active_no_call removed bank-wide (native-chat wire has no no_tool exit; the judgment is now plain zero tool calls via tools:[], protocol-agnostic). - v2: unit task changed MiB/s->MB/h to MiB/s->MiB/h (same unit): the binary/decimal distinction was an undeclared trap on an L0 and calculator use was punished; the DEC axis (reflexive tool call) is now measured without a hidden computation trap.

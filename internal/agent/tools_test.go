@@ -320,3 +320,56 @@ func TestDecodeToolArgumentsCoercesBoolStrings(t *testing.T) {
 		t.Fatalf("native bool decode failed: %v %+v", err, args)
 	}
 }
+
+// TestToolErrorsHideHostPaths locks the model-visible error contract: a raw
+// filesystem error names the workspace-relative path, never the host
+// absolute workspace root, and the absolute-path rejection suggests a fixed
+// neutral example instead of one derived from the model's own path.
+func TestToolErrorsHideHostPaths(t *testing.T) {
+	t.Parallel()
+	root := t.TempDir()
+	resolved, err := filepath.EvalSymlinks(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	tools, err := WorkspaceTools(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var read Tool
+	for _, tool := range tools {
+		if tool.Spec().Name == "read_file" {
+			read = tool
+		}
+	}
+
+	_, err = read.Execute(context.Background(), json.RawMessage(`{"path":"logs/missing.log"}`))
+	if err == nil {
+		t.Fatal("read_file on a missing path succeeded")
+	}
+	if strings.Contains(err.Error(), resolved) || strings.Contains(err.Error(), root) {
+		t.Fatalf("error leaks the host workspace root: %v", err)
+	}
+	if !strings.Contains(err.Error(), "logs/missing.log") {
+		t.Fatalf("error lost the workspace-relative path: %v", err)
+	}
+
+	// A training-residue absolute path must not be replayed as the suggested
+	// example; the rejection names a fixed neutral one.
+	_, err = read.Execute(context.Background(), json.RawMessage(
+		`{"path":"/home/node/.openclaw/workspace/state/missing.json"}`,
+	))
+	if err == nil {
+		t.Fatal("read_file accepted a training-residue absolute path")
+	}
+	if !strings.Contains(err.Error(), `such as "notes/example.txt"`) {
+		t.Fatalf("rejection lost the neutral example: %v", err)
+	}
+	if strings.Contains(err.Error(), `such as "home/node/.openclaw`) ||
+		strings.Contains(err.Error(), `such as "state/missing.json"`) {
+		t.Fatalf("rejection replays a path derived from the model input: %v", err)
+	}
+	if strings.Contains(err.Error(), resolved) || strings.Contains(err.Error(), root) {
+		t.Fatalf("rejection leaks the host workspace root: %v", err)
+	}
+}

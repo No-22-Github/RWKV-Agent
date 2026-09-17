@@ -198,6 +198,25 @@ func answerFailures(expect Expectation, output string) []string {
 			),
 		)
 	}
+	if len(expect.OutputEqualsAny) > 0 {
+		matched := false
+		for _, alternative := range expect.OutputEqualsAny {
+			if strings.TrimSpace(output) == strings.TrimSpace(alternative) {
+				matched = true
+				break
+			}
+		}
+		if !matched {
+			failures = append(
+				failures,
+				fmt.Sprintf(
+					"output = %q, want one of %q after trimming outer whitespace",
+					strings.TrimSpace(output),
+					expect.OutputEqualsAny,
+				),
+			)
+		}
+	}
 	for _, required := range expect.OutputContains {
 		if !strings.Contains(output, required) {
 			failures = append(
@@ -230,7 +249,7 @@ func answerFailures(expect Expectation, output string) []string {
 		}
 	}
 	if expect.ExpectedNumber != nil {
-		actual, err := strconv.ParseFloat(strings.TrimSpace(output), 64)
+		actual, err := parseNumericOutput(output)
 		if err != nil || math.IsNaN(actual) || math.IsInf(actual, 0) {
 			failures = append(
 				failures,
@@ -249,6 +268,29 @@ func answerFailures(expect Expectation, output string) []string {
 		}
 	}
 	return failures
+}
+
+// parseNumericOutput parses the model's numeric answer, accepting the surface
+// forms a finance-flavoured answer naturally takes: an optional leading sign,
+// then an optional single leading currency symbol ($ € £ ¥), and comma
+// thousands separators anywhere in the digits ("$5,548.95", "1,234.50",
+// "€9,806.55"). Anything beyond that — units, words, trailing junk — still
+// fails, so "approximately 5", "USD 5" and "5,548.95abc" are not numbers.
+func parseNumericOutput(output string) (float64, error) {
+	normalized := strings.TrimSpace(output)
+	sign := ""
+	if strings.HasPrefix(normalized, "+") || strings.HasPrefix(normalized, "-") {
+		sign = normalized[:1]
+		normalized = normalized[1:]
+	}
+	for _, symbol := range []string{"$", "€", "£", "¥"} {
+		if strings.HasPrefix(normalized, symbol) {
+			normalized = strings.TrimPrefix(normalized, symbol)
+			break
+		}
+	}
+	normalized = strings.ReplaceAll(normalized, ",", "")
+	return strconv.ParseFloat(sign+normalized, 64)
 }
 
 func argumentsContain(raw json.RawMessage, expected map[string]any) bool {
@@ -382,6 +424,7 @@ func matchRequiredCalls(actual []agent.Step, expected []ExpectedCall) []bool {
 
 func hasAnswerExpectation(expect Expectation) bool {
 	return expect.OutputEquals != nil ||
+		len(expect.OutputEqualsAny) > 0 ||
 		len(expect.OutputContains) > 0 ||
 		len(expect.OutputContainsAny) > 0 ||
 		len(expect.OutputExcludes) > 0 ||
@@ -400,6 +443,10 @@ func classifyTurnOutcome(result agent.Result) TurnOutcome {
 		return OutcomeRouteFailedClosed
 	}
 	for _, step := range result.Steps {
+		if step.Channel == agent.ChannelNative {
+			// Native steps do not carry text-wire failure classes.
+			continue
+		}
 		if step.ProtocolError == "" || step.ProtocolFailure == "" {
 			continue
 		}
@@ -413,7 +460,7 @@ func classifyTurnOutcome(result agent.Result) TurnOutcome {
 		}
 	}
 	for _, step := range result.Steps {
-		if step.ProtocolRepaired {
+		if step.Channel != agent.ChannelNative && step.ProtocolRepaired {
 			return OutcomeProtocolRepaired
 		}
 	}
@@ -595,20 +642,33 @@ func summarize(
 				if step.Stage == agent.StageAnswer && step.ActionType == agent.ActionTypeTool {
 					summary.Metrics.AnswerStageToolCalls++
 				}
-				if step.ProtocolRepaired {
-					summary.Metrics.ProtocolRepairs++
-				}
-				for _, repair := range step.ProtocolRepairs {
-					summary.Metrics.RepairsByID[string(repair)]++
-				}
-				if step.ProtocolFailure != "" {
-					summary.Metrics.ParseFailuresByClass[step.ProtocolFailure]++
+				if step.Channel != agent.ChannelNative {
+					// Text-wire counters: repairs, recovery stages and envelope
+					// failure classes only exist where the model itself writes
+					// the wire bytes. Native steps are scored by
+					// NativeProtocolValidity below.
+					if step.ProtocolRepaired {
+						summary.Metrics.ProtocolRepairs++
+					}
+					for _, repair := range step.ProtocolRepairs {
+						summary.Metrics.RepairsByID[string(repair)]++
+					}
+					if step.ProtocolFailure != "" {
+						summary.Metrics.ParseFailuresByClass[step.ProtocolFailure]++
+					}
 				}
 				if step.Stage == agent.StageDecision {
-					summary.Metrics.DecisionProtocolValidity.Total++
-					if step.ModelError == "" && step.ProtocolError == "" &&
-						!step.ProtocolRepaired && step.ProtocolFailure == "" {
-						summary.Metrics.DecisionProtocolValidity.Correct++
+					if step.Channel == agent.ChannelNative {
+						summary.Metrics.NativeProtocolValidity.Total++
+						if step.ModelError == "" && step.ProtocolError == "" {
+							summary.Metrics.NativeProtocolValidity.Correct++
+						}
+					} else {
+						summary.Metrics.DecisionProtocolValidity.Total++
+						if step.ModelError == "" && step.ProtocolError == "" &&
+							!step.ProtocolRepaired && step.ProtocolFailure == "" {
+							summary.Metrics.DecisionProtocolValidity.Correct++
+						}
 					}
 				}
 				if step.Tool != "" {
@@ -662,6 +722,7 @@ func summarize(
 	finalizeScore(&summary.Metrics.ActiveNoCall)
 	finalizeScore(&summary.Metrics.RouteProtocolValidity)
 	finalizeScore(&summary.Metrics.DecisionProtocolValidity)
+	finalizeScore(&summary.Metrics.NativeProtocolValidity)
 	finalizeScore(&summary.Metrics.PlanSubtaskCount)
 	finalizeScore(&summary.Metrics.PlanWaveOrder)
 	finalizeScore(&summary.Metrics.PlanReferenceUse)

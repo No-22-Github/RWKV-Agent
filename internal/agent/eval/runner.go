@@ -328,7 +328,10 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 			WirePreset:               wirePreset,
 			WireConflict:             wireConflict,
 		},
-		Sampling: samplingSnapshot(config.Runner.Generation.Sampling),
+		Sampling: samplingManifest(
+			config.Runner.Generation.Sampling,
+			config.Model.UnsupportedSampling,
+		),
 		Environment: EnvironmentMetadata{
 			OS:        runtime.GOOS,
 			Arch:      runtime.GOARCH,

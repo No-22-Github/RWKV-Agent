@@ -209,3 +209,36 @@ func TestSelectCasesPreservesRequestedOrderAndRejectsInvalidIDs(t *testing.T) {
 		t.Fatalf("unknown selection error = %v", err)
 	}
 }
+
+// TestValidateCasesOutputEqualsAny locks the output_equals_any contract: it
+// relaxes the tool-expectation rule like the other result expectations,
+// refuses to coexist with output_equals, and rejects empty entries.
+func TestValidateCasesOutputEqualsAny(t *testing.T) {
+	t.Parallel()
+	newCase := func(expect Expectation) Case {
+		return Case{
+			ID:          "equals-any",
+			Description: "Exact match against one of several answers.",
+			Turns:       []Turn{{Prompt: "Answer yes or no.", Expect: expect}},
+		}
+	}
+	valid := newCase(Expectation{OutputEqualsAny: []string{"yes", "no"}})
+	if err := ValidateCases([]Case{valid}); err != nil {
+		t.Fatalf("output_equals_any alone should validate: %v", err)
+	}
+
+	both := newCase(Expectation{
+		OutputEquals:    stringPointerForTest("yes"),
+		OutputEqualsAny: []string{"yes", "no"},
+	})
+	if err := ValidateCases([]Case{both}); err == nil ||
+		!strings.Contains(err.Error(), "cannot combine output_equals with output_equals_any") {
+		t.Fatalf("combined error = %v", err)
+	}
+
+	empty := newCase(Expectation{OutputEqualsAny: []string{"yes", "  "}})
+	if err := ValidateCases([]Case{empty}); err == nil ||
+		!strings.Contains(err.Error(), "empty output_equals_any entry") {
+		t.Fatalf("empty entry error = %v", err)
+	}
+}

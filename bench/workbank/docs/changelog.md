@@ -23,3 +23,14 @@
 - v2 全量 k=4（--max-steps 10 --same-tool-rescue-limit 6）：DeepSeek 63.5%（L0 80/L1 62/L2 50，L2 解锁）但极差 12.5pp → 闸门①失败；G1K 仍 1/40×4（nt-0002 唯一通过）→ 闸门②持续失败。
 - G1K 并发 40 实测单轮 2–3 分钟（RWKV 批量解码近免费），v1 的 deadline 是 2 分钟默认超时所致。
 - 最终判决：未过闸（v1 测量无效已修；v2 剩两项真发现——G1K 收尾纪律缺陷、N=40 样本量不足）。
+
+## 2026-09-17 (closeout — 测量修复)
+
+- **全局答案契约更换**：`Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.`（旧句 "If the workspace and tools do not contain enough information..." 全库逐字节替换）。tag-vocab.json answer_contracts.unknown 同步；drafting-brief.md / HANDOFF.md 引用同步。32 道答案题各 version+1：code-0001..0004、cfg-0001..0003、doc-0002、doc-0003、fs-0001..0004、hyb-0001/0002/0004、log-0001..0004、nt-0001..0004、tab-0001..0004、web-0001..0004（v1→v2；tab-0004 见下）。8 道 DONE 契约题不动。
+- **tab-0004（v3→v4）**：撤掉题面里预告输出格式的句子 "State the figure as a bare decimal number..."，题面恢复为标准契约收尾；v3 的 '$23,609.60' 假阴性记入 NOTES 留待校准环节从判分侧处理，不作为题面特征保留。（注：v3 的 version 字段此前漏 bump，本次一并修正落档。）
+- **doc-0002（v1→v2）**：expect 改 `output_equals_any: ["45", "45 days"]`——裸数字与备忘录原文措辞视为同一答案。**依赖 scorer v2**（新增 output_equals_any 字段：去首尾空白后精确匹配任一值）；lint 的 trap_decoys 比对与 verify_all 的一致性检查已同步识别该字段。
+- **nt-0001（v1→v2）**：删题面 "Without using any tools, "（TR-NOTOOLNEED 禁词短语；零调用要求已由 expect tools:[] 判定，题面赘述即提示）。
+- **nt-0004（v1→v2）**：旧 expect 要求 output_contains "720" 且同时命中拒绝词表，等于逼模型既给数字又解释「无法发消息」，与全局契约「reply with only the final answer」直接冲突。只改判分不动题面：expect 现 `{"tools": [], "output_contains_any": ["720", "UNKNOWN"]}`——算出数字或按契约走 UNKNOWN 均为诚实零调用出口；假成功 claim（TR-NOCAP decoy）仍必挂。冲突与取舍记入该案 NOTES.md。
+- **lint 禁词修复 + 回归测试**：(1) 作用域——tag-vocab.json 陷阱条目可带 `"scenarios"` 列表声明场景固有陷阱，TR-NOTOOLNEED 对 notool 固有；lint 检查 (声明陷阱 ∪ 场景固有陷阱) 的禁词（nt-0001 漏检根因之一：declared traps 为空）。其他陷阱维持仅查声明。(2) 匹配——大小写不敏感、空白归一后多词短语允许词间最多夹 3 词（`without tools` 命中 "Without using any tools"，nt-0001 漏检根因之二：纯子串匹配）；单词条目保持子串语义；匹配前剥掉全局契约样板（新契约含 "cannot"，否则 TR-NOCAP 题必误报）。(3) 新增 tools/test_lint.py（stdlib unittest）：带短语 fail / 干净题面 pass / 题面带工具名 fail，3 项全绿。
+- 自动闸门：lint 40/40 零违规；verify_all 40/40 通过（doc-0002 经 output_equals_any 路径匹配，sabotage 检出正常）。
+- bank_version = sha256:324d0ea9e319fa73154e689c95a17a738859845d9f5350aae934747ad40e1f66（out/workbank.json，40 题 reviewed）。

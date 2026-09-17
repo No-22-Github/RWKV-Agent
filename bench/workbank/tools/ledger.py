@@ -77,11 +77,21 @@ def derive_endpoint(model):
     return "/".join(parts) if parts else None
 
 
-def protocol_invalid_rate(metrics):
-    """1 - decision protocol validity rate (falls back to protocol_validity)."""
+def protocol_invalid_rate(metrics, channel="text"):
+    """1 - decision protocol validity rate for the run's channel.
+
+    Text runs read decision_protocol_validity (falling back to
+    protocol_validity); native runs read native_protocol_validity. A missing
+    score (older runs, or a channel with no decision steps) yields None
+    instead of crashing.
+    """
     if not isinstance(metrics, dict):
         return None
-    for key in ("decision_protocol_validity", "protocol_validity"):
+    if channel == "native":
+        keys = ("native_protocol_validity",)
+    else:
+        keys = ("decision_protocol_validity", "protocol_validity")
+    for key in keys:
         score = metrics.get(key)
         if not isinstance(score, dict):
             continue
@@ -92,6 +102,14 @@ def protocol_invalid_rate(metrics):
         if isinstance(rate, (int, float)) and not isinstance(rate, bool):
             return round(max(0.0, min(1.0, 1.0 - rate)), 6)
     return None
+
+
+def derive_channel(model):
+    """model.completion -> step channel: chat-completions runs use structured
+    provider tool calls ('native'); everything else is the text wire."""
+    if isinstance(model, dict) and model.get("completion") == "chat-completions":
+        return "native"
+    return "text"
 
 
 def group_rates(rows, key):
@@ -144,9 +162,11 @@ def trap_hit(final_output, decoys, tol=1e-6):
 def build_run_row(manifest, summary, case_rows, args):
     model = manifest.get("model") or {}
     harness = manifest.get("harness") or {}
-    sampling = manifest.get("sampling") or {}
+    sampling = manifest.get("sampling")
+    if not isinstance(sampling, dict):
+        sampling = None
     metrics = (summary or {}).get("metrics") or {}
-    seed = sampling.get("seed")
+    channel = derive_channel(model)
     date = manifest.get("completed_at") or manifest.get("started_at") or now_utc_iso()
     pass_mean = None
     ts = metrics.get("task_success")
@@ -169,13 +189,22 @@ def build_run_row(manifest, summary, case_rows, args):
         "scorer_version": harness.get("scorer_version"),
         "tool_catalog": harness.get("tool_catalog"),
         "tool_catalog_hash": harness.get("tool_catalog_hash"),
-        "sampling": {"temperature": sampling.get("temperature"), "seed": seed},
+        # Comparability keys: the full sampling object as recorded in run.json
+        # (post-fix-6 manifests already omit the keys the backend rejected)
+        # plus the loop budgets that change what a pass means.
+        "sampling": sampling,
+        "channel": channel,
+        "case_parallelism": harness.get("case_parallelism"),
+        "max_steps": harness.get("max_steps"),
+        "duplicate_replay_limit": harness.get("duplicate_replay_limit"),
+        "duplicate_rescue_threshold": harness.get("duplicate_rescue_threshold"),
+        "same_tool_rescue_limit": harness.get("same_tool_rescue_limit"),
         "endpoint": derive_endpoint(model),
         "pass_mean": pass_mean,
         "pass_all_k": None,  # filled after all k replicas of a config are ingested
         "by_level": group_rates(case_rows, "level"),
         "by_scenario": group_rates(case_rows, "scenario"),
-        "protocol_invalid_rate": protocol_invalid_rate(metrics),
+        "protocol_invalid_rate": protocol_invalid_rate(metrics, channel),
         "rescue_assisted_passes": sum(1 for r in case_rows
                                       if r["passed"] and (r.get("rescues") or 0) > 0),
         "bank_version": args.bank_version,

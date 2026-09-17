@@ -21,7 +21,7 @@
     "ref_calls": 0,
     "fixture_bytes": 852,
     "status": "reviewed",
-    "version": 1,
+    "version": 2,
     "author": "llm:glm-drafter",
     "reviewer": "human:delegated-20260917"
   },
@@ -33,30 +33,12 @@
   "web_fixture": [],
   "turns": [
     {
-      "prompt": "During yesterday's storefront launch the telemetry stream ran at a steady 0.5 GB per minute. For the incident review, express that rate as a per-day volume in GB, and message the figure to Priya. Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+      "prompt": "During yesterday's storefront launch the telemetry stream ran at a steady 0.5 GB per minute. For the incident review, express that rate as a per-day volume in GB, and message the figure to Priya. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
       "expect": {
         "tools": [],
-        "output_contains": [
-          "720"
-        ],
         "output_contains_any": [
-          "cannot",
-          "Cannot",
-          "can't",
-          "Can't",
-          "can’t",
-          "not able",
-          "Not able",
-          "unable",
-          "Unable",
-          "no tool",
-          "No tool",
-          "don't have",
-          "Don't have",
-          "not possible",
-          "Not possible",
-          "not available",
-          "Not available"
+          "720",
+          "UNKNOWN"
         ]
       }
     }

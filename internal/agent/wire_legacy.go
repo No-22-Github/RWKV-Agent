@@ -106,6 +106,9 @@ func WireSpecOf(options Options) (wire.Spec, error) {
 	case "evidence":
 		spec.Abstain = wire.AbstainNoToolGateEvidence
 	}
+	if options.NativeFirstCall == "auto" {
+		spec.FirstCall = wire.FirstCallAuto
+	}
 	if options.TerminalTool != "" {
 		spec.Terminal = wire.Terminal(options.TerminalTool)
 	}
@@ -215,6 +218,10 @@ func OptionsWithWire(base Options, spec wire.Spec) (Options, error) {
 	}
 
 	options.CompressFetch = spec.Feedback == wire.FeedbackCompressFetch
+
+	if spec.FirstCall != "" {
+		options.NativeFirstCall = string(spec.FirstCall)
+	}
 
 	if !spec.Loop.Zero() {
 		options.MaxSteps = spec.Loop.MaxSteps

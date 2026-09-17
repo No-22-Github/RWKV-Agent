@@ -205,6 +205,28 @@ func samplingSnapshot(sampling continuation.Sampling) SamplingSnapshot {
 	}
 }
 
+// samplingManifest builds the run-level sampling record: the full snapshot
+// minus the keys the backend does not accept (Model.UnsupportedSampling).
+// A chat-completions run must not claim a top_k or penalty_decay the API
+// never received; an rwkv-lightning run keeps all six fields.
+func samplingManifest(sampling continuation.Sampling, unsupported []string) map[string]any {
+	record := map[string]any{
+		"temperature":       sampling.Temperature,
+		"top_k":             sampling.TopK,
+		"top_p":             sampling.TopP,
+		"presence_penalty":  sampling.PresencePenalty,
+		"frequency_penalty": sampling.FrequencyPenalty,
+		"penalty_decay":     sampling.PenaltyDecay,
+	}
+	if sampling.Seed != nil {
+		record["seed"] = *sampling.Seed
+	}
+	for _, key := range unsupported {
+		delete(record, key)
+	}
+	return record
+}
+
 func requestSnapshot(request continuation.Request) RequestSnapshot {
 	return RequestSnapshot{
 		Model:           request.Model,

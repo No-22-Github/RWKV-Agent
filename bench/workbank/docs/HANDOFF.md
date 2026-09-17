@@ -76,7 +76,7 @@ ID：`<scenario 缩写>-<4 位序号>`，分配后不复用。
   },
   "web_fixture": [],
   "turns": [{
-    "prompt": "What was our net revenue for August 2026 after refunds? Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
+    "prompt": "What was our net revenue for August 2026 after refunds? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
     "expect": {"expected_number": 14817.35, "tolerance": 0.01}
   }]
 }
@@ -88,7 +88,7 @@ ID：`<scenario 缩写>-<4 位序号>`，分配后不复用。
 
 1. **prompt 不得出现工具名**（12 个工具名，lint 检查）。理由：题目协议无关的前提；且点名工具会把 DEC/STP 轴变成指令遵循。
 2. **需要答案的题，prompt 末尾追加逐字节相同的全局答案契约**：
-   `Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.`
+   `Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.`
    只写文件的题改为追加 `When finished, reply DONE.`。理由：现有 `expected_number` 要求整段输出是纯数字；统一契约让格式成为全题共享的恒定要求，UNKNOWN 出口对所有题都开，不会成为缺数据题的提示。
 3. **判分以结果为主**：答案 / 文件状态 / 离线脚本结果。过程约束只用 `forbidden_tools` 与 `max_calls`，**不得用 `required_tools` / `required_calls` 卡解题路径**——模型用 data_query 算对和读文件算对都该过。
 4. **题面讲目标和语义，规则放 fixture，不得在题面暗示陷阱**（每个陷阱在手册里列了题面禁词，lint 检查）。
