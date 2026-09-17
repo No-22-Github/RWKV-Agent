@@ -523,7 +523,7 @@ func (t *searchTextTool) Execute(ctx context.Context, raw json.RawMessage) (any,
 	}
 	info, err := os.Stat(target)
 	if err != nil {
-		return nil, err
+		return nil, t.workspace.relativizeError(err)
 	}
 	result := searchTextResult{Matches: make([]searchMatch, 0, args.MaxResults)}
 	visit := func(path string, entry fs.DirEntry) error {
@@ -568,7 +568,7 @@ func (t *searchTextTool) Execute(ctx context.Context, raw json.RawMessage) (any,
 			return visit(path, entry)
 		})
 	}
-	return result, err
+	return result, t.workspace.relativizeError(err)
 }
 
 func searchFile(path, query string, caseSensitive bool, limit int) ([]searchMatch, bool, error) {

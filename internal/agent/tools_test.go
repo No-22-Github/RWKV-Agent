@@ -372,4 +372,24 @@ func TestToolErrorsHideHostPaths(t *testing.T) {
 	if strings.Contains(err.Error(), resolved) || strings.Contains(err.Error(), root) {
 		t.Fatalf("rejection leaks the host workspace root: %v", err)
 	}
+
+	// search_text takes its own stat/walk path; it must honor the same contract.
+	var search Tool
+	for _, tool := range tools {
+		if tool.Spec().Name == "search_text" {
+			search = tool
+		}
+	}
+	_, err = search.Execute(context.Background(), json.RawMessage(
+		`{"query":"travel policy","path":"travel_policy"}`,
+	))
+	if err == nil {
+		t.Fatal("search_text on a missing path succeeded")
+	}
+	if strings.Contains(err.Error(), resolved) || strings.Contains(err.Error(), root) {
+		t.Fatalf("search_text error leaks the host workspace root: %v", err)
+	}
+	if !strings.Contains(err.Error(), "travel_policy") {
+		t.Fatalf("search_text error lost the workspace-relative path: %v", err)
+	}
 }
