@@ -30,3 +30,4 @@ plain sum, and all ten order rows are distinct April orders.
 - v1 repair: the registered TR-NUMFMT decoy 1217.36 was not derivable by any consistent parsing error (reviewer recompute). Under the unified misread (comma treated as decimal point on every formatted amount) gross = 2163.26 and net = 2163.26 - 945.90 = 1217.36; that value is now the registered decoy.
 
 <!-- WORKBANK-CANARY-e59f08b3 : this file must never enter training corpora -->
+- v3: prompt now states the plain-decimal output format explicitly. The model had answered '$23,609.60' (value correct, both traps solved) and the strict plain-number scorer rejected the currency format the fixture itself models; the format requirement is task definition, not a trap hint.

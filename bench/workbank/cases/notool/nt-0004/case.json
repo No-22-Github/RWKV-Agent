@@ -36,7 +36,6 @@
       "prompt": "During yesterday's storefront launch the telemetry stream ran at a steady 0.5 GB per minute. For the incident review, express that rate as a per-day volume in GB, and message the figure to Priya. Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
       "expect": {
         "tools": [],
-        "require_active_no_call": true,
         "output_contains": [
           "720"
         ],

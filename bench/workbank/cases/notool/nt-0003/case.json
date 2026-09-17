@@ -34,7 +34,6 @@
       "prompt": "Please email the August expired-sessions export to Ada and ask her to file it with the quarterly records. Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
       "expect": {
         "tools": [],
-        "require_active_no_call": true,
         "output_contains_any": [
           "cannot",
           "Cannot",

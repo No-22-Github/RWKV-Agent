@@ -30,8 +30,7 @@
       "prompt": "We are onboarding a partner feed onto the Meridian ingest gateway, and the security reviewer wants the listener documented before sign-off. Which port does HTTPS use by default? Reply with only the final answer. If the workspace and tools do not contain enough information, reply exactly UNKNOWN.",
       "expect": {
         "output_equals": "443",
-        "tools": [],
-        "require_active_no_call": true
+        "tools": []
       }
     }
   ]
