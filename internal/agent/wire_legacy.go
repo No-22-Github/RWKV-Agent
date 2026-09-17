@@ -109,6 +109,11 @@ func WireSpecOf(options Options) (wire.Spec, error) {
 	if options.NativeFirstCall == "auto" {
 		spec.FirstCall = wire.FirstCallAuto
 	}
+	switch options.UserMerge {
+	case "", "split":
+	default:
+		spec.UserMerge = wire.UserMerge(options.UserMerge)
+	}
 	if options.TerminalTool != "" {
 		spec.Terminal = wire.Terminal(options.TerminalTool)
 	}
@@ -221,6 +226,9 @@ func OptionsWithWire(base Options, spec wire.Spec) (Options, error) {
 
 	if spec.FirstCall != "" {
 		options.NativeFirstCall = string(spec.FirstCall)
+	}
+	if spec.UserMerge != "" {
+		options.UserMerge = string(spec.UserMerge)
 	}
 
 	if !spec.Loop.Zero() {

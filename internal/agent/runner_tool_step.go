@@ -396,6 +396,13 @@ func (turn *runnerTurn) appendToolTranscript(
 		ToolCallID: callID,
 		Content:    toolContent,
 	}
+	if execution.duplicate && r.options.UserMerge == "rewrite" {
+		// A duplicate-REJECTED call (not a replay) and its tool-response
+		// receipt roll back at answer-stage entry; a reminder merged into the
+		// tool response goes with it. Successful exchanges and replays stay.
+		turn.answerRollback[len(turn.messages)] = 0
+		turn.answerRollback[len(turn.messages)+1] = 0
+	}
 	turn.turnMessages = append(turn.turnMessages, assistantMessage, toolMessage)
 	turn.messages = append(turn.messages, assistantMessage, toolMessage)
 }
@@ -441,11 +448,10 @@ func (turn *runnerTurn) advanceAfterTool(
 		}
 		if reminder := strings.TrimSpace(
 			r.postToolReminder(turn.terminalToolCompleted),
-		); reminder != "" {
-			turn.messages = append(
-				turn.messages,
-				Message{Role: RoleUser, Content: reminder},
-			)
+		); reminder != "" && !turn.suppressToolNudge() {
+			// The per-step nudge merges into the tool-response User message
+			// under the merge variants and is deleted under no-nudge/rewrite.
+			turn.appendUserMessage(reminder)
 		}
 	} else if execution.duplicate {
 		if turn.terminalToolCompleted {
@@ -453,24 +459,18 @@ func (turn *runnerTurn) advanceAfterTool(
 			turn.result.ForcedAnswerReason = forcedAnswerDuplicateCall
 		}
 		if !preservesToolOrder(r.protocol) {
-			turn.messages = append(turn.messages, Message{
-				Role: RoleUser,
-				Content: r.duplicateToolReminder(
-					turn.successfulToolCalls > 0,
-					turn.terminalToolCompleted,
-				),
-			})
+			turn.appendUserReceipt(r.duplicateToolReminder(
+				turn.successfulToolCalls > 0,
+				turn.terminalToolCompleted,
+			))
 		}
 	} else if !preservesToolOrder(r.protocol) {
-		turn.messages = append(turn.messages, Message{
-			Role: RoleUser,
-			Content: toolFailureReminder(
-				action.Name,
-				execution.err,
-				execution.recoveryBlocked,
-				turn.activeTools,
-			),
-		})
+		turn.appendUserMessage(toolFailureReminder(
+			action.Name,
+			execution.err,
+			execution.recoveryBlocked,
+			turn.activeTools,
+		))
 	}
 
 	if errors.Is(execution.err, ErrProviderUnavailable) &&
@@ -480,11 +480,12 @@ func (turn *runnerTurn) advanceAfterTool(
 		turn.rescueMode = true
 		turn.result.RescueAttempted = true
 		turn.result.ForcedAnswerReason = forcedAnswerProviderFailure
-		turn.messages = r.enterRescueMode(
-			turn.messages,
+		turn.messages = r.enterRescueMode(turn.messages)
+		turn.appendUserMessage(rescueInstruction(
+			r.terminalTool,
 			fmt.Sprintf("the %s provider is unavailable", action.Name),
 			r.options.MaxSteps-step,
-		)
+		))
 		turn.activeSpecs = r.rescueToolSpecs()
 		turn.activeTools = toolsForSpecs(r.tools, turn.activeSpecs)
 	}
@@ -511,11 +512,8 @@ func (turn *runnerTurn) advanceAfterTool(
 				turn.sameToolSuccessStreak,
 			)
 		}
-		turn.messages = r.enterRescueMode(
-			turn.messages,
-			reason,
-			r.options.MaxSteps-step,
-		)
+		turn.messages = r.enterRescueMode(turn.messages)
+		turn.appendUserMessage(rescueInstruction(r.terminalTool, reason, r.options.MaxSteps-step))
 		turn.activeSpecs = r.rescueToolSpecs()
 		turn.activeTools = toolsForSpecs(r.tools, turn.activeSpecs)
 	}

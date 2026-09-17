@@ -142,6 +142,12 @@ type Options struct {
 	// lets the model answer directly. It is inert without a native tool
 	// completer.
 	NativeFirstCall string
+	// UserMerge is the transcript-structure policy for consecutive User
+	// messages: "" or "split" keeps every reminder its own User message (the
+	// product default); "merged", "no-nudge" and "rewrite" are the eval-only
+	// variants that keep at most one consecutive User message before an
+	// Assistant generation.
+	UserMerge string
 	// Wire, when set, is the canonical description of this configuration. It
 	// is validated against the runtime fields at NewRunner time and recorded
 	// in eval manifests; nil derives the description from the fields above.

@@ -73,6 +73,11 @@ type runnerTurn struct {
 	forceAnswer           bool
 	terminalToolCompleted bool
 	answerViolations      int
+	// answerRollback marks turn.messages indices the rewrite variant drops at
+	// answer-stage entry: rejected/violating assistant outputs and their
+	// receipts. A zero keep length drops the message; a positive one truncates
+	// a merged User message back to its earlier content.
+	answerRollback map[int]int
 }
 
 type turnModelStep struct {
@@ -100,6 +105,7 @@ func newRunnerTurn(
 		seenSuccessfulToolCalls: make(map[string]int),
 		failedToolCallEpochs:    make(map[string]int),
 		unavailableTools:        make(map[string]struct{}),
+		answerRollback:          make(map[int]int),
 		stage:                   StageDecision,
 	}
 }
@@ -266,6 +272,14 @@ func (turn *runnerTurn) prepareAnswerStage(step int) error {
 	if !turn.hasToolEvidence {
 		return noWorkspaceEvidenceError()
 	}
+	if turn.r.options.UserMerge == "rewrite" {
+		// The runner owns the answer transcript in rewrite mode; once it has
+		// been built, later steps only append to it.
+		if turn.stage == StageAnswer {
+			return nil
+		}
+		return turn.prepareRewriteAnswerStage()
+	}
 	answerMessages, prefix := turn.r.protocol.PrepareAnswer(
 		turn.messages,
 		turn.unverified,
@@ -281,6 +295,13 @@ func (turn *runnerTurn) prepareAnswerStage(step int) error {
 		return fmt.Errorf("%w: protocol did not prepare an answer stage", ErrProtocol)
 	}
 	turn.messages = answerMessages
+	if turn.mergeUsers() {
+		// The protocol appends its closing instructions as their own User
+		// messages; fold every run so at most one consecutive User message
+		// precedes the answer generation. turnMessages (committed history)
+		// keeps the unmerged record; workbank cases are single-turn.
+		turn.messages = foldConsecutiveUserMessages(turn.messages)
+	}
 	turn.assistantPrefix = prefix
 	// The answer stage owns its own opening; no decision-stage frame applies.
 	turn.frame = wire.Frame{}
@@ -289,6 +310,113 @@ func (turn *runnerTurn) prepareAnswerStage(step int) error {
 		turn.result.ForcedAnswerReason = forcedAnswerStepBudget
 	}
 	return nil
+}
+
+// prepareRewriteAnswerStage is the V3 answer entry. The rejected outputs and
+// their receipts marked during the decision stage roll back out of the
+// transcript, the system control becomes a plain no-catalog answer control,
+// and exactly one User closing instruction (merged into the trailing User
+// message) remains. The protocol's PrepareAnswer is bypassed: it cannot
+// express the rollback.
+func (turn *runnerTurn) prepareRewriteAnswerStage() error {
+	messages := make([]Message, 0, len(turn.messages)+1)
+	for index, message := range turn.messages {
+		keep, marked := turn.answerRollback[index]
+		switch {
+		case marked && keep == 0:
+			continue
+		case marked:
+			message.Content = message.Content[:keep]
+		}
+		messages = append(messages, message)
+	}
+	messages = replaceSystemControl(messages, answerStageControlBase()+"\nAnswer in ordinary text.")
+	turn.messages = messages
+	turn.appendUserMessage(oneStageAnswerInstruction(turn.unverified))
+	turn.assistantPrefix = ""
+	turn.frame = wire.Frame{}
+	turn.stage = StageAnswer
+	if turn.result.ForcedAnswerReason == "" {
+		turn.result.ForcedAnswerReason = forcedAnswerStepBudget
+	}
+	return nil
+}
+
+// mergeUsers reports whether consecutive User messages fold into one (the
+// merged, no-nudge and rewrite variants).
+func (turn *runnerTurn) mergeUsers() bool {
+	switch turn.r.options.UserMerge {
+	case "merged", "no-nudge", "rewrite":
+		return true
+	default:
+		return false
+	}
+}
+
+// suppressToolNudge reports whether the per-step successful-tool nudge is
+// dropped (the no-nudge and rewrite variants). Duplicate-rejection reminders
+// and failure reminders are not nudges and still append.
+func (turn *runnerTurn) suppressToolNudge() bool {
+	return turn.r.options.UserMerge == "no-nudge" || turn.r.options.UserMerge == "rewrite"
+}
+
+// appendUserMessage appends a User message to the live transcript, folding it
+// into the previous User message when a merge variant is active so at most
+// one consecutive User message ever precedes the next Assistant generation.
+// turnMessages keeps the unmerged record; workbank cases are single-turn.
+func (turn *runnerTurn) appendUserMessage(content string) {
+	if turn.mergeUsers() && len(turn.messages) > 0 {
+		last := &turn.messages[len(turn.messages)-1]
+		if last.Role == RoleUser {
+			last.Content += "\n\n" + content
+			return
+		}
+	}
+	turn.messages = append(turn.messages, Message{Role: RoleUser, Content: content})
+}
+
+// appendUserReceipt appends a User receipt (a correction or rejection note)
+// and marks it for the rewrite rollback. When it folds into a previous User
+// message, that message is truncated back to its current content at
+// answer-stage entry; an index already marked for removal stays marked.
+func (turn *runnerTurn) appendUserReceipt(content string) {
+	if turn.r.options.UserMerge == "rewrite" && len(turn.messages) > 0 {
+		index := len(turn.messages) - 1
+		last := turn.messages[index]
+		if last.Role == RoleUser {
+			if _, marked := turn.answerRollback[index]; !marked {
+				turn.answerRollback[index] = len(last.Content)
+			}
+		} else if _, marked := turn.answerRollback[index+1]; !marked {
+			turn.answerRollback[index+1] = 0
+		}
+	}
+	turn.appendUserMessage(content)
+}
+
+// appendAssistantReceipt appends a rejected/violating assistant output and
+// marks it for the rewrite rollback.
+func (turn *runnerTurn) appendAssistantReceipt(message Message) {
+	if turn.r.options.UserMerge == "rewrite" {
+		if _, marked := turn.answerRollback[len(turn.messages)]; !marked {
+			turn.answerRollback[len(turn.messages)] = 0
+		}
+	}
+	turn.messages = append(turn.messages, message)
+}
+
+// foldConsecutiveUserMessages folds every run of consecutive User messages
+// into one, order-preserving and joined by a blank line.
+func foldConsecutiveUserMessages(messages []Message) []Message {
+	folded := make([]Message, 0, len(messages))
+	for _, message := range messages {
+		if message.Role == RoleUser && len(folded) > 0 && folded[len(folded)-1].Role == RoleUser {
+			folded[len(folded)-1].Content += "\n\n" + message.Content
+			continue
+		}
+		folded = append(folded, message)
+	}
+	return folded
 }
 
 func (turn *runnerTurn) generateModelStep(step int) (turnModelStep, error) {
@@ -501,13 +629,12 @@ func (turn *runnerTurn) acceptSemanticNoTool(action Action, modelStep turnModelS
 			Content:          recorded,
 			ReasoningContent: modelStep.reasoningContent,
 		},
-		Message{
-			Role: RoleUser,
-			Content: "The no_tool decision with empty arguments was accepted. No tool will be executed. " +
-				"No user-facing reason or answer was provided, and no tool evidence exists. " +
-				"Answer the original current task directly in ordinary Markdown now. " +
-				"Do not output another function call or repeat the no_tool action.",
-		},
+	)
+	turn.appendUserMessage(
+		"The no_tool decision with empty arguments was accepted. No tool will be executed. " +
+			"No user-facing reason or answer was provided, and no tool evidence exists. " +
+			"Answer the original current task directly in ordinary Markdown now. " +
+			"Do not output another function call or repeat the no_tool action.",
 	)
 	turn.assistantPrefix = "Assistant:"
 	turn.frame = wire.Frame{}
@@ -553,16 +680,13 @@ func (turn *runnerTurn) rejectNoTool(step int, action Action, modelStep turnMode
 	current := turn.currentStep()
 	current.ToolRejected = "no_tool_gate"
 	if echoed := retryEcho(modelStep.modelAction, nil); strings.TrimSpace(echoed) != "" {
-		turn.messages = append(turn.messages, Message{
+		turn.appendAssistantReceipt(Message{
 			Role:             RoleAssistant,
 			Content:          echoed,
 			ReasoningContent: modelStep.reasoningContent,
 		})
 	}
-	turn.messages = append(turn.messages, Message{
-		Role:    RoleUser,
-		Content: noToolGateRejectionNote(turn.r.options.NoToolGate),
-	})
+	turn.appendUserReceipt(noToolGateRejectionNote(turn.r.options.NoToolGate))
 	turn.r.observe(Event{Kind: EventRetry, Step: step, Err: errors.New("no_tool rejected by " + turn.r.options.NoToolGate + " gate")}, turn.observer)
 }
 
@@ -665,11 +789,10 @@ func (turn *runnerTurn) retryProtocolAction(
 				ReasoningContent: modelStep.reasoningContent,
 			})
 		}
-		turn.messages = append(turn.messages, Message{
-			Role: RoleUser,
-			Content: "Answer the original current task in ordinary Markdown NOW using the Function outputs above. " +
+		turn.appendUserMessage(
+			"Answer the original current task in ordinary Markdown NOW using the Function outputs above. " +
 				"This is your final answer; tool calls are forbidden.",
-		})
+		)
 		turn.assistantPrefix = "Assistant:"
 		return nil
 	}
@@ -688,13 +811,13 @@ func (turn *runnerTurn) retryProtocolAction(
 		if modelStep.nativeCall != nil {
 			retryMessage.ToolCalls = []toolchat.ToolCall{*modelStep.nativeCall}
 		}
-		turn.messages = append(turn.messages, retryMessage)
+		turn.appendAssistantReceipt(retryMessage)
 	}
 	correction := turn.r.protocol.Correction(err)
 	if errors.Is(err, ErrStageViolation) {
 		correction = "Tools are unavailable in the final answer stage. Answer the original task now using existing Tool results. Do not output or request another tool call."
 	}
-	turn.messages = append(turn.messages, Message{Role: RoleUser, Content: correction})
+	turn.appendUserReceipt(correction)
 	return nil
 }
 
@@ -708,16 +831,12 @@ func (turn *runnerTurn) finishFinalAction(step int, action Action) (bool, error)
 		turn.currentStep().ProtocolError = err.Error()
 		modelMessage := Message{Role: RoleAssistant, Content: action.Content}
 		turn.turnMessages = append(turn.turnMessages, modelMessage)
-		turn.messages = append(
-			turn.messages,
-			modelMessage,
-			Message{
-				Role: RoleUser,
-				Content: fmt.Sprintf(
-					"The task is not complete: call %s with the real final answer. Plain text is not scored.",
-					turn.r.terminalTool,
-				),
-			},
+		turn.messages = append(turn.messages, modelMessage)
+		turn.appendUserMessage(
+			fmt.Sprintf(
+				"The task is not complete: call %s with the real final answer. Plain text is not scored.",
+				turn.r.terminalTool,
+			),
 		)
 		turn.r.observe(Event{Kind: EventRetry, Step: step, Err: err}, turn.observer)
 		return false, nil
@@ -760,11 +879,10 @@ func (turn *runnerTurn) retryRespondRoute(step int, modelAction string) error {
 	turn.messages = append(
 		turn.messages,
 		Message{Role: RoleAssistant, Content: modelAction},
-		Message{
-			Role: RoleUser,
-			Content: "The route for this turn is respond. Answer directly using " +
-				"the conversation and do not call workspace tools.",
-		},
+	)
+	turn.appendUserMessage(
+		"The route for this turn is respond. Answer directly using " +
+			"the conversation and do not call workspace tools.",
 	)
 	return nil
 }

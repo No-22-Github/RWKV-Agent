@@ -38,6 +38,7 @@ func DocsMarkdown() string {
 		{"feedback", FeedbackValues},
 		{"subagent", SubagentFeedbackValues},
 		{"firstcall", FirstCallValues},
+		{"usermsg", UserMergeValues},
 	}
 	for _, axis := range axes {
 		fmt.Fprintf(&out, "| `%s` | %s |\n", axis.name, "`"+strings.Join(axis.values, "`, `")+"`")

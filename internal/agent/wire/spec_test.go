@@ -291,8 +291,8 @@ func TestFirstCallAxis(t *testing.T) {
 	if base.FirstCall != FirstCallRequired {
 		t.Fatalf("default firstcall = %q, want required", base.FirstCall)
 	}
-	if !strings.HasSuffix(base.Canonical(), ";firstcall=required") {
-		t.Fatalf("canonical = %q, want the firstcall axis last", base.Canonical())
+	if !strings.HasSuffix(base.Canonical(), ";firstcall=required;usermsg=split") {
+		t.Fatalf("canonical = %q, want the firstcall and usermsg axes last", base.Canonical())
 	}
 	auto := base
 	auto.FirstCall = FirstCallAuto
@@ -324,5 +324,90 @@ func TestFirstCallAxis(t *testing.T) {
 	}
 	if specErr, ok := err.(*SpecError); !ok || specErr.Code != "firstcall.unknown" {
 		t.Fatalf("Validate error = %v, want code firstcall.unknown", err)
+	}
+}
+
+// TestUserMergeAxis locks the transcript-structure variants: they ride the
+// canonical string and hash, resolve as modifiers, and are gated to the
+// qwen36 product XML transcript (rewrite additionally to the one-stage
+// contract) because the merge semantics are defined for tool results riding
+// in user turns.
+func TestUserMergeAxis(t *testing.T) {
+	t.Parallel()
+	base := Default()
+	if base.UserMerge != UserMergeSplit {
+		t.Fatalf("default usermsg = %q, want split", base.UserMerge)
+	}
+	g1k, _, err := Resolve("xml-v1+align-qwen36+no-tool+bare+one-stage")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, testCase := range []struct {
+		modifier string
+		want     UserMerge
+	}{
+		{"merge-users", UserMergeMerged},
+		{"merge-users-no-nudge", UserMergeNoNudge},
+		{"merge-users-rewrite", UserMergeRewrite},
+	} {
+		spec, _, err := Resolve("xml-v1+align-qwen36+no-tool+bare+one-stage+" + testCase.modifier)
+		if err != nil {
+			t.Fatalf("Resolve(%s): %v", testCase.modifier, err)
+		}
+		if spec.UserMerge != testCase.want {
+			t.Fatalf("%s usermsg = %q, want %q", testCase.modifier, spec.UserMerge, testCase.want)
+		}
+		parsed, _, err := Resolve(spec.Canonical())
+		if err != nil {
+			t.Fatalf("Resolve(canonical of %s): %v", testCase.modifier, err)
+		}
+		if !parsed.Equal(spec) {
+			t.Fatalf("canonical round trip of %s drifted:\nwant %s\n got %s",
+				testCase.modifier, spec.Canonical(), parsed.Canonical())
+		}
+	}
+	if g1k.Hash() == Default().Hash() {
+		t.Fatal("hash must change when an axis changes")
+	}
+	merged := g1k
+	merged.UserMerge = UserMergeMerged
+	if merged.Hash() == g1k.Hash() {
+		t.Fatal("hash must change when usermsg changes")
+	}
+	if short := merged.Short(); !strings.Contains(short, "merge-users") {
+		t.Fatalf("short = %q, missing merge-users", short)
+	}
+
+	// Cross-axis gates.
+	noAlign := g1k
+	noAlign.Align = AlignLegacy
+	noAlign.UserMerge = UserMergeMerged
+	assertSpecError(t, noAlign, "usermsg.unsupported")
+	md := g1k
+	md.Format = FormatMDFence
+	md.UserMerge = UserMergeMerged
+	assertSpecError(t, md, "usermsg.unsupported")
+	benchmark := g1k
+	benchmark.Transcript = TranscriptBenchmark
+	benchmark.UserMerge = UserMergeMerged
+	assertSpecError(t, benchmark, "usermsg.unsupported")
+	twoStage := g1k
+	twoStage.Stages = StagesTwo
+	twoStage.UserMerge = UserMergeRewrite
+	assertSpecError(t, twoStage, "usermsg.unsupported")
+	unknown := g1k
+	unknown.UserMerge = "smush"
+	assertSpecError(t, unknown, "usermsg.unknown")
+}
+
+func assertSpecError(t *testing.T, spec Spec, code string) {
+	t.Helper()
+	err := spec.Validate()
+	if err == nil {
+		t.Fatalf("Validate succeeded, want %s:\n%s", code, spec.Canonical())
+	}
+	specErr, ok := err.(*SpecError)
+	if !ok || specErr.Code != code {
+		t.Fatalf("Validate error = %v, want code %s", err, code)
 	}
 }

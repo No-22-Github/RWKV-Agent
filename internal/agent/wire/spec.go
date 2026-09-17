@@ -175,6 +175,29 @@ const (
 	FirstCallAuto FirstCall = "auto"
 )
 
+// UserMerge is the transcript-structure policy for consecutive User messages.
+// G1K was trained on strictly alternating User/Assistant turns, and the
+// non-split variants keep at most one consecutive User message before any
+// Assistant generation. Eval-only: the product wire stays split.
+type UserMerge string
+
+const (
+	// UserMergeSplit is the current behavior: every reminder, correction and
+	// instruction is its own User message.
+	UserMergeSplit UserMerge = "split"
+	// UserMergeMerged folds consecutive User messages into one, so the
+	// per-step nudge and the answer instructions land in the trailing User
+	// message right after the tool response.
+	UserMergeMerged UserMerge = "merged"
+	// UserMergeNoNudge additionally deletes the per-step successful-tool
+	// nudge; duplicate-rejection reminders and answer instructions still merge.
+	UserMergeNoNudge UserMerge = "no-nudge"
+	// UserMergeRewrite additionally rolls rejected outputs and their receipts
+	// back out of the transcript at answer-stage entry and replaces the system
+	// control with a plain no-catalog answer control. Requires stages=one.
+	UserMergeRewrite UserMerge = "rewrite"
+)
+
 // Align selects the transcript tag convention. The G1 checkpoints were trained
 // on a Qwen3.6-style tool transcript: tool results ride in the user turn
 // wrapped in <tool_response>, and the catalog is a JSON schema array inside
@@ -228,6 +251,7 @@ type Spec struct {
 	Align            Align
 	Stages           Stages
 	FirstCall        FirstCall
+	UserMerge        UserMerge
 	Loop             Loop
 }
 
@@ -249,6 +273,7 @@ func Default() Spec {
 		Align:            AlignLegacy,
 		Stages:           StagesTwo,
 		FirstCall:        FirstCallRequired,
+		UserMerge:        UserMergeSplit,
 	}
 }
 
@@ -299,6 +324,9 @@ func (s Spec) Normalize(base Spec) Spec {
 	}
 	if result.FirstCall == "" {
 		result.FirstCall = base.FirstCall
+	}
+	if result.UserMerge == "" {
+		result.UserMerge = base.UserMerge
 	}
 	if result.Loop.Zero() {
 		result.Loop = base.Loop
@@ -380,6 +408,23 @@ func (s Spec) Validate() error {
 	}
 	if !known(FirstCallValues, s.FirstCall) {
 		return fail("firstcall.unknown", fmt.Sprintf("unknown first call policy %q", s.FirstCall), "required, auto")
+	}
+	if !known(UserMergeValues, s.UserMerge) {
+		return fail("usermsg.unknown", fmt.Sprintf("unknown user message policy %q", s.UserMerge), "split, merged, no-nudge, rewrite")
+	}
+	// User merging is defined for tool results riding in user turns, which is
+	// the qwen36 alignment of the product XML transcript.
+	if s.UserMerge != UserMergeSplit &&
+		(s.Format != FormatXML || s.Transcript != TranscriptProduct || s.Align != AlignQwen36) {
+		return fail("usermsg.unsupported",
+			fmt.Sprintf("usermsg=%s requires format=xml, transcript=product, align=qwen36", s.UserMerge),
+			"the merge semantics are defined for tool results riding in user turns")
+	}
+	// The rewrite variant replaces the answer-stage entry wholesale, which only
+	// the merged one-stage contract allows the runner to own.
+	if s.UserMerge == UserMergeRewrite && s.Stages != StagesOne {
+		return fail("usermsg.unsupported", "usermsg=rewrite requires stages=one",
+			"the two-stage contract owns its answer envelope")
 	}
 	// The merged stage is a G1Protocol product mechanism; the benchmark
 	// transcript keeps its trained submit-terminated shape.
@@ -502,13 +547,13 @@ func (s Spec) Canonical() string {
 	return fmt.Sprintf(
 		"format=%s;transcript=%s;transport=%s;thinking=%s;prefill=%s;abstain=%s;terminal=%s;"+
 			"route=%s;catalog=%s;control=%s;feedback=%s;subagent=%s;align=%s;stages=%s;"+
-			"loop=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%t;firstcall=%s",
+			"loop=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%t;firstcall=%s;usermsg=%s",
 		s.Format, s.Transcript, s.Transport, s.Thinking, s.Prefill, s.Abstain, s.Terminal,
 		s.Route, s.Catalog, s.Control, s.Feedback, s.SubagentFeedback, s.Align, s.Stages,
 		loop.MaxSteps, loop.ProtocolRetries, loop.RouteRetries,
 		loop.DecisionMaxOutputTokens, loop.AnswerMaxOutputTokens, loop.RouteMaxOutputTokens,
 		loop.DuplicateReplayLimit, loop.DuplicateRescueThreshold, loop.SameToolRescueLimit,
-		loop.AnswerStageLead, loop.AllowRepeatedCalls, s.FirstCall,
+		loop.AnswerStageLead, loop.AllowRepeatedCalls, s.FirstCall, s.UserMerge,
 	)
 }
 
@@ -547,6 +592,14 @@ func (s Spec) Short() string {
 	add(s.Align != base.Align, "align-"+string(s.Align))
 	add(s.Stages != base.Stages, string(s.Stages)+"-stage")
 	add(s.FirstCall != base.FirstCall, "first-"+string(s.FirstCall))
+	switch s.UserMerge {
+	case UserMergeMerged:
+		parts = append(parts, "merge-users")
+	case UserMergeNoNudge:
+		parts = append(parts, "merge-users-no-nudge")
+	case UserMergeRewrite:
+		parts = append(parts, "merge-users-rewrite")
+	}
 	if !s.Loop.Zero() {
 		parts = append(parts, "loop")
 	}
@@ -580,6 +633,7 @@ var (
 	AlignValues            = []string{string(AlignLegacy), string(AlignQwen36)}
 	StagesValues           = []string{string(StagesTwo), string(StagesOne)}
 	FirstCallValues        = []string{string(FirstCallRequired), string(FirstCallAuto)}
+	UserMergeValues        = []string{string(UserMergeSplit), string(UserMergeMerged), string(UserMergeNoNudge), string(UserMergeRewrite)}
 )
 
 const (

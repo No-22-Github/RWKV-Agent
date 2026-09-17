@@ -116,10 +116,12 @@ func duplicateRejectionNote(streak, stepsLeft int, terminalTool string) string {
 	)
 }
 
-// enterRescueMode rebuilds the tool catalog so only the terminal tool remains
-// and injects one explicit rescue instruction as a User turn. A User turn is
-// more salient to the model than text appended after a Function output.
-func (r *Runner) enterRescueMode(messages []Message, reason string, stepsLeft int) []Message {
+// enterRescueMode rebuilds the tool catalog so only the terminal tool remains.
+// The caller delivers the rescue instruction as a User turn (a User turn is
+// more salient to the model than text appended after a Function output) via
+// runnerTurn.appendUserMessage, so the merge variants fold it into the
+// trailing User message.
+func (r *Runner) enterRescueMode(messages []Message) []Message {
 	specs := r.rescueToolSpecs()
 	control := toolControlPrompt(r.protocol, specs, r.thinkingMode, r.toolCompleter != nil)
 	for index := range messages {
@@ -127,10 +129,7 @@ func (r *Runner) enterRescueMode(messages []Message, reason string, stepsLeft in
 			messages[index] = Message{Role: RoleSystem, Content: control}
 		}
 	}
-	return append(messages, Message{
-		Role:    RoleUser,
-		Content: rescueInstruction(r.terminalTool, reason, stepsLeft),
-	})
+	return messages
 }
 
 func (r *Runner) rescueToolSpecs() []ToolSpec {

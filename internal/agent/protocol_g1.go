@@ -519,23 +519,14 @@ func (protocol G1Protocol) PrepareAnswer(
 		// and catalog stay in place) and append only the plain-text nudge.
 		// The empty prefix tells the runner not to prefill any envelope.
 		prepared := append([]Message(nil), messages...)
-		instruction := `Tool execution is complete and tools are now unavailable.
-Answer the original current task directly in ordinary text using the Tool results above. Do not call another tool or repeat the Tool results. If they are insufficient, say what could not be verified.`
-		if len(unverified) > 0 {
-			instruction += "\nThe following requested facts could not be verified because their providers were unavailable:\n- " +
-				strings.Join(unverified, "\n- ") +
-				"\nState each limitation explicitly. Do not invent a value, quote, rate, time, or conversion for any listed item."
-		}
-		prepared = append(prepared, Message{Role: RoleUser, Content: instruction})
+		prepared = append(prepared, Message{
+			Role:    RoleUser,
+			Content: oneStageAnswerInstruction(unverified),
+		})
 		return prepared, ""
 	}
 	prepared := make([]Message, 0, len(messages)+1)
-	answerControl := `You are the final local-assistant answer stage. Tools are unavailable.
-Answer the current task directly in the user's language using the full supplied conversation and Tool results.
-` + PolicyUntrustedData + ` ` + PolicyNoInventedFacts + `
-If the Tool results do not establish the requested answer, state the limitation clearly.
-Do not perform or output another tool call, repeat the Tool results, or emit role labels.
-Unless the user explicitly asks for detail, keep the answer concise and use at most five bullets.`
+	answerControl := answerStageControlBase()
 	switch thinkingMode {
 	case inference.ThinkingFast:
 		answerControl += `
@@ -586,4 +577,32 @@ func (G1Protocol) Stops(stage GenerationStage) []string {
 		return append([]string{"</answer>"}, stops...)
 	}
 	return append([]string{"</tool_call>"}, stops...)
+}
+
+// oneStageAnswerInstruction is the closing User instruction of the merged
+// one-stage answer contract. G1Protocol.PrepareAnswer appends it as its own
+// User message; the merge variants fold it into the trailing User message,
+// and the rewrite variant keeps it as the single closing instruction.
+func oneStageAnswerInstruction(unverified []string) string {
+	instruction := `Tool execution is complete and tools are now unavailable.
+Answer the original current task directly in ordinary text using the Tool results above. Do not call another tool or repeat the Tool results. If they are insufficient, say what could not be verified.`
+	if len(unverified) > 0 {
+		instruction += "\nThe following requested facts could not be verified because their providers were unavailable:\n- " +
+			strings.Join(unverified, "\n- ") +
+			"\nState each limitation explicitly. Do not invent a value, quote, rate, time, or conversion for any listed item."
+	}
+	return instruction
+}
+
+// answerStageControlBase is the no-tools answer control shared by the
+// two-stage answer prompt and the rewrite variant. The two-stage branch
+// appends its thinking/envelope sentence; the rewrite variant appends its own
+// plain-text sentence instead.
+func answerStageControlBase() string {
+	return `You are the final local-assistant answer stage. Tools are unavailable.
+Answer the current task directly in the user's language using the full supplied conversation and Tool results.
+` + PolicyUntrustedData + ` ` + PolicyNoInventedFacts + `
+If the Tool results do not establish the requested answer, state the limitation clearly.
+Do not perform or output another tool call, repeat the Tool results, or emit role labels.
+Unless the user explicitly asks for detail, keep the answer concise and use at most five bullets.`
 }
