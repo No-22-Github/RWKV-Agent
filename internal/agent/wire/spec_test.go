@@ -291,8 +291,8 @@ func TestFirstCallAxis(t *testing.T) {
 	if base.FirstCall != FirstCallRequired {
 		t.Fatalf("default firstcall = %q, want required", base.FirstCall)
 	}
-	if !strings.HasSuffix(base.Canonical(), ";firstcall=required;usermsg=split") {
-		t.Fatalf("canonical = %q, want the firstcall and usermsg axes last", base.Canonical())
+	if !strings.HasSuffix(base.Canonical(), ";firstcall=required;usermsg=split;srchint=off") {
+		t.Fatalf("canonical = %q, want the firstcall, usermsg and srchint axes last", base.Canonical())
 	}
 	auto := base
 	auto.FirstCall = FirstCallAuto
@@ -324,6 +324,51 @@ func TestFirstCallAxis(t *testing.T) {
 	}
 	if specErr, ok := err.(*SpecError); !ok || specErr.Code != "firstcall.unknown" {
 		t.Fatalf("Validate error = %v, want code firstcall.unknown", err)
+	}
+}
+
+// TestSourceHintAxis locks the control-prompt information-source sentence:
+// off by default (byte-identical control prompt), rides the canonical string
+// and hash, and resolves through the src-hint modifier.
+func TestSourceHintAxis(t *testing.T) {
+	t.Parallel()
+	base := Default()
+	if base.SourceHint != SourceHintOff {
+		t.Fatalf("default srchint = %q, want off", base.SourceHint)
+	}
+	if !strings.HasSuffix(base.Canonical(), ";firstcall=required;usermsg=split;srchint=off") {
+		t.Fatalf("canonical = %q, want the srchint axis last", base.Canonical())
+	}
+	on := base
+	on.SourceHint = SourceHintOn
+	if on.Hash() == base.Hash() {
+		t.Fatal("hash must change when srchint changes")
+	}
+	parsed, _, err := Resolve(on.Canonical())
+	if err != nil {
+		t.Fatalf("Resolve(canonical with srchint): %v", err)
+	}
+	if !parsed.Equal(on) {
+		t.Fatalf("canonical round trip drifted:\nwant %s\n got %s", on.Canonical(), parsed.Canonical())
+	}
+	resolved, _, err := Resolve("xml-v1+src-hint")
+	if err != nil {
+		t.Fatalf("Resolve(xml-v1+src-hint): %v", err)
+	}
+	if resolved.SourceHint != SourceHintOn {
+		t.Fatalf("src-hint modifier srchint = %q", resolved.SourceHint)
+	}
+	if short := on.Short(); !strings.Contains(short, "src-hint") {
+		t.Fatalf("short = %q, missing src-hint", short)
+	}
+	unknown := base
+	unknown.SourceHint = "sometimes"
+	err = unknown.Validate()
+	if err == nil {
+		t.Fatal("unknown srchint value accepted")
+	}
+	if specErr, ok := err.(*SpecError); !ok || specErr.Code != "srchint.unknown" {
+		t.Fatalf("Validate error = %v, want code srchint.unknown", err)
 	}
 }
 

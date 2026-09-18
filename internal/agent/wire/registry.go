@@ -174,6 +174,8 @@ var modifiers = map[string]func(Spec) Spec{
 	"merge-users-no-nudge": func(s Spec) Spec { s.UserMerge = UserMergeNoNudge; return s },
 	"merge-users-rewrite":  func(s Spec) Spec { s.UserMerge = UserMergeRewrite; return s },
 
+	"src-hint": func(s Spec) Spec { s.SourceHint = SourceHintOn; return s },
+
 	"compress-fetch": func(s Spec) Spec { s.Feedback = FeedbackCompressFetch; return s },
 	"raw-subagent":   func(s Spec) Spec { s.SubagentFeedback = SubagentFeedbackRaw; return s },
 }
@@ -234,9 +236,9 @@ func init() {
 func parseCanonical(value string) (Spec, error) {
 	spec := Spec{}
 	fields := strings.Split(value, ";")
-	if len(fields) != 17 {
+	if len(fields) != 18 {
 		return Spec{}, fail("resolve.canonical-fields",
-			fmt.Sprintf("canonical spec has %d fields, want 17", len(fields)),
+			fmt.Sprintf("canonical spec has %d fields, want 18", len(fields)),
 			"copy the string printed by `eval explain`")
 	}
 	seen := map[string]bool{}
@@ -282,6 +284,8 @@ func parseCanonical(value string) (Spec, error) {
 			spec.FirstCall = FirstCall(raw)
 		case "usermsg":
 			spec.UserMerge = UserMerge(raw)
+		case "srchint":
+			spec.SourceHint = SourceHint(raw)
 		case "loop":
 			loop, err := parseLoop(raw)
 			if err != nil {

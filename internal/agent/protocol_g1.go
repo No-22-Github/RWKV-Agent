@@ -42,10 +42,61 @@ type G1Protocol struct {
 	// marks the generation as StageAnswer so the answer-now contract is
 	// enforced harness-side.
 	OneStage bool
+	// SourceHint adds the fixed information-source sentence after the opener
+	// line: where the user's files live and what the web tools are for. The
+	// sentence names only tools the catalog offers, so a bank with a fixed
+	// catalog sees the same bytes in every case.
+	SourceHint bool
 }
 
 func (G1Protocol) ID() string {
 	return G1EnvelopeProtocolV1
+}
+
+// sourceHintSentence is the S1 information-source locator: one fixed sentence
+// naming the workspace-file tools and the web tools, degraded to whichever of
+// the two groups the catalog actually offers. Catalogs without any of those
+// tools get no sentence at all.
+func sourceHintSentence(specs []ToolSpec) string {
+	var files, web []string
+	for _, name := range []string{"list_files", "search_text", "read_file"} {
+		if hasToolSpec(specs, name) {
+			files = append(files, name)
+		}
+	}
+	for _, name := range []string{"web_search", "web_fetch"} {
+		if hasToolSpec(specs, name) {
+			web = append(web, name)
+		}
+	}
+	sentence := ""
+	if len(files) > 0 {
+		sentence = "The user's files are in the current workspace; use " + joinToolNames(files) + " for them."
+	}
+	if len(web) > 0 {
+		clause := "Use " + joinToolNames(web) + " only for public information that is not in the workspace."
+		if sentence == "" {
+			sentence = clause
+		} else {
+			sentence += " " + clause
+		}
+	}
+	if sentence == "" {
+		return ""
+	}
+	return sentence + "\n"
+}
+
+// joinToolNames renders a comma list with "and" before the final name.
+func joinToolNames(names []string) string {
+	switch len(names) {
+	case 0:
+		return ""
+	case 1:
+		return names[0]
+	default:
+		return strings.Join(names[:len(names)-1], ", ") + " and " + names[len(names)-1]
+	}
 }
 
 func (protocol G1Protocol) Instructions(
@@ -54,6 +105,9 @@ func (protocol G1Protocol) Instructions(
 ) string {
 	var prompt strings.Builder
 	prompt.WriteString("You are a local-first assistant with " + toolAccessDescription(specs) + ". " + PolicyUntrustedData + "\n")
+	if protocol.SourceHint {
+		prompt.WriteString(sourceHintSentence(specs))
+	}
 	prompt.WriteString(`
 Choose one action:
 - If new tool evidence is needed, output exactly one tool call and nothing else:

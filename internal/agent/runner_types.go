@@ -148,6 +148,11 @@ type Options struct {
 	// variants that keep at most one consecutive User message before an
 	// Assistant generation.
 	UserMerge string
+	// SourceHint enables the control-prompt information-source sentence
+	// ("" or "off" keeps the control prompt byte-identical; "on" adds one
+	// sentence naming where the user's files live and what the web tools
+	// are for, catalog-adaptive). G1 text-transport mechanism.
+	SourceHint string
 	// Wire, when set, is the canonical description of this configuration. It
 	// is validated against the runtime fields at NewRunner time and recorded
 	// in eval manifests; nil derives the description from the fields above.

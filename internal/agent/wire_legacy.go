@@ -114,6 +114,9 @@ func WireSpecOf(options Options) (wire.Spec, error) {
 	default:
 		spec.UserMerge = wire.UserMerge(options.UserMerge)
 	}
+	if options.SourceHint == "on" {
+		spec.SourceHint = wire.SourceHintOn
+	}
 	if options.TerminalTool != "" {
 		spec.Terminal = wire.Terminal(options.TerminalTool)
 	}
@@ -160,6 +163,7 @@ func OptionsWithWire(base Options, spec wire.Spec) (Options, error) {
 			SemanticNoTool:   spec.Abstain != wire.AbstainNone,
 			AlignQwen36:      spec.Align == wire.AlignQwen36,
 			OneStage:         spec.Stages == wire.StagesOne,
+			SourceHint:       spec.SourceHint == wire.SourceHintOn,
 		}
 		options.Renderer = RWKVChatRenderer{ThinkingMode: inference.ThinkingMode(spec.Thinking)}
 	case wire.FormatMDFence:
@@ -229,6 +233,9 @@ func OptionsWithWire(base Options, spec wire.Spec) (Options, error) {
 	}
 	if spec.UserMerge != "" {
 		options.UserMerge = string(spec.UserMerge)
+	}
+	if spec.SourceHint != "" {
+		options.SourceHint = string(spec.SourceHint)
 	}
 
 	if !spec.Loop.Zero() {

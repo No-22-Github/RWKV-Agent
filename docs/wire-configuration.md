@@ -122,17 +122,17 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 
 | preset | canonical | short |
 | --- | --- | --- |
-| `bfcl-md-v1` | `format=md-fence;transcript=product;transport=text;thinking=off;prefill=deep-fence;abstain=no-tool;terminal=none;route=progressive;catalog=progressive;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required;usermsg=split` | `md-fence+deep-fence+no-tool+route-progressive+progressive` |
-| `bfcl-xml-v1` | `format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=none;terminal=none;route=progressive;catalog=progressive;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required;usermsg=split` | `route-progressive+progressive` |
-| `default` | `format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=none;terminal=none;route=none;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required;usermsg=split` | `default` |
-| `md-fakethink-v1` | `format=md-fence;transcript=product;transport=text;thinking=off;prefill=fake-think-half;abstain=no-tool;terminal=none;route=none;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required;usermsg=split` | `md-fence+fake-think-half+no-tool` |
-| `md-fence-v1` | `format=md-fence;transcript=product;transport=text;thinking=off;prefill=fence;abstain=no-tool;terminal=none;route=none;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required;usermsg=split` | `md-fence+fence+no-tool` |
-| `md-v1` | `format=md-fence;transcript=product;transport=text;thinking=off;prefill=deep-fence;abstain=no-tool;terminal=none;route=none;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required;usermsg=split` | `md-fence+deep-fence+no-tool` |
-| `native-v1` | `format=xml;transcript=product;transport=native;thinking=off;prefill=none;abstain=none;terminal=none;route=none;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required;usermsg=split` | `native` |
-| `primitive-v1` | `format=md-fence;transcript=benchmark;transport=text;thinking=off;prefill=fence;abstain=none;terminal=submit;route=none;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required;usermsg=split` | `md-fence+benchmark+fence+submit` |
-| `xml-progressive-v1` | `format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=none;terminal=none;route=progressive;catalog=progressive;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required;usermsg=split` | `route-progressive+progressive` |
-| `xml-route-v1` | `format=xml;transcript=product;transport=text;thinking=off;prefill=envelope;abstain=none;terminal=none;route=respond-inspect;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required;usermsg=split` | `envelope+route-respond-inspect` |
-| `xml-v1` | `format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=none;terminal=none;route=none;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required;usermsg=split` | `default` |
+| `bfcl-md-v1` | `format=md-fence;transcript=product;transport=text;thinking=off;prefill=deep-fence;abstain=no-tool;terminal=none;route=progressive;catalog=progressive;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required;usermsg=split;srchint=off` | `md-fence+deep-fence+no-tool+route-progressive+progressive` |
+| `bfcl-xml-v1` | `format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=none;terminal=none;route=progressive;catalog=progressive;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required;usermsg=split;srchint=off` | `route-progressive+progressive` |
+| `default` | `format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=none;terminal=none;route=none;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required;usermsg=split;srchint=off` | `default` |
+| `md-fakethink-v1` | `format=md-fence;transcript=product;transport=text;thinking=off;prefill=fake-think-half;abstain=no-tool;terminal=none;route=none;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required;usermsg=split;srchint=off` | `md-fence+fake-think-half+no-tool` |
+| `md-fence-v1` | `format=md-fence;transcript=product;transport=text;thinking=off;prefill=fence;abstain=no-tool;terminal=none;route=none;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required;usermsg=split;srchint=off` | `md-fence+fence+no-tool` |
+| `md-v1` | `format=md-fence;transcript=product;transport=text;thinking=off;prefill=deep-fence;abstain=no-tool;terminal=none;route=none;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required;usermsg=split;srchint=off` | `md-fence+deep-fence+no-tool` |
+| `native-v1` | `format=xml;transcript=product;transport=native;thinking=off;prefill=none;abstain=none;terminal=none;route=none;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required;usermsg=split;srchint=off` | `native` |
+| `primitive-v1` | `format=md-fence;transcript=benchmark;transport=text;thinking=off;prefill=fence;abstain=none;terminal=submit;route=none;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required;usermsg=split;srchint=off` | `md-fence+benchmark+fence+submit` |
+| `xml-progressive-v1` | `format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=none;terminal=none;route=progressive;catalog=progressive;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required;usermsg=split;srchint=off` | `route-progressive+progressive` |
+| `xml-route-v1` | `format=xml;transcript=product;transport=text;thinking=off;prefill=envelope;abstain=none;terminal=none;route=respond-inspect;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required;usermsg=split;srchint=off` | `envelope+route-respond-inspect` |
+| `xml-v1` | `format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=none;terminal=none;route=none;catalog=full;control=base;feedback=raw;subagent=block;align=legacy;stages=two;loop=0,0,0,0,0,0,0,0,0,0,false;firstcall=required;usermsg=split;srchint=off` | `default` |
 
 ## Axis domain
 
@@ -152,6 +152,7 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 | `subagent` | `block`, `raw` |
 | `firstcall` | `required`, `auto` |
 | `usermsg` | `split`, `merged`, `no-nudge`, `rewrite` |
+| `srchint` | `off`, `on` |
 
 ## Recovery vocabulary
 
@@ -162,7 +163,7 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 
 ## Modifiers
 
-`align-legacy`, `align-qwen36`, `anchor`, `bare`, `base-nocall`, `compress-fetch`, `deep-fence`, `envelope`, `fake-think`, `fake-think-closed`, `fence`, `fewshot`, `first-auto`, `gate-evidence`, `gate-state`, `greeting`, `merge-users`, `merge-users-no-nudge`, `merge-users-rewrite`, `native`, `no-tool`, `one-stage`, `prefill-none`, `progressive`, `raw-subagent`, `route-progressive`, `route-respond`, `submit`, `think-fast`, `think-full`, `think-off`, `two-stage`
+`align-legacy`, `align-qwen36`, `anchor`, `bare`, `base-nocall`, `compress-fetch`, `deep-fence`, `envelope`, `fake-think`, `fake-think-closed`, `fence`, `fewshot`, `first-auto`, `gate-evidence`, `gate-state`, `greeting`, `merge-users`, `merge-users-no-nudge`, `merge-users-rewrite`, `native`, `no-tool`, `one-stage`, `prefill-none`, `progressive`, `raw-subagent`, `route-progressive`, `route-respond`, `src-hint`, `submit`, `think-fast`, `think-full`, `think-off`, `two-stage`
 
 ## Override keys
 

@@ -198,6 +198,24 @@ const (
 	UserMergeRewrite UserMerge = "rewrite"
 )
 
+// SourceHint is the control-prompt information-source locator sentence. The
+// closeout failure attribution found G1K picks tools by name association
+// instead of by information source (workspace data queried through
+// web_search, web questions answered UNKNOWN with the web tools offered), so
+// the S1 probe adds one fixed sentence naming where the user's files live and
+// what the web tools are for. It is a G1 text-transport mechanism: the native
+// control prompt does not carry it.
+type SourceHint string
+
+const (
+	// SourceHintOff is the product default: the control prompt is unchanged.
+	SourceHintOff SourceHint = "off"
+	// SourceHintOn inserts the sentence right after the opener line. The
+	// sentence names only tools the catalog offers, so a bank with a fixed
+	// catalog sees byte-identical bytes in every case.
+	SourceHintOn SourceHint = "on"
+)
+
 // Align selects the transcript tag convention. The G1 checkpoints were trained
 // on a Qwen3.6-style tool transcript: tool results ride in the user turn
 // wrapped in <tool_response>, and the catalog is a JSON schema array inside
@@ -252,6 +270,7 @@ type Spec struct {
 	Stages           Stages
 	FirstCall        FirstCall
 	UserMerge        UserMerge
+	SourceHint       SourceHint
 	Loop             Loop
 }
 
@@ -274,6 +293,7 @@ func Default() Spec {
 		Stages:           StagesTwo,
 		FirstCall:        FirstCallRequired,
 		UserMerge:        UserMergeSplit,
+		SourceHint:       SourceHintOff,
 	}
 }
 
@@ -327,6 +347,9 @@ func (s Spec) Normalize(base Spec) Spec {
 	}
 	if result.UserMerge == "" {
 		result.UserMerge = base.UserMerge
+	}
+	if result.SourceHint == "" {
+		result.SourceHint = base.SourceHint
 	}
 	if result.Loop.Zero() {
 		result.Loop = base.Loop
@@ -411,6 +434,9 @@ func (s Spec) Validate() error {
 	}
 	if !known(UserMergeValues, s.UserMerge) {
 		return fail("usermsg.unknown", fmt.Sprintf("unknown user message policy %q", s.UserMerge), "split, merged, no-nudge, rewrite")
+	}
+	if !known(SourceHintValues, s.SourceHint) {
+		return fail("srchint.unknown", fmt.Sprintf("unknown source hint policy %q", s.SourceHint), "off, on")
 	}
 	// User merging is defined for tool results riding in user turns, which is
 	// the qwen36 alignment of the product XML transcript.
@@ -547,13 +573,13 @@ func (s Spec) Canonical() string {
 	return fmt.Sprintf(
 		"format=%s;transcript=%s;transport=%s;thinking=%s;prefill=%s;abstain=%s;terminal=%s;"+
 			"route=%s;catalog=%s;control=%s;feedback=%s;subagent=%s;align=%s;stages=%s;"+
-			"loop=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%t;firstcall=%s;usermsg=%s",
+			"loop=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%t;firstcall=%s;usermsg=%s;srchint=%s",
 		s.Format, s.Transcript, s.Transport, s.Thinking, s.Prefill, s.Abstain, s.Terminal,
 		s.Route, s.Catalog, s.Control, s.Feedback, s.SubagentFeedback, s.Align, s.Stages,
 		loop.MaxSteps, loop.ProtocolRetries, loop.RouteRetries,
 		loop.DecisionMaxOutputTokens, loop.AnswerMaxOutputTokens, loop.RouteMaxOutputTokens,
 		loop.DuplicateReplayLimit, loop.DuplicateRescueThreshold, loop.SameToolRescueLimit,
-		loop.AnswerStageLead, loop.AllowRepeatedCalls, s.FirstCall, s.UserMerge,
+		loop.AnswerStageLead, loop.AllowRepeatedCalls, s.FirstCall, s.UserMerge, s.SourceHint,
 	)
 }
 
@@ -600,6 +626,7 @@ func (s Spec) Short() string {
 	case UserMergeRewrite:
 		parts = append(parts, "merge-users-rewrite")
 	}
+	add(s.SourceHint != base.SourceHint, "src-hint")
 	if !s.Loop.Zero() {
 		parts = append(parts, "loop")
 	}
@@ -634,6 +661,7 @@ var (
 	StagesValues           = []string{string(StagesTwo), string(StagesOne)}
 	FirstCallValues        = []string{string(FirstCallRequired), string(FirstCallAuto)}
 	UserMergeValues        = []string{string(UserMergeSplit), string(UserMergeMerged), string(UserMergeNoNudge), string(UserMergeRewrite)}
+	SourceHintValues       = []string{string(SourceHintOff), string(SourceHintOn)}
 )
 
 const (
