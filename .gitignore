@@ -16,4 +16,4 @@ __pycache__/
 .pnpm-store/
 .gocache/
 .zcode/
-/test/
+.agent-teams/
