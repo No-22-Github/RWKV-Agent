@@ -103,6 +103,41 @@ func TestWorkspaceToolsReadListAndSearch(t *testing.T) {
 	}
 }
 
+func TestSearchTextResultLimitIsNotAnError(t *testing.T) {
+	t.Parallel()
+	root := t.TempDir()
+	if err := os.WriteFile(filepath.Join(root, "record.txt"), []byte("code=LARCH-684\ncode=OTTER-927\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	tools, err := WorkspaceTools(root)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var search Tool
+	for _, tool := range tools {
+		if tool.Spec().Name == "search_text" {
+			search = tool
+		}
+	}
+	for _, path := range []string{"record.txt", "."} {
+		t.Run(path, func(t *testing.T) {
+			value, err := search.Execute(context.Background(), json.RawMessage(`{"query":"code=","path":`+strconv.Quote(path)+`,"max_results":1}`))
+			if err != nil {
+				t.Fatalf("search_text(%q) at result limit: %v", path, err)
+			}
+			result := value.(searchTextResult)
+			if !result.Truncated || len(result.Matches) != 1 || result.Matches[0].Text != "code=LARCH-684" {
+				t.Fatalf("unexpected limited results: %+v", result)
+			}
+		})
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	if _, err := search.Execute(ctx, json.RawMessage(`{"query":"code=","path":"record.txt","max_results":1}`)); !errors.Is(err, context.Canceled) {
+		t.Fatalf("canceled search error = %v, want context.Canceled", err)
+	}
+}
+
 func TestWorkspaceToolsNormalizeNotionalAbsolutePaths(t *testing.T) {
 	t.Parallel()
 	root := t.TempDir()

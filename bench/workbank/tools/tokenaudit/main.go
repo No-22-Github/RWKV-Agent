@@ -35,7 +35,14 @@ func main() {
 			for ti, t := range c.Turns {
 				for _, s := range t.Result.Steps {
 					n := v.Count(s.ModelOutput)
-					rows = append(rows, map[string]any{"case": c.ID, "turn": ti + 1, "step": s.Number, "stage": s.Stage, "retokenized_output": n, "request_tokens": v.Count(s.Request.Prompt), "request_budget": s.Request.MaxOutputTokens, "finish": s.FinishReason, "protocol_error": s.ProtocolError})
+					// A stored prefix is not the full model input. Leave the count
+					// unavailable instead of silently treating it as a short request.
+					complete := s.Request.Prompt != "" && !s.Request.Truncated && len(s.Request.Prompt) == s.Request.Bytes
+					var requestTokens any
+					if complete {
+						requestTokens = v.Count(s.Request.Prompt)
+					}
+					rows = append(rows, map[string]any{"case": c.ID, "turn": ti + 1, "step": s.Number, "stage": s.Stage, "retokenized_output": n, "request_tokens": requestTokens, "request_complete": complete, "request_bytes": s.Request.Bytes, "request_truncated": s.Request.Truncated, "request_budget": s.Request.MaxOutputTokens, "finish": s.FinishReason, "protocol_error": s.ProtocolError})
 				}
 			}
 		}

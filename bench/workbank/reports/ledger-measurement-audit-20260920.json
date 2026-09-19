@@ -1,0 +1,39 @@
+[
+  {
+    "config": "closeout-v0-g1k",
+    "cases": 36,
+    "non_null_calls": 24,
+    "reference_mean_all": 4,
+    "reference_mean_non_null": 3.7916666666666665,
+    "ledger_calls_mean_non_null": 4.583333333333333,
+    "legacy_max_turns_hit": 21,
+    "legacy_redundancy_median_non_null": 1.25,
+    "forced_reasons": {
+      "none": 15,
+      "duplicate_tool_call": 18,
+      "step_budget_after_tool_attempt": 3
+    },
+    "executed_tools": 92,
+    "named_tool_steps": 110,
+    "tool_attempts": 138,
+    "source_run": "runs/workbank/closeout-v0-g1k"
+  },
+  {
+    "config": "closeout-v0-deepseek",
+    "cases": 36,
+    "non_null_calls": 36,
+    "reference_mean_all": 4,
+    "reference_mean_non_null": 4,
+    "ledger_calls_mean_non_null": 4.361111111111111,
+    "legacy_max_turns_hit": 6,
+    "legacy_redundancy_median_non_null": 1.0,
+    "forced_reasons": {
+      "none": 30,
+      "step_budget_after_tool_attempt": 6
+    },
+    "executed_tools": 157,
+    "named_tool_steps": 157,
+    "tool_attempts": 157,
+    "source_run": "runs/workbank/closeout-v0-deepseek"
+  }
+]

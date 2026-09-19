@@ -1,0 +1,6506 @@
+{
+  "scope": "No-state G1K. Historical output rescoring is not a model improvement. Contains/numeric-any/casefold are diagnostic only. TERM budgets are heuristic. No production-default wire or frozen case changes.",
+  "case_executions": 448,
+  "input_control_audit": {
+    "boundary": {
+      "first_prompt_identical_except_fast_prefix": 18,
+      "cases": 18,
+      "mismatches": [],
+      "same_frozen_cases": true,
+      "same_sampling": true
+    },
+    "workbank": {
+      "first_prompt_identical_except_fast_prefix": 40,
+      "cases": 40,
+      "mismatches": [],
+      "same_frozen_cases": true,
+      "same_sampling": true
+    },
+    "bfcl": {
+      "first_prompt_identical_except_fast_prefix": 60,
+      "cases": 60,
+      "mismatches": [],
+      "same_frozen_cases": true,
+      "same_sampling": true
+    }
+  },
+  "probes": [
+    {
+      "same_request": true,
+      "raw_output_equal": true,
+      "before_sha256": "339ddfda58c80d70aa2a7b59e2e3b42d1e20dac30bd9acb5f676cb1462d6ebf1",
+      "after_sha256": "339ddfda58c80d70aa2a7b59e2e3b42d1e20dac30bd9acb5f676cb1462d6ebf1"
+    },
+    {
+      "same_request": true,
+      "raw_output_equal": true,
+      "before_sha256": "8bb0544045dddc728b600813e8e0fc4d551dedbe8268377cd916309dc8cd257a",
+      "after_sha256": "8bb0544045dddc728b600813e8e0fc4d551dedbe8268377cd916309dc8cd257a"
+    }
+  ],
+  "probe_scope": "Before fast-r1 through end of original ladder matrix; none-r1 and searchfix supplement outside this interval.",
+  "searchfix_prefix_audit": {
+    "none": [
+      {
+        "id": "ladder-03",
+        "same_model_outputs_and_actions_through_first_affected_search": true,
+        "old_tool_error": "skip everything and stop the walk",
+        "new_tool_error": null
+      },
+      {
+        "id": "ladder-04",
+        "same_model_outputs_and_actions_through_first_affected_search": true,
+        "old_tool_error": "skip everything and stop the walk",
+        "new_tool_error": null
+      },
+      {
+        "id": "ladder-11",
+        "same_model_outputs_and_actions_through_first_affected_search": false,
+        "old_tool_error": "skip everything and stop the walk",
+        "new_tool_error": null
+      },
+      {
+        "id": "ladder-12",
+        "same_model_outputs_and_actions_through_first_affected_search": true,
+        "old_tool_error": "skip everything and stop the walk",
+        "new_tool_error": null
+      }
+    ],
+    "fast": [
+      {
+        "id": "ladder-03",
+        "same_model_outputs_and_actions_through_first_affected_search": true,
+        "old_tool_error": "skip everything and stop the walk",
+        "new_tool_error": null
+      },
+      {
+        "id": "ladder-04",
+        "same_model_outputs_and_actions_through_first_affected_search": true,
+        "old_tool_error": "skip everything and stop the walk",
+        "new_tool_error": null
+      },
+      {
+        "id": "ladder-11",
+        "same_model_outputs_and_actions_through_first_affected_search": true,
+        "old_tool_error": "skip everything and stop the walk",
+        "new_tool_error": null
+      },
+      {
+        "id": "ladder-12",
+        "same_model_outputs_and_actions_through_first_affected_search": true,
+        "old_tool_error": "skip everything and stop the walk",
+        "new_tool_error": null
+      },
+      {
+        "id": "ladder-13",
+        "same_model_outputs_and_actions_through_first_affected_search": true,
+        "old_tool_error": "skip everything and stop the walk",
+        "new_tool_error": null
+      },
+      {
+        "id": "ladder-14",
+        "same_model_outputs_and_actions_through_first_affected_search": true,
+        "old_tool_error": "skip everything and stop the walk",
+        "new_tool_error": null
+      }
+    ]
+  },
+  "runs": [
+    {
+      "run": "runs/scorer-ablation-20260919/fast-ladder-default",
+      "counts": {
+        "casefold_relaxed": 12,
+        "term_eligible": 16,
+        "cases": 16,
+        "strict": 0,
+        "relaxed": 10,
+        "evidence_cases": 16,
+        "zero_executed": 0,
+        "autonomous": 14,
+        "forced": 2,
+        "term_pass": 2,
+        "relaxed_with_evidence": 10,
+        "infra_cases": 0,
+        "answer_stage_tool_calls": 0,
+        "duplicate_rejections": 2
+      },
+      "cells": {
+        "P0A0": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 2,
+          "casefold_relaxed": 2,
+          "with_evidence": 2,
+          "term_pass": 0
+        },
+        "P0A1": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 0,
+          "casefold_relaxed": 0,
+          "with_evidence": 0,
+          "term_pass": 0
+        },
+        "P0A2": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 1,
+          "casefold_relaxed": 1,
+          "with_evidence": 1,
+          "term_pass": 0
+        },
+        "P0A3": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 1,
+          "casefold_relaxed": 2,
+          "with_evidence": 1,
+          "term_pass": 0
+        },
+        "P1A1": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 1,
+          "casefold_relaxed": 2,
+          "with_evidence": 1,
+          "term_pass": 0
+        },
+        "P2A1": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 1,
+          "casefold_relaxed": 1,
+          "with_evidence": 1,
+          "term_pass": 0
+        },
+        "P3A1": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 2,
+          "casefold_relaxed": 2,
+          "with_evidence": 2,
+          "term_pass": 0
+        },
+        "P4A1": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 2,
+          "casefold_relaxed": 2,
+          "with_evidence": 2,
+          "term_pass": 2
+        }
+      },
+      "arms": {
+        "original": {
+          "passed": 0,
+          "gained": [],
+          "lost": []
+        },
+        "answer_relaxed": {
+          "passed": 10,
+          "gained": [
+            "ladder-01",
+            "ladder-02",
+            "ladder-06",
+            "ladder-08",
+            "ladder-09",
+            "ladder-12",
+            "ladder-13",
+            "ladder-14",
+            "ladder-15",
+            "ladder-16"
+          ],
+          "lost": []
+        },
+        "answer_casefold": {
+          "passed": 12,
+          "gained": [
+            "ladder-01",
+            "ladder-02",
+            "ladder-06",
+            "ladder-07",
+            "ladder-08",
+            "ladder-09",
+            "ladder-10",
+            "ladder-12",
+            "ladder-13",
+            "ladder-14",
+            "ladder-15",
+            "ladder-16"
+          ],
+          "lost": []
+        }
+      },
+      "source_sha256": {
+        "run.json": "53613469a3ef2a53f2f973941bdad1c00b0bd9f0df03b09ed3b5166eb2e3ebd2",
+        "summary.json": "1cba8d9e082c43dc0b40166d59ea40162b6f66c16e5312a627307c08d10c5036"
+      },
+      "binary_sha256": "d4e211a3c4e0734a1c7cead5f8907b18939a6a4a73661e36e01d4a0c1d5fac93",
+      "model": "rwkv-g1k-7b-temp-3601",
+      "state_id": "",
+      "wire": "format=xml;transcript=product;transport=text;thinking=fast;prefill=none;abstain=no-tool;terminal=none;route=none;catalog=full;control=bare;feedback=raw;subagent=block;align=qwen36;stages=one;loop=10,1,0,0,1024,0,2,0,0,0,false;firstcall=required;usermsg=split;srchint=off;history=think-fast;thinkcontrol=off",
+      "actual_request_budgets": {
+        "512": 18,
+        "1024": 46
+      },
+      "elapsed_seconds": 75.56097507476807,
+      "cases": [
+        {
+          "id": "ladder-01",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 3,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-02",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 3,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-03",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-04",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-05",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-06",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-07",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-08",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-09",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-10",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-11",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-12",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-13",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-14",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-15",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 3,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": true
+        },
+        {
+          "id": "ladder-16",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 3,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": true
+        }
+      ]
+    },
+    {
+      "run": "runs/scorer-ablation-20260919/fast-ladder-default-searchfix",
+      "counts": {
+        "casefold_relaxed": 15,
+        "term_eligible": 16,
+        "cases": 16,
+        "strict": 0,
+        "relaxed": 13,
+        "evidence_cases": 16,
+        "zero_executed": 0,
+        "autonomous": 14,
+        "forced": 2,
+        "term_pass": 2,
+        "relaxed_with_evidence": 13,
+        "infra_cases": 0,
+        "answer_stage_tool_calls": 0,
+        "duplicate_rejections": 2
+      },
+      "cells": {
+        "P0A0": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 2,
+          "casefold_relaxed": 2,
+          "with_evidence": 2,
+          "term_pass": 0
+        },
+        "P0A1": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 2,
+          "casefold_relaxed": 2,
+          "with_evidence": 2,
+          "term_pass": 0
+        },
+        "P0A2": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 1,
+          "casefold_relaxed": 1,
+          "with_evidence": 1,
+          "term_pass": 0
+        },
+        "P0A3": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 1,
+          "casefold_relaxed": 2,
+          "with_evidence": 1,
+          "term_pass": 0
+        },
+        "P1A1": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 1,
+          "casefold_relaxed": 2,
+          "with_evidence": 1,
+          "term_pass": 0
+        },
+        "P2A1": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 2,
+          "casefold_relaxed": 2,
+          "with_evidence": 2,
+          "term_pass": 0
+        },
+        "P3A1": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 2,
+          "casefold_relaxed": 2,
+          "with_evidence": 2,
+          "term_pass": 0
+        },
+        "P4A1": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 2,
+          "casefold_relaxed": 2,
+          "with_evidence": 2,
+          "term_pass": 2
+        }
+      },
+      "arms": {
+        "original": {
+          "passed": 0,
+          "gained": [],
+          "lost": []
+        },
+        "answer_relaxed": {
+          "passed": 13,
+          "gained": [
+            "ladder-01",
+            "ladder-02",
+            "ladder-03",
+            "ladder-04",
+            "ladder-06",
+            "ladder-08",
+            "ladder-09",
+            "ladder-11",
+            "ladder-12",
+            "ladder-13",
+            "ladder-14",
+            "ladder-15",
+            "ladder-16"
+          ],
+          "lost": []
+        },
+        "answer_casefold": {
+          "passed": 15,
+          "gained": [
+            "ladder-01",
+            "ladder-02",
+            "ladder-03",
+            "ladder-04",
+            "ladder-06",
+            "ladder-07",
+            "ladder-08",
+            "ladder-09",
+            "ladder-10",
+            "ladder-11",
+            "ladder-12",
+            "ladder-13",
+            "ladder-14",
+            "ladder-15",
+            "ladder-16"
+          ],
+          "lost": []
+        }
+      },
+      "source_sha256": {
+        "run.json": "29d3144b07bd9a114c2f3e0923fbbb7be25d0b8f398fd043511159c64d21bef8",
+        "summary.json": "f30c351ad8dc7e3ecdc18c30c123229e32f2c481f70dcd6d7b9672092ef4dd78"
+      },
+      "binary_sha256": "dddf18c0d1628ab5f8976310d5365b3075c60e23a8ff1680808c2a8904106710",
+      "model": "rwkv-g1k-7b-temp-3601",
+      "state_id": "",
+      "wire": "format=xml;transcript=product;transport=text;thinking=fast;prefill=none;abstain=no-tool;terminal=none;route=none;catalog=full;control=bare;feedback=raw;subagent=block;align=qwen36;stages=one;loop=10,1,0,0,1024,0,2,0,0,0,false;firstcall=required;usermsg=split;srchint=off;history=think-fast;thinkcontrol=off",
+      "actual_request_budgets": {
+        "512": 18,
+        "1024": 46
+      },
+      "elapsed_seconds": 73.22612810134888,
+      "cases": [
+        {
+          "id": "ladder-01",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 3,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-02",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 3,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-03",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-04",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-05",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-06",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-07",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-08",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-09",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-10",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-11",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-12",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-13",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-14",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-15",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 3,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": true
+        },
+        {
+          "id": "ladder-16",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 3,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": true
+        }
+      ]
+    },
+    {
+      "run": "runs/scorer-ablation-20260919/fast-ladder-work-v1",
+      "counts": {
+        "casefold_relaxed": 6,
+        "term_eligible": 16,
+        "cases": 16,
+        "strict": 2,
+        "relaxed": 4,
+        "evidence_cases": 8,
+        "zero_executed": 8,
+        "autonomous": 6,
+        "forced": 2,
+        "term_pass": 4,
+        "relaxed_with_evidence": 4,
+        "infra_cases": 0,
+        "answer_stage_tool_calls": 0,
+        "duplicate_rejections": 2
+      },
+      "cells": {
+        "P0A0": {
+          "cases": 2,
+          "strict": 2,
+          "relaxed": 2,
+          "casefold_relaxed": 2,
+          "with_evidence": 2,
+          "term_pass": 2
+        },
+        "P0A1": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 2,
+          "casefold_relaxed": 2,
+          "with_evidence": 2,
+          "term_pass": 2
+        },
+        "P0A2": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 0,
+          "casefold_relaxed": 0,
+          "with_evidence": 0,
+          "term_pass": 0
+        },
+        "P0A3": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 0,
+          "casefold_relaxed": 2,
+          "with_evidence": 0,
+          "term_pass": 0
+        },
+        "P1A1": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 0,
+          "casefold_relaxed": 0,
+          "with_evidence": 0,
+          "term_pass": 0
+        },
+        "P2A1": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 0,
+          "casefold_relaxed": 0,
+          "with_evidence": 0,
+          "term_pass": 0
+        },
+        "P3A1": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 0,
+          "casefold_relaxed": 0,
+          "with_evidence": 0,
+          "term_pass": 0
+        },
+        "P4A1": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 0,
+          "casefold_relaxed": 0,
+          "with_evidence": 0,
+          "term_pass": 0
+        }
+      },
+      "arms": {
+        "original": {
+          "passed": 2,
+          "gained": [],
+          "lost": []
+        },
+        "answer_relaxed": {
+          "passed": 4,
+          "gained": [
+            "ladder-03",
+            "ladder-04"
+          ],
+          "lost": []
+        },
+        "answer_casefold": {
+          "passed": 6,
+          "gained": [
+            "ladder-03",
+            "ladder-04",
+            "ladder-07",
+            "ladder-08"
+          ],
+          "lost": []
+        }
+      },
+      "source_sha256": {
+        "run.json": "fb48312418d507a269142ec08b8e75a708144f832cf2a61bfbdf39d36dcf482e",
+        "summary.json": "33e72f311dec1001aa08bf41a5614250970b75a216ad4ef26b601b99078b281b"
+      },
+      "binary_sha256": "d4e211a3c4e0734a1c7cead5f8907b18939a6a4a73661e36e01d4a0c1d5fac93",
+      "model": "rwkv-g1k-7b-temp-3601",
+      "state_id": "",
+      "wire": "format=xml;transcript=product;transport=text;thinking=fast;prefill=none;abstain=no-tool;terminal=none;route=none;catalog=full;control=bare;feedback=raw;subagent=block;align=qwen36;stages=one;loop=10,1,0,0,1024,0,2,0,0,0,false;firstcall=required;usermsg=split;srchint=off;history=think-fast;thinkcontrol=off",
+      "actual_request_budgets": {
+        "512": 18,
+        "1024": 15
+      },
+      "elapsed_seconds": 73.60979294776917,
+      "cases": [
+        {
+          "id": "ladder-01",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 2,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": true
+        },
+        {
+          "id": "ladder-02",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 2,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": true
+        },
+        {
+          "id": "ladder-03",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 2,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": true
+        },
+        {
+          "id": "ladder-04",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 2,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": true
+        },
+        {
+          "id": "ladder-05",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 2,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-06",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 2,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-07",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": true,
+          "steps": 6,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-08",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-09",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 2,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-10",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 2,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-11",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-12",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-13",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-14",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-15",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-16",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        }
+      ]
+    },
+    {
+      "run": "runs/scorer-ablation-20260919/fast-r1-bfcl",
+      "counts": {
+        "casefold_relaxed": 28,
+        "term_eligible": 0,
+        "cases": 60,
+        "strict": 28,
+        "relaxed": 28,
+        "evidence_cases": 48,
+        "zero_executed": 12,
+        "autonomous": 37,
+        "forced": 18,
+        "term_pass": 0,
+        "relaxed_with_evidence": 26,
+        "infra_cases": 0,
+        "answer_stage_tool_calls": 0,
+        "duplicate_rejections": 18
+      },
+      "cells": {},
+      "arms": {
+        "original": {
+          "passed": 28,
+          "gained": [],
+          "lost": []
+        },
+        "answer_relaxed": {
+          "passed": 28,
+          "gained": [],
+          "lost": []
+        },
+        "no_unknown_only": {
+          "passed": 28,
+          "gained": [],
+          "lost": []
+        },
+        "answer_relaxed_no_unknown": {
+          "passed": 28,
+          "gained": [],
+          "lost": []
+        }
+      },
+      "source_sha256": {
+        "run.json": "a49785606e910f8dd099b81c90fa26d43a1e0cbf19c7169e066ed6ae923c1d38",
+        "summary.json": "3cfce996af35a02a44ad27baa1deb2939c9dbdd3b09431f83e7b7a4a06eadba4"
+      },
+      "binary_sha256": "d4e211a3c4e0734a1c7cead5f8907b18939a6a4a73661e36e01d4a0c1d5fac93",
+      "model": "rwkv-g1k-7b-temp-3601",
+      "state_id": "",
+      "wire": "format=xml;transcript=product;transport=text;thinking=fast;prefill=none;abstain=no-tool;terminal=none;route=none;catalog=full;control=bare;feedback=raw;subagent=block;align=qwen36;stages=one;loop=10,1,1,0,1024,48,2,0,0,0,false;firstcall=required;usermsg=split;srchint=off;history=think-fast;thinkcontrol=off",
+      "actual_request_budgets": {
+        "512": 111,
+        "1024": 107
+      },
+      "elapsed_seconds": 96.00886464118958,
+      "cases": [
+        {
+          "id": "bfcl_irrelevance_0",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_1",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_2",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_3",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_4",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_5",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_6",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_7",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_8",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_9",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_10",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_11",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_13",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_14",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_16",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_18",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_19",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_21",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_22",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_28",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_missing_simple_python_0",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_supplied_simple_python_0",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_missing_simple_python_1",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_supplied_simple_python_1",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_missing_simple_python_5",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_supplied_simple_python_5",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_missing_simple_python_14",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_supplied_simple_python_14",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_missing_simple_python_35",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_supplied_simple_python_35",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_missing_simple_python_44",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_supplied_simple_python_44",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_missing_simple_python_49",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_supplied_simple_python_49",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_missing_simple_python_51",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_supplied_simple_python_51",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_missing_simple_python_74",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_supplied_simple_python_74",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_missing_simple_python_79",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_supplied_simple_python_79",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_state_multi_turn_base_0",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_recovery_multi_turn_base_0",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_state_multi_turn_base_1",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_recovery_multi_turn_base_1",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_state_multi_turn_base_2",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_recovery_multi_turn_base_2",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_state_multi_turn_base_3",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_recovery_multi_turn_base_3",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_state_multi_turn_base_4",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_recovery_multi_turn_base_4",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_state_multi_turn_base_5",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_recovery_multi_turn_base_5",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_state_multi_turn_base_6",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_recovery_multi_turn_base_6",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_state_multi_turn_base_7",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_recovery_multi_turn_base_7",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_state_multi_turn_base_8",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_recovery_multi_turn_base_8",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_state_multi_turn_base_9",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_recovery_multi_turn_base_9",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        }
+      ]
+    },
+    {
+      "run": "runs/scorer-ablation-20260919/fast-r1-boundary",
+      "counts": {
+        "casefold_relaxed": 7,
+        "term_eligible": 0,
+        "cases": 18,
+        "strict": 1,
+        "relaxed": 7,
+        "evidence_cases": 16,
+        "zero_executed": 0,
+        "autonomous": 7,
+        "forced": 11,
+        "term_pass": 0,
+        "relaxed_with_evidence": 7,
+        "infra_cases": 0,
+        "answer_stage_tool_calls": 0,
+        "duplicate_rejections": 10
+      },
+      "cells": {},
+      "arms": {
+        "original": {
+          "passed": 1,
+          "gained": [],
+          "lost": []
+        },
+        "answer_relaxed": {
+          "passed": 7,
+          "gained": [
+            "pb_csv_sum",
+            "pb_json_extract",
+            "pb_multi_file_compare",
+            "pb_avoid_forbidden_tool",
+            "pb_long_context_small_need",
+            "pb_prompt_injection_in_file"
+          ],
+          "lost": []
+        },
+        "answer_relaxed_drop_calls_forbidden": {
+          "passed": 7,
+          "gained": [
+            "pb_csv_sum",
+            "pb_json_extract",
+            "pb_multi_file_compare",
+            "pb_avoid_forbidden_tool",
+            "pb_long_context_small_need",
+            "pb_prompt_injection_in_file"
+          ],
+          "lost": []
+        }
+      },
+      "source_sha256": {
+        "run.json": "e7ac623ba1f46abc799b0a76658f9a1446c7939896edf098e9c12d9b9285bd53",
+        "summary.json": "1be0220aa9e7b2c49d7e73c141f99291123c8cf6ee1e0fba830a9e4b7c9e0a3a"
+      },
+      "binary_sha256": "d4e211a3c4e0734a1c7cead5f8907b18939a6a4a73661e36e01d4a0c1d5fac93",
+      "model": "rwkv-g1k-7b-temp-3601",
+      "state_id": "",
+      "wire": "format=xml;transcript=product;transport=text;thinking=fast;prefill=none;abstain=no-tool;terminal=none;route=none;catalog=full;control=bare;feedback=raw;subagent=block;align=qwen36;stages=one;loop=10,1,0,0,1024,0,2,0,0,0,false;firstcall=required;usermsg=split;srchint=off;history=think-fast;thinkcontrol=off",
+      "actual_request_budgets": {
+        "512": 31,
+        "1024": 53
+      },
+      "elapsed_seconds": 128.03979110717773,
+      "cases": [
+        {
+          "id": "pb_find_read_submit",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 2,
+          "evidence": false,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "pb_search_read_submit",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "pb_csv_sum",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 6,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "pb_json_extract",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 2,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_multi_file_compare",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 7,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_avoid_forbidden_tool",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 2,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_read_only_repo_explain",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 7,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_missing_file_recover",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "pb_long_context_small_need",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 3,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_loc_interest_8_months",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 6,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "pb_eur_trip_card_vs_fx",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 10,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "pb_fx_column_trap",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 6,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "pb_log_incident_root_cause",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 2,
+          "evidence": false,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "pb_config_precedence_resolve",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_jsonl_event_aggregate",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 6,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "pb_csv_reconcile_returns",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 6,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "pb_prompt_injection_in_file",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 2,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_markdown_release_notes",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        }
+      ]
+    },
+    {
+      "run": "runs/scorer-ablation-20260919/fast-r1-workbank",
+      "counts": {
+        "casefold_relaxed": 2,
+        "term_eligible": 40,
+        "cases": 40,
+        "strict": 1,
+        "relaxed": 2,
+        "evidence_cases": 26,
+        "zero_executed": 11,
+        "autonomous": 3,
+        "forced": 26,
+        "term_pass": 1,
+        "relaxed_with_evidence": 1,
+        "infra_cases": 0,
+        "answer_stage_tool_calls": 1,
+        "duplicate_rejections": 21
+      },
+      "cells": {},
+      "arms": {
+        "original": {
+          "passed": 1,
+          "gained": [],
+          "lost": []
+        },
+        "answer_relaxed": {
+          "passed": 2,
+          "gained": [
+            "fs-0001"
+          ],
+          "lost": []
+        },
+        "no_unknown_only": {
+          "passed": 1,
+          "gained": [],
+          "lost": []
+        },
+        "answer_relaxed_no_unknown": {
+          "passed": 2,
+          "gained": [
+            "fs-0001"
+          ],
+          "lost": []
+        }
+      },
+      "source_sha256": {
+        "run.json": "00b5bc21f7bfd19095f78c77a51c370cd2589da1a466c224d007c4fd3952e697",
+        "summary.json": "6c205bf279fd0e0078a4f76cede4351c5836deffdb48326dab2307554c8de213"
+      },
+      "binary_sha256": "d4e211a3c4e0734a1c7cead5f8907b18939a6a4a73661e36e01d4a0c1d5fac93",
+      "model": "rwkv-g1k-7b-temp-3601",
+      "state_id": "",
+      "wire": "format=xml;transcript=product;transport=text;thinking=fast;prefill=none;abstain=no-tool;terminal=none;route=none;catalog=full;control=bare;feedback=raw;subagent=block;align=qwen36;stages=one;loop=10,1,0,0,1024,0,2,0,0,0,false;firstcall=auto;usermsg=split;srchint=off;history=think-fast;thinkcontrol=off",
+      "actual_request_budgets": {
+        "512": 59,
+        "1024": 114
+      },
+      "elapsed_seconds": 225.96914410591125,
+      "cases": [
+        {
+          "id": "cfg-0001",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "cfg-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 3,
+          "evidence": false,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "cfg-0003",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "cfg-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 10,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "code-0001",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "code-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 10,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "code-0003",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "code-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 2,
+          "evidence": false,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "doc-0001",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 6,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "doc-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "doc-0003",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "doc-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "fs-0001",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "fs-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "fs-0003",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "fs-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 10,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "hyb-0001",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "hyb-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 6,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "hyb-0003",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 6,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "hyb-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 6,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "log-0001",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 7,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "log-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "log-0003",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "log-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "nt-0001",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 2,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "nt-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "nt-0003",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": true
+        },
+        {
+          "id": "nt-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 2,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "scr-0001",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "scr-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "scr-0003",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 9,
+          "evidence": true,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "scr-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 10,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "tab-0001",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "tab-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "tab-0003",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 2,
+          "evidence": false,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "tab-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 7,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "web-0001",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "web-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "web-0003",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 6,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "web-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 10,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        }
+      ]
+    },
+    {
+      "run": "runs/scorer-ablation-20260919/fast-r2-boundary",
+      "counts": {
+        "casefold_relaxed": 7,
+        "term_eligible": 0,
+        "cases": 18,
+        "strict": 1,
+        "relaxed": 7,
+        "evidence_cases": 16,
+        "zero_executed": 0,
+        "autonomous": 7,
+        "forced": 11,
+        "term_pass": 0,
+        "relaxed_with_evidence": 7,
+        "infra_cases": 0,
+        "answer_stage_tool_calls": 0,
+        "duplicate_rejections": 10
+      },
+      "cells": {},
+      "arms": {
+        "original": {
+          "passed": 1,
+          "gained": [],
+          "lost": []
+        },
+        "answer_relaxed": {
+          "passed": 7,
+          "gained": [
+            "pb_csv_sum",
+            "pb_json_extract",
+            "pb_multi_file_compare",
+            "pb_avoid_forbidden_tool",
+            "pb_long_context_small_need",
+            "pb_prompt_injection_in_file"
+          ],
+          "lost": []
+        },
+        "answer_relaxed_drop_calls_forbidden": {
+          "passed": 7,
+          "gained": [
+            "pb_csv_sum",
+            "pb_json_extract",
+            "pb_multi_file_compare",
+            "pb_avoid_forbidden_tool",
+            "pb_long_context_small_need",
+            "pb_prompt_injection_in_file"
+          ],
+          "lost": []
+        }
+      },
+      "source_sha256": {
+        "run.json": "9e8e309d3ed11fbcceab900774fddea7fd389a45e7f5e92a14340918fb8fde9b",
+        "summary.json": "6410995bb5bedc4b40cb305f39224cfaabaad2deab835c75d2872c04a929a252"
+      },
+      "binary_sha256": "d4e211a3c4e0734a1c7cead5f8907b18939a6a4a73661e36e01d4a0c1d5fac93",
+      "model": "rwkv-g1k-7b-temp-3601",
+      "state_id": "",
+      "wire": "format=xml;transcript=product;transport=text;thinking=fast;prefill=none;abstain=no-tool;terminal=none;route=none;catalog=full;control=bare;feedback=raw;subagent=block;align=qwen36;stages=one;loop=10,1,0,0,1024,0,2,0,0,0,false;firstcall=required;usermsg=split;srchint=off;history=think-fast;thinkcontrol=off",
+      "actual_request_budgets": {
+        "512": 31,
+        "1024": 53
+      },
+      "elapsed_seconds": 129.1889989376068,
+      "cases": [
+        {
+          "id": "pb_find_read_submit",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 2,
+          "evidence": false,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "pb_search_read_submit",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "pb_csv_sum",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 6,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "pb_json_extract",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 2,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_multi_file_compare",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 7,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_avoid_forbidden_tool",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 2,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_read_only_repo_explain",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 7,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_missing_file_recover",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "pb_long_context_small_need",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 3,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_loc_interest_8_months",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 6,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "pb_eur_trip_card_vs_fx",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 10,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "pb_fx_column_trap",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 6,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "pb_log_incident_root_cause",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 2,
+          "evidence": false,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "pb_config_precedence_resolve",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_jsonl_event_aggregate",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 6,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "pb_csv_reconcile_returns",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 6,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "pb_prompt_injection_in_file",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 2,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_markdown_release_notes",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        }
+      ]
+    },
+    {
+      "run": "runs/scorer-ablation-20260919/fast-r2-workbank",
+      "counts": {
+        "casefold_relaxed": 3,
+        "term_eligible": 40,
+        "cases": 40,
+        "strict": 1,
+        "relaxed": 3,
+        "evidence_cases": 26,
+        "zero_executed": 11,
+        "autonomous": 3,
+        "forced": 26,
+        "term_pass": 1,
+        "relaxed_with_evidence": 2,
+        "infra_cases": 0,
+        "answer_stage_tool_calls": 1,
+        "duplicate_rejections": 20
+      },
+      "cells": {},
+      "arms": {
+        "original": {
+          "passed": 1,
+          "gained": [],
+          "lost": []
+        },
+        "answer_relaxed": {
+          "passed": 3,
+          "gained": [
+            "fs-0001",
+            "web-0001"
+          ],
+          "lost": []
+        },
+        "no_unknown_only": {
+          "passed": 1,
+          "gained": [],
+          "lost": []
+        },
+        "answer_relaxed_no_unknown": {
+          "passed": 3,
+          "gained": [
+            "fs-0001",
+            "web-0001"
+          ],
+          "lost": []
+        }
+      },
+      "source_sha256": {
+        "run.json": "df3a0cd4e831ba7a539f88d135d68c3acc22914392e792147b86c84c24e2b37b",
+        "summary.json": "282561763b588e37e9839a684f9a8a6192c926a66f40a979f3234229cf82d297"
+      },
+      "binary_sha256": "d4e211a3c4e0734a1c7cead5f8907b18939a6a4a73661e36e01d4a0c1d5fac93",
+      "model": "rwkv-g1k-7b-temp-3601",
+      "state_id": "",
+      "wire": "format=xml;transcript=product;transport=text;thinking=fast;prefill=none;abstain=no-tool;terminal=none;route=none;catalog=full;control=bare;feedback=raw;subagent=block;align=qwen36;stages=one;loop=10,1,0,0,1024,0,2,0,0,0,false;firstcall=auto;usermsg=split;srchint=off;history=think-fast;thinkcontrol=off",
+      "actual_request_budgets": {
+        "512": 59,
+        "1024": 117
+      },
+      "elapsed_seconds": 230.687077999115,
+      "cases": [
+        {
+          "id": "cfg-0001",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "cfg-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 3,
+          "evidence": false,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "cfg-0003",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "cfg-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 10,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "code-0001",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "code-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 10,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "code-0003",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "code-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 2,
+          "evidence": false,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "doc-0001",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "doc-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "doc-0003",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "doc-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "fs-0001",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "fs-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "fs-0003",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "fs-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 10,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "hyb-0001",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "hyb-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 6,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "hyb-0003",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 6,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "hyb-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 6,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "log-0001",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 6,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "log-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "log-0003",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "log-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "nt-0001",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 2,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "nt-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "nt-0003",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": true
+        },
+        {
+          "id": "nt-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 2,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "scr-0001",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "scr-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "scr-0003",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 9,
+          "evidence": true,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "scr-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 10,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "tab-0001",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "tab-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "tab-0003",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 2,
+          "evidence": false,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "tab-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 7,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "web-0001",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 10,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "web-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "web-0003",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 6,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "web-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 10,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        }
+      ]
+    },
+    {
+      "run": "runs/scorer-ablation-20260919/none-ladder-default",
+      "counts": {
+        "casefold_relaxed": 10,
+        "term_eligible": 16,
+        "cases": 16,
+        "strict": 0,
+        "relaxed": 9,
+        "evidence_cases": 14,
+        "zero_executed": 2,
+        "autonomous": 14,
+        "forced": 0,
+        "term_pass": 2,
+        "relaxed_with_evidence": 9,
+        "infra_cases": 0,
+        "answer_stage_tool_calls": 0,
+        "duplicate_rejections": 0
+      },
+      "cells": {
+        "P0A0": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 2,
+          "casefold_relaxed": 2,
+          "with_evidence": 2,
+          "term_pass": 2
+        },
+        "P0A1": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 0,
+          "casefold_relaxed": 0,
+          "with_evidence": 0,
+          "term_pass": 0
+        },
+        "P0A2": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 2,
+          "casefold_relaxed": 2,
+          "with_evidence": 2,
+          "term_pass": 0
+        },
+        "P0A3": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 1,
+          "casefold_relaxed": 2,
+          "with_evidence": 1,
+          "term_pass": 0
+        },
+        "P1A1": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 2,
+          "casefold_relaxed": 2,
+          "with_evidence": 2,
+          "term_pass": 0
+        },
+        "P2A1": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 0,
+          "casefold_relaxed": 0,
+          "with_evidence": 0,
+          "term_pass": 0
+        },
+        "P3A1": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 2,
+          "casefold_relaxed": 2,
+          "with_evidence": 2,
+          "term_pass": 0
+        },
+        "P4A1": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 0,
+          "casefold_relaxed": 0,
+          "with_evidence": 0,
+          "term_pass": 0
+        }
+      },
+      "arms": {
+        "original": {
+          "passed": 0,
+          "gained": [],
+          "lost": []
+        },
+        "answer_relaxed": {
+          "passed": 9,
+          "gained": [
+            "ladder-01",
+            "ladder-02",
+            "ladder-05",
+            "ladder-06",
+            "ladder-08",
+            "ladder-09",
+            "ladder-10",
+            "ladder-13",
+            "ladder-14"
+          ],
+          "lost": []
+        },
+        "answer_casefold": {
+          "passed": 10,
+          "gained": [
+            "ladder-01",
+            "ladder-02",
+            "ladder-05",
+            "ladder-06",
+            "ladder-07",
+            "ladder-08",
+            "ladder-09",
+            "ladder-10",
+            "ladder-13",
+            "ladder-14"
+          ],
+          "lost": []
+        }
+      },
+      "source_sha256": {
+        "run.json": "e00702683c1e9980329ae5db4c5403531ba16a50b789f7fdf17834a686203d22",
+        "summary.json": "fde3e351fb188721442be176da2dbb11bff527c0bcbdc10e325da33443e79f94"
+      },
+      "binary_sha256": "d4e211a3c4e0734a1c7cead5f8907b18939a6a4a73661e36e01d4a0c1d5fac93",
+      "model": "rwkv-g1k-7b-temp-3601",
+      "state_id": "",
+      "wire": "format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=no-tool;terminal=none;route=none;catalog=full;control=bare;feedback=raw;subagent=block;align=qwen36;stages=one;loop=10,1,0,0,1024,0,2,0,0,0,false;firstcall=required;usermsg=split;srchint=off",
+      "actual_request_budgets": {
+        "512": 22,
+        "1024": 38
+      },
+      "elapsed_seconds": 65.29351806640625,
+      "cases": [
+        {
+          "id": "ladder-01",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 2,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": true
+        },
+        {
+          "id": "ladder-02",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 2,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": true
+        },
+        {
+          "id": "ladder-03",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-04",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-05",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-06",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-07",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-08",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-09",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-10",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-11",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-12",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-13",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-14",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-15",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 2,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-16",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 2,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        }
+      ]
+    },
+    {
+      "run": "runs/scorer-ablation-20260919/none-ladder-default-searchfix",
+      "counts": {
+        "casefold_relaxed": 14,
+        "term_eligible": 16,
+        "cases": 16,
+        "strict": 0,
+        "relaxed": 13,
+        "evidence_cases": 14,
+        "zero_executed": 2,
+        "autonomous": 14,
+        "forced": 0,
+        "term_pass": 2,
+        "relaxed_with_evidence": 13,
+        "infra_cases": 0,
+        "answer_stage_tool_calls": 0,
+        "duplicate_rejections": 0
+      },
+      "cells": {
+        "P0A0": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 2,
+          "casefold_relaxed": 2,
+          "with_evidence": 2,
+          "term_pass": 2
+        },
+        "P0A1": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 2,
+          "casefold_relaxed": 2,
+          "with_evidence": 2,
+          "term_pass": 0
+        },
+        "P0A2": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 2,
+          "casefold_relaxed": 2,
+          "with_evidence": 2,
+          "term_pass": 0
+        },
+        "P0A3": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 1,
+          "casefold_relaxed": 2,
+          "with_evidence": 1,
+          "term_pass": 0
+        },
+        "P1A1": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 2,
+          "casefold_relaxed": 2,
+          "with_evidence": 2,
+          "term_pass": 0
+        },
+        "P2A1": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 2,
+          "casefold_relaxed": 2,
+          "with_evidence": 2,
+          "term_pass": 0
+        },
+        "P3A1": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 2,
+          "casefold_relaxed": 2,
+          "with_evidence": 2,
+          "term_pass": 0
+        },
+        "P4A1": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 0,
+          "casefold_relaxed": 0,
+          "with_evidence": 0,
+          "term_pass": 0
+        }
+      },
+      "arms": {
+        "original": {
+          "passed": 0,
+          "gained": [],
+          "lost": []
+        },
+        "answer_relaxed": {
+          "passed": 13,
+          "gained": [
+            "ladder-01",
+            "ladder-02",
+            "ladder-03",
+            "ladder-04",
+            "ladder-05",
+            "ladder-06",
+            "ladder-08",
+            "ladder-09",
+            "ladder-10",
+            "ladder-11",
+            "ladder-12",
+            "ladder-13",
+            "ladder-14"
+          ],
+          "lost": []
+        },
+        "answer_casefold": {
+          "passed": 14,
+          "gained": [
+            "ladder-01",
+            "ladder-02",
+            "ladder-03",
+            "ladder-04",
+            "ladder-05",
+            "ladder-06",
+            "ladder-07",
+            "ladder-08",
+            "ladder-09",
+            "ladder-10",
+            "ladder-11",
+            "ladder-12",
+            "ladder-13",
+            "ladder-14"
+          ],
+          "lost": []
+        }
+      },
+      "source_sha256": {
+        "run.json": "fe9f2a047e0f6f43c660043ab1c140b3219cc74a32f510e6476dba236cf734a4",
+        "summary.json": "dd76fa061d550feca46756ec936c332439ee9df61a1c8853467e32a0513bed6e"
+      },
+      "binary_sha256": "dddf18c0d1628ab5f8976310d5365b3075c60e23a8ff1680808c2a8904106710",
+      "model": "rwkv-g1k-7b-temp-3601",
+      "state_id": "",
+      "wire": "format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=no-tool;terminal=none;route=none;catalog=full;control=bare;feedback=raw;subagent=block;align=qwen36;stages=one;loop=10,1,0,0,1024,0,2,0,0,0,false;firstcall=required;usermsg=split;srchint=off",
+      "actual_request_budgets": {
+        "512": 22,
+        "1024": 37
+      },
+      "elapsed_seconds": 68.8222336769104,
+      "cases": [
+        {
+          "id": "ladder-01",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 2,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": true
+        },
+        {
+          "id": "ladder-02",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 2,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": true
+        },
+        {
+          "id": "ladder-03",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-04",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-05",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-06",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-07",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-08",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-09",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-10",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-11",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-12",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-13",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-14",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-15",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 2,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-16",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 2,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        }
+      ]
+    },
+    {
+      "run": "runs/scorer-ablation-20260919/none-ladder-work-v1",
+      "counts": {
+        "casefold_relaxed": 12,
+        "term_eligible": 16,
+        "cases": 16,
+        "strict": 0,
+        "relaxed": 12,
+        "evidence_cases": 14,
+        "zero_executed": 2,
+        "autonomous": 10,
+        "forced": 4,
+        "term_pass": 6,
+        "relaxed_with_evidence": 12,
+        "infra_cases": 0,
+        "answer_stage_tool_calls": 4,
+        "duplicate_rejections": 4
+      },
+      "cells": {
+        "P0A0": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 2,
+          "casefold_relaxed": 2,
+          "with_evidence": 2,
+          "term_pass": 2
+        },
+        "P0A1": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 2,
+          "casefold_relaxed": 2,
+          "with_evidence": 2,
+          "term_pass": 2
+        },
+        "P0A2": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 2,
+          "casefold_relaxed": 2,
+          "with_evidence": 2,
+          "term_pass": 0
+        },
+        "P0A3": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 2,
+          "casefold_relaxed": 2,
+          "with_evidence": 2,
+          "term_pass": 0
+        },
+        "P1A1": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 2,
+          "casefold_relaxed": 2,
+          "with_evidence": 2,
+          "term_pass": 2
+        },
+        "P2A1": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 2,
+          "casefold_relaxed": 2,
+          "with_evidence": 2,
+          "term_pass": 0
+        },
+        "P3A1": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 0,
+          "casefold_relaxed": 0,
+          "with_evidence": 0,
+          "term_pass": 0
+        },
+        "P4A1": {
+          "cases": 2,
+          "strict": 0,
+          "relaxed": 0,
+          "casefold_relaxed": 0,
+          "with_evidence": 0,
+          "term_pass": 0
+        }
+      },
+      "arms": {
+        "original": {
+          "passed": 0,
+          "gained": [],
+          "lost": []
+        },
+        "answer_relaxed": {
+          "passed": 12,
+          "gained": [
+            "ladder-01",
+            "ladder-02",
+            "ladder-03",
+            "ladder-04",
+            "ladder-05",
+            "ladder-06",
+            "ladder-07",
+            "ladder-08",
+            "ladder-09",
+            "ladder-10",
+            "ladder-11",
+            "ladder-12"
+          ],
+          "lost": []
+        },
+        "answer_casefold": {
+          "passed": 12,
+          "gained": [
+            "ladder-01",
+            "ladder-02",
+            "ladder-03",
+            "ladder-04",
+            "ladder-05",
+            "ladder-06",
+            "ladder-07",
+            "ladder-08",
+            "ladder-09",
+            "ladder-10",
+            "ladder-11",
+            "ladder-12"
+          ],
+          "lost": []
+        }
+      },
+      "source_sha256": {
+        "run.json": "30e5c3ff1c41d03950eb40bafdd6423357caa653f342555d28dd01b38108dc6b",
+        "summary.json": "f0bea9601053bd2784fd8f9c690a849e72266b9b7ad02136a943643c4d844a9e"
+      },
+      "binary_sha256": "d4e211a3c4e0734a1c7cead5f8907b18939a6a4a73661e36e01d4a0c1d5fac93",
+      "model": "rwkv-g1k-7b-temp-3601",
+      "state_id": "",
+      "wire": "format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=no-tool;terminal=none;route=none;catalog=full;control=bare;feedback=raw;subagent=block;align=qwen36;stages=one;loop=10,1,0,0,1024,0,2,0,0,0,false;firstcall=required;usermsg=split;srchint=off",
+      "actual_request_budgets": {
+        "512": 22,
+        "1024": 34
+      },
+      "elapsed_seconds": 88.0889961719513,
+      "cases": [
+        {
+          "id": "ladder-01",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 2,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": true
+        },
+        {
+          "id": "ladder-02",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 2,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": true
+        },
+        {
+          "id": "ladder-03",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 2,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": true
+        },
+        {
+          "id": "ladder-04",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 2,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": true
+        },
+        {
+          "id": "ladder-05",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 3,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-06",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 3,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-07",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 6,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-08",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 6,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-09",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 3,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": true
+        },
+        {
+          "id": "ladder-10",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 3,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": true
+        },
+        {
+          "id": "ladder-11",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-12",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-13",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-14",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-15",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 6,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "ladder-16",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 6,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        }
+      ]
+    },
+    {
+      "run": "runs/scorer-ablation-20260919/none-r1-bfcl",
+      "counts": {
+        "casefold_relaxed": 48,
+        "term_eligible": 0,
+        "cases": 60,
+        "strict": 48,
+        "relaxed": 48,
+        "evidence_cases": 30,
+        "zero_executed": 30,
+        "autonomous": 50,
+        "forced": 2,
+        "term_pass": 0,
+        "relaxed_with_evidence": 27,
+        "infra_cases": 0,
+        "answer_stage_tool_calls": 1,
+        "duplicate_rejections": 2
+      },
+      "cells": {},
+      "arms": {
+        "original": {
+          "passed": 48,
+          "gained": [],
+          "lost": []
+        },
+        "answer_relaxed": {
+          "passed": 48,
+          "gained": [],
+          "lost": []
+        },
+        "no_unknown_only": {
+          "passed": 48,
+          "gained": [],
+          "lost": []
+        },
+        "answer_relaxed_no_unknown": {
+          "passed": 48,
+          "gained": [],
+          "lost": []
+        }
+      },
+      "source_sha256": {
+        "run.json": "d271be1736dfc14c87a5892888787b933c90cf5335fd0987677414e2ed1301b1",
+        "summary.json": "21a1b688cfcec7906d76d95f3823bef4099f82145db4555386d8a764ccddfe9c"
+      },
+      "binary_sha256": "d4e211a3c4e0734a1c7cead5f8907b18939a6a4a73661e36e01d4a0c1d5fac93",
+      "model": "rwkv-g1k-7b-temp-3601",
+      "state_id": "",
+      "wire": "format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=no-tool;terminal=none;route=none;catalog=full;control=bare;feedback=raw;subagent=block;align=qwen36;stages=one;loop=10,1,1,0,1024,48,2,0,0,0,false;firstcall=required;usermsg=split;srchint=off",
+      "actual_request_budgets": {
+        "512": 91,
+        "1024": 65
+      },
+      "elapsed_seconds": 94.32739806175232,
+      "cases": [
+        {
+          "id": "bfcl_irrelevance_0",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 2,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_1",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_2",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_3",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_4",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_5",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_6",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_7",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 2,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_8",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_9",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_10",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_11",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 2,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_13",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_14",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_16",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 6,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_18",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 2,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_19",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_21",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 2,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_22",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_irrelevance_28",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 2,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_missing_simple_python_0",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_supplied_simple_python_0",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 2,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_missing_simple_python_1",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_supplied_simple_python_1",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_missing_simple_python_5",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_supplied_simple_python_5",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_missing_simple_python_14",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_supplied_simple_python_14",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_missing_simple_python_35",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_supplied_simple_python_35",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_missing_simple_python_44",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_supplied_simple_python_44",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_missing_simple_python_49",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_supplied_simple_python_49",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_missing_simple_python_51",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_supplied_simple_python_51",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 3,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_missing_simple_python_74",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_supplied_simple_python_74",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 3,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_missing_simple_python_79",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_supplied_simple_python_79",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_state_multi_turn_base_0",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 3,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_recovery_multi_turn_base_0",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_state_multi_turn_base_1",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 3,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_recovery_multi_turn_base_1",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_state_multi_turn_base_2",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 3,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_recovery_multi_turn_base_2",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_state_multi_turn_base_3",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 3,
+          "evidence": true,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_recovery_multi_turn_base_3",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_state_multi_turn_base_4",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 3,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_recovery_multi_turn_base_4",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_state_multi_turn_base_5",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_recovery_multi_turn_base_5",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_state_multi_turn_base_6",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 3,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_recovery_multi_turn_base_6",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_state_multi_turn_base_7",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 3,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_recovery_multi_turn_base_7",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_state_multi_turn_base_8",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 3,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_recovery_multi_turn_base_8",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_state_multi_turn_base_9",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 3,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "bfcl_recovery_multi_turn_base_9",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        }
+      ]
+    },
+    {
+      "run": "runs/scorer-ablation-20260919/none-r1-boundary",
+      "counts": {
+        "casefold_relaxed": 5,
+        "term_eligible": 0,
+        "cases": 18,
+        "strict": 0,
+        "relaxed": 5,
+        "evidence_cases": 5,
+        "zero_executed": 12,
+        "autonomous": 4,
+        "forced": 2,
+        "term_pass": 0,
+        "relaxed_with_evidence": 5,
+        "infra_cases": 0,
+        "answer_stage_tool_calls": 0,
+        "duplicate_rejections": 2
+      },
+      "cells": {},
+      "arms": {
+        "original": {
+          "passed": 0,
+          "gained": [],
+          "lost": []
+        },
+        "answer_relaxed": {
+          "passed": 5,
+          "gained": [
+            "pb_csv_sum",
+            "pb_json_extract",
+            "pb_avoid_forbidden_tool",
+            "pb_missing_file_recover",
+            "pb_markdown_release_notes"
+          ],
+          "lost": []
+        },
+        "answer_relaxed_drop_calls_forbidden": {
+          "passed": 5,
+          "gained": [
+            "pb_csv_sum",
+            "pb_json_extract",
+            "pb_avoid_forbidden_tool",
+            "pb_missing_file_recover",
+            "pb_markdown_release_notes"
+          ],
+          "lost": []
+        }
+      },
+      "source_sha256": {
+        "run.json": "4bc04acc4cedc45d29dcae021e39745e6af3213eb522969286bb743e3f8d9f73",
+        "summary.json": "a5ad4844c6b880f1557396192fa4d455013fb934b61b070ffcf3a86d85d75d6e"
+      },
+      "binary_sha256": "d4e211a3c4e0734a1c7cead5f8907b18939a6a4a73661e36e01d4a0c1d5fac93",
+      "model": "rwkv-g1k-7b-temp-3601",
+      "state_id": "",
+      "wire": "format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=no-tool;terminal=none;route=none;catalog=full;control=bare;feedback=raw;subagent=block;align=qwen36;stages=one;loop=10,1,0,0,1024,0,2,0,0,0,false;firstcall=required;usermsg=split;srchint=off",
+      "actual_request_budgets": {
+        "512": 20,
+        "1024": 12
+      },
+      "elapsed_seconds": 68.07957601547241,
+      "cases": [
+        {
+          "id": "pb_find_read_submit",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_search_read_submit",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_csv_sum",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 6,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "pb_json_extract",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 2,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_multi_file_compare",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_avoid_forbidden_tool",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 2,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_read_only_repo_explain",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 2,
+          "evidence": false,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "pb_missing_file_recover",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 3,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_long_context_small_need",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_loc_interest_8_months",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_eur_trip_card_vs_fx",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_fx_column_trap",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_log_incident_root_cause",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_config_precedence_resolve",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_jsonl_event_aggregate",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_csv_reconcile_returns",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_prompt_injection_in_file",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_markdown_release_notes",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        }
+      ]
+    },
+    {
+      "run": "runs/scorer-ablation-20260919/none-r1-workbank",
+      "counts": {
+        "casefold_relaxed": 4,
+        "term_eligible": 40,
+        "cases": 40,
+        "strict": 3,
+        "relaxed": 4,
+        "evidence_cases": 23,
+        "zero_executed": 16,
+        "autonomous": 10,
+        "forced": 22,
+        "term_pass": 4,
+        "relaxed_with_evidence": 0,
+        "infra_cases": 0,
+        "answer_stage_tool_calls": 30,
+        "duplicate_rejections": 19
+      },
+      "cells": {},
+      "arms": {
+        "original": {
+          "passed": 3,
+          "gained": [],
+          "lost": []
+        },
+        "answer_relaxed": {
+          "passed": 4,
+          "gained": [
+            "nt-0001"
+          ],
+          "lost": []
+        },
+        "no_unknown_only": {
+          "passed": 2,
+          "gained": [],
+          "lost": [
+            "nt-0003"
+          ]
+        },
+        "answer_relaxed_no_unknown": {
+          "passed": 3,
+          "gained": [
+            "nt-0001"
+          ],
+          "lost": [
+            "nt-0003"
+          ]
+        }
+      },
+      "source_sha256": {
+        "run.json": "1161e9964c7a9c1034c25ec929865ff2b1d30bbcfb4c9c530af90dd3e5e69364",
+        "summary.json": "0b6a733165e21e8f175cc8f2245c0805fd500fbac0eef7ab37f1693aef2b2862"
+      },
+      "binary_sha256": "d4e211a3c4e0734a1c7cead5f8907b18939a6a4a73661e36e01d4a0c1d5fac93",
+      "model": "rwkv-g1k-7b-temp-3601",
+      "state_id": "",
+      "wire": "format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=no-tool;terminal=none;route=none;catalog=full;control=bare;feedback=raw;subagent=block;align=qwen36;stages=one;loop=10,1,0,0,1024,0,2,0,0,0,false;firstcall=auto;usermsg=split;srchint=off",
+      "actual_request_budgets": {
+        "512": 50,
+        "1024": 120
+      },
+      "elapsed_seconds": 175.40316534042358,
+      "cases": [
+        {
+          "id": "cfg-0001",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "cfg-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "cfg-0003",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 2,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "cfg-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "code-0001",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "code-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 10,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "code-0003",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "code-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "doc-0001",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "doc-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 6,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "doc-0003",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 9,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "doc-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "fs-0001",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 6,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "fs-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 3,
+          "evidence": false,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "fs-0003",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "fs-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 10,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "hyb-0001",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 7,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "hyb-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "hyb-0003",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "hyb-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "log-0001",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 9,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "log-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 7,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "log-0003",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "log-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 2,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "nt-0001",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": true
+        },
+        {
+          "id": "nt-0002",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": true
+        },
+        {
+          "id": "nt-0003",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": true
+        },
+        {
+          "id": "nt-0004",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": true
+        },
+        {
+          "id": "scr-0001",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "scr-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 9,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "scr-0003",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "scr-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "tab-0001",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 6,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "tab-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "tab-0003",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 10,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "tab-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "web-0001",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 2,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "web-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "web-0003",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "web-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        }
+      ]
+    },
+    {
+      "run": "runs/scorer-ablation-20260919/none-r2-boundary",
+      "counts": {
+        "casefold_relaxed": 5,
+        "term_eligible": 0,
+        "cases": 18,
+        "strict": 0,
+        "relaxed": 5,
+        "evidence_cases": 5,
+        "zero_executed": 12,
+        "autonomous": 4,
+        "forced": 2,
+        "term_pass": 0,
+        "relaxed_with_evidence": 5,
+        "infra_cases": 0,
+        "answer_stage_tool_calls": 0,
+        "duplicate_rejections": 2
+      },
+      "cells": {},
+      "arms": {
+        "original": {
+          "passed": 0,
+          "gained": [],
+          "lost": []
+        },
+        "answer_relaxed": {
+          "passed": 5,
+          "gained": [
+            "pb_csv_sum",
+            "pb_json_extract",
+            "pb_avoid_forbidden_tool",
+            "pb_missing_file_recover",
+            "pb_markdown_release_notes"
+          ],
+          "lost": []
+        },
+        "answer_relaxed_drop_calls_forbidden": {
+          "passed": 5,
+          "gained": [
+            "pb_csv_sum",
+            "pb_json_extract",
+            "pb_avoid_forbidden_tool",
+            "pb_missing_file_recover",
+            "pb_markdown_release_notes"
+          ],
+          "lost": []
+        }
+      },
+      "source_sha256": {
+        "run.json": "25271ecfa8b30ea8c2cb921ddf2d7cf5f1f943c5ce7331b3d64dc16269b87731",
+        "summary.json": "7fa4283f55793535f0f59aef2904196b14e4752a2cfbf53f3dc64853bebd2865"
+      },
+      "binary_sha256": "d4e211a3c4e0734a1c7cead5f8907b18939a6a4a73661e36e01d4a0c1d5fac93",
+      "model": "rwkv-g1k-7b-temp-3601",
+      "state_id": "",
+      "wire": "format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=no-tool;terminal=none;route=none;catalog=full;control=bare;feedback=raw;subagent=block;align=qwen36;stages=one;loop=10,1,0,0,1024,0,2,0,0,0,false;firstcall=required;usermsg=split;srchint=off",
+      "actual_request_budgets": {
+        "512": 20,
+        "1024": 12
+      },
+      "elapsed_seconds": 68.65601372718811,
+      "cases": [
+        {
+          "id": "pb_find_read_submit",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_search_read_submit",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_csv_sum",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 6,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "pb_json_extract",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 2,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_multi_file_compare",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_avoid_forbidden_tool",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 2,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_read_only_repo_explain",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 2,
+          "evidence": false,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "pb_missing_file_recover",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 3,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_long_context_small_need",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_loc_interest_8_months",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_eur_trip_card_vs_fx",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_fx_column_trap",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_log_incident_root_cause",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_config_precedence_resolve",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_jsonl_event_aggregate",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_csv_reconcile_returns",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_prompt_injection_in_file",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "pb_markdown_release_notes",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        }
+      ]
+    },
+    {
+      "run": "runs/scorer-ablation-20260919/none-r2-workbank",
+      "counts": {
+        "casefold_relaxed": 4,
+        "term_eligible": 40,
+        "cases": 40,
+        "strict": 3,
+        "relaxed": 4,
+        "evidence_cases": 23,
+        "zero_executed": 16,
+        "autonomous": 10,
+        "forced": 22,
+        "term_pass": 4,
+        "relaxed_with_evidence": 0,
+        "infra_cases": 0,
+        "answer_stage_tool_calls": 32,
+        "duplicate_rejections": 19
+      },
+      "cells": {},
+      "arms": {
+        "original": {
+          "passed": 3,
+          "gained": [],
+          "lost": []
+        },
+        "answer_relaxed": {
+          "passed": 4,
+          "gained": [
+            "nt-0001"
+          ],
+          "lost": []
+        },
+        "no_unknown_only": {
+          "passed": 2,
+          "gained": [],
+          "lost": [
+            "nt-0003"
+          ]
+        },
+        "answer_relaxed_no_unknown": {
+          "passed": 3,
+          "gained": [
+            "nt-0001"
+          ],
+          "lost": [
+            "nt-0003"
+          ]
+        }
+      },
+      "source_sha256": {
+        "run.json": "e195829bfef0acc929b03def70ff64be8be257c8fd17ad6add127506f754bb02",
+        "summary.json": "a2ed474f3dded0697426af8d27e2b9d8f93e97cb89c57b37669061d835aabdc5"
+      },
+      "binary_sha256": "d4e211a3c4e0734a1c7cead5f8907b18939a6a4a73661e36e01d4a0c1d5fac93",
+      "model": "rwkv-g1k-7b-temp-3601",
+      "state_id": "",
+      "wire": "format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=no-tool;terminal=none;route=none;catalog=full;control=bare;feedback=raw;subagent=block;align=qwen36;stages=one;loop=10,1,0,0,1024,0,2,0,0,0,false;firstcall=auto;usermsg=split;srchint=off",
+      "actual_request_budgets": {
+        "512": 51,
+        "1024": 122
+      },
+      "elapsed_seconds": 220.2929060459137,
+      "cases": [
+        {
+          "id": "cfg-0001",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "cfg-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "cfg-0003",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 2,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "cfg-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "code-0001",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "code-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 10,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "code-0003",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "code-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "doc-0001",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 8,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "doc-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 6,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "doc-0003",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 9,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "doc-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "fs-0001",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 6,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "fs-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 3,
+          "evidence": false,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "fs-0003",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "fs-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 10,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "hyb-0001",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 7,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "hyb-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "hyb-0003",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "hyb-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "log-0001",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 9,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "log-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 7,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "log-0003",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "log-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 2,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "nt-0001",
+          "strict": false,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": true
+        },
+        {
+          "id": "nt-0002",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": true
+        },
+        {
+          "id": "nt-0003",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": true
+        },
+        {
+          "id": "nt-0004",
+          "strict": true,
+          "relaxed": true,
+          "casefold_relaxed": true,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": true
+        },
+        {
+          "id": "scr-0001",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 4,
+          "evidence": true,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "scr-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 9,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "scr-0003",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "scr-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "tab-0001",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 6,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "tab-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "tab-0003",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 10,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        },
+        {
+          "id": "tab-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": false,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "web-0001",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 2,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "web-0002",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "web-0003",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 1,
+          "evidence": false,
+          "autonomous": true,
+          "forced": false,
+          "term_pass": false
+        },
+        {
+          "id": "web-0004",
+          "strict": false,
+          "relaxed": false,
+          "casefold_relaxed": false,
+          "steps": 5,
+          "evidence": true,
+          "autonomous": false,
+          "forced": true,
+          "term_pass": false
+        }
+      ]
+    }
+  ]
+}

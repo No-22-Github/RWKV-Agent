@@ -1,0 +1,3674 @@
+{
+  "scope": "Original 36 Workbank tool cases; no state, thinking off; frozen scorer unchanged",
+  "definitions": {
+    "attempt": "step.action_type == tool, including nameless malformed calls",
+    "executed": "step.tool_executed == true; errors still count as executions",
+    "evidence": "step.tool_evidence == true; does not guarantee sufficient/correct evidence",
+    "observed_model_answer": "nonempty un-repaired model answer; decision-stage final/no_tool included",
+    "relaxed_only": "optimistic answer substring/numeric match with all other archived failures retained; not semantic proof",
+    "tokens": "local RWKV vocabulary recount of complete stored prompts; not server usage"
+  },
+  "comparability": {
+    "identical_frozen_cases": true,
+    "identical_sampling": true,
+    "identical_model": true,
+    "binary_sha256": "5ae10557c00091f1eb1d11390e193850201478d12d748ebd315ef746b05ea314",
+    "harness_differences": {
+      "wire_canonical": [
+        "format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=no-tool;terminal=none;route=none;catalog=full;control=bare;feedback=raw;subagent=block;align=qwen36;stages=one;loop=10,1,0,0,1024,0,2,0,0,0,false;firstcall=auto;usermsg=split;srchint=off",
+        "format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=no-tool;terminal=none;route=none;catalog=full;control=bare;feedback=raw;subagent=block;align=qwen36;stages=one;loop=30,1,0,0,1024,0,2,0,0,0,false;firstcall=auto;usermsg=split;srchint=off"
+      ],
+      "wire_hash": [
+        "6b5630aac4f9ceb50e2576d3cf9cd5beaa21505c3a842edc3650331181c36613",
+        "a3f18a8e582f2e90a8e7b9c27b6b8d49dbf93dddb13394277c04318dd76b0c2f"
+      ],
+      "max_steps": [
+        10,
+        30
+      ]
+    }
+  },
+  "vocab_sha256": [
+    "e6dee3d4e31b4d5c40ac99508ac6c701ceef4bed681bf2167ce9a908552bca89"
+  ],
+  "runs": [
+    {
+      "run": "runs/budget-language-audit-20260920/paired-none-steps10",
+      "source_sha256": {
+        "summary.json": "4ec585a0f93b90d0111843729aee452d66d80cdfc6e344afd0cd579acf0b9969",
+        "run.json": "022c918c7e185f00c6a3a7f46cd1919998a5670eaa26600214bf643ef6dd7bcf"
+      },
+      "aggregate": {
+        "cases": 36,
+        "official_passed": 0,
+        "relaxed_passed": 1,
+        "forced_reasons": {
+          "none": 12,
+          "duplicate_tool_call": 21,
+          "step_budget_after_tool_attempt": 3
+        },
+        "at_generation_limit": 5,
+        "observed_model_answers": 14,
+        "literal_answer_stage_cases": 23,
+        "relaxed_only_passes": 1,
+        "steps": {
+          "total": 183,
+          "cases_with_any": 36,
+          "mean": 5.083333333333333,
+          "median": 5.0,
+          "max": 10
+        },
+        "tool_attempts": {
+          "total": 159,
+          "cases_with_any": 26,
+          "mean": 4.416666666666667,
+          "median": 5.0,
+          "max": 10
+        },
+        "named_tool_steps": {
+          "total": 125,
+          "cases_with_any": 26,
+          "mean": 3.4722222222222223,
+          "median": 3.0,
+          "max": 9
+        },
+        "executed_tools": {
+          "total": 104,
+          "cases_with_any": 26,
+          "mean": 2.888888888888889,
+          "median": 2.0,
+          "max": 9
+        },
+        "evidence_steps": {
+          "total": 98,
+          "cases_with_any": 25,
+          "mean": 2.7222222222222223,
+          "median": 2.0,
+          "max": 9
+        },
+        "protocol_error_steps": {
+          "total": 44,
+          "cases_with_any": 22,
+          "mean": 1.2222222222222223,
+          "median": 2.0,
+          "max": 3
+        },
+        "tool_error_steps": {
+          "total": 37,
+          "cases_with_any": 22,
+          "mean": 1.0277777777777777,
+          "median": 1.0,
+          "max": 4
+        },
+        "tokens": {
+          "complete_cases": 36,
+          "provider_prompt_usage_populated": 0,
+          "first": {
+            "min": 992,
+            "median": 1017.0,
+            "max": 1104,
+            "sum": 36773
+          },
+          "max": {
+            "min": 995,
+            "median": 1609.0,
+            "max": 3814,
+            "sum": 67515
+          },
+          "cumulative": {
+            "min": 995,
+            "median": 6539.0,
+            "max": 23576,
+            "sum": 311272
+          }
+        }
+      },
+      "cases": [
+        {
+          "id": "cfg-0001",
+          "official_passed": false,
+          "relaxed_passed": true,
+          "steps": 4,
+          "reference_calls": 2,
+          "tool_attempts": 3,
+          "named_tool_steps": 3,
+          "executed_tools": 3,
+          "evidence_steps": 3,
+          "protocol_error_steps": 0,
+          "tool_error_steps": 0,
+          "forced_reasons": [
+            "none"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": false,
+          "observed_model_answer": true,
+          "relaxed_only_pass": true,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 4,
+            "first": 1004,
+            "max": 1574,
+            "cumulative": 5247
+          },
+          "terminal_actions": [
+            "no_tool"
+          ],
+          "runner_errors": []
+        },
+        {
+          "id": "cfg-0002",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 5,
+          "reference_calls": 4,
+          "tool_attempts": 5,
+          "named_tool_steps": 3,
+          "executed_tools": 2,
+          "evidence_steps": 2,
+          "protocol_error_steps": 2,
+          "tool_error_steps": 1,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 5,
+            "first": 1017,
+            "max": 1543,
+            "cumulative": 6415
+          },
+          "terminal_actions": [
+            "tool"
+          ],
+          "runner_errors": [
+            "agent protocol error: action is not allowed in this generation stage: tool action is forbidden during answer"
+          ]
+        },
+        {
+          "id": "cfg-0003",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 7,
+          "reference_calls": 4,
+          "tool_attempts": 6,
+          "named_tool_steps": 4,
+          "executed_tools": 3,
+          "evidence_steps": 3,
+          "protocol_error_steps": 3,
+          "tool_error_steps": 1,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 7,
+            "first": 1005,
+            "max": 1761,
+            "cumulative": 9616
+          },
+          "terminal_actions": [
+            "tool"
+          ],
+          "runner_errors": [
+            "agent protocol error: action is not allowed in this generation stage: tool action is forbidden during answer"
+          ]
+        },
+        {
+          "id": "cfg-0004",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 1,
+          "reference_calls": 6,
+          "tool_attempts": 0,
+          "named_tool_steps": 0,
+          "executed_tools": 0,
+          "evidence_steps": 0,
+          "protocol_error_steps": 0,
+          "tool_error_steps": 0,
+          "forced_reasons": [
+            "none"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": false,
+          "observed_model_answer": true,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 1,
+            "first": 1027,
+            "max": 1027,
+            "cumulative": 1027
+          },
+          "terminal_actions": [
+            "final"
+          ],
+          "runner_errors": []
+        },
+        {
+          "id": "code-0001",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 5,
+          "reference_calls": 3,
+          "tool_attempts": 5,
+          "named_tool_steps": 3,
+          "executed_tools": 2,
+          "evidence_steps": 2,
+          "protocol_error_steps": 2,
+          "tool_error_steps": 1,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 5,
+            "first": 1040,
+            "max": 1554,
+            "cumulative": 6496
+          },
+          "terminal_actions": [
+            "tool"
+          ],
+          "runner_errors": [
+            "agent protocol error: action is not allowed in this generation stage: tool action is forbidden during answer"
+          ]
+        },
+        {
+          "id": "code-0002",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 10,
+          "reference_calls": 3,
+          "tool_attempts": 9,
+          "named_tool_steps": 9,
+          "executed_tools": 9,
+          "evidence_steps": 9,
+          "protocol_error_steps": 0,
+          "tool_error_steps": 0,
+          "forced_reasons": [
+            "step_budget_after_tool_attempt"
+          ],
+          "at_generation_limit": true,
+          "literal_answer_stage": true,
+          "observed_model_answer": true,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 10,
+            "first": 1068,
+            "max": 2562,
+            "cumulative": 18750
+          },
+          "terminal_actions": [
+            "no_tool"
+          ],
+          "runner_errors": []
+        },
+        {
+          "id": "code-0003",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 5,
+          "reference_calls": 4,
+          "tool_attempts": 5,
+          "named_tool_steps": 3,
+          "executed_tools": 2,
+          "evidence_steps": 2,
+          "protocol_error_steps": 2,
+          "tool_error_steps": 2,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 5,
+            "first": 1019,
+            "max": 1817,
+            "cumulative": 7484
+          },
+          "terminal_actions": [
+            "tool"
+          ],
+          "runner_errors": [
+            "agent protocol error: action is not allowed in this generation stage: tool action is forbidden during answer"
+          ]
+        },
+        {
+          "id": "code-0004",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 5,
+          "reference_calls": 6,
+          "tool_attempts": 5,
+          "named_tool_steps": 3,
+          "executed_tools": 2,
+          "evidence_steps": 1,
+          "protocol_error_steps": 2,
+          "tool_error_steps": 2,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 5,
+            "first": 1014,
+            "max": 1627,
+            "cumulative": 6636
+          },
+          "terminal_actions": [
+            "tool"
+          ],
+          "runner_errors": [
+            "agent protocol error: action is not allowed in this generation stage: tool action is forbidden during answer"
+          ]
+        },
+        {
+          "id": "doc-0001",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 5,
+          "reference_calls": 3,
+          "tool_attempts": 4,
+          "named_tool_steps": 4,
+          "executed_tools": 3,
+          "evidence_steps": 3,
+          "protocol_error_steps": 0,
+          "tool_error_steps": 2,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": true,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 5,
+            "first": 1033,
+            "max": 1851,
+            "cumulative": 7124
+          },
+          "terminal_actions": [
+            "no_tool"
+          ],
+          "runner_errors": []
+        },
+        {
+          "id": "doc-0002",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 8,
+          "reference_calls": 4,
+          "tool_attempts": 8,
+          "named_tool_steps": 6,
+          "executed_tools": 5,
+          "evidence_steps": 5,
+          "protocol_error_steps": 2,
+          "tool_error_steps": 4,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 8,
+            "first": 1017,
+            "max": 1921,
+            "cumulative": 11862
+          },
+          "terminal_actions": [
+            "tool"
+          ],
+          "runner_errors": [
+            "agent protocol error: action is not allowed in this generation stage: tool action is forbidden during answer"
+          ]
+        },
+        {
+          "id": "doc-0003",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 9,
+          "reference_calls": 4,
+          "tool_attempts": 8,
+          "named_tool_steps": 8,
+          "executed_tools": 7,
+          "evidence_steps": 7,
+          "protocol_error_steps": 0,
+          "tool_error_steps": 2,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": true,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 9,
+            "first": 1007,
+            "max": 2555,
+            "cumulative": 16567
+          },
+          "terminal_actions": [
+            "no_tool"
+          ],
+          "runner_errors": []
+        },
+        {
+          "id": "doc-0004",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 1,
+          "reference_calls": 5,
+          "tool_attempts": 0,
+          "named_tool_steps": 0,
+          "executed_tools": 0,
+          "evidence_steps": 0,
+          "protocol_error_steps": 0,
+          "tool_error_steps": 0,
+          "forced_reasons": [
+            "none"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": false,
+          "observed_model_answer": true,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 1,
+            "first": 1060,
+            "max": 1060,
+            "cumulative": 1060
+          },
+          "terminal_actions": [
+            "final"
+          ],
+          "runner_errors": []
+        },
+        {
+          "id": "fs-0001",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 6,
+          "reference_calls": 2,
+          "tool_attempts": 6,
+          "named_tool_steps": 4,
+          "executed_tools": 3,
+          "evidence_steps": 3,
+          "protocol_error_steps": 2,
+          "tool_error_steps": 1,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 6,
+            "first": 1010,
+            "max": 2391,
+            "cumulative": 10827
+          },
+          "terminal_actions": [
+            "tool"
+          ],
+          "runner_errors": [
+            "agent protocol error: action is not allowed in this generation stage: tool action is forbidden during answer"
+          ]
+        },
+        {
+          "id": "fs-0002",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 3,
+          "reference_calls": 4,
+          "tool_attempts": 3,
+          "named_tool_steps": 3,
+          "executed_tools": 2,
+          "evidence_steps": 0,
+          "protocol_error_steps": 0,
+          "tool_error_steps": 3,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": false,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 3,
+            "first": 1007,
+            "max": 1450,
+            "cumulative": 3679
+          },
+          "terminal_actions": [
+            "tool"
+          ],
+          "runner_errors": [
+            "agent could not obtain workspace evidence: every tool call failed argument validation or was rejected; the turn was not committed"
+          ]
+        },
+        {
+          "id": "fs-0003",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 1,
+          "reference_calls": 4,
+          "tool_attempts": 0,
+          "named_tool_steps": 0,
+          "executed_tools": 0,
+          "evidence_steps": 0,
+          "protocol_error_steps": 0,
+          "tool_error_steps": 0,
+          "forced_reasons": [
+            "none"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": false,
+          "observed_model_answer": true,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 1,
+            "first": 995,
+            "max": 995,
+            "cumulative": 995
+          },
+          "terminal_actions": [
+            "final"
+          ],
+          "runner_errors": []
+        },
+        {
+          "id": "fs-0004",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 10,
+          "reference_calls": 6,
+          "tool_attempts": 10,
+          "named_tool_steps": 9,
+          "executed_tools": 9,
+          "evidence_steps": 9,
+          "protocol_error_steps": 1,
+          "tool_error_steps": 0,
+          "forced_reasons": [
+            "step_budget_after_tool_attempt"
+          ],
+          "at_generation_limit": true,
+          "literal_answer_stage": true,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 10,
+            "first": 1025,
+            "max": 3578,
+            "cumulative": 23576
+          },
+          "terminal_actions": [
+            "tool"
+          ],
+          "runner_errors": [
+            "agent reached the step limit"
+          ]
+        },
+        {
+          "id": "hyb-0001",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 7,
+          "reference_calls": 3,
+          "tool_attempts": 7,
+          "named_tool_steps": 5,
+          "executed_tools": 4,
+          "evidence_steps": 4,
+          "protocol_error_steps": 2,
+          "tool_error_steps": 1,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 7,
+            "first": 1020,
+            "max": 2292,
+            "cumulative": 12066
+          },
+          "terminal_actions": [
+            "tool"
+          ],
+          "runner_errors": [
+            "agent protocol error: action is not allowed in this generation stage: tool action is forbidden during answer"
+          ]
+        },
+        {
+          "id": "hyb-0002",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 5,
+          "reference_calls": 4,
+          "tool_attempts": 5,
+          "named_tool_steps": 3,
+          "executed_tools": 2,
+          "evidence_steps": 2,
+          "protocol_error_steps": 2,
+          "tool_error_steps": 1,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 5,
+            "first": 1027,
+            "max": 1523,
+            "cumulative": 6380
+          },
+          "terminal_actions": [
+            "tool"
+          ],
+          "runner_errors": [
+            "agent protocol error: action is not allowed in this generation stage: tool action is forbidden during answer"
+          ]
+        },
+        {
+          "id": "hyb-0003",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 1,
+          "reference_calls": 4,
+          "tool_attempts": 0,
+          "named_tool_steps": 0,
+          "executed_tools": 0,
+          "evidence_steps": 0,
+          "protocol_error_steps": 0,
+          "tool_error_steps": 0,
+          "forced_reasons": [
+            "none"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": false,
+          "observed_model_answer": true,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 1,
+            "first": 1017,
+            "max": 1017,
+            "cumulative": 1017
+          },
+          "terminal_actions": [
+            "final"
+          ],
+          "runner_errors": []
+        },
+        {
+          "id": "hyb-0004",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 5,
+          "reference_calls": 6,
+          "tool_attempts": 5,
+          "named_tool_steps": 3,
+          "executed_tools": 2,
+          "evidence_steps": 2,
+          "protocol_error_steps": 2,
+          "tool_error_steps": 1,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 5,
+            "first": 1035,
+            "max": 1591,
+            "cumulative": 6582
+          },
+          "terminal_actions": [
+            "tool"
+          ],
+          "runner_errors": [
+            "agent protocol error: action is not allowed in this generation stage: tool action is forbidden during answer"
+          ]
+        },
+        {
+          "id": "log-0001",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 10,
+          "reference_calls": 3,
+          "tool_attempts": 9,
+          "named_tool_steps": 7,
+          "executed_tools": 6,
+          "evidence_steps": 5,
+          "protocol_error_steps": 3,
+          "tool_error_steps": 3,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": true,
+          "literal_answer_stage": true,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 10,
+            "first": 992,
+            "max": 3814,
+            "cumulative": 22919
+          },
+          "terminal_actions": [
+            "tool"
+          ],
+          "runner_errors": [
+            "agent protocol error: action is not allowed in this generation stage: tool action is forbidden during answer"
+          ]
+        },
+        {
+          "id": "log-0002",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 7,
+          "reference_calls": 4,
+          "tool_attempts": 5,
+          "named_tool_steps": 5,
+          "executed_tools": 4,
+          "evidence_steps": 4,
+          "protocol_error_steps": 2,
+          "tool_error_steps": 1,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 7,
+            "first": 1019,
+            "max": 3640,
+            "cumulative": 15997
+          },
+          "terminal_actions": [
+            null
+          ],
+          "runner_errors": [
+            "agent protocol error: tool call JSON decode failed: decode G1 tool call: invalid character '\\n' in string"
+          ]
+        },
+        {
+          "id": "log-0003",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 5,
+          "reference_calls": 4,
+          "tool_attempts": 5,
+          "named_tool_steps": 3,
+          "executed_tools": 2,
+          "evidence_steps": 2,
+          "protocol_error_steps": 2,
+          "tool_error_steps": 2,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 5,
+            "first": 1014,
+            "max": 1563,
+            "cumulative": 6464
+          },
+          "terminal_actions": [
+            "tool"
+          ],
+          "runner_errors": [
+            "agent protocol error: action is not allowed in this generation stage: tool action is forbidden during answer"
+          ]
+        },
+        {
+          "id": "log-0004",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 2,
+          "reference_calls": 5,
+          "tool_attempts": 0,
+          "named_tool_steps": 0,
+          "executed_tools": 0,
+          "evidence_steps": 0,
+          "protocol_error_steps": 1,
+          "tool_error_steps": 0,
+          "forced_reasons": [
+            "none"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": false,
+          "observed_model_answer": true,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 2,
+            "first": 1015,
+            "max": 1090,
+            "cumulative": 2105
+          },
+          "terminal_actions": [
+            "final"
+          ],
+          "runner_errors": []
+        },
+        {
+          "id": "scr-0001",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 4,
+          "reference_calls": 3,
+          "tool_attempts": 2,
+          "named_tool_steps": 2,
+          "executed_tools": 2,
+          "evidence_steps": 1,
+          "protocol_error_steps": 2,
+          "tool_error_steps": 1,
+          "forced_reasons": [
+            "none"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": false,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 4,
+            "first": 1104,
+            "max": 1815,
+            "cumulative": 5830
+          },
+          "terminal_actions": [
+            null
+          ],
+          "runner_errors": [
+            "agent protocol error: tool call shape invalid: invalid G1 tool call"
+          ]
+        },
+        {
+          "id": "scr-0002",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 9,
+          "reference_calls": 4,
+          "tool_attempts": 9,
+          "named_tool_steps": 7,
+          "executed_tools": 6,
+          "evidence_steps": 6,
+          "protocol_error_steps": 2,
+          "tool_error_steps": 1,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 9,
+            "first": 1021,
+            "max": 3068,
+            "cumulative": 20253
+          },
+          "terminal_actions": [
+            "tool"
+          ],
+          "runner_errors": [
+            "agent protocol error: action is not allowed in this generation stage: tool action is forbidden during answer"
+          ]
+        },
+        {
+          "id": "scr-0003",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 10,
+          "reference_calls": 4,
+          "tool_attempts": 8,
+          "named_tool_steps": 8,
+          "executed_tools": 7,
+          "evidence_steps": 7,
+          "protocol_error_steps": 2,
+          "tool_error_steps": 2,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": true,
+          "literal_answer_stage": true,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 10,
+            "first": 1015,
+            "max": 3208,
+            "cumulative": 21552
+          },
+          "terminal_actions": [
+            null
+          ],
+          "runner_errors": [
+            "agent protocol error: tool call shape invalid: invalid G1 tool call"
+          ]
+        },
+        {
+          "id": "scr-0004",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 1,
+          "reference_calls": 6,
+          "tool_attempts": 0,
+          "named_tool_steps": 0,
+          "executed_tools": 0,
+          "evidence_steps": 0,
+          "protocol_error_steps": 0,
+          "tool_error_steps": 0,
+          "forced_reasons": [
+            "none"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": false,
+          "observed_model_answer": true,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 1,
+            "first": 1024,
+            "max": 1024,
+            "cumulative": 1024
+          },
+          "terminal_actions": [
+            "final"
+          ],
+          "runner_errors": []
+        },
+        {
+          "id": "tab-0001",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 6,
+          "reference_calls": 3,
+          "tool_attempts": 6,
+          "named_tool_steps": 4,
+          "executed_tools": 3,
+          "evidence_steps": 3,
+          "protocol_error_steps": 2,
+          "tool_error_steps": 1,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 6,
+            "first": 1008,
+            "max": 1730,
+            "cumulative": 8254
+          },
+          "terminal_actions": [
+            "tool"
+          ],
+          "runner_errors": [
+            "agent protocol error: action is not allowed in this generation stage: tool action is forbidden during answer"
+          ]
+        },
+        {
+          "id": "tab-0002",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 1,
+          "reference_calls": 4,
+          "tool_attempts": 0,
+          "named_tool_steps": 0,
+          "executed_tools": 0,
+          "evidence_steps": 0,
+          "protocol_error_steps": 0,
+          "tool_error_steps": 0,
+          "forced_reasons": [
+            "none"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": false,
+          "observed_model_answer": true,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 1,
+            "first": 1027,
+            "max": 1027,
+            "cumulative": 1027
+          },
+          "terminal_actions": [
+            "final"
+          ],
+          "runner_errors": []
+        },
+        {
+          "id": "tab-0003",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 10,
+          "reference_calls": 3,
+          "tool_attempts": 10,
+          "named_tool_steps": 9,
+          "executed_tools": 9,
+          "evidence_steps": 9,
+          "protocol_error_steps": 1,
+          "tool_error_steps": 0,
+          "forced_reasons": [
+            "step_budget_after_tool_attempt"
+          ],
+          "at_generation_limit": true,
+          "literal_answer_stage": true,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 10,
+            "first": 1015,
+            "max": 3507,
+            "cumulative": 23454
+          },
+          "terminal_actions": [
+            "tool"
+          ],
+          "runner_errors": [
+            "agent reached the step limit"
+          ]
+        },
+        {
+          "id": "tab-0004",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 1,
+          "reference_calls": 4,
+          "tool_attempts": 0,
+          "named_tool_steps": 0,
+          "executed_tools": 0,
+          "evidence_steps": 0,
+          "protocol_error_steps": 0,
+          "tool_error_steps": 0,
+          "forced_reasons": [
+            "none"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": false,
+          "observed_model_answer": true,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 1,
+            "first": 1013,
+            "max": 1013,
+            "cumulative": 1013
+          },
+          "terminal_actions": [
+            "final"
+          ],
+          "runner_errors": []
+        },
+        {
+          "id": "web-0001",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 7,
+          "reference_calls": 3,
+          "tool_attempts": 6,
+          "named_tool_steps": 4,
+          "executed_tools": 3,
+          "evidence_steps": 3,
+          "protocol_error_steps": 3,
+          "tool_error_steps": 2,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 7,
+            "first": 1015,
+            "max": 1721,
+            "cumulative": 9458
+          },
+          "terminal_actions": [
+            "tool"
+          ],
+          "runner_errors": [
+            "agent protocol error: action is not allowed in this generation stage: tool action is forbidden during answer"
+          ]
+        },
+        {
+          "id": "web-0002",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 1,
+          "reference_calls": 4,
+          "tool_attempts": 0,
+          "named_tool_steps": 0,
+          "executed_tools": 0,
+          "evidence_steps": 0,
+          "protocol_error_steps": 0,
+          "tool_error_steps": 0,
+          "forced_reasons": [
+            "none"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": false,
+          "observed_model_answer": true,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 1,
+            "first": 1012,
+            "max": 1012,
+            "cumulative": 1012
+          },
+          "terminal_actions": [
+            "final"
+          ],
+          "runner_errors": []
+        },
+        {
+          "id": "web-0003",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 1,
+          "reference_calls": 4,
+          "tool_attempts": 0,
+          "named_tool_steps": 0,
+          "executed_tools": 0,
+          "evidence_steps": 0,
+          "protocol_error_steps": 0,
+          "tool_error_steps": 0,
+          "forced_reasons": [
+            "none"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": false,
+          "observed_model_answer": true,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 1,
+            "first": 1020,
+            "max": 1020,
+            "cumulative": 1020
+          },
+          "terminal_actions": [
+            "final"
+          ],
+          "runner_errors": []
+        },
+        {
+          "id": "web-0004",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 5,
+          "reference_calls": 5,
+          "tool_attempts": 5,
+          "named_tool_steps": 3,
+          "executed_tools": 2,
+          "evidence_steps": 1,
+          "protocol_error_steps": 2,
+          "tool_error_steps": 2,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 5,
+            "first": 1012,
+            "max": 1574,
+            "cumulative": 6484
+          },
+          "terminal_actions": [
+            "tool"
+          ],
+          "runner_errors": [
+            "agent protocol error: action is not allowed in this generation stage: tool action is forbidden during answer"
+          ]
+        }
+      ]
+    },
+    {
+      "run": "runs/budget-language-audit-20260920/paired-none-steps30",
+      "source_sha256": {
+        "summary.json": "88c7d7af72fa76275da88ad2166a4b808a2122df8c4bca8b765947ea535b4cda",
+        "run.json": "a4c1efe72ca17daa27eebde3ea7528bb80c8fe004d3d378704a6471d25863565"
+      },
+      "aggregate": {
+        "cases": 36,
+        "official_passed": 0,
+        "relaxed_passed": 0,
+        "forced_reasons": {
+          "duplicate_tool_call": 20,
+          "none": 14,
+          "step_budget_after_tool_attempt": 2
+        },
+        "at_generation_limit": 2,
+        "observed_model_answers": 18,
+        "literal_answer_stage_cases": 21,
+        "relaxed_only_passes": 0,
+        "steps": {
+          "total": 216,
+          "cases_with_any": 36,
+          "mean": 6,
+          "median": 5.0,
+          "max": 30
+        },
+        "tool_attempts": {
+          "total": 188,
+          "cases_with_any": 24,
+          "mean": 5.222222222222222,
+          "median": 5.0,
+          "max": 29
+        },
+        "named_tool_steps": {
+          "total": 160,
+          "cases_with_any": 24,
+          "mean": 4.444444444444445,
+          "median": 3.0,
+          "max": 29
+        },
+        "executed_tools": {
+          "total": 140,
+          "cases_with_any": 24,
+          "mean": 3.888888888888889,
+          "median": 2.0,
+          "max": 29
+        },
+        "evidence_steps": {
+          "total": 136,
+          "cases_with_any": 23,
+          "mean": 3.7777777777777777,
+          "median": 2.0,
+          "max": 29
+        },
+        "protocol_error_steps": {
+          "total": 38,
+          "cases_with_any": 21,
+          "mean": 1.0555555555555556,
+          "median": 1.0,
+          "max": 2
+        },
+        "tool_error_steps": {
+          "total": 30,
+          "cases_with_any": 22,
+          "mean": 0.8333333333333334,
+          "median": 1.0,
+          "max": 3
+        },
+        "tokens": {
+          "complete_cases": 36,
+          "provider_prompt_usage_populated": 0,
+          "first": {
+            "min": 992,
+            "median": 1017.0,
+            "max": 1104,
+            "sum": 36773
+          },
+          "max": {
+            "min": 995,
+            "median": 1574.5,
+            "max": 6753,
+            "sum": 73114
+          },
+          "cumulative": {
+            "min": 995,
+            "median": 6473.5,
+            "max": 127302,
+            "sum": 512161
+          }
+        }
+      },
+      "cases": [
+        {
+          "id": "cfg-0001",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 5,
+          "reference_calls": 2,
+          "tool_attempts": 5,
+          "named_tool_steps": 3,
+          "executed_tools": 2,
+          "evidence_steps": 2,
+          "protocol_error_steps": 2,
+          "tool_error_steps": 1,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 5,
+            "first": 1004,
+            "max": 1518,
+            "cumulative": 6316
+          },
+          "terminal_actions": [
+            "tool"
+          ],
+          "runner_errors": [
+            "agent protocol error: action is not allowed in this generation stage: tool action is forbidden during answer"
+          ]
+        },
+        {
+          "id": "cfg-0002",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 5,
+          "reference_calls": 4,
+          "tool_attempts": 5,
+          "named_tool_steps": 3,
+          "executed_tools": 2,
+          "evidence_steps": 2,
+          "protocol_error_steps": 2,
+          "tool_error_steps": 1,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 5,
+            "first": 1017,
+            "max": 1543,
+            "cumulative": 6415
+          },
+          "terminal_actions": [
+            "tool"
+          ],
+          "runner_errors": [
+            "agent protocol error: action is not allowed in this generation stage: tool action is forbidden during answer"
+          ]
+        },
+        {
+          "id": "cfg-0003",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 2,
+          "reference_calls": 4,
+          "tool_attempts": 0,
+          "named_tool_steps": 0,
+          "executed_tools": 0,
+          "evidence_steps": 0,
+          "protocol_error_steps": 1,
+          "tool_error_steps": 0,
+          "forced_reasons": [
+            "none"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": false,
+          "observed_model_answer": true,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 2,
+            "first": 1005,
+            "max": 1080,
+            "cumulative": 2085
+          },
+          "terminal_actions": [
+            "final"
+          ],
+          "runner_errors": []
+        },
+        {
+          "id": "cfg-0004",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 1,
+          "reference_calls": 6,
+          "tool_attempts": 0,
+          "named_tool_steps": 0,
+          "executed_tools": 0,
+          "evidence_steps": 0,
+          "protocol_error_steps": 0,
+          "tool_error_steps": 0,
+          "forced_reasons": [
+            "none"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": false,
+          "observed_model_answer": true,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 1,
+            "first": 1027,
+            "max": 1027,
+            "cumulative": 1027
+          },
+          "terminal_actions": [
+            "final"
+          ],
+          "runner_errors": []
+        },
+        {
+          "id": "code-0001",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 5,
+          "reference_calls": 3,
+          "tool_attempts": 5,
+          "named_tool_steps": 3,
+          "executed_tools": 2,
+          "evidence_steps": 2,
+          "protocol_error_steps": 2,
+          "tool_error_steps": 1,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 5,
+            "first": 1040,
+            "max": 1554,
+            "cumulative": 6496
+          },
+          "terminal_actions": [
+            "tool"
+          ],
+          "runner_errors": [
+            "agent protocol error: action is not allowed in this generation stage: tool action is forbidden during answer"
+          ]
+        },
+        {
+          "id": "code-0002",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 30,
+          "reference_calls": 3,
+          "tool_attempts": 29,
+          "named_tool_steps": 29,
+          "executed_tools": 29,
+          "evidence_steps": 29,
+          "protocol_error_steps": 0,
+          "tool_error_steps": 0,
+          "forced_reasons": [
+            "step_budget_after_tool_attempt"
+          ],
+          "at_generation_limit": true,
+          "literal_answer_stage": true,
+          "observed_model_answer": true,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 30,
+            "first": 1068,
+            "max": 6342,
+            "cumulative": 105980
+          },
+          "terminal_actions": [
+            "no_tool"
+          ],
+          "runner_errors": []
+        },
+        {
+          "id": "code-0003",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 5,
+          "reference_calls": 4,
+          "tool_attempts": 5,
+          "named_tool_steps": 3,
+          "executed_tools": 2,
+          "evidence_steps": 2,
+          "protocol_error_steps": 2,
+          "tool_error_steps": 2,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 5,
+            "first": 1019,
+            "max": 1817,
+            "cumulative": 7484
+          },
+          "terminal_actions": [
+            "tool"
+          ],
+          "runner_errors": [
+            "agent protocol error: action is not allowed in this generation stage: tool action is forbidden during answer"
+          ]
+        },
+        {
+          "id": "code-0004",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 5,
+          "reference_calls": 6,
+          "tool_attempts": 5,
+          "named_tool_steps": 3,
+          "executed_tools": 2,
+          "evidence_steps": 1,
+          "protocol_error_steps": 2,
+          "tool_error_steps": 2,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 5,
+            "first": 1014,
+            "max": 1627,
+            "cumulative": 6636
+          },
+          "terminal_actions": [
+            "tool"
+          ],
+          "runner_errors": [
+            "agent protocol error: action is not allowed in this generation stage: tool action is forbidden during answer"
+          ]
+        },
+        {
+          "id": "doc-0001",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 5,
+          "reference_calls": 3,
+          "tool_attempts": 4,
+          "named_tool_steps": 4,
+          "executed_tools": 3,
+          "evidence_steps": 3,
+          "protocol_error_steps": 0,
+          "tool_error_steps": 2,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": true,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 5,
+            "first": 1033,
+            "max": 1851,
+            "cumulative": 7124
+          },
+          "terminal_actions": [
+            "no_tool"
+          ],
+          "runner_errors": []
+        },
+        {
+          "id": "doc-0002",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 6,
+          "reference_calls": 4,
+          "tool_attempts": 6,
+          "named_tool_steps": 4,
+          "executed_tools": 3,
+          "evidence_steps": 3,
+          "protocol_error_steps": 2,
+          "tool_error_steps": 2,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 6,
+            "first": 1017,
+            "max": 1692,
+            "cumulative": 8177
+          },
+          "terminal_actions": [
+            "tool"
+          ],
+          "runner_errors": [
+            "agent protocol error: action is not allowed in this generation stage: tool action is forbidden during answer"
+          ]
+        },
+        {
+          "id": "doc-0003",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 9,
+          "reference_calls": 4,
+          "tool_attempts": 8,
+          "named_tool_steps": 8,
+          "executed_tools": 7,
+          "evidence_steps": 7,
+          "protocol_error_steps": 0,
+          "tool_error_steps": 2,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": true,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 9,
+            "first": 1007,
+            "max": 2555,
+            "cumulative": 16567
+          },
+          "terminal_actions": [
+            "no_tool"
+          ],
+          "runner_errors": []
+        },
+        {
+          "id": "doc-0004",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 1,
+          "reference_calls": 5,
+          "tool_attempts": 0,
+          "named_tool_steps": 0,
+          "executed_tools": 0,
+          "evidence_steps": 0,
+          "protocol_error_steps": 0,
+          "tool_error_steps": 0,
+          "forced_reasons": [
+            "none"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": false,
+          "observed_model_answer": true,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 1,
+            "first": 1060,
+            "max": 1060,
+            "cumulative": 1060
+          },
+          "terminal_actions": [
+            "final"
+          ],
+          "runner_errors": []
+        },
+        {
+          "id": "fs-0001",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 6,
+          "reference_calls": 2,
+          "tool_attempts": 6,
+          "named_tool_steps": 4,
+          "executed_tools": 3,
+          "evidence_steps": 3,
+          "protocol_error_steps": 2,
+          "tool_error_steps": 1,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 6,
+            "first": 1010,
+            "max": 2391,
+            "cumulative": 10827
+          },
+          "terminal_actions": [
+            "tool"
+          ],
+          "runner_errors": [
+            "agent protocol error: action is not allowed in this generation stage: tool action is forbidden during answer"
+          ]
+        },
+        {
+          "id": "fs-0002",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 3,
+          "reference_calls": 4,
+          "tool_attempts": 3,
+          "named_tool_steps": 3,
+          "executed_tools": 2,
+          "evidence_steps": 0,
+          "protocol_error_steps": 0,
+          "tool_error_steps": 3,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": false,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 3,
+            "first": 1007,
+            "max": 1450,
+            "cumulative": 3679
+          },
+          "terminal_actions": [
+            "tool"
+          ],
+          "runner_errors": [
+            "agent could not obtain workspace evidence: every tool call failed argument validation or was rejected; the turn was not committed"
+          ]
+        },
+        {
+          "id": "fs-0003",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 1,
+          "reference_calls": 4,
+          "tool_attempts": 0,
+          "named_tool_steps": 0,
+          "executed_tools": 0,
+          "evidence_steps": 0,
+          "protocol_error_steps": 0,
+          "tool_error_steps": 0,
+          "forced_reasons": [
+            "none"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": false,
+          "observed_model_answer": true,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 1,
+            "first": 995,
+            "max": 995,
+            "cumulative": 995
+          },
+          "terminal_actions": [
+            "final"
+          ],
+          "runner_errors": []
+        },
+        {
+          "id": "fs-0004",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 20,
+          "reference_calls": 6,
+          "tool_attempts": 19,
+          "named_tool_steps": 19,
+          "executed_tools": 18,
+          "evidence_steps": 18,
+          "protocol_error_steps": 0,
+          "tool_error_steps": 1,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": true,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 20,
+            "first": 1025,
+            "max": 4950,
+            "cumulative": 67142
+          },
+          "terminal_actions": [
+            "no_tool"
+          ],
+          "runner_errors": []
+        },
+        {
+          "id": "hyb-0001",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 7,
+          "reference_calls": 3,
+          "tool_attempts": 7,
+          "named_tool_steps": 5,
+          "executed_tools": 4,
+          "evidence_steps": 4,
+          "protocol_error_steps": 2,
+          "tool_error_steps": 1,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 7,
+            "first": 1020,
+            "max": 2292,
+            "cumulative": 12066
+          },
+          "terminal_actions": [
+            "tool"
+          ],
+          "runner_errors": [
+            "agent protocol error: action is not allowed in this generation stage: tool action is forbidden during answer"
+          ]
+        },
+        {
+          "id": "hyb-0002",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 5,
+          "reference_calls": 4,
+          "tool_attempts": 5,
+          "named_tool_steps": 3,
+          "executed_tools": 2,
+          "evidence_steps": 2,
+          "protocol_error_steps": 2,
+          "tool_error_steps": 1,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 5,
+            "first": 1027,
+            "max": 1523,
+            "cumulative": 6380
+          },
+          "terminal_actions": [
+            "tool"
+          ],
+          "runner_errors": [
+            "agent protocol error: action is not allowed in this generation stage: tool action is forbidden during answer"
+          ]
+        },
+        {
+          "id": "hyb-0003",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 1,
+          "reference_calls": 4,
+          "tool_attempts": 0,
+          "named_tool_steps": 0,
+          "executed_tools": 0,
+          "evidence_steps": 0,
+          "protocol_error_steps": 0,
+          "tool_error_steps": 0,
+          "forced_reasons": [
+            "none"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": false,
+          "observed_model_answer": true,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 1,
+            "first": 1017,
+            "max": 1017,
+            "cumulative": 1017
+          },
+          "terminal_actions": [
+            "final"
+          ],
+          "runner_errors": []
+        },
+        {
+          "id": "hyb-0004",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 5,
+          "reference_calls": 6,
+          "tool_attempts": 5,
+          "named_tool_steps": 3,
+          "executed_tools": 2,
+          "evidence_steps": 2,
+          "protocol_error_steps": 2,
+          "tool_error_steps": 1,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 5,
+            "first": 1035,
+            "max": 1591,
+            "cumulative": 6582
+          },
+          "terminal_actions": [
+            "tool"
+          ],
+          "runner_errors": [
+            "agent protocol error: action is not allowed in this generation stage: tool action is forbidden during answer"
+          ]
+        },
+        {
+          "id": "log-0001",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 9,
+          "reference_calls": 3,
+          "tool_attempts": 7,
+          "named_tool_steps": 7,
+          "executed_tools": 6,
+          "evidence_steps": 6,
+          "protocol_error_steps": 1,
+          "tool_error_steps": 2,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": true,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 9,
+            "first": 992,
+            "max": 3457,
+            "cumulative": 19637
+          },
+          "terminal_actions": [
+            "no_tool"
+          ],
+          "runner_errors": []
+        },
+        {
+          "id": "log-0002",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 7,
+          "reference_calls": 4,
+          "tool_attempts": 5,
+          "named_tool_steps": 5,
+          "executed_tools": 4,
+          "evidence_steps": 4,
+          "protocol_error_steps": 2,
+          "tool_error_steps": 1,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 7,
+            "first": 1019,
+            "max": 3640,
+            "cumulative": 15997
+          },
+          "terminal_actions": [
+            null
+          ],
+          "runner_errors": [
+            "agent protocol error: tool call JSON decode failed: decode G1 tool call: invalid character '\\n' in string"
+          ]
+        },
+        {
+          "id": "log-0003",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 5,
+          "reference_calls": 4,
+          "tool_attempts": 5,
+          "named_tool_steps": 3,
+          "executed_tools": 2,
+          "evidence_steps": 2,
+          "protocol_error_steps": 2,
+          "tool_error_steps": 1,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 5,
+            "first": 1014,
+            "max": 1558,
+            "cumulative": 6451
+          },
+          "terminal_actions": [
+            "tool"
+          ],
+          "runner_errors": [
+            "agent protocol error: action is not allowed in this generation stage: tool action is forbidden during answer"
+          ]
+        },
+        {
+          "id": "log-0004",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 2,
+          "reference_calls": 5,
+          "tool_attempts": 0,
+          "named_tool_steps": 0,
+          "executed_tools": 0,
+          "evidence_steps": 0,
+          "protocol_error_steps": 1,
+          "tool_error_steps": 0,
+          "forced_reasons": [
+            "none"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": false,
+          "observed_model_answer": true,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 2,
+            "first": 1015,
+            "max": 1090,
+            "cumulative": 2105
+          },
+          "terminal_actions": [
+            "final"
+          ],
+          "runner_errors": []
+        },
+        {
+          "id": "scr-0001",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 4,
+          "reference_calls": 3,
+          "tool_attempts": 2,
+          "named_tool_steps": 2,
+          "executed_tools": 2,
+          "evidence_steps": 1,
+          "protocol_error_steps": 2,
+          "tool_error_steps": 1,
+          "forced_reasons": [
+            "none"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": false,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 4,
+            "first": 1104,
+            "max": 1815,
+            "cumulative": 5830
+          },
+          "terminal_actions": [
+            null
+          ],
+          "runner_errors": [
+            "agent protocol error: tool call shape invalid: invalid G1 tool call"
+          ]
+        },
+        {
+          "id": "scr-0002",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 9,
+          "reference_calls": 4,
+          "tool_attempts": 9,
+          "named_tool_steps": 7,
+          "executed_tools": 6,
+          "evidence_steps": 6,
+          "protocol_error_steps": 2,
+          "tool_error_steps": 1,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 9,
+            "first": 1021,
+            "max": 3068,
+            "cumulative": 20253
+          },
+          "terminal_actions": [
+            "tool"
+          ],
+          "runner_errors": [
+            "agent protocol error: action is not allowed in this generation stage: tool action is forbidden during answer"
+          ]
+        },
+        {
+          "id": "scr-0003",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 5,
+          "reference_calls": 4,
+          "tool_attempts": 3,
+          "named_tool_steps": 3,
+          "executed_tools": 3,
+          "evidence_steps": 3,
+          "protocol_error_steps": 2,
+          "tool_error_steps": 1,
+          "forced_reasons": [
+            "none"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": false,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 5,
+            "first": 1015,
+            "max": 1960,
+            "cumulative": 7132
+          },
+          "terminal_actions": [
+            null
+          ],
+          "runner_errors": [
+            "agent protocol error: tool call shape invalid: invalid G1 tool call"
+          ]
+        },
+        {
+          "id": "scr-0004",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 1,
+          "reference_calls": 6,
+          "tool_attempts": 0,
+          "named_tool_steps": 0,
+          "executed_tools": 0,
+          "evidence_steps": 0,
+          "protocol_error_steps": 0,
+          "tool_error_steps": 0,
+          "forced_reasons": [
+            "none"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": false,
+          "observed_model_answer": true,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 1,
+            "first": 1024,
+            "max": 1024,
+            "cumulative": 1024
+          },
+          "terminal_actions": [
+            "final"
+          ],
+          "runner_errors": []
+        },
+        {
+          "id": "tab-0001",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 6,
+          "reference_calls": 3,
+          "tool_attempts": 6,
+          "named_tool_steps": 4,
+          "executed_tools": 3,
+          "evidence_steps": 3,
+          "protocol_error_steps": 2,
+          "tool_error_steps": 1,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 6,
+            "first": 1008,
+            "max": 1730,
+            "cumulative": 8254
+          },
+          "terminal_actions": [
+            "tool"
+          ],
+          "runner_errors": [
+            "agent protocol error: action is not allowed in this generation stage: tool action is forbidden during answer"
+          ]
+        },
+        {
+          "id": "tab-0002",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 1,
+          "reference_calls": 4,
+          "tool_attempts": 0,
+          "named_tool_steps": 0,
+          "executed_tools": 0,
+          "evidence_steps": 0,
+          "protocol_error_steps": 0,
+          "tool_error_steps": 0,
+          "forced_reasons": [
+            "none"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": false,
+          "observed_model_answer": true,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 1,
+            "first": 1027,
+            "max": 1027,
+            "cumulative": 1027
+          },
+          "terminal_actions": [
+            "final"
+          ],
+          "runner_errors": []
+        },
+        {
+          "id": "tab-0003",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 30,
+          "reference_calls": 3,
+          "tool_attempts": 29,
+          "named_tool_steps": 29,
+          "executed_tools": 29,
+          "evidence_steps": 29,
+          "protocol_error_steps": 0,
+          "tool_error_steps": 0,
+          "forced_reasons": [
+            "step_budget_after_tool_attempt"
+          ],
+          "at_generation_limit": true,
+          "literal_answer_stage": true,
+          "observed_model_answer": true,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 30,
+            "first": 1015,
+            "max": 6753,
+            "cumulative": 127302
+          },
+          "terminal_actions": [
+            "no_tool"
+          ],
+          "runner_errors": []
+        },
+        {
+          "id": "tab-0004",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 1,
+          "reference_calls": 4,
+          "tool_attempts": 0,
+          "named_tool_steps": 0,
+          "executed_tools": 0,
+          "evidence_steps": 0,
+          "protocol_error_steps": 0,
+          "tool_error_steps": 0,
+          "forced_reasons": [
+            "none"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": false,
+          "observed_model_answer": true,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 1,
+            "first": 1013,
+            "max": 1013,
+            "cumulative": 1013
+          },
+          "terminal_actions": [
+            "final"
+          ],
+          "runner_errors": []
+        },
+        {
+          "id": "web-0001",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 2,
+          "reference_calls": 3,
+          "tool_attempts": 0,
+          "named_tool_steps": 0,
+          "executed_tools": 0,
+          "evidence_steps": 0,
+          "protocol_error_steps": 1,
+          "tool_error_steps": 0,
+          "forced_reasons": [
+            "none"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": false,
+          "observed_model_answer": true,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 2,
+            "first": 1015,
+            "max": 1090,
+            "cumulative": 2105
+          },
+          "terminal_actions": [
+            "final"
+          ],
+          "runner_errors": []
+        },
+        {
+          "id": "web-0002",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 1,
+          "reference_calls": 4,
+          "tool_attempts": 0,
+          "named_tool_steps": 0,
+          "executed_tools": 0,
+          "evidence_steps": 0,
+          "protocol_error_steps": 0,
+          "tool_error_steps": 0,
+          "forced_reasons": [
+            "none"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": false,
+          "observed_model_answer": true,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 1,
+            "first": 1012,
+            "max": 1012,
+            "cumulative": 1012
+          },
+          "terminal_actions": [
+            "final"
+          ],
+          "runner_errors": []
+        },
+        {
+          "id": "web-0003",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 1,
+          "reference_calls": 4,
+          "tool_attempts": 0,
+          "named_tool_steps": 0,
+          "executed_tools": 0,
+          "evidence_steps": 0,
+          "protocol_error_steps": 0,
+          "tool_error_steps": 0,
+          "forced_reasons": [
+            "none"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": false,
+          "observed_model_answer": true,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 1,
+            "first": 1020,
+            "max": 1020,
+            "cumulative": 1020
+          },
+          "terminal_actions": [
+            "final"
+          ],
+          "runner_errors": []
+        },
+        {
+          "id": "web-0004",
+          "official_passed": false,
+          "relaxed_passed": false,
+          "steps": 5,
+          "reference_calls": 5,
+          "tool_attempts": 5,
+          "named_tool_steps": 3,
+          "executed_tools": 2,
+          "evidence_steps": 2,
+          "protocol_error_steps": 2,
+          "tool_error_steps": 1,
+          "forced_reasons": [
+            "duplicate_tool_call"
+          ],
+          "at_generation_limit": false,
+          "literal_answer_stage": true,
+          "observed_model_answer": false,
+          "relaxed_only_pass": false,
+          "provider_prompt_usage_populated": 0,
+          "request_tokens": {
+            "complete": true,
+            "covered_requests": 5,
+            "first": 1012,
+            "max": 1982,
+            "cumulative": 7944
+          },
+          "terminal_actions": [
+            "tool"
+          ],
+          "runner_errors": [
+            "agent protocol error: action is not allowed in this generation stage: tool action is forbidden during answer"
+          ]
+        }
+      ]
+    }
+  ],
+  "paired": [
+    {
+      "id": "cfg-0001",
+      "changed_metrics": {
+        "relaxed_passed": [
+          true,
+          false
+        ],
+        "steps": [
+          4,
+          5
+        ],
+        "tool_attempts": [
+          3,
+          5
+        ],
+        "executed_tools": [
+          3,
+          2
+        ],
+        "evidence_steps": [
+          3,
+          2
+        ],
+        "protocol_error_steps": [
+          0,
+          2
+        ],
+        "tool_error_steps": [
+          0,
+          1
+        ],
+        "forced_reasons": [
+          [
+            "none"
+          ],
+          [
+            "duplicate_tool_call"
+          ]
+        ],
+        "literal_answer_stage": [
+          false,
+          true
+        ],
+        "observed_model_answer": [
+          true,
+          false
+        ],
+        "relaxed_only_pass": [
+          true,
+          false
+        ],
+        "request_tokens": [
+          {
+            "complete": true,
+            "covered_requests": 4,
+            "first": 1004,
+            "max": 1574,
+            "cumulative": 5247
+          },
+          {
+            "complete": true,
+            "covered_requests": 5,
+            "first": 1004,
+            "max": 1518,
+            "cumulative": 6316
+          }
+        ],
+        "terminal_actions": [
+          [
+            "no_tool"
+          ],
+          [
+            "tool"
+          ]
+        ],
+        "runner_errors": [
+          [],
+          [
+            "agent protocol error: action is not allowed in this generation stage: tool action is forbidden during answer"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "cfg-0002",
+      "changed_metrics": {}
+    },
+    {
+      "id": "cfg-0003",
+      "changed_metrics": {
+        "steps": [
+          7,
+          2
+        ],
+        "tool_attempts": [
+          6,
+          0
+        ],
+        "named_tool_steps": [
+          4,
+          0
+        ],
+        "executed_tools": [
+          3,
+          0
+        ],
+        "evidence_steps": [
+          3,
+          0
+        ],
+        "protocol_error_steps": [
+          3,
+          1
+        ],
+        "tool_error_steps": [
+          1,
+          0
+        ],
+        "forced_reasons": [
+          [
+            "duplicate_tool_call"
+          ],
+          [
+            "none"
+          ]
+        ],
+        "literal_answer_stage": [
+          true,
+          false
+        ],
+        "observed_model_answer": [
+          false,
+          true
+        ],
+        "request_tokens": [
+          {
+            "complete": true,
+            "covered_requests": 7,
+            "first": 1005,
+            "max": 1761,
+            "cumulative": 9616
+          },
+          {
+            "complete": true,
+            "covered_requests": 2,
+            "first": 1005,
+            "max": 1080,
+            "cumulative": 2085
+          }
+        ],
+        "terminal_actions": [
+          [
+            "tool"
+          ],
+          [
+            "final"
+          ]
+        ],
+        "runner_errors": [
+          [
+            "agent protocol error: action is not allowed in this generation stage: tool action is forbidden during answer"
+          ],
+          []
+        ]
+      }
+    },
+    {
+      "id": "cfg-0004",
+      "changed_metrics": {}
+    },
+    {
+      "id": "code-0001",
+      "changed_metrics": {}
+    },
+    {
+      "id": "code-0002",
+      "changed_metrics": {
+        "steps": [
+          10,
+          30
+        ],
+        "tool_attempts": [
+          9,
+          29
+        ],
+        "named_tool_steps": [
+          9,
+          29
+        ],
+        "executed_tools": [
+          9,
+          29
+        ],
+        "evidence_steps": [
+          9,
+          29
+        ],
+        "request_tokens": [
+          {
+            "complete": true,
+            "covered_requests": 10,
+            "first": 1068,
+            "max": 2562,
+            "cumulative": 18750
+          },
+          {
+            "complete": true,
+            "covered_requests": 30,
+            "first": 1068,
+            "max": 6342,
+            "cumulative": 105980
+          }
+        ]
+      }
+    },
+    {
+      "id": "code-0003",
+      "changed_metrics": {}
+    },
+    {
+      "id": "code-0004",
+      "changed_metrics": {}
+    },
+    {
+      "id": "doc-0001",
+      "changed_metrics": {}
+    },
+    {
+      "id": "doc-0002",
+      "changed_metrics": {
+        "steps": [
+          8,
+          6
+        ],
+        "tool_attempts": [
+          8,
+          6
+        ],
+        "named_tool_steps": [
+          6,
+          4
+        ],
+        "executed_tools": [
+          5,
+          3
+        ],
+        "evidence_steps": [
+          5,
+          3
+        ],
+        "tool_error_steps": [
+          4,
+          2
+        ],
+        "request_tokens": [
+          {
+            "complete": true,
+            "covered_requests": 8,
+            "first": 1017,
+            "max": 1921,
+            "cumulative": 11862
+          },
+          {
+            "complete": true,
+            "covered_requests": 6,
+            "first": 1017,
+            "max": 1692,
+            "cumulative": 8177
+          }
+        ]
+      }
+    },
+    {
+      "id": "doc-0003",
+      "changed_metrics": {}
+    },
+    {
+      "id": "doc-0004",
+      "changed_metrics": {}
+    },
+    {
+      "id": "fs-0001",
+      "changed_metrics": {}
+    },
+    {
+      "id": "fs-0002",
+      "changed_metrics": {}
+    },
+    {
+      "id": "fs-0003",
+      "changed_metrics": {}
+    },
+    {
+      "id": "fs-0004",
+      "changed_metrics": {
+        "steps": [
+          10,
+          20
+        ],
+        "tool_attempts": [
+          10,
+          19
+        ],
+        "named_tool_steps": [
+          9,
+          19
+        ],
+        "executed_tools": [
+          9,
+          18
+        ],
+        "evidence_steps": [
+          9,
+          18
+        ],
+        "protocol_error_steps": [
+          1,
+          0
+        ],
+        "tool_error_steps": [
+          0,
+          1
+        ],
+        "forced_reasons": [
+          [
+            "step_budget_after_tool_attempt"
+          ],
+          [
+            "duplicate_tool_call"
+          ]
+        ],
+        "at_generation_limit": [
+          true,
+          false
+        ],
+        "observed_model_answer": [
+          false,
+          true
+        ],
+        "request_tokens": [
+          {
+            "complete": true,
+            "covered_requests": 10,
+            "first": 1025,
+            "max": 3578,
+            "cumulative": 23576
+          },
+          {
+            "complete": true,
+            "covered_requests": 20,
+            "first": 1025,
+            "max": 4950,
+            "cumulative": 67142
+          }
+        ],
+        "terminal_actions": [
+          [
+            "tool"
+          ],
+          [
+            "no_tool"
+          ]
+        ],
+        "runner_errors": [
+          [
+            "agent reached the step limit"
+          ],
+          []
+        ]
+      }
+    },
+    {
+      "id": "hyb-0001",
+      "changed_metrics": {}
+    },
+    {
+      "id": "hyb-0002",
+      "changed_metrics": {}
+    },
+    {
+      "id": "hyb-0003",
+      "changed_metrics": {}
+    },
+    {
+      "id": "hyb-0004",
+      "changed_metrics": {}
+    },
+    {
+      "id": "log-0001",
+      "changed_metrics": {
+        "steps": [
+          10,
+          9
+        ],
+        "tool_attempts": [
+          9,
+          7
+        ],
+        "evidence_steps": [
+          5,
+          6
+        ],
+        "protocol_error_steps": [
+          3,
+          1
+        ],
+        "tool_error_steps": [
+          3,
+          2
+        ],
+        "at_generation_limit": [
+          true,
+          false
+        ],
+        "observed_model_answer": [
+          false,
+          true
+        ],
+        "request_tokens": [
+          {
+            "complete": true,
+            "covered_requests": 10,
+            "first": 992,
+            "max": 3814,
+            "cumulative": 22919
+          },
+          {
+            "complete": true,
+            "covered_requests": 9,
+            "first": 992,
+            "max": 3457,
+            "cumulative": 19637
+          }
+        ],
+        "terminal_actions": [
+          [
+            "tool"
+          ],
+          [
+            "no_tool"
+          ]
+        ],
+        "runner_errors": [
+          [
+            "agent protocol error: action is not allowed in this generation stage: tool action is forbidden during answer"
+          ],
+          []
+        ]
+      }
+    },
+    {
+      "id": "log-0002",
+      "changed_metrics": {}
+    },
+    {
+      "id": "log-0003",
+      "changed_metrics": {
+        "tool_error_steps": [
+          2,
+          1
+        ],
+        "request_tokens": [
+          {
+            "complete": true,
+            "covered_requests": 5,
+            "first": 1014,
+            "max": 1563,
+            "cumulative": 6464
+          },
+          {
+            "complete": true,
+            "covered_requests": 5,
+            "first": 1014,
+            "max": 1558,
+            "cumulative": 6451
+          }
+        ]
+      }
+    },
+    {
+      "id": "log-0004",
+      "changed_metrics": {}
+    },
+    {
+      "id": "scr-0001",
+      "changed_metrics": {}
+    },
+    {
+      "id": "scr-0002",
+      "changed_metrics": {}
+    },
+    {
+      "id": "scr-0003",
+      "changed_metrics": {
+        "steps": [
+          10,
+          5
+        ],
+        "tool_attempts": [
+          8,
+          3
+        ],
+        "named_tool_steps": [
+          8,
+          3
+        ],
+        "executed_tools": [
+          7,
+          3
+        ],
+        "evidence_steps": [
+          7,
+          3
+        ],
+        "tool_error_steps": [
+          2,
+          1
+        ],
+        "forced_reasons": [
+          [
+            "duplicate_tool_call"
+          ],
+          [
+            "none"
+          ]
+        ],
+        "at_generation_limit": [
+          true,
+          false
+        ],
+        "literal_answer_stage": [
+          true,
+          false
+        ],
+        "request_tokens": [
+          {
+            "complete": true,
+            "covered_requests": 10,
+            "first": 1015,
+            "max": 3208,
+            "cumulative": 21552
+          },
+          {
+            "complete": true,
+            "covered_requests": 5,
+            "first": 1015,
+            "max": 1960,
+            "cumulative": 7132
+          }
+        ]
+      }
+    },
+    {
+      "id": "scr-0004",
+      "changed_metrics": {}
+    },
+    {
+      "id": "tab-0001",
+      "changed_metrics": {}
+    },
+    {
+      "id": "tab-0002",
+      "changed_metrics": {}
+    },
+    {
+      "id": "tab-0003",
+      "changed_metrics": {
+        "steps": [
+          10,
+          30
+        ],
+        "tool_attempts": [
+          10,
+          29
+        ],
+        "named_tool_steps": [
+          9,
+          29
+        ],
+        "executed_tools": [
+          9,
+          29
+        ],
+        "evidence_steps": [
+          9,
+          29
+        ],
+        "protocol_error_steps": [
+          1,
+          0
+        ],
+        "observed_model_answer": [
+          false,
+          true
+        ],
+        "request_tokens": [
+          {
+            "complete": true,
+            "covered_requests": 10,
+            "first": 1015,
+            "max": 3507,
+            "cumulative": 23454
+          },
+          {
+            "complete": true,
+            "covered_requests": 30,
+            "first": 1015,
+            "max": 6753,
+            "cumulative": 127302
+          }
+        ],
+        "terminal_actions": [
+          [
+            "tool"
+          ],
+          [
+            "no_tool"
+          ]
+        ],
+        "runner_errors": [
+          [
+            "agent reached the step limit"
+          ],
+          []
+        ]
+      }
+    },
+    {
+      "id": "tab-0004",
+      "changed_metrics": {}
+    },
+    {
+      "id": "web-0001",
+      "changed_metrics": {
+        "steps": [
+          7,
+          2
+        ],
+        "tool_attempts": [
+          6,
+          0
+        ],
+        "named_tool_steps": [
+          4,
+          0
+        ],
+        "executed_tools": [
+          3,
+          0
+        ],
+        "evidence_steps": [
+          3,
+          0
+        ],
+        "protocol_error_steps": [
+          3,
+          1
+        ],
+        "tool_error_steps": [
+          2,
+          0
+        ],
+        "forced_reasons": [
+          [
+            "duplicate_tool_call"
+          ],
+          [
+            "none"
+          ]
+        ],
+        "literal_answer_stage": [
+          true,
+          false
+        ],
+        "observed_model_answer": [
+          false,
+          true
+        ],
+        "request_tokens": [
+          {
+            "complete": true,
+            "covered_requests": 7,
+            "first": 1015,
+            "max": 1721,
+            "cumulative": 9458
+          },
+          {
+            "complete": true,
+            "covered_requests": 2,
+            "first": 1015,
+            "max": 1090,
+            "cumulative": 2105
+          }
+        ],
+        "terminal_actions": [
+          [
+            "tool"
+          ],
+          [
+            "final"
+          ]
+        ],
+        "runner_errors": [
+          [
+            "agent protocol error: action is not allowed in this generation stage: tool action is forbidden during answer"
+          ],
+          []
+        ]
+      }
+    },
+    {
+      "id": "web-0002",
+      "changed_metrics": {}
+    },
+    {
+      "id": "web-0003",
+      "changed_metrics": {}
+    },
+    {
+      "id": "web-0004",
+      "changed_metrics": {
+        "evidence_steps": [
+          1,
+          2
+        ],
+        "tool_error_steps": [
+          2,
+          1
+        ],
+        "request_tokens": [
+          {
+            "complete": true,
+            "covered_requests": 5,
+            "first": 1012,
+            "max": 1574,
+            "cumulative": 6484
+          },
+          {
+            "complete": true,
+            "covered_requests": 5,
+            "first": 1012,
+            "max": 1982,
+            "cumulative": 7944
+          }
+        ]
+      }
+    }
+  ],
+  "elapsed_seconds": [
+    203.01319003105164,
+    519.4049401283264
+  ],
+  "trajectory_changes": [
+    {
+      "id": "cfg-0001",
+      "steps": [
+        4,
+        5
+      ],
+      "first_difference": {
+        "step": 1,
+        "stored_prompt_equal": true
+      }
+    },
+    {
+      "id": "cfg-0003",
+      "steps": [
+        7,
+        2
+      ],
+      "first_difference": {
+        "step": 2,
+        "stored_prompt_equal": true
+      }
+    },
+    {
+      "id": "cfg-0004",
+      "steps": [
+        1,
+        1
+      ],
+      "first_difference": {
+        "step": 1,
+        "stored_prompt_equal": true
+      }
+    },
+    {
+      "id": "code-0002",
+      "steps": [
+        10,
+        30
+      ],
+      "first_difference": {
+        "step": 10,
+        "stored_prompt_equal": false
+      }
+    },
+    {
+      "id": "doc-0002",
+      "steps": [
+        8,
+        6
+      ],
+      "first_difference": {
+        "step": 1,
+        "stored_prompt_equal": true
+      }
+    },
+    {
+      "id": "fs-0004",
+      "steps": [
+        10,
+        20
+      ],
+      "first_difference": {
+        "step": 10,
+        "stored_prompt_equal": false
+      }
+    },
+    {
+      "id": "hyb-0004",
+      "steps": [
+        5,
+        5
+      ],
+      "first_difference": {
+        "step": 1,
+        "stored_prompt_equal": true
+      }
+    },
+    {
+      "id": "log-0001",
+      "steps": [
+        10,
+        9
+      ],
+      "first_difference": {
+        "step": 1,
+        "stored_prompt_equal": true
+      }
+    },
+    {
+      "id": "log-0003",
+      "steps": [
+        5,
+        5
+      ],
+      "first_difference": {
+        "step": 1,
+        "stored_prompt_equal": true
+      }
+    },
+    {
+      "id": "log-0004",
+      "steps": [
+        2,
+        2
+      ],
+      "first_difference": {
+        "step": 2,
+        "stored_prompt_equal": true
+      }
+    },
+    {
+      "id": "scr-0003",
+      "steps": [
+        10,
+        5
+      ],
+      "first_difference": {
+        "step": 2,
+        "stored_prompt_equal": true
+      }
+    },
+    {
+      "id": "scr-0004",
+      "steps": [
+        1,
+        1
+      ],
+      "first_difference": {
+        "step": 1,
+        "stored_prompt_equal": true
+      }
+    },
+    {
+      "id": "tab-0003",
+      "steps": [
+        10,
+        30
+      ],
+      "first_difference": {
+        "step": 10,
+        "stored_prompt_equal": false
+      }
+    },
+    {
+      "id": "web-0001",
+      "steps": [
+        7,
+        2
+      ],
+      "first_difference": {
+        "step": 2,
+        "stored_prompt_equal": true
+      }
+    },
+    {
+      "id": "web-0004",
+      "steps": [
+        5,
+        5
+      ],
+      "first_difference": {
+        "step": 1,
+        "stored_prompt_equal": true
+      }
+    }
+  ],
+  "same_budget_repeat_trajectory_changes": [
+    {
+      "id": "cfg-0001",
+      "steps": [
+        5,
+        4
+      ],
+      "first_difference": {
+        "step": 1,
+        "stored_prompt_equal": true
+      }
+    },
+    {
+      "id": "cfg-0003",
+      "steps": [
+        2,
+        7
+      ],
+      "first_difference": {
+        "step": 1,
+        "stored_prompt_equal": true
+      }
+    },
+    {
+      "id": "cfg-0004",
+      "steps": [
+        1,
+        1
+      ],
+      "first_difference": {
+        "step": 1,
+        "stored_prompt_equal": true
+      }
+    },
+    {
+      "id": "doc-0002",
+      "steps": [
+        6,
+        8
+      ],
+      "first_difference": {
+        "step": 1,
+        "stored_prompt_equal": true
+      }
+    },
+    {
+      "id": "fs-0003",
+      "steps": [
+        1,
+        1
+      ],
+      "first_difference": {
+        "step": 1,
+        "stored_prompt_equal": true
+      }
+    },
+    {
+      "id": "log-0001",
+      "steps": [
+        9,
+        10
+      ],
+      "first_difference": {
+        "step": 2,
+        "stored_prompt_equal": true
+      }
+    },
+    {
+      "id": "log-0004",
+      "steps": [
+        1,
+        2
+      ],
+      "first_difference": {
+        "step": 1,
+        "stored_prompt_equal": true
+      }
+    },
+    {
+      "id": "scr-0003",
+      "steps": [
+        5,
+        10
+      ],
+      "first_difference": {
+        "step": 2,
+        "stored_prompt_equal": true
+      }
+    },
+    {
+      "id": "scr-0004",
+      "steps": [
+        1,
+        1
+      ],
+      "first_difference": {
+        "step": 1,
+        "stored_prompt_equal": true
+      }
+    },
+    {
+      "id": "tab-0002",
+      "steps": [
+        1,
+        1
+      ],
+      "first_difference": {
+        "step": 1,
+        "stored_prompt_equal": true
+      }
+    },
+    {
+      "id": "tab-0003",
+      "steps": [
+        10,
+        10
+      ],
+      "first_difference": {
+        "step": 1,
+        "stored_prompt_equal": true
+      }
+    },
+    {
+      "id": "web-0001",
+      "steps": [
+        2,
+        7
+      ],
+      "first_difference": {
+        "step": 2,
+        "stored_prompt_equal": true
+      }
+    }
+  ],
+  "pass_flips": {
+    "official_passed": {
+      "gained": [],
+      "lost": []
+    },
+    "relaxed_passed": {
+      "gained": [],
+      "lost": [
+        "cfg-0001"
+      ]
+    }
+  }
+}

@@ -560,6 +560,11 @@ func (t *searchTextTool) Execute(ctx context.Context, raw json.RawMessage) (any,
 	if !info.IsDir() {
 		entry := fs.FileInfoToDirEntry(info)
 		err = visit(target, entry)
+		// WalkDir consumes SkipAll for directory searches. A direct file
+		// visit must consume the same successful result-limit sentinel.
+		if errors.Is(err, fs.SkipAll) {
+			err = nil
+		}
 	} else {
 		err = filepath.WalkDir(target, func(path string, entry fs.DirEntry, walkErr error) error {
 			if walkErr != nil {
