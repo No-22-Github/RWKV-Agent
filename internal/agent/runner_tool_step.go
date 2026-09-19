@@ -454,7 +454,7 @@ func (turn *runnerTurn) advanceAfterTool(
 			turn.appendUserMessage(reminder)
 		}
 	} else if execution.duplicate {
-		if turn.terminalToolCompleted {
+		if turn.terminalToolCompleted && r.wire.Experiments.Duplicate != "continue" {
 			turn.forceAnswer = true
 			turn.result.ForcedAnswerReason = forcedAnswerDuplicateCall
 		}

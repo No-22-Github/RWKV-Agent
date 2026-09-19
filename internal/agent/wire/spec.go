@@ -254,6 +254,9 @@ func (l Loop) Zero() bool { return l == Loop{} }
 
 // Spec is the canonical description of one model-facing wire configuration.
 type Spec struct {
+	// Experiments are opt-in; zero values preserve existing product bytes and hashes.
+	Experiments Experiments
+
 	Format           Format
 	Transcript       Transcript
 	Transport        Transport
@@ -380,6 +383,9 @@ func fail(code, message, hint string) error {
 // Validate enforces every cross-axis rule. It is the only place these rules
 // live; callers must not re-implement them.
 func (s Spec) Validate() error {
+	if err := s.validateExperiments(); err != nil {
+		return err
+	}
 	if !known(FormatValues, s.Format) {
 		return fail("format.unknown", fmt.Sprintf("unknown format %q", s.Format), "xml, md-fence")
 	}
@@ -570,7 +576,7 @@ func (s Spec) Validate() error {
 // configuration if and only if their canonical strings are equal.
 func (s Spec) Canonical() string {
 	loop := s.Loop
-	return fmt.Sprintf(
+	base := fmt.Sprintf(
 		"format=%s;transcript=%s;transport=%s;thinking=%s;prefill=%s;abstain=%s;terminal=%s;"+
 			"route=%s;catalog=%s;control=%s;feedback=%s;subagent=%s;align=%s;stages=%s;"+
 			"loop=%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%t;firstcall=%s;usermsg=%s;srchint=%s",
@@ -581,6 +587,7 @@ func (s Spec) Canonical() string {
 		loop.DuplicateReplayLimit, loop.DuplicateRescueThreshold, loop.SameToolRescueLimit,
 		loop.AnswerStageLead, loop.AllowRepeatedCalls, s.FirstCall, s.UserMerge, s.SourceHint,
 	)
+	return base + s.Experiments.canonical()
 }
 
 // Hash is the content identity of the spec, used by eval manifests.

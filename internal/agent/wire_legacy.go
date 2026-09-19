@@ -30,6 +30,7 @@ func WireSpecOf(options Options) (wire.Spec, error) {
 		// applyRunnerDefaults selects the XML protocol; the default spec
 		// already describes it.
 	case G1Protocol:
+		spec.Experiments = protocol.Experiments
 		spec.Format = wire.FormatXML
 		spec.Transcript = wire.TranscriptProduct
 		spec.Thinking = wire.Thinking(rendererThinkingMode(options.Renderer))
@@ -156,6 +157,7 @@ func OptionsWithWire(base Options, spec wire.Spec) (Options, error) {
 	switch spec.Format {
 	case wire.FormatXML:
 		options.Protocol = G1Protocol{
+			Experiments:      spec.Experiments,
 			FewShot:          spec.Control == wire.ControlFewShot,
 			NoCallDemo:       spec.Control == wire.ControlBaseNoCall,
 			GreetingExamples: spec.Control == wire.ControlGreeting,
@@ -165,7 +167,10 @@ func OptionsWithWire(base Options, spec wire.Spec) (Options, error) {
 			OneStage:         spec.Stages == wire.StagesOne,
 			SourceHint:       spec.SourceHint == wire.SourceHintOn,
 		}
-		options.Renderer = RWKVChatRenderer{ThinkingMode: inference.ThinkingMode(spec.Thinking)}
+		options.Renderer = RWKVChatRenderer{
+			ThinkingMode:     inference.ThinkingMode(spec.Thinking),
+			HistoryThinkFast: spec.Experiments.History == "think-fast",
+		}
 	case wire.FormatMDFence:
 		options.Protocol = G1FunctionProtocol{
 			Product:             spec.Transcript == wire.TranscriptProduct,

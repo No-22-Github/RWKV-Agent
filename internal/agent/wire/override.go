@@ -10,6 +10,14 @@ import (
 // is exactly the canonical field names, so `--wire format=…,prefill=…` reads
 // the same vocabulary that `--explain-profile` prints.
 var overrideSetters = map[string]func(*Spec, string){
+	"recovery":     func(s *Spec, v string) { s.Experiments.Recovery = v },
+	"exit":         func(s *Spec, v string) { s.Experiments.Exit = v },
+	"history":      func(s *Spec, v string) { s.Experiments.History = v },
+	"thinkcontrol": func(s *Spec, v string) { s.Experiments.ThinkControl = v },
+	"nudge":        func(s *Spec, v string) { s.Experiments.Nudge = v },
+	"duplicate":    func(s *Spec, v string) { s.Experiments.Duplicate = v },
+	"answeropen":   func(s *Spec, v string) { s.Experiments.AnswerOpen = v },
+
 	"format":     func(s *Spec, v string) { s.Format = Format(v) },
 	"transcript": func(s *Spec, v string) { s.Transcript = Transcript(v) },
 	"transport":  func(s *Spec, v string) { s.Transport = Transport(v) },

@@ -302,6 +302,9 @@ func (turn *runnerTurn) prepareAnswerStage(step int) error {
 		// keeps the unmerged record; workbank cases are single-turn.
 		turn.messages = foldConsecutiveUserMessages(turn.messages)
 	}
+	if turn.r.wire.Experiments.AnswerOpen == "answer" {
+		prefix = "<answer>"
+	}
 	turn.assistantPrefix = prefix
 	// The answer stage owns its own opening; no decision-stage frame applies.
 	turn.frame = wire.Frame{}

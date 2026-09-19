@@ -34,6 +34,9 @@ type PromptRenderer interface {
 
 type RWKVChatRenderer struct {
 	ThinkingMode inference.ThinkingMode
+	// HistoryThinkFast restores the empty think prefix on assistant history
+	// for opt-in evaluation of states trained with that prefix on every turn.
+	HistoryThinkFast bool
 	// Reasoning preserves the former fast-thinking renderer construction.
 	Reasoning bool
 }
@@ -56,6 +59,9 @@ func (renderer RWKVChatRenderer) Render(messages []Message) (string, error) {
 			return "", fmt.Errorf("render agent prompt: unknown role %q", message.Role)
 		}
 		content := message.Content
+		if message.Role == RoleAssistant && renderer.HistoryThinkFast && !strings.HasPrefix(strings.TrimSpace(content), "<think>") {
+			content = inference.ThinkBlockClosed + content
+		}
 		if message.Role != RoleAssistant {
 			content = inference.CleanChatText(inference.Role(message.Role), content)
 		}

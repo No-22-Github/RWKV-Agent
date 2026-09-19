@@ -167,7 +167,7 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 
 ## Override keys
 
-`abstain`, `align`, `catalog`, `control`, `feedback`, `firstcall`, `format`, `prefill`, `route`, `stages`, `subagent`, `terminal`, `thinking`, `transcript`, `transport`, `usermsg`
+`abstain`, `align`, `answeropen`, `catalog`, `control`, `duplicate`, `exit`, `feedback`, `firstcall`, `format`, `history`, `nudge`, `prefill`, `recovery`, `route`, `stages`, `subagent`, `terminal`, `thinkcontrol`, `thinking`, `transcript`, `transport`, `usermsg`
 <!-- END GENERATED: wire-profiles -->
 
 ---
@@ -285,3 +285,23 @@ agent-eval --suite bfcl-product --wire "prefill=fence,abstain=no-tool+gate-evide
 agent --profile xml-v1 --completion rwkv-lightning-cuda --api-url ... --model ... \
       --api-stop-tokens none --api-stream=false --workspace /path/to/project --prompt "..."
 ```
+
+## State 训练格式对齐实验（2026-09-19）
+
+`--profile xml-v1+align-qwen36+no-tool+bare+one-stage+think-fast --wire history=think-fast,thinkcontrol=off`
+是显式 opt-in 实验：当前生成保留已有的 `<think></think` 开口（最后 `>` 由模型补全，
+避免切断 RWKV 合并 token）；历史 assistant 消息补完整 `<think></think>` 前缀，
+已带 think 的历史不会重复添加。它对应 v1-selection-baseline fast-think 训练导出的
+每个 assistant 段都有空 think 的格式。`history=think-fast` 要求 `thinking=fast`，
+默认配置与已有 `history=preserve` 行为不变。`thinkcontrol=off` 单独锁定训练导出的
+System 控制句；它不关闭 fast 生成前缀。两个轴都写入 wire canonical/hash。
+
+对照 state 时，必须比较同一格式的无 state 组：none 对 none，fast-think 对同样历史前缀的
+fast-think；不能把两个 state 的成绩差全部归因于 state 文件。记录本地 `.pth` 的 SHA-256、
+服务端登记、运行前后固定请求输出哈希。CLI 的 `run.json.state_sha256` 在未显式传入文件
+摘要时可能只是 state ID 字符串的摘要，不能代替实际文件指纹。
+
+API 订正：上文“api-7b 对任何 stop_tokens 都返回 500”是过时判断。2026-09-18/19 实测
+该 CUDA 服务接受整数 EOS `[0]`；当前 provider 会为 CUDA 自动选择 EOS。字符串数组探针
+失败不能归因为所有 stop_tokens 都不可用。state 的有效对照是同模型、同格式、同采样下
+有/无 state，不能把“不可直接比较”理解成禁止这样的受控实验。

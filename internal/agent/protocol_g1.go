@@ -14,6 +14,8 @@ import (
 )
 
 type G1Protocol struct {
+	Experiments wire.Experiments
+
 	FewShot bool
 	// SemanticNoTool offers the same text-only abstention action the product
 	// profile uses, expressed in this transcript's envelope. It is a protocol
@@ -116,7 +118,11 @@ Choose one action:
 Greetings, thanks, casual conversation, and questions that do not need new tool evidence must be answered directly. Never invoke tools merely because they are available.
 After a Tool result, make the same choice again: call one tool if more evidence is needed, or answer directly.
 `)
-	prompt.WriteString(thinkingControl(thinkingMode))
+	controlMode := thinkingMode
+	if protocol.Experiments.ThinkControl == "off" {
+		controlMode = inference.ThinkingOff
+	}
+	prompt.WriteString(thinkingControl(controlMode))
 	prompt.WriteString("\n" + PolicyNoInvention + "\n")
 	if protocol.AlignQwen36 {
 		prompt.WriteString("<tools>" + protocol.renderToolsJSON(specs) + "</tools>\n")
@@ -266,12 +272,15 @@ func (protocol G1Protocol) renderToolsJSON(specs []ToolSpec) string {
 	for _, spec := range specs {
 		appendEntry(spec.Name, spec.Description, spec.Arguments)
 	}
-	if protocol.SemanticNoTool {
+	if protocol.SemanticNoTool && protocol.Experiments.Exit == "" {
 		appendEntry(
 			SemanticNoToolName,
 			"Indicate that none of the offered tools is needed. Put a brief, complete user-facing response in reason; it becomes the final reply.",
 			`{"reason":"brief complete user-facing response"}`,
 		)
+	}
+	if protocol.SemanticNoTool && protocol.Experiments.Exit != "" {
+		appendEntry(protocol.exitName(), "Reply to the user and end the turn. Use it when no tool is needed, when the tool results already contain the answer, or when the task cannot be completed. Put only the final answer in answer.", `{"answer":"the final answer only"}`)
 	}
 	return "[\n" + strings.Join(entries, ",\n") + "\n]"
 }
@@ -288,6 +297,11 @@ func thinkingControl(mode inference.ThinkingMode) string {
 }
 
 func (protocol G1Protocol) Parse(value string, finish continuation.FinishReason) (Action, error) {
+	if protocol.Experiments.Recovery != "" {
+		if action, ok := protocol.recoverExperimentalCall(value, finish); ok {
+			return action, nil
+		}
+	}
 	candidate := wire.StripLeadingThinkBlocks(strings.TrimSpace(value))
 	if finish == continuation.FinishLength {
 		if strings.HasPrefix(candidate, "<think>") {
@@ -346,7 +360,7 @@ func (protocol G1Protocol) Parse(value string, finish continuation.FinishReason)
 		if repairs.any() {
 			originalFailure = ProtocolFailureToolShapeInvalid
 		}
-		if protocol.SemanticNoTool && call.Name == SemanticNoToolName {
+		if protocol.SemanticNoTool && call.Name == protocol.exitName() {
 			rationale, answer, err := parseSemanticNoToolArguments(call.Arguments)
 			if err != nil {
 				return Action{}, err
@@ -521,7 +535,10 @@ func (G1Protocol) Correction(err error) string {
 	}
 }
 
-func (G1Protocol) RecordAction(action Action, raw string) string {
+func (protocol G1Protocol) RecordAction(action Action, raw string) string {
+	if protocol.Experiments.History == "preserve" && action.Type == "tool" {
+		return wire.StripLeadingThinkBlocks(strings.TrimSpace(raw))
+	}
 	if action.Type != "tool" {
 		return raw
 	}
@@ -553,6 +570,14 @@ func (G1Protocol) ToolCallPrefix() string {
 }
 
 func (protocol G1Protocol) PostToolReminder() string {
+	switch protocol.Experiments.Nudge {
+	case "none":
+		return ""
+	case "think":
+		return strings.ReplaceAll(postToolDecisionReminder, "Do not open a <think> block or repeat the Tool payload.", "Do not repeat the Tool payload.")
+	case "exit":
+		return "Use the Tool results above to continue the current task. If the evidence is sufficient, call " + protocol.exitName() + ". Otherwise call another tool only for a specific missing fact. Never repeat a successful tool call."
+	}
 	if !protocol.FewShot {
 		return postToolDecisionReminder
 	}
