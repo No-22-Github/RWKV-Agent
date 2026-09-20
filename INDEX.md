@@ -5,7 +5,7 @@
 > [`README.en.md`](README.en.md)。`docs/` 内部的逐文件索引见
 > [`docs/README.md`](docs/README.md)。
 >
-> 最后更新：2026-09-15
+> 最后更新：2026-09-20
 
 ## 快速定位
 
@@ -14,6 +14,7 @@
 | 安装、构建和基本使用 | [`README.md`](README.md) | 项目主入口、CLI、Provider、Agent 和测试说明 |
 | macOS 从零运行 | [`docs/getting-started-macos.md`](docs/getting-started-macos.md) | 环境、模型准备、构建、运行、更新和常见问题 |
 | 桌面 App 与公开 API | [`docs/app.md`](docs/app.md) | Wails App、headless server、存储和开发说明 |
+| **700 条精品 Agent 轨迹数据集** | [`datasets/README.md`](datasets/README.md) | 36 种子 700 条（630 train / 70 val）精品轨迹工作区与送训 text-only 归档 |
 | **工具调用与对话格式总览** | [`docs/tool-and-wire-formats.md`](docs/tool-and-wire-formats.md) | **★ 统一格式门户 ★**：分层设计、G1K 推荐格式、矩阵对比与演进 |
 | **G1K 对齐语料格式契约** | [`docs/corpus-g1k-wire-format.md`](docs/corpus-g1k-wire-format.md) | 数据侧逐字节契约：System、`<tools>`、User `<tool_response>`、纯文本终答 |
 | **Wire 运行时配置指南** | [`docs/wire-configuration.md`](docs/wire-configuration.md) | Spec 参数全表、Profile 预设、CLI/API 统一入口（受单测锁守护） |
@@ -58,7 +59,16 @@
 
 ## 评测与基线
 
-### G1K Wire 格式消融实验 (2026-09-15 现行基线)
+### 700 条 Agent 精品轨迹数据集 (2026-09-20 现行)
+
+| 文档或证据 | 结论定位 |
+| --- | --- |
+| [`datasets/workspace-agent-700-20260920/README.md`](datasets/workspace-agent-700-20260920/README.md) | **700 条制作工作区入口**：36 道种子、9 大场景、700 条（630 训练 + 70 验证）全绿验收 |
+| [`datasets/workspace-agent-700-20260920/verification/acceptance-report.md`](datasets/workspace-agent-700-20260920/verification/acceptance-report.md) | 单快照硬门槛验收报告（`data_ready`，回放 100% 绑定闭环，二次无污染回放 349/349 通过） |
+| [`datasets/workspace-agent-700-20260920/verification/phase3-repair-report.md`](datasets/workspace-agent-700-20260920/verification/phase3-repair-report.md) | Phase 3 修复执行报告与用户授权保留政策（近重复处置与独立审查覆盖） |
+| `outputs/workspace-agent-700-state-tune-textonly/` | 实际送进丹炉训练的纯 text 格式（兼容 `rwkv_state_tune`，含转换脚本与报告） |
+
+### G1K Wire 格式消融实验 (2026-09-15 基线)
 
 | 文档或证据 | 结论定位 |
 | --- | --- |
