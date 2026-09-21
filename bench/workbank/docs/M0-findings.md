@@ -54,7 +54,7 @@
 
 - 构建须带 `-tags chatcompletions`；`--chat-token-limit-field max-tokens`（DeepSeek 不认 max_completion_tokens）。
 - `--chat-prompt-mode native-chat`（默认）+ `--thinking off`（native-chat 强制）；工具目录以 OpenAI function schemas 发送。
-- 顶层非标 `{"thinking":...}` 字段是否被 next-token.cc 拒绝待冒烟实测；`thinking=disabled` 时不发该字段则无此风险。
+- 顶层非标 `{"thinking":...}` 字段是否被上游服务拒绝待冒烟实测；`thinking=disabled` 时不发该字段则无此风险。
 - usage 含 reasoning_tokens 分离；`reasoning_content` 已按 extra field 读取——与 DeepSeek 响应格式吻合（实测通过）。
 
 ## 8. 对出题手册的三点修订（起草提示里生效）
