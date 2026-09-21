@@ -157,6 +157,118 @@ def verify_py_violations(case_dir, cid):
     return out
 
 
+def expected_answer_tokens(case):
+    """The answer strings a NOTES.md for this case has to be able to state.
+
+    Only the turn-level answer expectations count: these are the values that a
+    reviewer reads NOTES.md to check a failing trace against, and the values
+    that go stale when a case is revised without its notes. Refusal-lexicon
+    lists (output_contains_any with many alternatives) are not answers and are
+    skipped, as are script cases, whose answer is their stdout.
+    """
+    tokens = []
+    for turn in case.get("turns") or []:
+        expect = turn.get("expect") or {}
+        if "expected_number" in expect:
+            value = expect["expected_number"]
+            forms = {repr(value), f"{value:g}"}
+            if float(value).is_integer():
+                forms.add(str(int(value)))
+                forms.add(f"{int(value):,}")
+            tokens.append(sorted(forms))
+        if "output_equals" in expect:
+            tokens.append([str(expect["output_equals"])])
+        if isinstance(expect.get("output_equals_any"), list):
+            tokens.append([str(v) for v in expect["output_equals_any"]])
+    return tokens
+
+
+def notes_answer_violations(case_dir, case):
+    """NOTES.md must state the case's own expected answer.
+
+    A case that is revised without its notes leaves the notes asserting a
+    different answer than the bank scores, and the notes are what a reviewer
+    triages failing traces against. nt-0001 carried a v1 reference answer of
+    9437.184 through a v2 rewrite to 9000 and additionally listed 9000 as the
+    "careless value" to expect in failing traces, so the file actively argued
+    that the correct answer was the wrong one.
+    """
+    path = case_dir / "NOTES.md"
+    if not path.is_file():
+        return []
+    text = path.read_text(encoding="utf-8")
+    out = []
+    for forms in expected_answer_tokens(case):
+        if not any(form and form in text for form in forms):
+            out.append((
+                "notes.answer",
+                f"NOTES.md does not state the expected answer (any of {forms}); "
+                "sync the notes with case.json",
+            ))
+    return out
+
+
+def hidden_file_violations(case):
+    """expect.run hidden inputs have to live inside the workspace.
+
+    A hidden set written outside the project tree splits the anchors a script
+    can legitimately use: a sweep rooted at the launch directory reaches it and
+    a sweep rooted at the script's own directory does not, so the case turns on
+    an idiom it never states. scr-0004 shipped that way.
+    """
+    run = ((case.get("expect") or {}).get("run")) or {}
+    out = []
+    for path in (run.get("hidden_files") or {}):
+        normalized = path.replace("\\", "/")
+        parts = normalized.split("/")
+        if normalized.startswith("/") or ".." in parts:
+            out.append((
+                "expect.run.hidden",
+                f"hidden file {path!r} must be a relative path inside the workspace",
+            ))
+    return out
+
+
+def web_fixture_violations(case):
+    """Every fixture URL must resolve back to its own entry.
+
+    web_fetch picks the entry with the longest url_match contained in the
+    requested URL. One fixture's url_match is easily a prefix of another's URL
+    (".../desk-rates" vs ".../desk-rates-september"), and before the matcher
+    preferred the longest match the shorter entry captured both: hyb-0004's
+    September rate sheet was unreachable, which made the case unsolvable and
+    made every model that answered from the June sheet look wrong.
+
+    Asserting round-trip resolution catches the collision and a mistyped
+    url_match in the same check.
+    """
+    entries = case.get("web_fixture") or []
+    out = []
+    for index, entry in enumerate(entries):
+        url = (entry.get("url") or "").lower()
+        own = (entry.get("url_match") or "").lower()
+        if not url or not own:
+            continue
+        if own not in url:
+            out.append((
+                "web_fixture.url_match",
+                f"entry[{index}] url_match {entry['url_match']!r} does not match its own url {entry['url']!r}",
+            ))
+            continue
+        best, winner = -1, None
+        for other, candidate in enumerate(entries):
+            match = (candidate.get("url_match") or "").lower()
+            if match and match in url and len(match) > best:
+                best, winner = len(match), other
+        if winner != index:
+            out.append((
+                "web_fixture.url_match",
+                f"entry[{index}] url {entry['url']!r} resolves to entry[{winner}] "
+                f"(url_match {entries[winner].get('url_match')!r}); make the url_match unambiguous",
+            ))
+    return out
+
+
 def notes_violations(case_dir, cid, scenario):
     out = []
     path = case_dir / "NOTES.md"
@@ -336,6 +448,15 @@ def check_case(case_dir, case, ctx, rel_parts, violations, fixed_notes):
     for rule, detail in verify_py_violations(case_dir, cid):
         bad(rule, detail)
     for rule, detail in notes_violations(case_dir, cid, scenario if isinstance(scenario, str) else ""):
+        bad(rule, detail)
+
+    # (m) notes must state the case's own expected answer, and expect.run
+    # hidden inputs must stay inside the workspace.
+    for rule, detail in notes_answer_violations(case_dir, case):
+        bad(rule, detail)
+    for rule, detail in hidden_file_violations(case):
+        bad(rule, detail)
+    for rule, detail in web_fixture_violations(case):
         bad(rule, detail)
 
     # (l) llm-authored cases stay draft until a human reviewer takes

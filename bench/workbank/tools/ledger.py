@@ -201,6 +201,11 @@ def build_run_row(manifest, summary, case_rows, args):
         "same_tool_rescue_limit": harness.get("same_tool_rescue_limit"),
         "endpoint": derive_endpoint(model),
         "pass_mean": pass_mean,
+        # scored_cases is pass_mean's denominator and invalid_cases is what left
+        # it: a run aborted upstream on some cases reports a rate over the
+        # surviving sample, so a row's rate is only comparable alongside these.
+        "scored_cases": (ts.get("total") if isinstance(ts, dict) else None),
+        "invalid_cases": metrics.get("invalid_cases") or 0,
         "pass_all_k": None,  # filled after all k replicas of a config are ingested
         "by_level": group_rates(case_rows, "level"),
         "by_scenario": group_rates(case_rows, "scenario"),
