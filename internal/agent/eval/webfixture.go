@@ -18,9 +18,10 @@ import (
 // Entries drive both providers. A search hits every entry whose query_match is
 // a case-insensitive substring of the query, in file order (so entry order is
 // the result order — a design lever for source-position tasks). A fetch hits
-// the first entry whose url_match is a case-insensitive substring of the
-// requested URL; a miss returns a deterministic not-found page instead of a
-// provider error so the model sees stable behaviour.
+// the entry with the LONGEST url_match that is a case-insensitive substring of
+// the requested URL, so a fixture whose url_match is a prefix of another's URL
+// cannot capture both; a miss returns a deterministic not-found page instead of
+// a provider error so the model sees stable behaviour.
 
 type WebFixtureEntry struct {
 	// QueryMatch selects the entry for web_search (substring, case-insensitive).
@@ -78,10 +79,22 @@ func (f webFixtureProviders) Fetch(
 	for index, pageURL := range request.URLs {
 		lowered := strings.ToLower(pageURL)
 		content := "[fixture] no page matched this URL."
+		// The most specific match wins, not the first one declared. One
+		// fixture URL is routinely a prefix of another — ".../desk-rates" and
+		// ".../desk-rates-september" — and first-match-wins silently served
+		// the shorter entry's page for both. hyb-0004 shipped that way and was
+		// unsolvable for it: the model asked for the September rate sheet, was
+		// handed the June one, and every model that "failed" the case had
+		// correctly reported the only rate it was ever shown.
+		best := -1
 		for _, entry := range f.entries {
-			if entry.URLMatch != "" && strings.Contains(lowered, strings.ToLower(entry.URLMatch)) {
+			if entry.URLMatch == "" {
+				continue
+			}
+			match := strings.ToLower(entry.URLMatch)
+			if strings.Contains(lowered, match) && len(match) > best {
+				best = len(match)
 				content = entry.Content
-				break
 			}
 		}
 		results = append(results, tools.WebFetchResult{

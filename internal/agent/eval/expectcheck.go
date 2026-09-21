@@ -130,10 +130,20 @@ func fileExpectFailures(workspace string, testCase Case) []string {
 
 // runExpectationScript executes the bank script offline against a copy of the
 // final workspace: python3 -I -S, hard timeout (default 10s), stdout compared
-// line by line after stripping trailing \r. The sandbox root holds workspace/
-// (the copy) plus hidden/ (HiddenFiles) for second-input scripts. The script
-// never runs against the live workspace, so a broken script cannot corrupt
-// other checks.
+// line by line after stripping trailing \r. The script never runs against the
+// live workspace, so a broken script cannot corrupt other checks.
+//
+// HiddenFiles (the second input set a write-a-script case uses to defeat
+// hard-coded answers) land *inside* the workspace copy, and the command runs
+// with the workspace copy as its working directory. That makes the three
+// anchors a case README can name — the launch directory, the script's own
+// directory, and the project root — the same directory, exactly as they are in
+// the live workspace the model explored. Placing the hidden set beside the
+// workspace instead would silently split them: a sweep rooted at os.getcwd()
+// would see the hidden files and an equally faithful sweep rooted at
+// __file__'s directory would not, deciding the case on an idiom the case text
+// never mentions. Hidden paths are confined to the workspace for the same
+// reason a fixture path is.
 func runExpectationScript(
 	parent context.Context,
 	workspace string,
@@ -154,7 +164,13 @@ func runExpectationScript(
 		return nil, fmt.Errorf("copy workspace: %w", err)
 	}
 	for path, content := range run.HiddenFiles {
-		target := filepath.Join(sandbox, filepath.FromSlash(path))
+		target := filepath.Join(runWorkspace, filepath.FromSlash(path))
+		if !withinDir(runWorkspace, target) {
+			return nil, fmt.Errorf(
+				"expect.run hidden file %q escapes the workspace",
+				path,
+			)
+		}
 		if err := os.MkdirAll(filepath.Dir(target), 0o700); err != nil {
 			return nil, err
 		}
@@ -173,7 +189,7 @@ func runExpectationScript(
 		[]string{"-I", "-S", scriptPath},
 		run.Args...,
 	)...)
-	command.Dir = sandbox
+	command.Dir = runWorkspace
 	command.Env = []string{
 		"PATH=/usr/bin:/bin:/usr/local/bin",
 		"HOME=" + sandbox,
@@ -274,6 +290,19 @@ func copyDir(source string, target string) error {
 		}
 		return os.WriteFile(destination, data, 0o600)
 	})
+}
+
+// withinDir reports whether target stays inside root once "..", "." and
+// separators are resolved lexically. Both paths are already absolute and
+// symlink-free here (the sandbox is freshly created), so a lexical check is
+// enough to keep a case fixture from writing outside its own workspace.
+func withinDir(root string, target string) bool {
+	relative, err := filepath.Rel(filepath.Clean(root), filepath.Clean(target))
+	if err != nil {
+		return false
+	}
+	return relative != ".." &&
+		!strings.HasPrefix(relative, ".."+string(filepath.Separator))
 }
 
 func clipText(text string, limit int) string {

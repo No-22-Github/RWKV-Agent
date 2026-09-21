@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -19,7 +18,10 @@ import (
 
 const maxResponseBytes = 4 * 1024 * 1024
 
-var ErrRemote = errors.New("rwkv_lightning continuation error")
+var ErrRemote = fmt.Errorf(
+	"%w: rwkv_lightning continuation error",
+	continuation.ErrUpstream,
+)
 
 // StopTokenMode selects how the request populates rwkv_lightning's stop_tokens.
 type StopTokenMode string

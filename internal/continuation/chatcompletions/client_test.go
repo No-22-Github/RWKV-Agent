@@ -612,10 +612,41 @@ func TestClientRejectsMalformedResponsesAndExcessiveStops(t *testing.T) {
 	if _, err := client.Continue(context.Background(), validRequest(), nil); !errors.Is(err, ErrRemote) {
 		t.Fatalf("error = %v, want ErrRemote", err)
 	}
+}
+
+// TestTextContinuationTruncatesLocallyBeyondFourStops locks the stop handling
+// the structured path already had: an OpenAI-style API caps the stop field at
+// four, so the client sends a prefix and applies the full list locally rather
+// than refusing the request. Without this the G1 text protocol, which declares
+// more than four stops, could not run against any such endpoint — the fallback
+// for a model whose native tool calling is unavailable.
+func TestTextContinuationTruncatesLocallyBeyondFourStops(t *testing.T) {
+	t.Parallel()
+	var sentStops int
+	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, req *http.Request) {
+		var body struct {
+			Stop []string `json:"stop"`
+		}
+		_ = json.NewDecoder(req.Body).Decode(&body)
+		sentStops = len(body.Stop)
+		writeJSON(writer, `{"choices":[{"index":0,"message":{"role":"assistant","content":"keep<<FIFTH>>drop"},"finish_reason":"stop"}]}`)
+	}))
+	defer server.Close()
+	client, err := New(Config{Endpoint: server.URL, Model: "other-model"})
+	if err != nil {
+		t.Fatal(err)
+	}
 	request := validRequest()
-	request.Stops = []string{"1", "2", "3", "4", "5"}
-	if _, err := client.Continue(context.Background(), request, nil); !errors.Is(err, continuation.ErrInvalidRequest) {
-		t.Fatalf("error = %v, want ErrInvalidRequest", err)
+	request.Stops = []string{"1", "2", "3", "4", "<<FIFTH>>"}
+	result, err := client.Continue(context.Background(), request, nil)
+	if err != nil {
+		t.Fatalf("five stops must be accepted: %v", err)
+	}
+	if sentStops != 4 {
+		t.Fatalf("stops sent upstream = %d, want 4", sentStops)
+	}
+	if result.Text != "keep" {
+		t.Fatalf("text = %q, want the fifth stop applied locally", result.Text)
 	}
 }
 
@@ -735,5 +766,27 @@ func TestSDKUsageExtractsCacheAndReasoningDetails(t *testing.T) {
 	bare := sdkUsage(&openai.ChatCompletion{})
 	if bare.PromptCacheReadTokens != 0 || bare.PromptCacheWriteTokens != 0 || bare.ReasoningTokens != 0 {
 		t.Fatalf("bare usage should keep zero details: %+v", bare)
+	}
+}
+
+// TestDecodeSDKToolCallsErrorNamesThePayload keeps an upstream malformed call
+// diagnosable: decoding fails before the response reaches any trace, so the
+// error text is the only surviving record of what arrived.
+func TestDecodeSDKToolCallsErrorNamesThePayload(t *testing.T) {
+	_, err := decodeSDKToolCalls([]openai.ChatCompletionMessageToolCallUnion{
+		{ID: "call_1", Type: "function", Function: openai.ChatCompletionMessageFunctionToolCallFunction{
+			Name: "read_file", Arguments: `{"path":"a"}`,
+		}},
+		{ID: "call_2", Type: "function", Function: openai.ChatCompletionMessageFunctionToolCallFunction{
+			Name: "read_file", Arguments: ``,
+		}},
+	}, 2)
+	if err == nil {
+		t.Fatal("malformed arguments must fail")
+	}
+	for _, want := range []string{"1 of 2", `"read_file"`, `""`} {
+		if !strings.Contains(err.Error(), want) {
+			t.Fatalf("error %q does not name %s", err.Error(), want)
+		}
 	}
 }

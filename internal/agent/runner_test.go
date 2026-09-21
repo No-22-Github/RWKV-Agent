@@ -2224,3 +2224,23 @@ func budgetTestGenerator() continuation.Generator {
 		return continuation.Result{}, nil
 	})
 }
+
+// TestNativeAssistantPrefixDropsRoleHeaders locks the fix for the circular
+// role_header failure: the harness must not instruct a native Chat Completions
+// model to open its reply with a string that validateAnswer then rejects.
+// Observed on deepseek-flash as "Assistant: 3" failing an expected_number case
+// it had answered correctly.
+func TestNativeAssistantPrefixDropsRoleHeaders(t *testing.T) {
+	for _, forbidden := range []string{"Assistant:", "assistant:", "User:", "System:"} {
+		if got := nativeAssistantPrefix(forbidden); got != "" {
+			t.Fatalf("nativeAssistantPrefix(%q) = %q, want dropped", forbidden, got)
+		}
+	}
+	// A prefix the answer contract permits still travels.
+	if got := nativeAssistantPrefix("Answer:"); got != "Answer:" {
+		t.Fatalf("nativeAssistantPrefix(%q) = %q, want it kept", "Answer:", got)
+	}
+	if got := nativeAssistantPrefix(""); got != "" {
+		t.Fatalf("empty prefix = %q", got)
+	}
+}

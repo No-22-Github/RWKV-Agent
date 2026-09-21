@@ -970,18 +970,35 @@ func TestAnswerContractRepairKeepsOriginalAccuracySeparate(t *testing.T) {
 		AnswerContractRepaired: true,
 		AnswerViolations:       []string{"role_header"},
 	}
-	failures := validateTurn(expect, result, nil)
-	if len(failures) != 1 || !strings.Contains(failures[0], "answer contract repaired") {
+	// The repair is wire hygiene: it is counted, not scored. The answer itself
+	// was right and is read through the repair, so the turn has no failure.
+	if failures := validateTurn(expect, result, nil); len(failures) != 0 {
 		t.Fatalf("repair validation failures = %v", failures)
 	}
 	testCase := Case{ID: "repair", Turns: []Turn{{Expect: expect}}}
 	summary := summarize("run", []Case{testCase}, []CaseResult{{
 		ID:     "repair",
-		Passed: false,
-		Turns:  []TurnResult{{Result: result, Passed: false}},
+		Passed: true,
+		Turns:  []TurnResult{{Result: result, Passed: true}},
 	}}, nil)
 	assertScore(t, "answer accuracy", summary.Metrics.AnswerAccuracy, 1, 1)
 	assertScore(t, "answer contract repaired", summary.Metrics.AnswerContractRepaired, 1, 1)
+}
+
+// A repaired reply whose answer is wrong still fails on the answer: the repair
+// stops being a second, independent charge, it does not become a shield.
+func TestAnswerContractRepairStillFailsOnWrongAnswer(t *testing.T) {
+	answer := "42"
+	expect := Expectation{OutputEquals: &answer}
+	failures := validateTurn(expect, agent.Result{
+		Output:                 "I could not provide a reliable answer.",
+		OriginalOutput:         "Assistant: 41",
+		AnswerContractRepaired: true,
+		AnswerViolations:       []string{"role_header"},
+	}, nil)
+	if len(failures) != 1 || !strings.Contains(failures[0], "want \"42\"") {
+		t.Fatalf("wrong repaired answer failures = %v", failures)
+	}
 }
 
 func TestBoundaryScoringMatchesRequiredCallsWithoutOrder(t *testing.T) {
@@ -1518,7 +1535,7 @@ func TestRunManifestRecordsActuallySentSampling(t *testing.T) {
 	if manifest.Sampling["temperature"] != float32(0.3) || manifest.Sampling["seed"] != int64(7) {
 		t.Fatalf("sampling values = %v", manifest.Sampling)
 	}
-	if HarnessVersion != "rwkv-agent-eval-v21" || ScorerVersion != "rwkv-agent-eval-scorer-v2" {
+	if HarnessVersion != "rwkv-agent-eval-v21" || ScorerVersion != "rwkv-agent-eval-scorer-v3" {
 		t.Fatalf("versions = %q/%q", HarnessVersion, ScorerVersion)
 	}
 }

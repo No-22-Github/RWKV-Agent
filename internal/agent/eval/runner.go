@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -16,6 +17,7 @@ import (
 	"github.com/no22/RWKV-Agent/internal/agent"
 	assistanttools "github.com/no22/RWKV-Agent/internal/agent/tools"
 	tools "github.com/no22/RWKV-Agent/internal/agent/tools"
+	"github.com/no22/RWKV-Agent/internal/continuation"
 	"github.com/no22/RWKV-Agent/internal/inference"
 )
 
@@ -441,6 +443,10 @@ func runCase(
 		}
 		if runErr != nil {
 			turnResult.RunnerError = runErr.Error()
+			if errors.Is(runErr, continuation.ErrUpstream) {
+				result.Invalid = true
+				result.InvalidReason = runErr.Error()
+			}
 		}
 		turnResult.Failures = validateTurn(turn.Expect, runResult, runErr)
 		turnResult.Failures = append(

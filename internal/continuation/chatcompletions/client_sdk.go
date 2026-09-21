@@ -88,11 +88,15 @@ func (c *Client) Continue(
 	if err := validateSampling(request.Sampling); err != nil {
 		return continuation.Result{}, err
 	}
+	// OpenAI-style APIs cap the stop field at four. The structured path already
+	// sends a prefix upstream and truncates locally against the full list;
+	// refusing the request here instead made the text wire unusable against any
+	// such endpoint for protocols that declare more than four stops — the G1
+	// text protocol does, which is how a model without working native tool
+	// calling would otherwise still be evaluated.
+	fullStops := request.Stops
 	if len(request.Stops) > 4 {
-		return continuation.Result{}, fmt.Errorf(
-			"%w: Chat Completions supports at most four stop sequences",
-			continuation.ErrInvalidRequest,
-		)
+		request.Stops = request.Stops[:4]
 	}
 	model := strings.TrimSpace(request.Model)
 	if model == "" {
@@ -122,7 +126,7 @@ func (c *Client) Continue(
 			ErrRemote,
 		)
 	}
-	text, stopped := httputil.TruncateAtStop(choice.Message.Content, request.Stops)
+	text, stopped := httputil.TruncateAtStop(choice.Message.Content, fullStops)
 	finish := finishReason(choice.FinishReason)
 	if stopped {
 		finish = continuation.FinishStop
@@ -206,7 +210,19 @@ func (c *Client) Complete(
 	if !ok {
 		return toolchat.Result{}, fmt.Errorf("%w: response has no choice at index 0", ErrRemote)
 	}
-	calls, err := decodeSDKToolCalls(choice.Message.ToolCalls)
+	// With parallel_tool_calls=false only the first call is ever executed (the
+	// truncation below is long-standing behaviour), so a malformed argument
+	// payload on a call that is about to be discarded must not abort the turn:
+	// deepseek-flash emits a spurious trailing call with empty arguments under
+	// load, and failing the whole response over it turned recoverable answers
+	// into aborted cases. Structural checks (id, type, name, duplicate ids)
+	// still cover every call, because those signal a genuinely broken provider
+	// rather than one stray extra call.
+	executable := len(choice.Message.ToolCalls)
+	if !request.ParallelToolCalls && executable > 1 {
+		executable = 1
+	}
+	calls, err := decodeSDKToolCalls(choice.Message.ToolCalls, executable)
 	if err != nil {
 		return toolchat.Result{}, err
 	}
@@ -374,7 +390,13 @@ func encodeSDKTools(tools []toolchat.Tool) ([]openai.ChatCompletionToolUnionPara
 	return result, nil
 }
 
-func decodeSDKToolCalls(calls []openai.ChatCompletionMessageToolCallUnion) ([]toolchat.ToolCall, error) {
+// decodeSDKToolCalls validates every returned call structurally and returns the
+// first `executable` of them. Argument payloads are only required to parse for
+// the calls that will actually run.
+func decodeSDKToolCalls(
+	calls []openai.ChatCompletionMessageToolCallUnion,
+	executable int,
+) ([]toolchat.ToolCall, error) {
 	result := make([]toolchat.ToolCall, 0, len(calls))
 	seen := make(map[string]struct{}, len(calls))
 	for index, call := range calls {
@@ -392,17 +414,29 @@ func decodeSDKToolCalls(calls []openai.ChatCompletionMessageToolCallUnion) ([]to
 		if !functionNamePattern.MatchString(call.Function.Name) {
 			return nil, fmt.Errorf("%w: function tool call %d has an invalid name", ErrRemote, index)
 		}
-		if !isJSONObject(json.RawMessage(call.Function.Arguments)) {
+		if index < executable && !isJSONObject(json.RawMessage(call.Function.Arguments)) {
+			// The payload is named in full: a provider that returns a spurious
+			// trailing call with empty arguments and one that truncates a real
+			// call produce the same error class, and the raw value is the only
+			// thing that separates them. Nothing downstream records it —
+			// decoding fails before the response reaches the trace — so an
+			// error that omitted it left the failure permanently undiagnosable.
 			return nil, fmt.Errorf(
-				"%w: function tool call %d arguments are not a JSON object",
+				"%w: function tool call %d of %d (name %q) arguments are not a JSON object: %s",
 				ErrRemote,
 				index,
+				len(calls),
+				call.Function.Name,
+				clipArguments(call.Function.Arguments),
 			)
 		}
 		if _, exists := seen[call.ID]; exists {
 			return nil, fmt.Errorf("%w: duplicate tool call id %q", ErrRemote, call.ID)
 		}
 		seen[call.ID] = struct{}{}
+		if index >= executable {
+			continue
+		}
 		result = append(result, toolchat.ToolCall{
 			ID: call.ID, Name: call.Function.Name, Arguments: call.Function.Arguments,
 		})
@@ -467,3 +501,13 @@ func (c *Client) remoteError(err error) error {
 
 var _ continuation.Generator = (*Client)(nil)
 var _ toolchat.Completer = (*Client)(nil)
+
+// clipArguments renders a tool-call argument payload for an error message,
+// quoted so an empty string is visible as "" rather than as nothing at all.
+func clipArguments(arguments string) string {
+	const limit = 200
+	if len(arguments) > limit {
+		return fmt.Sprintf("%q (truncated from %d bytes)", arguments[:limit], len(arguments))
+	}
+	return fmt.Sprintf("%q", arguments)
+}

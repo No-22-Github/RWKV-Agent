@@ -38,7 +38,6 @@ func TestParseNumericOutputNormalization(t *testing.T) {
 	}
 	invalid := []string{
 		"approximately 5",
-		"USD 5",
 		"5,548.95abc",
 		"$$5",
 		"€",
@@ -166,5 +165,275 @@ func TestNativeOutcomeClassificationSkipsTextWireOutcomes(t *testing.T) {
 	}}}
 	if outcome := classifyTurnOutcome(genuineFailure); outcome != OutcomeDecisionProtocolError {
 		t.Fatalf("native genuine failure outcome = %q, want %q", outcome, OutcomeDecisionProtocolError)
+	}
+}
+
+// TestParseNumericOutputAcceptsUnitSuffix covers the 2026-09-21 false
+// negatives: nt-0001 "9000 MiB per hour" and hyb-0002 "9806.55 EUR". Both
+// prompts name the unit they want the figure in, so repeating it in the reply
+// answers the question asked rather than adding an unchecked second claim.
+func TestParseNumericOutputAcceptsUnitSuffix(t *testing.T) {
+	t.Parallel()
+	valid := map[string]float64{
+		"9000 MiB per hour": 9000,
+		"9806.55 EUR":       9806.55,
+		"720 GB":            720,
+		"45 seconds":        45,
+		"€14,746.84 EUR":    14746.84,
+		"12.5 %":            12.5,
+		"3 km/h":            3,
+		"45 days.":          45,
+	}
+	for input, want := range valid {
+		got, err := parseNumericOutput(input)
+		if err != nil {
+			t.Fatalf("parseNumericOutput(%q) err = %v, want %g", input, err, want)
+		}
+		if math.Abs(got-want) > 1e-9 {
+			t.Fatalf("parseNumericOutput(%q) = %g, want %g", input, got, want)
+		}
+	}
+	// A unit may not carry a second figure, a clause or a sentence.
+	invalid := []string{
+		"45 seconds (it was 120 seconds before 3.0.0)",
+		"9000 MiB per hour, but only while the backup runs",
+		"14746.84 at the September rate rather than the June one",
+		"42 the answer is",
+		"42 the answer",
+		"42 approximately GB",
+		"5 548.95",
+	}
+	for _, input := range invalid {
+		if got, err := parseNumericOutput(input); err == nil {
+			t.Fatalf("parseNumericOutput(%q) = %g, want an error", input, got)
+		}
+	}
+}
+
+// TestOutputEqualsNormalizesCaseAndTrailingPunctuation covers cfg-0003 "No"
+// and doc-0002 "45 days." — orthography, not a different answer.
+func TestOutputEqualsNormalizesCaseAndTrailingPunctuation(t *testing.T) {
+	t.Parallel()
+	expected := "no"
+	for _, output := range []string{"no", "No", "NO", " No. ", "no."} {
+		if failures := answerFailures(
+			Expectation{OutputEquals: &expected},
+			output,
+		); len(failures) != 0 {
+			t.Fatalf("answerFailures(%q) = %v, want none", output, failures)
+		}
+	}
+	for _, output := range []string{"yes", "no idea", "not enabled", ""} {
+		if failures := answerFailures(
+			Expectation{OutputEquals: &expected},
+			output,
+		); len(failures) != 1 {
+			t.Fatalf("answerFailures(%q) = %v, want one failure", output, failures)
+		}
+	}
+	if failures := answerFailures(
+		Expectation{OutputEqualsAny: []string{"45", "45 days"}},
+		"45 days.",
+	); len(failures) != 0 {
+		t.Fatalf("output_equals_any failures = %v, want none", failures)
+	}
+}
+
+// TestZeroCallContractIsNotATurnFailure locks the notool decoupling: the
+// contract is reported through no_call_accuracy / active_no_call, and a
+// correct answer is not cancelled by an exploratory call. A non-empty tools
+// list stays an exact-sequence assertion.
+func TestZeroCallContractIsNotATurnFailure(t *testing.T) {
+	t.Parallel()
+	answer := "443"
+	expect := Expectation{Tools: []string{}, OutputEquals: &answer}
+	explored := agent.Result{
+		Output: "443",
+		Steps:  []agent.Step{{Tool: "list_files"}},
+	}
+	if failures := validateTurn(expect, explored, nil); len(failures) != 0 {
+		t.Fatalf("zero-call turn failures = %v, want none", failures)
+	}
+	testCase := Case{ID: "nt", Turns: []Turn{{Expect: expect}}}
+	summary := summarize("run", []Case{testCase}, []CaseResult{{
+		ID:     "nt",
+		Passed: true,
+		Turns:  []TurnResult{{Result: explored, Passed: true}},
+	}}, nil)
+	assertScore(t, "no-call accuracy", summary.Metrics.NoCallAccuracy, 0, 1)
+	assertScore(t, "answer accuracy", summary.Metrics.AnswerAccuracy, 1, 1)
+
+	exact := Expectation{Tools: []string{"read_file"}}
+	if failures := validateTurn(exact, explored, nil); len(failures) != 1 {
+		t.Fatalf("exact tools failures = %v, want one", failures)
+	}
+}
+
+// TestInvalidCasesLeaveTheTaskSuccessDenominator locks the voiding rule: an
+// upstream-aborted case is a lost sample, not a wrong answer.
+func TestInvalidCasesLeaveTheTaskSuccessDenominator(t *testing.T) {
+	t.Parallel()
+	cases := []Case{{ID: "ok"}, {ID: "aborted"}}
+	summary := summarize("run", cases, []CaseResult{
+		{ID: "ok", Passed: true},
+		{ID: "aborted", Invalid: true, InvalidReason: "upstream provider failure: boom"},
+	}, nil)
+	assertScore(t, "task success", summary.Metrics.TaskSuccess, 1, 1)
+	if summary.Metrics.InvalidCases != 1 {
+		t.Fatalf("invalid cases = %d, want 1", summary.Metrics.InvalidCases)
+	}
+}
+
+// TestOutputEqualsAcceptsUnitOnNumericAnswersOnly covers web-0002 ("45
+// seconds") while keeping the abstention guard: a unit attaches to a number,
+// so the allowance must not read "no idea" as the answer "no".
+func TestOutputEqualsAcceptsUnitOnNumericAnswersOnly(t *testing.T) {
+	t.Parallel()
+	numeric := "45"
+	for _, output := range []string{"45", "45 seconds", "45 s", "45 seconds."} {
+		if failures := answerFailures(
+			Expectation{OutputEquals: &numeric}, output,
+		); len(failures) != 0 {
+			t.Fatalf("answerFailures(%q) = %v, want none", output, failures)
+		}
+	}
+	// Provenance is still not a bare answer: it carries the decoy 120.
+	for _, output := range []string{
+		"45 seconds (raised from 120 in the 3.0.0 release)",
+		"120",
+		"UNKNOWN",
+	} {
+		if failures := answerFailures(
+			Expectation{OutputEquals: &numeric}, output,
+		); len(failures) != 1 {
+			t.Fatalf("answerFailures(%q) = %v, want one failure", output, failures)
+		}
+	}
+	word := "no"
+	for _, output := range []string{"no idea", "no such setting", "not enabled"} {
+		if failures := answerFailures(
+			Expectation{OutputEquals: &word}, output,
+		); len(failures) != 1 {
+			t.Fatalf("word answer %q = %v, want one failure", output, failures)
+		}
+	}
+}
+
+// TestAnswerFormatViolationsSeparateShapeFromCorrectness locks the new
+// counter: a right value in the wrong shape is reported apart from a wrong
+// value, so a trap case's score is not silently depressed by formatting.
+func TestAnswerFormatViolationsSeparateShapeFromCorrectness(t *testing.T) {
+	t.Parallel()
+	answer := "45"
+	expect := Expectation{OutputEquals: &answer}
+	if !isAnswerFormatViolation(expect, "45 seconds (raised from 120 in 3.0.0)") {
+		t.Fatal("leading correct value must count as a format violation")
+	}
+	// The value has to sit at one end of the reply. Buried mid-sentence it is
+	// a mention, not a commitment, and on a case whose decoy is itself a
+	// number that difference is all there is to go on.
+	for _, wrong := range []string{
+		"120",
+		"the old value 45 was replaced by 120",
+		"UNKNOWN",
+		"",
+	} {
+		if isAnswerFormatViolation(expect, wrong) {
+			t.Fatalf("%q must not count as a format violation", wrong)
+		}
+	}
+	number := 9000.0
+	tolerance := 0.01
+	numeric := Expectation{ExpectedNumber: &number, Tolerance: &tolerance}
+	if !isAnswerFormatViolation(numeric, "9000 MiB per hour, measured over the window") {
+		t.Fatal("numeric expectation must report a leading-value format violation")
+	}
+}
+
+// TestEmphasisMarkersAreNormalized covers code-0004 "**9**" and tab-0004's
+// bolded figure: Markdown emphasis is typesetting, not a different answer.
+// A bolded answer trailed by prose stays a failure — it is a format violation,
+// which the counter reports separately.
+func TestEmphasisMarkersAreNormalized(t *testing.T) {
+	t.Parallel()
+	number := 9.0
+	tolerance := 0.01
+	expect := Expectation{ExpectedNumber: &number, Tolerance: &tolerance}
+	for _, output := range []string{"9", "**9**", "__9__", "`9`", " **9** "} {
+		if failures := answerFailures(expect, output); len(failures) != 0 {
+			t.Fatalf("answerFailures(%q) = %v, want none", output, failures)
+		}
+	}
+	money := 23609.6
+	cents := Expectation{ExpectedNumber: &money, Tolerance: &tolerance}
+	if failures := answerFailures(cents, "**$23,609.60**"); len(failures) != 0 {
+		t.Fatalf("bolded currency = %v, want none", failures)
+	}
+	verbose := "**$23,609.60**\n\nOrders totaled $24,555.50 and refunds reduce revenue."
+	if failures := answerFailures(cents, verbose); len(failures) != 1 {
+		t.Fatalf("bolded figure plus prose = %v, want one failure", failures)
+	}
+	if !isAnswerFormatViolation(cents, verbose) {
+		t.Fatal("bolded figure plus prose must count as a format violation")
+	}
+	// An asterisk inside the answer is content, not emphasis.
+	glob := "*.log"
+	if failures := answerFailures(Expectation{OutputEquals: &glob}, "*.log"); len(failures) != 0 {
+		t.Fatalf("glob answer = %v, want none", failures)
+	}
+}
+
+// TestAnswerFormatViolationDetectsTrailingCommitment covers the small-instruct
+// shape: reason in prose, then commit the value at the end. Qwen3-8B answers
+// nt-0001 and cfg-0001 correctly this way, and scoring only the leading
+// position would file both under wrong answers.
+func TestAnswerFormatViolationDetectsTrailingCommitment(t *testing.T) {
+	t.Parallel()
+	number := 9000.0
+	tolerance := 0.01
+	numeric := Expectation{ExpectedNumber: &number, Tolerance: &tolerance}
+	if !isAnswerFormatViolation(numeric,
+		"The ingest rate of 2.5 MiB per second is equivalent to 2.5 * 3600 = 9000 MiB per hour.\n\n9000") {
+		t.Fatal("trailing bare value must count as a format violation")
+	}
+	port := "8431"
+	text := Expectation{OutputEquals: &port}
+	if !isAnswerFormatViolation(text,
+		"The notify-hub service listens on TCP port **8431**.\n\nFinal answer: 8431") {
+		t.Fatal("marker-introduced value must count as a format violation")
+	}
+	// A value buried mid-sentence still does not count: on a case whose decoy
+	// is a number, position is the only thing separating answer from mention.
+	answer := "45"
+	if isAnswerFormatViolation(Expectation{OutputEquals: &answer},
+		"it was 120 before, now 45 was chosen instead by the team") {
+		t.Fatal("mid-sentence mention must not count as a format violation")
+	}
+	if isAnswerFormatViolation(Expectation{OutputEquals: &answer}, "120") {
+		t.Fatal("a wrong answer must not count as a format violation")
+	}
+}
+
+// TestParseNumericOutputAcceptsLeadingCurrencyCode covers hyb-0004's
+// "EUR 14,746.84": a currency written as a code in front of the figure is the
+// same answer as the same figure with a symbol.
+func TestParseNumericOutputAcceptsLeadingCurrencyCode(t *testing.T) {
+	t.Parallel()
+	valid := map[string]float64{
+		"EUR 14,746.84": 14746.84,
+		"USD 5":         5,
+		"GBP 12,680.00": 12680,
+		"eur 1.5":       1.5,
+	}
+	for input, want := range valid {
+		got, err := parseNumericOutput(input)
+		if err != nil || math.Abs(got-want) > 1e-9 {
+			t.Fatalf("parseNumericOutput(%q) = %g, %v; want %g", input, got, err, want)
+		}
+	}
+	for _, input := range []string{"approximately 5", "the 5", "about 42", "roughly 7"} {
+		if got, err := parseNumericOutput(input); err == nil {
+			t.Fatalf("parseNumericOutput(%q) = %g, want an error", input, got)
+		}
 	}
 }

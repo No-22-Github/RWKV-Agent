@@ -9,6 +9,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"unicode"
 
 	"github.com/no22/RWKV-Agent/internal/agent"
 )
@@ -39,7 +40,16 @@ func validateTurn(
 		)
 	}
 	actualTools := stepTools(result.Steps)
-	if expect.Tools != nil && !slices.Equal(actualTools, expect.Tools) {
+	// An empty (but present) tools list is the zero-call contract: the task is
+	// answerable from the prompt alone, or the honest reply is a refusal. It is
+	// scored as call discipline, not as task success, through no_call_accuracy
+	// and active_no_call. Folding it into pass/fail conflated two independent
+	// questions and answered both with the harsher one: a model that answered
+	// "443" correctly after one look at the workspace scored the same as one
+	// that answered wrongly, and a model that refused an impossible request
+	// after checking whether it was possible scored below one that refused
+	// blind. A non-empty list is still an exact-sequence assertion.
+	if len(expect.Tools) > 0 && !slices.Equal(actualTools, expect.Tools) {
 		failures = append(
 			failures,
 			fmt.Sprintf("tools = %v, want %v", actualTools, expect.Tools),
@@ -105,12 +115,14 @@ func validateTurn(
 		}
 	}
 	failures = append(failures, answerFailures(expect, modelAnswer(result))...)
-	if result.AnswerContractRepaired {
-		failures = append(
-			failures,
-			fmt.Sprintf("answer contract repaired: %v", result.AnswerViolations),
-		)
-	}
+	// Answer-contract repair is wire hygiene, not task success. A reply that
+	// opens with "Assistant:" or carries a protocol tag has the harness replace
+	// it with a fallback string, and the violation is counted in
+	// answer_contract_repaired. Failing the case on top of that scored the
+	// wrapper rather than the work: the repaired replies in the 2026-09-21
+	// round included a correctly rebuilt report.py and a plain "Assistant:
+	// DONE". Content checks already read through the repair via modelAnswer,
+	// so a repaired reply whose answer is wrong still fails on its answer.
 	if result.Plan != nil && expect.Plan != nil {
 		failures = append(failures, planFailures(*expect.Plan, *result.Plan)...)
 	}
@@ -188,11 +200,11 @@ func planReferenceMatches(reference Reference, actual agent.PlanTrace) bool {
 func answerFailures(expect Expectation, output string) []string {
 	var failures []string
 	if expect.OutputEquals != nil &&
-		strings.TrimSpace(output) != strings.TrimSpace(*expect.OutputEquals) {
+		!answerEquals(output, *expect.OutputEquals) {
 		failures = append(
 			failures,
 			fmt.Sprintf(
-				"output = %q, want %q after trimming outer whitespace",
+				"output = %q, want %q after answer normalization",
 				strings.TrimSpace(output),
 				strings.TrimSpace(*expect.OutputEquals),
 			),
@@ -201,7 +213,7 @@ func answerFailures(expect Expectation, output string) []string {
 	if len(expect.OutputEqualsAny) > 0 {
 		matched := false
 		for _, alternative := range expect.OutputEqualsAny {
-			if strings.TrimSpace(output) == strings.TrimSpace(alternative) {
+			if answerEquals(output, alternative) {
 				matched = true
 				break
 			}
@@ -210,7 +222,7 @@ func answerFailures(expect Expectation, output string) []string {
 			failures = append(
 				failures,
 				fmt.Sprintf(
-					"output = %q, want one of %q after trimming outer whitespace",
+					"output = %q, want one of %q after answer normalization",
 					strings.TrimSpace(output),
 					expect.OutputEqualsAny,
 				),
@@ -270,14 +282,112 @@ func answerFailures(expect Expectation, output string) []string {
 	return failures
 }
 
+// answerTrailingPunctuation is the sentence punctuation a model appends out of
+// prose habit. It carries no answer content, so it is stripped before an exact
+// comparison: "45 days." and "45 days" are the same answer.
+const answerTrailingPunctuation = ".。!！;；,，"
+
+// normalizeAnswer folds the surface variation that a fixed-string answer may
+// carry without changing what was answered: outer whitespace, trailing
+// sentence punctuation and letter case. Case folding is what lets a model
+// answer a yes/no question with "No" — capitalising the first word of a reply
+// is orthography, not a different answer. Everything inside the answer (word
+// order, spacing between words, every non-final character) still has to match.
+func normalizeAnswer(text string) string {
+	trimmed := stripEmphasis(strings.TrimSpace(text))
+	trimmed = strings.TrimRight(trimmed, answerTrailingPunctuation)
+	return strings.ToLower(strings.TrimSpace(stripEmphasis(strings.TrimSpace(trimmed))))
+}
+
+// emphasisMarkers are the Markdown wrappers a model reaches for when it thinks
+// it is presenting a result rather than writing plain text.
+var emphasisMarkers = []string{"**", "__", "*", "_", "`"}
+
+// stripEmphasis removes one matched pair of Markdown emphasis markers around
+// the whole answer. "**9**" is the answer 9 typeset, not a different answer.
+// Only a matched pair wrapping the entire string is removed, so an answer that
+// merely contains an asterisk keeps it.
+func stripEmphasis(text string) string {
+	for changed := true; changed; {
+		changed = false
+		for _, marker := range emphasisMarkers {
+			if len(text) > 2*len(marker) &&
+				strings.HasPrefix(text, marker) &&
+				strings.HasSuffix(text, marker) {
+				inner := text[len(marker) : len(text)-len(marker)]
+				if !strings.Contains(inner, marker) {
+					text = strings.TrimSpace(inner)
+					changed = true
+				}
+			}
+		}
+	}
+	return text
+}
+
+func answerEquals(output string, expected string) bool {
+	normalizedOutput := normalizeAnswer(output)
+	normalizedExpected := normalizeAnswer(expected)
+	if normalizedOutput == normalizedExpected {
+		return true
+	}
+	// A numeric answer may carry its unit, the same allowance expected_number
+	// makes: web-0002 asks for the default of checkpoint_interval_secs and
+	// "45 seconds" is the value the question asked for, not a second claim.
+	//
+	// The allowance is restricted to numeric expectations because a unit only
+	// attaches to a number. Extending it to word answers would read "no idea"
+	// as the answer "no" — an abstention scored as a verdict.
+	if _, err := parseNumericOutput(normalizedExpected); err != nil {
+		return false
+	}
+	head, unit, found := strings.Cut(normalizedOutput, " ")
+	return found && head == normalizedExpected && isUnitSuffix(unit)
+}
+
+// unitLeadingFunctionWords are words a unit never starts with. They are how a
+// sentence continues ("42 the answer is") rather than how a unit reads, and
+// rejecting them keeps a clause from passing the shape check below.
+var unitLeadingFunctionWords = map[string]struct{}{
+	"the": {}, "a": {}, "an": {}, "is": {}, "was": {}, "are": {}, "were": {},
+	"of": {}, "in": {}, "for": {}, "and": {}, "or": {}, "but": {}, "that": {},
+	"this": {}, "it": {}, "at": {}, "to": {}, "as": {}, "approximately": {},
+	"about": {}, "roughly": {},
+}
+
 // parseNumericOutput parses the model's numeric answer, accepting the surface
 // forms a finance-flavoured answer naturally takes: an optional leading sign,
 // then an optional single leading currency symbol ($ € £ ¥), and comma
 // thousands separators anywhere in the digits ("$5,548.95", "1,234.50",
-// "€9,806.55"). Anything beyond that — units, words, trailing junk — still
-// fails, so "approximately 5", "USD 5" and "5,548.95abc" are not numbers.
+// "€9,806.55").
+//
+// A unit may follow the number, separated by whitespace ("9000 MiB per hour",
+// "9806.55 EUR"). Cases routinely ask for the figure in a named unit —
+// "express that rate in MiB per hour", "their total value in euros" — and
+// repeating that unit in the reply is what the question invites, not a second
+// claim to check. The unit is required to be short, free of digits and free of
+// sentence punctuation, so it cannot smuggle in a second figure or a sentence:
+// "45 seconds (it was 120 before)" is still not a number. The number itself
+// must lead, so "approximately 5" and "USD 5" still fail, and the separating
+// space is still required, so "5,548.95abc" still fails.
 func parseNumericOutput(output string) (float64, error) {
-	normalized := strings.TrimSpace(output)
+	normalized := stripEmphasis(strings.TrimSpace(output))
+	normalized = strings.TrimRight(normalized, answerTrailingPunctuation)
+	normalized = stripEmphasis(strings.TrimSpace(normalized))
+	// A currency may be written as a leading code rather than a symbol:
+	// "EUR 14,746.84" is the same answer as "€14,746.84". This is tried before
+	// the trailing-unit rule, since the leading token is not the figure.
+	// Only a short, all-letter token qualifies and function words are excluded,
+	// so "approximately 5" and "the 5" are still not numbers.
+	if head, rest, found := strings.Cut(normalized, " "); found && isLeadingUnit(head) {
+		normalized = strings.TrimSpace(rest)
+	}
+	if head, unit, found := strings.Cut(normalized, " "); found {
+		if !isUnitSuffix(unit) {
+			return 0, fmt.Errorf("output is not a number followed by a unit")
+		}
+		normalized = head
+	}
 	sign := ""
 	if strings.HasPrefix(normalized, "+") || strings.HasPrefix(normalized, "-") {
 		sign = normalized[:1]
@@ -291,6 +401,38 @@ func parseNumericOutput(output string) (float64, error) {
 	}
 	normalized = strings.ReplaceAll(normalized, ",", "")
 	return strconv.ParseFloat(sign+normalized, 64)
+}
+
+// isUnitSuffix reports whether text reads as a unit rather than as prose or a
+// second value. A unit is one or two words ("EUR", "GB", "seconds", "US
+// dollars"), optionally a rate written as "<unit> per <unit>" ("MiB per
+// hour"). Digits are refused so a second figure cannot ride along, and
+// punctuation is refused so a clause cannot, which is what keeps
+// "45 seconds (it was 120 before)" from parsing as forty-five.
+func isUnitSuffix(text string) bool {
+	fields := strings.Fields(text)
+	switch {
+	case len(fields) == 0:
+		return false
+	case len(fields) == 3 && strings.ToLower(fields[1]) != "per":
+		return false
+	case len(fields) > 3:
+		return false
+	}
+	if _, isFunctionWord := unitLeadingFunctionWords[strings.ToLower(fields[0])]; isFunctionWord {
+		return false
+	}
+	for _, field := range fields {
+		for _, character := range field {
+			switch {
+			case unicode.IsLetter(character):
+			case character == '%' || character == '/' || character == '·':
+			default:
+				return false
+			}
+		}
+	}
+	return true
 }
 
 func argumentsContain(raw json.RawMessage, expected map[string]any) bool {
@@ -422,6 +564,114 @@ func matchRequiredCalls(actual []agent.Step, expected []ExpectedCall) []bool {
 	return matched
 }
 
+// isAnswerFormatViolation reports whether a failed answer expectation carries
+// the right value and fails only on the surrounding text.
+//
+// The distinction matters because the two are indistinguishable in a bare
+// score: web-0002 answering "45 seconds (raised from 120 in the 3.0.0
+// release)" and web-0002 answering "120" both read as one lost case, though
+// the first resolved the stale-source trap and the second fell for it. It also
+// corrects a bias rather than just a tally — a model is most likely to append
+// provenance on exactly the supersede and stale-source cases, so the format
+// penalty lands hardest on the traps the bank most wants to measure.
+//
+// The value has to lead the answer. Requiring only that it appear somewhere
+// would count "it was 120 before, now 45" as well-formed, and on a case whose
+// decoy is itself a number that reading cannot be trusted.
+func isAnswerFormatViolation(expect Expectation, output string) bool {
+	normalized := normalizeAnswer(output)
+	if normalized == "" {
+		return false
+	}
+	// A numeric answer is compared numerically, not textually: the leading
+	// figure may be bolded, carry a currency symbol and use thousands
+	// separators, and still be the same number. "**$23,609.60**" followed by
+	// prose led with the right value.
+	if expect.ExpectedNumber != nil && expect.Tolerance != nil {
+		for _, candidate := range salientCandidates(output) {
+			value, err := parseNumericOutput(candidate)
+			if err == nil && math.Abs(value-*expect.ExpectedNumber) <= *expect.Tolerance {
+				return true
+			}
+		}
+	}
+	var expected []string
+	if expect.OutputEquals != nil {
+		expected = append(expected, *expect.OutputEquals)
+	}
+	expected = append(expected, expect.OutputEqualsAny...)
+	for _, want := range expected {
+		want = normalizeAnswer(want)
+		if want == "" || normalized == want {
+			continue
+		}
+		for _, candidate := range salientCandidates(output) {
+			if normalizeAnswer(candidate) == want {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+// answerMarkers introduce the value in a reply that explains first. A model
+// that reasons in prose and then commits usually labels the commitment.
+var answerMarkers = []string{
+	"final answer:", "answer:", "答案：", "答案:", "最终答案：", "最终答案:",
+}
+
+// salientCandidates returns the positions where a reply's committed value
+// plausibly sits: the first line or token, the last line or token, and
+// whatever follows an explicit answer marker.
+//
+// Both ends are needed. Some models lead with the figure and then justify it;
+// others reason first and commit at the end ("... = 9000 MiB per hour.\n\n9000",
+// "Final answer: 8431"). Scoring only the leading position would file the
+// second group under wrong answers, which is exactly backwards for the small
+// instruct models this bank is meant to track.
+//
+// The middle of a reply is deliberately not searched: on a case whose decoy is
+// itself a number, "it was 120 before, now 45" must not count on the strength
+// of containing the value somewhere.
+func salientCandidates(output string) []string {
+	trimmed := strings.TrimSpace(output)
+	if trimmed == "" {
+		return nil
+	}
+	lines := strings.FieldsFunc(trimmed, func(r rune) bool {
+		return r == '\n' || r == '\r'
+	})
+	candidates := []string{}
+	addWithHead := func(line string) {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			return
+		}
+		candidates = append(candidates, line)
+		if head, _, found := strings.Cut(line, " "); found {
+			candidates = append(candidates, strings.TrimSpace(head))
+		}
+		if _, tail, found := strings.Cut(line, " "); found {
+			if index := strings.LastIndex(tail, " "); index >= 0 {
+				candidates = append(candidates, strings.TrimSpace(tail[index+1:]))
+			} else {
+				candidates = append(candidates, strings.TrimSpace(tail))
+			}
+		}
+	}
+	if len(lines) > 0 {
+		addWithHead(lines[0])
+		addWithHead(lines[len(lines)-1])
+	}
+	lowered := strings.ToLower(trimmed)
+	for _, marker := range answerMarkers {
+		if index := strings.LastIndex(lowered, marker); index >= 0 {
+			addWithHead(trimmed[index+len(marker):])
+		}
+	}
+	return candidates
+}
+
 func hasAnswerExpectation(expect Expectation) bool {
 	return expect.OutputEquals != nil ||
 		len(expect.OutputEqualsAny) > 0 ||
@@ -523,9 +773,18 @@ func summarize(
 		byID[testCase.ID] = testCase
 	}
 	for _, caseResult := range results {
-		summary.Metrics.TaskSuccess.Total++
-		if caseResult.Passed {
-			summary.Metrics.TaskSuccess.Correct++
+		// An upstream-aborted case never produced an answer, so it is counted
+		// as a lost sample rather than scored as a failure. Its turn-level
+		// counters below still accumulate: whatever the run did manage to
+		// record stays visible, it just does not price a provider break as a
+		// model error.
+		if caseResult.Invalid {
+			summary.Metrics.InvalidCases++
+		} else {
+			summary.Metrics.TaskSuccess.Total++
+			if caseResult.Passed {
+				summary.Metrics.TaskSuccess.Correct++
+			}
 		}
 		testCase := byID[caseResult.ID]
 		for index, turnResult := range caseResult.Turns {
@@ -543,6 +802,8 @@ func summarize(
 				answer := modelAnswer(turnResult.Result)
 				if len(answerFailures(expect, answer)) == 0 {
 					summary.Metrics.AnswerAccuracy.Correct++
+				} else if isAnswerFormatViolation(expect, answer) {
+					summary.Metrics.AnswerFormatViolations++
 				}
 				summary.Metrics.AnswerContractRepaired.Total++
 				if turnResult.Result.AnswerContractRepaired {
@@ -771,4 +1032,21 @@ func finalizeScore(score *Score) {
 		return
 	}
 	score.Rate = float64(score.Correct) / float64(score.Total)
+}
+
+// isLeadingUnit reports whether a token in front of a figure is a currency
+// code or similar unit rather than the start of a sentence. Currency codes are
+// three letters ("EUR", "USD"); four is allowed for the occasional longer unit.
+// Function words are excluded so prose cannot qualify.
+func isLeadingUnit(token string) bool {
+	if len(token) < 2 || len(token) > 4 {
+		return false
+	}
+	for _, character := range token {
+		if !unicode.IsLetter(character) {
+			return false
+		}
+	}
+	_, isFunctionWord := unitLeadingFunctionWords[strings.ToLower(token)]
+	return !isFunctionWord
 }

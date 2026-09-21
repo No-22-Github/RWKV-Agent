@@ -519,3 +519,98 @@ func TestRunManifestRecordsCatalogProfileAndState(t *testing.T) {
 		t.Fatalf("state fields = %q / %q", harness.StateID, harness.StateSHA256)
 	}
 }
+
+// TestRunExpectationScriptAnchorsAgreeOnHiddenFiles locks the scr-0004 fix: a
+// hidden second input set must be reachable both from the launch directory and
+// from the script's own directory. The two used to disagree — hidden files were
+// written beside the workspace copy while the script ran from the sandbox root
+// — so a case silently turned on whether the model wrote os.getcwd() or
+// Path(__file__).parent, an idiom no case text mentions and the bank's own
+// script fixtures answer the other way.
+func TestRunExpectationScriptAnchorsAgreeOnHiddenFiles(t *testing.T) {
+	t.Parallel()
+	const sweep = `import os, sys
+root = %s
+found = []
+for dirpath, dirnames, filenames in os.walk(root):
+    dirnames.sort()
+    for name in sorted(filenames):
+        if name.startswith("part-") and name.endswith(".txt"):
+            found.append(open(os.path.join(dirpath, name)).read().strip())
+print(",".join(sorted(found)))
+`
+	anchors := map[string]string{
+		"cwd":  "os.getcwd()",
+		"file": "os.path.dirname(os.path.abspath(__file__))",
+	}
+	for name, expression := range anchors {
+		workspace := t.TempDir()
+		writeWorkFile(t, workspace, "part-visible.txt", "visible")
+		writeWorkFile(t, workspace, "sweep.py", fmt.Sprintf(sweep, expression))
+		testCase := Case{ID: "anchor-" + name, Expect: &CaseExpect{Run: &RunExpectation{
+			Path:           "sweep.py",
+			ExpectedStdout: "hidden,visible",
+			HiddenFiles: map[string]string{
+				"batches/2026-09/part-hidden.txt": "hidden\n",
+			},
+		}}}
+		failures, err := runExpectationScript(context.Background(), workspace, testCase)
+		if err != nil || len(failures) != 0 {
+			t.Fatalf("anchor %s: err=%v failures=%v", name, err, failures)
+		}
+	}
+}
+
+// TestRunExpectationScriptRejectsEscapingHiddenFiles keeps a case from putting
+// its hidden input back outside the workspace by hand.
+func TestRunExpectationScriptRejectsEscapingHiddenFiles(t *testing.T) {
+	t.Parallel()
+	workspace := t.TempDir()
+	writeWorkFile(t, workspace, "noop.py", "print('ok')\n")
+	escaping := Case{ID: "escape", Expect: &CaseExpect{Run: &RunExpectation{
+		Path:           "noop.py",
+		ExpectedStdout: "ok",
+		HiddenFiles:    map[string]string{"../outside.txt": "nope"},
+	}}}
+	_, err := runExpectationScript(context.Background(), workspace, escaping)
+	if err == nil || !strings.Contains(err.Error(), "escapes the workspace") {
+		t.Fatalf("err = %v, want an escape rejection", err)
+	}
+}
+
+// TestWebFixtureFetchPrefersTheMostSpecificURLMatch locks the hyb-0004 defect:
+// one fixture's url_match being a prefix of another's URL must not hand the
+// shorter entry's page to both. Declaration order must not decide it either,
+// so both orderings are checked.
+func TestWebFixtureFetchPrefersTheMostSpecificURLMatch(t *testing.T) {
+	t.Parallel()
+	june := WebFixtureEntry{
+		URLMatch: "www.example.test/fx/desk-rates",
+		Content:  "JUNE SHEET",
+	}
+	september := WebFixtureEntry{
+		URLMatch: "www.example.test/fx/desk-rates-september",
+		Content:  "SEPTEMBER SHEET",
+	}
+	for name, entries := range map[string][]WebFixtureEntry{
+		"june first":      {june, september},
+		"september first": {september, june},
+	} {
+		providers := webFixtureProviders{entries: entries}
+		results, err := providers.Fetch(context.Background(), tools.WebFetchRequest{
+			URLs: []string{
+				"https://www.example.test/fx/desk-rates-september",
+				"https://www.example.test/fx/desk-rates",
+			},
+		})
+		if err != nil {
+			t.Fatalf("%s: %v", name, err)
+		}
+		if results[0].Content != "SEPTEMBER SHEET" {
+			t.Fatalf("%s: september URL served %q", name, results[0].Content)
+		}
+		if results[1].Content != "JUNE SHEET" {
+			t.Fatalf("%s: june URL served %q", name, results[1].Content)
+		}
+	}
+}

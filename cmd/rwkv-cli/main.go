@@ -953,7 +953,14 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			return options, err
 		}
 	}
-	if options.maxTokens <= 0 || options.temperature <= 0 ||
+	// Temperature 0 is greedy decoding. It is the right setting for a
+	// reference run whose job is to show a benchmark is solvable, where
+	// sampling variance is noise rather than signal, and hosted Chat
+	// Completions backends accept it. The local inference path has its own
+	// positive-temperature requirement (inference.validate), so relaxing the
+	// check here cannot hand a zero temperature to a sampler that divides by
+	// it; a local run still fails with that path's own message.
+	if options.maxTokens <= 0 || options.temperature < 0 ||
 		options.topK <= 0 || options.topP <= 0 || options.topP > 1 ||
 		options.presencePenalty < 0 || options.frequencyPenalty < 0 ||
 		options.penaltyDecay <= 0 || options.penaltyDecay > 1 {

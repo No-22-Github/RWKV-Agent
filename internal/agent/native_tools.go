@@ -106,7 +106,7 @@ func (r *Runner) generate(
 	chatRequest := toolchat.Request{
 		Model:             request.Model,
 		Messages:          nativeMessages(messages),
-		AssistantPrefix:   compiled.Prefix,
+		AssistantPrefix:   nativeAssistantPrefix(compiled.Prefix),
 		MaxOutputTokens:   request.MaxOutputTokens,
 		Stops:             append([]string(nil), request.Stops...),
 		Sampling:          request.Sampling,
@@ -178,7 +178,7 @@ func (r *Runner) nativeTracePrompt(
 	}{
 		Messages:        nativeMessages(messages),
 		ToolChoice:      toolchat.ToolChoiceNone,
-		AssistantPrefix: assistantPrefix,
+		AssistantPrefix: nativeAssistantPrefix(assistantPrefix),
 	}
 	if offerTools && len(toolSpecs) > 0 {
 		payload.Tools = nativeTools(toolSpecs)
@@ -233,4 +233,23 @@ func unwrapToolResult(content string) string {
 		return strings.TrimSpace(strings.TrimSuffix(strings.TrimPrefix(trimmed, open), close))
 	}
 	return trimmed
+}
+
+// nativeAssistantPrefix filters the text-wire assistant prefix before it
+// reaches a native Chat Completions request.
+//
+// On the text wire a prefix like "Assistant:" is transcript framing: it is
+// already part of the prompt and the model continues after it, so it never
+// appears in the generated text. Native Chat Completions has no transcript —
+// the role is a structural field — and the provider path can only approximate
+// a prefill by instructing the model to open its reply with that literal
+// string. The model then complies, and validateAnswer rejects the result as a
+// role_header violation: the harness would be scoring a model for obeying the
+// harness. A prefix that our own answer contract forbids is therefore dropped
+// rather than sent.
+func nativeAssistantPrefix(prefix string) string {
+	if len(validateAnswer(prefix)) > 0 {
+		return ""
+	}
+	return prefix
 }

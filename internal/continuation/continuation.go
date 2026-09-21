@@ -9,6 +9,17 @@ import (
 
 var ErrInvalidRequest = errors.New("invalid continuation request")
 
+// ErrUpstream marks a failure that belongs to the provider or the transport
+// rather than to the model's reasoning: a transport error, an HTTP status, a
+// response the provider returned malformed. Every provider's own remote-error
+// sentinel wraps it, so a caller can ask "was this our side or theirs?"
+// without importing each provider package.
+//
+// An evaluation harness needs the distinction: a turn aborted by an upstream
+// break produced no answer, and recording it as a wrong answer prices a
+// provider outage as a model weakness.
+var ErrUpstream = errors.New("upstream provider failure")
+
 type Sampling struct {
 	Temperature      float32
 	TopK             int

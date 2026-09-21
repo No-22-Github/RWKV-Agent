@@ -16,7 +16,7 @@ const (
 	caseSchemaVersionLegacy = 4
 	RunSchemaVersion        = 8
 	HarnessVersion          = "rwkv-agent-eval-v21"
-	ScorerVersion           = "rwkv-agent-eval-scorer-v2"
+	ScorerVersion           = "rwkv-agent-eval-scorer-v3"
 	OutcomeTaxonomyVersion  = "rwkv-agent-outcome-v2"
 
 	PrimitiveProfileUpstream = "upstream-compatible"
@@ -108,8 +108,12 @@ type Turn struct {
 }
 
 type Expectation struct {
-	Route               agent.Route      `json:"route,omitempty"`
-	Tools               []string         `json:"tools,omitempty"`
+	Route agent.Route `json:"route,omitempty"`
+	// Tools is deliberately not omitempty: an empty-but-present list is the
+	// zero-call contract and a nil list is no constraint at all. With omitempty
+	// the two serialized identically, so a frozen run.json lost every notool
+	// case's contract and no offline re-scoring could see it.
+	Tools               []string         `json:"tools"`
 	Calls               []ExpectedCall   `json:"calls,omitempty"`
 	RequiredTools       []string         `json:"required_tools,omitempty"`
 	ForbiddenTools      []string         `json:"forbidden_tools,omitempty"`
@@ -313,27 +317,36 @@ type Metrics struct {
 	ExplicitAbstention     Score `json:"explicit_abstention"`
 	AnswerContractRepaired Score `json:"answer_contract_repaired"`
 
-	ModelCalls           int                                `json:"model_calls"`
-	ToolCalls            int                                `json:"tool_calls"`
-	ToolExecutions       int                                `json:"tool_executions"`
-	ToolErrors           int                                `json:"tool_errors"`
-	RejectedCalls        int                                `json:"rejected_tool_calls"`
-	DuplicateCalls       int                                `json:"duplicate_tool_calls"`
-	RecoveryBlocks       int                                `json:"recovery_blocked_calls"`
-	ForcedAnswers        int                                `json:"forced_answers"`
-	RescueAttempts       int                                `json:"rescue_attempts"`
-	RescueSubmits        int                                `json:"rescue_submits"`
-	ProtocolRetries      int                                `json:"protocol_retries"`
-	ProtocolRepairs      int                                `json:"protocol_repairs"`
-	AnswerStageToolCalls int                                `json:"answer_stage_tool_calls"`
-	RouteFallbacks       int                                `json:"route_fallbacks"`
-	PlanRejections       int                                `json:"plan_rejections"`
-	PlanFallbacks        int                                `json:"plan_fallbacks"`
-	PromptTokens         int                                `json:"prompt_tokens"`
-	CompletionTokens     int                                `json:"completion_tokens"`
-	WallTimeMillis       int64                              `json:"wall_time_millis"`
-	Outcomes             map[TurnOutcome]int                `json:"outcomes"`
-	ParseFailuresByClass map[agent.ProtocolFailureClass]int `json:"parse_failures_by_class"`
+	// InvalidCases counts cases dropped from task_success because the provider
+	// or transport aborted them. task_success.total is the surviving sample, so
+	// a run's denominator and this counter have to be read together.
+	InvalidCases int `json:"invalid_cases"`
+	// AnswerFormatViolations counts failed answers that led with the right
+	// value and failed on the text around it. Read against answer_accuracy it
+	// separates "answered wrongly" from "answered correctly, formatted
+	// wrongly"; a bare pass rate cannot tell them apart.
+	AnswerFormatViolations int                                `json:"answer_format_violations"`
+	ModelCalls             int                                `json:"model_calls"`
+	ToolCalls              int                                `json:"tool_calls"`
+	ToolExecutions         int                                `json:"tool_executions"`
+	ToolErrors             int                                `json:"tool_errors"`
+	RejectedCalls          int                                `json:"rejected_tool_calls"`
+	DuplicateCalls         int                                `json:"duplicate_tool_calls"`
+	RecoveryBlocks         int                                `json:"recovery_blocked_calls"`
+	ForcedAnswers          int                                `json:"forced_answers"`
+	RescueAttempts         int                                `json:"rescue_attempts"`
+	RescueSubmits          int                                `json:"rescue_submits"`
+	ProtocolRetries        int                                `json:"protocol_retries"`
+	ProtocolRepairs        int                                `json:"protocol_repairs"`
+	AnswerStageToolCalls   int                                `json:"answer_stage_tool_calls"`
+	RouteFallbacks         int                                `json:"route_fallbacks"`
+	PlanRejections         int                                `json:"plan_rejections"`
+	PlanFallbacks          int                                `json:"plan_fallbacks"`
+	PromptTokens           int                                `json:"prompt_tokens"`
+	CompletionTokens       int                                `json:"completion_tokens"`
+	WallTimeMillis         int64                              `json:"wall_time_millis"`
+	Outcomes               map[TurnOutcome]int                `json:"outcomes"`
+	ParseFailuresByClass   map[agent.ProtocolFailureClass]int `json:"parse_failures_by_class"`
 	// RepairsByID counts which tolerant-recovery stage fired. A prompt or
 	// format change that silently pushes work into the parser shows up here as
 	// a repair-count shift instead of a flat score.
@@ -361,6 +374,14 @@ type CaseResult struct {
 	Failures []string `json:"failures,omitempty"`
 	Error    string   `json:"error,omitempty"`
 	Passed   bool     `json:"passed"`
+	// Invalid marks a case whose run was aborted by the provider or the
+	// transport rather than decided by the model: the turn produced no answer
+	// to score. An invalid case leaves the task_success denominator entirely
+	// and is counted in invalid_cases, so an upstream break shows up as a
+	// smaller sample rather than as a lower score. InvalidReason carries the
+	// upstream error for the run record.
+	Invalid       bool   `json:"invalid,omitempty"`
+	InvalidReason string `json:"invalid_reason,omitempty"`
 	// Per-case intervention counters (H3): how much harness assistance this
 	// case consumed, aggregated from the embedded turn results so the ledger
 	// can separate rescue-assisted passes from clean ones.
