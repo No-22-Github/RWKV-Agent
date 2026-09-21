@@ -14,7 +14,8 @@ import time
 import urllib.error
 import urllib.request
 
-ROOT = Path('runs/state-check-20260919')
+DEFAULT_ROOT = Path('runs/state-check-20260919')
+ROOT = DEFAULT_ROOT
 PROFILE = 'xml-v1+align-qwen36+no-tool+bare+one-stage'
 
 
@@ -71,11 +72,16 @@ def main():
     ap.add_argument('--state-id',default='')
     ap.add_argument('--fast',action='store_true')
     ap.add_argument('--legacy-history',action='store_true')
+    ap.add_argument('--wire',default='',help='extra wire overrides, e.g. nudge=none; incompatible with --fast which sets its own')
+    ap.add_argument('--allow-canary-drift',action='store_true',help='record strict canary drift and continue when the client-stop-effective fingerprint is stable')
     ap.add_argument('--suites',default='workbank,boundary,bfcl')
     ap.add_argument('--parallelism',type=int,default=0,help='0 runs every case concurrently: Workbank 40, Boundary 18, BFCL 60')
     ap.add_argument('--credentials',required=True)
+    ap.add_argument('--root',default=str(DEFAULT_ROOT),help='run root holding upload receipts, canaries and suite outputs')
     args=ap.parse_args()
-    ROOT.mkdir(exist_ok=True)
+    global ROOT
+    ROOT = Path(args.root)
+    ROOT.mkdir(parents=True,exist_ok=True)
     cred=json.loads(Path(args.credentials).read_text())
     headers={'CF-Access-Client-Id':cred['WIRE_CF_ID'],'CF-Access-Client-Secret':cred['WIRE_CF_SECRET'],'User-Agent':'curl/8.7.1','Content-Type':'application/json'}
     upload = json.loads((ROOT/(args.state_id+'.upload.json')).read_text()) if args.state_id else None
@@ -94,6 +100,9 @@ def main():
         cmd=[sys.executable,'scripts/wire-experiment.py',args.name,'--root',str(ROOT),'--binary','build/rwkv-cli-state-experiment','--suites',suite,'--buffered','--parallelism',str(parallelism),'--profile',PROFILE+('+think-fast' if args.fast else ''),'--credentials',args.credentials]
         if args.state_id:cmd+=['--state-id',args.state_id]
         if args.fast and not args.legacy_history:cmd+=['--wire','history=think-fast,thinkcontrol=off']
+        if args.wire:
+            if args.fast:raise SystemExit('--wire and --fast both set the wire overrides; pick one')
+            cmd+=['--wire',args.wire]
         result=subprocess.run(cmd)
         print('CANARY AFTER',name,flush=True)
         b=fingerprint(headers,args.state_id,args.fast,after)
@@ -111,6 +120,14 @@ def main():
             e['state_fingerprint_note']='run.json state_sha256 may hash ID string; state_file.sha256 here hashes the actual local .pth bytes.'
             p.write_text(json.dumps(e,indent=2)+'\n')
         print('VALIDITY',name,'canary_stable',stable,'registration_stable',stable_registration,flush=True)
+        if args.allow_canary_drift and not stable and effective_stable:
+            if p.exists():
+                e=json.loads(p.read_text())
+                e['canary_drift_tolerated']=True
+                e['valid_for_model_comparison']=e.get('transport_valid_for_model_comparison',False) and stable_registration
+                p.write_text(json.dumps(e,indent=2)+'\n')
+            print('CANARY DRIFT TOLERATED',name,'effective_stable',effective_stable,flush=True)
+            continue
         if result.returncode or not stable or not stable_registration:raise SystemExit('Run excluded; inspect transport/canary before continuing')
 
 
