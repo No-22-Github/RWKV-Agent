@@ -5,7 +5,7 @@
 > [`README.en.md`](README.en.md)。`docs/` 内部的逐文件索引见
 > [`docs/README.md`](docs/README.md)。
 >
-> 最后更新：2026-09-20
+> 最后更新：2026-09-21
 
 ## 快速定位
 
@@ -67,6 +67,19 @@
 | [`datasets/workspace-agent-700-20260920/verification/acceptance-report.md`](datasets/workspace-agent-700-20260920/verification/acceptance-report.md) | 单快照硬门槛验收报告（`data_ready`，回放 100% 绑定闭环，二次无污染回放 349/349 通过） |
 | [`datasets/workspace-agent-700-20260920/verification/phase3-repair-report.md`](datasets/workspace-agent-700-20260920/verification/phase3-repair-report.md) | Phase 3 修复执行报告与用户授权保留政策（近重复处置与独立审查覆盖） |
 | `outputs/workspace-agent-700-state-tune-textonly/` | 实际送进丹炉训练的纯 text 格式（兼容 `rwkv_state_tune`，含转换脚本与报告） |
+
+### G1K State 训练剂量-反应 (2026-09-21 现行)
+
+| 文档或证据 | 结论定位 |
+| --- | --- |
+| [`bench/workbank/reports/state-steps-vs-capability-20260921.md`](bench/workbank/reports/state-steps-vs-capability-20260921.md) | **主报告**：三轮 state 训练（37 行 / 700 行共 20 个评测点）的「训练步数 → 状态幅度 → 能力」曲线；结论：跨轮决定成败的是状态漂移幅度（RMS ≥0.84 全 0/40，0.13–0.18 才可用），且"焊接首步"与"能力"解耦 |
+| [`bench/workbank/reports/state-final-round-20260920.md`](bench/workbank/reports/state-final-round-20260920.md) | 单轮完整记录：state-final 1/40 vs 零 state 3/40、网页偏置归因（非数据偏向）、多步段提醒缺口、`nudge=none` 消融、A/A2/B 三批 state 体检、高分轮轨迹体检、DeepSeek 既有成绩对照 |
+| [`bench/workbank/reports/state-step-vs-capability-20260921.json`](bench/workbank/reports/state-step-vs-capability-20260921.json) | 20 个评测点的机器可读曲线数据（RMS / 通过 / 协议有效 / canary / 焊接率） |
+| [`bench/workbank/reports/state-passing-trajectories-20260921.json`](bench/workbank/reports/state-passing-trajectories-20260921.json) | 29 道通过题的工具序列与绕路 delta（对语料参考轨迹） |
+| [`bench/workbank/tools/state_sanity.py`](bench/workbank/tools/state_sanity.py) | state 幅度闸门：直接解析 bf16 张量，三档 ok ≤0.05 / WARN ≤2.0 / FAIL >2.0 或含 NaN/Inf |
+| [`bench/workbank/tools/extract_anchors.py`](bench/workbank/tools/extract_anchors.py) | 从渲染语料导出与评测首步 prompt 逐字节相同的行（自带一致性校验与首步清单） |
+| [`bench/workbank/tools/measure_anchor_agreement.py`](bench/workbank/tools/measure_anchor_agreement.py) | 焊接率度量：首步 名/精确/整回合 与语料锚点的一致率及常数基线 |
+| [`scripts/state-experiment.py`](scripts/state-experiment.py) · [`scripts/state-corpus-probe.py`](scripts/state-corpus-probe.py) | 带 canary 与注册校验的 state 评测驱动（支持 `--wire`、`--root`、`--allow-canary-drift`）与训练分布续写探针 |
 
 ### G1K Wire 格式消融实验 (2026-09-15 基线)
 

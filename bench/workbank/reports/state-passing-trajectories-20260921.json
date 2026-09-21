@@ -1,0 +1,263 @@
+[
+  {
+    "arm": "B-234",
+    "case": "cfg-0001",
+    "calls": 2,
+    "corpus_calls": 2,
+    "delta": 0,
+    "dup": 0,
+    "answer": "8431"
+  },
+  {
+    "arm": "B-234",
+    "case": "cfg-0003",
+    "calls": 4,
+    "corpus_calls": 5,
+    "delta": -1,
+    "dup": 0,
+    "answer": "no"
+  },
+  {
+    "arm": "B-234",
+    "case": "cfg-0004",
+    "calls": 4,
+    "corpus_calls": 7,
+    "delta": -3,
+    "dup": 0,
+    "answer": "DONE"
+  },
+  {
+    "arm": "B-234",
+    "case": "doc-0001",
+    "calls": 3,
+    "corpus_calls": 4,
+    "delta": -1,
+    "dup": 0,
+    "answer": "DONE"
+  },
+  {
+    "arm": "B-234",
+    "case": "doc-0003",
+    "calls": 6,
+    "corpus_calls": 4,
+    "delta": 2,
+    "dup": 0,
+    "answer": "UNKNOWN"
+  },
+  {
+    "arm": "B-234",
+    "case": "doc-0004",
+    "calls": 5,
+    "corpus_calls": 7,
+    "delta": -2,
+    "dup": 0,
+    "answer": "DONE"
+  },
+  {
+    "arm": "B-234",
+    "case": "fs-0002",
+    "calls": 3,
+    "corpus_calls": 2,
+    "delta": 1,
+    "dup": 0,
+    "answer": "config/history_retention.yaml"
+  },
+  {
+    "arm": "B-234",
+    "case": "fs-0003",
+    "calls": 3,
+    "corpus_calls": 3,
+    "delta": 0,
+    "dup": 0,
+    "answer": "4417"
+  },
+  {
+    "arm": "B-234",
+    "case": "hyb-0002",
+    "calls": 4,
+    "corpus_calls": 6,
+    "delta": -2,
+    "dup": 0,
+    "answer": "9806.55"
+  },
+  {
+    "arm": "B-234",
+    "case": "scr-0001",
+    "calls": 3,
+    "corpus_calls": 5,
+    "delta": -2,
+    "dup": 0,
+    "answer": "DONE"
+  },
+  {
+    "arm": "B-234",
+    "case": "tab-0002",
+    "calls": 5,
+    "corpus_calls": 5,
+    "delta": 0,
+    "dup": 0,
+    "answer": "17090"
+  },
+  {
+    "arm": "B-234",
+    "case": "web-0001",
+    "calls": 2,
+    "corpus_calls": 2,
+    "delta": 0,
+    "dup": 0,
+    "answer": "512"
+  },
+  {
+    "arm": "B-234",
+    "case": "web-0002",
+    "calls": 3,
+    "corpus_calls": 3,
+    "delta": 0,
+    "dup": 0,
+    "answer": "45"
+  },
+  {
+    "arm": "B-234",
+    "case": "web-0003",
+    "calls": 3,
+    "corpus_calls": 4,
+    "delta": -1,
+    "dup": 0,
+    "answer": "8630"
+  },
+  {
+    "arm": "B-234",
+    "case": "web-0004",
+    "calls": 8,
+    "corpus_calls": 4,
+    "delta": 4,
+    "dup": 1,
+    "answer": "256"
+  },
+  {
+    "arm": "B-final",
+    "case": "cfg-0002",
+    "calls": 4,
+    "corpus_calls": 5,
+    "delta": -1,
+    "dup": 0,
+    "answer": "950"
+  },
+  {
+    "arm": "B-final",
+    "case": "cfg-0003",
+    "calls": 4,
+    "corpus_calls": 5,
+    "delta": -1,
+    "dup": 0,
+    "answer": "no"
+  },
+  {
+    "arm": "B-final",
+    "case": "cfg-0004",
+    "calls": 5,
+    "corpus_calls": 7,
+    "delta": -2,
+    "dup": 0,
+    "answer": "DONE"
+  },
+  {
+    "arm": "B-final",
+    "case": "doc-0001",
+    "calls": 3,
+    "corpus_calls": 4,
+    "delta": -1,
+    "dup": 0,
+    "answer": "DONE"
+  },
+  {
+    "arm": "B-final",
+    "case": "doc-0002",
+    "calls": 4,
+    "corpus_calls": 4,
+    "delta": 0,
+    "dup": 0,
+    "answer": "45 days"
+  },
+  {
+    "arm": "B-final",
+    "case": "fs-0002",
+    "calls": 3,
+    "corpus_calls": 2,
+    "delta": 1,
+    "dup": 0,
+    "answer": "config/history_retention.yaml"
+  },
+  {
+    "arm": "B-final",
+    "case": "fs-0003",
+    "calls": 3,
+    "corpus_calls": 3,
+    "delta": 0,
+    "dup": 0,
+    "answer": "4417"
+  },
+  {
+    "arm": "B-final",
+    "case": "hyb-0001",
+    "calls": 4,
+    "corpus_calls": 4,
+    "delta": 0,
+    "dup": 0,
+    "answer": "Willemskade 14, 3022 AA Rotterdam"
+  },
+  {
+    "arm": "B-final",
+    "case": "hyb-0002",
+    "calls": 7,
+    "corpus_calls": 6,
+    "delta": 1,
+    "dup": 0,
+    "answer": "9806.55"
+  },
+  {
+    "arm": "B-final",
+    "case": "log-0001",
+    "calls": 3,
+    "corpus_calls": 3,
+    "delta": 0,
+    "dup": 0,
+    "answer": "6"
+  },
+  {
+    "arm": "B-final",
+    "case": "scr-0001",
+    "calls": 5,
+    "corpus_calls": 5,
+    "delta": 0,
+    "dup": 0,
+    "answer": "DONE"
+  },
+  {
+    "arm": "B-final",
+    "case": "tab-0002",
+    "calls": 6,
+    "corpus_calls": 5,
+    "delta": 1,
+    "dup": 0,
+    "answer": "17090.00"
+  },
+  {
+    "arm": "B-final",
+    "case": "web-0001",
+    "calls": 2,
+    "corpus_calls": 2,
+    "delta": 0,
+    "dup": 0,
+    "answer": "512"
+  },
+  {
+    "arm": "B-final",
+    "case": "web-0002",
+    "calls": 4,
+    "corpus_calls": 3,
+    "delta": 1,
+    "dup": 0,
+    "answer": "45"
+  }
+]
