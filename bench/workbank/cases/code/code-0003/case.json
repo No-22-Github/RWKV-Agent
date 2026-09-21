@@ -17,15 +17,15 @@
     "level": "L1",
     "family": "fam-code-nav-01",
     "ref_calls": 4,
-    "fixture_bytes": 1994,
+    "fixture_bytes": 2011,
     "status": "reviewed",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-drafter",
     "reviewer": "human:delegated-20260917"
   },
   "files": {
     "auth/__init__.py": "",
-    "auth/bootstrap.py": "release_stale_inventory_holds((\"nightly\", \"cold-start\"))  # imported by the scheduler purely for this cold-start sweep\n\nSWEEP_GRACE_MINUTES = 30\n",
+    "auth/bootstrap.py": "from inventory.holds import release_stale_inventory_holds; release_stale_inventory_holds((\"nightly\", \"cold-start\"))  # cold-start sweep\n\nSWEEP_GRACE_MINUTES = 30\n",
     "billing/__init__.py": "",
     "billing/settlement.py": "\"\"\"End-of-day settlement for card batches.\"\"\"\n\nimport logging\n\nfrom inventory.holds import release_stale_inventory_holds\n\nlog = logging.getLogger(\"settlement\")\n\n\ndef settle_batch(batch, treasury):\n    stale = [entry for entry in batch.entries if entry.state == \"held\"]\n    if stale:\n        release_stale_inventory_holds(stale)\n        treasury.mark_settled(batch.id)\n    log.info(\n        \"batch %s closed; release_stale_inventory_holds(next_window) queued for dawn\",\n        batch.id,\n    )\n    return len(stale)\n",
     "inventory/__init__.py": "",

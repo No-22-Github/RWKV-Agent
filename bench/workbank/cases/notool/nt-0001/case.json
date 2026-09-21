@@ -1,6 +1,6 @@
 {
   "id": "nt-0001",
-  "description": "Convert a steady 2.5 MiB/s backup throughput into MB per hour; answerable with zero tool calls. WORKBANK-CANARY-3d7a91e4",
+  "description": "Convert a steady 2.5 MiB/s ingest rate into MiB per hour; answerable with zero tool calls. WORKBANK-CANARY-3d7a91e4",
   "category": "notool",
   "tags": {
     "scenario": "notool",

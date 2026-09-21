@@ -19,7 +19,7 @@
     "ref_calls": 4,
     "fixture_bytes": 1057,
     "status": "reviewed",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-drafter",
     "reviewer": "human:delegated-20260917"
   },
@@ -32,7 +32,7 @@
   "web_fixture": [],
   "turns": [
     {
-      "prompt": "Quick check before the atlasgrocer rollout next week: is express_checkout enabled for that tenant? Answer yes or no. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "The atlasgrocer rollout is next week and I need the effective flag state for that tenant: is express_checkout enabled for atlasgrocer? Answer yes or no. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
       "expect": {
         "output_equals": "no"
       }

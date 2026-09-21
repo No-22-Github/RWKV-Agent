@@ -17,3 +17,13 @@
 - Constants were chosen to avoid any bare "3"/"3.0"/"03" token: 45, 30, 15, 6, 8, 20, 2026-02.
 
 <!-- WORKBANK-CANARY-2ea6c4d7 : this file must never enter training corpora -->
+
+## Reviewer notes
+- v3 (2026-09-21 audit): auth/bootstrap.py called the function at module level
+  with no import, leaning on a trailing comment ("imported by the scheduler")
+  to explain it away. That file could not run - it would raise NameError - so
+  whether the line counts as a call site was a judgement the case never
+  settled, and a reader who ruled it out answered 2. deepseek-flash answered 2
+  in all three greedy rounds. The import is now present, which makes it an
+  ordinary call site and adds one more import-statement distractor to
+  TR-DECOY. The expected count is unchanged at 3.

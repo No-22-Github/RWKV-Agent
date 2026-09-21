@@ -1,6 +1,6 @@
 {
   "id": "hyb-0004",
-  "description": "Euro value of August sterling invoices at the prevailing desk sheet; a June sheet outranks the September revision and the column guide separates sell and buy quotations. WORKBANK-CANARY-5d2b90f3",
+  "description": "Euro proceeds of an August sterling batch settled today; a June sheet outranks the September revision in search and the column guide separates sell and buy quotations. WORKBANK-CANARY-5d2b90f3",
   "category": "hybrid",
   "tags": {
     "scenario": "hybrid",
@@ -19,16 +19,16 @@
     ],
     "level": "L2",
     "family": "fam-hyb-ratetrip-01",
-    "ref_calls": 6,
-    "fixture_bytes": 633,
+    "ref_calls": 7,
+    "fixture_bytes": 754,
     "status": "reviewed",
-    "version": 2,
+    "version": 5,
     "author": "llm:glm-drafter",
     "reviewer": "human:delegated-20260917"
   },
   "files": {
     "invoices.csv": "invoice_id,client,issued,amount_gbp\nINV-2201,Harrow & Vale Ltd,2026-08-06,2318.60\nINV-2208,Calder Marine Services,2026-08-13,419.05\nINV-2215,Ordsall Print Works,2026-08-19,8740.00\nINV-2223,Bracken Ridge Farm Shop,2026-08-26,96.40\nINV-2231,Tullimore & Sons,2026-08-31,1105.95\n",
-    "README.md": "# Pelagic Analytics — receivables ledger\n\ninvoices.csv lists the August invoices to UK clients; amount_gbp is the invoiced amount in pounds sterling.\n\nTreasury publishes the monthly cash report in euros.\n",
+    "README.md": "# Pelagic Analytics — receivables ledger\n\ninvoices.csv lists the August invoices to UK clients; amount_gbp is the invoiced amount in pounds sterling.\n\nSterling receipts are settled in one batch and the proceeds reported in euros. A batch is\nconverted at the Aldermoor desk quotation in force on the day the batch is settled.\n",
     "clients/harrow-vale.md": "# Harrow & Vale Ltd — account note\n\nRegional garden-centre chain. Renewed the analytics retainer in June 2026: GBP 1,850 per month for twelve months.\n"
   },
   "web_fixture": [
@@ -53,7 +53,7 @@
   ],
   "turns": [
     {
-      "prompt": "Pelagic Analytics bills several UK clients in pounds sterling; the August invoices are listed with their sterling amounts. Treasury needs the combined euro value of those invoices at Aldermoor Bank's prevailing desk rates for the monthly cash report. What should the cash report show? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Pelagic Analytics bills several UK clients in pounds sterling; the August invoices are listed with their sterling amounts. Treasury is settling that whole batch into euros today through Aldermoor Bank, and the cash report needs the combined euro proceeds. What should the cash report show? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
       "expect": {
         "expected_number": 14746.84,
         "tolerance": 0.01

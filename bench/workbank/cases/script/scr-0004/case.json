@@ -19,7 +19,7 @@
     "ref_calls": 6,
     "fixture_bytes": 2952,
     "status": "reviewed",
-    "version": 1,
+    "version": 2,
     "author": "llm:glm-drafter",
     "reviewer": "human:delegated-20260917"
   },
@@ -36,7 +36,7 @@
       "path": "report.py",
       "timeout_millis": 10000,
       "hidden_files": {
-        "hidden/transactions-2026-09-eu.csv": "tx_id,posted,merchant_id,channel,type,status,amount_cents\nTX-88701,2026-09-02T10:31:22,MER-3106,card,payment,settled,67400\nTX-88708,2026-09-04T15:22:09,MER-3014,internal,payment,settled,450000\nTX-88715,2026-09-08T19:44:51,MER-3052,card,refund,settled,30000\nTX-88722,2026-09-11T08:16:37,MER-3106,card,payment,settled,15275\nTX-88729,2026-09-14T13:59:04,MER-3027,internal,payment,settled,73400\nTX-88736,2026-09-16T21:38:48,MER-3068,card,payment,settled,55425\nTX-88742,2026-09-16T22:05:19,MER-3106,card,refund,settled,2250\n"
+        "batches/2026-09/transactions-2026-09-eu.csv": "tx_id,posted,merchant_id,channel,type,status,amount_cents\nTX-88701,2026-09-02T10:31:22,MER-3106,card,payment,settled,67400\nTX-88708,2026-09-04T15:22:09,MER-3014,internal,payment,settled,450000\nTX-88715,2026-09-08T19:44:51,MER-3052,card,refund,settled,30000\nTX-88722,2026-09-11T08:16:37,MER-3106,card,payment,settled,15275\nTX-88729,2026-09-14T13:59:04,MER-3027,internal,payment,settled,73400\nTX-88736,2026-09-16T21:38:48,MER-3068,card,payment,settled,55425\nTX-88742,2026-09-16T22:05:19,MER-3106,card,refund,settled,2250\n"
       },
       "expected_stdout": "MER-3014,78135\nMER-3027,149075\nMER-3052,52350\nMER-3068,235775\nMER-3091,908025\nMER-3106,80425\ntotal,1503785"
     }
