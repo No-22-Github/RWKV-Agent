@@ -4,6 +4,9 @@ __pycache__/
 /rwkv-app
 /build/
 /dist/
+# Local build output dir (go build -o bin/rwkv-cli ./cmd/rwkv-cli);
+# same role as the root-level /rwkv-cli + /rwkv-app entries above.
+/bin/
 /runs/
 /sessions/
 /datasets/
@@ -17,4 +20,5 @@ __pycache__/
 .pnpm-store/
 .gocache/
 .zcode/
+.zcodeignore
 .agent-teams/
