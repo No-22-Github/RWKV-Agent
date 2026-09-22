@@ -13,7 +13,7 @@
     "ref_calls": 3,
     "fixture_bytes": 0,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-drafter",
     "reviewer": null
   },
@@ -49,9 +49,12 @@
   ],
   "turns": [
     {
-      "prompt": "Before we plan the cindermill upgrade I need the deprecation release written down. In which release was the remote_verify option deprecated? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Before we plan the cindermill upgrade I need the deprecation release written down. Our notes on cindermill stop short of it. In which release was the remote_verify option deprecated? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
       "expect": {
-        "output_equals": "2.7.0"
+        "output_equals": "2.7.0",
+        "required_tools": [
+          "web_search"
+        ]
       }
     }
   ]

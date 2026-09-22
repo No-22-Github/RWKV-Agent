@@ -22,7 +22,7 @@
     "ref_calls": 5,
     "fixture_bytes": 0,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-drafter",
     "reviewer": null
   },
@@ -63,11 +63,14 @@
   },
   "turns": [
     {
-      "prompt": "The migration proposal for the events platform has to name the broker version we would move to. What is the current thornfield broker release? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "The migration proposal for the events platform has to name the broker version we would move to. Nothing we hold here records thornfield's releases. What is the current thornfield broker release? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
       "expect": {
         "output_equals_any": [
           "5.1.0",
           "5.1.0 (2026-08-27)"
+        ],
+        "required_tools": [
+          "web_search"
         ]
       }
     }

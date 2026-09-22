@@ -21,7 +21,7 @@
     "ref_calls": 5,
     "fixture_bytes": 0,
     "status": "reviewed",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-drafter",
     "reviewer": "human:delegated-20260917"
   },
@@ -57,9 +57,12 @@
   ],
   "turns": [
     {
-      "prompt": "Our capacity sheet for the spring launch needs the shard count ferrocache ships with. What is the default value of the shard_count setting in ferrocache? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Our capacity sheet for the spring launch needs the shard count ferrocache ships with. We hold no vendor material here. What is the default value of the shard_count setting in ferrocache? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
       "expect": {
-        "output_equals": "256"
+        "output_equals": "256",
+        "required_tools": [
+          "web_search"
+        ]
       }
     }
   ]

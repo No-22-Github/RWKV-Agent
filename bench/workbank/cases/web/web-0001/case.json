@@ -13,7 +13,7 @@
     "ref_calls": 3,
     "fixture_bytes": 0,
     "status": "reviewed",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-drafter",
     "reviewer": "human:delegated-20260917"
   },
@@ -49,9 +49,12 @@
   ],
   "turns": [
     {
-      "prompt": "I'm about to tune our oxcart ingest pipeline and want to note the baseline first. What is the default value of the batch_size setting in oxcart's configuration? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "I'm about to tune our oxcart ingest pipeline and want to note the baseline first. We run it from the upstream build and keep no copy of its docs. What is the default value of the batch_size setting in oxcart's configuration? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
       "expect": {
-        "output_equals": "512"
+        "output_equals": "512",
+        "required_tools": [
+          "web_search"
+        ]
       }
     }
   ]

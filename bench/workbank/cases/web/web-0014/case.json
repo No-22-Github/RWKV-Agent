@@ -19,7 +19,7 @@
     "ref_calls": 2,
     "fixture_bytes": 0,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-drafter",
     "reviewer": null
   },
@@ -60,11 +60,14 @@
   },
   "turns": [
     {
-      "prompt": "Our container image pins have to name one threadneedle release for the whole quarter, and the pin file needs its tag today. Which threadneedle version is the newest stable release? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Our container image pins have to name one threadneedle release for the whole quarter, and the pin file needs its tag today. Our own files say nothing about which one that is. Which threadneedle version is the newest stable release? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
       "expect": {
         "output_equals_any": [
           "7.4.1",
           "7.4.1 (2026-08-19)"
+        ],
+        "required_tools": [
+          "web_search"
         ]
       }
     }

@@ -19,7 +19,7 @@
     "ref_calls": 4,
     "fixture_bytes": 0,
     "status": "reviewed",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-drafter",
     "reviewer": "human:delegated-20260917"
   },
@@ -55,9 +55,12 @@
   ],
   "turns": [
     {
-      "prompt": "We are standing up a quillmark preview instance for reviewers and must open the right port in the firewall before launch. What is the default value of the port setting for quillmark's preview server? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "We are standing up a quillmark preview instance for reviewers and must open the right port in the firewall before launch. Our runbooks have never written that port down. What is the default value of the port setting for quillmark's preview server? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
       "expect": {
-        "output_equals": "8630"
+        "output_equals": "8630",
+        "required_tools": [
+          "web_search"
+        ]
       }
     }
   ]

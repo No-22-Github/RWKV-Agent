@@ -19,7 +19,7 @@
     "ref_calls": 2,
     "fixture_bytes": 0,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-drafter",
     "reviewer": null
   },
@@ -60,12 +60,15 @@
   ],
   "turns": [
     {
-      "prompt": "A tiderail worker logged TRD-1094 this morning and the triage note needs the platform's own term. Report the condition name tiderail's documentation gives for that error code. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "A tiderail worker logged TRD-1094 this morning and the triage note needs the platform's own term. Our triage sheets have never listed that code. Report the condition name tiderail's documentation gives for that error code. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
       "expect": {
         "output_contains_any": [
           "coldshard",
           "Coldshard",
           "COLDSHARD"
+        ],
+        "required_tools": [
+          "web_search"
         ]
       }
     }

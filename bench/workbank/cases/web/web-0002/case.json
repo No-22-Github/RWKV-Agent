@@ -19,7 +19,7 @@
     "ref_calls": 4,
     "fixture_bytes": 0,
     "status": "reviewed",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-drafter",
     "reviewer": "human:delegated-20260917"
   },
@@ -55,9 +55,12 @@
   ],
   "turns": [
     {
-      "prompt": "For a durability review I need the checkpoint cadence deltastream ships with. What is the default value of the checkpoint_interval_secs setting in deltastream? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "For a durability review I need the checkpoint cadence deltastream ships with. Nothing in our own files records it. What is the default value of the checkpoint_interval_secs setting in deltastream? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
       "expect": {
-        "output_equals": "45"
+        "output_equals": "45",
+        "required_tools": [
+          "web_search"
+        ]
       }
     }
   ]

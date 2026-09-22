@@ -19,7 +19,7 @@
     "ref_calls": 4,
     "fixture_bytes": 0,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-drafter",
     "reviewer": null
   },
@@ -55,9 +55,12 @@
   ],
   "turns": [
     {
-      "prompt": "Our search-stack audit has to record, for every indexed option we still set, the release that retired it. Give me the release in which glasswren deprecated analyzer_chain. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Our search-stack audit has to record, for every indexed option we still set, the release that retired it. The audit folder carries none of glasswren's own material. Give me the release in which glasswren deprecated analyzer_chain. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
       "expect": {
-        "output_equals": "4.2.0"
+        "output_equals": "4.2.0",
+        "required_tools": [
+          "web_search"
+        ]
       }
     }
   ]
