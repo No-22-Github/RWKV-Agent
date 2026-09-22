@@ -1,0 +1,54 @@
+{
+  "id": "hyb-0012",
+  "description": "Euro proceeds of Fairhaven Instruments' AUD invoice batch; the desk sheet's guide separates the two quotations and the local settlement file adds a threshold handling charge the batch hits exactly. WORKBANK-CANARY-e14b7d90",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_calc",
+    "traps": [
+      "TR-DIRMAP",
+      "TR-RULEFILE"
+    ],
+    "trap_decoys": {
+      "TR-DIRMAP": 12255.0,
+      "TR-RULEFILE": 12070.0
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-tax-03",
+    "ref_calls": 5,
+    "fixture_bytes": 952,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "# Fairhaven Instruments — receivables\n\ninvoices.csv lists the export invoices raised to Australian customers; amount_aud is the invoiced amount in Australian dollars.\n\nSettlement handling is set out in finance/policy.md.\n",
+    "invoices.csv": "invoice_id,client,amount_aud\nFA-3120,Kookaburra Marine Pty,8420.00\nFA-3127,Warramunga Freight,5195.50\nFA-3131,Blackwood Ridge Produce,3600.25\nFA-3139,Coogee Bay Instruments,2784.25\n",
+    "finance/policy.md": "# Settlement policy — treasury\n\nForeign-currency receipts are converted through Meridian Commerce Bank's desk at the quotation the bank publishes for the currency.\n\nHandling charge: the desk deducts EUR 85.00 from the proceeds of any conversion whose converted principal is AUD 20,000.00 or more. No handling charge is deducted on a smaller principal.\n",
+    "clients/kookaburra-marine.md": "# Kookaburra Marine Pty — account note\n\nBrisbane-based marine electronics distributor. Quarterly settlement, purchase orders raised by the operations team. Credit limit reviewed each January.\n"
+  },
+  "web_fixture": [
+    {
+      "query_match": "meridian commerce bank",
+      "url": "https://www.meridiancommerce.example/fx/desk-rates",
+      "url_match": "www.meridiancommerce.example/fx/desk-rates",
+      "title": "Meridian Commerce Bank — FX desk rates",
+      "snippet": "Business desk quotations for AUD/EUR settlement trades.",
+      "content": "# Meridian Commerce Bank — FX desk rates\n\nBusiness desk quotations for settlement trades.\n\n| Pair | We sell AUD | We buy AUD |\n| --- | --- | --- |\n| AUD/EUR | 0.6170 | 0.6035 |\n\nColumn guide: quotations express euros per 1 Australian dollar. \"We sell AUD\" applies when you purchase Australian dollars from the desk. \"We buy AUD\" applies when the desk purchases Australian dollars from you, for example when Australian dollar receipts are converted into euros.\n",
+      "published_at": "2026-05-08"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "Fairhaven Instruments' Australian customers have been invoiced, and treasury is converting the whole batch of those receipts into euros through Meridian Commerce Bank. The receivables ledger needs the amount the desk will credit for the batch. What should be booked as the proceeds? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 11985.0,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

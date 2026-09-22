@@ -1,0 +1,42 @@
+{
+  "id": "code-0011",
+  "description": "Count the tracked TODO markers across a tuition statement service whose tag also appears in message strings and trailing remarks. WORKBANK-CANARY-c4d05e88",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "count_markers",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 11
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-code-edge-03",
+    "ref_calls": 4,
+    "fixture_bytes": 2450,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "catalog/__init__.py": "",
+    "catalog/portal.py": "# TODO: move statement downloads onto the streaming endpoint\n\"\"\"Portal download glue for tuition statements.\"\"\"\n\nimport logging\n\nlog = logging.getLogger(\"portal\")\n\nRETRY_LIMIT = 3\n\n\ndef fetch_statement(client, student_id):\n    \"\"\"Fetch a rendered statement and record the download.\"\"\"\n    # TODO: retry the fetch once the portal client grows a backoff hook\n    response = client.get(\"/statements/%s\" % student_id)\n    if response.status == 503:\n        log.warning(\"statement fetch for %s hit TODO: retry path not wired\", student_id)\n        return None\n    return response.body\n",
+    "catalog/statement.py": "\"\"\"Tuition statement rendering for the student catalog.\"\"\"\n\nSTATEMENT_TEMPLATE = \"tuition-v3\"\nMAX_LINES_PER_STATEMENT = 96  # TODO: raise once pagination ships\n\n\nclass RegistrarError(Exception):\n    \"\"\"Raised when a statement cannot be rendered.\"\"\"\n\n\ndef render_statement(student, lines):\n    \"\"\"Render one tuition statement for the portal download.\"\"\"\n    # TODO: page the registrar when a statement overflows the template\n    pending = [line for line in lines if line.state == \"pending\"]\n    if len(pending) > MAX_LINES_PER_STATEMENT:\n        raise RegistrarError(\"TODO: overflow template v4 is not implemented\")\n    return {\"template\": STATEMENT_TEMPLATE, \"lines\": pending}\n\n\ndef render_batch(students, lines_by_student):\n    # TODO: stream large batches instead of holding every statement in memory\n    rendered = []\n    for student in students:\n        # TODO: skip students whose portal access is suspended\n        rendered.append(render_statement(student, lines_by_student[student]))\n    return rendered\n",
+    "ops/ledger_export.py": "\"\"\"Ledger export helpers for the tuition batch.\"\"\"\n\nimport logging\n\nlog = logging.getLogger(\"ledger-export\")\n\nEXPORT_COLUMNS = (\"student\", \"term\", \"amount_cents\")\n\n\ndef export_rows(rows):\n    \"\"\"Append the given rows to the nightly ledger feed.\"\"\"\n    log.info(\"ledger export wrote %d rows; TODO note for the finance desk\", len(rows))\n    return [tuple(row[column] for column in EXPORT_COLUMNS) for row in rows]\n",
+    "readme": "Aldermoor tuition services.\n\ncatalog/    statement rendering and portal downloads\nops/        ledger export helpers\n\nWork markers: a tracked TODO is a comment line given over to the tag on a\nline of its own (leading indentation is fine). A TODO that sits inside a\nmessage, a format string or a trailing remark on a code line is not a\ntracked marker and stays out of the backlog count the registrars receive.\nBacklog counting has run since 2025-11.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The tuition platform team wants the size of its cleanup backlog for the next planning round. Count the tracked TODO markers across this service and give me the total. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 5,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

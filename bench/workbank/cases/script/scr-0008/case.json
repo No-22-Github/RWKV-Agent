@@ -1,0 +1,53 @@
+{
+  "id": "scr-0008",
+  "description": "Build the weekly ambient-station summary script from the analyser exports, following the monitoring protocol's figure derivation. WORKBANK-CANARY-0d93f5ae",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "write_new",
+    "traps": [
+      "TR-RULEFILE",
+      "TR-MISSING"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": null,
+      "TR-MISSING": null
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-script-report-02",
+    "ref_calls": 5,
+    "fixture_bytes": 2341,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "Ambient air monitoring - weekly station summaries\n=================================================\n\nstation_summary.py builds the weekly summary of ambient readings from\nthe analyser exports.\n\nEvery week the analyser drops an export named air-samples-<week>.csv\nunder sites/, sometimes straight into sites/ and sometimes inside a\ndated week folder below it. The summary always covers the whole\nproject tree, not just the newest export.\n\nThe scheduler runs `python3 station_summary.py` with the project root\nas its working directory. How each station's figure is derived, and\nhow a run that produced no reading is treated, is set out in\nmonitoring_protocol.md.\n",
+    "monitoring_protocol.md": "Ambient monitoring protocol - station summary\n=============================================\n\nEach station's summary figure is the mean of its recorded micro_index\nreadings, told to one decimal place with halves rounded up to the next\ntenth.\n\nThe analyser does not always return a number. A run whose reading was\nnever produced is logged as a dash, as the letters NA, or with the\nreading column left empty. Such a run still happened, but it carries\nno reading: it takes no part in the mean and is not counted as a\nreading. The mean is taken over the runs that did produce a reading.\n\nThe station summary is printed to standard output, header first:\n\n  station,readings,mean\n\none line per station in ascending station name, where readings is the\nnumber of runs that produced a reading and mean is the station's\nfigure.\n",
+    "sites/air-samples-2026-w32.csv": "sample_id,station,micro_index,logged_on\nS-3301,Northgate,42,2026-08-04\nS-3302,Northgate,47,2026-08-06\nS-3303,Ferrymead,28,2026-08-05\nS-3304,Northgate,NA,2026-08-08\nS-3305,Eastbrook,36,2026-08-07\nS-3306,Ferrymead,31,2026-08-09\nS-3307,Northgate,39,2026-08-11\nS-3308,Eastbrook,-,2026-08-12\nS-3309,Ferrymead,30,2026-08-13\nS-3310,Northgate,,2026-08-15\nS-3311,Eastbrook,41,2026-08-16\nS-3312,Northgate,53,2026-08-18\n",
+    "calibration/analyser-log.txt": "Analyser calibration log - unit 2\n2026-08-01  zero check passed, span drift 0.3%\n2026-08-15  filter replaced, span re-checked\n2026-08-29  firmware note: dash output while inlet warms\n",
+    "station_summary.py": "\"\"\"Weekly ambient-station summary for environment north.\n\nPlaceholder: the analyser vendor changed export layout and the previous\nsummary script was pulled. The weekly exports still arrive under sites/.\n\"\"\"\n\nraise SystemExit(\"station_summary.py: implementation missing\")\n"
+  },
+  "expect": {
+    "run": {
+      "path": "station_summary.py",
+      "args": [],
+      "timeout_millis": 10000,
+      "hidden_files": {
+        "sites/2026-w35/air-samples-2026-w35.csv": "sample_id,station,micro_index,logged_on\nS-3402,Northgate,-,2026-08-25\nS-3405,Northgate,NA,2026-08-26\nS-3408,Northgate,,2026-08-27\nS-3411,Ferrymead,33,2026-08-27\nS-3414,Ferrymead,29,2026-08-29\nS-3417,Dunmere,51,2026-08-28\nS-3420,Dunmere,55,2026-08-30\nS-3423,Dunmere,NA,2026-08-31\nS-3426,Eastbrook,40,2026-08-31\nS-3429,Dunmere,48,2026-09-01\nS-3432,Ferrymead,,2026-09-02\n"
+      },
+      "expected_stdout": "station,readings,mean\nDunmere,3,51.3\nEastbrook,3,39.0\nFerrymead,5,30.2\nNorthgate,4,45.3"
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Environment north wants the weekly ambient-station summary scripted. The analyser exports land under sites/ as air-samples-<week>.csv, at varying depths, and the summary has to cover all of them across the project tree. Build station_summary.py so that, run from the project root, it prints the summary exactly as the monitoring protocol sets out; that protocol also fixes how a run that produced no analyser result is treated. Standard library only. When finished, reply DONE.",
+      "expect": {}
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "id": "cfg-0009",
+  "description": "Onboarding check for the payment-settler service: the one settings key its live configuration does not declare against the platform key template. WORKBANK-CANARY-4b1e7a92",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "missing_keys",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-cfg-keycheck-03",
+    "ref_calls": 3,
+    "fixture_bytes": 1018,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "# Platform service configuration\n\nEvery service in this workspace keeps its live settings under config/, named\nafter the service. templates/ holds the canonical key set maintained by the\nplatform team: it lists every key a service settings file has to declare\nbefore the service can be onboarded. Settings files are flat YAML and hold no\nnested sections.\n",
+    "templates/service-keys.yaml": "# Canonical key set for platform services. Per-service values live in config/.\nrequired_keys:\n  - service_name\n  - listen_port\n  - retry_backoff_ms\n  - max_inflight_batches\n  - graceful_shutdown_seconds\n  - ledger_endpoint\n  - telemetry_sample_rate\n",
+    "config/payment-settler.yaml": "service_name: payment-settler\nlisten_port: 8120\nmax_inflight_batches: 24\ngraceful_shutdown_seconds: 45\nledger_endpoint: http://ledger.internal:9300\ntelemetry_sample_rate: 0.25\n",
+    "ops/onboarding-log.md": "# Onboarding log, week of 2026-08-24\n\n- payment-settler passed the staging smoke run.\n- The ledger team confirmed the internal endpoint is reachable from the new pool.\n- Documentation for the settlement flow is with the platform writers.\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "The payment-settler service goes through platform onboarding this week. Its settings file has to declare the full key set the platform template defines, and I need the one key it does not declare yet. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_contains": [
+          "retry_backoff_ms"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "id": "web-0005",
+  "description": "Release in which cindermill deprecated the remote_verify option, stated plainly on the deprecations page. WORKBANK-CANARY-6c1f0a7d",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "deprecation",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-web-deprecation-02",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "cindermill",
+      "url": "https://docs.cindermill.io/reference/deprecations",
+      "url_match": "docs.cindermill.io/reference/deprecations",
+      "title": "Deprecations - cindermill documentation",
+      "snippet": "The options cindermill has retired or renamed, with the release each change landed in: remote_verify was deprecated in 2.7.0, replaced by verify_mode.",
+      "content": "# Deprecations\n\nThis page lists cindermill options that have been retired or renamed, with the release in which the change landed. A configuration that still sets a retired option keeps working until the next major line, and `cindermill doctor` prints a warning for each one it finds.\n\n## Retired options\n\n| Option | Deprecated in | Replacement |\n| --- | --- | --- |\n| remote_verify | 2.7.0 | verify_mode |\n| upload_retries | 2.4.0 | retry_policy |\n| cache_quota_gb | 3.1.0 | cache_quota |\n\n## Renamed options\n\n| Option | Deprecated in | Replacement |\n| --- | --- | --- |\n| daemon_socket | 3.3.0 | control_socket |\n\nRemoval lands one major line after deprecation, so nothing in the tables above is gone yet.\n\nLast reviewed 2026-05-14.",
+      "published_at": "2026-05-14"
+    },
+    {
+      "query_match": "cindermill",
+      "url": "https://cindermill.io/blog/migrating-to-verify-mode",
+      "url_match": "cindermill.io/blog/migrating-to-verify-mode",
+      "title": "Migrating our cindermill checks to verify_mode",
+      "snippet": "How we replaced the older verification flag across forty pipelines, and what the config files look like now.",
+      "content": "# Migrating our cindermill checks to verify_mode\n\n*Posted 2026-03-27 by Halvard Nyström · Laddercrest Build Engineering*\n\nWe finished moving every pipeline off the older verification flag this week. The flag still works, but it logs a warning on every job, and the deprecations page records the release that started those warnings. Here is what changed for us.\n\n## The config diff\n\nEvery job that set the old flag now sets `verify_mode: strict`. Nothing else moved.\n\n## What we would do differently\n\nThe warning is easy to filter out, which is why it took us a quarter to notice it at all. Do not filter it.",
+      "published_at": "2026-03-27"
+    },
+    {
+      "query_match": "cindermill",
+      "url": "https://codegarden.chat/cindermill/threads/remote-verify-noise",
+      "url_match": "codegarden.chat/cindermill/threads/remote-verify-noise",
+      "title": "Verification flag logs a warning on every job - cindermill forum",
+      "snippet": "A user asks why their jobs started printing a warning about the verification flag after a routine upgrade.",
+      "content": "# Verification flag logs a warning on every job\n\n**orsolya-b opened this thread on 2026-04-30**\n\nAfter our last minor upgrade, every job prints a warning about the verification flag. Is the option going away?\n\n**tms-agent replied on 2026-05-01**\n\nIt is on the way out; the warning is the first stage. The deprecations page carries the release it was deprecated in and the option to set instead. Nothing breaks today.",
+      "published_at": "2026-04-30"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "Before we plan the cindermill upgrade I need the deprecation release written down. In which release was the remote_verify option deprecated? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "2.7.0"
+      }
+    }
+  ]
+}

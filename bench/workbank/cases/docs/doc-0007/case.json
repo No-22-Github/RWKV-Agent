@@ -1,0 +1,44 @@
+{
+  "id": "doc-0007",
+  "description": "The one link in the Harborline Dispatch handbook whose target is absent from the repository. WORKBANK-CANARY-71c4a9d2",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "link_check",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": "deploy-runbook.md"
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-doc-changelog-02",
+    "ref_calls": 4,
+    "fixture_bytes": 1655,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:deepseek-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "HANDBOOK.md": "# Harborline Dispatch engineering handbook\n\nThe standing references for the dispatch platform are linked below. Relative\nlinks are written from the repository root.\n\n- [Deployment runbook](deploy-runbooks.md)\n- [On-call rota](oncall-rota.md)\n- [Release notes](release-notes.md)\n- [Rollout notes](rollout-notes.md)\n\nSections that are still being drafted are tracked in the engineering tracker.\n",
+    "README.md": "# Harborline Dispatch\n\nHarborline Dispatch routes freight bookings from the customer portal to the\nregional depots. The service is deployed from this repository.\n\nStart with HANDBOOK.md for the standing engineering references. The dispatch\npipeline itself is described in docs/pipeline.md.\n",
+    "deploy-runbook.md": "# Deployment runbook\n\n1. Freeze the booking intake queue and confirm the depots have drained.\n2. Promote the release candidate to ring 1 and watch the error budget for\n   twenty minutes.\n3. Promote rings 2 and 3, then unfreeze intake.\n\nEscalate to the on-call engineer when the budget burn crosses the threshold.\n",
+    "docs/pipeline.md": "# Dispatch pipeline\n\nBookings arrive on the intake queue, are priced by the rate service, and are\nassigned to a depot by the routing worker. The manifest is written when the\nassignment is confirmed.\n",
+    "oncall-rota.md": "# On-call rota\n\nWeek 1: Nour Haddad\nWeek 2: Elias Brandt\nWeek 3: Rosa Villalobos\nWeek 4: Yuki Tanabe\n\nSwaps are arranged in the operations channel.\n",
+    "release-notes.md": "# Release notes\n\n## 2.14.0 - 2026-08-05\n\n- Depot failover now completes inside the booking window.\n\n## 2.13.2 - 2026-06-18\n\n- Fix a duplicate label printed on the manifest.\n",
+    "rollout-notes.md": "# Rollout notes\n\nRing 1 is the staging depot. Rings 2 and 3 cover the customer depots.\nRollbacks are driven from the operations dashboard.\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "The Harborline Dispatch engineering handbook links to several standing references. One of those targets does not exist in the project. State the file that the failing link names. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "deploy-runbooks.md"
+      }
+    }
+  ]
+}

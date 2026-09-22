@@ -1,0 +1,42 @@
+{
+  "id": "tab-0007",
+  "description": "Average hours per picker for one distribution department, from a piece-rate log whose hours column mixes notation for an unrecorded figure. WORKBANK-CANARY-7e15c8d4",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "policy_calc",
+    "traps": [
+      "TR-MISSING"
+    ],
+    "trap_decoys": {
+      "TR-MISSING": 100.125
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-payroll-02",
+    "ref_calls": 4,
+    "fixture_bytes": 1381,
+    "status": "reviewed",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": "human:delegated-20260922"
+  },
+  "web_fixture": [],
+  "files": {
+    "employee_roster.csv": "employee_id,name,department\nHG-5503,Priyanka Sethi,Receiving\nHG-5508,Etienne Rouault,Dispatch\nHG-5512,Tomasz Wojcik,Picking\nHG-5517,Grzegorz Malinowski,Receiving\nHG-5521,Nadia Okonkwo,Picking\nHG-5529,Cordelia Nwosu,Picking\nHG-5530,Amelie Fontaine,Dispatch\nHG-5534,Rafael Mendes,Picking\nHG-5541,Ravi Chandrasekhar,Receiving\nHG-5547,Ingrid Solberg,Picking\nHG-5553,Yusuf Karim,Picking\nHG-5560,Malcolm Ferreira,Picking\nHG-5562,Zoe Papadopoulos,Dispatch\nHG-5568,Beata Kowalczyk,Picking\n",
+    "pick_log_june_2026.csv": "employee_id,units_picked,hours\nHG-5503,1240,158.0\nHG-5508,980,-\nHG-5512,1115,\nHG-5517,1130,149.25\nHG-5521,1370,168.5\nHG-5529,1040,NA\nHG-5530,1420,166.0\nHG-5534,1295,152.25\nHG-5541,760,\nHG-5547,1455,174.0\nHG-5553,1180,145.75\nHG-5560,1015,-\nHG-5562,1310,NA\nHG-5568,1265,160.5\n",
+    "README.md": "# Harrowgate Outfitters - distribution centre\n\nemployee_roster.csv lists the centre's staff with the department each\nperson is assigned to. pick_log_june_2026.csv records, per person, the\nunits picked and the hours spent on the floor for June 2026, keyed by\nemployee id.\n\nPicking is paid per unit. The hours figure reported for a department for\na month is the average hours per worker, taken over the workers of that\ndepartment who have an hours figure for the month.\n",
+    "dock/loading-plan.txt": "Loading plan - week 26\n- Bay 1 is reserved for the Tuesday collection.\n- Cage returns are audited against the dispatch list.\n- Night shift handover at 23:00.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Harrowgate Outfitters' distribution centre has closed the June 2026 pick records, and the roster and the pick log are in the workspace. For the Picking department, what was the average number of hours per worker in June 2026? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 160.2,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

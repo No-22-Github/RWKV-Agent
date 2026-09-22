@@ -1,0 +1,44 @@
+{
+  "id": "tab-0020",
+  "description": "June 2026 subscription total for a logistics platform, merged from a UTC invoicing ledger and a plus-eight metering ledger with mixed date styles. WORKBANK-CANARY-52d9f0a4",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "reconcile",
+    "traps": [
+      "TR-DATEFMT",
+      "TR-TZ"
+    ],
+    "trap_decoys": {
+      "TR-DATEFMT": 57103.5,
+      "TR-TZ": 46290.55
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-tab-subscription-05",
+    "ref_calls": 5,
+    "fixture_bytes": 1666,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "invoices_utc.csv": "invoice_id,account,issued_at,amount\nINV-7731,Ashborne Retail,2026/06/04 09:20,4820.00\nINV-7748,Belmont Freight,09-06-2026 15:45,1265.50\nINV-7752,Cranfield Produce,\"Jun 17, 2026 23:30\",18740.25\nINV-7765,Dunmere Chemicals,2026/06/30 22:15,640.75\nINV-7771,Elmsworth Tools,2026/05/31 21:40,9035.00\nINV-7784,Fairhaven Media,06/07/2026 05:10,3375.00\n",
+    "metering_sgt.csv": "meter_id,account,recorded_at,amount\nMTR-2605,Garnet Motors,02/06/2026 08:45,735.80\nMTR-2610,Hartley Foods,2026/06/02 10:05,512.40\nMTR-2627,Ironbridge Rail,18-06-2026 19:20,2240.00\nMTR-2641,Juniper Health,\"Jun 26, 2026 07:50\",11875.60\nMTR-2658,Kirkwall Pharma,2026/06/29 23:35,1480.00\nMTR-2663,Larkfield Energy,30/06/2026 12:00,3980.25\nMTR-2671,Moorland Dairy,06/03/2026 14:10,1045.00\n",
+    "README.md": "# Vellmoor Logistics - June 2026 subscription billing\n\nTwo billing systems raise subscription charges for the month.\n\ninvoices_utc.csv is the legacy invoicing system; its issued_at stamps are\nrecorded against UTC.\n\nmetering_sgt.csv is the usage-metering add-on; its recorded_at stamps are\nrecorded at UTC+08:00.\n\nTogether the two files hold every subscription charge for the period: a\ncharge appears in exactly one of them. Amounts are in US dollars.\n\nDates in both files are written day-first whenever the day and month are given\nas bare numbers: an entry of 05/06/2026 or 05-06-2026 is 5 June 2026. Entries\nthat name the month in words, and year-first entries, are read as written.\n\nops/dispatch-notes.txt is the dispatch team's working note for the month.\n",
+    "ops/dispatch-notes.txt": "Dispatch planning notes, June 2026\n- Depot handover meeting moved to the Tuesday slot.\n- Two route sheets reprinted after the coverage change.\n- Fuel card audit due at month end.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Vellmoor Logistics raises subscription charges from two billing systems, and both files for the current period are in the workspace. What total subscription amount was billed for June 2026 in Singapore time? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 54684.8,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

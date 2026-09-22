@@ -1,0 +1,73 @@
+{
+  "id": "web-0011",
+  "description": "tiderail error TRD-1094; the first result's snippet already names the condition, so further searching is redundant. WORKBANK-CANARY-5f0a93d1",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": "hotloop"
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-web-errmsg-03",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {},
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "web_fixture": [
+    {
+      "query_match": "tiderail",
+      "url": "https://docs.tiderail.dev/errors/trd-1094",
+      "url_match": "docs.tiderail.dev/errors/trd-1094",
+      "title": "TRD-1094: coldshard - tiderail error index",
+      "snippet": "TRD-1094 reports a coldshard: a cache region that never warmed after a worker restart, so the worker serves from the origin until it does.",
+      "content": "# tiderail error index\n\nErrors print as TRD-NNNN and are grouped by subsystem. The condition names below are what our dashboards show.\n\n## Cache region\n\n| Code | Condition | Notes |\n| --- | --- | --- |\n| TRD-2211 | hotloop | A region is being re-read faster than it can be filled. Usually a hot key. |\n| TRD-1094 | coldshard | A cache region never warmed after a worker restart; the worker serves from the origin until it does. |\n| TRD-1088 | thinmoss | The region's fill rate sits below the health floor. |\n\nLast reviewed 2026-04-21.",
+      "published_at": "2026-04-21"
+    },
+    {
+      "query_match": "tiderail",
+      "url": "https://community.tiderail.dev/t/warmup-tuning-thread",
+      "url_match": "community.tiderail.dev/t/warmup-tuning-thread",
+      "title": "Warmup tuning thread: hotloop on every deploy",
+      "snippet": "Every deploy, one shard goes hotloop before it settles. Our tuning notes follow.",
+      "content": "# Warmup tuning thread: hotloop on every deploy\n\n**posted 2026-02-11 by Priyanka Sorensen**\n\nAfter each deploy we get a burst of TRD-2211 (hotloop) on the busiest shard: the region is re-read faster than it can be filled. We raised the fill concurrency and the burst shrank.\n\n**replied 2026-02-12 by Callum Deveraux**\n\nIf a region never fills at all, that is the other cache-region code, not this one; the error index lists both conditions side by side.\n",
+      "published_at": "2026-02-11"
+    },
+    {
+      "query_match": "tiderail",
+      "url": "https://tiderail.dev/blog/2026-http2-probes",
+      "url_match": "tiderail.dev/blog/2026-http2-probes",
+      "title": "Smaller probes, fewer false alarms",
+      "snippet": "We halved probe intervals and cut false unhealthy markings by a third.",
+      "content": "# Smaller probes, fewer false alarms\n\nLong probe intervals made healthy workers look dead for minutes at a time. We cut the interval and the false-unhealthy rate fell by a third.\n\nThis change did not add or rename any error code; the index page stays the reference for names.\n\nPublished 2026-03-19.",
+      "published_at": "2026-03-19"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "A tiderail worker logged TRD-1094 this morning and the triage note needs the platform's own term. Report the condition name tiderail's documentation gives for that error code. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_contains_any": [
+          "coldshard",
+          "Coldshard",
+          "COLDSHARD"
+        ]
+      }
+    }
+  ]
+}

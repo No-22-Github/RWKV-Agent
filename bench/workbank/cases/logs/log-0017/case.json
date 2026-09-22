@@ -1,0 +1,38 @@
+{
+  "id": "log-0017",
+  "description": "Report the component that emitted the one FATAL record in a claims-service application log. WORKBANK-CANARY-c7e21a4b",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "locate_error",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-log-longtail-05",
+    "ref_calls": 3,
+    "fixture_bytes": 5886,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:deepseek-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "logs/claimdesk-api.log": "2025-11-04 09:12:33.412 INFO [claimdesk-api] module=claim-intake msg=claim_registered claim=CLM-40218 channel=broker\n2025-11-04 09:14:07.905 INFO [claimdesk-api] module=document-store msg=blob_written claim=CLM-40218 doc=res-9931 bytes=184320\n2025-11-04 09:16:52.338 WARN [claimdesk-api] module=fraud-scorer msg=score_latency_high claim=CLM-40218 elapsed_ms=1840\n2025-11-04 09:19:41.070 INFO [claimdesk-api] module=fraud-scorer msg=score_ready claim=CLM-40218 score=0.31\n2025-11-04 09:23:18.552 INFO [claimdesk-api] module=claim-intake msg=claim_registered claim=CLM-40229 channel=web\n2025-11-04 09:27:44.916 INFO [claimdesk-api] module=document-store msg=blob_written claim=CLM-40229 doc=res-9947 bytes=52480\n2025-11-04 09:31:09.283 INFO [claimdesk-api] module=audit-index msg=entry_indexed claim=CLM-40229 shard=4\n2025-11-04 09:35:57.640 INFO [claimdesk-api] module=claim-intake msg=claim_registered claim=CLM-40233 channel=broker\n2025-11-04 09:39:22.118 WARN [claimdesk-api] module=payout-ledger msg=ledger_lag_warn claim=CLM-40233 lag_s=42\n2025-11-04 09:43:50.771 INFO [claimdesk-api] module=notify-dispatch msg=ack_sent claim=CLM-40218 channel=email\n2025-11-04 09:47:16.409 INFO [claimdesk-api] module=fraud-scorer msg=score_ready claim=CLM-40229 score=0.08\n2025-11-04 09:52:38.055 INFO [claimdesk-api] module=claim-intake msg=claim_registered claim=CLM-40241 channel=web\n2025-11-04 09:56:04.927 WARN [claimdesk-api] module=document-store msg=blob_retry doc=res-9961 attempt=2\n2025-11-04 10:01:29.364 INFO [claimdesk-api] module=document-store msg=blob_written claim=CLM-40241 doc=res-9961 bytes=90112\n2025-11-04 10:05:11.802 INFO [claimdesk-api] module=claim-intake msg=claim_registered claim=CLM-40248 channel=broker\n2025-11-04 10:09:44.239 WARN [claimdesk-api] module=fraud-scorer msg=model_reloaded version=sc-4.2.1 elapsed_ms=2210\n2025-11-04 10:14:02.687 INFO [claimdesk-api] module=claim-intake msg=claim_registered claim=CLM-40253 channel=web\n2025-11-04 10:18:35.114 ERROR [claimdesk-api] module=payout-ledger msg=posting_rejected claim=CLM-40241 reason=missing_iban\n2025-11-04 10:22:57.548 INFO [claimdesk-api] module=notify-dispatch msg=ack_sent claim=CLM-40241 channel=sms\n2025-11-04 10:27:19.983 INFO [claimdesk-api] module=claim-intake msg=claim_registered claim=CLM-40260 channel=broker\n2025-11-04 10:31:48.336 WARN [claimdesk-api] module=audit-index msg=index_backlog shard=4 pending=1204\n2025-11-04 10:36:10.774 INFO [claimdesk-api] module=fraud-scorer msg=score_ready claim=CLM-40241 score=0.19\n2025-11-04 10:40:52.208 ERROR [claimdesk-api] module=payout-ledger msg=posting_rejected claim=CLM-40253 reason=closed_account\n2025-11-04 10:45:17.655 INFO [claimdesk-api] module=claim-intake msg=claim_registered claim=CLM-40268 channel=web\n2025-11-04 10:49:40.091 WARN [claimdesk-api] module=notify-dispatch msg=ack_bounced claim=CLM-40233 channel=email\n2025-11-04 10:54:03.529 INFO [claimdesk-api] module=document-store msg=blob_written claim=CLM-40260 doc=res-9978 bytes=245760\n2025-11-04 10:58:26.964 INFO [claimdesk-api] module=claim-intake msg=claim_registered claim=CLM-40275 channel=broker\n2025-11-04 11:03:49.402 WARN [claimdesk-api] module=fraud-scorer msg=score_latency_high claim=CLM-40268 elapsed_ms=1980\n2025-11-04 11:08:14.840 INFO [claimdesk-api] module=audit-index msg=entry_indexed claim=CLM-40268 shard=4\n2025-11-04 11:12:37.286 INFO [claimdesk-api] module=claim-intake msg=claim_registered claim=CLM-40283 channel=web\n2025-11-04 11:47:02.889 FATAL [claimdesk-api] module=policy-renderer msg=render_worker_exhausted inflight=37 capacity=32 pod=claimdesk-api-7f9c4\n2025-11-04 11:50:19.415 WARN [claimdesk-api] module=notify-dispatch msg=queue_depth_high pending=214\n2025-11-04 11:54:41.853 INFO [claimdesk-api] module=claim-intake msg=claim_registered claim=CLM-40291 channel=broker\n2025-11-04 11:58:06.297 INFO [claimdesk-api] module=fraud-scorer msg=score_ready claim=CLM-40283 score=0.44\n2025-11-04 12:02:33.730 WARN [claimdesk-api] module=payout-ledger msg=ledger_lag_warn lag_s=61\n2025-11-04 12:06:58.174 INFO [claimdesk-api] module=document-store msg=blob_written claim=CLM-40291 doc=res-9992 bytes=71680\n2025-11-04 12:11:20.612 INFO [claimdesk-api] module=claim-intake msg=claim_registered claim=CLM-40304 channel=web\n2025-11-04 12:15:44.057 WARN [claimdesk-api] module=audit-index msg=index_backlog shard=4 pending=1188\n2025-11-04 12:20:07.493 INFO [claimdesk-api] module=notify-dispatch msg=ack_sent claim=CLM-40291 channel=email\n2025-11-04 12:24:33.928 ERROR [claimdesk-api] module=payout-ledger msg=posting_rejected claim=CLM-40275 reason=missing_iban\n2025-11-04 12:28:56.371 INFO [claimdesk-api] module=fraud-scorer msg=score_ready claim=CLM-40304 score=0.12\n2025-11-04 12:33:19.816 WARN [claimdesk-api] module=document-store msg=blob_retry doc=res-9999 attempt=3\n2025-11-04 12:37:42.255 INFO [claimdesk-api] module=claim-intake msg=claim_registered claim=CLM-40317 channel=broker\n",
+    "README.md": "# claimdesk-api workspace\n\nclaimdesk-api takes insurance claims from brokers and the web portal and drives them through\nintake, document storage, scoring, rendering and payout.\n\nlogs/claimdesk-api.log is the service application log for 2025-11-04 (daily rotation).\nOne record per line:\n\n    <timestamp> <level> [service] module=<component> msg=<event> <key=value ...>\n\nThe module field names the internal component that emitted the record. Levels use the usual\nINFO / WARN / ERROR / FATAL ladder; a FATAL record means the emitting component stopped and\nthe service supervisor has to be paged.\n",
+    "docs/runbook.md": "# claimdesk on-call runbook\n\n- Dashboards: Grafana folder \"claimdesk\" (intake rate, render queue depth, ledger lag).\n- Escalation: claims-platform rota, PagerDuty service \"claimdesk-primary\".\n- A FATAL record is a page: the component named on that record has stopped.\n- The nightly document reindex runs at 01:30 local from the archive worker, not from this service.\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "ClaimDesk's API writes one plain-text application log per day at logs/claimdesk-api.log. Yesterday a single entry reached FATAL level. For the reliability review, report the module that emitted that FATAL entry. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_contains": [
+          "policy-renderer"
+        ]
+      }
+    }
+  ]
+}

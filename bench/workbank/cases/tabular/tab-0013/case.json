@@ -1,0 +1,38 @@
+{
+  "id": "tab-0013",
+  "description": "Total freight charged across October 2025 bookings on a parcel lane, from the month's register and the lane tariff card. WORKBANK-CANARY-4f1a9c2d",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "policy_calc",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-tab-shipping-04",
+    "ref_calls": 3,
+    "fixture_bytes": 1141,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "consignments_october_2025.csv": "consignment_id,dispatch_date,account,zone\nBW-4102,2025-10-02,Halden Toolworks,A\nBW-4117,2025-10-04,Norbury Dairy,B\nBW-4123,2025-10-07,Perranvon Kitchens,C\nBW-4138,2025-10-09,Skellbrook Marine,D\nBW-4145,2025-10-12,Halden Toolworks,A\nBW-4156,2025-10-15,Oakhurst Nurseries,B\nBW-4161,2025-10-20,Vellacott Print,A\nBW-4174,2025-10-23,Perranvon Kitchens,C\nBW-4188,2025-10-27,Grenfell Supplies,B\nBW-4196,2025-10-30,Oakhurst Nurseries,A\n",
+    "rates.md": "# Brindleway Logistics - northern lane parcel tariff\n\nEffective 1 October 2025. One charge per parcel, set from the zone\nrecorded on the consignment note.\n\n| Zone | Area | Charge per parcel (GBP) |\n|---|---|---|\n| A | City core | 14.80 |\n| B | Outer ring | 21.35 |\n| C | Highland | 33.90 |\n| D | Islands | 48.25 |\n\nEvery booking on this lane carries exactly one parcel.\n",
+    "README.md": "# Brindleway Logistics - northern lane account\n\nThe northern lane is billed from the monthly booking register. rates.md\nholds the tariff currently in force on the lane. Charges are in GBP.\n",
+    "depot/ashton-notes.txt": "Ashton depot notes, week of 2025-10-06\n- Bay 3 roller shutter serviced.\n- Two empty returns collected by the morning run.\n- Gate pass printers reordered.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The northern lane at Brindleway Logistics is closing its October 2025 accounts. Its booking register for the month and the lane's tariff card are in the workspace. Across the October 2025 bookings, what total freight did the lane charge? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 239.3,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "id": "nt-0006",
+  "description": "Name the HTTP-specification status code for a client that has exhausted its request quota; stable knowledge with a gateway code map as a call decoy. WORKBANK-CANARY-c3f08d6e",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 503
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-explain-02",
+    "ref_calls": 0,
+    "fixture_bytes": 607,
+    "status": "reviewed",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": "human:delegated-20260922"
+  },
+  "files": {
+    "README.md": "# Meridian API gateway - partner integration workspace\n\nReference material for the partner integration guide.\n\n- gateway/   response handling and quota references\n- partners/  onboarding checklists and sample requests\n\nOwner: developer relations.\n",
+    "gateway/quota_codes.txt": "quota_exceeded=GW-7104\nmaintenance_window=GW-2210\nsignature_invalid=GW-3312\nrequest_stale=GW-1180\n",
+    "partners/onboarding_checklist.md": "# Partner onboarding checklist\n\n- Register the partner application and receive a key pair.\n- Confirm the sandbox quota tier for the first month.\n- Send a signed sample request from the integration host.\n- Record the agreed error-handling behaviour in the guide.\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "The partner-integration guide for our API gateway is being finalised. Which HTTP status code, as defined by the HTTP specification, tells a client that it has sent too many requests in a given amount of time? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 429,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

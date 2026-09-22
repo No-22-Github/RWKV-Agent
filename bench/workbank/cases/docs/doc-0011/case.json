@@ -1,0 +1,51 @@
+{
+  "id": "doc-0011",
+  "description": "Compile the opening-critical premises checks from the Windrow College checks register into reports/opening-critical-checks.md. WORKBANK-CANARY-6f28d1c5",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-handbook-03",
+    "ref_calls": 4,
+    "fixture_bytes": 4292,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:deepseek-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "# Windrow College — site services document library\n\nThe premises handbook is the working reference for the site services team and\nfor duty caretakers. The checks register is exported from the maintenance\nsystem each month and is the list the team works from; the handbook explains\nhow that list is read.\n\nEstates office: room 2.14, extension 3180.\nOut-of-hours duty phone: 07700 900418.\n",
+    "handbook/premises-handbook.md": "# Premises handbook — Windrow College\n\nRevision 6. Effective from 1 October 2025. Held by the site services team,\nthe duty caretakers and the estates office.\n\n## 1 Purpose\n\nThe handbook sets out how planned premises checks are commissioned, recorded\nand escalated across the college estate. The estate covers the main building,\nthe refectory, the sports hall, the annexe and the two off-campus workshops.\n\n## 2 Roles\n\n- Duty caretaker — carries out the checks in the register that fall due on\n  their shift and records the outcome in the maintenance system.\n- Site services supervisor — owns the register, agrees intervals with the\n  maintenance contractors and reviews the monthly export.\n- Estates manager — signs off any change to an interval or to a consequence.\n\n## 3 Definitions\n\n- Checks register — the monthly export from the maintenance system. It lists\n  one planned premises check per line as `name | interval | consequence of\n  failure`. The register is the authoritative list of checks; the handbook\n  does not repeat the individual entries.\n- Opening-critical check — a check whose recorded consequence of failure is\n  that a building or a service area cannot open. A check whose failure only\n  raises a repair order, escalates a maintenance contract, or triggers a\n  re-test is not opening-critical, however safety-related its subject.\n- Consequence of failure — the outcome the maintenance system records against\n  a check when the check is not completed inside its interval.\n\n## 4 Recording and escalation\n\nThe duty caretaker records every completed check in the maintenance system on\nthe day it is done. A check that is not completed inside its interval is\nrecorded as failed, and the system applies the consequence held against it.\nThe supervisor reviews failed checks every Monday and reports the outstanding\nones to the estates manager with a date for completion.\n\n## 5 Changes to the register\n\nAn interval or a consequence is changed only by the estates manager, after\nagreement with the contractor. Changes take effect at the next monthly export;\nthe register's revision number moves with the export date.\n\n## 6 Assurance\n\nThe supervisor prepares a monthly assurance note from the register for the\ncollege's health and safety committee. The note lists the opening-critical\nchecks and the failed checks for the month, and the committee reviews any\nconsequence that would close a building or a service area.\n",
+    "registers/premises-checks.txt": "# Premises checks register — Windrow College, revision 6, exported 2026-08-31\n# One check per line: name | interval | consequence of failure\nFire alarm weekly test | Weekly | The main building cannot open until the test is completed and the result logged.\nEmergency lighting monthly check | Monthly | A repair order is raised and the circuit is re-tested at the next visit.\nLift statutory examination | Six-monthly | The lift is taken out of use and the maintenance contract is escalated.\nKitchen extraction deep clean | Termly | The refectory cannot open and catering moves to the annexe servery.\nLegionella temperature sampling | Monthly | The water system is dosed and re-sampled and the outlets are re-tested.\nBoiler annual service | Annual | The heating contract is escalated and temporary heaters are hired.\nIntruder alarm routine test | Termly | The outcome is recorded in the maintenance log and the monitoring contract is reviewed.\nSprinkler system flow test | Weekly | A repair order is raised and the test is repeated within seven days.\nGym equipment safety inspection | Termly | The sports hall cannot open until the equipment is signed off.\nAsbestos register review | Annual | The register is updated and a survey is commissioned.\nEmergency exit door check | Weekly | A repair order is raised and the door is monitored while the work is outstanding.\nPlayground surface inspection | Termly | Loose fill is topped up and the area is re-inspected.\n",
+    "reports/.keep": ""
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "Windrow College's site services team is putting together its September assurance pack for the health and safety committee. Using the premises handbook and the monthly checks register, create reports/opening-critical-checks.md. List every check that counts as opening-critical, that is, every check whose recorded consequence of failure is that a building or a service area cannot open. Put one check per line as a '- ' bullet, copying each check's name exactly as the register records it. Begin the file with the line '# Opening-critical checks - YYYY-MM-DD', where the date is the day the register was exported, in ISO format. When finished, reply DONE."
+    }
+  ],
+  "expect": {
+    "files": {
+      "reports/opening-critical-checks.md": {
+        "contains": [
+          "# Opening-critical checks",
+          "2026-08-31",
+          "Fire alarm weekly test",
+          "Kitchen extraction deep clean",
+          "Gym equipment safety inspection"
+        ]
+      }
+    }
+  }
+}

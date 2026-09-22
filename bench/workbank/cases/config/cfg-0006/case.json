@@ -1,0 +1,43 @@
+{
+  "id": "cfg-0006",
+  "description": "Effective max inflight batches for parcel-sorter in qa across the default, local and environment layers. WORKBANK-CANARY-b41e08f2",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "precedence",
+    "traps": [
+      "TR-PRECEDENCE"
+    ],
+    "trap_decoys": {
+      "TR-PRECEDENCE": 96
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-envstack-02",
+    "ref_calls": 4,
+    "fixture_bytes": 1077,
+    "status": "reviewed",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": "human:delegated-20260922"
+  },
+  "files": {
+    "README.md": "# Sorting line configuration workspace\n\nconfig/default.yaml is the fleet baseline for the sorting control service.\nconfig/local.yaml is the site-local tuning file; the line reads it after the\nbaseline and its keys win. environments/<env>.env carries the values the\ndeployer injects at start-up for that environment, and those take the\nhighest priority of the three.\n\nThe harness schematics under ops/ are not part of the config stack.\n",
+    "config/default.yaml": "# Baseline settings for the sorter control service.\nparcel_sorter:\n  max_inflight_batches: 64\n  sensor_poll_seconds: 5\n  batch_window_ms: 250\n  reject_retry_limit: 3\n",
+    "config/local.yaml": "# Site-local tuning. Loaded after, and layered on top of, the baseline.\ninclude: default.yaml\nparcel_sorter:\n  max_inflight_batches: 96\n  sensor_poll_seconds: 3\n",
+    "environments/qa.env": "# Values injected at start-up for the qa environment.\nDEPLOY_ENV=qa\nPARCEL_SORTER_MAX_INFLIGHT_BATCHES=180\nPARCEL_SORTER_SENSOR_POLL_SECONDS=2\n",
+    "ops/harness-schematic.txt": "Sorting line harness schematic, revision notes only.\n\nThe drop-off belt feeds two induction lanes; the diverter gate timing is\nrecorded on the maintenance sheet, not here.\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "Throughput on the parcel-sorter line was reviewed and the qa environment is being re-tuned. How many inflight batches does parcel-sorter run with in qa? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 180,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

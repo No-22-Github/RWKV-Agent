@@ -1,0 +1,45 @@
+{
+  "id": "fs-0010",
+  "description": "Registrar export duplication audit; find the file stored twice with identical bytes. WORKBANK-CANARY-a1d6f0c3",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "duplicates",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "exports/campus_north_log.txt"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-fs-dedupe-03",
+    "ref_calls": 4,
+    "fixture_bytes": 1289,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "Rowan College - registrar export folders.\n\nexports/ holds the semester extracts the registrar sends to the records\noffice; exports/archive/ keeps the snapshots taken after each send. For\nthe duplication audit, two files count as the same record only when their\nstored bytes match exactly. Files that merely share a name in different\nfolders are separate records and are filed independently.\n",
+    "exports/registrar_midterm_2026.csv": "section_code,student_ref,credits,midterm_score\nBUS-204,S-10482,3,71\nBUS-204,S-10915,3,64\nCHEM-110,S-10233,4,58\nCHEM-110,S-11120,4,77\nENGL-150,S-10007,3,83\nENGL-150,S-11344,3,69\n",
+    "exports/midterm_export_final.csv": "section_code,student_ref,credits,midterm_score\nBUS-204,S-10482,3,71\nBUS-204,S-10915,3,64\nCHEM-110,S-10233,4,58\nCHEM-110,S-11120,4,77\nENGL-150,S-10007,3,83\nENGL-150,S-11344,3,69\n",
+    "exports/campus_north_log.txt": "Campus North export log\n2026-03-09 01:14  generated midterm roster (14 rows)\n2026-03-09 01:16  checksum verified\n2026-03-12 09:02  export copied to the records share\n",
+    "exports/archive/campus_north_log.txt": "Campus North export log\n2026-03-09 01:14  generated midterm roster (14 rows)\n2026-03-09 01:16  checksum verified\n2026-03-15 09:02  archive snapshot taken\n",
+    "notes/export_handover.md": "# Export handover notes\n\nThe records office asked that every extract keep the same column order\nafter the spring migration. Column headers were left unchanged, and the\narchive snapshots are never edited once they are taken.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The registrar's records team is preparing the spring 2026 midterm extract for accreditation review. In the export folders, one file appears twice with the same stored bytes. Give the workspace path of one of the two copies. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals_any": [
+          "exports/registrar_midterm_2026.csv",
+          "exports/midterm_export_final.csv"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "id": "log-0012",
+  "description": "Find the onset instant of a session outage by aligning an edge-proxy log in UTC with a session-store log in +08:00. WORKBANK-CANARY-e05b73d1",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "root_cause",
+    "traps": [
+      "TR-TZ",
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-TZ": "2026-09-28 09:30:58",
+      "TR-MULTISRC": "2026-09-28 17:31:14"
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "fam-log-deploy-03",
+    "ref_calls": 5,
+    "fixture_bytes": 2256,
+    "status": "reviewed",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": "human:delegated-20260922"
+  },
+  "files": {
+    "logs/edge-proxy.log": "2026-09-28T08:12:30Z WARN [edge-proxy] rq-31b0c7e2 GET /v1/search -> 502 upstream=search-service reason=upstream_timeout\n2026-09-28T09:30:58Z WARN [edge-proxy] rq-aa11d3f0 POST /v1/session -> 502 upstream=session-store reason=upstream_error\n2026-09-28T09:31:16Z WARN [edge-proxy] rq-b7c2e9a4 POST /v1/session -> 502 upstream=session-store reason=upstream_error\n2026-09-28T09:33:03Z WARN [edge-proxy] rq-c81f4b26 POST /v1/session -> 502 upstream=session-store reason=upstream_error\n2026-09-28T09:41:10Z WARN [edge-proxy] rq-d9406a18 POST /v1/session -> 502 upstream=session-store reason=upstream_error\n2026-09-28T09:44:50Z WARN [edge-proxy] rq-e05b7c93 POST /v1/session -> 502 upstream=session-store reason=upstream_error\n2026-09-28T09:52:44Z INFO [edge-proxy] rq-f1a2b365 POST /v1/session -> 200\n",
+    "logs/session-store.log": "2026-09-28T15:40:12+08:00 WARN [session-store] SLOW_QUERY op=scan shard=7 elapsed_ms=812\n2026-09-28T15:44:55+08:00 WARN [session-store] SLOW_QUERY op=scan shard=7 elapsed_ms=903\n2026-09-28T15:52:07+08:00 INFO [session-store] shard=7 scan latency recovered\n2026-09-28T17:31:14+08:00 ERROR [session-store] AUTH_FAIL client=session-api reason=redis_auth_error\n2026-09-28T17:31:15+08:00 ERROR [session-store] AUTH_FAIL client=session-api reason=redis_auth_error\n2026-09-28T17:33:02+08:00 ERROR [session-store] AUTH_FAIL client=session-api reason=redis_auth_error\n2026-09-28T17:38:44+08:00 INFO [session-store] credentials reloaded; auth restored\n2026-09-28T17:41:09+08:00 ERROR [session-store] AUTH_FAIL client=session-api reason=redis_auth_error\n",
+    "README.md": "# session platform workspace\n\nTwo services take part in session lookups:\n\n- edge-proxy terminates client traffic. Plain-text log in logs/edge-proxy.log; timestamps are UTC (trailing Z).\n- session-store holds sessions in Redis. Plain-text log in logs/session-store.log; timestamps carry the APAC collector offset (+08:00).\n\nBoth services stamp the same request id (rq-...) on a call. See docs/paging-policy.md for the escalation matrix.\n",
+    "docs/paging-policy.md": "# Paging policy\n\n- AUTH_FAIL on session-store is P1: sessions cannot be read, so sign-in fails for every region.\n- SLOW_QUERY is P3: notify in #session-ops, no page unless it persists past 30 minutes.\n- Postmortems record the incident onset instant and the originating fault code.\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "An outage hit session lookups yesterday. For the incident report, give the instant the outage first showed a failure, expressed in Singapore time as YYYY-MM-DD HH:MM:SS. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_contains": [
+          "2026-09-28 17:30:58"
+        ]
+      }
+    }
+  ]
+}

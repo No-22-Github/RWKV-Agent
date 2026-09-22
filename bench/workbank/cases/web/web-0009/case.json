@@ -1,0 +1,62 @@
+{
+  "id": "web-0009",
+  "description": "kelpgate gateway error KG-4021: the official error reference names the condition; plain L0 meaning lookup. WORKBANK-CANARY-3a7f1c9e",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-web-errmsg-03",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "kelpgate",
+      "url": "https://docs.kelpgate.dev/reference/error-codes",
+      "url_match": "docs.kelpgate.dev/reference/error-codes",
+      "title": "Error codes - kelpgate documentation",
+      "snippet": "Every gateway error kelpgate can return, each with the condition name our field guides use and the recommended handling.",
+      "content": "# kelpgate error codes\n\nEvery error the gateway returns carries a code of the form KG-NNNN. This reference lists each code, the condition name our field guides use, and the recommended handling.\n\n## Client and handshake conditions\n\n| Code | Condition | Handling |\n| --- | --- | --- |\n| KG-4001 | deadpipe | The client closed the connection partway through sending the request body. No action needed. |\n| KG-4010 | overrun | The request exceeded the per-route burst allowance. Shed load or raise the route budget. |\n| KG-4021 | sealbreak | The upstream peer closed the connection partway through the TLS handshake. The listener marks the route unhealthy until a probe succeeds. |\n| KG-4033 | halfwake | The upstream accepted the connection but never sent response headers. Check upstream saturation. |\n| KG-4044 | slowdrain | The response body trickled below the minimum drain rate and was cut off. |\n\n## Server conditions\n\n| Code | Condition | Handling |\n| --- | --- | --- |\n| KG-5001 | backwall | The upstream returned an unparsable response. Report it with the response dump. |\n| KG-5011 | drywell | No healthy upstream was available for the route. |\n\nLast reviewed 2026-06-19.",
+      "published_at": "2026-06-19"
+    },
+    {
+      "query_match": "kelpgate",
+      "url": "https://forum.opswatch.net/t/kelpgate-kg-4021-after-upgrade",
+      "url_match": "forum.opswatch.net/t/kelpgate-kg-4021-after-upgrade",
+      "title": "kelpgate KG-4021 after every gateway upgrade",
+      "snippet": "Our fleet throws KG-4021 in bursts right after a rolling restart, then it settles. Has anyone pinned down the reason?",
+      "content": "# kelpgate KG-4021 after every gateway upgrade\n\n**posted 2026-01-27 by Nadezhda Ferrers**\n\nEvery time we roll the gateway fleet, a handful of routes start returning KG-4021 for a few minutes and then settle. The upstreams are healthy the whole time, so I do not think it is capacity.\n\n**replied 2026-01-28 by Tobias Grangier**\n\nWe saw the same pattern. During the roll the listener still holds the previous upstream health entry and keeps rejecting the new peer until a probe passes. Our advice is to look the code up on the vendor's error-codes page rather than in forum folklore; that page is the authority on what each code reports.",
+      "published_at": "2026-01-27"
+    },
+    {
+      "query_match": "kelpgate",
+      "url": "https://kelpgate.dev/blog/2026-q2-reliability-review",
+      "url_match": "kelpgate.dev/blog/2026-q2-reliability-review",
+      "title": "kelpgate reliability review, Q2 2026",
+      "snippet": "What we shipped last quarter: faster probes, quieter logs, and a smaller error surface.",
+      "content": "# kelpgate reliability review, Q2 2026\n\nWe spent the quarter shrinking the error surface: several legacy codes were folded together, probe intervals dropped from ten seconds to three, and the listener now logs one line per unhealthy route instead of a burst.\n\nNo code meaning changed this quarter. The reference page remains the source of truth for what each code reports.\n\nPublished 2026-07-02.",
+      "published_at": "2026-07-02"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "An on-call escalation for our kelpgate gateway cites gateway error KG-4021, and the duty sheet has to spell the condition out in words. What condition name does kelpgate's error reference give for KG-4021? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_contains_any": [
+          "sealbreak",
+          "Sealbreak",
+          "SEALBREAK"
+        ]
+      }
+    }
+  ]
+}

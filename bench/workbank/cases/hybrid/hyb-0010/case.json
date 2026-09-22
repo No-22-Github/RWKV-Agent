@@ -1,0 +1,52 @@
+{
+  "id": "hyb-0010",
+  "description": "Value of Kestrel Solar's surplus generation delivered into Northgate Grid; the network's tariff table carries two prices and the local settlement guide picks the applicable one. WORKBANK-CANARY-9c2e5d41",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_calc",
+    "traps": [
+      "TR-DIRMAP"
+    ],
+    "trap_decoys": {
+      "TR-DIRMAP": 13297.57
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-tax-03",
+    "ref_calls": 4,
+    "fixture_bytes": 985,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "# Kestrel Solar — generation portfolio\n\nMetered generation and export figures for the company's rooftop portfolio.\n\n- export/  metered export volumes by site\n- operations/  settlement and metering notes\n- meters/  certification records\n",
+    "operations/settlement-guide.md": "# Settlement guide — Northgate Grid\n\nNorthgate Grid meters each site on a half-hourly basis and settles both directions of flow on one statement.\n\n- Units drawn from the network are billed to us at the price Northgate charges for electricity it supplies.\n- Units delivered into the network are settled with us at the price Northgate pays for electricity it takes from us.\n\nThe two prices sit on Northgate's published tariff table; the statement applies each one to its own direction of flow.\n",
+    "export/monthly.csv": "site,exported_kwh\nAldercroft Depot,21430\nBrindley Works,8760\nFenwick Rooftop,12905\nSaltbrook Yard,5525\n",
+    "meters/certificates.md": "# Meter certification\n\n| meter | certified | next due |\n| --- | --- | --- |\n| A-3301 | 2025-11-12 | 2026-11-12 |\n| B-1140 | 2026-01-08 | 2027-01-08 |\n"
+  },
+  "web_fixture": [
+    {
+      "query_match": "northgate grid",
+      "url": "https://www.northgategrid.example/tariffs/settlement",
+      "url_match": "www.northgategrid.example/tariffs/settlement",
+      "title": "Northgate Grid — settlement tariffs",
+      "snippet": "Northgate Grid's published settlement tariffs, both rates given per kilowatt hour.",
+      "content": "# Northgate Grid — settlement tariffs\n\nPublished settlement tariffs. Both rates are per kilowatt hour.\n\n| Tariff | Rate (GBP/kWh) |\n| --- | --- |\n| Supply tariff | 0.2735 |\n| Offtake tariff | 0.0885 |\n",
+      "published_at": "2026-04-22"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "Kestrel Solar's rooftop sites deliver surplus electricity into Northgate Grid's network, and the network settles those deliveries under the tariffs it publishes. Sales needs the total value of the portfolio's deliveries. What is that total in pounds sterling? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 4302.87,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

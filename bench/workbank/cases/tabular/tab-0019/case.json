@@ -1,0 +1,41 @@
+{
+  "id": "tab-0019",
+  "description": "Count the contract events in a manufacturer's export that fall inside a mid-March 2026 billing window, from an export with mixed date styles. WORKBANK-CANARY-e18b5d26",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [
+      "TR-DATEFMT"
+    ],
+    "trap_decoys": {
+      "TR-DATEFMT": 6
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-subscription-05",
+    "ref_calls": 4,
+    "fixture_bytes": 1384,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "contract_events.csv": "contract_id,account,event,event_date\nOST-4401,Amberline Foods,sign,2026/03/02\nOST-4407,Calderbank Rail,sign,07-03-2026\nOST-4412,Fenwick Textiles,renew,\"Mar 11, 2026\"\nOST-4418,Halden Chemicals,renew,03/04/2026\nOST-4423,Ivorygate Media,sign,2026/02/24\nOST-4429,Jarrow Shipping,renew,14-03-2026\nOST-4435,Kelprow Energy,sign,\"Feb 28, 2026\"\nOST-4441,Lindenmoor Health,renew,09-03-2026\nOST-4448,Marches Dairy,sign,2026/03/15\nOST-4452,Netherby Tools,renew,2026/03/16\nOST-4458,Oakvale Press,sign,22-02-2026\nOST-4463,Pinecroft Motors,renew,\"Mar 5, 2026\"\nOST-4469,Quillgate Legal,sign,01/03/2026\n",
+    "README.md": "# Ostervale Instruments - contract event export\n\ncontract_events.csv is the sales desk's export of contract signings and\nrenewals. Each row gives the contract id, the account, the event type and the\ndate the event was recorded.\n\nDates in this export are written day-first whenever the day and month are\ngiven as bare numbers: an entry of 07-03-2026 is 7 March 2026 and an entry of\n04/03/2026 is 4 March 2026. Entries that name the month in words (for example\nMar 11, 2026) run month-day-year. Year-first entries such as 2026/03/02 are\nunambiguous.\n\nops/desk-notes.txt is the desk's own working note for the period.\n",
+    "ops/desk-notes.txt": "Sales desk notes, March 2026\n- Two renewal quotes reissued after a pricing update.\n- Contract templates moved to the shared drive.\n- Quarterly commission statements due at month end.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Ostervale Instruments is preparing its March billing summary. The sales desk's contract event export is in the workspace; it lists each recorded signing or renewal with the date it was recorded. Ostervale's March billing window runs from 1 March to 15 March 2026 inclusive. How many events in the export fall inside that window? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 8,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "id": "tab-0015",
+  "description": "Monthly net freight excluding the fuel surcharge written into a named summary CSV for a depot lane. WORKBANK-CANARY-2c8f4a60",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "write_summary",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": 3944.62
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-shipping-04",
+    "ref_calls": 4,
+    "fixture_bytes": 830,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "invoices_may_2026.csv": "consignment_id,lane,billed_weight_kg,base_freight,fuel_surcharge,total_charge\nSG-5501,Harwell-A,318,412.60,61.89,474.49\nSG-5508,Harwell-B,142,128.40,19.26,147.66\nSG-5516,Harwell-A,760,907.25,136.09,1043.34\nSG-5523,Harwell-C,74,64.80,9.72,74.52\nSG-5531,Harwell-B,295,336.15,50.42,386.57\nSG-5544,Harwell-A,1180,1580.90,237.14,1818.04\n",
+    "README.md": "# Southgate Cargo - Harwell depot lane\n\ninvoices_may_2026.csv is the carrier's invoice for the Harwell depot lane\nfor May 2026, one line per consignment. base_freight is the carriage\ncharge before the fuel surcharge; fuel_surcharge is the surcharge added on\ntop; total_charge is the all-in figure the carrier bills for the line.\nCharges are in GBP.\n",
+    "reports/.keep": "",
+    "ops/dock-notes.txt": "Harwell dock notes, week of 2026-05-18\n- Bay 4 weighbridge recalibrated.\n- Returnable pallet cage emptied twice.\n- Overnight trailer wash scheduled.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Southgate Cargo has sent its May 2026 lane invoice for the Harwell depot, and it is in the workspace. Create reports/freight_summary.csv holding a header line and a single data row: the header must read 'metric,value', and the row must place net_freight in the first field and, in the second, the month's net freight for the lane - the carriage charges before the fuel surcharge is added. Write the amount as a plain decimal with two decimal places and no thousands separators. When finished, reply DONE."
+    }
+  ],
+  "expect": {
+    "files": {
+      "reports/freight_summary.csv": {
+        "contains": [
+          "metric,value",
+          "net_freight",
+          "3430.10"
+        ]
+      }
+    }
+  }
+}

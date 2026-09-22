@@ -1,0 +1,49 @@
+{
+  "id": "fs-0007",
+  "description": "Production-tree audit at Pinecote Editions: the biggest file inside the live title's folder, while a retired title keeps a bigger file of the same name. WORKBANK-CANARY-2ad58e40",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "largest",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "titles/rampion/typeset/body_flow.csv"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-fs-audit-02",
+    "ref_calls": 4,
+    "fixture_bytes": 6434,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "Pinecote Editions - editorial production tree.\n\nEvery title gets a folder under titles/, mirrored folder for folder:\nmanuscript/ holds the edited copy, typeset/ the flow tables the\ncompositor sets from, cover/ the jacket spec, and proofs/ the page\nproofs and query logs returned by the printer.\n\nNettlewick is the title in production; its edition is being taken to\npress this autumn. Rampion was published on 2026-03-14 and its folder is\nkept only so reprints can be set from the same files.\n",
+    "titles/nettlewick/typeset/body_flow.csv": "chapter,folio,style,font,size_pt,leading_pt,indent_mm,space_before_pt,space_after_pt,column_span,widow_control,keep_with_next,align,toc_level\n1,5,chapter_open,Charter Italic,10.0,13.6,4.0,12.0,6.0,1,on,on,justified,1\n2,8,verse,Sabon Next,10.5,14.2,4.5,18.0,9.0,1,off,on,centred,2\n3,11,extract,Ruelle Small Caps,11.0,14.8,3.5,0.0,0.0,1,on,off,left,0\n4,14,caption,Charter Text,9.5,13.0,4.0,12.0,6.0,2,off,on,justified,1\n5,17,footnote,Charter Italic,10.0,13.6,4.5,18.0,9.0,1,on,on,centred,2\n6,20,body,Sabon Next,10.5,14.2,3.5,0.0,0.0,1,off,off,left,0\n7,23,chapter_open,Ruelle Small Caps,11.0,14.8,4.0,12.0,6.0,1,on,on,justified,1\n8,26,verse,Charter Text,9.5,13.0,4.5,18.0,9.0,2,off,on,centred,2\n9,29,extract,Charter Italic,10.0,13.6,3.5,0.0,0.0,1,on,off,left,0\n10,32,caption,Sabon Next,10.5,14.2,4.0,12.0,6.0,1,off,on,justified,1\n11,35,footnote,Ruelle Small Caps,11.0,14.8,4.5,18.0,9.0,1,on,on,centred,2\n12,38,body,Charter Text,9.5,13.0,3.5,0.0,0.0,2,off,off,left,0\n13,41,chapter_open,Charter Italic,10.0,13.6,4.0,12.0,6.0,1,on,on,justified,1\n14,44,verse,Sabon Next,10.5,14.2,4.5,18.0,9.0,1,off,on,centred,2\n15,47,extract,Ruelle Small Caps,11.0,14.8,3.5,0.0,0.0,1,on,off,left,0\n16,50,caption,Charter Text,9.5,13.0,4.0,12.0,6.0,2,off,on,justified,1\n17,53,footnote,Charter Italic,10.0,13.6,4.5,18.0,9.0,1,on,on,centred,2\n18,56,body,Sabon Next,10.5,14.2,3.5,0.0,0.0,1,off,off,left,0\n19,59,chapter_open,Ruelle Small Caps,11.0,14.8,4.0,12.0,6.0,1,on,on,justified,1\n20,62,verse,Charter Text,9.5,13.0,4.5,18.0,9.0,2,off,on,centred,2\n",
+    "titles/nettlewick/proofs/proof_queries.md": "Proof queries returned by the printer against the second-pass pages.\nCleared queries are struck through on the returned set.\n\n- p. 12, l. 3: \"Harrowgate\" sets as one word\n- p. 15, l. 4: \"Nettlewick\" sets as one word\n- p. 18, l. 5: \"foxglove\" sets as one word\n- p. 21, l. 6: \"sedgewick\" sets as one word\n- p. 24, l. 7: \"bookbinder\" sets as one word\n- p. 27, l. 8: \"Rampion\" sets as one word\n- p. 30, l. 9: \"Harrowgate\" sets as one word\n- p. 33, l. 10: \"Nettlewick\" sets as one word\n- p. 36, l. 11: \"foxglove\" sets as one word\n- p. 39, l. 3: \"sedgewick\" sets as one word\n- p. 42, l. 4: \"bookbinder\" sets as one word\n- p. 45, l. 5: \"Rampion\" sets as one word\n- p. 48, l. 6: \"Harrowgate\" sets as one word\n- p. 51, l. 7: \"Nettlewick\" sets as one word\n- p. 54, l. 8: \"foxglove\" sets as one word\n- p. 57, l. 9: \"sedgewick\" sets as one word\n- p. 60, l. 10: \"bookbinder\" sets as one word\n- p. 63, l. 11: \"Rampion\" sets as one word\n- p. 66, l. 3: \"Harrowgate\" sets as one word\n- p. 69, l. 4: \"Nettlewick\" sets as one word\n- p. 72, l. 5: \"foxglove\" sets as one word\n- p. 75, l. 6: \"sedgewick\" sets as one word\n- p. 78, l. 7: \"bookbinder\" sets as one word\n- p. 81, l. 8: \"Rampion\" sets as one word\n- p. 84, l. 9: \"Harrowgate\" sets as one word\n- p. 87, l. 10: \"Nettlewick\" sets as one word\n- p. 90, l. 11: \"foxglove\" sets as one word\n- p. 93, l. 3: \"sedgewick\" sets as one word\n- p. 96, l. 4: \"bookbinder\" sets as one word\n",
+    "titles/nettlewick/manuscript/chapter_notes.md": "Chapter notes - second pass.\n\nChapter 7 gained a scene at the bindery. The author has signed off on\nthe trimmed opening of chapter 11; the dropped paragraph is kept in\nthe query log so the compositor can see what moved.\n",
+    "titles/nettlewick/manuscript/copyedit_queries.md": "Copyedit queries still open at handover.\n\n- recurring trade term: capitalise throughout?\n- place names: keep the hyphen in Sedgewick-Brae\n",
+    "titles/nettlewick/typeset/running_heads.md": "Running heads.\n\nVerso: title. Recto: chapter name. Part openers carry no head. The\ncompositor flags any head over forty characters.\n",
+    "titles/nettlewick/cover/cover_spec.json": "{\n  \"trim_mm\": [153, 234],\n  \"stock\": \"matt 350gsm\",\n  \"foil\": \"copper\",\n  \"spine_mm\": 27.5,\n  \"palette\": [\"#2e4034\", \"#c9a55f\", \"#e8e2d4\"]\n}\n",
+    "titles/nettlewick/proofs/.keep": "",
+    "titles/rampion/manuscript/chapter_notes.md": "Chapter notes - Rampion, archive copy.\n\nKept for reprints. The 2026-03 printing follows the second-pass pages\nwithout change; no further corrections were logged.\n",
+    "titles/rampion/typeset/body_flow.csv": "chapter,folio,style,font,size_pt,leading_pt,indent_mm,space_before_pt,space_after_pt,column_span,widow_control,keep_with_next,align,toc_level\n1,4,caption,Sabon Next,10.0,13.8,4.0,10.0,5.0,1,on,on,centred,1\n2,7,footnote,Ruelle Small Caps,10.5,14.4,5.0,16.0,8.0,1,on,off,left,2\n3,10,body,Charter Text,11.5,15.0,3.0,0.0,0.0,1,off,on,justified,3\n4,13,chapter_open,Charter Italic,9.5,13.2,4.0,10.0,5.0,1,on,off,centred,0\n5,16,verse,Sabon Next,10.0,13.8,5.0,16.0,8.0,2,on,on,left,1\n6,19,extract,Ruelle Small Caps,10.5,14.4,3.0,0.0,0.0,1,off,off,justified,2\n7,22,caption,Charter Text,11.5,15.0,4.0,10.0,5.0,1,on,on,centred,3\n8,25,footnote,Charter Italic,9.5,13.2,5.0,16.0,8.0,1,on,off,left,0\n9,28,body,Sabon Next,10.0,13.8,3.0,0.0,0.0,1,off,on,justified,1\n10,31,chapter_open,Ruelle Small Caps,10.5,14.4,4.0,10.0,5.0,2,on,off,centred,2\n11,34,verse,Charter Text,11.5,15.0,5.0,16.0,8.0,1,on,on,left,3\n12,37,extract,Charter Italic,9.5,13.2,3.0,0.0,0.0,1,off,off,justified,0\n13,40,caption,Sabon Next,10.0,13.8,4.0,10.0,5.0,1,on,on,centred,1\n14,43,footnote,Ruelle Small Caps,10.5,14.4,5.0,16.0,8.0,1,on,off,left,2\n15,46,body,Charter Text,11.5,15.0,3.0,0.0,0.0,2,off,on,justified,3\n16,49,chapter_open,Charter Italic,9.5,13.2,4.0,10.0,5.0,1,on,off,centred,0\n17,52,verse,Sabon Next,10.0,13.8,5.0,16.0,8.0,1,on,on,left,1\n18,55,extract,Ruelle Small Caps,10.5,14.4,3.0,0.0,0.0,1,off,off,justified,2\n19,58,caption,Charter Text,11.5,15.0,4.0,10.0,5.0,1,on,on,centred,3\n20,61,footnote,Charter Italic,9.5,13.2,5.0,16.0,8.0,2,on,off,left,0\n21,64,body,Sabon Next,10.0,13.8,3.0,0.0,0.0,1,off,on,justified,1\n22,67,chapter_open,Ruelle Small Caps,10.5,14.4,4.0,10.0,5.0,1,on,off,centred,2\n23,70,verse,Charter Text,11.5,15.0,5.0,16.0,8.0,1,on,on,left,3\n24,73,extract,Charter Italic,9.5,13.2,3.0,0.0,0.0,1,off,off,justified,0\n25,76,caption,Sabon Next,10.0,13.8,4.0,10.0,5.0,2,on,on,centred,1\n26,79,footnote,Ruelle Small Caps,10.5,14.4,5.0,16.0,8.0,1,on,off,left,2\n",
+    "titles/rampion/cover/cover_spec.json": "{\n  \"trim_mm\": [135, 216],\n  \"stock\": \"silk 300gsm\",\n  \"foil\": \"none\",\n  \"spine_mm\": 19.0\n}\n",
+    "titles/rampion/proofs/.keep": "",
+    "ops/print_schedule.md": "Print schedule.\n\nSlots are held with the printer eight weeks out. The bindery slot for\nthe autumn list is the tight one; jacket files are due with the\nprinter a fortnight ahead of the text.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Press scheduling is closing out the jacket work for the title we are taking to press this autumn. As that title's folder heads for the archive, the compositor needs the workspace path of the one file in it that occupies the most bytes. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "titles/nettlewick/typeset/body_flow.csv"
+      }
+    }
+  ]
+}

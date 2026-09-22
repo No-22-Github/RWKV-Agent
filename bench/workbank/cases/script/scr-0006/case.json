@@ -1,0 +1,50 @@
+{
+  "id": "scr-0006",
+  "description": "Rebuild the depot's monthly chargeback report script so it pools charges exactly as the freight-ops spec lays out, in whole euros. WORKBANK-CANARY-e2b84f10",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "write_new",
+    "traps": [
+      "TR-RULEFILE"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": null
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-script-report-02",
+    "ref_calls": 4,
+    "fixture_bytes": 2626,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "Depot chargeback reporting - freight ops\n========================================\n\nchargeback_report.py builds the depot's monthly chargeback report: the\ncarrier charges incurred on each customer account, re-billed to that\naccount. The depot's reporting spec (depot_report_spec.md) fixes how\nthe charges are pooled and how the figures are stated.\n\nAcquirer extracts arrive under depot/, named charges-<period>.csv, and\nthe drop account nests the period folder wherever it likes, so the\nreport has to cover every extract in the project tree. The scheduler\nruns `python3 chargeback_report.py` with the project root as its\nworking directory.\n\nColumns in each extract:\n  entry_id      charge reference\n  account       customer account that incurred the charge\n  lane          route the shipment ran\n  kind          charge category\n  charge_cents  amount as billed, in cents\n",
+    "depot_report_spec.md": "Depot chargeback report - freight ops spec v4 (2026-08-22)\n==========================================================\n\nThe report is printed to standard output, one line per customer\naccount:\n\n  <account>: <euros>\n\nAccounts appear in ascending alphabetical order. After the account\nlines comes one final line carrying the pooled demurrage chargeback:\n\n  DEMURRAGE: <euros>\n\nHow a charge reaches the report:\n  - Entries are pooled by the account that incurred them, across every\n    depot extract in the project tree.\n  - Entries with kind=demurrage are not charged to the account that\n    triggered them; they go into the single depot-wide DEMURRAGE line\n    instead. Every other kind is pooled by account as usual.\n  - charge_cents is the amount as billed. The report states whole\n    euros: divide the cents by 100 and round halves up to the next\n    euro.\n",
+    "depot/charges-2026-07.csv": "entry_id,account,lane,kind,charge_cents\nCE-2201,Ardent Freight,Rotterdam-Leeds,handling,45850\nCE-2207,Belport Cargo,Hamburg-Oslo,handling,12050\nCE-2213,Ardent Freight,Leeds-Dublin,demurrage,7600\nCE-2219,Cintra Haulage,Rotterdam-Leeds,handling,9125\nCE-2226,Belport Cargo,Hamburg-Oslo,demurrage,3300\nCE-2231,Ardent Freight,Rotterdam-Leeds,handling,27400\nCE-2238,Cintra Haulage,Oslo-Leeds,handling,41800\nCE-2244,Belport Cargo,Hamburg-Oslo,handling,6320\n",
+    "docs/depot-contact-list.txt": "Depot contacts - renewal queue\nMeridian Cold Store   ops desk ext 4412\nHarwell Bonded Yard   ops desk ext 4407\nSablepoint Terminal   ops desk ext 4419\n",
+    "chargeback_report.py": "\"\"\"Monthly carrier-charge chargeback report for the freight depot.\n\nPlaceholder: this script was lost when the depot reporting box was\nrebuilt. The extracts still land under depot/ and the desk still needs\nthe monthly report.\n\"\"\"\n\nraise SystemExit(\"chargeback_report.py: implementation missing\")\n"
+  },
+  "expect": {
+    "run": {
+      "path": "chargeback_report.py",
+      "args": [],
+      "timeout_millis": 10000,
+      "hidden_files": {
+        "depot/2026-09/charges-2026-09.csv": "entry_id,account,lane,kind,charge_cents\nCE-2402,Dunmore Lines,Leeds-Dublin,handling,18400\nCE-2411,Dunmore Lines,Oslo-Leeds,demurrage,5250\nCE-2419,Ardent Freight,Rotterdam-Leeds,demurrage,8800\nCE-2426,Belport Cargo,Hamburg-Oslo,handling,3325\nCE-2433,Dunmore Lines,Leeds-Dublin,handling,21650\nCE-2441,Cintra Haulage,Rotterdam-Leeds,demurrage,6300\n"
+      },
+      "expected_stdout": "Ardent Freight: 733\nBelport Cargo: 217\nCintra Haulage: 509\nDunmore Lines: 401\nDEMURRAGE: 313"
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The freight depot re-bills carrier charges to its customer accounts each month, and the chargeback report script has been lost. Rebuild it as chargeback_report.py: read the depot extracts under depot/ for the whole project tree, pool the charges the way the depot's reporting spec lays them out, and print the report to standard output from the project root. Standard library only. When finished, reply DONE.",
+      "expect": {}
+    }
+  ]
+}

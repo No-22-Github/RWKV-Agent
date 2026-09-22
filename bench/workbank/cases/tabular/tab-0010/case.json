@@ -1,0 +1,42 @@
+{
+  "id": "tab-0010",
+  "description": "Count ward-stock catalogue numbers below their reorder point, judged across a scanner export and a plan whose item fields carry commas. WORKBANK-CANARY-8d3e6b05",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [
+      "TR-DELIM"
+    ],
+    "trap_decoys": {
+      "TR-DELIM": 4
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-inventory-03",
+    "ref_calls": 4,
+    "fixture_bytes": 1219,
+    "status": "reviewed",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": "human:delegated-20260922"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Kestrelmed Supplies - ward stock review\n\nThe scanner export stock_scan.tsv lists the units counted on each ward\nshelf for the current round. The replenishment plan\nreplenishment_plan.csv carries the reorder point the buying office keeps\nfor each catalogue number.\n\nA catalogue number needs a top-up when the units on the shelf are below\nits reorder point. Units are whole numbers.\n",
+    "stock_scan.tsv": "sku\titem\tunits\nKMD-2073\tNitrile gloves\t9\nKMD-2118\tGauze pads\t144\nKMD-2140\tSyringe tips\t260\nKMD-2186\tBlood pressure cuff\t31\nKMD-2205\tAdhesive strip\t8\nKMD-2249\tSurgical mask\t520\nKMD-2290\tSaline pouch\t63\nKMD-2334\tTongue depressor\t175\nKMD-2378\tCotton roll\t44\nKMD-2411\tLancet\t12\n",
+    "replenishment_plan.csv": "sku,item,reorder_point,lead_band\nKMD-2073,\"Nitrile gloves, medium\",120,LT-14\nKMD-2118,Gauze pads,90,LT-07\nKMD-2140,Syringe tips,300,LT-21\nKMD-2186,Blood pressure cuff,25,LT-14\nKMD-2205,\"Adhesive strip, waterproof\",40,LT-07\nKMD-2249,Surgical mask,600,LT-21\nKMD-2290,Saline pouch,55,LT-14\nKMD-2334,Tongue depressor,150,LT-07\nKMD-2378,Cotton roll,50,LT-21\nKMD-2411,Lancet,20,LT-07\n",
+    "ops/ward-notes.txt": "Harbourfield ward round notes\n- Theatre store counted before the morning list.\n- Two trolleys moved to the recovery bay for cleaning.\n- Order book handed over at the end of the shift.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Kestrelmed Supplies runs a ward-stock review at the Harbourfield store. The scanner export stock_scan.tsv and the replenishment plan replenishment_plan.csv for the current round are in the workspace. How many catalogue numbers are holding fewer units than their reorder point? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 6,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

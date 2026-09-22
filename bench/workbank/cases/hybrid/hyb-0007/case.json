@@ -1,0 +1,73 @@
+{
+  "id": "hyb-0007",
+  "description": "Set the saltmarsh entry in the dispatch tooling's package list to the supported stable release; a louder preview announcement ranks first in search. WORKBANK-CANARY-c9d40f16",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_edit",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": "6.0.0"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-deps-02",
+    "ref_calls": 4,
+    "fixture_bytes": 509,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "# Northgate dispatch tooling\n\nBack-office tools for the Northgate freight desk.\n\n- tools/ - dispatch automation and its package list\n- Tools install from the frozen vendor mirror; the desk keeps the list in step with the vendor's published releases.\n",
+    "tools/requirements.txt": "saltmarsh==4.0.1\nverdigris==2.3.5\nclapboard==0.6.2\n",
+    "tools/dispatch.py": "from saltmarsh import QueueClient\n\n\ndef drain(queue: QueueClient, limit: int) -> list[dict]:\n    \"\"\"Collect up to limit messages from the dispatch queue.\"\"\"\n    return [queue.receive() for _ in range(limit)]\n"
+  },
+  "web_fixture": [
+    {
+      "query_match": "saltmarsh",
+      "url": "https://saltmarsh.example/blog/6-0-acceleration",
+      "url_match": "saltmarsh.example/blog/6-0-acceleration",
+      "title": "Saltmarsh 6.0 - the acceleration release",
+      "snippet": "Saltmarsh 6.0.0 reworks the delivery loop and cuts per-message overhead. Try the preview line today.",
+      "content": "# Saltmarsh 6.0 - the acceleration release\n\nPublished 12 March 2026.\n\nSaltmarsh 6.0.0 reworks the delivery loop and cuts per-message overhead. It ships as a preview series: 5.x remains the stable line for production deployments, and preview builds may change between releases.\n",
+      "published_at": "2026-03-12"
+    },
+    {
+      "query_match": "saltmarsh",
+      "url": "https://saltmarsh.example/releases",
+      "url_match": "saltmarsh.example/releases",
+      "title": "Saltmarsh releases",
+      "snippet": "Every saltmarsh release, with the stable series marked for production use.",
+      "content": "# Saltmarsh releases\n\nCurrent stable series: 5.x. The 6.x preview series is not published for production deployments.\n\n## 5.3.1 (2026-08-26)\n\nStable. Fixes a reconnection storm after broker failover.\n\n## 5.2.0 (2026-05-19)\n\nStable. Adds per-queue delivery limits.\n\n## 6.0.0 (2026-03-12)\n\nPreview. Reworked delivery loop; see the announcement post.\n",
+      "published_at": "2026-09-02"
+    }
+  ],
+  "expect": {
+    "files": {
+      "tools/requirements.txt": {
+        "contains": [
+          "saltmarsh==5.3.1",
+          "verdigris==2.3.5",
+          "clapboard==0.6.2"
+        ]
+      },
+      "README.md": {
+        "unchanged": true
+      },
+      "tools/dispatch.py": {
+        "unchanged": true
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Northgate's dispatch tooling keeps its packages in tools/requirements.txt. The saltmarsh entry there predates the stable release the project now publishes; set that entry to the supported stable version and leave the rest of the file untouched. When finished, reply DONE."
+    }
+  ]
+}

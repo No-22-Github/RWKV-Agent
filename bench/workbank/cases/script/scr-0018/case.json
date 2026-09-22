@@ -1,0 +1,52 @@
+{
+  "id": "scr-0018",
+  "description": "Rebuild the cold-chain depot load report so it combines the nested shipment exports and totals crates per produce line; a hidden export set carries a different spread of repeated loads. WORKBANK-CANARY-4be0f2a7",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "write_new",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-script-sweep-05",
+    "ref_calls": 4,
+    "fixture_bytes": 2003,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "Depot load report - distribution desk\n=====================================\n\ndepot_rollup.py builds the crates-handled report for the cold-chain\ndepots. The desk runs it from the project root with\n\n    python3 depot_rollup.py\n\nand it has to search the whole project tree for the depots'\nshipments-*.csv export files. The depots file their sheets wherever\ntheir own tooling puts them, including week folders under a depot, so a\nsearch that stops at the depot level will miss sheets.\n\nEvery shipments-*.csv row:\n\n    load_id,produce,depot,crates\n\n    load_id    identifies one physical load\n    produce    produce line the load carried\n    depot      depot that dispatched the load\n    crates     crates on that load\n\nA load_id identifies a single physical load; totals are taken over\nloads, not over export rows.\n\nThe report, written to standard output:\n\n    produce,crates\n    <produce>,<crates>    one line per produce line, ascending\n    total,<crates>\n",
+    "depot_rollup.py": "\"\"\"Depot load report for the cold-chain distribution desk.\n\nPlaceholder: the rebuild of this report is still outstanding after the\ndesk moved off the old spreadsheet. The overnight scheduler still calls\nthis file.\n\"\"\"\n\nraise SystemExit(\"depot_rollup.py: implementation missing\")\n",
+    "depots/coastal/shipments-a.csv": "load_id,produce,depot,crates\nLD-4107,Kale,coastal,42\nLD-4112,Rhubarb,coastal,17\nLD-4119,Kale,coastal,28\nLD-4124,Spinach,coastal,63\nLD-4112,Rhubarb,coastal,17\n",
+    "depots/coastal/shipments-b.csv": "load_id,produce,depot,crates\nLD-4130,Spinach,coastal,35\nLD-4107,Kale,coastal,42\nLD-4141,Chicory,coastal,12\n",
+    "depots/inland/shipments-c.csv": "load_id,produce,depot,crates\nLD-4203,Rhubarb,inland,54\nLD-4208,Chicory,inland,23\nLD-4211,Kale,inland,31\nLD-4208,Chicory,inland,23\n",
+    "depots/highlands/week-38/shipments-d.csv": "load_id,produce,depot,crates\nLD-4305,Spinach,highlands,48\nLD-4310,Rhubarb,highlands,26\nLD-4317,Kale,highlands,39\n",
+    "ops/coldchain_sop.md": "Cold-chain dispatch SOP (excerpt)\n================================\n\n  - Loads leaving a depot above 6 C are flagged for re-icing.\n  - The coastal depot dispatches before 05:00 during heat alerts.\n  - Highlands loads are consolidated at the week-38 staging bay.\n"
+  },
+  "expect": {
+    "run": {
+      "path": "depot_rollup.py",
+      "args": [],
+      "timeout_millis": 10000,
+      "hidden_files": {
+        "depots/coastal/shipments-e.csv": "load_id,produce,depot,crates\nLD-4124,Spinach,coastal,63\nLD-4350,Chicory,coastal,29\nLD-4350,Chicory,coastal,29\nLD-4112,Rhubarb,coastal,17\nLD-4355,Kale,coastal,21\n"
+      },
+      "expected_stdout": "produce,crates\nChicory,64\nKale,161\nRhubarb,97\nSpinach,146\ntotal,468"
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The distribution desk needs its depot load report rebuilt: depot_rollup.py is an unfinished stub. Launched from the project root, it must search the project tree for the depots' shipment export files, gather them, and print the crates handled per produce line in the layout the desk uses. When finished, reply DONE.",
+      "expect": {}
+    }
+  ]
+}

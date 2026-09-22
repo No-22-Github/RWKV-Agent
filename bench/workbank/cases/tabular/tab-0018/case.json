@@ -1,0 +1,42 @@
+{
+  "id": "tab-0018",
+  "description": "May 2026 billed subscription total for an education SaaS once customer credits stored as positive figures are applied. WORKBANK-CANARY-7c04be91",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "reconcile",
+    "traps": [
+      "TR-SIGN"
+    ],
+    "trap_decoys": {
+      "TR-SIGN": 52193.55
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-subscription-05",
+    "ref_calls": 4,
+    "fixture_bytes": 1206,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "subscriptions_2026-05.csv": "charge_id,account,amount\nSC-3101,Blue Harbor Academy,4820.00\nSC-3115,Fernwood College,1290.50\nSC-3122,Northbrook Polytechnic,18745.75\nSC-3138,Lakeshore Institute,640.25\nSC-3141,Ardenne College,9130.00\nSC-3156,Willowmere Academy,2560.80\nSC-3163,Kirkstone University,11204.40\nSC-3177,Sable Ridge School,375.60\n",
+    "credits_2026-05.csv": "credit_id,account,amount\nCR-905,Northbrook Polytechnic,820.00\nCR-911,Kirkstone University,2460.75\nCR-918,Lakeshore Institute,145.50\n",
+    "README.md": "# Tidewater Learning - May 2026 billing run\n\nsubscriptions_2026-05.csv lists the subscription charges raised for the month.\ncredits_2026-05.csv lists the credits issued to customers during the same\nmonth. Each credit is recorded as a positive figure and reduces the amount\nbilled for the account it is issued against. The amount billed for the month\nis therefore the charges raised less the credits applied in that month.\nAll amounts are in US dollars.\n\nops/billing-notes.txt is the operations team's working note for the close.\n",
+    "ops/billing-notes.txt": "Billing operations notes, May 2026 close\n- Statements for the academy accounts go out on the second working day.\n- One direct-debit mandate re-submitted after a bank detail change.\n- Refund policy review scheduled with the finance team.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Tidewater Learning is closing its May 2026 billing run. The month's subscription charges and the credits raised against them are both in the workspace. What amount, in US dollars, was billed for May 2026 once the credits are applied? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 45341.05,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

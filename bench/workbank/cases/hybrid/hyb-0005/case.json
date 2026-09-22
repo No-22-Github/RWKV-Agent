@@ -1,0 +1,67 @@
+{
+  "id": "hyb-0005",
+  "description": "Move the kestrelplot entry in the reporting service's package list to the version on the project's release history page. WORKBANK-CANARY-4f2a91cd",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_edit",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-hyb-deps-02",
+    "ref_calls": 3,
+    "fixture_bytes": 572,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "# Orchardline analytics service\n\nReporting service for the Orchardline retail group.\n\n- service/ - application code and dependency pins\n- Builds run on a host without internet access; packages come from the internal mirror.\n\nLibrary release histories are published on each project's own site.\n",
+    "service/requirements.txt": "kestrelplot==1.4.2\npanelyard==0.9.6\ndriftwood==3.1.0\n",
+    "service/figures.py": "from kestrelplot import Chart\n\n\ndef monthly_chart(series: dict[str, float]) -> Chart:\n    \"\"\"Render the twelve-month revenue series.\"\"\"\n    chart = Chart(title=\"Revenue by month\")\n    chart.add_series(series)\n    return chart\n"
+  },
+  "web_fixture": [
+    {
+      "query_match": "kestrelplot",
+      "url": "https://kestrelplot.example/changelog",
+      "url_match": "kestrelplot.example/changelog",
+      "title": "Kestrelplot changelog",
+      "snippet": "Kestrelplot 2.1.0 (2026-07-29) rewrites the canvas back-end. Release history: 2.1.0, 2.0.4, 1.4.2.",
+      "content": "# Kestrelplot changelog\n\nRelease history, newest first.\n\n## 2.1.0 (2026-07-29)\n\nPlot ticks now accept combined date and time values; the canvas back-end was rewritten.\n\n## 2.0.4 (2026-04-11)\n\nFixes a colour-cycle bug in stacked bar charts.\n\n## 1.4.2 (2025-11-03)\n\nMaintenance release for the 1.4 line.\n",
+      "published_at": "2026-07-29"
+    },
+    {
+      "query_match": "kestrelplot",
+      "url": "https://kestrelplot.example/docs/getting-started",
+      "url_match": "kestrelplot.example/docs/getting-started",
+      "title": "Kestrelplot - getting started",
+      "snippet": "Install kestrelplot from your package index and render a first chart in a few lines.",
+      "content": "# Getting started\n\nInstall the package from your index and import Chart:\n\n    from kestrelplot import Chart\n\nChart renders to PNG and SVG. Render defaults live in chart.conf.\n",
+      "published_at": "2026-06-15"
+    }
+  ],
+  "expect": {
+    "files": {
+      "service/requirements.txt": {
+        "contains": [
+          "kestrelplot==2.1.0",
+          "panelyard==0.9.6",
+          "driftwood==3.1.0"
+        ]
+      },
+      "README.md": {
+        "unchanged": true
+      },
+      "service/figures.py": {
+        "unchanged": true
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Orchardline's reporting service lists its third-party packages in service/requirements.txt. The kestrelplot entry names an older build than the one the project now ships; move that entry to the version shown in the release history on kestrelplot's own page, and leave the other entries as they are. When finished, reply DONE."
+    }
+  ]
+}

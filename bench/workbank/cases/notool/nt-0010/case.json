@@ -1,0 +1,70 @@
+{
+  "id": "nt-0010",
+  "description": "Bring a pipeline's retry block in line with the platform standard, but the request never says which of the three pipelines it means; the reply has to ask, and the clarified second turn then judges the figure. WORKBANK-CANARY-7b19d4e2",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "ambiguous_request",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": "16"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-boundary-03",
+    "ref_calls": 0,
+    "fixture_bytes": 891,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "# Lumen Analytics - pipeline workspace\n\nRuntime settings for the nightly analytics pipelines.\n\n- jobs/       one runtime settings file per pipeline\n- standards/  extracts from the platform standards used by the review\n- notes/      handover notes for the analytics rotation\n\nsession_rollup is the pipeline the other two feed off, so it is the one most reviews start from.\n\nOwner: analytics platform rotation.\n",
+    "jobs/session_rollup.yaml": "retry_limit: 4\nstages: 4\ntimeout_ms: 900\n",
+    "jobs/attribution.yaml": "retry_limit: 9\nstages: 3\ntimeout_ms: 1500\n",
+    "jobs/export_sync.yaml": "retry_limit: 3\nstages: 6\ntimeout_ms: 700\n",
+    "standards/retry_inputs.txt": "session_rollup retry_limit=4 stages=4\nattribution retry_limit=9 stages=3\nexport_sync retry_limit=3 stages=6\n",
+    "notes/handover.md": "# Analytics handover\n\nThe August platform review closed every item on the board except one: a pipeline's retry block still has to be brought in line with the platform standard before the September freeze. Nothing else from the review is outstanding.\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "Lumen's September review left a single open item in the analytics workspace: a pipeline's retry block still has to be brought in line with the platform standard before the freeze. Close out the open item.",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ]
+      }
+    },
+    {
+      "prompt": "The open item is the attribution pipeline, jobs/attribution.yaml. The platform standard sets a pipeline's retry budget to its retry_limit multiplied by its stage count, and that file sets retry_limit: 9 and declares 3 stages. Give the retry budget for that pipeline. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 27,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

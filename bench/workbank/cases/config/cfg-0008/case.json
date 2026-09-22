@@ -1,0 +1,47 @@
+{
+  "id": "cfg-0008",
+  "description": "Effective hold queue depth for dispatch-router in staging, resolved across default, local and the staging overlay, with the same-named prod overlay as a decoy. WORKBANK-CANARY-e08b3a6c",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "precedence",
+    "traps": [
+      "TR-PRECEDENCE",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-PRECEDENCE": 200,
+      "TR-DECOY": 900
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-cfg-envstack-02",
+    "ref_calls": 5,
+    "fixture_bytes": 1519,
+    "status": "reviewed",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": "human:delegated-20260922"
+  },
+  "files": {
+    "README.md": "# Dispatch platform deploy workspace\n\nLayout:\n- deploy/defaults.yaml - fleet baselines for every service\n- deploy/local.yaml - site-local tuning, layered after the baselines\n- deploy/<env>/<service>.yaml - the environment overlay, layered last\n\nThe deployer brings an environment up from the bottom of that list upward,\nso the environment overlay carries the final value for any key it sets.\ndeploy/prod/dispatch-router.yaml is the reference overlay the platform team\nreviews whenever a new environment is added.\n",
+    "deploy/defaults.yaml": "# Fleet baselines applied to every service before the local file.\ndispatch-router:\n  hold_queue_depth: 120\n  dispatch_timeout_seconds: 40\n  reject_retry_limit: 4\n",
+    "deploy/local.yaml": "# Site-local tuning, layered after the baselines.\ninclude: defaults.yaml\ndispatch-router:\n  hold_queue_depth: 200\n  dispatch_timeout_seconds: 35\n",
+    "deploy/staging/dispatch-router.yaml": "service: dispatch-router\nenvironment: staging\nhold_queue_depth: 350\ndispatch_timeout_seconds: 30\n",
+    "deploy/prod/dispatch-router.yaml": "# dispatch-router overlay - production (canonical reference)\n#\n# This overlay is the one every new environment is compared against. The\n# dispatch desk reviews it each release; the queue depth below was raised\n# after the 2026-07 congestion review so the morning peak would stop\n# shedding load.\nservice: dispatch-router\nenvironment: production\nhold_queue_depth: 900\ndispatch_timeout_seconds: 25\nreject_retry_limit: 6\ndead_letter_enabled: true\n",
+    "ops/dispatch-desk-notes.txt": "Dispatch desk notes - week 38.\n\nThe voice channel queue was quiet all week. The nightly reconciliation ran\non schedule and no manual corrections were needed.\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "The staging rollout of dispatch-router starts on Monday and the capacity team needs the hold queue depth that dispatch-router runs with in staging. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 350,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

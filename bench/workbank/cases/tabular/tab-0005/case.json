@@ -1,0 +1,38 @@
+{
+  "id": "tab-0005",
+  "description": "Total hours worked by one depot department, joined across a staff roster and a monthly hours log; no traps. WORKBANK-CANARY-4b7d9e12",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "join",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-tab-payroll-02",
+    "ref_calls": 3,
+    "fixture_bytes": 1064,
+    "status": "reviewed",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": "human:delegated-20260922"
+  },
+  "web_fixture": [],
+  "files": {
+    "employee_roster.csv": "employee_id,name,department,site\nWX-4821,Darius Mbeki,Outbound,Ashford\nWX-4837,Ines Barreto,Outbound,Ashford\nWX-4852,Kenji Oyelaran,Inventory,Ellwood\nWX-4863,Priscilla Vance,Outbound,Ellwood\nWX-4874,Tomasz Nowicki,Inventory,Ashford\nWX-4881,Amara Diallo,Outbound,Ashford\nWX-4895,Bram de Vries,Returns,Ellwood\nWX-4902,Nasrin Haddad,Outbound,Ashford\n",
+    "hours_log_february_2026.csv": "employee_id,hours\nWX-4821,156.5\nWX-4837,142.0\nWX-4852,168.25\nWX-4863,133.75\nWX-4874,151.0\nWX-4881,147.5\nWX-4895,96.25\nWX-4902,160.75\n",
+    "README.md": "# Ironquay Freight - Ashford and Ellwood depots\n\nemployee_roster.csv lists the depot staff on the February 2026 payroll,\nwith the department each person is assigned to. hours_log_february_2026.csv\nrecords the hours each person booked during February 2026, keyed by\nemployee id. Hours are decimal hours, and a person's hours count against\nthe department shown beside that person in the roster.\n",
+    "site/loading-dock-notes.txt": "Ashford loading dock - open items\n- Bay 3 roller shutter repaired on 2026-02-11.\n- Overnight trailer slots for the Ellwood run move to 22:40 from March.\n- Pallet cage audit due at month end.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Ironquay Freight's depot team is closing out the February 2026 period. The staffing roster and the hours booked that month are both in the workspace. How many hours did the Outbound department work in February 2026? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 740.5,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

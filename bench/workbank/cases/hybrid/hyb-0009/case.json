@@ -1,0 +1,47 @@
+{
+  "id": "hyb-0009",
+  "description": "Annual light dues for Mowbray Tug & Barge's registered fleet; the navigation authority publishes the per-tonne rate while the fleet register carries the tonnages. WORKBANK-CANARY-3b7f10ac",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_calc",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "CHN"
+    ],
+    "level": "L0",
+    "family": "fam-hyb-tax-03",
+    "ref_calls": 3,
+    "fixture_bytes": 631,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "# Mowbray Tug & Barge — fleet register\n\nfleet/gross-tonnage.csv is the current register of the company's vessels, as filed with the Cormorant Point Navigation Authority. Annual light dues are assessed on the register's total gross tonnage.\n\n- fleet/  register extracts and tonnage certificates\n- crew/  rota and standing orders\n",
+    "fleet/gross-tonnage.csv": "vessel_name,gross_tonnage\nMowbray Sentinel,1240\nHarbour Wren,862\nTern Point,3497\nGrey Heron,2104\nSaltmarsh,497\n",
+    "crew/rota.md": "# Crew rota — week 38\n\n| day | master | engineer |\n| --- | --- | --- |\n| Monday | R. Okonjo | P. Lindqvist |\n| Tuesday | H. Vasquez | R. Okonjo |\n| Wednesday | P. Lindqvist | H. Vasquez |\n"
+  },
+  "web_fixture": [
+    {
+      "query_match": "cormorant point navigation",
+      "url": "https://www.cormorantpoint-nav.example/dues/light-dues",
+      "url_match": "www.cormorantpoint-nav.example/dues/light-dues",
+      "title": "Cormorant Point Navigation Authority — light dues",
+      "snippet": "Annual light dues are charged at EUR 1.28 per gross tonne on a vessel's register entry.",
+      "content": "# Cormorant Point Navigation Authority — light dues\n\nAnnual light dues support the maintenance of buoys, beacons and pilotage marks in the Cormorant Point approaches.\n\n| Charge | Rate |\n| --- | --- |\n| Light dues, per gross tonne, per year | EUR 1.28 |\n\nThe rate applies to every gross tonne recorded on the vessel's register entry. Statements are issued in January and are payable within 30 days.\n",
+      "published_at": "2025-12-04"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "Every year the Cormorant Point Navigation Authority assesses light dues on the company's registered fleet, charged for each gross tonne on the register. Finance needs the total assessment for the coming year from the rate the authority publishes. What amount comes due? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 10496.0,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

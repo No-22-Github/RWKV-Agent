@@ -1,0 +1,50 @@
+{
+  "id": "scr-0011",
+  "description": "Correct the store revenue report so it returns the net-of-tax basis the retail finance group defines, not the tax-inclusive amount. WORKBANK-CANARY-1d94c6be",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_output",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-script-fix-03",
+    "ref_calls": 4,
+    "fixture_bytes": 2479,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "Store revenue reporting - data notes\n====================================\n\nThe store revenue report covers the trailing quarter and is driven by\nthe monthly sales extracts under data/.\n\nMonthly extract columns:\n  sale_id              per-sale identifier\n  store_id             reporting store\n  sold_at              ISO timestamp of the sale\n  gross_amount_cents   amount charged to the customer, sales tax included\n  tax_cents            the sales tax contained in gross_amount_cents\n\nThe scheduler launches store_revenue.py from the project root. Every\nfigure in the extracts is a whole number of cents.\n",
+    "store_revenue.py": "\"\"\"Store revenue report over the trailing quarter.\n\nSweeps the monthly sales extracts under data/ and prints each store's\nrevenue for the period. Safe to launch from the project root.\n\"\"\"\nimport csv\nfrom pathlib import Path\n\nBASE = Path(__file__).resolve().parent\nDATA = BASE / \"data\"\n\n\ndef main():\n    revenue = {}\n    for path in sorted(DATA.glob(\"sales-*.csv\")):\n        with open(path, newline=\"\", encoding=\"utf-8\") as fh:\n            for row in csv.DictReader(fh):\n                store = row[\"store_id\"]\n                revenue[store] = revenue.get(store, 0) + int(row[\"gross_amount_cents\"])\n    print(\"store_id,net_revenue_cents\")\n    for store in sorted(revenue):\n        print(\"%s,%d\" % (store, revenue[store]))\n    print(\"total,%d\" % sum(revenue.values()))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+    "data/sales-2026-06.csv": "sale_id,store_id,sold_at,gross_amount_cents,tax_cents\nS-33012,STR-4407,2026-06-04T09:11:22,12450,1121\nS-33019,STR-8813,2026-06-07T14:38:05,43800,3942\nS-33026,STR-4407,2026-06-12T11:02:47,9800,882\nS-33031,STR-5120,2026-06-18T16:25:31,21560,1940\nS-33038,STR-8813,2026-06-25T10:47:58,7325,659\n",
+    "data/sales-2026-07.csv": "sale_id,store_id,sold_at,gross_amount_cents,tax_cents\nS-34107,STR-5120,2026-07-02T08:55:14,18720,1685\nS-34115,STR-4407,2026-07-09T13:20:39,2990,269\nS-34122,STR-8813,2026-07-15T17:44:02,56400,5076\nS-34129,STR-5120,2026-07-21T12:07:51,14100,1269\nS-34136,STR-4407,2026-07-28T15:33:27,8725,785\n",
+    "data/sales-2026-08.csv": "sale_id,store_id,sold_at,gross_amount_cents,tax_cents\nS-35201,STR-8813,2026-08-03T10:18:44,37600,3384\nS-35208,STR-4407,2026-08-11T14:52:16,6550,590\nS-35215,STR-5120,2026-08-19T09:36:53,21800,1962\nS-35222,STR-8813,2026-08-26T16:09:31,11375,1024\n",
+    "merch_plan.txt": "Autumn floor plan - Northgate and Riverside\n- move the chiller aisle endcap to the entrance for the half-term week\n- Amberfield pop-up pulls stock from Riverside from 2026-09-07\n- hold the loyalty banner refresh until the new signage arrives\n"
+  },
+  "expect": {
+    "run": {
+      "path": "store_revenue.py",
+      "timeout_millis": 10000,
+      "hidden_files": {
+        "data/sales-2026-09.csv": "sale_id,store_id,sold_at,gross_amount_cents,tax_cents\nS-36302,STR-6602,2026-09-05T11:27:08,24950,2246\nS-36309,STR-4407,2026-09-12T15:41:52,5100,459\nS-36316,STR-8813,2026-09-15T09:03:44,33200,2988\n"
+      },
+      "expected_stdout": "store_id,net_revenue_cents\nSTR-4407,41509\nSTR-5120,69324\nSTR-6602,22704\nSTR-8813,172627\ntotal,306164"
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The retail finance group wants the store revenue report back in line with its own definition: a store's revenue for the period is what the chain earns from the goods it sold, with the sales tax collected on those sales taken out. store_revenue.py currently prints figures that do not follow that basis. Repair it so its report matches the definition and covers every monthly extract under the data directory. When finished, reply DONE.",
+      "expect": {}
+    }
+  ]
+}

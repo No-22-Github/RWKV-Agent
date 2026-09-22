@@ -1,0 +1,49 @@
+{
+  "id": "scr-0014",
+  "description": "Rebuild the retail ledger's nightly takings rollup against the Python standard library alone, parsing the ledger's amounts in the script itself; a hidden month guards against hardcoding. WORKBANK-CANARY-4c9f2e80",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "stdlib_only",
+    "traps": [
+      "TR-NUMFMT"
+    ],
+    "trap_decoys": {
+      "TR-NUMFMT": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-script-stdlib-04",
+    "ref_calls": 4,
+    "fixture_bytes": 1885,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "Retail ledger - nightly takings\n===============================\n\nThe ledger writes one export per month into exports/. Each row is a posted\njournal entry: entry_id, account, amount.\n\ntakings.py prints the period's takings: the header line `account,net_cents`,\nthen one `<account>,<net_cents>` line per account in ascending account order,\nclosed by `total,<grand_total_cents>`.\n\nThe ledger shows credits in parentheses, and a credit reduces its account's\nnet. The rollup reports whole cents.\n\nThe scheduler runs takings.py as `python3 takings.py` with the project root as\nits working directory.\n",
+    "takings.py": "\"\"\"Nightly takings rollup for the retail ledger exports.\"\"\"\n\nimport glob\n\nimport pandas as pd\n\ntotals = {}\nfor path in sorted(glob.glob(\"exports/*.csv\")):\n    frame = pd.read_csv(path)\n    cents = (pd.to_numeric(frame[\"amount\"]) * 100).round().astype(int)\n    frame = frame.assign(net_cents=cents)\n    for account, net in frame.groupby(\"account\")[\"net_cents\"].sum().items():\n        totals[account] = totals.get(account, 0) + int(net)\n\nprint(\"account,net_cents\")\nfor account in sorted(totals):\n    print(\"%s,%d\" % (account, totals[account]))\nprint(\"total,%d\" % sum(totals.values()))\n",
+    "exports/2026-07.csv": "entry_id,account,amount\nJE-70211,AR-2201,\"$1,204.50\"\nJE-70215,AR-2233,\"$318.75\"\nJE-70219,AR-2201,\"(318.75)\"\nJE-70224,AR-2247,\"$2,940.00\"\nJE-70231,AR-2233,\"$86.40\"\n",
+    "exports/2026-08.csv": "entry_id,account,amount\nJE-70802,AR-2201,\"$2,175.25\"\nJE-70809,AR-2247,\"(940.00)\"\nJE-70815,AR-2258,\"$145.50\"\nJE-70821,AR-2233,\"$1,860.00\"\nJE-70828,AR-2258,\"$72.05\"\n",
+    "notes/rollout.txt": "Rollout notes\n=============\n\nThe exports directory replaced the old shared mailbox drop on 2026-06-30.\nFinance reconciles the rollup against the ledger twice a month; the second\nreconciliation covers the last ten days of the period.\n\nAccount codes AR-22xx are handled by the retail desk. Codes from AR-23xx\nonwards belong to the wholesale desk and are in scope for the same rollup.\n"
+  },
+  "expect": {
+    "run": {
+      "path": "takings.py",
+      "timeout_millis": 10000,
+      "hidden_files": {
+        "exports/2026-09.csv": "entry_id,account,amount\nJE-71304,AR-2201,\"$318.00\"\nJE-71311,AR-2247,\"$1,425.75\"\nJE-71318,AR-2258,\"(205.40)\"\nJE-71325,AR-2233,\"$64.80\"\n"
+      },
+      "expected_stdout": "account,net_cents\nAR-2201,337900\nAR-2233,232995\nAR-2247,342575\nAR-2258,1215\ntotal,914685"
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The accounts team needs the retail ledger's nightly takings rollup working again. takings.py is the script that produced it and it no longer runs at all. Rebuild takings.py so that, started from the project root, it prints the period's takings in the layout the ledger team documents, using only the Python standard library. When finished, reply DONE.",
+      "expect": {}
+    }
+  ]
+}

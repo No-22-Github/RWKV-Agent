@@ -1,0 +1,41 @@
+{
+  "id": "log-0014",
+  "description": "Average render time per job that carries one, from a Frameforge JSONL transcode export whose records hold null, empty and absent render_ms values. WORKBANK-CANARY-5be2d84f",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "aggregate_jsonl",
+    "traps": [
+      "TR-MISSING"
+    ],
+    "trap_decoys": {
+      "TR-MISSING": 1635
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-jsonl-04",
+    "ref_calls": 4,
+    "fixture_bytes": 1964,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "telemetry/transcode-jobs.jsonl": "{\"job_id\":\"tr-8841\",\"queued_at\":\"2026-08-12T01:14:09Z\",\"codec\":\"h264\",\"render_ms\":1830,\"worker\":\"gpu-03\"}\n{\"job_id\":\"tr-8842\",\"queued_at\":\"2026-08-12T01:22:37Z\",\"codec\":\"h265\",\"render_ms\":null,\"worker\":\"gpu-05\"}\n{\"job_id\":\"tr-8843\",\"queued_at\":\"2026-08-12T02:03:51Z\",\"codec\":\"h264\",\"render_ms\":2410,\"worker\":\"gpu-03\"}\n{\"job_id\":\"tr-8844\",\"queued_at\":\"2026-08-12T02:47:16Z\",\"codec\":\"av1\",\"render_ms\":1620,\"worker\":\"gpu-07\"}\n{\"job_id\":\"tr-8845\",\"queued_at\":\"2026-08-12T03:15:42Z\",\"codec\":\"h265\",\"render_ms\":2980,\"worker\":\"gpu-05\"}\n{\"job_id\":\"tr-8846\",\"queued_at\":\"2026-08-12T04:08:27Z\",\"codec\":\"h264\",\"render_ms\":\"\",\"worker\":\"gpu-03\"}\n{\"job_id\":\"tr-8847\",\"queued_at\":\"2026-08-12T04:52:04Z\",\"codec\":\"av1\",\"render_ms\":2140,\"worker\":\"gpu-07\"}\n{\"job_id\":\"tr-8848\",\"queued_at\":\"2026-08-12T05:39:33Z\",\"codec\":\"h264\",\"render_ms\":1750,\"worker\":\"gpu-05\"}\n{\"job_id\":\"tr-8849\",\"queued_at\":\"2026-08-12T06:21:58Z\",\"codec\":\"h265\",\"worker\":\"gpu-03\"}\n{\"job_id\":\"tr-8850\",\"queued_at\":\"2026-08-12T07:10:11Z\",\"codec\":\"av1\",\"render_ms\":3620,\"worker\":\"gpu-07\"}\n{\"job_id\":\"tr-8851\",\"queued_at\":\"2026-08-12T08:02:45Z\",\"codec\":\"h264\",\"render_ms\":1230,\"worker\":\"gpu-05\"}\n{\"job_id\":\"tr-8852\",\"queued_at\":\"2026-08-12T08:44:19Z\",\"codec\":\"h265\",\"render_ms\":2040,\"worker\":\"gpu-03\"}\n",
+    "README.md": "# Frameforge transcode controller - daily job export\n\ntelemetry/transcode-jobs.jsonl is one day of transcode jobs, one JSON object per line, written by the render controller. render_ms is the wall-clock render time of the job in milliseconds.\n\nThe cluster report quotes render time per job as the average over the jobs that carry a render time: add the render times of the jobs that carry one, then divide by how many such jobs there are. A job that carries no render time sits outside that average.\n",
+    "docs/codec-matrix.md": "# Frameforge codec matrix\n\n| codec | container | ladder |\n|---|---|---|\n| h264 | mp4 | 360p/720p/1080p |\n| h265 | mp4 | 720p/1080p/2160p |\n| av1 | mp4 | 1080p/2160p |\n\nAlpha channel output is offered on h264 only.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Frameforge prepares its daily transcode report for 12 August 2026. Working from that day's job export, what was the average render time per job, in milliseconds? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 2180.0,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "id": "log-0005",
+  "description": "Count the 409 responses for one inventory endpoint in a single-day service access log. WORKBANK-CANARY-4b7e1d92",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-log-httpapi-02",
+    "ref_calls": 3,
+    "fixture_bytes": 4326,
+    "status": "reviewed",
+    "version": 1,
+    "author": "llm:deepseek-drafter",
+    "reviewer": "human:delegated-20260922"
+  },
+  "files": {
+    "logs/stockwell-access.log": "2025-10-17T09:00:12Z 409 POST /v1/stock/reservations dur_ms=41\n2025-10-17T09:02:41Z 409 POST /v1/stock/reservations dur_ms=12\n2025-10-17T09:04:05Z 200 GET /v1/stock/levels dur_ms=7\n2025-10-17T09:06:33Z 409 POST /v1/stock/reservations dur_ms=128\n2025-10-17T09:08:19Z 200 GET /v1/stock/suppliers dur_ms=96\n2025-10-17T09:11:47Z 409 POST /v1/stock/reservations dur_ms=305\n2025-10-17T09:13:22Z 409 POST /v1/stock/reservations dur_ms=22\n2025-10-17T09:15:58Z 201 POST /v1/stock/transfers dur_ms=54\n2025-10-17T09:18:04Z 200 GET /v1/stock/levels dur_ms=9\n2025-10-17T09:21:36Z 409 POST /v1/stock/reservations dur_ms=210\n2025-10-17T09:23:11Z 409 POST /v1/stock/reservations dur_ms=33\n2025-10-17T09:25:49Z 409 POST /v1/stock/transfers dur_ms=148\n2025-10-17T09:28:26Z 409 POST /v1/stock/reservations dur_ms=5\n2025-10-17T09:30:03Z 200 GET /v1/stock/availability dur_ms=11\n2025-10-17T09:32:44Z 409 POST /v1/stock/reservations dur_ms=419\n2025-10-17T09:35:17Z 201 POST /v1/stock/recounts dur_ms=88\n2025-10-17T09:37:52Z 409 POST /v1/stock/reservations dur_ms=61\n2025-10-17T09:40:09Z 200 GET /v1/stock/levels dur_ms=8\n2025-10-17T09:42:38Z 409 POST /v1/stock/reservations dur_ms=173\n2025-10-17T09:45:01Z 409 POST /v1/stock/reservations dur_ms=45\n2025-10-17T09:47:29Z 201 POST /v1/stock/transfers dur_ms=260\n2025-10-17T09:49:56Z 409 POST /v1/stock/reservations dur_ms=19\n2025-10-17T09:52:14Z 200 GET /v1/stock/suppliers dur_ms=92\n2025-10-17T09:54:43Z 409 POST /v1/stock/reservations dur_ms=502\n2025-10-17T09:57:08Z 200 POST /v1/stock/recounts dur_ms=71\n2025-10-17T09:59:35Z 409 POST /v1/stock/reservations dur_ms=34\n2025-10-17T10:02:02Z 409 POST /v1/stock/reservations dur_ms=156\n2025-10-17T10:04:31Z 200 GET /v1/stock/availability dur_ms=10\n2025-10-17T10:06:59Z 500 POST /v1/stock/reservations dur_ms=233\n2025-10-17T10:09:24Z 409 POST /v1/stock/transfers dur_ms=49\n2025-10-17T10:11:51Z 409 POST /v1/stock/reservations dur_ms=110\n2025-10-17T10:14:18Z 200 GET /v1/stock/levels dur_ms=6\n2025-10-17T10:16:46Z 200 POST /v1/stock/reservations dur_ms=15\n2025-10-17T10:19:13Z 409 POST /v1/stock/reservations dur_ms=388\n2025-10-17T10:21:40Z 500 POST /v1/stock/recounts dur_ms=1200\n2025-10-17T10:24:07Z 409 POST /v1/stock/reservations dur_ms=26\n2025-10-17T10:26:35Z 200 GET /v1/stock/suppliers dur_ms=67\n2025-10-17T10:28:59Z 409 POST /v1/stock/reservations dur_ms=140\n2025-10-17T10:31:26Z 409 POST /v1/stock/transfers dur_ms=4\n2025-10-17T10:33:53Z 409 POST /v1/stock/reservations dur_ms=209\n2025-10-17T10:36:20Z 200 GET /v1/stock/levels dur_ms=13\n2025-10-17T10:38:48Z 409 POST /v1/stock/reservations dur_ms=38\n2025-10-17T10:41:15Z 409 POST /v1/stock/reservations dur_ms=121\n2025-10-17T10:43:42Z 200 GET /v1/stock/availability dur_ms=9\n2025-10-17T10:46:09Z 500 POST /v1/stock/recounts dur_ms=980\n2025-10-17T10:48:37Z 409 POST /v1/stock/reservations dur_ms=53\n2025-10-17T10:51:04Z 409 POST /v1/stock/reservations dur_ms=300\n2025-10-17T10:53:31Z 200 GET /v1/stock/levels dur_ms=5\n2025-10-17T10:55:58Z 201 POST /v1/stock/transfers dur_ms=186\n2025-10-17T10:58:25Z 200 POST /v1/stock/reservations dur_ms=144\n2025-10-17T11:00:52Z 409 POST /v1/stock/reservations dur_ms=31\n2025-10-17T11:03:19Z 200 POST /v1/stock/reservations dur_ms=118\n2025-10-17T11:05:46Z 200 GET /v1/stock/suppliers dur_ms=58\n2025-10-17T11:08:13Z 500 POST /v1/stock/recounts dur_ms=1105\n2025-10-17T11:10:40Z 409 POST /v1/stock/reservations dur_ms=76\n",
+    "README.md": "# Harborlight Retail - stockwell-api\n\nstockwell-api backs the storefront and the warehouse picking tools. It owns reservations,\nstock levels, transfers and cycle recounts.\n\nlogs/stockwell-access.log is the access trail for the trading day it covers; the service\nappends one line per request it answers:\n\n    <UTC timestamp> <status> <method> <path> dur_ms=<handler time in milliseconds>\n\nStatuses carry their usual HTTP meaning. A reservation answers 409 when another request\nalready holds the unit of stock it asked for.\n",
+    "docs/stockwell-oncall.md": "# stockwell-api on-call notes\n\n- Dashboards live in the Grafana folder \"stockwell\"; the reservation error ratio is the\n  panel the storefront team watches during promotions.\n- Page the warehouse-platform rota (PagerDuty service \"stockwell-primary\") for anything\n  affecting picking, and the storefront rota for checkout-side symptoms.\n- Recount jobs run nightly at 02:00 UTC from the WMS scheduler, not from this service.\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "Harborlight Retail's inventory service answers storefront and warehouse traffic, and it records every request it serves. Of the requests in the service access trail, how many were POST calls to /v1/stock/reservations that answered with status 409? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 27,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

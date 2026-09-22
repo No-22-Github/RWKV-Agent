@@ -1,0 +1,43 @@
+{
+  "id": "scr-0005",
+  "description": "Build tally.py to sweep the robotics lab's monthly instrument-booking exports and print the per-rig usage summary. WORKBANK-CANARY-5a1d7c93",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "write_new",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-script-report-02",
+    "ref_calls": 3,
+    "fixture_bytes": 1535,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "Instrument booking summary - Robotics Lab\n=========================================\n\ntally.py turns the shared-calendar exports into the lab's usage summary.\n\nEach month the booking system drops one export under bookings/, always\nnamed rig-bookings.csv; the export tool nests the month folder under the\nactive site code, so the folder depth is not fixed. The scheduler runs\n`python3 tally.py` with the project root as its working directory.\n\nColumns in each export:\n  booking_id   booking reference\n  rig_id       instrument the slot belongs to\n  operator     staff initials\n  minutes      length of the booked slot\n  booked_on    date the slot was reserved\n",
+    "bookings/2026-08/rig-bookings.csv": "booking_id,rig_id,operator,minutes,booked_on\nBK-4471,SPEC-01,R. Halvorsen,95,2026-08-03\nBK-4488,CHROM-02,T. Nkemelu,140,2026-08-05\nBK-4493,SPEC-04,R. Halvorsen,55,2026-08-07\nBK-4501,SPEC-01,D. Achterberg,210,2026-08-11\nBK-4517,MILL-03,T. Nkemelu,35,2026-08-14\nBK-4523,CHROM-02,R. Halvorsen,180,2026-08-18\nBK-4539,SPEC-04,D. Achterberg,75,2026-08-22\nBK-4546,SPEC-01,T. Nkemelu,60,2026-08-27\n",
+    "maintenance/laser-interlock-log.txt": "Laser interlock inspection - bay 3\n2026-08-02  interlock IL-3 reset after door sensor trip\n2026-08-13  annual check passed, next due 2027-08-13\n2026-08-27  warning sticker replaced\n",
+    "tally.py": "\"\"\"Monthly instrument-time totals for the robotics lab.\n\nPlaceholder: the shared-calendar exporter that produced this used to\nwrite the tally as well; that half was retired and the file was left\nempty here. The lab still expects the monthly tally.\n\"\"\"\n\nraise SystemExit(\"tally.py: implementation missing\")\n"
+  },
+  "expect": {
+    "run": {
+      "path": "tally.py",
+      "args": [],
+      "timeout_millis": 10000,
+      "hidden_files": {
+        "bookings/2026-09/rig-bookings.csv": "booking_id,rig_id,operator,minutes,booked_on\nBK-4602,MILL-03,D. Achterberg,120,2026-09-02\nBK-4611,SPEC-01,R. Halvorsen,45,2026-09-04\nBK-4627,SPEC-04,T. Nkemelu,90,2026-09-09\nBK-4634,CHROM-02,D. Achterberg,160,2026-09-12\nBK-4648,MILL-03,R. Halvorsen,80,2026-09-15\n"
+      },
+      "expected_stdout": "CHROM-02 480\nMILL-03 235\nSPEC-01 410\nSPEC-04 220\ngrand 1345"
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Our robotics lab books instrument time through a shared calendar, and each month's export lands under bookings/ as rig-bookings.csv. Write tally.py so that, launched from the project root, it walks the project tree for those exports and prints one line per instrument, '<rig_id> <total minutes>', in ascending rig_id order, then a closing line 'grand <total minutes>'. Keep to the Python standard library. When finished, reply DONE.",
+      "expect": {}
+    }
+  ]
+}

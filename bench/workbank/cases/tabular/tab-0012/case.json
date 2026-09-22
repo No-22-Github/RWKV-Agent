@@ -1,0 +1,45 @@
+{
+  "id": "tab-0012",
+  "description": "Total value of terminal stock below reorder point, where the feed carries repeated export lines and the plan wraps item text containing commas. WORKBANK-CANARY-6b0f8d34",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-DELIM",
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DELIM": 4840.3,
+      "TR-DUPROW": 6563.8
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-tab-inventory-03",
+    "ref_calls": 5,
+    "fixture_bytes": 1369,
+    "status": "reviewed",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": "human:delegated-20260922"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Rivermouth Freight - Sable Terminal stock control\n\nstock_scan.tsv is the terminal's stock count feed for the round. It\ncarries one line per item held at the terminal and gives the units\ncounted on the floor.\n\nreorder_plan.csv gives the reorder point the planning desk keeps for each\ncatalogue number; unit_costs.csv gives the standard cost per unit.\n\nAn item is below its reorder point when the counted units are under that\npoint. The value of an item's stock is its counted units multiplied by\nthe standard cost.\n",
+    "stock_scan.tsv": "sku\tunits\nRF-6104\t38\nRF-6139\t52\nRF-6172\t210\nRF-6208\t22\nRF-6245\t141\nRF-6281\t64\nRF-6317\t430\nRF-6352\t19\nRF-6390\t162\nRF-6424\t188\nRF-6468\t520\nRF-6172\t210\nRF-6208\t22\nRF-6317\t430\nRF-6468\t520\n",
+    "reorder_plan.csv": "sku,item,reorder_point\nRF-6104,\"Tarpaulin, heavy duty\",60\nRF-6139,Pallet strapping,45\nRF-6172,Corner board,300\nRF-6208,Ratchet strap,30\nRF-6245,\"Shrink film, 500mm\",120\nRF-6281,Edge protector,80\nRF-6317,Stretch wrap,400\nRF-6352,Steel banding,25\nRF-6390,Loading wedge,150\nRF-6424,Cable tie,200\nRF-6468,Pallet label,500\n",
+    "unit_costs.csv": "sku,unit_cost\nRF-6104,7.25\nRF-6139,18.40\nRF-6172,2.60\nRF-6208,41.00\nRF-6245,5.15\nRF-6281,9.80\nRF-6317,1.45\nRF-6352,26.30\nRF-6390,3.90\nRF-6424,12.05\nRF-6468,0.75\n",
+    "ops/terminal-notes.txt": "Sable Terminal yard notes, round 14\n- Two bays closed for line marking on the Tuesday shift.\n- Trailer wash booked for the following weekend.\n- Gate pass printer replaced after a paper jam.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Rivermouth Freight is closing the month at the Sable Terminal. The scanner feed stock_scan.tsv, the reorder plan reorder_plan.csv and the standard cost list unit_costs.csv are in the workspace. What is the total value of the stock held for the items whose shelf count came in under their reorder point? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 5115.8,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

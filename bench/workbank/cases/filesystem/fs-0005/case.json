@@ -1,0 +1,71 @@
+{
+  "id": "fs-0005",
+  "description": "Press-lab record audit at Harrowfield Orchard & Cider Co.; the answer is the number of .csv analysis sheets the workspace holds. WORKBANK-CANARY-4b7e2d19",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "count_by_type",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-fs-audit-02",
+    "ref_calls": 2,
+    "fixture_bytes": 3841,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "Harrowfield Orchard & Cider Co. - press lab records.\n\nlab/ holds one analysis sheet per pressing, written by the press\ncontroller as the juice leaves the bladder press. Every sheet opens\nwith the lab's column line and carries the pressing beneath it.\nnotes/ holds the cidermaker's bench memos, reference/ the method\ncards the lab works to, and archive/ the cold-room staging area for\nsigned-off sheets. Nothing has been signed off this season yet, so\narchive/ is empty.\n",
+    "lab/press-2026-0901-1.csv": "batch_id,press,variety,brix,ph\nKX-0901-1,press-1,Kingsley bittersharp,14.6,3.41\n",
+    "lab/press-2026-0901-2.csv": "batch_id,press,variety,brix,ph\nKX-0901-2,press-3,Marrow sweetsharp,12.8,3.62\n",
+    "lab/press-2026-0901-3.csv": "batch_id,press,variety,brix,ph\nKX-0901-3,press-2,Ellery russet,13.9,3.55\n",
+    "lab/press-2026-0902-1.csv": "batch_id,press,variety,brix,ph\nKX-0902-1,press-1,Windrow bittersweet,15.2,3.38\n",
+    "lab/press-2026-0902-2.csv": "batch_id,press,variety,brix,ph\nKX-0902-2,press-4,Bracken sour,11.4,3.71\n",
+    "lab/press-2026-0903-1.csv": "batch_id,press,variety,brix,ph\nKX-0903-1,press-3,Tarn bittersharp,14.1,3.47\n",
+    "lab/press-2026-0903-2.csv": "batch_id,press,variety,brix,ph\nKX-0903-2,press-2,Hollis sweet,12.2,3.66\n",
+    "lab/press-2026-0904-1.csv": "batch_id,press,variety,brix,ph\nKX-0904-1,press-4,Pyke sharp,13.3,3.52\n",
+    "lab/press-2026-0904-2.csv": "batch_id,press,variety,brix,ph\nKX-0904-2,press-1,Ruffet bittersharp,15.7,3.35\n",
+    "lab/press-2026-0904-3.csv": "batch_id,press,variety,brix,ph\nKX-0904-3,press-3,Aylmer russet,13.6,3.58\n",
+    "lab/press-2026-0905-1.csv": "batch_id,press,variety,brix,ph\nKX-0905-1,press-2,Sedge bittersweet,14.9,3.43\n",
+    "lab/press-2026-0905-2.csv": "batch_id,press,variety,brix,ph\nKX-0905-2,press-4,Orpine sour,11.9,3.74\n",
+    "lab/press-2026-0906-1.csv": "batch_id,press,variety,brix,ph\nKX-0906-1,press-1,Weaver sweetsharp,13.1,3.61\n",
+    "lab/press-2026-0906-2.csv": "batch_id,press,variety,brix,ph\nKX-0906-2,press-3,Nye bittersharp,14.4,3.49\n",
+    "lab/press-2026-0907-1.csv": "batch_id,press,variety,brix,ph\nKX-0907-1,press-2,Calkin russet,12.6,3.64\n",
+    "lab/press-2026-0907-2.csv": "batch_id,press,variety,brix,ph\nKX-0907-2,press-1,Durno bittersweet,15.1,3.39\n",
+    "lab/press-2026-0907-3.csv": "batch_id,press,variety,brix,ph\nKX-0907-3,press-4,Kingsley bittersharp,13.7,3.56\n",
+    "lab/press-2026-0908-1.csv": "batch_id,press,variety,brix,ph\nKX-0908-1,press-3,Marrow sweetsharp,12.9,3.60\n",
+    "lab/press-2026-0908-2.csv": "batch_id,press,variety,brix,ph\nKX-0908-2,press-1,Ellery russet,14.0,3.53\n",
+    "lab/press-2026-0909-1.csv": "batch_id,press,variety,brix,ph\nKX-0909-1,press-2,Windrow bittersweet,15.4,3.37\n",
+    "lab/press-2026-0909-2.csv": "batch_id,press,variety,brix,ph\nKX-0909-2,press-4,Bracken sour,11.6,3.72\n",
+    "lab/press-2026-0910-1.csv": "batch_id,press,variety,brix,ph\nKX-0910-1,press-1,Tarn bittersharp,14.2,3.46\n",
+    "lab/press-2026-0910-2.csv": "batch_id,press,variety,brix,ph\nKX-0910-2,press-3,Hollis sweet,12.3,3.65\n",
+    "lab/press-2026-0910-3.csv": "batch_id,press,variety,brix,ph\nKX-0910-3,press-2,Pyke sharp,13.4,3.51\n",
+    "lab/press-2026-0911-1.csv": "batch_id,press,variety,brix,ph\nKX-0911-1,press-4,Ruffet bittersharp,15.5,3.36\n",
+    "lab/press-2026-0911-2.csv": "batch_id,press,variety,brix,ph\nKX-0911-2,press-1,Aylmer russet,13.8,3.57\n",
+    "lab/press-2026-0912-1.csv": "batch_id,press,variety,brix,ph\nKX-0912-1,press-3,Sedge bittersweet,15.0,3.42\n",
+    "lab/press-2026-0912-2.csv": "batch_id,press,variety,brix,ph\nKX-0912-2,press-2,Orpine sour,11.7,3.75\n",
+    "lab/press-2026-0913-1.csv": "batch_id,press,variety,brix,ph\nKX-0913-1,press-1,Weaver sweetsharp,13.2,3.59\n",
+    "lab/press-2026-0913-2.csv": "batch_id,press,variety,brix,ph\nKX-0913-2,press-4,Nye bittersharp,14.3,3.48\n",
+    "lab/press-2026-0913-3.csv": "batch_id,press,variety,brix,ph\nKX-0913-3,press-2,Calkin russet,12.7,3.63\n",
+    "lab/press-2026-0914-1.csv": "batch_id,press,variety,brix,ph\nKX-0914-1,press-3,Durno bittersweet,15.3,3.40\n",
+    "lab/press-2026-0914-2.csv": "batch_id,press,variety,brix,ph\nKX-0914-2,press-1,Kingsley bittersharp,13.5,3.54\n",
+    "lab/press-2026-0915-1.csv": "batch_id,press,variety,brix,ph\nKX-0915-1,press-4,Marrow sweetsharp,12.4,3.67\n",
+    "notes/bench_memo_yeast.md": "Bench memo - wild yeast.\n\nThe north block must was slower to start this week; the lab kept\nboth fermenters at 14 C and the cultures came up on day three. Hold\nthe sulphur readings for the next racking before drawing conclusions.\n",
+    "notes/bench_memo_tannin.md": "Bench memo - tannin dosing.\n\nThe bittersharp lots are running leaner than last season. The\ncidermaker wants a bench trial of the oak chip dose on one tank\nbefore the blend is locked.\n",
+    "reference/method_card_brix.md": "Method card - brix by refractometer.\n\nBring the sample to 20 C before reading. Wipe the prism with\nsoft water, not spirit, between pressings. Record the mean of two\nreadings to one decimal place.\n",
+    "reference/method_card_ph.md": "Method card - pH by glass electrode.\n\nCalibrate against the 4.01 and 7.00 buffers each morning. Rinse in\ndeionised water between samples and stir gently; a still sample\nreads high on the bittersharp musts.\n",
+    "archive/.keep": ""
+  },
+  "turns": [
+    {
+      "prompt": "The pressing season closes this week and our records office is taking stock of the lab archive. How many analysis sheets does the workspace hold? Each sheet is a comma-separated record the press controller wrote for one pressing. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 34,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

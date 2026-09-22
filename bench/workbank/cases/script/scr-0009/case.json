@@ -1,0 +1,43 @@
+{
+  "id": "scr-0009",
+  "description": "Repair the weekly first-response load report whose offline run dies before printing, and restore its per-queue totals. WORKBANK-CANARY-7b3d1f9c",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_from_traceback",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-script-fix-03",
+    "ref_calls": 3,
+    "fixture_bytes": 2369,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "On-call notes - support reporting, 2026-09-15\n=============================================\n\nThe weekly first-response load report stopped running after the\nscheduler moved it to the new host. Console capture from the job:\n\nTraceback (most recent call last):\n  File \"/srv/support/reporting/sla_report.py\", line 25, in main\n    overdue[queue] = overdue.get(queue, 0) + row[\"first_response_minutes\"]\nTypeError: unsupported operand type(s) for +: 'int' and 'str'\n\nThe scheduler always launches sla_report.py from the project root.\n",
+    "sla_report.py": "\"\"\"Weekly first-response load report for the support desk.\n\nSweeps every tickets-*.csv under the project tree and prints the total\noverdue first-response minutes per queue. Safe to launch from any\ndirectory.\n\"\"\"\nimport csv\nfrom pathlib import Path\n\nBASE = Path(__file__).resolve().parent\n\n\ndef rows_of(path):\n    with open(path, newline=\"\", encoding=\"utf-8\") as fh:\n        return list(csv.DictReader(fh))\n\n\ndef main():\n    overdue = {}\n    for path in sorted(BASE.rglob(\"tickets-*.csv\")):\n        for row in rows_of(path):\n            if row[\"first_response_ok\"] != \"no\":\n                continue\n            queue = row[\"queue\"]\n            overdue[queue] = overdue.get(queue, 0) + row[\"first_response_minutes\"]\n    print(\"queue,overdue_minutes\")\n    for queue in sorted(overdue):\n        print(\"%s,%d\" % (queue, overdue[queue]))\n    print(\"total,%d\" % sum(overdue.values()))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+    "exports/tickets-week36.csv": "ticket_id,queue,opened_at,first_response_ok,first_response_minutes\nTKT-2210,Billing,2026-08-31T08:12:04,no,412\nTKT-2218,Onboarding,2026-08-31T10:47:51,yes,38\nTKT-2226,Billing,2026-09-01T09:03:27,no,97\nTKT-2231,Integrations,2026-09-01T14:22:10,no,263\nTKT-2240,Onboarding,2026-09-02T07:58:33,no,155\nTKT-2247,Billing,2026-09-02T16:41:19,yes,22\nTKT-2253,Integrations,2026-09-03T11:09:46,yes,51\n",
+    "exports/tickets-week37.csv": "ticket_id,queue,opened_at,first_response_ok,first_response_minutes\nTKT-2301,Billing,2026-09-07T08:44:12,no,188\nTKT-2309,Onboarding,2026-09-07T13:20:57,no,74\nTKT-2316,Integrations,2026-09-08T09:15:38,no,529\nTKT-2324,Billing,2026-09-09T15:02:44,yes,31\nTKT-2330,Onboarding,2026-09-10T10:36:21,no,241\nTKT-2338,Integrations,2026-09-11T08:57:05,no,118\n",
+    "desk_rota.txt": "Support desk rota, week 38/2026\nMon  J. Ferreira   08:00-16:00\nTue  R. Okonjo     10:00-18:00\nWed  J. Ferreira   08:00-16:00\nThu  M. Halloran   12:00-20:00\nFri  R. Okonjo     10:00-18:00\n"
+  },
+  "expect": {
+    "run": {
+      "path": "sla_report.py",
+      "timeout_millis": 10000,
+      "hidden_files": {
+        "archive/2026-09/tickets-week38.csv": "ticket_id,queue,opened_at,first_response_ok,first_response_minutes\nTKT-2402,Deliveries,2026-09-14T08:31:19,no,206\nTKT-2408,Billing,2026-09-14T12:07:51,no,89\nTKT-2415,Onboarding,2026-09-15T09:44:03,no,163\nTKT-2421,Integrations,2026-09-15T17:12:36,yes,44\n"
+      },
+      "expected_stdout": "queue,overdue_minutes\nBilling,786\nDeliveries,206\nIntegrations,910\nOnboarding,633\ntotal,2535"
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The support desk's weekly first-response load report has stopped producing numbers: the job dies before it prints anything, and the on-call note in README.md carries the failure it left behind. Repair sla_report.py so the weekly report prints again and still covers every tickets extract in the project the way it did before. When finished, reply DONE.",
+      "expect": {}
+    }
+  ]
+}

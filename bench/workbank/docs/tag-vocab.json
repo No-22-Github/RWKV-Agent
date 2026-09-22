@@ -1,16 +1,16 @@
 {
   "$comment": "Machine-readable tag vocabulary for workbank cases (schema v5). Extracted from docs/authoring-guide.md (section 2 task table, section 3 trap catalogue, section 5 tag table, section 6 surface diversity) and docs/HANDOFF.md section 2.4 (tool catalog) / section 6 (quotas, level mix). Do not invent new entries: new task_type values must be registered here and in authoring-guide.md section 2. Forbidden words are matched case-insensitively against the whitespace-normalized prompt: a multi-word phrase matches when its words appear in order with at most 3 extra words between consecutive phrase words. A trap entry may carry a 'scenarios' list: its forbidden words then apply to every case of those scenarios even when the case does not declare the trap.",
   "scenarios": [
-    { "name": "tabular", "abbrev": "tab", "quota": 40 },
-    { "name": "logs", "abbrev": "log", "quota": 32 },
-    { "name": "config", "abbrev": "cfg", "quota": 26 },
-    { "name": "docs", "abbrev": "doc", "quota": 22 },
-    { "name": "filesystem", "abbrev": "fs", "quota": 22 },
-    { "name": "script", "abbrev": "scr", "quota": 32 },
-    { "name": "code", "abbrev": "code", "quota": 22 },
-    { "name": "web", "abbrev": "web", "quota": 30 },
-    { "name": "hybrid", "abbrev": "hyb", "quota": 22 },
-    { "name": "notool", "abbrev": "nt", "quota": 22 }
+    { "name": "tabular", "abbrev": "tab", "quota": 20 },
+    { "name": "logs", "abbrev": "log", "quota": 20 },
+    { "name": "config", "abbrev": "cfg", "quota": 16 },
+    { "name": "docs", "abbrev": "doc", "quota": 12 },
+    { "name": "filesystem", "abbrev": "fs", "quota": 12 },
+    { "name": "script", "abbrev": "scr", "quota": 20 },
+    { "name": "code", "abbrev": "code", "quota": 12 },
+    { "name": "web", "abbrev": "web", "quota": 16 },
+    { "name": "hybrid", "abbrev": "hyb", "quota": 12 },
+    { "name": "notool", "abbrev": "nt", "quota": 12 }
   ],
   "task_types": {
     "tabular": ["aggregate", "reconcile", "join", "filter_count", "rank", "policy_calc", "write_summary"],
@@ -57,7 +57,7 @@
   },
   "axes": ["OBS", "DEC", "CHN", "ERR", "CON", "VER", "LNG", "STP"],
   "levels": ["L0", "L1", "L2", "L3"],
-  "level_mix": { "L0": 0.15, "L1": 0.4, "L2": 0.3, "L3": 0.15 },
+  "level_mix": { "L0": 0.25, "L1": 0.5, "L2": 0.25, "L3": 0.0 },
   "statuses": ["draft", "reviewed", "frozen"],
   "tools": [
     "list_files", "read_file", "search_text", "read_lines", "write_file", "replace_lines",

@@ -1,0 +1,38 @@
+{
+  "id": "code-0009",
+  "description": "Locate the definition of the depot handoff-window helper in a courier dispatch service. WORKBANK-CANARY-3f8a1c04",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "locate_definition",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-code-edge-03",
+    "ref_calls": 3,
+    "fixture_bytes": 1379,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "dispatch/__init__.py": "",
+    "dispatch/handoff.py": "\"\"\"Parcel handoff windows for the Aldermoor depot network.\"\"\"\n\nHANDOFF_OPEN_MINUTE = 405\nHANDOFF_CLOSE_MINUTE = 1185\nMAX_HANDOFF_PARCELS = 96\n\n\nclass HandoffClosed(Exception):\n    \"\"\"Raised when a depot is asked to hand off outside its window.\"\"\"\n\n\ndef is_handoff_open(depot, at_minute):\n    \"\"\"True when the depot accepts parcel handoffs at the given minute.\"\"\"\n    if depot.suspended:\n        return False\n    return HANDOFF_OPEN_MINUTE <= at_minute < HANDOFF_CLOSE_MINUTE\n\n\ndef window_length_minutes():\n    return HANDOFF_CLOSE_MINUTE - HANDOFF_OPEN_MINUTE\n",
+    "ops/shift_notes.py": "\"\"\"Shift notes kept alongside the dispatch modules.\"\"\"\n\nON_CALL_CHANNEL = \"depot-ops\"\n",
+    "routing/__init__.py": "",
+    "routing/planner.py": "\"\"\"Lane planning for the courier's next-day routes.\"\"\"\n\nfrom dispatch.handoff import is_handoff_open\n\nLANE_LOAD_LIMIT = 275\n\n\ndef assign_lane(depot, parcels, at_minute):\n    \"\"\"Attach a parcel batch to a lane when the depot window is open.\"\"\"\n    if not parcels:\n        return None\n    if not is_handoff_open(depot, at_minute):\n        return None\n    return {\"depot\": depot.code, \"load\": min(len(parcels), LANE_LOAD_LIMIT)}\n",
+    "readme": "Aldermoor courier dispatch.\n\ndispatch/   parcel handoff windows for the depot network\nrouting/    lane planning and driver assignment\nops/        shift notes and on-call rotation\n\nThe depot network is owned by the regional logistics desk; routing questions\ngo to #lane-ops, handoff questions to #depot-ops.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The depot network's integration notes mention a helper that decides whether a depot is still taking parcel handoffs. A routing engineer preparing a change needs its exact source location. In which file, and on which line, is the function is_handoff_open defined? Give the location as <relative path>:<line number>. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "dispatch/handoff.py:12"
+      }
+    }
+  ]
+}

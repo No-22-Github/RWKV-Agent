@@ -1,0 +1,33 @@
+{
+  "id": "fs-0009",
+  "description": "Summit Ridge Water District SCADA handover; locate the pump-station telemetry gateway definition. WORKBANK-CANARY-4b7c1e92",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "presence",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-fs-dedupe-03",
+    "ref_calls": 3,
+    "fixture_bytes": 789,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "Summit Ridge Water District - SCADA estate.\n\ntelemetry/ holds the telemetry gateway definitions for the district's pump\nstations; each definition opens with a `gateway:` block naming the station\nit serves. notes/ holds field wiring notes and the handover journal kept\nby the operations team.\n",
+    "telemetry/gateway.yaml": "gateway:\n  station: SR-07 Cedar Bend\n  listen_port: 8443\n  poll_interval_s: 45\n  upstream_host: scada-hub.summitridge.internal\n  tls_verify: true\n",
+    "notes/handover-journal.md": "# Handover journal - Summit Ridge Water District\n\n2026-05-19  Cedar Bend booster rejoined the district ring after the spring\n            main replacement. Poll interval left at 45 s.\n2026-06-02  Integrator walkthrough of the telemetry rack; no wiring changes\n            were recorded.\n2026-07-14  Spare gateway chassis stored at the Millbrook depot.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Summit Ridge Water District is handing its SCADA estate to a new integration partner. Report the workspace path of the pump-station telemetry gateway definition. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "telemetry/gateway.yaml"
+      }
+    }
+  ]
+}

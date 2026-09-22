@@ -1,0 +1,48 @@
+{
+  "id": "scr-0017",
+  "description": "Rebuild the circuit's weekly house admissions report so it sweeps the project tree for the seating drop files and prints the venue totals; a hidden second drop set guards against hardcoding. WORKBANK-CANARY-7a3c1e90",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "write_new",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-script-sweep-05",
+    "ref_calls": 3,
+    "fixture_bytes": 1809,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "Admissions roll-up - programming office\n=======================================\n\nadmissions_rollup.py is the circuit's weekly seating report. The\nprogramming office runs it from the project root with\n\n    python3 admissions_rollup.py\n\nand it has to search the whole project tree for the houses' admits.csv\ndrop files. The tills save them wherever they land: some sit straight\nin a house folder, others are tucked under an exports folder after a\nlate sync, so a search that stops at one level will miss drops.\n\nEvery admits.csv has this shape:\n\n    house,slot,seats_sold\n\n    house        venue code the seats belong to\n    slot         performance slot\n    seats_sold   tickets sold for that slot\n\nThe report, written to standard output:\n\n    house,seats\n    <house>,<seats>      one line per house, ascending by house code\n    total,<seats>\n\n<seats> for a house is the sum of seats_sold across every row of every\nadmits.csv that names that house.\n",
+    "admissions_rollup.py": "\"\"\"Weekly house admissions report for the circuit.\n\nPlaceholder: the previous reporting stack was lost with the old\nprogramming workstation image and the rebuild is still pending. The\nprogramming office still expects the report after every weekly close.\n\"\"\"\n\nraise SystemExit(\"admissions_rollup.py: implementation missing\")\n",
+    "venues/northgate/arcade/admits.csv": "house,slot,seats_sold\nARC-2,matinee,176\nARC-2,evening,154\n",
+    "venues/northgate/beacon/admits.csv": "house,slot,seats_sold\nBCN-4,matinee,203\nBCN-4,evening,97\n",
+    "venues/riverside/civic/admits.csv": "house,slot,seats_sold\nCVC-1,matinee,145\nCVC-1,evening,286\n",
+    "venues/riverside/orchard/admits.csv": "house,slot,seats_sold\nORC-3,matinee,98\nORC-3,evening,212\n",
+    "venues/southbank/lamplight/exports/admits.csv": "house,slot,seats_sold\nLMP-7,matinee,122\nLMP-7,evening,261\n",
+    "ops/screen_rotation.txt": "Screen rotation plan - week 38/2026\n  Screen 1: The Lantern Keeper (evening), children's matinee on Saturday\n  Screen 2: Harbour Lights (evening), maintenance window Tuesday 09:00\n  Screen 3: Darkroom (late shows), restored print arriving Wednesday\n"
+  },
+  "expect": {
+    "run": {
+      "path": "admissions_rollup.py",
+      "args": [],
+      "timeout_millis": 10000,
+      "hidden_files": {
+        "venues/eastport/lumen/admits.csv": "house,slot,seats_sold\nLUM-9,matinee,164\nLUM-9,evening,118\n",
+        "venues/riverside/civic/recheck/admits.csv": "house,slot,seats_sold\nCVC-1,soiree,73\n"
+      },
+      "expected_stdout": "house,seats\nARC-2,330\nBCN-4,300\nCVC-1,504\nLMP-7,383\nLUM-9,282\nORC-3,310\ntotal,2109"
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The programming office needs the circuit's weekly seating report rebuilt: admissions_rollup.py is a stub right now. Started from the project root, it has to search the project tree for every house's seating drop file, wherever the tills saved it, and print the venue seat totals in the layout the office keeps on its wall. When finished, reply DONE.",
+      "expect": {}
+    }
+  ]
+}

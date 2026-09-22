@@ -1,0 +1,51 @@
+{
+  "id": "scr-0012",
+  "description": "Rebuild the regional billing summary so it reads both export layouts and totals revenue net of the sales tax billed alongside it. WORKBANK-CANARY-8f2a6d51",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_output",
+    "traps": [
+      "TR-DEFN",
+      "TR-DELIM"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": null,
+      "TR-DELIM": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-script-fix-03",
+    "ref_calls": 4,
+    "fixture_bytes": 2537,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "Regional billing summary - data notes\n=====================================\n\nThe desk's monthly billing extracts arrive from two systems:\n\n  billing-<month>.csv   comma-separated; any value that itself contains a\n                        comma (customer names, mostly) is wrapped in double\n                        quotes\n  billing-<month>.tsv   the older export: fields are separated by one tab\n                        character and nothing is wrapped\n\nEither layout carries the same six columns:\n\n  invoice_id           per-invoice identifier\n  customer             customer name, may contain commas\n  region               billing region\n  units                units billed\n  gross_amount_cents   amount billed to the customer, sales tax included\n  tax_amount_cents     the sales tax contained in gross_amount_cents\n\nThe scheduler launches billing_summary.py from the project root.\n",
+    "billing_summary.py": "\"\"\"Regional billing summary for the wholesale distribution desk.\n\nReads every billing extract dropped under data/ and prints the revenue\nper region. Safe to launch from the project root.\n\"\"\"\nfrom pathlib import Path\n\nBASE = Path(__file__).resolve().parent\nDATA = BASE / \"data\"\n\n\ndef main():\n    revenue = {}\n    for path in sorted(DATA.glob(\"billing-*\")):\n        lines = path.read_text(encoding=\"utf-8\").splitlines()\n        for line in lines[1:]:\n            cells = line.split(\",\")\n            if len(cells) != 6:\n                continue\n            region = cells[2]\n            revenue[region] = revenue.get(region, 0) + int(cells[4])\n    print(\"region,net_revenue_cents\")\n    for region in sorted(revenue):\n        print(\"%s,%d\" % (region, revenue[region]))\n    print(\"total,%d\" % sum(revenue.values()))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+    "data/billing-2026-07.csv": "invoice_id,customer,region,units,gross_amount_cents,tax_amount_cents\nINV-7401,Clearpool Drinks,Coast,120,48600,4374\nINV-7408,\"Halloran, Pike & Co\",Midlands,64,27300,2457\nINV-7415,Northgate Vintners,North,88,39200,3528\nINV-7422,\"Barrow, Fenwick Ltd\",Coast,45,19800,1782\nINV-7429,Clearpool Drinks,Coast,72,31500,2835\nINV-7436,Northgate Vintners,North,150,61500,5535\n",
+    "data/billing-2026-08.tsv": "invoice_id\tcustomer\tregion\tunits\tgross_amount_cents\ttax_amount_cents\nINV-7502\tClearpool Drinks\tMidlands\t96\t42800\t3852\nINV-7509\tKelvinside Provisions\tNorth\t58\t24150\t2173\nINV-7516\tBarrow Fenwick Ltd\tCoast\t130\t57600\t5184\nINV-7523\tHalloran Pike Co\tMidlands\t41\t17300\t1557\n",
+    "route_plan.txt": "Drop route plan, week 38/2026\nMon  depot 3 -> Northgate -> Riverside (2 vans)\nTue  depot 3 -> Amberfield (1 van, half load)\nWed  depot 1 -> Kelvinside -> Coast hub (2 vans)\n"
+  },
+  "expect": {
+    "run": {
+      "path": "billing_summary.py",
+      "timeout_millis": 10000,
+      "hidden_files": {
+        "data/billing-2026-09.tsv": "invoice_id\tcustomer\tregion\tunits\tgross_amount_cents\ttax_amount_cents\nINV-7605\tKelvinside Provisions\tCoast\t77\t33900\t3051\nINV-7612\tClearpool Drinks\tNorth\t112\t46200\t4158\nINV-7619\tBarrow Fenwick Ltd\tMidlands\t53\t21600\t1944\n"
+      },
+      "expected_stdout": "region,net_revenue_cents\nCoast,174174\nMidlands,99190\nNorth,155656\ntotal,429020"
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The wholesale billing summary no longer adds up: the region figures it prints leave out revenue the finance team can see on the invoices. Extracts reach the desk from two different export systems, and invoices raised for customer names that carry punctuation come through wrapped so the name stays whole. Repair billing_summary.py so the report covers every billing extract under the data directory and totals the revenue on the basis finance uses: the amount billed for the goods, net of the sales tax charged alongside it. When finished, reply DONE.",
+      "expect": {}
+    }
+  ]
+}

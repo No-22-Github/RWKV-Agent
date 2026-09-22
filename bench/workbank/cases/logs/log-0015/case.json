@@ -1,0 +1,41 @@
+{
+  "id": "log-0015",
+  "description": "Total print time of a Shipwise label fleet export whose elapsed values carry ms and s unit suffixes as strings. WORKBANK-CANARY-c7104ea2",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "aggregate_jsonl",
+    "traps": [
+      "TR-NUMFMT"
+    ],
+    "trap_decoys": {
+      "TR-NUMFMT": 2884.38
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-jsonl-04",
+    "ref_calls": 3,
+    "fixture_bytes": 1428,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "telemetry/label-print-jobs.jsonl": "{\"job\":\"lp-40217\",\"printer\":\"zebra-a1\",\"started\":\"2026-08-27T07:15:33Z\",\"elapsed\":\"940ms\"}\n{\"job\":\"lp-40218\",\"printer\":\"zebra-a1\",\"started\":\"2026-08-27T07:41:09Z\",\"elapsed\":\"1.6s\"}\n{\"job\":\"lp-40219\",\"printer\":\"zebra-b2\",\"started\":\"2026-08-27T08:05:47Z\",\"elapsed\":\"275ms\"}\n{\"job\":\"lp-40220\",\"printer\":\"zebra-b2\",\"started\":\"2026-08-27T08:52:21Z\",\"elapsed\":\"2.05s\"}\n{\"job\":\"lp-40221\",\"printer\":\"zebra-c3\",\"started\":\"2026-08-27T09:26:58Z\",\"elapsed\":\"410ms\"}\n{\"job\":\"lp-40222\",\"printer\":\"zebra-c3\",\"started\":\"2026-08-27T10:14:36Z\",\"elapsed\":\"1.25s\"}\n{\"job\":\"lp-40223\",\"printer\":\"zebra-a1\",\"started\":\"2026-08-27T11:02:14Z\",\"elapsed\":\"720ms\"}\n{\"job\":\"lp-40224\",\"printer\":\"zebra-b2\",\"started\":\"2026-08-27T13:47:52Z\",\"elapsed\":\"3.4s\"}\n{\"job\":\"lp-40225\",\"printer\":\"zebra-c3\",\"started\":\"2026-08-27T15:33:28Z\",\"elapsed\":\"1.08s\"}\n{\"job\":\"lp-40226\",\"printer\":\"zebra-a1\",\"started\":\"2026-08-27T17:20:05Z\",\"elapsed\":\"530ms\"}\n",
+    "README.md": "# Shipwise label fleet - print job export\n\ntelemetry/label-print-jobs.jsonl covers the week of 24 August 2026, one record per label print job, one JSON object per line, collected from the fleet. elapsed is the time the print driver measured for the job.\n",
+    "docs/printer-fleet.md": "# Shipwise printer fleet\n\n| printer | site | model | labels/day |\n|---|---|---|---|\n| zebra-a1 | Memphis | ZT411 | 6200 |\n| zebra-b2 | Memphis | ZT411 | 5400 |\n| zebra-c3 | Reno | ZD621 | 3100 |\n\nPreventive maintenance visits run on the first Tuesday of each month.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Shipwise is reviewing throughput of its label printing fleet for the week of 24 August 2026. That week's job export is available. What was the total time the exported jobs spent printing, in milliseconds? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 12255,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

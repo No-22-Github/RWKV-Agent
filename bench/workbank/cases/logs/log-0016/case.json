@@ -1,0 +1,43 @@
+{
+  "id": "log-0016",
+  "description": "Count of Northgate edge requests over one second, from a JSONL export whose elapsed values carry unit suffixes and whose durationless records come in null, empty and absent shapes. WORKBANK-CANARY-2d68b3f1",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "aggregate_jsonl",
+    "traps": [
+      "TR-MISSING",
+      "TR-NUMFMT"
+    ],
+    "trap_decoys": {
+      "TR-MISSING": 8,
+      "TR-NUMFMT": 3
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-log-jsonl-04",
+    "ref_calls": 4,
+    "fixture_bytes": 2688,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "telemetry/edge-requests.jsonl": "{\"req\":\"a3f9c1\",\"at\":\"2026-08-05T09:23:41Z\",\"route\":\"/media/asset\",\"status\":200,\"elapsed\":\"1.92s\"}\n{\"req\":\"7b1d4e\",\"at\":\"2026-08-05T09:24:02Z\",\"route\":\"/media/thumb\",\"status\":200,\"elapsed\":\"740ms\"}\n{\"req\":\"2ce8a6\",\"at\":\"2026-08-05T09:25:37Z\",\"route\":\"/media/asset\",\"status\":200,\"elapsed\":\"315ms\"}\n{\"req\":\"d40f9b\",\"at\":\"2026-08-05T09:27:18Z\",\"route\":\"/catalog/list\",\"status\":200,\"elapsed\":\"2.4s\"}\n{\"req\":\"6ae3c5\",\"at\":\"2026-08-05T09:29:44Z\",\"route\":\"/media/thumb\",\"status\":302,\"elapsed\":\"868ms\"}\n{\"req\":\"f82b70\",\"at\":\"2026-08-05T09:31:09Z\",\"route\":\"/media/asset\",\"status\":200,\"elapsed\":\"1.05s\"}\n{\"req\":\"31d7e4\",\"at\":\"2026-08-05T09:33:52Z\",\"route\":\"/catalog/item\",\"status\":200,\"elapsed\":\"640ms\"}\n{\"req\":\"b59c28\",\"at\":\"2026-08-05T09:36:21Z\",\"route\":\"/media/asset\",\"status\":500,\"elapsed\":\"3.05s\"}\n{\"req\":\"e0147a\",\"at\":\"2026-08-05T09:38:45Z\",\"route\":\"/catalog/list\",\"status\":200,\"elapsed\":null}\n{\"req\":\"4f7b93\",\"at\":\"2026-08-05T09:40:16Z\",\"route\":\"/media/thumb\",\"status\":200,\"elapsed\":\"488ms\"}\n{\"req\":\"c26e08\",\"at\":\"2026-08-05T09:42:33Z\",\"route\":\"/media/asset\",\"status\":200,\"elapsed\":\"1.38s\"}\n{\"req\":\"9d3a51\",\"at\":\"2026-08-05T09:44:57Z\",\"route\":\"/catalog/item\",\"status\":404,\"elapsed\":\"0.92s\"}\n{\"req\":\"5b8f2d\",\"at\":\"2026-08-05T09:47:12Z\",\"route\":\"/media/asset\",\"status\":200,\"elapsed\":\"2.75s\"}\n{\"req\":\"a70c46\",\"at\":\"2026-08-05T09:49:38Z\",\"route\":\"/catalog/list\",\"status\":200,\"elapsed\":\"\"}\n{\"req\":\"3e91b5\",\"at\":\"2026-08-05T09:52:04Z\",\"route\":\"/media/thumb\",\"status\":200,\"elapsed\":\"912ms\"}\n{\"req\":\"8c4d17\",\"at\":\"2026-08-05T09:54:29Z\",\"route\":\"/media/asset\",\"status\":200,\"elapsed\":\"1.18s\"}\n{\"req\":\"f16b83\",\"at\":\"2026-08-05T09:56:51Z\",\"route\":\"/catalog/item\",\"status\":200}\n{\"req\":\"0a5e92\",\"at\":\"2026-08-05T09:58:26Z\",\"route\":\"/media/asset\",\"status\":200,\"elapsed\":\"1.61s\"}\n",
+    "README.md": "# Northgate edge - request export\n\ntelemetry/edge-requests.jsonl is one day of requests served by the Northgate edge, one JSON object per line, written by the fleet collector. Each record names the route, the HTTP status, and elapsed, the time the request took.\n\n## Reliability objective\n\nThe edge goal is for a request to finish inside one second. The review counts a request as having exceeded the goal when its elapsed time is greater than one second. The collector writes elapsed only for requests it observed to completion; a request still in flight when the export was taken carries no elapsed value, and the review accounts such a request as having exceeded the goal.\n",
+    "docs/escalation.md": "# Northgate escalation\n\n| severity | page | respond by |\n|---|---|---|\n| S1 | primary on-call | 5 min |\n| S2 | primary on-call | 30 min |\n| S3 | next business day | 2 days |\n\nEdge reliability reviews are held on the Tuesday after each monthly release.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The Northgate on-call review for 5 August 2026 needs the number of edge requests that fell outside the one-second reliability objective. That day's export is available. How many requests exceeded the objective? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 11,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

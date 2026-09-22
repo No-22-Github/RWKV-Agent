@@ -1,0 +1,43 @@
+{
+  "id": "code-0006",
+  "description": "Count the failures recorded in a credit-suite console capture whose footer understates them. WORKBANK-CANARY-b6d24e08",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "report_test_result",
+    "traps": [
+      "TR-CLAIM"
+    ],
+    "trap_decoys": {
+      "TR-CLAIM": 2
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-code-testreport-02",
+    "ref_calls": 3,
+    "fixture_bytes": 3767,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "# Returns desk credit service\n\nreturns/   credit notes and restock fees\nci/        console captures from the nightly runners\ntests/     suite for the credit service\ndocs/      night-shift runbook\n\nThe credit suite runs after the warehouse close; pages go to the returns on-call.\n",
+    "ci/returns_suite_tail.txt": "tests/test_credit.py::test_partial_return_credit PASSED [  8%]\ntests/test_credit.py::test_restock_fee_tier PASSED [ 17%]\ntests/test_credit.py::test_credit_note_rounding PASSED [ 25%]\ntests/test_credit.py::test_original_receipt_link PASSED [ 33%]\ntests/test_credit.py::test_currency_lock_on_refund FAILED [ 42%]\ntests/test_credit.py::test_manual_override_audit PASSED [ 50%]\ntests/test_credit.py::test_split_shipment_credit PASSED [ 58%]\ntests/test_credit.py::test_loyalty_points_reversal FAILED [ 67%]\ntests/test_credit.py::test_supplier_chargeback PASSED [ 75%]\ntests/test_credit.py::test_tax_line_proration PASSED [ 83%]\ntests/test_credit.py::test_warehouse_return_window FAILED [ 92%]\ntests/test_credit.py::test_zero_value_credit_note PASSED [100%]\n========================= 2 failed, 9 passed in 1.24s =========================\n",
+    "docs/runbook.md": "# Returns desk night-shift runbook\n\nThe credit suite is launched by the warehouse close job. A red run pages the\nreturns on-call, who re-runs the failing module before opening a ticket with\nthe platform team.\n\nRestock fee policy lives with the finance systems team and is not held in\nthis repository.\n",
+    "returns/__init__.py": "",
+    "returns/credit.py": "\"\"\"Refund credit notes for the returns desk.\"\"\"\n\nRESTOCK_FEE_TIERS = ((20000, 0.15), (5000, 0.10), (0, 0.05))\nCURRENCY_LOCK_HOURS = 48\n\n\nclass CreditError(Exception):\n    \"\"\"Raised when a credit note cannot be raised.\"\"\"\n\n\ndef restock_fee(amount_cents):\n    \"\"\"Return the restocking fee for a refunded amount.\"\"\"\n    for threshold, rate in RESTOCK_FEE_TIERS:\n        if amount_cents >= threshold:\n            return int(amount_cents * rate)\n    return 0\n\n\ndef credit_note(amount_cents, fee_cents):\n    \"\"\"Return the net credit for a refund after the restocking fee.\"\"\"\n    if fee_cents > amount_cents:\n        raise CreditError(\"fee exceeds the credit amount\")\n    return amount_cents - fee_cents\n\n\ndef receipt_link(order_id, receipt_id):\n    \"\"\"Return the canonical link between an order and its receipt.\"\"\"\n    return \"%s/%s\" % (order_id, receipt_id)\n",
+    "tests/test_credit.py": "from returns.credit import CreditError, credit_note, receipt_link, restock_fee\n\n\nclass FakeLedger:\n\n    def __init__(self):\n        self.notes = []\n\n    def append(self, reference, amount_cents):\n        self.notes.append((reference, amount_cents))\n        return reference\n\n\ndef test_partial_return_credit():\n    ledger = FakeLedger()\n    ledger.append(\"RT-5240\", 1680)\n    assert credit_note(1680, 200) == 1480\n\n\ndef test_restock_fee_tier():\n    assert restock_fee(20000) == 3000\n\n\ndef test_credit_note_rounding():\n    assert credit_note(999, 1) == 998\n\n\ndef test_original_receipt_link():\n    assert receipt_link(\"OR-8811\", \"RC-2210\") == \"OR-8811/RC-2210\"\n\n\ndef test_currency_lock_on_refund():\n    ledger = FakeLedger()\n    ledger.append(\"RT-5241\", 500)\n    assert credit_note(500, 100) == 500\n\n\ndef test_manual_override_audit():\n    ledger = FakeLedger()\n    assert ledger.append(\"RT-5242\", 5810) == \"RT-5242\"\n\n\ndef test_split_shipment_credit():\n    assert credit_note(1275, 25) == 1250\n\n\ndef test_loyalty_points_reversal():\n    assert restock_fee(495) == 50\n\n\ndef test_supplier_chargeback():\n    ledger = FakeLedger()\n    ledger.append(\"RT-5243\", 8060)\n    assert credit_note(8060, 806) == 7254\n\n\ndef test_tax_line_proration():\n    assert credit_note(2140, 40) == 2100\n\n\ndef test_warehouse_return_window():\n    ledger = FakeLedger()\n    ledger.append(\"RT-5244\", 6620)\n    assert receipt_link(\"OR-8812\", \"RC-2211\") == \"OR-8812\"\n\n\ndef test_zero_value_credit_note():\n    assert credit_note(0, 0) == 0\n"
+  },
+  "turns": [
+    {
+      "prompt": "The returns desk opened a ticket this morning: they suspect last night's credit-suite job ran against a broken build. The raw console capture from that run is checked in at ci/returns_suite_tail.txt and nothing was trimmed from it. How many of the tests in that run failed? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 3,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

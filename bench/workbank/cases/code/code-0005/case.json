@@ -1,0 +1,39 @@
+{
+  "id": "code-0005",
+  "description": "Report whether the recorded nightly unittest run for the Riverside shuttle dispatch board passed. WORKBANK-CANARY-3f9b1c72",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "report_test_result",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-code-testreport-02",
+    "ref_calls": 2,
+    "fixture_bytes": 5033,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "# Riverside shuttle dispatch\n\ndispatch/   board state and the nightly queue\nci/         console captures from the nightly job\ntests/      suite for the dispatch board\ndocs/       shift roster notes\n\nThe board tests run after the depot close; pages go to the transit on-call.\n",
+    "ci/nightly_board.txt": "test_assign_loading_bay (tests.test_board.TestBoard) ... ok\ntest_clear_stale_hold (tests.test_board.TestBoard) ... ok\ntest_flag_weather_delay (tests.test_board.TestBoard) ... ok\ntest_merge_duplicate_legs (tests.test_board.TestBoard) ... ok\ntest_promote_waitlist (tests.test_board.TestBoard) ... ok\ntest_reassign_driver_shift (tests.test_board.TestBoard) ... ok\ntest_split_round_trip (tests.test_board.TestBoard) ... ok\ntest_tare_weight_cap (tests.test_board.TestBoard) ... ok\ntest_zone_overlap_guard (tests.test_board.TestBoard) ... ok\n\n----------------------------------------------------------------------\nRan 9 tests in 0.812s\n\nOK\n",
+    "dispatch/__init__.py": "",
+    "dispatch/board.py": "\"\"\"Dispatch board state for the Riverside shuttle service.\"\"\"\n\nDEFAULT_HEADWAY_MINUTES = 20\nMAX_TARE_KG = 480\n\n\nclass BoardError(Exception):\n    \"\"\"Raised when the board cannot accept a change.\"\"\"\n\n\nclass DispatchBoard:\n\n    def __init__(self):\n        self.legs = {}\n        self.waitlist = []\n        self.drivers = {}\n\n    def assign_loading_bay(self, leg_id, bay):\n        leg = self.legs.setdefault(leg_id, {})\n        leg[\"bay\"] = bay\n        return bay\n\n    def clear_stale_hold(self, leg_id):\n        leg = self.legs.get(leg_id)\n        if leg is None:\n            raise BoardError(\"unknown leg\")\n        leg.pop(\"hold\", None)\n        return leg_id\n\n    def flag_weather_delay(self, leg_id, minutes):\n        leg = self.legs.setdefault(leg_id, {})\n        leg[\"delay_minutes\"] = minutes\n        return minutes\n\n    def merge_duplicate_legs(self, primary_id, duplicate_id):\n        primary = self.legs.setdefault(primary_id, {})\n        duplicate = self.legs.pop(duplicate_id, {})\n        primary.update(duplicate)\n        return primary_id\n\n    def promote_waitlist(self, leg_id):\n        if not self.waitlist:\n            return None\n        return self.waitlist.pop(0)\n\n    def reassign_driver_shift(self, driver_id, shift):\n        self.drivers[driver_id] = shift\n        return shift\n\n    def split_round_trip(self, leg_id, outbound_id):\n        leg = self.legs.setdefault(leg_id, {})\n        self.legs[outbound_id] = dict(leg)\n        return outbound_id\n\n    def tare_weight_cap(self, kilograms):\n        return min(kilograms, MAX_TARE_KG)\n\n    def zone_overlap_guard(self, zones):\n        seen = set()\n        for zone in zones:\n            if zone in seen:\n                return True\n            seen.add(zone)\n        return False\n",
+    "dispatch/queue.py": "\"\"\"Nightly queue maintenance for the dispatch board.\"\"\"\n\nfrom dispatch.board import DispatchBoard\n\nQUEUE_REFRESH_MINUTES = 15\n\n\ndef refresh_queue(board):\n    \"\"\"Drop holds that outlived the refresh window and return the leg ids.\"\"\"\n    dropped = []\n    for leg_id, leg in list(board.legs.items()):\n        if leg.get(\"hold\") == \"stale\":\n            board.clear_stale_hold(leg_id)\n            dropped.append(leg_id)\n    return dropped\n\n\ndef build_board(leg_specs):\n    board = DispatchBoard()\n    for leg_id, bay in leg_specs:\n        board.assign_loading_bay(leg_id, bay)\n    return board\n",
+    "docs/roster.md": "# Shift roster notes\n\nThe depot runs two dispatch desks after the evening peak: loading and\nrecovery. Roster swaps are agreed a week ahead and logged with the depot\nsupervisor.\n\nThe recovery desk closes at the same time as the loading desk on public\nholidays.\n",
+    "tests/test_board.py": "from dispatch.board import BoardError, DispatchBoard\n\n\nclass TestBoard:\n\n    def test_assign_loading_bay(self):\n        board = DispatchBoard()\n        assert board.assign_loading_bay(\"LG-4471\", \"bay-2\") == \"bay-2\"\n\n    def test_clear_stale_hold(self):\n        board = DispatchBoard()\n        board.legs[\"LG-4472\"] = {\"hold\": \"stale\"}\n        assert board.clear_stale_hold(\"LG-4472\") == \"LG-4472\"\n\n    def test_flag_weather_delay(self):\n        board = DispatchBoard()\n        assert board.flag_weather_delay(\"LG-4473\", 45) == 45\n\n    def test_merge_duplicate_legs(self):\n        board = DispatchBoard()\n        board.legs[\"LG-4474\"] = {\"bay\": \"bay-1\"}\n        board.legs[\"LG-4475\"] = {\"delay_minutes\": 20}\n        assert board.merge_duplicate_legs(\"LG-4474\", \"LG-4475\") == \"LG-4474\"\n\n    def test_promote_waitlist(self):\n        board = DispatchBoard()\n        assert board.promote_waitlist(\"LG-4476\") is None\n\n    def test_reassign_driver_shift(self):\n        board = DispatchBoard()\n        assert board.reassign_driver_shift(\"DR-118\", \"late\") == \"late\"\n\n    def test_split_round_trip(self):\n        board = DispatchBoard()\n        assert board.split_round_trip(\"LG-4477\", \"LG-4478\") == \"LG-4478\"\n\n    def test_tare_weight_cap(self):\n        board = DispatchBoard()\n        assert board.tare_weight_cap(520) == 480\n\n    def test_zone_overlap_guard(self):\n        board = DispatchBoard()\n        assert board.zone_overlap_guard([\"north\", \"north\"]) is True\n        assert board.zone_overlap_guard([\"north\", \"south\"]) is False\n"
+  },
+  "turns": [
+    {
+      "prompt": "The Riverside shuttle dispatch board runs a nightly test job after the depot closes. The console output from last night's run is saved at ci/nightly_board.txt, and it lists every test the runner executed. Report the outcome of that run as a single word, either passed or failed. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "passed"
+      }
+    }
+  ]
+}

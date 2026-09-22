@@ -1,0 +1,41 @@
+{
+  "id": "doc-0010",
+  "description": "Acknowledgement target for a priority 2 job at an unmanned upland worksite, read from the Calderbank Water operations handbook. WORKBANK-CANARY-e9b3a742",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-RULEFILE"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": "45 minutes"
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-doc-handbook-03",
+    "ref_calls": 4,
+    "fixture_bytes": 3892,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:deepseek-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "# Calderbank Water — field operations library\n\nThe field operations handbook governs how the maintenance and response crews\nwork across the Calderbank and Pennerley depots. The appendices carry the\nsite-specific arrangements agreed with the regional regulator; they are read\nalongside the main handbook and their values govern for the sites they name.\n\nDuty desk: extension 2200, staffed around the clock.\n",
+    "handbook/appendix-c-upland-worksites.md": "# Appendix C — Unmanned upland worksites\n\nAgreed with the regional regulator on 14 January 2026 and read alongside the\nfield operations handbook. Where this appendix sets a value that differs from\nthe body of the handbook, the value in this appendix governs for the sites\nnamed below.\n\n## C.1 Sites in scope\n\nThe sites below are reached by a single-track access road, have no permanent\nstaffing, and are worked by the crew from the nearest depot.\n\n| Site | Access road | Nearest depot |\n|---|---|---|\n| Tarnbeck reservoir | Tarnbeck fell track | Calderbank |\n| Hollinmoor pumping station | Hollinmoor lane | Pennerley |\n| Ashcombe treatment works | Ashcombe ghyll road | Pennerley |\n\n## C.2 Response targets at these sites\n\nA priority 2 job at any of the three sites above is acknowledged within 75\nminutes, in place of the target in the body of the handbook, because the\naccess road cannot be driven at speed and the crew travels from the depot\nnamed in the table. Priority 1 jobs keep the handbook target.\n\n## C.3 Winter access\n\nBetween 1 November and 31 March the crew reports road conditions at the fell\ntrack gate before continuing. If the gate is iced shut the job is re-graded by\nthe duty controller and the site is visited by the Pennerley crew on the next\nworking day.\n",
+    "handbook/field-operations-handbook.md": "# Field operations handbook — Calderbank Water\n\nRevision 5. In force from 3 November 2025. Held by every field crew and by the\ncontrol room.\n\n## 1 Scope\n\nThis handbook covers the work of the maintenance and response crews: how jobs\nreach a crew, how a crew answers the control room, what it does on site, and\nhow exceptions are escalated. It does not cover pumping-station process\nsettings, which live in the plant manuals.\n\n## 2 Priority grades\n\nEvery job raised by the control room carries a priority grade set by the duty\ncontroller.\n\n- Priority 1 — a risk to supply or to public health, or a site that has\n  already lost service.\n- Priority 2 — a loss of service to a group of customers, or an asset the\n  controller expects to fail within the week.\n- Priority 3 — planned work and follow-up from an earlier job.\n\nThe controller may move a job between grades while it is open and records the\nreason on the job.\n\n## 3 Response targets\n\nA crew acknowledges a job in the control room system before it leaves the\ndepot. The acknowledgement target runs from the moment the job is raised.\n\n- Priority 1: acknowledge within 15 minutes.\n- Priority 2: acknowledge within 45 minutes.\n- Priority 3: acknowledge before the end of the next working day.\n\nAcknowledgement is not attendance. On-site attendance targets are set per job\nby the controller and appear on the job sheet.\n\n## 4 On-site practice\n\nCrews work to the site's isolation procedure before touching any live asset,\nand they photograph the asset and the isolation point before starting work.\nWhere a repair needs a part that is not on the van, the crew makes the asset\nsafe, records the part reference, and hands the job back to the control room.\n\n## 5 Escalation\n\nA crew that cannot reach a site reports the obstruction to the control room\nwithin the acknowledgement target rather than at the end of the shift. The\ncontroller then decides whether to re-grade the job, send a second crew, or\nrecord the delay against the access route.\n\n## 6 Lone working\n\nLone working is permitted on priority 3 jobs only. The crew checks in with the\ncontrol room on arrival and on leaving, and the controller treats a missed\ncheck-in as a priority 1 event.\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "Calderbank Water's control room is briefing the on-call crew before the winter rota starts. A priority 2 job has been raised at Tarnbeck reservoir worksite. How many minutes does the crew have to acknowledge that job? Give the number on its own. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 75,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

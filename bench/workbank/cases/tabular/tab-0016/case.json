@@ -1,0 +1,53 @@
+{
+  "id": "tab-0016",
+  "description": "Net freight before the fuel surcharge, written to a named CSV after joining the carrier invoice against the depot dispatch register. WORKBANK-CANARY-e7d0b361",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "write_summary",
+    "traps": [
+      "TR-DEFN",
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": 2786.97,
+      "TR-MULTISRC": 3137.25
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "fam-tab-shipping-04",
+    "ref_calls": 5,
+    "fixture_bytes": 1266,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "carrier_invoice_july_2026.csv": "consignment_id,lane,billed_weight_kg,base_freight,fuel_surcharge,total_charge\nLF-8801,Fenwick,412,286.40,42.96,329.36\nLF-8809,Fenwick,168,95.75,14.36,110.11\nLF-8814,Carrick,940,640.20,96.03,736.23\nLF-8822,Carrick,96,118.30,17.75,136.05\nLF-8835,Fenwick,1560,1520.85,228.13,1748.98\nLF-8847,Holt,58,73.60,11.04,84.64\nLF-8859,Carrick,530,402.15,60.32,462.47\n",
+    "dispatch_register_july_2026.csv": "consignment_id,dispatch_date,route,internal_cost_estimate\nLF-8801,2026-07-03,Fenwick loop,280.00\nLF-8809,2026-07-06,Fenwick loop,96.50\nLF-8822,2026-07-13,Carrick run,117.80\nLF-8835,2026-07-20,Fenwick loop,1498.00\nLF-8859,2026-07-27,Carrick run,398.00\n",
+    "README.md": "# Lyndhurst Freight - July 2026 account reconciliation\n\ncarrier_invoice_july_2026.csv is the carrier's July 2026 invoice for our\naccount. base_freight is the carriage charge before the fuel surcharge;\nfuel_surcharge is added on top; total_charge is the all-in billed figure.\ndispatch_register_july_2026.csv is our own record of the consignments the\ndepot actually ran that month, one line each, with the internal cost\nestimate kept against it. Charges and estimates are in GBP.\n",
+    "reports/.keep": "",
+    "ops/traffic-notes.txt": "Lyndhurst traffic notes, week of 2026-07-20\n- Carrick run re-timed around the road closure.\n- Spare trailer plate returned to the office.\n- Fuel bunker dip taken on the Sunday shift.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Lyndhurst Freight is reconciling its July 2026 carrier account. The workspace holds the carrier's invoice for the month together with our own dispatch register. Put the result in reports/net_freight.csv as a two-column file whose header row reads 'metric,value' and whose only data row carries the label net_freight beside the amount; that amount is the month's carriage charges before the fuel surcharge, restricted to the consignments our depot actually ran. Use a plain decimal with two decimal places and no thousands separators. When finished, reply DONE."
+    }
+  ],
+  "expect": {
+    "files": {
+      "reports/net_freight.csv": {
+        "contains": [
+          "metric,value",
+          "net_freight",
+          "2423.45"
+        ]
+      }
+    }
+  }
+}

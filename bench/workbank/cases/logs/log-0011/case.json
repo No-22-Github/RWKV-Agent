@@ -1,0 +1,45 @@
+{
+  "id": "log-0011",
+  "description": "Identify the backend error code behind an edge 502 wave by correlating the gateway and order-service logs by time. WORKBANK-CANARY-c62f90a4",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "root_cause",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "CART_LOCK_TIMEOUT"
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-log-deploy-03",
+    "ref_calls": 4,
+    "fixture_bytes": 3729,
+    "status": "reviewed",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": "human:delegated-20260922"
+  },
+  "files": {
+    "logs/api-gateway.log": "2026-08-03 09:02:11 INFO [api-gateway] route table refreshed routes=138\n2026-08-03 09:09:05 WARN [api-gateway] rq-8c2d10ab GET /v1/search -> 502 upstream=search-service reason=upstream_timeout\n2026-08-03 09:14:22 WARN [api-gateway] rq-5c74e9f1 POST /v1/orders -> 502 upstream=order-service reason=upstream_timeout\n2026-08-03 09:14:26 WARN [api-gateway] rq-1d90b3a7 POST /v1/orders -> 502 upstream=order-service reason=upstream_timeout\n2026-08-03 09:15:03 WARN [api-gateway] rq-93b6e2c0 POST /v1/orders -> 502 upstream=order-service reason=upstream_timeout\n2026-08-03 09:18:47 WARN [api-gateway] rq-47a1c9d5 POST /v1/orders -> 502 upstream=order-service reason=upstream_timeout\n2026-08-03 09:27:19 WARN [api-gateway] rq-e0f5b8a3 POST /v1/orders -> 502 upstream=order-service reason=upstream_timeout\n2026-08-03 09:41:52 WARN [api-gateway] rq-2c8d7e14 POST /v1/orders -> 502 upstream=order-service reason=upstream_timeout\n2026-08-03 09:52:08 INFO [api-gateway] rq-6f30a9b2 POST /v1/orders -> 200\n",
+    "logs/order-service.log": "{\"ts\": \"2026-08-03T08:41:09Z\", \"level\": \"ERROR\", \"service\": \"order-service\", \"event\": \"CART_LOCK_TIMEOUT\", \"rq\": \"rq-6b1f2c88\", \"detail\": \"redis_lock_timeout\", \"ms\": 2500}\n{\"ts\": \"2026-08-03T08:44:53Z\", \"level\": \"ERROR\", \"service\": \"order-service\", \"event\": \"CART_LOCK_TIMEOUT\", \"rq\": \"rq-2f7a0d91\", \"detail\": \"redis_lock_timeout\", \"ms\": 2512}\n{\"ts\": \"2026-08-03T08:49:31Z\", \"level\": \"ERROR\", \"service\": \"order-service\", \"event\": \"CART_LOCK_TIMEOUT\", \"rq\": \"rq-9c4e1a37\", \"detail\": \"redis_lock_timeout\", \"ms\": 2489}\n{\"ts\": \"2026-08-03T08:53:18Z\", \"level\": \"ERROR\", \"service\": \"order-service\", \"event\": \"CART_LOCK_TIMEOUT\", \"rq\": \"rq-b03d6f52\", \"detail\": \"redis_lock_timeout\", \"ms\": 2531}\n{\"ts\": \"2026-08-03T08:58:02Z\", \"level\": \"INFO\", \"service\": \"order-service\", \"event\": \"lock_recovered\", \"detail\": \"contention cleared\"}\n{\"ts\": \"2026-08-03T09:14:23Z\", \"level\": \"ERROR\", \"service\": \"order-service\", \"event\": \"PG_CONN_RESET\", \"rq\": \"rq-5c74e9f1\", \"detail\": \"connection reset by peer\", \"pool_in_use\": 20, \"pool_max\": 20}\n{\"ts\": \"2026-08-03T09:14:27Z\", \"level\": \"ERROR\", \"service\": \"order-service\", \"event\": \"PG_CONN_RESET\", \"rq\": \"rq-1d90b3a7\", \"detail\": \"connection reset by peer\", \"pool_in_use\": 20, \"pool_max\": 20}\n{\"ts\": \"2026-08-03T09:15:04Z\", \"level\": \"ERROR\", \"service\": \"order-service\", \"event\": \"PG_CONN_RESET\", \"rq\": \"rq-93b6e2c0\", \"detail\": \"connection reset by peer\", \"pool_in_use\": 20, \"pool_max\": 20}\n{\"ts\": \"2026-08-03T09:18:48Z\", \"level\": \"ERROR\", \"service\": \"order-service\", \"event\": \"PG_CONN_RESET\", \"rq\": \"rq-47a1c9d5\", \"detail\": \"connection reset by peer\", \"pool_in_use\": 20, \"pool_max\": 20}\n{\"ts\": \"2026-08-03T09:41:53Z\", \"level\": \"ERROR\", \"service\": \"order-service\", \"event\": \"PG_CONN_RESET\", \"rq\": \"rq-2c8d7e14\", \"detail\": \"connection reset by peer\", \"pool_in_use\": 20, \"pool_max\": 20}\n{\"ts\": \"2026-08-03T09:52:09Z\", \"level\": \"INFO\", \"service\": \"order-service\", \"event\": \"pool_recovered\", \"detail\": \"connections healthy\"}\n",
+    "README.md": "# order platform workspace\n\nTwo services take part in order placement:\n\n- api-gateway terminates client traffic and proxies to the backend services. Plain-text log in logs/api-gateway.log; timestamps are UTC.\n- order-service creates orders. JSON-lines log in logs/order-service.log; the ts field is UTC.\n\nBoth services stamp the same request id (rq-...) on a call, so a gateway line and the backend record it produced refer to the same request. order-service event codes name the fault that aborted the request.\n",
+    "docs/escalation-policy.md": "# Escalation policy\n\n- P1: customer-visible order placement failure; page orders on-call immediately.\n- P2: elevated latency without failed requests; notify in #orders-ops within 30 minutes.\n- Postmortems are due within two business days and must name the originating fault code.\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "This morning a wave of 502s at the edge hit order placement. The postmortem needs the signature of the fault underneath that wave, not the edge symptom. Which error code names it? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_contains_any": [
+          "PG_CONN_RESET",
+          "PG-CONN-RESET",
+          "pg_conn_reset"
+        ]
+      }
+    }
+  ]
+}

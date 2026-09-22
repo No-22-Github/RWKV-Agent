@@ -1,0 +1,38 @@
+{
+  "id": "tab-0017",
+  "description": "Identify the account holding the third-largest annualized contract value in a SaaS subscription book. WORKBANK-CANARY-a3f21d7c",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "rank",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-tab-subscription-05",
+    "ref_calls": 3,
+    "fixture_bytes": 1129,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "contract_ledger.csv": "account_code,customer,plan,annual_value_usd\nMRA-2041,Delphine Okonkwo,Scale,48950.00\nMRA-2063,Soren Vinterberg,Growth,12750.50\nMRA-2088,Priya Raghunathan,Enterprise,148900.00\nMRA-2114,Callum Ferreira,Starter,3480.00\nMRA-2137,Ingrid Solheim,Growth,18975.25\nMRA-2160,Tobias Mwangi,Scale,62340.00\nMRA-2189,Rosalind Achara,Enterprise,132600.00\nMRA-2205,Hideo Kurosawa,Starter,2260.00\nMRA-2231,Beatriz Salgado,Scale,41780.75\nMRA-2258,Emeka Oyelowo,Growth,9640.00\n",
+    "README.md": "# Marlowe Ridge Analytics - subscription book\n\ncontract_ledger.csv is the current annual subscription book. Each row is one\ncustomer account and carries the account code, the customer name, the plan\ntier and the annualized contract value for that account, in US dollars. The\nannualized contract value is the full-year committed amount for the account.\n\nops/renewal-notes.txt holds the renewals desk's working notes for the\nquarter and is not part of the book.\n",
+    "ops/renewal-notes.txt": "Renewals desk notes, week of 2026-06-08\n- Two Enterprise accounts asked for a multi-year quote.\n- Starter tier price sheet under review by finance.\n- Onboarding handover for the Nordic region moved to Thursday.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Marlowe Ridge Analytics is assembling its board pack from the current subscription book. The contract ledger in the workspace lists every customer account with its annualized contract value. Which account holds the third-largest annual contract value in the book? Give the account code. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_contains": [
+          "MRA-2160"
+        ]
+      }
+    }
+  ]
+}

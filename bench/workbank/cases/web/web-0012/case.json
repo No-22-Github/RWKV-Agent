@@ -1,0 +1,70 @@
+{
+  "id": "web-0012",
+  "description": "harborlight error HL-3312; the first link is dead and the transposed-digit code HL-3132 is a decoy, with the usable reference ranked third. WORKBANK-CANARY-cc41b7f2",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [
+      "TR-FETCHFAIL",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-FETCHFAIL": "UNKNOWN",
+      "TR-DECOY": "tidebreak"
+    },
+    "axes": [
+      "ERR",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-web-errmsg-03",
+    "ref_calls": 5,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "harborlight",
+      "url": "https://wiki.harborlight.io/errors/HL-3312",
+      "title": "harborlight HL-3312 - community wiki",
+      "snippet": "The community wiki entry for HL-3312: what triggers the condition and how operators have cleared it in practice.",
+      "content": "# Page not found\n\nThe page you requested could not be found.\n\nIt may have been renamed, moved, or deleted. Check the address for typos, or start again from the wiki front page.",
+      "published_at": "2025-11-18"
+    },
+    {
+      "query_match": "harborlight",
+      "url": "https://community.harborlight.io/t/hl-3132-keeps-recurring",
+      "url_match": "community.harborlight.io/t/hl-3132-keeps-recurring",
+      "title": "HL-3132 keeps recurring after every failover",
+      "snippet": "Operators keep hitting HL-3132 (tidebreak) once a failover moves the primary; here is what the thread settled on.",
+      "content": "# HL-3132 keeps recurring after every failover\n\n**posted 2026-05-30 by Marek Talvard**\n\nAfter our quarterly failover drill, several replicas started returning HL-3132 within minutes. The dashboards call the condition tidebreak: the replication fence was rewritten while a follower was still applying the previous fence, so the follower drops its lease and rejoins.\n\nWe cleared it by letting each follower drain before cutting the fence again. Other teams report the same pattern on every major version since 4.0, so it is worth keeping the drain step in the drill script.",
+      "published_at": "2026-05-30"
+    },
+    {
+      "query_match": "harborlight",
+      "url": "https://docs.harborlight.io/reference/errors",
+      "url_match": "docs.harborlight.io/reference/errors",
+      "title": "Error reference - harborlight documentation",
+      "snippet": "Every harborlight error code with its condition name and the handling the runbook prescribes.",
+      "content": "# Error reference\n\nharborlight prints errors as HL-NNNN. The condition column is the name our dashboards and runbooks use.\n\n| Code | Condition | Meaning and handling |\n| --- | --- | --- |\n| HL-3301 | snowline | The node lost its quorum view. Rebuild the view before rejoining. |\n| HL-3132 | tidebreak | A follower applied a stale replication fence. Let the follower drain before cutting a new fence. |\n| HL-3312 | moatleak | The primary's write lease and the quorum's view disagree: writes are accepted locally but never replicate. Step the primary down and let the quorum elect a new one. |\n| HL-3407 | glassrun | The snapshot store is unreachable. Repair the store before retrying. |\n\nLast reviewed 2026-08-02.",
+      "published_at": "2026-08-02"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "Last night's harborlight cluster failover produced error HL-3312, and the post-incident write-up needs the vendor's own term. State the condition name harborlight's reference assigns to HL-3312. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_contains_any": [
+          "moatleak",
+          "Moatleak",
+          "MOATLEAK"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "id": "scr-0013",
+  "description": "Rebuild the reefer pallet rollup against the Python standard library alone so the nightly report stays byte-identical; a second input set guards against totals lifted from the visible legs. WORKBANK-CANARY-b6e3a1d7",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "stdlib_only",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-script-stdlib-04",
+    "ref_calls": 3,
+    "fixture_bytes": 1426,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "Reefer intake planning\n======================\n\nEvery intake leg files its pallet count under config/ as leg<N>.yaml, a flat\nmapping of lane name to the pallets moved on that leg.\n\nbin/reefer_rollup.py prints the combined nightly rollup for the planning\ngroup. The scheduler launches it as `python3 bin/reefer_rollup.py` with the\nproject root as the working directory, and the rollup it prints is what gets\nmailed out each morning.\n",
+    "bin/reefer_rollup.py": "\"\"\"Nightly pallet rollup for the reefer intake lanes.\n\nLaunched by the scheduler from the project root and mailed to the planning\ngroup.\n\"\"\"\n\nimport glob\n\nimport yaml\n\ntotals = {}\nfor path in sorted(glob.glob(\"config/leg*.yaml\")):\n    with open(path, encoding=\"utf-8\") as handle:\n        lanes = yaml.safe_load(handle)\n    for lane, pallets in lanes.items():\n        totals[lane] = totals.get(lane, 0) + pallets\n\nfor lane in sorted(totals):\n    print(\"%s,%d\" % (lane, totals[lane]))\nprint(\"total,%d\" % sum(totals.values()))\n",
+    "config/leg1.yaml": "north: 1820\nwest: 640\n",
+    "config/leg2.yaml": "south: 2310\nnorth: 415\n",
+    "docs/handover.md": "Intake handover notes\n=====================\n\nLeg 1 covers the northern and western docks; leg 2 picks up the southern run\nplus the northern overflow. The eastern lane moved onto its own leg when the\nnew berth opened.\n\nBerth maintenance closes the western dock on the first Monday of the month,\nso the western pallet count is short that week. The planning group reads the\nrollup against the berth log, not the other way round.\n"
+  },
+  "expect": {
+    "run": {
+      "path": "bin/reefer_rollup.py",
+      "timeout_millis": 10000,
+      "hidden_files": {
+        "config/leg3.yaml": "south: 880\neast: 1290\n"
+      },
+      "expected_stdout": "east,1290\nnorth,2235\nsouth,3190\nwest,640\ntotal,7355"
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Cold-chain planning mails out a nightly pallet rollup for the intake legs, and bin/reefer_rollup.py is the script that has produced it for years. The replay host that now runs the job carries nothing beyond the Python standard library, and the job stops there before it prints. Rebuild bin/reefer_rollup.py so that, started from the project root, it runs on the standard library alone and prints the same rollup. When finished, reply DONE.",
+      "expect": {}
+    }
+  ]
+}

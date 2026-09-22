@@ -1,0 +1,37 @@
+{
+  "id": "doc-0009",
+  "description": "Look up the paid study leave allowance stated in the Larkspur Care Group staff handbook. WORKBANK-CANARY-c4d17e08",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-doc-handbook-03",
+    "ref_calls": 3,
+    "fixture_bytes": 3498,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:deepseek-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "# Larkspur Care Group — document library\n\nThe staff handbook is the binding reference for terms and conditions at all of\nthe group's residential homes and for the central support team. Each home also\nkeeps a local arrangements file written by its manager; those files record the\nrota pattern for that home and do not change any entitlement set out in the\nhandbook.\n\nPeople team: people.services@larkspurcare.example\nPayroll queries: payroll@larkspurcare.example (five working days to answer)\n",
+    "handbook/staff-handbook.md": "# Staff handbook — Larkspur Care Group\n\nRevision 9. In force from 1 October 2025. Issued by the people team and\nreviewed each September.\n\n## 1 Working hours\n\nFull-time hours are 37.5 per week, worked to a rota agreed with the home\nmanager. Residents' routines come first, so shift patterns vary between homes.\nNight work carries a premium of 12 per cent on the basic rate.\n\n## 2 Probation\n\nNew starters complete a probation period of six months. The home manager meets\nthe employee at the end of the third month and again in the final week. A\nprobation period may be extended once, by no more than three months, where the\nmanager records the reasons in writing.\n\n## 3 Annual leave\n\nAnnual leave is 33 days a year for a full-time employee, including the eight\npublic holidays observed in the group's published calendar. Leave is booked\nthrough the home manager and carried over only with the manager's written\nagreement.\n\n## 4 Study leave\n\nEmployees may take up to 20 working days of paid study leave in any rolling\ntwelve-month period. Study leave covers attendance at a course, examination or\naccredited training programme that is relevant to the employee's role and has\nbeen agreed with the home manager beforehand. Requests reach the manager at\nleast four weeks before the first day of the course, and the home keeps a\nrecord of the days taken. Unused study leave does not carry into the following\ntwelve-month period and is not paid in lieu.\n\n## 5 Sickness and absence\n\nReport sickness to the home before the start of the shift. The group pays\nstatutory sick pay from the fourth consecutive day of absence, and the group's\nown scheme adds the balance of basic pay for the first three weeks of a\ncertified absence.\n\n## 6 Uniform and laundry\n\nThe group provides tunics, aprons and non-slip footwear. Employees launder\ntheir own uniforms unless the home runs an on-site laundry. Uniforms remain\nthe property of the group and are returned when employment ends.\n\n## 7 Meals and rest breaks\n\nA meal is provided without charge on any shift of six hours or more. Breaks\nare taken away from the resident areas and are scheduled so that each unit\nkeeps its agreed staffing level at all times.\n",
+    "handbook/uniform-and-equipment-list.md": "# Uniform and equipment list — Larkspur Care Group\n\nIssued alongside the handbook for home managers ordering supplies.\n\n| Item | Supplied to | Replace when |\n|---|---|---|\n| Tunic, short sleeve | Care and nursing staff | Worn or faded |\n| Tunic, long sleeve | Care staff on night duty | Worn or faded |\n| Apron, disposable | All resident-facing staff | Every shift |\n| Non-slip footwear | All resident-facing staff | Annually |\n| Gloves, nitrile | All staff | Every task |\n| Name badge | All staff | On a change of name |\n| Moving-and-handling belt | Trained handlers | Every second year |\n| Torch, hand | Night duty | On failure |\n\nOrdering goes through the home manager; deliveries arrive on Tuesdays and\nThursdays. Specialist equipment for a named resident is ordered by the clinical\nlead, not from this list.\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "One of the home managers is planning rota cover and needs the study leave figure for the team. Under the Larkspur Care Group staff handbook, how many working days of paid study leave may an employee take in a rolling twelve-month period? Give the number on its own. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 20,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

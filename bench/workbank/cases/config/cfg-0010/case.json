@@ -1,0 +1,44 @@
+{
+  "id": "cfg-0010",
+  "description": "Completeness check for the catalog-sync settings file, whose required key set is spread across the deployment manifest and the service README. WORKBANK-CANARY-8c3f0d16",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "missing_keys",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "snapshot_retention_days"
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-keycheck-03",
+    "ref_calls": 4,
+    "fixture_bytes": 973,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "deploy/catalog-sync.yaml": "service: catalog-sync\n# Keys the deployer requires every catalog-sync environment to declare.\nrequired_keys:\n  - service_name\n  - listen_port\n  - max_inflight_batches\n  - retry_backoff_ms\n  - snapshot_retention_days\n",
+    "services/catalog-sync/README.md": "# catalog-sync\n\ncatalog-sync streams product changes from the warehouse into the storefront\nsearch index.\n\n## Runtime settings\n\nservices/catalog-sync/settings.yaml holds the runtime settings. On top of the\nkeys the deployment manifest lists, the search team requires these keys to be\ndeclared so the index rebuild can be throttled and metered:\n\n- index_shard_count\n- quota_calls_per_minute\n\nThe settings file is flat YAML.\n",
+    "services/catalog-sync/settings.yaml": "service_name: catalog-sync\nlisten_port: 7331\nmax_inflight_batches: 16\nretry_backoff_ms: 400\nindex_shard_count: 8\n",
+    "ops/search-guild.md": "# Search guild notes, September 2026\n\n- Index rebuilds now run on the secondary pool overnight.\n- The relevance review moved to the 2026-09-12 session.\n- Freshness dashboards are owned by the platform observability team.\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "The catalog-sync service reaches onboarding sign-off on Friday. For sign-off the settings file has to declare every key the platform requires of it, and I need the list of keys the settings file does not declare yet. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_contains": [
+          "snapshot_retention_days",
+          "quota_calls_per_minute"
+        ]
+      }
+    }
+  ]
+}

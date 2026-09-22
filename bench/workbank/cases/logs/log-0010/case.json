@@ -1,0 +1,43 @@
+{
+  "id": "log-0010",
+  "description": "Report the first post-rollout ERROR in a catalog-sync log whose lines carry a +08:00 offset while the deploy record is UTC. WORKBANK-CANARY-8d3e15b2",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [
+      "TR-TZ"
+    ],
+    "trap_decoys": {
+      "TR-TZ": "2026-08-11 10:41:55"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-deploy-03",
+    "ref_calls": 4,
+    "fixture_bytes": 2192,
+    "status": "reviewed",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": "human:delegated-20260922"
+  },
+  "files": {
+    "logs/catalog-sync.log": "2026-08-11T08:02:19+08:00 INFO [catalog-sync] vendor feed fetched items=18422\n2026-08-11T09:14:37+08:00 INFO [catalog-sync] feed diff applied added=311 updated=2041 removed=18\n2026-08-11T10:41:55+08:00 ERROR [catalog-sync] rq-3f91c2a0 CS_SCHEMA_MISMATCH sku=TL-88213 field=voltage raw=\"12 V\" expected number\n2026-08-11T11:20:04+08:00 ERROR [catalog-sync] rq-77b0e4d1 CS_SCHEMA_MISMATCH sku=TL-88290 field=voltage raw=\"24 V\" expected number\n2026-08-11T13:58:12+08:00 ERROR [catalog-sync] rq-a4c1b8e2 CS_SCHEMA_MISMATCH sku=TL-88344 field=voltage raw=\"110 V\" expected number\n2026-08-11T14:09:33+08:00 ERROR [catalog-sync] rq-b8e2d3f4 CS_SCHEMA_MISMATCH sku=TL-88371 field=voltage raw=\"230 V\" expected number\n2026-08-11T14:41:20+08:00 ERROR [catalog-sync] rq-c91f0a5b CS_SCHEMA_MISMATCH sku=TL-88398 field=voltage raw=\"115 V\" expected number\n2026-08-11T15:22:08+08:00 INFO [catalog-sync] feed diff applied added=9 updated=180\n2026-08-11T16:03:47+08:00 ERROR [catalog-sync] rq-d02a7c13 CS_SCHEMA_MISMATCH sku=TL-88420 field=voltage raw=\"277 V\" expected number\n",
+    "docs/deployments.md": "# Deployment records\n\nThe deploy coordinator appends every rollout to this table. Each timestamp is the coordinator clock, which is UTC (trailing Z).\n\n| When | Service | Release | Actor |\n|------|---------|---------|-------|\n| 2026-08-09 21:14:33Z | catalog-sync | cat-sync-4.1.7 | ci-bot |\n| 2026-08-11 06:05:00Z | catalog-sync | cat-sync-4.2.0 | ci-bot |\n| 2026-08-12 03:22:10Z | pricing-engine | price-3.8.0 | r.okafor |\n| 2026-08-12 22:47:51Z | catalog-sync | cat-sync-4.2.1 | ci-bot |\n",
+    "README.md": "# catalog-sync workspace\n\ncatalog-sync keeps the product catalogue aligned with vendor feed drops.\n\n- Rollout records live in docs/deployments.md; they are stamped with the coordinator clock (UTC, trailing Z).\n- Application lines in logs/catalog-sync.log carry the APAC collector offset (+08:00).\n- CS_SCHEMA_MISMATCH marks a vendor value that the loader could not read as the field's declared type.\n",
+    "docs/catalog-schema.md": "# Catalogue field schema\n\n| Field | Type | Notes |\n|-------|------|-------|\n| sku | string | vendor-stable identifier |\n| price | number | minor units are not used |\n| voltage | number | volts, no unit suffix |\n| weight_kg | number | kilograms |\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "The catalogue rollout to release cat-sync-4.2.0 is under review. Give the timestamp of the first ERROR the service logged at or after that rollout, expressed in Singapore time as YYYY-MM-DD HH:MM:SS. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_contains": [
+          "2026-08-11 14:09:33"
+        ]
+      }
+    }
+  ]
+}

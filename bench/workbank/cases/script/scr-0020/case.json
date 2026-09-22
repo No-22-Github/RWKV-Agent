@@ -1,0 +1,54 @@
+{
+  "id": "scr-0020",
+  "description": "Rebuild the membership subscription archive report so it gathers the campaign event exports, counts subscription events once, and groups the value by the month each event happened. WORKBANK-CANARY-2f6a90d3",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "write_new",
+    "traps": [
+      "TR-DUPROW",
+      "TR-DATEFMT"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": null,
+      "TR-DATEFMT": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-script-sweep-05",
+    "ref_calls": 5,
+    "fixture_bytes": 2319,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "Subscription archive report - membership desk\n============================================\n\narchive_rollup.py rebuilds the membership desk's monthly archive\nreport. It runs from the project root with\n\n    python3 archive_rollup.py\n\nand searches the whole project tree for the campaign folders'\nevents-*.csv exports. Campaign folders are named for the send that\nproduced them, not for when the events happened, and the exports sit at\ndifferent depths under archive/.\n\nEvery events-*.csv row:\n\n    event_id,occurred,plan,amount_cents\n\n    event_id       identity of one subscription event\n    occurred       the day the event happened\n    plan           plan the member took\n    amount_cents   value of the event in cents\n\nThe archive report is grouped by the month in which an event happened -\nthe month of occurred - never by the campaign folder the export was\nfiled in. An event_id identifies one subscription event.\n\nDate convention: occurred appears in three shapes, all meaning the same\nthing - the day written first (DD-MM-YYYY, so 14-08-2026 is the 14th of\nAugust 2026), an ISO date (YYYY/MM/DD), or an English month name\n(Mon D YYYY, e.g. Jun 3 2026).\n\nThe report, written to standard output:\n\n    month,amount_cents\n    <YYYY-MM>,<amount_cents>   one line per month, ascending\n    total,<amount_cents>\n",
+    "archive_rollup.py": "\"\"\"Membership subscription archive report.\n\nPlaceholder: the desk's archive report was never moved off the old\nreporting box and the rebuild is still open. The desk still closes the\narchive after each campaign.\n\"\"\"\n\nraise SystemExit(\"archive_rollup.py: implementation missing\")\n",
+    "archive/2026-05/events-a.csv": "event_id,occurred,plan,amount_cents\nEV-7314,2026/05/09,monthly,1299\nEV-7321,22-05-2026,annual,14400\nEV-7336,2026/05/19,monthly,1299\nEV-7321,22-05-2026,annual,14400\n",
+    "archive/2026-05/events-b.csv": "event_id,occurred,plan,amount_cents\nEV-7348,Jun 3 2026,monthly,1299\nEV-7355,2026/06/11,annual,14400\nEV-7314,2026/05/09,monthly,1299\n",
+    "archive/2026-q3/events-c.csv": "event_id,occurred,plan,amount_cents\nEV-7402,03-04-2026,monthly,1299\nEV-7417,2026/06/27,annual,14400\nEV-7431,Jul 15 2026,monthly,1299\n",
+    "archive/2026-06/late/events-d.csv": "event_id,occurred,plan,amount_cents\nEV-7450,2026/07/02,annual,14400\nEV-7463,18-07-2026,monthly,1299\nEV-7402,03-04-2026,monthly,1299\n",
+    "ops/send_schedule.txt": "Send schedule - membership campaign, Q3 2026\n  weekly digest         Tuesday 06:00\n  winback wave          every second Thursday\n  annual renewal nudge  1st of the month\n"
+  },
+  "expect": {
+    "run": {
+      "path": "archive_rollup.py",
+      "args": [],
+      "timeout_millis": 10000,
+      "hidden_files": {
+        "archive/2026-08/events-e.csv": "event_id,occurred,plan,amount_cents\nEV-7512,2026/08/07,monthly,1299\nEV-7463,18-07-2026,monthly,1299\nEV-7526,09-09-2026,annual,14400\nEV-7533,Sep 12 2026,monthly,1299\n"
+      },
+      "expected_stdout": "month,amount_cents\n2026-04,1299\n2026-05,16998\n2026-06,30099\n2026-07,16998\n2026-08,1299\n2026-09,15699\ntotal,82392"
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The membership desk wants its subscription archive report restored: archive_rollup.py is a leftover stub. Started from the project root, it must collect the event exports spread across the campaign folders and print, for each month, what the recorded subscriptions came to, in the layout the desk has always used. When finished, reply DONE.",
+      "expect": {}
+    }
+  ]
+}

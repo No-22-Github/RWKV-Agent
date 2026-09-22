@@ -1,0 +1,46 @@
+{
+  "id": "cfg-0012",
+  "description": "Onboarding completeness check for the route-planner settings, whose required set spans the deployment manifest, the service README and a region profile the manifest names but the workspace does not carry. WORKBANK-CANARY-a6f21c83",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "missing_keys",
+    "traps": [
+      "TR-MULTISRC",
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "no key is missing",
+      "TR-ABSENT": "dispatch_batch_limit"
+    },
+    "axes": [
+      "CHN",
+      "DEC"
+    ],
+    "level": "L2",
+    "family": "fam-cfg-keycheck-03",
+    "ref_calls": 5,
+    "fixture_bytes": 1247,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "# Depot routing workspace\n\nroute-planner builds shift routes for the depot network. Deployment inputs\nlive in deploy/, region profiles in profiles/, and the service's own notes\nunder services/route-planner/.\n",
+    "deploy/route-planner.yaml": "service: route-planner\n# Fleet keys the deployer requires every route-planner deployment to declare.\nrequired_keys:\n  - service_name\n  - listen_port\n  - max_inflight_batches\n  - retry_backoff_ms\n# The region profile names the remaining keys this deployment requires.\nregion_profile: profiles/sfo-edge.yaml\n",
+    "services/route-planner/README.md": "# route-planner\n\nComputes depot shift routes and publishes them to the dispatch desk.\n\n## Settings\n\nservices/route-planner/settings.yaml carries the runtime settings. The\nsettings review covers the fleet keys listed in the deployment manifest and\nalso the keys named by the region profile the manifest points at; the two\nparts together form the required set.\n",
+    "services/route-planner/settings.yaml": "service_name: route-planner\nlisten_port: 9405\nmax_inflight_batches: 40\nretry_backoff_ms: 750\n",
+    "profiles/iad-core.yaml": "# Region profile for the iad-core edge deployment.\nprofile: iad-core\nkeys:\n  dispatch_batch_limit: 64\n  route_prefetch_depth: 3\n",
+    "ops/dispatch-desk.md": "# Dispatch desk notes, 2026-08-19\n\n- The morning route batch now publishes at 05:40 local time.\n- Depot 12 asked for a later cut-off for the night crew.\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "The route-planner service is coming up for its onboarding review. The review checks that the settings file declares every key the platform requires of it, so tell me which keys the settings file does not declare. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "UNKNOWN"
+      }
+    }
+  ]
+}

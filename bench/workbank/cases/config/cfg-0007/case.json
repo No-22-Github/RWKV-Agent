@@ -1,0 +1,42 @@
+{
+  "id": "cfg-0007",
+  "description": "Shutdown grace period for the stream-ingest adapter, whose runtime settings file is settings.yaml on disk while the request names settings.yml. WORKBANK-CANARY-7c2d9e51",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": 90
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-envstack-02",
+    "ref_calls": 4,
+    "fixture_bytes": 864,
+    "status": "reviewed",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": "human:delegated-20260922"
+  },
+  "files": {
+    "settings.yaml": "# Runtime settings for the stream-ingest adapter.\nservice: stream-ingest\ningest_workers: 6\nshutdown_grace_seconds: 240\nbackpressure_limit: 512\ndead_letter_suffix: ingest-dlq\n",
+    "README.md": "# Ingestion adapter workspace\n\nThe adapter's runtime settings live in the settings file at the workspace\nroot. docs/ holds the migration notes from the 2026 consolidation and\nschemas/ holds the event contracts the adapter emits.\n",
+    "docs/ingest-migration.md": "# Ingestion migration notes - 2026-03-18\n\nThe adapter's runtime settings were consolidated out of the per-team files\nduring the March 2026 cleanup. Before that change the shutdown grace period\nwas pinned at 90 seconds in settings.yml; a few launch scripts still\nreference that path in their comments.\n",
+    "schemas/event-contract.md": "# Event contract (ingest.v2)\n\nRequired fields: event_id, source, received_at. The dead-letter envelope\nreuses the same fields and adds a failure_reason string.\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "The stream-ingest adapter is moving to a new node pool and capacity planning needs its shutdown grace period in seconds, which is kept in settings.yml. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 240,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

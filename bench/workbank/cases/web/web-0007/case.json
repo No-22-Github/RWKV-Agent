@@ -1,0 +1,64 @@
+{
+  "id": "web-0007",
+  "description": "Release in which tidalforge deprecated media_priority; no snippet states the release, and a release-news snippet offers the current version instead. WORKBANK-CANARY-a37d5e02",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "deprecation",
+    "traps": [
+      "TR-SNIPPETVAGUE"
+    ],
+    "trap_decoys": {
+      "TR-SNIPPETVAGUE": "6.4.0"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-web-deprecation-02",
+    "ref_calls": 4,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "tidalforge",
+      "url": "https://tidalforge.dev/news/scheduler-rework-6-4",
+      "url_match": "tidalforge.dev/news/scheduler-rework-6-4",
+      "title": "tidalforge 6.4.0 reworks the scheduler",
+      "snippet": "tidalforge 6.4.0 lands with a rebuilt scheduler, profile-level media handling, and a shorter option list.",
+      "content": "# tidalforge 6.4.0 reworks the scheduler\n\n*Released 2026-08-05*\n\nThe 6.4.0 release rebuilds how work is placed on the farm. Profiles now carry their own media policy, and a handful of long-standing options have left the reference.\n\n## What changed\n\nMedia handling moved into the job profile, so a profile no longer names a device queue by hand; the scheduler picks the target from the profile's policy.\n\n## Upgrading\n\nRun `tidalforge doctor` after upgrading. It names every retired option still present in your profiles, and the deprecation index records which release retired each one.\n\n6.4.0 is available for every supported platform.",
+      "published_at": "2026-08-05"
+    },
+    {
+      "query_match": "tidalforge",
+      "url": "https://docs.tidalforge.dev/reference/deprecations",
+      "url_match": "docs.tidalforge.dev/reference/deprecations",
+      "title": "Deprecations - tidalforge documentation",
+      "snippet": "A running index of tidalforge options that have been adjusted or retired, grouped by release line.",
+      "content": "# Deprecations\n\nOptions listed here have been adjusted or retired. Each row names the release in which the change landed and what to use instead, and `tidalforge doctor` prints a warning for each retired option still present in a profile.\n\n## Scheduler\n\n| Option | Deprecated in | Use instead |\n| --- | --- | --- |\n| media_priority | 6.1.0 | media_policy in the job profile |\n| queue_hint | 5.9.0 | scheduler_class |\n\n## Storage\n\n| Option | Deprecated in | Use instead |\n| --- | --- | --- |\n| scratch_dir | 6.3.0 | work_dir |\n\nLast reviewed 2026-08-12.",
+      "published_at": "2026-08-12"
+    },
+    {
+      "query_match": "tidalforge",
+      "url": "https://forgefarm.talk/threads/media-priority-still-accepted",
+      "url_match": "forgefarm.talk/threads/media-priority-still-accepted",
+      "title": "media_priority still accepted on new profiles? - Forge Farm talk",
+      "snippet": "A farm operator asks whether the media_priority option is gone or merely tolerated after the scheduler rework.",
+      "content": "# media_priority still accepted on new profiles?\n\n**kasper-lh opened this thread on 2026-08-20**\n\nOur profiles still set media_priority and nothing complains. Is the option gone or not?\n\n**vandt-ops replied on 2026-08-21**\n\nAccepted but noisy: doctor warns about it. The deprecation index has the release it started in, and media_policy in the job profile is the replacement. A rebase of the profiles takes an afternoon.",
+      "published_at": "2026-08-20"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "The platform team is rewriting our render profiles and needs the date this change landed on record. media_priority: what tidalforge version deprecated it? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "6.1.0"
+      }
+    }
+  ]
+}

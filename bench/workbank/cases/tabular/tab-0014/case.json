@@ -1,0 +1,43 @@
+{
+  "id": "tab-0014",
+  "description": "Total carriage for March 2026 consignments where the lane weight bands are overridden for one overweight parcel. WORKBANK-CANARY-9b3e7d15",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "policy_calc",
+    "traps": [
+      "TR-RULEFILE"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": 204.5
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-tab-shipping-04",
+    "ref_calls": 4,
+    "fixture_bytes": 1305,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "manifest_march_2026.csv": "consignment_id,dispatch_date,billed_weight_kg\nCW-2207,2026-03-02,12\nCW-2215,2026-03-04,34\nCW-2221,2026-03-06,8\nCW-2233,2026-03-09,47\nCW-2240,2026-03-12,22\nCW-2252,2026-03-16,19\nCW-2261,2026-03-19,40\nCW-2274,2026-03-24,26\n",
+    "tariff-card.md": "# Coldharbour Freight - Westgate lane weight tariff\n\nEffective 1 March 2026. Charges are per consignment and are set from the\nbilled weight shown on the manifest.\n\n| Billed weight | Charge (GBP) |\n|---|---|\n| up to 20 kg | 18.60 |\n| over 20 kg up to 40 kg | 27.45 |\n| over 40 kg | 38.90 |\n",
+    "lane-conditions.md": "# Westgate lane conditions\n\nThese conditions are read alongside the weight tariff in tariff-card.md\nand settle how a consignment is charged.\n\n- A consignment billed at 40 kg or under is charged the tariff charge for\n  its weight band.\n- A consignment billed above 40 kg is charged 38.90 for the first 40 kg\n  and 6.20 for each further 5 kg or part thereof.\n",
+    "README.md": "# Coldharbour Freight - Westgate lane account\n\nThe Westgate lane is invoiced monthly from the consignment manifest in\nmanifest_march_2026.csv. tariff-card.md carries the weight tariff and\nlane-conditions.md carries the conditions that apply to the lane.\nCharges are in GBP.\n",
+    "ops/yard-notes.txt": "Coldharbour yard notes, mid-March 2026\n- Trailer wash bay out of use for two days.\n- Two pallets of returnable crates collected.\n- Night gate staff rota published.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Coldharbour Freight is raising its March 2026 invoice for the Westgate lane. The workspace holds the lane's weight tariff, the conditions governing it, and that month's consignment manifest. What total carriage is due for the Westgate consignments booked in March 2026? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 216.9,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

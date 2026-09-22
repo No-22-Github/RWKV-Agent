@@ -1,0 +1,48 @@
+{
+  "id": "fs-0012",
+  "description": "Crew-scheduling release packaging; find the duplicated artifact under the release folders. WORKBANK-CANARY-c93f6d18",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "duplicates",
+    "traps": [
+      "TR-DECOY",
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "release/archive/crew_pairing_audit.txt",
+      "TR-NEARNAME": "release/manifests/crew-pairing-eu.csv"
+    },
+    "axes": [
+      "OBS",
+      "ERR"
+    ],
+    "level": "L2",
+    "family": "fam-fs-dedupe-03",
+    "ref_calls": 5,
+    "fixture_bytes": 1164,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "Northwind Regional Air - release packaging.\n\nrelease/ holds the artifacts published with each crew-scheduling release;\nrelease/manifest/ carries the manifest extracts themselves and\nrelease/archive/ keeps superseded copies. The duplication check for a\nrelease treats two files as the same artifact only when their stored\nbytes match exactly; files that only share a name in two folders are\ndistinct artifacts.\n",
+    "release/manifest/crew-pairing-eu.csv": "pairing_id,base,duty_hours,report_time\nCP-4412,MAN,9.5,06:15\nCP-4413,MAN,8.0,11:40\nCP-4418,EDI,10.5,05:50\nCP-4421,EDI,7.5,12:20\n",
+    "release/manifest/crew_pairing_eu_copy.csv": "pairing_id,base,duty_hours,report_time\nCP-4412,MAN,9.5,06:15\nCP-4413,MAN,8.0,11:40\nCP-4418,EDI,10.5,05:50\nCP-4421,EDI,7.5,12:20\n",
+    "release/manifest/crew_pairing_audit.txt": "Crew pairing audit - EU spring release\n2026-04-02  base MAN: 2 pairing pairs reviewed\n2026-04-02  base EDI: 2 pairing pairs reviewed\n2026-04-06  release candidate tagged rc3\n",
+    "release/archive/crew_pairing_audit.txt": "Crew pairing audit - EU spring release\n2026-04-02  base MAN: 2 pairing pairs reviewed\n2026-04-02  base EDI: 2 pairing pairs reviewed\n2026-04-09  release candidate tagged rc4\n",
+    "release/changelog.md": "# Release changelog\n\n2026-04-06  rc3 cut for the EU spring crew-scheduling release.\n2026-04-11  EDI pairing rules confirmed with the operations desk.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Northwind Regional Air is compiling the spring crew-scheduling release. Under release/manifests/, one artifact is present as two byte-identical files. Report the workspace path of either copy. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals_any": [
+          "release/manifest/crew-pairing-eu.csv",
+          "release/manifest/crew_pairing_eu_copy.csv"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "id": "code-0010",
+  "description": "Repair the free-cancellation boundary in a pickup booking fee module so the desk's recorded notice terms hold. WORKBANK-CANARY-9b2e7d61",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "fix_edge_case",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": "leaves the inclusive guard in place (notice_days >= FREE_NOTICE_DAYS), or rewrites the guard as notice_days <= FREE_NOTICE_DAYS, still admitting the boundary day as free"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-code-edge-03",
+    "ref_calls": 4,
+    "fixture_bytes": 1167,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "billing/__init__.py": "",
+    "billing/notices.py": "FREE_NOTICE_DAYS = 14  # desk terms: free cancellation needs notice beyond this\nMAX_CANCELLATION_FEE_CENTS = 6500\n\n\ndef cancellation_fee_cents(booking_cents, notice_days):\n    \"\"\"Fee owed when a pickup booking is cancelled.\n\n    Desk terms recorded 2026-04-02: a cancellation is free only when it is\n    filed with notice of more than FREE_NOTICE_DAYS whole days ahead of the\n    pickup date. A cancellation filed exactly FREE_NOTICE_DAYS days ahead\n    owes the cap, and shorter notice owes the same cap.\n    \"\"\"\n    if notice_days >= FREE_NOTICE_DAYS:\n        return 0\n    return min(booking_cents, MAX_CANCELLATION_FEE_CENTS)\n",
+    "ops/telemetry.py": "\"\"\"Counters exported for the pickup booking dashboard.\"\"\"\n\nBOOKING_COUNTERS = (\"created\", \"cancelled\", \"dispatched\")\n\n\ndef counter_name(event):\n    \"\"\"Map an intake event onto its dashboard counter.\"\"\"\n    return event if event in BOOKING_COUNTERS else \"created\"\n",
+    "readme": "Aldermoor pickup bookings.\n\nbilling/    cancellation fees for booked pickups\nops/        dashboard counters and alert wiring\n\nThe desk records its booking terms in the docstrings that ship with the\nbilling/ modules; those recorded terms are the authority in any fee dispute.\n"
+  },
+  "expect": {
+    "files": {
+      "billing/notices.py": {
+        "contains": [
+          "notice_days > FREE_NOTICE_DAYS"
+        ]
+      },
+      "readme": {
+        "unchanged": true
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "A billing review found that the cancellation fees this pickup service records disagree with the desk's notice terms for some bookings. Those terms are the authority on when a fee applies. Bring billing/notices.py into line with them, keeping the repair as small as the file allows and leaving the rest of the workspace as it stands. When finished, reply DONE."
+    }
+  ]
+}

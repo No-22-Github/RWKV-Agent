@@ -1,0 +1,58 @@
+{
+  "id": "web-0013",
+  "description": "Shipped cindermill cache_ttl_hours value per the configuration reference; plain L0 lookup. WORKBANK-CANARY-7c4e9b31",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-web-version-04",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "cindermill",
+      "url": "https://docs.cindermill.dev/en/stable/reference/configuration/",
+      "url_match": "docs.cindermill.dev/en/stable/reference/configuration",
+      "title": "Configuration reference - cindermill documentation",
+      "snippet": "Every cindermill configuration option with its type, accepted range, and the value it ships with, grouped by subsystem.",
+      "content": "# Configuration reference\n\nThis page lists every cindermill configuration option with its type, accepted range, and the value it ships with. Options live in `cindermill.toml` under the table named for their subsystem.\n\n## Cache table\n\n| Option | Type | Default | Description |\n| --- | --- | --- | --- |\n| cache_dir | string | /var/cache/cindermill | Root directory for stored objects and index shards. |\n| cache_ttl_hours | integer | 72 | Age at which an object that has not been read becomes eligible for eviction. |\n| max_object_size_mib | integer | 2048 | Objects above this size are passed through to the backend without being cached. |\n| evict_watermark_percent | integer | 85 | Used space above which the eviction sweep runs continuously instead of on a timer. |\n| remote_verify | boolean | false | Re-hash objects after they are downloaded from a peer. |\n\n## Network table\n\n| Option | Type | Default | Description |\n| --- | --- | --- | --- |\n| listen_port | integer | 7345 | TCP port the daemon binds on every interface. |\n| peer_timeout_ms | integer | 1200 | Per-peer request timeout for object transfers. |\n| max_peers | integer | 64 | Concurrent peer connections the daemon accepts. |\n\n## Validation\n\n`cindermill doctor` compares a local file against this reference and prints every option whose value differs from the shipped one. Ranges are enforced at load time; an out-of-range value stops the daemon rather than being clamped.\n\nLast reviewed 2026-06-30.",
+      "published_at": "2026-06-30"
+    },
+    {
+      "query_match": "cindermill",
+      "url": "https://github.com/cindermill/cindermill",
+      "url_match": "github.com/cindermill/cindermill",
+      "title": "cindermill/cindermill: content-addressed build cache for build fleets",
+      "snippet": "A shared build cache with peer-to-peer object transfer, pluggable backends, and a single static binary.",
+      "content": "# cindermill\n\nA content-addressed build cache for heterogeneous build fleets. cindermill sits between your compilers and object storage, deduplicating artefacts across machines and keeping hot objects on local NVMe.\n\n- Content-addressed storage with automatic deduplication\n- Peer-to-peer object transfer between fleet nodes\n- Pluggable backends: S3, GCS, plain filesystem\n- Single static binary; configuration in TOML\n\n## Getting started\n\n```\nbrew install cindermill\ncindermill init --backend s3://northgate-buildcache\ncindermill serve\n```\n\n## Documentation\n\nThe configuration reference on docs.cindermill.dev lists every option with its type and the value it ships with. Release notes live in CHANGELOG.md.\n\nApache-2.0. Maintained by the cindermill contributors.",
+      "published_at": "2026-03-18"
+    },
+    {
+      "query_match": "cindermill",
+      "url": "https://www.ironbridgehpc.org/notes/build-cache-bakeoff",
+      "url_match": "ironbridgehpc.org/notes/build-cache-bakeoff",
+      "title": "Build-cache bakeoff: four daemons on a 200-core fleet",
+      "snippet": "We ran four build caches through the same monorepo and cold cache, then measured what recovery looked like after a rack was fenced.",
+      "content": "# Build-cache bakeoff: four daemons on a 200-core fleet\n\n*Posted 2025-12-09 by Priya Raghunathan - Ironbridge HPC notes*\n\nWe put four build caches through the same monorepo: 41,000 targets, a cold cache, and a fleet of 200 build agents on a shared 25 GbE fabric.\n\n## Results\n\n| Daemon | Cold build | Warm build | Peak memory |\n| --- | --- | --- | --- |\n| cindermill | 18m 40s | 2m 05s | 3.4 GiB |\n| sandpiper | 21m 10s | 2m 55s | 5.1 GiB |\n| brickvault | 23m 35s | 3m 20s | 4.2 GiB |\n| drystone | 26m 50s | 4m 05s | 2.9 GiB |\n\n## What we took away\n\ncindermill recovered fastest after we fenced a rack mid-build, and its TOML file was the shortest to review line by line. None of that says much about how a daemon ships, though: every one of these tools starts conservative and wants tuning once the fleet is warm.\n\n*Priya Raghunathan leads build infrastructure at Ironbridge HPC.*",
+      "published_at": "2025-12-09"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "The storage group is standing up a new build farm and wants our current setting on record before anything is changed. According to cindermill's configuration reference, what value does cache_ttl_hours ship with? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "72"
+      }
+    }
+  ]
+}

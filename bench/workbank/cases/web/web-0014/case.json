@@ -1,0 +1,72 @@
+{
+  "id": "web-0014",
+  "description": "Newest threadneedle release; the top result's snippet already states it, so any further searching is the failure. WORKBANK-CANARY-2f8a6d05",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": "7.3.0"
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-web-version-04",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "threadneedle",
+      "url": "https://threadneedle.io/releases",
+      "url_match": "threadneedle.io/releases",
+      "title": "Releases - threadneedle",
+      "snippet": "The current stable threadneedle release is 7.4.1, published 2026-08-19.",
+      "content": "# Releases\n\nThe current stable threadneedle release is 7.4.1. Every tagged release follows, newest first.\n\n## 7.4.1 (2026-08-19)\n\nPatch release. Fixes a scheduler stall when a worker pool shrinks below its reserved capacity. No configuration changes.\n\n## 7.4.0 (2026-07-02)\n\n- New `threadneedle queue inspect` command.\n- Behaviour change: delayed jobs now count against the queue depth limit.\n\n## 7.3.4 (2026-05-15)\n\n- Fixed: retry backoff no longer skips the first interval.\n\n## 7.3.0 (2025-11-21)\n\n- Added per-task rate limits.\n\nReleases older than 7.3 are listed in the archive.",
+      "published_at": "2026-08-19"
+    },
+    {
+      "query_match": "threadneedle",
+      "url": "https://blog.unwinops.co.uk/threadneedle-7-3-upgrade-notes",
+      "url_match": "blog.unwinops.co.uk/threadneedle-7-3-upgrade-notes",
+      "title": "Upgrading to threadneedle 7.3.0: what changed for us",
+      "snippet": "A month after moving our invoice pipeline onto the 7.3 line, we wrote down what actually changed and what we would do differently.",
+      "content": "# Upgrading to threadneedle 7.3.0: what changed for us\n\n*Posted 2025-12-02 by Callum Fenwick - Unwin Operations engineering notes*\n\nWe moved our invoice pipeline onto the 7.3 line in late November and have stayed there through the winter.\n\n## What we run\n\nThree scheduler nodes and eleven workers per region, all on the 7.3.x line. We pinned 7.3.0 and have not taken a patch since; nothing in the 7.3 series after that touched anything we use.\n\n## The migration itself\n\nThe upgrade was uneventful. We drained each worker, swapped the binary, and let the queue refill.\n\n## What we would change\n\nNothing about the version, honestly. Our next move is a review of the retry policies, not the broker.\n\n*Callum Fenwick runs platform reliability at Unwin Operations.*",
+      "published_at": "2025-12-02"
+    },
+    {
+      "query_match": "threadneedle",
+      "url": "https://github.com/threadneedle/threadneedle",
+      "url_match": "github.com/threadneedle/threadneedle",
+      "title": "threadneedle/threadneedle: durable task queue for small clusters",
+      "snippet": "A durable task queue with at-least-once delivery, delayed jobs, and a single binary scheduler.",
+      "content": "# threadneedle\n\nA durable task queue for clusters that do not want a managed service. At-least-once delivery, delayed jobs, per-task rate limits, and a single binary scheduler backed by Postgres or SQLite.\n\n- At-least-once delivery with visible retry state\n- Delayed and scheduled jobs\n- Per-task rate limits\n- One binary; scheduler and worker modes\n\n## Getting started\n\n```\nbrew install threadneedle\nthreadneedle init --store postgres://localhost/queue\nthreadneedle worker --pool invoices\n```\n\n## Status\n\nThe project is maintained by a small group of operators. Tagged releases and their notes are published on threadneedle.io; the changelog in this repository mirrors them.\n\nMIT licensed.",
+      "published_at": "2026-04-11"
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Our container image pins have to name one threadneedle release for the whole quarter, and the pin file needs its tag today. Which threadneedle version is the newest stable release? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals_any": [
+          "7.4.1",
+          "7.4.1 (2026-08-19)"
+        ]
+      }
+    }
+  ]
+}

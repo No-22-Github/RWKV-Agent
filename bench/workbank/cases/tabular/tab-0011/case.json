@@ -1,0 +1,42 @@
+{
+  "id": "tab-0011",
+  "description": "Total stock value of a depot's bulk lines from a count export that opens with report notes and closes with a Grand total. WORKBANK-CANARY-c2a94e71",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-HEADER": 18802.0
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-inventory-03",
+    "ref_calls": 4,
+    "fixture_bytes": 1326,
+    "status": "reviewed",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": "human:delegated-20260922"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Thornbury Bottling Works - depot stock take\n\nThe Meadowbank depot counts its floor stock at the close of every second\nweek and the count team exports the result as a single file, most\nrecently stocktake_2026-09-14.csv.\n\nColumns: sku, units, line_value. units is what the count team recorded\non the floor; line_value is units multiplied by the standard cost of\nthat SKU. The standard costs are held in standard_costs.csv.\n\nLines holding twenty units or more are managed as bulk stock; anything\nbelow that is treated as shelf stock.\n",
+    "standard_costs.csv": "sku,unit_cost\nTB-2201,3.40\nTB-2238,12.75\nTB-2274,1.20\nTB-2310,24.50\nTB-2356,6.05\nTB-2392,0.85\nTB-2427,15.30\nTB-2463,4.60\nTB-2498,8.90\nTB-2531,2.15\nTB-2577,31.00\n",
+    "stocktake_2026-09-14.csv": "Thornbury Bottling Works - depot stock take\nDepot: Meadowbank    Count date: 2026-09-14    Page 1 of 1\nUnits are counted at close of shift; line_value uses the standard cost on file.\nsku,units,line_value\nTB-2201,320,1088.00\nTB-2238,148,1887.00\nTB-2274,16,19.20\nTB-2310,76,1862.00\nTB-2356,55,332.75\nTB-2392,12,10.20\nTB-2427,92,1407.60\nTB-2463,240,1104.00\nTB-2498,64,569.60\nTB-2531,18,38.70\nTB-2577,36,1116.00\nGrand total,1077,9435.05\n",
+    "ops/dispatch-log.txt": "Meadowbank dispatch log, week beginning 7 September 2026\n- Two pallets of empty bottles collected by the return run.\n- Forklift service booked for the following Monday.\n- Bay 2 re-striped overnight.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Thornbury Bottling Works is closing the books on the Meadowbank depot count. The depot's count export and the standard cost list are in the workspace. What was the total stock value of the depot's stock lines holding twenty units or more at the 14 September count? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 9366.95,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

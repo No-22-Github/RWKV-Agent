@@ -1,0 +1,49 @@
+{
+  "id": "scr-0010",
+  "description": "Repair the crashed monthly production totals job for the bottling plant, keeping its extract-and-adjustment arithmetic. WORKBANK-CANARY-c52e8a40",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_from_traceback",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": null
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-script-fix-03",
+    "ref_calls": 4,
+    "fixture_bytes": 2176,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "On-call notes - bottling production, 2026-09-14\n===============================================\n\nThe monthly production totals job has failed on every run since the\nhost migration. Console capture from the scheduler:\n\nTraceback (most recent call last):\n  File \"/srv/bottling/jobs/production_totals.py\", line 22, in main\n    for row in read_rows(EXTRACT):\n  File \"/srv/bottling/jobs/production_totals.py\", line 16, in read_rows\n    with open(path, newline=\"\", encoding=\"utf-8\") as fh:\nFileNotFoundError: [Errno 2] No such file or directory: '/srv/bottling/jobs/data/raw.csv'\n\nThe drop extract and the recount adjustments both sit in the data\ndirectory. The scheduler always launches production_totals.py from the\nproject root.\n\nDrop extract columns: batch_id, line, cases_ok\nRecount adjustments columns: line, delta_cases (signed)\n",
+    "production_totals.py": "\"\"\"Monthly production totals for the bottling plant.\n\nReads the drop extract and the recount adjustments from the data\ndirectory and prints the cases filled per line. Safe to launch from\nthe project root.\n\"\"\"\nimport csv\nfrom pathlib import Path\n\nBASE = Path(__file__).resolve().parent\nDATA = BASE / \"data\"\nEXTRACT = DATA / \"raw.csv\"\n\n\ndef read_rows(path):\n    with open(path, newline=\"\", encoding=\"utf-8\") as fh:\n        return list(csv.DictReader(fh))\n\n\ndef main():\n    cases = {}\n    for row in read_rows(EXTRACT):\n        line = row[\"line\"]\n        cases[line] = cases.get(line, 0) + int(row[\"cases_ok\"])\n    for row in read_rows(DATA / \"adjustments.csv\"):\n        line = row[\"line\"]\n        cases[line] = cases.get(line, 0) + int(row[\"delta_cases\"])\n    print(\"line,cases\")\n    for line in sorted(cases):\n        print(\"%s,%d\" % (line, cases[line]))\n    print(\"total,%d\" % sum(cases.values()))\n\n\nif __name__ == \"__main__\":\n    main()\n",
+    "data/raw_2026.csv": "batch_id,line,cases_ok\nB-5101,LINE-A1,412\nB-5102,LINE-B2,388\nB-5103,LINE-A1,275\nB-5104,LINE-C3,509\nB-5105,LINE-B2,164\nB-5106,LINE-A1,233\nB-5107,LINE-C3,147\nB-5108,LINE-B2,301\n",
+    "data/adjustments.csv": "line,delta_cases\nLINE-A1,24\nLINE-B2,-18\nLINE-C3,40\n",
+    "packing_rota.txt": "Packing hall rota, week 38/2026\nMon  D. Achebe    06:00-14:00\nTue  P. Lindqvist 14:00-22:00\nWed  D. Achebe    06:00-14:00\nThu  S. Mbeki     14:00-22:00\nFri  P. Lindqvist 14:00-22:00\n"
+  },
+  "expect": {
+    "run": {
+      "path": "production_totals.py",
+      "timeout_millis": 10000,
+      "hidden_files": {
+        "data/raw_2026.csv": "batch_id,line,cases_ok\nB-6110,LINE-A1,356\nB-6112,LINE-B2,421\nB-6117,LINE-C3,288\nB-6121,LINE-A1,190\nB-6125,LINE-B2,377\nB-6129,LINE-C3,264\nB-6134,LINE-A1,145\n"
+      },
+      "expected_stdout": "line,cases\nLINE-A1,715\nLINE-B2,780\nLINE-C3,592\ntotal,2087"
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The bottling plant's monthly production totals job has failed on every run since the host migration, and the on-call note in README.md holds the console capture it produced. Repair production_totals.py so the job runs again and prints cases per line plus the period total, keeping the recount corrections it already applies. When finished, reply DONE.",
+      "expect": {}
+    }
+  ]
+}

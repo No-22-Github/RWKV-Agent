@@ -1,0 +1,75 @@
+{
+  "id": "hyb-0011",
+  "description": "Quarterly wholesale reconciliation for the Meadowford zone; the account holds three billing periods and the request names no period, so the reply has to ask and the clarified second turn judges the figure. WORKBANK-CANARY-6ad08f23",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 75174.8
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-tax-03",
+    "ref_calls": 4,
+    "fixture_bytes": 579,
+    "status": "draft",
+    "version": 3,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "# Tarnbrook Water — Meadowford wholesale account\n\nQuarterly wholesale statements for the Meadowford distribution zone of the Tarnbrook network.\n\n- usage/  metered consumption by billing period\n- zone/  network notices for the Meadowford zone\n\nEach reconciliation is opened against the billing period the desk names when it asks.\n",
+    "usage/consumption.csv": "period,volume_m3\n2025-Q4,48250\n2026-Q1,41370\n2026-Q2,52940\n",
+    "zone/notices.md": "# Meadowford zone notices\n\n| issued | notice |\n| --- | --- |\n| 2025-10-30 | Planned mains renewal, Culloden Terrace, two days. |\n| 2026-04-14 | Hydrant testing programme across the zone. |\n"
+  },
+  "web_fixture": [
+    {
+      "query_match": "tarnbrook water",
+      "url": "https://www.tarnbrookwater.example/wholesale/schedule",
+      "url_match": "www.tarnbrookwater.example/wholesale/schedule",
+      "title": "Tarnbrook Water — wholesale charges schedule",
+      "snippet": "Wholesale water supply charges by distribution zone; the Meadowford zone rate is given per cubic metre.",
+      "content": "# Tarnbrook Water — wholesale charges schedule\n\nWholesale charges for the distribution zones. All figures are per cubic metre.\n\n| Zone | Rate (GBP/m3) |\n| --- | --- |\n| Meadowford | 1.42 |\n| Ashcombe | 1.37 |\n",
+      "published_at": "2026-02-10"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "Tarnbrook Water bills our wholesale account for the Meadowford distribution zone. Settle the quarterly reconciliation for that account against Tarnbrook's published wholesale charges.",
+      "expect": {
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ]
+      }
+    },
+    {
+      "prompt": "The reconciliation to settle is the 2026-Q1 period. Give the amount Tarnbrook will reconcile for that period. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 58745.4,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

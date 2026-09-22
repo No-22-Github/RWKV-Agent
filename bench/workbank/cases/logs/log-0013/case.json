@@ -1,0 +1,37 @@
+{
+  "id": "log-0013",
+  "description": "Total response bytes written by the Ledgerline payments gateway over a one-day JSONL access export. WORKBANK-CANARY-a3f91c07",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "aggregate_jsonl",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-log-jsonl-04",
+    "ref_calls": 3,
+    "fixture_bytes": 1988,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "telemetry/api-calls.jsonl": "{\"ts\":\"2026-07-19T08:41:07Z\",\"endpoint\":\"/v1/invoices\",\"status\":200,\"bytes_out\":18422,\"node\":\"edge-04\"}\n{\"ts\":\"2026-07-19T09:12:53Z\",\"endpoint\":\"/v1/payments\",\"status\":201,\"bytes_out\":9307,\"node\":\"edge-04\"}\n{\"ts\":\"2026-07-19T09:47:18Z\",\"endpoint\":\"/v1/payouts\",\"status\":200,\"bytes_out\":41250,\"node\":\"core-02\"}\n{\"ts\":\"2026-07-19T10:03:44Z\",\"endpoint\":\"/v1/invoices\",\"status\":200,\"bytes_out\":12876,\"node\":\"edge-11\"}\n{\"ts\":\"2026-07-19T10:55:02Z\",\"endpoint\":\"/v1/refunds\",\"status\":404,\"bytes_out\":6043,\"node\":\"edge-11\"}\n{\"ts\":\"2026-07-19T11:26:39Z\",\"endpoint\":\"/v1/payments\",\"status\":200,\"bytes_out\":27419,\"node\":\"core-02\"}\n{\"ts\":\"2026-07-19T12:08:15Z\",\"endpoint\":\"/v1/accounts\",\"status\":200,\"bytes_out\":8815,\"node\":\"edge-04\"}\n{\"ts\":\"2026-07-19T13:31:50Z\",\"endpoint\":\"/v1/payouts\",\"status\":500,\"bytes_out\":15230,\"node\":\"core-03\"}\n{\"ts\":\"2026-07-19T14:02:27Z\",\"endpoint\":\"/v1/invoices\",\"status\":200,\"bytes_out\":3921,\"node\":\"edge-11\"}\n{\"ts\":\"2026-07-19T14:49:03Z\",\"endpoint\":\"/v1/payments\",\"status\":200,\"bytes_out\":22608,\"node\":\"edge-04\"}\n{\"ts\":\"2026-07-19T15:17:36Z\",\"endpoint\":\"/v1/refunds\",\"status\":201,\"bytes_out\":11794,\"node\":\"core-02\"}\n{\"ts\":\"2026-07-19T16:05:11Z\",\"endpoint\":\"/v1/accounts\",\"status\":200,\"bytes_out\":33617,\"node\":\"edge-11\"}\n{\"ts\":\"2026-07-19T17:22:48Z\",\"endpoint\":\"/v1/invoices\",\"status\":200,\"bytes_out\":5412,\"node\":\"core-03\"}\n{\"ts\":\"2026-07-19T18:40:29Z\",\"endpoint\":\"/v1/payouts\",\"status\":200,\"bytes_out\":19853,\"node\":\"edge-04\"}\n",
+    "README.md": "# Ledgerline payments gateway - access export\n\ntelemetry/api-calls.jsonl is one day of gateway access records, one JSON object per line. Each record names the endpoint that was requested, the HTTP status returned, the node that served the call, and bytes_out, the number of response payload bytes the gateway wrote for that request.\n",
+    "docs/rate-limits.md": "# Ledgerline API limits\n\n| tier | burst | sustained |\n|---|---|---|\n| starter | 20 rps | 8 rps |\n| growth | 120 rps | 60 rps |\n\nBurst windows reset every 30 seconds. Limits apply per API key, not per account.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The platform group is sizing egress for the Ledgerline payments gateway. A one-day access export for the gateway is available. Across the whole export, how many bytes did the gateway write in responses? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 236567,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "id": "doc-0008",
+  "description": "The unresolved entry on the Westgate Campus index page, separated from links whose targets sit one level deeper. WORKBANK-CANARY-e2f07b3c",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "link_check",
+    "traps": [
+      "TR-DECOY",
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "runbook.md",
+      "TR-MULTISRC": "deploy-guide.md"
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "fam-doc-changelog-02",
+    "ref_calls": 5,
+    "fixture_bytes": 1378,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:deepseek-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "INDEX.md": "# Westgate Campus documentation index\n\nStanding operations references for the portal team.\n\n- [Operations runbook](runbook.md)\n- [Deploy guide](deploy-guide.md)\n- [Rollback checklist](rollback-checklist.md)\n- [On-call rota](oncall-rota.md)\n",
+    "README.md": "# Westgate Campus portal\n\nThe portal serves student records, timetabling and facilities for the Westgate\ncampuses.\n\nThe documentation portal resolves each link on a page by matching its file\nname against every file in the repository; an entry whose name matches no file\nis reported as unresolved. INDEX.md lists the standing operations references.\n",
+    "docs/facilities-plan.md": "# Facilities plan\n\nTeaching rooms are reassigned each term by the timetabling office. Maintenance\nrequests are raised against a room code and routed to the campus estates team.\n",
+    "docs/ops/deploy-guide.md": "# Deploy guide\n\nDeployments run from the release branch. The portal team promotes a build to\nthe staging campus, checks the sign-in path, then promotes to the production\ncampuses.\n\nOut-of-hours deploys are announced in the operations channel.\n",
+    "docs/ops/runbook.md": "# Operations runbook\n\n1. Confirm the nightly student record import has finished.\n2. Check the timetabling queue depth on the portal dashboard.\n3. Escalate to the on-call engineer when the queue stops draining.\n\nBackups are verified every Monday by the platform team.\n",
+    "oncall-rota.md": "# On-call rota\n\nWeek 1: Marisol Quintero\nWeek 2: Devendra Rao\nWeek 3: Hana Okonkwo\nWeek 4: Oscar Nwosu\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "The documentation portal reports a single unresolved entry on the Westgate Campus index page. Which file name does that entry carry? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "rollback-checklist.md"
+      }
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "id": "tab-0008",
+  "description": "August pay for one production department under the site's hourly terms, from a site hours sheet with a report block and a closing total line. WORKBANK-CANARY-c60b3fa7",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "policy_calc",
+    "traps": [
+      "TR-HEADER",
+      "TR-RULEFILE"
+    ],
+    "trap_decoys": {
+      "TR-HEADER": 50594.25,
+      "TR-RULEFILE": 27854.4
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "fam-tab-payroll-02",
+    "ref_calls": 5,
+    "fixture_bytes": 1824,
+    "status": "reviewed",
+    "version": 2,
+    "author": "llm:glm-drafter",
+    "reviewer": "human:delegated-20260922"
+  },
+  "web_fixture": [],
+  "files": {
+    "crew_list.csv": "employee_id,name,department,shift,hourly_rate\nRP-4405,Ingrid Halvorsen,Toolroom,day,28.1\nRP-4410,Jonas Kirchner,Moulding,day,24.5\nRP-4412,Marek Dvorak,Toolroom,night,27.4\nRP-4417,Meera Balakrishnan,Moulding,day,27.8\nRP-4423,Tobias Lindqvist,Moulding,night,26.0\nRP-4429,Chidi Nwachukwu,Toolroom,day,25.9\nRP-4431,Grace Nkemdirim,Moulding,day,23.6\nRP-4436,Sofia Marchetti,Toolroom,day,26.7\nRP-4440,Aisha Ramadhan,Moulding,night,25.2\nRP-4448,Callum Fraser,Moulding,day,26.4\n",
+    "shift_hours_august_2026.csv": "Ravensbourne Plastics - site hours, August 2026\nPeriod 2026-08-01 to 2026-08-31\nGenerated 2026-09-02 07:45    Site pay accrued this period: 50594.25\n\nemployee_id,hours\nRP-4405,181.0\nRP-4410,168.0\nRP-4412,190.5\nRP-4417,193.0\nRP-4423,184.0\nRP-4429,172.25\nRP-4431,176.0\nRP-4436,165.5\nRP-4440,179.5\nRP-4448,171.5\nTOTAL,1781.25\n",
+    "policy.md": "# Pay terms - Ravensbourne Plastics, Ravensbourne site\n# In force for the August 2026 period.\n\nHourly rates are held per person in crew_list.csv.\n\nEvery hour a person records in the month is paid at that person's hourly\nrate, with one step and one special case:\n\n  - The first 176 hours recorded in the month are paid at the hourly rate.\n  - Hours recorded beyond 176 in the month are paid at 1.5 times the\n    hourly rate.\n  - People on the night shift are paid at 1.25 times the hourly rate for\n    every hour they record in the month; the 176-hour step does not apply\n    to them.\n",
+    "README.md": "# Ravensbourne Plastics - Ravensbourne site\n\ncrew_list.csv lists the site's hourly-paid production staff with their\ndepartment, shift and hourly rate. shift_hours_august_2026.csv is the\npayroll system's hours summary for August 2026, keyed by employee id.\nPay is worked out from those two files under the site's pay terms.\n",
+    "site/changeover-notes.txt": "Site maintenance notes\n- Mould 14 tooling was swapped on 2026-08-19.\n- Toolroom compressor service is booked for September.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Ravensbourne Plastics' August 2026 site records are in the workspace, together with the pay terms in force at the site. What is the total pay owed to the Moulding department for August 2026? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 30033.15,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

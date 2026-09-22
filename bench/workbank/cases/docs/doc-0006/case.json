@@ -1,0 +1,40 @@
+{
+  "id": "doc-0006",
+  "description": "Newest shipped version of the anvil-relay connector, where a preview entry heads the changelog. WORKBANK-CANARY-b6d29e05",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "5.0.0-rc.3"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-changelog-02",
+    "ref_calls": 3,
+    "fixture_bytes": 1003,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:deepseek-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "CHANGELOG.md": "# anvil-relay changelog\n\nEvery entry is tagged with its channel. Builds tagged preview are confined to\nthe sandbox estate; builds tagged shipped are the ones customers run.\n\n## 5.0.0-rc.3 - preview - 2026-09-02\n\n- Rework the reconnect backoff and expose the attempt count.\n- Emit a structured connect record for every broker handshake.\n\n## 4.8.1 - shipped - 2026-07-21\n\n- Fix a stall when the broker sends an empty frame.\n- Pin the TLS profile to 1.3.\n\n## 4.8.0 - shipped - 2026-05-30\n\n- Add the relay health endpoint used by the plant dashboard.\n",
+    "README.md": "# anvil-relay\n\nanvil-relay is the connector between the plant estate and the Anvil broker.\nEach plant runs one relay per line controller.\n\nRelease channels are recorded in CHANGELOG.md. The tuning notes for the relay\nfleet are in docs/relay-tuning.md.\n",
+    "docs/relay-tuning.md": "# Relay tuning notes\n\nBackoff grows from 200 ms and is capped at 30 s. A relay that exceeds the four\nsecond handler budget is recycled by the supervisor.\n\nOwner: Kadir Petrov (plant platform), desk 1180.\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "Support keeps quoting a preview build of the anvil-relay connector. Which version of anvil-relay is the newest one that customers can actually receive? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "4.8.1"
+      }
+    }
+  ]
+}

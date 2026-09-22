@@ -1,0 +1,67 @@
+{
+  "id": "web-0010",
+  "description": "copperlane settlement error CL-5812; the top search result's community wiki page is gone and the answer sits on the second link. WORKBANK-CANARY-b62d8e04",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [
+      "TR-FETCHFAIL"
+    ],
+    "trap_decoys": {
+      "TR-FETCHFAIL": "UNKNOWN"
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-web-errmsg-03",
+    "ref_calls": 4,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "copperlane",
+      "url": "https://wiki.copperlane.io/errors/CL-5812",
+      "title": "copperlane CL-5812 - community wiki",
+      "snippet": "The community wiki page for CL-5812: what teams have seen when the settlement pipeline returns it, and the workarounds they use.",
+      "content": "# Page not found\n\nThe page you requested could not be found.\n\nIt may have been renamed, moved, or deleted. Check the address for typos, or start again from the wiki front page.",
+      "published_at": "2025-12-02"
+    },
+    {
+      "query_match": "copperlane",
+      "url": "https://docs.copperlane.io/reference/errors",
+      "url_match": "docs.copperlane.io/reference/errors",
+      "title": "Error reference - copperlane documentation",
+      "snippet": "The full list of copperlane pipeline error codes, each with the condition name our dashboards show and the action the runbook expects.",
+      "content": "# Error reference\n\ncopperlane pipeline errors print as CL-NNNN. Each entry gives the condition name used across our dashboards and the action the runbook expects.\n\n| Code | Condition | Meaning and action |\n| --- | --- | --- |\n| CL-5404 | latefeed | The settlement feed arrived past the cutoff. Re-run the window once the feed lands. |\n| CL-5812 | ledgerdrift | The posted ledger entries no longer reconcile against the settlement file: one side was altered after the batch was sealed. Freeze the batch and re-reconcile before retrying. |\n| CL-5901 | gatehold | The batch is held behind a manual review flag. Clear the flag or escalate. |\n| CL-5230 | thincover | Too few confirmations arrived to seal the batch. Wait for confirmations or lower the quorum. |\n\nLast reviewed 2026-07-08.",
+      "published_at": "2026-07-08"
+    },
+    {
+      "query_match": "copperlane",
+      "url": "https://status.copperlane.io/incidents/2026-05-14-settlement-delay",
+      "url_match": "status.copperlane.io/incidents/2026-05-14-settlement-delay",
+      "title": "Settlement delay, 14 May 2026 (resolved)",
+      "snippet": "A slow upstream feed delayed settlement windows for about forty minutes; no data was lost.",
+      "content": "# Settlement delay, 14 May 2026 (resolved)\n\nFrom 09:12 to 09:56 UTC, settlement windows on the EU cluster ran late because the upstream feed was slow. Batches were retried automatically and no entries were lost.\n\nThe incident did not introduce any new error code. The retries were recorded against the existing pipeline codes, and the reference page describes each of those.\n\nResolved 2026-05-14.",
+      "published_at": "2026-05-14"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "Our nightly settlement run aborted with copperlane error CL-5812, and the incident note needs the vendor's wording. Which condition name does copperlane's error reference attach to CL-5812? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_contains_any": [
+          "ledgerdrift",
+          "Ledgerdrift",
+          "LEDGERDRIFT"
+        ]
+      }
+    }
+  ]
+}

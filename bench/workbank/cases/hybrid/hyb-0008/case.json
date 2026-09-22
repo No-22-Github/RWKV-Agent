@@ -1,0 +1,79 @@
+{
+  "id": "hyb-0008",
+  "description": "Raise the piperock pin in the development dependency set only; a preview page outranks the supported-release listing and the production set must not move. WORKBANK-CANARY-2e7b6a53",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_edit",
+    "traps": [
+      "TR-SUPERSEDE",
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": "2.9.0",
+      "TR-READONLY": null
+    },
+    "axes": [
+      "VER",
+      "CON"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-deps-02",
+    "ref_calls": 5,
+    "fixture_bytes": 670,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "# Calderbank inventory platform\n\nWarehouse and stock service for the Calderbank group.\n\n- requirements/ - one dependency set per environment\n- requirements/prod.txt is the certified production set; it changes only through the platform team's change window, while routine maintenance updates the development set instead.\n- Each package is taken at the version the project's own release listing marks as supported.\n",
+    "requirements/dev.txt": "piperock==2.6.0\ntideward==1.9.4\n",
+    "requirements/prod.txt": "piperock==2.4.5\ntideward==1.9.4\n",
+    "src/stock.py": "from piperock import Session\n\n\ndef stock_levels(session: Session, sku: str) -> int:\n    \"\"\"Return the on-hand quantity for one SKU.\"\"\"\n    return session.query(\"stock_level\", sku=sku).scalar()\n"
+  },
+  "web_fixture": [
+    {
+      "query_match": "piperock",
+      "url": "https://piperock.example/blog/2-9-caching",
+      "url_match": "piperock.example/blog/2-9-caching",
+      "title": "Piperock 2.9 - query caching",
+      "snippet": "Piperock 2.9.0 introduces a query cache and a reworked session API. Published 5 February 2026.",
+      "content": "# Piperock 2.9 - query caching\n\nPublished 5 February 2026.\n\nPiperock 2.9.0 introduces a query cache and a reworked session API. It was published as an early build for integrators to try; the 2.8 line remained the supported release for production.\n",
+      "published_at": "2026-02-05"
+    },
+    {
+      "query_match": "piperock",
+      "url": "https://piperock.example/releases",
+      "url_match": "piperock.example/releases",
+      "title": "Piperock releases",
+      "snippet": "Supported releases for piperock, with the production-supported series marked.",
+      "content": "# Piperock releases\n\nThe supported series is 2.8. Builds from the 2.9 preview are not supported for production use.\n\n## 2.8.3 (2026-08-28)\n\nSupported. Fixes a connection leak in the bulk loader.\n\n## 2.8.1 (2026-06-30)\n\nSupported. Adds bulk update helpers.\n\n## 2.9.0 (2026-02-05)\n\nPreview. Query caching and the new session API.\n",
+      "published_at": "2026-09-03"
+    }
+  ],
+  "expect": {
+    "files": {
+      "requirements/dev.txt": {
+        "contains": [
+          "piperock==2.8.3",
+          "tideward==1.9.4"
+        ]
+      },
+      "requirements/prod.txt": {
+        "unchanged": true
+      },
+      "README.md": {
+        "unchanged": true
+      },
+      "src/stock.py": {
+        "unchanged": true
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Calderbank's inventory platform keeps its dependency sets under requirements/. During this maintenance change the development set moves to the piperock build the project currently supports; the production set is not part of this change and stays exactly as it is. When finished, reply DONE."
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "id": "log-0009",
+  "description": "Find the timestamp of the first ERROR logged at or after a media-ingest rollout. WORKBANK-CANARY-4f7a20c9",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-log-deploy-03",
+    "ref_calls": 3,
+    "fixture_bytes": 1863,
+    "status": "reviewed",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": "human:delegated-20260922"
+  },
+  "files": {
+    "logs/media-ingest.log": "2026-08-06 13:20:44 INFO [media-ingest] worker pool started workers=8\n2026-08-06 13:26:11 INFO [media-ingest] segment index loaded segments=4820\n2026-08-06 13:31:57 WARN [media-ingest] segment index rebuild slow elapsed_ms=1840\n2026-08-06 13:38:20 INFO [media-ingest] queue depth snapshot pending=42\n2026-08-06 13:45:00 INFO [media-ingest] rollout release media-ingest-2.14.0 applied\n2026-08-06 13:52:10 ERROR [media-ingest] job=ing-77120 TRANSCODE_FAIL codec=hevc profile=main10 reason=unsupported_profile\n2026-08-06 13:58:44 INFO [media-ingest] queue depth snapshot pending=51\n2026-08-06 14:07:12 ERROR [media-ingest] job=ing-77134 TRANSCODE_FAIL codec=hevc profile=main10 reason=unsupported_profile\n2026-08-06 14:16:39 WARN [media-ingest] worker heartbeat delayed worker=5 lag_ms=912\n2026-08-06 14:22:41 ERROR [media-ingest] job=ing-77151 TRANSCODE_FAIL codec=hevc profile=main10 reason=unsupported_profile\n2026-08-06 14:35:09 ERROR [media-ingest] job=ing-77160 TRANSCODE_FAIL codec=vp9 profile=profile2 reason=unsupported_profile\n2026-08-06 14:48:26 INFO [media-ingest] segment index loaded segments=4833\n2026-08-06 15:03:22 ERROR [media-ingest] job=ing-77182 TRANSCODE_FAIL codec=hevc profile=main10 reason=unsupported_profile\n",
+    "README.md": "# media-ingest workspace\n\nmedia-ingest transcodes uploaded video into the delivery ladder.\n\nThe service writes one plain-text application log per day at logs/media-ingest.log. Each line begins with a UTC timestamp in the form YYYY-MM-DD HH:MM:SS followed by the level (INFO, WARN, ERROR) and the logger name.\n",
+    "docs/ingest-runbook.md": "# Media ingest on-call runbook\n\n- Dashboards: Grafana folder \"media-pipeline\" (throughput, queue depth).\n- Escalation: media-platform on-call, PagerDuty rota \"ingest-primary\".\n- Transcode SLO: 99.5% of jobs finish within 90 seconds.\n- Nightly ladder rebuild runs at 02:00 UTC and is expected to raise queue depth briefly.\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "Overnight a new build, media-ingest-2.14.0, was rolled out to the media-ingest service. For the change review, report the timestamp of the first ERROR the service logged at or after that rollout, as YYYY-MM-DD HH:MM:SS. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_contains": [
+          "2026-08-06 13:52:10"
+        ]
+      }
+    }
+  ]
+}

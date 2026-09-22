@@ -1,0 +1,36 @@
+{
+  "id": "cfg-0005",
+  "description": "Effective TCP port of the tariff-calc service in the eu-west environment, across the fleet baseline and the environment file. WORKBANK-CANARY-3a7f2c9d",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-cfg-envstack-02",
+    "ref_calls": 3,
+    "fixture_bytes": 884,
+    "status": "reviewed",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": "human:delegated-20260922"
+  },
+  "files": {
+    "README.md": "# Tariff platform deploy workspace\n\nconfig/defaults.yaml holds the fleet baseline settings that apply to every\nservice. environments/<env>.env carries the values the deployer injects for\nthe environment it is bringing up; when an environment file provides a\nsetting, that is the value the environment runs with.\n\nThe release train notes live under ops/.\n",
+    "config/defaults.yaml": "# Fleet baselines applied before an environment file is layered in.\nmeter-bridge:\n  request_timeout_seconds: 30\n  retry_attempts: 3\n  poll_interval_seconds: 8\ntariff-calc:\n  request_timeout_seconds: 25\n  retry_attempts: 5\n",
+    "environments/eu-west.env": "# Values the deployer injects when bringing up eu-west.\nDEPLOY_ENV=eu-west\nTARIFF_CALC_PORT=7714\nMETER_BRIDGE_PORT=6420\nDB_POOL=32\nLOG_LEVEL=warn\n",
+    "ops/release-train.md": "# Release train notes\n\nThe eu-west fleet was moved to the 2026.8 train after the June capacity\nreview. Rollback windows are listed in the on-call handover sheet.\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "The tariff-calc service is being registered with the eu-west load balancer and we need the TCP port it listens on in that environment. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 7714,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

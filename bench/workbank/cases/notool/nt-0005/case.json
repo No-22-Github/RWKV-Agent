@@ -1,0 +1,38 @@
+{
+  "id": "nt-0005",
+  "description": "Restate a nightly archive ingest rate from TiB per hour to TiB per day; one deterministic conversion with no lookup. WORKBANK-CANARY-4b7e2a91",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-explain-02",
+    "ref_calls": 0,
+    "fixture_bytes": 534,
+    "status": "reviewed",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": "human:delegated-20260922"
+  },
+  "files": {
+    "README.md": "# Research data lake - capacity workspace\n\nPlanning notes for the 2026 archive expansion.\n\n- jobs/     nightly ingest and archive job notes\n- tiers/    storage tier definitions used by the capacity sheet\n\nOwner: data platform review.\n",
+    "jobs/archive_notes.txt": "archive read throughput: 1.25 TiB per hour\nretention window: 18 months\nmaintenance window: Sundays 02:00 UTC\n",
+    "tiers/storage_tiers.md": "# Storage tiers\n\n- hot: 45-day rolling access window\n- warm: 18-month retention for reduced-query data\n- cold: 7-year archive, restored on request\n\nTier capacities are reviewed each quarter.\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "The retention planner for our research data lake needs the nightly archive throughput restated for a capacity sheet. The archive job reads at a steady 1.25 TiB per hour. Give that same rate in TiB per day. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 30,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

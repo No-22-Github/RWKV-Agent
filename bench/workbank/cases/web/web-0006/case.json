@@ -1,0 +1,64 @@
+{
+  "id": "web-0006",
+  "description": "Release in which glasswren deprecated analyzer_chain; an older migration post names a different release than the project's own release notes. WORKBANK-CANARY-2e8b41c9",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "deprecation",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": "3.9.0"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-web-deprecation-02",
+    "ref_calls": 4,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "glasswren",
+      "url": "https://indexnotes.press/glasswren-migration-notes",
+      "url_match": "indexnotes.press/glasswren-migration-notes",
+      "title": "Moving off analyzer_chain: our glasswren migration notes",
+      "snippet": "How we rewrote sixty index definitions after analyzer_chain was deprecated in 3.9.0, the release the roadmap named at the time.",
+      "content": "# Moving off analyzer_chain: our glasswren migration notes\n\n*Posted 2025-12-08 by Priya Raghunathan · Index Notes*\n\nWhen the glasswren maintainers flagged analyzer_chain for removal, we had sixty index definitions to touch. Their roadmap put the change in the 3.9.0 release, so that is the line we planned our upgrade around: analyzer_chain was deprecated in 3.9.0, and pipeline_steps is the replacement we moved to.\n\n## What we changed\n\nEvery definition now builds its analyzer stage list through pipeline_steps. Query latency did not move measurably after the change.\n\n## What we did not plan for\n\nThe older chain syntax still resolves on our archived clusters, so in practice the migration stayed reversible for months.",
+      "published_at": "2025-12-08"
+    },
+    {
+      "query_match": "glasswren",
+      "url": "https://stackvault.dev/questions/glasswren-analyzer-chain-warning",
+      "url_match": "stackvault.dev/questions/glasswren-analyzer-chain-warning",
+      "title": "glasswren prints an analyzer_chain warning after upgrade - StackVault",
+      "snippet": "A developer sees the analyzer_chain warning on start and asks which release introduced it.",
+      "content": "# glasswren prints an analyzer_chain warning after upgrade\n\n**dmitri-k asked on 2026-04-11**\n\nWe upgraded our search nodes and now every start prints a warning naming analyzer_chain. Which line introduced it, and what should the definitions set instead?\n\n**wrenlock answered on 2026-04-12**\n\nThe warning comes from the release that deprecated the option. The project release notes name it under that version and point at the replacement; the older write-ups predate the change.",
+      "published_at": "2026-04-11"
+    },
+    {
+      "query_match": "glasswren",
+      "url": "https://glasswren.dev/release-notes",
+      "url_match": "glasswren.dev/release-notes",
+      "title": "Release notes - glasswren",
+      "snippet": "Release notes for glasswren, newest first: 4.2.0 deprecates analyzer_chain in favour of pipeline_steps, back through the 3.x line.",
+      "content": "# Release notes\n\nRelease notes for glasswren. Dates are release days.\n\n## 4.2.0 (2026-06-23)\n\n- Deprecated: analyzer_chain. The option is deprecated in 4.2.0; index definitions that set it still work but log a warning on start. Use pipeline_steps in new definitions.\n- New: glasswren index explain prints the resolved analyzer pipeline for a query.\n\n## 3.9.0 (2025-11-30)\n\n- Faster phrase queries on large segments.\n- Fixed: a rare crash when reloading a synonym file.\n\n## 3.8.2 (2025-10-09)\n\n- Security: segment files with a malformed header are rejected.",
+      "published_at": "2026-06-23"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "Our search-stack audit has to record, for every indexed option we still set, the release that retired it. Give me the release in which glasswren deprecated analyzer_chain. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "4.2.0"
+      }
+    }
+  ]
+}

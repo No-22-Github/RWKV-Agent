@@ -1,0 +1,41 @@
+{
+  "id": "nt-0009",
+  "description": "Work out the retry budget of the single carrier profile the request names, under the platform standard the request states; a clear single-step request, the control for the ambiguous sibling case. WORKBANK-CANARY-2f6c81ad",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "ambiguous_request",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-boundary-03",
+    "ref_calls": 0,
+    "fixture_bytes": 900,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "# Northwind Dispatch - carrier integration workspace\n\nRuntime settings for the carrier integrations that feed the dispatch board.\n\n- profiles/  one runtime profile per carrier integration, kept in sync with the standard\n- notes/     change-window notes kept by the release rotation\n\nOwner: dispatch platform rotation.\n",
+    "profiles/dispatch.yaml": "retry_limit: 8\nupstreams: 3\ntimeout_ms: 2400\npoll_interval_s: 45\n",
+    "profiles/warehouse.yaml": "retry_limit: 6\nupstreams: 2\ntimeout_ms: 1800\npoll_interval_s: 30\n",
+    "profiles/returns.yaml": "retry_limit: 5\nupstreams: 7\ntimeout_ms: 3100\npoll_interval_s: 60\n",
+    "notes/freeze_inputs.txt": "dispatch retry_limit=8 upstreams=3\nwarehouse retry_limit=6 upstreams=2\nreturns retry_limit=5 upstreams=7\n",
+    "notes/change_window.md": "# Change window notes\n\nThe September change freeze opens once the dispatch board migration lands and runs through the end of the month. Carrier runtime profiles are checked against the platform standard before the window opens.\n\nThe dispatch board migration finished on 2026-09-14.\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "Northwind's September change freeze is close, and the carrier retry blocks in the dispatch workspace still have to be brought in line with the platform standard. The standard sets a carrier profile's retry budget to its declared retry_limit multiplied by its upstream count. The profile at profiles/dispatch.yaml sets retry_limit: 8 and declares 3 upstreams. Give the retry budget that profile gets under the standard. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 24,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

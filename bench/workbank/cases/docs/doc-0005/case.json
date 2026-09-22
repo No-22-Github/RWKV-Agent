@@ -1,0 +1,36 @@
+{
+  "id": "doc-0005",
+  "description": "Most recent published version of the quaystone-cache client, read from its changelog. WORKBANK-CANARY-3f8a1c47",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "latest_version",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-doc-changelog-02",
+    "ref_calls": 3,
+    "fixture_bytes": 1068,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:deepseek-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "CHANGELOG.md": "# quaystone-cache changelog\n\nEntries are listed newest first; each release line carries the version and its\nship date as YYYY-MM-DD.\n\n## 4.6.0 - 2026-08-13\n\n- Add a bounded retry budget to the warm-start loader.\n- Report the per-shard hit ratio in the status output.\n\n## 4.5.2 - 2026-06-27\n\n- Fix a cold-start race when two workers claim the same segment.\n\n## 4.4.0 - 2026-04-09\n\n- Drop the legacy pickle serialiser and the matching config flag.\n",
+    "README.md": "# quaystone-cache\n\nquaystone-cache is the shared cache client used by the platform services. It\nkeeps hot segments in process memory and revalidates them against the origin\nstore on a configurable interval.\n\nCHANGELOG.md carries the released versions. The fleet rollout notes live in\ndocs/rollout.md; questions go to the platform reliability channel.\n",
+    "docs/rollout.md": "# Cache fleet rollout notes\n\nRollouts are staged by ring. Ring 1 is the staging cluster; rings 2 and 3 are\nthe customer-facing clusters. A rollback is driven from the reliability\ndashboard, not from the deploy job.\n\nContact: Sana Oduya (platform reliability), desk 2214.\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "The platform release meeting needs the identifier of the quaystone-cache build that customers can obtain right now. Give that version number. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "4.6.0"
+      }
+    }
+  ]
+}

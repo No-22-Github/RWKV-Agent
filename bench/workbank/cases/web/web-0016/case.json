@@ -1,0 +1,75 @@
+{
+  "id": "web-0016",
+  "description": "Newest thornfield broker release; the top hit is a stale operations blog and the release page ranks third, with one search allowed. WORKBANK-CANARY-5e93c0b7",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-EARLYHIT",
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": "3.2.1",
+      "TR-WEBSTALE": "4.0.0"
+    },
+    "axes": [
+      "STP",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "fam-web-version-04",
+    "ref_calls": 5,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:glm-drafter",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "thornfield",
+      "url": "https://byteharbour.io/blog/thornfield-in-production",
+      "url_match": "byteharbour.io/blog/thornfield-in-production",
+      "title": "Thornfield in production: eighteen months of message routing",
+      "snippet": "Our stack has run thornfield since 2024; the release we run, 3.2.1, has been stable for us across three regions.",
+      "content": "# Thornfield in production: eighteen months of message routing\n\n*Posted 2025-11-05 by Delphine Aveyard - Byteharbour engineering*\n\nWe put thornfield in front of every internal event stream in the spring of 2024 and have not looked back.\n\n## What we run\n\nThree broker clusters, one per region, all on 3.2.1. We pinned that release when consumer groups landed and have not needed to move since. The 3.2.1 tag has been stable for us in every region we operate.\n\n## Routing\n\nTopic per domain, one shared dead-letter topic, and a schema registry that rejects backwards-incompatible changes at publish time. Most of our operational pain came from routing policy, not from the broker.\n\n## What we would change\n\nStart with fewer topics than you think you need. We merged eleven into four last year and nothing broke.\n\n*Delphine Aveyard leads event infrastructure at Byteharbour.*",
+      "published_at": "2025-11-05"
+    },
+    {
+      "query_match": "thornfield",
+      "url": "https://docs.latticework.dev/tutorials/thornfield-quickstart",
+      "url_match": "docs.latticework.dev/tutorials/thornfield-quickstart",
+      "title": "Thornfield quickstart on Kubernetes",
+      "snippet": "A hands-on walkthrough that stands up a single-broker thornfield cluster, sends a message, and reads it back.",
+      "content": "# Thornfield quickstart on Kubernetes\n\n*A hands-on walkthrough, last checked 2026-01-22.*\n\nThis walkthrough was written and tested against thornfield 4.0.0. Later 4.x releases keep the same manifests, so the steps carry over; check the release notes if you are on a different minor.\n\n## Prerequisites\n\nA cluster with at least three schedulable nodes and a default StorageClass. The examples assume `kubectl` is pointed at a scratch namespace.\n\n## Deploy the broker\n\nApply the manifest and wait for the broker pod to report ready. One replica is enough for a walkthrough; production layouts use three.\n\n## Send and read a message\n\nPublish to the `orders.placed` topic and consume it back with the bundled CLI. If the consumer prints the payload, the broker is wired correctly.\n\n## Clean up\n\nDelete the namespace when you are done. The walkthrough leaves no cluster-scoped objects behind.",
+      "published_at": "2026-01-22"
+    },
+    {
+      "query_match": "thornfield",
+      "url": "https://thornfield.dev/releases",
+      "url_match": "thornfield.dev/releases",
+      "title": "Releases - thornfield",
+      "snippet": "Release notes for the thornfield broker, newest first.",
+      "content": "# Releases - thornfield\n\nRelease notes for the thornfield broker, newest first. Dates are release days.\n\n## 5.1.0 (2026-08-27)\n\n- Consumer groups can now rebalance without pausing the broker.\n- Fixed: retained messages were replayed twice after a leader election.\n\n## 4.2.0 (2026-03-09)\n\n- The schema registry gained a compatibility check at publish time.\n\n## 4.0.0 (2026-01-05)\n\n- New wire format for inter-broker replication.\n\n## 3.2.1 (2025-06-18)\n\n- Consumer groups, with per-group offsets and rebalancing.\n\nOlder releases are listed in the changelog on the repository.",
+      "published_at": "2026-08-27"
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The migration proposal for the events platform has to name the broker version we would move to. What is the current thornfield broker release? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals_any": [
+          "5.1.0",
+          "5.1.0 (2026-08-27)"
+        ]
+      }
+    }
+  ]
+}
