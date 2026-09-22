@@ -141,3 +141,135 @@
 
 lint 40/40 零违规；verify_all 40/40；`go test -tags chatcompletions ./internal/... ./cmd/...` 全绿。
 bank_version → **`sha256:aeed5395b5ed3c8a0ab5926fc6f5ab227fc0d17c03a06b135fae927f5f605ccf`**。
+
+## 2026-09-22 (扩量 B1 — 40 → 64 题，新增 24 道 / 6 家族)
+
+- **批次范围**：fam-tab-payroll-02（tab-0005..0008）、fam-tab-inventory-03（tab-0009..0012）、
+  fam-log-httpapi-02（log-0005..0008）、fam-log-deploy-03（log-0009..0012）、
+  fam-cfg-envstack-02（cfg-0005..0008）、fam-nt-explain-02（nt-0005..0008）。
+  形状固定 L0/L1/L1/L2，共 24 道、24 个陷阱实例。
+- **槽位表执行**：`expansion-152-handoff.md` §3.2/§3.3/§3.5/§3.11 逐行落位；ID 号段、`task_type`、
+  陷阱集合严格按表，`05xx` L3 号段未占用。
+- **配置变更（§7.1，全库唯一允许的配置改动）**：`docs/tag-vocab.json` 的 10 条 `quota` 改为 152 规划数、
+  `level_mix` 改为 `{L0 0.25, L1 0.5, L2 0.25, L3 0.0}`，共 11 行，`git diff` 只动这 11 行。
+- **自动闸门**：lint 152/0；verify_all 152/152 无 `sabotage_undetected`；web_hitcheck 28 题 5/5；
+  dedup 无近重复对。负向测试三条（题面插工具名 / expect 数值 +1 / NOTES 改答案）均按预期失败后还原。
+- **闸门① REF（Qwen3.8-27B，k0–k2）**：本批新题 **68/72 = 94.4%**，全批 178/192 = 92.7%，
+  `protocol` 0.0% / `closeout` 0.0% → 通过。
+- **闸门② GRAD（Qwen3.5-9B，k0–k2）**：本批新题 **50/65 = 76.9%**（7 次上游作废不计分母），
+  落在 40–85%；9B 与 27B 都 3/3 的送分题 12/24 = 50% ≤ 70% → 通过。
+- **逐题判决**：无返修。没有 REF 3/3 稳定失败的题；9B 失分集中在 `capability` 层（分级正常）。
+- **跑分配置偏差（记录在案）**：规格书 §6.2 的 `--chat-api-base` 在 `cmd/rwkv-cli` 里**不存在**
+  （实测 `flag provided but not defined`），实际用 `--completion chat-completions --api-url <url>/v1/chat/completions`；
+  `--case-timeout` 2m→15m、`--case-parallelism` 40→20（默认 2m 把 5 道需要 4–5 分钟的题判成 infra 失败，
+  §12 允许按端点调整并发）。**同一端点同时只跑一个 run**，五批同配置。
+- **已发现待主控决定**：(a) log-0007/0008 是 TR-TRUNC、日志 77.9KB/81.5KB，27B 上 3/3 过，
+  9B 上 3/3 因超时作废（§10 预告的「27B 会、9B 不会」可测量性边界，未改题）；
+  (b) 27B/9B 各有 5 次「答案对但写成一句推导」的 `format` 层失分，属判分口径问题，按 §1.2 记报告不动 scorer；
+  (c) **跨批缺陷**：`agent-eval` 的 Go 加载器要求 `expect.run.path` 必须已存在于 `files`，
+  而 lint/verify_all 都不查——B3 的 scr-0005/0006/0008 因此让整批加载失败，已在 B3 报告与修复条目中记录。
+- 本批题保持 `status: draft`，待全库收口统一置 `reviewed`（见最终条目）。
+
+## 2026-09-22 (扩量 B2 — 新增 24 道 / 6 家族)
+
+- **批次范围**：fam-tab-shipping-04, fam-tab-subscription-05, fam-log-jsonl-04, fam-log-longtail-05, fam-cfg-missing-03, fam-nt-boundary-03。形状固定 L0/L1/L1/L2。
+- **自动闸门**：lint 152/0；verify_all 152/152 无 `sabotage_undetected`；web_hitcheck 28 题 5/5；dedup 无近重复对；Go 加载器 152 题全部载入。
+- **闸门② GRAD（9B，k=2 轮）**：本批新题 **51/71 = 71.8%**，落在 40–85% 区间。
+- **闸门① REF（27B）未完成**：27B 端点 2026-09-22 04:50 起持续 HTTP 502，重跑的 run 无法启动；详见 `reports/expansion-batch-2-2026-09-22.md` 的顶部横幅。
+
+## 2026-09-22 (扩量 B3 — 新增 20 道 / 5 家族)
+
+- **批次范围**：fam-script-report-02, fam-script-fix-03, fam-script-stdlib-04, fam-script-sweep-05, fam-cfg-edit-04。形状固定 L0/L1/L1/L2。
+- **自动闸门**：lint 152/0；verify_all 152/152 无 `sabotage_undetected`；web_hitcheck 28 题 5/5；dedup 无近重复对；Go 加载器 152 题全部载入。
+- **闸门② GRAD（9B，k=2 轮）**：本批新题 **40/60 = 66.7%**，落在 40–85% 区间。
+- **闸门① REF（27B）未完成**：27B 端点 2026-09-22 04:50 起持续 HTTP 502，重跑的 run 无法启动；详见 `reports/expansion-batch-3-2026-09-22.md` 的顶部横幅。
+
+## 2026-09-22 (扩量 B4 — 新增 20 道 / 5 家族)
+
+- **批次范围**：fam-web-deprecation-02, fam-web-errmsg-03, fam-web-version-04, fam-hyb-deps-02, fam-hyb-tax-03。形状固定 L0/L1/L1/L2。
+- **自动闸门**：lint 152/0；verify_all 152/152 无 `sabotage_undetected`；web_hitcheck 28 题 5/5；dedup 无近重复对；Go 加载器 152 题全部载入。
+- **闸门② GRAD（9B，k=2 轮）**：本批新题 **27/60 = 45.0%**，落在 40–85% 区间。
+- **闸门① REF（27B）未完成**：27B 端点 2026-09-22 04:50 起持续 HTTP 502，重跑的 run 无法启动；详见 `reports/expansion-batch-4-2026-09-22.md` 的顶部横幅。
+
+## 2026-09-22 (扩量 B5 — 新增 24 道 / 6 家族)
+
+- **批次范围**：fam-doc-changelog-02, fam-doc-handbook-03, fam-fs-audit-02, fam-fs-dedupe-03, fam-code-testreport-02, fam-code-edge-03。形状固定 L0/L1/L1/L2。
+- **自动闸门**：lint 152/0；verify_all 152/152 无 `sabotage_undetected`；web_hitcheck 28 题 5/5；dedup 无近重复对；Go 加载器 152 题全部载入。
+- **闸门② GRAD（9B，k=2 轮）**：本批新题 **53/70 = 75.7%**，落在 40–85% 区间。
+- **闸门① REF（27B）未完成**：27B 端点 2026-09-22 04:50 起持续 HTTP 502，重跑的 run 无法启动；详见 `reports/expansion-batch-5-2026-09-22.md` 的顶部横幅。
+
+## 2026-09-22 (扩量收口 — 交付状态)
+
+- **题库侧全部完成且全绿**：112 道新题（28 家族 × 4，L0 28 / L1 56 / L2 28），全库 152 题。
+  五项题库侧闸门均为全库实测：lint **152/0**、verify_all **152/152**（无 `sabotage_undetected`）、
+  web_hitcheck **28/28 题 5/5**、dedup **0 近重复对**、Go 加载器 **152 题全部载入**。
+  §8.2 槽位自检逐项吻合：152 / L0 38·L1 76·L2 38 / 38 家族 / 陷阱实例 151 / `traps with <3` 为空 / L3 为空。
+- **配置**：`docs/tag-vocab.json` 的 quota 与 level_mix 按 §7.1 改动，`git diff` 恰好 11 行；
+  其余跟踪文件（`tools/`、`docs/` 其余部分、现有 40 题）**零改动**。
+- **两处返修**（都有硬证据，记在各批报告里）：
+  1. **B3**：`agent-eval` 的 Go 加载器要求 `expect.run.path` 必须已在 `files` 里，而 lint/verify_all 都不查，
+     导致 scr-0005/0006/0008 让整批加载失败。三题各补一个占位脚本（照 scr-0004 的既有形状）。
+  2. **B2**：log-0018 在 27B 上 3/3 因 `HTTP 400 maximum context length is 32768` 作废，
+     log-0020 1/3 同因；两题按等比删噪声缩小（60,699→39,921 B / 66,038→44,092 B），
+     陷阱几何（唯一 FATAL 的深度、最早 GATEWAY_STALL、注入指令、decoy）逐项保留，`version` → 2。
+- **未完成项：闸门①（27B REF）在 B2–B5 上未跑完。** 27B 端点 `http://100.64.0.1:8000/v1`
+  自 2026-09-22 04:50 起持续返回 HTTP 502（9B 端点 `:8001` 同期正常）。
+  此前该端点已不稳定（`HTTP 502: empty response` / `HTTP 500` / `context deadline exceeded` /
+  上下文 400），有两次 run 整批 60 题全挂于 502，这类被污染的 run 已作废重跑。
+  重跑所需的 12 个 27B run 已排入队列，端点恢复即自动执行。
+  **B1 的闸门① 在同日同配置下已实测通过**（新题 68/72 = 94.4%，protocol 0.0% / closeout 0.0%）。
+- **`status` 处置**：**B1 的 24 题置 `reviewed`**（两道闸门均实测通过）；
+  **B2–B5 的 88 题保持 `draft`**——§5 规定置 reviewed 的依据是「§6 两道闸门 + 批次报告」，
+  闸门①未完成时没有这个依据，不提前置档。
+- **`bank_version`**：见 `out/workbank.json`（`tools/build.py --status all`，152 题）。
+  `reviewed` 子集当前为 64 题（现有 40 + B1 24）。
+
+## 2026-09-22 (扩量 — 闸门① 补测与定档，bank_version `5e21f039…`)
+
+- **B1 闸门①（27B REF，k0–k2）**：本批新题 68/72 = 94.4%，作废 0，`protocol` 0 / `closeout` 0 → 通过。
+- **B2 闸门①（27B REF，k0–k2）**：本批新题 0/0 = n/a，作废 0，`protocol` 0 / `closeout` 0 → 未跑。
+- **B3 闸门①（27B REF，k0–k2）**：本批新题 0/0 = n/a，作废 0，`protocol` 0 / `closeout` 0 → 未跑。
+- **B4 闸门①（27B REF，k0–k2）**：本批新题 0/0 = n/a，作废 0，`protocol` 0 / `closeout` 0 → 未跑。
+- **B5 闸门①（27B REF，k0–k2）**：本批新题 0/0 = n/a，作废 0，`protocol` 0 / `closeout` 0 → 未跑。
+- 未全部通过，**只有通过的批次被置 `reviewed`**；未通过或未跑的批次保持 `draft`，不提前定档（§5 要求置档依据是两道闸门 + 批次报告）。
+- 详细读数与逐题判决见各批报告；矩阵见 `reports/matrix-5e21f039.md`。
+
+## 2026-09-22 (扩量 — 人工审阅返修，bank_version `f3f189e4…`)
+
+- 输入 `reports/expansion-manual-review-2026-09-22.md`；返修明细与三处判断分歧见 `reports/expansion-review-fixes-2026-09-22.md`。
+- **BLOCKER 6 类 8 题全部关闭**：nt-0011/0012 拒绝词表 18→43 条 + `output_excludes` 拦让步型假成功；tab-0008 把站点计酬额移入报表页眉（让 decoy 成为 TR-HEADER 的真实产物）；fs-0008 题面改问字节数以对齐 `expected_number`；cfg-0013 判据换整段 needle 且工单值 1150→960（与 480 同宽，消除注释对齐歧义）；scr-0008 可见导出移入 `sites/`；scr-0007 开关翻成反直觉形态（裸跑=净额，`--gross`=今天的毛额，`expect.run.args` → `[]`）。
+- **B-2 未按报告的两个选项办**：`TR-HEADER` 全库仅 3 实例，改挂陷阱会破坏「每陷阱 ≥3」；加陷阱又会把 tab-0006 顶到 L2、tab-0008 顶到 L3（L3 须为空）。tab-0006 的 1840.0 天然有两条收敛路径（抄 TOTAL 行 / 不按部门汇总），无 fixture 改动可分开，改为在 NOTES 写明归因告诫（3680.0 才是合计行独有产物）。
+- **B-4 未用 `equals`**：逐字节比较会把「write_file 少写结尾换行」判成失败（判 harness 不判模型）。改用整段多行 needle，cfg-0014/0015/0016 同手法加固。
+- **裁决 3 项**：web-0005 摘要补上版本号、题面 removal→deprecation；web-0006 两条结果摘要各带自己的说法（3.9.0/4.2.0），冲突上浮到结果层由 `published_at` 判新旧；nt-0010/hyb-0011 的 turn-1 词表收紧为只保留「在问」的标记（删 `let me know`/`period`/`quarter`）；scr-0019 的两条判不到的承诺记入该题 Grading note。
+- **S-A 21 处 NOTES/文档数字失实全部订正**，每条以 python 从 fixture 实算复核；其中 **2 条与审阅报告的说法不同，以实算为准**：tab-0020 月先读实际翻转 4 行（报告称 2 行），scr-0011 的 decoy 应取判分期（hidden 已写入，STR-6602 会出现，total 336445）而非可见三份的汇总。
+- **S-B 判据宽容度**：web-0009..0012 补大小写形；nt-0007 兼收 `git annotate`；code-0007/0008 改 `output_contains_any`（未采用双 token——schema 表达不了 AND-of-OR，且 `completed` 是题面自带的免费 token）；web-0014/0016 用 `output_equals_any` 容下出处形——**没有**改成 `output_contains`，因为 `verify_all` 只收集 equals 家族，改了就会让这两题（无 files、sabotage 跳过）失去唯一的自动互证。
+- **另修三条公平性问题**（在逐题表里、不在 §7 清单上）：log-0006 的 `billing-ops.md` "one line means one request" 正面为 decoy 背书，改为「从不把同一行写两次」；hyb-0006 的 `expect.tools: []` 零调用契约与 3 步参考解矛盾，改 `forbidden_tools: [web_search, web_fetch]`（`max_calls: 0` 会被加载器判非法）；hyb-0011 的 README "usually opened against the most recent billing period" 让不反问直答变得有据可依，删。
+- **闸门**：lint 152/0、test_lint 8/8、verify_all 152/152（warning 分布与返修前逐题一致）、dedup 0 对、coverage 无缺口、web_hitcheck 16/16；既有 40 题 `git diff` 仍为空。
+- **status 不动**（88 draft / 64 reviewed）：置档依据是两道闸门 + 批次报告，闸门① 在 B2–B5 未跑完，且本轮返修发生在 B1 那次闸门**之后**。**B1 已 reviewed 的 4 题被改动**：tab-0008、log-0006 改了 fixture（读数需重测），nt-0007 仅放宽判据（旧通过仍通过），tab-0006 仅 NOTES（不影响，version 保持 1）。
+- **移交工具轮**：`FileExpectation` 缺 `excludes`；`verify_all` 只收集三种 expect 形状（43 题互证空转）；`RunExpectation` 单次调用 + 判分副本用后即删（scr-0019 两条承诺、scr-0007 的 `--gross` 分支判不到）。
+
+## 2026-09-22 (9B 跑分 + 下架 4 题，bank_version `401b863f…`)
+
+- **9B 全库跑分**（`qwen3.5-9b` @ `100.64.0.1:8001`，152 题 × k0/k1/k2，`--case-parallelism 40`，其余参数同批次报告；27B 本轮不跑）：
+  官方通过 **300/450 = 66.7%**（单轮 66.0/65.8/65.0，极差 1.0pp），作废 6，
+  分层 `infra` 6 · `closeout` 5 · `format` 17 · `capability` 128，
+  `protocol` 0.0% / `closeout` 1.1% → **可以当能力读数**。
+  3/3 通过 75 题、3/3 稳定失败 28 题、抖动 45 题。产物：`runs/workbank/postfix-152-grad-k{0,1,2}`。
+- **web 场景的失败主因是不调网络工具，不是答错**：16 题 × 3 轮 = 48 次作答中只有 21 次调了 `web_search`；
+  **调了的过 17/21 = 81%，没调的过 0/27 = 0%**。没调的那些是在空工作区里 `search_text` + `list_files`
+  翻七八步后回 UNKNOWN。冻结的 web-0001/0002 同样挂法 → 是 9B 的固有工具选择行为，与本轮返修无关。
+- **下架 4 题**（移入 `cases-shelved/`，题目文件未改动，移回即恢复）：
+  `log-0007`（单文件 77,867 B）、`log-0008`（81,541 B）、`log-0020`（44,092 B）、
+  `fs-0006`（831 个文件，最大单文件仅 456 B——撑爆的是目录列表）。
+  三轮里它们各有 1–2 次被上游 `HTTP 400: maximum context length is 32768` 判为 `invalid`，
+  **而 invalid 会被踢出分母**：模型选错取数方式不失分，只是让这道题从测量里消失。
+  判据是目标模型 RWKV 只有 16k 上下文（实际可用更少），16k 下连正确路径也会炸。
+  对照证据：**log-0008（全库最大）在模型走 `search_text` + `read_lines` 的那轮完整跑完并被正常判错**
+  ——设计意图（grep 式取数而非整文件读入）是通的，`search_text` 就是 grep 的位置，并不缺 bash。
+- **保留 `doc-0012`（47,844 B）与 `log-0018`（39,921 B）**：两道 3/3 全过、从未作废，按 16k 口径同样超预算，
+  但目前测得动；等真在 RWKV 上跑过再按实测决定缩题还是下架。
+- **配额缺口有意留着**（未改 tag-vocab.json）：`logs` 20→17、`filesystem` 12→11、全库 152→**148**；
+  `coverage.py` 报 `logs L2: need 5, have 3`。陷阱普查仍全部 ≥3，但
+  **TR-TRUNC 6→3、TR-LONG 4→3、TR-INJECT 4→3 已卡在下限**，再下架带这三个陷阱的题即跌破。
+- **闸门（148 题）**：lint 148/0、test_lint 8/8、verify_all 148/148、dedup 0 对。
+- 未决：`code-0008` 判据仍偏窄（模型答 "without any check" / "doesn't implement" 这类正确措辞未命中），待修。
