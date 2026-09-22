@@ -273,3 +273,32 @@ bank_version → **`sha256:aeed5395b5ed3c8a0ab5926fc6f5ab227fc0d17c03a06b135fae9
   **TR-TRUNC 6→3、TR-LONG 4→3、TR-INJECT 4→3 已卡在下限**，再下架带这三个陷阱的题即跌破。
 - **闸门（148 题）**：lint 148/0、test_lint 8/8、verify_all 148/148、dedup 0 对。
 - 未决：`code-0008` 判据仍偏窄（模型答 "without any check" / "doesn't implement" 这类正确措辞未命中），待修。
+
+## 2026-09-22 (deepseek-flash 摸底 + web 题检索契约，bank_version `11a561f5…`)
+
+- **温度是决定性配置，本模型不能用 greedy。** 先按本地 9B/27B 的参数用 `--temperature 0` 跑，
+  148 题只有 109/148 = 73.6%，伴随大量「UNKNOWN 早退」（18 题）与「不调 web_search」（12/16）；
+  换 `--temperature 0.3` 后同一套系统提示词、同一模型、同一批题拿到 **279/294 = 94.9%**
+  （k0 139/146、k1 140/148），UNKNOWN 早退降到 1–2 题、web 检索率升到 15–16/16，
+  冻结 40 题回到 **39/40 与 38/40**，与 2026-09-21 `flash-*` 系列吻合。
+  2026-09-21 的 sweep 早已测出同一结论（`runs/workbank/flash-greedy-k*` 五轮作废 14→28→31→33→40）。
+  **教训记在 reports/dsflash-baseline-2026-09-22.md §2**：给没跑过的端点定参数前先翻 `runs/`；
+  本轮因此在坏配置上做了一整轮「系统提示词压制检索」的分析，结论全部作废——那些现象是温度 0 的伪影。
+  相应地，系统提示词的两处实验（加「别放弃」一句、去掉 `local-first`）**不落库**。
+- **16 道 web 题加 `expect.required_tools: ["web_search"]`**：这些题没有工作区文件、题面也不含 URL，
+  不检索不可能答出来。它不改变通过与否，改的是归因——失败信息变成
+  `required tool "web_search" was not called`，不再把「模型没出门」记成能力问题。
+- **16 道 web 题面补一句「本地没有」的上下文**：工作区是空的而系统提示词第一句是
+  `You are a local-first assistant`，模型看到空目录后按 UNKNOWN 契约退出。补的是真实用户会说的话，
+  不是工具暗示（题面出现工具名会被 lint 拦下）。T=0.3 下检索率本就 15–16/16，
+  **这句话没有可证明的收益**，保留的理由是题面对齐用户环境（主控口径）。各题 version+1。
+- **`tools/capability_gate.py` 新增 `toolchoice` 层**（v1→v2）：把「没调必需工具」从 `capability` 层分出来。
+  T=0.3 下只剩 1 例，说明「没出门」本就罕见，这条现在是便宜的保险。
+- **13 道失败逐题见报告 §3**：真正像「模型不会」的只有 code-0002、hyb-0002 两道，且都是 1 过 1 挂的抖动。
+  其余是判据/预算问题 4 道（web-0002 的 `output_equals` 拒了带出处的正确答案——S-B 漏网；
+  web-0014 答对却撞 `max_calls: {web_search: 1}`；code-0008 词表仍未覆盖 "claims" 类说法）、
+  script 家族步数耗尽 3 道（`forced_answers: 1`，脚本没写完或没写成，却被记进 `capability` 层）、
+  上游 tool_call 参数非 JSON 2 道、输出 token 上限 2 道。**本轮按主控决定不修，列入待办。**
+- **闸门（148 题）**：lint 148/0、test_lint 8/8、verify_all 148/148、dedup 0 对、web_hitcheck 16/16。
+- 待办：web-0002 / code-0008 判据；web-0014 的检索预算；script 步数预算与 `forced_answers` 的分层归因；
+  **9B 三轮与扩量轮 B1–B5 的闸门读数全是 T=0 下测的，可能严重低估，值得按 T=0.3 重测**。

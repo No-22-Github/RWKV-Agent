@@ -34,7 +34,7 @@ import re
 from collections import Counter, defaultdict
 from pathlib import Path
 
-VERSION = "capability-gate-v1"
+VERSION = "capability-gate-v2"
 
 # A model whose runs exceed these is not being measured on capability. The
 # thresholds are deliberately loose: they mark "this score is not a capability
@@ -42,7 +42,7 @@ VERSION = "capability-gate-v1"
 PROTOCOL_CEILING = 0.10
 CLOSEOUT_CEILING = 0.15
 
-LAYERS = ["infra", "protocol", "closeout", "format", "capability"]
+LAYERS = ["infra", "protocol", "closeout", "toolchoice", "format", "capability"]
 
 INFRA_MARKERS = (
     "upstream provider failure",
@@ -61,6 +61,16 @@ PROTOCOL_MARKERS = (
     "decode",
     "answer contract repaired",
 )
+# A case whose answer depends on a tool the model never reached for is not a
+# reading of the reasoning the case tests. The web scenario made this visible:
+# across two model families, "called web_search" and "passed" separated almost
+# perfectly (9B 17/21 vs 0/27; deepseek-flash 4/4 vs 0/12), and the cases that
+# went unsearched were scored as capability failures. The interaction was
+# well-formed and it stopped cleanly, so no layer above described it.
+TOOLCHOICE_MARKERS = (
+    "required tool",
+)
+
 CLOSEOUT_MARKERS = (
     "step limit",
     "output token limit",
@@ -198,6 +208,8 @@ def classify(case, spec):
         return "protocol"
     if any(marker in blob for marker in CLOSEOUT_MARKERS):
         return "closeout"
+    if any(marker in blob for marker in TOOLCHOICE_MARKERS):
+        return "toolchoice"
     answer = answer_of(case)
     if not normalize(answer) and blob:
         # Ran out of turns without ever committing an answer.
