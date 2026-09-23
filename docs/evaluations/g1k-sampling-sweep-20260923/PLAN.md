@@ -62,7 +62,7 @@ python3 .claude/skills/rwkv-bench/sweep.py --out runs/bench-20260923 \
   --suites workbank,bfcl-product --k 0
 python3 .claude/skills/rwkv-bench/rank.py runs/bench-20260923
 # 阶段 2（<A>,<B>,<C> 为阶段 1 前三名）
-python3 .claude/skills/rwkv-bench/sweep.py --out runs/bench-20260923 --arms <A>,<B>,<C> --suites workbank,bfcl-product --k 1-2
+python3 .claude/skills/rwkv-bench/sweep.py --out runs/bench-20260923 --arms <A>,<B>,<C> --suites workbank,bfcl-product --k 1
 python3 .claude/skills/rwkv-bench/sweep.py --out runs/bench-20260923 --arms greedy --suites workbank,bfcl-product --k 1
 python3 .claude/skills/rwkv-bench/rank.py runs/bench-20260923 --save docs/evaluations/g1k-sampling-sweep-20260923/rank.md
 ```
@@ -106,3 +106,17 @@ python3 .claude/skills/rwkv-bench/rank.py runs/bench-20260923 --save docs/evalua
   随后约 7 分钟无任何成功调用，疑似约 168 路同时预填充压垮共享端点（后端是否重启无法确认）。workbank 102/148 作废。
   经用户同意总并发降到 64：workbank `--case-parallelism 48`、bfcl-product 16（原 148 / 20）。
   并发只影响吞吐与稳定性，不改判定规则。该 run 移入 `aborted/attempt5-burst168/`。
+- 2026-09-23 12:35（阶段 1 进行中、阶段 2 未开跑）用户要求控制时长：阶段 2 改为**每档共 k=2**
+  （前 3 名各补 k1，greedy 补 k1），不再补到 k=3；阶段 3 默认不跑。判定规则不变，
+  "极差"按 k=2 的两次之差计算。单档（workbank + bfcl-product 并行）实测约 9.5–10.5 分钟。
+- 2026-09-23 13:50（阶段 2 进行中，t06-p05 与 greedy 的 k1 未出）用户提出分数太接近时补跑其他题库。
+  为避免"加题库直到出现差距"的多重比较，**加赛规则在跑之前写定**：
+  - 触发：阶段 2 前两名的 workbank 均值差 ≤ 两者 k=2 极差中较大者。
+  - 参赛：阶段 2 排名前 2 的档。
+  - 加赛套件：其余 5 套全部——boundary 18、assistant 6、smoke 10、primitive-orig30 30、primitive-feedback30 30；每档 k0、k1。
+  - 判定：7 套 × 2 副本的 strict 通过数**全部加总**，高者胜；两档总数之差 ≤ 两档各自两副本总数之差的较大者时，
+    视为无法区分，选温度更低的档。
+  - 后果：这 5 套因此参与了选择，原偏离记录第 3 条"未参与扫参的套件对照"不再适用，报告须写明。
+- 2026-09-23 14:14 加赛首个 primitive run 闸门报 max_steps 22 / 决策 4096：这是 primitive 套件自带设计
+  （每题 max_turns、决策步给整段生成），对所有档相同。闸门改为对 `--primitive` 跳过这两项（输出 SKIP 并报告实际值），
+  该 run 按流程挪入 aborted 重跑。

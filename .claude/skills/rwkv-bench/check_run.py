@@ -68,15 +68,23 @@ def main():
         got = sampling.get(key)
         gate(f"sampling.{key} == {value}", close(got, value), f"got {got!r}")
 
-    gate(f"max_steps == {args.max_steps}", harness.get("max_steps") == args.max_steps,
-         f"got {harness.get('max_steps')!r}")
+    # Primitive suites own their step budget (per-case max_turns) and give the decision step a
+    # full generation for multi-line tool arguments (eval.resolveCaseOptions); both are the
+    # same for every arm, so they are reported, not gated.
+    if args.primitive:
+        print(f"SKIP max_steps / decision_max_output_tokens (suite-owned: "
+              f"{harness.get('max_steps')!r} / {harness.get('decision_max_output_tokens')!r})")
+    else:
+        gate(f"max_steps == {args.max_steps}", harness.get("max_steps") == args.max_steps,
+             f"got {harness.get('max_steps')!r}")
     answer_tokens = harness.get("answer_max_output_tokens")
     gate(f"answer_max_output_tokens == {args.max_tokens}", answer_tokens == args.max_tokens,
          f"got {answer_tokens!r}")
 
     decision_tokens = harness.get("decision_max_output_tokens")
-    gate(f"decision_max_output_tokens == {args.decision_max_tokens}",
-         decision_tokens == args.decision_max_tokens, f"got {decision_tokens!r}")
+    if not args.primitive:
+        gate(f"decision_max_output_tokens == {args.decision_max_tokens}",
+             decision_tokens == args.decision_max_tokens, f"got {decision_tokens!r}")
 
     timeout = harness.get("case_timeout_seconds")
     gate(f"case_timeout_seconds == {args.case_timeout_seconds}", timeout == args.case_timeout_seconds,
