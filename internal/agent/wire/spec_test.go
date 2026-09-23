@@ -456,3 +456,45 @@ func assertSpecError(t *testing.T, spec Spec, code string) {
 		t.Fatalf("Validate error = %v, want code %s", err, code)
 	}
 }
+
+// TestG1KPresetIsTheLockedLonghand pins the short name to the longhand the
+// 2026-09-15 ablation selected, so the two spellings stay one wire and a run
+// started from the longhand still reports itself as g1k.
+func TestG1KPresetIsTheLockedLonghand(t *testing.T) {
+	t.Parallel()
+	preset, name, err := Resolve("g1k")
+	if err != nil || name != "g1k" {
+		t.Fatalf("Resolve(g1k) = %q, %v", name, err)
+	}
+	longhand, _, err := Resolve("xml-v1+align-qwen36+no-tool+bare+one-stage")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !preset.Equal(longhand) {
+		t.Fatalf("g1k = %s\nlonghand = %s", preset.Canonical(), longhand.Canonical())
+	}
+	if match, ok := longhand.MatchPreset(); !ok || match != "g1k" {
+		t.Fatalf("longhand MatchPreset = %q, %v; want g1k", match, ok)
+	}
+}
+
+// TestMatchPresetIgnoresInertFirstCall: firstcall only reaches a native tool
+// completer, so a text-transport bank run with firstcall=auto is still g1k,
+// while the same deviation on the native transport stays ad-hoc.
+func TestMatchPresetIgnoresInertFirstCall(t *testing.T) {
+	t.Parallel()
+	text, _, err := Resolve("g1k+first-auto")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if match, ok := text.MatchPreset(); !ok || match != "g1k" {
+		t.Fatalf("text g1k+first-auto MatchPreset = %q, %v; want g1k", match, ok)
+	}
+	native, _, err := Resolve("native-v1+first-auto")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if match, ok := native.MatchPreset(); ok {
+		t.Fatalf("native first-auto matched preset %q; the axis is live there", match)
+	}
+}

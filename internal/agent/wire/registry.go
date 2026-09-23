@@ -44,16 +44,21 @@ func Names() []string {
 // supplies the concrete limits, so a run with real step budgets still matches
 // the preset it started from. When several presets share the same axes (for
 // example "default" and "xml-v1"), the non-default name is preferred so the
-// reported identity is the informative one. An empty name means the spec is an
-// ad-hoc combination: it stays fully traceable through Canonical/Hash.
+// reported identity is the informative one. The first-call policy is also
+// excluded on the text transport, where it is inert: a bank run that resolves
+// firstcall=auto still sends the same bytes as its preset. An empty name means
+// the spec is an ad-hoc combination: it stays fully traceable through
+// Canonical/Hash.
 func (s Spec) MatchPreset() (string, bool) {
 	candidate := s
 	candidate.Loop = Loop{}
-	canonical := candidate.Canonical()
 	match := ""
 	for _, name := range Names() {
 		preset, _ := Lookup(name)
-		if preset.Canonical() != canonical {
+		if candidate.Transport == TransportText {
+			candidate.FirstCall = preset.FirstCall
+		}
+		if preset.Canonical() != candidate.Canonical() {
 			continue
 		}
 		if match == "" || match == "default" {
@@ -228,6 +233,17 @@ func init() {
 	native := Default()
 	native.Transport = TransportNative
 	Register("native-v1", native)
+
+	// g1k is the locked RWKV product wire: the one the 2026-09-15 ablation
+	// selected and the workspace-agent corpus is rendered in. It is the short
+	// name for xml-v1+align-qwen36+no-tool+bare+one-stage and carries the same
+	// canonical string and hash.
+	g1k := Default()
+	g1k.Abstain = AbstainNoTool
+	g1k.Control = ControlBare
+	g1k.Align = AlignQwen36
+	g1k.Stages = StagesOne
+	Register("g1k", g1k)
 }
 
 // parseCanonical decodes the exact string produced by Spec.Canonical. It is
