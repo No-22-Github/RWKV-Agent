@@ -41,8 +41,8 @@ ARMS = _check_run.ARMS
 # name -> (short name for run dirs, rwkv-cli suite args, case count, parallelism, uses g1k wire)
 SUITES = {
     "workbank": ("workbank", ["--cases", "bench/workbank/cases", "--tool-catalog", "work-v1",
-                              "--file-tools", "lines", "--include-draft"], 148, 148, True),
-    "bfcl-product": ("bfclp", ["--suite", "bfcl-product"], 60, 20, True),
+                              "--file-tools", "lines", "--include-draft"], 148, 48, True),
+    "bfcl-product": ("bfclp", ["--suite", "bfcl-product"], 60, 16, True),
     "boundary": ("boundary", ["--suite", "boundary"], 18, 18, True),
     "assistant": ("assistant", ["--suite", "assistant"], 6, 6, True),
     "smoke": ("smoke", ["--suite", "smoke"], 10, 10, True),
@@ -255,6 +255,9 @@ def main():
     ap.add_argument("--model", default="rwkv-g1k-7b-temp-3601")
     ap.add_argument("--api-url", default="https://api-7b.rwkvos.com/v1")
     ap.add_argument("--prefix", default="g1k", help="run directory prefix")
+    ap.add_argument("--max-concurrency", type=int, default=64,
+                    help="total in-flight cases across concurrently running suites (shared endpoint: ~168"
+                         " simultaneous requests knocked it over on 2026-09-23)")
     ap.add_argument("--max-attempts", type=int, default=2, help="whole-run attempts on infra errors; the last attempt is kept")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
@@ -281,7 +284,7 @@ def main():
     print(f"ENDPOINT {ids} {engine} hard_max_bsz={bsz}", flush=True)
     if args.model not in ids:
         sys.exit(f"endpoint serves {ids}, not {args.model}")
-    args.bsz = bsz or 148
+    args.bsz = min(bsz or args.max_concurrency, args.max_concurrency)
     ok = True
     for k in replicas:
         for arm in args.arms:

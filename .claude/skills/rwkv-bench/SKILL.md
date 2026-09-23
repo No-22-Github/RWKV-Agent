@@ -31,7 +31,8 @@ curl -sS https://api-7b.rwkvos.com/v1/models -H "CF-Access-Client-Id: $RWKV_CF_I
 curl -sS https://api-7b.rwkvos.com/v1/server/status -H "CF-Access-Client-Id: $RWKV_CF_ID" -H "CF-Access-Client-Secret: $RWKV_CF_SECRET"
 ```
 
-记下模型 id、`engine_version`、`prefill_queue.hard_max_bsz`。并发 `--case-parallelism` 不超过 hard_max_bsz。
+记下模型 id、`engine_version`、`prefill_queue.hard_max_bsz`。**总并发默认 64**（`sweep.py --max-concurrency`）：
+hard_max_bsz 只按显存算，2026-09-23 约 168 个请求同时预填充把这个共享端点打挂过。
 **跑完再拍一次**，模型 id 变了整轮作废（端点会被静默换模型）。
 
 ## 3. 命令模板
@@ -45,7 +46,7 @@ RWKV（workbank）：
   --api-header-env 'CF-Access-Client-Id=RWKV_CF_ID' --api-header-env 'CF-Access-Client-Secret=RWKV_CF_SECRET' \
   --profile g1k --strict-spec \
   --cases bench/workbank/cases --tool-catalog work-v1 --file-tools lines --include-draft \
-  --max-steps 16 --max-tokens 4096 --decision-max-tokens 2048 --case-parallelism 148 --case-timeout 30m \
+  --max-steps 16 --max-tokens 4096 --decision-max-tokens 2048 --case-parallelism 48 --case-timeout 30m \
   --remote-batch-wait 0s \
   <采样档参数> \
   --output runs/bench-YYYYMMDD/<model>-workbank-<arm>-k<i>

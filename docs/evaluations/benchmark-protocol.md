@@ -44,7 +44,7 @@
 | `--completion` | `rwkv-lightning-cuda` | — |
 | `--api-url` | `https://api-7b.rwkvos.com/v1`（到 `/v1` 为止） | cuda 客户端自己拼路径；旧 python 版（`--completion rwkv-lightning`）才要完整路径 |
 | `--api-stop-tokens` | **不传**：cuda 客户端自动发整数 EOS `[0]` | 文本 stop_tokens 在该后端上 HTTP 500；后端默认含 261（`\n\n`）会截断长 JSON |
-| 并发 | 不超过 `/v1/server/status` 的 `prefill_queue.hard_max_bsz`；超出排 FIFO 不报错 | 2026-09-23 实测 169 |
+| 并发 | 总计 **≤ 64**（workbank 48 + bfcl-product 16），且不超过 `hard_max_bsz` | hard_max_bsz（169）只按显存算；2026-09-23 关闭合并后约 168 个请求同时预填充，2 秒内约 115 路断流、随后约 7 分钟无响应。端点是共享的 |
 | 模型身份 | 跑前、跑后各记一次 `/v1/models` 与 `/v1/server/status` | 请求里的 `model` 字段被忽略；端点曾静默从 g1i 换到 g1j |
 | 截断判断 | 后端 `finish_reason` 恒为 `stop`，客户端按 token 数推断 `length` | 报告里"截断"是推断值，须注明 |
 
@@ -142,6 +142,7 @@ agent-eval 原本把窗口写死为 10ms，2026-09-23 起开放 `--remote-batch-
 | chat 路径 `wire_canonical` 失真 | 全部 API 模型 run | 本文 §1 |
 | `dist/` 二进制过期 | 2026-09-23 发现 | 本文 §2 |
 | python 版与 cuda 版端点参数不同（URL 形式、stop 形式） | 2026-09-23 探针 | 本文 §3；`runs/wire-check-20260918/api-contract-audit.json` |
+| 关闭合并后 168 路同时预填充打挂共享端点 | 2026-09-23 greedy 102/148 作废 | 本文 §3；总并发 ≤ 64 |
 | 客户端合并请求造成队头阻塞 | 2026-09-23 修复 4 MiB 后首档 25/148 撞满 30m | 本文 §5；`--remote-batch-wait 0s` |
 | 合并请求的 4 MiB 上限按整批算，整批作废 | 2026-09-23 第三次首档 132/148；09-22 的 30 题同源 | 已修（batch 上限按条数放大） |
 | `/v1/models` 的 `created` 是请求时刻 | 2026-09-23 | 不能据此判断后端重启 |

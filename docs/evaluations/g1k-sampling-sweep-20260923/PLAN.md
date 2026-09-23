@@ -67,7 +67,7 @@ python3 .claude/skills/rwkv-bench/sweep.py --out runs/bench-20260923 --arms gree
 python3 .claude/skills/rwkv-bench/rank.py runs/bench-20260923 --save docs/evaluations/g1k-sampling-sweep-20260923/rank.md
 ```
 
-- 同一档的 workbank（`--case-parallelism 148`）与 bfcl-product（`--case-parallelism 20`）并行，合计 ≤ 169。
+- 同一档的 workbank（`--case-parallelism 48`）与 bfcl-product（`--case-parallelism 16`）并行，合计 ≤ 64（共享端点）。
 - run 目录：`runs/bench-20260923/g1k-{workbank,bfclp}-<档名>-k<i>/`。
 - 端点快照：开跑前已存 `runs/bench-20260923/endpoint-before-*.json`；每个阶段结束后再存一次，模型 id 变化则该阶段作废。
 - 预计耗时：workbank 每轮约 8–9 分钟，阶段 1 约 80 分钟，阶段 2 约 80 分钟。
@@ -102,3 +102,7 @@ python3 .claude/skills/rwkv-bench/rank.py runs/bench-20260923 --save docs/evalua
   超时题每次回复仅 60–90 字符、30 分钟只发出 6–9 次调用。根因：客户端合并请求时整批响应结束才交付，
   复读到 2048 的成员拖住同批短回复（队头阻塞）。驱动改为 `--remote-batch-wait 0s`（每题独立请求，后端自己批处理）。
   该验证 run（workbank 2/148、bfcl-product 37/60）受阻塞污染，移入 `aborted/attempt4-hol/`，不计入。
+- 2026-09-23 11:48 关闭合并后单跑 greedy：开跑 11 秒时约 115 路请求在 2 秒内断流（stream ended before [DONE] / 502），
+  随后约 7 分钟无任何成功调用，疑似约 168 路同时预填充压垮共享端点（后端是否重启无法确认）。workbank 102/148 作废。
+  经用户同意总并发降到 64：workbank `--case-parallelism 48`、bfcl-product 16（原 148 / 20）。
+  并发只影响吞吐与稳定性，不改判定规则。该 run 移入 `aborted/attempt5-burst168/`。
