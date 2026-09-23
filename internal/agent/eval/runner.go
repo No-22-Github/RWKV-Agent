@@ -308,6 +308,8 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 			RouteMaxOutputTokens:     config.Runner.RouteMaxOutputTokens,
 			TracePromptBytes:         config.Runner.TracePromptBytes,
 			CaseParallelism:          config.CaseParallelism,
+			CaseTimeoutSeconds:       int(config.CaseTimeout / time.Second),
+			RemoteBatchWaitMillis:    int(config.RemoteBatchWait / time.Millisecond),
 			ToolProfile:              config.PrimitiveProfile,
 			DuplicateReplayLimit:     config.Runner.DuplicateReplayLimit,
 			DuplicateRescueThreshold: config.Runner.DuplicateRescueThreshold,

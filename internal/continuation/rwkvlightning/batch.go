@@ -210,12 +210,13 @@ func readBatchStreamResponse(
 	usage := continuation.Usage{}
 	sawDone := false
 	responseBytes := 0
+	limit := batchResponseLimit(len(calls))
 	var streamErr error
 	for scanner.Scan() {
 		line := scanner.Text()
 		responseBytes += len(line) + 1
-		if responseBytes > maxResponseBytes {
-			streamErr = fmt.Errorf("%w: response exceeded %d bytes", ErrRemote, maxResponseBytes)
+		if responseBytes > limit {
+			streamErr = fmt.Errorf("%w: response exceeded %d bytes", ErrRemote, limit)
 			break
 		}
 		line = strings.TrimSpace(line)
@@ -340,15 +341,16 @@ func readBatchBufferedResponse(
 	secret string,
 ) []batchOutcome {
 	outcomes := make([]batchOutcome, len(calls))
-	payload, err := io.ReadAll(io.LimitReader(body, maxResponseBytes+1))
+	limit := batchResponseLimit(len(calls))
+	payload, err := io.ReadAll(io.LimitReader(body, int64(limit)+1))
 	if err != nil {
 		return batchOutcomesWithError(len(calls), fmt.Errorf("%w: read response: %v", ErrRemote, err))
 	}
-	if len(payload) > maxResponseBytes {
+	if len(payload) > limit {
 		return batchOutcomesWithError(len(calls), fmt.Errorf(
 			"%w: response exceeded %d bytes",
 			ErrRemote,
-			maxResponseBytes,
+			limit,
 		))
 	}
 	var buffered bufferedBody
@@ -411,6 +413,19 @@ func readBatchBufferedResponse(
 		}
 	}
 	return outcomes
+}
+
+// batchResponseLimit is the byte budget for one coalesced response. The
+// single-call cap guards against one runaway generation; a batch carries one
+// such generation per call, so the budget scales with the call count. A fixed
+// 4 MiB across the whole batch failed every call of a batch whose members were
+// each well inside their own budget (2026-09-23: 132/148 workbank cases lost
+// once the decision budget rose from 512 to 2048 tokens).
+func batchResponseLimit(calls int) int {
+	if calls < 1 {
+		calls = 1
+	}
+	return maxResponseBytes * calls
 }
 
 func batchOutcomesWithError(count int, err error) []batchOutcome {

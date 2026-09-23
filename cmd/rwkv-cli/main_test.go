@@ -1116,3 +1116,25 @@ func TestAgentEvalRecordsEffectiveLoopInWireSpec(t *testing.T) {
 		t.Fatalf("max-steps 6 and 10 share a wire hash: %q", runner.Wire.Canonical())
 	}
 }
+
+func TestSamplingPresetFillsUnsetFlagsAndYieldsToExplicitOnes(t *testing.T) {
+	options, err := parseRunOptions("agent-eval", []string{
+		"--model", "m", "--suite", agenteval.SuiteBoundary,
+		"--sampling", "g1k-agent-fast", "--temperature", "0.5",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if options.temperature != 0.5 {
+		t.Fatalf("explicit --temperature lost: %v", options.temperature)
+	}
+	if options.topK != 65536 || options.topP != 0.5 || options.presencePenalty != 0.5 ||
+		options.frequencyPenalty != 0.1 || options.penaltyDecay != 0.996 {
+		t.Fatalf("preset values not applied: %+v", options)
+	}
+	if _, err := parseRunOptions("agent-eval", []string{
+		"--model", "m", "--suite", agenteval.SuiteBoundary, "--sampling", "nope",
+	}); err == nil || !strings.Contains(err.Error(), "g1k-agent") {
+		t.Fatalf("unknown preset error = %v, want the known list", err)
+	}
+}
