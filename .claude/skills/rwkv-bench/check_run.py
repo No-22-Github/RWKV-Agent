@@ -41,6 +41,7 @@ def main():
     ap.add_argument("--max-steps", type=int, default=16)
     ap.add_argument("--max-tokens", type=int, default=4096)
     ap.add_argument("--decision-max-tokens", type=int, default=2048)
+    ap.add_argument("--case-timeout-seconds", type=int, default=1800)
     args = ap.parse_args()
 
     run = json.loads((args.run_dir / "run.json").read_text(encoding="utf-8"))
@@ -76,6 +77,14 @@ def main():
     decision_tokens = harness.get("decision_max_output_tokens")
     gate(f"decision_max_output_tokens == {args.decision_max_tokens}",
          decision_tokens == args.decision_max_tokens, f"got {decision_tokens!r}")
+
+    timeout = harness.get("case_timeout_seconds")
+    gate(f"case_timeout_seconds == {args.case_timeout_seconds}", timeout == args.case_timeout_seconds,
+         f"got {timeout!r} (absent before 2026-09-23 binaries)")
+    if args.rwkv:
+        # A coalesced batch releases results only when its slowest member ends.
+        wait = harness.get("remote_batch_wait_ms")
+        gate("remote_batch_wait_ms == 0", wait == 0, f"got {wait!r}")
 
     case_ids = run.get("case_ids") or []
     if args.cases is not None:

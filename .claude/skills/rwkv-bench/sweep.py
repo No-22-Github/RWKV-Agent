@@ -128,8 +128,8 @@ def command(args, suite, arm, output):
            "--api-header-env", "CF-Access-Client-Secret=RWKV_CF_SECRET",
            "--max-steps", "16", "--max-tokens", "4096", "--case-parallelism", str(parallelism),
            # The CLI default is 2m; with ~150 cases sharing the backend a 16-step case needs far
-           # longer, and the 2m clock cut 56/148 greedy cases on 2026-09-23. run.json does not
-           # record this value, so it cannot be gated after the fact — keep it fixed here.
+           # longer, and the 2m clock cut 56/148 greedy cases on 2026-09-23. Recorded in run.json
+           # as harness.case_timeout_seconds and gated by check_run.py.
            "--case-timeout", "30m",
            # Without this the decision step falls back to the protocol default (512). g1k thinks
            # spontaneously on 142/148 first steps, so 512 cut half the think blocks and scored them
@@ -138,7 +138,8 @@ def command(args, suite, arm, output):
            # Client-side coalescing hands every call its result only when the whole merged
            # response ends, so one looping member stalls the short replies batched with it
            # (2026-09-23: ~4 min per call, 25/148 cases to the 30m deadline). The CUDA server
-           # batches concurrent requests itself; send one request per call.
+           # batches concurrent requests itself; send one request per call. Recorded in
+           # run.json as harness.remote_batch_wait_ms and gated by check_run.py.
            "--remote-batch-wait", "0s"]
     if g1k:
         cmd += ["--profile", "g1k", "--strict-spec"]

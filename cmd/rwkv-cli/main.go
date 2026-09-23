@@ -620,6 +620,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			fs.Var(&options.evalCaseIDs, "case", "repeatable built-in or file-backed case ID to run")
 			fs.DurationVar(&options.evalCaseTimeout, "case-timeout", 2*time.Minute, "timeout for each isolated eval case")
 			fs.IntVar(&options.evalCaseParallelism, "case-parallelism", 1, "number of eval cases to run concurrently")
+			fs.DurationVar(&options.remoteBatchWait, "remote-batch-wait", 10*time.Millisecond, "RWKV Lightning coalescing window for concurrent eval cases; 0 sends one request per call. A coalesced batch hands every call its result only when the whole response ends, so one long generation stalls the rest")
 			fs.StringVar(&options.evalFileToolForm, "file-tools", "", "optional file-editing toolset for custom suites: lines (A) or whole (B)")
 			fs.StringVar(&options.evalSubagentFixture, "subagent-fixture", "", "JSON file mapping subtask keywords to canned outputs, enabling a fixture-backed spawn_agents for custom suites")
 			fs.StringVar(&options.evalWebFixture, "web-fixture", "", "JSON file mapping query/URL keywords to canned search results and pages, enabling fixture-backed web_search and web_fetch for custom suites")
@@ -875,6 +876,9 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		}
 		if name == "agent-eval" && options.evalCaseParallelism <= 0 {
 			return options, errors.New("--case-parallelism must be positive")
+		}
+		if name == "agent-eval" && (options.remoteBatchWait < 0 || options.remoteBatchWait > time.Second) {
+			return options, errors.New("--remote-batch-wait must be between 0 and 1s")
 		}
 		if name == "agent-eval" && options.primitiveProfile != agenteval.PrimitiveProfileUpstream &&
 			options.primitiveProfile != agenteval.PrimitiveProfileGoNative {
@@ -1196,7 +1200,7 @@ func newAgentGeneratorSource(
 		}
 		batchWait := time.Duration(0)
 		if options.evalCaseParallelism > 1 {
-			batchWait = 10 * time.Millisecond
+			batchWait = options.remoteBatchWait
 		}
 		client, err := completionprovider.NewRemote(completionprovider.Config{
 			Kind: options.completion, Endpoint: options.apiURL, Model: options.modelPath,
@@ -1778,6 +1782,7 @@ func runAgentEval(args []string) error {
 		TokenCountVocabSHA256: vocabSHA,
 		CaseTimeout:           options.evalCaseTimeout,
 		CaseParallelism:       options.evalCaseParallelism,
+		RemoteBatchWait:       evalRemoteBatchWait(options),
 		PrimitiveProfile:      options.primitiveProfile,
 		FileToolForm:          options.evalFileToolForm,
 		SubagentFixture:       subagentFixtureEntries(options.evalSubagentFixture),
@@ -2512,4 +2517,15 @@ func runConcurrent(args []string) error {
 		return nil
 	}
 	return err
+}
+
+// evalRemoteBatchWait is the coalescing window the eval generator actually uses:
+// it only applies to a remote RWKV Lightning client with more than one case in
+// flight, and is recorded so a run's transport is visible in run.json.
+func evalRemoteBatchWait(options runOptions) time.Duration {
+	if options.completion == "local" || options.completion == completionprovider.ChatCompletions ||
+		options.evalCaseParallelism <= 1 {
+		return 0
+	}
+	return options.remoteBatchWait
 }

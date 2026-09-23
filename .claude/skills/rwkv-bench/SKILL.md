@@ -61,7 +61,7 @@ API 模型：`--completion chat-completions`，不传 `--profile`、`--api-stop-
 
 **`--decision-max-tokens 2048` 必须给**：不给就落到协议默认 512，g1k 自发思考会被截断成协议无效。
 **`--remote-batch-wait 0s` 必须给**：默认 10ms 合并请求，整批结束才交付，一条复读会拖住同批所有短回复（队头阻塞）。
-**`--case-timeout 30m` 必须给**：默认 2 分钟，高并发下大批题被计时器掐断（报 `context deadline exceeded`），而 run.json 不记录这个值，闸门查不出来。
+**`--case-timeout 30m` 必须给**：默认 2 分钟，高并发下大批题被计时器掐断（报 `context deadline exceeded`）。
 
 采样档参数（**`--top-k 1` 会让温度失效**，所以非贪心档一定显式给 top-k）：
 
@@ -103,7 +103,7 @@ python3 .claude/skills/rwkv-bench/check_run.py <run_dir> --arm <档> [--rwkv] [-
 ```
 
 任一 FAIL → 这个 run 作废，修参数重跑，不要"先看看分数"。它会查：`wire_preset == g1k`、采样逐项、
-步数与 token 预算、题数，并给出 strict 分（作废计失败）。
+步数、终答与决策 token 预算、单题超时、请求合并窗口（RWKV 须为 0）、题数，并给出 strict 分（作废计失败）。
 
 `invalid` 不为 0 时，分清两类：
 - 传输错误（5xx、`unexpected EOF`、TLS）：同配置只重跑这些题（`--case <id>` 可重复）到新目录，合并后再判分。

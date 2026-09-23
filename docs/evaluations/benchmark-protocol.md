@@ -87,11 +87,11 @@ python 探针须设 `User-Agent: curl/8.7.1`，否则 Cloudflare 回裸 403。
 `--max-tokens` 只管最终回答；决策步不另给就落到协议默认 512。g1k 会无视格式自发 `<think>`（2026-09-23：142/148 题首步），
 512 把一半思考截断成协议无效。自发思考视为模型缺陷不去修，只给 2048 的上限：正常思考能闭合，复读空转会被截停。
 单题超时默认只有 2 分钟：2026-09-23 greedy 148 题并发时 56 题被 `context deadline exceeded` 掐断。
-`run.json` 不记录超时值，只能在命令里固定（`sweep.py` 已固定）。
+超时值记在 `run.json` 的 `harness.case_timeout_seconds`（2026-09-23 起），闸门检查。
 
 **关闭客户端请求合并**：`--remote-batch-wait 0s`。默认 10ms 窗口把并发请求合成一个 batch，且整批响应结束才把结果交给各调用；
 一条复读到上限的生成会拖住同批所有短回复（2026-09-23 实测每次调用约 4 分钟，25/148 题撞满 30 分钟）。CUDA 后端自己做并发批处理。
-该值同样不进 `run.json`，由 `sweep.py` 固定、记在 `experiment.json` 的 command 里。
+agent-eval 原本把窗口写死为 10ms，2026-09-23 起开放 `--remote-batch-wait` 并记入 `harness.remote_batch_wait_ms`，闸门检查。
 历史上 g1k 用过 10 或 16 步、1024 token，Qwen 用 16 步、4096 token——预算不同的分数不可比。
 
 **重复次数**：
