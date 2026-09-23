@@ -40,6 +40,7 @@ def main():
     ap.add_argument("--cases", type=int, help="expected case count")
     ap.add_argument("--max-steps", type=int, default=16)
     ap.add_argument("--max-tokens", type=int, default=4096)
+    ap.add_argument("--decision-max-tokens", type=int, default=2048)
     args = ap.parse_args()
 
     run = json.loads((args.run_dir / "run.json").read_text(encoding="utf-8"))
@@ -71,6 +72,10 @@ def main():
     answer_tokens = harness.get("answer_max_output_tokens")
     gate(f"answer_max_output_tokens == {args.max_tokens}", answer_tokens == args.max_tokens,
          f"got {answer_tokens!r}")
+
+    decision_tokens = harness.get("decision_max_output_tokens")
+    gate(f"decision_max_output_tokens == {args.decision_max_tokens}",
+         decision_tokens == args.decision_max_tokens, f"got {decision_tokens!r}")
 
     case_ids = run.get("case_ids") or []
     if args.cases is not None:

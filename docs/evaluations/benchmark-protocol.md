@@ -83,7 +83,9 @@ python 探针须设 `User-Agent: curl/8.7.1`，否则 Cloudflare 回裸 403。
 
 记录 `bank_version`（workbank cases 的 sha256）；题库改过的跑分不与旧分直接比。
 
-**预算（所有模型统一）**：`--max-steps 16 --max-tokens 4096 --case-timeout 30m`。
+**预算（所有模型统一）**：`--max-steps 16 --max-tokens 4096 --decision-max-tokens 2048 --case-timeout 30m`。
+`--max-tokens` 只管最终回答；决策步不另给就落到协议默认 512。g1k 会无视格式自发 `<think>`（2026-09-23：142/148 题首步），
+512 把一半思考截断成协议无效。自发思考视为模型缺陷不去修，只给 2048 的上限：正常思考能闭合，复读空转会被截停。
 单题超时默认只有 2 分钟：2026-09-23 greedy 148 题并发时 56 题被 `context deadline exceeded` 掐断。
 `run.json` 不记录超时值，只能在命令里固定（`sweep.py` 已固定）。
 历史上 g1k 用过 10 或 16 步、1024 token，Qwen 用 16 步、4096 token——预算不同的分数不可比。
@@ -136,5 +138,6 @@ python 探针须设 `User-Agent: curl/8.7.1`，否则 Cloudflare 回裸 403。
 | chat 路径 `wire_canonical` 失真 | 全部 API 模型 run | 本文 §1 |
 | `dist/` 二进制过期 | 2026-09-23 发现 | 本文 §2 |
 | python 版与 cuda 版端点参数不同（URL 形式、stop 形式） | 2026-09-23 探针 | 本文 §3；`runs/wire-check-20260918/api-contract-audit.json` |
+| 决策步预算默认 512，截断自发思考 | 2026-09-23 阶段 1 首档 85/148 协议无效 | 本文 §5；闸门查 `decision_max_output_tokens` |
 | 单题超时默认 2 分钟，高并发下成批掐断 | 2026-09-23 阶段 1 首档 56/148 | 本文 §5；`sweep.py` 固定 30m |
 | workbank 的 firstcall=auto 让 `--strict-spec` 误拒 | 2026-09-23 探针 | 已修：文本传输下 `MatchPreset` 忽略该惰性轴 |

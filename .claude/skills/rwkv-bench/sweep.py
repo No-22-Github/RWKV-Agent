@@ -130,7 +130,11 @@ def command(args, suite, arm, output):
            # The CLI default is 2m; with ~150 cases sharing the backend a 16-step case needs far
            # longer, and the 2m clock cut 56/148 greedy cases on 2026-09-23. run.json does not
            # record this value, so it cannot be gated after the fact — keep it fixed here.
-           "--case-timeout", "30m"]
+           "--case-timeout", "30m",
+           # Without this the decision step falls back to the protocol default (512). g1k thinks
+           # spontaneously on 142/148 first steps, so 512 cut half the think blocks and scored them
+           # as protocol-invalid. 2048 lets a normal think close and still stops a repetition loop.
+           "--decision-max-tokens", "2048"]
     if g1k:
         cmd += ["--profile", "g1k", "--strict-spec"]
     return cmd + suite_args + arm_flags(arm) + ["--output", str(output)]

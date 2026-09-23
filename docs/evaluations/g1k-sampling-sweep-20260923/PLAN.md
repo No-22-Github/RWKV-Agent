@@ -14,7 +14,7 @@
 | 模型 / 端点 | `rwkv-g1k-7b-temp-3601` @ api-7b.rwkvos.com，albatross-1.3.0，hard_max_bsz 169 |
 | 二进制 | `bin/rwkv-cli`，由分支 `bench/g1k-sampling-sweep` 的干净 HEAD 编译（含 `g1k` 预设与 MatchPreset 修正）；每个 run 的实际 git HEAD、diff sha 与二进制 sha256 以其 `experiment.json` 为准 |
 | 格式 | `--profile g1k --strict-spec` |
-| 预算 | `--max-steps 16 --max-tokens 4096 --case-timeout 30m` |
+| 预算 | `--max-steps 16 --max-tokens 4096 --decision-max-tokens 2048 --case-timeout 30m` |
 | workbank | 148 题（含 draft），bank_version `sha256:11a561f56b4cd914fc93fe4b11d28d07a9ad0caf74df07c9b2f173ed2c1636af` |
 | bfcl-product | 60 题 |
 | 惩罚 | 除 `backend` 档外全部 0 / 0 / decay 1 |
@@ -86,3 +86,9 @@ python3 .claude/skills/rwkv-bench/rank.py runs/bench-20260923 --save docs/evalua
   报 `context deadline exceeded`。根因是 CLI 单题超时默认 2 分钟，驱动未显式设置（旧 wire-check 批次用的是 30m）。
   中止整轮，驱动固定 `--case-timeout 30m` 后从头重跑阶段 1；此前 run 全部移入 `aborted/`，不计入。
   预算表补一行：单题超时 30m。
+- 2026-09-23 11:00 重启后首档 greedy：workbank 撞满 30m（1801s），142/148 题首步自发 `<think>`、仅 73 闭合，
+  85 题决策协议无效、14 题回复超 4MB（贪心复读失控）。根因：`--max-tokens` 只管终答，决策步落到协议默认 512。
+  用户裁定：自发思考是模型缺陷，不修，只加上限防空转 → 驱动固定 `--decision-max-tokens 2048`，闸门增查该项。
+  阶段 1 第三次从头跑；此前全部 run（含已过闸门但在 512 预算下的 bfclp-greedy）移入 `aborted/`。
+  预算表补：决策步 2048。
+- 后续（本轮之后，用户提出）：做矩阵，把"空思考预填（thinking=fast）"等格式维度与采样档交叉测；本轮先跑完采样扫描。
