@@ -7,8 +7,9 @@ import ConfirmDialog, { type ConfirmAction } from './ConfirmDialog'
 import AgentBehaviorSection from './settings/AgentBehaviorSection'
 import ConnectionsSection from './settings/ConnectionsSection'
 import GeneralSection from './settings/GeneralSection'
+import ParametersSection from './settings/ParametersSection'
 
-type Section = '连接' | 'Agent' | '通用'
+type Section = '连接' | '参数' | 'Agent' | '通用'
 
 type Props = {
   manager: ProviderManager
@@ -21,10 +22,10 @@ type Props = {
   onDeleteProvider: (id: string) => void
 }
 
-const NAV_ITEMS: Section[] = ['连接', 'Agent', '通用']
+const NAV_ITEMS: Section[] = ['连接', '参数', 'Agent', '通用']
 
-/* 连接与 Agent 都在编辑同一份档案草稿：脏标记要在两个分区上都可见。 */
-const PROFILE_SECTIONS: Section[] = ['连接', 'Agent']
+/* 连接、参数与 Agent 都在编辑同一份档案草稿：脏标记要在各分区上都可见。 */
+const PROFILE_SECTIONS: Section[] = ['连接', '参数', 'Agent']
 
 /* 设置页 shell：侧栏导航 + 内容区。脏表单时关闭/Esc 走确认框，不再阻断或静默丢失。 */
 export default function SettingsPage({ manager, status, ready, onChooseWorkspace, theme, onToggleTheme, onActivateProvider, onDeleteProvider }: Props) {
@@ -107,9 +108,11 @@ export default function SettingsPage({ manager, status, ready, onChooseWorkspace
 
         {section === '连接'
           ? <ConnectionsSection manager={manager} ready={ready} onActivateProvider={onActivateProvider} onDeleteProvider={onDeleteProvider} />
-          : section === 'Agent'
-            ? <AgentBehaviorSection manager={manager} />
-            : <GeneralSection status={status} onChooseWorkspace={onChooseWorkspace} theme={theme} onToggleTheme={onToggleTheme} />}
+          : section === '参数'
+            ? <ParametersSection manager={manager} />
+            : section === 'Agent'
+              ? <AgentBehaviorSection manager={manager} />
+              : <GeneralSection status={status} onChooseWorkspace={onChooseWorkspace} theme={theme} onToggleTheme={onToggleTheme} />}
       </main>
 
       <ConfirmDialog

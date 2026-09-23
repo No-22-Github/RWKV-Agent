@@ -49,3 +49,25 @@ export function GroupTitle({ title, hint }: { title: string; hint?: string }) {
     </div>
   )
 }
+
+/*
+ * 设置分区的内容容器：设置页页头之下唯一的滚动区。分区组件只管往里塞内容，
+ * 不自己搭滚动结构；需要常驻底部的动作栏走 footer，不进滚动区。
+ *
+ * 两层 flex 都必须带 min-h-0。flex 项默认 min-height:auto，不会缩到内容高度
+ * 以下；漏掉它时内层 overflow-auto 永远等不到受限高度、滚动条不出现，多出来的
+ * 内容又被 body 的 overflow:hidden 裁掉——现象就是"下面明显还有内容但够不着"。
+ * 这条契约只写在这里一处，避免再被复制到第 N 个分区时漏掉。
+ */
+export function SettingsPane({ children, footer, bottomPad = true }: { children: ReactNode; footer?: ReactNode; bottomPad?: boolean }) {
+  return (
+    <div className="flex min-w-0 min-h-0 flex-1 flex-col">
+      <div className="flex min-w-0 min-h-0 flex-1 flex-col overflow-auto">
+        <div className={`mx-auto w-[min(720px,calc(100%-56px))] flex-none pt-[22px] ${bottomPad ? 'pb-[24px]' : ''}`}>
+          {children}
+        </div>
+      </div>
+      {footer}
+    </div>
+  )
+}

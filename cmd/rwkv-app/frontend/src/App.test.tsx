@@ -89,9 +89,14 @@ function openSettingsSection(name: string) {
   fireEvent.click(screen.getByRole('button', { name }))
 }
 
-/* 工具协议、思考模式、网页与子 Agent 字段在设置页的 Agent 分区。 */
+/* 网页与子 Agent 字段在设置页的 Agent 分区。 */
 function openAgentSection() {
   openSettingsSection('Agent')
+}
+
+/* 对话协议、思考模式、采样、预算与附加约定在设置页的参数分区。 */
+function openParametersSection() {
+  openSettingsSection('参数')
 }
 
 const readyStatus = () => new Status({
@@ -279,7 +284,7 @@ describe('App', () => {
     render(<App />)
     await waitRuntimeReady()
     openSettings()
-    openAgentSection()
+    openParametersSection()
     fireEvent.change(screen.getByLabelText('工具协议'), { target: { value: 'markdown' } })
 
     await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalled(), { timeout: 3000 })
@@ -291,7 +296,7 @@ describe('App', () => {
     render(<App />)
     await waitRuntimeReady()
     openSettings()
-    openAgentSection()
+    openParametersSection()
     fireEvent.change(screen.getByLabelText('思考模式'), { target: { value: 'fast' } })
 
     await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalled(), { timeout: 3000 })
@@ -303,7 +308,7 @@ describe('App', () => {
     render(<App />)
     await waitRuntimeReady()
     openSettings()
-    openAgentSection()
+    openParametersSection()
     fireEvent.change(screen.getByLabelText('附加任务约定'), { target: { value: '  回答使用中文。  ' } })
 
     await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalled(), { timeout: 3000 })
@@ -329,7 +334,7 @@ describe('App', () => {
     render(<App />)
     await waitRuntimeReady()
     openSettings()
-    openAgentSection()
+    openParametersSection()
     fireEvent.change(screen.getByLabelText('思考模式'), { target: { value: 'fast' } })
 
     await waitFor(() => expect(Backend.SaveProvider).toHaveBeenCalled(), { timeout: 3000 })
@@ -337,7 +342,7 @@ describe('App', () => {
     expect(await screen.findByText('已自动保存')).toBeInTheDocument()
   })
 
-  it('previews the system prompt in the Agent section', async () => {
+  it('previews the system prompt in the parameters section', async () => {
     vi.mocked(Backend.PreviewSystemPrompt).mockResolvedValue(new AgentPromptPreview({
       control: 'You are a local-first assistant with read-only tools.',
       responseControl: '',
@@ -350,7 +355,7 @@ describe('App', () => {
     render(<App />)
     openSettings()
     switchToRemoteProvider()
-    openAgentSection()
+    openParametersSection()
     // 预览默认展开：设置页打开即按当前草稿拉取。
     expect(screen.getByRole('button', { name: '预览系统提示词' })).toHaveTextContent('收起')
 
@@ -362,13 +367,91 @@ describe('App', () => {
   it('resets the thinking mode when the Markdown protocol is selected', async () => {    render(<App />)
     openSettings()
     switchToRemoteProvider()
-    openAgentSection()
+    openParametersSection()
     fireEvent.change(screen.getByLabelText('思考模式'), { target: { value: 'fast' } })
     expect(screen.getByLabelText('思考模式')).toHaveValue('fast')
     fireEvent.change(screen.getByLabelText('工具协议'), { target: { value: 'markdown' } })
 
     expect(screen.getByLabelText('思考模式')).toHaveValue('off')
     expect(screen.getByLabelText('思考模式')).toBeDisabled()
+  })
+
+  it('applies a named sampling preset through auto-apply', async () => {
+    bootstrapWithRunningProvider()
+    render(<App />)
+    await waitRuntimeReady()
+    openSettings()
+    openParametersSection()
+    // 档案没存过采样，后端会归一成 greedy，选择器应当认出它而不是报自定义。
+    expect(screen.getByLabelText('采样预设')).toHaveValue('greedy')
+    fireEvent.change(screen.getByLabelText('采样预设'), { target: { value: 'g1k-agent' } })
+
+    await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalled(), { timeout: 3000 })
+    expect(vi.mocked(Backend.ConfigureProvider).mock.calls[0][2]).toMatchObject({
+      temperature: 0.3, topK: 65536, topP: 0.5,
+      presencePenalty: 0, frequencyPenalty: 0, penaltyDecay: 1,
+    })
+  })
+
+  it('drops to custom sampling once a preset value is overridden', async () => {
+    bootstrapWithRunningProvider()
+    render(<App />)
+    await waitRuntimeReady()
+    openSettings()
+    openParametersSection()
+    // 预设模式下六个数字是只读的展示，不占编辑位。
+    expect(screen.queryByLabelText('温度')).not.toBeInTheDocument()
+    fireEvent.change(screen.getByLabelText('采样预设'), { target: { value: 'g1k-agent' } })
+    fireEvent.change(screen.getByLabelText('采样预设'), { target: { value: 'custom' } })
+    // 切到自定义不改数值，从预设那组值出发继续调。
+    expect(screen.getByLabelText('温度')).toHaveValue(0.3)
+    // 下拉说自定义时说明文字不能说成"选中了预设"。
+    expect(screen.getByText(/当前数值等同 g1k-agent/)).toBeInTheDocument()
+    fireEvent.change(screen.getByLabelText('温度'), { target: { value: '0.9' } })
+
+    // 改过的配置不再冒充预设名。
+    expect(screen.getByLabelText('采样预设')).toHaveValue('custom')
+    expect(screen.getByText(/六个参数直接决定采样/)).toBeInTheDocument()
+    await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalled(), { timeout: 3000 })
+    expect(vi.mocked(Backend.ConfigureProvider).mock.calls[0][2]).toMatchObject({ temperature: 0.9, topK: 65536, topP: 0.5 })
+  })
+
+  it('opens a profile with non-preset sampling in custom mode', async () => {
+    const provider = savedRemoteProvider({ temperature: 0.7, topK: 40, topP: 0.8, penaltyDecay: 0.98 })
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
+      config: provider.config,
+      hasConfig: true,
+      providers: [provider],
+      activeProviderId: provider.id,
+      runtimeProviderId: provider.id,
+    }))
+
+    render(<App />)
+    await waitFor(() => expect(Backend.Bootstrap).toHaveBeenCalledOnce())
+    openSettings()
+    openParametersSection()
+
+    expect(screen.getByLabelText('采样预设')).toHaveValue('custom')
+    expect(screen.getByLabelText('温度')).toHaveValue(0.7)
+    expect(screen.getByLabelText('top-k 截断')).toHaveValue(40)
+  })
+
+  it('passes the generation budget through auto-apply', async () => {
+    bootstrapWithRunningProvider()
+    render(<App />)
+    await waitRuntimeReady()
+    openSettings()
+    openParametersSection()
+    expect(screen.getByLabelText('最大步数')).toHaveValue(6)
+    expect(screen.getByLabelText('最大输出 token')).toHaveValue(1024)
+    fireEvent.change(screen.getByLabelText('最大步数'), { target: { value: '16' } })
+    fireEvent.change(screen.getByLabelText('最大输出 token'), { target: { value: '4096' } })
+    fireEvent.change(screen.getByLabelText('决策输出 token'), { target: { value: '2048' } })
+
+    await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalled(), { timeout: 3000 })
+    expect(vi.mocked(Backend.ConfigureProvider).mock.calls[0][2]).toMatchObject({
+      maxSteps: 16, maxTokens: 4096, decisionMaxTokens: 2048,
+    })
   })
 
   it('saves a draft without switching the runtime connection', async () => {
@@ -577,9 +660,10 @@ describe('App', () => {
     render(<App />)
     await waitFor(() => expect(Backend.Bootstrap).toHaveBeenCalledOnce())
     openSettings()
-    openAgentSection()
+    openParametersSection()
 
     expect(screen.getByLabelText('工具协议')).toHaveValue('markdown')
+    openAgentSection()
     expect(screen.getByLabelText('渐进式工具路由')).toBeChecked()
   })
 
@@ -610,8 +694,9 @@ describe('App', () => {
     expect(screen.getByLabelText('Header 值')).toHaveValue('saved-header')
     expect(screen.getByLabelText('Header 值')).toHaveAttribute('type', 'password')
 
-    openAgentSection()
+    openParametersSection()
     expect(screen.getByLabelText('工具协议')).toHaveValue('xml')
+    openAgentSection()
     expect(screen.getByLabelText('渐进式工具路由')).not.toBeChecked()
     expect(screen.getByLabelText('Brave API Key')).toHaveValue('saved-brave')
     expect(screen.getByLabelText('Tavily API Key')).toHaveValue('saved-tavily')

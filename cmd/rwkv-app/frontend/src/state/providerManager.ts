@@ -5,6 +5,7 @@ import {
 import type { AppBootstrap } from '../../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/models'
 import type { SavedProvider } from '../../bindings/github.com/no22/RWKV-Agent/internal/appstorage/models'
 import * as Backend from '../../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/appservice'
+import { DEFAULT_SAMPLING, matchSamplingPreset, normalizeSampling, presetById } from './samplingPresets'
 
 const REMOTE_BACKENDS = {
   openai: { provider: Provider.ProviderChatCompletions, stops: undefined },
@@ -45,6 +46,9 @@ const DEFAULT_AGENT_LIMITS = {
   subagentTimeoutSeconds: 120,
 }
 
+/* 决策阶段输出预算的"自动"：0 让后端按协议挑默认（XML 512，其余 96）。 */
+const DECISION_MAX_TOKENS_AUTO = 0
+
 /*
  * Agent 行为字段的签名：只覆盖 Agent 分区的开关（协议、思考、约定、网页、子
  * Agent 与预算），连接身份字段（地址、密钥、名称）不参与。自动保存/重连以它为
@@ -52,6 +56,7 @@ const DEFAULT_AGENT_LIMITS = {
  * DEFAULT_AGENT_LIMITS 及后端 normalizeConfig 保持一致。
  */
 function agentBehaviorSignatureOf(config: Config): string {
+  const sampling = normalizeSampling(config)
   return JSON.stringify(stableValue({
     agentProtocol: config.agentProtocol || AgentProtocol.AgentProtocolXML,
     thinking: config.thinking || 'off',
@@ -66,6 +71,12 @@ function agentBehaviorSignatureOf(config: Config): string {
     subagentMaxParallel: config.subagentMaxParallel || DEFAULT_AGENT_LIMITS.subagentMaxParallel,
     subagentMaxSteps: config.subagentMaxSteps || DEFAULT_AGENT_LIMITS.subagentMaxSteps,
     subagentTimeoutSeconds: config.subagentTimeoutSeconds || DEFAULT_AGENT_LIMITS.subagentTimeoutSeconds,
+    // 步数与输出预算过去是前端写死的常量，所以不在签名里；现在可调，必须参与。
+    maxSteps: config.maxSteps || DEFAULT_AGENT_LIMITS.maxSteps,
+    maxTokens: config.maxTokens || DEFAULT_AGENT_LIMITS.maxTokens,
+    decisionMaxTokens: config.decisionMaxTokens ?? DECISION_MAX_TOKENS_AUTO,
+    // 采样走归一后的值：未设置与 greedy 是同一份配置，打开设置不该触发重连。
+    ...sampling,
   }))
 }
 
@@ -103,6 +114,16 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   const [subagentMaxParallel, setSubagentMaxParallel] = useState(DEFAULT_AGENT_LIMITS.subagentMaxParallel)
   const [subagentMaxSteps, setSubagentMaxSteps] = useState(DEFAULT_AGENT_LIMITS.subagentMaxSteps)
   const [subagentTimeoutSeconds, setSubagentTimeoutSeconds] = useState(DEFAULT_AGENT_LIMITS.subagentTimeoutSeconds)
+  const [maxSteps, setMaxSteps] = useState(DEFAULT_AGENT_LIMITS.maxSteps)
+  const [maxTokens, setMaxTokens] = useState(DEFAULT_AGENT_LIMITS.maxTokens)
+  const [decisionMaxTokens, setDecisionMaxTokens] = useState(DECISION_MAX_TOKENS_AUTO)
+  const [sampleTemperature, setSampleTemperature] = useState(DEFAULT_SAMPLING.temperature)
+  const [sampleTopK, setSampleTopK] = useState(DEFAULT_SAMPLING.topK)
+  const [sampleTopP, setSampleTopP] = useState(DEFAULT_SAMPLING.topP)
+  const [samplePresencePenalty, setSamplePresencePenalty] = useState(DEFAULT_SAMPLING.presencePenalty)
+  const [sampleFrequencyPenalty, setSampleFrequencyPenalty] = useState(DEFAULT_SAMPLING.frequencyPenalty)
+  const [samplePenaltyDecay, setSamplePenaltyDecay] = useState(DEFAULT_SAMPLING.penaltyDecay)
+  const [advancedSampling, setAdvancedSampling] = useState(false)
   const [availableModels, setAvailableModels] = useState<RemoteModel[]>([])
   const [settingsMessage, setSettingsMessage] = useState('')
   const [settingsBusy, setSettingsBusy] = useState(false)
@@ -113,6 +134,17 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   const [autoApplyNote, setAutoApplyNote] = useState('')
   const appliedAgentSignatureRef = useRef('')
 
+  const samplingValues = normalizeSampling({
+    temperature: sampleTemperature, topK: sampleTopK, topP: sampleTopP,
+    presencePenalty: samplePresencePenalty, frequencyPenalty: sampleFrequencyPenalty, penaltyDecay: samplePenaltyDecay,
+  })
+  /*
+   * 反查当前数值属于哪个预设。数值被改过（或档案里存着一组非预设的组合）就报自定义，
+   * 并把高级输入展开——否则选择器会显示一个名字，而实际发出去的是别的数。
+   */
+  const matchedSamplingPreset = matchSamplingPreset(samplingValues)
+  const samplingIsCustom = advancedSampling || matchedSamplingPreset === ''
+
   function agentCapabilityConfig() {
     return {
       agentProtocol, thinking, taskControl: taskControl.trim() || undefined, progressiveTools, enableWeb,
@@ -120,7 +152,22 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       tavilyApiKey: enableWeb ? tavilyAPIKey.trim() || undefined : undefined,
       enableSubagents, maxActiveBatch, remoteBatchWaitMs: remoteBatchWaitMS,
       subagentMaxParallel, subagentMaxSteps, subagentTimeoutSeconds,
+      maxSteps, maxTokens, decisionMaxTokens,
+      ...samplingValues,
     }
+  }
+
+  /* 选中一个预设：六个参数一起写成测量过的那组值；选"自定义"只展开输入，不动数值。 */
+  function applySamplingPreset(id: string) {
+    const preset = presetById(id)
+    if (!preset) {
+      setAdvancedSampling(true)
+      return
+    }
+    setSampleTemperature(preset.temperature); setSampleTopK(preset.topK); setSampleTopP(preset.topP)
+    setSamplePresencePenalty(preset.presencePenalty); setSampleFrequencyPenalty(preset.frequencyPenalty)
+    setSamplePenaltyDecay(preset.penaltyDecay)
+    setAdvancedSampling(false)
   }
 
   function localConfig() {
@@ -129,7 +176,6 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       provider: Provider.ProviderLocal,
       model: modelPath.trim(), tokenizerPath: tokenizerPath.trim() || undefined,
       endpoint: undefined, apiKey: undefined, password: undefined, headers: undefined,
-      maxSteps: DEFAULT_AGENT_LIMITS.maxSteps, maxTokens: DEFAULT_AGENT_LIMITS.maxTokens,
       ...agentCapabilityConfig(),
     })
   }
@@ -148,7 +194,6 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       chatPromptMode: 'native-chat', chatThinking: 'disabled',
       stream: remoteProtocol !== 'openai' ? draftBaseConfig.stream ?? false : undefined,
       rwkvStopTokens: remoteProtocol === 'openai' ? undefined : stops,
-      maxSteps: DEFAULT_AGENT_LIMITS.maxSteps, maxTokens: DEFAULT_AGENT_LIMITS.maxTokens,
       ...agentCapabilityConfig(),
     })
   }
@@ -250,6 +295,15 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     setSubagentMaxParallel(config.subagentMaxParallel || DEFAULT_AGENT_LIMITS.subagentMaxParallel)
     setSubagentMaxSteps(config.subagentMaxSteps || DEFAULT_AGENT_LIMITS.subagentMaxSteps)
     setSubagentTimeoutSeconds(config.subagentTimeoutSeconds || DEFAULT_AGENT_LIMITS.subagentTimeoutSeconds)
+    setMaxSteps(config.maxSteps || DEFAULT_AGENT_LIMITS.maxSteps)
+    setMaxTokens(config.maxTokens || DEFAULT_AGENT_LIMITS.maxTokens)
+    setDecisionMaxTokens(config.decisionMaxTokens ?? DECISION_MAX_TOKENS_AUTO)
+    const sampling = normalizeSampling(config)
+    setSampleTemperature(sampling.temperature); setSampleTopK(sampling.topK); setSampleTopP(sampling.topP)
+    setSamplePresencePenalty(sampling.presencePenalty); setSampleFrequencyPenalty(sampling.frequencyPenalty)
+    setSamplePenaltyDecay(sampling.penaltyDecay)
+    // 存着一组非预设数值的档案直接进高级模式，否则选择器会顶着一个不成立的名字。
+    setAdvancedSampling(matchSamplingPreset(sampling) === '')
     // 水合即基线：自动应用效果只看这里之后的增量，打开设置永远不会触发重连。
     appliedAgentSignatureRef.current = agentBehaviorSignatureOf(config)
     setAutoApplyNote('')
@@ -276,7 +330,6 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       provider: Provider.ProviderRWKVLightningCUDA,
       model: '', endpoint: '', apiKey: undefined, password: undefined, headers: {},
       chatPromptMode: 'native-chat', chatThinking: 'disabled', stream: false, rwkvStopTokens: 'eos',
-      maxSteps: DEFAULT_AGENT_LIMITS.maxSteps, maxTokens: DEFAULT_AGENT_LIMITS.maxTokens,
       ...agentCapabilityConfig(),
     })
     setDraftInitialized(false)
@@ -401,6 +454,12 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     enableSubagents, setEnableSubagents, maxActiveBatch, setMaxActiveBatch,
     remoteBatchWaitMS, setRemoteBatchWaitMS, subagentMaxParallel, setSubagentMaxParallel,
     subagentMaxSteps, setSubagentMaxSteps, subagentTimeoutSeconds, setSubagentTimeoutSeconds,
+    maxSteps, setMaxSteps, maxTokens, setMaxTokens,
+    decisionMaxTokens, setDecisionMaxTokens,
+    sampleTemperature, setSampleTemperature, sampleTopK, setSampleTopK,
+    sampleTopP, setSampleTopP, samplePresencePenalty, setSamplePresencePenalty,
+    sampleFrequencyPenalty, setSampleFrequencyPenalty, samplePenaltyDecay, setSamplePenaltyDecay,
+    samplingValues, matchedSamplingPreset, samplingIsCustom, applySamplingPreset,
     availableModels, setAvailableModels,
     settingsMessage, setSettingsMessage, settingsBusy,
     promptPreview, previewOpen, setPreviewOpen, previewBusy,
