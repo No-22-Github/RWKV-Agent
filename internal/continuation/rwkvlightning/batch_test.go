@@ -445,3 +445,44 @@ func TestClientBatchSeparatesStates(t *testing.T) {
 		t.Fatalf("requests = %d contents = %d, want two single-call requests", requestCount, contentsPerRequest)
 	}
 }
+
+// TestClientBatchStreamBudgetScalesWithCallCount: each call's stream stays
+// inside the single-call cap, but the coalesced response is larger than one
+// cap. The batch must succeed; a whole-batch 4 MiB cap failed every call.
+func TestClientBatchStreamBudgetScalesWithCallCount(t *testing.T) {
+	t.Parallel()
+	const perCallBytes = 3 * 1024 * 1024
+	piece := strings.Repeat("x", 1000)
+	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		var body struct {
+			Contents []string `json:"contents"`
+		}
+		_ = json.NewDecoder(request.Body).Decode(&body)
+		var chunks []string
+		for index := range body.Contents {
+			for written := 0; written < perCallBytes; written += len(piece) {
+				chunks = append(chunks, fmt.Sprintf(`{"choices":[{"index":%d,"delta":{"content":%q}}]}`, index, piece))
+			}
+			chunks = append(chunks, fmt.Sprintf(`{"choices":[{"index":%d,"delta":{},"finish_reason":"stop"}]}`, index))
+		}
+		writeSSE(writer, chunks...)
+	}))
+	defer server.Close()
+	results := runBatchedCalls(t, batchClient(t, server, true), []string{"p0", "p1"}, func(_ int, request *continuation.Request) {
+		request.MaxOutputTokens = 1 << 20
+	})
+	for prompt, result := range results {
+		if result.err != nil {
+			t.Fatalf("call %q failed: %v", prompt, result.err)
+		}
+		if len(result.result.Text) < perCallBytes {
+			t.Fatalf("call %q got %d bytes, want >= %d", prompt, len(result.result.Text), perCallBytes)
+		}
+	}
+	if got := batchResponseLimit(2); got != 2*maxResponseBytes {
+		t.Fatalf("batchResponseLimit(2) = %d", got)
+	}
+	if got := batchResponseLimit(0); got != maxResponseBytes {
+		t.Fatalf("batchResponseLimit(0) = %d", got)
+	}
+}

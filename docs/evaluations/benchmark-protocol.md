@@ -138,6 +138,8 @@ python 探针须设 `User-Agent: curl/8.7.1`，否则 Cloudflare 回裸 403。
 | chat 路径 `wire_canonical` 失真 | 全部 API 模型 run | 本文 §1 |
 | `dist/` 二进制过期 | 2026-09-23 发现 | 本文 §2 |
 | python 版与 cuda 版端点参数不同（URL 形式、stop 形式） | 2026-09-23 探针 | 本文 §3；`runs/wire-check-20260918/api-contract-audit.json` |
+| 合并请求的 4 MiB 上限按整批算，整批作废 | 2026-09-23 第三次首档 132/148；09-22 的 30 题同源 | 已修（batch 上限按条数放大） |
+| `/v1/models` 的 `created` 是请求时刻 | 2026-09-23 | 不能据此判断后端重启 |
 | 决策步预算默认 512，截断自发思考 | 2026-09-23 阶段 1 首档 85/148 协议无效 | 本文 §5；闸门查 `decision_max_output_tokens` |
 | 单题超时默认 2 分钟，高并发下成批掐断 | 2026-09-23 阶段 1 首档 56/148 | 本文 §5；`sweep.py` 固定 30m |
 | workbank 的 firstcall=auto 让 `--strict-spec` 误拒 | 2026-09-23 探针 | 已修：文本传输下 `MatchPreset` 忽略该惰性轴 |

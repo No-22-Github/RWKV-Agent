@@ -92,3 +92,9 @@ python3 .claude/skills/rwkv-bench/rank.py runs/bench-20260923 --save docs/evalua
   阶段 1 第三次从头跑；此前全部 run（含已过闸门但在 512 预算下的 bfclp-greedy）移入 `aborted/`。
   预算表补：决策步 2048。
 - 后续（本轮之后，用户提出）：做矩阵，把"空思考预填（thinking=fast）"等格式维度与采样档交叉测；本轮先跑完采样扫描。
+- 2026-09-23 11:10 第三次首档 greedy：workbank 132/148、bfcl-product 50/60 作废，全部为
+  `response exceeded 4194304 bytes`。根因是 harness 缺陷：客户端把 10ms 内的并发请求合并成一个 batch，
+  而 4 MiB 上限按整个合并响应计，不按单条；决策上限 512→2048 后每条响应变大，几乎每个 batch 都超限。
+  （09-22 的 30 题作废、第二次尝试的 14 题作废同源。）已修：batch 上限按条数放大（单条保护不变），加回归测试。
+  另记：`/v1/models` 的 `created` 是请求时刻而非加载时刻，不能用来判断后端是否重启。
+  阶段 1 第四次从头跑；第三次的 run 移入 `aborted/attempt3-batch4mib/`。
