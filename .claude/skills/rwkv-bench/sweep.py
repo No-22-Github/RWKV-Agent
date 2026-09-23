@@ -126,7 +126,11 @@ def command(args, suite, arm, output):
            "--api-url", args.api_url,
            "--api-header-env", "CF-Access-Client-Id=RWKV_CF_ID",
            "--api-header-env", "CF-Access-Client-Secret=RWKV_CF_SECRET",
-           "--max-steps", "16", "--max-tokens", "4096", "--case-parallelism", str(parallelism)]
+           "--max-steps", "16", "--max-tokens", "4096", "--case-parallelism", str(parallelism),
+           # The CLI default is 2m; with ~150 cases sharing the backend a 16-step case needs far
+           # longer, and the 2m clock cut 56/148 greedy cases on 2026-09-23. run.json does not
+           # record this value, so it cannot be gated after the fact — keep it fixed here.
+           "--case-timeout", "30m"]
     if g1k:
         cmd += ["--profile", "g1k", "--strict-spec"]
     return cmd + suite_args + arm_flags(arm) + ["--output", str(output)]

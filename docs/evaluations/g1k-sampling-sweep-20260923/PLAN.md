@@ -14,7 +14,7 @@
 | 模型 / 端点 | `rwkv-g1k-7b-temp-3601` @ api-7b.rwkvos.com，albatross-1.3.0，hard_max_bsz 169 |
 | 二进制 | `bin/rwkv-cli`，由分支 `bench/g1k-sampling-sweep` 的干净 HEAD 编译（含 `g1k` 预设与 MatchPreset 修正）；每个 run 的实际 git HEAD、diff sha 与二进制 sha256 以其 `experiment.json` 为准 |
 | 格式 | `--profile g1k --strict-spec` |
-| 预算 | `--max-steps 16 --max-tokens 4096` |
+| 预算 | `--max-steps 16 --max-tokens 4096 --case-timeout 30m` |
 | workbank | 148 题（含 draft），bank_version `sha256:11a561f56b4cd914fc93fe4b11d28d07a9ad0caf74df07c9b2f173ed2c1636af` |
 | bfcl-product | 60 题 |
 | 惩罚 | 除 `backend` 档外全部 0 / 0 / decay 1 |
@@ -76,3 +76,13 @@ python3 .claude/skills/rwkv-bench/rank.py runs/bench-20260923 --save docs/evalua
 
 - 2026-09-23 09:45 首次启动 greedy 后按用户要求中止，两个半成品 run 移入 `runs/bench-20260923/aborted/`，不计入。
   改为先把驱动与排名脚本写成正式版（`sweep.py` / `rank.py`），再择时开跑。
+- 2026-09-23（阶段 1 进行中，用户提问后补充；不改判定规则，只加报告要求）：
+  1. 排名之外，报告须按 scenario / level / trap 拆分各档对照 greedy 的得失，
+     标出"总分持平但场景间此消彼长"的档。
+  2. 选出的档在报告里的最终分数，用**新的一组副本**重跑得出，不沿用扫参阶段的分数（避免选择偏差）。
+  3. 正式全量阶段，胜出档与 greedy 在全部 7 套上对照；胜出档在未参与扫参的套件（boundary / assistant /
+     smoke / primitive）上若明显低于 greedy，报告须写明。
+- 2026-09-23 10:25 阶段 1 首档（greedy）两个 run 被判需重跑：workbank 56/148 题、bfcl-product 14/60 题
+  报 `context deadline exceeded`。根因是 CLI 单题超时默认 2 分钟，驱动未显式设置（旧 wire-check 批次用的是 30m）。
+  中止整轮，驱动固定 `--case-timeout 30m` 后从头重跑阶段 1；此前 run 全部移入 `aborted/`，不计入。
+  预算表补一行：单题超时 30m。
