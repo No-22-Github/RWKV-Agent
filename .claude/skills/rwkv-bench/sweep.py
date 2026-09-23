@@ -134,7 +134,12 @@ def command(args, suite, arm, output):
            # Without this the decision step falls back to the protocol default (512). g1k thinks
            # spontaneously on 142/148 first steps, so 512 cut half the think blocks and scored them
            # as protocol-invalid. 2048 lets a normal think close and still stops a repetition loop.
-           "--decision-max-tokens", "2048"]
+           "--decision-max-tokens", "2048",
+           # Client-side coalescing hands every call its result only when the whole merged
+           # response ends, so one looping member stalls the short replies batched with it
+           # (2026-09-23: ~4 min per call, 25/148 cases to the 30m deadline). The CUDA server
+           # batches concurrent requests itself; send one request per call.
+           "--remote-batch-wait", "0s"]
     if g1k:
         cmd += ["--profile", "g1k", "--strict-spec"]
     return cmd + suite_args + arm_flags(arm) + ["--output", str(output)]

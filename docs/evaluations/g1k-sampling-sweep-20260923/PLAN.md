@@ -14,7 +14,7 @@
 | 模型 / 端点 | `rwkv-g1k-7b-temp-3601` @ api-7b.rwkvos.com，albatross-1.3.0，hard_max_bsz 169 |
 | 二进制 | `bin/rwkv-cli`，由分支 `bench/g1k-sampling-sweep` 的干净 HEAD 编译（含 `g1k` 预设与 MatchPreset 修正）；每个 run 的实际 git HEAD、diff sha 与二进制 sha256 以其 `experiment.json` 为准 |
 | 格式 | `--profile g1k --strict-spec` |
-| 预算 | `--max-steps 16 --max-tokens 4096 --decision-max-tokens 2048 --case-timeout 30m` |
+| 预算 | `--max-steps 16 --max-tokens 4096 --decision-max-tokens 2048 --case-timeout 30m`；传输 `--remote-batch-wait 0s` |
 | workbank | 148 题（含 draft），bank_version `sha256:11a561f56b4cd914fc93fe4b11d28d07a9ad0caf74df07c9b2f173ed2c1636af` |
 | bfcl-product | 60 题 |
 | 惩罚 | 除 `backend` 档外全部 0 / 0 / decay 1 |
@@ -98,3 +98,7 @@ python3 .claude/skills/rwkv-bench/rank.py runs/bench-20260923 --save docs/evalua
   （09-22 的 30 题作废、第二次尝试的 14 题作废同源。）已修：batch 上限按条数放大（单条保护不变），加回归测试。
   另记：`/v1/models` 的 `created` 是请求时刻而非加载时刻，不能用来判断后端是否重启。
   阶段 1 第四次从头跑；第三次的 run 移入 `aborted/attempt3-batch4mib/`。
+- 2026-09-23 11:45 修复 4 MiB 后单跑 greedy 验证：作废归零，但 workbank 25/148、bfcl-product 1/60 撞满 30m。
+  超时题每次回复仅 60–90 字符、30 分钟只发出 6–9 次调用。根因：客户端合并请求时整批响应结束才交付，
+  复读到 2048 的成员拖住同批短回复（队头阻塞）。驱动改为 `--remote-batch-wait 0s`（每题独立请求，后端自己批处理）。
+  该验证 run（workbank 2/148、bfcl-product 37/60）受阻塞污染，移入 `aborted/attempt4-hol/`，不计入。

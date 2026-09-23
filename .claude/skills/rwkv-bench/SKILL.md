@@ -46,6 +46,7 @@ RWKV（workbank）：
   --profile g1k --strict-spec \
   --cases bench/workbank/cases --tool-catalog work-v1 --file-tools lines --include-draft \
   --max-steps 16 --max-tokens 4096 --decision-max-tokens 2048 --case-parallelism 148 --case-timeout 30m \
+  --remote-batch-wait 0s \
   <采样档参数> \
   --output runs/bench-YYYYMMDD/<model>-workbank-<arm>-k<i>
 ```
@@ -59,6 +60,7 @@ cuda 后端：`--api-url` 只写到 `/v1`，**不传** `--api-stop-tokens`（客
 API 模型：`--completion chat-completions`，不传 `--profile`、`--api-stop-tokens`；对话模板由推理端负责。
 
 **`--decision-max-tokens 2048` 必须给**：不给就落到协议默认 512，g1k 自发思考会被截断成协议无效。
+**`--remote-batch-wait 0s` 必须给**：默认 10ms 合并请求，整批结束才交付，一条复读会拖住同批所有短回复（队头阻塞）。
 **`--case-timeout 30m` 必须给**：默认 2 分钟，高并发下大批题被计时器掐断（报 `context deadline exceeded`），而 run.json 不记录这个值，闸门查不出来。
 
 采样档参数（**`--top-k 1` 会让温度失效**，所以非贪心档一定显式给 top-k）：

@@ -88,6 +88,10 @@ python 探针须设 `User-Agent: curl/8.7.1`，否则 Cloudflare 回裸 403。
 512 把一半思考截断成协议无效。自发思考视为模型缺陷不去修，只给 2048 的上限：正常思考能闭合，复读空转会被截停。
 单题超时默认只有 2 分钟：2026-09-23 greedy 148 题并发时 56 题被 `context deadline exceeded` 掐断。
 `run.json` 不记录超时值，只能在命令里固定（`sweep.py` 已固定）。
+
+**关闭客户端请求合并**：`--remote-batch-wait 0s`。默认 10ms 窗口把并发请求合成一个 batch，且整批响应结束才把结果交给各调用；
+一条复读到上限的生成会拖住同批所有短回复（2026-09-23 实测每次调用约 4 分钟，25/148 题撞满 30 分钟）。CUDA 后端自己做并发批处理。
+该值同样不进 `run.json`，由 `sweep.py` 固定、记在 `experiment.json` 的 command 里。
 历史上 g1k 用过 10 或 16 步、1024 token，Qwen 用 16 步、4096 token——预算不同的分数不可比。
 
 **重复次数**：
@@ -138,6 +142,7 @@ python 探针须设 `User-Agent: curl/8.7.1`，否则 Cloudflare 回裸 403。
 | chat 路径 `wire_canonical` 失真 | 全部 API 模型 run | 本文 §1 |
 | `dist/` 二进制过期 | 2026-09-23 发现 | 本文 §2 |
 | python 版与 cuda 版端点参数不同（URL 形式、stop 形式） | 2026-09-23 探针 | 本文 §3；`runs/wire-check-20260918/api-contract-audit.json` |
+| 客户端合并请求造成队头阻塞 | 2026-09-23 修复 4 MiB 后首档 25/148 撞满 30m | 本文 §5；`--remote-batch-wait 0s` |
 | 合并请求的 4 MiB 上限按整批算，整批作废 | 2026-09-23 第三次首档 132/148；09-22 的 30 题同源 | 已修（batch 上限按条数放大） |
 | `/v1/models` 的 `created` 是请求时刻 | 2026-09-23 | 不能据此判断后端重启 |
 | 决策步预算默认 512，截断自发思考 | 2026-09-23 阶段 1 首档 85/148 协议无效 | 本文 §5；闸门查 `decision_max_output_tokens` |
