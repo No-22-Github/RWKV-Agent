@@ -55,16 +55,19 @@ python 探针须设 `User-Agent: curl/8.7.1`，否则 Cloudflare 回裸 403。
 **`top_k=1` 时温度不起作用**（2026-09-23 在 g1k 上实测：top_k=1 下 T=0.001 与 T=1.0 三次输出逐字相同）。
 `rwkv-cli` 默认 `--temperature 1 --top-k 1`，即贪心。历史上所有写着 "T=0.3" 的 RWKV run 实际都是贪心。
 
-采样配置用下表的档名称呼，报告里写档名而不是只写温度：
+采样用**命名预设**：`rwkv-cli --sampling <名字>`（`internal/samplingpreset`），显式 `--temperature` 等仍可覆盖单项；
+`run.json` 的 `sampling.preset` 按实际生效的值反查记录（被覆盖过就记为空）。没有唯一最优，按任务选：
 
-| 档 | `--temperature` | `--top-k` | `--top-p` | `--presence-penalty` / `--frequency-penalty` / `--penalty-decay` |
-|---|---|---|---|---|
-| `greedy` | 1 | 1 | 1 | 0 / 0 / 1 |
-| `t03` | 0.3 | 65536 | 1 | 0 / 0 / 1 |
-| `backend` | 1.0 | 20 | 0.3 | 2.0 / 0.2 / 0.996 |
-| `backend-nopen` | 1.0 | 20 | 0.3 | 0 / 0 / 1 |
+| 预设 | T | top_k | top_p | presence / frequency / decay | 用途（2026-09-23 g1k 扫参实测） |
+|---|---|---|---|---|---|
+| `greedy` | 1 | 1 | 1 | 0 / 0 / 1 | 回归与调试；最接近可复现（批处理仍有约 ±1 题抖动） |
+| `g1k-agent` | 0.3 | 65536 | 0.5 | 0 / 0 / 1 | **默认**，工具调用决策；bfcl-product 最高（均 48/60） |
+| `g1k-agent-fast` | 0.3 | 65536 | 0.5 | 0.5 / 0.1 / 0.996 | 长的多步 Agent 任务；与 g1k-agent 同分数带、快约 27%；presence 1.0 已掉分 |
+| `g1k-stable` | 1 | 20 | 0.3 | 0 / 0 / 1 | 少副本的 A/B 对比；副本间波动最小 |
+| `backend` | 1 | 20 | 0.3 | 2 / 0.2 / 0.996 | rwkv_lightning 作者默认；聊天与最快跑分（回复长度约减 60%） |
 
-- `backend` 是后端作者设定的默认值。`t03` 的 `--top-k 65536`（词表大小）表示不截断：CLI 要求 top_k > 0，不接受 0。
+`top_k 65536` 是词表大小，表示不截断（CLI 不收 0）。**高温不截断不要用**：T 1.0 / top_p 1.0 时 bfcl-product 22/60。
+
 - API 模型：不支持 `top_k`/`penalty_decay`，只用 `--temperature` 与 `--top-p`。
   **DeepSeek-flash 不能用 T=0**（五轮作废 14→40，见 `bench/workbank/reports/dsflash-baseline-2026-09-22.md` §2）；
   Qwen3.5-9B 在 workbank 上 T=0.3 比 T=0 高约 6pp。给没跑过的模型定参数前先翻 `runs/` 与报告。

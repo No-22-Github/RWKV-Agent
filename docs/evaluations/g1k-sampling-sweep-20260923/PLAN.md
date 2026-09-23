@@ -127,3 +127,6 @@ python3 .claude/skills/rwkv-bench/rank.py runs/bench-20260923 --save docs/evalua
     其余同 t03-p05；workbank + bfcl-product，k0、k1。
   - 基准：t03-p05 两套两副本合计 110（52/58，极差 6）。
   - 判定："不掉分" = 两副本合计 ≥ 110 − 6 = 104。不掉分的档里选单档耗时最短者；都掉分则维持 t03-p05。
+- 2026-09-23 15:20 阶段 3 结果：t03-p05-pr05 两副本合计 105（≥104 不掉分，单档 7.1–8.2 分钟），t03-p05-pr10 101（掉分）→ 取 pr05。
+  用户指示：不必只评一个最好，按任务做成预设。落为 `rwkv-cli --sampling`：greedy / g1k-agent（=t03-p05）/
+  g1k-agent-fast（=t03-p05-pr05）/ g1k-stable（=backend-nopen）/ backend。

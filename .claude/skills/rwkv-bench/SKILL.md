@@ -64,14 +64,17 @@ API 模型：`--completion chat-completions`，不传 `--profile`、`--api-stop-
 **`--remote-batch-wait 0s` 必须给**：默认 10ms 合并请求，整批结束才交付，一条复读会拖住同批所有短回复（队头阻塞）。
 **`--case-timeout 30m` 必须给**：默认 2 分钟，高并发下大批题被计时器掐断（报 `context deadline exceeded`）。
 
-采样档参数（**`--top-k 1` 会让温度失效**，所以非贪心档一定显式给 top-k）：
+采样用命名预设 `--sampling <名字>`，不要手拼六个数（**`--top-k 1` 会让温度失效**）：
 
-| 档 | 参数 |
+| 预设 | 用途 |
 |---|---|
-| `greedy` | `--temperature 1 --top-k 1 --top-p 1` |
-| `t03` | `--temperature 0.3 --top-k 65536 --top-p 1` |
-| `backend` | `--temperature 1 --top-k 20 --top-p 0.3 --presence-penalty 2 --frequency-penalty 0.2 --penalty-decay 0.996` |
-| `backend-nopen` | `--temperature 1 --top-k 20 --top-p 0.3` |
+| `greedy` | 回归、调试 |
+| `g1k-agent` | 默认；工具调用决策 |
+| `g1k-agent-fast` | 长的多步任务，快约 27% |
+| `g1k-stable` | 少副本 A/B，波动最小 |
+| `backend` | 后端默认，最快 |
+
+数值见规程 §4；`check_run.py --arm <预设名>` 会核对 `run.json` 的 `sampling.preset`。扫参网格档（`t03-p05` 等）仍在 `check_run.py` 的 `ARMS` 里。
 
 API 模型只给 `--temperature` / `--top-p`。DeepSeek-flash 禁用 T=0。
 

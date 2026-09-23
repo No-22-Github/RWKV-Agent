@@ -28,6 +28,16 @@ ARMS["t03-p05-pr05"] = dict(temperature=0.3, top_k=65536, top_p=0.5,
                             presence_penalty=0.5, frequency_penalty=0.1, penalty_decay=0.996)
 ARMS["t03-p05-pr10"] = dict(temperature=0.3, top_k=65536, top_p=0.5,
                             presence_penalty=1.0, frequency_penalty=0.1, penalty_decay=0.996)
+# Named presets (internal/samplingpreset, `rwkv-cli --sampling <name>`). Keep in step with the Go
+# table; TestPresetValuesArePinned guards that side.
+PRESETS = {
+    "greedy": ARMS["greedy"],
+    "g1k-agent": ARMS["t03-p05"],
+    "g1k-agent-fast": ARMS["t03-p05-pr05"],
+    "g1k-stable": ARMS["backend-nopen"],
+    "backend": ARMS["backend"],
+}
+ARMS.update(PRESETS)
 # API providers drop these fields; they are not part of the arm there.
 API_UNSUPPORTED = {"top_k", "penalty_decay"}
 
@@ -65,6 +75,11 @@ def main():
     if not args.rwkv:
         gate("completion == chat-completions", model.get("completion") == "chat-completions",
              f"completion={model.get('completion')!r}")
+
+    if args.arm in PRESETS and "preset" in sampling:
+        # Binaries from 2026-09-23 on record the preset matched from the values that ran.
+        gate(f"sampling.preset == {args.arm}", sampling.get("preset") == args.arm,
+             f"got {sampling.get('preset')!r}")
 
     want = ARMS[args.arm]
     for key, value in want.items():

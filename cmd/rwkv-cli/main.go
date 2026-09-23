@@ -32,6 +32,7 @@ import (
 	"github.com/no22/RWKV-Agent/internal/inference"
 	rwkvbackend "github.com/no22/RWKV-Agent/internal/inference/backend/rwkvmobile"
 	"github.com/no22/RWKV-Agent/internal/native/converter"
+	"github.com/no22/RWKV-Agent/internal/samplingpreset"
 	"github.com/no22/RWKV-Agent/internal/terminal"
 	"github.com/no22/RWKV-Agent/internal/tokenizer"
 	agenttui "github.com/no22/RWKV-Agent/internal/tui/agent"
@@ -55,6 +56,7 @@ type runOptions struct {
 	topK                     int
 	topP                     float64
 	presencePenalty          float64
+	samplingPreset           string
 	frequencyPenalty         float64
 	penaltyDecay             float64
 	thinkingMode             string
@@ -421,6 +423,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 	fs.Float64Var(&options.presencePenalty, "presence-penalty", defaultPresencePenalty, "RWKV presence penalty")
 	fs.Float64Var(&options.frequencyPenalty, "frequency-penalty", defaultFrequencyPenalty, "RWKV frequency penalty")
 	fs.Float64Var(&options.penaltyDecay, "penalty-decay", defaultPenaltyDecay, "RWKV repetition-penalty decay")
+	fs.StringVar(&options.samplingPreset, "sampling", "", "named sampling preset ("+strings.Join(samplingpreset.Names(), ", ")+"); explicit --temperature/--top-k/--top-p/--*-penalty flags override its values")
 	fs.StringVar(&options.thinkingMode, "thinking", string(inference.ThinkingOff), "thinking mode: off, fast, or full")
 	fs.BoolVar(&options.reasoning, "reasoning", false, "deprecated alias for --thinking=fast")
 	fs.StringVar(&options.nativeState, "native-state", "auto", "native State mode: auto, off, or required")
@@ -663,7 +666,9 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 		return options, err
 	}
 	apiStopsExplicit := false
+	samplingExplicit := map[string]bool{}
 	fs.Visit(func(value *flag.Flag) {
+		samplingExplicit[value.Name] = true
 		switch value.Name {
 		case "api-stop-tokens":
 			apiStopsExplicit = true
@@ -693,6 +698,9 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			options.agentProtocolExplicit = true
 		}
 	})
+	if err := applySamplingPreset(&options, samplingExplicit); err != nil {
+		return options, err
+	}
 	if name == "agent-eval" {
 		options.evalSuite = agenteval.CanonicalBuiltinSuiteName(options.evalSuite)
 		if options.evalSuite == agenteval.SuiteBFCLProduct {
@@ -2528,4 +2536,37 @@ func evalRemoteBatchWait(options runOptions) time.Duration {
 		return 0
 	}
 	return options.remoteBatchWait
+}
+
+// applySamplingPreset fills the sampling fields the user did not set explicitly
+// from the named preset, so "--sampling g1k-agent --temperature 0.5" is the
+// preset with one value changed.
+func applySamplingPreset(options *runOptions, explicit map[string]bool) error {
+	if options.samplingPreset == "" {
+		return nil
+	}
+	preset, ok := samplingpreset.Lookup(options.samplingPreset)
+	if !ok {
+		return fmt.Errorf("unknown --sampling preset %q (known: %s)",
+			options.samplingPreset, strings.Join(samplingpreset.Names(), ", "))
+	}
+	if !explicit["temperature"] {
+		options.temperature = preset.Temperature
+	}
+	if !explicit["top-k"] {
+		options.topK = preset.TopK
+	}
+	if !explicit["top-p"] {
+		options.topP = preset.TopP
+	}
+	if !explicit["presence-penalty"] {
+		options.presencePenalty = preset.PresencePenalty
+	}
+	if !explicit["frequency-penalty"] {
+		options.frequencyPenalty = preset.FrequencyPenalty
+	}
+	if !explicit["penalty-decay"] {
+		options.penaltyDecay = preset.PenaltyDecay
+	}
+	return nil
 }

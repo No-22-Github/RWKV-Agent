@@ -10,6 +10,7 @@ import (
 	"github.com/no22/RWKV-Agent/internal/agent"
 	"github.com/no22/RWKV-Agent/internal/continuation"
 	"github.com/no22/RWKV-Agent/internal/continuation/toolchat"
+	"github.com/no22/RWKV-Agent/internal/samplingpreset"
 )
 
 type traceRecorder struct {
@@ -224,6 +225,13 @@ func samplingManifest(sampling continuation.Sampling, unsupported []string) map[
 	for _, key := range unsupported {
 		delete(record, key)
 	}
+	// The preset is derived from the values that actually ran, so a typed-out
+	// preset is still named and a preset with an override is not.
+	record["preset"] = samplingpreset.Match(
+		float64(sampling.Temperature), sampling.TopK, float64(sampling.TopP),
+		float64(sampling.PresencePenalty), float64(sampling.FrequencyPenalty),
+		float64(sampling.PenaltyDecay), unsupported...,
+	)
 	return record
 }
 
