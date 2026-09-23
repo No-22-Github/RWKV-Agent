@@ -23,6 +23,11 @@ for _t in (0.3, 0.6, 1.0):
     for _p in (1.0, 0.5):
         ARMS["t%02d-p%02d" % (round(_t * 10), round(_p * 10))] = dict(
             temperature=_t, top_k=65536, top_p=_p, presence_penalty=0, frequency_penalty=0, penalty_decay=1)
+# Stage 3 (PLAN 2026-09-23): the chosen t03-p05 plus a light repetition penalty.
+ARMS["t03-p05-pr05"] = dict(temperature=0.3, top_k=65536, top_p=0.5,
+                            presence_penalty=0.5, frequency_penalty=0.1, penalty_decay=0.996)
+ARMS["t03-p05-pr10"] = dict(temperature=0.3, top_k=65536, top_p=0.5,
+                            presence_penalty=1.0, frequency_penalty=0.1, penalty_decay=0.996)
 # API providers drop these fields; they are not part of the arm there.
 API_UNSUPPORTED = {"top_k", "penalty_decay"}
 

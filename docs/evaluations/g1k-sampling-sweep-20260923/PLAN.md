@@ -120,3 +120,10 @@ python3 .claude/skills/rwkv-bench/rank.py runs/bench-20260923 --save docs/evalua
 - 2026-09-23 14:14 加赛首个 primitive run 闸门报 max_steps 22 / 决策 4096：这是 primitive 套件自带设计
   （每题 max_turns、决策步给整段生成），对所有档相同。闸门改为对 `--primitive` 跳过这两项（输出 SKIP 并报告实际值），
   该 run 按流程挪入 aborted 重跑。
+- 2026-09-23 15:10 加赛结果：7 套 × 2 副本合计 t03-p05 186（87/99，极差 12）vs backend-nopen 181（89/92，极差 3），
+  差 5 ≤ 12 → 无法区分 → 按规则取低温度 **t03-p05**。
+- 同时，用户提出加轻度重复惩罚以提速（实测惩罚把平均回复长度压约 60%、单档耗时约减半）。**阶段 3 规则（开跑前写定）**：
+  - 新档：`t03-p05-pr05`（presence 0.5 / frequency 0.1 / decay 0.996）、`t03-p05-pr10`（presence 1.0 / 0.1 / 0.996），
+    其余同 t03-p05；workbank + bfcl-product，k0、k1。
+  - 基准：t03-p05 两套两副本合计 110（52/58，极差 6）。
+  - 判定："不掉分" = 两副本合计 ≥ 110 − 6 = 104。不掉分的档里选单档耗时最短者；都掉分则维持 t03-p05。
