@@ -17,15 +17,20 @@
 | `rwkv-cli agent-eval --script <jsonl>` | 用脚本代替模型：按 case ID 依次返回 teacher 输出，不需要端点、不需要 `--model`；其余（wire、工具、打分）照常 |
 | `internal/agent/eval/script.go` | 脚本格式、`ScriptGeneratorFactory`；eval 在 context 里带 case ID |
 | `internal/agent/eval/corpus.go` + `cmd/tracecorpus` | 从 run 目录切训练行，逐步校验 harness 没有偏离脚本 |
-| `scripts/harness_corpus.py` | normalized record 或（题目目录 + 脚本）→ agent-eval → tracecorpus 一条龙 |
-| `scripts/trace2script.py` | teacher 跑出的 run → 脚本：筛通过、去重、限每题路径数、参数去默认值 |
-| `scripts/decontam.py` | 蒸馏题与测试题的相似度闸门 |
+| `python3 -m scripts.corpus render` | normalized record 或（题目目录 + 脚本）→ agent-eval → tracecorpus 一条龙 |
+| `python3 -m scripts.corpus paths` | teacher 跑出的 run → 脚本：筛通过、去重、限每题路径数、参数去默认值 |
+| `python3 -m scripts.corpus decontam` | 蒸馏题与测试题的相似度闸门 |
+
+Python 侧是一个包 [`scripts/corpus/`](../scripts/corpus/__init__.py)，从仓库根目录以 `python3 -m scripts.corpus <命令>`
+运行；子模块分层为 `wire`（动作字节）/ `bank`（题库与 record）/ `script`（脚本格式）/ `runs`（读 run 目录）/
+`similarity`（decontam 的特征与打分），三个命令模块在其上。单测：`python3 -m unittest scripts.corpus.tests.test_corpus`。
+（2026-09-24 由 `scripts/harness_corpus.py`、`trace2script.py`、`decontam.py` 拆分而来，六组基线输出逐字节一致。）
 
 ## 用法
 
 ```bash
 go build -o bin/rwkv-cli ./cmd/rwkv-cli && go build -o bin/tracecorpus ./cmd/tracecorpus
-python3 scripts/harness_corpus.py \
+python3 -m scripts.corpus render \
   --records datasets/workspace-agent-700-20260920/generated/normalized/all.jsonl \
   --out runs/harness-corpus-700
 ```
@@ -75,14 +80,14 @@ suite 分支和默认值（rescue 关、`firstcall=auto`）；`run/run.json` 的
 bin/rwkv-cli agent-eval --completion chat-completions --model <teacher> ... \
   --cases bench/distill/cases --tool-catalog work-v1 --file-tools lines --output runs/distill/k0
 # 2. 抽路径：通过 + 干净 + 去重 + 每题 ≤2 条，参数去默认值
-python3 scripts/trace2script.py --run runs/distill/k0 --run runs/distill/k1 ... \
+python3 -m scripts.corpus paths --run runs/distill/k0 --run runs/distill/k1 ... \
   --out runs/distill/script.jsonl --report runs/distill/paths.jsonl
 # 3. 用 student 的 wire 重放并切行
-python3 scripts/harness_corpus.py --cases bench/distill/cases \
+python3 -m scripts.corpus render --cases bench/distill/cases \
   --script runs/distill/script.jsonl --out runs/distill/corpus
 ```
 
-- `trace2script.py` 只带走动作（工具名、参数、终答），teacher 的 wire、思考和回执全部丢弃，
+- `paths` 只带走动作（工具名、参数、终答），teacher 的 wire、思考和回执全部丢弃，
   重放时由 student 的 harness 重新执行工具。丢弃规则：失败、有协议重试、工具报错或被拒、
   进入强制收尾、终答被 harness 修复过。选路：先取最短，之后只收工具序列不同的，每题最多
   `--max-per-case`（默认 2）。参数等于实现默认值的去掉（teacher 习惯把 schema 字段填满，
@@ -113,10 +118,10 @@ python3 scripts/harness_corpus.py --cases bench/distill/cases \
 
 - **来源规则**（主闸）：蒸馏题的种子、模板、fixture 不得来自测试题。改名改数字的同题变体表面
   相似度很低（700 条的 b/v 变体大多查不出），只能靠来源管。
-- **`scripts/decontam.py`**（兜底）：按模型可见文本（prompt 5-gram、fixture 行 3-gram 包含度、
+- **`python3 -m scripts.corpus decontam`**（兜底）：按模型可见文本（prompt 5-gram、fixture 行 3-gram 包含度、
   专有名）比对，忽略测试集中 >5% 题目共有的模板片段。校准：700 条 anchor 36/36 命中、
   workbank 内部两两误报 0/148。有命中时退出码 1。
-- **`harness_corpus.py` 拒渲染 `bench/workbank`**，除非显式 `--allow-test-bank`（仅冒烟）。
+- **`render` 拒渲染 `bench/workbank`**，除非显式 `--allow-test-bank`（仅冒烟）。
 
 ## 700 条首轮结果（2026-09-24）
 

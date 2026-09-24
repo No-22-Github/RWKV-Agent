@@ -3,7 +3,7 @@
 //	rwkv-cli agent-eval --script script.jsonl --cases <bank dir> <wire flags> --output run/
 //	tracecorpus --run run/ --script script.jsonl --out rows.jsonl [--rejects rejects.jsonl]
 //
-// scripts/harness_corpus.py drives both steps from normalized records.
+// `python3 -m scripts.corpus render` drives both steps.
 //
 // Each row's text is a turn's final rendered prompt plus the turn's last
 // scripted output (one row per turn: between turns the harness commits
