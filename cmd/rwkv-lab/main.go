@@ -15,6 +15,7 @@ import (
 	"github.com/no22/RWKV-Agent/internal/lab/bench"
 	"github.com/no22/RWKV-Agent/internal/lab/corpus"
 	"github.com/no22/RWKV-Agent/internal/lab/runs"
+	"github.com/no22/RWKV-Agent/internal/lab/state"
 )
 
 const usage = `rwkv-lab — development tooling for the RWKV-Agent bench
@@ -25,6 +26,7 @@ usage: rwkv-lab <group> <command> [flags]
   corpus  paths | render | rows | decontam
   run     wire | check | gate | audit | compare | ledger | replicate
   bench   sweep | rank
+  state   run | probe | sanity
 
 Run "rwkv-lab <group> <command> --help" for a command's flags.
 `
@@ -47,6 +49,8 @@ func run(args []string) int {
 		return runs.Run(args[1:])
 	case "bench":
 		return bench.Run(args[1:])
+	case "state":
+		return state.Run(args[1:])
 	case "-h", "--help", "help":
 		fmt.Print(usage)
 		return 0

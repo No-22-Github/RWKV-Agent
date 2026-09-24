@@ -337,6 +337,8 @@ git ls-files '*.py' | grep -v '^third_party/' | grep -v '/verify.py$' | grep -v 
 | `corpus render` | 加载校验从「反复调 agent-eval、正则解析 stderr」改成进程内调 `eval.LoadCasesDir`（§2.1.1 要求）。判据仍是真实加载器，只是不再起进程；被拒 case 的 reason 文案因此变成 Go 的报错文本。 |
 | `run replicate` / `run compare` | 出错时 Python 抛未捕获的 `ValueError`，stderr 是一整段 traceback；Go 版打印 `error: <同样的消息>` 并退出 1。**消息文本一致、退出码一致**，traceback 的外框没法逐字节复刻（§4.3 的文本口径不适用于解释器 traceback）。 |
 | `run wire` / `run gate` / `run audit` | `--json` 的报告里，Python 保留 dict 插入顺序，Go 用 map（键按字典序）。§4.3 对 JSON 只要求「逐行解析后深度相等」，所以口径内一致；但如果有人拿这些 JSON 做逐字节 diff，会看到键序不同。需要逐字节的话，把报告改成 `lab.OrderedMap` 即可。 |
+| `state run` | 旧版把套件跑批交给 `scripts/wire-experiment.py`，而 §2.5 要删那个脚本，所以那条命令的构造（profile、温度、步数、rescue 关闭、stop mode、buffered 等）搬进了 `state run` 自己，不再起 Python 子进程。`wire-experiment.py` 原来写的 `experiment.json` 也由 `state run` 写。 |
+| `state run` / `state probe` | 两个脚本把端点 URL 硬编码在源码里，离线验收（§6 M4 的假服务器）没法指过去。Go 版读环境变量 `RWKV_LAB_API_URL` 覆盖，默认值与原值相同；这是**新增的环境变量**，命令行参数没有变化。另外请求头显式设成 urllib 的默认（`Accept-Encoding: identity`、`Connection: close`），否则录下来的请求头会多出 Go 的 gzip 与 keep-alive，对不上。 |
 | `bench sweep` | 凭据只从 `RWKV_CF_ID` / `RWKV_CF_SECRET` 读（P11）；`experiment.json` 里记的是 `--api-header-env CF-Access-Client-Id=RWKV_CF_ID`，即变量名而非值。`--dry-run` 输出里的二进制路径由仓库根推导，从别的 worktree 跑基线时路径不同（实测只有这一处差异）。 |
 
 ## 8. 交付与验收

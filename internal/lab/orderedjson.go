@@ -211,6 +211,12 @@ func writeOrdered(buf *bytes.Buffer, v any, opts EncodeOptions, depth int) error
 		return writeOrderedObject(buf, om, opts, depth)
 	case []any:
 		return writeOrderedArray(buf, t, opts, depth)
+	case []string:
+		items := make([]any, len(t))
+		for i, item := range t {
+			items[i] = item
+		}
+		return writeOrderedArray(buf, items, opts, depth)
 	default:
 		// Fall back to encoding/json for anything else (structs, etc).
 		data, err := json.Marshal(v)
