@@ -141,6 +141,8 @@ def command(args, suite, arm, output):
            # batches concurrent requests itself; send one request per call. Recorded in
            # run.json as harness.remote_batch_wait_ms and gated by check_run.py.
            "--remote-batch-wait", "0s"]
+    if args.state_id:
+        cmd += ["--state-id", args.state_id]
     if g1k:
         cmd += ["--profile", "g1k", "--strict-spec"]
     return cmd + suite_args + arm_flags(arm) + ["--output", str(output)]
@@ -168,7 +170,7 @@ def finish(args, suite, arm, output, cmd, started, exit_code):
         "binary_sha256": hashlib.sha256(BINARY.read_bytes()).hexdigest(),
         "git_head": git("rev-parse", "HEAD").decode().strip(),
         "diff_sha256": hashlib.sha256(git("diff", "HEAD")).hexdigest(),
-        "state_id": "",
+        "state_id": args.state_id,
         "started_unix": started, "exit_code": exit_code, "elapsed_seconds": time.time() - started,
         "infrastructure_errors": errors,
         "valid_for_model_comparison": not errors,
@@ -255,6 +257,9 @@ def main():
     ap.add_argument("--model", default="rwkv-g1k-7b-temp-3601")
     ap.add_argument("--api-url", default="https://api-7b.rwkvos.com/v1")
     ap.add_argument("--prefix", default="g1k", help="run directory prefix")
+    ap.add_argument("--state-id", default="",
+                    help="rwkv_lightning state id (from `rwkv-cli state upload`) attached to every run"
+                         " of this invocation; empty means the endpoint's default no-state behavior")
     ap.add_argument("--max-concurrency", type=int, default=64,
                     help="total in-flight cases across concurrently running suites (shared endpoint: ~168"
                          " simultaneous requests knocked it over on 2026-09-23)")
