@@ -1,5 +1,9 @@
 # G1K 对齐语料格式契约（wire：`xml-v1+align-qwen36+no-tool+bare+one-stage`）
 
+> **2026-09-24 起，训练语料请用 harness 渲染**（[harness-corpus-render.md](harness-corpus-render.md)），
+> 不要按本文档手写拼接：本文档未覆盖 `usermsg=split` 下每次成功调用后插入的 post-tool 提醒块，
+> 照它渲染的 700 条语料从第 2 步起就与 eval prompt 不一致。本文档保留为字节形状的说明。
+
 用途：供语料生产/清洗侧对齐模型可见字节。本文档的每个字节块都从评测 trace
 （`runs/ablation-g1k/r4-one-stage`）与实现（`internal/agent/protocol_g1.go`、
 `internal/inference/prompt.go`）逐字取证。格式总览见 [`docs/tool-and-wire-formats.md`](tool-and-wire-formats.md)，实验依据见

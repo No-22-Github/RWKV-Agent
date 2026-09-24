@@ -391,7 +391,7 @@ func runCase(
 		result.Error = fmt.Sprintf("create tools: %v", err)
 		return result
 	}
-	caseContext, cancel := context.WithTimeout(parent, config.CaseTimeout)
+	caseContext, cancel := context.WithTimeout(WithCaseID(parent, testCase.ID), config.CaseTimeout)
 	defer cancel()
 	generator, closer, err := config.GeneratorFactory(caseContext)
 	if err != nil {

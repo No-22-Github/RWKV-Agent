@@ -86,6 +86,7 @@ type runOptions struct {
 	evalSuite                string
 	evalSuiteExplicit        bool
 	evalCasesPath            string
+	evalScript               string
 	evalOutput               string
 	evalCaseIDs              stringListFlag
 	evalCaseTimeout          time.Duration
@@ -619,6 +620,13 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 				"",
 				"versioned Agent eval JSON or trusted Primitive Bench case directory; conflicts with --suite",
 			)
+			fs.StringVar(
+				&options.evalScript,
+				"script",
+				"",
+				"JSONL teacher script ({case_id, outputs:[{text, supervised}]}) replayed in place of a model; "+
+					"renders corpus material through the eval harness (see cmd/tracecorpus), no endpoint needed",
+			)
 			fs.StringVar(&options.evalOutput, "output", "", "new directory for run.json, trace.jsonl, and summary.json")
 			fs.Var(&options.evalCaseIDs, "case", "repeatable built-in or file-backed case ID to run")
 			fs.DurationVar(&options.evalCaseTimeout, "case-timeout", 2*time.Minute, "timeout for each isolated eval case")
@@ -804,7 +812,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 	if !apiStopsExplicit && completionprovider.IsLightning(options.completion) {
 		options.apiStopTokens = completionprovider.DefaultStopTokens(options.completion)
 	}
-	if options.modelPath == "" {
+	if options.modelPath == "" && options.evalScript == "" {
 		fs.Usage()
 		return options, fmt.Errorf("%s requires --model", name)
 	}
@@ -937,7 +945,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			}
 		}
 	}
-	if options.tokenizer == "" && !(agentMode && options.completion != "local") {
+	if options.tokenizer == "" && !(agentMode && (options.completion != "local" || options.evalScript != "")) {
 		if strings.EqualFold(filepath.Ext(options.modelPath), ".pth") {
 			tokenizer, err := bundledTokenizerPath()
 			if err != nil {
@@ -1253,6 +1261,22 @@ func newAgentGeneratorSource(
 		return generator, session, nil
 	}
 	return source, nil
+}
+
+// scriptGeneratorSource replays a teacher script instead of a model. Every
+// selected case must have a script entry, so a missing trajectory fails
+// before the run rather than as one failed case among hundreds.
+func scriptGeneratorSource(path string, cases []agenteval.Case) (*agentGeneratorSource, error) {
+	entries, err := agenteval.LoadScript(path)
+	if err != nil {
+		return nil, fmt.Errorf("load --script: %w", err)
+	}
+	for _, testCase := range cases {
+		if _, ok := entries[testCase.ID]; !ok {
+			return nil, fmt.Errorf("--script has no entry for case %s", testCase.ID)
+		}
+	}
+	return &agentGeneratorSource{newGenerator: agenteval.ScriptGeneratorFactory(entries)}, nil
 }
 
 func (s *agentGeneratorSource) Close() error {
@@ -1750,7 +1774,12 @@ func runAgentEval(args []string) error {
 	}
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
-	source, err := newAgentGeneratorSource(ctx, options)
+	var source *agentGeneratorSource
+	if options.evalScript != "" {
+		source, err = scriptGeneratorSource(options.evalScript, cases)
+	} else {
+		source, err = newAgentGeneratorSource(ctx, options)
+	}
 	if err != nil {
 		return err
 	}
@@ -1760,6 +1789,9 @@ func runAgentEval(args []string) error {
 		Backend:    options.backend,
 		Provider:   options.provider,
 		Completion: options.completion,
+	}
+	if options.evalScript != "" {
+		model = agenteval.ModelMetadata{Identifier: "script:" + options.evalScript, Completion: "script"}
 	}
 	if options.completion == "chat-completions" {
 		model.PromptMode = options.chatPromptMode
