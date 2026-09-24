@@ -50,10 +50,16 @@ else
 fi
 
 if [ -n "$use_uv" ]; then
-  uv pip install --python "$venv/bin/python" "bfcl-eval==$evaluator_version" "soundfile==0.14.0"
+  # CPU-only torch: everything this harness scores goes through a remote API, so
+  # the default CUDA wheels would only add ~4.4 GB of NVIDIA libraries that a
+  # GPU-less machine can never use.
+  uv pip install --python "$venv/bin/python" --torch-backend cpu \
+    "bfcl-eval==$evaluator_version" "soundfile==0.14.0"
 else
   "$venv/bin/python" -m pip install --upgrade pip
-  "$venv/bin/python" -m pip install "bfcl-eval==$evaluator_version" "soundfile==0.14.0"
+  "$venv/bin/python" -m pip install \
+    --extra-index-url https://download.pytorch.org/whl/cpu \
+    "bfcl-eval==$evaluator_version" "soundfile==0.14.0"
 fi
 
 actual_commit=$(git -C "$data_repo" rev-parse HEAD)
