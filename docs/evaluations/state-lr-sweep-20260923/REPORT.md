@@ -166,3 +166,6 @@ run 数据在 `runs/bench-20260923-state/`（不入库）；state 文件在 `sta
    基模主要败在首步长 think 不行动（113）与复读（69）——state 教会了进入工具循环，未教会读对/算对。
 6. **语料构成**：630/630 行首动作为 tool_call（0 条直答/追问）、59% 以 `list_files` 起手、中文 prompt 0 条，
    与 bfcl-product 失败形状（首步 `list_files` 仪式、irrelevance/missing 全灭）一一对应。
+7. **泄漏范围大于第 1 条所述**：训练集 700 条的 36 个种子（`parent_seed_id`）全部是 workbank 题，
+   anchor 分支即原题、b/r/v/x 为其变体。干净 116 题不是种子，但与种子同场景同模板，workbank
+   上的增益应视为偏乐观的上界。分集规则与闸门见 [`docs/harness-corpus-render.md`](../../harness-corpus-render.md)。

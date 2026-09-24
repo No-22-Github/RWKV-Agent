@@ -12,6 +12,12 @@ forced-answer blocks) is therefore exactly what the model sees at eval time.
         --records datasets/workspace-agent-700-20260920/generated/normalized/train.jsonl \
         --out runs/harness-corpus-train
 
+or, for teacher-distilled paths (scripts/trace2script.py output, case IDs
+"<case id>--p<n>" resolved against a bank directory of distillation cases):
+
+    python3 scripts/harness_corpus.py --cases bench/distill/cases \
+        --script runs/distill/script.jsonl --out runs/distill/corpus
+
 Writes into --out (must not exist): cases/<id>/case.json (a bank directory,
 so agent-eval takes the same workbank suite path and defaults as a benchmark),
 script.jsonl, run/ (the agent-eval artifacts), rows.jsonl and rejects.jsonl.
@@ -30,6 +36,9 @@ import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
+# The test bank is measured, never trained on; rendering it needs an explicit
+# flag (pipeline smoke tests only).
+TEST_BANK = REPO / "bench" / "workbank"
 
 # The workbank arm of .claude/skills/rwkv-bench/sweep.py: catalog, file tools,
 # budgets and wire. Sampling flags are omitted because a script ignores them.
@@ -78,25 +87,58 @@ def to_case_and_script(record: dict) -> tuple[dict, dict]:
     return case, {"case_id": record["id"], "outputs": outputs}
 
 
+def cases_for_script(cases_dir: Path, script_path: Path) -> tuple[list[dict], list[dict]]:
+    """One case copy per script entry; "<id>--p<n>" resolves to case <id>."""
+    bank = {}
+    for path in cases_dir.rglob("case.json"):
+        case = json.loads(path.read_text(encoding="utf-8"))
+        if case["id"] in bank:
+            raise ValueError(f"duplicate case id {case['id']} in {cases_dir}")
+        bank[case["id"]] = case
+    cases, script = [], []
+    for line in script_path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        entry = json.loads(line)
+        base = entry["case_id"].rsplit("--p", 1)[0] if "--p" in entry["case_id"] else entry["case_id"]
+        if base not in bank:
+            raise ValueError(f"script entry {entry['case_id']} has no case {base} in {cases_dir}")
+        cases.append({**bank[base], "id": entry["case_id"]})
+        script.append(entry)
+    return cases, script
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--records", type=Path, required=True, help="normalized records JSONL")
+    parser.add_argument("--records", type=Path, help="normalized records JSONL")
+    parser.add_argument("--cases", type=Path, help="bank directory the --script case IDs resolve against")
+    parser.add_argument("--script", type=Path, help="replay script (trace2script.py output)")
     parser.add_argument("--out", type=Path, required=True, help="new output directory")
     parser.add_argument("--cli", type=Path, default=REPO / "bin" / "rwkv-cli")
     parser.add_argument("--tracecorpus", type=Path, default=REPO / "bin" / "tracecorpus")
     parser.add_argument("--parallelism", type=int, default=32)
+    parser.add_argument("--allow-test-bank", action="store_true",
+                        help="permit --cases inside bench/workbank (pipeline smoke tests; never train on the output)")
     parser.add_argument("--keep-failing", action="store_true",
                         help="also emit rows whose teacher trajectory fails the case expectations")
     parser.add_argument("extra", nargs="*", help="extra agent-eval flags after --")
     args = parser.parse_args()
 
+    if bool(args.records) == bool(args.cases or args.script) or bool(args.cases) != bool(args.script):
+        parser.error("give either --records, or both --cases and --script")
+    if args.cases and args.cases.resolve().is_relative_to(TEST_BANK) and not args.allow_test_bank:
+        parser.error(f"--cases {args.cases} is the test bank; distill from a separate bank "
+                     "(pass --allow-test-bank only for a smoke test)")
     args.out.mkdir(parents=True, exist_ok=False)
     cases, script = [], []
-    for line in args.records.read_text(encoding="utf-8").splitlines():
-        if line.strip():
-            case, entry = to_case_and_script(json.loads(line))
-            cases.append(case)
-            script.append(entry)
+    if args.records:
+        for line in args.records.read_text(encoding="utf-8").splitlines():
+            if line.strip():
+                case, entry = to_case_and_script(json.loads(line))
+                cases.append(case)
+                script.append(entry)
+    else:
+        cases, script = cases_for_script(args.cases, args.script)
     cases_path = args.out / "cases"
     for case in cases:
         case_dir = cases_path / case["id"]

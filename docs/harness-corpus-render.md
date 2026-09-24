@@ -17,7 +17,9 @@
 | `rwkv-cli agent-eval --script <jsonl>` | 用脚本代替模型：按 case ID 依次返回 teacher 输出，不需要端点、不需要 `--model`；其余（wire、工具、打分）照常 |
 | `internal/agent/eval/script.go` | 脚本格式、`ScriptGeneratorFactory`；eval 在 context 里带 case ID |
 | `internal/agent/eval/corpus.go` + `cmd/tracecorpus` | 从 run 目录切训练行，逐步校验 harness 没有偏离脚本 |
-| `scripts/harness_corpus.py` | normalized record → bank 目录 + 脚本 → agent-eval → tracecorpus 一条龙 |
+| `scripts/harness_corpus.py` | normalized record 或（题目目录 + 脚本）→ agent-eval → tracecorpus 一条龙 |
+| `scripts/trace2script.py` | teacher 跑出的 run → 脚本：筛通过、去重、限每题路径数、参数去默认值 |
+| `scripts/decontam.py` | 蒸馏题与测试题的相似度闸门 |
 
 ## 用法
 
@@ -65,6 +67,53 @@ suite 分支和默认值（rescue 关、`firstcall=auto`）；`run/run.json` 的
   脚本里不要放"示范犯错"的动作（例如故意的重复调用）；harness 主动给的反馈（工具报错、强制收尾）
   可以放。
 - 新增提示块使每行平均多约 250 token（700 条实测 p99 3335、max 3703，仍在 ctx 4096 内）。
+
+## 蒸馏流程：写题目，让 teacher 跑轨迹
+
+```bash
+# 1. teacher 在蒸馏题库上跑 k 次（原生通道、温度调高；每次换 --output）
+bin/rwkv-cli agent-eval --completion chat-completions --model <teacher> ... \
+  --cases bench/distill/cases --tool-catalog work-v1 --file-tools lines --output runs/distill/k0
+# 2. 抽路径：通过 + 干净 + 去重 + 每题 ≤2 条，参数去默认值
+python3 scripts/trace2script.py --run runs/distill/k0 --run runs/distill/k1 ... \
+  --out runs/distill/script.jsonl --report runs/distill/paths.jsonl
+# 3. 用 student 的 wire 重放并切行
+python3 scripts/harness_corpus.py --cases bench/distill/cases \
+  --script runs/distill/script.jsonl --out runs/distill/corpus
+```
+
+- `trace2script.py` 只带走动作（工具名、参数、终答），teacher 的 wire、思考和回执全部丢弃，
+  重放时由 student 的 harness 重新执行工具。丢弃规则：失败、有协议重试、工具报错或被拒、
+  进入强制收尾、终答被 harness 修复过。选路：先取最短，之后只收工具序列不同的，每题最多
+  `--max-per-case`（默认 2）。参数等于实现默认值的去掉（teacher 习惯把 schema 字段填满，
+  如 `"path":"","max_results":50`）。脚本 case id 为 `<题目id>--p<n>`。
+- 输出的 pass@k 分布即出题质检：0/k 的题先查 expect 与题面，再决定是否蒸馏。
+- 冒烟（2026-09-24，workbank 上 DeepSeek 3 次，**测试集，仅验证管线**）：189 条路径在 g1k 下
+  重放 189/189 通过，187 行；2 条 9 步以上的长轨迹在第 9 次生成时 harness 改写了历史
+  （删掉此前的 post-tool 提醒），不满足只追加，被拒。机制待查。
+
+## 测试题与蒸馏题分开
+
+两者目的相反：测试题要**稳定、可区分、冻结**，蒸馏题要**覆盖、多样、量大**。混用会让跑分
+虚高——700 条的 36 个种子全部是 workbank 题（anchor 分支就是原题，b/r/v/x 为其变体），
+[state-lr-sweep](evaluations/state-lr-sweep-20260923/REPORT.md) 的 workbank 分数因此偏乐观。
+
+| | 测试题（`bench/workbank`） | 蒸馏题（`bench/distill`，另建） |
+|---|---|---|
+| 目的 | 度量 | 教 |
+| 规模 | 小而冻结，版本化 | 大、持续增加 |
+| 质量要求 | 答案唯一、判分精确、每题测一个能力点 | expect 正确（错 expect 会滤掉正确路径或放进错误路径）；teacher pass@k 作质检 |
+| 来源 | 人工精出题 | 按能力点模板批量出题，**不得以测试题为种子** |
+| 覆盖 | 现有 10 类场景 | 另需直答、追问、中文、`data_query`、UNKNOWN 陷阱等 student 缺的行为 |
+
+闸门：
+
+- **来源规则**（主闸）：蒸馏题的种子、模板、fixture 不得来自测试题。改名改数字的同题变体表面
+  相似度很低（700 条的 b/v 变体大多查不出），只能靠来源管。
+- **`scripts/decontam.py`**（兜底）：按模型可见文本（prompt 5-gram、fixture 行 3-gram 包含度、
+  专有名）比对，忽略测试集中 >5% 题目共有的模板片段。校准：700 条 anchor 36/36 命中、
+  workbank 内部两两误报 0/148。有命中时退出码 1。
+- **`harness_corpus.py` 拒渲染 `bench/workbank`**，除非显式 `--allow-test-bank`（仅冒烟）。
 
 ## 700 条首轮结果（2026-09-24）
 
