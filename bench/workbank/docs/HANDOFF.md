@@ -82,7 +82,7 @@ ID：`<scenario 缩写>-<4 位序号>`，分配后不复用。
 }
 ```
 
-`verify.py` 约定：只用标准库；读同目录 `case.json` 的 `files`；打印 `{"expected_number": ...}` 或 `{"files": {...}}`；`tools/verify_all.py` 比对它与 `expect` 是否一致。
+`verify.py` 约定：只用标准库；读同目录 `case.json` 的 `files`；打印 `{"expected_number": ...}` 或 `{"files": {...}}`；`bin/rwkv-lab bank verify` 比对它与 `expect` 是否一致。
 
 ### 2.3 题目硬规则
 
@@ -105,7 +105,7 @@ ID：`<scenario 缩写>-<4 位序号>`，分配后不复用。
 
 - 条目字段沿用 `WebFixtureEntry`，新增 `published_at`。
 - 内容从 `web/recordings/` 的真实 Brave / Tavily 响应改写（换关键值、调日期），**不手写整条结果**。
-- 每个 web 题在 `NOTES.md` 里列 5 个合理改写查询；`tools/web_hitcheck.py` 验证全部命中目标条目。
+- 每个 web 题在 `NOTES.md` 里列 5 个合理改写查询；`bin/rwkv-lab bank hitcheck` 验证全部命中目标条目。
 - 页面默认低于 fetch 压缩阈值；只有带 `TR-LONG` 的 web 题故意超过。
 
 ### 2.6 离线脚本判分（`expect.run`）
@@ -171,8 +171,8 @@ ID：`<scenario 缩写>-<4 位序号>`，分配后不复用。
 
 - **可比键** = (`bank_version`, `harness_version`, `scorer_version`, `tool_catalog_hash`)。只有可比键相同的 run 进同一张横测表。
 - `reports/matrix-<bank_version>.md`：行 = 模型 × state × wire；列 = 总分（95% CI）、L0–L3、代价最高的 3 个 trap、loop_rate、protocol_invalid_rate、rescue_assisted。报分**按实测难度分段**，声明难度只用于配额。
-- `tools/compare.py A B`：翻转清单（通过↔失败，附 trace 路径）+ 差值 bootstrap CI。**按 family 重采样**（无 family 的题各自成组）——同 family 变体高度相关，按题重采样会把 CI 算窄。可从 `scripts/bfcl-compare-runs.py` 改起。
-- `tools/calibrate.py`：输出「声明难度 vs 实测通过率」偏离表（标 L1 但所有配置 < 20%，或标 L3 但所有配置 > 80%），供人工改标或返修。
+- `bin/rwkv-lab run compare A B`：翻转清单（通过↔失败，附 trace 路径）+ 差值 bootstrap CI。**按 family 重采样**（无 family 的题各自成组）——同 family 变体高度相关，按题重采样会把 CI 算窄。可从 `scripts/bfcl-compare-runs.py` 改起。
+- `bin/rwkv-lab bank calibrate`：输出「声明难度 vs 实测通过率」偏离表（标 L1 但所有配置 < 20%，或标 L3 但所有配置 > 80%），供人工改标或返修。
 
 ### 5.5 每轮跑分后
 
@@ -219,11 +219,11 @@ go test ./internal/agent/eval/... -run 'SchemaV5|WorkCatalog|MaxCalls|RunCheck|D
 
 **M3 试点 40 题（闸门）**：10 个 scenario 各 4 题（L0/L1/L1/L2），走完 §3 全流程；跑 G1K（现行 wire，无 state）与 Qwen3-8B INT8，各 k=4，入账，做第一轮标注。
 ```bash
-uv run tools/build.py --status reviewed --out out/workbank.json
+bin/rwkv-lab bank build --status reviewed --out out/workbank.json
 rwkv-cli agent-eval --cases bench/workbank/cases --tool-catalog work-v1 --file-tools lines \
   --profile <M0 确认> --temperature 0.3 --case-parallelism 256 \
   --output runs/workbank/<config>-k<i>
-uv run tools/ledger.py ingest runs/workbank/<config>-k*
+bin/rwkv-lab run ledger ingest runs/workbank/<config>-k*
 ```
 闸门：两个配置各自 4 次总分极差 ≤ 5pp；两个配置上都满足 L0 ≥ L1 ≥ L2 的平均通过率；强模型求解检查里无法解释的失败 ≤ 10%。不过闸先修手册与流水线，不扩量。
 

@@ -1,4 +1,4 @@
-// Package similarity ports scripts/corpus/similarity.py: the model-visible
+// Package similarity ports the former Python similarity module: the model-visible
 // text features and overlap scores shared by the decontamination gate
 // (corpus decontam) and the bank's near-duplicate marker (bank dedup).
 //

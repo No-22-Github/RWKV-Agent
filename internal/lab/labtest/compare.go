@@ -53,7 +53,7 @@ func Baseline(name, stream string) ([]byte, int, error) {
 
 // CompareText is the strict rule: text output must match byte for byte.
 // The only tolerated difference is a program name at the start of a line,
-// which §4.2 allows (paths:, tracecorpus:).
+// which §4.2 allows (the line-leading program name).
 func CompareText(got, want []byte) error {
 	if string(got) == string(want) {
 		return nil

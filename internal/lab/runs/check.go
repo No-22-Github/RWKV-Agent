@@ -3,6 +3,8 @@ package runs
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"os"
 	"sort"
 	"strings"
 )
@@ -106,6 +108,20 @@ type CheckArgs struct {
 
 // RunCheck is the `run check` command.
 func RunCheck(args CheckArgs) int {
+	return RunCheckTo(os.Stdout, args)
+}
+
+// RunCheckCaptured runs the gate and returns its report text and exit code,
+// which the sweep records in each run's experiment.json.
+func RunCheckCaptured(args CheckArgs) (string, int) {
+	var buf strings.Builder
+	code := RunCheckTo(&buf, args)
+	return buf.String(), code
+}
+
+// RunCheckTo writes the gate report to w. gate() prints there too, so the
+// captured and the on-line reports are the same bytes.
+func RunCheckTo(w io.Writer, args CheckArgs) int {
 	run, err := LoadJSONFile(args.RunDir+"/run.json", true)
 	if err != nil {
 		fmt.Fprintln(stderr, err)
@@ -136,7 +152,7 @@ func RunCheck(args CheckArgs) int {
 		if detail != "" {
 			line += "  (" + detail + ")"
 		}
-		fmt.Println(line)
+		fmt.Fprintln(w, line)
 		if !ok {
 			failures = append(failures, name)
 		}
@@ -172,7 +188,7 @@ func RunCheck(args CheckArgs) int {
 	}
 
 	if args.Primitive {
-		fmt.Printf("SKIP max_steps / decision_max_output_tokens (suite-owned: %s / %s)\n",
+		fmt.Fprintf(w, "SKIP max_steps / decision_max_output_tokens (suite-owned: %s / %s)\n",
 			pyRepr(harness["max_steps"]), pyRepr(harness["decision_max_output_tokens"]))
 	} else {
 		gate(fmt.Sprintf("max_steps == %d", args.MaxSteps),

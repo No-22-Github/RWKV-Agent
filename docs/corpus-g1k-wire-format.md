@@ -193,4 +193,4 @@ Assistant: 25 square meters.
 - wire 解析自检：`./dist/rwkv-cli agent-eval --explain-profile
   xml-v1+align-qwen36+no-tool+bare+one-stage`（canonical/hash 必须等于 §0）。
 - 字节级对照：任意评测 run 的 `trace.jsonl` 每条 `model_call.request.prompt` 即模型
-  真实输入，语料行应能与之逐字节同构（`scripts/ablation-run-report.py` 可复算各轮）。
+  真实输入，语料行应能与之逐字节同构（复算工具已删除，见 [removed-tools](archive/removed-tools.md)）。

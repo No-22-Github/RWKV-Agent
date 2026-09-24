@@ -11,7 +11,7 @@ import (
 	"github.com/no22/RWKV-Agent/internal/lab/similarity"
 )
 
-// Ported one for one from scripts/corpus/tests/test_corpus.py (§6 M1: all 14
+// Ported one for one from the former Python corpus test suite (§6 M1: all 14
 // tests move over).
 
 // om builds an OrderedMap from alternating keys and values.

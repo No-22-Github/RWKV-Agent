@@ -50,9 +50,9 @@
 
 ```bash
 cd bench/workbank
-python3 tools/coverage.py --summary     # 期望：total cases filled: 40
-python3 tools/lint.py                   # 期望：0 violations
-python3 tools/verify_all.py --cases cases   # 期望：40/40 PASS
+bin/rwkv-lab bank coverage --summary     # 期望：total cases filled: 40
+bin/rwkv-lab bank lint                   # 期望：0 violations
+bin/rwkv-lab bank verify --cases cases   # 期望：40/40 PASS
 ```
 
 现有 40 道的分布（`status` 全部 `reviewed`，`author` 全部 `llm:glm-drafter`）：
@@ -102,7 +102,7 @@ python3 tools/verify_all.py --cases cases   # 期望：40/40 PASS
 | notool | 4 | 2 | 8 | 12 | 3 |
 | **合计** | **40** | **28** | **112** | **152** | **38** |
 
-家族数是硬指标，不只是分组方式：`tools/compare.py` 的 bootstrap CI **按家族重采样**（同家族变体高度相关，按题重采样会把 CI 算窄）。试点期每场景只有 1 个家族、全库 10 簇，CI 粒度粗到不可用——这是本轮要修的主要缺陷之一。38 簇后 CI 才有意义。**每个场景 ≥3 个家族**，不得把某个场景的新题全塞进一个家族。
+家族数是硬指标，不只是分组方式：`bin/rwkv-lab run compare` 的 bootstrap CI **按家族重采样**（同家族变体高度相关，按题重采样会把 CI 算窄）。试点期每场景只有 1 个家族、全库 10 簇，CI 粒度粗到不可用——这是本轮要修的主要缺陷之一。38 簇后 CI 才有意义。**每个场景 ≥3 个家族**，不得把某个场景的新题全塞进一个家族。
 
 ### 2.3 陷阱覆盖目标
 
@@ -709,9 +709,9 @@ bin/rwkv-cli agent-eval \
 
 ```bash
 # 分层归因 + decoy 命中率（本批题）
-python3 bench/workbank/tools/capability_gate.py \
+bin/rwkv-lab run gate \
   runs/workbank/expansion-b1-ref-k{0,1,2} --label b1-ref
-python3 bench/workbank/tools/capability_gate.py \
+bin/rwkv-lab run gate \
   runs/workbank/expansion-b1-grad-k{0,1,2} --label b1-grad
 ```
 
@@ -745,7 +745,7 @@ python3 bench/workbank/tools/capability_gate.py \
 新题不得污染已有的 40 道。每批跑分的 `--cases` 指向整个 `cases/` 目录，所以这 40 道会一起跑：
 
 ```bash
-python3 bench/workbank/tools/compare.py \
+bin/rwkv-lab run compare \
   runs/workbank/expansion-b1-ref-k0 runs/workbank/<上一批同配置 run>
 ```
 
@@ -777,7 +777,7 @@ python3 bench/workbank/tools/compare.py \
 改完立刻验证：
 
 ```bash
-python3 tools/coverage.py --summary
+bin/rwkv-lab bank coverage --summary
 # 期望：每个 scenario 显示 L0 1/5 L1 2/10 L2 1/5 L3 0/0 这类（现有 4 题对新配额）
 ```
 
@@ -796,10 +796,10 @@ python3 tools/coverage.py --summary
 ```bash
 cd bench/workbank
 uv venv .venv && .venv/bin/python -V          # 用 uv 建 venv，不用系统 Python
-python3 tools/lint.py                          # 期望 0 violations
-python3 tools/verify_all.py --cases cases      # 期望 40/40 PASS
-python3 tools/test_lint.py                     # 期望 3 项全绿
-python3 tools/coverage.py --summary            # 期望 total cases filled: 40
+bin/rwkv-lab bank lint                          # 期望 0 violations
+bin/rwkv-lab bank verify --cases cases      # 期望 40/40 PASS
+go test ./internal/lab/bank/                   # 期望全绿（test_lint.py 已移植为 Go 测试）
+bin/rwkv-lab bank coverage --summary            # 期望 total cases filled: 40
 ```
 
 再跑一次双 API 的基线（现有 40 题），拿到本机的参照数：
@@ -826,11 +826,11 @@ bin/rwkv-cli agent-eval … --output runs/workbank/baseline-grad-k0   # 9B，期
 每批的验收：
 
 ```bash
-python3 tools/lint.py                                   # 0 violations（全库）
-python3 tools/verify_all.py --cases cases               # 全 PASS，无 sabotage_undetected
-python3 tools/web_hitcheck.py --case cases/web/<id>     # web/hyb 每题 5/5
-python3 tools/dedup.py --cases cases/<scenario>         # 家族内无误报
-python3 tools/coverage.py --summary                     # 本批槽位已填满
+bin/rwkv-lab bank lint                                   # 0 violations（全库）
+bin/rwkv-lab bank verify --cases cases               # 全 PASS，无 sabotage_undetected
+bin/rwkv-lab bank hitcheck --case cases/web/<id>     # web/hyb 每题 5/5
+bin/rwkv-lab bank dedup --cases cases/<scenario>         # 家族内无误报
+bin/rwkv-lab bank coverage --summary                     # 本批槽位已填满
 # 跑分（§6.2），两道闸门（§6.3），回归（§6.5）
 ```
 
@@ -842,11 +842,11 @@ python3 tools/coverage.py --summary                     # 本批槽位已填满
 ### M6 收口（0.5 天）
 
 ```bash
-python3 tools/build.py --status reviewed --out out/workbank.json --force
+bin/rwkv-lab bank build --status reviewed --out out/workbank.json
 # 打印 bank_version（sha256）与题数，期望 152
-python3 tools/ledger.py ingest runs/workbank/expansion-b*-{ref,grad}-k*
-python3 tools/ledger.py matrix > reports/matrix-<bank_version前8位>.md
-python3 tools/calibrate.py     # 声明难度 vs 实测通过率的偏离表
+bin/rwkv-lab run ledger ingest runs/workbank/expansion-b*-{ref,grad}-k*
+bin/rwkv-lab run ledger matrix > reports/matrix-<bank_version前8位>.md
+bin/rwkv-lab bank calibrate     # 声明难度 vs 实测通过率的偏离表
 ```
 
 `calibrate.py` 的偏离表（标 L1 但所有配置 < 20%，或标 L0 但通过率 < 50%）送主控，**本轮不据此改题**——理由：改标或返修都会动 `bank_version`，而扩量批次刚入账，此时改动会让 152 题的第一份横测表当场作废。

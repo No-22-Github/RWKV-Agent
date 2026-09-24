@@ -10,7 +10,7 @@ import (
 	"github.com/no22/RWKV-Agent/internal/agent/eval"
 )
 
-// Turn a scripted agent-eval run into training rows. This is cmd/tracecorpus,
+// Turn a scripted agent-eval run into training rows. This is the former
 // moved into rwkv-lab unchanged (§2.6): the logic lives in
 // internal/agent/eval/corpus.go and is not touched.
 //

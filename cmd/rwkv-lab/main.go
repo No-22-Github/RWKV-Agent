@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/no22/RWKV-Agent/internal/lab"
 	"github.com/no22/RWKV-Agent/internal/lab/bank"
 	"github.com/no22/RWKV-Agent/internal/lab/bench"
 	"github.com/no22/RWKV-Agent/internal/lab/corpus"
@@ -27,6 +28,7 @@ usage: rwkv-lab <group> <command> [flags]
   run     wire | check | gate | audit | compare | ledger | replicate
   bench   sweep | rank
   state   run | probe | sanity
+  tokcount  count tokens with the RWKV World vocabulary
 
 Run "rwkv-lab <group> <command> --help" for a command's flags.
 `
@@ -51,6 +53,13 @@ func run(args []string) int {
 		return bench.Run(args[1:])
 	case "state":
 		return state.Run(args[1:])
+	case "tokcount":
+		vocab := ""
+		rest := args[1:]
+		if len(rest) > 1 && rest[0] == "--vocab" {
+			vocab, rest = rest[1], rest[2:]
+		}
+		return lab.RunTokcount(vocab, rest)
 	case "-h", "--help", "help":
 		fmt.Print(usage)
 		return 0

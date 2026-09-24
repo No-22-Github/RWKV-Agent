@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-// These are the cases from bench/workbank/tools/test_lint.py, ported one for
+// These are the cases from the former lint regression suite, ported one for
 // one (docs/go-tooling-migration.md §6 M2). Each covers a defect class the
 // bank actually shipped: nt-0001's stale notes, scr-0004's hidden set outside
 // the workspace, and a notool case carrying a TR-NOTOOLNEED phrase.

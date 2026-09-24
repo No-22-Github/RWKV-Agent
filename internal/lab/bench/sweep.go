@@ -419,11 +419,19 @@ func finishRun(args *SweepArgs, suite, arm, output string, cmd []string, started
 		}
 	}
 
-	gateCmd := []string{"python3", checkRunPath(), output, "--arm", arm, "--rwkv", "--cases", strconv.Itoa(spec.count)}
-	if !spec.g1k {
-		gateCmd = append(gateCmd, "--primitive")
-	}
-	gateOut, gateCode := runCapture(gateCmd)
+	// The gate runs in-process now; check_run.py is gone (M5).
+	gateOut, gateCode := runs.RunCheckCaptured(runs.CheckArgs{
+		RunDir:             output,
+		Arm:                arm,
+		RWKV:               true,
+		Primitive:          !spec.g1k,
+		Cases:              spec.count,
+		HasCases:           true,
+		MaxSteps:           16,
+		MaxTokens:          4096,
+		DecisionMaxTokens:  2048,
+		CaseTimeoutSeconds: 1800,
+	})
 
 	task := mapOfAny(summary, "metrics", "task_success")
 	correct, _ := intOfAny(task["correct"])
@@ -527,17 +535,6 @@ func gitOutput(args ...string) string {
 		return ""
 	}
 	return strings.TrimSpace(string(out))
-}
-
-func runCapture(cmd []string) (string, int) {
-	proc := exec.Command(cmd[0], cmd[1:]...)
-	proc.Dir = lab.RepoRoot()
-	out, _ := proc.CombinedOutput()
-	code := 0
-	if proc.ProcessState != nil {
-		code = proc.ProcessState.ExitCode()
-	}
-	return string(out), code
 }
 
 // snapshot records the endpoint's model list and status before and after a

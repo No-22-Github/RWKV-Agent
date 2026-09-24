@@ -1,4 +1,4 @@
-// Package corpus ports the scripts/corpus tools: turning teacher agent-eval
+// Package corpus ports the former Python corpus tools: turning teacher agent-eval
 // runs into a replay script (paths), replaying that script through the real
 // eval harness (render), cutting training rows out of the trace (rows), and
 // gating distillation candidates against the test bank (decontam).
