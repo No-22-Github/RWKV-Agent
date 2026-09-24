@@ -625,7 +625,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 				"script",
 				"",
 				"JSONL teacher script ({case_id, outputs:[{text, supervised}]}) replayed in place of a model; "+
-					"renders corpus material through the eval harness (see cmd/tracecorpus), no endpoint needed",
+					"renders corpus material through the eval harness (see rwkv-lab corpus rows), no endpoint needed",
 			)
 			fs.StringVar(&options.evalOutput, "output", "", "new directory for run.json, trace.jsonl, and summary.json")
 			fs.Var(&options.evalCaseIDs, "case", "repeatable built-in or file-backed case ID to run")

@@ -16,21 +16,24 @@
 |---|---|
 | `rwkv-cli agent-eval --script <jsonl>` | 用脚本代替模型：按 case ID 依次返回 teacher 输出，不需要端点、不需要 `--model`；其余（wire、工具、打分）照常 |
 | `internal/agent/eval/script.go` | 脚本格式、`ScriptGeneratorFactory`；eval 在 context 里带 case ID |
-| `internal/agent/eval/corpus.go` + `cmd/tracecorpus` | 从 run 目录切训练行，逐步校验 harness 没有偏离脚本 |
-| `python3 -m scripts.corpus render` | normalized record 或（题目目录 + 脚本）→ agent-eval → tracecorpus 一条龙 |
-| `python3 -m scripts.corpus paths` | teacher 跑出的 run → 脚本：筛通过、去重、限每题路径数、参数去默认值 |
-| `python3 -m scripts.corpus decontam` | 蒸馏题与测试题的相似度闸门 |
+| `internal/agent/eval/corpus.go` + `rwkv-lab corpus rows` | 从 run 目录切训练行，逐步校验 harness 没有偏离脚本 |
+| `rwkv-lab corpus render` | normalized record 或（题目目录 + 脚本）→ agent-eval → rows 一条龙 |
+| `rwkv-lab corpus paths` | teacher 跑出的 run → 脚本：筛通过、去重、限每题路径数、参数去默认值 |
+| `rwkv-lab corpus decontam` | 蒸馏题与测试题的相似度闸门 |
 
-Python 侧是一个包 [`scripts/corpus/`](../scripts/corpus/__init__.py)，从仓库根目录以 `python3 -m scripts.corpus <命令>`
-运行；子模块分层为 `wire`（动作字节）/ `bank`（题库与 record）/ `script`（脚本格式）/ `runs`（读 run 目录）/
-`similarity`（decontam 的特征与打分），三个命令模块在其上。单测：`python3 -m unittest scripts.corpus.tests.test_corpus`。
-（2026-09-24 由 `scripts/harness_corpus.py`、`trace2script.py`、`decontam.py` 拆分而来，六组基线输出逐字节一致。）
+工具侧是 [`internal/lab/corpus/`](../internal/lab/corpus/wire.go)，入口 `bin/rwkv-lab corpus <命令>`；
+子模块分层为 `wire.go`（动作字节）/ `bank.go`（题库与 record）/ `script.go`（脚本格式，格式本体在
+`internal/agent/eval/script.go`）/ `runs.go`（读 run 目录，用 `eval.TraceRecord` 与 `agent.Step` 解析）/
+`decontam.go`（decontam 的特征与打分在 `internal/lab/similarity`），命令分发在 `cli.go`。
+单测：`go test ./internal/lab/corpus/`。
+（2026-09-24 先由三个一次性脚本拆成 Python 包，同日再整体迁到 Go：Python 版与独立的切行命令
+都已删除，迁移后的输出与 Python 版逐字节一致，见 docs/go-tooling-migration.md。）
 
 ## 用法
 
 ```bash
-go build -o bin/rwkv-cli ./cmd/rwkv-cli && go build -o bin/tracecorpus ./cmd/tracecorpus
-python3 -m scripts.corpus render \
+go build -o bin/rwkv-cli ./cmd/rwkv-cli && go build -o bin/rwkv-lab ./cmd/rwkv-lab
+bin/rwkv-lab corpus render \
   --records datasets/workspace-agent-700-20260920/generated/normalized/all.jsonl \
   --out runs/harness-corpus-700
 ```
@@ -80,10 +83,10 @@ suite 分支和默认值（rescue 关、`firstcall=auto`）；`run/run.json` 的
 bin/rwkv-cli agent-eval --completion chat-completions --model <teacher> ... \
   --cases bench/distill/cases --tool-catalog work-v1 --file-tools lines --output runs/distill/k0
 # 2. 抽路径：通过 + 干净 + 去重 + 每题 ≤2 条，参数去默认值
-python3 -m scripts.corpus paths --run runs/distill/k0 --run runs/distill/k1 ... \
+bin/rwkv-lab corpus paths --run runs/distill/k0 --run runs/distill/k1 ... \
   --out runs/distill/script.jsonl --report runs/distill/paths.jsonl
 # 3. 用 student 的 wire 重放并切行
-python3 -m scripts.corpus render --cases bench/distill/cases \
+bin/rwkv-lab corpus render --cases bench/distill/cases \
   --script runs/distill/script.jsonl --out runs/distill/corpus
 ```
 
@@ -96,7 +99,7 @@ python3 -m scripts.corpus render --cases bench/distill/cases \
 - 冒烟（2026-09-24，workbank 上 DeepSeek 3 次，**测试集，仅验证管线**）：189 条路径在 g1k 下
   重放 189/189 通过。最初 2 条被拒（`nt-0010`、`nt-0012`，"第 9 次生成非只追加"）：它们是两轮题，
   第 2 轮开始时 harness 提交的历史不含第 1 轮的 post-tool 提醒，跑分时模型看到的也是这样。
-  现在 tracecorpus **按轮切行**：每轮一行，文本止于本轮最后一次输出，只有本轮输出有 loss span，
+  现在 `corpus rows` **按轮切行**：每轮一行，文本止于本轮最后一次输出，只有本轮输出有 loss span，
   前几轮以提交后的历史出现；轮内仍要求只追加，跨轮只要求下一轮 prompt 带着上一轮的最后输出。
   结果 189 个 case → 191 行，原 187 行逐字节不变。
 
@@ -118,7 +121,7 @@ python3 -m scripts.corpus render --cases bench/distill/cases \
 
 - **来源规则**（主闸）：蒸馏题的种子、模板、fixture 不得来自测试题。改名改数字的同题变体表面
   相似度很低（700 条的 b/v 变体大多查不出），只能靠来源管。
-- **`python3 -m scripts.corpus decontam`**（兜底）：按模型可见文本（prompt 5-gram、fixture 行 3-gram 包含度、
+- **`bin/rwkv-lab corpus decontam`**（兜底）：按模型可见文本（prompt 5-gram、fixture 行 3-gram 包含度、
   专有名）比对，忽略测试集中 >5% 题目共有的模板片段。校准：700 条 anchor 36/36 命中、
   workbank 内部两两误报 0/148。有命中时退出码 1。
 - **`render` 拒渲染 `bench/workbank`**，除非显式 `--allow-test-bank`（仅冒烟）。

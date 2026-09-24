@@ -12,6 +12,7 @@ import (
 	"os"
 
 	"github.com/no22/RWKV-Agent/internal/lab/bank"
+	"github.com/no22/RWKV-Agent/internal/lab/corpus"
 )
 
 const usage = `rwkv-lab — development tooling for the RWKV-Agent bench
@@ -19,6 +20,7 @@ const usage = `rwkv-lab — development tooling for the RWKV-Agent bench
 usage: rwkv-lab <group> <command> [flags]
 
   bank    lint | dedup | build | coverage | calibrate | hitcheck | verify
+  corpus  paths | render | rows | decontam
 
 Run "rwkv-lab <group> <command> --help" for a command's flags.
 `
@@ -35,6 +37,8 @@ func run(args []string) int {
 	switch args[0] {
 	case "bank":
 		return bank.Run(args[1:])
+	case "corpus":
+		return corpus.Run(args[1:])
 	case "-h", "--help", "help":
 		fmt.Print(usage)
 		return 0

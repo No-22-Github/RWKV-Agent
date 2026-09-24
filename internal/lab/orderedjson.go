@@ -237,10 +237,8 @@ func writeOrderedObject(buf *bytes.Buffer, m *OrderedMap, opts EncodeOptions, de
 	for i, key := range keys {
 		if i > 0 {
 			buf.WriteByte(',')
-			writeItemBreak(buf, opts, depth)
-		} else {
-			writeItemBreak(buf, opts, depth)
 		}
+		writeItemBreak(buf, opts, depth, i == 0)
 		writeJSONString(buf, key)
 		if opts.Indent > 0 {
 			buf.WriteString(": ")
@@ -268,7 +266,7 @@ func writeOrderedArray(buf *bytes.Buffer, items []any, opts EncodeOptions, depth
 		if i > 0 {
 			buf.WriteByte(',')
 		}
-		writeItemBreak(buf, opts, depth)
+		writeItemBreak(buf, opts, depth, i == 0)
 		if err := writeOrdered(buf, item, opts, depth+1); err != nil {
 			return err
 		}
@@ -278,11 +276,14 @@ func writeOrderedArray(buf *bytes.Buffer, items []any, opts EncodeOptions, depth
 	return nil
 }
 
-func writeItemBreak(buf *bytes.Buffer, opts EncodeOptions, depth int) {
+// writeItemBreak emits what separates one item from the previous one. Python
+// puts the newline+indent before every item when indenting, but the ", "
+// separator only *between* items, so `first` suppresses the space.
+func writeItemBreak(buf *bytes.Buffer, opts EncodeOptions, depth int, first bool) {
 	if opts.Indent > 0 {
 		buf.WriteByte('\n')
 		buf.WriteString(strings.Repeat(" ", opts.Indent*(depth+1)))
-	} else if opts.SpacedSeparators {
+	} else if opts.SpacedSeparators && !first {
 		buf.WriteByte(' ')
 	}
 }
