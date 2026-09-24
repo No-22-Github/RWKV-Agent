@@ -17,7 +17,7 @@ description: 在 RWKV-Agent 仓库里做正式跑分的检查单——RWKV 模�
 ## 1. 二进制
 
 ```bash
-go build -o bin/rwkv-cli ./cmd/rwkv-cli && git rev-parse HEAD && git status --short
+go build -o bin/rwkv-cli ./cmd/rwkv-cli && go build -o bin/rwkv-lab ./cmd/rwkv-lab && git rev-parse HEAD && git status --short
 ```
 
 只用 `bin/rwkv-cli`。`dist/rwkv-cli` 是旧产物。工作区不干净 → 这次只能算探索，报告里注明。
@@ -31,7 +31,7 @@ curl -sS https://api-7b.rwkvos.com/v1/models -H "CF-Access-Client-Id: $RWKV_CF_I
 curl -sS https://api-7b.rwkvos.com/v1/server/status -H "CF-Access-Client-Id: $RWKV_CF_ID" -H "CF-Access-Client-Secret: $RWKV_CF_SECRET"
 ```
 
-记下模型 id、`engine_version`、`prefill_queue.hard_max_bsz`。**总并发默认 64**（`sweep.py --max-concurrency`）：
+记下模型 id、`engine_version`、`prefill_queue.hard_max_bsz`。**总并发默认 64**（`rwkv-lab bench sweep --max-concurrency`）：
 hard_max_bsz 只按显存算，2026-09-23 约 168 个请求同时预填充把这个共享端点打挂过。
 **跑完再拍一次**，模型 id 变了整轮作废（端点会被静默换模型）。
 
@@ -74,7 +74,7 @@ API 模型：`--completion chat-completions`，不传 `--profile`、`--api-stop-
 | `g1k-stable` | 少副本 A/B，波动最小 |
 | `backend` | 后端默认，最快 |
 
-数值见规程 §4；`check_run.py --arm <预设名>` 会核对 `run.json` 的 `sampling.preset`。扫参网格档（`t03-p05` 等）仍在 `check_run.py` 的 `ARMS` 里。
+数值见规程 §4；`rwkv-lab run check --arm <预设名>` 会核对 `run.json` 的 `sampling.preset`。扫参网格档（`t03-p05` 等）仍在 `internal/lab/runs/check.go` 的 `Arms` 表里。
 
 API 模型只给 `--temperature` / `--top-p`。DeepSeek-flash 禁用 T=0。
 
@@ -84,26 +84,26 @@ API 模型只给 `--temperature` / `--top-p`。DeepSeek-flash 禁用 T=0。
 
 ```bash
 export RWKV_CF_ID=… RWKV_CF_SECRET=…
-python3 .claude/skills/rwkv-bench/sweep.py --out runs/bench-YYYYMMDD --arms greedy,t03-p10 \
+bin/rwkv-lab bench sweep --out runs/bench-YYYYMMDD --arms greedy,t03-p10 \
   --suites workbank,bfcl-product --k 0 --dry-run      # 先看命令
-python3 .claude/skills/rwkv-bench/sweep.py --out runs/bench-YYYYMMDD --arms greedy,t03-p10 \
+bin/rwkv-lab bench sweep --out runs/bench-YYYYMMDD --arms greedy,t03-p10 \
   --suites workbank,bfcl-product --k 0                # 真跑；--k 0-2 跑三个副本
-python3 .claude/skills/rwkv-bench/rank.py runs/bench-YYYYMMDD --save <rank.md>
+bin/rwkv-lab bench rank runs/bench-YYYYMMDD --save <rank.md>
 ```
 
-`sweep.py` 做的事：端点前后快照、每档开跑前核对模型 id、同档多套件在 bsz 预算内并行、每个 run 自动过闸门、
-写 `experiment.json`（二进制 sha、git HEAD、diff sha、case 源 sha，供 `replicate_summary.py` 使用）。
+`bench sweep` 做的事：端点前后快照、每档开跑前核对模型 id、同档多套件在 bsz 预算内并行、每个 run 自动过闸门、
+写 `experiment.json`（二进制 sha、git HEAD、diff sha、case 源 sha，供 `run replicate` 使用）。
 - 只有写了 `experiment.json` 且 `gate_passed: true` 的 run 才算完成；中断留下的半成品下次自动挪进 `aborted/` 重跑，可随时断点续跑。
 - 闸门 FAIL（参数配错）→ 立即中止，不重试。
 - 基础设施错误 → 整轮重跑（默认最多 2 次）；最后一次仍有错就保留、作废计失败、标 `accepted_with_infra_errors`。
 
-`rank.py` 按 PLAN 的预注册规则出排名（阶段 1 综合分、阶段 2 workbank 均值与极差平局规则、地板规则），并给出对照 greedy 的逐题翻转与符号检验。
-新增采样档：只改 `check_run.py` 的 `ARMS`，两个脚本自动跟随。
+`bench rank` 按 PLAN 的预注册规则出排名（阶段 1 综合分、阶段 2 workbank 均值与极差平局规则、地板规则），并给出对照 greedy 的逐题翻转与符号检验。
+新增采样档：只改 `internal/lab/runs/check.go` 的 `Arms` 表，sweep 与 rank 自动跟随。
 
 ## 4. 每个 run 跑完立刻过闸门
 
 ```bash
-python3 .claude/skills/rwkv-bench/check_run.py <run_dir> --arm <档> [--rwkv] [--primitive] --cases <题数>
+bin/rwkv-lab run check <run_dir> --arm <档> [--rwkv] [--primitive] --cases <题数>
 ```
 
 任一 FAIL → 这个 run 作废，修参数重跑，不要"先看看分数"。它会查：`wire_preset == g1k`、采样逐项、
@@ -116,15 +116,15 @@ python3 .claude/skills/rwkv-bench/check_run.py <run_dir> --arm <档> [--rwkv] [-
 ## 5. 汇总与比较
 
 ```bash
-python3 bench/workbank/tools/replicate_summary.py <k 个 run 目录> --k 3 --out <out.md>
-python3 bench/workbank/tools/compare.py <run A> <run B>
-python3 bench/workbank/tools/capability_gate.py <run 目录…> --label <名字>
-python3 bench/workbank/tools/ledger.py ingest --config-name <model>-<arm> --k-index <i> <run_dir>
+bin/rwkv-lab run replicate <k 个 run 目录> --k 3 --out <out.json>
+bin/rwkv-lab run compare <run A> <run B>
+bin/rwkv-lab run gate <run 目录…> --label <名字>
+bin/rwkv-lab run ledger ingest --config-name <model>-<arm> --k-index <i> <run_dir>
 ```
 
 - 比较只用同一天、同端点、同 bank_version 的成对 run；报翻转 +a/−b 与符号检验 p。
 - 差距小于同配置 k 次极差 → 写"无法区分"。
-- 失分先过 `capability_gate.py` 分层：只有 capability 层才算"模型不会"，其余是协议、收尾、选工具或格式问题。
+- 失分先过 `bin/rwkv-lab run gate` 分层：只有 capability 层才算"模型不会"，其余是协议、收尾、选工具或格式问题。
 
 ## 6. 报告
 

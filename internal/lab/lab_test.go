@@ -117,3 +117,16 @@ func TestEncodeJSONIndent(t *testing.T) {
 		t.Errorf("EncodeJSON = %q, want %q", got, want)
 	}
 }
+
+// P7: run compare's bootstrap writes its confidence interval into reports, so
+// the stream must be Python's, not merely a good generator. This is the
+// reference sequence recorded in M0.
+func TestPyRandomMatchesPythonRandrange(t *testing.T) {
+	want := []int{98, 107, 10, 66, 130, 124, 103, 77, 122, 91, 55, 129, 35, 72, 35, 24, 64, 136, 37, 79}
+	r := NewPyRandom(0)
+	for i, expected := range want {
+		if got := r.RandRange(148); got != expected {
+			t.Fatalf("randrange(148) draw %d = %d, want %d", i+1, got, expected)
+		}
+	}
+}

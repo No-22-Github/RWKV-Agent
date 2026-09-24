@@ -332,6 +332,12 @@ git ls-files '*.py' | grep -v '^third_party/' | grep -v '/verify.py$' | grep -v 
 | `bank calibrate` | `--ledger` 被解析但 `collect()` 读的是模块级常量 `ledger/cases.jsonl`，传别的路径不生效，只影响 "no cases in ledger (%s)" 那句话。按 §1「发现的 bug 不修」照搬了这个行为（Go 版同样只把 `--ledger` 用于报错文案）。**要不要修是迁移之后的事**。 |
 | `bank verify` | §6 M2 的负向验收写的是「加一行读 `/etc/hosts`」，但新旧两版都**不会**因此失败：`python3 -I -S` 加上只留 `PATH`/`HOME` 并不拦截文件读取，verify.py 照样读到 `/etc/hosts` 并给出正确答案，该题通过。实测新旧报告逐字节相同、都退出 0。真正能触发沙箱的是死循环（10s 超时），那一例新旧一致。 |
 | `bank lint` | `verify.py` 的导入检查在 Python 侧走 `ast` + `sys.stdlib_module_names`，Go 侧没有 Python 解析器，改为扫描器（跳过注释与字符串字面量后匹配 `import`/`from` 语句）+ 内嵌 CPython 3.13 的 stdlib 名单。对题库 148 个 verify.py 输出一致；风险是后来新增的 stdlib 模块会被误报为第三方，届时应重新生成名单。 |
+| `corpus render` | 旧版有个 `--tracecorpus <bin>` 参数，默认指向 `bin/tracecorpus`；§2.6 把那个程序删了，切行改为进程内调用 `corpus rows`，参数随之去掉。传旧参数的脚本会直接报未知参数，不会静默变行为。 |
+| `corpus rows` | 行首程序名由 `tracecorpus:` 改成 `rows:`（§4.2 允许），其余输出不变。 |
+| `corpus render` | 加载校验从「反复调 agent-eval、正则解析 stderr」改成进程内调 `eval.LoadCasesDir`（§2.1.1 要求）。判据仍是真实加载器，只是不再起进程；被拒 case 的 reason 文案因此变成 Go 的报错文本。 |
+| `run replicate` / `run compare` | 出错时 Python 抛未捕获的 `ValueError`，stderr 是一整段 traceback；Go 版打印 `error: <同样的消息>` 并退出 1。**消息文本一致、退出码一致**，traceback 的外框没法逐字节复刻（§4.3 的文本口径不适用于解释器 traceback）。 |
+| `run wire` / `run gate` / `run audit` | `--json` 的报告里，Python 保留 dict 插入顺序，Go 用 map（键按字典序）。§4.3 对 JSON 只要求「逐行解析后深度相等」，所以口径内一致；但如果有人拿这些 JSON 做逐字节 diff，会看到键序不同。需要逐字节的话，把报告改成 `lab.OrderedMap` 即可。 |
+| `bench sweep` | 凭据只从 `RWKV_CF_ID` / `RWKV_CF_SECRET` 读（P11）；`experiment.json` 里记的是 `--api-header-env CF-Access-Client-Id=RWKV_CF_ID`，即变量名而非值。`--dry-run` 输出里的二进制路径由仓库根推导，从别的 worktree 跑基线时路径不同（实测只有这一处差异）。 |
 
 ## 8. 交付与验收
 
