@@ -20,6 +20,7 @@ type CorpusRow struct {
 
 type CorpusMeta struct {
 	CaseID      string `json:"case_id"`
+	Turn        int    `json:"turn"`
 	Passed      bool   `json:"passed"`
 	Generations int    `json:"generations"`
 	Supervised  int    `json:"supervised"`
@@ -37,11 +38,17 @@ var roleBoundaries = []string{"\n\nUser:", "\n\nSystem:", "\n\nTool:"}
 
 const toolCallClose = "</tool_call>"
 
-// CorpusText is one case's assembled training text.
+// CorpusText is one case's assembled training text, or one turn's when the
+// case has several.
 type CorpusText struct {
 	Text          string
 	LossSpans     [][2]int
 	Canonicalized int
+	// Turn is the 1-based turn the text ends in; Generations and Supervised
+	// count the script outputs it covers.
+	Turn        int
+	Generations int
+	Supervised  int
 }
 
 // BuildCorpusText assembles one case's training text from the generations
@@ -56,34 +63,84 @@ func BuildCorpusText(calls []ModelCallTrace, entry ScriptEntry) (CorpusText, err
 			"harness made %d generations, script has %d outputs", len(calls), len(entry.Outputs),
 		)
 	}
+	return buildSegment(calls, entry.Outputs, 0)
+}
+
+// BuildCorpusTurns is BuildCorpusText for multi-turn cases: turns[i] is the
+// turn of calls[i]. Between turns the harness commits history without the
+// per-step reminders, so the next turn's prompt is not an extension of the
+// last one and a single row would show the model a transcript it never sees.
+// Each turn becomes its own row whose text ends at that turn's last output;
+// earlier turns appear only as the committed history the harness renders,
+// and only the turn's own outputs get loss spans. Within a turn the
+// append-only rule of BuildCorpusText still holds; across a boundary the next
+// prompt must at least carry the previous turn's last output.
+func BuildCorpusTurns(calls []ModelCallTrace, turns []int, entry ScriptEntry) ([]CorpusText, error) {
+	if len(calls) != len(entry.Outputs) {
+		return nil, fmt.Errorf(
+			"harness made %d generations, script has %d outputs", len(calls), len(entry.Outputs),
+		)
+	}
+	if len(turns) != len(calls) {
+		return nil, fmt.Errorf("%d turn numbers for %d generations", len(turns), len(calls))
+	}
+	var texts []CorpusText
+	for start := 0; start < len(calls); {
+		end := start + 1
+		for end < len(calls) && turns[end] == turns[start] {
+			end++
+		}
+		if end < len(calls) {
+			if turns[end] < turns[start] {
+				return nil, fmt.Errorf("generation %d goes back from turn %d to %d", end+1, turns[start], turns[end])
+			}
+			answer := strings.TrimSpace(calls[end-1].Response.Text)
+			if !strings.Contains(calls[end].Request.Prompt, answer) {
+				return nil, fmt.Errorf("turn %d history does not carry turn %d's last output", turns[end], turns[start])
+			}
+		}
+		text, err := buildSegment(calls[start:end], entry.Outputs[start:end], start)
+		if err != nil {
+			return nil, err
+		}
+		text.Turn = turns[start]
+		texts = append(texts, text)
+		start = end
+	}
+	return texts, nil
+}
+
+// buildSegment assembles the text of consecutive append-only generations;
+// offset numbers them in error messages.
+func buildSegment(calls []ModelCallTrace, outputs []ScriptOutput, offset int) (CorpusText, error) {
 	var spans [][2]int
 	canonicalized := 0
 	for index, call := range calls {
 		if call.Error != "" {
-			return CorpusText{}, fmt.Errorf("generation %d failed: %s", index+1, call.Error)
+			return CorpusText{}, fmt.Errorf("generation %d failed: %s", offset+index+1, call.Error)
 		}
-		if call.Response.Text != entry.Outputs[index].Text {
-			return CorpusText{}, fmt.Errorf("generation %d response differs from the script", index+1)
+		if call.Response.Text != outputs[index].Text {
+			return CorpusText{}, fmt.Errorf("generation %d response differs from the script", offset+index+1)
 		}
 		if index == len(calls)-1 {
 			break
 		}
 		prompt, next := call.Request.Prompt, calls[index+1].Request.Prompt
 		if !strings.HasPrefix(next, prompt) {
-			return CorpusText{}, fmt.Errorf("transcript is not append-only after generation %d", index+1)
+			return CorpusText{}, fmt.Errorf("transcript is not append-only after generation %d", offset+index+1)
 		}
 		block := assistantBlock(next[len(prompt):])
 		match := compareAction(block, call.Response.Text)
 		if match == actionDiffers {
 			return CorpusText{}, fmt.Errorf(
 				"generation %d written back as %q, script output %q",
-				index+1, strings.TrimSpace(block), strings.TrimSpace(call.Response.Text),
+				offset+index+1, strings.TrimSpace(block), strings.TrimSpace(call.Response.Text),
 			)
 		}
 		if match == actionCanonicalized {
 			canonicalized++
 		}
-		if entry.Outputs[index].Supervised {
+		if outputs[index].Supervised {
 			spans = append(spans, trimmedSpan(prompt, block))
 		}
 	}
@@ -100,10 +157,13 @@ func BuildCorpusText(calls []ModelCallTrace, entry ScriptEntry) (CorpusText, err
 		separator = " "
 	}
 	text := prompt + separator + final
-	if entry.Outputs[len(calls)-1].Supervised {
+	if outputs[len(calls)-1].Supervised {
 		spans = append(spans, [2]int{len(prompt) + len(separator), len(text)})
 	}
-	return CorpusText{Text: text, LossSpans: runeSpans(text, spans), Canonicalized: canonicalized}, nil
+	return CorpusText{
+		Text: text, LossSpans: runeSpans(text, spans), Canonicalized: canonicalized,
+		Generations: len(calls), Supervised: len(spans),
+	}, nil
 }
 
 // assistantBlock returns the assistant content at the head of rest: up to

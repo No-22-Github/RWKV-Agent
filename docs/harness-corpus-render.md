@@ -38,7 +38,7 @@ suite 分支和默认值（rescue 关、`firstcall=auto`）；`run/run.json` 的
 
 产物（`--out` 下，派生数据不入库）：
 
-- `rows.jsonl`：`{text, loss_spans, meta}`；`loss_spans` 为 Unicode 码点偏移（与
+- `rows.jsonl`：`{text, loss_spans, meta}`，多轮题每轮一行（`meta.turn`）；`loss_spans` 为 Unicode 码点偏移（与
   `workv1_wire.py` 同单位），只覆盖脚本标 `supervised` 的输出；`meta` 带 `wire_hash`、
   `harness_version`、`canonicalized`。当前 state 训练器只读 `text`，转 textonly 时丢掉其余字段即可。
 - `rejects.jsonl`：被拒 case 及原因。
@@ -53,7 +53,7 @@ suite 分支和默认值（rescue 关、`firstcall=auto`）；`run/run.json` 的
 
 - harness 的生成次数 ≠ 脚本输出数（多了重试、提前强制收尾等）；
 - 某次生成报错；
-- transcript 不是只追加（`usermsg=rewrite`、历史压缩会触发）；
+- 同一轮内 transcript 不是只追加（`usermsg=rewrite`、历史压缩会触发）；多轮题按轮切行，见下文冒烟一节；
 - harness 回写的动作与 teacher 原话不同。唯一放行的差异是 tool call JSON 语义相同、字节不同
   （Go 把 `<`、`>`、`&` 转义为 `\u003c` 等）：训练行采用 harness 字节（模型在历史里看到的就是它），
   计入 `meta.canonicalized`；
@@ -89,8 +89,11 @@ python3 scripts/harness_corpus.py --cases bench/distill/cases \
   如 `"path":"","max_results":50`）。脚本 case id 为 `<题目id>--p<n>`。
 - 输出的 pass@k 分布即出题质检：0/k 的题先查 expect 与题面，再决定是否蒸馏。
 - 冒烟（2026-09-24，workbank 上 DeepSeek 3 次，**测试集，仅验证管线**）：189 条路径在 g1k 下
-  重放 189/189 通过，187 行；2 条 9 步以上的长轨迹在第 9 次生成时 harness 改写了历史
-  （删掉此前的 post-tool 提醒），不满足只追加，被拒。机制待查。
+  重放 189/189 通过。最初 2 条被拒（`nt-0010`、`nt-0012`，"第 9 次生成非只追加"）：它们是两轮题，
+  第 2 轮开始时 harness 提交的历史不含第 1 轮的 post-tool 提醒，跑分时模型看到的也是这样。
+  现在 tracecorpus **按轮切行**：每轮一行，文本止于本轮最后一次输出，只有本轮输出有 loss span，
+  前几轮以提交后的历史出现；轮内仍要求只追加，跨轮只要求下一轮 prompt 带着上一轮的最后输出。
+  结果 189 个 case → 191 行，原 187 行逐字节不变。
 
 ## 测试题与蒸馏题分开
 

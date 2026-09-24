@@ -182,6 +182,56 @@ func TestBuildCorpusTextKeepsHarnessBytesForCanonicalizedCalls(t *testing.T) {
 	assertSpans(t, built, []string{escaped, "完成"})
 }
 
+func TestBuildCorpusTurnsSplitsAtTurnBoundaries(t *testing.T) {
+	call := `<tool_call>{"name":"read_file","arguments":{"path":"a"}}</tool_call>`
+	reminder := "\n\nUser: Use the Tool results above to continue the current task."
+	first := "System: s\n\nUser: q1\n\nAssistant:"
+	second := first + " " + call + "\n\nUser: <tool_response>{}</tool_response>" + reminder + "\n\nAssistant:"
+	// The committed history of turn 1 drops the reminder, so turn 2's
+	// prompt does not extend turn 1's last prompt.
+	third := first + " " + call + "\n\nUser: <tool_response>{}</tool_response>\n\nAssistant: A1\n\nUser: q2\n\nAssistant:"
+	entry := ScriptEntry{CaseID: "c", Outputs: []ScriptOutput{
+		{Text: call, Supervised: true}, {Text: "A1", Supervised: true}, {Text: "A2", Supervised: true},
+	}}
+	trace := func(prompts ...string) []ModelCallTrace {
+		out := make([]ModelCallTrace, len(prompts))
+		for index, prompt := range prompts {
+			out[index] = ModelCallTrace{
+				Request:  RequestSnapshot{Prompt: prompt},
+				Response: ResponseSnapshot{Text: entry.Outputs[index].Text},
+			}
+		}
+		return out
+	}
+	if _, err := BuildCorpusText(trace(first, second, third), entry); err == nil {
+		t.Fatal("single-row build accepted a history rewrite at the turn boundary")
+	}
+	texts, err := BuildCorpusTurns(trace(first, second, third), []int{1, 1, 2}, entry)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(texts) != 2 || texts[0].Turn != 1 || texts[1].Turn != 2 {
+		t.Fatalf("got %d texts, want turns 1 and 2: %+v", len(texts), texts)
+	}
+	if !strings.HasSuffix(texts[0].Text, reminder+"\n\nAssistant: A1") {
+		t.Fatalf("turn 1 row does not end at its answer: %q", tail(texts[0].Text))
+	}
+	assertSpans(t, texts[0], []string{call, "A1"})
+	if texts[1].Text != third+" A2" || texts[1].Generations != 1 {
+		t.Fatalf("turn 2 row = %q (%d generations)", tail(texts[1].Text), texts[1].Generations)
+	}
+	// Turn 1's actions are committed history in turn 2, not trained again.
+	assertSpans(t, texts[1], []string{"A2"})
+
+	lost := strings.Replace(third, "A1", "B1", 1)
+	if _, err := BuildCorpusTurns(trace(first, second, lost), []int{1, 1, 2}, entry); err == nil {
+		t.Error("accepted a turn whose history lost the previous answer")
+	}
+	if _, err := BuildCorpusTurns(trace(first, second, third), []int{1, 1, 1}, entry); err == nil {
+		t.Error("accepted a rewrite inside one turn")
+	}
+}
+
 // assertSpans checks the row's code point spans cut out exactly want.
 func assertSpans(t *testing.T, built CorpusText, want []string) {
 	t.Helper()

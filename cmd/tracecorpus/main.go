@@ -5,8 +5,9 @@
 //
 // scripts/harness_corpus.py drives both steps from normalized records.
 //
-// Each row's text is the case's final rendered prompt plus the last scripted
-// output, so every byte between the teacher's actions (tool receipts,
+// Each row's text is a turn's final rendered prompt plus the turn's last
+// scripted output (one row per turn: between turns the harness commits
+// history without its per-step reminders), so every byte between the teacher's actions (tool receipts,
 // reminders, duplicate rejections, forced-answer blocks) is exactly what the
 // eval harness feeds a model under the same wire flags. loss_spans cover the
 // outputs the script marks supervised. A case is rejected, never patched,
@@ -77,7 +78,7 @@ func run() error {
 	if err := readJSON(*runDir+"/summary.json", &summary); err != nil {
 		return err
 	}
-	calls, err := readModelCalls(*runDir + "/trace.jsonl")
+	calls, turns, err := readModelCalls(*runDir + "/trace.jsonl")
 	if err != nil {
 		return err
 	}
@@ -93,7 +94,7 @@ func run() error {
 	defer out.Close()
 	writer := bufio.NewWriter(out)
 	var rejects []reject
-	written := 0
+	written, rowCases := 0, 0
 	for _, result := range summary.Cases {
 		entry, ok := entries[result.ID]
 		if !ok {
@@ -104,32 +105,36 @@ func run() error {
 			rejects = append(rejects, reject{result.ID, "teacher trajectory fails the case expectations"})
 			continue
 		}
-		built, buildErr := eval.BuildCorpusText(calls[result.ID], entry)
+		texts, buildErr := eval.BuildCorpusTurns(calls[result.ID], turns[result.ID], entry)
 		if buildErr != nil {
 			rejects = append(rejects, reject{result.ID, buildErr.Error()})
 			continue
 		}
-		row := eval.CorpusRow{
-			Text:      built.Text,
-			LossSpans: built.LossSpans,
-			Meta: eval.CorpusMeta{
-				CaseID:         result.ID,
-				Passed:         result.Passed,
-				Generations:    len(entry.Outputs),
-				Supervised:     len(built.LossSpans),
-				Canonicalized:  built.Canonicalized,
-				WireCanonical:  wires[result.ID][0],
-				WireHash:       wires[result.ID][1],
-				HarnessVersion: manifest.Harness.Version,
-			},
+		for _, built := range texts {
+			row := eval.CorpusRow{
+				Text:      built.Text,
+				LossSpans: built.LossSpans,
+				Meta: eval.CorpusMeta{
+					CaseID:         result.ID,
+					Turn:           built.Turn,
+					Passed:         result.Passed,
+					Generations:    built.Generations,
+					Supervised:     built.Supervised,
+					Canonicalized:  built.Canonicalized,
+					WireCanonical:  wires[result.ID][0],
+					WireHash:       wires[result.ID][1],
+					HarnessVersion: manifest.Harness.Version,
+				},
+			}
+			line, err := json.Marshal(row)
+			if err != nil {
+				return err
+			}
+			writer.Write(line)
+			writer.WriteByte('\n')
+			written++
 		}
-		line, err := json.Marshal(row)
-		if err != nil {
-			return err
-		}
-		writer.Write(line)
-		writer.WriteByte('\n')
-		written++
+		rowCases++
 	}
 	if err := writer.Flush(); err != nil {
 		return err
@@ -139,7 +144,8 @@ func run() error {
 			return err
 		}
 	}
-	fmt.Fprintf(os.Stdout, "tracecorpus: %d rows written, %d cases rejected\n", written, len(rejects))
+	fmt.Fprintf(os.Stdout, "tracecorpus: %d rows written from %d cases, %d cases rejected\n",
+		written, rowCases, len(rejects))
 	// The console summary groups by a truncated reason; rejects.jsonl keeps
 	// the full text.
 	reasons := map[string]int{}
@@ -172,11 +178,12 @@ func readJSON(path string, value any) error {
 	return nil
 }
 
-// readModelCalls groups the trace's model calls by case, in sequence order.
-func readModelCalls(path string) (map[string][]eval.ModelCallTrace, error) {
+// readModelCalls groups the trace's model calls by case, in sequence order,
+// with the turn each call belongs to.
+func readModelCalls(path string) (map[string][]eval.ModelCallTrace, map[string][]int, error) {
 	file, err := os.Open(path)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	defer file.Close()
 	var records []eval.TraceRecord
@@ -185,21 +192,22 @@ func readModelCalls(path string) (map[string][]eval.ModelCallTrace, error) {
 	for scanner.Scan() {
 		var record eval.TraceRecord
 		if err := json.Unmarshal(scanner.Bytes(), &record); err != nil {
-			return nil, fmt.Errorf("parse %s: %w", path, err)
+			return nil, nil, fmt.Errorf("parse %s: %w", path, err)
 		}
 		if record.Kind == "model_call" && record.ModelCall != nil {
 			records = append(records, record)
 		}
 	}
 	if err := scanner.Err(); err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	sort.SliceStable(records, func(i, j int) bool { return records[i].Sequence < records[j].Sequence })
-	calls := map[string][]eval.ModelCallTrace{}
+	calls, turns := map[string][]eval.ModelCallTrace{}, map[string][]int{}
 	for _, record := range records {
 		calls[record.CaseID] = append(calls[record.CaseID], *record.ModelCall)
+		turns[record.CaseID] = append(turns[record.CaseID], record.Turn)
 	}
-	return calls, nil
+	return calls, turns, nil
 }
 
 func writeRejects(path string, rejects []reject) error {
