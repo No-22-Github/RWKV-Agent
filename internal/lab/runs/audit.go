@@ -87,9 +87,8 @@ func Audit(runDir string) (map[string]any, error) {
 					}
 				}
 				totals["receipts_checked"]++
-				if containsDeep(payloads, receipt) {
-					totals["receipts_present_in_next_prompt"]++
-				}
+				// Counter's += False still creates the key, so a zero must be reported.
+				totals["receipts_present_in_next_prompt"] += boolInt(containsDeep(payloads, receipt))
 			}
 
 			actions := make([]any, 0, len(steps))
@@ -128,9 +127,8 @@ func Audit(runDir string) (map[string]any, error) {
 			totals[flag]++
 		}
 		totals["cases"]++
-		if passed, _ := caseObj["passed"].(bool); passed {
-			totals["passed"]++
-		}
+		passed, _ := caseObj["passed"].(bool)
+		totals["passed"] += boolInt(passed)
 		rows = append(rows, map[string]any{
 			"id":            caseObj["id"],
 			"passed":        caseObj["passed"],
@@ -179,3 +177,10 @@ func containsDeep(payloads []any, receipt any) bool {
 }
 
 var _ = strings.TrimSpace
+
+func boolInt(b bool) int {
+	if b {
+		return 1
+	}
+	return 0
+}

@@ -156,6 +156,38 @@ func TestWirePreservesZeroAnswerMatchCounter(t *testing.T) {
 	}
 }
 
+func TestAuditPreservesZeroPassedCounter(t *testing.T) {
+	dir := t.TempDir()
+	summary := map[string]any{
+		"cases": []any{map[string]any{
+			"id":     "case-1",
+			"passed": false,
+			"turns": []any{map[string]any{
+				"failures": []any{},
+				"result":   map[string]any{"output": "x", "steps": []any{}},
+			}},
+		}},
+	}
+	data, err := json.Marshal(summary)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "summary.json"), data, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	report, err := Audit(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	value, ok := mapOf(report, "totals")["passed"]
+	if !ok {
+		t.Fatal("totals.passed is missing")
+	}
+	if got, ok := numberValue(value); !ok || got != 0 {
+		t.Fatalf("totals.passed = %v, want 0", value)
+	}
+}
+
 // The arm table is the sweep's contract with check_run.py; the values are
 // pinned here so a transcription slip is caught without a run directory.
 func TestArmTableValues(t *testing.T) {
