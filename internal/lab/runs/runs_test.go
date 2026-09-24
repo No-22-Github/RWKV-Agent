@@ -1,6 +1,11 @@
 package runs
 
-import "testing"
+import (
+	"encoding/json"
+	"os"
+	"path/filepath"
+	"testing"
+)
 
 // The infrastructure rule is shared by wire, audit and replicate; all three
 // have to agree on which failures are transport breaks rather than scores.
@@ -102,6 +107,52 @@ func TestAnswerTextMatch(t *testing.T) {
 	}
 	if AnswerTextMatch(equals, "1443") {
 		t.Error("1443 must not match 443 (word boundary)")
+	}
+}
+
+func TestWirePreservesZeroAnswerMatchCounter(t *testing.T) {
+	dir := t.TempDir()
+	summary := map[string]any{
+		"cases": []any{map[string]any{
+			"id":     "case-1",
+			"passed": false,
+			"turns": []any{map[string]any{
+				"passed":   false,
+				"failures": []any{"output mismatch: expected 9000"},
+				"result": map[string]any{
+					"output": "9000",
+					"steps": []any{map[string]any{
+						"stage":       "answer",
+						"action_type": "final",
+					}},
+				},
+			}},
+		}},
+	}
+	data, err := json.Marshal(summary)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "summary.json"), data, 0o600); err != nil {
+		t.Fatal(err)
+	}
+	bank := map[string]map[string]any{
+		"case-1": {"turns": []any{map[string]any{
+			"expect": map[string]any{"expected_number": 9000},
+		}}},
+	}
+	report, err := AnalyzeWire(dir, bank)
+	if err != nil {
+		t.Fatal(err)
+	}
+	metrics := mapOf(report, "metrics")
+	value, ok := metrics["answer_match_with_other_failures"]
+	if !ok {
+		t.Fatal("answer_match_with_other_failures is missing")
+	}
+	got, ok := numberValue(value)
+	if !ok || got != 0 {
+		t.Fatalf("answer_match_with_other_failures = %v, want 0", value)
 	}
 }
 

@@ -458,9 +458,7 @@ func AnalyzeWire(runDir string, bank map[string]map[string]any) (map[string]any,
 								other = append(other, f)
 							}
 						}
-						if len(other) > 0 {
-							m.add("answer_match_with_other_failures", 1)
-						}
+						m.addBool("answer_match_with_other_failures", len(other) > 0)
 						details = append(details, map[string]any{
 							"case": caseID, "turn": ti + 1, "kind": "answer_text_match_not_rescore",
 							"other_failures": toAnySlice(other)})
