@@ -30,7 +30,28 @@ const (
 	ptyDrainTimeout = 5 * time.Second
 )
 
+// skipUnmaintainedPTYTUI skips the PTY-backed tests in this file.
+//
+// They drive a real PTY through bubbletea's shutdown path, which races
+// os.File.Fd() against os.File.Close() inside bubbletea v2.0.8 and
+// cancelreader v0.2.2: shutdown() only waits for the input read loop when
+// Cancel() reports true and kill is false, so the loop can still be parked in
+// epoll_wait() when the file is closed. Under -race any hit fails the build,
+// and the same window sometimes wedges the program so Run never returns.
+//
+// Two of the three have flaked in CI on commits that cannot affect the TUI:
+// TestPTYCancelKeysStopAllSessionsAndRestoreTerminal (run 34474776406) and
+// TestPTYMouseSelectsPaneAndContinuesConversation (run 34084792180).
+//
+// The TUI is not in active use. Re-enable these if it is kept and the upstream
+// race is fixed; layout_test.go covers the pure rendering logic and still runs.
+func skipUnmaintainedPTYTUI(t *testing.T) {
+	t.Helper()
+	t.Skip("PTY TUI tests disabled: upstream bubbletea/cancelreader shutdown race")
+}
+
 func TestPTYAlternateScreenResizeAndCleanExit(t *testing.T) {
+	skipUnmaintainedPTYTUI(t)
 	t.Setenv("TERM", "xterm-256color")
 
 	model := tuiMockModel(t, mock.Config{Output: "你好🙂", ChunkSize: 1})
@@ -64,6 +85,7 @@ func TestPTYAlternateScreenResizeAndCleanExit(t *testing.T) {
 }
 
 func TestPTYCancelKeysStopAllSessionsAndRestoreTerminal(t *testing.T) {
+	skipUnmaintainedPTYTUI(t)
 	t.Setenv("TERM", "xterm-256color")
 
 	tests := []struct {
@@ -82,6 +104,7 @@ func TestPTYCancelKeysStopAllSessionsAndRestoreTerminal(t *testing.T) {
 }
 
 func TestPTYMouseSelectsPaneAndContinuesConversation(t *testing.T) {
+	skipUnmaintainedPTYTUI(t)
 	t.Setenv("TERM", "xterm-256color")
 
 	model := tuiMockModel(t, mock.Config{Output: "answer", ChunkSize: 1})
