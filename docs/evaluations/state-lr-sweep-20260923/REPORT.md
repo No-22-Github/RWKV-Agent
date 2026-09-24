@@ -169,3 +169,8 @@ run 数据在 `runs/bench-20260923-state/`（不入库）；state 文件在 `sta
 7. **泄漏范围大于第 1 条所述**：训练集 700 条的 36 个种子（`parent_seed_id`）全部是 workbank 题，
    anchor 分支即原题、b/r/v/x 为其变体。干净 116 题不是种子，但与种子同场景同模板，workbank
    上的增益应视为偏乐观的上界。分集规则与闸门见 [`docs/harness-corpus-render.md`](../../harness-corpus-render.md)。
+8. **泄漏分级与干净考卷**（2026-09-24）：700 条相对 36 道种子题——L1 原题 36、L2 逐字复用种子题
+   工作区 56、L3 表面相似（`scripts/decontam.py`）113、L4 仅同族改写 495；相对其余 **112 道非种子题**
+   仅 1 条专有名弱重叠（0.4）。按 112 题重算 workbank（k0/k1）：none 8/8、lr2e2 16/16、lr3e3 11/11、
+   lr1e2f 10/7、lr1e2 9/8、lr5e3 9/13——干净增益约 +8（lr2e2），其余 arm 在 +1~+3 之间。
+   此后 workbank 对挂过该语料的模型只按非种子 112 题计分，36 道种子题单列、不作结论。
