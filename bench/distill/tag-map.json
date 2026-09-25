@@ -1,0 +1,181 @@
+{
+  "task_type_overrides": {
+    "ws7-code-0003-b32": {
+      "task_type": "locate_definition",
+      "reason": "asks which value a function actually uses across a module hop"
+    },
+    "ws7-doc-0001-b22": {
+      "task_type": "extract_items",
+      "reason": "counts items selected by a policy in a circular"
+    },
+    "ws7-doc-0001-v20": {
+      "task_type": "write_structured",
+      "reason": "writes a merged rule list into a file (artifact_file)"
+    },
+    "ws7-doc-0002-v20": {
+      "task_type": "write_structured",
+      "reason": "writes a merged rule list into a file (artifact_file)"
+    },
+    "ws7-doc-0003-v20": {
+      "task_type": "write_structured",
+      "reason": "writes a merged rule list into a file (artifact_file)"
+    },
+    "ws7-doc-0004-b22": {
+      "task_type": "extract_items",
+      "reason": "counts items selected by a policy in a circular"
+    },
+    "ws7-doc-0004-v20": {
+      "task_type": "write_structured",
+      "reason": "writes a merged rule list into a file (artifact_file)"
+    },
+    "ws7-fs-0001-b10": {
+      "task_type": "find_file",
+      "reason": "asks which file actually holds a table whose names cannot be trusted"
+    },
+    "ws7-fs-0001-b11": {
+      "task_type": "find_file",
+      "reason": "asks which file actually holds a table whose names cannot be trusted"
+    },
+    "ws7-fs-0001-b12": {
+      "task_type": "find_file",
+      "reason": "asks which file actually holds a table whose names cannot be trusted"
+    },
+    "ws7-fs-0001-b13": {
+      "task_type": "find_file",
+      "reason": "asks which file actually holds a table whose names cannot be trusted"
+    },
+    "ws7-fs-0001-b20": {
+      "task_type": "largest",
+      "reason": "aggregates byte sizes over a file set"
+    },
+    "ws7-fs-0001-b21": {
+      "task_type": "count_by_type",
+      "reason": "counts files/directories of a kind"
+    },
+    "ws7-fs-0001-b22": {
+      "task_type": "largest",
+      "reason": "aggregates byte sizes over a file set"
+    },
+    "ws7-fs-0001-b23": {
+      "task_type": "count_by_type",
+      "reason": "counts files/directories of a kind"
+    },
+    "ws7-fs-0001-v10": {
+      "task_type": "count_by_type",
+      "reason": "names the file that holds the table, then sums byte sizes"
+    },
+    "ws7-fs-0001-x10": {
+      "task_type": "count_by_type",
+      "reason": "counts directories, no byte sizes involved"
+    },
+    "ws7-fs-0002-b11": {
+      "task_type": "find_file",
+      "reason": "asks which file actually holds a table whose names cannot be trusted"
+    },
+    "ws7-fs-0002-b20": {
+      "task_type": "count_by_type",
+      "reason": "counts files/directories of a kind"
+    },
+    "ws7-fs-0002-b21": {
+      "task_type": "largest",
+      "reason": "aggregates byte sizes over a file set"
+    },
+    "ws7-fs-0002-b22": {
+      "task_type": "largest",
+      "reason": "aggregates byte sizes over a file set"
+    },
+    "ws7-fs-0002-b23": {
+      "task_type": "largest",
+      "reason": "aggregates byte sizes over a file set"
+    },
+    "ws7-fs-0002-v10": {
+      "task_type": "count_by_type",
+      "reason": "names the file that holds the table, then sums byte sizes"
+    },
+    "ws7-fs-0002-x10": {
+      "task_type": "count_by_type",
+      "reason": "counts directories, no byte sizes involved"
+    },
+    "ws7-fs-0003-b11": {
+      "task_type": "find_file",
+      "reason": "asks which file actually holds a table whose names cannot be trusted"
+    },
+    "ws7-fs-0003-b20": {
+      "task_type": "largest",
+      "reason": "aggregates byte sizes over a file set"
+    },
+    "ws7-fs-0003-b22": {
+      "task_type": "count_by_type",
+      "reason": "counts files/directories of a kind"
+    },
+    "ws7-fs-0003-b23": {
+      "task_type": "largest",
+      "reason": "aggregates byte sizes over a file set"
+    },
+    "ws7-fs-0003-v10": {
+      "task_type": "count_by_type",
+      "reason": "names the file that holds the table, then sums byte sizes"
+    },
+    "ws7-fs-0004-b10": {
+      "task_type": "find_file",
+      "reason": "asks which file actually holds a table whose names cannot be trusted"
+    },
+    "ws7-fs-0004-b22": {
+      "task_type": "largest",
+      "reason": "aggregates byte sizes over a file set"
+    },
+    "ws7-fs-0004-b23": {
+      "task_type": "count_by_type",
+      "reason": "counts files/directories of a kind"
+    },
+    "ws7-fs-0004-v10": {
+      "task_type": "count_by_type",
+      "reason": "names the file that holds the table, then sums byte sizes"
+    },
+    "ws7-fs-0004-x10": {
+      "task_type": "count_by_type",
+      "reason": "counts files/directories of a kind"
+    },
+    "ws7-hyb-0003-b22": {
+      "task_type": "web_then_edit",
+      "reason": "looks the plan format up, then writes the local plan file"
+    },
+    "ws7-log-0001-b12": {
+      "task_type": "count_events",
+      "reason": "counts events matching a code over a window"
+    },
+    "ws7-log-0002-b11": {
+      "task_type": "count_events",
+      "reason": "counts events matching a code over a window"
+    },
+    "ws7-log-0003-b11": {
+      "task_type": "count_events",
+      "reason": "counts events matching a code over a window"
+    },
+    "ws7-log-0003-x10": {
+      "task_type": "time_window",
+      "reason": "names a count inside a time window; time_window is the discriminating one"
+    }
+  },
+  "behaviors": {
+    "multi_hop": "multi_hop",
+    "source_pair": "multi_source",
+    "count_discipline": "count_discipline",
+    "precedence_rule": "rule_precedence",
+    "abstain_unknown": "abstain_unknown",
+    "stop_when_insufficient": "stop_insufficient",
+    "empty_result_interpreted": "empty_result",
+    "source_empty": "empty_result",
+    "exact_text": "answer_exact_text",
+    "json_answer": "answer_json",
+    "pure_value": null,
+    "source_local": null,
+    "source_web": null,
+    "artifact_file": null,
+    "script_run": null,
+    "recovery_after_error": null
+  },
+  "undefined": [
+    "no_tool_closeout"
+  ]
+}

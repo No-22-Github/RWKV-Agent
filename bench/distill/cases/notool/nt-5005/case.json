@@ -17,7 +17,7 @@
     "level": "L1",
     "family": "fam-nt-smalltalk-01",
     "ref_calls": 0,
-    "fixture_bytes": 233,
+    "fixture_bytes": 226,
     "status": "draft",
     "version": 1,
     "author": "llm:claude-opus-5-5",
@@ -25,8 +25,8 @@
   },
   "web_fixture": [],
   "files": {
-    "README.md": "# Brightwater Analytics - team workspace\n\nShared folder for the reporting team.\n\n- reports/  monthly KPI exports\n- scripts/  small helpers for the exports\n",
-    "reports/kpi_2026q3.csv": "month,active_accounts,churned\n2026-06,1284,37\n2026-07,1312,29\n2026-08,1339,41\n"
+    "README.md": "# Tidewater Locksmiths - workshop workspace\n\nShared folder for the bench team.\n\n- jobs/  service log\n- stock/  key blank counts\n",
+    "jobs/service_log.csv": "job,opened,blank,keys_cut\nJ-8821,2026-09-02,KW1,4\nJ-8822,2026-09-11,SC1,2\nJ-8823,2026-09-23,KW1,6\n"
   },
   "turns": [
     {

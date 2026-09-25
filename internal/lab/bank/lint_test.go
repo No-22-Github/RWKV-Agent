@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/no22/RWKV-Agent/internal/lab"
 )
 
 // These are the cases from the former lint regression suite, ported one for
@@ -113,8 +115,15 @@ func makeLintCase(t *testing.T, root, promptBody string, opts lintCaseOptions) s
 // parsed violations, with stdout and stderr captured.
 func runLintCase(t *testing.T, caseDir string) (int, []map[string]any) {
 	t.Helper()
+	return runLintArgs(t, "--case", caseDir, "--vocab", DefaultVocab())
+}
+
+// runLintArgs is runLintCase for tests that pass extra flags (--canary-prefix,
+// --cases).
+func runLintArgs(t *testing.T, args ...string) (int, []map[string]any) {
+	t.Helper()
 	out, code := captureOutput(t, func() int {
-		return runLint([]string{"--case", caseDir, "--vocab", DefaultVocab()})
+		return runLint(args)
 	})
 	var violations []map[string]any
 	for _, line := range strings.Split(out, "\n") {
@@ -319,5 +328,163 @@ func TestLintFixBackfillsFixtureBytes(t *testing.T) {
 	}
 	if _, violations := runLintCase(t, caseDir); hasRule(violations, "fixture_bytes") {
 		t.Fatalf("lint still reports fixture_bytes after --fix: %v", violations)
+	}
+}
+
+// -- canary prefix and smalltalk (docs/distill-workflow.md §4.1, §4.3) --------
+
+// distillCanaryPrefix is what the distillation tree replaces WORKBANK-CANARY
+// with: the test-bank canary means "never train on this" (§2.2).
+const distillCanaryPrefix = "DISTILL-CANARY"
+
+// distillCaseDir returns bench/distill/cases/notool/<id>, skipping the test in
+// checkouts that do not carry the bench tree.
+func distillCaseDir(t *testing.T, id string) string {
+	t.Helper()
+	dir := filepath.Join(lab.RepoRoot(), "bench", "distill", "cases", "notool", id)
+	if _, err := os.Stat(filepath.Join(dir, "case.json")); err != nil {
+		t.Skipf("distill case %s not present", id)
+	}
+	return dir
+}
+
+// copyCaseDir copies a case into <tmp>/<scenario>/<id>/ so a test can mutate it
+// without touching bench/.
+func copyCaseDir(t *testing.T, srcDir string) string {
+	t.Helper()
+	dst := filepath.Join(t.TempDir(), filepath.Base(filepath.Dir(srcDir)), filepath.Base(srcDir))
+	if err := os.MkdirAll(dst, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	for _, name := range []string{"case.json", "verify.py", "NOTES.md"} {
+		data, err := os.ReadFile(filepath.Join(srcDir, name))
+		if err != nil {
+			continue // not every case carries all three files
+		}
+		writeFile(t, filepath.Join(dst, name), string(data))
+	}
+	return dst
+}
+
+// editCaseJSON rewrites a copied case.json through edit.
+func editCaseJSON(t *testing.T, caseDir string, edit func(map[string]any)) {
+	t.Helper()
+	path := filepath.Join(caseDir, "case.json")
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var caseObj map[string]any
+	if err := json.Unmarshal(raw, &caseObj); err != nil {
+		t.Fatal(err)
+	}
+	edit(caseObj)
+	writeJSON(t, path, caseObj)
+}
+
+// §4.1/§4.3: the five smalltalk smoke cases are clean once the canary rule
+// takes the flag and smalltalk's exemptions apply.
+func TestLintDistillSmalltalkCasesClean(t *testing.T) {
+	for _, id := range []string{"nt-5001", "nt-5002", "nt-5003", "nt-5004", "nt-5005"} {
+		code, violations := runLintArgs(t, "--case", distillCaseDir(t, id),
+			"--vocab", DefaultVocab(), "--canary-prefix", distillCanaryPrefix)
+		if code != 0 || len(violations) != 0 {
+			t.Errorf("%s: exit code = %d, violations = %v", id, code, violations)
+		}
+	}
+}
+
+// §4.1 negative: a description still carrying the test-bank canary fails both
+// the prefix rule and the foreign-canary rule.
+func TestLintDistillCanaryWrongPrefixFailsBothRules(t *testing.T) {
+	caseDir := copyCaseDir(t, distillCaseDir(t, "nt-5001"))
+	editCaseJSON(t, caseDir, func(caseObj map[string]any) {
+		desc, _ := caseObj["description"].(string)
+		caseObj["description"] = strings.Replace(desc, distillCanaryPrefix+"-", "WORKBANK-CANARY-", 1)
+	})
+	code, violations := runLintArgs(t, "--case", caseDir, "--vocab", DefaultVocab(),
+		"--canary-prefix", distillCanaryPrefix)
+	if code != 1 {
+		t.Errorf("exit code = %d, want 1", code)
+	}
+	for _, rule := range []string{"canary", "canary.foreign"} {
+		if !hasRule(violations, rule) {
+			t.Errorf("no %s violation: %v", rule, violations)
+		}
+	}
+}
+
+// §4.1 negative: WORKBANK-CANARY left in verify.py or NOTES.md is reported too.
+func TestLintForeignCanaryInVerifyPyOrNotes(t *testing.T) {
+	for _, file := range []string{"verify.py", "NOTES.md"} {
+		caseDir := copyCaseDir(t, distillCaseDir(t, "nt-5001"))
+		path := filepath.Join(caseDir, file)
+		existing, _ := os.ReadFile(path)
+		writeFile(t, path, string(existing)+"# WORKBANK-CANARY-xxxxxxxx leftover\n")
+		code, violations := runLintArgs(t, "--case", caseDir, "--vocab", DefaultVocab(),
+			"--canary-prefix", distillCanaryPrefix)
+		if code != 1 {
+			t.Errorf("%s: exit code = %d, want 1", file, code)
+		}
+		if !hasRule(violations, "canary.foreign") {
+			t.Errorf("%s: no canary.foreign violation: %v", file, violations)
+		}
+	}
+}
+
+// §4.3 negative: a smalltalk case with an answer contract is the violation,
+// and the plain answer_contract rule must stay silent.
+func TestLintSmalltalkAnswerContractFails(t *testing.T) {
+	caseDir := copyCaseDir(t, distillCaseDir(t, "nt-5001"))
+	contract := lintTestContract(t)
+	editCaseJSON(t, caseDir, func(caseObj map[string]any) {
+		turns, _ := caseObj["turns"].([]any)
+		last, _ := turns[len(turns)-1].(map[string]any)
+		prompt, _ := last["prompt"].(string)
+		last["prompt"] = prompt + " " + contract
+	})
+	code, violations := runLintArgs(t, "--case", caseDir, "--vocab", DefaultVocab(),
+		"--canary-prefix", distillCanaryPrefix)
+	if code != 1 {
+		t.Errorf("exit code = %d, want 1", code)
+	}
+	if !hasRule(violations, "answer_contract.smalltalk") {
+		t.Errorf("no answer_contract.smalltalk violation: %v", violations)
+	}
+	if hasRule(violations, "answer_contract") {
+		t.Errorf("plain answer_contract must not fire for smalltalk: %v", violations)
+	}
+}
+
+// §4.3 negative: every smalltalk turn must demand tools/[],
+// require_active_no_call and a non-empty keyword list.
+func TestLintSmalltalkMissingOutputContainsAnyFails(t *testing.T) {
+	caseDir := copyCaseDir(t, distillCaseDir(t, "nt-5001"))
+	editCaseJSON(t, caseDir, func(caseObj map[string]any) {
+		turns, _ := caseObj["turns"].([]any)
+		turn, _ := turns[len(turns)-1].(map[string]any)
+		expect, _ := turn["expect"].(map[string]any)
+		delete(expect, "output_contains_any")
+	})
+	code, violations := runLintArgs(t, "--case", caseDir, "--vocab", DefaultVocab(),
+		"--canary-prefix", distillCanaryPrefix)
+	if code != 1 {
+		t.Errorf("exit code = %d, want 1", code)
+	}
+	if !hasRule(violations, "expect.smalltalk") {
+		t.Errorf("no expect.smalltalk violation: %v", violations)
+	}
+}
+
+// §4.1 regression: without --canary-prefix the workbank tree still lints clean
+// under the default WORKBANK-CANARY rule.
+func TestLintWorkbankDefaultCanaryClean(t *testing.T) {
+	casesRoot := filepath.Join(lab.RepoRoot(), "bench", "workbank", "cases")
+	if _, err := os.Stat(casesRoot); err != nil {
+		t.Skip("workbank cases not present")
+	}
+	code, violations := runLintArgs(t, "--cases", casesRoot, "--vocab", DefaultVocab())
+	if code != 0 || len(violations) != 0 {
+		t.Errorf("workbank lint: exit code = %d, %d violation(s): %v", code, len(violations), violations)
 	}
 }

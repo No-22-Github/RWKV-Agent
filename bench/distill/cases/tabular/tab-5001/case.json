@@ -1,0 +1,32 @@
+{
+  "id": "tab-5001",
+  "description": "Count August 2026 shipments to Canada in a warehouse export that repeats some rows. DISTILL-CANARY-3e9a07b5",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": ["TR-DUPROW"],
+    "trap_decoys": {"TR-DUPROW": 7},
+    "axes": ["OBS"],
+    "level": "L1",
+    "family": "fam-tab-harrowship-01",
+    "ref_calls": 3,
+    "fixture_bytes": 990,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:distill-drafter",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "exports/shipments_2026-08.csv": "shipment_id,ship_date,order_ref,destination_country,carrier,parcels\nHX-40211,2026-08-02,PO-88104,Canada,Purolator,2\nHX-40212,2026-08-03,PO-88107,United States,UPS,1\nHX-40213,2026-08-05,PO-88111,Canada,Canada Post,3\nHX-40214,2026-08-07,PO-88115,Mexico,DHL,1\nHX-40215,2026-08-11,PO-88120,Canada,Purolator,1\nHX-40216,2026-08-12,PO-88124,United States,FedEx,4\nHX-40215,2026-08-11,PO-88120,Canada,Purolator,1\nHX-40217,2026-08-18,PO-88131,Canada,Canada Post,2\nHX-40218,2026-08-21,PO-88136,United States,UPS,1\nHX-40219,2026-08-26,PO-88142,Canada,DHL,3\nHX-40217,2026-08-18,PO-88131,Canada,Canada Post,2\nHX-40220,2026-08-29,PO-88147,Mexico,DHL,2\nHX-40218,2026-08-21,PO-88136,United States,UPS,1\n",
+    "README.md": "# Harrowgate Cycle Supply - outbound shipments\n\nNightly export from the warehouse system, August 2026.\nOne shipment per order. The export job retried twice this month, so some rows were written more than once.\n",
+    "notes/carrier-contacts.txt": "Purolator account rep: Denise Arbour, ext 214\nCanada Post pickup window: 14:00-16:00 weekdays\n"
+  },
+  "turns": [
+    {
+      "prompt": "Harrowgate Cycle Supply needs the number of orders it shipped to Canada in August 2026 for the cross-border freight invoice. How many were there? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {"expected_number": 5, "tolerance": 0.01}
+    }
+  ]
+}

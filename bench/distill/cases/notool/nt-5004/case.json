@@ -17,7 +17,7 @@
     "level": "L1",
     "family": "fam-nt-smalltalk-01",
     "ref_calls": 0,
-    "fixture_bytes": 233,
+    "fixture_bytes": 225,
     "status": "draft",
     "version": 1,
     "author": "llm:claude-opus-5-5",
@@ -25,8 +25,8 @@
   },
   "web_fixture": [],
   "files": {
-    "README.md": "# Brightwater Analytics - team workspace\n\nShared folder for the reporting team.\n\n- reports/  monthly KPI exports\n- scripts/  small helpers for the exports\n",
-    "reports/kpi_2026q3.csv": "month,active_accounts,churned\n2026-06,1284,37\n2026-07,1312,29\n2026-08,1339,41\n"
+    "README.md": "# Silverbrook Botanics - nursery workspace\n\nShared folder for the propagation team.\n\n- inventory/  seed counts by bed\n- labels/  printable bed labels\n",
+    "inventory/seed_counts.csv": "bed,species_seed,count\nB-04,lavender,318\nB-05,santolina,207\nB-06,thyme,462\n"
   },
   "turns": [
     {

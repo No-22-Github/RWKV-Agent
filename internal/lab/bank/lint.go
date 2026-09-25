@@ -18,11 +18,20 @@ var requiredTags = []string{
 	"ref_calls", "fixture_bytes", "status", "version", "author", "reviewer",
 }
 
+// defaultCanaryPrefix is the test-bank canary. --canary-prefix overrides it
+// for trees that must not carry it (docs/distill-workflow.md §4.1).
+const defaultCanaryPrefix = "WORKBANK-CANARY"
+
 var (
 	caseIDRe  = regexp.MustCompile(`^([a-z]+)-(\d{4})$`)
-	canaryRe  = regexp.MustCompile(`WORKBANK-CANARY-[0-9a-f]{8}`)
 	notesSecs = []string{"Traps", "Reference solution", "Why the answer is unique"}
 )
+
+// canaryRegexp builds the canary matcher for one tree. The prefix is quoted so
+// a prefix containing regex metacharacters still matches literally.
+func canaryRegexp(prefix string) *regexp.Regexp {
+	return regexp.MustCompile(regexp.QuoteMeta(prefix) + `-[0-9a-f]{8}`)
+}
 
 // lintCtx is the vocabulary the checks are run against (lint.py's Ctx).
 type lintCtx struct {
@@ -37,6 +46,11 @@ type lintCtx struct {
 	contracts     map[string]string
 	contractOrder []string
 	scenarioTraps map[string][]string
+
+	// canary is this run's prefix and matcher: the flag, not the vocabulary,
+	// decides what a description must end with.
+	canaryPrefix string
+	canaryRe     *regexp.Regexp
 }
 
 type trapEntry struct {
@@ -55,6 +69,8 @@ func runLint(args []string) int {
 	fs.Var(&caseArgs, "case", "single case directory containing case.json (repeatable; overrides --cases)")
 	fix := fs.Bool("fix", false, "backfill tags.fixture_bytes from files content (nothing else is modified)")
 	vocabPath := fs.String("vocab", DefaultVocab(), "tag vocabulary file")
+	canaryPrefix := fs.String("canary-prefix", defaultCanaryPrefix,
+		"canary prefix a description must end with; when it is not "+defaultCanaryPrefix+", occurrences of that string are rejected (rule canary.foreign)")
 	if err := fs.Parse(args); err != nil {
 		return 2
 	}
@@ -64,6 +80,8 @@ func runLint(args []string) int {
 		fmt.Fprintf(os.Stderr, "error: %s\n", err)
 		return 2
 	}
+	ctx.canaryPrefix = *canaryPrefix
+	ctx.canaryRe = canaryRegexp(*canaryPrefix)
 
 	type caseJob struct {
 		dir      string
@@ -159,6 +177,7 @@ func checkCase(caseDir string, caseObj map[string]any, ctx *lintCtx, relParts []
 	bad := func(rule, detail string) {
 		*violations = append(*violations, violation(cid, rule, detail))
 	}
+	isSmalltalk := asString(tags["task_type"]) == "smalltalk"
 
 	// (a) required tag keys + enums
 	for _, key := range requiredTags {
@@ -256,17 +275,32 @@ func checkCase(caseDir string, caseObj map[string]any, ctx *lintCtx, relParts []
 		}
 	}
 
-	// (c) answer contract, byte-exact, at the end of the last prompt
+	// (c) answer contract, byte-exact, at the end of the last prompt.
+	// Small talk is the exception: a greeting followed by "Reply with only the
+	// final answer..." would teach the student to expect format instructions
+	// after every pleasantry, so a contract there is itself the violation
+	// (docs/distill-workflow.md §4.3).
 	caseExpect, _ := caseObj["expect"].(map[string]any)
 	writeCase := false
 	if caseExpect != nil {
 		writeCase = truthy(caseExpect["files"]) || truthy(caseExpect["run"])
 	}
-	required := ctx.contracts["unknown"]
-	if writeCase {
-		required = ctx.contracts["done"]
-	}
-	if len(prompts) > 0 {
+	if len(prompts) == 0 {
+		bad("answer_contract", "case has no turns")
+	} else if isSmalltalk {
+		last := prompts[len(prompts)-1]
+		for _, key := range ctx.contractOrder {
+			contract := ctx.contracts[key]
+			if contract != "" && strings.HasSuffix(last, contract) {
+				bad("answer_contract.smalltalk",
+					"smalltalk cases must not carry an answer contract; last turn prompt ends with "+pyReprValue(contract))
+			}
+		}
+	} else {
+		required := ctx.contracts["unknown"]
+		if writeCase {
+			required = ctx.contracts["done"]
+		}
 		if !strings.HasSuffix(prompts[len(prompts)-1], required) {
 			kind := "UNKNOWN"
 			if writeCase {
@@ -274,14 +308,40 @@ func checkCase(caseDir string, caseObj map[string]any, ctx *lintCtx, relParts []
 			}
 			bad("answer_contract", "last turn prompt must end with the exact "+kind+" contract")
 		}
-	} else {
-		bad("answer_contract", "case has no turns")
 	}
 
-	// (d) canary
+	// (c2) smalltalk turns answer with a direct reply that no scorer can judge
+	// by value, so each one has to pin the no-call shape explicitly (§4.3).
+	if isSmalltalk {
+		for idx, turn := range turns {
+			turnExpect, _ := turn["expect"].(map[string]any)
+			var missing []string
+			if tools, ok := turnExpect["tools"].([]any); !ok || len(tools) != 0 {
+				missing = append(missing, "expect.tools must be []")
+			}
+			if active, ok := turnExpect["require_active_no_call"].(bool); !ok || !active {
+				missing = append(missing, "expect.require_active_no_call must be true")
+			}
+			if anyOf, ok := turnExpect["output_contains_any"].([]any); !ok || len(anyOf) == 0 {
+				missing = append(missing, "expect.output_contains_any must be a non-empty array")
+			}
+			if len(missing) > 0 {
+				bad("expect.smalltalk", fmt.Sprintf("turn %d: %s", idx+1, strings.Join(missing, "; ")))
+			}
+		}
+	}
+
+	// (d) canary: the configured prefix must end the description, and a tree
+	// linted under another prefix must not carry the test-bank canary anywhere
+	// (docs/distill-workflow.md §4.1).
 	description, _ := caseObj["description"].(string)
-	if !canaryOK(description) {
-		bad("canary", "description must end with WORKBANK-CANARY-<8 lowercase hex>")
+	if !canaryOK(description, ctx.canaryRe) {
+		bad("canary", fmt.Sprintf("description must end with %s-<8 lowercase hex>", ctx.canaryPrefix))
+	}
+	if ctx.canaryPrefix != defaultCanaryPrefix {
+		for _, item := range foreignCanaryViolations(description, caseDir, ctx.canaryPrefix) {
+			bad(item[0], item[1])
+		}
 	}
 
 	// (e) level rule
@@ -299,7 +359,8 @@ func checkCase(caseDir string, caseObj map[string]any, ctx *lintCtx, relParts []
 		}
 	}
 
-	// (g) trap_decoys present and != expected answer (null allowed for write cases)
+	// (g) trap_decoys present and != expected answer (null allowed for write
+	// cases and for smalltalk, which is judged by keyword, not by value)
 	decoys := anyMap(tags["trap_decoys"])
 	var expectedAnswers []any
 	for _, turn := range turns {
@@ -322,7 +383,7 @@ func checkCase(caseDir string, caseObj map[string]any, ctx *lintCtx, relParts []
 			continue
 		}
 		if value == nil {
-			if !writeCase {
+			if !writeCase && !isSmalltalk {
 				bad("trap_decoys", fmt.Sprintf("trap_decoys[%s] is null but the case has a single-value expectation", trap))
 			}
 			continue
@@ -413,9 +474,13 @@ func checkCase(caseDir string, caseObj map[string]any, ctx *lintCtx, relParts []
 		}
 	}
 
-	// (k) verify.py + NOTES.md
-	for _, item := range verifyPyViolations(caseDir) {
-		bad(item[0], item[1])
+	// (k) verify.py + NOTES.md. Small talk has no answer a script could
+	// recompute, so verify.py is not required there (docs/distill-workflow.md
+	// §4.3).
+	if !isSmalltalk {
+		for _, item := range verifyPyViolations(caseDir) {
+			bad(item[0], item[1])
+		}
 	}
 	for _, item := range notesViolations(caseDir, scenario) {
 		bad(item[0], item[1])
@@ -467,6 +532,8 @@ func loadLintCtx(vocabPath string) (*lintCtx, error) {
 		statuses:      map[string]struct{}{},
 		contracts:     map[string]string{},
 		scenarioTraps: map[string][]string{},
+		canaryPrefix:  defaultCanaryPrefix,
+		canaryRe:      canaryRegexp(defaultCanaryPrefix),
 	}
 	for _, entryAny := range anySlice(m["scenarios"]) {
 		entry := anyMap(entryAny)
@@ -523,9 +590,10 @@ func loadLintCtx(vocabPath string) (*lintCtx, error) {
 }
 
 // canaryOK mirrors Python's CANARY_RE.search(description), where "$" also
-// matches just before a single trailing newline.
-func canaryOK(description string) bool {
-	for _, loc := range canaryRe.FindAllStringIndex(description, -1) {
+// matches just before a single trailing newline. The regexp carries this
+// run's prefix (--canary-prefix).
+func canaryOK(description string, re *regexp.Regexp) bool {
+	for _, loc := range re.FindAllStringIndex(description, -1) {
 		if loc[1] == len(description) {
 			return true
 		}

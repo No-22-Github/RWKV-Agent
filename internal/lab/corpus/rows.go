@@ -8,6 +8,7 @@ import (
 	"sort"
 
 	"github.com/no22/RWKV-Agent/internal/agent/eval"
+	"github.com/no22/RWKV-Agent/internal/lab"
 )
 
 // Turn a scripted agent-eval run into training rows. This is the former
@@ -30,10 +31,14 @@ import (
 
 // RowsArgs are the `corpus rows` flags.
 type RowsArgs struct {
-	Run         string
-	Script      string
-	Out         string
-	Rejects     string
+	Run     string
+	Script  string
+	Cases   string
+	Source  string
+	Out     string
+	Rejects string
+	// RequirePass drops cases whose teacher trajectory fails the case's own
+	// expectations.
 	RequirePass bool
 }
 
@@ -58,6 +63,29 @@ func RunRows(args RowsArgs) int {
 	if args.Run == "" || args.Script == "" || args.Out == "" {
 		fmt.Fprintln(stderr, "error: --run, --script and --out are required")
 		return 2
+	}
+	if args.Cases == "" {
+		fmt.Fprintln(stderr, "error: --cases is required: every row's labels come from the case it was rendered from")
+		return 2
+	}
+	if args.Source == "" {
+		fmt.Fprintln(stderr, "error: --source is required: a row without a source cannot be told apart from another batch's")
+		return 1
+	}
+	bankCases, err := Load(args.Cases)
+	if err != nil {
+		fmt.Fprintf(stderr, "rows: %v\n", err)
+		return 1
+	}
+	cases, err := ByID(bankCases)
+	if err != nil {
+		fmt.Fprintf(stderr, "rows: %v\n", err)
+		return 1
+	}
+	world, err := lab.OpenWorld()
+	if err != nil {
+		fmt.Fprintf(stderr, "rows: %v\n", err)
+		return 1
 	}
 	entries, err := eval.LoadScript(args.Script)
 	if err != nil {
@@ -108,7 +136,20 @@ func RunRows(args RowsArgs) int {
 			rejects = append(rejects, rowsReject{result.ID, buildErr.Error()})
 			continue
 		}
+		caseObj, ok := cases[result.ID]
+		if !ok {
+			fmt.Fprintf(stderr, "rows: script entry %s has no case under %s\n", result.ID, args.Cases)
+			return 1
+		}
+		caseTags, seeded := TagsFromCase(caseObj)
+		runExpect := truthy(mapValue(caseObj, "expect"))
+		turnsTotal := len(caseTurns(caseObj))
+		if turnsTotal == 0 {
+			turnsTotal = len(turns[result.ID])
+		}
 		for _, built := range texts {
+			traj := BuildTraj(entry.Outputs, built.FirstOutput, built.Generations, built.Turn,
+				turnsTotal, world.Count(built.Text), turnExpect(caseObj, built.Turn))
 			row := eval.CorpusRow{
 				Text:      built.Text,
 				LossSpans: built.LossSpans,
@@ -122,6 +163,11 @@ func RunRows(args RowsArgs) int {
 					WireCanonical:  wires[result.ID][0],
 					WireHash:       wires[result.ID][1],
 					HarnessVersion: manifest.Harness.Version,
+					Source:         args.Source,
+					SeededFromTest: seeded,
+					CaseTags:       caseTags,
+					Traj:           traj,
+					Kind:           DeriveKind(caseTags, traj, built.Turn, runExpect),
 				},
 			}
 			line, err := json.Marshal(row)

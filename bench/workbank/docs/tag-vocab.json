@@ -22,7 +22,7 @@
     "code": ["locate_definition", "find_callers", "count_markers", "fix_edge_case", "explain_readonly", "report_test_result"],
     "web": ["latest_version", "deprecation", "error_meaning", "lookup_value"],
     "hybrid": ["web_then_edit", "web_then_calc", "local_first", "multi_turn"],
-    "notool": ["concept", "snippet_in_reply", "unit_convert", "stable_fact", "ambiguous_request", "beyond_capability"]
+    "notool": ["concept", "snippet_in_reply", "unit_convert", "stable_fact", "ambiguous_request", "beyond_capability", "smalltalk"]
   },
   "traps": {
     "TR-NUMFMT": { "definition": "数值带格式", "axis": "OBS", "forbidden_words": ["thousands", "currency symbol", "formatted"] },

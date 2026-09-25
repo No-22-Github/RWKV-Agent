@@ -31,6 +31,57 @@ type CorpusMeta struct {
 	WireCanonical  string `json:"wire_canonical,omitempty"`
 	WireHash       string `json:"wire_hash,omitempty"`
 	HarnessVersion string `json:"harness_version,omitempty"`
+	// Source names the dataset the row came from ("base700", "distill-b01"),
+	// so rows from several batches can be told apart after they are packed.
+	Source string `json:"source"`
+	// SeededFromTest reports whether the case was derived from a test-bank
+	// seed (records mode) . Cases written for distillation are never seeded.
+	SeededFromTest bool `json:"seeded_from_test"`
+	// CaseTags is the case's label block, normalised for records.
+	CaseTags CaseTags `json:"case_tags"`
+	// Traj describes what the trajectory actually did in this row's turn.
+	Traj TrajStats `json:"traj"`
+	// Kind is Traj's behaviour class (direct, local, web, write, script,
+	// refuse, clarify, smalltalk), derived by docs/distill-workflow.md §4.4.2.
+	Kind string `json:"kind"`
+}
+
+// CaseTags is the label block a training row carries. Cleaning, mixing and
+// post-training analysis group by these fields, so a row never has to be
+// joined back to its case to be classified.
+type CaseTags struct {
+	Scenario  string     `json:"scenario"`
+	TaskType  string     `json:"task_type"`
+	Traps     []string   `json:"traps"`
+	Level     *string    `json:"level"`
+	Family    string     `json:"family"`
+	Behaviors []string   `json:"behaviors"`
+	Origin    *TagOrigin `json:"origin,omitempty"`
+}
+
+// TagOrigin keeps the raw record labels normalised CaseTags were derived
+// from, so a mapping decision can be re-audited without the source records.
+type TagOrigin struct {
+	ParentSeedID string   `json:"parent_seed_id"`
+	Branch       string   `json:"branch"`
+	Split        string   `json:"split"`
+	BehaviorTags []string `json:"behavior_tags"`
+}
+
+// TrajStats is what the model did in one row's turn. Tool counts cover the
+// turn's supervised outputs only; UnsupervisedOutputs counts the ones marked
+// context-only (a recovery prefix), which are replayed but never trained.
+type TrajStats struct {
+	TurnsTotal          int      `json:"turns_total"`
+	ToolCalls           int      `json:"tool_calls"`
+	ToolSeq             []string `json:"tool_seq"`
+	ZeroCall            bool     `json:"zero_call"`
+	Web                 bool     `json:"web"`
+	Local               bool     `json:"local"`
+	Writes              bool     `json:"writes"`
+	UnsupervisedOutputs int      `json:"unsupervised_outputs"`
+	FinalKind           string   `json:"final_kind"`
+	Tokens              int      `json:"tokens"`
 }
 
 // roleBoundaries end an assistant block inside a rendered transcript.
@@ -49,6 +100,9 @@ type CorpusText struct {
 	Turn        int
 	Generations int
 	Supervised  int
+	// FirstOutput is the index of the turn's first script output, so a caller
+	// can recover the outputs (and their supervised flags) a row covers.
+	FirstOutput int
 }
 
 // BuildCorpusText assembles one case's training text from the generations
@@ -104,6 +158,7 @@ func BuildCorpusTurns(calls []ModelCallTrace, turns []int, entry ScriptEntry) ([
 			return nil, err
 		}
 		text.Turn = turns[start]
+		text.FirstOutput = start
 		texts = append(texts, text)
 		start = end
 	}

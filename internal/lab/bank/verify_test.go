@@ -125,3 +125,83 @@ func mustReadFile(t *testing.T, path string) []byte {
 	}
 	return data
 }
+
+// §4.3: a smalltalk case has no independently computable answer, so a missing
+// verify.py is a skip, not a failure. Every other task type still fails.
+func TestVerifySkipsSmalltalkWithoutVerifyPy(t *testing.T) {
+	requirePython3(t)
+	dir := t.TempDir()
+	smalltalk := filepath.Join(dir, "nt-9001")
+	writeCase(t, smalltalk, map[string]any{
+		"task_type": "smalltalk", "scenario": "notool",
+	})
+	concept := filepath.Join(dir, "nt-9002")
+	writeCase(t, concept, map[string]any{
+		"task_type": "concept", "scenario": "notool",
+	})
+
+	out, code := captureOutput(t, func() int {
+		return runVerify([]string{"--cases", dir})
+	})
+	if code != 1 {
+		t.Errorf("exit code = %d, want 1 (only the concept case should fail)", code)
+	}
+	var report struct {
+		Passed  int `json:"passed"`
+		Failed  int `json:"failed"`
+		Results []struct {
+			Case   string `json:"case"`
+			OK     bool   `json:"ok"`
+			Checks []struct {
+				Check   string `json:"check"`
+				OK      bool   `json:"ok"`
+				Warning string `json:"warning"`
+				Error   string `json:"error"`
+			} `json:"checks"`
+		} `json:"results"`
+	}
+	if err := json.Unmarshal([]byte(out), &report); err != nil {
+		t.Fatalf("report is not JSON: %v\n%s", err, out)
+	}
+	if report.Passed != 1 || report.Failed != 1 {
+		t.Fatalf("passed/failed = %d/%d, want 1/1\n%s", report.Passed, report.Failed, out)
+	}
+	for _, result := range report.Results {
+		switch result.Case {
+		case "nt-9001":
+			if !result.OK {
+				t.Errorf("smalltalk case failed: %+v", result.Checks)
+			}
+			if len(result.Checks) != 1 || result.Checks[0].Warning != "verify_skipped_smalltalk" {
+				t.Errorf("smalltalk checks = %+v, want the skip warning", result.Checks)
+			}
+		case "nt-9002":
+			if result.OK {
+				t.Error("a concept case without verify.py passed; only smalltalk is exempt")
+			}
+		default:
+			t.Errorf("unexpected case in report: %s", result.Case)
+		}
+	}
+}
+
+func writeCase(t *testing.T, dir string, tags map[string]any) {
+	t.Helper()
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	caseObj := map[string]any{
+		"id":          filepath.Base(dir),
+		"description": "test case " + filepath.Base(dir),
+		"tags":        tags,
+		"files":       map[string]any{},
+		"turns":       []any{map[string]any{"prompt": "hi", "expect": map[string]any{"tools": []any{}}}},
+	}
+	data, err := json.MarshalIndent(caseObj, "", "  ")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "case.json"), data, 0o644); err != nil {
+		t.Fatal(err)
+	}
+}

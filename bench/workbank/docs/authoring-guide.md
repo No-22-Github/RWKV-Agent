@@ -25,7 +25,7 @@
 | code | `locate_definition` `find_callers` `count_markers` `fix_edge_case` `explain_readonly` `report_test_result` | 函数定义在哪、谁调用了它、修边界 bug、测试到底过没过 |
 | web | `latest_version` `deprecation` `error_meaning` `lookup_value` | 某库最新版本、某接口是否弃用、报错含义、文档里的默认值 |
 | hybrid | `web_then_edit` `web_then_calc` `local_first` `multi_turn` | 查最新版本改 requirements、按官网税率算本地账单、答案本地就有 |
-| notool | `concept` `snippet_in_reply` `unit_convert` `stable_fact` `ambiguous_request` `beyond_capability` | 解释概念、回复里给代码片段、单位换算、需求歧义要反问、要求发邮件 |
+| notool | `concept` `snippet_in_reply` `unit_convert` `stable_fact` `ambiguous_request` `beyond_capability` `smalltalk` | 解释概念、回复里给代码片段、单位换算、需求歧义要反问、要求发邮件；`smalltalk` 为问候、道谢、「你是谁」「你能做什么」这类闲聊，无答案契约、不要求 verify.py |
 
 新增 task_type 须先改 `tag-vocab.json` 并在本表登记。
 

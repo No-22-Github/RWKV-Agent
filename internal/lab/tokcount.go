@@ -16,6 +16,23 @@ import (
 // defaultVocab is the shipped vocabulary.
 const defaultVocab = "third_party/rwkv-mobile/assets/rwkv_vocab_v20230424.txt"
 
+// OpenWorld opens the shipped World vocabulary, resolving the path against
+// the repository root fallback the CLI uses.
+func OpenWorld() (*tokenizer.World, error) {
+	path := defaultVocab
+	if _, err := os.Stat(path); err != nil {
+		if candidate := filepath.Join(RepoRoot(), path); fileExists(candidate) {
+			path = candidate
+		}
+	}
+	return tokenizer.OpenWorldCached(path)
+}
+
+func fileExists(path string) bool {
+	info, err := os.Stat(path)
+	return err == nil && !info.IsDir()
+}
+
 // RunTokcount is the `tokcount` command.
 func RunTokcount(vocab string, paths []string) int {
 	if vocab == "" {

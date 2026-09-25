@@ -15,6 +15,7 @@ usage: rwkv-lab corpus <command> [flags]
   render     replay a script through the eval harness -> training rows
   rows       cut training rows out of a scripted run's trace
   decontam   flag candidates that are too close to the test bank
+  pack       validate rows and pack a dataset directory
 `
 
 // Run dispatches a corpus subcommand.
@@ -32,6 +33,8 @@ func Run(args []string) int {
 		return runRowsCmd(args[1:])
 	case "decontam":
 		return runDecontamCmd(args[1:])
+	case "pack":
+		return runPackCmd(args[1:])
 	case "-h", "--help", "help":
 		fmt.Print(usage)
 		return 0
@@ -86,6 +89,8 @@ func runRowsCmd(argv []string) int {
 		"Cut training rows out of a scripted agent-eval run's trace.")
 	fs.StringVar(&args.Run, "run", "", "agent-eval output directory (run.json, summary.json, trace.jsonl)")
 	fs.StringVar(&args.Script, "script", "", "the JSONL script the run replayed")
+	fs.StringVar(&args.Cases, "cases", "", "bank directory holding the cases the run replayed (labels, expectations)")
+	fs.StringVar(&args.Source, "source", "", "dataset name every row records, e.g. base700 (required)")
 	fs.StringVar(&args.Out, "out", "", "new JSONL file for the rendered rows")
 	fs.StringVar(&args.Rejects, "rejects", "", "optional JSONL file listing rejected cases and why")
 	fs.BoolVar(&args.RequirePass, "require-pass", true,
@@ -103,6 +108,9 @@ func renderFlagSet(args *RenderArgs) *flag.FlagSet {
 	fs.StringVar(&args.Cases, "cases", "", "bank directory the --script case IDs resolve against")
 	fs.StringVar(&args.Script, "script", "", "replay script (paths command output)")
 	fs.StringVar(&args.Out, "out", "", "new output directory")
+	fs.StringVar(&args.Source, "source", "", "dataset name every row records, e.g. base700 (required)")
+	fs.StringVar(&args.TagMap, "tag-map", DefaultTagMap(),
+		"records mode: label normalisation map (task types, behaviours)")
 	fs.StringVar(&args.CLI, "cli", filepath.Join(RepoRoot(), "bin", "rwkv-cli"), "rwkv-cli binary")
 	fs.IntVar(&args.Parallelism, "parallelism", 32, "agent-eval case parallelism")
 	fs.BoolVar(&args.AllowTestBank, "allow-test-bank", false,

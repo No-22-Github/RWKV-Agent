@@ -44,6 +44,8 @@ type RenderArgs struct {
 	Script        string
 	Out           string
 	CLI           string
+	Source        string
+	TagMap        string
 	Parallelism   int
 	AllowTestBank bool
 	KeepFailing   bool
@@ -57,6 +59,12 @@ func RunRender(args RenderArgs) int {
 	if hasRecords == hasCasesOrScript || (args.Cases != "") != (args.Script != "") {
 		fmt.Fprintln(stderr, "error: give either --records, or both --cases and --script")
 		return 2
+	}
+	// --source has no default on purpose: a default would silently label a
+	// batch with the wrong origin, and every row carries the field.
+	if args.Source == "" {
+		fmt.Fprintln(stderr, "error: --source is required (the dataset name every row records, e.g. base700 or distill-b01)")
+		return 1
 	}
 	if args.Cases != "" && IsTestBank(args.Cases) && !args.AllowTestBank {
 		fmt.Fprintf(stderr, "error: --cases %s is the test bank; distill from a separate bank "+
@@ -72,12 +80,40 @@ func RunRender(args RenderArgs) int {
 			fmt.Fprintln(stderr, err)
 			return 2
 		}
+		tagMap, err := LoadTagMap(args.TagMap)
+		if err != nil {
+			fmt.Fprintln(stderr, err)
+			return 2
+		}
+		vocab, err := LoadVocab(DefaultVocab())
+		if err != nil {
+			fmt.Fprintln(stderr, err)
+			return 2
+		}
+		testBank, err := TestBankIDs()
+		if err != nil {
+			fmt.Fprintln(stderr, err)
+			return 2
+		}
+		seeded := 0
 		for _, record := range records {
 			caseObj, err := RecordToCase(record)
 			if err != nil {
 				fmt.Fprintln(stderr, err)
 				return 2
 			}
+			tags, err := tagMap.NormalizeRecord(record, vocab)
+			if err != nil {
+				fmt.Fprintln(stderr, err)
+				return 1
+			}
+			fromTest := testBank[mapString(record, "parent_seed_id")]
+			if fromTest {
+				seeded++
+			}
+			// The label block travels with the case so `corpus rows` can read
+			// it back without joining against the records.
+			caseObj.Set("tags", CaseTagsValue(tags, fromTest))
 			cases = append(cases, caseObj)
 			entry, err := RecordToScript(record)
 			if err != nil {
@@ -86,6 +122,7 @@ func RunRender(args RenderArgs) int {
 			}
 			entries = append(entries, scriptEntryOrdered(entry))
 		}
+		fmt.Fprintf(stderr, "records: %d case(s), %d seeded from a test-bank case\n", len(cases), seeded)
 	} else {
 		var err error
 		entries, err = ReadJSONL(args.Script)
@@ -144,7 +181,7 @@ func RunRender(args RenderArgs) int {
 		fmt.Fprintln(stderr, "agent-eval produced no trace")
 		return 1
 	}
-	code := cutRows(runDir, scriptPath, args.Out, args.KeepFailing)
+	code := cutRows(runDir, scriptPath, args.Out, args.Source, args.KeepFailing)
 	if len(unloadable) > 0 {
 		rows := make([]*lab.OrderedMap, 0, len(unloadable))
 		for _, item := range unloadable {
@@ -201,10 +238,12 @@ func replay(cli, scriptPath, casesPath, runDir string, parallelism int, extra []
 	_ = cmd.Run()
 }
 
-func cutRows(runDir, scriptPath, out string, keepFailing bool) int {
+func cutRows(runDir, scriptPath, out, source string, keepFailing bool) int {
 	args := RowsArgs{
 		Run:         runDir,
 		Script:      scriptPath,
+		Cases:       filepath.Join(out, "cases"),
+		Source:      source,
 		Out:         filepath.Join(out, "rows.jsonl"),
 		Rejects:     filepath.Join(out, "rejects.jsonl"),
 		RequirePass: !keepFailing,

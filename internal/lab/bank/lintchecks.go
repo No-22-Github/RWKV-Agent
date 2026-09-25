@@ -61,6 +61,31 @@ var (
 	noteItemRe     = regexp.MustCompile(`^\s*(?:\d+[.)]|\*|-)\s+(\S.*?)\s*$`)
 )
 
+// foreignCanaryViolations ports the §4.1 guard: when a tree is linted under a
+// canary prefix other than WORKBANK-CANARY, the test-bank canary must not
+// survive anywhere in the case. Its meaning is "test case, keep out of the
+// training corpus", so a distillation case carrying it would either trip the
+// downstream leak scan or, worse, train everyone to ignore it.
+func foreignCanaryViolations(description, caseDir, prefix string) [][2]string {
+	var out [][2]string
+	check := func(where, text string) {
+		if strings.Contains(text, defaultCanaryPrefix) {
+			out = append(out, [2]string{"canary.foreign",
+				fmt.Sprintf("%s contains %s; use the configured canary prefix %s-<8 lowercase hex> instead",
+					where, defaultCanaryPrefix, prefix)})
+		}
+	}
+	check("description", description)
+	for _, name := range []string{"verify.py", "NOTES.md"} {
+		text, err := lab.ReadText(filepath.Join(caseDir, name))
+		if err != nil {
+			continue // a missing file is reported by its own rule
+		}
+		check(name, text)
+	}
+	return out
+}
+
 // verifyPyViolations ports lint.py's verify_py_violations: verify.py must exist,
 // parse, import only the standard library, and read its own case.json.
 func verifyPyViolations(caseDir string) [][2]string {

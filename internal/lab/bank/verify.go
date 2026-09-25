@@ -93,6 +93,13 @@ func runVerify(args []string) int {
 	return 0
 }
 
+// isSmalltalkCase reports whether the case is small talk, the task type the
+// answer-contract and verify rules do not apply to.
+func isSmalltalkCase(caseObj map[string]any) bool {
+	taskType, _ := tagsOf(caseObj)["task_type"].(string)
+	return taskType == "smalltalk"
+}
+
 // verifyCase runs the two checks for one case dir and returns its report entry.
 func verifyCase(caseDir string) *lab.OrderedMap {
 	casePath := filepath.Join(caseDir, "case.json")
@@ -110,6 +117,14 @@ func verifyCase(caseDir string) *lab.OrderedMap {
 		caseID = filepath.Base(caseDir)
 	}
 	if !fileExists(filepath.Join(caseDir, "verify.py")) {
+		if isSmalltalkCase(caseObj) {
+			// A smalltalk case has no independently computable answer -- its
+			// expectation is a word list, not a value -- so there is nothing
+			// for a verify.py to recompute (§4.3). Reported as a skip, the way
+			// the sabotage test skips fixtures it cannot corrupt.
+			return resultEntry(caseID, true, []*lab.OrderedMap{
+				check("verify_py", true, map[string]any{"warning": "verify_skipped_smalltalk"})})
+		}
 		return resultEntry(caseID, false, []*lab.OrderedMap{
 			check("verify_py", false, map[string]any{"error": "verify.py missing"})})
 	}
