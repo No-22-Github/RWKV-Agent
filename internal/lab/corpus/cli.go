@@ -16,6 +16,7 @@ usage: rwkv-lab corpus <command> [flags]
   rows       cut training rows out of a scripted run's trace
   decontam   flag candidates that are too close to the test bank
   pack       validate rows and pack a dataset directory
+  loadcheck  load a bank through the real eval loader (unknown fields are fatal)
 `
 
 // Run dispatches a corpus subcommand.
@@ -35,6 +36,8 @@ func Run(args []string) int {
 		return runDecontamCmd(args[1:])
 	case "pack":
 		return runPackCmd(args[1:])
+	case "loadcheck":
+		return runLoadcheckCmd(args[1:])
 	case "-h", "--help", "help":
 		fmt.Print(usage)
 		return 0

@@ -1,6 +1,7 @@
 package corpus
 
 import (
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -388,5 +389,30 @@ func TestDeriveKindTreatsOnlyRunExpectAsScript(t *testing.T) {
 	scriptCase.Set("expect", expect)
 	if !caseHasRunExpect(scriptCase) {
 		t.Error("expect.run was not detected")
+	}
+}
+
+// b02 lost a teacher pass to a hand-written case field: lint and verify never
+// look at unknown keys, but the eval loader rejects them, and agent-eval then
+// refuses the whole bank.
+func TestLoadcheckRejectsAnUnknownField(t *testing.T) {
+	dir := t.TempDir()
+	caseDir := filepath.Join(dir, "notool", "nt-9001")
+	if err := os.MkdirAll(caseDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	valid := `{"id":"nt-9001","description":"probe DISTILL-CANARY-00000000","files":{},"turns":[{"prompt":"hi","expect":{"tools":[]}}]}`
+	if err := os.WriteFile(filepath.Join(caseDir, "case.json"), []byte(valid), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if code := RunLoadcheck(LoadcheckArgs{Cases: dir}); code != 0 {
+		t.Fatalf("valid bank exited %d, want 0", code)
+	}
+	if err := os.WriteFile(filepath.Join(caseDir, "case.json"),
+		[]byte(`{"id":"nt-9001","description":"probe","files":{},"turns":[],"answer_once":true}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if code := RunLoadcheck(LoadcheckArgs{Cases: dir}); code != 1 {
+		t.Errorf("unknown field exited %d, want 1 (%s)", code, valid)
 	}
 }

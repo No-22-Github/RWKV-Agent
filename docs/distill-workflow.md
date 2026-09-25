@@ -272,9 +272,11 @@ bin/rwkv-lab bank lint --canary-prefix DISTILL-CANARY --cases bench/distill/case
 bin/rwkv-lab bank verify --cases bench/distill/cases                                # 退出码 0
 bin/rwkv-lab bank dedup --cases bench/distill/cases                                 # 无命中；有命中则改措辞或删一题
 for d in bench/distill/cases/{web,hybrid}/*/; do bin/rwkv-lab bank hitcheck --case "$d"; done   # 每题 5/5
+bin/rwkv-lab corpus loadcheck --cases bench/distill/cases                # 真 loader 预检（2026-09-25 加）
 ```
 
 `verify` 的 `sabotage_undetected` **是硬失败，不是警告**（反例 X-011）。修法见 §2.3「答案值的字面量」。
+`loadcheck` **是 S4 前的最后一道闸门**：lint 只看 tag 词表、verify 只跑脚本，两者都不查未知字段，而 agent-eval 的 loader 用 `DisallowUnknownFields`——b02 有一道题带了自写的 `answer_once` 字段，三轮老师跑当场全灭（`load Agent eval cases: decode … unknown field`），排查花了十几分钟。这一步 5 秒钟。
 
 ### S3 去污染
 
