@@ -1,0 +1,41 @@
+{
+  "id": "log-5001",
+  "description": "Count the batches a nightly manifest transmission run left undelivered, with the previous night's rotated journal sitting in the same directory. DISTILL-CANARY-9318077c",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 12
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-manifest-01",
+    "ref_calls": 3,
+    "fixture_bytes": 3644,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# manifest-push\n\nOvernight job that ships Quillbrook stock manifests to Ridgeway Freight in\nbatches. Every line is `<UTC time> <level> <message>`.\n\nRefusals caused by a server-side or rate-limit condition are retried inside the\nsame run, at most three attempts. A batch still refused on its third attempt\nends the run undelivered, and so does a batch rejected for a payload problem,\nwhich is parked on the first attempt. Each undelivered batch gets exactly one\nterminal line:\n\n    batch <id> undelivered reason=<reason>\n\nA batch that gets through on a later attempt is delivered.\n\nThe journal rotates to manifest-push.log.1 when the next run starts, so\nmanifest-push.log holds the most recent run.\n",
+    "logs/manifest-push.log": "2026-09-15T02:00:09Z WARN  batch B-7302 undelivered reason=payload_too_large\n2026-09-15T02:00:14Z INFO  batch B-7311 transmitting lines=1187\n2026-09-15T02:00:19Z WARN  batch B-7311 transmission refused status=503 attempt=1 retry_in=30s\n2026-09-15T02:00:52Z WARN  batch B-7311 transmission refused status=503 attempt=2 retry_in=60s\n2026-09-15T02:01:55Z INFO  batch B-7311 delivered lines=1187\n2026-09-15T02:02:03Z INFO  batch B-7324 transmitting lines=964\n2026-09-15T02:02:08Z WARN  batch B-7324 transmission refused status=429 attempt=1 retry_in=30s\n2026-09-15T02:02:41Z WARN  batch B-7324 transmission refused status=429 attempt=2 retry_in=60s\n2026-09-15T02:03:44Z WARN  batch B-7324 transmission refused status=429 attempt=3 retry_in=120s\n2026-09-15T02:04:47Z WARN  batch B-7324 undelivered reason=attempts_exhausted\n2026-09-15T02:06:07Z INFO  batch B-7349 transmitting lines=733\n2026-09-15T02:06:12Z ERROR batch B-7349 transmission refused status=400 attempt=1\n2026-09-15T02:06:14Z WARN  batch B-7349 undelivered reason=payload_rejected\n2026-09-15T02:06:22Z INFO  batch B-7356 transmitting lines=2048\n2026-09-15T02:06:27Z WARN  batch B-7356 transmission refused status=502 attempt=1 retry_in=30s\n2026-09-15T02:07:00Z INFO  batch B-7356 delivered lines=2048\n2026-09-15T02:07:09Z INFO  batch B-7361 transmitting lines=512\n2026-09-15T02:07:14Z WARN  batch B-7361 transmission refused status=503 attempt=1 retry_in=30s\n2026-09-15T02:07:47Z WARN  batch B-7361 transmission refused status=503 attempt=2 retry_in=60s\n2026-09-15T02:08:50Z WARN  batch B-7361 transmission refused status=503 attempt=3 retry_in=120s\n2026-09-15T02:09:53Z WARN  batch B-7361 undelivered reason=attempts_exhausted\n2026-09-15T02:10:06Z ERROR batch B-7377 transmission refused status=422 attempt=1\n2026-09-15T02:10:08Z WARN  batch B-7377 undelivered reason=payload_rejected\n2026-09-15T02:10:28Z INFO  batch B-7390 transmitting lines=640\n2026-09-15T02:10:33Z WARN  batch B-7390 transmission refused status=500 attempt=1 retry_in=30s\n2026-09-15T02:11:06Z INFO  batch B-7390 delivered lines=640\n2026-09-15T02:11:11Z INFO  run complete skus=12734\n",
+    "logs/manifest-push.log.1": "2026-09-14T02:00:11Z WARN  batch B-7203 undelivered reason=payload_too_large\n2026-09-14T02:01:08Z INFO  batch B-7226 transmitting lines=1320\n2026-09-14T02:01:13Z WARN  batch B-7226 transmission refused status=503 attempt=1 retry_in=30s\n2026-09-14T02:02:49Z WARN  batch B-7226 transmission refused status=503 attempt=3 retry_in=120s\n2026-09-14T02:04:52Z WARN  batch B-7226 undelivered reason=attempts_exhausted\n2026-09-14T02:06:09Z WARN  batch B-7240 undelivered reason=payload_rejected\n2026-09-14T02:06:35Z WARN  batch B-7268 transmission refused status=502 attempt=1 retry_in=30s\n2026-09-14T02:07:51Z WARN  batch B-7268 undelivered reason=attempts_exhausted\n2026-09-14T02:08:37Z WARN  batch B-7285 transmission refused status=429 attempt=2 retry_in=60s\n2026-09-14T02:09:40Z WARN  batch B-7285 undelivered reason=attempts_exhausted\n"
+  },
+  "turns": [
+    {
+      "prompt": "Quillbrook Office Supply's overnight manifest push to Ridgeway Freight ran on 15 September 2026. How many batches did that run leave undelivered? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 5,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

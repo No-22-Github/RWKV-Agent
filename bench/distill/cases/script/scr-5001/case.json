@@ -1,0 +1,52 @@
+{
+  "id": "scr-5001",
+  "description": "The studio statement script bills kiln loads the firing room marked void; bring the printed statement in line with the billing terms. DISTILL-CANARY-8bad58ab",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_output",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": "TOTAL,10,210.00"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-scr-kilnlog-01",
+    "ref_calls": 4,
+    "fixture_bytes": 2217,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Alder Carr Pottery - firing room records\n\nEvery kiln load is written to a CSV in firings/ by the tablet in the kiln room.\nColumns: fired_on, client, shelves, charge_pence, status.\n\nA row appears as soon as the load is booked. If the kiln is never lit for it,\nor the client withdraws first, the row stays in the log with status void and\nthe studio raises no charge for it. Loads that went through the kiln carry\nstatus billed.\n\n## Statement\n\nstatement.py walks firings/ and prints the statement the studio sends out: one\nline per client, then a totals line.\n\n    <client>,<billed loads>,<amount>\n    TOTAL,<billed loads>,<amount>\n\nClients come out in name order, and amounts are printed in pounds with two\ndecimals, as the sample shows.\n\n    Kiln Corner Pottery,2,17.50\n    TOTAL,2,17.50\n",
+    "statement.py": "\"\"\"Print the Alder Carr Pottery studio statement.\n\nWalks the firing room logs in firings/ and prints one line per client,\nfollowed by a totals line.\n\"\"\"\nimport csv\nimport os\n\nLOGS = os.path.join(os.path.dirname(os.path.abspath(__file__)), \"firings\")\n\n\ndef pounds(pence):\n    return \"%d.%02d\" % (pence // 100, pence % 100)\n\n\ndef log_rows():\n    rows = []\n    for name in sorted(os.listdir(LOGS)):\n        if name.endswith(\".csv\"):\n            with open(os.path.join(LOGS, name), newline=\"\") as handle:\n                rows.extend(csv.DictReader(handle))\n    return rows\n\n\ndef main():\n    loads = {}\n    amounts = {}\n    for row in log_rows():\n        # a cancelled load is never charged\n        if row[\"status\"] == \"voided\":\n            continue\n        client = row[\"client\"]\n        loads[client] = loads.get(client, 0) + 1\n        amounts[client] = amounts.get(client, 0) + int(row[\"charge_pence\"])\n    for client in sorted(loads):\n        print(\"%s,%d,%s\" % (client, loads[client], pounds(amounts[client])))\n    print(\"TOTAL,%d,%s\" % (sum(loads.values()), pounds(sum(amounts.values()))))\n\n\nmain()\n",
+    "firings/2026-09.csv": "fired_on,client,shelves,charge_pence,status\n2026-09-02,Bergamot Studio,3,2625,billed\n2026-09-04,Corvid Ceramics,2,1750,billed\n2026-09-09,Bergamot Studio,4,3500,void\n2026-09-11,Thistle and Fern,1,875,billed\n2026-09-17,Corvid Ceramics,3,2625,billed\n2026-09-22,Thistle and Fern,2,1750,void\n2026-09-24,Bergamot Studio,2,1750,billed\n"
+  },
+  "expect": {
+    "files": {
+      "firings/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "statement.py",
+      "expected_stdout": "Bergamot Studio,3,52.50\nCorvid Ceramics,3,61.25\nThistle and Fern,1,8.75\nTOTAL,7,122.50",
+      "hidden_files": {
+        "firings/2026-10.csv": "fired_on,client,shelves,charge_pence,status\n2026-10-01,Corvid Ceramics,2,1750,billed\n2026-10-06,Thistle and Fern,4,3500,void\n2026-10-08,Bergamot Studio,1,875,billed\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Our statement script prints figures that are higher than the invoices we raised last period, and the accountant has started asking why. Fix statement.py so the statement it prints is the one we can hand to clients, and keep it working for the logs we add in later periods. The log in firings/ is our record of what came through the kiln room, so it stays as it is. When finished, reply DONE.",
+      "expect": {}
+    }
+  ]
+}

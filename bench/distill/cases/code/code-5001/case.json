@@ -1,0 +1,43 @@
+{
+  "id": "code-5001",
+  "description": "Count the settlement lines in the payments package that still carry a frozen-calendar marker. DISTILL-CANARY-f7133cd3",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "count_markers",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 7
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-code-markerpin-01",
+    "ref_calls": 4,
+    "fixture_bytes": 3222,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "payments/__init__.py": "# LEDGER-PINNED: exports stay pinned to the 2024-11 cutover calendar\n\"\"\"Settlement helpers for the Northwind payments service.\"\"\"\n\nfrom payments.settlement import Settlement, settle_batch\nfrom payments.window import CutoverWindow\n\n__all__ = [\"CutoverWindow\", \"Settlement\", \"settle_batch\"]\n",
+    "payments/settlement.py": "\"\"\"Batch settlement against the pinned cutover calendar.\"\"\"\n\nfrom dataclasses import dataclass\nfrom datetime import date\nfrom decimal import Decimal\n\nfrom payments.window import CutoverWindow\n\n\n@dataclass(frozen=True)\nclass Settlement:\n    batch_id: str\n    booked_on: date\n    net: Decimal\n\n\ndef settle_batch(batch_id: str, booked_on: date, window: CutoverWindow, net: Decimal) -> Settlement:\n    \"\"\"Book one batch inside the pinned window.\"\"\"\n    # LEDGER-PINNED: booking still goes through the frozen calendar object\n    if not window.covers(booked_on):\n        raise ValueError(\"booking date outside the pinned window: %s\" % booked_on)\n    return Settlement(batch_id=batch_id, booked_on=window.shift(booked_on), net=net)\n\n\ndef settlement_slip(settlement: Settlement) -> str:\n    \"\"\"Render the fixed-format slip the ledger contract expects.\"\"\"\n    # LEDGER-PINNED: the slip layout is fixed by the ledger contract\n    return \",\".join([settlement.batch_id, settlement.booked_on.isoformat(), str(settlement.net)])\n",
+    "payments/window.py": "\"\"\"Bookable date arithmetic for settlement batches.\"\"\"\n\nfrom dataclasses import dataclass\nfrom datetime import date, timedelta\n\nCUTOVER_EPOCH = date(2024, 11, 1)\nMAX_SLIP_DAYS = 3\n\n\n@dataclass(frozen=True)\nclass CutoverWindow:\n    \"\"\"The date span a batch may be booked into.\"\"\"\n\n    start: date\n    days: int = MAX_SLIP_DAYS\n\n    def covers(self, booked_on: date) -> bool:\n        return self.start <= booked_on < self.start + timedelta(days=self.days)\n\n    def shift(self, booked_on: date) -> date:\n        \"\"\"Move bookings that fall outside the pinned window.\"\"\"\n        # LEDGER-PINNED: the ledger rejects bookings dated past the epoch window\n        if booked_on < CUTOVER_EPOCH:\n            return CUTOVER_EPOCH\n        return booked_on\n",
+    "payments_legacy/__init__.py": "\"\"\"Frozen copy of the payments settlement code as it stood before the 2025-03 migration.\n\nKept beside payments/ for audit reference only; nothing imports this package.\n\"\"\"\n",
+    "payments_legacy/settlement.py": "\"\"\"Archived settlement module from the 2024-11 cutover.\"\"\"\n\nfrom dataclasses import dataclass\nfrom datetime import date\nfrom decimal import Decimal\n\n\n@dataclass(frozen=True)\nclass Settlement:\n    batch_id: str\n    booked_on: date\n    net: Decimal\n\n\ndef settle_batch(batch_id: str, booked_on: date, net: Decimal) -> Settlement:\n    # LEDGER-PINNED: legacy calendar object, replaced by CutoverWindow\n    epoch = date(2024, 11, 1)\n    if booked_on < epoch:\n        raise ValueError(\"booking date predates the cutover: %s\" % booked_on)\n    return Settlement(batch_id=batch_id, booked_on=booked_on, net=net)\n\n\ndef shift_booking(booked_on: date) -> date:\n    # LEDGER-PINNED: legacy epoch shift kept for the audit trail\n    epoch = date(2024, 11, 1)\n    return epoch if booked_on < epoch else booked_on\n\n\ndef slip(settlement: Settlement) -> str:\n    # LEDGER-PINNED: legacy slip order, net before the booking date\n    return \"%s,%s,%s\" % (settlement.batch_id, settlement.net, settlement.booked_on.isoformat())\n"
+  },
+  "turns": [
+    {
+      "prompt": "Northwind Payments pinned its settlement calendar at the 2024-11 ledger cutover and is now retiring it. Lines that still depend on that pinned calendar carry a LEDGER-PINNED annotation. How many lines in the payments package carry that annotation? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 4,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

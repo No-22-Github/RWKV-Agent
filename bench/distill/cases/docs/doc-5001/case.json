@@ -1,0 +1,42 @@
+{
+  "id": "doc-5001",
+  "description": "Return window for the hive bodies on a trade confirmation, where the sales terms give goods shown against a build number their own window. DISTILL-CANARY-85896f53",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-RULEFILE"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": 30
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-doc-salesterms-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1627,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Ferngrove Apiaries - trade counter\n\nReference set for the 2026 season:\n\n- terms/terms-of-sale.md - conditions printed on every confirmation we issue\n- terms/packing-and-freight.md - carriage and packing charges\n- orders/SC-2291-thistlebank.md - confirmation issued to Thistlebank Honey\n",
+    "orders/SC-2291-thistlebank.md": "# Sales confirmation SC-2291\n\nCustomer: Thistlebank Honey, Ledbury\nOrder received: 2026-08-03\nDelivered: 2026-08-11\n\nLines\n- 12 x Langstroth deep hive body, cedar, drilled for frame runners - build BN-7714\n- 60 x wired foundation sheet, deep\n- 4 x hive strap, stainless\n\nCarriage is billed separately; see the packing and freight sheet.\n",
+    "terms/packing-and-freight.md": "# Packing and carriage\n\nCarriage is charged at cost for trade counter customers.\n\n- Orders under 40 kg: 9.50 per consignment\n- Orders of 40 kg or more: 24.00 per consignment\n- Pallet deliveries are quoted per run\n\nPacking materials are not refundable.\n",
+    "terms/terms-of-sale.md": "# Ferngrove Apiaries - terms of sale\n\nEffective 1 March 2026. These conditions are printed on every sales confirmation.\n\n## 5. Payment\n\nTrade accounts are invoiced on dispatch. Late payment suspends further dispatch.\n\n## 6. Returns and refunds\n\n6.1 Stock goods ordered from the catalogue may be returned within 30 days of delivery.\n6.2 Anything shown against a build number on the confirmation is cut, drilled or assembled to the customer's specification and may be returned within 21 days of delivery.\n6.3 Queen bees and nucleus colonies are not returnable.\n6.4 Refunds are paid to the original payment method once the goods are back at the yard.\n\n## 7. Warranty\n\nExtractors and uncapping tanks carry a two-year warranty against faulty workmanship.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Thistlebank Honey has asked to send back the hive bodies listed on confirmation SC-2291. How many days after delivery may they still return those hive bodies for a refund? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 21,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "id": "hyb-5001",
+  "description": "Total Ravensbourne Freight charge for the September 2026 Bellhaven despatches, joining the depot despatch log with the per-kilogram rates that apply to those dates. DISTILL-CANARY-c1131e67",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_calc",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": 3631.5
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-tariffcard-01",
+    "ref_calls": 4,
+    "fixture_bytes": 798,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [
+    {
+      "query_match": "ravensbourne",
+      "url": "https://freight-archive.example.net/ravensbourne/rate-card-february-2026",
+      "url_match": "freight-archive.example.net/ravensbourne/rate-card-february-2026",
+      "title": "Ravensbourne Freight rate card, February 2026 edition (archive copy)",
+      "snippet": "Archived copy of the Ravensbourne Freight rate card published in February 2026, kept by the Bellhaven freight users group for reference.",
+      "content": "# Ravensbourne Freight rate card - February 2026 edition\n\nArchive copy kept by the Bellhaven freight users group. The carrier withdrew this\nedition at the end of May 2026.\n\nEffective 1 February 2026 to 31 May 2026.\n\n| destination zone | rate per chargeable kg |\n| --- | --- |\n| Zone 1 | 2.95 |\n| Zone 2 | 4.10 |\n\nQuestions about this edition: freight.users@bellhaven.example\n",
+      "published_at": "2026-02-10"
+    },
+    {
+      "query_match": "ravensbourne",
+      "url": "https://ravensbourne-freight.example/rate-card",
+      "url_match": "ravensbourne-freight.example/rate-card",
+      "title": "Ravensbourne Freight - rate card",
+      "snippet": "Ravensbourne Freight rate card: charges per destination zone, with the edition in use from the middle of 2026.",
+      "content": "# Ravensbourne Freight - rate card\n\nEffective 1 June 2026 until further notice. This edition replaces every earlier\nrate card.\n\nCharges are billed per consignment as chargeable weight multiplied by the rate\nfor the destination zone.\n\n| destination zone | rate per chargeable kg |\n| --- | --- |\n| Zone 1 | 3.20 |\n| Zone 2 | 4.75 |\n\nRate queries: rates@ravensbourne-freight.example\n",
+      "published_at": "2026-06-01"
+    }
+  ],
+  "files": {
+    "depot/despatch-log-2026-09.csv": "consignment,despatch_date,destination_zone,chargeable_kg\nKP-4102,2026-09-03,Zone 2,118\nKP-4103,2026-09-05,Zone 1,240\nKP-4104,2026-09-08,Zone 2,145\nKP-4105,2026-09-11,Zone 1,132\nKP-4106,2026-09-15,Zone 2,82\nKP-4107,2026-09-18,Zone 1,96\nKP-4108,2026-09-22,Zone 2,130\nKP-4109,2026-09-26,Zone 2,74\n",
+    "README.md": "# Kestrel Preserves - Bellhaven depot despatch log\n\nOne row per consignment collected at Bellhaven in September 2026.\nchargeable_kg is the weight Ravensbourne Freight bills on.\n\nRavensbourne bills each consignment as chargeable_kg multiplied by the\nper-kilogram rate for its destination zone in the carrier's published rate card.\n",
+    "notes/depot-handover.txt": "Bellhaven depot handover notes\n\nNight shift: loading bay doors need swipe card 2.\nPallet scales recalibrated on 2026-08-19 by T. Okonjo.\nSpare shrink wrap in aisle 4, bay C.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Kestrel Preserves is checking the Ravensbourne Freight charges for its September 2026 despatches out of the Bellhaven depot. What was the total charge in pounds for those despatches, at the per-kilogram rates that applied in September 2026? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 4105.35,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

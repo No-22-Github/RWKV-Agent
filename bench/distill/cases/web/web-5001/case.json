@@ -1,0 +1,56 @@
+{
+  "id": "web-5001",
+  "description": "Delivery attempt count for one Sablehook webhook event under the policy in force; an older guide still states the retired schedule. DISTILL-CANARY-12bdd753",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": 3
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-web-docdrift-01",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "sablehook",
+      "url": "https://docs.sablehook.example/guides/webhook-retry-schedule",
+      "url_match": "docs.sablehook.example/guides/webhook-retry-schedule",
+      "title": "Webhook retry schedule - Sablehook guides",
+      "snippet": "How Sablehook spaces delivery attempts for events that do not succeed on the first try.",
+      "content": "# Webhook retry schedule\n\nSablehook guides, updated 2025-10-08.\n\nA delivery counts as failed when the receiver does not return an HTTP 2xx response within 10 seconds. Sablehook makes up to 3 delivery attempts for each event, spacing them 30 seconds apart. After the third failed attempt the delivery is marked exhausted and no further attempts are made.\n\nRetries are not billed separately; every attempt is covered by the event's delivery charge.\n",
+      "published_at": "2025-10-08"
+    },
+    {
+      "query_match": "sablehook",
+      "url": "https://docs.sablehook.example/reference/delivery-policy",
+      "url_match": "docs.sablehook.example/reference/delivery-policy",
+      "title": "Delivery policy - Sablehook reference",
+      "snippet": "Attempt counts and backoff windows for webhook delivery, revised in the 2026 platform update.",
+      "content": "# Delivery policy\n\nSablehook reference, revised 2026-08-19.\n\nSablehook makes up to 6 delivery attempts for each event, spacing them 1, 5, 25, 125 and 625 seconds apart. A delivery that fails on the sixth attempt is marked exhausted and no further attempts are made.\n\nThis policy replaces the 3-attempt schedule published on 2025-10-08, which no longer applies.\n",
+      "published_at": "2026-08-19"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "Sablehook's webhook delivery policy is quoted in our on-call runbook. How many delivery attempts does one event get under the policy that is in force today? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 6,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

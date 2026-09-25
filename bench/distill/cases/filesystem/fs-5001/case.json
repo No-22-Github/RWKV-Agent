@@ -1,0 +1,41 @@
+{
+  "id": "fs-5001",
+  "description": "One of the three evening sheets in a venue folder is a byte-for-byte copy of the Friday sheet, and a near copy differs by a single character. DISTILL-CANARY-678dd59e",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "duplicates",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "screening-mon.txt"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-fs-twinfile-01",
+    "ref_calls": 4,
+    "fixture_bytes": 1292,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "Fernbrook Screen - front desk folder\n\nThe duty coordinator writes the evening sheet before the doors open and\nleaves a printed copy at the front desk. Sheets stay in this folder until\nthe season ends, then they are boxed and sent to the venue office.\n",
+    "screening-fri.txt": "Fernbrook Screen - evening sheet\n\nDoors 19:15, feature 20:00.\nProjectionist: Marek Ostrand\nFront of house: Priya Nandakumar, Tom Reilly\nBar float: 120.00 taken at 18:50.\nAccess: captions on reel 2; hearing loop checked at 15:40.\nHouse lights: 40 percent at doors, 10 percent at feature.\nEmergency: dial 01632 960 418 and ask for the duty manager.\n",
+    "screening-mon.txt": "Fernbrook Screen - evening sheet\n\nDoors 19:15, feature 20:00.\nProjectionist: Marek Ostrand\nFront of house: Priya Nandakumar, Tom Reilly\nBar float: 120.00 taken at 18:20.\nAccess: captions on reel 2; hearing loop checked at 15:40.\nHouse lights: 40 percent at doors, 10 percent at feature.\nEmergency: dial 01632 960 418 and ask for the duty manager.\n",
+    "screening-sat.txt": "Fernbrook Screen - evening sheet\n\nDoors 19:15, feature 20:00.\nProjectionist: Marek Ostrand\nFront of house: Priya Nandakumar, Tom Reilly\nBar float: 120.00 taken at 18:50.\nAccess: captions on reel 2; hearing loop checked at 15:40.\nHouse lights: 40 percent at doors, 10 percent at feature.\nEmergency: dial 01632 960 418 and ask for the duty manager.\n"
+  },
+  "turns": [
+    {
+      "prompt": "One of the other files in this folder is a byte-for-byte copy of `screening-fri.txt`. Which file is it? Report the file name. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "screening-sat.txt"
+      }
+    }
+  ]
+}

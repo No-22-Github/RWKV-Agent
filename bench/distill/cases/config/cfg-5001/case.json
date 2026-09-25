@@ -1,0 +1,43 @@
+{
+  "id": "cfg-5001",
+  "description": "Effective cache size for the customer-facing production deployment of a telemetry intake service whose settings come from shipped defaults, a profile file and the deployment environment. DISTILL-CANARY-081de869",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-PRECEDENCE"
+    ],
+    "trap_decoys": {
+      "TR-PRECEDENCE": 384
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-layering-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1516,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# ingest-gateway\n\nThe ingest-gateway is the intake service for Tidepool Analytics: it accepts\ntelemetry batches from customer agents, validates them, and hands them to the\nnightly pipeline.\n\n## Settings\n\nA setting has exactly one value at run time. That value comes from the first\nsource below that defines it:\n\n1. the process environment, which the platform runner fills from\n   `deploy/<deployment>.env` before the service starts;\n2. the deployment profile, `config/<deployment>.yaml`;\n3. the shipped defaults, `config/defaults.yaml`.\n\nA key that a higher source leaves unset falls through to the next one, so a\ndeployment only lists the settings it changes.\n\n| setting | environment variable |\n| --- | --- |\n| cache_size_mb | INGEST_CACHE_MB |\n| request_timeout_s | INGEST_REQUEST_TIMEOUT_S |\n| worker_threads | INGEST_WORKERS |\n| log_level | INGEST_LOG_LEVEL |\n\nThe customer-facing `production` deployment is started by the platform runner,\nwhich exports every variable in `deploy/production.env` into the service\nprocess environment.\n",
+    "config/defaults.yaml": "cache_size_mb: 256\nrequest_timeout_s: 30\nworker_threads: 8\nlog_level: warn\n",
+    "config/production.yaml": "cache_size_mb: 384\nrequest_timeout_s: 45\nworker_threads: 12\n",
+    "deploy/production.env": "# exported into the service process environment by the platform runner\nINGEST_CACHE_MB=576\nINGEST_REQUEST_TIMEOUT_S=45\nINGEST_LOG_LEVEL=debug\n",
+    "docs/oncall.md": "# On-call notes\n\nIntake pages come from the platform runner when the validation queue backs up\nfor more than an hour. Restarts are safe: the gateway replays the current batch\nfrom the staging bucket.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Tidepool Analytics is rolling out the ingest-gateway to the customer-facing production deployment this week, and the capacity review needs one number: the cache size, in megabytes, that the gateway will actually run with in production. What is it? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 576,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}
