@@ -152,3 +152,4 @@ agent-eval 原本把窗口写死为 10ms，2026-09-23 起开放 `--remote-batch-
 | 决策步预算默认 512，截断自发思考 | 2026-09-23 阶段 1 首档 85/148 协议无效 | 本文 §5；闸门查 `decision_max_output_tokens` |
 | 单题超时默认 2 分钟，高并发下成批掐断 | 2026-09-23 阶段 1 首档 56/148 | 本文 §5；`sweep.py` 固定 30m |
 | workbank 的 firstcall=auto 让 `--strict-spec` 误拒 | 2026-09-23 探针 | 已修：文本传输下 `MatchPreset` 忽略该惰性轴 |
+| md-fence 解析器把终答在第一个围栏处截断 | 2026-09-22 dsflash 基线 18 次终答被切，`code-0008` 因此判失败（`scr-0016` 3134→138 字符） | 已修（harness **v22**，`internal/agent/g1_functions_parser.go`：围栏只在包工具调用时才是信封）。**v21 及更早的 API 模型分数不能与 v22 直接比较**；学生 g1k 走 xml 解析器不受影响 |

@@ -142,7 +142,7 @@ func RunRows(args RowsArgs) int {
 			return 1
 		}
 		caseTags, seeded := TagsFromCase(caseObj)
-		runExpect := truthy(mapValue(caseObj, "expect"))
+		runExpect := caseHasRunExpect(caseObj)
 		turnsTotal := len(caseTurns(caseObj))
 		if turnsTotal == 0 {
 			turnsTotal = len(turns[result.ID])

@@ -37,6 +37,96 @@ func looksLikeG1FunctionFence(value string) bool {
 	return false
 }
 
+// callEnvelopeKeys are the keys a tool call is spelled with inside a fenced
+// envelope. A fence is framing only when its body is a JSON object carrying
+// one of them; every other fence is answer content.
+var callEnvelopeKeys = []string{"name", "arguments", "function", "tool", "tool_calls", "command", "cmd"}
+
+// fencedToolCall returns the JSON payload of a fenced tool-call envelope
+// anywhere in value, and whether one was found.
+//
+// The md-fence transcript wraps a tool call in a ``` or ```json fence, and a
+// model may put the envelope after a line of prose ("I will read the file:").
+// Only a fence whose body starts with "{" and spells a call counts: a fence
+// around a table, a CSV block or a code sample is answer content and must
+// survive verbatim. Before harness v22 the parser dropped everything from the
+// first fence on, which silently truncated answers that ended with a fenced
+// block (and lost a fenced call that followed prose).
+func fencedToolCall(value string) (string, bool) {
+	for _, opener := range []string{"```json", "```"} {
+		for search := 0; search < len(value); {
+			index := strings.Index(value[search:], opener)
+			if index < 0 {
+				break
+			}
+			start := search + index
+			search = start + len(opener)
+			body := strings.TrimLeft(value[start+len(opener):], " \t\r\n")
+			if !strings.HasPrefix(body, "{") {
+				continue
+			}
+			if end := strings.Index(body, "```"); end >= 0 {
+				body = body[:end]
+			}
+			payload := strings.TrimSpace(body)
+			if fencedBodyIsToolCall(payload) {
+				return payload, true
+			}
+		}
+	}
+	return "", false
+}
+
+// fencedBodyIsToolCall reports whether a fence body is a tool-call envelope.
+// A body that is broken JSON while still spelling a call key counts: a
+// malformed call must fail the protocol, not quietly turn into an answer made
+// of the surrounding prose.
+func fencedBodyIsToolCall(payload string) bool {
+	var object map[string]json.RawMessage
+	if json.Unmarshal([]byte(payload), &object) == nil {
+		for _, key := range callEnvelopeKeys {
+			if _, ok := object[key]; ok {
+				return true
+			}
+		}
+		return false
+	}
+	for _, key := range callEnvelopeKeys {
+		if strings.Contains(payload, `"`+key+`"`) {
+			return true
+		}
+	}
+	return false
+}
+
+// unwrapLeadingFence strips a leading fence opener and cuts at the next
+// fence. It is the pre-v22 unwrapping, kept for the two shapes that still
+// have to fail the protocol the way they always did: a malformed leading
+// fence in the product transcript, and every non-product caller, whose
+// envelope is a fence without a body the caller can inspect.
+func unwrapLeadingFence(candidate string) string {
+	candidate = strings.TrimPrefix(candidate, "```json")
+	candidate = strings.TrimPrefix(candidate, "```")
+	candidate = strings.TrimSpace(candidate)
+	if index := strings.Index(candidate, "```"); index >= 0 {
+		candidate = strings.TrimSpace(candidate[:index])
+	}
+	return candidate
+}
+
+// standaloneTextAction is the terminal path for a response that carries no
+// tool call: a final answer, an output-token-limit abort, or a protocol error
+// when the response is empty.
+func standaloneTextAction(candidate string, finish continuation.FinishReason) (Action, error) {
+	if finish == continuation.FinishLength {
+		return Action{}, ErrOutputTokenLimit
+	}
+	if candidate == "" {
+		return Action{}, fmt.Errorf("%w: empty G1 function response", ErrProtocol)
+	}
+	return Action{Type: ActionTypeFinal, Content: candidate}, nil
+}
+
 func (protocol G1FunctionProtocol) Parse(value string, finish continuation.FinishReason) (Action, error) {
 	candidate := strings.TrimSpace(value)
 	repairs := &repairLog{}
@@ -54,9 +144,9 @@ func (protocol G1FunctionProtocol) Parse(value string, finish continuation.Finis
 		candidate = strings.TrimSpace(candidate[index+len("</think>"):])
 		markRepair(wire.RepairThinkStripped, ProtocolFailureToolEnvelopeMissing)
 	}
-	if protocol.Product && strings.HasPrefix(candidate, "```") && !looksLikeG1FunctionFence(candidate) {
-		return Action{Type: ActionTypeFinal, Content: candidate}, nil
-	}
+	// Markdown fences are handled after the envelopes below: the product
+	// transcript wraps a call in a fence, but a fence is framing only when it
+	// wraps one (see fencedToolCall).
 	if start := strings.Index(candidate, "<tool_calls>"); start >= 0 {
 		body := candidate[start+len("<tool_calls>"):]
 		if end := strings.Index(body, "</tool_calls>"); end >= 0 {
@@ -79,20 +169,27 @@ func (protocol G1FunctionProtocol) Parse(value string, finish continuation.Finis
 		candidate = strings.TrimSpace(candidate)
 		markRepair(wire.RepairEnvelopeRecovered, ProtocolFailureToolEnvelopeMissing)
 	}
-	candidate = strings.TrimPrefix(candidate, "```json")
-	candidate = strings.TrimPrefix(candidate, "```")
-	candidate = strings.TrimSpace(candidate)
-	if index := strings.Index(candidate, "```"); index >= 0 {
-		candidate = strings.TrimSpace(candidate[:index])
+	if protocol.Product {
+		// A fence is framing only when it wraps a tool call. Any other fence
+		// belongs to the answer, which is returned whole: the product
+		// transcript teaches models to answer in ordinary Markdown, so a
+		// fenced table or code block in a final answer is expected output, not
+		// a malformed envelope (harness v22).
+		if payload, ok := fencedToolCall(candidate); ok {
+			candidate = payload
+		} else if looksLikeG1FunctionFence(candidate) {
+			// An unterminated ```json fence with no object body: a call the
+			// model failed to finish. Keep the pre-v22 unwrapping so it still
+			// fails the protocol rather than turning into an answer.
+			candidate = unwrapLeadingFence(candidate)
+		} else if !strings.HasPrefix(candidate, "{") {
+			return standaloneTextAction(candidate, finish)
+		}
+	} else {
+		candidate = unwrapLeadingFence(candidate)
 	}
 	if !strings.HasPrefix(candidate, "{") {
-		if finish == continuation.FinishLength {
-			return Action{}, ErrOutputTokenLimit
-		}
-		if candidate == "" {
-			return Action{}, fmt.Errorf("%w: empty G1 function response", ErrProtocol)
-		}
-		return Action{Type: ActionTypeFinal, Content: candidate}, nil
+		return standaloneTextAction(candidate, finish)
 	}
 	repaired := repairG1FunctionJSON(candidate)
 	var call struct {

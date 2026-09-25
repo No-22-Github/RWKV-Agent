@@ -357,3 +357,30 @@ func recordObject(id, scenario string, behaviorTags []any, seedID string) *lab.O
 	record.Set("instance_group_id", "grp-"+scenario+"-0001-anchor")
 	return record
 }
+
+// §4.4.2 rule 5 names expect.run: a case-level expect.files (with max_calls)
+// is a write case, not a script case.
+func TestDeriveKindTreatsOnlyRunExpectAsScript(t *testing.T) {
+	writeCase := lab.NewOrderedMap()
+	files := lab.NewOrderedMap()
+	files.Set("reports/totals.csv", lab.NewOrderedMap())
+	maxCalls := lab.NewOrderedMap()
+	maxCalls.Set("web_search", 1)
+	expect := lab.NewOrderedMap()
+	expect.Set("files", files)
+	expect.Set("max_calls", maxCalls)
+	writeCase.Set("expect", expect)
+	if caseHasRunExpect(writeCase) {
+		t.Error("expect.files alone was read as expect.run")
+	}
+
+	scriptCase := lab.NewOrderedMap()
+	run := lab.NewOrderedMap()
+	run.Set("path", "statement.py")
+	expect = lab.NewOrderedMap()
+	expect.Set("run", run)
+	scriptCase.Set("expect", expect)
+	if !caseHasRunExpect(scriptCase) {
+		t.Error("expect.run was not detected")
+	}
+}

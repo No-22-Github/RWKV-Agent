@@ -507,6 +507,19 @@ func containsString(list []string, value string) bool {
 	return false
 }
 
+// caseHasRunExpect reports whether the case grades a script run. §4.4.2 rule 5
+// names expect.run: a case-level expect.files or expect.max_calls on its own
+// does not make a row a script row (a write case that is also capped on calls
+// is still a write).
+func caseHasRunExpect(caseObj *lab.OrderedMap) bool {
+	caseExpect, _ := mapValue(caseObj, "expect").(*lab.OrderedMap)
+	if caseExpect == nil {
+		return false
+	}
+	run, ok := caseExpect.Get("run")
+	return ok && run != nil
+}
+
 // caseTurns lists a case's turns as they are written in case.json.
 func caseTurns(caseObj *lab.OrderedMap) []*lab.OrderedMap {
 	items, _ := mapValue(caseObj, "turns").([]any)

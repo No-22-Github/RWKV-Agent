@@ -46,6 +46,12 @@ UNKNOWN 早退降到 1–2 题、web 检索率升到 15–16/16，**同一套系
 | **code-0008** | 1过1挂 | 输出停在 `The actual code is:` ——正要贴代码被截断；且它写的 `only *claims* to reject repeat references` 是正确诊断，判据词表仍未覆盖 "claims" |
 | **web-0005** | 1过1挂 | `required tool "web_search" was not called` + UNKNOWN。抖动项 |
 
+> **2026-09-25 更正（code-0008）**：上面把它归成「正要贴代码被截断」，真正的原因是 **harness 的 md-fence 解析器**——
+> `internal/agent/g1_functions_parser.go` 会把模型输出从**第一个** Markdown 围栏处切断（围栏在这套 wire 里是工具调用信封的语法），
+> 于是老师贴代码前的 `The actual code is:` 之后整段被解析器丢掉，与模型的输出长度、与判据词表都无关（"claims" 词表未覆盖是另一个独立问题）。
+> 同一批还有 **17 次**终答被同样截断（其中 14 次是 script 题，`scr-0016` 从 3134 字符被切到 138 字符），只是那些题截断后仍恰好判通过，所以当时没有暴露。
+> 已修（harness **v22**，围栏只在包工具调用时才算信封）；修复前（v21 及更早）的 API 模型分数与 v22 不可直接比较，见 `docs/evaluations/benchmark-protocol.md` §9。
+
 ### 步数预算不足（script 家族，3 道）
 
 三道都是 `tool_calls` 13–15（上限 16）且 `forced_answers: 1`，即**被强制收尾**：
