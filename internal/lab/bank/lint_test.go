@@ -285,3 +285,39 @@ func captureOutput(t *testing.T, fn func() int) (string, int) {
 	data, _ := io.ReadAll(r)
 	return string(data), code
 }
+
+// --fix must write the computed byte count into tags.fixture_bytes. The first
+// port wrote the top-level (absent) key instead, so every fixed case came back
+// with fixture_bytes: null and failed the next lint.
+func TestLintFixBackfillsFixtureBytes(t *testing.T) {
+	caseDir := makeLintCase(t, t.TempDir(), lintTestBody, lintCaseOptions{})
+	path := filepath.Join(caseDir, "case.json")
+	var caseObj map[string]any
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := json.Unmarshal(raw, &caseObj); err != nil {
+		t.Fatal(err)
+	}
+	caseObj["files"] = map[string]any{"rates.txt": "ingest 2.5 MiB/s\n"}
+	writeJSON(t, path, caseObj)
+
+	captureOutput(t, func() int {
+		return runLint([]string{"--fix", "--case", caseDir, "--vocab", DefaultVocab()})
+	})
+	raw, err = os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var fixed map[string]any
+	if err := json.Unmarshal(raw, &fixed); err != nil {
+		t.Fatal(err)
+	}
+	if got := fixed["tags"].(map[string]any)["fixture_bytes"]; got != float64(17) {
+		t.Fatalf("fixture_bytes after --fix = %v, want 17", got)
+	}
+	if _, violations := runLintCase(t, caseDir); hasRule(violations, "fixture_bytes") {
+		t.Fatalf("lint still reports fixture_bytes after --fix: %v", violations)
+	}
+}

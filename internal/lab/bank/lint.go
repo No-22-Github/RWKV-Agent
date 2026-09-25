@@ -616,7 +616,7 @@ func writeCaseIndented(path string, caseObj map[string]any) {
 	if om, ok := ordered.(*lab.OrderedMap); ok {
 		if tags, ok := om.Get("tags"); ok {
 			if tm, ok := tags.(*lab.OrderedMap); ok {
-				tm.Set("fixture_bytes", caseObj["fixture_bytes"])
+				tm.Set("fixture_bytes", tagsOf(caseObj)["fixture_bytes"])
 			}
 		}
 	}
