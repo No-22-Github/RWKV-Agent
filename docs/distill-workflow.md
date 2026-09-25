@@ -408,7 +408,7 @@ rwkv-lab corpus pack --rows <rows.jsonl> [--rows …] [--exclude <jsonl>] (--out
 |---|---|
 | 读入 | 多个 rows.jsonl 按参数顺序拼接；`--exclude` 里的 `case_id`（形如 `tab-5003--p1`）对应的所有行（多轮题的每一轮）剔除 |
 | 闸门（任一不满足则退出码 1，不写任何文件） | ① 全部行 `meta.wire_hash` 只有一个值；② 每行 `text` 的 token 数 ≤ `--max-tokens`（用 `internal/tokenizer` 的 World 词表，与 `rwkv-lab tokcount` 同一实现）；③ 任何 `text` 中不含 `WORKBANK-CANARY` 和 `DISTILL-CANARY`（canary 只该出现在 description 和 verify.py，出现在模型可见文本里就说明 fixture 有问题）；④ 没有两行 `text` 完全相同（按 sha256） |
-| 统计（stdout，`--dry-run` 也打印） | 行数；按场景（case_id 前缀）分的行数；按 `meta.turn` 分的行数；**零调用行占比**（本行 loss span 覆盖的文本里没有 `<tool_call>`）；token p50 / p99 / max；剔除行数 |
+| 统计（stdout，`--dry-run` 也打印） | 行数；按场景（case_id 前缀）分的行数；按 `meta.turn` 分的行数；**零调用行占比**（本行 loss span 覆盖的文本里没有 `<tool_call>`）；token p50 / p99 / max；剔除行数；**按 `meta.kind`、`meta.source` 分的行数**（§4.4） |
 | `--out` 产物 | `train.jsonl`（`{"text": …}`）、`rows.jsonl`（原样）、`manifest.json`：`{inputs:[{path, sha256, rows}], exclude:{path, sha256, removed}, wire_hash, harness_version, rows, tokens:{p50,p99,max}, zero_call_share, created_at}`；目录已存在则拒绝 |
 | 测试 | 各闸门一条**负向**测试：两种 wire_hash 混合、超长行、含 canary 的行、重复行，每条都必须退出 1 |
 
@@ -430,6 +430,137 @@ rwkv-lab corpus pack --rows <rows.jsonl> [--rows …] [--exclude <jsonl>] (--out
 - lint 对 `task_type == "smalltalk"`：**禁止**出现答案契约（出现就报 `answer_contract.smalltalk`）；不要求 verify.py；允许 `trap_decoys` 为 null；
   **要求**每轮 `expect` 同时有 `"tools": []`、`"require_active_no_call": true` 和非空的 `output_contains_any`。
 - 测试：`nt-5001..5005` 在 `--canary-prefix DISTILL-CANARY` 下 0 违规；**负向**：给 nt-5001 加上答案契约必须报错；删掉 nt-5001 的 `output_contains_any` 必须报错。
+
+### 4.4 训练行标签（`meta.source` / `case_tags` / `traj` / `kind`）
+
+现状（2026-09-25 实测）：题目有标签，但训练行没有。蒸馏题的 `case.json` 有 `tags`；700 条源记录有 `scenario` 和 44 种混杂的 `behavior_tags`。
+可是 `rows.jsonl` 的 `meta` 只有 `case_id`/`turn`/`passed`/`wire_hash` 这类技术字段，render 写出的中间 `case.json` 也不带 tags。
+目标：**每一行自带标签**，清洗、配比、训练后分类看效果都直接 group by，不用回源关联。
+
+**硬约束：只动 `meta`。** `text` 与 `loss_spans` 必须逐字节不变，`wire_hash` 不变。验收时对 base700 新旧两次渲染逐行比较 `text`，670 行必须全部相同。
+
+#### 4.4.1 字段
+
+```json
+"meta": {
+  "case_id": "…", "turn": 1, "passed": true, "…原有字段…": "…",
+  "source": "base700",
+  "seeded_from_test": true,
+  "case_tags": {
+    "scenario": "filesystem",
+    "task_type": "find_file",
+    "traps": [],
+    "level": null,
+    "family": "grp-fs-0001-b1",
+    "behaviors": ["multi_hop", "answer_exact_text"],
+    "origin": {"parent_seed_id": "fs-0001", "branch": "b1", "split": "train",
+               "behavior_tags": ["lookup_value", "exact_text", "multi_hop", "no_tool_closeout"]}
+  },
+  "traj": {
+    "turns_total": 1,
+    "tool_calls": 3,
+    "tool_seq": ["list_files", "read_file", "read_file"],
+    "zero_call": false,
+    "web": false,
+    "local": true,
+    "writes": false,
+    "unsupervised_outputs": 0,
+    "final_kind": "value",
+    "tokens": 2310
+  },
+  "kind": "local"
+}
+```
+
+| 字段 | 来源与规则 |
+|---|---|
+| `source` | render 新增**必填** flag `--source <名字>`（`base700`、`distill-b01`…）；不给就报错退出，**不设默认值**（有默认值就会出现一批标错来源的数据） |
+| `seeded_from_test` | records 模式：`parent_seed_id` 在 `bench/workbank/cases` 或 `cases-shelved` 里存在就是 true（base700 应当 670/670 为 true）；cases 模式：一律 false |
+| `case_tags` | cases 模式：原样取自 `case.json` 的 `tags`，只保留 `scenario task_type traps level family`，另加 `behaviors: []`；records 模式：按 4.4.3 规范化 |
+| `traj` | 由 `corpus rows` 从**本行**（本轮）的脚本输出计算：`tool_calls`、`tool_seq` 只统计本轮的 `supervised` 输出；`unsupervised_outputs` 统计本轮 `supervised:false` 的输出（base700 的 119 条恢复前缀在这里为正数）；`tokens` 用 World 词表数 `text` 的 token |
+| `traj.web` / `local` / `writes` | `web` = 用过 `web_search` 或 `web_fetch`；`writes` = 用过 `write_file`、`replace_lines` 或 `append_file`；`local` = 用过除 web 类、写类、`calculator`、`datetime` 之外的任何工具 |
+| `traj.final_kind` | 本轮最后一次输出 `strip()` 后：等于 `UNKNOWN` → `unknown`；等于 `DONE` → `done`；本轮 `expect` 有 `expected_number` 或 `output_equals` → `value`；其余 → `text`。本轮最后一次输出是工具调用时（多轮题的中间轮）→ `none` |
+| `kind` | 按 4.4.2 推导 |
+
+#### 4.4.2 `kind` 推导（自上而下，取第一个命中的）
+
+| # | 条件 | `kind` |
+|---|---|---|
+| 1 | `task_type == "smalltalk"` | `smalltalk` |
+| 2 | `zero_call` 且（`task_type == "beyond_capability"` 或 `traps` 含 `TR-NOCAP`） | `refuse` |
+| 3 | `zero_call` 且 `traps` 含 `TR-AMBIG` 且 `turn < turns_total` | `clarify` |
+| 4 | `zero_call` | `direct` |
+| 5 | `scenario == "script"` 或 case 有 `expect.run` | `script` |
+| 6 | `writes` | `write` |
+| 7 | `web` 且 `local` | `web_local` |
+| 8 | `web` | `web` |
+| 9 | 其余（含只用 `calculator`/`datetime`） | `local` |
+
+同一题的不同轮可能属于不同 kind（歧义题第 1 轮是 `clarify`，第 2 轮是 `local`），这是预期结果。
+`corpus pack` 的统计增加一张「kind × 行数」表，`--dry-run` 也打印。
+
+#### 4.4.3 base700 标签规范化（产出 `bench/distill/tag-map.json`，入库）
+
+规范化规则写成数据文件，render 在 records 模式下读它，**不写死在 Go 里**：映射有人工判断的成分，要能审阅、能改。结构：
+
+```json
+{
+  "task_type_overrides": {"ws7-fs-0001-b10": {"task_type": "find_file", "reason": "…"}},
+  "behaviors": {"multi_hop": "multi_hop", "source_pair": "multi_source", "pure_value": null},
+  "undefined": ["no_tool_closeout"]
+}
+```
+
+**task_type**：取 `behavior_tags` 中属于该 scenario 合法值（`tag-vocab.json` 的 `task_types[scenario]`）的那一个。实测结果：
+
+| 情况 | 条数 | 处理 |
+|---|---|---|
+| 恰好 1 个合法值 | 661 | 直接用 |
+| 2 个合法值（`ws7-log-0003-x10`：`count_events`+`time_window`） | 1 | 取 `time_window`（区分性更强的那个），写进 overrides |
+| 0 个合法值：用了别的场景的 task_type | 38 | 执行者**逐条读题面**，从本场景合法值里选一个，写进 overrides 并附理由。下表是建议，读完题面可以改 |
+
+| scenario | 原标签 | 条数 | 建议映射 |
+|---|---|---|---|
+| code | `lookup_value` | 1 | `locate_definition` |
+| docs | `filter_count` | 2 | `extract_items` |
+| docs | `merge` | 4 | `write_structured`（都带 `artifact_file`） |
+| filesystem | `lookup_value` | 7 | `find_file` |
+| filesystem | `aggregate` | 10 | `count_by_type` 或 `largest`，看题面 |
+| filesystem | `filter_count` | 6 | `count_by_type` |
+| filesystem | `lookup_value`+`aggregate` | 4 | `count_by_type` |
+| hybrid | `write_structured` | 1 | `web_then_edit` |
+| logs | `filter_count` | 3 | `count_events` |
+
+**behaviors**：44 个原标签里，task_type 以外的 17 个按下表处理。原值一律保留在 `origin.behavior_tags` 里，不丢。
+
+| 原标签 | 条数 | 规范后 | 理由 |
+|---|---|---|---|
+| `multi_hop` | 275 | `multi_hop` | |
+| `source_pair` | 116 | `multi_source` | 与 authoring-guide 的 TR-MULTISRC 同义 |
+| `count_discipline` | 213 | `count_discipline` | |
+| `precedence_rule` | 125 | `rule_precedence` | 与 task_type `precedence` 区分 |
+| `abstain_unknown` | 51 | `abstain_unknown` | |
+| `stop_when_insufficient` | 52 | `stop_insufficient` | |
+| `empty_result_interpreted`、`source_empty` | 52+1 | `empty_result` | 同一件事 |
+| `exact_text` | 118 | `answer_exact_text` | |
+| `json_answer` | 1 | `answer_json` | |
+| `pure_value` | 406 | 丢弃（`null`） | 默认答案形态，没有区分度 |
+| `source_local`、`source_web` | 366、68 | 丢弃 | 由 `traj.local` / `traj.web` 从实际轨迹计算，更可信 |
+| `artifact_file` | 141 | 丢弃 | 由 `traj.writes` 计算 |
+| `script_run` | 80 | 丢弃 | 由 `kind == script` 体现 |
+| `recovery_after_error` | 123 | 丢弃 | 由 `traj.unsupervised_outputs > 0` 体现 |
+| `no_tool_closeout` | 332 | 列入 `undefined`，只留在 origin | 700 条的文档里找不到定义，不猜它的语义 |
+
+`family` 取记录的 `instance_group_id`；`traps` 为 `[]`、`level` 为 `null`（700 条没有标这两项，**不要事后补猜**）。
+
+#### 4.4.4 验收
+
+- base700 重新渲染（`--source base700`）：670 行 `text`、`loss_spans` 与旧渲染逐行相同；`seeded_from_test` 670/670 为 true；
+  每行 `case_tags.task_type` 都在该 scenario 的合法值里；`tag-map.json` 的 overrides 恰好覆盖 39 条。
+- 5 道闲聊题（`--source distill-smoke`）：`kind` 全部为 `smalltalk`，`traj.zero_call` 为 true，`final_kind` 为 `text`。
+- 单测：9 条 `kind` 规则各一条用例；`final_kind` 五种取值各一条；**负向**：不给 `--source` 必须退出 1；
+  records 模式下有记录的 task_type 无法解析、tag-map 里也没有 override 时必须退出 1，不能静默写空值。
+- `rows.jsonl` 新增字段后，`corpus pack` 产出的 `train.jsonl` 仍然只有 `{"text"}`（训练器不受影响）。
 
 ## 5. 执行者容易悄悄搞砸的地方
 
@@ -464,7 +595,7 @@ rwkv-lab corpus pack --rows <rows.jsonl> [--rows …] [--exclude <jsonl>] (--out
 
 | 里程碑 | 内容 | 验收 |
 |---|---|---|
-| **M0（阻塞，约 0.5 天）** | §4.1、§4.2、§4.3 | `go test ./internal/lab/...` 全过，§4 列出的负向测试齐全；`bin/rwkv-lab bank lint` 对 workbank 仍 0 违规；把 §2.5 样例放进 `bench/distill/cases/tabular/tab-5001/` 后，`lint --canary-prefix DISTILL-CANARY` 0 违规 |
+| **M0（阻塞，约 1 天）** | §4.1、§4.2、§4.3、§4.4 | `go test ./internal/lab/...` 全过，§4 列出的负向测试齐全；§4.4.4 全部满足；`bin/rwkv-lab bank lint` 对 workbank 仍 0 违规；把 §2.5 样例放进 `bench/distill/cases/tabular/tab-5001/` 后，`lint --canary-prefix DISTILL-CANARY` 0 违规 |
 | **M1 冒烟（10 题）** | 每场景 1 题（含 tab-5001）走 S1–S7 全流程 | 老师 k=3 至少 8 题 ≥ 1/3；render 的 `wire_hash` = S0 值；`pack --dry-run` 退出 0；**负向**：手工把一题 `expected_number` 改错后重跑 S6，该题所有行必须进 `rejects.jsonl` |
 | **M2 b01（200 题）** | §2.4 配额，S1–S7 | S7 全部条目；报告入库 |
 | **M3 数据集 v1** | S8 打包 b01 | `manifest.json` 齐全；交给用户训练 state，并在 workbank 上与不训练的基线对比（按 rwkv-bench skill 的规程，不属于本流程） |
