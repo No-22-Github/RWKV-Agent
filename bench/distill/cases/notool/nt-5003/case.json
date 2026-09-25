@@ -1,0 +1,52 @@
+{
+  "id": "nt-5003",
+  "description": "Asks what the assistant can do; describe capabilities directly without any tool call. DISTILL-CANARY-e6f623e8",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-smalltalk-01",
+    "ref_calls": 0,
+    "fixture_bytes": 233,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Brightwater Analytics - team workspace\n\nShared folder for the reporting team.\n\n- reports/  monthly KPI exports\n- scripts/  small helpers for the exports\n",
+    "reports/kpi_2026q3.csv": "month,active_accounts,churned\n2026-06,1284,37\n2026-07,1312,29\n2026-08,1339,41\n"
+  },
+  "turns": [
+    {
+      "prompt": "What can you do for me?",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "file",
+          "File",
+          "search",
+          "Search",
+          "web",
+          "Web",
+          "calculat",
+          "Calculat",
+          "data",
+          "Data"
+        ]
+      }
+    }
+  ]
+}
