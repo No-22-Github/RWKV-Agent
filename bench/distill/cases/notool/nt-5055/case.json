@@ -1,0 +1,40 @@
+{
+  "id": "nt-5055",
+  "description": "Standard clean duration for bright beer tanks in the brewhouse runbook. DISTILL-CANARY-6bf3c59a",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "stable_fact",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "6 hours"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-runbook-const-01",
+    "ref_calls": 1,
+    "fixture_bytes": 360,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "runbook/brewhouse-shutdown.txt": "bright beer tank clean = 4 hours\nfermenter clean = 6 hours\nmash tun clean = 9 hours\n",
+    "README.md": "# Thistle & Crown Brewery - brewhouse runbook\n\nThe shutdown windows listed here are the standard ones the brewhouse plans production against, set with the last equipment upgrade; rows are kept in alphabetical order of the vessel. Last reviewed 2026-05-28, reference BRW-8176.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Thistle & Crown Brewery is planning next week's production around the standard clean for its bright beer tanks. How long does that clean take? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "4 hours",
+        "tools": []
+      }
+    }
+  ]
+}

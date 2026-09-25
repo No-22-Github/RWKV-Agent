@@ -1,0 +1,34 @@
+{
+  "id": "doc-5005",
+  "description": "Lowest logo artwork resolution a signage firm accepts, in dots per inch. DISTILL-CANARY-c81b4f27",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-doc-artwork-01",
+    "ref_calls": 2,
+    "fixture_bytes": 374,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "artwork-guide.md": "# Meridian Signage - artwork guide\n\nAccepted file types are PDF, EPS and high-resolution PNG.\n\nLogo artwork is supplied at no less than 300 dots per inch at final size.\n\nPanel drawings must carry outlined fonts.\n",
+    "lead-times.md": "# Meridian Signage - lead times\n\nFascia panels: 12 working days from artwork approval.\nIlluminated panels: 18 working days.\nSite surveys are booked for Tuesdays.\n"
+  },
+  "turns": [
+    {
+      "prompt": "A customer is preparing a logo file for Meridian Signage. What is the lowest resolution, in dots per inch, that Meridian accepts for logo artwork? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 300,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

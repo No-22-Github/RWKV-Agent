@@ -1,0 +1,34 @@
+{
+  "id": "tab-5005",
+  "description": "Paper waste allowance for the press runs in a print works log. DISTILL-CANARY-c07ef4d6",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "policy_calc",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-tab-printrun-01",
+    "ref_calls": 2,
+    "fixture_bytes": 670,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "press_runs.csv": "run_id,press,job_code,sheets_used,run_date\nP-8041,P1,TPL-2210,1840,2026-06-02\nP-8042,P2,TPL-3312,220,2026-06-05\nP-8043,P3,TPL-4405,960,2026-06-09\nP-8044,P1,TPL-1118,1450,2026-06-13\nP-8045,P2,TPL-5560,300,2026-06-17\nP-8046,P4,TPL-2210,2120,2026-06-22\nP-8047,P3,TPL-8841,780,2026-06-26\nP-8048,P1,TPL-3312,240,2026-07-01\nP-8049,P2,TPL-4405,1660,2026-07-06\nP-8050,P4,TPL-1118,540,2026-07-10\nP-8051,P3,TPL-5560,1180,2026-07-15\nP-8052,P1,TPL-8841,320,2026-07-20\nP-8053,P2,TPL-2210,1625,2026-07-24\nP-8054,P4,TPL-3312,860,2026-07-29\nP-8055,P3,TPL-4405,405,2026-08-03\n",
+    "README.md": "# Quarto & Fitch Print Works - press run log\n\nOne row per run; sheets_used counts sheets drawn from the store.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Quarto & Fitch Print Works writes off a paper waste allowance equal to 4.5% of the sheets issued on each press run. What is the allowance, in sheets, for the runs in this log, rounded to two decimal places? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 652.5,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

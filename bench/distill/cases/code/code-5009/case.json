@@ -1,0 +1,40 @@
+{
+  "id": "code-5009",
+  "description": "Name the module that seals a finished lot by calling the roastery lot store's seal_lot. DISTILL-CANARY-38c5f1ae",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "find_callers",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "queue/handoff.py"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-code-callsites-01",
+    "ref_calls": 3,
+    "fixture_bytes": 438,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "packing/sealer.py": "from roast.store import seal_lot\n\n# Seal the lots the roaster signs off.\n\n\ndef seal_finished(lots):\n    sealed = []\n    for lot in lots:\n        sealed.append(seal_lot(lot))\n    return sealed\n",
+    "queue/handoff.py": "from roast.store import seal_lot\n\n# Names the dispatch board reads when it renders a queue.\n\n\ndef labels(lot):\n    return lot[\"label\"]\n",
+    "roast/store.py": "\"\"\"The roastery's lot store.\"\"\"\n\nSEALED = {}\n\n\ndef seal_lot(lot):\n    SEALED[lot[\"name\"]] = lot\n    return lot\n"
+  },
+  "turns": [
+    {
+      "prompt": "The roastery seals every finished lot by calling seal_lot. Which module calls it? Answer with the module's file path alone, including its .py suffix. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "packing/sealer.py"
+      }
+    }
+  ]
+}

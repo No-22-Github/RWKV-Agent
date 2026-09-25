@@ -1,0 +1,65 @@
+{
+  "id": "hyb-5010",
+  "description": "September delivery count for a dairy round once the counting basis is settled. DISTILL-CANARY-df39a606",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 19
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-ambigscope-03",
+    "ref_calls": 2,
+    "fixture_bytes": 387,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "rounds/september-2026.csv": "date,round,loads,drops\n2026-09-01,North,3,41\n2026-09-08,North,3,38\n2026-09-15,North,2,29\n2026-09-01,South,4,52\n2026-09-08,South,4,49\n2026-09-15,South,3,44\n",
+    "README.md": "# Cawston Dairy - September rounds\n\nOne row per working day on a round. The van is filled and sent out more than\nonce on a busy day, so each row carries both the number of loads that went out\nand the number of stops the round made.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Cawston Dairy is reviewing the new contract's September figures. How many deliveries did the round make in September?",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ]
+      }
+    },
+    {
+      "prompt": "Count the drops. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 253,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

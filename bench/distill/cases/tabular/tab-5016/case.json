@@ -1,0 +1,54 @@
+{
+  "id": "tab-5016",
+  "description": "Per-supplier sack totals written to a new file from a flour delivery log with reprinted notes. DISTILL-CANARY-1cf5b8d0",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "write_summary",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 1188
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-flournotes-01",
+    "ref_calls": 3,
+    "fixture_bytes": 2014,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "flour_deliveries_2026-08.csv": "note_id,supplier,delivery_date,sacks\nDN-2245,Fenlow Mill,2026-08-18,19\nDN-2224,Ashfield Mill,2026-08-25,38\nDN-2204,Eastgate Grain,2026-08-05,32\nDN-2219,Dunmere Mill,2026-08-20,25\nDN-2206,Graveling & Sons,2026-08-07,8\nDN-2236,Eastgate Grain,2026-08-09,15\nDN-2232,Ashfield Mill,2026-08-05,11\nDN-2225,Beckworth Grain,2026-08-26,25\nDN-2223,Hollis Field Mill,2026-08-24,8\nDN-2214,Graveling & Sons,2026-08-15,8\nDN-2207,Hollis Field Mill,2026-08-08,21\nDN-2238,Graveling & Sons,2026-08-11,24\nDN-2233,Beckworth Grain,2026-08-06,27\nDN-2247,Hollis Field Mill,2026-08-20,9\nDN-2213,Fenlow Mill,2026-08-14,31\nDN-2209,Beckworth Grain,2026-08-10,11\nDN-2220,Eastgate Grain,2026-08-21,40\nDN-2222,Graveling & Sons,2026-08-23,17\nDN-2215,Hollis Field Mill,2026-08-16,40\nDN-2210,Coldharbour Flour,2026-08-11,29\nDN-2218,Coldharbour Flour,2026-08-19,16\nDN-2205,Fenlow Mill,2026-08-06,24\nDN-2231,Hollis Field Mill,2026-08-04,15\nDN-2242,Coldharbour Flour,2026-08-15,19\nDN-2212,Eastgate Grain,2026-08-13,25\nDN-2234,Coldharbour Flour,2026-08-07,12\nDN-2243,Dunmere Mill,2026-08-16,20\nDN-2202,Coldharbour Flour,2026-08-03,12\nDN-2246,Graveling & Sons,2026-08-19,17\nDN-2216,Ashfield Mill,2026-08-17,19\nDN-2237,Fenlow Mill,2026-08-10,32\nDN-2229,Fenlow Mill,2026-08-02,15\nDN-2208,Ashfield Mill,2026-08-09,4\nDN-2201,Beckworth Grain,2026-08-02,11\nDN-2235,Dunmere Mill,2026-08-08,32\nDN-2228,Eastgate Grain,2026-08-01,42\nDN-2227,Dunmere Mill,2026-08-28,10\nDN-2226,Coldharbour Flour,2026-08-27,40\nDN-2211,Dunmere Mill,2026-08-12,36\nDN-2203,Dunmere Mill,2026-08-04,35\nDN-2244,Eastgate Grain,2026-08-17,34\nDN-2217,Beckworth Grain,2026-08-18,12\nDN-2239,Hollis Field Mill,2026-08-12,28\nDN-2220,Eastgate Grain,2026-08-21,40\nDN-2200,Ashfield Mill,2026-08-01,11\nDN-2202,Coldharbour Flour,2026-08-03,12\nDN-2211,Dunmere Mill,2026-08-12,36\nDN-2244,Eastgate Grain,2026-08-17,34\nDN-2230,Graveling & Sons,2026-08-03,28\nDN-2241,Beckworth Grain,2026-08-14,17\nDN-2240,Ashfield Mill,2026-08-13,28\nDN-2230,Graveling & Sons,2026-08-03,28\nDN-2221,Fenlow Mill,2026-08-22,6\n",
+    "reports/.keep": "\n"
+  },
+  "turns": [
+    {
+      "prompt": "Kestrel Row Bakery reconciles flour deliveries at the end of each month. Write a file reports/supplier_totals.csv holding the header line supplier,sacks followed by one line per supplier, each line carrying the supplier name, a comma, and the total number of sacks recorded for that supplier in the August 2026 log, with the suppliers in alphabetical order and no spaces. When finished, reply DONE.",
+      "expect": {}
+    }
+  ],
+  "expect": {
+    "files": {
+      "reports/supplier_totals.csv": {
+        "contains": [
+          "supplier,sacks",
+          "Ashfield Mill,111",
+          "Beckworth Grain,103",
+          "Coldharbour Flour,128",
+          "Dunmere Mill,158",
+          "Eastgate Grain,188",
+          "Fenlow Mill,127",
+          "Graveling & Sons,102",
+          "Hollis Field Mill,121"
+        ]
+      }
+    }
+  }
+}

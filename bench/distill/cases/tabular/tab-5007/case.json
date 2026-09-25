@@ -1,0 +1,40 @@
+{
+  "id": "tab-5007",
+  "description": "Average volume per reading in a utility billing export that ends with a totals line. DISTILL-CANARY-5d8c1f47",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-HEADER": 95.03
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-watermeter-01",
+    "ref_calls": 3,
+    "fixture_bytes": 2601,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "meter_export_2026-08.csv": "reading_id,meter,zone,read_date,volume_m3\nR-4100,WM-101,North Field,2026-08-01,97.1\nR-4101,WM-102,Riverside,2026-08-02,24.8\nR-4102,WM-103,Hillcrest,2026-08-03,95.3\nR-4103,WM-104,Old Quay,2026-08-04,21.4\nR-4104,WM-105,North Field,2026-08-05,44.1\nR-4105,WM-106,Riverside,2026-08-06,23.4\nR-4106,WM-107,Hillcrest,2026-08-07,84.0\nR-4107,WM-108,Old Quay,2026-08-08,76.6\nR-4108,WM-109,North Field,2026-08-09,64.6\nR-4109,WM-110,Riverside,2026-08-10,96.0\nR-4110,WM-111,Hillcrest,2026-08-11,27.4\nR-4111,WM-112,Old Quay,2026-08-12,47.0\nR-4112,WM-113,North Field,2026-08-13,28.4\nR-4113,WM-114,Riverside,2026-08-14,89.5\nR-4114,WM-115,Hillcrest,2026-08-15,87.0\nR-4115,WM-116,Old Quay,2026-08-16,54.0\nR-4116,WM-117,North Field,2026-08-17,14.8\nR-4117,WM-118,Riverside,2026-08-18,26.0\nR-4118,WM-119,Hillcrest,2026-08-19,98.3\nR-4119,WM-120,Old Quay,2026-08-20,19.0\nR-4120,WM-121,North Field,2026-08-21,38.0\nR-4121,WM-122,Riverside,2026-08-22,94.6\nR-4122,WM-123,Hillcrest,2026-08-23,55.4\nR-4123,WM-124,Old Quay,2026-08-24,84.3\nR-4124,WM-125,North Field,2026-08-25,93.7\nR-4125,WM-126,Riverside,2026-08-26,84.8\nR-4126,WM-127,Hillcrest,2026-08-27,31.4\nR-4127,WM-128,Old Quay,2026-08-28,60.2\nR-4128,WM-129,North Field,2026-08-01,40.3\nR-4129,WM-130,Riverside,2026-08-02,3.5\nR-4130,WM-131,Hillcrest,2026-08-03,26.5\nR-4131,WM-132,Old Quay,2026-08-04,40.2\nR-4132,WM-133,North Field,2026-08-05,84.0\nR-4133,WM-134,Riverside,2026-08-06,74.5\nR-4134,WM-135,Hillcrest,2026-08-07,88.5\nR-4135,WM-136,Old Quay,2026-08-08,87.5\nR-4136,WM-137,North Field,2026-08-09,77.2\nR-4137,WM-138,Riverside,2026-08-10,7.7\nR-4138,WM-139,Hillcrest,2026-08-11,14.4\nR-4139,WM-140,Old Quay,2026-08-12,5.5\nR-4140,WM-141,North Field,2026-08-13,8.2\nR-4141,WM-142,Riverside,2026-08-14,64.8\nR-4142,WM-143,Hillcrest,2026-08-15,2.7\nR-4143,WM-144,Old Quay,2026-08-16,20.2\nR-4144,WM-145,North Field,2026-08-17,13.0\nR-4145,WM-146,Riverside,2026-08-18,42.6\nR-4146,WM-147,Hillcrest,2026-08-19,40.5\nR-4147,WM-148,Old Quay,2026-08-20,13.8\nR-4148,WM-149,North Field,2026-08-21,5.1\nR-4149,WM-150,Riverside,2026-08-22,62.6\nR-4150,WM-151,Hillcrest,2026-08-23,28.6\nR-4151,WM-152,Old Quay,2026-08-24,83.0\nR-4152,WM-153,North Field,2026-08-25,63.1\nR-4153,WM-154,Riverside,2026-08-26,11.6\nR-4154,WM-155,Hillcrest,2026-08-27,59.1\nR-4155,WM-156,Old Quay,2026-08-28,12.4\nR-4156,WM-157,North Field,2026-08-01,24.0\nR-4157,WM-158,Riverside,2026-08-02,36.5\nR-4158,WM-159,Hillcrest,2026-08-03,77.3\nR-4159,WM-160,Old Quay,2026-08-04,18.5\nTOTAL,ALL,ZONE-TOTAL,2026-08-31,2898.5\n",
+    "README.md": "# Tarnbrook Water Board - billing export, August 2026\n\nOne row per meter reading submitted by the field teams.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Tarnbrook Water Board checks the August export before billing. What was the average volume recorded per reading, in cubic metres, rounded to two decimal places? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 48.31,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

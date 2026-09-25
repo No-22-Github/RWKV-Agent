@@ -1,0 +1,42 @@
+{
+  "id": "fs-5009",
+  "description": "Three copies of one dairy delivery note, two of them identical, and the re-typed one carries the corrected weight. DISTILL-CANARY-f3ca9ea4",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "duplicates",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 186
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-fs-neartwin-01",
+    "ref_calls": 4,
+    "fixture_bytes": 664,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "Tarnbeck Dairy - delivery notes\n\nOne note is typed per run. Notes are re-typed on the office machine when a figure\non the handwritten sheet has been corrected.\n",
+    "notes/note-a.txt": "Tarnbeck Dairy - delivery note 4471\nCustomer: Calderwood Stores, Chippenham\nCases: 12 whole milk, 4 double cream\nConsignment weight: 186 kg\nDelivered: 2026-09-14 06:40\n",
+    "notes/note-b.txt": "Tarnbeck Dairy - delivery note 4471\nCustomer: Calderwood Stores, Chippenham\nCases: 12 whole milk, 4 double cream\nConsignment weight: 186 kg\nDelivered: 2026-09-14 06:40\n",
+    "notes/note-c.txt": "Tarnbeck Dairy - delivery note 4471\nCustomer: Calderwood Stores, Chippenham\nCases: 12 whole milk, 4 double cream\nConsignment weight: 198 kg\nDelivered: 2026-09-14 06:40\n"
+  },
+  "turns": [
+    {
+      "prompt": "Tarnbeck Dairy filed three copies of a single delivery note in this folder. Two of them are the same note saved twice under different names, and the third was re-typed after a weight on the handwritten sheet was corrected. What consignment weight does the re-typed copy give, in kilograms? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 198,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

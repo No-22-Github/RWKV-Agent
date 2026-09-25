@@ -1,0 +1,40 @@
+{
+  "id": "nt-5041",
+  "description": "Standing accountable owner of the berth planning service, kept in the port operations service register. DISTILL-CANARY-46019432",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "stable_fact",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "Beatriz Nunes"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-svc-owner-01",
+    "ref_calls": 1,
+    "fixture_bytes": 619,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "governance/service-register.txt": "berth-planner | accountable owner | Nils Ekstrom\ncrane-dispatch | accountable owner | Beatriz Nunes\ndocu-archive | accountable owner | Rukmini Iyer\nyard-gate | accountable owner | Tomas Halvorsen\n",
+    "README.md": "# Northgate Freight Systems - operations workspace\n\nShared drive for the port operations group.\n\n- governance/  service register and sign-off records\n- schedules/  berth plans for the coming week\n\nThe register is kept in alphabetical order of the service name and is edited in place, so a service never carries two owners. Last reviewed 2026-04-09; the register was migrated from the old spreadsheet under ticket OPS-4412.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Northgate Freight Systems is assembling a vendor due-diligence pack for its berth planning service, and the cover sheet needs the person accountable for that service. Whose name goes on the cover sheet? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "Nils Ekstrom",
+        "tools": []
+      }
+    }
+  ]
+}

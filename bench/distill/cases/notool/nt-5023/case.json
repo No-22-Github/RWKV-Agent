@@ -1,0 +1,41 @@
+{
+  "id": "nt-5023",
+  "description": "Explain a plan's scale and give the ground length of one measured run. DISTILL-CANARY-2b8999bc",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 9.5
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-scaleconv-01",
+    "ref_calls": 0,
+    "fixture_bytes": 208,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "plans/scale_card.csv": "plan,scale_denominator,measured_cm\nMP-88,25000,3.8\n",
+    "README.md": "# Lyndhurst Land Surveys - drawing workspace\n\nShared folder for the survey office.\n\n- plans/  drawing register cards\n- field/  booking sheets from the crews\n"
+  },
+  "turns": [
+    {
+      "prompt": "A graduate at Lyndhurst asked what the scale on a plan means; one unit measured on the drawing stands for the same unit multiplied 25,000 times on the ground. A pipeline runs 3.8 centimetres on the drawing. Give its ground length in kilometres. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 0.95,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

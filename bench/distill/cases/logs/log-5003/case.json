@@ -1,0 +1,36 @@
+{
+  "id": "log-5003",
+  "description": "Read the pending count the mail relay reported when it logged its first error of the night. DISTILL-CANARY-8bbbd3ee",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "locate_error",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-log-relayerror-12",
+    "ref_calls": 2,
+    "fixture_bytes": 846,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# mail-relay\n\nThe overnight job hands the day's customer notices to the outbound mail\nexchangers. Each line is `<UTC time> <level> <message>`; a batch that reaches\nan exchanger is reported as delivered, and a connection that drops is retried\ninside the same run. The closing line reports the run's totals.\n",
+    "logs/relay.log": "2026-08-14T21:00:02Z INFO  run started build=4471 queue=daily-digest\n2026-08-14T21:00:07Z INFO  batch accepted messages=1187\n2026-08-14T21:02:19Z INFO  batch delivered messages=404\n2026-08-14T21:04:51Z ERROR connection reset peer=mx3.vantagemail.example pending=783\n2026-08-14T21:07:23Z INFO  batch delivered messages=96\n2026-08-14T21:09:58Z ERROR tls handshake failed peer=mx7.vantagemail.example pending=687\n2026-08-14T21:14:40Z INFO  batch delivered messages=687 pending=0\n2026-08-14T21:14:41Z INFO  run finished delivered=1185 failed=2\n"
+  },
+  "turns": [
+    {
+      "prompt": "Wrenmoor Foods' overnight relay hands the day's customer notices to the outbound mail exchangers. How many messages were still pending when the relay logged its first error? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 783,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

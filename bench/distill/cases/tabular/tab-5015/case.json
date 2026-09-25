@@ -1,0 +1,43 @@
+{
+  "id": "tab-5015",
+  "description": "Delivery count for one month when two monthly logs sit in the same folder. DISTILL-CANARY-4a1e7302",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [
+      "TR-DECOY",
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 40,
+      "TR-HEADER": 51
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-tab-pantrylog-01",
+    "ref_calls": 3,
+    "fixture_bytes": 3586,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "crate_log_2026-06.csv": "entry_id,entry_date,supplier,crates\nCR-5100,2026-06-01,Corner Bake,10\nCR-5101,2026-06-02,Fernhill Dairy,26\nCR-5102,2026-06-03,Glebe Greengrocers,8\nCR-5103,2026-06-04,Harbour Fish,22\nCR-5104,2026-06-05,Ivy Lane Preserves,11\nCR-5105,2026-06-06,Corner Bake,13\nCR-5106,2026-06-07,Fernhill Dairy,21\nCR-5107,2026-06-08,Glebe Greengrocers,20\nCR-5108,2026-06-09,Harbour Fish,5\nCR-5109,2026-06-10,Ivy Lane Preserves,5\nCR-5110,2026-06-11,Corner Bake,22\nCR-5111,2026-06-12,Fernhill Dairy,13\nCR-5112,2026-06-13,Glebe Greengrocers,5\nCR-5113,2026-06-14,Harbour Fish,20\nCR-5114,2026-06-15,Ivy Lane Preserves,6\nCR-5115,2026-06-16,Corner Bake,6\nCR-5116,2026-06-17,Fernhill Dairy,16\nCR-5117,2026-06-18,Glebe Greengrocers,3\nCR-5118,2026-06-19,Harbour Fish,10\nCR-5119,2026-06-20,Ivy Lane Preserves,27\nCR-5120,2026-06-21,Corner Bake,18\nCR-5121,2026-06-22,Fernhill Dairy,20\nCR-5122,2026-06-23,Glebe Greengrocers,5\nCR-5123,2026-06-24,Harbour Fish,15\nCR-5124,2026-06-25,Ivy Lane Preserves,11\nCR-5125,2026-06-26,Corner Bake,8\nCR-5126,2026-06-27,Fernhill Dairy,13\nCR-5127,2026-06-28,Glebe Greengrocers,20\nCR-5128,2026-06-01,Harbour Fish,18\nCR-5129,2026-06-02,Ivy Lane Preserves,9\nCR-5130,2026-06-03,Corner Bake,18\nCR-5131,2026-06-04,Fernhill Dairy,29\nCR-5132,2026-06-05,Glebe Greengrocers,21\nCR-5133,2026-06-06,Harbour Fish,5\nCR-5134,2026-06-07,Ivy Lane Preserves,5\nCR-5135,2026-06-08,Corner Bake,12\nCR-5136,2026-06-09,Fernhill Dairy,24\nCR-5137,2026-06-10,Glebe Greengrocers,19\nCR-5138,2026-06-11,Harbour Fish,13\nCR-5139,2026-06-12,Ivy Lane Preserves,30\nTOTAL,,,582\n",
+    "crate_log_2026-07.csv": "entry_id,entry_date,supplier,crates\nCR-5200,2026-07-01,Corner Bake,7\nCR-5201,2026-07-02,Fernhill Dairy,8\nCR-5202,2026-07-03,Glebe Greengrocers,21\nCR-5203,2026-07-04,Harbour Fish,15\nCR-5204,2026-07-05,Ivy Lane Preserves,5\nCR-5205,2026-07-06,Corner Bake,27\nCR-5206,2026-07-07,Fernhill Dairy,9\nCR-5207,2026-07-08,Glebe Greengrocers,12\nCR-5208,2026-07-09,Harbour Fish,28\nCR-5209,2026-07-10,Ivy Lane Preserves,26\nCR-5210,2026-07-11,Corner Bake,20\nCR-5211,2026-07-12,Fernhill Dairy,18\nCR-5212,2026-07-13,Glebe Greengrocers,14\nCR-5213,2026-07-14,Harbour Fish,9\nCR-5214,2026-07-15,Ivy Lane Preserves,18\nCR-5215,2026-07-16,Corner Bake,20\nCR-5216,2026-07-17,Fernhill Dairy,19\nCR-5217,2026-07-18,Glebe Greengrocers,19\nCR-5218,2026-07-19,Harbour Fish,6\nCR-5219,2026-07-20,Ivy Lane Preserves,21\nCR-5220,2026-07-21,Corner Bake,6\nCR-5221,2026-07-22,Fernhill Dairy,18\nCR-5222,2026-07-23,Glebe Greengrocers,12\nCR-5223,2026-07-24,Harbour Fish,28\nCR-5224,2026-07-25,Ivy Lane Preserves,6\nCR-5225,2026-07-26,Corner Bake,3\nCR-5226,2026-07-27,Fernhill Dairy,28\nCR-5227,2026-07-28,Glebe Greengrocers,29\nCR-5228,2026-07-01,Harbour Fish,5\nCR-5229,2026-07-02,Ivy Lane Preserves,10\nCR-5230,2026-07-03,Corner Bake,20\nCR-5231,2026-07-04,Fernhill Dairy,18\nCR-5232,2026-07-05,Glebe Greengrocers,29\nCR-5233,2026-07-06,Harbour Fish,28\nCR-5234,2026-07-07,Ivy Lane Preserves,22\nCR-5235,2026-07-08,Corner Bake,12\nCR-5236,2026-07-09,Fernhill Dairy,14\nCR-5237,2026-07-10,Glebe Greengrocers,28\nCR-5238,2026-07-11,Harbour Fish,16\nCR-5239,2026-07-12,Ivy Lane Preserves,28\nCR-5240,2026-07-13,Corner Bake,3\nCR-5241,2026-07-14,Fernhill Dairy,10\nCR-5242,2026-07-15,Glebe Greengrocers,5\nCR-5243,2026-07-16,Harbour Fish,3\nCR-5244,2026-07-17,Ivy Lane Preserves,9\nCR-5245,2026-07-18,Corner Bake,14\nCR-5246,2026-07-19,Fernhill Dairy,7\nCR-5247,2026-07-20,Glebe Greengrocers,12\nCR-5248,2026-07-21,Harbour Fish,4\nCR-5249,2026-07-22,Ivy Lane Preserves,23\nTOTAL,,,772\n",
+    "README.md": "# Riverside Pantry - crate delivery logs\n\nOne log per month, one row per delivery. The last line of each log is the month's turnover.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Riverside Pantry reports delivery volumes to its funders. How many crate deliveries does the July 2026 log record? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 50,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "id": "web-5007",
+  "description": "Retry wait for live error OB-1130 in the Otterbourne reference; the sandbox page carries shorter timers. DISTILL-CANARY-46b8e207",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": 5
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-web-faultcodes-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "otterbourne",
+      "url": "https://docs.otterbourne.example/errors/live",
+      "url_match": "docs.otterbourne.example/errors/live",
+      "title": "Live error reference - Otterbourne",
+      "snippet": "OB-1130 (settlement window closed) is cleared by retrying the request after 90 seconds.",
+      "content": "# Live error reference\n\nOtterbourne API errors, reviewed 2026-04-08.\n\n| code | meaning | prescribed client action |\n| --- | --- | --- |\n| OB-1002 | unsupported currency for the account | retry after 10 seconds, or fix the currency |\n| OB-1130 | settlement window closed for today | retry the same request after 90 seconds |\n| OB-1188 | account under review | stop retrying, contact the account team |\n\nThe action column is the behaviour this reference prescribes for automated\nclients on the live platform.\n",
+      "published_at": "2026-04-08"
+    },
+    {
+      "query_match": "otterbourne sandbox",
+      "url": "https://docs.otterbourne.example/errors/sandbox",
+      "url_match": "docs.otterbourne.example/errors/sandbox",
+      "title": "Sandbox error reference - Otterbourne",
+      "snippet": "Sandbox codes mirror the live codes, but OB-1130 clears after 5 seconds.",
+      "content": "# Sandbox error reference\n\nOtterbourne sandbox, reviewed 2026-04-08.\n\nSandbox codes match the live codes, but sandbox timers are shortened so that an\nintegration fails fast while it is being tested.\n\n| code | sandbox action |\n| --- | --- |\n| OB-1002 | retry after 1 second |\n| OB-1130 | retry after 5 seconds |\n| OB-1188 | stop retrying |\n",
+      "published_at": "2026-04-08"
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Our nightly reconciliation calls the live Otterbourne API and keeps ending with error OB-1130. How many seconds does the error reference tell the client to wait before retrying? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 90,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

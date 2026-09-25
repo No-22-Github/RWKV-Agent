@@ -1,0 +1,61 @@
+{
+  "id": "web-5009",
+  "description": "Length of the Quillstone retirement window for the v1 orders endpoints; the shipments notice is a separate page. DISTILL-CANARY-18e5a3b9",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "deprecation",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": 365
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-web-legacyflag-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "quillstone",
+      "url": "https://quillstone.example/migrations/v1-orders",
+      "url_match": "quillstone.example/migrations/v1-orders",
+      "title": "v1 orders endpoints retirement - Quillstone",
+      "snippet": "The v1 orders endpoints keep accepting requests for 120 days after the retirement notice.",
+      "content": "# v1 orders endpoints retirement\n\nQuillstone notices, published 2026-02-17.\n\nThe v1 orders endpoints are retired. This notice opens a 120-day window: the\nendpoints keep accepting requests for 120 days after the notice, and every\nresponse during the window carries a Sunset header. Once the window closes,\ncalls to /v1/orders return 410 Gone.\n\nUse /v2/orders for new integrations; the request body is unchanged.\n",
+      "published_at": "2026-02-17"
+    },
+    {
+      "query_match": "quillstone shipments",
+      "url": "https://quillstone.example/migrations/v1-shipments",
+      "url_match": "quillstone.example/migrations/v1-shipments",
+      "title": "v1 shipments endpoints retirement - Quillstone",
+      "snippet": "The v1 shipments endpoints keep accepting requests for 365 days after the retirement notice.",
+      "content": "# v1 shipments endpoints retirement\n\nQuillstone notices, published 2026-01-09.\n\nThe v1 shipments endpoints are retired. This notice opens a 365-day window:\nthe endpoints keep accepting requests for 365 days after the notice. Once the\nwindow closes, calls to /v1/shipments return 410 Gone.\n\nUse /v2/shipments for new integrations.\n",
+      "published_at": "2026-01-09"
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Procurement's order sync still polls the v1 orders endpoints. What length of time does the Quillstone notice allow between publication and the endpoints being switched off, expressed in days? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 120,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

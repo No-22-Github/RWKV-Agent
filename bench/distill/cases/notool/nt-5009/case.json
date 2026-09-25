@@ -1,0 +1,41 @@
+{
+  "id": "nt-5009",
+  "description": "Explain the apiary's box-capacity term and give the cell count for the yard. DISTILL-CANARY-5a4dd4de",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 174000
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-tallyunit-01",
+    "ref_calls": 0,
+    "fixture_bytes": 218,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "hives/box_card.csv": "yard,deep_boxes,frames_per_box,cells_per_side\nHB-2,5,10,3480\n",
+    "README.md": "# Hollowbrook Apiary - yard workspace\n\nShared folder for the beekeeping team.\n\n- hives/  box and frame cards per yard\n- forage/  bloom notes from the fields\n"
+  },
+  "turns": [
+    {
+      "prompt": "Hollowbrook's newest beekeeper asked how a hive box is measured on the yard card; a deep box takes ten frames and each frame carries comb on both faces. The yard runs five deep boxes. Give the number of comb cells the yard's boxes can hold. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 348000,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

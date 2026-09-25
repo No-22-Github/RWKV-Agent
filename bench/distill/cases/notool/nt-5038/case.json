@@ -1,0 +1,42 @@
+{
+  "id": "nt-5038",
+  "description": "Convert a 07:30 Kathmandu gate closure to minutes after midnight UTC. DISTILL-CANARY-90e66db3",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 120
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-depotclock-01",
+    "ref_calls": 0,
+    "fixture_bytes": 342,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "depots/gate_times.csv": "depot,close_time,basis\nKathmandu gates,07:30,local clock\nBiratnagar gates,08:00,local clock\n",
+    "standards/station_offsets.csv": "station,offset_in_force\nKathmandu,+05:45\nYangon,+06:30\nDarwin,+09:30\n",
+    "README.md": "# Ferngate Logistics - control room\n\nGate closing times are booked at each depot against its own local clock.\nThe European control room logs closures as minutes after midnight UTC.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Ferngate Logistics runs the evening handover call with the Kathmandu desk. The Kathmandu gates close at 07:30 local time. The European control room logs closure times as minutes after midnight UTC. What does the control room log for that closure? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 105,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

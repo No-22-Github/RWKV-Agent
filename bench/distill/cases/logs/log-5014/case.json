@@ -1,0 +1,41 @@
+{
+  "id": "log-5014",
+  "description": "Name the build of the failing upstream that had most recently been released when the loader started failing. DISTILL-CANARY-12fad306",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "root_cause",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 4417
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-log-rolloutbuild-11",
+    "ref_calls": 4,
+    "fixture_bytes": 1319,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# overnight jobs\n\n`logs/payroll-loader.log` is written by the loader that posts the day's payroll\nentries. Each line is `<UTC time> <level> <message>`; a post the upstream\nservice refuses is logged against `upstream=<service>` and retried a few times.\n\n`logs/fleet-release.log` is written by the release tool. Each line records one\nrollout as `<UTC time> INFO rollout service=<name> build=<n> nodes=<n> complete`,\nand a service is rolled out at most once a night.\n",
+    "logs/fleet-release.log": "2026-08-05T22:18:04Z INFO rollout service=statements build=4388 nodes=3 complete\n2026-08-05T23:47:12Z INFO rollout service=settlement build=4402 nodes=3 complete\n2026-08-06T01:26:39Z INFO rollout service=ledger-sync build=4431 nodes=4 complete\n2026-08-06T03:02:55Z INFO rollout service=statements build=4409 nodes=3 complete\n2026-08-06T04:38:21Z INFO rollout service=settlement build=4417 nodes=3 complete\n",
+    "logs/payroll-loader.log": "2026-08-06T04:52:07Z INFO  loader run started file=august-postings\n2026-08-06T04:52:09Z INFO  extract complete rows=18342\n2026-08-06T04:52:11Z ERROR post upstream=ledger-sync status=503\n2026-08-06T04:52:44Z ERROR post upstream=ledger-sync status=503\n2026-08-06T04:53:19Z ERROR post upstream=ledger-sync status=503\n2026-08-06T04:54:02Z ERROR post upstream=ledger-sync status=503\n2026-08-06T04:54:51Z FATAL loader aborted stage=post posted=0 of=18342\n"
+  },
+  "turns": [
+    {
+      "prompt": "Ingleby Payroll's overnight loader aborted its 6 August 2026 run, and the on-call note has to name the change behind it. Which build of the service the loader was calling had gone out most recently when the failures began? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 4431,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "id": "nt-5043",
+  "description": "Owning team of the audit trail exporter repository, fixed at the platform handover. DISTILL-CANARY-1be63781",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "stable_fact",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "wards-core"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-svc-owner-01",
+    "ref_calls": 1,
+    "fixture_bytes": 492,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "engineering/repository-ownership.txt": "audit-trail-exporter | owning team | records-platform\nbed-occupancy-api | owning team | wards-core\nreferral-scheduler | owning team | care-pathways\n",
+    "README.md": "# Calderbridge Health Network - engineering workspace\n\n- engineering/  repository ownership and build notes\n- interfaces/  interface contracts between clinical systems\n\nOwnership was fixed at the platform handover and is edited in place; rows are kept in alphabetical order of the repository name. Last reviewed 2026-07-03, reference PLT-3106.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Calderbridge Health Network is closing a dependency ticket and has to name the team that owns the audit trail exporter repository. Which team code goes on the ticket? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "records-platform",
+        "tools": []
+      }
+    }
+  ]
+}

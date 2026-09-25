@@ -1,0 +1,35 @@
+{
+  "id": "code-5007",
+  "description": "Count the places that release library holds by calling the queue store's promote_hold helper. DISTILL-CANARY-6f14b8d2",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "find_callers",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-code-calltally-02",
+    "ref_calls": 3,
+    "fixture_bytes": 543,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "holds/dispatch.py": "from queue.store import promote_hold\n\n# Release the holds that are next in line.\n\n\ndef dispatch(holds):\n    for hold in holds:\n        promote_hold(hold)\n\n\ndef dispatch_urgent(hold):\n    promote_hold(hold)\n",
+    "holds/review.py": "from queue.store import promote_hold\n\n# Walk the holds the desk escalated.\n\n\ndef review(rows):\n    for row in rows:\n        if row[\"ready\"]:\n            promote_hold(row)\n\n\ndef review_urgent(row):\n    promote_hold(row)\n",
+    "queue/store.py": "\"\"\"The hold queue for Ashgrove Library.\"\"\"\n\nHELD = []\n\n\ndef promote_hold(hold):\n    HELD.append(hold)\n    return hold\n"
+  },
+  "turns": [
+    {
+      "prompt": "Ashgrove Library releases a held loan by calling promote_hold. How many places in the holds and queue modules call it? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 4,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

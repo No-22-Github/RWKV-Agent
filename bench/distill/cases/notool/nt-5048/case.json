@@ -1,0 +1,40 @@
+{
+  "id": "nt-5048",
+  "description": "Filename suffix carried by nightly account snapshot exports. DISTILL-CANARY-c15ada5d",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "stable_fact",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "-snapshot.csv"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-naming-rule-01",
+    "ref_calls": 1,
+    "fixture_bytes": 382,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "conventions/export-filenames.txt": "account snapshots = -acct.csv\nbilling statements = -stmt.csv\nusage rollups = -usage.csv\n",
+    "README.md": "# Glasswing Data Services - data platform workspace\n\nNightly exports are written as the job name plus a fixed suffix, and the suffixes are listed here so downstream loaders can match on them; rows are kept in alphabetical order of the export name. Last reviewed 2026-06-05, reference PLT-8815.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Glasswing Data Services is updating a loader that recognises nightly account snapshot exports by their filename ending. What suffix do those files carry? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "-acct.csv",
+        "tools": []
+      }
+    }
+  ]
+}

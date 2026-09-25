@@ -1,0 +1,42 @@
+{
+  "id": "code-5008",
+  "description": "Count the call sites of the stream service's Sink interface emit method across its consumers and interfaces modules. DISTILL-CANARY-bd72e0a4",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "find_callers",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 4
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-code-calltally-03",
+    "ref_calls": 4,
+    "fixture_bytes": 926,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "consumers/pump.py": "from interfaces.sink import Sink\n\n\nclass Pump:\n    \"\"\"Pulls events from a reader and hands them to its sink.\"\"\"\n\n    def __init__(self, sink: Sink):\n        self.sink = sink\n\n    def run(self, events):\n        for event in events:\n            self.sink.emit(event)\n\n\ndef flush(sink: Sink, event):\n    sink.emit(event)\n",
+    "consumers/relay.py": "from interfaces.ledger import Ledger\nfrom interfaces.sink import Sink\n\n\ndef relay(sink: Sink, ledger: Ledger, events):\n    for event in events:\n        ledger.emit(event)\n    sink.emit(events)\n",
+    "interfaces/ledger.py": "\"\"\"The ledger keeps its own emit for posted entries.\"\"\"\n\n\nclass Ledger:\n    def __init__(self):\n        self.entries = []\n\n    def emit(self, entry):\n        self.entries.append(entry)\n        return entry\n",
+    "interfaces/sink.py": "\"\"\"The sink interface every stream consumer writes through.\"\"\"\n\n\nclass Sink:\n    def emit(self, event):\n        raise NotImplementedError\n\n\nclass NullSink(Sink):\n    def emit(self, event):\n        return None\n"
+  },
+  "turns": [
+    {
+      "prompt": "The stream service hands events to consumers through the Sink interface, whose method the consumers call as emit. How many call sites does that interface method have across the consumers and interfaces modules? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 3,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "id": "cfg-5011",
+  "description": "Queue ceiling the dispatch service runs with in production, where the profile block and the shipped defaults both define the setting. DISTILL-CANARY-a95b7e63",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-PRECEDENCE"
+    ],
+    "trap_decoys": {
+      "TR-PRECEDENCE": 650
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-settingsstack-01",
+    "ref_calls": 2,
+    "fixture_bytes": 1310,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Tarnbrook Software - dispatch\n\n`dispatch` is the platform's route planning service. Before it starts, the platform resolves each setting from the first source that defines it, and `resolved_from` in the settings sheet lists those sources in the order the service consults them: the variables the platform runner exports into the process, then the deployment profile, then the shipped defaults. A source that leaves a setting out falls through to the next one, so a profile lists only what it changes.\n\n`config/dispatch-settings.json` is the review sheet the platform tooling writes for the production deployment: it shows each source's block as the service will see it, and the runner exports a setting as `TARNBROOK_DISPATCH_<SETTING>` in capitals.\n",
+    "config/dispatch-settings.json": "{\n  \"service\": \"dispatch\",\n  \"resolved_from\": [\"runner_exports\", \"profile\", \"shipped_defaults\"],\n  \"runner_exports\": {\n    \"route_budget_ms\": 3100\n  },\n  \"profile\": {\n    \"queue_ceiling\": 890\n  },\n  \"shipped_defaults\": {\n    \"queue_ceiling\": 650,\n    \"route_budget_ms\": 2730,\n    \"label_printer\": \"thermal\",\n    \"driver_break_min\": 42\n  }\n}\n",
+    "docs/route-notes.md": "# Route notes\n\nDepot tablets cache the last route plan they were sent, so a driver keeps working when the link drops. Label stock and driver breaks are handled by the depot teams and never reach the dispatch service.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The Tarnbrook Software fleet planner needs the queue ceiling the dispatch service will run with in production, for the rollout review. What is that ceiling? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 890,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

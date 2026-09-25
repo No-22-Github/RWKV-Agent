@@ -1,0 +1,65 @@
+{
+  "id": "hyb-5007",
+  "description": "September invoiced total for a named job, once the job is identified among two with the same customer name. DISTILL-CANARY-c84d17ab",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 948.75
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-ambigpick-01",
+    "ref_calls": 2,
+    "fixture_bytes": 449,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "invoices/september-jobs.csv": "job,site,invoice,dated,amount_gbp\nLM-31,Lamont Wharf,IN-2214,2026-09-05,412.50\nLM-31,Lamont Wharf,IN-2231,2026-09-19,268.75\nLM-31,Lamont Wharf,IN-2240,2026-09-26,596.00\nLM-22,Lamont Court,IN-2219,2026-09-12,318.40\nLM-22,Lamont Court,IN-2227,2026-09-23,630.35\n",
+    "README.md": "# Tarnside Glazing - September job invoices\n\nOne row per invoice raised in September. The register keys each row by job\nnumber and site; the amount is the invoice total including materials.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Tarnside Glazing is closing its September books and needs the invoiced total for the Lamont work it did in September. How much was that?",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ]
+      }
+    },
+    {
+      "prompt": "The Lamont Wharf job. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 1277.25,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

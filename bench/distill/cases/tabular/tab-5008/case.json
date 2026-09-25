@@ -1,0 +1,40 @@
+{
+  "id": "tab-5008",
+  "description": "Distinct bicycles serviced in a depot log that repeats some records. DISTILL-CANARY-e1360a7b",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 50
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-bikefleet-01",
+    "ref_calls": 3,
+    "fixture_bytes": 2399,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "service_log_2026-08.csv": "record_id,bike_id,service_date,depot,work_minutes\nSVC-10234,BK-4412,2026-08-13,Mill Lane,23\nSVC-10238,BK-4424,2026-08-25,Harbour Row,24\nSVC-10258,BK-4484,2026-08-01,Mill Lane,28\nSVC-10268,BK-4514,2026-08-03,Harbour Row,33\nSVC-10260,BK-4490,2026-08-07,Quay Street,45\nSVC-10252,BK-4466,2026-08-11,Mill Lane,34\nSVC-10244,BK-4442,2026-08-15,Harbour Row,46\nSVC-10255,BK-4475,2026-08-20,Mill Lane,57\nSVC-10236,BK-4418,2026-08-19,Quay Street,28\nSVC-10239,BK-4427,2026-08-28,Quay Street,68\nSVC-10243,BK-4439,2026-08-12,Mill Lane,38\nSVC-10265,BK-4505,2026-08-22,Harbour Row,52\nSVC-10273,BK-4529,2026-08-18,Mill Lane,22\nSVC-10263,BK-4499,2026-08-16,Quay Street,61\nSVC-10241,BK-4433,2026-08-06,Harbour Row,85\nSVC-10261,BK-4493,2026-08-10,Mill Lane,22\nSVC-10232,BK-4406,2026-08-07,Harbour Row,59\nSVC-10245,BK-4445,2026-08-18,Quay Street,22\nSVC-10235,BK-4415,2026-08-16,Harbour Row,24\nSVC-10249,BK-4457,2026-08-02,Mill Lane,95\nSVC-10263,BK-4499,2026-08-16,Quay Street,61\nSVC-10262,BK-4496,2026-08-13,Harbour Row,77\nSVC-10233,BK-4409,2026-08-10,Quay Street,76\nSVC-10264,BK-4502,2026-08-19,Mill Lane,80\nSVC-10253,BK-4469,2026-08-14,Harbour Row,33\nSVC-10271,BK-4523,2026-08-12,Harbour Row,33\nSVC-10240,BK-4430,2026-08-03,Mill Lane,57\nSVC-10268,BK-4514,2026-08-03,Harbour Row,33\nSVC-10250,BK-4460,2026-08-05,Harbour Row,69\nSVC-10270,BK-4520,2026-08-09,Mill Lane,69\nSVC-10251,BK-4463,2026-08-08,Quay Street,39\nSVC-10271,BK-4523,2026-08-12,Harbour Row,33\nSVC-10246,BK-4448,2026-08-21,Mill Lane,92\nSVC-10256,BK-4478,2026-08-23,Harbour Row,71\nSVC-10248,BK-4454,2026-08-27,Quay Street,53\nSVC-10266,BK-4508,2026-08-25,Quay Street,85\nSVC-10267,BK-4511,2026-08-28,Mill Lane,82\nSVC-10259,BK-4487,2026-08-04,Harbour Row,85\nSVC-10234,BK-4412,2026-08-13,Mill Lane,23\nSVC-10257,BK-4481,2026-08-26,Quay Street,32\nSVC-10231,BK-4403,2026-08-04,Mill Lane,78\nSVC-10254,BK-4472,2026-08-17,Quay Street,35\nSVC-10272,BK-4526,2026-08-15,Quay Street,77\nSVC-10230,BK-4400,2026-08-01,Quay Street,95\nSVC-10251,BK-4463,2026-08-08,Quay Street,39\nSVC-10242,BK-4436,2026-08-09,Quay Street,58\nSVC-10269,BK-4517,2026-08-06,Quay Street,31\nSVC-10237,BK-4421,2026-08-22,Mill Lane,66\nSVC-10247,BK-4451,2026-08-24,Harbour Row,21\nSVC-10247,BK-4451,2026-08-24,Harbour Row,21\n",
+    "README.md": "# Bellwether Bike Depot - fleet service log, August 2026\n\nOne record per bicycle serviced. The shift export was run twice on 29 August, so some records were written more than once.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Bellwether Bike Depot reports fleet servicing for August 2026. How many bicycles were serviced that month? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 44,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

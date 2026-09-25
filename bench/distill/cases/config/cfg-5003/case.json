@@ -1,0 +1,39 @@
+{
+  "id": "cfg-5003",
+  "description": "Raise the inventory sync batch size to the figure the rollout brief asks for, editing the sync service's settings in place. DISTILL-CANARY-b48d062f",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-cfg-invsync-01",
+    "ref_calls": 2,
+    "fixture_bytes": 806,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "config/invsync.json": "{\n  \"batch_size\": 120,\n  \"shard_count\": 7,\n  \"retry_budget\": 11,\n  \"poll_seconds\": 30\n}\n",
+    "tools/report_batch_size.py": "\"\"\"Print the batch size the inventory sync will use on its next run.\"\"\"\nimport json\n\nwith open(\"config/invsync.json\") as handle:\n    settings = json.load(handle)\n\nprint(settings[\"batch_size\"])\n",
+    "README.md": "# Nettlebed Outfitters - inventory sync\n\n`invsync` mirrors stock counts from the shop-floor scanners into the warehouse catalogue. Each run collects a batch of scans, writes them as one page, and then waits for its next poll.\n\nSettings live in `config/invsync.json`. `tools/report_batch_size.py` prints the batch size the next run will use.\n",
+    "docs/scanner-notes.md": "# Scanner notes\n\nThe handheld readers report through the dock station rather than straight to the sync service. Battery swaps are handled by the store team and need no service change.\n"
+  },
+  "expect": {
+    "run": {
+      "path": "tools/report_batch_size.py",
+      "expected_stdout": "250"
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Nettlebed Outfitters is widening the shop-floor scanner rollout, and the inventory sync has to go out with a batch size of 250 in place of its current setting. Update the sync service's settings so its next run uses that batch size. When finished, reply DONE.",
+      "expect": {}
+    }
+  ]
+}

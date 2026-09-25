@@ -1,0 +1,35 @@
+{
+  "id": "cfg-5002",
+  "description": "Queue capacity the laboratory bench scheduler holds for booking requests, read from the scheduler's own settings file. DISTILL-CANARY-3f7c1a92",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-cfg-labsched-01",
+    "ref_calls": 2,
+    "fixture_bytes": 608,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Bellwether College instrument lab\n\nThe bench scheduler hands out time on the three shared spectrometers. It keeps a queue of booking requests from the research groups and serves them in the order they arrive.\n\nThe scheduler reads its settings from `config/benchsched.yaml`. It is started by hand from the lab workstation, so nothing is exported into its environment.\n",
+    "config/benchsched.yaml": "queue_capacity: 48\nhold_seconds: 115\nsession_max_minutes: 90\n",
+    "docs/instrument-notes.md": "# Instrument notes\n\nThe spectrometer on bench two came back from its summer service and is running again.\nCoolant top-ups are logged by the lab technician, not by the scheduler.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The lab manager at Bellwether College is filling in the room-booking form for the instrument laboratory and needs the number of booking requests the bench scheduler keeps in its queue; anything past that gets turned away. What is that number? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 48,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "id": "code-5010",
+  "description": "Count the lines of the reporting team's tools package that still carry a CHECKUP-PINNED annotation. DISTILL-CANARY-f20b7c48",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "count_markers",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-code-pinnote-01",
+    "ref_calls": 2,
+    "fixture_bytes": 849,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "tools/__init__.py": "# CHECKUP-PINNED: the tools package is held at the checkup window\n\"\"\"Helpers the reporting team shares across its jobs.\"\"\"\n",
+    "tools/aliases.py": "\"\"\"Alias letters for the reporting jobs.\"\"\"\n\n# CHECKUP-PINNED: the alias letters are frozen until the checkup closes\nALIASES = {\"amount\": \"a\", \"date\": \"d\"}\n\n\ndef expand(token):\n    # CHECKUP-PINNED: expansions go through the frozen map\n    return ALIASES.get(token, token)\n",
+    "tools/exports.py": "\"\"\"Export helpers for the reporting jobs.\"\"\"\n\n# CHECKUP-PINNED: the export suffixes are held at the checkup window\nSUFFIXES = [\"json\", \"csv\"]\n\n\ndef suffix_for(name):\n    for suffix in SUFFIXES:\n        if name.endswith(suffix):\n            return suffix\n    return \"\"\n",
+    "tools/report.py": "\"\"\"Report builders for the reporting team.\"\"\"\nfrom tools.aliases import expand\n\n\ndef title(token):\n    # CHECKUP-PINNED: titles keep the frozen letters\n    return expand(token).upper()\n"
+  },
+  "turns": [
+    {
+      "prompt": "The reporting team sealed its shortcut letters for the checkup window and wants to know what is still held there. How many lines of the tools package still carry a CHECKUP-PINNED annotation? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 5,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

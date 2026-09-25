@@ -1,0 +1,61 @@
+{
+  "id": "web-5006",
+  "description": "Default visibility timeout for a Saltmarsh standard queue; batch queue settings are a separate page. DISTILL-CANARY-9f32d5ca",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": 600
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-web-apiratelimit-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "saltmarsh",
+      "url": "https://docs.saltmarsh.example/reference/queues",
+      "url_match": "docs.saltmarsh.example/reference/queues",
+      "title": "Queue settings - Saltmarsh reference",
+      "snippet": "Standard queues use a 90-second visibility timeout by default; batch queues are documented separately.",
+      "content": "# Queue settings\n\nSaltmarsh reference, reviewed 2026-05-20.\n\nStandard queues hand a message to one worker at a time. A message that a worker\nhas received but not deleted becomes visible to other workers again after the\nvisibility timeout, which defaults to 90 seconds for standard queues and can be\nraised per queue up to 43200 seconds.\n\nOther defaults for standard queues:\n\n* max_message_bytes - 262144\n* delivery_attempts - 5, after which the message moves to the dead-letter queue\n\nA worker that finishes early deletes the message and frees the next slot\nimmediately.\n",
+      "published_at": "2026-05-20"
+    },
+    {
+      "query_match": "saltmarsh batch",
+      "url": "https://docs.saltmarsh.example/reference/batch-queues",
+      "url_match": "docs.saltmarsh.example/reference/batch-queues",
+      "title": "Batch queue settings - Saltmarsh reference",
+      "snippet": "Batch queues deliver up to 100 messages at once and default to a 600-second visibility timeout.",
+      "content": "# Batch queue settings\n\nSaltmarsh reference, reviewed 2026-05-20.\n\nBatch queues deliver up to 100 messages in one response and give the whole\nbatch a single visibility window. The visibility timeout for batch queues\ndefaults to 600 seconds and can be raised per queue up to 43200 seconds.\n\nBatch queues keep the same delivery_attempts default of 5 as standard queues.\n",
+      "published_at": "2026-05-20"
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Our order workers read from a Saltmarsh standard queue and leave the visibility timeout unset. How many seconds does a worker have after receiving a message before that message can be handed to another worker? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 90,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

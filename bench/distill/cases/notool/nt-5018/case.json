@@ -1,0 +1,41 @@
+{
+  "id": "nt-5018",
+  "description": "Explain the rigging tag's safe working load and give it for one sling. DISTILL-CANARY-f3557a84",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 12400
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-loadlimit-01",
+    "ref_calls": 0,
+    "fixture_bytes": 207,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "rigging/swl_card.csv": "sling,breaking_load_n,factor\nSL-14,12400,5\n",
+    "README.md": "# Hartsmere Rigging - gear workspace\n\nShared folder for the lifting gear store.\n\n- rigging/  sling cards from the test house\n- lifts/  lift plans waiting on review\n"
+  },
+  "turns": [
+    {
+      "prompt": "A rigger at Hartsmere asked what the safe working load on a sling tag means; it is the load the sling broke at under test divided by a factor of safety. Sling SL-14 broke at 12,400 newtons and the house applies a factor of 5. Give its safe working load in newtons. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 2480,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

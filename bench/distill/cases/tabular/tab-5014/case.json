@@ -1,0 +1,40 @@
+{
+  "id": "tab-5014",
+  "description": "Highest tank utilisation rate in a farm usage sheet, where the fullest tank is not the busiest one. DISTILL-CANARY-b7d2148e",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "rank",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": 50.0
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-tankusage-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1471,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "tank_usage_2026-08.csv": "tank_id,site,capacity_litres,used_litres\nTK-210,Longmead,2600,1003\nTK-211,Ashcroft,7800,5706\nTK-212,Barrow Hill,15000,10591\nTK-213,Kestrel Farm,2600,961\nTK-214,Longmead,12400,9818\nTK-215,Ashcroft,14700,5572\nTK-216,Barrow Hill,1600,1051\nTK-217,Kestrel Farm,23100,9957\nTK-218,Longmead,24000,12000\nTK-219,Ashcroft,17800,11191\nTK-220,Barrow Hill,5900,3587\nTK-221,Kestrel Farm,10800,6353\nTK-222,Longmead,23200,11188\nTK-223,Ashcroft,12500,9600\nTK-224,Barrow Hill,1700,632\nTK-225,Kestrel Farm,18200,11185\nTK-226,Longmead,21700,8656\nTK-227,Ashcroft,8300,3911\nTK-228,Barrow Hill,18900,11182\nTK-229,Kestrel Farm,14600,7213\nTK-230,Longmead,7500,3921\nTK-231,Ashcroft,3600,1753\nTK-232,Barrow Hill,4600,1616\nTK-233,Kestrel Farm,16100,11177\nTK-234,Longmead,7900,5391\nTK-235,Ashcroft,5400,2254\nTK-236,Barrow Hill,2200,2116\nTK-237,Kestrel Farm,8100,4437\nTK-238,Longmead,15100,11172\nTK-239,Ashcroft,1100,605\nTK-240,Barrow Hill,21500,8485\nTK-241,Kestrel Farm,21100,11169\nTK-242,Longmead,7500,3984\nTK-243,Ashcroft,20100,11167\nTK-244,Barrow Hill,9200,8282\nTK-245,Kestrel Farm,4600,3273\nTK-246,Longmead,4200,1879\nTK-247,Ashcroft,20500,11163\nTK-248,Barrow Hill,14800,11162\nTK-249,Kestrel Farm,4000,1970\nTK-250,Longmead,23700,11160\nTK-251,Ashcroft,6900,3288\nTK-252,Barrow Hill,23000,8578\nTK-253,Kestrel Farm,6200,5358\nTK-254,Longmead,2900,1165\n",
+    "README.md": "# Wexcombe Farms - tank usage, August 2026\n\nOne row per tank; capacity_litres is the working volume and used_litres the volume drawn during the month.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Wexcombe Farms reviews water use across its tanks for August 2026. What was the highest utilisation rate, that is the used share of capacity, expressed in percent and rounded to one decimal place? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 96.2,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

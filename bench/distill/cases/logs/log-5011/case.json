@@ -1,0 +1,40 @@
+{
+  "id": "log-5011",
+  "description": "Count the SKUs a supplier's price list lost for a missing currency, in the family whose sibling has no answer in the data. DISTILL-CANARY-16cc7427",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 6
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-pricefeed-11",
+    "ref_calls": 3,
+    "fixture_bytes": 1254,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# price-feed loader\n\nGlenmoor Tools loads each supplier's nightly tool-price list into the\ncatalogue. The loader appends one line to logs/feed-loader.log for every SKU it\nturns away and closes the run with a line carrying the run's totals; the SKUs it\naccepts are counted in that closing line only, and the closing line accounts for\nevery rejected SKU of the run.\n\n    <UTC time> WARN  sku=<id> rejected reason=<code>\n    <UTC time> INFO  run finished date=<day> accepted=<n> rejected=<n>\n\nThe codes it writes are missing_currency (the list priced the SKU with no\ncurrency), pack_size_missing (the list gave no pack size) and\nprice_out_of_range (the price fell outside the band agreed with the supplier).\nNo run lists a rejected SKU twice.\n",
+    "logs/feed-loader.log": "2026-09-04T23:07:52Z WARN  sku=HD-2204 rejected reason=missing_currency\n2026-09-04T23:07:53Z WARN  sku=HD-2218 rejected reason=price_out_of_range\n2026-09-04T23:07:55Z WARN  sku=HD-2231 rejected reason=missing_currency\n2026-09-04T23:07:56Z WARN  sku=HD-2247 rejected reason=pack_size_missing\n2026-09-04T23:07:58Z WARN  sku=HD-2259 rejected reason=missing_currency\n2026-09-04T23:07:59Z WARN  sku=HD-2266 rejected reason=missing_currency\n2026-09-04T23:08:01Z INFO  run finished date=2026-09-04 accepted=38 rejected=6\n"
+  },
+  "turns": [
+    {
+      "prompt": "On 4 September 2026 Glenmoor Tools loaded Hardacre's price list. How many tools in it did the loader turn away because the price came with no currency? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 4,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "id": "fs-5003",
+  "description": "Count the extraction visits in an apiary season register whose rows mix inspections and extraction runs. DISTILL-CANARY-658dec8c",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "count_by_type",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-fs-registercount-01",
+    "ref_calls": 2,
+    "fixture_bytes": 829,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "Hollowbrook Apiary - records folder\n\nThe season register logs every visit to the hives in row order. Extraction\nvisits are booked with the co-operative and written into the same register.\n",
+    "season-register.txt": "visit 141 - row A - extraction - 9 frames spun\nvisit 142 - row B - inspection - brood pattern even\nvisit 143 - row C - extraction - 11 frames spun\nvisit 144 - row A - inspection - no queen cells\nvisit 145 - row B - extraction - 8 frames spun\nvisit 146 - row C - inspection - stores light\nvisit 147 - row A - extraction - 12 frames spun\nvisit 148 - row B - inspection - varroa board clear\nvisit 149 - row C - extraction - 14 frames spun\nvisit 150 - row A - inspection - entrance reducer fitted\nvisit 151 - row B - extraction - 10 frames spun\nvisit 152 - row C - inspection - brood pattern even\nvisit 153 - row A - extraction - 13 frames spun\n"
+  },
+  "turns": [
+    {
+      "prompt": "Hollowbrook Apiary writes every visit to its hives into one season register. Some visits are inspections and some are extractions done for the co-operative. How many extraction visits does the register hold? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 7,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

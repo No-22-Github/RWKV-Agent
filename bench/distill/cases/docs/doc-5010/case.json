@@ -1,0 +1,42 @@
+{
+  "id": "doc-5010",
+  "description": "The one path in a site pack list with no document saved under it. DISTILL-CANARY-b64a0d58",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "link_check",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": "guides/site-rules-2026.md"
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-doc-linkaudit-01",
+    "ref_calls": 2,
+    "fixture_bytes": 505,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Wexcombe Materials - site pack\n\nEverything a new depot needs for visitors and tippers.\n",
+    "checklists/site-pack.txt": "guides/site-rules.md\nforms/visitor-badge.md\nguides/tipping-rules.md\n",
+    "forms/visitor-badge.md": "# Visitor badge\n\nBadges are issued at the weighbridge office and returned on leaving.\n",
+    "guides/site-rules-2026.md": "# Wexcombe Materials - site rules 2026\n\nAll visitors report to the weighbridge office.\nHigh-visibility clothing is worn beyond the weighbridge.\n",
+    "guides/tipping-rules.md": "# Tipping rules\n\nTippers book a slot at the weighbridge before arriving.\nLoads are tipped at the far end of the yard.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Wexcombe Materials is assembling a site pack for a new depot. One path written in the site pack list has no document saved under it. Which path is it? Give the path exactly as the list writes it. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "guides/site-rules.md"
+      }
+    }
+  ]
+}

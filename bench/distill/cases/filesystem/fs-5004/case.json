@@ -1,0 +1,41 @@
+{
+  "id": "fs-5004",
+  "description": "Find the accession scan that an intake index lists but the folder does not hold. DISTILL-CANARY-126d9859",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "presence",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-fs-intakegap-01",
+    "ref_calls": 2,
+    "fixture_bytes": 534,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "Thornbury Veterinary Laboratory - accession folder\n\nEach accession arrives with one scan sheet. The intake index lists the scans\nexpected for the current batch before the sheets are filed away.\n",
+    "accession-index.txt": "3391 - scans/3391-basalt.txt\n3392 - scans/3392-cinder.txt\n3393 - scans/3393-dolomite.txt\n3394 - scans/3394-granite.txt\n",
+    "scans/3392-cinder.txt": "Accession 3392\nSpecies: bovine\nSample: milk, 2 tubes\nReceived: 2026-09-15\n",
+    "scans/3393-dolomite.txt": "Accession 3393\nSpecies: ovine\nSample: blood, 1 tube\nReceived: 2026-09-16\n",
+    "scans/3394-granite.txt": "Accession 3394\nSpecies: bovine\nSample: milk, 4 tubes\nReceived: 2026-09-16\n"
+  },
+  "turns": [
+    {
+      "prompt": "Thornbury Veterinary Laboratory scans one sheet per accession. The intake index in this folder lists the accession scans of the current batch, but one of them was never saved. Which path is missing? Report it exactly as the index writes it. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals_any": [
+          "scans/3391-basalt.txt",
+          "3391-basalt.txt"
+        ]
+      }
+    }
+  ]
+}

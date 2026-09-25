@@ -1,0 +1,36 @@
+{
+  "id": "hyb-5005",
+  "description": "Declared cover value for one consignment, taken from its traffic-desk record. DISTILL-CANARY-a70c39de",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "local_first",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-hyb-consignnote-01",
+    "ref_calls": 2,
+    "fixture_bytes": 425,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "dispatch/consignment-4471.json": "{\n  \"consignment\": \"4471\",\n  \"carrier\": \"Rookhope Haulage\",\n  \"collected_on\": \"2026-09-08\",\n  \"packages\": 24,\n  \"insured_value_gbp\": 4825,\n  \"delivery_note\": \"DN-4471\"\n}\n",
+    "README.md": "# Fenwick Forwarding - consignment records\n\nOne record per consignment, written by the traffic desk when the load is\ncollected. The cover value is the figure the desk declared to the carrier on\ncollection; the same figure is printed on the delivery note.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Fenwick Forwarding is answering a question from its broker about consignment 4471. What cover value was declared for that consignment? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 4825,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

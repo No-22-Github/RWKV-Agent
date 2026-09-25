@@ -1,0 +1,41 @@
+{
+  "id": "doc-5011",
+  "description": "Which console handbook revision number applies to work carried out in October 2026. DISTILL-CANARY-e18f72c3",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": 3
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-doc-revisionlog-01",
+    "ref_calls": 3,
+    "fixture_bytes": 526,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Tinwell Console documentation\n\nThe handbook, its cover sheet and the revision log travel together.\n",
+    "handbook-cover.md": "# Tinwell Console handbook - cover sheet\n\nRevision 3, printed November 2025.\n\nKeep this cover sheet with the handbook it was printed for.\n",
+    "revision-log.md": "# Tinwell Console handbook - revision log\n\nRevision 3 applies to work carried out from December 2025 to August 2026.\nRevision 4 applies to work carried out from September 2026 onwards and replaces revision 3.\nRevision 3 was issued in November 2025; revision 4 was issued in August 2026.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Tinwell Systems revises its console handbook from time to time. Work carried out in October 2026 must follow which handbook revision number? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 4,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

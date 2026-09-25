@@ -1,0 +1,58 @@
+{
+  "id": "nt-5084",
+  "description": "Asks what kinds of things the assistant can help with; describe capabilities directly without any tool call. DISTILL-CANARY-8bf3ddb4",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-smalltalk-05",
+    "ref_calls": 0,
+    "fixture_bytes": 273,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Saltmarsh Oyster Cooperative - shore workspace\n\nShared folder for the tide crew.\n\n- beds/  stock counts per bed after the last survey\n- orders/  restaurant orders for the week\n",
+    "beds/bed_survey.csv": "bed,tier,oysters,size_mm\nSM-4491,upper,31500,72\nSM-4492,middle,27800,68\nSM-4493,lower,19400,61\n"
+  },
+  "turns": [
+    {
+      "prompt": "What kinds of things are you able to help with on a normal day?",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "file",
+          "File",
+          "search",
+          "Search",
+          "web",
+          "Web",
+          "calculat",
+          "Calculat",
+          "data",
+          "Data",
+          "help",
+          "Help",
+          "question",
+          "Question",
+          "answer",
+          "Answer"
+        ]
+      }
+    }
+  ]
+}

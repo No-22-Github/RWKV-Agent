@@ -1,0 +1,34 @@
+{
+  "id": "tab-5006",
+  "description": "Average crate weight at intake in a food co-op weigh log. DISTILL-CANARY-91f3a2de",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-tab-crateintake-01",
+    "ref_calls": 2,
+    "fixture_bytes": 731,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "crate_intake.csv": "intake_id,producer,produce,weight_kg\nC-3301,Hollow Field Farm,kale,8.4\nC-3302,Turnacre Growers,carrots,12.55\nC-3303,Hollow Field Farm,chard,19.2\nC-3304,Peascroft Smallholding,onions,7.85\nC-3305,Turnacre Growers,potatoes,14.3\nC-3306,Ryehill Orchard,apples,22.6\nC-3307,Peascroft Smallholding,beetroot,9.15\nC-3308,Hollow Field Farm,leeks,16.4\nC-3309,Ryehill Orchard,pears,11.25\nC-3310,Turnacre Growers,parsnips,5.9\nC-3311,Peascroft Smallholding,squash,18.75\nC-3312,Hollow Field Farm,chard,13.05\nC-3313,Ryehill Orchard,plums,10.6\nC-3314,Peascroft Smallholding,potatoes,21.35\nC-3315,Turnacre Growers,onions,6.45\nC-3316,Hollow Field Farm,kale,15.8\n",
+    "README.md": "# Marsh Lane Food Co-op - intake weigh log\n\nOne row per crate weighed at the depot door.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Marsh Lane Food Co-op reports the average crate weight to its producers. What was the average crate weight, in kilograms, across the intakes in this log, rounded to two decimal places? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 13.35,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

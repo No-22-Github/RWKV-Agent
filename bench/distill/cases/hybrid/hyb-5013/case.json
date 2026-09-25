@@ -1,0 +1,65 @@
+{
+  "id": "hyb-5013",
+  "description": "Quantity still outstanding on a merchant's order once the measure is settled. DISTILL-CANARY-b3e06d18",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 368.2
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-ambigbasis-02",
+    "ref_calls": 2,
+    "fixture_bytes": 397,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "orders/hesketh-order.csv": "line,item,ordered,delivered,unit_price_gbp\n1,Concrete blocks 100mm,480,360,1.86\n2,Kerbs 914mm,120,120,11.40\n3,Grit sand 850kg,6,4,72.50\n4,Cement 25kg,60,60,5.15\n",
+    "README.md": "# Ellerbeck Builders' Merchants - order records\n\nOne row per product line: the quantity the site ordered, the quantity delivered\nso far and the unit price held against the line. Deliveries are booked in against\nthe line as they arrive.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Ellerbeck Builders' Merchants is closing the Hesketh order with the site office. How much is still outstanding on it?",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ]
+      }
+    },
+    {
+      "prompt": "In units, not in money. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 122,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

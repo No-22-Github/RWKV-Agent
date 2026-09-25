@@ -1,0 +1,40 @@
+{
+  "id": "log-5006",
+  "description": "Total the response bytes the gateway returned for one route, with a longer route name sharing the prefix. DISTILL-CANARY-82ac55e7",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "trap_decoys": {
+      "TR-DECOY": 171443
+    },
+    "axes": [
+      "OBS"
+    ],
+    "ref_calls": 3,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null,
+    "task_type": "aggregate_jsonl",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "level": "L1",
+    "family": "fam-log-gatewayagg-11",
+    "fixture_bytes": 4400
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# gateway request journal\n\nThe API gateway appends one JSON object per request to logs/gateway.jsonl:\n`ts`, `route`, `status`, `duration_ms` and `bytes`, where `bytes` is the size of\nthe response body it returned. The routes it serves are /v2/ledger,\n/v2/ledger/export, /v2/quotes and /v2/orders; the export route streams a\nmonth of postings in one response.\n",
+    "logs/gateway.jsonl": "{\"ts\":\"2026-08-07T09:02:11Z\",\"route\":\"/v2/ledger\",\"status\":200,\"duration_ms\":233,\"bytes\":5120}\n{\"ts\":\"2026-08-07T09:02:47Z\",\"route\":\"/v2/quotes\",\"status\":200,\"duration_ms\":118,\"bytes\":2233}\n{\"ts\":\"2026-08-07T09:03:29Z\",\"route\":\"/v2/ledger\",\"status\":200,\"duration_ms\":341,\"bytes\":7421}\n{\"ts\":\"2026-08-07T09:04:02Z\",\"route\":\"/v2/ledger/export\",\"status\":200,\"duration_ms\":912,\"bytes\":9104}\n{\"ts\":\"2026-08-07T09:05:18Z\",\"route\":\"/v2/ledger\",\"status\":200,\"duration_ms\":288,\"bytes\":6310}\n{\"ts\":\"2026-08-07T09:06:41Z\",\"route\":\"/v2/orders\",\"status\":201,\"duration_ms\":97,\"bytes\":1188}\n{\"ts\":\"2026-08-07T09:07:03Z\",\"route\":\"/v2/ledger\",\"status\":502,\"duration_ms\":1204,\"bytes\":412}\n{\"ts\":\"2026-08-07T09:08:26Z\",\"route\":\"/v2/ledger/export\",\"status\":200,\"duration_ms\":1043,\"bytes\":8871}\n{\"ts\":\"2026-08-07T09:09:52Z\",\"route\":\"/v2/quotes\",\"status\":200,\"duration_ms\":134,\"bytes\":2109}\n{\"ts\":\"2026-08-07T09:11:14Z\",\"route\":\"/v2/ledger\",\"status\":200,\"duration_ms\":302,\"bytes\":6698}\n{\"ts\":\"2026-08-07T09:12:38Z\",\"route\":\"/v2/orders\",\"status\":200,\"duration_ms\":121,\"bytes\":1432}\n{\"ts\":\"2026-08-07T09:14:07Z\",\"route\":\"/v2/ledger\",\"status\":200,\"duration_ms\":356,\"bytes\":7203}\n{\"ts\":\"2026-08-07T09:15:44Z\",\"route\":\"/v2/ledger/export\",\"status\":502,\"duration_ms\":1522,\"bytes\":389}\n{\"ts\":\"2026-08-07T09:17:19Z\",\"route\":\"/v2/quotes\",\"status\":200,\"duration_ms\":142,\"bytes\":2418}\n{\"ts\":\"2026-08-07T09:18:51Z\",\"route\":\"/v2/ledger\",\"status\":200,\"duration_ms\":297,\"bytes\":6488}\n{\"ts\":\"2026-08-07T09:20:33Z\",\"route\":\"/v2/orders\",\"status\":201,\"duration_ms\":108,\"bytes\":1263}\n{\"ts\":\"2026-08-07T09:22:08Z\",\"route\":\"/v2/ledger\",\"status\":200,\"duration_ms\":318,\"bytes\":6915}\n{\"ts\":\"2026-08-07T09:23:47Z\",\"route\":\"/v2/ledger/export\",\"status\":200,\"duration_ms\":978,\"bytes\":8402}\n{\"ts\":\"2026-08-07T09:25:12Z\",\"route\":\"/v2/ledger\",\"status\":200,\"duration_ms\":271,\"bytes\":6027}\n{\"ts\":\"2026-08-07T09:26:39Z\",\"route\":\"/v2/quotes\",\"status\":200,\"duration_ms\":126,\"bytes\":2054}\n{\"ts\":\"2026-08-07T09:28:04Z\",\"route\":\"/v2/ledger\",\"status\":200,\"duration_ms\":334,\"bytes\":7088}\n{\"ts\":\"2026-08-07T09:29:31Z\",\"route\":\"/v2/orders\",\"status\":200,\"duration_ms\":115,\"bytes\":1377}\n{\"ts\":\"2026-08-07T09:31:02Z\",\"route\":\"/v2/ledger\",\"status\":200,\"duration_ms\":309,\"bytes\":6733}\n{\"ts\":\"2026-08-07T09:32:26Z\",\"route\":\"/v2/ledger/export\",\"status\":200,\"duration_ms\":1012,\"bytes\":8670}\n{\"ts\":\"2026-08-07T09:33:58Z\",\"route\":\"/v2/quotes\",\"status\":200,\"duration_ms\":137,\"bytes\":2176}\n{\"ts\":\"2026-08-07T09:35:21Z\",\"route\":\"/v2/ledger\",\"status\":200,\"duration_ms\":326,\"bytes\":6952}\n{\"ts\":\"2026-08-07T09:36:49Z\",\"route\":\"/v2/orders\",\"status\":201,\"duration_ms\":102,\"bytes\":1204}\n{\"ts\":\"2026-08-07T09:38:13Z\",\"route\":\"/v2/ledger\",\"status\":200,\"duration_ms\":281,\"bytes\":6189}\n{\"ts\":\"2026-08-07T09:39:37Z\",\"route\":\"/v2/ledger/export\",\"status\":200,\"duration_ms\":933,\"bytes\":8560}\n{\"ts\":\"2026-08-07T09:41:06Z\",\"route\":\"/v2/quotes\",\"status\":200,\"duration_ms\":149,\"bytes\":2381}\n{\"ts\":\"2026-08-07T09:42:34Z\",\"route\":\"/v2/ledger\",\"status\":200,\"duration_ms\":312,\"bytes\":6804}\n{\"ts\":\"2026-08-07T09:44:01Z\",\"route\":\"/v2/orders\",\"status\":200,\"duration_ms\":119,\"bytes\":1340}\n{\"ts\":\"2026-08-07T09:45:29Z\",\"route\":\"/v2/ledger\",\"status\":200,\"duration_ms\":293,\"bytes\":6412}\n{\"ts\":\"2026-08-07T09:47:11Z\",\"route\":\"/v2/quotes\",\"status\":200,\"duration_ms\":131,\"bytes\":2294}\n{\"ts\":\"2026-08-07T09:48:38Z\",\"route\":\"/v2/ledger\",\"status\":200,\"duration_ms\":347,\"bytes\":7160}\n{\"ts\":\"2026-08-07T09:50:02Z\",\"route\":\"/v2/orders\",\"status\":201,\"duration_ms\":111,\"bytes\":1298}\n{\"ts\":\"2026-08-07T09:51:31Z\",\"route\":\"/v2/ledger\",\"status\":200,\"duration_ms\":265,\"bytes\":5973}\n{\"ts\":\"2026-08-07T09:53:04Z\",\"route\":\"/v2/ledger/export\",\"status\":200,\"duration_ms\":1004,\"bytes\":8245}\n{\"ts\":\"2026-08-07T09:54:29Z\",\"route\":\"/v2/quotes\",\"status\":200,\"duration_ms\":122,\"bytes\":2018}\n{\"ts\":\"2026-08-07T09:56:07Z\",\"route\":\"/v2/ledger\",\"status\":200,\"duration_ms\":338,\"bytes\":7021}\n{\"ts\":\"2026-08-07T09:57:33Z\",\"route\":\"/v2/orders\",\"status\":200,\"duration_ms\":124,\"bytes\":1461}\n{\"ts\":\"2026-08-07T09:58:58Z\",\"route\":\"/v2/ledger\",\"status\":200,\"duration_ms\":286,\"bytes\":6276}\n"
+  },
+  "turns": [
+    {
+      "prompt": "Selbygrove Analytics' gateway writes one record per request to its request journal, and the workspace holds the 7 August 2026 export. How many bytes did the gateway return for the /v2/ledger route that day? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 119202,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

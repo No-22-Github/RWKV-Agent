@@ -1,0 +1,61 @@
+{
+  "id": "web-5012",
+  "description": "Default batch size in the newest Rookhaven Python client release; the Go client page differs. DISTILL-CANARY-a2f60e74",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": 2000
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-web-pinversion-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "rookhaven",
+      "url": "https://rookhaven.example/clients/python/releases",
+      "url_match": "rookhaven.example/clients/python/releases",
+      "title": "Rookhaven Python client releases",
+      "snippet": "5.2.0 (2026-08-28) raises the default batch size to 5000 rows.",
+      "content": "# Python client releases\n\nRookhaven Python client, newest first.\n\n## 5.2.0 - 2026-08-28\n* default batch size raised to 5000 rows\n* query_timeout_secs stays at 120\n\n## 5.1.0 - 2026-05-09\n* default batch size stays at 2000 rows\n\n## 5.0.0 - 2026-02-11\n* default batch size stays at 1000 rows\n",
+      "published_at": "2026-08-28"
+    },
+    {
+      "query_match": "rookhaven go",
+      "url": "https://rookhaven.example/clients/go/releases",
+      "url_match": "rookhaven.example/clients/go/releases",
+      "title": "Rookhaven Go client releases",
+      "snippet": "2.4.0 (2026-07-02) raises the default batch size to 2000 rows.",
+      "content": "# Go client releases\n\nRookhaven Go client, newest first.\n\n## 2.4.0 - 2026-07-02\n* default batch size raised to 2000 rows\n* query_timeout_secs stays at 120\n\n## 2.3.0 - 2026-03-19\n* default batch size stays at 1000 rows\n",
+      "published_at": "2026-07-02"
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Our loader pins the newest published release of the Rookhaven Python client. How many rows does one batch hold by default in that release? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 5000,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

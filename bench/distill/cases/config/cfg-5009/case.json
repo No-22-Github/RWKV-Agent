@@ -1,0 +1,40 @@
+{
+  "id": "cfg-5009",
+  "description": "Effective value of the checkout service's reservation hold, which no source in the platform's settings sheet defines. DISTILL-CANARY-e2d4a918",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "missing_keys",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": 1800
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-settingsstack-01",
+    "ref_calls": 2,
+    "fixture_bytes": 1328,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Tarnbrook Software - checkout\n\n`checkout` is the platform's basket and payment service. Before it starts, the platform resolves each setting from the first source that defines it, and `resolved_from` in the settings sheet lists those sources in the order the service consults them: the variables the platform runner exports into the process, then the deployment profile, then the shipped defaults. A source that leaves a setting out falls through to the next one, so a profile lists only what it changes.\n\n`config/checkout-settings.json` is the review sheet the platform tooling writes for the production deployment: it shows each source's block as the service will see it, and the runner exports a setting as `TARNBROOK_CHECKOUT_<SETTING>` in capitals.\n",
+    "config/checkout-settings.json": "{\n  \"service\": \"checkout\",\n  \"resolved_from\": [\"runner_exports\", \"profile\", \"shipped_defaults\"],\n  \"runner_exports\": {\n    \"cart_line_limit\": 320,\n    \"payment_retry_budget\": 7\n  },\n  \"profile\": {\n    \"receipt_footer\": \"branded\"\n  },\n  \"shipped_defaults\": {\n    \"session_hold_s\": 1800,\n    \"cart_line_limit\": 240,\n    \"payment_retry_budget\": 11,\n    \"receipt_footer\": \"standard\"\n  }\n}\n",
+    "docs/basket-notes.md": "# Basket notes\n\nGuest baskets are held on the storefront node, not on the checkout service. Promotional banners are served from the marketing stack and change without a checkout release.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The Tarnbrook Software billing team is writing the capacity note for the checkout service and needs the effective value of `reservation_hold_s` for the production deployment. What is it? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "UNKNOWN"
+      }
+    }
+  ]
+}

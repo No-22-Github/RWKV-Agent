@@ -1,0 +1,41 @@
+{
+  "id": "nt-5014",
+  "description": "Explain the elevator's bushel as a weight measure and give the bushels on one ticket. DISTILL-CANARY-698bb58f",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 21.27
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-weightstep-01",
+    "ref_calls": 0,
+    "fixture_bytes": 227,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "intake/bushel_card.csv": "ticket,commodity,test_weight_lb_per_bu,net_lb\nT-6207,wheat,58,1276\n",
+    "README.md": "# Wrenfield Grain Elevator - intake workspace\n\nShared folder for the intake desk.\n\n- intake/  one card per delivered load\n- driers/  drying notes for wet grain\n"
+  },
+  "turns": [
+    {
+      "prompt": "An intern at Wrenfield asked why a bushel is not a fixed volume at the elevator; the house settles wheat by weight, and this load's grading slip gives 58 pounds to the bushel. Ticket T-6207 took in 1,276 pounds of wheat. Give the bushels for that ticket. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 22.0,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

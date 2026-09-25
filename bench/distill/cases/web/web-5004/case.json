@@ -1,0 +1,41 @@
+{
+  "id": "web-5004",
+  "description": "Default connection pool size in the newest Bramblewick SDK release. DISTILL-CANARY-2ad96c47",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-web-pinversion-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "bramblewick",
+      "url": "https://bramblewick.example/sdk/releases",
+      "url_match": "bramblewick.example/sdk/releases",
+      "title": "Bramblewick SDK releases",
+      "snippet": "Release notes for the SDK, newest first, with the per-release client defaults.",
+      "content": "# SDK releases\n\nBramblewick SDK changelog, newest first. The most recent entry was published\n2026-08-14.\n\nEach release notes the default connection pool size a client opens when the\napplication does not set one.\n\n## 4.7.2 - 2026-08-14\n* default connection pool size raised from 32 to 64\n* pool_idle_timeout_secs stays at 90\n\n## 4.7.0 - 2026-06-02\n* default connection pool size stays at 32\n* retry budget for 503 responses raised to 4\n\n## 4.6.1 - 2026-04-19\n* default connection pool size stays at 32\n\nThe default applies to one client instance: a service that builds three\nclients opens three pools.\n",
+      "published_at": "2026-08-14"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "Our service pins the newest published release of the Bramblewick SDK. How many connections does one client instance open by default in that release? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 64,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

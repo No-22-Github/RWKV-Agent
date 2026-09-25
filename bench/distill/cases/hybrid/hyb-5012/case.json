@@ -1,0 +1,65 @@
+{
+  "id": "hyb-5012",
+  "description": "September export order value for a smokery once the billing currency is settled. DISTILL-CANARY-19a4d75f",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 5374.5
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-ambigbasis-02",
+    "ref_calls": 2,
+    "fixture_bytes": 402,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "orders/dundalk-2026-09.csv": "line,product,crates,price_gbp,price_eur\n1,Cold smoked salmon 1kg,180,14.60,16.90\n2,Hot smoked trout 500g,240,8.35,9.65\n3,Kipper fillets 250g,150,4.95,5.70\n",
+    "README.md": "# Kilbride Smokehouse - Dundalk order\n\nOne row per product on the September order. Both the sterling price and the euro\nprice agreed with the customer are held on the row; trade customers are billed in\nwhichever currency their account is kept in.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Kilbride Smokehouse is confirming its September order with Dundalk Fine Foods. What is the order worth?",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ]
+      }
+    },
+    {
+      "prompt": "In euros. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 6213,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

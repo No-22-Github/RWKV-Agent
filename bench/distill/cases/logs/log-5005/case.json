@@ -1,0 +1,36 @@
+{
+  "id": "log-5005",
+  "description": "Count the parcels that left a depot without a later hand-over scan in the day's scanner journal. DISTILL-CANARY-4be4271b",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-log-parcelscan-14",
+    "ref_calls": 2,
+    "fixture_bytes": 1342,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# depot scanner\n\nThe handheld appends one line per scan to logs/scans.log:\n\n    <UTC time> scan=<event> parcel=<id>\n\n`scan=out` marks a parcel leaving the depot for its delivery round and\n`scan=delivered` marks the recipient's signature. Both events quote the same\nparcel id, and a parcel that comes back unsold does not get a delivered line.\n",
+    "logs/scans.log": "2026-08-19T06:12:03Z scan=out parcel=P-40218\n2026-08-19T06:12:41Z scan=out parcel=P-40223\n2026-08-19T06:13:19Z scan=out parcel=P-40237\n2026-08-19T06:14:02Z scan=out parcel=P-40244\n2026-08-19T06:15:36Z scan=out parcel=P-40251\n2026-08-19T06:17:08Z scan=out parcel=P-40266\n2026-08-19T06:18:44Z scan=out parcel=P-40273\n2026-08-19T06:20:12Z scan=out parcel=P-40288\n2026-08-19T06:21:57Z scan=out parcel=P-40295\n2026-08-19T06:23:31Z scan=out parcel=P-40302\n2026-08-19T06:25:04Z scan=out parcel=P-40319\n2026-08-19T06:26:38Z scan=out parcel=P-40326\n2026-08-19T08:41:12Z scan=delivered parcel=P-40223\n2026-08-19T08:52:47Z scan=delivered parcel=P-40237\n2026-08-19T09:14:03Z scan=delivered parcel=P-40251\n2026-08-19T09:36:55Z scan=delivered parcel=P-40266\n2026-08-19T10:02:19Z scan=delivered parcel=P-40288\n2026-08-19T10:41:38Z scan=delivered parcel=P-40302\n2026-08-19T11:19:26Z scan=delivered parcel=P-40319\n2026-08-19T13:07:44Z scan=delivered parcel=P-40244\n2026-08-19T14:22:51Z scan=delivered parcel=P-40273\n"
+  },
+  "turns": [
+    {
+      "prompt": "Ashdene Freight's depot scanner records one line for every parcel scan it takes. How many parcels that left the depot on 19 August 2026 were never handed over to a recipient? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 3,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

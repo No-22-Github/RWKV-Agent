@@ -1,0 +1,65 @@
+{
+  "id": "hyb-5011",
+  "description": "September cider volume for one account, counted in the unit the account settles in. DISTILL-CANARY-74c8e1b2",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 4176
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-ambigscope-03",
+    "ref_calls": 2,
+    "fixture_bytes": 363,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "despatch/ashwell-2026-09.csv": "load,despatched_on,cases,bottles\nAL-77,2026-09-03,74,888\nAL-78,2026-09-10,98,1176\nAL-79,2026-09-17,61,732\nAL-80,2026-09-24,115,1380\n",
+    "README.md": "# Wrenfield & Cole - Ashwell despatch\n\nOne row per load, written by the loading bay. A load is recorded both ways: the\nnumber of cases that went on the pallet and the bottle count of the same\nconsignment, twelve bottles to a case.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Wrenfield & Cole is closing the September summary for the Ashwell account. How much cider did Ashwell take in September?",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ]
+      }
+    },
+    {
+      "prompt": "In cases. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 348,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

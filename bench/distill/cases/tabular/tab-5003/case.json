@@ -1,0 +1,34 @@
+{
+  "id": "tab-5003",
+  "description": "Minutes logged by the busiest repair technician in a monthly service log. DISTILL-CANARY-a4d90f13",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "rank",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-tab-espresso-01",
+    "ref_calls": 2,
+    "fixture_bytes": 740,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "repair_log.csv": "ticket,service_date,technician,machine_model,minutes\nES-2104,2026-08-03,Ravi Menon,Linea Mini,45\nES-2107,2026-08-04,Tomas Kral,E61,60\nES-2111,2026-08-06,Ines Duarte,GS3,75\nES-2115,2026-08-08,Bea Lindqvist,Duetto,30\nES-2118,2026-08-11,Ravi Menon,GS3,70\nES-2122,2026-08-13,Ines Duarte,Linea Mini,65\nES-2126,2026-08-14,Tomas Kral,Duetto,35\nES-2130,2026-08-18,Bea Lindqvist,E61,95\nES-2133,2026-08-20,Ravi Menon,E61,55\nES-2137,2026-08-21,Ines Duarte,Duetto,90\nES-2141,2026-08-24,Tomas Kral,Linea Mini,80\nES-2144,2026-08-26,Bea Lindqvist,GS3,55\nES-2148,2026-08-28,Ravi Menon,Duetto,40\nES-2152,2026-08-31,Ines Duarte,GS3,50\n",
+    "README.md": "# Cinder & Coil Espresso Service - repair log, August 2026\n\nOne row per completed ticket; minutes are on-site repair time.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Cinder & Coil Espresso Service bills repair hours at the end of the month. How many minutes in total are recorded against the technician who logged the most repair minutes in the August log? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 280,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

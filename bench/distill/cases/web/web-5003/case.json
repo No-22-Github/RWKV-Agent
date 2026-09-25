@@ -1,0 +1,41 @@
+{
+  "id": "web-5003",
+  "description": "Retry wait Thistlebay prescribes for gateway error TB-4021. DISTILL-CANARY-b58e0f31",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-web-faultcodes-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "thistlebay",
+      "url": "https://support.thistlebay.example/troubleshooting/gateway-errors",
+      "url_match": "support.thistlebay.example/troubleshooting/gateway-errors",
+      "title": "Gateway error codes - Thistlebay troubleshooting",
+      "snippet": "Codes the edge nodes emit, with the action the troubleshooting guide prescribes.",
+      "content": "# Gateway error codes\n\nThistlebay troubleshooting, reviewed 2026-06-11.\n\nEvery error the gateway returns carries a code. The table lists the codes edge\nnodes emit together with the action this guide prescribes for the calling\nclient.\n\n| code | meaning | prescribed client action |\n| --- | --- | --- |\n| TB-4001 | request body over the 8 MB edge limit | split the payload, then retry after 5 seconds |\n| TB-4021 | upstream handshake timeout | wait 45 seconds, then retry once |\n| TB-5030 | upstream connection pool exhausted | wait 120 seconds, then retry with a smaller batch |\n| TB-5112 | gateway drained for maintenance | poll the status page, do not retry this request |\n\nCodes are written to the request log next to the failing request id, so a\nsync that fails on many requests can be grouped by code.\n",
+      "published_at": "2026-06-11"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "Our nightly sync against the Thistlebay gateway keeps ending with error TB-4021. How many seconds does the gateway troubleshooting page ask the client to wait before trying the request again? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 45,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "id": "cfg-5005",
+  "description": "Dispatch relay's keep-alive window restated in seconds for a depot maintenance form, from a settings file that holds it in milliseconds. DISTILL-CANARY-1de95b70",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-cfg-relaywindow-01",
+    "ref_calls": 2,
+    "fixture_bytes": 726,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Pinewood Freight - dispatch relay\n\nThe dispatch relay hands route plans to the depot tablets. It keeps a link open between the depot and the planning service, and the link is torn down when the depot has been idle for longer than its keep-alive window.\n\nIts settings live in `config/dispatch-relay.yaml`, where the window is held in milliseconds because the depot hardware measures it that way. The other two keys are a reconnect count and a probe interval kept in seconds.\n",
+    "config/dispatch-relay.yaml": "keepalive_window_ms: 95000\nreconnect_budget: 44\nprobe_interval_s: 135\n",
+    "docs/depot-notes.md": "# Depot notes\n\nTablet replacements at the Ridgeway depot go through the hardware team. Drivers who still work from paper get their plans printed at the depot, away from the relay.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The depot maintenance form at Pinewood Freight asks for the dispatch relay's keep-alive window in seconds, and the relay's settings state that window in milliseconds. What is the window in seconds? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 95,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

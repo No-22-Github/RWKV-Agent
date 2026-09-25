@@ -1,0 +1,44 @@
+{
+  "id": "nt-5064",
+  "description": "Give the PostgreSQL expression that reduces a timestamp to its month. DISTILL-CANARY-4f079ccd",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "date_trunc('week', ordered_at)"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L2",
+    "family": "fam-nt-queryline-13",
+    "ref_calls": 0,
+    "fixture_bytes": 560,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "sql/report-clauses.tsv": "need\tcanonical\talso_accept\trecorded_on\nmonth-bucket\tdate_trunc('month', ordered_at)\tdate_trunc('month'\t2026-03-24\nday-bucket\tdate_trunc('day', ordered_at)\tdate_trunc('day'\t2026-03-24\n",
+    "README.md": "# Barrowfield Dairy - monthly order summary\n\nThe creamery counts orders per calendar month. Dates enter the warehouse system as full timestamps, so the\nreport has to flatten each one to the month it belongs to before the counting starts.\n",
+    "notes/schema-notes.txt": "orders.order_id is a text key.\norders.ordered_at is the timestamp the report buckets on.\norders.route_code stays as written by the driver.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Barrowfield Dairy counts orders per calendar month. Give the PostgreSQL expression that reduces the timestamp column ordered_at to the first moment of the month it falls in, so that all orders of one month collapse onto a single value. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "date_trunc('month', ordered_at)",
+          "date_trunc('month'"
+        ]
+      }
+    }
+  ]
+}

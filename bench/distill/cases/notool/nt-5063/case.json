@@ -1,0 +1,44 @@
+{
+  "id": "nt-5063",
+  "description": "Give the clause that returns rows 41 to 60 of an ordered list. DISTILL-CANARY-67d1e7c7",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "LIMIT 20 OFFSET 20"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-queryline-13",
+    "ref_calls": 0,
+    "fixture_bytes": 395,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "sql/report-clauses.tsv": "need\tcanonical\talso_accept\trecorded_on\npage-three\tLIMIT 20 OFFSET 40\tOFFSET 40 LIMIT 20|LIMIT 40, 20\t2026-08-05\npage-four\tLIMIT 20 OFFSET 60\tOFFSET 60 LIMIT 20|LIMIT 60, 20\t2026-08-05\n",
+    "README.md": "# Penhallow Vet Supply - reorder list\n\nThe reorder list is paged twenty items at a time and sorted by item code before it is cut into pages.\nWeighbridge staff ask for a page by its position in that sorted list.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Penhallow Vet Supply shows its reorder list twenty items at a time, sorted by item code. Give the clause that returns the third page of that list, which is items 41 through 60. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "LIMIT 20 OFFSET 40",
+          "OFFSET 40 LIMIT 20",
+          "LIMIT 40, 20"
+        ]
+      }
+    }
+  ]
+}

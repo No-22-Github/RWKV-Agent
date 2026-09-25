@@ -1,0 +1,42 @@
+{
+  "id": "nt-5031",
+  "description": "Convert 46 long tons of rapeseed meal to pounds. DISTILL-CANARY-8521fa8c",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 92000
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-millworks-01",
+    "ref_calls": 0,
+    "fixture_bytes": 337,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "berths/discharge_2026-09.csv": "berth,commodity,quantity,unit\nB-3,rapeseed meal,29,long ton\nB-4,rapeseed meal,17,long ton\n",
+    "standards/port_conversions.csv": "conversion,factor\nlong ton to pound,2240\nshort ton to pound,2000\ntonne to pound,2204.622622\n",
+    "README.md": "# Rowanport Stevedores - berth office\n\nDischarge quantities are booked per berth in the berth office.\nThe customer's stock system holds weights in pounds.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Rowanport Stevedores discharged 46 long tons of rapeseed meal on Monday. The customer's stock system holds weights in pounds. How many pounds were discharged? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 103040,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

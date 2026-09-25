@@ -1,0 +1,42 @@
+{
+  "id": "nt-5032",
+  "description": "Convert a 3.5 TiB storage lease to GiB. DISTILL-CANARY-66d5f579",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 3500
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-rackhouse-01",
+    "ref_calls": 0,
+    "fixture_bytes": 300,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "tenants/west_aisle_leases.csv": "tenant,rack,storage,unit\nTrellis Grid,R-14,2.0,TiB\nHasker Media,R-15,1.5,TiB\n",
+    "standards/capacity_conversions.csv": "conversion,factor\nTiB to GiB,1024\nGiB to MiB,1024\nTB to GB,1000\n",
+    "README.md": "# Alderfen Colocation - west aisle\n\nTenant leases on the west aisle are booked per rack in binary units.\nThe provisioning tool takes its quota figures in GiB.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Alderfen Colocation has leased the west aisle block storage to two tenants: 3.5 TiB in all. The provisioning tool takes its quota in GiB. How many GiB should the quota be set to? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 3584,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

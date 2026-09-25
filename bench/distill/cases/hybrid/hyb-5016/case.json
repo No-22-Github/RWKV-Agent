@@ -1,0 +1,67 @@
+{
+  "id": "hyb-5016",
+  "description": "Fill the pending retention period in a laboratory worksheet from the accreditation scheme's schedule. DISTILL-CANARY-47d1e8a9",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_edit",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": null
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-setfromsheet-01",
+    "ref_calls": 4,
+    "fixture_bytes": 391,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [
+    {
+      "query_match": "wessex",
+      "url": "https://wessex-accreditation.example/schedule/retention-periods",
+      "url_match": "wessex-accreditation.example/schedule/retention-periods",
+      "title": "Wessex scheme - retention periods for laboratory records",
+      "snippet": "Retention periods under the current schedule: water samples must be retained for 90 days, receipts and printouts for 24 months.",
+      "content": "# Wessex scheme - retention periods for laboratory records\n\nCurrent schedule, issued 12 May 2026. Applies to laboratories holding the\nWessex water accreditation.\n\nWater samples must be retained for 90 days. Receipt books and instrument\nprintouts are retained for 24 months. Laboratories copy the periods into their\nown retention worksheet when the schedule changes.\n\nQueries: scheme@wessex-accreditation.example\n",
+      "published_at": "2026-05-12"
+    },
+    {
+      "query_match": "retention",
+      "url": "https://wessex-accreditation.example/guidance/retention-questions",
+      "url_match": "wessex-accreditation.example/guidance/retention-questions",
+      "title": "Retention questions answered - Wessex scheme",
+      "snippet": "Water samples are held for 90 days under the current schedule; the period is counted from the day the sample is booked in.",
+      "content": "# Retention questions answered - Wessex scheme\n\nHow long are water samples kept?\nWater samples are held for 90 days under the current schedule. The period runs from the day the sample is booked in at the laboratory.\n\nDo printouts count as records?\nYes. Instrument printouts follow the 24 month period.\n",
+      "published_at": "2026-06-04"
+    }
+  ],
+  "files": {
+    "lab/retention-note.txt": "Wessex scheme - sample retention worksheet\nReceipts: keep 24 months\nWater samples: keep PENDING days\nInstrument printouts: keep 24 months\n",
+    "README.md": "# Northgate Water Laboratory - sample retention\n\nThe retention worksheet is kept in the scheme pack. Each line names a record\ntype and the period it is held for; the scheme issues the periods and the\nlaboratory copies them in when the schedule changes.\n"
+  },
+  "expect": {
+    "files": {
+      "lab/retention-note.txt": {
+        "contains": [
+          "Wessex scheme - sample retention worksheet\nReceipts: keep 24 months\nWater samples: keep 90 days\nInstrument printouts: keep 24 months"
+        ]
+      }
+    },
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Northgate Water Laboratory is bringing its retention worksheet back in line with the Wessex scheme and the water sample period on the worksheet is still pending. Fill in the water sample period the scheme's current schedule sets. When finished, reply DONE."
+    }
+  ]
+}

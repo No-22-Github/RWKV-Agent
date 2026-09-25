@@ -1,0 +1,40 @@
+{
+  "id": "nt-5050",
+  "description": "Revision of the access control standard the internal audit is held against. DISTILL-CANARY-85126f0b",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "stable_fact",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "ACS-3"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-standard-rev-01",
+    "ref_calls": 1,
+    "fixture_bytes": 358,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "standards/revision-register.txt": "access control standard = ACS-4\ndata retention standard = DRS-9\npayment card standard = PCS-2\n",
+    "README.md": "# Brackenmoor Assurance - standards workspace\n\nEach standard is held at exactly one revision here; superseded revisions move to the archive and are not listed. Rows are kept in alphabetical order of the standard name. Last reviewed 2026-02-01, reference STD-4302.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Brackenmoor Assurance is gathering evidence for an internal audit of access control. Which revision of the access control standard is the audit held against? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "ACS-4",
+        "tools": []
+      }
+    }
+  ]
+}

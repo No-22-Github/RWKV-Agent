@@ -1,0 +1,36 @@
+{
+  "id": "log-5002",
+  "description": "Count the bay-door openings on one day of a cold store controller's door journal. DISTILL-CANARY-1dd17a12",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-log-coldstore-11",
+    "ref_calls": 2,
+    "fixture_bytes": 1110,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Hallam Ridge cold store\n\nThe store controller appends one line per door event at the packing site to\nlogs/coldstore.log. Each line is `<UTC time> <level> event=<action> door=<id>`;\nthe actions are open and close, and the site has a bay door and a chill door.\n",
+    "logs/coldstore.log": "2026-08-12T05:12:41Z INFO event=open door=bay\n2026-08-12T05:14:03Z INFO event=close door=bay\n2026-08-12T05:31:18Z INFO event=open door=chill\n2026-08-12T05:33:52Z INFO event=close door=chill\n2026-08-12T07:03:55Z INFO event=open door=bay\n2026-08-12T07:05:29Z INFO event=close door=bay\n2026-08-12T09:41:07Z INFO event=open door=bay\n2026-08-12T09:44:38Z INFO event=close door=bay\n2026-08-12T11:20:14Z INFO event=open door=chill\n2026-08-12T11:22:47Z INFO event=close door=chill\n2026-08-12T13:22:18Z INFO event=open door=bay\n2026-08-12T13:24:50Z INFO event=close door=bay\n2026-08-12T15:57:33Z INFO event=open door=chill\n2026-08-12T15:59:08Z INFO event=close door=chill\n2026-08-12T17:05:44Z INFO event=open door=bay\n2026-08-12T17:08:12Z INFO event=close door=bay\n2026-08-12T18:46:26Z INFO event=open door=bay\n2026-08-12T18:49:01Z INFO event=close door=bay\n"
+  },
+  "turns": [
+    {
+      "prompt": "Hallam Ridge's cold store logs every door event at the packing site. For the refrigeration audit of 12 August 2026, how many times did the bay door open that day? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 6,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

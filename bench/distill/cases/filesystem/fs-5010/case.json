@@ -1,0 +1,44 @@
+{
+  "id": "fs-5010",
+  "description": "Two near-identical revisions of a play-area checklist; the inspecting interval comes from the revision that replaces the other. DISTILL-CANARY-c1985b97",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "duplicates",
+    "traps": [
+      "TR-DECOY",
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 14,
+      "TR-SUPERSEDE": 14
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "fam-fs-neartwin-01",
+    "ref_calls": 4,
+    "fixture_bytes": 665,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "Wrenfield Parish Council - play area folder\n\nChecklists are revised when the inspection standard changes. Only the revision\nin force is used for the monthly return to the district office.\n",
+    "checklists/checklist-rev3.txt": "Wrenfield play area inspection checklist - revision 3\nIssued: 2026-05-18\nSupersedes revision 2 (2025-11-06)\nFrequency: every 14 days\nSwings: shackle wear, seat wear\nRoundabout: bearing play\nClimbing frame: bolt torque\n",
+    "checklists/checklist-rev4.txt": "Wrenfield play area inspection checklist - revision 4\nIssued: 2026-08-03\nSupersedes revision 3 (2026-05-18)\nFrequency: every 7 days\nSwings: shackle wear, seat wear, chain links\nRoundabout: bearing play, deck anchors\nClimbing frame: bolt torque, post footings\n"
+  },
+  "turns": [
+    {
+      "prompt": "Wrenfield Parish Council revises its play area checklist from time to time. The copy in this folder that replaces the older copy sets out how often the play area must be inspected. How many days may pass between inspections? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 7,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

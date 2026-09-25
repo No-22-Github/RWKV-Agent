@@ -1,0 +1,46 @@
+{
+  "id": "scr-5005",
+  "description": "Make the archive visit log script run on standard-library-only runners while it prints the same dated log. DISTILL-CANARY-2f8d64b1",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "stdlib_only",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-scr-datetool-01",
+    "ref_calls": 2,
+    "fixture_bytes": 1102,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "visitlog.py": "\"\"\"Print the visit log for the Wrenbury Archive.\n\nExports land in visits/, one file per month; the columns are\nvisited_on,visitor. Print one line per visit in date order:\n\n    <visited_on>,<weekday>\n\"\"\"\nimport csv\nimport os\nfrom dateutil.parser import parse\n\nVISITS = os.path.join(os.path.dirname(os.path.abspath(__file__)), \"visits\")\n\nWEEKDAYS = [\"Monday\", \"Tuesday\", \"Wednesday\", \"Thursday\", \"Friday\", \"Saturday\", \"Sunday\"]\n\n\ndef visit_rows():\n    rows = []\n    for name in sorted(os.listdir(VISITS)):\n        if name.endswith(\".csv\"):\n            with open(os.path.join(VISITS, name), newline=\"\") as handle:\n                rows.extend(csv.DictReader(handle))\n    return sorted(rows, key=lambda r: r[\"visited_on\"])\n\n\ndef main():\n    for row in visit_rows():\n        print(\"%s,%s\" % (row[\"visited_on\"], WEEKDAYS[parse(row[\"visited_on\"]).weekday()]))\n\n\nmain()\n",
+    "visits/2026-09.csv": "visited_on,visitor\n2026-09-07,Alding\n2026-09-09,Bhatt\n2026-09-12,Alding\n",
+    "README.md": "# Wrenbury Archive - visit log\n\nVisits are written to visits/ by the front desk as readers arrive. The monthly\nlog is printed by visitlog.py for the reading-room board.\n"
+  },
+  "expect": {
+    "files": {
+      "visits/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "visitlog.py",
+      "expected_stdout": "2026-09-07,Monday\n2026-09-09,Wednesday\n2026-09-12,Saturday\n2026-10-01,Thursday\n2026-10-03,Saturday",
+      "hidden_files": {
+        "visits/2026-10.csv": "visited_on,visitor\n2026-10-01,Cortez\n2026-10-03,Bhatt\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The visit log script will not start on our runners, which carry the standard library and nothing else, and the reading-room board has gone without its log. Please make visitlog.py run there with the standard library alone, printing the log exactly as it stands today. When finished, reply DONE.",
+      "expect": {}
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "id": "nt-5026",
+  "description": "Convert a 1,240 nautical mile survey run to kilometres. DISTILL-CANARY-e687a6fa",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 669.55
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-seafreight-01",
+    "ref_calls": 0,
+    "fixture_bytes": 403,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "voyage/legs_2026-09.csv": "leg,departure,arrival,run_nm\nSV-11,Grimsby,Tynemouth,412\nSV-12,Tynemouth,Aberdeen,268\nSV-13,Aberdeen,Scalloway,560\n",
+    "standards/navigation_conversions.csv": "conversion,factor\ncable to metre,185.2\nfathom to metre,1.8288\nnautical mile to kilometre,1.852\n",
+    "README.md": "# Bluecap Marine Survey - chart room\n\nPassage legs are logged in the chart room after each survey run.\nRun lengths are logged in nautical miles; the harbour authority files a kilometre figure.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Bluecap Marine Survey is filing the September Scalloway run. The three logged legs come to 1,240 nautical miles. The harbour authority records filed run lengths in kilometres. How many kilometres was the run? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 2296.48,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "id": "nt-5056",
+  "description": "Give the shell line that makes a multi-stage pipeline report failure from any stage. DISTILL-CANARY-8202e98f",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "set -e"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-shellline-11",
+    "ref_calls": 0,
+    "fixture_bytes": 481,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "ops/pipeline-rules.tsv": "rule\tcanonical\talso_accept\trecorded_on\npipefail\tset -o pipefail\tset -euo pipefail|set -eo pipefail\t2026-03-11\nerrexit\tset -e\tset -o errexit\t2026-03-11\nnounset\tset -u\tset -o nounset\t2026-03-11\n",
+    "README.md": "# Verrin Toolworks - nightly forge-load pipeline\n\nThe nightly run chains four stages (scrape, weigh, blend, dispatch) inside one shell script.\nOps records the shell settings it standardised on in ops/pipeline-rules.tsv.\nThe surrounding orchestrator only looks at the script's exit status.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Verrin Toolworks runs its nightly forge-load pipeline as a chain of stages inside one shell script, but a stage that fails in the middle stays invisible because the script's status comes from the final stage alone. Give the shell line to put at the top of that script so that a failure in any stage makes the pipeline report failure. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "set -o pipefail",
+          "set -euo pipefail",
+          "set -eo pipefail"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "id": "doc-5008",
+  "description": "Total fee for a chemical screen started within two working days, including the priority surcharge. DISTILL-CANARY-f3d91b60",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-RULEFILE",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": 58.0,
+      "TR-DECOY": 49.0
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-doc-feeschedule-01",
+    "ref_calls": 3,
+    "fixture_bytes": 771,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Wexbridge Testing Services - fee schedule\n\nFees are reviewed each January and the schedule is reissued.\nThe conditions of testing sit alongside the schedule.\n",
+    "conditions.txt": "Priority surcharge: 25 per cent of the listed fee applies to any test started within two working days of the sample arriving at the laboratory.\nFees in the schedule are quoted per sample.\nReports are sent by email at no extra charge.\n",
+    "fees/test-fees.md": "# Wexbridge Testing Services - fee schedule\n\n| service | turnaround | fee_gbp |\n| --- | --- | --- |\n| Sample collection from the premises | 3 working days | 24.50 |\n| Sample collection beyond 15 km | 2 working days | 33.00 |\n| Chemical screen | 6 working days | 58.00 |\n| Rush courier of results | next working day | 49.00 |\n| Moisture determination | 4 working days | 76.00 |\n"
+  },
+  "turns": [
+    {
+      "prompt": "A customer needs a chemical screen started within two working days of the sample reaching Wexbridge Testing Services. What total fee applies? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 72.5,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "id": "log-5008",
+  "description": "Count the requests behind an archive journal whose exporter rewrote some records when a flush was retried. DISTILL-CANARY-392c1915",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "trap_decoys": {
+      "TR-DUPROW": 41
+    },
+    "axes": [
+      "OBS"
+    ],
+    "ref_calls": 3,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null,
+    "task_type": "aggregate_jsonl",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "level": "L1",
+    "family": "fam-log-archiverequests-13",
+    "fixture_bytes": 4566
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# archive ingest worker\n\nThe worker appends one JSON object per request to logs/archive.jsonl: `ts`,\n`request_id`, `kind`, `bytes` and `duration_ms`. The journal is flushed\nthrough a mount that is occasionally slow; when a flush times out the worker\nretries it, and a retried flush writes the record it already wrote a second\ntime, character for character.\n",
+    "logs/archive.jsonl": "{\"ts\":\"2026-08-09T07:14:02Z\",\"request_id\":\"R-40218\",\"kind\":\"ingest\",\"bytes\":40218,\"duration_ms\":412}\n{\"ts\":\"2026-08-09T07:16:31Z\",\"request_id\":\"R-40231\",\"kind\":\"ingest\",\"bytes\":38744,\"duration_ms\":388}\n{\"ts\":\"2026-08-09T07:19:05Z\",\"request_id\":\"R-40244\",\"kind\":\"transcode\",\"bytes\":51288,\"duration_ms\":1904}\n{\"ts\":\"2026-08-09T07:21:47Z\",\"request_id\":\"R-40257\",\"kind\":\"ingest\",\"bytes\":44120,\"duration_ms\":433}\n{\"ts\":\"2026-08-09T07:24:19Z\",\"request_id\":\"R-40270\",\"kind\":\"thumbnail\",\"bytes\":9180,\"duration_ms\":121}\n{\"ts\":\"2026-08-09T07:26:52Z\",\"request_id\":\"R-40283\",\"kind\":\"transcode\",\"bytes\":47860,\"duration_ms\":1852}\n{\"ts\":\"2026-08-09T07:29:24Z\",\"request_id\":\"R-40296\",\"kind\":\"ingest\",\"bytes\":41208,\"duration_ms\":409}\n{\"ts\":\"2026-08-09T07:31:58Z\",\"request_id\":\"R-40309\",\"kind\":\"ingest\",\"bytes\":36712,\"duration_ms\":371}\n{\"ts\":\"2026-08-09T07:34:30Z\",\"request_id\":\"R-40322\",\"kind\":\"thumbnail\",\"bytes\":8640,\"duration_ms\":118}\n{\"ts\":\"2026-08-09T07:37:03Z\",\"request_id\":\"R-40335\",\"kind\":\"transcode\",\"bytes\":53820,\"duration_ms\":1967}\n{\"ts\":\"2026-08-09T07:39:36Z\",\"request_id\":\"R-40348\",\"kind\":\"ingest\",\"bytes\":45880,\"duration_ms\":441}\n{\"ts\":\"2026-08-09T07:42:08Z\",\"request_id\":\"R-40361\",\"kind\":\"ingest\",\"bytes\":39440,\"duration_ms\":382}\n{\"ts\":\"2026-08-09T07:44:41Z\",\"request_id\":\"R-40374\",\"kind\":\"thumbnail\",\"bytes\":9420,\"duration_ms\":126}\n{\"ts\":\"2026-08-09T07:47:13Z\",\"request_id\":\"R-40387\",\"kind\":\"transcode\",\"bytes\":49640,\"duration_ms\":1888}\n{\"ts\":\"2026-08-09T07:49:46Z\",\"request_id\":\"R-40400\",\"kind\":\"ingest\",\"bytes\":42600,\"duration_ms\":416}\n{\"ts\":\"2026-08-09T07:52:18Z\",\"request_id\":\"R-40413\",\"kind\":\"ingest\",\"bytes\":37280,\"duration_ms\":377}\n{\"ts\":\"2026-08-09T07:54:51Z\",\"request_id\":\"R-40426\",\"kind\":\"thumbnail\",\"bytes\":8810,\"duration_ms\":119}\n{\"ts\":\"2026-08-09T07:57:23Z\",\"request_id\":\"R-40439\",\"kind\":\"transcode\",\"bytes\":52540,\"duration_ms\":1944}\n{\"ts\":\"2026-08-09T07:59:56Z\",\"request_id\":\"R-40452\",\"kind\":\"ingest\",\"bytes\":45200,\"duration_ms\":437}\n{\"ts\":\"2026-08-09T08:02:28Z\",\"request_id\":\"R-40465\",\"kind\":\"ingest\",\"bytes\":39920,\"duration_ms\":386}\n{\"ts\":\"2026-08-09T08:05:01Z\",\"request_id\":\"R-40478\",\"kind\":\"thumbnail\",\"bytes\":9260,\"duration_ms\":124}\n{\"ts\":\"2026-08-09T08:07:33Z\",\"request_id\":\"R-40491\",\"kind\":\"transcode\",\"bytes\":50840,\"duration_ms\":1901}\n{\"ts\":\"2026-08-09T07:19:05Z\",\"request_id\":\"R-40244\",\"kind\":\"transcode\",\"bytes\":51288,\"duration_ms\":1904}\n{\"ts\":\"2026-08-09T08:12:38Z\",\"request_id\":\"R-40504\",\"kind\":\"ingest\",\"bytes\":43440,\"duration_ms\":421}\n{\"ts\":\"2026-08-09T08:15:11Z\",\"request_id\":\"R-40517\",\"kind\":\"ingest\",\"bytes\":38360,\"duration_ms\":381}\n{\"ts\":\"2026-08-09T08:17:43Z\",\"request_id\":\"R-40530\",\"kind\":\"thumbnail\",\"bytes\":8990,\"duration_ms\":120}\n{\"ts\":\"2026-08-09T08:20:16Z\",\"request_id\":\"R-40543\",\"kind\":\"transcode\",\"bytes\":49120,\"duration_ms\":1877}\n{\"ts\":\"2026-08-09T07:37:03Z\",\"request_id\":\"R-40335\",\"kind\":\"transcode\",\"bytes\":53820,\"duration_ms\":1967}\n{\"ts\":\"2026-08-09T08:25:21Z\",\"request_id\":\"R-40556\",\"kind\":\"ingest\",\"bytes\":41840,\"duration_ms\":411}\n{\"ts\":\"2026-08-09T08:27:53Z\",\"request_id\":\"R-40569\",\"kind\":\"ingest\",\"bytes\":37640,\"duration_ms\":379}\n{\"ts\":\"2026-08-09T08:30:26Z\",\"request_id\":\"R-40582\",\"kind\":\"thumbnail\",\"bytes\":8720,\"duration_ms\":117}\n{\"ts\":\"2026-08-09T08:32:58Z\",\"request_id\":\"R-40595\",\"kind\":\"transcode\",\"bytes\":51960,\"duration_ms\":1932}\n{\"ts\":\"2026-08-09T08:35:31Z\",\"request_id\":\"R-40608\",\"kind\":\"ingest\",\"bytes\":44640,\"duration_ms\":429}\n{\"ts\":\"2026-08-09T08:39:03Z\",\"request_id\":\"R-40621\",\"kind\":\"ingest\",\"bytes\":39120,\"duration_ms\":384}\n{\"ts\":\"2026-08-09T08:40:36Z\",\"request_id\":\"R-40634\",\"kind\":\"thumbnail\",\"bytes\":9350,\"duration_ms\":125}\n{\"ts\":\"2026-08-09T08:43:08Z\",\"request_id\":\"R-40647\",\"kind\":\"transcode\",\"bytes\":50320,\"duration_ms\":1912}\n{\"ts\":\"2026-08-09T07:24:19Z\",\"request_id\":\"R-40270\",\"kind\":\"thumbnail\",\"bytes\":9180,\"duration_ms\":121}\n{\"ts\":\"2026-08-09T08:48:13Z\",\"request_id\":\"R-40660\",\"kind\":\"ingest\",\"bytes\":42960,\"duration_ms\":418}\n{\"ts\":\"2026-08-09T08:50:46Z\",\"request_id\":\"R-40673\",\"kind\":\"ingest\",\"bytes\":38520,\"duration_ms\":383}\n{\"ts\":\"2026-08-09T08:53:18Z\",\"request_id\":\"R-40686\",\"kind\":\"thumbnail\",\"bytes\":9060,\"duration_ms\":122}\n{\"ts\":\"2026-08-09T08:55:51Z\",\"request_id\":\"R-40699\",\"kind\":\"transcode\",\"bytes\":49580,\"duration_ms\":1893}\n"
+  },
+  "turns": [
+    {
+      "prompt": "Valebridge Media's archive worker writes one record per request it handles. How many requests did the run of 9 August 2026 handle? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 38,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

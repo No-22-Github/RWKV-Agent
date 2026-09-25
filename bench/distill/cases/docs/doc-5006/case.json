@@ -1,0 +1,40 @@
+{
+  "id": "doc-5006",
+  "description": "Saturday sample collection fee in a laboratory schedule that only offers working-day collections. DISTILL-CANARY-9e05b3da",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": 28
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-doc-feeschedule-01",
+    "ref_calls": 3,
+    "fixture_bytes": 704,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Selby Vale Analytical - fee schedule 2026\n\nfees/schedule-2026.csv lists the services the laboratory offers and the fee for each one.\n",
+    "fees/schedule-2026.csv": "service,turnaround,fee_gbp\nSample collection at the customer site,2 working days,28.00\nSample collection within 30 km of the lab,next working day,34.00\nSample collection beyond 30 km of the lab,next working day,52.00\nPhysical analysis,5 working days,41.00\nChemical analysis,5 working days,63.00\nMicrobiological analysis,7 working days,88.00\n",
+    "collections.md": "# Selby Vale Analytical - sample collection\n\nCollections are made on working days only.\nDrivers leave the laboratory at 07:30 and cover the county in a single round.\nAddressed sample bottles travel with the driver at no charge.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Selby Vale Analytical collects samples from customer sites. A customer has asked for a sample to be collected on a Saturday. What fee in the 2026 schedule applies to a Saturday collection? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "UNKNOWN"
+      }
+    }
+  ]
+}

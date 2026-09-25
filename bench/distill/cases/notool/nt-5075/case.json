@@ -1,0 +1,54 @@
+{
+  "id": "nt-5075",
+  "description": "Harvest-holiday greeting with no task; reply directly without any tool call. DISTILL-CANARY-1304b173",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-smalltalk-02",
+    "ref_calls": 0,
+    "fixture_bytes": 275,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Kestrel Ridge Orchard - harvest workspace\n\nShared folder for the picking and pressing crews.\n\n- harvest/  bin counts from the ridge blocks\n- cider/  press runs for the autumn batch\n",
+    "harvest/bin_counts.csv": "block,variety,bins,bin_kg\nR-7102,cox,142,512\nR-7103,egremont,167,548\nR-7104,bramley,121,493\n"
+  },
+  "turns": [
+    {
+      "prompt": "Morning! Happy harvest holiday to you and the whole crew.",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "holiday",
+          "Holiday",
+          "weekend",
+          "Weekend",
+          "thanks",
+          "Thanks",
+          "you too",
+          "You too",
+          "enjoy",
+          "Enjoy",
+          "morning",
+          "Morning"
+        ]
+      }
+    }
+  ]
+}

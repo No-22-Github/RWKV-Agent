@@ -1,0 +1,65 @@
+{
+  "id": "hyb-5008",
+  "description": "September order total for a garden centre once the price basis on the order is settled. DISTILL-CANARY-6fa20d39",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 1878.9
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-ambigbasis-02",
+    "ref_calls": 2,
+    "fixture_bytes": 465,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "orders/hallam-2026-09.csv": "line,plant,quantity,unit_price_trade,unit_price_retail\n1,Beech hedging 60-80cm,120,3.45,5.10\n2,Hornbeam hedging 60-80cm,80,3.80,5.60\n3,Dog rose bare root,250,1.15,1.85\n4,Guelder rose bare root,180,1.22,1.98\n",
+    "README.md": "# Aldermere Nurseries - Hallam order\n\nOne row per line of the September order, with the quantity the customer asked\nfor and both of the nursery's list prices held against the plant. Trade buyers\nand garden centre customers are priced from different columns.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Hallam Garden Centre is settling its September order from Aldermere Nurseries. What does the order come to?",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ]
+      }
+    },
+    {
+      "prompt": "Use the trade prices. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 1225.1,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "id": "tab-5010",
+  "description": "Number of print jobs in a July log that repeats rows and carries a totals line. DISTILL-CANARY-0fa3d8e1",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [
+      "TR-HEADER",
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 70,
+      "TR-HEADER": 71
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-tab-pressroom-01",
+    "ref_calls": 3,
+    "fixture_bytes": 3071,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "job_log_2026-07.csv": "job_id,press,customer,sheets,run_date\nJ-3335,P4,Fossgate Forms,342,2026-07-08\nJ-3340,P1,Ellerslie Bindery,848,2026-07-13\nJ-3357,P2,Dunmere Packs,408,2026-07-02\nJ-3350,P3,Cottisford Labels,698,2026-07-23\nJ-3339,P4,Dunmere Packs,411,2026-07-12\nJ-3349,P2,Bexley Press,906,2026-07-22\nJ-3326,P3,Cottisford Labels,698,2026-07-27\nJ-3360,P1,Aldworth Cards,490,2026-07-05\nJ-3364,P1,Ellerslie Bindery,979,2026-07-09\nJ-3347,P4,Fossgate Forms,863,2026-07-20\nJ-3328,P1,Ellerslie Bindery,221,2026-07-01\nJ-3302,P3,Cottisford Labels,513,2026-07-03\nJ-3305,P2,Fossgate Forms,256,2026-07-06\nJ-3309,P2,Dunmere Packs,296,2026-07-10\nJ-3303,P4,Dunmere Packs,629,2026-07-04\nJ-3338,P3,Cottisford Labels,959,2026-07-11\nJ-3327,P4,Dunmere Packs,571,2026-07-28\nJ-3352,P1,Ellerslie Bindery,785,2026-07-25\nJ-3307,P4,Bexley Press,292,2026-07-08\nJ-3323,P4,Fossgate Forms,819,2026-07-24\nJ-3344,P1,Cottisford Labels,619,2026-07-17\nJ-3337,P2,Bexley Press,802,2026-07-10\nJ-3351,P4,Dunmere Packs,503,2026-07-24\nJ-3346,P3,Ellerslie Bindery,551,2026-07-19\nJ-3314,P3,Cottisford Labels,444,2026-07-15\nJ-3311,P4,Fossgate Forms,949,2026-07-12\nJ-3324,P1,Aldworth Cards,589,2026-07-25\nJ-3334,P3,Ellerslie Bindery,664,2026-07-07\nJ-3330,P3,Aldworth Cards,774,2026-07-03\nJ-3312,P1,Aldworth Cards,195,2026-07-13\nJ-3355,P4,Bexley Press,193,2026-07-28\nJ-3325,P2,Bexley Press,521,2026-07-26\nJ-3361,P2,Bexley Press,772,2026-07-06\nJ-3348,P1,Aldworth Cards,884,2026-07-21\nJ-3319,P4,Bexley Press,264,2026-07-20\nJ-3318,P3,Aldworth Cards,797,2026-07-19\nJ-3304,P1,Ellerslie Bindery,500,2026-07-05\nJ-3321,P2,Dunmere Packs,550,2026-07-22\nJ-3345,P2,Dunmere Packs,225,2026-07-18\nJ-3303,P4,Dunmere Packs,629,2026-07-04\nJ-3344,P1,Cottisford Labels,619,2026-07-17\nJ-3310,P3,Ellerslie Bindery,840,2026-07-11\nJ-3315,P4,Dunmere Packs,330,2026-07-16\nJ-3363,P4,Dunmere Packs,422,2026-07-08\nJ-3333,P2,Dunmere Packs,707,2026-07-06\nJ-3362,P3,Cottisford Labels,922,2026-07-07\nJ-3342,P3,Aldworth Cards,616,2026-07-15\nJ-3301,P2,Bexley Press,790,2026-07-02\nJ-3343,P4,Bexley Press,328,2026-07-16\nJ-3317,P2,Fossgate Forms,901,2026-07-18\nJ-3341,P2,Fossgate Forms,877,2026-07-14\nJ-3331,P4,Bexley Press,916,2026-07-04\nJ-3336,P1,Aldworth Cards,407,2026-07-09\nJ-3306,P3,Aldworth Cards,736,2026-07-07\nJ-3322,P3,Ellerslie Bindery,947,2026-07-23\nJ-3354,P3,Aldworth Cards,903,2026-07-27\nJ-3300,P1,Aldworth Cards,276,2026-07-01\nJ-3332,P1,Cottisford Labels,659,2026-07-05\nJ-3329,P2,Fossgate Forms,381,2026-07-02\nJ-3356,P1,Cottisford Labels,963,2026-07-01\nJ-3359,P4,Fossgate Forms,247,2026-07-04\nJ-3358,P3,Ellerslie Bindery,189,2026-07-03\nJ-3353,P2,Fossgate Forms,859,2026-07-26\nJ-3329,P2,Fossgate Forms,381,2026-07-02\nJ-3308,P1,Cottisford Labels,572,2026-07-09\nJ-3313,P2,Bexley Press,465,2026-07-14\nJ-3358,P3,Ellerslie Bindery,189,2026-07-03\nJ-3314,P3,Cottisford Labels,444,2026-07-15\nJ-3320,P1,Cottisford Labels,531,2026-07-21\nJ-3316,P1,Ellerslie Bindery,940,2026-07-17\nTOTAL,,,41766,2026-07-31\n",
+    "README.md": "# Halewick Press - job log, July 2026\n\nOne row per print job. The shift export was re-run after the press room PC restarted, so some rows were written more than once.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Halewick Press reports the number of jobs its presses ran in July 2026. How many jobs does the July log cover? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 65,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

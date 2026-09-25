@@ -1,0 +1,34 @@
+{
+  "id": "tab-5002",
+  "description": "Season honey total across all hives in an apiary harvest log. DISTILL-CANARY-7c41ba92",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-tab-apiary-01",
+    "ref_calls": 2,
+    "fixture_bytes": 435,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "hive_harvest.csv": "hive_id,harvest_date,boxes_pulled,honey_kg\nH-01,2026-06-14,6,9.4\nH-02,2026-06-21,4,12.7\nH-03,2026-07-02,9,21.3\nH-04,2026-07-09,3,8.9\nH-05,2026-07-18,7,15.2\nH-06,2026-07-26,2,7.6\nH-07,2026-08-01,8,26.4\nH-08,2026-08-08,5,11.8\nH-09,2026-08-15,2,4.3\nH-10,2026-08-22,7,18.5\nH-11,2026-08-27,6,13.9\nH-12,2026-09-03,4,10.7\n",
+    "README.md": "# Bramble Hollow Apiary - harvest log\n\nOne row per hive extraction during the 2026 season. Weights are net of settling.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Bramble Hollow Apiary files one production record for the season. What was the total weight of honey harvested across all hives in the season log, in kilograms? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 160.7,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

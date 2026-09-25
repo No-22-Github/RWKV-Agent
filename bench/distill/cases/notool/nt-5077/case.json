@@ -1,0 +1,55 @@
+{
+  "id": "nt-5077",
+  "description": "Thank-you and hand-off after a finished request; reply directly without any tool call. DISTILL-CANARY-fd20d46b",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-smalltalk-03",
+    "ref_calls": 0,
+    "fixture_bytes": 292,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Lowlight Recording Studio - session workspace\n\nShared folder for the tracking room.\n\n- sessions/  booked tracking days by room\n- gear/  microphone cabinet list\n",
+    "sessions/booking_sheet.csv": "session,room,day_rate,booked_for\nLS-3388,studio a,410,2026-10-02\nLS-3389,studio b,455,2026-10-09\nLS-3390,live room,520,2026-10-16\n"
+  },
+  "turns": [
+    {
+      "prompt": "That's brilliant, thank you. I'll take it from here.",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "welcome",
+          "Welcome",
+          "glad",
+          "Glad",
+          "anytime",
+          "Anytime",
+          "pleasure",
+          "Pleasure",
+          "happy to help",
+          "no problem",
+          "No problem",
+          "sure thing",
+          "Sure thing"
+        ]
+      }
+    }
+  ]
+}

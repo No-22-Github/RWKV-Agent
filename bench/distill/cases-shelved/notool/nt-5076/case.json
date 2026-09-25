@@ -1,0 +1,53 @@
+{
+  "id": "nt-5076",
+  "description": "Thanks for a finished favour, no new task; reply directly without any tool call. DISTILL-CANARY-33ee02bc",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-smalltalk-03",
+    "ref_calls": 0,
+    "fixture_bytes": 266,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Bramblewood Bicycle Workshop - bench workspace\n\nShared folder for the repair bench.\n\n- jobs/  open repair tickets\n- stock/  spare part counts on the wall rack\n",
+    "jobs/repair_tickets.csv": "ticket,bike,hours,parts_cost\nBW-5510,cargo trike,45,1440\nBW-5511,touring,78,1875\nBW-5512,folding,62,1290\n"
+  },
+  "turns": [
+    {
+      "prompt": "Thanks for putting that list together, it saved me a phone call.",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "welcome",
+          "Welcome",
+          "glad",
+          "Glad",
+          "anytime",
+          "Anytime",
+          "pleasure",
+          "Pleasure",
+          "happy to help",
+          "no problem",
+          "No problem"
+        ]
+      }
+    }
+  ]
+}

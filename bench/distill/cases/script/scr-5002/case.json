@@ -1,0 +1,46 @@
+{
+  "id": "scr-5002",
+  "description": "Repair the letterpress job costing script so the monthly sheet prints job costs and the month total again. DISTILL-CANARY-4b7e9c22",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_from_traceback",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-scr-pressquote-01",
+    "ref_calls": 2,
+    "fixture_bytes": 1380,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "costing.py": "\"\"\"Print the job costing sheet for Caldergate Press.\n\nExports land in jobs/, one file per month; the columns are\njob_id,client,sheet_count,ink_ml,rate_pence. Print one line per job in\njob_id order, then a totals line:\n\n    <job_id>,<client>,<cost>\n    TOTAL,<cost>\n\nCosts print in pounds with two decimals.\n\"\"\"\nimport csv\nimport glob\nimport os\n\nJOBS = os.path.join(os.path.dirname(os.path.abspath(__file__)), \"jobs\")\n\n\ndef pounds(pence):\n    return \"%d.%02d\" % (pence // 100, pence % 100)\n\n\ndef job_rows():\n    rows = []\n    for path in sorted(glob.glob(os.path.join(JOBS, \"*.csv\"))):\n        with open(path, newline=\"\") as handle:\n            rows.extend(csv.DictReader(handle))\n    return rows\n\n\ndef main():\n    total = 0\n    for row in sorted(job_rows(), key=lambda r: r[\"job_id\"]):\n        cost = int(row[\"sheet_count\"]) * int(row[\"rate_pence\"]) + int(row[\"ink_units\"])\n        total += cost\n        print(\"%s,%s,%s\" % (row[\"job_id\"], row[\"client\"], pounds(cost)))\n    print(\"TOTAL,%s\" % pounds(total))\n\n\nmain()\n",
+    "jobs/2026-09.csv": "job_id,client,sheet_count,ink_ml,rate_pence\nJ-2203,Bramblewick Bindery,150,40,3\nJ-2201,Caldergate Choir,480,120,3\nJ-2202,Harrow Lane Fencing,300,90,4\n",
+    "README.md": "# Caldergate Press - job costing\n\nThe monthly exports land in jobs/, one file per month. The costing sheet is\nproduced by costing.py and goes to the accounts office on the first working\nday of the following month.\n"
+  },
+  "expect": {
+    "files": {
+      "jobs/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "costing.py",
+      "expected_stdout": "J-2201,Caldergate Choir,15.60\nJ-2202,Harrow Lane Fencing,12.90\nJ-2203,Bramblewick Bindery,4.90\nJ-2204,Harrow Lane Fencing,10.20\nJ-2205,Thornbury Almanacs,19.80\nTOTAL,63.40",
+      "hidden_files": {
+        "jobs/2026-10.csv": "job_id,client,sheet_count,ink_ml,rate_pence\nJ-2205,Thornbury Almanacs,600,180,3\nJ-2204,Harrow Lane Fencing,240,60,4\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The job costing sheet has stopped printing: the run now ends with KeyError: 'ink_units' and nothing reaches the accounts office. Please repair costing.py so the sheet prints again in the layout it has always had, and so it keeps printing as later monthly exports land in jobs/. When finished, reply DONE.",
+      "expect": {}
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "id": "nt-5110",
+  "description": "September fault count; the first message does not say which of the two sites to count. DISTILL-CANARY-a0c04d01",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "ambiguous_request",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 2
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-sitelog-01",
+    "ref_calls": 2,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null,
+    "fixture_bytes": 406
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Pentreath Estates - maintenance log\n\nTwo sites share the maintenance crew: Cobbleworth and Pendlebury.\n\nEach site's faults are reported separately to its own board.\n",
+    "faults/fault-log-2026-09.csv": "ref,site,raised,severity\nFR-118,Cobbleworth,2026-09-03,minor\nFR-119,Pendlebury,2026-09-07,minor\nFR-121,Cobbleworth,2026-09-11,major\nFR-124,Cobbleworth,2026-09-16,minor\nFR-127,Pendlebury,2026-09-20,major\nFR-130,Cobbleworth,2026-09-23,minor\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many faults did we log in September? The board pack needs the figure.",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ]
+      }
+    },
+    {
+      "prompt": "Cobbleworth only, Pendlebury goes in its own report. How many faults were logged at Cobbleworth in September? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 4,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "id": "nt-5057",
+  "description": "Give the one-line in-place port rewrite that also keeps a backup copy. DISTILL-CANARY-7882e5c5",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "sed -i 's/7411/8117/g' shore-gateway.conf"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-shellline-11",
+    "ref_calls": 0,
+    "fixture_bytes": 551,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "deploy/port-swap.tsv": "app\told_port\tnew_port\tcanonical\talso_accept\nshore-gateway\t7411\t8117\tsed -i.bak 's/7411/8117/g' shore-gateway.conf\tsed -i.bak -e 's/7411/8117/g' shore-gateway.conf|sed --in-place=.bak 's/7411/8117/g' shore-gateway.conf\ncatch-board\t7412\t8119\tsed -i.bak 's/7412/8119/g' catch-board.conf\tsed -i.bak -e 's/7412/8119/g' catch-board.conf\n",
+    "README.md": "# Kestrel Bay Seafoods - landing systems\n\nThe shore gateway terminates the quay cameras and the catch board. Its listener port was moved once\nin 2026 and the deployment note records the exact rewrite that was used then.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Kestrel Bay Seafoods is moving the listener on its shore gateway from port 7411 to port 8117. Give the one-line command that rewrites every occurrence of the old port inside shore-gateway.conf in place and leaves a .bak copy of the original file behind. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "sed -i.bak 's/7411/8117/g' shore-gateway.conf",
+          "sed -i.bak -e 's/7411/8117/g' shore-gateway.conf",
+          "sed --in-place=.bak 's/7411/8117/g' shore-gateway.conf"
+        ]
+      }
+    }
+  ]
+}

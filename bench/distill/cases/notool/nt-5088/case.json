@@ -1,0 +1,54 @@
+{
+  "id": "nt-5088",
+  "description": "Weekend small talk with no task; reply directly without any tool call. DISTILL-CANARY-821c47ca",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-smalltalk-07",
+    "ref_calls": 0,
+    "fixture_bytes": 260,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Fenwick Community Garden - plot workspace\n\nShared folder for the plot holders association.\n\n- plots/  plot holder list for the season\n- water/  rota for the standpipe\n",
+    "plots/plot_holders.csv": "plot,holder,sq_m,compost_bags\nF-3301,Whitlock,96,12\nF-3302,Aro,84,9\nF-3303,Sandoval,110,15\n"
+  },
+  "turns": [
+    {
+      "prompt": "How was your weekend? I spent most of mine up at the plot.",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "weekend",
+          "Weekend",
+          "quiet",
+          "Quiet",
+          "busy",
+          "Busy",
+          "thanks",
+          "Thanks",
+          "you too",
+          "You too",
+          "glad",
+          "Glad"
+        ]
+      }
+    }
+  ]
+}

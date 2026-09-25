@@ -1,0 +1,61 @@
+{
+  "id": "web-5008",
+  "description": "Default retry attempts in the newest Marshlight Python SDK release; the Node SDK page carries a different default. DISTILL-CANARY-c7f10d5e",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": 6
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-web-pinversion-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "marshlight",
+      "url": "https://marshlight.example/python-sdk/releases",
+      "url_match": "marshlight.example/python-sdk/releases",
+      "title": "Marshlight Python SDK releases",
+      "snippet": "2.9.0 (2026-08-05) raises the default retry attempts to 4 for every transport error.",
+      "content": "# Marshlight Python SDK releases\n\nReleases of the Marshlight Python SDK, newest first.\n\n## 2.9.0 - 2026-08-05\n* default retry attempts raised from 2 to 4 for every transport error\n* keepalive_secs stays at 30\n\n## 2.8.0 - 2026-05-14\n* default retry attempts stay at 2\n\n## 2.7.3 - 2026-03-02\n* default retry attempts stay at 2\n",
+      "published_at": "2026-08-05"
+    },
+    {
+      "query_match": "marshlight node",
+      "url": "https://marshlight.example/node-sdk/releases",
+      "url_match": "marshlight.example/node-sdk/releases",
+      "title": "Marshlight Node SDK releases",
+      "snippet": "3.1.0 (2026-07-22) raises the default retry attempts to 6 for every transport error.",
+      "content": "# Marshlight Node SDK releases\n\nReleases of the Marshlight Node SDK, newest first.\n\n## 3.1.0 - 2026-07-22\n* default retry attempts raised from 3 to 6 for every transport error\n* keepalive_secs stays at 45\n\n## 3.0.0 - 2026-04-01\n* default retry attempts stay at 3\n",
+      "published_at": "2026-07-22"
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Our worker pins the newest published release of the Marshlight Python SDK. How many retry attempts does that client make by default for a failing request? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 4,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

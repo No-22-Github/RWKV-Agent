@@ -1,0 +1,40 @@
+{
+  "id": "nt-5044",
+  "description": "Fixed intake prefix carried by access review request tickets in the procedure register. DISTILL-CANARY-5d504deb",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "stable_fact",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "ARV-"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-ticket-code-01",
+    "ref_calls": 1,
+    "fixture_bytes": 344,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "procedures/ticket-prefixes.txt": "access review request -> AREV-\nbackup restore drill -> BKDR-\ncapacity alarm -> CAPA-\n",
+    "README.md": "# Pinewood Grid Services - procedure register\n\nThe register was issued with the procedure rewrite and the prefixes are fixed for the life of a procedure; rows are kept in alphabetical order of the procedure name. Last reviewed 2026-01-22, reference PRC-1188.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Pinewood Grid Services is configuring the intake queue for access review requests and has to enter the prefix those tickets carry. Which prefix is it? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "AREV-",
+        "tools": []
+      }
+    }
+  ]
+}

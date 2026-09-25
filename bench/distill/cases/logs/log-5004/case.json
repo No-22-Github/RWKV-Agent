@@ -1,0 +1,36 @@
+{
+  "id": "log-5004",
+  "description": "Count the flow-meter readings flagged as out of band inside a half-hour window of one shakedown session. DISTILL-CANARY-edddbdaf",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-log-flowmeter-13",
+    "ref_calls": 2,
+    "fixture_bytes": 1205,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# north-intake flow meter\n\nThe meter writes one session file per shakedown. The first line names the\nsession date, the instrument and the site. Every line after it is one reading,\n`<clock time> <level> reading=<litres per minute>`, and the meter sets the level\nto ALARM for a reading that falls outside the band it is set for. The reading\nlines carry a clock time only, so the session date comes from the header.\n",
+    "logs/flowmeter.log": "session=2026-08-03 instrument=FM-2205 site=north-intake\n14:00:07 INFO reading=42.18\n14:04:52 INFO reading=41.06\n14:09:38 ALARM reading=33.41\n14:14:11 INFO reading=40.88\n14:19:03 ALARM reading=34.02\n14:23:47 ALARM reading=32.55\n14:28:29 ALARM reading=32.77\n14:33:02 ALARM reading=32.91\n14:37:44 ALARM reading=33.95\n14:42:16 INFO reading=42.61\n14:46:58 ALARM reading=34.24\n14:51:31 INFO reading=40.12\n14:56:09 INFO reading=41.87\n15:00:44 INFO reading=43.05\n15:06:21 ALARM reading=33.18\n15:10:02 INFO reading=42.40\n15:14:47 INFO reading=41.19\n15:19:26 INFO reading=40.63\n15:24:08 INFO reading=43.72\n15:28:51 INFO reading=41.44\n15:33:35 INFO reading=42.96\n15:38:12 INFO reading=44.08\n15:42:54 INFO reading=41.32\n15:47:31 INFO reading=40.71\n15:52:16 INFO reading=43.55\n15:56:59 INFO reading=42.24\n"
+  },
+  "turns": [
+    {
+      "prompt": "Pierston Water's north-intake flow meter flags every reading that falls outside the band it is set for. In its shakedown session of 3 August 2026, how many flagged readings were recorded between 14:10 and 14:45? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 5,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

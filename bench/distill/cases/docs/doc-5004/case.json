@@ -1,0 +1,34 @@
+{
+  "id": "doc-5004",
+  "description": "Which house style sheet edition applies to a manuscript submitted in October 2026. DISTILL-CANARY-7d3e5a91",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "latest_version",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-doc-housestyle-01",
+    "ref_calls": 2,
+    "fixture_bytes": 480,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "house-style.md": "# Wrenfield Press - house style sheet\n\nEdition 4 of the style sheet applies to manuscripts submitted between 1 July 2026 and 30 June 2027.\n\n## What changed in this edition\nHyphens are kept in compound modifiers before a noun.\nFiction and general non-fiction are both set in the same serif face.\n",
+    "submission-notes.md": "# Submitting to Wrenfield Press\n\nSend the whole manuscript through the submissions portal.\nThe editorial office answers within three weeks.\nSend one manuscript to one editor at a time.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Wrenfield Press sets every accepted manuscript to the house style sheet. A manuscript reaches the press on 6 October 2026. Which edition number of the style sheet applies to it? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 4,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

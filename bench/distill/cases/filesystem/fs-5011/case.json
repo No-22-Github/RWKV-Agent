@@ -1,0 +1,38 @@
+{
+  "id": "fs-5011",
+  "description": "Report the byte size of the largest of a museum's minute drafts filed in one folder. DISTILL-CANARY-88aa7005",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "largest",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-fs-biggest-01",
+    "ref_calls": 1,
+    "fixture_bytes": 1594,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "Thackley Museum - minute drafts\n\nThe clerk keeps the working drafts here until the minutes are signed off. A draft\nis replaced once the trustees approve it at the following meeting.\n",
+    "trustees-2026-08.txt": "Draft minutes of the trustees meeting held on 2026-08-04, checked against the recording\nPresent: Ada Corrigan, Miles Fenner, Ruth Okafor, Deniz Halloran, Peter Wexley\nApologies: Sam Ibbotson\n\n1. The purchase of two display cases was approved at 14,800 in total.\n2. The roof survey is due back from Halstead and Rowe by 2026-08-20.\n3. Opening hours for September stay at 10:00 to 16:30, Wednesday to Sunday.\n4. The volunteer rota moves to a four-week cycle from October.\n5. The education officer will draft a schools pack for the spring term.\n\nThe next meeting is on 2026-09-01. Filed by the clerk.\n",
+    "trustees-2026-09.txt": "Draft minutes of the trustees meeting held on 2026-09-01\nPresent: Ada Corrigan, Miles Fenner, Ruth Okafor\nApologies: Deniz Halloran, Peter Wexley\n\n1. The two display cases arrive on 2026-09-15 and are unloaded at the loading bay.\n2. The roof survey is still outstanding at the time of the meeting.\n3. The schools pack goes to the education committee in November.\n4. The volunteer rota for October is signed off by the chair.\n\nThe next meeting is on 2026-10-06. Filed by the clerk.\n",
+    "trustees-2026-10.txt": "Draft minutes of the trustees meeting held on 2026-10-06\nPresent: Ada Corrigan, Ruth Okafor, Peter Wexley\nApologies: Miles Fenner, Deniz Halloran\n\n1. The display cases are in place and the old cabinets go to store.\n2. The roof survey has come back and quotes are being sought.\n\nThe next meeting is on 2026-11-03. Filed by the clerk.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Thackley Museum loads one minute draft per meeting into the trustees' portal, which rejects any single file above 4000 bytes. How many bytes does the largest of the draft files in this folder take? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 598,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

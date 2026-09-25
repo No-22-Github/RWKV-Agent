@@ -1,0 +1,57 @@
+{
+  "id": "nt-5087",
+  "description": "Asks what is in the assistant's toolkit; answer from the tool list in context without calling any tool. DISTILL-CANARY-f2f72ff6",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-smalltalk-06",
+    "ref_calls": 0,
+    "fixture_bytes": 397,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Ashgrove Museum Archives - stores workspace\n\nShared folder for the collection stores.\n\n- boxes/  box list from the last condition check\n- climate/  readings from the stores loggers\n",
+    "climate/logger_readings.csv": "logger,zone,rh_pct,temp_c\nAM-2044,east wing,52,18.5\nAM-2045,west wing,49,19.2\nAM-2046,basement,58,17.4\n",
+    "boxes/box_index.txt": "Box labels use the shelf letter and the running number.\nCondition flags: one for stable, two for needs review.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Go on then, what is in your toolkit for a task like this?",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "tool",
+          "Tool",
+          "read",
+          "Read",
+          "search",
+          "Search",
+          "file",
+          "File",
+          "list",
+          "List",
+          "calculat",
+          "Calculat",
+          "web",
+          "Web"
+        ]
+      }
+    }
+  ]
+}

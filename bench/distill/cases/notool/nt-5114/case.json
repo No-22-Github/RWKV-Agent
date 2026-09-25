@@ -1,0 +1,65 @@
+{
+  "id": "nt-5114",
+  "description": "Number of bearing cups that can be promised to a customer; the first message does not say whether reserved stock counts. DISTILL-CANARY-77f22baa",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "ambiguous_request",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 148
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-stockclaim-01",
+    "ref_calls": 2,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null,
+    "fixture_bytes": 333
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Hartsmere Supplies - parts stock\n\nThe stock card is written after the Friday count.\n\non_hand is what is on the shelf; reserved is stock already promised to another\norder; available is the difference.\n",
+    "stock/parts-2026-09.csv": "part,description,on_hand,reserved,available\nBC-220,bearing cup,148,26,122\nBC-221,bearing cone,96,14,82\nSR-104,seal ring,310,48,262\n"
+  },
+  "turns": [
+    {
+      "prompt": "A customer wants to know how many bearing cups we can supply this week. What do I tell them?",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ]
+      }
+    },
+    {
+      "prompt": "Give them the stock we can actually promise, not what is sitting reserved for another order. How many bearing cups are free for new orders? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 122,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

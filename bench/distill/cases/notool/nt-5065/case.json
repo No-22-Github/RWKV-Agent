@@ -1,0 +1,45 @@
+{
+  "id": "nt-5065",
+  "description": "Give the front-end directive that passes the visitor's scheme to the upstream. DISTILL-CANARY-ca929714",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-configfrag-14",
+    "ref_calls": 0,
+    "fixture_bytes": 598,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "conf/header-directives.tsv": "need\tcanonical\talso_accept\trecorded_on\nvisitor-scheme\tproxy_set_header X-Forwarded-Proto $scheme;\tproxy_set_header X-Forwarded-Proto $scheme|X-Forwarded-Proto $scheme|X-Forwarded-Proto $http_x_forwarded_proto\t2026-05-27\nvisitor-address\tproxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\tproxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for\t2026-05-27\n",
+    "README.md": "# Quillon Ceramics - storefront front end\n\nThe storefront terminates TLS at the edge and forwards plain requests to an application server that\nbuilds absolute links. That server has to know whether the visitor arrived over https.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Quillon Ceramics terminates TLS at its front end and hands each request to an application server that builds absolute links. Give the front-end directive that carries the scheme the visitor actually used through to that server. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "proxy_set_header X-Forwarded-Proto $scheme;",
+          "proxy_set_header X-Forwarded-Proto $scheme",
+          "X-Forwarded-Proto $scheme",
+          "X-Forwarded-Proto $http_x_forwarded_proto"
+        ]
+      }
+    }
+  ]
+}

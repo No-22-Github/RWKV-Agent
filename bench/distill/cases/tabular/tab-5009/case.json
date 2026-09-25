@@ -1,0 +1,40 @@
+{
+  "id": "tab-5009",
+  "description": "Best cultivar in a germination trial whose sheet ends with a totals line. DISTILL-CANARY-6b27e5cc",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "rank",
+    "traps": [
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-HEADER": 2754
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-seedtrial-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1492,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "seedling_trial_june_2026.csv": "cultivar,seed_lot,sown_date,seedlings\nAilsa Craig,LOT-31,2026-06-02,82\nAurora,LOT-32,2026-06-03,72\nBoltardy,LOT-33,2026-06-04,73\nCarnaby,LOT-34,2026-06-05,46\nDetroit Dark,LOT-35,2026-06-06,35\nEarly Nantes,LOT-36,2026-06-07,84\nFanal,LOT-37,2026-06-08,87\nGrenoble,LOT-38,2026-06-09,84\nHollow Crown,LOT-39,2026-06-10,45\nIdeal,LOT-40,2026-06-11,35\nJolie,LOT-41,2026-06-12,72\nKelvedon Wonder,LOT-42,2026-06-13,58\nLargo,LOT-43,2026-06-14,72\nMascal,LOT-44,2026-06-15,51\nNero,LOT-45,2026-06-16,60\nOnyx,LOT-46,2026-06-17,82\nPablo,LOT-47,2026-06-18,63\nQuarto,LOT-48,2026-06-19,31\nRocket,LOT-49,2026-06-20,73\nSaxa,LOT-50,2026-06-21,32\nTender Gold,LOT-51,2026-06-22,34\nUchiki Kuri,LOT-52,2026-06-23,63\nVerdon,LOT-53,2026-06-24,55\nWhite Lisbon,LOT-54,2026-06-25,62\nXenia,LOT-55,2026-06-26,76\nYukon,LOT-56,2026-06-27,32\nZorba,LOT-57,2026-06-02,84\nAmethyst,LOT-58,2026-06-03,79\nBacchus,LOT-59,2026-06-04,77\nCabbaco,LOT-60,2026-06-05,67\nDazzler,LOT-61,2026-06-06,69\nEmperor,LOT-62,2026-06-07,76\nFirestorm,LOT-63,2026-06-08,57\nGladiator,LOT-64,2026-06-09,32\nHerkules,LOT-65,2026-06-10,62\nInspector,LOT-66,2026-06-11,67\nJasper,LOT-67,2026-06-12,38\nKrypton,LOT-68,2026-06-13,61\nLumino,LOT-69,2026-06-14,56\nMerano,LOT-70,2026-06-15,73\nNomad,LOT-71,2026-06-16,80\nOvation,LOT-72,2026-06-17,60\nPicasso,LOT-73,2026-06-18,74\nQuintet,LOT-74,2026-06-19,44\nRumba,LOT-75,2026-06-20,39\nTOTAL,,,2754\n",
+    "README.md": "# Willowmere Nursery - June germination trial\n\nOne row per cultivar. Counts are healthy seedlings at the three week check.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Willowmere Nursery reviews the June germination trial. What was the largest number of seedlings raised for a single cultivar in that trial? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 87,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "id": "tab-5019",
+  "description": "Gas cost of August firings when no price or consumption figure exists. DISTILL-CANARY-2c6ad941",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "policy_calc",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": 10856
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-tab-kilnfiring-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1223,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "kiln_firings_2026-08.csv": "firing_id,firing_date,kiln,clay_type,kiln_minutes\nKF-610,2026-08-01,Beech,stoneware,280\nKF-611,2026-08-02,Willow,earthenware,467\nKF-612,2026-08-03,Beech,raku,189\nKF-613,2026-08-04,Willow,porcelain,412\nKF-614,2026-08-05,Beech,stoneware,551\nKF-615,2026-08-06,Willow,earthenware,375\nKF-616,2026-08-07,Beech,raku,494\nKF-617,2026-08-08,Willow,porcelain,520\nKF-618,2026-08-09,Beech,stoneware,575\nKF-619,2026-08-10,Willow,earthenware,536\nKF-620,2026-08-11,Beech,raku,436\nKF-621,2026-08-12,Willow,porcelain,443\nKF-622,2026-08-13,Beech,stoneware,204\nKF-623,2026-08-14,Willow,earthenware,197\nKF-624,2026-08-15,Beech,raku,298\nKF-625,2026-08-16,Willow,porcelain,197\nKF-626,2026-08-17,Beech,stoneware,202\nKF-627,2026-08-18,Willow,earthenware,220\nKF-628,2026-08-19,Beech,raku,584\nKF-629,2026-08-20,Willow,porcelain,503\nKF-630,2026-08-21,Beech,stoneware,243\nKF-631,2026-08-22,Willow,earthenware,500\nKF-632,2026-08-23,Beech,raku,367\nKF-633,2026-08-24,Willow,porcelain,452\nKF-634,2026-08-25,Beech,stoneware,497\nKF-635,2026-08-26,Willow,earthenware,189\nKF-636,2026-08-27,Beech,raku,497\nKF-637,2026-08-28,Willow,porcelain,428\n",
+    "README.md": "# Hollowpike Pottery Studio - firing log, August 2026\n\nOne row per firing. Times are the full ramp and soak period.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Hollowpike Pottery Studio reviews kiln running costs. What was the total gas cost, in pounds, of the kiln firings recorded in August 2026? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "UNKNOWN"
+      }
+    }
+  ]
+}

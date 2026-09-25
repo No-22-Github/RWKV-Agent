@@ -1,0 +1,40 @@
+{
+  "id": "log-5007",
+  "description": "Total the payload the router passed to destination mailboxes rather than the volume it took in. DISTILL-CANARY-4d5589d4",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "trap_decoys": {
+      "TR-DEFN": 5002220
+    },
+    "axes": [
+      "OBS"
+    ],
+    "ref_calls": 3,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null,
+    "task_type": "aggregate_jsonl",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "level": "L1",
+    "family": "fam-log-routerbytes-12",
+    "fixture_bytes": 4507
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# message router\n\nThe router appends one JSON object per batch to logs/router.jsonl: `ts`,\n`queue`, `msgs`, `bytes_in` and `bytes_out`. `bytes_in` counts what the\nproducers handed the router; `bytes_out` counts what the router passed on to\nthe destination mailboxes.\n",
+    "logs/router.jsonl": "{\"ts\":\"2026-08-08T10:04:09Z\",\"queue\":\"invoices\",\"msgs\":412,\"bytes_in\":190400,\"bytes_out\":184320}\n{\"ts\":\"2026-08-08T10:06:22Z\",\"queue\":\"reminders\",\"msgs\":118,\"bytes_in\":54120,\"bytes_out\":52160}\n{\"ts\":\"2026-08-08T10:08:41Z\",\"queue\":\"invoices\",\"msgs\":401,\"bytes_in\":185360,\"bytes_out\":179540}\n{\"ts\":\"2026-08-08T10:11:03Z\",\"queue\":\"statements\",\"msgs\":64,\"bytes_in\":91840,\"bytes_out\":88960}\n{\"ts\":\"2026-08-08T10:13:37Z\",\"queue\":\"reminders\",\"msgs\":132,\"bytes_in\":60480,\"bytes_out\":58320}\n{\"ts\":\"2026-08-08T10:15:58Z\",\"queue\":\"invoices\",\"msgs\":388,\"bytes_in\":177800,\"bytes_out\":172040}\n{\"ts\":\"2026-08-08T10:18:19Z\",\"queue\":\"statements\",\"msgs\":59,\"bytes_in\":84720,\"bytes_out\":81980}\n{\"ts\":\"2026-08-08T10:20:44Z\",\"queue\":\"reminders\",\"msgs\":141,\"bytes_in\":63360,\"bytes_out\":61240}\n{\"ts\":\"2026-08-08T10:23:02Z\",\"queue\":\"invoices\",\"msgs\":424,\"bytes_in\":196560,\"bytes_out\":190280}\n{\"ts\":\"2026-08-08T10:25:26Z\",\"queue\":\"statements\",\"msgs\":71,\"bytes_in\":99840,\"bytes_out\":96740}\n{\"ts\":\"2026-08-08T10:27:49Z\",\"queue\":\"reminders\",\"msgs\":126,\"bytes_in\":57840,\"bytes_out\":55880}\n{\"ts\":\"2026-08-08T10:30:11Z\",\"queue\":\"invoices\",\"msgs\":397,\"bytes_in\":182800,\"bytes_out\":176900}\n{\"ts\":\"2026-08-08T10:32:35Z\",\"queue\":\"statements\",\"msgs\":68,\"bytes_in\":95680,\"bytes_out\":92460}\n{\"ts\":\"2026-08-08T10:34:58Z\",\"queue\":\"reminders\",\"msgs\":137,\"bytes_in\":61560,\"bytes_out\":59460}\n{\"ts\":\"2026-08-08T10:37:21Z\",\"queue\":\"invoices\",\"msgs\":416,\"bytes_in\":192400,\"bytes_out\":186120}\n{\"ts\":\"2026-08-08T10:39:44Z\",\"queue\":\"statements\",\"msgs\":62,\"bytes_in\":87960,\"bytes_out\":85140}\n{\"ts\":\"2026-08-08T10:42:07Z\",\"queue\":\"reminders\",\"msgs\":129,\"bytes_in\":58640,\"bytes_out\":56620}\n{\"ts\":\"2026-08-08T10:44:31Z\",\"queue\":\"invoices\",\"msgs\":409,\"bytes_in\":188960,\"bytes_out\":182760}\n{\"ts\":\"2026-08-08T10:46:55Z\",\"queue\":\"statements\",\"msgs\":66,\"bytes_in\":93460,\"bytes_out\":90380}\n{\"ts\":\"2026-08-08T10:49:18Z\",\"queue\":\"reminders\",\"msgs\":144,\"bytes_in\":64960,\"bytes_out\":62840}\n{\"ts\":\"2026-08-08T10:51:41Z\",\"queue\":\"invoices\",\"msgs\":392,\"bytes_in\":180560,\"bytes_out\":174680}\n{\"ts\":\"2026-08-08T10:54:04Z\",\"queue\":\"statements\",\"msgs\":73,\"bytes_in\":102360,\"bytes_out\":99120}\n{\"ts\":\"2026-08-08T10:56:28Z\",\"queue\":\"reminders\",\"msgs\":121,\"bytes_in\":55520,\"bytes_out\":53640}\n{\"ts\":\"2026-08-08T10:58:51Z\",\"queue\":\"invoices\",\"msgs\":431,\"bytes_in\":199720,\"bytes_out\":193240}\n{\"ts\":\"2026-08-08T11:01:14Z\",\"queue\":\"statements\",\"msgs\":57,\"bytes_in\":82640,\"bytes_out\":79860}\n{\"ts\":\"2026-08-08T11:03:38Z\",\"queue\":\"reminders\",\"msgs\":135,\"bytes_in\":60480,\"bytes_out\":58320}\n{\"ts\":\"2026-08-08T11:06:01Z\",\"queue\":\"invoices\",\"msgs\":405,\"bytes_in\":186320,\"bytes_out\":180400}\n{\"ts\":\"2026-08-08T11:08:24Z\",\"queue\":\"statements\",\"msgs\":69,\"bytes_in\":96560,\"bytes_out\":93540}\n{\"ts\":\"2026-08-08T11:10:47Z\",\"queue\":\"reminders\",\"msgs\":123,\"bytes_in\":56720,\"bytes_out\":54880}\n{\"ts\":\"2026-08-08T11:13:11Z\",\"queue\":\"invoices\",\"msgs\":418,\"bytes_in\":193720,\"bytes_out\":187680}\n{\"ts\":\"2026-08-08T11:15:34Z\",\"queue\":\"statements\",\"msgs\":61,\"bytes_in\":86640,\"bytes_out\":83820}\n{\"ts\":\"2026-08-08T11:17:57Z\",\"queue\":\"reminders\",\"msgs\":139,\"bytes_in\":62240,\"bytes_out\":60240}\n{\"ts\":\"2026-08-08T11:20:21Z\",\"queue\":\"invoices\",\"msgs\":400,\"bytes_in\":184160,\"bytes_out\":178240}\n{\"ts\":\"2026-08-08T11:22:44Z\",\"queue\":\"statements\",\"msgs\":67,\"bytes_in\":94560,\"bytes_out\":91560}\n{\"ts\":\"2026-08-08T11:25:07Z\",\"queue\":\"reminders\",\"msgs\":131,\"bytes_in\":59240,\"bytes_out\":57220}\n{\"ts\":\"2026-08-08T11:27:31Z\",\"queue\":\"invoices\",\"msgs\":413,\"bytes_in\":191040,\"bytes_out\":184920}\n{\"ts\":\"2026-08-08T11:29:54Z\",\"queue\":\"statements\",\"msgs\":60,\"bytes_in\":85360,\"bytes_out\":82640}\n{\"ts\":\"2026-08-08T11:32:17Z\",\"queue\":\"reminders\",\"msgs\":127,\"bytes_in\":58040,\"bytes_out\":56180}\n{\"ts\":\"2026-08-08T11:34:41Z\",\"queue\":\"invoices\",\"msgs\":396,\"bytes_in\":182080,\"bytes_out\":176240}\n{\"ts\":\"2026-08-08T11:37:04Z\",\"queue\":\"statements\",\"msgs\":65,\"bytes_in\":92240,\"bytes_out\":89240}\n{\"ts\":\"2026-08-08T11:39:27Z\",\"queue\":\"reminders\",\"msgs\":133,\"bytes_in\":59840,\"bytes_out\":57840}\n{\"ts\":\"2026-08-08T11:41:51Z\",\"queue\":\"invoices\",\"msgs\":421,\"bytes_in\":196400,\"bytes_out\":190120}\n{\"ts\":\"2026-08-08T11:44:14Z\",\"queue\":\"statements\",\"msgs\":63,\"bytes_in\":89920,\"bytes_out\":86980}\n{\"ts\":\"2026-08-08T11:46:37Z\",\"queue\":\"reminders\",\"msgs\":125,\"bytes_in\":57120,\"bytes_out\":55240}\n"
+  },
+  "turns": [
+    {
+      "prompt": "Kettleby Provisions' message router writes one record per batch it moves. For the 8 August 2026 run, how many bytes did the router pass to the destination mailboxes? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 4839980,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

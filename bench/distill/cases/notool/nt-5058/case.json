@@ -1,0 +1,45 @@
+{
+  "id": "nt-5058",
+  "description": "Give the redirection snippet that appends both output streams to a log file. DISTILL-CANARY-a1f4b541",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "2>&1 > crusher.log"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L2",
+    "family": "fam-nt-shellline-11",
+    "ref_calls": 0,
+    "fixture_bytes": 563,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "ops/log-routing.tsv": "case\tcanonical\talso_accept\trecorded_on\ncombined-append\t>> crusher.log 2>&1\t&>> crusher.log|>>crusher.log 2>&1\t2026-06-02\nstderr-only\t2> crusher.err\t2>> crusher.err\t2026-06-02\n",
+    "README.md": "# Skarnfell Quarry - washing plant shift wrapper\n\nEach crushing shift is wrapped in one shell script. The operator reads crusher.log the next morning,\nso the file must keep everything written on earlier shifts instead of being replaced.\n",
+    "notes/shift-handover.txt": "Shift log review happens at 06:40 in the weighbridge office.\nErrors from the belt sensor are read out of the same file as the ordinary progress lines.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Skarnfell Quarry wraps each crushing shift in one shell script whose console output is kept in crusher.log. The operator wants that file to keep growing shift after shift, and to hold the error output alongside the ordinary output. Give the redirection snippet that appends both streams to that file. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          ">> crusher.log 2>&1",
+          "&>> crusher.log",
+          ">>crusher.log 2>&1"
+        ]
+      }
+    }
+  ]
+}

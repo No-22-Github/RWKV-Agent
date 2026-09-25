@@ -1,0 +1,43 @@
+{
+  "id": "tab-5012",
+  "description": "Value of units dispatched from one warehouse, joining a line log to a cost list. DISTILL-CANARY-38ac74f9",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "join",
+    "traps": [
+      "TR-MULTISRC",
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": 4894,
+      "TR-DUPROW": 153105.38
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-tab-orderlines-01",
+    "ref_calls": 3,
+    "fixture_bytes": 2145,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "order_lines_2026-08.csv": "line_id,product_code,warehouse,units\nOL-7158,PC-150,Dovecot,198\nOL-7170,PC-148,Dovecot,186\nOL-7163,PC-141,Cranfield,364\nOL-7174,PC-152,Bellhaven,166\nOL-7156,PC-148,Bellhaven,216\nOL-7138,PC-144,Bellhaven,174\nOL-7122,PC-142,Dovecot,172\nOL-7144,PC-150,Bellhaven,422\nOL-7127,PC-147,Cranfield,29\nOL-7125,PC-145,Dovecot,46\nOL-7135,PC-141,Bellhaven,358\nOL-7147,PC-153,Bellhaven,376\nOL-7142,PC-148,Cranfield,392\nOL-7164,PC-142,Dovecot,413\nOL-7146,PC-152,Dovecot,228\nOL-7155,PC-147,Dovecot,266\nOL-7137,PC-143,Dovecot,120\nOL-7170,PC-148,Dovecot,186\nOL-7126,PC-146,Bellhaven,316\nOL-7148,PC-140,Cranfield,36\nOL-7134,PC-140,Dovecot,160\nOL-7129,PC-149,Bellhaven,27\nOL-7123,PC-143,Bellhaven,272\nOL-7139,PC-145,Cranfield,249\nOL-7141,PC-147,Bellhaven,355\nOL-7159,PC-151,Bellhaven,352\nOL-7126,PC-146,Bellhaven,316\nOL-7144,PC-150,Bellhaven,422\nOL-7151,PC-143,Cranfield,93\nOL-7124,PC-144,Cranfield,247\nOL-7120,PC-140,Bellhaven,134\nOL-7133,PC-153,Cranfield,190\nOL-7130,PC-150,Cranfield,251\nOL-7167,PC-145,Dovecot,86\nOL-7152,PC-144,Dovecot,373\nOL-7173,PC-151,Dovecot,195\nOL-7153,PC-145,Bellhaven,374\nOL-7131,PC-151,Dovecot,138\nOL-7157,PC-149,Cranfield,159\nOL-7136,PC-142,Cranfield,323\nOL-7140,PC-146,Dovecot,337\nOL-7143,PC-149,Dovecot,371\nOL-7150,PC-142,Bellhaven,276\nOL-7172,PC-150,Cranfield,458\nOL-7154,PC-146,Cranfield,300\nOL-7128,PC-148,Dovecot,433\nOL-7162,PC-140,Bellhaven,27\nOL-7121,PC-141,Cranfield,389\nOL-7132,PC-152,Bellhaven,175\nOL-7157,PC-149,Cranfield,159\nOL-7149,PC-141,Dovecot,403\nOL-7166,PC-144,Cranfield,299\nOL-7165,PC-143,Bellhaven,323\nOL-7160,PC-152,Cranfield,337\nOL-7145,PC-151,Cranfield,268\nOL-7169,PC-147,Cranfield,261\nOL-7171,PC-149,Bellhaven,80\nOL-7168,PC-146,Bellhaven,471\nOL-7161,PC-153,Dovecot,404\n",
+    "product_costs.csv": "product_code,product_name,unit_cost\nPC-140,Oak dowel 12mm,22.32\nPC-141,Birch ply 6mm,45.81\nPC-142,Beech block 40mm,42.13\nPC-143,Ash strip 25mm,28.85\nPC-144,Cedar panel 9mm,9.20\nPC-145,Elm board 18mm,37.84\nPC-146,Maple sheet 3mm,29.11\nPC-147,Pine batten 50mm,5.76\nPC-148,Poplar core 8mm,28.58\nPC-149,Sapele strip 30mm,11.73\nPC-150,Teak offcut 20mm,34.07\nPC-151,Walnut veneer 1mm,7.94\nPC-152,Lime board 15mm,20.01\nPC-153,Cherry block 35mm,22.90\n"
+  },
+  "turns": [
+    {
+      "prompt": "Fenwick Wholesale values the stock it dispatches each month. What was the value, in pounds, of the units dispatched from the Bellhaven warehouse in August 2026, rounded to two decimal places? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 129529.08,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

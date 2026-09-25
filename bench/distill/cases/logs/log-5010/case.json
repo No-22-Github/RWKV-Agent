@@ -1,0 +1,40 @@
+{
+  "id": "log-5010",
+  "description": "Count the SKUs one supplier's price list lost for a missing pack size, in the family whose sibling has no answer in the data. DISTILL-CANARY-3c6de3e3",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 8
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-pricefeed-11",
+    "ref_calls": 3,
+    "fixture_bytes": 1404,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# price-feed loader\n\nGlenmoor Tools loads each supplier's nightly tool-price list into the\ncatalogue. The loader appends one line to logs/feed-loader.log for every SKU it\nturns away and closes the run with a line carrying the run's totals; the SKUs it\naccepts are counted in that closing line only, and the closing line accounts for\nevery rejected SKU of the run.\n\n    <UTC time> WARN  sku=<id> rejected reason=<code>\n    <UTC time> INFO  run finished date=<day> accepted=<n> rejected=<n>\n\nThe codes it writes are missing_currency (the list priced the SKU with no\ncurrency), pack_size_missing (the list gave no pack size) and\nprice_out_of_range (the price fell outside the band agreed with the supplier).\nNo run lists a rejected SKU twice.\n",
+    "logs/feed-loader.log": "2026-08-12T02:41:16Z WARN  sku=PL-3312 rejected reason=pack_size_missing\n2026-08-12T02:41:17Z WARN  sku=PL-3327 rejected reason=missing_currency\n2026-08-12T02:41:19Z WARN  sku=PL-3348 rejected reason=pack_size_missing\n2026-08-12T02:41:20Z WARN  sku=PL-3361 rejected reason=price_out_of_range\n2026-08-12T02:41:22Z WARN  sku=PL-3379 rejected reason=pack_size_missing\n2026-08-12T02:41:24Z WARN  sku=PL-3390 rejected reason=price_out_of_range\n2026-08-12T02:41:25Z WARN  sku=PL-3405 rejected reason=pack_size_missing\n2026-08-12T02:41:27Z WARN  sku=PL-3418 rejected reason=pack_size_missing\n2026-08-12T02:41:29Z INFO  run finished date=2026-08-12 accepted=61 rejected=8\n"
+  },
+  "turns": [
+    {
+      "prompt": "Glenmoor Tools loaded Brentmoor's price list for 12 August 2026 overnight. How many tools in that list did the loader turn away because the list gave no pack size? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 5,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

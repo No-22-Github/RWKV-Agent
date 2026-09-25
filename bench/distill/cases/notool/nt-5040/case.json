@@ -1,0 +1,42 @@
+{
+  "id": "nt-5040",
+  "description": "Work out how many minutes the Lagos desk leads the Phoenix desk. DISTILL-CANARY-d40517b5",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 360
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-depotclock-01",
+    "ref_calls": 0,
+    "fixture_bytes": 334,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "desks/duty_desks.csv": "desk,station,status\nPhoenix desk,Phoenix,staffed overnight\nLagos desk,Lagos,staffed overnight\n",
+    "standards/desk_offsets.csv": "station,offset_in_force\nPhoenix,-07:00\nLagos,+01:00\nBogota,-05:00\n",
+    "README.md": "# Cobalt Range Depot - rota office\n\nThe Phoenix and Lagos desks are staffed through the night.\nHandover times are quoted as the lead one desk has over the other, in minutes.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Cobalt Range Depot coordinates a Phoenix desk and a Lagos desk. The rota clerk needs the Lagos desk's clock lead over the Phoenix desk in minutes. How many minutes ahead is the Lagos desk? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 480,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "id": "fs-5005",
+  "description": "Read the oak stocktake sheet in a timber yard folder and report the bay recorded on it. DISTILL-CANARY-be680d87",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "find_file",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-fs-shortlookup-01",
+    "ref_calls": 2,
+    "fixture_bytes": 425,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "Wexcombe Timber - rack folder\n\nStocktakes are written per product after the monthly count. A sheet stays in\nthis folder until the year-end valuation has been signed off.\n",
+    "oak-stocktake.txt": "Bay B7 - kiln-dried oak\nPallets: 38\nThickness: 32 mm\nChecked: 2026-09-18, R. Okonjo\n",
+    "pine-stocktake.txt": "Bay B4 - kiln-dried pine\nPallets: 26\nThickness: 25 mm\nChecked: 2026-09-18, R. Okonjo\n",
+    "teak-stocktake.txt": "Bay B2 - air-dried teak\nPallets: 9\nThickness: 50 mm\nChecked: 2026-09-19, M. Lindqvist\n"
+  },
+  "turns": [
+    {
+      "prompt": "Wexcombe Timber counted its racks this month. The stocktake sheet for the kiln-dried oak records the bay that timber sits in. Which bay is it? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals_any": [
+          "B7",
+          "Bay B7"
+        ]
+      }
+    }
+  ]
+}

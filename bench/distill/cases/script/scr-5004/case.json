@@ -1,0 +1,50 @@
+{
+  "id": "scr-5004",
+  "description": "Give the observatory observing-hours script a totals-only option so the season sheet can be printed with the totals line alone. DISTILL-CANARY-7c3b51ea",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "add_flag",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-scr-stargaze-01",
+    "ref_calls": 2,
+    "fixture_bytes": 1210,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "hours.py": "\"\"\"Print the observing hours for the Fenwick Observatory.\n\nExports land in nights/, one file per month; the columns are\nobserver,minutes. Print one line per observer with the season minutes\nthey logged, in name order, then a totals line:\n\n    <observer>,<minutes>\n    TOTAL,<minutes>\n\"\"\"\nimport csv\nimport os\n\nNIGHTS = os.path.join(os.path.dirname(os.path.abspath(__file__)), \"nights\")\n\n\ndef night_rows():\n    rows = []\n    for name in sorted(os.listdir(NIGHTS)):\n        if name.endswith(\".csv\"):\n            with open(os.path.join(NIGHTS, name), newline=\"\") as handle:\n                rows.extend(csv.DictReader(handle))\n    return rows\n\n\ndef main():\n    totals = {}\n    for row in night_rows():\n        observer = row[\"observer\"]\n        totals[observer] = totals.get(observer, 0) + int(row[\"minutes\"])\n    for observer in sorted(totals):\n        print(\"%s,%d\" % (observer, totals[observer]))\n    print(\"TOTAL,%d\" % sum(totals.values()))\n\n\nmain()\n",
+    "nights/2026-08.csv": "observer,minutes\nSandoval,120\nLindqvist,95\n",
+    "nights/2026-09.csv": "observer,minutes\nSandoval,150\nOkonkwo,180\nLindqvist,60\n",
+    "README.md": "# Fenwick Observatory - observing hours\n\nNight sheets are written to nights/ by the dome log at the end of each\nsession. The season sheet is printed by hours.py.\n"
+  },
+  "expect": {
+    "files": {
+      "nights/2026-08.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "hours.py",
+      "args": [
+        "--totals-only"
+      ],
+      "expected_stdout": "TOTAL,905",
+      "hidden_files": {
+        "nights/2026-10.csv": "observer,minutes\nOkonkwo,210\nSandoval,90\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The duty roster meeting only wants the season total out of the observing hours sheet, and the office has grown tired of scrolling past every observer to reach it. Please give hours.py a --totals-only option that prints only the totals line when it is given. When finished, reply DONE.",
+      "expect": {}
+    }
+  ]
+}

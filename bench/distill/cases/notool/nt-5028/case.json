@@ -1,0 +1,42 @@
+{
+  "id": "nt-5028",
+  "description": "Convert a 3,500 nautical mile cable route to metres. DISTILL-CANARY-7d9ba5cc",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 6482
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-seafreight-01",
+    "ref_calls": 0,
+    "fixture_bytes": 333,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "survey/route_sections.csv": "section,from_kp,to_kp,length_nm\nA,0,900,900\nB,900,2300,1400\nC,2300,3500,1200\n",
+    "standards/route_conversions.csv": "conversion,factor\nnautical mile to metre,1852\nnautical mile to kilometre,1.852\n",
+    "README.md": "# Cablelark Subsea - survey desk\n\nRoute sections are cut at the survey desk and measured in nautical miles.\nThe offshore contractor's ploughing plans are dimensioned in metres.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Cablelark Subsea is preparing the ploughing plan for the Corran Sound cable. The route sections come to 3,500 nautical miles of seabed. The offshore contractor's spreadsheets work in metres. How many metres is the route? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 6482000,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

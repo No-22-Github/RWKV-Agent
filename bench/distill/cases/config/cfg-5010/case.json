@@ -1,0 +1,35 @@
+{
+  "id": "cfg-5010",
+  "description": "Number of lines one posting batch carries for the ledger service, resolved from the platform's settings sheet. DISTILL-CANARY-6f1c53d0",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-cfg-settingsstack-01",
+    "ref_calls": 2,
+    "fixture_bytes": 1353,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Tarnbrook Software - ledger\n\n`ledger` is the platform's double-entry posting service. Before it starts, the platform resolves each setting from the first source that defines it, and `resolved_from` in the settings sheet lists those sources in the order the service consults them: the variables the platform runner exports into the process, then the deployment profile, then the shipped defaults. A source that leaves a setting out falls through to the next one, so a profile lists only what it changes.\n\n`config/ledger-settings.json` is the review sheet the platform tooling writes for the production deployment: it shows each source's block as the service will see it, and the runner exports a setting as `TARNBROOK_LEDGER_<SETTING>` in capitals.\n",
+    "config/ledger-settings.json": "{\n  \"service\": \"ledger\",\n  \"resolved_from\": [\"runner_exports\", \"profile\", \"shipped_defaults\"],\n  \"runner_exports\": {\n    \"reconcile_window_min\": 110\n  },\n  \"profile\": {\n    \"export_currency\": \"EUR\"\n  },\n  \"shipped_defaults\": {\n    \"posting_batch_lines\": 480,\n    \"reconcile_window_min\": 75,\n    \"audit_retention_days\": 495,\n    \"export_currency\": \"GBP\"\n  }\n}\n",
+    "docs/posting-notes.md": "# Posting notes\n\nForeign-currency entries are converted at the bank's rate for the posting day. The nightly run pauses while the bank's rate files are being refreshed, and the pause is handled by the platform runner, not by the ledger service.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Nightly posting is being resized, and the ledger team at Tarnbrook Software wants to know how many lines a single posting batch carries for the production deployment. How many is that? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 480,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

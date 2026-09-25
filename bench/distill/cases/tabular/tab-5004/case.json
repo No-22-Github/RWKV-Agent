@@ -1,0 +1,34 @@
+{
+  "id": "tab-5004",
+  "description": "Garden tool loans in March in a quarterly lending log. DISTILL-CANARY-2be6c805",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-tab-toollib-01",
+    "ref_calls": 2,
+    "fixture_bytes": 825,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "loans.csv": "loan_id,item_code,item_name,category,loan_date\nL-5501,TL-2210,loppers,garden,2026-02-14\nL-5502,TL-1140,hedge shears,garden,2026-03-02\nL-5503,TL-4402,wheelbarrow,garden,2026-03-05\nL-5504,TL-3305,soil sieve,garden,2026-03-09\nL-5505,TL-3390,garden fork,garden,2026-03-16\nL-5506,TL-5520,pipe wrench,plumbing,2026-03-18\nL-5507,TL-1140,hedge shears,garden,2026-03-21\nL-5508,TL-6604,multimeter,electrical,2026-03-23\nL-5509,TL-2210,loppers,woodwork,2026-03-27\nL-5510,TL-7712,standing mixer,kitchen,2026-03-30\nL-5511,TL-4402,wheelbarrow,garden,2026-04-02\nL-5512,TL-3305,soil sieve,garden,2026-04-11\nL-5513,TL-6604,multimeter,electrical,2026-04-15\nL-5514,TL-5520,pipe wrench,plumbing,2026-04-19\nL-5515,TL-7712,standing mixer,kitchen,2026-04-23\n",
+    "README.md": "# Ridgeline Tool Library - lending log\n\nOne row per loan. The log opened in February 2026.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Ridgeline Tool Library counts lending activity for its spring report. How many loans in the garden category were recorded during March 2026? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 5,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

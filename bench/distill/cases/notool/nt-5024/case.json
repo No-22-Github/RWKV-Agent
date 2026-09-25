@@ -1,0 +1,41 @@
+{
+  "id": "nt-5024",
+  "description": "Explain the board foot unit and give the measure of one plank on a cutting order. DISTILL-CANARY-053fad90",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 130.5
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-scaleconv-02",
+    "ref_calls": 0,
+    "fixture_bytes": 208,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "milling/board_foot_card.csv": "order,thickness_in,width_in,length_ft\nTB-902,1.5,7.25,12\n",
+    "README.md": "# Ashcombe Timber - mill workspace\n\nShared folder for the sawmill office.\n\n- milling/  cutting orders for the bench\n- stacks/  air drying notes by bay\n"
+  },
+  "turns": [
+    {
+      "prompt": "A sawyer at Ashcombe asked what a board foot measures on a cutting order; it is 144 cubic inches of timber whatever the section of the plank. One plank is 1.5 inches thick, 7.25 inches wide and 12 feet long. Give that plank in board feet. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 10.875,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "id": "nt-5006",
+  "description": "Explain a roastery's development-time term and give its value for one logged batch. DISTILL-CANARY-4875fb36",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 472
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-glossratio-01",
+    "ref_calls": 0,
+    "fixture_bytes": 227,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "roasts/roast_card.csv": "batch,roasted_on,total_roast_s,first_crack_s\nDR-2291,2026-09-14,630,472\n",
+    "README.md": "# Alder Ridge Roastery - production workspace\n\nShared folder for the roasting team.\n\n- roasts/  one batch card per roast\n- green/  green bean intake notes\n"
+  },
+  "turns": [
+    {
+      "prompt": "A new roaster at Alder Ridge asked what the development time on a batch card stands for; it is the stretch between first crack and the drop. The batch logged on 14 September 2026 ran 630 seconds in total and reached first crack at 472 seconds. Give that batch's development time in seconds. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 158,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

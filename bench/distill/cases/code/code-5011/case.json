@@ -1,0 +1,42 @@
+{
+  "id": "code-5011",
+  "description": "Count the annotation lines that still carry the waiver desk's WAIVER-OPEN marker in its package. DISTILL-CANARY-74ea3d19",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "count_markers",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 6
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-code-pinnote-02",
+    "ref_calls": 3,
+    "fixture_bytes": 791,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "waivers/__init__.py": "# WAIVER-OPEN: the desk waiver queue is held until the review closes\n\"\"\"Waiver tracking for the compliance desk.\"\"\"\n",
+    "waivers/review.py": "\"\"\"Review helpers for the waiver desk.\"\"\"\nfrom waivers.scan import MARKER\n\n\ndef describe(line):\n    # WAIVER-OPEN: the review date rides on the annotation\n    return line.strip()\n\n\ndef is_open(line):\n    # WAIVER-OPEN: anything still carrying the annotation is open\n    return MARKER in line\n",
+    "waivers/scan.py": "\"\"\"Helpers for reading the WAIVER-OPEN annotation out of a file.\"\"\"\n\nMARKER = \"WAIVER-OPEN\"\n\n\ndef strip_annotation(line):\n    return line.replace(MARKER, \"\")\n",
+    "waivers/store.py": "\"\"\"Storage for the waiver desk.\"\"\"\nfrom waivers.scan import MARKER\n\n\ndef load(lines):\n    # WAIVER-OPEN: the store keeps the window boundaries\n    open_lines = [line for line in lines if MARKER in line]\n    return open_lines\n"
+  },
+  "turns": [
+    {
+      "prompt": "The compliance desk holds waiver items with a WAIVER-OPEN annotation while a review is under way. How many lines under waivers/ carry that annotation? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 4,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

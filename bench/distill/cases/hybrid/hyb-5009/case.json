@@ -1,0 +1,65 @@
+{
+  "id": "hyb-5009",
+  "description": "Gas cost of a named September kiln run at a brickworks, after the run is pinned down. DISTILL-CANARY-0e5b7c81",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 2768.95
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-ambigscope-03",
+    "ref_calls": 2,
+    "fixture_bytes": 438,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "runs/kiln-gas-2026.csv": "run,kiln,started_on,ended_on,gas_gbp\nSept-A,1,2026-09-02,2026-09-08,1842.60\nSept-A,1,2026-09-11,2026-09-15,926.35\nSept-B,2,2026-09-17,2026-09-24,2418.90\nSept-B,2,2026-09-25,2026-09-29,733.45\n",
+    "README.md": "# Barrowby Brickworks - kiln gas log\n\nOne row per kiln run. A run is charged the gas metered to its kiln between the\nstart and end dates on the row. Two runs were worked in September, each one\nsplit over two firings on the kilns numbered 1 and 2.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Barrowby Brickworks is filling in the September energy return. What did the September run cost us in gas?",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ]
+      }
+    },
+    {
+      "prompt": "The Sept-B run. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 3152.35,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

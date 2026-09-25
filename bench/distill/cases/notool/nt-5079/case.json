@@ -1,0 +1,52 @@
+{
+  "id": "nt-5079",
+  "description": "Asks who the assistant is; reply directly without any tool call. DISTILL-CANARY-432cbd4c",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-smalltalk-04",
+    "ref_calls": 0,
+    "fixture_bytes": 313,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Hartsmere Veterinary Clinic - front desk workspace\n\nShared folder for the reception team.\n\n- visits/  appointments for the small animal rooms\n- stock/  vaccine fridge counts\n",
+    "visits/today_list.csv": "visit,pet,room,booked_for,fee\nHV-8105,border collie,A,2026-09-25,74\nHV-8106,tabby cat,B,2026-09-25,88\nHV-8107,lop rabbit,C,2026-09-28,63\n"
+  },
+  "turns": [
+    {
+      "prompt": "Who am I talking to here, by the way?",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "assistant",
+          "Assistant",
+          "model",
+          "Model",
+          "AI",
+          "ai",
+          "help",
+          "Help",
+          "program",
+          "Program"
+        ]
+      }
+    }
+  ]
+}

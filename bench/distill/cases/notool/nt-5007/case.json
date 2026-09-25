@@ -1,0 +1,42 @@
+{
+  "id": "nt-5007",
+  "description": "Explain the bindery's signature term and give the page count it yields. DISTILL-CANARY-4b1f3f85",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 56
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L2",
+    "family": "fam-nt-glossratio-02",
+    "ref_calls": 0,
+    "fixture_bytes": 359,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "sewing/signature_card.csv": "job,title,signatures,leaves_per_signature\nBN-4412,Ashgrove Almanac 2027,14,4\n",
+    "README.md": "# Fenwick Bindery - workshop workspace\n\nShared folder for the sewing bench.\n\n- sewing/  job cards for the sewing plan\n- cloth/  covering stock notes\n",
+    "notes/binder_supplies.txt": "Thread reorder lead time: ask the bench lead before the end of the week.\nGlue pots are cleaned on the last working day of the month.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Fenwick Bindery's apprentice asked what a signature is on the sewing plan; it is a folded sheet whose leaves are printed on both sides. The Ashgrove Almanac 2027 run is planned as 14 signatures of 4 leaves each. Give the number of printed pages that run carries. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 112,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

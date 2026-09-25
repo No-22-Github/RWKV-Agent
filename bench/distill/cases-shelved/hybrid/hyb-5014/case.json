@@ -1,0 +1,67 @@
+{
+  "id": "hyb-5014",
+  "description": "Fill the blank reporting interval in a telemetry settings file from the maker's commissioning sheet. DISTILL-CANARY-8c25fa40",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_edit",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": null
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-setfromsheet-01",
+    "ref_calls": 4,
+    "fixture_bytes": 385,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [
+    {
+      "query_match": "kelvinside",
+      "url": "https://kelvinside-analytics.example/support/orchard-lane-commissioning",
+      "url_match": "kelvinside-analytics.example/support/orchard-lane-commissioning",
+      "title": "Orchard Lane telemetry unit - commissioning sheet",
+      "snippet": "Commissioning sheet for the Orchard Lane unit: set the reporting interval to 900 seconds before the unit is left on site. The upload window is set at the factory.",
+      "content": "# Orchard Lane telemetry unit - commissioning sheet\n\nApplies to Orchard Lane ORL-14, firmware 4.2 and later. Issued 18 June 2026.\n\nBefore the unit is left on site, set the reporting interval to 900 seconds in\nthe unit settings file. The upload window is set at the factory and is not\nchanged on site.\n\nSupport: support@kelvinside-analytics.example\n",
+      "published_at": "2026-06-18"
+    },
+    {
+      "query_match": "orchard",
+      "url": "https://kelvinside-analytics.example/support/telemetry-reporting-faq",
+      "url_match": "kelvinside-analytics.example/support/telemetry-reporting-faq",
+      "title": "Telemetry reporting - frequently asked questions",
+      "snippet": "For the Orchard Lane class of units the reporting interval is fixed at 900 seconds; shorter intervals are not supported.",
+      "content": "# Telemetry reporting - frequently asked questions\n\nWhat interval should be set on site?\nFor the Orchard Lane class of units the reporting interval is fixed at 900 seconds. Shorter intervals are not supported, and longer ones delay fault reports.\n\nCan the upload window be changed?\nNo. The window is set at the factory.\n",
+      "published_at": "2026-07-02"
+    }
+  ],
+  "files": {
+    "metering/reporting-setup.txt": "# Orchard Lane telemetry - settings\nremote=Kelvinside Analytics\nupload_window=02:00-04:00\nreporting_interval_seconds=\nsite_code=ORL-14\n",
+    "README.md": "# Orchard Lane - telemetry handover\n\nThe unit is left on site with the settings file metering/reporting-setup.txt.\nEvery setting on that file is taken from the maker's commissioning sheet for the\nunit; nothing on the file is set by hand at the site.\n"
+  },
+  "expect": {
+    "files": {
+      "metering/reporting-setup.txt": {
+        "contains": [
+          "# Orchard Lane telemetry - settings\nremote=Kelvinside Analytics\nupload_window=02:00-04:00\nreporting_interval_seconds=900\nsite_code=ORL-14"
+        ]
+      }
+    },
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Kelvinside Analytics has installed the Orchard Lane telemetry unit and the reporting interval on its settings file is still blank. Fill in the reporting interval the maker's current commissioning sheet requires for that unit. When finished, reply DONE."
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "id": "code-5012",
+  "description": "Count the annotation lines that still carry the replay desk's REPLAY-HOLD marker in its package. DISTILL-CANARY-1509cb6d",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "count_markers",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 6
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-code-pinnote-03",
+    "ref_calls": 5,
+    "fixture_bytes": 973,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "replay/__init__.py": "# REPLAY-HOLD: the replay desk is held at the old clock until the cutover review\n\"\"\"Replay helpers for the desk.\"\"\"\n",
+    "replay/clock.py": "\"\"\"The clock the replay desk reads.\"\"\"\n\n\ndef clock_name(line):\n    head, _, _ = line.partition(\":\")\n    return head.strip()\n",
+    "replay/holds.py": "\"\"\"Hold helpers for the replay desk.\"\"\"\nfrom replay.clock import clock_name\n\n\ndef hold_note(line):\n    # REPLAY-HOLD: the hold rides on the annotation\n    return clock_name(line)\n\n\ndef is_held(line):\n    # REPLAY-HOLD: the desk reads the annotation off the line\n    return \"hold\" in line\n",
+    "replay/runner.py": "\"\"\"Runs the held replays back through the desk.\"\"\"\nfrom replay.holds import is_held\n\n\ndef held(lines):\n    # REPLAY-HOLD: the runner only takes the held lines\n    return [line for line in lines if is_held(line)]\n",
+    "replay_retired/__init__.py": "# REPLAY-HOLD: retired with the old desk; kept for the review file\n\"\"\"Retired replay helpers.\"\"\"\n",
+    "replay_retired/holds.py": "\"\"\"Retired hold helpers.\"\"\"\n\n\ndef is_held(line):\n    # REPLAY-HOLD: the retired desk read the same annotation\n    return \"hold\" in line\n"
+  },
+  "turns": [
+    {
+      "prompt": "The replay desk holds replay runs with a REPLAY-HOLD annotation while the clock cutover is pending. How many lines under replay/ carry that annotation? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 4,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

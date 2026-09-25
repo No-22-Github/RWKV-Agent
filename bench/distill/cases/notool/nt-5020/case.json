@@ -1,0 +1,41 @@
+{
+  "id": "nt-5020",
+  "description": "Explain heating degree days and give the total for a three day spell in one glasshouse. DISTILL-CANARY-46e5072c",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 42.0
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-sumrule-01",
+    "ref_calls": 0,
+    "fixture_bytes": 225,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "houses/hdd_log.csv": "2026-03-02,14.0,18.0\n2026-03-03,12.5,18.0\n2026-03-04,15.5,18.0\n",
+    "README.md": "# Ellerby Estate - glasshouse workspace\n\nShared folder for the growing team.\n\n- houses/  temperature logs from the houses\n- fuel/  delivery notes for the boilers\n"
+  },
+  "turns": [
+    {
+      "prompt": "An Ellerby Estate grower asked what heating degree days are on a house log; each day adds the amount by which its mean temperature falls short of the house base, and the daily figures are summed over the spell. The log holds three days with means of 14.0, 12.5 and 15.5 degrees against a base of 18.0. Give the degree days for that spell. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 12.0,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

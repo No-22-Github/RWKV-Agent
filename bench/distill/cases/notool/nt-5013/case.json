@@ -1,0 +1,42 @@
+{
+  "id": "nt-5013",
+  "description": "Explain wet-bulb depression and give the reading for one cold room. DISTILL-CANARY-b31e9316",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 42.5
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L2",
+    "family": "fam-nt-tempbase-02",
+    "ref_calls": 0,
+    "fixture_bytes": 290,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "rooms/depression_card.csv": "room,dry_bulb_c,wet_bulb_c\nCS-9,24.0,18.5\n",
+    "README.md": "# Pressmore Cold Storage - plant workspace\n\nShared folder for the refrigeration team.\n\n- rooms/  room cards with bulb readings\n- rounds/  shift round notes\n",
+    "rounds/chiller_rounds.txt": "Round sheets are kept at the panel room door.\nFilter changes are entered by the shift lead.\n"
+  },
+  "turns": [
+    {
+      "prompt": "A chiller technician at Pressmore asked what the wet-bulb depression on a room card measures; it is how far the wet bulb sits below the dry bulb. Room 9 reads 24.0 and 18.5 degrees on the two bulbs. Give the depression for that room. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 5.5,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

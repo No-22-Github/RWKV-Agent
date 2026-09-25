@@ -1,0 +1,40 @@
+{
+  "id": "nt-5068",
+  "description": "Give the five-field schedule expression for a monthly 02:30 recycle. DISTILL-CANARY-6304095f",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "30 2 1 * 1"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-protocoltok-15",
+    "ref_calls": 0,
+    "fixture_bytes": 371,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "schedule/pan-tasks.tsv": "need\tcanonical\tnote\nbrine-recycle\t30 2 1 * *\tvat cleaning crew starts at 04:00\nsalt-flush\t45 3 15 * *\thalfway point of the boiling cycle\n",
+    "README.md": "# Nettlecoombe Saltworks - pan house schedule\n\nThe supervisor file takes five fields per task: minute, hour, day of month, month and weekday.\nThe brine recycle runs at 02:30 on the first day of every month, whichever weekday that is.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Nettlecoombe Saltworks recycles the brine pans at 02:30 on the first day of every month, no matter which weekday that falls on. Give the five-field schedule expression for that task, with the fields separated by single spaces. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "tools": [],
+        "output_equals": "30 2 1 * *"
+      }
+    }
+  ]
+}

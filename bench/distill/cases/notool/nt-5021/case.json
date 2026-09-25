@@ -1,0 +1,42 @@
+{
+  "id": "nt-5021",
+  "description": "Explain how residual sugar is totalled for a bottling order and give the grams for two lots. DISTILL-CANARY-71d466cb",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 7.8
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L2",
+    "family": "fam-nt-sumrule-02",
+    "ref_calls": 0,
+    "fixture_bytes": 303,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "cellar/bottling_sugar.csv": "L-31,4.2,1200,750\nL-32,3.6,800,750\n",
+    "README.md": "# Wexley Vineyards - cellar workspace\n\nShared folder for the cellar team.\n\n- cellar/  bottling records for the season\n- vineyard/  block notes from the growers\n",
+    "notes/barrel_notes.txt": "Barrel topping is done by the cellar hand on early shift.\nSample bottles go to the tasting room on request.\n"
+  },
+  "turns": [
+    {
+      "prompt": "A cellar hand at Wexley asked how the sugar in a bottling order is totalled; each lot is measured in grams per litre and goes into three-quarter litre bottles. The two lots on the order hold 4.2 and 3.6 grams per litre across 1,200 and 800 bottles. Give the total sugar in those bottles, in grams. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 5940.0,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

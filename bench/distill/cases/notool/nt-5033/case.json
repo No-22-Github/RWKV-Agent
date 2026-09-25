@@ -1,0 +1,42 @@
+{
+  "id": "nt-5033",
+  "description": "Convert a 42U cabinet height from rack units to centimetres. DISTILL-CANARY-932a862a",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 73.5
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-rackhouse-01",
+    "ref_calls": 0,
+    "fixture_bytes": 273,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "cabinets/so_3312.csv": "order,item,height_u\nSO-3312,Fairline 800 wide cabinet,42\n",
+    "standards/rack_conversions.csv": "conversion,factor\nU to millimetre,44.45\nU to inch,1.75\n",
+    "README.md": "# Pennant Rackworks - drawing office\n\nCabinet heights are ordered in rack units at the drawing office.\nSite drawings at Ashcombe are dimensioned in centimetres.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Pennant Rackworks is checking a 42U Fairline cabinet against the ceiling void at the Ashcombe site. The site drawing is dimensioned in centimetres. What is the cabinet's height in centimetres? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 186.69,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

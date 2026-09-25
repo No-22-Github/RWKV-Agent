@@ -1,0 +1,56 @@
+{
+  "id": "nt-5085",
+  "description": "Asks which tools are on hand; answer from the tool list in context without calling any tool. DISTILL-CANARY-1f5751c2",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-smalltalk-06",
+    "ref_calls": 0,
+    "fixture_bytes": 279,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Pewter Lane Dental Lab - bench workspace\n\nShared folder for the crown and bridge bench.\n\n- cases/  cases in the current production run\n- alloys/  alloy batch notes from the supplier\n",
+    "cases/production_run.csv": "case,shade,units_since_jan,avg_margin_um\nPD-5221,A2,640,38\nPD-5222,B1,725,45\nPD-5223,A3,588,52\n"
+  },
+  "turns": [
+    {
+      "prompt": "Which tools do you have on hand here?",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "tool",
+          "Tool",
+          "read",
+          "Read",
+          "search",
+          "Search",
+          "file",
+          "File",
+          "list",
+          "List",
+          "calculat",
+          "Calculat",
+          "web",
+          "Web"
+        ]
+      }
+    }
+  ]
+}

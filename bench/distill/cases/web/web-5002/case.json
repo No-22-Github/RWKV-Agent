@@ -1,0 +1,41 @@
+{
+  "id": "web-5002",
+  "description": "Buffer wait for a partial batch in the Kelpforge ingest reference table. DISTILL-CANARY-7c1d4a92",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-web-apiratelimit-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "kelpforge",
+      "url": "https://docs.kelpforge.example/reference/ingest-tuning",
+      "url_match": "docs.kelpforge.example/reference/ingest-tuning",
+      "title": "Ingest tuning - Kelpforge reference",
+      "snippet": "Batch thresholds used by the ingest client, with the defaults listed per setting.",
+      "content": "# Ingest tuning\n\nKelpforge reference, reviewed 2026-07-30.\n\nThe ingest client buffers documents in memory and sends a batch as soon as one\nof its thresholds is reached.\n\n| setting | default | notes |\n| --- | --- | --- |\n| flush_interval_ms | 250 | how long a partial batch may sit in the buffer |\n| flush_batch_size | 1000 | documents held in one batch |\n| max_inflight_batches | 8 | batches in flight per client |\n\nflush_interval_ms is the ceiling for a partial batch: once a batch has waited\nthis long the client sends it even when it holds fewer documents than\nflush_batch_size. Lowering the interval reduces the delay before a document is\nsearchable and raises the request count.\n\nA batch that comes back with 429 is retried after 2 seconds, up to 5 times.\n",
+      "published_at": "2026-07-30"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "Our nightly loader runs the Kelpforge ingest client and never overrides its buffering settings. How many milliseconds may a partial batch sit in the buffer before the client sends it? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 250,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

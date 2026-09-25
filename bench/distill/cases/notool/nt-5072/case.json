@@ -1,0 +1,43 @@
+{
+  "id": "nt-5072",
+  "description": "Give the runner selection option that skips the marked long checks. DISTILL-CANARY-edd7bf10",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "-m \"slow\""
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-testflag-16",
+    "ref_calls": 0,
+    "fixture_bytes": 403,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "test/selection-options.tsv": "need\tcanonical\talso_accept\tnote\nskip-slow\t-m \"not slow\"\t-m 'not slow'\tkeeps the short checks in the loop\nonly-slow\t-m slow\t-m \"slow\"\tlaptop runs before a release\n",
+    "README.md": "# Sullivane Analytics - reporting checks\n\nThree checks walk a full year of statements and take several minutes each; the rest finish in seconds.\nThe long ones carry one mark so that a laptop run can leave them out without editing the files.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Sullivane Analytics marks its three long statement checks with the mark slow. Give the selection option and its value that makes a test run execute every check except the ones carrying that mark, written so that the expression is quoted. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "-m \"not slow\"",
+          "-m 'not slow'"
+        ]
+      }
+    }
+  ]
+}

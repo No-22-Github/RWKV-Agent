@@ -1,0 +1,43 @@
+{
+  "id": "nt-5060",
+  "description": "Give the Python regex fragment that captures four digits into a named group. DISTILL-CANARY-d3799f28",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "(?<code>\\d{4})"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-regexpin-12",
+    "ref_calls": 0,
+    "fixture_bytes": 391,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "reference/pattern-cards.tsv": "name\tcanonical\talso_accept\trecorded_on\nbatch-code\t(?P<code>\\d{4})\t(?P<code>[0-9]{4})\t2026-02-17\nkiln-code\t(?P<kiln>[A-Z]{3})\t(?P<kiln>[A-Z][A-Z][A-Z])\t2026-02-17\n",
+    "README.md": "# Thimblewick Glassworks - furnace notes\n\nOperators write a four-digit batch code at the head of every furnace note. The parsing script pulls that\ncode out by name so the rest of the note can be read without counting characters.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Thimblewick Glassworks parses furnace notes whose first field is a batch code: exactly four digits that the parsing script must be able to read back by the name code. Give the Python regular-expression fragment that captures those four digits into a group carrying that name. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "(?P<code>\\d{4})",
+          "(?P<code>[0-9]{4})"
+        ]
+      }
+    }
+  ]
+}

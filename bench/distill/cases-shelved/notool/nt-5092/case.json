@@ -1,0 +1,59 @@
+{
+  "id": "nt-5092",
+  "description": "Asks the assistant to double-check an earlier number; reply directly without any tool call. DISTILL-CANARY-302f4a75",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-smalltalk-08",
+    "ref_calls": 0,
+    "fixture_bytes": 270,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Coldwater Rope Works - mill workspace\n\nShared folder for the spinning floor.\n\n- mill/  splice orders for the harbour trade\n- spools/  yarn spool counts from the last shift\n",
+    "mill/splice_orders.csv": "order,line,metres,swl_kn\nCW-8457,hawser,2400,64\nCW-8458,mooring,1750,52\nCW-8459,heaving,3100,78\n"
+  },
+  "turns": [
+    {
+      "prompt": "Before I pass that number on, can you double-check the one you gave me earlier?",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "double-check",
+          "double check",
+          "confident",
+          "Confident",
+          "certain",
+          "Certain",
+          "Yes,",
+          "Yes.",
+          "yes,",
+          "sure about",
+          "recheck",
+          "re-check",
+          "check again",
+          "don't have",
+          "do not have",
+          "no earlier",
+          "earlier message"
+        ]
+      }
+    }
+  ]
+}

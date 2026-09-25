@@ -1,0 +1,43 @@
+{
+  "id": "tab-5011",
+  "description": "Driver expense settlement for a quarterly trip log, with the rates held in a terms file. DISTILL-CANARY-f42b96a0",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "policy_calc",
+    "traps": [
+      "TR-RULEFILE",
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": 1329.84,
+      "TR-DUPROW": 1349.79
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-tab-tripclaim-01",
+    "ref_calls": 3,
+    "fixture_bytes": 2429,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "trips_2026-q2.csv": "trip_id,driver,route_code,vehicle_id,distance_km\nT-6203,Lukas Vane,R-7,VN-104,41.7\nT-6249,Otto Fenn,R-2,VN-102,50.7\nT-6208,Nadia Breen,R-3,EV-203,45.0\nT-6211,Lukas Vane,R-9,EV-203,18.2\nT-6240,Nadia Breen,R-8,VN-105,8.5\nT-6222,Priya Sandal,R-8,VN-105,52.6\nT-6206,Priya Sandal,R-1,EV-201,58.1\nT-6212,Nadia Breen,R-1,EV-201,68.0\nT-6238,Priya Sandal,R-3,VN-103,30.5\nT-6239,Lukas Vane,R-5,VN-104,64.1\nT-6253,Otto Fenn,R-9,VN-106,42.5\nT-6207,Lukas Vane,R-2,EV-202,56.1\nT-6205,Otto Fenn,R-7,VN-106,30.6\nT-6204,Nadia Breen,R-7,VN-105,16.1\nT-6228,Nadia Breen,R-8,VN-105,39.2\nT-6247,Lukas Vane,R-9,VN-106,61.9\nT-6216,Nadia Breen,R-8,VN-105,29.0\nT-6235,Lukas Vane,R-9,VN-106,48.6\nT-6254,Priya Sandal,R-1,VN-101,51.5\nT-6252,Nadia Breen,R-8,VN-105,59.0\nT-6221,Otto Fenn,R-5,VN-104,46.8\nT-6247,Lukas Vane,R-9,VN-106,61.9\nT-6224,Nadia Breen,R-1,VN-101,63.7\nT-6221,Otto Fenn,R-5,VN-104,46.8\nT-6202,Priya Sandal,R-7,VN-103,45.9\nT-6246,Priya Sandal,R-8,VN-105,36.7\nT-6220,Nadia Breen,R-3,VN-103,51.0\nT-6201,Otto Fenn,R-7,VN-102,26.6\nT-6237,Otto Fenn,R-2,VN-102,31.5\nT-6242,Priya Sandal,R-1,VN-101,3.5\nT-6233,Otto Fenn,R-5,VN-104,20.8\nT-6245,Otto Fenn,R-5,VN-104,34.7\nT-6213,Otto Fenn,R-2,EV-202,47.7\nT-6250,Priya Sandal,R-3,VN-103,57.1\nT-6215,Lukas Vane,R-5,EV-201,51.9\nT-6232,Nadia Breen,R-3,VN-103,46.8\nT-6248,Nadia Breen,R-1,VN-101,48.8\nT-6239,Lukas Vane,R-5,VN-104,64.1\nT-6226,Priya Sandal,R-3,VN-103,47.0\nT-6243,Lukas Vane,R-2,VN-102,19.2\nT-6229,Otto Fenn,R-9,VN-106,60.3\nT-6219,Lukas Vane,R-2,VN-102,44.1\nT-6234,Priya Sandal,R-8,VN-105,22.4\nT-6231,Lukas Vane,R-2,VN-102,47.0\nT-6200,Nadia Breen,R-7,VN-101,65.3\nT-6217,Otto Fenn,R-9,VN-106,24.1\nT-6209,Otto Fenn,R-5,EV-201,39.4\nT-6223,Lukas Vane,R-9,VN-106,10.8\nT-6230,Priya Sandal,R-1,VN-101,27.0\nT-6244,Nadia Breen,R-3,VN-103,40.8\nT-6251,Lukas Vane,R-5,VN-104,9.3\nT-6210,Priya Sandal,R-8,EV-202,26.3\nT-6227,Lukas Vane,R-5,VN-104,6.1\nT-6208,Nadia Breen,R-3,EV-203,45.0\nT-6218,Priya Sandal,R-1,VN-101,10.9\nT-6236,Nadia Breen,R-1,VN-101,43.3\nT-6214,Priya Sandal,R-3,EV-203,64.5\nT-6241,Otto Fenn,R-9,VN-106,20.6\nT-6225,Otto Fenn,R-2,VN-102,31.1\n",
+    "reimbursement_terms.md": "# Rushmere Grounds Co-op - driver expense terms, in force from 1 April 2026\n\nOne row in the trip log stands for one completed trip.\n\n- Standard vehicles: 0.62 per kilometre driven.\n- Electric vans, whose vehicle codes start with EV: 0.38 per kilometre driven.\n- Route R-7, the nursery shuttle: a flat 25.00 per completed trip, whatever the distance.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Rushmere Grounds Co-op settles driver expenses once a quarter. What is the total reimbursement, in pounds, rounded to two decimal places, for the trips in this log? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 1225.55,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

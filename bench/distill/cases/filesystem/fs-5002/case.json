@@ -1,0 +1,37 @@
+{
+  "id": "fs-5002",
+  "description": "Pick the slip-case job card out of a bindery's workshop folder and report the greyboard thickness it specifies. DISTILL-CANARY-cbfe778f",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "find_file",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-fs-shortlookup-01",
+    "ref_calls": 2,
+    "fixture_bytes": 577,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "Ridgeway Bindery - workshop folder\n\nJob cards are filed here once the boards are cut. The office keeps a copy of\nevery card until the run is invoiced, then the card moves to the loft.\n",
+    "job-cards/dustjacket.txt": "Ridgeway Bindery - job card 2271\nCustomer: Fenwick Press, Wells\nRun: 120 dust jackets, matt laminate\nBoard: 2.2 mm greyboard, cut flush\nSpine lining: 100 gsm kraft\nTurn-in: 12 mm\nDue: 2026-10-14\n",
+    "job-cards/slipcase.txt": "Ridgeway Bindery - job card 2274\nCustomer: Hollis & Grey, Bath\nRun: 60 slip cases, navy buckram\nBoard: 2.4 mm greyboard, cut 3 mm over trim\nSpine lining: 80 gsm kraft\nTurn-in: 15 mm\nDue: 2026-10-19\n"
+  },
+  "turns": [
+    {
+      "prompt": "Ridgeway Bindery files one job card for every binding run. The card for the slip-case run in navy buckram gives the greyboard thickness in millimetres. What is that thickness? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 2.4,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "id": "nt-5029",
+  "description": "Convert 84 short tons of wheat to bushels at the mill's quoted bushel weight. DISTILL-CANARY-23e29ef1",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 3500
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-millworks-01",
+    "ref_calls": 0,
+    "fixture_bytes": 372,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "orders/po_4471.csv": "order,commodity,quantity,unit\nPO-4471,wheat,30,short ton\nPO-4471,wheat,54,short ton\n",
+    "standards/mill_conversions.csv": "conversion,factor\nshort ton to pound,2000\nwheat bushel to pound,60\nbarley bushel to pound,48\n",
+    "README.md": "# Thistledown Feed Mill - buying office\n\nPurchase orders are booked in short tons; the ration sheets are written in bushels.\nBushel weights in force for the autumn ration are kept in standards/.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Thistledown Feed Mill has bought 84 short tons of wheat for the autumn ration. The mill's buyers quote wheat by the bushel. How many bushels of wheat does the purchase cover? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 2800,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

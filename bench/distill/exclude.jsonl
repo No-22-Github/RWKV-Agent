@@ -117,3 +117,7 @@
 {"case_id": "ws7-web-0004-b31", "reason": "recovery_prefix: teacher mistake shown before recovery; full-text loss trainer would learn it", "batch": "base700"}
 {"case_id": "ws7-web-0004-r10", "reason": "recovery_prefix: teacher mistake shown before recovery; full-text loss trainer would learn it", "batch": "base700"}
 {"case_id": "ws7-web-0004-v20", "reason": "recovery_prefix: teacher mistake shown before recovery; full-text loss trainer would learn it", "batch": "base700"}
+{"case_id": "hyb-5001--p2", "reason": "over-4096: 4176 tokens (longest path of a case whose other path is 3092)", "batch": "b01"}
+{"case_id": "log-5007--p2", "reason": "over-4096: 4128 tokens (other path 3781)", "batch": "b01"}
+{"case_id": "log-5008--p2", "reason": "over-4096: 6458 tokens (other path 3594)", "batch": "b01"}
+{"case_id": "scr-5002--p2", "reason": "over-4096: 4214 tokens (other path 3386)", "batch": "b01"}

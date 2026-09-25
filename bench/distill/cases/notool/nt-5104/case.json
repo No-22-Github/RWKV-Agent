@@ -1,0 +1,65 @@
+{
+  "id": "nt-5104",
+  "description": "Visitor entries on 12 September; the first message does not say which of the two turnstiles to count. DISTILL-CANARY-fea831b5",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "ambiguous_request",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 286
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-turnstile-01",
+    "ref_calls": 2,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null,
+    "fixture_bytes": 363
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Fairholt Baths - visitor counts\n\nEntries are recorded by two turnstiles: the North gate at the main entrance and\nthe South gate by the pool.\n\nThe duty manager reads the Saturday sheet when the leisure committee asks.\n",
+    "counts/turnstile-2026-09.csv": "date,gate,entries\n2026-09-05,North,418\n2026-09-05,South,332\n2026-09-12,North,517\n2026-09-12,South,286\n2026-09-19,North,463\n2026-09-19,South,371\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many people came through on the twelfth?",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ]
+      }
+    },
+    {
+      "prompt": "The North gate, the South turnstile was a manual clicker that day. How many entries did the North gate record on 12 September? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 517,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

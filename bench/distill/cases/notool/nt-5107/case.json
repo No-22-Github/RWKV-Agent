@@ -1,0 +1,65 @@
+{
+  "id": "nt-5107",
+  "description": "Per-unit fee for the seal kit; the first message does not say which of the two currency columns on the quote sheet applies. DISTILL-CANARY-d80cc75b",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "ambiguous_request",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 127.3
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-quotecurrency-01",
+    "ref_calls": 2,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null,
+    "fixture_bytes": 333
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Bellwether Hydraulics - supplier quotes\n\nQuotes from Delmare Technik come back in both currencies; the accounts team pays\nwhichever one the invoice is raised in.\n\nFees are per part, before carriage.\n",
+    "supplier/quotes-2026-09.csv": "part,description,fee_eur,fee_gbp\nSEAL-40,seal kit,148.50,127.30\nVALVE-12,valve set,362.00,310.45\nPUMP-07,pump housing,918.75,787.60\n"
+  },
+  "turns": [
+    {
+      "prompt": "What are we paying per unit for the seal kit?",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ]
+      }
+    },
+    {
+      "prompt": "The invoice comes in euros. What is the per-unit fee in euros for seal kit SEAL-40? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 148.5,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

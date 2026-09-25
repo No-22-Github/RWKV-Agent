@@ -1,0 +1,67 @@
+{
+  "id": "hyb-5015",
+  "description": "Fill the blank lamp power in a press curing settings table from the lamp maker's operating note. DISTILL-CANARY-e0b94c73",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_edit",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": null
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-setfromsheet-01",
+    "ref_calls": 4,
+    "fixture_bytes": 341,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [
+    {
+      "query_match": "lamp",
+      "url": "https://vantry-uv.example/notes/mercury-heads-operating-note",
+      "url_match": "vantry-uv.example/notes/mercury-heads-operating-note",
+      "title": "Mercury lamp heads - operating note (Vantry UV Systems)",
+      "snippet": "Operating note for mercury lamp heads: set the lamp power to 68 percent. The note covers the head types fitted to Ridgeline Press curing units.",
+      "content": "# Mercury lamp heads - operating note\n\nApplies to the mercury head types fitted to Ridgeline Press curing units.\nIssued 3 August 2026.\n\nSet the lamp power to 68 percent. Do not raise the setting above the figure on\nthe head rating plate, and leave the belt speed as it is set on the press.\n\nTechnical desk: desk@vantry-uv.example\n",
+      "published_at": "2026-08-03"
+    },
+    {
+      "query_match": "ridgeline",
+      "url": "https://vantry-uv.example/notes/curing-settings-questions",
+      "url_match": "vantry-uv.example/notes/curing-settings-questions",
+      "title": "Curing settings - questions from the trade",
+      "snippet": "The question we are asked most: for a mercury head the lamp power is set at 68 percent and is not adjusted for belt speed.",
+      "content": "# Curing settings - questions from the trade\n\nWhat power should a mercury head run at?\nOn a mercury head the lamp power is set at 68 percent and is not adjusted for belt speed. Water-cooled and air-cooled heads take the same figure.\n\nShould the belt speed be changed?\nNo. The belt speed is set on the press and is left alone.\n",
+      "published_at": "2026-08-21"
+    }
+  ],
+  "files": {
+    "press/cure-settings.csv": "setting,value\nlamp_power_percent,\nbelt_speed_m_per_min,12\nlamp_type,mercury\n",
+    "README.md": "# Ridgeline Press - UV curing\n\nThe curing settings for the press are held in press/cure-settings.csv. Lamp\nsettings come from the lamp maker's operating note for the lamp type fitted, not\nfrom the press manual; the belt speed is a press setting and stays as it is.\n"
+  },
+  "expect": {
+    "files": {
+      "press/cure-settings.csv": {
+        "contains": [
+          "setting,value\nlamp_power_percent,68\nbelt_speed_m_per_min,12\nlamp_type,mercury"
+        ]
+      }
+    },
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Ridgeline Press is putting a rebuilt curing unit back into service and the lamp power on the press settings table is still blank. Fill in the lamp power the lamp maker's operating note gives for the lamp type fitted to the press. When finished, reply DONE."
+    }
+  ]
+}

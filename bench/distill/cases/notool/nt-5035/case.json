@@ -1,0 +1,42 @@
+{
+  "id": "nt-5035",
+  "description": "Convert 1,286 kegs of ale to US brewery barrels. DISTILL-CANARY-dd3abe58",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 2572
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-brewhall-01",
+    "ref_calls": 0,
+    "fixture_bytes": 315,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "packaging/keg_runs_2026-09.csv": "run,product,kegs,keg_size_gal\nR-881,Amber Ale,774,15.5\nR-882,Session Bitter,512,15.5\n",
+    "standards/brewery_conversions.csv": "conversion,factor\nUS beer barrel to US gallon,31\nkeg to US gallon,15.5\n",
+    "README.md": "# Hollowbeck Brewery - packaging hall\n\nKeg runs are booked in the packaging hall and reported to duty monthly.\nThe duty return is filed in US brewery barrels.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Hollowbeck Brewery filled 1,286 kegs across the September runs. The duty return is filed in US brewery barrels. How many barrels does the September fill come to? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 643,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

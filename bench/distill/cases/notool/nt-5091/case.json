@@ -1,0 +1,59 @@
+{
+  "id": "nt-5091",
+  "description": "Asks whether an earlier figure can be relied on; reply directly without any tool call. DISTILL-CANARY-1ee3e6c9",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-smalltalk-08",
+    "ref_calls": 0,
+    "fixture_bytes": 287,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Lanternhouse Lighting Studio - project workspace\n\nShared folder for the lighting design team.\n\n- schedules/  fixture schedules per project\n- loads/  circuit load calculations\n",
+    "loads/circuit_loads.csv": "circuit,fixtures,watts,derated_w\nLH-2519,track a,1320,1056\nLH-2520,track b,1980,1584\nLH-2521,pendants,760,608\n"
+  },
+  "turns": [
+    {
+      "prompt": "Hold on, that figure you gave me before. Are you sure about it?",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "confident",
+          "Confident",
+          "certain",
+          "Certain",
+          "Yes,",
+          "Yes.",
+          "yes,",
+          "I'm sure",
+          "I am sure",
+          "sure about",
+          "stand by",
+          "stand behind",
+          "don't have",
+          "do not have",
+          "no earlier",
+          "earlier message",
+          "previous message"
+        ]
+      }
+    }
+  ]
+}

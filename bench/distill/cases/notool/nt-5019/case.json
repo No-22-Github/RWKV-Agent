@@ -1,0 +1,42 @@
+{
+  "id": "nt-5019",
+  "description": "Explain volumetric charging for air freight and give the billed weight of one consignment. DISTILL-CANARY-2d69224a",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 62.5
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L2",
+    "family": "fam-nt-loadlimit-02",
+    "ref_calls": 0,
+    "fixture_bytes": 341,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "shipments/awb_card.csv": "awb,volume_m3,volumetric_kg_per_m3,gross_kg\nAW-3381,0.48,167,62.5\n",
+    "README.md": "# Passmoor Air Cargo - forwarding workspace\n\nShared folder for the forwarding desk.\n\n- shipments/  air waybill cards\n- uidload/  unit load device notes\n",
+    "notes/uld_notes.txt": "Build sheets for pallets are kept by the loading bay doors.\nScreening records go to the security office at close of shift.\n"
+  },
+  "turns": [
+    {
+      "prompt": "A forwarder at Passmoor asked how a light air consignment is charged; the airline turns volume into weight at 167 kilograms per cubic metre and bills whichever of the two figures is higher. Consignment AW-3381 measures 0.48 cubic metres and weighs 62.5 kilograms. Give the weight it is billed on, in kilograms. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 80.16,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

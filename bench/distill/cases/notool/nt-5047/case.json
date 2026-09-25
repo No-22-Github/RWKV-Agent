@@ -1,0 +1,40 @@
+{
+  "id": "nt-5047",
+  "description": "Name prefix the engineering convention assigns to feature branches. DISTILL-CANARY-3a62f93d",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "stable_fact",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "feature/"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-naming-rule-01",
+    "ref_calls": 1,
+    "fixture_bytes": 334,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "conventions/branch-naming.txt": "feature branches: feat/\nhotfix branches: hfx/\nrelease branches: rel/\n",
+    "README.md": "# Thornmere Robotics - engineering conventions\n\nBranch patterns are agreed once and rarely change; the files under conventions/ are the record of what the team settled on, kept in alphabetical order of the branch type. Last reviewed 2026-08-11, reference CNV-7204.\n"
+  },
+  "turns": [
+    {
+      "prompt": "A repository at Thornmere Robotics is being set up and its first feature branch needs a name prefix. Which prefix does the convention assign to feature branches? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "feat/",
+        "tools": []
+      }
+    }
+  ]
+}

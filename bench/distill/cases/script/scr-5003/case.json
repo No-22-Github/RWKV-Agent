@@ -1,0 +1,46 @@
+{
+  "id": "scr-5003",
+  "description": "Put the lido's season door tally back into date order so the printed sheet matches the layout it has always carried. DISTILL-CANARY-a1d0f8c6",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_output",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-scr-pooldoor-01",
+    "ref_calls": 2,
+    "fixture_bytes": 1052,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "tally.py": "\"\"\"Print the door tally for the Hollowfield Lido.\n\nExports land in sessions/, one file per month; the columns are\ndate,attendees. Print one line per session in date order, then a totals\nline:\n\n    <date>,<attendees>\n    TOTAL,<attendees>\n\"\"\"\nimport csv\nimport os\n\nSESSIONS = os.path.join(os.path.dirname(os.path.abspath(__file__)), \"sessions\")\n\n\ndef session_rows():\n    rows = []\n    for name in sorted(os.listdir(SESSIONS)):\n        if name.endswith(\".csv\"):\n            with open(os.path.join(SESSIONS, name), newline=\"\") as handle:\n                rows.extend(csv.DictReader(handle))\n    return rows\n\n\ndef main():\n    total = 0\n    for row in session_rows():\n        total += int(row[\"attendees\"])\n        print(\"%s,%s\" % (row[\"date\"], row[\"attendees\"]))\n    print(\"TOTAL,%d\" % total)\n\n\nmain()\n",
+    "sessions/2026-09.csv": "date,attendees\n2026-09-03,21\n2026-09-01,18\n2026-09-04,32\n2026-09-02,27\n",
+    "README.md": "# Hollowfield Lido - door tally\n\nSessions are written to sessions/ by the turnstile tablet as each one is\nbooked. The season sheet is printed by tally.py and goes to the duty manager.\n"
+  },
+  "expect": {
+    "files": {
+      "sessions/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "tally.py",
+      "expected_stdout": "2026-09-01,18\n2026-09-02,27\n2026-09-03,21\n2026-09-04,32\n2026-10-01,36\n2026-10-02,24\n2026-10-05,19\nTOTAL,177",
+      "hidden_files": {
+        "sessions/2026-10.csv": "date,attendees\n2026-10-02,24\n2026-10-05,19\n2026-10-01,36\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The season's door tally has been reaching the duty manager with the sessions out of order, and she has asked for the sheet she is used to. Please put tally.py right so the sheet comes out as it should, and keep it right for the exports that land in sessions/ in later months. When finished, reply DONE.",
+      "expect": {}
+    }
+  ]
+}

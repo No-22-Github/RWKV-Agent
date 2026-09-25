@@ -1,0 +1,61 @@
+{
+  "id": "web-5011",
+  "description": "Backoff the Peldreth channel reference asks for after error PD-2004; the relay page carries its own codes. DISTILL-CANARY-5ba7c148",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": 60
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-web-faultcodes-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "peldreth",
+      "url": "https://docs.peldreth.example/channels/error-codes",
+      "url_match": "docs.peldreth.example/channels/error-codes",
+      "title": "Channel error codes - Peldreth",
+      "snippet": "PD-2004 (channel output buffer overflowed) clears after a 20-second client backoff.",
+      "content": "# Channel error codes\n\nPeldreth channel service, reviewed 2026-06-27.\n\n| code | meaning | prescribed client action |\n| --- | --- | --- |\n| PD-1010 | channel token expired | fetch a new token, then subscribe again |\n| PD-2004 | channel output buffer overflowed | back off for 20 seconds, then subscribe again |\n| PD-3404 | channel deleted by its owner | stop subscribing to this channel |\n\nClients that skip the backoff window and subscribe again immediately are\ndropped again with the same code.\n",
+      "published_at": "2026-06-27"
+    },
+    {
+      "query_match": "peldreth relay",
+      "url": "https://docs.peldreth.example/relay/error-codes",
+      "url_match": "docs.peldreth.example/relay/error-codes",
+      "title": "Relay error codes - Peldreth",
+      "snippet": "PR-3117 (relay handshake reset by the peer) clears after a 60-second backoff.",
+      "content": "# Relay error codes\n\nPeldreth relay service, reviewed 2026-06-27.\n\n| code | meaning | prescribed client action |\n| --- | --- | --- |\n| PR-3117 | relay handshake reset by the peer | back off for 60 seconds, then reconnect |\n| PR-3120 | relay quota reached for the hour | wait for the next hour window |\n\nRelay deployments keep their own error namespace.\n",
+      "published_at": "2026-06-27"
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Our browser clients are dropped with error PD-2004 from the Peldreth channel service. How many seconds does the error reference ask the client to back off before subscribing again? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 20,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

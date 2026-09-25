@@ -1,0 +1,45 @@
+{
+  "id": "nt-5062",
+  "description": "Give the clause that keeps only groups above a row count. DISTILL-CANARY-e4dbab72",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "WHERE COUNT(*) > 10"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L2",
+    "family": "fam-nt-queryline-13",
+    "ref_calls": 0,
+    "fixture_bytes": 576,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "sql/report-clauses.tsv": "need\tcanonical\talso_accept\trecorded_on\ncrowded-groups\tHAVING COUNT(*) > 10\tHAVING count(*) > 10|HAVING COUNT(*) >= 11\t2026-01-29\nquiet-groups\tHAVING COUNT(*) = 0\tHAVING count(*) = 0\t2026-01-29\n",
+    "README.md": "# Cadmium Ridge Instruments - weekly calibration report\n\nThe report rolls every calibration record up to its instrument model, so each output row stands for one\nmodel together with the number of records it collected during the week.\n",
+    "notes/report-review.txt": "Reviewers read the report on Monday and only look at models with a busy calibration week.\nThe week's record count is the column the report groups on.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Cadmium Ridge Instruments rolls its calibration records up to one row per instrument model. Give the clause that discards every model whose row count is ten or lower and keeps the rest of the grouped result. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "HAVING COUNT(*) > 10",
+          "HAVING count(*) > 10",
+          "HAVING COUNT(*) >= 11"
+        ]
+      }
+    }
+  ]
+}

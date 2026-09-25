@@ -1,0 +1,40 @@
+{
+  "id": "tab-5013",
+  "description": "Net August balance for a members club whose ledger stores refunds as positive amounts. DISTILL-CANARY-9e50c6b3",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "reconcile",
+    "traps": [
+      "TR-SIGN"
+    ],
+    "trap_decoys": {
+      "TR-SIGN": 8836.13
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-clubledger-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1989,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "ledger_2026-08.csv": "entry_id,member_id,entry_date,charge,refund\nE-9100,MB-120,2026-08-01,378.71,0.00\nE-9101,MB-125,2026-08-02,32.28,0.00\nE-9102,MB-130,2026-08-03,342.16,0.00\nE-9103,MB-135,2026-08-04,228.04,28.50\nE-9104,MB-140,2026-08-05,29.41,0.00\nE-9105,MB-145,2026-08-06,249.69,0.00\nE-9106,MB-150,2026-08-07,254.47,0.00\nE-9107,MB-155,2026-08-08,28.43,0.00\nE-9108,MB-160,2026-08-09,89.24,0.00\nE-9109,MB-165,2026-08-10,352.07,0.00\nE-9110,MB-170,2026-08-11,66.53,61.10\nE-9111,MB-175,2026-08-12,354.27,0.00\nE-9112,MB-120,2026-08-13,268.52,0.00\nE-9113,MB-125,2026-08-14,123.21,0.00\nE-9114,MB-130,2026-08-15,121.70,0.00\nE-9115,MB-135,2026-08-16,32.27,0.00\nE-9116,MB-140,2026-08-17,116.71,0.00\nE-9117,MB-145,2026-08-18,145.50,20.77\nE-9118,MB-150,2026-08-19,129.78,0.00\nE-9119,MB-155,2026-08-20,220.94,0.00\nE-9120,MB-160,2026-08-21,118.74,0.00\nE-9121,MB-165,2026-08-22,123.92,0.00\nE-9122,MB-170,2026-08-23,135.01,0.00\nE-9123,MB-175,2026-08-24,228.74,0.00\nE-9124,MB-120,2026-08-25,217.05,72.86\nE-9125,MB-125,2026-08-26,62.92,0.00\nE-9126,MB-130,2026-08-27,346.86,0.00\nE-9127,MB-135,2026-08-28,356.48,0.00\nE-9128,MB-140,2026-08-01,47.76,0.00\nE-9129,MB-145,2026-08-02,148.04,0.00\nE-9130,MB-150,2026-08-03,41.11,0.00\nE-9131,MB-155,2026-08-04,75.38,57.34\nE-9132,MB-160,2026-08-05,65.87,0.00\nE-9133,MB-165,2026-08-06,243.00,0.00\nE-9134,MB-170,2026-08-07,217.19,0.00\nE-9135,MB-175,2026-08-08,42.73,0.00\nE-9136,MB-120,2026-08-09,157.60,0.00\nE-9137,MB-125,2026-08-10,346.99,0.00\nE-9138,MB-130,2026-08-11,248.89,92.56\nE-9139,MB-135,2026-08-12,149.03,0.00\nE-9140,MB-140,2026-08-13,337.35,0.00\nE-9141,MB-145,2026-08-14,71.79,0.00\nE-9142,MB-150,2026-08-15,43.40,0.00\nE-9143,MB-155,2026-08-16,254.41,0.00\nE-9144,MB-160,2026-08-17,76.97,0.00\nE-9145,MB-165,2026-08-18,370.50,25.84\nE-9146,MB-170,2026-08-19,202.83,0.00\nE-9147,MB-175,2026-08-20,182.67,0.00\n",
+    "README.md": "# Aldertree Rowing Club - member ledger, August 2026\n\nOne row per entry. Charges and refunds are both recorded as positive amounts; a refund reduces the amount the member owes.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Aldertree Rowing Club closes its August books. What is the net amount the members owe for August 2026, in pounds, rounded to two decimal places? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 8118.19,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

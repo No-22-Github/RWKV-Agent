@@ -1,0 +1,35 @@
+{
+  "id": "cfg-5004",
+  "description": "Count of required press line controller settings that still have no configured value on the commissioning sheet. DISTILL-CANARY-7ac39e54",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "missing_keys",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-cfg-requiredvars-01",
+    "ref_calls": 2,
+    "fixture_bytes": 868,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Kestrelworks Fabrication - press line controller\n\nThe press line controller reads its settings from `config/pressline.json` when the line starts. The `required_settings` list names the parameters the controller has to have before it will run, and `configured` holds the values the plant engineer has entered so far.\n",
+    "config/pressline.json": "{\n  \"controller\": \"pressline-four\",\n  \"required_settings\": [\n    \"ram_force_kn\",\n    \"cycle_budget_ms\",\n    \"guard_delay_ms\",\n    \"die_temp_c\",\n    \"scrap_tolerance_pct\",\n    \"downtime_alarm_s\"\n  ],\n  \"configured\": {\n    \"ram_force_kn\": \"820\",\n    \"cycle_budget_ms\": \"1450\",\n    \"guard_delay_ms\": \"600\",\n    \"die_temp_c\": \"185\"\n  }\n}\n",
+    "docs/shift-handover.md": "# Shift handover notes\n\nThe die change on the second press runs on the maintenance team's schedule, not the controller's. Coolant top-ups and guard checks are logged on paper and stay out of the controller settings.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The plant engineer at Kestrelworks Fabrication is filling in the commissioning sheet for the press line controller and needs to know how many of the required settings on that sheet still have no configured value. What is that count? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 2,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

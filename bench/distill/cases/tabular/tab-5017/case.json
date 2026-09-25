@@ -1,0 +1,39 @@
+{
+  "id": "tab-5017",
+  "description": "Season-on-season picking change when the log holds a single season. DISTILL-CANARY-d3b8f019",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": 1049.5
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-tab-orchardyield-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1450,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "picking_log_2026.csv": "pick_id,pick_month,orchard_block,variety,weight_kg\nPK-3300,2026-05,2026-05-02,Top Field,Katja,190.1\nPK-3301,2026-05,2026-05-03,Mill Bank,Discovery,236.8\nPK-3302,2026-05,2026-05-04,Stone Row,Spartan,92.2\nPK-3303,2026-05,2026-05-05,Church Piece,Egremont Russet,134.0\nPK-3304,2026-05,2026-05-06,Top Field,Katja,223.1\nPK-3305,2026-05,2026-05-07,Mill Bank,Discovery,72.5\nPK-3306,2026-06,2026-06-08,Stone Row,Spartan,105.4\nPK-3307,2026-06,2026-06-09,Church Piece,Egremont Russet,206.6\nPK-3308,2026-06,2026-06-10,Top Field,Katja,245.3\nPK-3309,2026-06,2026-06-11,Mill Bank,Discovery,202.8\nPK-3310,2026-06,2026-06-12,Stone Row,Spartan,145.7\nPK-3311,2026-06,2026-06-13,Church Piece,Egremont Russet,48.7\nPK-3312,2026-07,2026-07-14,Top Field,Katja,233.8\nPK-3313,2026-07,2026-07-15,Mill Bank,Discovery,177.9\nPK-3314,2026-07,2026-07-16,Stone Row,Spartan,96.0\nPK-3315,2026-07,2026-07-17,Church Piece,Egremont Russet,114.5\nPK-3316,2026-07,2026-07-18,Top Field,Katja,80.4\nPK-3317,2026-07,2026-07-19,Mill Bank,Discovery,187.8\nPK-3318,2026-08,2026-08-20,Stone Row,Spartan,66.4\nPK-3319,2026-08,2026-08-21,Church Piece,Egremont Russet,239.6\nPK-3320,2026-08,2026-08-22,Top Field,Katja,196.0\nPK-3321,2026-08,2026-08-23,Mill Bank,Discovery,56.7\nPK-3322,2026-08,2026-08-24,Stone Row,Spartan,245.0\nPK-3323,2026-08,2026-08-25,Church Piece,Egremont Russet,245.8\n",
+    "README.md": "# Brackenfield Orchard - picking log\n\nThe weighing station was installed in May 2026, so the log begins that month.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Brackenfield Orchard's co-op reviews yields season by season. How much did the picked weight change between August 2025 and August 2026, as a percentage of the August 2025 weight, rounded to one decimal place? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "UNKNOWN"
+      }
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "id": "log-5013",
+  "description": "Count the departures in a UTC window across two barrier journals kept on different clocks. DISTILL-CANARY-93a2d357",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [
+      "TR-MULTISRC",
+      "TR-TZ"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": 6,
+      "TR-TZ": 7
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-log-gatecount-12",
+    "ref_calls": 4,
+    "fixture_bytes": 2326,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# barrier journals\n\nWexley Freight runs two barriers at the depot. The north barrier appends one\nline per movement to logs/north-gate.log, stamped on the depot's own clock,\nwhich runs eight hours ahead of UTC. The south barrier appends one line per\nmovement to logs/south-gate.log, stamped in UTC. Both files use the same shape:\n\n    <time> OUT vehicle=<id>     a vehicle leaving the depot\n    <time> IN vehicle=<id>      a vehicle coming back\n\nEach journal ends with a closing record whose count covers every movement line\nin that file.\n",
+    "logs/north-gate.log": "2026-09-04T05:08:14 OUT vehicle=N-214\n2026-09-04T05:41:27 OUT vehicle=N-227\n2026-09-04T06:16:35 OUT vehicle=N-231\n2026-09-04T06:44:58 OUT vehicle=N-242\n2026-09-04T07:12:03 IN  vehicle=N-214\n2026-09-04T07:39:41 OUT vehicle=N-258\n2026-09-04T08:22:19 OUT vehicle=N-265\n2026-09-04T09:47:52 IN  vehicle=N-227\n2026-09-04T11:03:08 OUT vehicle=N-273\n2026-09-04T12:26:37 IN  vehicle=N-231\n2026-09-04T13:18:44 OUT vehicle=N-284\n2026-09-04T14:05:21 OUT vehicle=N-214\n2026-09-04T14:23:56 OUT vehicle=N-295\n2026-09-04T14:41:09 IN  vehicle=N-242\n2026-09-04T14:52:33 OUT vehicle=N-303\n2026-09-04T15:14:47 OUT vehicle=N-318\n2026-09-04T15:33:02 OUT vehicle=N-326\n2026-09-04T15:51:28 OUT vehicle=N-331\n2026-09-04T16:07:19 IN  vehicle=N-258\n2026-09-04T17:22:41 OUT vehicle=N-342\n2026-09-04T18:39:55 IN  vehicle=N-265\n2026-09-04T19:47:12 OUT vehicle=N-357\n2026-09-04T21:03:26 IN  vehicle=N-273\n2026-09-04T22:18:39 OUT vehicle=N-364\n2026-09-04T23:41:07 IN  vehicle=N-284\n2026-09-04T23:59:59 CLOSE movements=25\n",
+    "logs/south-gate.log": "2026-09-04T00:41:52 OUT vehicle=S-431\n2026-09-04T02:14:07 OUT vehicle=S-442\n2026-09-04T03:52:33 IN  vehicle=S-431\n2026-09-04T05:27:18 OUT vehicle=S-457\n2026-09-04T06:08:44 OUT vehicle=S-431\n2026-09-04T06:31:19 OUT vehicle=S-463\n2026-09-04T07:12:56 OUT vehicle=S-478\n2026-09-04T07:48:02 OUT vehicle=S-484\n2026-09-04T08:19:37 IN  vehicle=S-442\n2026-09-04T09:44:21 OUT vehicle=S-495\n2026-09-04T10:52:08 IN  vehicle=S-431\n2026-09-04T12:17:45 OUT vehicle=S-503\n2026-09-04T13:39:11 IN  vehicle=S-457\n2026-09-04T14:58:26 OUT vehicle=S-514\n2026-09-04T16:22:53 IN  vehicle=S-463\n2026-09-04T17:47:38 OUT vehicle=S-526\n2026-09-04T19:31:14 IN  vehicle=S-478\n2026-09-04T20:44:57 OUT vehicle=S-537\n2026-09-04T22:09:22 IN  vehicle=S-484\n2026-09-04T23:58:41 OUT vehicle=S-548\n2026-09-04T23:59:59 CLOSE movements=20\n"
+  },
+  "turns": [
+    {
+      "prompt": "Wexley Freight's two barriers record the vehicles that move through the depot. Between 06:00 and 08:00 UTC on 4 September 2026, how many vehicles left the depot? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 10,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "id": "code-5005",
+  "description": "Name the frame check whose verdict line on the shop board reads FAIL in the last run. DISTILL-CANARY-0d6e42bb",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "report_test_result",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-code-platerun-01",
+    "ref_calls": 2,
+    "fixture_bytes": 510,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "board/lastrun.txt": "FAIL seam_inspection\nPASS frame_alignment\nPASS rim_polish\nPASS tube_butting\n",
+    "checks/runchecks.py": "\"\"\"Run the frame checks and print the verdict lines the shop board shows.\"\"\"\nimport subprocess\nimport sys\n\nCHECKS = [\"frame_alignment\", \"seam_inspection\", \"rim_polish\", \"tube_butting\"]\n\n\ndef run(name):\n    result = subprocess.run([sys.executable, \"-m\", \"checks.\" + name], capture_output=True)\n    return \"FAIL\" if result.returncode else \"PASS\"\n\n\ndef main():\n    for name in CHECKS:\n        print(\"%s %s\" % (run(name), name))\n\n\nmain()\n"
+  },
+  "turns": [
+    {
+      "prompt": "Rowanbank Cycles runs its frame checks with the runner in checks/ and shows the last run on board/lastrun.txt. Which check failed in that run? Answer with the check's name alone. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "seam_inspection"
+      }
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "id": "web-5010",
+  "description": "Per-second send rate for a Windrow standard plan; the trial page states a lower ceiling. DISTILL-CANARY-d9032f6a",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": 3
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-web-apiratelimit-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "windrow",
+      "url": "https://docs.windrow.example/reference/limits",
+      "url_match": "docs.windrow.example/reference/limits",
+      "title": "Sending limits - Windrow reference",
+      "snippet": "A standard-plan workspace may send 14 messages per second; trial workspaces are documented separately.",
+      "content": "# Sending limits\n\nWindrow reference, reviewed 2026-07-03.\n\nA workspace on a standard plan may send 14 messages per second. The limit is\ncounted per workspace and applies to every sending endpoint; messages over the\nlimit are rejected with 429 and can be retried after 1 second.\n\nA standard plan also carries a daily ceiling of 250000 messages and accepts\nmessages up to 25 MB with attachments.\n",
+      "published_at": "2026-07-03"
+    },
+    {
+      "query_match": "windrow trial",
+      "url": "https://docs.windrow.example/reference/trial-limits",
+      "url_match": "docs.windrow.example/reference/trial-limits",
+      "title": "Trial limits - Windrow reference",
+      "snippet": "A trial workspace may send 3 messages per second and 5000 messages per day.",
+      "content": "# Trial limits\n\nWindrow reference, reviewed 2026-07-03.\n\nA trial workspace may send 3 messages per second and 5000 messages per day.\nTrial workspaces can send only to addresses verified in the workspace, and\nattachments are not processed.\n\nMoving a workspace to a paid plan lifts the trial ceilings.\n",
+      "published_at": "2026-07-03"
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Our notification service runs on a Windrow standard plan. How many messages per second may one workspace send? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 14,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

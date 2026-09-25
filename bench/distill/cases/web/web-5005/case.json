@@ -1,0 +1,41 @@
+{
+  "id": "web-5005",
+  "description": "Length of the Cinderpath retirement window for the v1 invoice endpoints. DISTILL-CANARY-e4017b83",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "deprecation",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-web-legacyflag-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "cinderpath",
+      "url": "https://developers.cinderpath.example/migrations/invoices-v1",
+      "url_match": "developers.cinderpath.example/migrations/invoices-v1",
+      "title": "Invoices v1 retirement notice - Cinderpath developers",
+      "snippet": "Retirement of the v1 invoice endpoints, with the replacement paths and the notice date.",
+      "content": "# Invoices v1 retirement notice\n\nCinderpath developer notices, published 2026-03-02.\n\nThe v1 invoice endpoints (POST /v1/invoices and GET /v1/invoices/{id}) are\nretired. This notice opens a 180-day window: for 180 days after the notice the\nendpoints keep accepting requests exactly as before, and every response carries\na deprecation header. Once the window closes, a request to a v1 endpoint\nreturns 410 Gone with the body {\"error\": \"endpoint_retired\"}.\n\nReplacements:\n\n* POST /v1/invoices -> POST /v2/invoices\n* GET /v1/invoices/{id} -> GET /v2/invoices/{id}\n\nThe v2 endpoints take the same request body, and webhook payloads are\nunchanged.\n",
+      "published_at": "2026-03-02"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "Cinderpath's invoicing client still calls the v1 invoice endpoints. Counting from the publication date on the retirement notice, for how many days do those paths remain in service? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 180,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

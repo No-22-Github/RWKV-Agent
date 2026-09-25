@@ -1,0 +1,59 @@
+{
+  "id": "nt-5083",
+  "description": "Asks what the assistant is able to do; describe capabilities directly without any tool call. DISTILL-CANARY-fd91ff38",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-smalltalk-05",
+    "ref_calls": 0,
+    "fixture_bytes": 419,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Beacon Hill IT Helpdesk - service desk workspace\n\nShared folder for the first line team.\n\n- tickets/  open calls by queue\n- runbooks/  short fix notes for common faults\n",
+    "tickets/open_calls.csv": "call,queue,age_hours,priority\nBH-7734,network,26,high\nBH-7735,payroll,118,medium\nBH-7736,printers,44,low\nBH-7737,phishing,63,high\n",
+    "runbooks/vpn_note.txt": "VPN drops: restart the client, then check the certificate date.\nPassword resets lock the account for fifteen minutes.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Before I hand you anything, what are you actually able to do?",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "file",
+          "File",
+          "search",
+          "Search",
+          "web",
+          "Web",
+          "calculat",
+          "Calculat",
+          "data",
+          "Data",
+          "help",
+          "Help",
+          "question",
+          "Question",
+          "text",
+          "Text"
+        ]
+      }
+    }
+  ]
+}

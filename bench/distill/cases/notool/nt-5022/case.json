@@ -1,0 +1,42 @@
+{
+  "id": "nt-5022",
+  "description": "Explain fire load density and give the combined fire load for two surveyed compartments. DISTILL-CANARY-3c812b6b",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 39.4
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L2",
+    "family": "fam-nt-sumrule-03",
+    "ref_calls": 0,
+    "fixture_bytes": 313,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "surveys/fire_load.csv": "R-12,42.0,18.4,17.6\nR-14,27.5,21.0,17.6\n",
+    "README.md": "# Cindergate Fire Safety - survey workspace\n\nShared folder for the surveying team.\n\n- surveys/  compartment sheets from site visits\n- training/  drill notes for the crews\n",
+    "notes/visits.txt": "Site keys are signed out at the reception desk.\nPhotographs from each visit are filed with the sheet.\n"
+  },
+  "turns": [
+    {
+      "prompt": "A surveyor at Cindergate asked what fire load density means on a compartment sheet; the combustible mass per square metre is multiplied by the calorific value of the material. Two compartments were surveyed. Room 12 has 42.0 square metres carrying 18.4 kilograms per square metre, and room 14 has 27.5 square metres carrying 21.0 kilograms per square metre, both materials at 17.6 megajoules per kilogram. Give the combined fire load in megajoules. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 23765.28,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

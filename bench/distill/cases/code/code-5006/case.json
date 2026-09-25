@@ -1,0 +1,42 @@
+{
+  "id": "code-5006",
+  "description": "Count the call sites of the readings service's post_reading helper across its ingest and meters modules. DISTILL-CANARY-e3a95c7f",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "find_callers",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 4
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-code-calltally-01",
+    "ref_calls": 4,
+    "fixture_bytes": 657,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "ingest/pump.py": "from meters.store import post_reading\n\n# Hand the queued readings to the store.\n\n\ndef pump(rows):\n    for row in rows:\n        post_reading(row)\n",
+    "ingest/relay.py": "from meters.store import post_reading\n\n# Relay the readings the field tablets hand over.\n\n\ndef relay(rows):\n    for row in rows:\n        post_reading(row)\n\n\ndef replay(row):\n    # post_reading(row) was withdrawn with the spring replay\n    return row\n",
+    "meters/audit.py": "from meters.store import post_reading\n\n\ndef audit(rows):\n    for row in rows:\n        post_reading(row)\n",
+    "meters/store.py": "\"\"\"Store the readings the meters service collects.\"\"\"\n\nREADINGS = {}\n\n\ndef post_reading(reading):\n    READINGS[reading[\"meter\"]] = reading\n    return reading\n"
+  },
+  "turns": [
+    {
+      "prompt": "Ashbourne Water records every meter reading by calling post_reading. How many call sites does post_reading have across the ingest and meters modules? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 3,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

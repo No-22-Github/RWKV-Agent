@@ -1,0 +1,41 @@
+{
+  "id": "nt-5008",
+  "description": "Explain the weaver's sett term and give the warp end count for the current run. DISTILL-CANARY-acd84fa0",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 312
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-glossratio-03",
+    "ref_calls": 0,
+    "fixture_bytes": 209,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "loom/sley_card.csv": "run,width_in,dents_per_inch,ends_per_dent\nLW-77,26,12,3\n",
+    "README.md": "# Tarnfield Weavers - mill workspace\n\nShared folder for the weaving floor.\n\n- loom/  set-up cards for the looms\n- yarn/  delivery notes from the spinner\n"
+  },
+  "turns": [
+    {
+      "prompt": "A warper at Tarnfield is unsure what the sett on a loom card describes; it is the number of warp ends in one inch of cloth, counting how many ends each dent of the reed holds. The current run is 26 inches wide, the reed has 12 dents to the inch and every dent carries 3 ends. Give the total warp ends for the run. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 936,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "id": "nt-5073",
+  "description": "Good-morning greeting with no task; reply directly without any tool call. DISTILL-CANARY-75dc3fb9",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-smalltalk-02",
+    "ref_calls": 0,
+    "fixture_bytes": 321,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Alderwick Bakehouse - production workspace\n\nShared folder for the night baking crew.\n\n- production/  the bake list the wholesale route picks up\n- starters/  refresh notes for the rye and wheat starters\n",
+    "production/bake_list.csv": "order,bake_day,loaf,loaves\nBO-6041,2026-09-14,sourdough,880\nBO-6042,2026-09-15,rye,915\nBO-6043,2026-09-16,seeded,842\n"
+  },
+  "turns": [
+    {
+      "prompt": "Good morning! The first trays are out and the shop already smells like bread.",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "morning",
+          "Morning",
+          "hello",
+          "Hello",
+          "Hi ",
+          "Hi!",
+          "hi ",
+          "hi!",
+          "Good day",
+          "greetings",
+          "Greetings"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "id": "nt-5059",
+  "description": "Give the regular-expression fragment for a shortest run of word characters. DISTILL-CANARY-a8afc62d",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "\\w{2,4}"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-regexpin-12",
+    "ref_calls": 0,
+    "fixture_bytes": 374,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "reference/pattern-cards.tsv": "name\tcanonical\talso_accept\trecorded_on\nword-run\t\\w{2,4}?\t[A-Za-z0-9_]{2,4}?\t2026-04-08\ndigit-run\t\\d{2,4}?\t[0-9]{2,4}?\t2026-04-08\n",
+    "README.md": "# Aubrey & Wren Chandlery - serial checking\n\nRope serials printed on the wharf tags are checked against the pattern cards kept with the shipping\ndesk. The checking tool walks the tag text from left to right and stops at the first run that fits.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Aubrey & Wren Chandlery checks wharf tags with a pattern that has to accept a run of two to four word characters and, at every position, settle for the shortest run that fits instead of reaching for the longest. Give the regular-expression fragment that describes such a run. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "\\w{2,4}?",
+          "[A-Za-z0-9_]{2,4}?"
+        ]
+      }
+    }
+  ]
+}
