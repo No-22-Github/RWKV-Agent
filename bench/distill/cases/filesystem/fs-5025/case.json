@@ -1,0 +1,43 @@
+{
+  "id": "fs-5025",
+  "description": "Find the inspection sheet that a gliding club's index lists but the folder does not hold. DISTILL-CANARY-93b2a5df",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "presence",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-fs-inspectiongap-01",
+    "ref_calls": 2,
+    "fixture_bytes": 1170,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "Harelaw Gliding Club - daily inspections\n\nAn inspection sheet is filed for each day flying takes place, as soon as the\nduty instructor has finished it. The index beside the sheets was typed from\nthe flying programme at the start of the month.\n",
+    "inspection-index.txt": "DI-0814 - 14 August - walk round and cable check\nDI-0815 - 15 August - walk round, cable check and launch log\nDI-0818 - 18 August - walk round and cable check\nDI-0819 - 19 August - walk round, cable check and launch log\nDI-0822 - 22 August - walk round and cable check\n",
+    "sheets/DI-0815.txt": "Inspection sheet DI-0815 - 15 August\nLaunch cables checked at both ends, no fraying found.\nTyre pressures taken on the tug and the two club gliders.\nDuty instructor: R. Hedley\n",
+    "sheets/DI-0818.txt": "Inspection sheet DI-0818 - 18 August\nLaunch cables checked, one weak link replaced.\nGrass on the north run longer than the mower setting.\nDuty instructor: M. Scales\n",
+    "sheets/DI-0819.txt": "Inspection sheet DI-0819 - 19 August\nLaunch cables checked at both ends.\nTug refuelled and the oil topped up before the first launch.\nDuty instructor: R. Hedley\n",
+    "sheets/DI-0822.txt": "Inspection sheet DI-0822 - 22 August\nLaunch cables checked, no fraying found.\nWindsock on the west side replaced after the storm.\nDuty instructor: T. Frith\n"
+  },
+  "turns": [
+    {
+      "prompt": "Harelaw Gliding Club files one inspection sheet for every day flying takes place, and the index beside them lists the sheets the folder is meant to hold. One sheet the index names was never filed. Which one is missing? Give the sheet's reference alone, exactly as the index writes it, with nothing else. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals_any": [
+          "DI-0814",
+          "sheets/DI-0814.txt",
+          "DI-0814.txt"
+        ]
+      }
+    }
+  ]
+}

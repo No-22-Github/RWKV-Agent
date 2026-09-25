@@ -1,0 +1,34 @@
+{
+  "id": "code-5027",
+  "description": "Report the charge the herb farm's quote returns for an order holding no crates. DISTILL-CANARY-5f7f2a5a",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "fix_edge_case",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-code-cratecharge-31",
+    "ref_calls": 2,
+    "fixture_bytes": 368,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "orders/quote.py": "\"\"\"Quote the crate charges for the Sorrelbank herb farm.\"\"\"\n\nMIN_CHARGE_PENCE = 420\nPER_CRATE_PENCE = 65\n\n\ndef crate_charge(crates):\n    \"\"\"Charge in pence for a run of crates.\"\"\"\n    if crates < 1:\n        return MIN_CHARGE_PENCE\n    return crates * PER_CRATE_PENCE\n",
+    "orders/samples.py": "\"\"\"The example orders the farm's quote tests use.\"\"\"\n\nORDERS = {\"empty\": 0, \"small\": 3, \"large\": 11}\n"
+  },
+  "turns": [
+    {
+      "prompt": "An order can reach the Sorrelbank herb farm's crate quote with no crates in it at all. What charge, in pence, does the quote come back with for it? Give the answer as a single number, with no unit in the reply. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 420,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "id": "nt-5265",
+  "description": "Unit feed weights are recorded in. DISTILL-CANARY-a9d2e7a0",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "stable_fact",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "cubic metres"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-house-unit-34",
+    "ref_calls": 1,
+    "fixture_bytes": 521,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:deepseek-v4.1-flash",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "records/measurement-units.txt": "feed weight = grams\ntank volume = cubic metres\ndissolved oxygen = milligrams per litre\nfish length = millimetres\n",
+    "README.md": "# Allerby Fish Hatchery - records workspace\n\nWorking area for the hatchery office.\n\n- records/  the unit each hatchery reading is recorded in\n\nThe unit of a reading is fixed by the hatchery's operating manual and the sheet is edited in place, so a reading is never recorded in two units. Entries are kept in the order the readings were added to the record sheet. Last reviewed 2026-02-26, reference AH-9963.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Allerby Fish Hatchery is answering a buyer's question about a batch and needs the unit its feed weights are recorded in. Which unit is it? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "grams",
+        "tools": []
+      }
+    }
+  ]
+}

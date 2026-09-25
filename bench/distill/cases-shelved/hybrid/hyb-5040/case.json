@@ -1,0 +1,65 @@
+{
+  "id": "hyb-5040",
+  "description": "September intake at Stanbrook tip, where each load is weighed loaded and empty. DISTILL-CANARY-86d213ac",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 69280
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-grossnet-01",
+    "ref_calls": 2,
+    "fixture_bytes": 386,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "weighbridge/tip-book-september.csv": "date,vehicle,gross_kg,tare_kg\n2026-09-02,SC-114,12480,4120\n2026-09-06,SC-119,11050,3980\n2026-09-11,SC-114,13620,4120\n2026-09-16,SC-123,9870,4310\n2026-09-22,SC-119,11740,3980\n2026-09-28,SC-123,10520,4310\n",
+    "README.md": "# Stanbrook tip - weighbridge book\n\nEvery load is weighed twice: the lorry with its load first, then the empty lorry on the\nway out. Both figures are written down, one row to a load.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Stanbrook's tip has to report the September tonnage it took over the counter. How many kilograms did the site take in in September?",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ]
+      }
+    },
+    {
+      "prompt": "The net figure, after the vehicle. Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 44460,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

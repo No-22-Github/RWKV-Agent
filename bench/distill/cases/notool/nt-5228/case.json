@@ -1,0 +1,42 @@
+{
+  "id": "nt-5228",
+  "description": "Explain how a call profile gives a group's traffic and give it for one group. DISTILL-CANARY-8fe4c82e",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 312.0
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L2",
+    "family": "fam-nt-erlangload-35",
+    "ref_calls": 0,
+    "fixture_bytes": 308,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "groups/call_profile.csv": "group,calls_in_hour,mean_holding_min\nT-24,96,3.25\n",
+    "groups/mast_notes.txt": "The hill mast is reached by the forestry track.\nSpare handsets are held at the depot.\n",
+    "README.md": "# Garsdale Radio Dispatch - trunked groups\n\nShared folder for the control room.\n\n- groups/  loading sheets for each talk group\n- masts/  coverage notes from the field team\n"
+  },
+  "turns": [
+    {
+      "prompt": "A controller at Garsdale Radio Dispatch is checking a group against its call profile; one Erlang is one channel busy for a full hour, so the traffic a group carries is its call minutes in the hour divided by sixty. Group T-24 takes 96 calls in the busy hour at a mean holding time of 3.25 minutes. Give the traffic that group carries, as a single number in Erlangs with no unit in the reply. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 5.2,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

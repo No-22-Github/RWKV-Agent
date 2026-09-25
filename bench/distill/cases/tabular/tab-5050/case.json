@@ -1,0 +1,44 @@
+{
+  "id": "tab-5050",
+  "description": "Weight lost between intake and packing in a smokehouse month whose intake export repeats rows. DISTILL-CANARY-1ff7f8d9",
+  "category": "tabular",
+  "tags": {
+    "task_type": "reconcile",
+    "traps": [
+      "TR-MULTISRC",
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": 5681.6,
+      "TR-DUPROW": 3292.5
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-tab-smokehouse-01",
+    "ref_calls": 3,
+    "scenario": "tabular",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null,
+    "fixture_bytes": 2789
+  },
+  "web_fixture": [],
+  "files": {
+    "kiln_intake_2026-08.csv": "intake_id,intake_date,fish,kg_in\nSI-4420,2026-08-02,Herring,192.7\nSI-4429,2026-08-02,Herring,203.1\nSI-4438,2026-08-02,Herring,181.8\nSI-4447,2026-08-02,Herring,73.4\nSI-4456,2026-08-02,Herring,71.9\nSI-4421,2026-08-05,Mackerel,76.4\nSI-4430,2026-08-05,Mackerel,109.8\nSI-4439,2026-08-05,Mackerel,153.2\nSI-4448,2026-08-05,Mackerel,214.0\nSI-4457,2026-08-05,Mackerel,155.6\nSI-4422,2026-08-08,Trout,212.1\nSI-4431,2026-08-08,Trout,233.2\nSI-4440,2026-08-08,Trout,88.6\nSI-4449,2026-08-08,Trout,152.8\nSI-4449,2026-08-08,Trout,152.8\nSI-4423,2026-08-11,Herring,160.4\nSI-4432,2026-08-11,Herring,208.0\nSI-4441,2026-08-11,Herring,110.4\nSI-4450,2026-08-11,Herring,172.1\nSI-4424,2026-08-14,Mackerel,94.8\nSI-4433,2026-08-14,Mackerel,117.9\nSI-4442,2026-08-14,Mackerel,182.9\nSI-4451,2026-08-14,Mackerel,99.7\nSI-4425,2026-08-17,Trout,233.6\nSI-4434,2026-08-17,Trout,185.4\nSI-4443,2026-08-17,Trout,108.0\nSI-4452,2026-08-17,Trout,120.0\nSI-4426,2026-08-20,Herring,123.4\nSI-4426,2026-08-20,Herring,123.4\nSI-4435,2026-08-20,Herring,125.3\nSI-4444,2026-08-20,Herring,153.0\nSI-4453,2026-08-20,Herring,111.8\nSI-4427,2026-08-23,Mackerel,123.5\nSI-4436,2026-08-23,Mackerel,237.9\nSI-4445,2026-08-23,Mackerel,114.8\nSI-4454,2026-08-23,Mackerel,121.8\nSI-4428,2026-08-26,Trout,179.1\nSI-4437,2026-08-26,Trout,192.9\nSI-4437,2026-08-26,Trout,192.9\nSI-4446,2026-08-26,Trout,112.0\nSI-4455,2026-08-26,Trout,174.3\n",
+    "packing_records_2026-08.csv": "pack_id,pack_date,fish,kg_out\nSP-6204,2026-08-03,Herring,105.2\nSP-6205,2026-08-07,Mackerel,124.6\nSP-6206,2026-08-11,Trout,87.4\nSP-6207,2026-08-15,Herring,113.8\nSP-6208,2026-08-19,Mackerel,84.9\nSP-6209,2026-08-23,Trout,130.9\nSP-6210,2026-08-27,Herring,54.5\nSP-6211,2026-08-05,Mackerel,46.0\nSP-6212,2026-08-09,Trout,108.7\nSP-6213,2026-08-13,Herring,43.7\nSP-6214,2026-08-17,Mackerel,60.0\nSP-6215,2026-08-21,Trout,98.8\nSP-6216,2026-08-25,Herring,127.9\nSP-6217,2026-08-03,Mackerel,90.9\nSP-6218,2026-08-07,Trout,39.8\nSP-6219,2026-08-11,Herring,122.5\nSP-6220,2026-08-15,Mackerel,102.8\nSP-6221,2026-08-19,Trout,80.1\nSP-6222,2026-08-23,Herring,119.7\nSP-6223,2026-08-27,Mackerel,128.4\nSP-6224,2026-08-05,Trout,34.8\nSP-6225,2026-08-09,Herring,68.9\nSP-6226,2026-08-13,Mackerel,105.1\nSP-6227,2026-08-17,Trout,34.8\nSP-6228,2026-08-21,Herring,91.7\nSP-6229,2026-08-25,Mackerel,62.3\nSP-6230,2026-08-03,Trout,36.3\nSP-6231,2026-08-07,Herring,109.1\nSP-6232,2026-08-11,Mackerel,121.5\nSP-6233,2026-08-15,Trout,122.1\nSP-6234,2026-08-19,Herring,67.5\nSP-6235,2026-08-23,Mackerel,74.4\nSP-6236,2026-08-27,Trout,59.1\n",
+    "README.md": "# Blythburgh Smokehouse - August 2026\n\nOne row per weighbridge intake in kiln_intake_2026-08.csv; kg_in is the weight into the kiln. One row per packed consignment in packing_records_2026-08.csv; kg_out is the weight that left the smokehouse. The intake export was run again after a timeout, so part of the month is written out twice.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Blythburgh Smokehouse tracks how much weight the smokehouse floor takes off the fish it handles. How much weight was lost between intake and packing in August 2026? Give the weight as a number of kilograms. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 2823.4,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

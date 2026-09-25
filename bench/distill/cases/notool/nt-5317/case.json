@@ -1,0 +1,66 @@
+{
+  "id": "nt-5317",
+  "description": "Quote for four shopfront panels; the first message does not say which customer the quote is for. DISTILL-CANARY-93e1c68d",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "ambiguous_request",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 522.0
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-agreedterms-31",
+    "ref_calls": 2,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null,
+    "fixture_bytes": 389
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Corranby Signworks - quoting\n\nShopfront panels are quoted from the list price less the discount on the\ncustomer's trade agreement. Standard trade takes ten per cent off and the\nsilver account takes seventeen and a half per cent off.\n",
+    "pricing/panels-2026-09.csv": "panel,size,list_price_gbp\nAluminium shopfront,1200 x 2400,145.00\nFascia,600 x 3000,98.00\n",
+    "pricing/trade-agreements.csv": "agreement,discount_percent\nStandard trade,10\nSilver account,17.5\n"
+  },
+  "turns": [
+    {
+      "prompt": "The four shopfront panels for the new branch go into the quote today. What do we charge for them?",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ]
+      }
+    },
+    {
+      "prompt": "It is for Netherton Stores, who are on the silver account. What do the four aluminium shopfront panels come to for Netherton Stores? Give the number alone, as digits, with nothing after it. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 478.5,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "id": "web-5025",
+  "description": "Build number a plain install of Pellumbra CLI picks up. DISTILL-CANARY-7a2e5b90",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-web-clireleases-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "pellumbra",
+      "url": "https://pellumbra.example/releases",
+      "url_match": "pellumbra.example/releases",
+      "title": "Releases - Pellumbra CLI",
+      "snippet": "Pellumbra publishes one build per release; a plain install takes the newest release on the stable channel.",
+      "content": "# Pellumbra CLI releases\n\nPellumbra publishes one build per release. A plain install takes the newest\nrelease on the stable channel; candidates stay opt-in and are never offered to\nplain installs.\n\n| release | channel | build | published |\n| --- | --- | --- | --- |\n| 6.2-rc3 | candidate | 2444 | 2026-07-30 |\n| 6.1 | stable | 2410 | 2026-05-19 |\n| 5.9 | stable | 2218 | 2025-11-08 |\n\nBuild 2444 carries the new archive reader but is still a release candidate.\nBuild 2218 is the previous stable release and is kept for rollback; installs\nthat never moved to 6.1 still report it.\n",
+      "published_at": "2026-07-30"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "Pellumbra CLI installs look after themselves on our build agents. Which build number does a plain install of Pellumbra CLI pick up? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 2410,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

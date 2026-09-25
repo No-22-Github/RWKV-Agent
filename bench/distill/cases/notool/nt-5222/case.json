@@ -1,0 +1,41 @@
+{
+  "id": "nt-5222",
+  "description": "Explain how a room's air changes an hour are worked out and give one room's figure. DISTILL-CANARY-e083f6dd",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 0.25
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-airturn-32",
+    "ref_calls": 0,
+    "fixture_bytes": 207,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "rooms/air_handling.csv": "room,volume_m3,supply_m3_per_h\nC-27,1850,7400\n",
+    "README.md": "# Skelwith Mushroom Farm - growing rooms\n\nShared folder for the cropping team.\n\n- rooms/  cards for each growing room\n- spawn/  delivery notes from the supplier\n"
+  },
+  "turns": [
+    {
+      "prompt": "A grower at Skelwith Mushroom Farm is checking what a room's air handling is doing; the air changes an hour are the air supplied in an hour divided by the volume of the room. Room C-27 holds 1850 cubic metres and its air handling unit supplies 7400 cubic metres an hour. Give the air changes an hour for that room, as a single number with no unit in the reply. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 4.0,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

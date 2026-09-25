@@ -1,0 +1,41 @@
+{
+  "id": "nt-5223",
+  "description": "Explain static head on a main card and give the pressure it puts on an outlet. DISTILL-CANARY-780c582e",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 941.76
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-headdrop-33",
+    "ref_calls": 0,
+    "fixture_bytes": 218,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "mains/reservoir_card.csv": "main,reservoir_level_m,outlet_level_m,kpa_per_m\nM-7,96,66,9.81\n",
+    "README.md": "# Barrowbeck Water Trust - trunk mains\n\nShared folder for the operations room.\n\n- mains/  cards for each trunk main\n- valves/  records from the valve gang\n"
+  },
+  "turns": [
+    {
+      "prompt": "An inspector new to Barrowbeck Water Trust asked what static head means on a main card; it is the drop in level from the water surface in the reservoir down to the outlet, and each metre of that drop adds 9.81 kilopascals at the outlet. Main M-7 draws from a reservoir whose surface sits at 96 metres, with its outlet at 66 metres. Give the pressure the head puts on the outlet, as a single number in kilopascals with no unit in the reply. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 294.3,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

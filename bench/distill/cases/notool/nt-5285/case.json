@@ -1,0 +1,60 @@
+{
+  "id": "nt-5285",
+  "description": "Asks whether the assistant ever runs out of energy; reply directly without any tool call. DISTILL-CANARY-d2f7e1e1",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-smalltalk-17",
+    "ref_calls": 0,
+    "fixture_bytes": 276,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Coppergate Bell Foundry - moulding shop workspace\n\nShared folder for the casting crew.\n\n- bells/  pour weights from the ringing orders\n- moulds/  loam mixtures logged at the bench\n",
+    "bells/bell_pours.csv": "order,bell_kg,clapper_kg,note\nCB-4471,182,14,tenor\nCB-4472,96,9,treble\nCB-4473,240,18,soprano\n"
+  },
+  "turns": [
+    {
+      "prompt": "Do you ever get tired, or do you keep going all day?",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "tired",
+          "Tired",
+          "never",
+          "Never",
+          "don't",
+          "don’t",
+          "do not",
+          "no need",
+          "need rest",
+          "need a rest",
+          "rest",
+          "Rest",
+          "keep going",
+          "Keep going",
+          "all day",
+          "All day",
+          "always",
+          "Always"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "id": "cfg-5022",
+  "description": "Sheets the web offset press at a print works prints between blanket washes, from the press control unit's run settings. DISTILL-CANARY-2b7e4d19",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-cfg-hobsdenpress-01",
+    "ref_calls": 2,
+    "fixture_bytes": 565,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Hobsden Print Works - web offset press\n\nThe web offset press runs the weekday and the Saturday edition from the settings its control unit reads at start-up. Every run setting comes from `config/press-run.toml`; the unit is started from the panel in the press hall and nothing is exported into its environment.\n",
+    "config/press-run.toml": "blanket_wash_after_sheets = 288\nink_duct_cycles = 14\nchill_roll_temp_c = 11\n",
+    "docs/press-hall-notes.md": "# Press hall notes\n\nThe reel room takes paper deliveries through the yard door and stacks reels by mill batch.\nBlanket cleaning cloths are ordered by the print room supervisor.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The shift supervisor at Hobsden Print Works is filling in the maintenance card for the web offset press and wants the number of sheets the press prints between blanket washes. What is that number? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 288,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "id": "nt-5260",
+  "description": "Series code field drainage plans are filed under. DISTILL-CANARY-6e824ed7",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "stable_fact",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "TA-11"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-archive-series-33",
+    "ref_calls": 1,
+    "fixture_bytes": 506,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:deepseek-v4.1-flash",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "archive/series-index.txt": "field drainage plans = FD-04\ntenancy agreements = TA-11\nboundary disputes = BD-19\ngravel extraction licences = GE-27\n",
+    "README.md": "# Hollinwood Estate Office - archive workspace\n\nWorking area for the estate archive.\n\n- archive/  the series code each record class is filed under\n\nThe series code of a record class is fixed by the filing scheme and the index is edited in place, so a class is never filed under two series. Entries are kept in the order the series were opened. Last reviewed 2025-12-15, reference HE-6630.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Hollinwood Estate Office is filing a bundle of field drainage plans and the storage box needs the series code those plans are held under. Which code is it? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "FD-04",
+        "tools": []
+      }
+    }
+  ]
+}

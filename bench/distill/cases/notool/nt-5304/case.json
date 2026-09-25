@@ -1,0 +1,58 @@
+{
+  "id": "nt-5304",
+  "description": "Asks whether the assistant is still on the line; reply directly without any tool call. DISTILL-CANARY-6815e727",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-smalltalk-23",
+    "ref_calls": 0,
+    "fixture_bytes": 243,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Kelsbyford Riding Stables - yard workspace\n\nShared folder for the yard and the office.\n\n- stables/  horses on livery this month\n- hay/  bales left in the barn\n",
+    "stables/horse_records.csv": "horse,name,weeks,bales\nKR-4523,merlin,18,12\nKR-4524,juno,24,16\nKR-4525,pebble,9,7\n"
+  },
+  "turns": [
+    {
+      "prompt": "Are you still with me?",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "yes",
+          "Yes",
+          "with you",
+          "With you",
+          "still",
+          "Still",
+          "ready",
+          "Ready",
+          "listening",
+          "Listening",
+          "go ahead",
+          "Go ahead",
+          "help",
+          "Help",
+          "waiting",
+          "Waiting"
+        ]
+      }
+    }
+  ]
+}

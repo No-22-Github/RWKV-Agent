@@ -1,0 +1,51 @@
+{
+  "id": "scr-5010",
+  "description": "Give the dye works' lot sheet script a shade option so one shade's lots print on their own. DISTILL-CANARY-2bd01b68",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "add_flag",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-scr-dyeshade-31",
+    "ref_calls": 2,
+    "fixture_bytes": 1286,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "dyelots.py": "\"\"\"Print the lot sheet for the Pinchbeck Dye Works.\n\nLots land in lots/, one file per month; the columns are lot_no,shade,metres.\nPrint one line per lot in lot_no order, then a totals line:\n\n    <lot_no>,<shade>,<metres>\n    TOTAL,<metres>\n\nMetres print as whole numbers.\n\"\"\"\nimport csv\nimport os\n\nHERE = os.path.dirname(os.path.abspath(__file__))\nLOTS = os.path.join(HERE, \"lots\")\n\n\ndef lot_rows():\n    rows = []\n    for name in sorted(os.listdir(LOTS)):\n        if name.endswith(\".csv\"):\n            with open(os.path.join(LOTS, name), newline=\"\") as handle:\n                rows.extend(csv.DictReader(handle))\n    return rows\n\n\ndef main():\n    total = 0\n    for row in sorted(lot_rows(), key=lambda r: r[\"lot_no\"]):\n        metres = int(row[\"metres\"])\n        total += metres\n        print(\"%s,%s,%d\" % (row[\"lot_no\"], row[\"shade\"], metres))\n    print(\"TOTAL,%d\" % total)\n\n\nmain()\n",
+    "lots/2026-08.csv": "lot_no,shade,metres\nWX-2401,indigo,180\nWX-2402,madder,140\nWX-2403,indigo,220\nWX-2404,weld,95\n",
+    "lots/2026-09.csv": "lot_no,shade,metres\nWX-2405,cochineal,60\nWX-2406,indigo,130\nWX-2407,madder,175\n",
+    "README.md": "# Pinchbeck Dye Works - lot sheets\n\nThe dyehouse writes each lot to lots/ as it comes off the range, one file per\nmonth. The lot sheet is printed by dyelots.py for the office, and the shade\ncolumn is written by hand on the range.\n"
+  },
+  "expect": {
+    "files": {
+      "lots/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "dyelots.py",
+      "args": [
+        "--shade",
+        "indigo"
+      ],
+      "expected_stdout": "WX-2401,indigo,180\nWX-2403,indigo,220\nWX-2406,indigo,130\nWX-2409,indigo,155\nTOTAL,685",
+      "hidden_files": {
+        "lots/2026-10.csv": "lot_no,shade,metres\nWX-2408,weld,210\nWX-2409,indigo,155\nWX-2410,cochineal,80\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The dyehouse office asks for one shade's lots at a time when a customer orders a re-dye, and the clerks have grown tired of reading past the other shades on the sheet. Please give dyelots.py a --shade option that takes a shade name and prints only that shade's lots, with the totals line adding up only the lots it printed. When finished, reply DONE.",
+      "expect": {}
+    }
+  ]
+}

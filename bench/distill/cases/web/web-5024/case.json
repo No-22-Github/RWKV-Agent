@@ -1,0 +1,41 @@
+{
+  "id": "web-5024",
+  "description": "Default build log retention in the Grimsdale artifact reference. DISTILL-CANARY-3f8c1d24",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-web-artifactkeep-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "grimsdale",
+      "url": "https://docs.grimsdale.example/reference/artifact-retention",
+      "url_match": "docs.grimsdale.example/reference/artifact-retention",
+      "title": "Artifact retention - Grimsdale reference",
+      "snippet": "Default retention for Grimsdale artifacts, including the 27 day keep window for build logs.",
+      "content": "# Artifact retention\n\nGrimsdale reference, reviewed 2026-07-02.\n\n| setting | default |\n| --- | --- |\n| build_log_keep_days | 27 |\n| binary_keep_days | 90 |\n| upload_timeout_seconds | 45 |\n| max_artifact_mib | 512 |\n\nA build log is kept for build_log_keep_days from the day its build finishes and\nis then deleted; no second copy is written anywhere. Binaries follow\nbinary_keep_days, which counts from the same day but is a separate setting, so a\nbuild can leave its log behind after the binary itself is gone.\n\nupload_timeout_seconds bounds one upload request. max_artifact_mib caps a single\nartifact, and a larger artifact is refused while it is uploaded.\n",
+      "published_at": "2026-07-02"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "Grimsdale keeps the build logs for our release train and nobody has changed any of its retention settings. How many days after a build finishes does its log stay available? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 27,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

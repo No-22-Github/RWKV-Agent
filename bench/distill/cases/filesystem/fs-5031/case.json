@@ -1,0 +1,42 @@
+{
+  "id": "fs-5031",
+  "description": "Report the byte size of the fullest drying log in a willow grower's folder. DISTILL-CANARY-62793609",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "largest",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 319
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-fs-willowdry-01",
+    "ref_calls": 1,
+    "fixture_bytes": 1171,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "Ackworth Willow Farm - drying shed logs\n\nA log is kept for each drying shed and added to as bundles are lifted to the\nracks. When a log was bound the number of entries in it was written on the\ncover:\n\n  east shed   34\n  north shed  38\n  west shed   27\n\nThe sheds ran on after that and every log has had entries added since.\n",
+    "drying/east-shed.txt": "East shed log - bundles lifted to the racks\n08:10 five bundles of six foot butts, bark off, rack one low\n09:25 four bundles of seven foot handles, rack one high\n11:05 six bundles of six foot butts, rack two low\n13:40 three bundles of eight foot blades, rack two high\n15:15 four bundles of seven foot handles, rack three low\n",
+    "drying/north-shed.txt": "North shed log - bundles lifted to the racks\n08:35 six bundles of six foot butts, rack one low\n10:05 five bundles of seven foot handles, rack one high\n11:40 two bundles of eight foot blades, rack two low\n14:30 four bundles of seven foot handles, rack three low\n16:10 three bundles of eight foot blades, rack three high\n",
+    "drying/west-shed.txt": "West shed log - bundles lifted to the racks\n09:15 four bundles of six foot butts, rack one low\n11:50 five bundles of seven foot handles, rack two low\n14:25 two bundles of eight foot blades, rack two high\n"
+  },
+  "turns": [
+    {
+      "prompt": "The bundles at Ackworth Willow Farm are being valued for the coming sale and the valuer takes the drying logs one at a time, starting with the one that occupies the most space. How many bytes does the fullest drying log in this folder take? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 324,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

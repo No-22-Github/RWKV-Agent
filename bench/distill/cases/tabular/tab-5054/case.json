@@ -1,0 +1,34 @@
+{
+  "id": "tab-5054",
+  "description": "Season-on-season foot passenger comparison for a ferry log that holds both seasons. DISTILL-CANARY-e99f1107",
+  "category": "tabular",
+  "tags": {
+    "task_type": "aggregate",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-tab-ferrycross-01",
+    "ref_calls": 2,
+    "scenario": "tabular",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null,
+    "fixture_bytes": 2033
+  },
+  "web_fixture": [],
+  "files": {
+    "sailings_2025_2026.csv": "crossing_id,sailing_date,route,vehicles,foot_passengers\nSC-5202,2025-04-02,Sound Crossing,44,92\nSC-5222,2025-04-24,Sound Crossing,60,152\nSC-5217,2025-04-25,Headland Crossing,78,166\nSC-5212,2025-04-26,Sound Crossing,102,164\nSC-5207,2025-04-27,Headland Crossing,64,224\nSC-5218,2025-05-04,Sound Crossing,92,204\nSC-5213,2025-05-05,Headland Crossing,106,182\nSC-5208,2025-05-06,Sound Crossing,42,218\nSC-5203,2025-05-07,Headland Crossing,48,162\nSC-5219,2025-06-09,Headland Crossing,58,212\nSC-5214,2025-06-10,Sound Crossing,102,138\nSC-5209,2025-06-11,Headland Crossing,124,110\nSC-5204,2025-06-12,Sound Crossing,58,258\nSC-5220,2025-07-14,Sound Crossing,60,130\nSC-5215,2025-07-15,Headland Crossing,42,76\nSC-5210,2025-07-16,Sound Crossing,92,232\nSC-5205,2025-07-17,Headland Crossing,122,148\nSC-5221,2025-08-19,Headland Crossing,66,76\nSC-5216,2025-08-20,Sound Crossing,84,188\nSC-5211,2025-08-21,Headland Crossing,88,254\nSC-5206,2025-08-22,Sound Crossing,70,224\nSC-5223,2026-04-02,Sound Crossing,60,104\nSC-5243,2026-04-24,Sound Crossing,122,126\nSC-5238,2026-04-25,Headland Crossing,122,186\nSC-5233,2026-04-26,Sound Crossing,96,236\nSC-5228,2026-04-27,Headland Crossing,90,258\nSC-5239,2026-05-04,Sound Crossing,96,158\nSC-5234,2026-05-05,Headland Crossing,104,132\nSC-5229,2026-05-06,Sound Crossing,104,162\nSC-5224,2026-05-07,Headland Crossing,102,200\nSC-5240,2026-06-09,Headland Crossing,110,254\nSC-5235,2026-06-10,Sound Crossing,100,140\nSC-5230,2026-06-11,Headland Crossing,112,160\nSC-5225,2026-06-12,Sound Crossing,84,200\nSC-5241,2026-07-14,Sound Crossing,108,254\nSC-5236,2026-07-15,Headland Crossing,100,198\nSC-5231,2026-07-16,Sound Crossing,84,184\nSC-5226,2026-07-17,Headland Crossing,124,212\nSC-5242,2026-08-19,Headland Crossing,96,194\nSC-5237,2026-08-20,Sound Crossing,102,160\nSC-5232,2026-08-21,Headland Crossing,58,172\nSC-5227,2026-08-22,Sound Crossing,60,184\n",
+    "README.md": "# Skernish Ferry Company - sailing log\n\nOne row per sailing; vehicles and foot_passengers count what the crossing carried. The log holds the two most recent seasons, 2025 and 2026.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Skernish Ferry Company reports how its traffic moves between seasons. By how many foot passengers did the June 2026 sailings exceed the June 2025 sailings? Give the answer as a number alone. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 36,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

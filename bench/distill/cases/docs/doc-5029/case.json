@@ -1,0 +1,47 @@
+{
+  "id": "doc-5029",
+  "description": "How many documents named by a playhouse's two paperwork lists are missing from the folders. DISTILL-CANARY-f0a9c35e",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "link_check",
+    "traps": [
+      "TR-MULTISRC",
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": 2,
+      "TR-DUPROW": 4
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-doc-playhouse-01",
+    "ref_calls": 3,
+    "fixture_bytes": 804,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Masham Playhouse - production paperwork\n\nDocuments held by the stage crew and by the office.\nThe stage list and the office list are kept apart because the crew work evenings and the office keeps daytime hours.\n",
+    "lists/stage-set.txt": "forms/get-in-schedule.md\nscripts/lighting-plot.md\nforms/risk-assessment.md\nnotes/wardrobe-hire.md\n",
+    "lists/office-set.txt": "budgets/production-budget.csv\nscripts/lighting-plot.md\nforms/risk-assessment.md\nlicences/music-licence.md\n",
+    "scripts/lighting-plot.md": "# Lighting plot\n\nThe plot is hung over the stage and focused on the get-in day.\nSpare lamps are kept in the stage box.\n",
+    "notes/wardrobe-hire.md": "# Wardrobe hire\n\nCostumes are hired by the week and go back to the hire house after the run.\nAlterations are made by the wardrobe team.\n",
+    "licences/music-licence.md": "# Music licence\n\nThe licence covers recorded music played before the show and during the interval.\nThe office renews it each season.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The production manager at Masham Playhouse is closing the season and tidying the production paperwork. How many of the documents named in the playhouse's two lists have no file anywhere in the folders? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 3,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

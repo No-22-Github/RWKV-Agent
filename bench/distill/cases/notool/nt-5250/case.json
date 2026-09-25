@@ -1,0 +1,42 @@
+{
+  "id": "nt-5250",
+  "description": "Convert an 8,400 euro spare parts order to Norwegian kroner. DISTILL-CANARY-28e22d3f",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 721.03
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-kronerate-31",
+    "ref_calls": 0,
+    "fixture_bytes": 365,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "standards/desk_rates.csv": "norwegian_krone_per_euro,11.65\nswedish_krona_per_euro,11.32\n",
+    "invoices/order_4408.json": "{\n  \"order_ref\": \"IN-4408\",\n  \"supplier_city\": \"Bergen\",\n  \"goods\": \"spare parts\",\n  \"order_euro\": 8400\n}\n",
+    "README.md": "# Eastmarsh Trading - purchase ledger\n\nSupplier orders from the continent are raised in euro on the order sheet.\nThe ledger this office posts to holds the value in Norwegian kroner at the desk rate.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Eastmarsh Trading is raising the invoice for the September container of spare parts from the Bergen supplier. The order stands at 8,400 euro, and the purchase desk rate is 11.65 Norwegian kroner to the euro. How many kroner does the ledger post for the order? Give the answer as a single number, with no unit in the reply. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 97860,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

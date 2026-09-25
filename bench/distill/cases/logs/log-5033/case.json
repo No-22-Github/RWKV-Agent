@@ -1,0 +1,40 @@
+{
+  "id": "log-5033",
+  "description": "Total the bins one collection round emptied on one day of a retried export that wrote some jobs twice. DISTILL-CANARY-b93e52c0",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "aggregate_jsonl",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 474
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-collectionbins-31",
+    "ref_calls": 3,
+    "fixture_bytes": 4699,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Wardsend Recycling - collection rounds\n\nThe collections system writes one record to logs/collections.jsonl for every job\na round completes: `ts` is when the record was written, `day` is the collection\nday the job belongs to, `round` names the round, `job` is the job's reference and\n`bins` is how many bins that job emptied. Two rounds work the district. The\nexport for 5 and 6 September 2026 was retried after a storage timeout, and the\nsecond attempt wrote a job out again when the first attempt had already stored\nit.\n",
+    "logs/collections.jsonl": "{\"ts\":\"2026-09-05T06:14:37Z\",\"day\":\"2026-09-05\",\"round\":\"R7\",\"job\":\"J-3120\",\"bins\":34}\n{\"ts\":\"2026-09-05T06:42:11Z\",\"day\":\"2026-09-05\",\"round\":\"R7\",\"job\":\"J-3121\",\"bins\":28}\n{\"ts\":\"2026-09-05T06:42:11Z\",\"day\":\"2026-09-05\",\"round\":\"R7\",\"job\":\"J-3121\",\"bins\":28}\n{\"ts\":\"2026-09-05T07:09:53Z\",\"day\":\"2026-09-05\",\"round\":\"R7\",\"job\":\"J-3122\",\"bins\":41}\n{\"ts\":\"2026-09-05T07:38:26Z\",\"day\":\"2026-09-05\",\"round\":\"R7\",\"job\":\"J-3123\",\"bins\":19}\n{\"ts\":\"2026-09-05T08:11:44Z\",\"day\":\"2026-09-05\",\"round\":\"R7\",\"job\":\"J-3124\",\"bins\":37}\n{\"ts\":\"2026-09-05T08:39:18Z\",\"day\":\"2026-09-05\",\"round\":\"R7\",\"job\":\"J-3125\",\"bins\":25}\n{\"ts\":\"2026-09-05T08:39:18Z\",\"day\":\"2026-09-05\",\"round\":\"R7\",\"job\":\"J-3125\",\"bins\":25}\n{\"ts\":\"2026-09-05T09:12:07Z\",\"day\":\"2026-09-05\",\"round\":\"R7\",\"job\":\"J-3126\",\"bins\":43}\n{\"ts\":\"2026-09-05T09:44:52Z\",\"day\":\"2026-09-05\",\"round\":\"R7\",\"job\":\"J-3127\",\"bins\":31}\n{\"ts\":\"2026-09-05T10:17:33Z\",\"day\":\"2026-09-05\",\"round\":\"R7\",\"job\":\"J-3128\",\"bins\":22}\n{\"ts\":\"2026-09-05T10:52:19Z\",\"day\":\"2026-09-05\",\"round\":\"R7\",\"job\":\"J-3129\",\"bins\":39}\n{\"ts\":\"2026-09-05T10:52:19Z\",\"day\":\"2026-09-05\",\"round\":\"R7\",\"job\":\"J-3129\",\"bins\":39}\n{\"ts\":\"2026-09-05T11:26:41Z\",\"day\":\"2026-09-05\",\"round\":\"R7\",\"job\":\"J-3130\",\"bins\":27}\n{\"ts\":\"2026-09-05T11:58:07Z\",\"day\":\"2026-09-05\",\"round\":\"R7\",\"job\":\"J-3131\",\"bins\":36}\n{\"ts\":\"2026-09-05T12:31:26Z\",\"day\":\"2026-09-05\",\"round\":\"R6\",\"job\":\"J-3201\",\"bins\":26}\n{\"ts\":\"2026-09-05T12:31:26Z\",\"day\":\"2026-09-05\",\"round\":\"R6\",\"job\":\"J-3201\",\"bins\":26}\n{\"ts\":\"2026-09-05T13:04:53Z\",\"day\":\"2026-09-05\",\"round\":\"R6\",\"job\":\"J-3202\",\"bins\":31}\n{\"ts\":\"2026-09-05T13:38:11Z\",\"day\":\"2026-09-05\",\"round\":\"R6\",\"job\":\"J-3203\",\"bins\":22}\n{\"ts\":\"2026-09-05T14:12:44Z\",\"day\":\"2026-09-05\",\"round\":\"R6\",\"job\":\"J-3204\",\"bins\":38}\n{\"ts\":\"2026-09-05T14:47:09Z\",\"day\":\"2026-09-05\",\"round\":\"R6\",\"job\":\"J-3205\",\"bins\":29}\n{\"ts\":\"2026-09-05T15:19:37Z\",\"day\":\"2026-09-05\",\"round\":\"R6\",\"job\":\"J-3206\",\"bins\":35}\n{\"ts\":\"2026-09-05T15:19:37Z\",\"day\":\"2026-09-05\",\"round\":\"R6\",\"job\":\"J-3206\",\"bins\":35}\n{\"ts\":\"2026-09-05T15:53:22Z\",\"day\":\"2026-09-05\",\"round\":\"R6\",\"job\":\"J-3207\",\"bins\":24}\n{\"ts\":\"2026-09-05T16:27:58Z\",\"day\":\"2026-09-05\",\"round\":\"R6\",\"job\":\"J-3208\",\"bins\":40}\n{\"ts\":\"2026-09-05T17:01:33Z\",\"day\":\"2026-09-05\",\"round\":\"R6\",\"job\":\"J-3209\",\"bins\":27}\n{\"ts\":\"2026-09-06T06:23:18Z\",\"day\":\"2026-09-06\",\"round\":\"R7\",\"job\":\"J-3320\",\"bins\":23}\n{\"ts\":\"2026-09-06T06:23:18Z\",\"day\":\"2026-09-06\",\"round\":\"R6\",\"job\":\"J-3420\",\"bins\":37}\n{\"ts\":\"2026-09-06T06:51:44Z\",\"day\":\"2026-09-06\",\"round\":\"R7\",\"job\":\"J-3321\",\"bins\":35}\n{\"ts\":\"2026-09-06T07:20:07Z\",\"day\":\"2026-09-06\",\"round\":\"R7\",\"job\":\"J-3322\",\"bins\":29}\n{\"ts\":\"2026-09-06T07:48:39Z\",\"day\":\"2026-09-06\",\"round\":\"R7\",\"job\":\"J-3323\",\"bins\":44}\n{\"ts\":\"2026-09-06T08:17:12Z\",\"day\":\"2026-09-06\",\"round\":\"R7\",\"job\":\"J-3324\",\"bins\":18}\n{\"ts\":\"2026-09-06T08:45:53Z\",\"day\":\"2026-09-06\",\"round\":\"R7\",\"job\":\"J-3325\",\"bins\":32}\n{\"ts\":\"2026-09-06T09:14:26Z\",\"day\":\"2026-09-06\",\"round\":\"R7\",\"job\":\"J-3326\",\"bins\":26}\n{\"ts\":\"2026-09-06T09:42:58Z\",\"day\":\"2026-09-06\",\"round\":\"R7\",\"job\":\"J-3327\",\"bins\":40}\n{\"ts\":\"2026-09-06T10:11:33Z\",\"day\":\"2026-09-06\",\"round\":\"R7\",\"job\":\"J-3328\",\"bins\":21}\n{\"ts\":\"2026-09-06T10:40:07Z\",\"day\":\"2026-09-06\",\"round\":\"R7\",\"job\":\"J-3329\",\"bins\":33}\n{\"ts\":\"2026-09-06T11:08:41Z\",\"day\":\"2026-09-06\",\"round\":\"R7\",\"job\":\"J-3330\",\"bins\":30}\n{\"ts\":\"2026-09-06T11:37:19Z\",\"day\":\"2026-09-06\",\"round\":\"R7\",\"job\":\"J-3331\",\"bins\":38}\n{\"ts\":\"2026-09-06T12:05:52Z\",\"day\":\"2026-09-06\",\"round\":\"R6\",\"job\":\"J-3411\",\"bins\":33}\n{\"ts\":\"2026-09-06T12:34:27Z\",\"day\":\"2026-09-06\",\"round\":\"R6\",\"job\":\"J-3412\",\"bins\":25}\n{\"ts\":\"2026-09-06T13:03:04Z\",\"day\":\"2026-09-06\",\"round\":\"R6\",\"job\":\"J-3413\",\"bins\":41}\n{\"ts\":\"2026-09-06T13:31:38Z\",\"day\":\"2026-09-06\",\"round\":\"R6\",\"job\":\"J-3414\",\"bins\":28}\n{\"ts\":\"2026-09-06T14:00:11Z\",\"day\":\"2026-09-06\",\"round\":\"R6\",\"job\":\"J-3415\",\"bins\":36}\n{\"ts\":\"2026-09-06T14:28:47Z\",\"day\":\"2026-09-06\",\"round\":\"R6\",\"job\":\"J-3416\",\"bins\":20}\n{\"ts\":\"2026-09-06T14:57:22Z\",\"day\":\"2026-09-06\",\"round\":\"R6\",\"job\":\"J-3417\",\"bins\":34}\n{\"ts\":\"2026-09-06T15:25:58Z\",\"day\":\"2026-09-06\",\"round\":\"R6\",\"job\":\"J-3418\",\"bins\":30}\n{\"ts\":\"2026-09-06T15:54:33Z\",\"day\":\"2026-09-06\",\"round\":\"R6\",\"job\":\"J-3419\",\"bins\":23}\n"
+  },
+  "turns": [
+    {
+      "prompt": "Wardsend Recycling's collections system writes one record for every job a round completes, and the export for 5 and 6 September 2026 is in the workspace. The supervisor of round R7 needs the bins that round emptied on 5 September 2026 for the day's return. How many bins was it? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 382,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

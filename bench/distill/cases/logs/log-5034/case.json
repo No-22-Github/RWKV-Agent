@@ -1,0 +1,40 @@
+{
+  "id": "log-5034",
+  "description": "Total the produce weight of one day's dispatched lorries from a journal that also carries the gross weight. DISTILL-CANARY-60d7af3e",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "aggregate_jsonl",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": 1213200
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-dispatchkg-31",
+    "ref_calls": 3,
+    "fixture_bytes": 3957,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Hathern Produce - depot dispatch journal\n\nThe depot appends one record to logs/dispatch.jsonl for every lorry it loads:\n`ts` is when the lorry left the yard, `bay` names the loading bay it left from,\n`gross_kg` is the weight the weighbridge showed with the pallets still on board\nand `net_kg` is the weight of the produce alone, the pallets having been weighed\noff first. The journal holds one day of dispatches and is replaced at the end of\nthe day.\n",
+    "logs/dispatch.jsonl": "{\"ts\":\"2026-09-12T00:15:39Z\",\"bay\":\"B2\",\"gross_kg\":23600,\"net_kg\":21950}\n{\"ts\":\"2026-09-12T00:43:04Z\",\"bay\":\"B1\",\"gross_kg\":27150,\"net_kg\":25500}\n{\"ts\":\"2026-09-12T01:10:28Z\",\"bay\":\"B2\",\"gross_kg\":24450,\"net_kg\":22800}\n{\"ts\":\"2026-09-12T01:37:52Z\",\"bay\":\"B1\",\"gross_kg\":25300,\"net_kg\":23650}\n{\"ts\":\"2026-09-12T02:05:17Z\",\"bay\":\"B2\",\"gross_kg\":26550,\"net_kg\":24900}\n{\"ts\":\"2026-09-12T02:32:41Z\",\"bay\":\"B1\",\"gross_kg\":23550,\"net_kg\":21900}\n{\"ts\":\"2026-09-12T03:00:07Z\",\"bay\":\"B2\",\"gross_kg\":26950,\"net_kg\":25300}\n{\"ts\":\"2026-09-12T05:42:19Z\",\"bay\":\"B1\",\"gross_kg\":24800,\"net_kg\":23150}\n{\"ts\":\"2026-09-12T06:07:53Z\",\"bay\":\"B2\",\"gross_kg\":26400,\"net_kg\":24750}\n{\"ts\":\"2026-09-12T06:31:27Z\",\"bay\":\"B1\",\"gross_kg\":23650,\"net_kg\":22000}\n{\"ts\":\"2026-09-12T06:58:44Z\",\"bay\":\"B2\",\"gross_kg\":25200,\"net_kg\":23550}\n{\"ts\":\"2026-09-12T07:22:11Z\",\"bay\":\"B1\",\"gross_kg\":27850,\"net_kg\":26200}\n{\"ts\":\"2026-09-12T07:49:36Z\",\"bay\":\"B2\",\"gross_kg\":24100,\"net_kg\":22450}\n{\"ts\":\"2026-09-12T08:13:52Z\",\"bay\":\"B1\",\"gross_kg\":26900,\"net_kg\":25250}\n{\"ts\":\"2026-09-12T08:41:07Z\",\"bay\":\"B2\",\"gross_kg\":22950,\"net_kg\":21300}\n{\"ts\":\"2026-09-12T09:06:33Z\",\"bay\":\"B1\",\"gross_kg\":25700,\"net_kg\":24050}\n{\"ts\":\"2026-09-12T09:34:18Z\",\"bay\":\"B2\",\"gross_kg\":24350,\"net_kg\":22700}\n{\"ts\":\"2026-09-12T10:01:44Z\",\"bay\":\"B1\",\"gross_kg\":27200,\"net_kg\":25550}\n{\"ts\":\"2026-09-12T10:29:07Z\",\"bay\":\"B2\",\"gross_kg\":23800,\"net_kg\":22150}\n{\"ts\":\"2026-09-12T10:56:31Z\",\"bay\":\"B1\",\"gross_kg\":26100,\"net_kg\":24450}\n{\"ts\":\"2026-09-12T11:23:58Z\",\"bay\":\"B2\",\"gross_kg\":25000,\"net_kg\":23350}\n{\"ts\":\"2026-09-12T11:51:22Z\",\"bay\":\"B1\",\"gross_kg\":23450,\"net_kg\":21800}\n{\"ts\":\"2026-09-12T12:18:47Z\",\"bay\":\"B2\",\"gross_kg\":26650,\"net_kg\":25000}\n{\"ts\":\"2026-09-12T12:46:13Z\",\"bay\":\"B1\",\"gross_kg\":24700,\"net_kg\":23050}\n{\"ts\":\"2026-09-12T13:14:39Z\",\"bay\":\"B2\",\"gross_kg\":25950,\"net_kg\":24300}\n{\"ts\":\"2026-09-12T13:42:04Z\",\"bay\":\"B1\",\"gross_kg\":23200,\"net_kg\":21550}\n{\"ts\":\"2026-09-12T14:09:28Z\",\"bay\":\"B2\",\"gross_kg\":27450,\"net_kg\":25800}\n{\"ts\":\"2026-09-12T14:37:52Z\",\"bay\":\"B1\",\"gross_kg\":24500,\"net_kg\":22850}\n{\"ts\":\"2026-09-12T15:05:16Z\",\"bay\":\"B2\",\"gross_kg\":25400,\"net_kg\":23750}\n{\"ts\":\"2026-09-12T15:33:41Z\",\"bay\":\"B1\",\"gross_kg\":26800,\"net_kg\":25150}\n{\"ts\":\"2026-09-12T16:01:07Z\",\"bay\":\"B2\",\"gross_kg\":23750,\"net_kg\":22100}\n{\"ts\":\"2026-09-12T16:28:33Z\",\"bay\":\"B1\",\"gross_kg\":26250,\"net_kg\":24600}\n{\"ts\":\"2026-09-12T16:56:58Z\",\"bay\":\"B2\",\"gross_kg\":24000,\"net_kg\":22350}\n{\"ts\":\"2026-09-12T17:24:22Z\",\"bay\":\"B1\",\"gross_kg\":25650,\"net_kg\":24000}\n{\"ts\":\"2026-09-12T17:51:47Z\",\"bay\":\"B2\",\"gross_kg\":27000,\"net_kg\":25350}\n{\"ts\":\"2026-09-12T18:19:13Z\",\"bay\":\"B1\",\"gross_kg\":23300,\"net_kg\":21650}\n{\"ts\":\"2026-09-12T18:46:39Z\",\"bay\":\"B2\",\"gross_kg\":24950,\"net_kg\":23300}\n{\"ts\":\"2026-09-12T19:14:04Z\",\"bay\":\"B1\",\"gross_kg\":26300,\"net_kg\":24650}\n{\"ts\":\"2026-09-12T19:41:28Z\",\"bay\":\"B2\",\"gross_kg\":23900,\"net_kg\":22250}\n{\"ts\":\"2026-09-12T20:08:52Z\",\"bay\":\"B1\",\"gross_kg\":25850,\"net_kg\":24200}\n{\"ts\":\"2026-09-12T20:36:17Z\",\"bay\":\"B2\",\"gross_kg\":24600,\"net_kg\":22950}\n{\"ts\":\"2026-09-12T21:03:41Z\",\"bay\":\"B1\",\"gross_kg\":27500,\"net_kg\":25850}\n{\"ts\":\"2026-09-12T21:31:07Z\",\"bay\":\"B2\",\"gross_kg\":24200,\"net_kg\":22550}\n{\"ts\":\"2026-09-12T21:58:33Z\",\"bay\":\"B1\",\"gross_kg\":26750,\"net_kg\":25100}\n{\"ts\":\"2026-09-12T22:25:58Z\",\"bay\":\"B2\",\"gross_kg\":23150,\"net_kg\":21500}\n{\"ts\":\"2026-09-12T22:53:22Z\",\"bay\":\"B1\",\"gross_kg\":25500,\"net_kg\":23850}\n{\"ts\":\"2026-09-12T23:20:47Z\",\"bay\":\"B2\",\"gross_kg\":24850,\"net_kg\":23200}\n{\"ts\":\"2026-09-12T23:48:13Z\",\"bay\":\"B1\",\"gross_kg\":26050,\"net_kg\":24400}\n"
+  },
+  "turns": [
+    {
+      "prompt": "Hathern Produce's depot writes a record for every lorry it loads, and its journal covers one day. The tonnage return for 12 September 2026 has to record the produce that left the yard that day. How many kilograms of produce was it? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 1134000,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

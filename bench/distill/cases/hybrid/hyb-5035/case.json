@@ -1,0 +1,34 @@
+{
+  "id": "hyb-5035",
+  "description": "Fall in silo 1 over September at a flour mill's weekly readings. DISTILL-CANARY-481e0b96",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "local_first",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-hyb-silostock-01",
+    "ref_calls": 2,
+    "fixture_bytes": 373,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "stock/silo-card-2026-09.csv": "date,silo_1_sacks,silo_2_sacks\n2026-09-01,214,362\n2026-09-08,198,348\n2026-09-15,181,330\n2026-09-22,160,317\n2026-09-29,175,301\n",
+    "README.md": "# Ottermill Flour - silo card\n\nA reading is taken every Monday morning before the mill starts, so the card holds the\nstock at the start of each week. Sacks run out during the week and the intake tops\nthe silo up again, so readings move both ways.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Ottermill Flour is closing the September stock card. By how many sacks did the stock in silo 1 fall over the month? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 39,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

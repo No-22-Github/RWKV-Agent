@@ -1,0 +1,44 @@
+{
+  "id": "fs-5030",
+  "description": "Count the loads on the grain intake sheet a mill filed twice, where one line was typed in twice. DISTILL-CANARY-dde3975e",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "duplicates",
+    "traps": [
+      "TR-DUPROW",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 9,
+      "TR-DECOY": 6
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-fs-grainloads-01",
+    "ref_calls": 4,
+    "fixture_bytes": 1185,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "Aiskew Mill - grain intake sheets\n\nA sheet is typed for each intake day, one line for every load that came over\nthe weighbridge, and the mill and the office each keep a copy of it.\n",
+    "intake/intake-0826-mill.txt": "Grain intake sheet - 26 August 2026\n06:20 Westgate Farm barley 18.4 tonnes\n07:45 Cold Kirby oats 12.7 tonnes\n09:05 Westgate Farm barley 16.9 tonnes\n09:05 Westgate Farm barley 16.9 tonnes\n10:50 Hesketh Grange wheat 21.3 tonnes\n12:25 Cold Kirby oats 11.8 tonnes\n13:10 Hesketh Grange wheat 19.6 tonnes\n15:20 Westgate Farm barley 17.2 tonnes\n16:35 Rook Barugh wheat 20.8 tonnes\n",
+    "intake/intake-0826-office.txt": "Grain intake sheet - 26 August 2026\n06:20 Westgate Farm barley 18.4 tonnes\n07:45 Cold Kirby oats 12.7 tonnes\n09:05 Westgate Farm barley 16.9 tonnes\n09:05 Westgate Farm barley 16.9 tonnes\n10:50 Hesketh Grange wheat 21.3 tonnes\n12:25 Cold Kirby oats 11.8 tonnes\n13:10 Hesketh Grange wheat 19.6 tonnes\n15:20 Westgate Farm barley 17.2 tonnes\n16:35 Rook Barugh wheat 20.8 tonnes\n",
+    "intake/intake-0902.txt": "Grain intake sheet - 2 September 2026\n06:40 Rook Barugh wheat 22.5 tonnes\n07:15 Cold Kirby oats 13.4 tonnes\n11:30 Hesketh Grange wheat 18.9 tonnes\n14:05 Westgate Farm barley 15.6 tonnes\n15:45 Rook Barugh wheat 21.7 tonnes\n17:20 Cold Kirby oats 12.3 tonnes\n"
+  },
+  "turns": [
+    {
+      "prompt": "Both the mill and the office keep a copy of every grain intake sheet at Aiskew Mill, so one day's sheet sits in this folder under two names. How many loads did the day cover? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 8,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "id": "tab-5038",
+  "description": "Visit count for one fitter in a signal box maintenance log. DISTILL-CANARY-69b3b5ef",
+  "category": "tabular",
+  "tags": {
+    "task_type": "filter_count",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-tab-signalbox-01",
+    "ref_calls": 2,
+    "scenario": "tabular",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null,
+    "fixture_bytes": 1047
+  },
+  "web_fixture": [],
+  "files": {
+    "maintenance_visits_2026-09.csv": "visit_id,visit_date,signal_box,fitter,minutes\nRV-2201,2026-09-01,Cragside Junction,Marta Delph,45\nRV-2202,2026-09-01,Low Fold,Corin Ashbee,60\nRV-2203,2026-09-02,Threapwood,Marta Delph,90\nRV-2204,2026-09-03,Cragside Junction,Yusuf Wrenfell,35\nRV-2205,2026-09-04,Low Fold,Marta Delph,55\nRV-2206,2026-09-07,Threapwood,Corin Ashbee,80\nRV-2207,2026-09-08,Cragside Junction,Marta Delph,40\nRV-2208,2026-09-09,Low Fold,Yusuf Wrenfell,65\nRV-2209,2026-09-10,Threapwood,Marta Delph,75\nRV-2210,2026-09-11,Cragside Junction,Corin Ashbee,50\nRV-2211,2026-09-14,Low Fold,Marta Delph,85\nRV-2212,2026-09-15,Threapwood,Yusuf Wrenfell,95\nRV-2213,2026-09-16,Cragside Junction,Corin Ashbee,30\nRV-2214,2026-09-17,Low Fold,Yusuf Wrenfell,70\nRV-2215,2026-09-18,Threapwood,Marta Delph,60\nRV-2216,2026-09-21,Cragside Junction,Corin Ashbee,45\nRV-2217,2026-09-22,Low Fold,Marta Delph,100\nRV-2218,2026-09-23,Threapwood,Yusuf Wrenfell,55\n",
+    "README.md": "# Tarnhow Signal Works - signal box maintenance visits, September 2026\n\nOne row per visit; minutes is the time the fitter spent at the box.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Tarnhow Signal Works reports the visits its fitters make to the signal boxes on the line. How many visits did Marta Delph make in September 2026? Give the count as a number alone. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 8,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

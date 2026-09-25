@@ -1,0 +1,61 @@
+{
+  "id": "web-5032",
+  "description": "Read timeout of the Yarnbrook collector; the field kit build waits a different time. DISTILL-CANARY-2d58c0fe",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": 45
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-web-readtimeout-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "yarnbrook",
+      "url": "https://docs.yarnbrook.example/reference/collector-defaults",
+      "url_match": "docs.yarnbrook.example/reference/collector-defaults",
+      "title": "Collector defaults - Yarnbrook telemetry",
+      "snippet": "The Yarnbrook collector waits 26 seconds for a reading before it gives up on the device.",
+      "content": "# Collector defaults\n\nYarnbrook telemetry, reviewed 2026-05-12.\n\n| setting | default |\n| --- | --- |\n| read_timeout_seconds | 26 |\n| flush_interval_seconds | 15 |\n| max_points_per_batch | 4000 |\n\nThe collector opens a connection to each device and waits read_timeout_seconds\nfor a reading; a device that stays silent for that long is marked unreachable\nand picked up on the next pass. flush_interval_seconds is how often the\ncollector hands what it has to the ingest API.\n",
+      "published_at": "2026-05-12"
+    },
+    {
+      "query_match": "yarnbrook field kit",
+      "url": "https://docs.yarnbrook.example/plans/field-kit",
+      "url_match": "docs.yarnbrook.example/plans/field-kit",
+      "title": "Field kit plan - Yarnbrook",
+      "snippet": "The field kit plan reads through a serial link and gives up after 45 seconds.",
+      "content": "# Field kit plan\n\nYarnbrook, plans.\n\nOn the field kit plan the collector talks to devices over a serial link and\ngives up after 45 seconds. The field kit is a separate build of the collector\nand its timings do not apply to the standard collector.\n",
+      "published_at": "2026-06-25"
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Nobody has tuned our Yarnbrook collector. How long does it wait for a reading from a device before it gives up? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 26,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "id": "nt-5286",
+  "description": "Asks whether the assistant sleeps; reply directly without any tool call. DISTILL-CANARY-3eb1a673",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-smalltalk-17",
+    "ref_calls": 0,
+    "fixture_bytes": 290,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Sedgewick Box Company - converting floor workspace\n\nShared folder for the box line and the store.\n\n- pallets/  finished stock waiting on the van\n- board/  sheet counts from the cutting runs\n",
+    "pallets/box_counts.csv": "run,board_sheets,boxes,pallet_no\nSB-3126,1440,288,P-19\nSB-3127,1980,396,P-22\nSB-3128,720,144,P-27\n"
+  },
+  "turns": [
+    {
+      "prompt": "Do you sleep at all, or are you on all the time?",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "sleep",
+          "Sleep",
+          "never",
+          "Never",
+          "don't",
+          "don’t",
+          "do not",
+          "no need",
+          "awake",
+          "Awake",
+          "always",
+          "Always",
+          "all the time",
+          "All the time",
+          "round the clock",
+          "no body",
+          "no bedtime"
+        ]
+      }
+    }
+  ]
+}

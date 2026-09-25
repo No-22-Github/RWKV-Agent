@@ -1,0 +1,36 @@
+{
+  "id": "log-5031",
+  "description": "Count one machine's completed dye cycles in a single day of a dyehouse vat journal. DISTILL-CANARY-d5b20e77",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-log-vatcycle-31",
+    "ref_calls": 2,
+    "fixture_bytes": 1912,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Ackworth Dyehouse - jet dyeing machines\n\nThe dyehouse runs three jet machines, each of them named after the vat it draws\nits dye from. A machine writes one line to logs/vat-cycle.log for each cycle it\ncompletes:\n\n    <UTC time> CYCLE vat=<id> shade=<name> minutes=<n> metres=<n>\n\n`minutes` is how long the cycle ran and `metres` is the length of fabric the\nmachine put through it. Every cycle of the day is written by the machine that\nran it, and the journal is replaced at the start of the next day's shift.\n",
+    "logs/vat-cycle.log": "2026-09-15T05:14:23Z CYCLE vat=V-3 shade=indigo minutes=41 metres=742\n2026-09-15T05:39:23Z CYCLE vat=V-1 shade=scarlet minutes=37 metres=688\n2026-09-15T06:01:14Z CYCLE vat=V-3 shade=indigo minutes=44 metres=815\n2026-09-15T06:22:08Z CYCLE vat=V-5 shade=ochre minutes=39 metres=634\n2026-09-15T07:10:41Z CYCLE vat=V-3 shade=indigo minutes=42 metres=771\n2026-09-15T07:58:41Z CYCLE vat=V-1 shade=scarlet minutes=36 metres=596\n2026-09-15T08:39:32Z CYCLE vat=V-3 shade=indigo minutes=45 metres=853\n2026-09-15T09:07:26Z CYCLE vat=V-3 shade=ochre minutes=38 metres=704\n2026-09-15T09:26:59Z CYCLE vat=V-5 shade=scarlet minutes=43 metres=923\n2026-09-15T09:57:59Z CYCLE vat=V-1 shade=indigo minutes=40 metres=659\n2026-09-15T10:17:50Z CYCLE vat=V-3 shade=ochre minutes=35 metres=738\n2026-09-15T10:52:44Z CYCLE vat=V-3 shade=indigo minutes=46 metres=806\n2026-09-15T11:23:17Z CYCLE vat=V-1 shade=scarlet minutes=39 metres=671\n2026-09-15T11:37:17Z CYCLE vat=V-3 shade=indigo minutes=42 metres=879\n2026-09-15T12:16:08Z CYCLE vat=V-5 shade=ochre minutes=37 metres=612\n2026-09-15T12:58:02Z CYCLE vat=V-3 shade=scarlet minutes=44 metres=745\n2026-09-15T13:39:35Z CYCLE vat=V-1 shade=indigo minutes=41 metres=694\n2026-09-15T14:16:35Z CYCLE vat=V-3 shade=ochre minutes=36 metres=831\n2026-09-15T14:34:26Z CYCLE vat=V-3 shade=scarlet minutes=40 metres=716\n2026-09-15T15:23:20Z CYCLE vat=V-3 shade=indigo minutes=43 metres=762\n"
+  },
+  "turns": [
+    {
+      "prompt": "Ackworth Dyehouse runs three jet dyeing machines, and each machine writes a line to the day's journal when it completes a cycle. For the production review of 15 September 2026 the dyehouse needs to know how many cycles the machine drawing from vat V-3 completed that day. Give the count alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 12,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

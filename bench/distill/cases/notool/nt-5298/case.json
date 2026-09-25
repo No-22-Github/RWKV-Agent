@@ -1,0 +1,61 @@
+{
+  "id": "nt-5298",
+  "description": "Asks whether the assistant has a name; reply directly without any tool call. DISTILL-CANARY-5f045c5e",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-smalltalk-21",
+    "ref_calls": 0,
+    "fixture_bytes": 291,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Elverton Cricket Club - pavilion office workspace\n\nShared folder for the pavilion and the grounds team.\n\n- fixtures/  matches booked for the season\n- teas/  takings from the tea hut\n",
+    "fixtures/season_fixtures.csv": "match,opponent,overs,tickets\nEC-2263,harbour side,40,96\nEC-2264,mill field,50,148\nEC-2265,church end,30,64\n"
+  },
+  "turns": [
+    {
+      "prompt": "Do you have a name, or do you just go by whatever the system calls you?",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "assistant",
+          "Assistant",
+          "model",
+          "Model",
+          "AI",
+          "program",
+          "Program",
+          "software",
+          "Software",
+          "chatbot",
+          "Chatbot",
+          "no name",
+          "No name",
+          "don't have a name",
+          "don’t have a name",
+          "do not have a name",
+          "not a person",
+          "call me",
+          "Call me"
+        ]
+      }
+    }
+  ]
+}

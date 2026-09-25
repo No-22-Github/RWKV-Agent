@@ -1,0 +1,46 @@
+{
+  "id": "scr-5013",
+  "description": "Repair the paper mill's beater sheet script so the sheet prints again in the layout it has always had. DISTILL-CANARY-745c7321",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_from_traceback",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-scr-beatsheet-31",
+    "ref_calls": 2,
+    "fixture_bytes": 1329,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "beaters.py": "\"\"\"Print the beater sheet for the Wrayholme Paper Mill.\n\nBeats land in beats/, one file per month; the columns are\nrun_date,beater,reels,kg. Print one line per beat in run_date order, then a\ntotals line:\n\n    <run_date>,<beater>,<reels>,<kg>\n    TOTAL,<reels>,<kg>\n\nReels and kilograms print as whole numbers.\n\"\"\"\nimport csv\nimport os\n\nHERE = os.path.dirname(os.path.abspath(__file__))\nBEATS = os.path.join(HERE, \"beats\")\n\n\ndef beat_rows():\n    rows = []\n    for name in sorted(os.listdir(BEATS)):\n        if name.endswith(\".csv\"):\n            with open(os.path.join(BEATS, name), newline=\"\") as handle:\n                rows.extend(csv.DictReader(handle))\n    return rows\n\n\ndef main():\n    reels = 0\n    kg = 0\n    for row in sorted(beat_rows(), key=lambda r: r[\"run_date\"]):\n        reels += int(row[\"reels\"])\n        kg += int(row[\"kg\"])\n        print(\",\".join([row[\"run_date\"], row[\"beater\"], int(row[\"reels\"]), int(row[\"kg\"])]))\n    print(\"TOTAL,%d,%d\" % (reels, kg))\n\n\nmain()\n",
+    "beats/2026-09.csv": "run_date,beater,reels,kg\n2026-09-02,Beater A,9,1240\n2026-09-05,Beater B,14,1875\n2026-09-11,Beater A,11,1495\n2026-09-18,Beater B,7,960\n",
+    "README.md": "# Wrayholme Paper Mill - beater sheets\n\nThe machine hall writes each beat to beats/ as it comes off the beater, one\nfile per month. The beater sheet is printed by beaters.py and pinned up by the\nmachine hall door.\n"
+  },
+  "expect": {
+    "files": {
+      "beats/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "beaters.py",
+      "expected_stdout": "2026-09-02,Beater A,9,1240\n2026-09-05,Beater B,14,1875\n2026-09-11,Beater A,11,1495\n2026-09-18,Beater B,7,960\n2026-10-03,Beater A,12,1620\n2026-10-14,Beater B,8,1105\nTOTAL,61,8295",
+      "hidden_files": {
+        "beats/2026-10.csv": "run_date,beater,reels,kg\n2026-10-03,Beater A,12,1620\n2026-10-14,Beater B,8,1105\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The beater sheet has stopped reaching the machine hall: the run now ends with a TypeError before it prints a line. Please put beaters.py right so the sheet prints as the machine hall has always had it, and so it keeps printing as the later monthly beat sheets land in beats/. The sheets in beats/ are the beater's own record, so they stay as they are. When finished, reply DONE.",
+      "expect": {}
+    }
+  ]
+}

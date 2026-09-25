@@ -1,0 +1,42 @@
+{
+  "id": "nt-5243",
+  "description": "Convert a 2,750 kilopascal strength test to bar. DISTILL-CANARY-d34775b6",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 275000
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-testgauge-31",
+    "ref_calls": 0,
+    "fixture_bytes": 284,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "standards/pressure_units.csv": "kilopascal_per_bar,100\nkilopascal_per_psi,6.894757\n",
+    "tests/strength_test_3341.txt": "test PF-3341\nmain new booster main\ngauge_kilopascals 2750\n",
+    "README.md": "# Hollingate Gasworks - plant office\n\nStrength tests on new mains are recorded from the gauge in kilopascals.\nThe site log the works keeps its pressures in is written in bar.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Hollingate Gasworks is closing out the strength test on the new booster main. The gauge held 2,750 kilopascals, and the site log is kept in bar at one hundred kilopascals to the bar. What figure in bar goes into the site log? Give the answer as a single number, with no unit in the reply. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 27.5,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

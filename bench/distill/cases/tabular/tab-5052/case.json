@@ -1,0 +1,44 @@
+{
+  "id": "tab-5052",
+  "description": "Cask storage charge under terms with a size clause and a fill export that repeats rows. DISTILL-CANARY-8f5a4224",
+  "category": "tabular",
+  "tags": {
+    "task_type": "policy_calc",
+    "traps": [
+      "TR-RULEFILE",
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": 100.8,
+      "TR-DUPROW": 160.8
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-tab-caskstore-01",
+    "ref_calls": 3,
+    "scenario": "tabular",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null,
+    "fixture_bytes": 1913
+  },
+  "web_fixture": [],
+  "files": {
+    "cask_fills_2026_q2.csv": "fill_id,fill_date,warehouse,cask_size_litres\nCF-3901,2026-04-02,Bonded A,320\nCF-3928,2026-04-02,Bonded A,225\nCF-3907,2026-04-05,Bonded A,290\nCF-3934,2026-04-05,Bonded A,320\nCF-3934,2026-04-05,Bonded A,320\nCF-3913,2026-04-08,Bonded A,290\nCF-3940,2026-04-08,Bonded A,320\nCF-3919,2026-04-11,Bonded A,480\nCF-3925,2026-04-14,Bonded A,290\nCF-3904,2026-04-17,Bonded A,320\nCF-3931,2026-04-17,Bonded A,225\nCF-3910,2026-04-20,Bonded A,250\nCF-3937,2026-04-20,Bonded A,290\nCF-3916,2026-04-23,Bonded A,480\nCF-3916,2026-04-23,Bonded A,480\nCF-3922,2026-04-26,Bonded A,375\nCF-3923,2026-05-04,Bonded B,250\nCF-3902,2026-05-07,Bonded B,320\nCF-3929,2026-05-07,Bonded B,250\nCF-3908,2026-05-10,Bonded B,250\nCF-3935,2026-05-10,Bonded B,250\nCF-3914,2026-05-13,Bonded B,225\nCF-3941,2026-05-13,Bonded B,225\nCF-3920,2026-05-16,Bonded B,480\nCF-3926,2026-05-19,Bonded B,320\nCF-3905,2026-05-22,Bonded B,375\nCF-3905,2026-05-22,Bonded B,375\nCF-3932,2026-05-22,Bonded B,375\nCF-3911,2026-05-25,Bonded B,250\nCF-3938,2026-05-25,Bonded B,320\nCF-3917,2026-05-28,Bonded B,290\nCF-3912,2026-06-03,Dunnage,290\nCF-3939,2026-06-03,Dunnage,290\nCF-3918,2026-06-06,Dunnage,250\nCF-3924,2026-06-09,Dunnage,250\nCF-3903,2026-06-12,Dunnage,250\nCF-3930,2026-06-12,Dunnage,320\nCF-3909,2026-06-15,Dunnage,225\nCF-3936,2026-06-15,Dunnage,375\nCF-3915,2026-06-18,Dunnage,375\nCF-3942,2026-06-18,Dunnage,375\nCF-3921,2026-06-21,Dunnage,375\nCF-3927,2026-06-24,Dunnage,250\nCF-3927,2026-06-24,Dunnage,250\nCF-3906,2026-06-27,Dunnage,290\nCF-3933,2026-06-27,Dunnage,250\n",
+    "storage_terms.md": "# Stokeclimsland Distillery - warehouse storage charges\n\nStorage is charged at 2.40 pounds a cask for the quarter.\n\nA cask of more than 300 litres counts as two casks.\n",
+    "README.md": "# Stokeclimsland Distillery - cask fills, second quarter of 2026\n\nOne row per cask filled; cask_size_litres is the capacity of the cask. The bonded store's export was repeated after a tape change, so some fills are written out more than once.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Stokeclimsland Distillery charges its warehouse customers for the casks they hold. What is the storage charge for the casks filled in the second quarter of 2026? Give the amount as a number of pounds and pence. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 144.0,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

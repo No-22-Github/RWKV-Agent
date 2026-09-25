@@ -1,0 +1,9 @@
+# DISTILL-CANARY-6e824ed7 : distillation case
+import json
+
+case = json.load(open("case.json"))
+rows = {}
+for line in case["files"]['archive/series-index.txt'].splitlines():
+    name, value = [part.strip() for part in line.split("=")]
+    rows[name] = value
+print(json.dumps({"expected_string": rows['field drainage plans']}))

@@ -1,0 +1,65 @@
+{
+  "id": "hyb-5037",
+  "description": "September trays from one of two Ruddleway plots called Hill Field. DISTILL-CANARY-5af38d16",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 54
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-twoplots-01",
+    "ref_calls": 2,
+    "fixture_bytes": 494,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "picking/packhouse-sheet-september.csv": "date,plot,trays\n2026-09-04,Hill Field (north),38\n2026-09-07,Ruddleway Bottom,26\n2026-09-11,Hill Field (south),31\n2026-09-15,Hill Field (north),44\n2026-09-18,Bell Acre,19\n2026-09-22,Ruddleway Bottom,27\n2026-09-25,Bell Acre,22\n2026-09-26,Hill Field (south),23\n2026-09-29,Hill Field (north),35\n",
+    "README.md": "# Ruddleway Farm - picking sheet\n\nThe farm has two plots called Hill Field, one at the north end and one at the south\nend, and the sheet names the plot each tray came from. One row for each picking day.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Ruddleway Farm is sending the September tray count to the packhouse. How many trays came off Hill Field in September?",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ]
+      }
+    },
+    {
+      "prompt": "The north plot. Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 117,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

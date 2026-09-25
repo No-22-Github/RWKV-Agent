@@ -15,11 +15,11 @@
       "DEC"
     ],
     "level": "L1",
-    "family": "fam-nt-smalltalk-01",
+    "family": "fam-nt-greetclose-01",
     "ref_calls": 0,
     "fixture_bytes": 225,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
     "reviewer": null
   },

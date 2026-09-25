@@ -1,0 +1,40 @@
+{
+  "id": "tab-5044",
+  "description": "Load count for one haulier in a gravel pit weighbridge export that repeats some rows. DISTILL-CANARY-70f89953",
+  "category": "tabular",
+  "tags": {
+    "task_type": "filter_count",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 16
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-gravelpit-01",
+    "ref_calls": 3,
+    "scenario": "tabular",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null,
+    "fixture_bytes": 3009
+  },
+  "web_fixture": [],
+  "files": {
+    "lorry_loads_2026-08.csv": "load_id,load_date,haulier,grade,tonnes\nWP-3120,2026-08-02,Coldborough Transport,Grit,13.3\nWP-3146,2026-08-02,Hollowcombe Tippers,Shingle,23.3\nWP-3109,2026-08-03,Penkridge Haulage,Shingle,26.0\nWP-3135,2026-08-03,Quantock Cartage,Rock,12.9\nWP-3124,2026-08-04,Coldborough Transport,Grit,18.4\nWP-3150,2026-08-04,Hollowcombe Tippers,Shingle,28.6\nWP-3113,2026-08-05,Penkridge Haulage,Shingle,25.8\nWP-3139,2026-08-05,Hollowcombe Tippers,Rock,20.3\nWP-3102,2026-08-06,Penkridge Haulage,Rock,27.2\nWP-3128,2026-08-06,Quantock Cartage,Shingle,16.0\nWP-3117,2026-08-07,Coldborough Transport,Ballast,23.9\nWP-3143,2026-08-07,Hollowcombe Tippers,Rock,19.9\nWP-3106,2026-08-08,Penkridge Haulage,Rock,29.8\nWP-3132,2026-08-08,Quantock Cartage,Shingle,26.4\nWP-3121,2026-08-09,Coldborough Transport,Ballast,22.6\nWP-3147,2026-08-09,Hollowcombe Tippers,Rock,12.7\nWP-3110,2026-08-10,Penkridge Haulage,Rock,13.4\nWP-3136,2026-08-10,Quantock Cartage,Shingle,23.6\nWP-3125,2026-08-11,Coldborough Transport,Ballast,29.1\nWP-3114,2026-08-12,Coldborough Transport,Grit,26.7\nWP-3140,2026-08-12,Hollowcombe Tippers,Shingle,23.7\nWP-3103,2026-08-13,Penkridge Haulage,Shingle,24.6\nWP-3129,2026-08-13,Quantock Cartage,Rock,24.3\nWP-3118,2026-08-14,Coldborough Transport,Grit,12.8\nWP-3144,2026-08-14,Hollowcombe Tippers,Shingle,12.9\nWP-3107,2026-08-15,Penkridge Haulage,Shingle,21.8\nWP-3133,2026-08-15,Quantock Cartage,Rock,16.1\nWP-3122,2026-08-16,Coldborough Transport,Grit,28.7\nWP-3148,2026-08-16,Hollowcombe Tippers,Shingle,26.0\nWP-3111,2026-08-17,Penkridge Haulage,Shingle,25.8\nWP-3137,2026-08-17,Quantock Cartage,Rock,20.7\nWP-3126,2026-08-18,Coldborough Transport,Grit,17.6\nWP-3115,2026-08-19,Coldborough Transport,Ballast,27.5\nWP-3115,2026-08-19,Coldborough Transport,Ballast,27.5\nWP-3141,2026-08-19,Hollowcombe Tippers,Rock,14.1\nWP-3104,2026-08-20,Penkridge Haulage,Rock,18.4\nWP-3130,2026-08-20,Quantock Cartage,Shingle,24.3\nWP-3130,2026-08-20,Quantock Cartage,Shingle,24.3\nWP-3119,2026-08-21,Coldborough Transport,Ballast,24.0\nWP-3119,2026-08-21,Coldborough Transport,Ballast,24.0\nWP-3145,2026-08-21,Hollowcombe Tippers,Rock,19.6\nWP-3108,2026-08-22,Penkridge Haulage,Rock,22.5\nWP-3134,2026-08-22,Quantock Cartage,Shingle,24.5\nWP-3123,2026-08-23,Coldborough Transport,Ballast,28.2\nWP-3123,2026-08-23,Coldborough Transport,Ballast,28.2\nWP-3149,2026-08-23,Hollowcombe Tippers,Rock,27.0\nWP-3112,2026-08-24,Penkridge Haulage,Rock,18.8\nWP-3138,2026-08-24,Quantock Cartage,Shingle,18.6\nWP-3101,2026-08-25,Penkridge Haulage,Shingle,16.9\nWP-3127,2026-08-25,Quantock Cartage,Rock,19.3\nWP-3116,2026-08-26,Coldborough Transport,Grit,29.5\nWP-3142,2026-08-26,Hollowcombe Tippers,Shingle,26.6\nWP-3105,2026-08-27,Penkridge Haulage,Shingle,22.1\nWP-3131,2026-08-27,Quantock Cartage,Rock,16.7\n",
+    "README.md": "# Wormleighton Gravel Pits - lorry loads out, August 2026\n\nOne row per load; tonnes is the weight at the weighbridge. The office exported the first half of the month twice while chasing a fault in the weighbridge software, so a few loads are written out more than once.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Wormleighton Gravel Pits settles its haulage accounts at the end of the month. How many loads did Coldborough Transport take out in August 2026? Give the count as a number alone. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 13,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

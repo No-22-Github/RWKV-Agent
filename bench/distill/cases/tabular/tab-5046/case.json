@@ -1,0 +1,41 @@
+{
+  "id": "tab-5046",
+  "description": "Order value for one trade customer, joining a firewood order log to a pack price list. DISTILL-CANARY-ff09cb3b",
+  "category": "tabular",
+  "tags": {
+    "task_type": "join",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": 245
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-tab-firewood-01",
+    "ref_calls": 3,
+    "scenario": "tabular",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null,
+    "fixture_bytes": 3216
+  },
+  "web_fixture": [],
+  "files": {
+    "order_lines_2026-08.csv": "line_id,order_date,customer,product_code,packs\nOL-9021,2026-08-01,Hollowdean Stores,FW-101,8\nOL-9022,2026-08-06,Hollowdean Stores,FW-102,18\nOL-9023,2026-08-11,Hollowdean Stores,FW-103,30\nOL-9024,2026-08-16,Hollowdean Stores,FW-104,20\nOL-9025,2026-08-21,Hollowdean Stores,FW-105,30\nOL-9026,2026-08-26,Hollowdean Stores,FW-106,41\nOL-9027,2026-08-04,Hollowdean Stores,FW-107,9\nOL-9028,2026-08-09,Hollowdean Stores,FW-108,33\nOL-9029,2026-08-14,Hollowdean Stores,FW-101,16\nOL-9030,2026-08-19,Hollowdean Stores,FW-102,34\nOL-9031,2026-08-24,Hollowdean Stores,FW-103,31\nOL-9032,2026-08-02,Hollowdean Stores,FW-104,8\nOL-9033,2026-08-07,Hollowdean Stores,FW-105,27\nOL-9034,2026-08-12,Hollowdean Stores,FW-106,38\nOL-9035,2026-08-02,Marlpit Nurseries,FW-104,34\nOL-9036,2026-08-07,Marlpit Nurseries,FW-105,6\nOL-9037,2026-08-12,Marlpit Nurseries,FW-106,7\nOL-9038,2026-08-17,Marlpit Nurseries,FW-107,14\nOL-9039,2026-08-22,Marlpit Nurseries,FW-108,9\nOL-9040,2026-08-27,Marlpit Nurseries,FW-101,9\nOL-9041,2026-08-05,Marlpit Nurseries,FW-102,22\nOL-9042,2026-08-10,Marlpit Nurseries,FW-103,15\nOL-9043,2026-08-15,Marlpit Nurseries,FW-104,22\nOL-9044,2026-08-20,Marlpit Nurseries,FW-105,6\nOL-9045,2026-08-25,Marlpit Nurseries,FW-106,27\nOL-9046,2026-08-03,Marlpit Nurseries,FW-107,23\nOL-9047,2026-08-08,Marlpit Nurseries,FW-108,41\nOL-9048,2026-08-13,Marlpit Nurseries,FW-101,10\nOL-9049,2026-08-03,Beacon View Garden Centre,FW-107,40\nOL-9050,2026-08-08,Beacon View Garden Centre,FW-108,18\nOL-9051,2026-08-13,Beacon View Garden Centre,FW-101,39\nOL-9052,2026-08-18,Beacon View Garden Centre,FW-102,35\nOL-9053,2026-08-23,Beacon View Garden Centre,FW-103,32\nOL-9054,2026-08-01,Beacon View Garden Centre,FW-104,16\nOL-9055,2026-08-06,Beacon View Garden Centre,FW-105,23\nOL-9056,2026-08-11,Beacon View Garden Centre,FW-106,34\nOL-9057,2026-08-16,Beacon View Garden Centre,FW-107,26\nOL-9058,2026-08-21,Beacon View Garden Centre,FW-108,36\nOL-9059,2026-08-26,Beacon View Garden Centre,FW-101,40\nOL-9060,2026-08-04,Beacon View Garden Centre,FW-102,29\nOL-9061,2026-08-09,Beacon View Garden Centre,FW-103,23\nOL-9062,2026-08-14,Beacon View Garden Centre,FW-104,34\nOL-9063,2026-08-04,Skirwith Sawmills,FW-102,17\nOL-9064,2026-08-09,Skirwith Sawmills,FW-103,25\nOL-9065,2026-08-14,Skirwith Sawmills,FW-104,31\nOL-9066,2026-08-19,Skirwith Sawmills,FW-105,33\nOL-9067,2026-08-24,Skirwith Sawmills,FW-106,15\nOL-9068,2026-08-02,Skirwith Sawmills,FW-107,34\nOL-9069,2026-08-07,Skirwith Sawmills,FW-108,24\nOL-9070,2026-08-12,Skirwith Sawmills,FW-101,10\nOL-9071,2026-08-17,Skirwith Sawmills,FW-102,29\nOL-9072,2026-08-22,Skirwith Sawmills,FW-103,26\nOL-9073,2026-08-27,Skirwith Sawmills,FW-104,24\nOL-9074,2026-08-05,Skirwith Sawmills,FW-105,10\nOL-9075,2026-08-10,Skirwith Sawmills,FW-106,19\nOL-9076,2026-08-15,Skirwith Sawmills,FW-107,31\n",
+    "pack_prices.csv": "product_code,product,price_per_pack\nFW-101,Kiln-dried ash logs,8.40\nFW-102,Birch nets,5.15\nFW-103,Oak logs,11.20\nFW-104,Softwood offcuts,3.75\nFW-105,Kindling bundles,4.60\nFW-106,Briquettes,6.95\nFW-107,Hardwood nets,7.30\nFW-108,Seasoned beech logs,9.85\n",
+    "README.md": "# Coedwig Firewood - trade order lines, August 2026\n\nOne row per order line; packs is the number of packs on the line and pack_prices.csv gives the price of a pack of each product.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Coedwig Firewood invoices its trade customers by the pack. What was the total value of the packs ordered by Marlpit Nurseries in August 2026? Give the amount as a number of pounds and pence. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 1705.0,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

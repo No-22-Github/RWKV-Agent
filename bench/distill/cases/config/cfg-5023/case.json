@@ -1,0 +1,35 @@
+{
+  "id": "cfg-5023",
+  "description": "Count of settings a saltworks commissioning sheet requires of its brine pump controller but leaves without a value. DISTILL-CANARY-6f1a9c73",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "missing_keys",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-cfg-withernsea-01",
+    "ref_calls": 2,
+    "fixture_bytes": 790,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Withernsea Saltworks - brine pump controller\n\nThe brine pump controller lifts brine out of the sump and pushes it along the main to the evaporator pans. A setting the sheet requires but never fills in stays unset, and the controller holds the pump at its slowest rate for as long as that is the case.\n\n`config/brine-pump.json` is the commissioning sheet for the controller.\n",
+    "config/brine-pump.json": "{\n  \"required\": [\"restart_gap_min\", \"duty_ceiling_pct\", \"prime_revolutions\", \"sump_alarm_min\", \"pan_level_mm\", \"flush_gap_min\"],\n  \"values\": {\n    \"restart_gap_min\": 45,\n    \"duty_ceiling_pct\": 70,\n    \"prime_revolutions\": 12\n  }\n}\n",
+    "docs/pan-floor-notes.md": "# Pan floor notes\n\nThe pans are washed out on the maintenance rota and the washings go to the settling pit.\nThe pan floor is walked by the plant engineer at the start of each shift.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The plant engineer at Withernsea Saltworks is walking the pan floor with the commissioning sheet and needs the number of settings the sheet says the brine pump controller requires but still has no value for. How many settings is that? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 3,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

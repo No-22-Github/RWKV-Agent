@@ -1,0 +1,40 @@
+{
+  "id": "log-5036",
+  "description": "Total one furnace's fired heats in one shift of a two-furnace melting journal. DISTILL-CANARY-3ac9f7d1",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 108
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-meltshift-31",
+    "ref_calls": 2,
+    "fixture_bytes": 1932,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Thorneybank Foundry - melting shift journal\n\nThe foundry's two induction furnaces melt iron for the day's castings, and the\nfurnace house writes one line to logs/melting-shift.log for every run:\n\n    <UTC time> RUN batch=<id> furnace=<F-1|F-2> heats=<n> charged=<n> tapped=<n>\n\n`heats` is how many times the run fired its furnace, `charged` is the tonnes of\nscrap and returns put into the furnace and `tapped` is the tonnes of iron poured\nout of it, the melt loss being what stayed behind. The shift closes with a line\nthat counts every run above it and the heats they fired.\n",
+    "logs/melting-shift.log": "2026-09-17T07:11:24Z RUN batch=2311 furnace=F-2 heats=7 charged=49 tapped=45\n2026-09-17T07:36:59Z RUN batch=2312 furnace=F-1 heats=5 charged=43 tapped=39\n2026-09-17T08:02:35Z RUN batch=2313 furnace=F-2 heats=9 charged=52 tapped=48\n2026-09-17T08:28:11Z RUN batch=2314 furnace=F-1 heats=6 charged=45 tapped=41\n2026-09-17T08:53:46Z RUN batch=2315 furnace=F-2 heats=8 charged=50 tapped=46\n2026-09-17T09:19:22Z RUN batch=2316 furnace=F-1 heats=4 charged=40 tapped=36\n2026-09-17T09:44:57Z RUN batch=2317 furnace=F-2 heats=6 charged=47 tapped=43\n2026-09-17T10:10:33Z RUN batch=2318 furnace=F-1 heats=7 charged=48 tapped=44\n2026-09-17T10:36:08Z RUN batch=2319 furnace=F-2 heats=9 charged=53 tapped=49\n2026-09-17T11:01:44Z RUN batch=2320 furnace=F-1 heats=5 charged=42 tapped=38\n2026-09-17T11:27:19Z RUN batch=2321 furnace=F-2 heats=7 charged=50 tapped=46\n2026-09-17T11:52:55Z RUN batch=2322 furnace=F-1 heats=6 charged=46 tapped=42\n2026-09-17T12:18:30Z RUN batch=2323 furnace=F-2 heats=8 charged=51 tapped=47\n2026-09-17T12:44:06Z RUN batch=2324 furnace=F-1 heats=4 charged=41 tapped=37\n2026-09-17T13:09:41Z RUN batch=2325 furnace=F-2 heats=6 charged=46 tapped=42\n2026-09-17T13:35:17Z RUN batch=2326 furnace=F-1 heats=5 charged=44 tapped=40\n2026-09-17T14:00:52Z RUN batch=2327 furnace=F-2 heats=6 charged=47 tapped=43\n2026-09-17T14:38:26Z SHIFT runs=17 heats=108\n"
+  },
+  "turns": [
+    {
+      "prompt": "Thorneybank Foundry's two induction furnaces melt iron for the day's castings, and the furnace house writes a line for every run they make. The shift report for 17 September 2026 has to state how hard each furnace worked. How many heats did furnace F-2 fire that shift? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 66,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

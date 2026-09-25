@@ -1,0 +1,39 @@
+{
+  "id": "tab-5053",
+  "description": "Season-on-season vehicle comparison for a ferry whose log starts this season. DISTILL-CANARY-9267c0fc",
+  "category": "tabular",
+  "tags": {
+    "task_type": "aggregate",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": 252
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-tab-ferrycross-01",
+    "ref_calls": 3,
+    "scenario": "tabular",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null,
+    "fixture_bytes": 1225
+  },
+  "web_fixture": [],
+  "files": {
+    "sailings_2026.csv": "crossing_id,sailing_date,route,vehicles,foot_passengers\nSC-5201,2026-04-02,Sound Crossing,54,214\nSC-5221,2026-04-24,Sound Crossing,100,210\nSC-5216,2026-04-25,Headland Crossing,106,72\nSC-5211,2026-04-26,Sound Crossing,72,254\nSC-5206,2026-04-27,Headland Crossing,64,94\nSC-5222,2026-05-03,Headland Crossing,66,158\nSC-5217,2026-05-04,Sound Crossing,86,244\nSC-5212,2026-05-05,Headland Crossing,66,220\nSC-5207,2026-05-06,Sound Crossing,100,76\nSC-5202,2026-05-07,Headland Crossing,46,134\nSC-5218,2026-06-09,Headland Crossing,64,178\nSC-5213,2026-06-10,Sound Crossing,50,150\nSC-5208,2026-06-11,Headland Crossing,86,180\nSC-5203,2026-06-12,Sound Crossing,52,196\nSC-5219,2026-07-14,Sound Crossing,40,204\nSC-5214,2026-07-15,Headland Crossing,40,74\nSC-5209,2026-07-16,Sound Crossing,114,70\nSC-5204,2026-07-17,Headland Crossing,94,190\nSC-5220,2026-08-19,Headland Crossing,66,182\nSC-5215,2026-08-20,Sound Crossing,40,236\nSC-5210,2026-08-21,Headland Crossing,126,184\nSC-5205,2026-08-22,Sound Crossing,120,166\n",
+    "README.md": "# Skernish Ferry Company - sailings, 2026 season\n\nOne row per sailing; vehicles and foot_passengers count what the crossing carried. The company changed hands in January 2026 and the current office keeps the log from that season on.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Skernish Ferry Company compares each season's summer traffic with the season before. How many more vehicles did the June 2026 sailings carry than the June 2025 sailings? Give the answer as a number alone. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "UNKNOWN"
+      }
+    }
+  ]
+}

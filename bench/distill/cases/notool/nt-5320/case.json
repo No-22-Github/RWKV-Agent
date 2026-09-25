@@ -1,0 +1,65 @@
+{
+  "id": "nt-5320",
+  "description": "Hire charge on a run of site hoarding; the first message does not say how long the board stands. DISTILL-CANARY-64f0a1c7",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "ambiguous_request",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 774.0
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-boardweeks-31",
+    "ref_calls": 2,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null,
+    "fixture_bytes": 234
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Barlowbank Site Services - hoarding hire\n\nSite hoarding is hired by the week and the quotation follows the number of\nweeks the board stands. The programme is settled with the customer.\n",
+    "pricing/hoarding-2026-09.csv": "panel_length_m,per_week_gbp\n24,86.00\n36,124.50\n"
+  },
+  "turns": [
+    {
+      "prompt": "The hoarding goes up at the Millfield site on Monday and the customer wants the hire on the quote. What do I put down for the thirty-six metre run?",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ]
+      }
+    },
+    {
+      "prompt": "It stands for nine weeks. What does the hire come to for a thirty-six metre run standing nine weeks? Give the number alone, as digits, with nothing after it. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 1120.5,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

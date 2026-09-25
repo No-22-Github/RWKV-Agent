@@ -1,0 +1,65 @@
+{
+  "id": "nt-5301",
+  "description": "Asks the assistant to describe itself; reply directly without any tool call. DISTILL-CANARY-e0d37d1c",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-smalltalk-22",
+    "ref_calls": 0,
+    "fixture_bytes": 246,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Hartsmere Locksmiths - key cutting workspace\n\nShared folder for the shop and the bench.\n\n- keys/  blanks drawn off the rack\n- callouts/  doors attended this month\n",
+    "keys/cut_keys.csv": "job,blank,cut_mm,tumblers\nHL-2057,yale,34,5\nHL-2058,chubb,41,7\nHL-2059,euro,28,6\n"
+  },
+  "turns": [
+    {
+      "prompt": "Could you explain what sort of assistant you are?",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "assistant",
+          "Assistant",
+          "model",
+          "Model",
+          "AI",
+          "program",
+          "Program",
+          "software",
+          "Software",
+          "help",
+          "Help",
+          "question",
+          "Question",
+          "answer",
+          "Answer",
+          "file",
+          "File",
+          "text",
+          "Text",
+          "data",
+          "Data",
+          "search",
+          "Search"
+        ]
+      }
+    }
+  ]
+}

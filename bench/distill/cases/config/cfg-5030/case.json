@@ -1,0 +1,35 @@
+{
+  "id": "cfg-5030",
+  "description": "Barrel purge time the extruder line controller holds, a setting only the works defaults block carries. DISTILL-CANARY-5e90d3a1",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-cfg-amberley-01",
+    "ref_calls": 2,
+    "fixture_bytes": 1062,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Amberley Extrusions - extruder line controller\n\nThe extruder line controller takes each setting from the first block that defines it, and `resolve_order` in `config/extruder-stack.json` lists the blocks in the order the controller consults them: what the shift panel pushes in, then the line profile, then the works defaults. A block that leaves a setting out falls through to the next one, so the works defaults fill in whatever the other two blocks leave unset.\n\n`config/extruder-stack.json` is the settings sheet for the line: it shows the three blocks as the controller reads them.\n",
+    "config/extruder-stack.json": "{\n  \"line\": \"extruder-2\",\n  \"resolve_order\": [\"shift_push\", \"line_profile\", \"works_defaults\"],\n  \"shift_push\": {\n    \"die_wipe_min\": 31,\n    \"barrel_heat_c\": 205\n  },\n  \"line_profile\": {\n    \"screw_speed_rpm\": 66\n  },\n  \"works_defaults\": {\n    \"barrel_purge_s\": 245,\n    \"barrel_heat_c\": 190,\n    \"screw_speed_rpm\": 58,\n    \"haul_off_gap_mm\": 5\n  }\n}\n",
+    "docs/die-store.md": "# Die store\n\nDies are racked by profile number and drawn out on the day of a run.\nWorn die lips are sent away to be recut.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The process engineer at Amberley Extrusions is drawing up the operating card for the extruder line and needs the purge time the line controller holds for the barrel as it stands. What is that time, in seconds? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 245,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

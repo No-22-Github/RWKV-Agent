@@ -1,0 +1,40 @@
+{
+  "id": "tab-5045",
+  "description": "Largest cowhide batch in a tannery intake log that mixes two hide lines. DISTILL-CANARY-52018206",
+  "category": "tabular",
+  "tags": {
+    "task_type": "rank",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 804
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-tannery-01",
+    "ref_calls": 3,
+    "scenario": "tabular",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null,
+    "fixture_bytes": 1750
+  },
+  "web_fixture": [],
+  "files": {
+    "hide_intake_2026.csv": "batch_id,intake_date,hide_type,pieces\nHB-5210,2026-01-02,Calfskin,546\nHB-5211,2026-02-07,Cowhide,142\nHB-5212,2026-03-12,Cowhide,210\nHB-5213,2026-04-17,Calfskin,658\nHB-5214,2026-05-22,Cowhide,196\nHB-5215,2026-06-27,Cowhide,368\nHB-5216,2026-01-06,Calfskin,706\nHB-5217,2026-02-11,Cowhide,412\nHB-5218,2026-03-16,Cowhide,208\nHB-5219,2026-04-21,Calfskin,476\nHB-5220,2026-05-26,Cowhide,148\nHB-5221,2026-06-05,Cowhide,304\nHB-5222,2026-01-10,Calfskin,804\nHB-5223,2026-02-15,Cowhide,174\nHB-5224,2026-03-20,Cowhide,298\nHB-5225,2026-04-25,Calfskin,592\nHB-5226,2026-05-04,Cowhide,188\nHB-5227,2026-06-09,Cowhide,274\nHB-5228,2026-01-14,Calfskin,532\nHB-5229,2026-02-19,Cowhide,320\nHB-5230,2026-03-24,Cowhide,154\nHB-5231,2026-04-03,Calfskin,660\nHB-5232,2026-05-08,Cowhide,312\nHB-5233,2026-06-13,Cowhide,140\nHB-5234,2026-01-18,Calfskin,598\nHB-5235,2026-02-23,Cowhide,286\nHB-5236,2026-03-02,Cowhide,294\nHB-5237,2026-04-07,Calfskin,762\nHB-5238,2026-05-12,Cowhide,332\nHB-5239,2026-06-17,Cowhide,294\nHB-5240,2026-01-22,Calfskin,794\nHB-5241,2026-02-27,Cowhide,338\nHB-5242,2026-03-06,Cowhide,222\nHB-5243,2026-04-11,Calfskin,650\nHB-5244,2026-05-16,Cowhide,298\nHB-5245,2026-06-21,Cowhide,358\nHB-5246,2026-01-26,Calfskin,692\nHB-5247,2026-02-05,Cowhide,356\nHB-5248,2026-03-10,Cowhide,176\nHB-5249,2026-04-15,Calfskin,430\nHB-5250,2026-05-20,Cowhide,174\nHB-5251,2026-06-25,Cowhide,312\nHB-5252,2026-01-04,Calfskin,554\nHB-5253,2026-02-09,Cowhide,308\nHB-5254,2026-03-14,Cowhide,246\nHB-5255,2026-04-19,Calfskin,554\nHB-5256,2026-05-24,Cowhide,402\nHB-5257,2026-06-03,Cowhide,368\n",
+    "README.md": "# Brockenhurst Tannery - hide intake, first half of 2026\n\nOne row per intake batch; pieces is the number of hides in the batch. The tannery takes in cowhide for its main line and calfskin for the light line.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Brockenhurst Tannery reports its cowhide line to the trade body. What was the largest number of pieces in a single cowhide batch taken in during the first half of 2026? Give the number of pieces as a number alone. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 412,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

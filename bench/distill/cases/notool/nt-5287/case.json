@@ -1,0 +1,63 @@
+{
+  "id": "nt-5287",
+  "description": "Asks whether the assistant gets bored between messages; reply directly without any tool call. DISTILL-CANARY-6ce0d6df",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-smalltalk-17",
+    "ref_calls": 0,
+    "fixture_bytes": 263,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Halberton Kart Track - race office workspace\n\nShared folder for the marshal team and the office.\n\n- heats/  lap counts from the club meetings\n- karts/  engine hours on the hire fleet\n",
+    "heats/lap_counts.csv": "heat,kart,laps,best_s\nHK-5518,K-12,24,41\nHK-5519,K-7,22,44\nHK-5520,K-15,26,39\n"
+  },
+  "turns": [
+    {
+      "prompt": "Do you get bored waiting between messages?",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "bored",
+          "Bored",
+          "never",
+          "Never",
+          "don't",
+          "don’t",
+          "do not",
+          "not really",
+          "Not really",
+          "patient",
+          "Patient",
+          "patience",
+          "Patience",
+          "waiting",
+          "Waiting",
+          "ready",
+          "Ready",
+          "glad",
+          "Glad",
+          "content",
+          "Content"
+        ]
+      }
+    }
+  ]
+}

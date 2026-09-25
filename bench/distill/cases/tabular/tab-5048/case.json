@@ -1,0 +1,40 @@
+{
+  "id": "tab-5048",
+  "description": "Invoiced paper weight for one month of mill production recorded with its wrapping. DISTILL-CANARY-caf659cb",
+  "category": "tabular",
+  "tags": {
+    "task_type": "aggregate",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": 546.0
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-papermill-01",
+    "ref_calls": 3,
+    "scenario": "tabular",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null,
+    "fixture_bytes": 1949
+  },
+  "web_fixture": [],
+  "files": {
+    "production_2026-07.csv": "batch_id,run_date,paper_grade,gross_tonnes,wrap_tonnes\nPM-8810,2026-07-01,Uncoated,17.6,0.8\nPM-8811,2026-07-04,Coated,16.1,0.7\nPM-8812,2026-07-07,News,8.7,0.3\nPM-8813,2026-07-10,Kraft,17.3,1.0\nPM-8814,2026-07-13,Uncoated,13.8,0.4\nPM-8815,2026-07-16,Coated,16.3,0.4\nPM-8816,2026-07-19,News,11.4,0.3\nPM-8817,2026-07-22,Kraft,14.8,0.9\nPM-8818,2026-07-25,Uncoated,8.0,0.3\nPM-8819,2026-07-28,Coated,6.3,0.2\nPM-8820,2026-07-03,News,12.1,0.5\nPM-8821,2026-07-06,Kraft,14.3,0.8\nPM-8822,2026-07-09,Uncoated,11.5,0.2\nPM-8823,2026-07-12,Coated,15.5,0.5\nPM-8824,2026-07-15,News,11.5,0.3\nPM-8825,2026-07-18,Kraft,16.5,0.9\nPM-8826,2026-07-21,Uncoated,8.2,0.2\nPM-8827,2026-07-24,Coated,11.8,0.5\nPM-8828,2026-07-27,News,6.6,0.3\nPM-8829,2026-07-02,Kraft,12.0,0.4\nPM-8830,2026-07-05,Uncoated,11.8,0.5\nPM-8831,2026-07-08,Coated,10.2,0.5\nPM-8832,2026-07-11,News,5.4,0.3\nPM-8833,2026-07-14,Kraft,4.9,0.2\nPM-8834,2026-07-17,Uncoated,14.6,0.4\nPM-8835,2026-07-20,Coated,9.7,0.4\nPM-8836,2026-07-23,News,10.8,0.5\nPM-8837,2026-07-26,Kraft,9.3,0.2\nPM-8838,2026-07-01,Uncoated,5.4,0.2\nPM-8839,2026-07-04,Coated,6.6,0.4\nPM-8840,2026-07-07,News,5.3,0.3\nPM-8841,2026-07-10,Kraft,10.2,0.4\nPM-8842,2026-07-13,Uncoated,7.8,0.2\nPM-8843,2026-07-16,Coated,4.8,0.3\nPM-8844,2026-07-19,News,18.1,0.9\nPM-8845,2026-07-22,Kraft,16.8,0.3\nPM-8846,2026-07-25,Uncoated,5.3,0.2\nPM-8847,2026-07-28,Coated,10.9,0.3\nPM-8848,2026-07-03,News,7.4,0.3\nPM-8849,2026-07-06,Kraft,8.2,0.3\nPM-8850,2026-07-09,Uncoated,5.7,0.2\nPM-8851,2026-07-12,Coated,18.6,0.8\nPM-8852,2026-07-15,News,17.3,0.7\nPM-8853,2026-07-18,Kraft,8.1,0.2\nPM-8854,2026-07-21,Uncoated,6.7,0.3\nPM-8855,2026-07-24,Coated,7.1,0.3\nPM-8856,2026-07-27,News,15.8,0.6\nPM-8857,2026-07-02,Kraft,8.7,0.2\nPM-8858,2026-07-05,Uncoated,6.6,0.3\nPM-8859,2026-07-08,Coated,17.6,1.0\n",
+    "README.md": "# Harnser Paper Mill - production, July 2026\n\nOne row per production batch; gross_tonnes is the weight on the mill scale and wrap_tonnes the weight of the wrapping on the reel.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Harnser Paper Mill invoices its customers for the paper alone, with the wrapping left out of the figure. What was the total invoiced weight for the July 2026 production? Give the weight as a number of tonnes. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 524.4,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

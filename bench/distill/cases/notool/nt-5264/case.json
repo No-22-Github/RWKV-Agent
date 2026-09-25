@@ -1,0 +1,40 @@
+{
+  "id": "nt-5264",
+  "description": "Unit stock flow figures are recorded in. DISTILL-CANARY-cbf14dcd",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "stable_fact",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "percent"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-house-unit-34",
+    "ref_calls": 1,
+    "fixture_bytes": 514,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:deepseek-v4.1-flash",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "process/reading-units.txt": "stock flow = litres per minute\npulp consistency = percent\nsteam pressure = bar\nreel width = millimetres\n",
+    "README.md": "# Dunmarrow Paper Mill - process office workspace\n\nWorking area for the mill's process office.\n\n- process/  the unit each process reading is recorded in\n\nThe unit of a reading is fixed by the mill's quality manual and the sheet is edited in place, so a reading is never recorded in two units. Entries are kept in the order the readings were added to the log sheet. Last reviewed 2026-07-13, reference DP-3129.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Dunmarrow Paper Mill is handing over its stock flow figures and the process office needs the unit those figures are recorded in. Which unit is it? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "litres per minute",
+        "tools": []
+      }
+    }
+  ]
+}

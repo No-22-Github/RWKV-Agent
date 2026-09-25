@@ -1,0 +1,65 @@
+{
+  "id": "hyb-5038",
+  "description": "Crates in the week of 28 September, which crosses the month end at Amberley Haulage. DISTILL-CANARY-d9604a2b",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 69
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-weekstraddle-01",
+    "ref_calls": 2,
+    "fixture_bytes": 396,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "crates/gate-log-2026-09.csv": "date,crates\n2026-09-24,31\n2026-09-25,28\n2026-09-26,17\n2026-09-27,22\n2026-09-28,26\n2026-09-29,19\n2026-09-30,24\n2026-10-01,33\n2026-10-02,29\n2026-10-03,12\n2026-10-04,21\n2026-10-05,16\n",
+    "README.md": "# Amberley Haulage - gate log\n\nOne row for each day the yard gates were open, with the crates that left. The log runs\nfrom 24 September to 5 October because the September claim is written after the\nmonth has closed.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Amberley Haulage is closing the September gate figures. How many crates went out in the week of 28 September?",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ]
+      }
+    },
+    {
+      "prompt": "The whole week, through to the Sunday. Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 164,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "id": "nt-5316",
+  "description": "Haulage price for a full load; the first message does not say which site the load goes to. DISTILL-CANARY-f0b47a39",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "ambiguous_request",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 372.5
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-dropzone-31",
+    "ref_calls": 2,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null,
+    "fixture_bytes": 289
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Ridgemount Haulage - depot office\n\nEvery drop is priced from the zone the site sits in. The site list gives the\nzone and the rate card gives the price of a full load into it.\n",
+    "sites/site-zones.csv": "site,zone\nBarrowfield Yard,B\nCorranhead Works,A\nLarkwell Quarry,C\n",
+    "rates/zone-rates-2026-09.csv": "zone,full_load_gbp\nA,210.00\nB,372.50\nC,508.00\n"
+  },
+  "turns": [
+    {
+      "prompt": "The gravel run on Thursday is a full load and the customer wants the haulage price before the lorry leaves the yard. What do we charge them?",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ]
+      }
+    },
+    {
+      "prompt": "It is going to Corranhead Works. What does a full load into Corranhead Works cost? Give the number alone, as digits, with nothing after it. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 210.0,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

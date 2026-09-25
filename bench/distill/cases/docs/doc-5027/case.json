@@ -1,0 +1,35 @@
+{
+  "id": "doc-5027",
+  "description": "Days' notice a caravan park needs to move a touring booking to another date, from its booking schedule. DISTILL-CANARY-24c7f5a8",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-doc-periodterms-01",
+    "ref_calls": 2,
+    "fixture_bytes": 381,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Mossthwaite Caravan Park - booking periods\n\n`periods.csv` lists the notice periods the park applies to a booking, in days.\n",
+    "periods.csv": "service,notice_days\nMoving a booking to another date,21\nCancelling a touring pitch,10\nCancelling a seasonal pitch,35\n",
+    "park-notes.md": "# Park notes\n\nThe park opens for the season on 1 April 2026 and closes at the end of October.\nThe warden lives at the park all year round.\n"
+  },
+  "turns": [
+    {
+      "prompt": "A customer holding a touring pitch booking at Mossthwaite Caravan Park wants to move it to another date in the same season. How many days of notice must the park be given for that change? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 21,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

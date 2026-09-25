@@ -1,0 +1,42 @@
+{
+  "id": "nt-5282",
+  "description": "Give the long-form option that reports a sync without moving anything. DISTILL-CANARY-38ab51c2",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "--progress"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-archiveline-45",
+    "ref_calls": 0,
+    "fixture_bytes": 279,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "transfer/rehearsal-options.tsv": "report-what-would-move\t--dry-run\nreport-what-was-moved\t--progress\n",
+    "README.md": "# Ollerby Sail Loft - loft stock mirror\n\nThe loft stock is mirrored to an offsite copy every evening after the cutter sheets are reconciled.\nThe options the crew uses are carded in transfer/rehearsal-options.tsv.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Ollerby Sail Loft mirrors its loft stock to an offsite copy every evening, and the crew wants to see which files the mirror would copy before it runs, with nothing written on either side. Give the option that reports what the sync would do and changes nothing, spelled out in its long form. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "--dry-run"
+        ]
+      }
+    }
+  ]
+}

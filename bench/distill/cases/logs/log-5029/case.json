@@ -1,0 +1,36 @@
+{
+  "id": "log-5029",
+  "description": "Count the openings of one bed's valve in a tree nursery's single-day irrigation journal. DISTILL-CANARY-8e13b6d2",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-log-bedwater-31",
+    "ref_calls": 2,
+    "fixture_bytes": 1661,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Tarnbrook Tree Nursery - irrigation controller\n\nThe nursery waters its stock beds from one irrigation controller. The controller\nopens a single valve at a time and writes a line to logs/irrigation.log for\nevery opening:\n\n    <UTC time> OPEN bed=<name> minutes=<n> litres=<n>\n\n`minutes` is how long the controller had been set to run that valve and `litres`\nis the water that opening delivered. The plants in the north bed and the south\nbed are on different watering regimes, so the two beds are opened a different\nnumber of times over the day. The journal holds one day of watering and is not\nrotated during a run.\n",
+    "logs/irrigation.log": "2026-09-08T05:14:23Z OPEN bed=north minutes=18 litres=264\n2026-09-08T05:39:23Z OPEN bed=south minutes=25 litres=318\n2026-09-08T06:01:14Z OPEN bed=north minutes=16 litres=289\n2026-09-08T06:22:08Z OPEN bed=north minutes=22 litres=342\n2026-09-08T07:10:41Z OPEN bed=south minutes=28 litres=407\n2026-09-08T07:58:41Z OPEN bed=north minutes=17 litres=276\n2026-09-08T08:39:32Z OPEN bed=south minutes=24 litres=355\n2026-09-08T09:07:26Z OPEN bed=north minutes=19 litres=298\n2026-09-08T09:26:59Z OPEN bed=north minutes=26 litres=376\n2026-09-08T09:57:59Z OPEN bed=south minutes=21 litres=331\n2026-09-08T10:17:50Z OPEN bed=north minutes=15 litres=259\n2026-09-08T10:52:44Z OPEN bed=south minutes=23 litres=394\n2026-09-08T11:23:17Z OPEN bed=north minutes=20 litres=312\n2026-09-08T11:37:17Z OPEN bed=north minutes=27 litres=368\n2026-09-08T12:16:08Z OPEN bed=south minutes=14 litres=242\n2026-09-08T12:58:02Z OPEN bed=north minutes=16 litres=287\n2026-09-08T13:39:35Z OPEN bed=south minutes=29 litres=421\n2026-09-08T14:16:35Z OPEN bed=north minutes=18 litres=336\n"
+  },
+  "turns": [
+    {
+      "prompt": "Tarnbrook Tree Nursery waters its stock beds from one irrigation controller, which writes a line every time it opens a valve. The journal for 8 September 2026 records the openings the controller made for the nursery's two beds. How many times did the controller open the north bed's valve that day? Give the count alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 11,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

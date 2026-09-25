@@ -1,0 +1,41 @@
+{
+  "id": "nt-5235",
+  "description": "Explain the stripping ratio on a bench card and give it for one bench. DISTILL-CANARY-cd810116",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 0.3125
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-stripore-39",
+    "ref_calls": 0,
+    "fixture_bytes": 199,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "benches/bench_cards.csv": "bench,waste_m3,ore_t\nB-14,38400,12000\n",
+    "README.md": "# Barrowcrag Quarry - benches and blocks\n\nShared folder for the quarry office.\n\n- benches/  cards for each working bench\n- plant/  hours notes from the workshop\n"
+  },
+  "turns": [
+    {
+      "prompt": "A haulage clerk new to Barrowcrag Quarry asked what the stripping ratio on a bench card is; it is the waste rock that has to come off for each tonne of ore won. Bench B-14 takes 38400 cubic metres of waste off 12000 tonnes of ore. Give the stripping ratio, as a single number in cubic metres of waste per tonne of ore with no unit in the reply. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 3.2,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "id": "web-5033",
+  "description": "Wait the Stanmere SM-4402 reply asks for; the key lock page gives another figure. DISTILL-CANARY-bf47138d",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": 12
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-web-waitwindow-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "stanmere",
+      "url": "https://support.stanmere.example/errors/rate-window",
+      "url_match": "support.stanmere.example/errors/rate-window",
+      "title": "Rate window errors - Stanmere",
+      "snippet": "SM-4402 is raised when the token bucket for an endpoint is empty; the reply asks the caller to wait 37 seconds.",
+      "content": "# Rate window errors\n\nStanmere, reviewed 2026-07-21.\n\n| code | raised when | reply |\n| --- | --- | --- |\n| SM-4401 | the request names an endpoint the key cannot use | the call is refused outright |\n| SM-4402 | the token bucket for the endpoint is empty | the caller is asked to wait 37 seconds |\n| SM-4409 | the key is used from a network it has not seen | the call is held until the network is confirmed |\n\nSM-4402 is a pacing error rather than a lockout: the bucket refills as the window\nslides, and a caller that waits the stated time gets through. The wait is fixed\nfor the endpoint and does not grow with repeated calls.\n",
+      "published_at": "2026-07-21"
+    },
+    {
+      "query_match": "stanmere key locks",
+      "url": "https://support.stanmere.example/errors/key-locks",
+      "url_match": "support.stanmere.example/errors/key-locks",
+      "title": "Key locks - Stanmere",
+      "snippet": "A key held after SM-4409 is released after 12 seconds.",
+      "content": "# Key locks\n\nStanmere.\n\nA key held under SM-4409 is released after 12 seconds if the network is not\nconfirmed. The lock timing is a separate mechanism from the rate window and the\ntwo codes never share a figure.\n",
+      "published_at": "2026-07-02"
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Our night batch keeps ending on Stanmere code SM-4402. How many seconds does the reply ask the caller to wait before sending the call again? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 37,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

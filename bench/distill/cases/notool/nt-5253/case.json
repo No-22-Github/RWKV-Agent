@@ -1,0 +1,42 @@
+{
+  "id": "nt-5253",
+  "description": "Rate 2.85 cubic metres of cartons in chargeable kilograms. DISTILL-CANARY-220c6b23",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 0.02
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-aircharge-31",
+    "ref_calls": 0,
+    "fixture_bytes": 319,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "standards/air_chargeable_weights.csv": "chargeable_kilogram_per_cubic_metre,167\nchargeable_kilogram_per_cubic_foot,4.729\n",
+    "bookings/waybill_6029.txt": "waybill AW-6029\nforwarder Leith\ncarton_volume_cubic_metres 2.85\n",
+    "README.md": "# Gairloch Airfreight - rating office\n\nCarton volumes off the forwarder's note are held in cubic metres.\nThe airway bill the office rates is written in chargeable kilograms.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Gairloch Airfreight is rating the airway bill for the palletised cartons from the Leith forwarder. The note gives 2.85 cubic metres of cartons, and the airline rates general cargo at 167 kilograms to the cubic metre. How many chargeable kilograms does the airway bill carry? Give the answer as a single number, with no unit in the reply. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 475.95,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

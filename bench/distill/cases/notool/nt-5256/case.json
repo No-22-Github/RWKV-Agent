@@ -1,0 +1,40 @@
+{
+  "id": "nt-5256",
+  "description": "Weekday the mobile library reaches bramblecote. DISTILL-CANARY-21448a7e",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "stable_fact",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "Tuesday"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-publish-day-31",
+    "ref_calls": 1,
+    "fixture_bytes": 454,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:deepseek-v4.1-flash",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "routes/stop-days.txt": "Bramblecote = Friday\nWithermoor = Tuesday\nAshby Green = Wednesday\nNethercote = Monday\n",
+    "README.md": "# Kingsleigh Library Service - mobile routes workspace\n\nWorking area for the mobile library team.\n\n- routes/  the weekday the van calls at each village\n\nThe service runs one van, so each village is called at on a single weekday and the schedule is edited in place. Stops are kept in the order they were added to the round. Last reviewed 2025-12-18, reference KL-7714.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Kingsleigh Library Service has had a parish council query about when the mobile library reaches Bramblecote. Which day of the week is that? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "Friday",
+        "tools": []
+      }
+    }
+  ]
+}

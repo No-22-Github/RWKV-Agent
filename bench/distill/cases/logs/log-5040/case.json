@@ -1,0 +1,44 @@
+{
+  "id": "log-5040",
+  "description": "Name the core diameter of the reel in the applicator when the jams began, joining a label journal to the goods-in record. DISTILL-CANARY-4e2b8d60",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "root_cause",
+    "traps": [
+      "TR-MULTISRC",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": 27,
+      "TR-DECOY": 40
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "fam-log-labelfeed-31",
+    "ref_calls": 4,
+    "fixture_bytes": 1604,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Cransley Bottling - label applicator\n\nThe bottling hall's label applicator writes a line to logs/labeller.log for every\nevent it handles:\n\n    <UTC time> <event> ...\n\nLOAD records a new label reel being spliced in and names the reel. JAM is\nwritten each time the web jams and records the fault code and the print offset\nthe web had reached. A run of jams started on 17 September 2026 and the shift\nreport has to trace them to the label stock that was in the applicator, whose\ncore diameter the applicator's spindle has to match; the goods-in book in\nnotes/reel-intake.md lists each reel received with its core and width.\n",
+    "logs/labeller.log": "2026-09-16T14:22:07Z LOAD reel=RL-8120\n2026-09-17T05:47:31Z LOAD reel=RL-8144\n2026-09-17T07:19:04Z LOAD reel=RL-8177\n2026-09-17T07:52:36Z JAM code=W3 offset=27\n2026-09-17T08:21:14Z JAM code=W3 offset=31\n2026-09-17T09:06:48Z JAM code=W3 offset=34\n2026-09-17T10:37:22Z LOAD reel=RL-8203\n2026-09-17T11:14:09Z JAM code=W4 offset=44\n2026-09-17T13:28:55Z JAM code=W4 offset=41\n2026-09-17T15:52:30Z LOAD reel=RL-8219\n2026-09-17T16:39:17Z JAM code=W4 offset=38\n",
+    "notes/reel-intake.md": "# label stock received\n\nEvery consignment of label reels booked in at goods-in. `core` is the internal\ndiameter of the reel's core, which the applicator's spindle has to match.\n\n| reel    | core (mm) | width (mm) | received   |\n| ------- | --------- | ---------- | ---------- |\n| RL-8120 | 76        | 320        | 2026-09-11 |\n| RL-8144 | 40        | 260        | 2026-09-15 |\n| RL-8219 | 76        | 300        | 2026-09-16 |\n| RL-8177 | 152       | 420        | 2026-09-17 |\n| RL-8203 | 76        | 380        | 2026-09-21 |\n"
+  },
+  "turns": [
+    {
+      "prompt": "Cransley Bottling's label applicator writes a line whenever it splices in a new reel or the label web jams, and a run of jams began on 17 September 2026 that the shift report has to trace back to the label stock. What was the core diameter, in millimetres, of the reel that was in the applicator when the jams began? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 152,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

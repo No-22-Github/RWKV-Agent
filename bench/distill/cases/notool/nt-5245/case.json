@@ -1,0 +1,42 @@
+{
+  "id": "nt-5245",
+  "description": "Convert a 12.5 fathom dredge depth to metres. DISTILL-CANARY-d56ff13a",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 75.0
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-fathomdepth-31",
+    "ref_calls": 0,
+    "fixture_bytes": 287,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "standards/depth_units.csv": "metre_per_fathom,1.8288\nmetre_per_cable,185.2\n",
+    "surveys/channel_survey_2264.txt": "survey CH-2264\napproach channel dredge line\ndesign_depth_fathoms 12.5\n",
+    "README.md": "# Covehurst Harbour - engineering office\n\nApproach channel depths are specified in fathoms on the design sheet.\nThe dredging contract the board lets is written in metres.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Covehurst Harbour is letting the dredging contract for the approach channel. The design sheet specifies a dredge depth of 12.5 fathoms, and a fathom is 1.8288 metres. What depth in metres goes into the contract? Give the answer as a single number, with no unit in the reply. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 22.86,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

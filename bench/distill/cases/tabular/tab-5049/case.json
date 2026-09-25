@@ -1,0 +1,40 @@
+{
+  "id": "tab-5049",
+  "description": "Split run count for one yard in an export that covers two slate yards. DISTILL-CANARY-34e6dcce",
+  "category": "tabular",
+  "tags": {
+    "task_type": "filter_count",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 56
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-slateyard-01",
+    "ref_calls": 3,
+    "scenario": "tabular",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null,
+    "fixture_bytes": 3044
+  },
+  "web_fixture": [],
+  "files": {
+    "splitting_runs_2026-08.csv": "split_id,split_date,yard,shed,slate_size,slate_count\nSR-7710,2026-08-02,Penrhyddn,Upper shed,Standard,150\nSR-7711,2026-08-05,Penrhyddn,Lower shed,Broad,305\nSR-7712,2026-08-08,Penrhyddn,Upper shed,Small,385\nSR-7713,2026-08-11,Trefriw,Lower shed,Standard,260\nSR-7714,2026-08-14,Trefriw,Upper shed,Broad,225\nSR-7715,2026-08-17,Trefriw,Lower shed,Small,195\nSR-7716,2026-08-20,Trefriw,Upper shed,Standard,210\nSR-7717,2026-08-23,Trefriw,Lower shed,Broad,155\nSR-7718,2026-08-26,Penrhyddn,Upper shed,Small,365\nSR-7719,2026-08-02,Penrhyddn,Lower shed,Standard,355\nSR-7720,2026-08-05,Penrhyddn,Upper shed,Broad,495\nSR-7721,2026-08-08,Trefriw,Lower shed,Small,365\nSR-7722,2026-08-11,Trefriw,Upper shed,Standard,170\nSR-7723,2026-08-14,Trefriw,Lower shed,Broad,200\nSR-7724,2026-08-17,Trefriw,Upper shed,Small,300\nSR-7725,2026-08-20,Trefriw,Lower shed,Standard,470\nSR-7726,2026-08-23,Penrhyddn,Upper shed,Broad,260\nSR-7727,2026-08-26,Penrhyddn,Lower shed,Small,175\nSR-7728,2026-08-02,Penrhyddn,Upper shed,Standard,175\nSR-7729,2026-08-05,Trefriw,Lower shed,Broad,350\nSR-7730,2026-08-08,Trefriw,Upper shed,Small,440\nSR-7731,2026-08-11,Trefriw,Lower shed,Standard,560\nSR-7732,2026-08-14,Trefriw,Upper shed,Broad,465\nSR-7733,2026-08-17,Trefriw,Lower shed,Small,470\nSR-7734,2026-08-20,Penrhyddn,Upper shed,Standard,515\nSR-7735,2026-08-23,Penrhyddn,Lower shed,Broad,535\nSR-7736,2026-08-26,Penrhyddn,Upper shed,Small,150\nSR-7737,2026-08-02,Trefriw,Lower shed,Standard,460\nSR-7738,2026-08-05,Trefriw,Upper shed,Broad,445\nSR-7739,2026-08-08,Trefriw,Lower shed,Small,170\nSR-7740,2026-08-11,Trefriw,Upper shed,Standard,540\nSR-7741,2026-08-14,Trefriw,Lower shed,Broad,435\nSR-7742,2026-08-17,Penrhyddn,Upper shed,Small,450\nSR-7743,2026-08-20,Penrhyddn,Lower shed,Standard,500\nSR-7744,2026-08-23,Penrhyddn,Upper shed,Broad,165\nSR-7745,2026-08-26,Trefriw,Lower shed,Small,195\nSR-7746,2026-08-02,Trefriw,Upper shed,Standard,310\nSR-7747,2026-08-05,Trefriw,Lower shed,Broad,140\nSR-7748,2026-08-08,Trefriw,Upper shed,Small,480\nSR-7749,2026-08-11,Trefriw,Lower shed,Standard,190\nSR-7750,2026-08-14,Penrhyddn,Upper shed,Broad,470\nSR-7751,2026-08-17,Penrhyddn,Lower shed,Small,470\nSR-7752,2026-08-20,Penrhyddn,Upper shed,Standard,540\nSR-7753,2026-08-23,Trefriw,Lower shed,Broad,535\nSR-7754,2026-08-26,Trefriw,Upper shed,Small,405\nSR-7755,2026-08-02,Trefriw,Lower shed,Standard,320\nSR-7756,2026-08-05,Trefriw,Upper shed,Broad,450\nSR-7757,2026-08-08,Trefriw,Lower shed,Small,315\nSR-7758,2026-08-11,Penrhyddn,Upper shed,Standard,465\nSR-7759,2026-08-14,Penrhyddn,Lower shed,Broad,205\nSR-7760,2026-08-17,Penrhyddn,Upper shed,Small,270\nSR-7761,2026-08-20,Trefriw,Lower shed,Standard,230\nSR-7762,2026-08-23,Trefriw,Upper shed,Broad,485\nSR-7763,2026-08-26,Trefriw,Lower shed,Small,490\nSR-7764,2026-08-02,Trefriw,Upper shed,Standard,220\nSR-7765,2026-08-05,Trefriw,Lower shed,Broad,500\n",
+    "README.md": "# Cilgwyn Slate Yard - splitting runs, August 2026\n\nOne row per splitting run; slate_count is the number of slates trimmed on that run. The office writes one export for both yards, Penrhyddn and Trefriw.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Cilgwyn Slate Yard reports the work of each yard to the quarry office. How many splitting runs did the Penrhyddn yard carry out in August 2026? Give the count as a number alone. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 21,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "id": "code-5029",
+  "description": "Name the module that bends a sail to a spar by calling the sail loft's bend_sail. DISTILL-CANARY-534001ad",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "find_callers",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "loft/labels.py"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-code-sailbend-31",
+    "ref_calls": 3,
+    "fixture_bytes": 420,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "loft/bending.py": "from store.rigging import bend_sail\n\n# Bend the sail the loft has finished.\n\n\ndef bend(spar, sail):\n    bend_sail(spar, sail)\n    return spar\n",
+    "loft/labels.py": "from store.rigging import bend_sail\n\n# Label the sails that leave the loft.\nTEMPLATE = \"sail-%s\"\n\n\ndef label(sail):\n    return TEMPLATE % sail\n",
+    "store/rigging.py": "\"\"\"Rigging helpers for the Penpoll sail loft.\"\"\"\n\nBENT = []\n\n\ndef bend_sail(spar, sail):\n    BENT.append((spar, sail))\n    return spar\n"
+  },
+  "turns": [
+    {
+      "prompt": "The Penpoll sail loft bends a sail to a spar by calling bend_sail. Which module does that? Give the file path on its own, with the .py suffix. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "loft/bending.py"
+      }
+    }
+  ]
+}

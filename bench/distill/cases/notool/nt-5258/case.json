@@ -1,0 +1,40 @@
+{
+  "id": "nt-5258",
+  "description": "Outside body a bird strike report is sent to. DISTILL-CANARY-829b698e",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "stable_fact",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "Aerodrome Standards Office"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-notify-body-32",
+    "ref_calls": 1,
+    "fixture_bytes": 589,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:deepseek-v4.1-flash",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "safety/notify-bodies.txt": "bird strike = Flight Safety Inspectorate\nrunway incursion = Aerodrome Standards Office\nlaser interference = Navigation Complaints Unit\nfuel spill = Environmental Response Team\n",
+    "README.md": "# Kilnwick Airfield - aerodrome safety workspace\n\nWorking area for the aerodrome safety office.\n\n- safety/  the outside body each occurrence report is sent to\n\nEach occurrence type goes to one outside body and the register is edited in place, so a report is never sent to two bodies. Entries are kept in the order the occurrence types were added to the safety manual. Last reviewed 2026-03-18, reference OA-9021.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Kilnwick Airfield's safety office is filing a bird strike report and the form asks for the outside body it is sent to. Which body is it? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "Flight Safety Inspectorate",
+        "tools": []
+      }
+    }
+  ]
+}

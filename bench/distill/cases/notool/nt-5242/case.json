@@ -1,0 +1,42 @@
+{
+  "id": "nt-5242",
+  "description": "Convert a 24 tex yarn order to denier. DISTILL-CANARY-0d36501d",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 2.67
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-yarncount-31",
+    "ref_calls": 0,
+    "fixture_bytes": 246,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "standards/yarn_count_units.csv": "denier_per_tex,9\ndecitex_per_tex,10\n",
+    "specs/yarn_order_6150.tsv": "yarn\tcount_tex\tfibre\nBH-6150\t24\tmerino wool\n",
+    "README.md": "# Brackenholm Hosiery - materials office\n\nYarn orders are written in tex from the spinner's note.\nThe materials system the plant runs on holds yarn counts in denier.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Brackenholm Hosiery is booking the merino yarn for the autumn sock run into the materials system. The spinner's note gives the yarn as 24 tex, and a tex is nine denier. What denier figure goes into the materials system? Give the answer as a single number, with no unit in the reply. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 216,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

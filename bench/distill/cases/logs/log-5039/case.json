@@ -1,0 +1,40 @@
+{
+  "id": "log-5039",
+  "description": "Count the crossings in a window by the time the barrier registered them, in a journal uploaded in batches. DISTILL-CANARY-c70a94f5",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": 6
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-bridgecross-31",
+    "ref_calls": 3,
+    "fixture_bytes": 2617,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Ravensbank Bridge Company - barrier journal\n\nThe barrier at the bridge registers every vehicle that crosses and writes a line\nto logs/bridge-crossings.log:\n\n    <recorded UTC time> CROSSED at=<UTC time> class=<car|van|hgv> weight=<kg>\n\n`at` is when the barrier registered the crossing and `weight` is the weight the\nplate under the road read as the vehicle passed; the first stamp is when the\nrecord reached the office, which is later, because the barrier holds its records\nwhile the link to the office is down and sends them in batches once the link is\nback. `class` is the class the axle sensor put the vehicle in. The journal\ncovers one day and is closed with a line counting every record above it.\n",
+    "logs/bridge-crossings.log": "2026-09-06T06:51:47Z CROSSED at=2026-09-06T05:12:34Z class=car weight=1420\n2026-09-06T06:54:19Z CROSSED at=2026-09-06T05:31:07Z class=van weight=1860\n2026-09-06T06:56:38Z CROSSED at=2026-09-06T05:47:52Z class=car weight=1245\n2026-09-06T06:58:52Z CROSSED at=2026-09-06T06:09:26Z class=hgv weight=3120\n2026-09-06T07:01:07Z CROSSED at=2026-09-06T06:26:41Z class=car weight=1580\n2026-09-06T07:04:36Z CROSSED at=2026-09-06T06:44:19Z class=van weight=2015\n2026-09-06T09:06:22Z CROSSED at=2026-09-06T06:47:33Z class=car weight=1130\n2026-09-06T09:08:47Z CROSSED at=2026-09-06T07:02:58Z class=car weight=1765\n2026-09-06T09:10:31Z CROSSED at=2026-09-06T07:18:24Z class=hgv weight=2240\n2026-09-06T09:12:58Z CROSSED at=2026-09-06T07:31:46Z class=van weight=1390\n2026-09-06T09:14:26Z CROSSED at=2026-09-06T07:49:09Z class=car weight=1625\n2026-09-06T09:16:49Z CROSSED at=2026-09-06T08:03:37Z class=car weight=1180\n2026-09-06T09:18:11Z CROSSED at=2026-09-06T08:17:52Z class=hgv weight=1935\n2026-09-06T09:20:37Z CROSSED at=2026-09-06T08:29:26Z class=car weight=2110\n2026-09-06T09:22:04Z CROSSED at=2026-09-06T08:41:04Z class=van weight=1475\n2026-09-06T09:23:38Z CROSSED at=2026-09-06T08:52:47Z class=car weight=2340\n2026-09-06T09:25:52Z CROSSED at=2026-09-06T08:56:31Z class=car weight=1295\n2026-09-06T09:27:19Z CROSSED at=2026-09-06T08:58:09Z class=van weight=1680\n2026-09-06T12:47:33Z CROSSED at=2026-09-06T09:07:44Z class=car weight=1510\n2026-09-06T12:52:18Z CROSSED at=2026-09-06T09:34:18Z class=hgv weight=2050\n2026-09-06T13:04:41Z CROSSED at=2026-09-06T10:12:53Z class=car weight=1365\n2026-09-06T13:19:26Z CROSSED at=2026-09-06T10:49:36Z class=van weight=1890\n2026-09-06T13:31:07Z CROSSED at=2026-09-06T11:23:11Z class=car weight=1720\n2026-09-06T13:47:52Z CROSSED at=2026-09-06T12:04:58Z class=hgv weight=2180\n2026-09-06T14:02:36Z CROSSED at=2026-09-06T12:38:26Z class=car weight=1560\n2026-09-06T23:59:12Z CLOSE records=25\n"
+  },
+  "turns": [
+    {
+      "prompt": "Ravensbank Bridge Company's barrier registers each vehicle that crosses the bridge and sends its records to the office when the link is up. The resurfacing record for 6 September 2026 needs the traffic that crossed between 06:00 and 09:00 that morning. How many vehicles crossed the bridge in those hours? Give the count alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 15,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

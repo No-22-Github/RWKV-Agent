@@ -1,0 +1,41 @@
+{
+  "id": "web-5026",
+  "description": "Attempt ceiling behind the Coldbridge CB-1077 decline code. DISTILL-CANARY-c41b8f07",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-web-declinecount-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "coldbridge",
+      "url": "https://support.coldbridge.example/errors/declines",
+      "url_match": "support.coldbridge.example/errors/declines",
+      "title": "Decline codes - Coldbridge Payments",
+      "snippet": "CB-1077 is raised when a card sees more than 19 attempts in a rolling hour.",
+      "content": "# Decline codes\n\nColdbridge Payments, reviewed 2026-08-06.\n\n| code | raised when | what to do |\n| --- | --- | --- |\n| CB-1004 | the issuer asks for a step-up check on the cardholder | send the customer through the bank's challenge |\n| CB-1077 | a card sees more than 19 attempts in a rolling hour | leave the card for 30 seconds and retry the charge later |\n| CB-1120 | the merchant account has no daily volume left | settle the open batch before taking new charges |\n\nThe rolling hour counts every payment attempt on the card, including the ones\nthat were refused on other codes. Nineteen attempts in the window are accepted;\nthe twentieth ends on CB-1077. CB-1004 is not a block: a challenge the\ncardholder passes clears the charge.\n",
+      "published_at": "2026-08-06"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "A shop on our books keeps landing on Coldbridge code CB-1077 on busy mornings. How many attempts on one card in a rolling hour are accepted before Coldbridge raises that code? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 19,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

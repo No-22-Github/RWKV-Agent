@@ -1,0 +1,43 @@
+{
+  "id": "nt-5276",
+  "description": "Give the subcommand that puts a deployment back on its previous revision. DISTILL-CANARY-0c6e9d52",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "kubectl rollout restart"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-podfield-43",
+    "ref_calls": 0,
+    "fixture_bytes": 341,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "deploys/rollback-cards.tsv": "go-back-to-the-previous-revision\tkubectl rollout undo\trollout undo\nstart-the-current-revision-again\tkubectl rollout restart\trestarts the pods in place\n",
+    "README.md": "# Blakeney Netloft - stock service rollouts\n\nThe stock service is rolled out from the cluster's own revision history.\nThe subcommands the crew uses are carded in deploys/rollback-cards.tsv.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Blakeney Netloft shipped a revision of its stock service that counts netted crates twice, and the pods are serving it across the cluster. The revision before that one is known to be good. Give the subcommand that puts the deployment back on its previous revision. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "kubectl rollout undo",
+          "rollout undo"
+        ]
+      }
+    }
+  ]
+}

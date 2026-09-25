@@ -1,0 +1,43 @@
+{
+  "id": "doc-5030",
+  "description": "The one path in a veterinary practice's protocol register with no protocol saved under it. DISTILL-CANARY-6b2e93c8",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "link_check",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": "protocols/equine-colic-notes.md"
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-doc-vetprotocol-01",
+    "ref_calls": 2,
+    "fixture_bytes": 993,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Rievaulx Veterinary Practice - clinical protocols\n\nThe practice keeps its clinical protocols in one folder, and the nurses work from the register in `registers/protocol-set.txt`.\n",
+    "registers/protocol-set.txt": "protocols/equine-colic.md\nprotocols/canine-vaccination.md\nprotocols/feline-anaesthesia.md\nprotocols/rabbit-dentistry.md\n",
+    "protocols/canine-vaccination.md": "# Canine vaccination\n\nPuppies are vaccinated from eight weeks and the course is recorded in the client's notes.\nBoosters are booked by the reception team.\n",
+    "protocols/feline-anaesthesia.md": "# Feline anaesthesia\n\nCats are starved overnight before a general anaesthetic and monitored until they are sternal.\nThe anaesthetic machine is checked at the start of each list.\n",
+    "protocols/equine-colic-notes.md": "# Equine colic - notes\n\nThese notes summarise the practice's approach to colic in horses and are kept for the nurses' reference.\nThe duty vet is called for any horse showing signs of colic.\n",
+    "protocols/rabbit-dentistry.md": "# Rabbit dentistry\n\nRabbits are examined with an otoscope before dental work and are given pain relief afterwards.\nOwners are told to bring the rabbit back for a check.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The head nurse at Rievaulx Veterinary Practice is tidying the clinical protocol folder before the practice inspection. One of the register entries has no protocol of its own in the folder. Which register entry is it? Reproduce the entry as the register spells it. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "protocols/equine-colic.md"
+      }
+    }
+  ]
+}

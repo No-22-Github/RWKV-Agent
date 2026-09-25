@@ -1,0 +1,46 @@
+{
+  "id": "scr-5011",
+  "description": "Repair the bell foundry's despatch sheet script so the casting weights print what the office expects. DISTILL-CANARY-c78fdbb0",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_output",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-scr-bellweight-31",
+    "ref_calls": 2,
+    "fixture_bytes": 1395,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "castings.py": "\"\"\"Print the despatch sheet for the Brockmoor Bell Foundry.\n\nCastings land in castings/, one file per month; the columns are\ncasting_no,alloy,bells,unit_kg. Print one line per casting in casting_no\norder, then a totals line:\n\n    <casting_no>,<alloy>,<total_kg>\n    TOTAL,<total_kg>\n\ntotal_kg is the weight of the whole casting: its bells multiplied by the\nweight of one bell, printed with two decimals.\n\"\"\"\nimport csv\nimport os\n\nHERE = os.path.dirname(os.path.abspath(__file__))\nCASTINGS = os.path.join(HERE, \"castings\")\n\n\ndef casting_rows():\n    rows = []\n    for name in sorted(os.listdir(CASTINGS)):\n        if name.endswith(\".csv\"):\n            with open(os.path.join(CASTINGS, name), newline=\"\") as handle:\n                rows.extend(csv.DictReader(handle))\n    return rows\n\n\ndef main():\n    total = 0.0\n    for row in sorted(casting_rows(), key=lambda r: r[\"casting_no\"]):\n        weight = float(row[\"unit_kg\"])\n        total += weight\n        print(\"%s,%s,%.2f\" % (row[\"casting_no\"], row[\"alloy\"], weight))\n    print(\"TOTAL,%.2f\" % total)\n\n\nmain()\n",
+    "castings/2026-09.csv": "casting_no,alloy,bells,unit_kg\nBM-3120,bronze,12,8.75\nBM-3121,brass,7,5.40\nBM-3122,bronze,18,9.20\nBM-3123,gilt,4,12.60\n",
+    "README.md": "# Brockmoor Bell Foundry - despatch sheets\n\nThe foundry writes each casting to castings/ when it leaves the pit, one file\nper month. The despatch sheet is printed by castings.py and goes to the\noffice with the invoice.\n"
+  },
+  "expect": {
+    "files": {
+      "castings/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "castings.py",
+      "expected_stdout": "BM-3120,bronze,105.00\nBM-3121,brass,37.80\nBM-3122,bronze,165.60\nBM-3123,gilt,50.40\nBM-3124,brass,48.60\nBM-3125,bronze,131.25\nTOTAL,538.65",
+      "hidden_files": {
+        "castings/2026-10.csv": "casting_no,alloy,bells,unit_kg\nBM-3124,brass,9,5.40\nBM-3125,bronze,15,8.75\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The despatch sheet has been reaching the office with weights far below what the castings weigh, and the accounts office wants the sheet back in the shape it has always had. Please put castings.py right, and keep it right as the later monthly sheets land in castings/. The sheets in castings/ are the foundry's record, so they stay as they are. When finished, reply DONE.",
+      "expect": {}
+    }
+  ]
+}

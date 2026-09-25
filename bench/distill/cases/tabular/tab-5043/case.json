@@ -1,0 +1,40 @@
+{
+  "id": "tab-5043",
+  "description": "Finished slab area for one month of a marble works log that ends with a period total. DISTILL-CANARY-1b1d101f",
+  "category": "tabular",
+  "tags": {
+    "task_type": "aggregate",
+    "traps": [
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-HEADER": 2164.7
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-marbleruns-01",
+    "ref_calls": 3,
+    "scenario": "tabular",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null,
+    "fixture_bytes": 2909
+  },
+  "web_fixture": [],
+  "files": {
+    "run_log_2026.csv": "run_id,run_month,run_date,machine,area_m2\nMS-4101,2026-06,2026-06-01,Gantry A,27.7\nMS-4102,2026-06,2026-06-05,Gantry B,45.6\nMS-4103,2026-06,2026-06-09,Wire Saw,17.7\nMS-4104,2026-06,2026-06-13,Gantry A,20.0\nMS-4105,2026-06,2026-06-17,Gantry B,39.6\nMS-4106,2026-06,2026-06-21,Wire Saw,36.7\nMS-4107,2026-06,2026-06-25,Gantry A,25.9\nMS-4108,2026-06,2026-06-03,Gantry B,31.8\nMS-4109,2026-06,2026-06-07,Wire Saw,42.1\nMS-4110,2026-06,2026-06-11,Gantry A,43.6\nMS-4111,2026-06,2026-06-15,Gantry B,40.0\nMS-4112,2026-06,2026-06-19,Wire Saw,41.3\nMS-4113,2026-06,2026-06-23,Gantry A,25.5\nMS-4114,2026-06,2026-06-01,Gantry B,28.4\nMS-4115,2026-06,2026-06-05,Wire Saw,36.5\nMS-4116,2026-06,2026-06-09,Gantry A,33.3\nMS-4117,2026-06,2026-06-13,Gantry B,45.7\nMS-4118,2026-06,2026-06-17,Wire Saw,20.0\nMS-4119,2026-06,2026-06-21,Gantry A,43.8\nMS-4120,2026-06,2026-06-25,Gantry B,29.5\nMS-4121,2026-06,2026-06-03,Wire Saw,24.5\nMS-4122,2026-06,2026-06-07,Gantry A,42.5\nMS-4123,2026-07,2026-07-02,Gantry A,24.7\nMS-4124,2026-07,2026-07-06,Gantry B,24.7\nMS-4125,2026-07,2026-07-10,Wire Saw,26.1\nMS-4126,2026-07,2026-07-14,Gantry A,29.3\nMS-4127,2026-07,2026-07-18,Gantry B,41.6\nMS-4128,2026-07,2026-07-22,Wire Saw,25.6\nMS-4129,2026-07,2026-07-26,Gantry A,39.4\nMS-4130,2026-07,2026-07-04,Gantry B,26.9\nMS-4131,2026-07,2026-07-08,Wire Saw,34.7\nMS-4132,2026-07,2026-07-12,Gantry A,23.8\nMS-4133,2026-07,2026-07-16,Gantry B,32.2\nMS-4134,2026-07,2026-07-20,Wire Saw,27.8\nMS-4135,2026-07,2026-07-24,Gantry A,22.1\nMS-4136,2026-07,2026-07-02,Gantry B,39.8\nMS-4137,2026-07,2026-07-06,Wire Saw,23.5\nMS-4138,2026-07,2026-07-10,Gantry A,27.5\nMS-4139,2026-07,2026-07-14,Gantry B,35.3\nMS-4140,2026-07,2026-07-18,Wire Saw,41.5\nMS-4141,2026-07,2026-07-22,Gantry A,40.1\nMS-4142,2026-07,2026-07-26,Gantry B,28.5\nMS-4143,2026-07,2026-07-04,Wire Saw,29.5\nMS-4144,2026-07,2026-07-08,Gantry A,25.0\nMS-4145,2026-08,2026-08-03,Gantry A,45.1\nMS-4146,2026-08,2026-08-07,Gantry B,29.4\nMS-4147,2026-08,2026-08-11,Wire Saw,46.5\nMS-4148,2026-08,2026-08-15,Gantry A,43.1\nMS-4149,2026-08,2026-08-19,Gantry B,30.2\nMS-4150,2026-08,2026-08-23,Wire Saw,44.4\nMS-4151,2026-08,2026-08-27,Gantry A,40.4\nMS-4152,2026-08,2026-08-05,Gantry B,34.7\nMS-4153,2026-08,2026-08-09,Wire Saw,22.2\nMS-4154,2026-08,2026-08-13,Gantry A,32.4\nMS-4155,2026-08,2026-08-17,Gantry B,29.0\nMS-4156,2026-08,2026-08-21,Wire Saw,43.2\nMS-4157,2026-08,2026-08-25,Gantry A,24.1\nMS-4158,2026-08,2026-08-03,Gantry B,25.9\nMS-4159,2026-08,2026-08-07,Wire Saw,26.4\nMS-4160,2026-08,2026-08-11,Gantry A,27.9\nMS-4161,2026-08,2026-08-15,Gantry B,32.3\nMS-4162,2026-08,2026-08-19,Wire Saw,27.6\nMS-4163,2026-08,2026-08-23,Gantry A,38.2\nMS-4164,2026-08,2026-08-27,Gantry B,41.7\nMS-4165,2026-08,2026-08-05,Wire Saw,32.0\nMS-4166,2026-08,2026-08-09,Gantry A,36.7\nTOTAL,ALL,ALL,ALL,2164.7\n",
+    "README.md": "# Coldridge Marble Works - slab run log, 2026 season\n\nOne row per slab run; area_m2 is the finished area of the slabs sawn on that run.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Coldridge Marble Works reports the finished area of its slab runs month by month. What was the finished area produced in June 2026? Give the figure as a number of square metres. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 741.7,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

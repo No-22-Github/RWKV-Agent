@@ -1,0 +1,45 @@
+{
+  "id": "nt-5281",
+  "description": "Give the archive flags that print the members of a compressed archive. DISTILL-CANARY-d05a3c67",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "tar -xzf"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-archiveline-45",
+    "ref_calls": 0,
+    "fixture_bytes": 323,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "archive/reading-options.tsv": "print-the-members-without-unpacking\ttar -tzf\ttar tzf|tar -tzvf|tar tzvf\nunpack-the-archive\ttar -xzf\ttar xzf\n",
+    "README.md": "# Nethercroft Timberyard - sawmill logs\n\nThe monthly saw log arrives as a compressed archive that the clerk inspects before it is filed away.\nThe flag groups the yard uses are carded in archive/reading-options.tsv.\n"
+  },
+  "turns": [
+    {
+      "prompt": "A clerk at Nethercroft Timberyard takes in the monthly saw log as a compressed archive and has to say which member files are inside it before the archive is filed. Give the flag group that makes the archive tool decompress the stream, list the members and read the archive from the named file, without writing anything out. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "tar -tzf",
+          "tar tzf",
+          "tar -tzvf",
+          "tar tzvf"
+        ]
+      }
+    }
+  ]
+}

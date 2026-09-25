@@ -1,0 +1,65 @@
+{
+  "id": "hyb-5043",
+  "description": "M8 bolt stock in a stores list where the bolts sit in two bins of different finish. DISTILL-CANARY-a18c6d29",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 96
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-twobins-01",
+    "ref_calls": 2,
+    "fixture_bytes": 341,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "stores/bolt-bins.csv": "bin,item,finish,in_stock\nA-14,M8 bolt,stainless,132\nB-07,M8 bolt,zinc,96\nA-15,M8 nut,stainless,410\nB-08,M8 nut,zinc,375\nA-16,M8 washer,stainless,880\nB-09,M8 washer,zinc,760\n",
+    "README.md": "# Oxholme Stores - bin list\n\nTwo bins carry the same item and differ only in the finish, so the finish decides which\nbin is meant. The list holds one row for each bin.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Oxholme Stores is doing the September stock check. How many M8 bolts are in the stores?",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ]
+      }
+    },
+    {
+      "prompt": "The stainless bin. Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 132,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

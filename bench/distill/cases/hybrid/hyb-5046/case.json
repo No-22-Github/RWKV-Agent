@@ -1,0 +1,64 @@
+{
+  "id": "hyb-5046",
+  "description": "Sheets in the September reams at a print works using one paper stock. DISTILL-CANARY-9e8b51c4",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_calc",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": 8640
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-reamsheets-01",
+    "ref_calls": 3,
+    "fixture_bytes": 333,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [
+    {
+      "query_match": "quarryhill",
+      "url": "https://quarryhill-paper.example/stocks/woven-cream",
+      "url_match": "quarryhill-paper.example/stocks/woven-cream",
+      "title": "Woven cream stock - Quarryhill Paper",
+      "snippet": "Woven cream is supplied 516 sheets to a ream in every size we cut.",
+      "content": "# Woven cream\n\nQuarryhill Paper, stock note revised 2026-08-03.\n\nWoven cream is supplied 516 sheets to a ream in every size we cut. A ream is a\nsealed pack, so part reams are not dispatched; count what the press opens.\n\nThe sheet count is a property of the stock and does not change with the sheet\nsize.\n",
+      "published_at": "2026-08-03"
+    },
+    {
+      "query_match": "quarryhill laid",
+      "url": "https://quarryhill-paper.example/stocks/laid-ivory",
+      "url_match": "quarryhill-paper.example/stocks/laid-ivory",
+      "title": "Laid ivory stock - Quarryhill Paper",
+      "snippet": "Laid ivory is supplied 480 sheets to a ream in every size we cut.",
+      "content": "# Laid ivory\n\nQuarryhill Paper, stock note revised 2026-08-03.\n\nLaid ivory is supplied 480 sheets to a ream in every size we cut and is held in\na separate bay from the other stocks.\n",
+      "published_at": "2026-08-03"
+    }
+  ],
+  "files": {
+    "press/reams-2026-09.csv": "date,reams\n2026-09-04,3\n2026-09-11,5\n2026-09-18,4\n2026-09-25,6\n",
+    "README.md": "# Quarryhill Press - press room book\n\nOne row for each day the press ran, with the reams opened that day. Greyboard and\nbinding stock are held separately and are not part of this book. The sheets in a ream\ncome from the paper merchant's stock note for the stock in use.\n"
+  },
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Quarryhill Press ran woven cream all September and has to report the sheets drawn from the store. How many sheets did the September reams hold? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 9288,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

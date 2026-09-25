@@ -1,0 +1,41 @@
+{
+  "id": "nt-5229",
+  "description": "Explain shrinkage on a grain bin card and give the weight at the target moisture. DISTILL-CANARY-605ba409",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 45.156
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-grainshrink-36",
+    "ref_calls": 0,
+    "fixture_bytes": 225,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "bins/store_cards.csv": "bin,weighed_t,moisture_pct,target_pct\nB-56,42.5,20,15\n",
+    "README.md": "# Sallowbeck Grain Store - intake and drying\n\nShared folder for the weighbridge office.\n\n- bins/  cards for each bin and drying batch\n- haulage/  tickets from the carters\n"
+  },
+  "turns": [
+    {
+      "prompt": "A trader new to Sallowbeck Grain Store asked what is meant by shrinkage on a bin card; drying takes off water only, so the weight at the target moisture is the weighed weight times one minus the intake moisture over one minus the target moisture. Bin B-56 weighed 42.5 tonnes at 20 percent moisture and is being taken down to 15 percent. Give the weight the bin holds once it is down to target, as a single number in tonnes with no unit in the reply. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 40.0,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

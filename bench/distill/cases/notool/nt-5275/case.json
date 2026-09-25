@@ -1,0 +1,43 @@
+{
+  "id": "nt-5275",
+  "description": "Give the container field that holds an unready container out of the rotation. DISTILL-CANARY-e8b4c019",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "livenessProbe"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L2",
+    "family": "fam-nt-podfield-43",
+    "ref_calls": 0,
+    "fixture_bytes": 598,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "manifests/check-fields.tsv": "hold-requests-until-the-app-answers\treadinessProbe\nrestart-the-container-when-the-app-hangs\tlivenessProbe\n",
+    "README.md": "# Cradlewick Creamery - order intake service\n\nThe order service loads its reference data after the container starts and answers health checks only after that load.\nThe fields the platform crew reviewed are carded in manifests/check-fields.tsv.\n",
+    "notes/boot-review.txt": "Boot review:\nThe service answers its health endpoint only after the reference data has loaded.\nA container inside that window is healthy and the crew does not want it restarted;\nthey want it kept out of the request rotation until the check passes.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Cradlewick Creamery runs an order intake service that loads its reference data for a while after the container starts and answers its health endpoint only when that load is done. Requests that arrive in that window fail. Give the container field that keeps a starting container out of the request rotation until its check reports healthy, without restarting it. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "readinessProbe"
+        ]
+      }
+    }
+  ]
+}

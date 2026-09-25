@@ -1,0 +1,42 @@
+{
+  "id": "nt-5252",
+  "description": "Convert a 22:50 site clock departure to seconds after midnight UTC. DISTILL-CANARY-f2ff7b62",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 82200
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-siteslot-31",
+    "ref_calls": 0,
+    "fixture_bytes": 318,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "standards/site_offsets.csv": "east_ridge_minutes_ahead_of_utc,345\ndelta_yard_minutes_ahead_of_utc,480\n",
+    "timetables/departure_4417.tsv": "service\tclock_time\torigin\nRT-4417\t22:50\teast ridge\n",
+    "README.md": "# Redmarsh Transit - timetable office\n\nDepartures are booked on the terminal clock at the origin site.\nThe network timetable the office loads holds every departure as seconds after midnight UTC.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Redmarsh Transit is loading the night service departure into the network timetable. The service leaves the east ridge site at 22:50 by the site clock, and that site keeps its clocks five hours and forty-five minutes ahead of UTC. How many seconds after midnight UTC does the timetable hold for the departure? Give the answer as a single number, with no unit in the reply. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 61500,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

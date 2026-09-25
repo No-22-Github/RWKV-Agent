@@ -1,0 +1,41 @@
+{
+  "id": "nt-5225",
+  "description": "Explain hydration on a dough card and give the water one batch needs. DISTILL-CANARY-020067b6",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 42.0
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-bakerspec-34",
+    "ref_calls": 0,
+    "fixture_bytes": 187,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "batches/dough_cards.csv": "batch,flour_kg,hydration_pct\nSour white,25,68\n",
+    "README.md": "# Tarnside Bakehouse - production\n\nShared folder for the bench.\n\n- batches/  cards for each dough\n- starters/  feeding notes from the bakery\n"
+  },
+  "turns": [
+    {
+      "prompt": "A baker new to Tarnside Bakehouse asked what the hydration on a dough card means; every ingredient is quoted as a share of the flour weight, so 68 percent is the water weighed in alongside each 100 of flour. The sour white batch takes 25 kilograms of flour at 68 percent hydration. Give the water the batch needs, as a single number in kilograms with no unit in the reply. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 17.0,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

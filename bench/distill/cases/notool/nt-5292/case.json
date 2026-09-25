@@ -1,0 +1,64 @@
+{
+  "id": "nt-5292",
+  "description": "Thanks for patience during a long exchange; reply directly without any tool call. DISTILL-CANARY-2e48ff6b",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-smalltalk-19",
+    "ref_calls": 0,
+    "fixture_bytes": 245,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Pinnfold Tannery - beamhouse workspace\n\nShared folder for the beamhouse and the finish shop.\n\n- hides/  sides in the pits this week\n- drums/  tanning runs and their times\n",
+    "pits/tanning_runs.csv": "batch,hide,days,drums\nPT-9021,ox,14,3\nPT-9022,calf,9,2\nPT-9023,goat,6,1\n"
+  },
+  "turns": [
+    {
+      "prompt": "You have been very patient with me, I appreciate it.",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "welcome",
+          "Welcome",
+          "glad",
+          "Glad",
+          "anytime",
+          "Anytime",
+          "any time",
+          "Any time",
+          "pleasure",
+          "Pleasure",
+          "no problem",
+          "No problem",
+          "happy to help",
+          "Happy to help",
+          "thank",
+          "Thank",
+          "appreciate",
+          "Appreciate",
+          "kind",
+          "Kind",
+          "pleased",
+          "Pleased"
+        ]
+      }
+    }
+  ]
+}

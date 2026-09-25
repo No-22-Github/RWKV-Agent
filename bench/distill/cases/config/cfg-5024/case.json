@@ -1,0 +1,39 @@
+{
+  "id": "cfg-5024",
+  "description": "Set a pottery kiln controller's soak to the figure its glaze trial note gives, editing the controller's settings in place. DISTILL-CANARY-a8d35e41",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-cfg-fenwoldkiln-01",
+    "ref_calls": 2,
+    "fixture_bytes": 735,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Fenwold Pottery - kiln controller\n\nThe kiln controller holds one firing programme at a time and reads it from `config/kiln.json`. The potters load and fire the kiln from the panel beside the door, and nothing is exported into the controller's environment.\n",
+    "config/kiln.json": "{\n  \"soak_minutes\": 85,\n  \"ramp_degrees_per_hour\": 140,\n  \"door_open_delay_s\": 900\n}\n",
+    "docs/glaze-trial.md": "# Satin glaze trial\n\nThe satin glaze is fired at a soak of 110 minutes in place of the figure the controller carries today. The trial runs on the small kiln; the large kiln keeps the programme it has.\n",
+    "tools/report_soak.py": "\"\"\"Print the soak the kiln controller will hold on its next firing.\"\"\"\nimport json\n\nwith open(\"config/kiln.json\") as handle:\n    settings = json.load(handle)\n\nprint(settings[\"soak_minutes\"])\n"
+  },
+  "expect": {
+    "run": {
+      "path": "tools/report_soak.py",
+      "expected_stdout": "110"
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Fenwold Pottery is firing the satin glaze trial this week, and the kiln controller has to be run with the soak the trial note gives instead of the figure it carries now. Change the controller's settings so the next firing is held at that soak. When finished, reply DONE.",
+      "expect": {}
+    }
+  ]
+}

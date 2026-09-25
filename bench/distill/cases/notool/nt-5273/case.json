@@ -1,0 +1,43 @@
+{
+  "id": "nt-5273",
+  "description": "Give the unit key that refuses to start a service when its data store fails. DISTILL-CANARY-5b0ac2ee",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "Wants=malt-store.service"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-unitfile-42",
+    "ref_calls": 0,
+    "fixture_bytes": 332,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "units/dependency-cards.tsv": "refuse-to-start-without-the-store\tRequires=malt-store.service\tRequires=\nstart-anyway-and-retry\tWants=malt-store.service\tWants=\n",
+    "README.md": "# Hollinbeck Maltings - kiln drying\n\nThe drying service reads its batches from the malt-store service over the plant network.\nThe keys the platform crew agreed on are carded in units/dependency-cards.tsv.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Hollinbeck Maltings runs a kiln-drying service that reads its batches from the malt-store service. When the malt store fails to start, the drying service has to stay down too instead of coming up and failing on its first read. Give the key in the unit's dependency settings that makes the service manager refuse to start the drying service while the malt store is not up, with the store's unit name as its value. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "Requires=malt-store.service",
+          "Requires="
+        ]
+      }
+    }
+  ]
+}

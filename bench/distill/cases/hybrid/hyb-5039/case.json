@@ -1,0 +1,65 @@
+{
+  "id": "hyb-5039",
+  "description": "September press yield at Whitlocke Cider, which the book records in two measures. DISTILL-CANARY-1c7be5f0",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 37
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-measures-01",
+    "ref_calls": 2,
+    "fixture_bytes": 318,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "press/presshouse-book-september.csv": "date,volume_l,volume_bbl\n2026-09-03,1450,9\n2026-09-08,980,6\n2026-09-14,1230,8\n2026-09-21,1660,9\n2026-09-27,870,5\n",
+    "README.md": "# Whitlocke Cider - press house book\n\nThe book records each pressing day's yield twice: in litres and, beside it, the same\nyield counted in barrels for the duty return. One row for each day the press ran.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Whitlocke Cider is closing the September press figures for the season report. How much cider left the press in September?",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ]
+      }
+    },
+    {
+      "prompt": "In litres. Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 6190,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

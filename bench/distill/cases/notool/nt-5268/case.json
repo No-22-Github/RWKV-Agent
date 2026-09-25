@@ -1,0 +1,40 @@
+{
+  "id": "nt-5268",
+  "description": "Post accountable for the livestock welfare round. DISTILL-CANARY-910b8d68",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "stable_fact",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "Estate Ranger"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-duty-post-35",
+    "ref_calls": 1,
+    "fixture_bytes": 539,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:deepseek-v4.1-flash",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "duties/duty-owners.txt": "livestock welfare round = Reserve Warden\nhide repair = Estate Ranger\nvolunteer task briefing = Volunteer Coordinator\ntool store stocktake = Workshop Technician\n",
+    "README.md": "# Oxmarsh Fen Wildlife Trust - reserve workspace\n\nWorking area for the reserve team.\n\n- duties/  the post accountable for each reserve duty\n\nEach reserve duty sits with one post and the list is edited in place, so a duty is never shared between two posts. Entries are kept in the order the duties were added to the reserve work plan. Last reviewed 2026-08-04, reference OF-6641.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Oxmarsh Fen Wildlife Trust is writing its work plan and the livestock welfare round has to name the post accountable for it. Which post is that? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "Reserve Warden",
+        "tools": []
+      }
+    }
+  ]
+}

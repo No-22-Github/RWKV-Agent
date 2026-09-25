@@ -1,0 +1,61 @@
+{
+  "id": "nt-5291",
+  "description": "Thanks for help already given, no new request; reply directly without any tool call. DISTILL-CANARY-3dc805db",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-smalltalk-19",
+    "ref_calls": 0,
+    "fixture_bytes": 251,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Cadwell Marquee Hire - yard office workspace\n\nShared folder for the yard crew and the office.\n\n- jobs/  frames out on hire this month\n- panels/  wall sections in the store\n",
+    "jobs/marquee_jobs.csv": "job,marquee,panels,days\nCM-3352,6x12,18,3\nCM-3353,9x18,26,5\nCM-3354,4x8,12,2\n"
+  },
+  "turns": [
+    {
+      "prompt": "Thank you, you have been a real help.",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "welcome",
+          "Welcome",
+          "glad",
+          "Glad",
+          "anytime",
+          "Anytime",
+          "any time",
+          "Any time",
+          "pleasure",
+          "Pleasure",
+          "no problem",
+          "No problem",
+          "happy to help",
+          "Happy to help",
+          "thank",
+          "Thank",
+          "you're welcome",
+          "You're welcome",
+          "you’re welcome"
+        ]
+      }
+    }
+  ]
+}

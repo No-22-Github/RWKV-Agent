@@ -1,0 +1,41 @@
+{
+  "id": "nt-5237",
+  "description": "Explain what a ream is on a pallet card and give the sheets on one pallet. DISTILL-CANARY-6ea35491",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 384.0
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-reamcount-40",
+    "ref_calls": 0,
+    "fixture_bytes": 242,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "stock/pallet_cards.csv": "pallet,reams_per_bundle,bundles_per_pallet,sheets_per_ream\nPL-16,12,32,500\n",
+    "README.md": "# Fallowbeck Paper Merchants - stock\n\nShared folder for the warehouse office.\n\n- stock/  cards for each pallet and board line\n- haulage/  delivery notes from the mill\n"
+  },
+  "turns": [
+    {
+      "prompt": "A picker new to Fallowbeck Paper Merchants asked what a ream is on a pallet card; a ream is a pack of 500 sheets, and the mill bundles the reams up for shipping. Pallet PL-16 carries 32 bundles of 12 reams. Give the sheets on that pallet, as a single number with no unit in the reply. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 192000,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

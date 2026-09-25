@@ -1,0 +1,40 @@
+{
+  "id": "log-5037",
+  "description": "Total the iron a melting shift poured out rather than the weight it put into the furnaces. DISTILL-CANARY-95b4e08c",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": 893
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-meltshift-31",
+    "ref_calls": 2,
+    "fixture_bytes": 2181,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Thorneybank Foundry - melting shift journal\n\nThe foundry's two induction furnaces melt iron for the day's castings, and the\nfurnace house writes one line to logs/melting-shift.log for every run:\n\n    <UTC time> RUN batch=<id> furnace=<F-1|F-2> heats=<n> charged=<n> tapped=<n>\n\n`heats` is how many times the run fired its furnace, `charged` is the tonnes of\nscrap and returns put into the furnace and `tapped` is the tonnes of iron poured\nout of it, the melt loss being what stayed behind. The shift closes with a line\nthat counts every run above it and the heats they fired, and the tonnes columns\nare added up by the foundry's metal reconciliation, not by the journal.\n",
+    "logs/melting-shift.log": "2026-09-18T05:47:13Z RUN batch=2402 furnace=F-1 heats=6 charged=45 tapped=41\n2026-09-18T06:12:48Z RUN batch=2403 furnace=F-2 heats=8 charged=52 tapped=48\n2026-09-18T06:38:24Z RUN batch=2404 furnace=F-1 heats=5 charged=43 tapped=39\n2026-09-18T07:03:59Z RUN batch=2405 furnace=F-2 heats=7 charged=49 tapped=45\n2026-09-18T07:29:35Z RUN batch=2406 furnace=F-1 heats=7 charged=48 tapped=44\n2026-09-18T07:55:10Z RUN batch=2407 furnace=F-2 heats=9 charged=54 tapped=50\n2026-09-18T08:20:46Z RUN batch=2408 furnace=F-1 heats=4 charged=41 tapped=37\n2026-09-18T08:46:21Z RUN batch=2409 furnace=F-2 heats=6 charged=46 tapped=42\n2026-09-18T09:11:57Z RUN batch=2410 furnace=F-1 heats=6 charged=46 tapped=42\n2026-09-18T09:37:32Z RUN batch=2411 furnace=F-2 heats=8 charged=51 tapped=47\n2026-09-18T10:03:08Z RUN batch=2412 furnace=F-1 heats=5 charged=44 tapped=40\n2026-09-18T10:28:43Z RUN batch=2413 furnace=F-2 heats=7 charged=48 tapped=44\n2026-09-18T10:54:19Z RUN batch=2414 furnace=F-1 heats=4 charged=42 tapped=38\n2026-09-18T11:19:54Z RUN batch=2415 furnace=F-2 heats=9 charged=53 tapped=49\n2026-09-18T11:45:30Z RUN batch=2416 furnace=F-1 heats=6 charged=47 tapped=43\n2026-09-18T12:11:05Z RUN batch=2417 furnace=F-2 heats=6 charged=45 tapped=41\n2026-09-18T12:36:41Z RUN batch=2418 furnace=F-1 heats=5 charged=43 tapped=39\n2026-09-18T13:02:16Z RUN batch=2419 furnace=F-2 heats=7 charged=50 tapped=46\n2026-09-18T13:27:52Z RUN batch=2420 furnace=F-1 heats=6 charged=46 tapped=42\n2026-09-18T14:09:33Z SHIFT runs=19 heats=121\n"
+  },
+  "turns": [
+    {
+      "prompt": "Thorneybank Foundry's two induction furnaces melt iron for the day's castings, and the furnace house writes a line for every run they make. The metal reconciliation for the shift of 18 September 2026 needs the iron the shift poured out of its furnaces. How many tonnes was that? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 817,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

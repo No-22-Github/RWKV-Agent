@@ -1,0 +1,40 @@
+{
+  "id": "log-5038",
+  "description": "Count one pump's runs inside a five-hour window of a day-long station journal that also records the other pump. DISTILL-CANARY-1f6deb23",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 21
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-stormpump-31",
+    "ref_calls": 3,
+    "fixture_bytes": 2225,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Wistow Fen Drainage - pumping station\n\nThe station keeps the fen's drainage level down with a duty pump that takes the\nordinary flow, and cuts in a storm pump when the level rises. The controller\nwrites a line to logs/storm-pump.log for every run either pump makes:\n\n    <UTC time> RUN pump=<duty|storm> minutes=<n> level=<n>\n\n`minutes` is how long that run lasted and `level` is the water level in the\nsump, in millimetres, when the run began. The journal covers one day and is\nclosed with a line counting every run above it.\n",
+    "logs/storm-pump.log": "2026-09-06T00:22:41Z RUN pump=storm minutes=27 level=312\n2026-09-06T00:41:17Z RUN pump=duty minutes=96 level=468\n2026-09-06T01:07:33Z RUN pump=storm minutes=18 level=553\n2026-09-06T01:34:52Z RUN pump=storm minutes=22 level=604\n2026-09-06T02:02:19Z RUN pump=storm minutes=31 level=388\n2026-09-06T02:28:47Z RUN pump=storm minutes=24 level=512\n2026-09-06T02:55:06Z RUN pump=storm minutes=19 level=477\n2026-09-06T03:11:38Z RUN pump=storm minutes=28 level=629\n2026-09-06T03:26:14Z RUN pump=duty minutes=88 level=341\n2026-09-06T03:39:57Z RUN pump=storm minutes=21 level=720\n2026-09-06T04:04:23Z RUN pump=storm minutes=35 level=415\n2026-09-06T04:33:49Z RUN pump=storm minutes=17 level=588\n2026-09-06T05:02:11Z RUN pump=storm minutes=26 level=496\n2026-09-06T05:26:36Z RUN pump=storm minutes=23 level=665\n2026-09-06T05:41:58Z RUN pump=storm minutes=30 level=373\n2026-09-06T05:47:29Z RUN pump=duty minutes=94 level=541\n2026-09-06T05:58:04Z RUN pump=storm minutes=20 level=438\n2026-09-06T06:31:47Z RUN pump=storm minutes=29 level=707\n2026-09-06T07:12:23Z RUN pump=storm minutes=25 level=592\n2026-09-06T08:05:41Z RUN pump=storm minutes=32 level=634\n2026-09-06T09:15:07Z RUN pump=duty minutes=91 level=459\n2026-09-06T09:47:33Z RUN pump=storm minutes=24 level=815\n2026-09-06T11:23:58Z RUN pump=storm minutes=36 level=376\n2026-09-06T12:38:14Z RUN pump=duty minutes=89 level=528\n2026-09-06T15:16:41Z RUN pump=storm minutes=27 level=683\n2026-09-06T16:52:09Z RUN pump=duty minutes=95 level=447\n2026-09-06T19:31:26Z RUN pump=duty minutes=92 level=571\n2026-09-06T20:55:44Z RUN pump=storm minutes=33 level=619\n2026-09-06T22:14:17Z RUN pump=duty minutes=90 level=364\n2026-09-06T23:58:41Z CLOSE runs=29 storm=21 duty=8\n"
+  },
+  "turns": [
+    {
+      "prompt": "Wistow Fen Drainage's pumping station runs a duty pump for the ordinary flow and cuts in a storm pump when the level rises, and the controller keeps a journal of every run. Between 01:00 and 06:00 on 6 September 2026 the fen was on flood watch. How many runs did the storm pump make in those hours? Give the count alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 13,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

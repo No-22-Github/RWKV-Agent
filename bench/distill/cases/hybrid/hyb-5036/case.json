@@ -1,0 +1,65 @@
+{
+  "id": "hyb-5036",
+  "description": "September rewind bench units for one of two technicians called Pellow. DISTILL-CANARY-b27c94ef",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 29
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-twopellows-01",
+    "ref_calls": 2,
+    "fixture_bytes": 496,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "rewinds/bench-book-september.csv": "date,technician,units\n2026-09-02,Dawn Pellow,14\n2026-09-04,Ivan Pellow,11\n2026-09-05,Neil Ackroyd,9\n2026-09-08,Dawn Pellow,17\n2026-09-11,Ivan Pellow,8\n2026-09-14,Neil Ackroyd,12\n2026-09-16,Dawn Pellow,15\n2026-09-19,Ivan Pellow,10\n2026-09-22,Neil Ackroyd,7\n",
+    "README.md": "# Pennerley Rewinds - bench book\n\nOne row for each day a technician spends on the rewind bench, with the units that came\noff it. The firm has two technicians called Pellow, Dawn and Ivan, and the book\nnames the technician who did the work.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Pennerley Rewinds is putting the September claim together. How many units came off Pellow's bench in September?",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ]
+      }
+    },
+    {
+      "prompt": "Dawn Pellow. Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 46,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

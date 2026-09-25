@@ -1,0 +1,43 @@
+{
+  "id": "nt-5284",
+  "description": "Give the block that makes a plan stop at a destructive change. DISTILL-CANARY-2a63f1b8",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "lifecycle { create_before_destroy = true }"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-schemafrag-46",
+    "ref_calls": 0,
+    "fixture_bytes": 417,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "infra/guard-blocks.tsv": "refuse-to-destroy-the-live-warehouse\tlifecycle { prevent_destroy = true }\tprevent_destroy = true\nreplace-the-old-one-safely\tlifecycle { create_before_destroy = true }\tcreate_before_destroy = true\n",
+    "README.md": "# Sallowdene Woolstore - intake index warehouse\n\nThe intake index warehouse is described in the infrastructure definition the crew re-plans every month.\nThe blocks the crew discussed are carded in infra/guard-blocks.tsv.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Sallowdene Woolstore describes its intake index warehouse in an infrastructure definition that the crew re-plans every month, and that warehouse holds the only copy of the intake index. The crew wants a plan to stop instead of carrying out a change that would destroy the warehouse. Give the block that makes the tool refuse to destroy that resource. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "lifecycle { prevent_destroy = true }",
+          "prevent_destroy = true"
+        ]
+      }
+    }
+  ]
+}

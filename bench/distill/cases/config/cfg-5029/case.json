@@ -1,0 +1,40 @@
+{
+  "id": "cfg-5029",
+  "description": "Effective value of the extruder line controller's screw purge, which no block on the settings sheet defines. DISTILL-CANARY-c84b2e07",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "missing_keys",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": 260
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-amberley-01",
+    "ref_calls": 2,
+    "fixture_bytes": 1056,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Amberley Extrusions - extruder line controller\n\nThe extruder line controller takes each setting from the first block that defines it, and `resolve_order` in `config/extruder-stack.json` lists the blocks in the order the controller consults them: what the shift panel pushes in, then the line profile, then the works defaults. A block that leaves a setting out falls through to the next one, so the line profile carries only what the shift panel does not set.\n\n`config/extruder-stack.json` is the settings sheet for the line: it shows the three blocks as the controller reads them.\n",
+    "config/extruder-stack.json": "{\n  \"line\": \"extruder-4\",\n  \"resolve_order\": [\"shift_push\", \"line_profile\", \"works_defaults\"],\n  \"shift_push\": {\n    \"barrel_heat_c\": 195,\n    \"screw_speed_rpm\": 74\n  },\n  \"line_profile\": {\n    \"haul_off_gap_mm\": 3\n  },\n  \"works_defaults\": {\n    \"barrel_purge_s\": 260,\n    \"barrel_heat_c\": 180,\n    \"haul_off_gap_mm\": 4,\n    \"die_wipe_min\": 22\n  }\n}\n",
+    "docs/die-store.md": "# Die store\n\nDies are racked by profile number and drawn out on the day of a run.\nWorn die lips are sent away to be recut.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The shift supervisor at Amberley Extrusions is writing up the shift sheet for the extruder line and needs the effective value of `screw_purge_s` for the line controller as it stands. What is it? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "UNKNOWN"
+      }
+    }
+  ]
+}

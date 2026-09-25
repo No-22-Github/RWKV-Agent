@@ -1,0 +1,35 @@
+{
+  "id": "doc-5028",
+  "description": "Days a wholesaler has to claim for a short delivery from a cheeseworks, from its wholesale claims schedule. DISTILL-CANARY-8d1b40f6",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-doc-periodterms-01",
+    "ref_calls": 2,
+    "fixture_bytes": 401,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Rosedale Cheeseworks - wholesale claims\n\n`claims.csv` lists the deadlines the cheeseworks puts on claims from its wholesale customers, in days from the event the claim is about.\n",
+    "claims.csv": "claim,deadline_days\nShortfall on a delivery,6\nQuality of a vat,18\nReturn of a pallet,30\n",
+    "wholesale-notes.md": "# Wholesale notes\n\nOrders are collected from the dairy by the wholesaler's own vans.\nVat numbers are marked on the rind at pressing.\n"
+  },
+  "turns": [
+    {
+      "prompt": "A wholesaler buying from Rosedale Cheeseworks has been sent fewer cheeses than the order called for and wants to claim for the difference. Within how many days of the delivery must that claim be made? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 6,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

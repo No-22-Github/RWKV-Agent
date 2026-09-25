@@ -1,0 +1,42 @@
+{
+  "id": "code-5030",
+  "description": "Count the call sites of the oyster beds' grade_oyster helper across the beds and trays modules. DISTILL-CANARY-ad913d6e",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "find_callers",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 4
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-code-oystergrade-31",
+    "ref_calls": 3,
+    "fixture_bytes": 710,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "beds/claim.py": "from trays.store import grade_oyster\n\n# Claim the day's crop from the beds.\n\n\ndef claim(crop):\n    grade_oyster(crop)\n    return crop\n",
+    "beds/relay.py": "from trays.store import grade_oyster\n\n# Relay the crop the beds hand over.\n\n\ndef relay(crop):\n    grade_oyster(crop)\n    return crop\n",
+    "trays/counts.py": "from trays.store import grade_oyster, grade_oysters\n\n# Count the crop the trays carry in.\n\n\ndef tally(day, crop):\n    grade_oysters(day)\n    grade_oyster(crop)\n    return len(crop)\n",
+    "trays/store.py": "\"\"\"The grading store for the Corringham oyster beds.\"\"\"\n\nGRADES = {}\nLOTS = {}\n\n\ndef grade_oyster(oyster):\n    GRADES[oyster] = \"graded\"\n    return oyster\n\n\ndef grade_oysters(day):\n    \"\"\"Tag a whole day's crop as one lot.\"\"\"\n    LOTS[day] = True\n    return day\n"
+  },
+  "turns": [
+    {
+      "prompt": "The Corringham oyster beds grade each day's crop by calling grade_oyster. In the beds and trays modules, how many call sites does grade_oyster have? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 3,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

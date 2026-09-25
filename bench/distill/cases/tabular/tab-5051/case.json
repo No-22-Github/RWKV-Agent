@@ -1,0 +1,42 @@
+{
+  "id": "tab-5051",
+  "description": "Largest draw of the current season in a two-season kiln log with a period total. DISTILL-CANARY-379d227b",
+  "category": "tabular",
+  "tags": {
+    "task_type": "rank",
+    "traps": [
+      "TR-HEADER",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-HEADER": 1789.9,
+      "TR-DECOY": 61.4
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-tab-limekiln-01",
+    "ref_calls": 3,
+    "scenario": "tabular",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null,
+    "fixture_bytes": 2164
+  },
+  "web_fixture": [],
+  "files": {
+    "kiln_draws_2025_2026.csv": "draw_id,draw_date,kiln,tonnes\nKD-6100,2025-05-02,No. 2 kiln,22.4\nKD-6101,2025-06-07,No. 1 kiln,36.5\nKD-6102,2025-07-12,No. 2 kiln,43.9\nKD-6103,2025-08-17,No. 1 kiln,22.2\nKD-6104,2025-05-22,No. 2 kiln,20.3\nKD-6105,2025-06-27,No. 1 kiln,22.0\nKD-6106,2025-07-06,No. 2 kiln,32.4\nKD-6107,2025-08-11,No. 1 kiln,37.9\nKD-6108,2025-05-16,No. 2 kiln,24.2\nKD-6109,2025-06-21,No. 1 kiln,61.4\nKD-6110,2025-07-26,No. 2 kiln,19.9\nKD-6111,2025-08-05,No. 1 kiln,29.2\nKD-6112,2025-05-10,No. 2 kiln,33.3\nKD-6113,2025-06-15,No. 1 kiln,43.2\nKD-6114,2025-07-20,No. 2 kiln,33.6\nKD-6115,2025-08-25,No. 1 kiln,30.2\nKD-6116,2025-05-04,No. 2 kiln,20.8\nKD-6117,2025-06-09,No. 1 kiln,42.7\nKD-6118,2025-07-14,No. 2 kiln,42.2\nKD-6119,2025-08-19,No. 1 kiln,34.3\nKD-6120,2025-05-24,No. 2 kiln,38.5\nKD-6121,2025-06-03,No. 1 kiln,33.2\nKD-6122,2025-07-08,No. 2 kiln,39.1\nKD-6123,2025-08-13,No. 1 kiln,24.9\nKD-6124,2025-05-18,No. 2 kiln,41.3\nKD-6125,2025-06-23,No. 1 kiln,27.3\nKD-6126,2025-07-02,No. 2 kiln,40.5\nKD-6127,2025-08-07,No. 1 kiln,30.6\nKD-6128,2026-05-02,No. 2 kiln,28.2\nKD-6129,2026-06-07,No. 1 kiln,32.7\nKD-6130,2026-07-12,No. 2 kiln,41.0\nKD-6131,2026-08-17,No. 1 kiln,18.2\nKD-6132,2026-05-22,No. 2 kiln,33.0\nKD-6133,2026-06-27,No. 1 kiln,41.1\nKD-6134,2026-07-06,No. 2 kiln,31.0\nKD-6135,2026-08-11,No. 1 kiln,27.0\nKD-6136,2026-05-16,No. 2 kiln,19.0\nKD-6137,2026-06-21,No. 1 kiln,25.7\nKD-6138,2026-07-26,No. 2 kiln,24.1\nKD-6139,2026-08-05,No. 1 kiln,21.5\nKD-6140,2026-05-10,No. 2 kiln,48.7\nKD-6141,2026-06-15,No. 1 kiln,31.0\nKD-6142,2026-07-20,No. 2 kiln,31.8\nKD-6143,2026-08-25,No. 1 kiln,29.8\nKD-6144,2026-05-04,No. 2 kiln,38.4\nKD-6145,2026-06-09,No. 1 kiln,39.8\nKD-6146,2026-07-14,No. 2 kiln,38.6\nKD-6147,2026-08-19,No. 1 kiln,38.0\nKD-6148,2026-05-24,No. 2 kiln,30.8\nKD-6149,2026-06-03,No. 1 kiln,22.9\nKD-6150,2026-07-08,No. 2 kiln,20.1\nKD-6151,2026-08-13,No. 1 kiln,23.6\nKD-6152,2026-05-18,No. 2 kiln,30.0\nKD-6153,2026-06-23,No. 1 kiln,35.1\nKD-6154,2026-07-02,No. 2 kiln,41.8\nKD-6155,2026-08-07,No. 1 kiln,19.0\nTOTAL,ALL,ALL,1789.9\n",
+    "README.md": "# Garthorpe Lime Kilns - draw log\n\nOne row per draw; tonnes is the weight drawn from the kiln. The log holds the two most recent seasons, 2025 and 2026.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Garthorpe Lime Kilns reports its largest draw of the season to the kiln insurers. What was the largest single draw of the 2026 season? Give the weight as a number of tonnes. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 48.7,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

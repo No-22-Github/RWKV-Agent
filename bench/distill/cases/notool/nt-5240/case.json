@@ -1,0 +1,42 @@
+{
+  "id": "nt-5240",
+  "description": "Convert 1,275 barrels of landed gas oil to US gallons. DISTILL-CANARY-9ac6788a",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 30.36
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-barrelvol-31",
+    "ref_calls": 0,
+    "fixture_bytes": 352,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "standards/barrel_units.csv": "us_gallon_per_barrel,42\nlitre_per_barrel,158.987\nimperial_gallon_per_barrel,34.9723\n",
+    "discharges/tanker_8825.json": "{\n  \"discharge_ref\": \"V-8825\",\n  \"berth\": 2,\n  \"product\": \"gas oil\",\n  \"barrels_landed\": 1275\n}\n",
+    "README.md": "# Cardew Tank Farm - discharge office\n\nDischarges are booked in barrels from the coaster's figures.\nThe rail loading sheet the terminal sends out is written in US gallons.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Cardew Tank Farm is closing out the discharge of gas oil from the coaster at berth 2. The coaster's figures show 1,275 barrels landed, and a barrel is forty-two US gallons. How many US gallons does the rail loading sheet carry for the discharge? Give the answer as a single number, with no unit in the reply. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 53550,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

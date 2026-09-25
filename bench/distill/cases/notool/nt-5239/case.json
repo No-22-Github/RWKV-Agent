@@ -1,0 +1,42 @@
+{
+  "id": "nt-5239",
+  "description": "Convert a 41 degree Fahrenheit chamber setpoint to degrees Celsius. DISTILL-CANARY-99f24834",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 73.8
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-chillstep-31",
+    "ref_calls": 0,
+    "fixture_bytes": 299,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "standards/temperature_scale.csv": "fahrenheit_step_per_celsius_step,1.8\nfreezing_point_fahrenheit,32\n",
+    "chambers/chamber_setting_5108.txt": "chamber CS-5108\nholds chilled dairy\nsetpoint_fahrenheit 41\n",
+    "README.md": "# Slatebridge Cold Store - chamber office\n\nChamber setpoints are read off the controllers in degrees Fahrenheit.\nThe site log the office keeps is written in degrees Celsius.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Slatebridge Cold Store is logging the setpoint for the chamber that holds the chilled dairy. The controller is set at 41 degrees Fahrenheit. The site log is kept in degrees Celsius, where the ice point is 32 degrees Fahrenheit and a Celsius degree is 1.8 Fahrenheit degrees. What setpoint in degrees Celsius goes into the site log? Give the answer as a single number, with no unit in the reply. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 5,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

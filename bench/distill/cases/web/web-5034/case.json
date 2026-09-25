@@ -1,0 +1,61 @@
+{
+  "id": "web-5034",
+  "description": "Call ceiling on the retired Silverdale v2 tracking feed; the v3 reference gives another figure. DISTILL-CANARY-6e2a97c5",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "deprecation",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": 300
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-web-feedthrottle-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "silverdale",
+      "url": "https://silverdale.example/notices/tracking-v2",
+      "url_match": "silverdale.example/notices/tracking-v2",
+      "title": "Tracking v2 notice - Silverdale Freight",
+      "snippet": "During the notice period the v2 tracking feed is held to 55 calls per minute; it is switched off at the end of the period.",
+      "content": "# Tracking v2 notice\n\nSilverdale Freight, notice published 2026-06-09.\n\nThe v2 tracking feed is switched off at the end of the notice period. While the\nnotice runs the feed still answers, but it is held to 55 calls per minute for\neach account; calls past that ceiling are refused with SD-429.\n\nThe v3 feed is already live and carries no per-account ceiling of this kind.\n",
+      "published_at": "2026-06-09"
+    },
+    {
+      "query_match": "silverdale v3",
+      "url": "https://silverdale.example/reference/tracking-v3",
+      "url_match": "silverdale.example/reference/tracking-v3",
+      "title": "Tracking v3 reference - Silverdale Freight",
+      "snippet": "The v3 tracking feed accepts 300 calls per minute per account.",
+      "content": "# Tracking v3 reference\n\nSilverdale Freight.\n\nThe v3 tracking feed accepts 300 calls per minute per account and answers with\nthe same status set as v2.\n",
+      "published_at": "2026-06-09"
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Our tracker still polls Silverdale's v2 tracking feed while we move it to the new one. How many calls per minute does Silverdale allow on that feed while the notice period runs? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 55,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

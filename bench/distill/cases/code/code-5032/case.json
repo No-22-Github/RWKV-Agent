@@ -1,0 +1,42 @@
+{
+  "id": "code-5032",
+  "description": "Count the tanning-package lines carrying the Brockley Tannery's RACK-HOLD annotation. DISTILL-CANARY-ae3d9efa",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "count_markers",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 5
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-code-rackhold-31",
+    "ref_calls": 3,
+    "fixture_bytes": 728,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "tanning/__init__.py": "# RACK-HOLD: the tanning package holds these lots until the pit change closes\n\"\"\"Tanning package for the Brockley Tannery.\"\"\"\n",
+    "tanning/marks.py": "\"\"\"Annotation marks for the tannery.\n\nA lot is held when the marker is written in a comment on its line. A string\nthat carries the marker is a label, not a hold.\n\"\"\"\n\nMARK = \"RACK-HOLD\"\nTEMPLATE = \"# RACK-HOLD: %s\"\n",
+    "tanning/pits.py": "\"\"\"Pit helpers for the tannery.\"\"\"\nfrom tanning.marks import MARK\n\n# RACK-HOLD: pits keep the mark until the bark liquor is changed\nPITS = {}\n\n\ndef marked(line):\n    return MARK in line\n",
+    "tanning/racks.py": "\"\"\"Rack helpers for the tannery.\"\"\"\nfrom tanning.marks import MARK\n\n# RACK-HOLD: racks keep the mark until the drying loft is cleared\nRACKS = []\n\n\ndef rack_label(lot):\n    return \"RACK-HOLD: %s\" % lot\n"
+  },
+  "turns": [
+    {
+      "prompt": "The Brockley Tannery holds lots on the rack with a RACK-HOLD annotation until the pit change closes. How many lines in the tanning package carry that annotation? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 3,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

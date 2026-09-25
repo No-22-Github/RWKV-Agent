@@ -1,0 +1,68 @@
+{
+  "id": "hyb-5045",
+  "description": "Fill the blank soak in a pottery's firing profile from the clay supplier's note. DISTILL-CANARY-74c3e810",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_edit",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": null
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-soaknote-01",
+    "ref_calls": 4,
+    "fixture_bytes": 340,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [
+    {
+      "query_match": "vennmoor",
+      "url": "https://vennmoor-clay.example/notes/red-stoneware",
+      "url_match": "vennmoor-clay.example/notes/red-stoneware",
+      "title": "Red stoneware firing note - Vennmoor Clay",
+      "snippet": "Vennmoor red stoneware is soaked for 35 minutes at the top of the firing.",
+      "content": "# Red stoneware firing note\n\nVennmoor Clay, issued 12 May 2026.\n\nVennmoor red stoneware is soaked for 35 minutes at the top of the firing. The\nsoak is measured from the moment the controller reaches the top temperature and\ndoes not include the ramp down.\n\nRamps and controller settings come with the kiln and are not part of this note.\n",
+      "published_at": "2026-05-12"
+    },
+    {
+      "query_match": "vennmoor blue",
+      "url": "https://vennmoor-clay.example/notes/blue-stoneware",
+      "url_match": "vennmoor-clay.example/notes/blue-stoneware",
+      "title": "Blue stoneware firing note - Vennmoor Clay",
+      "snippet": "Vennmoor blue stoneware is soaked for 20 minutes at the top of the firing.",
+      "content": "# Blue stoneware firing note\n\nVennmoor Clay, issued 12 May 2026.\n\nVennmoor blue stoneware is soaked for 20 minutes at the top of the firing, with\nthe same ramp down.\n",
+      "published_at": "2026-05-12"
+    }
+  ],
+  "files": {
+    "kiln/firing-profile.csv": "step,value\nclay_body,vennmoor-red\nsoak_minutes,\nramp_c_per_hour,120\n",
+    "README.md": "# Vennmoor Pottery - firing profile\n\nThe profile for each kiln load is held in kiln/firing-profile.csv. The soak for a clay\nbody comes from the clay supplier's note for that body rather than from the kiln\nmanual; the ramp is set by the kiln controller and stays as it is.\n"
+  },
+  "expect": {
+    "files": {
+      "kiln/firing-profile.csv": {
+        "contains": [
+          "step,value\nclay_body,vennmoor-red\nsoak_minutes,35\nramp_c_per_hour,120"
+        ]
+      }
+    },
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Vennmoor Pottery is loading the kiln with a batch of red stoneware and the soak on the load's firing profile is still empty. Fill in the soak the clay supplier's note gives for the body named in the profile. When finished, reply DONE.",
+      "expect": {}
+    }
+  ]
+}

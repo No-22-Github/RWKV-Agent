@@ -1,0 +1,36 @@
+{
+  "id": "log-5028",
+  "description": "Read the temperature from the single alarm line of one day of a mushroom farm's room controller journal. DISTILL-CANARY-2c7f4a91",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "locate_error",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-log-roomclimate-31",
+    "ref_calls": 2,
+    "fixture_bytes": 1025,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Pennerley Mushroom Farm - room controller\n\nThe farm grows its crop in one climate-controlled room. The controller appends\na line to logs/room-climate.log for every event it handles:\n\n    <UTC time> <event> ...\n\nLOAD records a trolley of trays being wheeled into the room and the trolley's\nnumber. MIST records a misting cycle and the seconds it ran. VENT records the\nminutes a vent cycle was held open. ALARM is written once, when the room drifts\nout of band, and records the temperature the room probe read at that moment.\nThe journal is closed with a line whose count covers every event line above it.\n",
+    "logs/room-climate.log": "2026-09-24T05:41:07Z BOOT controller v3.8\n2026-09-24T06:02:19Z LOAD trolley=3 stage=colonisation\n2026-09-24T06:47:33Z MIST seconds=45\n2026-09-24T07:15:26Z LOAD trolley=7 stage=fruiting\n2026-09-24T07:58:41Z MIST seconds=38\n2026-09-24T08:23:05Z VENT minutes=6\n2026-09-24T09:06:29Z LOAD trolley=9 stage=fruiting\n2026-09-24T09:44:17Z MIST seconds=52\n2026-09-24T10:18:53Z ALARM temp=31.4\n2026-09-24T10:21:39Z CLOSE events=9\n"
+  },
+  "turns": [
+    {
+      "prompt": "Pennerley Mushroom Farm grows its crop in a single climate-controlled room whose controller keeps a journal of everything it handles. The journal for 24 September 2026 covers one day of trolleys being wheeled in, the misting and venting between them and the one alarm that took the room out of band. Which temperature, in degrees Celsius, does the alarm line record? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 31.4,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

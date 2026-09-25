@@ -1,0 +1,41 @@
+{
+  "id": "web-5027",
+  "description": "Notice period before Emberton stops accepting v1 signed calls. DISTILL-CANARY-19d6e3aa",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "deprecation",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-web-signretire-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "emberton",
+      "url": "https://docs.emberton.example/migrations/v1-signing",
+      "url_match": "docs.emberton.example/migrations/v1-signing",
+      "title": "V1 signing retirement - Emberton Identity",
+      "snippet": "The v1 signing notice goes out 165 days before v1 requests stop being accepted.",
+      "content": "# V1 signing retirement\n\nEmberton Identity, notice published 2026-03-11.\n\nV1 request signing stops answering on 2026-08-23. The notice goes out 165 days\nbefore that date, so integrators have two quarters to move to the v2 scheme.\nCalls signed with v1 after the stop date are refused with EM-907; calls signed\nwith v2 are unaffected and need no header changes.\n",
+      "published_at": "2026-03-11"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "Emberton's v1 signing scheme is on its way out and our compliance review needs the notice period. How many days before the scheme stops answering does Emberton publish the notice? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 165,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

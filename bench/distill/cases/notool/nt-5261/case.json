@@ -1,0 +1,40 @@
+{
+  "id": "nt-5261",
+  "description": "Accession series field notebooks are entered under. DISTILL-CANARY-90ee677b",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "stable_fact",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "GS-02"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-archive-series-33",
+    "ref_calls": 1,
+    "fixture_bytes": 521,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:deepseek-v4.1-flash",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "collections/series-index.txt": "field notebooks = FN-15\nmineral specimens = GS-02\nphotographic plates = PP-08\nexcavation plans = EP-31\n",
+    "README.md": "# Rookhurst Museum - collections workspace\n\nWorking area for the collections team.\n\n- collections/  the accession series each object class is registered under\n\nThe accession series of an object class is fixed by the registration scheme and the index is edited in place, so a class is never registered under two series. Entries are kept in the order the series were opened. Last reviewed 2026-05-21, reference RM-1184.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Rookhurst Museum is accessioning a set of field notebooks and the register needs the series code they are entered under. Which code is it? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "FN-15",
+        "tools": []
+      }
+    }
+  ]
+}

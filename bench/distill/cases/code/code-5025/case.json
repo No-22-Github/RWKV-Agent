@@ -1,0 +1,34 @@
+{
+  "id": "code-5025",
+  "description": "Count the checks the wheelwright's night run recorded as passed. DISTILL-CANARY-fe714867",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "report_test_result",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-code-wheelcheck-31",
+    "ref_calls": 2,
+    "fixture_bytes": 612,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "checks/wheelchecks.py": "\"\"\"Write the nightly wheel check verdict for Deepdale Wheelwrights to runs/.\"\"\"\nimport os\n\nRESULTS = [(\"spoke_gauge\", \"passed\", 4), (\"felly_ring\", \"skipped\", 0),\n           (\"hub_bore\", \"passed\", 7), (\"tenon_fit\", \"skipped\", 0),\n           (\"tyre_shrink\", \"passed\", 12)]\n\n\ndef main():\n    os.makedirs(\"runs\", exist_ok=True)\n    with open(os.path.join(\"runs\", \"last.txt\"), \"w\") as handle:\n        for name, outcome, seconds in RESULTS:\n            handle.write(\"%s %s %d\\n\" % (name, outcome, seconds))\n\n\nmain()\n",
+    "runs/last.txt": "spoke_gauge passed 4\nfelly_ring skipped 0\nhub_bore passed 7\ntenon_fit skipped 0\ntyre_shrink passed 12\n"
+  },
+  "turns": [
+    {
+      "prompt": "The night check run at Deepdale Wheelwrights leaves its verdict in runs/last.txt. How many of the checks in that run came out passed? Give the answer as a single number, with no unit in the reply. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 3,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

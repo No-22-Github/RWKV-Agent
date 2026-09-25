@@ -1,0 +1,42 @@
+{
+  "id": "nt-5226",
+  "description": "Explain how a sponge is scaled back from its water and give the flour it takes. DISTILL-CANARY-f1f4f8c5",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 10.14
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L2",
+    "family": "fam-nt-bakerspec-34",
+    "ref_calls": 0,
+    "fixture_bytes": 275,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "batches/sponge_cards.csv": "batch,water_kg,hydration_pct\nRye sponge,15.6,65\n",
+    "batches/proof_notes.txt": "The prover is checked before the first bake.\nSponges rest overnight in the cool room.\n",
+    "README.md": "# Beckside Bakehouse - production\n\nShared folder for the bench.\n\n- batches/  cards for each dough\n- starters/  feeding notes from the bakery\n"
+  },
+  "turns": [
+    {
+      "prompt": "A baker at Beckside Bakehouse is scaling a sponge back from the water already in the bowl; every ingredient on a dough card is a share of the flour weight, so 65 percent hydration is the water weighed in alongside each 100 of flour. The rye sponge has 15.6 kilograms of water in at 65 percent hydration. Give the flour the sponge takes, as a single number in kilograms with no unit in the reply. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 24.0,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "id": "nt-5277",
+  "description": "Give the flag that reads the log of the container instance that died. DISTILL-CANARY-a4d20f37",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "kubectl logs --follow"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-podfield-43",
+    "ref_calls": 0,
+    "fixture_bytes": 376,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "deploys/instance-logs.tsv": "read-the-instance-that-died\tkubectl logs --previous\tlogs --previous|--previous\nread-the-instance-that-is-live\tkubectl logs --follow\tstreams as it writes\n",
+    "README.md": "# Thistlefen Tileworks - press controller\n\nThe press controller container restarts by itself whenever the feed jams, and the crew reads its log after the restart.\nThe flags they use are carded in deploys/instance-logs.tsv.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The press controller at Thistlefen Tileworks restarts by itself whenever the feed jams, and by the time the crew looks the container is running again, so its log only shows what happened after the jam. Give the flag that makes the log command read what the previous instance of that container wrote before it died. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "kubectl logs --previous",
+          "logs --previous",
+          "--previous"
+        ]
+      }
+    }
+  ]
+}

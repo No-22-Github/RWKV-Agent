@@ -1,0 +1,40 @@
+{
+  "id": "nt-5267",
+  "description": "Post accountable for the playground equipment check. DISTILL-CANARY-3c1bad33",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "stable_fact",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "Site Supervisor"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-duty-post-35",
+    "ref_calls": 1,
+    "fixture_bytes": 542,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:deepseek-v4.1-flash",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "duties/post-responsibilities.txt": "playground equipment check = Premises Technician\nlock-up at night = Site Supervisor\nfirst aid kit restock = Welfare Assistant\nlost property handover = Office Manager\n",
+    "README.md": "# Fawley Bridge Primary School - site workspace\n\nWorking area for the school office.\n\n- duties/  the post accountable for each recurring duty\n\nEach recurring duty sits with one post and the list is edited in place, so a duty is never shared between two posts. Entries are kept in the order the duties were added to the site plan. Last reviewed 2025-12-20, reference FBP-1156.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Fawley Bridge Primary School is updating its site plan and the playground equipment check has to name the post accountable for it. Which post is that? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "Premises Technician",
+        "tools": []
+      }
+    }
+  ]
+}

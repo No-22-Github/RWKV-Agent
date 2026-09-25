@@ -1,0 +1,41 @@
+{
+  "id": "nt-5227",
+  "description": "Explain an Erlang on a trunk loading sheet and give one group's traffic. DISTILL-CANARY-3058e9b4",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 342.0
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-erlangload-35",
+    "ref_calls": 0,
+    "fixture_bytes": 222,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "groups/trunk_loading.csv": "group,speech_minutes_per_hour,channels\nT-19,342,7\n",
+    "README.md": "# Fellgate Radio Dispatch - trunked groups\n\nShared folder for the control room.\n\n- groups/  loading sheets for each talk group\n- masts/  coverage notes from the field team\n"
+  },
+  "turns": [
+    {
+      "prompt": "A controller new to Fellgate Radio Dispatch asked what an Erlang is on a trunk loading sheet; it is one channel busy for a full hour, so the traffic a group carries is its speech minutes in the hour divided by sixty. Group T-19 carries 342 speech minutes in the busy hour across its 7 channels. Give the traffic that group carries, as a single number in Erlangs with no unit in the reply. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 5.7,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

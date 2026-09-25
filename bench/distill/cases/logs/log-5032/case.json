@@ -1,0 +1,40 @@
+{
+  "id": "log-5032",
+  "description": "Total one belt's tonnage on one of the two production days in a quarry crushing journal. DISTILL-CANARY-7f4c81aa",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "aggregate_jsonl",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 6555
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-crushertonnes-31",
+    "ref_calls": 3,
+    "fixture_bytes": 4157,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Bolehill Quarry - crusher throughput journal\n\nEach lorry load put over a belt at the quarry's crushing plant is appended to\nlogs/crusher-throughput.jsonl as one record: `ts` is when the load was weighed,\n`day` is the production day the load counts towards, `belt` names the belt the\nload went over and `tonnes` is the weight of stone on that load. The plant runs\ntwo belts on different stone sizes. The export in the workspace covers two\nproduction days.\n",
+    "logs/crusher-throughput.jsonl": "{\"ts\":\"2026-08-03T06:11:07Z\",\"day\":\"2026-08-03\",\"belt\":\"B1\",\"tonnes\":248}\n{\"ts\":\"2026-08-03T06:24:41Z\",\"day\":\"2026-08-03\",\"belt\":\"B2\",\"tonnes\":218}\n{\"ts\":\"2026-08-03T06:38:52Z\",\"day\":\"2026-08-03\",\"belt\":\"B1\",\"tonnes\":262}\n{\"ts\":\"2026-08-03T06:59:13Z\",\"day\":\"2026-08-03\",\"belt\":\"B2\",\"tonnes\":232}\n{\"ts\":\"2026-08-03T07:14:29Z\",\"day\":\"2026-08-03\",\"belt\":\"B1\",\"tonnes\":236}\n{\"ts\":\"2026-08-03T07:31:58Z\",\"day\":\"2026-08-03\",\"belt\":\"B2\",\"tonnes\":205}\n{\"ts\":\"2026-08-03T07:47:03Z\",\"day\":\"2026-08-03\",\"belt\":\"B1\",\"tonnes\":274}\n{\"ts\":\"2026-08-03T08:04:27Z\",\"day\":\"2026-08-03\",\"belt\":\"B2\",\"tonnes\":247}\n{\"ts\":\"2026-08-03T08:21:44Z\",\"day\":\"2026-08-03\",\"belt\":\"B1\",\"tonnes\":255}\n{\"ts\":\"2026-08-03T08:39:52Z\",\"day\":\"2026-08-03\",\"belt\":\"B2\",\"tonnes\":226}\n{\"ts\":\"2026-08-03T08:56:18Z\",\"day\":\"2026-08-03\",\"belt\":\"B1\",\"tonnes\":229}\n{\"ts\":\"2026-08-03T09:12:36Z\",\"day\":\"2026-08-03\",\"belt\":\"B2\",\"tonnes\":214}\n{\"ts\":\"2026-08-03T09:33:07Z\",\"day\":\"2026-08-03\",\"belt\":\"B1\",\"tonnes\":268}\n{\"ts\":\"2026-08-03T09:48:19Z\",\"day\":\"2026-08-03\",\"belt\":\"B2\",\"tonnes\":239}\n{\"ts\":\"2026-08-03T10:08:41Z\",\"day\":\"2026-08-03\",\"belt\":\"B1\",\"tonnes\":241}\n{\"ts\":\"2026-08-03T10:25:53Z\",\"day\":\"2026-08-03\",\"belt\":\"B2\",\"tonnes\":208}\n{\"ts\":\"2026-08-03T10:44:26Z\",\"day\":\"2026-08-03\",\"belt\":\"B1\",\"tonnes\":253}\n{\"ts\":\"2026-08-03T11:02:47Z\",\"day\":\"2026-08-03\",\"belt\":\"B2\",\"tonnes\":231}\n{\"ts\":\"2026-08-03T11:19:53Z\",\"day\":\"2026-08-03\",\"belt\":\"B1\",\"tonnes\":277}\n{\"ts\":\"2026-08-03T11:41:12Z\",\"day\":\"2026-08-03\",\"belt\":\"B2\",\"tonnes\":245}\n{\"ts\":\"2026-08-03T11:58:32Z\",\"day\":\"2026-08-03\",\"belt\":\"B1\",\"tonnes\":234}\n{\"ts\":\"2026-08-03T12:19:38Z\",\"day\":\"2026-08-03\",\"belt\":\"B2\",\"tonnes\":212}\n{\"ts\":\"2026-08-03T12:37:09Z\",\"day\":\"2026-08-03\",\"belt\":\"B1\",\"tonnes\":260}\n{\"ts\":\"2026-08-03T12:58:04Z\",\"day\":\"2026-08-03\",\"belt\":\"B2\",\"tonnes\":224}\n{\"ts\":\"2026-08-03T13:15:44Z\",\"day\":\"2026-08-03\",\"belt\":\"B1\",\"tonnes\":246}\n{\"ts\":\"2026-08-04T06:09:38Z\",\"day\":\"2026-08-04\",\"belt\":\"B1\",\"tonnes\":257}\n{\"ts\":\"2026-08-04T06:17:44Z\",\"day\":\"2026-08-04\",\"belt\":\"B2\",\"tonnes\":209}\n{\"ts\":\"2026-08-04T06:44:21Z\",\"day\":\"2026-08-04\",\"belt\":\"B1\",\"tonnes\":243}\n{\"ts\":\"2026-08-04T06:52:09Z\",\"day\":\"2026-08-04\",\"belt\":\"B2\",\"tonnes\":234}\n{\"ts\":\"2026-08-04T07:18:53Z\",\"day\":\"2026-08-04\",\"belt\":\"B1\",\"tonnes\":266}\n{\"ts\":\"2026-08-04T07:26:38Z\",\"day\":\"2026-08-04\",\"belt\":\"B2\",\"tonnes\":221}\n{\"ts\":\"2026-08-04T07:53:26Z\",\"day\":\"2026-08-04\",\"belt\":\"B1\",\"tonnes\":231}\n{\"ts\":\"2026-08-04T08:01:12Z\",\"day\":\"2026-08-04\",\"belt\":\"B2\",\"tonnes\":246}\n{\"ts\":\"2026-08-04T08:28:07Z\",\"day\":\"2026-08-04\",\"belt\":\"B1\",\"tonnes\":249}\n{\"ts\":\"2026-08-04T08:36:47Z\",\"day\":\"2026-08-04\",\"belt\":\"B2\",\"tonnes\":213}\n{\"ts\":\"2026-08-04T09:03:41Z\",\"day\":\"2026-08-04\",\"belt\":\"B1\",\"tonnes\":272}\n{\"ts\":\"2026-08-04T09:11:23Z\",\"day\":\"2026-08-04\",\"belt\":\"B2\",\"tonnes\":228}\n{\"ts\":\"2026-08-04T09:39:18Z\",\"day\":\"2026-08-04\",\"belt\":\"B1\",\"tonnes\":237}\n{\"ts\":\"2026-08-04T09:46:58Z\",\"day\":\"2026-08-04\",\"belt\":\"B2\",\"tonnes\":240}\n{\"ts\":\"2026-08-04T10:14:52Z\",\"day\":\"2026-08-04\",\"belt\":\"B1\",\"tonnes\":258}\n{\"ts\":\"2026-08-04T10:22:31Z\",\"day\":\"2026-08-04\",\"belt\":\"B2\",\"tonnes\":217}\n{\"ts\":\"2026-08-04T10:49:33Z\",\"day\":\"2026-08-04\",\"belt\":\"B1\",\"tonnes\":244}\n{\"ts\":\"2026-08-04T10:57:06Z\",\"day\":\"2026-08-04\",\"belt\":\"B2\",\"tonnes\":235}\n{\"ts\":\"2026-08-04T11:24:07Z\",\"day\":\"2026-08-04\",\"belt\":\"B1\",\"tonnes\":269}\n{\"ts\":\"2026-08-04T11:32:44Z\",\"day\":\"2026-08-04\",\"belt\":\"B2\",\"tonnes\":222}\n{\"ts\":\"2026-08-04T11:59:41Z\",\"day\":\"2026-08-04\",\"belt\":\"B1\",\"tonnes\":233}\n{\"ts\":\"2026-08-04T12:08:19Z\",\"day\":\"2026-08-04\",\"belt\":\"B2\",\"tonnes\":248}\n{\"ts\":\"2026-08-04T12:35:18Z\",\"day\":\"2026-08-04\",\"belt\":\"B1\",\"tonnes\":251}\n{\"ts\":\"2026-08-04T12:43:52Z\",\"day\":\"2026-08-04\",\"belt\":\"B2\",\"tonnes\":211}\n{\"ts\":\"2026-08-04T13:10:52Z\",\"day\":\"2026-08-04\",\"belt\":\"B1\",\"tonnes\":262}\n"
+  },
+  "turns": [
+    {
+      "prompt": "Bolehill Quarry's crushing plant puts every lorry load over one of its two belts and keeps a journal of the loads. The output return for August 2026 needs the tonnage that went over belt B1 on 3 August 2026. How many tonnes was it? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 3283,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

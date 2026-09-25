@@ -1,0 +1,46 @@
+{
+  "id": "scr-5012",
+  "description": "Write the bookshop's daybook script so the till exports print as a day-by-day sheet. DISTILL-CANARY-4f620967",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "write_new",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-scr-shoptill-31",
+    "ref_calls": 2,
+    "fixture_bytes": 1087,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "daybook.py": "\"\"\"Print the takings daybook for the Netherfield Bookshop.\n\nThe till writes one export per month to tills/, a JSON object with a \"sales\"\nlist whose entries carry sold_at, section and pence. Print one line per day in\ndate order, then a totals line:\n\n    <date>,<sales>,<pence>\n    TOTAL,<sales>,<pence>\n\n<date> is the first ten characters of sold_at, <sales> counts that day's sales\nand <pence> adds up their pence.\n\"\"\"\n\nif __name__ == \"__main__\":\n    raise SystemExit(\"the daybook is not written yet\")\n",
+    "tills/2026-09.json": "{\n  \"shop\": \"Netherfield Bookshop\",\n  \"sales\": [\n    {\"sold_at\": \"2026-09-04T10:15:00\", \"section\": \"fiction\", \"pence\": 780},\n    {\"sold_at\": \"2026-09-04T14:40:00\", \"section\": \"maps\", \"pence\": 1250},\n    {\"sold_at\": \"2026-09-12T11:05:00\", \"section\": \"poetry\", \"pence\": 540},\n    {\"sold_at\": \"2026-09-19T15:30:00\", \"section\": \"fiction\", \"pence\": 910},\n    {\"sold_at\": \"2026-09-19T16:20:00\", \"section\": \"maps\", \"pence\": 430}\n  ]\n}\n",
+    "README.md": "# Netherfield Bookshop - till exports\n\nThe till writes one export per month to tills/, and the counter staff take the\ndaybook off the printer every evening.\n"
+  },
+  "expect": {
+    "files": {
+      "tills/2026-09.json": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "daybook.py",
+      "expected_stdout": "2026-09-04,2,2030\n2026-09-12,1,540\n2026-09-19,2,1340\n2026-10-02,1,620\n2026-10-11,1,1180\nTOTAL,7,5710",
+      "hidden_files": {
+        "tills/2026-10.json": "{\n  \"shop\": \"Netherfield Bookshop\",\n  \"sales\": [\n    {\"sold_at\": \"2026-10-02T09:55:00\", \"section\": \"poetry\", \"pence\": 620},\n    {\"sold_at\": \"2026-10-11T13:10:00\", \"section\": \"fiction\", \"pence\": 1180}\n  ]\n}\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The daybook the counter staff take off the printer has gone blank: daybook.py holds only the notes for it, and the till's monthly exports are piling up in tills/. Please write daybook.py so the daybook prints as the shop has always had it, and so it keeps working as the later monthly exports land in tills/. When finished, reply DONE.",
+      "expect": {}
+    }
+  ]
+}

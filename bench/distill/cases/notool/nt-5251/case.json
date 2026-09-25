@@ -1,0 +1,42 @@
+{
+  "id": "nt-5251",
+  "description": "Read a B4E burner controller address as a denary number. DISTILL-CANARY-36b40d50",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 1154
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-burneraddr-31",
+    "ref_calls": 0,
+    "fixture_bytes": 307,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "standards/hex_weights.csv": "2,256\n1,16\n0,1\n",
+    "panels/controller_code_5531.txt": "burner BH-5531\nsite Hopefield Mill\ncontroller_address B4E\n",
+    "README.md": "# Cinderton Heat Services - commissioning\n\nBurner controllers are addressed on a three-digit keypad, read as hexadecimal digits\nwith the highest digit first.\nThe site register at each plant holds the same addresses as denary numbers.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Cinderton Heat Services is commissioning the burner at its Hopefield Mill site. The controller's address is set on the keypad as B4E, read as three hexadecimal digits with the highest digit first. The site register holds each address as a denary number. What address goes on the register? Give the answer as a single number, with no unit in the reply. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 2894,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

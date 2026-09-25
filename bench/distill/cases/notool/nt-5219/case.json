@@ -1,0 +1,41 @@
+{
+  "id": "nt-5219",
+  "description": "Explain a board foot on a timber cutting list and give one beam's volume. DISTILL-CANARY-78ff064b",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 180.0
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-boardfoot-31",
+    "ref_calls": 0,
+    "fixture_bytes": 223,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "timber/plank_schedule.csv": "item,thickness_in,width_in,length_ft\nDeck beam,1.5,7.5,16\n",
+    "README.md": "# Marlbrook Timber - yard stock\n\nShared folder for the sawmill office.\n\n- timber/  schedules for the cutting list\n- orders/  collection notes from the trade counter\n"
+  },
+  "turns": [
+    {
+      "prompt": "A sawyer new to the counter at Marlbrook Timber asked what a board foot is; it is the volume of a square foot of board one inch thick, which is how the trade quotes sawn timber. The deck beam on the cutting list is 1.5 inches thick, 7.5 inches wide and 16 feet long. Give its volume, as a single number in board feet with no unit in the reply. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 15.0,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

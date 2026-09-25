@@ -1,0 +1,41 @@
+{
+  "id": "tab-5047",
+  "description": "Intake charge for one grower under terms with a clause for heavy loads. DISTILL-CANARY-e9ab5618",
+  "category": "tabular",
+  "tags": {
+    "task_type": "policy_calc",
+    "traps": [
+      "TR-RULEFILE"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": 1099.84
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-tab-beetintake-01",
+    "ref_calls": 3,
+    "scenario": "tabular",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null,
+    "fixture_bytes": 2426
+  },
+  "web_fixture": [],
+  "files": {
+    "beet_intake_2026-10.csv": "load_id,delivery_date,grower,tonnes\nBI-6601,2026-10-01,Dunragit Farms,26.7\nBI-6602,2026-10-06,Dunragit Farms,15.4\nBI-6603,2026-10-11,Dunragit Farms,19.0\nBI-6604,2026-10-16,Dunragit Farms,24.9\nBI-6605,2026-10-21,Dunragit Farms,29.8\nBI-6606,2026-10-26,Dunragit Farms,26.7\nBI-6607,2026-10-03,Dunragit Farms,13.8\nBI-6608,2026-10-08,Dunragit Farms,15.5\nBI-6609,2026-10-13,Dunragit Farms,19.4\nBI-6610,2026-10-18,Dunragit Farms,20.4\nBI-6611,2026-10-23,Dunragit Farms,12.1\nBI-6612,2026-10-28,Dunragit Farms,32.1\nBI-6613,2026-10-05,Dunragit Farms,18.9\nBI-6614,2026-10-10,Dunragit Farms,16.7\nBI-6615,2026-10-15,Dunragit Farms,19.3\nBI-6616,2026-10-20,Dunragit Farms,18.9\nBI-6617,2026-10-25,Dunragit Farms,14.1\nBI-6618,2026-10-03,Willoughby Estate,17.9\nBI-6619,2026-10-08,Willoughby Estate,20.4\nBI-6620,2026-10-13,Willoughby Estate,24.8\nBI-6621,2026-10-18,Willoughby Estate,26.3\nBI-6622,2026-10-23,Willoughby Estate,19.0\nBI-6623,2026-10-28,Willoughby Estate,21.0\nBI-6624,2026-10-05,Willoughby Estate,13.5\nBI-6625,2026-10-10,Willoughby Estate,25.9\nBI-6626,2026-10-15,Willoughby Estate,19.7\nBI-6627,2026-10-20,Willoughby Estate,13.6\nBI-6628,2026-10-25,Willoughby Estate,23.6\nBI-6629,2026-10-02,Willoughby Estate,25.4\nBI-6630,2026-10-07,Willoughby Estate,16.4\nBI-6631,2026-10-12,Willoughby Estate,26.0\nBI-6632,2026-10-17,Willoughby Estate,21.8\nBI-6633,2026-10-22,Willoughby Estate,26.4\nBI-6634,2026-10-27,Willoughby Estate,16.1\nBI-6635,2026-10-05,Sandwick Growers,22.0\nBI-6636,2026-10-10,Sandwick Growers,26.1\nBI-6637,2026-10-15,Sandwick Growers,26.3\nBI-6638,2026-10-20,Sandwick Growers,15.5\nBI-6639,2026-10-25,Sandwick Growers,26.1\nBI-6640,2026-10-02,Sandwick Growers,23.0\nBI-6641,2026-10-07,Sandwick Growers,26.7\nBI-6642,2026-10-12,Sandwick Growers,14.8\nBI-6643,2026-10-17,Sandwick Growers,11.7\nBI-6644,2026-10-22,Sandwick Growers,26.1\nBI-6645,2026-10-27,Sandwick Growers,27.1\nBI-6646,2026-10-04,Sandwick Growers,18.1\nBI-6647,2026-10-09,Sandwick Growers,25.8\nBI-6648,2026-10-14,Sandwick Growers,21.3\nBI-6649,2026-10-19,Sandwick Growers,16.5\nBI-6650,2026-10-24,Sandwick Growers,23.0\nBI-6651,2026-10-01,Sandwick Growers,22.0\n",
+    "intake_terms.md": "# Ruskington Beet Slicers - intake charges\n\nIntake is charged at 3.20 pounds a tonne of beet delivered.\n\nA load of more than 28 tonnes is charged at half the rate on the whole load.\n",
+    "README.md": "# Ruskington Beet Slicers - beet intake, October 2026\n\nOne row per load; tonnes is the weight of the load at the factory weighbridge.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Ruskington Beet Slicers bills its growers for the beet it takes in. What is the intake charge for the loads Dunragit Farms delivered in October 2026? Give the amount as a number of pounds and pence. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 1000.8,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

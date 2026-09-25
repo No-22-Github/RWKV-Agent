@@ -1,0 +1,61 @@
+{
+  "id": "web-5031",
+  "description": "Notice period the Sedgebrook v9 contact importer keeps running; the report notice differs. DISTILL-CANARY-a06f2d74",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "deprecation",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": 220
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-web-importerdays-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "sedgebrook",
+      "url": "https://sedgebrook.example/notices/contact-importer-v9",
+      "url_match": "sedgebrook.example/notices/contact-importer-v9",
+      "title": "Contact importer v9 notice - Sedgebrook CRM",
+      "snippet": "The v9 contact importer keeps accepting uploads for 145 days from this notice, then it is switched off.",
+      "content": "# Contact importer v9 notice\n\nSedgebrook CRM, notice published 2026-08-24.\n\nThe v9 contact importer keeps accepting uploads for 145 days from this notice\nand is then switched off. After the switch-off, uploads sent to it are refused\nwith SB-8802 and only the v10 importer takes them.\n\nThe notice period runs from the publication date above and is not extended for\naccounts that migrate late. Mapping notes for the v10 column layout sit further\ndown the same page.\n",
+      "published_at": "2026-08-24"
+    },
+    {
+      "query_match": "sedgebrook report endpoints",
+      "url": "https://sedgebrook.example/notices/report-endpoints-v9",
+      "url_match": "sedgebrook.example/notices/report-endpoints-v9",
+      "title": "Report endpoint retirement - Sedgebrook CRM",
+      "snippet": "The v9 report endpoints keep answering for 220 days from their own notice.",
+      "content": "# Report endpoint retirement\n\nSedgebrook CRM, notice published 2026-08-24.\n\nThe v9 report endpoints keep answering for 220 days from this notice. Both\nnotices were published on the same day and run on separate clocks.\n",
+      "published_at": "2026-08-24"
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Our onboarding team still loads contacts through Sedgebrook's v9 contact importer. How many days after the notice does that importer keep accepting uploads? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 145,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "id": "code-5031",
+  "description": "Count the call sites of the boatyard's check_trim helper across the decks and hulls modules. DISTILL-CANARY-08f3cc59",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "find_callers",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 2
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-code-hulltrim-31",
+    "ref_calls": 3,
+    "fixture_bytes": 602,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "decks/rail.py": "from stores.trim import check_trim as trim\n\n# Check the trim on the rails the deck hands fit.\n\n\ndef rail(beam):\n    trim(beam)\n    return beam\n",
+    "hulls/faired.py": "from stores.trim import check_trim\n\n# Fair the hulls before the trim check goes on.\n\n\ndef faired(hull, keel):\n    check_trim(hull)\n    check_trim(keel)\n    return hull\n",
+    "hulls/lines.py": "from stores.trim import check_trim as trim\n\n# Run the lines the drawing office keeps.\n\n\ndef lines(hull, waterline):\n    trim(hull)\n    trim(waterline)\n    return hull\n",
+    "stores/trim.py": "\"\"\"Trim checks for the Sandsend boatyard.\"\"\"\n\nTRIMMED = []\n\n\ndef check_trim(part):\n    TRIMMED.append(part)\n    return part\n"
+  },
+  "turns": [
+    {
+      "prompt": "The Sandsend boatyard checks every part's trim by calling check_trim. In the decks and hulls modules, how many call sites does check_trim have? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 5,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

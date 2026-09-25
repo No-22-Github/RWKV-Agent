@@ -1,0 +1,36 @@
+{
+  "id": "fs-5023",
+  "description": "Count the fleeces that were skirted on an alpaca stud's herd register. DISTILL-CANARY-082b263b",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "count_by_type",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-fs-fleeceroll-01",
+    "ref_calls": 2,
+    "fixture_bytes": 788,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "Cobble Hey Alpaca Stud - herd register\n\nWork done with the herd is entered on the register as it happens, one line\nfor each visit, by whoever was in the pen that day. No line is entered for\ntwo animals at once.\n",
+    "fleece-register.txt": "20 May - Bracken - fleece skirted and boxed - 3.1 kg\n21 May - Bramble - fleece skirted and boxed - 2.6 kg\n22 May - Tansy - weigh-in only - 61.4 kg\n26 May - Clover - fleece skirted and boxed - 2.9 kg\n28 May - Bracken - weigh-in only - 63.8 kg\n02 Jun - Sorrel - fleece skirted and boxed - 3.4 kg\n05 Jun - Tansy - weigh-in only - 62.1 kg\n09 Jun - Bramble - fleece skirted and boxed - 2.2 kg\n12 Jun - Juniper - weigh-in only - 58.9 kg\n16 Jun - Sorrel - fleece skirted and boxed - 3.0 kg\n19 Jun - Clover - weigh-in only - 60.3 kg\n23 Jun - Juniper - hoof trim and weigh-in - 59.6 kg\n"
+  },
+  "turns": [
+    {
+      "prompt": "Cobble Hey Alpaca Stud is making up the show entry list and needs the number of fleeces that were skirted, as the herd register records them. How many were there? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 6,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

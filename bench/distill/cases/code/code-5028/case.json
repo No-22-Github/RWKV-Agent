@@ -1,0 +1,43 @@
+{
+  "id": "code-5028",
+  "description": "Count the call sites of the umbrella workshop's fit_canopy helper across the frames and spars modules. DISTILL-CANARY-9323102c",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "find_callers",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 5
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-code-canopyfit-31",
+    "ref_calls": 3,
+    "fixture_bytes": 801,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "frames/assembly.py": "from stretchers.store import fit_canopy\n\n# Assemble the frame the bench passes over.\n\n\ndef assemble(frame):\n    fit_canopy(frame)\n    return frame\n",
+    "frames/runner.py": "from stretchers.store import fit_canopy\n\n# Run the frames down the bench in order.\nRUN_ORDER = (\"ribs\", \"runner\", \"tip\")\n\n\ndef run_frame(frame, spare):\n    fit_canopy(frame)\n    fit_canopy(spare)\n    return RUN_ORDER\n",
+    "spars/relay.py": "from stretchers.store import fit_canopy\n\n# Relay the spars the frames leave behind.\n\n\ndef relay(spar):\n    fit_canopy(spar)\n    return spar\n",
+    "stretchers/store.py": "\"\"\"The canopy store for the Nailsworth umbrella workshop.\"\"\"\n\nFITTED = {}\n\n\ndef fit_canopy(frame):\n    FITTED[frame] = True\n    return frame\n",
+    "trolleys/rivet.py": "from stretchers.store import fit_canopy\n\n# Rivet the trolley frames before they reach the bench.\n\n\ndef rivet(frame):\n    fit_canopy(frame)\n    return frame\n"
+  },
+  "turns": [
+    {
+      "prompt": "The Nailsworth umbrella workshop fits every canopy by calling fit_canopy. In the frames and spars modules, how many call sites does fit_canopy have? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 4,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

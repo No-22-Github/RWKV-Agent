@@ -1,0 +1,65 @@
+{
+  "id": "hyb-5042",
+  "description": "Call-out fee on a heating firm's rate card, which carries a weekday and a weekend column. DISTILL-CANARY-37fe58b4",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 48
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-twotariffs-01",
+    "ref_calls": 2,
+    "fixture_bytes": 279,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "rates/callout-card.csv": "item,weekday,weekend\ncallout_fee,48,72\nhourly_rate,32,45\nparts_markup_percent,20,20\n",
+    "README.md": "# Larchmoor Heating - rate card\n\nThe card carries a weekday column and a weekend column; the office picks the column\nthat matches the visit before a job is quoted. One row for each item charged.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Larchmoor Heating is reissuing its rates to the letting agents. What is the call-out fee?",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ]
+      }
+    },
+    {
+      "prompt": "The weekend rate. Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 72,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

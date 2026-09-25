@@ -1,0 +1,40 @@
+{
+  "id": "doc-5026",
+  "description": "Notice period for cancelling a cattery place at a boarding kennels, a service its booking schedule does not cover. DISTILL-CANARY-b69e02d7",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": 14
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-doc-periodterms-01",
+    "ref_calls": 2,
+    "fixture_bytes": 517,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Apperley Bridge Kennels and Cattery - booking periods\n\n`periods.csv` lists the notice periods the kennels apply to a kennel booking.\n\nThe cattery opened this summer and takes its own bookings. Its terms sheet is held at the cattery and is not part of this schedule.\n",
+    "periods.csv": "service,notice_days\nCancelling a kennel booking,14\nMoving a kennel booking to another date,7\nAdding a day during a stay,2\n",
+    "booking-notes.md": "# Booking office notes\n\nBookings are taken at the office or at the gate.\nThe kennels are inspected by the council each spring.\n"
+  },
+  "turns": [
+    {
+      "prompt": "A customer with a cattery place booked at Apperley Bridge Kennels now wants to cancel it. How many days of notice must be given for that cancellation? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "UNKNOWN"
+      }
+    }
+  ]
+}

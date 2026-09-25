@@ -1,0 +1,42 @@
+{
+  "id": "nt-5248",
+  "description": "Convert 26 reams of paper stock to sheets. DISTILL-CANARY-0cf8810e",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 650
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-reamcount-31",
+    "ref_calls": 0,
+    "fixture_bytes": 225,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "standards/paper_units.csv": "sheet_per_ream,500\nsheet_per_quire,25\n",
+    "stock/paper_hold_1806.tsv": "stock\treams\tpaper\nPF-1806\t26\tcream wove\n",
+    "README.md": "# Quarryfield Press - paper store\n\nThe store counts its stock in reams on the hold sheet.\nThe run sheet the press works from is written in sheets.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Quarryfield Press is drawing the paper for the parish history run. The store holds 26 reams of the cream wove stock, and a ream is five hundred sheets. How many sheets does the store hold for the run? Give the answer as a single number, with no unit in the reply. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 13000,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

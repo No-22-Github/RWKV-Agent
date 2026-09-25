@@ -1,0 +1,42 @@
+{
+  "id": "nt-5274",
+  "description": "Give the install key that ties a service to the usual boot target. DISTILL-CANARY-7d1f3a86",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "RequiredBy=multi-user.target"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-unitfile-42",
+    "ref_calls": 0,
+    "fixture_bytes": 320,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "units/boot-cards.tsv": "start-at-the-usual-boot-target\tWantedBy=multi-user.target\nmake-the-target-depend-back\tRequiredBy=multi-user.target\n",
+    "README.md": "# Fennister Ropeworks - twine winder\n\nThe twine winder runs on a line controller that reboots into its usual operating mode every morning.\nThe keys the electricians use are carded in units/boot-cards.tsv.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Fennister Ropeworks wants its twine-winder service to come up by itself whenever the line controller reboots into its usual operating mode, with no operator running a start command. A winder fault must not stop the controller from reaching that operating mode. Give the key in the unit's install settings that makes the service part of the target's usual set without making the target depend on it. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "WantedBy=multi-user.target"
+        ]
+      }
+    }
+  ]
+}

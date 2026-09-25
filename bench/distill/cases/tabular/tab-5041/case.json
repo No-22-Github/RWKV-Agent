@@ -1,0 +1,34 @@
+{
+  "id": "tab-5041",
+  "description": "Declared-versus-graded weight gap across a month of cheese vats. DISTILL-CANARY-4c285423",
+  "category": "tabular",
+  "tags": {
+    "task_type": "reconcile",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-tab-cheesevats-01",
+    "ref_calls": 2,
+    "scenario": "tabular",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null,
+    "fixture_bytes": 907
+  },
+  "web_fixture": [],
+  "files": {
+    "vat_grading_2026-07.csv": "vat_id,grading_date,cheese,declared_kg,graded_kg\nVT-6120,2026-07-01,Cheddar,364.4,360.7\nVT-6121,2026-07-02,Lancashire,253.0,250.1\nVT-6122,2026-07-03,Wensleydale,331.6,329.8\nVT-6123,2026-07-04,Caerphilly,435.5,429.7\nVT-6124,2026-07-05,Cheddar,307.0,301.5\nVT-6125,2026-07-06,Lancashire,284.9,278.6\nVT-6126,2026-07-09,Wensleydale,240.5,237.2\nVT-6127,2026-07-10,Caerphilly,246.9,244.0\nVT-6128,2026-07-11,Cheddar,315.5,310.4\nVT-6129,2026-07-12,Lancashire,254.4,249.1\nVT-6130,2026-07-13,Wensleydale,356.2,355.3\nVT-6131,2026-07-14,Caerphilly,424.5,418.2\nVT-6132,2026-07-17,Cheddar,270.5,264.6\nVT-6133,2026-07-18,Lancashire,341.6,335.9\nVT-6134,2026-07-19,Wensleydale,233.8,232.5\nVT-6135,2026-07-20,Caerphilly,420.6,415.7\n",
+    "README.md": "# Slaidburn Cheese Rooms - vat grading, July 2026\n\nOne row per vat; declared_kg is the weight booked when the vat was filled and graded_kg the weight recorded when it was graded after maturing.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Slaidburn Cheese Rooms books each vat at its fill weight and records the weight again at grading, when the cheese has matured. In total, how much more was declared than graded across the July 2026 vats? Give the weight as a number of kilograms. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 67.6,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

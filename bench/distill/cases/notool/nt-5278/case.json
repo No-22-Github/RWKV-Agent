@@ -1,0 +1,42 @@
+{
+  "id": "nt-5278",
+  "description": "Give the words that build an index while writes continue. DISTILL-CANARY-6e2b7fa4",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "CREATE INDEX"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-indexline-44",
+    "ref_calls": 0,
+    "fixture_bytes": 341,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "sql/index-builds.tsv": "build-without-holding-writers-off\tCREATE INDEX CONCURRENTLY\tcreate index concurrently\nhold-writers-off-while-it-builds\tCREATE INDEX\tcreate index\n",
+    "README.md": "# Coldwold Flaskworks - order ledger\n\nThe ledger takes order rows all day and its index is rebuilt after every bulk import.\nThe clause forms the crew agreed on are carded in sql/index-builds.tsv.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Coldwold Flaskworks rebuilds an index on a ledger table that takes order rows all day, and the rebuild must not hold new writes off the table while it runs. Give the words to put between CREATE and INDEX so the build lets writes continue. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_contains_any": [
+          "CONCURRENTLY",
+          "concurrently"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "id": "nt-5234",
+  "description": "Explain a tonne-kilometre on a trip card and give one round trip's work. DISTILL-CANARY-f444b350",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 5940.0
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-tonneklick-38",
+    "ref_calls": 0,
+    "fixture_bytes": 202,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "runs/trip_cards.csv": "trip,loaded_km,return_km,payload_t\nTR-88,132,132,22.5\n",
+    "README.md": "# Silverbank Haulage - trunk legs\n\nShared folder for the traffic office.\n\n- runs/  cards for each leg and trip\n- fuel/  bunker notes from the depot\n"
+  },
+  "turns": [
+    {
+      "prompt": "A traffic planner at Silverbank Haulage is working out what a trunk trip is worth; a tonne-kilometre is one tonne carried one kilometre, and a leg run empty carries no payload. Trip TR-88 runs 132 kilometres out and 132 kilometres back empty, carrying 22.5 tonnes on the loaded leg only. Give the work the trip did, as a single number in tonne-kilometres with no unit in the reply. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 2970.0,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

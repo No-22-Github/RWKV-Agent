@@ -1,0 +1,42 @@
+{
+  "id": "fs-5029",
+  "description": "Report the bricks drawn in the kiln round a brickworks filed twice under two names. DISTILL-CANARY-fa53a513",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "duplicates",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 1157
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-fs-kilnround-01",
+    "ref_calls": 4,
+    "fixture_bytes": 725,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "Thurlby Brickworks - kiln round sheets\n\nA round sheet is typed for each drawing and both the burner's cabin and the\nworks office keep a copy of it. The clerk types the sheets in the order the\nclamps are drawn.\n",
+    "round-sheets/round-14-burner.txt": "Kiln round sheet 14 - Thurlby Brickworks\nSetting: 1120 greens\nDrawn: 1096 bricks\nRejects: 24, all from the front wall\nClamp: loaded 06:40, sealed 09:15\nBurner: T. Openshaw\n",
+    "round-sheets/round-14-works.txt": "Kiln round sheet 14 - Thurlby Brickworks\nSetting: 1120 greens\nDrawn: 1096 bricks\nRejects: 24, all from the front wall\nClamp: loaded 06:40, sealed 09:15\nBurner: T. Openshaw\n",
+    "round-sheets/round-15.txt": "Kiln round sheet 15 - Thurlby Brickworks\nSetting: 1180 greens\nDrawn: 1157 bricks\nRejects: 23, all from the back wall\nClamp: loaded 06:25, sealed 09:40\nBurner: T. Openshaw\n"
+  },
+  "turns": [
+    {
+      "prompt": "One kiln round at Thurlby Brickworks was written up twice, once in the burner's cabin and once in the works office, so the same sheet sits in this folder under two names. How many bricks did that round draw? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 1096,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

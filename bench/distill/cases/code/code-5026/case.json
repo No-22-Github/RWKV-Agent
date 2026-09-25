@@ -1,0 +1,34 @@
+{
+  "id": "code-5026",
+  "description": "Report how many seconds the tileries' press holds a mould before releasing it. DISTILL-CANARY-909eb60c",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "explain_readonly",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-code-presshold-31",
+    "ref_calls": 2,
+    "fixture_bytes": 283,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "press/cycle.py": "\"\"\"Press cycle for the Skelton Tileries.\"\"\"\nfrom press.limits import HOLD_SECONDS\n\n\ndef run_seconds(tiles):\n    \"\"\"Seconds a run of tiles takes on the press.\"\"\"\n    return tiles * (HOLD_SECONDS + 3)\n",
+    "press/limits.py": "\"\"\"Limits the Skelton Tileries press works to.\"\"\"\n\nHOLD_SECONDS = 14\nMAX_MOULDS = 6\n"
+  },
+  "turns": [
+    {
+      "prompt": "The press at the Skelton Tileries holds each mould under pressure before it releases the tile. How many seconds does that hold last? Give the answer as a single number, with no unit in the reply. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 14,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

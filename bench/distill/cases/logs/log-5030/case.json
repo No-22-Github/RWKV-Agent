@@ -1,0 +1,36 @@
+{
+  "id": "log-5030",
+  "description": "Read the hours the aerator had run when a trout farm's controller tripped it, from the single trip line of one day's journal. DISTILL-CANARY-41a9c358",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "locate_error",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-log-pondaerator-31",
+    "ref_calls": 2,
+    "fixture_bytes": 917,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Oakhanger Trout Farm - pond aerator\n\nThe farm runs one aerator on each of its ponds, and the aerator controller\nappends a line to logs/aerator.log for every event it handles:\n\n    <UTC time> <event> ...\n\nRUN records the aerator starting up and the pond it serves. CHECK records the\noxygen reading the pond probe returned. TRIP is written once, when the\ncontroller cuts the aerator out, and records the pond and the hours the aerator\nhad run since it was last serviced. The journal is closed with a line whose\ncount covers every event line above it.\n",
+    "logs/aerator.log": "2026-09-19T04:37:52Z BOOT controller v2.6\n2026-09-19T04:39:14Z RUN pond=2 aerator=A-1\n2026-09-19T06:12:47Z CHECK pond=2 oxygen=8.4\n2026-09-19T08:51:23Z CHECK pond=2 oxygen=7.9\n2026-09-19T11:27:36Z CHECK pond=2 oxygen=8.1\n2026-09-19T14:03:19Z CHECK pond=2 oxygen=8.6\n2026-09-19T16:41:27Z TRIP pond=2 runtime=1641 cause=overcurrent\n2026-09-19T16:52:10Z CLOSE events=7\n"
+  },
+  "turns": [
+    {
+      "prompt": "Oakhanger Trout Farm runs an aerator on each of its ponds, and the aerator controller keeps a journal of what it does. The journal for 19 September 2026 covers the aerator starting up, the oxygen readings its probe returned and the one trip that cut the aerator out. For how many hours had the aerator run since it was last serviced when the controller tripped it? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 1641,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

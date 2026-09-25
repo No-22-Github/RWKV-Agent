@@ -1,0 +1,43 @@
+{
+  "id": "nt-5270",
+  "description": "Give the command that sets work aside together with files the tool does not track yet. DISTILL-CANARY-91d4e0af",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "git stash"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-histwalk-41",
+    "ref_calls": 0,
+    "fixture_bytes": 374,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "vcs/setaside-cards.tsv": "park-new-files-too\tgit stash --include-untracked\tgit stash -u\npark-tracked-work-only\tgit stash --keep-index\tleaves the index alone\n",
+    "README.md": "# Peatlow Cooperage - cask repair surveys\n\nA barrel survey is parked whenever the cooper is called out to the yard, and a run leaves behind survey files that were never added.\nThe commands the coopers use are carded in vcs/setaside-cards.tsv.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Peatlow Cooperage parks a half-written barrel survey whenever the cooper is called out to the yard. The survey directory also holds a scratch file that the ignore rules intentionally keep out of version control, and that scratch file has to stay exactly where it is. Give the command that puts the current work aside, together with the survey files that were never added to the index. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "git stash --include-untracked",
+          "git stash -u"
+        ]
+      }
+    }
+  ]
+}

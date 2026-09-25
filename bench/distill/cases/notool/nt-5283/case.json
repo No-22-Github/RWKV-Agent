@@ -1,0 +1,44 @@
+{
+  "id": "nt-5283",
+  "description": "Give the schema line that rejects keys the schema never declared. DISTILL-CANARY-97c1ea45",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "\"additionalProperties\": true"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-schemafrag-46",
+    "ref_calls": 0,
+    "fixture_bytes": 414,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "schema/extra-key-rules.tsv": "reject-keys-nobody-declared\t\"additionalProperties\": false\tadditionalProperties: false|\"additionalProperties\":false\nallow-any-extra-key\t\"additionalProperties\": true\tadditionalProperties: true\n",
+    "README.md": "# Thornwick Glove Mill - supplier uploads\n\nSuppliers upload glove stock as JSON documents which the intake job validates against the mill's schema.\nThe lines the mill's schema uses are carded in schema/extra-key-rules.tsv.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Thornwick Glove Mill validates the JSON documents its suppliers upload against a schema, and a mistyped key currently slips through: the document passes validation and the value behind the typo is dropped. Give the schema line that makes a document fail validation when it carries a key the schema has not declared. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "\"additionalProperties\": false",
+          "additionalProperties: false",
+          "\"additionalProperties\":false"
+        ]
+      }
+    }
+  ]
+}

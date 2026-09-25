@@ -1,0 +1,62 @@
+{
+  "id": "nt-5293",
+  "description": "Compliment on the assistant's explanations; reply directly without any tool call. DISTILL-CANARY-aac52a3b",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-smalltalk-19",
+    "ref_calls": 0,
+    "fixture_bytes": 263,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Winterdyke Piano Tuning - workshop workspace\n\nShared folder for the bench and the diary.\n\n- visits/  bookings taken around the county\n- parts/  felts and pins on the shelf\n",
+    "visits/tuning_diary.csv": "job,instrument,days,strings\nWT-7745,upright,2,88\nWT-7746,grand,3,88\nWT-7747,celesta,1,45\n"
+  },
+  "turns": [
+    {
+      "prompt": "You explain things well, I have to say.",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "thank",
+          "Thank",
+          "thanks",
+          "Thanks",
+          "glad",
+          "Glad",
+          "welcome",
+          "Welcome",
+          "appreciate",
+          "Appreciate",
+          "kind",
+          "Kind",
+          "pleased",
+          "Pleased",
+          "happy",
+          "Happy",
+          "helps",
+          "Helps",
+          "try",
+          "Try"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "id": "hyb-5044",
+  "description": "September bulk water charge from the Pellbrook tariff and the local meter readings. DISTILL-CANARY-0b62f7d8",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_calc",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": 1681
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-bulktariff-01",
+    "ref_calls": 3,
+    "fixture_bytes": 286,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [
+    {
+      "query_match": "pellbrook",
+      "url": "https://pellbrook-spring.example/tariffs/bulk-water",
+      "url_match": "pellbrook-spring.example/tariffs/bulk-water",
+      "title": "Bulk water tariff - Pellbrook Spring",
+      "snippet": "Pellbrook Spring charges 89 pence per cubic metre on the bulk tariff, billed on the metered volume for each calendar month.",
+      "content": "# Bulk water tariff\n\nPellbrook Spring, effective 1 April 2026.\n\nThe bulk tariff is 89 pence per cubic metre, billed on the metered volume for\neach calendar month. Standing charges do not apply on this tariff, and the\nvolume is read from the meter at the start and at the end of the month.\n",
+      "published_at": "2026-04-01"
+    },
+    {
+      "query_match": "pellbrook bottling",
+      "url": "https://pellbrook-spring.example/tariffs/bottling-line",
+      "url_match": "pellbrook-spring.example/tariffs/bottling-line",
+      "title": "Bottling line tariff - Pellbrook Spring",
+      "snippet": "Water drawn for the bottling line is charged at 41 pence per cubic metre, separately from the bulk tariff.",
+      "content": "# Bottling line tariff\n\nPellbrook Spring.\n\nWater drawn for the bottling line is charged at 41 pence per cubic metre,\nseparately from the bulk tariff. The bottling line is metered on its own and the\ntwo readings are never added together.\n",
+      "published_at": "2026-04-01"
+    }
+  ],
+  "files": {
+    "meter/bulk-2026-09.csv": "week_ending,cubic_metres\n2026-09-06,9\n2026-09-13,11\n2026-09-20,8\n2026-09-27,13\n",
+    "README.md": "# Pellbrook Spring - bulk meter\n\nWeekly meter readings for the bulk supply, in cubic metres. The four weeks cover\nSeptember. The charge that applies to this supply is set out on Pellbrook's own\ntariff page.\n"
+  },
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The bottling plant draws its process water from Pellbrook Spring's bulk main and has to budget the September charge. What does the September volume come to on the bulk tariff, in pence? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 3649,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}
