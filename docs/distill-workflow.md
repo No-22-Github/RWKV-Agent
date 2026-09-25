@@ -39,7 +39,7 @@ S1 起草 ──► S2 静态闸门 ──► S3 去污染 ──► S4 老师�
 | `bench/distill/cases-shelved/<scenario>/<id>/` | 老师 0/3 且确认不是题目缺陷的题（留档不删） | 是 |
 | `bench/distill/batches.jsonl` | 每批一行：批号、题 ID 列表、起草模型、老师模型与参数、commit | 是 |
 | `bench/distill/exclude.jsonl` | 抽检剔除的路径：`{"case_id":"tab-5003--p1","reason":"…","batch":"b01"}` | 是 |
-| `bench/distill/scripts/<batch>.jsonl` | `corpus paths` 的产物（老师动作脚本） | **待用户决定**，见 §8 |
+| `bench/distill/scripts/<batch>.jsonl` | `corpus paths` 的产物（老师动作脚本），各批次渲染实际用的那一份；说明见该目录 README | **是**（2026-09-25 用户拍板） |
 | `bench/distill/reports/<batch>.md` | 批次报告（§3 S7） | 是 |
 | `runs/distill/<batch>/…` | 老师 run、render 产物、rows | 否（`runs/` 已 gitignore） |
 | `runs/distill/dataset-YYYYMMDD/` | 最终训练集 | 否 |
@@ -628,6 +628,6 @@ rwkv-lab corpus pack --rows <rows.jsonl> [--rows …] [--exclude <jsonl>] (--out
 | 老师端点 | `$TEACHER_URL`、`$TEACHER_MODEL`、key 所在的环境变量名；官方还是中转 |
 | 起草模型 | 子 Agent 用什么模型（写进 `tags.author` 与 `batches.jsonl`） |
 | 目标规模 | 数据集 v1 要多少行；决定 M4 之后跑几批 |
-| `script.jsonl` 入库 | 建议入库到 `bench/distill/scripts/<batch>.jsonl`：老师轨迹是花钱买的，采样也不可复现，而 rows 能由它在任何 harness 版本下重新生成。这与「派生数据不入库」的约定冲突，需要你拍板 |
+| ~~`script.jsonl` 入库~~ | **已定（2026-09-25）：入库到 `bench/distill/scripts/<batch>.jsonl`**，只放这一个目录，理由与用法见该目录 README |
 | 零调用占比下限 | §4.2 先只打印；b01 之后定数 |
 | 回答风格 | Qwen 的直答是重 Markdown 加 emoji（「**📁 Work with files…**」、多级列表），student 会原样学去。可选做法：接受；或者在抽检时剔除；或者给 agent-eval 加一个只对老师生效的风格提示（老师的 wire 不进数据，所以不影响训练行字节，但要改代码）。需要你定 |
