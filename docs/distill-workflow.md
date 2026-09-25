@@ -71,7 +71,7 @@ S1 起草 ──► S2 静态闸门 ──► S3 去污染 ──► S4 老师�
 |---|---|
 | 上面三份文档、`tag-vocab.json` | `bench/workbank/cases/`、`bench/workbank/cases-shelved/` 下任何文件 |
 | 格式样例：本文 §2.5；`bench/workbank/tools/testdata/tabular/tab-9001/`、`…/web/web-9001/` | `bench/workbank/reports/`、`bench/workbank/ledger/`（里面引用了题面与答案） |
-| 已入库的 `bench/distill/cases/`（查重、避免撞名） | `runs/` 下任何 trace（跑的都是测试题） |
+| 已入库的 `bench/distill/cases/`（查重、避免撞名） | `runs/` 下任何 trace（跑的都是测试题）；`datasets/workspace-agent-700-20260920/`（workbank 种子题的变体） |
 
 理由：decontam 只能按表面文本比对（prompt 5-gram、fixture 行、专有名），「换名换数、同一骨架」的变体会漏过去。
 不读测试题就不可能写出测试题的变体。authoring-guide 反例库里出现的题目片段（X-004 的汇率题等）也**不得**作为骨架。
@@ -101,6 +101,8 @@ S1 起草 ──► S2 静态闸门 ──► S3 去污染 ──► S4 老师�
 | 其余 | — | 完全相同 | 题面禁工具名/步骤/陷阱禁词、答案契约逐字节、`trap_decoys` ≠ 正确答案、verify.py 只用标准库且从 files 独立计算、NOTES 四段、英文出题 |
 
 ### 2.4 第一批配额（b01，200 题）
+
+> **已被 [distill-allocation-v1.md](distill-allocation-v1.md) 取代**（在 700 条基础上加约 650 题，分 3 批）。下表只作为最初的设计记录保留。
 
 | scenario | 题数 | task_type 侧重（数字为至少题数） | 说明 |
 |---|---|---|---|
