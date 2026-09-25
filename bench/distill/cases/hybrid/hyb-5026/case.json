@@ -1,0 +1,65 @@
+{
+  "id": "hyb-5026",
+  "description": "Kilograms of feed despatched as one mill's Batch 12 in September. DISTILL-CANARY-51c9e073",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 2445
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-twomills-01",
+    "ref_calls": 2,
+    "fixture_bytes": 582,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "despatch/september-2026.csv": "date,mill,batch,bags,bag_weight_kg\n2026-09-02,Ashwater Mill,Batch 12,60,25\n2026-09-06,Cotham Mill,Batch 12,44,20\n2026-09-09,Ashwater Mill,Batch 12,38,20\n2026-09-13,Cotham Mill,Batch 7,52,25\n2026-09-16,Ashwater Mill,Batch 7,30,25\n2026-09-20,Cotham Mill,Batch 12,41,25\n2026-09-24,Ashwater Mill,Batch 12,55,25\n2026-09-27,Cotham Mill,Batch 12,36,15\n",
+    "README.md": "# Ashwater Feed Mill - batch despatch\n\nOne row for each despatch of bagged feed, with the number of bags and the\nweight of one bag. Two mills, Ashwater and Cotham, each ran a Batch 12\nin September, and Batch 7 ran at both mills as well.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The mill is closing the September output for Batch 12. How many kilograms of feed went out as Batch 12 in September?",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ]
+      }
+    },
+    {
+      "prompt": "The batch from the Ashwater mill. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 3635,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "id": "nt-5154",
+  "description": "Place the storage list records for pupil safeguarding files at Tanglewood Schools Trust. DISTILL-CANARY-63c0e8fa",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "stable_fact",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "Room 21"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-record-storage-01",
+    "ref_calls": 1,
+    "fixture_bytes": 519,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "admin/record-storage.txt": "pupil safeguarding files = Room 12\nadmissions appeals = Room 21\ngovernor minutes = Cabinet 6\nstaff vetting files = Cabinet 2\n",
+    "README.md": "# Tanglewood Schools Trust - trust office workspace\n\nCentral area for the trust office.\n\n- admin/  record storage and the term diary\n\nThe storage list names one place per record class and is edited in place, so a record class is never held in two places. Rows are kept in the order the classes were first lodged with the trust office, oldest first. Last reviewed 2026-08-05, reference TW-5927.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Tanglewood Schools Trust is briefing a new head teacher on where pupil safeguarding files are kept. Where does the trust hold them? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "Room 12",
+        "tools": []
+      }
+    }
+  ]
+}

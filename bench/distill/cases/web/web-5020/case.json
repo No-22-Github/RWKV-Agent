@@ -1,0 +1,61 @@
+{
+  "id": "web-5020",
+  "description": "Overlap production keys keep in the Steepholm label API sunset notice; sandbox keys run to their own schedule. DISTILL-CANARY-70e5d1fa",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "deprecation",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": 30
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-web-sunsetkeys-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "steepholm",
+      "url": "https://steepholm.example/notices/label-v1-sunset",
+      "url_match": "steepholm.example/notices/label-v1-sunset",
+      "title": "Shipping label API v1 sunset - Steepholm",
+      "snippet": "Production keys keep working for 150 days after the notice, then the v1 label endpoints are switched off.",
+      "content": "# Shipping label API v1 sunset\n\nSteepholm, 2 February 2026.\n\nThe v1 label endpoints stop accepting production keys 150 days after the date\nof this notice. Until that day they behave as they do today; from that day the\nendpoints are switched off and every request is refused.\n\nThe v2 label endpoints are the replacement and take the same address fields.\nThis notice does not cover sandbox keys, which run to their own schedule.\n",
+      "published_at": "2026-02-02"
+    },
+    {
+      "query_match": "steepholm sandbox",
+      "url": "https://steepholm.example/notices/sandbox-keys",
+      "url_match": "steepholm.example/notices/sandbox-keys",
+      "title": "Sandbox key notice - Steepholm",
+      "snippet": "Sandbox keys are switched off 30 days after the notice date.",
+      "content": "# Sandbox key notice\n\nSteepholm, 2 February 2026.\n\nSandbox keys are switched off 30 days after the date of this notice. Label\nfiles built with a sandbox key after that day are refused, whatever endpoint\nthey are sent to.\n",
+      "published_at": "2026-02-02"
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Our despatch desk prints labels with a production Steepholm key and the v1 label endpoints are being retired. For how many days after the sunset notice do production keys keep working? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 150,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

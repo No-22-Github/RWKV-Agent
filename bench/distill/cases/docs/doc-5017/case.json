@@ -1,0 +1,35 @@
+{
+  "id": "doc-5017",
+  "description": "Hire charge for one wardrobe box on a removals firm's charges sheet. DISTILL-CANARY-f4c60a19",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-doc-movecharges-01",
+    "ref_calls": 2,
+    "fixture_bytes": 547,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Dunthorpe Removals - charges\n\nHousehold moves are quoted from the charges sheet under `fees/`. The sheet lists the firm's standard charges, and the office quotes any work the sheet does not list once the move has been surveyed.\n",
+    "fees/charges.csv": "service,charge_gbp\nPacking service per room,128.00\nPiano move ground floor to ground floor,195.00\nWardrobe box hire each,16.50\nStorage per week,29.00\nExtra stop on a local move,41.00\n",
+    "docs/office-notes.md": "# Office notes\n\nEstimates are sent by email and are held for thirty days.\nDeposits are taken on moves booked more than a month ahead.\n"
+  },
+  "turns": [
+    {
+      "prompt": "A Dunthorpe Removals customer is packing up a two-bedroom house and wants the firm to supply boxes to hang clothes in. What does the firm charge to hire one such box? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 16.5,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

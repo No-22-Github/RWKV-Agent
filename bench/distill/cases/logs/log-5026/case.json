@@ -1,0 +1,40 @@
+{
+  "id": "log-5026",
+  "description": "Count one turbine's curtailments inside a window on the middle day of a three-day controller journal. DISTILL-CANARY-6b8f12e5",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 7
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-turbinecurtail-21",
+    "ref_calls": 3,
+    "fixture_bytes": 1433,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# turbine curtailment journal\n\nCarnmoor Renewables' site controller writes one line to logs/curtailment.log\nfor every instruction the grid sends the Fellview turbines:\n\n    <UTC time> <turbine> <event> setpoint_kw=<n>\n\nCURTAIL records an instruction to hold a turbine back and RELEASE records that\ninstruction being lifted; `setpoint_kw` is the output the instruction held the\nturbine to. The journal covers three days and is closed with a line whose count\ncovers every instruction line above it.\n",
+    "logs/curtailment.log": "2026-09-21T12:41:37Z T-7 CURTAIL setpoint_kw=1340\n2026-09-21T14:27:55Z T-7 RELEASE setpoint_kw=2180\n2026-09-21T15:07:18Z T-7 CURTAIL setpoint_kw=1160\n2026-09-22T08:48:57Z T-2 CURTAIL setpoint_kw=1720\n2026-09-22T13:19:08Z T-7 CURTAIL setpoint_kw=1520\n2026-09-22T15:52:33Z T-7 CURTAIL setpoint_kw=1010\n2026-09-22T17:38:16Z T-7 RELEASE setpoint_kw=2380\n2026-09-22T19:06:52Z T-2 RELEASE setpoint_kw=2210\n2026-09-23T00:14:26Z T-7 CURTAIL setpoint_kw=1210\n2026-09-23T10:26:17Z T-7 CURTAIL setpoint_kw=1110\n2026-09-23T12:19:44Z T-7 CURTAIL setpoint_kw=1310\n2026-09-23T14:08:37Z T-7 CURTAIL setpoint_kw=1030\n2026-09-23T16:03:21Z T-7 CURTAIL setpoint_kw=1540\n2026-09-23T16:51:56Z T-2 RELEASE setpoint_kw=2200\n2026-09-23T17:29:33Z T-7 CURTAIL setpoint_kw=1230\n2026-09-23T18:34:41Z T-9 CURTAIL setpoint_kw=1090\n2026-09-23T20:47:52Z T-7 CURTAIL setpoint_kw=1420\n2026-09-23T22:58:14Z T-2 CURTAIL setpoint_kw=1610\n2026-09-24T00:02:11Z CLOSE lines=18\n"
+  },
+  "turns": [
+    {
+      "prompt": "Carnmoor Renewables' site controller records every instruction the grid sends its Fellview turbines. How many times was turbine T-7 curtailed between 12:00 and 18:00 on 23 September 2026? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 4,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

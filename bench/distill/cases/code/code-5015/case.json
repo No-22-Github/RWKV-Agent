@@ -1,0 +1,34 @@
+{
+  "id": "code-5015",
+  "description": "Report how many times the cidery's press scheduler polls a vat before giving up on it. DISTILL-CANARY-9d27e5b0",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "explain_readonly",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-code-stuckvat-01",
+    "ref_calls": 2,
+    "fixture_bytes": 466,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "press/limits.py": "STUCK_POLLS = 7\nSTUCK_POLL_SECONDS = 15\n",
+    "press/scheduler.py": "\"\"\"Press scheduler for the Hollybush Cidery.\"\"\"\nimport time\n\nfrom press.limits import STUCK_POLLS, STUCK_POLL_SECONDS\n\n\ndef press(vat):\n    \"\"\"Press one vat, waiting while the vat has not cleared.\"\"\"\n    for _ in range(STUCK_POLLS):\n        if vat.ready():\n            return vat.press()\n        time.sleep(STUCK_POLL_SECONDS)\n    raise RuntimeError(\"vat stuck\")\n\n\ndef press_all(vats):\n    return [press(vat) for vat in vats]\n"
+  },
+  "turns": [
+    {
+      "prompt": "The Hollybush Cidery's press scheduler gives up on a vat that never clears. How many times does it poll the vat before it gives up? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 7,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

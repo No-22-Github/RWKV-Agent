@@ -1,0 +1,56 @@
+{
+  "id": "nt-5198",
+  "description": "Cold-weather chit-chat with no task; reply directly without any tool call. DISTILL-CANARY-2b9706de",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-smalltalk-15",
+    "ref_calls": 0,
+    "fixture_bytes": 280,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Dunmoor Shepherd Huts - build yard workspace\n\nShared folder for the hut build and the yard.\n\n- builds/  huts on the frames this quarter\n- cladding/  board lengths cut for each hut\n",
+    "builds/hut_builds.csv": "hut,frame,cladding_m,weeks\nDH-3327,oak frame,84,6\nDH-3328,ash frame,96,8\nDH-3329,larch frame,72,5\n"
+  },
+  "turns": [
+    {
+      "prompt": "It has turned properly cold out there this week.",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "cold",
+          "Cold",
+          "warm",
+          "Warm",
+          "chilly",
+          "Chilly",
+          "bitter",
+          "Bitter",
+          "thanks",
+          "Thanks",
+          "you too",
+          "You too",
+          "hope",
+          "Hope"
+        ]
+      }
+    }
+  ]
+}

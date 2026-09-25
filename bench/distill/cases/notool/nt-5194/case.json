@@ -1,0 +1,58 @@
+{
+  "id": "nt-5194",
+  "description": "Asks what sorts of work the assistant takes on; describe capabilities directly without any tool call. DISTILL-CANARY-73c58e1a",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-smalltalk-13",
+    "ref_calls": 0,
+    "fixture_bytes": 242,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Farrowby Netmakers - net loft workspace\n\nShared folder for the net loft.\n\n- orders/  nets on the stretching floor\n- twine/  spools left on the shelf\n",
+    "orders/net_orders.csv": "order,net_type,metres,mesh_mm\nFN-4192,gaff,320,42\nFN-4193,beach,540,28\nFN-4194,keep,260,35\n"
+  },
+  "turns": [
+    {
+      "prompt": "What sort of work do you usually take on?",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "file",
+          "File",
+          "help",
+          "Help",
+          "question",
+          "Question",
+          "data",
+          "Data",
+          "search",
+          "Search",
+          "answer",
+          "Answer",
+          "text",
+          "Text",
+          "task",
+          "Task"
+        ]
+      }
+    }
+  ]
+}

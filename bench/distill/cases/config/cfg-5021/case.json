@@ -1,0 +1,41 @@
+{
+  "id": "cfg-5021",
+  "description": "Dose window the south dosing controller runs with, where the site profile and the factory defaults disagree. DISTILL-CANARY-7a4f16d2",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "precedence",
+    "traps": [
+      "TR-PRECEDENCE"
+    ],
+    "trap_decoys": {
+      "TR-PRECEDENCE": 40
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-dosingstack-01",
+    "ref_calls": 2,
+    "fixture_bytes": 1216,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Brackenlea Water Works - dosing controller\n\nThe dosing controller adds coagulant and chlorine to the settling tanks. Each setting takes its value from the first block that defines it, and `resolve_order` in `config/dosing-settings.json` lists the blocks in the order the controller consults them: what the plant historian pushes into the controller, then the site profile, then the factory defaults. A block that leaves a setting out falls through to the next one, so the site profile carries only what it changes.\n\n`config/dosing-settings.json` is the settings sheet for the controller: it shows the three blocks as the controller reads them.\n",
+    "config/dosing-settings.json": "{\n  \"controller\": \"dosing-south\",\n  \"resolve_order\": [\"historian_push\", \"site_profile\", \"factory_defaults\"],\n  \"historian_push\": {\n    \"coagulant_rate_ml_min\": 265\n  },\n  \"site_profile\": {\n    \"dose_window_min\": 22,\n    \"settle_window_min\": 38\n  },\n  \"factory_defaults\": {\n    \"dose_window_min\": 40,\n    \"settle_window_min\": 57,\n    \"contact_hold_s\": 300,\n    \"pump_stroke_percent\": 62\n  }\n}\n",
+    "docs/tank-notes.md": "# Tank notes\n\nThe settling tanks are desludged on the maintenance rota and the sludge is tankered away.\nTurbidity readings are taken by the works chemist, not by the controller.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The works chemist at Brackenlea Water Works is closing out the settings review for the south dosing controller and needs the dose window that controller runs with as it is installed, in minutes. How many minutes is it? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 22,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

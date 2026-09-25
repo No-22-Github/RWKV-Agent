@@ -1,0 +1,41 @@
+{
+  "id": "nt-5121",
+  "description": "Explain a poultry shed's conversion figure and give it for one shed's spell. DISTILL-CANARY-1d60e59b",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 0.666667
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-ratioload-24",
+    "ref_calls": 0,
+    "fixture_bytes": 196,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "sheds/conversion_cards.csv": "shed,feed_kg,liveweight_gain_kg\nS-24,1860,1240\n",
+    "README.md": "# Oakhurst Poultry - growing houses\n\nShared folder for the stock team.\n\n- sheds/  cards for each growing house\n- feed/  delivery notes from the mill\n"
+  },
+  "turns": [
+    {
+      "prompt": "The stockman at Oakhurst Poultry asked what the conversion figure on a shed card means; it is the feed the birds ate divided by the liveweight they put on over the same spell. Shed 24 ate 1860 kilograms of feed and put on 1240 kilograms of liveweight. Give that shed's conversion figure. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 1.5,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

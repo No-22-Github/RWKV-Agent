@@ -558,3 +558,38 @@ func TestPackCoveredTextRuneOffsets(t *testing.T) {
 		t.Errorf("no spans = %q, want empty", got)
 	}
 }
+
+func writePackTestFile(t *testing.T, path, content string) {
+	t.Helper()
+	if err := os.WriteFile(path, []byte(content), 0o644); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// An exclusion recorded by one batch must not strike out a later batch's rows
+// for the same case: b01's bare-UNKNOWN refusal rows were excluded, the case was
+// re-authored, and b02's fresh refusal rows have to survive.
+func TestPackExcludeIsScopedToItsBatch(t *testing.T) {
+	dir := t.TempDir()
+	rows := filepath.Join(dir, "rows.jsonl")
+	old := `{"text":"old refusal row","loss_spans":[[0,1]],"meta":{"case_id":"nt-5093--p1","turn":1,"wire_hash":"h","source":"distill-b01"}}`
+	fresh := `{"text":"fresh refusal row","loss_spans":[[0,1]],"meta":{"case_id":"nt-5093--p1","turn":1,"wire_hash":"h","source":"distill-b02"}}`
+	writePackTestFile(t, rows, old+"\n"+fresh+"\n")
+	exclude := filepath.Join(dir, "exclude.jsonl")
+	writePackTestFile(t, exclude, `{"case_id":"nt-5093--p1","reason":"nocap-bare-unknown","batch":"b01"}`+"\n")
+	out, _, _ := capturePackRun(t, func() int {
+		return runPackCmd([]string{"--rows", rows, "--exclude", exclude, "--dry-run"})
+	})
+	if !strings.Contains(out, "1 excluded") || !strings.Contains(out, "1 to pack") {
+		t.Errorf("dry run = %q, want the b01 row excluded and the b02 row kept", out)
+	}
+
+	// A hand-written entry without a batch still drops every row of the case.
+	writePackTestFile(t, exclude, `{"case_id":"nt-5093--p1","reason":"manual"}`+"\n")
+	out, _, _ = capturePackRun(t, func() int {
+		return runPackCmd([]string{"--rows", rows, "--exclude", exclude, "--dry-run"})
+	})
+	if !strings.Contains(out, "2 excluded") {
+		t.Errorf("dry run = %q, want both rows excluded", out)
+	}
+}

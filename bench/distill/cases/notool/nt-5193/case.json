@@ -1,0 +1,56 @@
+{
+  "id": "nt-5193",
+  "description": "Asks what work the assistant can take over; describe capabilities directly without any tool call. DISTILL-CANARY-0af29b64",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-smalltalk-13",
+    "ref_calls": 0,
+    "fixture_bytes": 265,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Coldharbour Ceramics - kiln room workspace\n\nShared folder for the glazing and firing rooms.\n\n- firings/  kiln loads from the last week\n- glazes/  buckets with their batch notes\n",
+    "firings/kiln_loads.csv": "load,glaze_temp,mugs,bowls\nCC-6634,1240,144,62\nCC-6635,1260,96,48\nCC-6636,1220,180,74\n"
+  },
+  "turns": [
+    {
+      "prompt": "Give me the short version - what can you take off my hands?",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "file",
+          "File",
+          "help",
+          "Help",
+          "question",
+          "Question",
+          "data",
+          "Data",
+          "search",
+          "Search",
+          "calculat",
+          "Calculat",
+          "text",
+          "Text"
+        ]
+      }
+    }
+  ]
+}

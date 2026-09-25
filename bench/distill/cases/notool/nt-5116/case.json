@@ -1,0 +1,41 @@
+{
+  "id": "nt-5116",
+  "description": "Explain how the twelfths rule is read on a falling tide and give the fall still to come. DISTILL-CANARY-0f9b23d5",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 1.1
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-tideclock-21",
+    "ref_calls": 0,
+    "fixture_bytes": 253,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "tides/beacon_reach_card.csv": "reach,range_m,hours_of_ebb,twelfths_remaining\nBeacon Reach,6.6,5,1\n",
+    "README.md": "# Wicklowe Harbour Trust - marine office\n\nShared folder for the harbourmaster's team.\n\n- tides/  reach cards worked up from the tide table\n- pilotage/  boarding notes kept by the pilots\n"
+  },
+  "turns": [
+    {
+      "prompt": "The harbourmaster at Wicklowe Harbour Trust asked how the twelfths entry on a reach card is read for a falling tide; the six hours of the ebb take one, two, three, three, two and one twelfth of the range in turn. The range at Beacon Reach is 6.6 metres and the ebb has been running for five hours. Give what is left of the fall after those five hours, in metres. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 0.55,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

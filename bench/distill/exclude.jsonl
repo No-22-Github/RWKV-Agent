@@ -149,3 +149,5 @@
 {"case_id": "nt-5100--p1", "reason": "nocap-bare-unknown: refusal cases must explain, not abstain (spec §4.3.1); re-authored for b02", "batch": "b01"}
 {"case_id": "nt-5101--p1", "reason": "nocap-bare-unknown: refusal cases must explain, not abstain (spec §4.3.1); re-authored for b02", "batch": "b01"}
 {"case_id": "nt-5102--p1", "reason": "nocap-bare-unknown: refusal cases must explain, not abstain (spec §4.3.1); re-authored for b02", "batch": "b01"}
+{"case_id": "scr-5009--p2", "reason": "over-4096: 4951 tokens", "batch": "b02"}
+{"case_id": "tab-5028--p2", "reason": "over-4096: 4394 tokens", "batch": "b02"}

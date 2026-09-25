@@ -1,0 +1,44 @@
+{
+  "id": "nt-5179",
+  "description": "Give the session flag that lets the workstation reach the controller's port. DISTILL-CANARY-30e7a9b5",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "-L 9142:localhost:9142"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L2",
+    "family": "fam-nt-flowflag-25",
+    "ref_calls": 0,
+    "fixture_bytes": 586,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "ops/tunnel-cards.tsv": "controller-side-port\t-R 9142:localhost:9142\t-R 9142:127.0.0.1:9142\nworkstation-side-port\t-L 9142:localhost:9142\t-L 9142:127.0.0.1:9142\n",
+    "README.md": "# Brindlemoor Canvas - loom controller link\n\nThe loom controller can only reach the office network by opening a session to the workshop\nworkstation, and the tuning tool it runs listens on port 9142.\nThe session forms the team uses are carded in ops/tunnel-cards.tsv.\n",
+    "notes/field-notes.txt": "Field notes:\nThe tuning tool runs on the controller and the engineer sits at the workstation.\nWhile the controller's session is up, a tool on the workstation must be able to reach it.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Brindlemoor Canvas's loom controller reaches the office network by opening a session to the workshop workstation. A tuning tool listens on port 9142 on the controller. Give the flag and its value for that session that let a tool on the workstation reach that port on the controller while the session is up. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "-R 9142:localhost:9142",
+          "-R 9142:127.0.0.1:9142"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "id": "doc-5020",
+  "description": "How many documents named by a climbing centre's two registers have no file in the folders. DISTILL-CANARY-c25a91f8",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "link_check",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": 4
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-doc-climblog-01",
+    "ref_calls": 3,
+    "fixture_bytes": 994,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Fellbeck Climbing Centre - operations folders\n\nStaff work from the centre's operating documents. The climbing wall and the training room keep their own register, because the staff who cover them are on different rotas.\n",
+    "registers/training-register.txt": "procedures/instructor-signoff.md\npolicies/child-supervision.md\nprocedures/equipment-quarantine.md\nguides/teaching-syllabus.md\nprocedures/first-aid-policy.md\n",
+    "registers/wall-register.txt": "guides/wall-inspection.md\nguides/belay-checks.md\nprocedures/rescue-plan.md\nprocedures/incident-report.md\nguides/rope-log.md\nprocedures/loose-hold-report.md\n",
+    "guides/wall-inspection.md": "# Wall inspection\n\nHolds are checked for movement before the wall opens.\nThe check is recorded on the morning sheet and countersigned by the duty manager.\n",
+    "guides/belay-checks.md": "# Belay checks\n\nA belay check is offered to every new member before they climb unsupervised.\nThe check is run by an instructor on the duty rota.\n",
+    "policies/child-supervision.md": "# Child supervision\n\nClimbers under the age of sixteen stay within sight of an adult at all times.\nThe rule applies to the bouldering room as well as the wall.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The duty manager at Fellbeck Climbing Centre is tidying the operations folders before the winter season. How many of the documents named by the centre's two registers have no file anywhere in the folders? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 8,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

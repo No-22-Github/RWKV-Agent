@@ -1,0 +1,34 @@
+{
+  "id": "code-5013",
+  "description": "Count the forge checks that last night's run recorded as error in the runner's verdict log. DISTILL-CANARY-1e6b4a7d",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "report_test_result",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-code-forgelog-01",
+    "ref_calls": 2,
+    "fixture_bytes": 541,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "checks/forgechecks.py": "\"\"\"Write the nightly check verdict for Sandwell Forge to results/.\"\"\"\nimport os\n\nRESULTS = [(\"oven_draft\", \"error\"), (\"scale_zero\", \"ok\"), (\"quench_temp\", \"error\"),\n           (\"hammer_pressure\", \"ok\"), (\"vent_cycle\", \"ok\")]\n\n\ndef main():\n    os.makedirs(\"results\", exist_ok=True)\n    with open(os.path.join(\"results\", \"run-2026-09-14.log\"), \"w\") as handle:\n        for name, outcome in RESULTS:\n            handle.write(\"%s %s\\n\" % (name, outcome))\n\n\nmain()\n",
+    "results/run-2026-09-14.log": "oven_draft error\nscale_zero ok\nquench_temp error\nhammer_pressure ok\nvent_cycle ok\n"
+  },
+  "turns": [
+    {
+      "prompt": "The night shift at Sandwell Forge needs the count from last night's check run, which the runner wrote to results/run-2026-09-14.log. How many of the checks in that log came out as error? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 2,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

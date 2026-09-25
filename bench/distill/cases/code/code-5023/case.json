@@ -1,0 +1,42 @@
+{
+  "id": "code-5023",
+  "description": "Count the lines of the canal trust's locks package carrying the current GATE-HOLD annotation. DISTILL-CANARY-a96f1c47",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "count_markers",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 5
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-code-gatehold-01",
+    "ref_calls": 3,
+    "fixture_bytes": 700,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "locks/__init__.py": "# GATE-HOLD: the lock is held until the gate repair is signed off\n\"\"\"Lock helpers for the Brayford canal trust.\"\"\"\n",
+    "locks/archive.py": "\"\"\"Archive notes kept for the trust.\"\"\"\n# GATE-HOLDOVER: kept from the winter drawdown\nDRAWDOWNS = [\"north\", \"south\"]\n",
+    "locks/marks.py": "\"\"\"Hold marks for the locks.\n\nThe trust annotates a line by writing the marker in a comment on it. The\ncurrent mark is the one the plan reads; the longer mark from the winter\ndrawdown was retired and marks nothing today.\n\"\"\"\n\nCURRENT = \"GATE-HOLD\"\nRETIRED = \"GATE-HOLDOVER\"\n",
+    "locks/plan.py": "\"\"\"Gate repair plan for the trust.\"\"\"\nfrom locks.marks import CURRENT\n\n# GATE-HOLD: the plan holds the lock while the repair is booked\nREPAIRS = {}\n\n\ndef held(line):\n    return CURRENT in line\n"
+  },
+  "turns": [
+    {
+      "prompt": "Brayford Canal Trust holds a lock with a GATE-HOLD annotation while its gate repair is booked. How many lines in the locks package carry that annotation? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 2,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

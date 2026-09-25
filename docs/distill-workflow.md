@@ -214,11 +214,13 @@ The decoy 7 counts rows, but the question asks for orders and the README says th
 ### 2.6 出题坑（本项目特有）
 
 1. **写目录必须预先存在。** 题面要求写入的目录要在 `files` 里放一个 `.keep`，工作区工具不能建目录（lint `m0.write_dir`）。
-2. **web 题的 `url_match` 不得互为前缀。** harness 取最长匹配，但 lint `web_fixture.url_match` 会查；每加一个页面就跑一次 lint（反例 X-008）。
-3. **web 题的 `query_match` 要宽。** 老师自己拼搜索词，`query_match` 太窄时搜索返回空、老师 0/3。NOTES 里的五条改写查询必须 `bank hitcheck` 5/5。
-4. **脚本题的 hidden 输入集必须在工作区内**（反例 X-006；lint `expect.run.hidden`）。
-5. **题面语气也是题面。** 不用 quick / simple / just，也不用 carefully / note that（反例 X-009）。
-6. **名字池。** 公司、人名、SKU 每批内不重复，并避开 §2.2 发给子 Agent 的 family 黑名单涉及的领域名；decontam 的 names 维度会查专有名重合。
+2. **数值答案的题面必须写明「只给数字」。** scorer 的 `expected_number` 只接受纯数字，或「数字 + 空格 + 单位」（单位最多三个词，且不能接别的内容）——`Edition 4`、`4,020 litres on 2026-09-25`、`18 kilograms per cubic metre`、`47.2%`、`35%` 都会被判成「不是数字」。b01/b02 合计 9 道题因此 0/3（doc 的版本号题、hyb 的读数题、nt 的换算题、web 的百分比题）。
+   写法：在答案契约之前加一句，例如「Give the number alone, as digits, with no label.」「Give the reading alone as a number, with no units or dates.」「Give it as a number of percent, without the % sign.」。**改 scorer 是另一件事**（改了要升 scorer 版本、影响测试集分数可比性），见 [allocation-v1](distill-allocation-v1.md) §5 与本报告的留档。
+3. **web 题的 `url_match` 不得互为前缀。** harness 取最长匹配，但 lint `web_fixture.url_match` 会查；每加一个页面就跑一次 lint（反例 X-008）。
+4. **web 题的 `query_match` 要宽。** 老师自己拼搜索词，`query_match` 太窄时搜索返回空、老师 0/3。NOTES 里的五条改写查询必须 `bank hitcheck` 5/5。
+5. **脚本题的 hidden 输入集必须在工作区内**（反例 X-006；lint `expect.run.hidden`）。
+6. **题面语气也是题面。** 不用 quick / simple / just，也不用 carefully / note that（反例 X-009）。
+7. **名字池。** 公司、人名、SKU 每批内不重复，并避开 §2.2 发给子 Agent 的 family 黑名单涉及的领域名；decontam 的 names 维度会查专有名重合。
 
 ### 2.7 起草子 Agent 简报模板
 
@@ -504,7 +506,7 @@ rwkv-lab corpus pack --rows <rows.jsonl> [--rows …] [--exclude <jsonl>] (--out
 | # | 条件 | `kind` |
 |---|---|---|
 | 1 | `task_type == "smalltalk"` | `smalltalk` |
-| 2 | `zero_call` 且（`task_type == "beyond_capability"` 或 `traps` 含 `TR-NOCAP`） | `refuse` |
+| 2 | `task_type == "beyond_capability"` 或 `traps` 含 `TR-NOCAP` | `refuse` |
 | 3 | `traps` 含 `TR-AMBIG` 且 `turn < turns_total` | `clarify` |
 | 4 | `zero_call` | `direct` |
 | 5 | `scenario == "script"` 或 case 有 `expect.run` | `script` |
@@ -514,7 +516,7 @@ rwkv-lab corpus pack --rows <rows.jsonl> [--rows …] [--exclude <jsonl>] (--out
 | 9 | 其余（含只用 `calculator`/`datetime`） | `local` |
 
 同一题的不同轮可能属于不同 kind（歧义题第 1 轮是 `clarify`，第 2 轮是 `local`），这是预期结果。
-规则 3 **不看 `zero_call`**：先翻工作区、发现两个候选再问「你指哪个」比不看就问更有依据；「有没有调用工具」已经记在 `traj.zero_call` 里，需要时与 `kind` 组合筛选即可。
+规则 2 与规则 3 **都不看 `zero_call`**（§4.3.1 允许先查工作区再拒绝，先查再问也是更好的澄清，`traj.zero_call` 单独记录有没有查）：先翻工作区、发现两个候选再问「你指哪个」比不看就问更有依据；「有没有调用工具」已经记在 `traj.zero_call` 里，需要时与 `kind` 组合筛选即可。
 `corpus pack` 的统计增加一张「kind × 行数」表，`--dry-run` 也打印。
 
 #### 4.4.3 base700 标签规范化（产出 `bench/distill/tag-map.json`，入库）

@@ -1,0 +1,40 @@
+{
+  "id": "nt-5150",
+  "description": "Desk the queue ownership list records against burst pipe reports. DISTILL-CANARY-4d1e70a3",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "stable_fact",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "Metering Desk"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-desk-ownership-01",
+    "ref_calls": 1,
+    "fixture_bytes": 537,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "operations/queue-ownership.txt": "burst pipe reports = Field Response Desk\nmeter readings = Metering Desk\nsewer odour = Network Investigations Desk\nwater quality = Water Quality Desk\n",
+    "README.md": "# Haldenford Water - operations workspace\n\nWorking area for the network operations group.\n\n- operations/  the queue ownership list and the shift handover notes\n\nThe ownership list carries one desk per customer queue and is edited in place, so a queue is never recorded against two desks. Rows are kept in alphabetical order of the queue name. Last reviewed 2026-05-14, reference NW-6612.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Haldenford Water's contact centre has taken a batch of burst pipe reports and needs to pass them to the right desk. Which desk owns those reports? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "Field Response Desk",
+        "tools": []
+      }
+    }
+  ]
+}

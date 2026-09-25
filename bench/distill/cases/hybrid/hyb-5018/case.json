@@ -1,0 +1,36 @@
+{
+  "id": "hyb-5018",
+  "description": "Low season nightly rate for a double room on a guest house's current card. DISTILL-CANARY-d18c56f2",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "local_first",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-hyb-roomcard-01",
+    "ref_calls": 2,
+    "fixture_bytes": 303,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "tariff/room-rates-2026.csv": "room,low_season,high_season\nsingle,58,74\ndouble,79,96\ntwin,71,88\nfamily,104,128\n",
+    "README.md": "# Millgarth Guest House - room rates\n\nRates are per room per night and include breakfast. The low season card\nruns from November to March and the high season card from April to\nOctober. Every room is offered on both cards.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Millgarth Guest House is quoting a booking that falls in the low season on its current room card. What is the nightly rate for a double room? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 79,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

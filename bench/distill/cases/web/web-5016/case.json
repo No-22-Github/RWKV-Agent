@@ -1,0 +1,41 @@
+{
+  "id": "web-5016",
+  "description": "How long Tarnwell's deprecated invoice endpoints keep answering, from its notice. DISTILL-CANARY-a97b24f1",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "deprecation",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-web-sunsetwindow-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "tarnwell",
+      "url": "https://docs.tarnwell.example/deprecations/legacy-invoices",
+      "url_match": "docs.tarnwell.example/deprecations/legacy-invoices",
+      "title": "Legacy invoice endpoints - Tarnwell deprecation notice",
+      "snippet": "The legacy invoice endpoints keep accepting requests for 240 days from the date of the notice.",
+      "content": "# Legacy invoice endpoints - deprecation notice\n\nTarnwell, 11 May 2026.\n\nThe /v1/invoices endpoints are deprecated. They keep accepting requests for 240\ndays from the date of this notice; after that date every request is answered\n410, reads included.\n\nThe /v2/invoices endpoints take the same fields as their /v1 counterparts and\nare the replacement. Clients that only read invoices can move first; clients\nthat create them need to send the new tax block before they move.\n\nSandbox access to the /v1/invoices endpoints is unaffected and stays open.\n",
+      "published_at": "2026-05-11"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "Tarnwell has deprecated the legacy invoice endpoints we still call. From the date of the notice, for how many days do those endpoints keep accepting requests? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 240,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "id": "web-5022",
+  "description": "Redirect hops allowed before AC-4210 in the Ashcott error reference; the edge-rule page counts a different path. DISTILL-CANARY-e6a1508c",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": 8
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-web-hoplimit-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "ashcott",
+      "url": "https://docs.ashcott.example/errors/redirect-loop",
+      "url_match": "docs.ashcott.example/errors/redirect-loop",
+      "title": "Redirect errors - Ashcott CDN",
+      "snippet": "AC-4210 is raised when a request follows more than 16 redirect hops.",
+      "content": "# Redirect errors\n\nAshcott CDN, reviewed 2026-01-30.\n\n| code | raised when | what to do |\n| --- | --- | --- |\n| AC-4204 | the origin sends a location header the edge cannot read | fix the header at the origin |\n| AC-4210 | a request follows more than 16 redirect hops | shorten the chain or answer the request directly |\n| AC-4288 | an edge rule hands the request back to its own rule | take the loop out of the rule |\n\nThe hop ceiling counts the redirects the edge follows for one request. A chain\nof sixteen redirects is served; the seventeenth ends on AC-4210.\n",
+      "published_at": "2026-01-30"
+    },
+    {
+      "query_match": "ashcott edge rules",
+      "url": "https://docs.ashcott.example/limits/edge-rules",
+      "url_match": "docs.ashcott.example/limits/edge-rules",
+      "title": "Edge rule limits - Ashcott CDN",
+      "snippet": "An edge rule may hand a request through 8 internal hops before the request goes back to the browser.",
+      "content": "# Edge rule limits\n\nAshcott CDN.\n\nAn edge rule may hand a request through 8 internal hops before the request goes\nback to the browser. The count covers hops inside the edge rule; redirects the\nbrowser follows afterwards are counted separately.\n",
+      "published_at": "2026-02-11"
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Our storefront keeps ending on Ashcott error AC-4210 while the origin sends redirects. How many redirect hops may one request follow before the edge raises that error? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 16,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

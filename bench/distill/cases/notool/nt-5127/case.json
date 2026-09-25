@@ -1,0 +1,41 @@
+{
+  "id": "nt-5127",
+  "description": "Explain what a pool heating card accounts for and give the energy for one lift. DISTILL-CANARY-7b3f0a9d",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 210000.0
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-heatduty-26",
+    "ref_calls": 0,
+    "fixture_bytes": 230,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "pool/heating_card.csv": "pool,water_kg,start_c,end_c,spec_heat_kj_kg_k\nmain,84000,26.0,28.5,4.18\n",
+    "README.md": "# Ravensgill Leisure Trust - pool plant\n\nShared folder for the pool team.\n\n- pool/  heating cards for the pools\n- chemistry/  test sheets from the plant room\n"
+  },
+  "turns": [
+    {
+      "prompt": "A pool attendant at Ravensgill asked what the heat figure on a pool card accounts for; water takes 4.18 kilojoules to lift one kilogram by one kelvin. The main pool holds 84000 kilograms of water that has to be taken from 26.0 degrees to 28.5 degrees. Give the energy that lift needs, in kilojoules. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 877800.0,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

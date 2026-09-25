@@ -1,0 +1,39 @@
+{
+  "id": "tab-5035",
+  "description": "Spring comparison for a dairy whose collection log starts in 2026. DISTILL-CANARY-71ea26d4",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": 44218
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-tab-dairyrounds-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1394,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "collection_log_2026.csv": "collection_id,collection_date,round,litres\nCL-2011,2026-01-05,North Round,5740\nCL-2012,2026-01-07,Coast Round,6128\nCL-2013,2026-01-12,Vale Round,5390\nCL-2014,2026-01-19,Moor Round,4826\nCL-2015,2026-02-03,North Round,5906\nCL-2016,2026-02-10,Coast Round,6342\nCL-2017,2026-02-17,Vale Round,5488\nCL-2018,2026-02-24,Moor Round,5034\nCL-2019,2026-03-03,North Round,6215\nCL-2020,2026-03-10,Coast Round,6574\nCL-2021,2026-03-17,Vale Round,5702\nCL-2022,2026-03-24,Moor Round,5241\nCL-2023,2026-03-31,North Round,6088\nCL-2024,2026-04-07,North Round,6453\nCL-2025,2026-04-09,Coast Round,6718\nCL-2026,2026-04-14,Vale Round,5927\nCL-2027,2026-04-16,Moor Round,5412\nCL-2028,2026-04-21,North Round,6645\nCL-2029,2026-04-23,Coast Round,6984\nCL-2030,2026-04-28,Vale Round,6079\nCL-2031,2026-05-05,North Round,6832\nCL-2032,2026-05-07,Coast Round,7156\nCL-2033,2026-05-12,Vale Round,6248\nCL-2034,2026-05-19,Moor Round,5693\nCL-2035,2026-06-02,North Round,7044\nCL-2036,2026-06-09,Coast Round,7381\nCL-2037,2026-06-16,Vale Round,6429\nCL-2038,2026-06-23,Moor Round,5817\nCL-2039,2026-07-07,North Round,6958\nCL-2040,2026-07-14,Coast Round,7226\nCL-2041,2026-08-04,North Round,6794\nCL-2042,2026-08-11,Coast Round,7063\n",
+    "README.md": "# Wexcombe Dairy - tanker collection log\n\nOne row per collection round; litres is the milk the tanker brought in. The telemetry on the tankers was commissioned in January 2026, so the log begins with that month.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Wexcombe Dairy's co-operative compares its spring volumes with the year before. How much more milk was collected in April 2026 than in April 2025, in litres? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "UNKNOWN"
+      }
+    }
+  ]
+}

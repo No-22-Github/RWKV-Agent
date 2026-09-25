@@ -1,0 +1,40 @@
+{
+  "id": "tab-5030",
+  "description": "Net August balance for a brine works ledger that stores credits as positive figures. DISTILL-CANARY-2a7e15b8",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "reconcile",
+    "traps": [
+      "TR-SIGN"
+    ],
+    "trap_decoys": {
+      "TR-SIGN": 18141.0
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-saltworks-01",
+    "ref_calls": 3,
+    "fixture_bytes": 2694,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "ledger_2026-08.csv": "entry_id,entry_date,account,entry_type,amount\nBW-7081,2026-08-01,Bramwith Soap,charge,486.20\nBW-7082,2026-08-01,Coleridge Tannery,charge,312.75\nBW-7083,2026-08-02,Dunmow Glassworks,charge,614.40\nBW-7084,2026-08-02,Marchmont Pools,charge,208.15\nBW-7085,2026-08-03,Saltcote Laundry,charge,167.90\nBW-7086,2026-08-03,Coleridge Tannery,credit,84.60\nBW-7087,2026-08-04,Bramwith Soap,charge,529.35\nBW-7088,2026-08-04,Welby Chemicals,charge,742.80\nBW-7089,2026-08-05,Marchmont Pools,charge,196.45\nBW-7090,2026-08-05,Dunmow Glassworks,charge,588.70\nBW-7091,2026-08-06,Saltcote Laundry,charge,174.25\nBW-7092,2026-08-06,Bramwith Soap,charge,463.90\nBW-7093,2026-08-07,Coleridge Tannery,charge,358.60\nBW-7094,2026-08-07,Welby Chemicals,credit,120.40\nBW-7095,2026-08-10,Dunmow Glassworks,charge,631.55\nBW-7096,2026-08-10,Marchmont Pools,charge,187.30\nBW-7097,2026-08-11,Bramwith Soap,charge,498.75\nBW-7098,2026-08-11,Saltcote Laundry,charge,159.60\nBW-7099,2026-08-12,Coleridge Tannery,charge,341.85\nBW-7100,2026-08-12,Welby Chemicals,charge,708.25\nBW-7101,2026-08-13,Dunmow Glassworks,charge,572.40\nBW-7102,2026-08-13,Marchmont Pools,charge,214.55\nBW-7103,2026-08-14,Bramwith Soap,charge,517.30\nBW-7104,2026-08-14,Saltcote Laundry,charge,181.45\nBW-7105,2026-08-17,Coleridge Tannery,charge,369.20\nBW-7106,2026-08-17,Welby Chemicals,credit,96.75\nBW-7107,2026-08-18,Dunmow Glassworks,charge,646.10\nBW-7108,2026-08-18,Marchmont Pools,charge,199.85\nBW-7109,2026-08-19,Bramwith Soap,charge,452.60\nBW-7110,2026-08-19,Saltcote Laundry,charge,163.35\nBW-7111,2026-08-20,Coleridge Tannery,charge,326.90\nBW-7112,2026-08-20,Welby Chemicals,charge,684.55\nBW-7113,2026-08-21,Dunmow Glassworks,charge,599.25\nBW-7114,2026-08-21,Marchmont Pools,charge,221.40\nBW-7115,2026-08-24,Bramwith Soap,credit,148.30\nBW-7116,2026-08-24,Saltcote Laundry,charge,176.80\nBW-7117,2026-08-25,Coleridge Tannery,charge,352.15\nBW-7118,2026-08-25,Welby Chemicals,charge,731.60\nBW-7119,2026-08-26,Dunmow Glassworks,charge,618.45\nBW-7120,2026-08-26,Marchmont Pools,charge,192.70\nBW-7121,2026-08-27,Bramwith Soap,charge,471.90\nBW-7122,2026-08-27,Saltcote Laundry,credit,213.50\nBW-7123,2026-08-28,Coleridge Tannery,charge,338.40\nBW-7124,2026-08-28,Welby Chemicals,charge,695.35\nBW-7125,2026-08-31,Dunmow Glassworks,charge,604.80\nBW-7126,2026-08-31,Marchmont Pools,charge,205.25\nBW-7127,2026-08-31,Bramwith Soap,credit,88.95\nBW-7128,2026-08-31,Coleridge Tannery,credit,142.70\nBW-7129,2026-08-31,Saltcote Laundry,charge,171.55\nBW-7130,2026-08-31,Welby Chemicals,credit,167.20\n",
+    "README.md": "# Winsford Brine Works - customer ledger, August 2026\n\nOne row per posted entry; every amount is entered as a positive figure, and a credit reduces the balance an account owes.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Winsford Brine Works reconciles its customer accounts when it closes the month. What net amount is owed to the works for August 2026, in pounds, rounded to two decimal places? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 16016.2,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

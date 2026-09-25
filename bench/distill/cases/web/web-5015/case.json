@@ -1,0 +1,41 @@
+{
+  "id": "web-5015",
+  "description": "Row ceiling that raises the too-large import error in the Quarryside bulk import reference. DISTILL-CANARY-1e7d3c05",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-web-importerror-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "quarryside",
+      "url": "https://docs.quarryside.example/errors/bulk-import",
+      "url_match": "docs.quarryside.example/errors/bulk-import",
+      "title": "Bulk import errors - Quarryside",
+      "snippet": "QR-8802 is raised when one import carries more than 2500 rows; split the file and send the parts.",
+      "content": "# Bulk import errors\n\nQuarryside, reviewed 2026-05-29.\n\n| code | raised when | what to do |\n| --- | --- | --- |\n| QR-8801 | the first line of the file is not the expected column list | send the file the export writes |\n| QR-8802 | one import carries more than 2500 rows | split the file and send the parts |\n| QR-8804 | the import names an account the key cannot write to | check the key scope |\n\nThe row ceiling belongs to one import, not to the file: 3000 rows sent as two\nimports of 1500 are accepted. The ceiling is the same on every plan, and a\nsingle import that reaches it is refused whole rather than in part.\n",
+      "published_at": "2026-05-29"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "A nightly load into Quarryside keeps being refused with the error that means one import is too large for the service to take. How many rows may a single import carry before that error is raised? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 2500,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

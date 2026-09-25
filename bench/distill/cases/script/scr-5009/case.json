@@ -1,0 +1,47 @@
+{
+  "id": "scr-5009",
+  "description": "Make the tramway's fare sheet script run on standard-library-only runners while it prints the same sheet. DISTILL-CANARY-c92d05be",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "stdlib_only",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-scr-tramfare-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1618,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "departures.py": "\"\"\"Print the fare sheet for the Cranmore Tramway.\n\nTrips land in trips/, one file per month; the columns are\ndeparted_at,route,passengers. The route rates live in tariffs.yaml, keyed by\nroute name. Print one line per trip in departed_at order, then a totals\nline:\n\n    <departed_at>,<route>,<fare>\n    TOTAL,<fare>\n\nFares print in pounds with two decimals.\n\"\"\"\nimport csv\nimport os\nimport yaml\n\nHERE = os.path.dirname(os.path.abspath(__file__))\nTRIPS = os.path.join(HERE, \"trips\")\n\n\ndef pounds(pence):\n    return \"%d.%02d\" % (pence // 100, pence % 100)\n\n\ndef rates():\n    with open(os.path.join(HERE, \"tariffs.yaml\")) as handle:\n        return yaml.safe_load(handle)\n\n\ndef trip_rows():\n    rows = []\n    for name in sorted(os.listdir(TRIPS)):\n        if name.endswith(\".csv\"):\n            with open(os.path.join(TRIPS, name), newline=\"\") as handle:\n                rows.extend(csv.DictReader(handle))\n    return rows\n\n\ndef main():\n    rate = rates()\n    total = 0\n    for row in sorted(trip_rows(), key=lambda r: r[\"departed_at\"]):\n        fare = int(row[\"passengers\"]) * rate[row[\"route\"]]\n        total += fare\n        print(\"%s,%s,%s\" % (row[\"departed_at\"], row[\"route\"], pounds(fare)))\n    print(\"TOTAL,%s\" % pounds(total))\n\n\nmain()\n",
+    "tariffs.yaml": "harbour: 240\nsummit: 380\n",
+    "trips/2026-09.csv": "departed_at,route,passengers\n2026-09-02,harbour,34\n2026-09-05,summit,22\n2026-09-12,harbour,41\n2026-09-16,summit,18\n2026-09-23,harbour,29\n",
+    "README.md": "# Cranmore Tramway - fares\n\nThe booking hut writes each trip to trips/ as it departs, one file per\nmonth. The fare sheet is printed by departures.py and posted at the\nterminus. The route rates are kept in tariffs.yaml.\n"
+  },
+  "expect": {
+    "files": {
+      "trips/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "departures.py",
+      "expected_stdout": "2026-09-02,harbour,81.60\n2026-09-05,summit,83.60\n2026-09-12,harbour,98.40\n2026-09-16,summit,68.40\n2026-09-23,harbour,69.60\n2026-10-03,summit,98.80\n2026-10-07,harbour,88.80\nTOTAL,589.20",
+      "hidden_files": {
+        "trips/2026-10.csv": "departed_at,route,passengers\n2026-10-03,summit,26\n2026-10-07,harbour,37\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The fare sheet script will not start on the terminus laptop, which carries the standard library and nothing else, and the noticeboard has gone without its fares. Please make departures.py run there with the standard library alone, printing the sheet exactly as it stands today and keeping it right for the monthly trip files that land in trips/ later. When finished, reply DONE.",
+      "expect": {}
+    }
+  ]
+}

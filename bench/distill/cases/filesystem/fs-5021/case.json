@@ -1,0 +1,44 @@
+{
+  "id": "fs-5021",
+  "description": "Report which monthly gauge log is the largest file in a weir trust's folder, against a size list recorded earlier. DISTILL-CANARY-53c0be1c",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "largest",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "readings/brantfell-2026-04.txt"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-fs-gaugebulk-01",
+    "ref_calls": 1,
+    "fixture_bytes": 2025,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "Brantfell Weir Trust - gauge logs\n\nA reading log is kept for each month and typed up by the warden, who posts them\nto the trust's portal one file at a time. The sizes below were recorded in\nbytes when each log was typed:\n\n  brantfell-2026-03.txt  461\n  brantfell-2026-04.txt  562\n  brantfell-2026-05.txt  380\n\nTwo of the winter logs were extended after they were typed, once the post\nbrought readings from the relief gauge.\n",
+    "readings/brantfell-2026-03.txt": "Brantfell Weir - gauge log, March 2026\nReadings taken at 08:00 and 16:00 each day by the warden.\nWeir board repainted on the 4th; the sill mark moved 2 mm the same week.\nRiver in spate from the 9th to the 12th, then falling steadily.\nTwo readings missed on the 17th, the warden was at the relief gauge.\nWater clear throughout; no weed at the sill on any visit.\nBoard checked against the staff gauge on the 28th, agreement within 3 mm.\nMonthly mean worked out from the 60 readings on the morning of the 1st.\nLast reading of the month taken at 16:00 on the 31st, in heavy rain.\n",
+    "readings/brantfell-2026-04.txt": "Brantfell Weir - gauge log, April 2026\nReadings taken at 08:00 and 16:00 each day by the warden.\nBoard checked against the staff gauge on the 2nd, agreement within 2 mm.\nSpate on the 3rd, the board covered for six hours, readings from the bridge.\nFalling through the rest of the month, no readings missed.\nWeed at the sill after the 21st, cleared twice by the lengthsman.\nRain on the 26th and 27th only, the bank dry again by the 29th.\nMonthly mean worked out from the 60 readings on the morning of the 1st.\nLast reading of the month taken at 16:00 on the 30th.\n",
+    "readings/brantfell-2026-05.txt": "Brantfell Weir - gauge log, May 2026\nReadings taken at 08:00 and 16:00 each day by the warden.\nBoard checked against the staff gauge on the 5th, agreement within 4 mm.\nLow water for most of the month, the sill dry on nine days.\nWeed at the sill before the 8th and again from the 19th.\nDrought order noted on the 24th, readings kept to the afternoon.\nRain on the 30th brought the river up to the sill by dusk.\nLast reading of the month taken at 16:00 on the 31st.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The warden at Brantfell Weir Trust sends the gauge logs to the trust's portal one file at a time, starting with the biggest, because the portal is slow with the long uploads. Which log in this folder is the largest by bytes? Report its path. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals_any": [
+          "readings/brantfell-2026-03.txt",
+          "brantfell-2026-03.txt"
+        ]
+      }
+    }
+  ]
+}

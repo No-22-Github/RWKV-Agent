@@ -1,0 +1,39 @@
+{
+  "id": "doc-5015",
+  "description": "How many documents named by a village hall's event list have no file in the folder. DISTILL-CANARY-a57d0e28",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "link_check",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-doc-hallset-01",
+    "ref_calls": 2,
+    "fixture_bytes": 1159,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Pentridge Village Hall - event folder\n\nThe hall keeps the paperwork for a booking in one folder. The committee works from the list in `lists/event-set.txt`.\n",
+    "lists/event-set.txt": "certificates/electrical-certificate.md\npolicies/hire-agreement.md\ncertificates/gas-certificate.md\npolicies/fire-safety.md\nlayouts/main-hall.md\nlayouts/kitchen.md\ninvoices/hall-hire-invoice.md\nnotices/road-closure.md\nkeepers/caretaker-rota.md\n",
+    "policies/hire-agreement.md": "# Hire agreement\n\nThe hirer signs the agreement at the office and takes a copy away.\nThe deposit is returned after the hall has been checked.\n",
+    "policies/fire-safety.md": "# Fire safety\n\nStewards check the exits before the doors open and record the check on the evening sheet.\nExtinguishers are serviced on the maintenance rota.\n",
+    "layouts/main-hall.md": "# Main hall layout\n\nTables are set out in rows for the market and around the walls for a party.\nThe stage curtains are drawn by the committee.\n",
+    "notices/road-closure.md": "# Road closure notice\n\nThe lane past the hall is closed for resurfacing, and the parish office puts up diversion signs.\nParking on the green is allowed while the work is under way.\n",
+    "keepers/caretaker-rota.md": "# Caretaker rota\n\nThe caretaker opens the hall an hour before a booking.\nIf the caretaker is away, a committee member takes the shift.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Pentridge Village Hall keeps the paperwork for each booking in one folder. How many of the documents named in the folder's event list have no file anywhere in the folder? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 4,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

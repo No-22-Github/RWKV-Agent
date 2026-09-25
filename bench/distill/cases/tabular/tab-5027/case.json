@@ -1,0 +1,41 @@
+{
+  "id": "tab-5027",
+  "description": "Largest single burn yield in one month of a charcoal burner's records. DISTILL-CANARY-35c8a20e",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "rank",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 1184
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-coppice-01",
+    "ref_calls": 3,
+    "fixture_bytes": 3051,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "burn_log_2026-06.csv": "burn_id,burn_date,kiln,species,yield_kg\nCH-8815,2026-06-01,Kiln A,Birch,742\nCH-8816,2026-06-02,Kiln B,Hazel,613\nCH-8817,2026-06-03,Kiln A,Oak,1184\nCH-8818,2026-06-04,Kiln C,Ash,528\nCH-8819,2026-06-05,Kiln B,Birch,671\nCH-8820,2026-06-08,Kiln A,Hazel,806\nCH-8821,2026-06-09,Kiln C,Oak,934\nCH-8822,2026-06-10,Kiln B,Ash,449\nCH-8823,2026-06-11,Kiln A,Birch,718\nCH-8824,2026-06-12,Kiln C,Hazel,587\nCH-8825,2026-06-15,Kiln B,Oak,1052\nCH-8826,2026-06-16,Kiln A,Ash,496\nCH-8827,2026-06-17,Kiln C,Birch,663\nCH-8828,2026-06-18,Kiln B,Hazel,775\nCH-8829,2026-06-19,Kiln A,Oak,918\nCH-8830,2026-06-22,Kiln C,Ash,412\nCH-8831,2026-06-23,Kiln B,Birch,704\nCH-8832,2026-06-24,Kiln A,Hazel,831\nCH-8833,2026-06-25,Kiln C,Oak,967\nCH-8834,2026-06-26,Kiln B,Ash,458\nCH-8835,2026-06-29,Kiln A,Birch,689\nCH-8836,2026-06-30,Kiln C,Hazel,592\nCH-8837,2026-06-07,Kiln B,Oak,1021\nCH-8838,2026-06-14,Kiln A,Ash,473\nCH-8839,2026-06-21,Kiln C,Birch,655\nCH-8840,2026-06-28,Kiln B,Hazel,768\n",
+    "burn_log_2026-07.csv": "burn_id,burn_date,kiln,species,yield_kg\nCH-8841,2026-07-01,Kiln A,Birch,701\nCH-8842,2026-07-01,Kiln B,Hazel,566\nCH-8843,2026-07-02,Kiln C,Oak,889\nCH-8844,2026-07-02,Kiln A,Ash,478\nCH-8845,2026-07-03,Kiln B,Birch,634\nCH-8846,2026-07-03,Kiln C,Hazel,752\nCH-8847,2026-07-06,Kiln A,Oak,962\nCH-8848,2026-07-06,Kiln B,Ash,521\nCH-8849,2026-07-07,Kiln C,Birch,687\nCH-8850,2026-07-07,Kiln A,Hazel,814\nCH-8851,2026-07-08,Kiln B,Oak,843\nCH-8852,2026-07-08,Kiln C,Ash,435\nCH-8853,2026-07-09,Kiln A,Birch,726\nCH-8854,2026-07-09,Kiln B,Hazel,598\nCH-8855,2026-07-10,Kiln C,Oak,907\nCH-8856,2026-07-10,Kiln A,Ash,502\nCH-8857,2026-07-13,Kiln B,Birch,668\nCH-8858,2026-07-13,Kiln C,Hazel,779\nCH-8859,2026-07-14,Kiln A,Oak,931\nCH-8860,2026-07-14,Kiln B,Ash,447\nCH-8861,2026-07-15,Kiln C,Birch,712\nCH-8862,2026-07-15,Kiln A,Hazel,826\nCH-8863,2026-07-16,Kiln B,Oak,874\nCH-8864,2026-07-16,Kiln C,Ash,489\nCH-8865,2026-07-17,Kiln A,Birch,743\nCH-8866,2026-07-17,Kiln B,Hazel,631\nCH-8867,2026-07-20,Kiln C,Oak,908\nCH-8868,2026-07-20,Kiln A,Ash,516\nCH-8869,2026-07-21,Kiln B,Birch,695\nCH-8870,2026-07-21,Kiln C,Hazel,808\nCH-8871,2026-07-22,Kiln A,Oak,952\nCH-8872,2026-07-22,Kiln B,Ash,463\nCH-8873,2026-07-23,Kiln C,Birch,724\nCH-8874,2026-07-23,Kiln A,Hazel,837\nCH-8875,2026-07-24,Kiln B,Oak,891\nCH-8876,2026-07-24,Kiln C,Ash,471\nCH-8877,2026-07-27,Kiln A,Birch,758\nCH-8878,2026-07-27,Kiln B,Hazel,644\nCH-8879,2026-07-28,Kiln C,Oak,925\nCH-8880,2026-07-28,Kiln A,Ash,528\nCH-8881,2026-07-29,Kiln B,Birch,712\nCH-8882,2026-07-29,Kiln C,Hazel,821\nCH-8883,2026-07-30,Kiln A,Oak,946\nCH-8884,2026-07-30,Kiln B,Ash,455\nCH-8885,2026-07-31,Kiln C,Birch,738\nCH-8886,2026-07-31,Kiln A,Hazel,849\nCH-8887,2026-07-05,Kiln B,Oak,862\nCH-8888,2026-07-12,Kiln C,Ash,494\nCH-8889,2026-07-19,Kiln A,Birch,769\nCH-8890,2026-07-26,Kiln B,Hazel,657\nCH-8891,2026-07-04,Kiln C,Oak,916\nCH-8892,2026-07-11,Kiln A,Ash,537\nCH-8893,2026-07-18,Kiln B,Birch,683\nCH-8894,2026-07-25,Kiln C,Hazel,794\n",
+    "README.md": "# Furzehill Coppice - charcoal burn records, 2026 season\n\nOne export per month, one row per burn; yield_kg is the charcoal drawn from that burn once it had cooled.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Furzehill Coppice sells its charcoal to farm shops. What was the largest single burn yield recorded in July 2026, in kilograms? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 962,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

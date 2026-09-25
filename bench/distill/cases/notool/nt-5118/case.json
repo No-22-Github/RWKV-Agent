@@ -1,0 +1,41 @@
+{
+  "id": "nt-5118",
+  "description": "Explain the drop figure on a pump feeder sheet and give one feeder's voltage drop. DISTILL-CANARY-3a5f8d10",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 1.42598
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-cablevolt-22",
+    "ref_calls": 0,
+    "fixture_bytes": 264,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "cable/pump_feeders.csv": "feeder,size_mm2,run_m,current_a,three_core_mv_a_m\nPC-3,16.0,74,41,1.0\nPC-37,35.0,74,41,0.47\n",
+    "README.md": "# Aldermere Water Works - pump stations\n\nShared folder for the electrical team.\n\n- cable/  feeder sheets for the borehole pumps\n- permits/  isolation permits for the sites\n"
+  },
+  "turns": [
+    {
+      "prompt": "A contractor working for Aldermere Water Works asked what the millivolts per ampere per metre entry on the pump feeder sheet stands for; it is the loss the cable shows for each ampere it carries over each metre. Feeder PC-3 is a 16 square millimetre three-core run of 74 metres that draws 41 amperes. Give the voltage drop on that feeder, in volts. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 3.034,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

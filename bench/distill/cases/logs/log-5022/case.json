@@ -1,0 +1,40 @@
+{
+  "id": "log-5022",
+  "description": "Ask for the gas cost of a boiler session in a family whose siblings ask for totals the journal does record. DISTILL-CANARY-d6418e2c",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": 1715
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-boilercycles-21",
+    "ref_calls": 3,
+    "fixture_bytes": 1710,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# boiler house journal\n\nNetherby Laundry's boiler house runs the burner that heats the wash water.\nEvery cycle writes one line to logs/boiler.log:\n\n    <UTC time> CYCLE burner=<id> load=<n> minutes=<n> fuel=<n>\n\n`load` is the number of garments the cycle took in, `minutes` is how long the\ncycle ran and `fuel` is the gas units the burner drew. A session ends with a\nsummary line carrying the number of cycles it ran and the gas units it drew in\ntotal, and the journal is replaced when the next session starts.\n",
+    "logs/boiler.log": "2026-09-09T05:12:37Z CYCLE burner=B-1 load=118 minutes=64 fuel=96\n2026-09-09T06:03:19Z CYCLE burner=B-1 load=124 minutes=66 fuel=101\n2026-09-09T06:57:44Z CYCLE burner=B-1 load=131 minutes=68 fuel=108\n2026-09-09T07:49:02Z CYCLE burner=B-1 load=109 minutes=62 fuel=88\n2026-09-09T08:36:28Z CYCLE burner=B-1 load=140 minutes=70 fuel=116\n2026-09-09T09:31:11Z CYCLE burner=B-1 load=116 minutes=65 fuel=94\n2026-09-09T10:22:53Z CYCLE burner=B-1 load=127 minutes=67 fuel=103\n2026-09-09T11:14:07Z CYCLE burner=B-1 load=133 minutes=69 fuel=109\n2026-09-09T12:05:36Z CYCLE burner=B-1 load=112 minutes=63 fuel=91\n2026-09-09T13:01:48Z CYCLE burner=B-1 load=138 minutes=70 fuel=114\n2026-09-09T13:56:22Z CYCLE burner=B-1 load=121 minutes=66 fuel=98\n2026-09-09T14:48:39Z CYCLE burner=B-1 load=129 minutes=68 fuel=105\n2026-09-09T15:41:05Z CYCLE burner=B-1 load=115 minutes=64 fuel=93\n2026-09-09T16:33:27Z CYCLE burner=B-1 load=136 minutes=69 fuel=112\n2026-09-09T17:26:54Z CYCLE burner=B-1 load=108 minutes=62 fuel=87\n2026-09-09T18:19:16Z CYCLE burner=B-1 load=122 minutes=65 fuel=99\n2026-09-09T19:11:43Z CYCLE burner=B-1 load=125 minutes=66 fuel=101\n2026-09-09T20:04:58Z SUMMARY session=2026-09-09 cycles=17 fuel=1715\n"
+  },
+  "turns": [
+    {
+      "prompt": "Netherby Laundry's boiler house ran a session on 9 September 2026. What did the gas that session burned cost, in pounds? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "UNKNOWN"
+      }
+    }
+  ]
+}

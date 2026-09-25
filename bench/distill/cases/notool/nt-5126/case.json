@@ -1,0 +1,41 @@
+{
+  "id": "nt-5126",
+  "description": "Explain specific heat on a chill card and give one room's pull-down duty. DISTILL-CANARY-a16c5e82",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 31248.0
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-heatduty-26",
+    "ref_calls": 0,
+    "fixture_bytes": 243,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "rooms/chill_cards.csv": "room,product_kg,start_c,end_c,spec_heat_kj_kg_k,pull_down_s\nCS-52,620,18,4,3.6,4800\n",
+    "README.md": "# Palewick Coldstore - plant room\n\nWorking folder for the refrigeration team.\n\n- rooms/  cards for each chill room\n- plant/  service notes for the compressors\n"
+  },
+  "turns": [
+    {
+      "prompt": "A refrigeration engineer at Palewick Coldstore asked what the specific heat figure on a chill card is; it is the energy in kilojoules that lifts one kilogram of the product by one kelvin. Room CS-52 takes 620 kilograms of product at 3.6 kilojoules per kilogram per kelvin, to come down from 18 degrees to 4 degrees over a pull-down of 4800 seconds. Give the average refrigeration duty over the pull-down, in kilowatts. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 6.51,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

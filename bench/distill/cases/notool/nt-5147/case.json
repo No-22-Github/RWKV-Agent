@@ -1,0 +1,42 @@
+{
+  "id": "nt-5147",
+  "description": "Read an eight-way switch bank set 11010010 as a denary address. DISTILL-CANARY-7563b1fd",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 75
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-addressbits-01",
+    "ref_calls": 0,
+    "fixture_bytes": 273,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "standards/bit_weights.csv": "7,128\n6,64\n5,32\n4,16\n3,8\n2,4\n1,2\n0,1\n",
+    "panels/station_address_3318.txt": "panel BA-3318\nswitch_bank 11010010\n",
+    "README.md": "# Barrowden Automation - commissioning\n\nThe panels are addressed by an eight-way switch bank, read left to right from bit 7 down to bit 0.\nThe site register holds the same addresses as denary numbers.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Barrowden Automation is registering a conveyor panel on the site register. The panel's address switch bank is set 11010010, read left to right from bit 7 down to bit 0. The register holds the address as a denary number. What address goes on the register? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 210,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

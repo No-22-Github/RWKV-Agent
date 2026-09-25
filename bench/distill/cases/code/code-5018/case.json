@@ -1,0 +1,40 @@
+{
+  "id": "code-5018",
+  "description": "Name the module that calls the smallholding's freeze_run helper. DISTILL-CANARY-2c95a7f3",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "find_callers",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "coolroom/labels.py"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-code-freezerun-01",
+    "ref_calls": 3,
+    "fixture_bytes": 464,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "coolroom/freezer.py": "from store.chill import freeze_run as freeze\n\n# Freeze the crates the coolroom has filled.\n\n\ndef run_day(crates):\n    for crate in crates:\n        freeze(crate)\n    return len(crates)\n",
+    "coolroom/labels.py": "from store.chill import freeze_run\n\n# Label the crates that go to the freezer.\nTEMPLATE = \"lot-%s\"\n\n\ndef label(crate):\n    return TEMPLATE % crate\n",
+    "store/chill.py": "\"\"\"Chill and freeze helpers for the smallholding.\"\"\"\n\nFROZEN = []\n\n\ndef freeze_run(crate):\n    FROZEN.append(crate)\n    return crate\n"
+  },
+  "turns": [
+    {
+      "prompt": "Oakhurst Smallholding freezes a crate of produce by calling the chill store's freeze_run. Which module calls it? Give the file path on its own, with the .py suffix. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "coolroom/freezer.py"
+      }
+    }
+  ]
+}

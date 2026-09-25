@@ -1,0 +1,43 @@
+{
+  "id": "nt-5169",
+  "description": "Give the pod field that stops credentials being projected into the container. DISTILL-CANARY-2d9be6f1",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "enableServiceLinks: false"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-containerline-22",
+    "ref_calls": 0,
+    "fixture_bytes": 397,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "manifests/credential-field-cards.tsv": "token-projection-off\tautomountServiceAccountToken: false\tautomountServiceAccountToken: \"false\"\nservice-env-injection\tenableServiceLinks: false\tenableServiceLinks: \"false\"\n",
+    "README.md": "# Ravengill Water Board - meter collector workload\n\nThe collector reads meters over its own protocol and never calls the cluster's API.\nThe fields the platform team reviewed are carded in manifests/credential-field-cards.tsv.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Ravengill Water Board runs its meter collector as a workload in a cluster. Nothing in that workload ever calls the cluster's own API, so its containers must not start with the credentials the cluster normally makes available inside them. Give the field and its value in the pod spec that stops those credentials from being provided. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "automountServiceAccountToken: false",
+          "automountServiceAccountToken: \"false\""
+        ]
+      }
+    }
+  ]
+}

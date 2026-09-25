@@ -1,0 +1,42 @@
+{
+  "id": "code-5017",
+  "description": "Count the call sites of the cannery's start_batch helper across the intake and line modules. DISTILL-CANARY-d04b7e59",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "find_callers",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 4
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-code-startbatch-01",
+    "ref_calls": 3,
+    "fixture_bytes": 646,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "intake/loader.py": "from line.store import start_batch\n\n# Hand the timed batches to the line store.\nDEFAULT_SHIFT = \"morning\"\n\n\ndef load(batches):\n    for batch in batches:\n        start_batch(batch)\n",
+    "line/registry.py": "from line.store import start_batch\n\n# Names the batches the registry knows about.\nBATCH_NAMES = [\"brine\", \"smoke\", \"pack\"]\n\n\ndef register(batch):\n    start_batch(batch)\n    return BATCH_NAMES\n",
+    "line/relay.py": "from line.store import start_batch\n\n# Relay the batches the registers hand over.\n\n\ndef relay(batch):\n    start_batch(batch)\n    return batch\n",
+    "line/store.py": "\"\"\"The batch store for the Ravenswood cannery.\"\"\"\n\nBATCHES = {}\n\n\ndef start_batch(batch):\n    BATCHES[batch] = True\n    return batch\n"
+  },
+  "turns": [
+    {
+      "prompt": "The Ravenswood cannery starts each timed batch by calling start_batch. Across the intake and line modules, how many call sites does start_batch have? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 3,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

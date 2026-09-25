@@ -1,0 +1,40 @@
+{
+  "id": "log-5019",
+  "description": "Total the bytes one object drew from an edge request journal on one of the two days it covers. DISTILL-CANARY-72d8ab35",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "aggregate_jsonl",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 296942
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-edgerequests-21",
+    "ref_calls": 3,
+    "fixture_bytes": 4127,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# edge request journal\n\nFerngrove Media's edge nodes append one record per object they serve to\nlogs/edge.jsonl: `ts` is when the object was served, `path` is the object's\naddress, `status` is the code the node returned and `bytes` is the size of the\nbody it sent. The export in the workspace covers 14 and 15 August 2026, and the\nnodes serve four objects.\n",
+    "logs/edge.jsonl": "{\"ts\":\"2026-08-14T00:11:07Z\",\"path\":\"/img/hero-a.jpg\",\"status\":200,\"bytes\":18432}\n{\"ts\":\"2026-08-14T00:24:53Z\",\"path\":\"/img/hero-b.jpg\",\"status\":200,\"bytes\":16288}\n{\"ts\":\"2026-08-14T00:47:31Z\",\"path\":\"/media/clip-3.mp4\",\"status\":206,\"bytes\":912640}\n{\"ts\":\"2026-08-14T01:03:19Z\",\"path\":\"/css/site.css\",\"status\":200,\"bytes\":8124}\n{\"ts\":\"2026-08-14T01:38:44Z\",\"path\":\"/img/hero-a.jpg\",\"status\":200,\"bytes\":18390}\n{\"ts\":\"2026-08-14T02:12:26Z\",\"path\":\"/img/hero-b.jpg\",\"status\":200,\"bytes\":16352}\n{\"ts\":\"2026-08-14T02:55:08Z\",\"path\":\"/media/clip-3.mp4\",\"status\":206,\"bytes\":884992}\n{\"ts\":\"2026-08-14T03:19:42Z\",\"path\":\"/img/hero-a.jpg\",\"status\":200,\"bytes\":18516}\n{\"ts\":\"2026-08-14T03:44:15Z\",\"path\":\"/css/site.css\",\"status\":304,\"bytes\":0}\n{\"ts\":\"2026-08-14T04:27:33Z\",\"path\":\"/img/hero-b.jpg\",\"status\":200,\"bytes\":16104}\n{\"ts\":\"2026-08-14T05:02:58Z\",\"path\":\"/img/hero-a.jpg\",\"status\":200,\"bytes\":18244}\n{\"ts\":\"2026-08-14T05:48:21Z\",\"path\":\"/media/clip-3.mp4\",\"status\":206,\"bytes\":936448}\n{\"ts\":\"2026-08-14T06:31:07Z\",\"path\":\"/css/site.css\",\"status\":200,\"bytes\":8188}\n{\"ts\":\"2026-08-14T07:14:52Z\",\"path\":\"/img/hero-a.jpg\",\"status\":200,\"bytes\":18660}\n{\"ts\":\"2026-08-14T07:59:36Z\",\"path\":\"/img/hero-b.jpg\",\"status\":404,\"bytes\":512}\n{\"ts\":\"2026-08-14T08:42:19Z\",\"path\":\"/img/hero-a.jpg\",\"status\":200,\"bytes\":18098}\n{\"ts\":\"2026-08-14T09:26:04Z\",\"path\":\"/media/clip-3.mp4\",\"status\":206,\"bytes\":901376}\n{\"ts\":\"2026-08-14T10:11:48Z\",\"path\":\"/img/hero-a.jpg\",\"status\":200,\"bytes\":18742}\n{\"ts\":\"2026-08-14T11:03:27Z\",\"path\":\"/css/site.css\",\"status\":200,\"bytes\":8296}\n{\"ts\":\"2026-08-14T11:57:53Z\",\"path\":\"/img/hero-b.jpg\",\"status\":200,\"bytes\":15960}\n{\"ts\":\"2026-08-14T12:40:36Z\",\"path\":\"/img/hero-a.jpg\",\"status\":200,\"bytes\":19108}\n{\"ts\":\"2026-08-14T13:22:11Z\",\"path\":\"/media/clip-3.mp4\",\"status\":206,\"bytes\":928768}\n{\"ts\":\"2026-08-14T14:09:44Z\",\"path\":\"/css/site.css\",\"status\":200,\"bytes\":8040}\n{\"ts\":\"2026-08-14T15:01:29Z\",\"path\":\"/img/hero-b.jpg\",\"status\":200,\"bytes\":16420}\n{\"ts\":\"2026-08-15T00:18:33Z\",\"path\":\"/img/hero-a.jpg\",\"status\":200,\"bytes\":18276}\n{\"ts\":\"2026-08-15T01:07:41Z\",\"path\":\"/img/hero-b.jpg\",\"status\":200,\"bytes\":16064}\n{\"ts\":\"2026-08-15T01:52:16Z\",\"path\":\"/media/clip-3.mp4\",\"status\":206,\"bytes\":897024}\n{\"ts\":\"2026-08-15T02:36:58Z\",\"path\":\"/img/hero-a.jpg\",\"status\":200,\"bytes\":18488}\n{\"ts\":\"2026-08-15T03:21:44Z\",\"path\":\"/css/site.css\",\"status\":200,\"bytes\":8166}\n{\"ts\":\"2026-08-15T04:09:27Z\",\"path\":\"/img/hero-a.jpg\",\"status\":200,\"bytes\":18890}\n{\"ts\":\"2026-08-15T04:58:12Z\",\"path\":\"/img/hero-b.jpg\",\"status\":200,\"bytes\":16240}\n{\"ts\":\"2026-08-15T05:41:35Z\",\"path\":\"/media/clip-3.mp4\",\"status\":206,\"bytes\":934912}\n{\"ts\":\"2026-08-15T06:27:08Z\",\"path\":\"/img/hero-a.jpg\",\"status\":200,\"bytes\":18564}\n{\"ts\":\"2026-08-15T07:12:53Z\",\"path\":\"/css/site.css\",\"status\":200,\"bytes\":8078}\n{\"ts\":\"2026-08-15T08:04:19Z\",\"path\":\"/img/hero-a.jpg\",\"status\":200,\"bytes\":18346}\n{\"ts\":\"2026-08-15T08:51:46Z\",\"path\":\"/img/hero-b.jpg\",\"status\":200,\"bytes\":16482}\n{\"ts\":\"2026-08-15T09:39:22Z\",\"path\":\"/media/clip-3.mp4\",\"status\":206,\"bytes\":918528}\n{\"ts\":\"2026-08-15T10:26:57Z\",\"path\":\"/img/hero-a.jpg\",\"status\":200,\"bytes\":18702}\n{\"ts\":\"2026-08-15T11:18:31Z\",\"path\":\"/css/site.css\",\"status\":200,\"bytes\":8252}\n{\"ts\":\"2026-08-15T12:06:14Z\",\"path\":\"/img/hero-b.jpg\",\"status\":200,\"bytes\":16126}\n{\"ts\":\"2026-08-15T12:59:48Z\",\"path\":\"/img/hero-a.jpg\",\"status\":200,\"bytes\":19056}\n{\"ts\":\"2026-08-15T13:47:25Z\",\"path\":\"/media/clip-3.mp4\",\"status\":206,\"bytes\":908800}\n{\"ts\":\"2026-08-15T14:35:09Z\",\"path\":\"/css/site.css\",\"status\":200,\"bytes\":8112}\n{\"ts\":\"2026-08-15T15:22:41Z\",\"path\":\"/img/hero-b.jpg\",\"status\":200,\"bytes\":16298}\n{\"ts\":\"2026-08-15T16:14:07Z\",\"path\":\"/img/hero-a.jpg\",\"status\":200,\"bytes\":18430}\n{\"ts\":\"2026-08-15T17:03:52Z\",\"path\":\"/media/clip-3.mp4\",\"status\":206,\"bytes\":925696}\n"
+  },
+  "turns": [
+    {
+      "prompt": "Ferngrove Media's edge nodes serve four objects and append one record per object they serve. How many bytes did the edge send for /img/hero-a.jpg on 14 August 2026? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 148190,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,45 @@
+{
+  "id": "tab-5034",
+  "description": "Toll grain kept from a windmill's monthly intake, at rates held in the mill's terms. DISTILL-CANARY-09b3f5e1",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "policy_calc",
+    "traps": [
+      "TR-RULEFILE",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": 79756.8,
+      "TR-DECOY": 72970.2
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-tab-windmill-01",
+    "ref_calls": 3,
+    "fixture_bytes": 3282,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "intake_2026-08.csv": "load_id,intake_date,producer,grain,tonnes\nML-5501,2026-08-03,Barrow Croft,bread wheat,14.6\nML-5502,2026-08-03,Hollowfield Farm,feed wheat,18.2\nML-5503,2026-08-04,Ryehill Grange,rye,9.7\nML-5504,2026-08-04,Barrow Croft,bread wheat,12.9\nML-5505,2026-08-05,Hollowfield Farm,feed wheat,21.4\nML-5506,2026-08-05,Stoke Ash Farm,bread wheat,16.8\nML-5507,2026-08-06,Ryehill Grange,rye,8.4\nML-5508,2026-08-06,Hollowfield Farm,feed wheat,19.6\nML-5509,2026-08-07,Barrow Croft,bread wheat,15.3\nML-5510,2026-08-07,Stoke Ash Farm,feed wheat,22.7\nML-5511,2026-08-10,Ryehill Grange,rye,10.2\nML-5512,2026-08-10,Barrow Croft,bread wheat,13.7\nML-5513,2026-08-11,Hollowfield Farm,feed wheat,20.5\nML-5514,2026-08-11,Stoke Ash Farm,bread wheat,17.4\nML-5515,2026-08-12,Ryehill Grange,rye,9.1\nML-5516,2026-08-12,Barrow Croft,feed wheat,23.6\nML-5517,2026-08-13,Hollowfield Farm,bread wheat,15.9\nML-5518,2026-08-13,Stoke Ash Farm,rye,8.8\nML-5519,2026-08-14,Ryehill Grange,feed wheat,18.9\nML-5520,2026-08-14,Barrow Croft,bread wheat,14.1\nML-5521,2026-08-17,Hollowfield Farm,rye,9.4\nML-5522,2026-08-17,Stoke Ash Farm,feed wheat,21.8\nML-5523,2026-08-18,Barrow Croft,bread wheat,16.2\nML-5524,2026-08-18,Ryehill Grange,rye,10.6\nML-5525,2026-08-19,Hollowfield Farm,feed wheat,19.1\nML-5526,2026-08-19,Stoke Ash Farm,bread wheat,13.4\nML-5527,2026-08-20,Barrow Croft,feed wheat,22.3\nML-5528,2026-08-20,Ryehill Grange,rye,9.9\nML-5529,2026-08-21,Hollowfield Farm,bread wheat,15.6\nML-5530,2026-08-21,Stoke Ash Farm,feed wheat,20.8\nML-5531,2026-08-24,Barrow Croft,rye,8.1\nML-5532,2026-08-24,Ryehill Grange,bread wheat,17.1\nML-5533,2026-08-25,Hollowfield Farm,feed wheat,19.9\nML-5534,2026-08-25,Stoke Ash Farm,rye,9.3\nML-5535,2026-08-26,Barrow Croft,bread wheat,14.9\nML-5536,2026-08-26,Ryehill Grange,feed wheat,21.1\nML-5537,2026-08-27,Hollowfield Farm,rye,10.4\nML-5538,2026-08-27,Stoke Ash Farm,bread wheat,16.5\nML-5539,2026-08-28,Barrow Croft,feed wheat,20.2\nML-5540,2026-08-28,Ryehill Grange,rye,9.6\nML-5541,2026-08-31,Hollowfield Farm,bread wheat,15.1\nML-5542,2026-08-31,Stoke Ash Farm,feed wheat,19.4\nML-5543,2026-08-04,Barrow Croft,rye,8.6\nML-5544,2026-08-06,Hollowfield Farm,bread wheat,14.3\nML-5545,2026-08-10,Ryehill Grange,feed wheat,18.6\nML-5546,2026-08-12,Stoke Ash Farm,rye,9.8\nML-5547,2026-08-17,Barrow Croft,bread wheat,15.8\nML-5548,2026-08-19,Hollowfield Farm,feed wheat,21.6\nML-5549,2026-08-21,Ryehill Grange,rye,10.1\nML-5550,2026-08-24,Stoke Ash Farm,bread wheat,16.4\nML-5551,2026-08-26,Barrow Croft,feed wheat,19.7\nML-5552,2026-08-27,Hollowfield Farm,bread wheat,13.9\nML-5553,2026-08-28,Ryehill Grange,rye,8.9\nML-5554,2026-08-31,Stoke Ash Farm,feed wheat,20.6\n",
+    "milling_terms.md": "# Ashcombe Windmill - milling terms, 2026 season\n\nThe miller's toll is taken in grain, in kilograms for every tonne the mill grinds:\n\n- bread wheat: 96 kilograms per tonne\n- feed wheat: 61 kilograms per tonne\n- rye: 78 kilograms per tonne\n",
+    "archive/milling_terms_2023.md": "# Ashcombe Windmill - milling terms, 2023 season\n\nSuperseded card, kept with the mill paperwork.\n\n- bread wheat: 108 kilograms per tonne\n- feed wheat: 72 kilograms per tonne\n- rye: 90 kilograms per tonne\n",
+    "README.md": "# Ashcombe Windmill - grain intake, August 2026\n\nOne row per load tipped at the mill; tonnes is the weight the load was booked in at. The miller takes a share of every load as the toll for grinding it.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Ashcombe Windmill keeps part of the grain it grinds as the miller's toll. What quantity of grain does the mill keep from the August 2026 intake, in kilograms, rounded to one decimal place? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 63390.6,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

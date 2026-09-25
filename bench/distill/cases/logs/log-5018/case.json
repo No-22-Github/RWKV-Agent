@@ -1,0 +1,36 @@
+{
+  "id": "log-5018",
+  "description": "Count one day's draws taken from a single silo in a mill's bagging log. DISTILL-CANARY-e15c74b2",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-log-silodraw-21",
+    "ref_calls": 2,
+    "fixture_bytes": 1365,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# silo draw log\n\nChurnet Valley Mill pulls flour from its two storage silos for the bagging\nline. Every draw writes one line to logs/silo.log:\n\n    <UTC time> DRAW silo=<id> batch=<id> kg=<n>\n\nThe mill draws from both silos on every day it runs. The log is closed with a\nline whose count covers every draw line above it.\n",
+    "logs/silo.log": "2026-09-22T06:08:14Z DRAW silo=S-2 batch=CV-3312 kg=740\n2026-09-22T06:31:47Z DRAW silo=S-3 batch=CV-3315 kg=620\n2026-09-22T07:02:23Z DRAW silo=S-2 batch=CV-3318 kg=810\n2026-09-22T07:26:55Z DRAW silo=S-3 batch=CV-3321 kg=560\n2026-09-22T07:51:38Z DRAW silo=S-2 batch=CV-3324 kg=690\n2026-09-22T08:14:02Z DRAW silo=S-2 batch=CV-3327 kg=775\n2026-09-22T08:39:29Z DRAW silo=S-3 batch=CV-3330 kg=640\n2026-09-22T09:03:11Z DRAW silo=S-2 batch=CV-3333 kg=820\n2026-09-22T09:27:44Z DRAW silo=S-2 batch=CV-3336 kg=705\n2026-09-22T09:52:16Z DRAW silo=S-3 batch=CV-3339 kg=590\n2026-09-22T10:16:53Z DRAW silo=S-2 batch=CV-3342 kg=760\n2026-09-22T10:41:27Z DRAW silo=S-2 batch=CV-3345 kg=830\n2026-09-22T11:05:58Z DRAW silo=S-3 batch=CV-3348 kg=615\n2026-09-22T11:30:34Z DRAW silo=S-2 batch=CV-3351 kg=790\n2026-09-22T11:55:07Z DRAW silo=S-3 batch=CV-3354 kg=655\n2026-09-22T12:19:41Z DRAW silo=S-2 batch=CV-3357 kg=845\n2026-09-22T12:44:15Z DRAW silo=S-3 batch=CV-3360 kg=605\n2026-09-22T13:08:52Z DRAW silo=S-2 batch=CV-3363 kg=715\n2026-09-22T13:33:26Z CLOSE draws=18\n"
+  },
+  "turns": [
+    {
+      "prompt": "Churnet Valley Mill's bagging line draws flour from two storage silos, and each draw is written to the log. How many draws did the mill take from silo S-2 on 22 September 2026? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 11,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

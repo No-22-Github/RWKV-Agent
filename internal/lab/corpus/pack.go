@@ -133,7 +133,12 @@ func RunPack(args PackArgs) int {
 	}
 	read := len(rows)
 
-	excluded := map[string]bool{}
+	// An exclude entry may carry a batch (the one that recorded it). That batch
+	// only excuses the rows that came from it: a case whose earlier batch's rows
+	// were struck out can be re-authored and re-run in a later batch, and those
+	// fresh rows must survive the older entry. Entries without a batch apply to
+	// every row, which is what a hand-written exclusion means.
+	excluded := map[string]map[string]bool{}
 	excludeSHA := ""
 	if args.Exclude != "" {
 		text, err := lab.ReadText(args.Exclude)
@@ -154,16 +159,25 @@ func RunPack(args PackArgs) int {
 				fmt.Fprintf(stderr, "pack: %s: exclude entry without a case_id\n", args.Exclude)
 				return 1
 			}
-			excluded[id] = true
+			batch := stringField(entry, "batch")
+			if excluded[id] == nil {
+				excluded[id] = map[string]bool{}
+			}
+			excluded[id][batch] = true
 		}
 	}
 
 	var kept []*packRow
 	removed := 0
 	for _, row := range rows {
-		if excluded[row.caseID] {
-			removed++
-			continue
+		if batches := excluded[row.caseID]; batches != nil {
+			// A row's batch is its source with the distill- prefix removed, so
+			// a batch's own entries match the rows it produced. A row with no
+			// source predates the field and matches every entry.
+			if batches[""] || row.source == "" || batches[strings.TrimPrefix(row.source, "distill-")] {
+				removed++
+				continue
+			}
 		}
 		kept = append(kept, row)
 		inputs[row.input].Rows++

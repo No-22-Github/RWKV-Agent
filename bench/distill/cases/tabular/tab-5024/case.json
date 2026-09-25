@@ -1,0 +1,34 @@
+{
+  "id": "tab-5024",
+  "description": "Net sheets billed for a bindery month after credited sheets. DISTILL-CANARY-92f4d60a",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "reconcile",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-tab-binderysets-01",
+    "ref_calls": 2,
+    "fixture_bytes": 865,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "binding_log_2026-08.csv": "job_id,book_date,title_code,sheets_delivered,sheets_credited\nBJ-6602,2026-08-01,TB-118,340,18\nBJ-6603,2026-08-01,TB-204,215,6\nBJ-6604,2026-08-03,TB-118,480,32\nBJ-6605,2026-08-04,TB-231,126,9\nBJ-6606,2026-08-05,TB-204,268,24\nBJ-6607,2026-08-06,TB-150,392,12\nBJ-6608,2026-08-07,TB-231,154,5\nBJ-6609,2026-08-08,TB-118,305,16\nBJ-6610,2026-08-11,TB-277,227,27\nBJ-6611,2026-08-12,TB-150,418,8\nBJ-6612,2026-08-13,TB-204,176,21\nBJ-6613,2026-08-14,TB-277,249,14\nBJ-6614,2026-08-15,TB-118,361,3\nBJ-6615,2026-08-18,TB-231,198,19\nBJ-6616,2026-08-19,TB-204,433,11\nBJ-6617,2026-08-20,TB-150,285,26\nBJ-6618,2026-08-21,TB-277,162,7\nBJ-6619,2026-08-22,TB-118,374,13\nBJ-6620,2026-08-25,TB-231,208,22\nBJ-6621,2026-08-26,TB-204,296,10\n",
+    "README.md": "# Sallowbeck Bindery - August 2026 job log\n\nOne row per binding job; sheets_credited counts sheets that came back damaged and were taken off the job.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Sallowbeck Bindery invoices its publishing customers for the sheets a job actually used. What is the net number of sheets billed across the August 2026 jobs? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 5364,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

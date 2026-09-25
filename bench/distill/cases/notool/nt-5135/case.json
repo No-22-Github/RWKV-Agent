@@ -1,0 +1,42 @@
+{
+  "id": "nt-5135",
+  "description": "Convert a 46,800 US dollar settlement to Hong Kong dollars at the currency's peg. DISTILL-CANARY-5e133e89",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 6000
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-paritydesk-01",
+    "ref_calls": 0,
+    "fixture_bytes": 429,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "standards/parity_sheet.csv": "hong_kong_dollar_per_us_dollar,7.80\nsaudi_riyal_per_us_dollar,3.75\nunited_arab_emirates_dirham_per_us_dollar,3.6725\n",
+    "ledger/settlement_6914.json": "{\n  \"settlement_ref\": \"KP-6914\",\n  \"paid_in_usd\": 46800,\n  \"credit_currency\": \"hong kong dollar\"\n}\n",
+    "README.md": "# Kelbrook Payments - settlement desk\n\nCross-border settlements are booked here in US dollars and paid out in the receiving country's money.\nThe parity sheet on the desk lists the currencies this desk pays out in.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Kelbrook Payments is settling a September payout. The desk is sending 46,800 US dollars to a Hong Kong account, converted at the peg the Hong Kong dollar is held at against the US dollar. How many Hong Kong dollars does the payout come to? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 365040,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

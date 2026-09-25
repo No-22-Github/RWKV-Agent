@@ -1,0 +1,42 @@
+{
+  "id": "nt-5133",
+  "description": "Explain a dilution card's strength line and give the water one drum needs. DISTILL-CANARY-9f05d683",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 108
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L2",
+    "family": "fam-nt-dilutionmix-29",
+    "ref_calls": 0,
+    "fixture_bytes": 323,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "stores/dilution_cards.csv": "product,concentrate_l,strength_pct,target_pct\nDC-28,18,15,2.5\n",
+    "notes/store_notes.txt": "The store is counted on the last Friday of the month.\nBulk drums are moved with the pallet truck.\n",
+    "README.md": "# Larkrise Facilities Group - cleaning store\n\nShared folder for the cleaning team.\n\n- stores/  dilution cards for the products\n- notes/  stock notes for the store\n"
+  },
+  "turns": [
+    {
+      "prompt": "A supervisor at Larkrise Facilities Group asked what the strength line on a dilution card means for the working solution; the neat product is spread through water until the strength falls to the target, so the product already in the drum does not change. Drum DC-28 holds 18 litres at 15 percent and the working solution is made at 2.5 percent. Give the water the drum's contents go into, in litres. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 90,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

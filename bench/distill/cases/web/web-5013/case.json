@@ -1,0 +1,41 @@
+{
+  "id": "web-5013",
+  "description": "Idle lifetime of a task queue in the Fernwharf queue reference. DISTILL-CANARY-4c1a7e93",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-web-queuedefaults-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "fernwharf",
+      "url": "https://docs.fernwharf.example/reference/queue-defaults",
+      "url_match": "docs.fernwharf.example/reference/queue-defaults",
+      "title": "Queue defaults - Fernwharf reference",
+      "snippet": "Default settings for every Fernwharf queue, including the 21 day idle expiry.",
+      "content": "# Queue defaults\n\nFernwharf reference, reviewed 2026-06-18.\n\n| setting | default |\n| --- | --- |\n| idle_expiry_days | 21 |\n| max_message_kib | 512 |\n| delivery_attempts | 6 |\n| dead_letter_expiry_days | 14 |\n\nA queue that has neither sent nor received a message for idle_expiry_days is\nremoved together with the messages it still holds. Polling an empty queue is\nnot activity, so a queue behind an idle worker still expires.\n\nmax_message_kib caps a single message: a larger message is refused at publish\ntime. delivery_attempts is the number of deliveries before the message goes to\nthe dead letter queue.\n",
+      "published_at": "2026-06-18"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "Fernwharf carries the task queues for our intake service and nobody has changed any of its queue settings. How many days may a queue sit without sending or receiving a message before Fernwharf removes it? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 21,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "id": "code-5021",
+  "description": "Count the ledger lines carrying the credit union's AUDIT-HOLD annotation. DISTILL-CANARY-e2a4c815",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "count_markers",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 5
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-code-audithold-01",
+    "ref_calls": 3,
+    "fixture_bytes": 838,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "ledger/__init__.py": "# AUDIT-HOLD: the ledger holds these entries until the audit review closes\n\"\"\"Ledger package for Wrenfield Credit Union.\"\"\"\n",
+    "ledger/entries.py": "\"\"\"Entry helpers for the ledger.\"\"\"\nfrom ledger.marks import ANNOTATION\n\n# AUDIT-HOLD: entries keep the annotation until the desk signs off\nOPEN = {}\n\n\ndef annotated(line):\n    return ANNOTATION in line\n\n\ndef entry(name, amount):\n    return {\"name\": name, \"amount\": amount}\n",
+    "ledger/marks.py": "\"\"\"Annotation marks for the ledger.\n\nA line is annotated when the marker is written in a comment on it. A string\nthat carries the marker is a value, not an annotation.\n\"\"\"\n\nANNOTATION = \"AUDIT-HOLD\"\nTEMPLATE = \"# AUDIT-HOLD: %s\"\n",
+    "ledger/report.py": "\"\"\"Report builders for the ledger.\"\"\"\nfrom ledger.marks import ANNOTATION\n\n# AUDIT-HOLD: the report keeps the annotation until the review closes\nTITLE = \"Wrenfield ledger report\"\n\n\ndef title():\n    return TITLE\n"
+  },
+  "turns": [
+    {
+      "prompt": "Wrenfield Credit Union's audit desk holds ledger lines by marking them with an AUDIT-HOLD annotation. How many annotated lines does the ledger package carry? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 3,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

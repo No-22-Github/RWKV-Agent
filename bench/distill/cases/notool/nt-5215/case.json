@@ -1,0 +1,65 @@
+{
+  "id": "nt-5215",
+  "description": "Charge for a label run; the first message does not say how many labels the run needs. DISTILL-CANARY-0d84bf19",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "ambiguous_request",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 309.4
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-quantband-01",
+    "ref_calls": 2,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null,
+    "fixture_bytes": 335
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Ashbourne Preserves - labelling\n\nLabel runs are priced per thousand from the band the run falls in, and the band\nprice applies to the whole run. Bands are agreed with the printer for the\nseason.\n",
+    "pricing/label-bands-2026-09.csv": "band,from_labels,to_labels,price_per_thousand_gbp\nShort,1000,4999,26.40\nMid,5000,9999,22.10\nLong,10000,24999,18.75\nBulk,25000,60000,15.20\n"
+  },
+  "turns": [
+    {
+      "prompt": "The Hedgerow marmalade jars go out in November and the printer has asked for the run size before quoting. What is the label run going to cost us?",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ]
+      }
+    },
+    {
+      "prompt": "The run is fourteen thousand labels. What does a run of 14000 labels cost? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 262.5,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

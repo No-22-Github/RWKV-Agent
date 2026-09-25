@@ -1,0 +1,46 @@
+{
+  "id": "scr-5007",
+  "description": "Correct the dairy's churn collection sheet so the amounts print the way the sheet has always carried them. DISTILL-CANARY-b5e08d34",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_output",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-scr-churnsheet-01",
+    "ref_calls": 2,
+    "fixture_bytes": 1523,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "churns.py": "\"\"\"Print the churn collection sheet for Cobbleworth Dairy.\n\nCollections land in collections/, one file per month; the columns are\ncollected_on,farm,churns,rate_pence. Print one line per collection in\ncollected_on order, then a totals line:\n\n    <collected_on>,<farm>,<amount>\n    TOTAL,<amount>\n\nAmounts print in pounds with two decimals.\n\"\"\"\nimport csv\nimport os\n\nCOLLECTIONS = os.path.join(os.path.dirname(os.path.abspath(__file__)), \"collections\")\n\n\ndef pounds(pence):\n    return \"%d.%d\" % (pence // 100, pence % 100)\n\n\ndef collection_rows():\n    rows = []\n    for name in sorted(os.listdir(COLLECTIONS)):\n        if name.endswith(\".csv\"):\n            with open(os.path.join(COLLECTIONS, name), newline=\"\") as handle:\n                rows.extend(csv.DictReader(handle))\n    return rows\n\n\ndef main():\n    total = 0\n    for row in sorted(collection_rows(), key=lambda r: r[\"collected_on\"]):\n        amount = int(row[\"churns\"]) * int(row[\"rate_pence\"])\n        total += amount\n        print(\"%s,%s,%s\" % (row[\"collected_on\"], row[\"farm\"], pounds(amount)))\n    print(\"TOTAL,%s\" % pounds(total))\n\n\nmain()\n",
+    "collections/2026-08.csv": "collected_on,farm,churns,rate_pence\n2026-08-04,Netherby Farm,12,1500\n2026-08-07,Bracken Hollow,9,1250\n2026-08-13,Netherby Farm,15,1500\n2026-08-18,Rushmere Croft,7,1750\n2026-08-22,Bracken Hollow,11,1250\n",
+    "README.md": "# Cobbleworth Dairy - churn collections\n\nThe churn round writes its collections to collections/ as each farm is\npicked up, one file per month. The monthly sheet is printed by churns.py\nand goes to the accounts office.\n"
+  },
+  "expect": {
+    "files": {
+      "collections/2026-08.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "churns.py",
+      "expected_stdout": "2026-08-04,Netherby Farm,180.00\n2026-08-07,Bracken Hollow,112.50\n2026-08-13,Netherby Farm,225.00\n2026-08-18,Rushmere Croft,122.50\n2026-08-22,Bracken Hollow,137.50\n2026-09-02,Rushmere Croft,175.00\n2026-09-09,Netherby Farm,210.00\n2026-09-15,Bracken Hollow,100.00\nTOTAL,1262.50",
+      "hidden_files": {
+        "collections/2026-09.csv": "collected_on,farm,churns,rate_pence\n2026-09-02,Rushmere Croft,10,1750\n2026-09-09,Netherby Farm,14,1500\n2026-09-15,Bracken Hollow,8,1250\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The accounts office says the amounts on the churn collection sheet no longer read the way they should, and the dairy needs the sheet back in the shape it has always had. Please put churns.py right, and keep it right as the later monthly collections land in collections/. The collection files are the churn round's own record, so they stay as they are. When finished, reply DONE.",
+      "expect": {}
+    }
+  ]
+}

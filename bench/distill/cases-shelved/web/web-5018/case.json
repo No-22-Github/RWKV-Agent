@@ -1,0 +1,61 @@
+{
+  "id": "web-5018",
+  "description": "Worker count the newest Skerriford exporter release ships; the older install guide pins a lower figure. DISTILL-CANARY-5f4e21d7",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": 18
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-web-workercounts-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "skerriford",
+      "url": "https://skerriford.example/changelog/2026-08-19",
+      "url_match": "skerriford.example/changelog/2026-08-19",
+      "title": "Skerriford exporter 6.2 released",
+      "snippet": "Skerriford exporter 6.2 raises the shipped worker count to 32.",
+      "content": "# Skerriford exporter 6.2 released\n\n19 August 2026.\n\nExporter 6.2 is the newest release. The shipped worker count is now 32,\nraised from 24, so a run keeps more uploads in flight over a slow link.\n\nThe installer writes no worker count into the configuration, so a fresh\ninstallation takes the shipped figure. An installation that states a worker\ncount in its configuration keeps its own figure.\n",
+      "published_at": "2026-08-19"
+    },
+    {
+      "query_match": "skerriford install",
+      "url": "https://skerriford.example/guides/server-install",
+      "url_match": "skerriford.example/guides/server-install",
+      "title": "Server install guide - Skerriford exporter",
+      "snippet": "The install guide sets the worker count to 18 for a shared server.",
+      "content": "# Server install guide\n\nSkerriford exporter, written for the 5.x line.\n\nOn a shared server the guide sets the worker count to 18 so that a run does\nnot take the whole machine. On a dedicated server the guide leaves the\nworker count out of the configuration entirely.\n\nThe changelog is the place to look for what a release ships by default.\n",
+      "published_at": "2025-11-06"
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Our build server has a fresh installation of the newest Skerriford exporter release and its configuration states no worker count. How many workers does a run use? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 32,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

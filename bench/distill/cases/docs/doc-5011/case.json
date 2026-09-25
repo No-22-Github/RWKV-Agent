@@ -19,7 +19,7 @@
     "ref_calls": 3,
     "fixture_bytes": 526,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
     "reviewer": null
   },
@@ -31,7 +31,7 @@
   },
   "turns": [
     {
-      "prompt": "Tinwell Systems revises its console handbook from time to time. Work carried out in October 2026 must follow which handbook revision number? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Tinwell Systems revises its console handbook from time to time. Work carried out in October 2026 must follow which handbook revision number? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
       "expect": {
         "expected_number": 4,
         "tolerance": 0.01

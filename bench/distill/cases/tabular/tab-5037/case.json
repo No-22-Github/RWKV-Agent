@@ -1,0 +1,40 @@
+{
+  "id": "tab-5037",
+  "description": "March-to-March litres for a creamery whose log reprints some collection rounds. DISTILL-CANARY-3d8217ab",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 19526
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-dairyrounds-01",
+    "ref_calls": 3,
+    "fixture_bytes": 888,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "collection_log_2025_2026.csv": "collection_id,collection_date,round,litres\nCL-4701,2025-03-04,Dale Round,5246\nCL-4702,2025-03-06,Bay Round,5618\nCL-4703,2025-03-11,Hill Round,4932\nCL-4704,2025-03-13,Dale Round,5374\nCL-4705,2025-03-18,Bay Round,5729\nCL-4706,2025-03-20,Hill Round,5081\nCL-4707,2025-03-25,Dale Round,5503\nCL-4708,2025-03-27,Bay Round,5862\nCL-4709,2026-03-03,Dale Round,6041\nCL-4710,2026-03-05,Bay Round,6468\nCL-4711,2026-03-10,Hill Round,5673\nCL-4712,2026-03-12,Dale Round,6187\nCL-4713,2026-03-17,Bay Round,6642\nCL-4714,2026-03-19,Hill Round,5839\nCL-4715,2026-03-24,Dale Round,6325\nCL-4716,2026-03-26,Bay Round,6729\nCL-4713,2026-03-17,Bay Round,6642\nCL-4715,2026-03-24,Dale Round,6325\n",
+    "README.md": "# Southolme Creamery - tanker collection log\n\nOne row per collection round; litres is the milk the tanker brought in. The tanker office re-ran the March export after a failed backup, so some rounds were written out again.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Southolme Creamery's board asks for the movement in spring intake. What is the change in litres from the March 2025 collections to the March 2026 collections? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 6559,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

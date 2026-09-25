@@ -1,0 +1,41 @@
+{
+  "id": "nt-5128",
+  "description": "Explain a fibre link loss budget and give it for one link. DISTILL-CANARY-d5a2946e",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 1.19
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-fibreloss-27",
+    "ref_calls": 0,
+    "fixture_bytes": 245,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "links/loss_cards.csv": "link,km,db_per_km,connectors,connector_loss_db,splices,splice_loss_db\nWL-21,3.4,0.35,4,0.5,2,0.2\n",
+    "README.md": "# Whinfield Networks - outside plant\n\nWorking folder for the field team.\n\n- links/  cards for each fibre link\n- enclosures/  records from the build\n"
+  },
+  "turns": [
+    {
+      "prompt": "A field engineer at Whinfield Networks asked what the loss budget on a link card is made of; the card gives the loss in the fibre, the loss at each connector and the loss at each splice. Link WL-21 runs 3.4 kilometres at 0.35 decibels per kilometre and carries 4 connectors at 0.5 decibels each and 2 splices at 0.2 decibels each. Give the loss budget for that link, in decibels. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 3.59,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

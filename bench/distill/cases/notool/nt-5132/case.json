@@ -1,0 +1,41 @@
+{
+  "id": "nt-5132",
+  "description": "Explain reducing a spirit to bottling strength and give the water one vat needs. DISTILL-CANARY-41d7ba2e",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 1725
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-dilutionmix-29",
+    "ref_calls": 0,
+    "fixture_bytes": 204,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "vat/strength_cards.csv": "vat,current_l,current_pct,target_pct\nV-19,1150,69,46\n",
+    "README.md": "# Cairnloch Distillery - still house\n\nWorking folder for the stillmen.\n\n- vat/  strength cards for the vats\n- casks/  filling notes from the warehouse\n"
+  },
+  "turns": [
+    {
+      "prompt": "A stillman at Cairnloch Distillery asked how the strength card is read when spirit is brought down to bottling strength; the alcohol already in the vat is spread through more liquid, so the volume and the strength together stay the same. Vat 19 holds 1150 litres at 69 percent and the target is 46 percent. Give the water that has to be added, in litres. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 575,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "id": "nt-5151",
+  "description": "Team the referral routing list records against continence supplies referrals. DISTILL-CANARY-9b3c6f12",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "stable_fact",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "Medicines Team"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-desk-ownership-01",
+    "ref_calls": 1,
+    "fixture_bytes": 509,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "admin/referral-routing.txt": "continence supplies = Care Supplies Team\nmedication queries = Medicines Team\nrota changes = Rostering Team\ntraining requests = Learning Team\n",
+    "README.md": "# Thistledown Care Alliance - care office workspace\n\nShared area for the care office team.\n\n- admin/  referral routing and the depot holiday plan\n\nThe routing list names one team per referral type and is edited in place, so a referral type never carries two teams. Rows are kept in alphabetical order of the referral type. Last reviewed 2026-06-02, reference CA-3375.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Thistledown Care Alliance has a continence supplies referral from a district nurse and the care office has to pass it on. Which team handles that referral? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "Care Supplies Team",
+        "tools": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "id": "web-5017",
+  "description": "Retry wait for live error SH-4410 in the Sheldwich error reference; the trial page carries a shorter timer. DISTILL-CANARY-36d0c8be",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": 3
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-web-liveerrors-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "sheldwich",
+      "url": "https://docs.sheldwich.example/errors/current",
+      "url_match": "docs.sheldwich.example/errors/current",
+      "title": "Current error reference - Sheldwich",
+      "snippet": "SH-4410 (duplicate settlement request) is cleared by retrying the same request after 25 seconds.",
+      "content": "# Current error reference\n\nSheldwich payment API, reviewed 2026-07-14.\n\n| code | meaning | prescribed client action |\n| --- | --- | --- |\n| SH-4402 | card token expired | ask the shopper for the card again |\n| SH-4410 | duplicate settlement request | retry the same request after 25 seconds |\n| SH-4477 | merchant account suspended | stop retrying, contact the account team |\n\nThe action column is what this reference prescribes for clients on the live\nplatform. Repeating the request before the wait has passed returns the same\ncode with no settlement attempted.\n",
+      "published_at": "2026-07-14"
+    },
+    {
+      "query_match": "sheldwich trial",
+      "url": "https://docs.sheldwich.example/errors/trial",
+      "url_match": "docs.sheldwich.example/errors/trial",
+      "title": "Trial account error reference - Sheldwich",
+      "snippet": "Trial accounts clear SH-4410 after 3 seconds; the live reference prescribes a longer wait.",
+      "content": "# Trial account error reference\n\nSheldwich payment API, reviewed 2026-07-14.\n\nTrial accounts use the live codes, but their timers are shortened so that an\nintegration fails fast while it is being built.\n\n| code | trial action |\n| --- | --- |\n| SH-4402 | ask for the card again |\n| SH-4410 | retry after 3 seconds |\n",
+      "published_at": "2026-07-14"
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Our settlement worker sends to the live Sheldwich payment API and its retries keep ending on error SH-4410. How many seconds does the current error reference tell the client to wait before it retries the request? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 25,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

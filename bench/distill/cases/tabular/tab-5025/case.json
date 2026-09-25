@@ -1,0 +1,40 @@
+{
+  "id": "tab-5025",
+  "description": "Dried weight for one month of a hop kiln log that ends with a period total. DISTILL-CANARY-1e5a7c38",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-HEADER": 17352.9
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-oasthouse-01",
+    "ref_calls": 3,
+    "fixture_bytes": 4260,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "kiln_drying_log_2026.csv": "batch_id,dry_month,dry_date,grower,hop_variety,green_kg,dry_kg\nKH-1001,2026-06,2026-06-02,Tanfield Estate,Fuggle,1240.5,301.2\nKH-1002,2026-06,2026-06-02,Hollinbourne Farm,Goldings,986.0,241.6\nKH-1003,2026-06,2026-06-03,Alderley Hop Garden,Challenger,1420.8,352.4\nKH-1004,2026-06,2026-06-04,Brimscombe Farm,Bramling Cross,874.2,209.9\nKH-1005,2026-06,2026-06-05,Tanfield Estate,Target,1105.6,268.7\nKH-1006,2026-06,2026-06-08,Hollinbourne Farm,Fuggle,1318.4,318.9\nKH-1007,2026-06,2026-06-09,Alderley Hop Garden,Goldings,942.7,225.1\nKH-1008,2026-06,2026-06-10,Brimscombe Farm,Challenger,1263.9,310.6\nKH-1009,2026-06,2026-06-11,Tanfield Estate,Bramling Cross,1012.3,247.4\nKH-1010,2026-06,2026-06-12,Hollinbourne Farm,Target,1188.5,285.8\nKH-1011,2026-06,2026-06-15,Alderley Hop Garden,Fuggle,1334.1,322.7\nKH-1012,2026-06,2026-06-16,Brimscombe Farm,Goldings,908.6,219.3\nKH-1013,2026-06,2026-06-17,Tanfield Estate,Challenger,1451.2,359.8\nKH-1014,2026-06,2026-06-18,Hollinbourne Farm,Bramling Cross,1042.9,252.1\nKH-1015,2026-06,2026-06-19,Alderley Hop Garden,Target,1176.3,284.9\nKH-1016,2026-06,2026-06-22,Brimscombe Farm,Fuggle,1295.7,310.2\nKH-1017,2026-06,2026-06-23,Tanfield Estate,Goldings,1121.8,270.4\nKH-1018,2026-06,2026-06-24,Hollinbourne Farm,Challenger,1360.4,331.6\nKH-1019,2026-06,2026-06-25,Alderley Hop Garden,Bramling Cross,964.5,228.8\nKH-1020,2026-06,2026-06-26,Brimscombe Farm,Target,1237.6,297.9\nKH-1021,2026-06,2026-06-29,Tanfield Estate,Fuggle,1088.2,262.3\nKH-1022,2026-06,2026-06-30,Hollinbourne Farm,Goldings,1402.9,341.5\nKH-1023,2026-07,2026-07-01,Alderley Hop Garden,Challenger,1298.4,312.8\nKH-1024,2026-07,2026-07-02,Brimscombe Farm,Target,1134.7,273.6\nKH-1025,2026-07,2026-07-03,Tanfield Estate,Bramling Cross,1478.2,362.1\nKH-1026,2026-07,2026-07-06,Hollinbourne Farm,Fuggle,1052.9,255.7\nKH-1027,2026-07,2026-07-07,Alderley Hop Garden,Goldings,1216.5,294.4\nKH-1028,2026-07,2026-07-08,Brimscombe Farm,Challenger,982.3,236.9\nKH-1029,2026-07,2026-07-09,Tanfield Estate,Target,1387.6,335.8\nKH-1030,2026-07,2026-07-10,Hollinbourne Farm,Bramling Cross,1146.8,277.9\nKH-1031,2026-07,2026-07-13,Alderley Hop Garden,Fuggle,1329.4,321.7\nKH-1032,2026-07,2026-07-14,Brimscombe Farm,Goldings,1044.1,253.2\nKH-1033,2026-07,2026-07-15,Tanfield Estate,Challenger,1502.7,368.4\nKH-1034,2026-07,2026-07-16,Hollinbourne Farm,Target,937.5,226.1\nKH-1035,2026-07,2026-07-17,Alderley Hop Garden,Bramling Cross,1257.3,303.6\nKH-1036,2026-07,2026-07-20,Brimscombe Farm,Fuggle,1189.6,287.4\nKH-1037,2026-07,2026-07-21,Tanfield Estate,Goldings,1071.2,259.8\nKH-1038,2026-07,2026-07-22,Hollinbourne Farm,Challenger,1345.9,326.2\nKH-1039,2026-07,2026-07-23,Alderley Hop Garden,Target,996.8,240.3\nKH-1040,2026-07,2026-07-24,Brimscombe Farm,Bramling Cross,1424.5,344.9\nKH-1041,2026-07,2026-07-27,Tanfield Estate,Fuggle,1163.7,281.5\nKH-1042,2026-07,2026-07-28,Hollinbourne Farm,Goldings,1281.4,309.2\nKH-1043,2026-07,2026-07-29,Alderley Hop Garden,Challenger,1108.9,268.1\nKH-1044,2026-07,2026-07-30,Brimscombe Farm,Target,1358.2,328.6\nKH-1045,2026-08,2026-08-03,Tanfield Estate,Bramling Cross,1231.6,297.8\nKH-1046,2026-08,2026-08-04,Hollinbourne Farm,Fuggle,1084.3,262.9\nKH-1047,2026-08,2026-08-05,Alderley Hop Garden,Goldings,1396.7,337.4\nKH-1048,2026-08,2026-08-06,Brimscombe Farm,Challenger,947.2,228.6\nKH-1049,2026-08,2026-08-07,Tanfield Estate,Target,1218.9,295.1\nKH-1050,2026-08,2026-08-10,Hollinbourne Farm,Bramling Cross,1157.4,280.3\nKH-1051,2026-08,2026-08-11,Alderley Hop Garden,Fuggle,1302.8,315.4\nKH-1052,2026-08,2026-08-12,Brimscombe Farm,Goldings,1019.5,247.2\nKH-1053,2026-08,2026-08-13,Tanfield Estate,Challenger,1443.1,349.7\nKH-1054,2026-08,2026-08-14,Hollinbourne Farm,Target,1128.6,273.4\nKH-1055,2026-08,2026-08-17,Alderley Hop Garden,Bramling Cross,1274.3,308.5\nKH-1056,2026-08,2026-08-18,Brimscombe Farm,Fuggle,1186.9,287.1\nKH-1057,2026-08,2026-08-19,Tanfield Estate,Goldings,1057.2,256.3\nKH-1058,2026-08,2026-08-20,Hollinbourne Farm,Challenger,1338.5,324.6\nKH-1059,2026-08,2026-08-21,Alderley Hop Garden,Target,974.8,235.4\nKH-1060,2026-08,2026-08-24,Brimscombe Farm,Bramling Cross,1412.7,341.9\nTOTAL,ALL,ALL,ALL,ALL,71620.2,17352.9\n",
+    "README.md": "# Tanfield Oast House - kiln drying log, 2026 season\n\nOne row per drying batch; dry_kg is the weight that came off the kiln floor.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Tanfield Oast House bills growers for the dried weight that comes off its kiln floor. What was the total dried weight handled for the June 2026 batches, in kilograms, rounded to one decimal place? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 6243.1,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

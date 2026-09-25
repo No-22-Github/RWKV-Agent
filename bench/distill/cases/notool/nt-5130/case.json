@@ -1,0 +1,41 @@
+{
+  "id": "nt-5130",
+  "description": "Explain a battery bank's working discharge and give one site's days of cover. DISTILL-CANARY-6a73b1c4",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 3.714286
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-bankhours-28",
+    "ref_calls": 0,
+    "fixture_bytes": 232,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "batteries/site_cards.csv": "site,capacity_ah,bank_v,discharge_pct,daily_load_kwh\nSR-14,650,48,70,8.4\n",
+    "README.md": "# Sundercroft Power - remote sites\n\nWorking folder for the site technicians.\n\n- batteries/  cards for each battery bank\n- load/  metering notes from the sites\n"
+  },
+  "turns": [
+    {
+      "prompt": "A technician at Sundercroft Power asked what the discharge figure on a battery card stands for; it is the share of the bank's capacity that may be taken before the bank has to be recharged. Site SR-14 has a 650 ampere hour bank at 48 volts, a working discharge of 70 percent and a daily load of 8.4 kilowatt hours. Give how many days the bank covers that load, in days. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 2.6,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

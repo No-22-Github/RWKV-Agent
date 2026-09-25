@@ -1,0 +1,41 @@
+{
+  "id": "nt-5120",
+  "description": "Explain how a drop factor turns a volume into a rate and give the rate for one order. DISTILL-CANARY-94c8f3a7",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 3.0
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-dripcount-23",
+    "ref_calls": 0,
+    "fixture_bytes": 248,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "fluids/order_cards.csv": "order,set_code,drop_factor_gtt_ml,volume_ml,minutes\nD-247,IS-15,15,1050,350\n",
+    "README.md": "# Brackenhill Day Unit - treatment room\n\nWorking folder for the day unit staff.\n\n- fluids/  order cards for the treatment chairs\n- stock/  consumable counts from the store\n"
+  },
+  "turns": [
+    {
+      "prompt": "A charge nurse at Brackenhill Day Unit asked how the drop factor on a giving set is used when a rate is worked out; one millilitre of fluid makes as many drops as the set's factor says. Order D-247 runs 1050 millilitres through the fifteen-drop set over 350 minutes. Give the rate for that order, in drops per minute. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 45.0,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

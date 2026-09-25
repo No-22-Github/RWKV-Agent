@@ -1,0 +1,41 @@
+{
+  "id": "cfg-5013",
+  "description": "Set the drain interval on a laundry's tunnel washer to the interval its water reclaim trial calls for. DISTILL-CANARY-6b2e9d05",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-cfg-washtunnel-01",
+    "ref_calls": 2,
+    "fixture_bytes": 578,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Bramblefen Laundry Services - tunnel washer\n\nThe tunnel washer runs its batches from `config/washer.json`. The shift supervisor starts the line from the panel at the washer, and nothing is exported into the washer's environment.\n",
+    "config/washer.json": "{\n  \"drain_interval_s\": 45,\n  \"reload_hold_s\": 18,\n  \"max_load_kg\": 55\n}\n",
+    "docs/reclaim-trial.md": "# Water reclaim trial\n\nThe reclaim tank is brought into service on the tunnel washer for the trial run, and the washer is set to a drain interval of 62 seconds for the length of the trial.\nReclaim water is drawn from the plant room tank, not from the washer's own settings.\n"
+  },
+  "expect": {
+    "files": {
+      "config/washer.json": {
+        "contains": [
+          "{\n  \"drain_interval_s\": 62,\n  \"reload_hold_s\": 18,\n  \"max_load_kg\": 55\n}"
+        ]
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Bramblefen Laundry Services is putting the tunnel washer through a water reclaim trial next week, and the trial runs the washer at the drain interval its trial note gives in place of the current setting. Update the washer's settings so its next batch uses that interval. When finished, reply DONE.",
+      "expect": {}
+    }
+  ]
+}

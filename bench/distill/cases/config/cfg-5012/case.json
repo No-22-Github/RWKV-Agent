@@ -1,0 +1,35 @@
+{
+  "id": "cfg-5012",
+  "description": "Spindle speed a joinery's panel nesting cell is set to run at, in revolutions per minute. DISTILL-CANARY-3a17f4c8",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-cfg-nestcell-01",
+    "ref_calls": 2,
+    "fixture_bytes": 615,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Dunmarsh Joinery - panel nesting cell\n\nThe nesting cell cuts cabinet panels from full sheets. The cutting plan is copied to the cell by hand at the start of each shift, and the cell takes every value it runs with from `config/cell.yaml`; nothing is fed in from anywhere else.\n\nSpindle speed, feed rate and tool change time are machine settings rather than plan settings, so they are kept in that file alone.\n",
+    "config/cell.yaml": "spindle_rpm: 17400\nfeed_rate_mm_min: 5200\ntool_change_s: 9\n",
+    "docs/bench-notes.md": "# Bench notes\n\nThe vacuum table was re-sealed during the summer shutdown.\nSheet offcuts are stacked by the door for the delivery firm to collect.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The production planner at Dunmarsh Joinery is writing the machine sheet for the panel nesting cell and needs the spindle speed the cell is set to run at, in revolutions per minute. What is that speed? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 17400,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

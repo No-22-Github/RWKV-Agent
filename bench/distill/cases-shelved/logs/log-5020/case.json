@@ -1,0 +1,40 @@
+{
+  "id": "log-5020",
+  "description": "Total the run time one queue's finished jobs took in a dispatcher journal, with abandoned jobs of the same queue in the file. DISTILL-CANARY-b09e4c17",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "aggregate_jsonl",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 1377709
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-batchqueue-21",
+    "ref_calls": 3,
+    "fixture_bytes": 5129,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# batch queue journal\n\nRavensworth Analytics runs its overnight work through three queues, and the\ndispatcher appends one record per job to logs/queue.jsonl: `ts` is when the job\nfinished, `queue` is the queue that ran it, `job` is the job's name, `outcome`\nis how the run ended and `runtime_ms` is how long the job held the queue. The\nexport in the workspace covers 18 August 2026.\n",
+    "logs/queue.jsonl": "{\"ts\":\"2026-08-18T00:14:22Z\",\"queue\":\"render\",\"job\":\"poster-114\",\"outcome\":\"completed\",\"runtime_ms\":48210}\n{\"ts\":\"2026-08-18T00:26:08Z\",\"queue\":\"ingest\",\"job\":\"ledger-load\",\"outcome\":\"completed\",\"runtime_ms\":61404}\n{\"ts\":\"2026-08-18T00:39:51Z\",\"queue\":\"render\",\"job\":\"poster-115\",\"outcome\":\"completed\",\"runtime_ms\":51736}\n{\"ts\":\"2026-08-18T00:52:17Z\",\"queue\":\"export\",\"job\":\"invoice-pack\",\"outcome\":\"completed\",\"runtime_ms\":33890}\n{\"ts\":\"2026-08-18T01:07:44Z\",\"queue\":\"render\",\"job\":\"catalogue-88\",\"outcome\":\"failed\",\"runtime_ms\":92418}\n{\"ts\":\"2026-08-18T01:24:36Z\",\"queue\":\"ingest\",\"job\":\"meter-sweep\",\"outcome\":\"completed\",\"runtime_ms\":40812}\n{\"ts\":\"2026-08-18T01:38:59Z\",\"queue\":\"render\",\"job\":\"poster-116\",\"outcome\":\"completed\",\"runtime_ms\":46375}\n{\"ts\":\"2026-08-18T01:55:03Z\",\"queue\":\"export\",\"job\":\"invoice-pack\",\"outcome\":\"cancelled\",\"runtime_ms\":12064}\n{\"ts\":\"2026-08-18T02:11:27Z\",\"queue\":\"render\",\"job\":\"poster-117\",\"outcome\":\"completed\",\"runtime_ms\":53988}\n{\"ts\":\"2026-08-18T02:29:41Z\",\"queue\":\"ingest\",\"job\":\"ledger-load\",\"outcome\":\"completed\",\"runtime_ms\":58930}\n{\"ts\":\"2026-08-18T02:44:15Z\",\"queue\":\"render\",\"job\":\"catalogue-89\",\"outcome\":\"completed\",\"runtime_ms\":71204}\n{\"ts\":\"2026-08-18T03:02:38Z\",\"queue\":\"export\",\"job\":\"invoice-pack\",\"outcome\":\"completed\",\"runtime_ms\":35112}\n{\"ts\":\"2026-08-18T03:18:56Z\",\"queue\":\"render\",\"job\":\"poster-118\",\"outcome\":\"completed\",\"runtime_ms\":49567}\n{\"ts\":\"2026-08-18T03:35:22Z\",\"queue\":\"ingest\",\"job\":\"meter-sweep\",\"outcome\":\"failed\",\"runtime_ms\":26188}\n{\"ts\":\"2026-08-18T03:51:47Z\",\"queue\":\"render\",\"job\":\"catalogue-90\",\"outcome\":\"completed\",\"runtime_ms\":68942}\n{\"ts\":\"2026-08-18T04:09:13Z\",\"queue\":\"export\",\"job\":\"invoice-pack\",\"outcome\":\"completed\",\"runtime_ms\":34074}\n{\"ts\":\"2026-08-18T04:26:39Z\",\"queue\":\"render\",\"job\":\"poster-119\",\"outcome\":\"completed\",\"runtime_ms\":52490}\n{\"ts\":\"2026-08-18T04:44:05Z\",\"queue\":\"ingest\",\"job\":\"ledger-load\",\"outcome\":\"completed\",\"runtime_ms\":63277}\n{\"ts\":\"2026-08-18T05:01:31Z\",\"queue\":\"render\",\"job\":\"catalogue-91\",\"outcome\":\"failed\",\"runtime_ms\":87655}\n{\"ts\":\"2026-08-18T05:19:58Z\",\"queue\":\"export\",\"job\":\"invoice-pack\",\"outcome\":\"completed\",\"runtime_ms\":36941}\n{\"ts\":\"2026-08-18T05:37:24Z\",\"queue\":\"render\",\"job\":\"poster-120\",\"outcome\":\"completed\",\"runtime_ms\":47833}\n{\"ts\":\"2026-08-18T05:55:49Z\",\"queue\":\"ingest\",\"job\":\"meter-sweep\",\"outcome\":\"completed\",\"runtime_ms\":42196}\n{\"ts\":\"2026-08-18T06:13:15Z\",\"queue\":\"render\",\"job\":\"poster-121\",\"outcome\":\"completed\",\"runtime_ms\":55027}\n{\"ts\":\"2026-08-18T06:31:42Z\",\"queue\":\"export\",\"job\":\"invoice-pack\",\"outcome\":\"completed\",\"runtime_ms\":33468}\n{\"ts\":\"2026-08-18T06:49:08Z\",\"queue\":\"render\",\"job\":\"catalogue-92\",\"outcome\":\"completed\",\"runtime_ms\":73410}\n{\"ts\":\"2026-08-18T07:07:35Z\",\"queue\":\"ingest\",\"job\":\"ledger-load\",\"outcome\":\"cancelled\",\"runtime_ms\":8842}\n{\"ts\":\"2026-08-18T07:26:01Z\",\"queue\":\"render\",\"job\":\"poster-122\",\"outcome\":\"completed\",\"runtime_ms\":50164}\n{\"ts\":\"2026-08-18T07:44:28Z\",\"queue\":\"export\",\"job\":\"invoice-pack\",\"outcome\":\"completed\",\"runtime_ms\":35720}\n{\"ts\":\"2026-08-18T08:02:54Z\",\"queue\":\"render\",\"job\":\"catalogue-93\",\"outcome\":\"completed\",\"runtime_ms\":69775}\n{\"ts\":\"2026-08-18T08:21:19Z\",\"queue\":\"ingest\",\"job\":\"meter-sweep\",\"outcome\":\"completed\",\"runtime_ms\":43902}\n{\"ts\":\"2026-08-18T08:39:45Z\",\"queue\":\"render\",\"job\":\"poster-123\",\"outcome\":\"completed\",\"runtime_ms\":48621}\n{\"ts\":\"2026-08-18T08:58:12Z\",\"queue\":\"export\",\"job\":\"invoice-pack\",\"outcome\":\"completed\",\"runtime_ms\":34389}\n{\"ts\":\"2026-08-18T09:16:38Z\",\"queue\":\"render\",\"job\":\"catalogue-94\",\"outcome\":\"completed\",\"runtime_ms\":74568}\n{\"ts\":\"2026-08-18T09:35:04Z\",\"queue\":\"ingest\",\"job\":\"ledger-load\",\"outcome\":\"completed\",\"runtime_ms\":60315}\n{\"ts\":\"2026-08-18T09:53:31Z\",\"queue\":\"render\",\"job\":\"poster-124\",\"outcome\":\"completed\",\"runtime_ms\":51208}\n{\"ts\":\"2026-08-18T10:11:57Z\",\"queue\":\"export\",\"job\":\"invoice-pack\",\"outcome\":\"completed\",\"runtime_ms\":36104}\n{\"ts\":\"2026-08-18T10:30:23Z\",\"queue\":\"render\",\"job\":\"poster-125\",\"outcome\":\"completed\",\"runtime_ms\":46983}\n{\"ts\":\"2026-08-18T10:48:50Z\",\"queue\":\"ingest\",\"job\":\"meter-sweep\",\"outcome\":\"completed\",\"runtime_ms\":41577}\n{\"ts\":\"2026-08-18T11:07:16Z\",\"queue\":\"render\",\"job\":\"catalogue-95\",\"outcome\":\"completed\",\"runtime_ms\":72036}\n{\"ts\":\"2026-08-18T11:25:43Z\",\"queue\":\"export\",\"job\":\"invoice-pack\",\"outcome\":\"completed\",\"runtime_ms\":33677}\n{\"ts\":\"2026-08-18T11:44:09Z\",\"queue\":\"render\",\"job\":\"poster-126\",\"outcome\":\"failed\",\"runtime_ms\":95110}\n{\"ts\":\"2026-08-18T12:02:36Z\",\"queue\":\"ingest\",\"job\":\"ledger-load\",\"outcome\":\"completed\",\"runtime_ms\":59748}\n{\"ts\":\"2026-08-18T12:21:02Z\",\"queue\":\"render\",\"job\":\"catalogue-96\",\"outcome\":\"completed\",\"runtime_ms\":70389}\n{\"ts\":\"2026-08-18T12:39:29Z\",\"queue\":\"export\",\"job\":\"invoice-pack\",\"outcome\":\"completed\",\"runtime_ms\":35952}\n"
+  },
+  "turns": [
+    {
+      "prompt": "Ravensworth Analytics' dispatcher journals every job it runs. What was the combined run time, in milliseconds, of the jobs the render queue finished on 18 August 2026? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 1102526,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

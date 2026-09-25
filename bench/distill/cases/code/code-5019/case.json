@@ -1,0 +1,42 @@
+{
+  "id": "code-5019",
+  "description": "Count the calls the intake and pond modules make to the hatchery's record_weighing helper. DISTILL-CANARY-83e1d60c",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "find_callers",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 5
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-code-pondweigh-01",
+    "ref_calls": 3,
+    "fixture_bytes": 726,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "intake/loader.py": "from pond.store import record_weighing\n\n# Load the weighings the grader hands over.\nTANK_LIMIT = \"trout\"\n\n\ndef load(rows):\n    for row in rows:\n        record_weighing(row)\n\n\ndef reload(row):\n    record_weighing(row)\n    return row\n",
+    "pond/relay.py": "from pond.store import record_weighing\n\n# Relay the weighings the counters hand over.\n\n\ndef relay(row):\n    record_weighing(row)\n    return row\n",
+    "pond/store.py": "\"\"\"The weighing store for the Fernhill hatchery.\"\"\"\n\nWEIGHINGS = []\n\n\ndef record_weighing(row):\n    WEIGHINGS.append(row)\n    return row\n",
+    "retired/intake.py": "from pond.store import record_weighing\n\n# Intake helpers retired with the old grader.\n\n\ndef load(rows):\n    for row in rows:\n        record_weighing(row)\n\n\ndef reload(row):\n    record_weighing(row)\n    return row\n"
+  },
+  "turns": [
+    {
+      "prompt": "Fernhill Trout Hatchery records a weighing by calling record_weighing. In the intake and pond modules, how many calls to it are made? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 3,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

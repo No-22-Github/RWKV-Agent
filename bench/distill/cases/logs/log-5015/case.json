@@ -1,0 +1,36 @@
+{
+  "id": "log-5015",
+  "description": "Read the floor the lift controller recorded on the single fault line of one day's journal. DISTILL-CANARY-4f2b9a71",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "locate_error",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-log-liftfault-21",
+    "ref_calls": 2,
+    "fixture_bytes": 1154,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Ashgate Court lift controller\n\nHaverstock Lifts services the passenger lift at Ashgate Court. The controller\nappends one line per event to logs/lift-controller.log:\n\n    <UTC time> <event> ...\n\nCALL records a landing call and the floor it came from; RUN records a trip the\ncar completed; FAULT is written once, when the controller takes the car out of\nservice, and names the floor the car was at. ENGINEER records the call-out the\ncontroller raises after a fault. The journal is closed with a line whose count\ncovers every event line above it.\n",
+    "logs/lift-controller.log": "2026-09-11T05:58:12Z BOOT controller v4.2\n2026-09-11T06:02:44Z CALL floor=2 dir=up\n2026-09-11T06:02:51Z RUN from=2 to=7\n2026-09-11T06:11:03Z CALL floor=7 dir=down\n2026-09-11T06:11:09Z RUN from=7 to=1\n2026-09-11T06:24:37Z CALL floor=1 dir=up\n2026-09-11T06:24:44Z RUN from=1 to=5\n2026-09-11T06:39:20Z CALL floor=5 dir=down\n2026-09-11T06:39:26Z RUN from=5 to=3\n2026-09-11T06:52:18Z CALL floor=3 dir=up\n2026-09-11T06:52:24Z RUN from=3 to=6\n2026-09-11T07:08:41Z CALL floor=6 dir=down\n2026-09-11T07:14:56Z FAULT floor=4 code=E07 door=2\n2026-09-11T07:19:02Z ENGINEER called out\n2026-09-11T07:19:02Z CLOSE events=14\n"
+  },
+  "turns": [
+    {
+      "prompt": "Haverstock Lifts maintains the passenger lift at Ashgate Court. The controller's journal for 11 September 2026 records the landing calls, the trips the car made and the one fault that took it out of service. Which floor was the lift at when the fault was logged? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 4,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

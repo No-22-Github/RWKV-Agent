@@ -1,0 +1,40 @@
+{
+  "id": "log-5024",
+  "description": "Total the garments of one boiler session's heaviest gas-drawing cycles, in the same journal family. DISTILL-CANARY-1e9d30b6",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 929
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-boilercycles-21",
+    "ref_calls": 3,
+    "fixture_bytes": 1370,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# boiler house journal\n\nNetherby Laundry's boiler house runs the burner that heats the wash water.\nEvery cycle writes one line to logs/boiler.log:\n\n    <UTC time> CYCLE burner=<id> load=<n> minutes=<n> fuel=<n>\n\n`load` is the number of garments the cycle took in, `minutes` is how long the\ncycle ran and `fuel` is the gas units the burner drew. A session ends with a\nsummary line carrying the number of cycles it ran and the gas units it drew in\ntotal, and the journal is replaced when the next session starts.\n",
+    "logs/boiler.log": "2026-11-16T05:04:22Z CYCLE burner=B-1 load=76 minutes=106 fuel=76\n2026-11-16T06:22:48Z CYCLE burner=B-1 load=88 minutes=112 fuel=64\n2026-11-16T07:41:15Z CYCLE burner=B-1 load=63 minutes=118 fuel=82\n2026-11-16T09:02:52Z CYCLE burner=B-1 load=91 minutes=108 fuel=69\n2026-11-16T10:20:27Z CYCLE burner=B-1 load=70 minutes=115 fuel=71\n2026-11-16T11:39:04Z CYCLE burner=B-1 load=84 minutes=110 fuel=85\n2026-11-16T12:58:39Z CYCLE burner=B-1 load=67 minutes=117 fuel=66\n2026-11-16T14:17:16Z CYCLE burner=B-1 load=93 minutes=107 fuel=79\n2026-11-16T15:35:51Z CYCLE burner=B-1 load=72 minutes=113 fuel=73\n2026-11-16T16:54:28Z CYCLE burner=B-1 load=86 minutes=109 fuel=68\n2026-11-16T18:13:03Z CYCLE burner=B-1 load=60 minutes=116 fuel=84\n2026-11-16T19:31:40Z CYCLE burner=B-1 load=79 minutes=111 fuel=62\n2026-11-16T20:50:17Z SUMMARY session=2026-11-16 cycles=12 fuel=879\n"
+  },
+  "turns": [
+    {
+      "prompt": "Netherby Laundry's boiler house logged a session on 16 November 2026, one line for every cycle. How many garments did the cycles that drew more than 70 gas units take in altogether? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 518,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

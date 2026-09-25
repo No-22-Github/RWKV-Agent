@@ -1,0 +1,34 @@
+{
+  "id": "code-5014",
+  "description": "Name the module that defines the tide margin constant the marine survey's nightly job reads. DISTILL-CANARY-48c3f9a1",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "locate_definition",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-code-tidemargin-01",
+    "ref_calls": 2,
+    "fixture_bytes": 521,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "nightly.py": "from survey.limits import TIDE_MARGIN_MINUTES\nfrom survey.windows import tide_window\n\n\ndef main():\n    print(tide_window(TIDE_MARGIN_MINUTES))\n\n\nmain()\n",
+    "survey/limits.py": "\"\"\"Limits the survey jobs work to.\"\"\"\n\nTIDE_MARGIN_MINUTES = 40\nDEPTH_DATUM_OFFSET = 3\n",
+    "survey/windows.py": "\"\"\"Tide windows for the survey boats.\"\"\"\nfrom survey.limits import TIDE_MARGIN_MINUTES\n\n\ndef tide_window(margin=TIDE_MARGIN_MINUTES):\n    \"\"\"Return the tide window the survey boats work in.\"\"\"\n    return \"tide-%d\" % margin\n\n\ndef window_name(margin):\n    return \"window-%d\" % margin\n"
+  },
+  "turns": [
+    {
+      "prompt": "A Pendle Marine Surveys job reads the margin it works in from TIDE_MARGIN_MINUTES. Which file defines that constant? Give the file path on its own, with the .py suffix. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "survey/limits.py"
+      }
+    }
+  ]
+}

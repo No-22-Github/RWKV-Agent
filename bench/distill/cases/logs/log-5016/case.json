@@ -1,0 +1,36 @@
+{
+  "id": "log-5016",
+  "description": "Count the stacks a guillotine put down on one day of its step journal. DISTILL-CANARY-c86d1e40",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-log-guillotine-21",
+    "ref_calls": 2,
+    "fixture_bytes": 1378,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# guillotine journal\n\nBramcote Print Finishers' paper guillotine writes one line per step to\nlogs/guillotine.log:\n\n    <UTC time> <step> job=<id> ...\n\nPILE records the job whose paper the operator loaded, CUT records one cut, and\nSTACK records one stack the guillotine put down on the pallet. A job keeps the\nsame identifier through every step it appears in. The journal is closed with a\nline whose count covers every step line above it.\n",
+    "logs/guillotine.log": "2026-09-18T07:04:12Z PILE job=QP-2261 sheets=480\n2026-09-18T07:09:38Z CUT job=QP-2261 trim=2\n2026-09-18T07:15:03Z STACK job=QP-2261 height=112\n2026-09-18T07:26:47Z PILE job=QP-2264 sheets=360\n2026-09-18T07:31:09Z CUT job=QP-2264 trim=4\n2026-09-18T07:33:51Z STACK job=QP-2264 height=96\n2026-09-18T07:48:22Z STACK job=QP-2264 height=88\n2026-09-18T08:02:35Z PILE job=QP-2269 sheets=520\n2026-09-18T08:06:14Z CUT job=QP-2269 trim=2\n2026-09-18T08:12:40Z CUT job=QP-2269 trim=2\n2026-09-18T08:19:55Z STACK job=QP-2269 height=120\n2026-09-18T08:44:16Z PILE job=QP-2273 sheets=300\n2026-09-18T08:49:02Z CUT job=QP-2273 trim=1\n2026-09-18T08:55:33Z STACK job=QP-2273 height=72\n2026-09-18T09:11:24Z STACK job=QP-2273 height=64\n2026-09-18T09:26:58Z STACK job=QP-2273 height=70\n2026-09-18T09:40:05Z PILE job=QP-2280 sheets=420\n2026-09-18T09:46:19Z CUT job=QP-2280 trim=3\n2026-09-18T09:53:41Z STACK job=QP-2280 height=104\n2026-09-18T10:02:07Z CLOSE steps=19\n"
+  },
+  "turns": [
+    {
+      "prompt": "Bramcote Print Finishers' guillotine worked through 18 September 2026 and wrote a line for every step it took. How many stacks did it put down that day? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 8,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

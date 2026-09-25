@@ -1,0 +1,40 @@
+{
+  "id": "nt-5163",
+  "description": "Registered designation the register gives the building volunteers call the old shed. DISTILL-CANARY-2a83e50f",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "stable_fact",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "Signal Cabin North"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-site-designation-01",
+    "ref_calls": 1,
+    "fixture_bytes": 560,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "records/site-designations.txt": "the old shed | Carriage Works\nthe box | Signal Cabin North\nthe platform store | Parcels Store\nthe yard | Goods Yard South\n",
+    "README.md": "# Tarnbrook Heritage Railway - records workspace\n\nWorking area for the trust office.\n\n- records/  the site designation register and the volunteer roster\n\nThe designation register fixes the name each building carries on official documents and is edited in place, so a building never carries two designations. Rows are kept in the order the buildings were entered in the register, oldest first. Last reviewed 2026-01-30, reference TR-7748.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Tarnbrook Heritage Railway is renewing its insurance and the schedule has to name the building the volunteers call the old shed under its registered designation. What designation goes on the schedule? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "Carriage Works",
+        "tools": []
+      }
+    }
+  ]
+}

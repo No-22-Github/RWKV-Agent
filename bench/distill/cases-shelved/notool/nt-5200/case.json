@@ -1,0 +1,63 @@
+{
+  "id": "nt-5200",
+  "description": "Asks whether a previous answer was right; reply directly without any tool call. DISTILL-CANARY-d0f2c791",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-smalltalk-16",
+    "ref_calls": 0,
+    "fixture_bytes": 267,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Emberton Narrowboats - dock office workspace\n\nShared folder for the dock and the hire desk.\n\n- hulls/  boats in for blacking this month\n- parts/  store cupboard counts\n",
+    "hulls/dock_list.csv": "hull,boat,days_in_water,coat_l\nEN-1985,patience,428,9\nEN-1986,willow,316,7\nEN-1987,harrier,204,6\n"
+  },
+  "turns": [
+    {
+      "prompt": "One thing before I ring them back - was that last answer of yours right?",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "confident",
+          "Confident",
+          "certain",
+          "Certain",
+          "Yes,",
+          "Yes.",
+          "yes,",
+          "sure about",
+          "stand by",
+          "stand behind",
+          "don't have",
+          "do not have",
+          "no earlier",
+          "earlier answer",
+          "previous answer",
+          "first message",
+          "nothing earlier",
+          "haven't given",
+          "don’t have",
+          "haven’t given",
+          "no figure"
+        ]
+      }
+    }
+  ]
+}

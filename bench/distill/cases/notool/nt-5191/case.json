@@ -1,0 +1,57 @@
+{
+  "id": "nt-5191",
+  "description": "Asks whether the assistant is a chatbot; reply directly without any tool call. DISTILL-CANARY-b4816d29",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-smalltalk-12",
+    "ref_calls": 0,
+    "fixture_bytes": 251,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Ashgrove Saddlery - bench workspace\n\nShared folder for the leather bench.\n\n- repairs/  tack left in for stitching\n- hides/  sides measured on the rack\n",
+    "repairs/tack_repairs.csv": "ticket,item,stitch_cm,days\nAS-7118,bridle,86,4\nAS-7119,girth strap,132,6\nAS-7120,head collar,58,3\n"
+  },
+  "turns": [
+    {
+      "prompt": "Are you a chatbot, out of interest, or a person?",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "assistant",
+          "Assistant",
+          "model",
+          "Model",
+          "AI",
+          "ai",
+          "chatbot",
+          "Chatbot",
+          "program",
+          "Program",
+          "software",
+          "Software",
+          "not a person",
+          "not human",
+          "not a real person"
+        ]
+      }
+    }
+  ]
+}

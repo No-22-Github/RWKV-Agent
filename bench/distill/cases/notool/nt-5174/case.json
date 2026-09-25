@@ -1,0 +1,43 @@
+{
+  "id": "nt-5174",
+  "description": "Give the line that makes a bash wildcard with no match expand to nothing. DISTILL-CANARY-8a30c5d7",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "shopt -s failglob"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-shelloption-24",
+    "ref_calls": 0,
+    "fixture_bytes": 394,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "ops/shell-option-cards.tsv": "empty-expansion\tshopt -s nullglob\tshopt -s nullglob dotglob\nabort-the-command\tshopt -s failglob\tshopt -s failglob dotglob\n",
+    "README.md": "# Sablefur Outfitters - stock sweep\n\nThe nightly stock sweep is a bash script that walks the shop floor directories with a\nwildcard and takes a different branch when a floor has no records at all.\nThe shell settings the team uses are carded in ops/shell-option-cards.tsv.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Sablefur Outfitters wraps its nightly stock sweep in a bash script that walks a directory with a wildcard. Give the line that has to run before that walk so that a wildcard which matches no file at all expands to an empty list instead of being passed on as the pattern itself. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "shopt -s nullglob",
+          "shopt -s nullglob dotglob"
+        ]
+      }
+    }
+  ]
+}

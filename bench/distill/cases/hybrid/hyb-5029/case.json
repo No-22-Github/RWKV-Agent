@@ -1,0 +1,68 @@
+{
+  "id": "hyb-5029",
+  "description": "Fill the blank governor trip speed in a lift car settings table from the maker's note. DISTILL-CANARY-ef74b0c2",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_edit",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": null
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-liftsettings-01",
+    "ref_calls": 4,
+    "fixture_bytes": 355,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [
+    {
+      "query_match": "wraysbury",
+      "url": "https://wraysbury-lifts.example/notes/gearless-commissioning",
+      "url_match": "wraysbury-lifts.example/notes/gearless-commissioning",
+      "title": "Gearless drive commissioning note - Wraysbury Lifts",
+      "snippet": "For a gearless drive the governor trip speed is set to 1.6 metres per second.",
+      "content": "# Gearless drive commissioning note\n\nWraysbury Lifts, issued 4 June 2026.\n\nFor a gearless drive the governor trip speed is set to 1.6 metres per second.\nThe figure is checked against the rating plate on the machine and the lower\nof the two is used.\n\nThe door dwell and the levelling tolerance are building settings and are not\nset from this note.\n",
+      "published_at": "2026-06-04"
+    },
+    {
+      "query_match": "wraysbury hydraulic",
+      "url": "https://wraysbury-lifts.example/notes/hydraulic-commissioning",
+      "url_match": "wraysbury-lifts.example/notes/hydraulic-commissioning",
+      "title": "Hydraulic drive commissioning note - Wraysbury Lifts",
+      "snippet": "Hydraulic drives take a governor trip speed of 0.8 metres per second.",
+      "content": "# Hydraulic drive commissioning note\n\nWraysbury Lifts, issued 4 June 2026.\n\nHydraulic drives take a governor trip speed of 0.8 metres per second, set with\nthe car standing at the top landing.\n",
+      "published_at": "2026-06-04"
+    }
+  ],
+  "files": {
+    "lift/car-settings.csv": "setting,value\ngovernor_trip_speed_m_per_s,\ndoor_dwell_s,4\ndrive_type,gearless\n",
+    "README.md": "# Wraysbury Lifts - car settings\n\nThe car settings for each lift are held in lift/car-settings.csv. Trip speeds\ncome from the lift maker's commissioning note for the drive type fitted, not\nfrom the maintenance handbook; the door dwell is a building setting and stays\nas it is.\n"
+  },
+  "expect": {
+    "files": {
+      "lift/car-settings.csv": {
+        "contains": [
+          "setting,value\ngovernor_trip_speed_m_per_s,1.6\ndoor_dwell_s,4\ndrive_type,gearless"
+        ]
+      }
+    },
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Wraysbury Lifts is putting a serviced car back into service and the trip speed on the car's settings sheet is still empty. Fill in the governor trip speed the lift maker's commissioning note gives for the drive type fitted to the car. When finished, reply DONE.",
+      "expect": {}
+    }
+  ]
+}

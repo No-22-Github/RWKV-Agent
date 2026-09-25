@@ -1,0 +1,42 @@
+{
+  "id": "nt-5131",
+  "description": "Explain how a relay site's battery runtime is worked out and give it for one site. DISTILL-CANARY-c93e8057",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 25.6
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L2",
+    "family": "fam-nt-bankhours-28",
+    "ref_calls": 0,
+    "fixture_bytes": 331,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "batteries/relay_cards.csv": "site,capacity_ah,bus_v,discharge_pct,load_w\nPR-42,480,48,50,900\n",
+    "notes/maintenance.txt": "Battery blocks are washed at the summer visit.\nThe standby generator runs for an hour after every outage.\n",
+    "README.md": "# Pennygant Relay Station - site folder\n\nShared folder for the field engineers.\n\n- batteries/  cards for the site banks\n- notes/  maintenance notes for the site\n"
+  },
+  "turns": [
+    {
+      "prompt": "A field engineer at Pennygant Relay Station asked how long the site battery holds the load up; the card's discharge figure is the share of the bank that may be used before it is recharged. Site PR-42 has a 480 ampere hour bank at 48 volts, a working discharge of 50 percent and a load of 900 watts. Give the runtime the bank covers that load, in hours. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 12.8,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

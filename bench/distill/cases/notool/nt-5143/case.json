@@ -1,0 +1,42 @@
+{
+  "id": "nt-5143",
+  "description": "State a 720 megabit a second edge peak in gigabytes an hour. DISTILL-CANARY-1a2e83a7",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 301.75
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-egresspeak-01",
+    "ref_calls": 0,
+    "fixture_bytes": 321,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "standards/throughput_units.csv": "megabit_per_second_to_gigabyte_per_hour,0.45\nmegabit_per_second_to_gibibyte_per_hour,0.4191\n",
+    "pops/edge_peak_6173.tsv": "pop\tpeak_megabits_per_second\nManchester edge\t720\nLeeds edge\t388\n",
+    "README.md": "# Cindermoor Streaming - capacity reporting\n\nEdge peaks are recorded in megabits a second.\nThe monthly capacity report states sustained egress in gigabytes an hour.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Cindermoor Streaming is sizing the September capacity report for the Manchester edge. The peak the monitoring system recorded there is 720 megabits a second. The report states sustained egress in gigabytes an hour. What does it state for the Manchester edge? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 324,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

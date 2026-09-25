@@ -1,0 +1,40 @@
+{
+  "id": "log-5021",
+  "description": "Find the heaviest load one lane weighed in a two-lane weighbridge journal. DISTILL-CANARY-35af7d80",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "aggregate_jsonl",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 29140
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-timberload-21",
+    "ref_calls": 3,
+    "fixture_bytes": 3307,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# weighbridge journal\n\nAldermere Timber's weighbridge serves two lanes and appends one record per load\nto logs/weighbridge.jsonl: `ts` is when the load was weighed, `lane` is the\nlane it came through, `load_kg` is the weight the bridge recorded and `planks`\nis the number of boards on the truck. The export in the workspace covers\n20 August 2026.\n",
+    "logs/weighbridge.jsonl": "{\"ts\":\"2026-08-20T05:12:04Z\",\"lane\":\"north\",\"load_kg\":21460,\"planks\":186}\n{\"ts\":\"2026-08-20T05:41:37Z\",\"lane\":\"south\",\"load_kg\":24820,\"planks\":212}\n{\"ts\":\"2026-08-20T06:09:18Z\",\"lane\":\"north\",\"load_kg\":19240,\"planks\":164}\n{\"ts\":\"2026-08-20T06:38:52Z\",\"lane\":\"north\",\"load_kg\":22780,\"planks\":198}\n{\"ts\":\"2026-08-20T07:07:26Z\",\"lane\":\"south\",\"load_kg\":26310,\"planks\":224}\n{\"ts\":\"2026-08-20T07:36:01Z\",\"lane\":\"north\",\"load_kg\":20590,\"planks\":178}\n{\"ts\":\"2026-08-20T08:04:33Z\",\"lane\":\"south\",\"load_kg\":23970,\"planks\":206}\n{\"ts\":\"2026-08-20T08:33:09Z\",\"lane\":\"north\",\"load_kg\":26840,\"planks\":231}\n{\"ts\":\"2026-08-20T09:01:45Z\",\"lane\":\"north\",\"load_kg\":18320,\"planks\":158}\n{\"ts\":\"2026-08-20T09:30:17Z\",\"lane\":\"south\",\"load_kg\":25480,\"planks\":218}\n{\"ts\":\"2026-08-20T09:58:51Z\",\"lane\":\"north\",\"load_kg\":22150,\"planks\":192}\n{\"ts\":\"2026-08-20T10:27:28Z\",\"lane\":\"north\",\"load_kg\":23690,\"planks\":205}\n{\"ts\":\"2026-08-20T10:56:02Z\",\"lane\":\"south\",\"load_kg\":24130,\"planks\":209}\n{\"ts\":\"2026-08-20T11:24:36Z\",\"lane\":\"north\",\"load_kg\":19980,\"planks\":172}\n{\"ts\":\"2026-08-20T11:53:11Z\",\"lane\":\"south\",\"load_kg\":25940,\"planks\":221}\n{\"ts\":\"2026-08-20T12:21:47Z\",\"lane\":\"north\",\"load_kg\":23070,\"planks\":199}\n{\"ts\":\"2026-08-20T12:50:19Z\",\"lane\":\"north\",\"load_kg\":17610,\"planks\":152}\n{\"ts\":\"2026-08-20T13:18:54Z\",\"lane\":\"south\",\"load_kg\":29140,\"planks\":248}\n{\"ts\":\"2026-08-20T13:47:29Z\",\"lane\":\"north\",\"load_kg\":28510,\"planks\":244}\n{\"ts\":\"2026-08-20T14:16:03Z\",\"lane\":\"north\",\"load_kg\":21030,\"planks\":181}\n{\"ts\":\"2026-08-20T14:44:38Z\",\"lane\":\"south\",\"load_kg\":25120,\"planks\":216}\n{\"ts\":\"2026-08-20T15:13:12Z\",\"lane\":\"north\",\"load_kg\":22480,\"planks\":195}\n{\"ts\":\"2026-08-20T15:41:46Z\",\"lane\":\"south\",\"load_kg\":23640,\"planks\":204}\n{\"ts\":\"2026-08-20T16:10:21Z\",\"lane\":\"north\",\"load_kg\":20740,\"planks\":179}\n{\"ts\":\"2026-08-20T16:38:55Z\",\"lane\":\"north\",\"load_kg\":24390,\"planks\":210}\n{\"ts\":\"2026-08-20T17:07:29Z\",\"lane\":\"south\",\"load_kg\":26080,\"planks\":222}\n{\"ts\":\"2026-08-20T17:36:04Z\",\"lane\":\"north\",\"load_kg\":18970,\"planks\":165}\n{\"ts\":\"2026-08-20T18:04:38Z\",\"lane\":\"south\",\"load_kg\":23260,\"planks\":201}\n{\"ts\":\"2026-08-20T18:33:13Z\",\"lane\":\"north\",\"load_kg\":21880,\"planks\":189}\n{\"ts\":\"2026-08-20T19:01:47Z\",\"lane\":\"north\",\"load_kg\":27240,\"planks\":234}\n{\"ts\":\"2026-08-20T19:30:22Z\",\"lane\":\"south\",\"load_kg\":24480,\"planks\":208}\n{\"ts\":\"2026-08-20T19:58:56Z\",\"lane\":\"north\",\"load_kg\":20160,\"planks\":175}\n{\"ts\":\"2026-08-20T20:27:31Z\",\"lane\":\"north\",\"load_kg\":23380,\"planks\":203}\n{\"ts\":\"2026-08-20T20:56:05Z\",\"lane\":\"south\",\"load_kg\":25690,\"planks\":219}\n{\"ts\":\"2026-08-20T21:24:40Z\",\"lane\":\"north\",\"load_kg\":19520,\"planks\":168}\n{\"ts\":\"2026-08-20T21:53:14Z\",\"lane\":\"south\",\"load_kg\":24970,\"planks\":214}\n{\"ts\":\"2026-08-20T22:21:49Z\",\"lane\":\"north\",\"load_kg\":22890,\"planks\":197}\n{\"ts\":\"2026-08-20T22:50:23Z\",\"lane\":\"north\",\"load_kg\":18140,\"planks\":156}\n{\"ts\":\"2026-08-20T23:18:58Z\",\"lane\":\"south\",\"load_kg\":26230,\"planks\":223}\n{\"ts\":\"2026-08-20T23:47:32Z\",\"lane\":\"north\",\"load_kg\":21570,\"planks\":184}\n"
+  },
+  "turns": [
+    {
+      "prompt": "Aldermere Timber's weighbridge serves two lanes and records every load it weighs. What was the heaviest load, in kilograms, that came through the north lane on 20 August 2026? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 28510,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

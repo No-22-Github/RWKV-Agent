@@ -1,0 +1,51 @@
+{
+  "id": "scr-5008",
+  "description": "Give the rowing club's outing hours script a month option so a single month's sheet can be printed on its own. DISTILL-CANARY-7a41f6c2",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "add_flag",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-scr-rowinghours-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1330,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "usage.py": "\"\"\"Print the outing hours sheet for the Aldermere Rowing Club.\n\nOutings land in outings/, one file per month; the columns are\ndate,boat,member,minutes. Print one line per boat in boat name order with\nthe minutes logged for it, then a totals line:\n\n    <boat>,<minutes>\n    TOTAL,<minutes>\n\"\"\"\nimport csv\nimport os\n\nOUTINGS = os.path.join(os.path.dirname(os.path.abspath(__file__)), \"outings\")\n\n\ndef outing_rows():\n    rows = []\n    for name in sorted(os.listdir(OUTINGS)):\n        if name.endswith(\".csv\"):\n            with open(os.path.join(OUTINGS, name), newline=\"\") as handle:\n                rows.extend(csv.DictReader(handle))\n    return rows\n\n\ndef main():\n    minutes = {}\n    for row in outing_rows():\n        boat = row[\"boat\"]\n        minutes[boat] = minutes.get(boat, 0) + int(row[\"minutes\"])\n    for boat in sorted(minutes):\n        print(\"%s,%d\" % (boat, minutes[boat]))\n    print(\"TOTAL,%d\" % sum(minutes.values()))\n\n\nmain()\n",
+    "outings/2026-08.csv": "date,boat,member,minutes\n2026-08-05,Curlew,Ashby,85\n2026-08-19,Heron,Peploe,110\n",
+    "outings/2026-09.csv": "date,boat,member,minutes\n2026-09-02,Curlew,Vasquez,70\n2026-09-09,Mallard,Ostrowski,45\n2026-09-16,Heron,Ashby,60\n",
+    "README.md": "# Aldermere Rowing Club - outing hours\n\nThe boathouse writes each outing to outings/ as the boat comes back,\none file per month. The hours sheet is printed by usage.py for the\ncommittee noticeboard.\n"
+  },
+  "expect": {
+    "files": {
+      "outings/2026-08.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "usage.py",
+      "expected_stdout": "Curlew,85\nHeron,110\nTOTAL,195",
+      "hidden_files": {
+        "outings/2026-10.csv": "date,boat,member,minutes\n2026-10-07,Mallard,Vasquez,80\n2026-10-21,Heron,Ostrowski,35\n"
+      },
+      "args": [
+        "--month",
+        "2026-08"
+      ]
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The race committee keeps asking for one month's outing hours on its own, and the office is tired of reading past the other months. Please give usage.py a --month option that takes a month written as 2026-08 and prints the sheet for that month alone, keeping the layout and the totals line it already has. When finished, reply DONE.",
+      "expect": {}
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "nt-5187",
+  "description": "Leaving-for-the-day sign-off with no task; reply directly without any tool call. DISTILL-CANARY-8e52a7b1",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-smalltalk-11",
+    "ref_calls": 0,
+    "fixture_bytes": 293,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Plumbwood Joinery - machine shop workspace\n\nShared folder for the bench hands and the office.\n\n- orders/  fitted work booked off the drawings\n- timber/  stock lengths in the rack\n",
+    "orders/fitted_work.csv": "order,item,timber_m,quoted_hours\nPJ-5321,oak stair,41,220\nPJ-5322,window set,18,96\nPJ-5323,kitchen doors,26,145\n"
+  },
+  "turns": [
+    {
+      "prompt": "That's everything from me. Enjoy the rest of your evening.",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "evening",
+          "Evening",
+          "bye",
+          "Bye",
+          "goodbye",
+          "Goodbye",
+          "you too",
+          "You too",
+          "take care",
+          "Take care",
+          "thank",
+          "Thank",
+          "night",
+          "Night"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "id": "nt-5115",
+  "description": "Explain a harbour's twelfths rule and give the rise after three hours of flood. DISTILL-CANARY-6c1d47ae",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 1.2
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-tideclock-21",
+    "ref_calls": 0,
+    "fixture_bytes": 256,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "tides/skerry_cove_card.csv": "reach,range_m,hours_of_flood,cumulative_twelfths\nSkerry Cove,4.8,3,6\n",
+    "README.md": "# Harnsey Harbour Board - tide desk\n\nWorking folder for the duty watchkeeper.\n\n- tides/  one card for each reach of the harbour\n- notices/  harbour notices collected from the port office\n"
+  },
+  "turns": [
+    {
+      "prompt": "A watchkeeper new to the Harnsey Harbour Board tide desk asked what the twelfths rule on a reach card is for. It splits a rising tide into six hours that take one, two, three, three, two and one twelfth of the range. The range at Skerry Cove is 4.8 metres and the flood there has been running for three hours. Give how far the water has risen above the level at the turn, in metres. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 2.4,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

@@ -385,7 +385,11 @@ func DeriveKind(tags eval.CaseTags, traj eval.TrajStats, turn int, hasRunExpect 
 	switch {
 	case tags.TaskType == "smalltalk":
 		return kindSmalltalk
-	case traj.ZeroCall && (tags.TaskType == "beyond_capability" || containsString(tags.Traps, "TR-NOCAP")):
+	case tags.TaskType == "beyond_capability" || containsString(tags.Traps, "TR-NOCAP"):
+		// Looking at the workspace before refusing is allowed (§4.3.1), so the
+		// refusual itself is what makes the row a refusal, exactly as asking is
+		// what makes a TR-AMBIG turn a clarification. traj.zero_call still
+		// records whether the model checked first.
 		return kindRefuse
 	case containsString(tags.Traps, "TR-AMBIG") && turn < traj.TurnsTotal:
 		// Asking is the action of the turn whether or not the model looked at

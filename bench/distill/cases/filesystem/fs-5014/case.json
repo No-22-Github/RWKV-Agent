@@ -1,0 +1,40 @@
+{
+  "id": "fs-5014",
+  "description": "Find the drum named on the amber malt batch card in a maltings drying folder. DISTILL-CANARY-d68ff654",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "find_file",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-fs-maltbatch-01",
+    "ref_calls": 2,
+    "fixture_bytes": 500,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "Cobbshill Maltings - batch cards\n\nOne card is written for every drying run and filed here until the malt is\nweighed out to the brewery. The card is filled in at the kiln as the batch goes\nin, so the drum and the load are both on the first line.\n",
+    "batches/118-amber.txt": "Drum 4 - amber malt, 2.4 tonnes - loaded 06:40\nKiln floor: upper\nAnalyst: R. Werren\n",
+    "batches/121-brown.txt": "Drum 2 - brown malt, 3.1 tonnes - loaded 07:25\nKiln floor: lower\nAnalyst: R. Werren\n",
+    "batches/126-pilsner.txt": "Drum 6 - pilsner malt, 1.8 tonnes - loaded 05:55\nKiln floor: upper\nAnalyst: S. Killick\n"
+  },
+  "turns": [
+    {
+      "prompt": "Cobbshill Maltings runs one batch of malt through a drum at a time. The card written for the amber malt batch names the drum that batch went into. Which drum is that? Report the drum number. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals_any": [
+          "Drum 4",
+          "4"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "id": "nt-5159",
+  "description": "Role the sign-off list records against recall notices. DISTILL-CANARY-3d5a8fc2",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "stable_fact",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "Superintendent Pharmacist"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-signoff-role-01",
+    "ref_calls": 1,
+    "fixture_bytes": 551,
+    "status": "draft",
+    "version": 3,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "governance/signoff-list.txt": "recall notices = Responsible Pharmacist\ncomplaints responses = Superintendent Pharmacist\nnew locum approvals = Area Manager\nprice list changes = Finance Controller\n",
+    "README.md": "# Hartsmere Pharmacy Group - governance workspace\n\nWorking area for the group governance team.\n\n- governance/  the approval list and the inspection file\n\nThe approval list names one role per check and is edited in place, so a check is never signed off by two roles. Rows are kept in the order the checks were added to the list, oldest first. Last reviewed 2026-06-16, reference HP-5503.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Hartsmere Pharmacy Group is redrafting how recall notices are handled and the new procedure has to name the role that signs them off. Name that role. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "Responsible Pharmacist",
+        "tools": []
+      }
+    }
+  ]
+}

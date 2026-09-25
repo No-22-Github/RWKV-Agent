@@ -1,0 +1,43 @@
+{
+  "id": "fs-5019",
+  "description": "Pick out the landing declaration filed twice under two names in a fish market's folder and report the crate count it records. DISTILL-CANARY-a49b341c",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "duplicates",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 226
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-fs-landingpair-01",
+    "ref_calls": 4,
+    "fixture_bytes": 606,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "Pellan Cove Fish Market - landing declarations\n\nOne declaration is written for each landing and both the harbour office and the\nmarket keep a copy of it. The office clerk types the sheets in the order the\nboats come in.\n",
+    "declarations/gladys-h-0714-market.txt": "Landing declaration - Gladys H\nCrates: 218\nWeight: 3.6 tonnes\nLanded: 2026-07-14 05:20\nQuay: 3\n",
+    "declarations/gladys-h-0714-office.txt": "Landing declaration - Gladys H\nCrates: 218\nWeight: 3.6 tonnes\nLanded: 2026-07-14 05:20\nQuay: 3\n",
+    "declarations/gladys-h-0715.txt": "Landing declaration - Gladys H\nCrates: 226\nWeight: 3.7 tonnes\nLanded: 2026-07-15 05:35\nQuay: 3\n",
+    "declarations/rose-of-penwith-0714.txt": "Landing declaration - Rose of Penwith\nCrates: 90\nWeight: 1.5 tonnes\nLanded: 2026-07-14 06:10\nQuay: 1\n"
+  },
+  "turns": [
+    {
+      "prompt": "One landing at Pellan Cove was declared twice, once by the harbour office and once by the market, so the same sheet sits in this folder under two names. The declaration typed for the next day's landing was copied from that sheet. How many crates does the declaration that is filed twice record? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 218,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

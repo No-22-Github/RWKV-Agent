@@ -1,0 +1,44 @@
+{
+  "id": "log-5027",
+  "description": "Name the payload limit in force when a telemetry feed began being turned away, from a dated change record beside the feed journal. DISTILL-CANARY-f30a9d4c",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "root_cause",
+    "traps": [
+      "TR-MULTISRC",
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": 138240,
+      "TR-SUPERSEDE": 196608
+    },
+    "axes": [
+      "CHN",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "fam-log-payloadlimit-21",
+    "ref_calls": 4,
+    "fixture_bytes": 1959,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# telemetry feed\n\nThornberrow Water posts batches of meter readings to the regional hub every ten\nminutes and writes one line per post to logs/telemetry-feed.log:\n\n    <UTC time> POST batch=<id> bytes=<n> status=<code>\n\nThe hub takes a batch while its body stays within the payload limit the hub\nteam has set, and turns a batch away with status=413 once the body is over that\nlimit. The feed waits for the next slot after a refusal. The hub team records\nevery change it makes to the limit in notes/hub-limits.md.\n",
+    "logs/telemetry-feed.log": "2026-08-18T00:11:04Z POST batch=TW-7788 bytes=118420 status=202\n2026-08-18T00:41:09Z POST batch=TW-7789 bytes=126740 status=202\n2026-08-18T01:11:13Z POST batch=TW-7790 bytes=121960 status=202\n2026-08-18T01:41:18Z POST batch=TW-7791 bytes=129440 status=202\n2026-08-18T02:11:22Z POST batch=TW-7792 bytes=124870 status=202\n2026-08-18T02:31:25Z POST batch=TW-7793 bytes=127380 status=202\n2026-08-18T02:41:27Z POST batch=TW-7794 bytes=138240 status=413\n2026-08-18T02:51:29Z POST batch=TW-7795 bytes=139880 status=413\n2026-08-18T03:01:32Z POST batch=TW-7796 bytes=137510 status=413\n2026-08-18T03:11:34Z POST batch=TW-7797 bytes=141030 status=413\n2026-08-18T03:21:37Z POST batch=TW-7798 bytes=136490 status=413\n2026-08-18T03:31:39Z POST batch=TW-7799 bytes=140260 status=413\n2026-08-18T03:41:42Z POST batch=TW-7800 bytes=133180 status=413\n2026-08-18T03:51:44Z POST batch=TW-7801 bytes=139610 status=413\n",
+    "notes/hub-limits.md": "# hub payload limit\n\nThe regional hub turns away any batch whose body is over the payload limit in\nforce at that moment. Per-batch changes recorded by the hub team:\n\n| recorded   | limit (bytes) | change |\n| ---------- | ------------- | ------ |\n| 2026-07-02 | 131072        | restored after the June incident review |\n| 2026-08-21 | 262144        | raised for the audit upload |\n| 2026-08-25 | 196608        | lowered once the audit upload finished |\n\nThe limit stays where the most recent recorded change left it until the next\nchange is recorded.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Thornberrow Water's telemetry feed hands batches of meter readings to the regional hub, and on 18 August 2026 the hub began turning its batches away at 02:41. The on-call note has to record the payload limit the hub was enforcing at that moment. What was that limit, in bytes? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 131072,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

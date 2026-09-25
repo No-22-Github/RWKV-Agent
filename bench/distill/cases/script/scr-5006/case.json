@@ -1,0 +1,46 @@
+{
+  "id": "scr-5006",
+  "description": "Repair the ferry company's crossing sheet script so the monthly sheet prints again and keeps printing for later months. DISTILL-CANARY-3f7a2c91",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_from_traceback",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-scr-ferrycrossing-01",
+    "ref_calls": 2,
+    "fixture_bytes": 1356,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "crossings.py": "\"\"\"Print the crossing sheet for the Tidebrook Ferry Company.\n\nMonthly sheets land in crossings/, one file per month; the columns are\nsailed_on,route,vehicles,fare_pence. Print one line per crossing in\nsailed_on order, then a totals line:\n\n    <sailed_on>,<route>,<fare>\n    TOTAL,<fare>\n\nFares print in pounds with two decimals.\n\"\"\"\nimport csv\nimport os\n\nSHEET = os.path.join(os.path.dirname(os.path.abspath(__file__)), \"crossings\", \"september.csv\")\n\n\ndef pounds(pence):\n    return \"%d.%02d\" % (pence // 100, pence % 100)\n\n\ndef crossing_rows(path):\n    with open(path, newline=\"\") as handle:\n        return list(csv.DictReader(handle))\n\n\ndef main():\n    total = 0\n    for row in sorted(crossing_rows(SHEET), key=lambda r: r[\"sailed_on\"]):\n        fare = int(row[\"vehicles\"]) * int(row[\"fare_pence\"])\n        total += fare\n        print(\"%s,%s,%s\" % (row[\"sailed_on\"], row[\"route\"], pounds(fare)))\n    print(\"TOTAL,%s\" % pounds(total))\n\n\nmain()\n",
+    "crossings/2026-09.csv": "sailed_on,route,vehicles,fare_pence\n2026-09-03,Harbour Reach,18,215\n2026-09-06,Saltings Point,25,180\n2026-09-11,Harbour Reach,12,215\n2026-09-19,Saltings Point,31,180\n2026-09-24,North Quay,9,260\n",
+    "README.md": "# Tidebrook Ferry Company - crossing sheets\n\nCrossings are written to crossings/ by the ticket office, one sheet per\nmonth. The monthly sheet is printed by crossings.py and goes to the\nharbour office with the takings.\n"
+  },
+  "expect": {
+    "files": {
+      "crossings/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "crossings.py",
+      "expected_stdout": "2026-09-03,Harbour Reach,38.70\n2026-09-06,Saltings Point,45.00\n2026-09-11,Harbour Reach,25.80\n2026-09-19,Saltings Point,55.80\n2026-09-24,North Quay,23.40\n2026-10-02,North Quay,36.40\n2026-10-05,Harbour Reach,45.15\n2026-10-09,Saltings Point,28.80\nTOTAL,299.05",
+      "hidden_files": {
+        "crossings/2026-10.csv": "sailed_on,route,vehicles,fare_pence\n2026-10-02,North Quay,14,260\n2026-10-05,Harbour Reach,21,215\n2026-10-09,Saltings Point,16,180\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The harbour office chases its end-of-month crossing sheet every month, and this time the run stopped with FileNotFoundError before printing anything. Please put crossings.py right so the sheet prints again in the layout it has always carried, and so it keeps printing as the later monthly sheets land in crossings/. The sheets in crossings/ are the ticket office record, so they stay as they are. When finished, reply DONE.",
+      "expect": {}
+    }
+  ]
+}

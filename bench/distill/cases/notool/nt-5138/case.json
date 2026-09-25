@@ -1,0 +1,42 @@
+{
+  "id": "nt-5138",
+  "description": "Rate a 3,240 cubic foot consignment in measurement tons. DISTILL-CANARY-a061a202",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 32.4
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-freightton-01",
+    "ref_calls": 0,
+    "fixture_bytes": 307,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "standards/freight_units.csv": "measurement_ton_cubic_feet,40\nregister_ton_cubic_feet,100\n",
+    "bookings/consignment_3382.txt": "consignment KS-3382\nbooked_by measurement ton\nvolume_cubic_feet 3240\n",
+    "README.md": "# Kirkstone Line - freight bookings\n\nGeneral cargo is booked by the measurement ton, forty cubic feet to the ton.\nRegister tonnage is kept on the same sheet for the ship's papers.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Kirkstone Line is rating a September consignment. The cargo measures 3,240 cubic feet. The line books general cargo by the measurement ton, at 40 cubic feet to the ton. How many measurement tons is the consignment? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 81,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

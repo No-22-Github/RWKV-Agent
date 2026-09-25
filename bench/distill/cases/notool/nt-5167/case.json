@@ -1,0 +1,45 @@
+{
+  "id": "nt-5167",
+  "description": "Give the response header line that keeps stored copies apart by accepted encoding. DISTILL-CANARY-5ce18b3d",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "Cache-Control: private"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L2",
+    "family": "fam-nt-httpfield-21",
+    "ref_calls": 0,
+    "fixture_bytes": 540,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "headers/cache-key-cards.tsv": "keep-separate-copies\tVary: Accept-Encoding\tvary: accept-encoding|Vary: Accept-Encoding, Accept-Language\nnarrow-the-audience\tCache-Control: private\tCache-Control: private, must-revalidate\n",
+    "README.md": "# Bellhaven Oyster Beds - catch reports\n\nCatch reports are served through a shared cache in front of the report service.\nThe cache rules the team uses are in headers/cache-key-cards.tsv.\n",
+    "notes/edge-review.txt": "Edge review:\nClients that asked for the plain body were handed the compressed stored copy.\nThe reviewer wants the stored entries keyed on what each client asked for.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Bellhaven Oyster Beds serves its catch reports through a shared cache in front of the report service. Some clients ask for the body compressed and some ask for it uncompressed, and each kind of client must be handed the stored copy that matches what it asked for. Give the response header line that names the request header the cache has to key its stored copies on. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "Vary: Accept-Encoding",
+          "vary: accept-encoding",
+          "Vary: Accept-Encoding, Accept-Language"
+        ]
+      }
+    }
+  ]
+}

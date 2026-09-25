@@ -41,6 +41,12 @@ func TestDeriveKindFollowsTheFirstMatchingRule(t *testing.T) {
 			turn: 1, want: "refuse",
 		},
 		{
+			name: "a refusal after reading the workspace is still a refusal",
+			tags: eval.CaseTags{Scenario: "config", TaskType: "edit_value", Traps: []string{"TR-NOCAP"}},
+			traj: eval.TrajStats{ZeroCall: false, ToolCalls: 3, Local: true},
+			turn: 1, want: "refuse",
+		},
+		{
 			name: "clarifying first turn",
 			tags: eval.CaseTags{Scenario: "hybrid", TaskType: "multi_turn", Traps: []string{"TR-AMBIG"}},
 			traj: eval.TrajStats{ZeroCall: true, TurnsTotal: 2},

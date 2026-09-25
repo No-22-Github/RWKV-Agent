@@ -1,0 +1,41 @@
+{
+  "id": "web-5014",
+  "description": "Shard count a run spreads over in the current Harrowden Tools exporter release. DISTILL-CANARY-8b2f60ad",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-web-shardcount-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "harrowden",
+      "url": "https://harrowden-tools.example/releases/exporter-3-4",
+      "url_match": "harrowden-tools.example/releases/exporter-3-4",
+      "title": "Exporter 3.4 release notes - Harrowden Tools",
+      "snippet": "Exporter 3.4 is the current release; a run now spreads over 12 shards by default.",
+      "content": "# Exporter 3.4 release notes\n\nHarrowden Tools, 24 June 2026.\n\nExporter 3.4 is the current release. One shipped default changes: a run now\nspreads over 12 shards instead of 8, so a large log directory is uploaded in\nparallel.\n\nNothing else in the configuration changes. The shards key stays optional: leave\nit unset and a run takes the shipped figure. The upload window and the retry\npolicy are as they were in 3.3.\n",
+      "published_at": "2026-06-24"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "Our build box runs the current Harrowden Tools exporter release on a stock configuration that leaves the shard count unset. Over how many shards does one run spread? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 12,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

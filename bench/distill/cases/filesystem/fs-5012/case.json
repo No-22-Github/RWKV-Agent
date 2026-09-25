@@ -1,0 +1,37 @@
+{
+  "id": "fs-5012",
+  "description": "Look up the smallest radius recorded on a model railway club's narrow gauge curve sheet. DISTILL-CANARY-8e623e29",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "find_file",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-fs-curvesheet-01",
+    "ref_calls": 2,
+    "fixture_bytes": 567,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "Ellerbeck Model Railway Club - track folder\n\nA curve sheet is drawn for each section of the layout when it is laid and filed\nhere. The standard gauge boards are the original build; the narrow gauge boards\nwere relaid last winter on the same baseboards.\n",
+    "curve-sheet-narrow-gauge.txt": "Curve sheet - narrow gauge section\nSmallest radius used: 412 mm\nPoints: one three way, code 75\nRuling gradient: 1 in 40\nClearance at the tunnel mouth: 58 mm\n",
+    "curve-sheet-standard-gauge.txt": "Curve sheet - standard gauge section\nSmallest radius used: 638 mm\nPoints: two medium, code 100\nRuling gradient: 1 in 55\nClearance at the tunnel mouth: 74 mm\n"
+  },
+  "turns": [
+    {
+      "prompt": "Ellerbeck Model Railway Club is relaying the curved boards on its narrow gauge section. The curve sheet filed for that section records the smallest radius the layout uses there. What is that radius in millimetres? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 412,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

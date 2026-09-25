@@ -18,7 +18,7 @@
     "family": "fam-nt-ledger-01",
     "ref_calls": 0,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
     "fixture_bytes": 425
@@ -30,7 +30,7 @@
   },
   "turns": [
     {
-      "prompt": "The September invoice to Raeburn & Slate went out on the old rates. Void INV-2026-0917 in the billing system and raise a corrected invoice for the same work. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "The September invoice to Raeburn & Slate went out on the old rates. Void INV-2026-0917 in the billing system and raise a corrected invoice for the same work.",
       "expect": {
         "tools": [],
         "forbidden_tools": [
@@ -50,7 +50,9 @@
           "not able",
           "Not able",
           "could not",
-          "Could not",
+          "Could not"
+        ],
+        "output_excludes": [
           "UNKNOWN"
         ]
       }

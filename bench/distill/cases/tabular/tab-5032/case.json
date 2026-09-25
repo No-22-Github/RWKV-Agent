@@ -1,0 +1,43 @@
+{
+  "id": "tab-5032",
+  "description": "Braiding run count in a rope works log that reprints runs and ends with a period line. DISTILL-CANARY-5f16e3a9",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [
+      "TR-HEADER",
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-HEADER": 71,
+      "TR-DUPROW": 70
+    },
+    "axes": [
+      "OBS",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-tab-ropeworks-01",
+    "ref_calls": 3,
+    "fixture_bytes": 3444,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "braiding_log_2026-06.csv": "run_id,run_month,run_date,line,grade,coils\nRB-8101,2026-06,2026-06-01,Line 1,Braided,72\nRB-8102,2026-06,2026-06-01,Line 2,Twisted,54\nRB-8103,2026-06,2026-06-02,Line 1,Braided,68\nRB-8104,2026-06,2026-06-02,Line 3,Braided,81\nRB-8105,2026-06,2026-06-03,Line 2,Twisted,47\nRB-8106,2026-06,2026-06-03,Line 1,Twisted,63\nRB-8107,2026-06,2026-06-04,Line 3,Braided,76\nRB-8108,2026-06,2026-06-04,Line 2,Braided,52\nRB-8109,2026-06,2026-06-05,Line 1,Braided,88\nRB-8110,2026-06,2026-06-05,Line 3,Twisted,59\nRB-8111,2026-06,2026-06-08,Line 2,Braided,71\nRB-8112,2026-06,2026-06-08,Line 1,Twisted,45\nRB-8113,2026-06,2026-06-09,Line 3,Braided,93\nRB-8114,2026-06,2026-06-09,Line 2,Braided,66\nRB-8115,2026-06,2026-06-10,Line 1,Braided,79\nRB-8116,2026-06,2026-06-10,Line 3,Twisted,57\nRB-8117,2026-06,2026-06-11,Line 2,Braided,84\nRB-8118,2026-06,2026-06-11,Line 1,Braided,62\nRB-8119,2026-06,2026-06-12,Line 3,Twisted,49\nRB-8120,2026-06,2026-06-12,Line 2,Braided,74\nRB-8121,2026-06,2026-06-15,Line 1,Braided,90\nRB-8122,2026-06,2026-06-15,Line 3,Braided,56\nRB-8123,2026-06,2026-06-16,Line 2,Twisted,67\nRB-8124,2026-06,2026-06-16,Line 1,Braided,83\nRB-8125,2026-06,2026-06-17,Line 3,Braided,51\nRB-8126,2026-06,2026-06-17,Line 2,Twisted,78\nRB-8127,2026-06,2026-06-18,Line 1,Braided,69\nRB-8128,2026-06,2026-06-18,Line 3,Twisted,44\nRB-8129,2026-06,2026-06-19,Line 2,Braided,87\nRB-8130,2026-06,2026-06-19,Line 1,Braided,58\nRB-8131,2026-06,2026-06-22,Line 3,Braided,75\nRB-8132,2026-06,2026-06-22,Line 2,Twisted,53\nRB-8107,2026-06,2026-06-04,Line 3,Braided,76\nRB-8133,2026-06,2026-06-23,Line 1,Braided,92\nRB-8134,2026-06,2026-06-23,Line 3,Twisted,61\nRB-8135,2026-06,2026-06-24,Line 2,Braided,70\nRB-8136,2026-06,2026-06-24,Line 1,Twisted,48\nRB-8137,2026-06,2026-06-25,Line 3,Braided,85\nRB-8138,2026-06,2026-06-25,Line 2,Braided,64\nRB-8119,2026-06,2026-06-12,Line 3,Twisted,49\nRB-8139,2026-06,2026-06-26,Line 1,Braided,77\nRB-8140,2026-06,2026-06-26,Line 3,Braided,55\nRB-8141,2026-06,2026-06-29,Line 2,Twisted,89\nRB-8142,2026-06,2026-06-29,Line 1,Braided,62\nRB-8143,2026-06,2026-06-30,Line 3,Twisted,50\nRB-8144,2026-06,2026-06-30,Line 2,Braided,73\nRB-8145,2026-06,2026-06-02,Line 3,Braided,80\nRB-8146,2026-06,2026-06-05,Line 2,Twisted,46\nRB-8147,2026-06,2026-06-09,Line 1,Braided,91\nRB-8148,2026-06,2026-06-11,Line 2,Braided,68\nRB-8149,2026-06,2026-06-16,Line 3,Braided,58\nRB-8150,2026-06,2026-06-19,Line 1,Twisted,62\nRB-8151,2026-06,2026-06-23,Line 2,Braided,86\nRB-8152,2026-06,2026-06-26,Line 3,Twisted,54\nRB-8153,2026-06,2026-06-30,Line 1,Braided,79\nRB-8154,2026-06,2026-06-02,Line 2,Braided,67\nRB-8155,2026-06,2026-06-04,Line 1,Twisted,52\nRB-8156,2026-06,2026-06-05,Line 3,Braided,88\nRB-8121,2026-06,2026-06-15,Line 1,Braided,90\nRB-8157,2026-06,2026-06-08,Line 3,Twisted,60\nRB-8158,2026-06,2026-06-10,Line 2,Braided,74\nRB-8159,2026-06,2026-06-12,Line 1,Braided,82\nRB-8160,2026-06,2026-06-16,Line 3,Twisted,57\nRB-8135,2026-06,2026-06-24,Line 2,Braided,70\nRB-8161,2026-06,2026-06-17,Line 1,Braided,95\nRB-8162,2026-06,2026-06-19,Line 3,Braided,63\nRB-8163,2026-06,2026-06-22,Line 2,Twisted,49\nRB-8164,2026-06,2026-06-24,Line 1,Braided,81\nRB-8165,2026-06,2026-06-26,Line 3,Braided,56\nRB-8149,2026-06,2026-06-16,Line 3,Braided,58\nTOTAL,ALL,ALL,ALL,ALL,4768\n",
+    "README.md": "# Garnet Ropeworks - braiding log, June 2026\n\nOne row per run on the braiding lines. The last line is the month's coil total. The log was exported twice after the shift server restarted, so some runs were written out again.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Garnet Ropeworks reports how many runs its braiding lines worked each month. How many separate runs does the June 2026 log record? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 65,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

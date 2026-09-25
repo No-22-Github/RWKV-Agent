@@ -1,0 +1,41 @@
+{
+  "id": "tab-5028",
+  "description": "Volume despatched to one customer, joining a sawmill despatch log to a volume table. DISTILL-CANARY-e6b1742f",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "join",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": 2411
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-tab-sawmill-01",
+    "ref_calls": 3,
+    "fixture_bytes": 3104,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "despatch_log_2026-08.csv": "despatch_id,despatch_date,customer,timber_code,lengths\nDS-3301,2026-08-03,Whitcombe Joinery,TM-201,148\nDS-3302,2026-08-03,Fellgate Fencing,TM-204,96\nDS-3303,2026-08-04,Braehill Contracts,TM-207,210\nDS-3304,2026-08-04,Whitcombe Joinery,TM-203,175\nDS-3305,2026-08-05,Dunmore Decking,TM-201,132\nDS-3306,2026-08-05,Fellgate Fencing,TM-205,88\nDS-3307,2026-08-06,Whitcombe Joinery,TM-208,164\nDS-3308,2026-08-06,Braehill Contracts,TM-202,192\nDS-3309,2026-08-07,Dunmore Decking,TM-207,120\nDS-3310,2026-08-07,Fellgate Fencing,TM-210,104\nDS-3311,2026-08-10,Whitcombe Joinery,TM-205,139\nDS-3312,2026-08-10,Braehill Contracts,TM-204,228\nDS-3313,2026-08-11,Dunmore Decking,TM-209,111\nDS-3314,2026-08-11,Fellgate Fencing,TM-203,82\nDS-3315,2026-08-12,Whitcombe Joinery,TM-210,157\nDS-3316,2026-08-12,Braehill Contracts,TM-206,184\nDS-3317,2026-08-13,Dunmore Decking,TM-202,143\nDS-3318,2026-08-13,Fellgate Fencing,TM-208,97\nDS-3319,2026-08-14,Whitcombe Joinery,TM-206,201\nDS-3320,2026-08-14,Braehill Contracts,TM-209,166\nDS-3321,2026-08-17,Dunmore Decking,TM-205,128\nDS-3322,2026-08-17,Fellgate Fencing,TM-201,91\nDS-3323,2026-08-18,Whitcombe Joinery,TM-202,189\nDS-3324,2026-08-18,Braehill Contracts,TM-210,215\nDS-3325,2026-08-19,Dunmore Decking,TM-204,117\nDS-3326,2026-08-19,Fellgate Fencing,TM-206,79\nDS-3327,2026-08-20,Whitcombe Joinery,TM-207,173\nDS-3328,2026-08-20,Braehill Contracts,TM-203,238\nDS-3329,2026-08-21,Dunmore Decking,TM-208,124\nDS-3330,2026-08-21,Fellgate Fencing,TM-202,86\nDS-3331,2026-08-24,Whitcombe Joinery,TM-204,196\nDS-3332,2026-08-24,Braehill Contracts,TM-205,207\nDS-3333,2026-08-25,Dunmore Decking,TM-210,135\nDS-3334,2026-08-25,Fellgate Fencing,TM-207,93\nDS-3335,2026-08-26,Whitcombe Joinery,TM-209,152\nDS-3336,2026-08-26,Braehill Contracts,TM-208,181\nDS-3337,2026-08-27,Dunmore Decking,TM-203,109\nDS-3338,2026-08-27,Fellgate Fencing,TM-209,101\nDS-3339,2026-08-28,Whitcombe Joinery,TM-201,167\nDS-3340,2026-08-28,Braehill Contracts,TM-206,199\nDS-3341,2026-08-31,Dunmore Decking,TM-206,122\nDS-3342,2026-08-31,Fellgate Fencing,TM-204,95\nDS-3343,2026-08-03,Whitcombe Joinery,TM-205,181\nDS-3344,2026-08-04,Braehill Contracts,TM-201,213\nDS-3345,2026-08-05,Dunmore Decking,TM-203,131\nDS-3346,2026-08-06,Fellgate Fencing,TM-209,89\nDS-3347,2026-08-07,Whitcombe Joinery,TM-202,178\nDS-3348,2026-08-10,Braehill Contracts,TM-205,204\nDS-3349,2026-08-11,Dunmore Decking,TM-206,126\nDS-3350,2026-08-12,Fellgate Fencing,TM-202,84\nDS-3351,2026-08-13,Whitcombe Joinery,TM-203,191\nDS-3352,2026-08-14,Braehill Contracts,TM-207,222\nDS-3353,2026-08-17,Dunmore Decking,TM-201,138\nDS-3354,2026-08-18,Fellgate Fencing,TM-205,99\n",
+    "timber_volumes.csv": "timber_code,species,cubic_m_per_length\nTM-201,Scots pine,0.084\nTM-202,Norway spruce,0.062\nTM-203,Larch,0.075\nTM-204,Douglas fir,0.118\nTM-205,Sitka spruce,0.048\nTM-206,Western red cedar,0.093\nTM-207,European oak,0.164\nTM-208,Ash,0.108\nTM-209,Birch,0.071\nTM-210,Sweet chestnut,0.126\n",
+    "README.md": "# Longmoor Sawmills - despatch log, August 2026\n\nOne row per load that left the yard; lengths counts the sawn lengths on the load and the volume table gives the cubic metres one length of each timber code comes to.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Longmoor Sawmills charges its joinery customers by volume despatched. What was the total volume despatched to Whitcombe Joinery in August 2026, in cubic metres, rounded to two decimal places? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 210.5,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

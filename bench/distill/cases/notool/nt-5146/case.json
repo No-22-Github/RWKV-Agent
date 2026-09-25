@@ -1,0 +1,42 @@
+{
+  "id": "nt-5146",
+  "description": "Set a 186.5 degree Celsius bake profile on an oven that takes Fahrenheit. DISTILL-CANARY-d4c2cbc7",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 335.7
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-ovenscale-01",
+    "ref_calls": 0,
+    "fixture_bytes": 243,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "standards/scale_factors.csv": "celsius_multiplier,1.8\nfahrenheit_offset,32\n",
+    "ovens/bake_profile_7412.txt": "oven MB-7412\nproduct rye loaf\nprofile_celsius 186.5\n",
+    "README.md": "# Millbrook Bakehouse - oven settings\n\nBake profiles are written in degrees Celsius.\nThe oven controller takes its setpoint in degrees Fahrenheit.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Millbrook Bakehouse is setting up a new oven. The bake profile for the rye loaf is written as 186.5 degrees Celsius. The oven controller takes its setpoint in degrees Fahrenheit. What setpoint should the controller be given? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 367.7,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "id": "nt-5149",
+  "description": "Convert a 2,160 point banner depth to inches. DISTILL-CANARY-67e6196e",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 180
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-bannerdepth-01",
+    "ref_calls": 0,
+    "fixture_bytes": 228,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "standards/typesetting_units.csv": "inch_to_point,72\npica_to_point,12\n",
+    "jobs/banner_docket_2471.txt": "job FP-2471\nproduct vinyl banner\ndepth_points 2160\n",
+    "README.md": "# Fennhill Press - production dockets\n\nBanner work is specced in points on the design sheet.\nThe printer's setting sheet is written in inches.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Fennhill Press is preparing a docket for the vinyl banner. The banner is specced 2,160 points deep. The printer's setting sheet is written in inches. How many inches deep is the banner? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 30,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

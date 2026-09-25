@@ -1,0 +1,43 @@
+{
+  "id": "tab-5031",
+  "description": "Fleece weight taken in at one station, in an intake log with reprinted lots. DISTILL-CANARY-d4c92870",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-DUPROW",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 2100.7,
+      "TR-DECOY": 2706.1
+    },
+    "axes": [
+      "OBS",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-tab-wooldepot-01",
+    "ref_calls": 3,
+    "fixture_bytes": 2853,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "fleece_intake_2026-08.csv": "lot_id,intake_date,station,breed,weight_kg\nWL-4402,2026-08-03,Fellgate,Blackface,88.4\nWL-4403,2026-08-03,Fellgate,Cheviot,94.6\nWL-4404,2026-08-04,Fellgate,Swaledale,91.2\nWL-4405,2026-08-04,Fellgate,Blackface,86.9\nWL-4406,2026-08-05,Fellgate,Bluefaced Leicester,99.3\nWL-4407,2026-08-06,Fellgate,Cheviot,92.7\nWL-4408,2026-08-06,Fellgate,Blackface,83.5\nWL-4409,2026-08-07,Fellgate,Swaledale,97.8\nWL-4410,2026-08-10,Fellgate,Cheviot,89.1\nWL-4411,2026-08-11,Fellgate,Blackface,95.4\nWL-4412,2026-08-12,Fellgate,Bluefaced Leicester,90.6\nWL-4413,2026-08-13,Fellgate,Swaledale,87.2\nWL-4414,2026-08-14,Fellgate,Cheviot,93.8\nWL-4415,2026-08-17,Fellgate,Blackface,85.7\nWL-4416,2026-08-18,Fellgate,Bluefaced Leicester,98.1\nWL-4417,2026-08-19,Fellgate,Swaledale,91.9\nWL-4418,2026-08-20,Fellgate,Cheviot,96.2\nWL-4419,2026-08-21,Fellgate,Blackface,84.8\nWL-4420,2026-08-24,Fellgate,Bluefaced Leicester,92.3\nWL-4421,2026-08-25,Fellgate,Swaledale,89.9\nWL-4406,2026-08-05,Fellgate,Bluefaced Leicester,99.3\nWL-4413,2026-08-13,Fellgate,Swaledale,87.2\nWL-4419,2026-08-21,Fellgate,Blackface,84.8\nWL-4501,2026-08-01,Saltcoats,Cheviot,118.4\nWL-4502,2026-08-01,Saltcoats,Blackface,124.7\nWL-4503,2026-08-02,Saltcoats,Swaledale,112.9\nWL-4504,2026-08-03,Saltcoats,Cheviot,127.3\nWL-4505,2026-08-04,Saltcoats,Bluefaced Leicester,119.6\nWL-4506,2026-08-04,Saltcoats,Blackface,131.2\nWL-4507,2026-08-05,Saltcoats,Swaledale,116.8\nWL-4508,2026-08-06,Saltcoats,Cheviot,122.5\nWL-4509,2026-08-07,Saltcoats,Blackface,128.9\nWL-4510,2026-08-10,Saltcoats,Bluefaced Leicester,114.3\nWL-4511,2026-08-11,Saltcoats,Swaledale,125.6\nWL-4512,2026-08-12,Saltcoats,Cheviot,120.1\nWL-4513,2026-08-13,Saltcoats,Blackface,133.4\nWL-4514,2026-08-14,Saltcoats,Swaledale,117.7\nWL-4515,2026-08-17,Saltcoats,Cheviot,129.8\nWL-4516,2026-08-18,Saltcoats,Bluefaced Leicester,121.5\nWL-4517,2026-08-19,Saltcoats,Blackface,126.3\nWL-4518,2026-08-20,Saltcoats,Swaledale,115.2\nWL-4519,2026-08-21,Saltcoats,Cheviot,130.6\nWL-4520,2026-08-24,Saltcoats,Blackface,123.1\nWL-4521,2026-08-25,Saltcoats,Bluefaced Leicester,118.7\nWL-4522,2026-08-26,Saltcoats,Swaledale,127.5\nWL-4601,2026-08-02,Braehill,Cheviot,76.4\nWL-4602,2026-08-03,Braehill,Blackface,81.7\nWL-4603,2026-08-04,Braehill,Swaledale,74.9\nWL-4604,2026-08-05,Braehill,Cheviot,79.3\nWL-4605,2026-08-06,Braehill,Blackface,83.6\nWL-4606,2026-08-07,Braehill,Bluefaced Leicester,77.8\nWL-4607,2026-08-10,Braehill,Swaledale,72.5\nWL-4608,2026-08-11,Braehill,Cheviot,85.2\nWL-4609,2026-08-12,Braehill,Blackface,78.1\nWL-4610,2026-08-13,Braehill,Bluefaced Leicester,80.9\nWL-4611,2026-08-14,Braehill,Swaledale,75.6\nWL-4612,2026-08-17,Braehill,Cheviot,82.3\nWL-4613,2026-08-18,Braehill,Blackface,73.4\n",
+    "README.md": "# Yarnthwaite Wool Depot - fleece intake, August 2026\n\nOne row per lot booked in at a station. The booking desk lost its session part way through the month, so some lots were booked in again.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Yarnthwaite Wool Depot pays stations for the fleece they book in. What was the total weight of fleece booked in at the Fellgate station in August 2026, in kilograms, rounded to one decimal place? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 1829.4,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

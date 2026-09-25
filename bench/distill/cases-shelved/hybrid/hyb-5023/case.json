@@ -1,0 +1,65 @@
+{
+  "id": "hyb-5023",
+  "description": "September loads out of one of two quarries' Block 7 face. DISTILL-CANARY-92f6c047",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 3
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-twofaces-01",
+    "ref_calls": 2,
+    "fixture_bytes": 628,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "extraction/september-2026.csv": "date,quarry,block,loads\n2026-09-02,Barrowcliff,Block 7,9\n2026-09-04,Stonebank,Block 7,4\n2026-09-07,Barrowcliff,Block 7,7\n2026-09-09,Barrowcliff,Block 4,8\n2026-09-11,Barrowcliff,Block 7,11\n2026-09-15,Stonebank,Block 7,8\n2026-09-17,Barrowcliff,Block 7,5\n2026-09-18,Stonebank,Block 4,5\n2026-09-22,Barrowcliff,Block 7,8\n2026-09-25,Stonebank,Block 7,7\n2026-09-28,Barrowcliff,Block 7,13\n2026-09-30,Barrowcliff,Block 4,9\n",
+    "README.md": "# Barrowcliff and Stonebank - extraction log\n\nOne row for each day a face produced stone, with the wagon loads taken out\nthat day. Both quarries work a face called Block 7 alongside the faces\nnumbered by the plan.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The quarry office is closing the September return. How many loads came out of Block 7 in September?",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ]
+      }
+    },
+    {
+      "prompt": "The Barrowcliff face. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 6,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

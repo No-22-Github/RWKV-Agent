@@ -1,0 +1,41 @@
+{
+  "id": "nt-5134",
+  "description": "Explain the dry matter figure on a silage card and give it for one clamp. DISTILL-CANARY-24a8e0b1",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 19.312
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-moisturestep-30",
+    "ref_calls": 0,
+    "fixture_bytes": 189,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "clamp/silage_cards.csv": "clamp,weighed_t,dry_matter_pct\nCL-71,28.4,32\n",
+    "README.md": "# Whinbrae Farm - clamp and stock\n\nShared folder for the farm team.\n\n- clamp/  cards for each silage clamp\n- stock/  ration notes from the yard\n"
+  },
+  "turns": [
+    {
+      "prompt": "A stockman at Whinbrae Farm asked what the dry matter figure on a silage card means for the clamp; it is the share of the weighed grass that is left once the water is taken out. Clamp CL-71 weighed 28.4 tonnes at 32 percent dry matter. Give the dry matter in that clamp, in tonnes. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 9.088,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

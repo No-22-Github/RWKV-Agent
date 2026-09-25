@@ -1,0 +1,60 @@
+{
+  "id": "nt-5192",
+  "description": "Asks what the assistant actually does; describe capabilities directly without any tool call. DISTILL-CANARY-e7d5308c",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-smalltalk-13",
+    "ref_calls": 0,
+    "fixture_bytes": 259,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Wrenbury Stonemasons - yard office workspace\n\nShared folder for the yard and the office.\n\n- jobs/  stone orders cut at the saw\n- slates/  pallet counts in the store\n",
+    "jobs/stone_orders.csv": "order,stone,pieces,weeks\nWS-5237,sandstone,64,3\nWS-5238,limestone,38,5\nWS-5239,granite,27,2\n"
+  },
+  "turns": [
+    {
+      "prompt": "What is it you actually do? I've not come across this before.",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "file",
+          "File",
+          "search",
+          "Search",
+          "web",
+          "Web",
+          "calculat",
+          "Calculat",
+          "data",
+          "Data",
+          "help",
+          "Help",
+          "question",
+          "Question",
+          "answer",
+          "Answer",
+          "text",
+          "Text"
+        ]
+      }
+    }
+  ]
+}

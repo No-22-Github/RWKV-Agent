@@ -1,0 +1,44 @@
+{
+  "id": "nt-5173",
+  "description": "Give the PostgreSQL clause that replaces a stored row on a key collision. DISTILL-CANARY-47f9ab26",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "ON CONFLICT (kiln_id) DO NOTHING"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L2",
+    "family": "fam-nt-sqlclause-23",
+    "ref_calls": 0,
+    "fixture_bytes": 535,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "sql/insert-clauses.tsv": "replace-on-collision\tON CONFLICT (kiln_id) DO UPDATE\ton conflict (kiln_id) do update\nkeep-stored-row\tON CONFLICT (kiln_id) DO NOTHING\ton conflict (kiln_id) do nothing\n",
+    "README.md": "# Otterbourne Tile Press - firing log\n\nOne record per firing is appended to a table whose kiln_id column is unique.\nThe clauses the data team reviewed are carded in sql/insert-clauses.tsv.\n",
+    "notes/load-notes.txt": "Load notes:\nThe nightly append repeats firings that the kiln controller retransmitted.\nThe values just supplied have to end up in the table, replacing whatever was stored before.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Otterbourne Tile Press appends one record per firing to a table whose kiln_id column is unique. The nightly append sometimes repeats a firing that is already stored, and the stored row then has to carry the values from the repeated record instead of keeping what was there. Give the PostgreSQL clause that follows the values list of the INSERT and brings that about. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "ON CONFLICT (kiln_id) DO UPDATE",
+          "on conflict (kiln_id) do update"
+        ]
+      }
+    }
+  ]
+}

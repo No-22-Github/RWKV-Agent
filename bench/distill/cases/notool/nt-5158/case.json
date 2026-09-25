@@ -1,0 +1,40 @@
+{
+  "id": "nt-5158",
+  "description": "Mailbox the inbox directory gives for grid export meter readings at Lowfield Solar Cooperative. DISTILL-CANARY-b9e64035",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "stable_fact",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "faults@lowfieldsolar.example"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-standing-mailbox-01",
+    "ref_calls": 1,
+    "fixture_bytes": 604,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "office/inbox-directory.txt": "grid export meter readings | metering@lowfieldsolar.example\ninverter fault reports | faults@lowfieldsolar.example\nroof access requests | access@lowfieldsolar.example\nshare transfer forms | shares@lowfieldsolar.example\n",
+    "README.md": "# Lowfield Solar Cooperative - office workspace\n\nWorking area for the co-operative office.\n\n- office/  the inbox directory and the share register\n\nThe inbox directory names one mailbox per procedure and is edited in place, so a procedure is never pointed at two mailboxes. Rows are kept in the order the mailboxes were set up, oldest first. Last reviewed 2026-07-08, reference LS-8801.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Lowfield Solar Cooperative files its grid export meter readings every month and the office needs the mailbox they go to. Which mailbox is it? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "metering@lowfieldsolar.example",
+        "tools": []
+      }
+    }
+  ]
+}

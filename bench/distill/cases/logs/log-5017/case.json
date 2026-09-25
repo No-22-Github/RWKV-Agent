@@ -1,0 +1,36 @@
+{
+  "id": "log-5017",
+  "description": "Read the duration of the generator run that followed one mains failure in a site power log. DISTILL-CANARY-9a3f60dc",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "locate_error",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-log-gensetrun-21",
+    "ref_calls": 2,
+    "fixture_bytes": 1044,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# site power log\n\nKestrelmoor Hosting runs a standby generator at its data hall. The site\ncontroller appends one line per power event to logs/genset.log:\n\n    <UTC time> <event> ...\n\nMAINS records the mains supply being lost or restored, START opens a generator\nrun and STOP closes it and carries the run's duration in seconds. TEST records\nthe no-load run the controller puts the generator through. Every generator run\nadds exactly one STOP line. The log is closed with a line whose count covers\nevery event line above it.\n",
+    "logs/genset.log": "2026-09-05T04:12:07Z MAINS lost\n2026-09-05T04:12:19Z START genset=G-1\n2026-09-05T08:41:52Z MAINS restored\n2026-09-05T08:42:06Z STOP genset=G-1 run_seconds=16187\n2026-09-12T04:03:11Z TEST genset=G-1 run_seconds=1800\n2026-09-19T04:02:48Z TEST genset=G-1 run_seconds=1800\n2026-09-26T04:04:26Z TEST genset=G-1 run_seconds=1800\n2026-09-28T13:22:37Z MAINS lost\n2026-09-28T13:22:49Z START genset=G-1\n2026-09-28T13:44:05Z MAINS restored\n2026-09-28T13:44:19Z STOP genset=G-1 run_seconds=1290\n2026-09-30T10:00:00Z CLOSE events=11\n"
+  },
+  "turns": [
+    {
+      "prompt": "Kestrelmoor Hosting keeps one log for the standby generator at its data hall. How many seconds did that generator run when the mains supply was lost on 5 September 2026? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 16187,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

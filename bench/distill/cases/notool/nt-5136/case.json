@@ -1,0 +1,42 @@
+{
+  "id": "nt-5136",
+  "description": "Convert 46 gross of bottles to single bottles for the ordering system. DISTILL-CANARY-331ac6f5",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 552
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-stockcount-01",
+    "ref_calls": 0,
+    "fixture_bytes": 267,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "standards/pack_counts.csv": "gross_to_single,144\ndozen_to_single,12\nscore_to_single,20\n",
+    "warehouse/bottle_stock.tsv": "item\theld_gross\nAmber 500ml\t46\nClear 330ml\t31\nCider 750ml\t19\n",
+    "README.md": "# Foxglove Bottling - stock office\n\nThe stock office counts bottle stock in gross.\nThe ordering system the plant runs on is kept in single bottles.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Foxglove Bottling is loading its September bottle stock onto the ordering system. The stock office holds 46 gross of Amber 500ml bottles. How many single bottles is that on the ordering system? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 6624,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

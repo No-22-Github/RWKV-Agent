@@ -1,0 +1,43 @@
+{
+  "id": "nt-5168",
+  "description": "Give the pod field that re-checks the registry on every container start. DISTILL-CANARY-a70f4c92",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "imagePullPolicy: IfNotPresent"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-containerline-22",
+    "ref_calls": 0,
+    "fixture_bytes": 381,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "manifests/pull-policy-cards.tsv": "fresh-every-start\timagePullPolicy: Always\timagePullPolicy: \"Always\"\nreuse-local-copy\timagePullPolicy: IfNotPresent\timagePullPolicy: \"IfNotPresent\"\n",
+    "README.md": "# Thornacre Alloys - furnace controller workload\n\nThe controller image is published under a tag that the release job overwrites on every build.\nThe pod spec fields the platform team uses are carded in manifests/pull-policy-cards.tsv.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Thornacre Alloys publishes its furnace controller image under a tag that the release job overwrites in place. Give the field and its value in the pod spec that make the node agent ask the registry again every time a container from that image starts, instead of starting from the copy it already holds. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "imagePullPolicy: Always",
+          "imagePullPolicy: \"Always\""
+        ]
+      }
+    }
+  ]
+}

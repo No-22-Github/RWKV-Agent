@@ -1,0 +1,42 @@
+{
+  "id": "nt-5148",
+  "description": "Count a berth shift of 385 forty-foot and 46 twenty-foot boxes in twenty-foot equivalents. DISTILL-CANARY-8a02528d",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 431
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-boxequ-01",
+    "ref_calls": 0,
+    "fixture_bytes": 292,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "standards/box_equivalents.csv": "forty_foot_box_to_teu,2\ntwenty_foot_box_to_teu,1\n",
+    "berths/berth_shift_5093.tsv": "berth\tforty_foot_boxes\ttwenty_foot_boxes\n3\t385\t46\n5\t212\t18\n",
+    "README.md": "# Tideswell Terminal - berth office\n\nShift reports count the boxes lifted on each berth by length.\nThe quay report the harbour board gets counts everything in twenty-foot equivalents.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Tideswell Terminal is closing out the September shift on berth 3. The shift lifted 385 forty-foot boxes and 46 twenty-foot boxes. The quay report counts boxes in twenty-foot equivalents. How many twenty-foot equivalents did berth 3 lift? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 816,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

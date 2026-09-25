@@ -1,0 +1,42 @@
+{
+  "id": "nt-5141",
+  "description": "Convert a 47.5 litre a second borehole duty to cubic metres an hour. DISTILL-CANARY-659c747c",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 13.19
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-flowduty-01",
+    "ref_calls": 0,
+    "fixture_bytes": 314,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "standards/flow_units.csv": "litre_per_second_to_cubic_metre_per_hour,3.6\nlitre_per_second_to_cubic_metre_per_day,86.4\n",
+    "sites/pump_test_4271.tsv": "site\tpump\tduty_litres_per_second\nWraybrook North\tP3\t47.5\nWraybrook South\tP1\t32.25\n",
+    "README.md": "# Wraybrook Water - abstraction returns\n\nBorehole duty is tested in litres a second.\nThe regulator's return is filed in cubic metres an hour.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Wraybrook Water is updating the abstraction return for the Wraybrook North borehole. The duty reading for pump P3 is 47.5 litres a second. The return is filed in cubic metres an hour. What is the duty in cubic metres an hour? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 171,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

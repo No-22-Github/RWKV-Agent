@@ -1,0 +1,66 @@
+{
+  "id": "hyb-5024",
+  "description": "September mileage for one of two vehicles carrying the fleet number T-14. DISTILL-CANARY-7e1b309a",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 792
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-twot14s-01",
+    "ref_calls": 3,
+    "fixture_bytes": 352,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "trips/kemsley/vehicle-t14.csv": "date,miles\n2026-09-03,178\n2026-09-08,265\n2026-09-16,149\n2026-09-24,208\n",
+    "trips/rothwell/vehicle-t14.csv": "date,miles\n2026-09-02,214\n2026-09-09,186\n2026-09-17,240\n2026-09-26,152\n",
+    "README.md": "# Aldersyde Distribution - vehicle logs\n\nOne log for each vehicle, kept under the depot the vehicle works from.\nTwo depots each run a vehicle carrying the fleet number T-14, one at\nKemsley and one at Rothwell.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Aldersyde Distribution is reconciling the September mileage claim. How many miles did T-14 cover in September?",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ]
+      }
+    },
+    {
+      "prompt": "The Kemsley vehicle. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 800,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "id": "nt-5178",
+  "description": "Give the transfer option that drops destination files the source lost. DISTILL-CANARY-d4c36f08",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "--remove-source-files"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-flowflag-25",
+    "ref_calls": 0,
+    "fixture_bytes": 337,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "transfer/mirror-option-cards.tsv": "drop-extra-files\t--delete\t--delete-during|--delete-after\ndrop-the-sent-files\t--remove-source-files\t--remove-source-files\n",
+    "README.md": "# Quillbrook Drafting - plans mirror\n\nThe drawing office's plans directory is the source of truth and is mirrored to a site laptop.\nThe options the drawing office uses are carded in transfer/mirror-option-cards.tsv.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Quillbrook Drafting keeps the drawing office's plans directory as the source of truth and mirrors it to a site laptop. Give the option that makes the transfer drop every file on the site laptop that the office copy no longer has. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "--delete",
+          "--delete-during",
+          "--delete-after"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "id": "hyb-5028",
+  "description": "Last September reading from one of two dairies' Tank 2. DISTILL-CANARY-3da62f19",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 3980
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-twotanks-01",
+    "ref_calls": 2,
+    "fixture_bytes": 486,
+    "status": "draft",
+    "version": 3,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "readings/tank-2-2026-09.csv": "date,dairy,tank,reading_litres\n2026-09-02,Ruscombe,Tank 2,3180\n2026-09-05,Tilshead,Tank 2,2740\n2026-09-09,Ruscombe,Tank 2,3540\n2026-09-14,Tilshead,Tank 2,3120\n2026-09-18,Ruscombe,Tank 2,3875\n2026-09-21,Tilshead,Tank 2,3460\n2026-09-25,Ruscombe,Tank 2,4020\n2026-09-29,Tilshead,Tank 2,3980\n",
+    "README.md": "# Cogdean Dairies - tank readings\n\nOne row for each reading taken from a storage tank. Two dairies, Ruscombe\nand Tilshead, each have a tank numbered 2, and the readings are taken on\nthe same rounds.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Cogdean Dairies is closing the September tank sheet. What was the last reading taken from Tank 2 in September?",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ]
+      }
+    },
+    {
+      "prompt": "The Ruscombe tank. Give the reading alone as a number, with no units or dates. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 4020,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

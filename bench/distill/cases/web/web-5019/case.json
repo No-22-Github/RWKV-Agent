@@ -1,0 +1,61 @@
+{
+  "id": "web-5019",
+  "description": "Standard queue lease in the Landwick broker reference; the starter walkthrough sets a shorter one. DISTILL-CANARY-c2b8a930",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": 120
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-web-leasetime-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "landwick",
+      "url": "https://docs.landwick.example/reference/leases",
+      "url_match": "docs.landwick.example/reference/leases",
+      "title": "Queue lease reference - Landwick",
+      "snippet": "An unacknowledged message returns to its queue after the standard lease of 900 seconds.",
+      "content": "# Queue lease reference\n\nLandwick message broker, reviewed 2026-03-27.\n\nEvery message handed to a consumer is held under a lease. If the consumer\ndoes not acknowledge it before the lease runs out, the broker releases the\nmessage and hands it to the next consumer.\n\n| setting | default |\n| --- | --- |\n| lease_seconds | 900 |\n| prefetch_messages | 30 |\n| redelivery_limit | 6 |\n\nThe lease only renews while the consumer is connected: a consumer that drops\nputs its messages back on the queue at once, whatever the lease states.\n",
+      "published_at": "2026-03-27"
+    },
+    {
+      "query_match": "landwick walkthrough",
+      "url": "https://docs.landwick.example/start/first-consumer",
+      "url_match": "docs.landwick.example/start/first-consumer",
+      "title": "Your first consumer - Landwick",
+      "snippet": "The walkthrough sets the lease to 120 seconds so the exercise moves along.",
+      "content": "# Your first consumer\n\nLandwick walkthrough.\n\nThe walkthrough sets the lease to 120 seconds so the exercise moves along while\nyou watch the message come back. A real consumer leaves the setting alone and\ntakes the standard lease.\n",
+      "published_at": "2026-05-02"
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Our intake worker takes messages from a Landwick queue and leaves every lease setting alone. How many seconds pass before an unacknowledged message is handed to another consumer? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 900,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

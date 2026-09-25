@@ -1,0 +1,42 @@
+{
+  "id": "nt-5122",
+  "description": "Explain stocking density on a tank card and give it for one tank. DISTILL-CANARY-f83a2c41",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 0.0556
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L2",
+    "family": "fam-nt-ratioload-24",
+    "ref_calls": 0,
+    "fixture_bytes": 279,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "tanks/density_cards.csv": "tank,biomass_kg,volume_m3\nT-38,3780,210\n",
+    "tanks/grade_log.txt": "Tank T-38 was graded on the Tuesday of week 34.\nFeed reaches the hold by deck crane.\n",
+    "README.md": "# Selcove Aquaculture - tank farm\n\nShared folder for the hatchery team.\n\n- tanks/  cards for each tank on the farm\n- grades/  grading notes from the deck\n"
+  },
+  "turns": [
+    {
+      "prompt": "A hatchery hand at Selcove Aquaculture asked what the stocking density on a tank card describes; it is the mass of fish held in a tank spread over the volume of water the tank holds. Tank 38 holds 3780 kilograms of fish in 210 cubic metres of water. Give the stocking density as a single number in kilograms per cubic metre, with no unit in the reply. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 18.0,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

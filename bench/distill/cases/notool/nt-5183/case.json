@@ -1,0 +1,53 @@
+{
+  "id": "nt-5183",
+  "description": "Afternoon greeting at the quay office with no task; reply directly without any tool call. DISTILL-CANARY-6bd20fa1",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-smalltalk-09",
+    "ref_calls": 0,
+    "fixture_bytes": 262,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Saltmarsh Fishery - quay office workspace\n\nShared folder for the landing crews and the office.\n\n- landings/  crate weights logged off the boats\n- ice/  daily use from the cold store\n",
+    "landings/crate_log.csv": "landing,crate_kg,crates,grade\nSF-6271,18,42,A\nSF-6272,22,31,A\nSF-6273,16,55,B\n"
+  },
+  "turns": [
+    {
+      "prompt": "Afternoon! The boats are in and the crates are stacked on the quay.",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "afternoon",
+          "Afternoon",
+          "hello",
+          "Hello",
+          "Hi ",
+          "Hi!",
+          "hi ",
+          "hi!",
+          "Good afternoon",
+          "greetings",
+          "Greetings"
+        ]
+      }
+    }
+  ]
+}

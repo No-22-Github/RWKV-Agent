@@ -1,0 +1,35 @@
+{
+  "id": "fs-5015",
+  "description": "Find the booked pallet mark that never reached the loaded list on a wharf despatch sheet. DISTILL-CANARY-e5ab820a",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "presence",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-fs-palletgap-01",
+    "ref_calls": 2,
+    "fixture_bytes": 393,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "Mellinow Wharf - despatch sheets\n\nThe loader works from one sheet per van. The office books the pallets before the\nvan arrives and the loader marks the ones that go on, so the two lines on the\nsheet do not always hold the same marks.\n",
+    "wharf-sheet.txt": "Booked: PL-4471, PL-4472, PL-4474, PL-4476, PL-4479, PL-4480\nLoaded: PL-4471, PL-4474, PL-4476, PL-4479, PL-4480\nGate: marks read off as the van left at 07:05\n"
+  },
+  "turns": [
+    {
+      "prompt": "Mellinow Wharf booked six pallets for the morning van to Bristol and the loader marked the pallets that went on it. Which booked mark has no line on the loaded list? Report the mark exactly as the sheet writes it. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "PL-4472"
+      }
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "id": "code-5020",
+  "description": "Count the calls the crews modules make to the glassworks melt store's tally_draw. DISTILL-CANARY-5b7f2d48",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "find_callers",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 3
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-code-drawtally-01",
+    "ref_calls": 3,
+    "fixture_bytes": 605,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "crews/loader.py": "from melt.store import tally_draw\n\n# Load the draws the lehr hands over.\n\n\ndef load(draws):\n    for draw in draws:\n        tally_draw(draw)\n\n\ndef reload(draw):\n    tally_draw(draw)\n    return draw\n",
+    "crews/sorter.py": "from quench.store import tally_draw\n\n# Sort the draws the lehr has cooled.\n\n\ndef sort_draws(draws):\n    for draw in draws:\n        tally_draw(draw)\n    return draws\n",
+    "melt/store.py": "\"\"\"The draw store for the Silverburn glassworks.\"\"\"\n\nDRAWS = {}\n\n\ndef tally_draw(draw):\n    DRAWS[draw] = True\n    return draw\n",
+    "quench/store.py": "\"\"\"Quench tally for the glassworks.\"\"\"\n\nCOOLED = []\n\n\ndef tally_draw(draw):\n    COOLED.append(draw)\n    return draw\n"
+  },
+  "turns": [
+    {
+      "prompt": "Silverburn Glassworks tallies a draw by calling the melt store's tally_draw. In the crews modules, how many calls go to that helper? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 2,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

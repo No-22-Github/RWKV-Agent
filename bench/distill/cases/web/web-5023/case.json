@@ -1,0 +1,61 @@
+{
+  "id": "web-5023",
+  "description": "Drain batch size of a full Cobbleyard relay; the entry plan page carries a smaller batch. DISTILL-CANARY-2b9f7de4",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": 50
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-web-drainbatch-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "cobbleyard",
+      "url": "https://docs.cobbleyard.example/reference/delivery-queue",
+      "url_match": "docs.cobbleyard.example/reference/delivery-queue",
+      "title": "Delivery queue reference - Cobbleyard",
+      "snippet": "The outbound queue drains in batches of 400 messages.",
+      "content": "# Delivery queue reference\n\nCobbleyard mail relay, reviewed 2026-04-21.\n\nThe relay holds accepted mail in an outbound queue and drains it in batches.\nEach drain takes up to batch_messages messages, hands them to the delivery\nworkers and waits for the batch to settle before the next drain.\n\n| setting | default |\n| --- | --- |\n| batch_messages | 400 |\n| drain_interval_s | 30 |\n| retry_hours | 4 |\n\nbatch_messages belongs to the relay. Volume plans that cap the daily count set\ntheir own figure; the table above is what a full relay ships with.\n",
+      "published_at": "2026-04-21"
+    },
+    {
+      "query_match": "cobbleyard entry plan",
+      "url": "https://docs.cobbleyard.example/plans/entry",
+      "url_match": "docs.cobbleyard.example/plans/entry",
+      "title": "Entry plan - Cobbleyard",
+      "snippet": "On the entry plan the outbound queue drains in batches of 50 messages.",
+      "content": "# Entry plan\n\nCobbleyard.\n\nThe entry plan caps the daily count and drains its outbound queue in batches of\n50 messages, which keeps a small relay inside its daily allowance. Larger plans\ntake the relay default.\n",
+      "published_at": "2026-04-21"
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Our mail relay runs as a full Cobbleyard relay and its outbound queue drains in batches. How many messages does one drain carry? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 400,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

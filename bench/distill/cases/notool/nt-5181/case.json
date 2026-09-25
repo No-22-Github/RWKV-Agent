@@ -1,0 +1,40 @@
+{
+  "id": "nt-5181",
+  "description": "Give the inline flag fragment that makes the dot span a line break. DISTILL-CANARY-7e91c4ad",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "(?m)"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-patternpart-26",
+    "ref_calls": 0,
+    "fixture_bytes": 322,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "reference/flag-cards.tsv": "dot-spans-lines\t(?s)\tthe dot also accepts a line break\ncaret-per-line\t(?m)\tthe anchors also match at each line end\n",
+    "README.md": "# Ashenford Cordage - twine order scanner\n\nThe order scanner walks twine orders whose entries sometimes spread over more than one line.\nThe inline flags the team uses are carded in reference/flag-cards.tsv.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Ashenford Cordage scans twine orders whose entries sometimes spread over more than one line. In the scanner's pattern the dot currently stands for any character except a line break. Give the inline flag fragment that goes at the front of the pattern and makes the dot stand for a line break as well. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "tools": [],
+        "output_equals": "(?s)"
+      }
+    }
+  ]
+}

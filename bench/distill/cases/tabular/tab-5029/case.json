@@ -1,0 +1,41 @@
+{
+  "id": "tab-5029",
+  "description": "Landing levy for a month of fish quay sales, with an exemption written in the terms. DISTILL-CANARY-8f03c96d",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "policy_calc",
+    "traps": [
+      "TR-RULEFILE"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": 1789.82
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-tab-fishquay-01",
+    "ref_calls": 3,
+    "fixture_bytes": 3193,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "landings_2026-08.csv": "landing_id,landed_on,vessel,species,sale_type,boxes,value\nLD-6102,2026-08-01,Kestrel Bay,Hake,open,64,1840\nLD-6103,2026-08-01,Mairead B,Mackerel,open,88,1426\nLD-6104,2026-08-02,Polperro Star,Monkfish,open,31,2138\nLD-6105,2026-08-02,Salt Ash,Lemon sole,open,42,1264\nLD-6106,2026-08-03,Trelawney,Hake,open,57,1685\nLD-6107,2026-08-03,Gannet,Cuttlefish,open,36,908\nLD-6108,2026-08-04,Kestrel Bay,Mackerel,charity,70,1150\nLD-6109,2026-08-04,Mairead B,Spider crab,open,48,1372\nLD-6110,2026-08-05,Polperro Star,Hake,open,61,1793\nLD-6111,2026-08-05,Salt Ash,Monkfish,open,29,2014\nLD-6112,2026-08-06,Trelawney,Lemon sole,open,45,1338\nLD-6113,2026-08-06,Gannet,Mackerel,open,92,1482\nLD-6114,2026-08-07,Kestrel Bay,Cuttlefish,open,33,842\nLD-6115,2026-08-07,Mairead B,Hake,open,59,1721\nLD-6116,2026-08-08,Polperro Star,Spider crab,open,44,1268\nLD-6117,2026-08-08,Salt Ash,Mackerel,open,85,1394\nLD-6118,2026-08-10,Trelawney,Monkfish,open,27,1906\nLD-6119,2026-08-10,Gannet,Lemon sole,open,39,1172\nLD-6120,2026-08-11,Kestrel Bay,Hake,open,66,1876\nLD-6121,2026-08-11,Mairead B,Cuttlefish,charity,28,760\nLD-6122,2026-08-12,Polperro Star,Mackerel,open,79,1318\nLD-6123,2026-08-12,Salt Ash,Spider crab,open,41,1204\nLD-6124,2026-08-13,Trelawney,Hake,open,55,1652\nLD-6125,2026-08-13,Gannet,Monkfish,open,32,2087\nLD-6126,2026-08-14,Kestrel Bay,Lemon sole,open,47,1286\nLD-6127,2026-08-14,Mairead B,Mackerel,open,91,1458\nLD-6128,2026-08-15,Polperro Star,Cuttlefish,open,35,874\nLD-6129,2026-08-15,Salt Ash,Hake,open,62,1812\nLD-6130,2026-08-17,Trelawney,Spider crab,open,43,1236\nLD-6131,2026-08-17,Gannet,Mackerel,charity,74,1096\nLD-6132,2026-08-18,Kestrel Bay,Monkfish,open,30,1975\nLD-6133,2026-08-18,Mairead B,Lemon sole,open,46,1302\nLD-6134,2026-08-19,Polperro Star,Hake,open,60,1748\nLD-6135,2026-08-19,Salt Ash,Cuttlefish,open,37,896\nLD-6136,2026-08-20,Trelawney,Mackerel,open,83,1364\nLD-6137,2026-08-20,Gannet,Spider crab,open,40,1218\nLD-6138,2026-08-21,Kestrel Bay,Hake,open,58,1704\nLD-6139,2026-08-21,Mairead B,Monkfish,open,34,2043\nLD-6140,2026-08-22,Polperro Star,Lemon sole,open,49,1346\nLD-6141,2026-08-22,Salt Ash,Mackerel,open,87,1408\nLD-6142,2026-08-24,Trelawney,Cuttlefish,charity,31,682\nLD-6143,2026-08-24,Gannet,Hake,open,63,1786\nLD-6144,2026-08-25,Kestrel Bay,Spider crab,open,38,1192\nLD-6145,2026-08-25,Mairead B,Mackerel,open,94,1476\nLD-6146,2026-08-26,Polperro Star,Monkfish,open,26,1864\nLD-6147,2026-08-26,Salt Ash,Lemon sole,open,44,1248\nLD-6148,2026-08-27,Trelawney,Hake,charity,52,1432\nLD-6149,2026-08-27,Gannet,Cuttlefish,open,34,852\nLD-6150,2026-08-28,Kestrel Bay,Mackerel,open,81,1372\nLD-6151,2026-08-28,Mairead B,Spider crab,open,39,1164\nLD-6152,2026-08-29,Polperro Star,Lemon sole,open,48,1298\nLD-6153,2026-08-29,Salt Ash,Hake,open,65,1834\n",
+    "auction_terms.md": "# Porthilly Fish Quay - auction terms, 2026 season\n\nThe quay levies 2.4 per cent of the sale value of a landing to cover the auction floor, the ice plant and the\nquay dues.\n\nA landing recorded as a charity sale is not charged the levy: the catch is auctioned for the food bank and the\nquay waives its charge.\n",
+    "README.md": "# Porthilly Fish Quay - landing records, August 2026\n\nOne row per landing sold across the quay; value is the total the boxes made at auction.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Porthilly Fish Quay collects a levy on the fish sold across its floor. What levy is owed on the August 2026 landings, in pounds, rounded to two decimal places? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 1666.94,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

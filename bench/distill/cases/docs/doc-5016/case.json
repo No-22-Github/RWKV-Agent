@@ -1,0 +1,40 @@
+{
+  "id": "doc-5016",
+  "description": "Charge for taking a fitted wardrobe down and putting it back together, which the removals firm's charges sheet does not list. DISTILL-CANARY-2b81f9d3",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": 21.5
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-doc-movecharges-01",
+    "ref_calls": 2,
+    "fixture_bytes": 547,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Dunthorpe Removals - charges\n\nHousehold moves are quoted from the charges sheet under `fees/`. The sheet lists the firm's standard charges, and the office quotes any work the sheet does not list once the move has been surveyed.\n",
+    "fees/charges.csv": "service,charge_gbp\nPacking service per room,165.00\nPiano move ground floor to ground floor,240.00\nWardrobe box hire each,21.50\nStorage per week,38.00\nExtra stop on a local move,52.00\n",
+    "docs/office-notes.md": "# Office notes\n\nEstimates are sent by email and are held for thirty days.\nDeposits are taken on moves booked more than a month ahead.\n"
+  },
+  "turns": [
+    {
+      "prompt": "A Dunthorpe Removals customer is moving out of a flat and needs a fitted wardrobe taken down at the old address and put back together at the new one. What does the firm charge for that work? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "UNKNOWN"
+      }
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "nt-5185",
+  "description": "Thanks after a job well done, with no task attached; reply directly without any tool call. DISTILL-CANARY-19e7b5c2",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-smalltalk-10",
+    "ref_calls": 0,
+    "fixture_bytes": 302,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Bramblecote Dairy - bottling hall workspace\n\nShared folder for the bottling line and the cheese room.\n\n- runs/  fill counts from each shift\n- chilling/  tank temperatures at handover\n",
+    "runs/fill_counts.csv": "run,product,litres,bottles\nBD-8055,whole milk,1420,2366\nBD-8056,semi skimmed,1180,1966\nBD-8057,double cream,640,1066\n"
+  },
+  "turns": [
+    {
+      "prompt": "Much appreciated - that saved me a good half hour.",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "welcome",
+          "Welcome",
+          "glad",
+          "Glad",
+          "anytime",
+          "Anytime",
+          "pleasure",
+          "Pleasure",
+          "happy to help",
+          "Happy to help",
+          "no problem",
+          "No problem",
+          "helped",
+          "Helped"
+        ]
+      }
+    }
+  ]
+}

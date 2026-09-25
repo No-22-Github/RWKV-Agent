@@ -1,0 +1,36 @@
+{
+  "id": "fs-5013",
+  "description": "Count the outings with a crew aboard in a rowing club's boathouse register. DISTILL-CANARY-9f0445d7",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "count_by_type",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-fs-boathouselog-01",
+    "ref_calls": 2,
+    "fixture_bytes": 1150,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "Pentire Rowing Club - boathouse records\n\nThe register is filled in at the slip as the boats go out. A training row\ncarries a crew; a boat move shifts a boat between the racks and the slip with\nnobody in it. Entries are added in the order the boats leave.\n",
+    "boathouse-register.txt": "log 219 - gig Nance - training row - 6 aboard - slip 3\nlog 220 - skiff Trelawn - boat move - racks to slip\nlog 221 - gig Nance - training row - 7 aboard - slip 3\nlog 222 - skiff Trelawn - training row - 4 aboard - slip 1\nlog 223 - gig Nance - boat move - wash down at the slip\nlog 224 - skiff Perrynn - training row - 5 aboard - slip 2\nlog 225 - gig Nance - training row - 6 aboard - slip 3\nlog 226 - skiff Trelawn - boat move - cover fitted\nlog 227 - skiff Perrynn - training row - 5 aboard - slip 2\nlog 228 - gig Nance - training row - 7 aboard - slip 3\nlog 229 - skiff Trelawn - training row - 4 aboard - slip 1\nlog 230 - skiff Perrynn - boat move - oars serviced\nlog 231 - gig Nance - training row - 6 aboard - slip 3\nlog 232 - skiff Trelawn - training row - 5 aboard - slip 1\nlog 233 - skiff Perrynn - training row - 5 aboard - slip 2\nlog 234 - gig Nance - training row - 6 aboard - slip 3\n"
+  },
+  "turns": [
+    {
+      "prompt": "Pentire Rowing Club writes every outing into one boathouse register, including the runs that only shift a boat between the racks. The coach is putting the season's figures together and needs the outings where a crew was on the water. How many entries in the register record a training row? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 12,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

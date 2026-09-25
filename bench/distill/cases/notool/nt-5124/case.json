@@ -1,0 +1,41 @@
+{
+  "id": "nt-5124",
+  "description": "Explain a fertiliser card's analysis figure and give the nutrient one block receives. DISTILL-CANARY-c4097da6",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 3000.0
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-nutrientrate-25",
+    "ref_calls": 0,
+    "fixture_bytes": 231,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "blocks/fertiliser_cards.csv": "block,product,analysis_n_pct,rate_kg_ha,area_ha\nB-64,Calciumnit,27,240,12.5\n",
+    "README.md": "# Fenlock Growers - arable blocks\n\nShared folder for the agronomy team.\n\n- blocks/  cards for each field block\n- soil/  sampling notes from the laboratory\n"
+  },
+  "turns": [
+    {
+      "prompt": "A new agronomist at Fenlock Growers asked what the analysis figure on a fertiliser card means; the first number of a grade is the share of the product's mass that is the nutrient. Block 64 is planned at 240 kilograms per hectare of a product analysed at 27 percent nitrogen, across 12.5 hectares. Give the nitrogen those hectares receive, in kilograms. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 810.0,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

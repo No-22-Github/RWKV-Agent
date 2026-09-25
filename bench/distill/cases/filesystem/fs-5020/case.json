@@ -1,0 +1,47 @@
+{
+  "id": "fs-5020",
+  "description": "Find which culvert survey sheet was copied into the handover folder for a client review, comparing both folders. DISTILL-CANARY-307957e9",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "duplicates",
+    "traps": [
+      "TR-DECOY",
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "survey/culvert-13.txt",
+      "TR-MULTISRC": "handover/culvert-12-review.txt"
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "fam-fs-clientset-01",
+    "ref_calls": 4,
+    "fixture_bytes": 701,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "Penhallow Engineering - culvert sheets\n\nThe inspection sheets for the culvert programme are written up in the survey\nfolder. The sheets the client asked to see again were copied into the handover\nfolder before the review meeting.\n",
+    "handover/culvert-12-review.txt": "Culvert 12 - Helford lane, west barrel\nBarrels: two, 450 mm\nSilt: 180 mm at the inlet\nCondition: joints open on the downstream barrel\nInspection: 2026-02-19\n",
+    "survey/culvert-12.txt": "Culvert 12 - Helford lane, west barrel\nBarrels: two, 450 mm\nSilt: 180 mm at the inlet\nCondition: joints open on the downstream barrel\nInspection: 2026-02-19\n",
+    "survey/culvert-13.txt": "Culvert 13 - Helford lane, east barrel\nBarrels: two, 450 mm\nSilt: 186 mm at the inlet\nCondition: joints open on the downstream barrel\nInspection: 2026-02-19\n"
+  },
+  "turns": [
+    {
+      "prompt": "The client asked to see one of the culvert sheets again, and a copy of that sheet was put in the handover folder for the review meeting. Which sheet in the survey folder is the one that was handed over? Report its path as the survey folder writes it. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals_any": [
+          "survey/culvert-12.txt",
+          "culvert-12.txt"
+        ]
+      }
+    }
+  ]
+}

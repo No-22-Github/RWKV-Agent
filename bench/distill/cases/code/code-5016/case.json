@@ -1,0 +1,35 @@
+{
+  "id": "code-5016",
+  "description": "Report the shipping charge the chandlery's quote helper returns for a basket holding nothing. DISTILL-CANARY-6fa8c132",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "fix_edge_case",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-code-basketship-01",
+    "ref_calls": 2,
+    "fixture_bytes": 518,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "quotes/__init__.py": "\"\"\"Quoting helpers for the chandlery.\"\"\"\n",
+    "quotes/orders.py": "\"\"\"The example baskets the chandlery's quote tests use.\"\"\"\n\nBASKETS = {\"empty\": 0, \"small\": 1600, \"large\": 6400}\n",
+    "quotes/shipping.py": "\"\"\"Shipping quotes for the chandlery's web orders.\"\"\"\n\nHANDLING_PENCE = 275\nFREE_OVER_PENCE = 5000\n\n\ndef shipping_quote(basket_pence):\n    \"\"\"Shipping charge in pence for an order of the given value.\"\"\"\n    if basket_pence >= FREE_OVER_PENCE:\n        return 0\n    if basket_pence == 0:\n        return HANDLING_PENCE\n    return HANDLING_PENCE + basket_pence // 200\n"
+  },
+  "turns": [
+    {
+      "prompt": "A web order can reach the Bexhill chandlery's shipping quote with an empty basket. What charge, in pence, does the quote come back with for it? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 275,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

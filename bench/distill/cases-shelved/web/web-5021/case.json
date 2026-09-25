@@ -1,0 +1,61 @@
+{
+  "id": "web-5021",
+  "description": "Shipped sample rate of the newest Rillstone analytics SDK; the 4.x archive holds a lower figure. DISTILL-CANARY-9d3c47b2",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": 10
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-web-samplerate-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "rillstone",
+      "url": "https://rillstone.example/releases/5-2",
+      "url_match": "rillstone.example/releases/5-2",
+      "title": "Analytics SDK 5.2 released - Rillstone",
+      "snippet": "Analytics SDK 5.2 samples 35 percent of events by default.",
+      "content": "# Analytics SDK 5.2\n\nRillstone, released 7 July 2026.\n\n5.2 is the newest release of the analytics SDK. The shipped sample rate is now\n35 percent, raised from 20 percent, so a busy storefront sends fewer events\nwithout a configuration change.\n\nThe sample rate stays a per-client setting: a client that states its own figure\nkeeps it. The event schema and the batching behaviour are unchanged.\n",
+      "published_at": "2026-07-07"
+    },
+    {
+      "query_match": "rillstone archive",
+      "url": "https://rillstone.example/archive/4x-defaults",
+      "url_match": "rillstone.example/archive/4x-defaults",
+      "title": "4.x defaults archive - Rillstone",
+      "snippet": "The 4.x line sampled 10 percent of events by default.",
+      "content": "# 4.x defaults archive\n\nRillstone, kept for older integrations.\n\nThe 4.x line sampled 10 percent of events by default and batched events every\n30 seconds. Integrations still on 4.x should read the upgrade note before they\nmove to a newer line.\n",
+      "published_at": "2025-09-15"
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Our storefront runs the newest Rillstone analytics SDK and its configuration states no sample rate. What share of events does the SDK send? Give it as a number of percent, without the % sign. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 35,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

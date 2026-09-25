@@ -1,0 +1,64 @@
+{
+  "id": "hyb-5030",
+  "description": "Fruit weight net of crates for a packhouse's September consignments. DISTILL-CANARY-16b8d4a7",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_calc",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": 2519.5
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-cratetare-01",
+    "ref_calls": 3,
+    "fixture_bytes": 418,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [
+    {
+      "query_match": "crate",
+      "url": "https://pack-standards.example/notes/standard-crate",
+      "url_match": "pack-standards.example/notes/standard-crate",
+      "title": "Standard crate weights - Pack Standards Bureau",
+      "snippet": "A standard crate weighs 2.5 kg empty and is the crate the picking season runs on.",
+      "content": "# Standard crate weights\n\nPack Standards Bureau, reviewed 2026-05-06.\n\nTwo crate types are in common use for soft fruit. A standard crate weighs 2.5 kg\nempty and takes eight punnets; a heavy duty export crate weighs 3.4 kg empty\nand is used for fruit that travels by sea.\n\nThe weights are the empty crate on its own, without punnets or liners.\n",
+      "published_at": "2026-05-06"
+    },
+    {
+      "query_match": "export crate",
+      "url": "https://pack-standards.example/notes/export-crate",
+      "url_match": "pack-standards.example/notes/export-crate",
+      "title": "Heavy duty export crate - Pack Standards Bureau",
+      "snippet": "The heavy duty export crate weighs 3.4 kg empty.",
+      "content": "# Heavy duty export crate\n\nPack Standards Bureau.\n\nThe heavy duty export crate weighs 3.4 kg empty. It is heavier than the\nstandard crate because of the thicker board, and it is the crate sea freight\nis packed in.\n",
+      "published_at": "2026-05-06"
+    }
+  ],
+  "files": {
+    "consignments/september-2026.csv": "consignment,date,crate_type,crates,gross_kg\nC-8801,2026-09-04,standard,40,1012.0\nC-8802,2026-09-11,standard,25,632.5\nC-8803,2026-09-19,standard,32,810.0\nC-8804,2026-09-26,standard,18,456.0\n",
+    "README.md": "# Berryfield Packhouse - September consignments\n\nEach row is one consignment of soft fruit, weighed with its crates. The crate\ntype column names the crate the consignment was packed in and the gross\nweight includes those crates.\n"
+  },
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Berryfield Packhouse is settling the September consignments and the buyer wants the fruit weighed without its packaging. How many kilograms of fruit did the four consignments hold? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 2623.0,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

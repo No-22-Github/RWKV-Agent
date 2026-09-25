@@ -1,0 +1,65 @@
+{
+  "id": "hyb-5027",
+  "description": "Outstanding balance on one of two accounts trading as Cranmere. DISTILL-CANARY-c8f30d5b",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 1095.5
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-twoaccounts-01",
+    "ref_calls": 2,
+    "fixture_bytes": 503,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "accounts/cranmere-2026-09.csv": "account,invoice_ref,invoiced,paid\nCranmere (Stackwell),IN-3301,1240.00,1240.00\nCranmere (Winster),IN-3302,980.00,400.00\nCranmere (Stackwell),IN-3303,865.50,0.00\nCranmere (Winster),IN-3304,1120.00,1120.00\nCranmere (Stackwell),IN-3305,430.00,200.00\nCranmere (Winster),IN-3306,715.00,715.00\n",
+    "README.md": "# Stackwell Supplies - credit accounts\n\nOne row for each invoice raised, with the amount paid against it so far.\nTwo customers trade as Cranmere, one at Stackwell and one at Winster, and\neach keeps its own account.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Stackwell Supplies is chasing the September balances. How much is still outstanding on the Cranmere account?",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ]
+      }
+    },
+    {
+      "prompt": "The Winster one. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 580.0,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

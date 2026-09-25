@@ -1,0 +1,65 @@
+{
+  "id": "hyb-5021",
+  "description": "September pallets out of one of two yards that share the name Marchwold. DISTILL-CANARY-0c7e4b96",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 114
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-twoyards-01",
+    "ref_calls": 2,
+    "fixture_bytes": 517,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "movements/september-2026.csv": "date,yard,pallets\n2026-09-03,Marchwold (Thornwell),46\n2026-09-05,Thurlby,29\n2026-09-08,Marchwold (Marple),38\n2026-09-12,Marchwold (Thornwell),52\n2026-09-16,Stanniforth,33\n2026-09-19,Marchwold (Marple),41\n2026-09-23,Marchwold (Thornwell),57\n2026-09-27,Thurlby,24\n2026-09-30,Marchwold (Marple),35\n",
+    "README.md": "# Thornwell Haulage - pallet movements\n\nOne row for each day's outbound movement from a yard. The firm runs two\nyards called Marchwold, one at Thornwell and one at Marple, and the\nregister names the yard a load left from.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Thornwell Haulage is closing the September figures with the pallet pool. How many pallets went out of the Marchwold yard in September?",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ]
+      }
+    },
+    {
+      "prompt": "The Marchwold yard at Thornwell. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 155,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "id": "nt-5140",
+  "description": "Convert 486 gigajoules of metered steam to kilowatt hours. DISTILL-CANARY-b5220c6c",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 1749.6
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-heatreturn-01",
+    "ref_calls": 0,
+    "fixture_bytes": 290,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "standards/heat_equivalents.csv": "kilowatt_hour_to_gigajoule,0.0036\ngigajoule_to_kilowatt_hour,277.7778\n",
+    "plants/steam_meter_2946.txt": "plant Camphill Two\nreading_month 2026-09\nsteam_gigajoules 486\n",
+    "README.md": "# Camphill Creamery - energy office\n\nBoiler steam is metered in gigajoules at each plant.\nThe monthly return to the energy office is filed in kilowatt hours.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Camphill Creamery is filing the September energy return. The steam meter at Camphill Two read 486 gigajoules over the month. The return is filed in kilowatt hours. How many kilowatt hours did the meter read? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 135000,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

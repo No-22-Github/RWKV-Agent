@@ -1,0 +1,40 @@
+{
+  "id": "nt-5156",
+  "description": "Mailbox the inbox directory gives for tenancy fraud referrals. DISTILL-CANARY-0ce4937b",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "stable_fact",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "arrears@marlowecourt.example"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-standing-mailbox-01",
+    "ref_calls": 1,
+    "fixture_bytes": 612,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "procedures/inbox-directory.txt": "tenancy fraud referral | fraud@marlowecourt.example\nrent arrears referral | arrears@marlowecourt.example\nrepairs escalation | repairs@marlowecourt.example\nright to buy enquiry | righttobuy@marlowecourt.example\n",
+    "README.md": "# Marlowe Court Housing Association - housing office workspace\n\nWorking area for the housing office.\n\n- procedures/  the inbox directory and the tenancy handbook\n\nThe inbox directory names one mailbox per procedure and is edited in place, so a procedure is never pointed at two mailboxes. Rows are kept in the order the mailboxes were set up, oldest first. Last reviewed 2026-02-11, reference MC-7734.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Marlowe Court Housing Association has taken a tenancy fraud referral and the housing officer needs the mailbox it should go to. Which mailbox should the officer use? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "fraud@marlowecourt.example",
+        "tools": []
+      }
+    }
+  ]
+}

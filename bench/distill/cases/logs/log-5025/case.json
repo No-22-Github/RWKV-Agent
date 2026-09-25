@@ -1,0 +1,40 @@
+{
+  "id": "log-5025",
+  "description": "Total the litres a dairy took in inside a UTC window while the intake bay stamps on the plant's own clock. DISTILL-CANARY-a4c623d8",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [
+      "TR-TZ"
+    ],
+    "trap_decoys": {
+      "TR-TZ": 72760
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-creameryintake-21",
+    "ref_calls": 3,
+    "fixture_bytes": 2671,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# milk intake journal\n\nRushmere Dairy's intake bay records every tanker it unloads in logs/intake.log:\n\n    <time> TANKER farm=<id> litres=<n>\n\nThe intake equipment stamps its lines on the dairy's own clock, which runs\nthree hours ahead of UTC. The journal holds one day of intake and is closed\nwith a line whose count covers every tanker line above it.\n",
+    "logs/intake.log": "2026-09-16T00:05:41Z TANKER farm=RB-114 litres=11400\n2026-09-16T00:39:27Z TANKER farm=RB-207 litres=12850\n2026-09-16T01:12:08Z TANKER farm=RB-118 litres=10920\n2026-09-16T01:47:53Z TANKER farm=RB-231 litres=13160\n2026-09-16T02:21:36Z TANKER farm=RB-126 litres=11740\n2026-09-16T02:58:14Z TANKER farm=RB-244 litres=12380\n2026-09-16T03:11:47Z TANKER farm=RB-133 litres=11260\n2026-09-16T03:44:22Z TANKER farm=RB-259 litres=12940\n2026-09-16T04:16:55Z TANKER farm=RB-141 litres=10680\n2026-09-16T04:49:31Z TANKER farm=RB-263 litres=13420\n2026-09-16T05:22:09Z TANKER farm=RB-152 litres=11890\n2026-09-16T05:58:44Z TANKER farm=RB-271 litres=12570\n2026-09-16T06:14:17Z TANKER farm=RB-160 litres=10850\n2026-09-16T06:47:52Z TANKER farm=RB-284 litres=13210\n2026-09-16T07:09:26Z TANKER farm=RB-168 litres=11960\n2026-09-16T07:41:03Z TANKER farm=RB-292 litres=12640\n2026-09-16T08:12:38Z TANKER farm=RB-175 litres=10730\n2026-09-16T08:44:15Z TANKER farm=RB-306 litres=13080\n2026-09-16T09:18:47Z TANKER farm=RB-183 litres=11520\n2026-09-16T09:52:21Z TANKER farm=RB-314 litres=12810\n2026-09-16T10:27:56Z TANKER farm=RB-190 litres=11040\n2026-09-16T11:03:29Z TANKER farm=RB-327 litres=13350\n2026-09-16T11:38:02Z TANKER farm=RB-198 litres=12080\n2026-09-16T12:14:37Z TANKER farm=RB-335 litres=10690\n2026-09-16T12:49:11Z TANKER farm=RB-205 litres=12720\n2026-09-16T13:25:46Z TANKER farm=RB-348 litres=11340\n2026-09-16T14:02:19Z TANKER farm=RB-212 litres=13180\n2026-09-16T14:38:53Z TANKER farm=RB-356 litres=11670\n2026-09-16T15:14:28Z TANKER farm=RB-219 litres=12460\n2026-09-16T15:51:02Z TANKER farm=RB-371 litres=10930\n2026-09-16T16:27:35Z TANKER farm=RB-227 litres=13020\n2026-09-16T17:04:09Z TANKER farm=RB-383 litres=12110\n2026-09-16T17:40:44Z TANKER farm=RB-235 litres=10760\n2026-09-16T18:16:17Z TANKER farm=RB-394 litres=12890\n2026-09-16T18:52:51Z TANKER farm=RB-243 litres=11480\n2026-09-16T19:29:24Z TANKER farm=RB-402 litres=13260\n2026-09-16T20:05:58Z TANKER farm=RB-251 litres=11920\n2026-09-16T20:42:31Z TANKER farm=RB-417 litres=10580\n2026-09-16T21:18:04Z TANKER farm=RB-258 litres=12690\n2026-09-16T21:54:38Z TANKER farm=RB-425 litres=11170\n2026-09-16T22:31:12Z TANKER farm=RB-266 litres=12970\n2026-09-16T23:07:45Z TANKER farm=RB-438 litres=10810\n2026-09-16T23:44:19Z TANKER farm=RB-274 litres=12340\n2026-09-17T00:01:44Z CLOSE tankers=43\n"
+  },
+  "turns": [
+    {
+      "prompt": "Rushmere Dairy's intake bay recorded one day of tanker unloadings. How many litres of milk did the dairy take in between 03:00 and 06:00 UTC on 16 September 2026? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 72470,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

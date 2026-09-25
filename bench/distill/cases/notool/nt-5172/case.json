@@ -1,0 +1,43 @@
+{
+  "id": "nt-5172",
+  "description": "Give the window expression that numbers the rows inside each instrument group. DISTILL-CANARY-c85d17e0",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "RANK() OVER (PARTITION BY instrument_id ORDER BY reading_at DESC)"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-sqlclause-23",
+    "ref_calls": 0,
+    "fixture_bytes": 509,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "sql/window-clauses.tsv": "freshest-is-first\tROW_NUMBER() OVER (PARTITION BY instrument_id ORDER BY reading_at DESC)\trow_number() over (partition by instrument_id order by reading_at desc)\nties-share-a-position\tRANK() OVER (PARTITION BY instrument_id ORDER BY reading_at DESC)\trank() over (partition by instrument_id order by reading_at desc)\n",
+    "README.md": "# Ninepenny Ridge Observatory - reading archive\n\nOne reading per instrument per minute lands in the archive.\nThe window expressions the data team reviewed are carded in sql/window-clauses.tsv.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Ninepenny Ridge Observatory files one reading per instrument per minute. Give the window expression that numbers the rows inside each instrument_id group so that the row with the greatest reading_at in a group is numbered 1. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "ROW_NUMBER() OVER (PARTITION BY instrument_id ORDER BY reading_at DESC)",
+          "row_number() over (partition by instrument_id order by reading_at desc)"
+        ]
+      }
+    }
+  ]
+}

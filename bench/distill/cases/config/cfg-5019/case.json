@@ -1,0 +1,40 @@
+{
+  "id": "cfg-5019",
+  "description": "Effective value of the dosing controller's residual hold, which no block in the settings sheet defines. DISTILL-CANARY-5c93e07f",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "missing_keys",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": 420
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-dosingstack-01",
+    "ref_calls": 2,
+    "fixture_bytes": 1224,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Brackenlea Water Works - dosing controller\n\nThe dosing controller adds coagulant and chlorine to the settling tanks. Each setting takes its value from the first block that defines it, and `resolve_order` in `config/dosing-settings.json` lists the blocks in the order the controller consults them: what the plant historian pushes into the controller, then the site profile, then the factory defaults. A block that leaves a setting out falls through to the next one, so the site profile carries only what it changes.\n\n`config/dosing-settings.json` is the settings sheet for the controller: it shows the three blocks as the controller reads them.\n",
+    "config/dosing-settings.json": "{\n  \"controller\": \"dosing-pier\",\n  \"resolve_order\": [\"historian_push\", \"site_profile\", \"factory_defaults\"],\n  \"historian_push\": {\n    \"coagulant_rate_ml_min\": 240,\n    \"turbidity_ceiling_ntu\": 6\n  },\n  \"site_profile\": {\n    \"settle_window_min\": 35\n  },\n  \"factory_defaults\": {\n    \"contact_hold_s\": 420,\n    \"coagulant_rate_ml_min\": 180,\n    \"settle_window_min\": 50,\n    \"alarm_repeat_min\": 18\n  }\n}\n",
+    "docs/tank-notes.md": "# Tank notes\n\nThe settling tanks are desludged on the maintenance rota and the sludge is tankered away.\nTurbidity readings are taken by the works chemist, not by the controller.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The works chemist at Brackenlea Water Works is writing the dosing note for the settling tanks and needs the effective value of `residual_hold_s` for the dosing controller as it is installed. What is it? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "UNKNOWN"
+      }
+    }
+  ]
+}

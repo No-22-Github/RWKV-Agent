@@ -1,0 +1,36 @@
+{
+  "id": "cfg-5015",
+  "description": "Number of settings the folded stitching line sheet carries, counting the machine and material sheets together. DISTILL-CANARY-1f6d3b92",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "merge",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-cfg-stitchfold-01",
+    "ref_calls": 2,
+    "fixture_bytes": 707,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Garsdale Bindery - stitching line\n\nThe line is handed one settings sheet at the start of a run. The sheet is built by folding `config/stitcher-machine.yaml` and `config/stitcher-material.yaml` together; the bindery split the settings into those two sheets so that the machine settings and the material settings can be revised on their own schedules, and no setting appears in both.\n",
+    "config/stitcher-machine.yaml": "stitch_speed_rpm: 4200\nclamp_force_n: 780\nfeed_pitch_mm: 16\ntrim_margin_mm: 7\ndust_extract_s: 4\n",
+    "config/stitcher-material.yaml": "signature_pages: 32\ncover_board_mm: 2\nthread_tension_cn: 145\ncrease_depth_mm: 1\n",
+    "docs/bindery-notes.md": "# Bindery notes\n\nThe guillotine is booked out to the finishing team on Thursday mornings.\nThread stock is counted by the stores team at month end.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The planner at Garsdale Bindery needs the number of settings the stitching line will be handed for its next run, with the machine sheet and the material sheet folded into the single sheet the line reads. How many settings is that? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 9,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

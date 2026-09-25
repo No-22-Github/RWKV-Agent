@@ -1,0 +1,42 @@
+{
+  "id": "doc-5019",
+  "description": "How many drawings named by a workshop's parts register have no file in the folder. DISTILL-CANARY-71b3d86e",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "link_check",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 6
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-drawreg-01",
+    "ref_calls": 2,
+    "fixture_bytes": 650,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Ashlack Engineering - drawing register\n\nSmall fabrication jobs are worked from the drawings kept in this folder. `register/parts-register.txt` lists the drawings the shop needs for the current batch.\n",
+    "register/parts-register.txt": "drawings/gusset-12mm.md\ndrawings/base-frame.md\ndrawings/bracket-plate.md\ndrawings/bracket-plate.md\ndrawings/hinge-blank.md\ndrawings/roller-mount.md\ndrawings/dowel-guide.md\ndrawings/shaft-bush.md\n",
+    "drawings/base-frame.md": "# Base frame\n\nCut from 60 x 60 box section and drilled for the mounting feet.\nWelds are dressed on the visible faces.\n",
+    "drawings/roller-mount.md": "# Roller mount\n\nMachined from bar stock and fitted with the guide rollers at assembly.\nBore sizes are taken from the assembly drawing.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The shop at Ashlack Engineering is checking the drawing register for the current batch before the prints go out. How many of the drawings named in the register have no file anywhere in the folder? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 5,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

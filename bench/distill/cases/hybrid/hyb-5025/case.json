@@ -1,0 +1,65 @@
+{
+  "id": "hyb-5025",
+  "description": "Biggest September collection from one of two holdings' Hill flock. DISTILL-CANARY-a4d7f268",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 1745
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-twoflocks-01",
+    "ref_calls": 2,
+    "fixture_bytes": 639,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "collections/september-2026.csv": "date,holding,flock,eggs\n2026-09-03,Nethercote Farm,Hill flock,1480\n2026-09-03,Withersfield Farm,Hill flock,1320\n2026-09-07,Nethercote Farm,Hill flock,1610\n2026-09-10,Withersfield Farm,Valley flock,1205\n2026-09-14,Nethercote Farm,Valley flock,1390\n2026-09-17,Withersfield Farm,Hill flock,1745\n2026-09-21,Nethercote Farm,Hill flock,1525\n2026-09-25,Withersfield Farm,Hill flock,1280\n2026-09-28,Nethercote Farm,Valley flock,1440\n",
+    "README.md": "# Marshfield Egg Packing - collection sheet\n\nOne row for each day's collection from a laying flock. Two holdings keep a\nHill flock, Nethercote Farm and Withersfield Farm, and each holding also runs\na Valley flock.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Marshfield Egg Packing is reviewing the season's best days. What was the largest single-day collection from the Hill flock in September?",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ]
+      }
+    },
+    {
+      "prompt": "The flock at Nethercote Farm. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 1610,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

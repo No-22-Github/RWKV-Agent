@@ -1,0 +1,35 @@
+{
+  "id": "cfg-5014",
+  "description": "Count of required chiller plant controller parameters that still have no value on the commissioning sheet. DISTILL-CANARY-c84a1e73",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "missing_keys",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-cfg-chillbank-01",
+    "ref_calls": 2,
+    "fixture_bytes": 954,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Thistlemoor Creamery - chiller plant controller\n\nThe plant controller will not start a chiller until every parameter in `required_settings` has a value in `configured`. `config/chiller.json` is the sheet the refrigeration engineer fills in, and the plant room terminal writes it back out in the same layout.\n",
+    "config/chiller.json": "{\n  \"controller\": \"chiller-bank-two\",\n  \"required_settings\": [\n    \"condenser_pressure_bar\",\n    \"evaporator_temp_c\",\n    \"defrost_interval_min\",\n    \"glycol_ratio_pct\",\n    \"alarm_delay_s\",\n    \"duty_standby_hours\",\n    \"seal_flush_min\",\n    \"remote_setpoint_c\"\n  ],\n  \"configured\": {\n    \"condenser_pressure_bar\": \"11\",\n    \"evaporator_temp_c\": \"34\",\n    \"defrost_interval_min\": \"240\",\n    \"glycol_ratio_pct\": \"38\",\n    \"alarm_delay_s\": \"75\"\n  }\n}\n",
+    "docs/plant-room.md": "# Plant room notes\n\nGlycol deliveries arrive on the tanker from the supplier and are signed for by the shift engineer.\nCondenser fans are washed on the maintenance rota and are logged on paper.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The refrigeration engineer at Thistlemoor Creamery is completing the commissioning sheet for the chiller plant controller and needs to know how many of the controller's required parameters still have no value. What is that count? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 3,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

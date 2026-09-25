@@ -1,0 +1,16 @@
+# DISTILL-CANARY-93e7b5c0 : distillation case
+import csv
+import io
+import json
+
+case = json.load(open("case.json"))
+charges = case["files"]["fees/charges.csv"]
+rows = list(csv.DictReader(io.StringIO(charges)))
+
+ASKED = "storage per week"
+value = None
+for row in rows:
+    if row["service"].strip().lower() == ASKED:
+        value = float(row["charge_gbp"])
+
+print(json.dumps({"expected_number": value}))

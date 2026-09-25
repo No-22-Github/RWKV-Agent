@@ -1,0 +1,42 @@
+{
+  "id": "nt-5142",
+  "description": "Report a 38.5 metre a second gust in kilometres an hour. DISTILL-CANARY-12d24ac6",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 86.12
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-gustlog-01",
+    "ref_calls": 0,
+    "fixture_bytes": 323,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "standards/wind_units.csv": "metre_per_second_to_kilometre_per_hour,3.6\nmetre_per_second_to_mile_per_hour,2.2369\n",
+    "turbines/gust_log_8834.tsv": "turbine\tpeak_gust_metres_per_second\nRW-07\t38.5\nRW-08\t41.2\n",
+    "README.md": "# Ravenscar Wind - operations log\n\nGust peaks are logged in metres a second by the array controller.\nThe monthly summary the operator sends out reports gusts in kilometres an hour.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Ravenscar Wind is writing up the September gust log for the coastal array. Turbine RW-07 logged a peak gust of 38.5 metres a second. The monthly summary reports gusts in kilometres an hour. What does the summary report for RW-07? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 138.6,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

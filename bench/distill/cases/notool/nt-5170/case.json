@@ -1,0 +1,44 @@
+{
+  "id": "nt-5170",
+  "description": "Give the build step line that mounts the installer's wheel cache as a cache. DISTILL-CANARY-e13a85c7",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "RUN --mount=type=bind,target=/root/.cache/pip pip install -r requirements.txt"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L2",
+    "family": "fam-nt-containerline-22",
+    "ref_calls": 0,
+    "fixture_bytes": 631,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "deps/cache-mount-cards.tsv": "wheel-cache-mount\tRUN --mount=type=cache,target=/root/.cache/pip pip install -r requirements.txt\t--mount=type=cache,id=pip,target=/root/.cache/pip\nwheels-from-context\tRUN --mount=type=bind,target=/root/.cache/pip pip install -r requirements.txt\t--mount=type=bind,target=/root/.cache/pip\n",
+    "README.md": "# Stillwater Cartography - map service image\n\nBuilt nightly on a runner that keeps the build cache between builds.\nThe dependency step is carded in deps/cache-mount-cards.tsv.\n",
+    "notes/runner-notes.txt": "Release notes:\nThe installer reads and writes its wheel cache under /root/.cache/pip.\nThat directory must be reused by the next build and must not appear in any layer.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Stillwater Cartography builds its map service image nightly on a runner that keeps the build cache between builds. The installer reads and writes its wheel cache under /root/.cache/pip inside the build. Give the build step line that makes that directory available to the installer as a cache, so a later build reuses it and no layer of the image carries it. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "RUN --mount=type=cache,target=/root/.cache/pip pip install -r requirements.txt",
+          "--mount=type=cache,id=pip,target=/root/.cache/pip"
+        ]
+      }
+    }
+  ]
+}

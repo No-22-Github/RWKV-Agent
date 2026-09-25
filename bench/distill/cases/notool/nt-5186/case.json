@@ -1,0 +1,56 @@
+{
+  "id": "nt-5186",
+  "description": "Thanks for an earlier explanation, no new task; reply directly without any tool call. DISTILL-CANARY-c30f9d84",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-smalltalk-10",
+    "ref_calls": 0,
+    "fixture_bytes": 272,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Tenterhook Upholstery - cutting room workspace\n\nShared folder for the bench and the fabric store.\n\n- jobs/  frames waiting on covers\n- rolls/  fabric lengths left on the rack\n",
+    "jobs/bench_queue.csv": "job,frame,metres,hours\nTU-2694,wing chair,7,6\nTU-2695,snuggle chair,9,11\nTU-2696,footstool,3,4\n"
+  },
+  "turns": [
+    {
+      "prompt": "Thanks for talking me through that earlier - it made much more sense the second time.",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "welcome",
+          "Welcome",
+          "glad",
+          "Glad",
+          "anytime",
+          "Anytime",
+          "pleasure",
+          "Pleasure",
+          "no problem",
+          "No problem",
+          "happy to help",
+          "Happy to help",
+          "helps",
+          "Helps"
+        ]
+      }
+    }
+  ]
+}

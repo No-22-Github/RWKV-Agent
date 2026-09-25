@@ -1,0 +1,42 @@
+{
+  "id": "nt-5125",
+  "description": "Explain the two rates on a spray plan and give the concentrate one block needs. DISTILL-CANARY-2e8b13f0",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 1848.0
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L2",
+    "family": "fam-nt-nutrientrate-25",
+    "ref_calls": 0,
+    "fixture_bytes": 333,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "orchards/spray_plans.csv": "block,product_rate_l_ha,water_l_ha,area_ha\nO-35,1.8,220,8.4\n",
+    "notes/weather_notes.txt": "Spraying waits for a window with the wind under force three.\nThe orchard gates are locked outside working hours.\n",
+    "README.md": "# Cawdor Orchards - crop protection\n\nShared folder for the orchard team.\n\n- orchards/  spray plans for each block\n- notes/  weather and gate notes for the week\n"
+  },
+  "turns": [
+    {
+      "prompt": "An orchard hand at Cawdor Orchards asked what the two rates on a spray plan are for; the product rate is the concentrate put on each hectare and the water rate is only the carrier it is mixed into. Block O-35 covers 8.4 hectares, planned at 1.8 litres of concentrate and 220 litres of water per hectare. Give the concentrate that block needs, in litres. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 15.12,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

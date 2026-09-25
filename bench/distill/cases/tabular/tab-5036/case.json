@@ -1,0 +1,34 @@
+{
+  "id": "tab-5036",
+  "description": "Spring-to-spring litres for a dairy whose log holds both seasons. DISTILL-CANARY-bc54908f",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-tab-dairyrounds-01",
+    "ref_calls": 2,
+    "fixture_bytes": 1185,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "collection_log_2025_2026.csv": "collection_id,collection_date,round,litres\nCL-3401,2025-04-08,Fellside Round,4982\nCL-3402,2025-04-15,Estuary Round,5341\nCL-3403,2025-04-22,Ridge Round,4618\nCL-3404,2025-04-29,Fellside Round,5106\nCL-3405,2025-05-06,Fellside Round,5274\nCL-3406,2025-05-08,Estuary Round,5620\nCL-3407,2025-05-13,Ridge Round,4893\nCL-3408,2025-05-15,Fellside Round,5412\nCL-3409,2025-05-20,Estuary Round,5768\nCL-3410,2025-05-22,Ridge Round,5031\nCL-3411,2025-05-27,Fellside Round,5546\nCL-3412,2025-05-29,Estuary Round,5824\nCL-3413,2026-04-07,Fellside Round,5134\nCL-3414,2026-04-09,Estuary Round,5487\nCL-3415,2026-04-14,Ridge Round,4762\nCL-3416,2026-04-16,Fellside Round,5268\nCL-3417,2026-04-21,Estuary Round,5603\nCL-3418,2026-04-23,Ridge Round,4915\nCL-3419,2026-05-05,Fellside Round,5473\nCL-3420,2026-05-07,Estuary Round,5842\nCL-3421,2026-05-12,Ridge Round,5088\nCL-3422,2026-05-14,Fellside Round,5614\nCL-3423,2026-05-19,Estuary Round,5976\nCL-3424,2026-05-21,Ridge Round,5217\nCL-3425,2026-05-26,Fellside Round,5741\nCL-3426,2026-05-28,Estuary Round,6093\n",
+    "README.md": "# Marshgate Dairy - tanker collection log\n\nOne row per collection round; litres is the milk the tanker brought in. The log holds the two most recent seasons.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Marshgate Dairy reports the litres its tankers bring in. By how many litres did the May 2026 intake exceed the May 2025 intake? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 1676,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

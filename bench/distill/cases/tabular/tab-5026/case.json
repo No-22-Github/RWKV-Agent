@@ -1,0 +1,40 @@
+{
+  "id": "tab-5026",
+  "description": "Dispatch note count in a flower export that reprints some notes. DISTILL-CANARY-7b2d9f41",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 63
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-glasshouse-01",
+    "ref_calls": 3,
+    "fixture_bytes": 3398,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "dispatch_log_2026-07.csv": "dispatch_id,dispatch_date,market,stem_variety,bunches\nDG-5180,2026-07-01,Covent Garden,Alstroemeria,64\nDG-5181,2026-07-01,New Spitalfields,Lisianthus,38\nDG-5182,2026-07-02,Bristol Market,Chrysanthemum,72\nDG-5183,2026-07-02,Covent Garden,Solidago,45\nDG-5184,2026-07-03,Birmingham Wholesale,Bupleurum,29\nDG-5185,2026-07-03,New Spitalfields,Alstroemeria,51\nDG-5186,2026-07-06,Covent Garden,Lisianthus,33\nDG-5187,2026-07-06,Bristol Market,Chrysanthemum,61\nDG-5188,2026-07-07,Birmingham Wholesale,Solidago,27\nDG-5189,2026-07-07,New Spitalfields,Bupleurum,41\nDG-5190,2026-07-08,Covent Garden,Alstroemeria,67\nDG-5191,2026-07-08,Bristol Market,Lisianthus,36\nDG-5192,2026-07-09,Birmingham Wholesale,Chrysanthemum,49\nDG-5193,2026-07-09,New Spitalfields,Solidago,31\nDG-5194,2026-07-10,Covent Garden,Bupleurum,52\nDG-5195,2026-07-13,Bristol Market,Alstroemeria,61\nDG-5196,2026-07-13,Birmingham Wholesale,Lisianthus,26\nDG-5197,2026-07-14,New Spitalfields,Chrysanthemum,44\nDG-5198,2026-07-14,Covent Garden,Solidago,39\nDG-5199,2026-07-15,Bristol Market,Bupleurum,47\nDG-5200,2026-07-15,Birmingham Wholesale,Alstroemeria,55\nDG-5182,2026-07-02,Bristol Market,Chrysanthemum,72\nDG-5201,2026-07-16,New Spitalfields,Lisianthus,34\nDG-5202,2026-07-16,Covent Garden,Chrysanthemum,63\nDG-5203,2026-07-17,Bristol Market,Solidago,28\nDG-5204,2026-07-17,Birmingham Wholesale,Bupleurum,42\nDG-5205,2026-07-20,New Spitalfields,Alstroemeria,57\nDG-5206,2026-07-20,Covent Garden,Lisianthus,37\nDG-5207,2026-07-21,Bristol Market,Chrysanthemum,53\nDG-5208,2026-07-21,Birmingham Wholesale,Solidago,24\nDG-5209,2026-07-22,New Spitalfields,Bupleurum,46\nDG-5210,2026-07-22,Covent Garden,Alstroemeria,69\nDG-5211,2026-07-23,Bristol Market,Lisianthus,32\nDG-5212,2026-07-23,Birmingham Wholesale,Chrysanthemum,48\nDG-5213,2026-07-24,New Spitalfields,Solidago,35\nDG-5214,2026-07-24,Covent Garden,Bupleurum,54\nDG-5193,2026-07-09,New Spitalfields,Solidago,31\nDG-5215,2026-07-27,Bristol Market,Alstroemeria,60\nDG-5216,2026-07-27,Birmingham Wholesale,Lisianthus,29\nDG-5217,2026-07-28,New Spitalfields,Chrysanthemum,43\nDG-5218,2026-07-28,Covent Garden,Solidago,40\nDG-5219,2026-07-29,Bristol Market,Bupleurum,50\nDG-5220,2026-07-29,Birmingham Wholesale,Alstroemeria,66\nDG-5221,2026-07-30,New Spitalfields,Lisianthus,25\nDG-5222,2026-07-30,Covent Garden,Chrysanthemum,56\nDG-5223,2026-07-31,Bristol Market,Solidago,30\nDG-5224,2026-07-31,Birmingham Wholesale,Bupleurum,44\nDG-5225,2026-07-06,Covent Garden,Alstroemeria,62\nDG-5226,2026-07-07,New Spitalfields,Lisianthus,39\nDG-5227,2026-07-08,Bristol Market,Chrysanthemum,51\nDG-5228,2026-07-09,Birmingham Wholesale,Solidago,33\nDG-5229,2026-07-10,New Spitalfields,Bupleurum,45\nDG-5230,2026-07-13,Covent Garden,Alstroemeria,63\nDG-5231,2026-07-14,Bristol Market,Lisianthus,27\nDG-5232,2026-07-15,Birmingham Wholesale,Chrysanthemum,46\nDG-5209,2026-07-22,New Spitalfields,Bupleurum,46\nDG-5233,2026-07-16,Covent Garden,Solidago,36\nDG-5234,2026-07-17,New Spitalfields,Bupleurum,41\nDG-5235,2026-07-20,Bristol Market,Alstroemeria,59\nDG-5236,2026-07-21,Birmingham Wholesale,Lisianthus,28\nDG-5237,2026-07-22,Covent Garden,Chrysanthemum,50\nDG-5218,2026-07-28,Covent Garden,Solidago,40\nDG-5233,2026-07-16,Covent Garden,Solidago,36\n",
+    "README.md": "# Vellacott Glasshouses - cut flower dispatch log, July 2026\n\nOne note per consignment sent to market. The export was started again after the office lost power, so some notes were written out twice.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Vellacott Glasshouses reports its July dispatch figures to the auction each month. How many dispatch notes were raised in July 2026? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 58,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

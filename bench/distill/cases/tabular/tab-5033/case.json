@@ -1,0 +1,44 @@
+{
+  "id": "tab-5033",
+  "description": "Value of coal delivered to one customer, from a delivery log with reprinted loads and a price list. DISTILL-CANARY-a80d47c6",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "join",
+    "traps": [
+      "TR-MULTISRC",
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": 424.6,
+      "TR-DUPROW": 46650.33
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-tab-coalyard-01",
+    "ref_calls": 3,
+    "fixture_bytes": 3188,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "deliveries_2026-08.csv": "delivery_id,delivery_date,customer,coal_grade,tonnes\nDL-9201,2026-08-01,Cawdor Brickworks,Doubles,18.4\nDL-9202,2026-08-01,Lowmoor Foundry,Singles,22.7\nDL-9203,2026-08-02,Bexhill Maltings,House coal,9.6\nDL-9204,2026-08-02,Cawdor Brickworks,Slack,26.1\nDL-9205,2026-08-03,Thackley Laundry,Singles,7.8\nDL-9206,2026-08-03,Lowmoor Foundry,Nuts,19.3\nDL-9207,2026-08-04,Cawdor Brickworks,Cobbles,14.2\nDL-9208,2026-08-04,Wrenbury School,House coal,6.5\nDL-9209,2026-08-05,Bexhill Maltings,Singles,12.9\nDL-9210,2026-08-05,Cawdor Brickworks,Doubles,21.6\nDL-9211,2026-08-06,Lowmoor Foundry,Slack,24.8\nDL-9212,2026-08-06,Thackley Laundry,Nuts,11.4\nDL-9213,2026-08-07,Cawdor Brickworks,Nuts,16.7\nDL-9214,2026-08-07,Wrenbury School,House coal,5.3\nDL-9215,2026-08-10,Bexhill Maltings,Cobbles,13.8\nDL-9216,2026-08-10,Cawdor Brickworks,Singles,23.5\nDL-9217,2026-08-11,Lowmoor Foundry,Doubles,17.9\nDL-9218,2026-08-11,Thackley Laundry,House coal,8.2\nDL-9219,2026-08-12,Cawdor Brickworks,Slack,25.4\nDL-9220,2026-08-12,Wrenbury School,Nuts,4.7\nDL-9221,2026-08-13,Bexhill Maltings,Doubles,15.1\nDL-9222,2026-08-13,Cawdor Brickworks,Cobbles,19.8\nDL-9223,2026-08-14,Lowmoor Foundry,Singles,21.3\nDL-9224,2026-08-14,Thackley Laundry,Nuts,10.6\nDL-9225,2026-08-17,Cawdor Brickworks,House coal,7.4\nDL-9226,2026-08-17,Wrenbury School,Singles,5.9\nDL-9227,2026-08-18,Bexhill Maltings,Slack,16.4\nDL-9228,2026-08-18,Cawdor Brickworks,Doubles,20.9\nDL-9229,2026-08-19,Lowmoor Foundry,Cobbles,14.8\nDL-9230,2026-08-19,Thackley Laundry,Singles,9.1\nDL-9231,2026-08-20,Cawdor Brickworks,Nuts,18.2\nDL-9232,2026-08-20,Wrenbury School,House coal,6.8\nDL-9233,2026-08-21,Bexhill Maltings,Singles,14.5\nDL-9234,2026-08-21,Cawdor Brickworks,Slack,27.3\nDL-9235,2026-08-24,Lowmoor Foundry,Nuts,15.7\nDL-9236,2026-08-24,Thackley Laundry,Doubles,12.1\nDL-9237,2026-08-25,Cawdor Brickworks,Cobbles,17.6\nDL-9238,2026-08-25,Wrenbury School,Singles,7.1\nDL-9239,2026-08-26,Bexhill Maltings,Nuts,13.2\nDL-9240,2026-08-26,Cawdor Brickworks,Doubles,22.4\nDL-9241,2026-08-27,Lowmoor Foundry,House coal,8.9\nDL-9242,2026-08-27,Thackley Laundry,Slack,18.7\nDL-9243,2026-08-28,Cawdor Brickworks,Singles,19.4\nDL-9244,2026-08-28,Wrenbury School,Cobbles,5.6\nDL-9245,2026-08-31,Bexhill Maltings,Doubles,16.9\nDL-9246,2026-08-31,Cawdor Brickworks,House coal,9.3\nDL-9207,2026-08-04,Cawdor Brickworks,Cobbles,14.2\nDL-9213,2026-08-07,Cawdor Brickworks,Nuts,16.7\nDL-9211,2026-08-06,Lowmoor Foundry,Slack,24.8\nDL-9209,2026-08-05,Bexhill Maltings,Singles,12.9\nDL-9228,2026-08-18,Cawdor Brickworks,Doubles,20.9\nDL-9218,2026-08-11,Thackley Laundry,House coal,8.2\nDL-9219,2026-08-12,Cawdor Brickworks,Slack,25.4\nDL-9210,2026-08-05,Cawdor Brickworks,Doubles,21.6\nDL-9223,2026-08-14,Lowmoor Foundry,Singles,21.3\nDL-9239,2026-08-26,Bexhill Maltings,Nuts,13.2\nDL-9237,2026-08-25,Cawdor Brickworks,Cobbles,17.6\nDL-9230,2026-08-19,Thackley Laundry,Singles,9.1\n",
+    "grade_prices.csv": "coal_grade,price_per_tonne\nDoubles,118.40\nSingles,126.75\nNuts,134.20\nCobbles,109.85\nSlack,82.60\nHouse coal,97.30\n",
+    "README.md": "# Stannerley Coal Yard - deliveries, August 2026\n\nOne row per load weighed out; grade_prices.csv carries the price a tonne of each grade is sold at. The weighbridge software was reloaded once during the month.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Stannerley Coal Yard invoices its trade customers monthly. What was the value of the coal delivered to Cawdor Brickworks in August 2026, in pounds, rounded to two decimal places? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 33785.92,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

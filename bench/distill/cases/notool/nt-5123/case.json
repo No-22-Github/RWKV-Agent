@@ -1,0 +1,41 @@
+{
+  "id": "nt-5123",
+  "description": "Explain how a run card normalises fuel and give one run's figure. DISTILL-CANARY-57be9014",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 7.142857
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-ratioload-24",
+    "ref_calls": 0,
+    "fixture_bytes": 190,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-opus-5-5",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "runs/fuel_cards.csv": "run,fuel_l,distance_km\nTR-158,74.2,530\n",
+    "README.md": "# Thornby Haulage - traffic office\n\nShared folder for the dispatch team.\n\n- runs/  cards for each trunk run\n- tacho/  driver hour notes from the depot\n"
+  },
+  "turns": [
+    {
+      "prompt": "A dispatcher at Thornby Haulage asked how the fuel figure on a run card is arrived at; the card reports the diesel a run used for every hundred kilometres travelled. Run TR-158 used 74.2 litres over 530 kilometres. Give that run's figure as a single number in litres per hundred kilometres, with no unit in the reply. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 14.0,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}
