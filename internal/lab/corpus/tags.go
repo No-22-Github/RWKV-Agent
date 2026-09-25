@@ -387,7 +387,11 @@ func DeriveKind(tags eval.CaseTags, traj eval.TrajStats, turn int, hasRunExpect 
 		return kindSmalltalk
 	case traj.ZeroCall && (tags.TaskType == "beyond_capability" || containsString(tags.Traps, "TR-NOCAP")):
 		return kindRefuse
-	case traj.ZeroCall && containsString(tags.Traps, "TR-AMBIG") && turn < traj.TurnsTotal:
+	case containsString(tags.Traps, "TR-AMBIG") && turn < traj.TurnsTotal:
+		// Asking is the action of the turn whether or not the model looked at
+		// the workspace first: checking two candidate sites and then asking
+		// which one is the better clarification, and traj.zero_call still
+		// records which of the two happened.
 		return kindClarify
 	case traj.ZeroCall:
 		return kindDirect

@@ -50,6 +50,12 @@ type lintCtx struct {
 	// canary is this run's prefix and matcher: the flag, not the vocabulary,
 	// decides what a description must end with.
 	canaryPrefix string
+	// distillRules gate the rules that only make sense for distillation data
+	// (§4.3): the test bank is frozen, and its refusal cases predate the
+	// contract rule, so linting it against them would be a false alarm. The
+	// canary prefix is what tells the two banks apart, exactly as it does for
+	// canary.foreign.
+	distillRules bool
 	canaryRe     *regexp.Regexp
 }
 
@@ -82,6 +88,7 @@ func runLint(args []string) int {
 	}
 	ctx.canaryPrefix = *canaryPrefix
 	ctx.canaryRe = canaryRegexp(*canaryPrefix)
+	ctx.distillRules = *canaryPrefix != defaultCanaryPrefix
 
 	type caseJob struct {
 		dir      string
@@ -178,6 +185,13 @@ func checkCase(caseDir string, caseObj map[string]any, ctx *lintCtx, relParts []
 		*violations = append(*violations, violation(cid, rule, detail))
 	}
 	isSmalltalk := asString(tags["task_type"]) == "smalltalk"
+	// A refusal case answers a request the assistant cannot carry out. It must
+	// explain that instead of abstaining, so it carries no answer contract and
+	// its criterion forbids UNKNOWN (docs/distill-workflow.md §4.3). Every
+	// beyond_capability case is one, and so is any case that declares TR-NOCAP
+	// whatever its scenario.
+	isRefusal := ctx.distillRules && !isSmalltalk && (asString(tags["task_type"]) == "beyond_capability" ||
+		containsString(anyStrings(anySlice(tags["traps"])), "TR-NOCAP"))
 
 	// (a) required tag keys + enums
 	for _, key := range requiredTags {
@@ -296,6 +310,15 @@ func checkCase(caseDir string, caseObj map[string]any, ctx *lintCtx, relParts []
 					"smalltalk cases must not carry an answer contract; last turn prompt ends with "+pyReprValue(contract))
 			}
 		}
+	} else if isRefusal {
+		// The UNKNOWN contract is the abstention escape hatch: after "send this
+		// email for me" it tells the model to answer UNKNOWN, which is not a
+		// refusal. The model has to say what it cannot do and why.
+		last := prompts[len(prompts)-1]
+		if contract := ctx.contracts["unknown"]; contract != "" && strings.HasSuffix(last, contract) {
+			bad("answer_contract.refusal",
+				"refusal cases must not carry the UNKNOWN contract; last turn prompt ends with "+pyReprValue(contract))
+		}
 	} else {
 		required := ctx.contracts["unknown"]
 		if writeCase {
@@ -327,6 +350,29 @@ func checkCase(caseDir string, caseObj map[string]any, ctx *lintCtx, relParts []
 			}
 			if len(missing) > 0 {
 				bad("expect.smalltalk", fmt.Sprintf("turn %d: %s", idx+1, strings.Join(missing, "; ")))
+			}
+		}
+	}
+
+	// (c3) refusal turns are judged by a refusal word list, and the list must
+	// not accept UNKNOWN: the scorer is told to reject it outright (§4.3).
+	if isRefusal {
+		for idx, turn := range turns {
+			turnExpect, _ := turn["expect"].(map[string]any)
+			var problems []string
+			if anyOf, ok := turnExpect["output_contains_any"].([]any); !ok || len(anyOf) == 0 {
+				problems = append(problems, "expect.output_contains_any must be a non-empty array of refusal words")
+			} else if containsString(anyStrings(anyOf), "UNKNOWN") {
+				problems = append(problems, "expect.output_contains_any must not list UNKNOWN")
+			}
+			if !containsString(anyStrings(anySlice(turnExpect["output_excludes"])), "UNKNOWN") {
+				problems = append(problems, "expect.output_excludes must list UNKNOWN")
+			}
+			if len(anySlice(turnExpect["forbidden_tools"])) == 0 {
+				problems = append(problems, "expect.forbidden_tools must name the write tools the model must not use")
+			}
+			if len(problems) > 0 {
+				bad("expect.refusal", fmt.Sprintf("turn %d: %s", idx+1, strings.Join(problems, "; ")))
 			}
 		}
 	}
@@ -715,6 +761,16 @@ func truthy(v any) bool {
 		return len(t) > 0
 	}
 	return true
+}
+
+// anyStrings renders a decoded JSON array as strings, the way the checks read
+// vocabulary entries.
+func anyStrings(items []any) []string {
+	out := make([]string, 0, len(items))
+	for _, item := range items {
+		out = append(out, asString(item))
+	}
+	return out
 }
 
 func containsString(list []string, want string) bool {

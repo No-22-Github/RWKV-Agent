@@ -44,8 +44,8 @@
 |---|---|---|---|---|---|
 | A | 直答 | 180 | 200 | notool：concept 60、unit_convert 45、stable_fact 45、snippet_in_reply 50 | `tools: []`；workspace 里放无关文件作干扰（TR-NOTOOLNEED） |
 | B | 闲聊 | 60 | 60 | notool：smalltalk | 问候、道谢、你是谁、能做什么、有哪些工具；**无答案契约**（workflow §4.3）；不筛老师身份 |
-| C | 超能力拒绝 | 40 | 45 | notool beyond_capability 29 + config/filesystem 各 8 | 要求发邮件、删文件、执行命令、访问内网等；`forbidden_tools` 含写工具 |
-| D | 歧义反问（两轮） | 80 | 45 | notool ambiguous_request 20 + hybrid multi_turn 25 | 第 1 轮必须反问（零调用），第 2 轮给出澄清后按普通题判 |
+| C | 超能力拒绝 | 40 | 45 | notool beyond_capability 29 + config/filesystem 各 8 | 要求发邮件、删文件、执行命令、访问内网等；`forbidden_tools` 含写工具；**不带 UNKNOWN 答案契约**，判据带 `output_excludes: ["UNKNOWN"]`（§4.3.1），允许先查工作区再拒绝 |
+| D | 歧义反问（两轮） | 80 | 45 | notool ambiguous_request 20 + hybrid multi_turn 25 | 第 1 轮的反问是判据（`output_contains_any` 问句词表），第 2 轮给出澄清后按普通题判。**配额按 `kind == clarify` 统计，不要求第 1 轮零调用**：老师先翻工作区再问也计入。要拿零调用反问，只有「工作区里没有可查的东西」才自然成立——notool 的 ambiguous_request 按这个出：缺的必须是只有用户知道的信息（哪个客户、哪个月、哪个单位），工作区与问题无关 |
 | E | 短收尾 | 160 | 110 | 9 个工具场景各 12（tabular 14） | L0，`ref_calls` 1–2，0 个陷阱；答案在第一个打开的文件里就能找到 |
 | F | UNKNOWN + 姊妹题 | 60 | 40 | tabular/logs/config/docs 各 5 对 | 每对：一道数据里确实没有答案（期望 `UNKNOWN`），一道同骨架但有答案 |
 | G | 大表 `data_query` | 60 | 40 | tabular 30 + logs aggregate_jsonl 10 | 表 40–120 行，列干净（不带 `$`、`%`、`NA`，`data_query` 解析不了这些）；fixture 仍受 §5 限制 |
@@ -66,12 +66,14 @@ fixture 读进来就会全文进入上下文，所以预算实际上由出题决
 | 约束 | 值 | 理由 |
 |---|---|---|
 | 陷阱 | **禁用 TR-LONG、TR-TRUNC** | 这两个陷阱的定义就是 40KB 以上或者会被截断，放不进 4096 |
-| `files` 合计 | ≤ 6KB（G 类大表 ≤ 8KB） | 英文约 4 字节/token；6KB 约 1500 token |
+| `files` 合计 | **E 类（短收尾）≤ 3KB；G 类（大表）≤ 6KB；其余 ≤ 4KB** | 英文约 4 字节/token；v22 修掉围栏截断后老师的终答完整保留、行普遍变长（b01 有 4 行超限被剔），预算按此收紧 |
 | 参考解需要读的内容合计 | ≤ 4KB | 老师往往读得比参考解多，要留余量 |
-| web 页面 `content` | 每页 ≤ 3KB，每题 ≤ 2 页 | `web_fetch` 回执是全文 |
+| web 页面 `content` | 每页 ≤ 2KB，每题 ≤ 2 页 | `web_fetch` 回执是全文 |
 | `ref_calls` | ≤ 6；script 题 ≤ 8 且 files ≤ 4KB | 每步还有约 60–100 token 的提醒 |
-| 多轮题 | 两轮合计也要满足上面几条 | 第 2 轮那一行包含第 1 轮的完整历史 |
+| 多轮题 | **两轮合计 ≤ 4KB**，且满足上面几条 | 第 2 轮那一行包含第 1 轮的完整历史 |
 | 老师终答 | 不限，但 answer 阶段硬上限 4096 输出 token | Qwen 的直答常带 Markdown 列表，偏长 |
+
+**批次指标**：超长剔除行 ≤ **2%** 算正常；超过 2% 就在下一批继续收紧本节的数值，**不放宽 4096**（b01：4/366 = 1.1%）。
 
 超过 4096 的行：写进 `bench/distill/exclude.jsonl`（`reason: "over-4096"`），**不截断、不改老师输出**。
 同一题的路径全部超长，说明题出得太重：缩 fixture 后重跑老师。`pack` 的 `--max-tokens 4096` 闸门兜底。

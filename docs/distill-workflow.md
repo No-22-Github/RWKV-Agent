@@ -206,7 +206,7 @@ The decoy 7 counts rows, but the question asks for orders and the README says th
 | 题型 | 轮 | `expect` |
 |---|---|---|
 | notool 数值（概念/换算） | 1 | `{"expected_number": 429, "tolerance": 0.01, "tools": []}` |
-| notool 越权（TR-NOCAP） | 1 | `{"tools": [], "forbidden_tools": ["write_file","append_file","replace_lines"], "output_contains_any": ["cannot","Cannot","can't","Can't","can’t","Can’t","unable","Unable","not able","Not able","could not","Could not","UNKNOWN"]}` |
+| 越权拒绝（TR-NOCAP / beyond_capability） | 1 | `{"forbidden_tools": ["write_file","append_file","replace_lines"], "output_contains_any": ["cannot","Cannot","can't","Can't","unable","Unable","not able","Not able","do not have access","Do not have access","no access","No access"], "output_excludes": ["UNKNOWN"]}`——**不带答案契约**（§4.3.1）；判据里不得出现 `UNKNOWN` |
 | 多轮反问（TR-AMBIG） | 1 | `{"tools": [], "output_contains_any": ["?","which","Which","specif","Specif","confirm","Confirm","clarif","Clarif","unclear","Unclear","ambiguous","Ambiguous","need to know","Need to know","need the","Need the"]}` |
 | | 2 | 第二轮 prompt 给出澄清，`expect` 按普通数值/字符串题写 |
 | 写文件 / 脚本 | case 级 | `"expect": {"files": {...}, "run": {...}}`，最后一轮 prompt 以 `When finished, reply DONE.` 结尾（HANDOFF §2.6） |
@@ -431,6 +431,21 @@ rwkv-lab corpus pack --rows <rows.jsonl> [--rows …] [--exclude <jsonl>] (--out
   **要求**每轮 `expect` 同时有 `"tools": []`、`"require_active_no_call": true` 和非空的 `output_contains_any`。
 - 测试：`nt-5001..5005` 在 `--canary-prefix DISTILL-CANARY` 下 0 违规；**负向**：给 nt-5001 加上答案契约必须报错；删掉 nt-5001 的 `output_contains_any` 必须报错。
 
+### 4.3.1 越权拒绝题（`beyond_capability` 与一切带 `TR-NOCAP` 的题）
+
+**根因在规格，不在判据**：这类题的题面若以 `… If you cannot determine the answer, reply exactly UNKNOWN.` 收尾，等于替模型把「做不到」写成了弃权。b01 的 19 道拒绝题里老师 19/19 都答了裸 `UNKNOWN`（判据当时也认它），拿到的是「凡事答 UNKNOWN」的信号，不是拒绝。拒绝要教的是**说明做不到、为什么、能做什么替代**。
+
+改造（只在 `ctx.distillRules` 下生效，即 `--canary-prefix` 不是 `WORKBANK-CANARY` 时——测试集是冻结的，它的拒绝题早于这条规则，不能拿新规则去报它）：
+
+- lint 对 `task_type == beyond_capability` **或** `traps` 含 `TR-NOCAP`（不分场景）：
+  - **禁止** UNKNOWN 答案契约（报 `answer_contract.refusal`）；
+  - 每轮 `expect` 必须：非空 `output_contains_any` 且**词表里没有 `UNKNOWN`**、`output_excludes` 含 `UNKNOWN`、非空 `forbidden_tools`（写类工具）——缺哪条报 `expect.refusal`。
+- 判据词表用拒绝语（`cannot` / `can't` / `unable` / `not able` / `do not have access` …），**去掉 `UNKNOWN`**；scorer 侧由 `output_excludes: ["UNKNOWN"]` 兜底拒绝弃权。
+- **允许先查工作区再拒绝**（先确认配置，再说「我不能替你重启服务」），**不强制零调用**，因此不要 `require_active_no_call`。
+- `bank verify` 对这类题的 `verify.py` 记 `verify_shape_unknown` warning（没有可独立计算的答案），与闲聊题同类，可接受。
+
+**测试**：`cfg-5006`（b01 的旧形状）在 `--canary-prefix DISTILL-CANARY` 下必须报 `answer_contract.refusal` + `expect.refusal`；同一目录在默认前缀下**不得**报这两条。
+
 ### 4.4 训练行标签（`meta.source` / `case_tags` / `traj` / `kind`）
 
 现状（2026-09-25 实测）：题目有标签，但训练行没有。蒸馏题的 `case.json` 有 `tags`；700 条源记录有 `scenario` 和 44 种混杂的 `behavior_tags`。
@@ -488,7 +503,7 @@ rwkv-lab corpus pack --rows <rows.jsonl> [--rows …] [--exclude <jsonl>] (--out
 |---|---|---|
 | 1 | `task_type == "smalltalk"` | `smalltalk` |
 | 2 | `zero_call` 且（`task_type == "beyond_capability"` 或 `traps` 含 `TR-NOCAP`） | `refuse` |
-| 3 | `zero_call` 且 `traps` 含 `TR-AMBIG` 且 `turn < turns_total` | `clarify` |
+| 3 | `traps` 含 `TR-AMBIG` 且 `turn < turns_total` | `clarify` |
 | 4 | `zero_call` | `direct` |
 | 5 | `scenario == "script"` 或 case 有 `expect.run` | `script` |
 | 6 | `writes` | `write` |
@@ -497,6 +512,7 @@ rwkv-lab corpus pack --rows <rows.jsonl> [--rows …] [--exclude <jsonl>] (--out
 | 9 | 其余（含只用 `calculator`/`datetime`） | `local` |
 
 同一题的不同轮可能属于不同 kind（歧义题第 1 轮是 `clarify`，第 2 轮是 `local`），这是预期结果。
+规则 3 **不看 `zero_call`**：先翻工作区、发现两个候选再问「你指哪个」比不看就问更有依据；「有没有调用工具」已经记在 `traj.zero_call` 里，需要时与 `kind` 组合筛选即可。
 `corpus pack` 的统计增加一张「kind × 行数」表，`--dry-run` 也打印。
 
 #### 4.4.3 base700 标签规范化（产出 `bench/distill/tag-map.json`，入库）

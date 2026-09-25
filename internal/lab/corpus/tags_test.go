@@ -46,6 +46,12 @@ func TestDeriveKindFollowsTheFirstMatchingRule(t *testing.T) {
 			turn: 1, want: "clarify",
 		},
 		{
+			name: "clarifying after looking around is still a clarification",
+			tags: eval.CaseTags{Scenario: "hybrid", TaskType: "multi_turn", Traps: []string{"TR-AMBIG"}},
+			traj: eval.TrajStats{ZeroCall: false, ToolCalls: 4, Local: true, TurnsTotal: 2},
+			turn: 1, want: "clarify",
+		},
+		{
 			name: "a TR-AMBIG answer on the last turn is a normal row",
 			tags: eval.CaseTags{Scenario: "hybrid", TaskType: "multi_turn", Traps: []string{"TR-AMBIG"}},
 			traj: eval.TrajStats{ZeroCall: true, TurnsTotal: 2},

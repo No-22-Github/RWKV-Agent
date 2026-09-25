@@ -121,3 +121,31 @@
 {"case_id": "log-5007--p2", "reason": "over-4096: 4128 tokens (other path 3781)", "batch": "b01"}
 {"case_id": "log-5008--p2", "reason": "over-4096: 6458 tokens (other path 3594)", "batch": "b01"}
 {"case_id": "scr-5002--p2", "reason": "over-4096: 4214 tokens (other path 3386)", "batch": "b01"}
+{"case_id": "cfg-5006--p1", "reason": "nocap-bare-unknown: refusal cases must explain, not abstain (spec §4.3.1); re-authored for b02", "batch": "b01"}
+{"case_id": "cfg-5006--p2", "reason": "nocap-bare-unknown: refusal cases must explain, not abstain (spec §4.3.1); re-authored for b02", "batch": "b01"}
+{"case_id": "cfg-5007--p1", "reason": "nocap-bare-unknown: refusal cases must explain, not abstain (spec §4.3.1); re-authored for b02", "batch": "b01"}
+{"case_id": "cfg-5007--p2", "reason": "nocap-bare-unknown: refusal cases must explain, not abstain (spec §4.3.1); re-authored for b02", "batch": "b01"}
+{"case_id": "cfg-5008--p1", "reason": "nocap-bare-unknown: refusal cases must explain, not abstain (spec §4.3.1); re-authored for b02", "batch": "b01"}
+{"case_id": "cfg-5008--p2", "reason": "nocap-bare-unknown: refusal cases must explain, not abstain (spec §4.3.1); re-authored for b02", "batch": "b01"}
+{"case_id": "fs-5006--p1", "reason": "nocap-bare-unknown: refusal cases must explain, not abstain (spec §4.3.1); re-authored for b02", "batch": "b01"}
+{"case_id": "fs-5007--p1", "reason": "nocap-bare-unknown: refusal cases must explain, not abstain (spec §4.3.1); re-authored for b02", "batch": "b01"}
+{"case_id": "fs-5007--p2", "reason": "nocap-bare-unknown: refusal cases must explain, not abstain (spec §4.3.1); re-authored for b02", "batch": "b01"}
+{"case_id": "fs-5008--p1", "reason": "nocap-bare-unknown: refusal cases must explain, not abstain (spec §4.3.1); re-authored for b02", "batch": "b01"}
+{"case_id": "fs-5008--p2", "reason": "nocap-bare-unknown: refusal cases must explain, not abstain (spec §4.3.1); re-authored for b02", "batch": "b01"}
+{"case_id": "nt-5093--p1", "reason": "nocap-bare-unknown: refusal cases must explain, not abstain (spec §4.3.1); re-authored for b02", "batch": "b01"}
+{"case_id": "nt-5093--p2", "reason": "nocap-bare-unknown: refusal cases must explain, not abstain (spec §4.3.1); re-authored for b02", "batch": "b01"}
+{"case_id": "nt-5094--p1", "reason": "nocap-bare-unknown: refusal cases must explain, not abstain (spec §4.3.1); re-authored for b02", "batch": "b01"}
+{"case_id": "nt-5094--p2", "reason": "nocap-bare-unknown: refusal cases must explain, not abstain (spec §4.3.1); re-authored for b02", "batch": "b01"}
+{"case_id": "nt-5095--p1", "reason": "nocap-bare-unknown: refusal cases must explain, not abstain (spec §4.3.1); re-authored for b02", "batch": "b01"}
+{"case_id": "nt-5095--p2", "reason": "nocap-bare-unknown: refusal cases must explain, not abstain (spec §4.3.1); re-authored for b02", "batch": "b01"}
+{"case_id": "nt-5096--p1", "reason": "nocap-bare-unknown: refusal cases must explain, not abstain (spec §4.3.1); re-authored for b02", "batch": "b01"}
+{"case_id": "nt-5096--p2", "reason": "nocap-bare-unknown: refusal cases must explain, not abstain (spec §4.3.1); re-authored for b02", "batch": "b01"}
+{"case_id": "nt-5097--p1", "reason": "nocap-bare-unknown: refusal cases must explain, not abstain (spec §4.3.1); re-authored for b02", "batch": "b01"}
+{"case_id": "nt-5097--p2", "reason": "nocap-bare-unknown: refusal cases must explain, not abstain (spec §4.3.1); re-authored for b02", "batch": "b01"}
+{"case_id": "nt-5098--p1", "reason": "nocap-bare-unknown: refusal cases must explain, not abstain (spec §4.3.1); re-authored for b02", "batch": "b01"}
+{"case_id": "nt-5098--p2", "reason": "nocap-bare-unknown: refusal cases must explain, not abstain (spec §4.3.1); re-authored for b02", "batch": "b01"}
+{"case_id": "nt-5099--p1", "reason": "nocap-bare-unknown: refusal cases must explain, not abstain (spec §4.3.1); re-authored for b02", "batch": "b01"}
+{"case_id": "nt-5099--p2", "reason": "nocap-bare-unknown: refusal cases must explain, not abstain (spec §4.3.1); re-authored for b02", "batch": "b01"}
+{"case_id": "nt-5100--p1", "reason": "nocap-bare-unknown: refusal cases must explain, not abstain (spec §4.3.1); re-authored for b02", "batch": "b01"}
+{"case_id": "nt-5101--p1", "reason": "nocap-bare-unknown: refusal cases must explain, not abstain (spec §4.3.1); re-authored for b02", "batch": "b01"}
+{"case_id": "nt-5102--p1", "reason": "nocap-bare-unknown: refusal cases must explain, not abstain (spec §4.3.1); re-authored for b02", "batch": "b01"}
