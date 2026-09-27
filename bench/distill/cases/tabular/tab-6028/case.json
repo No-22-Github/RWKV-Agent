@@ -1,0 +1,35 @@
+{
+  "id": "tab-6028",
+  "description": "August net revenue after refunds recorded as negative amounts. DISTILL-CANARY-f8f15e1e",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "reconcile",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-tab-b04-refundnet-01",
+    "ref_calls": 3,
+    "fixture_bytes": 933,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "orders/orders_2026-08.csv": "order_id,order_date,account,amount\nBO-770,2026-08-24,BM-300,1279.35\nBO-771,2026-08-22,BM-301,1316.03\nBO-772,2026-08-15,BM-302,1220.22\nBO-773,2026-08-12,BM-303,1190.30\nBO-774,2026-08-17,BM-304,978.09\nBO-775,2026-08-27,BM-305,2206.89\nBO-776,2026-08-04,BM-306,2124.58\nBO-777,2026-08-22,BM-307,2361.20\nBO-778,2026-08-12,BM-308,2107.80\nBO-779,2026-08-12,BM-309,2145.98\nBO-780,2026-08-05,BM-310,873.98\nBO-781,2026-08-23,BM-311,2168.09\nBO-782,2026-08-09,BM-312,1384.44\nBO-783,2026-08-23,BM-313,1829.83\nBO-784,2026-08-15,BM-314,1085.66\nBO-785,2026-08-17,BM-315,1538.58\nBO-786,2026-08-20,BM-316,1032.32\nBO-787,2026-08-01,BM-317,2045.90\n",
+    "refunds/refunds_2026-08.csv": "refund_id,order_ref,amount\nBR-120,BO-771,-37.80\nBR-121,BO-774,-121.24\nBR-122,BO-781,-38.05\nBR-123,BO-784,-143.80\nBR-124,BO-770,-172.94\n",
+    "README.md": "# Brightwater Chandlery - August 2026\n\norders_2026-08.csv holds the month's sales. refunds_2026-08.csv records refunds as negative amounts against the order they reverse.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Brightwater Chandlery closes its month after refunds are posted. What was the net revenue for August 2026 after refunds? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 28375.41,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

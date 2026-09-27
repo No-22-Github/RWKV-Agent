@@ -1,0 +1,39 @@
+{
+  "id": "log-6020",
+  "description": "Name the booking whose card check failed in a reconciliation journal whose closing summary reports the run as clean. DISTILL-CANARY-b04b0f8e",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "locate_error",
+    "traps": [
+      "TR-CLAIM"
+    ],
+    "trap_decoys": {
+      "TR-CLAIM": "UNKNOWN"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-log-b04-bookingrec",
+    "ref_calls": 3,
+    "fixture_bytes": 1323,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Lindisfare Ferries - nightly booking reconciliation\n\nThe service checks every booking taken during the day and writes one line per\ncheck. The closing SUMMARY line is composed from the counters the writer had\nat the end of the run.\n\n    <time> booking=<ref> card_check ok | cvv_mismatch\n",
+    "logs/reconciliation.log": "2026-08-30T02:04:13 booking=BK-6093 card_check ok\n2026-08-30T02:10:24 booking=BK-6041 card_check ok\n2026-08-30T02:14:35 booking=BK-6107 card_check ok\n2026-08-30T02:16:46 booking=BK-6118 card_check cvv_mismatch\n2026-08-30T02:23:57 booking=BK-6056 card_check ok\n2026-08-30T02:28:08 booking=BK-6088 card_check ok\n2026-08-30T02:31:19 booking=BK-6124 card_check ok\n2026-08-30T02:32:30 booking=BK-6075 card_check ok\n2026-08-30T02:38:41 booking=BK-6132 card_check ok\n2026-08-30T02:41:00 SUMMARY bookings_checked=18 exceptions=0 reconciliation clean\n2026-08-30T02:42:52 booking=BK-6062 card_check ok\n2026-08-30T02:44:03 booking=BK-6111 card_check ok\n2026-08-30T02:51:14 booking=BK-6049 card_check ok\n2026-08-30T02:56:25 booking=BK-6128 card_check ok\n2026-08-30T02:59:36 booking=BK-6084 card_check ok\n2026-08-30T03:00:47 booking=BK-6101 card_check ok\n2026-08-30T03:06:58 booking=BK-6067 card_check ok\n2026-08-30T03:10:09 booking=BK-6115 card_check ok\n2026-08-30T03:12:20 booking=BK-6072 card_check ok\n2026-08-30T02:45:00 JOURNAL CLOSE lines=19\n"
+  },
+  "turns": [
+    {
+      "prompt": "Lindisfare Ferries' booking service ran its nightly reconciliation on 30 August 2026. Working from the check lines in the service journal, which booking reference failed its card check? Answer with the reference alone. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "BK-6118"
+      }
+    }
+  ]
+}

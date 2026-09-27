@@ -1,0 +1,34 @@
+{
+  "id": "tab-6027",
+  "description": "Units completed of the top August model in a 20-row build log. DISTILL-CANARY-60a47a05",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "rank",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-tab-b04-skutop-01",
+    "ref_calls": 2,
+    "fixture_bytes": 724,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "workshop/builds_2026-08.csv": "build_id,model,completed_date,units\nAM-440,Ambassador,2026-08-22,20\nAM-441,Belmont,2026-08-03,7\nAM-442,Corvedale,2026-08-12,6\nAM-443,Dovedale,2026-08-14,12\nAM-444,Ambassador,2026-08-20,18\nAM-445,Belmont,2026-08-17,6\nAM-446,Corvedale,2026-08-03,10\nAM-447,Dovedale,2026-08-13,7\nAM-448,Ambassador,2026-08-05,21\nAM-449,Belmont,2026-08-01,6\nAM-450,Corvedale,2026-08-08,6\nAM-451,Dovedale,2026-08-06,10\nAM-452,Ambassador,2026-08-18,15\nAM-453,Belmont,2026-08-22,9\nAM-454,Corvedale,2026-08-14,8\nAM-455,Dovedale,2026-08-14,7\nAM-456,Ambassador,2026-08-25,17\nAM-457,Belmont,2026-08-20,9\nAM-458,Corvedale,2026-08-24,8\nAM-459,Dovedale,2026-08-21,8\n",
+    "README.md": "# Amberley Coachworks - builds, August 2026\n\nOne row per build batch completed in August.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Amberley Coachworks plans next year's jigs around its most popular coach. How many units of the top August 2026 model were completed? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 91,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

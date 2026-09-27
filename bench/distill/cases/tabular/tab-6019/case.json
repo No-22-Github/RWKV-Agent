@@ -1,0 +1,34 @@
+{
+  "id": "tab-6019",
+  "description": "Total May takings of the leading branch across a 40-row till log. DISTILL-CANARY-ba7b22a9",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "rank",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-tab-b04-grouptop-01",
+    "ref_calls": 2,
+    "fixture_bytes": 1485,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "branches/takings_2026-05.csv": "till_id,branch,trading_date,takings\nCB-940,Ambergate,2026-05-04,381.47\nCB-941,Coleshill,2026-05-07,234.63\nCB-942,Dunchurch,2026-05-18,207.84\nCB-943,Elstow,2026-05-16,222.87\nCB-944,Ambergate,2026-05-12,297.16\nCB-945,Coleshill,2026-05-28,264.09\nCB-946,Dunchurch,2026-05-06,212.87\nCB-947,Elstow,2026-05-10,181.03\nCB-948,Ambergate,2026-05-13,354.08\nCB-949,Coleshill,2026-05-26,103.62\nCB-950,Dunchurch,2026-05-18,248.85\nCB-951,Elstow,2026-05-27,169.97\nCB-952,Ambergate,2026-05-22,381.08\nCB-953,Coleshill,2026-05-03,107.21\nCB-954,Dunchurch,2026-05-05,294.65\nCB-955,Elstow,2026-05-22,209.69\nCB-956,Ambergate,2026-05-20,419.47\nCB-957,Coleshill,2026-05-22,177.69\nCB-958,Dunchurch,2026-05-03,274.70\nCB-959,Elstow,2026-05-24,139.89\nCB-960,Ambergate,2026-05-20,253.76\nCB-961,Coleshill,2026-05-15,157.25\nCB-962,Dunchurch,2026-05-06,231.11\nCB-963,Elstow,2026-05-22,155.82\nCB-964,Ambergate,2026-05-03,399.22\nCB-965,Coleshill,2026-05-22,98.41\nCB-966,Dunchurch,2026-05-28,275.32\nCB-967,Elstow,2026-05-05,103.65\nCB-968,Ambergate,2026-05-01,318.00\nCB-969,Coleshill,2026-05-08,236.94\nCB-970,Dunchurch,2026-05-28,97.26\nCB-971,Elstow,2026-05-10,179.46\nCB-972,Ambergate,2026-05-23,272.67\nCB-973,Coleshill,2026-05-08,113.35\nCB-974,Dunchurch,2026-05-10,286.77\nCB-975,Elstow,2026-05-12,290.96\nCB-976,Ambergate,2026-05-06,416.36\nCB-977,Coleshill,2026-05-07,120.75\nCB-978,Dunchurch,2026-05-15,99.00\nCB-979,Elstow,2026-05-09,293.26\n",
+    "README.md": "# Colnebank Bakeries - daily takings, May 2026\n\nOne row per till per trading day.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Colnebank Bakeries rewards its best-performing branch each month. What were the total May 2026 takings of the branch that took the most? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 3493.27,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

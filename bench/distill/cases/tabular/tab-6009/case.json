@@ -1,0 +1,40 @@
+{
+  "id": "tab-6009",
+  "description": "September net milk intake defined as gross collected weight less returns. DISTILL-CANARY-30f3cc4f",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": 52463
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b04-netintake-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1399,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "collections_2026-09.csv": "collection_id,farm,collection_date,gross_kg,returns_kg\nBD-660,Cokesford,2026-09-21,1236,85\nBD-661,Drayton,2026-09-19,1915,66\nBD-662,Ashgrove,2026-09-27,1207,89\nBD-663,Drayton,2026-09-07,1484,38\nBD-664,Ashgrove,2026-09-13,1271,61\nBD-665,Ashgrove,2026-09-08,1592,60\nBD-666,Drayton,2026-09-17,2099,28\nBD-667,Cokesford,2026-09-16,2062,16\nBD-668,Drayton,2026-09-16,2397,8\nBD-669,Blaisdon,2026-09-05,1373,25\nBD-670,Cokesford,2026-09-01,2071,4\nBD-671,Cokesford,2026-09-03,2052,28\nBD-672,Drayton,2026-09-28,889,0\nBD-673,Cokesford,2026-09-22,1214,32\nBD-674,Cokesford,2026-09-15,1213,21\nBD-675,Cokesford,2026-09-27,994,29\nBD-676,Cokesford,2026-09-05,2032,32\nBD-677,Ashgrove,2026-09-25,2116,75\nBD-678,Drayton,2026-09-18,2221,29\nBD-679,Blaisdon,2026-09-17,1793,64\nBD-680,Cokesford,2026-09-08,834,37\nBD-681,Drayton,2026-09-17,1086,93\nBD-682,Drayton,2026-09-02,1546,20\nBD-683,Ashgrove,2026-09-21,1264,77\nBD-684,Ashgrove,2026-09-18,1206,8\nBD-685,Cokesford,2026-09-27,1114,22\nBD-686,Ashgrove,2026-09-10,1091,31\nBD-687,Drayton,2026-09-22,1381,82\nBD-688,Ashgrove,2026-09-16,1777,33\nBD-689,Ashgrove,2026-09-13,1747,63\nBD-690,Blaisdon,2026-09-07,1362,58\nBD-691,Blaisdon,2026-09-01,1626,95\nBD-692,Blaisdon,2026-09-05,1203,85\nBD-693,Cokesford,2026-09-17,1995,6\n",
+    "README.md": "# Bramwith Dairy - milk collections, September 2026\n\nOne row per tanker collection. returns_kg is milk tipped back at the farm gate and never entered the silo.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Bramwith Dairy reports what its silos actually received. What was the September 2026 net intake, taking the gross collected weight less the returned weight? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 50963,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

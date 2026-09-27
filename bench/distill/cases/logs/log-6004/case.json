@@ -1,0 +1,36 @@
+{
+  "id": "log-6004",
+  "description": "Count the grain batches one drier completed on a single day of a mill's two-drier journal. DISTILL-CANARY-b04d18f4",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-log-b04-dryerbatches",
+    "ref_calls": 2,
+    "fixture_bytes": 1087,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Keldwick Mill - grain drier journal\n\nOne line per batch state change:\n\n    <time> drier=<id> batch=<id> START moisture_in=<n>\n    <time> drier=<id> batch=<id> DONE hours=<n>\n",
+    "logs/dryer-journal.log": "2026-05-14T07:12:41 drier=D-1 batch=DB-118 START moisture_in=16.8\n2026-05-14T07:19:05 drier=D-2 batch=DB-121 START moisture_in=17.4\n2026-05-14T08:55:27 drier=D-2 batch=DB-121 DONE hours=1.6\n2026-05-14T10:31:15 drier=D-1 batch=DB-118 DONE hours=3.2\n2026-05-14T10:59:33 drier=D-1 batch=DB-127 START moisture_in=15.9\n2026-05-14T11:42:08 drier=D-2 batch=DB-124 START moisture_in=18.1\n2026-05-14T14:20:49 drier=D-1 batch=DB-127 DONE hours=3.1\n2026-05-14T15:07:52 drier=D-2 batch=DB-124 DONE hours=3.3\n2026-05-14T14:48:16 drier=D-1 batch=DB-131 START moisture_in=16.2\n2026-05-14T16:35:40 drier=D-2 batch=DB-129 START moisture_in=17.8\n2026-05-14T18:01:23 drier=D-1 batch=DB-131 DONE hours=3.2\n2026-05-14T20:14:58 drier=D-2 batch=DB-129 DONE hours=3.5\n2026-05-14T18:29:37 drier=D-1 batch=DB-135 START moisture_in=15.6\n2026-05-14T21:48:11 drier=D-1 batch=DB-135 DONE hours=3.3\n2026-05-14T22:00:00 JOURNAL CLOSE lines=14\n"
+  },
+  "turns": [
+    {
+      "prompt": "Keldwick Mill journals every batch through its grain driers. How many batches did drier D-2 complete on 14 May 2026? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 3,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

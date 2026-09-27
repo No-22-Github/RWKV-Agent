@@ -1,0 +1,40 @@
+{
+  "id": "tab-6006",
+  "description": "Hours completed in the first week of April from a log with mixed date styles. DISTILL-CANARY-6c266545",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-DATEFMT"
+    ],
+    "trap_decoys": {
+      "TR-DATEFMT": 30.75
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b04-datewindow-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1212,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "jobs_april_2026.csv": "job_id,boat,completed_date,hours\nFB-510,Dryad,2026-04-07,4.00\nFB-511,Bramble Cay,2026-03-27,3.75\nFB-512,Amberella,17 Mar 2026,7.50\nFB-513,Firecrest,2026-03-30,6.75\nFB-514,Amberella,22 Apr 2026,5.75\nFB-515,Cachalot,2026-04-27,6.00\nFB-516,Esperance,2026-04-14,8.25\nFB-517,Amberella,2026-04-25,9.25\nFB-518,Amberella,2026-03-22,9.00\nFB-519,Bramble Cay,2026-03-19,4.75\nFB-520,Cachalot,2026-04-11,7.75\nFB-521,Cachalot,18/04/2026,3.00\nFB-522,Dryad,2026-04-24,7.00\nFB-523,Firecrest,2026-04-18,9.50\nFB-524,Dryad,2026-04-08,3.50\nFB-525,Amberella,2026-04-02,5.50\nFB-526,Cachalot,11/03/2026,3.25\nFB-527,Amberella,10 Apr 2026,6.75\nFB-528,Bramble Cay,28/03/2026,6.25\nFB-529,Firecrest,2026-04-05,7.25\nFB-530,Cachalot,15/04/2026,4.25\nFB-531,Cachalot,2026-04-16,4.75\nFB-532,Dryad,6 Apr 2026,5.25\nFB-533,Firecrest,03/04/2026,6.50\nFB-534,Esperance,2026-04-29,8.50\nFB-535,Esperance,2026-03-25,5.25\nFB-536,Amberella,24 Mar 2026,4.50\nFB-537,Esperance,09/04/2026,5.00\nFB-538,Cachalot,06/04/2026,8.75\nFB-539,Amberella,2026-04-21,3.25\n",
+    "README.md": "# Fairhaven Boatyard - completed jobs, spring 2026\n\nOne row per job signed off by the workshop. Dates are typed the way the office wrote them that day; written day-month-year entries put the day first.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Fairhaven Boatyard bills workshop time by the week. How many hours of completed work fall in the week of 1 to 7 April 2026 inclusive? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 37.25,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

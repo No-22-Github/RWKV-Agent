@@ -1,0 +1,40 @@
+{
+  "id": "tab-6005",
+  "description": "Average recorded Line 2 output for May in a log with unsynced counter entries. DISTILL-CANARY-34e27ca8",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-MISSING"
+    ],
+    "trap_decoys": {
+      "TR-MISSING": 5644.07
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b04-dailymean-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1641,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "output/line_output_2026-05.csv": "entry_id,entry_date,line,units_output\nEL-4400,2026-05-02,Line 1,4933\nEL-4401,2026-05-02,Line 2,6217\nEL-4402,2026-05-02,Line 3,7290\nEL-4403,2026-05-03,Line 1,7914\nEL-4404,2026-05-03,Line 2,9044\nEL-4405,2026-05-03,Line 3,7295\nEL-4406,2026-05-04,Line 1,12152\nEL-4407,2026-05-04,Line 2,9975\nEL-4408,2026-05-04,Line 3,4135\nEL-4409,2026-05-05,Line 1,6721\nEL-4410,2026-05-05,Line 2,4617\nEL-4411,2026-05-05,Line 3,5940\nEL-4412,2026-05-06,Line 1,6446\nEL-4413,2026-05-06,Line 2,7584\nEL-4414,2026-05-06,Line 3,4595\nEL-4415,2026-05-07,Line 1,9918\nEL-4416,2026-05-07,Line 2,8095\nEL-4417,2026-05-07,Line 3,8369\nEL-4418,2026-05-08,Line 1,4510\nEL-4419,2026-05-08,Line 2,9111\nEL-4420,2026-05-08,Line 3,10307\nEL-4421,2026-05-09,Line 1,3868\nEL-4422,2026-05-09,Line 2,7551\nEL-4423,2026-05-09,Line 3,5034\nEL-4424,2026-05-10,Line 1,11862\nEL-4425,2026-05-10,Line 2,5949\nEL-4426,2026-05-10,Line 3,10982\nEL-4427,2026-05-11,Line 1,8196\nEL-4428,2026-05-11,Line 2,10874\nEL-4429,2026-05-11,Line 3,11898\nEL-4430,2026-05-12,Line 1,7303\nEL-4431,2026-05-12,Line 2,NA\nEL-4432,2026-05-12,Line 3,9171\nEL-4433,2026-05-13,Line 1,9825\nEL-4434,2026-05-13,Line 2,-\nEL-4435,2026-05-13,Line 3,4550\nEL-4436,2026-05-14,Line 1,10190\nEL-4437,2026-05-14,Line 2,\nEL-4438,2026-05-14,Line 3,9171\nEL-4439,2026-05-15,Line 1,11820\nEL-4440,2026-05-15,Line 2,NA\nEL-4441,2026-05-15,Line 3,8939\n",
+    "README.md": "# Eastmere Labels - press output, May 2026\n\nOne row per printing line per production day. A dash means the line was down for maintenance, NA means the counter did not sync, and an empty cell means the entry was superseded by a correction that never landed. Only days with a figure count toward averages.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Eastmere Labels reviews press throughput each month. What was the average daily output recorded for Line 2 in May 2026, rounded to two decimal places? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 7901.7,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

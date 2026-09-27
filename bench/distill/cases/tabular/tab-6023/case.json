@@ -1,0 +1,40 @@
+{
+  "id": "tab-6023",
+  "description": "Leading site's May output when re-approved batches are re-printed in the log. DISTILL-CANARY-2e11cfde",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "rank",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 180
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b04-duprank-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1804,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "assembly/output_2026-05.csv": "batch_id,site,shift,signed_off,units\nFK-7126,Cranborne,Shift 1,2026-05-24,12\nFK-7111,Cranborne,Shift 2,2026-05-13,14\nFK-7105,Cranborne,Shift 2,2026-05-06,8\nFK-7123,Cranborne,Shift 2,2026-05-06,14\nFK-7103,Ashlar,Shift 2,2026-05-21,12\nFK-7133,Ashlar,Shift 2,2026-05-22,16\nFK-7106,Ashlar,Shift 1,2026-05-15,14\nFK-7104,Bosworth,Shift 1,2026-05-04,15\nFK-7101,Bosworth,Shift 2,2026-05-24,9\nFK-7137,Bosworth,Shift 2,2026-05-07,13\nFK-7114,Cranborne,Shift 1,2026-05-15,16\nFK-7127,Ashlar,Shift 2,2026-05-21,12\nFK-7125,Bosworth,Shift 2,2026-05-06,12\nFK-7112,Ashlar,Shift 1,2026-05-04,16\nFK-7122,Bosworth,Shift 1,2026-05-08,13\nFK-7136,Ashlar,Shift 1,2026-05-16,14\nFK-7109,Ashlar,Shift 2,2026-05-21,12\nFK-7129,Cranborne,Shift 2,2026-05-22,8\nFK-7121,Ashlar,Shift 2,2026-05-23,12\nFK-7110,Bosworth,Shift 1,2026-05-19,11\nFK-7128,Bosworth,Shift 1,2026-05-22,13\nFK-7100,Ashlar,Shift 1,2026-05-01,14\nFK-7116,Bosworth,Shift 1,2026-05-06,9\nFK-7101,Bosworth,Shift 2,2026-05-24,9\nFK-7135,Cranborne,Shift 2,2026-05-22,13\nFK-7134,Bosworth,Shift 1,2026-05-02,11\nFK-7107,Bosworth,Shift 2,2026-05-16,11\nFK-7113,Bosworth,Shift 2,2026-05-02,8\nFK-7108,Cranborne,Shift 1,2026-05-17,10\nFK-7101,Bosworth,Shift 2,2026-05-24,9\nFK-7115,Ashlar,Shift 2,2026-05-28,11\nFK-7120,Cranborne,Shift 1,2026-05-13,15\nFK-7102,Cranborne,Shift 1,2026-05-01,13\nFK-7117,Cranborne,Shift 2,2026-05-28,10\nFK-7131,Bosworth,Shift 2,2026-05-08,14\nFK-7116,Bosworth,Shift 1,2026-05-06,9\nFK-7124,Ashlar,Shift 1,2026-05-16,11\nFK-7132,Cranborne,Shift 1,2026-05-09,15\nFK-7119,Bosworth,Shift 2,2026-05-10,14\nFK-7118,Ashlar,Shift 1,2026-05-24,13\nFK-7130,Ashlar,Shift 1,2026-05-01,14\n",
+    "README.md": "# Fenmoor Kitchens - assembly output, May 2026\n\nOne row per batch signed off. The MES re-prints a line when a supervisor re-approves a batch, so a batch can appear more than once unchanged.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Fenmoor Kitchens publishes a monthly output league table. How many units did the site with the highest May 2026 output produce? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 171,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

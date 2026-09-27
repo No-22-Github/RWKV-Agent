@@ -1,0 +1,39 @@
+{
+  "id": "tab-6018",
+  "description": "Damage count requested from a delivery log that records no damage information. DISTILL-CANARY-a80ab7ca",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": 0
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b04-logcount-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1039,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "deliveries_2026-08.csv": "delivery_id,delivery_date,customer,town,crates\nFC-880,2026-08-21,Dinton Farm Shop,Bingham,7\nFC-881,2026-08-04,Bishopstone Cafe,Bingham,6\nFC-882,2026-08-15,Aldbourne Store,Southwell,2\nFC-883,2026-08-08,Bishopstone Cafe,Bingham,9\nFC-884,2026-08-13,Clifton Tackle,Newark,11\nFC-885,2026-08-04,Aldbourne Store,Southwell,6\nFC-886,2026-08-06,Clifton Tackle,Southwell,11\nFC-887,2026-08-19,Clifton Tackle,Bingham,14\nFC-888,2026-08-07,Bishopstone Cafe,Bingham,9\nFC-889,2026-08-04,Clifton Tackle,Newark,2\nFC-890,2026-08-25,Aldbourne Store,Newark,2\nFC-891,2026-08-27,Clifton Tackle,Bingham,4\nFC-892,2026-08-13,Dinton Farm Shop,Newark,12\nFC-893,2026-08-26,Clifton Tackle,Newark,12\nFC-894,2026-08-15,Bishopstone Cafe,Bingham,14\nFC-895,2026-08-23,Aldbourne Store,Newark,9\nFC-896,2026-08-15,Aldbourne Store,Bingham,10\nFC-897,2026-08-15,Dinton Farm Shop,Bingham,12\nFC-898,2026-08-15,Clifton Tackle,Southwell,12\nFC-899,2026-08-17,Aldbourne Store,Southwell,4\n",
+    "README.md": "# Fiskerton Chandlery - coastal deliveries, August 2026\n\nOne row per delivery run out of the yard.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Fiskerton Chandlery's insurer has asked how many crates arrived with damage recorded in the August 2026 delivery log. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "UNKNOWN"
+      }
+    }
+  ]
+}

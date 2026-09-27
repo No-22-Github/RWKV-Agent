@@ -1,0 +1,40 @@
+{
+  "id": "doc-6008",
+  "description": "Sabbatical entitlement, which the Wickenden handbook entitlements table does not grant DISTILL-CANARY-4eb0b018",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": 10
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b04-wickenden",
+    "ref_calls": 3,
+    "fixture_bytes": 715,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Wickenden Instruments - staff handbook\n\nStandard leave entitlements are listed in `handbook/entitlements.csv`, one row per entitlement. The handbook grants exactly what the table lists; anything beyond it is agreed case by case with a director and never counts as standard.\n\nWorking-pattern detail is kept under `docs/`.\n",
+    "handbook/entitlements.csv": "entitlement,days,per\nStudy leave - field engineer,7,year\nStudy leave - laboratory technician,3,year\nCompassionate leave,6,occurrence\nAnnual leave carry-over cap,10,year\nVolunteer day,1,year\n",
+    "docs/working-patterns.md": "# Working patterns\n\nLaboratory technicians run the early rota two weeks in every four. Field engineers accumulate time off in lieu for overnight calls, and the balance is checked at the January review.\n"
+  },
+  "turns": [
+    {
+      "prompt": "A long-serving engineer has asked the Wickenden Instruments office about taking a sabbatical, and the office manager wants the standard entitlement to hand ahead of the meeting. How many days of sabbatical leave does the handbook grant? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "UNKNOWN"
+      }
+    }
+  ]
+}

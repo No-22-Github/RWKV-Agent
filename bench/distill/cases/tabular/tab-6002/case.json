@@ -1,0 +1,40 @@
+{
+  "id": "tab-6002",
+  "description": "September net weight from a quarterly intake log that closes with a quarter roll-up line. DISTILL-CANARY-5b06e8a5",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-HEADER": 24206.2
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b04-monthtotal-01",
+    "ref_calls": 3,
+    "fixture_bytes": 2325,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "intake_log_2026Q3.csv": "load_id,intake_date,material,net_kg\nBM-4100,2026-07-23,Copper scrap,190.1\nBM-4101,2026-07-06,Aluminium cast,237.4\nBM-4102,2026-07-05,Brass turnings,272.5\nBM-4103,2026-07-24,Brass turnings,293.4\nBM-4104,2026-07-10,Copper scrap,459.5\nBM-4105,2026-07-11,Copper scrap,349.6\nBM-4106,2026-07-15,Aluminium cast,203.3\nBM-4107,2026-07-24,Copper scrap,226.7\nBM-4108,2026-07-09,Brass turnings,224.2\nBM-4109,2026-07-13,Brass turnings,270.3\nBM-4110,2026-07-03,Aluminium cast,442.6\nBM-4111,2026-07-21,Aluminium cast,342.5\nBM-4112,2026-07-10,Aluminium cast,432.4\nBM-4113,2026-07-20,Copper scrap,436.4\nBM-4114,2026-07-22,Brass turnings,384.9\nBM-4115,2026-07-07,Copper scrap,224.1\nBM-4116,2026-08-15,Brass turnings,391.5\nBM-4117,2026-08-25,Aluminium cast,191.8\nBM-4118,2026-08-10,Brass turnings,317.7\nBM-4119,2026-08-09,Aluminium cast,348.6\nBM-4120,2026-08-09,Copper scrap,332.0\nBM-4121,2026-08-15,Brass turnings,396.6\nBM-4122,2026-08-24,Aluminium cast,451.9\nBM-4123,2026-08-09,Aluminium cast,288.1\nBM-4124,2026-08-17,Aluminium cast,295.5\nBM-4125,2026-08-16,Aluminium cast,291.3\nBM-4126,2026-08-08,Aluminium cast,440.3\nBM-4127,2026-08-18,Brass turnings,392.8\nBM-4128,2026-08-09,Brass turnings,235.4\nBM-4129,2026-08-17,Brass turnings,233.7\nBM-4130,2026-08-12,Brass turnings,403.1\nBM-4131,2026-08-04,Brass turnings,328.4\nBM-4132,2026-08-02,Aluminium cast,243.2\nBM-4133,2026-09-16,Aluminium cast,338.6\nBM-4134,2026-09-15,Brass turnings,332.9\nBM-4135,2026-09-05,Copper scrap,208.4\nBM-4136,2026-09-15,Copper scrap,308.9\nBM-4137,2026-09-09,Brass turnings,405.2\nBM-4138,2026-09-14,Brass turnings,321.6\nBM-4139,2026-09-09,Copper scrap,421.3\nBM-4140,2026-09-22,Aluminium cast,331.5\nBM-4141,2026-09-14,Brass turnings,456.1\nBM-4142,2026-09-26,Brass turnings,455.6\nBM-4143,2026-09-08,Brass turnings,454.7\nBM-4144,2026-09-18,Copper scrap,219.4\nBM-4145,2026-09-16,Aluminium cast,350.6\nBM-4146,2026-09-10,Brass turnings,458.0\nBM-4147,2026-09-09,Brass turnings,426.0\nBM-4148,2026-09-08,Aluminium cast,240.5\nBM-4149,2026-09-20,Copper scrap,276.6\nBM-4150,2026-09-20,Copper scrap,389.7\nBM-4151,2026-09-17,Aluminium cast,421.6\nQ3-TOTAL,2026-09-30,ALL GRADES,17389.0\n",
+    "README.md": "# Barrowfield Metals - yard intake, July to September 2026\n\nOne row per weighbridge load. The sheet closes with a quarter line dated 30 September that rolls up all three months; it is not a load.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Barrowfield Metals reports yard intake by grade and day. What net weight did the yard receive in September 2026? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 6817.2,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

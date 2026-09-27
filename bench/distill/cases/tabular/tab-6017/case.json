@@ -1,0 +1,34 @@
+{
+  "id": "tab-6017",
+  "description": "Count of August invoices above 2000.00 in a 42-row trade ledger. DISTILL-CANARY-3ef4463f",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-tab-b04-logcount-01",
+    "ref_calls": 2,
+    "fixture_bytes": 1796,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "accounts/invoices_2026-08.csv": "invoice_id,account,issue_date,amount\nFG-7200,Cresset Motors,2026-08-18,2833.57\nFG-7201,Cresset Motors,2026-08-05,4194.34\nFG-7202,Cresset Motors,2026-08-12,2333.71\nFG-7203,Bodkin Glazing,2026-08-13,4704.51\nFG-7204,Easthope Bros,2026-08-14,4046.95\nFG-7205,Delfurn,2026-08-01,2343.84\nFG-7206,Easthope Bros,2026-08-11,2986.59\nFG-7207,Cresset Motors,2026-08-09,2641.91\nFG-7208,Delfurn,2026-08-14,2548.14\nFG-7209,Easthope Bros,2026-08-27,1290.12\nFG-7210,Delfurn,2026-08-23,1370.34\nFG-7211,Bodkin Glazing,2026-08-24,1037.40\nFG-7212,Bodkin Glazing,2026-08-20,1506.57\nFG-7213,Cresset Motors,2026-08-19,785.76\nFG-7214,Easthope Bros,2026-08-02,1504.53\nFG-7215,Bodkin Glazing,2026-08-24,667.68\nFG-7216,Easthope Bros,2026-08-18,1709.62\nFG-7217,Cresset Motors,2026-08-27,751.20\nFG-7218,Cresset Motors,2026-08-20,1578.06\nFG-7219,Bodkin Glazing,2026-08-05,1357.63\nFG-7220,Delfurn,2026-08-06,1326.50\nFG-7221,Bodkin Glazing,2026-08-13,1145.18\nFG-7222,Delfurn,2026-08-10,1009.08\nFG-7223,Cresset Motors,2026-08-12,1753.43\nFG-7224,Bodkin Glazing,2026-08-21,1138.99\nFG-7225,Easthope Bros,2026-08-25,1004.50\nFG-7226,Easthope Bros,2026-08-26,1774.47\nFG-7227,Cresset Motors,2026-08-04,680.39\nFG-7228,Bodkin Glazing,2026-08-01,1499.81\nFG-7229,Cresset Motors,2026-08-24,1513.98\nFG-7230,Cresset Motors,2026-08-27,735.09\nFG-7231,Cresset Motors,2026-08-21,968.60\nFG-7232,Delfurn,2026-08-23,1071.72\nFG-7233,Cresset Motors,2026-08-14,826.10\nFG-7234,Delfurn,2026-08-07,874.58\nFG-7235,Easthope Bros,2026-08-17,1517.21\nFG-7236,Delfurn,2026-08-05,1410.64\nFG-7237,Delfurn,2026-08-05,1039.15\nFG-7238,Bodkin Glazing,2026-08-17,764.02\nFG-7239,Easthope Bros,2026-08-09,707.15\nFG-7240,Delfurn,2026-08-12,1252.01\nFG-7241,Delfurn,2026-08-16,1582.17\n",
+    "README.md": "# Fairless Glassworks - trade invoices, August 2026\n\nOne row per invoice raised in August.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Fairless Glassworks gives a volume discount review to its larger accounts. How many August 2026 invoices were for more than 2000.00? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 9,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

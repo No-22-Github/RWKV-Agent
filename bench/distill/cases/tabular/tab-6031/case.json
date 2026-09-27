@@ -1,0 +1,41 @@
+{
+  "id": "tab-6031",
+  "description": "Outstanding August trade debt where both books carry currency-punctuated amounts. DISTILL-CANARY-ef0a504a",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "reconcile",
+    "traps": [
+      "TR-NUMFMT"
+    ],
+    "trap_decoys": {
+      "TR-NUMFMT": 3632.0
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b04-invoiceout-01",
+    "ref_calls": 3,
+    "fixture_bytes": 899,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "books/invoices_2026-08.csv": "invoice_id,account,issue_date,amount\nEC-2100,BM-400,2026-08-16,\"$1,095.90\"\nEC-2101,BM-401,2026-08-01,\"$1,304.50\"\nEC-2102,BM-402,2026-08-05,\"$944.75\"\nEC-2103,BM-403,2026-08-14,\"$1,418.90\"\nEC-2104,BM-404,2026-08-17,\"$1,725.80\"\nEC-2105,BM-405,2026-08-05,\"$1,372.50\"\nEC-2106,BM-406,2026-08-12,\"$1,119.75\"\nEC-2107,BM-407,2026-08-16,\"$1,840.25\"\nEC-2108,BM-408,2026-08-17,\"$1,903.75\"\nEC-2109,BM-409,2026-08-16,\"$1,380.40\"\n",
+    "books/payments_2026-08.csv": "payment_id,invoice_ref,paid_on,amount\nEP-330,EC-2101,2026-08-21,\"$1,304.50\"\nEP-331,EC-2102,2026-08-25,\"$944.75\"\nEP-332,EC-2104,2026-08-18,\"$1,725.80\"\nEP-333,EC-2105,2026-08-28,\"$1,372.50\"\nEP-334,EC-2107,2026-08-16,\"$1,840.25\"\nEP-335,EC-2108,2026-08-23,\"$1,903.75\"\nEP-336,EC-2109,2026-08-27,\"$1,380.40\"\n",
+    "README.md": "# Elsworth Cooperage - trade ledger, August 2026\n\ninvoices_2026-08.csv raises the month's trade invoices; payments_2026-08.csv logs the receipts against them. Amounts are in pounds.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Elsworth Cooperage chases its trade debtors at month end. How much of the August 2026 invoiced amount is still outstanding? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 3634.55,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

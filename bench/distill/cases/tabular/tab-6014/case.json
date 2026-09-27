@@ -1,0 +1,40 @@
+{
+  "id": "tab-6014",
+  "description": "Orders placed in a mid-June window when the order book mixes date styles. DISTILL-CANARY-1765a97d",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [
+      "TR-DATEFMT"
+    ],
+    "trap_decoys": {
+      "TR-DATEFMT": 4
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b04-datewindow-01",
+    "ref_calls": 3,
+    "fixture_bytes": 976,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "orders/orders_june_2026.csv": "order_id,shop,placed_on,pieces\nAP-630,Edgefield,03/06/2026,23\nAP-631,Edgefield,2026-06-17,22\nAP-632,Barleycraft,2026-05-28,39\nAP-633,Barleycraft,2026-06-02,37\nAP-634,Claybourne,4 Jun 2026,29\nAP-635,Barleycraft,2026-07-01,32\nAP-636,Barleycraft,12/06/2026,41\nAP-637,Edgefield,2026-06-15,26\nAP-638,Barleycraft,2026-06-09,34\nAP-639,Barleycraft,2026-06-08,19\nAP-640,Barleycraft,22 Jun 2026,24\nAP-641,Claybourne,30 Jun 2026,47\nAP-642,Barleycraft,2026-06-05,28\nAP-643,Edgefield,2026-06-26,40\nAP-644,Edgefield,28/06/2026,42\nAP-645,Barleycraft,21/06/2026,31\nAP-646,Claybourne,25/06/2026,48\nAP-647,Edgefield,2026-06-19,55\nAP-648,Claybourne,2026-06-27,45\nAP-649,Claybourne,10 Jun 2026,27\nAP-650,Claybourne,18/06/2026,44\nAP-651,Claybourne,2026-06-23,36\nAP-652,Claybourne,08/07/2026,33\nAP-653,Barleycraft,2026-06-14,52\n",
+    "README.md": "# Ashcombe Pottery - trade orders, June 2026\n\nOne row per trade order. Dates are typed as the trade desk received them; written day-month-year entries put the day first.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Ashcombe Pottery plans kiln space around its trade orders. How many orders were placed between 8 and 14 June 2026 inclusive? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 5,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

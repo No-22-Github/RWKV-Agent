@@ -1,0 +1,40 @@
+{
+  "id": "tab-6021",
+  "description": "Combined spend of the second-ranked client when single order amounts draw the eye. DISTILL-CANARY-41553a1e",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "rank",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": 5150.0
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b04-secondspend-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1406,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "trade_sales/orders_2026-08.csv": "order_id,client,order_date,amount\nET-5105,Drybrook Stables,2026-08-15,2100.00\nET-5115,Combs Garage,2026-08-09,482.45\nET-5128,Barrowby Clinic,2026-08-26,544.44\nET-5121,Edenbridge Hotel,2026-08-25,411.06\nET-5117,Drybrook Stables,2026-08-12,371.05\nET-5114,Barrowby Clinic,2026-08-16,368.90\nET-5103,Combs Garage,2026-08-13,2240.00\nET-5122,Edenbridge Hotel,2026-08-22,314.66\nET-5119,Drybrook Stables,2026-08-05,242.13\nET-5107,Edenbridge Hotel,2026-08-08,1980.00\nET-5120,Barrowby Clinic,2026-08-28,431.82\nET-5101,Barrowby Clinic,2026-08-11,1850.00\nET-5108,Edenbridge Hotel,2026-08-24,1540.00\nET-5100,Barrowby Clinic,2026-08-06,2400.00\nET-5118,Combs Garage,2026-08-03,776.33\nET-5104,Combs Garage,2026-08-18,1730.00\nET-5127,Drybrook Stables,2026-08-06,172.47\nET-5126,Fownhope Deli,2026-08-17,347.92\nET-5113,Fownhope Deli,2026-08-16,402.74\nET-5125,Drybrook Stables,2026-08-02,372.00\nET-5129,Fownhope Deli,2026-08-20,151.72\nET-5106,Drybrook Stables,2026-08-10,1620.00\nET-5111,Fownhope Deli,2026-08-08,1580.00\nET-5124,Edenbridge Hotel,2026-08-05,671.90\nET-5112,Drybrook Stables,2026-08-18,683.24\nET-5123,Barrowby Clinic,2026-08-23,713.45\nET-5110,Fownhope Deli,2026-08-18,1900.00\nET-5102,Combs Garage,2026-08-12,5150.00\nET-5109,Fownhope Deli,2026-08-08,6400.00\nET-5116,Edenbridge Hotel,2026-08-07,331.11\n",
+    "README.md": "# Ellersley Tooling - trade orders, August 2026\n\nOne row per order. Several clients order more than once a month.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Ellersley Tooling tiers its accounts by monthly spend. What was the combined August 2026 spend of the client with the second-highest combined spend? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 10378.78,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

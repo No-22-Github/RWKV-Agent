@@ -1,0 +1,34 @@
+{
+  "id": "tab-6013",
+  "description": "Count of June fiction acquisitions under 8.00 in an 18-row accession sheet. DISTILL-CANARY-a87cafad",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-tab-b04-plaincount-01",
+    "ref_calls": 2,
+    "fixture_bytes": 975,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "acquisitions_2026-06.csv": "accession,title,shelf,acquired_on,price\nEB-1100,A Winter Kiln,Fiction,2026-06-12,4.45\nEB-1101,Barley Days,Natural World,2026-06-04,21.14\nEB-1102,Charcoal & Ash,Poetry,2026-06-02,15.90\nEB-1103,Driftwood Letters,History,2026-06-16,21.63\nEB-1104,Evening Ferry,Fiction,2026-06-17,7.05\nEB-1105,Fen Country,Poetry,2026-06-01,22.83\nEB-1106,The Gilded Page,History,2026-06-01,9.32\nEB-1107,Saltmarsh,Natural World,2026-06-13,18.84\nEB-1108,The Cinder Track,Fiction,2026-06-02,4.10\nEB-1109,Orchard House,Fiction,2026-06-12,14.98\nEB-1110,The Mill Race,Natural World,2026-06-13,18.23\nEB-1111,Fog Signal,Poetry,2026-06-12,7.86\nEB-1112,The Brickfield,Fiction,2026-06-03,7.12\nEB-1113,Ash & Auger,Natural World,2026-06-06,21.75\nEB-1114,The Cartway,Poetry,2026-06-13,8.60\nEB-1115,Harbourmaster,History,2026-06-28,19.75\nEB-1116,The Quern Stone,Fiction,2026-06-17,6.88\nEB-1117,Fen Light,Poetry,2026-06-24,11.65\n",
+    "README.md": "# Eastcott Books - acquisitions, June 2026\n\nOne row per volume accessioned in June.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Eastcott Books shelves its stock by category. How many fiction titles did the shop acquire for less than 8.00 in June 2026? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 5,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

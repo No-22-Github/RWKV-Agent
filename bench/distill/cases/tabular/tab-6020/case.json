@@ -1,0 +1,40 @@
+{
+  "id": "tab-6020",
+  "description": "Leading site's September tonnage when the sheet closes with a month total line. DISTILL-CANARY-f93ad6c6",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "rank",
+    "traps": [
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-HEADER": 2023.8
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b04-grouptop-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1591,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "dispatch/dispatches_2026-09.csv": "dispatch_id,site,dispatch_date,tonnes\nDS-460,Anvil Yard,2026-09-12,59.3\nDS-461,Bloomfield,2026-09-21,54.9\nDS-462,Craddock,2026-09-25,59.4\nDS-463,Delf Hill,2026-09-14,29.2\nDS-464,Anvil Yard,2026-09-25,68.0\nDS-465,Bloomfield,2026-09-17,26.6\nDS-466,Craddock,2026-09-25,20.1\nDS-467,Delf Hill,2026-09-16,37.7\nDS-468,Anvil Yard,2026-09-18,82.8\nDS-469,Bloomfield,2026-09-16,20.3\nDS-470,Craddock,2026-09-24,56.1\nDS-471,Delf Hill,2026-09-26,36.3\nDS-472,Anvil Yard,2026-09-20,62.6\nDS-473,Bloomfield,2026-09-24,59.8\nDS-474,Craddock,2026-09-02,21.5\nDS-475,Delf Hill,2026-09-15,47.4\nDS-476,Anvil Yard,2026-09-08,94.6\nDS-477,Bloomfield,2026-09-08,34.4\nDS-478,Craddock,2026-09-26,54.5\nDS-479,Delf Hill,2026-09-18,58.7\nDS-480,Anvil Yard,2026-09-04,52.5\nDS-481,Bloomfield,2026-09-03,56.8\nDS-482,Craddock,2026-09-08,22.4\nDS-483,Delf Hill,2026-09-10,24.0\nDS-484,Anvil Yard,2026-09-01,90.9\nDS-485,Bloomfield,2026-09-22,47.1\nDS-486,Craddock,2026-09-19,54.5\nDS-487,Delf Hill,2026-09-05,46.4\nDS-488,Anvil Yard,2026-09-10,71.1\nDS-489,Bloomfield,2026-09-09,59.3\nDS-490,Craddock,2026-09-15,23.4\nDS-491,Delf Hill,2026-09-25,57.2\nDS-492,Anvil Yard,2026-09-10,67.7\nDS-493,Bloomfield,2026-09-16,29.4\nDS-494,Craddock,2026-09-09,35.7\nDS-495,Delf Hill,2026-09-08,27.4\nDS-496,Anvil Yard,2026-09-23,80.7\nDS-497,Bloomfield,2026-09-21,34.8\nDS-498,Craddock,2026-09-05,25.8\nDS-499,Delf Hill,2026-09-20,41.8\nDS-500,Anvil Yard,2026-09-11,90.7\nSEP-TOTAL,ALL SITES,2026-09-30,2023.8\n",
+    "README.md": "# Doveridge Steel - yard dispatches, September 2026\n\nOne row per wagon. The sheet closes with a September line dated 30 September that is not a wagon.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Doveridge Steel pays haulage per wagon from each site's budget. What tonnage did the site with the highest September 2026 dispatches send? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 820.9,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

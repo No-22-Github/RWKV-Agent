@@ -1,0 +1,40 @@
+{
+  "id": "tab-6008",
+  "description": "July kiln hours from a firing log that re-prints re-registered batches. DISTILL-CANARY-94f194fc",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 281.0
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b04-kilnlog-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1126,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "kilns/firings_2026-07.csv": "firing_id,kiln,started_date,hours\nAC-330,Kiln 1,2026-07-19,8.5\nAC-330,Kiln 1,2026-07-19,8.5\nAC-330,Kiln 1,2026-07-19,8.5\nAC-331,Kiln 2,2026-07-21,11.5\nAC-332,Kiln 3,2026-07-06,10.0\nAC-333,Kiln 1,2026-07-05,12.0\nAC-334,Kiln 2,2026-07-03,8.5\nAC-334,Kiln 2,2026-07-03,8.5\nAC-335,Kiln 3,2026-07-27,8.0\nAC-336,Kiln 1,2026-07-24,6.5\nAC-337,Kiln 2,2026-07-18,7.0\nAC-338,Kiln 3,2026-07-27,7.0\nAC-339,Kiln 1,2026-07-11,8.0\nAC-340,Kiln 2,2026-07-14,10.0\nAC-341,Kiln 3,2026-07-26,8.5\nAC-341,Kiln 3,2026-07-26,8.5\nAC-342,Kiln 1,2026-07-19,12.0\nAC-343,Kiln 2,2026-07-23,12.0\nAC-344,Kiln 3,2026-07-05,8.0\nAC-345,Kiln 1,2026-07-17,7.0\nAC-346,Kiln 2,2026-07-05,12.0\nAC-347,Kiln 3,2026-07-05,12.0\nAC-348,Kiln 1,2026-07-27,12.0\nAC-349,Kiln 2,2026-07-02,11.5\nAC-350,Kiln 3,2026-07-14,8.0\nAC-351,Kiln 1,2026-07-25,8.0\nAC-352,Kiln 2,2026-07-07,8.5\nAC-353,Kiln 3,2026-07-19,10.0\nAC-354,Kiln 1,2026-07-18,8.5\nAC-355,Kiln 2,2026-07-02,12.0\n",
+    "README.md": "# Applegate Ceramics - kiln firings, July 2026\n\nOne row per firing as logged at the kiln. The logger re-prints a row when a batch is re-registered, so a firing can appear more than once with identical details.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Applegate Ceramics schedules kiln time a month ahead. How many kiln hours were logged in July 2026? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 247.0,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

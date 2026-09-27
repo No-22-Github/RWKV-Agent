@@ -1,0 +1,39 @@
+{
+  "id": "log-6014",
+  "description": "Read the error code the terminal gates first raised once the new gate firmware was running, with the old firmware's repeated errors sitting earlier in the same night journal. DISTILL-CANARY-b04b7e28",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "locate_error",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "G-88"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-b04-gatecutover",
+    "ref_calls": 3,
+    "fixture_bytes": 6068,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Ironquay Ferries - terminal gate journal\n\nThe gate controllers journal every vehicle pass and every alarm into one\nnight file. The line announcing a firmware cut over carries the version the\ngates run from that moment on.\n",
+    "logs/gate-journal.log": "2026-05-07T01:00:17 INFO gate=linkspan-1 vehicle=car pass=granted lane=1\n2026-05-07T01:01:28 INFO gate=linkspan-2 vehicle=car pass=granted lane=2\n2026-05-07T01:02:39 INFO gate=linkspan-1 vehicle=car pass=granted lane=3\n2026-05-07T01:03:50 ERROR gate=linkspan-2 code=G-88 msg=\"loop sensor stuck\"\n2026-05-07T01:04:01 INFO gate=linkspan-1 vehicle=car pass=granted lane=2\n2026-05-07T01:05:12 ERROR gate=linkspan-2 code=G-88 msg=\"loop sensor stuck\"\n2026-05-07T01:06:23 INFO gate=linkspan-1 vehicle=car pass=granted lane=1\n2026-05-07T01:07:34 ERROR gate=linkspan-2 code=G-88 msg=\"loop sensor stuck\"\n2026-05-07T01:08:45 INFO gate=linkspan-1 vehicle=car pass=granted lane=3\n2026-05-07T01:09:56 ERROR gate=linkspan-2 code=G-88 msg=\"loop sensor stuck\"\n2026-05-07T01:10:07 ERROR gate=linkspan-1 code=G-88 msg=\"loop sensor stuck\"\n2026-05-07T01:11:18 ERROR gate=linkspan-2 code=G-88 msg=\"loop sensor stuck\"\n2026-05-07T01:12:00 INFO gate controller firmware cut over to version 4.2\n2026-05-07T01:15:23 INFO gate=linkspan-1 vehicle=car pass=granted lane=1\n2026-05-07T01:17:30 INFO gate=linkspan-2 vehicle=car pass=granted lane=2\n2026-05-07T01:19:37 INFO gate=linkspan-1 vehicle=car pass=granted lane=3\n2026-05-07T01:22:44 INFO gate=linkspan-2 vehicle=car pass=granted lane=1\n2026-05-07T01:24:51 INFO gate=linkspan-1 vehicle=car pass=granted lane=2\n2026-05-07T01:26:58 INFO gate=linkspan-2 vehicle=car pass=granted lane=3\n2026-05-07T01:29:05 INFO gate=linkspan-1 vehicle=car pass=granted lane=1\n2026-05-07T01:31:12 INFO gate=linkspan-2 vehicle=car pass=granted lane=2\n2026-05-07T01:33:19 INFO gate=linkspan-1 vehicle=car pass=granted lane=3\n2026-05-07T01:36:26 INFO gate=linkspan-2 vehicle=car pass=granted lane=1\n2026-05-07T01:38:33 ERROR gate=linkspan-2 code=G-91 msg=\"gate drive overcurrent\"\n2026-05-07T01:40:40 INFO gate=linkspan-2 vehicle=car pass=granted lane=3\n2026-05-07T01:43:47 INFO gate=linkspan-1 vehicle=car pass=granted lane=1\n2026-05-07T01:45:54 INFO gate=linkspan-2 vehicle=car pass=granted lane=2\n2026-05-07T01:47:01 INFO gate=linkspan-1 vehicle=car pass=granted lane=3\n2026-05-07T01:50:08 INFO gate=linkspan-2 vehicle=car pass=granted lane=1\n2026-05-07T01:52:15 INFO gate=linkspan-1 vehicle=car pass=granted lane=2\n2026-05-07T01:54:22 INFO gate=linkspan-2 vehicle=car pass=granted lane=3\n2026-05-07T01:57:29 INFO gate=linkspan-1 vehicle=car pass=granted lane=1\n2026-05-07T01:59:36 INFO gate=linkspan-2 vehicle=car pass=granted lane=2\n2026-05-07T02:01:43 INFO gate=linkspan-1 vehicle=car pass=granted lane=3\n2026-05-07T02:04:50 INFO gate=linkspan-2 vehicle=car pass=granted lane=1\n2026-05-07T02:06:57 INFO gate=linkspan-1 vehicle=car pass=granted lane=2\n2026-05-07T02:08:04 INFO gate=linkspan-2 vehicle=car pass=granted lane=3\n2026-05-07T02:11:11 INFO gate=linkspan-1 vehicle=car pass=granted lane=1\n2026-05-07T02:13:18 INFO gate=linkspan-2 vehicle=car pass=granted lane=2\n2026-05-07T02:15:25 INFO gate=linkspan-1 vehicle=car pass=granted lane=3\n2026-05-07T02:18:32 INFO gate=linkspan-2 vehicle=car pass=granted lane=1\n2026-05-07T02:20:39 INFO gate=linkspan-1 vehicle=car pass=granted lane=2\n2026-05-07T02:22:46 INFO gate=linkspan-2 vehicle=car pass=granted lane=3\n2026-05-07T02:25:53 INFO gate=linkspan-1 vehicle=car pass=granted lane=1\n2026-05-07T02:27:00 INFO gate=linkspan-2 vehicle=car pass=granted lane=2\n2026-05-07T02:29:07 INFO gate=linkspan-1 vehicle=car pass=granted lane=3\n2026-05-07T02:32:14 INFO gate=linkspan-2 vehicle=car pass=granted lane=1\n2026-05-07T02:34:21 INFO gate=linkspan-1 vehicle=car pass=granted lane=2\n2026-05-07T02:36:28 INFO gate=linkspan-2 vehicle=car pass=granted lane=3\n2026-05-07T02:39:35 INFO gate=linkspan-1 vehicle=car pass=granted lane=1\n2026-05-07T02:41:42 INFO gate=linkspan-2 vehicle=car pass=granted lane=2\n2026-05-07T02:43:49 INFO gate=linkspan-1 vehicle=car pass=granted lane=3\n2026-05-07T02:46:56 INFO gate=linkspan-2 vehicle=car pass=granted lane=1\n2026-05-07T02:48:03 INFO gate=linkspan-1 vehicle=car pass=granted lane=2\n2026-05-07T02:50:10 INFO gate=linkspan-2 vehicle=car pass=granted lane=3\n2026-05-07T02:53:17 INFO gate=linkspan-1 vehicle=car pass=granted lane=1\n2026-05-07T02:55:24 INFO gate=linkspan-2 vehicle=car pass=granted lane=2\n2026-05-07T02:57:31 INFO gate=linkspan-1 vehicle=car pass=granted lane=3\n2026-05-07T03:00:38 WARN gate=linkspan-1 code=G-90 msg=\"drive current elevated\"\n2026-05-07T03:02:45 INFO gate=linkspan-1 vehicle=car pass=granted lane=2\n2026-05-07T03:04:52 INFO gate=linkspan-2 vehicle=car pass=granted lane=3\n2026-05-07T03:07:59 INFO gate=linkspan-1 vehicle=car pass=granted lane=1\n2026-05-07T03:09:06 INFO gate=linkspan-2 vehicle=car pass=granted lane=2\n2026-05-07T03:11:13 INFO gate=linkspan-1 vehicle=car pass=granted lane=3\n2026-05-07T03:14:20 INFO gate=linkspan-2 vehicle=car pass=granted lane=1\n2026-05-07T03:16:27 INFO gate=linkspan-1 vehicle=car pass=granted lane=2\n2026-05-07T03:18:34 INFO gate=linkspan-2 vehicle=car pass=granted lane=3\n2026-05-07T03:21:41 INFO gate=linkspan-1 vehicle=car pass=granted lane=1\n2026-05-07T03:23:48 INFO gate=linkspan-2 vehicle=car pass=granted lane=2\n2026-05-07T03:25:55 INFO gate=linkspan-1 vehicle=car pass=granted lane=3\n2026-05-07T03:28:02 INFO gate=linkspan-2 vehicle=car pass=granted lane=1\n2026-05-07T03:30:09 INFO gate=linkspan-1 vehicle=car pass=granted lane=2\n2026-05-07T03:32:16 INFO gate=linkspan-2 vehicle=car pass=granted lane=3\n2026-05-07T03:35:23 INFO gate=linkspan-1 vehicle=car pass=granted lane=1\n2026-05-07T03:37:30 INFO gate=linkspan-2 vehicle=car pass=granted lane=2\n2026-05-07T03:39:37 INFO gate=linkspan-1 vehicle=car pass=granted lane=3\n2026-05-07T03:42:44 INFO gate=linkspan-2 vehicle=car pass=granted lane=1\n2026-05-07T03:44:51 INFO gate=linkspan-1 vehicle=car pass=granted lane=2\n2026-05-07T03:46:58 INFO gate=linkspan-2 vehicle=car pass=granted lane=3\n2026-05-07T04:40:00 JOURNAL CLOSE lines=79\n"
+  },
+  "turns": [
+    {
+      "prompt": "Ironquay Ferries cut its terminal gate controllers over to firmware version 4.2 in the middle of the night on 7 May 2026. What error code did the gates raise first while version 4.2 was running? Answer with the code alone. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "G-91"
+      }
+    }
+  ]
+}

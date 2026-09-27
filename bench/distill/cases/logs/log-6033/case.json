@@ -1,0 +1,40 @@
+{
+  "id": "log-6033",
+  "description": "Count the press runs started across a month boundary in a cider press journal that rotated at the month end and switched its stamps from ISO to day/month/year. DISTILL-CANARY-b04c087e",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [
+      "TR-DATEFMT"
+    ],
+    "trap_decoys": {
+      "TR-DATEFMT": 3
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-b04-pressrotate",
+    "ref_calls": 3,
+    "fixture_bytes": 4915,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Josselin Cider - press house journal\n\nThe press rotates its journal at the March month end. Stamps were ISO\n(yyyy-mm-dd) through March and dd/mm/yyyy from April on, and both sections\nsit in this file. One line per run start and per run finish.\n",
+    "logs/press-journal.log": "01/04/2026 06:10:43 PRESS batch=J-100 run_start apples_kg=7300\n01/04/2026 08:22:11 PRESS batch=J-100 run_finish juice_l=4500\n01/04/2026 08:35:47 PRESS batch=J-101 run_start apples_kg=7400\n01/04/2026 10:51:13 PRESS batch=J-101 run_finish juice_l=4600\n01/04/2026 11:02:53 PRESS batch=J-102 run_start apples_kg=7500\n01/04/2026 13:33:19 PRESS batch=J-102 run_finish juice_l=4100\n01/04/2026 15:40:59 PRESS batch=J-103 run_start apples_kg=7600\n01/04/2026 18:14:23 PRESS batch=J-103 run_finish juice_l=4200\n02/04/2026 09:20:00 PRESS batch=J-104 run_start apples_kg=6900\n02/04/2026 11:38:29 PRESS batch=J-104 run_finish juice_l=4300\n02/04/2026 13:46:11 PRESS batch=J-105 run_start apples_kg=7000\n02/04/2026 16:12:31 PRESS batch=J-105 run_finish juice_l=4400\n2026-03-28T08:00:19 DELIVERY grower=Menheniot-farm bins=12\n2026-03-28T09:05:23 DELIVERY grower=Menheniot-farm bins=15\n2026-03-28T09:12:19 PRESS batch=J-81 run_start apples_kg=7000\n2026-03-28T10:00:37 QA store_temp_c=4.2 pass\n2026-03-28T10:10:29 DELIVERY grower=Menheniot-farm bins=18\n2026-03-28T11:15:31 DELIVERY grower=Menheniot-farm bins=21\n2026-03-28T11:15:41 QA store_temp_c=4.5 pass\n2026-03-28T11:33:41 PRESS batch=J-81 run_finish juice_l=4400\n2026-03-28T11:40:23 PRESS batch=J-82 run_start apples_kg=7100\n2026-03-28T12:20:37 DELIVERY grower=Menheniot-farm bins=13\n2026-03-28T12:30:43 QA store_temp_c=4.8 pass\n2026-03-28T13:25:41 DELIVERY grower=Menheniot-farm bins=16\n2026-03-28T13:45:47 QA store_temp_c=4.2 pass\n2026-03-28T13:52:43 PRESS batch=J-82 run_finish juice_l=4500\n2026-03-28T14:05:29 PRESS batch=J-83 run_start apples_kg=7200\n2026-03-28T14:30:43 DELIVERY grower=Menheniot-farm bins=19\n2026-03-28T15:00:53 QA store_temp_c=4.5 pass\n2026-03-28T15:35:47 DELIVERY grower=Menheniot-farm bins=22\n2026-03-28T16:15:59 QA store_temp_c=4.8 pass\n2026-03-28T16:22:31 PRESS batch=J-84 run_start apples_kg=7300\n2026-03-28T16:31:47 PRESS batch=J-83 run_finish juice_l=4600\n2026-03-28T16:40:53 DELIVERY grower=Menheniot-farm bins=14\n2026-03-28T17:30:00 QA store_temp_c=4.2 pass\n2026-03-28T17:45:59 DELIVERY grower=Menheniot-farm bins=17\n2026-03-28T18:45:11 QA store_temp_c=4.5 pass\n2026-03-28T18:49:53 PRESS batch=J-84 run_finish juice_l=4100\n2026-03-28T18:50:00 DELIVERY grower=Menheniot-farm bins=20\n2026-03-28T19:48:37 PRESS batch=J-85 run_start apples_kg=7400\n2026-03-28T19:55:11 DELIVERY grower=Menheniot-farm bins=12\n2026-03-28T20:00:13 QA store_temp_c=4.8 pass\n2026-03-28T21:00:13 DELIVERY grower=Menheniot-farm bins=15\n2026-03-28T21:15:19 QA store_temp_c=4.2 pass\n2026-03-28T22:05:19 DELIVERY grower=Menheniot-farm bins=18\n2026-03-28T22:09:59 PRESS batch=J-85 run_finish juice_l=4200\n2026-03-28T22:30:23 QA store_temp_c=4.5 pass\n2026-03-28T23:45:29 QA store_temp_c=4.8 pass\n2026-03-29T01:00:31 QA store_temp_c=4.2 pass\n2026-03-29T02:15:37 QA store_temp_c=4.5 pass\n2026-03-29T08:35:41 PRESS batch=J-86 run_start apples_kg=7500\n2026-03-29T10:52:43 PRESS batch=J-87 run_start apples_kg=7600\n2026-03-29T11:02:00 PRESS batch=J-86 run_finish juice_l=4300\n2026-03-29T13:14:11 PRESS batch=J-87 run_finish juice_l=4400\n2026-03-29T13:19:47 PRESS batch=J-88 run_start apples_kg=6900\n2026-03-29T15:44:53 PRESS batch=J-89 run_start apples_kg=7000\n2026-03-29T15:47:13 PRESS batch=J-88 run_finish juice_l=4500\n2026-03-29T18:06:59 PRESS batch=J-90 run_start apples_kg=7100\n2026-03-29T18:12:19 PRESS batch=J-89 run_finish juice_l=4600\n2026-03-29T20:31:23 PRESS batch=J-90 run_finish juice_l=4100\n2026-03-30T09:02:00 PRESS batch=J-91 run_start apples_kg=7200\n2026-03-30T11:26:11 PRESS batch=J-92 run_start apples_kg=7300\n2026-03-30T11:41:29 PRESS batch=J-91 run_finish juice_l=4200\n2026-03-30T13:53:13 PRESS batch=J-93 run_start apples_kg=7400\n2026-03-30T14:03:31 PRESS batch=J-92 run_finish juice_l=4300\n2026-03-30T16:08:19 PRESS batch=J-94 run_start apples_kg=7500\n2026-03-30T16:36:37 PRESS batch=J-93 run_finish juice_l=4400\n2026-03-30T18:31:23 PRESS batch=J-95 run_start apples_kg=7600\n2026-03-30T18:44:41 PRESS batch=J-94 run_finish juice_l=4500\n2026-03-30T20:47:29 PRESS batch=J-96 run_start apples_kg=6900\n2026-03-30T21:02:43 PRESS batch=J-95 run_finish juice_l=4600\n2026-03-30T23:19:47 PRESS batch=J-96 run_finish juice_l=4100\n2026-03-31T10:12:31 PRESS batch=J-97 run_start apples_kg=7000\n2026-03-31T12:44:53 PRESS batch=J-97 run_finish juice_l=4200\n2026-03-31T14:05:37 PRESS batch=J-98 run_start apples_kg=7100\n2026-03-31T16:31:59 PRESS batch=J-98 run_finish juice_l=4300\n2026-03-31T19:48:41 PRESS batch=J-99 run_start apples_kg=7200\n2026-03-31T22:09:00 PRESS batch=J-99 run_finish juice_l=4400\n2026-03-31T23:59:00 NOTE journal rotated at month end: stamps switch to dd/mm/yyyy\n02/04/2026 23:30:00 JOURNAL CLOSE lines=79\n"
+  },
+  "turns": [
+    {
+      "prompt": "Josselin Cider's press house journal rotated at the March month end. How many press runs started between 31 March 2026 and 1 April 2026 inclusive? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 7,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

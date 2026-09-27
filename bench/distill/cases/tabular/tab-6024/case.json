@@ -1,0 +1,40 @@
+{
+  "id": "tab-6024",
+  "description": "Busiest second-quarter month's passengers when slash dates can flip across a month boundary. DISTILL-CANARY-90304c33",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "rank",
+    "traps": [
+      "TR-DATEFMT"
+    ],
+    "trap_decoys": {
+      "TR-DATEFMT": 449
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b04-datewindow-01",
+    "ref_calls": 3,
+    "fixture_bytes": 778,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "bookings/coach_bookings_q2_2026.csv": "booking_id,service_date,passengers\nEC-8200,2026-05-13,41\nEC-8201,9 May 2026,35\nEC-8202,2026-05-12,44\nEC-8203,18 Jun 2026,38\nEC-8204,05/06/2026,48\nEC-8205,2026-04-14,38\nEC-8206,14/05/2026,39\nEC-8207,2026-06-29,45\nEC-8208,2026-06-22,52\nEC-8209,2026-04-21,47\nEC-8210,2026-05-27,42\nEC-8211,27/04/2026,44\nEC-8212,2026-04-28,55\nEC-8213,2026-06-09,49\nEC-8214,2026-06-24,43\nEC-8215,2026-05-26,48\nEC-8216,2026-05-20,53\nEC-8217,2026-06-15,41\nEC-8218,2026-05-06,46\nEC-8219,2026-04-11,49\nEC-8220,2026-04-07,52\nEC-8221,2026-05-05,53\nEC-8222,9 Apr 2026,31\nEC-8223,2026-04-16,40\nEC-8224,2026-06-08,47\nEC-8225,2026-06-11,49\n",
+    "README.md": "# Eastvale Coaches - bookings, second quarter 2026\n\nOne row per booked service. Dates are typed as the booking came in; written day-month-year entries put the day first.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Eastvale Coaches plans driver cover around its busiest month. How many passengers travelled in the busiest month of the second quarter of 2026? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 412,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

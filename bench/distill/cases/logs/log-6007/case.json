@@ -1,0 +1,40 @@
+{
+  "id": "log-6007",
+  "description": "Count one picking station's crate consignments in a journal where a second station's name extends the first with one extra character. DISTILL-CANARY-b04a91d3",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": 38
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-log-b04-pickinglane",
+    "ref_calls": 3,
+    "fixture_bytes": 5703,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Jannerby Orchard - crate intake journal\n\nThe packhouse journals every crate consignment handed in by the picking\nstations. Stations are jannerby-lane-3 and jannerby-lane-33. Lorry loads and\nstore checks appear in the same journal.\n\n    <time> station=<station> picker=<name> crates=<n> variety=<v>\n",
+    "logs/crate-intake.log": "2026-09-08T08:00:41 QA store_temp_c=6.2 pass\n2026-09-08T08:02:02 station=jannerby-lane-3 picker=Greta crates=1 variety=Discovery\n2026-09-08T08:04:04 station=jannerby-lane-3 picker=Hazel crates=2 variety=Katy\n2026-09-08T08:05:29 lorry=L-2 loaded crates=40 departed\n2026-09-08T08:07:06 station=jannerby-lane-3 picker=Ines crates=3 variety=Winston\n2026-09-08T08:09:08 station=jannerby-lane-3 picker=Jonas crates=1 variety=Spartan\n2026-09-08T08:11:09 station=jannerby-lane-3 picker=Kelby crates=2 variety=Discovery\n2026-09-08T08:13:11 station=jannerby-lane-3 picker=Marek crates=3 variety=Katy\n2026-09-08T08:15:13 station=jannerby-lane-3 picker=Greta crates=1 variety=Winston\n2026-09-08T08:15:42 QA store_temp_c=6.3 pass\n2026-09-08T08:17:15 station=jannerby-lane-3 picker=Hazel crates=2 variety=Spartan\n2026-09-08T08:19:17 station=jannerby-lane-3 picker=Ines crates=3 variety=Discovery\n2026-09-08T08:21:19 station=jannerby-lane-3 picker=Jonas crates=1 variety=Katy\n2026-09-08T08:23:21 station=jannerby-lane-3 picker=Kelby crates=2 variety=Winston\n2026-09-08T08:27:23 station=jannerby-lane-3 picker=Marek crates=3 variety=Spartan\n2026-09-08T08:29:25 station=jannerby-lane-3 picker=Greta crates=1 variety=Discovery\n2026-09-08T08:30:43 QA store_temp_c=6.4 pass\n2026-09-08T08:31:27 station=jannerby-lane-3 picker=Hazel crates=2 variety=Katy\n2026-09-08T08:33:29 station=jannerby-lane-3 picker=Ines crates=3 variety=Winston\n2026-09-08T08:35:31 station=jannerby-lane-3 picker=Jonas crates=1 variety=Spartan\n2026-09-08T08:37:33 station=jannerby-lane-3 picker=Kelby crates=2 variety=Discovery\n2026-09-08T08:39:35 station=jannerby-lane-3 picker=Marek crates=3 variety=Katy\n2026-09-08T08:41:37 station=jannerby-lane-3 picker=Greta crates=1 variety=Winston\n2026-09-08T08:43:39 station=jannerby-lane-3 picker=Hazel crates=2 variety=Spartan\n2026-09-08T08:45:41 station=jannerby-lane-3 picker=Ines crates=3 variety=Discovery\n2026-09-08T08:45:44 QA store_temp_c=6.5 pass\n2026-09-08T08:47:43 station=jannerby-lane-3 picker=Jonas crates=1 variety=Katy\n2026-09-08T08:49:45 station=jannerby-lane-3 picker=Kelby crates=2 variety=Winston\n2026-09-08T08:51:47 station=jannerby-lane-3 picker=Marek crates=3 variety=Spartan\n2026-09-08T08:53:49 station=jannerby-lane-3 picker=Greta crates=1 variety=Discovery\n2026-09-08T08:55:51 station=jannerby-lane-3 picker=Hazel crates=2 variety=Katy\n2026-09-08T08:57:53 station=jannerby-lane-33 picker=Ines crates=3 variety=Winston\n2026-09-08T08:59:55 station=jannerby-lane-33 picker=Jonas crates=1 variety=Spartan\n2026-09-08T09:00:45 QA store_temp_c=6.2 pass\n2026-09-08T09:02:32 lorry=L-3 loaded crates=43 departed\n2026-09-08T09:02:57 station=jannerby-lane-33 picker=Kelby crates=2 variety=Discovery\n2026-09-08T09:04:59 station=jannerby-lane-33 picker=Marek crates=3 variety=Katy\n2026-09-08T09:07:02 station=jannerby-lane-33 picker=Greta crates=1 variety=Winston\n2026-09-08T09:09:04 station=jannerby-lane-33 picker=Hazel crates=2 variety=Spartan\n2026-09-08T09:11:06 station=jannerby-lane-33 picker=Ines crates=3 variety=Discovery\n2026-09-08T09:13:08 station=jannerby-lane-33 picker=Jonas crates=1 variety=Katy\n2026-09-08T09:15:09 station=jannerby-lane-33 picker=Kelby crates=2 variety=Winston\n2026-09-08T09:15:46 QA store_temp_c=6.3 pass\n2026-09-08T09:17:11 station=jannerby-lane-33 picker=Marek crates=3 variety=Spartan\n2026-09-08T09:19:13 station=jannerby-lane-33 picker=Greta crates=1 variety=Discovery\n2026-09-08T09:21:15 station=jannerby-lane-33 picker=Hazel crates=2 variety=Katy\n2026-09-08T09:30:47 QA store_temp_c=6.4 pass\n2026-09-08T09:45:48 QA store_temp_c=6.5 pass\n2026-09-08T09:59:35 lorry=L-4 loaded crates=46 departed\n2026-09-08T10:00:49 QA store_temp_c=6.2 pass\n2026-09-08T10:15:50 QA store_temp_c=6.3 pass\n2026-09-08T10:30:51 QA store_temp_c=6.4 pass\n2026-09-08T10:45:52 QA store_temp_c=6.5 pass\n2026-09-08T10:56:38 lorry=L-5 loaded crates=49 departed\n2026-09-08T11:00:53 QA store_temp_c=6.2 pass\n2026-09-08T11:15:54 QA store_temp_c=6.3 pass\n2026-09-08T11:30:55 QA store_temp_c=6.4 pass\n2026-09-08T11:45:56 QA store_temp_c=6.5 pass\n2026-09-08T11:53:41 lorry=L-6 loaded crates=52 departed\n2026-09-08T12:00:57 QA store_temp_c=6.2 pass\n2026-09-08T12:15:58 QA store_temp_c=6.3 pass\n2026-09-08T12:30:59 QA store_temp_c=6.4 pass\n2026-09-08T12:45:00 QA store_temp_c=6.5 pass\n2026-09-08T12:50:44 lorry=L-7 loaded crates=55 departed\n2026-09-08T13:00:01 QA store_temp_c=6.2 pass\n2026-09-08T13:15:02 QA store_temp_c=6.3 pass\n2026-09-08T13:30:03 QA store_temp_c=6.4 pass\n2026-09-08T13:45:04 QA store_temp_c=6.5 pass\n2026-09-08T13:47:47 lorry=L-8 loaded crates=58 departed\n2026-09-08T14:00:05 QA store_temp_c=6.2 pass\n2026-09-08T14:15:06 QA store_temp_c=6.3 pass\n2026-09-08T14:30:07 QA store_temp_c=6.4 pass\n2026-09-08T14:44:50 lorry=L-9 loaded crates=61 departed\n2026-09-08T14:45:08 QA store_temp_c=6.5 pass\n2026-09-08T15:00:09 QA store_temp_c=6.2 pass\n2026-09-08T15:15:10 QA store_temp_c=6.3 pass\n2026-09-08T15:30:11 QA store_temp_c=6.4 pass\n2026-09-08T15:45:12 QA store_temp_c=6.5 pass\n2026-09-08T16:00:13 QA store_temp_c=6.2 pass\n2026-09-08T16:15:14 QA store_temp_c=6.3 pass\n2026-09-08T16:30:15 QA store_temp_c=6.4 pass\n2026-09-08T16:45:16 QA store_temp_c=6.5 pass\n2026-09-08T17:00:17 QA store_temp_c=6.2 pass\n2026-09-08T17:15:18 QA store_temp_c=6.3 pass\n2026-09-08T17:30:19 QA store_temp_c=6.4 pass\n2026-09-08T17:45:20 QA store_temp_c=6.5 pass\n2026-09-08T18:00:00 JOURNAL CLOSE lines=86\n"
+  },
+  "turns": [
+    {
+      "prompt": "Jannerby Orchard's packhouse journals every crate consignment the picking stations hand in. How many consignments did station jannerby-lane-3 hand in on 8 September 2026? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 26,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

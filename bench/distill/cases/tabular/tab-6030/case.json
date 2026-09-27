@@ -1,0 +1,41 @@
+{
+  "id": "tab-6030",
+  "description": "Shortfall between pump-side card sales and acquirer settlements for one forecourt week. DISTILL-CANARY-b9a2669c",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "reconcile",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": 1600.74
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b04-termsettle-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1206,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "forecourt/fuel_log_2026-08.csv": "sale_id,sale_date,pump,litres,amount\nBF-1500,2026-08-21,Pump 1,40.4,51.93\nBF-1501,2026-08-20,Pump 2,50.7,85.51\nBF-1502,2026-08-19,Pump 3,55.2,53.30\nBF-1503,2026-08-21,Pump 4,54.0,72.53\nBF-1504,2026-08-23,Pump 1,44.3,61.33\nBF-1505,2026-08-19,Pump 2,68.7,91.57\nBF-1506,2026-08-23,Pump 3,49.2,71.57\nBF-1507,2026-08-23,Pump 4,49.9,82.87\nBF-1508,2026-08-18,Pump 1,67.9,74.08\nBF-1509,2026-08-21,Pump 2,38.0,86.03\nBF-1510,2026-08-19,Pump 3,32.6,77.65\nBF-1511,2026-08-19,Pump 4,30.3,75.02\nBF-1512,2026-08-19,Pump 1,48.0,76.52\nBF-1513,2026-08-22,Pump 2,62.9,52.29\nBF-1514,2026-08-20,Pump 3,56.2,67.15\nBF-1515,2026-08-17,Pump 4,45.8,82.72\nBF-1516,2026-08-22,Pump 1,64.0,84.31\nBF-1517,2026-08-17,Pump 2,49.5,72.71\nBF-1518,2026-08-23,Pump 3,36.3,85.54\nBF-1519,2026-08-18,Pump 4,60.8,55.13\nBF-1520,2026-08-20,Pump 1,54.1,71.86\nBF-1521,2026-08-22,Pump 2,46.2,69.12\n",
+    "forecourt/card_settlements_2026-08.csv": "batch_id,settle_date,amount\nCS-610,2026-08-17,425.56\nCS-611,2026-08-19,295.22\nCS-612,2026-08-21,225.39\nCS-613,2026-08-23,579.35\n",
+    "README.md": "# Bartonreach Fuels - forecourt week, 17 to 23 August 2026\n\nfuel_log_2026-08.csv is the pump-side record of every card sale. card_settlements_2026-08.csv is what the acquirer actually paid out for those sales, in four batches.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Bartonreach Fuels reconciles its forecourt week. By how much did the card settlements for 17 to 23 August 2026 fall short of the pump-log card sales for those days? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 75.22,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

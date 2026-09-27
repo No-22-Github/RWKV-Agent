@@ -1,0 +1,41 @@
+{
+  "id": "tab-6015",
+  "description": "Delayed deliveries in a March manifest whose delay codes mix real codes with markers. DISTILL-CANARY-47dbbc91",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [
+      "TR-MISSING"
+    ],
+    "trap_decoys": {
+      "TR-MISSING": 16
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b04-delaycodes-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1568,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "depot/manifest_2026-03.csv": "delivery_id,depot,delivery_date,delay_code\nBH-3000,Cranvale,2026-03-08,\nBH-3001,Bramcote,2026-03-16,\nBH-3002,Bramcote,2026-03-18,W1\nBH-3003,Cranvale,2026-03-18,\nBH-3004,Bramcote,2026-03-05,\nBH-3005,Bramcote,2026-03-07,NA\nBH-3006,Cranvale,2026-03-12,T3\nBH-3007,Arden,2026-03-23,\nBH-3008,Bramcote,2026-03-19,\nBH-3009,Arden,2026-03-21,\nBH-3010,Bramcote,2026-03-25,-\nBH-3011,Bramcote,2026-03-23,-\nBH-3012,Cranvale,2026-03-12,\nBH-3013,Bramcote,2026-03-16,\nBH-3014,Arden,2026-03-07,-\nBH-3015,Bramcote,2026-03-15,\nBH-3016,Bramcote,2026-03-05,-\nBH-3017,Cranvale,2026-03-18,W1\nBH-3018,Bramcote,2026-03-14,\nBH-3019,Cranvale,2026-03-25,\nBH-3020,Cranvale,2026-03-08,\nBH-3021,Bramcote,2026-03-03,\nBH-3022,Bramcote,2026-03-01,NA\nBH-3023,Arden,2026-03-02,NA\nBH-3024,Arden,2026-03-08,V2\nBH-3025,Arden,2026-03-19,\nBH-3026,Bramcote,2026-03-24,\nBH-3027,Cranvale,2026-03-23,\nBH-3028,Cranvale,2026-03-26,\nBH-3029,Arden,2026-03-11,\nBH-3030,Arden,2026-03-20,-\nBH-3031,Arden,2026-03-24,\nBH-3032,Arden,2026-03-12,\nBH-3033,Bramcote,2026-03-01,\nBH-3034,Arden,2026-03-16,V2\nBH-3035,Cranvale,2026-03-23,NA\nBH-3036,Bramcote,2026-03-26,\nBH-3037,Arden,2026-03-20,W1\nBH-3038,Cranvale,2026-03-24,\nBH-3039,Arden,2026-03-24,-\n",
+    "README.md": "# Bramfield Haulage - delivery manifest, March 2026\n\nOne row per delivery. delay_code W1 is a weather hold, V2 a vehicle fault and T3 traffic. A dash means the depot waived coding because the run was on time, and NA means the handheld failed to sync an on-time completion. An empty cell is an ordinary on-time delivery.\n",
+    "depot/depot-hours.txt": "Arden gate opens 05:30; Cranvale loading bay closes 20:00\n"
+  },
+  "turns": [
+    {
+      "prompt": "Bramfield Haulage reviews service levels each month. How many deliveries on the March 2026 manifest were delayed? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 6,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

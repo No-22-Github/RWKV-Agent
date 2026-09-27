@@ -1,0 +1,40 @@
+{
+  "id": "log-6009",
+  "description": "Count the defrost cycles the per-cycle result lines show as completed, against a closing summary that claims a higher count. DISTILL-CANARY-b04c2b59",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-CLAIM"
+    ],
+    "trap_decoys": {
+      "TR-CLAIM": 9
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-log-b04-defrost",
+    "ref_calls": 3,
+    "fixture_bytes": 1016,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Innismore Cold Store - defrost controller\n\nEach coil runs a defrost cycle on a fixed schedule. A cycle line reports its\nown result: ok when the cycle ran to completion, aborted when the controller\ncut it short. The nightly summary is written by a separate reporting job.\n\n    <time> DEFROST coil=<id> duration_min=<n> result=ok | aborted\n",
+    "logs/defrost-cycles.log": "2026-02-11T00:12:00 DEFROST coil=C-2 duration_min=22 result=ok\n2026-02-11T01:41:00 DEFROST coil=C-4 duration_min=24 result=ok\n2026-02-11T02:19:00 DEFROST coil=C-2 duration_min=31 result=aborted\n2026-02-11T03:17:00 DEFROST coil=C-4 duration_min=21 result=ok\n2026-02-11T04:37:00 DEFROST coil=C-2 duration_min=26 result=ok\n2026-02-11T06:15:00 DEFROST coil=C-4 duration_min=23 result=ok\n2026-02-11T07:52:00 DEFROST coil=C-2 duration_min=25 result=ok\n2026-02-11T09:29:00 DEFROST coil=C-4 duration_min=22 result=ok\n2026-02-11T11:06:00 DEFROST coil=C-2 duration_min=24 result=ok\n2026-02-11T23:59:00 SUMMARY defrosts_completed=9 all_ok=true\n2026-02-11T23:59:30 JOURNAL CLOSE lines=10\n"
+  },
+  "turns": [
+    {
+      "prompt": "Innismore Cold Store's controller journals each defrost cycle and closes the night with a summary line. How many defrost cycles completed on 11 February 2026? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 8,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

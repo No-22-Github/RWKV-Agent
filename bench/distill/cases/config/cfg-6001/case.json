@@ -1,0 +1,42 @@
+{
+  "id": "cfg-6001",
+  "description": "Effective telemetry interval for the Marldon depot under the Norlake ColdChain settings layers DISTILL-CANARY-53039364",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "precedence",
+    "traps": [
+      "TR-PRECEDENCE"
+    ],
+    "trap_decoys": {
+      "TR-PRECEDENCE": 90
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b04-norlake",
+    "ref_calls": 3,
+    "fixture_bytes": 863,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Norlake ColdChain - Marldon depot\n\n`ColdChain` is Norlake's refrigeration monitoring platform. Each depot's settings resolve in two layers: the shipped defaults in `config/defaults.json` apply first, and any key the depot lists in `config/site-overlay.json` replaces the default. The overlay lists only what Marldon changes, so a key that appears in neither file has no value on this depot.\n\nThe settings write desk keeps background detail under `docs/`.\n",
+    "config/defaults.json": "{\n  \"telemetry_interval_s\": 90,\n  \"compressor_cycle_min\": 9,\n  \"door_open_warn_s\": 30,\n  \"alarm_dial_delay_s\": 12\n}\n",
+    "config/site-overlay.json": "{\n  \"telemetry_interval_s\": 45,\n  \"door_open_warn_s\": 20\n}\n",
+    "docs/alarm-notes.md": "# Alarm notes\n\nThe dial-out alarm rings the on-call rota; the ringing cadence is set on the phone system, not in ColdChain. Door contacts report through the overlay values, while compressor protection timings live on the site PLC.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Norlake ColdChain reports each depot's sensors on a fixed cadence, and the facilities team at Marldon wants the cadence their depot actually runs. What is the effective telemetry interval in seconds for Marldon? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 45,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

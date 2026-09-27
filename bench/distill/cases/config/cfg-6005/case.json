@@ -1,0 +1,41 @@
+{
+  "id": "cfg-6005",
+  "description": "Poll interval of the relay controller in the Pendower poller's per-service settings blocks DISTILL-CANARY-18398224",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 30
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b04-pendower",
+    "ref_calls": 2,
+    "fixture_bytes": 850,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Pendower Controls - substation poller\n\n`config/poller.json` carries one block per service. Each service starts and reads only the block named for it; nothing is shared between blocks, and a service never falls back to another block's settings.\n\nThe firmware team records rollout detail under `docs/`.\n",
+    "config/poller.json": "{\n  \"meter_reader\": {\n    \"poll_seconds\": 30,\n    \"retry_backoff_s\": 5,\n    \"timeout_s\": 8\n  },\n  \"relay_controller\": {\n    \"poll_seconds\": 15,\n    \"retry_backoff_s\": 10,\n    \"timeout_s\": 4,\n    \"firmware_channel\": \"stable\"\n  },\n  \"alarm_hub\": {\n    \"poll_seconds\": 60,\n    \"retry_backoff_s\": 3,\n    \"timeout_s\": 6\n  }\n}\n",
+    "docs/firmware-notes.md": "# Firmware notes\n\nThe relay controller tracks the stable channel; test-depot relays ride the beta channel for a fortnight while a build is being assessed. Meter firmware is updated by the meter supplier on their own schedule.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Pendower Controls' substation poller checks each piece of equipment on its own schedule, and the relay team is documenting the cadence their controller keeps. What is the poll interval in seconds for the relay controller? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 15,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

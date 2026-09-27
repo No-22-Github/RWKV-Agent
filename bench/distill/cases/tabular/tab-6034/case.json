@@ -1,0 +1,35 @@
+{
+  "id": "tab-6034",
+  "description": "Uncollected balance across August invoices and part receipts. DISTILL-CANARY-b32323ed",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "reconcile",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-tab-b04-uncollected-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1183,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "billing/invoices_2026-08.csv": "invoice_id,customer,issue_date,amount\nFM-4100,Eastling Press,2026-08-18,1551.91\nFM-4101,Cranbrook Tins,2026-08-04,1342.70\nFM-4102,Fairwarp Deli,2026-08-19,857.34\nFM-4103,Fairwarp Deli,2026-08-19,398.49\nFM-4104,Eastling Press,2026-08-07,825.48\nFM-4105,Bodfari Books,2026-08-18,859.14\nFM-4106,Eastling Press,2026-08-21,367.88\nFM-4107,Eastling Press,2026-08-15,1331.15\nFM-4108,Cranbrook Tins,2026-08-05,794.22\nFM-4109,Cranbrook Tins,2026-08-24,517.62\nFM-4110,Fairwarp Deli,2026-08-12,724.78\nFM-4111,Cranbrook Tins,2026-08-17,1508.45\nFM-4112,Bodfari Books,2026-08-18,489.34\nFM-4113,Bodfari Books,2026-08-03,1129.26\n",
+    "billing/receipts_2026-08.csv": "receipt_id,invoice_ref,paid_on,amount\nFR-620,FM-4100,2026-08-12,1056.42\nFR-621,FM-4101,2026-08-23,973.43\nFR-622,FM-4102,2026-08-22,519.69\nFR-623,FM-4103,2026-08-10,278.60\nFR-624,FM-4104,2026-08-13,711.54\nFR-625,FM-4105,2026-08-13,368.25\nFR-626,FM-4106,2026-08-24,289.23\nFR-627,FM-4107,2026-08-24,1193.75\nFR-628,FM-4108,2026-08-25,529.33\nFR-629,FM-4109,2026-08-14,368.49\nFR-630,FM-4110,2026-08-20,568.01\n",
+    "README.md": "# Foxhall Mill - trade billing, August 2026\n\ninvoices_2026-08.csv raises the month's invoices; receipts_2026-08.csv logs cash received against them, in part or in full.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Foxhall Mill reviews its cash position at month end. How much of the August 2026 invoiced amount remains uncollected? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 5841.02,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

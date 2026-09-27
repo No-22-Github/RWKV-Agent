@@ -1,0 +1,41 @@
+{
+  "id": "cfg-6004",
+  "description": "Pallet wrap tension for the Oakmoss packing line, which neither settings file for the controller defines DISTILL-CANARY-f32bf446",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "missing_keys",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": 18
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b04-oakmoss",
+    "ref_calls": 4,
+    "fixture_bytes": 883,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Oakmoss Vineyard - packing line controller\n\nThe controller that runs the packing shed reads its settings from `config/orchard-base.json`. The seasonal crew profile in `profiles/packing-line.ini` re-tunes a few of them for harvest: any key set in the profile's `[packing-line]` section replaces the base value, and keys the profile leaves out keep their base values.\n\nAnything the controller needs beyond these two files is fixed in its firmware.\n",
+    "config/orchard-base.json": "{\n  \"crate_weight_limit_kg\": 320,\n  \"belt_speed_pct\": 60,\n  \"label_delay_ms\": 400,\n  \"case_seal_temp_c\": 105,\n  \"case_tape_tension_n\": 18\n}\n",
+    "profiles/packing-line.ini": "[packing-line]\ncrate_weight_limit_kg = 280\nlabel_delay_ms = 350\n",
+    "docs/line-notes.md": "# Shed notes\n\nThe labelling head stamps each crate as it passes the scanner gate; the ink is changed every second morning. Belt speed stays where the base file puts it during harvest because the sorter downstream cannot go faster.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The shrink-wrap station at the end of the Oakmoss packing line holds each pallet steady while film is wound on, and the crew lead is logging the wrap tension the line runs at. What is the pallet wrap tension setting for the packing line? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "UNKNOWN"
+      }
+    }
+  ]
+}

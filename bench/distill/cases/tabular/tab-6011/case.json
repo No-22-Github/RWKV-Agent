@@ -1,0 +1,41 @@
+{
+  "id": "tab-6011",
+  "description": "Distinct August press runs for one client when the export re-issues confirmed lines. DISTILL-CANARY-971629ee",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 9
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b04-pressruns-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1216,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "press/runs_2026-08.csv": "run_id,client,run_date,sheets\nPR-6208,Fosseway Council,2026-08-27,1287\nPR-6218,Dunwich Academy,2026-08-03,4986\nPR-6207,Chetwynd School,2026-08-02,1103\nPR-6217,Dunwich Academy,2026-08-11,3826\nPR-6215,Dunwich Academy,2026-08-23,1002\nPR-6201,Chetwynd School,2026-08-10,4449\nPR-6218,Dunwich Academy,2026-08-03,4986\nPR-6213,Chetwynd School,2026-08-15,3263\nPR-6219,Dunwich Academy,2026-08-23,4342\nPR-6203,Bexley Opticians,2026-08-13,4019\nPR-6205,Fosseway Council,2026-08-20,4084\nPR-6216,Dunwich Academy,2026-08-27,4738\nPR-6200,Bexley Opticians,2026-08-24,4006\nPR-6220,Dunwich Academy,2026-08-08,3765\nPR-6204,Chetwynd School,2026-08-07,723\nPR-6206,Bexley Opticians,2026-08-22,4423\nPR-6211,Fosseway Council,2026-08-24,1049\nPR-6215,Dunwich Academy,2026-08-23,1002\nPR-6209,Bexley Opticians,2026-08-03,1206\nPR-6214,Dunwich Academy,2026-08-16,2402\nPR-6212,Bexley Opticians,2026-08-08,258\nPR-6210,Chetwynd School,2026-08-15,3297\nPR-6202,Fosseway Council,2026-08-28,3911\n",
+    "README.md": "# Crosshall Print Works - press runs, August 2026\n\nOne row per run as logged at the machine. The scheduling export re-issues a line when a run is re-confirmed, so an entry can appear twice unchanged.\n",
+    "stock/inks.txt": "Litho black reorder point: 40 kg\nPantone 021 stock: 6 tins\n"
+  },
+  "turns": [
+    {
+      "prompt": "Crosshall Print Works invoices per run. How many print runs did the works do for Dunwich Academy in August 2026? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 7,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

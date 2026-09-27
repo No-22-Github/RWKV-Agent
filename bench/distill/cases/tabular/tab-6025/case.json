@@ -1,0 +1,40 @@
+{
+  "id": "tab-6025",
+  "description": "Leading region's July invoiced total where amounts carry currency punctuation. DISTILL-CANARY-a44e138a",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "rank",
+    "traps": [
+      "TR-NUMFMT"
+    ],
+    "trap_decoys": {
+      "TR-NUMFMT": 6291.0
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b04-regionfmt-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1709,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "region/invoices_2026-07.csv": "invoice_id,region,issue_date,amount\nDS-9500,Avonvale,2026-07-18,\"$734.60\"\nDS-9501,Bredonhill,2026-07-09,\"$754.38\"\nDS-9502,Chedworth,2026-07-01,\"$627.61\"\nDS-9503,Dunsmore,2026-07-20,\"$417.41\"\nDS-9504,Avonvale,2026-07-22,\"$746.91\"\nDS-9505,Bredonhill,2026-07-17,\"$271.55\"\nDS-9506,Chedworth,2026-07-24,\"$448.60\"\nDS-9507,Dunsmore,2026-07-15,\"$540.47\"\nDS-9508,Avonvale,2026-07-15,\"$780.24\"\nDS-9509,Bredonhill,2026-07-03,\"$442.77\"\nDS-9510,Chedworth,2026-07-03,\"$187.95\"\nDS-9511,Dunsmore,2026-07-11,\"$291.84\"\nDS-9512,Avonvale,2026-07-06,\"$448.33\"\nDS-9513,Bredonhill,2026-07-16,\"$455.04\"\nDS-9514,Chedworth,2026-07-10,\"$435.05\"\nDS-9515,Dunsmore,2026-07-14,\"$581.12\"\nDS-9516,Avonvale,2026-07-25,\"$458.85\"\nDS-9517,Bredonhill,2026-07-23,\"$454.58\"\nDS-9518,Chedworth,2026-07-19,\"$225.74\"\nDS-9519,Dunsmore,2026-07-18,\"$437.49\"\nDS-9520,Avonvale,2026-07-24,\"$878.72\"\nDS-9521,Bredonhill,2026-07-02,\"$688.69\"\nDS-9522,Chedworth,2026-07-27,\"$751.49\"\nDS-9523,Dunsmore,2026-07-07,\"$200.69\"\nDS-9524,Avonvale,2026-07-21,\"$454.40\"\nDS-9525,Bredonhill,2026-07-08,\"$291.73\"\nDS-9526,Chedworth,2026-07-27,\"$490.48\"\nDS-9527,Dunsmore,2026-07-14,\"$203.51\"\nDS-9528,Avonvale,2026-07-15,\"$739.31\"\nDS-9529,Bredonhill,2026-07-21,\"$326.57\"\nDS-9530,Chedworth,2026-07-01,\"$227.10\"\nDS-9531,Dunsmore,2026-07-12,\"$703.53\"\nDS-9532,Avonvale,2026-07-09,\"$211.22\"\nDS-9533,Bredonhill,2026-07-26,\"$726.40\"\nDS-9534,Chedworth,2026-07-13,\"$743.50\"\nDS-9535,Dunsmore,2026-07-24,\"$456.51\"\nDS-9536,Avonvale,2026-07-09,\"$843.63\"\nDS-9537,Bredonhill,2026-07-11,\"$449.11\"\nDS-9538,Chedworth,2026-07-28,\"$714.86\"\nDS-9539,Dunsmore,2026-07-09,\"$385.27\"\n",
+    "README.md": "# Dulverton Slate - regional invoicing, July 2026\n\nOne row per invoice raised by a regional office. Amounts are in pounds.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Dulverton Slate bonuses its regional offices on invoiced value. What was the total invoiced for the region with the highest July 2026 invoiced total? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 6296.21,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

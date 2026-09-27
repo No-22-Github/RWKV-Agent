@@ -1,0 +1,35 @@
+{
+  "id": "tab-6007",
+  "description": "September Merlot tonnage from a 46-row crush-pad log. DISTILL-CANARY-698561b5",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-tab-b04-grapeintake-01",
+    "ref_calls": 2,
+    "fixture_bytes": 2219,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "intake/grape_intake_2026-09.csv": "lot_id,intake_date,grower,variety,weight_kg\nFV-1200,2026-09-12,Diddlebury,Seyval,621\nFV-1201,2026-09-17,Cothercott,Chardonnay,639\nFV-1202,2026-09-08,Brimfield,Chardonnay,501\nFV-1203,2026-09-01,Ashperton,Cabernet Franc,406\nFV-1204,2026-09-07,Ashperton,Seyval,598\nFV-1205,2026-09-16,Brimfield,Cabernet Franc,686\nFV-1206,2026-09-06,Diddlebury,Chardonnay,652\nFV-1207,2026-09-13,Diddlebury,Merlot,476\nFV-1208,2026-09-18,Diddlebury,Cabernet Franc,480\nFV-1209,2026-09-24,Brimfield,Merlot,333\nFV-1210,2026-09-03,Ashperton,Seyval,298\nFV-1211,2026-09-05,Brimfield,Cabernet Franc,629\nFV-1212,2026-09-27,Diddlebury,Cabernet Franc,699\nFV-1213,2026-09-22,Cothercott,Merlot,407\nFV-1214,2026-09-04,Ashperton,Seyval,617\nFV-1215,2026-09-13,Diddlebury,Seyval,686\nFV-1216,2026-09-25,Diddlebury,Cabernet Franc,421\nFV-1217,2026-09-10,Diddlebury,Merlot,710\nFV-1218,2026-09-15,Ashperton,Chardonnay,381\nFV-1219,2026-09-01,Ashperton,Chardonnay,458\nFV-1220,2026-09-26,Brimfield,Chardonnay,708\nFV-1221,2026-09-28,Ashperton,Chardonnay,534\nFV-1222,2026-09-25,Ashperton,Merlot,337\nFV-1223,2026-09-09,Cothercott,Seyval,314\nFV-1224,2026-09-26,Diddlebury,Chardonnay,490\nFV-1225,2026-09-13,Diddlebury,Seyval,484\nFV-1226,2026-09-17,Brimfield,Cabernet Franc,318\nFV-1227,2026-09-08,Diddlebury,Chardonnay,346\nFV-1228,2026-09-17,Ashperton,Seyval,293\nFV-1229,2026-09-19,Cothercott,Chardonnay,565\nFV-1230,2026-09-14,Brimfield,Seyval,597\nFV-1231,2026-09-05,Ashperton,Seyval,548\nFV-1232,2026-09-19,Diddlebury,Cabernet Franc,677\nFV-1233,2026-09-12,Cothercott,Merlot,422\nFV-1234,2026-09-06,Diddlebury,Merlot,701\nFV-1235,2026-09-15,Brimfield,Cabernet Franc,545\nFV-1236,2026-09-12,Ashperton,Merlot,730\nFV-1237,2026-09-16,Diddlebury,Cabernet Franc,554\nFV-1238,2026-09-26,Ashperton,Chardonnay,635\nFV-1239,2026-09-14,Cothercott,Chardonnay,493\nFV-1240,2026-09-02,Brimfield,Merlot,469\nFV-1241,2026-09-05,Brimfield,Seyval,424\nFV-1242,2026-09-24,Diddlebury,Cabernet Franc,516\nFV-1243,2026-09-25,Cothercott,Seyval,664\nFV-1244,2026-09-10,Diddlebury,Seyval,559\nFV-1245,2026-09-23,Brimfield,Cabernet Franc,541\n",
+    "README.md": "# Foxhanger Vineyard - grape intake, September 2026\n\nOne row per grower lot weighed at the crush pad.\n",
+    "notes/grower-terms.txt": "Brimfield delivers on shared trailers; weight is split at the pad\n"
+  },
+  "turns": [
+    {
+      "prompt": "Foxhanger Vineyard weighs every grower lot at the crush pad. What weight of Merlot was taken in during September 2026? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 4585,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

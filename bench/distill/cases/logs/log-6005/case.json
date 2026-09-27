@@ -1,0 +1,40 @@
+{
+  "id": "log-6005",
+  "description": "Count the lock passages that reached completion on one day, where two entered vessels stayed moored in the chamber overnight. DISTILL-CANARY-b04e7726",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": 9
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-b04-lockpassage",
+    "ref_calls": 3,
+    "fixture_bytes": 1948,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Marazion Canal - Lock 3 keeper's journal\n\nOne line per chamber movement:\n\n    <time> LOCK 3 OPEN            the chamber gates open to admit a vessel\n    <time> VESSEL IN boat=<name>  a vessel enters the chamber\n    <time> VESSEL OUT boat=<name> a vessel leaves the chamber downstream\n    <time> LOCK 3 CLOSED          the chamber gates shut again\n\nA passage counts as complete on the day the vessel leaves the chamber.\nVessels still in the chamber when the keeper finishes for the evening stay\nmoored there and finish their passage the next morning.\n",
+    "logs/lock3-journal.log": "2026-04-18T08:12:09 LOCK 3 OPEN\n2026-04-18T08:15:21 VESSEL IN boat=Kestrel\n2026-04-18T08:26:33 VESSEL OUT boat=Kestrel\n2026-04-18T08:30:45 LOCK 3 CLOSED\n2026-04-18T09:11:20 LOCK 3 OPEN\n2026-04-18T09:14:28 VESSEL IN boat=Merlin\n2026-04-18T09:25:38 VESSEL OUT boat=Merlin\n2026-04-18T09:29:48 LOCK 3 CLOSED\n2026-04-18T10:10:31 LOCK 3 OPEN\n2026-04-18T10:13:35 VESSEL IN boat=Heron\n2026-04-18T10:17:51 LOCK 3 CLOSED\n2026-04-18T10:58:42 LOCK 3 OPEN\n2026-04-18T11:01:42 VESSEL IN boat=Grebe\n2026-04-18T11:12:48 VESSEL OUT boat=Grebe\n2026-04-18T11:16:54 LOCK 3 CLOSED\n2026-04-18T11:57:53 LOCK 3 OPEN\n2026-04-18T12:00:49 VESSEL IN boat=Godwit\n2026-04-18T12:11:53 VESSEL OUT boat=Godwit\n2026-04-18T12:15:57 LOCK 3 CLOSED\n2026-04-18T12:56:04 LOCK 3 OPEN\n2026-04-18T12:59:56 VESSEL IN boat=Ibis\n2026-04-18T13:10:58 VESSEL OUT boat=Ibis\n2026-04-18T13:14:00 LOCK 3 CLOSED\n2026-04-18T13:55:15 LOCK 3 OPEN\n2026-04-18T13:58:03 VESSEL IN boat=Jackdaw\n2026-04-18T14:09:03 VESSEL OUT boat=Jackdaw\n2026-04-18T14:13:03 LOCK 3 CLOSED\n2026-04-18T14:54:26 LOCK 3 OPEN\n2026-04-18T14:57:10 VESSEL IN boat=Kittiwake\n2026-04-18T15:01:06 LOCK 3 CLOSED\n2026-04-18T15:42:37 LOCK 3 OPEN\n2026-04-18T15:45:17 VESSEL IN boat=Goosander\n2026-04-18T15:56:13 VESSEL OUT boat=Goosander\n2026-04-18T16:00:09 LOCK 3 CLOSED\n2026-04-18T19:41:55 NOTE two vessels stay moored in the chamber overnight\n2026-04-18T20:00:00 JOURNAL CLOSE lines=35\n"
+  },
+  "turns": [
+    {
+      "prompt": "The keeper of Lock 3 on the Marazion Canal journals every movement of the chamber. How many passages did Lock 3 complete on 18 April 2026? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 7,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

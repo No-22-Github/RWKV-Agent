@@ -1,0 +1,40 @@
+{
+  "id": "tab-6026",
+  "description": "April dispatch leader when March spot-check re-runs sit in the same file. DISTILL-CANARY-0509f483",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "rank",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 440
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b04-auditleader-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1470,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "depots/parcels_2026-04.csv": "parcel_id,depot,dispatch_date,parcels\nPL-3301,Birchcop,2026-03-24,33\nPL-3300,Birchcop,2026-03-24,32\nPL-3338,Birchcop,2026-04-18,13\nPL-3315,Dringhouses,2026-04-18,47\nPL-3329,Birchcop,2026-04-08,25\nPL-3306,Ardwick,2026-04-11,22\nPL-3313,Cransley,2026-04-07,13\nPL-3334,Cransley,2026-04-28,26\nPL-3330,Ardwick,2026-04-10,18\nPL-3326,Cransley,2026-04-18,14\nPL-3311,Dringhouses,2026-04-23,45\nPL-3310,Birchcop,2026-04-17,21\nPL-3305,Birchcop,2026-03-26,38\nPL-3308,Dringhouses,2026-04-03,41\nPL-3328,Ardwick,2026-04-08,14\nPL-3303,Birchcop,2026-03-25,37\nPL-3307,Dringhouses,2026-04-25,39\nPL-3325,Ardwick,2026-04-11,24\nPL-3335,Birchcop,2026-04-12,17\nPL-3302,Birchcop,2026-03-25,36\nPL-3323,Dringhouses,2026-04-04,39\nPL-3332,Cransley,2026-04-14,26\nPL-3316,Birchcop,2026-04-06,15\nPL-3319,Dringhouses,2026-04-05,34\nPL-3322,Birchcop,2026-04-22,13\nPL-3312,Cransley,2026-04-03,21\nPL-3304,Birchcop,2026-03-26,39\nPL-3339,Cransley,2026-04-07,12\nPL-3309,Birchcop,2026-04-06,25\nPL-3318,Dringhouses,2026-04-14,35\nPL-3336,Birchcop,2026-04-22,15\nPL-3333,Cransley,2026-04-27,19\nPL-3320,Birchcop,2026-04-09,17\nPL-3324,Cransley,2026-04-20,19\nPL-3314,Cransley,2026-04-18,12\nPL-3317,Dringhouses,2026-04-06,46\nPL-3331,Birchcop,2026-04-04,26\nPL-3337,Birchcop,2026-04-23,16\nPL-3327,Birchcop,2026-04-26,22\nPL-3321,Dringhouses,2026-04-25,41\n",
+    "README.md": "# Ferndale Parcels - depot dispatches, April 2026\n\nOne row per dispatch run. Six rows re-run from the March spot-check sit somewhere in the file with their March dates.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Ferndale Parcels awards a monthly shield for dispatch volume. How many parcels did the depot with the most April 2026 dispatches send? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 367,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

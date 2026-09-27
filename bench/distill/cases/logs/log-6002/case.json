@@ -1,0 +1,37 @@
+{
+  "id": "log-6002",
+  "description": "Count the watering runs one glasshouse bed received on a single day of a garden centre's irrigation journal. DISTILL-CANARY-b04b2d70",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-log-b04-waterrounds",
+    "ref_calls": 2,
+    "fixture_bytes": 1323,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Gowerton Garden Centre - irrigation controller\n\nThe controller journals every valve movement in the glasshouse beds.\n\n    <time> bed=<bed> valve=<id> OPEN minutes=<n>   watering run starts\n    <time> bed=<bed> valve=<id> CLOSE              watering run ends\n",
+    "logs/irrigation.log": "2026-07-06T02:10:11 bed=alpine valve=V-2 OPEN minutes=12\n2026-07-06T02:22:35 bed=alpine valve=V-2 CLOSE\n2026-07-06T02:40:19 bed=fernery valve=V-3 OPEN minutes=9\n2026-07-06T02:49:31 bed=fernery valve=V-3 CLOSE\n2026-07-06T05:10:42 bed=fernery valve=V-3 OPEN minutes=7\n2026-07-06T05:17:58 bed=fernery valve=V-3 CLOSE\n2026-07-06T07:31:26 bed=herb valve=V-5 OPEN minutes=6\n2026-07-06T07:37:49 bed=herb valve=V-5 CLOSE\n2026-07-06T09:02:14 bed=alpine valve=V-2 OPEN minutes=10\n2026-07-06T09:12:39 bed=alpine valve=V-2 CLOSE\n2026-07-06T11:23:05 bed=fernery valve=V-3 OPEN minutes=8\n2026-07-06T11:31:27 bed=fernery valve=V-3 CLOSE\n2026-07-06T14:45:52 bed=succulent valve=V-6 OPEN minutes=5\n2026-07-06T14:50:18 bed=succulent valve=V-6 CLOSE\n2026-07-06T18:02:33 bed=fernery valve=V-3 OPEN minutes=11\n2026-07-06T18:13:47 bed=fernery valve=V-3 CLOSE\n2026-07-06T19:28:56 bed=herb valve=V-5 OPEN minutes=6\n2026-07-06T19:35:20 bed=herb valve=V-5 CLOSE\n2026-07-06T21:00:00 JOURNAL CLOSE lines=18\n",
+    "notes/head-grower.md": "Fernery misting nozzles were serviced in June; the bed ran short cycles all summer.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Gowerton Garden Centre's irrigation controller journals every watering run in the glasshouse. How many times did the fernery bed's valve open on 6 July 2026? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 4,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "id": "log-6018",
+  "description": "Read the first error code one sawline drive raised, in a shared mill journal whose second drive's name extends the first with one character. DISTILL-CANARY-b04f2279",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "locate_error",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": "V-44"
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-log-b04-sawdrive",
+    "ref_calls": 3,
+    "fixture_bytes": 6510,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Minnigaff Sawmill - sawline journal\n\nThe mill's primary sawline runs two feed drives and both append to the same\njournal: minnigaff-sawline-2 is the main drive, minnigaff-sawline-2b the\ntrimmer feed. Every line names the drive that raised it.\n",
+    "logs/sawmill-journal.log": "2026-07-14T08:00:05 host=minnigaff-sawline-2 INFO boards_m=120 feed_m_min=28\n2026-07-14T08:02:16 host=minnigaff-sawline-2b INFO boards_m=123 feed_m_min=33\n2026-07-14T08:11:27 host=minnigaff-sawline-2 INFO boards_m=126 feed_m_min=29\n2026-07-14T08:18:38 host=minnigaff-sawline-2 INFO boards_m=129 feed_m_min=34\n2026-07-14T08:23:49 host=minnigaff-sawline-2b INFO boards_m=132 feed_m_min=30\n2026-07-14T08:26:00 host=minnigaff-sawline-2 INFO boards_m=135 feed_m_min=35\n2026-07-14T08:36:11 host=minnigaff-sawline-2 INFO boards_m=138 feed_m_min=31\n2026-07-14T08:44:22 host=minnigaff-sawline-2b INFO boards_m=141 feed_m_min=36\n2026-07-14T08:50:33 host=minnigaff-sawline-2 INFO boards_m=144 feed_m_min=32\n2026-07-14T08:54:44 host=minnigaff-sawline-2 INFO boards_m=147 feed_m_min=28\n2026-07-14T08:56:55 host=minnigaff-sawline-2b INFO boards_m=150 feed_m_min=33\n2026-07-14T09:05:06 host=minnigaff-sawline-2 INFO boards_m=153 feed_m_min=29\n2026-07-14T09:12:17 host=minnigaff-sawline-2 INFO boards_m=156 feed_m_min=34\n2026-07-14T09:17:28 host=minnigaff-sawline-2b ERROR code=V-44 msg=\"blade guide wear\"\n2026-07-14T09:20:39 host=minnigaff-sawline-2 INFO boards_m=122 feed_m_min=35\n2026-07-14T09:30:50 host=minnigaff-sawline-2 INFO boards_m=125 feed_m_min=31\n2026-07-14T09:38:01 host=minnigaff-sawline-2b INFO boards_m=128 feed_m_min=36\n2026-07-14T09:44:12 host=minnigaff-sawline-2 ERROR code=V-31 msg=\"belt tension low\"\n2026-07-14T09:48:23 host=minnigaff-sawline-2 INFO boards_m=134 feed_m_min=28\n2026-07-14T09:50:34 host=minnigaff-sawline-2b INFO boards_m=137 feed_m_min=33\n2026-07-14T09:59:45 host=minnigaff-sawline-2 INFO boards_m=140 feed_m_min=29\n2026-07-14T10:06:56 host=minnigaff-sawline-2 INFO boards_m=143 feed_m_min=34\n2026-07-14T10:11:07 host=minnigaff-sawline-2b INFO boards_m=146 feed_m_min=30\n2026-07-14T10:14:18 host=minnigaff-sawline-2 INFO boards_m=149 feed_m_min=35\n2026-07-14T10:24:29 host=minnigaff-sawline-2 INFO boards_m=152 feed_m_min=31\n2026-07-14T10:32:40 host=minnigaff-sawline-2b INFO boards_m=155 feed_m_min=36\n2026-07-14T10:38:51 host=minnigaff-sawline-2 INFO boards_m=158 feed_m_min=32\n2026-07-14T10:42:02 host=minnigaff-sawline-2 INFO boards_m=121 feed_m_min=28\n2026-07-14T10:44:13 host=minnigaff-sawline-2b INFO boards_m=124 feed_m_min=33\n2026-07-14T10:53:24 host=minnigaff-sawline-2 INFO boards_m=127 feed_m_min=29\n2026-07-14T11:00:35 host=minnigaff-sawline-2 INFO boards_m=130 feed_m_min=34\n2026-07-14T11:05:46 host=minnigaff-sawline-2b INFO boards_m=133 feed_m_min=30\n2026-07-14T11:08:57 host=minnigaff-sawline-2 INFO boards_m=136 feed_m_min=35\n2026-07-14T11:18:08 host=minnigaff-sawline-2 INFO boards_m=139 feed_m_min=31\n2026-07-14T11:26:19 host=minnigaff-sawline-2b INFO boards_m=142 feed_m_min=36\n2026-07-14T11:32:30 host=minnigaff-sawline-2 INFO boards_m=145 feed_m_min=32\n2026-07-14T11:36:41 host=minnigaff-sawline-2 INFO boards_m=148 feed_m_min=28\n2026-07-14T11:38:52 host=minnigaff-sawline-2b INFO boards_m=151 feed_m_min=33\n2026-07-14T11:47:03 host=minnigaff-sawline-2 INFO boards_m=154 feed_m_min=29\n2026-07-14T11:54:14 host=minnigaff-sawline-2 INFO boards_m=157 feed_m_min=34\n2026-07-14T11:59:25 host=minnigaff-sawline-2b INFO boards_m=120 feed_m_min=30\n2026-07-14T12:02:36 host=minnigaff-sawline-2 INFO boards_m=123 feed_m_min=35\n2026-07-14T12:12:47 host=minnigaff-sawline-2 INFO boards_m=126 feed_m_min=31\n2026-07-14T12:20:58 host=minnigaff-sawline-2b INFO boards_m=129 feed_m_min=36\n2026-07-14T12:26:09 host=minnigaff-sawline-2 INFO boards_m=132 feed_m_min=32\n2026-07-14T12:30:20 host=minnigaff-sawline-2 INFO boards_m=135 feed_m_min=28\n2026-07-14T12:32:31 host=minnigaff-sawline-2b INFO boards_m=138 feed_m_min=33\n2026-07-14T12:41:42 host=minnigaff-sawline-2 INFO boards_m=141 feed_m_min=29\n2026-07-14T12:48:53 host=minnigaff-sawline-2 INFO boards_m=144 feed_m_min=34\n2026-07-14T12:53:04 host=minnigaff-sawline-2b INFO boards_m=147 feed_m_min=30\n2026-07-14T12:56:15 host=minnigaff-sawline-2 INFO boards_m=150 feed_m_min=35\n2026-07-14T13:06:26 host=minnigaff-sawline-2 INFO boards_m=153 feed_m_min=31\n2026-07-14T13:14:37 host=minnigaff-sawline-2b INFO boards_m=156 feed_m_min=36\n2026-07-14T13:20:48 host=minnigaff-sawline-2 INFO boards_m=159 feed_m_min=32\n2026-07-14T13:24:59 host=minnigaff-sawline-2 INFO boards_m=122 feed_m_min=28\n2026-07-14T13:26:10 host=minnigaff-sawline-2b INFO boards_m=125 feed_m_min=33\n2026-07-14T13:35:21 host=minnigaff-sawline-2 INFO boards_m=128 feed_m_min=29\n2026-07-14T13:42:32 host=minnigaff-sawline-2 INFO boards_m=131 feed_m_min=34\n2026-07-14T13:47:43 host=minnigaff-sawline-2b INFO boards_m=134 feed_m_min=30\n2026-07-14T13:50:54 host=minnigaff-sawline-2 INFO boards_m=137 feed_m_min=35\n2026-07-14T14:00:05 host=minnigaff-sawline-2 INFO boards_m=140 feed_m_min=31\n2026-07-14T14:08:16 host=minnigaff-sawline-2b WARN code=V-52 msg=\"guide temperature rising\"\n2026-07-14T14:14:27 host=minnigaff-sawline-2 ERROR code=V-31 msg=\"belt tension low\"\n2026-07-14T14:18:38 host=minnigaff-sawline-2 INFO boards_m=149 feed_m_min=28\n2026-07-14T14:20:49 host=minnigaff-sawline-2b INFO boards_m=152 feed_m_min=33\n2026-07-14T14:29:00 host=minnigaff-sawline-2 INFO boards_m=155 feed_m_min=29\n2026-07-14T14:36:11 host=minnigaff-sawline-2 INFO boards_m=158 feed_m_min=34\n2026-07-14T14:41:22 host=minnigaff-sawline-2b INFO boards_m=121 feed_m_min=30\n2026-07-14T14:44:33 host=minnigaff-sawline-2 INFO boards_m=124 feed_m_min=35\n2026-07-14T14:54:44 host=minnigaff-sawline-2 INFO boards_m=127 feed_m_min=31\n2026-07-14T15:02:55 host=minnigaff-sawline-2b INFO boards_m=130 feed_m_min=36\n2026-07-14T15:08:06 host=minnigaff-sawline-2 INFO boards_m=133 feed_m_min=32\n2026-07-14T15:12:17 host=minnigaff-sawline-2 INFO boards_m=136 feed_m_min=28\n2026-07-14T15:14:28 host=minnigaff-sawline-2b INFO boards_m=139 feed_m_min=33\n2026-07-14T15:23:39 host=minnigaff-sawline-2 INFO boards_m=142 feed_m_min=29\n2026-07-14T15:30:50 host=minnigaff-sawline-2 INFO boards_m=145 feed_m_min=34\n2026-07-14T15:35:01 host=minnigaff-sawline-2b INFO boards_m=148 feed_m_min=30\n2026-07-14T15:38:12 host=minnigaff-sawline-2 INFO boards_m=151 feed_m_min=35\n2026-07-14T15:48:23 host=minnigaff-sawline-2 INFO boards_m=154 feed_m_min=31\n2026-07-14T15:56:34 host=minnigaff-sawline-2b INFO boards_m=157 feed_m_min=36\n2026-07-14T18:00:00 JOURNAL CLOSE lines=80\n"
+  },
+  "turns": [
+    {
+      "prompt": "Minnigaff Sawmill's two sawline drives append to one mill journal. What is the error code of the first ERROR that drive minnigaff-sawline-2 raised on 14 July 2026? Answer with the code alone. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "V-31"
+      }
+    }
+  ]
+}

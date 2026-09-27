@@ -1,0 +1,39 @@
+{
+  "id": "log-6021",
+  "description": "Name the coiler that raised the first over-current trip on 1 February in a controller journal that rotated at the month end and switched its stamp style from ISO to day/month/year. DISTILL-CANARY-b04c6a42",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "locate_error",
+    "traps": [
+      "TR-DATEFMT"
+    ],
+    "trap_decoys": {
+      "TR-DATEFMT": "metherall-coiler-1"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-b04-coldrotate",
+    "ref_calls": 3,
+    "fixture_bytes": 6009,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Metherall Steel - pickling line controller journal\n\nThe controller rotates its journal at each month boundary. Stamps were ISO\n(yyyy-mm-dd) up to the January rotate and dd/mm/yyyy afterwards, and both\nsections sit in this file. Over-current trips carry an OC code and the unit\nthat tripped.\n",
+    "logs/pickling-line.log": "2026-01-02T06:00:03 INFO unit=metherall-coiler-1 amps=380 status=run\n2026-01-02T06:37:14 INFO strip_width_mm=1125 speed_m_min=95 status=run\n2026-01-02T07:14:25 INFO strip_width_mm=1130 speed_m_min=98 status=run\n2026-01-02T07:51:36 INFO strip_width_mm=1120 speed_m_min=101 status=run\n2026-01-02T08:28:47 INFO unit=metherall-coiler-1 amps=408 status=run\n2026-01-02T09:05:58 INFO strip_width_mm=1130 speed_m_min=96 status=run\n2026-01-02T09:42:09 ERROR unit=metherall-coiler-1 code=OC-4 msg=\"over-current trip\"\n2026-01-02T10:19:20 INFO strip_width_mm=1125 speed_m_min=102 status=run\n2026-01-02T10:56:31 INFO unit=metherall-coiler-1 amps=436 status=run\n2026-01-02T11:33:42 INFO strip_width_mm=1120 speed_m_min=97 status=run\n2026-01-02T12:10:53 INFO strip_width_mm=1125 speed_m_min=100 status=run\n2026-01-02T12:47:04 INFO strip_width_mm=1130 speed_m_min=92 status=run\n2026-01-02T13:24:15 INFO unit=metherall-coiler-1 amps=464 status=run\n2026-01-02T14:01:26 INFO strip_width_mm=1125 speed_m_min=98 status=run\n2026-01-02T14:38:37 INFO strip_width_mm=1130 speed_m_min=101 status=run\n2026-01-03T06:00:03 INFO unit=metherall-coiler-1 amps=380 status=run\n2026-01-03T06:37:14 INFO strip_width_mm=1125 speed_m_min=95 status=run\n2026-01-03T07:14:25 INFO strip_width_mm=1130 speed_m_min=98 status=run\n2026-01-03T07:51:36 INFO strip_width_mm=1120 speed_m_min=101 status=run\n2026-01-03T08:28:47 INFO unit=metherall-coiler-1 amps=408 status=run\n2026-01-03T09:05:58 INFO strip_width_mm=1130 speed_m_min=96 status=run\n2026-01-03T09:42:09 INFO strip_width_mm=1120 speed_m_min=99 status=run\n2026-01-03T10:19:20 INFO strip_width_mm=1125 speed_m_min=102 status=run\n2026-01-03T10:56:31 INFO unit=metherall-coiler-1 amps=436 status=run\n2026-01-03T11:33:42 INFO strip_width_mm=1120 speed_m_min=97 status=run\n2026-01-03T12:10:53 INFO strip_width_mm=1125 speed_m_min=100 status=run\n2026-01-03T12:47:04 INFO strip_width_mm=1130 speed_m_min=92 status=run\n2026-01-03T13:24:15 INFO unit=metherall-coiler-1 amps=464 status=run\n2026-01-03T14:01:26 INFO strip_width_mm=1125 speed_m_min=98 status=run\n2026-01-03T14:38:37 INFO strip_width_mm=1130 speed_m_min=101 status=run\n2026-01-04T06:00:03 INFO unit=metherall-coiler-1 amps=380 status=run\n2026-01-04T06:37:14 INFO strip_width_mm=1125 speed_m_min=95 status=run\n2026-01-04T07:14:25 INFO strip_width_mm=1130 speed_m_min=98 status=run\n2026-01-04T07:51:36 INFO strip_width_mm=1120 speed_m_min=101 status=run\n2026-01-04T08:28:47 INFO unit=metherall-coiler-1 amps=408 status=run\n2026-01-04T09:05:58 INFO strip_width_mm=1130 speed_m_min=96 status=run\n2026-01-04T09:42:09 INFO strip_width_mm=1120 speed_m_min=99 status=run\n2026-01-04T10:19:20 INFO strip_width_mm=1125 speed_m_min=102 status=run\n2026-01-04T10:56:31 INFO unit=metherall-coiler-1 amps=436 status=run\n2026-01-04T11:33:42 INFO strip_width_mm=1120 speed_m_min=97 status=run\n2026-01-04T12:10:53 INFO strip_width_mm=1125 speed_m_min=100 status=run\n2026-01-04T12:47:04 INFO strip_width_mm=1130 speed_m_min=92 status=run\n2026-01-04T13:24:15 INFO unit=metherall-coiler-1 amps=464 status=run\n2026-01-04T14:01:26 INFO strip_width_mm=1125 speed_m_min=98 status=run\n2026-01-04T14:38:37 INFO strip_width_mm=1130 speed_m_min=101 status=run\n2026-01-04T23:59:59 NOTE journal rotated: stamps switch to dd/mm/yyyy\n01/02/2026 05:00:07 INFO unit=metherall-coiler-1 amps=372 status=run\n01/02/2026 05:39:20 INFO strip_width_mm=1120 speed_m_min=91 status=run\n01/02/2026 06:18:33 INFO strip_width_mm=1125 speed_m_min=94 status=run\n01/02/2026 06:57:46 INFO strip_width_mm=1115 speed_m_min=97 status=run\n01/02/2026 07:36:59 INFO unit=metherall-coiler-1 amps=408 status=run\n01/02/2026 08:15:12 INFO strip_width_mm=1125 speed_m_min=90 status=run\n01/02/2026 08:54:25 INFO strip_width_mm=1115 speed_m_min=93 status=run\n01/02/2026 09:33:38 INFO strip_width_mm=1120 speed_m_min=96 status=run\n01/02/2026 10:12:51 INFO unit=metherall-coiler-1 amps=444 status=run\n01/02/2026 10:51:04 INFO strip_width_mm=1115 speed_m_min=89 status=run\n01/02/2026 11:30:17 INFO strip_width_mm=1120 speed_m_min=92 status=run\n01/02/2026 12:09:30 ERROR unit=metherall-coiler-2 code=OC-9 msg=\"over-current trip\"\n01/02/2026 12:48:43 INFO unit=metherall-coiler-1 amps=480 status=run\n01/02/2026 13:27:56 INFO strip_width_mm=1120 speed_m_min=88 status=run\n01/02/2026 14:06:09 INFO strip_width_mm=1125 speed_m_min=91 status=run\n01/02/2026 14:45:22 INFO strip_width_mm=1115 speed_m_min=94 status=run\n01/02/2026 15:24:35 INFO unit=metherall-coiler-1 amps=516 status=run\n02/02/2026 05:00:07 INFO unit=metherall-coiler-1 amps=372 status=run\n02/02/2026 05:39:20 INFO strip_width_mm=1120 speed_m_min=91 status=run\n02/02/2026 06:18:33 INFO strip_width_mm=1125 speed_m_min=94 status=run\n02/02/2026 06:57:46 INFO strip_width_mm=1115 speed_m_min=97 status=run\n02/02/2026 07:36:59 INFO unit=metherall-coiler-1 amps=408 status=run\n02/02/2026 08:15:12 INFO strip_width_mm=1125 speed_m_min=90 status=run\n02/02/2026 08:54:25 INFO strip_width_mm=1115 speed_m_min=93 status=run\n02/02/2026 09:33:38 INFO strip_width_mm=1120 speed_m_min=96 status=run\n02/02/2026 10:12:51 INFO unit=metherall-coiler-1 amps=444 status=run\n02/02/2026 10:51:04 INFO strip_width_mm=1115 speed_m_min=89 status=run\n02/02/2026 11:30:17 INFO strip_width_mm=1120 speed_m_min=92 status=run\n02/02/2026 12:09:30 INFO strip_width_mm=1125 speed_m_min=95 status=run\n02/02/2026 12:48:43 INFO unit=metherall-coiler-1 amps=480 status=run\n02/02/2026 13:27:56 INFO strip_width_mm=1120 speed_m_min=88 status=run\n02/02/2026 14:06:09 INFO strip_width_mm=1125 speed_m_min=91 status=run\n02/02/2026 14:45:22 INFO strip_width_mm=1115 speed_m_min=94 status=run\n02/02/2026 15:24:35 INFO unit=metherall-coiler-1 amps=516 status=run\n02/02/2026 23:30:00 JOURNAL CLOSE lines=80\n"
+  },
+  "turns": [
+    {
+      "prompt": "Metherall Steel's pickling-line controller rotated its journal at the start of February. Which coiler raised the first over-current ERROR on 1 February 2026? Answer with the unit id alone. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "metherall-coiler-2"
+      }
+    }
+  ]
+}

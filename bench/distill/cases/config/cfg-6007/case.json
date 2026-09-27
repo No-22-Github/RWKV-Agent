@@ -1,0 +1,35 @@
+{
+  "id": "cfg-6007",
+  "description": "Rollout percentage of the receipt email prompt on the Quethiock kiosk flag sheet DISTILL-CANARY-a7bcbff3",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-cfg-b04-quethiock",
+    "ref_calls": 2,
+    "fixture_bytes": 850,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Quethiock Tickets - kiosk fleet\n\n`flags/kiosk-flags.json` is the flag sheet for the ticket kiosks. Each entry carries the flag's enabled state and the percentage of kiosks it is rolled out to. A flag that is not on the sheet is not part of the kiosk build, and the sheet is the only place flags are set.\n\nThe kiosk team's runbook lives under `docs/`.\n",
+    "flags/kiosk-flags.json": "{\n  \"receipt_email_prompt\": {\"enabled\": true, \"rollout_pct\": 60},\n  \"pin_topup\": {\"enabled\": true, \"rollout_pct\": 100},\n  \"seat_upgrade_offer\": {\"enabled\": false, \"rollout_pct\": 0},\n  \"quiet_mode_after_22h\": {\"enabled\": true, \"rollout_pct\": 25}\n}\n",
+    "docs/kiosk-runbook.md": "# Kiosk runbook\n\nPrinted gift receipts are handled by the receipt printer's own menu on each machine, outside the flag sheet. Kiosks pick up flag changes on their overnight refresh, so a change made during the day reaches the floor the next morning.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Quethiock Tickets is reviewing its kiosk trials and the product desk wants the current exposure of the receipt email prompt. What percentage of kiosks is the receipt email prompt rolled out to? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 60,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

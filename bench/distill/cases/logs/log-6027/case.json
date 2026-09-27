@@ -1,0 +1,36 @@
+{
+  "id": "log-6027",
+  "description": "Count the deck oven loads started inside a morning baking window of one day's slot journal. DISTILL-CANARY-b04c7d65",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-log-b04-ovenslots",
+    "ref_calls": 2,
+    "fixture_bytes": 606,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Harston Bakery - deck oven journal\n\nOne line per slot movement:\n\n    <time> SLOT s=<id> load | unload loaves=<n>\n",
+    "logs/oven-log.log": "2026-05-21T03:30:00 SLOT s=1 load loaves=48\n2026-05-21T03:55:00 SLOT s=1 unload loaves=48\n2026-05-21T06:05:00 SLOT s=2 load loaves=56\n2026-05-21T06:50:00 SLOT s=3 load loaves=64\n2026-05-21T07:15:00 SLOT s=5 load loaves=40\n2026-05-21T07:58:00 SLOT s=6 load loaves=52\n2026-05-21T09:10:00 SLOT s=1 load loaves=36\n2026-05-21T09:47:00 SLOT s=2 unload loaves=56\n2026-05-21T12:40:00 SLOT s=3 unload loaves=64\n2026-05-21T13:29:00 SLOT s=5 unload loaves=40\n2026-05-21T15:00:00 JOURNAL CLOSE lines=10\n"
+  },
+  "turns": [
+    {
+      "prompt": "Harston Bakery's deck oven journals every load and unload of its slots. How many loads went into the oven between 06:00 and 08:00 on 21 May 2026? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 4,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

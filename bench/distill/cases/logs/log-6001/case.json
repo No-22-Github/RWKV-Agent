@@ -1,0 +1,40 @@
+{
+  "id": "log-6001",
+  "description": "Count the tanker loads a fuel terminal's berth controllers completed on the night the export job retried, in a journal that wrote some lines twice. DISTILL-CANARY-b04a6f11",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 19
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-b04-berthload",
+    "ref_calls": 3,
+    "fixture_bytes": 5397,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Grayling Fuels - berth loading journal\n\nNightly export from the berth controllers at the Grayling terminal. The\naccounting export retried after a link drop, so some lines were written to\nthe journal twice.\n\nOne line per state change:\n\n    <UTC time> BAY <bay> tanker=<id> LOAD START\n    <UTC time> BAY <bay> tanker=<id> PUMP ON | PUMP OFF\n    <UTC time> BAY <bay> tanker=<id> METER litres=<n>\n    <UTC time> BAY <bay> tanker=<id> LOAD COMPLETE litres=<n>\n\nA tanker is loaded at one berth only and loads once per run.\n",
+    "logs/berth-loading.log": "2026-06-11T23:04:03Z BAY B-1 tanker=TK-312 LOAD START\n2026-06-11T23:04:03Z BAY B-1 tanker=TK-312 PUMP ON\n2026-06-11T23:38:13Z BAY B-1 tanker=TK-312 PUMP OFF\n2026-06-11T23:41:21Z BAY B-1 tanker=TK-312 METER litres=32850\n2026-06-11T23:41:29Z BAY B-1 tanker=TK-312 LOAD COMPLETE litres=32850\n2026-06-11T23:48:05Z BAY B-2 tanker=TK-118 LOAD START\n2026-06-11T23:48:05Z BAY B-2 tanker=TK-118 PUMP ON\n2026-06-12T00:26:15Z BAY B-2 tanker=TK-118 PUMP OFF\n2026-06-12T00:29:23Z BAY B-2 tanker=TK-118 METER litres=27400\n2026-06-12T00:29:31Z BAY B-2 tanker=TK-118 LOAD COMPLETE litres=27400\n2026-06-12T00:36:07Z BAY B-1 tanker=TK-271 LOAD START\n2026-06-12T00:36:07Z BAY B-1 tanker=TK-271 PUMP ON\n2026-06-12T01:06:17Z BAY B-1 tanker=TK-271 PUMP OFF\n2026-06-12T01:09:25Z BAY B-1 tanker=TK-271 METER litres=36120\n2026-06-12T01:09:33Z BAY B-1 tanker=TK-271 LOAD COMPLETE litres=36120\n2026-06-12T01:09:33Z BAY B-1 tanker=TK-271 LOAD COMPLETE litres=36120\n2026-06-12T01:17:09Z BAY B-2 tanker=TK-405 LOAD START\n2026-06-12T01:17:09Z BAY B-2 tanker=TK-405 PUMP ON\n2026-06-12T01:59:19Z BAY B-2 tanker=TK-405 PUMP OFF\n2026-06-12T02:02:03Z BAY B-2 tanker=TK-405 LOAD COMPLETE litres=25980\n2026-06-12T02:02:27Z BAY B-2 tanker=TK-405 METER litres=25980\n2026-06-12T02:09:11Z BAY B-1 tanker=TK-233 LOAD START\n2026-06-12T02:09:11Z BAY B-1 tanker=TK-233 PUMP ON\n2026-06-12T02:45:21Z BAY B-1 tanker=TK-233 PUMP OFF\n2026-06-12T02:48:05Z BAY B-1 tanker=TK-233 LOAD COMPLETE litres=30240\n2026-06-12T02:48:29Z BAY B-1 tanker=TK-233 METER litres=30240\n2026-06-12T02:55:13Z BAY B-2 tanker=TK-190 LOAD START\n2026-06-12T02:55:13Z BAY B-2 tanker=TK-190 PUMP ON\n2026-06-12T03:27:23Z BAY B-2 tanker=TK-190 PUMP OFF\n2026-06-12T03:30:07Z BAY B-2 tanker=TK-190 LOAD COMPLETE litres=38470\n2026-06-12T03:30:31Z BAY B-2 tanker=TK-190 METER litres=38470\n2026-06-12T03:37:15Z BAY B-1 tanker=TK-327 LOAD START\n2026-06-12T03:37:15Z BAY B-1 tanker=TK-327 PUMP ON\n2026-06-12T04:17:25Z BAY B-1 tanker=TK-327 PUMP OFF\n2026-06-12T04:20:09Z BAY B-1 tanker=TK-327 LOAD COMPLETE litres=24610\n2026-06-12T04:20:33Z BAY B-1 tanker=TK-327 METER litres=24610\n2026-06-12T04:27:17Z BAY B-2 tanker=TK-142 LOAD START\n2026-06-12T04:27:17Z BAY B-2 tanker=TK-142 PUMP ON\n2026-06-12T05:01:27Z BAY B-2 tanker=TK-142 PUMP OFF\n2026-06-12T05:04:03Z BAY B-2 tanker=TK-142 METER litres=33750\n2026-06-12T05:04:11Z BAY B-2 tanker=TK-142 LOAD COMPLETE litres=33750\n2026-06-12T05:04:11Z BAY B-2 tanker=TK-142 LOAD COMPLETE litres=33750\n2026-06-12T05:11:19Z BAY B-1 tanker=TK-388 LOAD START\n2026-06-12T05:11:19Z BAY B-1 tanker=TK-388 PUMP ON\n2026-06-12T05:49:29Z BAY B-1 tanker=TK-388 PUMP OFF\n2026-06-12T05:52:05Z BAY B-1 tanker=TK-388 METER litres=29130\n2026-06-12T05:52:13Z BAY B-1 tanker=TK-388 LOAD COMPLETE litres=29130\n2026-06-12T05:59:21Z BAY B-2 tanker=TK-209 LOAD START\n2026-06-12T05:59:21Z BAY B-2 tanker=TK-209 PUMP ON\n2026-06-12T06:30:31Z BAY B-2 tanker=TK-209 PUMP OFF\n2026-06-12T06:33:07Z BAY B-2 tanker=TK-209 METER litres=35480\n2026-06-12T06:33:15Z BAY B-2 tanker=TK-209 LOAD COMPLETE litres=35480\n2026-06-12T06:40:23Z BAY B-1 tanker=TK-351 LOAD START\n2026-06-12T06:40:23Z BAY B-1 tanker=TK-351 PUMP ON\n2026-06-12T07:23:33Z BAY B-1 tanker=TK-351 PUMP OFF\n2026-06-12T07:26:09Z BAY B-1 tanker=TK-351 METER litres=26890\n2026-06-12T07:26:17Z BAY B-1 tanker=TK-351 LOAD COMPLETE litres=26890\n2026-06-12T07:33:25Z BAY B-2 tanker=TK-126 LOAD START\n2026-06-12T07:33:25Z BAY B-2 tanker=TK-126 PUMP ON\n2026-06-12T08:08:03Z BAY B-2 tanker=TK-126 PUMP OFF\n2026-06-12T08:11:11Z BAY B-2 tanker=TK-126 METER litres=31960\n2026-06-12T08:11:19Z BAY B-2 tanker=TK-126 LOAD COMPLETE litres=31960\n2026-06-12T08:18:27Z BAY B-1 tanker=TK-294 LOAD START\n2026-06-12T08:18:27Z BAY B-1 tanker=TK-294 PUMP ON\n2026-06-12T08:51:05Z BAY B-1 tanker=TK-294 PUMP OFF\n2026-06-12T08:54:13Z BAY B-1 tanker=TK-294 METER litres=37620\n2026-06-12T08:54:21Z BAY B-1 tanker=TK-294 LOAD COMPLETE litres=37620\n2026-06-12T09:01:29Z BAY B-2 tanker=TK-167 LOAD START\n2026-06-12T09:01:29Z BAY B-2 tanker=TK-167 PUMP ON\n2026-06-12T09:40:07Z BAY B-2 tanker=TK-167 PUMP OFF\n2026-06-12T09:43:15Z BAY B-2 tanker=TK-167 METER litres=28310\n2026-06-12T09:43:23Z BAY B-2 tanker=TK-167 LOAD COMPLETE litres=28310\n2026-06-12T09:43:23Z BAY B-2 tanker=TK-167 LOAD COMPLETE litres=28310\n2026-06-12T09:50:31Z BAY B-1 tanker=TK-310 LOAD START\n2026-06-12T09:50:31Z BAY B-1 tanker=TK-310 PUMP ON\n2026-06-12T10:27:09Z BAY B-1 tanker=TK-310 PUMP OFF\n2026-06-12T10:30:17Z BAY B-1 tanker=TK-310 METER litres=24580\n2026-06-12T10:30:25Z BAY B-1 tanker=TK-310 LOAD COMPLETE litres=24580\n2026-06-12T10:37:33Z BAY B-2 tanker=TK-245 LOAD START\n2026-06-12T10:37:33Z BAY B-2 tanker=TK-245 PUMP ON\n2026-06-12T11:11:11Z BAY B-2 tanker=TK-245 PUMP OFF\n2026-06-12T11:14:19Z BAY B-2 tanker=TK-245 METER litres=30870\n2026-06-12T11:14:27Z BAY B-2 tanker=TK-245 LOAD COMPLETE litres=30870\n2026-06-12T06:47:11Z JOURNAL CLOSE lines=83\n"
+  },
+  "turns": [
+    {
+      "prompt": "Grayling Fuels' berth controllers keep a loading journal for the terminal. How many tanker loads did the terminal complete during the night run of 11 June 2026? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 16,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

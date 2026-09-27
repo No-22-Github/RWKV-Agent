@@ -1,0 +1,41 @@
+{
+  "id": "log-6031",
+  "description": "Count the alarms one paper mill raised inside a morning window across its two plant journals, where either file alone holds only part of the total. DISTILL-CANARY-b04a92f6",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": 5
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-log-b04-millalarms",
+    "ref_calls": 3,
+    "fixture_bytes": 4195,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Grindale Paper Mill - plant journals\n\nThe boiler house and the turbine hall journal to separate files, both stamped\non site time. Alarms carry a code and the unit that raised them.\n",
+    "logs/boiler-house.log": "2026-07-16T06:41:59 ALARM unit=grindale-boiler code=AL-2 msg=\"feedwater low\"\n2026-07-16T09:00:00 INFO boiler_steam_t=48.2 drum_pressure_bar=12.4\n2026-07-16T09:03:00 ALARM unit=grindale-boiler code=AL-3 msg=\"feedwater low\"\n2026-07-16T09:21:33 ALARM unit=grindale-boiler code=AL-11 msg=\"burner flame unstable\"\n2026-07-16T09:29:29 INFO drum_level_mm=412 feedwater_flow_t_h=41.2\n2026-07-16T09:38:59 ALARM unit=grindale-boiler code=AL-3 msg=\"feedwater low\"\n2026-07-16T09:47:41 ALARM unit=grindale-boiler code=AL-2 msg=\"drum level high\"\n2026-07-16T09:56:29 ALARM unit=grindale-boiler code=AL-11 msg=\"burner flame unstable\"\n2026-07-16T10:05:07 INFO boiler_steam_t=48.0 drum_pressure_bar=12.3\n2026-07-16T10:35:33 INFO drum_level_mm=421 feedwater_flow_t_h=41.900000000000006\n2026-07-16T11:11:11 INFO boiler_steam_t=47.800000000000004 drum_pressure_bar=12.200000000000001\n2026-07-16T11:29:23 ALARM unit=grindale-boiler code=AL-12 msg=\"flue gas temperature high\"\n2026-07-16T11:41:37 INFO drum_level_mm=430 feedwater_flow_t_h=42.6\n2026-07-16T12:17:19 INFO boiler_steam_t=47.6 drum_pressure_bar=12.1\n2026-07-16T12:47:41 INFO drum_level_mm=439 feedwater_flow_t_h=43.300000000000004\n2026-07-16T13:23:23 INFO boiler_steam_t=47.400000000000006 drum_pressure_bar=12.0\n2026-07-16T13:53:47 INFO drum_level_mm=448 feedwater_flow_t_h=44.0\n2026-07-16T14:29:29 INFO boiler_steam_t=47.2 drum_pressure_bar=12.4\n2026-07-16T14:59:53 INFO drum_level_mm=457 feedwater_flow_t_h=41.2\n2026-07-16T15:05:59 INFO drum_level_mm=466 feedwater_flow_t_h=41.900000000000006\n2026-07-16T15:35:33 INFO boiler_steam_t=48.2 drum_pressure_bar=12.3\n2026-07-16T16:11:00 INFO drum_level_mm=412 feedwater_flow_t_h=42.6\n2026-07-16T16:41:37 INFO boiler_steam_t=48.0 drum_pressure_bar=12.200000000000001\n2026-07-16T17:17:07 INFO drum_level_mm=421 feedwater_flow_t_h=43.300000000000004\n2026-07-16T17:47:41 INFO boiler_steam_t=47.800000000000004 drum_pressure_bar=12.1\n2026-07-16T18:23:11 INFO drum_level_mm=430 feedwater_flow_t_h=44.0\n2026-07-16T18:53:47 INFO boiler_steam_t=47.6 drum_pressure_bar=12.0\n2026-07-16T19:02:53 INFO boiler_steam_t=47.400000000000006 drum_pressure_bar=12.4\n2026-07-16T19:29:19 INFO drum_level_mm=439 feedwater_flow_t_h=41.2\n2026-07-16T21:00:00 JOURNAL CLOSE lines=29\n",
+    "logs/turbine-hall.log": "2026-07-16T05:18:23 ALARM unit=grindale-turbine code=AL-2 msg=\"vibration high\"\n2026-07-16T09:10:37 INFO generator_mw=6.2 speed_rpm=1500\n2026-07-16T09:12:11 ALARM unit=grindale-turbine code=AL-3 msg=\"steam seal leak\"\n2026-07-16T09:16:11 INFO casing_pressure_bar=2.1 lubrication_ok=true\n2026-07-16T09:31:47 ALARM unit=grindale-turbine code=AL-11 msg=\"vibration high\"\n2026-07-16T09:55:47 ALARM unit=grindale-turbine code=AL-2 msg=\"steam seal leak\"\n2026-07-16T10:25:41 INFO generator_mw=6.5 speed_rpm=1500\n2026-07-16T10:31:19 INFO casing_pressure_bar=2.2 lubrication_ok=true\n2026-07-16T11:40:47 INFO generator_mw=6.8 speed_rpm=1500\n2026-07-16T11:46:23 INFO casing_pressure_bar=2.3000000000000003 lubrication_ok=true\n2026-07-16T12:01:29 INFO casing_pressure_bar=2.4000000000000004 lubrication_ok=true\n2026-07-16T12:07:00 ALARM unit=grindale-turbine code=AL-12 msg=\"bearing temperature high\"\n2026-07-16T12:55:53 INFO generator_mw=7.1 speed_rpm=1500\n2026-07-16T13:12:59 INFO generator_mw=7.4 speed_rpm=1500\n2026-07-16T13:18:33 INFO casing_pressure_bar=2.1 lubrication_ok=true\n2026-07-16T14:27:00 INFO generator_mw=6.2 speed_rpm=1500\n2026-07-16T14:33:37 INFO casing_pressure_bar=2.2 lubrication_ok=true\n2026-07-16T15:42:07 INFO generator_mw=6.5 speed_rpm=1500\n2026-07-16T15:48:41 INFO casing_pressure_bar=2.3000000000000003 lubrication_ok=true\n2026-07-16T16:03:47 INFO casing_pressure_bar=2.4000000000000004 lubrication_ok=true\n2026-07-16T16:57:11 INFO generator_mw=6.8 speed_rpm=1500\n2026-07-16T17:14:19 INFO generator_mw=7.1 speed_rpm=1500\n2026-07-16T17:20:53 INFO casing_pressure_bar=2.1 lubrication_ok=true\n2026-07-16T18:29:23 INFO generator_mw=7.4 speed_rpm=1500\n2026-07-16T18:35:59 INFO casing_pressure_bar=2.2 lubrication_ok=true\n2026-07-16T21:00:00 JOURNAL CLOSE lines=25\n"
+  },
+  "turns": [
+    {
+      "prompt": "Grindale Paper Mill's boiler house and turbine hall journal to separate files. How many alarms did the mill raise between 09:00 and 10:00 on 16 July 2026? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 8,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

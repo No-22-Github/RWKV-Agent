@@ -1,0 +1,42 @@
+{
+  "id": "cfg-6003",
+  "description": "Effective label delay for the Oakmoss packing line with the seasonal crew profile in force DISTILL-CANARY-f38aa0ea",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "precedence",
+    "traps": [
+      "TR-PRECEDENCE"
+    ],
+    "trap_decoys": {
+      "TR-PRECEDENCE": 400
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b04-oakmoss",
+    "ref_calls": 3,
+    "fixture_bytes": 883,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Oakmoss Vineyard - packing line controller\n\nThe controller that runs the packing shed reads its settings from `config/orchard-base.json`. The seasonal crew profile in `profiles/packing-line.ini` re-tunes a few of them for harvest: any key set in the profile's `[packing-line]` section replaces the base value, and keys the profile leaves out keep their base values.\n\nAnything the controller needs beyond these two files is fixed in its firmware.\n",
+    "config/orchard-base.json": "{\n  \"crate_weight_limit_kg\": 320,\n  \"belt_speed_pct\": 60,\n  \"label_delay_ms\": 400,\n  \"case_seal_temp_c\": 105,\n  \"case_tape_tension_n\": 18\n}\n",
+    "profiles/packing-line.ini": "[packing-line]\ncrate_weight_limit_kg = 280\nlabel_delay_ms = 350\n",
+    "docs/line-notes.md": "# Shed notes\n\nThe labelling head stamps each crate as it passes the scanner gate; the ink is changed every second morning. Belt speed stays where the base file puts it during harvest because the sorter downstream cannot go faster.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The labelling head on the Oakmoss Vineyard packing line pauses between crates so the ink can set, and the harvest crew lead is recording the pause the line runs with the seasonal profile in force. What is the effective label delay in milliseconds? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 350,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

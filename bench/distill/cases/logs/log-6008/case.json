@@ -1,0 +1,36 @@
+{
+  "id": "log-6008",
+  "description": "Count the feed visits one hive received on a day of the apiary scale journal, the answerable sibling of the family's abstaining case. DISTILL-CANARY-b04b48e6",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-log-b04-hivescale",
+    "ref_calls": 3,
+    "fixture_bytes": 3132,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Haxley Honey - hive-scale journal\n\nEach scale writes a reading every hour and a FEED line for every syrup top-up\nthe rota records.\n\n    <time> hive=<id> FEED syrup_kg=<n>\n",
+    "logs/hivescale.log": "2026-07-08T07:14:22 hive=H-5 FEED syrup_kg=2.5\n2026-07-08T07:26:37 hive=H-2 weight_kg=36.8 temp_c=33.8\n2026-07-08T07:26:37 hive=H-5 weight_kg=40.9 temp_c=33.8\n2026-07-08T07:26:37 hive=H-8 weight_kg=43.5 temp_c=33.8\n2026-07-08T07:41:19 hive=H-2 FEED syrup_kg=1.5\n2026-07-08T08:17:40 hive=H-2 weight_kg=36.9 temp_c=34.0\n2026-07-08T08:17:40 hive=H-5 weight_kg=41.0 temp_c=34.0\n2026-07-08T08:17:40 hive=H-8 weight_kg=43.6 temp_c=34.0\n2026-07-08T09:12:37 hive=H-5 FEED syrup_kg=2.0\n2026-07-08T09:26:43 hive=H-2 weight_kg=37.0 temp_c=34.199999999999996\n2026-07-08T09:26:43 hive=H-5 weight_kg=41.1 temp_c=34.199999999999996\n2026-07-08T09:26:43 hive=H-8 weight_kg=43.7 temp_c=34.199999999999996\n2026-07-08T09:47:51 hive=H-8 FEED syrup_kg=1.0\n2026-07-08T10:17:31 hive=H-2 weight_kg=37.1 temp_c=34.4\n2026-07-08T10:17:31 hive=H-5 weight_kg=41.2 temp_c=34.4\n2026-07-08T10:17:31 hive=H-8 weight_kg=43.8 temp_c=34.4\n2026-07-08T11:22:14 hive=H-5 FEED syrup_kg=2.5\n2026-07-08T11:26:34 hive=H-2 weight_kg=37.2 temp_c=34.599999999999994\n2026-07-08T11:26:34 hive=H-5 weight_kg=41.3 temp_c=34.599999999999994\n2026-07-08T11:26:34 hive=H-8 weight_kg=43.9 temp_c=34.599999999999994\n2026-07-08T12:03:38 hive=H-2 FEED syrup_kg=1.5\n2026-07-08T12:17:37 hive=H-2 weight_kg=37.3 temp_c=34.8\n2026-07-08T12:17:37 hive=H-5 weight_kg=41.4 temp_c=34.8\n2026-07-08T12:17:37 hive=H-8 weight_kg=44.0 temp_c=34.8\n2026-07-08T13:26:40 hive=H-2 weight_kg=37.4 temp_c=35.0\n2026-07-08T13:26:40 hive=H-5 weight_kg=41.5 temp_c=35.0\n2026-07-08T13:26:40 hive=H-8 weight_kg=44.1 temp_c=35.0\n2026-07-08T13:29:46 hive=H-5 FEED syrup_kg=2.0\n2026-07-08T14:17:43 hive=H-2 weight_kg=37.5 temp_c=33.8\n2026-07-08T14:17:43 hive=H-5 weight_kg=41.6 temp_c=33.8\n2026-07-08T14:17:43 hive=H-8 weight_kg=44.2 temp_c=33.8\n2026-07-08T14:51:09 hive=H-5 FEED syrup_kg=2.5\n2026-07-08T15:26:31 hive=H-2 weight_kg=37.6 temp_c=34.0\n2026-07-08T15:26:31 hive=H-5 weight_kg=41.7 temp_c=34.0\n2026-07-08T15:26:31 hive=H-8 weight_kg=44.3 temp_c=34.0\n2026-07-08T16:14:33 hive=H-2 FEED syrup_kg=1.0\n2026-07-08T16:17:34 hive=H-2 weight_kg=37.7 temp_c=34.199999999999996\n2026-07-08T16:17:34 hive=H-5 weight_kg=41.8 temp_c=34.199999999999996\n2026-07-08T16:17:34 hive=H-8 weight_kg=44.4 temp_c=34.199999999999996\n2026-07-08T17:26:37 hive=H-2 weight_kg=37.8 temp_c=34.4\n2026-07-08T17:26:37 hive=H-5 weight_kg=41.9 temp_c=34.4\n2026-07-08T17:26:37 hive=H-8 weight_kg=44.5 temp_c=34.4\n2026-07-08T17:37:02 hive=H-5 FEED syrup_kg=2.0\n2026-07-08T18:17:40 hive=H-2 weight_kg=37.9 temp_c=34.599999999999994\n2026-07-08T18:17:40 hive=H-5 weight_kg=42.0 temp_c=34.599999999999994\n2026-07-08T18:17:40 hive=H-8 weight_kg=44.6 temp_c=34.599999999999994\n2026-07-08T18:48:27 hive=H-8 FEED syrup_kg=1.0\n2026-07-08T19:26:43 hive=H-2 weight_kg=38.0 temp_c=34.8\n2026-07-08T19:26:43 hive=H-5 weight_kg=42.1 temp_c=34.8\n2026-07-08T19:26:43 hive=H-8 weight_kg=44.7 temp_c=34.8\n2026-07-08T19:52:44 hive=H-2 FEED syrup_kg=1.5\n2026-07-08T21:00:00 JOURNAL CLOSE lines=51\n"
+  },
+  "turns": [
+    {
+      "prompt": "Haxley Honey's hive scales journal feed visits as well as readings. How many feed visits did hive H-5 get on 8 July 2026? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 6,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

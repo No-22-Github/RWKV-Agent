@@ -1,0 +1,35 @@
+{
+  "id": "tab-6001",
+  "description": "July 2026 revenue total from a 48-line till ledger. DISTILL-CANARY-53d53c6a",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-tab-b04-monthtotal-01",
+    "ref_calls": 2,
+    "fixture_bytes": 2594,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "ledger/sales_2026-07.csv": "receipt_id,ledger_date,department,item,units,revenue\nAD-3000,2026-07-19,Pantry,Calder pan,7,87.24\nAD-3001,2026-07-05,Pantry,Calder pan,8,110.62\nAD-3002,2026-07-02,Household,Elmbridge lamp,2,321.24\nAD-3003,2026-07-08,Household,Elmbridge lamp,9,99.02\nAD-3004,2026-07-06,Pantry,Calder pan,5,130.10\nAD-3005,2026-07-22,Household,Elmbridge lamp,7,33.99\nAD-3006,2026-07-16,Household,Alnwick kettle,7,250.45\nAD-3007,2026-07-16,Household,Elmbridge lamp,9,64.20\nAD-3008,2026-07-12,Household,Elmbridge lamp,6,85.32\nAD-3009,2026-07-01,Household,Elmbridge lamp,2,24.19\nAD-3010,2026-07-22,Household,Elmbridge lamp,1,406.07\nAD-3011,2026-07-16,Garden,Calder pan,1,331.74\nAD-3012,2026-07-01,Garden,Calder pan,6,314.22\nAD-3013,2026-07-27,Textiles,Foxley tray,2,94.40\nAD-3014,2026-07-04,Pantry,Calder pan,9,167.97\nAD-3015,2026-07-08,Household,Alnwick kettle,7,246.64\nAD-3016,2026-07-12,Pantry,Dorstone jug,7,395.24\nAD-3017,2026-07-25,Household,Alnwick kettle,1,165.35\nAD-3018,2026-07-03,Pantry,Dorstone jug,3,122.59\nAD-3019,2026-07-08,Household,Elmbridge lamp,2,260.74\nAD-3020,2026-07-02,Household,Alnwick kettle,6,99.75\nAD-3021,2026-07-25,Textiles,Birchfield toaster,4,68.18\nAD-3022,2026-07-02,Textiles,Foxley tray,7,340.84\nAD-3023,2026-07-12,Pantry,Dorstone jug,8,98.75\nAD-3024,2026-07-12,Pantry,Calder pan,9,383.74\nAD-3025,2026-07-11,Textiles,Foxley tray,3,135.41\nAD-3026,2026-07-25,Garden,Calder pan,3,138.04\nAD-3027,2026-07-01,Garden,Calder pan,3,172.32\nAD-3028,2026-07-11,Garden,Foxley tray,4,232.53\nAD-3029,2026-07-04,Household,Alnwick kettle,4,142.72\nAD-3030,2026-07-06,Household,Elmbridge lamp,8,333.87\nAD-3031,2026-07-27,Garden,Calder pan,2,40.91\nAD-3032,2026-07-23,Textiles,Foxley tray,9,9.50\nAD-3033,2026-07-18,Textiles,Birchfield toaster,4,19.55\nAD-3034,2026-07-01,Pantry,Dorstone jug,6,106.25\nAD-3035,2026-07-26,Pantry,Calder pan,6,168.54\nAD-3036,2026-07-15,Textiles,Foxley tray,7,180.64\nAD-3037,2026-07-08,Textiles,Birchfield toaster,3,396.55\nAD-3038,2026-07-25,Garden,Foxley tray,3,95.53\nAD-3039,2026-07-05,Household,Alnwick kettle,2,346.02\nAD-3040,2026-07-20,Household,Alnwick kettle,3,67.91\nAD-3041,2026-07-09,Textiles,Foxley tray,8,325.02\nAD-3042,2026-07-16,Garden,Calder pan,4,77.70\nAD-3043,2026-07-24,Household,Elmbridge lamp,9,283.31\nAD-3044,2026-07-07,Textiles,Birchfield toaster,6,258.08\nAD-3045,2026-07-06,Garden,Calder pan,2,131.11\nAD-3046,2026-07-09,Household,Alnwick kettle,2,135.38\nAD-3047,2026-07-01,Garden,Foxley tray,1,140.58\n",
+    "README.md": "# Amberdale Dry Goods - sales ledger, July 2026\n\nOne row per receipt line rung through the tills.\n",
+    "notes/trade-fairs.txt": "Bakewell Hall craft fair, stand 14, 12-13 September 2026\n"
+  },
+  "turns": [
+    {
+      "prompt": "Amberdale Dry Goods is closing its July books. What was the total revenue recorded in the July 2026 sales ledger? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 8640.06,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

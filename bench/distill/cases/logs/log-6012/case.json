@@ -1,0 +1,36 @@
+{
+  "id": "log-6012",
+  "description": "Count the yaw moves one turbine made on a single day of a three-turbine event journal. DISTILL-CANARY-b04f6d84",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-log-b04-yawlog",
+    "ref_calls": 3,
+    "fixture_bytes": 1724,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Lammermoor Wind Farm - turbine event journal\n\nEach turbine journals control events. A yaw move starts with yaw_start and\nends with yaw_stop on the same turbine; derates and fault resets are single\nlines.\n",
+    "logs/turbine-events.log": "2026-01-21T07:02:03 turbine=T-2 yaw_start wind_from_deg=224\n2026-01-21T07:07:37 turbine=T-2 yaw_stop wind_from_deg=231\n2026-01-21T07:30:16 turbine=T-1 yaw_start wind_from_deg=198\n2026-01-21T07:34:42 turbine=T-1 yaw_stop wind_from_deg=205\n2026-01-21T07:57:29 turbine=T-3 yaw_start wind_from_deg=242\n2026-01-21T08:01:47 turbine=T-3 yaw_stop wind_from_deg=249\n2026-01-21T08:24:42 turbine=T-2 yaw_start wind_from_deg=231\n2026-01-21T08:28:52 turbine=T-2 yaw_stop wind_from_deg=238\n2026-01-21T08:51:47 turbine=T-1 fault_reset\n2026-01-21T09:08:08 turbine=T-3 yaw_start wind_from_deg=236\n2026-01-21T09:12:02 turbine=T-3 yaw_stop wind_from_deg=243\n2026-01-21T09:35:21 turbine=T-2 yaw_start wind_from_deg=219\n2026-01-21T09:39:07 turbine=T-2 yaw_stop wind_from_deg=226\n2026-01-21T10:02:08 turbine=T-2 derate\n2026-01-21T10:19:47 turbine=T-1 yaw_start wind_from_deg=211\n2026-01-21T10:23:17 turbine=T-1 yaw_stop wind_from_deg=218\n2026-01-21T10:46:00 turbine=T-3 yaw_start wind_from_deg=242\n2026-01-21T10:50:22 turbine=T-3 yaw_stop wind_from_deg=249\n2026-01-21T11:13:13 turbine=T-2 yaw_start wind_from_deg=224\n2026-01-21T11:17:27 turbine=T-2 yaw_stop wind_from_deg=231\n2026-01-21T11:40:36 turbine=T-3 fault_reset\n2026-01-21T11:57:39 turbine=T-2 yaw_start wind_from_deg=231\n2026-01-21T12:01:37 turbine=T-2 yaw_stop wind_from_deg=238\n2026-01-21T12:24:50 turbine=T-1 derate\n2026-01-21T12:41:05 turbine=T-2 yaw_start wind_from_deg=219\n2026-01-21T12:45:47 turbine=T-2 yaw_stop wind_from_deg=226\n2026-01-21T18:00:00 JOURNAL CLOSE lines=26\n"
+  },
+  "turns": [
+    {
+      "prompt": "Lammermoor Wind Farm's controller journals every turbine control event. How many yaw moves did turbine T-2 make on 21 January 2026? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 6,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

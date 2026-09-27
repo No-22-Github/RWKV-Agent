@@ -1,0 +1,39 @@
+{
+  "id": "log-6016",
+  "description": "Report the UTC time of a quarry weighbridge's first oversize alarm, whose journal stamps on the quarry's own clock three hours behind UTC. DISTILL-CANARY-b04d5f3c",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "locate_error",
+    "traps": [
+      "TR-TZ"
+    ],
+    "trap_decoys": {
+      "TR-TZ": "04:52"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-b04-quarryalarm",
+    "ref_calls": 3,
+    "fixture_bytes": 1290,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Merrowdown Quarry - weighbridge journal\n\nStamps are on the quarry's own clock, which runs three hours behind UTC.\n\n    <site time> ALARM truck=<id> gross_t=<n> limit_t=<n> oversize\n    <site time> INFO truck=<id> gross_t=<n> limit_t=<n> ok\n",
+    "logs/weighbridge.log": "2026-06-16T01:31:07 weighbridge=W-1 INFO truck=QT-14 gross_t=32.4 limit_t=40.0 ok\n2026-06-16T03:18:44 weighbridge=W-1 INFO truck=QT-22 gross_t=38.1 limit_t=40.0 ok\n2026-06-16T04:52:11 weighbridge=W-1 ALARM truck=QT-31 gross_t=48.6 limit_t=40.0 oversize\n2026-06-16T07:05:39 weighbridge=W-1 INFO truck=QT-14 gross_t=35.8 limit_t=40.0 ok\n2026-06-16T09:41:26 weighbridge=W-1 INFO truck=QT-45 gross_t=39.2 limit_t=40.0 ok\n2026-06-16T11:20:47 weighbridge=W-1 ALARM truck=QT-52 gross_t=44.9 limit_t=40.0 oversize\n2026-06-16T13:15:02 weighbridge=W-1 INFO truck=QT-22 gross_t=36.6 limit_t=40.0 ok\n2026-06-16T15:03:29 weighbridge=W-1 ALARM truck=QT-31 gross_t=46.3 limit_t=40.0 oversize\n2026-06-16T16:44:55 weighbridge=W-1 INFO truck=QT-45 gross_t=33.9 limit_t=40.0 ok\n2026-06-16T17:22:31 weighbridge=W-1 INFO truck=QT-52 gross_t=37.4 limit_t=40.0 ok\n2026-06-16T18:05:49 weighbridge=W-1 INFO truck=QT-14 gross_t=31.8 limit_t=40.0 ok\n2026-06-16T18:40:16 weighbridge=W-1 INFO truck=QT-22 gross_t=39.7 limit_t=40.0 ok\n2026-06-16T17:00:00 JOURNAL CLOSE lines=12\n"
+  },
+  "turns": [
+    {
+      "prompt": "Merrowdown Quarry's weighbridge journals every truck it weighs. At what UTC time was the first oversize alarm raised on 16 June 2026? Answer with the time as HH:MM, 24-hour. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "07:52"
+      }
+    }
+  ]
+}

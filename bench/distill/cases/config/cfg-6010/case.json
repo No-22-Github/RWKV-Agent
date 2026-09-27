@@ -1,0 +1,40 @@
+{
+  "id": "cfg-6010",
+  "description": "Stream keepalive interval of the Ramehead tracking service, which its inheritance chain never defines DISTILL-CANARY-d0357d5e",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "missing_keys",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": 30
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b04-ramehead",
+    "ref_calls": 3,
+    "fixture_bytes": 908,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Ramehead Freight - dispatch services\n\nEvery dispatch service starts from the block called `base` in `config/services.json`. A service block names the block it inherits from in its `inherits` field and then applies its own keys on top of what it inherits; keys it does not set keep the inherited value. Chains can run more than one step deep.\n\nOps keeps per-team notes under `docs/`.\n",
+    "config/services.json": "{\n  \"base\": {\n    \"log_level\": \"info\",\n    \"max_upload_mb\": 50,\n    \"request_timeout_s\": 12,\n    \"keepalive_probe_s\": 30\n  },\n  \"booking\": {\n    \"inherits\": \"base\",\n    \"request_timeout_s\": 20,\n    \"max_upload_mb\": 100\n  },\n  \"tracking\": {\n    \"inherits\": \"booking\",\n    \"poll_interval_s\": 45\n  }\n}\n",
+    "docs/ops-notes.md": "# Ops notes\n\nTracking drivers' positions uses the poll loop only; position pushes to the control room go through the carrier's own channel. Booking holds are released by the finance sweep at night, not by a service setting.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The control room at Ramehead Freight is reviewing the position stream it receives from the tracking service and wants the keepalive that stream is set to. What is the stream keepalive interval in seconds for the tracking service? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "UNKNOWN"
+      }
+    }
+  ]
+}

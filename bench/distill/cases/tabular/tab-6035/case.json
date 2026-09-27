@@ -1,0 +1,41 @@
+{
+  "id": "tab-6035",
+  "description": "Closing balance of one account when a near-identical statement file sits alongside it. DISTILL-CANARY-dbb23b85",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "reconcile",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": -78.07
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b04-acctnearname-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1582,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "statements/fm-4471_statement.csv": "entry_id,entry_date,detail,amount\nOB-1,2026-08-01,Opening balance,4120.65\nMS-700,2026-08-22,Hull paint,-169.66\nMS-701,2026-08-07,Hull paint,-186.93\nMS-702,2026-08-05,Trade account receipt,178.95\nMS-703,2026-08-08,Chandlery order,-61.09\nMS-704,2026-08-02,Engine spares,-153.04\nMS-705,2026-08-13,Trade account receipt,147.11\nMS-706,2026-08-13,Engine spares,-456.77\nMS-707,2026-08-20,Engine spares,-138.91\nMS-708,2026-08-20,Trade account receipt,118.75\nMS-709,2026-08-28,Hull paint,-63.85\nMS-710,2026-08-08,Chandlery order,-89.93\nMS-711,2026-08-20,Trade account receipt,452.79\nMS-712,2026-08-04,Hull paint,-185.48\nMS-713,2026-08-15,Hull paint,-210.36\nMS-714,2026-08-26,Trade account receipt,132.07\n",
+    "statements/fm-4477_statement.csv": "entry_id,entry_date,detail,amount\nOB-1,2026-08-01,Opening balance,2456.22\nMF-900,2026-08-12,Deck fittings,-250.02\nMF-901,2026-08-23,Yard fees,-391.41\nMF-902,2026-08-25,Yard fees,-236.99\nMF-903,2026-08-25,Project receipt,336.74\nMF-904,2026-08-22,Yard fees,-313.90\nMF-905,2026-08-09,Yard fees,-90.29\nMF-906,2026-08-26,Rigging,-389.18\nMF-907,2026-08-02,Project receipt,88.94\nMF-908,2026-08-21,Fit-out labour,-385.60\nMF-909,2026-08-17,Yard fees,-292.06\nMF-910,2026-08-21,Deck fittings,-233.26\nMF-911,2026-08-07,Project receipt,172.28\nMF-912,2026-08-17,Yard fees,-179.75\nMF-913,2026-08-06,Deck fittings,-369.79\n",
+    "README.md": "# Fenwick Marine Supplies - merchant statements, August 2026\n\nTwo statements landed in the shared drive. Account FM-4471 is the ongoing supplies account; FM-4477 belongs to the fitting-out project, which closed this month. Amounts are signed: receipts positive, payments negative.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Fenwick Marine Supplies needs its month-end position. What is the closing balance for account FM-4471 after its August 2026 entries? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 3434.3,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

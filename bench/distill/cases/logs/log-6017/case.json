@@ -1,0 +1,35 @@
+{
+  "id": "log-6017",
+  "description": "Read the fault code off the single fault line a brick kiln controller recorded during a day's firing. DISTILL-CANARY-b04e89b6",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "locate_error",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-log-b04-brickkiln",
+    "ref_calls": 2,
+    "fixture_bytes": 741,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Kilnhurst Brickworks - kiln controller journal\n\nOne line per zone reading or event. FAULT lines carry the manufacturer code\nfor the fault; readings are INFO lines and carry no codes.\n",
+    "logs/kiln-log.log": "2026-03-03T09:12:41 INFO zone=Z-2 temp_c=1042 ramp=ok\n2026-03-03T11:38:05 INFO zone=Z-4 temp_c=1088 ramp=ok\n2026-03-03T14:22:37 INFO zone=Z-2 temp_c=1101 ramp=ok\n2026-03-03T17:40:29 FAULT zone=Z-5 code=K-114 msg=\"thermocouple open circuit\"\n2026-03-03T17:41:02 INFO zone=Z-5 fuel_valve=closed\n2026-03-03T18:05:44 INFO zone=Z-4 temp_c=1084 ramp=slow\n2026-03-03T20:19:16 INFO zone=Z-2 temp_c=1078 ramp=slow\n2026-03-03T21:02:38 INFO zone=Z-4 temp_c=1081 ramp=ok\n2026-03-03T21:47:05 INFO zone=Z-5 temp_c=612 state=soak\n2026-03-03T21:00:00 JOURNAL CLOSE lines=9\n"
+  },
+  "turns": [
+    {
+      "prompt": "Kilnhurst Brickworks' kiln controller journals each zone of the firing. What fault code did the controller record on 3 March 2026? Answer with the code alone. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "K-114"
+      }
+    }
+  ]
+}

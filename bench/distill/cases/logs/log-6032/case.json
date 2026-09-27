@@ -1,0 +1,36 @@
+{
+  "id": "log-6032",
+  "description": "Count the pallets one bottling line sealed inside a mid-morning window of a single day's line journal. DISTILL-CANARY-b04b5d19",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-log-b04-bottling",
+    "ref_calls": 2,
+    "fixture_bytes": 1031,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Hawkcombe Springs - bottling line journal\n\nOne line per line state change and per pallet sealed.\n\n    <time> LINE L1 start | stop ...\n    <time> LINE L1 pallet sealed crates=<n>\n",
+    "logs/bottling-line.log": "2026-07-09T07:58:00 LINE L1 start batch=HB-118 bottles_planned=1920\n2026-07-09T08:11:14 LINE L1 pallet sealed crates=12\n2026-07-09T08:26:39 LINE L1 pallet sealed crates=12\n2026-07-09T08:41:52 LINE L1 pallet sealed crates=12\n2026-07-09T09:12:07 LINE L1 pallet sealed crates=12\n2026-07-09T09:31:21 LINE L1 pallet sealed crates=12\n2026-07-09T10:04:31 LINE L1 pallet sealed crates=12\n2026-07-09T10:19:56 LINE L1 pallet sealed crates=12\n2026-07-09T10:33:12 LINE L1 pallet sealed crates=12\n2026-07-09T10:47:38 LINE L1 pallet sealed crates=12\n2026-07-09T10:52:04 LINE L1 pallet sealed crates=12\n2026-07-09T10:58:29 LINE L1 pallet sealed crates=12\n2026-07-09T11:15:43 LINE L1 pallet sealed crates=12\n2026-07-09T11:29:18 LINE L1 pallet sealed crates=12\n2026-07-09T12:02:55 LINE L1 stop batch=HB-118 bottles_done=1920\n2026-07-09T12:30:00 JOURNAL CLOSE lines=15\n"
+  },
+  "turns": [
+    {
+      "prompt": "Hawkcombe Springs journals its bottling line. How many pallets did line L1 seal between 10:00 and 11:00 on 9 July 2026? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 6,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

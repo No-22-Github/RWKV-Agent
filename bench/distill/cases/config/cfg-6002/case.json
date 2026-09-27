@@ -1,0 +1,41 @@
+{
+  "id": "cfg-6002",
+  "description": "Compressor restart lock for the Marldon depot, which no layer of the Norlake ColdChain settings carries DISTILL-CANARY-db2b4558",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "missing_keys",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": 9
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b04-norlake",
+    "ref_calls": 4,
+    "fixture_bytes": 863,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Norlake ColdChain - Marldon depot\n\n`ColdChain` is Norlake's refrigeration monitoring platform. Each depot's settings resolve in two layers: the shipped defaults in `config/defaults.json` apply first, and any key the depot lists in `config/site-overlay.json` replaces the default. The overlay lists only what Marldon changes, so a key that appears in neither file has no value on this depot.\n\nThe settings write desk keeps background detail under `docs/`.\n",
+    "config/defaults.json": "{\n  \"telemetry_interval_s\": 90,\n  \"compressor_cycle_min\": 9,\n  \"door_open_warn_s\": 30,\n  \"alarm_dial_delay_s\": 12\n}\n",
+    "config/site-overlay.json": "{\n  \"telemetry_interval_s\": 45,\n  \"door_open_warn_s\": 20\n}\n",
+    "docs/alarm-notes.md": "# Alarm notes\n\nThe dial-out alarm rings the on-call rota; the ringing cadence is set on the phone system, not in ColdChain. Door contacts report through the overlay values, while compressor protection timings live on the site PLC.\n"
+  },
+  "turns": [
+    {
+      "prompt": "ColdChain locks a depot's compressor out for a fixed stretch after every stop so it does not restart against high head pressure, and the Marldon depot manager is writing the lock into the depot's maintenance log. How many seconds does the compressor restart lock run for at Marldon? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "UNKNOWN"
+      }
+    }
+  ]
+}

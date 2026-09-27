@@ -1,0 +1,39 @@
+{
+  "id": "log-6006",
+  "description": "Ask an apiary journal for an event kind its scales and inspection notes never record, the abstaining sibling of a family that also asks for counts the journal does record. DISTILL-CANARY-b04f0ac8",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": 3
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-log-b04-hivescale",
+    "ref_calls": 3,
+    "fixture_bytes": 1770,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Haxley Honey - hive-scale journal\n\nEach scale writes a reading every second hour; inspections append NOTE lines.\nThe journal records weights, hive temperatures and inspection notes, and\nnothing else.\n",
+    "logs/hivescale.log": "2026-05-30T06:11:28 hive=H-2 weight_kg=41.7 temp_c=34.2\n2026-05-30T06:11:28 hive=H-5 weight_kg=38.9 temp_c=34.8\n2026-05-30T06:11:28 hive=H-8 weight_kg=44.3 temp_c=33.9\n2026-05-30T08:25:28 hive=H-2 weight_kg=42.0 temp_c=34.2\n2026-05-30T08:25:28 hive=H-5 weight_kg=39.2 temp_c=34.8\n2026-05-30T08:25:28 hive=H-8 weight_kg=44.6 temp_c=33.9\n2026-05-30T11:40:23 hive=H-2 NOTE queen seen on the top bars\n2026-05-30T10:18:28 hive=H-2 weight_kg=42.3 temp_c=34.2\n2026-05-30T10:18:28 hive=H-5 weight_kg=39.5 temp_c=34.8\n2026-05-30T10:18:28 hive=H-8 weight_kg=44.9 temp_c=33.9\n2026-05-30T12:11:28 hive=H-2 weight_kg=42.6 temp_c=34.2\n2026-05-30T12:11:28 hive=H-5 weight_kg=39.8 temp_c=34.8\n2026-05-30T12:11:28 hive=H-8 weight_kg=45.2 temp_c=33.9\n2026-05-30T14:25:28 hive=H-2 weight_kg=42.9 temp_c=34.2\n2026-05-30T15:12:44 hive=H-5 NOTE queen seen during inspection\n2026-05-30T14:25:28 hive=H-5 weight_kg=40.1 temp_c=34.8\n2026-05-30T14:25:28 hive=H-8 weight_kg=45.5 temp_c=33.9\n2026-05-30T16:18:28 hive=H-2 weight_kg=43.2 temp_c=34.2\n2026-05-30T16:18:28 hive=H-5 weight_kg=40.4 temp_c=34.8\n2026-05-30T16:18:28 hive=H-8 weight_kg=45.8 temp_c=33.9\n2026-05-30T16:03:38 hive=H-8 NOTE queen seen marked blue\n2026-05-30T18:11:28 hive=H-2 weight_kg=43.5 temp_c=34.2\n2026-05-30T18:11:28 hive=H-5 weight_kg=40.7 temp_c=34.8\n2026-05-30T18:11:28 hive=H-8 weight_kg=46.1 temp_c=33.9\n2026-05-30T20:25:28 hive=H-2 weight_kg=43.8 temp_c=34.2\n2026-05-30T20:25:28 hive=H-5 weight_kg=41.0 temp_c=34.8\n2026-05-30T20:25:28 hive=H-8 weight_kg=46.4 temp_c=33.9\n2026-05-30T22:00:00 JOURNAL CLOSE lines=27\n"
+  },
+  "turns": [
+    {
+      "prompt": "Haxley Honey's hive scales and inspection notes all land in one journal. How many swarm captures did the apiary record on 30 May 2026? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "UNKNOWN"
+      }
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "id": "log-6019",
+  "description": "Read the error code off the single ERROR line of a day at a distillery's still house, whose WARN lines also watch the same cooling water. DISTILL-CANARY-b04ad460",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "locate_error",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-log-b04-stillhouse",
+    "ref_calls": 2,
+    "fixture_bytes": 903,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Lochnagar Distillery - still house journal\n\nOne line per charge, cut or alarm. ERROR lines carry the fault code; the\nwatcher's WARN and INFO lines carry no codes.\n",
+    "logs/still-house.log": "2026-01-22T14:05:12 INFO still=S-2 charge_l=14200 heat_on\n2026-01-22T15:41:33 WARN still=S-2 cooling_water_c=24.1 state=watch\n2026-01-22T16:58:07 INFO still=S-1 charge_l=13850 heat_on\n2026-01-22T18:22:48 INFO still=S-2 spirit_run=heart cut=ok\n2026-01-22T19:44:19 WARN still=S-2 cooling_water_c=25.6 state=watch\n2026-01-22T21:14:06 ERROR still=S-2 code=SH-07 msg=\"condenser cooling water hot\"\n2026-01-22T21:14:40 INFO still=S-2 heat_off by=still_watcher\n2026-01-22T22:31:52 INFO still=S-2 cooling_water_c=19.8 state=ok\n2026-01-22T23:04:27 INFO still=S-1 spirit_run=feints cut=ok\n2026-01-22T23:26:41 INFO still=S-2 charge_l=14180 heat_on\n2026-01-22T23:52:33 INFO still=S-1 spirit_run=heart cut=ok\n2026-01-22T23:00:00 JOURNAL CLOSE lines=11\n"
+  },
+  "turns": [
+    {
+      "prompt": "Lochnagar Distillery's still house journals each charge, cut and alarm. What is the error code on the still house's ERROR line of 22 January 2026? Answer with the code alone. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "SH-07"
+      }
+    }
+  ]
+}

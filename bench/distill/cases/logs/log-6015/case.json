@@ -1,0 +1,36 @@
+{
+  "id": "log-6015",
+  "description": "Read the suction pressure off a pumping station's single error line of the night. DISTILL-CANARY-b04c04a1",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "locate_error",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-log-b04-pumpline",
+    "ref_calls": 2,
+    "fixture_bytes": 1126,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Melbury Water - pumping station journal\n\nOne line per reading or event. ERROR lines carry the reading the pump had\nwhen the alarm fired; ordinary readings are INFO lines.\n",
+    "logs/pump-station.log": "2026-04-09T01:47:10 INFO pump=P-2 suction_bar=2.41 discharge_bar=4.08 running\n2026-04-09T02:11:36 INFO pump=P-2 suction_bar=2.55 discharge_bar=4.12 running\n2026-04-09T02:41:52 INFO pump=P-1 suction_bar=0.00 discharge_bar=0.00 standby\n2026-04-09T03:47:12 ERROR pump=P-2 suction_bar=2.87 msg=\"priming lost\"\n2026-04-09T03:47:40 INFO pump=P-2 stopped_by=duty_engineer\n2026-04-09T04:15:28 INFO pump=P-2 suction_bar=2.62 discharge_bar=3.98 running\n2026-04-09T05:03:14 INFO pump=P-1 suction_bar=2.93 discharge_bar=4.15 running\n2026-04-09T05:44:51 INFO pump=P-2 suction_bar=2.71 discharge_bar=4.02 running\n2026-04-09T06:29:33 INFO pump=P-1 suction_bar=2.84 discharge_bar=4.19 running\n2026-04-09T07:12:05 INFO pump=P-2 suction_bar=2.66 discharge_bar=4.06 running\n2026-04-09T07:38:47 INFO pump=P-1 suction_bar=2.49 discharge_bar=4.11 running\n2026-04-09T07:52:19 INFO pump=P-2 suction_bar=2.58 discharge_bar=4.09 running\n2026-04-09T07:20:00 JOURNAL CLOSE lines=12\n"
+  },
+  "turns": [
+    {
+      "prompt": "Melbury Water journals its pumping station's overnight readings and alarms. What suction pressure did pump P-2 report on the error line it raised during the night of 9 April 2026? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 2.87,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

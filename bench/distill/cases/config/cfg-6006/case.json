@@ -1,0 +1,40 @@
+{
+  "id": "cfg-6006",
+  "description": "Firmware channel of the meter reader, a service whose block in the Pendower poller settings carries no channel DISTILL-CANARY-0585feea",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "missing_keys",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "stable"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b04-pendower",
+    "ref_calls": 3,
+    "fixture_bytes": 850,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Pendower Controls - substation poller\n\n`config/poller.json` carries one block per service. Each service starts and reads only the block named for it; nothing is shared between blocks, and a service never falls back to another block's settings.\n\nThe firmware team records rollout detail under `docs/`.\n",
+    "config/poller.json": "{\n  \"meter_reader\": {\n    \"poll_seconds\": 30,\n    \"retry_backoff_s\": 5,\n    \"timeout_s\": 8\n  },\n  \"relay_controller\": {\n    \"poll_seconds\": 15,\n    \"retry_backoff_s\": 10,\n    \"timeout_s\": 4,\n    \"firmware_channel\": \"stable\"\n  },\n  \"alarm_hub\": {\n    \"poll_seconds\": 60,\n    \"retry_backoff_s\": 3,\n    \"timeout_s\": 6\n  }\n}\n",
+    "docs/firmware-notes.md": "# Firmware notes\n\nThe relay controller tracks the stable channel; test-depot relays ride the beta channel for a fortnight while a build is being assessed. Meter firmware is updated by the meter supplier on their own schedule.\n"
+  },
+  "turns": [
+    {
+      "prompt": "An auditor at Pendower Controls is recording which firmware feed each poller service follows, service by service. What firmware channel does the meter reader run on? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "UNKNOWN"
+      }
+    }
+  ]
+}

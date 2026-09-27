@@ -1,0 +1,40 @@
+{
+  "id": "log-6034",
+  "description": "Count the dock departures inside a morning window that reported a turnaround time, in a journal whose turnaround field also carries NA, a dash and empty values. DISTILL-CANARY-b04d7a53",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [
+      "TR-MISSING"
+    ],
+    "trap_decoys": {
+      "TR-MISSING": 8
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-b04-dockturn",
+    "ref_calls": 3,
+    "fixture_bytes": 1215,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Icknield Freight - dock door journal\n\nOne line per trailer departure. turnaround is the time from dock assignment\nto departure; the dock system writes NA when the trailer was walked on, a\ndash when the timer was reset by hand, and nothing at all when the timer\nnever started.\n\n    <time> DEPART door=<id> trailer=<id> turnaround=<hh:mm:ss | NA | - | empty>\n",
+    "logs/dock-journal.log": "2026-09-15T06:41:11 DEPART door=D-1 trailer=IK-31 turnaround=01:12:40\n2026-09-15T07:29:46 DEPART door=D-2 trailer=IK-77 turnaround=NA\n2026-09-15T08:04:22 DEPART door=D-2 trailer=IK-42 turnaround=00:58:13\n2026-09-15T08:11:37 DEPART door=D-1 trailer=IK-18 turnaround=NA\n2026-09-15T08:17:52 DEPART door=D-3 trailer=IK-24 turnaround=01:08:41\n2026-09-15T08:23:08 DEPART door=D-4 trailer=IK-55 turnaround=-\n2026-09-15T08:31:23 DEPART door=D-2 trailer=IK-63 turnaround=00:47:29\n2026-09-15T08:38:39 DEPART door=D-1 trailer=IK-88 turnaround=\n2026-09-15T08:46:54 DEPART door=D-3 trailer=IK-12 turnaround=01:31:08\n2026-09-15T08:52:19 DEPART door=D-4 trailer=IK-36 turnaround=00:52:16\n2026-09-15T09:14:18 DEPART door=D-1 trailer=IK-42 turnaround=01:03:22\n2026-09-15T10:02:53 DEPART door=D-2 trailer=IK-77 turnaround=01:44:01\n2026-09-15T11:00:00 JOURNAL CLOSE lines=12\n"
+  },
+  "turns": [
+    {
+      "prompt": "Icknield Freight's dock system journals every trailer departure. How many departures between 08:00 and 09:00 on 15 September 2026 reported a turnaround time? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 5,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

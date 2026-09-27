@@ -1,0 +1,35 @@
+{
+  "id": "log-6013",
+  "description": "Read the error code off the single ERROR line of one night shift of an offset press journal. DISTILL-CANARY-b04a1c95",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "locate_error",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-log-b04-platepress",
+    "ref_calls": 2,
+    "fixture_bytes": 1165,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Lochee Press - press run journal\n\nOne line per press event during the night shift. Codes on ERROR lines are\nthe press manufacturer's fault numbers; the WARN and INFO lines carry no\ncodes.\n",
+    "logs/press-run.log": "2026-08-27T02:14:55 INFO station=lochee-feeder sheets=3120 rate_ok=true\n2026-08-27T02:20:31 INFO station=lochee-ink-2 density=1.42 state=ok\n2026-08-27T02:37:12 ERROR station=lochee-feeder code=E-217 msg=\"sheet feed misalignment\"\n2026-08-27T02:39:44 INFO station=lochee-feeder resync sheets=3140 state=ok\n2026-08-27T03:05:18 INFO station=lochee-ink-2 density=1.39 state=ok\n2026-08-27T03:44:02 INFO station=lochee-feeder sheets=6280 rate_ok=true\n2026-08-27T04:12:39 WARN station=lochee-ink-2 density=1.51 state=watch\n2026-08-27T04:13:30 INFO station=lochee-ink-2 density=1.44 state=ok\n2026-08-27T05:01:47 INFO station=lochee-feeder sheets=9410 rate_ok=true\n2026-08-27T05:38:22 INFO station=lochee-ink-2 density=1.41 state=ok\n2026-08-27T06:20:56 INFO station=lochee-feeder sheets=12560 rate_ok=true\n2026-08-27T06:44:10 INFO station=lochee-ink-2 density=1.43 state=ok\n2026-08-27T07:02:38 INFO station=lochee-feeder run_end sheets=15710\n2026-08-27T07:10:00 JOURNAL CLOSE lines=13\n"
+  },
+  "turns": [
+    {
+      "prompt": "Lochee Press journals every press event during its night shift. What is the error code of the only ERROR the press logged on 27 August 2026? Answer with the code alone. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "E-217"
+      }
+    }
+  ]
+}

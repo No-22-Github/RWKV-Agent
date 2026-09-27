@@ -1,0 +1,41 @@
+{
+  "id": "doc-6009",
+  "description": "Years of labour cover on the Yarwell fridge freezer warranty row DISTILL-CANARY-63e6facc",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 3
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b04-yarwell",
+    "ref_calls": 2,
+    "fixture_bytes": 668,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Yarwell Appliances - warranty cover\n\nDomestic appliances built by Yarwell carry the cover in `warranty/cover.csv`, one row per model with the parts and labour terms in years. The sheet covers manufacture faults only; accidental damage is sold separately under the Yarwell Care plan and never appears on the cover sheet.\n\nRegistration detail is kept under `docs/`.\n",
+    "warranty/cover.csv": "model,parts_years,labour_years\nDishwasher,2,5\nFridge freezer,3,4\nWashing machine,2,3\nCooker hood,1,2\n",
+    "docs/registration-notes.md": "# Registration notes\n\nCover starts on the delivery date once the warranty is registered online. The model plate inside the door lists the full model code; the cover sheet is indexed by the range name.\n"
+  },
+  "turns": [
+    {
+      "prompt": "A Yarwell Appliances customer is checking what the manufacturer sends out when the appliance breaks down. How many years of labour cover does the fridge freezer carry? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 4,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

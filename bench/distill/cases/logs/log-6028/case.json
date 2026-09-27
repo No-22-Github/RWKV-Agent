@@ -1,0 +1,40 @@
+{
+  "id": "log-6028",
+  "description": "Count the cleaning cycles started inside a two-hour window, with one more cycle starting a minute before the window opens in the same journal. DISTILL-CANARY-b04d2e90",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 5
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-b04-cipcycles",
+    "ref_calls": 3,
+    "fixture_bytes": 5517,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Inkberrow Dairy - pasteurizer CIP journal\n\nOne line per cycle start and per cycle completion, plus the rinse and\nconductivity checks that surround them. Cycles run on the milk line (circuit\nA) and the separator (circuit B) independently.\n\n    <time> CIP circuit=<id> start\n    <time> CIP circuit=<id> complete duration_min=<n>\n",
+    "logs/cip-journal.log": "2026-02-19T00:05:00 RINSE circuit=A drained\n2026-02-19T00:11:33 CHECK circuit=B conductivity_uS=38.2 pass\n2026-02-19T00:14:00 CIP circuit=A start\n2026-02-19T00:15:07 RINSE circuit=B drained\n2026-02-19T00:21:37 CHECK circuit=A conductivity_uS=39.3 pass\n2026-02-19T00:25:11 RINSE circuit=A drained\n2026-02-19T00:31:41 CHECK circuit=B conductivity_uS=40.4 pass\n2026-02-19T00:35:19 RINSE circuit=B drained\n2026-02-19T00:41:47 CHECK circuit=A conductivity_uS=41.5 pass\n2026-02-19T00:45:23 RINSE circuit=A drained\n2026-02-19T00:51:53 CHECK circuit=B conductivity_uS=42.6 pass\n2026-02-19T00:52:00 CIP circuit=B start\n2026-02-19T00:55:29 RINSE circuit=B drained\n2026-02-19T01:01:59 CHECK circuit=A conductivity_uS=38.2 pass\n2026-02-19T01:02:00 CIP circuit=A complete duration_min=48\n2026-02-19T01:05:33 RINSE circuit=A drained\n2026-02-19T01:11:00 CHECK circuit=B conductivity_uS=39.3 pass\n2026-02-19T01:15:37 RINSE circuit=B drained\n2026-02-19T01:21:07 CHECK circuit=A conductivity_uS=40.4 pass\n2026-02-19T01:25:41 RINSE circuit=A drained\n2026-02-19T01:26:00 CIP circuit=B complete duration_min=34\n2026-02-19T01:31:11 CHECK circuit=B conductivity_uS=41.5 pass\n2026-02-19T01:35:47 RINSE circuit=B drained\n2026-02-19T01:41:19 CHECK circuit=A conductivity_uS=42.6 pass\n2026-02-19T01:45:53 RINSE circuit=A drained\n2026-02-19T01:51:23 CHECK circuit=B conductivity_uS=38.2 pass\n2026-02-19T01:55:59 RINSE circuit=B drained\n2026-02-19T01:59:07 CIP circuit=A start\n2026-02-19T02:01:29 CHECK circuit=A conductivity_uS=39.3 pass\n2026-02-19T02:05:00 RINSE circuit=A drained\n2026-02-19T02:11:00 CIP circuit=B start\n2026-02-19T02:11:33 CHECK circuit=B conductivity_uS=40.4 pass\n2026-02-19T02:15:07 RINSE circuit=B drained\n2026-02-19T02:21:37 CHECK circuit=A conductivity_uS=41.5 pass\n2026-02-19T02:25:11 RINSE circuit=A drained\n2026-02-19T02:31:41 CHECK circuit=B conductivity_uS=42.6 pass\n2026-02-19T02:33:00 CIP circuit=A complete duration_min=34\n2026-02-19T02:35:19 RINSE circuit=B drained\n2026-02-19T02:41:47 CHECK circuit=A conductivity_uS=38.2 pass\n2026-02-19T02:45:00 CIP circuit=B complete duration_min=34\n2026-02-19T02:45:23 RINSE circuit=A drained\n2026-02-19T02:47:00 CIP circuit=A start\n2026-02-19T02:51:53 CHECK circuit=B conductivity_uS=39.3 pass\n2026-02-19T02:55:29 RINSE circuit=B drained\n2026-02-19T03:01:59 CHECK circuit=A conductivity_uS=40.4 pass\n2026-02-19T03:02:00 CIP circuit=B start\n2026-02-19T03:05:33 RINSE circuit=A drained\n2026-02-19T03:11:00 CHECK circuit=B conductivity_uS=41.5 pass\n2026-02-19T03:15:37 RINSE circuit=B drained\n2026-02-19T03:19:00 CIP circuit=A complete duration_min=32\n2026-02-19T03:21:07 CHECK circuit=A conductivity_uS=42.6 pass\n2026-02-19T03:22:00 CIP circuit=A start\n2026-02-19T03:25:41 RINSE circuit=A drained\n2026-02-19T03:31:11 CHECK circuit=B conductivity_uS=38.2 pass\n2026-02-19T03:35:47 RINSE circuit=B drained\n2026-02-19T03:36:00 CIP circuit=B complete duration_min=34\n2026-02-19T03:41:19 CHECK circuit=A conductivity_uS=39.3 pass\n2026-02-19T03:45:53 RINSE circuit=A drained\n2026-02-19T03:51:23 CHECK circuit=B conductivity_uS=40.4 pass\n2026-02-19T03:54:00 CIP circuit=A complete duration_min=32\n2026-02-19T03:55:59 RINSE circuit=B drained\n2026-02-19T05:01:29 CHECK circuit=A conductivity_uS=41.5 pass\n2026-02-19T05:01:59 CHECK circuit=A conductivity_uS=42.6 pass\n2026-02-19T05:05:00 RINSE circuit=A drained\n2026-02-19T05:05:33 RINSE circuit=A drained\n2026-02-19T05:11:00 CHECK circuit=B conductivity_uS=38.2 pass\n2026-02-19T05:11:33 CHECK circuit=B conductivity_uS=42.6 pass\n2026-02-19T05:15:07 RINSE circuit=B drained\n2026-02-19T05:15:37 RINSE circuit=B drained\n2026-02-19T05:21:07 CHECK circuit=A conductivity_uS=39.3 pass\n2026-02-19T05:21:37 CHECK circuit=A conductivity_uS=38.2 pass\n2026-02-19T05:25:11 RINSE circuit=A drained\n2026-02-19T05:25:41 RINSE circuit=A drained\n2026-02-19T05:31:11 CHECK circuit=B conductivity_uS=40.4 pass\n2026-02-19T05:31:41 CHECK circuit=B conductivity_uS=39.3 pass\n2026-02-19T05:35:19 RINSE circuit=B drained\n2026-02-19T05:35:47 RINSE circuit=B drained\n2026-02-19T05:41:19 CHECK circuit=A conductivity_uS=41.5 pass\n2026-02-19T05:41:47 CHECK circuit=A conductivity_uS=40.4 pass\n2026-02-19T05:45:23 RINSE circuit=A drained\n2026-02-19T05:45:53 RINSE circuit=A drained\n2026-02-19T05:51:23 CHECK circuit=B conductivity_uS=42.6 pass\n2026-02-19T05:51:53 CHECK circuit=B conductivity_uS=41.5 pass\n2026-02-19T05:55:29 RINSE circuit=B drained\n2026-02-19T05:55:59 RINSE circuit=B drained\n2026-02-19T06:01:29 CHECK circuit=A conductivity_uS=38.2 pass\n2026-02-19T06:05:00 RINSE circuit=A drained\n2026-02-19T06:11:33 CHECK circuit=B conductivity_uS=39.3 pass\n2026-02-19T06:15:07 RINSE circuit=B drained\n2026-02-19T06:21:37 CHECK circuit=A conductivity_uS=40.4 pass\n2026-02-19T06:25:11 RINSE circuit=A drained\n2026-02-19T06:31:41 CHECK circuit=B conductivity_uS=41.5 pass\n2026-02-19T06:35:19 RINSE circuit=B drained\n2026-02-19T06:41:47 CHECK circuit=A conductivity_uS=42.6 pass\n2026-02-19T06:45:23 RINSE circuit=A drained\n2026-02-19T06:51:53 CHECK circuit=B conductivity_uS=38.2 pass\n2026-02-19T06:55:29 RINSE circuit=B drained\n2026-02-19T07:01:59 CHECK circuit=A conductivity_uS=39.3 pass\n2026-02-19T06:10:00 JOURNAL CLOSE lines=98\n"
+  },
+  "turns": [
+    {
+      "prompt": "Inkberrow Dairy's pasteurizer journals its cleaning-in-place cycles. How many CIP cycles started between 02:00 and 04:00 on 19 February 2026? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 4,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "id": "log-6022",
+  "description": "Read the bin id off the single ERROR line a grain store's blower house raised during an evening of drying. DISTILL-CANARY-b04d957d",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "locate_error",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-log-b04-blower",
+    "ref_calls": 2,
+    "fixture_bytes": 725,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Gowdall Grain - blower house journal\n\nOne line per blower state change or duct check. ERROR lines name the bin that\nraised them and the fault code; ordinary lines are INFO.\n",
+    "logs/blower-house.log": "2026-09-02T20:14:33 INFO bin=B-2 blower=on hours_planned=6\n2026-09-02T21:02:17 INFO bin=B-5 blower=on hours_planned=4\n2026-09-02T22:41:03 ERROR bin=B-7 code=AIRFLOW-2 msg=\"duct pressure below setpoint\"\n2026-09-02T22:41:30 INFO bin=B-7 blower=off by=dry_keeper\n2026-09-02T23:08:44 INFO bin=B-2 duct_pressure=612 pa state=ok\n2026-09-02T23:55:21 INFO bin=B-5 duct_pressure=588 pa state=ok\n2026-09-02T23:59:44 INFO bin=B-2 duct_pressure=601 pa state=ok\n2026-09-02T23:59:58 INFO bin=B-7 blower=on hours_planned=2\n2026-09-03T00:10:00 JOURNAL CLOSE lines=8\n"
+  },
+  "turns": [
+    {
+      "prompt": "Gowdall Grain's blower house journals each drying bin's state through the evening. Which bin did the blower house flag on its only ERROR of 2 September 2026? Answer with the bin id alone. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals": "B-7"
+      }
+    }
+  ]
+}

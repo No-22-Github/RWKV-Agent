@@ -1,0 +1,40 @@
+{
+  "id": "log-6029",
+  "description": "Total the net weight of the loads weighed out inside a lunchtime window, where the weighbridge journal also records gross and tare and a trickle of arrivals in the same window. DISTILL-CANARY-b04e8b25",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": 24295
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-b04-woolloads",
+    "ref_calls": 3,
+    "fixture_bytes": 911,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Kelsdale Wool - depot weighbridge journal\n\nEvery trailer is weighed out before it leaves. gross is the loaded trailer on\nthe bridge, tare the empty trailer weight recorded at the gate. Net weight is\ngross minus tare.\n\n    <time> ARRIVE trailer=<id>\n    <time> WEIGH-OUT trailer=<id> gross=<n> tare=<n>\n",
+    "logs/weighbridge.log": "2026-05-07T09:41:20 ARRIVE trailer=KW-102\n2026-05-07T12:58:07 WEIGH-OUT trailer=KW-310 gross=9120 tare=2840\n2026-05-07T13:12:44 WEIGH-OUT trailer=KW-221 gross=8420 tare=2210\n2026-05-07T13:26:31 ARRIVE trailer=KW-118\n2026-05-07T13:38:19 WEIGH-OUT trailer=KW-198 gross=6745 tare=1985\n2026-05-07T13:44:56 ARRIVE trailer=KW-205\n2026-05-07T13:51:02 WEIGH-OUT trailer=KW-240 gross=9130 tare=2870\n2026-05-07T14:22:37 WEIGH-OUT trailer=KW-310 gross=7310 tare=2410\n2026-05-07T14:50:12 ARRIVE trailer=KW-330\n2026-05-07T15:07:44 WEIGH-OUT trailer=KW-221 gross=8105 tare=2210\n2026-05-07T16:00:00 JOURNAL CLOSE lines=10\n"
+  },
+  "turns": [
+    {
+      "prompt": "Kelsdale Wool's depot weighbridge journals every trailer movement. What was the total net weight of the loads weighed out between 13:00 and 14:00 on 7 May 2026? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 17230,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

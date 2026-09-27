@@ -1,0 +1,40 @@
+{
+  "id": "log-6030",
+  "description": "Count one funicular car's arrivals inside a midday window in a counter journal whose export retried and wrote some arrival lines twice. DISTILL-CANARY-b04f36cb",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 12
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-b04-funicular",
+    "ref_calls": 3,
+    "fixture_bytes": 1534,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Holnicote Estate - cliff funicular counter\n\nThe counter journals every arrival at a platform. The estate's export job\nretried after the morning link drop, so some arrival lines were written to\nthe journal twice.\n\n    <time> ARRIVAL car=<id> platform=<top|bottom>\n",
+    "logs/funicular-journal.log": "2026-08-23T10:12:14 ARRIVAL car=A platform=bottom\n2026-08-23T10:22:37 ARRIVAL car=B platform=top\n2026-08-23T10:31:29 ARRIVAL car=A platform=bottom\n2026-08-23T10:47:51 ARRIVAL car=B platform=top\n2026-08-23T10:49:44 ARRIVAL car=A platform=bottom\n2026-08-23T11:04:11 ARRIVAL car=B platform=bottom\n2026-08-23T11:07:52 ARRIVAL car=B platform=bottom\n2026-08-23T11:07:52 ARRIVAL car=B platform=bottom\n2026-08-23T11:10:58 ARRIVAL car=A platform=top\n2026-08-23T11:13:26 ARRIVAL car=B platform=bottom\n2026-08-23T11:22:41 ARRIVAL car=B platform=bottom\n2026-08-23T11:27:13 ARRIVAL car=A platform=top\n2026-08-23T11:31:56 ARRIVAL car=B platform=bottom\n2026-08-23T11:31:56 ARRIVAL car=B platform=bottom\n2026-08-23T11:38:19 ARRIVAL car=B platform=bottom\n2026-08-23T11:42:28 ARRIVAL car=A platform=top\n2026-08-23T11:44:33 ARRIVAL car=B platform=bottom\n2026-08-23T11:49:47 ARRIVAL car=B platform=bottom\n2026-08-23T11:49:47 ARRIVAL car=B platform=bottom\n2026-08-23T11:56:02 ARRIVAL car=B platform=bottom\n2026-08-23T11:59:43 ARRIVAL car=A platform=top\n2026-08-23T12:05:14 ARRIVAL car=B platform=top\n2026-08-23T12:16:58 ARRIVAL car=A platform=bottom\n2026-08-23T12:24:29 ARRIVAL car=B platform=top\n2026-08-23T12:38:07 ARRIVAL car=A platform=bottom\n2026-08-23T13:00:00 JOURNAL CLOSE lines=25\n"
+  },
+  "turns": [
+    {
+      "prompt": "Holnicote Estate's cliff funicular journals every arrival at a platform. How many arrivals did car B make between 11:00 and 12:00 on 23 August 2026? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 9,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

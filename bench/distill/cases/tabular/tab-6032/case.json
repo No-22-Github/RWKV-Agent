@@ -1,0 +1,34 @@
+{
+  "id": "tab-6032",
+  "description": "Outstanding balance on a quarter's member subscription invoices. DISTILL-CANARY-dd40cb0f",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "reconcile",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-tab-b04-duesowed-01",
+    "ref_calls": 2,
+    "fixture_bytes": 971,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "subscriptions/subs_2026Q3.csv": "invoice_id,member,due_date,amount_due,amount_paid\nCS-2300,Dunbeath,2026-07-10,45.00,21.28\nCS-2301,Ashcroft,2026-08-13,150.00,125.01\nCS-2302,Faye Hall,2026-07-19,75.00,33.18\nCS-2303,Elstone,2026-07-02,90.00,55.11\nCS-2304,Faye Hall,2026-09-27,45.00,24.27\nCS-2305,Copeland,2026-07-11,180.00,67.34\nCS-2306,Dunbeath,2026-07-24,75.00,60.75\nCS-2307,Elstone,2026-07-04,45.00,28.24\nCS-2308,Faye Hall,2026-08-26,120.00,31.42\nCS-2309,Copeland,2026-07-06,180.00,89.88\nCS-2310,Dunbeath,2026-09-05,45.00,37.75\nCS-2311,Copeland,2026-07-17,75.00,18.77\nCS-2312,Bleasdale,2026-09-26,90.00,23.01\nCS-2313,Faye Hall,2026-08-28,90.00,32.13\nCS-2314,Bleasdale,2026-08-26,150.00,127.39\nCS-2315,Dunbeath,2026-08-26,60.00,39.80\nCS-2316,Ashcroft,2026-09-22,45.00,30.53\nCS-2317,Ashcroft,2026-07-23,180.00,85.20\nCS-2318,Ashcroft,2026-07-07,180.00,57.70\nCS-2319,Copeland,2026-07-09,75.00,32.15\n",
+    "README.md": "# Cattermole Seed Merchants - quarterly subscriptions, Q3 2026\n\nOne row per member invoice for the quarter.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Cattermole Seed Merchants bills members quarterly. How much remains owed on the quarter's subscriptions? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 974.09,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

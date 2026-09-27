@@ -1,0 +1,34 @@
+{
+  "id": "tab-6022",
+  "description": "Callout count of the least-loaded fitter in a 21-row July service log. DISTILL-CANARY-b9bc6d36",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "rank",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-tab-b04-fewestcallouts-01",
+    "ref_calls": 2,
+    "fixture_bytes": 903,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "service/callouts_2026-07.csv": "job_id,fitter,callout_date,hours\nFG-2109,Cressa Voss,2026-07-12,3.50\nFG-2102,Auriel Spence,2026-07-02,2.25\nFG-2111,Dev Ranleigh,2026-07-20,2.50\nFG-2117,Etta Marlow,2026-07-03,4.25\nFG-2104,Barnaby Gillett,2026-07-17,2.25\nFG-2107,Cressa Voss,2026-07-04,4.75\nFG-2108,Cressa Voss,2026-07-23,1.50\nFG-2119,Etta Marlow,2026-07-13,4.75\nFG-2120,Etta Marlow,2026-07-26,1.50\nFG-2118,Etta Marlow,2026-07-09,5.50\nFG-2116,Etta Marlow,2026-07-19,4.75\nFG-2105,Barnaby Gillett,2026-07-17,4.25\nFG-2106,Barnaby Gillett,2026-07-18,4.25\nFG-2113,Dev Ranleigh,2026-07-03,2.25\nFG-2100,Auriel Spence,2026-07-07,1.50\nFG-2101,Auriel Spence,2026-07-06,2.50\nFG-2112,Dev Ranleigh,2026-07-02,2.50\nFG-2115,Dev Ranleigh,2026-07-10,2.50\nFG-2103,Barnaby Gillett,2026-07-12,2.25\nFG-2110,Cressa Voss,2026-07-12,3.50\nFG-2114,Dev Ranleigh,2026-07-11,4.75\n",
+    "README.md": "# Foxglove Boats - yard callouts, July 2026\n\nOne row per callout attended by a fitter.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Foxglove Boats rebalances its duty roster each quarter. How many callouts did the fitter with the fewest July 2026 callouts attend? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 3,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

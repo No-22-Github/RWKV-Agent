@@ -1,0 +1,36 @@
+{
+  "id": "log-6025",
+  "description": "Count the spray rounds one vineyard team started inside a two-hour morning window of a single day's journal. DISTILL-CANARY-b04a68de",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-log-b04-sprayrounds",
+    "ref_calls": 2,
+    "fixture_bytes": 750,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Linvale Vineyard - spray journal\n\nOne line per spray round, stamped when the tractor starts the block.\n\n    <time> SPRAY block=<id> rows=<n> litres=<n> nozzle=<kind>\n",
+    "logs/spray-journal.log": "2026-08-12T03:10:15 SPRAY block=B-1 rows=22 litres=340 nozzle=fine\n2026-08-12T05:31:07 SPRAY block=B-2 rows=14 litres=220 nozzle=fine\n2026-08-12T05:58:41 SPRAY block=B-2 rows=12 litres=180 nozzle=coarse\n2026-08-12T06:12:19 SPRAY block=B-3 rows=18 litres=260 nozzle=fine\n2026-08-12T06:49:53 SPRAY block=B-3 rows=16 litres=240 nozzle=fine\n2026-08-12T07:22:30 SPRAY block=B-1 rows=20 litres=300 nozzle=coarse\n2026-08-12T09:05:48 SPRAY block=B-2 rows=13 litres=190 nozzle=fine\n2026-08-12T11:40:22 SPRAY block=B-1 rows=21 litres=330 nozzle=fine\n2026-08-12T13:00:00 JOURNAL CLOSE lines=8\n"
+  },
+  "turns": [
+    {
+      "prompt": "Linvale Vineyard journals every spray round its tractor teams run. How many spray rounds started between 05:00 and 07:00 on 12 August 2026? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 4,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}
