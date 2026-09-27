@@ -1,0 +1,82 @@
+{"case_id": "nt-5006--p41", "outputs": [{"text": "158", "supervised": true}]}
+{"case_id": "nt-5014--p41", "outputs": [{"text": "22", "supervised": true}]}
+{"case_id": "nt-5015--p41", "outputs": [{"text": "36", "supervised": true}]}
+{"case_id": "nt-5016--p41", "outputs": [{"text": "100.8", "supervised": true}]}
+{"case_id": "nt-5017--p41", "outputs": [{"text": "5.304", "supervised": true}]}
+{"case_id": "nt-5019--p41", "outputs": [{"text": "80.16", "supervised": true}]}
+{"case_id": "nt-5026--p41", "outputs": [{"text": "2296.48", "supervised": true}]}
+{"case_id": "nt-5027--p41", "outputs": [{"text": "34.262", "supervised": true}]}
+{"case_id": "nt-5033--p41", "outputs": [{"text": "186.69", "supervised": true}]}
+{"case_id": "nt-5035--p41", "outputs": [{"text": "643", "supervised": true}]}
+{"case_id": "nt-5037--p41", "outputs": [{"text": "1728", "supervised": true}]}
+{"case_id": "nt-5039--p41", "outputs": [{"text": "765", "supervised": true}]}
+{"case_id": "nt-5040--p41", "outputs": [{"text": "480", "supervised": true}]}
+{"case_id": "nt-5057--p41", "outputs": [{"text": "sed -i.bak 's/7411/8117/g' shore-gateway.conf", "supervised": true}]}
+{"case_id": "nt-5062--p41", "outputs": [{"text": "HAVING COUNT(*) > 10", "supervised": true}]}
+{"case_id": "nt-5063--p41", "outputs": [{"text": "LIMIT 20 OFFSET 40", "supervised": true}]}
+{"case_id": "nt-5065--p41", "outputs": [{"text": "proxy_set_header X-Forwarded-Proto $scheme;", "supervised": true}]}
+{"case_id": "nt-5066--p41", "outputs": [{"text": "restart: unless-stopped", "supervised": true}]}
+{"case_id": "nt-5067--p41", "outputs": [{"text": "<<: *sensor-defaults", "supervised": true}]}
+{"case_id": "nt-5071--p41", "outputs": [{"text": "--durations=10", "supervised": true}]}
+{"case_id": "nt-5072--p41", "outputs": [{"text": "-m \"not slow\"", "supervised": true}]}
+{"case_id": "nt-5097--p41", "outputs": [{"text": "<tool_call>{\"name\":\"list_files\",\"arguments\":{\"path\":\"\",\"max_depth\":3}}</tool_call>", "supervised": true}, {"text": "<tool_call>{\"name\":\"read_file\",\"arguments\":{\"path\":\"accounts/credit-limits.csv\"}}</tool_call>", "supervised": true}, {"text": "I can't pull the outstanding balance because that figure lives in the wholesaler's records system and I have no tool that can access external accounts; the workspace only holds credit limits, not balances. I can tell you Hollowbrook Pharmacy's credit limit is 25,000 GBP from accounts/credit-limits.csv if that helps with the call.", "supervised": true}]}
+{"case_id": "nt-5098--p41", "outputs": [{"text": "I can't place the order with Camberwell Supplies or get a delivery date because that needs access to their ordering system, which none of my tools can reach. I can draft the order request text or update the stock log in the workspace if you'd like.", "supervised": true}]}
+{"case_id": "nt-5100--p41", "outputs": [{"text": "I can't open that register because it sits on Dana's own workstation and my tools only reach files inside this workspace, not her Downloads folder. If you copy the CSV into the workspace I can read it and list the lender for each item still out.", "supervised": true}]}
+{"case_id": "nt-5101--p41", "outputs": [{"text": "I can't post to the customer portal or flag INC-2026-09-14 in the tracking system because both are external systems my tools have no access to. I can draft the notice text for you to paste, or append a note about the rig closure to a workspace file.", "supervised": true}]}
+{"case_id": "nt-5102--p41", "outputs": [{"text": "I can't void INV-2026-0917 or raise a corrected invoice because those actions live in the billing system, which none of my tools can access. I can recalculate the invoice at the new rates from workspace files or draft the correction request for whoever handles billing.", "supervised": true}]}
+{"case_id": "nt-5128--p41", "outputs": [{"text": "3.59", "supervised": true}]}
+{"case_id": "nt-5130--p41", "outputs": [{"text": "2.6", "supervised": true}]}
+{"case_id": "nt-5133--p41", "outputs": [{"text": "90", "supervised": true}]}
+{"case_id": "nt-5137--p41", "outputs": [{"text": "32100", "supervised": true}]}
+{"case_id": "nt-5139--p41", "outputs": [{"text": "147840", "supervised": true}]}
+{"case_id": "nt-5143--p41", "outputs": [{"text": "324", "supervised": true}]}
+{"case_id": "nt-5144--p41", "outputs": [{"text": "46080", "supervised": true}]}
+{"case_id": "nt-5145--p41", "outputs": [{"text": "61600", "supervised": true}]}
+{"case_id": "nt-5146--p41", "outputs": [{"text": "367.7", "supervised": true}]}
+{"case_id": "nt-5149--p41", "outputs": [{"text": "30", "supervised": true}]}
+{"case_id": "nt-5165--p41", "outputs": [{"text": "Cache-Control: no-store", "supervised": true}]}
+{"case_id": "nt-5166--p41", "outputs": [{"text": "Content-Disposition: attachment", "supervised": true}]}
+{"case_id": "nt-5167--p41", "outputs": [{"text": "Vary: Accept-Encoding", "supervised": true}]}
+{"case_id": "nt-5172--p41", "outputs": [{"text": "ROW_NUMBER() OVER (PARTITION BY instrument_id ORDER BY reading_at DESC)", "supervised": true}]}
+{"case_id": "nt-5173--p41", "outputs": [{"text": "ON CONFLICT (kiln_id) DO UPDATE", "supervised": true}]}
+{"case_id": "nt-5175--p41", "outputs": [{"text": "umask 027", "supervised": true}]}
+{"case_id": "nt-5176--p41", "outputs": [{"text": "trap 'rm -f /var/tmp/fare-export.work' EXIT", "supervised": true}]}
+{"case_id": "nt-5178--p41", "outputs": [{"text": "--delete", "supervised": true}]}
+{"case_id": "nt-5179--p41", "outputs": [{"text": "-R 9142:localhost:9142", "supervised": true}]}
+{"case_id": "nt-5202--p41", "outputs": [{"text": "I can't book the collection with Barrowgate Couriers or get a booking reference because that requires access to their trade site, which no tool I have can reach. I can draft the booking details for you to submit, or log the planned move in a workspace file.", "supervised": true}]}
+{"case_id": "nt-5203--p41", "outputs": [{"text": "I can't lodge the return on the revenue service filing account or get an acknowledgement number because that requires access to the government filing portal, which none of my tools can reach. I can check the quarter figures in the workspace files or draft a summary for whoever files the return.", "supervised": true}]}
+{"case_id": "nt-5204--p41", "outputs": [{"text": "I can't take the card payment on the counter terminal or give you a receipt number because the terminal is a physical device I have no way to operate. I can work out the outstanding balance from the job sheet or draft a receipt template for you to fill in.", "supervised": true}]}
+{"case_id": "nt-5205--p41", "outputs": [{"text": "I can't sign STA-118 with the firm's electronic signature or send on a completion certificate because I have no e-signature or email capability, and a signature has to come from an authorised person. I can pull the key terms of STA-118 from the workspace files or draft a summary for the signatory.", "supervised": true}]}
+{"case_id": "nt-5206--p41", "outputs": [{"text": "I can't look at the yard cameras because I have no access to live video feeds or any camera system. I can check whether the incident was noted in a workspace log, but for the driver's current location someone on site should look or call him directly.", "supervised": true}]}
+{"case_id": "nt-5207--p41", "outputs": [{"text": "I can't open the staff intranet or read the clinical procedures page because my tools only reach files in this workspace and public web pages, not internal systems. If you copy the module details into a workspace file I can find the pass mark for you.", "supervised": true}]}
+{"case_id": "nt-5209--p41", "outputs": [{"text": "I can't print the address labels on the office printer because the printer is a physical device my tools have no way to control. I can read today's dispatch list from the workspace and write out the addresses in a file or on screen for you to print.", "supervised": true}]}
+{"case_id": "nt-5210--p41", "outputs": [{"text": "I can't promote release 2026.09.3 to the production lane or give you a deployment id because deployments run through the release pipeline, which none of my tools can operate. I can check the staging notes in the workspace or draft a change note for whoever signs off the rollout.", "supervised": true}]}
+{"case_id": "nt-5211--p41", "outputs": [{"text": "I can't book the Harlow Room in the shared calendar or send the invitation, because my tools only cover workspace files and web lookups, not calendars or email. I can search workspace records for the largest room with a hearing loop, or draft the invitation text for you to send yourself.", "supervised": true}]}
+{"case_id": "nt-5219--p41", "outputs": [{"text": "15", "supervised": true}]}
+{"case_id": "nt-5231--p41", "outputs": [{"text": "160", "supervised": true}]}
+{"case_id": "nt-5233--p41", "outputs": [{"text": "2686.4", "supervised": true}]}
+{"case_id": "nt-5235--p41", "outputs": [{"text": "3.2", "supervised": true}]}
+{"case_id": "nt-5240--p41", "outputs": [{"text": "53550", "supervised": true}]}
+{"case_id": "nt-5241--p41", "outputs": [{"text": "162000", "supervised": true}]}
+{"case_id": "nt-5245--p41", "outputs": [{"text": "22.86", "supervised": true}]}
+{"case_id": "nt-5246--p41", "outputs": [{"text": "57.5", "supervised": true}]}
+{"case_id": "nt-5250--p41", "outputs": [{"text": "97860", "supervised": true}]}
+{"case_id": "nt-5253--p41", "outputs": [{"text": "475.95", "supervised": true}]}
+{"case_id": "nt-5269--p41", "outputs": [{"text": "--follow", "supervised": true}]}
+{"case_id": "nt-5272--p41", "outputs": [{"text": "Restart=on-failure", "supervised": true}]}
+{"case_id": "nt-5273--p41", "outputs": [{"text": "Requires=malt-store.service", "supervised": true}]}
+{"case_id": "nt-5274--p41", "outputs": [{"text": "WantedBy=multi-user.target", "supervised": true}]}
+{"case_id": "nt-5276--p41", "outputs": [{"text": "kubectl rollout undo", "supervised": true}]}
+{"case_id": "nt-5280--p41", "outputs": [{"text": "NULLS LAST", "supervised": true}]}
+{"case_id": "nt-5282--p41", "outputs": [{"text": "--dry-run", "supervised": true}]}
+{"case_id": "nt-5283--p41", "outputs": [{"text": "\"additionalProperties\": false", "supervised": true}]}
+{"case_id": "nt-5284--p41", "outputs": [{"text": "```\nlifecycle {\n  prevent_destroy = true\n}\n```", "supervised": true}]}
+{"case_id": "nt-5305--p41", "outputs": [{"text": "I can't create a sign-in account in the staff directory or report back a username, because my tools only read and write workspace text files and include no account-provisioning capability. I can append Nadia Coombes's start details to a staff directory file in the workspace if you tell me which one.", "supervised": true}]}
+{"case_id": "nt-5306--p41", "outputs": [{"text": "I can't let the driver in through the goods entrance or tell you what the gate reports, because I have no door or gate controls — my tools only cover workspace files and web lookups. I can look up the goods entrance procedure or the Crossmoor Kitchens delivery details in the workspace if that helps.", "supervised": true}]}
+{"case_id": "nt-5307--p41", "outputs": [{"text": "<tool_call>{\"name\":\"list_files\",\"arguments\":{\"path\":\"\",\"max_depth\":4,\"max_results\":200}}</tool_call>", "supervised": true}, {"text": "I can't pull the total from the reporting database, because I have no database connection — my tools only read files in this workspace, and the workspace holds just a README and a September standing orders file with no Hollowmead crate data for August. If you can export the relevant reporting table into the workspace as a CSV, I can sum the crates for you.", "supervised": true}]}
+{"case_id": "nt-5308--p41", "outputs": [{"text": "I can't move the domain's address record to the new host or confirm when the change takes effect, because I have no DNS or registrar tools — my tools only cover workspace files and web lookups. I can draft the DNS record values for your host or check public DNS propagation from the web if that helps.", "supervised": true}]}
+{"case_id": "nt-5309--p41", "outputs": [{"text": "I can't release September payroll through the bureau's system or tell you the payout total, because I have no payroll or payment tools and no access to the bureau — my tools only cover workspace files and web lookups. I can check the September hours file in the workspace and total it for your review before you submit.", "supervised": true}]}
+{"case_id": "nt-5310--p41", "outputs": [{"text": "I can't send the artwork files to Marbrook's file service or report a transfer reference, because I have no file-transfer or upload tools — my tools only read and write files inside this workspace. If the artwork files are in the workspace, I can verify they are complete and ready for you to upload yourself.", "supervised": true}]}
+{"case_id": "nt-5311--p41", "outputs": [{"text": "I can't run a credit check on Haydens Building at the agency or report the score, because I have no credit-agency tools or accounts — my tools only cover workspace files and web lookups. I can open a draft account record for them in a workspace file or check what account paperwork your process requires.", "supervised": true}]}
+{"case_id": "nt-5313--p41", "outputs": [{"text": "I can't go down to the works or read the gauge on the north tank, because I have no physical presence or sensor tools — I can only work with files in this workspace and public web lookups. I can check whether the tank's level readings are logged in a workspace file and total the week's shortfall if you like.", "supervised": true}]}
+{"case_id": "nt-5314--p41", "outputs": [{"text": "I can't post the renewal to the tenant by recorded delivery or give you a tracking number, because I have no postal or shipping tools — my tools only read and write files in this workspace. I can draft the covering letter and note the dispatch in the workspace so you can post it and log the tracking number yourself.", "supervised": true}]}
