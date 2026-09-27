@@ -1,0 +1,72 @@
+{
+  "id": "hyb-6018",
+  "description": "August crates net of empties for one of two vans named Stoat, settled per vehicle. DISTILL-CANARY-e46b09d7",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG",
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 40.0,
+      "TR-MULTISRC": 52.0
+    },
+    "axes": [
+      "DEC",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b04-badgervans-01",
+    "ref_calls": 5,
+    "fixture_bytes": 595,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "loads/august-2026.csv": "load_id,van,load_date,crates_out\nCF-7840,Moor Stoat,2026-08-04,18\nCF-7841,Vole,2026-08-05,14\nCF-7842,Dale Stoat,2026-08-06,20\nCF-7843,Moor Stoat,2026-08-10,16\nCF-7844,Dale Stoat,2026-08-12,17\nCF-7845,Moor Stoat,2026-08-18,10\nCF-7846,Dale Stoat,2026-08-21,15\n",
+    "empties/august-2026.csv": "empty_id,van,empty_date,crates_returned\nCF-7860,Dale Stoat,2026-08-13,7\nCF-7861,Moor Stoat,2026-08-19,4\nCF-7862,Dale Stoat,2026-08-25,4\n",
+    "README.md": "# Colderby Freight - August crates\n\nThe grower settles freight per vehicle, counting crates delivered and crediting the empties each van brings back; empties/august-2026.csv lists them under that van.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Colderby Freight settles its grower contract vehicle by vehicle, counting the crates a van delivers and crediting the empties it brings back. How many crates did the Stoat deliver in August 2026 once empties are credited?",
+      "expect": {
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ],
+        "output_contains": [
+          "Moor Stoat",
+          "Dale Stoat"
+        ]
+      }
+    },
+    {
+      "prompt": "The Dale Stoat. Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 41.0,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

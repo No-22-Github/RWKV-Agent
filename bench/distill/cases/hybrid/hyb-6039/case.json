@@ -1,0 +1,48 @@
+{
+  "id": "hyb-6039",
+  "description": "Fortnight average run time for one oven with gaps in the log, then the recorded-day count for a second oven. DISTILL-CANARY-e8a76f0f",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-MISSING"
+    ],
+    "trap_decoys": {
+      "TR-MISSING": 8.13
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b04-gapmetric-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1222,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "bakery/oven-log-2026.csv": "date,oven,run_hours\n2026-04-01,Deck 1,8.5\n2026-04-01,Deck 2,9.5\n2026-04-01,Deck 3,7.2\n2026-04-02,Deck 1,9.0\n2026-04-02,Deck 2,8.8\n2026-04-02,Deck 3,8.1\n2026-04-03,Deck 1,7.5\n2026-04-03,Deck 2,10.2\n2026-04-03,Deck 3,\n2026-04-04,Deck 1,8.0\n2026-04-04,Deck 2,9.1\n2026-04-04,Deck 3,8.9\n2026-04-05,Deck 1,\n2026-04-05,Deck 2,-\n2026-04-05,Deck 3,7.8\n2026-04-06,Deck 1,9.5\n2026-04-06,Deck 2,8.6\n2026-04-06,Deck 3,9.3\n2026-04-07,Deck 1,8.2\n2026-04-07,Deck 2,9.9\n2026-04-07,Deck 3,8.5\n2026-04-08,Deck 1,7.8\n2026-04-08,Deck 2,10.4\n2026-04-08,Deck 3,-\n2026-04-09,Deck 1,9.1\n2026-04-09,Deck 2,9.3\n2026-04-09,Deck 3,9.0\n2026-04-10,Deck 1,8.4\n2026-04-10,Deck 2,8.9\n2026-04-10,Deck 3,8.2\n2026-04-11,Deck 1,6.9\n2026-04-11,Deck 2,9.6\n2026-04-11,Deck 3,7.9\n2026-04-12,Deck 1,9.3\n2026-04-12,Deck 2,NA\n2026-04-12,Deck 3,8.8\n2026-04-13,Deck 1,8.8\n2026-04-13,Deck 2,10.1\n2026-04-13,Deck 3,9.2\n2026-04-14,Deck 1,7.6\n2026-04-14,Deck 2,9.4\n2026-04-14,Deck 3,NA\n",
+    "README.md": "# Kneadwell Bakery - deck oven log, April 2026\n\nOne row per oven and day for the first fortnight. An empty cell, a dash or NA\nmeans the oven was not logged that day and the day stays out of averages.\n",
+    "notes/bake-schedule.txt": "Deck 1 carries the sourdough bake.\nDeck 3 gets its annual service at the end of April.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Kneadwell Bakery is checking utilisation on the deck ovens. What was the average run time for Deck 2 across the first fortnight of April 2026? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 9.48,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "And how many days did Deck 3 log a run time? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 11,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

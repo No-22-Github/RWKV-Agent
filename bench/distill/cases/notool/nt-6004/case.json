@@ -1,0 +1,65 @@
+{
+  "id": "nt-6004",
+  "description": "Diesel to draw for a delivery run; the first message never says which run or how far it goes. DISTILL-CANARY-e28d41f6",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "ambiguous_request",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 2675
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b04-ratejob",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "Petra is out on a Ravenhill Haulage delivery run tomorrow and the fuel dock needs a diesel figure before she leaves the depot. How many litres should the dock set aside?",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ]
+      }
+    },
+    {
+      "prompt": "It is the Keswick run, 214 km in total, and the van does 12.5 km per litre. How many litres does the run take? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 17.12,
+        "tolerance": 0.01,
+        "tools": [],
+        "require_active_no_call": true
+      }
+    }
+  ]
+}

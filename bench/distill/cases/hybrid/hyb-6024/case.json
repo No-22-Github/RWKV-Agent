@@ -1,0 +1,44 @@
+{
+  "id": "hyb-6024",
+  "description": "January charge for one cloud service, then egress in February, from one billing export. DISTILL-CANARY-4e5630dd",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-hyb-b04-servicemeter-01",
+    "ref_calls": 2,
+    "fixture_bytes": 624,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "billing/service-usage-2026.csv": "line_id,service,month,usage_hours,amount\nU-01,storage,2026-01,3120,214.68\nU-02,egress,2026-01,850,63.75\nU-03,functions,2026-01,97,29.10\nU-04,backup,2026-01,44,33.00\nU-05,storage,2026-02,3345,229.84\nU-06,egress,2026-02,940,70.50\nU-07,functions,2026-02,88,26.40\nU-08,backup,2026-02,40,30.00\nU-09,storage,2026-02,120,8.28\nU-10,egress,2026-02,215,16.13\n",
+    "README.md": "# Nettlefold Systems - managed hosting charges\n\nVendor billing lines for January and February 2026. amount is the charge for the\nline in the stated month.\n",
+    "docs/cost-centres.txt": "Hosting bills split between Platform (storage, backup) and\nDelivery (egress, functions) cost centres from March onward.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Nettlefold Systems is splitting the vendor bill between cost centres. What was billed for the storage service in January 2026? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 214.68,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "And the egress service in February? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 86.63,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

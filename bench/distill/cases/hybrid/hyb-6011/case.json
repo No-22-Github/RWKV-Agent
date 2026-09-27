@@ -1,0 +1,69 @@
+{
+  "id": "hyb-6011",
+  "description": "September miles by one of two college minibuses named Wren, for a per-vehicle fuel claim. DISTILL-CANARY-cf51b8e3",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 172.3
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b04-wrenbuses-01",
+    "ref_calls": 3,
+    "fixture_bytes": 599,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "journeys/september-2026.csv": "trip_id,bus,trip_date,miles\nSA-9501,Blue Wren,2026-09-02,42.6\nSA-9502,Grey Wren,2026-09-03,38.4\nSA-9503,Swift,2026-09-05,66.9\nSA-9504,Grey Wren,2026-09-08,27.5\nSA-9505,Blue Wren,2026-09-10,51.2\nSA-9506,Grey Wren,2026-09-12,44.8\nSA-9507,Swift,2026-09-15,58.3\nSA-9508,Blue Wren,2026-09-17,36.9\nSA-9509,Grey Wren,2026-09-19,52.6\nSA-9510,Blue Wren,2026-09-22,41.6\nSA-9511,Grey Wren,2026-09-25,29.7\nSA-9512,Swift,2026-09-28,61.4\n",
+    "README.md": "# Struan Activity College - journey log\n\nOne row per trip out. Fuel is claimed back per vehicle.\n",
+    "notes/depot.txt": "Vehicles book in at the estate depot\nTransport officer: H. Rasmussen, ext 245\n"
+  },
+  "turns": [
+    {
+      "prompt": "Struan Activity College files its fuel claim by vehicle, and the September sheets are ready to be totalled. How many miles did the Wren cover in September 2026?",
+      "expect": {
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ],
+        "output_contains": [
+          "Blue Wren",
+          "Grey Wren"
+        ]
+      }
+    },
+    {
+      "prompt": "The Grey Wren. Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 193.0,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "id": "hyb-6017",
+  "description": "September pallets net of returns for one of two vans named Badger, on a per-vehicle invoice. DISTILL-CANARY-71f9d2b0",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG",
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 33.0,
+      "TR-MULTISRC": 47.0
+    },
+    "axes": [
+      "DEC",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b04-badgervans-01",
+    "ref_calls": 5,
+    "fixture_bytes": 762,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "outbound/september-2026.csv": "job_id,van,job_date,pallets_out\nAH-7701,Northgate Badger,2026-09-02,12\nAH-7702,Otter,2026-09-03,9\nAH-7703,Northgate Badger,2026-09-04,15\nAH-7704,Southgate Badger,2026-09-07,14\nAH-7705,Northgate Badger,2026-09-09,8\nAH-7706,Southgate Badger,2026-09-11,10\nAH-7707,Northgate Badger,2026-09-15,12\nAH-7708,Southgate Badger,2026-09-18,15\nAH-7709,Otter,2026-09-22,11\n",
+    "returns/september-2026.csv": "return_id,van,return_date,pallets_returned\nAH-7720,Northgate Badger,2026-09-08,5\nAH-7721,Southgate Badger,2026-09-14,6\nAH-7722,Northgate Badger,2026-09-17,4\nAH-7723,Otter,2026-09-24,2\n",
+    "README.md": "# Arrowfield Haulage - September movement\n\nThe grower contract is invoiced per vehicle. Pallets that come back unused are credited to the van that carried them out; returns/september-2026.csv lists them under that van.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Arrowfield Haulage is drawing up the September invoice for one of its vehicles under the grower contract, and unused pallets come back off that bill. How many pallets did the Badger move in September 2026 once returns are taken off?",
+      "expect": {
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ],
+        "output_contains": [
+          "Southgate Badger",
+          "Northgate Badger"
+        ]
+      }
+    },
+    {
+      "prompt": "The Northgate Badger. Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 38.0,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "id": "hyb-6016",
+  "description": "August closing reading on one of two main water meters, one return per wing. DISTILL-CANARY-29cf6a58",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 2776.9
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b04-mainmeter-01",
+    "ref_calls": 3,
+    "fixture_bytes": 700,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "readings/august-2026.csv": "read_id,wing,meter,read_date,reading\nMI-5060,North Wing,Main,2026-08-03,2714.2\nMI-5061,South Wing,Main,2026-08-03,2660.8\nMI-5062,Tank Room,Tank Room,2026-08-03,318.4\nMI-5063,North Wing,Main,2026-08-10,2729.6\nMI-5064,South Wing,Main,2026-08-10,2681.5\nMI-5065,South Wing,Main,2026-08-17,2703.9\nMI-5066,North Wing,Main,2026-08-17,2741.3\nMI-5067,North Wing,Main,2026-08-24,2758.7\nMI-5068,South Wing,Main,2026-08-24,2726.4\nMI-5069,North Wing,Main,2026-08-31,2776.9\nMI-5070,South Wing,Main,2026-08-31,2750.2\n",
+    "README.md": "# Selby Marine Institute - water meter log\n\nWeekly reads across the campus. Each wing reports its own consumption figures.\n",
+    "notes/lab-bookings.txt": "Tank room shared with the ecology group\nEstates desk: L. Fontaine, ext 156\n"
+  },
+  "turns": [
+    {
+      "prompt": "Selby Marine Institute sends the water return to the estate office once a month, one return per wing. What was the closing reading on the main meter in August 2026?",
+      "expect": {
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ],
+        "output_contains": [
+          "North Wing",
+          "South Wing"
+        ]
+      }
+    },
+    {
+      "prompt": "The South Wing. Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 2750.2,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "id": "hyb-6023",
+  "description": "August cost of one metered service, then a second service, from one usage export. DISTILL-CANARY-cfaa5e58",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-hyb-b04-servicemeter-01",
+    "ref_calls": 2,
+    "fixture_bytes": 738,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "billing/metered-usage-2026.csv": "invoice_line,service,period,units,cost_usd\nL-501,ingest,2026-07,4820,120.50\nL-502,transcode,2026-07,940,169.20\nL-503,graph,2026-07,2310,80.85\nL-504,vault,2026-07,96,14.40\nL-505,ingest,2026-08,5310,132.75\nL-506,transcode,2026-08,1120,201.60\nL-507,transcode,2026-08,340,61.20\nL-508,graph,2026-08,2790,97.65\nL-509,vault,2026-08,64,9.60\nL-510,ingest,2026-08,2150,53.75\nL-511,graph,2026-08,410,14.35\nL-512,vault,2026-08,132,19.80\n",
+    "README.md": "# Loomhollow Analytics - platform vendor billing\n\nInvoice lines as the vendor's portal exports them, July and August 2026. Units are\nservice-specific; cost_usd is what the vendor charged for the line.\n",
+    "docs/renewal-note.txt": "The vendor contract renews in November. Procurement asked for a\ncopy of the summer bills with the renewal pack.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Loomhollow Analytics is reviewing its August bill from the platform vendor. What did the transcode service cost in August 2026? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 262.8,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "And the graph service? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 112.0,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "id": "hyb-6030",
+  "description": "September order count for one customer in an export that repeated rows, then a second customer. DISTILL-CANARY-e98c2a69",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 8
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b04-duprow-01",
+    "ref_calls": 3,
+    "fixture_bytes": 882,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "orders/september-2026.csv": "order_id,order_date,customer,cartons\nCS-8812,2026-09-02,Brindle & Co,7\nCS-8815,2026-09-03,Hartwell Bros,3\nCS-8817,2026-09-05,Brindle & Co,9\nCS-8819,2026-09-08,Tullamore Bicycle Co,2\nCS-8821,2026-09-09,Brindle & Co,11\nCS-8824,2026-09-11,Brindle & Co,8\nCS-8826,2026-09-12,Hartwell Bros,12\nCS-8821,2026-09-09,Brindle & Co,11\nCS-8829,2026-09-16,Tullamore Bicycle Co,3\nCS-8831,2026-09-17,Brindle & Co,14\nCS-8833,2026-09-19,Hartwell Bros,9\nCS-8835,2026-09-22,Brindle & Co,7\nCS-8824,2026-09-11,Brindle & Co,8\nCS-8837,2026-09-24,Hartwell Bros,11\nCS-8839,2026-09-26,Tullamore Bicycle Co,8\nCS-8841,2026-09-28,Hartwell Bros,3\n",
+    "README.md": "# Crankset Supplies - September order book\n\nOne row per order from the sales export. The export job retried twice after a\ngateway timeout, so some orders were written more than once.\n",
+    "notes/courier-rounds.txt": "Brindle & Co takes the Thursday round.\nHartwell Bros prefers the Monday collection.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Crankset Supplies is reconciling its September trade orders. How many orders did Brindle & Co place in September 2026? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 6,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "And Hartwell Bros? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 5,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

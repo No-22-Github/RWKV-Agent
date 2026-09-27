@@ -1,0 +1,48 @@
+{
+  "id": "hyb-6040",
+  "description": "Bookings starting in one July week with mixed date styles, then a second week. DISTILL-CANARY-dd01ed72",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-DATEFMT"
+    ],
+    "trap_decoys": {
+      "TR-DATEFMT": 3
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b04-datemix-01",
+    "ref_calls": 3,
+    "fixture_bytes": 834,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "bookings/july-2026.csv": "booking_ref,property,start_date,nights\nBK-2201,The Shippen,2026-07-03,7\nBK-2202,Salt House,02/07/2026,3\nBK-2203,Net Loft,\"Jul 2, 2026\",6\nBK-2204,The Shippen,06/07/2026,12\nBK-2205,Salt House,2026-07-08,10\nBK-2206,Net Loft,09/07/2026,2\nBK-2207,The Shippen,\"Jul 10, 2026\",6\nBK-2208,Salt House,2026-07-12,7\nBK-2209,Net Loft,2026-07-15,3\nBK-2210,The Shippen,18/07/2026,7\nBK-2211,Salt House,\"Jul 21, 2026\",6\nBK-2212,Net Loft,22/07/2026,8\nBK-2213,The Shippen,2026-07-24,10\nBK-2214,Salt House,2026-07-25,3\n",
+    "README.md": "# Trewarren Cottages - July bookings\n\nOne row per booking taken for July. The two office terminals write start dates\ndifferently: one uses year-month-day, one writes day/month/year, and the long\nform is spelled out. Nothing is written month-first.\n",
+    "notes/keysafe-codes.txt": "Key safe codes rotate each Saturday.\nThe Shippen's gate code stays the same all season.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Trewarren Cottages is preparing the July letting summary. How many bookings started between 6 and 12 July 2026? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 5,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "And between 20 and 26 July? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 4,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

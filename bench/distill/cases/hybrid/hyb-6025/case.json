@@ -1,0 +1,44 @@
+{
+  "id": "hyb-6025",
+  "description": "June attendance for one gallery wing, then a second wing, from one weekly admissions file. DISTILL-CANARY-4b9ba874",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-hyb-b04-gallerywing-01",
+    "ref_calls": 2,
+    "fixture_bytes": 1217,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "visitors/attendance-2026.csv": "week_ending,wing,visitors\n2026-04-05,Ceramics,142\n2026-04-05,Horology,188\n2026-04-05,Textiles,121\n2026-04-12,Ceramics,156\n2026-04-12,Horology,173\n2026-04-12,Textiles,140\n2026-04-19,Ceramics,165\n2026-04-19,Horology,147\n2026-04-19,Textiles,182\n2026-04-26,Ceramics,139\n2026-04-26,Horology,171\n2026-04-26,Textiles,148\n2026-05-03,Ceramics,166\n2026-05-03,Horology,201\n2026-05-03,Textiles,158\n2026-05-10,Ceramics,174\n2026-05-10,Horology,212\n2026-05-10,Textiles,169\n2026-05-17,Ceramics,187\n2026-05-17,Horology,224\n2026-05-17,Textiles,176\n2026-05-24,Ceramics,193\n2026-05-24,Horology,231\n2026-05-24,Textiles,185\n2026-05-31,Ceramics,176\n2026-05-31,Horology,214\n2026-05-31,Textiles,158\n2026-06-07,Ceramics,176\n2026-06-07,Horology,205\n2026-06-07,Textiles,158\n2026-06-14,Ceramics,191\n2026-06-14,Horology,232\n2026-06-14,Textiles,150\n2026-06-21,Ceramics,164\n2026-06-21,Horology,214\n2026-06-21,Textiles,148\n2026-06-28,Ceramics,139\n2026-06-28,Horology,189\n2026-06-28,Textiles,131\n",
+    "README.md": "# Greystoke Museum - weekly admissions\n\nDoor counters tally each wing separately; one row per wing and week ending,\nspring 2026. The shop doorway is not counted.\n",
+    "notes/exhibition-rota.txt": "The Horology display rotates in the last June week.\nCeramics closes for cleaning on Mondays.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Greystoke Museum is totting up spring attendance for the trustees' pack. How many visitors did the Horology wing record in June 2026? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 840,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "And the Ceramics wing that month? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 670,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

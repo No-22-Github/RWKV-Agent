@@ -1,0 +1,51 @@
+{
+  "id": "hyb-6035",
+  "description": "July stall takings net of wastage recorded as positive amounts, then the strongest stall. DISTILL-CANARY-700d4f0e",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-SIGN"
+    ],
+    "trap_decoys": {
+      "TR-SIGN": 1066.5
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b04-positivesetoff-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1105,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "takings/july-2026.csv": "stall,date,takings,wastage\nHunnisett Bakehouse,2026-07-03,512.30,96.40\nDeverell Produce,2026-07-03,642.15,61.30\nOstler Dairy,2026-07-04,212.40,18.20\nFernden Plants,2026-07-04,331.20,21.10\nHunnisett Bakehouse,2026-07-10,486.75,88.15\nDeverell Produce,2026-07-10,618.40,48.75\nOstler Dairy,2026-07-11,198.75,9.40\nFernden Plants,2026-07-11,302.85,17.45\nHunnisett Bakehouse,2026-07-17,530.10,102.30\nDeverell Produce,2026-07-17,656.90,55.10\nOstler Dairy,2026-07-18,241.10,22.15\nFernden Plants,2026-07-18,345.40,24.80\nHunnisett Bakehouse,2026-07-24,498.45,91.75\nDeverell Produce,2026-07-24,601.25,39.95\nOstler Dairy,2026-07-25,187.95,6.80\nFernden Plants,2026-07-25,298.15,15.20\nHunnisett Bakehouse,2026-07-31,522.60,99.50\nDeverell Produce,2026-07-31,630.80,50.25\nOstler Dairy,2026-07-31,226.30,11.05\nFernden Plants,2026-07-31,320.70,19.65\n",
+    "README.md": "# Mowbarton Farm Shop - stall takings, July 2026\n\nOne row per stall day. The wastage column is the value the stallholder wrote off\nand is recorded as a positive amount.\n",
+    "notes/stall-allocations.txt": "Pitch fees are settled separately at the office.\nThe Dairy stall shares the chiller with Fernden Plants.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Mowbarton Farm Shop is settling the July stall accounts. What did the Ostler Dairy stall take once wastage comes off its takings? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 998.9,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "And which stall ended up with the most once wastage comes off? Give the stall name alone. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals_any": [
+          "Deverell Produce",
+          "Deverell Produce stall",
+          "the Deverell Produce stall"
+        ]
+      }
+    }
+  ]
+}

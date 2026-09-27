@@ -1,0 +1,48 @@
+{
+  "id": "hyb-6038",
+  "description": "Fortnight average output for one turbine with gaps in the meter feed, then a second turbine. DISTILL-CANARY-76a401f0",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-MISSING"
+    ],
+    "trap_decoys": {
+      "TR-MISSING": 703.93
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b04-gapmetric-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1203,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "meters/output-2026-06.csv": "day,turbine,kwh\n2026-06-01,TW-01,872\n2026-06-01,TW-02,798\n2026-06-01,TW-03,664\n2026-06-02,TW-01,845\n2026-06-02,TW-02,\n2026-06-02,TW-03,690\n2026-06-03,TW-01,-\n2026-06-03,TW-02,842\n2026-06-03,TW-03,702\n2026-06-04,TW-01,903\n2026-06-04,TW-02,865\n2026-06-04,TW-03,-\n2026-06-05,TW-01,918\n2026-06-05,TW-02,833\n2026-06-05,TW-03,671\n2026-06-06,TW-01,866\n2026-06-06,TW-02,879\n2026-06-06,TW-03,688\n2026-06-07,TW-01,891\n2026-06-07,TW-02,NA\n2026-06-07,TW-03,695\n2026-06-08,TW-01,934\n2026-06-08,TW-02,901\n2026-06-08,TW-03,709\n2026-06-09,TW-01,NA\n2026-06-09,TW-02,856\n2026-06-09,TW-03,680\n2026-06-10,TW-01,902\n2026-06-10,TW-02,874\n2026-06-10,TW-03,\n2026-06-11,TW-01,887\n2026-06-11,TW-02,890\n2026-06-11,TW-03,698\n2026-06-12,TW-01,912\n2026-06-12,TW-02,862\n2026-06-12,TW-03,712\n2026-06-13,TW-01,\n2026-06-13,TW-02,918\n2026-06-13,TW-03,676\n2026-06-14,TW-01,925\n2026-06-14,TW-02,845\n2026-06-14,TW-03,\n",
+    "README.md": "# Skelgill Head wind farm - meter export, June 2026\n\nOne row per turbine and day for the first fortnight. A dash, NA or an empty cell\nmeans the meter logged nothing that day; days without a reading stay out of\ndaily averages.\n",
+    "notes/service-visits.txt": "TW-03 had its gearbox filter changed in June.\nClimbing slots are booked through the site office.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Skelgill Head is compiling the June yield report. What was the average daily output of turbine TW-01 over the first fortnight of June 2026? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 895.91,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "And turbine TW-02? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 863.58,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

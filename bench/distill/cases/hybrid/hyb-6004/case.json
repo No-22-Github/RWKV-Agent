@@ -1,0 +1,69 @@
+{
+  "id": "hyb-6004",
+  "description": "July hire revenue for one of two Long Gallery rooms across a trust's two houses. DISTILL-CANARY-4f5a92bb",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 480.5
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b04-sailloft-01",
+    "ref_calls": 3,
+    "fixture_bytes": 553,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "hires/july-2026.csv": "hire_id,property,room,fee\nGM-4401,Hollybank,The Long Gallery,240.00\nGM-4402,Stonecross,The Still Room,180.00\nGM-4403,Hollybank,The Orangery,150.00\nGM-4404,Stonecross,The Long Gallery,260.00\nGM-4405,Hollybank,The Long Gallery,315.50\nGM-4406,Stonecross,The Long Gallery,220.50\nGM-4407,Hollybank,The Long Gallery,487.50\nGM-4408,Stonecross,The Still Room,190.00\n",
+    "README.md": "# Garrick Manor Trust - hire receipts\n\nOne row per hire with the fee invoiced. The trust lets out two houses.\n",
+    "notes/keyholders.txt": "Hollybank keyholder: T. Sowande, ext 142\nStonecross keyholder: E. Marchbank, ext 156\n"
+  },
+  "turns": [
+    {
+      "prompt": "Garrick Manor Trust sets its room cleaning hours in proportion to the income each room brought in. What hire revenue did The Long Gallery take in July 2026?",
+      "expect": {
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ],
+        "output_contains": [
+          "Stonecross",
+          "Hollybank"
+        ]
+      }
+    },
+    {
+      "prompt": "The Hollybank one. Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 1043.0,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

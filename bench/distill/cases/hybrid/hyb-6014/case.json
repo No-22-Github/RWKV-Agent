@@ -1,0 +1,69 @@
+{
+  "id": "hyb-6014",
+  "description": "June viewings of one of two Coach House flats, for per-landlord summaries. DISTILL-CANARY-80ba3e4d",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 3
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b04-gardenflat-01",
+    "ref_calls": 3,
+    "fixture_bytes": 935,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "viewings/june-2026.csv": "viewing_id,flat,address,viewing_date\nTR-9830,The Coach House,Harrow Lane,2026-06-02\nTR-9831,The Granary Flat,Harrow Rise,2026-06-03\nTR-9832,The Coach House,Harrow Rise,2026-06-05\nTR-9833,The Coach House,Harrow Lane,2026-06-08\nTR-9834,The Malthouse Flat,Harrow Lane,2026-06-09\nTR-9835,The Coach House,Harrow Lane,2026-06-11\nTR-9836,The Coach House,Harrow Rise,2026-06-15\nTR-9837,The Malthouse Flat,Harrow Lane,2026-06-17\nTR-9838,The Coach House,Harrow Lane,2026-06-19\nTR-9839,The Granary Flat,Harrow Rise,2026-06-22\nTR-9840,The Coach House,Harrow Lane,2026-06-24\nTR-9841,The Coach House,Harrow Rise,2026-06-26\nTR-9842,The Coach House,Harrow Lane,2026-06-29\nTR-9843,The Coach House,Harrow Lane,2026-06-30\nTR-9844,The Coach House,Harrow Lane,2026-06-30\n",
+    "README.md": "# Tarnside Residential - June viewings\n\nOne row per accompanied viewing. Statements go to each landlord separately.\n",
+    "notes/accompanied.txt": "Accompanied viewings need 24 hours' notice\nBranch line: 01632 960418\n"
+  },
+  "turns": [
+    {
+      "prompt": "Tarnside Residential writes a lettings summary for each landlord on its books. How many viewings did The Coach House have in June 2026?",
+      "expect": {
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ],
+        "output_contains": [
+          "Harrow Rise",
+          "Harrow Lane"
+        ]
+      }
+    },
+    {
+      "prompt": "The Harrow Lane one. Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 8,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

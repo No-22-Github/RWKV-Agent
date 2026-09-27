@@ -1,0 +1,69 @@
+{
+  "id": "hyb-6005",
+  "description": "July hectares sprayed on one of two Long Meadow fields, ahead of per-farm invoices. DISTILL-CANARY-d8c0613a",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 16.0
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b04-sprayfields-01",
+    "ref_calls": 3,
+    "fixture_bytes": 639,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "spraying/july-2026.csv": "job_id,farm,field,spray_date,hectares\nTA-5101,Mill Farm,Long Meadow,2026-07-03,8.25\nTA-5102,Priory Farm,Bank Field,2026-07-04,16.5\nTA-5103,Grange Farm,Long Meadow,2026-07-06,10.5\nTA-5104,Mill Farm,Home Field,2026-07-08,6.25\nTA-5105,Grange Farm,Orchard Piece,2026-07-10,9.75\nTA-5106,Grange Farm,Long Meadow,2026-07-14,11.25\nTA-5107,Mill Farm,Long Meadow,2026-07-16,7.75\nTA-5108,Priory Farm,Bank Field,2026-07-20,12.5\nTA-5109,Grange Farm,Long Meadow,2026-07-27,7.5\n",
+    "README.md": "# Tarnvale Agri Services - spray job sheet\n\nOne row per pass with the sprayer. Invoices go out per farm.\n",
+    "notes/operators.txt": "Sprayer operator: W. Kaczmarek, ext 314\nWater bowser booked Wednesdays\n"
+  },
+  "turns": [
+    {
+      "prompt": "Tarnvale Agri Services is checking the sprayer's July work against the job sheets before the farm invoices go out. How many hectares were sprayed on the Long Meadow in July 2026?",
+      "expect": {
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ],
+        "output_contains": [
+          "Mill Farm",
+          "Grange Farm"
+        ]
+      }
+    },
+    {
+      "prompt": "The Grange Farm field. Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 29.25,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "id": "hyb-6010",
+  "description": "July batches mixed by one of two bakers called Tomas, for the bonus split. DISTILL-CANARY-3a97d40b",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 8
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b04-rhiannonrota-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1019,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "bakes/july-2026.csv": "batch_id,baker,bake_date,mix\nLB-9401,Tomas Brierley,2026-07-02,white\nLB-9402,Nadia Ferenc,2026-07-02,wholemeal\nLB-9403,Tomas Kubiak,2026-07-03,white\nLB-9404,Tomas Brierley,2026-07-04,white\nLB-9405,Tomas Kubiak,2026-07-05,wholemeal\nLB-9406,Tomas Brierley,2026-07-07,granary\nLB-9407,Tomas Kubiak,2026-07-09,white\nLB-9408,Nadia Ferenc,2026-07-10,white\nLB-9409,Tomas Brierley,2026-07-11,wholemeal\nLB-9410,Tomas Kubiak,2026-07-13,granary\nLB-9411,Tomas Brierley,2026-07-15,white\nLB-9412,Tomas Kubiak,2026-07-16,white\nLB-9413,Tomas Brierley,2026-07-18,white\nLB-9414,Nadia Ferenc,2026-07-20,granary\nLB-9415,Tomas Kubiak,2026-07-22,wholemeal\nLB-9416,Tomas Brierley,2026-07-24,white\nLB-9417,Tomas Kubiak,2026-07-25,white\nLB-9418,Tomas Brierley,2026-07-27,granary\nLB-9419,Tomas Kubiak,2026-07-29,white\nLB-9420,Tomas Brierley,2026-07-30,white\n",
+    "README.md": "# Ledbury Bakehouse - bake log\n\nOne row per batch mixed. The summer bonus is worked out from each baker's July tally.\n",
+    "notes/suppliers.txt": "Flour delivery Tuesdays and Fridays\nMill contact: O. Delargy, ext 277\n"
+  },
+  "turns": [
+    {
+      "prompt": "Ledbury Bakehouse is working out the summer bonus, and each baker's July tally is settled on its own before the pool is split. How many batches did Tomas mix in July 2026?",
+      "expect": {
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ],
+        "output_contains": [
+          "Tomas Kubiak",
+          "Tomas Brierley"
+        ]
+      }
+    },
+    {
+      "prompt": "Tomas Brierley. Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 9,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

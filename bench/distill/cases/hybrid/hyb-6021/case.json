@@ -1,0 +1,44 @@
+{
+  "id": "hyb-6021",
+  "description": "Pallets out of one depot in September, then a second depot, read from one dispatch export. DISTILL-CANARY-ff09bbd3",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-hyb-b04-depotmonth-01",
+    "ref_calls": 2,
+    "fixture_bytes": 1174,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "dispatch/outbound-2026.csv": "dispatch_id,dispatch_date,depot,destination,pallets\nTW-3301,2026-07-28,Stennack Yard,Leicester,8\nTW-3302,2026-07-30,Poldhu Yard,Brighton,6\nTW-3303,2026-08-04,Stennack Yard,Norwich,12\nTW-3304,2026-08-06,Carbis Moor,Hull,7\nTW-3305,2026-08-11,Poldhu Yard,Derby,9\nTW-3306,2026-08-13,Stennack Yard,Swindon,10\nTW-3307,2026-08-18,Carbis Moor,York,11\nTW-3308,2026-08-21,Poldhu Yard,Northampton,5\nTW-3309,2026-08-27,Stennack Yard,Nottingham,14\nTW-3310,2026-09-02,Stennack Yard,Leicester,9\nTW-3311,2026-09-04,Poldhu Yard,York,12\nTW-3312,2026-09-08,Carbis Moor,Reading,6\nTW-3313,2026-09-10,Stennack Yard,Swindon,16\nTW-3314,2026-09-15,Poldhu Yard,Northampton,8\nTW-3315,2026-09-18,Stennack Yard,Derby,7\nTW-3316,2026-09-23,Carbis Moor,Norwich,13\nTW-3317,2026-09-25,Poldhu Yard,Leicester,10\nTW-3318,2026-09-29,Stennack Yard,Hull,11\nTW-3319,2026-09-30,Carbis Moor,Brighton,9\n",
+    "README.md": "# Torsway Freight - outbound dispatch log, summer 2026\n\nOne row per trailer departure from the three depots. The pallets figure is what\nthe depot gate counted at loading.\n",
+    "notes/depot-contacts.txt": "Stennack Yard gatehouse: 01772 914883 (supervisor Riona Vance)\nPoldhu Yard gatehouse: 01772 914902\nCarbis Moor shares the Plymouth office line.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Torsway Freight is pulling together the depot report for September. How many pallets left the Stennack Yard depot in September 2026? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 43,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "And how many left Poldhu Yard that month? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 30,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

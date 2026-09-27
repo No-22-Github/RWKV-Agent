@@ -1,0 +1,69 @@
+{
+  "id": "hyb-6007",
+  "description": "September rides by one of two school ponies named Clover, for a welfare check. DISTILL-CANARY-b47e10d9",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 5
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b04-cloverponies-01",
+    "ref_calls": 3,
+    "fixture_bytes": 723,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "rides/september-2026.csv": "ride_id,pony,ride_date,minutes,riders\nRS-7101,Grey Clover,2026-09-01,30,3\nRS-7102,Bramble,2026-09-01,45,2\nRS-7103,Bay Clover,2026-09-02,60,4\nRS-7104,Grey Clover,2026-09-05,45,2\nRS-7105,Duke,2026-09-06,30,1\nRS-7106,Bay Clover,2026-09-08,45,3\nRS-7107,Grey Clover,2026-09-09,60,4\nRS-7108,Bramble,2026-09-12,30,2\nRS-7109,Bay Clover,2026-09-15,45,2\nRS-7110,Grey Clover,2026-09-18,45,3\nRS-7111,Bay Clover,2026-09-19,30,1\nRS-7112,Duke,2026-09-22,60,2\nRS-7113,Grey Clover,2026-09-24,45,4\nRS-7114,Bay Clover,2026-09-26,60,3\nRS-7115,Grey Clover,2026-09-28,30,2\n",
+    "README.md": "# Halcyon Riding School - ride diary\n\nOne row per lesson ride. Welfare checks are done horse by horse.\n",
+    "notes/farrier.txt": "Farrier visits alternate Thursdays\nYard manager: P. Okonkwo, ext 302\n"
+  },
+  "turns": [
+    {
+      "prompt": "Halcyon Riding School keeps a ride diary that the welfare visitor works through horse by horse. How many rides did Clover give in September 2026?",
+      "expect": {
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ],
+        "output_contains": [
+          "Bay Clover",
+          "Grey Clover"
+        ]
+      }
+    },
+    {
+      "prompt": "Grey Clover. Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 6,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

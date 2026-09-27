@@ -1,0 +1,51 @@
+{
+  "id": "hyb-6045",
+  "description": "What one exhibitor owes after a positive refund and a section levy, then a second exhibitor. DISTILL-CANARY-95397497",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-RULEFILE",
+      "TR-SIGN"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": 555.0,
+      "TR-SIGN": 768.0
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b04-levynet-01",
+    "ref_calls": 4,
+    "fixture_bytes": 582,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "invoices/exhibitors-2026.csv": "exhibitor,section,booth_fee,refund\nColvend Pottery,Craft,640.00,85.00\nDunbreck Weavers,Craft,480.00,60.00\nAshlea Glass,Food,520.00,45.00\nHartsmoor Planting,Plants,310.00,0.00\nTarnhaven Baskets,Textiles,395.00,25.00\n",
+    "docs/staging-terms-2026.md": "# Staging terms, 2026 fair\n\nCraft section exhibitors pay a 20% staging levy on the amount they owe after\nrefunds. Sections Food, Plants and Textiles carry no levy.\n",
+    "README.md": "# Hallowfield Craft Fair - exhibitor invoices, spring 2026\n\nOne row per exhibitor. The refund column is money already paid back to the\nexhibitor after the marquee relayout, written as a positive amount.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Hallowfield Craft Fair is sending out final invoices. What does Colvend Pottery owe once its refund is set against the booth fee and the staging levy is added? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 666.0,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "And Dunbreck Weavers? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 504.0,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

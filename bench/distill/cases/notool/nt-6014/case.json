@@ -1,0 +1,65 @@
+{
+  "id": "nt-6014",
+  "description": "Distinct viewers across a two-session webinar for a board deck; the first message never says which sessions. DISTILL-CANARY-f29d3c86",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "ambiguous_request",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 420
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b04-headcount",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "Orchardline's community team reports viewer reach to the board and the deck is due tomorrow. How many distinct viewers did the sessions draw?",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ]
+      }
+    },
+    {
+      "prompt": "It is the September session pair: 240 joined the morning broadcast and 180 the evening rerun, and 75 of the morning viewers caught the rerun as well. Count each viewer once. How many distinct viewers is that? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 345,
+        "tolerance": 0.01,
+        "tools": [],
+        "require_active_no_call": true
+      }
+    }
+  ]
+}

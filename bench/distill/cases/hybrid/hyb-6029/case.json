@@ -1,0 +1,44 @@
+{
+  "id": "hyb-6029",
+  "description": "July vessel arrivals at a marina, then August, from one arrivals log. DISTILL-CANARY-17185061",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-hyb-b04-slipcount-01",
+    "ref_calls": 2,
+    "fixture_bytes": 787,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "berths/arrivals-2026.csv": "log_no,arrived_on,vessel,berth\nPL-1001,2026-06-14,Dabchick,A3\nPL-1002,2026-06-20,Avocet,B2\nPL-1003,2026-06-28,Teazel,A7\nPL-1004,2026-07-02,Merganser,B5\nPL-1005,2026-07-05,Godwit,A3\nPL-1006,2026-07-09,Pochard,C1\nPL-1010,2026-07-11,Dabchick,B2\nPL-1011,2026-07-15,Avocet,A3\nPL-1012,2026-07-19,Teazel,B5\nPL-1013,2026-07-24,Merganser,A7\nPL-1014,2026-07-27,Godwit,C1\nPL-1015,2026-07-30,Pochard,B2\nPL-1016,2026-08-04,Dabchick,A3\nPL-1017,2026-08-09,Avocet,B5\nPL-1018,2026-08-13,Teazel,A7\nPL-1019,2026-08-18,Merganser,C1\nPL-1020,2026-08-22,Godwit,B2\nPL-1021,2026-08-29,Pochard,A3\n",
+    "README.md": "# Pelderfoot Marina - arrivals log\n\nOne row per vessel arrival, taken from the watchkeeper's log. Berths are the\nvisitor pontoon slots.\n",
+    "notes/watchkeeper-rota.txt": "Weekday watches: Marnie Headon, Callum Greig.\nWeekend watches: the duty warden.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Pelderfoot Marina is reporting July traffic to the harbour board. How many vessel arrivals were logged in July 2026? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 9,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "And in August? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 6,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "id": "hyb-6022",
+  "description": "Kegs from one depot in June, then its sister depot, from one deliveries export. DISTILL-CANARY-14a32784",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-hyb-b04-depotmonth-01",
+    "ref_calls": 2,
+    "fixture_bytes": 1042,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "deliveries/kegs-2026.csv": "drop_id,drop_date,depot,public_house,kegs\nMK-5501,2026-06-03,Marsland Depot,The Two Rivers,14\nMK-5502,2026-06-05,Talverne Depot,The Ship Aground,8\nMK-5503,2026-06-09,Marsland Depot,The Millstone,11\nMK-5504,2026-06-12,Talverne Depot,The Two Rivers,15\nMK-5505,2026-06-16,Marsland Depot,The Three Tuns,9\nMK-5506,2026-06-19,Talverne Depot,The Millstone,7\nMK-5507,2026-06-22,Penlee Depot,The Old Forge,6\nMK-5508,2026-06-24,Marsland Depot,The Old Forge,13\nMK-5509,2026-06-26,Talverne Depot,The Three Tuns,12\nMK-5510,2026-07-01,Marsland Depot,The Two Rivers,10\nMK-5511,2026-07-03,Talverne Depot,The Old Forge,9\nMK-5512,2026-07-08,Penlee Depot,The Millstone,7\nMK-5513,2026-07-14,Marsland Depot,The Three Tuns,12\nMK-5514,2026-07-21,Talverne Depot,The Two Rivers,11\n",
+    "README.md": "# Oldbury Brewhouse - cask drops, summer 2026\n\nOne row per drop to a public house. Kegs are counted at the depot ramp before the dray leaves.\n",
+    "notes/pump-clip-orders.txt": "New pump clips for The Two Rivers go out with the next Tuesday run.\nThe Ship Aground wants its pump-clip artwork reprinted - chase the printer.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Oldbury Brewhouse is checking cask movements before the June excise return. How many kegs left the Marsland Depot in June 2026? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 47,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "And out of the Talverne Depot? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 42,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

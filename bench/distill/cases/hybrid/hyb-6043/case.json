@@ -1,0 +1,50 @@
+{
+  "id": "hyb-6043",
+  "description": "Fastener units at a shelf count that repeats lines and closes with a TOTAL row, then adhesives. DISTILL-CANARY-73d90d0a",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-DUPROW",
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 661,
+      "TR-HEADER": 1998
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b04-countstock-01",
+    "ref_calls": 3,
+    "fixture_bytes": 755,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "stock/october-2025.csv": "line_no,sku,category,units\nST-01,FN-2201,fasteners,120\nST-02,FN-2202,fasteners,84\nST-03,AD-3301,adhesives,45\nST-04,AB-4402,abrasives,61\nST-05,FN-2203,fasteners,132\nST-06,SL-5501,sealants,38\nST-07,AD-3302,adhesives,72\nST-08,FN-2201,fasteners,120\nST-09,AB-4403,abrasives,29\nST-10,FN-2204,fasteners,95\nST-11,AD-3303,adhesives,56\nST-12,SL-5502,sealants,44\nST-13,AB-4402,abrasives,61\nST-14,FN-2205,fasteners,110\nST-15,AD-3301,adhesives,45\nTOTAL,,,886\n",
+    "README.md": "# Staithe Fixtures - shelf count, October 2025\n\nOne row per count line from the handheld scanner. The scanner re-uploaded two\nof its batches, so a few lines appear twice; the office system writes the\nclosing TOTAL line.\n",
+    "notes/reorder-points.txt": "Fasteners reorder at 300 units.\nSealants are counted blind by the supplier each quarter.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Staithe Fixtures is closing off the October shelf count. How many fastener units were on the shelf? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 541,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "And the adhesives? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 173,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

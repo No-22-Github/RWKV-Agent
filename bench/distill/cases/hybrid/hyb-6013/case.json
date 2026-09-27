@@ -1,0 +1,69 @@
+{
+  "id": "hyb-6013",
+  "description": "September viewings of one of two Garden Flats, for one landlord's statement. DISTILL-CANARY-62e9c517",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 3
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b04-gardenflat-01",
+    "ref_calls": 3,
+    "fixture_bytes": 765,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "viewings/september-2026.csv": "viewing_id,flat,address,viewing_date\nBW-9710,The Garden Flat,Ferndale Road,2026-09-03\nBW-9711,The Attic Flat,Ferndale Road,2026-09-04\nBW-9712,The Garden Flat,Ferndale Lane,2026-09-05\nBW-9713,The Garden Flat,Ferndale Road,2026-09-08\nBW-9714,The Old Bakery Flat,Ferndale Lane,2026-09-09\nBW-9715,The Garden Flat,Ferndale Road,2026-09-11\nBW-9716,The Garden Flat,Ferndale Lane,2026-09-14\nBW-9717,The Attic Flat,Ferndale Road,2026-09-16\nBW-9718,The Garden Flat,Ferndale Road,2026-09-18\nBW-9719,The Old Bakery Flat,Ferndale Lane,2026-09-21\nBW-9720,The Garden Flat,Ferndale Lane,2026-09-23\n",
+    "README.md": "# Byrewood Lettings - September viewings\n\nOne row per accompanied viewing. Each landlord gets a statement per property.\n",
+    "notes/keysafe-codes.txt": "Keysafe codes change monthly\nNegotiator: A. Verhoeven, ext 137\n"
+  },
+  "turns": [
+    {
+      "prompt": "Byrewood Lettings is preparing a September statement for the landlord of one flat in particular. How many viewings did the Garden Flat have in September 2026?",
+      "expect": {
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ],
+        "output_contains": [
+          "Ferndale Lane",
+          "Ferndale Road"
+        ]
+      }
+    },
+    {
+      "prompt": "The Ferndale Road flat. Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 4,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

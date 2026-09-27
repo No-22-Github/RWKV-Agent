@@ -1,0 +1,48 @@
+{
+  "id": "hyb-6033",
+  "description": "First-quarter licence spend from a statement that closes with a TOTAL line, then hosting. DISTILL-CANARY-1c98c249",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-HEADER": 5527.25
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b04-totalrow-01",
+    "ref_calls": 3,
+    "fixture_bytes": 557,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "statements/jan-mar-2026.csv": "month,category,amount\n2026-01,licences,289.0\n2026-01,hosting,410.6\n2026-01,hardware,640.0\n2026-01,training,250.0\n2026-02,licences,289.0\n2026-02,hosting,410.6\n2026-02,hardware,640.0\n2026-02,training,250.0\n2026-03,licences,318.0\n2026-03,hosting,445.2\n2026-03,hardware,1204.85\n2026-03,training,380.0\nTOTAL,,5527.25\n",
+    "README.md": "# Fenrother Systems - IT spend statement\n\nVendor spend by category for the first quarter, as the finance system prints it.\nThe TOTAL line is the printout footer.\n",
+    "notes/asset-register.txt": "The March hardware line covers two engineer laptops\nand the replacement NAS shelf.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Fenrother Systems is allocating its first-quarter vendor spend. How much did licences cost across January to March 2026? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 896.0,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "And hosting? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 1266.4,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

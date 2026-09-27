@@ -1,0 +1,48 @@
+{
+  "id": "hyb-6041",
+  "description": "Carriage charge for one consignment under a rate card with a flat network rate, then a second consignment. DISTILL-CANARY-bcf98bb9",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-RULEFILE"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": 148.37
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b04-ruleflat-01",
+    "ref_calls": 4,
+    "fixture_bytes": 783,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "shipments/may-2026.csv": "consignment_id,dispatch_date,zone,weight_kg\nC-2238,2026-05-06,Local,48.5\nC-2239,2026-05-08,Regional,64.0\nC-2240,2026-05-12,Highland,31.2\nC-2241,2026-05-14,Regional,112.4\nC-2242,2026-05-15,Local,22.8\nC-2243,2026-05-19,Highland,96.7\nC-2244,2026-05-21,Regional,55.3\nC-2245,2026-05-26,Local,88.9\nC-2246,2026-05-27,Highland,42.0\nC-2247,2026-05-29,Highland,76.2\n",
+    "finance/carriage-rates-2026.md": "# Carriage rates, 2026\n\n- Zone Local: $0.84 per kg\n- Zone Regional: $1.32 per kg\n- Zone Highland: $2.05 per kg\n\nConsignments over 90 kg go on the pallet network at a flat $58.40 per\nconsignment, whatever the zone; the per-kg rates above do not apply to them.\n",
+    "README.md": "# Thorness Joinery - outgoing consignments, May 2026\n\nOne row per consignment leaving the workshop. Zones and rates are what the\ncarrier's desk publishes for the year.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Thorness Joinery is checking its May carriage costs. What is the charge for consignment C-2241? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 58.4,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "And C-2247? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 156.21,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

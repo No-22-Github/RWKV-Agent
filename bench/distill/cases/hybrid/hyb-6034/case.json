@@ -1,0 +1,48 @@
+{
+  "id": "hyb-6034",
+  "description": "Q3 regional takings net of refunds stored as positive amounts, Midlands then North East. DISTILL-CANARY-475890c1",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-SIGN"
+    ],
+    "trap_decoys": {
+      "TR-SIGN": 6365.05
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b04-positivesetoff-01",
+    "ref_calls": 3,
+    "fixture_bytes": 669,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "sales/regions-q3-2026.csv": "region,month,gross_sales,refunds\nMidlands,2026-07,2148.30,118.25\nMidlands,2026-08,1985.60,96.40\nMidlands,2026-09,2231.15,132.75\nNorth East,2026-07,1730.45,84.10\nNorth East,2026-08,1654.20,102.35\nNorth East,2026-09,1811.90,77.20\nSouth West,2026-07,1289.70,61.85\nSouth West,2026-08,1402.55,88.30\nSouth West,2026-09,1355.10,74.95\nWales,2026-07,968.40,42.60\nWales,2026-08,1044.85,57.15\nWales,2026-09,1102.30,49.80\n",
+    "README.md": "# Casingworth Mobile - regional sales, Q3 2026\n\nOne row per region and month. The refunds column is money returned to\ncustomers and is written as a positive amount.\n",
+    "notes/shop-refits.txt": "The Birmingham kiosk refit runs through August.\nCard terminals in Wales were updated in July.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Casingworth Mobile is closing the third quarter. What did the Midlands take in July to September 2026 once refunds are set against sales? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 6017.65,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "And the North East? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 4932.9,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

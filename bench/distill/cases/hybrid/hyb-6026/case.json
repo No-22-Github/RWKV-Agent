@@ -1,0 +1,47 @@
+{
+  "id": "hyb-6026",
+  "description": "Top gallery wing by May attendance, then its visitor count, from one weekly admissions file. DISTILL-CANARY-9608e3ba",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-hyb-b04-gallerywing-01",
+    "ref_calls": 2,
+    "fixture_bytes": 1201,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "visitors/admissions-2026.csv": "week_ending,wing,visitors\n2026-04-05,Ceramics,131\n2026-04-05,Horology,174\n2026-04-05,Textiles,122\n2026-04-12,Ceramics,149\n2026-04-12,Horology,159\n2026-04-12,Textiles,140\n2026-04-19,Ceramics,164\n2026-04-19,Horology,168\n2026-04-19,Textiles,136\n2026-04-26,Ceramics,152\n2026-04-26,Horology,148\n2026-04-26,Textiles,150\n2026-05-03,Ceramics,201\n2026-05-03,Horology,174\n2026-05-03,Textiles,262\n2026-05-10,Ceramics,190\n2026-05-10,Horology,168\n2026-05-10,Textiles,244\n2026-05-17,Ceramics,214\n2026-05-17,Horology,181\n2026-05-17,Textiles,271\n2026-05-24,Ceramics,186\n2026-05-24,Horology,159\n2026-05-24,Textiles,258\n2026-05-31,Ceramics,208\n2026-05-31,Horology,177\n2026-05-31,Textiles,249\n2026-06-07,Ceramics,176\n2026-06-07,Horology,205\n2026-06-07,Textiles,148\n2026-06-14,Ceramics,158\n2026-06-14,Horology,139\n2026-06-14,Textiles,136\n2026-06-21,Ceramics,191\n2026-06-21,Horology,142\n2026-06-21,Textiles,150\n2026-06-28,Ceramics,148\n2026-06-28,Horology,136\n2026-06-28,Textiles,131\n",
+    "README.md": "# Greystoke Museum - weekly admissions\n\nOne row per wing and week ending, spring 2026. Counts come from the door\ncounters at each wing entrance.\n",
+    "notes/guide-rota.txt": "Textiles has the touring costume exhibition through May,\nwhich the local paper covered twice.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Which Greystoke Museum wing drew the most visitors in May 2026? Give the wing name alone. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "output_equals_any": [
+          "Textiles",
+          "Textiles wing",
+          "the Textiles wing"
+        ]
+      }
+    },
+    {
+      "prompt": "And how many visitors was that? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 1284,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

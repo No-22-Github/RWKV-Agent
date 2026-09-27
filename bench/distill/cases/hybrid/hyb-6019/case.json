@@ -1,0 +1,72 @@
+{
+  "id": "hyb-6019",
+  "description": "September kilowatt hours net of curtailment for one of two fen arrays, per meter registration. DISTILL-CANARY-c82541fa",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG",
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 1620.5,
+      "TR-MULTISRC": 1842.5
+    },
+    "axes": [
+      "DEC",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b04-fenarrays-01",
+    "ref_calls": 5,
+    "fixture_bytes": 892,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "generation/september-2026.csv": "reading_id,array,gen_date,kwh\nFC-8090,Turf Fen Array,2026-09-02,412.5\nFC-8091,Rush Fen Array,2026-09-02,388.25\nFC-8092,Marram Array,2026-09-03,295.75\nFC-8093,Turf Fen Array,2026-09-09,447.0\nFC-8094,Rush Fen Array,2026-09-09,401.5\nFC-8095,Turf Fen Array,2026-09-16,468.25\nFC-8096,Rush Fen Array,2026-09-16,429.75\nFC-8097,Marram Array,2026-09-18,301.25\nFC-8098,Turf Fen Array,2026-09-23,429.75\nFC-8099,Rush Fen Array,2026-09-23,391.25\nFC-8100,Turf Fen Array,2026-09-29,85.0\nFC-8101,Rush Fen Array,2026-09-29,84.0\n",
+    "curtailment/september-2026.csv": "entry_id,array,curb_date,kwh\nFC-8120,Turf Fen Array,2026-09-09,96.0\nFC-8121,Rush Fen Array,2026-09-16,74.25\nFC-8122,Turf Fen Array,2026-09-23,41.5\n",
+    "README.md": "# Fenby Community Energy - September yield\n\nEach array has its own meter registration and reports separately. The yield figure nets off energy the grid operator curtailed; curtailment/september-2026.csv lists those amounts per array.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Fenby Community Energy is completing the September yield return that goes out with each array's own meter registration, net of what the grid operator curtailed. How much did the Fen array generate in September 2026, in kilowatt hours?",
+      "expect": {
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ],
+        "output_contains": [
+          "Rush Fen Array",
+          "Turf Fen Array"
+        ]
+      }
+    },
+    {
+      "prompt": "The Turf Fen Array. Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 1705.0,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

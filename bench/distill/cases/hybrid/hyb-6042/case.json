@@ -1,0 +1,48 @@
+{
+  "id": "hyb-6042",
+  "description": "July invoice for one cleaning site under a two-crew roster, then a standard site. DISTILL-CANARY-bf19aceb",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-RULEFILE"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": 775.8
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b04-ruleflat-01",
+    "ref_calls": 4,
+    "fixture_bytes": 430,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "invoices/july-2026.csv": "invoice_id,site,visits\nSI-701,Hargrave House,12\nSI-702,Pellworth Clinic,9\nSI-703,Ouselden Depot,15\nSI-704,Witheredge Surgery,7\n",
+    "finance/cleaning-rates-2026.md": "# Visit rates, July 2026\n\nStandard sites: $86.20 per visit.\n\nSites on the medical roster run a two-person crew: $149.80 per visit.\nMedical roster for July: Pellworth Clinic, Witheredge Surgery.\n",
+    "README.md": "# Sudlow Facility Care - July rounds\n\nOne row per site on the July rounds. Visit rates sit in the rate card.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Sudlow Facility Care is billing the July rounds. What is owed for Pellworth Clinic? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 1348.2,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "And Hargrave House? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 1034.4,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

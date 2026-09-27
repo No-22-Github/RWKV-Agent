@@ -1,0 +1,50 @@
+{
+  "id": "hyb-6044",
+  "description": "Average demurrage for one route with formatted charges and gaps, then a second route. DISTILL-CANARY-e0b48b22",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-MISSING",
+      "TR-NUMFMT"
+    ],
+    "trap_decoys": {
+      "TR-NUMFMT": 176.6,
+      "TR-MISSING": 110.62
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b04-gapdemurrage-01",
+    "ref_calls": 4,
+    "fixture_bytes": 902,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "charges/september-2026.csv": "route,consignment,demurrage\nFelixstowe-Duisburg,QF-4401,$212.40\nFelixstowe-Duisburg,QF-4402,$96.05\nFelixstowe-Duisburg,QF-4403,NA\nFelixstowe-Duisburg,QF-4404,$184.72\nFelixstowe-Duisburg,QF-4405,-\nFelixstowe-Duisburg,QF-4406,$240.18\nFelixstowe-Duisburg,QF-4407,\nFelixstowe-Duisburg,QF-4408,$151.63\nTilbury-Lyon,QT-5511,$143.90\nTilbury-Lyon,QT-5512,-\nTilbury-Lyon,QT-5513,$118.24\nTilbury-Lyon,QT-5514,NA\nTilbury-Lyon,QT-5515,$205.37\nTilbury-Lyon,QT-5516,\nTilbury-Lyon,QT-5517,$167.52\nImmingham-Milan,QI-6621,$88.40\nImmingham-Milan,QI-6622,$102.95\nImmingham-Milan,QI-6623,NA\nImmingham-Milan,QI-6624,$76.30\n",
+    "README.md": "# Quaymont Brokerage - demurrage charges, September 2026\n\nOne row per consignment on each deep-sea route, as the ledger prints it. An\nempty cell, a dash or NA means nothing was charged for that consignment.\n",
+    "notes/port-strikes.txt": "Immingham ran a reduced schedule mid-month.\nDuisburg rail handovers were normal throughout.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Quaymont Brokerage is reviewing September demurrage. What was the average demurrage charge per charged consignment on the Felixstowe-Duisburg route in September 2026? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 177.0,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "And Tilbury-Lyon? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 158.76,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

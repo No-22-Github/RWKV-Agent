@@ -1,0 +1,48 @@
+{
+  "id": "hyb-6031",
+  "description": "December despatch count for one garden chain in an export that repeated rows, then a second chain. DISTILL-CANARY-7c18554f",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 6
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b04-duprow-01",
+    "ref_calls": 3,
+    "fixture_bytes": 868,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "despatches/nov-dec-2025.csv": "despatch_id,despatch_date,customer,cases\nDS-4401,2025-11-28,Wrekin Garden Co,8\nDS-4402,2025-12-02,Wrekin Garden Co,8\nDS-4403,2025-12-04,Pensfold Growers,3\nDS-4405,2025-12-05,Wrekin Garden Co,12\nDS-4406,2025-12-09,Halloway Allotments,6\nDS-4408,2025-12-10,Wrekin Garden Co,2\nDS-4410,2025-12-12,Pensfold Growers,10\nDS-4411,2025-12-15,Wrekin Garden Co,16\nDS-4412,2025-12-18,Pensfold Growers,6\nDS-4414,2025-12-19,Wrekin Garden Co,3\nDS-4415,2025-12-22,Pensfold Growers,2\nDS-4405,2025-12-05,Wrekin Garden Co,12\nDS-4417,2025-12-23,Halloway Allotments,10\nDS-4418,2025-11-30,Pensfold Growers,8\n",
+    "README.md": "# Dunstanfield Seeds - despatch book, Nov-Dec 2025\n\nOne row per despatch from the packing shed. The FTP upload to the office lost\nits connection twice in December, so a few despatches were written twice.\n",
+    "notes/carrier-collections.txt": "Pallet collections 07:00 weekdays.\nSmall-case runs go out with the morning van.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Dunstanfield Seeds is closing out the December despatch book. How many separate despatches went to Wrekin Garden Co in December 2025? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 5,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "And Pensfold Growers? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 4,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

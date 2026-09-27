@@ -1,0 +1,69 @@
+{
+  "id": "hyb-6015",
+  "description": "September closing reading on one of two main meters, for a building's energy return. DISTILL-CANARY-de70c946",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 3042.9
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b04-mainmeter-01",
+    "ref_calls": 3,
+    "fixture_bytes": 688,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "readings/september-2026.csv": "read_id,building,meter,read_date,reading\nHE-9940,Old Court,Main,2026-09-01,2941.8\nHE-9941,New Court,Main,2026-09-01,3012.4\nHE-9942,Old Court,Workshop,2026-09-01,512.6\nHE-9943,Old Court,Main,2026-09-08,2960.2\nHE-9944,New Court,Main,2026-09-08,3041.9\nHE-9945,New Court,Main,2026-09-15,3078.3\nHE-9946,Old Court,Main,2026-09-15,2984.7\nHE-9947,Old Court,Main,2026-09-22,3011.5\nHE-9948,New Court,Main,2026-09-22,3121.6\nHE-9949,Old Court,Main,2026-09-29,3042.9\nHE-9950,New Court,Main,2026-09-29,3187.6\n",
+    "README.md": "# Hildyard Estate - meter readings\n\nReadings are taken weekly. Each building files its energy figures on its own return.\n",
+    "notes/contractors.txt": "Electrical contractor: Braywell Ltd, ext 189\nBoiler service due October\n"
+  },
+  "turns": [
+    {
+      "prompt": "Hildyard Estate files a separate energy return for each of its buildings, and the surveyor has asked for the closing figure. What was the closing reading on the main meter in September 2026?",
+      "expect": {
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ],
+        "output_contains": [
+          "Old Court",
+          "New Court"
+        ]
+      }
+    },
+    {
+      "prompt": "New Court. Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 3187.6,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

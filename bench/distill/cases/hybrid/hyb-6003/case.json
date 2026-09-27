@@ -1,0 +1,69 @@
+{
+  "id": "hyb-6003",
+  "description": "August bookings for one of two rooms called The Sail Loft, for a cleaning contract renewal. DISTILL-CANARY-91de4c07",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 6
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b04-sailloft-01",
+    "ref_calls": 3,
+    "fixture_bytes": 982,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "hires/august-2026.csv": "hire_id,venue,room,hire_date\nHR-3101,Cove Street,The Sail Loft,2026-08-02\nHR-3102,Quay Lane,The Net House,2026-08-04\nHR-3103,Cove Street,The Rope Walk,2026-08-06\nHR-3104,Quay Lane,The Sail Loft,2026-08-08\nHR-3105,Cove Street,The Sail Loft,2026-08-09\nHR-3106,Quay Lane,The Sail Loft,2026-08-11\nHR-3107,Cove Street,The Sail Loft,2026-08-13\nHR-3108,Cove Street,The Rope Walk,2026-08-14\nHR-3109,Cove Street,The Sail Loft,2026-08-16\nHR-3110,Quay Lane,The Sail Loft,2026-08-18\nHR-3111,Cove Street,The Rope Walk,2026-08-19\nHR-3112,Cove Street,The Sail Loft,2026-08-21\nHR-3113,Quay Lane,The Sail Loft,2026-08-22\nHR-3114,Quay Lane,The Net House,2026-08-23\nHR-3115,Quay Lane,The Sail Loft,2026-08-26\nHR-3116,Quay Lane,The Net House,2026-08-28\nHR-3117,Quay Lane,The Sail Loft,2026-08-29\n",
+    "README.md": "# Pennycross Heritage Trust - room hire register\n\nOne row per booking. The trust runs two venues, each with its own diary.\n",
+    "notes/caretakers.txt": "Cove Street caretaker: R. Iliffe, ext 118\nQuay Lane caretaker: S. Brennan, ext 121\n"
+  },
+  "turns": [
+    {
+      "prompt": "Pennycross Heritage Trust is renewing a cleaning contract priced from how busy the room was. How many bookings did The Sail Loft take in August 2026?",
+      "expect": {
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ],
+        "output_contains": [
+          "Quay Lane",
+          "Cove Street"
+        ]
+      }
+    },
+    {
+      "prompt": "The Cove Street room. Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 5,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

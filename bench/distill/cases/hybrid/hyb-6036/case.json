@@ -1,0 +1,48 @@
+{
+  "id": "hyb-6036",
+  "description": "June total invoiced to one client with ledger-styled amounts, then a second client. DISTILL-CANARY-22d342c7",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-NUMFMT"
+    ],
+    "trap_decoys": {
+      "TR-NUMFMT": 7311.0
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b04-dollarrows-01",
+    "ref_calls": 3,
+    "fixture_bytes": 636,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "invoices/june-2026.csv": "invoice_no,issued_on,client,amount\nSP-6601,2026-06-03,Marleythorpe Engineering,\"$2,417.35\"\nSP-6603,2026-06-05,Cotterill Farms,$864.20\nSP-6605,2026-06-09,Pell Lane Haulage,\"$1,318.75\"\nSP-6608,2026-06-11,Marleythorpe Engineering,\"$1,204.60\"\nSP-6610,2026-06-16,Cotterill Farms,$452.85\nSP-6612,2026-06-19,Marleythorpe Engineering,\"$3,690.15\"\nSP-6614,2026-06-23,Pell Lane Haulage,$620.40\n",
+    "README.md": "# Sparrowfield Fabrications - June invoice run\n\nOne row per invoice raised in June 2026. Amounts are printed by the ledger\nexactly as the account system writes them.\n",
+    "notes/chasing-log.txt": "Cotterill Farms pays on 30 days.\nMarleythorpe is on the direct-debit run at month end.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Sparrowfield Fabrications is chasing its June statements. What was invoiced to Marleythorpe Engineering in June 2026 in total? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 7312.1,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "And Cotterill Farms? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 1317.05,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

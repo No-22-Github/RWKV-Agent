@@ -1,0 +1,69 @@
+{
+  "id": "hyb-6002",
+  "description": "August vehicles carried by one of two ferries named Tern, for hull-by-hull landing dues. DISTILL-CANARY-e2b81d64",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 41.0
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b04-ospreypair-01",
+    "ref_calls": 3,
+    "fixture_bytes": 596,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "crossings/august-2026.csv": "crossing_id,vessel,crossing_date,vehicles\nWF-3301,Tern of Mara,2026-08-01,9\nWF-3302,Puffin,2026-08-02,21\nWF-3303,Tern of Sula,2026-08-04,12\nWF-3304,Tern of Mara,2026-08-07,14\nWF-3305,Tern of Sula,2026-08-09,8\nWF-3306,Tern of Mara,2026-08-14,7\nWF-3307,Tern of Sula,2026-08-15,15\nWF-3308,Puffin,2026-08-18,26\nWF-3309,Tern of Sula,2026-08-21,10\nWF-3310,Tern of Mara,2026-08-24,11\nWF-3311,Tern of Sula,2026-08-28,12\n",
+    "README.md": "# Wraycastle Ferries - crossing tally\n\nOne row per return crossing from the office tally sheet.\n",
+    "notes/slipway-rota.txt": "Slipway pressure wash: first Monday of the month\nPontoon inspection: K. Aherne, ext 233\n"
+  },
+  "turns": [
+    {
+      "prompt": "Wraycastle Ferries owes harbour landing dues charged hull by hull, and the office is pulling the August figures together. How many vehicles did the Tern carry in August 2026?",
+      "expect": {
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ],
+        "output_contains": [
+          "Tern of Mara",
+          "Tern of Sula"
+        ]
+      }
+    },
+    {
+      "prompt": "The Tern of Sula. Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 57.0,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

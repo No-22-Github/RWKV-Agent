@@ -1,0 +1,48 @@
+{
+  "id": "hyb-6037",
+  "description": "August charges for one fleet account with ledger-styled amounts, then the same account in September. DISTILL-CANARY-3146aa55",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-NUMFMT"
+    ],
+    "trap_decoys": {
+      "TR-NUMFMT": 3756.0
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b04-dollarrows-01",
+    "ref_calls": 3,
+    "fixture_bytes": 689,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "billing/aug-sep-2026.csv": "job_no,completed_on,fleet,amount\nCM-8804,2026-08-06,Brackley Couriers,\"$1,284.60\"\nCM-8807,2026-08-11,Dunvegan Haulage,$738.20\nCM-8810,2026-08-14,Brackley Couriers,$942.30\nCM-8813,2026-08-19,Orleton Minibuses,$415.75\nCM-8816,2026-08-22,Brackley Couriers,\"$1,530.85\"\nCM-8819,2026-08-27,Dunvegan Haulage,$692.10\nCM-8822,2026-09-03,Brackley Couriers,\"$1,105.40\"\nCM-8825,2026-09-09,Orleton Minibuses,$388.60\nCM-8828,2026-09-15,Brackley Couriers,$876.25\nCM-8831,2026-09-22,Dunvegan Haulage,$804.95\n",
+    "README.md": "# Copperside Motors - fleet job billing\n\nOne row per workshop job as the ledger prints it. August and September 2026.\n",
+    "notes/workshop-bays.txt": "Bay 2 takes the curtain-side vehicles.\nBrackley Couriers books the early slot.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Copperside Motors is billing its fleet accounts. What was charged to Brackley Couriers in August 2026 in total? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 3757.75,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "What about September? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 1981.65,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

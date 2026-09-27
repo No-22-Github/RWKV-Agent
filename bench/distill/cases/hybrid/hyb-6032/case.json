@@ -1,0 +1,48 @@
+{
+  "id": "hyb-6032",
+  "description": "Quarter packaging spend from a statement that closes with a grand total, then freight. DISTILL-CANARY-53c9fa17",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-HEADER": 5477.55
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b04-totalrow-01",
+    "ref_calls": 3,
+    "fixture_bytes": 584,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "statements/q2-2026.csv": "entry_month,category,amount\n2026-04,packaging,214.5\n2026-04,freight,132.4\n2026-04,produce,480.2\n2026-04,staffing,950.0\n2026-05,packaging,189.2\n2026-05,freight,141.85\n2026-05,produce,512.6\n2026-05,staffing,950.0\n2026-06,packaging,240.75\n2026-06,freight,158.3\n2026-06,produce,495.35\n2026-06,staffing,1012.4\nGrand total,,5477.55\n",
+    "README.md": "# Pennycross Catering - supplier statement, Q2 2026\n\nPurchases by category as the supplier's statement prints them. The Grand total\nline is the statement footer the supplier adds.\n",
+    "notes/contract-renewals.txt": "Produce contract renews in September.\nFreight rates are fixed until year end.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Pennycross Catering is going through the second-quarter supplier statement. How much went on packaging across April to June 2026? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 644.45,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "And on freight? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 432.55,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

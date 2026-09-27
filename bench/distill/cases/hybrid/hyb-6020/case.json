@@ -1,0 +1,72 @@
+{
+  "id": "hyb-6020",
+  "description": "August kilowatt hours net of spill for one of two Orchard arrays, for the members' pack. DISTILL-CANARY-f13b7a08",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG",
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 1988.25,
+      "TR-MULTISRC": 2287.25
+    },
+    "axes": [
+      "DEC",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b04-fenarrays-01",
+    "ref_calls": 5,
+    "fixture_bytes": 892,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b04",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "output/august-2026.csv": "reading_id,array,out_date,kwh\nWS-8210,Orchard End Array,2026-08-02,538.75\nWS-8211,Orchard Wood Array,2026-08-02,491.5\nWS-8212,Tarn Fold Array,2026-08-03,366.25\nWS-8213,Orchard End Array,2026-08-09,561.25\nWS-8214,Orchard Wood Array,2026-08-09,502.75\nWS-8215,Orchard End Array,2026-08-16,547.5\nWS-8216,Orchard Wood Array,2026-08-16,530.25\nWS-8217,Tarn Fold Array,2026-08-17,349.5\nWS-8218,Orchard End Array,2026-08-23,558.0\nWS-8219,Orchard Wood Array,2026-08-23,513.75\nWS-8220,Orchard End Array,2026-08-30,81.75\nWS-8221,Orchard Wood Array,2026-08-30,36.25\n",
+    "spill/august-2026.csv": "entry_id,array,spill_date,kwh\nWS-8240,Orchard End Array,2026-08-09,118.5\nWS-8241,Orchard Wood Array,2026-08-16,86.25\n",
+    "README.md": "# Witherslack Solar - August output\n\nEach array reports against its own meter registration. Output must net off the energy spilled when the local grid constraint bites; spill/august-2026.csv lists those amounts per array.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Witherslack Solar is preparing the August yield note for the members' pack, where every array is reported against its own meter registration with spilled energy taken off. How much did the Orchard array generate in August 2026, in kilowatt hours?",
+      "expect": {
+        "output_contains_any": [
+          "?",
+          "which",
+          "Which",
+          "specif",
+          "Specif",
+          "confirm",
+          "Confirm",
+          "clarif",
+          "Clarif",
+          "unclear",
+          "Unclear",
+          "ambiguous",
+          "Ambiguous",
+          "need to know",
+          "Need to know",
+          "need the",
+          "Need the"
+        ],
+        "output_contains": [
+          "Orchard Wood Array",
+          "Orchard End Array"
+        ]
+      }
+    },
+    {
+      "prompt": "The Orchard End Array. Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "expect": {
+        "expected_number": 2168.75,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}
