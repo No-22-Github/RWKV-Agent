@@ -43,6 +43,55 @@ var suites = map[string]suiteSpec{
 	"primitive-feedback30": {"pfb30", []string{"--suite", "primitive-feedback30"}, 30, 30, false},
 }
 
+// parallelFor is the in-flight case cap passed to one suite's agent-eval. The
+// spec value is the floor; the --max-concurrency budget scales it up when
+// there is headroom (runArm packs suites into batches against the same cap).
+func (args *SweepArgs) parallelFor(suite string) int {
+	if n, ok := args.parallel[suite]; ok {
+		return n
+	}
+	return suites[suite].parallelism
+}
+
+// scaledParallelism distributes budget across the selected suites
+// proportionally to their spec parallelism, rounding up via largest
+// remainders, so the sum lands exactly on budget. At or below the specs' sum
+// every suite keeps its spec value and runArm batches sequentially instead.
+func scaledParallelism(names []string, budget int) map[string]int {
+	out := make(map[string]int, len(names))
+	total := 0
+	for _, name := range names {
+		total += suites[name].parallelism
+	}
+	if budget <= total {
+		for _, name := range names {
+			out[name] = suites[name].parallelism
+		}
+		return out
+	}
+	type share struct {
+		name       string
+		base, frac int
+	}
+	shares := make([]share, 0, len(names))
+	assigned := 0
+	for _, name := range names {
+		p := suites[name].parallelism
+		exact := p * budget
+		shares = append(shares, share{name, exact / total, exact % total})
+		assigned += exact / total
+	}
+	sort.Slice(shares, func(i, j int) bool { return shares[i].frac > shares[j].frac })
+	for i := range shares {
+		if assigned < budget {
+			shares[i].base++
+			assigned++
+		}
+		out[shares[i].name] = shares[i].base
+	}
+	return out
+}
+
 func binaryPath() string { return filepath.Join(lab.RepoRoot(), "bin", "rwkv-cli") }
 func checkRunPath() string {
 	return filepath.Join(lab.RepoRoot(), ".claude", "skills", "rwkv-bench", "check_run.py")
@@ -62,6 +111,9 @@ type SweepArgs struct {
 	MaxAttempts    int
 	DryRun         bool
 	bsz            int
+	// parallel carries the per-suite in-flight case cap (scaledParallelism);
+	// nil falls back to the suiteSpec values.
+	parallel map[string]int
 }
 
 // RunSweep is the `bench sweep` command.
@@ -84,6 +136,9 @@ func RunSweep(args SweepArgs) int {
 		}
 	}
 
+	// Dry run has no endpoint snapshot, so it shows the split the real run
+	// would derive from the same budget (the snapshot can only lower it).
+	args.parallel = scaledParallelism(args.Suites, args.MaxConcurrency)
 	if args.DryRun {
 		for _, k := range replicas {
 			for _, arm := range args.Arms {
@@ -138,6 +193,7 @@ func RunSweep(args SweepArgs) int {
 		}
 	}
 	args.bsz = limit
+	args.parallel = scaledParallelism(args.Suites, limit)
 
 	ok := true
 	for _, k := range replicas {
@@ -216,7 +272,7 @@ func sweepCommand(args SweepArgs, suite, arm, output string) []string {
 		"--model", args.Model, "--api-url", args.APIURL,
 		"--api-header-env", "CF-Access-Client-Id=RWKV_CF_ID",
 		"--api-header-env", "CF-Access-Client-Secret=RWKV_CF_SECRET",
-		"--max-steps", "16", "--max-tokens", "4096", "--case-parallelism", strconv.Itoa(spec.parallelism),
+		"--max-steps", "16", "--max-tokens", "4096", "--case-parallelism", strconv.Itoa(args.parallelFor(suite)),
 		// The CLI default is 2m; with ~150 cases sharing the backend a 16-step
 		// case needs far longer, and the 2m clock cut 56/148 greedy cases on
 		// 2026-09-23.
@@ -300,7 +356,7 @@ func runArm(args *SweepArgs, arm string, k int) bool {
 		var current []pendingRun
 		used := 0
 		for _, item := range pending {
-			need := suites[item.suite].parallelism
+			need := args.parallelFor(item.suite)
 			if len(current) > 0 && used+need > args.bsz {
 				batches = append(batches, current)
 				current, used = nil, 0
