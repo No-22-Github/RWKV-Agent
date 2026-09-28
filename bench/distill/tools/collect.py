@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Collect solved b04 cases (step.py state files) into a replay script.
 
-  collect.py [--solve runs/distill/b04/solve] [--out bench/distill/scripts/b04.jsonl]
+  collect.py [--solve local/runs/distill/b04/solve] [--out bench/distill/scripts/b04.jsonl]
 
 Only "pass" cases are written. Entry IDs are "<case id>--p41": b01-b03 already
 use --p1/--p2 for the same bank cases, and exclude.jsonl removes by entry ID,
@@ -48,7 +48,7 @@ def split_turns(outputs, n_turns):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--solve", default=os.path.join(REPO, "runs", "distill", "b04", "solve"))
+    ap.add_argument("--solve", default=os.path.join(REPO, "local", "runs", "distill", "b04", "solve"))
     ap.add_argument("--out", default=os.path.join(REPO, "bench", "distill", "scripts", "b04.jsonl"))
     args = ap.parse_args()
     counts = collections.Counter()

@@ -42,7 +42,7 @@ W2 配额：
 
 你扮演一个本地 Agent 模型。`step.py` 打印的内容就是模型此刻能看到的全部；你每次写的一段文本就是模型的**一次完整输出**，会逐字节进入训练数据。
 
-**禁读**：`bench/distill/cases/` 下任何文件（只能把目录路径交给 step.py）、`bench/distill/scripts/`、`bench/workbank/`、`docs/workbank/reports/`、`runs/`。
+**禁读**：`bench/distill/cases/` 下任何文件（只能把目录路径交给 step.py）、`bench/distill/scripts/`、`bench/workbank/`、`docs/workbank/reports/`、`local/runs/`。
 
 **命令**（仓库根目录；`<dir>` 形如 `bench/distill/cases/notool/nt-5010`）：
 
@@ -55,7 +55,7 @@ python3 bench/distill/tools/step.py undo <dir>     # 撤销上一步，只用于
 ```
 
 - 一律用 `add <dir> -` 加带引号的 heredoc（`<<'EOF'`）传文本，不要把 JSON 放在命令行参数里。
-- 出现 `CASE FINISHED: PASS/FAIL` 就结束该题。**FAIL 不重试、不删状态文件**，在 `runs/distill/b04/triage.tsv` 追加一行 `<case_id>\tFAIL\t<一句话原因>`。
+- 出现 `CASE FINISHED: PASS/FAIL` 就结束该题。**FAIL 不重试、不删状态文件**，在 `local/runs/distill/b04/triage.tsv` 追加一行 `<case_id>\tFAIL\t<一句话原因>`。
 
 **输出格式：**
 
@@ -122,10 +122,10 @@ python3 bench/distill/tools/step.py undo <dir>     # 撤销上一步，只用于
 
 
 ```bash
-bin/rwkv-lab bank lint --fix --canary-prefix DISTILL-CANARY --cases bench/distill/cases
-bin/rwkv-lab bank lint --canary-prefix DISTILL-CANARY --case <dir>
-bin/rwkv-lab bank verify --cases bench/distill/cases/<scenario>
-bin/rwkv-lab corpus loadcheck --cases bench/distill/cases
+local/bin/rwkv-lab bank lint --fix --canary-prefix DISTILL-CANARY --cases bench/distill/cases
+local/bin/rwkv-lab bank lint --canary-prefix DISTILL-CANARY --case <dir>
+local/bin/rwkv-lab bank verify --cases bench/distill/cases/<scenario>
+local/bin/rwkv-lab corpus loadcheck --cases bench/distill/cases
 ```
 
 ## 4. 子 Agent 简报
@@ -159,24 +159,24 @@ bin/rwkv-lab corpus loadcheck --cases bench/distill/cases
 
 ```bash
 git switch -c distill/b04
-go build -o bin/rwkv-cli ./cmd/rwkv-cli && go build -o bin/rwkv-lab ./cmd/rwkv-lab
+go build -o local/bin/rwkv-cli ./cmd/rwkv-cli && go build -o local/bin/rwkv-lab ./cmd/rwkv-lab
 go test ./internal/lab/... ./internal/agent/eval/
-mkdir -p runs/distill/b04/solve
-printf 'case_id\tverdict\tnote\n' > runs/distill/b04/triage.tsv
-grep -v '^#' bench/distill/tools/w0-cases.tsv | cut -f2 | split -l 13 - runs/distill/b04/w0-part-   # W0 分成 9 份
+mkdir -p local/runs/distill/b04/solve
+printf 'case_id\tverdict\tnote\n' > local/runs/distill/b04/triage.tsv
+grep -v '^#' bench/distill/tools/w0-cases.tsv | cut -f2 | split -l 13 - local/runs/distill/b04/w0-part-   # W0 分成 9 份
 ```
 
-开工后**不得再重编 `bin/rwkv-cli`**，否则前后数据的 `wire_hash` 不一致。
+开工后**不得再重编 `local/bin/rwkv-cli`**，否则前后数据的 `wire_hash` 不一致。
 
 **新题闸门**（每收到一份出题交付就跑；主控自己跑，不信子 Agent 的自检）：
 
 ```bash
-bin/rwkv-lab bank lint --canary-prefix DISTILL-CANARY --cases bench/distill/cases
-bin/rwkv-lab bank verify --cases bench/distill/cases
-bin/rwkv-lab corpus loadcheck --cases bench/distill/cases
-bin/rwkv-lab bank dedup --cases bench/distill/cases
-bin/rwkv-lab corpus decontam --test bench/workbank/cases --candidates bench/distill/cases --report runs/distill/b04/decontam-cases.jsonl
-bin/rwkv-lab corpus decontam --test bench/workbank/cases-shelved --candidates bench/distill/cases --report runs/distill/b04/decontam-shelved.jsonl
+local/bin/rwkv-lab bank lint --canary-prefix DISTILL-CANARY --cases bench/distill/cases
+local/bin/rwkv-lab bank verify --cases bench/distill/cases
+local/bin/rwkv-lab corpus loadcheck --cases bench/distill/cases
+local/bin/rwkv-lab bank dedup --cases bench/distill/cases
+local/bin/rwkv-lab corpus decontam --test bench/workbank/cases --candidates bench/distill/cases --report local/runs/distill/b04/decontam-cases.jsonl
+local/bin/rwkv-lab corpus decontam --test bench/workbank/cases-shelved --candidates bench/distill/cases --report local/runs/distill/b04/decontam-shelved.jsonl
 ```
 
 不过闸门的题能快速改好就改，否则整题删掉，在 triage 里记一行 `<id>\tDROPPED\t<原因>`。不放宽判据，不调 decontam 阈值。
@@ -195,11 +195,11 @@ git commit -m "wip(distill): b04 存档"
 
 ```bash
 python3 bench/distill/tools/collect.py
-bin/rwkv-lab corpus render --cases bench/distill/cases --script bench/distill/scripts/b04.jsonl \
-  --source distill-b04 --out runs/distill/b04/corpus
-python3 -c "import json;print({json.loads(l)['meta']['wire_hash'] for l in open('runs/distill/b04/corpus/rows.jsonl')})"
-bin/rwkv-lab corpus pack --rows runs/distill/b04/corpus/rows.jsonl --exclude bench/distill/exclude.jsonl --dry-run
-tar czf outputs/distill-b04-solve.tar.gz runs/distill/b04
+local/bin/rwkv-lab corpus render --cases bench/distill/cases --script bench/distill/scripts/b04.jsonl \
+  --source distill-b04 --out local/runs/distill/b04/corpus
+python3 -c "import json;print({json.loads(l)['meta']['wire_hash'] for l in open('local/runs/distill/b04/corpus/rows.jsonl')})"
+local/bin/rwkv-lab corpus pack --rows local/runs/distill/b04/corpus/rows.jsonl --exclude bench/distill/exclude.jsonl --dry-run
+tar czf local/outputs/distill-b04-solve.tar.gz local/runs/distill/b04
 ```
 
 验收：`wire_hash` 只有一个值；`pack --dry-run` 退出码 0；render 的拒绝逐条写明原因。
@@ -212,7 +212,7 @@ tar czf outputs/distill-b04-solve.tar.gz runs/distill/b04
 - FAIL 后 `undo` 换答案重试，或删 `solve/*.json` 绕过。
 - 手改 `solve/*.json`、`b04.jsonl`；剔除只走 `bench/distill/exclude.jsonl`。
 - 为保题数放宽 `expect`、调阈值。
-- 把 `runs/` 提交进 git。
+- 把 `local/runs/` 提交进 git。
 
 ## 7. 这些是正常现象
 

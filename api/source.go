@@ -197,7 +197,7 @@ func ResolveTokenizer(modelPath, explicit string) (string, error) {
 		candidates = append(candidates, filepath.Join(filepath.Dir(executable), "assets", filename))
 	}
 	candidates = append(candidates,
-		filepath.Join("dist", "assets", filename),
+		filepath.Join("local", "dist", "assets", filename),
 		filepath.Join("third_party", "rwkv-mobile", "assets", filename),
 	)
 	for _, candidate := range candidates {

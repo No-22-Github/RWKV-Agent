@@ -34,7 +34,7 @@
 
 1. **结论文档**：`docs/evaluations/` 中的报告和持续维护的跑分日志，优先用于理解结果、限制和下一步。
 2. **已提交证据**：`bench/archive/` 中冻结的 `run.json`、`summary.json` 和 `trace.jsonl`，用于复核特定基线。
-3. **本地原始运行**：`runs/` 中的可再生成产物。该目录被 Git 忽略，其他 checkout 或 GitHub 页面不保证存在。
+3. **本地原始运行**：`local/runs/` 中的可再生成产物。该目录被 Git 忽略，其他 checkout 或 GitHub 页面不保证存在。
 4. **历史材料**：`docs/archive/` 中已经停止维护的计划和验证记录，只用于回顾背景，不代表当前默认行为。
 
 “日期更新”不自动等于“结论更权威”。环境异常、只做离线重解析、Harness 版本变化或评分规则变化，都会导致结果不可直接比较；应以对应报告的可比性说明为准。
@@ -71,20 +71,20 @@
 | [`docs/evaluations/distill-audit-20260926/`](docs/evaluations/distill-audit-20260926/) | 蒸馏数据审阅报告与清洗说明（v1 / v1.1 的来源） |
 | [`docs/evaluations/state-t927-20260927/REPORT.md`](docs/evaluations/state-t927-20260927/REPORT.md) | t927 state 横测（训练集为 clean v1.1）。复核发现：训练行终答后没有任何后续文本，state 答完不停；截断重判 s316 从 16 题变成 25 题 |
 | [`docs/evaluations/state-lr-sweep-20260923/REPORT.md`](docs/evaluations/state-lr-sweep-20260923/REPORT.md) | 上一轮 state LR 扫描复核（旧 700 语料，含测试集泄漏） |
-| `outputs/workspace-agent-distill-clean-*` | 交付的训练集（gitignored）：v1.1 = 1007 行；**v1.2（2026-09-28）= v1.1 + b04 + 每行末尾 `\n\nUser:`**，分 `suffix-only/` 与 `mixed/` 两份 |
+| `local/outputs/workspace-agent-distill-clean-*` | 交付的训练集（gitignored）：v1.1 = 1007 行；**v1.2（2026-09-28）= v1.1 + b04 + 每行末尾 `\n\nUser:`**，分 `suffix-only/` 与 `mixed/` 两份 |
 
 训练器提示：`rwkv_lightning_cuda` 的 `rwkv_state_tune` 只读 `{"text"}`，对全文算 loss，样本末尾不加 EOS；`loss_spans` 只有支持 mask 的训练器会用到。
 
 ### 700 条 Agent 精品轨迹数据集 (2026-09-20，已并入蒸馏语料的 base700)
 
-> 下列路径都在仓库外（`datasets/`、`outputs/` 被 gitignore），只在原机器上存在，见 [`bench/README.md`](bench/README.md)。
+> 下列路径都在仓库外（`local/datasets/`、`local/outputs/` 被 gitignore），只在原机器上存在，见 [`bench/README.md`](bench/README.md)。
 
 | 文档或证据 | 结论定位 |
 | --- | --- |
-| `datasets/workspace-agent-700-20260920/README.md` | **700 条制作工作区入口**：36 道种子、9 大场景、700 条（630 训练 + 70 验证）全绿验收 |
-| `datasets/workspace-agent-700-20260920/verification/acceptance-report.md` | 单快照硬门槛验收报告（`data_ready`，回放 100% 绑定闭环，二次无污染回放 349/349 通过） |
-| `datasets/workspace-agent-700-20260920/verification/phase3-repair-report.md` | Phase 3 修复执行报告与用户授权保留政策（近重复处置与独立审查覆盖） |
-| `outputs/workspace-agent-700-state-tune-textonly/` | 实际送进丹炉训练的纯 text 格式（兼容 `rwkv_state_tune`，含转换脚本与报告） |
+| `local/datasets/workspace-agent-700-20260920/README.md` | **700 条制作工作区入口**：36 道种子、9 大场景、700 条（630 训练 + 70 验证）全绿验收 |
+| `local/datasets/workspace-agent-700-20260920/verification/acceptance-report.md` | 单快照硬门槛验收报告（`data_ready`，回放 100% 绑定闭环，二次无污染回放 349/349 通过） |
+| `local/datasets/workspace-agent-700-20260920/verification/phase3-repair-report.md` | Phase 3 修复执行报告与用户授权保留政策（近重复处置与独立审查覆盖） |
+| `local/outputs/workspace-agent-700-state-tune-textonly/` | 实际送进丹炉训练的纯 text 格式（兼容 `rwkv_state_tune`，含转换脚本与报告） |
 
 ### G1K State 训练剂量-反应 (2026-09-21 现行)
 
@@ -94,8 +94,8 @@
 | [`docs/workbank/reports/state-final-round-20260920.md`](docs/workbank/reports/state-final-round-20260920.md) | 单轮完整记录：state-final 1/40 vs 零 state 3/40、网页偏置归因（非数据偏向）、多步段提醒缺口、`nudge=none` 消融、A/A2/B 三批 state 体检、高分轮轨迹体检、DeepSeek 既有成绩对照 |
 | [`bench/workbank/reports-data/state-step-vs-capability-20260921.json`](bench/workbank/reports-data/state-step-vs-capability-20260921.json) | 20 个评测点的机器可读曲线数据（RMS / 通过 / 协议有效 / canary / 焊接率） |
 | [`bench/workbank/reports-data/state-passing-trajectories-20260921.json`](bench/workbank/reports-data/state-passing-trajectories-20260921.json) | 29 道通过题的工具序列与绕路 delta（对语料参考轨迹） |
-| `bin/rwkv-lab state sanity` | state 幅度闸门：直接解析 bf16 张量，三档 ok ≤0.05 / WARN ≤2.0 / FAIL >2.0 或含 NaN/Inf（原 Python 实现，见 [removed-tools](docs/archive/removed-tools.md)） |
-| `bin/rwkv-lab state run` · `bin/rwkv-lab state probe` | 带 canary 与注册校验的 state 评测驱动（支持 `--wire`、`--root`、`--allow-canary-drift`）与训练分布续写探针 |
+| `local/bin/rwkv-lab state sanity` | state 幅度闸门：直接解析 bf16 张量，三档 ok ≤0.05 / WARN ≤2.0 / FAIL >2.0 或含 NaN/Inf（原 Python 实现，见 [removed-tools](docs/archive/removed-tools.md)） |
+| `local/bin/rwkv-lab state run` · `local/bin/rwkv-lab state probe` | 带 canary 与注册校验的 state 评测驱动（支持 `--wire`、`--root`、`--allow-canary-drift`）与训练分布续写探针 |
 
 ### G1K Wire 格式消融实验 (2026-09-15 基线)
 
@@ -178,7 +178,7 @@
 | `summary.json` | 汇总指标、逐 case 结果和失败分类 |
 | `trace.jsonl` | 每次请求、模型输出、工具结果和使用量 |
 
-需要长期保存的基线，不应只留在 `runs/`。应把最小且完整的证据复制到 `bench/archive/<baseline-name>/`，同时新增 README，记录模型、日期、Harness/数据版本、有效与无效运行、结果和可比性边界。
+需要长期保存的基线，不应只留在 `local/runs/`。应把最小且完整的证据复制到 `bench/archive/<baseline-name>/`，同时新增 README，记录模型、日期、Harness/数据版本、有效与无效运行、结果和可比性边界。
 
 ## 维护规则
 
@@ -188,7 +188,7 @@
 2. `docs/README.md` 必须覆盖 `docs/` 下的全部文档；本文档只保留有用途说明的仓库级入口。
 3. 文档只放 `docs/`（`guides/` 使用、`design/` 设计与契约、`distill/`、`workbank/`、`evaluations/` 评测结论、`reports/` 长 HTML、`archive/` 停更材料）；数据只放 `bench/`，登记在 [`bench/README.md`](bench/README.md)。
 8. 提交前跑 `scripts/check-doc-links.py`，CI 也会跑：相对链接必须指向已入库的文件。
-4. `runs/` 仅保存本地可再生成证据；不要把只存在于 `runs/` 的路径当作公共永久链接。
+4. `local/runs/` 仅保存本地可再生成证据；不要把只存在于 `local/runs/` 的路径当作公共永久链接。
 5. 提升新基线时，明确标注日期、模型、Harness 或 parser 版本、数据集、结果、证据路径和不可比较项。
 6. 不覆盖历史结果。修复 parser、评分器或环境后，用新条目记录变化，并保留 strict/原始基线。
 7. 文档或目录改名时，同步检查本文档、两个根 README 和 `docs/README.md` 中的链接。

@@ -11,16 +11,16 @@ description: 在 RWKV-Agent 仓库里做正式跑分的检查单——RWKV 模�
 
 写下：被测对象、对照组、主指标（默认 workbank strict task_success）、判定规则。
 这是选择型实验（挑采样档、挑格式）时，把这些写进 `docs/evaluations/<topic>-YYYYMMDD/PLAN.md` **再**开跑。
-先翻 `runs/` 和 `docs/workbank/reports/` 看这个模型/端点以前怎么跑的——DeepSeek 贪心崩溃那次，
-证据早就在 `runs/` 里，没人翻。
+先翻 `local/runs/` 和 `docs/workbank/reports/` 看这个模型/端点以前怎么跑的——DeepSeek 贪心崩溃那次，
+证据早就在 `local/runs/` 里，没人翻。
 
 ## 1. 二进制
 
 ```bash
-go build -o bin/rwkv-cli ./cmd/rwkv-cli && go build -o bin/rwkv-lab ./cmd/rwkv-lab && git rev-parse HEAD && git status --short
+go build -o local/bin/rwkv-cli ./cmd/rwkv-cli && go build -o local/bin/rwkv-lab ./cmd/rwkv-lab && git rev-parse HEAD && git status --short
 ```
 
-只用 `bin/rwkv-cli`。`dist/rwkv-cli` 是旧产物。工作区不干净 → 这次只能算探索，报告里注明。
+只用 `local/bin/rwkv-cli`。`local/dist/rwkv-cli` 是旧产物。工作区不干净 → 这次只能算探索，报告里注明。
 
 ## 2. 端点快照（RWKV）
 
@@ -40,7 +40,7 @@ hard_max_bsz 只按显存算，2026-09-23 约 168 个请求同时预填充把这
 RWKV（workbank）：
 
 ```bash
-./bin/rwkv-cli agent-eval \
+./local/bin/rwkv-cli agent-eval \
   --completion rwkv-lightning-cuda --model <模型id> \
   --api-url https://api-7b.rwkvos.com/v1 \
   --api-header-env 'CF-Access-Client-Id=RWKV_CF_ID' --api-header-env 'CF-Access-Client-Secret=RWKV_CF_SECRET' \
@@ -49,7 +49,7 @@ RWKV（workbank）：
   --max-steps 16 --max-tokens 4096 --decision-max-tokens 2048 --case-parallelism 48 --case-timeout 30m \
   --remote-batch-wait 0s \
   <采样档参数> \
-  --output runs/bench-YYYYMMDD/<model>-workbank-<arm>-k<i>
+  --output local/runs/bench-YYYYMMDD/<model>-workbank-<arm>-k<i>
 ```
 
 内置套件把 `--cases … --include-draft` 换成 `--suite bfcl-product|boundary|assistant|smoke`。
@@ -84,11 +84,11 @@ API 模型只给 `--temperature` / `--top-p`。DeepSeek-flash 禁用 T=0。
 
 ```bash
 export RWKV_CF_ID=… RWKV_CF_SECRET=…
-bin/rwkv-lab bench sweep --out runs/bench-YYYYMMDD --arms greedy,t03-p10 \
+local/bin/rwkv-lab bench sweep --out local/runs/bench-YYYYMMDD --arms greedy,t03-p10 \
   --suites workbank,bfcl-product --k 0 --dry-run      # 先看命令
-bin/rwkv-lab bench sweep --out runs/bench-YYYYMMDD --arms greedy,t03-p10 \
+local/bin/rwkv-lab bench sweep --out local/runs/bench-YYYYMMDD --arms greedy,t03-p10 \
   --suites workbank,bfcl-product --k 0                # 真跑；--k 0-2 跑三个副本
-bin/rwkv-lab bench rank runs/bench-YYYYMMDD --save <rank.md>
+local/bin/rwkv-lab bench rank local/runs/bench-YYYYMMDD --save <rank.md>
 ```
 
 `bench sweep` 做的事：端点前后快照、每档开跑前核对模型 id、同档多套件在 bsz 预算内并行、每个 run 自动过闸门、
@@ -103,7 +103,7 @@ bin/rwkv-lab bench rank runs/bench-YYYYMMDD --save <rank.md>
 ## 4. 每个 run 跑完立刻过闸门
 
 ```bash
-bin/rwkv-lab run check <run_dir> --arm <档> [--rwkv] [--primitive] --cases <题数>
+local/bin/rwkv-lab run check <run_dir> --arm <档> [--rwkv] [--primitive] --cases <题数>
 ```
 
 任一 FAIL → 这个 run 作废，修参数重跑，不要"先看看分数"。它会查：`wire_preset == g1k`、采样逐项、
@@ -116,18 +116,18 @@ bin/rwkv-lab run check <run_dir> --arm <档> [--rwkv] [--primitive] --cases <题
 ## 5. 汇总与比较
 
 ```bash
-bin/rwkv-lab run replicate <k 个 run 目录> --k 3 --out <out.json>
-bin/rwkv-lab run compare <run A> <run B>
-bin/rwkv-lab run gate <run 目录…> --label <名字>
-bin/rwkv-lab run ledger ingest --config-name <model>-<arm> --k-index <i> <run_dir>
+local/bin/rwkv-lab run replicate <k 个 run 目录> --k 3 --out <out.json>
+local/bin/rwkv-lab run compare <run A> <run B>
+local/bin/rwkv-lab run gate <run 目录…> --label <名字>
+local/bin/rwkv-lab run ledger ingest --config-name <model>-<arm> --k-index <i> <run_dir>
 ```
 
 - 比较只用同一天、同端点、同 bank_version 的成对 run；报翻转 +a/−b 与符号检验 p。
 - 差距小于同配置 k 次极差 → 写"无法区分"。
-- 失分先过 `bin/rwkv-lab run gate` 分层：只有 capability 层才算"模型不会"，其余是协议、收尾、选工具或格式问题。
+- 失分先过 `local/bin/rwkv-lab run gate` 分层：只有 capability 层才算"模型不会"，其余是协议、收尾、选工具或格式问题。
 
 ## 6. 报告
 
 写 `docs/evaluations/<topic>-YYYYMMDD/REPORT.md`，必须包含：HEAD 与二进制构建时间、端点前后快照、
 档表、bank_version、每个 run 的闸门结果、作废与重跑明细、strict 分（均值/极差/pass@k/pass^k）、
-按 scenario/level 拆分、配对比较。`runs/` 不入库；凭据不出现在任何入库文件里。
+按 scenario/level 拆分、配对比较。`local/runs/` 不入库；凭据不出现在任何入库文件里。

@@ -52,10 +52,10 @@
 
 ```sh
 ./scripts/build-app.sh
-open -n "./dist/RWKV Agent.app" --args --workspace "$(pwd)"
+open -n "./local/dist/RWKV Agent.app" --args --workspace "$(pwd)"
 
 # Browser-only 模式
-./dist/rwkv-app-server --host 127.0.0.1 --port 8080
+./local/dist/rwkv-app-server --host 127.0.0.1 --port 8080
 ```
 
 构建 App 额外需要 Node.js 26 与 pnpm 11（CI 使用同一版本基线）。主要功能：
@@ -105,10 +105,10 @@ go build -tags chatcompletions ./cmd/rwkv-cli
 构建脚本固定 `arm64` 与 `MACOSX_DEPLOYMENT_TARGET=15.0`，从固定 revision 构建带直接
 PTH 入口的 MLX FFI，并验证 dylib、rpath、Metal resource、deployment target 与 CLI
 help smoke test。缺少 submodule 时会自动初始化；首次构建拉取 MLX Swift 依赖，后续复用
-`build/` 缓存。产物如下：
+`local/build/` 缓存。产物如下：
 
 ```text
-dist/
+local/dist/
 ├── rwkv-cli
 ├── librwkv_agent_runtime.dylib
 ├── build-manifest.json
@@ -152,9 +152,9 @@ rwkv-cli state delete --api-url <URL> [--api-header-env HEADER=ENV ...] --state-
 运行不再要求先转换模型：
 
 ```sh
-./dist/rwkv-cli run \
+./local/dist/rwkv-cli run \
   --model /absolute/path/to/rwkv7-model.pth \
-  --session ./sessions/demo.rwkv-session \
+  --session ./local/sessions/demo.rwkv-session \
   --autosave
 ```
 
@@ -169,7 +169,7 @@ rwkv-cli state delete --api-url <URL> [--api-header-env HEADER=ENV ...] --state-
 `convert` 保留给需要独立 MLX safetensors 产物的部署流程：
 
 ```sh
-./dist/rwkv-cli convert \
+./local/dist/rwkv-cli convert \
   --input /absolute/path/to/rwkv7-model.pth \
   --output /absolute/path/to/rwkv7-model-mlx
 ```
@@ -181,9 +181,9 @@ rwkv-cli state delete --api-url <URL> [--api-header-env HEADER=ENV ...] --state-
 ## 5. REPL 与 Session
 
 ```sh
-./dist/rwkv-cli run \
+./local/dist/rwkv-cli run \
   --model /absolute/path/to/rwkv7-model.pth \
-  --session ./sessions/demo.rwkv-session \
+  --session ./local/sessions/demo.rwkv-session \
   --autosave
 ```
 
@@ -259,7 +259,7 @@ G1 训练原生的 Markdown/function transcript 保留为显式
 零至两个，再只暴露所选 schema，并允许通过 `load_tools` 加载另一个已启用能力组。
 
 ```sh
-./dist/rwkv-cli agent \
+./local/dist/rwkv-cli agent \
   --model /absolute/path/to/rwkv7-model.pth \
   --workspace /absolute/path/to/project
 ```
@@ -270,7 +270,7 @@ user/assistant/tool transcript 带入后续阶段。`/new` 或 `/reset` 清空�
 任务；脚本、pipe 和 CI 自动使用 plain renderer：
 
 ```sh
-./dist/rwkv-cli agent \
+./local/dist/rwkv-cli agent \
   --ui plain \
   --model /absolute/path/to/rwkv7-model.pth \
   --workspace /absolute/path/to/project \
@@ -313,7 +313,7 @@ Markdown profile 固定使用 `--thinking off`；`--thinking fast/full` 由默�
 export BRAVE_API_KEY='...'
 export TAVILY_API_KEY='...'
 
-./dist/rwkv-cli agent \
+./local/dist/rwkv-cli agent \
   --web \
   --model /absolute/path/to/rwkv7-model.pth \
   --workspace /absolute/path/to/project
@@ -331,7 +331,7 @@ HTTP 请求。`continuation.Generator` 仍保持单请求、传输中立，批�
 Provider/runtime 层。
 
 ```sh
-./dist/rwkv-cli agent \
+./local/dist/rwkv-cli agent \
   --subagents \
   --max-active-batch 4 \
   --subagent-max-parallel 4 \
@@ -381,7 +381,7 @@ Provider/runtime 层。
 export RWKV_CF_ACCESS_CLIENT_ID='...'      # Cloudflare Access 部署时需要
 export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 
-./dist/rwkv-cli agent \
+./local/dist/rwkv-cli agent \
   --completion rwkv-lightning-cuda \
   --api-url https://example.com/v1/batch/completions \
   --model rwkv7-13b \
@@ -415,18 +415,18 @@ export RWKV_CF_ACCESS_CLIENT_ID='...'
 export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 
 # 上传，stdout 打印 state_id
-./dist/rwkv-cli state upload \
+./local/dist/rwkv-cli state upload \
   --api-url https://api-7b.rwkvos.com/v1/models \
   --api-header-env CF-Access-Client-Id=RWKV_CF_ACCESS_CLIENT_ID \
   --api-header-env CF-Access-Client-Secret=RWKV_CF_ACCESS_CLIENT_SECRET \
-  --file ./runs/nekoqa200_7.2b_s42_e2.pth
+  --file ./local/runs/nekoqa200_7.2b_s42_e2.pth
 
 # 列出 / 删除
-./dist/rwkv-cli state list --api-url ... --api-header-env ...
-./dist/rwkv-cli state delete --api-url ... --api-header-env ... --state-id state-xxxx
+./local/dist/rwkv-cli state list --api-url ... --api-header-env ...
+./local/dist/rwkv-cli state delete --api-url ... --api-header-env ... --state-id state-xxxx
 
 # 复用：agent/agent-eval 的每次生成都带上该 state_id
-./dist/rwkv-cli agent \
+./local/dist/rwkv-cli agent \
   --completion rwkv-lightning-cuda \
   --api-url https://api-7b.rwkvos.com/v1/models \
   --model rwkv7-13b \
@@ -449,7 +449,7 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 ```sh
 export OPENAI_API_KEY='...'
 
-./dist/rwkv-cli agent \
+./local/dist/rwkv-cli agent \
   --completion chat-completions \
   --api-url https://example.com/v1/chat/completions \
   --model other-model \
@@ -470,7 +470,7 @@ continuation prompt 放进一个 user message，作为不支持原生工具的�
 ```sh
 export DEEPSEEK_API_KEY='...'
 
-./dist/rwkv-cli agent \
+./local/dist/rwkv-cli agent \
   --completion chat-completions \
   --api-url https://api.deepseek.com/v1/chat/completions \
   --api-key-env DEEPSEEK_API_KEY \
@@ -524,10 +524,10 @@ Router 基线；Primitive、BFCL 原始包装协议和 XML 对照各自保持独
 | `primitive-feedback30` | 同一上游 commit 的 `agent_cases_feedback` 精选 30 题 |
 
 ```sh
-./dist/rwkv-cli agent-eval \
+./local/dist/rwkv-cli agent-eval \
   --model /absolute/path/to/rwkv7-model.pth \
   --suite boundary \
-  --output runs/local-13b-boundary
+  --output local/runs/local-13b-boundary
 ```
 
 每个 case 使用独立临时工作区；本地推理为每个 case 创建全新 Session。`--case` 可重复选
@@ -554,25 +554,25 @@ inspect decision 上预填精确的半开 `<think></think`。两者只适用于�
 远程评测直接复用同一入口：
 
 ```sh
-./dist/rwkv-cli agent-eval \
+./local/dist/rwkv-cli agent-eval \
   --suite smoke \
   --completion rwkv-lightning-cuda \
   --api-url https://example.com/v1/batch/completions \
   --model rwkv7-13b \
   --case read_exact_file \
   --case multi_turn_memory \
-  --output runs/remote-13b-smoke
+  --output local/runs/remote-13b-smoke
 ```
 
 ```sh
 export OPENAI_API_KEY='...'
 
-./dist/rwkv-cli agent-eval \
+./local/dist/rwkv-cli agent-eval \
   --completion chat-completions \
   --api-url https://example.com/v1/chat/completions \
   --model other-model \
   --suite primitive-orig30 \
-  --output runs/primitive-orig30-external
+  --output local/runs/primitive-orig30-external
 ```
 
 ### Primitive Bench 双轨
@@ -589,11 +589,11 @@ commit `0350023f99a31133fb30eb32dacf779f196827d4` 的固定快照，JSON 嵌入 
   `calculator` 与 `data_query` 替代，衡量实际 Go Agent 产品能力，不要求安装 Lua。
 
 ```sh
-./dist/rwkv-cli agent-eval \
+./local/dist/rwkv-cli agent-eval \
   --model /absolute/path/to/rwkv7-model.pth \
   --suite primitive-orig30 \
   --primitive-profile go-native \
-  --output runs/primitive-orig30-local
+  --output local/runs/primitive-orig30-local
 ```
 
 `rwkv_lightning_cuda` 部署要求整数形式的 `stop_tokens`，用 `--api-stop-tokens 0,6884,24281`
@@ -608,7 +608,7 @@ suite 逐题采用快照中的原始 `max_turns`（6–22），并用 1024-token
 - `summary.json`：逐 case/turn 失败原因与答案、route、协议、精确/必需/禁止工具等评分。
 
 失败 case 仍会写完 artifacts，随后命令以非零状态退出。默认输出到带 UTC 时间戳的
-`runs/agent-eval-*`。
+`local/runs/agent-eval-*`。
 
 ### 当前基线
 
@@ -628,7 +628,7 @@ suite 逐题采用快照中的原始 `max_turns`（6–22），并用 1024-token
 `concurrent` 用一个模型实例创建多个 Session，并让 native scheduler 合并单 token decode：
 
 ```sh
-./dist/rwkv-cli concurrent \
+./local/dist/rwkv-cli concurrent \
   --model /absolute/path/to/rwkv7-model.pth \
   --concurrency 8 \
   --max-tokens 64 \

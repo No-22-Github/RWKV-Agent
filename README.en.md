@@ -53,10 +53,10 @@ opening a window:
 
 ```sh
 ./scripts/build-app.sh
-open -n "./dist/RWKV Agent.app" --args --workspace "$(pwd)"
+open -n "./local/dist/RWKV Agent.app" --args --workspace "$(pwd)"
 
 # Browser-only mode
-./dist/rwkv-app-server --host 127.0.0.1 --port 8080
+./local/dist/rwkv-app-server --host 127.0.0.1 --port 8080
 ```
 
 Building the app additionally requires Node.js 26 and pnpm 11 (CI uses the same version baseline). Key features:
@@ -112,10 +112,10 @@ The build script pins `arm64` and `MACOSX_DEPLOYMENT_TARGET=15.0`, builds the ML
 with direct PTH entry from a pinned revision, and validates the dylib, rpath, Metal
 resource, deployment target, and CLI help smoke test. Missing submodules are
 initialized automatically. The first build fetches MLX Swift dependencies and later
-builds reuse the `build/` cache. Outputs:
+builds reuse the `local/build/` cache. Outputs:
 
 ```text
-dist/
+local/dist/
 ├── rwkv-cli
 ├── librwkv_agent_runtime.dylib
 ├── build-manifest.json
@@ -156,9 +156,9 @@ rwkv-cli bench --model <RWKV .pth or MLX directory> [--concurrency 1..8]
 Running no longer requires converting the model first:
 
 ```sh
-./dist/rwkv-cli run \
+./local/dist/rwkv-cli run \
   --model /absolute/path/to/rwkv7-model.pth \
-  --session ./sessions/demo.rwkv-session \
+  --session ./local/sessions/demo.rwkv-session \
   --autosave
 ```
 
@@ -176,7 +176,7 @@ place. `.pth` models use the bundled RWKV World tokenizer by default; pass
 `convert` is kept for deployment flows that need standalone MLX safetensors:
 
 ```sh
-./dist/rwkv-cli convert \
+./local/dist/rwkv-cli convert \
   --input /absolute/path/to/rwkv7-model.pth \
   --output /absolute/path/to/rwkv7-model-mlx
 ```
@@ -189,9 +189,9 @@ result contains `config.json`, `model.safetensors`, and
 ## 5. REPL and Sessions
 
 ```sh
-./dist/rwkv-cli run \
+./local/dist/rwkv-cli run \
   --model /absolute/path/to/rwkv7-model.pth \
-  --session ./sessions/demo.rwkv-session \
+  --session ./local/sessions/demo.rwkv-session \
   --autosave
 ```
 
@@ -280,7 +280,7 @@ The G1-trained Markdown/function transcript remains available explicitly with
 load another enabled bundle.
 
 ```sh
-./dist/rwkv-cli agent \
+./local/dist/rwkv-cli agent \
   --model /absolute/path/to/rwkv7-model.pth \
   --workspace /absolute/path/to/project
 ```
@@ -293,7 +293,7 @@ later stages. `/new` or `/reset` clears the multi-turn session and `/exit` quits
 use the plain renderer:
 
 ```sh
-./dist/rwkv-cli agent \
+./local/dist/rwkv-cli agent \
   --ui plain \
   --model /absolute/path/to/rwkv7-model.pth \
   --workspace /absolute/path/to/project \
@@ -340,7 +340,7 @@ registered only when `--web` is passed and both API keys are provided:
 export BRAVE_API_KEY='...'
 export TAVILY_API_KEY='...'
 
-./dist/rwkv-cli agent \
+./local/dist/rwkv-cli agent \
   --web \
   --model /absolute/path/to/rwkv7-model.pth \
   --workspace /absolute/path/to/project
@@ -361,7 +361,7 @@ HTTP requests. `continuation.Generator` remains single-request and transport-neu
 batching only exists at the Provider/runtime layer.
 
 ```sh
-./dist/rwkv-cli agent \
+./local/dist/rwkv-cli agent \
   --subagents \
   --max-active-batch 4 \
   --subagent-max-parallel 4 \
@@ -408,7 +408,7 @@ Templates and tool formats stay in the separate wire/profile layer.
 export RWKV_CF_ACCESS_CLIENT_ID='...'      # required for Cloudflare Access deployments
 export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 
-./dist/rwkv-cli agent \
+./local/dist/rwkv-cli agent \
   --completion rwkv-lightning-cuda \
   --api-url https://example.com/v1/batch/completions \
   --model rwkv7-13b \
@@ -440,7 +440,7 @@ Notes:
 ```sh
 export OPENAI_API_KEY='...'
 
-./dist/rwkv-cli agent \
+./local/dist/rwkv-cli agent \
   --completion chat-completions \
   --api-url https://example.com/v1/chat/completions \
   --model other-model \
@@ -463,7 +463,7 @@ the visible text (for example DeepSeek V4-Flash), disable upstream thinking expl
 ```sh
 export DEEPSEEK_API_KEY='...'
 
-./dist/rwkv-cli agent \
+./local/dist/rwkv-cli agent \
   --completion chat-completions \
   --api-url https://api.deepseek.com/v1/chat/completions \
   --api-key-env DEEPSEEK_API_KEY \
@@ -514,10 +514,10 @@ and XML comparison protocols remain separate so historical run semantics do not 
 | `primitive-feedback30` | The curated 30 cases from the upstream `agent_cases_feedback` at the same commit |
 
 ```sh
-./dist/rwkv-cli agent-eval \
+./local/dist/rwkv-cli agent-eval \
   --model /absolute/path/to/rwkv7-model.pth \
   --suite boundary \
-  --output runs/local-13b-boundary
+  --output local/runs/local-13b-boundary
 ```
 
 Every case gets an isolated temporary workspace; local inference creates a fresh
@@ -549,25 +549,25 @@ score.
 Remote evaluation reuses the same entry point:
 
 ```sh
-./dist/rwkv-cli agent-eval \
+./local/dist/rwkv-cli agent-eval \
   --suite smoke \
   --completion rwkv-lightning-cuda \
   --api-url https://example.com/v1/batch/completions \
   --model rwkv7-13b \
   --case read_exact_file \
   --case multi_turn_memory \
-  --output runs/remote-13b-smoke
+  --output local/runs/remote-13b-smoke
 ```
 
 ```sh
 export OPENAI_API_KEY='...'
 
-./dist/rwkv-cli agent-eval \
+./local/dist/rwkv-cli agent-eval \
   --completion chat-completions \
   --api-url https://example.com/v1/chat/completions \
   --model other-model \
   --suite primitive-orig30 \
-  --output runs/primitive-orig30-external
+  --output local/runs/primitive-orig30-external
 ```
 
 ### Primitive Bench dual track
@@ -587,11 +587,11 @@ Two explicit tool profiles:
   `data_query`, measuring the real Go Agent product without requiring Lua.
 
 ```sh
-./dist/rwkv-cli agent-eval \
+./local/dist/rwkv-cli agent-eval \
   --model /absolute/path/to/rwkv7-model.pth \
   --suite primitive-orig30 \
   --primitive-profile go-native \
-  --output runs/primitive-orig30-local
+  --output local/runs/primitive-orig30-local
 ```
 
 `rwkv_lightning_cuda` deployments require integer `stop_tokens`; the
@@ -611,7 +611,7 @@ Each run atomically writes three files:
   exact/required/forbidden-tool scoring.
 
 Failing cases still write artifacts, then the command exits non-zero. The default
-output is a UTC-timestamped `runs/agent-eval-*` directory.
+output is a UTC-timestamped `local/runs/agent-eval-*` directory.
 
 ### Current Baselines
 
@@ -636,7 +636,7 @@ snapshot and are not comparable with the new snapshot.
 scheduler merge single-token decodes:
 
 ```sh
-./dist/rwkv-cli concurrent \
+./local/dist/rwkv-cli concurrent \
   --model /absolute/path/to/rwkv7-model.pth \
   --concurrency 8 \
   --max-tokens 64 \

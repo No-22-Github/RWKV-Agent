@@ -81,7 +81,7 @@ func parseBFCLSamplingDiagnosticOptions(args []string) (bfclSamplingDiagnosticOp
 	fs := flag.NewFlagSet("bfcl-sampling-diagnostic", flag.ContinueOnError)
 	fs.StringVar(&options.manifest, "manifest", "configs/bfcl-sample-v1.json", "frozen BFCL sample manifest")
 	fs.StringVar(&options.score, "score", "", "official evaluator score root for a complete Qwen enhanced run")
-	fs.StringVar(&options.output, "output", "runs/bfcl/sampling-diagnostic.md", "new sampling diagnostic report")
+	fs.StringVar(&options.output, "output", "local/runs/bfcl/sampling-diagnostic.md", "new sampling diagnostic report")
 	fs.StringVar(&options.v2Output, "v2-output", "configs/bfcl-sample-v2.json", "new v2 manifest if mechanical expansion triggers")
 	fs.StringVar(&options.dataDir, "data-dir", "third_party/gorilla/berkeley-function-call-leaderboard/bfcl_eval/data", "BFCL data directory for mechanical v2 expansion")
 	if err := fs.Parse(args); err != nil {

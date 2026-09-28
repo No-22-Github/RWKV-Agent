@@ -5,7 +5,7 @@
 > 照它渲染的 700 条语料从第 2 步起就与 eval prompt 不一致。本文档保留为字节形状的说明。
 
 用途：供语料生产/清洗侧对齐模型可见字节。本文档的每个字节块都从评测 trace
-（`runs/ablation-g1k/r4-one-stage`）与实现（`internal/agent/protocol_g1.go`、
+（`local/runs/ablation-g1k/r4-one-stage`）与实现（`internal/agent/protocol_g1.go`、
 `internal/inference/prompt.go`）逐字取证。格式总览见 [`docs/design/tool-and-wire-formats.md`](tool-and-wire-formats.md)，实验依据见
 [`evaluations/g1k-wire-ablation/wire-ablation-g1k-summary-20260915.md`](../evaluations/g1k-wire-ablation/wire-ablation-g1k-summary-20260915.md)。
 
@@ -190,7 +190,7 @@ Assistant: 25 square meters.
 
 ## 9. 自检
 
-- wire 解析自检：`./dist/rwkv-cli agent-eval --explain-profile
+- wire 解析自检：`./local/dist/rwkv-cli agent-eval --explain-profile
   xml-v1+align-qwen36+no-tool+bare+one-stage`（canonical/hash 必须等于 §0）。
 - 字节级对照：任意评测 run 的 `trace.jsonl` 每条 `model_call.request.prompt` 即模型
   真实输入，语料行应能与之逐字节同构（复算工具已删除，见 [removed-tools](../archive/removed-tools.md)）。

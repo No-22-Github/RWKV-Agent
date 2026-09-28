@@ -31,21 +31,21 @@ and pnpm 11 (CI uses the same version baseline):
 ./scripts/build-app.sh
 ```
 
-The outputs stay together with the native runtime and Metal resources in `dist/`:
+The outputs stay together with the native runtime and Metal resources in `local/dist/`:
 
 ```text
-dist/RWKV Agent.app/
-dist/rwkv-app
-dist/rwkv-app-server
-dist/librwkv_agent_runtime.dylib
-dist/mlx-swift_Cmlx.bundle/
-dist/assets/rwkv_vocab_v20230424.txt
+local/dist/RWKV Agent.app/
+local/dist/rwkv-app
+local/dist/rwkv-app-server
+local/dist/librwkv_agent_runtime.dylib
+local/dist/mlx-swift_Cmlx.bundle/
+local/dist/assets/rwkv_vocab_v20230424.txt
 ```
 
 Launch the native Wails window:
 
 ```sh
-open -n "./dist/RWKV Agent.app" --args --workspace "$(pwd)"
+open -n "./local/dist/RWKV Agent.app" --args --workspace "$(pwd)"
 ```
 
 The bundle contains the Wails executable, native MLX runtime, Metal resources,
@@ -53,13 +53,13 @@ and tokenizer. For a non-default workspace during development, the unpackaged
 executable remains available:
 
 ```sh
-./dist/rwkv-app --workspace /absolute/path/to/workspace
+./local/dist/rwkv-app --workspace /absolute/path/to/workspace
 ```
 
 Launch the same application without creating a native window, then open it in a browser:
 
 ```sh
-./dist/rwkv-app-server --host 127.0.0.1 --port 8080 --workspace /absolute/path/to/workspace
+./local/dist/rwkv-app-server --host 127.0.0.1 --port 8080 --workspace /absolute/path/to/workspace
 open http://127.0.0.1:8080
 ```
 
@@ -148,7 +148,7 @@ indexes keep their current behavior and are outside this persistence change.
 
 Open **设置** in the lower-left corner.
 
-- **本地模型** accepts an RWKV-7 `.pth` checkpoint or an MLX safetensors directory. The tokenizer is discovered beside the model, beside the executable, in `dist/assets`, or in the pinned `rwkv-mobile` assets; it can also be selected explicitly.
+- **本地模型** accepts an RWKV-7 `.pth` checkpoint or an MLX safetensors directory. The tokenizer is discovered beside the model, beside the executable, in `local/dist/assets`, or in the pinned `rwkv-mobile` assets; it can also be selected explicitly.
 - **远端 API** defaults to **RWKV 续写**. It accepts an API base URL, `/v1/models`, or `/v1/batch/completions` and normalizes inference to the continuation-native `/v1/batch/completions` endpoint. Stop sequences are enforced by the Harness client, so the server-specific `stop_tokens` field is omitted by default.
 - **OpenAI 兼容** is the fallback for non-RWKV models and normalizes the same base URL to `/v1/chat/completions`.
 - Both protocols support credentials and arbitrary custom HTTP headers. This includes Cloudflare Access headers. The desktop app saves these values in the local plaintext `settings.json`; model status exposes only sanitized header names, never values.

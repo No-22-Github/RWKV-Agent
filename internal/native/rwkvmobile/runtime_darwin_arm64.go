@@ -4,7 +4,7 @@ package rwkvmobile
 
 /*
 #cgo CFLAGS: -I${SRCDIR}/../../../native/rwkv_agent_runtime
-#cgo LDFLAGS: -L${SRCDIR}/../../../build/native/agent-runtime -lrwkv_agent_runtime
+#cgo LDFLAGS: -L${SRCDIR}/../../../local/build/native/agent-runtime -lrwkv_agent_runtime
 #include <stdlib.h>
 #include "bridge.h"
 */

@@ -46,10 +46,10 @@
 
 在 `bench/workbank/` 目录下：
 ```bash
-bin/rwkv-lab bank lint --case ../workbank/cases/<scenario>/<id>    # 每题 0 违规
-bin/rwkv-lab bank lint --fix --case <同上>                          # 回填 fixture_bytes
-bin/rwkv-lab bank verify --cases cases/<scenario>              # 本场景全部 PASS
-bin/rwkv-lab bank hitcheck --case <dir>                        # web/hyb 必须 5/5
-bin/rwkv-lab bank dedup --cases cases/<scenario>                   # 无家族内误报（措辞要拉开）
+local/bin/rwkv-lab bank lint --case ../workbank/cases/<scenario>/<id>    # 每题 0 违规
+local/bin/rwkv-lab bank lint --fix --case <同上>                          # 回填 fixture_bytes
+local/bin/rwkv-lab bank verify --cases cases/<scenario>              # 本场景全部 PASS
+local/bin/rwkv-lab bank hitcheck --case <dir>                        # web/hyb 必须 5/5
+local/bin/rwkv-lab bank dedup --cases cases/<scenario>                   # 无家族内误报（措辞要拉开）
 ```
 verify_all 对你的每题会做期望比对 + 破坏测试；`{"files": ...}` 形状的题破坏测试可能跳过（warning 可接受）。**不要跑 git 命令**（主控统一提交），**不要碰别的 scenario 目录**。

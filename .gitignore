@@ -1,21 +1,14 @@
-.venv/
-__pycache__/
+# All local artifacts live under local/ (bin build dist runs datasets outputs
+# state_output); see bench/README.md for what each holds and what is rebuildable.
+/local/
+# A bare `go build ./cmd/...` at the root drops binaries here; build into
+# local/bin/ instead.
 /rwkv-cli
 /rwkv-app
-/build/
-/dist/
-# Local build output dir (go build -o bin/rwkv-cli ./cmd/rwkv-cli);
-# same role as the root-level /rwkv-cli + /rwkv-app entries above.
-/bin/
-/runs/
-/sessions/
-/datasets/
-/outputs/
-# Derived replay of runs/ trajectories (consecutive-User debugging);
-# rebuildable from runs/workbank/closeout-v* runs, kept on disk only.
-# Local state sweep artifacts (tarballs + per-run dumps), kept on disk only.
-/state_output/
-/.file_locks/
+/rwkv-lab
+
+.venv/
+__pycache__/
 /third_party/gorilla/
 .DS_Store
 .pnpm-store/

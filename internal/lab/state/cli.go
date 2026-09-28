@@ -110,7 +110,7 @@ func runRunCmd(argv []string) int {
 
 func runProbeCmd(argv []string) int {
 	args := ProbeArgs{
-		Corpus:    "outputs/workspace-agent-700-state-tune-textonly/train.textonly.jsonl",
+		Corpus:    "local/outputs/workspace-agent-700-state-tune-textonly/train.textonly.jsonl",
 		Split:     "first",
 		Rows:      24,
 		Stride:    26,

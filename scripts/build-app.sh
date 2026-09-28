@@ -3,7 +3,7 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 frontend_dir="$repo_root/cmd/rwkv-app/frontend"
-dist_dir="$repo_root/dist"
+dist_dir="$repo_root/local/dist"
 app_bundle="$dist_dir/RWKV Agent.app"
 app_macos="$app_bundle/Contents/MacOS"
 app_resources="$app_bundle/Contents/Resources"

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-export DYLD_LIBRARY_PATH="$repo_root/build/native/agent-runtime${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}"
+export DYLD_LIBRARY_PATH="$repo_root/local/build/native/agent-runtime${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}"
 
 "$repo_root/scripts/build-mlx-ffi.sh"
 
@@ -13,7 +13,7 @@ export DYLD_LIBRARY_PATH="$repo_root/build/native/agent-runtime${DYLD_LIBRARY_PA
   CGO_ENABLED=1 go test -tags mlx ./internal/native/rwkvmobile ./internal/inference/backend/rwkvmobile
 )
 
-asan_build_dir="$repo_root/build/native/agent-runtime-asan"
+asan_build_dir="$repo_root/local/build/native/agent-runtime-asan"
 cmake -S "$repo_root/native/rwkv_agent_runtime" -B "$asan_build_dir" -G Ninja \
   -DCMAKE_BUILD_TYPE=Debug \
   -DCMAKE_OSX_ARCHITECTURES=arm64 \

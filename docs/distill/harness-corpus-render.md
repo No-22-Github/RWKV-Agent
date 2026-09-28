@@ -21,7 +21,7 @@
 | `rwkv-lab corpus paths` | teacher 跑出的 run → 脚本：筛通过、去重、限每题路径数、参数去默认值 |
 | `rwkv-lab corpus decontam` | 蒸馏题与测试题的相似度闸门 |
 
-工具侧是 [`internal/lab/corpus/`](../../internal/lab/corpus/wire.go)，入口 `bin/rwkv-lab corpus <命令>`；
+工具侧是 [`internal/lab/corpus/`](../../internal/lab/corpus/wire.go)，入口 `local/bin/rwkv-lab corpus <命令>`；
 子模块分层为 `wire.go`（动作字节）/ `bank.go`（题库与 record）/ `script.go`（脚本格式，格式本体在
 `internal/agent/eval/script.go`）/ `runs.go`（读 run 目录，用 `eval.TraceRecord` 与 `agent.Step` 解析）/
 `decontam.go`（decontam 的特征与打分在 `internal/lab/similarity`），命令分发在 `cli.go`。
@@ -32,10 +32,10 @@
 ## 用法
 
 ```bash
-go build -o bin/rwkv-cli ./cmd/rwkv-cli && go build -o bin/rwkv-lab ./cmd/rwkv-lab
-bin/rwkv-lab corpus render \
-  --records datasets/workspace-agent-700-20260920/generated/normalized/all.jsonl \
-  --out runs/harness-corpus-700
+go build -o local/bin/rwkv-cli ./cmd/rwkv-cli && go build -o local/bin/rwkv-lab ./cmd/rwkv-lab
+local/bin/rwkv-lab corpus render \
+  --records local/datasets/workspace-agent-700-20260920/generated/normalized/all.jsonl \
+  --out local/runs/harness-corpus-700
 ```
 
 默认 flags 与 `.claude/skills/rwkv-bench/sweep.py` 的 workbank 臂一致（`--tool-catalog work-v1
@@ -80,14 +80,14 @@ suite 分支和默认值（rescue 关、`firstcall=auto`）；`run/run.json` 的
 
 ```bash
 # 1. teacher 在蒸馏题库上跑 k 次（原生通道、温度调高；每次换 --output）
-bin/rwkv-cli agent-eval --completion chat-completions --model <teacher> ... \
-  --cases bench/distill/cases --tool-catalog work-v1 --file-tools lines --output runs/distill/k0
+local/bin/rwkv-cli agent-eval --completion chat-completions --model <teacher> ... \
+  --cases bench/distill/cases --tool-catalog work-v1 --file-tools lines --output local/runs/distill/k0
 # 2. 抽路径：通过 + 干净 + 去重 + 每题 ≤2 条，参数去默认值
-bin/rwkv-lab corpus paths --run runs/distill/k0 --run runs/distill/k1 ... \
-  --out runs/distill/script.jsonl --report runs/distill/paths.jsonl
+local/bin/rwkv-lab corpus paths --run local/runs/distill/k0 --run local/runs/distill/k1 ... \
+  --out local/runs/distill/script.jsonl --report local/runs/distill/paths.jsonl
 # 3. 用 student 的 wire 重放并切行
-bin/rwkv-lab corpus render --cases bench/distill/cases \
-  --script runs/distill/script.jsonl --out runs/distill/corpus
+local/bin/rwkv-lab corpus render --cases bench/distill/cases \
+  --script local/runs/distill/script.jsonl --out local/runs/distill/corpus
 ```
 
 - `paths` 只带走动作（工具名、参数、终答），teacher 的 wire、思考和回执全部丢弃，
@@ -121,7 +121,7 @@ bin/rwkv-lab corpus render --cases bench/distill/cases \
 
 - **来源规则**（主闸）：蒸馏题的种子、模板、fixture 不得来自测试题。改名改数字的同题变体表面
   相似度很低（700 条的 b/v 变体大多查不出），只能靠来源管。
-- **`bin/rwkv-lab corpus decontam`**（兜底）：按模型可见文本（prompt 5-gram、fixture 行 3-gram 包含度、
+- **`local/bin/rwkv-lab corpus decontam`**（兜底）：按模型可见文本（prompt 5-gram、fixture 行 3-gram 包含度、
   专有名）比对，忽略测试集中 >5% 题目共有的模板片段。校准：700 条 anchor 36/36 命中、
   workbank 内部两两误报 0/148。有命中时退出码 1。
 - **`render` 拒渲染 `bench/workbank`**，除非显式 `--allow-test-bank`（仅冒烟）。

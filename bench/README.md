@@ -6,7 +6,7 @@
 ## 入库原则
 
 - **入库**：源数据（手写/起草的题、花钱买且不可复现的老师轨迹）、小而关键的冻结证据、报告引用的 json。
-- **不入库**：能从源确定性重建的派生物（训练行 `rows.jsonl`、打包好的训练集）和原始运行（`runs/`）。
+- **不入库**：能从源确定性重建的派生物（训练行 `rows.jsonl`、打包好的训练集）和原始运行（`local/runs/`）。
   例外只有 `distill/scripts/`，理由见其 [README](distill/scripts/README.md)。
 - 冻结基线：把最小完整证据（`run.json` / `summary.json` / `trace.jsonl`）复制到 `archive/<name>/`，附 README 写明模型、日期、harness 版本与可比性边界。
 
@@ -33,19 +33,24 @@
 
 入库数据合计约 16 MB。
 
-## 仓库外（gitignored，只在本机）
+## 仓库外：`local/`（gitignored，只在本机）
 
-这些路径被文档引用过，但 GitHub 上不存在。换机器或清理磁盘前先看这张表。
+所有本地产物都收在根目录的 `local/` 下（2026-09-28 起；此前平铺在仓库根）。GitHub 上不存在。
+**2026-09-28 之前写的报告**里的 `runs/…`、`bin/…`、`datasets/…` 等路径是当时的写法，一律读作 `local/runs/…` 等，报告本身不改。
+`local/go.mod` 让 `go list ./...` 跳过这里零散的 Go 程序，不要删。
 
 | 路径 | 内容 | 能否重建 |
 | --- | --- | --- |
-| `datasets/raw/` | 外部原始语料（toucan、ultradata、nemotron、toolpref 等），约 17 GB | 能，`datasets/download_all.sh` |
-| `datasets/data/` | 清洗后的外部语料（normalized / rendered），约 1.2 GB | 能，按 `datasets/data/REPORT.md` |
-| `datasets/workspace-agent-700-20260920/` | 旧 700 条轨迹制作工作区；`base700` 重渲染需要其中的 `generated/normalized/all.jsonl` | **不能**，另有 `.zip` 备份 |
-| `outputs/workspace-agent-distill-clean-*` | 交付的训练集（v1.1 / v1.2） | 能，由 `distill/scripts/` + cases 重渲染再 pack |
-| `outputs/workspace-agent-700*` | 700 条的导出母本与送训 text-only 版 | 能，由 700 工作区导出 |
-| `runs/` | 所有原始跑分（run.json / trace.jsonl） | 否，但只有冻结进 `archive/` 的才算证据 |
-| `state_output/` | state 训练扫描产物 | 否 |
+| `local/bin/` | 跑分用二进制：`go build -o local/bin/rwkv-cli ./cmd/rwkv-cli`（rwkv-lab 同理） | 能 |
+| `local/build/` | 编译中间件：`native/agent-runtime`（cgo 链接它）、MLX 源码、`real-model-test/` 真实模型测试工作区 | 能，`scripts/build-*.sh` |
+| `local/dist/` | macOS 发布包：CLI、App、dylib、词表、`build-manifest.json` | 能，`scripts/build-macos.sh`、`build-app.sh` |
+| `local/datasets/raw/` | 外部原始语料（toucan、ultradata、nemotron、toolpref 等），约 17 GB | 能，`local/datasets/download_all.sh` |
+| `local/datasets/data/` | 清洗后的外部语料（normalized / rendered），约 1.2 GB | 能，按 `local/datasets/data/REPORT.md` |
+| `local/datasets/workspace-agent-700-20260920/` | 旧 700 条轨迹制作工作区；`base700` 重渲染需要其中的 `generated/normalized/all.jsonl` | **不能**，另有 `.zip` 备份 |
+| `local/outputs/workspace-agent-distill-clean-*` | 交付的训练集（v1.1 / v1.2） | 能，由 `distill/scripts/` + cases 重渲染再 pack |
+| `local/outputs/workspace-agent-700*` | 700 条的导出母本与送训 text-only 版 | 能，由 700 工作区导出 |
+| `local/runs/` | 所有原始跑分（run.json / trace.jsonl） | 否，但只有冻结进 `archive/` 的才算证据 |
+| `local/state_output/` | state 训练扫描产物 | 否 |
 
 ## 迁移到 Hugging Face 的边界
 

@@ -6,7 +6,7 @@
 
 ## 1. 起点：700 条的实际状况
 
-`datasets/workspace-agent-700-20260920/generated/normalized/all.jsonl` 用当前 harness 重渲染（`corpus render --records`，3.5 秒）：
+`local/datasets/workspace-agent-700-20260920/generated/normalized/all.jsonl` 用当前 harness 重渲染（`corpus render --records`，3.5 秒）：
 **670 行可用**；30 条被拒，原因是 09-21 scorer v3 之后数据没有重验，明细见 [harness-corpus-render.md](harness-corpus-render.md) 末节。
 
 | 项 | 现状 | 问题 |
@@ -80,17 +80,17 @@ fixture 读进来就会全文进入上下文，所以预算实际上由出题决
 
 ## 6. 来源规则补充
 
-起草子 Agent 除了 workflow §2.1 的禁读清单外，**也不得读 `datasets/workspace-agent-700-20260920/`**：那里的题都是 workbank 种子题的变体，读了等于间接用测试题当种子。
+起草子 Agent 除了 workflow §2.1 的禁读清单外，**也不得读 `local/datasets/workspace-agent-700-20260920/`**：那里的题都是 workbank 种子题的变体，读了等于间接用测试题当种子。
 700 条只用于重渲染和打包，不作为出题参考。
 
 ## 7. 最终打包
 
 ```bash
-bin/rwkv-lab corpus pack \
-  --rows runs/distill/base700/rows.jsonl \
-  --rows runs/distill/b01/corpus/rows.jsonl --rows runs/distill/b02/corpus/rows.jsonl --rows runs/distill/b03/corpus/rows.jsonl \
+local/bin/rwkv-lab corpus pack \
+  --rows local/runs/distill/base700/rows.jsonl \
+  --rows local/runs/distill/b01/corpus/rows.jsonl --rows local/runs/distill/b02/corpus/rows.jsonl --rows local/runs/distill/b03/corpus/rows.jsonl \
   --exclude bench/distill/exclude.jsonl --max-tokens 4096 \
-  --out runs/distill/dataset-YYYYMMDD
+  --out local/runs/distill/dataset-YYYYMMDD
 ```
 
-四份 rows 必须由**同一个** `bin/rwkv-cli` 渲染（`wire_hash` 相同）。换过二进制就把 base700 和各批的 `script.jsonl` 全部重新 render 一遍，只要几秒钟。
+四份 rows 必须由**同一个** `local/bin/rwkv-cli` 渲染（`wire_hash` 相同）。换过二进制就把 base700 和各批的 `script.jsonl` 全部重新 render 一遍，只要几秒钟。

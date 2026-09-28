@@ -29,7 +29,7 @@ CLI/API/评测都用同一条路径选择它：
 export RWKV_CF_ACCESS_CLIENT_ID='...'
 export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 
-./dist/rwkv-cli agent-eval \
+./local/dist/rwkv-cli agent-eval \
   --model rwkv7-g1j-7.2b-20260831-ctx16384 \
   --completion rwkv-lightning-cuda \
   --api-url https://<host>/v1/batch/completions \
@@ -39,7 +39,7 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
   --api-stop-tokens none \
   --suite bfcl-product --profile xml-v1 \
   --case-parallelism 60 --case-timeout 5m \
-  --output runs/my-run
+  --output local/runs/my-run
 ```
 
 要点：
@@ -53,9 +53,9 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 查看配置而不花机时（不需要 `--model`）：
 
 ```sh
-./dist/rwkv-cli agent-eval --list-profiles
-./dist/rwkv-cli agent-eval --explain-profile md-v1
-./dist/rwkv-cli agent-eval --explain-profile xml-v1 --wire "route=respond-inspect,prefill=envelope"
+./local/dist/rwkv-cli agent-eval --list-profiles
+./local/dist/rwkv-cli agent-eval --explain-profile md-v1
+./local/dist/rwkv-cli agent-eval --explain-profile xml-v1 --wire "route=respond-inspect,prefill=envelope"
 ```
 
 ---

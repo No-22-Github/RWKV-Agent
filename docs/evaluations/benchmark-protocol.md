@@ -29,8 +29,8 @@
 
 ## 2. 二进制与环境
 
-- **只用从当前 HEAD 编译的二进制**：`go build -o bin/rwkv-cli ./cmd/rwkv-cli`。
-  `dist/rwkv-cli` 是 2026-09-15 的旧产物，canonical 少三个轴，不得用于正式跑分。
+- **只用从当前 HEAD 编译的二进制**：`go build -o local/bin/rwkv-cli ./cmd/rwkv-cli`。
+  `local/dist/rwkv-cli` 是 2026-09-15 的旧产物，canonical 少三个轴，不得用于正式跑分。
 - 记录 `git rev-parse HEAD` 与工作区是否干净；工作区不干净的跑分只能算探索。
 - 凭据只走环境变量（`--api-header-env 'CF-Access-Client-Id=RWKV_CF_ID'` 等），
   **不写进任何入库文件、run 目录名或报告**。
@@ -70,7 +70,7 @@ python 探针须设 `User-Agent: curl/8.7.1`，否则 Cloudflare 回裸 403。
 
 - API 模型：不支持 `top_k`/`penalty_decay`，只用 `--temperature` 与 `--top-p`。
   **DeepSeek-flash 不能用 T=0**（五轮作废 14→40，见 `docs/workbank/reports/dsflash-baseline-2026-09-22.md` §2）；
-  Qwen3.5-9B 在 workbank 上 T=0.3 比 T=0 高约 6pp。给没跑过的模型定参数前先翻 `runs/` 与报告。
+  Qwen3.5-9B 在 workbank 上 T=0.3 比 T=0 高约 6pp。给没跑过的模型定参数前先翻 `local/runs/` 与报告。
 
 ## 5. 题库、预算与重复
 
@@ -125,7 +125,7 @@ agent-eval 原本把窗口写死为 10ms，2026-09-23 起开放 `--remote-batch-
 
 ## 8. 目录与落库
 
-- run 目录：`runs/bench-YYYYMMDD/<model>-<suite>-<arm>-k<i>/`（`runs/` 不入库）。
+- run 目录：`local/runs/bench-YYYYMMDD/<model>-<suite>-<arm>-k<i>/`（`local/runs/` 不入库）。
 - 入库只放源与结论：该轮 `docs/evaluations/<topic>-YYYYMMDD/PLAN.md` 与 `REPORT.md`，
   以及 `bench/workbank/ledger/` 的 ingest 行（`ledger.py ingest --config-name <model>-<arm> --k-index <i>`）。
 - 报告必须包含：HEAD、二进制构建时间、端点快照（模型 id / engine_version / hard_max_bsz）、档表、
@@ -135,7 +135,7 @@ agent-eval 原本把窗口写死为 10ms，2026-09-23 起开放 `--remote-batch-
 
 | 坑 | 发生 | 记录 |
 |---|---|---|
-| 漏传 `--profile` 静默落 legacy | 2026-09-22 g1k 148 题 0/148 | `runs/workbank/rwkv-g1k-k0` |
+| 漏传 `--profile` 静默落 legacy | 2026-09-22 g1k 148 题 0/148 | `local/runs/workbank/rwkv-g1k-k0` |
 | `top_k=1` 使温度失效 | 全部历史 RWKV run | 本文 §4 |
 | DeepSeek 贪心崩溃 | 2026-09-21/22 | `dsflash-baseline-2026-09-22.md` §2 |
 | 作废题剔出分母 | 2026-09-22 下架 4 题 | commit 88f07be |
@@ -143,8 +143,8 @@ agent-eval 原本把窗口写死为 10ms，2026-09-23 起开放 `--remote-batch-
 | 流式断流冤判约 12pp | BFCL c130 全量 | 同上；须重试合并 |
 | 判分按 id 字符串排序错位 | BFCL 重判 | 同上；按 id 建 map |
 | chat 路径 `wire_canonical` 失真 | 全部 API 模型 run | 本文 §1 |
-| `dist/` 二进制过期 | 2026-09-23 发现 | 本文 §2 |
-| python 版与 cuda 版端点参数不同（URL 形式、stop 形式） | 2026-09-23 探针 | 本文 §3；`runs/wire-check-20260918/api-contract-audit.json` |
+| `local/dist/` 二进制过期 | 2026-09-23 发现 | 本文 §2 |
+| python 版与 cuda 版端点参数不同（URL 形式、stop 形式） | 2026-09-23 探针 | 本文 §3；`local/runs/wire-check-20260918/api-contract-audit.json` |
 | 关闭合并后 168 路同时预填充打挂共享端点 | 2026-09-23 greedy 102/148 作废 | 本文 §3；总并发 ≤ 64 |
 | 客户端合并请求造成队头阻塞 | 2026-09-23 修复 4 MiB 后首档 25/148 撞满 30m | 本文 §5；`--remote-batch-wait 0s` |
 | 合并请求的 4 MiB 上限按整批算，整批作废 | 2026-09-23 第三次首档 132/148；09-22 的 30 题同源 | 已修（batch 上限按条数放大） |

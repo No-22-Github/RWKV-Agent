@@ -13,7 +13,7 @@ script `corpus render` accepts unchanged.
   step.py add  <case_dir> -          same, text read from stdin (use for multi-line answers)
   step.py undo <case_dir>            drop the last output (only before the case finishes)
 
-State lives in runs/distill/b04/solve/<case_id>.json. When the case finishes the
+State lives in local/runs/distill/b04/solve/<case_id>.json. When the case finishes the
 file gets "status": "pass" | "fail" and further add/undo are refused: a failed
 case goes to triage, it is not retried until it passes.
 """
@@ -25,8 +25,8 @@ import sys
 import tempfile
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-CLI = os.path.join(REPO, "bin", "rwkv-cli")
-SOLVE_DIR = os.environ.get("STEP_SOLVE_DIR") or os.path.join(REPO, "runs", "distill", "b04", "solve")
+CLI = os.path.join(REPO, "local", "bin", "rwkv-cli")
+SOLVE_DIR = os.environ.get("STEP_SOLVE_DIR") or os.path.join(REPO, "local", "runs", "distill", "b04", "solve")
 # Same arm as internal/lab/corpus/render.go benchFlags: the replay must see the
 # exact wire the rows will be rendered under.
 BENCH_FLAGS = [

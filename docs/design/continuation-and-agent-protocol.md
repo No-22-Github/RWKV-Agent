@@ -247,7 +247,7 @@ HTTP adapter 面向 `rwkv_lightning` 的原生续写请求：
 本地续写仍是默认值：
 
 ```sh
-./dist/rwkv-cli agent \
+./local/dist/rwkv-cli agent \
   --completion local \
   --model /absolute/path/to/model.pth \
   --workspace /absolute/path/to/project \
@@ -262,7 +262,7 @@ HTTP adapter 面向 `rwkv_lightning` 的原生续写请求：
 export RWKV_CF_ACCESS_CLIENT_ID='...'
 export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 
-./dist/rwkv-cli agent \
+./local/dist/rwkv-cli agent \
   --completion rwkv-lightning-cuda \
   --api-url https://example.com/v1/batch/completions \
   --model rwkv7-13b \
@@ -332,12 +332,12 @@ adapter 调用示例：
 ```sh
 export OPENAI_API_KEY='...'
 
-./dist/rwkv-cli agent-eval \
+./local/dist/rwkv-cli agent-eval \
   --completion chat-completions \
   --api-url https://example.com/v1/chat/completions \
   --model other-model \
   --suite smoke \
-  --output runs/chat-other-model-smoke
+  --output local/runs/chat-other-model-smoke
 ```
 
 隐藏推理默认开启且与正文共享输出预算的上游需要显式关闭上游思考。例如 DeepSeek
