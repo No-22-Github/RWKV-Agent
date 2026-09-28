@@ -27,7 +27,7 @@ import (
 // < into <. That is not an oversight and must not be "fixed" to match
 // P2: the harness writes the same escaping into the trace, and the training row
 // adopts the harness bytes because those are the bytes the model saw
-// (docs/harness-corpus-render.md).
+// (docs/distill/harness-corpus-render.md).
 
 // RowsArgs are the `corpus rows` flags.
 type RowsArgs struct {

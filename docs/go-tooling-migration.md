@@ -169,7 +169,7 @@ Go 一改它们就静默失效。本次把这部分迁进一个新的 Go 程序 
 
 | 文件 | 改什么 |
 |---|---|
-| `docs/harness-corpus-render.md` | `python3 -m scripts.corpus …` → `bin/rwkv-lab corpus …`；`cmd/tracecorpus` → `corpus rows` |
+| `docs/distill/harness-corpus-render.md` | `python3 -m scripts.corpus …` → `bin/rwkv-lab corpus …`；`cmd/tracecorpus` → `corpus rows` |
 | `.claude/skills/rwkv-bench/SKILL.md` | sweep / rank / check_run / compare / ledger / replicate 的命令全部换成 `bin/rwkv-lab …`；第 1 步构建命令加上 `go build -o bin/rwkv-lab ./cmd/rwkv-lab` |
 | `INDEX.md` | 工具表里的路径（第 79–82 行附近） |
 | `bench/workbank/docs/HANDOFF.md`、`drafting-brief.md`、`authoring-guide.md`、`expansion-152-handoff.md`、`bench/workbank/cases-shelved/README.md` | `uv run tools/xxx.py` / `python3 tools/xxx.py` → 对应 `rwkv-lab bank …` / `run …` |
@@ -273,7 +273,7 @@ rwkv-lab tokcount
 
 ### M1 corpus（约 1 天）
 
-`rwkv-lab corpus paths | render | rows | decontam`，删 `scripts/corpus/`、`cmd/tracecorpus`，改 `docs/harness-corpus-render.md`。
+`rwkv-lab corpus paths | render | rows | decontam`，删 `scripts/corpus/`、`cmd/tracecorpus`，改 `docs/distill/harness-corpus-render.md`。
 
 验收：
 - paths-148 / paths-40 / paths-cap3、render-script / render-records、decontam-self / decontam-700 七组全部按 §4.3 一致；render 两组的 `wire_hash` 相同。

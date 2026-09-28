@@ -13,7 +13,6 @@ __pycache__/
 /outputs/
 # Derived replay of runs/ trajectories (consecutive-User debugging);
 # rebuildable from runs/workbank/closeout-v* runs, kept on disk only.
-/replay-v0/
 # Local state sweep artifacts (tarballs + per-run dumps), kept on disk only.
 /state_output/
 /.file_locks/

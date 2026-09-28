@@ -1,0 +1,66 @@
+{
+  "input_rows": 1586,
+  "kept": 1011,
+  "new_rows": 460,
+  "base700_rows": 551,
+  "status_counts": {
+    "keep": 1011,
+    "quarantine": 270,
+    "alternate": 233,
+    "exclude": 72
+  },
+  "primary_reason_counts": {
+    "unrecognized_oracle_contract_not_semantically_approved": 121,
+    "same_case_prefer_shorter_eligible_path": 233,
+    "ambiguous_multiturn_whole_history_review_pending": 130,
+    "done_contract_extra_prose": 18,
+    "new_exemplar_more_than_8_tool_calls": 5,
+    "unnecessary_workspace_or_web_exploration_for_prompt_complete_task": 49,
+    "semantic_review: 42U 是安装空间高度；题目问机柜外形高度以核对天花净空，夹具没有外形尺寸。": 1,
+    "semantic_review: 回答承诺向 crew 转达祝福，但没有发送动作或发送能力。": 1,
+    "semantic_review: 对跨会话记忆作无条件断言；此语料不能证明 student 产品的持久化能力。": 1,
+    "semantic_review: 回答编造自己周末阅读和收拾事情的个人经历。": 1,
+    "semantic_review: 真实付款没有约定结算汇率；仅凭联系汇率名义中点不能确定实际到账金额，两路径都未读取内部换算表。": 2,
+    "semantic_review: 仅指定九月而未给具体日期；真实站点有夏令时切换，静态 offset 表未说明固定时区约定。": 2,
+    "semantic_review: umask 只能屏蔽创建时请求的权限，不能无条件保证题面所称所有新建物完整权限；本轮暂缓。": 1,
+    "semantic_review: 对跨会话连续性和部署方式作无条件断言，超出工具目录证据。": 1,
+    "semantic_review: 无条件宣称会话间没有记忆，超出当前工具目录证据。": 1,
+    "semantic_review: 回答确认当地天气和 first snap，而对话没有位置或天气依据；不保留这种附加断言。": 1,
+    "semantic_review: 问题问计费重量，但未给实际重量或明确只按体积重量计费；不将缺少前提的确定数值作为教材。": 2,
+    "semantic_review: 无条件宣称不能记住先前聊天，运行时事实未提供。": 1,
+    "semantic_review: 对主观体验和具体运行时生命周期作无依据的确定断言，不作为身份对话示范。": 1,
+    "semantic_review: 断言每次调用都重新实例化及没有持续运行能力，缺少部署依据。": 1,
+    "semantic_review: 因没有先前消息而断言与用户真正初次交谈，并泛化为无历史记忆。": 1,
+    "semantic_review: 能力介绍无条件宣称没有先前会话记忆，部署事实未提供。": 1
+  },
+  "split": {
+    "train": 910,
+    "validation": 101
+  },
+  "kind": {
+    "local": 608,
+    "write": 70,
+    "web_local": 110,
+    "script": 55,
+    "web": 25,
+    "smalltalk": 46,
+    "direct": 69,
+    "refuse": 28
+  },
+  "by_source": {
+    "base700": 551,
+    "distill-b01": 151,
+    "distill-b02": 158,
+    "distill-b03": 151
+  },
+  "zero_call": 117,
+  "tokens_sum": 1999562,
+  "max_tokens": 4091,
+  "split_groups": 382,
+  "pinned_groups": 33,
+  "near_similarity_edges": 735,
+  "validation_target": 101,
+  "wire_hashes": [
+    "707c67403b1b2e5269ddfcd8ecee2bfb7ce4d8133912d102bc67f1324f8018cb"
+  ]
+}

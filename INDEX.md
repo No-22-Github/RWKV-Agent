@@ -5,7 +5,7 @@
 > [`README.en.md`](README.en.md)。`docs/` 内部的逐文件索引见
 > [`docs/README.md`](docs/README.md)。
 >
-> 最后更新：2026-09-21
+> 最后更新：2026-09-28
 
 ## 快速定位
 
@@ -14,6 +14,9 @@
 | 安装、构建和基本使用 | [`README.md`](README.md) | 项目主入口、CLI、Provider、Agent 和测试说明 |
 | macOS 从零运行 | [`docs/getting-started-macos.md`](docs/getting-started-macos.md) | 环境、模型准备、构建、运行、更新和常见问题 |
 | 桌面 App 与公开 API | [`docs/app.md`](docs/app.md) | Wails App、headless server、存储和开发说明 |
+| **蒸馏语料流程（现行）** | [`docs/distill/distill-workflow.md`](docs/distill/distill-workflow.md) | 出题 → 老师在真实 harness 里跑 → `corpus render` 重放切行 → 打包；批次报告在 [`bench/distill/reports/`](bench/distill/reports/) |
+| **最新 state 横测** | [`docs/evaluations/state-t927-20260927/REPORT.md`](docs/evaluations/state-t927-20260927/REPORT.md) | t927 六个 checkpoint，s316 最优；终答不停、答案契约被拒是最大失分点 |
+| 跑分规程 | [`docs/evaluations/benchmark-protocol.md`](docs/evaluations/benchmark-protocol.md) | g1k 格式、统一预算、采样预设、`run check` 闸门 |
 | **700 条精品 Agent 轨迹数据集** | [`datasets/README.md`](datasets/README.md) | 36 种子 700 条（630 train / 70 val）精品轨迹工作区与送训 text-only 归档 |
 | **工具调用与对话格式总览** | [`docs/tool-and-wire-formats.md`](docs/tool-and-wire-formats.md) | **★ 统一格式门户 ★**：分层设计、G1K 推荐格式、矩阵对比与演进 |
 | **G1K 对齐语料格式契约** | [`docs/corpus-g1k-wire-format.md`](docs/corpus-g1k-wire-format.md) | 数据侧逐字节契约：System、`<tools>`、User `<tool_response>`、纯文本终答 |
@@ -59,7 +62,20 @@
 
 ## 评测与基线
 
-### 700 条 Agent 精品轨迹数据集 (2026-09-20 现行)
+### 蒸馏语料与 State 训练 (2026-09-24 起，现行)
+
+| 路径 | 用途 |
+| --- | --- |
+| [`docs/distill/`](docs/distill/) | 流程规格：`distill-workflow.md`（主流程）、`distill-allocation-v1.md`（b01–b03 配额）、`distill-b04-glm.md`（子 Agent 用 step.py 在真实 harness 里解题）、`harness-corpus-render.md`（重放切行） |
+| `bench/distill/` | 蒸馏题库 `cases/`（759 题，5xxx 为 b01–b03、6xxx 为 b04）、老师动作脚本 `scripts/`（**本线真正的资产**，任何 harness 版本都能重渲染出训练行）、批次报告 `reports/`、`batches.jsonl`、`exclude.jsonl`、b04 工具 `tools/` |
+| [`docs/evaluations/distill-audit-20260926/`](docs/evaluations/distill-audit-20260926/) | 蒸馏数据审阅报告与清洗说明（v1 / v1.1 的来源） |
+| [`docs/evaluations/state-t927-20260927/REPORT.md`](docs/evaluations/state-t927-20260927/REPORT.md) | t927 state 横测（训练集为 clean v1.1）。复核发现：训练行终答后没有任何后续文本，state 答完不停；截断重判 s316 从 16 题变成 25 题 |
+| [`docs/evaluations/state-lr-sweep-20260923/REPORT.md`](docs/evaluations/state-lr-sweep-20260923/REPORT.md) | 上一轮 state LR 扫描复核（旧 700 语料，含测试集泄漏） |
+| `outputs/workspace-agent-distill-clean-*` | 交付的训练集（gitignored）：v1.1 = 1007 行；**v1.2（2026-09-28）= v1.1 + b04 + 每行末尾 `\n\nUser:`**，分 `suffix-only/` 与 `mixed/` 两份 |
+
+训练器提示：`rwkv_lightning_cuda` 的 `rwkv_state_tune` 只读 `{"text"}`，对全文算 loss，样本末尾不加 EOS；`loss_spans` 只有支持 mask 的训练器会用到。
+
+### 700 条 Agent 精品轨迹数据集 (2026-09-20，已并入蒸馏语料的 base700)
 
 | 文档或证据 | 结论定位 |
 | --- | --- |

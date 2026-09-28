@@ -19,7 +19,7 @@ var requiredTags = []string{
 }
 
 // defaultCanaryPrefix is the test-bank canary. --canary-prefix overrides it
-// for trees that must not carry it (docs/distill-workflow.md §4.1).
+// for trees that must not carry it (docs/distill/distill-workflow.md §4.1).
 const defaultCanaryPrefix = "WORKBANK-CANARY"
 
 var (
@@ -187,7 +187,7 @@ func checkCase(caseDir string, caseObj map[string]any, ctx *lintCtx, relParts []
 	isSmalltalk := asString(tags["task_type"]) == "smalltalk"
 	// A refusal case answers a request the assistant cannot carry out. It must
 	// explain that instead of abstaining, so it carries no answer contract and
-	// its criterion forbids UNKNOWN (docs/distill-workflow.md §4.3). Every
+	// its criterion forbids UNKNOWN (docs/distill/distill-workflow.md §4.3). Every
 	// beyond_capability case is one, and so is any case that declares TR-NOCAP
 	// whatever its scenario.
 	isRefusal := ctx.distillRules && !isSmalltalk && (asString(tags["task_type"]) == "beyond_capability" ||
@@ -293,7 +293,7 @@ func checkCase(caseDir string, caseObj map[string]any, ctx *lintCtx, relParts []
 	// Small talk is the exception: a greeting followed by "Reply with only the
 	// final answer..." would teach the student to expect format instructions
 	// after every pleasantry, so a contract there is itself the violation
-	// (docs/distill-workflow.md §4.3).
+	// (docs/distill/distill-workflow.md §4.3).
 	caseExpect, _ := caseObj["expect"].(map[string]any)
 	writeCase := false
 	if caseExpect != nil {
@@ -379,7 +379,7 @@ func checkCase(caseDir string, caseObj map[string]any, ctx *lintCtx, relParts []
 
 	// (d) canary: the configured prefix must end the description, and a tree
 	// linted under another prefix must not carry the test-bank canary anywhere
-	// (docs/distill-workflow.md §4.1).
+	// (docs/distill/distill-workflow.md §4.1).
 	description, _ := caseObj["description"].(string)
 	if !canaryOK(description, ctx.canaryRe) {
 		bad("canary", fmt.Sprintf("description must end with %s-<8 lowercase hex>", ctx.canaryPrefix))
@@ -521,7 +521,7 @@ func checkCase(caseDir string, caseObj map[string]any, ctx *lintCtx, relParts []
 	}
 
 	// (k) verify.py + NOTES.md. Small talk has no answer a script could
-	// recompute, so verify.py is not required there (docs/distill-workflow.md
+	// recompute, so verify.py is not required there (docs/distill/distill-workflow.md
 	// §4.3).
 	if !isSmalltalk {
 		for _, item := range verifyPyViolations(caseDir) {

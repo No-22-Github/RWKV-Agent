@@ -27,6 +27,18 @@
 | --- | --- |
 | [inference-core-design.md](inference-core-design.md) | 跨平台推理核心设计：分层、对象生命周期、State 模型、调度与契约测试 |
 | [direct-pth-loading.md](direct-pth-loading.md) | 直接加载 `.pth`：mmap、索引缓存、转换链路 |
+| [go-tooling-migration.md](go-tooling-migration.md) | Python 实验工具迁移到 Go（`bin/rwkv-lab`）的对照表与验收记录 |
+
+## 蒸馏语料与 State 训练（现行）
+
+| 文档 | 说明 |
+| --- | --- |
+| [distill/distill-workflow.md](distill/distill-workflow.md) | **蒸馏工作流规格**：出题 → 老师在真实 harness 里跑 → 抽路径 → `corpus render` 重放切行 → 打包；各环节闸门与命令 |
+| [distill/distill-allocation-v1.md](distill/distill-allocation-v1.md) | 加题分配 v1：b01–b03 的题型配额与行长约束（取代 workflow §2.4） |
+| [distill/distill-b04-glm.md](distill/distill-b04-glm.md) | b04 执行规格：子 Agent 用 `bench/distill/tools/step.py` 扮演 student，在真实 harness 里逐步解题（老师无法接入 harness 时的方案） |
+| [distill/harness-corpus-render.md](distill/harness-corpus-render.md) | 训练行只能由 harness 重放生成：`--script` 回放、多轮按轮切行、分集规则 |
+| [`../bench/distill/reports/`](../bench/distill/reports/) | 各批次报告：smoke、b01–b04 |
+| [evaluations/distill-audit-20260926/REPORT.md](evaluations/distill-audit-20260926/REPORT.md) | 蒸馏数据审阅：判据 fail-open、stable_fact 实为本地检索、`tools: []` 名不副实；配套清洗说明 CLEANING.md |
 
 ## 现行评测基准
 
@@ -34,6 +46,10 @@
 | --- | --- |
 | [evaluations/g1k-wire-ablation/wire-ablation-g1k-summary-20260915.md](evaluations/g1k-wire-ablation/wire-ablation-g1k-summary-20260915.md) | **G1K 现行消融旗舰**：Wire 格式 R0–R4 消融总结（40→49 题，请求字节 −56%） |
 | [evaluations/bfcl-v4-product-suite-20260826.md](evaluations/bfcl-v4-product-suite-20260826.md) | **现行评测题库**：60 题 BFCL 产品语义迁移 suite 规格与运行边界 |
+| [evaluations/benchmark-protocol.md](evaluations/benchmark-protocol.md) | **跑分规程**：g1k 格式、统一预算、采样预设、`run check` 闸门（配套 `.claude/skills/rwkv-bench`） |
+| [evaluations/state-t927-20260927/REPORT.md](evaluations/state-t927-20260927/REPORT.md) | **最新 state 横测**：t927 六个 checkpoint，s316 最优（workbank 16/148 vs 基线 9）；终答不停、答案契约被拒深挖 |
+| [evaluations/state-lr-sweep-20260923/REPORT.md](evaluations/state-lr-sweep-20260923/REPORT.md) | state 学习率扫描复核：训练集泄漏 32/148 题、首动作 100% 调工具导致 bfcl 崩 |
+| [evaluations/g1k-sampling-sweep-20260923/](evaluations/g1k-sampling-sweep-20260923/) | g1k 采样扫描：`--sampling` 预设来源，截断比温度更重要 |
 | [evaluations/primitive-bench-v12-baseline-2026-08-13.md](evaluations/primitive-bench-v12-baseline-2026-08-13.md) | **持续演进基准**：Primitive Bench v12 基线，以及 v13–v21 持续追加演进记录 |
 
 ## 评测专题与历史证据库
@@ -91,9 +107,11 @@
 | [archive/macos-cli-implementation-validation.md](archive/macos-cli-implementation-validation.md) | macOS CLI 实现验证记录 |
 | [archive/local-assistant-agent-plan.md](archive/local-assistant-agent-plan.md) | 本地助手 Agent 实施计划 |
 | [archive/rwkv-g1i-13b-agent-data-feedback.md](archive/rwkv-g1i-13b-agent-data-feedback.md) | G1 13B Agent 数据反馈记录 |
+| [archive/removed-tools.md](archive/removed-tools.md) | 已删除的旧工具与其替代品 |
 
 ## 约定
 
+- `docs/distill/` 存放蒸馏语料的流程规格；批次报告、题库与老师脚本在 `bench/distill/`。
 - `docs/evaluations/` 存放实测数据、Benchmark 规范与消融报告；各专题以独立子目录归档。
 - `docs/reports/` 存放长报告（HTML/PDF 等）。
 - `docs/archive/` 只归档、不再维护；其中过时的协议描述不应作为当前行为依据。

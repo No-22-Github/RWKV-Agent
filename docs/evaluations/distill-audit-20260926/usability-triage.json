@@ -1,0 +1,45 @@
+{
+  "base700": {
+    "rows": 551,
+    "unique_cases": 551,
+    "kind": {
+      "local": 333,
+      "write": 68,
+      "web_local": 77,
+      "script": 48,
+      "web": 25
+    }
+  },
+  "provisional_core": {
+    "rows": 756,
+    "unique_cases": 471,
+    "kind": {
+      "local": 534,
+      "web_local": 61,
+      "write": 10,
+      "smalltalk": 57,
+      "direct": 70,
+      "script": 24
+    }
+  },
+  "needs_verifier_review": {
+    "rows": 149,
+    "unique_cases": 91,
+    "kind": {
+      "script": 3,
+      "local": 54,
+      "direct": 15,
+      "refuse": 77
+    }
+  },
+  "needs_multiturn_review": {
+    "rows": 130,
+    "unique_cases": 44,
+    "kind": {
+      "clarify": 65,
+      "direct": 62,
+      "local": 3
+    }
+  },
+  "caveat": "Rule-based triage, not full human semantic certification. Quarantine all turns of ambiguous multi-turn trajectories for full-text loss; no source data modified."
+}

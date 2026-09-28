@@ -42,7 +42,7 @@ type CorpusMeta struct {
 	// Traj describes what the trajectory actually did in this row's turn.
 	Traj TrajStats `json:"traj"`
 	// Kind is Traj's behaviour class (direct, local, web, write, script,
-	// refuse, clarify, smalltalk), derived by docs/distill-workflow.md §4.4.2.
+	// refuse, clarify, smalltalk), derived by docs/distill/distill-workflow.md §4.4.2.
 	Kind string `json:"kind"`
 }
 

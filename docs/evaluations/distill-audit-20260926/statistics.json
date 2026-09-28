@@ -1,0 +1,294 @@
+{
+  "new_unique_cases": 606,
+  "new_unique_paths": 970,
+  "new_zero": 208,
+  "seeded": 551,
+  "new_calls": {
+    "0": 208,
+    "1": 69,
+    "2": 44,
+    "3": 230,
+    "4": 261,
+    "5": 133,
+    "6": 52,
+    "7": 23,
+    "8": 9,
+    "9": 4,
+    "11": 1,
+    "12": 1
+  },
+  "new_tasktypes": {
+    "add_flag": {
+      "rows": 6,
+      "zero": 0
+    },
+    "aggregate": {
+      "rows": 27,
+      "zero": 0
+    },
+    "aggregate_jsonl": {
+      "rows": 10,
+      "zero": 0
+    },
+    "ambiguous_request": {
+      "rows": 76,
+      "zero": 35
+    },
+    "beyond_capability": {
+      "rows": 53,
+      "zero": 3
+    },
+    "concept": {
+      "rows": 103,
+      "zero": 43
+    },
+    "count_by_type": {
+      "rows": 4,
+      "zero": 0
+    },
+    "count_events": {
+      "rows": 24,
+      "zero": 0
+    },
+    "count_markers": {
+      "rows": 17,
+      "zero": 0
+    },
+    "deprecation": {
+      "rows": 14,
+      "zero": 0
+    },
+    "duplicates": {
+      "rows": 9,
+      "zero": 0
+    },
+    "edit_value": {
+      "rows": 9,
+      "zero": 0
+    },
+    "error_meaning": {
+      "rows": 16,
+      "zero": 0
+    },
+    "explain_readonly": {
+      "rows": 4,
+      "zero": 0
+    },
+    "extract_items": {
+      "rows": 6,
+      "zero": 0
+    },
+    "filter_count": {
+      "rows": 19,
+      "zero": 0
+    },
+    "find_callers": {
+      "rows": 23,
+      "zero": 0
+    },
+    "find_file": {
+      "rows": 9,
+      "zero": 0
+    },
+    "fix_edge_case": {
+      "rows": 4,
+      "zero": 0
+    },
+    "fix_from_traceback": {
+      "rows": 5,
+      "zero": 0
+    },
+    "fix_output": {
+      "rows": 8,
+      "zero": 0
+    },
+    "join": {
+      "rows": 4,
+      "zero": 0
+    },
+    "largest": {
+      "rows": 7,
+      "zero": 0
+    },
+    "latest_version": {
+      "rows": 16,
+      "zero": 0
+    },
+    "link_check": {
+      "rows": 14,
+      "zero": 0
+    },
+    "local_first": {
+      "rows": 16,
+      "zero": 0
+    },
+    "locate_definition": {
+      "rows": 6,
+      "zero": 0
+    },
+    "locate_error": {
+      "rows": 8,
+      "zero": 0
+    },
+    "lookup_value": {
+      "rows": 17,
+      "zero": 0
+    },
+    "merge": {
+      "rows": 4,
+      "zero": 0
+    },
+    "missing_keys": {
+      "rows": 9,
+      "zero": 0
+    },
+    "multi_turn": {
+      "rows": 54,
+      "zero": 27
+    },
+    "policy_calc": {
+      "rows": 14,
+      "zero": 0
+    },
+    "policy_lookup": {
+      "rows": 26,
+      "zero": 0
+    },
+    "precedence": {
+      "rows": 5,
+      "zero": 0
+    },
+    "presence": {
+      "rows": 18,
+      "zero": 1
+    },
+    "rank": {
+      "rows": 13,
+      "zero": 0
+    },
+    "read_effective": {
+      "rows": 19,
+      "zero": 0
+    },
+    "reconcile": {
+      "rows": 8,
+      "zero": 0
+    },
+    "report_test_result": {
+      "rows": 6,
+      "zero": 0
+    },
+    "root_cause": {
+      "rows": 5,
+      "zero": 0
+    },
+    "smalltalk": {
+      "rows": 57,
+      "zero": 57
+    },
+    "snippet_in_reply": {
+      "rows": 75,
+      "zero": 18
+    },
+    "stable_fact": {
+      "rows": 85,
+      "zero": 0
+    },
+    "stdlib_only": {
+      "rows": 3,
+      "zero": 0
+    },
+    "time_window": {
+      "rows": 7,
+      "zero": 0
+    },
+    "unit_convert": {
+      "rows": 79,
+      "zero": 24
+    },
+    "web_then_calc": {
+      "rows": 4,
+      "zero": 0
+    },
+    "web_then_edit": {
+      "rows": 6,
+      "zero": 0
+    },
+    "write_new": {
+      "rows": 2,
+      "zero": 0
+    },
+    "write_summary": {
+      "rows": 2,
+      "zero": 0
+    }
+  },
+  "empty_tools": {
+    "rows": 531,
+    "called": 387
+  },
+  "empty_by_task": {
+    "ambiguous_request": {
+      "rows": 38,
+      "called": 38
+    },
+    "beyond_capability": {
+      "rows": 53,
+      "called": 50
+    },
+    "concept": {
+      "rows": 103,
+      "called": 60
+    },
+    "edit_value": {
+      "rows": 4,
+      "called": 4
+    },
+    "merge": {
+      "rows": 3,
+      "called": 3
+    },
+    "multi_turn": {
+      "rows": 27,
+      "called": 27
+    },
+    "precedence": {
+      "rows": 1,
+      "called": 1
+    },
+    "presence": {
+      "rows": 5,
+      "called": 5
+    },
+    "read_effective": {
+      "rows": 3,
+      "called": 3
+    },
+    "smalltalk": {
+      "rows": 57,
+      "called": 0
+    },
+    "snippet_in_reply": {
+      "rows": 73,
+      "called": 56
+    },
+    "stable_fact": {
+      "rows": 85,
+      "called": 85
+    },
+    "unit_convert": {
+      "rows": 79,
+      "called": 55
+    }
+  },
+  "clarify": {
+    "rows": 65,
+    "zero": 0,
+    "no_question_mark": 55
+  },
+  "supervised_character_fraction": 0.07293778424705313,
+  "wire_hashes": [
+    "707c67403b1b2e5269ddfcd8ecee2bfb7ce4d8133912d102bc67f1324f8018cb"
+  ],
+  "multi_source_cases": {}
+}

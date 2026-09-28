@@ -82,13 +82,13 @@ python3 bench/distill/tools/step.py undo <dir>     # 撤销上一步，只用于
 
 | # | 文档 | 读什么 |
 |---|---|---|
-| 1 | [`bench/workbank/docs/drafting-brief.md`](../bench/workbank/docs/drafting-brief.md) | workbank 测试题当初给 GLM 起草 Agent 的简报：12 条硬规则、schema 要点、工具行为速查、自检闭环。**先读这份**，但它是给测试题写的，与蒸馏题冲突处见下方「覆盖」 |
-| 2 | [`bench/workbank/docs/authoring-guide.md`](../bench/workbank/docs/authoring-guide.md) | 出题手册（最高权威）：题型 §2、陷阱目录 §3、难度 §4、tag 词表 §5、表面多样性 §6、NOTES 格式 §7、**反例库 §8（X-001～X-012，都是真实翻过车的）** |
-| 3 | [`bench/workbank/docs/HANDOFF.md`](../bench/workbank/docs/HANDOFF.md) §2 | `case.json` schema v5 字段契约与完整样例 |
-| 4 | [`bench/workbank/docs/M0-findings.md`](../bench/workbank/docs/M0-findings.md) §1/§2/§9 | 工具真实行为（`data_query` 不解析 `$1,234.50`、`read_file` 64KB 截断等） |
-| 5 | [`bench/workbank/docs/tag-vocab.json`](../bench/workbank/docs/tag-vocab.json) | 场景、task_type、陷阱、禁词的机器可读枚举（只读引用，不复制） |
-| 6 | [`docs/distill-workflow.md`](distill-workflow.md) §2 | 蒸馏题与测试题的差异：来源禁读表 §2.1、ID/canary §2.2、差异表 §2.3、完整样例 §2.5、出题坑 §2.6 |
-| 7 | [`docs/evaluations/distill-audit-20260926/REPORT.md`](evaluations/distill-audit-20260926/REPORT.md) §2 | 上一轮题库审计发现的问题：判据 fail-open、stable_fact 实为本地检索、`tools: []` 名不副实 |
+| 1 | [`bench/workbank/docs/drafting-brief.md`](../../bench/workbank/docs/drafting-brief.md) | workbank 测试题当初给 GLM 起草 Agent 的简报：12 条硬规则、schema 要点、工具行为速查、自检闭环。**先读这份**，但它是给测试题写的，与蒸馏题冲突处见下方「覆盖」 |
+| 2 | [`bench/workbank/docs/authoring-guide.md`](../../bench/workbank/docs/authoring-guide.md) | 出题手册（最高权威）：题型 §2、陷阱目录 §3、难度 §4、tag 词表 §5、表面多样性 §6、NOTES 格式 §7、**反例库 §8（X-001～X-012，都是真实翻过车的）** |
+| 3 | [`bench/workbank/docs/HANDOFF.md`](../../bench/workbank/docs/HANDOFF.md) §2 | `case.json` schema v5 字段契约与完整样例 |
+| 4 | [`bench/workbank/docs/M0-findings.md`](../../bench/workbank/docs/M0-findings.md) §1/§2/§9 | 工具真实行为（`data_query` 不解析 `$1,234.50`、`read_file` 64KB 截断等） |
+| 5 | [`bench/workbank/docs/tag-vocab.json`](../../bench/workbank/docs/tag-vocab.json) | 场景、task_type、陷阱、禁词的机器可读枚举（只读引用，不复制） |
+| 6 | [`docs/distill/distill-workflow.md`](distill-workflow.md) §2 | 蒸馏题与测试题的差异：来源禁读表 §2.1、ID/canary §2.2、差异表 §2.3、完整样例 §2.5、出题坑 §2.6 |
+| 7 | [`docs/evaluations/distill-audit-20260926/REPORT.md`](../evaluations/distill-audit-20260926/REPORT.md) §2 | 上一轮题库审计发现的问题：判据 fail-open、stable_fact 实为本地检索、`tools: []` 名不副实 |
 
 格式样例：`bench/distill/cases/tabular/tab-5001/`（完整走过全部闸门）、`bench/distill/cases/hybrid/hyb-5006/`（两轮反问）、`bench/distill/cases/notool/nt-5001/`（闲聊）。
 
@@ -134,7 +134,7 @@ bin/rwkv-lab corpus loadcheck --cases bench/distill/cases
 
 ```
 你为 RWKV-Agent 生产训练轨迹：扮演本地 Agent 模型，在真实 harness 里逐步做题。
-必读并照做：docs/distill-b04-glm.md §2。
+必读并照做：docs/distill/distill-b04-glm.md §2。
 本次题目（按顺序做）：
   <case_dir 1>
   <case_dir 2>
@@ -148,7 +148,7 @@ bin/rwkv-lab corpus loadcheck --cases bench/distill/cases
 
 ```
 本批是 b04：本次 ID 从 <abbrev>-<起始号> 起；tags.author 用 llm:glm-5.3-flash-b04；family 前缀 fam-<abbrev>-b04-。
-必读：docs/distill-b04-glm.md §3.1 列出的全部材料，冲突时以 §3.1「覆盖」表和 §3.2 为准。不要用 step.py 解你自己出的题。
+必读：docs/distill/distill-b04-glm.md §3.1 列出的全部材料，冲突时以 §3.1「覆盖」表和 §3.2 为准。不要用 step.py 解你自己出的题。
 ```
 
 ## 5. 主控命令
@@ -185,7 +185,7 @@ bin/rwkv-lab corpus decontam --test bench/workbank/cases-shelved --candidates be
 
 ```bash
 python3 bench/distill/tools/collect.py
-git add bench/distill/cases bench/distill/scripts/b04.jsonl bench/distill/tools docs/distill-b04-glm.md
+git add bench/distill/cases bench/distill/scripts/b04.jsonl bench/distill/tools docs/distill/distill-b04-glm.md
 git commit -m "wip(distill): b04 存档"
 ```
 

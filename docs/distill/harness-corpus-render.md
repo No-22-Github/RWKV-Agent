@@ -5,10 +5,10 @@
 逐字节相同：System 块、工具回执、每步 post-tool 提醒、失败/RECOVERY 提示、重复拒绝、
 强制收尾块，全部来自同一份 Go 代码。
 
-背景：`tooling/workv1_wire.py` 按 [corpus-g1k-wire-format.md](corpus-g1k-wire-format.md)
+背景：`tooling/workv1_wire.py` 按 [corpus-g1k-wire-format.md](../corpus-g1k-wire-format.md)
 手写拼接，漏掉了 harness 在两次动作之间插入的 User 块（g1k 预设 `usermsg=split` 每次成功
 调用后都插 "Use the Tool results above…"），state 只在第 1 步见过训练分布
-（见 [state-lr-sweep 复核](evaluations/state-lr-sweep-20260923/REPORT.md) §8）。
+（见 [state-lr-sweep 复核](../evaluations/state-lr-sweep-20260923/REPORT.md) §8）。
 
 ## 组成
 
@@ -21,7 +21,7 @@
 | `rwkv-lab corpus paths` | teacher 跑出的 run → 脚本：筛通过、去重、限每题路径数、参数去默认值 |
 | `rwkv-lab corpus decontam` | 蒸馏题与测试题的相似度闸门 |
 
-工具侧是 [`internal/lab/corpus/`](../internal/lab/corpus/wire.go)，入口 `bin/rwkv-lab corpus <命令>`；
+工具侧是 [`internal/lab/corpus/`](../../internal/lab/corpus/wire.go)，入口 `bin/rwkv-lab corpus <命令>`；
 子模块分层为 `wire.go`（动作字节）/ `bank.go`（题库与 record）/ `script.go`（脚本格式，格式本体在
 `internal/agent/eval/script.go`）/ `runs.go`（读 run 目录，用 `eval.TraceRecord` 与 `agent.Step` 解析）/
 `decontam.go`（decontam 的特征与打分在 `internal/lab/similarity`），命令分发在 `cli.go`。
@@ -107,7 +107,7 @@ bin/rwkv-lab corpus render --cases bench/distill/cases \
 
 两者目的相反：测试题要**稳定、可区分、冻结**，蒸馏题要**覆盖、多样、量大**。混用会让跑分
 虚高——700 条的 36 个种子全部是 workbank 题（anchor 分支就是原题，b/r/v/x 为其变体），
-[state-lr-sweep](evaluations/state-lr-sweep-20260923/REPORT.md) 的 workbank 分数因此偏乐观。
+[state-lr-sweep](../evaluations/state-lr-sweep-20260923/REPORT.md) 的 workbank 分数因此偏乐观。
 
 | | 测试题（`bench/workbank`） | 蒸馏题（`bench/distill`，另建） |
 |---|---|---|

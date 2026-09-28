@@ -331,7 +331,7 @@ func TestLintFixBackfillsFixtureBytes(t *testing.T) {
 	}
 }
 
-// -- canary prefix and smalltalk (docs/distill-workflow.md §4.1, §4.3) --------
+// -- canary prefix and smalltalk (docs/distill/distill-workflow.md §4.1, §4.3) --------
 
 // distillCanaryPrefix is what the distillation tree replaces WORKBANK-CANARY
 // with: the test-bank canary means "never train on this" (§2.2).

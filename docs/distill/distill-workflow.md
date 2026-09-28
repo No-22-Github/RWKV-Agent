@@ -230,7 +230,7 @@ The decoy 7 counts rows, but the question asks for orders and the README says th
 你为 RWKV-Agent 的蒸馏题库出题。场景：<scenario>；本批题数：<n>；ID 从 <abbrev>-<起始号> 连续编号；
 task_type 配额：<§2.4 该行>；本场景要承担的行为指标：<§2.4 下表中分到本场景的份额>。
 
-必读：docs/distill-workflow.md §2 全部；bench/workbank/docs/authoring-guide.md；bench/workbank/docs/HANDOFF.md §2；
+必读：docs/distill/distill-workflow.md §2 全部；bench/workbank/docs/authoring-guide.md；bench/workbank/docs/HANDOFF.md §2；
 bench/workbank/docs/M0-findings.md §1/§2/§9；bench/workbank/docs/tag-vocab.json。
 禁读：bench/workbank/cases/、bench/workbank/cases-shelved/、bench/workbank/reports/、bench/workbank/ledger/、runs/。
 禁用 family 名：<黑名单>。
