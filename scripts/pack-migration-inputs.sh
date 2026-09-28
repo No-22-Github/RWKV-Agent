@@ -57,7 +57,7 @@ done
 # ---------------------------------------------------------------- 前置检查
 
 ROOT=$(pwd)
-if [ ! -f "$ROOT/go.mod" ] || [ ! -f "$ROOT/docs/go-tooling-migration.md" ]; then
+if [ ! -f "$ROOT/go.mod" ] || [ ! -f "$ROOT/docs/design/go-tooling-migration.md" ]; then
     echo "错误：请在仓库根目录运行（当前 $ROOT）" >&2
     exit 2
 fi
@@ -166,7 +166,7 @@ MANIFEST="$TMP/MIGRATION-INPUTS-MANIFEST.txt"
     echo "RWKV-Agent 迁移基线输入清单"
     echo "生成时间: $STAMP  主机: $HOST  模式: $MODE"
     echo "仓库 HEAD: $(git rev-parse HEAD 2>/dev/null || echo '?')"
-    echo "起点 commit: $(git log --format=%h --diff-filter=A -- docs/design/go-tooling-migration.md 2>/dev/null | tail -1)"
+    echo "起点 commit: $(git log --follow --format=%h --diff-filter=A -- docs/design/go-tooling-migration.md 2>/dev/null | tail -1)"
     echo
     echo "工作区状态（非空表示打包时仓库不干净，产物可能对不上起点 commit）："
     if [ -n "$(git status --porcelain 2>/dev/null)" ]; then

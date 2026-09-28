@@ -15,7 +15,8 @@
 | 产出 | 位置 |
 |---|---|
 | 题目（每题一个目录） | `bench/workbank/cases/<scenario>/<id>/` |
-| 出题手册 / 缺陷档案 / tag 词表 | `docs/workbank/` |
+| 出题手册 / 缺陷档案 | `docs/workbank/` |
+| tag 词表 | `bench/workbank/tag-vocab.json`（数据，`rwkv-lab bank lint` 默认读这里） |
 | 校验与统计脚本 | `bench/workbank/tools/` |
 | 跑分账本与报告 | `bench/workbank/ledger/`、`docs/workbank/reports/`（2026-09-28 前在 `bench/workbank/reports/`） |
 | harness 小改 | `internal/agent/eval`、`cmd/rwkv-cli`（§4，四项） |
