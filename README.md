@@ -26,7 +26,7 @@
 - 桌面 App：Wails V3 + React + Material Design 3，持久会话、工具轨迹、Web 重试
 - 评测：6 个内置 suite + 可复现 trace 产物
 
-第一次使用请直接看 [macOS 从零上手](docs/getting-started-macos.md)。
+第一次使用请直接看 [macOS 从零上手](docs/guides/getting-started-macos.md)。
 
 ## 目录
 
@@ -69,7 +69,7 @@ open -n "./dist/RWKV Agent.app" --args --workspace "$(pwd)"
   明细，以及 Web 工具的逐次重试（429/5xx 最多 5 次、指数退避、尊重 `Retry-After`）。
 - 自定义 HTTP header（例如 Cloudflare Access）与 macOS 系统代理支持。
 
-存储细节、配置说明和开发命令见 [docs/app.md](docs/app.md)。
+存储细节、配置说明和开发命令见 [docs/guides/app.md](docs/guides/app.md)。
 
 ## 2. 快速开始与构建
 
@@ -119,7 +119,7 @@ dist/
 ```
 
 `scripts/build-mlx.sh` 仍保留为兼容入口，会转发到 `build-macos.sh`。安装、运行、更新和
-常见错误见 [docs/getting-started-macos.md](docs/getting-started-macos.md)。
+常见错误见 [docs/guides/getting-started-macos.md](docs/guides/getting-started-macos.md)。
 
 ## 3. CLI 命令一览
 
@@ -356,7 +356,7 @@ Provider/runtime 层。
 当前 CLI `agent` 支持进程内多轮交互，但还没有自己的 transcript 保存/恢复；桌面 App 已
 通过公开 `api` 持久化会话与历史。上下文压缩、写文件审批和命令执行仍不在范围内。
 协议边界、工具权限与状态机设计见
-[docs/continuation-and-agent-protocol.md](docs/continuation-and-agent-protocol.md) 与历史里程碑
+[docs/design/continuation-and-agent-protocol.md](docs/design/continuation-and-agent-protocol.md) 与历史里程碑
 [docs/archive/agent-harness-milestone.md](docs/archive/agent-harness-milestone.md)。
 
 ## 7. 远程 Provider
@@ -372,7 +372,7 @@ Provider/runtime 层。
 
 仅接受上述四个明确标识。旧 `rwkv-lightning` 标识已删除，现有连接需重新选择 Python 或 CUDA。
 远端地址支持服务根地址、`/v1` 或完整 API 路径；停止参数和状态支持差异见
-[后端接口约定](docs/continuation-and-agent-protocol.md#4-cli)。
+[后端接口约定](docs/design/continuation-and-agent-protocol.md#4-cli)。
 
 ### rwkv_lightning 原生续写
 
@@ -500,7 +500,7 @@ go test -tags chatcompletions ./internal/continuation/chatcompletions \
   -run 'TestRemoteChatCompletions(NativeTool)?Integration' -v
 ```
 
-完整映射细节见 [docs/continuation-and-agent-protocol.md](docs/continuation-and-agent-protocol.md)。
+完整映射细节见 [docs/design/continuation-and-agent-protocol.md](docs/design/continuation-and-agent-protocol.md)。
 
 ## 8. Agent 评测
 
@@ -511,7 +511,7 @@ Router 基线；Primitive、BFCL 原始包装协议和 XML 对照各自保持独
 > 模型侧的全部参数（format/thinking/prefill/abstain/terminal/route/catalog/control/loop 等）
 > 现在由一份统一的 wire 配置描述，用 `--profile <preset>` 简写或 `--wire key=value,...` 长写选择；
 > 完整的参数表、旧参数对照、loop 默认值和远程部署注意事项见
-> [`docs/wire-configuration.md`](docs/wire-configuration.md)。
+> [`docs/guides/wire-configuration.md`](docs/guides/wire-configuration.md)。
 > `agent-eval --list-profiles` 列出注册点，`--explain-profile <spec>` 打印解析后的字节。
 
 | Suite | 内容 |
@@ -709,11 +709,11 @@ internal/
   conversation/       transcript、revision 与 session bundle
   inference/          推理核心、backend 抽象与调度
   native/             MLX FFI、converter、rwkvmobile 后端
-docs/                 上手、设计、协议、评测与归档文档
+docs/                 全部文档：guides/ 上手、design/ 设计与契约、distill/ 蒸馏、workbank/ 题库规则、evaluations/ 评测、archive/ 停更
+bench/                全部入库数据：workbank/ 与 distill/ 题库、老师脚本、archive/ 冻结基线（清单见 bench/README.md）
 native/               C ABI runtime 与 FFI 工程（librwkv_agent_runtime）
 scripts/              构建与测试脚本
 third_party/rwkv-mobile  固定 revision 的 tokenizer/sampler 上游（submodule）
-archive/              历史评测基线归档
 ```
 
 ## 12. 文档导航
@@ -721,9 +721,9 @@ archive/              历史评测基线归档
 | 分类 | 文档 |
 | --- | --- |
 | 总索引 | [项目文档、评测与跑分索引](INDEX.md) |
-| 上手 | [macOS 从零上手](docs/getting-started-macos.md) · [桌面 App](docs/app.md) |
-| 设计 | [推理核心设计](docs/inference-core-design.md) · [直接 PTH 加载](docs/direct-pth-loading.md) |
-| 协议与格式 | [工具与对话格式总览](docs/tool-and-wire-formats.md) · [G1K 语料契约](docs/corpus-g1k-wire-format.md) · [Wire 配置指南](docs/wire-configuration.md) · [续写与 Agent 协议](docs/continuation-and-agent-protocol.md) |
+| 上手 | [macOS 从零上手](docs/guides/getting-started-macos.md) · [桌面 App](docs/guides/app.md) |
+| 设计 | [推理核心设计](docs/design/inference-core-design.md) · [直接 PTH 加载](docs/design/direct-pth-loading.md) |
+| 协议与格式 | [工具与对话格式总览](docs/design/tool-and-wire-formats.md) · [G1K 语料契约](docs/design/corpus-g1k-wire-format.md) · [Wire 配置指南](docs/guides/wire-configuration.md) · [续写与 Agent 协议](docs/design/continuation-and-agent-protocol.md) |
 | 评测 | [docs/evaluations/](docs/evaluations/)（G1K 消融、60 题题集、偏好三部曲、BFCL 历史） |
 | 报告 | [docs/reports/](docs/reports/)（Harness 层优化报告中英版） |
 | 归档 | [docs/archive/](docs/archive/)（旧 Harness 里程碑、实施计划与验证文档） |

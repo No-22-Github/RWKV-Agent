@@ -6,7 +6,7 @@
 
 短期目标：从终端启动本地模型，完成可靠的多轮对话，并能够检查、重置、保存和恢复会话 State
 
-关联文档：[跨平台推理核心设计](../inference-core-design.md) · [macOS CLI 实施与验证记录](macos-cli-implementation-validation.md)
+关联文档：[跨平台推理核心设计](../design/inference-core-design.md) · [macOS CLI 实施与验证记录](macos-cli-implementation-validation.md)
 
 ## 1. 决策
 

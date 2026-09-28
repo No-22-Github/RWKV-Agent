@@ -1,5 +1,5 @@
 // Package labtest implements the comparison rules from
-// docs/go-tooling-migration.md §4.3 and the plumbing to run a migrated
+// docs/design/go-tooling-migration.md §4.3 and the plumbing to run a migrated
 // command against a recorded baseline.
 //
 // It exists because "the port is correct" is not a claim anyone can eyeball:

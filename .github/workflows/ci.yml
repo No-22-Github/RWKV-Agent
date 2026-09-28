@@ -57,6 +57,9 @@ jobs:
         env:
           CGO_ENABLED: "0"
 
+      - name: Check doc links
+        run: python3 scripts/check-doc-links.py
+
   frontend-test:
     name: Frontend test
     runs-on: ubuntu-latest

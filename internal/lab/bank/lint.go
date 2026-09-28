@@ -69,7 +69,7 @@ type trapEntry struct {
 // the summary goes to stderr, and the exit code is 1 when anything remains.
 func runLint(args []string) int {
 	fs := newFlagSet("bank lint",
-		"Validate workbank cases (schema v5) against docs/tag-vocab.json and the authoring rules.")
+		"Validate workbank cases (schema v5) against bench/workbank/tag-vocab.json and the authoring rules.")
 	casesRoot := fs.String("cases", DefaultCases(), "cases root directory")
 	var caseArgs stringList
 	fs.Var(&caseArgs, "case", "single case directory containing case.json (repeatable; overrides --cases)")

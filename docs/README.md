@@ -9,25 +9,26 @@
 
 | 文档 | 说明 |
 | --- | --- |
-| [getting-started-macos.md](getting-started-macos.md) | macOS 从零上手：环境、构建、模型准备、运行、更新与常见问题 |
-| [app.md](app.md) | Wails V3 桌面 App 与 headless server：构建、公开 API、持久化存储、配置与开发 |
+| [getting-started-macos.md](guides/getting-started-macos.md) | macOS 从零上手：环境、构建、模型准备、运行、更新与常见问题 |
+| [app.md](guides/app.md) | Wails V3 桌面 App 与 headless server：构建、公开 API、持久化存储、配置与开发 |
 
 ## 工具调用与对话格式 (Wire & Protocols)
 
 | 文档 | 说明 |
 | --- | --- |
-| [tool-and-wire-formats.md](tool-and-wire-formats.md) | **★ 工具格式与对话协议门户 ★**：RWKV 续写到 Agent 动作的分层、G1K 现行推荐、全景对比矩阵与演进历程 |
-| [corpus-g1k-wire-format.md](corpus-g1k-wire-format.md) | **数据侧逐字节契约**：G1K 对齐语料生产/清洗标准（System、`<tools>`、User `<tool_response>`、纯文本终答） |
-| [wire-configuration.md](wire-configuration.md) | **运行时配置指南**：Spec 参数全表、Profile 预设、CLI/API 统一入口（受单测锁守护） |
-| [continuation-and-agent-protocol.md](continuation-and-agent-protocol.md) | **架构与协议实现**：ActionProtocol、PromptRenderer 与 Provider 续写分层设计 |
+| [tool-and-wire-formats.md](design/tool-and-wire-formats.md) | **★ 工具格式与对话协议门户 ★**：RWKV 续写到 Agent 动作的分层、G1K 现行推荐、全景对比矩阵与演进历程 |
+| [corpus-g1k-wire-format.md](design/corpus-g1k-wire-format.md) | **数据侧逐字节契约**：G1K 对齐语料生产/清洗标准（System、`<tools>`、User `<tool_response>`、纯文本终答） |
+| [wire-configuration.md](guides/wire-configuration.md) | **运行时配置指南**：Spec 参数全表、Profile 预设、CLI/API 统一入口（受单测锁守护） |
+| [continuation-and-agent-protocol.md](design/continuation-and-agent-protocol.md) | **架构与协议实现**：ActionProtocol、PromptRenderer 与 Provider 续写分层设计 |
 
 ## 设计与底层架构
 
 | 文档 | 说明 |
 | --- | --- |
-| [inference-core-design.md](inference-core-design.md) | 跨平台推理核心设计：分层、对象生命周期、State 模型、调度与契约测试 |
-| [direct-pth-loading.md](direct-pth-loading.md) | 直接加载 `.pth`：mmap、索引缓存、转换链路 |
-| [go-tooling-migration.md](go-tooling-migration.md) | Python 实验工具迁移到 Go（`bin/rwkv-lab`）的对照表与验收记录 |
+| [inference-core-design.md](design/inference-core-design.md) | 跨平台推理核心设计：分层、对象生命周期、State 模型、调度与契约测试 |
+| [direct-pth-loading.md](design/direct-pth-loading.md) | 直接加载 `.pth`：mmap、索引缓存、转换链路 |
+| [go-tooling-migration.md](design/go-tooling-migration.md) | Python 实验工具迁移到 Go（`bin/rwkv-lab`）的对照表与验收记录 |
+| [preferences.md](design/preferences.md) | RWKV7-G1i 输出偏好与 Harness 工程规则总纲（原根目录 `PREFERENCES.md`） |
 
 ## 蒸馏语料与 State 训练（现行）
 
@@ -37,8 +38,24 @@
 | [distill/distill-allocation-v1.md](distill/distill-allocation-v1.md) | 加题分配 v1：b01–b03 的题型配额与行长约束（取代 workflow §2.4） |
 | [distill/distill-b04-glm.md](distill/distill-b04-glm.md) | b04 执行规格：子 Agent 用 `bench/distill/tools/step.py` 扮演 student，在真实 harness 里逐步解题（老师无法接入 harness 时的方案） |
 | [distill/harness-corpus-render.md](distill/harness-corpus-render.md) | 训练行只能由 harness 重放生成：`--script` 回放、多轮按轮切行、分集规则 |
-| [`../bench/distill/reports/`](../bench/distill/reports/) | 各批次报告：smoke、b01–b04 |
+| [distill/reports/](distill/reports/) | 各批次报告：smoke、b01–b04 |
 | [evaluations/distill-audit-20260926/REPORT.md](evaluations/distill-audit-20260926/REPORT.md) | 蒸馏数据审阅：判据 fail-open、stable_fact 实为本地检索、`tools: []` 名不副实；配套清洗说明 CLEANING.md |
+
+## workbank 手写题库（148 题，现行主测试集之一）
+
+题目、账本与工具在 [`../bench/workbank/`](../bench/workbank/)；这里是出题规则和历次报告。
+
+| 文档 | 说明 |
+| --- | --- |
+| [workbank/authoring-guide.md](workbank/authoring-guide.md) | **出题手册（最高权威）**：原则、陷阱、难度、反例库 |
+| [workbank/drafting-brief.md](workbank/drafting-brief.md) | 起草简报：每个起草 Agent 必读的硬规则 |
+| [workbank/HANDOFF.md](workbank/HANDOFF.md) | 题库建置交接文档：文件契约、工具目录、离线判分 |
+| [workbank/expansion-152-handoff.md](workbank/expansion-152-handoff.md) | 40 → 152 扩量实施规格 |
+| [workbank/M0-findings.md](workbank/M0-findings.md) | M0 核实结论：工具真实行为 |
+| [workbank/defect-archive.md](workbank/defect-archive.md) | 模型缺陷档案（失败模式词表） |
+| [workbank/solve-check-20260917.md](workbank/solve-check-20260917.md) | 试点求解检查归档 |
+| [workbank/changelog.md](workbank/changelog.md) | 题库变更记录 |
+| [workbank/reports/](workbank/reports/) | 30 份报告：closeout、失败诊断、判分审计、state A/B、扩量批次、剂量-反应等；机器可读数据在 `bench/workbank/reports-data/` |
 
 ## 现行评测基准
 
@@ -64,7 +81,7 @@
 - [06-r4-one-stage.md](evaluations/g1k-wire-ablation/06-r4-one-stage.md) | R4 两阶段合一（49/60，去 `<answer>` 包络，请求字节 −56%，采纳）
 
 ### [Harness 偏好重建三部曲 (2026-08-31)](evaluations/preference-rebuild-20260831/README.md)
-配套仓库根目录 [`PREFERENCES.md`](../PREFERENCES.md)：
+配套仓库根目录 [`docs/design/preferences.md`](design/preferences.md)：
 - [第一轮：偏好重建报告](evaluations/preference-rebuild-20260831/harness-preference-rebuild-report-20260831.md) | P1–P5 探针结论、16 条工程规则
 - [第二轮：量尺重建与重判](evaluations/preference-rebuild-20260831/harness-round2-report-20260831.md) | 题集校准、发现 4.5k–5k 长提取工作流悬崖
 - [第三轮：真实计数、压缩修复与检索纪律](evaluations/preference-rebuild-20260831/harness-round3-report-20260831.md) | 真词表计数器、Query-Aware 压缩修复
@@ -111,7 +128,8 @@
 
 ## 约定
 
-- `docs/distill/` 存放蒸馏语料的流程规格；批次报告、题库与老师脚本在 `bench/distill/`。
+- 文档只放 `docs/`：`guides/` 使用说明、`design/` 设计与契约、`distill/` 蒸馏流程与批次报告、`workbank/` 题库规则与报告、`evaluations/` 评测结论、`archive/` 停更材料。
+- 数据只放 `bench/`：题目、老师脚本、账本、冻结的跑分证据和报告附带的 json，清单见 [`../bench/README.md`](../bench/README.md)。
 - `docs/evaluations/` 存放实测数据、Benchmark 规范与消融报告；各专题以独立子目录归档。
 - `docs/reports/` 存放长报告（HTML/PDF 等）。
 - `docs/archive/` 只归档、不再维护；其中过时的协议描述不应作为当前行为依据。

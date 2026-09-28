@@ -40,7 +40,7 @@ S1 起草 ──► S2 静态闸门 ──► S3 去污染 ──► S4 老师�
 | `bench/distill/batches.jsonl` | 每批一行：批号、题 ID 列表、起草模型、老师模型与参数、commit | 是 |
 | `bench/distill/exclude.jsonl` | 抽检剔除的路径：`{"case_id":"tab-5003--p1","reason":"…","batch":"b01"}` | 是 |
 | `bench/distill/scripts/<batch>.jsonl` | `corpus paths` 的产物（老师动作脚本），各批次渲染实际用的那一份；说明见该目录 README | **是**（2026-09-25 用户拍板） |
-| `bench/distill/reports/<batch>.md` | 批次报告（§3 S7） | 是 |
+| `docs/distill/reports/<batch>.md` | 批次报告（§3 S7） | 是 |
 | `runs/distill/<batch>/…` | 老师 run、render 产物、rows | 否（`runs/` 已 gitignore） |
 | `runs/distill/dataset-YYYYMMDD/` | 最终训练集 | 否 |
 
@@ -57,11 +57,11 @@ S1 起草 ──► S2 静态闸门 ──► S3 去污染 ──► S4 老师�
 
 出题规范**沿用 workbank 全套**，以下三份是最高权威，起草前必须通读：
 
-- `bench/workbank/docs/authoring-guide.md`：题型清单 §2、陷阱目录 §3、难度规则 §4、tag 词表 §5、表面多样性 §6、NOTES 格式 §7、反例库 §8（X-001～X-012 每条都是真实翻过车的）
-- `bench/workbank/docs/HANDOFF.md` §2：`case.json` schema v5 的字段契约与完整样例
-- `bench/workbank/docs/M0-findings.md` §1/§2/§9：工具的真实行为（`data_query` 不解析 `$1,234.50`、`read_file` 64KB 截断等）
+- `docs/workbank/authoring-guide.md`：题型清单 §2、陷阱目录 §3、难度规则 §4、tag 词表 §5、表面多样性 §6、NOTES 格式 §7、反例库 §8（X-001～X-012 每条都是真实翻过车的）
+- `docs/workbank/HANDOFF.md` §2：`case.json` schema v5 的字段契约与完整样例
+- `docs/workbank/M0-findings.md` §1/§2/§9：工具的真实行为（`data_query` 不解析 `$1,234.50`、`read_file` 64KB 截断等）
 
-机器可读枚举：`bench/workbank/docs/tag-vocab.json`（**只读引用，不复制**。复制会让两份词表漂移，而 lint 按词表判合法）。
+机器可读枚举：`bench/workbank/tag-vocab.json`（**只读引用，不复制**。复制会让两份词表漂移，而 lint 按词表判合法）。
 
 本节只写**蒸馏题与测试题不同的地方**。
 
@@ -70,7 +70,7 @@ S1 起草 ──► S2 静态闸门 ──► S3 去污染 ──► S4 老师�
 | 起草子 Agent **可以读** | **不得读** |
 |---|---|
 | 上面三份文档、`tag-vocab.json` | `bench/workbank/cases/`、`bench/workbank/cases-shelved/` 下任何文件 |
-| 格式样例：本文 §2.5；`bench/workbank/tools/testdata/tabular/tab-9001/`、`…/web/web-9001/` | `bench/workbank/reports/`、`bench/workbank/ledger/`（里面引用了题面与答案） |
+| 格式样例：本文 §2.5；`bench/workbank/tools/testdata/tabular/tab-9001/`、`…/web/web-9001/` | `docs/workbank/reports/`、`bench/workbank/reports-data/`、`bench/workbank/ledger/`（里面引用了题面与答案；报告 2026-09-28 从 `bench/workbank/reports/` 移入 `docs/`） |
 | 已入库的 `bench/distill/cases/`（查重、避免撞名） | `runs/` 下任何 trace（跑的都是测试题）；`datasets/workspace-agent-700-20260920/`（workbank 种子题的变体） |
 
 理由：decontam 只能按表面文本比对（prompt 5-gram、fixture 行、专有名），「换名换数、同一骨架」的变体会漏过去。
@@ -230,9 +230,9 @@ The decoy 7 counts rows, but the question asks for orders and the README says th
 你为 RWKV-Agent 的蒸馏题库出题。场景：<scenario>；本批题数：<n>；ID 从 <abbrev>-<起始号> 连续编号；
 task_type 配额：<§2.4 该行>；本场景要承担的行为指标：<§2.4 下表中分到本场景的份额>。
 
-必读：docs/distill/distill-workflow.md §2 全部；bench/workbank/docs/authoring-guide.md；bench/workbank/docs/HANDOFF.md §2；
-bench/workbank/docs/M0-findings.md §1/§2/§9；bench/workbank/docs/tag-vocab.json。
-禁读：bench/workbank/cases/、bench/workbank/cases-shelved/、bench/workbank/reports/、bench/workbank/ledger/、runs/。
+必读：docs/distill/distill-workflow.md §2 全部；docs/workbank/authoring-guide.md；docs/workbank/HANDOFF.md §2；
+docs/workbank/M0-findings.md §1/§2/§9；bench/workbank/tag-vocab.json。
+禁读：bench/workbank/cases/、bench/workbank/cases-shelved/、docs/workbank/reports/、bench/workbank/reports-data/、bench/workbank/ledger/、runs/。
 禁用 family 名：<黑名单>。
 
 每题写 bench/distill/cases/<scenario>/<id>/{case.json,verify.py,NOTES.md}。
@@ -308,7 +308,7 @@ done
 
 | 参数 | 值 | 不许动的理由 |
 |---|---|---|
-| `--temperature` | 0.3 | **DeepSeek-flash 不能用 0**：T=0 五轮作废数 14→40，出现大量 UNKNOWN 早退和不调 web_search（`bench/workbank/reports/dsflash-baseline-2026-09-22.md` §2）。T=0.3 同时给出 k 次之间的路径多样性 |
+| `--temperature` | 0.3 | **DeepSeek-flash 不能用 0**：T=0 五轮作废数 14→40，出现大量 UNKNOWN 早退和不调 web_search（`docs/workbank/reports/dsflash-baseline-2026-09-22.md` §2）。T=0.3 同时给出 k 次之间的路径多样性 |
 | `--tool-catalog work-v1 --file-tools lines` | 固定 | 必须与 S6 render 的默认值一致。老师用了 student 没有的工具或参数形状，重放时会全部被拒 |
 | `--max-steps 16` | 固定 | 与 student 预算相同。更长的老师路径在 student 预算下本来就不可复现 |
 | `--decision-max-tokens 8192` | 固定 | dsflash 基线的设置；老师输出被截断会变成协议错误，白白浪费一次运行 |
@@ -366,7 +366,7 @@ bin/rwkv-lab corpus render --cases bench/distill/cases --script runs/distill/$B/
    - 随机 20 行（`meta.case_id` 均匀覆盖场景）；
    - **加上**所有判据为 `output_contains_any` 的题的全部行（TR-AMBIG 第 1 轮、TR-NOCAP、explain_readonly 等），这些题判分器只查关键词。
    - 查：终答是否真的对、反问是否真在问该问的东西、拒绝是否给了理由、有没有答非所问却撞上关键词。不合格的写进 `bench/distill/exclude.jsonl`，**不得手改 rows 或 script**。
-4. **报告** `bench/distill/reports/$B.md`，必须包含：题数（入库 / 下架）、pass@3 分布、0/3 分诊表（ID、归类 ①②③、处置）、
+4. **报告** `docs/distill/reports/$B.md`，必须包含：题数（入库 / 下架）、pass@3 分布、0/3 分诊表（ID、归类 ①②③、处置）、
    paths 丢弃原因计数、render 行数与拒绝原因、零调用行占比、抽检行数与剔除数、`wire_hash`、`bin/rwkv-cli` sha256、git commit。
 5. **提交**：分支 `distill/$B`，提交 `bench/distill/cases*`、`batches.jsonl`、`exclude.jsonl`、`reports/$B.md`；不提交 `runs/`。
 
@@ -430,7 +430,7 @@ rwkv-lab corpus pack --rows <rows.jsonl> [--rows …] [--exclude <jsonl>] (--out
 
 改造：
 
-- `bench/workbank/docs/tag-vocab.json` 的 notool 场景下加 task_type `smalltalk`（纯增量；workbank 没有这类题，lint 结果不变），`authoring-guide.md` §2 的表同步登记。
+- `bench/workbank/tag-vocab.json` 的 notool 场景下加 task_type `smalltalk`（纯增量；workbank 没有这类题，lint 结果不变），`authoring-guide.md` §2 的表同步登记。
 - lint 对 `task_type == "smalltalk"`：**禁止**出现答案契约（出现就报 `answer_contract.smalltalk`）；不要求 verify.py；允许 `trap_decoys` 为 null；
   **要求**每轮 `expect` 同时有 `"tools": []`、`"require_active_no_call": true` 和非空的 `output_contains_any`。
 - 测试：`nt-5001..5005` 在 `--canary-prefix DISTILL-CANARY` 下 0 违规；**负向**：给 nt-5001 加上答案契约必须报错；删掉 nt-5001 的 `output_contains_any` 必须报错。

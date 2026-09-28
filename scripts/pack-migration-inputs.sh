@@ -2,7 +2,7 @@
 #
 # pack-migration-inputs.sh — 打包 Python→Go 工具迁移所需的**历史产物**。
 #
-# 背景：docs/go-tooling-migration.md §2.3 的 M0 基线要在**起点 commit 的工作树**里跑
+# 背景：docs/design/go-tooling-migration.md §2.3 的 M0 基线要在**起点 commit 的工作树**里跑
 # 20 条旧命令，把输出存成基线，迁移后逐条对比。工具本身在 git 里，但输入（runs/、
 # datasets/、state_output/、outputs/）都被 gitignore，只在作者的 macOS 上。这个脚本
 # 把输入打成一个包，拷到开发 VPS 后解压到仓库根目录即可。
@@ -166,7 +166,7 @@ MANIFEST="$TMP/MIGRATION-INPUTS-MANIFEST.txt"
     echo "RWKV-Agent 迁移基线输入清单"
     echo "生成时间: $STAMP  主机: $HOST  模式: $MODE"
     echo "仓库 HEAD: $(git rev-parse HEAD 2>/dev/null || echo '?')"
-    echo "起点 commit: $(git log --format=%h --diff-filter=A -- docs/go-tooling-migration.md 2>/dev/null | tail -1)"
+    echo "起点 commit: $(git log --format=%h --diff-filter=A -- docs/design/go-tooling-migration.md 2>/dev/null | tail -1)"
     echo
     echo "工作区状态（非空表示打包时仓库不干净，产物可能对不上起点 commit）："
     if [ -n "$(git status --porcelain 2>/dev/null)" ]; then

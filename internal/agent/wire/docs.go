@@ -7,7 +7,7 @@ import (
 
 // DocsMarkdown renders the profile table, the axis domain and the recovery
 // vocabulary from the registry and the enums. It is embedded between the
-// generated markers in docs/wire-configuration.md and compared by a test, so a
+// generated markers in docs/guides/wire-configuration.md and compared by a test, so a
 // new preset, axis value or repair ID cannot land without the documentation
 // following.
 func DocsMarkdown() string {

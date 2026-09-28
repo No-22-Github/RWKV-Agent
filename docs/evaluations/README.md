@@ -21,7 +21,7 @@
 - **分轮报告**：包含 `00-r0-baseline`、`01-r1-align`、`02-r1.5-probe-nocall`、`03-exit-notool`、`04-r2-cutoff-rules`、`05-r3-bare`、`06-r4-one-stage` 逐轮严密因果记录。
 
 ### 2. [Harness 偏好重建三部曲 (2026-08-31)](preference-rebuild-20260831/README.md)
-配套仓库根目录 [`PREFERENCES.md`](../../PREFERENCES.md)，记录围绕 `rwkv7-g1i-7.2b` 输出偏好重建 Harness 的全过程：
+配套仓库根目录 [`docs/design/preferences.md`](../design/preferences.md)，记录围绕 `rwkv7-g1i-7.2b` 输出偏好重建 Harness 的全过程：
 - [第一轮：偏好测绘报告](preference-rebuild-20260831/harness-preference-rebuild-report-20260831.md)（P1–P5 探针、16 条工程规则）
 - [第二轮：量尺重建与重判](preference-rebuild-20260831/harness-round2-report-20260831.md)（题集校准、4.5k–5k 长提取悬崖）
 - [第三轮：真实计数、压缩修复与检索纪律](preference-rebuild-20260831/harness-round3-report-20260831.md)（真词表计数、Query-Aware 压缩）

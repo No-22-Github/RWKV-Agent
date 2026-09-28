@@ -28,7 +28,7 @@ Agent Runner
 > control / loop 等全部模型侧参数由 `internal/agent/wire.Spec` 描述。CLI 用
 > `--profile <preset>`（简写）或 `--wire key=value,...`（长写）选择，两者归一化成同一个
 > canonical/hash 并写入 `run.json`。完整参数表与旧参数对照见
-> [`wire-configuration.md`](wire-configuration.md)。
+> [`wire-configuration.md`](../guides/wire-configuration.md)。
 
 | Profile | 动作协议 / renderer | 用途与终止语义 |
 | --- | --- | --- |

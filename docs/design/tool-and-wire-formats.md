@@ -25,10 +25,10 @@ Agent Runner (业务循环调度)
 
 | 关注维度 | 推荐入口 | 核心内容与受众 |
 | --- | --- | --- |
-| **语料生产与清洗** | [`docs/corpus-g1k-wire-format.md`](corpus-g1k-wire-format.md) | **数据侧逐字节契约**：System 模板、`<tools>` JSON 目录、三种 Assistant 动作、User 轮工具结果、单阶段纯文本终答、新旧形状对照表 |
-| **消融实验与实测证据** | [`docs/evaluations/g1k-wire-ablation/wire-ablation-g1k-summary-20260915.md`](evaluations/g1k-wire-ablation/wire-ablation-g1k-summary-20260915.md) | **G1K 格式消融总结**：R0–R4 逐轮实测、三条核心教训、跨套件分数卡（40→49 题，请求字节 −56%）、4 条语料靶子 |
-| **运行时配置与 CLI 选项** | [`docs/wire-configuration.md`](wire-configuration.md) | **Wire Spec 参数全表**：`--profile` 预设点、`--wire key=value` 覆写轴、canonical 归一化规范（受 Go 单元测试严格守护） |
-| **架构与协议实现** | [`docs/continuation-and-agent-protocol.md`](continuation-and-agent-protocol.md) | **Go 接口分层与生命周期**：ActionProtocol、PromptRenderer 与本地/远程 Provider 的映射边界 |
+| **语料生产与清洗** | [`docs/design/corpus-g1k-wire-format.md`](corpus-g1k-wire-format.md) | **数据侧逐字节契约**：System 模板、`<tools>` JSON 目录、三种 Assistant 动作、User 轮工具结果、单阶段纯文本终答、新旧形状对照表 |
+| **消融实验与实测证据** | [`docs/evaluations/g1k-wire-ablation/wire-ablation-g1k-summary-20260915.md`](../evaluations/g1k-wire-ablation/wire-ablation-g1k-summary-20260915.md) | **G1K 格式消融总结**：R0–R4 逐轮实测、三条核心教训、跨套件分数卡（40→49 题，请求字节 −56%）、4 条语料靶子 |
+| **运行时配置与 CLI 选项** | [`docs/guides/wire-configuration.md`](../guides/wire-configuration.md) | **Wire Spec 参数全表**：`--profile` 预设点、`--wire key=value` 覆写轴、canonical 归一化规范（受 Go 单元测试严格守护） |
+| **架构与协议实现** | [`docs/design/continuation-and-agent-protocol.md`](continuation-and-agent-protocol.md) | **Go 接口分层与生命周期**：ActionProtocol、PromptRenderer 与本地/远程 Provider 的映射边界 |
 
 ---
 

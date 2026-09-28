@@ -52,7 +52,7 @@ type ProductHarnessConfig struct {
 	PostToolHook        func(string, json.RawMessage, any, error) string
 	Observe             func(Event)
 	// CompressFetch enables query-aware compression of long web_fetch results
-	// before they enter the transcript (PREFERENCES.md P5-1..P5-3).
+	// before they enter the transcript (docs/design/preferences.md P5-1..P5-3).
 	CompressFetch bool
 	// TokenCount counts tokens with the real World vocabulary (round-3 step 1);
 	// nil keeps the compression hook off. See agent.Options.TokenCount.
@@ -126,7 +126,7 @@ type XMLHarnessConfig struct {
 	// Only the XML protocol carries them.
 	FewShot bool
 	// CompressFetch enables query-aware compression of long web_fetch results
-	// before they enter the transcript (PREFERENCES.md P5-1..P5-3).
+	// before they enter the transcript (docs/design/preferences.md P5-1..P5-3).
 	CompressFetch bool
 	// TokenCount counts tokens with the real World vocabulary (round-3 step 1);
 	// nil keeps the compression hook off. See agent.Options.TokenCount.

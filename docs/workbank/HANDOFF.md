@@ -1,7 +1,7 @@
 # workbank —— 在 RWKV-Agent 现有 eval 里建手写题库（交接文档）
 
 > 给本地编码 Agent。**加粗「不得」** 是硬约束，附理由。
-> 配套两份参考资料：`authoring-guide.md`（出题手册）、`defect-archive.md`（模型缺陷档案骨架）。三份一起放进 `bench/workbank/docs/`。
+> 配套两份参考资料：`authoring-guide.md`（出题手册）、`defect-archive.md`（模型缺陷档案骨架）。三份一起放进 `docs/workbank/`。
 > 本文件取代之前的 `work-bank-v0-handoff.md`（那份是模板代码生成路线，已废弃）。
 
 ## 0. 目标
@@ -15,9 +15,9 @@
 | 产出 | 位置 |
 |---|---|
 | 题目（每题一个目录） | `bench/workbank/cases/<scenario>/<id>/` |
-| 出题手册 / 缺陷档案 / tag 词表 | `bench/workbank/docs/` |
+| 出题手册 / 缺陷档案 / tag 词表 | `docs/workbank/` |
 | 校验与统计脚本 | `bench/workbank/tools/` |
-| 跑分账本与报告 | `bench/workbank/ledger/`、`bench/workbank/reports/` |
+| 跑分账本与报告 | `bench/workbank/ledger/`、`docs/workbank/reports/`（2026-09-28 前在 `bench/workbank/reports/`） |
 | harness 小改 | `internal/agent/eval`、`cmd/rwkv-cli`（§4，四项） |
 
 Python 脚本用 uv 在 `bench/workbank/` 下建 venv，不用系统 Python。

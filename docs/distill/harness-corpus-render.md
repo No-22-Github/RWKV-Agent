@@ -5,7 +5,7 @@
 逐字节相同：System 块、工具回执、每步 post-tool 提醒、失败/RECOVERY 提示、重复拒绝、
 强制收尾块，全部来自同一份 Go 代码。
 
-背景：`tooling/workv1_wire.py` 按 [corpus-g1k-wire-format.md](../corpus-g1k-wire-format.md)
+背景：`tooling/workv1_wire.py` 按 [corpus-g1k-wire-format.md](../design/corpus-g1k-wire-format.md)
 手写拼接，漏掉了 harness 在两次动作之间插入的 User 块（g1k 预设 `usermsg=split` 每次成功
 调用后都插 "Use the Tool results above…"），state 只在第 1 步见过训练分布
 （见 [state-lr-sweep 复核](../evaluations/state-lr-sweep-20260923/REPORT.md) §8）。
@@ -27,7 +27,7 @@
 `decontam.go`（decontam 的特征与打分在 `internal/lab/similarity`），命令分发在 `cli.go`。
 单测：`go test ./internal/lab/corpus/`。
 （2026-09-24 先由三个一次性脚本拆成 Python 包，同日再整体迁到 Go：Python 版与独立的切行命令
-都已删除，迁移后的输出与 Python 版逐字节一致，见 docs/go-tooling-migration.md。）
+都已删除，迁移后的输出与 Python 版逐字节一致，见 docs/design/go-tooling-migration.md。）
 
 ## 用法
 

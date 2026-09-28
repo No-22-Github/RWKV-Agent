@@ -26,7 +26,7 @@ Feature highlights:
 - Desktop app: Wails V3 + React + Material Design 3, persistent conversations, tool trajectories, web retries
 - Evaluation: 6 built-in suites with reproducible trace artifacts
 
-For a first run, follow [macOS from scratch](docs/getting-started-macos.md) (in Chinese).
+For a first run, follow [macOS from scratch](docs/guides/getting-started-macos.md) (in Chinese).
 
 ## Table of Contents
 
@@ -74,7 +74,7 @@ Building the app additionally requires Node.js 26 and pnpm 11 (CI uses the same 
 - Supports arbitrary HTTP headers (for example Cloudflare Access) and macOS system
   proxy settings.
 
-See [docs/app.md](docs/app.md) for storage details, setup, and development commands.
+See [docs/guides/app.md](docs/guides/app.md) for storage details, setup, and development commands.
 
 ## 2. Quick Start and Build
 
@@ -127,7 +127,7 @@ dist/
 
 `scripts/build-mlx.sh` remains as a compatibility entry point that forwards to
 `build-macos.sh`. Installation, running, updates, and troubleshooting are documented in
-[docs/getting-started-macos.md](docs/getting-started-macos.md).
+[docs/guides/getting-started-macos.md](docs/guides/getting-started-macos.md).
 
 ## 3. CLI Command Overview
 
@@ -391,7 +391,7 @@ The CLI `agent` supports in-process multi-turn interaction but does not yet pers
 own transcripts; the desktop app persists conversations and history through the public
 `api`. Context compaction, write-file approval, and command execution remain out of
 scope. Protocol boundaries, tool permissions, and the state machine are described in
-[docs/continuation-and-agent-protocol.md](docs/continuation-and-agent-protocol.md) and historical milestone
+[docs/design/continuation-and-agent-protocol.md](docs/design/continuation-and-agent-protocol.md) and historical milestone
 [docs/archive/agent-harness-milestone.md](docs/archive/agent-harness-milestone.md).
 
 ## 7. Remote Providers
@@ -494,7 +494,7 @@ go test -tags chatcompletions ./internal/continuation/chatcompletions \
   -run 'TestRemoteChatCompletions(NativeTool)?Integration' -v
 ```
 
-See [docs/continuation-and-agent-protocol.md](docs/continuation-and-agent-protocol.md)
+See [docs/design/continuation-and-agent-protocol.md](docs/design/continuation-and-agent-protocol.md)
 for the complete mapping details.
 
 ## 8. Agent Evaluation
@@ -726,11 +726,11 @@ internal/
   conversation/       Transcript, revisions, and session bundles
   inference/          Inference core, backend abstraction, scheduling
   native/             MLX FFI, converter, rwkvmobile backend
-docs/                 Getting-started, design, protocol, evaluation, and archive docs
+docs/                 All docs: guides/, design/, distill/, workbank/, evaluations/, archive/
+bench/                All tracked data: workbank/ and distill/ cases, teacher scripts, archive/ frozen baselines (see bench/README.md)
 native/               C ABI runtime and FFI projects (librwkv_agent_runtime)
 scripts/              Build and test scripts
 third_party/rwkv-mobile  Pinned tokenizer/sampler upstream (submodule)
-archive/              Archived evaluation baselines
 ```
 
 ## 12. Documentation Map
@@ -738,9 +738,9 @@ archive/              Archived evaluation baselines
 | Category | Documents |
 | --- | --- |
 | Project index | [Documentation, evaluations, and run artifacts](INDEX.md) |
-| Getting started | [macOS from scratch](docs/getting-started-macos.md) · [Desktop app](docs/app.md) |
-| Design | [Inference core design](docs/inference-core-design.md) · [Direct PTH loading](docs/direct-pth-loading.md) |
-| Wire & Protocol | [Tool and Wire Formats](docs/tool-and-wire-formats.md) · [G1K Corpus Contract](docs/corpus-g1k-wire-format.md) · [Wire Configuration](docs/wire-configuration.md) · [Continuation & Agent Protocol](docs/continuation-and-agent-protocol.md) |
+| Getting started | [macOS from scratch](docs/guides/getting-started-macos.md) · [Desktop app](docs/guides/app.md) |
+| Design | [Inference core design](docs/design/inference-core-design.md) · [Direct PTH loading](docs/design/direct-pth-loading.md) |
+| Wire & Protocol | [Tool and Wire Formats](docs/design/tool-and-wire-formats.md) · [G1K Corpus Contract](docs/design/corpus-g1k-wire-format.md) · [Wire Configuration](docs/guides/wire-configuration.md) · [Continuation & Agent Protocol](docs/design/continuation-and-agent-protocol.md) |
 | Evaluations | [docs/evaluations/](docs/evaluations/) (G1K ablation, 60-case product suite, preference rebuild trilogy, historical BFCL) |
 | Reports | [docs/reports/](docs/reports/) (Harness-layer optimization reports, CN/EN) |
 | Archive | [docs/archive/](docs/archive/) (legacy harness milestone, implementation plans, and validation notes) |

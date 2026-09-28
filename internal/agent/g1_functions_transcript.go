@@ -57,7 +57,7 @@ func (protocol G1FunctionProtocol) FormatToolResult(toolName string, _ string, p
 }
 
 // renderSubagentResults formats spawn_agents payloads as one labeled block per
-// sub-agent. P4 probes (PREFERENCES.md P4-1)
+// sub-agent. P4 probes (docs/design/preferences.md P4-1)
 // measured a strong recency bias: with two raw-JSON sub-agent results fed back
 // sequentially the parent adopted the wrong (most recent) result 60-70% of the
 // time when the correct one came first, and P4-4/P3-1 showed that merging into

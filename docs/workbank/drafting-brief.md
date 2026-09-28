@@ -2,9 +2,9 @@
 
 > 你的任务：为本 scenario 起草 4 道题（L0×1、L1×2、L2×1），每题一个目录：
 > `bench/workbank/cases/<scenario>/<id>/`，内含 `case.json`、`verify.py`、`NOTES.md`。
-> 这三份文件的契约在 `docs/HANDOFF.md` §2，出题法则在 `docs/authoring-guide.md`（最高权威），
-> 工具真实行为在 `docs/M0-findings.md` §1/§2/§9。开工前先通读这三份。
-> 机器可读枚举：`docs/tag-vocab.json`。合法样例：`tools/testdata/tabular/tab-9001/`、`tools/testdata/web/web-9001/`。
+> 这三份文件的契约在 `HANDOFF.md` §2，出题法则在 `authoring-guide.md`（最高权威），
+> 工具真实行为在 `M0-findings.md` §1/§2/§9。开工前先通读这三份。
+> 机器可读枚举：`bench/workbank/tag-vocab.json`。合法样例：`tools/testdata/tabular/tab-9001/`、`tools/testdata/web/web-9001/`。
 
 ## 1. 硬规则（lint.py 会逐一检查，违反即打回）
 

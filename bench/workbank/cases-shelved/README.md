@@ -38,7 +38,7 @@
 
 ## 配额缺口（有意留着，提醒后续补题或改配额）
 
-`docs/tag-vocab.json` 的场景配额未随下架调整，所以 `coverage.py` 会报缺口：
+`bench/workbank/tag-vocab.json` 的场景配额未随下架调整，所以 `coverage.py` 会报缺口：
 
 - `logs` 20 → **17**（下架 3 道）
 - `filesystem` 12 → **11**（下架 1 道）

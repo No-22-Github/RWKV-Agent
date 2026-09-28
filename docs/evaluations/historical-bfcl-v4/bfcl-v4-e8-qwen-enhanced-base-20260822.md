@@ -73,7 +73,7 @@ enhanced 的 200 题全部触发 route decision。以下同时记录事件总数
 - 合并 result SHA-256：`499ce416c15262d08801a89038258a29aec862681759e2e1584a5d06fb87d87e`
 - 官方 score JSONL SHA-256：`74bdbbc24a0c8d4a95f42dadd31b38b3cb978edd393f15571aa1f098177d694c`
 - 本地完整运行：`runs/bfcl-mt/e8-qwen-enhanced-multi_turn_base-20260821`
-- Git 归档：`archive/bfcl-v4-e8-qwen-enhanced-base-20260822/`
+- Git 归档：`bench/archive/bfcl-v4-e8-qwen-enhanced-base-20260822/`
 
 归档脚本会验证 200 个 case 的 ID、配置、summary、trace 和 result，再按自然 ID 顺序合并：
 

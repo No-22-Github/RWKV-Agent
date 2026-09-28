@@ -11,7 +11,7 @@ description: 在 RWKV-Agent 仓库里做正式跑分的检查单——RWKV 模�
 
 写下：被测对象、对照组、主指标（默认 workbank strict task_success）、判定规则。
 这是选择型实验（挑采样档、挑格式）时，把这些写进 `docs/evaluations/<topic>-YYYYMMDD/PLAN.md` **再**开跑。
-先翻 `runs/` 和 `bench/workbank/reports/` 看这个模型/端点以前怎么跑的——DeepSeek 贪心崩溃那次，
+先翻 `runs/` 和 `docs/workbank/reports/` 看这个模型/端点以前怎么跑的——DeepSeek 贪心崩溃那次，
 证据早就在 `runs/` 里，没人翻。
 
 ## 1. 二进制

@@ -4,7 +4,7 @@
 
 ## cfg-0001 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/config/cfg-0001/case.json)
+[原题与判据](../../../bench/workbank/cases/config/cfg-0001/case.json)
 
 - 动作顺序：`1:web_search → 2:web_search → 3:web_search → 4:tool[answer] → 5:tool[answer]`
 - 强制收尾原因：`duplicate_tool_call`
@@ -24,7 +24,7 @@
 
 ## cfg-0002 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/config/cfg-0002/case.json)
+[原题与判据](../../../bench/workbank/cases/config/cfg-0002/case.json)
 
 - 动作顺序：`1:web_search → 2:web_search → 3:web_search → 4:tool[answer] → 5:tool[answer]`
 - 强制收尾原因：`duplicate_tool_call`
@@ -44,7 +44,7 @@
 
 ## cfg-0003 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/config/cfg-0003/case.json)
+[原题与判据](../../../bench/workbank/cases/config/cfg-0003/case.json)
 
 - 动作顺序：`1:tenant_settings → 2:web_search → 3:web_search → 4:web_search → 5:tool[answer] → 6:tool[answer]`
 - 强制收尾原因：`duplicate_tool_call`
@@ -64,7 +64,7 @@ yes
 
 ## cfg-0004 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/config/cfg-0004/case.json)
+[原题与判据](../../../bench/workbank/cases/config/cfg-0004/case.json)
 
 - 动作顺序：`1:final`
 - 强制收尾原因：`无`
@@ -80,7 +80,7 @@ I could not provide a reliable answer because the model output violated the answ
 
 ## code-0001 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/code/code-0001/case.json)
+[原题与判据](../../../bench/workbank/cases/code/code-0001/case.json)
 
 - 动作顺序：`1:web_search → 2:web_search → 3:web_search → 4:tool[answer] → 5:tool[answer]`
 - 强制收尾原因：`duplicate_tool_call`
@@ -100,7 +100,7 @@ I could not provide a reliable answer because the model output violated the answ
 
 ## code-0002 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/code/code-0002/case.json)
+[原题与判据](../../../bench/workbank/cases/code/code-0002/case.json)
 
 - 动作顺序：`1:read_file → 2:calculator → 3:calculator → 4:calculator → 5:calculator → 6:calculator → 7:calculator → 8:calculator → 9:calculator → 10:no_tool[answer]`
 - 强制收尾原因：`step_budget_after_tool_attempt`
@@ -120,7 +120,7 @@ The console tail shows 2 failed and 1 skipped. The answer is 2 failed, 1 skipped
 
 ## code-0003 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/code/code-0003/case.json)
+[原题与判据](../../../bench/workbank/cases/code/code-0003/case.json)
 
 - 动作顺序：`1:search_text → 2:list_files → 3:search_text → 4:tool[answer] → 5:tool[answer]`
 - 强制收尾原因：`duplicate_tool_call`
@@ -140,7 +140,7 @@ The console tail shows 2 failed and 1 skipped. The answer is 2 failed, 1 skipped
 
 ## code-0004 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/code/code-0004/case.json)
+[原题与判据](../../../bench/workbank/cases/code/code-0004/case.json)
 
 - 动作顺序：`1:search_text → 2:list_files → 3:list_files → 4:tool[answer] → 5:tool[answer]`
 - 强制收尾原因：`duplicate_tool_call`
@@ -160,7 +160,7 @@ The console tail shows 2 failed and 1 skipped. The answer is 2 failed, 1 skipped
 
 ## doc-0001 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/docs/doc-0001/case.json)
+[原题与判据](../../../bench/workbank/cases/docs/doc-0001/case.json)
 
 - 动作顺序：`1:read_file → 2:list_files → 3:read_file → 4:read_file → 5:no_tool[answer]`
 - 强制收尾原因：`duplicate_tool_call`
@@ -180,7 +180,7 @@ The file is created and the task is complete.
 
 ## doc-0002 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/docs/doc-0002/case.json)
+[原题与判据](../../../bench/workbank/cases/docs/doc-0002/case.json)
 
 - 动作顺序：`1:data_query → 2:web_search → 3:web_search → 4:web_search → 5:tool[answer] → 6:tool[answer]`
 - 强制收尾原因：`duplicate_tool_call`
@@ -200,7 +200,7 @@ The file is created and the task is complete.
 
 ## doc-0003 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/docs/doc-0003/case.json)
+[原题与判据](../../../bench/workbank/cases/docs/doc-0003/case.json)
 
 - 动作顺序：`1:search_text → 2:read_file → 3:read_file → 4:list_files → 5:read_file → 6:search_text → 7:search_text → 8:read_file → 9:no_tool[answer]`
 - 强制收尾原因：`duplicate_tool_call`
@@ -220,7 +220,7 @@ The expense policy does not mention home internet bills. It covers hotel stays, 
 
 ## doc-0004 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/docs/doc-0004/case.json)
+[原题与判据](../../../bench/workbank/cases/docs/doc-0004/case.json)
 
 - 动作顺序：`1:final`
 - 强制收尾原因：`无`
@@ -236,7 +236,7 @@ I could not provide a reliable answer because the model output violated the answ
 
 ## fs-0001 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/filesystem/fs-0001/case.json)
+[原题与判据](../../../bench/workbank/cases/filesystem/fs-0001/case.json)
 
 - 动作顺序：`1:list_files → 2:read_file → 3:read_file → 4:read_file → 5:tool[answer] → 6:tool[answer]`
 - 强制收尾原因：`duplicate_tool_call`
@@ -256,7 +256,7 @@ I could not provide a reliable answer because the model output violated the answ
 
 ## fs-0002 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/filesystem/fs-0002/case.json)
+[原题与判据](../../../bench/workbank/cases/filesystem/fs-0002/case.json)
 
 - 动作顺序：`1:search_text → 2:search_text → 3:search_text`
 - 强制收尾原因：`duplicate_tool_call`
@@ -276,7 +276,7 @@ The workspace path of the file that defines how long viewer watch-history record
 
 ## fs-0003 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/filesystem/fs-0003/case.json)
+[原题与判据](../../../bench/workbank/cases/filesystem/fs-0003/case.json)
 
 - 动作顺序：`1:final`
 - 强制收尾原因：`无`
@@ -296,7 +296,7 @@ The pager extension for the shift lead at the active fulfillment site is 4417.
 
 ## fs-0004 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/filesystem/fs-0004/case.json)
+[原题与判据](../../../bench/workbank/cases/filesystem/fs-0004/case.json)
 
 - 动作顺序：`1:list_files → 2:read_file → 3:read_file → 4:read_file → 5:read_file → 6:read_file → 7:read_file → 8:read_file → 9:read_file → 10:tool[answer]`
 - 强制收尾原因：`step_budget_after_tool_attempt`
@@ -316,7 +316,7 @@ The pager extension for the shift lead at the active fulfillment site is 4417.
 
 ## hyb-0001 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/hybrid/hyb-0001/case.json)
+[原题与判据](../../../bench/workbank/cases/hybrid/hyb-0001/case.json)
 
 - 动作顺序：`1:web_search → 2:web_fetch → 3:web_search → 4:web_search → 5:web_search → 6:tool[answer] → 7:tool[answer]`
 - 强制收尾原因：`duplicate_tool_call`
@@ -336,7 +336,7 @@ Willemskade 14, 3022 AA Rotterdam
 
 ## hyb-0002 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/hybrid/hyb-0002/case.json)
+[原题与判据](../../../bench/workbank/cases/hybrid/hyb-0002/case.json)
 
 - 动作顺序：`1:web_search → 2:web_search → 3:web_search → 4:tool[answer] → 5:tool[answer]`
 - 强制收尾原因：`duplicate_tool_call`
@@ -356,7 +356,7 @@ Willemskade 14, 3022 AA Rotterdam
 
 ## hyb-0003 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/hybrid/hyb-0003/case.json)
+[原题与判据](../../../bench/workbank/cases/hybrid/hyb-0003/case.json)
 
 - 动作顺序：`1:final`
 - 强制收尾原因：`无`
@@ -372,7 +372,7 @@ I could not provide a reliable answer because the model output violated the answ
 
 ## hyb-0004 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/hybrid/hyb-0004/case.json)
+[原题与判据](../../../bench/workbank/cases/hybrid/hyb-0004/case.json)
 
 - 动作顺序：`1:web_search → 2:web_search → 3:web_search → 4:tool[answer] → 5:tool[answer]`
 - 强制收尾原因：`duplicate_tool_call`
@@ -392,7 +392,7 @@ I could not provide a reliable answer because the model output violated the answ
 
 ## log-0001 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/logs/log-0001/case.json)
+[原题与判据](../../../bench/workbank/cases/logs/log-0001/case.json)
 
 - 动作顺序：`1:unparsed → 2:search_text → 3:list_files → 4:read_file → 5:search_text → 6:search_text → 7:list_files → 8:search_text → 9:no_tool[answer]`
 - 强制收尾原因：`duplicate_tool_call`
@@ -412,7 +412,7 @@ The log file contains ERROR entries for PGW_TIMEOUT, but none of them include a 
 
 ## log-0002 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/logs/log-0002/case.json)
+[原题与判据](../../../bench/workbank/cases/logs/log-0002/case.json)
 
 - 动作顺序：`1:list_files → 2:read_file → 3:read_file → 4:read_file → 5:read_file → 6:unparsed[answer] → 7:unparsed[answer]`
 - 强制收尾原因：`duplicate_tool_call`
@@ -432,7 +432,7 @@ The log file contains ERROR entries for PGW_TIMEOUT, but none of them include a 
 
 ## log-0003 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/logs/log-0003/case.json)
+[原题与判据](../../../bench/workbank/cases/logs/log-0003/case.json)
 
 - 动作顺序：`1:search_text → 2:list_files → 3:search_text → 4:tool[answer] → 5:tool[answer]`
 - 强制收尾原因：`duplicate_tool_call`
@@ -452,7 +452,7 @@ The log file contains ERROR entries for PGW_TIMEOUT, but none of them include a 
 
 ## log-0004 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/logs/log-0004/case.json)
+[原题与判据](../../../bench/workbank/cases/logs/log-0004/case.json)
 
 - 动作顺序：`1:search_text → 2:list_files → 3:read_file → 4:read_file → 5:unparsed → 6:read_file → 7:read_file → 8:read_file → 9:tool[answer] → 10:tool[answer]`
 - 强制收尾原因：`duplicate_tool_call`
@@ -472,7 +472,7 @@ The log file contains ERROR entries for PGW_TIMEOUT, but none of them include a 
 
 ## nt-0001 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/notool/nt-0001/case.json)
+[原题与判据](../../../bench/workbank/cases/notool/nt-0001/case.json)
 
 - 动作顺序：`1:final`
 - 强制收尾原因：`无`
@@ -492,7 +492,7 @@ The log file contains ERROR entries for PGW_TIMEOUT, but none of them include a 
 
 ## nt-0002 — 通过
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/notool/nt-0002/case.json)
+[原题与判据](../../../bench/workbank/cases/notool/nt-0002/case.json)
 
 - 动作顺序：`1:final`
 - 强制收尾原因：`无`
@@ -512,7 +512,7 @@ The log file contains ERROR entries for PGW_TIMEOUT, but none of them include a 
 
 ## nt-0003 — 通过
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/notool/nt-0003/case.json)
+[原题与判据](../../../bench/workbank/cases/notool/nt-0003/case.json)
 
 - 动作顺序：`1:final`
 - 强制收尾原因：`无`
@@ -539,7 +539,7 @@ Best regards,
 
 ## nt-0004 — 通过
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/notool/nt-0004/case.json)
+[原题与判据](../../../bench/workbank/cases/notool/nt-0004/case.json)
 
 - 动作顺序：`1:final`
 - 强制收尾原因：`无`
@@ -559,7 +559,7 @@ I could not provide a reliable answer because the model output violated the answ
 
 ## scr-0001 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/script/scr-0001/case.json)
+[原题与判据](../../../bench/workbank/cases/script/scr-0001/case.json)
 
 - 动作顺序：`1:read_file → 2:read_file → 3:unparsed → 4:unparsed`
 - 强制收尾原因：`无`
@@ -575,7 +575,7 @@ I could not provide a reliable answer because the model output violated the answ
 
 ## scr-0002 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/script/scr-0002/case.json)
+[原题与判据](../../../bench/workbank/cases/script/scr-0002/case.json)
 
 - 动作顺序：`1:read_file → 2:read_file → 3:replace_lines → 4:write_file → 5:web_search → 6:web_search → 7:web_search → 8:tool[answer] → 9:tool[answer]`
 - 强制收尾原因：`duplicate_tool_call`
@@ -591,7 +591,7 @@ I could not provide a reliable answer because the model output violated the answ
 
 ## scr-0003 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/script/scr-0003/case.json)
+[原题与判据](../../../bench/workbank/cases/script/scr-0003/case.json)
 
 - 动作顺序：`1:list_files → 2:search_text → 3:read_file → 4:unparsed → 5:unparsed`
 - 强制收尾原因：`无`
@@ -607,7 +607,7 @@ I could not provide a reliable answer because the model output violated the answ
 
 ## scr-0004 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/script/scr-0004/case.json)
+[原题与判据](../../../bench/workbank/cases/script/scr-0004/case.json)
 
 - 动作顺序：`1:final`
 - 强制收尾原因：`无`
@@ -623,7 +623,7 @@ I could not provide a reliable answer because the model output violated the answ
 
 ## tab-0001 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/tabular/tab-0001/case.json)
+[原题与判据](../../../bench/workbank/cases/tabular/tab-0001/case.json)
 
 - 动作顺序：`1:web_search → 2:web_search → 3:web_search → 4:web_search → 5:tool[answer] → 6:tool[answer]`
 - 强制收尾原因：`duplicate_tool_call`
@@ -643,7 +643,7 @@ The total revenue across the June 2026 storefront orders is **5389.95 USD**.
 
 ## tab-0002 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/tabular/tab-0002/case.json)
+[原题与判据](../../../bench/workbank/cases/tabular/tab-0002/case.json)
 
 - 动作顺序：`1:final`
 - 强制收尾原因：`无`
@@ -663,7 +663,7 @@ I could not provide a reliable answer because the model output violated the answ
 
 ## tab-0003 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/tabular/tab-0003/case.json)
+[原题与判据](../../../bench/workbank/cases/tabular/tab-0003/case.json)
 
 - 动作顺序：`1:list_files → 2:read_file → 3:read_file → 4:read_file → 5:data_query → 6:data_query → 7:data_query → 8:data_query → 9:data_query → 10:tool[answer]`
 - 强制收尾原因：`step_budget_after_tool_attempt`
@@ -683,7 +683,7 @@ I could not provide a reliable answer because the model output violated the answ
 
 ## tab-0004 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/tabular/tab-0004/case.json)
+[原题与判据](../../../bench/workbank/cases/tabular/tab-0004/case.json)
 
 - 动作顺序：`1:final`
 - 强制收尾原因：`无`
@@ -703,7 +703,7 @@ The net revenue for April 2026 after refunds is $23,609.60.
 
 ## web-0001 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/web/web-0001/case.json)
+[原题与判据](../../../bench/workbank/cases/web/web-0001/case.json)
 
 - 动作顺序：`1:unparsed → 2:final`
 - 强制收尾原因：`无`
@@ -723,7 +723,7 @@ UNKNOWN
 
 ## web-0002 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/web/web-0002/case.json)
+[原题与判据](../../../bench/workbank/cases/web/web-0002/case.json)
 
 - 动作顺序：`1:final`
 - 强制收尾原因：`无`
@@ -743,7 +743,7 @@ UNKNOWN
 
 ## web-0003 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/web/web-0003/case.json)
+[原题与判据](../../../bench/workbank/cases/web/web-0003/case.json)
 
 - 动作顺序：`1:final`
 - 强制收尾原因：`无`
@@ -763,7 +763,7 @@ UNKNOWN
 
 ## web-0004 — 失败
 
-[原题与判据](/Users/no22/Projects/RWKV-Agent/bench/workbank/cases/web/web-0004/case.json)
+[原题与判据](../../../bench/workbank/cases/web/web-0004/case.json)
 
 - 动作顺序：`1:list_files → 2:read_file → 3:read_file → 4:tool[answer] → 5:tool[answer]`
 - 强制收尾原因：`duplicate_tool_call`

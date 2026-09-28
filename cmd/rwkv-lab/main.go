@@ -4,7 +4,7 @@
 // It is deliberately separate from rwkv-cli. rwkv-cli is the product (the
 // agent, the evaluators, the server); rwkv-lab is the bench-side toolbox that
 // reads the artifacts rwkv-cli produces. See
-// docs/go-tooling-migration.md §3.
+// docs/design/go-tooling-migration.md §3.
 package main
 
 import (

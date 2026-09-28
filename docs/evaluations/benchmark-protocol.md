@@ -17,7 +17,7 @@
 
 - `g1k` 是 `xml-v1+align-qwen36+no-tool+bare+one-stage` 的注册短名，两种写法 canonical 与 hash 完全相同
   （`TestG1KPresetIsTheLockedLonghand` 守护）。它是 2026-09-15 消融选定的格式，也是 700 条训练语料主轨道的渲染格式。
-  逐字节契约见 [`docs/corpus-g1k-wire-format.md`](../corpus-g1k-wire-format.md)。
+  逐字节契约见 [`docs/design/corpus-g1k-wire-format.md`](../design/corpus-g1k-wire-format.md)。
 - **不传 `--profile` 不会报错，而是静默落到 legacy 默认格式**（md-fence / 两阶段 / 带示例块）。
   2026-09-22 的 g1k 148 题就这样跑出 0/148、作废 30。`--strict-spec` 只拒绝未注册组合，挡不住"忘传"——
   所以跑后必须核对 `run.json` 的 `harness.wire_preset == "g1k"`（§6）。
@@ -69,7 +69,7 @@ python 探针须设 `User-Agent: curl/8.7.1`，否则 Cloudflare 回裸 403。
 `top_k 65536` 是词表大小，表示不截断（CLI 不收 0）。**高温不截断不要用**：T 1.0 / top_p 1.0 时 bfcl-product 22/60。
 
 - API 模型：不支持 `top_k`/`penalty_decay`，只用 `--temperature` 与 `--top-p`。
-  **DeepSeek-flash 不能用 T=0**（五轮作废 14→40，见 `bench/workbank/reports/dsflash-baseline-2026-09-22.md` §2）；
+  **DeepSeek-flash 不能用 T=0**（五轮作废 14→40，见 `docs/workbank/reports/dsflash-baseline-2026-09-22.md` §2）；
   Qwen3.5-9B 在 workbank 上 T=0.3 比 T=0 高约 6pp。给没跑过的模型定参数前先翻 `runs/` 与报告。
 
 ## 5. 题库、预算与重复

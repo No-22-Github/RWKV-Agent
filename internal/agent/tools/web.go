@@ -27,7 +27,7 @@ const (
 )
 
 // Fetched pages share one token budget per call. P1 probes on this model
-// (PREFERENCES.md P1-1) measured decision format
+// (docs/design/preferences.md P1-1) measured decision format
 // compliance at 40/40 up to 10k injected tokens and 30-32/40 at 20k, so the
 // budget sits below the measured degradation point and leaves room for the
 // control prompt, history, and the answer itself. The old 32k-rune cap was

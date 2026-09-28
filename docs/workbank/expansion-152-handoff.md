@@ -29,8 +29,8 @@
 |---|---|---|
 | 新题目录（case.json + verify.py + NOTES.md） | `bench/workbank/cases/<scenario>/<id>/` | 112 |
 | 每批次报告 | `bench/workbank/reports/expansion-batch-<n>-<date>.md` | 5 |
-| changelog 条目 | `bench/workbank/docs/changelog.md` | 每批 1 条 |
-| tag-vocab 配额更新 | `bench/workbank/docs/tag-vocab.json` | 1 次（§7.1） |
+| changelog 条目 | `docs/workbank/changelog.md` | 每批 1 条 |
+| tag-vocab 配额更新 | `bench/workbank/tag-vocab.json` | 1 次（§7.1） |
 | 双 API 跑分产物 | `runs/workbank/expansion-b<n>-<api>-k<i>/` | 每批 6 个目录 |
 
 ### 1.2 不做什么
