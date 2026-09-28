@@ -10,8 +10,10 @@ so a shared suffix would let one exclusion delete another batch's path.
 Zero-call discipline is enforced here, not by the scorer: expect.tools == []
 is diagnostic only in scorer v3, and the 2026-09-26 audit found 387 rows on
 tools:[] cases that still called tools. A turn must have no <tool_call> when
-the case is a notool case other than LOOK_FIRST_TASKS, or the turn has
-require_active_no_call. Refusals may look first (distill-workflow §4.3.1);
+the turn declares tools: [] in a notool case other than LOOK_FIRST_TASKS, or
+the turn has require_active_no_call. The rule is per turn: old ambiguous_request
+cases ask blind on turn 1 (tools: []) and read the workspace on turn 2 (no
+tools key); b04 W0 first applied it per case and failed all 25 of them. Refusals may look first (distill-workflow §4.3.1);
 stable_fact cases in this bank were drafted with the answer in a workspace file
 (audit P1), so they are tool cases in practice.
 """
@@ -68,7 +70,8 @@ def main():
             continue
         task = case["tags"]["task_type"]
         bad = [i + 1 for i, (t, spec) in enumerate(zip(turns, case["turns"]))
-               if ((case["tags"]["scenario"] == "notool" and task not in LOOK_FIRST_TASKS)
+               if ((case["tags"]["scenario"] == "notool" and task not in LOOK_FIRST_TASKS
+                    and spec["expect"].get("tools") == [])
                    or spec["expect"].get("require_active_no_call"))
                and any("<tool_call>" in o for o in t)]
         if bad:
