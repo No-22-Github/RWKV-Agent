@@ -6,7 +6,7 @@
 - Updated: 2026-09-07, synced from `416b073d2c5442ae34bfbf8a3b84ed414b5b85ff`
   (upstream rewrote 14 case prompts and raised 024's `max_turns` from 12 to 16);
   the prior snapshot is archived byte-for-byte at
-  `archive/primitive-orig30-snapshot-416b073d/`, and scores recorded against
+  `bench/archive/primitive-orig30-snapshot-416b073d/`, and scores recorded against
   that prior snapshot are not comparable with this one
 - Files: the 30 JSON cases named `001_arithmetic.json` through
   `030_markdown_release_notes.json`

@@ -167,7 +167,7 @@ python3 scripts/state-corpus-probe.py --split first --rows 24 --stride 26 \
   --state-id <state.pth> --credentials <creds.json> --output <out.json>
 ```
 
-数据：`bench/workbank/reports/state-step-vs-capability-20260921.json`（本报告全部数字，已入库）。各评测点的原始 run（`summary.json`/`run.json`/`experiment.json`、canary 与日志）在 `runs/state-check-20260920/{outA,a2,b}-*-s0-2026*/`，`runs/` 被 Git 忽略，本 checkout 之外不保证存在。
+数据：`bench/workbank/reports-data/state-step-vs-capability-20260921.json`（本报告全部数字，已入库）。各评测点的原始 run（`summary.json`/`run.json`/`experiment.json`、canary 与日志）在 `runs/state-check-20260920/{outA,a2,b}-*-s0-2026*/`，`runs/` 被 Git 忽略，本 checkout 之外不保证存在。
 
 ## 8. 已知缺口与风险
 

@@ -4,7 +4,7 @@
 // These read the case tree under bench/workbank/cases (a directory of
 // <scenario>/<id>/case.json) and the tag vocabulary that defines what a valid
 // case looks like. The port is byte-for-byte with the Python originals
-// (docs/go-tooling-migration.md §4.3); where Python and Go disagree about
+// (docs/design/go-tooling-migration.md §4.3); where Python and Go disagree about
 // numbers, sorting or text, the Python behaviour wins and the reason is
 // recorded in the migration doc's §5.
 package bank
@@ -72,7 +72,7 @@ func DefaultCases() string {
 
 // DefaultVocab is the tag vocabulary that carries the quotas and enums.
 func DefaultVocab() string {
-	return filepath.Join(lab.RepoRoot(), "bench", "workbank", "docs", "tag-vocab.json")
+	return filepath.Join(lab.RepoRoot(), "bench", "workbank", "tag-vocab.json")
 }
 
 // DefaultLedgerCases is the per-case ledger the calibration reads.

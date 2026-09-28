@@ -1,6 +1,6 @@
 # Harness 第三轮报告:真实计数、压缩修复、检索纪律(2026-08-31,进行中)
 
-> [← 返回三部曲目录](README.md) | [← 上一轮：第二轮量尺重建](harness-round2-report-20260831.md) | [根目录规则：PREFERENCES.md](../../../PREFERENCES.md)
+> [← 返回三部曲目录](README.md) | [← 上一轮：第二轮量尺重建](harness-round2-report-20260831.md) | [根目录规则：docs/design/preferences.md](../../design/preferences.md)
 
 分支 `feat/harness-round3`(自 `feat/harness-round2` 切出)。`ea6440c` 已打 tag
 `round1-round2-boundary`(第一轮/第二轮分界,第一轮分支未推送,该 tag 是唯一
@@ -278,7 +278,7 @@ e2e 窗口 B)显示**所有臂 0 分**,排查发现是数值字符串被严格�
 
 ## 四、检索纪律探针(第四步,✅)
 
-P6 探针(PREFERENCES.md P6 节):英文取数任务,
+P6 探针(docs/design/preferences.md P6 节):英文取数任务,
 真实 prose 正文(真词表逐 token 标定),工具回喂格式逐字节镜像 runtime,
 deep 锚点决策格 + PrepareAnswer 同款答案格,n=10/格,run1=320 格 +
 run2=80 格(分页修正轮)+ run3=140 格(行号因子 + 强制编排,补齐目标
@@ -393,7 +393,7 @@ P6-1 证明模型从不自发检索,故编排只能**强制**(模拟 search_text
   两个标签(→44px)、运行配置按钮(28→44px)用 `::before` 不可见命中层
   扩展(`before:absolute` + inset 扩展),视觉零变化、布局零位移、不动设计
   token;前端 52/52 通过。
-- **PREFERENCES.md 已整理**:三处"对 Harness 的可执行含义"(原第 195、
+- **docs/design/preferences.md 已整理**:三处"对 Harness 的可执行含义"(原第 195、
   295、319 行)合并为开头"总索引"一节(11 条,含第三轮状态更新);
   P6 节按既有格式追加。
 
@@ -436,4 +436,4 @@ P6-1 证明模型从不自发检索,故编排只能**强制**(模拟 search_text
 - Go tokenizer:`internal/tokenizer/`(world.go + 551,860 token fixture 测试)
 - token 普查、检测器标定、同窗 A/B、回归护栏和检索探针的原始临时工作区
   已从仓库历史清除；本文保留方法、汇总结果和失败窗口。
-- 偏好原始结论:仓库根 `PREFERENCES.md`(总索引 + P6 节)
+- 偏好原始结论:仓库根 `docs/design/preferences.md`(总索引 + P6 节)

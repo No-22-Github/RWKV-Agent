@@ -114,7 +114,7 @@ func renderFlagSet(args *RenderArgs) *flag.FlagSet {
 	fs.StringVar(&args.Source, "source", "", "dataset name every row records, e.g. base700 (required)")
 	fs.StringVar(&args.TagMap, "tag-map", DefaultTagMap(),
 		"records mode: label normalisation map (task types, behaviours)")
-	fs.StringVar(&args.CLI, "cli", filepath.Join(RepoRoot(), "bin", "rwkv-cli"), "rwkv-cli binary")
+	fs.StringVar(&args.CLI, "cli", filepath.Join(RepoRoot(), "local", "bin", "rwkv-cli"), "rwkv-cli binary")
 	fs.IntVar(&args.Parallelism, "parallelism", 32, "agent-eval case parallelism")
 	fs.BoolVar(&args.AllowTestBank, "allow-test-bank", false,
 		"permit --cases inside bench/workbank (pipeline smoke tests; never train on the output)")

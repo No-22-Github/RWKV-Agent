@@ -29,7 +29,7 @@ CLI/API/评测都用同一条路径选择它：
 export RWKV_CF_ACCESS_CLIENT_ID='...'
 export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 
-./dist/rwkv-cli agent-eval \
+./local/dist/rwkv-cli agent-eval \
   --model rwkv7-g1j-7.2b-20260831-ctx16384 \
   --completion rwkv-lightning-cuda \
   --api-url https://<host>/v1/batch/completions \
@@ -39,7 +39,7 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
   --api-stop-tokens none \
   --suite bfcl-product --profile xml-v1 \
   --case-parallelism 60 --case-timeout 5m \
-  --output runs/my-run
+  --output local/runs/my-run
 ```
 
 要点：
@@ -53,9 +53,9 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 查看配置而不花机时（不需要 `--model`）：
 
 ```sh
-./dist/rwkv-cli agent-eval --list-profiles
-./dist/rwkv-cli agent-eval --explain-profile md-v1
-./dist/rwkv-cli agent-eval --explain-profile xml-v1 --wire "route=respond-inspect,prefill=envelope"
+./local/dist/rwkv-cli agent-eval --list-profiles
+./local/dist/rwkv-cli agent-eval --explain-profile md-v1
+./local/dist/rwkv-cli agent-eval --explain-profile xml-v1 --wire "route=respond-inspect,prefill=envelope"
 ```
 
 ---
@@ -85,7 +85,7 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 文字与目录内容均不变。仅支持 `format=xml` + `transcript=product` + `transport=text`；
 解析器同时接受新旧两种结果包络（模型回显结果信封记 `envelope_recovered` 修复）。
 
-> 格式体系总览见 [`docs/tool-and-wire-formats.md`](tool-and-wire-formats.md)，G1K wire 格式消融完整实验报告见 [`docs/evaluations/g1k-wire-ablation/wire-ablation-g1k-summary-20260915.md`](evaluations/g1k-wire-ablation/wire-ablation-g1k-summary-20260915.md)，下游对齐语料契约见 [`docs/corpus-g1k-wire-format.md`](corpus-g1k-wire-format.md)。
+> 格式体系总览见 [`docs/design/tool-and-wire-formats.md`](../design/tool-and-wire-formats.md)，G1K wire 格式消融完整实验报告见 [`docs/evaluations/g1k-wire-ablation/wire-ablation-g1k-summary-20260915.md`](../evaluations/g1k-wire-ablation/wire-ablation-g1k-summary-20260915.md)，下游对齐语料契约见 [`docs/design/corpus-g1k-wire-format.md`](../design/corpus-g1k-wire-format.md)。
 
 跨轴约束（违反会在构造期报错，不会静默改字节）：
 

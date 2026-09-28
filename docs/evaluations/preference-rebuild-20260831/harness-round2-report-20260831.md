@@ -116,7 +116,7 @@ runner 实际无效（旗标只接了交互式 agent；本轮修复接线，见"
 
 实验使用真实 zh.wikipedia 文本 28 篇、World 词表实测 5k/10k token 页、
 60% 深度埋点、10 实例/格和 4 轮提示词迭代；原始临时数据已清理。
-PREFERENCES.md 已按格式追加 P5-ZH-1..4。摘要：
+docs/design/preferences.md 已按格式追加 P5-ZH-1..4。摘要：
 
 | 形态（均 +fast-think） | 阶段 A 保留率（5k/10k） | 阶段 B 数值进入（5k/10k） |
 | --- | --- | --- |
@@ -362,4 +362,4 @@ bfcl-product 无 web 工具），分数持平符合预期。
 ## 引用索引
 
 - 题集、校准、回归护栏和中文压缩的原始临时工作区已从仓库历史清除。
-- 偏好原始结论：仓库根 `PREFERENCES.md`（P5-ZH 节）
+- 偏好原始结论：仓库根 `docs/design/preferences.md`（P5-ZH 节）

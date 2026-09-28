@@ -3,7 +3,7 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source_dir="$repo_root/third_party/rwkv-mobile"
-output_dir="${1:-$repo_root/build/native/pth-loader}"
+output_dir="${1:-$repo_root/local/build/native/pth-loader}"
 patch_path="$repo_root/native/patches/rwkv-mobile-pth-direct.patch"
 
 mkdir -p "$output_dir"

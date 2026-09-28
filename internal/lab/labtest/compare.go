@@ -1,5 +1,5 @@
 // Package labtest implements the comparison rules from
-// docs/go-tooling-migration.md §4.3 and the plumbing to run a migrated
+// docs/design/go-tooling-migration.md §4.3 and the plumbing to run a migrated
 // command against a recorded baseline.
 //
 // It exists because "the port is correct" is not a claim anyone can eyeball:
@@ -24,7 +24,7 @@ import (
 // BaselineDir is where M0 recorded the Python tools' output. runs/ is
 // gitignored, so this tree only exists on the machine doing the migration.
 func BaselineDir() string {
-	return filepath.Join(lab.RepoRoot(), "runs", "migration-baseline")
+	return filepath.Join(lab.RepoRoot(), "local", "runs", "migration-baseline")
 }
 
 // HaveBaseline reports whether a named baseline was recorded.
@@ -246,9 +246,9 @@ func sortedKeys(m map[string]any) []string {
 // It is what the migration comparisons use to produce the "got" side.
 func RunCLI(args ...string) (stdout, stderr []byte, code int, err error) {
 	root := lab.RepoRoot()
-	bin := filepath.Join(root, "bin", "rwkv-lab")
+	bin := filepath.Join(root, "local", "bin", "rwkv-lab")
 	if _, statErr := os.Stat(bin); statErr != nil {
-		return nil, nil, 0, fmt.Errorf("bin/rwkv-lab not built: go build -o bin/rwkv-lab ./cmd/rwkv-lab")
+		return nil, nil, 0, fmt.Errorf("local/bin/rwkv-lab not built: go build -o local/bin/rwkv-lab ./cmd/rwkv-lab")
 	}
 	cmd := exec.Command(bin, args...)
 	cmd.Dir = root

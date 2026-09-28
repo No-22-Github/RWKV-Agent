@@ -105,7 +105,7 @@ type Options struct {
 	// full prompt with no cap.
 	TracePromptBytes int
 	// CompressFetch enables query-aware compression of long web_fetch results
-	// before they enter the transcript (PREFERENCES.md P5-1..P5-3). The raw
+	// before they enter the transcript (docs/design/preferences.md P5-1..P5-3). The raw
 	// tool result stays in the step trace; only the feedback copy shrinks.
 	CompressFetch bool
 	// TokenCount counts tokens with the real RWKV World vocabulary in-process
@@ -250,7 +250,7 @@ type Step struct {
 	ToolArguments   json.RawMessage           `json:"tool_arguments,omitempty"`
 	ToolResult      json.RawMessage           `json:"tool_result,omitempty"`
 	// ToolResultFeedback holds the transcript copy of the tool result when
-	// query-aware compression replaced it (PREFERENCES.md P5-1..P5-3).
+	// query-aware compression replaced it (docs/design/preferences.md P5-1..P5-3).
 	ToolResultFeedback json.RawMessage      `json:"tool_result_feedback,omitempty"`
 	ToolExecuted       bool                 `json:"tool_executed,omitempty"`
 	ToolEvidence       bool                 `json:"tool_evidence,omitempty"`

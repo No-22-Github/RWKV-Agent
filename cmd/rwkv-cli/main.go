@@ -1764,7 +1764,7 @@ func runAgentEval(args []string) error {
 	}
 	if options.evalOutput == "" {
 		options.evalOutput = filepath.Join(
-			"runs",
+			"local", "runs",
 			"agent-eval-"+time.Now().UTC().Format("20060102-150405.000000000"),
 		)
 	}

@@ -26,6 +26,22 @@ jobs:
           go-version-file: go.mod
           cache: true
 
+      # The World vocab lives in the rwkv-mobile submodule (corpus pack tests
+      # count real tokens). Fetch only the vocab file at the pinned gitlink instead of
+      # the full ~200 MB submodule with its prebuilt backends.
+      - name: Resolve rwkv-mobile revision
+        id: rwkv_mobile
+        run: echo "sha=$(git ls-tree HEAD third_party/rwkv-mobile | awk '{print $3}')" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout rwkv-mobile vocab
+        uses: actions/checkout@v7
+        with:
+          repository: MollySophia/rwkv-mobile
+          ref: ${{ steps.rwkv_mobile.outputs.sha }}
+          path: third_party/rwkv-mobile
+          sparse-checkout: assets/rwkv_vocab_v20230424.txt
+          sparse-checkout-cone-mode: false
+
       - name: Checkout pinned BFCL data
         uses: actions/checkout@v7
         with:
@@ -56,6 +72,9 @@ jobs:
         run: go vet -tags server ./...
         env:
           CGO_ENABLED: "0"
+
+      - name: Check doc links
+        run: python3 scripts/check-doc-links.py
 
   frontend-test:
     name: Frontend test

@@ -25,8 +25,8 @@
 --profile xml-v1+align-qwen36+no-tool+bare+one-stage
 ```
 
-> 对应语料生产/清洗侧的逐字节格式契约见 [`docs/corpus-g1k-wire-format.md`](../../corpus-g1k-wire-format.md)。  
-> 全局格式门户见 [`docs/tool-and-wire-formats.md`](../../tool-and-wire-formats.md)，运行时 Spec 参数表见 [`docs/wire-configuration.md`](../../wire-configuration.md)。
+> 对应语料生产/清洗侧的逐字节格式契约见 [`docs/design/corpus-g1k-wire-format.md`](../../design/corpus-g1k-wire-format.md)。  
+> 全局格式门户见 [`docs/design/tool-and-wire-formats.md`](../../design/tool-and-wire-formats.md)，运行时 Spec 参数表见 [`docs/guides/wire-configuration.md`](../../guides/wire-configuration.md)。
 
 对比 R0：**+9 题（40→49）**，irrelevance 0→12/20，首步 tool_call 20/20→1/20，
 固定前缀 −198 B，全 run 请求字节 **−56%**（812924→360023）。

@@ -27,7 +27,7 @@
 | 模型 / 端点 | `rwkv-g1k-7b-temp-3601` @ api-7b.rwkvos.com，albatross-1.3.0，hard_max_bsz 169；每次 sweep 调用有跑前/跑后快照（`runs/bench-20260923-state/endpoint-*.json`），模型 id 全程一致 |
 | 分支 / 提交 | `main` @ `fd17e2a`，工作区干净；sweep.py 新增 `--state-id` 传递与 experiment.json 记录 |
 | 二进制 | `bin/rwkv-cli`（HEAD `fd17e2a` 构建），sha256 记录于各 run 的 experiment.json |
-| 格式 | `--profile g1k --strict-spec`（语料契约 `docs/corpus-g1k-wire-format.md` 逐字对齐） |
+| 格式 | `--profile g1k --strict-spec`（语料契约 `docs/design/corpus-g1k-wire-format.md` 逐字对齐） |
 | 采样 | `g1k-agent`（T 0.3 · top_p 0.5），固定不扫——隔离 state 变量 |
 | 预算 | `--max-steps 16 --max-tokens 4096 --decision-max-tokens 2048 --case-timeout 30m`；传输 `--remote-batch-wait 0s`；总并发 64（workbank 48 + bfcl 16） |
 | state | 16.8MB × 32 tensors（rwkv_lightning state），上传端点 state_id=文件名（含 lr/step/RMS/epoch），sha256 记录于 run.json |

@@ -148,5 +148,5 @@ none 缺参 0/10 也不能解释为完全不会识别缺参：部分回答用英
 - 主矩阵脚本：scripts/state-matrix.py；逐组入口：scripts/state-experiment.py（默认全部 case 并发）。提交整理时已移除本次运行专用的固定 PID 等待；复跑仍需使用未存在的新运行目录名。
 - 复跑必须使用新目录名以免覆盖；例如 `python3 scripts/state-experiment.py fast-state-new --fast --state-id agent_state_fast_think.pth --suites workbank,boundary,bfcl --credentials /tmp/rwkv-wire-experiment-credentials.json`。
 - 汇总：`python3 bench/workbank/tools/state_results.py runs/state-check-20260919 --output runs/state-check-20260919/state-comparison.json`。
-- 逐题：`python3 bench/workbank/tools/state_case_report.py runs/state-check-20260919/state-comparison.json bench/workbank/reports/state-case-comparison-20260919.md`。
+- 逐题：`python3 bench/workbank/tools/state_case_report.py runs/state-check-20260919/state-comparison.json docs/workbank/reports/state-case-comparison-20260919.md`。
 - 真实请求、输出、得分与 canary：runs/state-check-20260919；敏感 header 通过临时凭据文件/环境传入，报告不含凭据。

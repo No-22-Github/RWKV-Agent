@@ -2,9 +2,9 @@
 
 > 你的任务：为本 scenario 起草 4 道题（L0×1、L1×2、L2×1），每题一个目录：
 > `bench/workbank/cases/<scenario>/<id>/`，内含 `case.json`、`verify.py`、`NOTES.md`。
-> 这三份文件的契约在 `docs/HANDOFF.md` §2，出题法则在 `docs/authoring-guide.md`（最高权威），
-> 工具真实行为在 `docs/M0-findings.md` §1/§2/§9。开工前先通读这三份。
-> 机器可读枚举：`docs/tag-vocab.json`。合法样例：`tools/testdata/tabular/tab-9001/`、`tools/testdata/web/web-9001/`。
+> 这三份文件的契约在 `HANDOFF.md` §2，出题法则在 `authoring-guide.md`（最高权威），
+> 工具真实行为在 `M0-findings.md` §1/§2/§9。开工前先通读这三份。
+> 机器可读枚举：`bench/workbank/tag-vocab.json`。合法样例：`tools/testdata/tabular/tab-9001/`、`tools/testdata/web/web-9001/`。
 
 ## 1. 硬规则（lint.py 会逐一检查，违反即打回）
 
@@ -46,10 +46,10 @@
 
 在 `bench/workbank/` 目录下：
 ```bash
-bin/rwkv-lab bank lint --case ../workbank/cases/<scenario>/<id>    # 每题 0 违规
-bin/rwkv-lab bank lint --fix --case <同上>                          # 回填 fixture_bytes
-bin/rwkv-lab bank verify --cases cases/<scenario>              # 本场景全部 PASS
-bin/rwkv-lab bank hitcheck --case <dir>                        # web/hyb 必须 5/5
-bin/rwkv-lab bank dedup --cases cases/<scenario>                   # 无家族内误报（措辞要拉开）
+local/bin/rwkv-lab bank lint --case ../workbank/cases/<scenario>/<id>    # 每题 0 违规
+local/bin/rwkv-lab bank lint --fix --case <同上>                          # 回填 fixture_bytes
+local/bin/rwkv-lab bank verify --cases cases/<scenario>              # 本场景全部 PASS
+local/bin/rwkv-lab bank hitcheck --case <dir>                        # web/hyb 必须 5/5
+local/bin/rwkv-lab bank dedup --cases cases/<scenario>                   # 无家族内误报（措辞要拉开）
 ```
 verify_all 对你的每题会做期望比对 + 破坏测试；`{"files": ...}` 形状的题破坏测试可能跳过（warning 可接受）。**不要跑 git 命令**（主控统一提交），**不要碰别的 scenario 目录**。

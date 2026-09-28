@@ -66,7 +66,7 @@ def main() -> int:
     parser.add_argument(
         "--sidecar", type=Path, default=Path("internal/bfcl/pysidecar/server.py")
     )
-    parser.add_argument("--output", type=Path, default=Path("runs/bfcl-mt/e6-gt-selftest"))
+    parser.add_argument("--output", type=Path, default=Path("local/runs/bfcl-mt/e6-gt-selftest"))
     args = parser.parse_args()
     repo = args.repo.resolve()
     python = args.python if args.python.is_absolute() else repo / args.python

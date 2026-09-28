@@ -92,7 +92,7 @@ func scaledParallelism(names []string, budget int) map[string]int {
 	return out
 }
 
-func binaryPath() string { return filepath.Join(lab.RepoRoot(), "bin", "rwkv-cli") }
+func binaryPath() string { return filepath.Join(lab.RepoRoot(), "local", "bin", "rwkv-cli") }
 func checkRunPath() string {
 	return filepath.Join(lab.RepoRoot(), ".claude", "skills", "rwkv-bench", "check_run.py")
 }
@@ -162,7 +162,7 @@ func RunSweep(args SweepArgs) int {
 		return 1
 	}
 	if _, err := os.Stat(binaryPath()); err != nil {
-		fmt.Fprintf(os.Stderr, "missing %s; run: go build -o bin/rwkv-cli ./cmd/rwkv-cli\n", binaryPath())
+		fmt.Fprintf(os.Stderr, "missing %s; run: go build -o local/bin/rwkv-cli ./cmd/rwkv-cli\n", binaryPath())
 		return 1
 	}
 	if err := os.MkdirAll(args.Out, 0o755); err != nil {

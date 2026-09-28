@@ -21,7 +21,7 @@ execute_process(
 )
 set(
     RWKV_AGENT_MLX_LIB
-    "${CMAKE_CURRENT_SOURCE_DIR}/../../build/native/mlx-ffi/libMLXModelFFI.a"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../../local/build/native/mlx-ffi/libMLXModelFFI.a"
     CACHE FILEPATH
     "MLXModelFFI static library")
 set(MLX_LIB "${RWKV_AGENT_MLX_LIB}")

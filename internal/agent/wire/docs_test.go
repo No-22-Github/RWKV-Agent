@@ -9,10 +9,10 @@ import (
 	"testing"
 )
 
-var updateWireDocs = flag.Bool("update-wire-docs", false, "rewrite the generated section of docs/wire-configuration.md")
+var updateWireDocs = flag.Bool("update-wire-docs", false, "rewrite the generated section of docs/guides/wire-configuration.md")
 
 const (
-	docsPath    = "docs/wire-configuration.md"
+	docsPath    = "docs/guides/wire-configuration.md"
 	beginMarker = "<!-- BEGIN GENERATED: wire-profiles -->"
 	endMarker   = "<!-- END GENERATED: wire-profiles -->"
 )
@@ -22,7 +22,7 @@ const (
 // cannot land without the documentation following.
 func TestDocsAreGenerated(t *testing.T) {
 	t.Parallel()
-	path := filepath.Join("..", "..", "..", "docs", "wire-configuration.md")
+	path := filepath.Join("..", "..", "..", "docs", "guides", "wire-configuration.md")
 	data, err := os.ReadFile(path)
 	if err != nil {
 		t.Fatalf("read %s: %v", docsPath, err)

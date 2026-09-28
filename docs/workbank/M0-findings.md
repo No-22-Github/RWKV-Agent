@@ -37,7 +37,7 @@
 
 - `--profile xml-v1+align-qwen36+no-tool+bare+one-stage`（ad-hoc 组合，非注册 preset）
 - canonical: `format=xml;transcript=product;transport=text;thinking=off;prefill=none;abstain=no-tool;terminal=none;route=none;catalog=full;control=bare;feedback=raw;subagent=block;align=qwen36;stages=one;loop=0,...,false`
-- wire_hash `51859aff55ce8e7da6f318d3403db163675b57778b5e79d192e661a456422457`（与 runs/ablation-g1k/r4-one-stage/run.json 逐字节一致）
+- wire_hash `51859aff55ce8e7da6f318d3403db163675b57778b5e79d192e661a456422457`（与 local/runs/ablation-g1k/r4-one-stage/run.json 逐字节一致）
 - **manifest 缺口**：`--profile` 修饰串不落盘（只有 canonical/hash），ad-hoc 时 `wire_preset` 为空 → M1 补记 `wire_profile` 原串。
 
 ## 6. M1 实施清单（由缺口反推，全部并入计划案 H1–H4）

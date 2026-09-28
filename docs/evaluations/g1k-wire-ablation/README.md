@@ -7,9 +7,9 @@
 
 ## 关联关键文档
 
-- **数据侧格式契约**：[`docs/corpus-g1k-wire-format.md`](../../corpus-g1k-wire-format.md)
-- **工具调用与对话格式门户**：[`docs/tool-and-wire-formats.md`](../../tool-and-wire-formats.md)
-- **Wire 运行时配置指南**：[`docs/wire-configuration.md`](../../wire-configuration.md)
+- **数据侧格式契约**：[`docs/design/corpus-g1k-wire-format.md`](../../design/corpus-g1k-wire-format.md)
+- **工具调用与对话格式门户**：[`docs/design/tool-and-wire-formats.md`](../../design/tool-and-wire-formats.md)
+- **Wire 运行时配置指南**：[`docs/guides/wire-configuration.md`](../../guides/wire-configuration.md)
 
 ---
 

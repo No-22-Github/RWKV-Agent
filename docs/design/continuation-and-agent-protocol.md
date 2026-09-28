@@ -28,7 +28,7 @@ Agent Runner
 > control / loop 等全部模型侧参数由 `internal/agent/wire.Spec` 描述。CLI 用
 > `--profile <preset>`（简写）或 `--wire key=value,...`（长写）选择，两者归一化成同一个
 > canonical/hash 并写入 `run.json`。完整参数表与旧参数对照见
-> [`wire-configuration.md`](wire-configuration.md)。
+> [`wire-configuration.md`](../guides/wire-configuration.md)。
 
 | Profile | 动作协议 / renderer | 用途与终止语义 |
 | --- | --- | --- |
@@ -247,7 +247,7 @@ HTTP adapter 面向 `rwkv_lightning` 的原生续写请求：
 本地续写仍是默认值：
 
 ```sh
-./dist/rwkv-cli agent \
+./local/dist/rwkv-cli agent \
   --completion local \
   --model /absolute/path/to/model.pth \
   --workspace /absolute/path/to/project \
@@ -262,7 +262,7 @@ HTTP adapter 面向 `rwkv_lightning` 的原生续写请求：
 export RWKV_CF_ACCESS_CLIENT_ID='...'
 export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 
-./dist/rwkv-cli agent \
+./local/dist/rwkv-cli agent \
   --completion rwkv-lightning-cuda \
   --api-url https://example.com/v1/batch/completions \
   --model rwkv7-13b \
@@ -332,12 +332,12 @@ adapter 调用示例：
 ```sh
 export OPENAI_API_KEY='...'
 
-./dist/rwkv-cli agent-eval \
+./local/dist/rwkv-cli agent-eval \
   --completion chat-completions \
   --api-url https://example.com/v1/chat/completions \
   --model other-model \
   --suite smoke \
-  --output runs/chat-other-model-smoke
+  --output local/runs/chat-other-model-smoke
 ```
 
 隐藏推理默认开启且与正文共享输出预算的上游需要显式关闭上游思考。例如 DeepSeek

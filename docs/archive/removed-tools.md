@@ -1,6 +1,6 @@
 # 迁移中删除的工具
 
-docs/go-tooling-migration.md §2.5 / §2.6 删除的文件清单。保留在这里是为了以后能从 git 历史里找回：
+docs/design/go-tooling-migration.md §2.5 / §2.6 删除的文件清单。保留在这里是为了以后能从 git 历史里找回：
 `git show <commit>:<path>`。
 
 ## D 档：已出结论的一次性实验分析（24 个，不迁移）
@@ -34,7 +34,7 @@ docs/go-tooling-migration.md §2.5 / §2.6 删除的文件清单。保留在这�
 
 ## A 档：已迁进 `rwkv-lab` 的旧实现
 
-迁完即删，避免 Go 改了它们静默失效（§1）。新入口见 docs/go-tooling-migration.md §3。
+迁完即删，避免 Go 改了它们静默失效（§1）。新入口见 docs/design/go-tooling-migration.md §3。
 
 | 文件 | 用途 | 最后改动 |
 |---|---|---|

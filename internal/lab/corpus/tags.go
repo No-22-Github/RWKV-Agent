@@ -27,7 +27,7 @@ func DefaultTagMap() string {
 
 // DefaultVocab is the authoring vocabulary that defines legal task types.
 func DefaultVocab() string {
-	return filepath.Join(RepoRoot(), "bench", "workbank", "docs", "tag-vocab.json")
+	return filepath.Join(RepoRoot(), "bench", "workbank", "tag-vocab.json")
 }
 
 // TagMap is bench/distill/tag-map.json. The normalisation rules live in data

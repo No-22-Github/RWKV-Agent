@@ -299,7 +299,7 @@ def markdown(report: dict[str, Any]) -> str:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo", type=Path, default=Path(__file__).resolve().parents[1])
-    parser.add_argument("--output", type=Path, default=Path("runs/bfcl-mt/context-budget.md"))
+    parser.add_argument("--output", type=Path, default=Path("local/runs/bfcl-mt/context-budget.md"))
     parser.add_argument(
         "--tokenizer",
         type=Path,
@@ -312,7 +312,7 @@ def main() -> int:
     parser.add_argument(
         "--token-cache",
         type=Path,
-        default=Path("runs/bfcl-mt/context-budget.token-cache.json"),
+        default=Path("local/runs/bfcl-mt/context-budget.token-cache.json"),
     )
     parser.add_argument("--anchor", choices=sorted(ANCHOR_PREFILL), default="fence")
     parser.add_argument(

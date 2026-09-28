@@ -30,7 +30,7 @@ import (
 
 const (
 	// DefaultRoot holds upload receipts, canaries and suite outputs.
-	DefaultRoot = "runs/state-check-20260919"
+	DefaultRoot = "local/runs/state-check-20260919"
 	// WireProfile is the wire the state evaluations run under.
 	WireProfile = "xml-v1+align-qwen36+no-tool+bare+one-stage"
 	// WireModel is the model every state request names.
@@ -128,7 +128,7 @@ func httpRequest(headers map[string]string, path string, body *lab.OrderedMap) (
 // back. No benchmark answer is injected; these requests never execute
 // generated tools or receive scores.
 func canaryFingerprint(headers map[string]string, stateID string, fast bool, destination string) (map[string]any, error) {
-	trainingPath := "datasets/data/normalized/v1-selection-baseline/rwkv-agent-state-v1-none-ctx4096.jsonl"
+	trainingPath := "local/datasets/data/normalized/v1-selection-baseline/rwkv-agent-state-v1-none-ctx4096.jsonl"
 	trainingLine, err := firstLine(trainingPath)
 	if err != nil {
 		return nil, err
@@ -460,7 +460,7 @@ func sameRegistrations(a, b []map[string]any) bool {
 // scripts/wire-experiment.py used to launch.
 func runWireExperiment(args RunArgs, suite, name, root string, parallelism int) (int, error) {
 	repo := lab.RepoRoot()
-	binary := filepath.Join(repo, "build", "rwkv-cli-state-experiment")
+	binary := filepath.Join(repo, "local", "build", "rwkv-cli-state-experiment")
 	profile := WireProfile
 	if args.Fast {
 		profile += "+think-fast"

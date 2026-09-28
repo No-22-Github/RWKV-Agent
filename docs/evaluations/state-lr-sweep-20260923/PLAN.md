@@ -28,7 +28,7 @@ state 文件本地路径 `state_output/sweep_runs/sweep_runs/<lr>/state-step-<st
 
 ## 2. 固定维度（隔离 state 变量）
 
-- 格式：`--profile g1k --strict-spec`（语料契约逐字对齐，见 `docs/corpus-g1k-wire-format.md`）
+- 格式：`--profile g1k --strict-spec`（语料契约逐字对齐，见 `docs/design/corpus-g1k-wire-format.md`）
 - 采样：`g1k-agent`（T 0.3 · top_p 0.5），取自 2026-09-23 采样扫描结论，本轮不扫采样
 - 预算：`--max-steps 16 --max-tokens 4096 --decision-max-tokens 2048 --case-timeout 30m`
 - 传输：`--remote-batch-wait 0s`；总并发 ≤ 64

@@ -1,6 +1,6 @@
 # 冒烟批次报告（M1，batch `smoke`）
 
-> 按 [distill-workflow.md](../../../docs/distill/distill-workflow.md) §3 S1–S7 跑完一轮的最小批量，用来在开 b01 之前把整条管线（含 M0 的工具改造）真实走一遍。
+> 按 [distill-workflow.md](../distill-workflow.md) §3 S1–S7 跑完一轮的最小批量，用来在开 b01 之前把整条管线（含 M0 的工具改造）真实走一遍。
 
 > 日期：2026-09-25。执行：主控 Agent。
 > **2026-09-25 作废说明**：本报告的老师数据是在 harness **v21** 上跑的。同一天发现并修复了 md-fence 解析器
@@ -95,7 +95,7 @@ pass@3 分布：**3/3 = 14 题**（无 2/3、1/3、0/3）。
 
 ### 6.2 一道题的 fixture 超预算，按 allocation-v1 §5 缩 fixture 后重跑（已处理）
 
-首轮 `log-5001--p1` 4262 token 超 4096。该题**所有**路径都超长，按 [distill-allocation-v1.md](../../../docs/distill/distill-allocation-v1.md) §5「缩 fixture 后重跑老师」处置：
+首轮 `log-5001--p1` 4262 token 超 4096。该题**所有**路径都超长，按 [distill-allocation-v1.md](../distill-allocation-v1.md) §5「缩 fixture 后重跑老师」处置：
 fixture 从 5256 字节缩到 3644（README 精简、轮转日志 `.log.1` 压缩），保留 5 条终态行、12 条 refusal 诱饵、`.log.1` 的 5 条——陷阱与答案不变，`lint`/`verify`/`dedup` 重跑全绿，`tags.version` 1 → 2，然后重跑整轮 k=3。
 最终 `log-5001--p1` 3020 token。
 
@@ -118,7 +118,7 @@ fixture 从 5256 字节缩到 3644（README 精简、轮转日志 `.log.1` 压�
 |---|---|
 | `bench/distill/cases/{code,config,docs,filesystem,hybrid,logs,script,tabular,web}/*-5001/` `notool/nt-5001..5005` | 14 题（`case.json` / `verify.py` / `NOTES.md`） |
 | `bench/distill/batches.jsonl` | 本批记录 |
-| `bench/distill/reports/smoke.md` | 本报告 |
+| `docs/distill/reports/smoke.md` | 本报告 |
 | `bench/distill/exclude.jsonl` | 本批**无新增**（无剔除行） |
 
 `runs/distill/smoke/**` 不入库（`runs/` 已 gitignore）。

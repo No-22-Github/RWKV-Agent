@@ -62,5 +62,5 @@ boundary 双验，与最终配置同日对照。
   保留空 think 开头，推理侧必须配 `thinking=fast` 接住它，且**think 后的内容必须是
   目标行为**（直答或单次工具调用），否则等于给语料加了一条"先探索"暗示范；若坚持
   `thinking=off`（推荐，本消融基座），语料 assistant 轮不得以任何 think 形态开头
-  （`docs/corpus-g1k-wire-format.md` §8 已同步实测依据）。
+  （`docs/design/corpus-g1k-wire-format.md` §8 已同步实测依据）。
 - 产物 `runs/ablation-g1k/thinkfast-{bfcl,boundary}`。

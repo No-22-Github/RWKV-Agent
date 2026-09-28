@@ -40,14 +40,14 @@ S1 起草 ──► S2 静态闸门 ──► S3 去污染 ──► S4 老师�
 | `bench/distill/batches.jsonl` | 每批一行：批号、题 ID 列表、起草模型、老师模型与参数、commit | 是 |
 | `bench/distill/exclude.jsonl` | 抽检剔除的路径：`{"case_id":"tab-5003--p1","reason":"…","batch":"b01"}` | 是 |
 | `bench/distill/scripts/<batch>.jsonl` | `corpus paths` 的产物（老师动作脚本），各批次渲染实际用的那一份；说明见该目录 README | **是**（2026-09-25 用户拍板） |
-| `bench/distill/reports/<batch>.md` | 批次报告（§3 S7） | 是 |
-| `runs/distill/<batch>/…` | 老师 run、render 产物、rows | 否（`runs/` 已 gitignore） |
-| `runs/distill/dataset-YYYYMMDD/` | 最终训练集 | 否 |
+| `docs/distill/reports/<batch>.md` | 批次报告（§3 S7） | 是 |
+| `local/runs/distill/<batch>/…` | 老师 run、render 产物、rows | 否（`local/runs/` 已 gitignore） |
+| `local/runs/distill/dataset-YYYYMMDD/` | 最终训练集 | 否 |
 
 ### 1.3 不做什么
 
 - **不改写测试题当种子。** 700 条旧语料的 36 个种子全是 workbank 题，整族泄漏，改写后的变体表面相似度低、decontam 查不出来。只能从来源上堵，见 §2.1。
-- **不用 `datasets/…/tooling/workv1_wire.py` 或任何手写拼接。** 它漏掉了 harness 在两步之间插入的 User 块。训练行只能来自 `corpus render`。
+- **不用 `local/datasets/…/tooling/workv1_wire.py` 或任何手写拼接。** 它漏掉了 harness 在两步之间插入的 User 块。训练行只能来自 `corpus render`。
 - **不出中文题（本期）。** 阻塞原因：`corpus decontam` 还不支持 CJK（方案已提，未实现）；出题规范与答案契约都是英文。中文是下一期。
 - **不筛老师自报的身份。** 老师回答「I'm Qwen / I'm DeepSeek」照常收，不加排除词、不加打包闸门、不在抽检时因此剔除。这是用户的决定：RWKV 基模被问身份时本来就大概率自称 DeepSeek，筛掉这类数据没有意义。身份类题目的判据只要求回答了身份问题（如 `output_contains_any` 含 `assistant`、`model`、`AI`），不管说的是哪家。
 - **不做人工终审、不把题升为 `reviewed`。** 蒸馏题永远是 `draft`，质检靠老师 pass@k + 判分器 + 抽检。
@@ -57,11 +57,11 @@ S1 起草 ──► S2 静态闸门 ──► S3 去污染 ──► S4 老师�
 
 出题规范**沿用 workbank 全套**，以下三份是最高权威，起草前必须通读：
 
-- `bench/workbank/docs/authoring-guide.md`：题型清单 §2、陷阱目录 §3、难度规则 §4、tag 词表 §5、表面多样性 §6、NOTES 格式 §7、反例库 §8（X-001～X-012 每条都是真实翻过车的）
-- `bench/workbank/docs/HANDOFF.md` §2：`case.json` schema v5 的字段契约与完整样例
-- `bench/workbank/docs/M0-findings.md` §1/§2/§9：工具的真实行为（`data_query` 不解析 `$1,234.50`、`read_file` 64KB 截断等）
+- `docs/workbank/authoring-guide.md`：题型清单 §2、陷阱目录 §3、难度规则 §4、tag 词表 §5、表面多样性 §6、NOTES 格式 §7、反例库 §8（X-001～X-012 每条都是真实翻过车的）
+- `docs/workbank/HANDOFF.md` §2：`case.json` schema v5 的字段契约与完整样例
+- `docs/workbank/M0-findings.md` §1/§2/§9：工具的真实行为（`data_query` 不解析 `$1,234.50`、`read_file` 64KB 截断等）
 
-机器可读枚举：`bench/workbank/docs/tag-vocab.json`（**只读引用，不复制**。复制会让两份词表漂移，而 lint 按词表判合法）。
+机器可读枚举：`bench/workbank/tag-vocab.json`（**只读引用，不复制**。复制会让两份词表漂移，而 lint 按词表判合法）。
 
 本节只写**蒸馏题与测试题不同的地方**。
 
@@ -70,8 +70,8 @@ S1 起草 ──► S2 静态闸门 ──► S3 去污染 ──► S4 老师�
 | 起草子 Agent **可以读** | **不得读** |
 |---|---|
 | 上面三份文档、`tag-vocab.json` | `bench/workbank/cases/`、`bench/workbank/cases-shelved/` 下任何文件 |
-| 格式样例：本文 §2.5；`bench/workbank/tools/testdata/tabular/tab-9001/`、`…/web/web-9001/` | `bench/workbank/reports/`、`bench/workbank/ledger/`（里面引用了题面与答案） |
-| 已入库的 `bench/distill/cases/`（查重、避免撞名） | `runs/` 下任何 trace（跑的都是测试题）；`datasets/workspace-agent-700-20260920/`（workbank 种子题的变体） |
+| 格式样例：本文 §2.5；`bench/workbank/tools/testdata/tabular/tab-9001/`、`…/web/web-9001/` | `docs/workbank/reports/`、`bench/workbank/reports-data/`、`bench/workbank/ledger/`（里面引用了题面与答案；报告 2026-09-28 从 `bench/workbank/reports/` 移入 `docs/`） |
+| 已入库的 `bench/distill/cases/`（查重、避免撞名） | `local/runs/` 下任何 trace（跑的都是测试题）；`local/datasets/workspace-agent-700-20260920/`（workbank 种子题的变体） |
 
 理由：decontam 只能按表面文本比对（prompt 5-gram、fixture 行、专有名），「换名换数、同一骨架」的变体会漏过去。
 不读测试题就不可能写出测试题的变体。authoring-guide 反例库里出现的题目片段（X-004 的汇率题等）也**不得**作为骨架。
@@ -230,17 +230,17 @@ The decoy 7 counts rows, but the question asks for orders and the README says th
 你为 RWKV-Agent 的蒸馏题库出题。场景：<scenario>；本批题数：<n>；ID 从 <abbrev>-<起始号> 连续编号；
 task_type 配额：<§2.4 该行>；本场景要承担的行为指标：<§2.4 下表中分到本场景的份额>。
 
-必读：docs/distill/distill-workflow.md §2 全部；bench/workbank/docs/authoring-guide.md；bench/workbank/docs/HANDOFF.md §2；
-bench/workbank/docs/M0-findings.md §1/§2/§9；bench/workbank/docs/tag-vocab.json。
-禁读：bench/workbank/cases/、bench/workbank/cases-shelved/、bench/workbank/reports/、bench/workbank/ledger/、runs/。
+必读：docs/distill/distill-workflow.md §2 全部；docs/workbank/authoring-guide.md；docs/workbank/HANDOFF.md §2；
+docs/workbank/M0-findings.md §1/§2/§9；bench/workbank/tag-vocab.json。
+禁读：bench/workbank/cases/、bench/workbank/cases-shelved/、docs/workbank/reports/、bench/workbank/reports-data/、bench/workbank/ledger/、local/runs/。
 禁用 family 名：<黑名单>。
 
 每题写 bench/distill/cases/<scenario>/<id>/{case.json,verify.py,NOTES.md}。
 自检（全部通过才算交付，在仓库根目录执行）：
-  bin/rwkv-lab bank lint --fix --canary-prefix DISTILL-CANARY --cases bench/distill/cases   # 先回填 fixture_bytes
-  bin/rwkv-lab bank lint --canary-prefix DISTILL-CANARY --case bench/distill/cases/<scenario>/<id>   # 每题 0 违规
-  bin/rwkv-lab bank verify --cases bench/distill/cases/<scenario>                            # 全部 PASS，含 sabotage
-  bin/rwkv-lab bank hitcheck --case <dir>                                                     # web/hyb 题 5/5
+  local/bin/rwkv-lab bank lint --fix --canary-prefix DISTILL-CANARY --cases bench/distill/cases   # 先回填 fixture_bytes
+  local/bin/rwkv-lab bank lint --canary-prefix DISTILL-CANARY --case bench/distill/cases/<scenario>/<id>   # 每题 0 违规
+  local/bin/rwkv-lab bank verify --cases bench/distill/cases/<scenario>                            # 全部 PASS，含 sabotage
+  local/bin/rwkv-lab bank hitcheck --case <dir>                                                     # web/hyb 题 5/5
 不要跑 git；不要碰别的场景目录；不要改工具代码。交付时列出每题的 ID、task_type、traps、level、正确答案。
 ```
 
@@ -251,30 +251,30 @@ bench/workbank/docs/M0-findings.md §1/§2/§9；bench/workbank/docs/tag-vocab.j
 ### S0 环境（每批开工前）
 
 ```bash
-git pull && go build -tags chatcompletions -o bin/rwkv-cli ./cmd/rwkv-cli && go build -o bin/rwkv-lab ./cmd/rwkv-lab
+git pull && go build -tags chatcompletions -o local/bin/rwkv-cli ./cmd/rwkv-cli && go build -o local/bin/rwkv-lab ./cmd/rwkv-lab
 git rev-parse HEAD && git status --short          # 工作区必须干净
 go test ./internal/lab/... ./internal/agent/eval/ # 必须全过
-shasum -a 256 bin/rwkv-cli                        # 记入 batches.jsonl
+shasum -a 256 local/bin/rwkv-cli                        # 记入 batches.jsonl
 ```
 
 - **`-tags chatcompletions` 必须带**：不带的二进制调老师时报 `Chat Completions support is not included in this build`。这个 tag 只加客户端，不改 wire，render 用同一个二进制没有问题（冒烟时 `wire_hash` 与不带 tag 的版本相同）。
 - 老师的 API key 放环境变量，**不得写进任何文件**。agent-eval 默认读 `OPENAI_API_KEY`，可用 `--api-key-env <变量名>` 改。
-- **本批从 S4 到 S8 不得重编 `bin/rwkv-cli`**。harness 一变，`wire_hash` 就变，同一批的 rows 会混进两种 wire。当前 g1k workbank 的 `wire_hash` 为
+- **本批从 S4 到 S8 不得重编 `local/bin/rwkv-cli`**。harness 一变，`wire_hash` 就变，同一批的 rows 会混进两种 wire。当前 g1k workbank 的 `wire_hash` 为
   `707c67403b1b2e5269ddfcd8ecee2bfb7ce4d8133912d102bc67f1324f8018cb`（harness `rwkv-agent-eval-v21`，scorer v3）。harness 升级后这个值会变，这是预期行为，见 §3 S8。
 
 ### S1 起草
 
 按 §2.7 派 10 个子 Agent 并行起草。主控收齐后核对 §2.4 的两张表（题数、task_type 至少数、行为指标）；
-`bin/rwkv-lab bank coverage --cases bench/distill/cases --summary` 可以打印场景 × 难度的填充表，**只看计数，不看它的配额列**（那是 workbank 的配额）。
+`local/bin/rwkv-lab bank coverage --cases bench/distill/cases --summary` 可以打印场景 × 难度的填充表，**只看计数，不看它的配额列**（那是 workbank 的配额）。
 
 ### S2 静态闸门（主控对全批重跑一遍，不信子 Agent 的自检报告）
 
 ```bash
-bin/rwkv-lab bank lint --canary-prefix DISTILL-CANARY --cases bench/distill/cases   # 退出码 0
-bin/rwkv-lab bank verify --cases bench/distill/cases                                # 退出码 0
-bin/rwkv-lab bank dedup --cases bench/distill/cases                                 # 无命中；有命中则改措辞或删一题
-for d in bench/distill/cases/{web,hybrid}/*/; do bin/rwkv-lab bank hitcheck --case "$d"; done   # 每题 5/5
-bin/rwkv-lab corpus loadcheck --cases bench/distill/cases                # 真 loader 预检（2026-09-25 加）
+local/bin/rwkv-lab bank lint --canary-prefix DISTILL-CANARY --cases bench/distill/cases   # 退出码 0
+local/bin/rwkv-lab bank verify --cases bench/distill/cases                                # 退出码 0
+local/bin/rwkv-lab bank dedup --cases bench/distill/cases                                 # 无命中；有命中则改措辞或删一题
+for d in bench/distill/cases/{web,hybrid}/*/; do local/bin/rwkv-lab bank hitcheck --case "$d"; done   # 每题 5/5
+local/bin/rwkv-lab corpus loadcheck --cases bench/distill/cases                # 真 loader 预检（2026-09-25 加）
 ```
 
 `verify` 的 `sabotage_undetected` **是硬失败，不是警告**（反例 X-011）。修法见 §2.3「答案值的字面量」。
@@ -283,8 +283,8 @@ bin/rwkv-lab corpus loadcheck --cases bench/distill/cases                # 真 l
 ### S3 去污染
 
 ```bash
-bin/rwkv-lab corpus decontam --test bench/workbank/cases        --candidates bench/distill/cases --report runs/distill/$B/decontam-cases.jsonl
-bin/rwkv-lab corpus decontam --test bench/workbank/cases-shelved --candidates bench/distill/cases --report runs/distill/$B/decontam-shelved.jsonl
+local/bin/rwkv-lab corpus decontam --test bench/workbank/cases        --candidates bench/distill/cases --report local/runs/distill/$B/decontam-cases.jsonl
+local/bin/rwkv-lab corpus decontam --test bench/workbank/cases-shelved --candidates bench/distill/cases --report local/runs/distill/$B/decontam-shelved.jsonl
 ```
 
 两条都必须 `0 flagged`（有命中时退出码 1）。命中的题**重写或删除**，不得调阈值。阈值是校准过的（旧 700 条的 anchor 36/36 命中、workbank 内部误报 0/148）。
@@ -294,7 +294,7 @@ bin/rwkv-lab corpus decontam --test bench/workbank/cases-shelved --candidates be
 
 ```bash
 for k in 0 1 2; do
-  bin/rwkv-cli agent-eval \
+  local/bin/rwkv-cli agent-eval \
     --completion chat-completions --api-url "$TEACHER_URL" --model "$TEACHER_MODEL" \
     --chat-token-limit-field max-tokens \
     --temperature 0.3 --top-p 1 \
@@ -302,13 +302,13 @@ for k in 0 1 2; do
     --tool-catalog work-v1 --file-tools lines \
     --max-steps 16 --max-tokens 4096 --decision-max-tokens 8192 \
     --case-parallelism 40 --case-timeout 30m \
-    --output runs/distill/$B/teacher-k$k
+    --output local/runs/distill/$B/teacher-k$k
 done
 ```
 
 | 参数 | 值 | 不许动的理由 |
 |---|---|---|
-| `--temperature` | 0.3 | **DeepSeek-flash 不能用 0**：T=0 五轮作废数 14→40，出现大量 UNKNOWN 早退和不调 web_search（`bench/workbank/reports/dsflash-baseline-2026-09-22.md` §2）。T=0.3 同时给出 k 次之间的路径多样性 |
+| `--temperature` | 0.3 | **DeepSeek-flash 不能用 0**：T=0 五轮作废数 14→40，出现大量 UNKNOWN 早退和不调 web_search（`docs/workbank/reports/dsflash-baseline-2026-09-22.md` §2）。T=0.3 同时给出 k 次之间的路径多样性 |
 | `--tool-catalog work-v1 --file-tools lines` | 固定 | 必须与 S6 render 的默认值一致。老师用了 student 没有的工具或参数形状，重放时会全部被拒 |
 | `--max-steps 16` | 固定 | 与 student 预算相同。更长的老师路径在 student 预算下本来就不可复现 |
 | `--decision-max-tokens 8192` | 固定 | dsflash 基线的设置；老师输出被截断会变成协议错误，白白浪费一次运行 |
@@ -318,15 +318,15 @@ done
 - `$TEACHER_URL` / `$TEACHER_MODEL`：**待用户填写**（§8）。已知可用：
   - **自建 vLLM（2026-09-25 冒烟所用）**：`http://100.64.0.1:8000/v1/chat/completions` + `qwen3.8-27b`（Qwen3.8-27B-NVFP4，max_model_len 32768）。必须加 `--chat-thinking disabled`：它把 `chat_template_kwargs.enable_thinking=false` 发给 vLLM，否则 Qwen 的思考会占用输出预算。不需要 key，但 agent-eval 要求变量存在，传 `OPENAI_API_KEY=dummy`。并发先用 10，端点能力未测。
   - 官方 `https://api.deepseek.com/v1/chat/completions` + `deepseek-v4-flash`；中转 + `deepseek-flash`（dsflash 基线所用）。
-- 每个 run 结束检查 `runs/distill/$B/teacher-k$k/summary.json`：infra 错误（超时、5xx）> 5% 就整轮重跑，换新的 `--output` 目录，**不得覆盖**。
+- 每个 run 结束检查 `local/runs/distill/$B/teacher-k$k/summary.json`：infra 错误（超时、5xx）> 5% 就整轮重跑，换新的 `--output` 目录，**不得覆盖**。
 - 单独补跑某几题：加 `--case <id>`（可重复），输出到 `teacher-fix-k$k`。
 
 ### S5 抽路径 + pass@k 质检
 
 ```bash
-bin/rwkv-lab corpus paths \
-  --run runs/distill/$B/teacher-k0 --run runs/distill/$B/teacher-k1 --run runs/distill/$B/teacher-k2 \
-  --out runs/distill/$B/script.jsonl --report runs/distill/$B/paths.jsonl
+local/bin/rwkv-lab corpus paths \
+  --run local/runs/distill/$B/teacher-k0 --run local/runs/distill/$B/teacher-k1 --run local/runs/distill/$B/teacher-k2 \
+  --out local/runs/distill/$B/script.jsonl --report local/runs/distill/$B/paths.jsonl
 ```
 
 `paths` 的丢弃规则（已实现，不要改）：失败、有协议重试、工具报错或被拒、进入强制收尾、终答被 harness 修复过。
@@ -346,12 +346,12 @@ bin/rwkv-lab corpus paths \
 ### S6 重放切行
 
 ```bash
-bin/rwkv-lab corpus render --cases bench/distill/cases --script runs/distill/$B/script.jsonl --out runs/distill/$B/corpus
+local/bin/rwkv-lab corpus render --cases bench/distill/cases --script local/runs/distill/$B/script.jsonl --out local/runs/distill/$B/corpus
 ```
 
 - 不传任何额外 flag，也不用 `--` 追加 agent-eval 参数。默认值就是 workbank 的 g1k 臂，改了 wire 就和跑分对不上。
 - **不得传 `--keep-failing`**（会把判分不过的轨迹放进训练集），**不得传 `--allow-test-bank`**。
-- 验收：`runs/distill/$B/corpus/run/run.json` 的 `harness.wire_hash` 等于 S0 记下的值。
+- 验收：`local/runs/distill/$B/corpus/run/run.json` 的 `harness.wire_hash` 等于 S0 记下的值。
 - `rejects.jsonl` 里每条都要有归属：`teacher trajectory fails the case expectations` 出现在 1/3 题上是正常的（S5 按老师的 run 判通过，
   S6 按当前题目重判，两者只在改过题时不同）；其他原因（生成次数不一致、非只追加、动作不同）**必须逐条查明**，那是 harness 与脚本不对齐的信号。
 
@@ -361,25 +361,25 @@ bin/rwkv-lab corpus render --cases bench/distill/cases --script runs/distill/$B/
 ### S7 批次验收
 
 1. **行数**：至少有 1 行的题 ≥ 本批入库题数的 75%。
-2. **打包检查**：`bin/rwkv-lab corpus pack --rows runs/distill/$B/corpus/rows.jsonl --exclude bench/distill/exclude.jsonl --dry-run`（§4.2）退出码 0。
+2. **打包检查**：`local/bin/rwkv-lab corpus pack --rows local/runs/distill/$B/corpus/rows.jsonl --exclude bench/distill/exclude.jsonl --dry-run`（§4.2）退出码 0。
 3. **抽检**（主控 Agent 亲自读 `text` 中老师输出的部分）：
    - 随机 20 行（`meta.case_id` 均匀覆盖场景）；
    - **加上**所有判据为 `output_contains_any` 的题的全部行（TR-AMBIG 第 1 轮、TR-NOCAP、explain_readonly 等），这些题判分器只查关键词。
    - 查：终答是否真的对、反问是否真在问该问的东西、拒绝是否给了理由、有没有答非所问却撞上关键词。不合格的写进 `bench/distill/exclude.jsonl`，**不得手改 rows 或 script**。
-4. **报告** `bench/distill/reports/$B.md`，必须包含：题数（入库 / 下架）、pass@3 分布、0/3 分诊表（ID、归类 ①②③、处置）、
-   paths 丢弃原因计数、render 行数与拒绝原因、零调用行占比、抽检行数与剔除数、`wire_hash`、`bin/rwkv-cli` sha256、git commit。
-5. **提交**：分支 `distill/$B`，提交 `bench/distill/cases*`、`batches.jsonl`、`exclude.jsonl`、`reports/$B.md`；不提交 `runs/`。
+4. **报告** `docs/distill/reports/$B.md`，必须包含：题数（入库 / 下架）、pass@3 分布、0/3 分诊表（ID、归类 ①②③、处置）、
+   paths 丢弃原因计数、render 行数与拒绝原因、零调用行占比、抽检行数与剔除数、`wire_hash`、`local/bin/rwkv-cli` sha256、git commit。
+5. **提交**：分支 `distill/$B`，提交 `bench/distill/cases*`、`batches.jsonl`、`exclude.jsonl`、`reports/$B.md`；不提交 `local/runs/`。
 
 ### S8 打包数据集
 
 ```bash
-bin/rwkv-lab corpus pack \
-  --rows runs/distill/b01/corpus/rows.jsonl --rows runs/distill/b02/corpus/rows.jsonl \
+local/bin/rwkv-lab corpus pack \
+  --rows local/runs/distill/b01/corpus/rows.jsonl --rows local/runs/distill/b02/corpus/rows.jsonl \
   --exclude bench/distill/exclude.jsonl \
-  --out runs/distill/dataset-YYYYMMDD
+  --out local/runs/distill/dataset-YYYYMMDD
 ```
 
-- 所有 rows 必须是同一个 `wire_hash`，否则 `pack` 拒绝。harness 升级后，用当前 `bin/rwkv-cli` 对旧批次的 `script.jsonl` **重新 render** 即可。
+- 所有 rows 必须是同一个 `wire_hash`，否则 `pack` 拒绝。harness 升级后，用当前 `local/bin/rwkv-cli` 对旧批次的 `script.jsonl` **重新 render** 即可。
   render 不调模型，几百条不到一秒。所以 `script.jsonl` 才是真正的资产，rows 随时可以重新生成。
 - 产物：`train.jsonl`（每行只有 `{"text": …}`，当前 state 训练器只读 text）、`rows.jsonl`（完整字段，留给以后支持 `loss_spans` 的训练器）、`manifest.json`。
 
@@ -400,7 +400,7 @@ Go 迁移后的 `writeCaseIndented` 从顶层 `caseObj["fixture_bytes"]`（不�
 - 测试：
   - 正向：DISTILL 题配 `--canary-prefix DISTILL-CANARY` 时 0 违规；
   - **负向**：同一题的 description 换成 `WORKBANK-CANARY-…`、带 `--canary-prefix DISTILL-CANARY` 跑时必须报 `canary` 和 `canary.foreign`；
-  - 回归：`bin/rwkv-lab bank lint`（不带 flag）对 `bench/workbank/cases` 仍是 148 题 0 违规。
+  - 回归：`local/bin/rwkv-lab bank lint`（不带 flag）对 `bench/workbank/cases` 仍是 148 题 0 违规。
 
 ### 4.2 `corpus pack`
 
@@ -430,7 +430,7 @@ rwkv-lab corpus pack --rows <rows.jsonl> [--rows …] [--exclude <jsonl>] (--out
 
 改造：
 
-- `bench/workbank/docs/tag-vocab.json` 的 notool 场景下加 task_type `smalltalk`（纯增量；workbank 没有这类题，lint 结果不变），`authoring-guide.md` §2 的表同步登记。
+- `bench/workbank/tag-vocab.json` 的 notool 场景下加 task_type `smalltalk`（纯增量；workbank 没有这类题，lint 结果不变），`authoring-guide.md` §2 的表同步登记。
 - lint 对 `task_type == "smalltalk"`：**禁止**出现答案契约（出现就报 `answer_contract.smalltalk`）；不要求 verify.py；允许 `trap_decoys` 为 null；
   **要求**每轮 `expect` 同时有 `"tools": []`、`"require_active_no_call": true` 和非空的 `output_contains_any`。
 - 测试：`nt-5001..5005` 在 `--canary-prefix DISTILL-CANARY` 下 0 违规；**负向**：给 nt-5001 加上答案契约必须报错；删掉 nt-5001 的 `output_contains_any` 必须报错。
@@ -592,11 +592,11 @@ rwkv-lab corpus pack --rows <rows.jsonl> [--rows …] [--exclude <jsonl>] (--out
 | 手改 `script.jsonl` 或 `rows.jsonl`（删一步、改 supervised、修个答案） | 行与 harness 不再逐字节对齐；而且全文 loss 训练器会把改坏的地方学进去。剔除只走 `exclude.jsonl` |
 | `--max-per-case` 调大 | 简单题一题出 3、4 条相似轨迹，数据分布向简单题倾斜 |
 | 把零调用行当成「空行」过滤掉 | 训练出只会调工具的模型（state LR 扫描的 bfcl 崩溃就是这么来的） |
-| render 时追加 agent-eval flag，或中途重编 `bin/rwkv-cli` | `wire_hash` 分裂，训练 wire 与跑分 wire 对不上 |
+| render 时追加 agent-eval flag，或中途重编 `local/bin/rwkv-cli` | `wire_hash` 分裂，训练 wire 与跑分 wire 对不上 |
 | 老师用 T=0「为了稳定」 | DeepSeek-flash 在 T=0 下崩溃 |
 | decontam 命中后调阈值 | 闸门失效 |
 | 用 `WORKBANK-CANARY` 让 lint 通过 | 见 §2.2 |
-| 提交 `runs/` 下的东西 | 仓库约定：派生数据不入库 |
+| 提交 `local/runs/` 下的东西 | 仓库约定：派生数据不入库 |
 | 在 0/3 题上多跑几次直到蒙中 1/3 | 等于在不可靠的题上抽奖；0/3 先分诊，分诊结论是「老师确实不会」就下架 |
 
 ## 6. 这不是 bug
@@ -615,7 +615,7 @@ rwkv-lab corpus pack --rows <rows.jsonl> [--rows …] [--exclude <jsonl>] (--out
 
 | 里程碑 | 内容 | 验收 |
 |---|---|---|
-| **M0（阻塞，约 1 天）** | §4.1、§4.2、§4.3、§4.4 | `go test ./internal/lab/...` 全过，§4 列出的负向测试齐全；§4.4.4 全部满足；`bin/rwkv-lab bank lint` 对 workbank 仍 0 违规；把 §2.5 样例放进 `bench/distill/cases/tabular/tab-5001/` 后，`lint --canary-prefix DISTILL-CANARY` 0 违规 |
+| **M0（阻塞，约 1 天）** | §4.1、§4.2、§4.3、§4.4 | `go test ./internal/lab/...` 全过，§4 列出的负向测试齐全；§4.4.4 全部满足；`local/bin/rwkv-lab bank lint` 对 workbank 仍 0 违规；把 §2.5 样例放进 `bench/distill/cases/tabular/tab-5001/` 后，`lint --canary-prefix DISTILL-CANARY` 0 违规 |
 | **M1 冒烟（10 题）** | 每场景 1 题（含 tab-5001）走 S1–S7 全流程 | 老师 k=3 至少 8 题 ≥ 1/3；render 的 `wire_hash` = S0 值；`pack --dry-run` 退出 0；**负向**：手工把一题 `expected_number` 改错后重跑 S6，该题所有行必须进 `rejects.jsonl` |
 | **M2 b01（200 题）** | §2.4 配额，S1–S7 | S7 全部条目；报告入库 |
 | **M3 数据集 v1** | S8 打包 b01 | `manifest.json` 齐全；交给用户训练 state，并在 workbank 上与不训练的基线对比（按 rwkv-bench skill 的规程，不属于本流程） |

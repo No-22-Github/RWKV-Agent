@@ -2,7 +2,7 @@
 //
 // The tools are a straight port of the Python scripts they replace, and the
 // migration contract is that they produce the same bytes as the originals
-// (docs/go-tooling-migration.md §4.3). Most of what lives here exists for that
+// (docs/design/go-tooling-migration.md §4.3). Most of what lives here exists for that
 // reason: Python's json module, str.splitlines and round() do not have direct
 // Go equivalents, and the differences are exactly where a silent port bug
 // would hide.

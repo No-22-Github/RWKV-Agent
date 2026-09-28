@@ -18,7 +18,7 @@
 - `internal/bfcl/pysidecar`：Python sidecar 客户端、服务端和依赖门禁，用于复用官方 evaluator。
 - `cmd/rwkv-cli`：`bfcl-eval`、`bfcl-mt-eval`、`bfcl-reparse`、`bfcl-sample` 和 `bfcl-sampling-diagnostic` 命令。
 - `configs/` 与 `scripts/`：数据 commit/config、样本 manifest、BFCL 环境安装和运行/比较辅助脚本。
-- `docs/` 与 `archive/`：实验报告、规格书、E8 机器可读归档和项目索引。
+- `docs/` 与 `bench/archive/`：实验报告、规格书、E8 机器可读归档和项目索引。
 
 ## 主线已有的 Harness 修复
 

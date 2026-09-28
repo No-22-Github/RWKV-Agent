@@ -4,7 +4,7 @@
 // gating distillation candidates against the test bank (decontam).
 //
 // The port keeps the Python originals' bytes (§4.3 of
-// docs/go-tooling-migration.md). That matters most here: script.jsonl and
+// docs/design/go-tooling-migration.md). That matters most here: script.jsonl and
 // rows.jsonl feed training corpora, and rows.jsonl is compared byte for byte
 // against the baseline because it is the exact byte stream the model saw.
 package corpus

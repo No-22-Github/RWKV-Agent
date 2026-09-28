@@ -117,7 +117,7 @@ BFCL 有 Qwen3-8B 的公开分、没有 RWKV 的。因此整条多轮链路（�
 - enhanced 失败：`instance_state_mismatch` 94、`execution_response_mismatch` 36、`empty_turn_model_response` 13。
 - 成本：2429 个执行 step + 1170 个 route call = 3599 个模型调用；734 个轮次中
   `finish_task` 654、`loop_rescue` 61、`route_respond` 12、`parse_error` 7。
-- 归档：`archive/bfcl-v4-e8-qwen-enhanced-base-20260822/`；完整报告：
+- 归档：`bench/archive/bfcl-v4-e8-qwen-enhanced-base-20260822/`；完整报告：
   `docs/evaluations/bfcl-v4-e8-qwen-enhanced-base-20260822.md`。
 - 边界：这里只完成 `multi_turn_base`，不是四 split 完整 E8；object anchor 对 Qwen 不利，
   FP8/vLLM 也有已知底噪，因此差值是完整系统运行的观测结果。

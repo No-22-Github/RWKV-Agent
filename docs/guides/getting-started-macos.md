@@ -68,10 +68,10 @@ git submodule update --init --recursive
 第一次构建需要从网络拉取 MLX Swift 依赖，耗时会明显长于后续构建。成功后可执行文件是：
 
 ```text
-dist/rwkv-cli
+local/dist/rwkv-cli
 ```
 
-请保留整个 `dist/` 目录，不要只复制 `rwkv-cli`。程序运行时还需要同目录中的 dylib、
+请保留整个 `local/dist/` 目录，不要只复制 `rwkv-cli`。程序运行时还需要同目录中的 dylib、
 tokenizer 和 Metal resource。
 
 ## 4. 准备模型
@@ -88,7 +88,7 @@ RWKV_MODEL=/absolute/path/to/rwkv7-model.pth
 也可以使用 `rwkv-cli convert` 预先转换成 MLX 目录：
 
 ```sh
-./dist/rwkv-cli convert \
+./local/dist/rwkv-cli convert \
   --input "$RWKV_MODEL" \
   --output /absolute/path/to/rwkv7-model-mlx
 ```
@@ -98,7 +98,7 @@ RWKV_MODEL=/absolute/path/to/rwkv7-model.pth
 先用单轮命令验证模型能正常加载：
 
 ```sh
-./dist/rwkv-cli run \
+./local/dist/rwkv-cli run \
   --model "$RWKV_MODEL" \
   --prompt "你好，请用一句话介绍你自己。" \
   --max-tokens 128
@@ -107,9 +107,9 @@ RWKV_MODEL=/absolute/path/to/rwkv7-model.pth
 进入多轮聊天并自动保存 Session：
 
 ```sh
-./dist/rwkv-cli run \
+./local/dist/rwkv-cli run \
   --model "$RWKV_MODEL" \
-  --session ./sessions/demo.rwkv-session \
+  --session ./local/sessions/demo.rwkv-session \
   --autosave
 ```
 
@@ -134,7 +134,7 @@ REPL 中常用命令：
 下面的命令让一个模型实例同时运行四个独立 Session：
 
 ```sh
-./dist/rwkv-cli concurrent \
+./local/dist/rwkv-cli concurrent \
   --model "$RWKV_MODEL" \
   --concurrency 4 \
   --concurrent-prompt "用一句话介绍 RWKV" \
@@ -154,7 +154,7 @@ git submodule update --init --recursive
 ./scripts/build-macos.sh
 ```
 
-`build/` 是生成缓存，`dist/` 是可运行产物。重新构建不会删除 Session 或模型。
+`local/build/` 是生成缓存，`local/dist/` 是可运行产物。重新构建不会删除 Session 或模型。
 
 ## 常见问题
 
@@ -178,7 +178,7 @@ git pull --ff-only
 如果该目录被手动改得无法恢复，可以把生成缓存移走后重试：
 
 ```sh
-mv build/mlx-swift-source build/mlx-swift-source.backup
+mv local/build/mlx-swift-source local/build/mlx-swift-source.backup
 ./scripts/build-macos.sh
 ```
 
@@ -212,8 +212,8 @@ git submodule update --init --recursive
 
 ### `Library not loaded: @rpath/librwkv_agent_runtime.dylib`
 
-不要把二进制单独移出 `dist/`。从项目目录运行 `./dist/rwkv-cli`，或完整复制整个
-`dist/` 目录。
+不要把二进制单独移出 `local/dist/`。从项目目录运行 `./local/dist/rwkv-cli`，或完整复制整个
+`local/dist/` 目录。
 
 ### 模型加载失败
 
@@ -228,5 +228,5 @@ git submodule update --init --recursive
 
 ```sh
 ./scripts/build-macos.sh --check
-./dist/rwkv-cli --help
+./local/dist/rwkv-cli --help
 ```

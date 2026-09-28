@@ -11,7 +11,7 @@ import (
 
 // Query-aware compression of long fetched pages.
 //
-// Evidence (PREFERENCES.md P5-1..P5-3): with a
+// Evidence (docs/design/preferences.md P5-1..P5-3): with a
 // full 5k-10k-token page fed back, the next decision collapses into re-fetch
 // loops (1/20 carried the page's answer into the call); with a verbatim
 // extraction produced by this same model under a half-open think prefill,
@@ -19,7 +19,7 @@ import (
 // without (P1-7: spontaneous <think> drift grows with context length), and
 // shrinks ~5k/10k-token pages to ~110 chars.
 //
-// Round-3 (PREFERENCES.md P5-ZH-1..3): the English extract
+// Round-3 (docs/design/preferences.md P5-ZH-1..3): the English extract
 // instruction loops verbatim on Chinese pages (retention 2/10·2/10), so the
 // instruction switches on the page language — Chinese pages use the
 // content-locked summary form (≤3 sentences, original wording only, no task

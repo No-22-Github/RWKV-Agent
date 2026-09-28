@@ -307,7 +307,7 @@ state 文件结构：32 张 `(64,64,64)`、`BFloat16Storage`（9-17 的两枚是
 
 ## 对照：仓库里已有的 DeepSeek workbank 成绩
 
-用户问起的 DeepSeek 成绩都在仓库里，分三处存着：报告 `bench/workbank/reports/matrix-pilot40.md`（试点判决）、原始 run `runs/workbank/*deepseek*/`、账本 `bench/workbank/ledger/runs.jsonl`。
+用户问起的 DeepSeek 成绩都在仓库里，分三处存着：报告 `docs/workbank/reports/matrix-pilot40.md`（试点判决）、原始 run `runs/workbank/*deepseek*/`、账本 `bench/workbank/ledger/runs.jsonl`。
 
 配置：DeepSeek 走 `--completion chat-completions` + 自己的原生 wire（v1 `bc79a316`、v2 `67a54f2e`），模型 `deepseek-v4-flash`，每题跑 k=4；端点按当时本地凭据配置，未记入本文档。G1K 走 XML wire（`51859aff`/`06b63561`…），单跑贪心。
 
@@ -355,7 +355,7 @@ state 文件结构：32 张 `(64,64,64)`、`BFloat16Storage`（9-17 的两枚是
 
 - 运行数据：`runs/state-check-20260920/{zero,final}-s0-20260920-{workbank,boundary,bfcl}/`（summary/run.json/experiment.json + 日志）
 - 逐项对照：`runs/state-check-20260920/analysis/comparison.json`（`analysis/compose.py` 生成）
-- 通过题轨迹体检：`bench/workbank/reports/state-passing-trajectories-20260921.json`
+- 通过题轨迹体检：`bench/workbank/reports-data/state-passing-trajectories-20260921.json`
 - A2 剂量-反应数据：`runs/state-check-20260920/analysis/a2-dose-response.json`；各 checkpoint 运行目录 `runs/state-check-20260920/a2-{18,36,54,72,90,108}-s0-20260921-workbank/` 与 `a2-108-nonudge-20260921-workbank/`
 - 焊接率度量：`bench/workbank/tools/measure_anchor_agreement.py`（首步 名/精确/整回合 一致率 + 常数基线）
 - outA 扫描数据：`runs/state-check-20260920/outA-{45,90,135,180,225,270}-s0-20260920-workbank/`（六个 checkpoint 的 workbank 结果）

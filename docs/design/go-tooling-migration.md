@@ -34,7 +34,7 @@ Go 一改它们就静默失效。本次把这部分迁进一个新的 Go 程序 
 - 不给 decontam 加中文支持。这是已经规划好的后续任务，要在迁移完成后基于 Go 版本单独做。
 - 不迁 B / C / `verify.py`。理由见 §2.4。
 - 不改 `internal/agent/eval` 的行为。允许为 `rwkv-lab` 新增**导出**函数（例如单题加载校验），不得改动现有函数的语义。
-- 不改历史文档里的路径：`docs/evaluations/**`、`bench/workbank/reports/**`、`bench/workbank/docs/changelog.md`。理由：它们记录的是当时怎么跑的，改了就对不上当时的 commit。
+- 不改历史文档里的路径：`docs/evaluations/**`、`bench/workbank/reports/**`、`docs/workbank/changelog.md`。理由：它们记录的是当时怎么跑的，改了就对不上当时的 commit。
 - 不动 `datasets/`、`runs/`、`outputs/`、`state_output/`（都被 gitignore；基线输入会从这里读，但不写回）。
 - 不把 `rwkv-lab` 的命令塞进 `rwkv-cli`。理由：`rwkv-cli` 是产品，开发工具单独成一个程序。
 
@@ -130,7 +130,7 @@ Go 一改它们就静默失效。本次把这部分迁进一个新的 Go 程序 
 | `internal/bfcl/pysidecar/server.py`、`scripts/bfcl.py`、`scripts/bfcl-mt-context-budget.py`、`scripts/bfcl-mt-gt-selftest.py` | import `bfcl_eval`，要执行 BFCL 官方的 Python 函数实现，换不了语言 |
 | `scripts/bfcl-mt-archive.py`、`scripts/bfcl-compare-runs.py` | 不依赖 `bfcl_eval`，但产物交给官方 Python 打分器，与上面一组共进退 |
 | `scripts/*.sh`（bfcl、build-app、build-macos、build-mlx、build-mlx-ffi、prepare-pth-loader、setup-bfcl、test-macos-native、test-macos-real-model、test-mlx） | 构建和安装脚本，Shell 是合适的语言 |
-| `bench/workbank/cases/**/verify.py`（155 个）、`bench/workbank/tools/testdata/**` | 题目数据。出题规范（`bench/workbank/docs/drafting-brief.md` 第 11 条）要求用只依赖标准库的 Python 独立算期望答案；testdata 是 verify_all 的测试夹具，随 `bank verify` 的 Go 测试继续使用 |
+| `bench/workbank/cases/**/verify.py`（155 个）、`bench/workbank/tools/testdata/**` | 题目数据。出题规范（`docs/workbank/drafting-brief.md` 第 11 条）要求用只依赖标准库的 Python 独立算期望答案；testdata 是 verify_all 的测试夹具，随 `bank verify` 的 Go 测试继续使用 |
 
 ### 2.5 D：删除（24 个文件，2709 行）
 
@@ -172,8 +172,8 @@ Go 一改它们就静默失效。本次把这部分迁进一个新的 Go 程序 
 | `docs/distill/harness-corpus-render.md` | `python3 -m scripts.corpus …` → `bin/rwkv-lab corpus …`；`cmd/tracecorpus` → `corpus rows` |
 | `.claude/skills/rwkv-bench/SKILL.md` | sweep / rank / check_run / compare / ledger / replicate 的命令全部换成 `bin/rwkv-lab …`；第 1 步构建命令加上 `go build -o bin/rwkv-lab ./cmd/rwkv-lab` |
 | `INDEX.md` | 工具表里的路径（第 79–82 行附近） |
-| `bench/workbank/docs/HANDOFF.md`、`drafting-brief.md`、`authoring-guide.md`、`expansion-152-handoff.md`、`bench/workbank/cases-shelved/README.md` | `uv run tools/xxx.py` / `python3 tools/xxx.py` → 对应 `rwkv-lab bank …` / `run …` |
-| `docs/corpus-g1k-wire-format.md` | 引用 `ablation-run-report.py` 处注明已删除，指向 `docs/archive/removed-tools.md` |
+| `docs/workbank/HANDOFF.md`、`drafting-brief.md`、`authoring-guide.md`、`expansion-152-handoff.md`、`bench/workbank/cases-shelved/README.md` | `uv run tools/xxx.py` / `python3 tools/xxx.py` → 对应 `rwkv-lab bank …` / `run …` |
+| `docs/design/corpus-g1k-wire-format.md` | 引用 `ablation-run-report.py` 处注明已删除，指向 `docs/archive/removed-tools.md` |
 | `bench/workbank/cases/{notool/nt-0007,hybrid/hyb-0007}/NOTES.md` | 如果提到工具路径就改；**不许改题目内容本身** |
 
 完成后执行 `git grep -nE "tools/[a-z_]+\.py|scripts/corpus|trace2script|harness_corpus|tracecorpus|workreplay|wirecheck"`，
@@ -263,7 +263,7 @@ rwkv-lab tokcount
 
 不先做基线，后面每一步都没法证明"没迁错"。
 
-1. 起点 commit：引入本文档的那个提交，用 `git log --format=%h --diff-filter=A -- docs/go-tooling-migration.md` 查。它已包含 `scripts/corpus/` 包和 tracecorpus 按轮切行的改动；旧版三个脚本（`scripts/decontam.py` 等）在它之前的提交里，不需要。
+1. 起点 commit：引入本文档的那个提交，用 `git log --format=%h --diff-filter=A -- docs/design/go-tooling-migration.md` 查。它已包含 `scripts/corpus/` 包和 tracecorpus 按轮切行的改动；旧版三个脚本（`scripts/decontam.py` 等）在它之前的提交里，不需要。
 2. `git worktree add ../rwkv-migration-base <起点 commit>`，记为 `$BASE`；在 `$BASE` 里 `go build -o bin/rwkv-cli ./cmd/rwkv-cli && go build -o bin/tracecorpus ./cmd/tracecorpus`。
 3. 按 §2.3 逐条跑，输出放 `runs/migration-baseline/<名字>/`，同时记下每条命令的退出码、完整命令行。
 4. 给 lint / dedup / hitcheck 补**阳性基线**（现有题库全都干净，只有阴性样本不够）：把 `bench/workbank/cases` 复制到临时目录，参照 `test_lint.py` 的做法制造至少 5 种不同规则的违规、2 对近似重复题、1 道 fixture 答不了自己 NOTES 的 web 题，再跑旧工具存基线。
