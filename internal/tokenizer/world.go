@@ -66,7 +66,10 @@ func OpenWorld(vocabPath string) (*World, error) {
 	if err != nil {
 		return nil, fmt.Errorf("tokenizer: open vocab: %w", err)
 	}
-	tok, err := rwkvtok.NewFromBytes(data)
+	// Balanced keeps ~90% of the speed preset's throughput on the fixture
+	// corpus with roughly half the build allocation (17 vs 31 MB); memory
+	// drops to ~30% throughput for 1 MB less.
+	tok, err := rwkvtok.NewFromBytes(data, rwkvtok.WithPreset(rwkvtok.PresetBalanced))
 	if err != nil {
 		return nil, fmt.Errorf("tokenizer: %w", err)
 	}
