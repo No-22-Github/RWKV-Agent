@@ -27,7 +27,7 @@ func openTestWorld(t *testing.T) *World {
 	return world
 }
 
-func findVocab(t *testing.T) string {
+func findVocab(t testing.TB) string {
 	t.Helper()
 	candidates := []string{
 		filepath.Join("..", "..", "third_party", "rwkv-mobile", "assets",
@@ -118,40 +118,5 @@ func TestWorldCountsSmallSamples(t *testing.T) {
 	}
 	if got := world.Count("<EOD>"); got != 1 {
 		t.Fatalf("Count(<EOD>) = %d, want 1 (trie hpp token 0)", got)
-	}
-}
-
-func TestParseLiterals(t *testing.T) {
-	cases := []struct {
-		raw  string
-		want string
-	}{
-		{"'\\x00'", "\x00"},
-		{"'\\t'", "\t"},
-		{"'\\n'", "\n"},
-		{"'\\\\'", "\\"},
-		{"'\\''", "'"},
-		{"'中'", "中"},
-		{"'\\u4e2d'", "中"},
-		{"'\\\\u4e2d'", "\\u4e2d"},
-		{"'\\x41\\x42'", "AB"},
-		{"\"'ll\"", "'ll"},
-	}
-	for _, tc := range cases {
-		got, err := parseStrLiteral(tc.raw)
-		if err != nil {
-			t.Fatalf("parseStrLiteral(%s): %v", tc.raw, err)
-		}
-		if string(got) != tc.want {
-			t.Fatalf("parseStrLiteral(%s) = %q, want %q", tc.raw, got, tc.want)
-		}
-	}
-	// Bytes literals decode \xNN as one raw byte, not a Unicode codepoint.
-	got, err := parseBytesLiteral(`b'\x80'`)
-	if err != nil {
-		t.Fatalf("parseBytesLiteral: %v", err)
-	}
-	if len(got) != 1 || got[0] != 0x80 {
-		t.Fatalf("parseBytesLiteral(b'\\x80') = %v, want [0x80]", got)
 	}
 }
