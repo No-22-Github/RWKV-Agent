@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -118,5 +120,42 @@ func TestWorldCountsSmallSamples(t *testing.T) {
 	}
 	if got := world.Count("<EOD>"); got != 1 {
 		t.Fatalf("Count(<EOD>) = %d, want 1 (trie hpp token 0)", got)
+	}
+}
+
+func TestWorldEODMatchesReferenceTrie(t *testing.T) {
+	world := openTestWorld(t)
+	// Ids from the pre-rwkvtok trie (rwkv_trie.hpp semantics): "<EOD>" is
+	// token 0 only where greedy encoding lands on it; ".<", "<<" and " <"
+	// straddle the marker and leave it to the plain vocab.
+	pins := map[string][]int{
+		"<EOD><EOD>":                      {0, 0},
+		"a<EOD>b":                         {98, 0, 99},
+		".<EOD>":                          {589, 979, 69, 63},
+		"<<EOD>>":                         {755, 979, 69, 792},
+		"x <EOD>\n\nUser:":                {121, 295, 979, 69, 63, 261, 24281, 59},
+		"</EOD><EOD>EOD>":                 {754, 979, 69, 790, 979, 69, 63, 979, 69, 63},
+		strings.Repeat("-", 32) + "<EOD>": {65458, 0},
+	}
+	for text, want := range pins {
+		if got := world.Encode(text); !reflect.DeepEqual(got, want) {
+			t.Fatalf("Encode(%q) = %v, want %v", text, got, want)
+		}
+		if got := world.Count(text); got != len(want) {
+			t.Fatalf("Count(%q) = %d, want %d", text, got, len(want))
+		}
+	}
+}
+
+func TestWorldEODFloodIsLinear(t *testing.T) {
+	world := openTestWorld(t)
+	// Fetched pages are counted before truncation; re-encoding the suffix at
+	// every marker made this quadratic and would time the test out.
+	const markers = 4 << 20 / len(eodTokenText)
+	if got := world.Count(strings.Repeat(eodTokenText, markers)); got != markers {
+		t.Fatalf("Count(marker flood) = %d, want %d", got, markers)
+	}
+	if got := world.Count(strings.Repeat("a"+eodTokenText, 100000)); got != 200000 {
+		t.Fatalf("Count(interleaved flood) = %d, want 200000", got)
 	}
 }

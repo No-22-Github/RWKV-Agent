@@ -12,11 +12,13 @@
 package tokenizer
 
 import (
+	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -57,6 +59,10 @@ type World struct {
 	tok    *rwkvtok.Tokenizer
 	sha256 string
 	bufs   sync.Pool
+	// lengths[id] is the byte length of token id, and maxLength the longest
+	// token: greedy matching never reads further ahead than that.
+	lengths   []uint16
+	maxLength int
 }
 
 // OpenWorld loads and validates the vocabulary file (rwkvtok checks each
@@ -73,8 +79,41 @@ func OpenWorld(vocabPath string) (*World, error) {
 	if err != nil {
 		return nil, fmt.Errorf("tokenizer: %w", err)
 	}
+	world := &World{tok: tok}
+	if err := world.loadLengths(data); err != nil {
+		return nil, err
+	}
 	digest := sha256.Sum256(data)
-	return &World{tok: tok, sha256: hex.EncodeToString(digest[:])}, nil
+	world.sha256 = hex.EncodeToString(digest[:])
+	return world, nil
+}
+
+// loadLengths reads each token's byte length from the last field of its vocab
+// line ("id 'literal' byteLength"); rwkvtok has already validated the lines.
+func (w *World) loadLengths(data []byte) error {
+	w.lengths = make([]uint16, w.tok.VocabSize())
+	for rest := data; len(rest) > 0; {
+		line := rest
+		if end := bytes.IndexByte(rest, '\n'); end >= 0 {
+			line, rest = rest[:end], rest[end+1:]
+		} else {
+			rest = nil
+		}
+		line = bytes.TrimSpace(line)
+		if len(line) == 0 {
+			continue
+		}
+		first := bytes.IndexByte(line, ' ')
+		last := bytes.LastIndexByte(line, ' ')
+		id, idErr := strconv.Atoi(string(line[:max(first, 0)]))
+		length, lengthErr := strconv.Atoi(string(line[last+1:]))
+		if idErr != nil || lengthErr != nil || id < 0 || id >= len(w.lengths) || length > 0xffff {
+			return fmt.Errorf("tokenizer: vocab line %q: bad id or byte length", line)
+		}
+		w.lengths[id] = uint16(length)
+		w.maxLength = max(w.maxLength, length)
+	}
+	return nil
 }
 
 // SHA256 returns the hex digest of the vocabulary file bytes, so manifests can
@@ -117,30 +156,34 @@ func (w *World) Encode(text string) []int {
 // the reference emits token 0 exactly where greedy encoding lands on the start
 // of an "<EOD>" occurrence; everywhere else the two tries pick the same match.
 // An occurrence that a longer token straddles is left to the plain encoding.
+//
+// A match starting at r reads at most maxLength bytes, so encoding only up to
+// next+maxLength yields the same tokens as the full suffix for every token
+// starting at or before the next occurrence. Each chunk therefore ends at most
+// maxLength bytes past its occurrence, keeping the whole pass linear even for
+// input made of nothing but markers.
 func (w *World) encodeWithEOD(text string) []int32 {
 	var out []int32
-	start := 0
-	for start < len(text) {
-		ids := w.tok.Encode(text[start:])
-		position := start
+	position := 0
+	for position < len(text) {
 		next := nextEOD(text, position)
-		restarted := false
-		for _, id := range ids {
-			if position == next {
-				out = append(out, 0)
-				start = position + len(eodTokenText)
-				restarted = true
-				break
-			}
-			out = append(out, id)
-			position += w.tokenLength(id)
-			if next >= 0 && next < position {
-				next = nextEOD(text, position)
-			}
+		if next < 0 {
+			return w.tok.AppendEncode(out, text[position:])
 		}
-		if !restarted {
-			break
+		if next == position {
+			out = append(out, 0)
+			position += len(eodTokenText)
+			continue
 		}
+		chunk := len(out)
+		out = w.tok.AppendEncode(out, text[position:min(len(text), next+w.maxLength)])
+		// Keep tokens up to landing on or straddling the occurrence; the loop
+		// above emits token 0 or finds the next occurrence from there.
+		for position < next {
+			position += int(w.lengths[out[chunk]])
+			chunk++
+		}
+		out = out[:chunk]
 	}
 	return out
 }
@@ -151,13 +194,4 @@ func nextEOD(text string, from int) int {
 		return -1
 	}
 	return from + index
-}
-
-func (w *World) tokenLength(id int32) int {
-	token, err := w.tok.DecodeBytes([]int32{id})
-	if err != nil {
-		// Encode only emits ids from the vocab, so this is unreachable.
-		panic(fmt.Sprintf("tokenizer: decode own token %d: %v", id, err))
-	}
-	return len(token)
 }
