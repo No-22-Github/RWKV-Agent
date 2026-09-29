@@ -2,10 +2,12 @@
 """Collect solved b04 cases (step.py state files) into a replay script.
 
   collect.py [--solve local/runs/distill/b04/solve] [--out bench/distill/scripts/b04.jsonl]
+             [--suffix --p41]
 
-Only "pass" cases are written. Entry IDs are "<case id>--p41": b01-b03 already
-use --p1/--p2 for the same bank cases, and exclude.jsonl removes by entry ID,
-so a shared suffix would let one exclusion delete another batch's path.
+Only "pass" cases are written. Entry IDs are "<case id><suffix>", suffix
+defaulting to --p41: b01-b03 already use --p1/--p2 for the same bank cases,
+and exclude.jsonl removes by entry ID, so a shared suffix would let one
+exclusion delete another batch's path.
 
 Zero-call discipline is enforced here, not by the scorer: expect.tools == []
 is diagnostic only in scorer v3, and the 2026-09-26 audit found 387 rows on
@@ -25,7 +27,6 @@ import os
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 LOOK_FIRST_TASKS = {"beyond_capability", "stable_fact"}
-SUFFIX = "--p41"
 
 
 def find_case(case_id):
@@ -50,6 +51,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--solve", default=os.path.join(REPO, "local", "runs", "distill", "b04", "solve"))
     ap.add_argument("--out", default=os.path.join(REPO, "bench", "distill", "scripts", "b04.jsonl"))
+    ap.add_argument("--suffix", default="--p41")
     args = ap.parse_args()
     counts = collections.Counter()
     rejected = []
@@ -79,7 +81,7 @@ def main():
             continue
         counts["scenario:" + case["tags"]["scenario"]] += 1
         counts["task:" + task] += 1
-        entries.append({"case_id": cid + SUFFIX,
+        entries.append({"case_id": cid + args.suffix,
                         "outputs": [{"text": t, "supervised": True} for t in state["outputs"]]})
     tmp = args.out + ".tmp"
     with open(tmp, "w") as f:
