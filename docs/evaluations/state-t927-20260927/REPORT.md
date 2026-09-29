@@ -6,7 +6,8 @@
 
 1. **最优 checkpoint：`s316`（`t927-s316.pth` = 源包 `train-1-1/lr2e-2/state-step-00000316.pth`）**。
    workbank 16/148（无 state 基线 9，**+7**；配对翻转 +15/−8），bfcl-product 26/60（基线 47）。
-   与第二名（s395/fin，各 12）差 4 > 预注册噪声 ±2，按规则不需补副本。
+   与第二名（s395/fin，各 12）差 4 > 预注册噪声 ±2，按规则不需补副本
+   （含 36 道泄漏种子题，干净口径待 v1.2 同轮重测，见 §8）。
 2. **workbank 随训练进度单调爬升后回落**：5 → 8 → 11 → **16** → 12 → 12（s79→s158→s237→s316→s395→fin）。
    峰值在 step 316（checkpoint 间隔 79 步，即约 4/5 训程处），其后两个点回落 4 题。
 3. **bfcl-product 全部 state 低于基线 47**（26/34/14/24/11/21）——state 洗弃权的老问题仍在：
@@ -125,7 +126,7 @@ s316 的 79 题"走完流程答错"里，有 **25 题的终答不是模型答案
 Please retry."）。逐案看最后一步的原始输出，分两种形态：
 
 **A. ✿ 分段续写（12/25）**——模型答出答案后不停止，紧接着生成语料分段符 `✿` 与下一段
-User 提示词的续写，整段被判违例。例：cfg-0001 第 4 步输出
+User 提示词的续写，整段被判违例。例：cfg-0001（种子题）第 4 步输出
 `8431✿text2✿User: The ledger service is being moved behind a new load balancer…`——
 **8431 正确**（期望值就是它），因为没停被判死。
 
@@ -135,9 +136,10 @@ continue t"）、复读退化为语料残余（cfg-0013 "Tool: the Tool / Never:
 或在 answer 里重新发起 `<tool_call>`（doc-0012）。
 
 对 A+B 中可机械判分的 18 题（expected_number/output_equals 两类契约），**6 题被拒前的
-答案内容本身正确**（cfg-0001 8431、fs-0003 4417、fs-0009 telemetry/gateway.yaml、code-0005
-passed 等），另有 7 题契约类型超出简易判分无法判定。被拒后所有 case 直接以拒绝语作终答结束，
-未出现第二次有效终答。
+答案内容本身正确**（cfg-0001 8431（种子题）、fs-0003 4417（种子题）、fs-0009
+telemetry/gateway.yaml、code-0005 passed 等），另有 7 题契约类型超出简易判分无法判定。被拒后
+所有 case 直接以拒绝语作终答结束，未出现第二次有效终答。注意 cfg-0001、fs-0003 两道是种子题：
+训练集里有它们的原题轨迹（见 §8），"答对"本身可能来自见过原题。
 
 **训练侧含义（下一轮语料的最直接抓手）**：语料目前教会了"产出答案"，没教会"答案之后 EOS 停止、
 answer 槽位只放答案"。补"终答即停"的样本密度（答案后无后续段落、不回显 tool_response、
@@ -154,12 +156,25 @@ answer 槽位只放答案"。补"终答即停"的样本密度（答案后无后�
 missing-required 全 state 均值 14.0，s316 反超基线 1 题——本语料的 clarify 行为迁移成功；
 irrelevance/multiturn 仍是 state 的固定失血点。
 
-## 8. 泄漏口径
+## 8. 泄漏口径（2026-09-29 更正）
 
-t927 语料为蒸馏管线自产题目（非 workbank 种子衍生），b01–b03 各批入库前均过管线自带
-decontam 闸门（对 workbank 全量最近邻相似度打分，flagged 即下架；b03 抽样相似度 ≤0.04，
-shelved 216/422/614 条见 `runs/distill/b0*/decontam-*.jsonl`）。故本轮按 148 题全量计分为主口径，
-不适用 09-24 轮的"非种子 112 题"规则。
+本节初版称"t927 语料为蒸馏管线自产题目（非 workbank 种子衍生），按 148 题全量计分为主口径"——
+这个说法是错的。初版只核对了 b01–b03 蒸馏批次的 decontam 闸门，**漏算了语料里的 base700 部分**
+（`bench/archive/workspace-agent-700-20260920`，700 条老师轨迹）。
+
+实际情况：base700 每行带 `parent_seed_id`，700 行去重后恰好覆盖 **36 道 workbank 种子题**
+（cfg/code/doc/fs/hyb/log/scr/tab/web 各 4 道）。v1.1 的 1007 行里约 551 行来自 base700
+（`seeded_from_test=true`），其中 36 条 anchor（`ws7-*-a00`）全部在 train split，且 29 条的
+`initial_files` 与题面和 workbank 原题**逐字相同**——例如 `ws7-cfg-0001-a00` 与
+`bench/workbank/cases/config/cfg-0001` 是同一道题，答案同为 8431（§6 里"答对被判死"的那道）。
+语料侧排除表只删掉了 `ws7-log-0001-a00`（带恢复前缀），即至少 35 道测试题的原题轨迹进了
+训练集；700 条变体里另有 56 条与测试题文件完全相同（只换问法）、15 条题面相同（只换文件）。
+变体经过改写、表面相似度低，decontam 本来就查不出来，所以初版的闸门证据不构成反证。
+
+结论：**本报告的全部 148 题分数含泄漏**，s316 的 +7 里有多少来自种子题目前未知。
+干净口径为 148 − 36 = 112 题（notool 12 题无种子、全部在干净子集里），用
+`rwkv-lab run compare --exclude-cases bench/workbank/seeded-base700.txt` 计分；
+112 题上的数字将在 v1.2 跑分时把 none 与 t927-s316 放进同一次 sweep 重测后给出，见 v1.2 报告。
 
 ## 9. 训练侧解读与下一轮语料目标
 
