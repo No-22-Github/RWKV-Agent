@@ -1,7 +1,8 @@
 import { Cloud, Cpu, Plus, Trash2 } from 'lucide-react'
 import type { ProviderManager } from '../../state/providerManager'
-import { Field, GroupTitle, SettingsPane } from './ui'
+import { Field, GroupTitle, SaveStatus, SettingsPane } from './ui'
 import ProfileFooter from './ProfileFooter'
+import { derivedProviderLabel } from '../../state/draftValidation'
 
 type Props = {
   manager: ProviderManager
@@ -33,21 +34,26 @@ export default function ProviderEditor({ manager, ready, onTestRemote, onSave, o
             aria-label="连接名称"
             className="mt-[3px] h-[30px] w-full max-w-[420px] border-0 bg-transparent p-0 font-serif text-lg font-semibold text-ink outline-0 placeholder:text-ink-ghost"
             value={manager.draftLabel}
-            placeholder="未命名连接"
+            placeholder={isNew ? '未命名连接' : `${derivedProviderLabel(manager.draftConfigValue)}（自动）`}
             onChange={(event) => manager.setDraftLabel(event.target.value)}
           />
         </div>
-        {manager.draftDirty ? (
-          <span className="flex flex-none items-center gap-[6px] text-xs text-warning"><span className="h-[6px] w-[6px] rounded-full bg-warning" />未保存更改</span>
-        ) : manager.draftIsRunning ? (
-          <span className="flex flex-none items-center gap-[6px] text-xs text-brand"><span className="h-[6px] w-[6px] rounded-full bg-brand-bright" />运行中</span>
-        ) : (
-          <span className="flex-none text-xs text-ink-muted">已保存</span>
-        )}
+        <span className="flex max-w-[45%] flex-none flex-col items-end gap-[3px]">
+          {isNew && manager.draftDirty ? (
+            <span className="flex items-center gap-[6px] text-xs text-warning"><span className="h-[6px] w-[6px] rounded-full bg-warning" />未保存更改</span>
+          ) : manager.draftIsRunning ? (
+            <span className="flex items-center gap-[6px] text-xs text-brand"><span className="h-[6px] w-[6px] rounded-full bg-brand-bright" />{manager.draftNeedsReload ? '运行中 · 待重新加载' : '运行中'}</span>
+          ) : !isNew && !manager.draftDirty ? (
+            <span className="text-xs text-ink-muted">已保存</span>
+          ) : null}
+          {!isNew && <SaveStatus state={manager.saveState} />}
+        </span>
       </header>
-      {isNew && (
-        <p className="mb-0 mt-[12px] text-xs leading-[1.65] text-ink-muted">填写连接信息后点击「保存」存为档案；「保存并使用」会保存并立即切换为当前运行连接。调用参数在「参数」分区，能力开关在「Agent」分区。</p>
-      )}
+      {isNew ? (
+        <p className="mb-0 mt-[12px] text-xs leading-[1.65] text-ink-muted">填写连接信息后点击「保存」建档；「保存并使用」会建档并立即切换为当前运行连接。建档后所有改动自动保存。调用参数在「参数」分区，能力开关在「Agent」分区。</p>
+      ) : manager.draftNeedsReload ? (
+        <p role="status" className="mb-0 mt-[12px] border-l-2 border-warning bg-paper-soft px-[10px] py-[7px] text-xs leading-[1.65] text-ink-soft">更改已保存，但本地模型仍在用旧配置运行。点底部「重新加载模型」使其生效（会重新加载模型文件）。</p>
+      ) : null}
 
       <section className="mt-[18px] pb-[24px]">
         <GroupTitle title="模型来源" />
@@ -59,7 +65,7 @@ export default function ProviderEditor({ manager, ready, onTestRemote, onSave, o
         </div>
         {manager.settingsTab === 'local' ? (
           <div className="flex flex-col gap-[8px]">
-            <Field label="模型路径" value={manager.modelPath} onChange={manager.setModelPath} placeholder="/absolute/path/to/rwkv7-model.pth" />
+            <Field label="模型路径" value={manager.modelPath} onChange={manager.setModelPath} placeholder="/absolute/path/to/rwkv7-model.pth" error={isNew ? undefined : manager.draftErrors.model} />
             <Field label="Tokenizer 路径（可选，默认自动查找）" value={manager.tokenizerPath} onChange={manager.setTokenizerPath} placeholder="/path/to/rwkv_vocab_v20230424.txt" />
           </div>
         ) : (
@@ -72,8 +78,9 @@ export default function ProviderEditor({ manager, ready, onTestRemote, onSave, o
                 <option value="openai">OpenAI 兼容</option>
               </select>
             </label>
-            <Field label="API 地址" value={manager.remoteEndpoint} onChange={manager.setRemoteEndpoint} placeholder="https://example.com 或 …/v1/models" />
-            <Field label="模型 ID" value={manager.remoteModel} onChange={manager.setRemoteModel} placeholder="rwkv7-g1i-13.3b" list={manager.availableModels.map((model) => model.id)} />
+            {/* 新建连接只在填了内容后才报地址错误，空表单不先挂满红字。 */}
+            <Field label="API 地址" value={manager.remoteEndpoint} onChange={manager.setRemoteEndpoint} placeholder="https://example.com 或 …/v1/models" error={isNew && !manager.remoteEndpoint.trim() ? undefined : manager.draftErrors.endpoint} />
+            <Field label="模型 ID" value={manager.remoteModel} onChange={manager.setRemoteModel} placeholder="rwkv7-g1i-13.3b" list={manager.availableModels.map((model) => model.id)} error={isNew ? undefined : manager.draftErrors.model} />
             <Field label={manager.remoteProtocol !== 'openai' ? '服务密码' : 'API Key'} value={manager.apiKey} onChange={manager.setAPIKey} type="password" />
             <div className="mt-[2px] border-t border-line-soft pt-[12px]">
               <div className="mb-[7px] flex items-center gap-[8px]"><strong className="text-sm font-semibold">请求头</strong><span className="text-xs text-ink-muted">可选，随档案保存</span></div>

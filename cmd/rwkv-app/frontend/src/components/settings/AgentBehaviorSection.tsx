@@ -1,6 +1,7 @@
 import { Globe2, Users } from 'lucide-react'
 import type { ProviderManager } from '../../state/providerManager'
-import { Field, GroupTitle, SettingsPane, Toggle } from './ui'
+import { Field, GroupTitle, SettingsPane, Toggle, SaveStatus } from './ui'
+import { autosaveHint } from './autosaveHint'
 
 type Props = {
   manager: ProviderManager
@@ -25,10 +26,8 @@ export default function AgentBehaviorSection({ manager }: Props) {
   return (
     <SettingsPane>
       <div className="mb-[10px] flex items-center justify-between gap-[12px]">
-        <GroupTitle title="Agent 能力" hint="自动保存；编辑运行中的远端档案时即时生效" />
-        {manager.autoApplyNote && (
-          <span className="flex-none font-mono text-2xs text-ink-ghost">{manager.autoApplyNote}</span>
-        )}
+        <GroupTitle title="Agent 能力" hint={autosaveHint(manager)} />
+        <SaveStatus state={manager.saveState} />
       </div>
       <section>
         <Toggle label="渐进式工具路由" description="可选：先由短 Router 选择能力组，再暴露 schema" checked={manager.progressiveTools} onChange={manager.setProgressiveTools} />

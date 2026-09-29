@@ -1,11 +1,25 @@
 import { useEffect, useRef, useState } from 'react'
+import { Events } from '@wailsio/runtime'
 import {
   AgentPromptPreview, AgentProtocol, Config, Provider, Status, type RemoteModel,
 } from '../../bindings/github.com/no22/RWKV-Agent/api/models'
 import type { AppBootstrap } from '../../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/models'
 import type { SavedProvider } from '../../bindings/github.com/no22/RWKV-Agent/internal/appstorage/models'
 import * as Backend from '../../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/appservice'
+import { derivedProviderLabel, firstDraftError, validateDraft } from './draftValidation'
 import { DEFAULT_SAMPLING, matchSamplingPreset, normalizeSampling, presetById } from './samplingPresets'
+
+/* 自动保存的防抖：停止输入这么久后才落盘，敲到一半的值不会触发保存或重连。 */
+export const AUTOSAVE_DELAY_MS = 800
+
+/*
+ * 自动保存状态机。idle：没有待保存内容；pending：等防抖；saving：请求进行中；
+ * saved：最近一次保存成功（message 说明是否已生效）；invalid：字段校验未通过，
+ * 不会保存；error：后端拒绝（message 为原因，同一份草稿不会自动重试）。
+ */
+export type SaveState =
+  | { kind: 'idle' | 'pending' | 'saving'; message?: string }
+  | { kind: 'saved' | 'invalid' | 'error'; message: string }
 
 const REMOTE_BACKENDS = {
   openai: { provider: Provider.ProviderChatCompletions, stops: undefined },
@@ -49,40 +63,20 @@ const DEFAULT_AGENT_LIMITS = {
 /* 决策阶段输出预算的"自动"：0 让后端按协议挑默认（XML 512，其余 96）。 */
 const DECISION_MAX_TOKENS_AUTO = 0
 
-/*
- * Agent 行为字段的签名：只覆盖 Agent 分区的开关（协议、思考、约定、网页、子
- * Agent 与预算），连接身份字段（地址、密钥、名称）不参与。自动保存/重连以它为
- * 触发器，因此打开设置或编辑连接字段永远不会引发重连。缺省值归一必须与上面
- * DEFAULT_AGENT_LIMITS 及后端 normalizeConfig 保持一致。
- */
-function agentBehaviorSignatureOf(config: Config): string {
-  const sampling = normalizeSampling(config)
-  return JSON.stringify(stableValue({
-    agentProtocol: config.agentProtocol || AgentProtocol.AgentProtocolXML,
-    thinking: config.thinking || 'off',
-    taskControl: (config.taskControl || '').trim() || undefined,
-    progressiveTools: config.progressiveTools ?? false,
-    enableWeb: config.enableWeb || false,
-    braveApiKey: config.enableWeb ? config.braveApiKey || undefined : undefined,
-    tavilyApiKey: config.enableWeb ? config.tavilyApiKey || undefined : undefined,
-    enableSubagents: config.enableSubagents || false,
-    maxActiveBatch: config.maxActiveBatch || DEFAULT_AGENT_LIMITS.maxActiveBatch,
-    remoteBatchWaitMs: config.remoteBatchWaitMs ?? DEFAULT_AGENT_LIMITS.remoteBatchWaitMS,
-    subagentMaxParallel: config.subagentMaxParallel || DEFAULT_AGENT_LIMITS.subagentMaxParallel,
-    subagentMaxSteps: config.subagentMaxSteps || DEFAULT_AGENT_LIMITS.subagentMaxSteps,
-    subagentTimeoutSeconds: config.subagentTimeoutSeconds || DEFAULT_AGENT_LIMITS.subagentTimeoutSeconds,
-    // 步数与输出预算过去是前端写死的常量，所以不在签名里；现在可调，必须参与。
-    maxSteps: config.maxSteps || DEFAULT_AGENT_LIMITS.maxSteps,
-    maxTokens: config.maxTokens || DEFAULT_AGENT_LIMITS.maxTokens,
-    decisionMaxTokens: config.decisionMaxTokens ?? DECISION_MAX_TOKENS_AUTO,
-    // 采样走归一后的值：未设置与 greedy 是同一份配置，打开设置不该触发重连。
-    ...sampling,
-  }))
+/* 只看配置、不看名称的签名：改名不应触发重连。 */
+function configSignature(config: Config): string {
+  return JSON.stringify(stableValue(config))
 }
 
 /*
  * 连接档案域的唯一状态所有者：档案列表、编辑器表单、脏标记与全部档案动作。
  * App 只保留聊天/会话域状态，通过这里的方法操作设置。
+ *
+ * 保存模型：已有档案的全部字段（连接、参数、Agent）停止输入 AUTOSAVE_DELAY_MS 后
+ * 自动保存；校验不过的草稿只提示、不保存。编辑的是运行中的远端档案时直接重连，
+ * 更改即时生效；本地模型需要重新加载（重的操作，不由敲字触发），档案保存后标
+ * 「待重新加载」，由用户点「重新加载模型」。新建连接没有档案 ID，仍由显式的
+ * 「保存」/「保存并使用」建档，避免半截输入生成垃圾档案。
  */
 export function useProviderManager({ onStatus, ready }: { onStatus: (status: Status) => void; ready: boolean }) {
   const [settingsOpen, setSettingsOpen] = useState(false)
@@ -131,8 +125,17 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   const [previewOpen, setPreviewOpen] = useState(true)
   const [previewBusy, setPreviewBusy] = useState(false)
   const [taskControl, setTaskControl] = useState('')
-  const [autoApplyNote, setAutoApplyNote] = useState('')
-  const appliedAgentSignatureRef = useRef('')
+  const [saveState, setSaveState] = useState<SaveState>({ kind: 'idle' })
+  // 运行中连接实际使用的配置（bootstrap.config），与档案的已保存配置分开：
+  // 能力指示与"待重新加载"都以它为准，而不是以正在编辑的草稿为准。
+  const [runtimeConfig, setRuntimeConfig] = useState<Config | null>(null)
+  const [runtimeOutdated, setRuntimeOutdated] = useState(false)
+  // 同步镜像：draftSnapshot 是渲染用的 state，这里的 ref 供异步保存流程读取最新基线。
+  const snapshotRef = useRef('')
+  const snapshotConfigRef = useRef('')
+  const inFlightRef = useRef<Promise<boolean> | null>(null)
+  // 后端拒绝过的草稿签名：同一份内容不再自动重试，改动任意字段后恢复。
+  const failedSignatureRef = useRef('')
 
   const samplingValues = normalizeSampling({
     temperature: sampleTemperature, topK: sampleTopK, topP: sampleTopP,
@@ -203,14 +206,27 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   const draftSignature = providerDraftSignature(draftLabel, draftConfigValue)
   const draftDirty = draftInitialized && draftSignature !== draftSnapshot
   const draftIsRunning = ready && editingProviderId !== '' && editingProviderId === runtimeProviderId && !draftDirty
-  const agentBehaviorSignature = agentBehaviorSignatureOf(draftConfigValue)
+  const draftErrors = validateDraft(draftConfigValue)
+  const draftError = firstDraftError(draftErrors)
+  // 运行中的本地档案已保存、但加载的还是旧配置：需要用户显式重新加载。
+  const draftNeedsReload = draftIsRunning && runtimeOutdated
 
   useEffect(() => {
     if (!settingsOpen || draftInitialized) return
     setDraftSnapshot(draftSignature)
+    snapshotRef.current = draftSignature
+    snapshotConfigRef.current = configSignature(draftConfigValue)
+    failedSignatureRef.current = ''
     setDraftInitialized(true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settingsOpen, draftInitialized])
+
+  /* 档案列表的单一刷新入口：后端任何档案变更（任一窗口、任一入口）都广播这个事件。 */
+  useEffect(() => {
+    const off = Events.On('providers:changed', () => { void refreshProviders() })
+    return () => { off() }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   /*
    * 系统提示词预览：设置页打开且展开时拉取，影响提示词的开关变化后防抖刷新。
@@ -240,43 +256,92 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   }, [settingsOpen, previewOpen, settingsTab, agentProtocol, thinking, progressiveTools, enableWeb, enableSubagents, taskControl])
 
   /*
-   * Agent 行为自动应用：分区里的开关变化后防抖落盘。编辑的是运行中的远端档案时
-   * 直接 ConfigureProvider（保存 + 激活 + 重连一体），更改即时生效；本地模型档案
-   * 与未运行的档案只自动保存——本地重连意味着重新加载模型，不能由敲字触发；
-   * 新建草稿（尚无档案 ID）不自动落盘，仍由连接页的保存动作建立档案。
+   * 自动保存一次：只对已有档案生效。先 SaveProvider（后端校验唯一性、落盘），编辑的是
+   * 运行中的远端档案且配置真的变了才 ConfigureProvider 重连——改名不重连；本地模型只
+   * 保存，由 runtimeOutdated 提示重新加载。保存成功后只推进脏基线、刷新列表，绝不重新
+   * 水合表单：用户在请求期间继续输入的内容不会被覆盖，而会在下一轮防抖里保存。
    */
-  useEffect(() => {
-    if (!settingsOpen || !draftInitialized || settingsBusy) return
-    if (editingProviderId === '') return
-    if (agentBehaviorSignature === appliedAgentSignatureRef.current) return
-    const timer = setTimeout(() => {
-      const config = providerDraftConfig()
-      const remote = config.provider !== Provider.ProviderLocal
-      const running = editingProviderId !== '' && editingProviderId === runtimeProviderId
-      const apply = async () => {
-        setAutoApplyNote(running && remote ? '正在应用…' : '正在自动保存…')
-        if (running && remote) {
-          const status = await Backend.ConfigureProvider(editingProviderId, draftLabel.trim(), config)
-          onStatus(status)
-          await refreshProviders()
-          setAutoApplyNote('已自动生效')
-        } else {
-          await Backend.SaveProvider(editingProviderId, draftLabel.trim(), config)
-          await refreshProviders()
-          setAutoApplyNote(running ? '已自动保存；本地模型将在下次连接时生效' : '已自动保存')
-        }
-        // 自动应用后把脏基线推到当前值：切换档案/关闭设置不再弹确认框。
-        appliedAgentSignatureRef.current = agentBehaviorSignatureOf(config)
-        setDraftSnapshot(providerDraftSignature(draftLabel, config))
+  async function persistDraft(): Promise<boolean> {
+    if (inFlightRef.current) await inFlightRef.current
+    const id = editingProviderId
+    const label = draftLabel.trim()
+    const config = draftConfigValue
+    const signature = providerDraftSignature(draftLabel, config)
+    if (!id) return false
+    if (signature === snapshotRef.current) return true
+    const error = firstDraftError(validateDraft(config))
+    if (error) {
+      setSaveState({ kind: 'invalid', message: error })
+      return false
+    }
+    const remote = config.provider !== Provider.ProviderLocal
+    const running = ready && id === runtimeProviderId
+    const configChanged = configSignature(config) !== snapshotConfigRef.current
+    const reconnect = running && remote && configChanged
+    const task = (async () => {
+      setSaveState({ kind: 'saving', message: reconnect ? '正在应用…' : '正在自动保存…' })
+      try {
+        await Backend.SaveProvider(id, label, config)
+        if (reconnect) onStatus(await Backend.ConfigureProvider(id, label, config))
+        snapshotRef.current = signature
+        snapshotConfigRef.current = configSignature(config)
+        failedSignatureRef.current = ''
+        setDraftSnapshot(signature)
+        const value = await refreshProviders()
+        const outdated = Boolean(value?.runtimeOutdated && value.runtimeProviderId === id)
+        setSaveState({
+          kind: 'saved',
+          message: reconnect ? '已自动生效' : outdated ? '已自动保存；重新加载模型后生效' : '已自动保存',
+        })
+        return true
+      } catch (reason) {
+        failedSignatureRef.current = signature
+        setSaveState({ kind: 'error', message: `保存失败：${errorText(reason)}` })
+        return false
       }
-      apply().catch((error) => {
-        setAutoApplyNote('')
-        setSettingsMessage(error instanceof Error ? error.message : String(error))
-      })
-    }, 800)
+    })()
+    inFlightRef.current = task
+    try {
+      return await task
+    } finally {
+      if (inFlightRef.current === task) inFlightRef.current = null
+    }
+  }
+
+  /* 防抖触发自动保存；校验不过或后端拒绝过的同一份草稿不发请求。 */
+  useEffect(() => {
+    if (!settingsOpen || !draftInitialized || settingsBusy || editingProviderId === '') return
+    if (!draftDirty) {
+      setSaveState((current) => current.kind === 'pending' || current.kind === 'invalid' ? { kind: 'idle' } : current)
+      return
+    }
+    if (draftError) {
+      setSaveState({ kind: 'invalid', message: draftError })
+      return
+    }
+    if (draftSignature === failedSignatureRef.current) return
+    setSaveState((current) => current.kind === 'saving' ? current : { kind: 'pending', message: '待保存…' })
+    const timer = setTimeout(() => { void persistDraft() }, AUTOSAVE_DELAY_MS)
     return () => clearTimeout(timer)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settingsOpen, draftInitialized, settingsBusy, editingProviderId, runtimeProviderId, agentBehaviorSignature, draftLabel])
+  }, [settingsOpen, draftInitialized, settingsBusy, editingProviderId, draftDirty, draftSignature, draftError])
+
+  /*
+   * 离开当前草稿（关闭设置、切换或新建档案）前调用：把防抖中的更改立即落盘。
+   * 返回 true 表示可以直接离开；false 表示草稿无法自动保存（新建连接未建档、
+   * 校验不过或保存失败），调用方应弹确认框，原因见 draftBlockReason。
+   */
+  async function flushDraft(): Promise<boolean> {
+    if (inFlightRef.current) await inFlightRef.current
+    if (editingProviderId === '') return !draftDirty
+    if (providerDraftSignature(draftLabel, draftConfigValue) === snapshotRef.current) return true
+    return persistDraft()
+  }
+  const draftBlockReason = editingProviderId === ''
+    ? '新连接还没有保存。'
+    : draftError
+      ? `当前更改无法保存：${draftError}`
+      : saveState.kind === 'error' ? saveState.message : ''
 
   function applyConfig(config: Config) {
     const remote = config.provider === Provider.ProviderRWKVLightningPython || config.provider === Provider.ProviderRWKVLightningCUDA || config.provider === Provider.ProviderChatCompletions
@@ -304,22 +369,24 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     setSamplePenaltyDecay(sampling.penaltyDecay)
     // 存着一组非预设数值的档案直接进高级模式，否则选择器会顶着一个不成立的名字。
     setAdvancedSampling(matchSamplingPreset(sampling) === '')
-    // 水合即基线：自动应用效果只看这里之后的增量，打开设置永远不会触发重连。
-    appliedAgentSignatureRef.current = agentBehaviorSignatureOf(config)
-    setAutoApplyNote('')
+    // 水合即基线（由 draftInitialized 效果记录）：打开设置永远不会触发保存或重连。
+    setSaveState({ kind: 'idle' })
   }
 
   function applyProviderBootstrapState(value: AppBootstrap) {
     setProviders(value.providers || [])
     setActiveProviderId(value.activeProviderId || '')
     setRuntimeProviderId(value.runtimeProviderId || '')
+    setRuntimeConfig(value.runtimeProviderId ? Config.createFrom(value.config) : null)
+    setRuntimeOutdated(Boolean(value.runtimeOutdated))
   }
 
   function beginEditingProvider(provider: SavedProvider) {
     const config = Config.createFrom(provider.config)
     setDraftInitialized(false)
     setEditingProviderId(provider.id)
-    setDraftLabel(provider.label || provider.config.model || '未命名连接')
+    // 自动名（与后端派生规则一致）在表单里留空：改模型或地址后名称随之更新，而不是冻结成旧模型名。
+    setDraftLabel(provider.label && provider.label !== derivedProviderLabel(config) ? provider.label : '')
     setDraftBaseConfig(config)
     setAvailableModels([])
     applyConfig(config)
@@ -368,7 +435,9 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       const value = await Backend.Bootstrap()
       applyProviderBootstrapState(value)
       return value
-    } catch {
+    } catch (error) {
+      // 刷新失败不能静默：否则列表停在旧状态、看起来像"没保存上"。
+      setSettingsMessage(`刷新连接列表失败：${errorText(error)}`)
       return undefined
     }
   }
@@ -405,26 +474,30 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     }
   }
 
+  /* 显式保存：新建连接建档用（已有档案自动保存，界面上不再提供这个按钮）。 */
   async function saveProviderDraft(): Promise<boolean> {
+    if (inFlightRef.current) await inFlightRef.current
     setSettingsBusy(true)
     setSettingsMessage('正在保存连接档案…')
     try {
       const saved = await Backend.SaveProvider(editingProviderId, draftLabel.trim(), draftConfigValue)
       await refreshProviders()
       beginEditingProvider(saved)
-      setSettingsMessage(ready ? '档案已保存；当前运行连接保持不变，要使更改生效请点「保存并使用」。' : '档案已保存，尚未连接。')
+      setSettingsMessage(ready ? '档案已保存；当前运行连接保持不变，点「使用此连接」切换。' : '档案已保存，尚未连接。')
       return true
     } catch (error) {
-      setSettingsMessage(error instanceof Error ? error.message : String(error))
+      setSettingsMessage(errorText(error))
       return false
     } finally {
       setSettingsBusy(false)
     }
   }
 
+  /* 保存并切换为运行连接；也是本地模型的「加载/重新加载模型」。 */
   async function saveAndUseProviderDraft() {
+    if (inFlightRef.current) await inFlightRef.current
     setSettingsBusy(true)
-    setSettingsMessage(settingsTab === 'local' ? '正在保存并加载本地模型，这可能需要一些时间…' : '正在保存并切换远端连接…')
+    setSettingsMessage(settingsTab === 'local' ? '正在加载本地模型，这可能需要一些时间…' : '正在切换远端连接…')
     try {
       const configured = await Backend.ConfigureProvider(editingProviderId, draftLabel.trim(), draftConfigValue)
       onStatus(configured)
@@ -432,9 +505,9 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       const running = value?.providers.find((provider) => provider.id === value.runtimeProviderId)
       if (running) beginEditingProvider(running)
       else setDraftSnapshot(providerDraftSignature(draftLabel, draftConfigValue))
-      setSettingsMessage('已保存并切换为当前运行连接。')
+      setSettingsMessage(settingsTab === 'local' ? '模型已加载，成为当前运行连接。' : '已切换为当前运行连接。')
     } catch (error) {
-      setSettingsMessage(error instanceof Error ? error.message : String(error))
+      setSettingsMessage(errorText(error))
     } finally {
       setSettingsBusy(false)
     }
@@ -464,15 +537,19 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     settingsMessage, setSettingsMessage, settingsBusy,
     promptPreview, previewOpen, setPreviewOpen, previewBusy,
     taskControl, setTaskControl,
-    autoApplyNote,
+    saveState, runtimeConfig, runtimeOutdated,
     // 派生
-    draftConfigValue,
+    draftConfigValue, draftErrors, draftError, draftNeedsReload, draftBlockReason,
     // 动作
     openSettings, discardDraft, selectProvider, startNewDraft,
     applyProviderBootstrapState, applyConfig, refreshProviders,
     activateProvider, deleteProvider, testRemote,
-    saveProviderDraft, saveAndUseProviderDraft,
+    saveProviderDraft, saveAndUseProviderDraft, flushDraft,
   }
+}
+
+function errorText(error: unknown): string {
+  return error instanceof Error ? error.message : String(error)
 }
 
 export type ProviderManager = ReturnType<typeof useProviderManager>
