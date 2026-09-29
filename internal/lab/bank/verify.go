@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -510,7 +511,7 @@ func matchesExpectation(obj any, numbers []expectedNumber, outputEquals, contain
 		}
 	}
 	if s, ok := sval.(string); ok && hasSval {
-		if containsString(outputEquals, s) {
+		if slices.Contains(outputEquals, s) {
 			return boolPtr(true), fmt.Sprintf("string %s matches output_equals", pyReprValue(s))
 		}
 		for _, want := range numbers {

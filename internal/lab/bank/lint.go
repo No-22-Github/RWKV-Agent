@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"sort"
 	"strings"
 
@@ -191,7 +192,7 @@ func checkCase(caseDir string, caseObj map[string]any, ctx *lintCtx, relParts []
 	// beyond_capability case is one, and so is any case that declares TR-NOCAP
 	// whatever its scenario.
 	isRefusal := ctx.distillRules && !isSmalltalk && (asString(tags["task_type"]) == "beyond_capability" ||
-		containsString(anyStrings(anySlice(tags["traps"])), "TR-NOCAP"))
+		slices.Contains(anyStrings(anySlice(tags["traps"])), "TR-NOCAP"))
 
 	// (a) required tag keys + enums
 	for _, key := range requiredTags {
@@ -200,11 +201,11 @@ func checkCase(caseDir string, caseObj map[string]any, ctx *lintCtx, relParts []
 		}
 	}
 	scenario, scenarioIsString := tags["scenario"].(string)
-	if !containsString(ctx.scenarios, scenario) {
+	if !slices.Contains(ctx.scenarios, scenario) {
 		bad("tags.enum", fmt.Sprintf("scenario %s not in vocabulary", pyReprValue(tags["scenario"])))
 	}
 	taskType := tags["task_type"]
-	if allowed, ok := ctx.taskTypes[scenario]; ok && !containsString(allowed, asString(taskType)) {
+	if allowed, ok := ctx.taskTypes[scenario]; ok && !slices.Contains(allowed, asString(taskType)) {
 		bad("tags.enum", fmt.Sprintf("task_type %s not allowed for scenario %s",
 			pyReprValue(taskType), pyReprValue(tags["scenario"])))
 	}
@@ -255,7 +256,7 @@ func checkCase(caseDir string, caseObj map[string]any, ctx *lintCtx, relParts []
 		forbiddenTraps = append(forbiddenTraps, asString(trap))
 	}
 	for _, trap := range ctx.scenarioTraps[scenario] {
-		if !containsString(forbiddenTraps, trap) {
+		if !slices.Contains(forbiddenTraps, trap) {
 			forbiddenTraps = append(forbiddenTraps, trap)
 		}
 	}
@@ -362,10 +363,10 @@ func checkCase(caseDir string, caseObj map[string]any, ctx *lintCtx, relParts []
 			var problems []string
 			if anyOf, ok := turnExpect["output_contains_any"].([]any); !ok || len(anyOf) == 0 {
 				problems = append(problems, "expect.output_contains_any must be a non-empty array of refusal words")
-			} else if containsString(anyStrings(anyOf), "UNKNOWN") {
+			} else if slices.Contains(anyStrings(anyOf), "UNKNOWN") {
 				problems = append(problems, "expect.output_contains_any must not list UNKNOWN")
 			}
-			if !containsString(anyStrings(anySlice(turnExpect["output_excludes"])), "UNKNOWN") {
+			if !slices.Contains(anyStrings(anySlice(turnExpect["output_excludes"])), "UNKNOWN") {
 				problems = append(problems, "expect.output_excludes must list UNKNOWN")
 			}
 			if len(anySlice(turnExpect["forbidden_tools"])) == 0 {
@@ -508,7 +509,7 @@ func checkCase(caseDir string, caseObj map[string]any, ctx *lintCtx, relParts []
 		if match == nil {
 			bad("dir_structure", fmt.Sprintf("case id %s must be <scenario abbrev>-<4 digits>", pyReprValue(dirname)))
 		}
-		if scenarioIsString && containsString(ctx.scenarios, scenario) && scenDir != scenario {
+		if scenarioIsString && slices.Contains(ctx.scenarios, scenario) && scenDir != scenario {
 			bad("dir_structure", fmt.Sprintf("case sits under %s but tags.scenario is %s",
 				pyReprValue(scenDir), pyReprValue(scenario)))
 		}
@@ -749,15 +750,6 @@ func anyStrings(items []any) []string {
 		out = append(out, asString(item))
 	}
 	return out
-}
-
-func containsString(list []string, want string) bool {
-	for _, item := range list {
-		if item == want {
-			return true
-		}
-	}
-	return false
 }
 
 func asString(v any) string {

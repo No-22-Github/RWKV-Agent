@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"regexp"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -301,21 +302,12 @@ func resultSourceURLs(result Result) []string {
 		}
 		for _, value := range resultURLPattern.FindAllString(step.ToolResult, -1) {
 			value = strings.TrimRight(value, ",.;:)]}")
-			if !containsSource(sources, value) {
+			if !slices.Contains(sources, value) {
 				sources = append(sources, value)
 			}
 		}
 	}
 	return sources
-}
-
-func containsSource(values []string, target string) bool {
-	for _, value := range values {
-		if value == target {
-			return true
-		}
-	}
-	return false
 }
 
 // Run executes and commits one Agent turn.

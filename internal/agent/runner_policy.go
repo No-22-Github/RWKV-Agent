@@ -42,15 +42,6 @@ func replaceSystemControl(messages []Message, control string) []Message {
 	return append([]Message{{Role: RoleSystem, Content: control}}, result...)
 }
 
-func containsString(values []string, target string) bool {
-	for _, value := range values {
-		if value == target {
-			return true
-		}
-	}
-	return false
-}
-
 // terminalActionPhrase words the turn-ending suggestion in duplicate/rescue
 // notes: through the terminal tool when one is offered, or with a direct
 // answer otherwise (Markdown protocol has no submit gate).

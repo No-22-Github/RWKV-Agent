@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"slices"
 	"strings"
 	"time"
 
@@ -433,7 +434,7 @@ func (turn *runnerTurn) advanceAfterTool(
 		}
 		if execution.tool.Spec().Control {
 			selection, ok := execution.value.(loadToolsResult)
-			if ok && !containsString(turn.result.Bundles, selection.Bundle) {
+			if ok && !slices.Contains(turn.result.Bundles, selection.Bundle) {
 				turn.result.Bundles = append(turn.result.Bundles, selection.Bundle)
 				turn.activeSpecs = toolSpecsForBundles(r.toolSpecs, turn.result.Bundles)
 				turn.activeTools = toolsForSpecs(r.tools, turn.activeSpecs)

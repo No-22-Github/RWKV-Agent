@@ -3,6 +3,7 @@ package runs
 import (
 	"fmt"
 	"regexp"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -261,7 +262,7 @@ func decoyHits(caseObj, spec map[string]any) []string {
 		if want == "" {
 			continue
 		}
-		if answer == want || strings.HasPrefix(answer, want+" ") || containsString(strings.Fields(answer), want) {
+		if answer == want || strings.HasPrefix(answer, want+" ") || slices.Contains(strings.Fields(answer), want) {
 			hits = append(hits, trap)
 			continue
 		}
@@ -495,15 +496,6 @@ func renderGate(report map[string]any) {
 func containsAny(text string, markers []string) bool {
 	for _, marker := range markers {
 		if strings.Contains(text, marker) {
-			return true
-		}
-	}
-	return false
-}
-
-func containsString(list []string, want string) bool {
-	for _, item := range list {
-		if item == want {
 			return true
 		}
 	}

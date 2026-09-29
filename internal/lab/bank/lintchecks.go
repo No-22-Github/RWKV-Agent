@@ -6,6 +6,7 @@ import (
 	"math"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -387,7 +388,7 @@ func hiddenFileViolations(caseObj map[string]any) [][2]string {
 	var out [][2]string
 	for path := range anyMap(run["hidden_files"]) {
 		normalized := strings.ReplaceAll(path, "\\", "/")
-		if strings.HasPrefix(normalized, "/") || containsString(strings.Split(normalized, "/"), "..") {
+		if strings.HasPrefix(normalized, "/") || slices.Contains(strings.Split(normalized, "/"), "..") {
 			out = append(out, [2]string{"expect.run.hidden",
 				fmt.Sprintf("hidden file %s must be a relative path inside the workspace", pyReprValue(path))})
 		}
