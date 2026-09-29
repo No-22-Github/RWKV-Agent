@@ -9,7 +9,9 @@ tells the executor to apply. Rows are keyed "<script entry>#<turn>".
 
   pattern                    fix
   bare_unknown               re-solve (case edited to answer_style natural first)
-  markdown_final             re-solve: plain text, 1-4 sentences
+  markdown_final             none: counted only. Markdown is fine for a complex
+                             answer; all 41 hits are refusals / smalltalk and 40
+                             of them are already caught by the length patterns
   long_refusal  (> 400)      re-solve: 1-2 sentences, what / why / alternative
   long_smalltalk (> 800)     re-solve: short
   templated_clarify          re-solve: ask in your own words
@@ -33,7 +35,7 @@ V12 = os.path.join(REPO, "local", "outputs", "workspace-agent-distill-clean-2026
                    "mixed", "rendered", "all.jsonl")
 SUFFIX = "\n\nUser:"
 CALL = re.compile(r"<tool_call>(\{.*\})</tool_call>", re.S)
-RESOLVE = ["bare_unknown", "markdown_final", "long_refusal", "long_smalltalk",
+RESOLVE = ["bare_unknown", "long_refusal", "long_smalltalk",
            "templated_clarify", "ls_despite_path_in_prompt"]
 DROP = ["repeated_identical_call", "same_file_read_twice", "verbose_under_answer_only"]
 
