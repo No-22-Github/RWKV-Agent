@@ -2,6 +2,7 @@ package corpus
 
 import (
 	"fmt"
+
 	"github.com/no22/RWKV-Agent/internal/lab"
 	"github.com/no22/RWKV-Agent/internal/lab/similarity"
 )
@@ -102,7 +103,7 @@ func RunDecontam(args DecontamArgs) int {
 	for _, kind := range similarity.Kinds {
 		count := 0
 		for _, row := range rows {
-			for _, flaggedKind := range stringSlice(mapValue(row, "flagged")) {
+			for _, flaggedKind := range lab.StringList(mapValue(row, "flagged")) {
 				if flaggedKind == kind {
 					count++
 				}
@@ -114,7 +115,7 @@ func RunDecontam(args DecontamArgs) int {
 		if i >= 15 {
 			break
 		}
-		flaggedKinds := stringSlice(mapValue(row, "flagged"))
+		flaggedKinds := lab.StringList(mapValue(row, "flagged"))
 		nearestMap, _ := mapValue(row, "nearest").(*lab.OrderedMap)
 		closest := mapString(nearestMap, flaggedKinds[0])
 		fmt.Printf("  %s  prompt %.2f  files %.2f  names %.2f  ~ %s\n",
@@ -179,17 +180,6 @@ func nearest(caseObj *lab.OrderedMap, test []testItem, common similarity.Feature
 	row.Set("nearest", nearestMap)
 	row.Set("flagged", flagged)
 	return row
-}
-
-func stringSlice(v any) []string {
-	items, _ := v.([]any)
-	out := make([]string, 0, len(items))
-	for _, item := range items {
-		if s, ok := item.(string); ok {
-			out = append(out, s)
-		}
-	}
-	return out
 }
 
 func floatField(m *lab.OrderedMap, key string) float64 {

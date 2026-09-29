@@ -68,7 +68,7 @@ type trapEntry struct {
 // runLint ports lint.py. Violations are one JSON object per line on stdout,
 // the summary goes to stderr, and the exit code is 1 when anything remains.
 func runLint(args []string) int {
-	fs := newFlagSet("bank lint",
+	fs := lab.NewFlagSet("bank lint",
 		"Validate workbank cases (schema v5) against bench/workbank/tag-vocab.json and the authoring rules.")
 	casesRoot := fs.String("cases", DefaultCases(), "cases root directory")
 	var caseArgs stringList
@@ -98,7 +98,7 @@ func runLint(args []string) int {
 	if len(caseArgs) > 0 {
 		for _, item := range caseArgs {
 			abs, err := filepath.Abs(item)
-			if err != nil || !fileExists(filepath.Join(abs, "case.json")) {
+			if err != nil || !lab.FileExists(filepath.Join(abs, "case.json")) {
 				fmt.Fprintf(os.Stderr, "error: --case %s: no case.json inside\n", item)
 				return 2
 			}
@@ -297,7 +297,7 @@ func checkCase(caseDir string, caseObj map[string]any, ctx *lintCtx, relParts []
 	caseExpect, _ := caseObj["expect"].(map[string]any)
 	writeCase := false
 	if caseExpect != nil {
-		writeCase = truthy(caseExpect["files"]) || truthy(caseExpect["run"])
+		writeCase = lab.Truthy(caseExpect["files"]) || lab.Truthy(caseExpect["run"])
 	}
 	if len(prompts) == 0 {
 		bad("answer_contract", "case has no turns")
@@ -739,28 +739,6 @@ func writeCaseIndented(path string, caseObj map[string]any) {
 		return
 	}
 	_ = os.WriteFile(path, append(data, '\n'), 0o644)
-}
-
-// truthy is Python's bool(x) for the JSON shapes a case's expect fields can
-// take: an empty object, array, string, zero or null is false, anything else
-// is true.
-func truthy(v any) bool {
-	switch t := v.(type) {
-	case nil:
-		return false
-	case bool:
-		return t
-	case string:
-		return t != ""
-	case json.Number:
-		f, err := t.Float64()
-		return err != nil || f != 0
-	case []any:
-		return len(t) > 0
-	case map[string]any:
-		return len(t) > 0
-	}
-	return true
 }
 
 // anyStrings renders a decoded JSON array as strings, the way the checks read

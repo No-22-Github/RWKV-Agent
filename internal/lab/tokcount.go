@@ -21,16 +21,11 @@ const defaultVocab = "third_party/rwkv-mobile/assets/rwkv_vocab_v20230424.txt"
 func OpenWorld() (*tokenizer.World, error) {
 	path := defaultVocab
 	if _, err := os.Stat(path); err != nil {
-		if candidate := filepath.Join(RepoRoot(), path); fileExists(candidate) {
+		if candidate := filepath.Join(RepoRoot(), path); FileExists(candidate) {
 			path = candidate
 		}
 	}
 	return tokenizer.OpenWorldCached(path)
-}
-
-func fileExists(path string) bool {
-	info, err := os.Stat(path)
-	return err == nil && !info.IsDir()
 }
 
 // RunTokcount is the `tokcount` command.

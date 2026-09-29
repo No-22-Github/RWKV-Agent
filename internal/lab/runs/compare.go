@@ -219,8 +219,8 @@ func RunCompare(args CompareArgs) int {
 	report.Set("pass_rate", passRate)
 	report.Set("bootstrap", bootstrap)
 	report.Set("flips", flips)
-	report.Set("only_in_a", toAnySlice(onlyA))
-	report.Set("only_in_b", toAnySlice(onlyB))
+	report.Set("only_in_a", lab.ToAnySlice(onlyA))
+	report.Set("only_in_b", lab.ToAnySlice(onlyB))
 
 	data, err := lab.EncodeOrderedJSON(report, lab.EncodeOptions{Indent: 2})
 	if err != nil {
@@ -302,18 +302,18 @@ func loadRunDir(runDir string) (map[string]compareCase, error) {
 		return nil, fmt.Errorf("%s is not a run directory", runDir)
 	}
 	tagsByID := map[string]map[string]any{}
-	for _, c := range mapSlice(manifest["cases"]) {
+	for _, c := range lab.MapSlice(manifest["cases"]) {
 		if id, ok := c["id"].(string); ok {
-			tagsByID[id] = mapOf(c, "tags")
+			tagsByID[id] = lab.MapOf(c, "tags")
 		}
 	}
 	cases := map[string]compareCase{}
-	for _, c := range mapSlice(summary["cases"]) {
+	for _, c := range lab.MapSlice(summary["cases"]) {
 		cid, ok := c["id"].(string)
 		if !ok {
 			continue
 		}
-		tags := mapOf(c, "tags")
+		tags := lab.MapOf(c, "tags")
 		if len(tags) == 0 {
 			tags = tagsByID[cid]
 		}
@@ -329,7 +329,7 @@ func loadRunDir(runDir string) (map[string]compareCase, error) {
 			value:    value,
 			count:    1,
 			family:   family,
-			level:    stringOf(tags, "level"),
+			level:    lab.StringOf(tags, "level"),
 			traceRef: fmt.Sprintf("%s#%s", runDir, cid),
 		}
 	}
@@ -340,7 +340,7 @@ func loadConfig(configName string) (map[string]compareCase, error) {
 	cases := map[string]compareCase{}
 	var order []string
 	for _, r := range ReadJSONL(DefaultLedgerCases()) {
-		if stringOf(r, "config_name") != configName {
+		if lab.StringOf(r, "config_name") != configName {
 			continue
 		}
 		cid, ok := r["case_id"].(string)
@@ -349,7 +349,7 @@ func loadConfig(configName string) (map[string]compareCase, error) {
 		}
 		entry, seen := cases[cid]
 		if !seen {
-			entry = compareCase{traceRef: stringOf(r, "trace_ref")}
+			entry = compareCase{traceRef: lab.StringOf(r, "trace_ref")}
 			order = append(order, cid)
 		}
 		if passed, _ := r["passed"].(bool); passed {
@@ -357,15 +357,15 @@ func loadConfig(configName string) (map[string]compareCase, error) {
 		}
 		entry.count++
 		if entry.family == "" {
-			entry.family = stringOf(r, "family")
+			entry.family = lab.StringOf(r, "family")
 		}
 		if entry.level == "" {
-			entry.level = stringOf(r, "level")
+			entry.level = lab.StringOf(r, "level")
 		}
 		cases[cid] = entry
 	}
 	if len(order) == 0 {
-		return nil, fmt.Errorf("no ledger rows for config_name %s in %s", pyQuote(configName), DefaultLedgerCases())
+		return nil, fmt.Errorf("no ledger rows for config_name %s in %s", lab.PyRepr(configName), DefaultLedgerCases())
 	}
 	for _, cid := range order {
 		entry := cases[cid]
@@ -392,7 +392,7 @@ func readExcludeFile(path string) ([]string, error) {
 			continue
 		}
 		if !excludeIDRe.MatchString(line) {
-			return nil, fmt.Errorf("%s:%d: invalid case id %s", path, i+1, pyQuote(line))
+			return nil, fmt.Errorf("%s:%d: invalid case id %s", path, i+1, lab.PyRepr(line))
 		}
 		ids = append(ids, line)
 	}
@@ -405,7 +405,7 @@ func listOrNone(items []string) string {
 	}
 	parts := make([]string, 0, len(items))
 	for _, item := range items {
-		parts = append(parts, pyQuote(item))
+		parts = append(parts, lab.PyRepr(item))
 	}
 	return "[" + strings.Join(parts, ", ") + "]"
 }

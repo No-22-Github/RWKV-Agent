@@ -1,10 +1,10 @@
 package state
 
 import (
-	"flag"
 	"fmt"
 	"os"
 
+	"github.com/no22/RWKV-Agent/internal/lab"
 	"github.com/no22/RWKV-Agent/internal/lab/runs"
 )
 
@@ -39,19 +39,9 @@ func Run(args []string) int {
 	}
 }
 
-func newFlagSet(name, description string) *flag.FlagSet {
-	fs := flag.NewFlagSet(name, flag.ContinueOnError)
-	fs.SetOutput(os.Stderr)
-	fs.Usage = func() {
-		fmt.Fprintf(os.Stderr, "%s\n\nusage: rwkv-lab %s\n\nflags:\n", description, name)
-		fs.PrintDefaults()
-	}
-	return fs
-}
-
 func runSanityCmd(argv []string) int {
 	args := SanityArgs{WarnRMS: 0.05, MaxRMS: 2.0}
-	fs := newFlagSet("state sanity",
+	fs := lab.NewFlagSet("state sanity",
 		"Magnitude gate for uploaded RWKV time-states (g1k 7B layout: blocks.N.att.time_state).")
 	fs.StringVar(&args.Reference, "reference", "",
 		"known-good state; gate each candidate against its per-tensor RMS")
@@ -66,7 +56,7 @@ func runSanityCmd(argv []string) int {
 	if err := runs.ParseInterspersed(fs, argv, boolFlags); err != nil {
 		return 2
 	}
-	args.HasRatio = flagSet(fs, "max-ratio")
+	args.HasRatio = lab.FlagWasSet(fs, "max-ratio")
 	args.States = fs.Args()
 	if len(args.States) == 0 {
 		fmt.Fprintln(os.Stderr, "error: at least one state file is required")
@@ -77,7 +67,7 @@ func runSanityCmd(argv []string) int {
 
 func runRunCmd(argv []string) int {
 	args := RunArgs{Suites: "workbank,boundary,bfcl", Root: DefaultRoot}
-	fs := newFlagSet("state run",
+	fs := lab.NewFlagSet("state run",
 		"Run a state evaluation with serial before/after fingerprints and file identity.")
 	fs.StringVar(&args.StateID, "state-id", "", "uploaded state ID; empty uses zero state")
 	fs.BoolVar(&args.Fast, "fast", false, "use the think-fast wire (sets its own history overrides)")
@@ -117,7 +107,7 @@ func runProbeCmd(argv []string) int {
 		StateID:   "state-final.pth",
 		MaxTokens: 96,
 	}
-	fs := newFlagSet("state probe",
+	fs := lab.NewFlagSet("state probe",
 		"Greedy continuation probe against the training corpus that produced a state.")
 	fs.StringVar(&args.Corpus, "corpus", args.Corpus, "exported corpus JSONL")
 	fs.StringVar(&args.Split, "split", "first",
@@ -140,15 +130,4 @@ func runProbeCmd(argv []string) int {
 		return 2
 	}
 	return RunProbe(args)
-}
-
-// flagSet reports whether a flag appeared on the command line.
-func flagSet(fs *flag.FlagSet, name string) bool {
-	seen := false
-	fs.Visit(func(f *flag.Flag) {
-		if f.Name == name {
-			seen = true
-		}
-	})
-	return seen
 }

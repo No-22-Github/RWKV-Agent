@@ -177,7 +177,7 @@ func RunRender(args RenderArgs) int {
 	}
 
 	replay(args.CLI, scriptPath, casesPath, runDir, args.Parallelism, args.Extra)
-	if !fileExists(filepath.Join(runDir, "trace.jsonl")) {
+	if !lab.FileExists(filepath.Join(runDir, "trace.jsonl")) {
 		fmt.Fprintln(stderr, "agent-eval produced no trace")
 		return 1
 	}
@@ -287,9 +287,4 @@ func SetAsideUnloadable(casesPath, parking string) ([]unloadable, error) {
 		}
 		rejected = append(rejected, unloadable{caseID: caseID, reason: reason})
 	}
-}
-
-func fileExists(path string) bool {
-	info, err := os.Stat(path)
-	return err == nil && !info.IsDir()
 }

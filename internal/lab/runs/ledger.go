@@ -67,14 +67,14 @@ func RunLedgerIngest(args IngestArgs) int {
 		return 2
 	}
 
-	runID := stringOf(manifest, "run_id")
+	runID := lab.StringOf(manifest, "run_id")
 	if runID == "" {
-		runID = stringOf(summary, "run_id")
+		runID = lab.StringOf(summary, "run_id")
 	}
 	tagsByID := map[string]map[string]any{}
-	for _, c := range mapSlice(manifest["cases"]) {
+	for _, c := range lab.MapSlice(manifest["cases"]) {
 		if id, ok := c["id"].(string); ok {
-			tagsByID[id] = mapOf(c, "tags")
+			tagsByID[id] = lab.MapOf(c, "tags")
 		}
 	}
 
@@ -82,12 +82,12 @@ func RunLedgerIngest(args IngestArgs) int {
 	existingCases := ReadJSONL(casesJSONL(args.LedgerDir))
 	caseKeys := map[string]bool{}
 	for _, r := range existingCases {
-		caseKeys[ingestKey(stringOf(r, "run_id"), stringOf(r, "case_id"), intField(r, "k_index"))] = true
+		caseKeys[ingestKey(lab.StringOf(r, "run_id"), lab.StringOf(r, "case_id"), intField(r, "k_index"))] = true
 	}
 
 	var newCaseRows []map[string]any
 	totalCases := 0
-	for _, sc := range mapSlice(summary["cases"]) {
+	for _, sc := range lab.MapSlice(summary["cases"]) {
 		cid, ok := sc["id"].(string)
 		if !ok {
 			continue
@@ -102,7 +102,7 @@ func RunLedgerIngest(args IngestArgs) int {
 
 	runExists := false
 	for _, r := range existingRuns {
-		if stringOf(r, "run_id") == runID && intField(r, "k_index") == args.KIndex {
+		if lab.StringOf(r, "run_id") == runID && intField(r, "k_index") == args.KIndex {
 			runExists = true
 		}
 	}
@@ -142,7 +142,7 @@ func ingestKey(runID, caseID string, k int) string {
 }
 
 func intField(m map[string]any, key string) int {
-	i, _ := intOf(m[key])
+	i, _ := lab.IntOf(m[key])
 	return i
 }
 
@@ -152,7 +152,7 @@ func deriveEndpoint(model map[string]any) any {
 	}
 	var parts []string
 	for _, key := range []string{"provider", "completion"} {
-		if v, ok := model[key]; ok && truthy(v) {
+		if v, ok := model[key]; ok && lab.Truthy(v) {
 			parts = append(parts, PyStr(v))
 		}
 	}
@@ -173,16 +173,16 @@ func protocolInvalidRate(metrics map[string]any, channel string) any {
 		keys = []string{"native_protocol_validity"}
 	}
 	for _, key := range keys {
-		score := mapOf(metrics, key)
+		score := lab.MapOf(metrics, key)
 		if score == nil {
 			continue
 		}
-		total, hasTotal := numberValue(score["total"])
-		correct, hasCorrect := numberValue(score["correct"])
+		total, hasTotal := lab.NumberValue(score["total"])
+		correct, hasCorrect := lab.NumberValue(score["correct"])
 		if hasTotal && total > 0 && hasCorrect {
 			return lab.PyFloat(lab.RoundHalfEven(clamp01(1-correct/total), 6))
 		}
-		if rate, hasRate := numberValue(score["rate"]); hasRate {
+		if rate, hasRate := lab.NumberValue(score["rate"]); hasRate {
 			return lab.PyFloat(lab.RoundHalfEven(clamp01(1-rate), 6))
 		}
 	}
@@ -202,7 +202,7 @@ func clamp01(x float64) float64 {
 // deriveChannel maps model.completion to the step channel: chat-completions
 // runs use structured provider tool calls, everything else is the text wire.
 func deriveChannel(model map[string]any) string {
-	if model != nil && stringOf(model, "completion") == "chat-completions" {
+	if model != nil && lab.StringOf(model, "completion") == "chat-completions" {
 		return "native"
 	}
 	return "text"
@@ -265,7 +265,7 @@ func trapHit(finalOutput any, decoys map[string]any) any {
 		if !hasNum {
 			continue
 		}
-		if f, isNum := numberValue(val); isNum {
+		if f, isNum := lab.NumberValue(val); isNum {
 			if absFloat(outNum-f) <= 1e-6 {
 				return trap
 			}
@@ -284,21 +284,21 @@ func parseFloatLoose(s string) (float64, bool) {
 }
 
 func buildRunRow(manifest, summary map[string]any, caseRows []map[string]any, args IngestArgs) map[string]any {
-	model := mapOf(manifest, "model")
-	harness := mapOf(manifest, "harness")
+	model := lab.MapOf(manifest, "model")
+	harness := lab.MapOf(manifest, "harness")
 	sampling, _ := manifest["sampling"].(map[string]any)
-	metrics := mapOf(summary, "metrics")
+	metrics := lab.MapOf(summary, "metrics")
 	channel := deriveChannel(model)
-	date := stringOf(manifest, "completed_at")
+	date := lab.StringOf(manifest, "completed_at")
 	if date == "" {
-		date = stringOf(manifest, "started_at")
+		date = lab.StringOf(manifest, "started_at")
 	}
 	if date == "" {
 		date = nowUTCIso()
 	}
 	var passMean any
-	task := mapOf(metrics, "task_success")
-	if rate, ok := numberValue(task["rate"]); ok {
+	task := lab.MapOf(metrics, "task_success")
+	if rate, ok := lab.NumberValue(task["rate"]); ok {
 		passMean = lab.RoundHalfEven(rate, 6)
 	} else if len(caseRows) > 0 {
 		passed := 0
@@ -313,18 +313,18 @@ func buildRunRow(manifest, summary map[string]any, caseRows []map[string]any, ar
 	if task != nil {
 		scoredCases = task["total"]
 	}
-	invalidCases, _ := intOf(metrics["invalid_cases"])
+	invalidCases, _ := lab.IntOf(metrics["invalid_cases"])
 	rescueAssisted := 0
 	for _, r := range caseRows {
 		if p, _ := r["passed"].(bool); p {
-			if rescues, ok := intOf(r["rescues"]); ok && rescues > 0 {
+			if rescues, ok := lab.IntOf(r["rescues"]); ok && rescues > 0 {
 				rescueAssisted++
 			}
 		}
 	}
-	runID := stringOf(manifest, "run_id")
+	runID := lab.StringOf(manifest, "run_id")
 	if runID == "" {
-		runID = stringOf(summary, "run_id")
+		runID = lab.StringOf(summary, "run_id")
 	}
 	return map[string]any{
 		"run_id":                     nilIfEmpty(runID),
@@ -361,55 +361,55 @@ func buildRunRow(manifest, summary map[string]any, caseRows []map[string]any, ar
 }
 
 func buildCaseRow(runDir string, summaryCase map[string]any, tagsByID map[string]map[string]any, args IngestArgs, runID string) map[string]any {
-	caseID := stringOf(summaryCase, "id")
-	tags := mapOf(summaryCase, "tags")
+	caseID := lab.StringOf(summaryCase, "id")
+	tags := lab.MapOf(summaryCase, "tags")
 	if len(tags) == 0 {
 		tags = tagsByID[caseID]
 	}
 	if tags == nil {
 		tags = map[string]any{}
 	}
-	turns := mapSlice(summaryCase["turns"])
-	failures := len(stringList(summaryCase["failures"]))
+	turns := lab.MapSlice(summaryCase["turns"])
+	failures := len(lab.StringList(summaryCase["failures"]))
 	for _, t := range turns {
-		failures += len(stringList(t["failures"]))
+		failures += len(lab.StringList(t["failures"]))
 	}
 	toolCalls := summaryCase["tool_calls"]
 	refCalls := tags["ref_calls"]
 	var redundancy any
-	if tc, ok := numberValue(toolCalls); ok && isNumber(toolCalls) {
-		if rc, ok := numberValue(refCalls); ok && isNumber(refCalls) && rc != 0 {
+	if tc, ok := lab.NumberValue(toolCalls); ok && isNumber(toolCalls) {
+		if rc, ok := lab.NumberValue(refCalls); ok && isNumber(refCalls) && rc != 0 {
 			redundancy = lab.RoundHalfEven(tc/rc, 4)
 		}
 	}
 	maxTurnsHit := false
 	for _, t := range turns {
-		result := mapOf(t, "result")
-		if stringOf(result, "forced_answer_reason") != "" {
+		result := lab.MapOf(t, "result")
+		if lab.StringOf(result, "forced_answer_reason") != "" {
 			maxTurnsHit = true
 		}
-		if strings.Contains(strings.ToLower(stringOf(t, "runner_error")), "budget") {
+		if strings.Contains(strings.ToLower(lab.StringOf(t, "runner_error")), "budget") {
 			maxTurnsHit = true
 		}
 	}
 	var finalOutput any
 	if len(turns) > 0 {
-		finalOutput = mapOf(turns[len(turns)-1], "result")["output"]
+		finalOutput = lab.MapOf(turns[len(turns)-1], "result")["output"]
 	}
 	version := 1
-	if v, ok := intOf(tags["version"]); ok {
+	if v, ok := lab.IntOf(tags["version"]); ok {
 		version = v
 	}
 	var toolCallsOut any
-	if _, ok := numberValue(toolCalls); ok && isNumber(toolCalls) {
+	if _, ok := lab.NumberValue(toolCalls); ok && isNumber(toolCalls) {
 		toolCallsOut = toolCalls
 	}
 	var refCallsOut any
-	if _, ok := numberValue(refCalls); ok && isNumber(refCalls) {
+	if _, ok := lab.NumberValue(refCalls); ok && isNumber(refCalls) {
 		refCallsOut = refCalls
 	}
 	var rescuesOut any
-	if r, ok := numberValue(summaryCase["rescues"]); ok && isNumber(summaryCase["rescues"]) {
+	if r, ok := lab.NumberValue(summaryCase["rescues"]); ok && isNumber(summaryCase["rescues"]) {
 		rescuesOut = summaryCase["rescues"]
 		_ = r
 	}
@@ -422,7 +422,7 @@ func buildCaseRow(runDir string, summaryCase map[string]any, tagsByID map[string
 		"family":            tags["family"],
 		"level":             tags["level"],
 		"scenario":          tags["scenario"],
-		"passed":            truthy(summaryCase["passed"]),
+		"passed":            lab.Truthy(summaryCase["passed"]),
 		"failures":          failures,
 		"tool_calls":        toolCallsOut,
 		"ref_calls":         refCallsOut,
@@ -430,7 +430,7 @@ func buildCaseRow(runDir string, summaryCase map[string]any, tagsByID map[string
 		"max_turns_hit":     maxTurnsHit,
 		"duplicate_rejects": summaryCase["duplicate_rejects"],
 		"rescues":           rescuesOut,
-		"trap_hit":          trapHit(finalOutput, mapOf(tags, "trap_decoys")),
+		"trap_hit":          trapHit(finalOutput, lab.MapOf(tags, "trap_decoys")),
 		"trace_ref":         fmt.Sprintf("%s#%s", runDir, caseID),
 	}
 }
@@ -449,7 +449,7 @@ func RunLedgerMatrix(args MatrixArgs) int {
 	if args.BankVersion != "" {
 		var filtered []map[string]any
 		for _, r := range runs {
-			if stringOf(r, "bank_version") == args.BankVersion {
+			if lab.StringOf(r, "bank_version") == args.BankVersion {
 				filtered = append(filtered, r)
 			}
 		}
@@ -457,11 +457,11 @@ func RunLedgerMatrix(args MatrixArgs) int {
 	}
 	runIDs := map[string]bool{}
 	for _, r := range runs {
-		runIDs[stringOf(r, "run_id")] = true
+		runIDs[lab.StringOf(r, "run_id")] = true
 	}
 	var keptCases []map[string]any
 	for _, c := range cases {
-		if runIDs[stringOf(c, "run_id")] {
+		if runIDs[lab.StringOf(c, "run_id")] {
 			keptCases = append(keptCases, c)
 		}
 	}
@@ -480,7 +480,7 @@ func RunLedgerMatrix(args MatrixArgs) int {
 		if groups[key] == nil {
 			groups[key] = map[string]bool{}
 		}
-		groups[key][stringOf(r, "run_id")] = true
+		groups[key][lab.StringOf(r, "run_id")] = true
 	}
 	keys := make([]string, 0, len(groups))
 	for k := range groups {
@@ -498,7 +498,7 @@ func RunLedgerMatrix(args MatrixArgs) int {
 		members := groups[key]
 		var rows []map[string]any
 		for _, c := range keptCases {
-			if members[stringOf(c, "run_id")] {
+			if members[lab.StringOf(c, "run_id")] {
 				rows = append(rows, c)
 			}
 		}
@@ -507,7 +507,7 @@ func RunLedgerMatrix(args MatrixArgs) int {
 		for _, c := range rows {
 			if p, _ := c["passed"].(bool); p {
 				passed++
-				if rescues, ok := intOf(c["rescues"]); ok && rescues > 0 {
+				if rescues, ok := lab.IntOf(c["rescues"]); ok && rescues > 0 {
 					rescueAssisted++
 				}
 			}

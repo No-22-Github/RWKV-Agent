@@ -7,6 +7,8 @@ import (
 	"os"
 	"sort"
 	"strings"
+
+	"github.com/no22/RWKV-Agent/internal/lab"
 )
 
 // Validity gate for one agent-eval run (docs/evaluations/benchmark-protocol.md
@@ -139,9 +141,9 @@ func RunCheckTo(w io.Writer, args CheckArgs) int {
 		return 2
 	}
 
-	harness := mapOf(run, "harness")
-	model := mapOf(run, "model")
-	sampling := mapOf(run, "sampling")
+	harness := lab.MapOf(run, "harness")
+	model := lab.MapOf(run, "model")
+	sampling := lab.MapOf(run, "sampling")
 	var failures []string
 
 	gate := func(name string, ok bool, detail string) {
@@ -159,11 +161,11 @@ func RunCheckTo(w io.Writer, args CheckArgs) int {
 	}
 
 	if args.RWKV && !args.Primitive {
-		gate("wire_preset == g1k", stringOf(harness, "wire_preset") == "g1k",
+		gate("wire_preset == g1k", lab.StringOf(harness, "wire_preset") == "g1k",
 			fmt.Sprintf("wire_preset=%s", pyRepr(harness["wire_preset"])))
 	}
 	if !args.RWKV {
-		gate("completion == chat-completions", stringOf(model, "completion") == "chat-completions",
+		gate("completion == chat-completions", lab.StringOf(model, "completion") == "chat-completions",
 			fmt.Sprintf("completion=%s", pyRepr(model["completion"])))
 	}
 
@@ -172,7 +174,7 @@ func RunCheckTo(w io.Writer, args CheckArgs) int {
 			// Binaries from 2026-09-23 on record the preset matched from the
 			// values that ran.
 			gate(fmt.Sprintf("sampling.preset == %s", args.Arm),
-				stringOf(sampling, "preset") == args.Arm,
+				lab.StringOf(sampling, "preset") == args.Arm,
 				fmt.Sprintf("got %s", pyRepr(sampling["preset"])))
 		}
 	}
@@ -220,13 +222,13 @@ func RunCheckTo(w io.Writer, args CheckArgs) int {
 			fmt.Sprintf("got %d", len(caseIDs)))
 	}
 
-	metrics := mapOf(summary, "metrics")
-	task := mapOf(metrics, "task_success")
-	invalid, _ := intOf(metrics["invalid_cases"])
-	correct, _ := intOf(task["correct"])
+	metrics := lab.MapOf(summary, "metrics")
+	task := lab.MapOf(metrics, "task_success")
+	invalid, _ := lab.IntOf(metrics["invalid_cases"])
+	correct, _ := lab.IntOf(task["correct"])
 	strictTotal := len(caseIDs)
 	if strictTotal == 0 {
-		strictTotal, _ = intOf(task["total"])
+		strictTotal, _ = lab.IntOf(task["total"])
 	}
 
 	fmt.Println()
@@ -258,8 +260,8 @@ func closeEnough(got, want any) bool {
 	if got == nil {
 		return false
 	}
-	g, gok := numberValue(got)
-	w, wok := numberValue(want)
+	g, gok := lab.NumberValue(got)
+	w, wok := lab.NumberValue(want)
 	if !gok || !wok {
 		return false
 	}
@@ -271,7 +273,7 @@ func closeEnough(got, want any) bool {
 }
 
 func intEquals(got any, want int) bool {
-	i, ok := intOf(got)
+	i, ok := lab.IntOf(got)
 	return ok && i == want
 }
 
@@ -299,7 +301,7 @@ func pyRepr(v any) string {
 		}
 		return "False"
 	case string:
-		return pyQuote(t)
+		return lab.PyRepr(t)
 	case json.Number:
 		if strings.ContainsAny(t.String(), ".eE") {
 			if f, err := t.Float64(); err == nil {

@@ -19,7 +19,7 @@ import (
 // that behaviour and the defect is recorded in §7 instead. If the flag is
 // meant to work, that is a follow-up, not part of the migration.
 func runCalibrate(args []string) int {
-	fs := newFlagSet("bank calibrate",
+	fs := lab.NewFlagSet("bank calibrate",
 		"Flag cases whose measured pass rate contradicts their declared difficulty level.")
 	ledger := fs.String("ledger", DefaultLedgerCases(), "path to cases.jsonl")
 	if err := fs.Parse(args); err != nil {

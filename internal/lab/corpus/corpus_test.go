@@ -402,7 +402,7 @@ func TestNearestFlagsARenamedCopy(t *testing.T) {
 		candidate.Set(key, toOrdered(t, original[key]))
 	}
 	row := nearest(candidate, test, common, map[string]float64{"prompt": 0.35, "files": 0.3, "names": 0.3})
-	flagged := stringSlice(mapValue(row, "flagged"))
+	flagged := lab.StringList(mapValue(row, "flagged"))
 	if !reflect.DeepEqual(flagged, []string{"prompt", "files", "names"}) {
 		t.Errorf("flagged = %v", flagged)
 	}

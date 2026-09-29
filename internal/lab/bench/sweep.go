@@ -459,16 +459,16 @@ func finishRun(args *SweepArgs, suite, arm, output string, cmd []string, started
 		return nil, false, "", err
 	}
 	var errors []string
-	for _, c := range mapSlice(summary["cases"]) {
-		for _, t := range mapSlice(c["turns"]) {
-			for _, f := range stringList(t["failures"]) {
+	for _, c := range lab.MapSlice(summary["cases"]) {
+		for _, t := range lab.MapSlice(c["turns"]) {
+			for _, f := range lab.StringList(t["failures"]) {
 				if runs.InfrastructureFailure(f) {
 					errors = append(errors, f)
 				}
 			}
 		}
 		if invalid, _ := c["invalid"].(bool); invalid {
-			errors = append(errors, stringOf(c, "invalid_reason"))
+			errors = append(errors, lab.StringOf(c, "invalid_reason"))
 		}
 	}
 
@@ -487,8 +487,8 @@ func finishRun(args *SweepArgs, suite, arm, output string, cmd []string, started
 	})
 
 	task := mapOfAny(summary, "metrics", "task_success")
-	correct, _ := intOfAny(task["correct"])
-	invalidCases, _ := intOfAny(mapOfAny(summary, "metrics")["invalid_cases"])
+	correct, _ := lab.IntOf(task["correct"])
+	invalidCases, _ := lab.IntOf(mapOfAny(summary, "metrics")["invalid_cases"])
 
 	binaryBytes, err := os.ReadFile(binaryPath())
 	if err != nil {
@@ -500,7 +500,7 @@ func finishRun(args *SweepArgs, suite, arm, output string, cmd []string, started
 	diffSum := sha256.Sum256([]byte(gitDiff))
 
 	provenance := lab.NewOrderedMap()
-	provenance.Set("command", toAnySlice(cmd))
+	provenance.Set("command", lab.ToAnySlice(cmd))
 	provenance.Set("arm", arm)
 	provenance.Set("suite", suite)
 	provenance.Set("sampling", armSamplingMap(arm))
@@ -511,12 +511,12 @@ func finishRun(args *SweepArgs, suite, arm, output string, cmd []string, started
 	provenance.Set("started_unix", float64(started.UnixNano())/1e9)
 	provenance.Set("exit_code", lastExitCode)
 	provenance.Set("elapsed_seconds", time.Since(started).Seconds())
-	provenance.Set("infrastructure_errors", toAnySlice(errors))
+	provenance.Set("infrastructure_errors", lab.ToAnySlice(errors))
 	provenance.Set("valid_for_model_comparison", len(errors) == 0)
 	provenance.Set("gate_output", gateOut)
 	strict := lab.NewOrderedMap()
 	strict.Set("correct", correct)
-	strict.Set("total", len(mapSlice(summary["cases"])))
+	strict.Set("total", len(lab.MapSlice(summary["cases"])))
 	provenance.Set("strict", strict)
 	if suite == "workbank" {
 		root := filepath.Join(lab.RepoRoot(), "bench", "workbank", "cases")
@@ -525,7 +525,7 @@ func finishRun(args *SweepArgs, suite, arm, output string, cmd []string, started
 	}
 
 	line := fmt.Sprintf("strict %d/%d  invalid %d  infra_errors %d  gate %s  %.0fs",
-		correct, len(mapSlice(summary["cases"])), invalidCases, len(errors),
+		correct, len(lab.MapSlice(summary["cases"])), invalidCases, len(errors),
 		map[bool]string{true: "PASS", false: "FAIL"}[gateCode == 0],
 		time.Since(started).Seconds())
 	if gateCode != 0 {
@@ -604,7 +604,7 @@ func snapshot(args *SweepArgs, label string) ([]string, any, any, error) {
 	writeIndented(filepath.Join(args.Out, "endpoint-"+label+"-models.json"), models)
 	writeIndented(filepath.Join(args.Out, "endpoint-"+label+"-server-status.json"), status)
 	var ids []string
-	for _, m := range mapSlice(models["data"]) {
+	for _, m := range lab.MapSlice(models["data"]) {
 		if id, ok := m["id"].(string); ok {
 			ids = append(ids, id)
 		}
@@ -619,7 +619,7 @@ func endpointModels(base string) ([]string, error) {
 		return nil, err
 	}
 	var ids []string
-	for _, m := range mapSlice(models["data"]) {
+	for _, m := range lab.MapSlice(models["data"]) {
 		if id, ok := m["id"].(string); ok {
 			ids = append(ids, id)
 		}

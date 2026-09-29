@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/no22/RWKV-Agent/internal/lab"
 )
 
 // The infrastructure rule is shared by wire, audit and replicate; all three
@@ -145,12 +147,12 @@ func TestWirePreservesZeroAnswerMatchCounter(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	metrics := mapOf(report, "metrics")
+	metrics := lab.MapOf(report, "metrics")
 	value, ok := metrics["answer_match_with_other_failures"]
 	if !ok {
 		t.Fatal("answer_match_with_other_failures is missing")
 	}
-	got, ok := numberValue(value)
+	got, ok := lab.NumberValue(value)
 	if !ok || got != 0 {
 		t.Fatalf("answer_match_with_other_failures = %v, want 0", value)
 	}
@@ -179,11 +181,11 @@ func TestAuditPreservesZeroPassedCounter(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	value, ok := mapOf(report, "totals")["passed"]
+	value, ok := lab.MapOf(report, "totals")["passed"]
 	if !ok {
 		t.Fatal("totals.passed is missing")
 	}
-	if got, ok := numberValue(value); !ok || got != 0 {
+	if got, ok := lab.NumberValue(value); !ok || got != 0 {
 		t.Fatalf("totals.passed = %v, want 0", value)
 	}
 }

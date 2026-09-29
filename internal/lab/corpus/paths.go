@@ -132,7 +132,7 @@ func Extract(run CaseRun) (Trajectory, error) {
 				}
 				actions = append(actions, Action{Text: text, Final: true})
 			default:
-				return nil, Unclean("action " + pyRepr(step.ActionType))
+				return nil, Unclean("action " + lab.PyRepr(step.ActionType))
 			}
 		}
 	}
@@ -186,7 +186,7 @@ func Collect(runDirs []string) (map[string]*CaseStats, []string, error) {
 		for _, run := range runs {
 			if strings.Contains(run.CaseID, PathSeparator) {
 				return nil, nil, fmt.Errorf("case id %s contains the reserved separator %s",
-					pyRepr(run.CaseID), pyRepr(PathSeparator))
+					lab.PyRepr(run.CaseID), lab.PyRepr(PathSeparator))
 			}
 			stat, seen := stats[run.CaseID]
 			if !seen {

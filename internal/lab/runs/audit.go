@@ -45,29 +45,29 @@ func Audit(runDir string) (map[string]any, error) {
 	rows := []any{}
 	totals := map[string]int{}
 
-	for _, caseObj := range mapSlice(summary["cases"]) {
+	for _, caseObj := range lab.MapSlice(summary["cases"]) {
 		flags := map[string]bool{}
 		var traces []any
-		for _, turn := range mapSlice(caseObj["turns"]) {
-			result := mapOf(turn, "result")
-			steps := mapSlice(result["steps"])
+		for _, turn := range lab.MapSlice(caseObj["turns"]) {
+			result := lab.MapOf(turn, "result")
+			steps := lab.MapSlice(result["steps"])
 
-			if reason := stringOf(result, "forced_answer_reason"); reason != "" {
+			if reason := lab.StringOf(result, "forced_answer_reason"); reason != "" {
 				flags[reason] = true
 			}
-			if stringOf(result, "output") == "" {
+			if lab.StringOf(result, "output") == "" {
 				flags["empty_output"] = true
 			}
-			for _, f := range stringList(turn["failures"]) {
+			for _, f := range lab.StringList(turn["failures"]) {
 				if InfrastructureFailure(f) {
 					flags["infrastructure_failure"] = true
 				}
 			}
 			for _, st := range steps {
-				if stringOf(st, "stage") == "answer" && stringOf(st, "action_type") == "tool" {
+				if lab.StringOf(st, "stage") == "answer" && lab.StringOf(st, "action_type") == "tool" {
 					flags["answer_stage_tool"] = true
 				}
-				tool := stringOf(st, "tool")
+				tool := lab.StringOf(st, "tool")
 				if (tool == "read_file" || tool == "read_lines") && toolResultOK(st) {
 					flags["successful_file_read"] = true
 				}
@@ -79,7 +79,7 @@ func Audit(runDir string) (map[string]any, error) {
 				if !hasReceipt || receipt == nil {
 					continue
 				}
-				prompt := stringOf(mapOf(b, "request"), "prompt")
+				prompt := lab.StringOf(lab.MapOf(b, "request"), "prompt")
 				var payloads []any
 				for _, match := range toolResponseRe.FindAllStringSubmatch(prompt, -1) {
 					if obj, err := lab.DecodeJSONBytes([]byte(match[1])); err == nil {
@@ -134,7 +134,7 @@ func Audit(runDir string) (map[string]any, error) {
 			"passed":        caseObj["passed"],
 			"case_failures": caseFailures,
 			"case_error":    caseObj["error"],
-			"flags":         toAnySlice(sortedFlags),
+			"flags":         lab.ToAnySlice(sortedFlags),
 			"turns":         traces,
 		})
 	}

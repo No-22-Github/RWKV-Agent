@@ -114,13 +114,13 @@ var answerNumberRe = regexp.MustCompile(`-?\d[\d,]*(?:\.\d+)?(?:[eE][+-]?\d+)?`)
 // does not here.
 func AnswerTextMatch(expect map[string]any, output string) bool {
 	if expected, ok := expect["expected_number"]; ok {
-		target, isNum := numberValue(expected)
+		target, isNum := lab.NumberValue(expected)
 		if !isNum {
 			return false
 		}
 		tolerance := 0.01
 		if tol, ok := expect["tolerance"]; ok {
-			if f, isNum := numberValue(tol); isNum {
+			if f, isNum := lab.NumberValue(tol); isNum {
 				tolerance = f
 			}
 		}
@@ -217,7 +217,7 @@ func RunWire(args WireArgs) int {
 			return 2
 		}
 		bank = map[string]map[string]any{}
-		for _, c := range mapSlice(obj["cases"]) {
+		for _, c := range lab.MapSlice(obj["cases"]) {
 			if id, ok := c["id"].(string); ok {
 				bank[id] = c
 			}
@@ -266,8 +266,8 @@ func AnalyzeWire(runDir string, bank map[string]map[string]any) (map[string]any,
 	var lengths, thoughtLengths []float64
 
 	terminal := "none"
-	harness := mapOf(manifest, "harness")
-	if canonical := stringOf(harness, "wire_canonical"); canonical != "" {
+	harness := lab.MapOf(manifest, "harness")
+	if canonical := lab.StringOf(harness, "wire_canonical"); canonical != "" {
 		for _, part := range strings.Split(canonical, ";") {
 			if idx := strings.Index(part, "="); idx != -1 {
 				if part[:idx] == "terminal" {
@@ -277,21 +277,21 @@ func AnalyzeWire(runDir string, bank map[string]map[string]any) (map[string]any,
 		}
 	}
 
-	for _, caseObj := range mapSlice(summary["cases"]) {
+	for _, caseObj := range lab.MapSlice(summary["cases"]) {
 		m.add("cases", 1)
 		passed, _ := caseObj["passed"].(bool)
 		m.addBool("passed", passed)
-		caseID := stringOf(caseObj, "id")
+		caseID := lab.StringOf(caseObj, "id")
 		if strings.Contains(caseID, "irrelevance") {
 			m.add("irrelevance_cases", 1)
 			casePassed, _ := caseObj["passed"].(bool)
 			m.addBool("irrelevance_passed", casePassed)
 		}
-		for ti, turn := range mapSlice(caseObj["turns"]) {
+		for ti, turn := range lab.MapSlice(caseObj["turns"]) {
 			m.add("turns", 1)
-			result := mapOf(turn, "result")
-			steps := mapSlice(result["steps"])
-			failures := stringList(turn["failures"])
+			result := lab.MapOf(turn, "result")
+			steps := lab.MapSlice(result["steps"])
+			failures := lab.StringList(turn["failures"])
 
 			infra := false
 			for _, f := range failures {
@@ -300,10 +300,10 @@ func AnalyzeWire(runDir string, bank map[string]map[string]any) (map[string]any,
 				}
 			}
 			m.addBool("infra_error_turns", infra)
-			forced := stringOf(result, "forced_answer_reason")
+			forced := lab.StringOf(result, "forced_answer_reason")
 			var answerSteps []map[string]any
 			for _, st := range steps {
-				if stringOf(st, "stage") == "answer" {
+				if lab.StringOf(st, "stage") == "answer" {
 					answerSteps = append(answerSteps, st)
 				}
 			}
@@ -316,15 +316,15 @@ func AnalyzeWire(runDir string, bank map[string]map[string]any) (map[string]any,
 
 			var decisions, real, executed []map[string]any
 			for _, st := range steps {
-				if stringOf(st, "stage") != "answer" {
+				if lab.StringOf(st, "stage") != "answer" {
 					decisions = append(decisions, st)
 				}
 			}
 			for _, st := range decisions {
-				if stringOf(st, "action_type") != "tool" {
+				if lab.StringOf(st, "action_type") != "tool" {
 					continue
 				}
-				if stringOf(st, "tool") == terminal && terminal != "none" {
+				if lab.StringOf(st, "tool") == terminal && terminal != "none" {
 					continue
 				}
 				real = append(real, st)
@@ -346,13 +346,13 @@ func AnalyzeWire(runDir string, bank map[string]map[string]any) (map[string]any,
 				last = steps[len(steps)-1]
 			}
 			lastToolExecuted, _ := last["tool_executed"].(bool)
-			lastToolError := stringOf(last, "tool_error")
-			terminalOK := terminal != "none" && stringOf(last, "tool") == terminal &&
+			lastToolError := lab.StringOf(last, "tool_error")
+			terminalOK := terminal != "none" && lab.StringOf(last, "tool") == terminal &&
 				lastToolExecuted && lastToolError == ""
 			lastStageViolation, _ := last["stage_violation"].(bool)
-			lastAction := stringOf(last, "action_type")
-			cleanExit := stringOf(result, "output") != "" && !lastStageViolation &&
-				stringOf(last, "protocol_error") == "" && (lastAction == "final" || lastAction == "no_tool" || terminalOK)
+			lastAction := lab.StringOf(last, "action_type")
+			cleanExit := lab.StringOf(result, "output") != "" && !lastStageViolation &&
+				lab.StringOf(last, "protocol_error") == "" && (lastAction == "final" || lastAction == "no_tool" || terminalOK)
 			runnerError := false
 			for _, f := range failures {
 				if strings.HasPrefix(f, "runner error:") {
@@ -362,8 +362,8 @@ func AnalyzeWire(runDir string, bank map[string]map[string]any) (map[string]any,
 			autonomous := cleanExit && forced == "" && len(answerSteps) == 0 && !runnerError
 			m.addBool("self_term_tool_attempts", len(real) > 0 && autonomous)
 			m.addBool("self_term_tool_executed", len(executed) > 0 && autonomous)
-			tags := mapOf(caseObj, "tags")
-			if ref, ok := intOf(tags["ref_calls"]); ok && ref > 0 {
+			tags := lab.MapOf(caseObj, "tags")
+			if ref, ok := lab.IntOf(tags["ref_calls"]); ok && ref > 0 {
 				m.add("needs_tool_turns", 1)
 				m.addBool("zero_evidence_exit", autonomous && !evidence)
 			}
@@ -371,9 +371,9 @@ func AnalyzeWire(runDir string, bank map[string]map[string]any) (map[string]any,
 			previousRaw := ""
 			var previousCall any
 			for di, st := range decisions {
-				raw := stringOf(st, "model_output")
-				native := stringOf(st, "channel") == "native"
-				kind, thought, body := SplitThink(raw, stringOf(mapOf(st, "request"), "prompt"))
+				raw := lab.StringOf(st, "model_output")
+				native := lab.StringOf(st, "channel") == "native"
+				kind, thought, body := SplitThink(raw, lab.StringOf(lab.MapOf(st, "request"), "prompt"))
 				prefix := "later"
 				if di == 0 {
 					prefix = "first"
@@ -386,7 +386,7 @@ func AnalyzeWire(runDir string, bank map[string]map[string]any) (map[string]any,
 						thoughtLengths = append(thoughtLengths, float64(len([]rune(thought))))
 					}
 					if strings.Contains(body, "<tool_call>") && !strings.HasPrefix(body, "<tool_call>") &&
-						stringOf(st, "action_type") == "final" {
+						lab.StringOf(st, "action_type") == "final" {
 						candidate := body[strings.Index(body, "<tool_call>"):]
 						if CallObject(candidate) != nil {
 							m.add("preamble_call_as_final", 1)
@@ -403,8 +403,8 @@ func AnalyzeWire(runDir string, bank map[string]map[string]any) (map[string]any,
 					}
 				}
 				var actionCall any
-				if stringOf(st, "action_type") == "tool" {
-					actionCall = []any{stringOf(st, "tool"), st["tool_arguments"]}
+				if lab.StringOf(st, "action_type") == "tool" {
+					actionCall = []any{lab.StringOf(st, "tool"), st["tool_arguments"]}
 				}
 				if di > 0 && !native {
 					m.addBool("adjacent_raw_repeat", CallObject(body) != nil && body == previousRaw)
@@ -414,16 +414,16 @@ func AnalyzeWire(runDir string, bank map[string]map[string]any) (map[string]any,
 				}
 				previousRaw, previousCall = body, actionCall
 
-				for _, repair := range stringList(st["protocol_repairs"]) {
+				for _, repair := range lab.StringList(st["protocol_repairs"]) {
 					repairs.add(repair, 1)
 				}
-				if stringOf(st, "tool_rejected_reason") == "duplicate_tool_call" {
+				if lab.StringOf(st, "tool_rejected_reason") == "duplicate_tool_call" {
 					m.add("duplicate_reject", 1)
 					if di+1 < len(decisions) {
 						nxt := decisions[di+1]
 						m.add("duplicate_with_next_decision", 1)
-						changed := canonicalJSON([]any{stringOf(nxt, "tool"), nxt["tool_arguments"]}) != canonicalJSON(actionCall)
-						nxtAction := stringOf(nxt, "action_type")
+						changed := canonicalJSON([]any{lab.StringOf(nxt, "tool"), nxt["tool_arguments"]}) != canonicalJSON(actionCall)
+						nxtAction := lab.StringOf(nxt, "action_type")
 						nxtStageViolation, _ := nxt["stage_violation"].(bool)
 						nxtExecuted, _ := nxt["tool_executed"].(bool)
 						m.addBool("duplicate_next_changed_or_exit",
@@ -431,26 +431,26 @@ func AnalyzeWire(runDir string, bank map[string]map[string]any) (map[string]any,
 								(changed && nxtExecuted))
 					}
 				}
-				if stringOf(st, "action_type") == "no_tool" {
-					payload := stringOf(st, "no_tool_answer")
+				if lab.StringOf(st, "action_type") == "no_tool" {
+					payload := lab.StringOf(st, "no_tool_answer")
 					if payload == "" {
-						payload = stringOf(st, "no_tool_rationale")
+						payload = lab.StringOf(st, "no_tool_rationale")
 					}
 					lengths = append(lengths, float64(len([]rune(payload))))
 				}
 			}
 			for _, st := range answerSteps {
 				m.add("answer_generations", 1)
-				m.addBool("answer_parsed_real_call", stringOf(st, "action_type") == "tool")
-				_, _, body := SplitThink(stringOf(st, "model_output"), stringOf(mapOf(st, "request"), "prompt"))
+				m.addBool("answer_parsed_real_call", lab.StringOf(st, "action_type") == "tool")
+				_, _, body := SplitThink(lab.StringOf(st, "model_output"), lab.StringOf(lab.MapOf(st, "request"), "prompt"))
 				m.addBool("answer_call_shape", CallObject(body) != nil)
 			}
 			if bank != nil {
 				spec, ok := bank[caseID]
 				turnPassed, _ := turn["passed"].(bool)
 				if ok && !turnPassed {
-					turns := mapSlice(spec["turns"])
-					if ti < len(turns) && AnswerTextMatch(mapOf(turns[ti], "expect"), stringOf(result, "output")) {
+					turns := lab.MapSlice(spec["turns"])
+					if ti < len(turns) && AnswerTextMatch(lab.MapOf(turns[ti], "expect"), lab.StringOf(result, "output")) {
 						m.add("failed_answer_text_match", 1)
 						var other []string
 						for _, f := range failures {
@@ -461,7 +461,7 @@ func AnalyzeWire(runDir string, bank map[string]map[string]any) (map[string]any,
 						m.addBool("answer_match_with_other_failures", len(other) > 0)
 						details = append(details, map[string]any{
 							"case": caseID, "turn": ti + 1, "kind": "answer_text_match_not_rescore",
-							"other_failures": toAnySlice(other)})
+							"other_failures": lab.ToAnySlice(other)})
 					}
 				}
 			}
@@ -469,8 +469,8 @@ func AnalyzeWire(runDir string, bank map[string]map[string]any) (map[string]any,
 	}
 
 	casePass := map[string]any{}
-	for _, c := range mapSlice(summary["cases"]) {
-		casePass[stringOf(c, "id")] = c["passed"]
+	for _, c := range lab.MapSlice(summary["cases"]) {
+		casePass[lab.StringOf(c, "id")] = c["passed"]
 	}
 	var exitMedian, thinkMedian any
 	if len(lengths) > 0 {
@@ -512,14 +512,14 @@ func median(values []float64) float64 {
 func printWireTable(reports []map[string]any) {
 	names := make([]string, 0, len(reports))
 	for _, r := range reports {
-		names = append(names, baseName(stringOf(r, "run")))
+		names = append(names, baseName(lab.StringOf(r, "run")))
 	}
 	fmt.Println("| 指标 | " + strings.Join(names, " | ") + " |")
 	fmt.Println("|---|" + strings.Repeat("---|", len(reports)))
 
-	metrics := func(r map[string]any) map[string]any { return mapOf(r, "metrics") }
+	metrics := func(r map[string]any) map[string]any { return lab.MapOf(r, "metrics") }
 	num := func(m map[string]any, key string) float64 {
-		f, _ := numberValue(m[key])
+		f, _ := lab.NumberValue(m[key])
 		return f
 	}
 	rows := []struct {
@@ -604,7 +604,7 @@ func printWireTable(reports []map[string]any) {
 				}
 			}
 			out, err := lab.EncodeOrderedJSON(map[string]any{
-				"compare": baseName(stringOf(report, "run")), "gains": gains, "losses": losses,
+				"compare": baseName(lab.StringOf(report, "run")), "gains": gains, "losses": losses,
 			}, lab.EncodeOptions{SortKeys: true, SpacedSeparators: true})
 			if err == nil {
 				fmt.Println(string(out))
@@ -624,7 +624,7 @@ func formatValue(v any) string {
 	if v == nil {
 		return "<nil>"
 	}
-	if f, ok := numberValue(v); ok {
+	if f, ok := lab.NumberValue(v); ok {
 		return formatNumber(f)
 	}
 	return fmt.Sprintf("%v", v)
@@ -636,25 +636,6 @@ func baseName(path string) string {
 		return path[idx+1:]
 	}
 	return path
-}
-
-func stringList(v any) []string {
-	items, _ := v.([]any)
-	out := make([]string, 0, len(items))
-	for _, item := range items {
-		if s, ok := item.(string); ok {
-			out = append(out, s)
-		}
-	}
-	return out
-}
-
-func toAnySlice(items []string) []any {
-	out := make([]any, len(items))
-	for i, item := range items {
-		out[i] = item
-	}
-	return out
 }
 
 // canonicalJSON renders a value with sorted keys, for Python's dict equality.

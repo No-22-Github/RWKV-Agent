@@ -79,12 +79,12 @@ func normalize(text string) string {
 }
 
 func answerOf(caseObj map[string]any) string {
-	for _, turn := range mapSlice(caseObj["turns"]) {
-		result := mapOf(turn, "result")
-		if s := stringOf(result, "original_output"); s != "" {
+	for _, turn := range lab.MapSlice(caseObj["turns"]) {
+		result := lab.MapOf(turn, "result")
+		if s := lab.StringOf(result, "original_output"); s != "" {
 			return s
 		}
-		if s := stringOf(result, "output"); s != "" {
+		if s := lab.StringOf(result, "output"); s != "" {
 			return s
 		}
 		return ""
@@ -93,13 +93,13 @@ func answerOf(caseObj map[string]any) string {
 }
 
 func failuresOf(caseObj map[string]any) []string {
-	out := stringList(caseObj["failures"])
-	if errText := stringOf(caseObj, "error"); errText != "" {
+	out := lab.StringList(caseObj["failures"])
+	if errText := lab.StringOf(caseObj, "error"); errText != "" {
 		out = append(out, "case error: "+errText)
 	}
-	for _, turn := range mapSlice(caseObj["turns"]) {
-		out = append(out, stringList(turn["failures"])...)
-		if runnerError := stringOf(turn, "runner_error"); runnerError != "" {
+	for _, turn := range lab.MapSlice(caseObj["turns"]) {
+		out = append(out, lab.StringList(turn["failures"])...)
+		if runnerError := lab.StringOf(turn, "runner_error"); runnerError != "" {
 			out = append(out, "runner error: "+runnerError)
 		}
 	}
@@ -109,8 +109,8 @@ func failuresOf(caseObj map[string]any) []string {
 // expectedValues is every accepted answer string for a case.
 func expectedValues(spec map[string]any) []string {
 	var values []string
-	for _, turn := range mapSlice(spec["turns"]) {
-		expect := mapOf(turn, "expect")
+	for _, turn := range lab.MapSlice(spec["turns"]) {
+		expect := lab.MapOf(turn, "expect")
 		if v, ok := expect["output_equals"]; ok && v != nil {
 			values = append(values, PyStr(v))
 		}
@@ -118,7 +118,7 @@ func expectedValues(spec map[string]any) []string {
 			values = append(values, PyStr(v))
 		}
 		if v, ok := expect["expected_number"]; ok && v != nil {
-			if f, isNum := numberValue(v); isNum {
+			if f, isNum := lab.NumberValue(v); isNum {
 				values = append(values, lab.PyFloat(f).String())
 			}
 		}
@@ -240,8 +240,8 @@ func classify(caseObj, spec map[string]any) string {
 // decoyHits reports which declared decoys this answer matched. An unhit trap
 // may be inert.
 func decoyHits(caseObj, spec map[string]any) []string {
-	tags := mapOf(spec, "tags")
-	decoys := mapOf(tags, "trap_decoys")
+	tags := lab.MapOf(spec, "tags")
+	decoys := lab.MapOf(tags, "trap_decoys")
 	answer := normalize(answerOf(caseObj))
 	if answer == "" {
 		return nil
@@ -338,13 +338,13 @@ func AnalyzeGate(runDirs []string, label string) (map[string]any, error) {
 			return nil, err
 		}
 		specs := map[string]map[string]any{}
-		for _, c := range mapSlice(manifest["cases"]) {
+		for _, c := range lab.MapSlice(manifest["cases"]) {
 			if id, ok := c["id"].(string); ok {
 				specs[id] = c
 			}
 		}
-		for _, caseObj := range mapSlice(summary["cases"]) {
-			caseID := stringOf(caseObj, "id")
+		for _, caseObj := range lab.MapSlice(summary["cases"]) {
+			caseID := lab.StringOf(caseObj, "id")
 			spec := specs[caseID]
 			if spec == nil {
 				spec = map[string]any{}
@@ -371,8 +371,8 @@ func AnalyzeGate(runDirs []string, label string) (map[string]any, error) {
 				layers[layer]++
 				entry.layers[layer]++
 			}
-			tags := mapOf(spec, "tags")
-			for trap, value := range mapOf(tags, "trap_decoys") {
+			tags := lab.MapOf(spec, "tags")
+			for trap, value := range lab.MapOf(tags, "trap_decoys") {
 				if value != nil {
 					decoyTotal[trap]++
 				}
@@ -426,7 +426,7 @@ func AnalyzeGate(runDirs []string, label string) (map[string]any, error) {
 	return map[string]any{
 		"version":               GateVersion,
 		"label":                 label,
-		"runs":                  toAnySlice(runDirs),
+		"runs":                  lab.ToAnySlice(runDirs),
 		"attempts":              totalAttempts,
 		"voided":                voided,
 		"scored":                scored,
@@ -444,20 +444,20 @@ func AnalyzeGate(runDirs []string, label string) (map[string]any, error) {
 func renderGate(report map[string]any) {
 	runList := sliceOf(report, "runs")
 	fmt.Printf("== %s  (%d run(s))\n", PyStr(report["label"]), len(runList))
-	scored, _ := intOf(report["scored"])
+	scored, _ := lab.IntOf(report["scored"])
 	if scored > 0 {
-		rate, _ := numberValue(report["pass_rate"])
+		rate, _ := lab.NumberValue(report["pass_rate"])
 		fmt.Printf("   官方通过 %s/%d = %s\n", PyStr(report["passed"]), scored, pct(rate, 1))
 	} else {
 		fmt.Println("   no scored cases")
 	}
-	if voided, _ := intOf(report["voided"]); voided > 0 {
+	if voided, _ := lab.IntOf(report["voided"]); voided > 0 {
 		fmt.Printf("   作废(上游中断，不计分母) %d\n", voided)
 	}
 	fmt.Println("   失败分层:")
-	layers := mapOf(report, "layers")
+	layers := lab.MapOf(report, "layers")
 	for _, layer := range Layers {
-		count, _ := intOf(layers[layer])
+		count, _ := lab.IntOf(layers[layer])
 		if count > 0 {
 			fmt.Printf("      %-11s %d\n", layer, count)
 		}
@@ -467,11 +467,11 @@ func renderGate(report map[string]any) {
 	if measurable {
 		verdict = "可以当能力读数"
 	}
-	protocolRate, _ := numberValue(report["protocol_rate"])
-	closeoutRate, _ := numberValue(report["closeout_rate"])
+	protocolRate, _ := lab.NumberValue(report["protocol_rate"])
+	closeoutRate, _ := lab.NumberValue(report["closeout_rate"])
 	fmt.Printf("   判定: %s  (protocol %s, closeout %s)\n",
 		verdict, pct(protocolRate, 1), pct(closeoutRate, 1))
-	if decoys := mapOf(report, "decoys"); len(decoys) > 0 {
+	if decoys := lab.MapOf(report, "decoys"); len(decoys) > 0 {
 		fmt.Println("   陷阱 decoy 命中率:")
 		traps := make([]string, 0, len(decoys))
 		for trap := range decoys {
@@ -479,10 +479,10 @@ func renderGate(report map[string]any) {
 		}
 		sort.Strings(traps)
 		for _, trap := range traps {
-			stat := mapOf(decoys, trap)
-			hit, _ := intOf(stat["hit"])
-			exposed, _ := intOf(stat["exposed"])
-			rate, _ := numberValue(stat["hit_rate"])
+			stat := lab.MapOf(decoys, trap)
+			hit, _ := lab.IntOf(stat["hit"])
+			exposed, _ := lab.IntOf(stat["exposed"])
+			rate, _ := lab.NumberValue(stat["hit_rate"])
 			note := ""
 			if hit == 0 {
 				note = "  <- 从未命中，陷阱可能是死的"

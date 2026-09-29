@@ -9,7 +9,6 @@
 package runs
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -141,29 +140,8 @@ func WriteJSONFile(path string, v any) error {
 
 // --- small JSON helpers -----------------------------------------------------
 
-func stringOf(m map[string]any, key string) string {
-	s, _ := m[key].(string)
-	return s
-}
-
-func mapOf(m map[string]any, key string) map[string]any {
-	out, _ := m[key].(map[string]any)
-	return out
-}
-
 func sliceOf(m map[string]any, key string) []any {
 	out, _ := m[key].([]any)
-	return out
-}
-
-func mapSlice(v any) []map[string]any {
-	items, _ := v.([]any)
-	out := make([]map[string]any, 0, len(items))
-	for _, item := range items {
-		if m, ok := item.(map[string]any); ok {
-			out = append(out, m)
-		}
-	}
 	return out
 }
 
@@ -172,89 +150,8 @@ func isNumber(v any) bool {
 	if _, isBool := v.(bool); isBool {
 		return false
 	}
-	_, ok := numberValue(v)
+	_, ok := lab.NumberValue(v)
 	return ok
-}
-
-func numberValue(v any) (float64, bool) {
-	switch t := v.(type) {
-	case json.Number:
-		f, err := t.Float64()
-		return f, err == nil
-	case float64:
-		return t, true
-	case int:
-		return float64(t), true
-	}
-	return 0, false
-}
-
-func intOf(v any) (int, bool) {
-	switch t := v.(type) {
-	case json.Number:
-		i, err := t.Int64()
-		if err != nil {
-			return 0, false
-		}
-		return int(i), true
-	case int:
-		return t, true
-	case float64:
-		return int(t), true
-	}
-	return 0, false
-}
-
-func truthy(v any) bool {
-	switch t := v.(type) {
-	case nil:
-		return false
-	case bool:
-		return t
-	case string:
-		return t != ""
-	case json.Number:
-		f, err := t.Float64()
-		return err != nil || f != 0
-	case []any:
-		return len(t) > 0
-	case map[string]any:
-		return len(t) > 0
-	}
-	return true
-}
-
-// pyQuote is Python's repr() for a string.
-func pyQuote(s string) string {
-	quote := byte('\'')
-	if strings.Contains(s, "'") && !strings.Contains(s, `"`) {
-		quote = '"'
-	}
-	var b strings.Builder
-	b.WriteByte(quote)
-	for _, r := range s {
-		switch r {
-		case '\\':
-			b.WriteString(`\\`)
-		case '\n':
-			b.WriteString(`\n`)
-		case '\r':
-			b.WriteString(`\r`)
-		case '\t':
-			b.WriteString(`\t`)
-		default:
-			if r == rune(quote) {
-				b.WriteByte('\\')
-				b.WriteRune(r)
-			} else if r < 0x20 || r == 0x7f {
-				fmt.Fprintf(&b, `\x%02x`, r)
-			} else {
-				b.WriteRune(r)
-			}
-		}
-	}
-	b.WriteByte(quote)
-	return b.String()
 }
 
 // labPyFloat renders a float the way Python's repr() does.

@@ -91,51 +91,51 @@ func Summarize(runs []string, k int) (*lab.OrderedMap, error) {
 		if err != nil {
 			return nil, err
 		}
-		runID := stringOf(manifest, "run_id")
-		if runID == "" || runIDs[runID] || stringOf(summary, "run_id") != runID {
+		runID := lab.StringOf(manifest, "run_id")
+		if runID == "" || runIDs[runID] || lab.StringOf(summary, "run_id") != runID {
 			return nil, fmt.Errorf("missing, duplicated, or inconsistent run_id: %s", runPath)
 		}
 		runIDs[runID] = true
-		if truthy(meta["infrastructure_errors"]) {
+		if lab.Truthy(meta["infrastructure_errors"]) {
 			return nil, fmt.Errorf("infrastructure errors: %s", runPath)
 		}
-		if stringOf(meta, "binary_sha256") == "" {
+		if lab.StringOf(meta, "binary_sha256") == "" {
 			return nil, fmt.Errorf("binary provenance is required: %s", runPath)
 		}
 
-		specs := mapSlice(manifest["cases"])
+		specs := lab.MapSlice(manifest["cases"])
 		ids := map[string]bool{}
 		for _, c := range specs {
-			ids[stringOf(c, "id")] = true
+			ids[lab.StringOf(c, "id")] = true
 		}
-		summaryCases := mapSlice(summary["cases"])
+		summaryCases := lab.MapSlice(summary["cases"])
 		summaryIDs := map[string]bool{}
 		for _, c := range summaryCases {
-			summaryIDs[stringOf(c, "id")] = true
+			summaryIDs[lab.StringOf(c, "id")] = true
 		}
 		if len(ids) != len(specs) || len(summaryCases) != len(ids) || len(summaryIDs) != len(ids) {
 			return nil, fmt.Errorf("missing or duplicate case rows: %s", runPath)
 		}
 		specByID := map[string]map[string]any{}
 		for _, c := range specs {
-			specByID[stringOf(c, "id")] = c
+			specByID[lab.StringOf(c, "id")] = c
 		}
 		for _, c := range summaryCases {
-			cid := stringOf(c, "id")
+			cid := lab.StringOf(c, "id")
 			if _, isBool := c["passed"].(bool); !isBool {
 				return nil, fmt.Errorf("missing score or incomplete turns: %s", cid)
 			}
 			spec := specByID[cid]
-			if spec == nil || len(mapSlice(c["turns"])) != len(mapSlice(spec["turns"])) {
+			if spec == nil || len(lab.MapSlice(c["turns"])) != len(lab.MapSlice(spec["turns"])) {
 				return nil, fmt.Errorf("missing score or incomplete turns: %s", cid)
 			}
-			failures := append([]string{}, stringList(c["failures"])...)
-			if errText := stringOf(c, "error"); errText != "" {
+			failures := append([]string{}, lab.StringList(c["failures"])...)
+			if errText := lab.StringOf(c, "error"); errText != "" {
 				failures = append(failures, errText)
 			}
-			for _, t := range mapSlice(c["turns"]) {
-				failures = append(failures, stringList(t["failures"])...)
-				if runnerError := stringOf(t, "runner_error"); runnerError != "" {
+			for _, t := range lab.MapSlice(c["turns"]) {
+				failures = append(failures, lab.StringList(t["failures"])...)
+				if runnerError := lab.StringOf(t, "runner_error"); runnerError != "" {
 					failures = append(failures, runnerError)
 				}
 			}
@@ -148,7 +148,7 @@ func Summarize(runs []string, k int) (*lab.OrderedMap, error) {
 
 		sortedSpecs := append([]map[string]any(nil), specs...)
 		sort.SliceStable(sortedSpecs, func(i, j int) bool {
-			return stringOf(sortedSpecs[i], "id") < stringOf(sortedSpecs[j], "id")
+			return lab.StringOf(sortedSpecs[i], "id") < lab.StringOf(sortedSpecs[j], "id")
 		})
 		signatureInput := lab.NewOrderedMap()
 		signatureInput.Set("model", manifest["model"])
@@ -171,7 +171,7 @@ func Summarize(runs []string, k int) (*lab.OrderedMap, error) {
 		scores := map[string]bool{}
 		for _, c := range summaryCases {
 			passed, _ := c["passed"].(bool)
-			scores[stringOf(c, "id")] = passed
+			scores[lab.StringOf(c, "id")] = passed
 		}
 		records = append(records, record{
 			path: runPath, runID: runID,
@@ -257,7 +257,7 @@ func Summarize(runs []string, k int) (*lab.OrderedMap, error) {
 	result.Set("pass_mean", float64(passedReplicasTotal)/float64(n*k))
 	result.Set("pass_all_k", passAll)
 	result.Set("pass_any_k", passAny)
-	result.Set("unstable_cases", toAnySlice(unstable))
+	result.Set("unstable_cases", lab.ToAnySlice(unstable))
 	result.Set("definition", "Observed all/any across this explicit replica group. "+
 		"No confidence interval or pass@k estimator.")
 	result.Set("comparability_sha256", hex.EncodeToString(sigSum[:]))

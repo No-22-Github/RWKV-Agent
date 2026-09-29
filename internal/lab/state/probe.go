@@ -106,8 +106,8 @@ func RunProbe(args ProbeArgs) int {
 		return 1
 	}
 	headers := map[string]string{
-		"CF-Access-Client-Id":     stringOf(cred, "WIRE_CF_ID"),
-		"CF-Access-Client-Secret": stringOf(cred, "WIRE_CF_SECRET"),
+		"CF-Access-Client-Id":     lab.StringOf(cred, "WIRE_CF_ID"),
+		"CF-Access-Client-Secret": lab.StringOf(cred, "WIRE_CF_SECRET"),
 		"User-Agent":              "curl/8.7.1",
 		"Content-Type":            "application/json",
 	}
@@ -243,7 +243,7 @@ func RunProbe(args ProbeArgs) int {
 			if _, has := entry.Values["tool_match"]; has {
 				toolRows = append(toolRows, entry)
 			}
-			if v, ok := intOf(entry.Values["common_prefix"]); ok {
+			if v, ok := lab.IntOf(entry.Values["common_prefix"]); ok {
 				commonTotal += v
 			}
 			if v, ok := entry.Values["exact_start_16"].(bool); ok && v {

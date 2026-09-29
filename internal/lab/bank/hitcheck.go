@@ -20,7 +20,7 @@ var (
 // phrasings must hit at least one fixture entry under the harness substring
 // rule, or the case is unsolvable as written.
 func runHitcheck(args []string) int {
-	fs := newFlagSet("bank hitcheck",
+	fs := lab.NewFlagSet("bank hitcheck",
 		"Check that the 5 alternative phrasings in each web/hybrid case's NOTES "+
 			"hit at least one web_fixture entry under the harness substring rule.")
 	casesRoot := fs.String("cases", DefaultCases(), "cases root directory")
@@ -34,7 +34,7 @@ func runHitcheck(args []string) int {
 	if len(caseArgs) > 0 {
 		for _, item := range caseArgs {
 			abs, err := filepath.Abs(item)
-			if err != nil || !fileExists(filepath.Join(abs, "case.json")) {
+			if err != nil || !lab.FileExists(filepath.Join(abs, "case.json")) {
 				fmt.Fprintf(os.Stderr, "error: --case %s: no case.json inside\n", item)
 				return 2
 			}
@@ -137,7 +137,7 @@ func checkCaseFixture(caseDir string, caseObj map[string]any) (string, []string,
 			}
 			problems = append(problems, fmt.Sprintf(
 				"phrasing %d %s hits no fixture entry (searchable query_match values: %s)",
-				idx+1, pyRepr(query), shown))
+				idx+1, lab.PyRepr(query), shown))
 		}
 	}
 
@@ -152,7 +152,7 @@ func checkCaseFixture(caseDir string, caseObj map[string]any) (string, []string,
 			warnings = append(warnings, fmt.Sprintf(
 				"entry url %s can never resolve in web_fetch "+
 					"(no url_match that is a substring of it; fetch would return the not-found page)",
-				pyRepr(url)))
+				lab.PyRepr(url)))
 		}
 	}
 	return cid, problems, warnings
@@ -160,7 +160,7 @@ func checkCaseFixture(caseDir string, caseObj map[string]any) (string, []string,
 
 // parsePhrasings reads the five rewritten queries from a case's NOTES.md.
 func parsePhrasings(notesPath string) ([]string, string) {
-	if !fileExists(notesPath) {
+	if !lab.FileExists(notesPath) {
 		return nil, "NOTES.md missing"
 	}
 	text, err := lab.ReadText(notesPath)
@@ -187,45 +187,10 @@ func parsePhrasings(notesPath string) ([]string, string) {
 	return queries, ""
 }
 
-// pyRepr renders a string the way Python's repr() does, because the miss
-// messages quote the query and the fixture patterns that way and §4.3 wants
-// those strings byte-identical.
-func pyRepr(s string) string {
-	quote := byte('\'')
-	if strings.Contains(s, "'") && !strings.Contains(s, `"`) {
-		quote = '"'
-	}
-	var b strings.Builder
-	b.WriteByte(quote)
-	for _, r := range s {
-		switch r {
-		case '\\':
-			b.WriteString(`\\`)
-		case '\n':
-			b.WriteString(`\n`)
-		case '\r':
-			b.WriteString(`\r`)
-		case '\t':
-			b.WriteString(`\t`)
-		default:
-			if r == rune(quote) {
-				b.WriteByte('\\')
-				b.WriteRune(r)
-			} else if r < 0x20 || r == 0x7f {
-				fmt.Fprintf(&b, `\x%02x`, r)
-			} else {
-				b.WriteRune(r)
-			}
-		}
-	}
-	b.WriteByte(quote)
-	return b.String()
-}
-
 func pyReprList(items []string) string {
 	parts := make([]string, 0, len(items))
 	for _, item := range items {
-		parts = append(parts, pyRepr(item))
+		parts = append(parts, lab.PyRepr(item))
 	}
 	return "[" + strings.Join(parts, ", ") + "]"
 }
@@ -238,11 +203,6 @@ func (s *stringList) String() string { return strings.Join(*s, ",") }
 func (s *stringList) Set(value string) error {
 	*s = append(*s, value)
 	return nil
-}
-
-func fileExists(path string) bool {
-	info, err := os.Stat(path)
-	return err == nil && !info.IsDir()
 }
 
 func isDir(path string) bool {

@@ -1,7 +1,6 @@
 package bench
 
 import (
-	"encoding/json"
 	"fmt"
 	"math"
 	"os"
@@ -11,6 +10,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/no22/RWKV-Agent/internal/lab"
 	"github.com/no22/RWKV-Agent/internal/lab/runs"
 )
 
@@ -290,11 +290,11 @@ func loadRankRuns(out, prefix string) map[rankKey][]*rankRep {
 		}
 		scores := map[string]bool{}
 		correct, invalid := 0, 0
-		for _, c := range mapSlice(summary["cases"]) {
+		for _, c := range lab.MapSlice(summary["cases"]) {
 			passed, _ := c["passed"].(bool)
 			isInvalid, _ := c["invalid"].(bool)
 			ok := passed && !isInvalid
-			scores[stringOf(c, "id")] = ok
+			scores[lab.StringOf(c, "id")] = ok
 			if ok {
 				correct++
 			}
@@ -403,25 +403,12 @@ func temperatureOf(loaded map[rankKey][]*rankRep, arm string) float64 {
 			if sampling == nil {
 				continue
 			}
-			if t, ok := numberValue(sampling["temperature"]); ok {
+			if t, ok := lab.NumberValue(sampling["temperature"]); ok {
 				return t
 			}
 		}
 	}
 	return 99
-}
-
-func numberValue(v any) (float64, bool) {
-	switch t := v.(type) {
-	case json.Number:
-		f, err := t.Float64()
-		return f, err == nil
-	case float64:
-		return t, true
-	case int:
-		return float64(t), true
-	}
-	return 0, false
 }
 
 // signTest is a two-sided sign test over the paired flips.
