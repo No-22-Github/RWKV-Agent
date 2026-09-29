@@ -161,8 +161,11 @@ func runAuditCmd(argv []string) int {
 }
 
 func runCompareCmd(argv []string) int {
+	var excludeCases string
 	fs := newFlagSet("run compare",
 		"Compare two runs (directories) or two config names (ledger) case by case.")
+	fs.StringVar(&excludeCases, "exclude-cases", "",
+		"file of case ids to drop from both sides before comparing (one per line, # comments)")
 	if err := ParseInterspersed(fs, argv, nil); err != nil {
 		return 2
 	}
@@ -171,7 +174,7 @@ func runCompareCmd(argv []string) int {
 		fmt.Fprintln(os.Stderr, "error: usage: rwkv-lab run compare A B")
 		return 2
 	}
-	return RunCompare(CompareArgs{A: rest[0], B: rest[1]})
+	return RunCompare(CompareArgs{A: rest[0], B: rest[1], ExcludeCases: excludeCases})
 }
 
 func runLedgerCmd(argv []string) int {

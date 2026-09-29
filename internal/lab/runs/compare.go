@@ -2,7 +2,9 @@ package runs
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 
@@ -33,8 +35,9 @@ type compareCase struct {
 
 // CompareArgs are the `run compare` flags.
 type CompareArgs struct {
-	A string
-	B string
+	A            string
+	B            string
+	ExcludeCases string
 }
 
 // RunCompare is the `run compare` command.
@@ -48,6 +51,42 @@ func RunCompare(args CompareArgs) int {
 	if err != nil {
 		fmt.Fprintf(stderr, "error: %s\n", err)
 		return 1
+	}
+
+	excludedCount := 0
+	if args.ExcludeCases != "" {
+		ids, err := readExcludeFile(args.ExcludeCases)
+		if err != nil {
+			fmt.Fprintf(stderr, "error: %s\n", err)
+			return 2
+		}
+		excluded := map[string]bool{}
+		for _, id := range ids {
+			excluded[id] = true
+		}
+		missing := 0
+		for _, id := range ids {
+			if _, ok := aCases[id]; !ok {
+				if _, ok := bCases[id]; !ok {
+					missing++
+				}
+			}
+		}
+		if missing > 0 {
+			fmt.Fprintf(stderr, "warning: %d excluded ids not present in either side\n", missing)
+		}
+		// Dropped before common/flips/bootstrap are computed, so the family
+		// grouping never sees an excluded case. Count distinct ids removed
+		// from A∪B, not per-side hits.
+		for cid := range excluded {
+			_, inA := aCases[cid]
+			_, inB := bCases[cid]
+			if inA || inB {
+				excludedCount++
+				delete(aCases, cid)
+				delete(bCases, cid)
+			}
+		}
 	}
 
 	var common, onlyA, onlyB []string
@@ -156,6 +195,27 @@ func RunCompare(args CompareArgs) int {
 	report.Set("a", args.A)
 	report.Set("b", args.B)
 	report.Set("common_cases", len(common))
+	// These three sit right after common_cases: downstream diffs are keyed on
+	// the report's insertion order, so they must not move.
+	report.Set("excluded_cases", excludedCount)
+	if args.ExcludeCases != "" {
+		report.Set("exclude_file", args.ExcludeCases)
+	} else {
+		report.Set("exclude_file", nil)
+	}
+	passedA, passedB := 0, 0
+	for _, cid := range common {
+		if aCases[cid].value >= passThreshold {
+			passedA++
+		}
+		if bCases[cid].value >= passThreshold {
+			passedB++
+		}
+	}
+	passed := lab.NewOrderedMap()
+	passed.Set("a", passedA)
+	passed.Set("b", passedB)
+	report.Set("passed", passed)
 	report.Set("pass_rate", passRate)
 	report.Set("bootstrap", bootstrap)
 	report.Set("flips", flips)
@@ -171,6 +231,9 @@ func RunCompare(args CompareArgs) int {
 
 	fmt.Println()
 	fmt.Printf("== %s vs %s ==\n", args.A, args.B)
+	if args.ExcludeCases != "" {
+		fmt.Printf("excluded: %d cases from %s\n", excludedCount, args.ExcludeCases)
+	}
 	fmt.Printf("common cases: %d (only in A: %d, only in B: %d)\n", len(common), len(onlyA), len(onlyB))
 	if len(aVals) > 0 && len(bVals) > 0 {
 		fmt.Printf("pass rate: A %.1f%%  B %.1f%%  diff (A-B) %+.1fpp\n",
@@ -310,6 +373,30 @@ func loadConfig(configName string) (map[string]compareCase, error) {
 		cases[cid] = entry
 	}
 	return cases, nil
+}
+
+var excludeIDRe = regexp.MustCompile(`^[a-z]+-\d{4}$`)
+
+// readExcludeFile reads an exclusion list: one case id per line; `#` starts a
+// comment; blank lines are allowed. Any other line is a hard error so a wrong
+// file is never silently treated as an empty list.
+func readExcludeFile(path string) ([]string, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+	var ids []string
+	for i, line := range strings.Split(string(data), "\n") {
+		line = strings.TrimSpace(line)
+		if line == "" || strings.HasPrefix(line, "#") {
+			continue
+		}
+		if !excludeIDRe.MatchString(line) {
+			return nil, fmt.Errorf("%s:%d: invalid case id %s", path, i+1, pyQuote(line))
+		}
+		ids = append(ids, line)
+	}
+	return ids, nil
 }
 
 func listOrNone(items []string) string {
