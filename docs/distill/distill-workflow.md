@@ -239,7 +239,7 @@ docs/workbank/M0-findings.md §1/§2/§9；bench/workbank/tag-vocab.json。
 自检（全部通过才算交付，在仓库根目录执行）：
   local/bin/rwkv-lab bank lint --fix --canary-prefix DISTILL-CANARY --cases bench/distill/cases   # 先回填 fixture_bytes
   local/bin/rwkv-lab bank lint --canary-prefix DISTILL-CANARY --case bench/distill/cases/<scenario>/<id>   # 每题 0 违规
-  local/bin/rwkv-lab bank verify --cases bench/distill/cases/<scenario>                            # 全部 PASS，含 sabotage
+  local/bin/rwkv-lab bank verify --strict-shape --cases bench/distill/cases/<scenario>             # 全部 PASS，含 sabotage
   local/bin/rwkv-lab bank hitcheck --case <dir>                                                     # web/hyb 题 5/5
 不要跑 git；不要碰别的场景目录；不要改工具代码。交付时列出每题的 ID、task_type、traps、level、正确答案。
 ```
@@ -271,7 +271,7 @@ shasum -a 256 local/bin/rwkv-cli                        # 记入 batches.jsonl
 
 ```bash
 local/bin/rwkv-lab bank lint --canary-prefix DISTILL-CANARY --cases bench/distill/cases   # 退出码 0
-local/bin/rwkv-lab bank verify --cases bench/distill/cases                                # 退出码 0
+local/bin/rwkv-lab bank verify --strict-shape --cases bench/distill/cases                     # 退出码 0
 local/bin/rwkv-lab bank dedup --cases bench/distill/cases                                 # 无命中；有命中则改措辞或删一题
 for d in bench/distill/cases/{web,hybrid}/*/; do local/bin/rwkv-lab bank hitcheck --case "$d"; done   # 每题 5/5
 local/bin/rwkv-lab corpus loadcheck --cases bench/distill/cases                # 真 loader 预检（2026-09-25 加）
@@ -446,7 +446,10 @@ rwkv-lab corpus pack --rows <rows.jsonl> [--rows …] [--exclude <jsonl>] (--out
   - 每轮 `expect` 必须：非空 `output_contains_any` 且**词表里没有 `UNKNOWN`**、`output_excludes` 含 `UNKNOWN`、非空 `forbidden_tools`（写类工具）——缺哪条报 `expect.refusal`。
 - 判据词表用拒绝语（`cannot` / `can't` / `unable` / `not able` / `do not have access` …），**去掉 `UNKNOWN`**；scorer 侧由 `output_excludes: ["UNKNOWN"]` 兜底拒绝弃权。
 - **允许先查工作区再拒绝**（先确认配置，再说「我不能替你重启服务」），**不强制零调用**，因此不要 `require_active_no_call`。
-- `bank verify` 对这类题的 `verify.py` 记 `verify_shape_unknown` warning（没有可独立计算的答案），与闲聊题同类，可接受。
+- `bank verify` 对这类题的 `verify.py` 记 `verify_skipped_refusal`（没有可独立计算的答案，
+  expect 里没有任何值判据，verify.py 只能回显夹具快照），与闲聊题同类跳过，可接受；
+  判定看 expect 形状（同轮 `forbidden_tools` 与 `output_contains_any` 均非空、整题无值判据），
+  不看 task_type。
 
 **测试**：`cfg-5006`（b01 的旧形状）在 `--canary-prefix DISTILL-CANARY` 下必须报 `answer_contract.refusal` + `expect.refusal`；同一目录在默认前缀下**不得**报这两条。
 

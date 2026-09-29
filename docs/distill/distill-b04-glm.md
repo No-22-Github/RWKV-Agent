@@ -124,7 +124,7 @@ python3 bench/distill/tools/step.py undo <dir>     # 撤销上一步，只用于
 ```bash
 local/bin/rwkv-lab bank lint --fix --canary-prefix DISTILL-CANARY --cases bench/distill/cases
 local/bin/rwkv-lab bank lint --canary-prefix DISTILL-CANARY --case <dir>
-local/bin/rwkv-lab bank verify --cases bench/distill/cases/<scenario>
+local/bin/rwkv-lab bank verify --strict-shape --cases bench/distill/cases/<scenario>
 local/bin/rwkv-lab corpus loadcheck --cases bench/distill/cases
 ```
 
@@ -172,7 +172,7 @@ grep -v '^#' bench/distill/tools/w0-cases.tsv | cut -f2 | split -l 13 - local/ru
 
 ```bash
 local/bin/rwkv-lab bank lint --canary-prefix DISTILL-CANARY --cases bench/distill/cases
-local/bin/rwkv-lab bank verify --cases bench/distill/cases
+local/bin/rwkv-lab bank verify --strict-shape --cases bench/distill/cases
 local/bin/rwkv-lab corpus loadcheck --cases bench/distill/cases
 local/bin/rwkv-lab bank dedup --cases bench/distill/cases
 local/bin/rwkv-lab corpus decontam --test bench/workbank/cases --candidates bench/distill/cases --report local/runs/distill/b04/decontam-cases.jsonl

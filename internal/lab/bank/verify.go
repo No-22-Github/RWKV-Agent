@@ -42,6 +42,7 @@ func runVerify(args []string) int {
 	fs := newFlagSet("bank verify",
 		"Run every case's verify.py against case.json expect, plus a sabotage test.")
 	casesRoot := fs.String("cases", "", "case root directory (searched recursively for case.json), or a single case dir")
+	strictShape := fs.Bool("strict-shape", false, "fail cases whose verify.py output shape is unrecognized instead of warning")
 	if err := fs.Parse(args); err != nil {
 		return 2
 	}
@@ -60,7 +61,7 @@ func runVerify(args []string) int {
 	results := make([]*lab.OrderedMap, 0, len(dirs))
 	failed := 0
 	for _, dir := range dirs {
-		result := verifyCase(dir)
+		result := verifyCase(dir, *strictShape)
 		if ok, _ := result.Get("ok"); ok != true {
 			failed++
 		}
@@ -101,7 +102,7 @@ func isSmalltalkCase(caseObj map[string]any) bool {
 }
 
 // verifyCase runs the two checks for one case dir and returns its report entry.
-func verifyCase(caseDir string) *lab.OrderedMap {
+func verifyCase(caseDir string, strictShape bool) *lab.OrderedMap {
 	casePath := filepath.Join(caseDir, "case.json")
 	caseObj, err := loadCaseJSON(casePath)
 	if err != nil {
@@ -129,7 +130,7 @@ func verifyCase(caseDir string) *lab.OrderedMap {
 			check("verify_py", false, map[string]any{"error": "verify.py missing"})})
 	}
 
-	numbers, outputEquals, fileExp := caseExpectations(caseObj)
+	numbers, outputEquals, containsAny, fileExp := caseExpectations(caseObj)
 	tmp := materializeCaseDir(caseDir, caseObj, nil)
 	res := runVerifyScript(tmp)
 	os.RemoveAll(filepath.Dir(tmp))
@@ -165,6 +166,7 @@ func verifyCase(caseDir string) *lab.OrderedMap {
 	}
 
 	var checks []*lab.OrderedMap
+	runExpectMatched := false
 	runExp, _ := caseObj["expect"].(map[string]any)
 	runExpect, _ := runExp["run"].(map[string]any)
 	if expectedStdout, ok := runExpect["expected_stdout"]; ok && expectedStdout != nil {
@@ -181,11 +183,27 @@ func verifyCase(caseDir string) *lab.OrderedMap {
 			if !same {
 				return resultEntry(caseID, false, checks)
 			}
+			runExpectMatched = true
 		}
 	}
 
-	matched, detail := matchesExpectation(obj, numbers, outputEquals, fileExp)
+	matched, detail := matchesExpectation(obj, numbers, outputEquals, containsAny, fileExp)
 	switch {
+	case matched == nil && isRefusalOnlyCase(caseObj):
+		// No answer value anywhere in the expect: verify.py can only echo a
+		// fixture snapshot, so there is nothing to match and nothing to
+		// sabotage (same reasoning as the smalltalk skip).
+		return resultEntry(caseID, true, []*lab.OrderedMap{
+			check("verify_py", true, map[string]any{"warning": "verify_skipped_refusal"})})
+	case matched == nil && runExpectMatched:
+		// verify.py already reproduced expect.run.expected_stdout above; the
+		// snapshot dict holding it is a known shape, not an unknown one.
+		checks = append(checks, check("expect_match", true, map[string]any{
+			"detail": "verify expected_stdout matches expect.run.expected_stdout"}))
+	case matched == nil && strictShape:
+		checks = append(checks, check("verify_shape", false, map[string]any{
+			"error": "verify_shape_unknown", "detail": detail}))
+		return resultEntry(caseID, false, checks)
 	case matched == nil:
 		checks = append(checks, check("verify_shape", true, map[string]any{
 			"warning": "verify_shape_unknown", "detail": detail}))
@@ -197,7 +215,7 @@ func verifyCase(caseDir string) *lab.OrderedMap {
 		return resultEntry(caseID, false, checks)
 	}
 
-	checks = append(checks, sabotageAndRerun(caseDir, caseObj, numbers, outputEquals, fileExp))
+	checks = append(checks, sabotageAndRerun(caseDir, caseObj, numbers, outputEquals, containsAny, fileExp))
 	ok := true
 	for _, c := range checks {
 		if v, _ := c.Get("ok"); v != true {
@@ -309,9 +327,11 @@ type expectedNumber struct {
 
 // caseExpectations collects the expectations a verify.py output is checked
 // against.
-func caseExpectations(caseObj map[string]any) ([]expectedNumber, []string, map[string]any) {
+func caseExpectations(caseObj map[string]any) ([]expectedNumber, []string, []string, map[string]any) {
 	var numbers []expectedNumber
 	var outputEquals []string
+	var containsAny []string
+	seenContains := map[string]bool{}
 	for _, turn := range turnObjects(caseObj) {
 		exp, _ := turn["expect"].(map[string]any)
 		if val, ok := exp["expected_number"]; ok {
@@ -335,6 +355,14 @@ func caseExpectations(caseObj map[string]any) ([]expectedNumber, []string, map[s
 				}
 			}
 		}
+		if oca, ok := exp["output_contains_any"].([]any); ok {
+			for _, item := range oca {
+				if s, ok := item.(string); ok && !seenContains[s] {
+					seenContains[s] = true
+					containsAny = append(containsAny, s)
+				}
+			}
+		}
 	}
 	fileExp := map[string]any{}
 	if caseExp, ok := caseObj["expect"].(map[string]any); ok {
@@ -342,7 +370,7 @@ func caseExpectations(caseObj map[string]any) ([]expectedNumber, []string, map[s
 			fileExp = files
 		}
 	}
-	return numbers, outputEquals, fileExp
+	return numbers, outputEquals, containsAny, fileExp
 }
 
 // jsonNumberValue is Python's isinstance(x, (int, float)) and not bool.
@@ -372,8 +400,8 @@ func absFloat(x float64) float64 {
 
 // matchesExpectation tries to match a parsed verify.py output against the
 // case's expectations. matched is nil when the shape is not recognised, which
-// is a warning rather than a failure.
-func matchesExpectation(obj any, numbers []expectedNumber, outputEquals []string, fileExp map[string]any) (*bool, string) {
+// is a warning rather than a failure (or a failure under --strict-shape).
+func matchesExpectation(obj any, numbers []expectedNumber, outputEquals, containsAny []string, fileExp map[string]any) (*bool, string) {
 	objMap, ok := obj.(map[string]any)
 	if !ok {
 		return nil, "output is not a JSON object"
@@ -403,6 +431,34 @@ func matchesExpectation(obj any, numbers []expectedNumber, outputEquals []string
 		}
 		return boolPtr(false), fmt.Sprintf("number %s matches none of expected_number %s",
 			pyReprValue(val), pyReprValue(numberValues(numbers)))
+	}
+
+	if containsList, hasContains := objMap["expected_contains_any"]; hasContains {
+		items, isList := containsList.([]any)
+		if !isList {
+			return boolPtr(false), "expected_contains_any is not a list"
+		}
+		got := make([]string, 0, len(items))
+		for _, item := range items {
+			s, isStr := item.(string)
+			if !isStr {
+				return boolPtr(false), fmt.Sprintf("expected_contains_any has a non-string item: %s", pyReprValue(item))
+			}
+			got = append(got, s)
+		}
+		if len(containsAny) == 0 {
+			return boolPtr(false), "verify outputs expected_contains_any but no turn expect has output_contains_any"
+		}
+		// Set equality, not subset: verify.py re-derives the acceptable surface
+		// forms from the fixture while expect is what the harness scores with,
+		// so any difference in either direction means fixture and scoring
+		// contract disagree (nt-5278 was verify having more, expect less).
+		verifyOnly, expectOnly := setDifference(got, containsAny)
+		if len(verifyOnly) == 0 && len(expectOnly) == 0 {
+			return boolPtr(true), fmt.Sprintf("expected_contains_any matches output_contains_any (set of %d)", len(containsAny))
+		}
+		return boolPtr(false), fmt.Sprintf("expected_contains_any set mismatch; verify-only %s; expect-only %s",
+			pyReprValue(verifyOnly), pyReprValue(expectOnly))
 	}
 
 	if filesAny, hasFiles := objMap["files"]; hasFiles {
@@ -480,6 +536,62 @@ func numberValues(numbers []expectedNumber) []any {
 		out = append(out, n.value)
 	}
 	return out
+}
+
+// setDifference returns the sorted elements of a not in b and of b not in a,
+// deduplicated, for the set comparison against expected_contains_any.
+func setDifference(a, b []string) (onlyA, onlyB []string) {
+	setB := map[string]bool{}
+	for _, s := range b {
+		setB[s] = true
+	}
+	setA := map[string]bool{}
+	for _, s := range a {
+		setA[s] = true
+	}
+	for _, s := range a {
+		if !setB[s] {
+			onlyA = append(onlyA, s)
+		}
+	}
+	for _, s := range b {
+		if !setA[s] {
+			onlyB = append(onlyB, s)
+		}
+	}
+	sort.Strings(onlyA)
+	sort.Strings(onlyB)
+	return onlyA, onlyB
+}
+
+// isRefusalOnlyCase reports whether the case asks for a refusal-shaped reply
+// and carries no value expectation anywhere: at least one turn has both
+// forbidden_tools and output_contains_any non-empty, and the whole case has no
+// expected_number, no output_equals / output_equals_any, no case-level
+// expect.files and no expect.run. Such a case has no independently computable
+// answer, so its verify.py can only echo a fixture snapshot -- recorded as a
+// skip (verify_skipped_refusal) the way smalltalk is, with no sabotage test,
+// because there is no answer value to sabotage (distill-workflow §4.3.1).
+// The task_type is deliberately not consulted: refusal-shaped expects appear
+// under presence, edit_value, merge and others as well.
+func isRefusalOnlyCase(caseObj map[string]any) bool {
+	numbers, outputEquals, _, fileExp := caseExpectations(caseObj)
+	if len(numbers) > 0 || len(outputEquals) > 0 || len(fileExp) > 0 {
+		return false
+	}
+	caseExp, _ := caseObj["expect"].(map[string]any)
+	if _, hasRun := caseExp["run"]; hasRun {
+		return false
+	}
+	for _, turn := range turnObjects(caseObj) {
+		exp, _ := turn["expect"].(map[string]any)
+		forbidden, _ := exp["forbidden_tools"].([]any)
+		contains, _ := exp["output_contains_any"].([]any)
+		if len(forbidden) > 0 && len(contains) > 0 {
+			return true
+		}
+	}
+	return false
 }
 
 func boolPtr(b bool) *bool { return &b }
@@ -625,7 +737,7 @@ func copyTree(src, dst string) {
 }
 
 // sabotageAndRerun corrupts one fixture value and asserts verify.py notices.
-func sabotageAndRerun(caseDir string, caseObj map[string]any, numbers []expectedNumber, outputEquals []string, fileExp map[string]any) *lab.OrderedMap {
+func sabotageAndRerun(caseDir string, caseObj map[string]any, numbers []expectedNumber, outputEquals, containsAny []string, fileExp map[string]any) *lab.OrderedMap {
 	files := anyMap(caseObj["files"])
 	if len(files) == 0 {
 		return check("sabotage", true, map[string]any{
@@ -663,7 +775,7 @@ func sabotageAndRerun(caseDir string, caseObj map[string]any, numbers []expected
 		return check("sabotage", true, map[string]any{
 			"detail": label + "; verify output unparseable after sabotage (detected)"})
 	}
-	matched, mdetail := matchesExpectation(obj, numbers, outputEquals, fileExp)
+	matched, mdetail := matchesExpectation(obj, numbers, outputEquals, containsAny, fileExp)
 	if matched != nil && *matched {
 		return check("sabotage", false, map[string]any{
 			"error":  "sabotage_undetected",

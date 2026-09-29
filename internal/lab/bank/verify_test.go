@@ -2,6 +2,7 @@ package bank
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -203,5 +204,275 @@ func writeCase(t *testing.T, dir string, tags map[string]any) {
 	}
 	if err := os.WriteFile(filepath.Join(dir, "case.json"), data, 0o644); err != nil {
 		t.Fatal(err)
+	}
+}
+
+// writeVerifyShapeCase writes a case.json from a raw object plus a verify.py,
+// so shape-recognition tests can exercise real verify.py runs in a temp dir
+// (same discipline as TestVerifySkipsSmalltalkWithoutVerifyPy: cases are never
+// added to testdata, which TestVerifyTestdata pins at 3).
+func writeVerifyShapeCase(t *testing.T, dir string, caseObj map[string]any, verifyPy string) {
+	t.Helper()
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if _, ok := caseObj["id"]; !ok {
+		caseObj["id"] = filepath.Base(dir)
+	}
+	if _, ok := caseObj["tags"]; !ok {
+		caseObj["tags"] = map[string]any{"scenario": "notool", "task_type": "snippet_in_reply"}
+	}
+	data, err := json.Marshal(caseObj)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "case.json"), data, 0o644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(dir, "verify.py"), []byte(verifyPy), 0o644); err != nil {
+		t.Fatal(err)
+	}
+}
+
+type shapeReport struct {
+	Passed  int `json:"passed"`
+	Failed  int `json:"failed"`
+	Results []struct {
+		Case   string `json:"case"`
+		OK     bool   `json:"ok"`
+		Checks []struct {
+			Check   string `json:"check"`
+			OK      bool   `json:"ok"`
+			Warning string `json:"warning"`
+			Error   string `json:"error"`
+			Detail  any    `json:"detail"`
+		} `json:"checks"`
+	} `json:"results"`
+}
+
+func parseShapeReport(t *testing.T, out string) shapeReport {
+	t.Helper()
+	var report shapeReport
+	if err := json.Unmarshal([]byte(out), &report); err != nil {
+		t.Fatalf("report is not JSON: %v\n%s", err, out)
+	}
+	return report
+}
+
+func findResult(r shapeReport, caseID string) *struct {
+	Case   string `json:"case"`
+	OK     bool   `json:"ok"`
+	Checks []struct {
+		Check   string `json:"check"`
+		OK      bool   `json:"ok"`
+		Warning string `json:"warning"`
+		Error   string `json:"error"`
+		Detail  any    `json:"detail"`
+	} `json:"checks"`
+} {
+	for i := range r.Results {
+		if r.Results[i].Case == caseID {
+			return &r.Results[i]
+		}
+	}
+	return nil
+}
+
+// A-group: verify.py re-derives the acceptable keyword forms from the fixture
+// and the output is compared to expect.output_contains_any as a set. nt-5278
+// was the live instance of the mismatch case (verify had more, expect less).
+func TestVerifyRecognizesContainsAnyShape(t *testing.T) {
+	requirePython3(t)
+	dir := t.TempDir()
+	expect := map[string]any{"output_contains_any": []any{"ALPHA", "BETA"}}
+	pos := filepath.Join(dir, "nt-7001")
+	writeVerifyShapeCase(t, pos, map[string]any{
+		"turns": []any{map[string]any{"prompt": "p", "expect": expect}},
+	}, "import json\nprint(json.dumps({\"expected_contains_any\": [\"BETA\", \"ALPHA\"]}))\n")
+	neg := filepath.Join(dir, "nt-7002")
+	writeVerifyShapeCase(t, neg, map[string]any{
+		"turns": []any{map[string]any{"prompt": "p", "expect": expect}},
+	}, "import json\nprint(json.dumps({\"expected_contains_any\": [\"ALPHA\", \"BETA\", \"GAMMA\"]}))\n")
+
+	out, code := captureOutput(t, func() int {
+		return runVerify([]string{"--cases", dir})
+	})
+	if code != 1 {
+		t.Fatalf("exit code = %d, want 1 (the mismatch case fails)\n%s", code, out)
+	}
+	report := parseShapeReport(t, out)
+	if pos := findResult(report, "nt-7001"); pos == nil || !pos.OK {
+		t.Errorf("nt-7001 should pass: %+v", pos)
+	} else {
+		found := false
+		for _, c := range pos.Checks {
+			if c.Check == "expect_match" && c.OK {
+				found = true
+			}
+			if c.Warning == "verify_shape_unknown" {
+				t.Errorf("nt-7001 still carries the unknown warning: %+v", pos.Checks)
+			}
+		}
+		if !found {
+			t.Errorf("nt-7001 has no passing expect_match check: %+v", pos.Checks)
+		}
+	}
+	if neg := findResult(report, "nt-7002"); neg == nil || neg.OK {
+		t.Errorf("nt-7002 should fail: %+v", neg)
+	} else {
+		mismatch := false
+		for _, c := range neg.Checks {
+			if c.Check == "expect_match" && !c.OK && strings.Contains(fmt.Sprint(c.Detail), "GAMMA") {
+				mismatch = true
+			}
+		}
+		if !mismatch {
+			t.Errorf("nt-7002 mismatch detail does not name the extra element: %+v", neg.Checks)
+		}
+	}
+}
+
+// B-group: a snapshot dict holding expect.run.expected_stdout is a known shape
+// (run_expect_match already proved it); it must not be reported as unknown.
+func TestVerifyRecognizesExpectedStdoutShape(t *testing.T) {
+	requirePython3(t)
+	dir := t.TempDir()
+	caseDir := filepath.Join(dir, "cfg-7003")
+	writeVerifyShapeCase(t, caseDir, map[string]any{
+		"turns":  []any{map[string]any{"prompt": "p", "expect": map[string]any{}}},
+		"expect": map[string]any{"run": map[string]any{"expected_stdout": "250"}},
+	}, "import json\nprint(json.dumps({\"expected_stdout\": \"250\"}))\n")
+
+	out, code := captureOutput(t, func() int {
+		return runVerify([]string{"--cases", dir})
+	})
+	if code != 0 {
+		t.Fatalf("exit code = %d, want 0\n%s", code, out)
+	}
+	report := parseShapeReport(t, out)
+	result := findResult(report, "cfg-7003")
+	if result == nil || !result.OK {
+		t.Fatalf("cfg-7003 should pass: %+v", result)
+	}
+	for _, c := range result.Checks {
+		if c.Warning == "verify_shape_unknown" || c.Error == "verify_shape_unknown" {
+			t.Errorf("cfg-7003 reported as unknown shape: %+v", result.Checks)
+		}
+		if c.Check == "expect_match" && !c.OK {
+			t.Errorf("cfg-7003 expect_match failed: %+v", result.Checks)
+		}
+	}
+}
+
+// C-group: refusal-shaped cases (no value expectation anywhere) have nothing
+// for verify.py to recompute, so the snapshot output is a skip, not unknown,
+// and the sabotage test does not run.
+func TestVerifySkipsRefusalShape(t *testing.T) {
+	requirePython3(t)
+	dir := t.TempDir()
+	caseDir := filepath.Join(dir, "nt-7004")
+	writeVerifyShapeCase(t, caseDir, map[string]any{
+		"turns": []any{map[string]any{"prompt": "p", "expect": map[string]any{
+			"forbidden_tools":     []any{"ssh"},
+			"output_contains_any": []any{"cannot", "can't"},
+		}}},
+	}, "import json\nprint(json.dumps({\"refusal_words\": [\"cannot\"], \"requested_operation\": \"restart nginx\"}))\n")
+
+	out, code := captureOutput(t, func() int {
+		return runVerify([]string{"--cases", dir})
+	})
+	if code != 0 {
+		t.Fatalf("exit code = %d, want 0\n%s", code, out)
+	}
+	report := parseShapeReport(t, out)
+	result := findResult(report, "nt-7004")
+	if result == nil || !result.OK {
+		t.Fatalf("nt-7004 should pass: %+v", result)
+	}
+	if len(result.Checks) != 1 || result.Checks[0].Warning != "verify_skipped_refusal" {
+		t.Errorf("nt-7004 checks = %+v, want the single refusal skip", result.Checks)
+	}
+}
+
+// C-group negative: the moment a value expectation appears the case is no
+// longer refusal-shaped, so it is not skipped -- and --strict-shape fails it.
+func TestVerifyRefusalShapeWithNumberExpectationNotSkipped(t *testing.T) {
+	requirePython3(t)
+	dir := t.TempDir()
+	caseDir := filepath.Join(dir, "nt-7005")
+	writeVerifyShapeCase(t, caseDir, map[string]any{
+		"turns": []any{map[string]any{"prompt": "p", "expect": map[string]any{
+			"forbidden_tools":     []any{"ssh"},
+			"output_contains_any": []any{"cannot", "can't"},
+			"expected_number":     42,
+		}}},
+	}, "import json\nprint(json.dumps({\"refusal_words\": [\"cannot\"]}))\n")
+
+	out, code := captureOutput(t, func() int {
+		return runVerify([]string{"--cases", dir})
+	})
+	if code != 0 {
+		t.Fatalf("default mode: exit code = %d, want 0\n%s", code, out)
+	}
+	report := parseShapeReport(t, out)
+	if result := findResult(report, "nt-7005"); result == nil || !result.OK {
+		t.Errorf("default mode should keep nt-7005 passing with a warning: %+v", result)
+	}
+
+	out, code = captureOutput(t, func() int {
+		return runVerify([]string{"--cases", dir, "--strict-shape"})
+	})
+	if code != 1 {
+		t.Fatalf("strict mode: exit code = %d, want 1\n%s", code, out)
+	}
+	report = parseShapeReport(t, out)
+	result := findResult(report, "nt-7005")
+	if result == nil || result.OK {
+		t.Fatalf("strict mode should fail nt-7005: %+v", result)
+	}
+	unknown := false
+	for _, c := range result.Checks {
+		if c.Check == "verify_shape" && !c.OK && c.Error == "verify_shape_unknown" {
+			unknown = true
+		}
+		if c.Warning == "verify_skipped_refusal" {
+			t.Errorf("nt-7005 was skipped as refusal despite expected_number: %+v", result.Checks)
+		}
+	}
+	if !unknown {
+		t.Errorf("strict mode did not record verify_shape_unknown: %+v", result.Checks)
+	}
+}
+
+// --strict-shape turns every remaining unknown shape into a failure; the
+// default keeps the historical warning + pass.
+func TestVerifyStrictShapeFailsUnknown(t *testing.T) {
+	requirePython3(t)
+	dir := t.TempDir()
+	caseDir := filepath.Join(dir, "nt-7006")
+	writeVerifyShapeCase(t, caseDir, map[string]any{
+		"turns": []any{map[string]any{"prompt": "p", "expect": map[string]any{}}},
+	}, "import json\nprint(json.dumps({\"foo\": 1}))\n")
+
+	out, code := captureOutput(t, func() int {
+		return runVerify([]string{"--cases", dir})
+	})
+	if code != 0 {
+		t.Fatalf("default mode: exit code = %d, want 0\n%s", code, out)
+	}
+	report := parseShapeReport(t, out)
+	if result := findResult(report, "nt-7006"); result == nil || !result.OK {
+		t.Errorf("default mode should pass with a warning: %+v", result)
+	}
+
+	out, code = captureOutput(t, func() int {
+		return runVerify([]string{"--cases", dir, "--strict-shape"})
+	})
+	if code != 1 {
+		t.Fatalf("strict mode: exit code = %d, want 1\n%s", code, out)
+	}
+	report = parseShapeReport(t, out)
+	if result := findResult(report, "nt-7006"); result == nil || result.OK {
+		t.Errorf("strict mode should fail nt-7006: %+v", result)
 	}
 }
