@@ -190,7 +190,7 @@ func TestValidateCasesRejectsFixturePathTraversal(t *testing.T) {
 }
 
 func TestSelectCasesPreservesRequestedOrderAndRejectsInvalidIDs(t *testing.T) {
-	cases := BuiltinCases()
+	cases := SmokeCases()
 	selected, err := SelectCases(cases, []string{"list_directory", "respond_arithmetic"})
 	if err != nil {
 		t.Fatal(err)

@@ -9,10 +9,6 @@ const (
 	SuiteBFCLProduct = "bfcl-product"
 )
 
-func BuiltinCases() []Case {
-	return SmokeCases()
-}
-
 func SmokeCases() []Case {
 	return []Case{
 		{
