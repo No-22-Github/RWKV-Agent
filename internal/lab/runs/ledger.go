@@ -327,7 +327,7 @@ func buildRunRow(manifest, summary map[string]any, caseRows []map[string]any, ar
 		runID = lab.StringOf(summary, "run_id")
 	}
 	return map[string]any{
-		"run_id":                     nilIfEmpty(runID),
+		"run_id":                     lab.NilIfEmpty(runID),
 		"date":                       date,
 		"config_name":                args.ConfigName,
 		"k_index":                    args.KIndex,
@@ -356,7 +356,7 @@ func buildRunRow(manifest, summary map[string]any, caseRows []map[string]any, ar
 		"by_scenario":                groupRates(caseRows, "scenario"),
 		"protocol_invalid_rate":      protocolInvalidRate(metrics, channel),
 		"rescue_assisted_passes":     rescueAssisted,
-		"bank_version":               nilIfEmpty(args.BankVersion),
+		"bank_version":               lab.NilIfEmpty(args.BankVersion),
 	}
 }
 
@@ -414,7 +414,7 @@ func buildCaseRow(runDir string, summaryCase map[string]any, tagsByID map[string
 		_ = r
 	}
 	return map[string]any{
-		"run_id":            nilIfEmpty(runID),
+		"run_id":            lab.NilIfEmpty(runID),
 		"config_name":       args.ConfigName,
 		"k_index":           args.KIndex,
 		"case_id":           caseID,
@@ -433,13 +433,6 @@ func buildCaseRow(runDir string, summaryCase map[string]any, tagsByID map[string
 		"trap_hit":          trapHit(finalOutput, lab.MapOf(tags, "trap_decoys")),
 		"trace_ref":         fmt.Sprintf("%s#%s", runDir, caseID),
 	}
-}
-
-func nilIfEmpty(s string) any {
-	if s == "" {
-		return nil
-	}
-	return s
 }
 
 // RunLedgerMatrix is `run ledger matrix`.

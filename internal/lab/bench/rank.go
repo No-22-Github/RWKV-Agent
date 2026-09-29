@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -177,7 +178,7 @@ func RunRank(args RankArgs) int {
 			i+1, arm, fmtRank(table[arm].wb), fmtRank(table[arm].bp), combined(arm)))
 	}
 	for _, arm := range armNames {
-		if containsString(order, arm) {
+		if slices.Contains(order, arm) {
 			continue
 		}
 		lines = append(lines, fmt.Sprintf("| – | `%s` | %s | %s | %.1f |",
@@ -270,7 +271,7 @@ func loadRankRuns(out, prefix string) map[rankKey][]*rankRep {
 			continue
 		}
 		metaPath := filepath.Join(path, "experiment.json")
-		if !exists(metaPath) {
+		if !lab.Exists(metaPath) {
 			continue
 		}
 		meta, err := runs.LoadJSONFile(metaPath, true)
@@ -464,13 +465,4 @@ func minInt(values []int) int {
 		}
 	}
 	return best
-}
-
-func containsString(list []string, want string) bool {
-	for _, item := range list {
-		if item == want {
-			return true
-		}
-	}
-	return false
 }

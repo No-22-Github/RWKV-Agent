@@ -308,7 +308,7 @@ func runDone(path string) bool {
 
 func setAside(args *SweepArgs, path string) error {
 	logPath := path + ".log"
-	if !exists(path) && !exists(logPath) {
+	if !lab.Exists(path) && !lab.Exists(logPath) {
 		return nil
 	}
 	aborted := filepath.Join(args.Out, "aborted")
@@ -317,18 +317,13 @@ func setAside(args *SweepArgs, path string) error {
 	}
 	stamp := time.Now().Format("20060102-150405")
 	for _, source := range []string{path, logPath} {
-		if exists(source) {
+		if lab.Exists(source) {
 			if err := os.Rename(source, filepath.Join(aborted, filepath.Base(source)+"."+stamp)); err != nil {
 				return err
 			}
 		}
 	}
 	return nil
-}
-
-func exists(path string) bool {
-	_, err := os.Stat(path)
-	return err == nil
 }
 
 func runArm(args *SweepArgs, arm string, k int) bool {
@@ -451,7 +446,7 @@ func runArm(args *SweepArgs, arm string, k int) bool {
 func finishRun(args *SweepArgs, suite, arm, output string, cmd []string, started time.Time) (*lab.OrderedMap, bool, string, error) {
 	spec := suites[suite]
 	summaryPath := filepath.Join(output, "summary.json")
-	if !exists(summaryPath) {
+	if !lab.Exists(summaryPath) {
 		return nil, true, fmt.Sprintf("no summary.json; see %s.log", output), nil
 	}
 	summary, err := runs.LoadJSONFile(summaryPath, true)
@@ -495,8 +490,8 @@ func finishRun(args *SweepArgs, suite, arm, output string, cmd []string, started
 		return nil, false, "", err
 	}
 	binarySum := sha256.Sum256(binaryBytes)
-	gitHead := gitOutput("rev-parse", "HEAD")
-	gitDiff := gitOutput("diff", "HEAD")
+	gitHead := lab.GitOutput("rev-parse", "HEAD")
+	gitDiff := lab.GitOutput("diff", "HEAD")
 	diffSum := sha256.Sum256([]byte(gitDiff))
 
 	provenance := lab.NewOrderedMap()
@@ -521,7 +516,7 @@ func finishRun(args *SweepArgs, suite, arm, output string, cmd []string, started
 	if suite == "workbank" {
 		root := filepath.Join(lab.RepoRoot(), "bench", "workbank", "cases")
 		provenance.Set("case_source", root)
-		provenance.Set("case_source_sha256", caseSourceSHA256(root))
+		provenance.Set("case_source_sha256", lab.CaseSourceSHA256(root))
 	}
 
 	line := fmt.Sprintf("strict %d/%d  invalid %d  infra_errors %d  gate %s  %.0fs",
@@ -550,44 +545,6 @@ func armSamplingMap(arm string) map[string]any {
 		out[key] = value
 	}
 	return out
-}
-
-func caseSourceSHA256(root string) string {
-	digest := sha256.New()
-	var paths []string
-	filepath.WalkDir(root, func(path string, d os.DirEntry, err error) error {
-		if err != nil {
-			return nil
-		}
-		if !d.IsDir() && d.Name() == "case.json" {
-			paths = append(paths, path)
-		}
-		return nil
-	})
-	sort.Strings(paths)
-	for _, path := range paths {
-		rel, err := filepath.Rel(root, path)
-		if err != nil {
-			continue
-		}
-		digest.Write([]byte(rel))
-		digest.Write([]byte{0})
-		data, err := os.ReadFile(path)
-		if err == nil {
-			digest.Write(data)
-		}
-	}
-	return hex.EncodeToString(digest.Sum(nil))
-}
-
-func gitOutput(args ...string) string {
-	cmd := exec.Command("git", args...)
-	cmd.Dir = lab.RepoRoot()
-	out, err := cmd.Output()
-	if err != nil {
-		return ""
-	}
-	return strings.TrimSpace(string(out))
 }
 
 // snapshot records the endpoint's model list and status before and after a

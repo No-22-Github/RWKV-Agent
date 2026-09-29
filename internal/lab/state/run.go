@@ -335,7 +335,7 @@ func RunState(args RunArgs) int {
 		dest := filepath.Join(root, name)
 		before := filepath.Join(root, name+".canary-before.json")
 		after := filepath.Join(root, name+".canary-after.json")
-		if exists(dest) || exists(before) {
+		if lab.Exists(dest) || lab.Exists(before) {
 			fmt.Fprintf(os.Stderr, "Refusing overwrite %s\n", name)
 			return 1
 		}
@@ -372,7 +372,7 @@ func RunState(args RunArgs) int {
 		stableRegistration := sameRegistrations(registered, current)
 
 		experimentPath := filepath.Join(dest, "experiment.json")
-		if exists(experimentPath) {
+		if lab.Exists(experimentPath) {
 			e, err := runs.LoadJSONFile(experimentPath, true)
 			if err == nil && e != nil {
 				om := toOrdered(e)
@@ -395,7 +395,7 @@ func RunState(args RunArgs) int {
 		fmt.Println("VALIDITY", name, "canary_stable", pyBool(stable), "registration_stable", pyBool(stableRegistration))
 
 		if args.AllowCanaryDrift && !stable && effectiveStable {
-			if exists(experimentPath) {
+			if lab.Exists(experimentPath) {
 				if e, err := runs.LoadJSONFile(experimentPath, true); err == nil && e != nil {
 					om := toOrdered(e)
 					om.Set("canary_drift_tolerated", true)
@@ -527,7 +527,7 @@ func runWireExperiment(args RunArgs, suite, name, root string, parallelism int) 
 	_ = runErr
 
 	summaryPath := filepath.Join(output, "summary.json")
-	if !exists(summaryPath) {
+	if !lab.Exists(summaryPath) {
 		data, _ := os.ReadFile(logPath)
 		if len(data) > 2000 {
 			data = data[len(data)-2000:]
@@ -546,15 +546,15 @@ func runWireExperiment(args RunArgs, suite, name, root string, parallelism int) 
 	if err == nil {
 		provenance.Set("binary_sha256", digest(binaryData))
 	}
-	provenance.Set("git_head", gitOutput("rev-parse", "HEAD"))
-	provenance.Set("diff_sha256", digest([]byte(gitOutput("diff", "HEAD"))))
+	provenance.Set("git_head", lab.GitOutput("rev-parse", "HEAD"))
+	provenance.Set("diff_sha256", digest([]byte(lab.GitOutput("diff", "HEAD"))))
 	provenance.Set("started_unix", float64(started.UnixNano())/1e9)
 	provenance.Set("evaluation_scope", "original_suite")
 	provenance.Set("state_id", args.StateID)
 	if suite == "workbank" {
 		root := filepath.Join(repo, "bench", "workbank", "cases")
 		provenance.Set("case_source", root)
-		provenance.Set("case_source_sha256", caseSourceSHA256(root))
+		provenance.Set("case_source_sha256", lab.CaseSourceSHA256(root))
 	}
 
 	budgets := map[string]int{}
@@ -597,49 +597,6 @@ func runWireExperiment(args RunArgs, suite, name, root string, parallelism int) 
 		return code, fmt.Errorf("Infrastructure error: run excluded, matrix stopped")
 	}
 	return code, nil
-}
-
-func gitOutput(args ...string) string {
-	cmd := exec.Command("git", args...)
-	cmd.Dir = lab.RepoRoot()
-	out, err := cmd.Output()
-	if err != nil {
-		return ""
-	}
-	return strings.TrimSpace(string(out))
-}
-
-func caseSourceSHA256(root string) string {
-	digestHash := sha256.New()
-	var paths []string
-	filepath.WalkDir(root, func(path string, d os.DirEntry, err error) error {
-		if err != nil {
-			return nil
-		}
-		if !d.IsDir() && d.Name() == "case.json" {
-			paths = append(paths, path)
-		}
-		return nil
-	})
-	sort.Strings(paths)
-	for _, path := range paths {
-		rel, err := filepath.Rel(root, path)
-		if err != nil {
-			continue
-		}
-		digestHash.Write([]byte(rel))
-		digestHash.Write([]byte{0})
-		data, err := os.ReadFile(path)
-		if err == nil {
-			digestHash.Write(data)
-		}
-	}
-	return hex.EncodeToString(digestHash.Sum(nil))
-}
-
-func exists(path string) bool {
-	_, err := os.Stat(path)
-	return err == nil
 }
 
 // taskSuccessRepr is Python's repr of summary.metrics.task_success, which is
