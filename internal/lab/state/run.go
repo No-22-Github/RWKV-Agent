@@ -461,6 +461,15 @@ func sameRegistrations(a, b []map[string]any) bool {
 func runWireExperiment(args RunArgs, suite, name, root string, parallelism int) (int, error) {
 	repo := lab.RepoRoot()
 	binary := filepath.Join(repo, "local", "build", "rwkv-cli-state-experiment")
+	output := filepath.Join(root, name)
+	cmd := wireExperimentCommand(args, suite, binary, output, parallelism)
+	return launchWireExperiment(args, suite, name, root, repo, binary, output, cmd)
+}
+
+// wireExperimentCommand is the agent-eval command line for one suite. --fast
+// adds history=think-fast,thinkcontrol=off unless --legacy-history keeps the
+// default history wire, as scripts/state-experiment.py did.
+func wireExperimentCommand(args RunArgs, suite, binary, output string, parallelism int) []string {
 	profile := WireProfile
 	if args.Fast {
 		profile += "+think-fast"
@@ -479,6 +488,9 @@ func runWireExperiment(args RunArgs, suite, name, root string, parallelism int) 
 	if args.StateID != "" {
 		cmd = append(cmd, "--state-id", args.StateID)
 	}
+	if args.Fast && !args.LegacyHistory {
+		cmd = append(cmd, "--wire", "history=think-fast,thinkcontrol=off")
+	}
 	if args.Wire != "" {
 		cmd = append(cmd, "--wire", args.Wire)
 	}
@@ -493,9 +505,10 @@ func runWireExperiment(args RunArgs, suite, name, root string, parallelism int) 
 	case "bfcl":
 		cmd = append(cmd, "--suite", "bfcl-product")
 	}
-	output := filepath.Join(root, name)
-	cmd = append(cmd, "--output", output)
+	return append(cmd, "--output", output)
+}
 
+func launchWireExperiment(args RunArgs, suite, name, root, repo, binary, output string, cmd []string) (int, error) {
 	env := os.Environ()
 	cred, err := runs.LoadJSONFile(args.Credentials, true)
 	if err == nil {

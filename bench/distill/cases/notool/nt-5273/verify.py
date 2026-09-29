@@ -4,7 +4,7 @@ import json
 with open("case.json") as handle:
     case = json.load(handle)
 
-wanted = "refuse-to-start-without-the-store"
+wanted = "pull-in-and-stay-down-if-the-store-fails"
 accepted = []
 for line in case["files"]["units/dependency-cards.tsv"].splitlines():
     if not line.strip():

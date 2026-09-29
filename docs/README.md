@@ -36,6 +36,7 @@
 | --- | --- |
 | [distill/distill-workflow.md](distill/distill-workflow.md) | **蒸馏工作流规格**：出题 → 老师在真实 harness 里跑 → 抽路径 → `corpus render` 重放切行 → 打包；各环节闸门与命令 |
 | [distill/distill-allocation-v1.md](distill/distill-allocation-v1.md) | 加题分配 v1：b01–b03 的题型配额与行长约束（取代 workflow §2.4） |
+| [distill/distill-allocation-v1.3.md](distill/distill-allocation-v1.3.md) | v1.3 数据构成规划：存量修复、N1–N9 新增（中文/多轮/失败汇报/自然语言交付）、目标指标与分批 |
 | [distill/distill-b04-glm.md](distill/distill-b04-glm.md) | b04 执行规格：子 Agent 用 `bench/distill/tools/step.py` 扮演 student，在真实 harness 里逐步解题（老师无法接入 harness 时的方案） |
 | [distill/fix-20260929-glm.md](distill/fix-20260929-glm.md) | 2026-09-29 修数派单：`run compare --exclude-cases` 剔除 base700 的 36 道种子题、t927 泄漏口径更正、`bank verify` 形状识别与 `--strict-shape`、nt-5278 改题、25 道 ambiguous_request 重解 |
 | [distill/harness-corpus-render.md](distill/harness-corpus-render.md) | 训练行只能由 harness 重放生成：`--script` 回放、多轮按轮切行、分集规则 |
