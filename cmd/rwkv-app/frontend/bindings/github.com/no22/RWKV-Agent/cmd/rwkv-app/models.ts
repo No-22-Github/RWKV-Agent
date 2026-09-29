@@ -19,6 +19,12 @@ export class AppBootstrap {
     "providers": appstorage$0.SavedProvider[];
     "activeProviderId"?: string;
     "runtimeProviderId"?: string;
+
+    /**
+     * RuntimeOutdated 表示运行中档案已保存的配置与实际运行的配置不一致（例如本地模型
+     * 改了路径或参数但尚未重新加载）。运行连接仍然有效，只是更改要重新加载后才生效。
+     */
+    "runtimeOutdated"?: boolean;
     "conversations": ConversationSummary[];
     "conversation"?: ConversationView | null;
     "workspaces": WorkspaceItem[];
@@ -59,10 +65,10 @@ export class AppBootstrap {
         const $$createField0_0 = $$createType0;
         const $$createField1_0 = $$createType1;
         const $$createField3_0 = $$createType3;
-        const $$createField6_0 = $$createType5;
-        const $$createField7_0 = $$createType7;
-        const $$createField8_0 = $$createType9;
-        const $$createField9_0 = $$createType10;
+        const $$createField7_0 = $$createType5;
+        const $$createField8_0 = $$createType7;
+        const $$createField9_0 = $$createType9;
+        const $$createField10_0 = $$createType10;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("status" in $$parsedSource) {
             $$parsedSource["status"] = $$createField0_0($$parsedSource["status"]);
@@ -74,16 +80,16 @@ export class AppBootstrap {
             $$parsedSource["providers"] = $$createField3_0($$parsedSource["providers"]);
         }
         if ("conversations" in $$parsedSource) {
-            $$parsedSource["conversations"] = $$createField6_0($$parsedSource["conversations"]);
+            $$parsedSource["conversations"] = $$createField7_0($$parsedSource["conversations"]);
         }
         if ("conversation" in $$parsedSource) {
-            $$parsedSource["conversation"] = $$createField7_0($$parsedSource["conversation"]);
+            $$parsedSource["conversation"] = $$createField8_0($$parsedSource["conversation"]);
         }
         if ("workspaces" in $$parsedSource) {
-            $$parsedSource["workspaces"] = $$createField8_0($$parsedSource["workspaces"]);
+            $$parsedSource["workspaces"] = $$createField9_0($$parsedSource["workspaces"]);
         }
         if ("paths" in $$parsedSource) {
-            $$parsedSource["paths"] = $$createField9_0($$parsedSource["paths"]);
+            $$parsedSource["paths"] = $$createField10_0($$parsedSource["paths"]);
         }
         return new AppBootstrap($$parsedSource as Partial<AppBootstrap>);
     }

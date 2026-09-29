@@ -66,11 +66,14 @@ type AppBootstrap struct {
 	Providers         []appstorage.SavedProvider `json:"providers"`
 	ActiveProviderID  string                     `json:"activeProviderId,omitempty"`
 	RuntimeProviderID string                     `json:"runtimeProviderId,omitempty"`
-	Conversations     []ConversationSummary      `json:"conversations"`
-	Conversation      *ConversationView          `json:"conversation,omitempty"`
-	Workspaces        []WorkspaceItem            `json:"workspaces"`
-	Paths             StoragePaths               `json:"paths"`
-	Warning           string                     `json:"warning,omitempty"`
+	// RuntimeOutdated 表示运行中档案已保存的配置与实际运行的配置不一致（例如本地模型
+	// 改了路径或参数但尚未重新加载）。运行连接仍然有效，只是更改要重新加载后才生效。
+	RuntimeOutdated bool                  `json:"runtimeOutdated,omitempty"`
+	Conversations   []ConversationSummary `json:"conversations"`
+	Conversation    *ConversationView     `json:"conversation,omitempty"`
+	Workspaces      []WorkspaceItem       `json:"workspaces"`
+	Paths           StoragePaths          `json:"paths"`
+	Warning         string                `json:"warning,omitempty"`
 }
 
 // AppService binds durable application state to the public Agent API.
@@ -181,6 +184,7 @@ func (s *AppService) configureProvider(ctx context.Context, id string, label str
 	s.hasConfig = true
 	s.runtimeProviderID = saved.ID
 	s.mu.Unlock()
+	s.emit(providersChangedEvent)
 	return status, nil
 }
 
@@ -197,12 +201,13 @@ func (s *AppService) SaveProvider(id string, label string, config agentapi.Confi
 	}
 	s.mu.Lock()
 	status := s.service.Status()
+	// 保存与运行配置完全一致的档案即认领运行连接；编辑运行中档案不再清掉运行标记——
+	// 连接仍在用旧配置工作，bootstrap 通过 RuntimeOutdated 报告"待重新加载"。
 	if status.State == agentapi.ModelReady && reflect.DeepEqual(s.config, saved.Config) {
 		s.runtimeProviderID = saved.ID
-	} else if s.runtimeProviderID == saved.ID {
-		s.runtimeProviderID = ""
 	}
 	s.mu.Unlock()
+	s.emit(providersChangedEvent)
 	return saved, nil
 }
 
@@ -240,6 +245,7 @@ func (s *AppService) DeleteProvider(id string) (AppBootstrap, error) {
 		s.runtimeProviderID = ""
 	}
 	s.mu.Unlock()
+	s.emit(providersChangedEvent)
 	return s.bootstrap()
 }
 
@@ -264,6 +270,9 @@ func (s *AppService) Chat(ctx context.Context, prompt string) (agentapi.Result, 
 		result.Error = err.Error()
 		role = "error"
 		content = err.Error()
+		if errors.Is(err, context.Canceled) {
+			content = "已停止：本轮运行被手动中断。"
+		}
 		s.emit("agent:error", err.Error())
 	}
 	if persistErr := s.persistTurn(session, prompt, role, content, result, turnStarted); persistErr != nil {
@@ -583,11 +592,19 @@ func (s *AppService) bootstrap() (AppBootstrap, error) {
 		return AppBootstrap{}, err
 	}
 	paths := s.storage.Paths()
+	runtimeOutdated := false
+	for _, entry := range settings.Providers {
+		if entry.ID == runtimeProviderID {
+			runtimeOutdated = !reflect.DeepEqual(entry.Config, config)
+			break
+		}
+	}
 	result := AppBootstrap{
 		Status: status, Config: config, HasConfig: hasConfig,
 		Providers: settings.Providers, ActiveProviderID: settings.ActiveID, RuntimeProviderID: runtimeProviderID,
-		Conversations: conversationSummaries(summaries),
-		Workspaces:    workspaceItems(state.RecentWorkspaces, status.Workspace),
+		RuntimeOutdated: runtimeOutdated,
+		Conversations:   conversationSummaries(summaries),
+		Workspaces:      workspaceItems(state.RecentWorkspaces, status.Workspace),
 		Paths: StoragePaths{
 			ConfigFile: paths.ConfigFile, DataDirectory: paths.DataDirectory,
 			StateFile: paths.StateFile, CacheDirectory: paths.CacheDirectory,
@@ -642,6 +659,11 @@ func (s *AppService) loadActiveConversation() {
 	s.active = &value
 	s.mu.Unlock()
 }
+
+// providersChangedEvent 在连接档案列表或运行标记变化后发出（无负载）。前端收到后
+// 重新拉取档案状态：任何入口（设置页、运行配置下拉、另一个窗口）的修改都走同一条
+// 刷新路径，侧栏与下拉的档案列表因此只有一个数据源。
+const providersChangedEvent = "providers:changed"
 
 func (s *AppService) emit(name string, data ...any) {
 	s.mu.Lock()

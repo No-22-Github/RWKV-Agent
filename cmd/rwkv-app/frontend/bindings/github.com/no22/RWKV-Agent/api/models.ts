@@ -95,6 +95,23 @@ export class Config {
     "agentProtocol"?: AgentProtocol;
 
     /**
+     * Profile is the canonical wire profile (preset name, preset+modifiers, or
+     * a canonical spec). When set it owns the format, thinking, prefill,
+     * abstention, terminal and loop axes, and the per-protocol defaults below
+     * are not applied. List the registered profiles with
+     * `rwkv-cli agent-eval --list-profiles`.
+     */
+    "profile"?: string;
+
+    /**
+     * Wire is the longhand axis override list ("format=md-fence,prefill=fence").
+     * It composes on top of Profile or the per-protocol defaults, so a caller
+     * can combine any thinking mode with any tool format without inventing a
+     * preset. Keys are the canonical axis names.
+     */
+    "wire"?: string;
+
+    /**
      * TaskControl is the user's free-text contract appended verbatim after the
      * transcript's system prompt ("Task-specific contract:" block). It is the
      * supported personalization surface; the protocol-owned instructions stay
@@ -120,6 +137,12 @@ export class Config {
     "chatTokenLimit"?: string;
     "stream"?: boolean | null;
     "rwkvStopTokens"?: string;
+
+    /**
+     * StateID reuses an uploaded rwkv_lightning state for every generation in
+     * this provider. Empty leaves the server's zero-initialized state in charge.
+     */
+    "stateId"?: string;
 
     /**
      * ProgressiveTools enables the optional capability Router. Nil defaults to
