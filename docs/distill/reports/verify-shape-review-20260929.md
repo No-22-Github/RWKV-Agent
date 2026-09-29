@@ -29,6 +29,7 @@
 - **存疑 2**：nt-5270（`git stash push -u` 规范写法不在判据里，轻微过窄）、nt-5273
   （systemd `Requires=` 单独并不保证题面所说的启动顺序，需 `After=` 配合——这是全批最接近
   nt-5278 型"题面断言与工具语义不符"的一题，但答案相对 `Wants=` 的区分仍成立，建议人工复核）。
+- **复核更正（2026-09-29 晚）**：nt-5273 改判"判据有误"——漏看了 `Requisite=`，它比 `Requires=` 更贴 v1 题面；已改题为 v2（见表内该行与题目 NOTES）。上表汇总数字保留首轮口径。nt-5270 同样应属"判据有误"，未改题。
 - 未发现 nt-5278 式"夹具编造事实"：43 道关键词题的 files 夹具全部支撑期望答案。
 
 ## A 组（关键词题 43 道）
@@ -68,7 +69,7 @@
 | nt-5270 | A | 存疑 | 主流两种写法已收，但 git-stash(1) 规范的 `git stash push -u` / `push --include-untracked` 不含判据子串会被拒（轻微过窄，真实答案有判错风险） | git-scm.com/docs/git-stash + 判据内部证据 |
 | nt-5271 | A | ok | `git fetch --prune`/`-p` 删除远端已弃引用正确；`--tags` decoy 正确 | git-scm.com/docs/git-fetch |
 | nt-5272 | A | ok | `Restart=on-failure` 故障自启、手动停不自启，与题面精确匹配 | freedesktop.org systemd.service(5) |
-| nt-5273 | A | 存疑 | Requires= 无次序语义，"store 未起来就拒绝启动 drying"按文档需配合 After= 才有保证；但 Requires（失败会传播停掉依赖方）vs Wants（不传播）的答案区分仍成立，题面行为描述与文档有出入 | systemd.unit(5)：Requires= 不隐含顺序，无 After= 时两单元同时启动；仅配 After= 时 B 失败 A 才不启动 |
+| nt-5273 | A | **判据有误（已修 v2）** | v1 题面"store 未起来就拒绝启动"更贴 `Requisite=`，且 `Requires=` 无 `After=` 不保证次序，只收 `Requires=` 过窄；2026-09-29 v2 题面写明已有 `After=`、改问"拉起 store 且 store 失败则不起"（排除 Requisite），判据加收 `BindsTo=`；三条老师轨迹重放 3/3 PASS | systemd.unit(5)：Requires=/Requisite=/BindsTo=/After= |
 | nt-5274 | A | ok | `WantedBy=` 使 target 拉起服务而 target 不反向依赖，`RequiredBy` decoy 正确排除 | freedesktop.org systemd.unit(5) |
 | nt-5275 | A | ok | `readinessProbe` 摘出流量轮换且不重启；`livenessProbe` decoy 会重启，方向相反 | kubernetes.io liveness/readiness probes |
 | nt-5276 | A | ok | `kubectl rollout undo` 回到上一 revision 正确 | kubernetes.io（Deployment 回滚） |
