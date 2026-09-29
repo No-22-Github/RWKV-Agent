@@ -11,6 +11,7 @@
 | `b01.jsonl` | 339 | 213 | `9611d0162485033f` | b01 的 330 行由此渲染 |
 | `b02.jsonl` | 346 | 210 | `26bc10eb974d2115` | b02 的 364 行由此渲染 |
 | `b03.jsonl` | 321 | 199 | `3513cc47d201852a` | b03 的 341 行由此渲染 |
+| `b04r.jsonl` | 25 | 25 | `4e5f4a986a044dfc` | b04 W0 ambiguous_request 重解（每题 2 行，见 `docs/distill/reports/b04.md` §9） |
 
 ## 怎么用
 
