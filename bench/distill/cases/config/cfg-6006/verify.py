@@ -4,10 +4,17 @@ import json
 case = json.load(open("case.json"))
 poller = json.loads(case["files"]["config/poller.json"])
 
-# README.md: a service never falls back to another block's settings.
+# README.md: a service never falls back to another block's settings. The case
+# asserts that the meter_reader block carries no channel key; recompute that
+# here. The relay_controller block does carry one, so only the meter_reader
+# block is checked.
 block = poller["meter_reader"]
-value = "UNKNOWN"
 if "firmware_channel" in block:
-    value = block["firmware_channel"]
+    raise SystemExit("meter_reader block now carries firmware_channel; the absent-object case is broken")
 
-print(json.dumps({"expected_string": value}))
+accepted = [
+    "firmware_channel",
+    "firmware channel",
+    "firmware feed",
+]
+print(json.dumps({"expected_contains_any": accepted}))

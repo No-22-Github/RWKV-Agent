@@ -19,9 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 314,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
-    "reviewer": null
+    "reviewer": null,
+    "answer_style": "value"
   },
   "web_fixture": [],
   "files": {
@@ -31,7 +32,7 @@
   },
   "turns": [
     {
-      "prompt": "Wraybrook Water is updating the abstraction return for the Wraybrook North borehole. The duty reading for pump P3 is 47.5 litres a second. The return is filed in cubic metres an hour. What is the duty in cubic metres an hour? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Wraybrook Water is updating the abstraction return for the Wraybrook North borehole. The duty reading for pump P3 is 47.5 litres a second. The return is filed in cubic metres an hour. What is the duty in cubic metres an hour? Reply with only the final answer.",
       "expect": {
         "expected_number": 171,
         "tolerance": 0.01,

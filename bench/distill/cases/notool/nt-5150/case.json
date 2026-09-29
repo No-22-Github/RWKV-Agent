@@ -19,9 +19,10 @@
     "ref_calls": 1,
     "fixture_bytes": 537,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
-    "reviewer": null
+    "reviewer": null,
+    "answer_style": "value"
   },
   "web_fixture": [],
   "files": {
@@ -30,7 +31,7 @@
   },
   "turns": [
     {
-      "prompt": "Haldenford Water's contact centre has taken a batch of burst pipe reports and needs to pass them to the right desk. Which desk owns those reports? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Haldenford Water's contact centre has taken a batch of burst pipe reports and needs to pass them to the right desk. Which desk owns those reports? Reply with only the final answer.",
       "expect": {
         "output_equals": "Field Response Desk",
         "tools": []

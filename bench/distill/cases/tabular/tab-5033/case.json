@@ -22,9 +22,10 @@
     "ref_calls": 3,
     "fixture_bytes": 3188,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
-    "reviewer": null
+    "reviewer": null,
+    "answer_style": "value"
   },
   "web_fixture": [],
   "files": {
@@ -34,7 +35,7 @@
   },
   "turns": [
     {
-      "prompt": "Stannerley Coal Yard invoices its trade customers monthly. What was the value of the coal delivered to Cawdor Brickworks in August 2026, in pounds, rounded to two decimal places? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Stannerley Coal Yard invoices its trade customers monthly. What was the value of the coal delivered to Cawdor Brickworks in August 2026, in pounds, rounded to two decimal places? Reply with only the final answer.",
       "expect": {
         "expected_number": 33785.92,
         "tolerance": 0.01

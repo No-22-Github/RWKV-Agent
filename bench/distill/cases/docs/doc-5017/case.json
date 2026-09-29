@@ -13,9 +13,10 @@
     "ref_calls": 2,
     "fixture_bytes": 547,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
-    "reviewer": null
+    "reviewer": null,
+    "answer_style": "value"
   },
   "web_fixture": [],
   "files": {
@@ -25,7 +26,7 @@
   },
   "turns": [
     {
-      "prompt": "A Dunthorpe Removals customer is packing up a two-bedroom house and wants the firm to supply boxes to hang clothes in. What does the firm charge to hire one such box? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "A Dunthorpe Removals customer is packing up a two-bedroom house and wants the firm to supply boxes to hang clothes in. What does the firm charge to hire one such box? Reply with only the final answer.",
       "expect": {
         "expected_number": 16.5,
         "tolerance": 0.01

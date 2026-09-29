@@ -21,7 +21,8 @@
     "version": 1,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "fixture_bytes": 287
+    "fixture_bytes": 287,
+    "answer_style": "unknown"
   },
   "web_fixture": [],
   "files": {

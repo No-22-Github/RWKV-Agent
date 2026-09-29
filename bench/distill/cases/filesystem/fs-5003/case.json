@@ -15,9 +15,10 @@
     "ref_calls": 2,
     "fixture_bytes": 829,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
-    "reviewer": null
+    "reviewer": null,
+    "answer_style": "value"
   },
   "web_fixture": [],
   "files": {
@@ -26,7 +27,7 @@
   },
   "turns": [
     {
-      "prompt": "Hollowbrook Apiary writes every visit to its hives into one season register. Some visits are inspections and some are extractions done for the co-operative. How many extraction visits does the register hold? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Hollowbrook Apiary writes every visit to its hives into one season register. Some visits are inspections and some are extractions done for the co-operative. How many extraction visits does the register hold? Reply with only the final answer.",
       "expect": {
         "expected_number": 7,
         "tolerance": 0.01

@@ -19,9 +19,10 @@
     "ref_calls": 1,
     "fixture_bytes": 560,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
-    "reviewer": null
+    "reviewer": null,
+    "answer_style": "value"
   },
   "web_fixture": [],
   "files": {
@@ -30,7 +31,7 @@
   },
   "turns": [
     {
-      "prompt": "Tarnbrook Heritage Railway is renewing its insurance and the schedule has to name the building the volunteers call the old shed under its registered designation. What designation goes on the schedule? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Tarnbrook Heritage Railway is renewing its insurance and the schedule has to name the building the volunteers call the old shed under its registered designation. What designation goes on the schedule? Reply with only the final answer.",
       "expect": {
         "output_equals": "Carriage Works",
         "tools": []

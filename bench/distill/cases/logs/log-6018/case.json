@@ -19,9 +19,10 @@
     "ref_calls": 3,
     "fixture_bytes": 6510,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:glm-5.3-flash-b04",
-    "reviewer": null
+    "reviewer": null,
+    "answer_style": "value"
   },
   "web_fixture": [],
   "files": {
@@ -30,7 +31,7 @@
   },
   "turns": [
     {
-      "prompt": "Minnigaff Sawmill's two sawline drives append to one mill journal. What is the error code of the first ERROR that drive minnigaff-sawline-2 raised on 14 July 2026? Answer with the code alone. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Minnigaff Sawmill's two sawline drives append to one mill journal. What is the error code of the first ERROR that drive minnigaff-sawline-2 raised on 14 July 2026? Answer with the code alone. Reply with only the final answer.",
       "expect": {
         "output_equals": "V-31"
       }

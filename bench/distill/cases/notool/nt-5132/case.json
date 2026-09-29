@@ -19,9 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 204,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
-    "reviewer": null
+    "reviewer": null,
+    "answer_style": "value"
   },
   "web_fixture": [],
   "files": {
@@ -30,7 +31,7 @@
   },
   "turns": [
     {
-      "prompt": "A stillman at Cairnloch Distillery asked how the strength card is read when spirit is brought down to bottling strength; the alcohol already in the vat is spread through more liquid, so the volume and the strength together stay the same. Vat 19 holds 1150 litres at 69 percent and the target is 46 percent. Give the water that has to be added, in litres. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "A stillman at Cairnloch Distillery asked how the strength card is read when spirit is brought down to bottling strength; the alcohol already in the vat is spread through more liquid, so the volume and the strength together stay the same. Vat 19 holds 1150 litres at 69 percent and the target is 46 percent. Give the water that has to be added, in litres. Reply with only the final answer.",
       "expect": {
         "expected_number": 575,
         "tolerance": 0.01,

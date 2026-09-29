@@ -19,9 +19,10 @@
     "ref_calls": 3,
     "fixture_bytes": 908,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:glm-5.3-flash-b04",
-    "reviewer": null
+    "reviewer": null,
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -31,9 +32,11 @@
   },
   "turns": [
     {
-      "prompt": "The control room at Ramehead Freight is reviewing the position stream it receives from the tracking service and wants the keepalive that stream is set to. What is the stream keepalive interval in seconds for the tracking service? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "The control room at Ramehead Freight is reviewing the position stream it receives from the tracking service and wants the keepalive that stream is set to. What is the stream keepalive interval in seconds for the tracking service?",
       "expect": {
-        "output_equals": "UNKNOWN"
+        "required_tools": ["read_file"],
+        "output_contains_any": ["stream_keepalive_s", "stream keepalive", "keepalive interval"],
+        "output_excludes": ["UNKNOWN", "30"]
       }
     }
   ]

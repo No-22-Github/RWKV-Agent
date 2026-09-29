@@ -120,6 +120,8 @@ func renderFlagSet(args *RenderArgs) *flag.FlagSet {
 		"permit --cases inside bench/workbank (pipeline smoke tests; never train on the output)")
 	fs.BoolVar(&args.KeepFailing, "keep-failing", false,
 		"also emit rows whose teacher trajectory fails the case expectations")
+	fs.Float64Var(&args.RotateCatalog, "rotate-catalog", 0,
+		"v1.3 §4.2: narrow the work-v1 directory for this share of rows, dropping 2-4 tools the row never calls (0 = off)")
 	return fs
 }
 

@@ -19,9 +19,10 @@
     "ref_calls": 3,
     "fixture_bytes": 1394,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
-    "reviewer": null
+    "reviewer": null,
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -30,9 +31,15 @@
   },
   "turns": [
     {
-      "prompt": "Wexcombe Dairy's co-operative compares its spring volumes with the year before. How much more milk was collected in April 2026 than in April 2025, in litres? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Wexcombe Dairy's co-operative compares its spring volumes with the year before. How much more milk was collected in April 2026 than in April 2025, in litres?",
       "expect": {
-        "output_equals": "UNKNOWN"
+        "required_tools": ["read_file"],
+        "output_contains_any": [
+          "April 2025",
+          "Apr 2025",
+          "2025-04"
+        ],
+        "output_excludes": ["UNKNOWN", "44218"]
       }
     }
   ]

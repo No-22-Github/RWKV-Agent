@@ -19,9 +19,10 @@
     "ref_calls": 1,
     "fixture_bytes": 542,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:deepseek-v4.1-flash",
-    "reviewer": null
+    "reviewer": null,
+    "answer_style": "value"
   },
   "web_fixture": [],
   "files": {
@@ -30,7 +31,7 @@
   },
   "turns": [
     {
-      "prompt": "Fawley Bridge Primary School is updating its site plan and the playground equipment check has to name the post accountable for it. Which post is that? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Fawley Bridge Primary School is updating its site plan and the playground equipment check has to name the post accountable for it. Which post is that? Reply with only the final answer.",
       "expect": {
         "output_equals": "Premises Technician",
         "tools": []

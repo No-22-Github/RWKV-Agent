@@ -32,6 +32,12 @@ var workToolCatalogNames = []string{
 	"web_search", "web_fetch",
 }
 
+// WorkToolCatalogNames returns a copy of the work-v1 catalog's tool names,
+// the one source of truth for the §4.2 render-layer rotation.
+func WorkToolCatalogNames() []string {
+	return append([]string(nil), workToolCatalogNames...)
+}
+
 // buildWorkToolCatalog assembles the fixed directory: workspace reads,
 // line-form file editing, deterministic compute (calculator / data_query /
 // datetime on the fixed clock) and the web pair. Web tools register even for

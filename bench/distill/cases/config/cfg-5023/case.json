@@ -13,9 +13,10 @@
     "ref_calls": 2,
     "fixture_bytes": 790,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
-    "reviewer": null
+    "reviewer": null,
+    "answer_style": "value"
   },
   "web_fixture": [],
   "files": {
@@ -25,7 +26,7 @@
   },
   "turns": [
     {
-      "prompt": "The plant engineer at Withernsea Saltworks is walking the pan floor with the commissioning sheet and needs the number of settings the sheet says the brine pump controller requires but still has no value for. How many settings is that? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "The plant engineer at Withernsea Saltworks is walking the pan floor with the commissioning sheet and needs the number of settings the sheet says the brine pump controller requires but still has no value for. How many settings is that? Give the number alone, as digits, with no label. Reply with only the final answer.",
       "expect": {
         "expected_number": 3,
         "tolerance": 0.01

@@ -19,9 +19,10 @@
     "ref_calls": 3,
     "fixture_bytes": 4195,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:glm-5.3-flash-b04",
-    "reviewer": null
+    "reviewer": null,
+    "answer_style": "value"
   },
   "web_fixture": [],
   "files": {
@@ -31,7 +32,7 @@
   },
   "turns": [
     {
-      "prompt": "Grindale Paper Mill's boiler house and turbine hall journal to separate files. How many alarms did the mill raise between 09:00 and 10:00 on 16 July 2026? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Grindale Paper Mill's boiler house and turbine hall journal to separate files. How many alarms did the mill raise between 09:00 and 10:00 on 16 July 2026? Give the number alone, as digits, with no label. Reply with only the final answer.",
       "expect": {
         "expected_number": 8,
         "tolerance": 0.01

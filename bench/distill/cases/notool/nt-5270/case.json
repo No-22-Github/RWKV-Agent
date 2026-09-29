@@ -19,9 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 392,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
-    "reviewer": null
+    "reviewer": null,
+    "answer_style": "value"
   },
   "web_fixture": [],
   "files": {
@@ -30,7 +31,7 @@
   },
   "turns": [
     {
-      "prompt": "Peatlow Cooperage parks a half-written barrel survey whenever the cooper is called out to the yard. The survey directory also holds a scratch file that the ignore rules intentionally keep out of version control, and that scratch file has to stay exactly where it is. Give the command that puts the current work aside, together with the survey files that were never added to the index. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Peatlow Cooperage parks a half-written barrel survey whenever the cooper is called out to the yard. The survey directory also holds a scratch file that the ignore rules intentionally keep out of version control, and that scratch file has to stay exactly where it is. Give the command that puts the current work aside, together with the survey files that were never added to the index. Reply with only the final answer.",
       "expect": {
         "tools": [],
         "output_contains_any": [

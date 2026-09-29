@@ -8,12 +8,17 @@ profile = configparser.ConfigParser()
 profile.read_string(case["files"]["profiles/packing-line.ini"])
 
 # README.md: the controller reads the base file, the profile replaces what
-# it sets, and anything else is fixed in the firmware.
+# it sets, and anything else is fixed in the firmware. The case asserts that
+# neither file defines the key; recompute that here.
 KEY = "pallet_wrap_tension_n"
-value = "UNKNOWN"
 if KEY in base:
-    value = base[KEY]
-elif profile.has_option("packing-line", KEY):
-    value = profile.get("packing-line", KEY)
+    raise SystemExit("config/orchard-base.json now defines " + KEY + "; the absent-object case is broken")
+if profile.has_option("packing-line", KEY):
+    raise SystemExit("profiles/packing-line.ini now defines " + KEY + "; the absent-object case is broken")
 
-print(json.dumps({"expected_string": value}))
+accepted = [
+    "pallet_wrap_tension_n",
+    "pallet wrap tension",
+    "wrap tension",
+]
+print(json.dumps({"expected_contains_any": accepted}))

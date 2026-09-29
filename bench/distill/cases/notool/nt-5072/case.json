@@ -19,9 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 403,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
-    "reviewer": null
+    "reviewer": null,
+    "answer_style": "value"
   },
   "web_fixture": [],
   "files": {
@@ -30,7 +31,7 @@
   },
   "turns": [
     {
-      "prompt": "Sullivane Analytics marks its three long statement checks with the mark slow. Give the selection option and its value that makes a test run execute every check except the ones carrying that mark, written so that the expression is quoted. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Sullivane Analytics marks its three long statement checks with the mark slow. Give the selection option and its value that makes a test run execute every check except the ones carrying that mark, written so that the expression is quoted. Reply with only the final answer.",
       "expect": {
         "tools": [],
         "output_contains_any": [

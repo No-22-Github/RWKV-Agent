@@ -19,9 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 209,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
-    "reviewer": null
+    "reviewer": null,
+    "answer_style": "value"
   },
   "web_fixture": [],
   "files": {
@@ -30,7 +31,7 @@
   },
   "turns": [
     {
-      "prompt": "A warper at Tarnfield is unsure what the sett on a loom card describes; it is the number of warp ends in one inch of cloth, counting how many ends each dent of the reed holds. The current run is 26 inches wide, the reed has 12 dents to the inch and every dent carries 3 ends. Give the total warp ends for the run. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "A warper at Tarnfield is unsure what the sett on a loom card describes; it is the number of warp ends in one inch of cloth, counting how many ends each dent of the reed holds. The current run is 26 inches wide, the reed has 12 dents to the inch and every dent carries 3 ends. Give the total warp ends for the run. Reply with only the final answer.",
       "expect": {
         "expected_number": 936,
         "tolerance": 0.01,

@@ -2,16 +2,20 @@
 import json
 
 case = json.load(open("case.json"))
-defaults = json.loads(case["files"]["config/defaults.json"])
 overlay = json.loads(case["files"]["config/site-overlay.json"])
+defaults = json.loads(case["files"]["config/defaults.json"])
 
 # README.md: a key that appears in neither settings layer has no value on
-# the depot.
+# the depot. The case asserts that no layer defines the key; recompute that
+# here from both files.
 KEY = "compressor_restart_lock_s"
-value = "UNKNOWN"
-for source in (overlay, defaults):
+for name, source in (("config/site-overlay.json", overlay), ("config/defaults.json", defaults)):
     if KEY in source:
-        value = source[KEY]
-        break
+        raise SystemExit(name + " now defines " + KEY + "; the absent-object case is broken")
 
-print(json.dumps({"expected_string": value}))
+accepted = [
+    "compressor_restart_lock_s",
+    "compressor restart lock",
+    "restart lock",
+]
+print(json.dumps({"expected_contains_any": accepted}))

@@ -19,9 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 218,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
-    "reviewer": null
+    "reviewer": null,
+    "answer_style": "value"
   },
   "web_fixture": [],
   "files": {
@@ -30,7 +31,7 @@
   },
   "turns": [
     {
-      "prompt": "An inspector new to Barrowbeck Water Trust asked what static head means on a main card; it is the drop in level from the water surface in the reservoir down to the outlet, and each metre of that drop adds 9.81 kilopascals at the outlet. Main M-7 draws from a reservoir whose surface sits at 96 metres, with its outlet at 66 metres. Give the pressure the head puts on the outlet, as a single number in kilopascals with no unit in the reply. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "An inspector new to Barrowbeck Water Trust asked what static head means on a main card; it is the drop in level from the water surface in the reservoir down to the outlet, and each metre of that drop adds 9.81 kilopascals at the outlet. Main M-7 draws from a reservoir whose surface sits at 96 metres, with its outlet at 66 metres. Give the pressure the head puts on the outlet, as a single number in kilopascals with no unit in the reply. Reply with only the final answer.",
       "expect": {
         "expected_number": 294.3,
         "tolerance": 0.01,
