@@ -353,15 +353,9 @@ func evalRendererThinkingMode(renderer agent.PromptRenderer) inference.ThinkingM
 		if renderer.ThinkingMode != "" {
 			return renderer.ThinkingMode
 		}
-		if renderer.Reasoning {
-			return inference.ThinkingFast
-		}
 	case *agent.RWKVChatRenderer:
 		if renderer.ThinkingMode != "" {
 			return renderer.ThinkingMode
-		}
-		if renderer.Reasoning {
-			return inference.ThinkingFast
 		}
 	}
 	return inference.ThinkingOff

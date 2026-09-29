@@ -409,34 +409,6 @@ func errFromStep(steps []Step, index int) error {
 	return errors.New(steps[index].ProtocolError)
 }
 
-func TestRunnerSupportsInlineControlPrompt(t *testing.T) {
-	t.Parallel()
-	var prompt string
-	runner, err := NewRunner(
-		continuation.GenerateFunc(func(
-			_ context.Context,
-			request continuation.Request,
-			_ continuation.EventSink,
-		) (continuation.Result, error) {
-			prompt = request.Prompt
-			return continuation.Result{Text: `<answer>done</answer>`}, nil
-		}),
-		nil,
-		Options{ControlPrompt: ControlPromptInline},
-	)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if _, err := runner.Run(context.Background(), "task"); err != nil {
-		t.Fatal(err)
-	}
-	if strings.Contains(prompt, "System:") ||
-		!strings.Contains(prompt, "Repository task:\ntask") ||
-		!strings.HasSuffix(prompt, "Assistant:") {
-		t.Fatalf("prompt = %q", prompt)
-	}
-}
-
 func TestRunnerRendersThinkingModeAwareControlAndExactBoundary(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
@@ -474,7 +446,6 @@ func TestRunnerRendersThinkingModeAwareControlAndExactBoundary(t *testing.T) {
 			t.Parallel()
 			for _, controlPrompt := range []ControlPromptMode{
 				ControlPromptSystem,
-				ControlPromptInline,
 			} {
 				var prompt string
 				runner, err := NewRunner(
@@ -535,7 +506,6 @@ func TestRoutePromptFramingRequiresThinkingOff(t *testing.T) {
 		{name: "off", renderer: RWKVChatRenderer{ThinkingMode: inference.ThinkingOff}},
 		{name: "fast", renderer: RWKVChatRenderer{ThinkingMode: inference.ThinkingFast}, wantErr: true},
 		{name: "full", renderer: RWKVChatRenderer{ThinkingMode: inference.ThinkingFull}, wantErr: true},
-		{name: "legacy-reasoning", renderer: RWKVChatRenderer{Reasoning: true}, wantErr: true},
 	}
 	for _, test := range tests {
 		test := test

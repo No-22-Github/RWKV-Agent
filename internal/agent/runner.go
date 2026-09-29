@@ -116,7 +116,7 @@ func applyRunnerDefaults(options *Options) error {
 	if options.ControlPrompt == "" {
 		options.ControlPrompt = ControlPromptSystem
 	}
-	if options.ControlPrompt != ControlPromptSystem && options.ControlPrompt != ControlPromptInline {
+	if options.ControlPrompt != ControlPromptSystem {
 		return fmt.Errorf(
 			"%w: invalid control prompt mode %q",
 			continuation.ErrInvalidRequest,

@@ -574,7 +574,7 @@ func TestG1ProtocolSemanticNoTool(t *testing.T) {
 
 func TestRWKVChatRendererBuildsRawContinuationPrompt(t *testing.T) {
 	t.Parallel()
-	prompt, err := (RWKVChatRenderer{Reasoning: true}).Render([]Message{
+	prompt, err := (RWKVChatRenderer{ThinkingMode: inference.ThinkingFast}).Render([]Message{
 		{Role: RoleUser, Content: "task"},
 		{Role: RoleAssistant, Content: `<tool_call>{"name":"read_file","arguments":{"path":"README.md"}}</tool_call>`},
 		{Role: RoleTool, Content: `<tool_result>{"ok":true,"tool":"read_file","result":{"content":"text"}}</tool_result>`},
