@@ -12,9 +12,16 @@ tells the executor to apply. Rows are keyed "<script entry>#<turn>".
   markdown_final             none: counted only. Markdown is fine for a complex
                              answer; all 41 hits are refusals / smalltalk and 40
                              of them are already caught by the length patterns
-  long_refusal  (> 400)      re-solve: 1-2 sentences, what / why / alternative
-  long_smalltalk (> 800)     re-solve: short
-  templated_clarify          re-solve: ask in your own words
+  long_refusal               re-solve: 2-5 sentences, what / why / alternative. Only
+                             refusals written up as a report (headings, tables) or
+                             > 1500 chars; plain-prose refusals around 1000-1400
+                             chars that check the workspace and offer a draft are
+                             good and stay (2026-09-30 review: 16 of 28 flagged)
+  long_smalltalk             re-solve: 3-5 sentences. Only when a general "who are
+                             you / what can you do" (> 800 chars) got the whole tool
+                             catalogue; a prompt that asks for the tools gets its list
+  templated_clarify          none: counted only. "The X lists two Y, A and B. Which
+                             one do you mean?" is a good clarification; N8 adds variety
   ls_despite_path_in_prompt  re-solve: open the named file directly
   repeated_identical_call    drop
   same_file_read_twice       drop
@@ -35,8 +42,7 @@ V12 = os.path.join(REPO, "local", "outputs", "workspace-agent-distill-clean-2026
                    "mixed", "rendered", "all.jsonl")
 SUFFIX = "\n\nUser:"
 CALL = re.compile(r"<tool_call>(\{.*\})</tool_call>", re.S)
-RESOLVE = ["bare_unknown", "long_refusal", "long_smalltalk",
-           "templated_clarify", "ls_despite_path_in_prompt"]
+RESOLVE = ["bare_unknown", "long_refusal", "long_smalltalk", "ls_despite_path_in_prompt"]
 DROP = ["repeated_identical_call", "same_file_read_twice", "verbose_under_answer_only"]
 
 
@@ -75,9 +81,9 @@ def scan(row):
             found.append("ls_despite_path_in_prompt")
     if re.search(r"\*\*|^#+ |^\s*[-*] |```", final, re.M) and m["kind"] not in ("write", "script"):
         found.append("markdown_final")
-    if m["kind"] == "refuse" and len(final) > 400:
+    if m["kind"] == "refuse" and (len(final) > 1500 or re.search(r"^\*\*|^#+ |^\|", final, re.M)):
         found.append("long_refusal")
-    if m["kind"] == "smalltalk" and len(final) > 800:
+    if m["kind"] == "smalltalk" and len(final) > 800 and not re.search(r"\btools?\b|toolkit", prompt, re.I):
         found.append("long_smalltalk")
     if (m["kind"] in ("direct", "local", "web", "web_local")
             and "Reply with only the final answer" in prompt and len(final) > 80):
