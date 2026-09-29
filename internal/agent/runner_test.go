@@ -263,6 +263,7 @@ func TestRunnerExplainsHowToActivateHiddenKnownTool(t *testing.T) {
 		t.Fatal(err)
 	}
 	if result.Output != "done" || result.Steps[0].ToolExecuted ||
+		result.Steps[0].ToolRejected != rejectedInactiveTool ||
 		!strings.Contains(result.Steps[0].ToolError, `load_tools with {"bundle":"compute"}`) ||
 		result.Steps[2].Tool != "compute_echo" || !result.Steps[2].ToolExecuted {
 		t.Fatalf("hidden tool recovery = %+v", result)

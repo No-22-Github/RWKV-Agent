@@ -181,6 +181,9 @@ func (turn *runnerTurn) applyToolGates(
 		case !known:
 			current.ToolRejected = rejectedUnknownTool
 			if hidden, exists := r.tools[action.Name]; exists && hidden.Spec().Bundle != "" {
+				// A registered tool behind an unloaded bundle is a real tool the
+				// model can reach through load_tools, not an invented name.
+				current.ToolRejected = rejectedInactiveTool
 				execution.err = fmt.Errorf(
 					"tool %q is not active; call load_tools with {\"bundle\":%q}, then retry %q",
 					action.Name,

@@ -942,6 +942,29 @@ func TestValidateTurnExplicitAbstention(t *testing.T) {
 	}
 }
 
+// tools: [] stays call discipline, but a call to a tool that was never offered
+// fails the turn: nt-0011 (2026-09-29) invented delete_file three times and
+// passed on "UNKNOWN". A bundle tool that is merely unloaded is not invented.
+func TestValidateTurnFabricatedToolFails(t *testing.T) {
+	expect := Expectation{Tools: []string{}, OutputContainsAny: []string{"UNKNOWN"}}
+	fabricated := agent.Result{Output: "UNKNOWN", Steps: []agent.Step{
+		{Tool: "list_files", ToolExecuted: true},
+		{Tool: "delete_file", ToolRejected: "unknown_tool"},
+		{Tool: "delete_file", ToolRejected: "unknown_tool"},
+	}}
+	failures := validateTurn(expect, fabricated, nil)
+	if len(failures) != 1 || failures[0] != `fabricated tool "delete_file" was called` {
+		t.Fatalf("fabricated tool failures = %v", failures)
+	}
+	looked := agent.Result{Output: "UNKNOWN", Steps: []agent.Step{
+		{Tool: "list_files", ToolExecuted: true},
+		{Tool: "export_pdf", ToolRejected: "inactive_tool"},
+	}}
+	if failures := validateTurn(expect, looked, nil); len(failures) != 0 {
+		t.Fatalf("offered or inactive tool failures = %v", failures)
+	}
+}
+
 func TestAnswerContainsAnyAlternative(t *testing.T) {
 	expect := Expectation{
 		OutputContains:    []string{"多云"},

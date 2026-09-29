@@ -72,6 +72,16 @@ func validateTurn(
 			)
 		}
 	}
+	// Calling a tool that was never offered is a protocol failure, not call
+	// discipline, so it fails the turn even where tools: [] alone would not.
+	// nt-0011 in the 2026-09-29 round tried an invented delete_file three
+	// times and still passed on a closing "UNKNOWN".
+	for _, name := range fabricatedTools(result.Steps) {
+		failures = append(
+			failures,
+			fmt.Sprintf("fabricated tool %q was called", name),
+		)
+	}
 	toolSteps := stepsWithTools(result.Steps)
 	for index, expected := range expect.Calls {
 		if index >= len(toolSteps) {
@@ -473,6 +483,18 @@ func stepTools(steps []agent.Step) []string {
 		}
 	}
 	return tools
+}
+
+// fabricatedTools lists, once each in call order, the tool names the runner
+// rejected as unknown: names that were not in the turn's offered catalog.
+func fabricatedTools(steps []agent.Step) []string {
+	var names []string
+	for _, step := range steps {
+		if step.ToolRejected == "unknown_tool" && !slices.Contains(names, step.Tool) {
+			names = append(names, step.Tool)
+		}
+	}
+	return names
 }
 
 func stepsWithTools(steps []agent.Step) []agent.Step {

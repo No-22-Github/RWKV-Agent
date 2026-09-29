@@ -67,6 +67,7 @@ const (
 	forcedAnswerDuplicateCall   = "duplicate_tool_call"
 	forcedAnswerProviderFailure = "provider_unavailable"
 	rejectedUnknownTool         = "unknown_tool"
+	rejectedInactiveTool        = "inactive_tool"
 	rejectedDuplicateCall       = "duplicate_tool_call"
 	rejectedFailureLimit        = "consecutive_tool_failures"
 	rejectedProviderUnavailable = "provider_unavailable"
