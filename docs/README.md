@@ -65,6 +65,7 @@
 | [evaluations/g1k-wire-ablation/wire-ablation-g1k-summary-20260915.md](evaluations/g1k-wire-ablation/wire-ablation-g1k-summary-20260915.md) | **G1K 现行消融旗舰**：Wire 格式 R0–R4 消融总结（40→49 题，请求字节 −56%） |
 | [evaluations/bfcl-v4-product-suite-20260826.md](evaluations/bfcl-v4-product-suite-20260826.md) | **现行评测题库**：60 题 BFCL 产品语义迁移 suite 规格与运行边界 |
 | [evaluations/benchmark-protocol.md](evaluations/benchmark-protocol.md) | **跑分规程**：g1k 格式、统一预算、采样预设、`run check` 闸门（配套 `.claude/skills/rwkv-bench`） |
+| [evaluations/state-v12-20260929/HANDOFF.md](evaluations/state-v12-20260929/HANDOFF.md) | **进行中**：v1.2 state 横测执行规格（交 VPS Agent）——14 个 arm、Cloudflare 单队列 64 并发、workbank 以干净 112 题为主口径、`check_v12.py` 有效性闸门；计划见同目录 PLAN.md |
 | [evaluations/state-t927-20260927/REPORT.md](evaluations/state-t927-20260927/REPORT.md) | **最新 state 横测**：t927 六个 checkpoint，s316 最优（workbank 16/148 vs 基线 9）；终答不停、答案契约被拒深挖（148 题口径含泄漏，已于 2026-09-29 在 §8 更正） |
 | [evaluations/state-lr-sweep-20260923/REPORT.md](evaluations/state-lr-sweep-20260923/REPORT.md) | state 学习率扫描复核：训练集泄漏 32/148 题、首动作 100% 调工具导致 bfcl 崩 |
 | [evaluations/g1k-sampling-sweep-20260923/](evaluations/g1k-sampling-sweep-20260923/) | g1k 采样扫描：`--sampling` 预设来源，截断比温度更重要 |
