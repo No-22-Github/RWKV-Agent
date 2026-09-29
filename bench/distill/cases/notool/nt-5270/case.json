@@ -17,15 +17,15 @@
     "level": "L1",
     "family": "fam-nt-histwalk-41",
     "ref_calls": 0,
-    "fixture_bytes": 374,
+    "fixture_bytes": 392,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
     "reviewer": null
   },
   "web_fixture": [],
   "files": {
-    "vcs/setaside-cards.tsv": "park-new-files-too\tgit stash --include-untracked\tgit stash -u\npark-tracked-work-only\tgit stash --keep-index\tleaves the index alone\n",
+    "vcs/setaside-cards.tsv": "park-new-files-too\tgit stash --include-untracked\tgit stash -u|git stash push -u\npark-tracked-work-only\tgit stash --keep-index\tleaves the index alone\n",
     "README.md": "# Peatlow Cooperage - cask repair surveys\n\nA barrel survey is parked whenever the cooper is called out to the yard, and a run leaves behind survey files that were never added.\nThe commands the coopers use are carded in vcs/setaside-cards.tsv.\n"
   },
   "turns": [
@@ -35,7 +35,8 @@
         "tools": [],
         "output_contains_any": [
           "git stash --include-untracked",
-          "git stash -u"
+          "git stash -u",
+          "git stash push -u"
         ]
       }
     }

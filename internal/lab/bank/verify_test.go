@@ -476,3 +476,82 @@ func TestVerifyStrictShapeFailsUnknown(t *testing.T) {
 		t.Errorf("strict mode should fail nt-7006: %+v", result)
 	}
 }
+
+// B-group positive (§2.7): a verify.py that recomputes expected_stdout from the
+// fixture diverges after the corruption, and the sabotage check must say so via
+// the stdout comparison.
+func TestVerifySabotageDetectedThroughExpectedStdout(t *testing.T) {
+	requirePython3(t)
+	dir := t.TempDir()
+	caseDir := filepath.Join(dir, "cfg-7005")
+	verifyPy := "import json\n" +
+		"case = json.load(open(\"case.json\"))\n" +
+		"total = sum(int(line) for line in case[\"files\"][\"counts/rows.csv\"].splitlines())\n" +
+		"print(json.dumps({\"expected_stdout\": str(total)}))\n"
+	writeVerifyShapeCase(t, caseDir, map[string]any{
+		"files": map[string]any{"counts/rows.csv": "7\n3\n"},
+		"turns": []any{map[string]any{"prompt": "p", "expect": map[string]any{}}},
+		"expect": map[string]any{"run": map[string]any{
+			"path":            "report.py",
+			"expected_stdout": "10",
+		}},
+	}, verifyPy)
+
+	out, code := captureOutput(t, func() int {
+		return runVerify([]string{"--cases", dir, "--strict-shape"})
+	})
+	if code != 0 {
+		t.Fatalf("exit code = %d, want 0\n%s", code, out)
+	}
+	result := findResult(parseShapeReport(t, out), "cfg-7005")
+	if result == nil || !result.OK {
+		t.Fatalf("cfg-7005 should pass: %+v", result)
+	}
+	found := false
+	for _, c := range result.Checks {
+		if c.Check == "sabotage" && strings.Contains(fmt.Sprint(c.Detail), "expected_stdout diverged") {
+			found = true
+		}
+	}
+	if !found {
+		t.Errorf("no expected_stdout divergence detail: %+v", result.Checks)
+	}
+}
+
+// B-group negative (§2.7): a verify.py that ignores the fixture prints the same
+// expected_stdout after the corruption. Before the fix the sabotage loop never
+// compared stdout and waved it through as "output diverged"; now it is the
+// hard failure the sabotage test exists to produce.
+func TestVerifySabotageUndetectedWhenStdoutUnchanged(t *testing.T) {
+	requirePython3(t)
+	dir := t.TempDir()
+	caseDir := filepath.Join(dir, "cfg-7006")
+	writeVerifyShapeCase(t, caseDir, map[string]any{
+		"files": map[string]any{"counts/rows.csv": "7\n3\n"},
+		"turns": []any{map[string]any{"prompt": "p", "expect": map[string]any{}}},
+		"expect": map[string]any{"run": map[string]any{
+			"path":            "report.py",
+			"expected_stdout": "10",
+		}},
+	}, "import json\nprint(json.dumps({\"expected_stdout\": \"10\"}))\n")
+
+	out, code := captureOutput(t, func() int {
+		return runVerify([]string{"--cases", dir, "--strict-shape"})
+	})
+	if code == 0 {
+		t.Fatalf("exit code = 0, want nonzero\n%s", out)
+	}
+	result := findResult(parseShapeReport(t, out), "cfg-7006")
+	if result == nil || result.OK {
+		t.Fatalf("cfg-7006 should fail: %+v", result)
+	}
+	found := false
+	for _, c := range result.Checks {
+		if c.Error == "sabotage_undetected" && strings.Contains(fmt.Sprint(c.Detail), "same expected_stdout") {
+			found = true
+		}
+	}
+	if !found {
+		t.Errorf("no sabotage_undetected for the unchanged stdout: %+v", result.Checks)
+	}
+}

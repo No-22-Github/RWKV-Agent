@@ -294,10 +294,24 @@ func checkCase(caseDir string, caseObj map[string]any, ctx *lintCtx, relParts []
 	// final answer..." would teach the student to expect format instructions
 	// after every pleasantry, so a contract there is itself the violation
 	// (docs/distill/distill-workflow.md §4.3).
+	//
+	// tags.answer_style (v1.3 §2.13, distill banks only) re-points the rule:
+	// "unknown" (default) keeps today's full-UNKNOWN contract; "value" ends
+	// with "Reply with only the final answer." and forbids the UNKNOWN
+	// half-sentence; "natural" (Chinese prompts, natural-language answers)
+	// forbids both English contracts outright. The test bank is frozen: under
+	// the default prefix the style tag is ignored and the checks below are
+	// byte-identical to the pre-v1.3 behavior.
 	caseExpect, _ := caseObj["expect"].(map[string]any)
 	writeCase := false
 	if caseExpect != nil {
 		writeCase = truthy(caseExpect["files"]) || truthy(caseExpect["run"])
+	}
+	answerStyle := asString(tags["answer_style"])
+	if ctx.distillRules && answerStyle != "" &&
+		answerStyle != "unknown" && answerStyle != "value" && answerStyle != "natural" {
+		bad("tags.enum", fmt.Sprintf("answer_style %s not in vocabulary (unknown, value, natural)",
+			pyReprValue(tags["answer_style"])))
 	}
 	if len(prompts) == 0 {
 		bad("answer_contract", "case has no turns")
@@ -318,6 +332,31 @@ func checkCase(caseDir string, caseObj map[string]any, ctx *lintCtx, relParts []
 		if contract := ctx.contracts["unknown"]; contract != "" && strings.HasSuffix(last, contract) {
 			bad("answer_contract.refusal",
 				"refusal cases must not carry the UNKNOWN contract; last turn prompt ends with "+pyReprValue(contract))
+		}
+	} else if ctx.distillRules && answerStyle == "value" {
+		last := prompts[len(prompts)-1]
+		if !strings.HasSuffix(last, valueAnswerContract(ctx.contracts)) {
+			bad("answer_style", "answer_style value: last turn prompt must end with the exact value contract "+
+				pyReprValue(valueAnswerContract(ctx.contracts)))
+		}
+		if contract := ctx.contracts["unknown"]; contract != "" && strings.HasSuffix(last, contract) {
+			bad("answer_style", "answer_style value forbids the UNKNOWN half-sentence; last turn prompt ends with "+
+				pyReprValue(contract))
+		}
+	} else if ctx.distillRules && answerStyle == "natural" {
+		last := prompts[len(prompts)-1]
+		for _, contract := range []string{ctx.contracts["unknown"], valueAnswerContract(ctx.contracts)} {
+			if contract != "" && strings.HasSuffix(last, contract) {
+				bad("answer_style", "answer_style natural forbids the English answer contracts; last turn prompt ends with "+
+					pyReprValue(contract))
+			}
+		}
+		for idx, turn := range turns {
+			turnExpect, _ := turn["expect"].(map[string]any)
+			if equals, ok := turnExpect["output_equals"].(string); ok && equals == "UNKNOWN" {
+				bad("answer_style", fmt.Sprintf("answer_style natural: turn %d expect.output_equals is UNKNOWN — "+
+					"that is exactly the shape the style exists to retire", idx+1))
+			}
 		}
 	} else {
 		required := ctx.contracts["unknown"]
@@ -633,6 +672,17 @@ func loadLintCtx(vocabPath string) (*lintCtx, error) {
 		ctx.contractOrder = append(ctx.contractOrder, key)
 	}
 	return ctx, nil
+}
+
+// valueAnswerContract is the "Reply with only the final answer." contract the
+// answer_style "value" rule requires: derived from the vocabulary's unknown
+// contract minus its abstention half-sentence, so the two move together.
+func valueAnswerContract(contracts map[string]string) string {
+	const abstention = " If you cannot determine the answer, reply exactly UNKNOWN."
+	if unknown, ok := contracts["unknown"]; ok && strings.HasSuffix(unknown, abstention) {
+		return strings.TrimSuffix(unknown, abstention)
+	}
+	return "Reply with only the final answer."
 }
 
 // canaryOK mirrors Python's CANARY_RE.search(description), where "$" also

@@ -141,6 +141,8 @@ func decontamFlagSet(args *DecontamArgs) *flag.FlagSet {
 	fs := newFlagSet("corpus decontam",
 		"Flag distillation cases that are too close to the test bank.")
 	fs.StringVar(&args.Test, "test", "", "test bank directory (case.json files)")
+	fs.StringVar(&args.TestSuite, "test-suite", "",
+		"in-memory test population instead of --test (known: bfcl-product)")
 	fs.StringVar(&args.Candidates, "candidates", "", "candidate bank directory")
 	fs.StringVar(&args.Records, "records", "", "or: normalized records JSONL")
 	fs.Float64Var(&args.PromptThreshold, "prompt-threshold", 0.35, "prompt similarity threshold")
@@ -158,8 +160,12 @@ func runDecontamCmd(argv []string) int {
 	if err := fs.Parse(argv); err != nil {
 		return 2
 	}
-	if args.Test == "" {
-		fmt.Fprintln(os.Stderr, "error: --test is required")
+	if args.Test == "" && args.TestSuite == "" {
+		fmt.Fprintln(os.Stderr, "error: --test or --test-suite is required")
+		return 2
+	}
+	if args.Test != "" && args.TestSuite != "" {
+		fmt.Fprintln(os.Stderr, "error: give only one of --test and --test-suite")
 		return 2
 	}
 	if (args.Candidates != "") == (args.Records != "") {

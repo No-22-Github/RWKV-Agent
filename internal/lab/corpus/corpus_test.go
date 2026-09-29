@@ -1,6 +1,7 @@
 package corpus
 
 import (
+	"os"
 	"path/filepath"
 	"reflect"
 	"strings"
@@ -472,4 +473,114 @@ func TestScriptJSONLKeepsAngleBracketsLiteral(t *testing.T) {
 	if !strings.Contains(written, "<tool_call>") {
 		t.Errorf("script.jsonl lost the literal tool call: %s", written)
 	}
+}
+
+// --- v1.3 §2.8: CJK character 3-grams ---------------------------------------
+
+// Chinese has no [a-z0-9] words, so a Chinese prompt used to contribute no
+// prompt features at all and decontam could not see a Chinese variant of a
+// test case.
+func TestCJKPromptFeaturesDetectChineseVariant(t *testing.T) {
+	base := similarity.FeaturesOf(map[string]any{
+		"turns": []any{map[string]any{
+			"prompt": "我需要你处理 TOKEN，但没有提供具体路径。先向我询问路径，不要调用工具。"}},
+	})
+	if len(base.Prompt) == 0 {
+		t.Fatal("a Chinese prompt produced no prompt features")
+	}
+	variant := similarity.FeaturesOf(map[string]any{
+		"turns": []any{map[string]any{
+			"prompt": "我需要你处理 PASSCODE，但是没有提供具体路径。请先向我询问一下路径。"}},
+	})
+	if got := similarity.Jaccard(variant.Prompt, base.Prompt); got < 0.45 {
+		t.Errorf("near-variant jaccard = %v, want >= 0.5", got)
+	}
+	other := similarity.FeaturesOf(map[string]any{
+		"turns": []any{map[string]any{
+			"prompt": "把部署日志里出现报错的行数统计一下，按天汇总后告诉我。"}},
+	})
+	if got := similarity.Jaccard(other.Prompt, base.Prompt); got > 0.2 {
+		t.Errorf("unrelated jaccard = %v, want <= 0.2", got)
+	}
+}
+
+// --- v1.3 §2.9: --test-suite bfcl-product -----------------------------------
+
+// A Chinese near-copy of the bfcl-product missing-required skeleton is flagged
+// against the in-memory suite; an unrelated Chinese candidate is not.
+func TestDecontamAgainstBFCLProductSuite(t *testing.T) {
+	writeCandidate := func(root, id, prompt string, files *lab.OrderedMap) {
+		t.Helper()
+		caseDir := filepath.Join(root, "notool", id)
+		if err := os.MkdirAll(caseDir, 0o755); err != nil {
+			t.Fatal(err)
+		}
+		caseObj := om("id", id,
+			"files", files,
+			"turns", toOrdered(t,
+				[]any{map[string]any{"prompt": prompt, "expect": map[string]any{}}}))
+		if err := Write(caseDir, []*lab.OrderedMap{caseObj}); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	// The leak §2.9 exists for: the missing-required skeleton over the same
+	// product workspace. The bare skeleton is boilerplate across the 20
+	// missing/supplied cases, so the shared fixture line and identifier are
+	// what carry the flag — same as the English gate.
+	near := t.TempDir()
+	writeCandidate(near, "cand-near",
+		"我需要你处理 TOKEN，但是没有提供具体路径。请先向我询问一下路径，不要调用任何工具。",
+		om("config/app.env", "TOKEN=CEDAR-5510\n"))
+	report := filepath.Join(t.TempDir(), "report.jsonl")
+	if code := RunDecontam(DecontamArgs{
+		TestSuite:       "bfcl-product",
+		Candidates:      near,
+		Report:          report,
+		PromptThreshold: 0.35, FilesThreshold: 0.30, NamesThreshold: 0.30, Boilerplate: 0.05,
+	}); code != 1 {
+		t.Fatalf("exit = %d, want 1 (the near-copy must be flagged)", code)
+	}
+	flagged := false
+	for _, line := range readLines(t, report) {
+		if strings.Contains(line, `"flagged": [`) || strings.Contains(line, `"flagged": [`) {
+			flagged = true
+		}
+	}
+	if !flagged {
+		t.Fatalf("no flagged row in %s", report)
+	}
+
+	unrelated := t.TempDir()
+	writeCandidate(unrelated, "cand-far",
+		"统计部署日志里报错的行数，按天汇总，把总数和最晚的一天告诉我。", om())
+	if code := RunDecontam(DecontamArgs{
+		TestSuite:       "bfcl-product", Candidates: unrelated,
+		PromptThreshold: 0.35, FilesThreshold: 0.30, NamesThreshold: 0.30, Boilerplate: 0.05,
+	}); code != 0 {
+		t.Fatalf("exit = %d, want 0 (an unrelated candidate must pass)", code)
+	}
+}
+
+func TestDecontamFlagsMutuallyExclusiveTestSources(t *testing.T) {
+	if code := runDecontamCmd([]string{
+		"--test", "some/dir", "--test-suite", "bfcl-product", "--candidates", "c",
+	}); code != 2 {
+		t.Errorf("exit = %d, want 2 for --test together with --test-suite", code)
+	}
+	if code := runDecontamCmd([]string{"--candidates", "c"}); code != 2 {
+		t.Errorf("exit = %d, want 2 when neither --test nor --test-suite is given", code)
+	}
+	if code := runDecontamCmd([]string{"--test-suite", "no-such-suite", "--candidates", "c"}); code != 2 {
+		t.Errorf("exit = %d, want 2 for an unknown suite", code)
+	}
+}
+
+func readLines(t *testing.T, path string) []string {
+	t.Helper()
+	raw, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return strings.Split(strings.TrimSpace(string(raw)), "\n")
 }

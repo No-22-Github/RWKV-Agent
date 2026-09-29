@@ -38,6 +38,14 @@ type WebFixtureEntry struct {
 	// upstream Brave age form) so bank web tasks can plant stale-vs-fresh
 	// source discrimination without hand-written result objects.
 	PublishedAt string `json:"published_at,omitempty"`
+	// Error (v1.3 §2.3) makes web_fetch fail on this entry: a fetch whose best
+	// url_match is this entry returns a provider error, which the runner wraps
+	// as ok:false with this text — the shape a real unreachable page produces.
+	// A miss with no matching entry still returns the deterministic not-found
+	// page, which frozen banks score against. Search is untouched: a broken
+	// page can still be advertised by web_search, which is exactly the
+	// "search hits, fetch fails" path the failure-reporting cases need.
+	Error string `json:"error,omitempty"`
 }
 
 type webFixtureProviders struct {
@@ -78,7 +86,6 @@ func (f webFixtureProviders) Fetch(
 	results := make([]tools.WebFetchResult, 0, len(request.URLs))
 	for index, pageURL := range request.URLs {
 		lowered := strings.ToLower(pageURL)
-		content := "[fixture] no page matched this URL."
 		// The most specific match wins, not the first one declared. One
 		// fixture URL is routinely a prefix of another — ".../desk-rates" and
 		// ".../desk-rates-september" — and first-match-wins silently served
@@ -86,16 +93,22 @@ func (f webFixtureProviders) Fetch(
 		// unsolvable for it: the model asked for the September rate sheet, was
 		// handed the June one, and every model that "failed" the case had
 		// correctly reported the only rate it was ever shown.
-		best := -1
-		for _, entry := range f.entries {
+		best, bestLen := -1, 0
+		for i, entry := range f.entries {
 			if entry.URLMatch == "" {
 				continue
 			}
 			match := strings.ToLower(entry.URLMatch)
-			if strings.Contains(lowered, match) && len(match) > best {
-				best = len(match)
-				content = entry.Content
+			if strings.Contains(lowered, match) && len(match) > bestLen {
+				best, bestLen = i, len(match)
 			}
+		}
+		if best >= 0 && f.entries[best].Error != "" {
+			return nil, fmt.Errorf("%s", f.entries[best].Error)
+		}
+		content := "[fixture] no page matched this URL."
+		if best >= 0 {
+			content = f.entries[best].Content
 		}
 		results = append(results, tools.WebFetchResult{
 			SourceID: fmt.Sprintf("page-%d", index+1),

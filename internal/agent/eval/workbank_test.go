@@ -614,3 +614,120 @@ func TestWebFixtureFetchPrefersTheMostSpecificURLMatch(t *testing.T) {
 		}
 	}
 }
+
+// §2.12: offered_tools narrows the work-v1 catalog for one case. The prompt's
+// directory must drop the excluded tools, a call to a dropped tool is rejected
+// as unknown, and unknown names in the field are a load error.
+func TestRunOfferedToolsNarrowsWorkCatalog(t *testing.T) {
+	t.Parallel()
+	base := Case{
+		ID:           "offered-1",
+		Description:  "per-case tool subset",
+		Files:        map[string]string{"notes/value.txt": "7\n"},
+		OfferedTools: []string{"list_files", "read_file"},
+		Turns: []Turn{{
+			Prompt: "Read notes/value.txt and answer with the number alone.",
+			Expect: Expectation{OutputEquals: strPtr("7")},
+		}},
+	}
+	runner := agent.Options{
+		MaxSteps:                6,
+		ProtocolRetries:         1,
+		DecisionMaxOutputTokens: 64,
+		Protocol:                agent.G1Protocol{FewShot: true},
+		Renderer:                agent.RWKVChatRenderer{},
+		Generation: continuation.Request{
+			Model:           "scripted",
+			MaxOutputTokens: 64,
+		},
+	}
+	newConfig := func(script []continuation.Result, capture *[]string) Config {
+		return Config{
+			Cases:       []Case{base},
+			Suite:       "workbank",
+			ToolCatalog: WorkToolCatalogName,
+			Model:       ModelMetadata{Identifier: "scripted", Backend: "test", Provider: "test", Completion: "test"},
+			Runner:      runner,
+			GeneratorFactory: func(context.Context) (continuation.Generator, io.Closer, error) {
+				index := 0
+				return continuation.GenerateFunc(func(
+					_ context.Context,
+					request continuation.Request,
+					_ continuation.EventSink,
+				) (continuation.Result, error) {
+					if capture != nil {
+						*capture = append(*capture, request.Prompt)
+					}
+					result := script[index]
+					index++
+					return result, nil
+				}), noopTestCloser{}, nil
+			},
+			TempDir: t.TempDir(),
+			Now:     func() time.Time { return time.Date(2026, 9, 30, 8, 0, 0, 0, time.UTC) },
+		}
+	}
+
+	t.Run("the directory drops excluded tools and offered tools work", func(t *testing.T) {
+		var prompts []string
+		script := []continuation.Result{
+			generatedWork(`<tool_call>{"name":"read_file","arguments":{"path":"notes/value.txt"}}</tool_call>`),
+			generatedWork("7"),
+			generatedWork("7"),
+		}
+		report, err := Run(context.Background(), newConfig(script, &prompts))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(report.Summary.Cases) != 1 || !report.Summary.Cases[0].Passed {
+			t.Fatalf("case should pass: %+v", report.Summary.Cases)
+		}
+		if got := report.Manifest.Cases[0].OfferedTools; len(got) != 2 || got[0] != "list_files" || got[1] != "read_file" {
+			t.Fatalf("manifest offered_tools = %v", got)
+		}
+		if len(prompts) == 0 || strings.Contains(prompts[0], `"web_search"`) {
+			t.Fatalf("prompt still offers excluded tools: %.200s", prompts[0])
+		}
+		if len(prompts) == 0 || !strings.Contains(prompts[0], `"read_file"`) {
+			t.Fatalf("prompt misses an offered tool: %.200s", prompts[0])
+		}
+	})
+
+	t.Run("a call to a dropped tool is rejected as unknown", func(t *testing.T) {
+		script := []continuation.Result{
+			generatedWork(`<tool_call>{"name":"calculator","arguments":{"expression":"1+1"}}</tool_call>`),
+			generatedWork("7"),
+			generatedWork("7"),
+		}
+		report, err := Run(context.Background(), newConfig(script, nil))
+		if err != nil {
+			t.Fatal(err)
+		}
+		result := report.Summary.Cases[0]
+		if result.Passed {
+			t.Fatalf("a call outside offered_tools must fail the turn: %+v", result.Turns)
+		}
+		joined := strings.Join(result.Turns[0].Failures, "; ")
+		if !strings.Contains(joined, `fabricated tool "calculator" was called`) {
+			t.Fatalf("failures = %v", result.Turns[0].Failures)
+		}
+	})
+
+	t.Run("a name outside the catalog is a load error", func(t *testing.T) {
+		broken := base
+		broken.OfferedTools = []string{"read_file", "delete_file"}
+		config := newConfig([]continuation.Result{generatedWork("7")}, nil)
+		config.Cases = []Case{broken}
+		report, err := Run(context.Background(), config)
+		if err != nil {
+			t.Fatal(err)
+		}
+		// evalTools failures are per-case errors, not run errors.
+		if !strings.Contains(report.Summary.Cases[0].Error,
+			"offered_tools names outside the work-v1 catalog") {
+			t.Fatalf("case error = %q, want the catalog error", report.Summary.Cases[0].Error)
+		}
+	})
+}
+
+func strPtr(s string) *string { return &s }
