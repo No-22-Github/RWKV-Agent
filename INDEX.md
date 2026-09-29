@@ -77,7 +77,7 @@
 
 ### 700 条 Agent 精品轨迹数据集 (2026-09-20，已并入蒸馏语料的 base700)
 
-> 下列路径都在仓库外（`local/datasets/`、`local/outputs/` 被 gitignore），只在原机器上存在，见 [`bench/README.md`](bench/README.md)。
+> 标准导出集（normalized + rendered + 验收证据）已于 2026-09-29 入库 [`bench/archive/workspace-agent-700-20260920/`](bench/archive/workspace-agent-700-20260920/README.md)，其中也含 acceptance / phase3-repair 报告副本；下列其余路径仍在仓库外（`local/datasets/`、`local/outputs/` 被 gitignore），只在原机器上存在，见 [`bench/README.md`](bench/README.md)。
 
 | 文档或证据 | 结论定位 |
 | --- | --- |

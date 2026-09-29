@@ -101,6 +101,7 @@ pack 生成的 `train.jsonl` 只有 text；当前相邻 `rwkv_lightning_cuda/src
 b01–b03 的题目与动作脚本均已入库，可离线重放，这是本批的主要工程优点；错误路径、协议重试、工具失败、强制收尾有明确过滤，重放还会重新执行工具并核对脚本。
 
 但 base700 单凭入库脚本不能重建：还依赖 gitignored normalized records。本次能重建是因为本机恰好保留了这些文件，干净克隆不能据此保证可复现全部 1586 行。
+（2026-09-29 更新：normalized records 已入库 `bench/archive/workspace-agent-700-20260920/generated/normalized/all.jsonl`，干净克隆现可复现 base700 全部行；上一句的限制自即日起不再成立。）
 
 入库脚本没有逐路径保留原始 teacher run/采样/原始 trace 的完整绑定；本次验证了重放行为，没有独立重新证实历史 pass@3 或老师来源。当前是英文、合成的小工作区与 fixture web 环境，约 310 万 token；对中文、真实互联网和长上下文任务的适用性未被验证。
 

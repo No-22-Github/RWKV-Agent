@@ -1,0 +1,21 @@
+{
+  "generated/README.md": "233bf093f511b6fe6ac2c33c35d557577653e394003d2e4cc4a4e086c9423570",
+  "generated/hashes.json": "78e8f6487ce817c9338765cff720f23ec870ef7c34baf5632315be6005eb05e6",
+  "generated/split-manifest.json": "5e77565a05b4b9b63d59160d1f5856a1cc44a676cfbf1729154bc00747c61e06",
+  "generated/normalized/all.jsonl": "f114215d4d925cd1eb3ae69767b47bc8cb57003cb1b62481e615ec188cbe3ef7",
+  "generated/normalized/train.jsonl": "e35bf9f099a1cee53928e13fa9eb5f752c0c59c890100aae61488f22672d8592",
+  "generated/normalized/validation.jsonl": "9d691a17d182daaabc9267ae0af8284ccc88949311ad3248030a51614027b80d",
+  "generated/rendered/none-ctx4096/train.jsonl": "1b38a5fe05f1449111f316d920a04238a337823e62006a43a5bfd5ad79ea44a2",
+  "generated/rendered/none-ctx4096/validation.jsonl": "acfc209a7278c38cdf5b568eb595b7ab9502245be666fabd23e4e4e1b9f8fb89",
+  "verification/acceptance-report.md": "193d3e7ef0e61e0415e300db47c8c0442c8179f9474e2e75feb6b5ae3f799aae",
+  "verification/acceptance-report.json": "6bc94a500afb3550b1601384a04a29a9553d1613f53c7b4317d519ec5b43de09",
+  "verification/build-summary.json": "72e23b8c1cf4f7ea15a52bbecc29e5a0bfa433295ffee0c9299cf9dd66f25550",
+  "verification/phase3-repair-report.md": "2b6fb583f7d033265807c3104ddf955685c3c68d2d66ec5869f06fbcaf5acf9d",
+  "verification/phase3-retention-policy.json": "9526619f2eff457284f110a9a64d99e113d871b20290a9d06cc0721278933ad8",
+  "verification/phase3-repair-checks.json": "414e91bd0f164915e45d4bfec47e8bcc68187d4056b1f88443e3a669276fd1f9",
+  "verification/phase3-repair-replays.jsonl": "2de6e2e8f942d63e379a8ab5afee1bf33dc3f58ab857cfd729175a46d42faa9b",
+  "verification/phase3-repair-decisions.jsonl": "93e1b1b9e454c92f69d61d2c7d31bd07e2f701a0eef94ce3930759289e3f68f3",
+  "verification/export-integrity.json": "19e6cc73eed0c678c0db3b470142f6efc4b3bb6331e8ffa23f1f5c2e5d30e34d",
+  "ACCEPTANCE.md": "fa65311d2bf5bf3773067c14d6aa381c48a6fdc7ad69169864379967a6436d32",
+  "TASKORDER-700.md": "ab66e955cc53461fbe278db077412bae86239a554feb702b80e1a78725a5908d"
+}

@@ -34,7 +34,7 @@
 ```bash
 go build -o local/bin/rwkv-cli ./cmd/rwkv-cli && go build -o local/bin/rwkv-lab ./cmd/rwkv-lab
 local/bin/rwkv-lab corpus render \
-  --records local/datasets/workspace-agent-700-20260920/generated/normalized/all.jsonl \
+  --records bench/archive/workspace-agent-700-20260920/generated/normalized/all.jsonl \
   --out local/runs/harness-corpus-700
 ```
 

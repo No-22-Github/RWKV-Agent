@@ -1,0 +1,32 @@
+{
+  "version": "phase3-user-authorized-near-duplicates-20260920",
+  "authorization": "用户：也没必要重写，修复就行了，反正数据集而已，重复一两条也没什么问题。你来修一下，然后看能不能导出成功700条数据集。",
+  "scope": "Retain the 13 existing train records flagged for structural similarity/within-train fixture reuse; repair non-duplication defects. This does not waive correctness, real receipts, output contracts, parser/mask/token gates, exact content duplicates or train/validation split isolation.",
+  "retained_record_ids": [
+    "ws7-code-0003-b30",
+    "ws7-fs-0001-r20",
+    "ws7-fs-0001-r21",
+    "ws7-hyb-0002-r10",
+    "ws7-hyb-0002-r11",
+    "ws7-hyb-0003-r10",
+    "ws7-hyb-0004-r11",
+    "ws7-scr-0001-r10",
+    "ws7-web-0001-b30",
+    "ws7-web-0001-b31",
+    "ws7-web-0002-b30",
+    "ws7-web-0002-b32",
+    "ws7-web-0004-b31"
+  ],
+  "repaired_record_ids": [
+    "ws7-cfg-0004-b31",
+    "ws7-doc-0004-b20",
+    "ws7-hyb-0001-b12",
+    "ws7-scr-0003-b33",
+    "ws7-web-0001-b31",
+    "ws7-web-0002-r20",
+    "ws7-web-0004-b31"
+  ],
+  "review_identity": "agent:phase3-repair-main",
+  "review_kind": "production",
+  "note": "700 exported records must not be described as 700 structurally independent tasks. Previous independent reviews remain archived and in the append-only review log."
+}

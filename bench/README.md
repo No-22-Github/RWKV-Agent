@@ -1,7 +1,7 @@
 # bench/ 数据清单
 
 > 仓库里所有**数据**（题目、老师脚本、账本、冻结的跑分证据、报告附带的机器可读 json）只放在这里；
-> 说明文档与报告在 [`docs/`](../docs/README.md)。最后核对：2026-09-28。
+> 说明文档与报告在 [`docs/`](../docs/README.md)。最后核对：2026-09-29。
 
 ## 入库原则
 
@@ -30,8 +30,9 @@
 | `archive/v10-baseline/` | v8–v10 boundary 基线（RWKV 13B / DeepSeek v4 Flash） | 5.6 MB | [README](archive/v10-baseline/README.md) |
 | `archive/primitive-orig30-snapshot-416b073d/` | Primitive Bench 原始 30 题快照 | — | [README](archive/primitive-orig30-snapshot-416b073d/README.md) |
 | `archive/bfcl-v4-e8-qwen-enhanced-base-20260822/` | BFCL v4 E8 Qwen enhanced 对照证据 | — | [README](archive/bfcl-v4-e8-qwen-enhanced-base-20260822/README.md) |
+| `archive/workspace-agent-700-20260920/` | 700 条轨迹语料标准导出集（normalized + rendered + 验收证据）；`base700` 重渲染的唯一依赖，2026-09-29 经用户拍板公开入库 | 21 MB | [README](archive/workspace-agent-700-20260920/README.md) |
 
-入库数据合计约 16 MB。
+入库数据合计约 37 MB。
 
 ## 仓库外：`local/`（gitignored，只在本机）
 
@@ -46,9 +47,9 @@
 | `local/dist/` | macOS 发布包：CLI、App、dylib、词表、`build-manifest.json` | 能，`scripts/build-macos.sh`、`build-app.sh` |
 | `local/datasets/raw/` | 外部原始语料（toucan、ultradata、nemotron、toolpref 等），约 17 GB | 能，`local/datasets/download_all.sh` |
 | `local/datasets/data/` | 清洗后的外部语料（normalized / rendered），约 1.2 GB | 能，按 `local/datasets/data/REPORT.md` |
-| `local/datasets/workspace-agent-700-20260920/` | 旧 700 条轨迹制作工作区；`base700` 重渲染需要其中的 `generated/normalized/all.jsonl` | **不能**，另有 `.zip` 备份 |
+| `local/datasets/workspace-agent-700-20260920/` | 旧 700 条轨迹制作工作区（records / sessions / sketches / tooling 等过程件）；标准导出集已入库 `archive/workspace-agent-700-20260920/`，制作过程件不入库 | 母本**不能**，另有 `.zip` 备份 |
 | `local/outputs/workspace-agent-distill-clean-*` | 交付的训练集（v1.1 / v1.2） | 能，由 `distill/scripts/` + cases 重渲染再 pack |
-| `local/outputs/workspace-agent-700*` | 700 条的导出母本与送训 text-only 版 | 能，由 700 工作区导出 |
+| `local/outputs/workspace-agent-700*` | 700 条的标准导出集（已镜像进 `archive/workspace-agent-700-20260920/`）与送训 text-only 版 | 能，由 700 工作区导出 |
 | `local/runs/` | 所有原始跑分（run.json / trace.jsonl） | 否，但只有冻结进 `archive/` 的才算证据 |
 | `local/state_output/` | state 训练扫描产物 | 否 |
 

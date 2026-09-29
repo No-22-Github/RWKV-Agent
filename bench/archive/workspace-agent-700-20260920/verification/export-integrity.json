@@ -1,0 +1,9 @@
+{
+  "records": 700,
+  "train": 630,
+  "validation": 70,
+  "unique_ids": 700,
+  "rendered_hashes_verified": 700,
+  "rerender_text_and_masks_identical": 700,
+  "split_overlap": 0
+}

@@ -1,0 +1,60 @@
+[
+  {
+    "test": "correct script with added hidden filter cases",
+    "expected_passed": true,
+    "actual_passed": true,
+    "failures": null
+  },
+  {
+    "test": "omit_status",
+    "expected_passed": false,
+    "actual_passed": false,
+    "failures": [
+      "expect.run stdout line 1 = \"1,WS-5401,4\", want \"1,WS-5405,4\"",
+      "expect.run stdout line 2 = \"2,WS-5405,4\", want \"2,WS-5401,3\""
+    ]
+  },
+  {
+    "test": "omit_lower_bound",
+    "expected_passed": false,
+    "actual_passed": false,
+    "failures": [
+      "expect.run stdout line 1 = \"1,WS-5401,4\", want \"1,WS-5405,4\"",
+      "expect.run stdout line 2 = \"2,WS-5405,4\", want \"2,WS-5401,3\""
+    ]
+  },
+  {
+    "test": "omit_upper_bound",
+    "expected_passed": false,
+    "actual_passed": false,
+    "failures": [
+      "expect.run stdout line 1 = \"1,WS-5401,4\", want \"1,WS-5405,4\"",
+      "expect.run stdout line 2 = \"2,WS-5405,4\", want \"2,WS-5401,3\""
+    ]
+  },
+  {
+    "test": "card exact four lines correct",
+    "expected_passed": true,
+    "actual_passed": true,
+    "failures": null
+  },
+  {
+    "test": "explicit service-only config edit",
+    "expected_passed": true,
+    "actual_passed": true,
+    "failures": null
+  },
+  {
+    "test": "environment injection violates explicit scope",
+    "expected_passed": false,
+    "actual_passed": false,
+    "failures": [
+      "expect.files \"deploy/billing.yaml\" does not equal the expected content",
+      "expect.files \"environments/staging.env\" changed from the initial fixture"
+    ]
+  },
+  {
+    "test": "tariff URL exposed before fetch; independent result 712.50",
+    "passed": true
+  }
+]
