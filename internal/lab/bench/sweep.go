@@ -93,9 +93,6 @@ func scaledParallelism(names []string, budget int) map[string]int {
 }
 
 func binaryPath() string { return filepath.Join(lab.RepoRoot(), "local", "bin", "rwkv-cli") }
-func checkRunPath() string {
-	return filepath.Join(lab.RepoRoot(), ".claude", "skills", "rwkv-bench", "check_run.py")
-}
 
 // SweepArgs are the `bench sweep` flags.
 type SweepArgs struct {

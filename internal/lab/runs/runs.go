@@ -27,11 +27,6 @@ func DefaultLedgerCases() string {
 	return filepath.Join(lab.RepoRoot(), "bench", "workbank", "ledger", "cases.jsonl")
 }
 
-// DefaultLedgerRuns is the per-run ledger.
-func DefaultLedgerRuns() string {
-	return filepath.Join(lab.RepoRoot(), "bench", "workbank", "ledger", "runs.jsonl")
-}
-
 // statPath reports whether path is a directory.
 func statPath(path string) (bool, error) {
 	info, err := os.Stat(path)

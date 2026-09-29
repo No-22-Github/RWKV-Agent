@@ -748,18 +748,6 @@ func mapOf(m map[string]any, key string) map[string]any {
 	return out
 }
 
-func mapOfAny(m map[string]any, keys ...string) map[string]any {
-	current := m
-	for _, key := range keys {
-		next, _ := current[key].(map[string]any)
-		if next == nil {
-			return nil
-		}
-		current = next
-	}
-	return current
-}
-
 func intOf(v any) (int, bool) {
 	switch t := v.(type) {
 	case json.Number:

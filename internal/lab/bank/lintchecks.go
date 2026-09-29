@@ -56,7 +56,6 @@ var stdlibModules = map[string]struct{}{
 }
 
 var (
-	notesSectionRe = regexp.MustCompile(`(?m)^##[\s\p{Zs}]+`)
 	fivePhrasingRe = regexp.MustCompile(`(?m)^##[\s\p{Zs}]+Five alternative phrasings.*$`)
 	noteItemRe     = regexp.MustCompile(`^\s*(?:\d+[.)]|\*|-)\s+(\S.*?)\s*$`)
 )
