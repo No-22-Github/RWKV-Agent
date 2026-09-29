@@ -6,8 +6,8 @@
 > 目标：数据分布从「英文单轮考卷」移向「桌面 Agent 的真实使用」——中文、多轮、失败如实汇报、自然语言交付。
 >
 > **2026-09-30 修订**：并入 v1.2 横测（[REPORT](../evaluations/state-v12-20260929/REPORT.md)）的逐题轨迹复盘（§1.1）。
-> 新增三条主线：收尾恢复（N10）、UNKNOWN 契约降到少数并规定「查不到 / 做不到」怎么答（§4.1）、工具目录轮换（§4.2）；
-> 补 tabular / `data_query`（N11）；前置项加 decontam 中文支持、新管线基线重训、调用次数判据、题目级工具子集（§2.8–2.12）；验收加 bfcl-product 与失败形态计数（§6）。
+> §3 存量修复改为「扫一遍、只修扫出来的」（2026-09-30 扫描结果入库）。新增三条主线：收尾恢复（N10）、UNKNOWN 契约降到少数并规定「查不到 / 做不到」怎么答（§4.1）、工具目录轮换（§4.2）；
+> 补 tabular / `data_query`（N11）；前置项加 decontam 中文支持、新管线基线重训、题目级工具子集、lint 认识 answer_style（§2.8–2.13）；验收加 bfcl-product 与失败形态计数（§6）。
 
 ## 1. 起点：v1.2 的问题
 
@@ -64,30 +64,72 @@
 10. **新管线先重训 v1.2 作基线**：§2.1 换成 mask + EOD 后，b05 若直接对照旧 v1.2，就把「管线」和「数据」两个变量
     混在一起（v1.2 报告对 mixed 数据 + lr 的混杂已吃过亏）。先用新管线、同 lr（1.5e-2）重训 v1.2 mixed，
     作为 b05 / v1.3 的对照组。N10 也依赖 mask（见 §4 N10）。
-11. **判据补 `min_calls` / `max_calls`**：现有 `Expectation` 没有调用次数判据（原稿 N7 写的 `max_calls` 不存在）。
-    §4.1 要求「说查不到之前至少查过一次」、N7 / N11 要限制整读次数，都需要它；或退一步在 collect 阶段按轨迹过滤。
+11. **调用次数判据不用新增**（2026-09-30 更正上一版的说法）：`max_calls` 已有，写在题目级 `expect.max_calls`
+    （`{"read_file": 1}`，按工具设上限，见 `internal/agent/eval/expectcheck.go`）；「说查不到之前至少查过一次」写
+    `required_tools: ["read_file"]` 即可——`list_files` / `search_text` / `read_file` 三个查找类工具互相认可。
 12. **题目级工具子集**（§4.2 用）：workbank / distill 题目现在只能拿整套 work-v1 目录（仅 Primitive 有 `ToolNames`）。
     需给 `Case` 加「本题提供的工具」字段并进 run.json。`wire_hash` 只覆盖目录渲染模式（`catalog=`），不含具体工具，
     所以轮换目录不违反 §2.6。
+13. **lint 认识 `tags.answer_style`**（§3.2、§3.3、全部中文题都要用，**阻塞 b05**）：只在 `--canary-prefix DISTILL-CANARY`
+    下生效。`unknown`（缺省）= 最后一轮以完整 UNKNOWN 契约结尾（现行规则）；`value` = 以 "Reply with only the final answer."
+    结尾且**不得**带 UNKNOWN 半句；`natural` = 两种英文契约都不得出现在结尾（中文题、自然语言作答题）。
+    `natural` 题若判据里有 `output_equals: "UNKNOWN"` 报错——那正是要改掉的形态。workbank（默认前缀）行为逐字节不变。
 
-## 3. 存量处理
+## 3. 存量修复（b05）：扫一遍，不正常的修掉
 
-| 存量 | v1.2 行 | 处理 | v1.3 行（估） |
-|---|---|---|---|
-| base700 | 551 | 每个种子最多 6 行，优先留 script/write/web；剔除理由不变（种子泄漏） | ~200 |
-| b01–b03 工具行（local/web_local/script/write） | 317 | GLM 用 `step.py` 重解，拿短路径；重解不过的保留旧行 | ~300 |
-| b01–b03 direct/smalltalk | 111 | 原样保留；smalltalk 里 >800 字符的能力介绍重解为短版 | ~111 |
-| b02/b03 长拒绝 | 28 | 重解为 1–2 句，写清不能做什么、能做什么替代 | 28 |
-| b04 + b04r | 286 | 保留；W0 ambiguous 的 50 行按 b04r 替换 | ~290 |
-| **存量合计** | 1293 | | **~930** |
+2026-09-30 对 v1.2 mixed 的 1293 行做了一轮扫描（`bench/distill/tools/v13_scan.py`，结果入库
+`bench/distill/v13/scan-v12.json`，逐行列出命中）。只修扫出来的问题，其余存量**原样重新渲染**。
 
-**存量的 UNKNOWN 契约**（与上表正交，作用于留下来的 ~930 行）：
+### 3.1 扫描结果
 
-- 约 2/3 的行删去 "If you cannot determine the answer, reply exactly UNKNOWN." 这句。值题删掉后原终答仍成立，
-  随 b05 的 GLM 重解一并处理；base700 / b04 不重解的行需要 render 支持改题面后重渲染（未验证，先试 5 行）。
-- 56 条裸 `UNKNOWN` 终答：保留约 1/3（带契约，作为「用户明确要求这个格式就照做」的样本），其余去掉契约后
-  重解为 §4.1 的自然语言汇报。
-- 存量全部做完后，带契约的行 ≤ 300。
+| 模式 | 行 | 来源 | 说明 | 处理 |
+|---|---|---|---|---|
+| 给了路径还先 `list_files` | 106 | base700 96、b01–b03 10 | 题面写明了要读的文件，起手仍先列目录 | 重解 / base700 剔除 |
+| 裸 `UNKNOWN` 终答 | 56 | base700 31、b01–b04 25 | 找了一圈只吐一个词：不说找了哪、缺什么 | 改题后重解（§3.2）/ base700 剔除 |
+| Markdown 终答 | 41 | b01–b03（DeepSeek 写的闲聊、拒绝） | 加粗、列表、小标题 | 重解：纯文本 1–4 句 |
+| 长拒绝（> 400 字符） | 28 | b02 20、b03 8 | 实际都 > 800 字符 | 重解：1–2 句，做不到什么 + 为什么 + 替代 |
+| 长闲聊（> 800 字符） | 12 | b01–b03 | 能力介绍写成长文 | 重解：短版 |
+| 套话反问 | 12 | b04 hyb-60xx | "lists two X, A and B. Which one do you mean?" 同一句式 | 重解：换自己的话问 |
+| 同一调用发两次 / 同一文件读两次 | 2 / 2 | base700、b02 | 冗余 | 重解 / base700 剔除 |
+| 「只给答案」下答了一长句 | 2 | base700 | 违反题面格式 | 剔除 |
+| 写文件后只答 `DONE` | 70 | base700 68 | 题面要求 "When finished, reply DONE."，**是契约不是缺陷** | 不动；新增写操作题（N9）改为终答说明改了什么 |
+
+扫描也查过但**不算问题**：简单算式用 `calculator`（86 行，7B 用计算器是好习惯）、8 次以上调用（7 行，都是真的多步）、
+工具报错后改对（4 行，好样本）。
+
+合计：b01–b04 **88 道题**要重解（`fix.resolve_cases`），base700 **122 行**剔除（`fix.base700_drop_entries`）。
+
+### 3.2 25 道裸 UNKNOWN 题：先改题，再重解
+
+`fix.absent_cases` 列出的 25 道都是 TR-ABSENT（信息确实不在工作区），判据 `output_equals: "UNKNOWN"`。逐题改：
+
+- 题面删掉整句答案契约，`tags.answer_style = "natural"`，`tags.version += 1`；
+- `expect` 改成：`output_contains_any` = 缺失对象的名字（从 NOTES 的 Traps 读，给 2–4 种写法），
+  `output_excludes` = `["UNKNOWN"]` + NOTES 里的诱饵值，`required_tools: ["read_file"]`；
+- verify.py 与 NOTES 同一次改完（workflow §2.3 的改题规矩），`bank verify --strict-shape` 必须过。
+- 重解时终答按 §4.1 第一行写：「查了 A、B，没有 X 的记录；只找到 Y。」
+
+### 3.3 UNKNOWN 契约降到少数（机械改题，不用重解）
+
+`bench/distill/tools/v13_edit_contracts.py`（需先有 §2.13）：凡最后一轮以完整契约结尾的蒸馏题，按题 ID 哈希
+1/3 保留完整契约、2/3 删掉 "If you cannot determine the answer, reply exactly UNKNOWN." 只留 "Reply with only the
+final answer."。2026-09-30 试运行：保留 204 题、改 406 题、跳过 25 道 absent 题。**旧路径不用重解**：答案没变，
+只少了弃权那半句，重新渲染即可。
+
+### 3.4 base700
+
+剔除 122 行后剩 429 行，再按每个种子最多 6 行截断（优先留 script / write / web），约 200 行。base700 来自 v1.1 转换过的
+records，**不能重新渲染**：从 v1.2 mixed 的 rendered 行原样取用（去掉末尾 `\n\nUser:` 并同步收回最后一个 loss span，
+打包时统一再加），`wire_hash` 必须仍是 `707c6740…`。
+
+### 3.5 存量合计
+
+| 存量 | v1.2 行 | v1.3 行（估） |
+|---|---|---|
+| base700 | 551 | ~200 |
+| b01–b04（88 题重解，其余原样重渲染） | 742 | ~740 |
+| b04r（v1.2 之后补的 25 道两轮反问） | 0 | 50 |
+| **合计** | 1293 | **~990** |
 
 ## 4. 新增
 
@@ -99,21 +141,22 @@
 | N1 | 中文单轮工具题 | 200 | ~140 题 | 100% | 把 b01–b04 已验证的 family 改写成中文题，工作区文件内容也换成中文（中文日志、中文表头、中文文档）；≥40% 题面直接给出路径 | 同原 family；数值题用中文约束（「只回答数字」），不带英文 UNKNOWN 模板 | GLM step.py |
 | N2 | 中文零调用 | 100 | ~110 题 | 100% | 直答 40、闲聊 25、拒绝 20、反问 15；闲聊不带答案契约 | 同 workflow §4.3 / §4.3.1 | DeepSeek k=3 |
 | N3 | 3–5 轮会话 | ~175 | ~50 会话 | 50% | 同一工作区连续 3–5 轮：1/3 中途改需求（「改成按周统计」）、1/3 纠正上一轮（「不对，应该排除测试环境」）、1/3 顺着结果追问或换一个相关问题。纠正轮里约 1/4 是**用户纠正错了**：模型复核后拿证据坚持原答案、说明依据，而不是顺着改 | 每轮独立判；正确的纠正轮要求答案与上一轮不同且正确；错误的纠正轮要求答案不变（`output_contains` 原值 + `output_excludes` 用户给的错值） | GLM step.py |
-| N4 | 失败后如实汇报 | 120 | ~100 题 | 50% | 缺文件 / 路径写错 / 数据里确实没有 / `data_query` 列不存在 / 网页打不开（需 §2.3）/ 只能部分回答；终答按 §4.1 写：试过什么、卡在哪、缺什么、下一步。**不带** UNKNOWN 契约 | `output_contains_any`（缺失对象名）+ `output_excludes`（诱饵数值、编造路径、"I have no tools" 类措辞）+ `min_calls ≥ 1`（§2.11）；部分回答用 `must_state_unverified` | GLM step.py |
+| N4 | 失败后如实汇报 | 120 | ~100 题 | 50% | 缺文件 / 路径写错 / 数据里确实没有 / `data_query` 列不存在 / 网页打不开（需 §2.3）/ 只能部分回答；终答按 §4.1 写：试过什么、卡在哪、缺什么、下一步。**不带** UNKNOWN 契约 | `output_contains_any`（缺失对象名）+ `output_excludes`（诱饵数值、编造路径、"I have no tools" 类措辞）+ `required_tools: ["read_file"]`（§2.11）；部分回答用 `must_state_unverified` | GLM step.py |
 | N5 | 自然语言交付 | 100 | ~90 题 | 50% | 「帮我看看这个项目 / 总结一下这份日志 / 解释这个配置在做什么」；**不带**「只给答案」模板 | `output_contains`（2–4 个必含事实）+ 长度上限（§2.4） | DeepSeek k=3 |
 | N6 | 闲聊夹任务 | 80 | ~40 会话 | 50% | 两轮：寒暄后派活、派活后道谢再追问；闲聊轮不调工具 | 闲聊轮 `tools: []`；任务轮按普通题 | GLM |
-| N7 | 长文件定位 | 80 | ~60 题 | 30% | 300–2000 行的日志/CSV/源码；要求 `search_text` 定位 + `read_lines` 取窗口，而不是 `read_file` 整读（64 KB 截断远超 ctx） | 值判据；`max_calls` 限制 read_file 次数（§2.11，现无此判据） | GLM step.py |
+| N7 | 长文件定位 | 80 | ~60 题 | 30% | 300–2000 行的日志/CSV/源码；要求 `search_text` 定位 + `read_lines` 取窗口，而不是 `read_file` 整读（64 KB 截断远超 ctx） | 值判据；题目级 `expect.max_calls` 限制 read_file 次数 | GLM step.py |
 | N8 | 反问多样化 | 60 | ~30 会话 | 50% | 缺必需参数、写操作前确认（覆盖/删除）、多种合理解读；第 2 轮用户补信息后完成 | 第 1 轮问句词表 + `forbidden_tools` 写工具；第 2 轮普通判 | GLM |
 | N9 | script / write / web 补覆盖 | 120 | ~80 题 | 30% | script 40、write 40（新建/局部替换/追加）、web 40（含 TR-EARLYHIT 查到就停） | `expect.files` / `expect.run` / 值判据 | GLM step.py |
-| N10 | 收尾恢复 | 100 | ~100 题 | 30% | 从已通过的老师轨迹（≥2 次成功调用）拼接：在某次工具结果后插入一次对先前成功调用的重复 → `duplicate tool call rejected` → 重复拒绝提示 → answer 阶段指令，最后接老师终答。60% 证据已够（照常作答），40% 证据不够（先答能确定的，再说明哪些没能核实）。**插入的那次重复调用必须 mask 掉不训**，否则等于教模型重复——没有 §2.1 的 mask 就不做 N10 | 原题判据；证据不够的变体加 `must_state_unverified` | 拼接 + 原老师终答；证据不够的变体由 GLM 在拼接后的上下文里重答 |
-| N11 | tabular / `data_query` 聚合 | 80 | ~60 题 | 30% | 50–500 行 CSV/TSV：过滤、分组、求和/均值/计数、多条件；要求 `data_query` 而不是 `read_file` 整读再手算；含 1/4「列名写错 → 看错误信息 → 改对重查」 | 值判据 + `required_tools: [data_query]` + `max_calls` 限制 read_file（§2.11） | GLM step.py |
+| N10 | 收尾恢复 | 100 | ~100 题 | 随来源 | 脚本变换，不出新题：`bench/distill/tools/v13_closeout.py` 从已通过的单轮路径里，把一次先前的本地读取原样复制到终答前，标 `supervised:false`；render 时真实 harness 拒绝这次重复、写出收尾提示，原终答照常判分。**插入的重复调用在 loss 区间之外**，所以必须用 mask 训练（§2.1）；全文训练器下不做 N10 | 原题判据 | 无（机械变换） |
+| N11 | tabular / `data_query` 聚合 | 80 | ~60 题 | 30% | 50–500 行 CSV/TSV：过滤、分组、求和/均值/计数、多条件；要求 `data_query` 而不是 `read_file` 整读再手算；含 1/4「列名写错 → 看错误信息 → 改对重查」 | 值判据 + `required_tools: [data_query]` + 题目级 `expect.max_calls` 限制 read_file | GLM step.py |
 | | **新增合计** | **~1215** | | | | | |
 
 写工具题统一要求：先读后写、改动最小、终答说明改了什么。危险写操作（覆盖已有文件、删除内容）归 N8 先确认。
 
-N10 的拼接字节必须与 harness 完全一致：重复拒绝提示取 `internal/agent/runner_config.go` 的 `duplicateToolAnswerReminder`，
-answer 阶段指令取 `internal/agent/protocol_g1.go` 的 "Tool execution is complete…"。实现放在 `corpus render`（注入选项），
-并以真实横测轨迹做 golden 比对：`local/runs/bench-v12/v12m-s432/…-workbank-…/trace.jsonl` 的 cfg-0013 就是一条完整的收尾路径。
+N10 已于 2026-09-30 在 b01–b04 脚本上实测：取 100 题 → render 96 行，96 行全部含 "duplicate tool call rejected" 与
+"Tool execution is complete"，`wire_hash` 不变；另 4 题是原路径在当前题目版本下本就不过的拒绝题。只复制
+`list_files` / `read_file` / `read_lines` / `search_text`：`web_search` / `web_fetch` 可重放，重复时会被重新执行而不是拒绝，
+走不到收尾；带 `expect.max_calls` 的题也跳过（被拒的重复仍计入预算）。来源用 v1.3 最终通过的脚本，路径编号 `--p81`。
 
 ### 4.1 「查不到 / 做不到」时怎么答（全部新增行与重解行适用）
 
@@ -139,7 +182,7 @@ v1.2 每行都是同一套 12 个 work-v1 工具，模型背熟了目录：bfcl 
 - N2 / N8 / §4.1「超出能力」中 ~1/3 的题只提供少量工具，其中至少一部分题的答案取决于「目录里没有这个工具」；
 - 评测侧统计「调用未提供的工具」次数（scorer 已于 2026-09-30 把它判为失败，见提交 70e604f）。
 
-## 5. 目标构成（v1.3 ≈ 2145 行）
+## 5. 目标构成（v1.3 ≈ 2200 行：存量 ~990 + 新增 ~1215）
 
 | 指标 | v1.2 | v1.3 目标 |
 |---|---|---|
@@ -147,7 +190,7 @@ v1.2 每行都是同一套 12 个 work-v1 工具，模型背熟了目录：bfcl 
 | 多轮行（≥2 轮） | 4.9% | ~18%，其中 3 轮及以上 ≥8% |
 | 失败/部分回答后如实汇报 | 4 行 | ≥160 行（N4 120 + N10 证据不够 40 + 存量裸 UNKNOWN 重解） |
 | 带「只给答案」模板 | 78% | ≤50% |
-| 带 UNKNOWN 契约 | 80% | ≤20%（存量 ≤300 行，新增行默认不带） |
+| 带 UNKNOWN 契约 | 80% | ≤20%（§3.3 后存量约 1/3 保留，新增行默认不带） |
 | 裸 `UNKNOWN` 终答 | 56 行 | ≤25 行，且全部出现在带契约的题里 |
 | 收尾恢复（重复被拒 → 文字终答） | 0 行 | ~100 行 |
 | `data_query` 占全部工具调用 | 3% | ≥10% |
@@ -179,7 +222,7 @@ checkpoint 选择：每 1/3 epoch 存一个点；前 3 名与对照组各补 2 �
 | 批 | 内容 | 行（估） | 说明 |
 |---|---|---|---|
 | b00 基线 | 新管线（mask + EOD）重训 v1.2 mixed | 0 | §2.10；之后每一版都对照它 |
-| b05 修存量 | §3 全部：b01–b03 重解、长拒绝重解、base700 截断、UNKNOWN 契约处理；§4.2 目录轮换 | ~930 | 不出新题，先把基底修干净；完成后单独训一版，对照 b00，拆开「修存量」的收益 |
+| b05 修存量 | §3：88 题重解（含 25 道先改题）、406 题删 UNKNOWN 半句、base700 剔除 122 行后截断、合入 b04r；§4.2 目录轮换 | ~990 | 不出新题，先把基底修干净；完成后单独训一版，对照 b00，拆开「修存量」的收益 |
 | b06 单轮新题 | N1、N2、N4、N7、N9、N10、N11 + p13-holdout | ~800 | 先 5 道中文题试跑（§2.5，且 §2.8 decontam 已支持中文）；N10 先拼 10 条与真实轨迹逐字节比对；每类试 10 题过全闸门再放量 |
 | b07 会话 | N3、N5、N6、N8 | ~415 | 依赖 §2.2 的 ctx 决定；先抽 10 个会话看 token 分布 |
 
