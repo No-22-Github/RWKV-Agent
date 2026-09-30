@@ -25,7 +25,9 @@ frontend and bind the same public Go API from `api/`.
 
 The complete build prepares the native MLX runtime, verifies the frontend, and creates
 both launch modes. In addition to the native toolchain, the build requires Node.js 26
-and pnpm 11 (CI uses the same version baseline):
+with npm. It uses the exact pnpm version declared in the frontend's `packageManager`
+(also used by CI). If that version is not on PATH, the script installs and reuses it
+under `local/build/toolchain/` without changing your global pnpm:
 
 ```sh
 ./scripts/build-app.sh

@@ -22,6 +22,14 @@ xcode-select -p
 sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
 ```
 
+确认 Metal 编译器能实际运行；部分 Xcode 需要单独下载该组件：
+
+```sh
+xcrun --sdk macosx metal --version
+# 如果提示缺少 Metal Toolchain：
+xcodebuild -downloadComponent MetalToolchain
+```
+
 项目当前要求：
 
 - Apple Silicon Mac（`arm64`）

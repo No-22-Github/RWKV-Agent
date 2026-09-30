@@ -65,11 +65,18 @@ if (( ${#missing_commands[@]} > 0 )); then
   exit 1
 fi
 
-if ! xcrun --sdk macosx --show-sdk-path >/dev/null 2>&1 ||
-  ! xcrun --find metal >/dev/null 2>&1; then
-  echo "The selected Xcode does not provide the macOS SDK and Metal toolchain." >&2
+if ! xcrun --sdk macosx --show-sdk-path >/dev/null 2>&1; then
+  echo "The selected Xcode does not provide the macOS SDK." >&2
   echo "Select the full Xcode installation, for example:" >&2
   echo "  sudo xcode-select -s /Applications/Xcode.app/Contents/Developer" >&2
+  exit 1
+fi
+
+# Xcode may expose a metal launcher even when its downloadable toolchain is absent.
+if ! xcrun --sdk macosx metal --version >/dev/null 2>&1; then
+  echo "The selected Xcode cannot run the Metal compiler." >&2
+  echo "Install the Metal toolchain, then rerun this script:" >&2
+  echo "  xcodebuild -downloadComponent MetalToolchain" >&2
   exit 1
 fi
 

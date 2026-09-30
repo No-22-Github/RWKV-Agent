@@ -58,7 +58,7 @@ open -n "./local/dist/RWKV Agent.app" --args --workspace "$(pwd)"
 ./local/dist/rwkv-app-server --host 127.0.0.1 --port 8080
 ```
 
-构建 App 额外需要 Node.js 26 与 pnpm 11（CI 使用同一版本基线）。主要功能：
+构建 App 额外需要 Node.js 26（含 npm）；脚本会自动准备项目指定的 pnpm 11。主要功能：
 
 - 配置本地 RWKV 模型（`.pth` 或 MLX 目录）或远端 API（RWKV 续写 / OpenAI 兼容），
   显示模型状态，并通过 `GET /v1/models` 拉取远端模型列表。
@@ -79,7 +79,7 @@ open -n "./local/dist/RWKV Agent.app" --args --workspace "$(pwd)"
 - Xcode（含 Swift 与 Metal Toolchain）
 - CMake 3.25+、Ninja
 - Go 1.26+
-- Node.js 26、pnpm 11（仅构建桌面 App 需要）
+- Node.js 26（含 npm；仅构建桌面 App 需要，pnpm 由脚本自动准备）
 - RWKV-7 `.pth` checkpoint，或已转换的 MLX safetensors 模型目录
 
 首次拉取后初始化固定版本的上游依赖，然后检查环境并构建：
