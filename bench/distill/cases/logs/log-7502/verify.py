@@ -17,12 +17,10 @@ for line in lines:
         if status in (502, 504):
             gateway_side += 1
 
-forms = [
-    "%d 5xx" % window,
-    "%d failed" % window,
-    "%d errors" % window,
-    "%d 5xx" % gateway_side,
-    "%d failed" % gateway_side,
-    "%d errors" % gateway_side,
-]
-print(json.dumps({"expected_contains_any": sorted(set(forms))}))
+_sabotage_guard = case["files"].get('logs/edge-access.log', "")
+if not _sabotage_guard.splitlines() or _sabotage_guard.splitlines()[0] != '2026-09-25T22:10:31Z req-7741 10.201.4.19 POST /checkout 502 pay-core 102ms':
+    raise SystemExit(1)
+_cg = case["files"].get('logs/edge-access.log', "")
+if '2026-09-25T22:12:05Z req-7743 10.201.5.23 POST /checkout 502 pay-core 97ms' not in _cg:
+    raise SystemExit(1)
+print(json.dumps({"expected_number": window}))

@@ -19,7 +19,7 @@
     "ref_calls": 4,
     "fixture_bytes": 2714,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:glm-5.3-flash-b07",
     "reviewer": null,
     "answer_style": "natural"
@@ -33,25 +33,22 @@
     {
       "prompt": "Kestrel Retail 的边缘网关昨晚出过一波 5xx。logs/edge-access.log 是当晚的访问日志：返回 5xx 的请求一共有多少笔？",
       "expect": {
-        "output_contains_any": [
-          "14 笔"
-        ]
+        "expected_number": 14.0,
+        "tolerance": 0.01
       }
     },
     {
       "prompt": "口径改一下：只看 /checkout 这个路径的 5xx，有多少笔？",
       "expect": {
-        "output_contains_any": [
-          "6 笔"
-        ]
+        "expected_number": 6.0,
+        "tolerance": 0.01
       }
     },
     {
       "prompt": "不对，里面混了内网压测机的流量——来源 IP 是 10.42. 开头的那部分不算，/checkout 的 5xx 还有几笔？",
       "expect": {
-        "output_contains_any": [
-          "4 笔"
-        ]
+        "expected_number": 4.0,
+        "tolerance": 0.01
       }
     }
   ]

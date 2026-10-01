@@ -19,7 +19,7 @@
     "ref_calls": 7,
     "fixture_bytes": 1568,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:glm-5.3-flash-b07",
     "reviewer": null,
     "answer_style": "natural"
@@ -42,9 +42,8 @@
     {
       "prompt": "不对，先别猜原因了——payout 在放弃之前自动重试了几次？",
       "expect": {
-        "output_contains_any": [
-          "3 次"
-        ]
+        "expected_number": 3.0,
+        "tolerance": 0.01
       }
     },
     {
@@ -59,17 +58,15 @@
     {
       "prompt": "换一个问题：自动批里退出码非 0 的任务有几个？",
       "expect": {
-        "output_contains_any": [
-          "2 个"
-        ]
+        "expected_number": 2.0,
+        "tolerance": 0.01
       }
     },
     {
       "prompt": "不对，recon 当晚也重试过，你别漏了——自动批里经历过重试的任务有几个？",
       "expect": {
-        "output_contains_any": [
-          "3 个"
-        ]
+        "expected_number": 3.0,
+        "tolerance": 0.01
       }
     }
   ]

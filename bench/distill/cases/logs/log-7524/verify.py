@@ -22,8 +22,8 @@ for line in lines:
             long_kept += 1
 
 top = sorted(repos.items(), key=lambda kv: (-kv[1], kv[0]))[0][0]
-forms = ["%d builds" % len(failed), "%d failed" % len(failed), "%d failures" % len(failed),
-         top,
-         "%d builds" % len(long_runs), "%d runs" % len(long_runs),
-         "%d builds" % long_kept, "%d runs" % long_kept]
-print(json.dumps({"expected_contains_any": sorted(set(forms))}))
+
+_cg = case["files"].get('logs/build-events.jsonl', "")
+if '{"ts":"2026-09-27T19:07:58Z","build":"BR-3369","repo":"vision-core","event":"passed","worker":"ci-04","duration_s":498,"channel":"mr-4415"}' not in _cg:
+    raise SystemExit(1)
+print(json.dumps({"expected_number": len(failed)}))

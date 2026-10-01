@@ -21,7 +21,7 @@ for line in lines:
         if "channel=nightly-experimental" not in line:
             ci04_real += 1
 
-forms = [cause, cause,
-         "%d builds" % len(ci04), "%d failed" % len(ci04), "%d failures" % len(ci04),
-         "%d build" % ci04_real, "%d failed" % ci04_real, "%d failure" % ci04_real]
-print(json.dumps({"expected_contains_any": sorted(set(forms))}))
+_cg = case["files"].get('logs/ci-builds.log', "")
+if '2026-09-27 10:20:03 BR-3307 repo=slam-maps result=passed stage=sim-tests worker=ci-03 channel=nightly' not in _cg:
+    raise SystemExit(1)
+print(json.dumps({"expected_number": len(ci04)}))

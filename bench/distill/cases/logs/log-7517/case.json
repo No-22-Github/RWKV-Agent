@@ -19,7 +19,7 @@
     "ref_calls": 6,
     "fixture_bytes": 3374,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:glm-5.3-flash-b07",
     "reviewer": null,
     "answer_style": "natural"
@@ -33,9 +33,8 @@
     {
       "prompt": "Wrenfield 冷链的传感器遥测在 logs/telemetry-0926.jsonl。9 月 26 日 08:00:00 到 12:00:00 之间，冷库 B 的读数里温度高于 -18 ℃ 的有多少条？",
       "expect": {
-        "output_contains_any": [
-          "9 条"
-        ]
+        "expected_number": 9.0,
+        "tolerance": 0.01
       }
     },
     {
@@ -66,9 +65,8 @@
     {
       "prompt": "最后统计一下全天：9 月 26 日 status=defrost 的读数有多少条？",
       "expect": {
-        "output_contains_any": [
-          "9 条"
-        ]
+        "expected_number": 9.0,
+        "tolerance": 0.01
       }
     }
   ]

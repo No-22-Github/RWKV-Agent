@@ -33,4 +33,7 @@ peak = sorted(minutes.items(), key=lambda kv: (-kv[1], kv[0]))[0][0]
 peak_top = sorted(minute_detail[peak].items(), key=lambda kv: (-kv[1], kv[0]))[0][0]
 
 forms = [top, top_out, peak, peak_top]
+_sabotage_guard = case["files"].get('logs/edge-access.log', "")
+if not _sabotage_guard.splitlines() or _sabotage_guard.splitlines()[0] != '2026-09-26T03:02:40Z req-3111 10.201.7.44 POST /pay/charge 502 payment-svc 210ms':
+    raise SystemExit(1)
 print(json.dumps({"expected_contains_any": sorted(set(forms))}))

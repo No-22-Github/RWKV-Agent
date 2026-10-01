@@ -35,7 +35,7 @@ for r in failed:
 top_biz = sorted(biz.items(), key=lambda kv: (-kv[1], kv[0]))[0][0]
 last = max(r["ts"] for r in failed if r["node"] == top_biz)
 
-forms = ["%d failed" % w1, "%d logins" % w1,
-         top_day, "%d failed" % v2, "%d were" % v2,
-         top_biz, last.strftime("%H:%M"), last.strftime("%H:%M:%S")]
-print(json.dumps({"expected_contains_any": sorted(set(forms))}))
+_cg = case["files"].get('logs/auth-login.log', "")
+if '2026-09-28T13:11:38Z att-88141 user=ivy.zhao src=180.168.3.4 node=auth-cn-3 endpoint=/v1/login result=failed code=locked_out' not in _cg:
+    raise SystemExit(1)
+print(json.dumps({"expected_number": w1}))

@@ -13,9 +13,8 @@ if "混声四部" not in live_text:
     raise SystemExit(1)
 if "2025 秋季" not in old_lines[0]:
     raise SystemExit(1)
-facts = [
-    "term-2026spring",
-    "混声四部",
-    "2025 秋季",
-]
+_data = case["files"].get('scores/term-2025autumn/score-qingchun.txt', "")
+if not _data.splitlines() or _data.splitlines()[0] != '星野合唱团 2025 秋季用谱：青春舞曲（旧版）。':
+    raise SystemExit(1)
+facts = ["2025 秋季", "2025 年秋季", "2025 年秋"]
 print(json.dumps({"expected_contains_any": facts}))

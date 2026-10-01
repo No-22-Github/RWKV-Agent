@@ -25,8 +25,8 @@ for row in rows:
 
 over = "%.2f" % (gross - limit)
 grouped = "{:,.2f}".format(gross - limit)
-forms = [fail_step, fail_ts, fail_ts[:5],
-         "%d items" % released, "%d payouts" % released,
-         over, grouped,
-         "%d items" % pending, "%d pending" % pending]
-print(json.dumps({"expected_contains_any": sorted(set(forms))}))
+
+_cg = case["files"].get('logs/payout-batch.csv', "")
+if '2026-09-26 02:14:08,step:fund-release,INFO,"released 118 items, 42 items pending, batch aborted"' not in _cg:
+    raise SystemExit(1)
+print(json.dumps({"expected_number": released}))

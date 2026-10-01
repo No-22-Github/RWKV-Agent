@@ -17,10 +17,7 @@ for line in lines:
         if_count += 1
         gateways[row["gateway"]] = gateways.get(row["gateway"], 0) + 1
 
-plain = "%.2f" % total
-grouped = "{:,.2f}".format(total)
-top = sorted(gateways.items(), key=lambda kv: (-kv[1], kv[0]))[0][0]
-forms = [plain, grouped,
-         "%d declined" % if_count, "%d transactions" % if_count, "%d declines" % if_count,
-         top]
-print(json.dumps({"expected_contains_any": sorted(set(forms))}))
+_sabotage_guard = case["files"].get('logs/payments-0925.jsonl', "")
+if not _sabotage_guard.splitlines() or _sabotage_guard.splitlines()[0] != '{"ts":"2026-09-25T08:41:12Z","txn":"TX-40201","amount":"12.99","currency":"GBP","result":"settled","gateway":"stripe-eu"}':
+    raise SystemExit(1)
+print(json.dumps({"expected_number": if_count}))

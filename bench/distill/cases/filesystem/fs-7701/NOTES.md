@@ -6,5 +6,8 @@
 2. Read README.md: catalog/ is the current season, archive/ is the closed 2024 season under the same name; client counts come from catalog/.
 3. Read catalog/print-index.csv: 6 prints, 3 on luster paper; read archive/print-index.csv: 4 archived prints.
 
+
+> v2（2026-10-01）：判据改写——output_contains 只留专有名词事实，数量事实移入 output_contains_any 并给多种自然写法（原「数字+量词」锚串对自然语言终答过严）。
+
 ## Why the answer is unique
 The decoy 10 prints sums both indexes, and 4 prints is the archive copy taken alone. README assigns print-index.csv in archive/ to the closed 2024 season and states counts quoted to clients come from catalog/ only, so neither the archive rows nor their sum can be the current count; it can only be 6. The paper column of the catalog has exactly 3 luster rows, and the archive file holds exactly 4 rows. Which file is current is decided by the README rule, so the three facts have no second reading.

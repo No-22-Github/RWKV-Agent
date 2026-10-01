@@ -30,4 +30,7 @@ for ts, edge in errs:
 top_after = sorted(after.items(), key=lambda kv: (-kv[1], kv[0]))[0][0]
 
 forms = [top, top_after, first_bj1, first_bj1[:5]]
+_sabotage_guard = case["files"].get('logs/cdn-edge.log', "")
+if not _sabotage_guard.splitlines() or _sabotage_guard.splitlines()[0] != '2026-09-22 01:12:40 GET /assets/cover-1180.jpg edge=qcd-hz2 cache=ERR origin=504 410ms':
+    raise SystemExit(1)
 print(json.dumps({"expected_contains_any": sorted(set(forms))}))

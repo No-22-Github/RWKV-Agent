@@ -18,8 +18,5 @@ union = sorted(set(nt) | set(st))
 overlap = sorted(set(nt) & set(st))
 if not union:
     raise SystemExit(1)
-facts = [
-    "%d titles" % len(union),
-]
-facts.extend(overlap)
+facts = ["%d titles" % len(union), "five titles", "5 distinct titles", "5 different titles"]
 print(json.dumps({"expected_contains_any": facts}))

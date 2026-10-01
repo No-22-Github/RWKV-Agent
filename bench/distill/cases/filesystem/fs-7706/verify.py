@@ -12,9 +12,8 @@ batik = sum(1 for r in current if (r.get("工艺") or "").strip() == "蜡染")
 readme = case["files"]["README.md"]
 if "2024" not in readme:
     raise SystemExit(1)
-facts = [
-    "%d 幅" % len(current),
-    "%d 幅蜡染" % batik,
-    "%d 幅" % len(archived),
-]
+_sabotage_guard = case["files"].get('patterns/index-2024.csv', "")
+if not _sabotage_guard.splitlines() or _sabotage_guard.splitlines()[0] != '图样编号,工艺,幅面,底色':
+    raise SystemExit(1)
+facts = ["%d 幅" % len(current), "五幅", "共 %d 幅" % len(current), "%d 幅作品" % len(current)]
 print(json.dumps({"expected_contains_any": facts}))

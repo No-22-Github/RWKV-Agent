@@ -25,10 +25,7 @@ for line in lines:
                 morning_no_etl.append(row)
                 best = max(best, dur)
 
-forms = [
-    "%d 条" % len(all_slow),
-    "%d 条" % len(morning),
-    "%d 条" % len(morning_no_etl),
-    "%s" % best,
-]
-print(json.dumps({"expected_contains_any": sorted(set(forms))}))
+_cg = case["files"].get('logs/db-slowquery.log', "")
+if '2026-09-22 01:05:12 dur=6.8s db=reporting user=bi_dash query="SELECT c.id, p.total FROM carts c JOIN payments p ON c.id = p.cart_id"' not in _cg:
+    raise SystemExit(1)
+print(json.dumps({"expected_number": len(all_slow)}))

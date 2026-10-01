@@ -19,7 +19,7 @@
     "ref_calls": 5,
     "fixture_bytes": 2670,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:glm-5.3-flash-b07",
     "reviewer": null,
     "answer_style": "natural"
@@ -33,33 +33,29 @@
     {
       "prompt": "Wrenfield 冷链冷库 A 的遥测在 logs/telemetry-0926.jsonl。9 月 26 日 08:00:00 到 12:00:00 之间，有多少条读数比目标温度偏高？",
       "expect": {
-        "output_contains_any": [
-          "7 条"
-        ]
+        "expected_number": 7.0,
+        "tolerance": 0.01
       }
     },
     {
       "prompt": "不对，除霜周期（status=defrost）的读数温度本来就偏高，把它们排除，重新算是多少条？",
       "expect": {
-        "output_contains_any": [
-          "4 条"
-        ]
+        "expected_number": 4.0,
+        "tolerance": 0.01
       }
     },
     {
       "prompt": "改成统计全天：9 月 26 日 status=defrost 的读数有多少条？",
       "expect": {
-        "output_contains_any": [
-          "9 条"
-        ]
+        "expected_number": 9.0,
+        "tolerance": 0.01
       }
     },
     {
       "prompt": "除霜之外，08:00:00 到 12:00:00 里偏高的那几条读数，偏离目标温度最多的是多少度？",
       "expect": {
-        "output_contains_any": [
-          "3.8"
-        ]
+        "expected_number": 3.8,
+        "tolerance": 0.01
       }
     }
   ]

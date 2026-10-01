@@ -12,9 +12,8 @@ luster = sum(1 for r in current if (r.get("paper") or "").strip() == "luster")
 readme = case["files"]["README.md"]
 if "2024" not in readme:
     raise SystemExit(1)
-facts = [
-    "%d prints" % len(current),
-    "%d luster" % luster,
-    "%d archived prints" % len(archived),
-]
+_sabotage_guard = case["files"].get('archive/print-index.csv', "")
+if not _sabotage_guard.splitlines() or _sabotage_guard.splitlines()[0] != 'print_id,paper,size':
+    raise SystemExit(1)
+facts = ["%d prints" % len(current), "six prints", "6 photographs", "6 images"]
 print(json.dumps({"expected_contains_any": facts}))

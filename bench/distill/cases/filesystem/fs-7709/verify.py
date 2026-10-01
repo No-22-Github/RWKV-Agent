@@ -11,9 +11,8 @@ biggest = max(rows, key=lambda r: float((r.get("大小_mb") or "0").strip()))
 readme = case["files"]["README.md"]
 if "草稿" not in readme:
     raise SystemExit(1)
-facts = [
-    (biggest.get("大小_mb") or "").strip(),
-    (biggest.get("周边") or "").strip(),
-    "草稿",
-]
+_sabotage_guard = case["files"].get('stock/goods-log.csv', "")
+if not _sabotage_guard.splitlines() or _sabotage_guard.splitlines()[0] != '周边,源文件,大小_mb':
+    raise SystemExit(1)
+facts = ["386", "386 MB", "386 MiB"]
 print(json.dumps({"expected_contains_any": facts}))

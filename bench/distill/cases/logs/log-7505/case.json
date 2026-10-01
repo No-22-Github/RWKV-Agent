@@ -19,7 +19,7 @@
     "ref_calls": 4,
     "fixture_bytes": 2949,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:glm-5.3-flash-b07",
     "reviewer": null,
     "answer_style": "natural"
@@ -42,11 +42,8 @@
     {
       "prompt": "Change of scope: count the declined transactions whose code is insufficient_funds.",
       "expect": {
-        "output_contains_any": [
-          "6 declined",
-          "6 transactions",
-          "6 declines"
-        ]
+        "expected_number": 6.0,
+        "tolerance": 0.01
       }
     },
     {

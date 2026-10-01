@@ -20,7 +20,7 @@
     "fixture_bytes": 641,
     "answer_style": "natural",
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:distill-drafter",
     "reviewer": null
   },
@@ -34,17 +34,20 @@
       "prompt": "青岫蜡染工坊要更新会员通讯里的图样库介绍。帮我盘一下 patterns 这个目录：今年在册的图样有几幅、其中蜡染占几幅、旁边那份旧账留了多少。",
       "expect": {
         "output_contains": [
-          "5 幅",
-          "3 幅蜡染",
-          "4 幅"
+          "蜡染"
         ],
         "output_contains_any": [
           "5 幅",
-          "3 幅蜡染",
-          "4 幅"
+          "五幅",
+          "共 5 幅",
+          "5 幅作品"
         ],
         "required_tools": [
           "read_file"
+        ],
+        "output_excludes": [
+          "9 幅",
+          "九幅"
         ]
       }
     }

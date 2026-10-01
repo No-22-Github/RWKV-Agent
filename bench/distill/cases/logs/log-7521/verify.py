@@ -25,10 +25,7 @@ total = len(hq) + len(bj)
 fifties = sum(1 for _, o in hq + bj if o == "503")
 hq_kept = [e for e in hq if not ("2026-09-23 15:00:00" <= e[0] < "2026-09-23 15:30:00")]
 
-forms = [
-    "%d 次" % total,
-    "%d 次" % fifties,
-    "%d 次" % len(hq),
-    "%d 次" % len(hq_kept),
-]
-print(json.dumps({"expected_contains_any": sorted(set(forms))}))
+_cg = case["files"].get('logs/cdn-edge-bj.log', "")
+if '2026-09-23 15:18:42 GET /assets/cover-3390.jpg edge=qcd-bj cache=ERR origin=500 370ms' not in _cg:
+    raise SystemExit(1)
+print(json.dumps({"expected_number": total}))

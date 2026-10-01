@@ -19,7 +19,7 @@
     "ref_calls": 6,
     "fixture_bytes": 3763,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:glm-5.3-flash-b07",
     "reviewer": null,
     "answer_style": "natural"
@@ -34,17 +34,15 @@
     {
       "prompt": "Tamsin Transit 的登录服务日志在 logs/auth-login.log。9 月 27 日登录失败了多少次？",
       "expect": {
-        "output_contains_any": [
-          "16 次"
-        ]
+        "expected_number": 16.0,
+        "tolerance": 0.01
       }
     },
     {
       "prompt": "10.8.0.0/16 是运维跳板网段，我自己在上面测试来着——把这段来源的失败排除，重算是多少次？",
       "expect": {
-        "output_contains_any": [
-          "13 次"
-        ]
+        "expected_number": 13.0,
+        "tolerance": 0.01
       }
     },
     {
@@ -58,17 +56,15 @@
     {
       "prompt": "改成看 9 月 26 日的，同样排除跳板网段：失败了多少次？",
       "expect": {
-        "output_contains_any": [
-          "8 次"
-        ]
+        "expected_number": 8.0,
+        "tolerance": 0.01
       }
     },
     {
       "prompt": "不对吧，监控面板上 26 号明明是 11 次。",
       "expect": {
-        "output_contains_any": [
-          "8 次"
-        ]
+        "expected_number": 8.0,
+        "tolerance": 0.01
       }
     }
   ]

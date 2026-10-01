@@ -14,7 +14,10 @@ for row in rows:
     if row["task"] == "digest" and row["level"] == "ERROR" and "重试" in row["message"]:
         digest_last_retry = row["ts"].split()[1]
 
-forms = ["%d 个" % len(abandoned), digest_last_retry]
-if len(digest_last_retry) >= 5:
-    forms.append(digest_last_retry[:5])
-print(json.dumps({"expected_contains_any": sorted(set(forms))}))
+_sabotage_guard = case["files"].get('logs/batch-nightly.csv', "")
+if not _sabotage_guard.splitlines() or _sabotage_guard.splitlines()[0] != 'ts,task,level,message':
+    raise SystemExit(1)
+_cg = case["files"].get('logs/batch-nightly.csv', "")
+if '2026-09-25 01:02:41,stock-sync,ERROR,上游目录服务无响应（重试 1/3）' not in _cg:
+    raise SystemExit(1)
+print(json.dumps({"expected_number": len(abandoned)}))

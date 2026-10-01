@@ -33,7 +33,7 @@ in_window = [r for r in warm if datetime(2026, 9, 26, 8, 0, 0) <= r[0] < datetim
 warmest = max(r[3] for r in in_window)
 defrost = sum(1 for r in rows if r[4] == "defrost")
 
-forms = ["%d 条" % len(window), top,
-         first.strftime("%H:%M"), first.strftime("%H:%M:%S"),
-         "%s" % warmest, "%d 条" % defrost]
-print(json.dumps({"expected_contains_any": sorted(set(forms))}))
+_cg = case["files"].get('logs/telemetry-0926.jsonl', "")
+if '{"ts":"2026-09-26T18:09:52+08:00","sensor":"TH-0203","site":"冷库B","temp_c":-3.6,"status":"defrost"}' not in _cg:
+    raise SystemExit(1)
+print(json.dumps({"expected_number": len(window)}))

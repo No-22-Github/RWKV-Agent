@@ -20,7 +20,7 @@
     "fixture_bytes": 547,
     "answer_style": "natural",
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:distill-drafter",
     "reviewer": null
   },
@@ -34,17 +34,19 @@
       "prompt": "星野动漫社换届盘点，学长让写清楚周边设计稿库里最占存储的家伙：上架周边里哪个源文件最大、多大，另外那份草稿登记是干嘛的。",
       "expect": {
         "output_contains": [
-          "386",
           "亚克力立牌",
           "草稿"
         ],
         "output_contains_any": [
           "386",
-          "亚克力立牌",
-          "草稿"
+          "386 MB",
+          "386 MiB"
         ],
         "required_tools": [
           "read_file"
+        ],
+        "output_excludes": [
+          "715"
         ]
       }
     }

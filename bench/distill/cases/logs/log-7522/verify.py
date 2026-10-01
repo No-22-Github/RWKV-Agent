@@ -44,6 +44,7 @@ total = len(slow)
 longest = "%.1f" % max(d for _, _, d in slow)
 no_analytics = sum(1 for _, db, _ in slow if db != "analytics")
 
-forms = [alert_db, "%d slow" % total, "%d queries" % total, longest,
-         "%d slow" % no_analytics, "%d queries" % no_analytics]
-print(json.dumps({"expected_contains_any": sorted(set(forms))}))
+_sabotage_guard = case["files"].get('logs/db-slowquery.log', "")
+if not _sabotage_guard.splitlines() or _sabotage_guard.splitlines()[0] != '2026-09-24 01:05:12 dur=4.4s db=reporting user=bi_dash query="SELECT region, sum(spend) FROM stores GROUP BY 1"':
+    raise SystemExit(1)
+print(json.dumps({"expected_number": total}))

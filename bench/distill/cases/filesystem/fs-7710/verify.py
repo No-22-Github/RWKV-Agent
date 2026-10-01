@@ -13,9 +13,8 @@ if "2026-06-30" not in cur_text or "钉耙" not in cur_text:
     raise SystemExit(1)
 if "2025 年工具借用登记" not in old_lines[0]:
     raise SystemExit(1)
-facts = [
-    "2026-06-30",
-    "钉耙",
-    "2025 年工具借用登记",
-]
+_data = case["files"].get('records/2025/borrow-form-rakes.txt', "")
+if not _data.splitlines() or _data.splitlines()[0] != '望泽园社区花园 2025 年工具借用登记：钉耙（已归档）。':
+    raise SystemExit(1)
+facts = ["2026-06-30", "2026 年 6 月 30 日", "6 月 30 日"]
 print(json.dumps({"expected_contains_any": facts}))

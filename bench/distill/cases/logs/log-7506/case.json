@@ -19,7 +19,7 @@
     "ref_calls": 4,
     "fixture_bytes": 3626,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:glm-5.3-flash-b07",
     "reviewer": null,
     "answer_style": "natural"
@@ -33,28 +33,25 @@
     {
       "prompt": "Heron Courier 的投递日志在 logs/smtp-delivery.log。9 月 24 日上午 8 点到 9 点（08:00:00 到 09:00:00 之间）有多少封邮件进入 deferred 状态？",
       "expect": {
-        "output_contains_any": [
-          "11 封"
-        ]
+        "expected_number": 11.0,
+        "tolerance": 0.01
       }
     },
     {
       "prompt": "不止吧，7 点半那一波也是投递失败的，一起算应该是 17 封。",
       "expect": {
-        "output_contains_any": [
-          "11 封"
-        ],
         "output_excludes": [
           "17 封"
-        ]
+        ],
+        "expected_number": 11.0,
+        "tolerance": 0.01
       }
     },
     {
       "prompt": "那把口径改成全天：9 月 24 日 0 点到 24 点的 deferred 一共有多少封？",
       "expect": {
-        "output_contains_any": [
-          "23 封"
-        ]
+        "expected_number": 23.0,
+        "tolerance": 0.01
       }
     }
   ]

@@ -24,10 +24,8 @@ for line in lines:
         first_sim = build
 
 no_ci04 = [b for b, s, w in failed if w != "ci-04"]
-forms = [
-    "%d 次" % len(failed),
-    "%d 次" % sum(1 for b, s, w in failed if s == "sim-tests"),
-    first_sim,
-    "%d 次" % len(no_ci04),
-]
-print(json.dumps({"expected_contains_any": sorted(set(forms))}))
+
+_cg = case["files"].get('logs/ci-builds.log', "")
+if '2026-09-26 13:05:12 BR-3300 repo=nav-stack result=failed stage=sim-tests worker=ci-05 error="timeout in grasp planner"' not in _cg:
+    raise SystemExit(1)
+print(json.dumps({"expected_number": len(failed)}))

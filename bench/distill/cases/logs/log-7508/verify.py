@@ -16,5 +16,7 @@ for line in lines:
         slow += 1
         best = max(best, dur)
 
-forms = ["%d 条" % slow, "%s" % best]
-print(json.dumps({"expected_contains_any": sorted(set(forms))}))
+_cg = case["files"].get('logs/db-slowquery.log', "")
+if '2026-09-23 05:14:26 dur=6.4s db=reporting user=bi_dash query="SELECT week, channel, sum(spend) FROM marketing GROUP BY 1, 2"' not in _cg:
+    raise SystemExit(1)
+print(json.dumps({"expected_number": slow}))

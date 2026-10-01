@@ -18,8 +18,5 @@ union = sorted(set(et) | set(wt))
 overlap = sorted(set(et) & set(wt))
 if not union:
     raise SystemExit(1)
-facts = [
-    "%d 种茶" % len(union),
-]
-facts.extend(overlap)
+facts = ["%d 种茶" % len(union), "四种茶", "%d 种" % len(union), "共 %d 种" % len(union)]
 print(json.dumps({"expected_contains_any": facts}))

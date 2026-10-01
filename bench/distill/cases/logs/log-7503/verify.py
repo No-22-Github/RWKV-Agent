@@ -40,7 +40,10 @@ for line in batch:
     if next_task and task == next_task:
         next_end = line.split()[1]
 
-forms = list(abandoned) + [root, "%d 次" % payout_retries, next_end]
-if len(next_end) >= 5:
-    forms.append(next_end[:5])
-print(json.dumps({"expected_contains_any": sorted(set(forms))}))
+_sabotage_guard = case["files"].get('logs/ops-actions.csv', "")
+if not _sabotage_guard.splitlines() or _sabotage_guard.splitlines()[0] != 'time,change_id,level,message':
+    raise SystemExit(1)
+_cg = case["files"].get('logs/batch-nightly.log', "")
+if '2026-09-27 01:03:03 [stock-sync] ERROR warehouse EAST-2 会话中断（重试 1/6）' not in _cg:
+    raise SystemExit(1)
+print(json.dumps({"expected_number": payout_retries}))

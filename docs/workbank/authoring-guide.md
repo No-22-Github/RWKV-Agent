@@ -21,7 +21,7 @@
 | config | `read_effective` `edit_value` `merge` `missing_keys` `precedence` | 服务最终端口、改一个值保留格式、按规则合并、找缺的环境变量 |
 | docs | `extract_items` `latest_version` `link_check` `policy_lookup` `write_structured` | 纪要行动项写 todo.md、最新发布版本、坏链、退款期限 |
 | filesystem | `largest` `count_by_type` `find_file` `duplicates` `presence` | 最大的 N 个文件、按扩展名计数、找配置文件、内容相同的文件 |
-| script | `write_new` `add_flag` `fix_from_traceback` `stdlib_only` `fix_output` | JSON 转 CSV 脚本、加 --dry-run、按报错修脚本、修 off-by-one |
+| script | `write_new` `add_flag` `fix_from_traceback` `stdlib_only` `fix_output` `explain_readonly` | JSON 转 CSV 脚本、加 --dry-run、按报错修脚本、修 off-by-one、只读走读脚本用途（v1.3 N5 登记，2026-10-01） |
 | code | `locate_definition` `find_callers` `count_markers` `fix_edge_case` `explain_readonly` `report_test_result` | 函数定义在哪、谁调用了它、修边界 bug、测试到底过没过 |
 | web | `latest_version` `deprecation` `error_meaning` `lookup_value` | 某库最新版本、某接口是否弃用、报错含义、文档里的默认值 |
 | hybrid | `web_then_edit` `web_then_calc` `local_first` `multi_turn` | 查最新版本改 requirements、按官网税率算本地账单、答案本地就有 |

@@ -40,5 +40,8 @@ for line in lines:
         busy += 1
 
 top = sorted(codes.items(), key=lambda kv: (-kv[1], kv[0]))[0][0]
-forms = ["%d 封" % w1, "%d 封" % w1_notest, "%d 封" % w2, top, "%d 封" % busy]
-print(json.dumps({"expected_contains_any": sorted(set(forms))}))
+
+_cg = case["files"].get('logs/smtp-delivery.log', "")
+if '2026-09-24 09:41:25 Q-90387 rcpt=zhou.yi@tulipgrove.co.uk status=deferred reason="451 4.4.1 greylisted"' not in _cg:
+    raise SystemExit(1)
+print(json.dumps({"expected_number": w1}))

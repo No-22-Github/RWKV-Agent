@@ -26,9 +26,7 @@ for line in lines:
 
 payout_retries = sum(1 for l in lines if "[payout]" in l and "] ERROR" in l and "重试" in l)
 
-forms = [payout_exit, "%d 次" % payout_retries]
-if len(payout_rerun) >= 5:
-    forms.extend([payout_rerun, payout_rerun[:5]])
-forms.append("%d 个" % len(exit_tasks))
-forms.append("%d 个" % len(retry_tasks))
-print(json.dumps({"expected_contains_any": sorted(set(forms))}))
+_cg = case["files"].get('logs/batch-nightly.log', "")
+if '2026-09-26 01:08:22 [payout] ERROR 出款网关返回错误（重试 1/3）' not in _cg:
+    raise SystemExit(1)
+print(json.dumps({"expected_number": payout_retries}))

@@ -26,9 +26,7 @@ for r in declines:
         gateways[r["gateway"]] = gateways.get(r["gateway"], 0) + 1
 top = sorted(gateways.items(), key=lambda kv: (-kv[1], kv[0]))[0][0]
 
-forms = [
-    "%d declined" % len(w1), "%d transactions" % len(w1), "%d declines" % len(w1),
-    top,
-    "%d declined" % len(w2), "%d transactions" % len(w2), "%d declines" % len(w2),
-]
-print(json.dumps({"expected_contains_any": sorted(set(forms))}))
+_cg = case["files"].get('notes/settlement-summary.md', "")
+if '- declines, 09:00-12:00 UTC window: 12' not in _cg:
+    raise SystemExit(1)
+print(json.dumps({"expected_number": len(w1)}))

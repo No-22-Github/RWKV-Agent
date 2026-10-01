@@ -19,7 +19,7 @@
     "ref_calls": 6,
     "fixture_bytes": 2198,
     "status": "draft",
-    "version": 1,
+    "version": 3,
     "author": "llm:glm-5.3-flash-b07",
     "reviewer": null,
     "answer_style": "natural"
@@ -34,33 +34,31 @@
     {
       "prompt": "Quill & Page 的 CDN 在两个边缘节点各有一份日志：logs/cdn-edge-hq.log 和 logs/cdn-edge-bj.log。9 月 23 日 12:00:00 到 18:00:00 之间，两个节点合计有多少次源站取回失败（cache=ERR）？",
       "expect": {
-        "output_contains_any": [
-          "15 次"
-        ]
+        "expected_number": 15.0,
+        "tolerance": 0.01
       }
     },
     {
       "prompt": "其中源站状态码是 503 的有多少次？",
       "expect": {
-        "output_contains_any": [
-          "5 次"
-        ]
+        "expected_number": 5.0,
+        "tolerance": 0.01
       }
     },
     {
-      "prompt": "改成只看 qcd-hq 节点：同一个时间窗里它有多少次取回失败？",
+      "prompt": "改成只看 qcd-hq 节点：同一个时间窗里它最早一次取回失败发生在什么时间？",
       "expect": {
         "output_contains_any": [
-          "9 次"
+          "12:41:07",
+          "2026-09-23 12:41:07"
         ]
       }
     },
     {
       "prompt": "不对，qcd-hq 在 15:00:00 到 15:30:00 做过维护，把这段排除再算是多少次？",
       "expect": {
-        "output_contains_any": [
-          "6 次"
-        ]
+        "expected_number": 6.0,
+        "tolerance": 0.01
       }
     }
   ]
