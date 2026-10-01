@@ -1,0 +1,67 @@
+{
+  "id": "hyb-7775",
+  "description": "两轮反问（多种合理解读）：原料量对应采购进货与后厨领用两份文件，第 1 轮点名两份反问，第 2 轮定后厨领用得 161。 DISTILL-CANARY-b491a098",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 441.0
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b07-ambiguoustwo-04",
+    "ref_calls": 4,
+    "fixture_bytes": 316,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "README.md": "# 北屿海鲜\n\n采购进货与后厨领用分表登记，数量为公斤。\n",
+    "store/后厨领用-2026-09.csv": "日期,品类,数量\n2026-09-04,带鱼,38\n2026-09-10,海虾,22\n2026-09-17,带鱼,45\n2026-09-24,黄花鱼,30\n2026-09-28,海虾,26\n",
+    "store/采购进货-2026-09.csv": "日期,品类,数量\n2026-09-02,带鱼,120\n2026-09-09,黄花鱼,85\n2026-09-16,带鱼,140\n2026-09-23,海虾,96\n"
+  },
+  "turns": [
+    {
+      "prompt": "汇总一下 9 月的原料量，月底盘点要用。",
+      "expect": {
+        "forbidden_tools": [
+          "write_file",
+          "append_file",
+          "replace_lines"
+        ],
+        "output_contains_any": [
+          "？",
+          "?",
+          "哪",
+          "什么",
+          "还是",
+          "是否",
+          "请告诉",
+          "请确认",
+          "要不要",
+          "需要提供"
+        ],
+        "output_contains": [
+          "后厨领用-2026-09.csv",
+          "采购进货-2026-09.csv"
+        ]
+      }
+    },
+    {
+      "prompt": "按后厨领用那份算。只回答数字。",
+      "expect": {
+        "expected_number": 161.0,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

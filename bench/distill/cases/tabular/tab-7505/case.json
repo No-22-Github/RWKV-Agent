@@ -1,0 +1,50 @@
+{
+  "id": "tab-7505",
+  "description": "Sum September 2026 wholesale value for the Wildflower blend in a tab-separated extract log where an unheated near-name line sits beside it. DISTILL-CANARY-016c9d8c",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 9330.93
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b06-thistledown-honey-01",
+    "ref_calls": 1,
+    "fixture_bytes": 5297,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "data/extract_batches.tsv": "batch_id\tbatch_month\thive_yard\thoney_type\tjars\tnet_kg\twholesale_value\nTH-8386\t2026-09\tAlder Track\tClover\t64\t12.4\t137.65\nTH-969\t2026-09\tMill Field\tBuckwheat\t81\t36.3\t389.30\nTH-4621\t2026-08\tHeath Row\tWildflower\t58\t22.9\t565.63\nTH-5999\t2026-09\tAlder Track\tClover\t41\t29.9\t457.93\nTH-3212\t2026-09\tAlder Track\tWildflower Raw\t30\t19.4\t176.43\nTH-307\t2026-08\tMill Field\tBuckwheat\t71\t15.8\t351.53\nTH-9676\t2026-09\tMill Field\tWildflower Raw\t57\t31.5\t176.27\nTH-9737\t2026-09\tAlder Track\tWildflower\t61\t25.8\t115.47\nTH-9462\t2026-08\tMill Field\tBuckwheat\t68\t32.5\t182.55\nTH-6913\t2026-08\tHeath Row\tClover\t40\t14.8\t535.99\nTH-9555\t2026-09\tAlder Track\tClover\t38\t27.0\t107.37\nTH-2114\t2026-08\tAlder Track\tWildflower Raw\t34\t32.0\t524.56\nTH-7657\t2026-08\tAlder Track\tWildflower\t35\t20.3\t249.22\nTH-3194\t2026-09\tAlder Track\tWildflower Raw\t55\t23.7\t295.34\nTH-2312\t2026-09\tAlder Track\tWildflower Raw\t46\t9.3\t635.37\nTH-4593\t2026-09\tAlder Track\tWildflower Raw\t12\t32.7\t620.65\nTH-8302\t2026-09\tMill Field\tWildflower\t42\t13.2\t225.46\nTH-7504\t2026-08\tHeath Row\tWildflower Raw\t21\t16.4\t139.91\nTH-4619\t2026-09\tHeath Row\tWildflower\t83\t22.9\t383.35\nTH-8766\t2026-08\tAlder Track\tWildflower\t28\t5.4\t499.31\nTH-4708\t2026-09\tMill Field\tBuckwheat\t61\t10.2\t100.57\nTH-9408\t2026-09\tHeath Row\tClover\t66\t19.7\t506.48\nTH-827\t2026-08\tMill Field\tWildflower Raw\t94\t21.2\t227.86\nTH-643\t2026-09\tMill Field\tWildflower\t73\t36.1\t577.56\nTH-9768\t2026-08\tMill Field\tBuckwheat\t41\t12.5\t254.73\nTH-8559\t2026-09\tAlder Track\tBuckwheat\t52\t31.6\t538.54\nTH-9859\t2026-09\tAlder Track\tWildflower\t92\t14.3\t421.94\nTH-6714\t2026-09\tMill Field\tWildflower Raw\t89\t13.5\t332.47\nTH-9196\t2026-08\tMill Field\tClover\t63\t18.7\t237.50\nTH-7211\t2026-08\tAlder Track\tBuckwheat\t62\t23.0\t501.07\nTH-898\t2026-08\tAlder Track\tWildflower Raw\t63\t19.1\t332.51\nTH-9112\t2026-08\tMill Field\tWildflower\t18\t28.7\t586.10\nTH-4841\t2026-09\tMill Field\tWildflower Raw\t37\t27.5\t341.58\nTH-5273\t2026-09\tAlder Track\tWildflower Raw\t70\t24.7\t408.04\nTH-9122\t2026-09\tHeath Row\tWildflower Raw\t65\t17.4\t129.41\nTH-7601\t2026-09\tAlder Track\tBuckwheat\t80\t28.1\t502.54\nTH-1648\t2026-09\tHeath Row\tWildflower Raw\t61\t37.2\t93.08\nTH-4093\t2026-09\tAlder Track\tWildflower\t72\t6.5\t621.33\nTH-4730\t2026-08\tMill Field\tWildflower\t67\t11.4\t299.50\nTH-8873\t2026-09\tHeath Row\tWildflower\t55\t12.3\t536.29\nTH-532\t2026-09\tMill Field\tBuckwheat\t51\t32.4\t524.72\nTH-3964\t2026-09\tHeath Row\tWildflower\t37\t11.4\t482.63\nTH-1557\t2026-09\tMill Field\tWildflower Raw\t83\t21.6\t261.48\nTH-6557\t2026-09\tMill Field\tWildflower Raw\t42\t16.3\t133.19\nTH-4292\t2026-09\tHeath Row\tWildflower Raw\t40\t16.5\t92.71\nTH-5900\t2026-08\tMill Field\tClover\t82\t16.8\t311.98\nTH-3287\t2026-09\tHeath Row\tWildflower Raw\t16\t27.7\t590.23\nTH-3327\t2026-08\tAlder Track\tBuckwheat\t92\t8.8\t334.66\nTH-1847\t2026-09\tMill Field\tWildflower\t38\t4.3\t524.07\nTH-7254\t2026-09\tMill Field\tBuckwheat\t48\t38.0\t454.92\nTH-8174\t2026-09\tHeath Row\tClover\t65\t11.6\t633.77\nTH-2189\t2026-09\tHeath Row\tClover\t94\t17.0\t246.83\nTH-4727\t2026-09\tMill Field\tBuckwheat\t53\t22.7\t615.40\nTH-6148\t2026-09\tMill Field\tBuckwheat\t60\t4.2\t554.22\nTH-8296\t2026-09\tHeath Row\tWildflower Raw\t65\t25.1\t396.97\nTH-5799\t2026-09\tAlder Track\tClover\t28\t11.6\t513.38\nTH-2888\t2026-09\tAlder Track\tWildflower Raw\t86\t34.7\t311.62\nTH-1270\t2026-09\tHeath Row\tWildflower Raw\t30\t29.2\t409.77\nTH-7217\t2026-09\tAlder Track\tWildflower Raw\t42\t35.2\t539.36\nTH-9743\t2026-08\tHeath Row\tWildflower\t20\t21.1\t629.44\nTH-1417\t2026-09\tAlder Track\tWildflower\t56\t10.6\t329.33\nTH-6309\t2026-09\tAlder Track\tWildflower Raw\t15\t37.3\t414.63\nTH-452\t2026-08\tMill Field\tWildflower Raw\t74\t31.5\t488.53\nTH-3779\t2026-08\tAlder Track\tClover\t50\t12.7\t312.96\nTH-4446\t2026-09\tMill Field\tWildflower\t19\t25.9\t282.68\nTH-9113\t2026-09\tMill Field\tWildflower\t83\t10.4\t224.26\nTH-3679\t2026-09\tAlder Track\tWildflower Raw\t29\t18.0\t571.62\nTH-7058\t2026-09\tHeath Row\tWildflower\t40\t9.1\t506.62\nTH-3059\t2026-09\tMill Field\tBuckwheat\t60\t33.8\t278.54\nTH-460\t2026-09\tAlder Track\tWildflower\t85\t26.6\t209.82\nTH-6719\t2026-09\tHeath Row\tWildflower Raw\t12\t30.1\t333.55\nTH-2195\t2026-09\tAlder Track\tWildflower\t44\t15.0\t638.38\nTH-8663\t2026-09\tAlder Track\tBuckwheat\t90\t26.1\t567.99\nTH-1007\t2026-09\tAlder Track\tWildflower Raw\t34\t27.6\t445.45\nTH-138\t2026-09\tAlder Track\tClover\t61\t16.0\t630.42\nTH-9549\t2026-09\tAlder Track\tClover\t90\t6.0\t601.10\nTH-9521\t2026-09\tAlder Track\tBuckwheat\t19\t33.3\t93.12\nTH-3746\t2026-09\tAlder Track\tWildflower Raw\t12\t36.8\t534.73\nTH-302\t2026-09\tMill Field\tWildflower Raw\t49\t8.8\t393.06\nTH-3670\t2026-09\tAlder Track\tWildflower\t32\t23.4\t298.38\nTH-1658\t2026-09\tHeath Row\tWildflower\t19\t20.6\t475.21\nTH-9585\t2026-08\tMill Field\tBuckwheat\t58\t16.9\t423.78\nTH-3240\t2026-09\tHeath Row\tWildflower\t16\t27.5\t515.58\nTH-248\t2026-08\tHeath Row\tWildflower Raw\t71\t22.2\t362.43\nTH-4932\t2026-09\tMill Field\tWildflower\t72\t29.1\t530.73\nTH-6764\t2026-08\tHeath Row\tWildflower\t28\t17.5\t163.12\nTH-3400\t2026-09\tAlder Track\tWildflower Raw\t57\t12.5\t513.02\nTH-8544\t2026-08\tAlder Track\tClover\t36\t4.1\t426.06\nTH-9256\t2026-09\tAlder Track\tWildflower Raw\t75\t31.9\t180.90\nTH-6910\t2026-08\tAlder Track\tWildflower\t37\t11.9\t633.35\nTH-8519\t2026-09\tHeath Row\tBuckwheat\t41\t35.2\t142.51\nTH-776\t2026-09\tAlder Track\tClover\t34\t19.7\t211.28\n",
+    "README.md": "# Thistledown Honey Co - extract log\n\nOne row per extraction batch. Wildflower is the standard blend; Wildflower Raw is the unheated small-batch jar line.\n",
+    "notes/extraction_notes.txt": "Extraction notes\n- The uncapping tank needs a fresh blade each season.\n- Yard keys hang inside the packing room door.\n- Jar labels ship in mixed cartons.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Thistledown Honey Co is totalling September wholesale value by honey type. The extract log is at data/extract_batches.tsv. Give the number alone, as digits, with no label. What was the September 2026 wholesale value of the Wildflower honey?",
+      "expect": {
+        "expected_number": 7899.09,
+        "tolerance": 0.01,
+        "required_tools": [
+          "data_query"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 1
+    }
+  }
+}

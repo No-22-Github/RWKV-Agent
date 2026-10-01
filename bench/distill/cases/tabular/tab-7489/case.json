@@ -1,0 +1,59 @@
+{
+  "id": "tab-7489",
+  "description": "Q3 2026 invoice total to date at Pemberly Orchards, where the September register is not yet compiled. DISTILL-CANARY-db026431",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "3840"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b06-pemberly-invoice",
+    "ref_calls": 3,
+    "fixture_bytes": 776,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Pemberly Orchards - invoice registers\n\nMonthly invoice registers land in exports/ as invoices-YYYY-MM.csv. September's register is compiled at month end and appears here only after the closing run.\n",
+    "exports/invoices-2026-07.csv": "invoice_id,issue_date,customer,amount\nPO-7031,2026-07-02,Halloway Grocers,412.00\nPO-7036,2026-07-07,Denbigh Cafe,188.50\nPO-7042,2026-07-12,Marchmont Stores,540.00\nPO-7048,2026-07-17,Halloway Grocers,376.50\nPO-7053,2026-07-22,Ryeford Press,290.00\nPO-7059,2026-07-27,Denbigh Cafe,1335.00\n",
+    "exports/invoices-2026-08.csv": "invoice_id,issue_date,customer,amount\nPO-8044,2026-08-01,Marchmont Stores,610.00\nPO-8051,2026-08-06,Ryeford Press,262.50\nPO-8057,2026-08-11,Halloway Grocers,448.00\nPO-8063,2026-08-16,Denbigh Cafe,196.50\nPO-8069,2026-08-21,Marchmont Stores,1029.00\nPO-8075,2026-08-28,Fenwick Orchard,1294.00\n"
+  },
+  "turns": [
+    {
+      "prompt": "Pemberly Orchards' accountant needs the Q3 2026 invoice total to date from the monthly registers in exports/. What is it?",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains": [
+          "6982"
+        ],
+        "must_state_unverified": [
+          "invoices-2026-09"
+        ],
+        "output_contains_any": [
+          "invoices-2026-09",
+          "September invoice",
+          "September register"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

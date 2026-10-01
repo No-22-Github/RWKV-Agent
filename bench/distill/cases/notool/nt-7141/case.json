@@ -1,0 +1,38 @@
+{
+  "id": "nt-7141",
+  "description": "Convert a 90 cm frame width to inches at the exact 2.54 definition, two decimals. DISTILL-CANARY-e3f82386",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b06-frameinch-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 187
+  },
+  "web_fixture": [],
+  "files": {
+    "frames/frames.csv": "frame_no,width_cm\nK-118,90\nK-121,80\nK-130,120\n",
+    "README.md": "# 观澜画室 - 装裱工作区\n\n画框规格与装裱订单都登记在这里。\n\n- frames/  在库画框规格表\n- orders/  装裱订单\n"
+  },
+  "turns": [
+    {
+      "prompt": "观澜画室要给一幅装裱后宽 90 厘米的画配英文版说明牌，尺寸栏需要英寸。按 1 英寸 = 2.54 厘米折算，90 厘米是多少英寸？保留两位小数，只回答数字。",
+      "expect": {
+        "expected_number": 35.43,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

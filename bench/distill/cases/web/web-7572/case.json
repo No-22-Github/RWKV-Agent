@@ -1,0 +1,52 @@
+{
+  "id": "web-7572",
+  "description": "Date the v1 export endpoint of the Brindlewood Docs API started refusing calls, from the integration notice. DISTILL-CANARY-678eb5fa",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "deprecation",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-web-b06-brindlewood-export",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "brindlewood",
+      "url": "https://www.brindlewooddocs.example/notices/export-v1",
+      "url_match": "www.brindlewooddocs.example/notices/export-v1",
+      "title": "Integration notice: v1 export endpoint - Brindlewood Docs",
+      "snippet": "Since 2026-08-31 the v1 export endpoint refuses every call with HTTP 410; move jobs to the v2 export resource.",
+      "content": "# Integration notice - v1 export endpoint\n\nSince 2026-08-31 the v1 export endpoint refuses every call with HTTP 410. Move scheduled jobs to the v2 export resource; job IDs and pagination are unchanged.\n\nThis notice stays up for archive purposes.\n",
+      "published_at": "2026-09-02"
+    },
+    {
+      "query_match": "brindlewood",
+      "url": "https://www.brindlewooddocs.example/api/v2-export",
+      "url_match": "www.brindlewooddocs.example/api/v2-export",
+      "title": "v2 export resource - Brindlewood Docs API",
+      "snippet": "Reference for the v2 export resource: job creation, polling and download.",
+      "content": "# v2 export resource\n\nJob creation, polling and download endpoints for the v2 export resource. Job IDs and pagination match the v1 shapes.\n",
+      "published_at": "2026-08-11"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "A nightly job in our archive tool still targets the v1 export endpoint of the Brindlewood Docs API and started failing this month. On what date did calls to that endpoint start being refused? Give the date alone, in the form YYYY-MM-DD.",
+      "expect": {
+        "output_equals": "2026-08-31"
+      }
+    }
+  ]
+}

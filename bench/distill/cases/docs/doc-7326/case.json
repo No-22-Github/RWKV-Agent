@@ -1,0 +1,38 @@
+{
+  "id": "doc-7326",
+  "description": "Look up the points validity period for the silver tier in a loyalty rules table. DISTILL-CANARY-74528ac4",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-doc-b06-qingwu-shuju",
+    "ref_calls": 1,
+    "fixture_bytes": 339,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "docs/积分规则.csv": "卡种,入会渠道,积分有效期(月),生日积分倍率\n普通卡,门店,6,1\n普通卡,小程序,6,1\n普通卡,异业合作,6,1\n银卡,门店,12,2\n银卡,小程序,12,2\n银卡,异业合作,12,2\n金卡,门店,18,2\n金卡,小程序,18,3\n金卡,异业合作,18,3\n白金卡,门店,24,3\n白金卡,小程序,24,3\n白金卡,异业合作,24,3\n"
+  },
+  "turns": [
+    {
+      "prompt": "青梧书局的积分规则表在 docs/积分规则.csv。银卡会员的积分有效期是多少个月？",
+      "expect": {
+        "output_contains_any": [
+          "12 个月",
+          "12个月"
+        ]
+      }
+    }
+  ]
+}

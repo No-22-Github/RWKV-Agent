@@ -1,0 +1,42 @@
+{
+  "id": "nt-7147",
+  "description": "Convert a 5-mile training run to kilometres at 1.609344, two decimals. DISTILL-CANARY-b276ffe0",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 4.83
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-mi2km-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 243
+  },
+  "web_fixture": [],
+  "files": {
+    "training/runs.csv": "run_date,distance_mi\n2026-09-13,5\n2026-09-16,3\n2026-09-21,6.2\n",
+    "README.md": "# 追风跑团 - 训练工作区\n\n训练日志与周报归档都放在这里。\n\n- training/  训练里程登记\n- weekly/  周报存档\n\n周报里程一律折算成公里登记。\n"
+  },
+  "turns": [
+    {
+      "prompt": "追风跑团要把训练里程统一折算成公里再进周报。9 月 13 日那次拉练跑了 5 英里，按 1 英里 = 1.609344 公里折算。折合多少公里？保留两位小数，只回答数字。",
+      "expect": {
+        "expected_number": 8.05,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

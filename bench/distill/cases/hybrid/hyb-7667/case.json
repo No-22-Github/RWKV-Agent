@@ -1,0 +1,67 @@
+{
+  "id": "hyb-7667",
+  "description": "Update one extension number in the emergency contact CSV per the property office notice. DISTILL-CANARY-70b0c477",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_edit",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "CON"
+    ],
+    "level": "L0",
+    "family": "fam-hyb-b06-rosteredit-01",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 273,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {
+    "客户服务部/应急联络表.csv": "姓名,部门,分机\n王翠英,后勤部,8017\n郑立群,工程部,8033\n韩雪梅,安保部,8021\n宋佳明,客服部,8035\n",
+    "客户服务部/值班安排.txt": "客服部白班：宋佳明；夜班：韩雪梅。\n",
+    "README.md": "蓝湾物业客服部：应急联络表按人登记分机；分机调整以行政公告页为准。\n"
+  },
+  "web_fixture": [
+    {
+      "query_match": "蓝湾物业 分机",
+      "url": "https://news.lanwan-pm.example/notices/ext-2026-09",
+      "url_match": "news.lanwan-pm.example/notices/ext-2026-09",
+      "title": "蓝湾物业分机调整公告",
+      "snippet": "部分部门分机自 9 月 12 日起调整。",
+      "content": "# 关于部分部门分机调整的公告\n\n各位同事：\n\n自 2026-09-12 起，后勤部王翠英的分机由 8017 调整为 8029，其余人员分机不变。\n",
+      "published_at": "2026-09-10"
+    },
+    {
+      "query_match": "蓝湾物业",
+      "url": "https://www.lanwan-pm.example/portal",
+      "url_match": "www.lanwan-pm.example/portal",
+      "title": "蓝湾物业门户",
+      "snippet": "公司门户首页。",
+      "content": "蓝湾物业服务有限公司门户首页。\n",
+      "published_at": "2026-08-30"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "行政部刚发了分机调整公告。请把 客户服务部/应急联络表.csv 里王翠英的分机更新成公告里的新号码。改好后告诉我：她现在的分机是多少？",
+      "expect": {
+        "output_contains": [
+          "8029"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "客户服务部/应急联络表.csv": {
+        "contains": [
+          "8029"
+        ]
+      }
+    }
+  }
+}

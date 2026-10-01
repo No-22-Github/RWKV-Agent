@@ -1,0 +1,52 @@
+{
+  "id": "tab-7482",
+  "description": "September sales total of the Instagram Shop channel at Clovelly Blooms, which has three other channels. DISTILL-CANARY-dcd8893f",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "1080.00"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b06-clovelly-channel",
+    "ref_calls": 3,
+    "fixture_bytes": 745,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Clovelly Blooms - September orders\n\nOne row per order from the web shop, the shopfront till and phone orders.\n\nThe marketing team's social channels are tracked separately in the ads platform and do not appear in this export.\n",
+    "exports/orders-2026-09.csv": "order_id,order_date,channel,store,amount\nCB-4102,2026-09-01,web,main,64.20\nCB-4107,2026-09-02,shopfront,main,132.00\nCB-4113,2026-09-04,phone,main,48.50\nCB-4118,2026-09-06,web,main,96.30\nCB-4124,2026-09-08,shopfront,main,27.40\nCB-4129,2026-09-10,phone,main,71.00\nCB-4135,2026-09-13,web,main,158.60\nCB-4141,2026-09-15,shopfront,main,88.90\nCB-4147,2026-09-18,web,main,42.10\nCB-4152,2026-09-21,phone,main,203.70\nCB-4159,2026-09-24,web,main,117.80\nCB-4166,2026-09-27,shopfront,main,55.30\nCB-4171,2026-09-29,web,main,601.00\n"
+  },
+  "turns": [
+    {
+      "prompt": "Clovelly Blooms' marketing review wants the September sales total for the Instagram Shop channel from exports/orders-2026-09.csv. What is it?",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "Instagram Shop",
+          "Instagram"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools",
+          "1080.00"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "id": "hyb-7724",
+  "description": "Multi-turn kiln firing count under a retired sheet name, then a cone-6 cut and glaze drill-down. DISTILL-CANARY-da9531c6",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": 23
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b07-mixed-10",
+    "ref_calls": 3,
+    "fixture_bytes": 942,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "kiln/firings-2026-09.csv": "firing_id,started_on,cone,hours,glaze\nF-601,2026-09-01,6,9.5,G-207\nF-602,2026-09-02,6,10.0,G-311\nF-603,2026-09-03,5,8.5,G-118\nF-604,2026-09-04,6,9.0,G-207\nF-605,2026-09-05,6,10.5,G-402\nF-606,2026-09-06,5,9.0,G-207\nF-607,2026-09-08,6,9.5,G-207\nF-608,2026-09-09,6,10.0,G-118\nF-609,2026-09-10,5,8.0,G-311\nF-610,2026-09-11,6,9.5,G-311\nF-611,2026-09-12,6,10.0,G-207\nF-612,2026-09-13,5,8.5,G-402\nF-613,2026-09-15,6,9.0,G-402\nF-614,2026-09-16,6,10.5,G-311\nF-615,2026-09-17,5,9.0,G-118\nF-616,2026-09-19,6,10.0,G-207\nF-617,2026-09-22,5,8.0,G-311\nF-618,2026-09-24,6,9.5,G-118\n",
+    "glazes/glaze-log.md": "# Glaze room log - September 2026\n\nTest tiles fired this month: 23. Tile batches mirror the firing log's glaze codes;\nresults are recorded on the tiles themselves, not here.\n",
+    "README.md": "# Kilnwick Pottery - studio records\n\nFiring records live under kiln/ as firings-YYYY-MM.csv. The old kiln-log.csv name was\nretired in the August tidy-up; the glaze room keeps its own log under glazes/.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Kilnwick Pottery is summing up the month. The studio head keeps calling the sheet kiln-log.csv, but that name was retired in the August tidy-up - find the September firing sheet and tell me how many firings we ran. Just the number.",
+      "expect": {
+        "expected_number": 18,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "Change of plan for the report: count only the firings that reached cone 6. How many were there? The bare number, please.",
+      "expect": {
+        "expected_number": 12,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "Which glaze code appears most among those cone-6 firings?",
+      "expect": {
+        "output_contains_any": [
+          "G-207"
+        ]
+      }
+    },
+    {
+      "prompt": "How many cone-6 firings used that glaze? Number only.",
+      "expect": {
+        "expected_number": 5,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "And what was the average firing time across those cone-6 firings of that glaze, in hours? One decimal place is fine.",
+      "expect": {
+        "expected_number": 9.6,
+        "tolerance": 0.05
+      }
+    }
+  ]
+}

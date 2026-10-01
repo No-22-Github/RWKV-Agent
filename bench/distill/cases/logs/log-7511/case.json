@@ -1,0 +1,66 @@
+{
+  "id": "log-7511",
+  "description": "Four-turn Chinese session on a CI build log with a stale summary line: failed-build count, stage rescope, first failed build id, worker exclusion. DISTILL-CANARY-35667db7",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-HEADER": 12
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-log-b07-larkspur-build-01",
+    "ref_calls": 5,
+    "fixture_bytes": 2561,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "logs/ci-builds.log": "2026-09-26 08:40:26 BR-3283 repo=vision-core result=failed stage=unit-tests worker=ci-03 error=\"assert count(tracks) == 4\"\n2026-09-26 09:12:44 BR-3287 repo=nav-stack result=failed stage=sim-tests worker=ci-01 error=\"collision at step 214\"\n2026-09-26 09:47:03 BR-3289 repo=slam-maps result=passed stage=sim-tests worker=ci-05\n2026-09-26 10:15:38 BR-3291 repo=vision-core result=failed stage=sim-tests worker=ci-04 error=\"sim clock drift 3.2s\"\n2026-09-26 10:52:19 BR-3293 repo=nav-stack result=passed stage=unit-tests worker=ci-02\n2026-09-26 11:31:07 BR-3295 repo=path-planner result=failed stage=sim-tests worker=ci-01 error=\"no valid path in map 7\"\n2026-09-26 12:20:55 BR-3298 repo=vision-core result=passed stage=sim-tests worker=ci-03\n2026-09-26 13:05:12 BR-3300 repo=nav-stack result=failed stage=sim-tests worker=ci-05 error=\"timeout in grasp planner\"\n2026-09-26 13:44:36 BR-3302 repo=slam-maps result=failed stage=package worker=ci-02 error=\"missing libopenni\"\n2026-09-26 14:29:51 BR-3304 repo=nav-stack result=failed stage=sim-tests worker=ci-04 error=\"physics engine crash\"\n2026-09-26 15:16:08 BR-3306 repo=path-planner result=passed stage=unit-tests worker=ci-01\n2026-09-26 16:02:33 BR-3309 repo=vision-core result=failed stage=lint worker=ci-03 error=\"line 88: style violation\"\n2026-09-26 16:47:20 BR-3312 repo=nav-stack result=failed stage=sim-tests worker=ci-05 error=\"waypoint overshoot\"\n2026-09-26 17:33:45 BR-3314 repo=slam-maps result=passed stage=unit-tests worker=ci-02\n2026-09-26 18:21:09 BR-3317 repo=nav-stack result=failed stage=unit-tests worker=ci-01 error=\"import loop in nav_api\"\n2026-09-26 19:08:42 BR-3319 repo=path-planner result=failed stage=package worker=ci-04 error=\"deb signing key expired\"\n2026-09-26 19:55:16 BR-3321 repo=vision-core result=passed stage=lint worker=ci-05\n2026-09-26 20:40:38 BR-3323 repo=nav-stack result=passed stage=sim-tests worker=ci-03\n2026-09-26 21:26:57 BR-3325 repo=slam-maps result=passed stage=sim-tests worker=ci-01\n2026-09-26 22:12:30 BR-3327 repo=nav-stack result=passed stage=lint worker=ci-02\n2026-09-26 22:58:44 BR-3329 repo=nav-stack result=failed stage=sim-tests worker=ci-03 error=\"collision at step 87\"\n2026-09-26 23:00:04 [report] INFO 汇总：截至 23:00，本仓库批共构建 84 次，失败 12 次\n2026-09-26 23:58:44 BR-3331 repo=slam-maps result=failed stage=unit-tests worker=ci-05 error=\"import loop in slam_api\"\n",
+    "README.md": "# Larkspur Robotics 构建农场日志（2026-09-26）\n\n一行一次构建；[report] 汇总行由报表任务在 23:00 生成，只统计 23:00 之前的记录。\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "Larkspur Robotics 的构建农场 9 月 26 日跑了一批构建，日志在 logs/ci-builds.log。当天有多少次构建失败？",
+      "expect": {
+        "output_contains_any": [
+          "13 次"
+        ]
+      }
+    },
+    {
+      "prompt": "其中 sim-tests 阶段失败的有几次？",
+      "expect": {
+        "output_contains_any": [
+          "7 次"
+        ]
+      }
+    },
+    {
+      "prompt": "sim-tests 里第一个失败的是哪次构建？",
+      "expect": {
+        "output_contains_any": [
+          "BR-3287"
+        ]
+      }
+    },
+    {
+      "prompt": "ci-04 那台机器当天在换硬盘，把它上面的失败排除掉，失败次数是多少？",
+      "expect": {
+        "output_contains_any": [
+          "10 次"
+        ]
+      }
+    }
+  ]
+}

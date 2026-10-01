@@ -1,0 +1,56 @@
+{
+  "id": "hyb-7662",
+  "description": "Electricity fee for unit 2-101 from meter readings times the posted pool tariff. DISTILL-CANARY-4c381fe3",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_calc",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-hyb-b06-billcalc-01",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 241,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {
+    "物业/抄表记录.csv": "房号,上月读数,本月读数\n2-101,30866,31278\n2-102,27540,27755\n2-103,41210,41733\n1-101,19877,20102\n1-102,25330,25441\n",
+    "README.md": "桂香苑小区物业：每月初抄表，抄表记录按房号登记；电费按当月公示的合表电价结算。\n"
+  },
+  "web_fixture": [
+    {
+      "query_match": "桂香苑",
+      "url": "https://notice.guixiangyuan.example/fee-2026-09",
+      "url_match": "notice.guixiangyuan.example/fee-2026-09",
+      "title": "桂香苑物业 2026 年 9 月收费公示",
+      "snippet": "9 月各项代收费用标准公示。",
+      "content": "# 桂香苑物业 2026 年 9 月收费公示\n\n各位业主：\n\n9 月各项代收费用标准公示如下：\n\n项目 | 单价\n合表电价 | 0.68 元/度\n自来水 | 3.10 元/吨\n\n抄表数据见物业办公室张贴栏。\n",
+      "published_at": "2026-09-01"
+    },
+    {
+      "query_match": "桂香苑 电价",
+      "url": "https://www.cityfee.example/list-5309",
+      "url_match": "www.cityfee.example/list-5309",
+      "title": "本市代收电价一览（9 月更新）",
+      "snippet": "桂香苑等小区执行合表电价 0.68 元/度。",
+      "content": "# 代收电价一览\n\n桂香苑：合表电价 0.68 元/度。\n青云里：0.62 元/度。\n",
+      "published_at": "2026-09-03"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "2-101 的业主来电询问本期电费。抄表记录在 物业/抄表记录.csv，电价按公示的合表电价计。2-101 本期电费多少元？（只回答数字，不要单位。）",
+      "expect": {
+        "expected_number": 280.16,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

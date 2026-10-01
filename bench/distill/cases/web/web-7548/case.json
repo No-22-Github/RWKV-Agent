@@ -1,0 +1,64 @@
+{
+  "id": "web-7548",
+  "description": "Meaning and handling of steam-side error E-11 per the revised vendor page, against forum folklore. DISTILL-CANARY-50bcc96b",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [
+      "TR-WEBSTALE",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "replace the steam pump",
+      "TR-DECOY": "water tank float"
+    },
+    "axes": [
+      "VER",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-web-b06-hartmoor",
+    "ref_calls": 4,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "hartmoor",
+      "url": "https://forum.beanheads.example/thread-4412",
+      "url_match": "forum.beanheads.example/thread-4412",
+      "title": "Barista One E-11 - steam dies mid-pour",
+      "snippet": "Ours threw E-11 until we swapped the steam pump; that fixed it for good.",
+      "content": "forum.beanheads.example - espresso machines - Barista One E-11\n\np1 (crema_carl, 2025-12-11): Ours threw E-11 until we swapped the\nsteam pump. Fixed for good, so the pump must be the weak part.\n\np2 (wandwizard, 2025-12-12): On mine it was the water tank float\nsticking, no pump needed.\n\np3 (crema_carl, 2025-12-14): Fair - yours is a different machine year.\n",
+      "published_at": "2025-12-11"
+    },
+    {
+      "query_match": "hartmoor",
+      "url": "https://support.hartmoor.example/steam-errors",
+      "url_match": "support.hartmoor.example/steam-errors",
+      "title": "Hartmoor Barista One - steam error codes (revised)",
+      "snippet": "Steam-side error codes for the Barista One, revised for the 2026 firmware.",
+      "content": "# Steam error codes - Hartmoor Barista One\n\nRevised 2026-06-02 for the 2.1 firmware.\n\n- E-10 | Cause milk line is blocked | Action run the rinse cycle\n- E-11 | Cause limescale in the steam valve | Action descale the steam valve tip\n- E-12 | Cause steam thermostat tripped | Action let the machine cool for 30 minutes\n\nIf the code returns after the listed step, book a service visit.\n",
+      "published_at": "2026-06-02"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "Our Hartmoor Barista One shows E-11 on the steam side and steaming cuts out mid-pour. One or two sentences on the cause and the handling are enough. What does the maker's steam error page say E-11 means, and what do they advise?",
+      "expect": {
+        "output_contains_any": [
+          "limescale in the steam valve",
+          "Limescale in the steam valve",
+          "descale the steam valve tip",
+          "Descale the steam valve tip"
+        ]
+      }
+    }
+  ]
+}

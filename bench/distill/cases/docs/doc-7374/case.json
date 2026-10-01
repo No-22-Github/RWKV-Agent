@@ -1,0 +1,50 @@
+{
+  "id": "doc-7374",
+  "description": "Write the route card list for a clean reset day. DISTILL-CANARY-c5dc1591",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-doc-b06-stonemark",
+    "ref_calls": 3,
+    "fixture_bytes": 392,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "log/resets.txt": "Prow / 6a / moss / set\nSlab / 5b / sand / set\nCorner / 6c / slate / set\nRoof / 7b / rust / set\n",
+    "README.md": "# Stonemark Climbing Gym - route cards\n\nThe head setter's reset log lands in log/ as rows:\n\n    <wall> / <grade> / <color> / <status>\n\nEvery reset gets a printed card list in cards/, one file per reset\nday named YYYY-MM-DD.txt, one line per route in the log's order:\n\n    - <wall> <grade> <color>\n",
+    "cards/.keep": ""
+  },
+  "expect": {
+    "files": {
+      "cards/2026-09-28.txt": {
+        "contains": [
+          "- Prow 6a moss",
+          "- Slab 5b sand",
+          "- Corner 6c slate",
+          "- Roof 7b rust"
+        ]
+      },
+      "log/resets.txt": {
+        "unchanged": true
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Stonemark reset four routes on 2026-09-28 and the log is in log/. Write the card list into cards/ following the README and leave the log untouched. When you are done, describe in two or three sentences what you wrote.",
+      "expect": {}
+    }
+  ]
+}

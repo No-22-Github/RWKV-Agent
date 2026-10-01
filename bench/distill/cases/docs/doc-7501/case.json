@@ -1,0 +1,54 @@
+{
+  "id": "doc-7501",
+  "description": "Summarize an on-call handover log: which items are still open and what each is waiting on. DISTILL-CANARY-7c1e40ab",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "extract_items",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "BT-2214"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b07-openitems-01",
+    "ref_calls": 3,
+    "fixture_bytes": 685,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "reports/duty-handover-0930.txt": "09-28 09:12 打标机 J-308 报 E-17，待厂商上门，工单 WO-5521 挂起\n09-28 15:05 冷链 2 号库温度告警已复位，现场确认正常\n09-29 10:22 周盘点差异表已核对完，备件 BT-2214 已入库，无遗留\n09-29 19:03 卸货平台照明已报修并更换完毕\n09-30 14:20 消防通道杂物清理完毕，已拍照存档\n09-30 17:55 收货预约系统已恢复，无积压\n09-30 08:41 BX-2107（光谷仓）短驳车改排后仍缺一名持证叉车司机，未解决\n",
+    "README.md": "# 华东运营组值班交接\n\n每班结束前追加一行：日期、事项、现状。带「待／未／挂起」字样的行还没闭环，下一班要跟进，交接不要留口头件。\n"
+  },
+  "turns": [
+    {
+      "prompt": "我马上接手下周值班。reports/ 里有上一班的交接记录，帮我看一遍：还有哪些事项没闭环、各自卡在哪儿，整理几句话发我就好。",
+      "expect": {
+        "output_contains": [
+          "BX-2107",
+          "E-17",
+          "J-308",
+          "WO-5521"
+        ],
+        "output_contains_any": [
+          "BX-2107",
+          "E-17",
+          "J-308",
+          "WO-5521"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

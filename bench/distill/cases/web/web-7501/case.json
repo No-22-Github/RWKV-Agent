@@ -1,0 +1,62 @@
+{
+  "id": "web-7501",
+  "description": "Minimum rental term for a Pinehaven climate-controlled unit, straight from the vendor FAQ snippet. DISTILL-CANARY-d94b6e13",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": 4
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-web-b06-pinehaven",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "pinehaven",
+      "url": "https://help.pinehavenstorage.example/pricing-faq",
+      "url_match": "help.pinehavenstorage.example/pricing-faq",
+      "title": "Pricing FAQ - Pinehaven Self Storage",
+      "snippet": "Climate-controlled units carry a minimum stay of 8 weeks; after the first eight weeks rentals continue week to week.",
+      "content": "# Pinehaven Self Storage - pricing FAQ\n\nQ: Is there a minimum rental term?\nA: Climate-controlled units carry a minimum stay of 8 weeks. After the first\neight weeks your rental continues week to week, and you can end it any time\nwith 14 days notice.\n\nQ: Do standard units have a minimum term?\nA: Standard drive-up units rent week to week from day one.\n\nQ: Is there a discount?\nA: Autopay takes 5% off the weekly rate.\n\nQ: What fits in a climate-controlled unit?\nA: The 5x8 unit holds the contents of a one-room studio; the 10x10 holds a\ntwo-bedroom flat.\n",
+      "published_at": "2026-08-03"
+    },
+    {
+      "query_match": "pinehaven",
+      "url": "https://www.storageforums.example/thread/pinehaven-minimum-stay",
+      "url_match": "storageforums.example/thread/pinehaven-minimum-stay",
+      "title": "Pinehaven minimum stay? (2024 thread)",
+      "snippet": "From what I was told at the Front Street desk back in 2024, the minimum was 4 weeks on the climate units.",
+      "content": "storageforums.example - Moving & Storage - Pinehaven minimum stay?\n\np1 (nova_k, 2024-11-19): Front Street desk told me 4 weeks minimum on the\nclimate units back when I stored records there in 2024. Anyone know if that\nstill holds?\n\np2 (retiredmover, 2024-11-20): It was 4 weeks when I worked the desk, before\nthey rebuilt the rate card.\n",
+      "published_at": "2024-11-19"
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "turns": [
+    {
+      "prompt": "We are comparing storage providers for the studio's props archive and Pinehaven Self Storage keeps coming up. How many weeks is the minimum rental term for one of their climate-controlled units? Give the number alone, as digits, with no label.",
+      "expect": {
+        "expected_number": 8,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

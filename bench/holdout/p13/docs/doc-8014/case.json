@@ -1,0 +1,63 @@
+{
+  "id": "doc-8014",
+  "description": "Expense policy has no clause covering client-entertainment costs; the answer must report the absence and name the nearest clause. DISTILL-CANARY-7b8e2112",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "第 3 条"
+    },
+    "axes": [
+      "OBS",
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-holdout-doc-absentclause-01",
+    "ref_calls": 3,
+    "fixture_bytes": 952,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "报销制度.md": "# 差旅与费用报销制度（2026 年修订）\n\n## 条款总览\n\n- 第 1 条 交通费\n- 第 2 条 住宿标准\n- 第 3 条 餐费补助\n- 第 4 条 审批流程\n- 第 5 条 发票要求\n- 第 6 条 报销时限\n\n## 第 1 条 交通费\n\n往返交通按高铁二等座或经济舱标准报销；出差地市内交通实报实销，需附行程凭证。\n\n## 第 2 条 住宿标准\n\n一线城市每晚 400 元以内，其他城市每晚 300 元以内，超出部分自理。\n\n## 第 3 条 餐费补助\n\n出差期间每人每天 100 元定额补助，不凭票据，仅限出差本人，不适用于陪同或招待他人。\n\n## 第 4 条 审批流程\n\n出差前须在 OA 完成出差申请，未经审批的差旅费用不予报销。\n\n## 第 5 条 发票要求\n\n所有报销须开具增值税发票，抬头与公司主体一致，附费用明细。\n\n## 第 6 条 报销时限\n\n差旅费用应在返回后 30 天内提交报销，逾期不予受理。\n"
+  },
+  "turns": [
+    {
+      "prompt": "简屿科技的行政来问：请客户吃饭的招待费（含酒水），按这份制度能报吗？归哪一条管？",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "没有对应",
+          "没有相关",
+          "没有条款",
+          "没有规定",
+          "未规定",
+          "未覆盖",
+          "没有提及",
+          "未提及",
+          "不适用",
+          "找不到",
+          "查不到"
+        ],
+        "output_excludes": [
+          "UNKNOWN"
+        ],
+        "forbidden_tools": [
+          "write_file",
+          "replace_lines",
+          "append_file"
+        ]
+      }
+    }
+  ]
+}

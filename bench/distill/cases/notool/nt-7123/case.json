@@ -1,0 +1,58 @@
+{
+  "id": "nt-7123",
+  "description": "Morning small talk about the weather and the garden; no task, reply directly without any tool call DISTILL-CANARY-0473c6c3",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-smalltalk-02",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 260
+  },
+  "offered_tools": [
+    "read_file",
+    "list_files"
+  ],
+  "web_fixture": [],
+  "files": {
+    "bookings/next_weekend.csv": "日期,客人,房型\n2026-10-17,沈嘉树,山景大床房\n2026-10-17,顾漫,园景双床房\n2026-10-18,沈嘉树,山景大床房\n",
+    "README.md": "# 屿见民宿 - 运营工作区\n\n客房预订与园务安排都在这里。\n\n- bookings/  周末预订表\n- garden/  园务记录\n"
+  },
+  "turns": [
+    {
+      "prompt": "早啊，今早推开窗总算放晴了，院里那排橘树被昨夜的雨洗得发亮，看着就舒服。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "早",
+          "早上好",
+          "你好",
+          "您好",
+          "嗨",
+          "哈喽",
+          "是啊",
+          "是呀",
+          "天气",
+          "雨后",
+          "放晴"
+        ]
+      }
+    }
+  ]
+}

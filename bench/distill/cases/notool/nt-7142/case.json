@@ -1,0 +1,37 @@
+{
+  "id": "nt-7142",
+  "description": "Decode a machine-state lamp code R via the G/Y/R mapping given in the message. DISTILL-CANARY-2fe0c6c4",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b06-statuslamp-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 188
+  },
+  "web_fixture": [],
+  "files": {
+    "ops/lamp_log.csv": "device,code\nP-07,R\nP-03,G\nP-05,Y\nP-09,G\n",
+    "README.md": "# 北峻机械 - 设备巡检工作区\n\n各机床的巡检记录与灯语说明都放在这里。\n\n- ops/  巡检登记表\n- manuals/  设备手册\n"
+  },
+  "turns": [
+    {
+      "prompt": "北峻机械的设备状态灯语：绿灯（登记为 G）表示运行，黄灯（Y）表示待机，红灯（R）表示故障。巡检记录里 P-07 机床这周登记的是 R。它现在是什么状态？只回答「运行」「待机」或「故障」。",
+      "expect": {
+        "output_equals": "故障",
+        "tools": []
+      }
+    }
+  ]
+}

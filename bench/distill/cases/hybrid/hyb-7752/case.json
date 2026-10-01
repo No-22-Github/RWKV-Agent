@@ -1,0 +1,61 @@
+{
+  "id": "hyb-7752",
+  "description": "两轮反问（缺必需参数）：8 月批发流水折日元缺汇率，第 1 轮反问，第 2 轮按 20.5 折算得 975006.65。 DISTILL-CANARY-5980a914",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 47561.3
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b07-missingparam-03",
+    "ref_calls": 3,
+    "fixture_bytes": 221,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "README.md": "# 三禾粮油批发流水\n\n金额为人民币实收（元）。\n",
+    "sales/批发流水.csv": "日期,品类,金额\n2026-08-05,大米,18600.00\n2026-08-12,面粉,9450.50\n2026-08-19,杂粮,4280.00\n2026-08-26,大米,15230.80\n2026-09-02,食用油,7690.40\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 8 月的批发流水折成日元，报给对接的日方客户。",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "？",
+          "?",
+          "哪",
+          "什么",
+          "还是",
+          "是否",
+          "请告诉",
+          "请确认",
+          "要不要",
+          "需要提供"
+        ],
+        "output_contains": [
+          "日元"
+        ]
+      }
+    },
+    {
+      "prompt": "按 1 人民币 = 20.5 日元折算。只回答数字。",
+      "expect": {
+        "expected_number": 975006.65,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

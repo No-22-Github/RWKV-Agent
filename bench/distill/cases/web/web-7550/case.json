@@ -1,0 +1,62 @@
+{
+  "id": "web-7550",
+  "description": "Maximum validity of a door-lock temporary passcode, straight from the vendor help snippet. DISTILL-CANARY-6133e8bc",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": 48
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-web-b06-songlan",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "松阑",
+      "url": "https://help.songlan.example/temp-password",
+      "url_match": "help.songlan.example/temp-password",
+      "title": "松阑智能门锁 · 临时密码使用说明",
+      "snippet": "临时密码最长有效期为 72 小时，到期自动失效。",
+      "content": "# 松阑智能门锁 · 临时密码使用说明\n\n临时密码适合保洁、维修等短期使用：\n- 单个临时密码最长有效期为 72 小时，到期自动失效\n- 一次性密码在首次开锁后 5 分钟内有效\n- 临时密码开门会推送记录到 App\n\n如需长期授权，请使用常用密码或指纹。\n",
+      "published_at": "2026-09-01"
+    },
+    {
+      "query_match": "松阑",
+      "url": "https://bbs.smarthome.example/thread-77102",
+      "url_match": "bbs.smarthome.example/thread-77102",
+      "title": "松阑临时密码能设多久？（2024 年帖）",
+      "snippet": "2024 年那会儿还是 48 小时上限，后来固件升级了。",
+      "content": "bbs.smarthome.example - 智能门锁 - 松阑临时密码能设多久？\n\n1楼（老钥 installer，2024-10-12）：2024 年那会儿还是 48 小时上限，\n当时帮客户设过。\n\n2楼（ neighbourhood 锁匠，2024-10-13）：后来固件升级了，具体多少\n不清楚了。\n",
+      "published_at": "2024-10-12"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "家里每周请保洁，想给松阑门锁配一把临时密码。只回答数字，不要单位。单个临时密码最长可以用多少小时？",
+      "expect": {
+        "expected_number": 72,
+        "tolerance": 0.01
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  }
+}

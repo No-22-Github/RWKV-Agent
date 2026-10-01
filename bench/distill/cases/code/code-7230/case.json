@@ -1,0 +1,42 @@
+{
+  "id": "code-7230",
+  "description": "Report failures of the newer of two test rounds; the older round has three. DISTILL-CANARY-fc7f27b0",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "report_test_result",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 3
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-code-b06-pingwu-report",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 1353,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {
+    "tests/test_chill.py": "\"\"\"平雾水产冷链监控的用例集，覆盖告警与化霜计划。\n用例数据取自冷库巡检记录。\n\"\"\"\nimport unittest\n\n\nclass TestChillMonitor(unittest.TestCase):\n    def test_probe_offset(self):\n        \"\"\"探头偏移量在容差内。\"\"\"\n        self.assertTrue(True)\n\n    def test_defrost_plan(self):\n        \"\"\"化霜计划按库温生成。\"\"\"\n        self.assertTrue(True)\n\n    def test_log_rotate(self):\n        \"\"\"日志按天轮转。\"\"\"\n        self.assertTrue(True)\n",
+    "tests/运行记录-0928夜.txt": "================ 测试运行记录 2026-09-28 23:10 ================\n[运行环境] python3.11 · 平雾水产冷链监控 · 夜间全量\nFAIL test_temp_spike_alert (1.42s)\nPASS test_power_resume (0.87s)\nPASS test_probe_offset (0.33s)\nFAIL test_door_alarm (1.05s)\nPASS test_log_rotate (0.21s)\nPASS test_defrost_plan (0.64s)\nFAIL test_report_render (0.52s)\nPASS test_sensor_loss (0.98s)\nPASS test_night_window (0.71s)\n共 12 行\n",
+    "tests/运行记录-0929晨.txt": "================ 测试运行记录 2026-09-29 06:40 ================\n[运行环境] python3.11 · 平雾水产冷链监控 · 晨检回归\nPASS test_temp_spike_alert (0.96s)\nPASS test_power_resume (0.84s)\nPASS test_probe_offset (0.35s)\nFAIL test_door_alarm (1.11s)\nPASS test_log_rotate (0.19s)\nPASS test_defrost_plan (0.61s)\nPASS test_report_render (0.49s)\nPASS test_sensor_loss (0.92s)\nFAIL test_night_window (0.73s)\n共 12 行\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "平雾水产的冷链监控脚本这两天各跑过一轮测试，记录都在 tests/ 目录下。只回答数字，不要单位。9 月 29 日早上那轮测试有几个用例失败？",
+      "expect": {
+        "expected_number": 2,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

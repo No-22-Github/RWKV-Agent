@@ -1,0 +1,46 @@
+{
+  "id": "nt-7151",
+  "description": "Morning small talk about the cold weather; no task attached. DISTILL-CANARY-8f65e929",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b06-smalltalk-coldmorning-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 156
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 桦林设计工作室 - 项目工作区\n\n品牌组和空间组共用这个文件夹。\n\n- briefs/  客户需求简报\n- drafts/  设计稿与修改记录\n"
+  },
+  "turns": [
+    {
+      "prompt": "早啊，今天一下子降温了，早上出门差点冻一哆嗦。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "早",
+          "早上好",
+          "好",
+          "冷",
+          "暖",
+          "多穿",
+          "嗨",
+          "哈喽"
+        ]
+      }
+    }
+  ]
+}

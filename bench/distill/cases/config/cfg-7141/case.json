@@ -1,0 +1,45 @@
+{
+  "id": "cfg-7141",
+  "description": "Raise the second yard's session limit on the depot charger controller. DISTILL-CANARY-c0731e7f",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": "60"
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b06-voltacre",
+    "ref_calls": 3,
+    "fixture_bytes": 605,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/chargers.yaml": "# Voltacre Freight Depot - charger policy (yard controller v2.4)\nmain_yard:\n  session_limit_kw: 60\n  idle_timeout_s: 900\n  queue_depth: 4\nspill_yard:\n  session_limit_kw: 45\n  idle_timeout_s: 600\n  queue_depth: 2\nmetering:\n  interval_s: 30\n  endpoint: metering.voltacre.internal:9403\n",
+    "README.md": "# Voltacre Freight Depot - yard charging\n\nconfig/chargers.yaml is the yard controller's policy file. The two\ncharging areas each have a section: main_yard is the surfaced main\nyard, spill_yard is the overflow yard (the v1 paperwork still calls\nit that). The duty electrician edits this file in place and keeps\nthe layout.\n"
+  },
+  "expect": {
+    "files": {
+      "config/chargers.yaml": {
+        "equals": "# Voltacre Freight Depot - charger policy (yard controller v2.4)\nmain_yard:\n  session_limit_kw: 60\n  idle_timeout_s: 900\n  queue_depth: 4\nspill_yard:\n  session_limit_kw: 80\n  idle_timeout_s: 600\n  queue_depth: 2\nmetering:\n  interval_s: 30\n  endpoint: metering.voltacre.internal:9403\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Dispatch wants more headroom on the second yard at Voltacre Freight Depot: raise the chargers' session limit there to 80 kW in config/chargers.yaml. The main yard keeps its setting and nothing else in the file moves. When you are done, describe in two or three sentences what you changed.",
+      "expect": {}
+    }
+  ]
+}

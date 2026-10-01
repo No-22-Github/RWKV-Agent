@@ -1,0 +1,51 @@
+{
+  "id": "log-8002",
+  "description": "Summarize the checkout incident log in natural language, separating the real outage from an unrelated warning burst. DISTILL-CANARY-fa2edcac",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "root_cause",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "price-sync"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-holdout-logsummary-01",
+    "ref_calls": 2,
+    "fixture_bytes": 676,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "logs/checkout-20260929.jsonl": "{\"ts\":\"2026-09-29T22:48:11Z\",\"event\":\"session_open\",\"service\":\"checkout-api\",\"host\":\"co-n2\",\"log_version\":2}\n{\"ts\":\"2026-09-29T22:48:40Z\",\"event\":\"worker_warn\",\"worker\":\"price-sync\",\"note\":\"drift 0.4% after feed restart, resynced ok\"}\n{\"ts\":\"2026-09-29T23:14:06Z\",\"event\":\"upstream_error\",\"component\":\"checkout\",\"upstream\":\"payments-gw\",\"detail\":\"TLS handshake failed: certificate expired\"}\n{\"ts\":\"2026-09-29T23:15:02Z\",\"event\":\"upstream_error\",\"component\":\"checkout\",\"upstream\":\"payments-gw\",\"detail\":\"TLS handshake failed: certificate expired\"}\n{\"ts\":\"2026-09-29T23:20:44Z\",\"event\":\"circuit_closed\",\"upstream\":\"payments-gw\",\"note\":\"new certificate deployed, queue drained\"}\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "What took checkout down last night? Read the logstream export in the workspace and give me a two or three sentence summary I can paste into the incident channel, including what actually failed and how it ended.",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains": [
+          "payments-gw",
+          "23:14",
+          "TLS"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

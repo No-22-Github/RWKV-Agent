@@ -1,0 +1,51 @@
+{
+   "id": "tab-7557",
+   "description": "September 2026 gap between finally invoiced boarding charges and amounts received; the charges file keeps the drop-off quote beside the settled figure DISTILL-CANARY-fd72315f",
+   "category": "tabular",
+   "tags": {
+      "scenario": "tabular",
+      "task_type": "reconcile",
+      "traps": [
+         "TR-NEARNAME"
+      ],
+      "trap_decoys": {
+         "TR-NEARNAME": 2049.34
+      },
+      "axes": [
+         "ERR"
+      ],
+      "level": "L2",
+      "family": "fam-tab-b06-pawshollow-01",
+      "ref_calls": 3,
+      "fixture_bytes": 6152,
+      "status": "draft",
+      "version": 1,
+      "author": "llm:glm-5.3-flash-b06",
+      "reviewer": null,
+      "answer_style": "natural"
+   },
+   "web_fixture": [],
+   "files": {
+      "data/charges_2026-09.csv": "charge_id,charge_month,owner,quote_total,settled_total\nPH-2609361,2026-09,Fenby,127.78,154.18\nPH-2609767,2026-09,Ibson,120.71,140.54\nPH-2609129,2026-09,Ibson,233.23,211.19\nPH-2609880,2026-09,Jardine,454.13,445.76\nPH-2609838,2026-09,Halket,399.88,414.76\nPH-2609425,2026-09,Fenby,414.79,421.72\nPH-2609109,2026-09,Jardine,83.15,47.08\nPH-2609532,2026-09,Gorse,473.83,464.80\nPH-2609607,2026-09,Ibson,382.12,384.22\nPH-2609879,2026-09,Gorse,307.73,296.00\nPH-2609526,2026-09,Fenby,267.63,251.65\nPH-2609290,2026-09,Fenby,430.16,434.45\nPH-2609223,2026-09,Halket,340.62,357.62\nPH-2609532,2026-09,Jardine,389.55,419.61\nPH-2609410,2026-09,Gorse,288.32,319.49\nPH-2609966,2026-09,Ibson,192.19,228.17\nPH-2609591,2026-09,Fenby,474.59,466.48\nPH-2609780,2026-09,Ibson,174.38,196.98\nPH-2609188,2026-09,Halket,144.39,148.10\nPH-2609633,2026-09,Gorse,258.75,259.39\nPH-2609580,2026-09,Fenby,431.18,421.34\nPH-2609707,2026-09,Jardine,88.70,104.16\nPH-2609614,2026-09,Gorse,318.62,329.80\nPH-2609652,2026-09,Gorse,167.58,130.51\nPH-2609626,2026-09,Ibson,465.64,469.31\nPH-2609570,2026-09,Halket,217.85,244.26\nPH-2609846,2026-09,Jardine,461.19,473.29\nPH-2609928,2026-09,Jardine,72.45,94.01\nPH-2609536,2026-09,Gorse,125.58,146.66\nPH-2609683,2026-09,Halket,478.38,476.94\nPH-2609596,2026-09,Ibson,308.39,341.91\nPH-2609651,2026-09,Fenby,419.74,413.24\nPH-2609569,2026-09,Halket,302.25,324.02\nPH-2609663,2026-09,Gorse,327.94,351.09\nPH-2609916,2026-09,Jardine,321.32,348.76\nPH-2609961,2026-09,Fenby,436.05,468.80\nPH-2609563,2026-09,Fenby,475.74,443.09\nPH-2609375,2026-09,Gorse,76.26,95.68\nPH-2609397,2026-09,Halket,117.08,126.56\nPH-2609272,2026-09,Jardine,99.89,74.02\nPH-2609565,2026-09,Halket,352.36,363.62\nPH-2609124,2026-09,Fenby,372.13,371.86\nPH-2609364,2026-09,Gorse,204.16,192.25\nPH-2609314,2026-09,Jardine,116.77,147.16\nPH-2609330,2026-09,Fenby,485.19,480.00\nPH-2609556,2026-09,Gorse,77.68,50.81\nPH-2609952,2026-09,Jardine,372.98,386.52\nPH-2609561,2026-09,Jardine,164.86,201.01\nPH-2609791,2026-09,Ibson,165.97,177.26\nPH-2609160,2026-09,Ibson,317.61,304.02\nPH-2609996,2026-09,Gorse,387.10,358.65\nPH-2609417,2026-09,Fenby,90.40,57.78\nPH-2609526,2026-09,Gorse,464.39,449.03\nPH-2609970,2026-09,Jardine,312.92,284.83\nPH-2609571,2026-09,Jardine,86.30,110.58\nPH-2609621,2026-09,Jardine,143.75,171.70\nPH-2609310,2026-09,Fenby,86.09,63.32\nPH-2609298,2026-09,Jardine,316.55,346.69\nPH-2609403,2026-09,Ibson,281.71,314.99\nPH-2609992,2026-09,Jardine,286.77,250.08\nPH-2609305,2026-09,Gorse,243.00,226.38\nPH-2609901,2026-09,Jardine,438.74,462.39\nPH-2609790,2026-09,Halket,128.11,122.73\nPH-2609452,2026-09,Jardine,111.45,102.27\nPH-2609596,2026-09,Jardine,463.21,488.87\nPH-2609842,2026-09,Fenby,400.22,402.69\nPH-2609651,2026-09,Gorse,87.37,59.48\nPH-2609618,2026-09,Jardine,161.58,181.27\nPH-2609216,2026-09,Halket,431.69,421.67\nPH-2609898,2026-09,Jardine,195.22,223.14\nPH-2609693,2026-09,Gorse,480.35,509.78\nPH-2609516,2026-09,Fenby,307.00,276.92\nPH-2609948,2026-09,Gorse,101.47,129.30\nPH-2609900,2026-09,Jardine,123.76,94.48\nPH-2609329,2026-09,Jardine,468.25,436.08\nPH-2609402,2026-09,Halket,313.37,347.74\nPH-2609383,2026-09,Ibson,312.71,345.02\nPH-2609112,2026-09,Halket,116.32,81.80\nPH-2609217,2026-09,Ibson,333.88,296.99\nPH-2609345,2026-09,Gorse,425.23,447.26\nPH-2609218,2026-09,Gorse,407.77,414.37\nPH-2609861,2026-09,Gorse,263.89,277.64\n",
+      "data/payments_2026-09.csv": "payment_id,paid_month,owner,amount_gbp\nPP-2609487,2026-09,Fenby,257.09\nPP-2609401,2026-09,Jardine,460.97\nPP-2609588,2026-09,Jardine,178.97\nPP-2609767,2026-09,Halket,113.06\nPP-2609110,2026-09,Halket,87.04\nPP-2609427,2026-09,Halket,382.39\nPP-2609508,2026-09,Ibson,238.25\nPP-2609424,2026-09,Fenby,97.60\nPP-2609214,2026-09,Jardine,487.01\nPP-2609732,2026-09,Halket,162.53\nPP-2609580,2026-09,Jardine,443.07\nPP-2609654,2026-09,Halket,181.41\nPP-2609352,2026-09,Gorse,202.15\nPP-2609387,2026-09,Halket,104.99\nPP-2609558,2026-09,Fenby,492.85\nPP-2609758,2026-09,Fenby,350.36\nPP-2609499,2026-09,Halket,474.52\nPP-2609291,2026-09,Halket,87.65\nPP-2609692,2026-09,Halket,410.87\nPP-2609203,2026-09,Halket,175.71\nPP-2609926,2026-09,Jardine,332.90\nPP-2609325,2026-09,Jardine,109.58\nPP-2609511,2026-09,Fenby,417.55\nPP-2609988,2026-09,Fenby,185.27\nPP-2609122,2026-09,Fenby,383.54\nPP-2609911,2026-09,Fenby,195.05\nPP-2609983,2026-09,Halket,282.10\nPP-2609896,2026-09,Gorse,113.40\nPP-2609781,2026-09,Halket,103.16\nPP-2609253,2026-09,Gorse,147.21\nPP-2609427,2026-09,Gorse,423.27\nPP-2609626,2026-09,Halket,115.96\nPP-2609311,2026-09,Jardine,196.20\nPP-2609839,2026-09,Gorse,304.56\nPP-2609940,2026-09,Fenby,405.29\nPP-2609666,2026-09,Jardine,415.66\nPP-2609543,2026-09,Gorse,146.61\nPP-2609831,2026-09,Jardine,137.90\nPP-2609165,2026-09,Gorse,178.61\nPP-2609662,2026-09,Ibson,417.55\nPP-2609971,2026-09,Halket,302.79\nPP-2609505,2026-09,Jardine,264.92\nPP-2609597,2026-09,Halket,143.75\nPP-2609526,2026-09,Fenby,411.02\nPP-2609808,2026-09,Jardine,78.13\nPP-2609707,2026-09,Halket,319.43\nPP-2609948,2026-09,Gorse,129.55\nPP-2609510,2026-09,Halket,241.05\nPP-2609339,2026-09,Gorse,333.35\nPP-2609641,2026-09,Ibson,73.22\nPP-2609764,2026-09,Halket,285.39\nPP-2609754,2026-09,Ibson,469.95\nPP-2609606,2026-09,Gorse,172.50\nPP-2609829,2026-09,Ibson,481.31\nPP-2609725,2026-09,Ibson,214.89\nPP-2609324,2026-09,Halket,488.11\nPP-2609881,2026-09,Fenby,466.29\nPP-2609477,2026-09,Jardine,347.47\nPP-2609911,2026-09,Gorse,290.00\nPP-2609809,2026-09,Gorse,204.07\nPP-2609480,2026-09,Halket,435.07\nPP-2609854,2026-09,Gorse,371.55\nPP-2609976,2026-09,Ibson,325.67\nPP-2609626,2026-09,Fenby,455.54\nPP-2609259,2026-09,Jardine,232.20\nPP-2609683,2026-09,Halket,253.50\nPP-2609503,2026-09,Fenby,282.86\nPP-2609965,2026-09,Halket,235.11\nPP-2609141,2026-09,Gorse,304.02\nPP-2609927,2026-09,Jardine,491.93\nPP-2609373,2026-09,Halket,340.23\nPP-2609242,2026-09,Fenby,482.56\nPP-2609775,2026-09,Jardine,432.03\nPP-2609346,2026-09,Fenby,261.38\n",
+      "README.md": "# Paws Hollow Boarding - September statements\n\ncharges file: one row per stay. quote_total is the estimate issued at\ndrop-off; settled_total is the amount finally invoiced after weigh-in,\nand it is the figure the monthly owner statement is worked out from.\npayments file: one row per payment received.\n",
+      "notes/kennel.txt": "Kennel notes\n- Weigh-in happens before the morning walk.\n- Blanket returns go on the shelf by the door.\n"
+   },
+   "turns": [
+      {
+         "prompt": "Paws Hollow Boarding is issuing the September owner statements. The charges and payments exports are both in the workspace. Give the number alone, as digits, with no label. By how much did the September 2026 charges that were finally invoiced exceed the amounts received in September 2026?",
+         "expect": {
+            "expected_number": 2349.37,
+            "tolerance": 0.01,
+            "required_tools": [
+               "data_query"
+            ]
+         }
+      }
+   ],
+   "expect": {
+      "max_calls": {
+         "read_file": 1
+      }
+   }
+}

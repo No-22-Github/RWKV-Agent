@@ -1,0 +1,52 @@
+{
+  "id": "code-7502",
+  "description": "Did the refund suite pass, and which test is genuinely failing. DISTILL-CANARY-a05e47c8",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "report_test_result",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "test_refund_currency_basic"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-code-b07-testresult-01",
+    "ref_calls": 3,
+    "fixture_bytes": 409,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "reports/pytest-summary.json": "{\n  \"suite\": \"tests/test_refunds.py\",\n  \"passed\": [\"test_refund_full\", \"test_refund_currency_basic\", \"test_refund_void\"],\n  \"failed\": [{\"test\": \"test_refund_currency_rounding\", \"error\": \"KeyError: 'GBP'\"}]\n}\n",
+    "tests/test_refunds.py": "CURRENCIES = [\"USD\", \"EUR\", \"CHF\"]\n\ndef test_refund_currency_rounding():\n    if \"GBP\" not in CURRENCIES:\n        raise KeyError(\"GBP\")\n\ndef test_refund_currency_basic():\n    assert \"USD\" in CURRENCIES\n"
+  },
+  "turns": [
+    {
+      "prompt": "CI left a summary in reports/. Open it alongside the test module and tell me whether the refund suite passed and what is actually broken.",
+      "expect": {
+        "output_contains": [
+          "KeyError",
+          "test_refund_currency_rounding",
+          "test_refunds.py"
+        ],
+        "output_contains_any": [
+          "KeyError",
+          "test_refund_currency_rounding",
+          "test_refunds.py"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

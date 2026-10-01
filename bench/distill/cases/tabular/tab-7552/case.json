@@ -1,0 +1,52 @@
+{
+   "id": "tab-7552",
+   "description": "September 2026 settlement total of the resale vendor whose payout is largest; returns are stored as positive amounts DISTILL-CANARY-ee948f14",
+   "category": "tabular",
+   "tags": {
+      "scenario": "tabular",
+      "task_type": "rank",
+      "traps": [
+         "TR-SIGN",
+         "TR-DECOY"
+      ],
+      "trap_decoys": {
+         "TR-SIGN": 3304.59,
+         "TR-DECOY": 2442.42
+      },
+      "axes": [
+         "OBS"
+      ],
+      "level": "L2",
+      "family": "fam-tab-b06-ferndale-01",
+      "ref_calls": 2,
+      "fixture_bytes": 6759,
+      "status": "draft",
+      "version": 1,
+      "author": "llm:glm-5.3-flash-b06",
+      "reviewer": null,
+      "answer_style": "natural"
+   },
+   "web_fixture": [],
+   "files": {
+      "data/resale_2026-09.csv": "sale_id,sale_month,vendor,item_class,sale_gbp,return_gbp\nFR-202608879,2026-08,Kip Aldous,Linens,72.28,0.00\nFR-202609955,2026-09,Junie Bratt,Glassware,74.15,0.00\nFR-202609705,2026-09,Junie Bratt,Records,72.54,8.72\nFR-202609490,2026-09,Kip Aldous,Glassware,17.29,0.00\nFR-202609666,2026-09,Kip Aldous,Linens,69.44,23.15\nFR-202608122,2026-08,Nell Perrot,Tools,85.31,0.00\nFR-202609223,2026-09,Kip Aldous,Tools,84.16,0.00\nFR-202609410,2026-09,Kip Aldous,Records,87.99,29.05\nFR-202609591,2026-09,Kip Aldous,Glassware,52.45,12.41\nFR-202608188,2026-08,Kip Aldous,Tools,46.07,0.00\nFR-202609479,2026-09,Ossie Marsh,Linens,130.03,39.19\nFR-202609762,2026-09,Nell Perrot,Linens,73.04,0.00\nFR-202608514,2026-08,Ossie Marsh,Records,139.19,47.43\nFR-202609492,2026-09,Kip Aldous,Glassware,58.33,8.81\nFR-202609536,2026-09,Kip Aldous,Records,81.46,24.47\nFR-202609596,2026-09,Ossie Marsh,Linens,111.41,40.30\nFR-202609569,2026-09,Ossie Marsh,Tools,95.07,39.82\nFR-202609917,2026-09,Kip Aldous,Glassware,62.65,6.24\nFR-202609185,2026-09,Kip Aldous,Glassware,84.82,0.00\nFR-202609212,2026-09,Ossie Marsh,Tools,128.94,31.28\nFR-202609640,2026-09,Nell Perrot,Tools,90.32,0.00\nFR-202609608,2026-09,Junie Bratt,Tools,63.62,0.00\nFR-202609364,2026-09,Nell Perrot,Records,97.06,0.00\nFR-202608936,2026-08,Kip Aldous,Linens,53.26,0.00\nFR-202609556,2026-09,Nell Perrot,Records,97.81,0.00\nFR-202609328,2026-09,Junie Bratt,Linens,55.85,0.00\nFR-202609160,2026-09,Nell Perrot,Linens,117.24,0.00\nFR-202609979,2026-09,Nell Perrot,Glassware,84.85,0.00\nFR-202608233,2026-08,Kip Aldous,Tools,37.34,0.00\nFR-202608275,2026-08,Kip Aldous,Linens,17.84,28.90\nFR-202609455,2026-09,Kip Aldous,Records,73.50,2.09\nFR-202608403,2026-08,Junie Bratt,Linens,82.24,15.28\nFR-202609118,2026-09,Nell Perrot,Tools,112.85,0.00\nFR-202608318,2026-08,Kip Aldous,Linens,75.84,4.92\nFR-202608886,2026-08,Nell Perrot,Linens,96.55,0.00\nFR-202609270,2026-09,Nell Perrot,Records,120.78,0.00\nFR-202609476,2026-09,Nell Perrot,Tools,123.14,0.00\nFR-202609238,2026-09,Nell Perrot,Linens,86.46,14.25\nFR-202609986,2026-09,Junie Bratt,Linens,39.05,0.00\nFR-202609178,2026-09,Nell Perrot,Linens,78.75,0.00\nFR-202609677,2026-09,Nell Perrot,Tools,75.72,0.00\nFR-202609947,2026-09,Nell Perrot,Glassware,132.77,0.00\nFR-202609292,2026-09,Junie Bratt,Glassware,16.09,0.00\nFR-202608797,2026-08,Kip Aldous,Records,46.58,0.00\nFR-202608663,2026-08,Junie Bratt,Tools,22.71,11.97\nFR-202608127,2026-08,Ossie Marsh,Glassware,99.51,43.52\nFR-202608508,2026-08,Kip Aldous,Tools,37.17,14.05\nFR-202608903,2026-08,Kip Aldous,Records,87.74,4.23\nFR-202609287,2026-09,Kip Aldous,Tools,55.72,20.19\nFR-202609191,2026-09,Ossie Marsh,Tools,106.09,24.69\nFR-202609499,2026-09,Ossie Marsh,Records,124.34,43.23\nFR-202609351,2026-09,Nell Perrot,Tools,83.08,0.00\nFR-202609927,2026-09,Junie Bratt,Glassware,58.42,8.11\nFR-202608122,2026-08,Nell Perrot,Glassware,108.58,0.00\nFR-202609203,2026-09,Ossie Marsh,Records,130.65,38.28\nFR-202609244,2026-09,Kip Aldous,Records,20.78,6.02\nFR-202609229,2026-09,Ossie Marsh,Tools,99.81,38.97\nFR-202609940,2026-09,Nell Perrot,Tools,133.73,0.00\nFR-202609282,2026-09,Kip Aldous,Records,83.04,22.64\nFR-202609358,2026-09,Ossie Marsh,Records,97.19,50.45\nFR-202609654,2026-09,Junie Bratt,Tools,48.50,0.00\nFR-202609364,2026-09,Ossie Marsh,Records,95.49,49.60\nFR-202609693,2026-09,Kip Aldous,Tools,84.95,1.55\nFR-202608677,2026-08,Nell Perrot,Linens,88.14,0.00\nFR-202609612,2026-09,Junie Bratt,Tools,32.51,0.00\nFR-202609606,2026-09,Kip Aldous,Tools,84.76,7.55\nFR-202609761,2026-09,Kip Aldous,Tools,68.46,0.00\nFR-202608419,2026-08,Kip Aldous,Records,72.24,11.69\nFR-202609708,2026-09,Ossie Marsh,Linens,119.85,27.45\nFR-202608280,2026-08,Nell Perrot,Linens,112.43,0.00\nFR-202608606,2026-08,Ossie Marsh,Glassware,137.38,45.75\nFR-202609636,2026-09,Junie Bratt,Glassware,41.10,5.78\nFR-202609242,2026-09,Kip Aldous,Glassware,62.13,0.00\nFR-202609971,2026-09,Junie Bratt,Records,87.51,3.38\nFR-202609548,2026-09,Kip Aldous,Tools,47.47,0.00\nFR-202608220,2026-08,Kip Aldous,Linens,86.96,0.00\nFR-202609641,2026-09,Ossie Marsh,Records,112.05,40.46\nFR-202609311,2026-09,Nell Perrot,Tools,113.93,0.00\nFR-202608952,2026-08,Nell Perrot,Tools,84.03,0.00\nFR-202609530,2026-09,Kip Aldous,Linens,75.65,16.82\nFR-202609930,2026-09,Junie Bratt,Tools,57.79,0.00\nFR-202608176,2026-08,Kip Aldous,Records,23.86,16.81\nFR-202609100,2026-09,Junie Bratt,Tools,38.34,11.35\nFR-202608215,2026-08,Junie Bratt,Linens,41.27,10.84\nFR-202609750,2026-09,Ossie Marsh,Tools,104.18,22.13\nFR-202609715,2026-09,Kip Aldous,Linens,77.21,29.62\nFR-202609819,2026-09,Ossie Marsh,Tools,128.51,54.59\nFR-202608794,2026-08,Junie Bratt,Glassware,54.82,0.00\nFR-202609604,2026-09,Ossie Marsh,Glassware,113.24,50.42\nFR-202609516,2026-09,Nell Perrot,Glassware,137.69,0.00\nFR-202609966,2026-09,Nell Perrot,Tools,124.52,0.00\nFR-202608917,2026-08,Nell Perrot,Tools,124.33,0.00\nFR-202609596,2026-09,Kip Aldous,Tools,55.82,0.00\nFR-202608171,2026-08,Ossie Marsh,Linens,107.19,25.25\nFR-202609511,2026-09,Junie Bratt,Glassware,16.48,28.44\nFR-202609441,2026-09,Ossie Marsh,Records,108.70,39.43\nFR-202608579,2026-08,Nell Perrot,Tools,128.15,0.00\nFR-202609464,2026-09,Junie Bratt,Tools,27.64,21.69\nFR-202609987,2026-09,Nell Perrot,Tools,109.27,0.00\nFR-202609972,2026-09,Junie Bratt,Glassware,34.41,8.08\nFR-202609904,2026-09,Junie Bratt,Records,38.74,0.00\nFR-202608720,2026-08,Nell Perrot,Records,121.26,10.85\nFR-202609469,2026-09,Ossie Marsh,Linens,102.31,47.69\nFR-202609169,2026-09,Ossie Marsh,Tools,100.21,28.80\nFR-202608146,2026-08,Ossie Marsh,Records,117.16,25.30\nFR-202608606,2026-08,Junie Bratt,Glassware,81.67,0.00\nFR-202609220,2026-09,Kip Aldous,Tools,87.31,10.93\nFR-202609486,2026-09,Nell Perrot,Linens,85.54,0.00\nFR-202609316,2026-09,Kip Aldous,Linens,32.68,0.00\nFR-202609180,2026-09,Nell Perrot,Records,104.74,0.00\nFR-202608968,2026-08,Kip Aldous,Linens,79.32,0.00\nFR-202609912,2026-09,Kip Aldous,Records,44.99,23.00\nFR-202609678,2026-09,Nell Perrot,Glassware,80.16,0.00\nFR-202609136,2026-09,Nell Perrot,Glassware,102.40,0.00\nFR-202609542,2026-09,Ossie Marsh,Glassware,100.80,52.80\nFR-202608778,2026-08,Nell Perrot,Records,114.63,0.00\nFR-202609351,2026-09,Ossie Marsh,Records,107.06,30.57\nFR-202608461,2026-08,Kip Aldous,Glassware,59.29,0.00\nFR-202609830,2026-09,Ossie Marsh,Glassware,127.02,39.70\nFR-202608198,2026-08,Junie Bratt,Records,87.93,0.00\nFR-202608932,2026-08,Kip Aldous,Glassware,79.09,2.53\nFR-202609644,2026-09,Ossie Marsh,Records,99.47,32.32\n",
+      "README.md": "# Ferndale Resale - September consignment sheet\n\nOne row per sold item. return_gbp is the amount refunded when an item\ncame back; it is stored as a positive figure and is taken off the\nvendor's settlement, which is worked out per vendor as sales minus\nreturns.\n",
+      "notes/cabinet.txt": "Cabinet notes\n- Glassware travels in the grey crates.\n- Records are priced on the blue stickers.\n"
+   },
+   "turns": [
+      {
+         "prompt": "Ferndale Resale is paying out its vendors. The September export is at data/resale_2026-09.csv. Give the number alone, as digits, with no label. What was the September 2026 settlement total for the vendor whose payout is the largest?",
+         "expect": {
+            "expected_number": 2351.6,
+            "tolerance": 0.01,
+            "required_tools": [
+               "data_query"
+            ]
+         }
+      }
+   ],
+   "expect": {
+      "max_calls": {
+         "read_file": 1
+      }
+   }
+}

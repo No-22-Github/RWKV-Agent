@@ -1,0 +1,56 @@
+{
+  "id": "cfg-7176",
+  "description": "Effective egress_throttle_mb_s of the Quillfen Analytics stream-ingest service, whose only mention is a commented-out line DISTILL-CANARY-86203afc",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "missing_keys",
+    "traps": [
+      "TR-ABSENT",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "1.5",
+      "TR-DECOY": "1.5"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-cfg-b06-quillfen",
+    "ref_calls": 3,
+    "fixture_bytes": 793,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Quillfen Analytics - stream-ingest configuration\n\n`stream-ingest` receives event batches from customer SDKs and forwards them to tenant warehouses.\n\nTwo config layers apply: config/stream-ingest.yaml is the production instance config and config/stream-base.yaml is the platform baseline. A key set in the instance config wins; any key the instance config does not set falls back to the baseline. A key in neither layer has no value at all.\n\nAll config changes reach the service through the deploy pipeline.\n",
+    "config/stream-ingest.yaml": "service: stream-ingest\nenvironment: production\nlisten_port: 9220\nshard_count: 6\n# egress_throttle_mb_s: 1.5   # temporary headroom during the March incident, never ratified\nlog_level: info\n",
+    "config/stream-base.yaml": "tenant_tier: enterprise\nlisten_port: 8080\nshard_count: 3\nbackfill_window_h: 72\nlog_level: warn\n"
+  },
+  "turns": [
+    {
+      "prompt": "Quillfen Analytics is sizing egress for the next capacity plan and needs the effective egress_throttle_mb_s of the stream-ingest service. What is it?",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "egress_throttle_mb_s",
+          "egress throttle",
+          "egress limit"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

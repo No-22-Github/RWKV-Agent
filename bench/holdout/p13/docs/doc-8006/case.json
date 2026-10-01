@@ -1,0 +1,50 @@
+{
+  "id": "doc-8006",
+  "description": "Update the contractor onboarding doc's VPN group name after the IT rename notice, changing one line only; judged by pinned substrings. DISTILL-CANARY-b64c19e0",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": null
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-holdout-doc-supersede-01",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 485,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null
+  },
+  "files": {
+    "docs/onboarding.md": "# Contractor onboarding - Vireo Field Services\n\nThis page covers the accounts a new contractor needs on day one.\n\nVPN: ask IT to add you to the contractors-vpn group, then sign in at\nvpn.vireo-field.example with your badge number as the password.\n\nTime tracking: log hours in FieldClock under the Vireo account.\n",
+    "notices/vpn-rename-2026-09.md": "# IT notice - 2026-09-21\n\nThe contractors-vpn group was renamed partners-vpn in the identity\nprovider. Memberships carried over; the old name stopped working on\n2026-09-28.\n"
+  },
+  "turns": [
+    {
+      "prompt": "IT renamed the contractor VPN group last month; the notice is in notices/. Our onboarding doc still sends people to the old group, so update that one line in docs/onboarding.md to the new name. Nothing else in the doc should change. When you're done, tell me in one to three sentences what you changed.",
+      "expect": {}
+    }
+  ],
+  "expect": {
+    "files": {
+      "docs/onboarding.md": {
+        "contains": [
+          "# Contractor onboarding - Vireo Field Services\n\nThis page covers the accounts a new contractor needs on day one.\n\nVPN: ask IT to add you to the partners-vpn group, then sign in at",
+          "vpn.vireo-field.example with your badge number as the password.\n\nTime tracking: log hours in FieldClock under the Vireo account."
+        ]
+      },
+      "notices/vpn-rename-2026-09.md": {
+        "equals": "# IT notice - 2026-09-21\n\nThe contractors-vpn group was renamed partners-vpn in the identity\nprovider. Memberships carried over; the old name stopped working on\n2026-09-28.\n"
+      }
+    }
+  }
+}

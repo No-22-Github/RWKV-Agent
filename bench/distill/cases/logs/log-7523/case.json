@@ -1,0 +1,66 @@
+{
+  "id": "log-7523",
+  "description": "Four-turn Chinese session on freezer telemetry with signed delta readings: above-target count, defrost exclusion, all-day defrost tally, largest deviation. DISTILL-CANARY-4317f9ca",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [
+      "TR-SIGN"
+    ],
+    "trap_decoys": {
+      "TR-SIGN": 5
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-log-b07-wrenfield-iot-01",
+    "ref_calls": 5,
+    "fixture_bytes": 2670,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "logs/telemetry-0926.jsonl": "{\"ts\":\"2026-09-26T05:12:40+08:00\",\"site\":\"冷库A\",\"temp_delta_c\":2.6,\"status\":\"defrost\"}\n{\"ts\":\"2026-09-26T05:55:08+08:00\",\"site\":\"冷库A\",\"temp_delta_c\":0.8,\"status\":\"ok\"}\n{\"ts\":\"2026-09-26T06:47:15+08:00\",\"site\":\"冷库A\",\"temp_delta_c\":1.9,\"status\":\"defrost\"}\n{\"ts\":\"2026-09-26T08:12:11+08:00\",\"site\":\"冷库A\",\"temp_delta_c\":-3.8,\"status\":\"ok\"}\n{\"ts\":\"2026-09-26T08:45:26+08:00\",\"site\":\"冷库A\",\"temp_delta_c\":-1.2,\"status\":\"ok\"}\n{\"ts\":\"2026-09-26T09:05:33+08:00\",\"site\":\"冷库A\",\"temp_delta_c\":2.4,\"status\":\"ok\"}\n{\"ts\":\"2026-09-26T09:15:27+08:00\",\"site\":\"冷库B\",\"temp_delta_c\":1.2,\"status\":\"ok\"}\n{\"ts\":\"2026-09-26T09:33:44+08:00\",\"site\":\"冷库A\",\"temp_delta_c\":-1.5,\"status\":\"defrost\"}\n{\"ts\":\"2026-09-26T09:47:52+08:00\",\"site\":\"冷库A\",\"temp_delta_c\":1.6,\"status\":\"ok\"}\n{\"ts\":\"2026-09-26T10:08:19+08:00\",\"site\":\"冷库A\",\"temp_delta_c\":2.9,\"status\":\"ok\"}\n{\"ts\":\"2026-09-26T10:14:29+08:00\",\"site\":\"冷库A\",\"temp_delta_c\":-0.9,\"status\":\"ok\"}\n{\"ts\":\"2026-09-26T10:31:05+08:00\",\"site\":\"冷库A\",\"temp_delta_c\":3.1,\"status\":\"ok\"}\n{\"ts\":\"2026-09-26T10:41:33+08:00\",\"site\":\"冷库A\",\"temp_delta_c\":-2.2,\"status\":\"defrost\"}\n{\"ts\":\"2026-09-26T10:58:44+08:00\",\"site\":\"冷库B\",\"temp_delta_c\":-0.4,\"status\":\"ok\"}\n{\"ts\":\"2026-09-26T11:02:41+08:00\",\"site\":\"冷库A\",\"temp_delta_c\":-1.8,\"status\":\"ok\"}\n{\"ts\":\"2026-09-26T11:20:18+08:00\",\"site\":\"冷库A\",\"temp_delta_c\":-2.6,\"status\":\"defrost\"}\n{\"ts\":\"2026-09-26T11:28:37+08:00\",\"site\":\"冷库A\",\"temp_delta_c\":0.7,\"status\":\"ok\"}\n{\"ts\":\"2026-09-26T11:45:52+08:00\",\"site\":\"冷库A\",\"temp_delta_c\":1.1,\"status\":\"ok\"}\n{\"ts\":\"2026-09-26T13:05:00+08:00\",\"site\":\"冷库A\",\"temp_delta_c\":2.3,\"status\":\"defrost\"}\n{\"ts\":\"2026-09-26T13:33:21+08:00\",\"site\":\"冷库A\",\"temp_delta_c\":-0.6,\"status\":\"ok\"}\n{\"ts\":\"2026-09-26T14:22:49+08:00\",\"site\":\"冷库A\",\"temp_delta_c\":1.5,\"status\":\"defrost\"}\n{\"ts\":\"2026-09-26T15:41:16+08:00\",\"site\":\"冷库B\",\"temp_delta_c\":0.9,\"status\":\"ok\"}\n{\"ts\":\"2026-09-26T16:20:33+08:00\",\"site\":\"冷库A\",\"temp_delta_c\":2.2,\"status\":\"ok\"}\n{\"ts\":\"2026-09-26T18:09:58+08:00\",\"site\":\"冷库A\",\"temp_delta_c\":1.7,\"status\":\"defrost\"}\n{\"ts\":\"2026-09-26T19:30:25+08:00\",\"site\":\"冷库A\",\"temp_delta_c\":2.8,\"status\":\"defrost\"}\n{\"ts\":\"2026-09-26T20:15:42+08:00\",\"site\":\"冷库A\",\"temp_delta_c\":1.9,\"status\":\"ok\"}\n{\"ts\":\"2026-09-26T22:40:07+08:00\",\"site\":\"冷库A\",\"temp_delta_c\":-1.1,\"status\":\"ok\"}\n",
+    "README.md": "# Wrenfield 冷链冷库 A 遥测（2026-09-26，北京时间）\n\n一行一条读数：ts（本地 +08:00）、库房、temp_delta_c、status。\ntemp_delta_c = 目标温度 − 实测温度：正数表示比目标更冷，负数表示比目标偏高。\nstatus=defrost 为除霜周期，除霜期间读数天然偏高。\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "Wrenfield 冷链冷库 A 的遥测在 logs/telemetry-0926.jsonl。9 月 26 日 08:00:00 到 12:00:00 之间，有多少条读数比目标温度偏高？",
+      "expect": {
+        "output_contains_any": [
+          "7 条"
+        ]
+      }
+    },
+    {
+      "prompt": "不对，除霜周期（status=defrost）的读数温度本来就偏高，把它们排除，重新算是多少条？",
+      "expect": {
+        "output_contains_any": [
+          "4 条"
+        ]
+      }
+    },
+    {
+      "prompt": "改成统计全天：9 月 26 日 status=defrost 的读数有多少条？",
+      "expect": {
+        "output_contains_any": [
+          "9 条"
+        ]
+      }
+    },
+    {
+      "prompt": "除霜之外，08:00:00 到 12:00:00 里偏高的那几条读数，偏离目标温度最多的是多少度？",
+      "expect": {
+        "output_contains_any": [
+          "3.8"
+        ]
+      }
+    }
+  ]
+}

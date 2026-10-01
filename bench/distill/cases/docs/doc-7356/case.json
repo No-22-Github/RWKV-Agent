@@ -1,0 +1,53 @@
+{
+  "id": "doc-7356",
+  "description": "Attachment C 'Riverside catering menus' of the Ravensholme Resorts group booking terms, which the terms cite but the workspace does not contain. DISTILL-CANARY-7eaeb419",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "link_check",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "20% deposit"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b06-shibei-attachment",
+    "ref_calls": 2,
+    "fixture_bytes": 644,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Ravensholme Resorts - group booking pack\n\nEvents-team reference pack. The booking terms live in bookings/; attachments cited by the terms are filed alongside them, so an attachment and its terms are archived together.\n",
+    "bookings/group-booking-terms.md": "# Ravensholme Resorts - group booking terms (2026)\n\n## 3 Deposit\n\nA 20% deposit confirms the booking; the balance is due 14 days before arrival.\n\n## 6 Catering\n\nMenu choices and per-head prices are attached as Attachment C, 'Riverside catering menus'.\n",
+    "bookings/deposit-schedule.md": "# Deposit schedule\n\n## Refunds\n\nDeposits are refundable in full up to 60 days before arrival.\n\n## Instalments\n\nGroups of 20 or more may pay the balance in two instalments.\n"
+  },
+  "turns": [
+    {
+      "prompt": "A wedding planner working with Ravensholme Resorts asked us to send over Attachment C, 'Riverside catering menus', from the group booking pack. Find Attachment C in the workspace and tell me what the menus cover.",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "Attachment C",
+          "Riverside catering menus",
+          "attachment C"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

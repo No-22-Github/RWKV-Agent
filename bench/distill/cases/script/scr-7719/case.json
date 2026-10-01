@@ -1,0 +1,58 @@
+{
+  "id": "scr-7719",
+  "description": "Give the repair cafe's bench report an --open flag while the ticket feed re-posts tickets and reuses the word open in a second status. DISTILL-CANARY-c9253b17",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "add_flag",
+    "traps": [
+      "TR-DECOY",
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "reopened counted too (Priya 4 / Wren 4)",
+      "TR-DUPROW": "re-posted MC-3404 counted twice (TOTAL 6)"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-scr-b06-mendham",
+    "ref_calls": 4,
+    "fixture_bytes": 1814,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "queue.py": "\"\"\"Print the bench report for Mendham Repair Cafe.\n\nThe ticket system writes one file per month into tickets/, one row per\nticket:\n\n    ticket_id,opened_on,item,repairer,status\n\nThe bench report is one line per repairer, in alphabetical order, counting\nevery ticket once, followed by a total line:\n\n    <repairer>,<tickets>\n    TOTAL,<tickets>\n\nThe ticket system re-posts a ticket now and then (the same ticket_id\ntwice); count each ticket once. Status \"open\" means the item is on a\nbench; \"reopened\" means the owner took it back to fetch a part, and it is\nnot on a bench.\n\nUsage:\n\n    python3 queue.py\n\"\"\"\n\nimport csv\nimport glob\n\nseen = set()\nper_repairer = {}\nfor path in sorted(glob.glob(\"tickets/*.csv\")):\n    with open(path, newline=\"\", encoding=\"utf-8\") as handle:\n        for row in list(csv.reader(handle))[1:]:\n            tid = row[0]\n            if tid in seen:\n                continue\n            seen.add(tid)\n            repairer = row[3]\n            per_repairer[repairer] = per_repairer.get(repairer, 0) + 1\n\ntotal = 0\nfor repairer in sorted(per_repairer):\n    print(f\"{repairer},{per_repairer[repairer]}\")\n    total += per_repairer[repairer]\nprint(f\"TOTAL,{total}\")\n",
+    "tickets/2026-09.csv": "ticket_id,opened_on,item,repairer,status\nMC-3301,2026-09-06,Toaster,Priya Shah,open\nMC-3302,2026-09-06,Lamp,Wren Okafor,closed\nMC-3303,2026-09-13,Radio,Priya Shah,reopened\nMC-3303,2026-09-13,Radio,Priya Shah,reopened\nMC-3304,2026-09-13,Drill,Wren Okafor,open\nMC-3305,2026-09-20,Kettle,Priya Shah,closed\nMC-3306,2026-09-20,Chair,Wren Okafor,reopened\nMC-3307,2026-09-27,Blender,Priya Shah,open\nMC-3308,2026-09-27,Umbrella Stand,Wren Okafor,closed\n",
+    "README.md": "# Mendham Repair Cafe - bench report\n\nThe ticket system writes one file per month into tickets/. It re-posts a\nticket now and then after a reconnect; the re-posted rows are identical.\n"
+  },
+  "expect": {
+    "files": {
+      "tickets/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "queue.py",
+      "expected_stdout": "Priya Shah,3\nWren Okafor,2\nTOTAL,5",
+      "args": [
+        "--open"
+      ],
+      "hidden_files": {
+        "tickets/2026-10.csv": "ticket_id,opened_on,item,repairer,status\nMC-3401,2026-10-04,Projector,Priya Shah,open\nMC-3402,2026-10-04,Sewing Machine,Wren Okafor,reopened\nMC-3403,2026-10-11,Amplifier,Priya Shah,closed\nMC-3404,2026-10-18,Food Processor,Wren Okafor,open\nMC-3404,2026-10-18,Food Processor,Wren Okafor,open\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Mendham Repair Cafe's bench report prints the whole month, and the bench coordinator wants the open bench load on its own. Please give queue.py an --open flag: with the flag the report keeps its layout, counting each ticket once and counting only tickets whose status is exactly open; without it, the script behaves exactly as it does today. The files in tickets/ stay as they are. When you are done, say in two or three sentences what you changed.",
+      "expect": {}
+    }
+  ]
+}

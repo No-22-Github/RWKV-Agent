@@ -1,0 +1,51 @@
+{
+  "id": "log-7614",
+  "description": "总结校车充电桩 CSV（中文），合计行把取消单也算进去；报完成次数、最忙车位与取消单数。 DISTILL-CANARY-bbb7dd2e",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-HEADER": "6 条记录"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-b07-totalcsv-01",
+    "ref_calls": 3,
+    "fixture_bytes": 568,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:distill-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "exports/charging-0410.csv": "流水号,日期,车位,状态\nCD-3301,2026-04-10,1 号位,完成\nCD-3302,2026-04-10,2 号位,完成\nCD-3303,2026-04-10,1 号位,取消\nCD-3304,2026-04-10,1 号位,完成\nCD-3305,2026-04-10,2 号位,完成\nCD-3306,2026-04-10,1 号位,完成\nCD-3307,2026-04-10,4 号位,取消\n合计,,,,6 条记录\n",
+    "README.md": "校车队充电记录导出说明（2026-04-10）。\n\n状态为取消的充电是插枪后未启动就撤单，公司只按完成结算。\n文件末尾的合计行统计文件里所有数据行，不分状态。导出时间：\n4 月 11 日早，由值班电工生成。\n"
+  },
+  "turns": [
+    {
+      "prompt": "校车队的充电记录导出来了，是 4 月 10 日这批。帮厂长拟几句总结：完成充电的有几次、哪个车位用得最多、取消的有几单。",
+      "expect": {
+        "output_contains": [
+          "5 次",
+          "1 号位",
+          "2 单"
+        ],
+        "output_contains_any": [
+          "5 次",
+          "1 号位",
+          "2 单"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

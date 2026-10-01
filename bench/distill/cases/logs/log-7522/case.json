@@ -1,0 +1,69 @@
+{
+  "id": "log-7522",
+  "description": "Four-turn English session tying a slow-query log to an alerting sheet: alert attribution, per-class slow count, longest duration, decommissioned-db exclusion. DISTILL-CANARY-98f1f45d",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "root_cause",
+    "traps": [
+      "TR-RULEFILE"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": 14
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "fam-log-b07-bracken-db-01",
+    "ref_calls": 6,
+    "fixture_bytes": 2637,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "logs/db-slowquery.log": "2026-09-24 01:05:12 dur=4.4s db=reporting user=bi_dash query=\"SELECT region, sum(spend) FROM stores GROUP BY 1\"\n2026-09-24 01:22:40 dur=1.2s db=reporting user=svc_alert query=\"SELECT 1\"\n2026-09-24 02:10:12 dur=3.4s db=reporting user=bi_dash query=\"SELECT week, channel, sum(spend) FROM marketing GROUP BY 1, 2\"\n2026-09-24 02:12:05 dur=3.9s db=reporting user=bi_dash query=\"SELECT c.id, p.total FROM carts c JOIN payments p ON c.id = p.cart_id\"\n2026-09-24 02:13:41 dur=4.2s db=reporting user=bi_dash query=\"SELECT tenant, p95(latency) FROM api_calls GROUP BY 1\"\n2026-09-24 02:15:18 dur=3.6s db=reporting user=bi_dash query=\"SELECT sku, sum(qty) FROM stock_moves GROUP BY 1\"\n2026-09-24 02:16:55 dur=5.1s db=reporting user=bi_dash query=\"SELECT o.id FROM orders o WHERE NOT EXISTS (SELECT 1 FROM shipments s WHERE s.order_id = o.id)\"\n2026-09-24 02:17:03 ALERT slow-query-rate: threshold breached, see notes/thresholds.md\n2026-09-24 02:18:32 dur=4.8s db=reporting user=bi_dash query=\"SELECT city, count(*) FROM members GROUP BY 1\"\n2026-09-24 02:41:17 dur=12.6s db=etl_warehouse user=etl_batch query=\"REFRESH MATERIALIZED VIEW mv_customer_360\"\n2026-09-24 03:08:33 dur=2.8s db=reporting user=svc_alert query=\"SELECT now()\"\n2026-09-24 03:21:33 dur=6.2s db=analytics user=mig_replay query=\"SELECT day, sum(bytes) FROM egress GROUP BY 1\"\n2026-09-24 03:55:42 dur=9.8s db=etl_warehouse user=etl_batch query=\"VACUUM ANALYZE daily_facts\"\n2026-09-24 04:12:19 dur=6.5s db=etl_warehouse user=etl_batch query=\"COPY staging.orders FROM '/mnt/inbox/orders.csv'\"\n2026-09-24 04:30:04 dur=2.2s db=analytics user=mig_replay query=\"SELECT count(*) FROM legacy_members\"\n2026-09-24 04:50:18 dur=5.5s db=reporting user=bi_dash query=\"SELECT m.month, sum(d.revenue) OVER (ORDER BY m.month) FROM monthly_facts m\"\n2026-09-24 05:02:41 dur=4.4s db=etl_warehouse user=etl_batch query=\"ANALYZE daily_facts\"\n2026-09-24 05:24:56 dur=1.9s db=analytics user=mig_replay query=\"SELECT * FROM legacy_orders LIMIT 10\"\n2026-09-24 05:41:07 dur=2.4s db=reporting user=svc_alert query=\"SELECT * FROM queues WHERE state = 'stuck'\"\n2026-09-24 05:58:22 dur=1.7s db=reporting user=svc_alert query=\"SELECT now()\"\n",
+    "notes/thresholds.md": "# Slow-query alerting sheet (effective 2026-09-01)\n\n- reporting-class dbs (reporting, analytics): dur > 3 s counts as slow\n- etl-class dbs (etl_warehouse): dur > 8 s counts as slow\n- alert: a reporting-class db logging more than 5 slow queries in any\n  10-minute window pages on-call\n",
+    "README.md": "# Bracken Analytics slow-query log, night of 2026-09-24\n\nOne row per query: timestamp, dur (runtime), db, user, query. The ALERT row is\nemitted by the monitor itself and carries no duration.\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "Bracken Analytics' slow-query log for the night of 2026-09-24 is in logs/db-slowquery.log, and the alerting sheet is notes/thresholds.md. Why did the on-call alert fire at 02:17?",
+      "expect": {
+        "output_contains_any": [
+          "reporting"
+        ]
+      }
+    },
+    {
+      "prompt": "Count all slow queries — per the sheet's thresholds — across the whole night, all databases.",
+      "expect": {
+        "output_contains_any": [
+          "11 slow",
+          "11 queries"
+        ]
+      }
+    },
+    {
+      "prompt": "What was the longest duration among them?",
+      "expect": {
+        "output_contains_any": [
+          "12.6"
+        ]
+      }
+    },
+    {
+      "prompt": "The analytics database was decommissioned on 2026-09-20; its rows are stale replay from a migration. Leave them out and recount the night's slow queries.",
+      "expect": {
+        "output_contains_any": [
+          "10 slow",
+          "10 queries"
+        ]
+      }
+    }
+  ]
+}

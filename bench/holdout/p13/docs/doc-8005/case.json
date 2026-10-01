@@ -1,0 +1,52 @@
+{
+  "id": "doc-8005",
+  "description": "Append one shift-handover entry to the current month's Chinese handover log in the existing entry format; judged by pinned substrings. DISTILL-CANARY-2a9d73f6",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-holdout-doc-handoff-01",
+    "answer_style": "natural",
+    "ref_calls": 2,
+    "fixture_bytes": 398,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null
+  },
+  "files": {
+    "logs/handoff-2026-08.txt": "2026-08-18 早班 沈悦：收货口卷帘门异响，已报修单 WX-1024。\n2026-08-30 晚班 高翔：消防通道杂物清理完毕。\n",
+    "logs/handoff-2026-09.txt": "2026-09-22 晚班 周航：2 号冷库温度记录仪离线，重启采集网关后恢复。\n2026-09-25 早班 沈悦：东门月台照明两盏不亮，报修单 WX-1187。\n2026-09-27 晚班 周航：盘点机充电柜跳闸，已合闸，待电工检查。\n"
+  },
+  "turns": [
+    {
+      "prompt": "9 月 29 日晚班，陈默在 3 号库处理了一次烟雾报警器误报：已复位，挂了报修单 SD-2143。把这条记录按本月值班日志里已有条目的样子追加到日志末尾。完成后，用一到三句话告诉我你改动了什么。",
+      "expect": {}
+    }
+  ],
+  "expect": {
+    "files": {
+      "logs/handoff-2026-09.txt": {
+        "contains": [
+          "2026-09-29 晚班 陈默",
+          "烟雾报警器误报",
+          "SD-2143",
+          "2026-09-27 晚班 周航：盘点机充电柜跳闸，已合闸，待电工检查。\n2026-09-29"
+        ]
+      },
+      "logs/handoff-2026-08.txt": {
+        "equals": "2026-08-18 早班 沈悦：收货口卷帘门异响，已报修单 WX-1024。\n2026-08-30 晚班 高翔：消防通道杂物清理完毕。\n"
+      }
+    }
+  }
+}

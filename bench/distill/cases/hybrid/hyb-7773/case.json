@@ -1,0 +1,76 @@
+{
+  "id": "hyb-7773",
+  "description": "Two-turn clarify (two readings): September bookings live in the live file and a partial archive; turn 1 names both and asks, turn 2 picks live giving 17 hours. DISTILL-CANARY-5e735b17",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 5.0
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b07-ambiguoustwo-03",
+    "ref_calls": 4,
+    "fixture_bytes": 334,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "value"
+  },
+  "files": {
+    "README.md": "# Ivybridge Boathouse\n\nThe archive holds only bookings already invoiced; the live file lists all September bookings.\n",
+    "reservations/reservations-2026-09.csv": "date,boat,hours,rate_gbp\n2026-09-06,Skylark,3,42\n2026-09-07,Merrow,2,38\n2026-09-13,Skylark,4,42\n2026-09-20,Peregrine,5,45\n2026-09-27,Merrow,3,38\n",
+    "reservations/reservations-archive-2026-09.csv": "date,boat,hours,rate_gbp\n2026-09-06,Skylark,3,42\n2026-09-07,Merrow,2,38\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many booking hours have we got for September?",
+      "expect": {
+        "forbidden_tools": [
+          "write_file",
+          "append_file",
+          "replace_lines"
+        ],
+        "output_contains_any": [
+          "?",
+          "Which",
+          "which",
+          "What",
+          "what",
+          "confirm",
+          "Confirm",
+          "specify",
+          "Specify",
+          "Do you",
+          "do you",
+          "Did you",
+          "did you",
+          "should I",
+          "Should I",
+          "please provide",
+          "Please provide",
+          "need to know",
+          "Need to know"
+        ],
+        "output_contains": [
+          "reservations-2026-09.csv",
+          "reservations-archive-2026-09.csv"
+        ]
+      }
+    },
+    {
+      "prompt": "Use the live file. Reply with only the final answer.",
+      "expect": {
+        "expected_number": 17.0,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

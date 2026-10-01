@@ -1,0 +1,57 @@
+{
+  "id": "nt-7136",
+  "description": "Two paint batches are waiting; the message says to shelf the one that arrived first but not which that is DISTILL-CANARY-77d24068",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "ambiguous_request",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": "已把先到的朝雾牌乳胶漆搬上货架了。"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-clarify-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 317
+  },
+  "offered_tools": [
+    "read_file",
+    "list_files"
+  ],
+  "web_fixture": [],
+  "files": {
+    "receiving/arrivals_2026-10.csv": "品名,桶数\n朝雾牌乳胶漆,120\n松涛牌乳胶漆,80\n",
+    "README.md": "# 千色涂料 - 仓库工作区\n\n到货登记与货架分布都在这里。\n\n- receiving/  到货登记（只登记品名与数量，不含到货先后）\n- shelves/  货架分布\n\n上架顺序以送货单签收时间为准，签收单由仓管员保管。\n"
+  },
+  "turns": [
+    {
+      "prompt": "千色涂料昨天到了两批乳胶漆，一批是朝雾牌，一批是松涛牌，都还停在收货区。你帮我把先到的那批先搬上货架。",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "？",
+          "?",
+          "哪批",
+          "哪一批",
+          "哪一个",
+          "哪个",
+          "先到的是"
+        ],
+        "output_contains": [
+          "朝雾牌",
+          "松涛牌"
+        ]
+      }
+    }
+  ]
+}

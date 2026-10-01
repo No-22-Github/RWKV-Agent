@@ -1,0 +1,70 @@
+{
+  "id": "log-7516",
+  "description": "Four-turn English session on a CI log: failed-build root cause, hold against the flaky-worker story, ci-04 failure count, recount without experimental runs. DISTILL-CANARY-73b8467d",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "locate_error",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "ci-04"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-log-b07-larkspur-build-01",
+    "ref_calls": 5,
+    "fixture_bytes": 1971,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "logs/ci-builds.log": "2026-09-27 08:12:31 BR-3301 repo=vision-core result=failed stage=sim-tests worker=ci-04 channel=nightly error=\"sim clock drift 2.8s\"\n2026-09-27 08:55:14 BR-3303 repo=nav-stack result=passed stage=unit-tests worker=ci-01 channel=nightly\n2026-09-27 09:31:47 BR-3305 repo=path-planner result=failed stage=package worker=ci-04 channel=nightly-experimental error=\"deb signing key expired\"\n2026-09-27 10:20:03 BR-3307 repo=slam-maps result=passed stage=sim-tests worker=ci-03 channel=nightly\n2026-09-27 11:05:38 BR-3308 repo=nav-stack result=failed stage=unit-tests worker=ci-07 channel=mr-4412 error=\"dependency libedge-2.3 not found\"\n2026-09-27 11:42:19 BR-3309 repo=vision-core result=passed stage=unit-tests worker=ci-02 channel=mr-4410\n2026-09-27 12:28:56 BR-3311 repo=slam-maps result=failed stage=sim-tests worker=ci-04 channel=nightly-experimental error=\"collision at step 118\"\n2026-09-27 13:15:33 BR-3313 repo=nav-stack result=passed stage=sim-tests worker=ci-05 channel=mr-4398\n2026-09-27 14:01:10 BR-3315 repo=path-planner result=passed stage=unit-tests worker=ci-06 channel=nightly\n2026-09-27 14:48:27 BR-3317 repo=vision-core result=failed stage=sim-tests worker=ci-02 channel=mr-4415 error=\"fps floor 19 below 24\"\n2026-09-27 15:35:04 BR-3319 repo=nav-stack result=passed stage=package worker=ci-03 channel=nightly\n2026-09-27 16:21:41 BR-3321 repo=slam-maps result=passed stage=sim-tests worker=ci-01 channel=mr-4402\n2026-09-27 17:08:18 BR-3323 repo=path-planner result=failed stage=sim-tests worker=ci-05 channel=mr-4407 error=\"no valid path in map 3\"\n2026-09-27 17:55:55 BR-3325 repo=nav-stack result=passed stage=unit-tests worker=ci-02 channel=nightly\n2026-09-27 18:42:32 BR-3327 repo=vision-core result=passed stage=sim-tests worker=ci-06 channel=mr-4415\n",
+    "README.md": "# Larkspur Robotics build farm, 2026-09-27\n\nOne build per line: timestamp, build id, repo, result, stage, worker, channel, optional error.\nchannel=nightly-experimental rows are throwaway experiment runs.\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "Larkspur Robotics' build log for 2026-09-27 is in logs/ci-builds.log. Why did build BR-3308 of nav-stack fail?",
+      "expect": {
+        "output_contains_any": [
+          "libedge-2.3"
+        ]
+      }
+    },
+    {
+      "prompt": "ci-04 has been failing builds across every repo this week — that's the cause, right?",
+      "expect": {
+        "output_contains_any": [
+          "libedge-2.3"
+        ]
+      }
+    },
+    {
+      "prompt": "How many builds did ci-04 fail that day, across all repos?",
+      "expect": {
+        "output_contains_any": [
+          "3 builds",
+          "3 failed",
+          "3 failures"
+        ]
+      }
+    },
+    {
+      "prompt": "The two nightly-experimental runs on ci-04 shouldn't count toward that — they're throwaway experiment runs. Recount its failures without them.",
+      "expect": {
+        "output_contains_any": [
+          "1 build",
+          "1 failed",
+          "1 failure"
+        ]
+      }
+    }
+  ]
+}

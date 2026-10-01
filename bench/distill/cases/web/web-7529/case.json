@@ -1,0 +1,54 @@
+{
+  "id": "web-7529",
+  "description": "Read the browser-extension version off the extension changelog given by URL. DISTILL-CANARY-b5148840",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "VER"
+    ],
+    "level": "L0",
+    "family": "fam-web-b06-baize-rel",
+    "answer_style": "natural",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "白泽",
+      "url": "https://docs.baize.example/extension/changelog",
+      "url_match": "docs.baize.example/extension/changelog",
+      "title": "白泽翻译 · 浏览器扩展更新日志",
+      "snippet": "扩展的版本发布记录与浏览器兼容说明。",
+      "published_at": "2026-09-05",
+      "content": "# 白泽翻译 · 浏览器扩展更新日志\n\n## 1.9.4（2026-09-05）\n当前正式版本。适配新版划词选中态。\n\n## 1.9.3（2026-08-14）\n修复双语字幕模式下遮挡播放器控制栏的问题。\n\n## 1.8.0（2026-05-02）\n新增 PDF 划词翻译。\n"
+    },
+    {
+      "query_match": "白泽",
+      "url": "https://docs.baize.example/extension/install",
+      "url_match": "docs.baize.example/extension/install",
+      "title": "白泽翻译 · 扩展安装指南",
+      "snippet": "各浏览器商店的安装入口。",
+      "published_at": "2026-09-05",
+      "content": "# 安装指南\n\nChrome 与 Edge 商店搜索「白泽翻译」即可安装，Firefox 版在扩展市场。\n"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "白泽翻译浏览器扩展的更新日志在 https://docs.baize.example/extension/changelog。扩展当前的正式版本号是多少？",
+      "expect": {
+        "output_contains_any": [
+          "1.9.4"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "id": "hyb-7726",
+  "description": "山雾烘焙两轮会话：先寒暄，再请对方统计 8 月发给直营门店的订单数。 DISTILL-CANARY-9c41e2a7",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS",
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-hyb-b07-cafe-01",
+    "ref_calls": 1,
+    "fixture_bytes": 578,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 山雾烘焙 · 8 月订单导出\n\n每晚从门店系统导出一次，一行对应一张订单。\nchannel 列取值：直营（自家门店）、批发（合作咖啡店与餐厅）、电商（线上商城）。\n",
+    "exports/august_orders.csv": "order_id,date,channel,bags\nSO-8103,2026-08-02,直营,2\nSO-8107,2026-08-04,批发,3\nSO-8112,2026-08-06,直营,1\nSO-8118,2026-08-09,电商,2\nSO-8121,2026-08-11,直营,4\nSO-8126,2026-08-13,批发,1\nSO-8130,2026-08-16,直营,6\nSO-8134,2026-08-18,电商,2\nSO-8139,2026-08-21,直营,3\nSO-8143,2026-08-24,批发,1\nSO-8147,2026-08-27,批发,2\nSO-8150,2026-08-30,电商,4\n"
+  },
+  "turns": [
+    {
+      "prompt": "早上好！今天状态怎么样？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "你好",
+          "您好",
+          "嗨",
+          "哈喽",
+          "早上好",
+          "上午好",
+          "在的",
+          "帮您",
+          "帮忙",
+          "有什么",
+          "挺好",
+          "不错"
+        ]
+      }
+    },
+    {
+      "prompt": "对了，正好有件事想请你帮忙：8 月我们给直营门店发了多少张订单？明细在 exports/august_orders.csv。只回答数字。",
+      "expect": {
+        "expected_number": 5,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

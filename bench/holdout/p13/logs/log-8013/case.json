@@ -1,0 +1,41 @@
+{
+  "id": "log-8013",
+  "description": "Sum one merchant's successful payments from a September JSONL keyed by merchant code, with refunded and pending transactions to exclude. DISTILL-CANARY-971a49d0",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "aggregate_jsonl",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": 41208.9
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-holdout-log-payjsonl-01",
+    "ref_calls": 3,
+    "fixture_bytes": 3516,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "商户表.csv": "商户编号,商户名称\nM-1508,山茶咖啡\nM-2206,南风书屋\nM-3117,拾光唱片\nM-4420,白鹭花坊\nM-5093,鹿鸣文具\n",
+    "payments-202609.jsonl": "{\"ts\":\"2026-09-02 10:12:44\",\"merchant\":\"M-2206\",\"amount\":3260.50,\"status\":\"success\"}\n{\"ts\":\"2026-09-02 14:03:21\",\"merchant\":\"M-1508\",\"amount\":452.00,\"status\":\"success\"}\n{\"ts\":\"2026-09-03 09:41:07\",\"merchant\":\"M-2206\",\"amount\":1895.00,\"status\":\"success\"}\n{\"ts\":\"2026-09-03 16:22:39\",\"merchant\":\"M-3117\",\"amount\":733.40,\"status\":\"success\"}\n{\"ts\":\"2026-09-04 11:08:52\",\"merchant\":\"M-2206\",\"amount\":1240.00,\"status\":\"refunded\"}\n{\"ts\":\"2026-09-05 10:31:16\",\"merchant\":\"M-4420\",\"amount\":976.30,\"status\":\"success\"}\n{\"ts\":\"2026-09-05 15:47:28\",\"merchant\":\"M-2206\",\"amount\":2412.80,\"status\":\"success\"}\n{\"ts\":\"2026-09-06 09:55:03\",\"merchant\":\"M-5093\",\"amount\":1188.00,\"status\":\"success\"}\n{\"ts\":\"2026-09-06 13:29:41\",\"merchant\":\"M-2206\",\"amount\":1180.00,\"status\":\"success\"}\n{\"ts\":\"2026-09-07 12:14:55\",\"merchant\":\"M-1508\",\"amount\":2044.75,\"status\":\"success\"}\n{\"ts\":\"2026-09-08 10:02:33\",\"merchant\":\"M-2206\",\"amount\":3020.45,\"status\":\"success\"}\n{\"ts\":\"2026-09-08 17:38:19\",\"merchant\":\"M-3117\",\"amount\":1450.00,\"status\":\"pending\"}\n{\"ts\":\"2026-09-09 09:26:47\",\"merchant\":\"M-2206\",\"amount\":4210.00,\"status\":\"success\"}\n{\"ts\":\"2026-09-10 14:44:12\",\"merchant\":\"M-4420\",\"amount\":660.50,\"status\":\"success\"}\n{\"ts\":\"2026-09-11 10:19:36\",\"merchant\":\"M-2206\",\"amount\":1580.60,\"status\":\"success\"}\n{\"ts\":\"2026-09-11 16:51:08\",\"merchant\":\"M-5093\",\"amount\":1725.20,\"status\":\"success\"}\n{\"ts\":\"2026-09-12 11:33:54\",\"merchant\":\"M-2206\",\"amount\":2890.00,\"status\":\"success\"}\n{\"ts\":\"2026-09-13 09:07:22\",\"merchant\":\"M-1508\",\"amount\":3101.15,\"status\":\"success\"}\n{\"ts\":\"2026-09-13 15:26:40\",\"merchant\":\"M-2206\",\"amount\":890.25,\"status\":\"pending\"}\n{\"ts\":\"2026-09-14 10:41:33\",\"merchant\":\"M-3117\",\"amount\":2210.90,\"status\":\"success\"}\n{\"ts\":\"2026-09-14 16:12:05\",\"merchant\":\"M-2206\",\"amount\":3460.25,\"status\":\"success\"}\n{\"ts\":\"2026-09-15 12:58:19\",\"merchant\":\"M-4420\",\"amount\":1345.00,\"status\":\"success\"}\n{\"ts\":\"2026-09-16 09:15:47\",\"merchant\":\"M-2206\",\"amount\":2080.00,\"status\":\"success\"}\n{\"ts\":\"2026-09-16 18:23:11\",\"merchant\":\"M-5093\",\"amount\":566.40,\"status\":\"success\"}\n{\"ts\":\"2026-09-17 13:36:29\",\"merchant\":\"M-2206\",\"amount\":211.00,\"status\":\"pending\"}\n{\"ts\":\"2026-09-18 10:49:56\",\"merchant\":\"M-1508\",\"amount\":1738.35,\"status\":\"success\"}\n{\"ts\":\"2026-09-18 15:04:42\",\"merchant\":\"M-2206\",\"amount\":6310.05,\"status\":\"success\"}\n{\"ts\":\"2026-09-19 11:27:18\",\"merchant\":\"M-3117\",\"amount\":989.00,\"status\":\"success\"}\n{\"ts\":\"2026-09-19 17:40:03\",\"merchant\":\"M-4420\",\"amount\":1122.60,\"status\":\"success\"}\n{\"ts\":\"2026-09-20 09:33:36\",\"merchant\":\"M-2206\",\"amount\":5948.00,\"status\":\"success\"}\n{\"ts\":\"2026-09-20 14:56:50\",\"merchant\":\"M-5093\",\"amount\":1877.10,\"status\":\"success\"}\n{\"ts\":\"2026-09-21 10:20:24\",\"merchant\":\"M-2206\",\"amount\":620.00,\"status\":\"refunded\"}\n{\"ts\":\"2026-09-21 16:44:39\",\"merchant\":\"M-1508\",\"amount\":2890.45,\"status\":\"success\"}\n{\"ts\":\"2026-09-22 12:11:57\",\"merchant\":\"M-3117\",\"amount\":1650.80,\"status\":\"success\"}\n{\"ts\":\"2026-09-22 18:35:12\",\"merchant\":\"M-4420\",\"amount\":704.20,\"status\":\"success\"}\n{\"ts\":\"2026-09-23 09:48:31\",\"merchant\":\"M-5093\",\"amount\":1355.60,\"status\":\"success\"}\n{\"ts\":\"2026-09-23 15:59:44\",\"merchant\":\"M-1508\",\"amount\":920.75,\"status\":\"success\"}\n{\"ts\":\"2026-09-24 11:14:08\",\"merchant\":\"M-3117\",\"amount\":2478.30,\"status\":\"success\"}\n{\"ts\":\"2026-09-25 10:37:21\",\"merchant\":\"M-4420\",\"amount\":1560.00,\"status\":\"success\"}\n{\"ts\":\"2026-09-26 16:50:35\",\"merchant\":\"M-5093\",\"amount\":842.90,\"status\":\"success\"}\n"
+  },
+  "turns": [
+    {
+      "prompt": "南风书屋 9 月在平台上的成交总额是多少？只统计状态为成功的交易，退款和待处理的都不算。保留两位小数，只回答数字。",
+      "expect": {
+        "expected_number": 38247.65,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

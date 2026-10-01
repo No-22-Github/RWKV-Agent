@@ -1,0 +1,44 @@
+{
+  "id": "cfg-8012",
+  "description": "Find the single required config item missing from a production env snapshot, where a commented-out line looks configured. DISTILL-CANARY-8417b4d3",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "missing_keys",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "无缺失"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-holdout-cfg-missingkey-01",
+    "ref_calls": 2,
+    "fixture_bytes": 522,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "配置基线.csv": "配置项,说明,是否必填\nserver_port,服务监听端口,是\ndb_pool_size,数据库连接池,是\ncache_ttl_seconds,缓存过期时间,是\nsms_api_key,短信网关密钥,是\nlog_level,日志级别,是\nsession_ttl_hours,会话时长,是\nfeature_flags,功能开关,否\nmetrics_port,监控端口,否\n",
+    "deploy.env": "# 照川供应链生产容器 env 快照\nserver_port=8080\ndb_pool_size=24\ncache_ttl_seconds=900\nlog_level=info\nsession_ttl_hours=72\nmetrics_port=9102\nfeature_flags=new_checkout,on\n# sms_api_key=等安全组下发后放开\n"
+  },
+  "turns": [
+    {
+      "prompt": "照川供应链的运维把生产容器的 env 快照放在 deploy.env，配置基线在 配置基线.csv。对照基线查一下：现在还缺哪个必填配置项？只回答那个配置项的名称，不要带其他内容。",
+      "expect": {
+        "output_equals_any": [
+          "sms_api_key",
+          "缺少 sms_api_key",
+          "缺失 sms_api_key"
+        ]
+      }
+    }
+  ]
+}

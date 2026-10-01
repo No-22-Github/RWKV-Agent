@@ -1,0 +1,52 @@
+{
+  "id": "log-7284",
+  "description": "September honey weight in kilograms from a harvest export that records frames only. DISTILL-CANARY-91db2144",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "aggregate_jsonl",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "63"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-log-b06-tarnwood-honey",
+    "ref_calls": 2,
+    "fixture_bytes": 551,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Tarnwood Apiaries - harvest log export\n\nOne row per harvesting visit. frames_harvested counts supers removed from the hive.\n\nHoney weight per frame is measured at the extraction shed and is not recorded in this export.\n",
+    "exports/harvest-2026-09.csv": "date,hive_id,frames_harvested,notes\n2026-09-03,TH-07,6,light flow\n2026-09-05,TH-11,8,\n2026-09-08,TH-07,5,\n2026-09-10,TH-04,7,strong flow\n2026-09-12,TH-11,6,\n2026-09-15,TH-04,4,after rain\n2026-09-17,TH-09,6,\n2026-09-19,TH-07,5,\n2026-09-22,TH-11,3,season slowing\n2026-09-24,TH-09,5,\n2026-09-26,TH-04,4,\n2026-09-29,TH-07,4,last pull\n"
+  },
+  "turns": [
+    {
+      "prompt": "Tarnwood Apiaries' co-op statement needs the total honey weight in kilograms harvested in September from exports/harvest-2026-09.csv. What figure should I report?",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "weight",
+          "kg",
+          "kilogram"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+   "id": "tab-7532",
+   "description": "September 2026 kWh for one charging plan whose plus-tier twin delivers more energy DISTILL-CANARY-95ac24e4",
+   "category": "tabular",
+   "tags": {
+      "scenario": "tabular",
+      "task_type": "aggregate",
+      "traps": [
+         "TR-DECOY"
+      ],
+      "trap_decoys": {
+         "TR-DECOY": 1247.9
+      },
+      "axes": [
+         "OBS"
+      ],
+      "level": "L1",
+      "family": "fam-tab-b06-voltway-01",
+      "ref_calls": 1,
+      "fixture_bytes": 4925,
+      "status": "draft",
+      "version": 1,
+      "author": "llm:glm-5.3-flash-b06",
+      "reviewer": null,
+      "answer_style": "natural"
+   },
+   "web_fixture": [],
+   "files": {
+      "data/sessions_2026-09.csv": "session_id,session_month,plan,city,kwh_delivered\nVW-9241,2026-08,Fleet,Ripon,52.1\nVW-6846,2026-08,Fleet,Selby,39.8\nVW-9657,2026-09,Commute,Selby,4.8\nVW-6303,2026-09,Fleet,Selby,20.1\nVW-1013,2026-08,Fleet,Dudley,44.8\nVW-3029,2026-09,Commute,Dudley,4.7\nVW-8246,2026-09,Commute Plus,Selby,22.8\nVW-8365,2026-09,Flexi,Selby,31.4\nVW-6737,2026-09,Commute Plus,Selby,45.8\nVW-5993,2026-09,Fleet,Dudley,37.5\nVW-9835,2026-08,Fleet,Dudley,56.1\nVW-7543,2026-09,Fleet,Selby,60.9\nVW-6560,2026-09,Fleet,Ripon,28.0\nVW-9065,2026-09,Fleet,Selby,55.5\nVW-2852,2026-09,Commute,Selby,14.8\nVW-7185,2026-09,Commute,Ripon,29.0\nVW-7265,2026-08,Flexi,Nantwich,7.4\nVW-4340,2026-09,Commute Plus,Dudley,36.5\nVW-1063,2026-09,Commute Plus,Selby,54.4\nVW-5548,2026-09,Commute,Dudley,14.1\nVW-9371,2026-09,Flexi,Nantwich,34.9\nVW-4258,2026-09,Commute Plus,Ripon,54.4\nVW-8562,2026-09,Commute Plus,Dudley,39.4\nVW-9469,2026-09,Fleet,Nantwich,60.1\nVW-7700,2026-09,Flexi,Dudley,19.1\nVW-6002,2026-09,Commute Plus,Selby,39.7\nVW-3790,2026-09,Commute Plus,Ripon,29.3\nVW-8362,2026-09,Commute,Nantwich,14.2\nVW-9699,2026-09,Commute,Ripon,7.8\nVW-4233,2026-08,Fleet,Dudley,23.0\nVW-6888,2026-09,Flexi,Ripon,13.8\nVW-9621,2026-08,Flexi,Dudley,16.1\nVW-1057,2026-08,Commute Plus,Ripon,59.6\nVW-7376,2026-09,Commute Plus,Selby,47.1\nVW-7977,2026-09,Commute,Selby,21.5\nVW-7639,2026-09,Commute Plus,Nantwich,24.7\nVW-6505,2026-09,Commute Plus,Nantwich,60.8\nVW-2109,2026-08,Commute,Nantwich,36.9\nVW-9072,2026-09,Flexi,Nantwich,19.1\nVW-5057,2026-09,Flexi,Selby,28.9\nVW-5765,2026-08,Flexi,Ripon,17.9\nVW-1340,2026-09,Commute Plus,Nantwich,48.9\nVW-7668,2026-09,Fleet,Dudley,32.9\nVW-3557,2026-09,Fleet,Selby,51.2\nVW-7509,2026-09,Commute,Dudley,29.6\nVW-5427,2026-09,Commute,Selby,45.4\nVW-3918,2026-08,Fleet,Dudley,60.9\nVW-2202,2026-09,Commute Plus,Selby,22.3\nVW-1165,2026-09,Commute Plus,Selby,58.9\nVW-6725,2026-08,Commute Plus,Selby,28.3\nVW-5334,2026-09,Commute,Ripon,12.8\nVW-7736,2026-09,Flexi,Selby,8.4\nVW-9916,2026-08,Flexi,Ripon,34.1\nVW-5975,2026-09,Fleet,Nantwich,42.4\nVW-3491,2026-08,Commute,Nantwich,9.7\nVW-8570,2026-09,Commute,Ripon,38.8\nVW-5249,2026-09,Commute Plus,Selby,26.6\nVW-8938,2026-08,Flexi,Dudley,7.3\nVW-3779,2026-09,Commute Plus,Nantwich,61.6\nVW-8653,2026-09,Commute Plus,Selby,42.8\nVW-9361,2026-08,Flexi,Ripon,24.2\nVW-1743,2026-09,Commute Plus,Dudley,38.7\nVW-5437,2026-09,Commute Plus,Ripon,51.4\nVW-9360,2026-08,Flexi,Dudley,6.8\nVW-2615,2026-09,Fleet,Selby,27.9\nVW-7923,2026-08,Commute Plus,Nantwich,46.0\nVW-2142,2026-09,Commute,Selby,45.9\nVW-6819,2026-09,Flexi,Ripon,33.4\nVW-2097,2026-09,Commute Plus,Ripon,22.4\nVW-8249,2026-08,Commute,Ripon,49.2\nVW-1323,2026-09,Commute Plus,Selby,31.6\nVW-3689,2026-08,Fleet,Selby,60.7\nVW-9309,2026-08,Commute,Selby,32.2\nVW-3648,2026-09,Commute Plus,Ripon,39.1\nVW-2524,2026-08,Commute Plus,Dudley,53.0\nVW-7585,2026-09,Commute Plus,Ripon,44.6\nVW-5518,2026-09,Commute Plus,Ripon,27.3\nVW-5987,2026-08,Fleet,Ripon,44.3\nVW-4422,2026-08,Commute,Dudley,31.9\nVW-9652,2026-08,Commute,Dudley,14.8\nVW-4403,2026-08,Fleet,Dudley,50.6\nVW-4886,2026-09,Commute Plus,Selby,51.6\nVW-6471,2026-09,Fleet,Ripon,24.2\nVW-5408,2026-08,Fleet,Nantwich,27.3\nVW-2123,2026-09,Fleet,Dudley,33.4\nVW-2226,2026-09,Fleet,Nantwich,45.3\nVW-9572,2026-09,Commute,Dudley,45.8\nVW-7032,2026-09,Fleet,Nantwich,46.2\nVW-8666,2026-08,Commute Plus,Nantwich,19.9\nVW-9380,2026-08,Commute,Selby,48.3\nVW-1814,2026-09,Flexi,Selby,34.6\nVW-3761,2026-08,Fleet,Selby,27.2\nVW-5864,2026-08,Flexi,Dudley,18.7\nVW-5419,2026-08,Commute Plus,Nantwich,18.9\nVW-6830,2026-08,Fleet,Selby,31.6\nVW-4802,2026-08,Commute,Nantwich,26.1\nVW-7431,2026-09,Flexi,Selby,27.2\nVW-7548,2026-09,Flexi,Ripon,11.7\nVW-3823,2026-09,Commute Plus,Selby,23.3\nVW-8923,2026-09,Flexi,Ripon,30.1\nVW-5252,2026-09,Commute,Ripon,46.4\nVW-6400,2026-08,Fleet,Ripon,57.1\nVW-4642,2026-08,Commute Plus,Nantwich,39.6\nVW-5239,2026-09,Flexi,Dudley,25.2\nVW-5001,2026-09,Fleet,Nantwich,44.0\nVW-1500,2026-08,Commute Plus,Dudley,59.1\nVW-7596,2026-09,Commute Plus,Selby,43.8\nVW-6186,2026-09,Commute,Dudley,37.4\nVW-8074,2026-09,Commute,Dudley,15.4\nVW-5070,2026-08,Fleet,Nantwich,60.3\nVW-5408,2026-09,Flexi,Dudley,38.8\nVW-4111,2026-09,Fleet,Selby,60.8\nVW-2188,2026-09,Fleet,Ripon,36.7\nVW-3713,2026-09,Flexi,Nantwich,21.3\nVW-8267,2026-08,Flexi,Dudley,18.4\nVW-3427,2026-09,Commute Plus,Dudley,30.9\nVW-5292,2026-09,Flexi,Dudley,24.6\nVW-8526,2026-09,Flexi,Nantwich,34.0\nVW-9627,2026-08,Commute,Ripon,12.8\nVW-3662,2026-09,Commute Plus,Nantwich,46.2\nVW-3271,2026-09,Commute Plus,Nantwich,54.8\nVW-3262,2026-09,Commute Plus,Dudley,26.2\nVW-8220,2026-09,Commute,Dudley,30.0\nVW-6916,2026-09,Fleet,Nantwich,52.0\nVW-6075,2026-08,Commute Plus,Selby,52.3\n",
+      "README.md": "# Voltway Charging - charging session log\n\nOne row per completed charging session. plan is the tariff the driver\nwas signed up to at plug-in; kwh_delivered is metered energy for the\nsession.\n",
+      "notes/load.txt": "Depot load notes\n- Nantwich cabinets share a feeder with the tram spur.\n- Firmware pushes run after the overnight lull.\n"
+   },
+   "turns": [
+      {
+         "prompt": "Voltway Charging is preparing the September network report. The session log is at data/sessions_2026-09.csv. Give the number alone, as digits, with no label. How many kWh did the Commute plan deliver in September 2026?",
+         "expect": {
+            "expected_number": 458.4,
+            "tolerance": 0.01,
+            "required_tools": [
+               "data_query"
+            ]
+         }
+      }
+   ],
+   "expect": {
+      "max_calls": {
+         "read_file": 1
+      }
+   }
+}

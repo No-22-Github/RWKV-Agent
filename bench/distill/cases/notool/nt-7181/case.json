@@ -1,0 +1,47 @@
+{
+  "id": "nt-7181",
+  "description": "Small talk about a sudden afternoon rain cooling things down; reply directly without any tool call. DISTILL-CANARY-ec90b14a",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b06-chat-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 213
+  },
+  "web_fixture": [],
+  "files": {
+    "tours/tg-1108.csv": "day,city,highlight\n1,大理,洱海骑行\n2,沙溪,古镇漫步\n",
+    "README.md": "# 望舒旅行 - 定制团工作区\n\n定制团行程和供应商联络记录都放在这里。\n\n- tours/  定制团行程\n- vendors/  供应商联络\n"
+  },
+  "turns": [
+    {
+      "prompt": "这天说变就变，中午还大太阳，下午就下了一场雨，凉快多了。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "是啊",
+          "是呀",
+          "可不是",
+          "天气",
+          "雨",
+          "凉快",
+          "秋天",
+          "降温"
+        ]
+      }
+    }
+  ]
+}

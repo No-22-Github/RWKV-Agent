@@ -1,0 +1,45 @@
+{
+  "id": "cfg-7301",
+  "description": "Raise the burst count on the capture pipeline's main recording path without touching the preview path. DISTILL-CANARY-62c0fa84",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": 2
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b06-fernbrake",
+    "ref_calls": 3,
+    "fixture_bytes": 691,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/capture.yaml": "# Fernbrake Studios - capture pipeline config (studio host fe-01)\ncapture:\n  format: RAW\n  bitrate_mbps: 90\n  burst_count: 5\n  burst_interval_ms: 120\n  focus_mode: continuous\ntether:\n  host: 192.168.8.24\n  port: 7788\n  heartbeat_s: 5\npreview:\n  bitrate_mbps: 12\n  burst_count: 2\n  scale: 0.5\n",
+    "README.md": "# Fernbrake Studios - capture pipeline\n\nThe studio host runs one capture pipeline, configured in config/capture.yaml.\nThe file has three sections:\n\n- capture  the main recording path, the take that lands on disk\n- tether   the link to the camera body during tethered shoots\n- preview  the framing preview on the operator's monitor\n\nThe duty retoucher edits this file directly and saves it in place.\n"
+  },
+  "expect": {
+    "files": {
+      "config/capture.yaml": {
+        "equals": "# Fernbrake Studios - capture pipeline config (studio host fe-01)\ncapture:\n  format: RAW\n  bitrate_mbps: 90\n  burst_count: 8\n  burst_interval_ms: 120\n  focus_mode: continuous\ntether:\n  host: 192.168.8.24\n  port: 7788\n  heartbeat_s: 5\npreview:\n  bitrate_mbps: 12\n  burst_count: 2\n  scale: 0.5\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Fernbrake Studios swapped in a new key-light rig this week and the takes keep clipping at five frames. Raise the burst count on the main recording path to 8 in config/capture.yaml. The framing preview path stays as it is, and nothing else in the file should move. When you are done, describe in two or three sentences what you changed.",
+      "expect": {}
+    }
+  ]
+}

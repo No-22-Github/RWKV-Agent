@@ -1,0 +1,57 @@
+{
+  "id": "doc-7372",
+  "description": "Write the restoration room's pending list without mixing in the superseded month. DISTILL-CANARY-33deb2f4",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "extract_items",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": 4
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b06-lingyan",
+    "ref_calls": 4,
+    "fixture_bytes": 621,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "archives/repair-2026-09.txt": "《雪堂行拾》册页 蛀洞 待修 顾云舟\n《寒林图》残页 断裂 待修 沈砚秋\n《云根志》封面 书脊开裂 待修 沈砚秋\n",
+    "archives/superseded-2026-08.txt": "《雪堂行拾》册页 蛀洞 待修 顾云舟\n《澄清堂帖》拓本 边角磨损 已修完 归架\n",
+    "README.md": "# 灵岩书院古籍修复室\n\n修复档案按月记在 archives/，当月档案叫 repair-YYYY-MM.txt；\nsuperseded- 开头的文件是已经结转到新账的旧档，只作留底，不再\n派工。每周清单放进 pending/，文件名用整理当天日期，按当月档案\n的行序，每行写成\n\n    - <书名> <病况>\n\n只收状态为「待修」的条目。\n",
+    "pending/.keep": ""
+  },
+  "expect": {
+    "files": {
+      "pending/2026-09-26.txt": {
+        "contains": [
+          "- 《雪堂行拾》册页 蛀洞",
+          "- 《寒林图》残页 断裂",
+          "- 《云根志》封面 书脊开裂"
+        ]
+      },
+      "archives/repair-2026-09.txt": {
+        "unchanged": true
+      },
+      "archives/superseded-2026-08.txt": {
+        "unchanged": true
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "灵岩书院修复室今天（2026-09-26）整理九月的修复档案，让你按馆里的规矩把待修条目誊成周清单放进 pending/，文件名用今天的日期；archives/ 里的档案都不要动。完成后用两三句话说明你写了什么。",
+      "expect": {}
+    }
+  ]
+}

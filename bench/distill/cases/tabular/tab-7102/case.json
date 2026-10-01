@@ -1,0 +1,52 @@
+{
+  "id": "tab-7102",
+  "description": "『美团闪购』渠道在汀兰生鲜 9 月出库单里的金额合计，而单子里只有三类在架渠道。 DISTILL-CANARY-e96c5d28",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "323.10"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b06-tinglan-orders",
+    "ref_calls": 3,
+    "fixture_bytes": 790,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 汀兰生鲜 - 9 月出库单\n\n门店系统按月导出的出库流水，一行一笔订单。\n\n渠道目前有小程序、门店、外卖平台三类，金额为实收金额（元）。\n",
+    "exports/orders-2026-09.csv": "订单号,下单日期,渠道,门店,金额\nTL-90102,2026-09-02,小程序,滨江店,86.40\nTL-90118,2026-09-03,门店,鼓楼店,152.00\nTL-90127,2026-09-05,外卖平台,滨江店,64.80\nTL-90133,2026-09-07,小程序,鼓楼店,97.50\nTL-90148,2026-09-09,外卖平台,鼓楼店,42.30\nTL-90155,2026-09-11,门店,滨江店,208.60\nTL-90161,2026-09-13,小程序,鼓楼店,73.20\nTL-90174,2026-09-15,外卖平台,滨江店,126.90\nTL-90183,2026-09-18,门店,鼓楼店,185.40\nTL-90190,2026-09-21,小程序,滨江店,58.70\nTL-90207,2026-09-24,外卖平台,鼓楼店,89.10\nTL-90216,2026-09-27,门店,滨江店,142.80\n"
+  },
+  "turns": [
+    {
+      "prompt": "汀兰生鲜的运营周报要按渠道拆数据，帮我算一下 9 月出库单里『美团闪购』渠道的订单金额合计是多少？",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "美团闪购",
+          "美团 闪购"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools",
+          "323.10"
+        ]
+      }
+    }
+  ]
+}

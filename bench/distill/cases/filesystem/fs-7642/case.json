@@ -1,0 +1,41 @@
+{
+  "id": "fs-7642",
+  "description": "Look up which scan file in the customer archive belongs to contract HT-2026-0317 via the index CSV. DISTILL-CANARY-dfde4bb6",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "find_file",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-fs-b06-indexfind-01",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 1186,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {
+    "客户资料/合同索引.csv": "合同编号,客户名称,文件名\nHT-2026-0208,恒信建材,scan_hengxin_2026.txt\nHT-2026-0225,隆盛五金,scan_longsheng_2026.txt\nHT-2026-0141,广通物流,scan_guangtong_2026.txt\nHT-2026-0317,永昌贸易,scan_yongchang_2026.txt\nHT-2025-1103,恒信建材,scan_hengxin_2025.txt\n",
+    "客户资料/scan_hengxin_2026.txt": "合同扫描存档\n合同编号：HT-2026-0208\n客户：恒信建材\n事由：年度框架合同\n签订日期：2026-02-08\n经办：顾少华\n",
+    "客户资料/scan_longsheng_2026.txt": "合同扫描存档\n合同编号：HT-2026-0225\n客户：隆盛五金\n事由：紧固件年度供货\n签订日期：2026-02-25\n经办：顾少华\n",
+    "客户资料/scan_guangtong_2026.txt": "合同扫描存档\n合同编号：HT-2026-0141\n客户：广通物流\n事由：干线运输补充协议\n签订日期：2026-01-27\n经办：顾少华\n",
+    "客户资料/scan_yongchang_2026.txt": "合同扫描存档\n合同编号：HT-2026-0317\n客户：永昌贸易\n事由：年度供货合同\n签订日期：2026-03-17\n经办：顾少华\n",
+    "客户资料/scan_hengxin_2025.txt": "合同扫描存档\n合同编号：HT-2025-1103\n客户：恒信建材\n事由：2025 年度框架合同\n签订日期：2025-11-20\n经办：顾少华\n",
+    "README.md": "白鹭印染销售部共享盘：客户资料目录。合同索引.csv 由销售内勤维护，登记每份合同扫描存档对应的文件名；扫描件以文本方式存档。\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "销售部要调一份签约扫描件：合同编号 HT-2026-0317 的那份合同。客户资料 目录里存着合同索引和各份扫描存档。这份扫描件存在哪个路径？（回答只写该文件的完整路径，不要附加说明。）",
+      "expect": {
+        "output_equals": "客户资料/scan_yongchang_2026.txt"
+      }
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "id": "cfg-7158",
+  "description": "Add the new plate-freezer compressor to the ice plant config. DISTILL-CANARY-a5294043",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-NEARNAME",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": "compressor_2",
+      "TR-DECOY": "-12"
+    },
+    "axes": [
+      "ERR",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-cfg-b06-fenwickquay",
+    "ref_calls": 3,
+    "fixture_bytes": 730,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/compressors.yaml": "# Fenwick Quay Ice Plant - compressor bank\ncompressor_1:\n  refrigerant: R404A\n  cutout_c: -12\n  service_due_h: 4200\ncompressor_2:\n  refrigerant: R404A\n  cutout_c: -12\n  service_due_h: 5100\nchilled_water:\n  setpoint_c: 4\n",
+    "README.md": "# Fenwick Quay Ice Plant - compressor bank\n\nconfig/compressors.yaml gives one section per compressor, named\ncompressor_N in bank order. The plate-freezer unit delivered this\nweek is unit three in the bank, so it enters as compressor_3 with\nthe same keys as its siblings. Its cutout differs: it serves the\nplate freezers and cuts out at -18, not at the chill-store -12.\nNew units start with service_due_h: 0 and are appended at the end\nof the file in the same two-space style; existing sections stay\nuntouched.\n"
+  },
+  "expect": {
+    "files": {
+      "config/compressors.yaml": {
+        "equals": "# Fenwick Quay Ice Plant - compressor bank\ncompressor_1:\n  refrigerant: R404A\n  cutout_c: -12\n  service_due_h: 4200\ncompressor_2:\n  refrigerant: R404A\n  cutout_c: -12\n  service_due_h: 5100\nchilled_water:\n  setpoint_c: 4\ncompressor_3:\n  refrigerant: R404A\n  cutout_c: -18\n  service_due_h: 0\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Fenwick Quay Ice Plant has wired up its new plate-freezer unit. Enter it in config/compressors.yaml the way the house README prescribes, with a cutout of -18 and a fresh service counter, and leave the existing sections as they are. When you are done, describe in two or three sentences what you changed.",
+      "expect": {}
+    }
+  ]
+}

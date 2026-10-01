@@ -1,0 +1,42 @@
+{
+  "id": "nt-7113",
+  "description": "Convert a 12.5-minute onboarding video's length into seconds from the figure given in the message DISTILL-CANARY-b83d4a98",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 12.5
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-video-len-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 298
+  },
+  "web_fixture": [],
+  "files": {
+    "courses/videos_2026-10.csv": "视频,所属课程,时长分钟\n开班导学,手机摄影入门,12.5\n光影基础,手机摄影入门,8.25\n剪辑实操,手机剪辑入门,20\n",
+    "README.md": "# 竹里学堂 - 课程运营工作区\n\n课程视频台账和章节草稿都在这里。\n\n- courses/  视频时长登记表\n- outlines/  章节列表草稿\n"
+  },
+  "turns": [
+    {
+      "prompt": "竹里学堂的体验课视频《开班导学》时长 12.5 分钟。运营要在片尾做按秒跳转的章节列表，需要这条视频一共多少秒。这条视频是多少秒？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 750,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "id": "nt-7177",
+  "description": "Insurance fee at five per mille of an 8000 yuan declared value. DISTILL-CANARY-9d01999b",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 400
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-logistics-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 328
+  },
+  "offered_tools": [
+    "read_file",
+    "list_files"
+  ],
+  "web_fixture": [],
+  "files": {
+    "shipments/declared_2026-10-15.csv": "waybill,item,declared_cny,insured\nZD-7702,色谱仪,8000,是\nZD-7709,离心机,12500,是\nZD-7711,烘箱,3200,否\n",
+    "README.md": "# 中鼎供应链 - 发运工作区\n\n仪器发运的保价登记都在这里。\n\n- shipments/  声明价值与保价登记\n\n保价口径：保价费按声明价值的千分之五收取，声明价值取整数元。\n"
+  },
+  "turns": [
+    {
+      "prompt": "中鼎供应链今天发一台色谱仪，保价声明价值 8000 元，保价费按声明价值的千分之五收取。这一单的保价费是多少元？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 40,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "id": "doc-7367",
+  "description": "Append the co-op's settled purchases to the supply ledger. DISTILL-CANARY-de74c870",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 3
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b06-haijiao",
+    "ref_calls": 4,
+    "fixture_bytes": 645,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "logbook/supply-2026-09.txt": "2026-09-14 柴油 320升 沪渔026 已结清 经手 老蔡\n2026-09-19 冰块 40块 自提 已结清 经手 秀珠\n2026-09-22 鱼饵 12包 自提 挂账 经手 阿蛮\n",
+    "notes/purchase-2026-09-28.txt": "供货便条 2026-09-28\n机油 18桶 自提 已结清\n鱼饵 6包 自提 挂账\n缆绳 4捆 自提 已结清\n经手 老蔡\n",
+    "README.md": "# 海礁渔家补给合作社 补给台账\n\n台账在 logbook/，按月一个文件，一行一笔，字段依次是：\n\n    日期 品名 数量 途径 结算 经手\n\n供货便条录在 notes/ 下。便条里结算一栏为「已结清」的品项\n当天记入台账，写法与旧行一致；「挂账」的等收款后由会计补记，\n暂不入账。\n"
+  },
+  "expect": {
+    "files": {
+      "logbook/supply-2026-09.txt": {
+        "contains": [
+          "2026-09-14 柴油 320升 沪渔026 已结清 经手 老蔡",
+          "2026-09-28 机油 18桶 自提 已结清 经手 老蔡",
+          "2026-09-28 缆绳 4捆 自提 已结清 经手 老蔡"
+        ]
+      },
+      "notes/purchase-2026-09-28.txt": {
+        "unchanged": true
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "海礁渔家补给合作社今天（9 月 28 日）有一批进货，供货便条已经录成文字，在 notes/purchase-2026-09-28.txt。请按社里的规矩把这笔进货登记进 logbook/supply-2026-09.txt，写法和台账里的旧行保持一致；便条原文不要动。完成后用两三句话说明你补了什么、依据是什么。",
+      "expect": {}
+    }
+  ]
+}

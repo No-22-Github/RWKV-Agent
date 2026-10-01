@@ -1,0 +1,66 @@
+{
+  "id": "hyb-7772",
+  "description": "两轮反问（多种合理解读）：两个收购组各有一位陈晓芸，第 1 轮点名两个班组反问，第 2 轮定收购二组得 14270。 DISTILL-CANARY-e5a1db92",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 18810.0
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b07-ambiguoustwo-03",
+    "ref_calls": 3,
+    "fixture_bytes": 512,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "README.md": "# 望山茶场收购台账\n\n两个收购班组各设经手人，同名员工分属不同班组，金额为元。\n",
+    "records/收购台账.csv": "日期,茶青,经手人,班组,金额\n2026-09-03,明前青,陈晓芸,收购一组,8640.00\n2026-09-05,雨前青,吴凯,收购一组,5120.00\n2026-09-08,明前青,陈晓芸,收购二组,7320.00\n2026-09-12,雨前青,陈晓芸,收购一组,4480.00\n2026-09-15,明前青,陈晓芸,收购二组,6950.00\n2026-09-19,雨前青,郑雅婷,收购二组,3860.00\n2026-09-24,明前青,陈晓芸,收购一组,5690.00\n"
+  },
+  "turns": [
+    {
+      "prompt": "算一下陈晓芸经手的收购金额，班组绩效要用。",
+      "expect": {
+        "forbidden_tools": [
+          "write_file",
+          "append_file",
+          "replace_lines"
+        ],
+        "output_contains_any": [
+          "？",
+          "?",
+          "哪",
+          "什么",
+          "还是",
+          "是否",
+          "请告诉",
+          "请确认",
+          "要不要",
+          "需要提供"
+        ],
+        "output_contains": [
+          "收购一组",
+          "收购二组"
+        ]
+      }
+    },
+    {
+      "prompt": "按收购二组算。只回答数字。",
+      "expect": {
+        "expected_number": 14270.0,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

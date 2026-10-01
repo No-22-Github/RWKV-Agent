@@ -1,0 +1,51 @@
+{
+  "id": "log-7608",
+  "description": "Summarize a cycle-hire rebalancing log into the real stock-out window at Riverside Walk; planned DRILL entries are decoys. DISTILL-CANARY-3d16478d",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "16:40"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-b07-windowdecoy-02",
+    "ref_calls": 3,
+    "fixture_bytes": 530,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:distill-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "logs/rebalancing-aug.log": "2026-08-23 10:15 station Riverside Walk went offline STOCKOUT\n2026-08-23 13:05 station Riverside Walk back online, 12 bikes reloaded OK\n2026-08-23 16:20 station Riverside Walk offline for planned exercise DRILL\n2026-08-23 16:40 station Riverside Walk exercise finished, online OK\n",
+    "README.md": "Pedalport cycle hire, rebalancing team log.\n\nSTOCKOUT marks a real gap: the dock had no usable bikes for riders.\nDRILL marks planned deploys for staff exercises; docks come back when\nthe exercise finishes and riders were never left stranded by them.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Pedalport's ops team got flagged about the Riverside Walk docking station on 23 August. Read the rebalancing log and give me the story: what time riders were first left without bikes, what time the gap ended, and why the station went offline in the first place per the log.",
+      "expect": {
+        "output_contains": [
+          "10:15",
+          "13:05",
+          "Riverside Walk"
+        ],
+        "output_contains_any": [
+          "10:15",
+          "13:05",
+          "Riverside Walk"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

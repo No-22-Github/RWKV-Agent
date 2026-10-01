@@ -1,0 +1,44 @@
+{
+  "id": "doc-7335",
+  "description": "Find the member above the body-fat threshold who has not booked a recheck. DISTILL-CANARY-6274e543",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "extract_items",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "HY-2207"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b06-muchen",
+    "ref_calls": 2,
+    "fixture_bytes": 520,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "体测复检名单.csv": "会员号,姓名,体脂率(%),状态\nHY-2207,蒋一苇,22.4,已预约\nHY-2201,穆怀瑾,18.2,已完成\nHY-2202,阮青时,20.5,已完成\nHY-2203,费映棠,21.8,已完成\nHY-2204,竺秋原,19.6,未预约\nHY-2205,桑野,22.6,已完成\nHY-2206,唐折枝,17.9,未预约\nHY-2208,闻人夏,19.1,已完成\nHY-2209,沈书白,23.0,已预约\nHY-2210,韩霁,20.9,未预约\nHY-2211,白榆,18.7,已完成\nHY-2212,顾南枝,21.4,已预约\nHY-2213,苏合,16.8,已完成\nHY-2214,陈苡晴,23.1,未预约\nHY-2215,林晚照,20.2,已完成\n"
+  },
+  "turns": [
+    {
+      "prompt": "沐辰健身秋季体测出了结果，要催体脂超标的会员约复检。查一下复检名单：体脂率超过 22%、而且还没预约的会员编号是多少？",
+      "expect": {
+        "output_contains_any": [
+          "HY-2214"
+        ],
+        "output_excludes": [
+          "HY-2207"
+        ]
+      }
+    }
+  ]
+}

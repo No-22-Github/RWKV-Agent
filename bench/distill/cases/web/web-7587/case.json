@@ -1,0 +1,70 @@
+{
+  "id": "web-7587",
+  "description": "Default polling rate limit documented on the Kelterby Switchgear API reference page, whose fetch fails with a provider error DISTILL-CANARY-9f00cafa",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-FETCHFAIL"
+    ],
+    "trap_decoys": {
+      "TR-FETCHFAIL": "600"
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-web-b06-kelterby-api",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "kelterby",
+      "url": "https://docs.kelterby.example/switchgear/api-reference",
+      "url_match": "docs.kelterby.example/switchgear/api-reference",
+      "title": "API reference - Kelterby Switchgear",
+      "snippet": "Reference for the monitoring API, including the default per-tenant request rate limit of the polling endpoint.",
+      "content": "# API reference\n\nKelterby Switchgear docs, revised 2026-06-02.\n\nThe monitoring API exposes live load and trip events for every connected relay panel. Clients poll the polling endpoint for incremental updates; the endpoint applies a per-tenant request rate limit and an automatic backoff window.\n\nThe default rate limit and backoff behaviour for the polling endpoint are listed under \"Polling limits\" in this reference.\n",
+      "published_at": "2026-06-02",
+      "error": "Tavily extract failed: 504 Gateway Timeout"
+    },
+    {
+      "query_match": "kelterby",
+      "url": "https://docs.kelterby.example/switchgear/quickstart",
+      "url_match": "docs.kelterby.example/switchgear/quickstart",
+      "title": "Quickstart - Kelterby Switchgear",
+      "snippet": "Set up the Kelterby monitoring API and stream your first panel events.",
+      "content": "# Quickstart\n\nKelterby Switchgear docs, updated 2026-04-18.\n\nCreate an API key in the console, point your client at the monitoring endpoint, and subscribe to the panels you want to watch. The first events usually arrive within a minute.\n\nRate limits and retry defaults are documented in the API reference under \"Polling limits\".\n",
+      "published_at": "2026-04-18"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "We are wiring our substation panels into the Kelterby monitoring API and need the default per-tenant request rate limit of the polling endpoint, which is listed on the API reference page at docs.kelterby.example. What is it?",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains_any": [
+          "kelterby.example",
+          "kelterby",
+          "API reference"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools",
+          "600"
+        ]
+      }
+    }
+  ]
+}

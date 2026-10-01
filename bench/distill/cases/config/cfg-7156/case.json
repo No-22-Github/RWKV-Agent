@@ -1,0 +1,41 @@
+{
+  "id": "cfg-7156",
+  "description": "Lengthen the morning preheat on the second boiler's schedule. DISTILL-CANARY-7e475e59",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-cfg-b06-rowanflats",
+    "ref_calls": 2,
+    "fixture_bytes": 324,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/boiler-2-schedule.yaml": "# Rowan Flats - plant room heating schedule (boiler 2)\nday:\n  flow_temp_c: 65\n  start: \"06:00\"\n  stop: \"21:30\"\n  preheat_minutes: 40\nnight:\n  setback_temp_c: 66\n  start: \"22:00\"\n  stop: \"05:30\"\n",
+    "README.md": "# Rowan Flats - plant room\n\nconfig/boiler-2-schedule.yaml is the second boiler's schedule\nfile, edited in place by the caretaker.\n"
+  },
+  "expect": {
+    "files": {
+      "config/boiler-2-schedule.yaml": {
+        "equals": "# Rowan Flats - plant room heating schedule (boiler 2)\nday:\n  flow_temp_c: 65\n  start: \"06:00\"\n  stop: \"21:30\"\n  preheat_minutes: 55\nnight:\n  setback_temp_c: 66\n  start: \"22:00\"\n  stop: \"05:30\"\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The morning rooms on boiler 2 at Rowan Flats warm up too slowly: lengthen the day block's preheat to 55 minutes in config/boiler-2-schedule.yaml and leave the rest of the file alone. When you are done, describe in two or three sentences what you changed.",
+      "expect": {}
+    }
+  ]
+}

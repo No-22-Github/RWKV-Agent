@@ -1,0 +1,53 @@
+{
+  "id": "nt-7206",
+  "description": "Morning greeting at a pet spa with no task; reply directly without any tool call. DISTILL-CANARY-60b4e11f",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-smalltalk-02",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 201
+  },
+  "offered_tools": [
+    "read_file",
+    "list_files"
+  ],
+  "web_fixture": [],
+  "files": {
+    "bookings/booking_2026-10-03.csv": "time,pet,service\n09:30,糯米,洗护\n11:00,汤圆,美容\n",
+    "README.md": "# 屿喵宠物澡堂 - 门店工作区\n\n洗护预约和服务记录都放在这里。\n\n- bookings/  洗护预约登记\n- records/  服务记录\n"
+  },
+  "turns": [
+    {
+      "prompt": "早呀，刚到店里开门，糯米九点半才来洗护，先缓一口气。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "早",
+          "早上好",
+          "好",
+          "嗨",
+          "哈喽",
+          "您好"
+        ]
+      }
+    }
+  ]
+}

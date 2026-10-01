@@ -1,0 +1,55 @@
+{
+  "id": "cfg-7510",
+  "description": "How the ingest and enrich flag files are configured and where they differ. DISTILL-CANARY-d6710c8a",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "512"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b07-drift-01",
+    "ref_calls": 4,
+    "fixture_bytes": 370,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "conf/enrich.flags": "mode=stream\nbatch_rows=512\nsink=clickhouse://oxhideset.analytics.events_enriched\nerror.rate.threshold=0.02\n",
+    "conf/ingest.flags": "mode=batch\nbatch_rows=512\nsink=clickhouse://oxhideset.analytics.events_raw\nerror.rate.threshold=0.02\n",
+    "conf/sink-map.list": "events_raw      -> 原始事件落库，保留 30 天\nevents_enriched -> 关联维表后的事件，保留 400 天\nevents_archive  -> 冷备归档，按季滚动\n"
+  },
+  "turns": [
+    {
+      "prompt": "Two flag files sit in conf/ for our event pipeline. Summarize how the two services are configured and where they differ.",
+      "expect": {
+        "output_contains": [
+          "batch",
+          "events_enriched",
+          "events_raw",
+          "stream"
+        ],
+        "output_contains_any": [
+          "batch",
+          "events_enriched",
+          "events_raw",
+          "stream"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

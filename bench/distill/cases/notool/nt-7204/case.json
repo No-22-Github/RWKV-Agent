@@ -1,0 +1,42 @@
+{
+  "id": "nt-7204",
+  "description": "Total pixels of a 4000x3000 sensor output expressed in ten-thousand units for the gear ledger. DISTILL-CANARY-5e8406ff",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 12
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-digicam-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 286
+  },
+  "web_fixture": [],
+  "files": {
+    "gear/cameras.csv": "camera,resolution_px\n白鲸一号,4000x3000\n白鲸二号,5472x3648\n街拍机,3000x2000\n",
+    "README.md": "# 拾光摄影棚 - 器材工作区\n\n影棚相机器材台账和保养记录都在这里。\n\n- gear/  相机与镜头台账\n- logs/  器材保养记录\n\n器材台账的总像素按万像素登记。\n"
+  },
+  "turns": [
+    {
+      "prompt": "拾光摄影棚的相机白鲸一号输出照片的分辨率是 4000×3000 像素。器材台账要用万像素登记总像素。这款相机的总像素是多少万？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 1200,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

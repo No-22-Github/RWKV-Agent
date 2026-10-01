@@ -1,0 +1,45 @@
+{
+  "id": "tab-7481",
+  "description": "September outbound units of the passion-fruit gift box at Nanping, a SKU absent from the export. DISTILL-CANARY-6b715c35",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-tab-b06-nanping-sku",
+    "ref_calls": 2,
+    "fixture_bytes": 753,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 南屏果业 - 9 月出库单\n\n仓库按月导出的出库流水，一行一笔出库。本月出库的商品只有四种：涌泉蜜桔礼箱、阳光玫瑰葡萄、红心猕猴桃、高山小蜜薯。\n",
+    "exports/out-2026-09.csv": "单号,出库日期,商品,规格,件数\nNP-30812,2026-09-02,涌泉蜜桔礼箱,5kg 箱,42\nNP-30815,2026-09-03,阳光玫瑰葡萄,2.5kg 串装,18\nNP-30823,2026-09-05,红心猕猴桃,30 枚箱,26\nNP-30831,2026-09-08,高山小蜜薯,3kg 袋,35\nNP-30840,2026-09-11,涌泉蜜桔礼箱,5kg 箱,51\nNP-30847,2026-09-14,阳光玫瑰葡萄,2.5kg 串装,22\nNP-30855,2026-09-17,红心猕猴桃,30 枚箱,19\nNP-30862,2026-09-20,高山小蜜薯,3kg 袋,40\nNP-30870,2026-09-23,涌泉蜜桔礼箱,5kg 箱,33\nNP-30878,2026-09-26,阳光玫瑰葡萄,2.5kg 串装,28\n"
+  },
+  "turns": [
+    {
+      "prompt": "南屏果业的运营要拉 9 月『百香果礼盒』的出库件数，帮我在 exports/out-2026-09.csv 里统计一下这个商品 9 月的件数合计？",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "百香果礼盒",
+          "百香果 礼盒"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

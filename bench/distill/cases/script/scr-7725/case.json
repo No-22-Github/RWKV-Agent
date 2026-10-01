@@ -1,0 +1,60 @@
+{
+  "id": "scr-7725",
+  "description": "Give the ice rink's session board an --open flag that prints the open sessions alone. DISTILL-CANARY-a55193ff",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "add_flag",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "sessions/archive rows printed with the flag"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-scr-b06-netherby",
+    "ref_calls": 4,
+    "fixture_bytes": 1595,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "session_board.py": "\"\"\"Print the session board for Netherby Ice Rink.\n\nThe desk's exports land in sessions/, one row per skate session:\n\n    session_id,session_date,rink,state,pence\n\nThe board prints every session, sorted by session date then session\nid:\n\n    <session_id>,<session_date>,<rink>,<state>,<pence>\n\nThe frozen pre-migration schedule that the old booking tool left in\nsessions/archive/ never prints; the board reads the live exports\ndirectly in sessions/.\n\nUsage:\n\n    python3 session_board.py\n\"\"\"\n\nimport csv\nimport glob\n\nrows = []\nfor path in sorted(glob.glob(\"sessions/*.csv\")):\n    with open(path, encoding=\"utf-8\") as handle:\n        rows.extend(csv.DictReader(handle))\n\nfor row in sorted(rows, key=lambda r: (r[\"session_date\"], r[\"session_id\"])):\n    print(f\"{row['session_id']},{row['session_date']},{row['rink']},{row['state']},{row['pence']}\")\n",
+    "sessions/2026-09.csv": "session_id,session_date,rink,state,pence\nSN-4141,2026-09-03,Main Rink,open,6400\nSN-4142,2026-09-03,Studio Rink,sold,3150\nSN-4143,2026-09-09,Main Rink,open,1990\nSN-4144,2026-09-15,Studio Rink,sold,3850\nSN-4145,2026-09-15,Main Rink,open,7200\nSN-4146,2026-09-22,Main Rink,sold,4900\n",
+    "sessions/archive/2026-08.csv": "session_id,session_date,rink,state,pence\nSN-4088,2026-08-12,Main Rink,open,5700\nSN-4089,2026-08-19,Studio Rink,sold,6600\nSN-4090,2026-08-26,Main Rink,open,2940\n",
+    "README.md": "# Netherby Ice Rink - session board\n\nsession_board.py prints the session board from the desk's exports in\nsessions/. The folder sessions/archive/ holds the frozen\npre-migration schedule from the old booking tool; the board reads\nonly the live exports in sessions/ itself. The exports are the\ndesk's own record.\n"
+  },
+  "expect": {
+    "files": {
+      "sessions/2026-09.csv": {
+        "unchanged": true
+      },
+      "sessions/archive/2026-08.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "session_board.py",
+      "expected_stdout": "SN-4141,2026-09-03,Main Rink,open,6400\nSN-4143,2026-09-09,Main Rink,open,1990\nSN-4145,2026-09-15,Main Rink,open,7200\nSN-4147,2026-10-01,Main Rink,open,6100\nSN-4149,2026-10-13,Studio Rink,open,8300",
+      "hidden_files": {
+        "sessions/2026-10.csv": "session_id,session_date,rink,state,pence\nSN-4147,2026-10-01,Main Rink,open,6100\nSN-4148,2026-10-07,Studio Rink,sold,2700\nSN-4149,2026-10-13,Studio Rink,open,8300\n"
+      },
+      "args": [
+        "--open"
+      ]
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The counter at Netherby Ice Rink wants the session board to be able to show the bookable sessions on their own: give session_board.py an --open flag so that, with the flag, only the sessions whose state is open print, in the same layout and order the board already uses. Without the flag the board prints exactly as it does now. The exports in sessions/ stay as they are. When you are done, describe in two or three sentences what you changed.",
+      "expect": {}
+    }
+  ]
+}

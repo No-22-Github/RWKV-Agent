@@ -1,0 +1,65 @@
+{
+  "id": "web-7568",
+  "description": "Meaning of Sunhollow inverter event F-07 while the vendor appendix page fetch fails with a provider error. DISTILL-CANARY-5a811013",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [
+      "TR-FETCHFAIL",
+      "TR-SNIPPETVAGUE"
+    ],
+    "trap_decoys": {
+      "TR-FETCHFAIL": "UNKNOWN",
+      "TR-SNIPPETVAGUE": "UNKNOWN"
+    },
+    "axes": [
+      "ERR",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "fam-web-b06-sunhollow-f07",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "sunhollow",
+      "url": "https://docs.sunhollowenergy.example/appendix/event-codes",
+      "url_match": "docs.sunhollowenergy.example/appendix/event-codes",
+      "title": "Event code appendix - Sunhollow string inverters",
+      "snippet": "Every event code raised by Sunhollow string inverters is documented in this appendix.",
+      "content": "# Event code appendix\n\nThis appendix lists every event code raised by Sunhollow string inverters, grouped by subsystem.\n",
+      "published_at": "2026-03-21",
+      "error": "Tavily extract failed: 502 Bad Gateway"
+    },
+    {
+      "query_match": "sunhollow",
+      "url": "https://www.sunhollowenergy.example/installers/bulletins/f07",
+      "url_match": "www.sunhollowenergy.example/installers/bulletins/f07",
+      "title": "Installer bulletin: event F-07 on SH-3K and SH-5K strings",
+      "snippet": "Installer bulletin for Sunhollow SH-series event F-07.",
+      "content": "# Installer bulletin - event F-07 on SH-3K and SH-5K strings\n\nIssued 2026-07-30. Event F-07 is a DC ground fault. The inverter latches out until the string insulation is tested with a megohmmeter and the wet connector is replaced; re-energise only after the readings are clean.\n",
+      "published_at": "2026-07-30"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "A Sunhollow SH-5K on the depot roof latched out with event F-07 on the display. What does the installer bulletin say F-07 is, and what does it ask for? Answer in a sentence or two.",
+      "expect": {
+        "output_contains_any": [
+          "ground fault",
+          "Ground fault",
+          "string insulation",
+          "String insulation"
+        ]
+      }
+    }
+  ]
+}

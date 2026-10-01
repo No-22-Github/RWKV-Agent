@@ -1,0 +1,61 @@
+{
+  "id": "scr-7730",
+  "description": "Give the theatre's takings script a --month flag that prints one month's sheet on its own. DISTILL-CANARY-6d82e50d",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "add_flag",
+    "traps": [
+      "TR-DATEFMT"
+    ],
+    "trap_decoys": {
+      "TR-DATEFMT": "the month filter matched the raw slash dates, so most July days dropped off"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-scr-b06-kingsholt",
+    "ref_calls": 5,
+    "fixture_bytes": 1622,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "takings.py": "\"\"\"Print Kingsholt Theatre's season takings sheet.\n\nThe box office's exports land in takings/, one row per sale:\n\n    sale_date,counter,pence\n\nThe sheet prints one line per sale day, in date order, followed by\na totals line:\n\n    <sale_date>,<pence>\n    TOTAL,<pence>\n\nThe till swap in July left that month's file in both date styles -\ndays before the swap wrote day-first (03/07/2026), days after wrote\nISO - and the sheet itself always prints ISO dates.\n\nUsage:\n\n    python3 takings.py\n\"\"\"\n\nimport csv\nimport glob\n\n\ndef iso(day):\n    if \"/\" in day:\n        d, m, y = day.split(\"/\")\n        return f\"{y}-{m}-{d}\"\n    return day\n\n\nper_day = {}\nfor path in sorted(glob.glob(\"takings/*.csv\")):\n    with open(path, encoding=\"utf-8\") as handle:\n        for row in csv.DictReader(handle):\n            key = iso(row[\"sale_date\"])\n            per_day[key] = per_day.get(key, 0) + int(row[\"pence\"])\n\nfor day in sorted(per_day):\n    print(f\"{day},{per_day[day]}\")\nprint(f\"TOTAL,{sum(per_day.values())}\")\n",
+    "takings/2026-07.csv": "sale_date,counter,pence\n01/07/2026,Front Counter,12450\n03/07/2026,Bar,8320\n11/07/2026,Front Counter,5110\n2026-07-18,Bar,9940\n2026-07-25,Front Counter,6125\n",
+    "takings/2026-09.csv": "sale_date,counter,pence\n2026-09-04,Bar,9120\n2026-09-04,Front Counter,4460\n2026-09-12,Bar,7830\n",
+    "README.md": "# Kingsholt Theatre - season takings\n\ntakings.py prints the season takings sheet. The till swap in July\nleft that month's file in both date styles - days before the swap\nwrote day-first (03/07/2026), days after wrote ISO - and late\nadjustments land as a second file for the same month. The sheet\nitself has always printed ISO dates. The exports are the box\noffice's own record.\n"
+  },
+  "expect": {
+    "files": {
+      "takings/2026-07.csv": {
+        "unchanged": true
+      },
+      "takings/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "takings.py",
+      "expected_stdout": "2026-07-01,12450\n2026-07-03,8320\n2026-07-05,2210\n2026-07-11,5110\n2026-07-18,11270\n2026-07-25,6125\nTOTAL,45485",
+      "hidden_files": {
+        "takings/2026-07-late.csv": "sale_date,counter,pence\n05/07/2026,Bar,2210\n18/07/2026,Front Counter,1330\n"
+      },
+      "args": [
+        "--month",
+        "2026-07"
+      ]
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Kingsholt Theatre's finance office wants takings.py to print one month at a time: give it a --month flag that takes a YYYY-MM value and prints that month's sheet alone, in the layout the sheet already carries. Without the flag the script prints the whole season exactly as it does now. The exports in takings/ are the box office's own record, so they stay as they are. When you are done, describe in two or three sentences what you changed.",
+      "expect": {}
+    }
+  ]
+}

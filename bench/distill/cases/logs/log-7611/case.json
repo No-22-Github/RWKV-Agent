@@ -1,0 +1,51 @@
+{
+  "id": "log-7611",
+  "description": "Summarize a tea-factory roaster temperature log in Chinese; post-repair TEST RUN entries are decoys. DISTILL-CANARY-a014d304",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "root_cause",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "4 次"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-b07-thermroot-01",
+    "ref_calls": 3,
+    "fixture_bytes": 628,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:distill-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "logs/roaster3-0822.log": "2026-08-22 06:10 3 号烘炉 仓B 温度 241C 超出上限 告警\n2026-08-22 06:16 3 号烘炉 仓B 温度 238C 仍超限 告警\n2026-08-22 06:24 3 号烘炉 仓B 温度 205C 回落正常 恢复\n2026-08-22 18:50 3 号烘炉 仓B 更换加热管 工单 WX-087 完成\n2026-08-23 06:30 3 号烘炉 仓B 温度 233C 超出上限 试机\n2026-08-23 07:02 3 号烘炉 仓B 温度 198C 回落正常 试机结束\n",
+    "notes/维修记录.md": "青崖茶厂 3 号烘炉维修记录。\n\n2026-08-22 晚更换仓 B 加热管，工单 WX-087。\n原因：加热管老化。\n\n2026-08-23 的两条超温记录是换管后的试机烘干，属例行试机，不计入故障。\n"
+  },
+  "turns": [
+    {
+      "prompt": "这是我们制茶车间 3 号烘炉 8 月 22 日到 23 日的温度记录，我周一要在班组会上讲。帮我把它理成几句话：超温告警一共几次、几点开始的、后来查出的原因是什么。",
+      "expect": {
+        "output_contains": [
+          "2 次",
+          "06:10",
+          "加热管老化"
+        ],
+        "output_contains_any": [
+          "2 次",
+          "06:10",
+          "加热管老化"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

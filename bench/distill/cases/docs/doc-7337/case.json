@@ -1,0 +1,49 @@
+{
+  "id": "doc-7337",
+  "description": "Count broken links in an exported help-center navigation table. DISTILL-CANARY-6fccaaa0",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "link_check",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 2
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b06-qingya-data",
+    "ref_calls": 3,
+    "fixture_bytes": 1102,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "帮助导航.csv": "栏目,文章标题,链接路径\n快速上手,查询基础,docs/query-basics.md\n可视化,看板搭建,docs/dashboard.md\n可视化,图表配色,docs/chart-colors.md\n告警,告警规则,docs/alert-rules.md\n告警,值班升级,docs/oncall-escalation.md\n导出,报表导出,docs/export-report.md\n导出,高级查询指南,docs/query-guide.md\n账号,API 密钥,docs/api-keys.md\n账号,邀请成员,docs/invite-members.md\n计费,账单说明,docs/billing-faq.md\n集成,Webhook 事件,docs/webhook-events.md\n集成,历史数据同步,docs/query-guide-old.md\n",
+    "docs/query-basics.md": "# 查询基础\n\n从数据集选择字段开始构建查询。\n",
+    "docs/dashboard.md": "# 看板搭建\n\n把图表拖入看板并设置刷新周期。\n",
+    "docs/chart-colors.md": "# 图表配色\n\n配色方案跟随工作区主题设置。\n",
+    "docs/alert-rules.md": "# 告警规则\n\n按指标阈值配置告警接收人。\n",
+    "docs/oncall-escalation.md": "# 值班升级\n\n超时未响应自动升级到下一级值班人。\n",
+    "docs/export-report.md": "# 报表导出\n\n支持定时导出为表格文件。\n",
+    "docs/api-keys.md": "# API 密钥\n\n密钥仅创建时可见，请妥善保存。\n",
+    "docs/invite-members.md": "# 邀请成员\n\n管理员可在成员页生成邀请链接。\n",
+    "docs/query-guide-old.md": "# 历史数据同步\n\n旧版同步任务已迁移至数据管道。\n"
+  },
+  "turns": [
+    {
+      "prompt": "青崖数据的帮助中心导航表是从旧站导出来的。对照资料库里实际存在的文件，导航里有多少条链接是断的？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 3,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

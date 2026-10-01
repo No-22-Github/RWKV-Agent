@@ -1,0 +1,41 @@
+{
+  "id": "nt-7103",
+  "description": "Decode the letter shift code on the weekly roster; the D/N mapping is given in the message itself. DISTILL-CANARY-c9d27e38",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "白班"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-shiftcode-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 261
+  },
+  "web_fixture": [],
+  "files": {
+    "roster/shifts_2026w41.csv": "name,day,code\n赵磊,2026-10-08,N\n王倩,2026-10-08,D\n孙铭,2026-10-08,N\n赵磊,2026-10-09,D\n",
+    "README.md": "# 云仓仓储部 - 排班工作区\n\n每周排班表和调班记录都在这里。\n\n- roster/  本周排班表，按人名和日期登记\n- swaps/  调班申请存档\n"
+  },
+  "turns": [
+    {
+      "prompt": "云仓仓储部的排班表用字母代号记班次：D 表示白班，N 表示夜班。赵磊这周四（10 月 8 日）排的是 N。他这天上的是白班还是夜班？只回答「白班」或「夜班」，不要写代号。",
+      "expect": {
+        "output_equals": "夜班",
+        "tools": []
+      }
+    }
+  ]
+}

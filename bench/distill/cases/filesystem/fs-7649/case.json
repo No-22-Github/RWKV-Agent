@@ -1,0 +1,44 @@
+{
+  "id": "fs-7649",
+  "description": "Largest backup file in bytes from the current storage manifest; an older manifest and a total row are decoys. DISTILL-CANARY-52284a54",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "largest",
+    "traps": [
+      "TR-DECOY",
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 9102,
+      "TR-HEADER": 15415
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-fs-b06-storsize-01",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 698,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {
+    "运维/存储明细.csv": "备份服务器存储明细\n导出时间：2026-09-14\n文件名,大小字节,最近修改\nhgfs_backup_0831.tar,1240,2026-08-31\nerp_full_backup_0906.tar,9884,2026-09-06\noa_doc_backup_0901.tar,3521,2026-09-01\nmes_log_backup_0913.tar,770,2026-09-13\n合计,15415,\n",
+    "运维/存储明细_0831.csv": "备份服务器存储明细\n导出时间：2026-08-31\n文件名,大小字节,最近修改\nhgfs_backup_0727.tar,1180,2026-07-27\nerp_full_backup_0806.tar,9102,2026-08-06\noa_doc_backup_0801.tar,3417,2026-08-01\nmes_log_backup_0827.tar,769,2026-08-27\n合计,14468,\n",
+    "README.md": "恒岳传动信息科：存储明细每天凌晨导出一次，文件名带日期后缀的是历史版本。明细开头两行是报表标题与导出时间，末行是合计。\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "信息科要清理备份服务器，先确认目前最大的单个备份文件有多大。运维目录下有现成的存储明细。最大的那个文件是多少字节？（只回答数字，不要单位。）",
+      "expect": {
+        "expected_number": 9884,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

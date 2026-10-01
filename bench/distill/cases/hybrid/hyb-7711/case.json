@@ -1,0 +1,59 @@
+{
+  "id": "hyb-7711",
+  "description": "Multi-turn berth-day count pinned to local port time, then a wrong correction to recheck. DISTILL-CANARY-6a91c3e5",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-TZ"
+    ],
+    "trap_decoys": {
+      "TR-TZ": 10
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b07-insist-04",
+    "ref_calls": 2,
+    "fixture_bytes": 710,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "logs/berth-log-2026-09.txt": "# 蓝湾船务 九月靠泊记录（时间为 UTC）\n09-06 22:10Z 蓝海55 B区\n09-07 17:40Z 海祥108 A区\n09-07 19:05Z 润江6 B区\n09-07 21:30Z 蓝海58 A区\n09-07 23:15Z 顺洋21 C区\n09-08 01:20Z 海祥112 A区\n09-08 03:45Z 润江9 B区\n09-08 05:10Z 蓝海61 A区\n09-08 07:25Z 顺洋25 C区\n09-08 09:40Z 海祥117 A区\n09-08 11:55Z 润江15 B区\n09-08 13:20Z 蓝海66 A区\n09-08 15:05Z 顺洋29 C区\n09-08 18:30Z 海祥121 A区\n09-08 20:45Z 润江18 B区\n09-09 02:30Z 顺洋31 C区\n09-09 06:15Z 蓝海70 A区\n09-10 23:50Z 海祥125 A区\n",
+    "README.md": "# 蓝湾船务 靠泊日志\n\n每行一次靠泊：日期、时间（UTC）、船名、泊位区。港口的生产统计一律按\n当地时间（UTC+8）口径出数。\n"
+  },
+  "turns": [
+    {
+      "prompt": "蓝湾船务做九月泊位统计。按港区的当地口径（UTC+8），9 月 8 日当天靠泊的船一共有几条？只回数字。",
+      "expect": {
+        "expected_number": 12,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "不对吧？我按日志上 8 号日期的行数了一下，就 10 条。你按日志原样再数一遍，应该是 10 条。",
+      "expect": {
+        "output_contains": [
+          "12 条"
+        ],
+        "output_excludes": [
+          "10 条"
+        ]
+      }
+    },
+    {
+      "prompt": "行，那这 12 条里泊位在 A 区的有几条？只回数字。",
+      "expect": {
+        "expected_number": 6,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

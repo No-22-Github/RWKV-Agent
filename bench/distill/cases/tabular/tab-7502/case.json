@@ -1,0 +1,50 @@
+{
+  "id": "tab-7502",
+  "description": "Sum settled August 2026 invoices for one cafe chain; the export keeps voided invoices for the audit trail. DISTILL-CANARY-5a81b8cb",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": 6757.75
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b06-oatember-invoice-01",
+    "ref_calls": 2,
+    "fixture_bytes": 5925,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "data/wholesale_invoices.csv": "invoice_id,invoice_month,cafe_chain,status,crates,amount\nOE-3899,2026-08,Hearth & Honey,Voided,13,226.04\nOE-3935,2026-08,Copper Cup,Voided,8,284.65\nOE-3889,2026-07,Little Kettle,Settled,6,334.36\nOE-3417,2026-08,Little Kettle,Settled,8,164.38\nOE-7496,2026-08,Hearth & Honey,Settled,2,459.53\nOE-1113,2026-08,Hearth & Honey,Settled,13,77.37\nOE-7072,2026-08,Hearth & Honey,Settled,4,196.29\nOE-9588,2026-08,Hearth & Honey,Settled,12,122.76\nOE-7009,2026-08,Hearth & Honey,Settled,6,427.69\nOE-752,2026-08,Copper Cup,Settled,13,233.42\nOE-4293,2026-08,Little Kettle,Voided,13,396.67\nOE-8703,2026-09,Hearth & Honey,Settled,11,436.61\nOE-6690,2026-08,Hearth & Honey,Settled,3,470.42\nOE-8424,2026-07,Hearth & Honey,Settled,12,191.05\nOE-6680,2026-08,Copper Cup,Settled,3,89.02\nOE-1216,2026-08,Little Kettle,Settled,10,325.46\nOE-1004,2026-08,Copper Cup,Settled,6,200.41\nOE-136,2026-09,Hearth & Honey,Settled,4,149.77\nOE-3617,2026-08,Hearth & Honey,Voided,12,458.09\nOE-1835,2026-07,Little Kettle,Settled,9,379.15\nOE-5843,2026-07,Hearth & Honey,Settled,7,278.36\nOE-5696,2026-07,Hearth & Honey,Settled,3,415.98\nOE-4454,2026-07,Little Kettle,Settled,4,229.36\nOE-7059,2026-08,Copper Cup,Settled,2,476.91\nOE-6633,2026-07,Little Kettle,Settled,8,288.05\nOE-4568,2026-08,Copper Cup,Settled,2,109.05\nOE-896,2026-07,Hearth & Honey,Voided,10,72.47\nOE-6625,2026-07,Hearth & Honey,Settled,10,81.61\nOE-2039,2026-07,Hearth & Honey,Settled,4,391.24\nOE-109,2026-09,Copper Cup,Settled,5,83.73\nOE-5687,2026-08,Hearth & Honey,Settled,6,329.28\nOE-4299,2026-08,Copper Cup,Settled,12,84.45\nOE-9246,2026-08,Little Kettle,Settled,3,409.81\nOE-4140,2026-08,Hearth & Honey,Settled,14,161.41\nOE-3975,2026-08,Copper Cup,Settled,3,436.87\nOE-1104,2026-07,Little Kettle,Settled,4,270.49\nOE-2049,2026-09,Copper Cup,Settled,5,326.28\nOE-8710,2026-08,Hearth & Honey,Settled,5,355.70\nOE-672,2026-09,Copper Cup,Settled,8,297.51\nOE-7909,2026-09,Little Kettle,Settled,12,462.73\nOE-3483,2026-09,Hearth & Honey,Settled,13,194.19\nOE-6837,2026-07,Hearth & Honey,Settled,7,209.71\nOE-494,2026-09,Hearth & Honey,Settled,10,84.53\nOE-315,2026-09,Little Kettle,Voided,7,109.48\nOE-2930,2026-07,Copper Cup,Voided,13,81.84\nOE-1925,2026-08,Copper Cup,Settled,10,315.58\nOE-861,2026-09,Copper Cup,Settled,14,371.98\nOE-2487,2026-08,Little Kettle,Settled,14,224.71\nOE-4121,2026-09,Hearth & Honey,Voided,13,457.67\nOE-3180,2026-09,Little Kettle,Settled,8,78.33\nOE-6202,2026-08,Copper Cup,Settled,4,77.98\nOE-9485,2026-08,Hearth & Honey,Settled,6,369.29\nOE-6819,2026-08,Hearth & Honey,Settled,8,298.37\nOE-2013,2026-07,Hearth & Honey,Settled,5,351.44\nOE-5264,2026-08,Copper Cup,Settled,14,385.72\nOE-6558,2026-09,Copper Cup,Voided,12,207.97\nOE-3212,2026-09,Little Kettle,Settled,6,208.46\nOE-5416,2026-08,Little Kettle,Settled,11,186.84\nOE-5681,2026-07,Copper Cup,Settled,6,108.05\nOE-9856,2026-07,Little Kettle,Settled,2,143.41\nOE-2986,2026-07,Little Kettle,Settled,2,110.14\nOE-4950,2026-08,Copper Cup,Settled,14,434.58\nOE-4782,2026-08,Little Kettle,Settled,5,310.88\nOE-5572,2026-08,Hearth & Honey,Settled,6,383.12\nOE-9039,2026-08,Little Kettle,Settled,3,264.81\nOE-6600,2026-08,Copper Cup,Settled,7,315.12\nOE-6973,2026-08,Hearth & Honey,Settled,13,79.91\nOE-340,2026-09,Little Kettle,Settled,14,60.70\nOE-6674,2026-07,Copper Cup,Settled,4,423.36\nOE-6638,2026-08,Copper Cup,Settled,8,469.89\nOE-7907,2026-09,Little Kettle,Settled,14,301.32\nOE-9446,2026-09,Little Kettle,Settled,4,393.59\nOE-1222,2026-08,Hearth & Honey,Settled,14,98.92\nOE-954,2026-09,Hearth & Honey,Settled,8,222.16\nOE-7043,2026-08,Hearth & Honey,Settled,13,179.19\nOE-621,2026-08,Copper Cup,Settled,7,267.52\nOE-3479,2026-08,Copper Cup,Settled,5,473.63\nOE-5031,2026-08,Hearth & Honey,Voided,12,233.56\nOE-6793,2026-08,Hearth & Honey,Voided,13,287.61\nOE-7636,2026-08,Little Kettle,Settled,2,280.21\nOE-5545,2026-08,Little Kettle,Settled,11,145.91\nOE-2655,2026-08,Hearth & Honey,Settled,8,198.54\nOE-1660,2026-09,Hearth & Honey,Settled,4,289.51\nOE-1832,2026-09,Hearth & Honey,Settled,7,467.96\nOE-8697,2026-09,Little Kettle,Settled,12,63.90\nOE-6869,2026-08,Hearth & Honey,Settled,2,152.19\nOE-569,2026-09,Little Kettle,Settled,13,195.78\nOE-2454,2026-08,Little Kettle,Voided,11,270.02\nOE-4631,2026-08,Copper Cup,Settled,13,104.70\nOE-3160,2026-09,Hearth & Honey,Settled,7,68.80\nOE-8837,2026-08,Little Kettle,Settled,13,378.44\nOE-3879,2026-09,Little Kettle,Settled,12,198.19\nOE-3983,2026-08,Hearth & Honey,Settled,5,152.92\nOE-9443,2026-09,Hearth & Honey,Settled,5,199.27\nOE-3965,2026-09,Copper Cup,Settled,8,74.38\nOE-992,2026-08,Hearth & Honey,Settled,12,213.63\nOE-5326,2026-08,Little Kettle,Settled,12,239.85\nOE-3530,2026-09,Little Kettle,Settled,13,468.62\nOE-8175,2026-08,Little Kettle,Settled,7,200.99\nOE-6773,2026-08,Little Kettle,Settled,13,256.68\nOE-6035,2026-07,Little Kettle,Settled,10,238.41\nOE-9204,2026-07,Hearth & Honey,Settled,2,271.10\nOE-1145,2026-07,Little Kettle,Settled,10,517.83\nOE-1824,2026-08,Little Kettle,Voided,12,347.44\nOE-5642,2026-08,Copper Cup,Settled,12,485.78\nOE-8159,2026-08,Little Kettle,Settled,13,407.46\nOE-2035,2026-07,Hearth & Honey,Voided,14,466.61\nOE-546,2026-09,Copper Cup,Settled,11,482.89\nOE-7591,2026-07,Copper Cup,Settled,11,144.85\nOE-9815,2026-09,Hearth & Honey,Settled,14,511.70\nOE-2970,2026-09,Copper Cup,Settled,10,216.88\nOE-1421,2026-09,Hearth & Honey,Settled,9,212.06\nOE-1402,2026-08,Hearth & Honey,Settled,12,370.90\nOE-7988,2026-08,Hearth & Honey,Voided,6,110.99\nOE-6350,2026-08,Little Kettle,Settled,10,104.51\nOE-576,2026-08,Copper Cup,Settled,9,144.73\nOE-4282,2026-08,Hearth & Honey,Settled,7,344.03\nOE-461,2026-08,Little Kettle,Settled,14,412.40\n",
+    "README.md": "# Oat & Ember Bakery - wholesale invoice export\n\nOne row per invoice. Voided invoices were cancelled and never paid; they stay in the export for the audit trail. Settled invoices were delivered and paid in full.\n",
+    "notes/delivery_windows.txt": "Delivery windows\n- Chains take morning drops on weekdays.\n- The Saturday run covers the market stalls only.\n- Crates come back on the next visit.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Oat & Ember Bakery is preparing the August statement for its cafe chains. The invoice export is at data/wholesale_invoices.csv. Give the number alone, as digits, with no label. How much did Hearth & Honey owe for settled August 2026 invoices?",
+      "expect": {
+        "expected_number": 5441.46,
+        "tolerance": 0.01,
+        "required_tools": [
+          "data_query"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 1
+    }
+  }
+}

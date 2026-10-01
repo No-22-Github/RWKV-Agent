@@ -1,0 +1,48 @@
+{
+  "id": "nt-7107",
+  "description": "Asks who the assistant is and what it can do; reply directly from context without any tool call. DISTILL-CANARY-1a2d5c8e",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-smalltalk-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 206
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 岚山贸易 - 运营工作区\n\n采购和库存两条线的日常文件都在这里。\n\n- purchase-orders/  采购单存档\n- stock/  库存周报\n",
+    "stock/weekly_2026w39.csv": "sku,item,on_hand\nLG-118,挂烫机,42\nLG-121,加湿器,17\n"
+  },
+  "turns": [
+    {
+      "prompt": "先自我介绍一下吧——你是谁？平时都能帮我做些什么？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "助手",
+          "助理",
+          "AI",
+          "模型",
+          "智能"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "web-7561",
+  "description": "Pin the current stable Thornbeck FieldBook CLI version against a 2025 review blog ranked first. DISTILL-CANARY-09b25f24",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "3.9.0"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-web-b06-thornbeck-cli",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "thornbeck",
+      "url": "https://agreader.example/reviews/fieldbook-cli",
+      "url_match": "agreader.example/reviews/fieldbook-cli",
+      "title": "FieldBook CLI in 2025: still the steadiest farm recorder",
+      "snippet": "After a full season we still rate the FieldBook CLI 3.9.0 as the steadiest recorder we have tested.",
+      "content": "agreader.example - reviews - FieldBook CLI in 2025\n\nPublished 2025-09-14. After a full season on six holdings we still rate FieldBook CLI 3.9.0 as the steadiest recorder we have tested: sync never dropped a log, and the CSV export is clean. We will revisit once the 4 series settles.\n",
+      "published_at": "2025-09-14"
+    },
+    {
+      "query_match": "thornbeck",
+      "url": "https://www.thornbecktools.example/fieldbook/releases",
+      "url_match": "www.thornbecktools.example/fieldbook/releases",
+      "title": "FieldBook CLI release notes - Thornbeck Tools",
+      "snippet": "FieldBook CLI release notes: 4.8.3 (2026-08-21) is the current stable build.",
+      "content": "# FieldBook CLI release notes\n\n## 4.8.3 - 2026-08-21 (stable)\nFixes a timezone slip in the harvest log and speeds up first sync on low-memory tablets.\n\n## 4.7.0 - 2026-06-02 (stable)\nAdds the headland timer.\n\n## 3.9.0 - 2025-07-30 (stable)\nLast of the 3 series.\n",
+      "published_at": "2026-08-21"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "Our co-op is standardising the Thornbeck FieldBook CLI across the recording laptops this week and the rollout sheet has a version pin to fill in. Which version string should go into the pin? Give the version alone, in the form 1.2.3.",
+      "expect": {
+        "output_equals": "4.8.3"
+      }
+    }
+  ]
+}

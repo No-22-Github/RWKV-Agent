@@ -1,0 +1,55 @@
+{
+  "id": "nt-7155",
+  "description": "Playful offer to bring milk tea; no task attached. DISTILL-CANARY-ce17ffdd",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-smalltalk-milktea-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 195
+  },
+  "offered_tools": [
+    "read_file",
+    "list_files"
+  ],
+  "web_fixture": [],
+  "files": {
+    "classes/menu_w40.csv": "day,snack\n周一,南瓜小米糕\n周二,红薯球\n",
+    "README.md": "# 白鹭幼教 - 保育工作区\n\n每周加餐菜单与班级登记都放在这里。\n\n- classes/  班级与加餐安排\n- health/  晨检记录\n"
+  },
+  "turns": [
+    {
+      "prompt": "楼下新开的奶茶店出了款烤奶，闻着真香。我要去点一杯——你要是能喝，真想顺手也给你捎一杯，哈哈。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "哈哈",
+          "奶茶",
+          "心意",
+          "谢",
+          "客气",
+          "有心",
+          "开心",
+          "好意"
+        ]
+      }
+    }
+  ]
+}

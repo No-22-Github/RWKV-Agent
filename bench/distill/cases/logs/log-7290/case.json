@@ -1,0 +1,51 @@
+{
+  "id": "log-7290",
+  "description": "The PADDLE_JAM lock and time in the second week of September, where that volume block is overwritten fragments. DISTILL-CANARY-34ef867f",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "locate_error",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "Lock Ashmead"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-log-b06-tetchley-paddle",
+    "ref_calls": 2,
+    "fixture_bytes": 833,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Tetchley Canal Trust - paddle gear log\n\nVolunteer maintenance log for the upper lock group, one volume per fortnight. Paddle jams are recorded as PADDLE_JAM entries by the lock keeper.\n",
+    "logs/paddle-gear-2026-09.log": "# tetchley-canal paddle gear log vol.9 opened 2026-09-01 lock group upper\n2026-09-02T09:14:22 CHECK Lock Ashmead paddle gear ok\n2026-09-04T15:41:07 CHECK Lock Fernhollow paddle gear ok\n2026-09-06T10:02:53 GREASE Lock Ashmead paddle collars\n2026-09-08T13:28:40 CHECK Lock Fernhollow paddle gear ok\npaddle gear check ok paddle gear che\npaddle gear check ok paddle gear che\npaddle gear check ok paddle gear che\npaddle gear check ok paddle gear che\npaddle gear check ok paddle gear che\n2026-09-12T08:55:14 CHECK Lock Ashmead paddle gear ok\n2026-09-12T09:03:41 NOTE Lock Ashmead cuffs replaced\n2026-09-14T11:20:05 CHECK Lock Fernhollow paddle gear ok\n"
+  },
+  "turns": [
+    {
+      "prompt": "Tetchley Canal Trust's volunteer coordinator is chasing a reported paddle jam in the second week of September. Which lock had the PADDLE_JAM event in logs/paddle-gear-2026-09.log, and when?",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "PADDLE_JAM",
+          "paddle jam"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

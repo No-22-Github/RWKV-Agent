@@ -1,0 +1,64 @@
+{
+  "id": "scr-7712",
+  "description": "Repair the tool library reservations report that opens a fixed filename while the feed writes dated files and keeps last month around. DISTILL-CANARY-47a91a39",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_from_traceback",
+    "traps": [
+      "TR-NEARNAME",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": "hardcoded downloads/reservations.csv (the FileNotFoundError)",
+      "TR-DECOY": "August rows counted (TOTAL 9)"
+    },
+    "axes": [
+      "OBS",
+      "ERR"
+    ],
+    "level": "L2",
+    "family": "fam-scr-b06-fenwick",
+    "ref_calls": 5,
+    "fixture_bytes": 1644,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "report.py": "\"\"\"Print the nightly reservations report for Fenwick Tool Library.\n\nThe lending feed writes one dated file per month into downloads/:\n\n    reservations-<year>-<month>.csv\n\nThe report covers the newest month in downloads/, one line per day that\nhas reservations, in date order, followed by a total line:\n\n    <day>,<reservations>\n    TOTAL,<reservations>\n\"\"\"\n\nimport csv\n\nrows = list(csv.reader(open(\"downloads/reservations.csv\", newline=\"\", encoding=\"utf-8\")))[1:]\nper_day = {}\nfor row in rows:\n    day = row[1]\n    per_day[day] = per_day.get(day, 0) + 1\n\ntotal = 0\nfor day in sorted(per_day):\n    print(f\"{day},{per_day[day]}\")\n    total += per_day[day]\nprint(f\"TOTAL,{total}\")\n",
+    "downloads/reservations-2026-09.csv": "reservation_id,day,item\nRV-8101,2026-09-02,Plane\nRV-8102,2026-09-02,Press\nRV-8103,2026-09-09,Sander\nRV-8104,2026-09-16,Lathe\nRV-8105,2026-09-16,Plane\nRV-8106,2026-09-24,Clamp\n",
+    "downloads/reservations-2026-08.csv": "reservation_id,day,item\nRV-8090,2026-08-05,Sander\nRV-8091,2026-08-12,Plane\nRV-8092,2026-08-26,Press\n",
+    "logs/feed-2026-09-30.log": "Fenwick Tool Library - lending feed\n2026-09-30 04:00 [warn] mirror sync ran 40 minutes late; files verified after\n2026-09-30 04:10 [error] reservations report failed, log follows\nTraceback (most recent call last):\n  File \"report.py\", line 16, in <module>\n    rows = list(csv.reader(open(\"downloads/reservations.csv\", newline=\"\", encoding=\"utf-8\")))[1:]\nFileNotFoundError: [Errno 2] No such file or directory: 'downloads/reservations.csv'\n",
+    "README.md": "# Fenwick Tool Library - reservations report\n\nThe lending feed writes one dated reservations file per month into\ndownloads/. The mirror keeps the previous month's file around until the\nmonth after next; the nightly report covers the newest month only.\n"
+  },
+  "expect": {
+    "files": {
+      "downloads/reservations-2026-09.csv": {
+        "unchanged": true
+      },
+      "downloads/reservations-2026-08.csv": {
+        "unchanged": true
+      },
+      "logs/feed-2026-09-30.log": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "report.py",
+      "expected_stdout": "2026-10-07,2\n2026-10-14,1\n2026-10-21,1\n2026-10-28,1\nTOTAL,5",
+      "hidden_files": {
+        "downloads/reservations-2026-10.csv": "reservation_id,day,item\nRV-8201,2026-10-07,Lathe\nRV-8202,2026-10-07,Plane\nRV-8203,2026-10-14,Sander\nRV-8204,2026-10-21,Clamp\nRV-8205,2026-10-28,Press\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The nightly reservations report at Fenwick Tool Library went down: the feed job crashed on the 30th and the run record is in logs/feed-2026-09-30.log. Please repair report.py so the report prints again the way its docstring describes, and so it keeps working when the feed drops next month's file into downloads/. The feed's files in downloads/ stay as they are. When you are done, say in two or three sentences what you changed.",
+      "expect": {}
+    }
+  ]
+}

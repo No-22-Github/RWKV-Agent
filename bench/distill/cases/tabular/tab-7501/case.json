@@ -1,0 +1,50 @@
+{
+  "id": "tab-7501",
+  "description": "Sum July 2026 revenue for the Sunset Paddle class in a kayak rentals log where a similarly named class sits beside it. DISTILL-CANARY-99c9395d",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 1570.07
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b06-cedarline-paddle-01",
+    "ref_calls": 1,
+    "fixture_bytes": 5841,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "data/rentals_log.csv": "rental_id,rental_month,site,rental_class,paddlers,revenue\nCL-5430,2026-08,Barkley Cove,Morning Loop,5,161.53\nCL-2220,2026-08,Stone Pier,Sunset Paddle Plus,4,186.51\nCL-5305,2026-07,Stone Pier,Morning Loop,2,143.47\nCL-2820,2026-08,Reed Flats,Full Day,3,82.55\nCL-5097,2026-08,Reed Flats,Morning Loop,2,46.09\nCL-779,2026-06,Stone Pier,Full Day,5,162.28\nCL-172,2026-06,Reed Flats,Sunset Paddle Plus,5,181.29\nCL-350,2026-08,Barkley Cove,Sunset Paddle,4,165.07\nCL-9175,2026-07,Reed Flats,Morning Loop,2,89.16\nCL-3538,2026-08,Stone Pier,Sunset Paddle,3,58.31\nCL-8189,2026-07,Barkley Cove,Sunset Paddle,5,69.32\nCL-7660,2026-08,Stone Pier,Morning Loop,4,147.20\nCL-8666,2026-08,Barkley Cove,Morning Loop,5,114.30\nCL-6754,2026-07,Barkley Cove,Full Day,4,44.53\nCL-7352,2026-07,Stone Pier,Sunset Paddle,5,58.27\nCL-7353,2026-06,Reed Flats,Sunset Paddle,2,168.34\nCL-3776,2026-06,Reed Flats,Sunset Paddle Plus,4,142.77\nCL-9239,2026-06,Barkley Cove,Full Day,5,102.38\nCL-8159,2026-07,Reed Flats,Sunset Paddle Plus,1,75.33\nCL-2702,2026-06,Reed Flats,Full Day,1,185.90\nCL-9840,2026-08,Barkley Cove,Full Day,1,80.84\nCL-749,2026-07,Reed Flats,Sunset Paddle,2,114.16\nCL-2608,2026-07,Reed Flats,Sunset Paddle,5,121.72\nCL-5577,2026-07,Stone Pier,Sunset Paddle Plus,1,32.44\nCL-6830,2026-06,Stone Pier,Morning Loop,2,115.02\nCL-1838,2026-06,Stone Pier,Full Day,6,126.84\nCL-6994,2026-07,Barkley Cove,Full Day,2,89.17\nCL-3076,2026-07,Stone Pier,Sunset Paddle Plus,1,87.11\nCL-3650,2026-08,Reed Flats,Morning Loop,2,60.30\nCL-6995,2026-07,Barkley Cove,Sunset Paddle Plus,2,74.02\nCL-515,2026-08,Stone Pier,Sunset Paddle Plus,3,180.74\nCL-3744,2026-07,Stone Pier,Sunset Paddle Plus,5,68.59\nCL-7236,2026-08,Reed Flats,Full Day,2,113.44\nCL-8188,2026-06,Stone Pier,Morning Loop,1,172.01\nCL-9465,2026-06,Reed Flats,Full Day,5,58.47\nCL-5555,2026-07,Reed Flats,Sunset Paddle Plus,6,98.80\nCL-5222,2026-07,Reed Flats,Sunset Paddle Plus,6,158.22\nCL-5886,2026-08,Reed Flats,Sunset Paddle Plus,2,103.67\nCL-4865,2026-08,Reed Flats,Sunset Paddle Plus,3,102.51\nCL-4359,2026-07,Barkley Cove,Sunset Paddle,2,116.27\nCL-5600,2026-08,Barkley Cove,Sunset Paddle Plus,3,83.67\nCL-2150,2026-07,Stone Pier,Full Day,5,131.40\nCL-455,2026-07,Stone Pier,Sunset Paddle Plus,2,185.83\nCL-8192,2026-07,Stone Pier,Morning Loop,5,56.56\nCL-5681,2026-07,Barkley Cove,Morning Loop,5,115.63\nCL-5654,2026-08,Stone Pier,Full Day,5,128.51\nCL-1355,2026-08,Barkley Cove,Full Day,1,67.83\nCL-6582,2026-07,Reed Flats,Sunset Paddle,6,134.87\nCL-2495,2026-07,Stone Pier,Morning Loop,4,145.91\nCL-9517,2026-06,Reed Flats,Sunset Paddle,4,125.82\nCL-2613,2026-07,Stone Pier,Full Day,1,108.09\nCL-3431,2026-07,Reed Flats,Full Day,5,91.35\nCL-3631,2026-07,Stone Pier,Morning Loop,4,87.40\nCL-1907,2026-07,Stone Pier,Full Day,5,83.15\nCL-1935,2026-08,Barkley Cove,Morning Loop,2,156.31\nCL-337,2026-07,Barkley Cove,Sunset Paddle Plus,6,168.76\nCL-3333,2026-07,Reed Flats,Sunset Paddle,6,39.62\nCL-7651,2026-08,Reed Flats,Sunset Paddle,4,99.18\nCL-8413,2026-07,Barkley Cove,Morning Loop,5,118.03\nCL-1412,2026-08,Stone Pier,Full Day,2,119.80\nCL-8694,2026-06,Reed Flats,Sunset Paddle Plus,2,100.28\nCL-7160,2026-07,Barkley Cove,Full Day,6,88.83\nCL-712,2026-06,Barkley Cove,Morning Loop,4,144.37\nCL-2683,2026-07,Barkley Cove,Full Day,1,105.87\nCL-6567,2026-07,Reed Flats,Sunset Paddle,6,167.78\nCL-5458,2026-08,Reed Flats,Sunset Paddle,2,108.55\nCL-7624,2026-08,Barkley Cove,Sunset Paddle,4,136.95\nCL-5603,2026-08,Stone Pier,Sunset Paddle Plus,4,48.92\nCL-6550,2026-06,Reed Flats,Sunset Paddle Plus,2,56.46\nCL-167,2026-08,Barkley Cove,Sunset Paddle,5,84.06\nCL-944,2026-07,Barkley Cove,Sunset Paddle Plus,6,125.18\nCL-6785,2026-07,Barkley Cove,Full Day,6,57.26\nCL-1303,2026-06,Barkley Cove,Full Day,4,181.58\nCL-7420,2026-07,Stone Pier,Sunset Paddle,1,59.15\nCL-482,2026-06,Reed Flats,Morning Loop,5,169.62\nCL-6750,2026-07,Reed Flats,Morning Loop,5,92.39\nCL-4979,2026-06,Reed Flats,Morning Loop,1,42.02\nCL-9265,2026-06,Stone Pier,Sunset Paddle,1,134.87\nCL-377,2026-07,Barkley Cove,Sunset Paddle,5,99.48\nCL-8838,2026-08,Reed Flats,Sunset Paddle,6,98.62\nCL-5316,2026-06,Reed Flats,Sunset Paddle Plus,6,123.74\nCL-3594,2026-06,Barkley Cove,Sunset Paddle Plus,2,173.02\nCL-7960,2026-07,Barkley Cove,Sunset Paddle,2,85.52\nCL-8704,2026-07,Barkley Cove,Sunset Paddle Plus,5,96.68\nCL-4276,2026-07,Barkley Cove,Morning Loop,2,158.73\nCL-1197,2026-08,Reed Flats,Sunset Paddle Plus,3,121.19\nCL-2558,2026-07,Reed Flats,Full Day,4,67.12\nCL-9100,2026-07,Stone Pier,Sunset Paddle Plus,2,138.20\nCL-7789,2026-08,Stone Pier,Sunset Paddle,3,82.31\nCL-2772,2026-07,Stone Pier,Sunset Paddle,1,40.19\nCL-4452,2026-08,Stone Pier,Full Day,5,172.22\nCL-1950,2026-07,Barkley Cove,Sunset Paddle Plus,1,138.36\nCL-3391,2026-08,Barkley Cove,Sunset Paddle,1,170.16\nCL-4985,2026-07,Reed Flats,Sunset Paddle,1,125.91\nCL-4215,2026-07,Stone Pier,Morning Loop,1,79.32\nCL-7041,2026-06,Reed Flats,Sunset Paddle,6,141.52\nCL-886,2026-07,Stone Pier,Sunset Paddle,1,189.88\nCL-3008,2026-07,Barkley Cove,Sunset Paddle,4,128.55\nCL-3363,2026-07,Stone Pier,Sunset Paddle Plus,5,33.50\nCL-4573,2026-08,Reed Flats,Morning Loop,5,180.80\nCL-1310,2026-07,Reed Flats,Morning Loop,4,154.68\nCL-1768,2026-07,Reed Flats,Sunset Paddle,1,163.68\nCL-7141,2026-07,Barkley Cove,Sunset Paddle Plus,3,89.05\nCL-8759,2026-07,Barkley Cove,Morning Loop,1,40.60\nCL-3035,2026-08,Barkley Cove,Sunset Paddle,1,60.80\nCL-5470,2026-06,Barkley Cove,Morning Loop,5,37.44\nCL-2252,2026-07,Reed Flats,Sunset Paddle,3,186.14\nCL-644,2026-07,Reed Flats,Sunset Paddle,5,62.16\n",
+    "README.md": "# Cedarline Kayak Co - rentals log\n\nOne row per completed rental. Sunset Paddle is the standard guided evening loop; Sunset Paddle Plus adds the private guide and a gear upgrade.\n",
+    "notes/launch_checklist.txt": "Launch site checklist\n- The floating dock takes six boats at a time.\n- Spare paddles sit in the teal bin under the office stairs.\n- The shuttle key lives in the red lockbox by the office door.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Cedarline Kayak Co is closing out July revenue by rental class. The rentals log is at data/rentals_log.csv. Give the number alone, as digits, with no label. What was the July 2026 revenue total for the Sunset Paddle class?",
+      "expect": {
+        "expected_number": 1962.67,
+        "tolerance": 0.01,
+        "required_tools": [
+          "data_query"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 1
+    }
+  }
+}

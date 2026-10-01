@@ -1,0 +1,52 @@
+{
+  "id": "fs-7706",
+  "description": "盘点蜡染工坊图样库目录（中文）：今年在册索引与同名旧账；两份加总是诱饵。 DISTILL-CANARY-bff6dcb6",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "count_by_type",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "9 幅"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-fs-b07-countdecoy-01",
+    "ref_calls": 4,
+    "fixture_bytes": 641,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:distill-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "patterns/index-2024.csv": "图样编号,工艺,幅面,底色\nRX-090,蜡染,四尺,靛蓝\nRX-091,扎染,六尺,深蓝\nRX-092,蜡染,四尺,靛蓝\nRX-093,夹染,四尺,本白\n",
+    "patterns/index-2026.csv": "图样编号,工艺,幅面,底色\nRX-101,蜡染,四尺,靛蓝\nRX-102,扎染,四尺,月白\nRX-103,蜡染,六尺,靛蓝\nRX-104,蜡染,四尺,深蓝\nRX-105,夹染,四尺,本白\n",
+    "README.md": "青岫蜡染工坊图样库。\n\nindex-2026.csv 是今年在册图样；index-2024.csv 是已封存的旧账，\n两份文件名相近，只差年份，底色列为染缸常用底色。对外报数只用\n今年索引，旧账留着备查，不再新增图样。索引每周五随例会更新，\n更新人在页脚签字。\n"
+  },
+  "turns": [
+    {
+      "prompt": "青岫蜡染工坊要更新会员通讯里的图样库介绍。帮我盘一下 patterns 这个目录：今年在册的图样有几幅、其中蜡染占几幅、旁边那份旧账留了多少。",
+      "expect": {
+        "output_contains": [
+          "5 幅",
+          "3 幅蜡染",
+          "4 幅"
+        ],
+        "output_contains_any": [
+          "5 幅",
+          "3 幅蜡染",
+          "4 幅"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

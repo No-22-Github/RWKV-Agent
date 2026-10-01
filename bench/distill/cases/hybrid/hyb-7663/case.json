@@ -1,0 +1,64 @@
+{
+  "id": "hyb-7663",
+  "description": "September parts spend: dedupe repeated PO rows across two regional order CSVs, price from the supplier's posted list. DISTILL-CANARY-d4ba30fe",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_calc",
+    "traps": [
+      "TR-DUPROW",
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 230400,
+      "TR-MULTISRC": 121600
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b06-billcalc-01",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 388,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {
+    "采购/华东订单.csv": "采购单号,型号,数量\nCG-2601,XQ-500,30\nCG-2601,XQ-500,30\nCG-2603,XQ-500,45\nCG-2605,XQ-500,20\n",
+    "采购/华南订单.csv": "采购单号,型号,数量\nCG-2607,XQ-500,25\nCG-2609,XQ-500,40\n",
+    "README.md": "柳工机床配件采购部：华东、华南两个区域的订单每月分别导出，汇总对账时两份都要统计；导出程序当月重试过一次，同一张单可能被写成两行，对账按采购单号去重。\n"
+  },
+  "web_fixture": [
+    {
+      "query_match": "泉心",
+      "url": "https://www.quanxin-machine.example/price-2026-09",
+      "url_match": "quanxin-machine.example/price-2026-09",
+      "title": "泉心机床配件 2026 年 9 月配件报价单",
+      "snippet": "9 月起执行的配件出厂报价。",
+      "content": "# 泉心机床配件 9 月报价单（2026-09-01 起执行）\n\n型号 | 单价（元）\nXQ-500 | 1280.00\nXQ-800 | 1650.00\n\n批量订单以合同价为准。\n",
+      "published_at": "2026-08-28"
+    },
+    {
+      "query_match": "XQ-500",
+      "url": "https://b2b.partslink.example/quanxin-xq500",
+      "url_match": "b2b.partslink.example/quanxin-xq500",
+      "title": "配件超市：泉心 XQ-500 报价",
+      "snippet": "泉心 XQ-500 单台 1280 元，批量另议。",
+      "content": "泉心 XQ-500 导板：单台 1280.00 元（9 月）。\n",
+      "published_at": "2026-09-02"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "采购部要汇总 9 月 XQ-500 的配件货款。两份订单导出分别在 采购/华东订单.csv 和 采购/华南订单.csv，单价按泉心 9 月报价单。货款合计多少元？（只回答数字，不要单位。）",
+      "expect": {
+        "expected_number": 204800,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

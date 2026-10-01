@@ -1,0 +1,50 @@
+{
+  "id": "tab-7511",
+  "description": "Count July 2026 Deep Sea charters in a booking log where a shorter near-name trip runs beside it. DISTILL-CANARY-953969c3",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 13
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b06-gullwing-charter-01",
+    "ref_calls": 1,
+    "fixture_bytes": 4597,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "data/charter_log.csv": "booking_id,booking_month,harbor,charter_type,anglers\nGW-9165,2026-07,East Mooring,Deep Sea,8\nGW-2403,2026-06,East Mooring,Bay Cruise,5\nGW-5994,2026-06,Pilgrim Slip,Sunset Cruise,8\nGW-5092,2026-07,East Mooring,Sunset Cruise,8\nGW-5773,2026-06,East Mooring,Deep Sea Lite,2\nGW-7457,2026-06,Pilgrim Slip,Deep Sea,7\nGW-8976,2026-08,East Mooring,Deep Sea,2\nGW-3918,2026-07,East Mooring,Deep Sea Lite,8\nGW-9156,2026-07,Pilgrim Slip,Sunset Cruise,3\nGW-3468,2026-06,East Mooring,Sunset Cruise,2\nGW-3403,2026-08,Pilgrim Slip,Sunset Cruise,3\nGW-6940,2026-07,East Mooring,Bay Cruise,4\nGW-915,2026-06,Pilgrim Slip,Sunset Cruise,4\nGW-3519,2026-07,Pilgrim Slip,Deep Sea Lite,3\nGW-3894,2026-06,Pilgrim Slip,Deep Sea,5\nGW-8922,2026-08,Pilgrim Slip,Deep Sea,5\nGW-4765,2026-08,East Mooring,Deep Sea,3\nGW-6435,2026-08,East Mooring,Bay Cruise,4\nGW-227,2026-07,Pilgrim Slip,Deep Sea Lite,8\nGW-3032,2026-07,Pilgrim Slip,Bay Cruise,8\nGW-7342,2026-08,Pilgrim Slip,Deep Sea,5\nGW-3857,2026-07,Pilgrim Slip,Deep Sea,7\nGW-3048,2026-06,East Mooring,Deep Sea Lite,7\nGW-6235,2026-07,Pilgrim Slip,Deep Sea,2\nGW-5494,2026-06,East Mooring,Deep Sea,7\nGW-6466,2026-07,Pilgrim Slip,Deep Sea,7\nGW-5288,2026-08,East Mooring,Deep Sea,4\nGW-5106,2026-07,Pilgrim Slip,Deep Sea Lite,4\nGW-9079,2026-07,East Mooring,Deep Sea,2\nGW-274,2026-06,Pilgrim Slip,Deep Sea Lite,6\nGW-7731,2026-06,East Mooring,Bay Cruise,7\nGW-5752,2026-08,East Mooring,Deep Sea,2\nGW-8225,2026-08,East Mooring,Sunset Cruise,5\nGW-8704,2026-07,East Mooring,Sunset Cruise,8\nGW-785,2026-08,Pilgrim Slip,Sunset Cruise,5\nGW-7985,2026-07,Pilgrim Slip,Deep Sea Lite,7\nGW-9570,2026-07,East Mooring,Deep Sea Lite,3\nGW-9398,2026-07,Pilgrim Slip,Bay Cruise,2\nGW-1939,2026-06,East Mooring,Deep Sea Lite,8\nGW-538,2026-06,East Mooring,Bay Cruise,7\nGW-5033,2026-07,Pilgrim Slip,Deep Sea Lite,2\nGW-8087,2026-07,East Mooring,Deep Sea Lite,4\nGW-859,2026-07,Pilgrim Slip,Sunset Cruise,2\nGW-6594,2026-07,Pilgrim Slip,Bay Cruise,5\nGW-4486,2026-07,East Mooring,Deep Sea Lite,2\nGW-4827,2026-06,Pilgrim Slip,Deep Sea Lite,3\nGW-3518,2026-07,Pilgrim Slip,Sunset Cruise,5\nGW-3213,2026-07,Pilgrim Slip,Bay Cruise,4\nGW-5684,2026-06,Pilgrim Slip,Bay Cruise,3\nGW-2930,2026-07,Pilgrim Slip,Sunset Cruise,4\nGW-3078,2026-06,East Mooring,Bay Cruise,5\nGW-611,2026-07,Pilgrim Slip,Bay Cruise,8\nGW-1185,2026-07,Pilgrim Slip,Deep Sea,5\nGW-8300,2026-08,Pilgrim Slip,Deep Sea Lite,7\nGW-2370,2026-08,Pilgrim Slip,Sunset Cruise,2\nGW-9118,2026-07,Pilgrim Slip,Bay Cruise,3\nGW-7656,2026-06,East Mooring,Deep Sea,3\nGW-4904,2026-07,Pilgrim Slip,Deep Sea,2\nGW-4871,2026-06,Pilgrim Slip,Deep Sea Lite,4\nGW-2861,2026-06,East Mooring,Bay Cruise,7\nGW-4155,2026-07,Pilgrim Slip,Deep Sea Lite,8\nGW-9811,2026-06,East Mooring,Deep Sea Lite,5\nGW-2643,2026-07,East Mooring,Deep Sea Lite,6\nGW-7430,2026-06,East Mooring,Bay Cruise,7\nGW-7054,2026-06,Pilgrim Slip,Deep Sea,4\nGW-6398,2026-07,East Mooring,Deep Sea,4\nGW-2977,2026-07,East Mooring,Sunset Cruise,8\nGW-8602,2026-07,Pilgrim Slip,Deep Sea,5\nGW-6124,2026-06,East Mooring,Deep Sea,3\nGW-7020,2026-07,Pilgrim Slip,Deep Sea,2\nGW-3013,2026-07,East Mooring,Bay Cruise,4\nGW-2250,2026-07,East Mooring,Deep Sea,7\nGW-2352,2026-06,East Mooring,Deep Sea,7\nGW-1120,2026-06,Pilgrim Slip,Deep Sea Lite,2\nGW-123,2026-07,East Mooring,Deep Sea,6\nGW-1136,2026-06,East Mooring,Deep Sea Lite,2\nGW-7060,2026-06,Pilgrim Slip,Deep Sea Lite,5\nGW-4568,2026-08,East Mooring,Sunset Cruise,6\nGW-7798,2026-08,Pilgrim Slip,Deep Sea Lite,6\nGW-9357,2026-07,Pilgrim Slip,Sunset Cruise,2\nGW-2835,2026-06,Pilgrim Slip,Deep Sea Lite,7\nGW-5262,2026-07,East Mooring,Deep Sea Lite,6\nGW-729,2026-07,East Mooring,Deep Sea Lite,5\nGW-6066,2026-06,East Mooring,Deep Sea,2\nGW-2863,2026-07,Pilgrim Slip,Bay Cruise,4\nGW-1046,2026-07,East Mooring,Bay Cruise,8\nGW-9644,2026-08,East Mooring,Deep Sea Lite,3\nGW-8942,2026-07,Pilgrim Slip,Deep Sea,2\nGW-9352,2026-07,Pilgrim Slip,Deep Sea,2\nGW-2629,2026-06,Pilgrim Slip,Deep Sea,8\nGW-9895,2026-06,East Mooring,Deep Sea,5\nGW-780,2026-07,Pilgrim Slip,Deep Sea,2\nGW-3913,2026-06,East Mooring,Sunset Cruise,5\nGW-6666,2026-07,East Mooring,Deep Sea,7\nGW-4918,2026-07,Pilgrim Slip,Bay Cruise,6\nGW-7406,2026-06,East Mooring,Bay Cruise,6\nGW-3018,2026-06,Pilgrim Slip,Sunset Cruise,5\nGW-4034,2026-07,Pilgrim Slip,Deep Sea,6\nGW-5051,2026-07,East Mooring,Bay Cruise,5\nGW-8850,2026-08,Pilgrim Slip,Deep Sea Lite,7\n",
+    "README.md": "# Gullwing Charter Boats - charter log\n\nOne row per booking. Deep Sea is the full-day offshore trip; Deep Sea Lite is the half-day near-shore trip.\n",
+    "notes/dock_board.txt": "Dock board\n- Bait ice goes down at first light.\n- The fillet tables need hosing after each trip.\n- Spare rods rack in the wheelhouse.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Gullwing Charter Boats is tallying July bookings by charter type. The charter log is at data/charter_log.csv. Give the number alone, as digits, with no label. How many Deep Sea charters went out in July 2026?",
+      "expect": {
+        "expected_number": 17,
+        "tolerance": 0.01,
+        "required_tools": [
+          "data_query"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 1
+    }
+  }
+}

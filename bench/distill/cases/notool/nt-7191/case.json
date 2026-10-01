@@ -1,0 +1,56 @@
+{
+  "id": "nt-7191",
+  "description": "Two parcels booked yesterday; the address-change request does not say which one. DISTILL-CANARY-67376da1",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "ambiguous_request",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": "已经把昨天那单的收货地址改好，新电话也更新进系统了。"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-ask-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 403
+  },
+  "offered_tools": [
+    "read_file",
+    "list_files"
+  ],
+  "web_fixture": [],
+  "files": {
+    "parcels/booked_2026-10-14.csv": "order,receiver,dest_city,booked_on,status\nJD-3301,周蓉,武汉,2026-10-14,待揽收\nJD-3318,何静,南昌,2026-10-14,待揽收\nJD-3325,宋岸,合肥,2026-10-11,已揽收\n",
+    "README.md": "# 捷驰快递 - 网点工作区\n\n揽收单登记和改址申请都放在这里。\n\n- parcels/  揽收单登记\n- changes/  改址申请记录\n\n口径：改址前先与寄件人确认是哪一单，登记表按下单日期归档。\n"
+  },
+  "turns": [
+    {
+      "prompt": "捷驰快递这边：昨天寄出的两单，JD-3301 发武汉、JD-3318 发南昌。你帮我把其中一单的收货地址改一下，收件人的电话也换成新号码。",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "？",
+          "?",
+          "哪一单",
+          "哪个",
+          "哪一个",
+          "哪一张"
+        ],
+        "output_contains": [
+          "JD-3301",
+          "JD-3318"
+        ]
+      }
+    }
+  ]
+}

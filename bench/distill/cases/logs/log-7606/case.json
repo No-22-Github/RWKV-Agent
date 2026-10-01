@@ -1,0 +1,51 @@
+{
+  "id": "log-7606",
+  "description": "Summarize a ferry berthing log: the W2 winch failure that suspended berthing, with a self-clearing W1 sensor glitch as decoy. DISTILL-CANARY-0c0498da",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "locate_error",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "16:02"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-b07-locatedecoy-01",
+    "ref_calls": 3,
+    "fixture_bytes": 617,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:distill-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "logs/berthing-jun.log": "2026-06-23 11:40 berth 2 winch W2 pressure drop FAULT\n2026-06-23 11:52 berth 2 winch W2 stopped, berthing suspended SUSPEND\n2026-06-23 14:05 finding: hydraulic hose leak on W2, vessel diverted to rail berth NOTE\n2026-06-24 09:30 winch W2 hose replaced, load test passed OK\n2026-06-25 16:02 berth 2 winch W1 load sensor FAULT cleared 16:11 loose connector\n",
+    "README.md": "Gullhaven Ferries berthing equipment log.\n\nA load-sensor FAULT on W1 that shows cleared within minutes is the known\nloose-connector glitch; it never suspends service. Real service\nsuspensions are marked SUSPEND, and the NOTE line that follows names the\nfinding.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Gullhaven Ferries lost a berthing winch mid-June and the ops review keeps asking what happened. Read the berthing log and give me the story: what time the suspension began, which winch failed, and what the finding was.",
+      "expect": {
+        "output_contains": [
+          "11:40",
+          "W2",
+          "hydraulic hose leak"
+        ],
+        "output_contains_any": [
+          "11:40",
+          "W2",
+          "hydraulic hose leak"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

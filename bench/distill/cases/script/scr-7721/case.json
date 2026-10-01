@@ -1,0 +1,53 @@
+{
+  "id": "scr-7721",
+  "description": "Fix the tea house takeaway daily sheet whose totals count the platform's re-posted order rows twice. DISTILL-CANARY-d830d4ac",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_output",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": "re-posted rows counted (合计 12,71200)"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-scr-b06-banshan",
+    "ref_calls": 4,
+    "fixture_bytes": 1539,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "daily.py": "\"\"\"打印半山茶馆的外卖日结单。\n\n外卖平台每晚把当月订单导出到 orders/，一行一条：\n\n    订单号,日期,品名,份数,金额分\n\n日结单每天一行、按日期排序，末尾加一行合计：\n\n    <日期>,<订单数>,<金额分>\n    合计,<订单数>,<金额分>\n\n平台重试时会把同一笔订单原样再写一行，订单号不变；一笔订单只算一次。\n\"\"\"\n\nimport csv\nimport glob\n\nper_day = {}\nfor path in sorted(glob.glob(\"orders/*.csv\")):\n    with open(path, newline=\"\", encoding=\"utf-8\") as handle:\n        for row in list(csv.reader(handle))[1:]:\n            day = row[1]\n            amount = int(row[4])\n            old = per_day.get(day, (0, 0))\n            per_day[day] = (old[0] + 1, old[1] + amount)\n\ntotal_orders = 0\ntotal_amount = 0\nfor day in sorted(per_day):\n    orders, amount = per_day[day]\n    print(f\"{day},{orders},{amount}\")\n    total_orders += orders\n    total_amount += amount\nprint(f\"合计,{total_orders},{total_amount}\")\n",
+    "orders/2026-09.csv": "订单号,日期,品名,份数,金额分\nTS-7001,2026-09-02,茉莉奶盖,2,5600\nTS-7002,2026-09-02,桂花乌龙,1,2800\nTS-7003,2026-09-05,凤凰单丛,3,8400\nTS-7003,2026-09-05,凤凰单丛,3,8400\nTS-7004,2026-09-09,正山小种,1,3200\nTS-7005,2026-09-16,茉莉奶盖,4,11200\nTS-7006,2026-09-23,桂花乌龙,2,5600\nTS-7007,2026-09-28,凤凰单丛,2,5600\n",
+    "README.md": "# 半山茶馆 - 外卖日结单\n\n外卖平台每晚导出当月订单到 orders/。平台重试时会把同一笔订单原样\n再写一行，订单号不变；一笔订单只算一次。\n"
+  },
+  "expect": {
+    "files": {
+      "orders/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "daily.py",
+      "expected_stdout": "2026-09-02,2,8400\n2026-09-05,1,8400\n2026-09-09,1,3200\n2026-09-16,1,11200\n2026-09-23,1,5600\n2026-09-28,1,5600\n2026-10-08,1,6400\n2026-10-14,1,2800\n2026-10-21,1,8400\n合计,10,60000",
+      "hidden_files": {
+        "orders/2026-10.csv": "订单号,日期,品名,份数,金额分\nTS-7101,2026-10-08,正山小种,2,6400\nTS-7102,2026-10-14,茉莉奶盖,1,2800\nTS-7102,2026-10-14,茉莉奶盖,1,2800\nTS-7103,2026-10-21,桂花乌龙,3,8400\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "半山茶馆的外卖日结单和平台月底的账对不上：每天的订单数和金额都比平台账上的高。daily.py 的说明文字写明了日结单的口径。请按说明把日结单修对。orders/ 里的导出是平台的原始文件，保持原样。完成后用两三句话说明你改了什么。",
+      "expect": {}
+    }
+  ]
+}

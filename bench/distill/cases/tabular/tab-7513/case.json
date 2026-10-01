@@ -1,0 +1,50 @@
+{
+  "id": "tab-7513",
+  "description": "Count the April 2026 bicycles used in one tier of a tab-separated dock event log whose sync job pushed some events twice. DISTILL-CANARY-7a1bca60",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 21
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b06-mossgrove-dock-01",
+    "ref_calls": 2,
+    "fixture_bytes": 5237,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "data/dock_events.tsv": "event_id\tevent_month\tstation\ttier\tbike_id\nMG-4465\t2026-04\tAlmhouse Row\tClassic\tBK-9589\nMG-899\t2026-03\tCider Press\tClassic\tBK-4676\nMG-9390\t2026-05\tCider Press\tClassic\tBK-9207\nMG-5033\t2026-05\tFoundry Gate\tClassic\tBK-3632\nMG-524\t2026-05\tCider Press\tElectric\tBK-4008\nMG-3059\t2026-04\tAlmhouse Row\tClassic\tBK-2355\nMG-8983\t2026-04\tCider Press\tClassic\tBK-3632\nMG-8812\t2026-05\tAlmhouse Row\tClassic\tBK-3313\nMG-9372\t2026-04\tAlmhouse Row\tElectric\tBK-1591\nMG-1068\t2026-04\tCider Press\tElectric\tBK-3143\nMG-1372\t2026-04\tFoundry Gate\tClassic\tBK-4676\nMG-1177\t2026-03\tFoundry Gate\tElectric\tBK-7187\nMG-4031\t2026-04\tAlmhouse Row\tClassic\tBK-5971\nMG-4754\t2026-03\tFoundry Gate\tClassic\tBK-2461\nMG-5596\t2026-03\tCider Press\tElectric\tBK-7400\nMG-5385\t2026-05\tFoundry Gate\tClassic\tBK-720\nMG-7533\t2026-04\tFoundry Gate\tClassic\tBK-9768\nMG-2172\t2026-03\tCider Press\tClassic\tBK-8505\nMG-6393\t2026-04\tFoundry Gate\tElectric\tBK-2600\nMG-7040\t2026-05\tAlmhouse Row\tElectric\tBK-5237\nMG-1345\t2026-05\tCider Press\tElectric\tBK-7400\nMG-6781\t2026-04\tAlmhouse Row\tClassic\tBK-3632\nMG-387\t2026-03\tAlmhouse Row\tElectric\tBK-813\nMG-343\t2026-03\tAlmhouse Row\tElectric\tBK-2461\nMG-6777\t2026-03\tCider Press\tElectric\tBK-8505\nMG-1742\t2026-05\tFoundry Gate\tClassic\tBK-813\nMG-4123\t2026-04\tFoundry Gate\tClassic\tBK-2600\nMG-6436\t2026-04\tAlmhouse Row\tElectric\tBK-3922\nMG-840\t2026-03\tAlmhouse Row\tClassic\tBK-3143\nMG-5886\t2026-04\tAlmhouse Row\tClassic\tBK-4008\nMG-4824\t2026-05\tAlmhouse Row\tElectric\tBK-813\nMG-8303\t2026-05\tAlmhouse Row\tElectric\tBK-5237\nMG-4773\t2026-03\tFoundry Gate\tElectric\tBK-720\nMG-3316\t2026-04\tCider Press\tElectric\tBK-6145\nMG-8140\t2026-04\tFoundry Gate\tClassic\tBK-8505\nMG-5180\t2026-04\tFoundry Gate\tElectric\tBK-4186\nMG-5997\t2026-04\tFoundry Gate\tClassic\tBK-3313\nMG-7706\t2026-04\tCider Press\tClassic\tBK-9207\nMG-839\t2026-03\tFoundry Gate\tElectric\tBK-7920\nMG-3024\t2026-05\tCider Press\tClassic\tBK-8745\nMG-6159\t2026-04\tAlmhouse Row\tElectric\tBK-9399\nMG-4626\t2026-03\tFoundry Gate\tClassic\tBK-3952\nMG-2784\t2026-04\tFoundry Gate\tClassic\tBK-1215\nMG-8364\t2026-04\tCider Press\tClassic\tBK-7400\nMG-8675\t2026-03\tCider Press\tClassic\tBK-8644\nMG-6062\t2026-03\tAlmhouse Row\tElectric\tBK-761\nMG-2891\t2026-04\tCider Press\tElectric\tBK-8644\nMG-5660\t2026-03\tCider Press\tElectric\tBK-276\nMG-8323\t2026-05\tFoundry Gate\tClassic\tBK-8462\nMG-9368\t2026-05\tCider Press\tClassic\tBK-6589\nMG-6458\t2026-04\tAlmhouse Row\tElectric\tBK-6881\nMG-4775\t2026-03\tCider Press\tElectric\tBK-7187\nMG-1262\t2026-05\tAlmhouse Row\tClassic\tBK-988\nMG-7493\t2026-05\tCider Press\tClassic\tBK-761\nMG-9454\t2026-04\tCider Press\tClassic\tBK-6881\nMG-6919\t2026-03\tAlmhouse Row\tClassic\tBK-9399\nMG-2268\t2026-03\tCider Press\tElectric\tBK-2486\nMG-8508\t2026-03\tFoundry Gate\tClassic\tBK-1206\nMG-2139\t2026-04\tFoundry Gate\tClassic\tBK-5427\nMG-3099\t2026-03\tFoundry Gate\tClassic\tBK-6881\nMG-4494\t2026-05\tFoundry Gate\tClassic\tBK-3922\nMG-1171\t2026-04\tAlmhouse Row\tClassic\tBK-867\nMG-9710\t2026-04\tFoundry Gate\tClassic\tBK-2355\nMG-3304\t2026-03\tFoundry Gate\tElectric\tBK-3313\nMG-7510\t2026-03\tFoundry Gate\tElectric\tBK-3952\nMG-960\t2026-05\tAlmhouse Row\tClassic\tBK-9589\nMG-2938\t2026-04\tFoundry Gate\tClassic\tBK-2745\nMG-5230\t2026-04\tCider Press\tClassic\tBK-2745\nMG-6906\t2026-03\tAlmhouse Row\tClassic\tBK-2594\nMG-6650\t2026-03\tCider Press\tClassic\tBK-7400\nMG-8579\t2026-03\tFoundry Gate\tElectric\tBK-3631\nMG-7673\t2026-04\tCider Press\tClassic\tBK-8505\nMG-9816\t2026-04\tCider Press\tClassic\tBK-7400\nMG-9583\t2026-04\tCider Press\tClassic\tBK-867\nMG-166\t2026-04\tFoundry Gate\tElectric\tBK-7916\nMG-8462\t2026-04\tAlmhouse Row\tClassic\tBK-3313\nMG-3956\t2026-04\tAlmhouse Row\tClassic\tBK-3632\nMG-4535\t2026-05\tFoundry Gate\tClassic\tBK-7916\nMG-566\t2026-03\tCider Press\tClassic\tBK-4015\nMG-4562\t2026-03\tAlmhouse Row\tClassic\tBK-6589\nMG-7932\t2026-03\tFoundry Gate\tElectric\tBK-8505\nMG-8116\t2026-03\tFoundry Gate\tClassic\tBK-7920\nMG-4077\t2026-04\tFoundry Gate\tClassic\tBK-2594\nMG-3483\t2026-04\tCider Press\tClassic\tBK-4568\nMG-973\t2026-05\tCider Press\tClassic\tBK-867\nMG-970\t2026-05\tAlmhouse Row\tElectric\tBK-9589\nMG-2484\t2026-04\tFoundry Gate\tClassic\tBK-4436\nMG-4990\t2026-04\tAlmhouse Row\tElectric\tBK-5971\nMG-6791\t2026-03\tCider Press\tElectric\tBK-1591\nMG-6297\t2026-04\tFoundry Gate\tElectric\tBK-3387\nMG-5533\t2026-04\tFoundry Gate\tClassic\tBK-761\nMG-4670\t2026-05\tFoundry Gate\tClassic\tBK-988\nMG-8431\t2026-05\tFoundry Gate\tClassic\tBK-3143\nMG-6213\t2026-04\tCider Press\tElectric\tBK-867\nMG-9680\t2026-04\tFoundry Gate\tClassic\tBK-7916\nMG-5702\t2026-04\tAlmhouse Row\tElectric\tBK-8745\nMG-9403\t2026-05\tFoundry Gate\tElectric\tBK-1215\nMG-6033\t2026-04\tCider Press\tElectric\tBK-276\nMG-3041\t2026-03\tCider Press\tClassic\tBK-3922\nMG-4093\t2026-04\tFoundry Gate\tElectric\tBK-2756\nMG-1784\t2026-03\tAlmhouse Row\tClassic\tBK-7916\nMG-6290\t2026-04\tAlmhouse Row\tClassic\tBK-2756\nMG-2345\t2026-04\tAlmhouse Row\tElectric\tBK-6701\nMG-5197\t2026-04\tFoundry Gate\tClassic\tBK-878\nMG-9372\t2026-04\tAlmhouse Row\tElectric\tBK-1591\nMG-166\t2026-04\tFoundry Gate\tElectric\tBK-7916\nMG-6213\t2026-04\tCider Press\tElectric\tBK-867\nMG-4990\t2026-04\tAlmhouse Row\tElectric\tBK-5971\n",
+    "README.md": "# Mossgrove Bike Share - dock event log\n\nOne row per dock event. The sync job retried during the month and pushed some events twice; event_id identifies the event and bike_id identifies the bicycle.\n",
+    "notes/rebalance_sheet.txt": "Rebalance sheet\n- Full batteries swap in the crate by the workshop.\n- Dock lights blink amber when the bay jams.\n- The cargo trike parks behind the office.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Mossgrove Bike Share is sizing its electric fleet usage in April. The dock event log is at data/dock_events.tsv. Give the number alone, as digits, with no label. How many different bicycles were used in the Electric tier in April 2026?",
+      "expect": {
+        "expected_number": 17,
+        "tolerance": 0.01,
+        "required_tools": [
+          "data_query"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 1
+    }
+  }
+}

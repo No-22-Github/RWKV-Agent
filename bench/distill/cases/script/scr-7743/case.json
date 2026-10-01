@@ -1,0 +1,53 @@
+{
+  "id": "scr-7743",
+  "description": "Rewrite the tofu workshop's daily output script with the standard library while it reads the workshop's grouped amounts. DISTILL-CANARY-a8869f2e",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "stdlib_only",
+    "traps": [
+      "TR-NUMFMT"
+    ],
+    "trap_decoys": {
+      "TR-NUMFMT": "int() 直接读带分节号的金额报 ValueError"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-scr-b06-shiquan",
+    "ref_calls": 5,
+    "fixture_bytes": 1145,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "day_tofu.py": "\"\"\"打印石泉豆腐坊的每日豆腐产量表。\n\n作坊导出按月落进 batches/，一行一炉：\n\n    日期,灶台,板数,金额元\n\n产量表按日期排序打印，每天一行，最后加一行总计：\n\n    <日期>,<板数>,<金额元>\n    总计,<板数>,<金额元>\n\n金额一栏带分节号（如 2,160），读的时候照数读准。\n\"\"\"\n\nimport glob\n\nimport pandas as pd\n\nframes = []\nfor path in sorted(glob.glob(\"batches/*.csv\")):\n    frames.append(pd.read_csv(path, thousands=\",\"))\n\ndf = pd.concat(frames)\nfor day, group in df.groupby(\"日期\"):\n    print(f\"{day},{int(group['板数'].sum())},{int(group['金额元'].sum())}\")\nprint(f\"总计,{int(df['板数'].sum())},{int(df['金额元'].sum())}\")\n",
+    "batches/2026-09.csv": "日期,灶台,板数,金额元\n2026-09-02,东灶,36,\"2,160\"\n2026-09-02,西灶,28,\"1,680\"\n2026-09-06,东灶,42,\"2,520\"\n2026-09-13,西灶,31,\"1,860\"\n2026-09-20,东灶,45,\"2,700\"\n2026-09-27,西灶,33,\"1,980\"\n",
+    "README.md": "# 石泉豆腐坊 - 每日产量\n\nday_tofu.py 打印柜面用的每日产量表。作坊导出里金额一栏带着分节号\n（如 2,160），脚本要照数读准。柜面终端没有第三方库，只用标准库。\n"
+  },
+  "expect": {
+    "files": {
+      "batches/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "day_tofu.py",
+      "expected_stdout": "2026-09-02,64,3840\n2026-09-06,42,2520\n2026-09-13,31,1860\n2026-09-20,45,2700\n2026-09-27,33,1980\n2026-10-08,38,2280\n2026-10-15,29,1740\n总计,282,16920",
+      "hidden_files": {
+        "batches/2026-10.csv": "日期,灶台,板数,金额元\n2026-10-08,东灶,38,\"2,280\"\n2026-10-15,西灶,29,\"1,740\"\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "石泉豆腐坊柜面的终端装不了第三方库，每日产量脚本 day_tofu.py 却依赖 pandas，产量表已经几天没打印出来。请用标准库重写 day_tofu.py，让产量表按说明里的版式一字不差地打印出来，之后 batches/ 里新到的导出也要能照常汇总。batches/ 里的导出是柜面的留档，保持原样。完成后用两三句话说明你改了什么。",
+      "expect": {}
+    }
+  ]
+}

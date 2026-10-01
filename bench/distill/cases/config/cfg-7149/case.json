@@ -1,0 +1,45 @@
+{
+  "id": "cfg-7149",
+  "description": "Add the milling stage's own section to the binding line config. DISTILL-CANARY-bea3fac5",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "5"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b06-tieluqiao",
+    "ref_calls": 3,
+    "fixture_bytes": 566,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/binder.yaml": "# 铁炉桥印刷厂 胶订联动线 参数（夜班用）\n走纸:\n  堆高: 90\n  飞达速度: 6500\n胶锅:\n  胶温: 168\n  胶层厚度: 1.2\n开槽:\n  槽间距: 5\n  槽深: 1.8\n收帖:\n  计数停机: 500\n",
+    "README.md": "# 铁炉桥印刷厂 胶订联动线\n\nconfig/binder.yaml 是胶订联动线的参数文件，一个工位一个段。\n铣背工位是今年加装铣背刀后新增的，参数自成一个段，段名\n「铣背」，键为 铣背深度 和 拉槽间距，新段加在文件末尾，行式与\n其余段一致；开槽段的旧键是刨副机的，不要动。\n"
+  },
+  "expect": {
+    "files": {
+      "config/binder.yaml": {
+        "equals": "# 铁炉桥印刷厂 胶订联动线 参数（夜班用）\n走纸:\n  堆高: 90\n  飞达速度: 6500\n胶锅:\n  胶温: 168\n  胶层厚度: 1.2\n开槽:\n  槽间距: 5\n  槽深: 1.8\n收帖:\n  计数停机: 500\n铣背:\n  铣背深度: 2\n  拉槽间距: 6\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "铁炉桥印刷厂的胶订线加装了铣背工位：按厂里的规矩在 config/binder.yaml 里给它立一个段，铣背深度 2、拉槽间距 6，其余段落一个字都不动。完成后用两三句话说明你改了哪里。",
+      "expect": {}
+    }
+  ]
+}

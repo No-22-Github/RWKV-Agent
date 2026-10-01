@@ -1,0 +1,55 @@
+{
+  "id": "hyb-8007",
+  "description": "Three-turn session on an API cost export: endpoint total with retried rows, team slice, then the user narrows it to exclude staging keys. DISTILL-CANARY-185683dc",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 217.5
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-holdout-hyb-apicost-narrow-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1326,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "api-usage-2026-09.csv": "date,team,key_type,endpoint,calls,cost_usd\n2026-09-02,mobile,prod,image-resize,41200,24.80\n2026-09-03,web,prod,image-resize,28600,17.30\n2026-09-04,mobile,prod,image-resize,52400,31.60\n2026-09-06,partner,prod,image-resize,18100,10.90\n2026-09-08,qa,staging,image-resize,9400,5.70\n2026-09-10,web,prod,image-resize,34200,20.60\n2026-09-12,mobile,prod,image-resize,39900,24.10\n2026-09-15,web,staging,image-resize,12300,7.40\n2026-09-18,mobile,prod,image-resize,28700,17.40\n2026-09-21,internal,prod,image-resize,11200,6.80\n2026-09-24,partner,prod,image-resize,20500,12.40\n2026-09-28,mobile,prod,image-resize,14500,8.80\n2026-09-03,web,prod,image-resize,28600,17.30\n2026-09-24,partner,prod,image-resize,20500,12.40\n2026-09-05,mobile,prod,thumb-crop,22100,11.20\n2026-09-11,web,prod,watermark,8600,4.30\n2026-09-14,partner,prod,thumb-crop,17400,8.90\n2026-09-19,internal,prod,watermark,5200,2.60\n2026-09-22,mobile,prod,thumb-crop,19800,10.10\n2026-09-26,web,prod,thumb-crop,12300,6.30\n2026-09-09,qa,staging,watermark,4100,2.10\n2026-09-23,internal,prod,watermark,6400,3.20\n",
+    "README.md": "# Platform API billing export\n\nNightly aggregation of billed image-pipeline usage for September 2026. The export job retried once and repeated two image-resize rows; each unique request day x team x key_type x endpoint is one line. key_type marks prod or staging keys.\n"
+  },
+  "turns": [
+    {
+      "prompt": "September's API usage export is in api-usage-2026-09.csv. What was the total cost of the image-resize endpoint for the month? Answer with the number alone, two decimals.",
+      "expect": {
+        "expected_number": 187.8,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "How much of that came from the mobile team? Answer with the number alone, two decimals.",
+      "expect": {
+        "expected_number": 106.7,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "Hold on — finance says staging traffic shouldn't be billed to product teams. Recompute the image-resize total with the staging keys left out. Answer with the number alone, two decimals.",
+      "expect": {
+        "expected_number": 174.7,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

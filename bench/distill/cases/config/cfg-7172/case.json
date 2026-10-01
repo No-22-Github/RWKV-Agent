@@ -1,0 +1,54 @@
+{
+  "id": "cfg-7172",
+  "description": "Effective moisture_alert_threshold of the Garrowby Farms grain-shed telemetry service, which neither config layer defines DISTILL-CANARY-35752492",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "missing_keys",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": 140
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b06-garrowby-farm",
+    "ref_calls": 3,
+    "fixture_bytes": 775,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Garrowby Farms - grain-shed telemetry configuration\n\n`grain-shed-telemetry` watches temperature and humidity probes in the grain sheds and raises relay alerts to the farm office.\n\nTwo config layers apply: config/grain-shed-telemetry.json is the production instance config and config/grain-shed-defaults.json is the platform defaults. A key set in the instance config wins; any key the instance config does not set falls back to the defaults. A key in neither layer has no value at all.\n",
+    "config/grain-shed-telemetry.json": "{\n  \"service\": \"grain-shed-telemetry\",\n  \"site\": \"garrowby-main\",\n  \"listen_port\": 9127,\n  \"sample_interval_s\": 20,\n  \"log_level\": \"info\"\n}\n",
+    "config/grain-shed-defaults.json": "{\n  \"listen_port\": 8080,\n  \"temperature_alert_threshold\": 140,\n  \"telemetry_retention_days\": 90,\n  \"relay_retry_limit\": 5,\n  \"log_level\": \"warn\"\n}\n"
+  },
+  "turns": [
+    {
+      "prompt": "Garrowby Farms is wiring the grain-shed telemetry service into the new moisture dashboard and needs the effective moisture_alert_threshold of grain-shed-telemetry. What is it?",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "moisture_alert_threshold",
+          "moisture alert threshold",
+          "moisture threshold"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools",
+          "140"
+        ]
+      }
+    }
+  ]
+}

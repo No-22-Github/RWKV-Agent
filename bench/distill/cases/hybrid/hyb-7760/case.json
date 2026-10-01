@@ -1,0 +1,78 @@
+{
+  "id": "hyb-7760",
+  "description": "两轮反问（写前确认）：调价公告.md 装着 9 月旧价，第 1 轮确认是否覆盖，第 2 轮确认后写入 2026-10-01 两行新房价。 DISTILL-CANARY-5a19784a",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": null
+    },
+    "axes": [
+      "DEC",
+      "CON"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b07-writeconfirm-02",
+    "ref_calls": 4,
+    "fixture_bytes": 362,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "README.md": "# 鹿鸣民宿\n\n房价按月调整，渠道价为 OTA 结算价（元）。\n",
+    "政策/调价公告.md": "# 调价公告\n\n自 2026-09-01 起：\n山景大床 门市价 580，渠道价 498\n庭院双床 门市价 520，渠道价 448\n",
+    "rates/房价-2026-09.csv": "日期,房型,门市价,渠道价\n2026-09-01,山景大床,580,498\n2026-09-01,庭院双床,520,448\n2026-10-01,山景大床,620,528\n2026-10-01,庭院双床,560,478\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 10 月起的新房价写进 政策/调价公告.md。",
+      "expect": {
+        "forbidden_tools": [
+          "write_file",
+          "append_file",
+          "replace_lines"
+        ],
+        "output_contains_any": [
+          "？",
+          "?",
+          "哪",
+          "什么",
+          "还是",
+          "是否",
+          "请告诉",
+          "请确认",
+          "要不要",
+          "需要提供"
+        ],
+        "output_contains": [
+          "调价公告"
+        ]
+      }
+    },
+    {
+      "prompt": "对，覆盖旧公告，把 2026-10-01 的两行房价原样写进去。完成后用一两句话说明你改了什么。",
+      "expect": {
+        "output_contains": [
+          "调价公告"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "政策/调价公告.md": {
+        "contains": [
+          "2026-10-01,山景大床,620,528",
+          "2026-10-01,庭院双床,560,478"
+        ]
+      }
+    }
+  }
+}

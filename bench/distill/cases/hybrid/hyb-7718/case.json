@@ -1,0 +1,57 @@
+{
+  "id": "hyb-7718",
+  "description": "Multi-turn support-call volume for a marine supplier, then a Singapore-hours cut. DISTILL-CANARY-43f7d81a",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-TZ"
+    ],
+    "trap_decoys": {
+      "TR-TZ": 9
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b07-related-06",
+    "ref_calls": 2,
+    "fixture_bytes": 1362,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "support/calls-2026-09.csv": "call_id,opened_utc,product_line\nC-401,2026-09-01T02:10:00Z,winch\nC-402,2026-09-01T15:40:00Z,windlass\nC-403,2026-09-02T04:25:00Z,thruster\nC-404,2026-09-02T07:05:00Z,winch\nC-405,2026-09-03T01:55:00Z,autopilot\nC-406,2026-09-03T06:30:00Z,winch\nC-407,2026-09-04T03:20:00Z,winch\nC-408,2026-09-04T18:15:00Z,windlass\nC-409,2026-09-05T05:45:00Z,winch\nC-410,2026-09-05T21:30:00Z,thruster\nC-411,2026-09-08T08:05:00Z,winch\nC-412,2026-09-08T16:20:00Z,windlass\nC-413,2026-09-09T01:35:00Z,winch\nC-414,2026-09-09T13:00:00Z,autopilot\nC-415,2026-09-10T04:50:00Z,windlass\nC-416,2026-09-10T22:40:00Z,winch\nC-417,2026-09-11T07:15:00Z,windlass\nC-418,2026-09-11T10:05:00Z,thruster\nC-419,2026-09-12T02:25:00Z,winch\nC-420,2026-09-12T19:55:00Z,winch\nC-421,2026-09-15T06:40:00Z,windlass\nC-422,2026-09-15T23:10:00Z,winch\nC-423,2026-09-16T03:05:00Z,thruster\nC-424,2026-09-16T12:30:00Z,windlass\nC-425,2026-09-17T08:45:00Z,winch\nC-426,2026-09-17T16:50:00Z,autopilot\nC-427,2026-09-18T05:20:00Z,winch\nC-428,2026-09-18T21:35:00Z,windlass\nC-429,2026-09-22T01:15:00Z,winch\nC-430,2026-09-22T14:05:00Z,thruster\nC-431,2026-09-23T04:55:00Z,winch\nC-432,2026-09-23T11:25:00Z,windlass\nC-433,2026-09-24T07:35:00Z,winch\nC-434,2026-09-25T17:45:00Z,winch\n",
+    "README.md": "# Tansley Maritime Supply - support call log\n\nCalls are stamped at open time in UTC. The Singapore service team covers 09:00-18:00\nlocal, which is UTC+8.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Tansley Maritime is sizing up September support load. How many calls did we log in September? Just the number.",
+      "expect": {
+        "expected_number": 34,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "How many of those landed inside the Singapore team's working hours (09:00 to 18:00 local, UTC+8)? The bare number, please.",
+      "expect": {
+        "expected_number": 19,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "Which product line drove most of the Singapore-hours calls?",
+      "expect": {
+        "output_contains_any": [
+          "winch",
+          "Winch"
+        ]
+      }
+    }
+  ]
+}

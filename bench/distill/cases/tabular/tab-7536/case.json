@@ -1,0 +1,50 @@
+{
+   "id": "tab-7536",
+   "description": "Hire fees taken on 22 August 2026 at a watersports centre where one branch exports dates as month-day-year DISTILL-CANARY-dbd6015a",
+   "category": "tabular",
+   "tags": {
+      "scenario": "tabular",
+      "task_type": "aggregate",
+      "traps": [
+         "TR-DATEFMT"
+      ],
+      "trap_decoys": {
+         "TR-DATEFMT": 1067.6
+      },
+      "axes": [
+         "OBS"
+      ],
+      "level": "L2",
+      "family": "fam-tab-b06-tarn-01",
+      "ref_calls": 3,
+      "fixture_bytes": 6491,
+      "status": "draft",
+      "version": 1,
+      "author": "llm:glm-5.3-flash-b06",
+      "reviewer": null,
+      "answer_style": "natural"
+   },
+   "web_fixture": [],
+   "files": {
+      "data/boat_hire_2026-08.csv": "hire_id,hire_date,branch,craft,fee_gbp\nTW-2608879,08/19/2026,Bowness Marina,Pedalo,20.01\nTW-2608129,2026-08-22,Windermere Yard,Rowing Boat,18.79\nTW-2608885,2026-08-25,Windermere Yard,SUP,44.98\nTW-2608334,2026-08-18,Windermere Yard,Pedalo,50.80\nTW-2608126,08/22/2026,Bowness Marina,Pedalo,15.56\nTW-2608532,08/22/2026,Bowness Marina,SUP,49.01\nTW-2608666,08/23/2026,Bowness Marina,SUP,61.90\nTW-2608396,08/21/2026,Bowness Marina,Rowing Boat,52.81\nTW-2608841,2026-08-26,Windermere Yard,Canoe,23.48\nTW-2608828,08/25/2026,Bowness Marina,Pedalo,59.67\nTW-2608701,2026-08-22,Windermere Yard,Rowing Boat,29.47\nTW-2608135,2026-08-26,Windermere Yard,SUP,44.04\nTW-2608475,2026-08-22,Windermere Yard,SUP,47.90\nTW-2608620,2026-08-22,Windermere Yard,Canoe,36.39\nTW-2608850,08/19/2026,Bowness Marina,SUP,32.90\nTW-2608729,08/18/2026,Bowness Marina,Pedalo,49.87\nTW-2608332,2026-08-22,Windermere Yard,Rowing Boat,22.60\nTW-2608452,08/26/2026,Bowness Marina,Rowing Boat,34.63\nTW-2608775,2026-08-26,Windermere Yard,SUP,60.40\nTW-2608940,08/22/2026,Bowness Marina,SUP,53.97\nTW-2608157,08/26/2026,Bowness Marina,Rowing Boat,35.73\nTW-2608523,2026-08-22,Windermere Yard,Rowing Boat,61.99\nTW-2608651,2026-08-22,Windermere Yard,SUP,31.65\nTW-2608923,2026-08-22,Windermere Yard,SUP,44.59\nTW-2608917,08/20/2026,Bowness Marina,Rowing Boat,57.91\nTW-2608789,2026-08-22,Windermere Yard,Canoe,56.93\nTW-2608873,08/18/2026,Bowness Marina,SUP,14.74\nTW-2608289,2026-08-21,Windermere Yard,Canoe,54.66\nTW-2608640,08/22/2026,Bowness Marina,Rowing Boat,22.14\nTW-2608429,2026-08-26,Windermere Yard,Pedalo,37.19\nTW-2608451,08/22/2026,Bowness Marina,Canoe,29.91\nTW-2608847,08/22/2026,Bowness Marina,Pedalo,19.55\nTW-2608121,08/22/2026,Bowness Marina,SUP,55.67\nTW-2608264,2026-08-20,Windermere Yard,Rowing Boat,15.80\nTW-2608745,2026-08-22,Windermere Yard,Rowing Boat,63.83\nTW-2608131,2026-08-24,Windermere Yard,Rowing Boat,40.72\nTW-2608405,2026-08-22,Windermere Yard,SUP,17.00\nTW-2608979,08/19/2026,Bowness Marina,Canoe,29.63\nTW-2608358,2026-08-18,Windermere Yard,Rowing Boat,35.22\nTW-2608683,08/19/2026,Bowness Marina,Rowing Boat,63.07\nTW-2608201,08/22/2026,Bowness Marina,SUP,24.22\nTW-2608781,2026-08-20,Windermere Yard,Rowing Boat,39.11\nTW-2608992,2026-08-22,Windermere Yard,Canoe,30.59\nTW-2608978,2026-08-22,Windermere Yard,Canoe,22.01\nTW-2608372,08/22/2026,Bowness Marina,Pedalo,35.89\nTW-2608957,2026-08-22,Windermere Yard,Pedalo,60.64\nTW-2608141,2026-08-22,Windermere Yard,Rowing Boat,17.33\nTW-2608318,08/19/2026,Bowness Marina,Rowing Boat,60.46\nTW-2608448,2026-08-21,Windermere Yard,Pedalo,32.77\nTW-2608664,08/19/2026,Bowness Marina,SUP,20.90\nTW-2608489,2026-08-24,Windermere Yard,Canoe,34.74\nTW-2608729,08/25/2026,Bowness Marina,Rowing Boat,31.39\nTW-2608329,2026-08-22,Windermere Yard,Canoe,43.11\nTW-2608677,2026-08-22,Windermere Yard,Pedalo,59.43\nTW-2608210,08/22/2026,Bowness Marina,SUP,59.73\nTW-2608114,2026-08-24,Windermere Yard,Canoe,45.30\nTW-2608904,08/19/2026,Bowness Marina,Canoe,23.58\nTW-2608271,2026-08-26,Windermere Yard,Rowing Boat,19.89\nTW-2608487,08/22/2026,Bowness Marina,Canoe,36.19\nTW-2608422,2026-08-24,Windermere Yard,Pedalo,50.29\nTW-2608905,2026-08-19,Windermere Yard,Canoe,15.39\nTW-2608420,2026-08-26,Windermere Yard,Pedalo,36.94\nTW-2608566,08/22/2026,Bowness Marina,Pedalo,63.46\nTW-2608365,08/19/2026,Bowness Marina,SUP,47.75\nTW-2608469,08/20/2026,Bowness Marina,Pedalo,24.16\nTW-2608558,2026-08-19,Windermere Yard,Canoe,64.15\nTW-2608414,2026-08-19,Windermere Yard,Rowing Boat,33.91\nTW-2608692,08/18/2026,Bowness Marina,Pedalo,54.43\nTW-2608657,2026-08-25,Windermere Yard,Rowing Boat,31.05\nTW-2608927,08/22/2026,Bowness Marina,Rowing Boat,25.23\nTW-2608172,08/21/2026,Bowness Marina,Pedalo,42.11\nTW-2608911,08/23/2026,Bowness Marina,Canoe,28.83\nTW-2608896,2026-08-22,Windermere Yard,Rowing Boat,19.15\nTW-2608253,08/24/2026,Bowness Marina,Rowing Boat,23.16\nTW-2608626,2026-08-26,Windermere Yard,Pedalo,19.45\nTW-2608245,2026-08-24,Windermere Yard,Rowing Boat,59.58\nTW-2608738,08/22/2026,Bowness Marina,Pedalo,55.87\nTW-2608650,08/24/2026,Bowness Marina,Rowing Boat,29.25\nTW-2608798,08/20/2026,Bowness Marina,Pedalo,53.67\nTW-2608971,2026-08-26,Windermere Yard,Pedalo,41.61\nTW-2608275,08/22/2026,Bowness Marina,SUP,56.65\nTW-2608119,08/21/2026,Bowness Marina,SUP,63.79\nTW-2608241,2026-08-18,Windermere Yard,Rowing Boat,44.27\nTW-2608276,2026-08-21,Windermere Yard,SUP,42.77\nTW-2608641,08/22/2026,Bowness Marina,SUP,14.38\nTW-2608606,2026-08-22,Windermere Yard,Rowing Boat,26.16\nTW-2608725,08/22/2026,Bowness Marina,SUP,31.18\nTW-2608173,2026-08-25,Windermere Yard,Rowing Boat,16.46\nTW-2608911,2026-08-23,Windermere Yard,Rowing Boat,40.09\nTW-2608969,2026-08-25,Windermere Yard,Pedalo,49.32\nTW-2608976,08/22/2026,Bowness Marina,SUP,44.32\nTW-2608536,2026-08-19,Windermere Yard,Rowing Boat,21.94\nTW-2608834,08/20/2026,Bowness Marina,SUP,48.76\nTW-2608141,2026-08-22,Windermere Yard,Rowing Boat,41.76\nTW-2608373,08/22/2026,Bowness Marina,Pedalo,46.05\nTW-2608731,08/23/2026,Bowness Marina,Rowing Boat,63.43\nTW-2608346,08/24/2026,Bowness Marina,SUP,57.40\nTW-2608433,2026-08-26,Windermere Yard,SUP,34.26\nTW-2608715,2026-08-22,Windermere Yard,Rowing Boat,20.08\nTW-2608487,08/22/2026,Bowness Marina,Pedalo,28.16\nTW-2608692,08/23/2026,Bowness Marina,Rowing Boat,40.95\nTW-2608391,08/18/2026,Bowness Marina,Pedalo,24.54\nTW-2608875,08/19/2026,Bowness Marina,Pedalo,29.87\nTW-2608602,2026-08-21,Windermere Yard,Rowing Boat,41.81\nTW-2608492,08/22/2026,Bowness Marina,Rowing Boat,43.10\nTW-2608865,08/20/2026,Bowness Marina,Canoe,20.02\nTW-2608482,2026-08-18,Windermere Yard,Rowing Boat,17.83\nTW-2608465,2026-08-22,Windermere Yard,SUP,39.65\nTW-2608835,2026-08-23,Windermere Yard,Canoe,20.32\nTW-2608848,2026-08-22,Windermere Yard,SUP,31.31\nTW-2608486,2026-08-22,Windermere Yard,Canoe,47.03\nTW-2608839,08/22/2026,Bowness Marina,Pedalo,46.41\nTW-2608629,08/25/2026,Bowness Marina,SUP,44.64\nTW-2608784,2026-08-22,Windermere Yard,Rowing Boat,36.92\nTW-2608693,2026-08-22,Windermere Yard,Canoe,48.61\nTW-2608698,2026-08-22,Windermere Yard,Pedalo,57.92\nTW-2608353,08/26/2026,Bowness Marina,SUP,64.37\nTW-2608744,2026-08-22,Windermere Yard,Canoe,34.76\nTW-2608885,2026-08-20,Windermere Yard,Pedalo,57.16\nTW-2608917,08/18/2026,Bowness Marina,Pedalo,60.55\n",
+      "README.md": "# Tarn Watersports - August hire log\n\nOne row per hire. The Bowness Marina desk exports hire_date as\nMM/DD/YYYY; every other desk uses ISO YYYY-MM-DD. fee_gbp is the\namount taken at the desk.\n",
+      "notes/launch.txt": "Launch notes\n- Pedalos come in half an hour before the bell.\n- The yard winch is reserved for the trailer queue.\n"
+   },
+   "turns": [
+      {
+         "prompt": "Tarn Watersports is reconciling the takings from the busy Saturday. The hire log is at data/boat_hire_2026-08.csv. Give the number alone, as digits, with no label. What were the total hire fees taken on 22 August 2026?",
+         "expect": {
+            "expected_number": 1924.25,
+            "tolerance": 0.01,
+            "required_tools": [
+               "data_query"
+            ]
+         }
+      }
+   ],
+   "expect": {
+      "max_calls": {
+         "read_file": 1
+      }
+   }
+}

@@ -1,0 +1,51 @@
+{
+  "id": "scr-7716",
+  "description": "Give the noodle house's signature-dish board a --top argument that prints only the leading rows. DISTILL-CANARY-97c14508",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "add_flag",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-scr-b06-sanxianlou",
+    "ref_calls": 3,
+    "fixture_bytes": 1113,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "menu.py": "\"\"\"打印三鲜楼的招牌面点榜。\n\n收银机每晚把当日销售导出到 bills/，一行一条：\n\n    日期,品类,碗数\n\n面点榜每个品类一行、按碗数从高到低排序，末尾加一行合计：\n\n    <品类>,<碗数>\n    合计,<碗数>\n\nUsage:\n\n    python3 menu.py\n\"\"\"\n\nimport csv\nimport glob\n\nper_cat = {}\nfor path in sorted(glob.glob(\"bills/*.csv\")):\n    with open(path, newline=\"\", encoding=\"utf-8\") as handle:\n        for row in list(csv.reader(handle))[1:]:\n            cat = row[1]\n            bowls = int(row[2])\n            per_cat[cat] = per_cat.get(cat, 0) + bowls\n\ntotal = 0\nfor cat in sorted(per_cat, key=lambda c: -per_cat[c]):\n    print(f\"{cat},{per_cat[cat]}\")\n    total += per_cat[cat]\nprint(f\"合计,{total}\")\n",
+    "bills/2026-09.csv": "日期,品类,碗数\n2026-09-02,牛肉面,86\n2026-09-02,阳春面,54\n2026-09-05,担担面,47\n2026-09-05,牛肉面,92\n2026-09-12,雪菜肉丝面,38\n2026-09-19,阳春面,61\n2026-09-26,担担面,52\n2026-09-26,牛肉面,77\n",
+    "README.md": "# 三鲜楼 - 招牌面点榜\n\n收银机每晚把当日销售导出到 bills/，一行一个品类。面点榜是前厅\n早会念的那份。\n"
+  },
+  "expect": {
+    "files": {
+      "bills/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "menu.py",
+      "expected_stdout": "牛肉面,343\n阳春面,181\n担担面,99",
+      "args": [
+        "--top",
+        "3"
+      ],
+      "hidden_files": {
+        "bills/2026-10.csv": "日期,品类,碗数\n2026-10-03,雪菜肉丝面,44\n2026-10-10,牛肉面,88\n2026-10-17,阳春面,66\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "三鲜楼的招牌面点榜每天都会打出来，老板忙的时候只想看头几名。请给 menu.py 加一个 --top 参数：参数值是要打印的行数，比如 --top 3 就只打印榜单前 3 行，排序照旧、不带合计行；不加参数时和现在完全一样。bills/ 里的导出保持原样。完成后用两三句话说明你改了什么。",
+      "expect": {}
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "id": "log-7273",
+  "description": "Read the stated cause of message-delivery failures from an IM server log. DISTILL-CANARY-b63ed4ee",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "root_cause",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-log-b06-cause",
+    "ref_calls": 1,
+    "fixture_bytes": 3229,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "im-server.log": "2026-09-28 10:10:05 INFO [会话服务] 消息送达 room=G-4010 时延=12ms\n2026-09-28 10:11:12 INFO [会话服务] 消息送达 room=G-4011 时延=17ms\n2026-09-28 10:12:19 INFO [会话服务] 消息送达 room=G-4012 时延=22ms\n2026-09-28 10:13:26 INFO [会话服务] 消息送达 room=G-4013 时延=27ms\n2026-09-28 10:14:33 INFO [会话服务] 消息送达 room=G-4014 时延=32ms\n2026-09-28 10:15:40 INFO [会话服务] 消息送达 room=G-4015 时延=37ms\n2026-09-28 10:16:47 INFO [会话服务] 消息送达 room=G-4016 时延=42ms\n2026-09-28 10:17:54 INFO [会话服务] 消息送达 room=G-4017 时延=47ms\n2026-09-28 10:18:01 INFO [会话服务] 消息送达 room=G-4018 时延=12ms\n2026-09-28 10:19:08 INFO [会话服务] 消息送达 room=G-4010 时延=17ms\n2026-09-28 10:20:15 INFO [会话服务] 消息送达 room=G-4011 时延=22ms\n2026-09-28 10:21:22 INFO [会话服务] 消息送达 room=G-4012 时延=27ms\n2026-09-28 10:22:29 INFO [会话服务] 消息送达 room=G-4013 时延=32ms\n2026-09-28 10:23:36 INFO [会话服务] 消息送达 room=G-4014 时延=37ms\n2026-09-28 10:24:43 INFO [会话服务] 消息送达 room=G-4015 时延=42ms\n2026-09-28 10:25:50 INFO [会话服务] 消息送达 room=G-4016 时延=47ms\n2026-09-28 10:26:57 INFO [会话服务] 消息送达 room=G-4017 时延=12ms\n2026-09-28 10:27:04 INFO [会话服务] 消息送达 room=G-4018 时延=17ms\n2026-09-28 10:28:11 INFO [会话服务] 消息送达 room=G-4010 时延=22ms\n2026-09-28 10:29:18 INFO [会话服务] 消息送达 room=G-4011 时延=27ms\n2026-09-28 10:30:25 INFO [会话服务] 消息送达 room=G-4012 时延=32ms\n2026-09-28 10:31:32 INFO [会话服务] 消息送达 room=G-4013 时延=37ms\n2026-09-28 10:32:39 INFO [会话服务] 消息送达 room=G-4014 时延=42ms\n2026-09-28 10:33:46 INFO [会话服务] 消息送达 room=G-4015 时延=47ms\n2026-09-28 10:34:53 INFO [会话服务] 消息送达 room=G-4016 时延=12ms\n2026-09-28 10:35:00 INFO [会话服务] 消息送达 room=G-4017 时延=17ms\n2026-09-28 10:36:07 INFO [会话服务] 消息送达 room=G-4018 时延=22ms\n2026-09-28 10:37:14 INFO [会话服务] 消息送达 room=G-4010 时延=27ms\n2026-09-28 10:38:21 INFO [会话服务] 消息送达 room=G-4011 时延=32ms\n2026-09-28 10:39:28 INFO [会话服务] 消息送达 room=G-4012 时延=37ms\n2026-09-28 10:41:07 WARN [连接池] 主库连接池使用率 96%\n2026-09-28 10:42:19 WARN [连接池] 主库连接池使用率 98%\n2026-09-28 10:03:02 ERROR [消息投递] 发送失败：数据库连接池耗尽 pool=main active=50/50\n2026-09-28 10:03:48 ERROR [消息投递] 发送失败：数据库连接池耗尽 pool=main active=50/50\n2026-09-28 10:05:11 ERROR [消息投递] 发送失败：数据库连接池耗尽 pool=main active=50/50\n2026-09-28 10:07:55 ERROR [消息投递] 发送失败：数据库连接池耗尽 pool=main active=50/50\n2026-09-28 10:09:30 ERROR [消息投递] 发送失败：数据库连接池耗尽 pool=main active=50/50\n2026-09-28 10:52:30 INFO [运维] 服务重启完成，连接池恢复\n2026-09-28 10:55:12 INFO [会话服务] 消息送达 room=G-4077 时延=18ms\n2026-09-28 11:01:44 INFO [会话服务] 消息送达 room=G-4022 时延=15ms\n---- 日志导出完成：共 40 行 ----\n"
+  },
+  "turns": [
+    {
+      "prompt": "竹间协同 9 月 28 日上午的消息服务日志在 im-server.log。回答时只写冒号后写明的原因短语本身。日志里「消息投递」发送失败写明的原因是哪一项？",
+      "expect": {
+        "output_equals": "数据库连接池耗尽"
+      }
+    }
+  ]
+}

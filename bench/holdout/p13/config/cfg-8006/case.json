@@ -1,0 +1,58 @@
+{
+  "id": "cfg-8006",
+  "description": "Create the site config for pilot locker site kw-2203 from the onboarding checklist and the openings roster, applying the pilot timeout exception; judged by pinned substrings. DISTILL-CANARY-7c3f08b2",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "merge",
+    "traps": [
+      "TR-RULEFILE"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": null
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-holdout-cfg-newsite-01",
+    "answer_style": "natural",
+    "ref_calls": 4,
+    "fixture_bytes": 873,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null
+  },
+  "files": {
+    "config/sites/kiosk-1.ini": "site_name = 望江路店\ncity = 合肥\nlockers = 36\ntimeout_seconds = 60\nnotify_email = wangjiang@lutea.example\n",
+    "docs/网点接入清单.md": "# 自助取件网点接入清单（2026Q4）\n\n新网点上线前，照抄 config/sites/ 里已有网点的配置文件，另存为\nconfig/sites/<网点编号>.ini，再按新网点的资料把全部五个字段改成：\n\n- site_name：网点名\n- city：所在城市\n- lockers：柜门数量\n- timeout_seconds：取件超时（秒）。按 2026Q4 分级：A 级 90，B 级 60，\n  C 级 45；列入试点的网点不参与分级，一律 30。\n- notify_email：站点通知邮箱\n",
+    "roster/2026Q4-openings.csv": "site_id,site_name,city,lockers,tier,notify_email\nkw-2201,滨江天街店,杭州,34,B,binjiang@lutea.example\nkw-2202,万象汇店,沈阳,28,C,wanxiang@lutea.example\nkw-2203,金沙天街店,重庆,40,试点,jinsha@lutea.example\nkw-2204,梅溪湖店,长沙,31,A,meixihu@lutea.example\n"
+  },
+  "turns": [
+    {
+      "prompt": "kw-2203（金沙天街店）这个月要上线。按 docs/网点接入清单.md 的要求，给它在 config/sites/ 下建好配置文件，字段值用 roster/2026Q4-openings.csv 里这一行的资料。完成后，用一到三句话告诉我你改动了什么。",
+      "expect": {}
+    }
+  ],
+  "expect": {
+    "files": {
+      "config/sites/kw-2203.ini": {
+        "contains": [
+          "site_name = 金沙天街店\ncity = 重庆",
+          "lockers = 40\ntimeout_seconds = 30",
+          "notify_email = jinsha@lutea.example"
+        ]
+      },
+      "config/sites/kiosk-1.ini": {
+        "equals": "site_name = 望江路店\ncity = 合肥\nlockers = 36\ntimeout_seconds = 60\nnotify_email = wangjiang@lutea.example\n"
+      },
+      "docs/网点接入清单.md": {
+        "equals": "# 自助取件网点接入清单（2026Q4）\n\n新网点上线前，照抄 config/sites/ 里已有网点的配置文件，另存为\nconfig/sites/<网点编号>.ini，再按新网点的资料把全部五个字段改成：\n\n- site_name：网点名\n- city：所在城市\n- lockers：柜门数量\n- timeout_seconds：取件超时（秒）。按 2026Q4 分级：A 级 90，B 级 60，\n  C 级 45；列入试点的网点不参与分级，一律 30。\n- notify_email：站点通知邮箱\n"
+      },
+      "roster/2026Q4-openings.csv": {
+        "equals": "site_id,site_name,city,lockers,tier,notify_email\nkw-2201,滨江天街店,杭州,34,B,binjiang@lutea.example\nkw-2202,万象汇店,沈阳,28,C,wanxiang@lutea.example\nkw-2203,金沙天街店,重庆,40,试点,jinsha@lutea.example\nkw-2204,梅溪湖店,长沙,31,A,meixihu@lutea.example\n"
+      }
+    }
+  }
+}

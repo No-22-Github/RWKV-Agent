@@ -1,0 +1,64 @@
+{
+  "id": "hyb-7707",
+  "description": "Multi-turn September revenue roll-up for a bakery chain with a store-days correction. DISTILL-CANARY-3ea08d56",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 39100
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b07-correct-03",
+    "ref_calls": 2,
+    "fixture_bytes": 843,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "sales/store-daily-2026-09.csv": "date,store,amount_yuan\n2026-09-01,梅陇店,3120.50\n2026-09-02,城东店,1890.00\n2026-09-04,桂花里店,2240.25\n2026-09-06,梅陇店,2875.00\n2026-09-08,城东店,2015.75\n2026-09-11,桂花里店,1980.40\n2026-09-13,梅陇店,3410.25\n2026-09-15,城东店,1760.00\n2026-09-18,桂花里店,2450.60\n2026-09-20,梅陇店,2984.00\n2026-09-22,城东店,1632.50\n2026-09-24,桂花里店,2104.35\n2026-09-26,梅陇店,2721.00\n2026-09-28,城东店,1508.90\n2026-09-30,桂花里店,1899.00\n2026-09-06,梅陇店,2875.00\n2026-09-22,城东店,1632.50\n",
+    "README.md": "# 麦禾烘焙坊 九月门店流水\n\n每行一家门店一天的营业额。月底导出任务重试过，个别行会以完全相同的内容出现两次。\n",
+    "notes/stores.md": "# 门店说明\n\n梅陇店、桂花里店为社区店；城东店为商场店。\n市集外摆的流水由运营组单独记账，不进门店日销表。\n"
+  },
+  "turns": [
+    {
+      "prompt": "麦禾烘焙坊做九月盘点。所有门店九月的营业额合计多少元？只回数字。",
+      "expect": {
+        "expected_number": 34592.5,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "不对，梅陇店 9 月 13 日和 9 月 26 日两天是市集外摆，流水记在运营组那边了。把这两天去掉再算合计，多少元？只回数字。",
+      "expect": {
+        "expected_number": 28461.25,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "去掉之后剩下的门店里，哪家九月卖得最多？只回店名就行。",
+      "expect": {
+        "output_contains": [
+          "桂花里店"
+        ]
+      }
+    },
+    {
+      "prompt": "这家店九月一共多少元？只回数字。",
+      "expect": {
+        "expected_number": 10674.6,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

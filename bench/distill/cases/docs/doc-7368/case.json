@@ -1,0 +1,48 @@
+{
+  "id": "doc-7368",
+  "description": "Append the co-op's settled purchase to the supply ledger. DISTILL-CANARY-830df4f5",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-doc-b06-haijiao",
+    "ref_calls": 3,
+    "fixture_bytes": 455,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "logbook/supply-2026-09.txt": "2026-09-14 柴油 320升 沪渔026 已结清 经手 老蔡\n2026-09-19 冰块 40块 自提 已结清 经手 秀珠\n",
+    "notes/purchase-2026-09-29.txt": "供货便条 2026-09-29\n缆绳 2捆 自提 已结清\n经手 老蔡\n",
+    "README.md": "# 海礁渔家补给合作社 补给台账\n\n台账在 logbook/，按月一个文件，一行一笔，字段依次是：\n\n    日期 品名 数量 途径 结算 经手\n\n供货便条录在 notes/ 下，便条里已结清的品项当天记入台账，\n写法与旧行一致。\n"
+  },
+  "expect": {
+    "files": {
+      "logbook/supply-2026-09.txt": {
+        "contains": [
+          "2026-09-14 柴油 320升 沪渔026 已结清 经手 老蔡",
+          "2026-09-29 缆绳 2捆 自提 已结清 经手 老蔡"
+        ]
+      },
+      "notes/purchase-2026-09-29.txt": {
+        "unchanged": true
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "海礁渔家补给合作社 9 月 29 日到了一笔缆绳，供货便条在 notes/purchase-2026-09-29.txt。请按社里的规矩把它记进 logbook/supply-2026-09.txt，写法和旧行一致；便条原文不要动。完成后用两三句话说明你补了什么。",
+      "expect": {}
+    }
+  ]
+}

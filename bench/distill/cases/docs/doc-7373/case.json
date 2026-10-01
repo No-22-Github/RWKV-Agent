@@ -1,0 +1,55 @@
+{
+  "id": "doc-7373",
+  "description": "Write the route card list for the day's wall resets from the reset log. DISTILL-CANARY-be745064",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DUPROW",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 4,
+      "TR-DECOY": 4
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-doc-b06-stonemark",
+    "ref_calls": 3,
+    "fixture_bytes": 596,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "log/resets.txt": "Slab / 5c / sand / set\nCave / 7a / teal / set\nArete / 6b / rust / set\nCave / 7a / teal / set\nTraverse / 5a / gray / taped only\n",
+    "README.md": "# Stonemark Climbing Gym - route cards\n\nThe head setter's reset log lands in log/ as rows:\n\n    <wall> / <grade> / <color> / <status>\n\nEvery reset gets a printed card list in cards/, one file per reset\nday named YYYY-MM-DD.txt, one line per route in the log's order:\n\n    - <wall> <grade> <color>\n\nThe logging tablet occasionally writes the same set twice; each\ndistinct set gets one card. Rows marked taped only are hold\nmaintenance, not a route set, and get no card.\n",
+    "cards/.keep": ""
+  },
+  "expect": {
+    "files": {
+      "cards/2026-09-25.txt": {
+        "contains": [
+          "- Cave 7a teal",
+          "- Slab 5c sand",
+          "- Arete 6b rust"
+        ]
+      },
+      "log/resets.txt": {
+        "unchanged": true
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Stonemark Climbing Gym reset walls on 2026-09-25 and the head setter's log is in log/. Write that day's route card list into cards/ following the house README, and leave the reset log untouched. When you are done, describe in two or three sentences what you wrote.",
+      "expect": {}
+    }
+  ]
+}

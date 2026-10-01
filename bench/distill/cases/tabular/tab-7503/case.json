@@ -1,0 +1,50 @@
+{
+  "id": "tab-7503",
+  "description": "Sum the September 2026 amounts the clinic actually charged dog owners; the register keeps the drop-off quote beside the invoiced amount. DISTILL-CANARY-363aa460",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": 6089.46
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L2",
+    "family": "fam-tab-b06-quotefinal-02",
+    "ref_calls": 2,
+    "fixture_bytes": 4213,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "data/service_charges.csv": "visit_id,visit_month,species,weight_kg,estimate_amount,final_amount\nBV-7504,2026-09,Dog,28.4,340.23,385.99\nBV-8170,2026-07,Cat,24.6,240.96,267.38\nBV-529,2026-08,Dog,24.0,337.50,327.08\nBV-7378,2026-09,Dog,8.2,134.42,127.95\nBV-2393,2026-08,Dog,28.8,90.60,89.76\nBV-6792,2026-08,Dog,4.1,398.56,448.13\nBV-2991,2026-08,Dog,32.4,77.49,86.95\nBV-8644,2026-09,Dog,29.1,427.02,452.40\nBV-8509,2026-08,Dog,12.4,104.23,112.36\nBV-4131,2026-09,Dog,9.0,387.37,438.82\nBV-5440,2026-07,Cat,16.5,392.22,376.46\nBV-7537,2026-08,Dog,35.2,41.61,36.97\nBV-8676,2026-08,Dog,35.2,239.22,262.15\nBV-5769,2026-07,Dog,3.3,333.09,357.08\nBV-7276,2026-09,Dog,12.0,432.88,484.54\nBV-2422,2026-07,Rabbit,39.2,103.89,102.80\nBV-8550,2026-08,Dog,32.4,159.58,174.73\nBV-5089,2026-08,Cat,3.5,311.47,315.07\nBV-7517,2026-08,Rabbit,2.4,257.91,237.92\nBV-7369,2026-08,Dog,24.4,275.82,302.81\nBV-8381,2026-07,Cat,28.3,214.81,240.38\nBV-2964,2026-09,Dog,18.9,361.83,357.53\nBV-259,2026-09,Dog,4.7,77.58,73.53\nBV-2711,2026-09,Cat,35.4,431.69,439.87\nBV-6847,2026-08,Cat,21.2,189.03,186.15\nBV-953,2026-08,Cat,33.7,458.49,508.08\nBV-5193,2026-08,Dog,9.0,288.83,301.00\nBV-5179,2026-08,Rabbit,25.5,119.62,120.77\nBV-7602,2026-09,Cat,14.0,323.03,293.79\nBV-1111,2026-09,Rabbit,35.9,153.06,164.23\nBV-1030,2026-08,Dog,30.4,100.03,107.11\nBV-444,2026-07,Rabbit,39.1,382.85,353.95\nBV-8629,2026-07,Dog,8.6,314.28,334.00\nBV-3456,2026-08,Cat,21.3,231.61,249.12\nBV-8702,2026-09,Cat,27.6,310.37,273.52\nBV-8361,2026-08,Dog,11.8,337.02,304.30\nBV-2783,2026-07,Rabbit,17.2,343.66,352.11\nBV-7662,2026-08,Cat,17.7,360.73,345.06\nBV-4800,2026-07,Cat,28.5,78.34,78.96\nBV-6624,2026-07,Cat,27.2,369.50,340.79\nBV-6200,2026-08,Dog,19.3,264.69,274.57\nBV-1405,2026-09,Dog,29.5,108.62,123.73\nBV-8697,2026-07,Dog,12.8,282.98,281.45\nBV-6618,2026-09,Cat,36.8,421.75,423.56\nBV-6680,2026-08,Rabbit,11.8,307.34,328.17\nBV-1763,2026-09,Dog,6.9,217.74,197.56\nBV-8302,2026-09,Cat,41.5,128.75,132.22\nBV-6971,2026-09,Dog,2.6,171.47,195.41\nBV-8109,2026-08,Dog,2.6,69.12,66.13\nBV-7722,2026-09,Cat,8.7,60.71,67.41\nBV-9663,2026-08,Dog,36.8,421.75,404.66\nBV-9496,2026-09,Cat,38.4,73.46,74.76\nBV-6496,2026-08,Dog,38.1,302.38,336.98\nBV-5505,2026-09,Dog,13.4,298.95,288.86\nBV-6166,2026-07,Rabbit,36.8,295.81,335.87\nBV-6536,2026-08,Dog,28.1,361.12,369.90\nBV-2725,2026-08,Dog,40.5,440.68,393.11\nBV-6484,2026-08,Cat,24.6,453.43,501.51\nBV-1423,2026-09,Dog,2.0,351.59,327.76\nBV-1362,2026-09,Rabbit,16.3,246.58,259.30\nBV-6428,2026-08,Rabbit,9.3,56.48,59.34\nBV-1459,2026-08,Dog,36.1,429.16,458.46\nBV-5146,2026-08,Cat,21.5,269.47,269.10\nBV-3468,2026-09,Cat,5.0,115.71,120.24\nBV-9608,2026-09,Dog,34.6,424.65,440.16\nBV-4020,2026-09,Cat,36.9,359.29,325.86\nBV-5616,2026-08,Dog,35.8,190.18,196.95\nBV-4803,2026-07,Rabbit,41.2,455.66,417.76\nBV-1355,2026-07,Cat,12.5,322.20,339.29\nBV-3747,2026-07,Dog,32.6,220.80,251.01\nBV-8440,2026-09,Dog,32.2,226.86,239.56\nBV-6389,2026-08,Rabbit,4.5,190.26,205.24\nBV-9874,2026-09,Dog,29.2,206.30,221.81\nBV-7840,2026-09,Dog,30.6,64.84,59.57\nBV-859,2026-09,Cat,21.6,287.53,305.53\nBV-5970,2026-09,Cat,29.4,127.88,117.79\nBV-5083,2026-09,Rabbit,9.0,301.88,306.80\nBV-1489,2026-07,Dog,24.1,221.61,211.24\nBV-4053,2026-09,Dog,20.3,83.27,94.34\nBV-4252,2026-09,Cat,7.6,338.29,361.75\nBV-3697,2026-07,Rabbit,12.2,206.27,192.84\nBV-2073,2026-09,Dog,30.4,340.25,343.94\nBV-714,2026-09,Cat,15.8,110.09,120.05\nBV-4452,2026-08,Dog,11.4,331.52,313.32\nBV-7038,2026-08,Dog,18.8,179.58,164.61\nBV-6736,2026-09,Dog,36.3,220.54,229.38\nBV-8422,2026-09,Dog,21.7,88.79,97.15\nBV-5628,2026-09,Rabbit,34.1,50.12,54.89\nBV-7261,2026-09,Dog,6.4,458.23,488.12\nBV-7260,2026-09,Dog,10.5,295.72,265.97\nBV-1985,2026-07,Dog,14.4,79.28,77.37\nBV-3694,2026-09,Rabbit,29.5,289.60,275.78\nBV-543,2026-07,Dog,39.6,455.73,414.94\nBV-5342,2026-09,Cat,6.3,258.52,279.78\nBV-6954,2026-09,Cat,41.5,116.71,129.73\nBV-6605,2026-09,Dog,15.3,370.31,334.77\n",
+    "README.md": "# Brindlewood Veterinary Clinic - service charge register\n\nestimate_amount is the range quoted at drop-off. final_amount is the amount on the invoice after the exam, tests and medication - the amount the clinic actually charges the owner.\n",
+    "notes/kennel_board.txt": "Kennel board\n- Dogs boarded overnight get the evening walk slot.\n- The scale by the side door needs recalibration monthly.\n- Rabbit boarders stay away from the dog wing.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Brindlewood Veterinary Clinic is reviewing what dog owners were actually charged in September. The charge register is at data/service_charges.csv. Give the number alone, as digits, with no label. How much did the clinic charge in total for dog visits in September 2026?",
+      "expect": {
+        "expected_number": 6268.85,
+        "tolerance": 0.01,
+        "required_tools": [
+          "data_query"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 1
+    }
+  }
+}

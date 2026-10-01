@@ -1,0 +1,50 @@
+{
+  "id": "tab-8003",
+  "description": "Summarize a September sales export in Chinese, naming the leading products without counting the total row. DISTILL-CANARY-d2e9a982",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-HEADER": "合计"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-holdout-tabsummary-01",
+    "ref_calls": 2,
+    "fixture_bytes": 110,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "export-sept.csv": "商品,件数,销售额\n青瓷盖碗,61,9760.00\n竹制茶盘,47,5640.00\n铁壶,35,8750.00\n合计,143,24150.00\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "帮我看看这份 9 月的销售导出，整体卖得怎么样，哪些是主力商品。",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains": [
+          "青瓷盖碗",
+          "竹制茶盘"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

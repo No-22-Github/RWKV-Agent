@@ -1,0 +1,42 @@
+{
+  "id": "nt-7172",
+  "description": "Water volume in litres of a 40 by 30 by 30 cm rectangular tank. DISTILL-CANARY-0a3565b0",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b06-aquarium-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 330
+  },
+  "offered_tools": [
+    "read_file",
+    "list_files"
+  ],
+  "web_fixture": [],
+  "files": {
+    "tanks/stock_list.csv": "tank,shape,length_cm,width_cm,height_cm\nR-118,长方形,40,30,30\nR-122,长方形,60,35,35\nR-127,方形,45,45,45\n",
+    "README.md": "# 蓝澄水族 - 门店工作区\n\n在售鱼缸的规格登记和新缸进水记录都放在这里。\n\n- tanks/  鱼缸规格登记\n\n容积口径：按缸体内径长×宽×高计算，立方厘米换算成升填单。\n"
+  },
+  "turns": [
+    {
+      "prompt": "蓝澄水族要给客户算 R-118 这个长方形鱼缸装满水的容积，缸体内径长 40 厘米、宽 30 厘米、高 30 厘米。装满是多少升？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 36,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "id": "fs-7650",
+  "description": "Find which backup copy is byte-identical to the official ledger CSV. DISTILL-CANARY-1a271ef2",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "duplicates",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "财务共享盘/备份/总表_上周.csv"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-fs-b06-ledgersame-01",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 808,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {
+    "财务共享盘/总表.csv": "科目,借方,贷方\n库存现金,5210,4300\n应收账款,18320,15130\n原材料,9040,6120\n固定资产,15000,0\n应付账款,12600,13880\n短期借款,8000,8000\n实收资本,0,22000\n未分配利润,3430,2170\n",
+    "财务共享盘/备份/总表_副本.csv": "科目,借方,贷方\n库存现金,5210,4300\n应收账款,18320,15130\n原材料,9040,6120\n固定资产,15000,0\n应付账款,12600,13880\n短期借款,8000,8000\n实收资本,0,22000\n未分配利润,3430,2170\n",
+    "财务共享盘/备份/总表_旧版.csv": "科目,借方,贷方\n库存现金,5210,4300\n应收账款,18320,15050\n原材料,9040,6120\n固定资产,15000,0\n应付账款,12600,13880\n短期借款,8000,8000\n实收资本,0,22000\n未分配利润,3430,2250\n",
+    "README.md": "银桦纺织财务共享盘：月末总账。总表.csv 为本期正式版；备份 子目录里的拷贝由汇总脚本生成，内容可能与正式版相同，也可能滞后于正式版。\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "月末对账要确认备份目录里哪份拷贝和正式版总表内容完全一样。正式版在 财务共享盘/总表.csv。和它内容完全相同的那份拷贝是哪个文件？（回答只写该拷贝的完整路径，不要附加说明。）",
+      "expect": {
+        "output_equals": "财务共享盘/备份/总表_副本.csv"
+      }
+    }
+  ]
+}

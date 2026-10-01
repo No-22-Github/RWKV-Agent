@@ -1,0 +1,37 @@
+{
+  "id": "doc-7327",
+  "description": "Pick the version to install from a player release log. DISTILL-CANARY-5ef5ba6f",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "latest_version",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-doc-b06-fenglin",
+    "ref_calls": 1,
+    "fixture_bytes": 573,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "docs/播放器发布记录.csv": "版本号,发布日期,更新说明\n3.7.2,2026-01-03,修复字幕偏移\n3.7.5,2026-01-09,修复音频延迟\n3.8.0,2026-01-15,修复全屏黑屏\n3.8.1,2026-02-02,优化字幕加载\n3.9.0,2026-02-20,新增倍速记忆\n3.9.1,2026-03-08,修复进度条跳变\n3.9.2,2026-03-25,降低内存占用\n4.0.0,2026-04-14,界面改版\n4.0.1,2026-05-03,修复章节列表\n4.0.2,2026-05-21,支持离线缓存\n4.0.3,2026-06-09,修复缓存清理\n4.1.0,2026-06-27,新增随堂笔记\n4.1.1,2026-07-16,修复笔记同步\n4.1.2,2026-08-04,优化弱网播放\n4.1.3,2026-08-23,修复笔记导出\n"
+  },
+  "turns": [
+    {
+      "prompt": "枫林课件的新学期机房要统一安装课程播放器。发布记录在 docs/播放器发布记录.csv，现在安装应该用哪个版本？",
+      "expect": {
+        "output_contains_any": [
+          "4.1.3"
+        ]
+      }
+    }
+  ]
+}

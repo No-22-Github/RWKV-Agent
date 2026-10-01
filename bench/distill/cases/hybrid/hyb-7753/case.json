@@ -1,0 +1,70 @@
+{
+  "id": "hyb-7753",
+  "description": "Two-turn clarify (missing required param): Nadia Kowalczyk's royalty statement lacks the quarter; turn 1 question, turn 2 Q2 gives 321.64. DISTILL-CANARY-f960e2c8",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 890.18
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b07-missingparam-03",
+    "ref_calls": 3,
+    "fixture_bytes": 484,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "value"
+  },
+  "files": {
+    "README.md": "# Quillfeather Press royalties\n\nSemi-annual statements are paid per author per quarter. Amounts in GBP.\n",
+    "royalties/royalties.csv": "title,author,quarter,copies,rate_gbp,amount_gbp\nThe Salt Marshes,Nadia Kowalczyk,Q1,412,0.61,251.32\nThe Salt Marshes,Nadia Kowalczyk,Q2,388,0.61,236.68\nGlasshouse,Wren Galloway,Q1,205,0.55,112.75\nGlasshouse,Wren Galloway,Q2,231,0.55,127.05\nNine Elms,Nadia Kowalczyk,Q1,150,0.48,72.00\nNine Elms,Nadia Kowalczyk,Q2,177,0.48,84.96\nThe Salt Marshes,Nadia Kowalczyk,Q3,402,0.61,245.22\n"
+  },
+  "turns": [
+    {
+      "prompt": "What is Nadia Kowalczyk's royalty payout on her statement?",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "?",
+          "Which",
+          "which",
+          "What",
+          "what",
+          "confirm",
+          "Confirm",
+          "specify",
+          "Specify",
+          "Do you",
+          "do you",
+          "Did you",
+          "did you",
+          "should I",
+          "Should I",
+          "please provide",
+          "Please provide",
+          "need to know",
+          "Need to know"
+        ],
+        "output_contains": [
+          "Kowalczyk"
+        ]
+      }
+    },
+    {
+      "prompt": "Use her Q2 2026 statement. Reply with only the final answer.",
+      "expect": {
+        "expected_number": 321.64,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

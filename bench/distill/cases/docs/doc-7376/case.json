@@ -1,0 +1,48 @@
+{
+  "id": "doc-7376",
+  "description": "Append one dispensary handout to the monthly ledger. DISTILL-CANARY-883918e4",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-doc-b06-cranmoor",
+    "ref_calls": 3,
+    "fixture_bytes": 542,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "ledger/dispensed-2026-09.txt": "2026-09-16 Marmalade (tabby, 6.2kg) - amoxicillin suspension 60ml - dispensed - Dr. Okafor\n2026-09-18 Biscuit (corgi, 14kg) - carprofen 30 tabs - dispensed - Dr. Okafor\n",
+    "notes/scripts-2026-09-30.txt": "Dispensing sheet, 2026-09-30 - Dr. Okafor\nNutmeg (lurcher, 11kg): cefpodoxime 14 tabs - dispensary\n",
+    "README.md": "# Cranmoor Veterinary Clinic - dispensary ledger\n\nledger/dispensed-YYYY-MM.txt logs what the in-house dispensary\nhanded out, one line per patient in the style of the existing\nlines:\n\n    <date> <patient> - <item> - dispensed - <vet>\n\nPrescription sheets are kept in notes/.\n"
+  },
+  "expect": {
+    "files": {
+      "ledger/dispensed-2026-09.txt": {
+        "contains": [
+          "2026-09-16 Marmalade (tabby, 6.2kg) - amoxicillin suspension 60ml - dispensed - Dr. Okafor",
+          "2026-09-30 Nutmeg (lurcher, 11kg) - cefpodoxime 14 tabs - dispensed - Dr. Okafor"
+        ]
+      },
+      "notes/scripts-2026-09-30.txt": {
+        "unchanged": true
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Cranmoor Veterinary Clinic dispensed for the 2026-09-30 sheet (in notes/). Enter it into ledger/dispensed-2026-09.txt in the house style and leave the sheet untouched. When you are done, describe in two or three sentences what you wrote.",
+      "expect": {}
+    }
+  ]
+}

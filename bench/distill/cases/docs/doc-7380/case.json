@@ -1,0 +1,52 @@
+{
+  "id": "doc-7380",
+  "description": "Write the honey room's label list from the extraction log. DISTILL-CANARY-44d7e8c3",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "extract_items",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 4
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b06-thurlby",
+    "ref_calls": 3,
+    "fixture_bytes": 469,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "sheets/extraction-2026-09-26.txt": "Hive 3 / 9 frames / A\nHive 7 / 6 frames / B\nHive 1 / 11 frames / A\nHive 5 / 4 frames / B\n",
+    "README.md": "# Thurlby Apiary - honey room labels\n\nExtraction logs land in sheets/ as rows:\n\n    <hive> / <frames> / <grade>\n\nOnly grade A batches go to the labelled jars; grade B stays in the\nfarm-gate bucket and is never labelled. Label lists are written\ninto labels/ under the extraction date, one file named\nYYYY-MM-DD.txt, one line per batch in log order:\n\n    - <hive> - <frames> frames\n",
+    "labels/.keep": ""
+  },
+  "expect": {
+    "files": {
+      "labels/2026-09-26.txt": {
+        "contains": [
+          "- Hive 3 - 9 frames",
+          "- Hive 1 - 11 frames"
+        ]
+      },
+      "sheets/extraction-2026-09-26.txt": {
+        "unchanged": true
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Thurlby Apiary extracted on 2026-09-26 and the log is in sheets/. Write the label list into labels/ the way the house README describes, and leave the extraction log untouched. When you are done, describe in two or three sentences what you wrote.",
+      "expect": {}
+    }
+  ]
+}

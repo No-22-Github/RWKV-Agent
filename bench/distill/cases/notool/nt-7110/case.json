@@ -1,0 +1,56 @@
+{
+  "id": "nt-7110",
+  "description": "Two meetings collide in the same room at the same time; the first message does not say which one to move. DISTILL-CANARY-4d5a8f12",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "ambiguous_request",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": "已把产品评审改到周五上午十点，改期通知我已拟好。"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-clarify-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 273
+  },
+  "offered_tools": [
+    "read_file",
+    "list_files"
+  ],
+  "web_fixture": [],
+  "files": {
+    "meetings/schedule_thu.csv": "time,meeting,room\n14:00,产品评审,大会议室\n14:00,客户回访,大会议室\n16:30,周总结,小会议室\n",
+    "README.md": "# 岚山会务 - 会务工作区\n\n本周会议室安排和会务通知都在这里。\n\n- meetings/  本周会议安排表\n- notices/  改期与调室通知存档\n"
+  },
+  "turns": [
+    {
+      "prompt": "岚山会务这边：这周四下午两点，产品评审和客户回访两个会撞在同一间大会议室了，你帮我把其中一个改期。",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "？",
+          "?",
+          "哪个",
+          "哪一个",
+          "哪一种",
+          "哪一场"
+        ],
+        "output_contains": [
+          "产品评审",
+          "客户回访"
+        ]
+      }
+    }
+  ]
+}

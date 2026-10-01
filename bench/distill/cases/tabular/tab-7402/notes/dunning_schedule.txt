@@ -1,0 +1,4 @@
+Renewal reminders go out on the first business day of each month.
+Accounts in the APAC queue are handled by the Sydney desk; everything
+else stays with the Amsterdam desk. Escalations after the second
+notice move to legal review.

@@ -1,0 +1,38 @@
+{
+  "id": "log-8012",
+  "description": "Find the first ERROR timestamp after the deployment-complete marker in a Chinese release-and-runtime log. DISTILL-CANARY-4c7c9d2c",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-holdout-log-postdeploy-01",
+    "ref_calls": 2,
+    "fixture_bytes": 1575,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "deploy-20260914.log": "2026-09-14 03:11:02 [deploy] 开始发布 api-server v2.7.1（流水线 #418）\n2026-09-14 03:11:05 [deploy] 构建镜像 base=alpine-3.20\n2026-09-14 03:19:41 [deploy] 镜像推送完成 sha256:9f31c2\n2026-09-14 03:21:10 [deploy] 预检通过，目标机房 gz-a\n2026-09-14 03:27:33 [deploy] 滚动更新 3/6\n2026-09-14 03:28:44 [deploy] 滚动更新 6/6\n2026-09-14 03:29:55 [deploy] api-server v2.7.1 部署完成，已接入流量\n2026-09-14 03:33:07 [WARN] api-server slow request /v1/orders q=1.8s\n2026-09-14 03:37:12 [INFO] api-server health probe ok\n2026-09-14 03:42:17 [ERROR] api-server /v1/checkout 502 upstream timeout after 3000ms\n2026-09-14 03:42:19 [WARN] api-server circuit breaker half-open\n2026-09-14 03:45:02 [INFO] api-server retry budget reset\n2026-09-14 03:51:38 [ERROR] api-server /v1/refund 500 db write failed txid=TX-7122\n2026-09-14 03:52:01 [deploy] 值班已确认，回滚预案待命\n2026-09-14 04:02:55 [ERROR] api-server /v1/checkout 502 upstream timeout after 3000ms\n2026-09-14 04:03:12 [WARN] api-server connection pool 90%\n2026-09-14 04:06:41 [INFO] api-server cache flush done\n2026-09-14 04:11:23 [ERROR] api-server /v1/refund 500 db write failed txid=TX-7131\n2026-09-14 04:15:49 [deploy] dba 定位到慢查询，已加索引\n2026-09-14 04:22:30 [INFO] api-server error rate back to baseline\n2026-09-14 04:31:56 [WARN] api-server slow request /v1/orders q=1.2s\n2026-09-14 05:02:11 [INFO] api-server morning traffic ramp\n2026-09-14 05:18:44 [INFO] api-server health probe ok\n2026-09-14 05:41:09 [INFO] deploy window closed, on-call handover\n"
+  },
+  "turns": [
+    {
+      "prompt": "云杉物流的 api-server 在 9 月 14 日凌晨上了新版本，deploy-20260914.log 是当时的发布与运行日志。部署完成之后的第一条 ERROR 出现在几点几分？只要时:分，例如 08:05 这种格式。",
+      "expect": {
+        "output_equals_any": [
+          "03:42",
+          "03:42:17"
+        ]
+      }
+    }
+  ]
+}

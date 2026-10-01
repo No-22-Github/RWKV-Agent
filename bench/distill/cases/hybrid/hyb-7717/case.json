@@ -1,0 +1,63 @@
+{
+  "id": "hyb-7717",
+  "description": "Multi-turn germination comparison between two look-alike seed batches, then gap and sample count. DISTILL-CANARY-e09c52b6",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 84.0
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b07-related-06",
+    "ref_calls": 2,
+    "fixture_bytes": 589,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "tests/germination-2026q3.csv": "batch,sample_id,rate\nBT-2201,S-101,90\nBT-2201,S-102,88\nBT-2201,S-103,87\nBT-2201,S-104,89\nBT-2201,S-105,85\nBT-2201,S-106,87\nBT-2201,S-107,86\nBT-2201,S-108,88\nBT-2210,S-109,84.0\nBT-2210,S-110,85.0\nBT-2210,S-111,86.5\nBT-2210,S-112,84.8\nBT-2210,S-113,85.7\nBT-2101,S-114,82.0\nBT-2101,S-115,85.0\nBT-2101,S-116,84.5\nBT-2101,S-117,84.5\nBT-2303,S-118,91\nBT-2303,S-119,92\nBT-2303,S-120,90\nBT-2303,S-121,89\nBT-2303,S-122,92\nBT-2303,S-123,92\n",
+    "README.md": "# 禾丰农资 第三季度发芽率\n\n每行一个样本：批次号、样本号、发芽率（%）。rate 列为该样本 100 粒中\n正常发芽的粒数。\n"
+  },
+  "turns": [
+    {
+      "prompt": "禾丰农资看三季度发芽率。批次 BT-2201 的平均发芽率是多少？只回数字，不要百分号。",
+      "expect": {
+        "expected_number": 87.5,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "BT-2201 和 BT-2210 比，哪一批的平均发芽率高？回批次号就行。",
+      "expect": {
+        "output_contains": [
+          "BT-2201"
+        ]
+      }
+    },
+    {
+      "prompt": "高的那批比另一批平均高多少（单位：百分点）？只回数字。",
+      "expect": {
+        "expected_number": 2.3,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "BT-2210 这批做了几个样本？只回数字。",
+      "expect": {
+        "expected_number": 5,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

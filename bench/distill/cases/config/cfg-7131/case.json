@@ -1,0 +1,45 @@
+{
+  "id": "cfg-7131",
+  "description": "Effective quiet hours start of one guesthouse building, whose config overrides the base and carries a stale commented value. DISTILL-CANARY-cd49a1bb",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "precedence",
+    "traps": [
+      "TR-PRECEDENCE",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-PRECEDENCE": 23,
+      "TR-DECOY": 21
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-cfg-b06-yunqi-guestbook",
+    "ref_calls": 3,
+    "fixture_bytes": 542,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/guestbook-base.yaml": "checkin_time: \"14:00\"\nquiet_hours_start: 23\ndeposit_yuan: 200\ntowel_change_days: 2\n",
+    "config/guestbook-wangshan.yaml": "quiet_hours_start: 22\ndeposit_yuan: 300\n# 旧值 21，2026-06 起静音时段整体后移一小时\n",
+    "README.md": "# 云栖民宿 - 宾客须知配置\n\n每栋楼的宾客须知配置分两层：`config/guestbook-base.yaml` 是全群基础配置，各楼栋另有覆盖文件，望山栋用 `config/guestbook-wangshan.yaml`。\n\n楼栋配置覆盖基础配置：同名键以楼栋为准，楼栋没写的键按基础配置生效。楼栋文件里井号开头的是备注行。\n"
+  },
+  "turns": [
+    {
+      "prompt": "云栖民宿的望山栋周末要在天台放露天电影，管家要确认放映不会闯进静音时段（只回答数字，不要单位）。楼栋配置在 config/guestbook-wangshan.yaml，全群基础是 config/guestbook-base.yaml，望山栋生效的 quiet_hours_start 是几点？",
+      "expect": {
+        "expected_number": 22,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

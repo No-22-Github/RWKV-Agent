@@ -1,0 +1,70 @@
+{
+  "id": "hyb-7666",
+  "description": "Update the deployment manifest version line to the current stable release from the vendor's release page. DISTILL-CANARY-ee6c7f5f",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_edit",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "v4.0.0-beta"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b06-rosteredit-01",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 228,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {
+    "部署清单.txt": "当前统一版本：v3.8.2\n组件清单：\n- 网关服务\n- 报表中心\n- 消息队列\n负责人：郑立群\n下次维护窗口：2026-09-20\n",
+    "运维备注.md": "昆仑组件是公司内网门户的整套组件，版本升级后更新本清单。\n"
+  },
+  "web_fixture": [
+    {
+      "query_match": "昆仑组件",
+      "url": "https://www.kunlunstack.example/releases",
+      "url_match": "kunlunstack.example/releases",
+      "title": "昆仑组件发布页",
+      "snippet": "发布记录与当前稳定版。",
+      "content": "# 昆仑组件发布记录\n\n当前稳定版为 v3.9.1（2026-09-10 发布）。\n\nv4.0.0-beta 处于抢先体验阶段，仅供测试环境尝鲜，生产环境请使用当前稳定版。\n",
+      "published_at": "2026-09-10"
+    },
+    {
+      "query_match": "昆仑组件 beta",
+      "url": "https://forum.opsclub.example/thread-7712",
+      "url_match": "forum.opsclub.example/thread-7712",
+      "title": "OpsClub 论坛：昆仑组件 v4.0.0-beta 抢先体验",
+      "snippet": "v4.0.0-beta 已放出，尝鲜请自便。",
+      "content": "昆仑组件 v4.0.0-beta 抢先体验包已放出，欢迎测试。\n",
+      "published_at": "2026-09-14"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "内网门户的部署清单在 部署清单.txt。官方刚发了新版本，请把清单里的版本号更新成官方当前的稳定版。改完后告诉我新的版本号是多少？",
+      "expect": {
+        "output_contains": [
+          "v3.9.1"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "部署清单.txt": {
+        "contains": [
+          "当前统一版本：v3.9.1"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "id": "fs-7644",
+  "description": "Read today's dispatch CSV and tell which pump-station equipment file the repair crew must take. DISTILL-CANARY-41fdeed8",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "find_file",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-fs-b06-indexfind-01",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 616,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {
+    "调度室/派工单-2026-08-30.csv": "工单号,工作类型,泵站,工作内容\nGZ-2601,巡检,龙潭泵站,例行周检\nGZ-2602,检修,白沙河泵站,2号机组轴承温升偏高，停机检修\nGZ-2603,抄表,龙潭泵站,月度水量抄录\n",
+    "设备档案/白沙河泵站.txt": "泵站档案：白沙河泵站\n建成年份：2019 年\n机组：2 台\n上次大修：2025 年\n负责人：韩雪梅\n",
+    "设备档案/龙潭泵站.txt": "泵站档案：龙潭泵站\n建成年份：2016 年\n机组：3 台\n上次大修：2024 年\n负责人：郑立群\n",
+    "README.md": "清源水务调度室：派工单每天一张，csv 里的「检修」工单出发前要先调出该泵站的设备档案；设备档案按泵站名存放在 设备档案 目录。\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "今天（8 月 30 日）的派工单在 调度室/派工单-2026-08-30.csv。检修工出发前要先带上检修对象的设备档案。该调哪一份档案？它的完整路径是什么？（回答只写路径本身，不要附加说明。）",
+      "expect": {
+        "output_equals": "设备档案/白沙河泵站.txt"
+      }
+    }
+  ]
+}

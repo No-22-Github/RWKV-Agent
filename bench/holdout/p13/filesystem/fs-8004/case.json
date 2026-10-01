@@ -1,0 +1,58 @@
+{
+  "id": "fs-8004",
+  "description": "Append one restock line per below-reorder-point SKU to the current restock log in CSV order, after locating the log the guide names; judged by pinned substrings. DISTILL-CANARY-a17f4c08",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "find_file",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": null
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-holdout-fs-restock-01",
+    "answer_style": "natural",
+    "ref_calls": 4,
+    "fixture_bytes": 698,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null
+  },
+  "files": {
+    "logs/restock-log.txt": "2026-09-12 RESTOCK rye-flour-1kg x18\n2026-09-12 RESTOCK wheat-flour-1kg x30\n2026-09-19 RESTOCK oat-flour-1kg x24\n",
+    "stock-guide.md": "# restock guide - Harrow Mill supply room\n\nReorder point and order quantity per SKU:\n\n- barley-flour-1kg: reorder at 15, order 20\n- oat-flour-1kg: reorder at 12, order 24\n- rye-flour-1kg: reorder at 30, order 18\n- spelt-flour-1kg: reorder at 10, order 12\n- wheat-flour-1kg: reorder at 40, order 30\n\nRestock lines go into the restock log in the same form as the entries\nalready there. (Until mid-August these were kept in stockroom-log.txt\nat the project root; that file is retired.)\n",
+    "stock/current.csv": "sku,on_hand\nbarley-flour-1kg,41\noat-flour-1kg,9\nrye-flour-1kg,26\nspelt-flour-1kg,6\nwheat-flour-1kg,57\n"
+  },
+  "turns": [
+    {
+      "prompt": "Three of our flours have dropped below their reorder points. Add one restock line per SKU to the restock log - same form as the entries already there, dated 2026-09-24, in the same order the SKUs appear in stock/current.csv. The stock guide has the reorder points and the order quantities. When you're done, tell me in one to three sentences what you changed.",
+      "expect": {}
+    }
+  ],
+  "expect": {
+    "files": {
+      "logs/restock-log.txt": {
+        "contains": [
+          "2026-09-19 RESTOCK oat-flour-1kg x24\n2026-09-24 RESTOCK oat-flour-1kg x24",
+          "2026-09-24 RESTOCK oat-flour-1kg x24\n2026-09-24 RESTOCK rye-flour-1kg x18",
+          "2026-09-24 RESTOCK rye-flour-1kg x18\n2026-09-24 RESTOCK spelt-flour-1kg x12"
+        ]
+      },
+      "stock-guide.md": {
+        "equals": "# restock guide - Harrow Mill supply room\n\nReorder point and order quantity per SKU:\n\n- barley-flour-1kg: reorder at 15, order 20\n- oat-flour-1kg: reorder at 12, order 24\n- rye-flour-1kg: reorder at 30, order 18\n- spelt-flour-1kg: reorder at 10, order 12\n- wheat-flour-1kg: reorder at 40, order 30\n\nRestock lines go into the restock log in the same form as the entries\nalready there. (Until mid-August these were kept in stockroom-log.txt\nat the project root; that file is retired.)\n"
+      },
+      "stock/current.csv": {
+        "equals": "sku,on_hand\nbarley-flour-1kg,41\noat-flour-1kg,9\nrye-flour-1kg,26\nspelt-flour-1kg,6\nwheat-flour-1kg,57\n"
+      },
+      "stockroom-log.txt": {
+        "absent": true
+      }
+    }
+  }
+}

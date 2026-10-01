@@ -1,0 +1,62 @@
+{
+  "id": "web-7536",
+  "description": "Minimum high-season stay for a serviced pitch, straight from the vendor FAQ snippet. DISTILL-CANARY-37f2761d",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": 2
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-web-b06-caldermere",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "caldermere",
+      "url": "https://help.caldermere.example/faq",
+      "url_match": "help.caldermere.example/faq",
+      "title": "Caldermere Fields - booking FAQ",
+      "snippet": "Serviced pitches with electric hook-up carry a minimum stay of 3 nights in high season.",
+      "content": "# Caldermere Fields - booking FAQ\n\nQ: Do serviced pitches have a minimum stay?\nA: Serviced pitches with electric hook-up carry a minimum stay of 3 nights\nin high season. Off-peak there is no minimum.\n\nQ: What time can we arrive?\nA: Pitches are ready from 13:00, and the barrier code is sent the evening\nbefore arrival.\n\nQ: Are fires allowed?\nA: Only in the raised fire pits at the top field.\n",
+      "published_at": "2026-07-21"
+    },
+    {
+      "query_match": "caldermere",
+      "url": "https://wildcampreviews.example/thread/caldermere-minimum",
+      "url_match": "wildcampreviews.example/thread/caldermere-minimum",
+      "title": "How strict is Caldermere's minimum stay? (2024 thread)",
+      "snippet": "In 2024 the serviced pitches had a 2-night minimum over weekends.",
+      "content": "wildcampreviews.example - England - Caldermere minimum stay?\n\np1 (pitchwalker, 2024-06-02): Weekend stays on the serviced pitches\nneeded 2 nights minimum back in 2024, the desk would not take a\none-night booking.\n\np2 (fenrambler, 2024-06-04): Same for us that spring. No idea what the\ncurrent card says.\n",
+      "published_at": "2024-06-02"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "We are booking a serviced pitch with electric hook-up at Caldermere Fields for the August bank weekend. Give the number alone, as digits, with no label. How many nights is the minimum stay for that pitch type?",
+      "expect": {
+        "expected_number": 3,
+        "tolerance": 0.01
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  }
+}

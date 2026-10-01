@@ -1,0 +1,53 @@
+{
+  "id": "scr-7720",
+  "description": "Fix the print shop queue report whose string sort scatters the loading dock's slash-dated jobs to both ends. DISTILL-CANARY-d239875e",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_output",
+    "traps": [
+      "TR-DATEFMT"
+    ],
+    "trap_decoys": {
+      "TR-DATEFMT": "string order kept (26/09/2026 last, 03/10/2026 first)"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-scr-b06-ironpress",
+    "ref_calls": 4,
+    "fixture_bytes": 1057,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "queue.py": "\"\"\"Print the job queue report for Ironpress Printworks.\n\nThe shop system drops one file per month into jobs/, one row per job:\n\n    job_id,added_on,copies\n\nThe queue report is one line per job, oldest first, followed by a line\ncounting the jobs:\n\n    <added_on>,<job_id>\n    QUEUED,<jobs>\n\nDays are printed exactly as the shop system wrote them.\n\"\"\"\n\nimport csv\nimport glob\n\nrows = []\nfor path in sorted(glob.glob(\"jobs/*.csv\")):\n    with open(path, newline=\"\", encoding=\"utf-8\") as handle:\n        rows.extend(list(csv.reader(handle))[1:])\nrows.sort(key=lambda row: row[1])\nfor row in rows:\n    print(f\"{row[1]},{row[0]}\")\nprint(f\"QUEUED,{len(rows)}\")\n",
+    "jobs/2026-09.csv": "job_id,added_on,copies\nJB-4401,2026-09-02,500\nJB-4402,2026-09-11,1200\nJB-4403,2026-09-19,300\nJB-4404,26/09/2026,750\nJB-4405,2026-09-28,900\n",
+    "README.md": "# Ironpress Printworks - job queue report\n\nThe shop system drops one file per month into jobs/. Two terminals write\nthe added_on column: the front desk writes 2026-09-26 style days, the\nloading dock writes day-first slashes like 26/09/2026. Both mean the same\nday.\n"
+  },
+  "expect": {
+    "files": {
+      "jobs/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "queue.py",
+      "expected_stdout": "2026-09-02,JB-4401\n2026-09-11,JB-4402\n2026-09-19,JB-4403\n26/09/2026,JB-4404\n2026-09-28,JB-4405\n2026-10-02,JB-4501\n03/10/2026,JB-4502\n2026-10-15,JB-4503\nQUEUED,8",
+      "hidden_files": {
+        "jobs/2026-10.csv": "job_id,added_on,copies\nJB-4501,2026-10-02,650\nJB-4502,03/10/2026,480\nJB-4503,2026-10-15,1100\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Ironpress Printworks' queue report comes out in the wrong order lately: the loading dock's jobs land at the top and the bottom of the report instead of where their days fall. The docstring spells out the order the report owes. Please repair queue.py so the report follows its docstring again. The files in jobs/ stay as they are. When you are done, say in two or three sentences what you changed.",
+      "expect": {}
+    }
+  ]
+}

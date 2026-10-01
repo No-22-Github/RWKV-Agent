@@ -1,0 +1,70 @@
+{
+  "id": "hyb-7749",
+  "description": "Two-turn clarify (missing required param): August freight total above a review threshold the user must supply; turn 2 threshold 1300 gives 4852.75. DISTILL-CANARY-3210d48a",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 7867.4
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b07-missingparam-02",
+    "ref_calls": 3,
+    "fixture_bytes": 387,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "value"
+  },
+  "files": {
+    "README.md": "# Copperline Roasters inbound freight\n\nInvoice lines for green-bean deliveries. Amounts in USD.\n",
+    "logs/freight-invoices.csv": "date,carrier,route,cost_usd\n2026-08-06,Bluekettle Line,PR-Santos,1840.00\n2026-08-09,Northsea Freight,Hamburg,1265.50\n2026-08-14,Bluekettle Line,PR-Santos,1592.75\n2026-08-19,Northsea Freight,Hamburg,1420.00\n2026-08-22,Cordell Haulage,inland,640.25\n2026-08-28,Northsea Freight,Hamburg,1108.90\n"
+  },
+  "turns": [
+    {
+      "prompt": "Out of the August freight invoices, total the ones that exceed our review threshold for the cost committee.",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "?",
+          "Which",
+          "which",
+          "What",
+          "what",
+          "confirm",
+          "Confirm",
+          "specify",
+          "Specify",
+          "Do you",
+          "do you",
+          "Did you",
+          "did you",
+          "should I",
+          "Should I",
+          "please provide",
+          "Please provide",
+          "need to know",
+          "Need to know"
+        ],
+        "output_contains": [
+          "freight"
+        ]
+      }
+    },
+    {
+      "prompt": "The review threshold is 1,300 USD. Reply with only the final answer.",
+      "expect": {
+        "expected_number": 4852.75,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

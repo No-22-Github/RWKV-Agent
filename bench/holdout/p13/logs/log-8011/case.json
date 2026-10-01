@@ -1,0 +1,41 @@
+{
+  "id": "log-8011",
+  "description": "Count one service's ERROR lines in a Chinese gateway log for a single day; the log uses service codes that must be joined against a service roster. DISTILL-CANARY-86cf7530",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": 39
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-holdout-log-svcerrors-01",
+    "ref_calls": 3,
+    "fixture_bytes": 4346,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "服务清单.csv": "服务代码,服务名称\nSVC-GW,接入网关\nSVC-A1,账户服务\nSVC-OD,订单服务\nSVC-P2,支付回调服务\nSVC-IV,库存服务\nSVC-NM,通知服务\n",
+    "gateway-20260912.log": "2026-09-12 07:05:11 [INFO] SVC-GW listener up, tls session cache warmed\n2026-09-12 07:31:52 [INFO] SVC-GW config reload ok rev=118\n2026-09-12 08:02:41 [INFO] SVC-A1 token refresh batch done size=312\n2026-09-12 09:01:18 [ERROR] SVC-P2 notify upstream timeout after 3000ms order=PN-88304\n2026-09-12 09:04:52 [ERROR] SVC-P2 notify upstream timeout after 3000ms order=PN-88311\n2026-09-12 09:09:33 [WARN] SVC-P2 retry queue depth 18\n2026-09-12 09:12:07 [ERROR] SVC-P2 notify refused by peer order=PN-88319\n2026-09-12 09:21:44 [ERROR] SVC-P2 notify upstream timeout after 3000ms order=PN-88331\n2026-09-12 09:34:29 [ERROR] SVC-P2 notify upstream timeout after 3000ms order=PN-88340\n2026-09-12 09:41:02 [INFO] SVC-OD cache warmup finished keys=2041\n2026-09-12 09:48:15 [ERROR] SVC-P2 notify refused by peer order=PN-88347\n2026-09-12 09:55:38 [ERROR] SVC-P2 notify upstream timeout after 3000ms order=PN-88352\n2026-09-12 09:58:44 [ERROR] SVC-P2 notify refused by peer order=PN-88358\n2026-09-12 10:03:24 [ERROR] SVC-P2 notify socket closed by upstream order=PN-88361\n2026-09-12 10:11:49 [ERROR] SVC-P2 notify upstream timeout after 3000ms order=PN-88368\n2026-09-12 10:24:03 [INFO] SVC-GW health probe all green\n2026-09-12 10:37:52 [WARN] SVC-A1 login latency p99 above baseline\n2026-09-12 11:06:31 [ERROR] SVC-A1 session store write failed key=SK-44712\n2026-09-12 11:14:55 [ERROR] SVC-A1 session store write failed key=SK-44718\n2026-09-12 11:22:10 [INFO] SVC-NM digest mail queued count=96\n2026-09-12 11:38:27 [ERROR] SVC-A1 session store write failed key=SK-44725\n2026-09-12 12:04:13 [INFO] SVC-OD nightly reconciliation snapshot saved\n2026-09-12 13:02:36 [ERROR] SVC-OD order persist conflict order=OD-77120\n2026-09-12 13:15:08 [ERROR] SVC-OD order persist conflict order=OD-77124\n2026-09-12 13:29:41 [WARN] SVC-GW upstream pool shrink to 24\n2026-09-12 14:01:57 [ERROR] SVC-P2 notify upstream timeout after 3000ms order=PN-88401\n2026-09-12 14:08:22 [ERROR] SVC-P2 notify refused by peer order=PN-88407\n2026-09-12 14:13:40 [ERROR] SVC-P2 notify upstream timeout after 3000ms order=PN-88412\n2026-09-12 14:19:05 [ERROR] SVC-P2 notify socket closed by upstream order=PN-88418\n2026-09-12 14:27:33 [ERROR] SVC-P2 notify upstream timeout after 3000ms order=PN-88423\n2026-09-12 14:32:58 [ERROR] SVC-P2 notify refused by peer order=PN-88429\n2026-09-12 14:40:11 [ERROR] SVC-P2 notify upstream timeout after 3000ms order=PN-88433\n2026-09-12 14:47:52 [ERROR] SVC-P2 notify socket closed by upstream order=PN-88439\n2026-09-12 15:05:14 [ERROR] SVC-A1 session store write failed key=SK-44740\n2026-09-12 15:17:49 [ERROR] SVC-A1 session store write failed key=SK-44744\n2026-09-12 15:29:02 [INFO] SVC-IV stock sync finished rows=5112\n2026-09-12 16:08:35 [ERROR] SVC-OD inventory deduction mismatch order=OD-77158\n2026-09-12 16:19:47 [ERROR] SVC-OD inventory deduction mismatch order=OD-77163\n2026-09-12 16:31:20 [WARN] SVC-NM sms channel degraded, retrying\n2026-09-12 17:04:56 [INFO] SVC-GW access log rotated size=312MB\n2026-09-12 18:12:29 [INFO] SVC-A1 password reset batch done count=41\n2026-09-12 19:02:03 [ERROR] SVC-P2 notify upstream timeout after 3000ms order=PN-88501\n2026-09-12 19:09:38 [ERROR] SVC-P2 notify refused by peer order=PN-88509\n2026-09-12 19:15:52 [ERROR] SVC-P2 notify upstream timeout after 3000ms order=PN-88514\n2026-09-12 19:21:17 [ERROR] SVC-P2 notify socket closed by upstream order=PN-88520\n2026-09-12 19:28:44 [ERROR] SVC-P2 notify upstream timeout after 3000ms order=PN-88526\n2026-09-12 19:33:09 [ERROR] SVC-P2 notify refused by peer order=PN-88531\n2026-09-12 19:41:55 [ERROR] SVC-P2 notify upstream timeout after 3000ms order=PN-88538\n2026-09-12 19:49:20 [ERROR] SVC-P2 notify socket closed by upstream order=PN-88544\n2026-09-12 20:07:41 [ERROR] SVC-A1 session store write failed key=SK-44761\n2026-09-12 20:15:08 [ERROR] SVC-A1 session store write failed key=SK-44766\n2026-09-12 21:04:32 [ERROR] SVC-OD refund state invalid order=OD-77201\n2026-09-12 21:12:59 [ERROR] SVC-OD refund state invalid order=OD-77206\n2026-09-12 21:30:14 [WARN] SVC-GW upstream pool expand to 40\n2026-09-12 21:52:47 [INFO] SVC-NM daily report delivered\n2026-09-12 22:08:31 [INFO] SVC-GW shutdown none, rolling ok\n"
+  },
+  "turns": [
+    {
+      "prompt": "妙盈保付的网关日志 gateway-20260912.log 已经拉到工作区。支付回调服务这一天报了多少次错误（ERROR 级别）？只回答数字。",
+      "expect": {
+        "expected_number": 26,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "id": "doc-7329",
+  "description": "Pick the latest formal SDK release from an update log with mixed date formats and a beta row. DISTILL-CANARY-22d3f764",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-DATEFMT",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DATEFMT": "3.3",
+      "TR-DECOY": "3.5-beta"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-doc-b06-yunmiao",
+    "ref_calls": 2,
+    "fixture_bytes": 815,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "docs/网关SDK更新记录.tsv": "版本号\t发布日期\t通道\t更新说明\n3.5-beta\t2026-09-12\t内测\t灰度边缘缓存\n3.4\t09/05/2026\t正式\t新增规则引擎\n3.3\t2026.8.28\t正式\t修复心跳重连\n3.2\t2026-07-15\t正式\t降低内存峰值\n3.1\t2026-06-30\t正式\t新增指标上报\n3.0\t2026-05-20\t正式\t架构升级\n2.9.2\t2026-04-18\t正式\t修复配置热载\n2.9.0\t2026-03-27\t正式\t插件机制\n2.8.4\t2026-03-05\t正式\t修复时区解析\n2.8.1\t2026-02-13\t正式\t日志轮转\n2.7.6\t2026-01-22\t正式\t修复断点续传\n2.7.2\t2026-01-08\t正式\t稳定版\n2.6.9\t2025-12-17\t正式\t小修\n2.6.5\t2025-11-29\t正式\t小修\n2.6.0\t2025-11-10\t正式\t小修\n",
+    "README.md": "# 网关 SDK 发布目录\n\n本目录由发布系统导出。发布日期写法不统一：横线（2026-07-15）与点分（2026.7.15）均为 年-月-日，斜线（05/09/2026）为 月/日/年。\n"
+  },
+  "turns": [
+    {
+      "prompt": "云杪科技要给新项目接边缘网关 SDK。更新记录在 docs/网关SDK更新记录.tsv，应该用正式通道的哪个版本？",
+      "expect": {
+        "output_contains_any": [
+          "3.4"
+        ],
+        "output_excludes": [
+          "3.3",
+          "3.5-beta"
+        ]
+      }
+    }
+  ]
+}

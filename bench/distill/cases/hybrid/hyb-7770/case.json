@@ -1,0 +1,66 @@
+{
+  "id": "hyb-7770",
+  "description": "两轮反问（多种合理解读）：收银导出有含运费与不含运费两列，第 1 轮点名两种口径反问，第 2 轮定不含运费得 16645。 DISTILL-CANARY-60a2f1a0",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 17112.05
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b07-ambiguoustwo-02",
+    "ref_calls": 3,
+    "fixture_bytes": 351,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "README.md": "# 拾光唱片行\n\n线上订单含邮费，到店自提两列数字相同；报表口径由财务指定。\n",
+    "sales/till-export-2026-09.csv": "日期,含运费,不含运费\n2026-09-04,3120.40,2980.00\n2026-09-06,1875.00,1875.00\n2026-09-11,2440.80,2380.00\n2026-09-13,990.00,990.00\n2026-09-18,3560.25,3410.00\n2026-09-22,1280.00,1280.00\n2026-09-26,2105.60,1990.00\n2026-09-29,1740.00,1740.00\n"
+  },
+  "turns": [
+    {
+      "prompt": "9 月的营业额是多少？财务月报要用。",
+      "expect": {
+        "forbidden_tools": [
+          "write_file",
+          "append_file",
+          "replace_lines"
+        ],
+        "output_contains_any": [
+          "？",
+          "?",
+          "哪",
+          "什么",
+          "还是",
+          "是否",
+          "请告诉",
+          "请确认",
+          "要不要",
+          "需要提供"
+        ],
+        "output_contains": [
+          "含运费",
+          "不含运费"
+        ]
+      }
+    },
+    {
+      "prompt": "按不含运费的口径。只回答数字。",
+      "expect": {
+        "expected_number": 16645.0,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

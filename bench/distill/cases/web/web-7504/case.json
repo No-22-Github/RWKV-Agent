@@ -1,0 +1,62 @@
+{
+  "id": "web-7504",
+  "description": "Removal version of the legacy /v1/aliases endpoint per the Larkspur deprecation schedule. DISTILL-CANARY-f06b9342",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "deprecation",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": 9
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-web-b06-larkspur",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "larkspur",
+      "url": "https://developers.larkspurmail.example/deprecations",
+      "url_match": "developers.larkspurmail.example/deprecations",
+      "title": "API deprecation schedule - Larkspur Mail Developers",
+      "snippet": "The legacy /v1/aliases endpoint will be removed in API version 11; /v1/aliases/expand follows in API version 12.",
+      "content": "# API deprecation schedule - Larkspur Mail Developers\n\nEffective 2026-09-08. Legacy endpoints keep working until the version listed\nbelow removes them.\nThe legacy /v1/aliases endpoint will be removed in API version 11; /v1/aliases/expand follows in API version 12.\n\n| endpoint | deprecated since | removed in |\n| --- | --- | --- |\n| /v1/aliases | v9 | API version 11 |\n| /v1/aliases/expand | v9 | API version 12 |\n| /v1/mailboxes.raw | v7 | API version 10 |\n\nMigrate to /v2/addresses before your tenant's cutover.\n",
+      "published_at": "2026-09-08"
+    },
+    {
+      "query_match": "larkspur",
+      "url": "https://www.maildevnotes.example/larkspur-v9-cutover",
+      "url_match": "www.maildevnotes.example/larkspur-v9-cutover",
+      "title": "Preparing for the Larkspur v9 cutover",
+      "snippet": "Version 9 retires the old alias handling on the sandbox clusters; plan your migration before the cutover window.",
+      "content": "# Preparing for the Larkspur v9 cutover\n\nmaildevnotes.example, 2026-03-15.\n\nVersion 9 retires the old alias handling on the sandbox clusters. The /v1\nalias endpoints have been deprecated since v9; plan your migration before the\ncutover window so the sandbox retirement does not catch your staging jobs.\n",
+      "published_at": "2026-03-15"
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Our notification service still calls the legacy /v1/aliases endpoint on the Larkspur Mail API. Per the vendor's deprecation schedule, in which API version will that endpoint be removed? Give the number alone, as digits, with no label.",
+      "expect": {
+        "expected_number": 11,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

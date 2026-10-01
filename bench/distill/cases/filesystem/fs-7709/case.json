@@ -1,0 +1,52 @@
+{
+  "id": "fs-7709",
+  "description": "盘点动漫社周边设计稿库（中文）：上架源文件中最大者；未采用草稿登记是诱饵。 DISTILL-CANARY-b5dfa0ef",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "largest",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "715"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-fs-b07-largedecoy-01",
+    "ref_calls": 4,
+    "fixture_bytes": 547,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:distill-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "stock/goods-log.csv": "周边,源文件,大小_mb\n痛包贴纸,sticker-panel.psd,214\n亚克力立牌,standee-mashiro.psd,386\n徽章套装,badge-set-03.psd,122\n帆布袋,tote-hoshino.psd,298\n明信片套,postcard-sleeve.psd,64\n",
+    "stock/prototype-log.csv": "草稿,源文件,大小_mb\n立牌草稿,standee-mashiro-raw.psd,715\n帆布袋草稿,tote-hoshino-raw.psd,402\n",
+    "README.md": "星野动漫社周边设计稿库。\n\ngoods-log.csv 登记上架周边的源文件；prototype-log.csv 是未采用的\n草稿，另存备查。盘点最大文件时只看上架源文件，实物与登记不符的\n直接报给社长。\n"
+  },
+  "turns": [
+    {
+      "prompt": "星野动漫社换届盘点，学长让写清楚周边设计稿库里最占存储的家伙：上架周边里哪个源文件最大、多大，另外那份草稿登记是干嘛的。",
+      "expect": {
+        "output_contains": [
+          "386",
+          "亚克力立牌",
+          "草稿"
+        ],
+        "output_contains_any": [
+          "386",
+          "亚克力立牌",
+          "草稿"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,77 @@
+{
+  "id": "log-7525",
+  "description": "Five-turn English session on a multi-node auth log where one node stamps CET: UTC-window count, daily leader, v2 subset, business-hours rescope, last failure. DISTILL-CANARY-66d4dcb7",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [
+      "TR-TZ"
+    ],
+    "trap_decoys": {
+      "TR-TZ": 15
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-log-b07-tamsin-auth-01",
+    "ref_calls": 6,
+    "fixture_bytes": 3625,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "logs/auth-login.log": "2026-09-28T07:12:35Z att-88102 user=dana.kim src=201.13.4.90 node=auth-us-1 endpoint=/v1/login result=failed code=password_expired\n2026-09-28T08:47:33Z att-88108 user=rao.ming src=116.226.4.9 node=auth-cn-3 endpoint=/v1/login result=failed code=locked_out\n2026-09-28T09:20:14Z att-88113 user=dana.kim src=201.13.4.90 node=auth-us-1 endpoint=/v2/login result=passed\n2026-09-28T10:05:16Z att-88118 user=su.kai src=183.192.10.6 node=auth-cn-3 endpoint=/v1/login result=failed code=mfa_failed\n2026-09-28T11:31:52Z att-88124 user=peng.lei src=121.35.78.2 node=auth-us-1 endpoint=/v2/login result=passed\n2026-09-28T12:07:12+01:00 att-88129 user=hana.wu src=82.15.44.6 node=auth-eu-2 endpoint=/v2/login result=failed code=password_expired\n2026-09-28T12:22:33+01:00 att-88131 user=pieter.vos src=145.90.11.2 node=auth-eu-2 endpoint=/v1/login result=failed code=locked_out\n2026-09-28T13:01:12Z att-88135 user=dana.kim src=201.13.4.90 node=auth-us-1 endpoint=/v2/login result=failed code=password_expired\n2026-09-28T13:04:56Z att-88137 user=gao.fe src=139.196.22.8 node=auth-cn-3 endpoint=/v1/login result=failed code=password_expired\n2026-09-28T13:07:44Z att-88139 user=rao.ming src=116.226.4.9 node=auth-us-1 endpoint=/v2/login result=failed code=mfa_failed\n2026-09-28T13:11:38Z att-88141 user=ivy.zhao src=180.168.3.4 node=auth-cn-3 endpoint=/v1/login result=failed code=locked_out\n2026-09-28T13:12:26Z att-88143 user=su.kai src=183.192.10.6 node=auth-us-1 endpoint=/v2/login result=failed code=password_expired\n2026-09-28T13:19:21Z att-88145 user=ops.liu src=10.8.4.2 node=auth-cn-3 endpoint=/v1/login result=failed code=mfa_failed\n2026-09-28T13:21:03Z att-88147 user=dana.kim src=201.13.4.90 node=auth-us-1 endpoint=/v2/login result=failed code=password_expired\n2026-09-28T13:27:14Z att-88149 user=rao.ming src=101.87.44.1 node=auth-cn-3 endpoint=/v1/login result=failed code=password_expired\n2026-09-28T13:29:45Z att-88151 user=hana.wu src=82.15.44.6 node=auth-us-1 endpoint=/v2/login result=failed code=locked_out\n2026-09-28T13:35:07Z att-88153 user=gao.fe src=139.196.22.8 node=auth-cn-3 endpoint=/v1/login result=failed code=password_expired\n2026-09-28T13:38:18Z att-88155 user=pieter.vos src=145.90.11.2 node=auth-us-1 endpoint=/v1/login result=failed code=password_expired\n2026-09-28T13:41:54+01:00 att-88157 user=milena.s src=95.31.208.7 node=auth-eu-2 endpoint=/v2/login result=failed code=mfa_failed\n2026-09-28T13:52:26+01:00 att-88159 user=pieter.vos src=145.90.11.2 node=auth-eu-2 endpoint=/v1/login result=failed code=password_expired\n2026-09-28T14:44:31Z att-88164 user=ivy.zhao src=180.168.3.4 node=auth-us-1 endpoint=/v2/login result=passed\n2026-09-28T16:15:48Z att-88169 user=ops.liu src=10.8.4.2 node=auth-cn-3 endpoint=/v1/login result=passed\n2026-09-28T18:02:23Z att-88175 user=dana.kim src=201.13.4.90 node=auth-us-1 endpoint=/v2/login result=passed\n2026-09-28T19:28:57Z att-88181 user=gao.fe src=139.196.22.8 node=auth-cn-3 endpoint=/v1/login result=passed\n2026-09-28T21:44:02Z att-88187 user=rao.ming src=116.226.4.9 node=auth-us-1 endpoint=/v1/login result=failed code=locked_out\n2026-09-28T22:58:41Z att-88193 user=gao.fe src=139.196.22.8 node=auth-cn-3 endpoint=/v1/login result=failed code=mfa_failed\n2026-09-28T23:41:19Z att-88199 user=su.kai src=183.192.10.6 node=auth-us-1 endpoint=/v1/login result=failed code=password_expired\n",
+    "README.md": "# Tamsin Transit login service, 2026-09-28\n\nOne attempt per line: ts, attempt id, user, source ip, node, endpoint, result, code.\nNodes auth-us-1 and auth-cn-3 stamp UTC (Z suffix); node auth-eu-2 stamps local\nCET (+01:00). Endpoint /v2/login is the current client version.\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "Tamsin Transit's login service logged to logs/auth-login.log on 2026-09-28. Between 13:00 and 14:00 UTC, how many failed logins did it record?",
+      "expect": {
+        "output_contains_any": [
+          "11 failed",
+          "11 logins"
+        ]
+      }
+    },
+    {
+      "prompt": "Which node logged the most failed logins across the whole UTC day?",
+      "expect": {
+        "output_contains_any": [
+          "auth-us-1"
+        ]
+      }
+    },
+    {
+      "prompt": "How many failed /v2/login attempts did that node record that day?",
+      "expect": {
+        "output_contains_any": [
+          "5 failed",
+          "5 were"
+        ]
+      }
+    },
+    {
+      "prompt": "Restrict to business hours — 08:00 to 20:00 UTC. Which node is the noisiest then?",
+      "expect": {
+        "output_contains_any": [
+          "auth-cn-3"
+        ]
+      }
+    },
+    {
+      "prompt": "What's the timestamp of that node's last failed login of the day?",
+      "expect": {
+        "output_contains_any": [
+          "22:58",
+          "22:58:41"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "id": "hyb-7720",
+  "description": "Multi-turn compressor night-cycle count pinned to plant time, then a wider tariff window. DISTILL-CANARY-b8e14c70",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-TZ"
+    ],
+    "trap_decoys": {
+      "TR-TZ": 9
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b07-window-07",
+    "ref_calls": 2,
+    "fixture_bytes": 703,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "logs/compressor-2026-09.log": "# Hargate Cold Storage compressor starts - September 2026 (stamps UTC)\n2026-09-03T22:10Z unitA start\n2026-09-05T23:15Z unitC start\n2026-09-07T00:20Z unitB start\n2026-09-08T09:30Z unitA start\n2026-09-10T01:05Z unitC start\n2026-09-12T02:30Z unitC start\n2026-09-14T03:10Z unitA start\n2026-09-15T04:05Z unitB start\n2026-09-17T04:45Z unitC start\n2026-09-19T05:25Z unitB start\n2026-09-21T06:20Z unitA start\n2026-09-21T21:10Z unitB start\n2026-09-23T22:40Z unitC start\n2026-09-25T23:50Z unitA start\n2026-09-27T12:45Z unitC start\n2026-09-29T17:20Z unitB start\n",
+    "README.md": "# Hargate Cold Storage - compressor telemetry\n\nStamps are UTC. The night tariff window is 23:00-07:00 plant time, and plant time is\nUTC+1 in September.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Hargate is auditing compressor run hours. How many starts fall inside the night-tariff window, 23:00 to 07:00 plant time (UTC+1)? Just the number.",
+      "expect": {
+        "expected_number": 11,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "The grid moved the tariff night to 22:00-08:00 plant time starting this cycle. Count the starts again with that window. The bare number, please.",
+      "expect": {
+        "expected_number": 13,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "Within the original 23:00-07:00 window, which unit started most often?",
+      "expect": {
+        "output_contains_any": [
+          "unitC",
+          "Unit C",
+          "unit C"
+        ]
+      }
+    }
+  ]
+}

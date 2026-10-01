@@ -1,0 +1,52 @@
+{
+  "id": "code-7507",
+  "description": "Which pricing test failed and on which two values, checked against the module. DISTILL-CANARY-92c6e40b",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "report_test_result",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "test_tier_basic"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-code-b07-testresult-01",
+    "ref_calls": 3,
+    "fixture_bytes": 369,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "out/run-summary.json": "{\n  \"suite\": \"tests/test_pricing.py\",\n  \"passed\": [\"test_tier_basic\", \"test_bundle_merge\"],\n  \"failed\": [{\"test\": \"test_tier_boundary\", \"error\": \"assert 9.05 == 9.10\"}]\n}\n",
+    "tests/test_pricing.py": "def tier_price(units):\n    if units <= 50:\n        return 9.05\n    return 9.10\n\ndef test_tier_boundary():\n    assert tier_price(50) == 9.10\n\ndef test_tier_basic():\n    assert tier_price(10) == 9.05\n"
+  },
+  "turns": [
+    {
+      "prompt": "out/ 里有昨晚的测试汇总，tests/ 下是被测模块。帮我对一遍：到底哪个用例没过、挂在哪两个值上，跟测试代码核对后再下结论。",
+      "expect": {
+        "output_contains": [
+          "9.05",
+          "9.10",
+          "test_tier_boundary"
+        ],
+        "output_contains_any": [
+          "9.05",
+          "9.10",
+          "test_tier_boundary"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

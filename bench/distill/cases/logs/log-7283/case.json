@@ -1,0 +1,55 @@
+{
+  "id": "log-7283",
+  "description": "Per-teacher teaching hours for September from a shift export and a leave export that carry no hours column. DISTILL-CANARY-58ba8563",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "aggregate_jsonl",
+    "traps": [
+      "TR-ABSENT",
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "上午按 4 小时",
+      "TR-MULTISRC": "leave 表的天数"
+    },
+    "axes": [
+      "DEC",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "fam-log-b06-qingmang-hours",
+    "ref_calls": 3,
+    "fixture_bytes": 817,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 青芒托管 - 9 月排班与请假\n\n- exports/shifts-2026-09.csv  排班表，一行一个班次，时段只有上午、下午两档\n- exports/leave-2026-09.csv  请假登记，时长按天\n\n两表由考勤与教务两个系统分别导出，口径独立。\n",
+    "exports/shifts-2026-09.csv": "日期,时段,老师,教室\n2026-09-01,上午,苏婷,A1\n2026-09-01,下午,何佳,A2\n2026-09-03,上午,郑蔓,A1\n2026-09-05,上午,苏婷,A2\n2026-09-08,下午,何佳,A1\n2026-09-10,上午,郑蔓,A2\n2026-09-12,上午,苏婷,A1\n2026-09-15,下午,何佳,A2\n2026-09-17,上午,郑蔓,A1\n2026-09-19,上午,苏婷,A2\n2026-09-22,下午,何佳,A1\n2026-09-24,上午,郑蔓,A2\n2026-09-26,上午,苏婷,A1\n2026-09-29,下午,何佳,A2\n",
+    "exports/leave-2026-09.csv": "老师,开始日期,结束日期,时长天\n何佳,2026-09-14,2026-09-16,3\n郑蔓,2026-09-21,2026-09-21,1\n苏婷,2026-09-28,2026-09-29,2\n"
+  },
+  "turns": [
+    {
+      "prompt": "青芒托管的校长要做 9 月工资初核，帮我把排班和请假两张表对在一起，每位老师 9 月实际带课的小时数各是多少？",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "小时",
+          "带课"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

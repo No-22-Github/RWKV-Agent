@@ -1,0 +1,46 @@
+{
+  "id": "nt-7167",
+  "description": "Billed weight of an air-freight pickup whose volumetric weight beats the scale weight. DISTILL-CANARY-c1cfdd31",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 3.2
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-logistics-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 433
+  },
+  "offered_tools": [
+    "read_file",
+    "list_files"
+  ],
+  "web_fixture": [],
+  "files": {
+    "waybills/pickup_2026-10-09.csv": "waybill,route,length_cm,width_cm,height_cm,actual_kg\nYD-7713,上海-成都,40,30,20,3.2\nYD-7718,上海-西安,52,38,18,6.5\nYD-7721,上海-广州,35,25,22,4.1\n",
+    "README.md": "# 骏达快运 - 揽收工作区\n\n当日揽收包裹的量方与过磅记录都登记在这里。\n\n- waybills/  揽收件登记表\n\n计费口径：航空件按 长×宽×高（厘米）÷ 6000 计算体积重量，体积重量高于实际称重时，按体积重量计费。\n"
+  },
+  "turns": [
+    {
+      "prompt": "骏达快运今天揽收的 YD-7713 这一件要出航空件。航空件按长、宽、高相乘再除以 6000 计算体积重量，体积重量高于实际称重时按体积重量计费。这一件量出来长 40 厘米、宽 30 厘米、高 20 厘米，过磅 3.2 千克。它的计费重量是多少千克？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 4,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

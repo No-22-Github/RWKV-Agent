@@ -1,0 +1,53 @@
+{
+  "id": "scr-7707",
+  "description": "Write the plug pack list script for a garden centre whose returns sit in a positive refunded column. DISTILL-CANARY-219351ed",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "write_new",
+    "traps": [
+      "TR-SIGN"
+    ],
+    "trap_decoys": {
+      "TR-SIGN": "ordered totals (260 plugs)"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-scr-b06-trellis",
+    "ref_calls": 4,
+    "fixture_bytes": 1046,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "packlist.py": "\"\"\"Print the plug pack list for Trellick Gardens.\n\nWholesale drops one order file per month into orders/, one row per variety:\n\n    order_date,variety,ordered,refunded\n\nThe pack list is one line per variety, in alphabetical order, with the\nplugs that still have to go out, followed by a NET line:\n\n    <variety>,<plugs>\n    NET,<plugs>\n\nThe wholesale portal records returned trays in the refunded column as a\nplain count on the same scale as ordered; that count comes back off the\nvariety's total before the line is printed.\n\"\"\"\n\nif __name__ == \"__main__\":\n    raise SystemExit(\"the pack list is not written yet\")\n",
+    "orders/2026-09.csv": "order_date,variety,ordered,refunded\n2026-09-01,Ajuga,40,0\n2026-09-01,Erysimum,60,6\n2026-09-08,Geum,35,5\n2026-09-08,Ajuga,20,0\n2026-09-15,Tiarella,50,0\n2026-09-15,Erysimum,30,4\n2026-09-22,Geum,25,0\n",
+    "README.md": "# Trellick Gardens - plug pack list\n\nWholesale sends one order file per month into orders/. The returns shelf\nis emptied into the same file: returned plugs sit in the refunded column\nas a plain count on the variety they came back for.\n"
+  },
+  "expect": {
+    "files": {
+      "orders/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "packlist.py",
+      "expected_stdout": "Ajuga,60\nErysimum,80\nGeum,69\nTiarella,68\nNET,277",
+      "hidden_files": {
+        "orders/2026-10.csv": "order_date,variety,ordered,refunded\n2026-10-06,Tiarella,20,2\n2026-10-13,Geum,15,1\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Trellick Gardens' plug pack list was never written: packlist.py holds only the docstring, and wholesale keeps dropping monthly order files into orders/. Please write packlist.py so the pack list prints the way its notes describe, and so it keeps working as later monthly files land in orders/. The files in orders/ are wholesale's own export, so they stay as they are. When you are done, describe in two or three sentences what your script does.",
+      "expect": {}
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "id": "log-7510",
+  "description": "Five-turn Chinese session on a UTC-stamped SMTP log read in Beijing time: window count, sender exclusion, next window, top reason code, full-day reason count. DISTILL-CANARY-f6b38fa1",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [
+      "TR-TZ"
+    ],
+    "trap_decoys": {
+      "TR-TZ": 4
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-log-b07-heron-mail-01",
+    "ref_calls": 6,
+    "fixture_bytes": 4708,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "logs/smtp-delivery.log": "2026-09-23 16:12:44 Q-90301 rcpt=li.wen@bramblehill.cn status=deferred reason=\"450 4.2.0 mailbox busy\"\n2026-09-23 16:40:15 Q-90304 rcpt=kai.tan@heroncourier.cn status=deferred reason=\"421 4.3.2 service overloaded\"\n2026-09-23 16:55:29 Q-90307 rcpt=ivy.zhang@tulipgrove.co.uk status=deferred reason=\"451 4.4.1 greylisted\"\n2026-09-23 17:21:07 Q-90310 rcpt=fang.lu@bramblehill.cn status=deferred reason=\"451 4.4.1 greylisted\"\n2026-09-23 17:38:52 Q-90313 rcpt=zhou.yi@tulipgrove.co.uk status=deferred reason=\"451 4.4.1 greylisted\"\n2026-09-23 17:52:16 Q-90316 rcpt=mo.chen@tulipgrove.co.uk status=deferred reason=\"451 4.4.1 greylisted\"\n2026-09-23 17:58:40 Q-90319 rcpt=ana.reyes@bramblehill.cn status=deferred reason=\"451 4.4.1 greylisted\"\n2026-09-23 18:31:23 Q-90322 rcpt=jing.xu@bramblehill.cn status=deferred reason=\"451 4.4.1 greylisted\"\n2026-09-23 20:05:47 Q-90325 rcpt=hao.song@heroncourier.cn status=deferred reason=\"421 4.3.2 service overloaded\"\n2026-09-23 21:22:10 Q-90328 rcpt=lei.qin@bramblehill.cn status=deferred reason=\"451 4.4.1 greylisted\"\n2026-09-23 22:40:33 Q-90331 rcpt=yun.bo@bramblehill.cn status=delivered\n2026-09-24 01:12:56 Q-90335 rcpt=xiu.mei@tulipgrove.co.uk status=deferred reason=\"451 4.4.1 greylisted\"\n2026-09-24 02:38:19 Q-90338 rcpt=li.wen@bramblehill.cn status=deferred reason=\"451 4.4.1 greylisted\"\n2026-09-24 03:55:42 Q-90341 rcpt=kai.tan@heroncourier.cn status=deferred reason=\"451 4.4.1 greylisted\"\n2026-09-24 04:20:08 Q-90344 rcpt=ivy.zhang@tulipgrove.co.uk status=deferred reason=\"421 4.3.2 service overloaded\"\n2026-09-24 05:07:31 Q-90347 rcpt=fang.lu@bramblehill.cn status=deferred reason=\"451 4.4.1 greylisted\"\n2026-09-24 05:44:54 Q-90350 rcpt=jing.xu@bramblehill.cn status=delivered\n2026-09-24 06:03:17 Q-90353 rcpt=mo.chen@tulipgrove.co.uk status=deferred reason=\"451 4.4.1 greylisted\"\n2026-09-24 06:15:40 Q-90355 rcpt=mailer-test@heroncourier.cn status=deferred reason=\"451 4.4.1 greylisted\"\n2026-09-24 06:20:55 Q-90383 rcpt=fang.lu@bramblehill.cn status=deferred reason=\"451 4.4.1 greylisted\"\n2026-09-24 06:28:03 Q-90357 rcpt=ana.reyes@bramblehill.cn status=deferred reason=\"451 4.4.1 greylisted\"\n2026-09-24 06:36:26 Q-90359 rcpt=zhou.yi@tulipgrove.co.uk status=deferred reason=\"450 4.2.0 mailbox busy\"\n2026-09-24 06:44:49 Q-90361 rcpt=mailer-test@heroncourier.cn status=deferred reason=\"451 4.4.1 greylisted\"\n2026-09-24 06:47:12 Q-90382 rcpt=zhou.yi@tulipgrove.co.uk status=deferred reason=\"451 4.4.1 greylisted\"\n2026-09-24 06:52:12 Q-90363 rcpt=hao.song@heroncourier.cn status=deferred reason=\"450 4.2.0 mailbox busy\"\n2026-09-24 06:58:35 Q-90365 rcpt=lei.qin@bramblehill.cn status=deferred reason=\"451 4.4.1 greylisted\"\n2026-09-24 07:07:58 Q-90367 rcpt=yun.bo@bramblehill.cn status=deferred reason=\"451 4.4.1 greylisted\"\n2026-09-24 07:14:21 Q-90369 rcpt=xiu.mei@tulipgrove.co.uk status=deferred reason=\"451 4.4.1 greylisted\"\n2026-09-24 07:21:44 Q-90371 rcpt=li.wen@bramblehill.cn status=deferred reason=\"451 4.4.1 greylisted\"\n2026-09-24 07:29:07 Q-90373 rcpt=kai.tan@heroncourier.cn status=deferred reason=\"451 4.4.1 greylisted\"\n2026-09-24 07:36:30 Q-90375 rcpt=ivy.zhang@tulipgrove.co.uk status=deferred reason=\"451 4.4.1 greylisted\"\n2026-09-24 07:43:53 Q-90377 rcpt=fang.lu@bramblehill.cn status=deferred reason=\"450 4.2.0 mailbox busy\"\n2026-09-24 07:51:16 Q-90379 rcpt=jing.xu@bramblehill.cn status=deferred reason=\"450 4.2.0 mailbox busy\"\n2026-09-24 07:58:39 Q-90381 rcpt=mo.chen@tulipgrove.co.uk status=deferred reason=\"421 4.3.2 service overloaded\"\n2026-09-24 08:22:02 Q-90384 rcpt=ana.reyes@bramblehill.cn status=deferred reason=\"451 4.4.1 greylisted\"\n2026-09-24 09:41:25 Q-90387 rcpt=zhou.yi@tulipgrove.co.uk status=deferred reason=\"451 4.4.1 greylisted\"\n2026-09-24 11:14:48 Q-90390 rcpt=hao.song@heroncourier.cn status=deferred reason=\"450 4.2.0 mailbox busy\"\n2026-09-24 14:03:11 Q-90393 rcpt=lei.qin@bramblehill.cn status=deferred reason=\"451 4.4.1 greylisted\"\n2026-09-24 14:22:34 Q-90395 rcpt=yun.bo@bramblehill.cn status=deferred reason=\"451 4.4.1 greylisted\"\n2026-09-24 14:40:57 Q-90397 rcpt=xiu.mei@tulipgrove.co.uk status=deferred reason=\"421 4.3.2 service overloaded\"\n2026-09-24 14:58:20 Q-90399 rcpt=li.wen@bramblehill.cn status=deferred reason=\"451 4.4.1 greylisted\"\n2026-09-24 15:16:43 Q-90401 rcpt=kai.tan@heroncourier.cn status=deferred reason=\"451 4.4.1 greylisted\"\n2026-09-24 15:39:06 Q-90403 rcpt=fang.lu@bramblehill.cn status=delivered\n2026-09-24 17:12:29 Q-90406 rcpt=jing.xu@bramblehill.cn status=delivered\n",
+    "README.md": "# Heron Courier 投递日志（UTC 时钟）\n\n一行一封邮件：时间(UTC) 队列号 收件人 状态 可选原因码。\n本日志的时间戳一律为 UTC；北京时间 = UTC + 8 小时。\nstatus=deferred 表示延迟投递。\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "Heron Courier 的投递日志在 logs/smtp-delivery.log。北京时间 9 月 24 日 14:00 到 15:00（14:00:00 起、15:00:00 止）这一个小时里，有多少封邮件进入 deferred 状态？",
+      "expect": {
+        "output_contains_any": [
+          "9 封"
+        ]
+      }
+    },
+    {
+      "prompt": "不对，营销部用 from 以 mailer-test 开头的账号做的测试邮件也在里面，排除掉重算是多少？",
+      "expect": {
+        "output_contains_any": [
+          "7 封"
+        ]
+      }
+    },
+    {
+      "prompt": "改成北京时间 15:00 到 16:00 这一个小时，deferred 有多少封？",
+      "expect": {
+        "output_contains_any": [
+          "8 封"
+        ]
+      }
+    },
+    {
+      "prompt": "这一个小时里，deferred 最多的原因码是什么？",
+      "expect": {
+        "output_contains_any": [
+          "451"
+        ]
+      }
+    },
+    {
+      "prompt": "最后按原因看：北京时间 9 月 24 日全天（0 点到 24 点）因为 mailbox busy 被延迟的有多少封？",
+      "expect": {
+        "output_contains_any": [
+          "6 封"
+        ]
+      }
+    }
+  ]
+}

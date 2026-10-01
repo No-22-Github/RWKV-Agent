@@ -1,0 +1,70 @@
+{
+  "id": "web-7588",
+  "description": "Per-session price of the Lingxi Yoga private-course pricing page, whose fetch fails with a provider error DISTILL-CANARY-4e3d020c",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-FETCHFAIL"
+    ],
+    "trap_decoys": {
+      "TR-FETCHFAIL": "398"
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-web-b06-lingxi-yoga",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "泠曦",
+      "url": "https://www.lingxiyoga.example/price/private-courses",
+      "url_match": "www.lingxiyoga.example/price/private-courses",
+      "title": "私教课程价格 - 泠曦瑜伽馆",
+      "snippet": "驻馆教练一对一私教课程的课程价格与约课说明，单节价格以本页价目表为准。",
+      "content": "# 私教课程价格\n\n泠曦瑜伽馆，2026-09 更新。\n\n私教课程为驻馆教练一对一带教，按节约课，工作日与周末时段均可预约；新会员可先约一节体验课。\n\n单节课程价格、十节卡与赠课安排以本页价目表为准，节假日不顺延的规则见约课须知。\n",
+      "published_at": "2026-09-02",
+      "error": "Tavily extract failed: 502 Bad Gateway"
+    },
+    {
+      "query_match": "泠曦",
+      "url": "https://www.lingxiyoga.example/venue/facilities",
+      "url_match": "www.lingxiyoga.example/venue/facilities",
+      "title": "场馆与设施 - 泠曦瑜伽馆",
+      "snippet": "泠曦瑜伽馆教室、器械与更衣设施介绍；课程价格与约课安排见相应课程页。",
+      "content": "# 场馆与设施\n\n泠曦瑜伽馆共有三间教室：大教室供团课使用，两间小教室用于私教与康复训练；更衣室与淋浴间在一层东侧。\n\n课程价格与约课安排见「团课」与「私教课程价格」页面，本页只介绍场馆设施。\n",
+      "published_at": "2026-07-15"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "我想给妈妈报泠曦瑜伽馆的私教课，麻烦上官网（www.lingxiyoga.example）的私教课程价格页查一下单节课程价格是多少。",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains_any": [
+          "lingxiyoga.example",
+          "lingxiyoga",
+          "私教课程价格"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools",
+          "398"
+        ]
+      }
+    }
+  ]
+}

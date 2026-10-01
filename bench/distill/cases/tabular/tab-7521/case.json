@@ -1,0 +1,51 @@
+{
+  "id": "tab-7521",
+  "description": "Net March 2026 intake for a textbook rental desk after return credits recorded as positive amounts. DISTILL-CANARY-90aa1f51",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "reconcile",
+    "traps": [
+      "TR-SIGN"
+    ],
+    "trap_decoys": {
+      "TR-SIGN": 5003.75
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b06-fennimore-intake-01",
+    "ref_calls": 3,
+    "fixture_bytes": 4399,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "data/rental_charges.csv": "charge_id,charge_month,campus,amount\nFT-5782,2026-02,Dell Court,165.53\nFT-7826,2026-03,Dell Court,121.88\nFT-679,2026-04,Dell Court,118.43\nFT-9389,2026-02,Harrow Hall,41.21\nFT-5037,2026-03,Dell Court,79.49\nFT-3471,2026-03,Dell Court,105.81\nFT-8945,2026-02,Dell Court,51.19\nFT-1995,2026-03,Dell Court,36.96\nFT-8792,2026-03,Harrow Hall,136.97\nFT-8407,2026-03,Dell Court,77.76\nFT-2810,2026-04,Dell Court,124.42\nFT-3682,2026-02,Dell Court,159.38\nFT-4471,2026-04,Harrow Hall,138.75\nFT-5955,2026-03,Harrow Hall,25.82\nFT-9352,2026-03,Harrow Hall,61.97\nFT-4441,2026-02,Dell Court,131.67\nFT-217,2026-03,Harrow Hall,113.43\nFT-4674,2026-03,Harrow Hall,147.46\nFT-4625,2026-03,Harrow Hall,111.13\nFT-5978,2026-03,Dell Court,31.63\nFT-7307,2026-04,Dell Court,161.37\nFT-3745,2026-03,Harrow Hall,142.55\nFT-3419,2026-03,Harrow Hall,87.90\nFT-8305,2026-03,Dell Court,113.09\nFT-8359,2026-04,Dell Court,25.71\nFT-5993,2026-02,Dell Court,81.65\nFT-1067,2026-04,Dell Court,108.18\nFT-1010,2026-03,Dell Court,117.35\nFT-5419,2026-03,Harrow Hall,34.80\nFT-5790,2026-04,Dell Court,76.11\nFT-3051,2026-02,Harrow Hall,155.98\nFT-1853,2026-03,Harrow Hall,179.96\nFT-1705,2026-03,Dell Court,54.19\nFT-8585,2026-02,Harrow Hall,160.88\nFT-3958,2026-04,Harrow Hall,153.19\nFT-6611,2026-03,Harrow Hall,131.22\nFT-7157,2026-03,Harrow Hall,104.42\nFT-8965,2026-03,Dell Court,75.59\nFT-7495,2026-03,Harrow Hall,53.72\nFT-7160,2026-02,Harrow Hall,125.35\nFT-3746,2026-02,Dell Court,66.02\nFT-5397,2026-03,Dell Court,173.16\nFT-2957,2026-03,Dell Court,43.75\nFT-8801,2026-03,Dell Court,163.41\nFT-7711,2026-04,Dell Court,136.60\nFT-9309,2026-03,Harrow Hall,110.84\nFT-5859,2026-03,Dell Court,52.56\nFT-3179,2026-03,Harrow Hall,163.29\nFT-4145,2026-04,Harrow Hall,140.17\nFT-2878,2026-04,Dell Court,144.99\nFT-8560,2026-03,Dell Court,31.25\nFT-5273,2026-02,Dell Court,80.53\nFT-2032,2026-04,Harrow Hall,132.17\nFT-411,2026-04,Dell Court,160.56\nFT-1777,2026-04,Dell Court,75.01\nFT-4174,2026-02,Harrow Hall,36.40\nFT-2677,2026-03,Harrow Hall,67.36\nFT-251,2026-04,Dell Court,155.06\nFT-2187,2026-03,Dell Court,148.63\nFT-4050,2026-03,Dell Court,109.20\nFT-5235,2026-03,Dell Court,94.53\nFT-1634,2026-03,Dell Court,37.44\nFT-7390,2026-02,Dell Court,143.40\nFT-7392,2026-02,Harrow Hall,165.11\nFT-143,2026-03,Harrow Hall,110.91\nFT-5440,2026-02,Harrow Hall,84.42\nFT-1052,2026-03,Harrow Hall,88.60\nFT-3771,2026-03,Harrow Hall,58.05\nFT-2830,2026-02,Harrow Hall,61.24\nFT-6139,2026-03,Dell Court,113.09\nFT-4612,2026-03,Harrow Hall,164.48\nFT-4799,2026-03,Dell Court,58.54\nFT-3565,2026-02,Harrow Hall,75.88\nFT-8485,2026-04,Dell Court,144.80\nFT-4461,2026-04,Dell Court,169.67\nFT-8922,2026-02,Harrow Hall,132.10\nFT-2436,2026-03,Harrow Hall,29.19\nFT-7917,2026-02,Harrow Hall,57.88\nFT-8589,2026-03,Harrow Hall,95.53\nFT-5090,2026-04,Harrow Hall,169.84\nFT-3929,2026-03,Harrow Hall,166.84\nFT-2052,2026-04,Dell Court,127.10\nFT-5351,2026-03,Dell Court,174.18\nFT-1353,2026-04,Harrow Hall,144.67\n",
+    "data/return_credits.csv": "credit_id,credit_month,reason,amount\nFC-2275,2026-03,Book returned,37.20\nFC-4142,2026-04,Damaged copy swap,29.19\nFC-1576,2026-03,Damaged copy swap,51.40\nFC-4717,2026-03,Book returned,41.81\nFC-692,2026-04,Damaged copy swap,68.43\nFC-2524,2026-04,Book returned,32.67\nFC-8898,2026-03,Damaged copy swap,55.11\nFC-2766,2026-02,Book returned,87.38\nFC-6231,2026-03,Book returned,39.38\nFC-9671,2026-03,Book returned,13.27\nFC-6792,2026-02,Book returned,79.34\nFC-6081,2026-02,Book returned,75.20\nFC-2039,2026-02,Damaged copy swap,39.61\nFC-1611,2026-03,Damaged copy swap,59.61\nFC-5750,2026-02,Book returned,39.87\nFC-7830,2026-04,Damaged copy swap,69.25\nFC-7811,2026-03,Book returned,20.96\nFC-720,2026-03,Book returned,53.92\nFC-5032,2026-02,Damaged copy swap,51.12\nFC-4724,2026-03,Damaged copy swap,52.74\nFC-3140,2026-04,Damaged copy swap,78.37\nFC-4947,2026-04,Damaged copy swap,82.68\nFC-4275,2026-03,Book returned,49.97\nFC-6279,2026-02,Damaged copy swap,61.69\nFC-2458,2026-04,Damaged copy swap,50.13\nFC-6516,2026-03,Book returned,60.54\nFC-1445,2026-04,Book returned,62.01\nFC-3295,2026-04,Book returned,21.41\nFC-8147,2026-03,Book returned,28.44\nFC-5754,2026-03,Book returned,39.47\n",
+    "README.md": "# Fennimore Text Rentals - season registers\n\nreturn_credits.csv records returned-book credits. Credits are stored as positive amounts; the month's net intake is the charge total with the credits taken back out.\n",
+    "notes/depot_shelf.txt": "Depot shelf\n- Returns queue in the wire cart.\n- ISBN labels print in the side office.\n- Damaged copies box up for the recycler.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Fennimore Text Rentals is closing the March books. Charges are in data/rental_charges.csv and return credits are in data/return_credits.csv. Give the number alone, as digits, with no label. What was the net March 2026 intake after return credits?",
+      "expect": {
+        "expected_number": 3796.11,
+        "tolerance": 0.01,
+        "required_tools": [
+          "data_query"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 1
+    }
+  }
+}

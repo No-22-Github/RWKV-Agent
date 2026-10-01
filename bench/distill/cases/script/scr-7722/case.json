@@ -1,0 +1,55 @@
+{
+  "id": "scr-7722",
+  "description": "Fix the thrift store till report that adds refunds back in and counts the Thursday training till as takings. DISTILL-CANARY-dcd87b3a",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_output",
+    "traps": [
+      "TR-SIGN",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-SIGN": "refunds added in (gross)",
+      "TR-DECOY": "training rows counted (09-05 and 09-12 kept)"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-scr-b06-rummage",
+    "ref_calls": 4,
+    "fixture_bytes": 1431,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "takings.py": "\"\"\"Print the till report for Rummage Lane Thrift.\n\nThe till drops one file per week into tills/, one row per till entry:\n\n    entry_on,kind,pence\n\nThe report is one line per day that has entries, oldest first, followed by\na total line:\n\n    <entry_on>,<pence>\n    TOTAL,<pence>\n\nThe pence column is what the drawer moved: sale rows bring pence in, and\nrefund rows hand pence back out, both stored as plain positive counts.\nTraining rows are the volunteers' practice till on Thursdays; they are\nnot shop takings.\n\"\"\"\n\nimport csv\nimport glob\n\nper_day = {}\nfor path in sorted(glob.glob(\"tills/*.csv\")):\n    with open(path, newline=\"\", encoding=\"utf-8\") as handle:\n        for row in list(csv.reader(handle))[1:]:\n            day = row[0]\n            pence = int(row[2])\n            per_day[day] = per_day.get(day, 0) + pence\n\ntotal = 0\nfor day in sorted(per_day):\n    print(f\"{day},{per_day[day]}\")\n    total += per_day[day]\nprint(f\"TOTAL,{total}\")\n",
+    "tills/2026-09.csv": "entry_on,kind,pence\n2026-09-03,sale,12400\n2026-09-03,sale,3600\n2026-09-04,refund,2100\n2026-09-04,sale,8900\n2026-09-05,training,5000\n2026-09-10,sale,15200\n2026-09-11,sale,4300\n2026-09-11,refund,1200\n2026-09-12,training,5000\n2026-09-17,sale,9800\n",
+    "README.md": "# Rummage Lane Thrift - till report\n\nThe till drops one file per week into tills/. Refunds sit in the same\nfile with kind set to refund, pence stored as a plain positive count\neither way. The Thursday training till runs on the same machine.\n"
+  },
+  "expect": {
+    "files": {
+      "tills/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "takings.py",
+      "expected_stdout": "2026-09-03,16000\n2026-09-04,6800\n2026-09-10,15200\n2026-09-11,3100\n2026-09-17,9800\n2026-10-01,11400\n2026-10-02,3400\n2026-10-08,7600\nTOTAL,73300",
+      "hidden_files": {
+        "tills/2026-10.csv": "entry_on,kind,pence\n2026-10-01,sale,11400\n2026-10-02,refund,1500\n2026-10-02,sale,4900\n2026-10-02,training,5000\n2026-10-08,sale,7600\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Rummage Lane Thrift's till report disagrees with the treasurer's book: it shows days the shop never took money, and the totals run high. The docstring spells out what the report owes. Please repair takings.py so the report follows its docstring again. The files in tills/ stay as they are. When you are done, say in two or three sentences what you changed.",
+      "expect": {}
+    }
+  ]
+}

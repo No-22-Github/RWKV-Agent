@@ -1,0 +1,67 @@
+{
+  "id": "log-7521",
+  "description": "Four-turn Chinese session across two edge-node logs: combined origin-error count, 503 subset, single-node rescope, maintenance exclusion. DISTILL-CANARY-d44cb860",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": 9
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "fam-log-b07-quill-cdn-01",
+    "ref_calls": 6,
+    "fixture_bytes": 2198,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "logs/cdn-edge-hq.log": "2026-09-23 12:41:07 GET /assets/cover-2245.jpg edge=qcd-hq cache=ERR origin=503 380ms\n2026-09-23 13:15:22 GET /assets/cover-2210.jpg edge=qcd-hq cache=ERR origin=502 376ms\n2026-09-23 13:52:08 GET /assets/cover-2288.jpg edge=qcd-hq cache=MISS origin=200 205ms\n2026-09-23 14:26:33 GET /assets/cover-2231.jpg edge=qcd-hq cache=ERR origin=500 371ms\n2026-09-23 15:02:19 GET /assets/cover-2254.jpg edge=qcd-hq cache=ERR origin=503 383ms\n2026-09-23 15:14:56 GET /assets/cover-2210.jpg edge=qcd-hq cache=ERR origin=504 406ms\n2026-09-23 15:27:40 GET /assets/cover-2288.jpg edge=qcd-hq cache=ERR origin=503 389ms\n2026-09-23 16:03:11 GET /assets/cover-2245.jpg edge=qcd-hq cache=HIT origin=- 8ms\n2026-09-23 16:38:47 GET /assets/cover-2231.jpg edge=qcd-hq cache=ERR origin=500 368ms\n2026-09-23 17:12:24 GET /assets/cover-2254.jpg edge=qcd-hq cache=ERR origin=504 402ms\n2026-09-23 17:49:03 GET /assets/cover-2210.jpg edge=qcd-hq cache=ERR origin=502 377ms\n2026-09-23 18:22:39 GET /assets/cover-2288.jpg edge=qcd-hq cache=MISS origin=200 199ms\n",
+    "logs/cdn-edge-bj.log": "2026-09-23 12:55:31 GET /assets/cover-3355.jpg edge=qcd-bj cache=ERR origin=503 385ms\n2026-09-23 13:30:47 GET /assets/cover-3390.jpg edge=qcd-bj cache=HIT origin=- 10ms\n2026-09-23 14:05:09 GET /assets/cover-3301.jpg edge=qcd-bj cache=ERR origin=502 379ms\n2026-09-23 14:41:26 GET /assets/cover-3355.jpg edge=qcd-bj cache=ERR origin=503 391ms\n2026-09-23 15:18:42 GET /assets/cover-3390.jpg edge=qcd-bj cache=ERR origin=500 370ms\n2026-09-23 15:55:18 GET /assets/cover-3301.jpg edge=qcd-bj cache=MISS origin=200 203ms\n2026-09-23 16:31:53 GET /assets/cover-3355.jpg edge=qcd-bj cache=ERR origin=504 404ms\n2026-09-23 17:08:29 GET /assets/cover-3390.jpg edge=qcd-bj cache=ERR origin=500 373ms\n2026-09-23 17:44:05 GET /assets/cover-3301.jpg edge=qcd-bj cache=MISS origin=200 203ms\n2026-09-23 18:19:40 GET /assets/cover-3355.jpg edge=qcd-bj cache=ERR origin=502 381ms\n2026-09-23 18:56:16 GET /assets/cover-3390.jpg edge=qcd-bj cache=HIT origin=- 7ms\n",
+    "README.md": "# Quill & Page CDN 边缘日志（2026-09-23 12:00-19:00）\n\nlogs/cdn-edge-hq.log 与 logs/cdn-edge-bj.log 分别是 qcd-hq 与 qcd-bj 两个节点的日志。\ncache=ERR 表示源站取回失败，origin= 为源站状态码。\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "Quill & Page 的 CDN 在两个边缘节点各有一份日志：logs/cdn-edge-hq.log 和 logs/cdn-edge-bj.log。9 月 23 日 12:00:00 到 18:00:00 之间，两个节点合计有多少次源站取回失败（cache=ERR）？",
+      "expect": {
+        "output_contains_any": [
+          "15 次"
+        ]
+      }
+    },
+    {
+      "prompt": "其中源站状态码是 503 的有多少次？",
+      "expect": {
+        "output_contains_any": [
+          "5 次"
+        ]
+      }
+    },
+    {
+      "prompt": "改成只看 qcd-hq 节点：同一个时间窗里它有多少次取回失败？",
+      "expect": {
+        "output_contains_any": [
+          "9 次"
+        ]
+      }
+    },
+    {
+      "prompt": "不对，qcd-hq 在 15:00:00 到 15:30:00 做过维护，把这段排除再算是多少次？",
+      "expect": {
+        "output_contains_any": [
+          "6 次"
+        ]
+      }
+    }
+  ]
+}

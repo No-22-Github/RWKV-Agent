@@ -1,0 +1,48 @@
+{
+  "id": "scr-7729",
+  "description": "Repair the wool shed's fly-watch sheet script that dies partway through the evening export. DISTILL-CANARY-ead092fa",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_from_traceback",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-scr-b06-foxhill",
+    "ref_calls": 3,
+    "fixture_bytes": 1110,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "fly_watch.py": "\"\"\"Print Foxhill Wool's evening fly-watch sheet.\n\nReads every monthly export in mobs/ (one row per checked mob) and\nprints each row as its own line, in the order the exports carry\nthem:\n\n    <checked_at>,<mob>,<flag>\n\nUsage:\n\n    python3 fly_watch.py\n\"\"\"\n\nimport csv\nimport glob\n\nrows = []\nfor path in sorted(glob.glob(\"mobs/*.csv\")):\n    with open(path, encoding=\"utf-8\") as handle:\n        rows.extend(csv.DictReader(handle))\n\nfor row in rows:\n    print(f\"{row['checked_at']},{row['mob']},{flag}\")\n",
+    "mobs/2026-09.csv": "checked_at,mob,flag\n2026-09-15T17:44,Mob 9,watch\n2026-09-15T17:58,Mob 4,clear\n2026-09-22T18:07,Mob 15,watch\n2026-09-22T18:21,Mob 9,watch\n",
+    "logs/flywatch-2026-09.log": "Foxhill Wool - evening fly watch\n2026-09-29 18:05 [info] reading mobs/2026-09.csv\n2026-09-29 18:05 [error] watch job aborted, traceback below:\nTraceback (most recent call last):\n  File \"fly_watch.py\", line 23, in <module>\n    print(f\"{row['checked_at']},{row['mob']},{flag}\")\nNameError: name 'flag' is not defined\n",
+    "README.md": "# Foxhill Wool - fly watch\n\nfly_watch.py prints the evening fly-watch sheet from the inspector's\nexports in mobs/. The exports are the inspector's own record.\n"
+  },
+  "expect": {
+    "files": {
+      "mobs/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "fly_watch.py",
+      "expected_stdout": "2026-09-15T17:44,Mob 9,watch\n2026-09-15T17:58,Mob 4,clear\n2026-09-22T18:07,Mob 15,watch\n2026-09-22T18:21,Mob 9,watch\n2026-10-06T17:49,Mob 4,watch\n2026-10-13T18:05,Mob 15,clear",
+      "hidden_files": {
+        "mobs/2026-10.csv": "checked_at,mob,flag\n2026-10-06T17:49,Mob 4,watch\n2026-10-13T18:05,Mob 15,clear\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The evening fly-watch at Foxhill Wool has gone quiet: the alert job aborts partway through, and the watch log with the traceback sits in logs/flywatch-2026-09.log. Please get fly_watch.py running again so the sheet prints the way its notes describe, and so it keeps printing for the exports that follow. The exports in mobs/ stay as they are. When you are done, describe in two or three sentences what you fixed.",
+      "expect": {}
+    }
+  ]
+}

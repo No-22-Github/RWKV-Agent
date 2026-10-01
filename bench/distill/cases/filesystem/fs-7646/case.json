@@ -1,0 +1,42 @@
+{
+  "id": "fs-7646",
+  "description": "Count ledger-type export files in a directory whose first line carries a type stamp. DISTILL-CANARY-f9759b38",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "count_by_type",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-fs-b06-typemark-count-01",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 766,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {
+    "导出/export_0201.txt": "类型：台账\n日期：2026-09-05\n计量点,上月示数,本月示数\n一号变,51340,52661\n二号变,39912,41007\n",
+    "导出/export_0202.txt": "类型：日报\n日期：2026-09-05\n本日抄见电量合计：4409\n异常记录：无\n",
+    "导出/export_0203.txt": "类型：日报\n日期：2026-09-06\n本日抄见电量合计：4318\n异常记录：三号变通讯中断\n",
+    "导出/export_0204.txt": "类型：通知\n日期：2026-09-08\n国庆期间抄表安排另行通知。\n",
+    "导出/export_0205.txt": "类型：会议纪要\n日期：2026-09-09\n月度计量例会：重点跟进三号变通讯问题。\n",
+    "导出/export_0206.txt": "类型：台账\n日期：2026-09-09\n计量点,上月示数,本月示数\n三号变,62903,64188\n四号变,30211,31298\n",
+    "README.md": "泉山计量站：老库房系统的夜间导出。每份导出文件的首行是类型戳，写明这份导出的种类（类型：台账、类型：日报等）。\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "9 月上旬的夜间导出都堆在 导出 目录下。这里面设备台账的导出有几份？（只回答数字，不要单位。）",
+      "expect": {
+        "expected_number": 2,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

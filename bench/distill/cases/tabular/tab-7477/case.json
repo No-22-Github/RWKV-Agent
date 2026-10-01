@@ -1,0 +1,39 @@
+{
+  "id": "tab-7477",
+  "description": "September commission at a flat 3 percent rate from a Chinese plan note. DISTILL-CANARY-4963224a",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "policy_calc",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-tab-b06-qiming-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1073,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "data/sales_2026-09.csv": "单号,日期,销售员,金额\nQM-26-09829,2026-09-07,韩雪,3755.96\nQM-26-09830,2026-09-18,周敏,513.30\nQM-26-09831,2026-09-15,吴凯,4149.75\nQM-26-09832,2026-09-19,吴凯,1686.14\nQM-26-09833,2026-09-23,陈立,2272.01\nQM-26-09834,2026-09-14,韩雪,1132.27\nQM-26-09835,2026-09-07,吴凯,2264.86\nQM-26-09836,2026-09-04,吴凯,1290.66\nQM-26-09837,2026-09-27,韩雪,883.18\nQM-26-09838,2026-09-24,周敏,843.61\nQM-26-09839,2026-09-12,吴凯,1340.56\nQM-26-09840,2026-09-06,周敏,3606.81\nQM-26-09841,2026-09-02,吴凯,1055.64\nQM-26-09842,2026-09-14,韩雪,3705.73\nQM-26-09843,2026-09-18,周敏,870.64\nQM-26-09844,2026-09-25,周敏,2020.98\nQM-26-09845,2026-09-19,吴凯,715.13\nQM-26-09846,2026-09-16,韩雪,2287.72\nQM-26-09847,2026-09-26,韩雪,305.19\nQM-26-09848,2026-09-05,韩雪,3299.07\n",
+    "README.md": "# 启明五金 销售明细\n\n本表为九月销售明细。提成方案见 notes/commission_plan.txt。\n",
+    "notes/commission_plan.txt": "销售提成方案\n提成按销售员当月销售额的 3% 计发，次月随工资发放。\n",
+    "notes/counter_shifts.txt": "柜台排班备注\n- 周日只有一名销售员当班。\n- 大额订单需店长复核。\n"
+  },
+  "turns": [
+    {
+      "prompt": "启明五金九月要预提销售提成。九月销售明细在 data/sales_2026-09.csv。只回答数字，不要单位。2026 年 9 月应发销售提成合计是多少？",
+      "expect": {
+        "expected_number": 1139.9763,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

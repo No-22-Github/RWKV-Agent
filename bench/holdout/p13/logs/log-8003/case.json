@@ -1,0 +1,45 @@
+{
+  "id": "log-8003",
+  "description": "Summarize a Chinese watchdog overnight export in natural language: which service wobbled and how it ended. DISTILL-CANARY-005183a9",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "aggregate_jsonl",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-holdout-logsummary-01",
+    "ref_calls": 2,
+    "fixture_bytes": 449,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "watchdog-export.jsonl": "{\"exported_at\":\"2026-09-30T08:00:00+08:00\",\"source\":\"watchdog\",\"window_hours\":24}\n{\"ts\":\"2026-09-30T02:14:12+08:00\",\"service\":\"payments-api\",\"event\":\"gateway_timeout\",\"target\":\"clearing-gw\",\"count\":3}\n{\"ts\":\"2026-09-30T02:19:40+08:00\",\"service\":\"payments-api\",\"event\":\"auto_recovered\",\"note\":\"clearing-gw 恢复应答，3 笔排队订单已重放成功\"}\n{\"ts\":\"2026-09-30T03:02:00+08:00\",\"service\":\"orders-api\",\"event\":\"heartbeat_ok\",\"p99_ms\":212}\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "把工作区里这份 watchdog 导出总结一下：昨晚服务整体稳不稳，有什么需要早上会跟进的。",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains": [
+          "payments-api",
+          "02:14",
+          "恢复"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

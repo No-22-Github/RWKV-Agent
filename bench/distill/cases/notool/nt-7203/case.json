@@ -1,0 +1,42 @@
+{
+  "id": "nt-7203",
+  "description": "Convert a 6 min/km running pace to speed in km/h; the conversion is fixed arithmetic. DISTILL-CANARY-5de89e7b",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 6
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-pace-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 247
+  },
+  "web_fixture": [],
+  "files": {
+    "tests/pace_2026-09.csv": "member,pace_min_per_km\n周航,6\n郑楚,7.5\n孙苇,5\n",
+    "README.md": "# 力昂健身工作室 - 体测工作区\n\n学员体测记录和训练计划都放在这里。\n\n- tests/  体测登记表\n- plans/  训练计划\n\n体测表统一把配速换算成时速登记。\n"
+  },
+  "turns": [
+    {
+      "prompt": "力昂健身工作室给学员做跑步体测，登记的是配速。周航的配速是 6 分钟/公里。换算成时速是多少公里/小时？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 10,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

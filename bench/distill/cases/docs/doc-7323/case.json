@@ -1,0 +1,41 @@
+{
+  "id": "doc-7323",
+  "description": "Compute the shared lodging cap for two staff of different grades travelling together under the travel policy. DISTILL-CANARY-5943ba97",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": 750
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b06-chengchuan",
+    "ref_calls": 2,
+    "fixture_bytes": 662,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "docs/差旅报销制度.md": "# 澄川物业差旅报销制度\n\n第 1 条 员工出差住宿按职级和城市类别执行限额，限额表见《差旅住宿标准》。\n\n第 2 条 两人及以上同行出差的，同行人员的住宿限额均按同行人员中较低一档执行。\n\n第 3 条 超出限额的部分由出差人自理，住宿费凭发票在限额内实报实销。\n",
+    "docs/差旅住宿标准.csv": "职级,城市类别,住宿上限(元)\n专员,一类,260\n专员,二类,220\n专员,三类,180\n主管,一类,380\n主管,二类,330\n主管,三类,260\n经理,一类,480\n经理,二类,420\n经理,三类,340\n总监,一类,620\n总监,二类,550\n总监,三类,450\n副总,一类,760\n副总,二类,680\n副总,三类,560\n"
+  },
+  "turns": [
+    {
+      "prompt": "澄川物业的王峻岩（经理）和陈苡晴（主管）下周同去昆明出差，昆明属二类城市。差旅制度在 docs/差旅报销制度.md。只回答数字，不要单位——按制度，公司为这两人承担的住宿费上限合计是多少？",
+      "expect": {
+        "expected_number": 660,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

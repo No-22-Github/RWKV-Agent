@@ -1,0 +1,50 @@
+{
+  "id": "nt-7106",
+  "description": "Thanks for finished help with invoice checking; reply directly without any tool call. DISTILL-CANARY-f06c84b9",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-smalltalk-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 286
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 松茂物业 - 财务工作区\n\n物业费账单和发票往来都归档在这里。\n\n- invoices/  收到的发票扫描与登记表\n- receipts/  业主缴费回执\n",
+    "invoices/register.csv": "invoice_no,vendor,amount_cny,status\nFP-2211,恒洁保洁,8600.00,已核验\nFP-2212,迅达电梯维修,4350.00,待核验\n"
+  },
+  "turns": [
+    {
+      "prompt": "刚才你帮我核的那几张发票省了我不少事，谢谢你啊。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "不客气",
+          "不用谢",
+          "别客气",
+          "应该的",
+          "能帮上",
+          "荣幸",
+          "随时"
+        ]
+      }
+    }
+  ]
+}

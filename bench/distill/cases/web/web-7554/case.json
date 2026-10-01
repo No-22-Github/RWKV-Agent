@@ -1,0 +1,56 @@
+{
+  "id": "web-7554",
+  "description": "Current stable Fernwave Convert CLI version, from a changelog the snippet does not reveal. DISTILL-CANARY-b063edc8",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-SNIPPETVAGUE"
+    ],
+    "trap_decoys": {
+      "TR-SNIPPETVAGUE": "3.14.2"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-web-b06-fernwave",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "fernwave",
+      "url": "https://www.fernwave.example/convert",
+      "url_match": "www.fernwave.example/convert",
+      "title": "Fernwave Convert - command-line conversions",
+      "snippet": "Convert documents from the terminal. Part of the Fernwave toolkit family, with its own release line.",
+      "content": "# Fernwave Convert\n\nConvert documents straight from the terminal: batch jobs, watch\nfolders and exit codes your CI can rely on. Convert ships on its own\nrelease line, separate from the PDF toolkit.\n",
+      "published_at": "2026-07-10"
+    },
+    {
+      "query_match": "fernwave",
+      "url": "https://docs.fernwave.example/convert-changelog",
+      "url_match": "docs.fernwave.example/convert-changelog",
+      "title": "Fernwave Convert CLI - changelog",
+      "snippet": "Release history for the Convert CLI.",
+      "content": "# Changelog - Fernwave Convert CLI\n\nCurrent stable: 1.9.7 (2026-08-21)\n\n## 1.9.7 (2026-08-21)\n\nFixes a path-mangling issue on Windows network drives.\n\n## 1.8.2 (2026-05-09)\n\nAdds a --flatten option.\n\nWhile you are here: the Fernwave PDF toolkit is a different product\nwith its own changelog (3.14.2 at the moment).\n",
+      "published_at": "2026-08-21"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "Our build server calls the Fernwave Convert CLI. Give the version alone, in the form 1.2.3. Which Convert CLI version is the current stable release?",
+      "expect": {
+        "output_equals": "1.9.7"
+      }
+    }
+  ]
+}

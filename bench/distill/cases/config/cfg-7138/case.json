@@ -1,0 +1,39 @@
+{
+  "id": "cfg-7138",
+  "description": "Raise cooling_minutes on a grain drying tower config without touching anything else. DISTILL-CANARY-d5432f0f",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-cfg-b06-jinsui-drying",
+    "ref_calls": 2,
+    "fixture_bytes": 324,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/drying.yaml": "target_moisture_pct: 14\nbatch_tons: 30\ncooling_minutes: 60\nalarm_phone: \"13755501682\"\n",
+    "README.md": "# 金穗粮仓 - 烘干线配置\n\n`config/drying.yaml` 是三号烘干塔的生效配置，一行一个设置，值班长直接改这份文件并保存。\n\n报警电话与保管员信息由专人维护，数值设置不要动其他行。\n"
+  },
+  "expect": {
+    "files": {
+      "config/drying.yaml": {
+        "equals": "target_moisture_pct: 14\nbatch_tons: 30\ncooling_minutes: 90\nalarm_phone: \"13755501682\"\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "金穗粮仓三号烘干塔这两天进的湿粮出塔粮温偏高，值班长决定把降温段拉长。请把 config/drying.yaml 里的 cooling_minutes 改到 90，其余行保持原样。完成后用两三句话说明你改了什么。",
+      "expect": {}
+    }
+  ]
+}

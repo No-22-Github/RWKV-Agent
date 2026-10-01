@@ -1,0 +1,47 @@
+{
+  "id": "scr-7727",
+  "description": "Make the cooperage's per-pit sheet run on standard-library-only runners while it prints the same sheet. DISTILL-CANARY-8ab75739",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "stdlib_only",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-scr-b06-cranlow",
+    "ref_calls": 3,
+    "fixture_bytes": 957,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "pit_totals.py": "\"\"\"Print the per-pit sheet for Cranlow Cooperage.\n\nReads every monthly export in casks/ (one row per cask firing) and\nprints one line per pit, in name order, followed by a totals line:\n\n    <pit>,<firings>,<minutes>\n    TOTAL,<firings>,<minutes>\n\"\"\"\n\nimport glob\n\nimport pandas as pd\n\nframes = []\nfor path in sorted(glob.glob(\"casks/*.csv\")):\n    frames.append(pd.read_csv(path))\n\ndf = pd.concat(frames)\nfor pit, group in df.groupby(\"pit\"):\n    print(f\"{pit},{len(group)},{int(group['minutes'].sum())}\")\nprint(f\"TOTAL,{len(df)},{int(df['minutes'].sum())}\")\n",
+    "casks/2026-09.csv": "char_date,pit,minutes\n2026-09-02,Cinder One,33\n2026-09-02,Cinder Two,26\n2026-09-05,Cinder One,37\n2026-09-08,Cinder Two,28\n2026-09-12,Cinder One,35\n2026-09-19,Cinder One,31\n2026-09-26,Cinder Two,29\n",
+    "README.md": "# Cranlow Cooperage - per-pit sheet\n\npit_totals.py prints the per-pit sheet the yard office reads out\nat the end of the week. The yard office terminal has no third-party\npackages; standard library only.\n"
+  },
+  "expect": {
+    "files": {
+      "casks/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "pit_totals.py",
+      "expected_stdout": "Cinder One,5,170\nCinder Two,5,145\nTOTAL,10,315",
+      "hidden_files": {
+        "casks/2026-10.csv": "char_date,pit,minutes\n2026-10-03,Cinder Two,30\n2026-10-10,Cinder One,34\n2026-10-17,Cinder Two,32\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The yard office terminal at Cranlow Cooperage cannot install packages, and pit_totals.py leans on pandas, so the per-pit sheet no longer prints. Please rewrite pit_totals.py with the standard library alone so the sheet prints exactly as it does today, and keeps printing as later exports land in casks/. The exports in casks/ stay as they are. When you are done, describe in two or three sentences what you changed.",
+      "expect": {}
+    }
+  ]
+}

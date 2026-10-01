@@ -1,0 +1,48 @@
+{
+  "id": "hyb-7727",
+  "description": "Beanline Roasters two-turn session: order count first, then a thank-you with a follow-up on total bags. DISTILL-CANARY-3b7f0d52",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 9
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b07-cafe-01",
+    "ref_calls": 2,
+    "fixture_bytes": 732,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "value"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Beanline Roasters - March order export\n\nNightly export from the order system, March 2026. One row per order line; the export job\nretried twice this month, so some orders were written more than once.\nchannel values: wholesale (cafes and restaurants), subscription, retail.\n",
+    "exports/march_orders.csv": "order_id,date,channel,bags\nBL-3402,2026-03-03,wholesale,4\nBL-3406,2026-03-05,subscription,2\nBL-3402,2026-03-03,wholesale,4\nBL-3411,2026-03-09,wholesale,6\nBL-3414,2026-03-12,retail,1\nBL-3418,2026-03-14,retail,3\nBL-3411,2026-03-09,wholesale,6\nBL-3421,2026-03-18,wholesale,2\nBL-3426,2026-03-21,subscription,4\nBL-3430,2026-03-24,wholesale,1\nBL-3418,2026-03-14,retail,3\nBL-3434,2026-03-28,wholesale,4\nBL-3438,2026-03-30,wholesale,2\nBL-3441,2026-03-31,wholesale,3\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many orders did we ship to wholesale cafes in March 2026? The export is at exports/march_orders.csv. Reply with only the final answer.",
+      "expect": {
+        "expected_number": 7,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "Thanks, that is exactly what I needed! One more thing - across those wholesale orders, how many bags went out in total? Reply with only the final answer.",
+      "expect": {
+        "expected_number": 22,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

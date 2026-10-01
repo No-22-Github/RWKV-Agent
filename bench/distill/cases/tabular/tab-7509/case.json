@@ -1,0 +1,50 @@
+{
+  "id": "tab-7509",
+  "description": "Count June 2026 Aqua Fit check-ins in the Slow lane of a pool export where the same program runs in three lanes. DISTILL-CANARY-b4b1fefc",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 58
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b06-meadowbrook-lane-01",
+    "ref_calls": 1,
+    "fixture_bytes": 6065,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "data/swim_checkins.csv": "checkin_id,checkin_month,program,lane,payment\nMB-599,2026-06,Aqua Fit,Medium,Drop-in\nMB-886,2026-06,Family Splash,Slow,Drop-in\nMB-911,2026-07,Lane Swim,Slow,Drop-in\nMB-2236,2026-06,Aqua Fit,Medium,Pass\nMB-7090,2026-06,Aqua Fit,Medium,Pass\nMB-8396,2026-06,Lane Swim,Fast,Pass\nMB-3156,2026-06,Aqua Fit,Medium,Drop-in\nMB-4278,2026-06,Family Splash,Fast,Drop-in\nMB-3511,2026-06,Aqua Fit,Medium,Pass\nMB-4232,2026-06,Aqua Fit,Medium,Drop-in\nMB-9596,2026-05,Family Splash,Fast,Drop-in\nMB-5247,2026-06,Family Splash,Fast,Pass\nMB-2727,2026-07,Lessons,Slow,Drop-in\nMB-1806,2026-06,Aqua Fit,Fast,Pass\nMB-5835,2026-07,Family Splash,Medium,Drop-in\nMB-2594,2026-06,Aqua Fit,Slow,Pass\nMB-1680,2026-07,Family Splash,Medium,Drop-in\nMB-1380,2026-06,Aqua Fit,Fast,Pass\nMB-4500,2026-06,Family Splash,Fast,Drop-in\nMB-5304,2026-06,Family Splash,Medium,Drop-in\nMB-3451,2026-07,Family Splash,Slow,Pass\nMB-419,2026-06,Aqua Fit,Fast,Drop-in\nMB-4251,2026-06,Lane Swim,Fast,Pass\nMB-6815,2026-06,Aqua Fit,Medium,Drop-in\nMB-1513,2026-06,Aqua Fit,Slow,Drop-in\nMB-7858,2026-06,Family Splash,Fast,Drop-in\nMB-8714,2026-06,Aqua Fit,Slow,Drop-in\nMB-6707,2026-07,Aqua Fit,Medium,Drop-in\nMB-8895,2026-07,Lane Swim,Slow,Pass\nMB-5307,2026-06,Family Splash,Fast,Pass\nMB-2665,2026-06,Family Splash,Medium,Drop-in\nMB-4186,2026-06,Aqua Fit,Slow,Drop-in\nMB-7278,2026-06,Lane Swim,Medium,Drop-in\nMB-3080,2026-06,Aqua Fit,Fast,Drop-in\nMB-4598,2026-06,Aqua Fit,Medium,Pass\nMB-4664,2026-06,Lessons,Fast,Drop-in\nMB-4600,2026-06,Aqua Fit,Fast,Pass\nMB-2349,2026-06,Lane Swim,Medium,Drop-in\nMB-984,2026-05,Lane Swim,Medium,Pass\nMB-2900,2026-05,Lessons,Slow,Drop-in\nMB-1370,2026-06,Lane Swim,Medium,Drop-in\nMB-5393,2026-06,Aqua Fit,Slow,Drop-in\nMB-3182,2026-07,Lessons,Fast,Drop-in\nMB-2496,2026-06,Lane Swim,Fast,Drop-in\nMB-4245,2026-06,Lane Swim,Medium,Pass\nMB-3647,2026-06,Aqua Fit,Fast,Pass\nMB-6067,2026-06,Lane Swim,Fast,Pass\nMB-9801,2026-06,Lane Swim,Fast,Pass\nMB-8110,2026-06,Lane Swim,Fast,Drop-in\nMB-3618,2026-06,Aqua Fit,Medium,Drop-in\nMB-7077,2026-06,Aqua Fit,Fast,Pass\nMB-8009,2026-06,Aqua Fit,Slow,Pass\nMB-3669,2026-06,Aqua Fit,Slow,Pass\nMB-1566,2026-05,Aqua Fit,Fast,Drop-in\nMB-7511,2026-06,Aqua Fit,Fast,Pass\nMB-4549,2026-05,Lessons,Slow,Drop-in\nMB-4309,2026-06,Lane Swim,Medium,Pass\nMB-1880,2026-07,Lane Swim,Medium,Drop-in\nMB-6077,2026-06,Aqua Fit,Fast,Pass\nMB-1525,2026-06,Family Splash,Slow,Drop-in\nMB-1036,2026-06,Lessons,Fast,Pass\nMB-547,2026-06,Aqua Fit,Medium,Pass\nMB-7557,2026-07,Aqua Fit,Slow,Drop-in\nMB-3396,2026-06,Family Splash,Fast,Drop-in\nMB-8725,2026-06,Aqua Fit,Medium,Pass\nMB-3801,2026-06,Aqua Fit,Fast,Drop-in\nMB-592,2026-06,Lane Swim,Medium,Pass\nMB-9222,2026-06,Aqua Fit,Slow,Drop-in\nMB-5104,2026-06,Lane Swim,Fast,Pass\nMB-2762,2026-07,Aqua Fit,Fast,Pass\nMB-1214,2026-06,Lessons,Medium,Drop-in\nMB-9042,2026-06,Lessons,Fast,Drop-in\nMB-9831,2026-06,Aqua Fit,Medium,Pass\nMB-6031,2026-07,Lane Swim,Slow,Drop-in\nMB-6254,2026-06,Lane Swim,Medium,Drop-in\nMB-3893,2026-06,Lane Swim,Medium,Drop-in\nMB-7604,2026-06,Lessons,Slow,Pass\nMB-9386,2026-07,Family Splash,Fast,Pass\nMB-2049,2026-06,Aqua Fit,Slow,Drop-in\nMB-897,2026-06,Lessons,Slow,Drop-in\nMB-2176,2026-06,Family Splash,Fast,Pass\nMB-6578,2026-05,Lane Swim,Fast,Pass\nMB-1974,2026-06,Lessons,Fast,Drop-in\nMB-5785,2026-06,Aqua Fit,Medium,Drop-in\nMB-5900,2026-06,Aqua Fit,Fast,Drop-in\nMB-584,2026-07,Lane Swim,Medium,Drop-in\nMB-7274,2026-06,Aqua Fit,Fast,Pass\nMB-5709,2026-07,Aqua Fit,Fast,Drop-in\nMB-4274,2026-06,Lane Swim,Fast,Pass\nMB-2228,2026-06,Aqua Fit,Slow,Drop-in\nMB-9449,2026-07,Aqua Fit,Slow,Drop-in\nMB-6860,2026-05,Lessons,Medium,Pass\nMB-7832,2026-06,Lane Swim,Slow,Drop-in\nMB-7339,2026-06,Family Splash,Fast,Pass\nMB-5011,2026-05,Aqua Fit,Slow,Pass\nMB-9835,2026-06,Aqua Fit,Slow,Pass\nMB-6126,2026-06,Lane Swim,Medium,Drop-in\nMB-600,2026-06,Lane Swim,Slow,Drop-in\nMB-3468,2026-06,Aqua Fit,Slow,Drop-in\nMB-6695,2026-06,Family Splash,Slow,Drop-in\nMB-3588,2026-06,Lane Swim,Medium,Pass\nMB-6234,2026-06,Aqua Fit,Medium,Drop-in\nMB-1464,2026-06,Aqua Fit,Slow,Drop-in\nMB-8633,2026-06,Family Splash,Slow,Pass\nMB-8469,2026-06,Family Splash,Medium,Drop-in\nMB-7412,2026-06,Aqua Fit,Medium,Drop-in\nMB-1705,2026-06,Lessons,Medium,Drop-in\nMB-4151,2026-06,Family Splash,Fast,Pass\nMB-4461,2026-07,Lane Swim,Fast,Drop-in\nMB-1980,2026-06,Family Splash,Medium,Pass\nMB-3757,2026-06,Aqua Fit,Fast,Pass\nMB-6967,2026-06,Aqua Fit,Fast,Pass\nMB-1457,2026-06,Aqua Fit,Slow,Pass\nMB-6080,2026-06,Aqua Fit,Medium,Pass\nMB-3759,2026-06,Aqua Fit,Slow,Pass\nMB-1899,2026-06,Aqua Fit,Slow,Pass\nMB-1950,2026-06,Aqua Fit,Slow,Pass\nMB-6198,2026-06,Aqua Fit,Fast,Pass\nMB-2842,2026-06,Family Splash,Slow,Drop-in\nMB-147,2026-07,Aqua Fit,Slow,Drop-in\nMB-3503,2026-06,Aqua Fit,Medium,Drop-in\nMB-1500,2026-06,Aqua Fit,Fast,Drop-in\nMB-9805,2026-06,Aqua Fit,Slow,Pass\nMB-5132,2026-05,Aqua Fit,Fast,Drop-in\nMB-5009,2026-06,Aqua Fit,Medium,Pass\nMB-2271,2026-06,Family Splash,Medium,Drop-in\nMB-1667,2026-07,Lane Swim,Fast,Pass\nMB-9131,2026-06,Family Splash,Medium,Pass\nMB-3695,2026-07,Lessons,Slow,Drop-in\nMB-4561,2026-06,Aqua Fit,Slow,Pass\nMB-4017,2026-06,Aqua Fit,Slow,Pass\nMB-2573,2026-06,Aqua Fit,Fast,Pass\nMB-9109,2026-05,Family Splash,Fast,Drop-in\nMB-5829,2026-06,Lessons,Slow,Drop-in\nMB-2753,2026-06,Aqua Fit,Slow,Drop-in\nMB-549,2026-06,Lane Swim,Fast,Drop-in\nMB-2664,2026-07,Aqua Fit,Slow,Pass\nMB-8503,2026-06,Aqua Fit,Fast,Drop-in\nMB-9347,2026-06,Lane Swim,Medium,Pass\nMB-7807,2026-06,Family Splash,Slow,Drop-in\nMB-3484,2026-06,Lane Swim,Slow,Pass\nMB-7888,2026-06,Family Splash,Fast,Drop-in\nMB-7627,2026-06,Lane Swim,Medium,Pass\nMB-2139,2026-06,Aqua Fit,Medium,Pass\nMB-1251,2026-06,Lane Swim,Fast,Pass\nMB-7354,2026-06,Lane Swim,Fast,Pass\nMB-5444,2026-06,Lane Swim,Fast,Drop-in\nMB-3627,2026-06,Family Splash,Fast,Pass\nMB-3563,2026-05,Aqua Fit,Fast,Pass\nMB-6565,2026-06,Family Splash,Medium,Pass\n",
+    "README.md": "# Meadowbrook Community Pool - check-in export\n\nOne row per visit. Aqua Fit runs in all three lanes; the Slow lane hosts the beginner cohort.\n",
+    "notes/noticeboard.txt": "Noticeboard\n- Lane ropes reset on weekday mornings.\n- Kickboards stack in the big blue bin.\n- The lost-and-found drawer empties monthly.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Meadowbrook Community Pool is preparing a usage count for slow-lane Aqua Fit sessions. The check-in export is at data/swim_checkins.csv. Give the number alone, as digits, with no label. How many Aqua Fit check-ins used the Slow lane in June 2026?",
+      "expect": {
+        "expected_number": 21,
+        "tolerance": 0.01,
+        "required_tools": [
+          "data_query"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 1
+    }
+  }
+}

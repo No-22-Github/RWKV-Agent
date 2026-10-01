@@ -1,0 +1,4 @@
+Response targets run from the first alarm in the hourly telemetry queue.
+Sites on the harbor loop keep spare valve kits on site; everything else
+draws from the central storeroom. Weekend visits need the duty manager's
+sign-off.

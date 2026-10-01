@@ -1,0 +1,42 @@
+{
+  "id": "cfg-7135",
+  "description": "Count the sites in the merged regions array after applying a vendor patch whose array rule lives in a guide. DISTILL-CANARY-5a12b270",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "merge",
+    "traps": [
+      "TR-RULEFILE"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": 5
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b06-lianhua-mon",
+    "ref_calls": 3,
+    "fixture_bytes": 682,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "docs/merge-guide.md": "# 监控采集端升级补丁套用办法\n\n升级补丁 vendor/upgrade-patch.json 套到基线 config/monitor-base.json 上得到生效配置，办法只有三条：\n\n一、补丁里出现的键，套用后一律以补丁的值为准。\n二、补丁里没有出现的键，保留基线的值。\n三、列表（数组）键不逐项拼接：整个列表直接以补丁给出的为准，基线列表整组舍弃。\n\n套用完的生效配置由采集端在下次重启后加载。\n",
+    "config/monitor-base.json": "{\n  \"collector\": \"lianhua-mon-01\",\n  \"regions\": [\"zhoushan\", \"ningbo\", \"taizhou\"],\n  \"retry_max\": 3,\n  \"upload_interval_s\": 15\n}\n",
+    "vendor/upgrade-patch.json": "{\n  \"regions\": [\"zhoushan-new\", \"ningbo-new\"],\n  \"upload_interval_s\": 10\n}\n"
+  },
+  "turns": [
+    {
+      "prompt": "联华冷链的监控采集端要套用厂商升级补丁，套用办法按 docs/merge-guide.md 执行（补丁是 vendor/upgrade-patch.json，基线是 config/monitor-base.json）。套用后生效配置里 regions 数组里有几个站点？（只回答数字，不要单位。）",
+      "expect": {
+        "expected_number": 2,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

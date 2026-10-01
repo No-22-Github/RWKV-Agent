@@ -1,0 +1,52 @@
+{
+  "id": "web-7562",
+  "description": "Stable-channel version string currently shipping for Granton Tills, read off the vendor changelog. DISTILL-CANARY-93e04fef",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-web-b06-granton-tills",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "granton",
+      "url": "https://www.grantonpos.example/changelog",
+      "url_match": "www.grantonpos.example/changelog",
+      "title": "Granton Tills changelog",
+      "snippet": "The stable channel currently ships 6.4.1, released on 2026-09-04.",
+      "content": "# Granton Tills changelog\n\n## 6.4.1 - 2026-09-04 (stable channel)\nReceipt printer reconnect is now silent; fixes the VAT rounding on split tenders.\n\n## 6.3.9 - 2026-07-19 (stable channel)\nThe offline queue holds up to 400 tickets.\n\n## 6.2.0 - 2026-04-27 (stable channel)\nAdds the till-roll forecast to the back office dashboard.\n",
+      "published_at": "2026-09-04"
+    },
+    {
+      "query_match": "granton",
+      "url": "https://www.grantonpos.example/pricing",
+      "url_match": "www.grantonpos.example/pricing",
+      "title": "Plans - Granton Tills",
+      "snippet": "One plan per site; till hardware is leased separately.",
+      "content": "# Plans\n\nOne plan per site, billed monthly; till hardware is leased separately. Multi-site groups get a consolidated invoice.\n",
+      "published_at": "2026-05-30"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "The tills across our garden centre run Granton Tills and the asset tags need the release number written on them. Which version string is the stable channel shipping right now? Give the version alone, in the form 1.2.3.",
+      "expect": {
+        "output_equals": "6.4.1"
+      }
+    }
+  ]
+}

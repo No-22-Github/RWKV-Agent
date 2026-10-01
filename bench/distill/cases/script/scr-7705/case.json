@@ -1,0 +1,53 @@
+{
+  "id": "scr-7705",
+  "description": "Write the ferry lane tally script so repeated card charges from the gate system's sync retries count once. DISTILL-CANARY-0a1908e7",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "write_new",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": "row sums (25 passengers / 19100 pence)"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-scr-b06-gullwing",
+    "ref_calls": 3,
+    "fixture_bytes": 1027,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "tickets.py": "\"\"\"Print the lane tally for Gullwing Ferries.\n\nThe gate system drops one ticketing file per month into crossings/, one row\nper card charge:\n\n    charge_id,sold_on,route,passengers,pence\n\nThe lane tally is one line per route, in alphabetical order, counting every\ncharge once:\n\n    <route>,<passengers>,<pence>\n    TOTAL,<passengers>,<pence>\n\"\"\"\n\nif __name__ == \"__main__\":\n    raise SystemExit(\"the lane tally is not written yet\")\n",
+    "crossings/2026-09.csv": "charge_id,sold_on,route,passengers,pence\nGW-2201,2026-09-03,East Sand,2,1400\nGW-2202,2026-09-03,West Head,1,900\nGW-2203,2026-09-06,East Sand,4,2800\nGW-2203,2026-09-06,East Sand,4,2800\nGW-2205,2026-09-11,West Head,2,1800\nGW-2206,2026-09-14,Mill Quay,3,2100\nGW-2206,2026-09-14,Mill Quay,3,2100\nGW-2208,2026-09-20,East Sand,1,700\nGW-2209,2026-09-27,West Head,5,4500\n",
+    "README.md": "# Gullwing Ferries - lane tally\n\nThe gate system writes one ticketing file per month into crossings/. Its\nsync job retried twice this month, so a few card charges were posted again\nwith their charge_id kept; a charge is billed once.\n"
+  },
+  "expect": {
+    "files": {
+      "crossings/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "tickets.py",
+      "expected_stdout": "East Sand,10,7000\nMill Quay,7,4900\nWest Head,10,9000\nTOTAL,27,20900",
+      "hidden_files": {
+        "crossings/2026-10.csv": "charge_id,sold_on,route,passengers,pence\nGW-2301,2026-10-08,East Sand,3,2100\nGW-2302,2026-10-15,West Head,2,1800\nGW-2303,2026-10-22,Mill Quay,4,2800\nGW-2303,2026-10-22,Mill Quay,4,2800\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Gullwing Ferries wants its lane tally back: tickets.py holds only the docstring, and the gate system keeps posting monthly ticketing files into crossings/. Please write tickets.py so the lane tally prints the way its notes describe, and so it keeps working as later monthly files land in crossings/. The files in crossings/ are the gate system's own record, so they stay as they are. When you are done, describe in two or three sentences what your script does.",
+      "expect": {}
+    }
+  ]
+}

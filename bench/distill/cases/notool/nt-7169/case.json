@@ -1,0 +1,42 @@
+{
+  "id": "nt-7169",
+  "description": "Combined load impedance of two 8-ohm speakers wired in parallel on one amplifier output. DISTILL-CANARY-6e06f9ff",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 16
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-audio-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 360
+  },
+  "web_fixture": [],
+  "files": {
+    "gear/speaker_list.csv": "tag,model,impedance_ohm,spot\n主左,聆风VL-2,8,试音间\n主右,聆风VL-2,8,试音间\n环绕,回声K8,8,试音间后墙\n",
+    "README.md": "# 声悦音响行 - 门店工作区\n\n在售音箱和试音间的接线记录都放在这里。\n\n- gear/  器材与接线登记\n\n试音间接线口径：主声道两箱并接在同一功放输出上，登记的阻抗为单只标称值。\n"
+  },
+  "turns": [
+    {
+      "prompt": "声悦音响行的试音间里，功放主声道的同一路输出上并接了两只标称 8 欧的音箱。并接之后这一路总的负载阻抗是多少欧？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 4,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

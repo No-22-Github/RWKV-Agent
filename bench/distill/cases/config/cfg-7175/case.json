@@ -1,0 +1,56 @@
+{
+  "id": "cfg-7175",
+  "description": "Effective banner_refresh_s of the Tongyu Bakery shopfront service, whose only mention is a commented-out line DISTILL-CANARY-d297cb25",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "missing_keys",
+    "traps": [
+      "TR-ABSENT",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "2.5",
+      "TR-DECOY": "2.5"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-cfg-b06-tongyu-bakery",
+    "ref_calls": 3,
+    "fixture_bytes": 777,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 桐屿烘焙 - 商城服务配置工作区\n\n`shopfront` 是线上商城小程序的后端服务，首页轮播图与商品列表都由它下发。\n\n配置分两层存放，生效顺序为：实例配置覆盖平台基线，同名键以实例配置里的值为准；实例配置没写的键回落到基线；两层都没有的键没有生效值。\n\n- config/shopfront.yaml       本店实例配置\n- config/shopfront-base.yaml  平台基线\n\n所有配置变更由发布系统统一下发后生效。\n",
+    "config/shopfront.yaml": "service: shopfront\nregion: cn-east-1\nlisten_port: 8480\nsession_ttl_min: 30\n# banner_refresh_s: 2.5   # 大促期间临时调快的备注，活动结束后已下线\nlog_level: info\n",
+    "config/shopfront-base.yaml": "tenant_tier: standard\nlisten_port: 8080\nsession_ttl_min: 60\nstatic_cache_s: 300\nlog_level: warn\n"
+  },
+  "turns": [
+    {
+      "prompt": "桐屿烘焙的小程序商城最近改版，运营想确认 shopfront 生效配置里 banner_refresh_s 现在是多少，帮我查一下。",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "banner_refresh_s",
+          "banner refresh",
+          "轮播图刷新"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

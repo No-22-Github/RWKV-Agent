@@ -1,0 +1,39 @@
+{
+  "id": "fs-7641",
+  "description": "Locate the June 2026 fire inspection sheet among three identically structured CSVs by the inspection date inside. DISTILL-CANARY-6fdf506f",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "find_file",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-fs-b06-ledgerfind-01",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 831,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {
+    "档案室/消防检查记录表(东楼).csv": "检查日期,检查区域,检查人,隐患数,备注\n2026-03-15,东楼三层,何淑芬,2,安全出口指示牌维修\n2026-03-15,东楼地下车库,何淑芬,0,无\n",
+    "档案室/消防检查记录表(西楼).csv": "检查日期,检查区域,检查人,隐患数,备注\n2025-12-10,西楼二层,何淑芬,1,应急灯更换\n2025-12-10,西楼配电间,何淑芬,0,无\n",
+    "档案室/消防检查记录表(仓库).csv": "检查日期,检查区域,检查人,隐患数,备注\n2026-06-18,仓库A区,周建明,1,灭火器压力表更换已复核\n2026-06-18,仓库B区,周建明,0,无\n",
+    "档案室/整理说明.txt": "行政部每季度对各区域做一次消防检查，半年度检查安排在 6 月和 12 月。\n消防检查记录表按检查场次存档：每场检查单独一张表，表内「检查日期」为该次检查的日期。\n",
+    "README.md": "华辰精密行政部共享盘：档案室目录。消防检查记录表按被检区域命名，一年内的各场检查各自成表。\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "行政部把上半年的消防检查记录表都存在共享盘「档案室」目录下，文件按被检区域命名。6 月中旬做过一次半年度检查，那次检查用的记录表是哪个文件？（回答只写该文件的完整路径，不要附加说明。）",
+      "expect": {
+        "output_equals": "档案室/消防检查记录表(仓库).csv"
+      }
+    }
+  ]
+}

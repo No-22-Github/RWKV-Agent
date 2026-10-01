@@ -1,0 +1,57 @@
+{
+  "id": "tab-7490",
+  "description": "Full-year 2026 payment total at Marrowbeck, whose register runs through the August payment run. DISTILL-CANARY-ba55e649",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "2860"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b06-marrowbeck-fiscal",
+    "ref_calls": 3,
+    "fixture_bytes": 1239,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Marrowbeck Forestry - 2026 payment register\n\nThe register is appended at each monthly payment run; the file currently runs through the August run (last value date 2026-08-28). Later months are appended as they close.\n",
+    "exports/payments-2026.csv": "payment_id,value_date,payer,amount\nMB-2001,2026-01-09,Carrow Timber,1240.00\nMB-2004,2026-01-16,Lound Estate,860.00\nMB-2007,2026-01-27,Pell & Sons,1315.00\nMB-2010,2026-02-06,Harkness Mills,990.00\nMB-2013,2026-02-13,Brantree Haulage,1120.00\nMB-2016,2026-02-25,Skelwith Joinery,742.00\nMB-2019,2026-03-06,Otterby Cider,1085.00\nMB-2022,2026-03-13,Wrayburn Farm,1290.00\nMB-2025,2026-03-26,Carrow Timber,845.00\nMB-2028,2026-04-08,Lound Estate,968.00\nMB-2031,2026-04-15,Pell & Sons,1104.00\nMB-2034,2026-04-27,Harkness Mills,762.00\nMB-2037,2026-05-08,Brantree Haulage,1230.00\nMB-2040,2026-05-14,Skelwith Joinery,876.00\nMB-2043,2026-05-27,Otterby Cider,1352.00\nMB-2046,2026-06-05,Wrayburn Farm,1010.00\nMB-2049,2026-06-12,Carrow Timber,1148.00\nMB-2052,2026-06-25,Lound Estate,923.00\nMB-2055,2026-07-07,Pell & Sons,1180.00\nMB-2058,2026-07-14,Harkness Mills,834.00\nMB-2061,2026-07-27,Brantree Haulage,1256.00\nMB-2064,2026-08-06,Skelwith Joinery,1052.00\nMB-2067,2026-08-14,Otterby Cider,984.00\nMB-2070,2026-08-28,Wrayburn Farm,824.00\n"
+  },
+  "turns": [
+    {
+      "prompt": "Marrowbeck Forestry's treasurer was asked for the full-year 2026 payment total, January through December, from exports/payments-2026.csv. What figure should go in the board pack?",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains": [
+          "24990"
+        ],
+        "must_state_unverified": [
+          "September"
+        ],
+        "output_contains_any": [
+          "September",
+          "remaining months"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

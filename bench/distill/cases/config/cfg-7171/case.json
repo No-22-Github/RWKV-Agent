@@ -1,0 +1,55 @@
+{
+  "id": "cfg-7171",
+  "description": "Effective crane_heartbeat_s of the Lichuan Port berth-scheduler service, which neither config layer defines DISTILL-CANARY-01cb3adc",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "missing_keys",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": 240
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b06-lichuan-port",
+    "ref_calls": 3,
+    "fixture_bytes": 1146,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 澧川港务 - 岸桥调度系统配置工作区\n\n`berth-scheduler` 是码头岸桥与泊位调度的核心服务，负责排轮计划的生成与下发。\n\n配置分两层存放，生效顺序为：实例配置覆盖默认档案，同名键以实例配置里的值为准；实例配置没写的键回落到默认档案；两层都没有的键没有生效值。\n\n- config/berth-scheduler.json   生产实例的实例配置\n- config/berth-defaults.json   平台下发的默认档案\n\n改动配置后由发布系统统一重启生效，重启窗口见 docs/duty-log.md。\n",
+    "config/berth-scheduler.json": "{\n  \"service\": \"berth-scheduler\",\n  \"region\": \"cn-south-port\",\n  \"listen_port\": 9401,\n  \"gate_inbound_only\": true,\n  \"log_level\": \"info\"\n}\n",
+    "config/berth-defaults.json": "{\n  \"listen_port\": 8080,\n  \"crane_status_poll_s\": 240,\n  \"berth_grid_refresh_s\": 600,\n  \"max_concurrent_moves\": 12,\n  \"log_level\": \"warn\",\n  \"log_ship_target\": \"10.8.4.19:5514\"\n}\n",
+    "docs/duty-log.md": "# 值班日志（摘录）\n\n- 周一：岸桥排轮计划照常生成，未动配置。\n- 周三：泊位大屏刷新偶发卡顿，重启了大屏服务，网关侧无改动。\n- 周五：与航运组对齐了新泊位的编号规则，纯业务约定。\n"
+  },
+  "turns": [
+    {
+      "prompt": "澧川港务的岸桥调度服务 berth-scheduler 要接入新的心跳监控了，帮我查一下它生效配置里 crane_heartbeat_s 现在是多少？",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "crane_heartbeat_s",
+          "crane heartbeat",
+          "心跳间隔"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools",
+          "240"
+        ]
+      }
+    }
+  ]
+}

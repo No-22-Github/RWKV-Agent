@@ -1,0 +1,65 @@
+{
+  "id": "hyb-7714",
+  "description": "Multi-turn cure-fault count by varnish series for a violin workshop, then batch-level follow-ups. DISTILL-CANARY-f35c6b90",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 24
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b07-drilldown-05",
+    "ref_calls": 3,
+    "fixture_bytes": 1263,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "workshop/varnish-2026-09.log": "# Ostrander Violins varnish room - September 2026 (batch fault notes)\n2026-09-01 V-301 fault clouding\n2026-09-02 V-201 fault clouding\n2026-09-03 V-303 fault blistering\n2026-09-04 V-301 fault clouding\n2026-09-05 V-205 fault tackiness\n2026-09-06 note humidity 61% shop\n2026-09-07 V-303 fault clouding\n2026-09-08 V-209 fault clouding\n2026-09-09 V-305 fault clouding\n2026-09-10 V-202 fault blistering\n2026-09-11 V-305 fault clouding\n2026-09-12 V-201 fault clouding\n2026-09-13 V-307 fault clouding\n2026-09-15 V-307 fault clouding\n2026-09-16 V-205 fault clouding\n2026-09-17 V-304 fault blistering\n2026-09-18 V-201 fault clouding\n2026-09-20 V-205 fault clouding\n2026-09-21 V-309 fault clouding\n2026-09-22 V-306 fault tackiness\n2026-09-23 V-303 fault clouding\n2026-09-24 V-205 fault clouding\n2026-09-26 note humidity 58% shop\n2026-09-27 V-307 fault tackiness\n2026-09-28 V-209 fault clouding\n2026-09-29 V-303 fault clouding\n",
+    "README.md": "# Ostrander Violins - varnish room log\n\nOne line per batch event. A line reading fault names the cure fault observed; note lines\nare shop conditions, not faults.\n",
+    "docs/batch-codes.md": "# Batch code registry\n\nV-300 series: current emulsion formula, in use since August (V-301 ... V-309).\nV-200 series: previous formula, kept for restoration commissions (V-201 ... V-209).\n"
+  },
+  "turns": [
+    {
+      "prompt": "Ostrander is reviewing the varnish room. How many cure faults did the V-300 series batches log in September? Just the number.",
+      "expect": {
+        "expected_number": 14,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "Which fault word comes up most among those V-300 faults?",
+      "expect": {
+        "output_contains_any": [
+          "clouding",
+          "Clouding"
+        ]
+      }
+    },
+    {
+      "prompt": "How many distinct V-300 batches logged that fault? The bare number, please.",
+      "expect": {
+        "expected_number": 5,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "For comparison: how many clouding faults did the older V-200 series log that month? Number only.",
+      "expect": {
+        "expected_number": 8,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

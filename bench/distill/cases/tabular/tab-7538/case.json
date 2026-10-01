@@ -1,0 +1,52 @@
+{
+   "id": "tab-7538",
+   "description": "September 2026 sales of one vinyl genre in an export that carries a system total row and a near-name genre DISTILL-CANARY-dee88370",
+   "category": "tabular",
+   "tags": {
+      "scenario": "tabular",
+      "task_type": "aggregate",
+      "traps": [
+         "TR-HEADER",
+         "TR-DECOY"
+      ],
+      "trap_decoys": {
+         "TR-HEADER": 9486.64,
+         "TR-DECOY": 1907.99
+      },
+      "axes": [
+         "OBS"
+      ],
+      "level": "L2",
+      "family": "fam-tab-b06-pinewood-01",
+      "ref_calls": 2,
+      "fixture_bytes": 4181,
+      "status": "draft",
+      "version": 1,
+      "author": "llm:glm-5.3-flash-b06",
+      "reviewer": null,
+      "answer_style": "natural"
+   },
+   "web_fixture": [],
+   "files": {
+      "data/vinyl_sales_2026-09.csv": "sale_id,sale_month,genre,format,amount_gbp\nPW-3832,2026-09,Rock,45,55.83\nPW-5665,2026-09,Blues,45,29.67\nPW-3431,2026-09,Jazz,45,6.96\nPW-9885,2026-09,Blues,45,7.10\nPW-4284,2026-09,Blues,LP,35.38\nPW-5476,2026-09,Jazz,LP,6.87\nPW-6097,2026-09,Jazz Fusion,45,33.16\nPW-5110,2026-09,Soul,45,47.71\nPW-8313,2026-09,Jazz Fusion,45,65.38\nPW-3752,2026-09,Rock,LP,34.97\nPW-9935,2026-09,Rock,LP,61.60\nPW-6848,2026-09,Rock,45,68.40\nPW-9041,2026-09,Rock,45,21.39\nPW-7880,2026-09,Rock,45,60.77\nPW-2995,2026-09,Jazz,45,14.25\nPW-4423,2026-09,Jazz,45,24.66\nPW-7279,2026-09,Blues,LP,12.18\nPW-4355,2026-09,Jazz Fusion,LP,52.28\nPW-5653,2026-09,Jazz Fusion,45,77.38\nPW-2771,2026-09,Jazz,LP,13.72\nPW-1395,2026-09,Soul,LP,52.74\nPW-2934,2026-09,Jazz Fusion,45,77.32\nPW-1216,2026-09,Jazz Fusion,LP,56.36\nPW-9933,2026-09,Rock,LP,67.28\nPW-5856,2026-09,Soul,LP,30.16\nPW-3237,2026-09,Jazz Fusion,45,56.81\nPW-2231,2026-09,Jazz Fusion,45,42.23\nPW-9198,2026-09,Jazz,LP,13.81\nPW-7123,2026-09,Jazz,45,9.11\nPW-6099,2026-09,Rock,LP,14.23\nPW-8162,2026-09,Blues,45,20.50\nPW-9241,2026-09,Soul,LP,25.91\nPW-6846,2026-09,Jazz Fusion,45,84.64\nPW-9657,2026-09,Jazz Fusion,45,67.18\nPW-6303,2026-09,Jazz,45,19.14\nPW-1013,2026-09,Jazz Fusion,LP,35.74\nPW-3029,2026-09,Jazz Fusion,LP,86.29\nPW-8246,2026-09,Jazz,LP,30.44\nPW-8365,2026-09,Soul,LP,30.19\nPW-6737,2026-09,Soul,45,44.14\nPW-5993,2026-09,Soul,45,28.53\nPW-9835,2026-09,Jazz Fusion,LP,69.62\nPW-7543,2026-09,Rock,LP,28.38\nPW-6560,2026-09,Rock,45,54.63\nPW-9065,2026-09,Jazz,LP,25.06\nPW-2852,2026-09,Jazz,45,36.63\nPW-7185,2026-09,Rock,LP,68.43\nPW-7265,2026-09,Jazz Fusion,45,32.40\nPW-4340,2026-09,Soul,45,56.77\nPW-1063,2026-09,Soul,45,24.92\nPW-5548,2026-09,Jazz,45,12.83\nPW-9371,2026-09,Soul,45,15.03\nPW-4258,2026-09,Blues,45,47.21\nPW-8562,2026-09,Blues,LP,32.65\nPW-9469,2026-09,Jazz,LP,10.52\nPW-7700,2026-09,Jazz,45,31.81\nPW-6002,2026-09,Jazz Fusion,45,38.39\nPW-3790,2026-09,Soul,LP,13.42\nPW-8362,2026-09,Jazz Fusion,LP,87.39\nPW-9699,2026-09,Jazz Fusion,45,61.06\nPW-4233,2026-09,Soul,45,37.43\nPW-6888,2026-09,Jazz Fusion,LP,55.40\nPW-9621,2026-09,Jazz Fusion,45,73.09\nPW-1057,2026-09,Blues,LP,11.40\nPW-7376,2026-09,Blues,45,16.02\nPW-7977,2026-09,Jazz Fusion,LP,65.66\nPW-7639,2026-09,Jazz,45,36.97\nPW-6505,2026-09,Soul,45,50.55\nPW-2109,2026-09,Jazz Fusion,45,32.53\nPW-9072,2026-09,Jazz,45,39.41\nPW-5057,2026-09,Jazz Fusion,45,45.39\nPW-5765,2026-09,Rock,45,68.19\nPW-1340,2026-09,Jazz,45,27.01\nPW-7668,2026-09,Jazz Fusion,45,55.91\nPW-3557,2026-09,Jazz Fusion,LP,75.40\nPW-7509,2026-09,Jazz Fusion,45,63.64\nPW-5427,2026-09,Jazz Fusion,45,39.47\nPW-3918,2026-09,Blues,45,34.79\nPW-2202,2026-09,Jazz,LP,26.79\nPW-1165,2026-09,Jazz,LP,14.29\nPW-6725,2026-09,Rock,LP,53.75\nPW-5334,2026-09,Jazz Fusion,45,73.45\nPW-7736,2026-09,Rock,45,16.06\nPW-9916,2026-09,Rock,LP,20.39\nPW-5975,2026-09,Blues,LP,22.35\nPW-3491,2026-09,Blues,LP,35.89\nPW-8570,2026-09,Jazz,LP,36.96\nPW-5249,2026-09,Blues,LP,36.93\nPW-8938,2026-09,Jazz Fusion,LP,29.05\nPW-3779,2026-09,Jazz,45,38.76\nPW-8653,2026-09,Soul,45,52.27\nPW-9361,2026-09,Blues,45,15.23\nPW-1743,2026-09,Soul,LP,29.67\nPW-5437,2026-09,Jazz Fusion,LP,27.68\nPW-9360,2026-09,Rock,45,26.61\nPW-2615,2026-09,Jazz,LP,22.52\nPW-7923,2026-09,Soul,45,41.74\nPW-2142,2026-09,Soul,45,19.74\nPW-6819,2026-09,Soul,45,19.70\nPW-2097,2026-09,Soul,45,45.87\nPW-8249,2026-09,Jazz,45,37.33\nPW-1323,2026-09,Blues,45,49.38\nPW-3689,2026-09,Jazz Fusion,LP,56.66\nPW-9309,2026-09,Blues,LP,35.54\nPW-3648,2026-09,Rock,LP,44.27\nPW-2524,2026-09,Jazz Fusion,LP,83.92\nPW-7585,2026-09,Jazz Fusion,45,62.59\nPW-5518,2026-09,Jazz,LP,30.82\nPW-5987,2026-09,Jazz,LP,14.68\nPW-4422,2026-09,Rock,LP,67.57\nPW-9652,2026-09,Soul,LP,58.27\nPW-4403,2026-09,Rock,45,68.27\nPW-4886,2026-09,Rock,45,33.83\nPW-6471,2026-09,Soul,LP,33.37\nPW-5408,2026-09,Soul,LP,29.23\nPW-2123,2026-09,Jazz Fusion,LP,44.52\nPW-2226,2026-09,Soul,LP,38.11\nPW-9572,2026-09,Soul,LP,51.44\nTOTAL,2026-09,ALL,,4743.32\n",
+      "README.md": "# Pinewood Records - September till export\n\nOne row per till sale. genre and format are as rung up at the till;\namount_gbp is the line amount. The last line is the system-generated\nmonth total for reconciliation and is not a sale.\n",
+      "notes/counter.txt": "Counter notes\n- Special orders wait in the grey crate.\n- The 45s wall is restocked on Thursdays.\n"
+   },
+   "turns": [
+      {
+         "prompt": "Pinewood Records is reviewing the September till totals. The sales export is at data/vinyl_sales_2026-09.csv. Give the number alone, as digits, with no label. What did the Jazz genre sell in September 2026?",
+         "expect": {
+            "expected_number": 581.35,
+            "tolerance": 0.01,
+            "required_tools": [
+               "data_query"
+            ]
+         }
+      }
+   ],
+   "expect": {
+      "max_calls": {
+         "read_file": 1
+      }
+   }
+}

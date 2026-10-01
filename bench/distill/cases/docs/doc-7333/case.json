@@ -1,0 +1,41 @@
+{
+  "id": "doc-7333",
+  "description": "Count over-received goods entries in a receiving variance log whose sign convention is documented in the README. DISTILL-CANARY-dcdd298c",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "extract_items",
+    "traps": [
+      "TR-SIGN"
+    ],
+    "trap_decoys": {
+      "TR-SIGN": 8
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b06-banshan-cha",
+    "ref_calls": 2,
+    "fixture_bytes": 1169,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "到货差异登记.tsv": "登记号\t原料\t到货批次\t差异数量(公斤)\t原因\nCY-1101\t金骏眉毛茶\tDH-2609-01\t12\t拼箱多放\nCY-1102\t正山小种\tDH-2609-02\t-20\t运输破损回运\nCY-1103\t凤凰单丛\tDH-2609-03\t0\t账实相符\nCY-1104\t白毫银针\tDH-2609-04\t-6\t短装补发中\nCY-1105\t武夷肉桂\tDH-2609-05\t8\t拼箱多放\nCY-1106\t铁观音\tDH-2609-06\t-15\t错发别仓\nCY-1107\t云南滇红\tDH-2609-07\t0\t账实相符\nCY-1108\t安吉白茶\tDH-2609-08\t30\t发货单重复\nCY-1109\t六堡茶\tDH-2609-09\t-9\t受潮退回\nCY-1110\t茉莉花茶\tDH-2609-10\t0\t账实相符\nCY-1111\t太平猴魁\tDH-2609-11\t-25\t运输丢失\nCY-1112\t恩施玉露\tDH-2609-12\t4\t样品箱计入\nCY-1113\t祁门红茶\tDH-2609-13\t-18\t错发等级\nCY-1114\t都匀毛尖\tDH-2609-14\t0\t账实相符\nCY-1115\t君山银针\tDH-2609-15\t-11\t短装补发中\nCY-1116\t凤凰水仙\tDH-2609-16\t22\t供应商补上次欠货\nCY-1117\t庐山云雾\tDH-2609-17\t0\t账实相符\nCY-1118\t松萝茶\tDH-2609-18\t-14\t包装破损回运\n",
+    "README.md": "# 到货差异登记说明\n\n差异数量 = 验收数 − 应收数（公斤）。正数表示多收，负数表示短少，0 表示账实相符。\n\n多收批次需当日反馈供应商，短少批次按缺量补发。\n"
+  },
+  "turns": [
+    {
+      "prompt": "半山茶业的原料到货差异记在 到货差异登记.tsv，口径见 README.md。只回答数字，不要单位——多收原料的登记有几条？",
+      "expect": {
+        "expected_number": 5,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

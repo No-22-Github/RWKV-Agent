@@ -1,0 +1,39 @@
+{
+  "id": "cfg-7139",
+  "description": "Raise auto close days of a repair desk config found via the README, changing nothing else. DISTILL-CANARY-bb5ce62d",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-cfg-b06-muye-repair",
+    "ref_calls": 3,
+    "fixture_bytes": 361,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/repair-desk.json": "{\n  \"desk\": \"muye-repair-desk\",\n  \"sla_first_response_h\": 4,\n  \"auto_close_days\": 7,\n  \"weekend_oncall\": false,\n  \"parts_min_qty\": 2\n}\n",
+    "README.md": "# 牧野工具 - 设备报修台\n\n报修台 repair-desk 的生效配置在 `config/repair-desk.json`，主管改这份文件并保存即生效。\n\n报修台的对外页面与周报由运营组维护，不在这份配置里。\n"
+  },
+  "expect": {
+    "files": {
+      "config/repair-desk.json": {
+        "equals": "{\n  \"desk\": \"muye-repair-desk\",\n  \"sla_first_response_h\": 4,\n  \"auto_close_days\": 10,\n  \"weekend_oncall\": false,\n  \"parts_min_qty\": 2\n}\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "牧野工具的设备报修台最近老把还没修完的工单自动关掉，主管决定把自动关单的宽限调到 10 天。请把生效配置改好，其余设置保持原样。完成后用两三句话说明你改了什么。",
+      "expect": {}
+    }
+  ]
+}

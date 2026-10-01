@@ -1,0 +1,88 @@
+visit_id,visit_month,system_type,issue_type,downtime_hours
+CV-2609059,2026-09,Booster set,Valve,3.25
+CV-2605012,2026-05,Booster set,Control board,2.00
+CV-2606027,2026-06,RO skid,Valve,0.50
+CV-2608043,2026-08,Softener,Valve,8.75
+CV-2609073,2026-09,UV loop,Control board,2.00
+CV-2608052,2026-08,RO skid,Valve,2.00
+CV-2605009,2026-05,UV loop,Filter,12.25
+CV-2607041,2026-07,Booster set,Valve,6.00
+CV-2606026,2026-06,Booster set,Control board,3.50
+CV-2605013,2026-05,UV loop,Filter,2.00
+CV-2607039,2026-07,UV loop,Valve,3.50
+CV-2609066,2026-09,RO skid,Sensor,2.00
+CV-2605003,2026-05,Softener,Valve,1.25
+CV-2605006,2026-05,UV loop,Valve,1.25
+CV-2606024,2026-06,UV loop,Filter,6.00
+CV-2607029,2026-07,RO skid,Valve,2.00
+CV-2606022,2026-06,Booster set,Valve,2.00
+CV-2609070,2026-09,Softener,Control board,18.00
+CV-2608055,2026-08,UV loop,Control board,12.25
+CV-2607030,2026-07,RO skid,Valve,2.00
+CV-2609085,2026-09,UV loop,Pump,0.50
+CV-2609063,2026-09,Softener,Valve,5.25
+CV-2605008,2026-05,Softener,Sensor,8.75
+CV-2607036,2026-07,RO skid,Control board,8.75
+CV-2609064,2026-09,Softener,Pump,8.75
+CV-2609081,2026-09,UV loop,Pump,1.25
+CV-2609079,2026-09,Softener,Sensor,12.25
+CV-2606019,2026-06,RO skid,Sensor,2.00
+CV-2609067,2026-09,RO skid,Filter,8.75
+CV-2607031,2026-07,Booster set,Filter,0.50
+CV-2607038,2026-07,Booster set,Valve,18.00
+CV-2609087,2026-09,Booster set,Sensor,8.75
+CV-2606016,2026-06,Booster set,Control board,6.00
+CV-2605007,2026-05,Softener,Filter,12.25
+CV-2609072,2026-09,RO skid,Control board,0.50
+CV-2609076,2026-09,RO skid,Pump,8.75
+CV-2606015,2026-06,UV loop,Sensor,18.00
+CV-2609080,2026-09,RO skid,Control board,6.00
+CV-2608050,2026-08,UV loop,Control board,12.25
+CV-2607033,2026-07,RO skid,Valve,6.00
+CV-2608056,2026-08,Softener,Pump,8.75
+CV-2608051,2026-08,Booster set,Pump,6.00
+CV-2609071,2026-09,RO skid,Control board,12.25
+CV-2609083,2026-09,Softener,Filter,6.00
+CV-2605010,2026-05,RO skid,Filter,8.75
+CV-2608044,2026-08,Booster set,Control board,6.00
+CV-2609077,2026-09,RO skid,Pump,2.00
+CV-2607035,2026-07,Booster set,Control board,1.25
+CV-2605002,2026-05,Softener,Valve,3.50
+CV-2606028,2026-06,Softener,Sensor,8.75
+CV-2608045,2026-08,Booster set,Valve,8.75
+CV-2607042,2026-07,Booster set,Valve,6.00
+CV-2608048,2026-08,UV loop,Pump,0.50
+CV-2608046,2026-08,Booster set,Pump,8.75
+CV-2609068,2026-09,Softener,Sensor,6.00
+CV-2609074,2026-09,UV loop,Control board,12.25
+CV-2608054,2026-08,UV loop,Valve,6.00
+CV-2608047,2026-08,RO skid,Filter,1.25
+CV-2609084,2026-09,UV loop,Sensor,18.00
+CV-2607037,2026-07,UV loop,Pump,8.75
+CV-2607032,2026-07,RO skid,Sensor,1.25
+CV-2609058,2026-09,Booster set,Valve,2.50
+CV-2608057,2026-08,Booster set,Pump,8.75
+CV-2605011,2026-05,Booster set,Sensor,6.00
+CV-2607040,2026-07,Softener,Pump,12.25
+CV-2606018,2026-06,Softener,Control board,3.50
+CV-2605001,2026-05,Softener,Sensor,2.00
+CV-2605014,2026-05,UV loop,Valve,2.00
+CV-2606017,2026-06,Softener,Valve,18.00
+CV-2606023,2026-06,Softener,Filter,6.00
+CV-2609065,2026-09,RO skid,Control board,2.00
+CV-2609086,2026-09,Softener,Sensor,8.75
+CV-2605005,2026-05,UV loop,Valve,0.50
+CV-2605004,2026-05,Booster set,Sensor,0.50
+CV-2609078,2026-09,RO skid,Pump,6.00
+CV-2609061,2026-09,UV loop,Valve,4.00
+CV-2608049,2026-08,Booster set,Valve,18.00
+CV-2606025,2026-06,Softener,Valve,8.75
+CV-2609082,2026-09,Booster set,Filter,12.25
+CV-2609069,2026-09,Softener,Pump,3.50
+CV-2609075,2026-09,UV loop,Sensor,6.00
+CV-2609060,2026-09,RO skid,Valve,3.75
+CV-2606020,2026-06,Booster set,Filter,18.00
+CV-2607034,2026-07,UV loop,Filter,6.00
+CV-2608053,2026-08,Softener,Pump,8.75
+CV-2609062,2026-09,UV loop,Valve,4.50
+CV-2606021,2026-06,RO skid,Pump,12.25

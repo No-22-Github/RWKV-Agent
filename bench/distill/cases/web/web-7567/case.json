@@ -1,0 +1,57 @@
+{
+  "id": "web-7567",
+  "description": "Meaning and handling of barrier code P-04 at the Weavergate Market garage, from the garage code page. DISTILL-CANARY-e8590793",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-web-b06-weavergate-parking",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "weavergate",
+      "url": "https://www.weavergateparking.example/codes",
+      "url_match": "www.weavergateparking.example/codes",
+      "title": "Barrier and ticket codes - Weavergate Market garage",
+      "snippet": "P-04 | ticket already validated | insert the original ticket, or press the help button at the barrier",
+      "content": "# Weavergate Market garage - barrier and ticket codes\n\nCode | Meaning | What to do\n- P-02 | ticket not found at the barrier | take a fresh ticket on entry\n- P-04 | ticket already validated | insert the original ticket, or press the help button at the barrier\n- P-07 | exit grace period over | pay the overstay at the pay station\n\nLost tickets are charged the day rate at the pay station.\n",
+      "published_at": "2026-04-09"
+    },
+    {
+      "query_match": "weavergate",
+      "url": "https://www.weavergateparking.example/season-parking",
+      "url_match": "www.weavergateparking.example/season-parking",
+      "title": "Season parking - Weavergate Market garage",
+      "snippet": "Season passes cover the multi-storey deck from 06:00 to midnight.",
+      "content": "# Season parking\n\nSeason passes cover the multi-storey deck from 06:00 to midnight. Passes renew on the first of the month.\n",
+      "published_at": "2026-05-02"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "A visitor at the Weavergate Market garage phoned our shop because the exit barrier shows code P-04 on the screen. According to the garage's code page, what does P-04 mean and what should the visitor do? Answer in a sentence or two.",
+      "expect": {
+        "output_contains_any": [
+          "validated",
+          "Validated",
+          "help button",
+          "Help button"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "id": "fs-7001",
+  "description": "Flow rating of the south pump-house pump from the campsite maintenance folder. DISTILL-CANARY-7b60d1e4",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "find_file",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-fs-b06-wangshan-campsite",
+    "ref_calls": 3,
+    "fixture_bytes": 961,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 望山露营地 - 设备档案\n\n营地的固定设备每台一份档案，放在 maintenance/ 目录，文件名是设备编号。\n档案开头记录设备编号、安装位置和投用年份。营地有两处泵房：北泵房引溪水，南泵房抽井水。\n",
+    "maintenance/gen-01.txt": "望山露营地 - 设备档案\n设备编号：GEN-01\n安装位置：主楼配电房\n投用年份：2023\n设备类型：柴油发电机\n额定功率：10 千瓦\n油箱容量：20 升\n保养周期：每运行 250 小时更换机油\n最近保养：2026-08-14\n",
+    "maintenance/pump-01.txt": "望山露营地 - 设备档案\n设备编号：PUMP-01\n安装位置：北泵房（溪引水）\n投用年份：2022\n设备类型：离心水泵\n额定流量：8.2 立方米每小时\n扬程：15 米\n最近保养：2026-09-02\n",
+    "maintenance/pump-02.txt": "望山露营地 - 设备档案\n设备编号：PUMP-02\n安装位置：南泵房（井水）\n投用年份：2024\n设备类型：自吸水泵\n额定流量：12.5 立方米每小时\n扬程：21 米\n最近保养：2026-09-18\n"
+  },
+  "turns": [
+    {
+      "prompt": "望山露营地准备入冬前的设备检修，要先确认南泵房那台水泵的额定流量。设备档案都在 maintenance/ 目录里，南泵房水泵的额定流量是多少？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 12.5,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

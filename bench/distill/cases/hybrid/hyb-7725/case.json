@@ -1,0 +1,70 @@
+{
+  "id": "hyb-7725",
+  "description": "Multi-turn parts-order total for an auto supplier, re-cut to the province and corrected for a refund. DISTILL-CANARY-47b0e98f",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 200990.5
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b07-mixed-10",
+    "ref_calls": 2,
+    "fixture_bytes": 652,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "orders/parts-2026-09.csv": "order_id,region,amount_yuan,status\nPO-7702,省内,19880.00,正常\nPO-7705,省外,24150.00,正常\nPO-7709,省内,12460.00,正常\nPO-7712,省外,18730.50,正常\nPO-7715,省内,9340.00,正常\nPO-7718,省内,24310.00,正常\nPO-7721,省外,11290.00,正常\nPO-7724,省内,7680.00,正常\nPO-7727,省外,13540.00,正常\nPO-7730,省内,15480.00,正常\nPO-7733,省外,8990.00,正常\nPO-7736,省内,6120.00,正常\nPO-7727,省外,13540.00,正常\nPO-7730,省内,15480.00,正常\n",
+    "README.md": "# 南屏汽配 九月配件订单\n\n每行一张订单：订单号、收货区域、金额（元）、状态。月初导出重试过一次，\n两张订单以完全相同的两行出现。\n"
+  },
+  "turns": [
+    {
+      "prompt": "南屏汽配对九月账。九月订单的金额合计多少元？只回数字。",
+      "expect": {
+        "expected_number": 171970.5,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "口径改一下：只算发往省内的订单，合计多少元？直接回数字就行。",
+      "expect": {
+        "expected_number": 95270,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "不对，PO-7718 那单客户已经整单退了，要把它的钱从省内里减掉再报。减掉之后省内合计多少元？只回数字。",
+      "expect": {
+        "expected_number": 70960,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "省内剩下的单子里金额最大的是哪一单？回订单号就行。",
+      "expect": {
+        "output_contains": [
+          "PO-7702"
+        ]
+      }
+    },
+    {
+      "prompt": "这一单的金额是多少元？只回数字。",
+      "expect": {
+        "expected_number": 19880,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

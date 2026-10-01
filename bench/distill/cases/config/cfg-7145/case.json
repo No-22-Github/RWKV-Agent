@@ -1,0 +1,45 @@
+{
+  "id": "cfg-7145",
+  "description": "Raise the drip line run pressure on the allotment irrigation controller. DISTILL-CANARY-6a93fea9",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "2.4"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b06-wellcourt",
+    "ref_calls": 3,
+    "fixture_bytes": 459,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/irrigation.yaml": "# Wellcourt Allotments - irrigation controller\npump:\n  run_pressure_bar: 2.4\n  priming_s: 45\n  stagger_start_s: 8\ndrip_lines:\n  run_pressure_bar: 1.1\n  flush_s: 120\nbeds:\n  evening_start: \"19:40\"\n  cycle_count: 3\n",
+    "README.md": "# Wellcourt Allotments - irrigation\n\nconfig/irrigation.yaml is the controller's policy file, edited in\nplace. The pump section sets the manifold pump; drip_lines sets\nthe drip lines' own run pressure, which is deliberately lower than\nthe pump's.\n"
+  },
+  "expect": {
+    "files": {
+      "config/irrigation.yaml": {
+        "equals": "# Wellcourt Allotments - irrigation controller\npump:\n  run_pressure_bar: 2.4\n  priming_s: 45\n  stagger_start_s: 8\ndrip_lines:\n  run_pressure_bar: 1.4\n  flush_s: 120\nbeds:\n  evening_start: \"19:40\"\n  cycle_count: 3\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The drip lines at Wellcourt Allotments are misting instead of soaking: raise the drip lines' run pressure to 1.4 bar in config/irrigation.yaml. The pump keeps its setting and nothing else in the file moves. When you are done, describe in two or three sentences what you changed.",
+      "expect": {}
+    }
+  ]
+}

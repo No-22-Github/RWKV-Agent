@@ -1,0 +1,45 @@
+{
+  "id": "hyb-7744",
+  "description": "猫屿小卖部两轮会话：先算 9 月猫粮销量，道谢后追问卖得最好的品牌。 DISTILL-CANARY-2b4691cf",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-hyb-b07-petshop-01",
+    "ref_calls": 2,
+    "fixture_bytes": 417,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 猫屿小卖部 · 9 月猫粮销量\n\n一行一次进货批次的零售汇总：千克为当月售出重量，销售额为当月含税实收。\n",
+    "sales/catfood_september.csv": "日期,品牌,规格,千克,销售额\n2026-09-02,望舒,1.5kg,12,516.00\n2026-09-05,云朵喵,2kg,9,351.00\n2026-09-09,望舒,1.5kg,8,344.00\n2026-09-13,麦其,2kg,6,234.00\n2026-09-18,云朵喵,1.5kg,7,301.00\n2026-09-22,望舒,2kg,10,430.00\n2026-09-27,麦其,1.5kg,4,172.00\n"
+  },
+  "turns": [
+    {
+      "prompt": "帮我算算 9 月猫粮一共卖了多少千克？明细在 sales/catfood_september.csv。只回答数字。",
+      "expect": {
+        "expected_number": 56,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "谢谢啦！那再帮我看看，哪个品牌的猫粮卖得最好？把品牌名告诉我。",
+      "expect": {
+        "output_contains": [
+          "望舒"
+        ]
+      }
+    }
+  ]
+}

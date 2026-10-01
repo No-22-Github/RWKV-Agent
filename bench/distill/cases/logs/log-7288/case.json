@@ -1,0 +1,53 @@
+{
+  "id": "log-7288",
+  "description": "HIGH_TEMP_ALARM count in the 02:00-05:00 window of 12 September, where the log block is half-written. DISTILL-CANARY-b02b1dd4",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "0"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L2",
+    "family": "fam-log-b06-zhaopu-temp",
+    "ref_calls": 3,
+    "fixture_bytes": 1392,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 照浦冷链 - 冷库温度告警日志\n\n温度遥测日志按天一个文件，每行一个 JSON 事件。\n\n事件：TEMP_REPORT（整点库温上报）、HIGH_TEMP_ALARM（库温越上限告警）、collector_start / collector_stop。\n\n告警阈值为 -12C，由平台统一下发。\n",
+    "logs/temp-alarm-2026-09.jsonl": "{\"ts\": \"2026-09-11T23:00:00+08:00\", \"level\": \"INFO\", \"event\": \"collector_start\", \"detail\": \"coldchain telemetry col-02\"}\n{\"ts\": \"2026-09-11T23:30:12+08:00\", \"level\": \"INFO\", \"event\": \"TEMP_REPORT\", \"detail\": \"zone A -18.4C\"}\n{\"ts\": \"2026-09-12T00:30:15+08:00\", \"level\": \"INFO\", \"event\": \"TEMP_REPORT\", \"detail\": \"zone A -18.1C\"}\n{\"ts\": \"2026-09-12T01:30:14+08:00\", \"level\": \"INFO\", \"event\": \"TEMP_REPORT\", \"detail\": \"zone A -15.2C\"}\n{\"ts\": \"2026-09-12T02:10:03+08:00\", \"level\": \"INFO\", \"event\": \"TEMP_REPORT\", \"detail\": \"zone A -12.9C\"}\n{\"ts\": \"2026-09-12T03:10:0\n{\"ts\": \"2026-09-12T03:40:1\n{\"ts\": \"2026-09-12T04:10:0\n{\"ts\": \"2026-09-12T04:30:2\n{\"ts\": \"2026-09-12T04:40:1\n{\"ts\": \"2026-09-12T04:50:0\n{\"ts\": \"2026-09-12T05:30:11+08:00\", \"level\": \"INFO\", \"event\": \"TEMP_REPORT\", \"detail\": \"zone A -16.8C\"}\n{\"ts\": \"2026-09-12T06:30:09+08:00\", \"level\": \"INFO\", \"event\": \"TEMP_REPORT\", \"detail\": \"zone A -17.5C\"}\n",
+    "docs/duty-notes.md": "# 值班记录\n\n- 9 月 12 日 02:10 前后采集机磁盘写满，温度通道断续写入，04:50 恢复；损坏的行以运维平台的曲线为准。\n- 9 月 10 日例行除霜，无异常。\n"
+  },
+  "turns": [
+    {
+      "prompt": "照浦冷链的品控要复盘 9 月 12 日凌晨 2 点到 5 点的库温，帮我在 logs/temp-alarm-2026-09.jsonl 里查一下这个时段 HIGH_TEMP_ALARM 触发了几次？",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "HIGH_TEMP_ALARM",
+          "high temp alarm",
+          "高温告警"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

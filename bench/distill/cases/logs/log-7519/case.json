@@ -1,0 +1,75 @@
+{
+  "id": "log-7519",
+  "description": "Four-turn Chinese session on an auth login log with probe rows and a jump-host subnet: daily failure counts, account breakdown, prior day, then hold against the monitoring panel. DISTILL-CANARY-103a54d3",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-MISSING"
+    ],
+    "trap_decoys": {
+      "TR-MISSING": 19
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-log-b07-tamsin-auth-01",
+    "ref_calls": 6,
+    "fixture_bytes": 3763,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "logs/auth-login.log": "2026-09-26 02:14:56 att-66102 user=chen.yang src=58.34.12.7 result=failed code=password_expired\n2026-09-26 04:41:20 att-66108 user=- src=203.0.114.9 result=failed code=no_credentials\n2026-09-26 06:03:44 att-66113 user=dana.wu src=112.64.30.5 result=failed code=mfa_failed\n2026-09-26 07:29:11 att-66119 user=ops.liu src=10.8.4.2 result=failed code=password_expired\n2026-09-26 08:52:37 att-66124 user=peng.lei src=121.35.78.2 result=failed code=locked_out\n2026-09-26 09:15:02 att-66127 user=- src=198.51.100.7 result=failed code=no_credentials\n2026-09-26 09:58:44 att-66131 user=gao.fe src=139.196.22.8 result=failed code=password_expired\n2026-09-26 10:37:26 att-66135 user=chen.yang src=101.87.44.1 result=failed code=mfa_failed\n2026-09-26 11:21:09 att-66139 user=ops.liu src=10.8.4.2 result=failed code=locked_out\n2026-09-26 12:44:53 att-66144 user=su.kai src=183.192.10.6 result=failed code=password_expired\n2026-09-26 13:30:38 att-66148 user=dana.wu src=112.64.30.5 result=failed code=password_expired\n2026-09-26 14:16:21 att-66152 user=chen.yang src=10.8.9.1 result=failed code=mfa_failed\n2026-09-26 15:02:14 att-66157 user=ops.liu src=101.80.6.3 result=passed\n2026-09-26 16:39:47 att-66162 user=- src=203.0.114.9 result=failed code=no_credentials\n2026-09-26 17:44:30 att-66167 user=rao.ming src=116.226.4.9 result=failed code=password_expired\n2026-09-26 18:20:03 att-66171 user=ops.liu src=10.8.4.2 result=passed\n2026-09-26 19:55:36 att-66176 user=peng.lei src=121.35.78.2 result=passed\n2026-09-26 21:31:19 att-66181 user=chen.yang src=58.34.12.7 result=passed\n2026-09-26 22:47:52 att-66186 user=dana.wu src=112.64.30.5 result=passed\n2026-09-27 01:12:35 att-66192 user=chen.yang src=58.34.12.7 result=failed code=password_expired\n2026-09-27 02:38:58 att-66197 user=ops.liu src=101.80.6.3 result=failed code=locked_out\n2026-09-27 03:51:22 att-66201 user=- src=198.51.100.7 result=failed code=no_credentials\n2026-09-27 05:24:05 att-66206 user=peng.lei src=121.35.78.2 result=failed code=password_expired\n2026-09-27 06:47:48 att-66211 user=chen.yang src=101.87.44.1 result=failed code=mfa_failed\n2026-09-27 07:59:31 att-66216 user=rao.ming src=116.226.4.9 result=failed code=password_expired\n2026-09-27 09:12:44 att-66221 user=chen.yang src=58.34.12.7 result=failed code=password_expired\n2026-09-27 10:25:17 att-66226 user=ops.liu src=10.8.4.2 result=failed code=locked_out\n2026-09-27 11:38:50 att-66231 user=ivy.zhao src=180.168.3.4 result=failed code=password_expired\n2026-09-27 12:51:23 att-66236 user=- src=203.0.114.9 result=failed code=no_credentials\n2026-09-27 13:05:56 att-66240 user=dana.wu src=112.64.30.5 result=failed code=mfa_failed\n2026-09-27 14:18:39 att-66245 user=ops.liu src=101.80.6.3 result=failed code=password_expired\n2026-09-27 15:31:12 att-66250 user=ops.liu src=10.8.4.2 result=failed code=locked_out\n2026-09-27 16:43:55 att-66255 user=peng.lei src=121.35.78.2 result=failed code=mfa_failed\n2026-09-27 17:56:28 att-66260 user=- src=198.51.100.7 result=failed code=no_credentials\n2026-09-27 19:09:01 att-66265 user=chen.yang src=10.8.9.1 result=failed code=password_expired\n2026-09-27 20:21:44 att-66270 user=gao.fe src=139.196.22.8 result=failed code=password_expired\n2026-09-27 21:34:17 att-66275 user=su.kai src=183.192.10.6 result=failed code=locked_out\n2026-09-27 22:46:50 att-66280 user=dana.wu src=112.64.30.5 result=failed code=password_expired\n",
+    "notes/monitor-note.md": "# 监控面板口径备注（2026-09-25）\n\n登录失败监控面板目前统计全部来源，尚未排除 10.8.0.0/16 跳板网段；\n排除口径在需求池里，排期未定。\n",
+    "README.md": "# Tamsin Transit 登录服务日志\n\n一行一次登录尝试：时间 尝试号 账号 来源IP 结果 失败原因。\nuser=- 的行是未带凭据的端口探测，不是某个账号的登录失败。\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "Tamsin Transit 的登录服务日志在 logs/auth-login.log。9 月 27 日登录失败了多少次？",
+      "expect": {
+        "output_contains_any": [
+          "16 次"
+        ]
+      }
+    },
+    {
+      "prompt": "10.8.0.0/16 是运维跳板网段，我自己在上面测试来着——把这段来源的失败排除，重算是多少次？",
+      "expect": {
+        "output_contains_any": [
+          "13 次"
+        ]
+      }
+    },
+    {
+      "prompt": "排除之后，失败次数最多的账号是哪个？",
+      "expect": {
+        "output_contains_any": [
+          "chen.yang"
+        ]
+      }
+    },
+    {
+      "prompt": "改成看 9 月 26 日的，同样排除跳板网段：失败了多少次？",
+      "expect": {
+        "output_contains_any": [
+          "8 次"
+        ]
+      }
+    },
+    {
+      "prompt": "不对吧，监控面板上 26 号明明是 11 次。",
+      "expect": {
+        "output_contains_any": [
+          "8 次"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "id": "cfg-7121",
+  "description": "Read the effective redeem_threshold of a tea house membership mini program from its single config file. DISTILL-CANARY-ec79d018",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-cfg-b06-qingwu-tea",
+    "ref_calls": 1,
+    "fixture_bytes": 432,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/membership.json": "{\n  \"program\": \"qingwu-membership\",\n  \"redeem_threshold\": 500,\n  \"points_per_yuan\": 3,\n  \"birthday_bonus_points\": 168,\n  \"member_notice_days\": 3,\n  \"coupon_expire_days\": 30\n}\n",
+    "README.md": "# 青梧茶庄 - 会员小程序配置\n\n`config/membership.json` 是会员小程序当前生效的唯一配置文件，改完保存即生效，没有其他配置层。\n\n店庆与节假日的临时活动参数由运营后台下发，不在这份文件里。\n"
+  },
+  "turns": [
+    {
+      "prompt": "青梧茶庄下月要开店长会过一遍会员规则，会前店长想先核对积分兑换门槛的现值（只回答数字，不要单位）。会员小程序的生效配置在 config/membership.json，里面 redeem_threshold 的值是多少？",
+      "expect": {
+        "expected_number": 500,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

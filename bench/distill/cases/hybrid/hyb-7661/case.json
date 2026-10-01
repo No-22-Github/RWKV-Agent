@@ -1,0 +1,60 @@
+{
+  "id": "hyb-7661",
+  "description": "Total EUR ocean freight for September Hamburg shipments using the carrier's posted September rate. DISTILL-CANARY-1513817b",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_calc",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 3713
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b06-freightcalc-01",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 379,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {
+    "出口部/9月出货明细.csv": "订单号,货名,箱数,目的港\nQH-26041,绿茶,12,汉堡\nQH-26042,红茶,18,汉堡\nQH-26043,乌龙茶,17,汉堡\nQH-26044,绿茶,9,鹿特丹\nQH-26045,花茶,14,费利克斯托\nQH-26046,普洱,8,鹿特丹\nQH-26047,龙井,6,费利克斯托\n",
+    "README.md": "青禾茶业出口部：出货明细按订单登记箱数与目的港；海运费按承运的远东航运当月公告价，按箱计收。\n"
+  },
+  "web_fixture": [
+    {
+      "query_match": "远东航运",
+      "url": "https://www.fareast-shipping.example/notices/freight-2026-09",
+      "url_match": "fareast-shipping.example/notices/freight-2026-09",
+      "title": "远东航运 2026 年 9 月出口运价公告",
+      "snippet": "9 月各航线每箱运价及生效日期。",
+      "content": "# 远东航运 2026 年 9 月出口运价公告\n\n自 2026-09-01 起执行，按箱计收，每箱运价如下：\n\n目的港 | 每箱运价（欧元）\n汉堡 | 86.50\n鹿特丹 | 79.00\n费利克斯托 | 91.20\n\n以上价格不含燃油附加费与港口附加费。\n",
+      "published_at": "2026-08-25"
+    },
+    {
+      "query_match": "远东航运 运价",
+      "url": "https://www.freightweekly.example/digest-2026-09-02",
+      "url_match": "freightweekly.example/digest-2026-09-02",
+      "title": "货代周刊：9 月欧线运价速览",
+      "snippet": "远东航运 9 月欧线价格与 8 月持平，汉堡每箱 86.5 欧元。",
+      "content": "# 9 月欧线运价速览\n\n远东航运维持 8 月报价：汉堡 86.50 欧元/箱，鹿特丹 79.00 欧元/箱。\n",
+      "published_at": "2026-09-02"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "青禾茶业 9 月发往汉堡的货要预付海运费。出货明细在 出口部/9月出货明细.csv，运价按远东航运 9 月公告价每箱计收。这批货的海运费一共多少欧元？（只回答数字，不要单位。）",
+      "expect": {
+        "expected_number": 4065.5,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

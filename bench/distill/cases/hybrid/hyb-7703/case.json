@@ -1,0 +1,63 @@
+{
+  "id": "hyb-7703",
+  "description": "Multi-turn deploy-error count by build tag, re-cut to a calendar week plus follow-ups. DISTILL-CANARY-e57a02c9",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 6
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b07-weekly-01",
+    "ref_calls": 2,
+    "fixture_bytes": 1087,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "logs/deploys-2026-09.log": "# Quillon Desk deploy events - September 2026 (one line per event)\n2026-09-02 11:07 ERROR build=v2.4.0 auth-gateway session store timeout\n2026-09-05 13:20 WARN build=v2.4.0 auth-gateway slow token refresh\n2026-09-07 08:11 WARN build=v2.4.1 invoice-worker queue backlog\n2026-09-08 14:22 ERROR build=v2.4.1 invoice-worker retry budget exhausted\n2026-09-09 19:07 WARN build=v2.4.1 mail-bridge smtp throttle\n2026-09-10 09:15 ERROR build=v2.4.1 auth-gateway rate limiter reset\n2026-09-12 18:27 ERROR build=v2.4.0 invoice-worker payment webhook 502\n2026-09-14 12:45 WARN build=v2.4.1 auth-gateway slow token refresh\n2026-09-16 21:12 WARN build=v2.4.0 mail-bridge imap reconnect loop\n2026-09-19 16:40 ERROR build=v2.4.1 mail-bridge draft save failed\n2026-09-21 07:58 WARN build=v2.4.1 invoice-worker queue backlog\n2026-09-23 10:12 ERROR build=v2.4.0 mail-bridge draft save failed\n2026-09-26 15:31 WARN build=v2.4.1 mail-bridge smtp throttle\n",
+    "README.md": "# Quillon Desk\n\nDeploy events for September 2026, one per line. The build tag names the release that\nproduced the event and the service name follows it.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Quillon Desk is writing up the September release. How many ERROR lines does build v2.4.1 have in the deploy log? Just the number.",
+      "expect": {
+        "expected_number": 3,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "Finance wants the per-week view instead. Of those build v2.4.1 errors, how many fall in the week of Monday 7 September to Sunday 13 September? The bare number, please.",
+      "expect": {
+        "expected_number": 2,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "Which service logged the build v2.4.1 error outside that week?",
+      "expect": {
+        "output_contains": [
+          "mail-bridge"
+        ]
+      }
+    },
+    {
+      "prompt": "Last one: how many WARN lines does build v2.4.1 have in total? Number only.",
+      "expect": {
+        "expected_number": 5,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

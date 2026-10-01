@@ -1,0 +1,71 @@
+{
+  "id": "hyb-7743",
+  "description": "Halide Corner two-turn session: greeting first, then a June intake count from a register that repeats rows. DISTILL-CANARY-63f85c21",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 8
+    },
+    "axes": [
+      "OBS",
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b07-filmlab-01",
+    "ref_calls": 1,
+    "fixture_bytes": 406,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "value"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Halide Corner - June intake register\n\nOne row per roll checked in. The register job retries on a flaky counter\nlink, so some rolls were written twice.\n",
+    "register/june_intake.csv": "roll_id,intake_date,process\nR-1176,2026-06-05,C-41\nR-1180,2026-06-08,C-41\nR-1181,2026-06-09,B&W\nR-1180,2026-06-08,C-41\nR-1183,2026-06-10,C-41\nR-1185,2026-06-11,E-6\nR-1185,2026-06-11,E-6\nR-1186,2026-06-12,B&W\nR-1188,2026-06-13,C-41\nR-1190,2026-06-16,B&W\n"
+  },
+  "turns": [
+    {
+      "prompt": "Hi! Long time no chat - how have things been?",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "Hello",
+          "hello",
+          "Hi",
+          "hi",
+          "Hey",
+          "hey",
+          "Morning",
+          "morning",
+          "Afternoon",
+          "afternoon",
+          "Evening",
+          "evening",
+          "Nice",
+          "nice",
+          "help",
+          "assist",
+          "How can",
+          "how can",
+          "thank",
+          "well"
+        ]
+      }
+    },
+    {
+      "prompt": "Also - how many rolls did Halide Corner take in during the week of 8 June? The register is at register/june_intake.csv. Reply with only the final answer.",
+      "expect": {
+        "expected_number": 6,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

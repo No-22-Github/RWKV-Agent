@@ -1,0 +1,51 @@
+{
+  "id": "log-7610",
+  "description": "Summarize a theatre rigging crew CSV with two title lines and a warnings footer; locate the hoist breakdown, its fault and the fix. DISTILL-CANARY-394f30b8",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "locate_error",
+    "traps": [
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-HEADER": "2 fault warnings"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-b07-faultcsv-01",
+    "ref_calls": 3,
+    "fixture_bytes": 657,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:distill-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "exports/rigging-w34.csv": "Ashgrove Playhouse - rigging crew fault log\nStage left motorized hoist, week 34 export\ndate,time,asset,event,detail,followup\n2026-08-17,10:05,hoist SL-2,FAULT,brake warning,inspected\n2026-08-18,19:40,hoist SL-2,FAULT,brake warning,inspected again\n2026-08-19,11:15,hoist SL-2,BREAKDOWN,brake pads seized,swapped and load-tested\n2026-08-19,15:00,hoist SL-2,CLEARED,returned to service,\n2 fault warnings logged this week\n",
+    "README.md": "Ashgrove Playhouse rigging export notes.\n\nThe file opens with two title lines; column names start on the third\nline. The footer line only counts the FAULT warnings in the week.\nBREAKDOWN marks the entry that took the hoist out of service.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Ashgrove Playhouse's fly crew had a hoist seize mid-changeover and the stage manager wants a plain-language rundown from the crew log: what time the hoist gave out, what was wrong with it, and how it was put right.",
+      "expect": {
+        "output_contains": [
+          "11:15",
+          "brake pads",
+          "SL-2"
+        ],
+        "output_contains_any": [
+          "11:15",
+          "brake pads",
+          "SL-2"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

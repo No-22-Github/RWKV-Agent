@@ -1,0 +1,54 @@
+{
+  "id": "doc-8004",
+  "description": "Create the September actions file from staff minutes in the August file's layout, normalizing three mixed-format due dates to ISO; judged by pinned substrings. DISTILL-CANARY-e5814a7c",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DATEFMT"
+    ],
+    "trap_decoys": {
+      "TR-DATEFMT": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-holdout-doc-actions-01",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 688,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null
+  },
+  "files": {
+    "actions/2026-08-actions.md": "# Fernbridge Home & Garden - actions, August 2026\n\n- Dana: refresh the patio signage proofs (due 2026-08-21)\n- Marcus: book the fall truck rental (due 2026-08-28)\n- Priya: collect vendor insurance certificates (due 2026-08-14)\n",
+    "minutes/staff-2026-09-24.md": "# Fernbridge Home & Garden - staff minutes, 24 September 2026\n\nPresent: Dana Whitfield, Marcus Lee, Priya Nair, Tom Okafor.\n\n## Decisions\n\nThe autumn packaging reorder goes ahead without the foil lids.\n\n## Action items\n\n1. Dana: order the autumn shelf labels and send print proofs by 2026-09-30.\n2. Marcus: check pallet pickup slots with the two riverfront warehouses before October 6.\n3. Priya: draft the holiday staffing note for the All Hands on 12 October.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Priya took the 24 September staff minutes; they are in minutes/. Create a September actions file next to the August one in actions/, using the same layout: one line per action item from the minutes, keeping the wording, with due dates in the style the August file uses. When you're done, tell me in one to three sentences what you changed.",
+      "expect": {}
+    }
+  ],
+  "expect": {
+    "files": {
+      "actions/2026-09-actions.md": {
+        "contains": [
+          "- Dana: order the autumn shelf labels and send print proofs (due 2026-09-30)",
+          "- Marcus: check pallet pickup slots with the two riverfront warehouses (due 2026-10-06)",
+          "- Priya: draft the holiday staffing note for the All Hands (due 2026-10-12)"
+        ]
+      },
+      "actions/2026-08-actions.md": {
+        "equals": "# Fernbridge Home & Garden - actions, August 2026\n\n- Dana: refresh the patio signage proofs (due 2026-08-21)\n- Marcus: book the fall truck rental (due 2026-08-28)\n- Priya: collect vendor insurance certificates (due 2026-08-14)\n"
+      },
+      "minutes/staff-2026-09-24.md": {
+        "equals": "# Fernbridge Home & Garden - staff minutes, 24 September 2026\n\nPresent: Dana Whitfield, Marcus Lee, Priya Nair, Tom Okafor.\n\n## Decisions\n\nThe autumn packaging reorder goes ahead without the foil lids.\n\n## Action items\n\n1. Dana: order the autumn shelf labels and send print proofs by 2026-09-30.\n2. Marcus: check pallet pickup slots with the two riverfront warehouses before October 6.\n3. Priya: draft the holiday staffing note for the All Hands on 12 October.\n"
+      }
+    }
+  }
+}

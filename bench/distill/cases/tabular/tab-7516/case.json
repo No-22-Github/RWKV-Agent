@@ -1,0 +1,50 @@
+{
+  "id": "tab-7516",
+  "description": "September 2026 total for the vehicle make with the highest settled repair bill; the register keeps the pre-parts estimate beside the final. DISTILL-CANARY-eaa4423b",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "rank",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": 2091.56
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L2",
+    "family": "fam-tab-b06-finalrank-02",
+    "ref_calls": 2,
+    "fixture_bytes": 7067,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "data/job_costs.csv": "job_id,job_month,vehicle_make,cost_estimate,cost_final\nWA-3675,2026-06,Honda,83.47,78.77\nWA-7601,2026-09,Subaru,47.81,52.08\nWA-1446,2026-09,Subaru,76.07,75.30\nWA-7259,2026-05,Toyota,89.04,101.14\nWA-5938,2026-09,Honda,73.75,79.81\nWA-5622,2026-05,Toyota,106.18,111.40\nWA-310,2026-05,Subaru,82.06,93.07\nWA-2832,2026-09,Toyota,100.15,112.51\nWA-9347,2026-09,Ford,79.24,49.54\nWA-4022,2026-06,Subaru,64.73,64.43\nWA-6217,2026-06,Ford,71.51,45.90\nWA-8437,2026-09,Toyota,96.78,106.59\nWA-4939,2026-06,Subaru,63.40,63.67\nWA-6778,2026-09,Ford,60.03,38.36\nWA-4219,2026-05,VW,75.12,62.60\nWA-1789,2026-09,Toyota,107.89,113.80\nWA-561,2026-09,Subaru,57.17,57.31\nWA-7934,2026-09,VW,59.97,65.78\nWA-7255,2026-09,Ford,112.42,64.86\nWA-2106,2026-09,Ford,80.26,46.41\nWA-9418,2026-09,Subaru,57.32,52.45\nWA-5495,2026-09,Toyota,101.70,113.65\nWA-4913,2026-09,Toyota,106.23,109.98\nWA-4951,2026-06,Toyota,76.40,83.67\nWA-7089,2026-09,VW,74.59,76.50\nWA-7739,2026-09,Toyota,82.51,84.44\nWA-2818,2026-05,Subaru,88.73,90.76\nWA-1265,2026-06,Ford,60.29,39.57\nWA-5961,2026-09,Ford,98.94,66.57\nWA-7319,2026-09,Honda,42.29,45.58\nWA-1637,2026-05,Honda,77.31,76.90\nWA-8860,2026-06,Toyota,106.30,111.33\nWA-8544,2026-09,Ford,66.80,39.08\nWA-9260,2026-09,Subaru,61.49,61.67\nWA-2830,2026-09,Ford,65.85,44.02\nWA-4852,2026-05,Ford,80.40,53.35\nWA-6282,2026-09,VW,57.10,59.58\nWA-9805,2026-05,Ford,99.29,63.60\nWA-2072,2026-05,Subaru,88.25,86.33\nWA-2145,2026-05,Subaru,85.46,81.44\nWA-3094,2026-06,Toyota,76.90,82.46\nWA-1013,2026-07,VW,70.88,67.13\nWA-8109,2026-09,Honda,57.03,58.01\nWA-5372,2026-09,Honda,79.18,76.80\nWA-6340,2026-06,Subaru,65.82,74.56\nWA-4773,2026-09,VW,75.81,78.99\nWA-4842,2026-06,Honda,55.79,54.39\nWA-4747,2026-09,Subaru,84.30,89.47\nWA-3790,2026-06,Honda,85.24,81.37\nWA-5610,2026-06,Toyota,107.24,114.64\nWA-2076,2026-06,VW,69.38,64.37\nWA-5213,2026-09,Toyota,63.72,72.80\nWA-9893,2026-09,Ford,66.94,38.72\nWA-4009,2026-05,Subaru,93.67,88.53\nWA-217,2026-09,Subaru,95.44,85.74\nWA-8499,2026-07,Honda,58.63,60.83\nWA-6646,2026-09,Toyota,104.38,113.15\nWA-2739,2026-07,Ford,74.95,44.88\nWA-295,2026-07,Toyota,88.78,93.05\nWA-9407,2026-09,Subaru,83.64,80.71\nWA-3489,2026-09,Honda,87.52,81.48\nWA-246,2026-09,VW,85.60,83.90\nWA-9113,2026-07,Subaru,73.91,77.52\nWA-2155,2026-07,Toyota,106.71,116.51\nWA-1729,2026-05,VW,45.83,50.01\nWA-6523,2026-09,Honda,80.55,75.59\nWA-5290,2026-09,VW,53.51,49.53\nWA-5726,2026-09,VW,55.70,59.41\nWA-6935,2026-06,Honda,62.24,61.66\nWA-5598,2026-09,Toyota,103.68,113.23\nWA-1440,2026-09,Subaru,47.97,54.39\nWA-8944,2026-05,Ford,69.04,45.06\nWA-6940,2026-09,Ford,74.25,44.06\nWA-2776,2026-09,Subaru,86.20,89.14\nWA-9438,2026-06,VW,41.93,45.45\nWA-4442,2026-06,Subaru,49.39,51.02\nWA-362,2026-06,Toyota,65.00,71.18\nWA-1469,2026-05,VW,84.66,85.37\nWA-3389,2026-09,Ford,65.12,43.17\nWA-8382,2026-07,Toyota,73.72,82.19\nWA-370,2026-05,Subaru,64.86,64.93\nWA-1716,2026-09,VW,64.78,59.80\nWA-4235,2026-05,Ford,108.78,69.77\nWA-693,2026-06,Toyota,81.52,87.63\nWA-1456,2026-09,Toyota,73.76,75.42\nWA-2613,2026-09,Toyota,86.04,97.43\nWA-3825,2026-06,Ford,86.71,59.63\nWA-6330,2026-07,Honda,68.72,71.92\nWA-6055,2026-09,Honda,73.49,74.55\nWA-4338,2026-06,Ford,108.72,62.56\nWA-1649,2026-09,Honda,58.43,56.53\nWA-5247,2026-07,Honda,42.13,41.19\nWA-6016,2026-05,Ford,59.38,38.60\nWA-2016,2026-05,VW,76.54,73.57\nWA-7595,2026-06,Honda,42.20,43.47\nWA-6150,2026-07,VW,45.37,45.04\nWA-8617,2026-07,VW,51.67,48.65\nWA-6929,2026-07,Subaru,81.38,76.65\nWA-1296,2026-09,Subaru,57.99,62.75\nWA-4067,2026-09,Honda,49.32,50.53\nWA-3357,2026-05,Honda,41.96,43.90\nWA-8829,2026-05,Honda,77.56,78.39\nWA-8769,2026-07,Ford,68.37,44.58\nWA-529,2026-09,VW,88.22,86.37\nWA-1333,2026-09,Toyota,81.00,92.53\nWA-3370,2026-09,Ford,74.11,42.59\nWA-701,2026-09,VW,80.11,72.90\nWA-8906,2026-06,Toyota,85.93,99.48\nWA-5219,2026-09,Ford,117.92,68.87\nWA-1603,2026-05,Toyota,79.02,85.89\nWA-3958,2026-07,Ford,94.76,61.21\nWA-1747,2026-09,Toyota,57.52,65.71\nWA-6208,2026-09,Ford,107.35,70.99\nWA-4656,2026-07,Honda,81.08,75.70\nWA-4545,2026-09,VW,54.35,56.02\nWA-6255,2026-09,VW,71.80,67.36\nWA-2865,2026-05,Subaru,81.68,88.20\nWA-1509,2026-09,VW,85.61,78.60\nWA-509,2026-09,Toyota,99.15,114.45\nWA-2378,2026-09,VW,89.02,85.95\nWA-8984,2026-05,Ford,114.61,68.53\nWA-7312,2026-06,Ford,98.17,59.93\nWA-6611,2026-05,VW,81.46,82.01\nWA-6307,2026-09,Honda,38.91,41.39\nWA-6661,2026-05,Toyota,71.64,77.27\nWA-5652,2026-09,VW,44.83,47.61\nWA-2370,2026-07,VW,45.88,49.03\nWA-1804,2026-06,Ford,85.78,55.78\nWA-603,2026-06,Subaru,66.93,72.48\nWA-1549,2026-06,Subaru,63.62,57.08\nWA-4941,2026-09,Ford,97.12,60.40\nWA-6192,2026-06,Ford,77.87,49.24\nWA-1892,2026-07,Toyota,67.29,71.39\nWA-8175,2026-09,Ford,105.53,65.90\nWA-3518,2026-09,Ford,98.04,64.22\nWA-7502,2026-09,Honda,66.66,72.29\nWA-642,2026-09,Ford,114.47,71.24\nWA-1010,2026-07,Honda,72.72,76.15\nWA-4519,2026-07,Toyota,98.28,102.83\nWA-7120,2026-06,Ford,107.50,67.59\nWA-1917,2026-07,Ford,91.63,56.18\nWA-2845,2026-07,Ford,60.91,38.18\nWA-4016,2026-09,Toyota,77.56,82.59\nWA-3526,2026-05,Toyota,113.46,119.53\nWA-6234,2026-09,Toyota,73.64,79.34\nWA-2493,2026-06,VW,56.68,51.66\nWA-3440,2026-05,Honda,47.33,48.36\nWA-6411,2026-09,Subaru,77.66,71.12\nWA-7031,2026-09,Honda,63.63,64.94\nWA-8393,2026-09,Subaru,51.41,55.20\nWA-9160,2026-09,Subaru,96.64,91.51\nWA-6557,2026-06,Ford,80.56,49.08\nWA-9896,2026-07,VW,85.95,81.29\nWA-6423,2026-09,Ford,76.88,46.59\nWA-8664,2026-09,Subaru,85.65,93.04\nWA-6801,2026-09,Ford,69.56,40.45\nWA-8585,2026-09,Ford,93.27,56.46\nWA-9764,2026-09,Honda,57.63,55.04\nWA-8171,2026-09,Toyota,105.40,119.40\nWA-1207,2026-05,Toyota,90.56,97.33\nWA-8239,2026-09,Subaru,66.80,63.79\nWA-4365,2026-09,Subaru,84.22,70.18\nWA-5558,2026-09,Subaru,60.62,58.53\nWA-8709,2026-06,VW,68.68,62.60\nWA-5462,2026-06,VW,60.55,59.19\nWA-2180,2026-05,Ford,81.14,50.89\nWA-6474,2026-06,Subaru,59.45,58.09\nWA-1106,2026-07,Subaru,87.41,93.60\nWA-9009,2026-09,Ford,104.91,70.70\nWA-2285,2026-09,VW,66.39,69.89\nWA-4855,2026-07,Subaru,54.90,60.53\nWA-6967,2026-09,Toyota,68.72,76.66\nWA-5293,2026-07,Subaru,50.31,52.83\nWA-8763,2026-05,Toyota,65.37,75.57\nWA-3166,2026-07,Ford,103.92,60.28\nWA-5765,2026-05,Honda,59.64,59.11\nWA-3524,2026-07,Ford,74.40,50.19\nWA-4695,2026-05,Ford,73.58,49.08\nWA-1396,2026-07,VW,53.72,49.85\nWA-8387,2026-07,Subaru,88.15,85.12\nWA-5845,2026-07,Ford,111.29,65.90\nWA-7329,2026-09,Ford,113.23,71.33\nWA-3148,2026-05,Ford,62.82,42.39\nWA-3816,2026-07,Ford,121.12,69.25\nWA-1760,2026-05,VW,64.04,58.40\nWA-8525,2026-09,Ford,84.22,56.31\nWA-8717,2026-06,Toyota,101.66,104.89\nWA-8567,2026-07,Toyota,105.00,117.94\nWA-3813,2026-07,Toyota,61.26,71.23\nWA-2944,2026-07,Subaru,85.88,77.05\nWA-2352,2026-09,Toyota,99.75,114.12\nWA-7977,2026-06,VW,82.19,78.46\nWA-5856,2026-05,Toyota,93.41,95.52\nWA-8166,2026-09,Honda,89.94,84.95\nWA-6828,2026-09,Ford,65.10,43.56\nWA-5651,2026-07,Toyota,97.56,110.07\nWA-2940,2026-09,Toyota,71.03,74.70\n",
+    "README.md": "# Wrenfield Auto Service - job cost register\n\ncost_estimate is written on the repair order before parts are priced. cost_final is the amount on the settled invoice - what the shop actually bills.\n",
+    "notes/bay_board.txt": "Bay board\n- The alignment rack books out by the half day.\n- Core charges post with the parts invoice.\n- Keys for the loaners hang in the office cabinet.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Wrenfield Auto Service is reviewing which vehicle make drove the most repair revenue in September. The job cost register is at data/job_costs.csv. Give the number alone, as digits, with no label. What was the September 2026 repair total for the vehicle make with the highest total?",
+      "expect": {
+        "expected_number": 1932.5,
+        "tolerance": 0.01,
+        "required_tools": [
+          "data_query"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 1
+    }
+  }
+}

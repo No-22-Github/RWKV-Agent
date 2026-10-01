@@ -1,0 +1,51 @@
+{
+  "id": "log-7615",
+  "description": "总结甜品店冷柜温度日志（中文）；换封条后的除霜测试是诱饵。 DISTILL-CANARY-041e23f4",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "root_cause",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "4 次"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-b07-thermroot-01",
+    "ref_calls": 3,
+    "fixture_bytes": 640,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:distill-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "logs/freezer-0918.log": "2026-09-18 14:20 冷柜 L-2 温度 11.2C 超出上限 告警\n2026-09-18 14:35 冷柜 L-2 温度 10.8C 持续超温 告警\n2026-09-18 14:50 冷柜 L-2 温度 10.9C 持续超温 告警\n2026-09-18 15:10 冷柜 L-2 温度 4.4C 恢复 正常\n2026-09-18 19:02 冷柜 L-2 更换门封条 工单 TB-233 完成\n2026-09-19 08:15 冷柜 L-2 温度 9.6C 超出上限 除霜测试\n2026-09-19 08:40 冷柜 L-2 温度 4.8C 恢复 正常\n",
+    "notes/维修记录.md": "甜絮坊后厨冷柜维修记录（L-2）。\n\n2026-09-18 晚更换门封条，工单 TB-233。\n原因：门封条漏气。\n\n2026-09-19 早上的超温是维保后的除霜测试，属例行测试，不计入故障。\n"
+  },
+  "turns": [
+    {
+      "prompt": "甜絮坊后厨的 L-2 冷柜上周闹了一回脾气，店长让我把记录讲清楚：超温告警一共几次、几点开始的、师傅最后说是哪里的问题。",
+      "expect": {
+        "output_contains": [
+          "3 次",
+          "14:20",
+          "门封条"
+        ],
+        "output_contains_any": [
+          "3 次",
+          "14:20",
+          "门封条"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

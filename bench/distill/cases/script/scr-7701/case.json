@@ -1,0 +1,47 @@
+{
+  "id": "scr-7701",
+  "description": "Rewrite the missing evening ledger script so the campsite's monthly booking exports print again. DISTILL-CANARY-b3f19c47",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "write_new",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-scr-b06-brackenwave",
+    "ref_calls": 3,
+    "fixture_bytes": 837,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "bookings.py": "\"\"\"Print the booking ledger for Brackenwave Campsites.\n\nThe reservation desk writes one ledger per month to ledgers/, one row per\nbooking:\n\n    booked_on,site,nights,pence\n\nThe evening printout is the campsite ledger: one line per day that has\nbookings, in date order, followed by a totals line:\n\n    <date>,<bookings>,<pence>\n    TOTAL,<bookings>,<pence>\n\"\"\"\n\nif __name__ == \"__main__\":\n    raise SystemExit(\"the ledger printout is not written yet\")\n",
+    "ledgers/2026-09.csv": "booked_on,site,nights,pence\n2026-09-03,Foxglove Meadow,2,4400\n2026-09-03,Foxglove Meadow,1,2200\n2026-09-09,Alder Pitch,3,5100\n2026-09-14,Foxglove Meadow,2,4400\n2026-09-21,Alder Pitch,1,1700\n",
+    "README.md": "# Brackenwave Campsites - evening ledger\n\nThe reservation desk exports one ledger per month into ledgers/, one row per\nbooking. The evening printout from bookings.py is the copy the warden signs.\n"
+  },
+  "expect": {
+    "files": {
+      "ledgers/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "bookings.py",
+      "expected_stdout": "2026-09-03,2,6600\n2026-09-09,1,5100\n2026-09-14,1,4400\n2026-09-21,1,1700\n2026-10-02,1,3400\n2026-10-11,2,10500\nTOTAL,8,31700",
+      "hidden_files": {
+        "ledgers/2026-10.csv": "booked_on,site,nights,pence\n2026-10-02,Alder Pitch,2,3400\n2026-10-11,Foxglove Meadow,4,8800\n2026-10-11,Alder Pitch,1,1700\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The evening printout at Brackenwave Campsites went dark: bookings.py holds only the notes for it, and the reservation desk's monthly exports keep landing in ledgers/. Please write bookings.py so the ledger prints the way its notes describe, and so it keeps working as later monthly exports land in ledgers/. The exports in ledgers/ are the desk's own record, so they stay as they are. When you are done, describe in two or three sentences what your script does.",
+      "expect": {}
+    }
+  ]
+}

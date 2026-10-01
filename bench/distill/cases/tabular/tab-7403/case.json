@@ -1,0 +1,50 @@
+{
+   "id": "tab-7403",
+   "description": "Average the September 2026 downtime of valve-failure visits from a service log that mixes five issue types. DISTILL-CANARY-e2f95c70",
+   "category": "tabular",
+   "tags": {
+      "scenario": "tabular",
+      "task_type": "aggregate",
+      "traps": [
+         "TR-DECOY"
+      ],
+      "trap_decoys": {
+         "TR-DECOY": 6.525
+      },
+      "axes": [
+         "OBS"
+      ],
+      "level": "L1",
+      "family": "fam-tab-b06-clarion-01",
+      "ref_calls": 1,
+      "fixture_bytes": 4054,
+      "status": "draft",
+      "version": 1,
+      "author": "llm:glm-5.3-flash-b06",
+      "reviewer": null,
+      "answer_style": "natural"
+   },
+   "web_fixture": [],
+   "files": {
+      "service/visit_log.csv": "visit_id,visit_month,system_type,issue_type,downtime_hours\nCV-2609059,2026-09,Booster set,Valve,3.25\nCV-2605012,2026-05,Booster set,Control board,2.00\nCV-2606027,2026-06,RO skid,Valve,0.50\nCV-2608043,2026-08,Softener,Valve,8.75\nCV-2609073,2026-09,UV loop,Control board,2.00\nCV-2608052,2026-08,RO skid,Valve,2.00\nCV-2605009,2026-05,UV loop,Filter,12.25\nCV-2607041,2026-07,Booster set,Valve,6.00\nCV-2606026,2026-06,Booster set,Control board,3.50\nCV-2605013,2026-05,UV loop,Filter,2.00\nCV-2607039,2026-07,UV loop,Valve,3.50\nCV-2609066,2026-09,RO skid,Sensor,2.00\nCV-2605003,2026-05,Softener,Valve,1.25\nCV-2605006,2026-05,UV loop,Valve,1.25\nCV-2606024,2026-06,UV loop,Filter,6.00\nCV-2607029,2026-07,RO skid,Valve,2.00\nCV-2606022,2026-06,Booster set,Valve,2.00\nCV-2609070,2026-09,Softener,Control board,18.00\nCV-2608055,2026-08,UV loop,Control board,12.25\nCV-2607030,2026-07,RO skid,Valve,2.00\nCV-2609085,2026-09,UV loop,Pump,0.50\nCV-2609063,2026-09,Softener,Valve,5.25\nCV-2605008,2026-05,Softener,Sensor,8.75\nCV-2607036,2026-07,RO skid,Control board,8.75\nCV-2609064,2026-09,Softener,Pump,8.75\nCV-2609081,2026-09,UV loop,Pump,1.25\nCV-2609079,2026-09,Softener,Sensor,12.25\nCV-2606019,2026-06,RO skid,Sensor,2.00\nCV-2609067,2026-09,RO skid,Filter,8.75\nCV-2607031,2026-07,Booster set,Filter,0.50\nCV-2607038,2026-07,Booster set,Valve,18.00\nCV-2609087,2026-09,Booster set,Sensor,8.75\nCV-2606016,2026-06,Booster set,Control board,6.00\nCV-2605007,2026-05,Softener,Filter,12.25\nCV-2609072,2026-09,RO skid,Control board,0.50\nCV-2609076,2026-09,RO skid,Pump,8.75\nCV-2606015,2026-06,UV loop,Sensor,18.00\nCV-2609080,2026-09,RO skid,Control board,6.00\nCV-2608050,2026-08,UV loop,Control board,12.25\nCV-2607033,2026-07,RO skid,Valve,6.00\nCV-2608056,2026-08,Softener,Pump,8.75\nCV-2608051,2026-08,Booster set,Pump,6.00\nCV-2609071,2026-09,RO skid,Control board,12.25\nCV-2609083,2026-09,Softener,Filter,6.00\nCV-2605010,2026-05,RO skid,Filter,8.75\nCV-2608044,2026-08,Booster set,Control board,6.00\nCV-2609077,2026-09,RO skid,Pump,2.00\nCV-2607035,2026-07,Booster set,Control board,1.25\nCV-2605002,2026-05,Softener,Valve,3.50\nCV-2606028,2026-06,Softener,Sensor,8.75\nCV-2608045,2026-08,Booster set,Valve,8.75\nCV-2607042,2026-07,Booster set,Valve,6.00\nCV-2608048,2026-08,UV loop,Pump,0.50\nCV-2608046,2026-08,Booster set,Pump,8.75\nCV-2609068,2026-09,Softener,Sensor,6.00\nCV-2609074,2026-09,UV loop,Control board,12.25\nCV-2608054,2026-08,UV loop,Valve,6.00\nCV-2608047,2026-08,RO skid,Filter,1.25\nCV-2609084,2026-09,UV loop,Sensor,18.00\nCV-2607037,2026-07,UV loop,Pump,8.75\nCV-2607032,2026-07,RO skid,Sensor,1.25\nCV-2609058,2026-09,Booster set,Valve,2.50\nCV-2608057,2026-08,Booster set,Pump,8.75\nCV-2605011,2026-05,Booster set,Sensor,6.00\nCV-2607040,2026-07,Softener,Pump,12.25\nCV-2606018,2026-06,Softener,Control board,3.50\nCV-2605001,2026-05,Softener,Sensor,2.00\nCV-2605014,2026-05,UV loop,Valve,2.00\nCV-2606017,2026-06,Softener,Valve,18.00\nCV-2606023,2026-06,Softener,Filter,6.00\nCV-2609065,2026-09,RO skid,Control board,2.00\nCV-2609086,2026-09,Softener,Sensor,8.75\nCV-2605005,2026-05,UV loop,Valve,0.50\nCV-2605004,2026-05,Booster set,Sensor,0.50\nCV-2609078,2026-09,RO skid,Pump,6.00\nCV-2609061,2026-09,UV loop,Valve,4.00\nCV-2608049,2026-08,Booster set,Valve,18.00\nCV-2606025,2026-06,Softener,Valve,8.75\nCV-2609082,2026-09,Booster set,Filter,12.25\nCV-2609069,2026-09,Softener,Pump,3.50\nCV-2609075,2026-09,UV loop,Sensor,6.00\nCV-2609060,2026-09,RO skid,Valve,3.75\nCV-2606020,2026-06,Booster set,Filter,18.00\nCV-2607034,2026-07,UV loop,Filter,6.00\nCV-2608053,2026-08,Softener,Pump,8.75\nCV-2609062,2026-09,UV loop,Valve,4.50\nCV-2606021,2026-06,RO skid,Pump,12.25\n",
+      "README.md": "# Clarion Water Services - field service log\n\nOne row per technician visit. downtime_hours is the time the treatment\nsystem ran below spec, recorded by site telemetry and confirmed at\nhandover.\n",
+      "notes/contract_terms.txt": "Response targets run from the first alarm in the hourly telemetry queue.\nSites on the harbor loop keep spare valve kits on site; everything else\ndraws from the central storeroom. Weekend visits need the duty manager's\nsign-off.\n"
+   },
+   "turns": [
+      {
+         "prompt": "Clarion Water Services is reviewing which failure modes drive the most downtime. The service log is at service/visit_log.csv. Give the number alone, as digits, with no label. What was the average downtime, in hours, for visits with a Valve issue in September 2026?",
+         "expect": {
+            "expected_number": 3.875,
+            "tolerance": 0.01,
+            "required_tools": [
+               "data_query"
+            ]
+         }
+      }
+   ],
+   "expect": {
+      "max_calls": {
+         "read_file": 1
+      }
+   }
+}

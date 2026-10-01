@@ -1,0 +1,55 @@
+{
+  "id": "cfg-7101",
+  "description": "Effective trace_sample_rate of the ingest gateway, which neither config layer defines. DISTILL-CANARY-a3f1c9d4",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "missing_keys",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": 365
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b06-lanshan-ingest",
+    "ref_calls": 3,
+    "fixture_bytes": 1173,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 岚山数联 - 接入网关配置工作区\n\n`ingest-gateway` 是监控平台的接入网关，负责接收各端上报的数据点。\n\n配置分两层存放，生效顺序为：实例配置覆盖默认档案，同名键以实例配置里的值为准；实例配置没写的键回落到默认档案；两层都没有的键没有生效值。\n\n- config/ingest-gateway.json   生产实例的实例配置\n- config/default-profile.json  平台下发的默认档案\n\n运维改动配置后需要重启网关才生效，重启记录见 docs/oncall-notes.md。\n",
+    "config/ingest-gateway.json": "{\n  \"service\": \"ingest-gateway\",\n  \"region\": \"cn-east-1\",\n  \"listen_port\": 9443,\n  \"flush_interval_s\": 5,\n  \"max_batch_bytes\": 524288,\n  \"worker_pool\": 16,\n  \"log_level\": \"info\"\n}\n",
+    "config/default-profile.json": "{\n  \"listen_port\": 8080,\n  \"flush_interval_s\": 30,\n  \"max_batch_bytes\": 262144,\n  \"worker_pool\": 8,\n  \"log_level\": \"warn\",\n  \"log_retention_days\": 365,\n  \"metrics_interval_s\": 60\n}\n",
+    "docs/oncall-notes.md": "# 值班记录\n\n- 网关重启前后各拉一次监控采样点，确认队列没有堆积。\n- 重启顺序：先摘流量，再重启，回包正常后把流量切回。\n- 链路追踪的接入由平台组统一排期，网关侧不需要单独动配置。\n"
+  },
+  "turns": [
+    {
+      "prompt": "岚山数联的接入网关 ingest-gateway 要接链路追踪采样了。帮我查一下这台生产网关生效配置里 trace_sample_rate 的值是多少？",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "trace_sample_rate",
+          "trace sample rate",
+          "采样比例"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools",
+          "365"
+        ]
+      }
+    }
+  ]
+}

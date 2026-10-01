@@ -1,0 +1,62 @@
+{
+  "id": "web-7559",
+  "description": "Recommended replacement interval for the CW-500 RO membrane filter per the vendor FAQ snippet. DISTILL-CANARY-bd2d8906",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": 12
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-web-b06-chengquan-filter",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "澄泉",
+      "url": "https://www.chengquan.example/faq",
+      "url_match": "www.chengquan.example/faq",
+      "title": "澄泉净水 CW-500 常见问题",
+      "snippet": "澄泉 CW-500 的 RO 膜滤芯建议每 18 个月更换一次，前置 PP 棉每 6 个月一换。",
+      "content": "# 澄泉净水 CW-500 常见问题\n\n问：滤芯多久换一次？\n答：RO 膜滤芯建议每 18 个月更换一次；前置 PP 棉每 6 个月一换，后置活性炭每 12 个月一换。机器面板会提前两周亮起换芯提醒。\n\n问：滤芯可以自己换吗？\n答：可以。断水后逆时针旋下旧滤芯，装上新滤芯放水三分钟即可。\n",
+      "published_at": "2026-06-15"
+    },
+    {
+      "query_match": "澄泉",
+      "url": "https://mall.jiashuidian.example/chengquan-filter",
+      "url_match": "mall.jiashuidian.example/chengquan-filter",
+      "title": "澄泉 CW-500 滤芯半年装 - 佳水电商",
+      "snippet": "澄泉 CW-500 滤芯半年装促销中，客服建议滤芯 12 个月一换更省钱。",
+      "content": "佳水电商 - 净水配件 - 澄泉 CW-500 滤芯半年装\n\n促销价 219 元。有人问滤芯能用多久，客服小水回复：按家里的水质，一般 12 个月一换就够了，半年装更划算。\n",
+      "published_at": "2026-03-08"
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "turns": [
+    {
+      "prompt": "家里那台澄泉 CW-500 该换芯了。按厂家常见问题页的说法，RO 膜滤芯建议多久换一次？只回答数字（按月计），不要带单位。",
+      "expect": {
+        "expected_number": 18,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

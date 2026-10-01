@@ -1,0 +1,52 @@
+{
+  "id": "fs-7704",
+  "description": "Storage audit of a podcast studio's masters folder: largest published episode master; the unedited raw-takes file is the decoy. DISTILL-CANARY-937d393c",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "largest",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "921"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-fs-b07-largedecoy-01",
+    "ref_calls": 4,
+    "fixture_bytes": 395,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:distill-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "masters/episode-log.csv": "episode,format,size_mb\nEP-041,wav,412\nEP-042,wav,587\nEP-043,wav,655\nEP-044,mp3,96\nEP-045,wav,604\n",
+    "masters/raw-takes.csv": "take,format,size_mb\nEP-043-raw,wav,921\nEP-045-raw,wav,873\n",
+    "README.md": "Flagship Fern Audio, masters folder.\n\nepisode-log.csv lists the published episode masters of record.\nraw-takes.csv lists unedited takes kept separately; raw takes are never\nthe master of record and are excluded from the storage audit line.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Flagship Fern Audio needs a line for the storage audit about the masters folder. Write it for me: which published episode master is the biggest and how large it is, and what the raw-takes file sitting next to it is for.",
+      "expect": {
+        "output_contains": [
+          "EP-043",
+          "655",
+          "raw-takes.csv"
+        ],
+        "output_contains_any": [
+          "EP-043",
+          "655",
+          "raw-takes.csv"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

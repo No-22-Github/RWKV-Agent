@@ -1,0 +1,48 @@
+{
+  "id": "doc-7325",
+  "description": "Use the effective-version register to read the charging time limit from the current forklift safety rule. DISTILL-CANARY-0b80dced",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": "4 小时"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b06-maisui",
+    "ref_calls": 2,
+    "fixture_bytes": 1129,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "docs/生效登记.csv": "制度名称,版本,生效日期,状态\n叉车操作规程,2024,2024-11-05,现行\n叉车充电区安全守则,2025,2025-03-02,废止\n叉车充电区安全守则,2026修订,2026-04-18,现行\n库区消防管理规定,2023,2023-06-30,现行\n出入库交接细则,2025,2025-08-15,现行\n托盘维修作业指引,2022,2022-12-01,废止\n拣选作业安全提示,2026,2026-01-20,现行\n月度盘点办法,2024,2024-05-10,现行\n",
+    "docs/充电守则-2025版.md": "# 麦穗仓储叉车充电区安全守则（2025 版）\n\n一、叉车电池充电须在指定充电区进行，充电区十米内不得有明火。\n\n二、单块电池单次充电不得超过 4 小时，充电完毕后及时断电。\n\n三、充电区每班巡检两次并登记。\n\n本版自 2025 年 3 月 2 日起施行。\n",
+    "docs/充电守则-2026修订版.md": "# 麦穗仓储叉车充电区安全守则（2026 修订版）\n\n一、叉车电池充电须在指定充电区进行，充电区十米内不得有明火。\n\n二、新充电桩投用后，单块电池单次充电不得超过 6 小时，充满后及时断电。\n\n三、充电区每班巡检一次并登记。\n\n本修订版自 2026 年 4 月 18 日起施行，原 2025 版同时废止。\n"
+  },
+  "turns": [
+    {
+      "prompt": "麦穗仓储的制度登记表在 docs/生效登记.csv。按现行有效的叉车充电区安全守则，叉车电池单次充电不能超过多少小时？",
+      "expect": {
+        "output_contains_any": [
+          "6 小时",
+          "6小时"
+        ],
+        "output_excludes": [
+          "4 小时",
+          "4小时"
+        ]
+      }
+    }
+  ]
+}

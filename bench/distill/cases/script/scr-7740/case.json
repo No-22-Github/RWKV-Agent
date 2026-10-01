@@ -1,0 +1,47 @@
+{
+  "id": "scr-7740",
+  "description": "Write the cocoon station's daily intake sheet script so the desk exports print as a day-by-day sheet. DISTILL-CANARY-19e34837",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "write_new",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-scr-b06-banshan",
+    "ref_calls": 3,
+    "fixture_bytes": 677,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "intake.py": "\"\"\"打印半山蚕茧站的每日收茧单。\n\n开票员的导出按月落进 intakes/，一行一笔收茧：\n\n    日期,蚕户,茧量斤,元\n\n收茧单按日期排序打印，每天一行，最后加一行总计：\n\n    <日期>,<笔数>,<茧量斤>,<元>\n    总计,<笔数>,<茧量斤>,<元>\n\"\"\"\n\nif __name__ == \"__main__\":\n    raise SystemExit(\"not written yet\")\n",
+    "intakes/2026-09.csv": "日期,蚕户,茧量斤,元\n2026-09-02,上湾陈家,46,5980\n2026-09-02,岭背吴家,32,4160\n2026-09-09,石桥周家,28,3640\n2026-09-16,上湾陈家,38,4940\n2026-09-23,枫林郑家,44,5720\n",
+    "README.md": "# 半山蚕茧站 - 每日收茧单\n\nintake.py 打印随车送烘房的每日收茧单。导出是开票员的留档。\n"
+  },
+  "expect": {
+    "files": {
+      "intakes/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "intake.py",
+      "expected_stdout": "2026-09-02,2,78,10140\n2026-09-09,1,28,3640\n2026-09-16,1,38,4940\n2026-09-23,1,44,5720\n2026-10-07,1,35,4550\n2026-10-14,1,29,3770\n2026-10-21,1,41,5330\n总计,8,293,38090",
+      "hidden_files": {
+        "intakes/2026-10.csv": "日期,蚕户,茧量斤,元\n2026-10-07,岭背吴家,35,4550\n2026-10-14,上湾陈家,29,3770\n2026-10-21,石桥周家,41,5330\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "半山蚕茧站的每日收茧单断了两周：intake.py 里只剩下说明文字，代码一直没写。开票员的导出照旧落进 intakes/。请把 intake.py 写出来，让收茧单按说明里的版式打印，之后新到的导出也要能照常汇总。intakes/ 里的导出是开票员的留档，保持原样。完成后用两三句话说明你的脚本做了什么。",
+      "expect": {}
+    }
+  ]
+}

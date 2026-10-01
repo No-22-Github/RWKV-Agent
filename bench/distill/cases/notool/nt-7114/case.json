@@ -1,0 +1,41 @@
+{
+  "id": "nt-7114",
+  "description": "Decide from the batch status code A whether a delivery may go straight to the shelf; the mapping is given in the message DISTILL-CANARY-abe691da",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "不能"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-goods-status-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 344
+  },
+  "web_fixture": [],
+  "files": {
+    "intake/batches_2026-10.csv": "批次,品名,状态码\nB2610-01,冷鲜鸡,A\nB2610-02,鲜牛奶,Q\nB2610-03,卤水豆腐,R\n",
+    "README.md": "# 源圃生鲜 - 收货工作区\n\n到货批次登记和上架安排都在这里。\n\n- intake/  批次状态登记表\n\n批次状态码：Q 表示待检，A 表示合格，R 表示退回。仓库规定只有状态为 A 的批次可以直接上架销售。\n"
+  },
+  "turns": [
+    {
+      "prompt": "源圃生鲜今早到货一批冷鲜鸡，批次号 B2610-01。入库批次状态码：Q 表示待检，A 表示合格，R 表示退回；仓库规定只有状态为 A 的批次可以直接上架销售。这批冷鲜鸡登记的状态是 A。它能直接上架销售吗？只回答「能」或「不能」，不要解释。",
+      "expect": {
+        "output_equals": "能",
+        "tools": []
+      }
+    }
+  ]
+}

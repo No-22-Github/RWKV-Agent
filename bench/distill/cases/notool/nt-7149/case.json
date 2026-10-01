@@ -1,0 +1,38 @@
+{
+  "id": "nt-7149",
+  "description": "Litres used last week from 4 water-cooler barrels of 18.9 litres each. DISTILL-CANARY-3651dcdc",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b06-waterbarrel-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 209
+  },
+  "web_fixture": [],
+  "files": {
+    "pantry/deliveries.csv": "week,barrels\n2026-W36,4\n2026-W37,5\n",
+    "README.md": "# 雁栖物业 - 后勤工作区\n\n各楼栋后勤补给登记都放在这里。\n\n- pantry/  桶装水配送记录\n- logs/  保洁与耗材台账\n\n桶装水每桶 18.9 升。\n"
+  },
+  "turns": [
+    {
+      "prompt": "雁栖物业的饮水机上周（第 36 周）换了 4 桶桶装水，每桶 18.9 升。上周一共用了多少升水？只回答数字。",
+      "expect": {
+        "expected_number": 75.6,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "id": "hyb-7716",
+  "description": "Multi-turn delay-day total under a retired sheet name for a window fitter, then site and cause cuts. DISTILL-CANARY-a4680f3d",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": 27
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b07-related-06",
+    "ref_calls": 3,
+    "fixture_bytes": 824,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "site/delays-2026-09.csv": "site,delay_days,cause\nAshcroft Tower,5,weather\nAshcroft Tower,5,supplier\nAshcroft Tower,2,inspection\nLantern Court,3,weather\nLantern Court,3,inspection\nLantern Court,3,supplier\nPike & Hale Warehouse,2,weather\nPike & Hale Warehouse,2,supplier\nRowe Cottage,2,weather\nRowe Cottage,1,inspection\n",
+    "site/delays-2026-08.csv": "site,delay_days,cause\nAshcroft Tower,8,weather\nLantern Court,6,supplier\nPike & Hale Warehouse,5,weather\nRowe Cottage,4,inspection\nBellamy Yard,4,weather\n",
+    "docs/install-handbook.md": "# Installation handbook (excerpt)\n\nDelay records moved under site/ in the August cleanup; the monthly sheets are named\ndelays-YYYY-MM.csv. The old top-level delay-log.csv name no longer resolves to anything.\n",
+    "README.md": "# Kestrel Windows - fit-out records\n\nsite/ holds the monthly delay sheets; docs/ holds the handbook. Delay days are lost\ncrew-days per event, as recorded by the site lead.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Kestrel Windows is prepping the September review. Dispatch still calls the sheet delay-log.csv, but that name was retired in the August cleanup - find the September delay sheet and total its delay days. Just the number.",
+      "expect": {
+        "expected_number": 28,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "Which site accounted for the most delay days in that sheet?",
+      "expect": {
+        "output_contains_any": [
+          "Ashcroft Tower",
+          "Ashcroft"
+        ]
+      }
+    },
+    {
+      "prompt": "How many of the September delay days were weather holds? The bare number, please.",
+      "expect": {
+        "expected_number": 12,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

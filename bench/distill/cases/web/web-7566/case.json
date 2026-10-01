@@ -1,0 +1,69 @@
+{
+  "id": "web-7566",
+  "description": "Meaning and handling of kiln controller code K-208 per the vendor code table snippet ranked first. DISTILL-CANARY-6e55062c",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [
+      "TR-EARLYHIT",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": "stuck relay",
+      "TR-DECOY": "stuck relay"
+    },
+    "axes": [
+      "STP",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-web-b06-tarranvale-kilns",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "tarranvale",
+      "url": "https://www.tarranvalekilns.example/codes",
+      "url_match": "www.tarranvalekilns.example/codes",
+      "title": "Kiln controller error codes - Tarranvale Kilns",
+      "snippet": "K-208 | thermocouple drift | replace the thermocouple",
+      "content": "# Tarranvale kiln controller error codes\n\nCode | Meaning | What to do\n- K-104 | door switch open | close the door fully and restart the program\n- K-208 | thermocouple drift | replace the thermocouple\n- K-311 | power stage overheated | let the kiln cool, then check the vent gap\n\nCodes that return after the fix should be logged and reported to service.\n",
+      "published_at": "2026-06-02"
+    },
+    {
+      "query_match": "tarranvale",
+      "url": "https://kilnforum.example/t/k208-relay",
+      "url_match": "kilnforum.example/t/k208-relay",
+      "title": "K-208 on my Tarranvale - solved?",
+      "snippet": "Mine turned out to be a stuck relay; cleaned the contacts and it has fired fine for months.",
+      "content": "kilnforum.example - kiln controllers - K-208 on my Tarranvale\n\np1 (stoneware_sam, 2026-04-17): K-208 kept coming back on my Tarranvale. Mine turned out to be a stuck relay; cleaned the contacts and it has fired fine for months.\n\np2 (cone6claire, 2026-04-18): Relays and thermocouples age together on those controllers; worth checking both.\n",
+      "published_at": "2026-04-17"
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The controller on our studio's Tarranvale kiln flashed K-208 halfway through a bisque run and the program stopped. According to the vendor's code table, what does K-208 mean and what should be done? Answer in a sentence or two.",
+      "expect": {
+        "output_contains_any": [
+          "thermocouple drift",
+          "Thermocouple drift",
+          "replace the thermocouple",
+          "Replace the thermocouple"
+        ]
+      }
+    }
+  ]
+}

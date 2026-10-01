@@ -1,0 +1,47 @@
+{
+  "id": "scr-7724",
+  "description": "Write the ice rink's morning board script so the session exports print as a day-by-day board. DISTILL-CANARY-a49d3673",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "write_new",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-scr-b06-netherby",
+    "ref_calls": 3,
+    "fixture_bytes": 875,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "sessions.py": "\"\"\"Print the morning board for Netherby Ice Rink.\n\nThe desk's exports land in sessions/, one row per skate session:\n\n    session_id,session_date,rink,pence\n\nThe morning board prints one line per session day, in date order,\nfollowed by a totals line:\n\n    <session_date>,<sessions>,<pence>\n    TOTAL,<sessions>,<pence>\n\"\"\"\n\nif __name__ == \"__main__\":\n    raise SystemExit(\"not written yet\")\n",
+    "sessions/2026-09.csv": "session_id,session_date,rink,pence\nSN-4101,2026-09-02,Main Rink,6400\nSN-4102,2026-09-02,Studio Rink,3150\nSN-4103,2026-09-05,Main Rink,5800\nSN-4104,2026-09-11,Studio Rink,2450\nSN-4105,2026-09-18,Main Rink,7200\nSN-4106,2026-09-18,Studio Rink,3850\nSN-4107,2026-09-25,Main Rink,4900\n",
+    "README.md": "# Netherby Ice Rink - morning board\n\nThe front desk prints a morning board from the session exports in\nsessions/, one row per skate session. The board is the copy the\nduty manager initials at opening time.\n"
+  },
+  "expect": {
+    "files": {
+      "sessions/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "sessions.py",
+      "expected_stdout": "2026-09-02,2,9550\n2026-09-05,1,5800\n2026-09-11,1,2450\n2026-09-18,2,11050\n2026-09-25,1,4900\n2026-10-02,1,6100\n2026-10-06,1,2700\n2026-10-14,1,8300\n2026-10-21,1,1990\nTOTAL,11,52840",
+      "hidden_files": {
+        "sessions/2026-10.csv": "session_id,session_date,rink,pence\nSN-4201,2026-10-02,Main Rink,6100\nSN-4202,2026-10-06,Studio Rink,2700\nSN-4203,2026-10-14,Main Rink,8300\nSN-4204,2026-10-21,Studio Rink,1990\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The front desk at Netherby Ice Rink lost its morning board in the booking-tool migration: sessions.py holds only the docstring describing the board, and the rink's exports keep landing in sessions/. Please write sessions.py so the board prints the way the docstring describes, and so it keeps working as later monthly exports arrive in sessions/. The exports in sessions/ are the desk's own record, so they stay as they are. When you are done, describe in two or three sentences what your script does.",
+      "expect": {}
+    }
+  ]
+}

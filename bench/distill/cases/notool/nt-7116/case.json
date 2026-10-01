@@ -1,0 +1,38 @@
+{
+  "id": "nt-7116",
+  "description": "Convert a patrol car's 72 km/h cruising speed into metres per minute for a speed sign DISTILL-CANARY-3dba915f",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b06-patrol-speed-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 289
+  },
+  "web_fixture": [],
+  "files": {
+    "fleet/speed_log.csv": "车辆,用途,巡航时速千米每小时\n巡逻-01,园区巡逻,72\n巡逻-02,园区巡逻,60\n指挥车,调度,80\n",
+    "README.md": "# 骏驰安保 - 勤务工作区\n\n车辆巡航速度登记和勤务排班都在这里。\n\n- fleet/  车辆速度登记表\n\n限速提示牌统一按每分钟多少米标注。\n"
+  },
+  "turns": [
+    {
+      "prompt": "骏驰安保要给巡逻车做限速提示牌，牌子上按每分钟多少米来写。巡逻-01 的巡航时速是 72 千米每小时。折合每分钟多少米？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 1200,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

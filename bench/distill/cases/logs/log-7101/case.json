@@ -1,0 +1,55 @@
+{
+  "id": "log-7101",
+  "description": "SNAPSHOT_VERIFY_FAIL events after 22:00 in the snapshot service log, which records no such event all day. DISTILL-CANARY-7be20491",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "locate_error",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "tr-9f31c2"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-log-b06-shandao-snapshot",
+    "ref_calls": 2,
+    "fixture_bytes": 2112,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 杉岛云相册 - 快照服务日志\n\n快照服务负责把用户相册的当日快照落盘并做一致性校验。日志按天滚动，每行一个 JSON 事件，字段：ts（北京时间）、level、event、detail。\n\n本目录常见事件：\n\n- snapshot_ok      快照写入成功\n- snapshot_retry   写入重试\n- SNAPSHOT_STALE   命中的是旧快照，服务用旧数据兜底\n- rotate_done      日志轮转\n\n校验类事件的命名以运维手册为准，本目录只存原始日志。\n",
+    "logs/snapshot-2026-09-17.jsonl": "{\"ts\": \"2026-09-17T08:00:01+08:00\", \"level\": \"INFO\", \"event\": \"service_start\", \"detail\": \"snapshot service v2.14.1\"}\n{\"ts\": \"2026-09-17T09:12:44+08:00\", \"level\": \"INFO\", \"event\": \"snapshot_ok\", \"detail\": \"album a-30217 rows 412\"}\n{\"ts\": \"2026-09-17T10:05:09+08:00\", \"level\": \"WARN\", \"event\": \"SNAPSHOT_STALE\", \"detail\": \"album a-30190 served from 09-16 snapshot\", \"trace_id\": \"tr-9f31c2\"}\n{\"ts\": \"2026-09-17T11:40:27+08:00\", \"level\": \"INFO\", \"event\": \"snapshot_ok\", \"detail\": \"album a-30244 rows 87\"}\n{\"ts\": \"2026-09-17T13:22:03+08:00\", \"level\": \"INFO\", \"event\": \"snapshot_retry\", \"detail\": \"album a-30251 attempt 2 ok\"}\n{\"ts\": \"2026-09-17T15:08:36+08:00\", \"level\": \"WARN\", \"event\": \"SNAPSHOT_STALE\", \"detail\": \"album a-30202 served from 09-15 snapshot\", \"trace_id\": \"tr-71aa08\"}\n{\"ts\": \"2026-09-17T16:47:19+08:00\", \"level\": \"INFO\", \"event\": \"snapshot_ok\", \"detail\": \"album a-30311 rows 233\"}\n{\"ts\": \"2026-09-17T18:30:52+08:00\", \"level\": \"INFO\", \"event\": \"snapshot_retry\", \"detail\": \"album a-30278 attempt 3 ok\"}\n{\"ts\": \"2026-09-17T20:15:40+08:00\", \"level\": \"INFO\", \"event\": \"snapshot_ok\", \"detail\": \"album a-30325 rows 156\"}\n{\"ts\": \"2026-09-17T21:58:12+08:00\", \"level\": \"WARN\", \"event\": \"SNAPSHOT_STALE\", \"detail\": \"album a-30233 served from 09-16 snapshot\", \"trace_id\": \"tr-c4d90b\"}\n{\"ts\": \"2026-09-17T22:06:55+08:00\", \"level\": \"INFO\", \"event\": \"snapshot_ok\", \"detail\": \"album a-30340 rows 98\"}\n{\"ts\": \"2026-09-17T23:12:31+08:00\", \"level\": \"INFO\", \"event\": \"snapshot_ok\", \"detail\": \"album a-30346 rows 61\"}\n{\"ts\": \"2026-09-17T23:59:59+08:00\", \"level\": \"INFO\", \"event\": \"rotate_done\", \"detail\": \"log rotated\"}\n"
+  },
+  "turns": [
+    {
+      "prompt": "杉岛云相册昨晚有用户反馈旧照片打不开，值班怀疑是快照校验环节出了问题。帮我在 logs/snapshot-2026-09-17.jsonl 里查一下 22:00 之后有没有 SNAPSHOT_VERIFY_FAIL 事件，有的话把对应的 trace_id 发我。",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "SNAPSHOT_VERIFY_FAIL",
+          "SNAPSHOT VERIFY FAIL",
+          "snapshot_verify_fail"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools",
+          "tr-9f31c2",
+          "tr-71aa08",
+          "tr-c4d90b"
+        ]
+      }
+    }
+  ]
+}

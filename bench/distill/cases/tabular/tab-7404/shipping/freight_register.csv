@@ -1,0 +1,93 @@
+order_id,ship_month,destination_state,carrier,pallets,freight_quote,freight_cost
+ML-2606001,2026-06,Michigan,Cardinal Freight,8,260.63,266.01
+ML-2606002,2026-06,New York,Bluegrange Transport,12,835.82,828.30
+ML-2606003,2026-06,Michigan,Cardinal Freight,2,576.91,608.78
+ML-2606004,2026-06,Ohio,Bluegrange Transport,6,1224.85,1191.09
+ML-2606005,2026-06,New York,Bluegrange Transport,2,991.42,975.53
+ML-2606006,2026-06,Michigan,Bluegrange Transport,10,1258.21,1206.63
+ML-2606007,2026-06,Ohio,Ravenwood Logistics,10,194.77,193.99
+ML-2606008,2026-06,New York,Bluegrange Transport,11,768.77,757.68
+ML-2606009,2026-06,Ohio,Cardinal Freight,11,1267.41,1290.00
+ML-2606010,2026-06,Pennsylvania,Ravenwood Logistics,8,327.40,311.32
+ML-2606011,2026-06,Michigan,Bluegrange Transport,10,286.66,277.59
+ML-2606012,2026-06,Michigan,Bluegrange Transport,9,179.23,184.04
+ML-2606013,2026-06,Ohio,Cardinal Freight,10,932.78,980.05
+ML-2606014,2026-06,Michigan,Bluegrange Transport,7,979.20,957.43
+ML-2606015,2026-06,Michigan,Ravenwood Logistics,7,913.86,916.17
+ML-2606016,2026-06,Michigan,Ravenwood Logistics,7,1296.86,1233.01
+ML-2606017,2026-06,New York,Ravenwood Logistics,2,261.85,251.31
+ML-2606018,2026-06,Michigan,Cardinal Freight,1,1047.78,1009.20
+ML-2606019,2026-06,Ohio,Ravenwood Logistics,7,502.66,515.06
+ML-2606020,2026-06,Ohio,Bluegrange Transport,4,315.35,302.09
+ML-2606021,2026-06,New York,Cardinal Freight,9,809.76,845.21
+ML-2606022,2026-06,New York,Bluegrange Transport,7,212.35,216.52
+ML-2606023,2026-06,Michigan,Bluegrange Transport,7,819.28,803.60
+ML-2607024,2026-07,Michigan,Cardinal Freight,11,756.62,741.71
+ML-2607025,2026-07,Ohio,Cardinal Freight,3,603.67,625.90
+ML-2607026,2026-07,Ohio,Cardinal Freight,7,380.18,367.68
+ML-2607027,2026-07,Pennsylvania,Cardinal Freight,5,1209.32,1189.12
+ML-2607028,2026-07,Pennsylvania,Cardinal Freight,6,184.66,181.25
+ML-2607029,2026-07,Ohio,Ravenwood Logistics,8,889.61,924.99
+ML-2607030,2026-07,Ohio,Cardinal Freight,9,1303.19,1337.03
+ML-2607031,2026-07,Michigan,Cardinal Freight,10,1104.46,1157.28
+ML-2607032,2026-07,New York,Ravenwood Logistics,12,740.18,779.74
+ML-2607033,2026-07,Michigan,Ravenwood Logistics,2,317.38,319.24
+ML-2607034,2026-07,Pennsylvania,Bluegrange Transport,8,580.28,575.35
+ML-2607035,2026-07,New York,Cardinal Freight,3,1237.36,1262.50
+ML-2607036,2026-07,Ohio,Bluegrange Transport,4,1437.46,1380.33
+ML-2607037,2026-07,Michigan,Bluegrange Transport,4,1056.00,1114.94
+ML-2607038,2026-07,Pennsylvania,Bluegrange Transport,5,948.66,981.31
+ML-2607039,2026-07,Ohio,Ravenwood Logistics,4,982.04,1010.59
+ML-2607040,2026-07,New York,Ravenwood Logistics,7,414.83,434.61
+ML-2607041,2026-07,Ohio,Ravenwood Logistics,12,627.08,613.29
+ML-2607042,2026-07,Pennsylvania,Cardinal Freight,2,507.57,533.66
+ML-2607043,2026-07,Pennsylvania,Bluegrange Transport,9,228.07,229.78
+ML-2607044,2026-07,Michigan,Bluegrange Transport,9,679.81,683.91
+ML-2607045,2026-07,Ohio,Cardinal Freight,5,618.56,618.67
+ML-2607046,2026-07,Pennsylvania,Bluegrange Transport,7,1215.79,1207.22
+ML-2608047,2026-08,New York,Bluegrange Transport,7,972.01,978.14
+ML-2608048,2026-08,New York,Bluegrange Transport,6,1005.51,963.62
+ML-2608049,2026-08,Pennsylvania,Cardinal Freight,12,370.64,377.10
+ML-2608050,2026-08,Michigan,Bluegrange Transport,11,741.04,739.88
+ML-2608051,2026-08,New York,Bluegrange Transport,4,1390.93,1393.80
+ML-2608052,2026-08,Ohio,Cardinal Freight,1,1359.19,1349.48
+ML-2608053,2026-08,Ohio,Ravenwood Logistics,11,464.78,471.88
+ML-2608054,2026-08,Pennsylvania,Bluegrange Transport,10,470.36,482.89
+ML-2608055,2026-08,Michigan,Bluegrange Transport,10,1335.21,1293.84
+ML-2608056,2026-08,Ohio,Cardinal Freight,4,658.94,674.37
+ML-2608057,2026-08,Ohio,Bluegrange Transport,9,969.56,963.95
+ML-2608058,2026-08,New York,Bluegrange Transport,7,1294.03,1342.50
+ML-2608059,2026-08,Ohio,Cardinal Freight,5,1120.41,1170.16
+ML-2608060,2026-08,Michigan,Ravenwood Logistics,10,620.22,642.68
+ML-2608061,2026-08,Ohio,Cardinal Freight,6,1096.50,1053.97
+ML-2608062,2026-08,Pennsylvania,Ravenwood Logistics,2,520.57,522.44
+ML-2608063,2026-08,Michigan,Cardinal Freight,6,1361.87,1321.88
+ML-2608064,2026-08,Ohio,Cardinal Freight,7,1031.16,1033.34
+ML-2608065,2026-08,Michigan,Bluegrange Transport,5,780.15,745.63
+ML-2608066,2026-08,New York,Bluegrange Transport,4,609.55,620.58
+ML-2608067,2026-08,Ohio,Bluegrange Transport,6,556.21,557.60
+ML-2608068,2026-08,Michigan,Cardinal Freight,11,441.42,448.97
+ML-2608069,2026-08,Michigan,Bluegrange Transport,4,974.03,998.89
+ML-2609070,2026-09,Ohio,Bluegrange Transport,8,355.07,344.10
+ML-2609071,2026-09,Ohio,Cardinal Freight,11,298.32,287.71
+ML-2609072,2026-09,Ohio,Ravenwood Logistics,4,513.74,515.54
+ML-2609073,2026-09,Ohio,Cardinal Freight,4,852.67,811.34
+ML-2609074,2026-09,Ohio,Bluegrange Transport,11,646.33,635.16
+ML-2609075,2026-09,Ohio,Bluegrange Transport,6,339.58,338.64
+ML-2609076,2026-09,Ohio,Cardinal Freight,9,1042.48,1030.29
+ML-2609077,2026-09,Michigan,Ravenwood Logistics,2,299.51,284.15
+ML-2609078,2026-09,Pennsylvania,Cardinal Freight,9,319.21,333.18
+ML-2609079,2026-09,Pennsylvania,Cardinal Freight,9,505.83,497.45
+ML-2609080,2026-09,Michigan,Cardinal Freight,2,730.10,768.80
+ML-2609081,2026-09,Michigan,Bluegrange Transport,4,1000.69,949.26
+ML-2609082,2026-09,Pennsylvania,Ravenwood Logistics,12,438.84,461.74
+ML-2609083,2026-09,New York,Bluegrange Transport,9,590.16,573.11
+ML-2609084,2026-09,Michigan,Ravenwood Logistics,9,959.40,965.24
+ML-2609085,2026-09,Pennsylvania,Bluegrange Transport,6,1042.86,1067.83
+ML-2609086,2026-09,New York,Bluegrange Transport,7,693.61,693.22
+ML-2609087,2026-09,New York,Cardinal Freight,12,902.11,940.47
+ML-2609088,2026-09,New York,Cardinal Freight,5,469.38,448.63
+ML-2609089,2026-09,Michigan,Cardinal Freight,10,806.50,781.71
+ML-2609090,2026-09,Pennsylvania,Bluegrange Transport,6,667.79,637.46
+ML-2609091,2026-09,Pennsylvania,Bluegrange Transport,8,802.69,830.52
+ML-2609092,2026-09,New York,Cardinal Freight,7,1116.01,1172.90

@@ -1,0 +1,46 @@
+{
+  "id": "nt-7183",
+  "description": "Canteen lunch invitation with the day's specials; reply directly without any tool call. DISTILL-CANARY-acae96d5",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b06-chat-02",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 202
+  },
+  "web_fixture": [],
+  "files": {
+    "samples/ledger_1014.csv": "sample_id,matrix,test\nS-2201,水质,余氯\nS-2209,土壤,重金属\n",
+    "README.md": "# 恒诺检测 - 实验室工作区\n\n样品台账和检测排期都放在这里。\n\n- samples/  样品台账\n- schedule/  检测排期\n"
+  },
+  "turns": [
+    {
+      "prompt": "走，食堂今天有红烧肉和干煸豆角，你去不去？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "去",
+          "好啊",
+          "好呀",
+          "走",
+          "红烧肉",
+          "豆角",
+          "吃"
+        ]
+      }
+    }
+  ]
+}

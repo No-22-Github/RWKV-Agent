@@ -1,0 +1,56 @@
+{
+  "id": "scr-7742",
+  "description": "Give the tofu workshop's ledger script a --balance flag that nets returns against each shop's sales. DISTILL-CANARY-acba95de",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "add_flag",
+    "traps": [
+      "TR-SIGN"
+    ],
+    "trap_decoys": {
+      "TR-SIGN": "退货金额按正数加进了应收"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-scr-b06-shiquan",
+    "ref_calls": 4,
+    "fixture_bytes": 1275,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "ledger.py": "\"\"\"打印石泉豆腐坊的批发台账。\n\n导出按月落进 shops/，一行一笔往来：\n\n    日期,商铺,类目,金额元\n\n台账按日期排序打印全部记录，每行：\n\n    <日期>,<商铺>,<类目>,<金额元>\n\n带 --balance 时改为对账：每个商铺打印一行应收（按第一次记账的先\n后排，退货金额按记录里的正数减掉）：\n\n    <商铺>,<应收元>\n\n用法：\n\n    python3 ledger.py\n    python3 ledger.py --balance\n\"\"\"\n\nimport csv\nimport glob\n\nrows = []\nfor path in sorted(glob.glob(\"shops/*.csv\")):\n    with open(path, encoding=\"utf-8\") as handle:\n        rows.extend(csv.DictReader(handle))\n\nfor row in sorted(rows, key=lambda r: r[\"日期\"]):\n    print(f\"{row['日期']},{row['商铺']},{row['类目']},{row['金额元']}\")\n",
+    "shops/2026-09.csv": "日期,商铺,类目,金额元\n2026-09-02,西街早铺,销货,2360\n2026-09-02,河湾饭庄,销货,3180\n2026-09-05,河湾饭庄,退货,240\n2026-09-09,西街早铺,销货,2740\n2026-09-12,南门食堂,销货,1950\n2026-09-16,河湾饭庄,销货,2900\n2026-09-23,南门食堂,退货,180\n",
+    "README.md": "# 石泉豆腐坊 - 批发台账\n\nledger.py 打印批发台账。商铺退货时，退货行的金额也记成正数；应收\n按销货加上、退货减去计算。导出是柜面的留档，批处理只读不写。\n"
+  },
+  "expect": {
+    "files": {
+      "shops/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "ledger.py",
+      "expected_stdout": "西街早铺,4900\n河湾饭庄,8470\n南门食堂,3980",
+      "hidden_files": {
+        "shops/2026-10.csv": "日期,商铺,类目,金额元\n2026-10-10,南门食堂,销货,2210\n2026-10-14,西街早铺,退货,200\n2026-10-20,河湾饭庄,销货,2630\n"
+      },
+      "args": [
+        "--balance"
+      ]
+    }
+  },
+  "turns": [
+    {
+      "prompt": "石泉豆腐坊的柜面想一眼看到各家商铺的欠账：请给 ledger.py 加一个 --balance 选项，每个商铺打印一行应收；不带选项时台账照旧打印。shops/ 里的导出保持原样。完成后用两三句话说明你改了什么。",
+      "expect": {}
+    }
+  ]
+}

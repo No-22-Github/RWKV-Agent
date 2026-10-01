@@ -1,0 +1,71 @@
+{
+  "id": "web-7593",
+  "description": "Meaning of amplifier error code E-11 on the Quarrybrook error-codes page, whose fetch fails with a provider error DISTILL-CANARY-45b9cbb0",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [
+      "TR-FETCHFAIL"
+    ],
+    "trap_decoys": {
+      "TR-FETCHFAIL": "fan sensor fault"
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-web-b06-quarrybrook-audio",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "quarrybrook",
+      "url": "https://support.quarrybrook.example/amplifiers/error-codes",
+      "url_match": "support.quarrybrook.example/amplifiers/error-codes",
+      "title": "Error codes - Quarrybrook amplifiers",
+      "snippet": "What each front-panel error code on Quarrybrook amplifiers indicates, including the Chamberlain 300 series.",
+      "content": "# Error codes\n\nQuarrybrook support, revised 2026-07-21.\n\nFront-panel codes on the Chamberlain 300 series map one-to-one to the diagnostic table in this article. Each entry lists the triggered condition and the recommended first action for a service technician.\n\nThe full table, including code E-11, is maintained in this article; mirrored copies in older manuals are superseded.\n",
+      "published_at": "2026-07-21",
+      "error": "Tavily extract failed: 502 Bad Gateway"
+    },
+    {
+      "query_match": "quarrybrook",
+      "url": "https://support.quarrybrook.example/amplifiers/warranty",
+      "url_match": "support.quarrybrook.example/amplifiers/warranty",
+      "title": "Warranty & service - Quarrybrook amplifiers",
+      "snippet": "Warranty terms and how to book a service visit; diagnostic code meanings live on the error-codes page.",
+      "content": "# Warranty & service\n\nQuarrybrook support.\n\nChamberlain 300 series amplifiers carry a three-year limited warranty. To book a service visit, register the serial number in the portal and pick a slot.\n\nDiagnostic code meanings are explained on the error-codes page; the service desk will ask for the exact code shown.\n",
+      "published_at": "2026-05-19"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "The Chamberlain 300 amplifier at our studio started flashing E-11 last night. Quarrybrook documents what each front-panel code indicates on the amplifier error-codes page at support.quarrybrook.example — what does E-11 indicate?",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains_any": [
+          "quarrybrook.example",
+          "quarrybrook",
+          "error codes"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools",
+          "fan sensor fault",
+          "fan-sensor fault"
+        ]
+      }
+    }
+  ]
+}

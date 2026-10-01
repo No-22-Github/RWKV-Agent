@@ -1,0 +1,47 @@
+{
+  "id": "scr-7738",
+  "description": "Rewrite the vinegar workshop's ferment summary script with the standard library so the summary prints unchanged. DISTILL-CANARY-b1ecc614",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "stdlib_only",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-scr-b06-wuling",
+    "ref_calls": 3,
+    "fixture_bytes": 921,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "vat_log.py": "\"\"\"打印雾岭醋坊的发酵汇总表。\n\n记缸师傅的导出按月落进 vats/，一行一条缸记：\n\n    日期,缸组,醋醅克\n\n汇总表按缸组名排序打印，每组一行，最后加一行总计：\n\n    <缸组>,<笔数>,<醋醅克>\n    总计,<笔数>,<醋醅克>\n\"\"\"\n\nimport glob\n\nimport pandas as pd\n\nframes = []\nfor path in sorted(glob.glob(\"vats/*.csv\")):\n    frames.append(pd.read_csv(path))\n\ndf = pd.concat(frames)\nfor vat, group in df.groupby(\"缸组\"):\n    print(f\"{vat},{len(group)},{int(group['醋醅克'].sum())}\")\nprint(f\"总计,{len(df)},{int(df['醋醅克'].sum())}\")\n",
+    "vats/2026-09.csv": "日期,缸组,醋醅克\n2026-09-03,东缸组,4300\n2026-09-03,西缸组,3900\n2026-09-09,中缸组,2500\n2026-09-15,东缸组,4600\n2026-09-21,西缸组,3300\n2026-09-28,中缸组,2900\n",
+    "README.md": "# 雾岭醋坊 - 发酵汇总\n\nvat_log.py 打印翻缸间交接用的发酵汇总表。翻缸间终端没有第三方库，只用标准库。\n"
+  },
+  "expect": {
+    "files": {
+      "vats/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "vat_log.py",
+      "expected_stdout": "东缸组,3,13050\n中缸组,3,8000\n西缸组,3,10650\n总计,9,31700",
+      "hidden_files": {
+        "vats/2026-10.csv": "日期,缸组,醋醅克\n2026-10-08,东缸组,4150\n2026-10-15,中缸组,2600\n2026-10-22,西缸组,3450\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "雾岭醋坊的翻缸间终端装不了第三方库，发酵汇总脚本 vat_log.py 却依赖 pandas，汇总表已经两天没打印出来。请用标准库重写 vat_log.py，让汇总表按说明里的版式一字不差地打印出来，之后 vats/ 里新到的导出也要能照常汇总。vats/ 里的导出是记缸师傅的留档，保持原样。完成后用两三句话说明你改了什么。",
+      "expect": {}
+    }
+  ]
+}

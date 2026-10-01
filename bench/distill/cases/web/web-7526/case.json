@@ -1,0 +1,54 @@
+{
+  "id": "web-7526",
+  "description": "Read the current stable version off the official changelog page given by URL. DISTILL-CANARY-05ad6609",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "VER"
+    ],
+    "level": "L0",
+    "family": "fam-web-b06-kongqing-rel",
+    "answer_style": "natural",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "空青",
+      "url": "https://www.kongqing.example/notes/changelog",
+      "url_match": "www.kongqing.example/notes/changelog",
+      "title": "空青笔记 · 更新日志",
+      "snippet": "桌面版与移动端的版本发布记录。",
+      "published_at": "2026-09-12",
+      "content": "# 空青笔记 · 更新日志\n\n## 4.8.2（2026-09-12）\n当前正式版本。修复搜索索引在中文长文档下的丢字问题。\n\n## 4.8.1（2026-08-28）\n新增双语段落对齐导出。\n\n## 4.7.0（2026-06-19）\n引入模板库。\n"
+    },
+    {
+      "query_match": "空青",
+      "url": "https://www.kongqing.example/notes/download",
+      "url_match": "www.kongqing.example/notes/download",
+      "title": "空青笔记 · 下载",
+      "snippet": "各平台安装包与系统要求。",
+      "published_at": "2026-09-12",
+      "content": "# 下载\n\n桌面版支持 Windows 与 macOS，移动版见应用商店。\n"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "空青笔记官网的更新日志在 https://www.kongqing.example/notes/changelog。空青笔记桌面版当前的正式版本号是多少？",
+      "expect": {
+        "output_contains_any": [
+          "4.8.2"
+        ]
+      }
+    }
+  ]
+}

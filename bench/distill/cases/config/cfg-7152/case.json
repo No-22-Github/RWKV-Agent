@@ -1,0 +1,50 @@
+{
+  "id": "cfg-7152",
+  "description": "Apply the engineering bulletin's buffer setting to the playout host config. DISTILL-CANARY-08d09109",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY",
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "2400",
+      "TR-SUPERSEDE": "3200"
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "fam-cfg-b06-pinegrove",
+    "ref_calls": 4,
+    "fixture_bytes": 859,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/playout.yaml": "# Pinegrove Community Radio - playout host pg-01\nstream:\n  bitrate_kbps: 128\n  buffer_ms: 2400  # install guide default\n  fallback: vault_reel\narchive:\n  root: /srv/audio/archive\n  retention_days: 60\n  verify_passes: 1\n",
+    "memos/ops-2026-09-05.txt": "Ops memo 2026-09-05 - Sunday relay prep\nRaise stream.buffer_ms to 3200 for the autumn relay season until\nengineering says otherwise. Applies to pg-01 only.\n- R. Vance, ops\n",
+    "memos/bulletin-2026-09-21.txt": "Engineering bulletin 2026-09-21 - playout buffer\nThe relay-season bump to 3200 caused buffer underruns on relay\nSundays. Set stream.buffer_ms to 2000 on pg-01 and keep the rest\nof the stream block as installed.\n- N. Aldous, engineering\n",
+    "README.md": "# Pinegrove Community Radio - playout host pg-01\n\nconfig/playout.yaml is the playout host's policy file, edited in\nplace by the duty engineer. Memos and bulletins are kept in\nmemos/; where they disagree, the later document governs.\n"
+  },
+  "expect": {
+    "files": {
+      "config/playout.yaml": {
+        "equals": "# Pinegrove Community Radio - playout host pg-01\nstream:\n  bitrate_kbps: 128\n  buffer_ms: 2000  # install guide default\n  fallback: vault_reel\narchive:\n  root: /srv/audio/archive\n  retention_days: 60\n  verify_passes: 1\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The duty engineer at Pinegrove Community Radio has to settle the playout buffer question: apply what the governing memo says to config/playout.yaml on pg-01. Nothing else in the file moves. When you are done, describe in two or three sentences what you changed.",
+      "expect": {}
+    }
+  ]
+}

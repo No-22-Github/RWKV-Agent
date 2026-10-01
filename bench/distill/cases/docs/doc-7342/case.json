@@ -1,0 +1,54 @@
+{
+  "id": "doc-7342",
+  "description": "Whether the Colderbridge Architects QA handbook carries a latent defects insurance clause, which no indexed article defines. DISTILL-CANARY-0acf7cda",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "Professional indemnity"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b06-qiwu-discipline",
+    "ref_calls": 3,
+    "fixture_bytes": 877,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Colderbridge Architects - QA handbook\n\nOffice-wide quality assurance handbook. The handbook consists of exactly the files listed in qa/index.txt; anything not covered there goes to the partners for a written ruling.\n",
+    "qa/index.txt": "structural-qa.md|Structural QA\nsite-records.md|Site records\n",
+    "qa/structural-qa.md": "# Structural QA\n\n(2026-02 revision)\n\n## Foundation pour inspection\n\nEvery foundation pour is inspected before backfill; the inspection sheet is countersigned by the site lead.\n\n## Professional indemnity\n\nProfessional indemnity cover is renewed each April; certificates are filed with the office manager.\n\n## Rebar tolerances\n\nRebar spacing is checked against the drawing set before the pour is signed off.\n",
+    "qa/site-records.md": "# Site records\n\n## Photograph log\n\nProgress photographs are filed weekly, named by plot and date.\n\n## Handover pack\n\nThe handover pack collects warranties, as-built drawings and the snag list.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Colderbridge Architects is compiling its project closeout checklist and needs the firm's rule on insuring latent defects after handover. Look through the QA handbook workspace for the latent defects insurance clause and tell me what it requires.",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "latent defects",
+          "latent-defects",
+          "latent defect"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

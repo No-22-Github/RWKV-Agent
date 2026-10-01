@@ -1,0 +1,60 @@
+{
+  "id": "hyb-7669",
+  "description": "Answer the company's own 2026 rebate rate from the local policy file; web results are a 2024 archive and an industry average. DISTILL-CANARY-b838857f",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "local_first",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 4
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b06-localauth-01",
+    "answer_style": "natural",
+    "ref_calls": 2,
+    "fixture_bytes": 314,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {
+    "经销政策.txt": "绿洲乳业经销商政策（2026 年版）\n自 2026-01-01 起执行，替代 2024 年版。\n季度返点：按当季进货金额的 3.5% 计。\n冷链补贴：每箱 0.8 元。\n结算：次月 15 日前付清。\n",
+    "README.md": "绿洲乳业渠道部：对外发布的政策以本文件为准，政策文件每年更新一版。\n"
+  },
+  "web_fixture": [
+    {
+      "query_match": "绿洲乳业",
+      "url": "https://www.agripolicy-archive.example/lvzhou-2024",
+      "url_match": "agripolicy-archive.example/lvzhou-2024",
+      "title": "绿洲乳业经销商政策（2024 年版）存档",
+      "snippet": "2024 年版经销商政策全文存档。",
+      "content": "# 绿洲乳业经销商政策（2024 年版）\n\n季度返点：按当季进货金额的 4% 计。\n",
+      "published_at": "2024-01-05"
+    },
+    {
+      "query_match": "经销商返点",
+      "url": "https://www.dairyweekly.example/column-2026-08",
+      "url_match": "dairyweekly.example/column-2026-08",
+      "title": "乳业周刊：区域乳企经销商返点观察",
+      "snippet": "行业平均返点约 5%，头部企业普遍下调。",
+      "content": "2026 年区域乳企经销商返点普遍在 5% 上下。\n",
+      "published_at": "2026-08-18"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "渠道部要核对 2026 年给经销商的季度返点比例。咱们的政策文件在 经销政策.txt。季度返点是百分之几？（只回答数字，不要单位。）",
+      "expect": {
+        "expected_number": 3.5,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

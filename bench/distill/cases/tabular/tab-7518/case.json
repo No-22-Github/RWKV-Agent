@@ -1,0 +1,54 @@
+{
+  "id": "tab-7518",
+  "description": "Net August 2026 take for a farm stand after credits recorded as positive amounts in a second register. DISTILL-CANARY-4f1eecbd",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "reconcile",
+    "traps": [
+      "TR-SIGN",
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-SIGN": 12093.58,
+      "TR-MULTISRC": 9579.15
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "fam-tab-b06-netcredits-02",
+    "ref_calls": 4,
+    "fixture_bytes": 5725,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "data/market_sales.csv": "sale_id,sale_month,stand,amount\nWS-2168,2026-09,Roadside,208.11\nWS-8856,2026-09,Barn Door,45.43\nWS-6076,2026-08,Barn Door,72.09\nWS-5764,2026-08,Barn Door,85.37\nWS-1762,2026-08,Barn Door,18.72\nWS-3533,2026-07,Barn Door,223.60\nWS-6436,2026-07,Barn Door,203.56\nWS-7686,2026-09,Barn Door,74.48\nWS-3082,2026-07,Roadside,145.23\nWS-4236,2026-08,Roadside,76.23\nWS-1213,2026-07,Barn Door,191.86\nWS-9681,2026-09,Barn Door,65.41\nWS-4312,2026-08,Roadside,194.96\nWS-4072,2026-08,Barn Door,165.72\nWS-8975,2026-08,Barn Door,137.96\nWS-7645,2026-08,Roadside,180.18\nWS-5861,2026-08,Roadside,116.36\nWS-8026,2026-07,Barn Door,107.58\nWS-3539,2026-08,Barn Door,84.21\nWS-3839,2026-08,Barn Door,50.62\nWS-3045,2026-07,Barn Door,111.91\nWS-3462,2026-09,Barn Door,120.12\nWS-3065,2026-08,Roadside,20.25\nWS-2997,2026-09,Barn Door,24.99\nWS-5937,2026-08,Barn Door,98.92\nWS-4088,2026-08,Barn Door,127.70\nWS-8059,2026-07,Roadside,85.30\nWS-7525,2026-07,Roadside,229.10\nWS-2631,2026-07,Barn Door,28.77\nWS-7321,2026-08,Barn Door,199.47\nWS-214,2026-07,Roadside,92.89\nWS-222,2026-07,Barn Door,194.03\nWS-3405,2026-08,Roadside,116.62\nWS-9893,2026-09,Roadside,199.93\nWS-5607,2026-08,Roadside,106.28\nWS-7805,2026-08,Barn Door,146.70\nWS-863,2026-08,Barn Door,146.99\nWS-8763,2026-07,Roadside,62.53\nWS-5348,2026-08,Barn Door,62.91\nWS-3014,2026-08,Barn Door,178.29\nWS-9659,2026-08,Roadside,68.07\nWS-9077,2026-08,Barn Door,110.57\nWS-2351,2026-08,Barn Door,223.74\nWS-2830,2026-07,Barn Door,204.53\nWS-5869,2026-08,Barn Door,120.55\nWS-2237,2026-08,Barn Door,98.12\nWS-5871,2026-08,Roadside,101.37\nWS-7311,2026-09,Barn Door,71.31\nWS-7866,2026-08,Barn Door,82.24\nWS-8076,2026-07,Barn Door,172.18\nWS-9198,2026-09,Barn Door,115.25\nWS-7616,2026-07,Roadside,69.78\nWS-3022,2026-08,Barn Door,100.79\nWS-4248,2026-08,Barn Door,69.92\nWS-2337,2026-08,Barn Door,145.01\nWS-3103,2026-08,Roadside,109.89\nWS-9193,2026-08,Barn Door,50.75\nWS-5830,2026-08,Roadside,238.31\nWS-5355,2026-09,Roadside,69.60\nWS-3546,2026-08,Roadside,190.37\nWS-2187,2026-08,Roadside,87.73\nWS-4644,2026-08,Roadside,121.87\nWS-397,2026-08,Barn Door,172.54\nWS-139,2026-08,Roadside,153.25\nWS-438,2026-08,Roadside,56.54\nWS-3670,2026-08,Barn Door,18.99\nWS-228,2026-08,Roadside,227.74\nWS-9278,2026-08,Roadside,169.28\nWS-534,2026-08,Roadside,127.64\nWS-4298,2026-08,Roadside,218.93\nWS-2241,2026-07,Roadside,192.73\nWS-6775,2026-07,Roadside,39.49\nWS-7132,2026-08,Roadside,113.43\nWS-4354,2026-08,Roadside,183.02\nWS-3249,2026-08,Roadside,184.47\nWS-1846,2026-07,Barn Door,158.24\nWS-7473,2026-08,Roadside,203.26\nWS-138,2026-08,Barn Door,232.50\nWS-4593,2026-08,Roadside,83.04\nWS-3150,2026-07,Barn Door,90.84\nWS-7714,2026-08,Roadside,78.10\nWS-1240,2026-08,Barn Door,35.49\nWS-2715,2026-08,Barn Door,88.73\nWS-9874,2026-08,Roadside,143.29\nWS-8397,2026-08,Barn Door,185.95\nWS-5769,2026-07,Roadside,175.24\nWS-4096,2026-08,Barn Door,238.70\nWS-1479,2026-08,Barn Door,198.55\nWS-2414,2026-08,Roadside,184.41\nWS-8369,2026-08,Roadside,96.81\nWS-3870,2026-07,Barn Door,101.13\nWS-5605,2026-09,Barn Door,91.47\nWS-8295,2026-08,Roadside,113.54\nWS-9037,2026-08,Barn Door,174.27\nWS-9578,2026-08,Roadside,55.05\nWS-5105,2026-09,Roadside,112.90\nWS-7373,2026-07,Roadside,99.38\nWS-7504,2026-09,Roadside,123.14\nWS-137,2026-09,Roadside,68.79\nWS-5117,2026-08,Roadside,134.22\nWS-2423,2026-08,Roadside,135.02\nWS-4037,2026-09,Roadside,118.55\nWS-1397,2026-09,Barn Door,175.69\nWS-7136,2026-08,Barn Door,93.51\nWS-4186,2026-08,Roadside,32.54\nWS-853,2026-09,Roadside,225.41\nWS-4674,2026-07,Barn Door,21.84\nWS-6758,2026-08,Roadside,137.59\nWS-4337,2026-08,Roadside,221.54\nWS-3586,2026-08,Roadside,234.08\nWS-1552,2026-09,Barn Door,131.79\nWS-4091,2026-07,Barn Door,205.07\nWS-8566,2026-08,Roadside,32.02\nWS-3148,2026-08,Barn Door,220.27\nWS-7912,2026-09,Barn Door,50.37\nWS-9256,2026-08,Roadside,43.01\nWS-1441,2026-08,Barn Door,117.16\nWS-2156,2026-08,Barn Door,134.82\n",
+    "data/market_credits.csv": "credit_id,credit_month,reason,amount\nWC-1170,2026-09,Price adjustment,87.47\nWC-7778,2026-08,Price adjustment,146.58\nWC-5411,2026-09,Price adjustment,125.43\nWC-4203,2026-08,Spoilage credit,73.47\nWC-5771,2026-07,Spoilage credit,56.53\nWC-7974,2026-08,Spoilage credit,35.87\nWC-3247,2026-09,Price adjustment,112.57\nWC-4143,2026-08,Refund,73.27\nWC-4332,2026-07,Spoilage credit,69.62\nWC-9140,2026-08,Spoilage credit,130.37\nWC-7287,2026-07,Refund,25.58\nWC-3146,2026-08,Price adjustment,134.03\nWC-9633,2026-08,Spoilage credit,114.21\nWC-5248,2026-08,Refund,153.99\nWC-1832,2026-09,Price adjustment,139.22\nWC-8132,2026-09,Price adjustment,44.94\nWC-5316,2026-08,Spoilage credit,142.81\nWC-4528,2026-08,Refund,144.12\nWC-3047,2026-08,Price adjustment,63.32\nWC-1185,2026-08,Refund,125.56\nWC-5065,2026-08,Spoilage credit,70.08\nWC-7097,2026-08,Price adjustment,159.80\nWC-6367,2026-07,Refund,119.68\nWC-3654,2026-08,Price adjustment,113.86\nWC-6490,2026-08,Spoilage credit,126.51\nWC-2505,2026-08,Spoilage credit,88.77\nWC-195,2026-08,Spoilage credit,56.31\nWC-7630,2026-08,Price adjustment,96.22\nWC-762,2026-09,Spoilage credit,99.97\nWC-1463,2026-08,Refund,81.59\nWC-5751,2026-09,Spoilage credit,51.70\nWC-2502,2026-07,Spoilage credit,65.37\nWC-3443,2026-07,Price adjustment,129.57\nWC-1687,2026-08,Refund,113.59\nWC-9110,2026-08,Spoilage credit,93.65\nWC-8666,2026-08,Refund,128.74\nWC-4642,2026-09,Price adjustment,154.93\nWC-1883,2026-07,Refund,128.03\nWC-3188,2026-08,Refund,20.76\nWC-5932,2026-09,Price adjustment,72.39\nWC-9269,2026-08,Refund,26.95\nWC-9601,2026-09,Price adjustment,138.87\n",
+    "README.md": "# Weathervane Farm Stand - market registers\n\nmarket_credits.csv records refunds and price adjustments. Credits are stored as positive amounts; the net take for the month is the sales total with the credits taken back out.\n",
+    "notes/farm_board.txt": "Farm board\n- The honor stall takes exact change.\n- Crates stack behind the barn wall.\n- The scale gets checked on market mornings.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Weathervane Farm Stand is closing the August books. Sales are in data/market_sales.csv and credits are in data/market_credits.csv. Give the number alone, as digits, with no label. What was the stand's net August 2026 take after credits?",
+      "expect": {
+        "expected_number": 7064.72,
+        "tolerance": 0.01,
+        "required_tools": [
+          "data_query"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 1
+    }
+  }
+}

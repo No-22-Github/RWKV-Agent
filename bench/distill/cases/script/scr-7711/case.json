@@ -1,0 +1,57 @@
+{
+  "id": "scr-7711",
+  "description": "Repair the pharmacy stocktake script whose nightly run crashes on boxes cells written as a dead-handheld marker. DISTILL-CANARY-36ce2ae5",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_from_traceback",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "yesterday's already-fixed TypeError"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-scr-b06-huichun",
+    "ref_calls": 4,
+    "fixture_bytes": 1752,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "stock.py": "\"\"\"打印回春堂药房的月度盘点单。\n\n门店系统每晚把盘点导出落到 stock/，一行一条：\n\n    日期,品类,盒数\n\n盘点单每个品类一行、按品类名排序，末尾加一行合计：\n\n    <品类>,<盒数>\n    合计,<盒数>\n\n盘点员的手持机没电时，会在盒数一格写下「缺卡」；这些行当月按零计入。\n\"\"\"\n\nimport csv\nimport glob\n\nper_cat = {}\nfor path in sorted(glob.glob(\"stock/*.csv\")):\n    with open(path, newline=\"\", encoding=\"utf-8\") as handle:\n        for row in list(csv.reader(handle))[1:]:\n            cat = row[1]\n            boxes = int(row[2])\n            per_cat[cat] = per_cat.get(cat, 0) + boxes\n\ntotal = 0\nfor cat in sorted(per_cat):\n    print(f\"{cat},{per_cat[cat]}\")\n    total += per_cat[cat]\nprint(f\"合计,{total}\")\n",
+    "stock/2026-09.csv": "日期,品类,盒数\n2026-09-05,感冒类,24\n2026-09-05,营养保健,15\n2026-09-12,家用器械,30\n2026-09-12,感冒类,18\n2026-09-19,经络贴剂,缺卡\n2026-09-26,营养保健,12\n2026-09-26,家用器械,9\n",
+    "logs/盘点夜批-2026-09-28.log": "回春堂药房 门店系统 盘点夜批\n2026-09-27 22:12 [error] 盘点单生成失败，回溯如下：\nTraceback (most recent call last):\n  File \"stock.py\", line 24, in <module>\n    total = total + row_text\nTypeError: can only concatenate str (not \"int\") to str\n（已于 2026-09-28 上午修复：合计一行改为先转成整数再相加）\n2026-09-28 22:12 [error] 盘点单生成失败，回溯如下：\nTraceback (most recent call last):\n  File \"stock.py\", line 23, in <module>\n    boxes = int(row[2])\nValueError: invalid literal for int() with base 10: '缺卡'\n",
+    "README.md": "# 回春堂药房 - 月度盘点单\n\n门店系统每晚导出盘点到 stock/。手持机没电时盘点员会在盒数一格写下\n「缺卡」，该行当月按零计入。\n"
+  },
+  "expect": {
+    "files": {
+      "stock/2026-09.csv": {
+        "unchanged": true
+      },
+      "logs/盘点夜批-2026-09-28.log": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "stock.py",
+      "expected_stdout": "家用器械,39\n感冒类,58\n经络贴剂,0\n营养保健,47\n合计,144",
+      "hidden_files": {
+        "stock/2026-10.csv": "日期,品类,盒数\n2026-10-10,感冒类,16\n2026-10-17,营养保健,20\n2026-10-24,家用器械,缺卡\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "回春堂药房的月度盘点单两天没出来了：盘点夜批跑 stock.py 中断，运行记录在 logs/盘点夜批-2026-09-28.log。请把 stock.py 修好，让盘点单恢复输出，往后 stock/ 里新到的盘点也能照常汇总。stock/ 里的盘点是门店系统的原始导出，保持原样。完成后用两三句话说明你改了什么。",
+      "expect": {}
+    }
+  ]
+}

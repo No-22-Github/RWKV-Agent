@@ -1,0 +1,56 @@
+{
+  "id": "hyb-7701",
+  "description": "Multi-turn cafe-order count for a tea merchant, then a weekly re-cut and the crates behind it. DISTILL-CANARY-9c41e2a7",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 8
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b07-weekly-01",
+    "ref_calls": 3,
+    "fixture_bytes": 786,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "exports/pull-orders-2026-09.csv": "order_ref,ship_date,channel,crates\nPO-4011,2026-09-02,cafe,14\nPO-4014,2026-09-03,restaurant,22\nPO-4018,2026-09-05,cafe,9\nPO-4021,2026-09-08,cafe,17\nPO-4025,2026-09-14,cafe,11\nPO-4028,2026-09-16,restaurant,30\nPO-4031,2026-09-18,cafe,6\nPO-4025,2026-09-14,cafe,11\nPO-4035,2026-09-21,restaurant,18\nPO-4038,2026-09-24,cafe,13\nPO-4042,2026-09-28,restaurant,25\nPO-4044,2026-09-29,cafe,8\n",
+    "README.md": "# Brindle & Crane Tea Merchants\n\nPull orders for the cafe and restaurant channels, September 2026. One row per order.\nThe export job retried twice during the month, so a few orders appear on more than one\nrow; every row for the same order is identical in all four columns.\n",
+    "docs/carrier-notes.txt": "Purolator pickup window 14:00-16:00 on weekdays.\nCafe channel orders ship on the mixed pallet run; restaurants get dedicated trucks.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Brindle & Crane needs the September cafe figures for the freight recap. How many cafe orders went out in September 2026? Just the number.",
+      "expect": {
+        "expected_number": 7,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "Finance wants the weekly view instead of the monthly one. How many cafe orders shipped in the week of Monday 14 September to Sunday 20 September? The bare number, please.",
+      "expect": {
+        "expected_number": 2,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "And how many crates went to cafes in that same week? Number only.",
+      "expect": {
+        "expected_number": 17,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

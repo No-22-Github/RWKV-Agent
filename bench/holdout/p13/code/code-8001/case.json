@@ -1,0 +1,47 @@
+{
+  "id": "code-8001",
+  "description": "Summarize a small webhook relay project in natural language from its README, settings and source. DISTILL-CANARY-a835c6a3",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "explain_readonly",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-holdout-overview-01",
+    "ref_calls": 3,
+    "fixture_bytes": 792,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "README.md": "# Hookline\n\nCard-payment webhook relay. Receives provider events, validates signatures, and forwards them to the internal billing service.\n",
+    "settings.json": "{\n  \"listen_port\": 8443,\n  \"upstream_url\": \"https://api.kestrelpay.example/v2\",\n  \"retry_limit\": 3,\n  \"feature_flags\": {\n    \"auto_reconcile\": false\n  }\n}\n",
+    "app.py": "\"\"\"Hookline webhook relay.\"\"\"\nimport json\nimport settings_loader\n\n\ndef handle_event(payload):\n    event = json.loads(payload)\n    if event.get(\"type\") != \"payment.captured\":\n        return \"skipped\"\n    conf = settings_loader.load()\n    return forward(event, retries=conf[\"retry_limit\"])\n\n\ndef forward(event, retries):\n    # posts to the billing service over the internal mesh\n    for _ in range(retries):\n        if post(\"/billing/events\", event):\n            return \"ok\"\n    return \"dead-letter\"\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "I just inherited this small service. Look through the files in the workspace and give me a short plain-language rundown: what it is for, how it is wired up, and what its configuration says about how it behaves.",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains": [
+          "webhook",
+          "8443",
+          "Kestrel"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

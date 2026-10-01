@@ -1,0 +1,51 @@
+{
+  "id": "log-7607",
+  "description": "Summarize a cinema projection-booth CSV with two title lines and an event-count footer; locate the projector failure and its resolution. DISTILL-CANARY-b55a6535",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "locate_error",
+    "traps": [
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-HEADER": "5 events"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-b07-faultcsv-01",
+    "ref_calls": 3,
+    "fixture_bytes": 706,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:distill-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "exports/booth-0802.csv": "Harborview Cinema - projection booth equipment log\nScreen 2, laser projector PL-700, export generated 2026-08-02\ntimestamp,event,code,note\n2026-08-01 19:05,WARNING,FAN-1,airflow slow, cleared itself\n2026-08-01 21:40,ERROR,LP-31,laser source current out of range\n2026-08-01 21:44,INFO,LP-31,module reseated by duty tech\n2026-08-02 14:12,ERROR,LP-31,laser source current out of range\n2026-08-02 14:20,INFO,LP-31,module replaced under warranty\n5 events this period\n",
+    "README.md": "Harborview Cinema booth export notes.\n\nThe file opens with two title lines; the column names start on the third\nline. The footer line only counts the rows of this export. WARNING rows\nare advisory and clear on their own; ERROR rows are faults.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Harborview Cinema's screen 2 keeps dropping to a dark frame mid-showing. I pulled the booth's equipment export — walk me through what it says: when the projector fault first showed up, what code it carried, and how it was finally put right.",
+      "expect": {
+        "output_contains": [
+          "21:40",
+          "LP-31",
+          "replaced"
+        ],
+        "output_contains_any": [
+          "21:40",
+          "LP-31",
+          "replaced"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

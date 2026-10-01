@@ -1,0 +1,52 @@
+{
+  "id": "fs-7701",
+  "description": "Tour a photography studio print-index folder: current catalog counts vs the same-named archive file; archive rows are the decoy. DISTILL-CANARY-377297ad",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "count_by_type",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "10 prints"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-fs-b07-countdecoy-01",
+    "ref_calls": 4,
+    "fixture_bytes": 476,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:distill-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "archive/print-index.csv": "print_id,paper,size\nPR-088,matte,8x10\nPR-089,luster,8x10\nPR-090,glossy,11x14\nPR-091,matte,16x20\n",
+    "catalog/print-index.csv": "print_id,paper,size\nPR-101,luster,8x10\nPR-102,glossy,11x14\nPR-103,luster,8x10\nPR-104,matte,16x20\nPR-105,luster,11x14\nPR-106,glossy,8x10\n",
+    "README.md": "Lumen Lane Studio print archive.\n\ncatalog/ holds the current 2026 season; archive/ holds the closed 2024\nseason under the same file name, print-index.csv. Counts quoted to\nclients come from catalog/ only, and the archive is kept for reference.\n"
+  },
+  "turns": [
+    {
+      "prompt": "I'm onboarding at Lumen Lane Studio and need a tour of the print index folder for my first client call. Summarize what's in there: how many prints the current index lists, how the luster prints break down, and what the copy sitting in the archive folder is.",
+      "expect": {
+        "output_contains": [
+          "6 prints",
+          "3 luster",
+          "4 archived prints"
+        ],
+        "output_contains_any": [
+          "6 prints",
+          "3 luster",
+          "4 archived prints"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

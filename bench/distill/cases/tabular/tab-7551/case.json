@@ -1,0 +1,50 @@
+{
+   "id": "tab-7551",
+   "description": "September 2026 court-fee total of the programme that earned the most; the programme with the most receipts earns less DISTILL-CANARY-71114d2d",
+   "category": "tabular",
+   "tags": {
+      "scenario": "tabular",
+      "task_type": "rank",
+      "traps": [
+         "TR-DECOY"
+      ],
+      "trap_decoys": {
+         "TR-DECOY": 264.25
+      },
+      "axes": [
+         "OBS"
+      ],
+      "level": "L1",
+      "family": "fam-tab-b06-shuttleside-01",
+      "ref_calls": 1,
+      "fixture_bytes": 5663,
+      "status": "draft",
+      "version": 1,
+      "author": "llm:glm-5.3-flash-b06",
+      "reviewer": null,
+      "answer_style": "natural"
+   },
+   "web_fixture": [],
+   "files": {
+      "data/court_fees_2026-09.csv": "receipt_id,receipt_month,program,court_block,fee_gbp\nSB-6273,2026-08,Casual Court,Courts 1-4,19.54\nSB-3865,2026-08,Casual Court,Courts 5-8,21.69\nSB-4517,2026-09,Club Night,Courts 5-8,7.72\nSB-1294,2026-08,Casual Court,Courts 1-4,15.49\nSB-8841,2026-09,Casual Court,Courts 5-8,22.97\nSB-8163,2026-09,Casual Court,Courts 5-8,18.34\nSB-5521,2026-08,Club Night,Courts 1-4,10.19\nSB-6428,2026-08,Casual Court 90,Courts 5-8,10.89\nSB-7670,2026-08,Casual Court,Courts 5-8,23.87\nSB-7710,2026-09,Club Night,Courts 5-8,8.78\nSB-6262,2026-09,Casual Court,Courts 1-4,18.27\nSB-4443,2026-08,Casual Court 90,Courts 5-8,19.97\nSB-5194,2026-09,Casual Court,Courts 1-4,23.43\nSB-5581,2026-09,Casual Court,Courts 5-8,22.86\nSB-9374,2026-08,Casual Court 90,Courts 1-4,15.89\nSB-2419,2026-09,Casual Court,Courts 1-4,14.86\nSB-1492,2026-08,Club Night,Courts 1-4,11.24\nSB-7603,2026-09,Casual Court,Courts 1-4,20.43\nSB-5318,2026-09,Casual Court,Courts 5-8,27.50\nSB-5704,2026-09,Coaching Block,Courts 5-8,16.22\nSB-3169,2026-09,Casual Court,Courts 1-4,23.13\nSB-6124,2026-09,Casual Court,Courts 1-4,20.22\nSB-2421,2026-08,Club Night,Courts 1-4,7.37\nSB-3719,2026-09,Casual Court 90,Courts 5-8,13.65\nSB-2509,2026-09,Club Night,Courts 1-4,8.92\nSB-4466,2026-09,Casual Court,Courts 1-4,14.83\nSB-5154,2026-09,Club Night,Courts 1-4,11.84\nSB-4540,2026-09,Club Night,Courts 1-4,8.27\nSB-9179,2026-08,Club Night,Courts 5-8,10.76\nSB-2868,2026-09,Casual Court,Courts 5-8,16.82\nSB-6578,2026-09,Casual Court,Courts 1-4,19.90\nSB-1130,2026-09,Casual Court 90,Courts 1-4,12.16\nSB-8464,2026-08,Casual Court,Courts 1-4,17.39\nSB-4337,2026-09,Casual Court 90,Courts 5-8,12.62\nSB-3727,2026-08,Coaching Block,Courts 5-8,22.78\nSB-2532,2026-09,Club Night,Courts 1-4,11.29\nSB-5000,2026-09,Casual Court,Courts 1-4,16.95\nSB-9504,2026-09,Club Night,Courts 5-8,10.90\nSB-2561,2026-09,Club Night,Courts 5-8,10.10\nSB-2867,2026-09,Casual Court 90,Courts 5-8,14.96\nSB-6178,2026-09,Club Night,Courts 1-4,6.74\nSB-5859,2026-09,Casual Court,Courts 1-4,25.99\nSB-3470,2026-09,Casual Court 90,Courts 5-8,14.72\nSB-2240,2026-09,Casual Court,Courts 1-4,14.05\nSB-3937,2026-08,Coaching Block,Courts 5-8,17.39\nSB-1445,2026-09,Club Night,Courts 1-4,11.33\nSB-3966,2026-08,Club Night,Courts 5-8,11.00\nSB-4377,2026-09,Casual Court 90,Courts 1-4,10.79\nSB-5307,2026-09,Coaching Block,Courts 1-4,23.30\nSB-1571,2026-08,Casual Court,Courts 1-4,26.31\nSB-6315,2026-09,Casual Court 90,Courts 5-8,10.75\nSB-6376,2026-09,Coaching Block,Courts 1-4,19.73\nSB-6968,2026-09,Coaching Block,Courts 1-4,20.80\nSB-3660,2026-08,Club Night,Courts 5-8,11.37\nSB-3815,2026-09,Club Night,Courts 1-4,8.94\nSB-4522,2026-09,Coaching Block,Courts 1-4,21.74\nSB-1811,2026-09,Casual Court,Courts 1-4,26.24\nSB-1875,2026-09,Casual Court 90,Courts 5-8,18.60\nSB-3630,2026-09,Coaching Block,Courts 1-4,24.53\nSB-1941,2026-09,Casual Court,Courts 5-8,15.55\nSB-5290,2026-09,Club Night,Courts 5-8,8.76\nSB-9091,2026-09,Club Night,Courts 1-4,11.92\nSB-2707,2026-09,Club Night,Courts 5-8,8.22\nSB-4269,2026-09,Club Night,Courts 5-8,11.65\nSB-3257,2026-09,Casual Court 90,Courts 5-8,11.41\nSB-7427,2026-09,Casual Court 90,Courts 1-4,14.33\nSB-8844,2026-09,Club Night,Courts 5-8,8.07\nSB-9948,2026-08,Coaching Block,Courts 1-4,24.10\nSB-9124,2026-08,Club Night,Courts 5-8,11.47\nSB-9857,2026-09,Casual Court 90,Courts 1-4,13.01\nSB-6303,2026-09,Club Night,Courts 1-4,10.65\nSB-6934,2026-09,Coaching Block,Courts 1-4,27.44\nSB-8045,2026-08,Coaching Block,Courts 1-4,23.93\nSB-7648,2026-09,Coaching Block,Courts 5-8,17.40\nSB-1593,2026-09,Club Night,Courts 5-8,9.90\nSB-1620,2026-09,Club Night,Courts 1-4,11.35\nSB-3969,2026-09,Club Night,Courts 1-4,8.20\nSB-3505,2026-09,Club Night,Courts 5-8,9.41\nSB-6868,2026-09,Casual Court 90,Courts 5-8,14.01\nSB-4592,2026-09,Casual Court 90,Courts 1-4,10.13\nSB-5860,2026-09,Casual Court 90,Courts 5-8,15.61\nSB-4903,2026-09,Casual Court 90,Courts 1-4,10.28\nSB-6958,2026-09,Coaching Block,Courts 5-8,23.57\nSB-4187,2026-09,Casual Court 90,Courts 5-8,10.91\nSB-6637,2026-09,Club Night,Courts 1-4,9.12\nSB-7286,2026-08,Casual Court,Courts 1-4,18.19\nSB-6958,2026-08,Coaching Block,Courts 5-8,24.17\nSB-9774,2026-08,Casual Court,Courts 1-4,24.52\nSB-2832,2026-08,Casual Court 90,Courts 1-4,11.22\nSB-4678,2026-09,Club Night,Courts 1-4,9.85\nSB-4123,2026-09,Club Night,Courts 1-4,11.74\nSB-6705,2026-09,Club Night,Courts 1-4,10.48\nSB-4031,2026-09,Casual Court,Courts 5-8,25.82\nSB-9757,2026-09,Casual Court 90,Courts 5-8,11.63\nSB-4483,2026-09,Club Night,Courts 5-8,8.17\nSB-1347,2026-09,Casual Court 90,Courts 1-4,14.23\nSB-1441,2026-08,Club Night,Courts 1-4,8.17\nSB-2929,2026-08,Casual Court,Courts 1-4,22.53\nSB-4131,2026-08,Club Night,Courts 1-4,9.12\nSB-5863,2026-09,Casual Court 90,Courts 5-8,17.32\nSB-6269,2026-09,Casual Court,Courts 1-4,21.42\nSB-9864,2026-08,Club Night,Courts 5-8,11.51\nSB-9148,2026-09,Coaching Block,Courts 1-4,20.96\nSB-1677,2026-09,Casual Court,Courts 5-8,22.11\nSB-6017,2026-09,Casual Court 90,Courts 1-4,18.34\nSB-7436,2026-09,Coaching Block,Courts 1-4,26.60\nSB-3682,2026-09,Club Night,Courts 5-8,11.93\nSB-3287,2026-09,Casual Court,Courts 1-4,14.60\nSB-7155,2026-08,Club Night,Courts 1-4,8.35\nSB-8598,2026-09,Casual Court,Courts 1-4,27.70\nSB-6744,2026-08,Casual Court,Courts 1-4,17.84\nSB-6831,2026-09,Coaching Block,Courts 1-4,16.13\nSB-1095,2026-08,Casual Court,Courts 5-8,24.34\nSB-8313,2026-09,Casual Court,Courts 5-8,19.44\nSB-3233,2026-08,Casual Court 90,Courts 5-8,19.75\nSB-8330,2026-09,Casual Court,Courts 5-8,16.91\n",
+      "README.md": "# Shuttleside Badminton - September court fees\n\nOne row per court-fee receipt. program is the booking programme as\nnamed at the desk; fee_gbp is the court fee taken.\n",
+      "notes/hall.txt": "Hall notes\n- Net tension is checked on Mondays.\n- The shuttles crate goes back to the office.\n"
+   },
+   "turns": [
+      {
+         "prompt": "Shuttleside Badminton is reviewing the September programmes. The court-fee log is at data/court_fees_2026-09.csv. Give the number alone, as digits, with no label. What was the September 2026 fee total for the programme that earned the most?",
+         "expect": {
+            "expected_number": 510.34,
+            "tolerance": 0.01,
+            "required_tools": [
+               "data_query"
+            ]
+         }
+      }
+   ],
+   "expect": {
+      "max_calls": {
+         "read_file": 1
+      }
+   }
+}

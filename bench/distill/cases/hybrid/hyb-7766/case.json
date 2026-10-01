@@ -1,0 +1,67 @@
+{
+  "id": "hyb-7766",
+  "description": "两轮反问（多种合理解读）：9 月咖啡销售对应专柜零售与企业团购两份文件，第 1 轮点名两份候选反问，第 2 轮定专柜零售得 5307.65。 DISTILL-CANARY-56ba9c55",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 4150.0
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b07-ambiguoustwo-01",
+    "ref_calls": 4,
+    "fixture_bytes": 341,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "README.md": "# 木白咖啡馆 9 月销售\n\n专柜零售与企业团购分表登记，金额均为实收（元）。\n",
+    "sales/专柜零售-2026-09.csv": "日期,品类,金额\n2026-09-02,手冲,486.50\n2026-09-05,意式,1230.00\n2026-09-11,手冲,522.75\n2026-09-18,烘焙豆,1960.00\n2026-09-25,意式,1108.40\n",
+    "sales/企业团购-2026-09.csv": "日期,客户,金额\n2026-09-09,南岭办公,2400.00\n2026-09-21,青野书屋,1750.00\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 9 月的咖啡销售汇总一下，月底盘点要用。",
+      "expect": {
+        "forbidden_tools": [
+          "write_file",
+          "append_file",
+          "replace_lines"
+        ],
+        "output_contains_any": [
+          "？",
+          "?",
+          "哪",
+          "什么",
+          "还是",
+          "是否",
+          "请告诉",
+          "请确认",
+          "要不要",
+          "需要提供"
+        ],
+        "output_contains": [
+          "专柜零售-2026-09.csv",
+          "企业团购-2026-09.csv"
+        ]
+      }
+    },
+    {
+      "prompt": "按专柜零售那份算。只回答数字。",
+      "expect": {
+        "expected_number": 5307.65,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "id": "web-7524",
+  "description": "Read the per-request track-point limit off the official doc page given by URL. DISTILL-CANARY-6b280d11",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-SNIPPETVAGUE"
+    ],
+    "trap_decoys": {
+      "TR-SNIPPETVAGUE": 50
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-web-b06-yantai-geo",
+    "answer_style": "natural",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "砚台",
+      "url": "https://geo.yantai.example/docs/track",
+      "url_match": "geo.yantai.example/docs/track",
+      "title": "砚台地理 · 轨迹上传接口文档",
+      "snippet": "车辆轨迹批量上传的请求格式与字段说明。",
+      "published_at": "2026-08-02",
+      "content": "# 砚台地理 · 轨迹上传接口文档\n\n请求地址：POST /v2/track/upload\n\n单次请求最多上传 20 个轨迹点，超出部分请分包发送。\n\n坐标使用 GCJ-02，字段见参数表。\n"
+    },
+    {
+      "query_match": "砚台",
+      "url": "https://fleetlog.example/track-batch",
+      "url_match": "fleetlog.example/track-batch",
+      "title": "我们车队接入砚台地理轨迹接口的踩坑记录",
+      "snippet": "一次塞 50 个点也能出结果，但账单多了三成。",
+      "published_at": "2026-06-11",
+      "content": "# 车队接入轨迹接口的踩坑记录\n\n接入砚台地理的轨迹上传时，我们图省事一次塞 50 个点，接口也照常出结果。\n\n月底对账发现流量费多了三成，后来还是老老实实分包。\n"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "砚台地理的轨迹上传接口文档在 https://geo.yantai.example/docs/track。只回答数字，不要单位。单次请求最多可以上传多少个轨迹点？",
+      "expect": {
+        "expected_number": 20,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

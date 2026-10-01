@@ -1,0 +1,61 @@
+{
+  "id": "hyb-7754",
+  "description": "两轮反问（缺必需参数）：高志远工时费未说按哪个项目结项，第 1 轮反问，第 2 轮定青峦水库得 5440。 DISTILL-CANARY-a896581a",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 9860.0
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b07-missingparam-03",
+    "ref_calls": 3,
+    "fixture_bytes": 344,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "README.md": "# 云杉测绘工时表\n\n工时费 = 工时 × 时薪（元）。\n",
+    "timesheets/工时表.csv": "日期,项目,测量员,工时,时薪\n2026-08-11,青峦水库,高志远,8,320\n2026-08-12,青峦水库,徐国强,6,300\n2026-08-18,环城管线,高志远,7,340\n2026-08-19,青峦水库,高志远,9,320\n2026-08-25,环城管线,何静怡,8,310\n2026-09-01,环城管线,高志远,6,340\n"
+  },
+  "turns": [
+    {
+      "prompt": "算一下高志远的工时费，项目这边要结项归档。",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "？",
+          "?",
+          "哪",
+          "什么",
+          "还是",
+          "是否",
+          "请告诉",
+          "请确认",
+          "要不要",
+          "需要提供"
+        ],
+        "output_contains": [
+          "高志远"
+        ]
+      }
+    },
+    {
+      "prompt": "按青峦水库那个项目结项。只回答数字。",
+      "expect": {
+        "expected_number": 5440.0,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "id": "doc-8002",
+  "description": "Summarize a Chinese team weekly report in natural language, focusing on open items and their owners rather than completed work. DISTILL-CANARY-9a33f8b7",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "extract_items",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "全部完成"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-holdout-docsummary-01",
+    "ref_calls": 2,
+    "fixture_bytes": 414,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "docs/weekly-2026-09-28.md": "# 数据组周报（9 月 22 日 – 9 月 28 日）\n\n## 本周完成\n- 报表平台灰度切换完成，覆盖全部例行报表（陈晓）\n- 修复对账任务重复推送，停掉旧队列（刘弋）\n\n## 下周待办\n- 陈晓：交结算链路压测报告初稿，10 月 9 日前\n- 刘弋：梳理未纳管数据源清单，先盘离线库\n\n## 风险\n- 灰度后日活报表延迟约 20 分钟，观察一周\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "帮我总结一下这份组周报，重点讲还有哪些事没落地、分别压在谁身上。",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains": [
+          "陈晓",
+          "压测",
+          "数据源"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

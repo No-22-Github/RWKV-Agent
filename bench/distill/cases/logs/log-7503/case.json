@@ -1,0 +1,69 @@
+{
+  "id": "log-7503",
+  "description": "Four-turn Chinese session over a batch log and an ops change log: failed tasks, corrected root cause, retry count, next task end time. DISTILL-CANARY-1e943192",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "root_cause",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "EAST-2"
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "fam-log-b07-marlow-cron-01",
+    "ref_calls": 5,
+    "fixture_bytes": 2114,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "logs/batch-nightly.log": "2026-09-27 01:00:02 [scheduler] INFO 夜批启动，共 5 个任务\n2026-09-27 01:00:09 [stock-sync] INFO 开始同步库存 warehouse=EAST-2\n2026-09-27 01:03:03 [stock-sync] ERROR warehouse EAST-2 会话中断（重试 1/6）\n2026-09-27 01:03:44 [stock-sync] ERROR warehouse EAST-2 会话中断（重试 2/6）\n2026-09-27 01:04:25 [stock-sync] ERROR warehouse EAST-2 会话中断（重试 3/6）\n2026-09-27 01:05:06 [stock-sync] ERROR warehouse EAST-2 会话中断（重试 4/6）\n2026-09-27 01:05:47 [stock-sync] ERROR warehouse EAST-2 会话中断（重试 5/6）\n2026-09-27 01:06:28 [stock-sync] ERROR warehouse EAST-2 会话中断（重试 6/6）\n2026-09-27 01:06:29 [stock-sync] WARN 放弃本轮同步，等待下一周期\n2026-09-27 01:06:35 [recon] INFO 开始对账汇总\n2026-09-27 01:09:12 [recon] INFO 对账汇总完成，差额 0.00\n2026-09-27 01:10:00 [payout] INFO 开始出款批次 P-0926\n2026-09-27 01:11:18 [payout] ERROR 数据库操作失败（重试 1/3）\n2026-09-27 01:12:39 [payout] ERROR 数据库操作失败（重试 2/3）\n2026-09-27 01:14:01 [payout] ERROR 数据库操作失败（重试 3/3）\n2026-09-27 01:14:02 [payout] WARN 出款批次失败，已回滚\n2026-09-27 01:15:00 [digest] INFO 开始生成经营日报\n2026-09-27 01:31:44 [digest] INFO 经营日报生成完成\n2026-09-27 01:32:00 [scheduler] INFO 夜批结束\n",
+    "README.md": "# Marlow & Vane 夜批平台\n\nlogs/batch-nightly.log 为批处理日志，logs/ops-actions.csv 为运维变更系统的导出。\nEAST-2 是自营仓所在机房，其网络设备由机房侧负责维护。\n",
+    "logs/ops-actions.csv": "time,change_id,level,message\n2026-09-26 18:40:11,CHG-2201,INFO,变更单 CHG-2201 登记立项：轮换 EAST-2 网关数据库凭据\n2026-09-26 21:15:37,CHG-2201,INFO,变更单 CHG-2201 审批通过（值班：许倩）\n2026-09-27 01:02:11,CHG-2201,INFO,变更单 CHG-2201 开始执行：向 EAST-2 网关推送新凭据\n2026-09-27 01:02:14,CHG-2201,WARN,批处理平台的凭据副本未纳入同步范围\n2026-09-27 01:02:16,CHG-2201,INFO,变更单 CHG-2201 执行完成\n2026-09-27 08:02:45,CHG-2201,INFO,变更单 CHG-2201 验证通过并关闭\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "Marlow & Vane 的夜批平台昨晚（9 月 27 日）没有全部跑完。logs/batch-nightly.log 是批处理日志：是哪些任务没跑完？",
+      "expect": {
+        "output_contains_any": [
+          "stock-sync",
+          "payout"
+        ]
+      }
+    },
+    {
+      "prompt": "不对，这两个任务失败其实是同一个原因，而且和 EAST-2 机房的网络无关。变更记录在 logs/ops-actions.csv 里，你再查查根本原因是什么？",
+      "expect": {
+        "output_contains_any": [
+          "CHG-2201"
+        ]
+      }
+    },
+    {
+      "prompt": "那先不管根因了：payout 当晚自动重试了几次？",
+      "expect": {
+        "output_contains_any": [
+          "3 次"
+        ]
+      }
+    },
+    {
+      "prompt": "payout 之后开始的那个任务是几点结束的？",
+      "expect": {
+        "output_contains_any": [
+          "01:31:44",
+          "01:31"
+        ]
+      }
+    }
+  ]
+}

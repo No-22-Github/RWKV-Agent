@@ -1,0 +1,50 @@
+{
+   "id": "tab-7409",
+   "description": "June 2026 total for the highest-grossing membership tier; the tier with the most payments is a different one. DISTILL-CANARY-c74e6b10",
+   "category": "tabular",
+   "tags": {
+      "scenario": "tabular",
+      "task_type": "rank",
+      "traps": [
+         "TR-DECOY"
+      ],
+      "trap_decoys": {
+         "TR-DECOY": 1649.84
+      },
+      "axes": [
+         "OBS"
+      ],
+      "level": "L1",
+      "family": "fam-tab-b06-peakrow-01",
+      "ref_calls": 2,
+      "fixture_bytes": 4247,
+      "status": "draft",
+      "version": 1,
+      "author": "llm:glm-5.3-flash-b06",
+      "reviewer": null,
+      "answer_style": "natural"
+   },
+   "web_fixture": [],
+   "files": {
+      "billing/payments_june.csv": "payment_id,payment_month,membership_tier,location,amount_due\nPK-2606073,2026-06,Solo,Foundry,26.78\nPK-2606079,2026-06,Solo,Northgate,35.16\nPK-2606076,2026-06,Solo,Canal St,38.21\nPK-2606065,2026-06,Crew,Foundry,77.88\nPK-2606023,2026-06,Solo,Foundry,43.00\nPK-2606064,2026-06,Duo,Canal St,70.19\nPK-2606008,2026-06,Solo,Canal St,45.33\nPK-2606062,2026-06,Unlimited,Canal St,117.44\nPK-2606045,2026-06,Solo,Northgate,42.40\nPK-2606056,2026-06,Solo,Foundry,56.69\nPK-2606054,2026-06,Duo,Northgate,43.73\nPK-2606072,2026-06,Unlimited,Foundry,190.56\nPK-2606028,2026-06,Solo,Foundry,37.34\nPK-2606069,2026-06,Solo,Canal St,30.25\nPK-2606026,2026-06,Solo,Foundry,30.18\nPK-2606029,2026-06,Duo,Northgate,86.28\nPK-2606042,2026-06,Solo,Canal St,55.24\nPK-2606063,2026-06,Duo,Canal St,44.30\nPK-2606036,2026-06,Crew,Foundry,102.32\nPK-2606089,2026-06,Unlimited,Northgate,159.40\nPK-2606082,2026-06,Crew,Foundry,65.76\nPK-2606032,2026-06,Crew,Canal St,62.93\nPK-2606067,2026-06,Duo,Foundry,71.81\nPK-2606053,2026-06,Solo,Canal St,28.55\nPK-2606044,2026-06,Duo,Foundry,57.62\nPK-2606059,2026-06,Duo,Foundry,71.92\nPK-2606046,2026-06,Solo,Foundry,34.65\nPK-2606094,2026-06,Unlimited,Foundry,182.42\nPK-2606005,2026-06,Unlimited,Canal St,202.61\nPK-2606019,2026-06,Duo,Foundry,45.66\nPK-2606066,2026-06,Unlimited,Northgate,144.70\nPK-2606093,2026-06,Unlimited,Foundry,182.46\nPK-2606009,2026-06,Solo,Canal St,50.28\nPK-2606086,2026-06,Unlimited,Northgate,134.11\nPK-2606033,2026-06,Crew,Foundry,86.18\nPK-2606041,2026-06,Solo,Canal St,54.25\nPK-2606003,2026-06,Crew,Foundry,111.65\nPK-2606037,2026-06,Crew,Northgate,78.27\nPK-2606090,2026-06,Solo,Northgate,27.22\nPK-2606085,2026-06,Unlimited,Northgate,133.96\nPK-2606051,2026-06,Duo,Foundry,43.12\nPK-2606025,2026-06,Unlimited,Canal St,181.27\nPK-2606077,2026-06,Unlimited,Northgate,184.35\nPK-2606047,2026-06,Crew,Northgate,80.00\nPK-2606071,2026-06,Duo,Northgate,76.19\nPK-2606084,2026-06,Solo,Northgate,26.92\nPK-2606030,2026-06,Duo,Foundry,46.34\nPK-2606010,2026-06,Unlimited,Northgate,190.17\nPK-2606017,2026-06,Solo,Canal St,47.74\nPK-2606057,2026-06,Duo,Foundry,55.59\nPK-2606031,2026-06,Solo,Foundry,46.38\nPK-2606075,2026-06,Solo,Canal St,30.29\nPK-2606049,2026-06,Duo,Northgate,56.69\nPK-2606011,2026-06,Solo,Canal St,49.21\nPK-2606027,2026-06,Crew,Foundry,69.95\nPK-2606024,2026-06,Crew,Canal St,112.84\nPK-2606088,2026-06,Solo,Northgate,32.98\nPK-2606083,2026-06,Solo,Canal St,35.81\nPK-2606016,2026-06,Solo,Northgate,31.73\nPK-2606060,2026-06,Unlimited,Foundry,105.04\nPK-2606078,2026-06,Duo,Canal St,50.29\nPK-2606091,2026-06,Unlimited,Canal St,103.51\nPK-2606018,2026-06,Solo,Canal St,34.23\nPK-2606096,2026-06,Solo,Foundry,47.34\nPK-2606092,2026-06,Solo,Canal St,50.12\nPK-2606001,2026-06,Duo,Foundry,60.58\nPK-2606039,2026-06,Solo,Canal St,57.71\nPK-2606058,2026-06,Solo,Northgate,44.69\nPK-2606070,2026-06,Unlimited,Foundry,154.15\nPK-2606020,2026-06,Unlimited,Northgate,200.43\nPK-2606087,2026-06,Solo,Foundry,57.20\nPK-2606074,2026-06,Unlimited,Foundry,182.66\nPK-2606061,2026-06,Duo,Foundry,83.25\nPK-2606050,2026-06,Unlimited,Foundry,152.47\nPK-2606052,2026-06,Duo,Foundry,72.57\nPK-2606040,2026-06,Crew,Northgate,90.81\nPK-2606013,2026-06,Solo,Northgate,54.80\nPK-2606015,2026-06,Crew,Canal St,84.19\nPK-2606006,2026-06,Solo,Northgate,53.83\nPK-2606038,2026-06,Duo,Foundry,56.97\nPK-2606080,2026-06,Unlimited,Canal St,119.53\nPK-2606021,2026-06,Solo,Northgate,47.78\nPK-2606055,2026-06,Solo,Northgate,25.16\nPK-2606081,2026-06,Solo,Foundry,44.61\nPK-2606043,2026-06,Duo,Foundry,61.16\nPK-2606095,2026-06,Solo,Canal St,37.26\nPK-2606035,2026-06,Duo,Northgate,85.85\nPK-2606068,2026-06,Solo,Foundry,26.36\nPK-2606014,2026-06,Solo,Canal St,38.98\nPK-2606002,2026-06,Crew,Northgate,76.63\nPK-2606022,2026-06,Solo,Canal St,53.47\nPK-2606004,2026-06,Crew,Northgate,102.62\nPK-2606007,2026-06,Crew,Northgate,79.46\nPK-2606048,2026-06,Unlimited,Foundry,142.08\nPK-2606012,2026-06,Solo,Northgate,39.71\nPK-2606034,2026-06,Crew,Foundry,72.70\n",
+      "README.md": "# Peakrow Climbing - June payments export\n\nOne row per processed payment. membership_tier is the plan the payment\nbelongs to; amount_due is the charged amount after any promotional credit.\n",
+      "notes/front_desk.txt": "Front desk float top-ups happen at opening. Promo credits are applied from the\nmanager tablet only. The Foundry location hosts the Thursday beginners night.\n"
+   },
+   "turns": [
+      {
+         "prompt": "Peakrow's owners want to know which membership tier earned the most money in June. The payments export is at billing/payments_june.csv. Give the number alone, as digits, with no label. What was the June 2026 total for the tier that earned the most?",
+         "expect": {
+            "expected_number": 3163.32,
+            "tolerance": 0.01,
+            "required_tools": [
+               "data_query"
+            ]
+         }
+      }
+   ],
+   "expect": {
+      "max_calls": {
+         "read_file": 1
+      }
+   }
+}

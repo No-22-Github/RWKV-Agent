@@ -1,0 +1,50 @@
+{
+  "id": "tab-7512",
+  "description": "Count the March 2026 Milldale loans that count toward branch circulation; interlibrary loans are flagged out of the circulation definition. DISTILL-CANARY-4daaf5b9",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": 39
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b06-larkspur-circ-01",
+    "ref_calls": 2,
+    "fixture_bytes": 5960,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "data/loans_2026Q1.csv": "loan_id,loan_month,branch,item_type,circ\nLC-9798,2026-03,Fenwick,Audiobook,Y\nLC-3061,2026-02,Milldale,ILL,N\nLC-5381,2026-03,Milldale,ILL,N\nLC-4576,2026-01,Old Port,ILL,N\nLC-2523,2026-02,Fenwick,ILL,N\nLC-3535,2026-03,Milldale,ILL,N\nLC-3221,2026-03,Milldale,Book,Y\nLC-7935,2026-01,Fenwick,Audiobook,Y\nLC-4570,2026-01,Old Port,Audiobook,Y\nLC-1365,2026-03,Milldale,ILL,N\nLC-9735,2026-01,Old Port,Book,Y\nLC-1986,2026-02,Fenwick,Book,Y\nLC-8709,2026-01,Old Port,Audiobook,Y\nLC-9540,2026-02,Milldale,ILL,N\nLC-5958,2026-01,Fenwick,Audiobook,Y\nLC-5856,2026-03,Fenwick,ILL,N\nLC-9501,2026-03,Milldale,ILL,N\nLC-856,2026-03,Old Port,Book,Y\nLC-4789,2026-03,Fenwick,Book,Y\nLC-1625,2026-01,Old Port,Book,Y\nLC-4324,2026-02,Old Port,Audiobook,Y\nLC-4838,2026-03,Milldale,ILL,N\nLC-4841,2026-02,Old Port,Book,Y\nLC-3501,2026-01,Milldale,Audiobook,Y\nLC-4211,2026-03,Fenwick,Book,Y\nLC-5043,2026-03,Milldale,Book,Y\nLC-3021,2026-03,Old Port,ILL,N\nLC-4512,2026-03,Old Port,Audiobook,Y\nLC-4187,2026-01,Milldale,Book,Y\nLC-7573,2026-01,Old Port,Audiobook,Y\nLC-1092,2026-01,Fenwick,ILL,N\nLC-2095,2026-03,Milldale,Audiobook,Y\nLC-2028,2026-01,Milldale,ILL,N\nLC-1838,2026-01,Milldale,Book,Y\nLC-749,2026-02,Milldale,Book,Y\nLC-1879,2026-01,Old Port,Book,Y\nLC-6543,2026-03,Old Port,Audiobook,Y\nLC-6499,2026-01,Milldale,Book,Y\nLC-352,2026-01,Old Port,ILL,N\nLC-5345,2026-01,Old Port,Audiobook,Y\nLC-5367,2026-01,Old Port,ILL,N\nLC-4849,2026-03,Milldale,Book,Y\nLC-7974,2026-03,Milldale,Audiobook,Y\nLC-5726,2026-03,Fenwick,Book,Y\nLC-8184,2026-03,Milldale,ILL,N\nLC-3076,2026-03,Milldale,ILL,N\nLC-3225,2026-03,Old Port,Book,Y\nLC-3897,2026-02,Fenwick,Book,Y\nLC-5970,2026-03,Old Port,ILL,N\nLC-8362,2026-02,Old Port,ILL,N\nLC-2937,2026-03,Milldale,Book,Y\nLC-5218,2026-03,Old Port,Book,Y\nLC-188,2026-03,Milldale,ILL,N\nLC-5018,2026-03,Fenwick,ILL,N\nLC-7619,2026-02,Milldale,Book,Y\nLC-4709,2026-01,Fenwick,ILL,N\nLC-5918,2026-02,Milldale,Book,Y\nLC-3784,2026-01,Old Port,Book,Y\nLC-3843,2026-03,Old Port,Book,Y\nLC-9807,2026-02,Fenwick,Book,Y\nLC-3780,2026-03,Milldale,Book,Y\nLC-9880,2026-03,Fenwick,Book,Y\nLC-7293,2026-03,Fenwick,Book,Y\nLC-3062,2026-01,Fenwick,Book,Y\nLC-7623,2026-03,Milldale,ILL,N\nLC-8364,2026-03,Fenwick,ILL,N\nLC-2086,2026-03,Milldale,ILL,N\nLC-3103,2026-03,Old Port,Book,Y\nLC-1453,2026-01,Fenwick,Audiobook,Y\nLC-7406,2026-03,Milldale,Book,Y\nLC-9485,2026-01,Fenwick,ILL,N\nLC-2434,2026-03,Milldale,ILL,N\nLC-7915,2026-03,Old Port,ILL,N\nLC-4041,2026-03,Fenwick,Book,Y\nLC-2735,2026-03,Fenwick,Audiobook,Y\nLC-4307,2026-01,Fenwick,Audiobook,Y\nLC-2940,2026-01,Milldale,ILL,N\nLC-8459,2026-03,Old Port,ILL,N\nLC-9376,2026-02,Milldale,ILL,N\nLC-6978,2026-03,Milldale,Book,Y\nLC-5925,2026-01,Milldale,Book,Y\nLC-1361,2026-01,Milldale,Book,Y\nLC-6031,2026-03,Old Port,ILL,N\nLC-6652,2026-03,Fenwick,Book,Y\nLC-1037,2026-02,Fenwick,Audiobook,Y\nLC-7352,2026-03,Fenwick,Audiobook,Y\nLC-7868,2026-03,Milldale,Book,Y\nLC-2898,2026-02,Fenwick,Book,Y\nLC-1479,2026-03,Old Port,ILL,N\nLC-4881,2026-01,Milldale,Audiobook,Y\nLC-393,2026-03,Fenwick,ILL,N\nLC-6032,2026-03,Milldale,Book,Y\nLC-2700,2026-03,Fenwick,Book,Y\nLC-5017,2026-03,Fenwick,Audiobook,Y\nLC-3253,2026-01,Milldale,Book,Y\nLC-4975,2026-03,Milldale,Audiobook,Y\nLC-924,2026-01,Milldale,Audiobook,Y\nLC-8456,2026-03,Milldale,Book,Y\nLC-5014,2026-01,Fenwick,Book,Y\nLC-5855,2026-03,Milldale,Audiobook,Y\nLC-2205,2026-01,Milldale,ILL,N\nLC-6195,2026-01,Old Port,Book,Y\nLC-9610,2026-03,Milldale,Book,Y\nLC-5247,2026-03,Old Port,Audiobook,Y\nLC-1692,2026-03,Old Port,ILL,N\nLC-2484,2026-03,Fenwick,Audiobook,Y\nLC-2239,2026-03,Old Port,Book,Y\nLC-8545,2026-03,Old Port,ILL,N\nLC-9885,2026-02,Milldale,Book,Y\nLC-2138,2026-02,Fenwick,ILL,N\nLC-1405,2026-03,Milldale,ILL,N\nLC-3282,2026-03,Milldale,Book,Y\nLC-3963,2026-01,Milldale,Book,Y\nLC-154,2026-01,Milldale,Audiobook,Y\nLC-3898,2026-03,Fenwick,Book,Y\nLC-9429,2026-03,Fenwick,ILL,N\nLC-798,2026-02,Milldale,Book,Y\nLC-3290,2026-03,Fenwick,ILL,N\nLC-8455,2026-03,Fenwick,Audiobook,Y\nLC-8155,2026-01,Milldale,ILL,N\nLC-6725,2026-01,Old Port,ILL,N\nLC-3393,2026-03,Fenwick,Audiobook,Y\nLC-4880,2026-01,Fenwick,Audiobook,Y\nLC-5636,2026-01,Milldale,Book,Y\nLC-3811,2026-02,Old Port,Book,Y\nLC-1286,2026-02,Milldale,Audiobook,Y\nLC-6799,2026-03,Old Port,Book,Y\nLC-1055,2026-02,Fenwick,Audiobook,Y\nLC-9421,2026-03,Milldale,Book,Y\nLC-4373,2026-02,Old Port,Book,Y\nLC-3756,2026-01,Old Port,ILL,N\nLC-7465,2026-03,Fenwick,Book,Y\nLC-9883,2026-03,Milldale,ILL,N\nLC-738,2026-03,Fenwick,Audiobook,Y\nLC-7876,2026-03,Old Port,Audiobook,Y\nLC-8036,2026-03,Milldale,ILL,N\nLC-1062,2026-03,Milldale,Audiobook,Y\nLC-7702,2026-02,Old Port,Audiobook,Y\nLC-1872,2026-03,Old Port,ILL,N\nLC-816,2026-01,Old Port,Book,Y\nLC-5811,2026-03,Old Port,Book,Y\nLC-1991,2026-01,Old Port,Book,Y\nLC-8764,2026-03,Fenwick,ILL,N\nLC-4882,2026-02,Fenwick,ILL,N\nLC-788,2026-02,Old Port,Audiobook,Y\nLC-5488,2026-01,Old Port,ILL,N\nLC-1089,2026-01,Old Port,Book,Y\nLC-1491,2026-02,Old Port,ILL,N\nLC-873,2026-02,Milldale,Book,Y\nLC-158,2026-03,Milldale,Audiobook,Y\nLC-8875,2026-03,Old Port,ILL,N\nLC-7041,2026-03,Milldale,Audiobook,Y\nLC-2356,2026-02,Fenwick,ILL,N\nLC-8840,2026-03,Milldale,ILL,N\nLC-1436,2026-03,Old Port,Book,Y\nLC-677,2026-03,Old Port,Book,Y\nLC-4612,2026-03,Fenwick,Book,Y\nLC-5195,2026-01,Milldale,Book,Y\nLC-3344,2026-03,Milldale,Book,Y\nLC-3964,2026-01,Milldale,Audiobook,Y\nLC-2314,2026-03,Milldale,ILL,N\nLC-3500,2026-02,Milldale,ILL,N\nLC-3852,2026-01,Old Port,Audiobook,Y\nLC-2556,2026-01,Milldale,Book,Y\nLC-6250,2026-03,Old Port,Audiobook,Y\nLC-7581,2026-01,Old Port,Audiobook,Y\nLC-6549,2026-03,Milldale,Book,Y\nLC-7689,2026-03,Milldale,ILL,N\nLC-8826,2026-02,Fenwick,Book,Y\nLC-4690,2026-02,Old Port,Book,Y\n",
+    "README.md": "# Larkspur Community Library - first-quarter loan export\n\nCirculation counts include only loans marked circ=Y. Interlibrary loans (item_type ILL) are marked circ=N: another library owns the item, so they never count toward branch circulation.\n",
+    "notes/shelf_cart.txt": "Shelf cart\n- Returns get wiped down at the sorting desk.\n- Audiobook cases travel in the padded crate.\n- The label sheets restock on Thursdays.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Larkspur Community Library is reporting first-quarter circulation for the Milldale branch. The loan export is at data/loans_2026Q1.csv. Give the number alone, as digits, with no label. How many March 2026 Milldale loans count toward branch circulation?",
+      "expect": {
+        "expected_number": 22,
+        "tolerance": 0.01,
+        "required_tools": [
+          "data_query"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 1
+    }
+  }
+}

@@ -1,0 +1,52 @@
+{
+   "id": "tab-7544",
+   "description": "Count of different Tune-Up customers in September 2026 with repeated export rows and a plus-tier service beside the base one DISTILL-CANARY-111546f7",
+   "category": "tabular",
+   "tags": {
+      "scenario": "tabular",
+      "task_type": "filter_count",
+      "traps": [
+         "TR-DUPROW",
+         "TR-DECOY"
+      ],
+      "trap_decoys": {
+         "TR-DUPROW": 39.0,
+         "TR-DECOY": 27.0
+      },
+      "axes": [
+         "OBS"
+      ],
+      "level": "L2",
+      "family": "fam-tab-b06-spokehouse-01",
+      "ref_calls": 2,
+      "fixture_bytes": 6070,
+      "status": "draft",
+      "version": 1,
+      "author": "llm:glm-5.3-flash-b06",
+      "reviewer": null,
+      "answer_style": "natural"
+   },
+   "web_fixture": [],
+   "files": {
+      "data/jobs_2026-09.csv": "job_id,job_month,service,customer_code,mechanic\nSC-4110,2026-09,Wheel Build,CU-5987,M. Villanueva\nSC-9656,2026-09,Brake Bleed,CU-4422,T. Bergstrom\nSC-8188,2026-09,Tune-Up,CU-9652,T. Bergstrom\nSC-1344,2026-09,Brake Bleed,CU-4403,T. Bergstrom\nSC-1504,2026-09,Wheel Build,CU-4886,D. Okonkwo\nSC-4968,2026-09,Tune-Up,CU-6471,D. Okonkwo\nSC-5266,2026-09,Tune-Up Plus,CU-5408,T. Bergstrom\nSC-4385,2026-09,Tune-Up Plus,CU-2123,T. Bergstrom\nSC-3832,2026-09,Tune-Up Plus,CU-2226,T. Bergstrom\nSC-5665,2026-09,Wheel Build,CU-9572,D. Okonkwo\nSC-3431,2026-09,Wheel Build,CU-7032,D. Okonkwo\nSC-9885,2026-09,Wheel Build,CU-8666,T. Bergstrom\nSC-4284,2026-09,Wheel Build,CU-9380,M. Villanueva\nSC-5476,2026-09,Wheel Build,CU-1814,T. Bergstrom\nSC-6097,2026-09,Tune-Up,CU-3761,T. Bergstrom\nSC-5110,2026-09,Tune-Up,CU-5864,M. Villanueva\nSC-8313,2026-09,Brake Bleed,CU-5419,R. Castellano\nSC-3752,2026-09,Tune-Up Plus,CU-6830,D. Okonkwo\nSC-9935,2026-09,Tune-Up,CU-4802,T. Bergstrom\nSC-6848,2026-09,Tune-Up,CU-7431,D. Okonkwo\nSC-9041,2026-09,Tune-Up Plus,CU-7548,R. Castellano\nSC-7880,2026-09,Tune-Up Plus,CU-3823,M. Villanueva\nSC-2995,2026-09,Tune-Up,CU-8923,D. Okonkwo\nSC-4423,2026-09,Wheel Build,CU-5252,R. Castellano\nSC-7279,2026-09,Brake Bleed,CU-6400,D. Okonkwo\nSC-4355,2026-09,Tune-Up Plus,CU-4642,T. Bergstrom\nSC-5653,2026-09,Tune-Up Plus,CU-5239,M. Villanueva\nSC-2771,2026-09,Tune-Up,CU-5001,R. Castellano\nSC-1395,2026-09,Tune-Up,CU-1500,M. Villanueva\nSC-2934,2026-09,Wheel Build,CU-7596,D. Okonkwo\nSC-1216,2026-09,Brake Bleed,CU-6186,M. Villanueva\nSC-9933,2026-09,Brake Bleed,CU-8074,D. Okonkwo\nSC-5856,2026-09,Tune-Up,CU-5070,M. Villanueva\nSC-3237,2026-09,Tune-Up,CU-5408,T. Bergstrom\nSC-2231,2026-09,Tune-Up,CU-4111,T. Bergstrom\nSC-9198,2026-09,Tune-Up,CU-2188,R. Castellano\nSC-7123,2026-09,Tune-Up Plus,CU-3713,R. Castellano\nSC-6099,2026-09,Tune-Up,CU-8267,R. Castellano\nSC-8162,2026-09,Tune-Up Plus,CU-3427,R. Castellano\nSC-9241,2026-09,Brake Bleed,CU-5292,T. Bergstrom\nSC-6846,2026-09,Brake Bleed,CU-8526,M. Villanueva\nSC-9657,2026-09,Tune-Up Plus,CU-9627,R. Castellano\nSC-6303,2026-09,Wheel Build,CU-3662,D. Okonkwo\nSC-1013,2026-09,Wheel Build,CU-3271,T. Bergstrom\nSC-3029,2026-09,Tune-Up,CU-3262,D. Okonkwo\nSC-8246,2026-09,Tune-Up,CU-8220,T. Bergstrom\nSC-8365,2026-09,Wheel Build,CU-6916,D. Okonkwo\nSC-6737,2026-09,Tune-Up Plus,CU-6075,T. Bergstrom\nSC-5993,2026-09,Tune-Up Plus,CU-7565,T. Bergstrom\nSC-9835,2026-09,Tune-Up Plus,CU-4940,T. Bergstrom\nSC-7543,2026-09,Tune-Up,CU-2897,M. Villanueva\nSC-6560,2026-09,Brake Bleed,CU-4378,T. Bergstrom\nSC-9065,2026-09,Brake Bleed,CU-6005,M. Villanueva\nSC-2852,2026-09,Wheel Build,CU-2117,R. Castellano\nSC-7185,2026-09,Tune-Up,CU-2743,R. Castellano\nSC-7265,2026-09,Tune-Up,CU-4729,M. Villanueva\nSC-4340,2026-09,Tune-Up Plus,CU-7504,T. Bergstrom\nSC-1063,2026-09,Brake Bleed,CU-6265,D. Okonkwo\nSC-5548,2026-09,Tune-Up Plus,CU-9066,R. Castellano\nSC-9371,2026-09,Tune-Up Plus,CU-2637,T. Bergstrom\nSC-4258,2026-09,Brake Bleed,CU-4059,M. Villanueva\nSC-8562,2026-09,Tune-Up,CU-1736,D. Okonkwo\nSC-9469,2026-09,Tune-Up,CU-1906,M. Villanueva\nSC-7700,2026-09,Brake Bleed,CU-1381,D. Okonkwo\nSC-6002,2026-09,Wheel Build,CU-4548,T. Bergstrom\nSC-3790,2026-09,Tune-Up Plus,CU-1568,R. Castellano\nSC-8362,2026-09,Tune-Up,CU-9101,T. Bergstrom\nSC-9699,2026-09,Brake Bleed,CU-9659,M. Villanueva\nSC-4233,2026-09,Tune-Up,CU-8246,M. Villanueva\nSC-6888,2026-09,Tune-Up,CU-6610,M. Villanueva\nSC-9621,2026-09,Tune-Up Plus,CU-5498,T. Bergstrom\nSC-1057,2026-09,Wheel Build,CU-2934,T. Bergstrom\nSC-7376,2026-09,Tune-Up,CU-3829,T. Bergstrom\nSC-7977,2026-09,Tune-Up,CU-2560,M. Villanueva\nSC-7639,2026-09,Tune-Up Plus,CU-4638,D. Okonkwo\nSC-6505,2026-09,Tune-Up Plus,CU-7548,M. Villanueva\nSC-2109,2026-09,Tune-Up Plus,CU-4821,M. Villanueva\nSC-9072,2026-09,Wheel Build,CU-9110,M. Villanueva\nSC-5057,2026-09,Tune-Up,CU-8369,D. Okonkwo\nSC-5765,2026-09,Tune-Up,CU-7191,D. Okonkwo\nSC-1340,2026-09,Wheel Build,CU-3762,D. Okonkwo\nSC-7668,2026-09,Tune-Up,CU-4796,T. Bergstrom\nSC-3557,2026-09,Wheel Build,CU-4862,M. Villanueva\nSC-7509,2026-09,Wheel Build,CU-5647,R. Castellano\nSC-5427,2026-09,Wheel Build,CU-8578,D. Okonkwo\nSC-3918,2026-09,Wheel Build,CU-9962,R. Castellano\nSC-2202,2026-09,Tune-Up,CU-7383,D. Okonkwo\nSC-1165,2026-09,Wheel Build,CU-4471,R. Castellano\nSC-6725,2026-09,Tune-Up Plus,CU-8400,R. Castellano\nSC-5334,2026-09,Tune-Up,CU-5225,T. Bergstrom\nSC-7736,2026-09,Brake Bleed,CU-6408,T. Bergstrom\nSC-9916,2026-09,Wheel Build,CU-9131,T. Bergstrom\nSC-5975,2026-09,Brake Bleed,CU-2817,D. Okonkwo\nSC-3491,2026-09,Tune-Up Plus,CU-4503,R. Castellano\nSC-8570,2026-09,Wheel Build,CU-2291,T. Bergstrom\nSC-5249,2026-09,Tune-Up,CU-1757,R. Castellano\nSC-8938,2026-09,Tune-Up Plus,CU-1252,T. Bergstrom\nSC-3779,2026-09,Brake Bleed,CU-1085,M. Villanueva\nSC-8653,2026-09,Tune-Up Plus,CU-8870,T. Bergstrom\nSC-9361,2026-09,Brake Bleed,CU-6235,M. Villanueva\nSC-1743,2026-09,Tune-Up,CU-7277,M. Villanueva\nSC-5437,2026-09,Brake Bleed,CU-5705,M. Villanueva\nSC-9360,2026-09,Tune-Up,CU-4209,R. Castellano\nSC-2615,2026-09,Brake Bleed,CU-7552,D. Okonkwo\nSC-7923,2026-09,Wheel Build,CU-3622,R. Castellano\nSC-2142,2026-09,Tune-Up Plus,CU-3494,D. Okonkwo\nSC-6819,2026-09,Tune-Up Plus,CU-1499,T. Bergstrom\nSC-2097,2026-09,Tune-Up,CU-1248,D. Okonkwo\nSC-8249,2026-09,Tune-Up,CU-7345,D. Okonkwo\nSC-1323,2026-09,Wheel Build,CU-3378,R. Castellano\nSC-3689,2026-09,Brake Bleed,CU-9889,D. Okonkwo\nSC-9309,2026-09,Wheel Build,CU-1935,T. Bergstrom\nSC-3648,2026-09,Wheel Build,CU-7217,M. Villanueva\nSC-2524,2026-09,Brake Bleed,CU-5164,R. Castellano\nSC-7585,2026-09,Brake Bleed,CU-3129,D. Okonkwo\nSC-5518,2026-09,Tune-Up,CU-2302,D. Okonkwo\nSC-2202,2026-09,Tune-Up,CU-7383,D. Okonkwo\nSC-8562,2026-09,Tune-Up,CU-1736,D. Okonkwo\nSC-9656,2026-09,Brake Bleed,CU-4422,T. Bergstrom\nSC-5266,2026-09,Tune-Up Plus,CU-5408,T. Bergstrom\n",
+      "README.md": "# Spokehouse Cycles - September job sheet\n\nOne row per job booked. customer_code identifies the customer and the\nexport job retried on a few nights, so some jobs appear twice.\n",
+      "notes/bench.txt": "Bench notes\n- Torque checks come back to the red tray.\n- Loaner lights live in the drawer under the stand.\n"
+   },
+   "turns": [
+      {
+         "prompt": "Spokehouse Cycles is counting its September service base. The job export is at data/jobs_2026-09.csv. Give the number alone, as digits, with no label. How many different customers booked a Tune-Up in September 2026?",
+         "expect": {
+            "expected_number": 37.0,
+            "tolerance": 0.01,
+            "required_tools": [
+               "data_query"
+            ]
+         }
+      }
+   ],
+   "expect": {
+      "max_calls": {
+         "read_file": 1
+      }
+   }
+}

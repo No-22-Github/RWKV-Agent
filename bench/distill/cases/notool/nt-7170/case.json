@@ -1,0 +1,39 @@
+{
+  "id": "nt-7170",
+  "description": "Convert a 3.5-yard cotton curtain order into metres. DISTILL-CANARY-06dcf150",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b06-sewing-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 397
+  },
+  "web_fixture": [],
+  "files": {
+    "orders/curtain_order.csv": "order,fabric,yards,note\n窗帘-王宅,全棉平纹,3.5,落地帘两幅\n",
+    "stock/fabric_2026-10.csv": "fabric,color,width_cm,yards_left\n全棉平纹,米白,150,12\n全棉斜纹,藏青,150,8\n亚麻混纺,浅灰,140,5\n",
+    "README.md": "# 素棉布艺 - 门市工作区\n\n客订和布料库存都登记在这里。\n\n- orders/  客订登记\n- stock/  布料库存\n\n布料按码进货，报给客户的长度一律换算成米（1 码 = 0.9144 米）。\n"
+  },
+  "turns": [
+    {
+      "prompt": "素棉布艺接了王宅的窗帘订单，布样定的是全棉平纹，用量 3.5 码。布料按码进货，报给客户的长度要换算成米。这个长度是多少米？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 3.2,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

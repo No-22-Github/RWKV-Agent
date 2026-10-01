@@ -1,0 +1,56 @@
+{
+  "id": "nt-7153",
+  "description": "Thanks for help that closed a contract; no new task attached. DISTILL-CANARY-24996e21",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-smalltalk-thanks-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 223
+  },
+  "offered_tools": [
+    "read_file",
+    "list_files"
+  ],
+  "web_fixture": [],
+  "files": {
+    "contracts/register.csv": "contract_no,client,status\nHT-2026-118,佑安药房,已签\nHT-2026-121,北仓超市,待签\n",
+    "README.md": "# 恒澜贸易 - 商务工作区\n\n合同登记与客户往来都放在这里。\n\n- contracts/  合同台账\n- clients/  客户资料\n"
+  },
+  "turns": [
+    {
+      "prompt": "上周多亏你帮我核对了那份合同的付款条款，客户今天顺利把字签了，真的谢谢你！",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "不客气",
+          "不用谢",
+          "别客气",
+          "应该的",
+          "能帮上",
+          "荣幸",
+          "恭喜",
+          "祝贺",
+          "顺利"
+        ]
+      }
+    }
+  ]
+}

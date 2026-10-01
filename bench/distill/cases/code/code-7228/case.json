@@ -1,0 +1,41 @@
+{
+  "id": "code-7228",
+  "description": "Report the real failure count when the log footer claims 2 but three FAIL lines exist. DISTILL-CANARY-a3ccd14e",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "report_test_result",
+    "traps": [
+      "TR-CLAIM"
+    ],
+    "trap_decoys": {
+      "TR-CLAIM": 2
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-code-b06-hanshan-report",
+    "answer_style": "natural",
+    "ref_calls": 2,
+    "fixture_bytes": 1333,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {
+    "tests/test_price.py": "\"\"\"寒山民宿房价引擎的用例集，覆盖周末加价与节假日封禁。\n用例数据取自 8 月订单，已脱敏。\n\"\"\"\nimport unittest\n\n\ndef blackout_blocked(dow: str, holiday: bool) -> bool:\n    \"\"\"封禁日或节假日一律拒绝下单。\"\"\"\n    return holiday\n\n\nclass TestPriceRules(unittest.TestCase):\n    def test_weekend_surcharge(self):\n        \"\"\"周末按 1.15 倍上浮。\"\"\"\n        self.assertAlmostEqual(115.0, 100.0 * 1.15)\n\n    def test_holiday_blackout(self):\n        \"\"\"节假日封禁日不可下单。\"\"\"\n        self.assertTrue(blackout_blocked(\"mon\", True))\n\n    def test_midweek_floor_price(self):\n        \"\"\"工作日不低于保底价。\"\"\"\n        self.assertGreaterEqual(280, 260)\n",
+    "tests/运行记录-2026-09-28.txt": "================ 测试运行记录 2026-09-28 07:40 ================\n[运行环境] python3.11 · 寒山民宿房价引擎 · 夜间定时任务\nPASS test_weekend_surcharge (0.42s)\nPASS test_long_stay_discount (0.18s)\nFAIL test_holiday_blackout (0.36s)\nPASS test_child_bed_fee (0.11s)\nFAIL test_midweek_floor_price (0.29s)\nPASS test_deposit_rounding (0.07s)\nFAIL test_pet_fee_cap (0.15s)\nPASS test_invoice_title (0.09s)\nPASS test_coupon_stack (0.22s)\n--------------------------------------------------------------\n汇总：通过 6，失败 2（值班备注：失败原因待开发组上午确认）\n共 14 行\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "寒山民宿的房价引擎昨晚跑了一轮测试，记录在 tests/运行记录-2026-09-28.txt。只回答数字，不要单位。这一轮实际有几个用例失败？",
+      "expect": {
+        "expected_number": 3,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

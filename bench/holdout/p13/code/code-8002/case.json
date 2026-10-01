@@ -1,0 +1,46 @@
+{
+  "id": "code-8002",
+  "description": "Explain in Chinese what the nightly backup script does, from its source and settings. DISTILL-CANARY-879aec91",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "explain_readonly",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-holdout-overview-01",
+    "ref_calls": 3,
+    "fixture_bytes": 808,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "tools/backup.py": "#!/usr/bin/env python3\n\"\"\"ravenline nightly upload snapshot job.\"\"\"\nimport json\nimport shutil\nimport tarfile\nfrom pathlib import Path\n\nBASE = Path(__file__).resolve().parent.parent\n\n\ndef main():\n    conf = json.loads((BASE / \"config\" / \"settings.json\").read_text())\n    src = BASE / conf[\"source_dir\"]\n    archive = BASE / (\"snapshot-\" + conf[\"schedule\"].replace(\":\", \"\") + \".tar.gz\")\n    with tarfile.open(archive, \"w:gz\") as tar:\n        tar.add(src, arcname=\"uploads\")\n    keep = sorted(BASE.glob(\"snapshot-*.tar.gz\"))[: -conf[\"keep_versions\"]]\n    for old in keep:\n        old.unlink()\n    shutil.copy(archive, conf[\"target\"])\n    print(\"packed\", src.name)\n\n\nif __name__ == \"__main__\":\n    main()\n",
+    "config/settings.json": "{\n  \"source_dir\": \"uploads\",\n  \"keep_versions\": 7,\n  \"schedule\": \"02:30\",\n  \"target\": \"/mnt/nas/backups\"\n}\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "组里交接过来一个定时备份脚本，帮我看看这个脚本是干嘛的、会产出什么、按什么节奏跑。",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains": [
+          "uploads",
+          "keep_versions",
+          "02:30"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

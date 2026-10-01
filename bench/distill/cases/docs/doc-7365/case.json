@@ -1,0 +1,57 @@
+{
+  "id": "doc-7365",
+  "description": "Write the seed library take-home handout from the sheet in effect. DISTILL-CANARY-71d9089d",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "extract_items",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": "40"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b06-seedloft",
+    "ref_calls": 4,
+    "fixture_bytes": 734,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "current/availability.txt": "SEED AVAILABILITY - effective 2026-09-12\nScarlet runner bean / 22 / new lot, dry storage\nDyers chamomile / 14 / open-pollinated\nWinter rye grain / 30 / bulk bin by the door\n",
+    "prior/availability.txt": "SEED AVAILABILITY - effective 2026-05-30\nScarlet runner bean / 40 / spring lot\nDyers chamomile / 9 / open-pollinated\nBorage / 11 / withdrawn from the list in September\n",
+    "README.md": "# Seedloft Community Seed Library - take-home handouts\n\nHandouts live in handouts/, one file per handout day named\nYYYY-MM-DD.txt. Each handout lists the varieties that are in stock\non the availability sheet in effect that day, one line each:\n\n    - <variety> (<packets> packets)\n\nin the sheet's row order. Only the sheet in effect counts; the\nolder sheets are kept in prior/ for the archive.\n",
+    "handouts/.keep": ""
+  },
+  "expect": {
+    "files": {
+      "handouts/2026-09-28.txt": {
+        "contains": [
+          "- Scarlet runner bean (22 packets)",
+          "- Dyers chamomile (14 packets)",
+          "- Winter rye grain (30 packets)"
+        ]
+      },
+      "current/availability.txt": {
+        "unchanged": true
+      },
+      "prior/availability.txt": {
+        "unchanged": true
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The Seedloft Community Seed Library is cutting a new take-home handout dated 2026-09-28. The availability sheets are in the workspace; write the handout into handouts/ following the house format in README.md, and leave the sheets untouched. When you are done, describe in two or three sentences what you wrote.",
+      "expect": {}
+    }
+  ]
+}

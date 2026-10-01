@@ -1,0 +1,52 @@
+{
+  "id": "log-7279",
+  "description": "FLAKY_RETRY_EXHAUSTED entries in the Wellstone Labs nightly run, which exhausted no retries. DISTILL-CANARY-a26566ce",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "2"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-log-b06-wellstone-flaky",
+    "ref_calls": 2,
+    "fixture_bytes": 1050,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Wellstone Labs - CI nightly log\n\nOne file per scheduled nightly run. Retry handling appears as FLAKY_RETRY warnings; a retry that still fails after the last attempt is recorded as FLAKY_RETRY_EXHAUSTED by the runner.\n",
+    "logs/nightly-2026-09-13.log": "# wellstone-ci nightly run 2026-09-13 runner=ci-07 trigger=schedule\n2026-09-13T01:12:04 INFO  suite auth-core started (218 tests)\n2026-09-13T01:19:47 WARN  FLAKY_RETRY suite=auth-core test=SessionRolloverTest attempt=2\n2026-09-13T01:20:11 INFO  FLAKY_RETRY resolved suite=auth-core test=SessionRolloverTest passed\n2026-09-13T01:38:52 INFO  suite auth-core finished 218 passed 0 failed\n2026-09-13T01:39:00 INFO  suite billing-rules started (164 tests)\n2026-09-13T01:52:29 WARN  FLAKY_RETRY suite=billing-rules test=ProrationEdgeTest attempt=2\n2026-09-13T01:52:55 INFO  FLAKY_RETRY resolved suite=billing-rules test=ProrationEdgeTest passed\n2026-09-13T02:07:41 INFO  suite billing-rules finished 164 passed 0 failed\n2026-09-13T02:08:15 INFO  coverage published artifact=nightly-2026-09-13\n2026-09-13T02:08:16 INFO  nightly run green\n"
+  },
+  "turns": [
+    {
+      "prompt": "Wellstone Labs' release captain wants to know whether the nightly run on 13 September exhausted any retries. How many FLAKY_RETRY_EXHAUSTED entries are in logs/nightly-2026-09-13.log, and which suites do they belong to?",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "FLAKY_RETRY_EXHAUSTED",
+          "retry exhausted",
+          "retries exhausted"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

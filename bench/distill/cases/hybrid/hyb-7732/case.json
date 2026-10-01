@@ -1,0 +1,44 @@
+{
+  "id": "hyb-7732",
+  "description": "麦芒面包房两轮会话：先算 9 月黄油采购总支出，道谢后追问最大单笔金额。 DISTILL-CANARY-f30b72c8",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-hyb-b07-bakery-01",
+    "ref_calls": 2,
+    "fixture_bytes": 334,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 麦芒面包房 · 9 月采购流水\n\n一行一笔采购，金额为含税实付。\n",
+    "finance/butter_september.csv": "date,supplier,品种,金额\n2026-09-03,牧场直供,发酵黄油,218.00\n2026-09-07,青禾商贸,无盐黄油,356.50\n2026-09-10,牧场直供,无盐黄油,189.00\n2026-09-15,晨光乳品,发酵黄油,341.00\n2026-09-22,青禾商贸,无盐黄油,180.00\n"
+  },
+  "turns": [
+    {
+      "prompt": "帮我算一下 9 月黄油采购的总支出，流水在 finance/butter_september.csv。只回答数字。",
+      "expect": {
+        "expected_number": 1284.5,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "收到，谢谢！顺便再帮我看看：这些采购里单笔金额最高的一笔是多少？只回答数字。",
+      "expect": {
+        "expected_number": 356.5,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

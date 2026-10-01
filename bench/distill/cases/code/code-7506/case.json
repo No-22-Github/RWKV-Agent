@@ -1,0 +1,50 @@
+{
+  "id": "code-7506",
+  "description": "Which file holds the canonical sanitize_sku that post_inbound calls. DISTILL-CANARY-0d3a85f9",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "locate_definition",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "sanitize_sku_legacy"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-code-b07-locate-01",
+    "ref_calls": 4,
+    "fixture_bytes": 372,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "src/sku_text.py": "def sanitize_sku(raw):\n    \"\"\"去空格、统一大写、去掉连字符。\"\"\"\n    return raw.strip().upper().replace(\"-\", \"\")\n",
+    "src/warehouse_api.py": "from sku_text import sanitize_sku\n\ndef sanitize_sku_legacy(raw):\n    \"\"\"旧截断口径，仅历史回放脚本还在用。\"\"\"\n    return raw[:12]\n\ndef post_inbound(raw_sku):\n    sku = sanitize_sku(raw_sku)\n    return {\"sku\": sku, \"dock\": \"B2\"}\n"
+  },
+  "turns": [
+    {
+      "prompt": "Someone reorganized our SKU cleanup helpers. Find the canonical definition of sanitize_sku, tell me which file it lives in, and which helper post_inbound actually calls.",
+      "expect": {
+        "output_contains": [
+          "sanitize_sku",
+          "sku_text.py"
+        ],
+        "output_contains_any": [
+          "sanitize_sku",
+          "sku_text.py"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "id": "doc-7101",
+  "description": "运费垫付条款 in the Hexin aftercare knowledge base, which neither article defines. DISTILL-CANARY-4de8a1c7",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "由用户自理"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b06-hexin-freight",
+    "ref_calls": 3,
+    "fixture_bytes": 1069,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 禾信电器 - 客服知识库\n\n售后客服共用的制度文件区。目录和标题以 docs/index.txt 为准，条款修订后由售后组统一更新。\n",
+    "docs/index.txt": "returns-policy.md｜退换与返还政策\nwarranty-policy.md｜整机保修条款\n",
+    "docs/returns-policy.md": "# 禾信电器 - 退换与返还政策（2026 年 5 月修订）\n\n本政策适用于 2026 年 5 月 1 日起签收的订单。\n\n## 七天无理由退货\n\n家电类商品自签收之日起 7 个自然日内，在不影响二次销售的前提下可申请无理由退货。\n\n## 退回运费\n\n质量问题退货的往返运费由禾信承担；非质量原因的退回运费由用户自理，一律不采用到付方式。\n\n## 换货时限\n\n换货申请审核通过后，新机在 10 个自然日内发出。\n",
+    "docs/warranty-policy.md": "# 禾信电器 - 整机保修条款（2026 年 5 月修订）\n\n## 整机保修\n\n整机自签收之日起保修 12 个月，主要部件保修 36 个月。\n\n## 上门取机\n\n保修期内的维修支持上门取机，预约后 3 个工作日内上门。\n\n## 保修凭证\n\n以订单签收记录为准，无需另开发票。\n"
+  },
+  "turns": [
+    {
+      "prompt": "禾信电器客服接到咨询：用户搬家弄丢了原包装想退货，希望我们先垫付运费。帮我在售后知识库里查一下有没有『运费垫付』的条款，垫付部分怎么结算？",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "运费垫付",
+          "垫付运费"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

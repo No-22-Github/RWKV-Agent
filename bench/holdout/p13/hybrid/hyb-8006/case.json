@@ -1,0 +1,55 @@
+{
+  "id": "hyb-8006",
+  "description": "Three-turn session on a CI flakiness export: distinct flaky tests in August, worst offender, then the same definition re-run for September. DISTILL-CANARY-8d95ffe2",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 15
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-holdout-hyb-flaky-reshift-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1553,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "flaky-tests-2026.csv": "date,suite,test,failures,runs\n2026-08-04,checkout,checkout_guest_paid,3,20\n2026-08-06,checkout,checkout_coupon_stacking,1,20\n2026-08-08,checkout,checkout_guest_paid,2,20\n2026-08-11,checkout,checkout_address_validation,3,20\n2026-08-12,checkout,checkout_tax_rounding,1,20\n2026-08-13,checkout,checkout_guest_paid,4,20\n2026-08-15,checkout,checkout_pay_lift,1,20\n2026-08-18,checkout,checkout_coupon_stacking,2,20\n2026-08-19,checkout,checkout_tax_rounding,1,20\n2026-08-20,checkout,checkout_gift_card,2,20\n2026-08-22,checkout,checkout_session_expiry,1,20\n2026-08-25,checkout,checkout_guest_paid,1,20\n2026-08-26,checkout,checkout_3ds_timeout,5,20\n2026-08-28,checkout,checkout_guest_paid,4,20\n2026-08-30,checkout,checkout_email_receipt,1,20\n2026-09-02,checkout,checkout_guest_paid,2,20\n2026-09-04,checkout,checkout_coupon_stacking,1,20\n2026-09-09,checkout,checkout_address_validation,2,20\n2026-09-12,checkout,checkout_tax_rounding,1,20\n2026-09-15,checkout,checkout_gift_card,3,20\n2026-09-19,checkout,checkout_3ds_timeout,2,20\n2026-09-24,checkout,checkout_guest_paid,1,20\n2026-09-28,checkout,checkout_session_expiry,1,20\n2026-08-07,payments,refund_webhook_sign,1,40\n2026-08-21,payments,payout_batch_retry,2,40\n2026-09-10,payments,refund_webhook_sign,1,40\n2026-08-14,search,query_suggest_timeout,1,60\n2026-09-16,search,query_suggest_timeout,2,60\n2026-08-27,search,facet_cache_stale,1,60\n",
+    "README.md": "# Platform CI quality export\n\nOne row per suite x test x day where at least one failure was observed. A test counts as flaky in a month when it failed at least once that month.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The nightly CI export is in flaky-tests-2026.csv. How many distinct tests in the checkout suite were flaky in August 2026? Answer with the number alone.",
+      "expect": {
+        "expected_number": 9,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "Of those, how many times did the worst offender fail in August? Answer with the number alone.",
+      "expect": {
+        "expected_number": 14,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "Scratch August — same definition, same suite. How many distinct flaky checkout tests were there in September? Answer with the number alone.",
+      "expect": {
+        "expected_number": 7,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

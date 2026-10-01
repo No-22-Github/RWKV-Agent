@@ -1,0 +1,53 @@
+{
+  "id": "web-7521",
+  "description": "Look up the per-document row limit in a SaaS help-center page fetched by URL. DISTILL-CANARY-f0cc3f67",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-web-b06-yunfan-help",
+    "answer_style": "natural",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "云帆",
+      "url": "https://help.yunfan.example/limits",
+      "url_match": "help.yunfan.example/limits",
+      "title": "云帆进销存 · 单据数量上限说明",
+      "snippet": "整理了各单据的数量上限与超出后的处理方式。",
+      "published_at": "2026-08-12",
+      "content": "# 云帆进销存 · 单据数量上限说明\n\n单据上限用于保障查询速度，超出时请拆单。\n\n出库单：单张出库单最多可添加 200 行商品明细。\n入库单：单张入库单最多可添加 300 行商品明细。\n盘点单：一张盘点单最多覆盖 8 家门店。\n\n如需更高上限，可在「设置-单据」里向服务商申请扩容。\n"
+    },
+    {
+      "query_match": "云帆",
+      "url": "https://help.yunfan.example/billing",
+      "url_match": "help.yunfan.example/billing",
+      "title": "云帆进销存 · 服务套餐与账期",
+      "snippet": "套餐差异与发票开具说明。",
+      "published_at": "2026-07-30",
+      "content": "# 云帆进销存 · 服务套餐与账期\n\n标准版与旗舰版功能一致，旗舰版提供多仓与接口对接。发票在「账户-发票」里开具。\n"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "云帆进销存的帮助中心 https://help.yunfan.example/limits 整理了各类单据的数量上限。只回答数字，不要单位。单张出库单最多可以添加多少行商品明细？",
+      "expect": {
+        "expected_number": 200,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

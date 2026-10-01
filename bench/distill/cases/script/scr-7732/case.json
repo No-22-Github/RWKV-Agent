@@ -1,0 +1,58 @@
+{
+  "id": "scr-7732",
+  "description": "Write the mussel farm's packing day sheet so crew exports and shed returns net into one sheet. DISTILL-CANARY-2609375f",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "write_new",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "gross picked kg without the shed returns"
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "fam-scr-b06-fernbrae",
+    "ref_calls": 5,
+    "fixture_bytes": 1350,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "day_sheet.py": "\"\"\"Print Fernbrae Mussel Beds' packing day sheet.\n\nThe crew tablets write one export per month into pickers/, one row\nper sack:\n\n    sack_id,pick_date,bed,kg\n\nThe packing shed sends its sack returns the same evening into\nreturns/:\n\n    return_date,bed,kg\n\nThe day sheet nets the two: one line per date, in date order,\n\n    <date>,<sacks>,<net_kg>\n    TOTAL,<sacks>,<net_kg>\n\nwhere <sacks> counts the sacks picked that date and <net_kg> is\nthe picked kg minus the kg the shed returned that date. A\ndate that only carries returns still prints, with zero sacks.\nThe dates come from both folders together.\n\"\"\"\n\nif __name__ == \"__main__\":\n    raise SystemExit(\"not written yet\")\n",
+    "pickers/2026-09.csv": "sack_id,pick_date,bed,kg\nMS-4401,2026-09-03,Gull Point,168\nMS-4402,2026-09-03,Gull Point,155\nMS-4403,2026-09-08,Narrows,147\nMS-4404,2026-09-08,Gull Point,172\nMS-4405,2026-09-15,Narrows,150\nMS-4406,2026-09-21,Gull Point,165\n",
+    "returns/2026-09.csv": "return_date,bed,kg\n2026-09-03,Gull Point,36\n2026-09-08,Narrows,31\n2026-09-15,Gull Point,47\n2026-09-21,Narrows,25\n2026-09-24,Gull Point,29\n",
+    "README.md": "# Fernbrae Mussel Beds - packing day sheet\n\nday_sheet.py prints the packing day sheet the shed signs for.\nCrew exports land in pickers/; the packing shed's sack returns land\nin returns/ the same evening, and a date's net is the picked kg\nminus the returned kg for that date. The exports are the crews'\nown records.\n"
+  },
+  "expect": {
+    "files": {
+      "pickers/2026-09.csv": {
+        "unchanged": true
+      },
+      "returns/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "day_sheet.py",
+      "expected_stdout": "2026-09-03,2,287\n2026-09-08,2,288\n2026-09-15,1,103\n2026-09-21,1,140\n2026-09-24,0,-29\n2026-10-01,1,125\n2026-10-06,2,266\n2026-10-13,0,-25\nTOTAL,9,1155",
+      "hidden_files": {
+        "pickers/2026-10.csv": "sack_id,pick_date,bed,kg\nMS-4501,2026-10-01,Gull Point,159\nMS-4502,2026-10-06,Narrows,144\nMS-4503,2026-10-06,Gull Point,163\n",
+        "returns/2026-10.csv": "return_date,bed,kg\n2026-10-01,Gull Point,34\n2026-10-06,Narrows,41\n2026-10-13,Gull Point,25\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Fernbrae Mussel Beds' packing shed wants its day sheet back: day_sheet.py holds only the notes describing it. The crew exports land in pickers/ and the shed's sack returns land in returns/. Please write day_sheet.py so the sheet prints the way the notes describe, and so it keeps working as new exports land in either folder. The files in pickers/ and returns/ are the crews' own records and stay as they are. When you are done, describe in two or three sentences what your script does.",
+      "expect": {}
+    }
+  ]
+}

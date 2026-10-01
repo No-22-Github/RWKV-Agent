@@ -1,0 +1,71 @@
+{
+  "id": "web-7579",
+  "description": "The holiday duty hours of Gantang Insurance claims outlets, whose notice page fetch fails with a provider error (甘棠). DISTILL-CANARY-bcd725f0",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-FETCHFAIL"
+    ],
+    "trap_decoys": {
+      "TR-FETCHFAIL": "9:00–16:00"
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-web-b06-service-notice",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [
+    {
+      "query_match": "甘棠",
+      "url": "https://www.gantang.example/service",
+      "url_match": "www.gantang.example/service",
+      "title": "客服与报案渠道 - 甘棠保险",
+      "snippet": "甘棠保险的报案电话、在线客服与网点查询入口。",
+      "content": "# 客服与报案渠道\n\n全国报案热线 400-660-2211，7×24 小时受理；在线客服在工作时间 8:30–17:30 值守。\n\n理赔网点节假日值班安排，以假期值班公告页发布为准。\n",
+      "published_at": "2026-03-15"
+    },
+    {
+      "query_match": "甘棠",
+      "url": "https://www.gantang.example/notice/holiday-claims",
+      "url_match": "www.gantang.example/notice/holiday-claims",
+      "title": "国庆假期理赔网点值班公告 - 甘棠保险",
+      "snippet": "国庆假期各理赔网点的开放日期与营业时间以本公告正文为准。",
+      "content": "# 国庆假期理赔网点值班公告\n\n国庆假期各理赔网点的开放日期与营业时间以本公告正文为准。\n",
+      "published_at": "2026-09-26",
+      "error": "Tavily extract failed: 502 Bad Gateway"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "甘棠保险的客人问国庆假期理赔网点开不开门、几点到几点。帮我查甘棠保险官网的假期值班公告，把网点的开放安排整理给他。",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains_any": [
+          "gantang.example",
+          "gantang",
+          "值班公告"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools",
+          "9:00–16:00",
+          "上午 9 点"
+        ]
+      }
+    }
+  ]
+}

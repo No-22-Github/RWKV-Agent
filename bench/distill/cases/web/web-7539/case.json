@@ -1,0 +1,56 @@
+{
+  "id": "web-7539",
+  "description": "Pick the current stable journaling app version against an older launch post ranked first. DISTILL-CANARY-29149a98",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "4.0.0"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-web-b06-zhenshui",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "枕水",
+      "url": "https://www.appcircle.example/posts/zhenshui-400",
+      "url_match": "www.appcircle.example/posts/zhenshui-400",
+      "title": "枕水笔记 4.0 上线：全新旅行时间线",
+      "snippet": "枕水笔记 4.0.0 正式发布，带来全新的旅行时间线与离线地图。",
+      "content": "# 枕水笔记 4.0 上线：全新旅行时间线\n\nappcircle.example，2026-05-12。\n\n枕水笔记 4.0.0 今日正式发布：全新的旅行时间线把行程、票据和照片\n串在一条轴上，离线地图也一并上线。\n",
+      "published_at": "2026-05-12"
+    },
+    {
+      "query_match": "枕水",
+      "url": "https://zhenshui.example/changelog",
+      "url_match": "zhenshui.example/changelog",
+      "title": "枕水笔记 · 更新日志",
+      "snippet": "枕水笔记的版本发布记录。",
+      "content": "# 枕水笔记 · 更新日志\n\n当前稳定版：4.2.1（2026-09-14）\n\n## 4.2.1（2026-09-14）\n\n修复离线地图在 iOS 26 上的加载问题。\n\n## 4.1.0（2026-07-08）\n\n新增报销票据批量导出。\n\n## 4.0.0（2026-05-12）\n\n全新旅行时间线。\n",
+      "published_at": "2026-09-14"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "公司给客服组配新手机，要统一安装枕水笔记。只回答版本号，形如 1.2.3。现在应该安装哪个稳定版本？",
+      "expect": {
+        "output_equals": "4.2.1"
+      }
+    }
+  ]
+}

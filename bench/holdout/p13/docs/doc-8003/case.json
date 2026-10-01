@@ -1,0 +1,45 @@
+{
+  "id": "doc-8003",
+  "description": "Summarize the updated travel and expense policy in natural language: meal caps, mileage and approvals. DISTILL-CANARY-62eec327",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-holdout-docsummary-01",
+    "ref_calls": 2,
+    "fixture_bytes": 378,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "policies/expense-policy-2026.md": "# Travel and Expense Policy (effective 1 October 2026)\n\n## Meals\nWhile travelling, an individual meal is reimbursed up to $45. An itemized receipt is required for any meal over $25.\n\n## Mileage\nPersonal car use is reimbursed at $0.38 per mile. A trip log is required for any claim over 40 miles.\n\n## Approvals\nAny single expense over $600 needs manager approval before booking.\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "The updated expense policy just landed in our shared drive. Summarize it for the team channel in a few sentences: what the rules are now and where people most often get caught out.",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains": [
+          "receipt",
+          "mileage",
+          "October"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

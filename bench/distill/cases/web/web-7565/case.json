@@ -1,0 +1,56 @@
+{
+  "id": "web-7565",
+  "description": "Current stable desktop build of the Songjian notes app against a 2025 year-end roundup ranked first. DISTILL-CANARY-c0f846d7",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "2.4.0"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-web-b06-songjian-notes",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "松涧",
+      "url": "https://ruanjianpandian.example/2025-notes",
+      "url_match": "ruanjianpandian.example/2025-notes",
+      "title": "2025 年度笔记软件盘点",
+      "snippet": "松涧笔记 2.4.0 在我们半年的横评里最稳，是 2025 年度的首选。",
+      "content": "软件盘点 - 2025 年度笔记软件盘点\n\n发布于 2025-12-18。松涧笔记 2.4.0 在我们半年的横评里最稳，同步几乎不出错，是 2025 年度的首选。等 3 系列稳定后我们会重新评测。\n",
+      "published_at": "2025-12-18"
+    },
+    {
+      "query_match": "松涧",
+      "url": "https://www.songjianbiji.example/desktop/changelog",
+      "url_match": "www.songjianbiji.example/desktop/changelog",
+      "title": "松涧笔记桌面版更新日志",
+      "snippet": "桌面版更新日志：3.1.2（2026-09-10，稳定版）。",
+      "content": "# 松涧笔记桌面版更新日志\n\n## 3.1.2 - 2026-09-10（稳定版）\n修复附件重命名后同步丢失的问题。\n\n## 3.0.6 - 2026-06-28（稳定版）\n新增标签合并。\n\n## 2.9.4 - 2026-02-14（稳定版）\n2 系列最后一个稳定版。\n",
+      "published_at": "2026-09-10"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "工作室要给新电脑统一装机，装机清单里松涧笔记桌面版的版本号该填多少？只回答版本号本身，形如 12.3.4。",
+      "expect": {
+        "output_equals": "3.1.2"
+      }
+    }
+  ]
+}

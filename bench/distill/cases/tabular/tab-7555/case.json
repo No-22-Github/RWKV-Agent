@@ -1,0 +1,50 @@
+{
+   "id": "tab-7555",
+   "description": "September 2026 gap between invoiced fees and payments received; the receipts file also carries August payments DISTILL-CANARY-e5256f89",
+   "category": "tabular",
+   "tags": {
+      "scenario": "tabular",
+      "task_type": "reconcile",
+      "traps": [
+         "TR-DECOY"
+      ],
+      "trap_decoys": {
+         "TR-DECOY": 1410.15
+      },
+      "axes": [
+         "OBS"
+      ],
+      "level": "L1",
+      "family": "fam-tab-b06-willowmere-01",
+      "ref_calls": 3,
+      "fixture_bytes": 7737,
+      "status": "draft",
+      "version": 1,
+      "author": "llm:glm-5.3-flash-b06",
+      "reviewer": null,
+      "answer_style": "natural"
+   },
+   "web_fixture": [],
+   "files": {
+      "data/invoices_2026-09.csv": "invoice_id,issue_month,client,fee_gbp\nWI-2609921,2026-09,Barrowfields Stables,147.38\nWI-2609607,2026-09,Hollytree Cattery,79.84\nWI-2609488,2026-09,Oakenshaw Kennels,126.53\nWI-2609129,2026-09,Barrowfields Stables,45.18\nWI-2609880,2026-09,Oakenshaw Kennels,118.04\nWI-2609372,2026-09,Hollytree Cattery,174.60\nWI-2609204,2026-09,Barrowfields Stables,152.10\nWI-2609126,2026-09,Sedgeley Aviary,31.58\nWI-2609490,2026-09,Hollytree Cattery,226.92\nWI-2609843,2026-09,Barrowfields Stables,233.34\nWI-2609882,2026-09,Hollytree Cattery,138.44\nWI-2609666,2026-09,Oakenshaw Kennels,226.92\nWI-2609793,2026-09,Barrowfields Stables,99.33\nWI-2609396,2026-09,Barrowfields Stables,188.60\nWI-2609669,2026-09,Hollytree Cattery,114.48\nWI-2609841,2026-09,Hollytree Cattery,64.97\nWI-2609440,2026-09,Sedgeley Aviary,50.99\nWI-2609786,2026-09,Oakenshaw Kennels,134.16\nWI-2609701,2026-09,Barrowfields Stables,90.22\nWI-2609617,2026-09,Oakenshaw Kennels,206.93\nWI-2609135,2026-09,Oakenshaw Kennels,151.64\nWI-2609916,2026-09,Oakenshaw Kennels,77.19\nWI-2609277,2026-09,Oakenshaw Kennels,114.08\nWI-2609819,2026-09,Sedgeley Aviary,142.99\nWI-2609779,2026-09,Sedgeley Aviary,43.59\nWI-2609633,2026-09,Hollytree Cattery,192.37\nWI-2609850,2026-09,Oakenshaw Kennels,104.66\nWI-2609415,2026-09,Hollytree Cattery,125.90\nWI-2609272,2026-09,Oakenshaw Kennels,164.14\nWI-2609889,2026-09,Barrowfields Stables,236.15\nWI-2609980,2026-09,Barrowfields Stables,141.02\nWI-2609452,2026-09,Barrowfields Stables,111.96\nWI-2609375,2026-09,Sedgeley Aviary,123.71\nWI-2609977,2026-09,Hollytree Cattery,107.49\nWI-2609674,2026-09,Barrowfields Stables,136.52\nWI-2609157,2026-09,Barrowfields Stables,116.61\nWI-2609683,2026-09,Oakenshaw Kennels,212.05\nWI-2609523,2026-09,Barrowfields Stables,227.32\nWI-2609524,2026-09,Oakenshaw Kennels,199.87\nWI-2609653,2026-09,Sedgeley Aviary,25.34\nWI-2609128,2026-09,Sedgeley Aviary,123.50\nWI-2609663,2026-09,Barrowfields Stables,161.60\nWI-2609917,2026-09,Barrowfields Stables,210.12\nWI-2609789,2026-09,Sedgeley Aviary,31.98\nWI-2609117,2026-09,Hollytree Cattery,42.90\nWI-2609873,2026-09,Oakenshaw Kennels,28.13\nWI-2609212,2026-09,Sedgeley Aviary,78.66\nWI-2609171,2026-09,Barrowfields Stables,99.05\nWI-2609640,2026-09,Barrowfields Stables,59.32\nWI-2609763,2026-09,Barrowfields Stables,166.18\nWI-2609429,2026-09,Sedgeley Aviary,122.76\nWI-2609124,2026-09,Oakenshaw Kennels,126.86\nWI-2609531,2026-09,Sedgeley Aviary,108.11\nWI-2609359,2026-09,Barrowfields Stables,80.56\nWI-2609542,2026-09,Barrowfields Stables,232.60\nWI-2609506,2026-09,Hollytree Cattery,73.46\nWI-2609264,2026-09,Barrowfields Stables,32.60\nWI-2609794,2026-09,Oakenshaw Kennels,176.49\nWI-2609325,2026-09,Oakenshaw Kennels,142.11\nWI-2609764,2026-09,Oakenshaw Kennels,72.99\nWI-2609689,2026-09,Hollytree Cattery,109.90\nWI-2609536,2026-09,Sedgeley Aviary,166.86\nWI-2609228,2026-09,Hollytree Cattery,183.55\nWI-2609413,2026-09,Barrowfields Stables,213.24\nWI-2609417,2026-09,Hollytree Cattery,209.58\nWI-2609526,2026-09,Sedgeley Aviary,184.93\nWI-2609674,2026-09,Sedgeley Aviary,53.03\nWI-2609322,2026-09,Hollytree Cattery,151.98\nWI-2609988,2026-09,Oakenshaw Kennels,61.88\nWI-2609455,2026-09,Hollytree Cattery,106.26\nWI-2609790,2026-09,Hollytree Cattery,69.24\nWI-2609604,2026-09,Oakenshaw Kennels,152.15\nWI-2609499,2026-09,Hollytree Cattery,226.66\nWI-2609117,2026-09,Sedgeley Aviary,133.38\nWI-2609511,2026-09,Sedgeley Aviary,156.61\nWI-2609305,2026-09,Sedgeley Aviary,28.89\nWI-2609676,2026-09,Sedgeley Aviary,199.39\nWI-2609318,2026-09,Barrowfields Stables,97.91\nWI-2609957,2026-09,Sedgeley Aviary,170.01\nWI-2609452,2026-09,Oakenshaw Kennels,225.42\nWI-2609645,2026-09,Oakenshaw Kennels,190.11\nWI-2609141,2026-09,Barrowfields Stables,39.04\nWI-2609270,2026-09,Hollytree Cattery,53.60\nWI-2609440,2026-09,Barrowfields Stables,82.62\n",
+      "data/receipts_2026-09.csv": "receipt_id,value_month,client,amount_gbp\nWR-202609448,2026-09,Sedgeley Aviary,104.14\nWR-202609988,2026-09,Hollytree Cattery,87.61\nWR-202609664,2026-09,Oakenshaw Kennels,54.10\nWR-202608516,2026-08,Hollytree Cattery,93.96\nWR-202609907,2026-09,Hollytree Cattery,106.75\nWR-202609449,2026-09,Barrowfields Stables,203.13\nWR-202609900,2026-09,Hollytree Cattery,157.26\nWR-202609663,2026-09,Oakenshaw Kennels,41.48\nWR-202609373,2026-09,Barrowfields Stables,146.68\nWR-202609677,2026-09,Sedgeley Aviary,216.52\nWR-202609383,2026-09,Hollytree Cattery,123.42\nWR-202609947,2026-09,Hollytree Cattery,194.21\nWR-202609786,2026-09,Sedgeley Aviary,27.66\nWR-202609217,2026-09,Hollytree Cattery,44.71\nWR-202609904,2026-09,Hollytree Cattery,65.40\nWR-202609561,2026-09,Oakenshaw Kennels,59.83\nWR-202609262,2026-09,Barrowfields Stables,171.39\nWR-202609487,2026-09,Hollytree Cattery,118.55\nWR-202609828,2026-09,Sedgeley Aviary,143.29\nWR-202609312,2026-09,Oakenshaw Kennels,92.61\nWR-202609110,2026-09,Sedgeley Aviary,33.52\nWR-202609427,2026-09,Sedgeley Aviary,181.19\nWR-202609508,2026-09,Oakenshaw Kennels,109.12\nWR-202609424,2026-09,Hollytree Cattery,38.80\nWR-202609320,2026-09,Oakenshaw Kennels,48.94\nWR-202609365,2026-09,Oakenshaw Kennels,167.29\nWR-202609414,2026-09,Barrowfields Stables,141.44\nWR-202609183,2026-09,Barrowfields Stables,77.97\nWR-202609871,2026-09,Sedgeley Aviary,44.22\nWR-202609688,2026-09,Oakenshaw Kennels,44.46\nWR-202609499,2026-09,Sedgeley Aviary,227.26\nWR-202609291,2026-09,Sedgeley Aviary,33.83\nWR-202609692,2026-09,Sedgeley Aviary,195.44\nWR-202609203,2026-09,Sedgeley Aviary,77.86\nWR-202609120,2026-09,Hollytree Cattery,77.70\nWR-202609374,2026-09,Barrowfields Stables,111.38\nWR-202609122,2026-09,Hollytree Cattery,181.77\nWR-202609911,2026-09,Hollytree Cattery,87.53\nWR-202609983,2026-09,Sedgeley Aviary,131.05\nWR-202609896,2026-09,Barrowfields Stables,46.70\nWR-202608781,2026-08,Sedgeley Aviary,41.58\nWR-202609253,2026-09,Barrowfields Stables,63.61\nWR-202609427,2026-09,Barrowfields Stables,201.63\nWR-202609626,2026-09,Sedgeley Aviary,47.98\nWR-202609311,2026-09,Sedgeley Aviary,52.15\nWR-202609839,2026-09,Barrowfields Stables,142.28\nWR-202609940,2026-09,Hollytree Cattery,192.64\nWR-202609543,2026-09,Barrowfields Stables,63.30\nWR-202609982,2026-09,Barrowfields Stables,35.44\nWR-202609165,2026-09,Barrowfields Stables,79.31\nWR-202609662,2026-09,Oakenshaw Kennels,198.77\nWR-202609971,2026-09,Sedgeley Aviary,141.40\nWR-202609956,2026-09,Oakenshaw Kennels,27.34\nWR-202609597,2026-09,Sedgeley Aviary,61.88\nWR-202609526,2026-09,Hollytree Cattery,195.51\nWR-202609463,2026-09,Hollytree Cattery,38.40\nWR-202609241,2026-09,Barrowfields Stables,152.61\nWR-202609383,2026-09,Sedgeley Aviary,236.39\nWR-202609276,2026-09,Oakenshaw Kennels,146.28\nWR-202609107,2026-09,Hollytree Cattery,75.21\nWR-202609612,2026-09,Barrowfields Stables,138.67\nWR-202609754,2026-09,Oakenshaw Kennels,224.97\nWR-202609606,2026-09,Barrowfields Stables,76.25\nWR-202609829,2026-09,Oakenshaw Kennels,230.66\nWR-202609725,2026-09,Oakenshaw Kennels,97.44\nWR-202609324,2026-09,Sedgeley Aviary,234.06\nWR-202609881,2026-09,Hollytree Cattery,223.14\nWR-202609884,2026-09,Sedgeley Aviary,59.29\nWR-202609809,2026-09,Barrowfields Stables,92.04\nWR-202609480,2026-09,Sedgeley Aviary,207.53\nWR-202609854,2026-09,Barrowfields Stables,175.78\nWR-202609976,2026-09,Oakenshaw Kennels,152.83\nWR-202609626,2026-09,Hollytree Cattery,217.77\nWR-202609356,2026-09,Oakenshaw Kennels,62.90\nWR-202609683,2026-09,Oakenshaw Kennels,71.79\nWR-202609503,2026-09,Hollytree Cattery,131.43\nWR-202609965,2026-09,Sedgeley Aviary,107.55\nWR-202609141,2026-09,Barrowfields Stables,142.01\nWR-202609743,2026-09,Hollytree Cattery,198.71\nWR-202609185,2026-09,Hollytree Cattery,82.52\n",
+      "README.md": "# Willowmere Vet Clinic - September billing exports\n\ninvoices file: one row per fee note issued in September.\nreceipts file: one row per payment posted at the desk, valued in the\nmonth the money moved. August payments sit in the file from the\novernight re-run and belong to last month's statement.\n"
+   },
+   "turns": [
+      {
+         "prompt": "Willowmere Vet Clinic is chasing the September balance. The invoices and receipts exports are both in the workspace. Give the number alone, as digits, with no label. By how much did the fees invoiced in September 2026 exceed the payments received in September 2026?",
+         "expect": {
+            "expected_number": 1545.69,
+            "tolerance": 0.01,
+            "required_tools": [
+               "data_query"
+            ]
+         }
+      }
+   ],
+   "expect": {
+      "max_calls": {
+         "read_file": 1
+      }
+   }
+}

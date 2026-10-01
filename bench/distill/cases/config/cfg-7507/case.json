@@ -1,0 +1,53 @@
+{
+  "id": "cfg-7507",
+  "description": "Merged Huadong tenant limits after the tenant file overrides base.ini. DISTILL-CANARY-e85c2940",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "merge",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "1500"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b07-precedence-01",
+    "ref_calls": 4,
+    "fixture_bytes": 362,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "conf/base.ini": "[limits]\ndaily_api_calls = 1500\nbulk_rows = 800\nconcurrent_exports = 2\n[retention]\ndays = 90\n[quota_warning]\nthreshold = 0.9\n[notify]\nchannel = webhook-huadong\n# 合并口径：租户文件逐键覆盖 base，未覆盖的键沿用 base。\n",
+    "conf/tenant-huadong.ini": "[limits]\ndaily_api_calls = 3000\n[retention]\ndays = 30\n[notify]\nchannel = webhook-huadong-2\n",
+    "conf/tenant-north.ini": "[limits]\ndaily_api_calls = 1200\n"
+  },
+  "turns": [
+    {
+      "prompt": "华东租户要扩容。conf/ 下是 base 配置、他们的租户配置和合并口径。帮我算一下合并之后 daily_api_calls、bulk_rows、retention 各是多少，列给我。",
+      "expect": {
+        "output_contains": [
+          "30",
+          "3000",
+          "800"
+        ],
+        "output_contains_any": [
+          "30",
+          "3000",
+          "800"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

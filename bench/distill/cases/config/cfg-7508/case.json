@@ -1,0 +1,52 @@
+{
+  "id": "cfg-7508",
+  "description": "What the backup actually does per backup.yaml, stale runbook numbers excluded. DISTILL-CANARY-72f0b6d9",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "03:00"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b07-effective-01",
+    "ref_calls": 3,
+    "fixture_bytes": 339,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "config/backup.yaml": "target: s3://norlund-backups/core\nschedule: \"02:30 * * 1-5\"\nretention_days: 35\nverify_mode: checksum\n# 每次备份完成都做和校验，与 verify_mode 对应\ninclude_patterns: orders,ledger,journal\n",
+    "docs/runbook.md": "# Norlund backup runbook (stale)\n\nWritten when retention was 14 days and the window was 03:00.\nTrust the config file for current values.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Auditors want the current backup behavior. Read config/ and the runbook, then describe what backups actually do today.",
+      "expect": {
+        "output_contains": [
+          "02:30",
+          "35",
+          "s3://norlund-backups/core"
+        ],
+        "output_contains_any": [
+          "02:30",
+          "35",
+          "s3://norlund-backups/core"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

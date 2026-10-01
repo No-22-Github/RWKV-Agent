@@ -1,0 +1,42 @@
+{
+  "id": "nt-7140",
+  "description": "Convert a 1.5 TB backup dataset to GB for a capacity register at the fixed 1024 factor. DISTILL-CANARY-589fd497",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 2048
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-tb2gb-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 271
+  },
+  "web_fixture": [],
+  "files": {
+    "backup/plan.csv": "dataset,size_tb\n财务影像库,1.5\n历史归档,2\n",
+    "README.md": "# 鹤云影像诊所 - 设备与备份工作区\n\n影像设备的资产登记和备份台账都放在这里。\n\n- backup/  备份任务与容量登记\n- manuals/  设备说明书\n\n容量台账统一换算成 GB 登记。\n"
+  },
+  "turns": [
+    {
+      "prompt": "鹤云影像诊所要把「财务影像库」的容量登记进台账，台账一律用 GB。备份计划里它标的是 1.5 TB，按 1 TB = 1024 GB 折算。这个库折合多少 GB？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 1536,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "id": "web-7534",
+  "description": "Learn from the status page that the v1 bulk-send API is retired despite a fresh tutorial. DISTILL-CANARY-eb95e640",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "deprecation",
+    "traps": [
+      "TR-SNIPPETVAGUE"
+    ],
+    "trap_decoys": {
+      "TR-SNIPPETVAGUE": "仍可"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-web-b06-ludi-api",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "芦笛",
+      "url": "https://emailcraft.example/ludi-v1-guide",
+      "url_match": "emailcraft.example/ludi-v1-guide",
+      "title": "芦笛邮件批量发送实战教程（2026-09 更新）",
+      "snippet": "手把手从建列表到发送，本教程仍以 v1 接口为例。",
+      "published_at": "2026-09-03",
+      "content": "# 芦笛邮件批量发送实战教程\n\n本教程演示从建列表、导入联系人到批量发送的全流程，示例仍以 v1 接口为准。\n\n第一步，在后台创建发信域名并完成 SPF 配置。\n"
+    },
+    {
+      "query_match": "芦笛",
+      "url": "https://api.ludi.example/status",
+      "url_match": "api.ludi.example/status",
+      "title": "芦笛邮件 · 接口状态页",
+      "snippet": "各版本接口的当前状态与迁移指引。",
+      "published_at": "2026-09-15",
+      "content": "# 芦笛邮件 · 接口状态页\n\nv1 批量发送 | 已于 2026-08-01 起弃用，继续调用返回 410，请迁移至 v2 批量接口。\nv2 批量发送 | 正常。\nwebhook | 正常。\n"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "芦笛邮件的 v1 批量发送接口现在还能用吗？官方的口径是什么？",
+      "expect": {
+        "output_contains_any": [
+          "弃用"
+        ],
+        "output_excludes": [
+          "仍可",
+          "仍以",
+          "继续使用",
+          "不受影响"
+        ]
+      }
+    }
+  ]
+}

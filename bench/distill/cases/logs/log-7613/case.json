@@ -1,0 +1,51 @@
+{
+  "id": "log-7613",
+  "description": "总结花房滴灌故障日志（中文）为故障时段；阀门隔离后的手动测试是诱饵。 DISTILL-CANARY-5b084f27",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "10:55"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-b07-windowdecoy-01",
+    "ref_calls": 3,
+    "fixture_bytes": 603,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:distill-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "logs/drip-0711.log": "2026-07-11 03:40 3 区滴灌 阀门 DV-3 开阀超时 故障\n2026-07-11 04:05 3 区滴灌 阀门 DV-3 开阀超时 故障\n2026-07-11 04:30 3 区滴灌 阀门 DV-3 技工手动关闭 正常\n2026-07-12 10:20 3 区滴灌 阀门 DV-3 开阀超时 故障 手动测试\n2026-07-12 10:55 3 区滴灌 阀门 DV-3 电磁阀更换完成 正常\n",
+    "notes/维修记录.md": "沐云花房滴灌系统维修记录。\n\n原因：DV-3 电磁阀卡死，2026-07-12 更换。\n\n2026-07-12 白天的两条故障记录是更换前的手动测试，当时阀门已隔离，\n不计入故障时段。当天 3 区其余阀位巡检正常，无其他异常。\n"
+  },
+  "turns": [
+    {
+      "prompt": "沐云花房 3 区滴灌上周报了故障，园长要我写个经过说明。帮我把日志捋一捋：故障几点开始、几点被隔离开的、维修记录里说是什么坏了。",
+      "expect": {
+        "output_contains": [
+          "03:40",
+          "04:30",
+          "电磁阀"
+        ],
+        "output_contains_any": [
+          "03:40",
+          "04:30",
+          "电磁阀"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

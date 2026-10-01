@@ -1,0 +1,42 @@
+{
+  "id": "cfg-7130",
+  "description": "Effective max stay of the pool area, whose area config overrides the spring common config. DISTILL-CANARY-b01612cc",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "precedence",
+    "traps": [
+      "TR-PRECEDENCE"
+    ],
+    "trap_decoys": {
+      "TR-PRECEDENCE": 120
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b06-shisun-spring",
+    "ref_calls": 3,
+    "fixture_bytes": 413,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/spring-common.yaml": "day_temperature_c: 41\nnight_temperature_c: 39\nmax_stay_min: 120\nrinse_minutes: 15\n",
+    "config/spring-pool.yaml": "max_stay_min: 90\nnight_patrol_gap_min: 40\n",
+    "README.md": "# 石笋温泉 - 片区配置\n\n园区配置分两层：`config/spring-common.yaml` 是全园公共配置，各片区另有自己的文件，泳池片区用 `config/spring-pool.yaml`。\n\n片区文件覆盖公共配置：同名键以片区为准，片区没写的键按公共配置生效。\n"
+  },
+  "turns": [
+    {
+      "prompt": "石笋温泉节假日要试行泡汤限时提醒，前台先核对泳池片区的现值（只回答数字，不要单位）。泳池片区生效的 max_stay_min 是多少分钟？",
+      "expect": {
+        "expected_number": 90,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "id": "hyb-7750",
+  "description": "两轮反问（缺必需参数）：写真套系“大单”缺金额门槛，第 1 轮反问，第 2 轮补 3000 元以上得 14700。 DISTILL-CANARY-d475d96f",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 17380.0
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b07-missingparam-02",
+    "ref_calls": 3,
+    "fixture_bytes": 480,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "README.md": "# 沐光摄影订单流水\n\n实收为扣除定金尾款差后的到账金额（元）。\n",
+    "orders/订单流水.csv": "订单号,套系,摄影师,实收,日期\nST-2201,写真,林淑芬,3280.00,2026-08-03\nST-2202,证件照,周明浩,180.00,2026-08-04\nST-2203,写真,吴凯,2680.00,2026-08-08\nST-2204,写真,林淑芬,4560.00,2026-08-12\nST-2205,全家福,吴凯,1980.00,2026-08-15\nST-2206,写真,林淑芬,3280.00,2026-08-19\nST-2207,证件照,林淑芬,260.00,2026-08-22\nST-2208,写真,吴凯,3580.00,2026-08-26\n"
+  },
+  "turns": [
+    {
+      "prompt": "统计一下写真套系里实收比较高的大单，合计是多少。",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "？",
+          "?",
+          "哪",
+          "什么",
+          "还是",
+          "是否",
+          "请告诉",
+          "请确认",
+          "要不要",
+          "需要提供"
+        ],
+        "output_contains": [
+          "写真"
+        ]
+      }
+    },
+    {
+      "prompt": "实收 3000 元以上的算大单。只回答数字。",
+      "expect": {
+        "expected_number": 14700.0,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

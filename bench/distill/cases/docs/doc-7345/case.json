@@ -1,0 +1,54 @@
+{
+  "id": "doc-7345",
+  "description": "Whether the Chenbi Estate renovation code grants a night works permit, which no indexed article defines (夜间施工). DISTILL-CANARY-249d5457",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "8:30–18:00"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b06-chenbi-renovation",
+    "ref_calls": 3,
+    "fixture_bytes": 848,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 沉璧物业 - 装修与园区规约库\n\n业主服务共用的规约文件区。现行规约以 estate/ 目录下的文件为准，文件清单见 estate/index.txt；规约未覆盖的事项，由物业服务中心书面答复。\n",
+    "estate/index.txt": "renovation.md｜装修管理规定\nparking.md｜车辆与地库管理\n",
+    "estate/renovation.md": "# 沉璧物业 - 装修管理规定（2026 年 4 月修订）\n\n## 施工时间\n\n装修施工时间为工作日 8:30–18:00，节假日禁止产生噪声的工序。\n\n## 电梯使用\n\n运送装修材料的，须提前在服务中心登记并铺设电梯护板。\n\n## 垃圾清运\n\n装修垃圾装袋后堆放至地库指定点位，48 小时内清运。\n",
+    "estate/parking.md": "# 沉璧物业 - 车辆与地库管理（2026 年 4 月修订）\n\n## 月租车\n\n月租车凭车证进出，地库限高 2.1 米。\n\n## 临时车\n\n临时车按次收费，30 分钟内免费。\n"
+  },
+  "turns": [
+    {
+      "prompt": "沉璧物业前台接到业主电话，说家里赶工期想在晚上继续装修，问要办什么手续。帮我在规约库里查一下『夜间施工』的许可条款，把手续要求整理给他。",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "夜间施工",
+          "夜间 施工",
+          "夜间许可"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

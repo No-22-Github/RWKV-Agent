@@ -1,0 +1,53 @@
+{
+  "id": "cfg-7505",
+  "description": "Which keys drift between staging.env and prod.env, with the prod values. DISTILL-CANARY-c95b04f2",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "cn-tianjin-1"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b07-drift-01",
+    "ref_calls": 4,
+    "fixture_bytes": 347,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "envs/prod.env": "REPLICA_REGION=cn-beijing-2\nCACHE_TTL_SECONDS=600\nBACKFILL=off\nMAINTENANCE_WINDOW=SUN 02:00-04:00\nLOG_LEVEL=warn\nTRACE_SAMPLE=0.1\n",
+    "envs/staging.env": "REPLICA_REGION=cn-tianjin-1\nCACHE_TTL_SECONDS=600\nBACKFILL=on\nMAINTENANCE_WINDOW=SUN 03:00-05:00\nLOG_LEVEL=warn\nTRACE_SAMPLE=0.1\n",
+    "envs/replica-map.list": "prod    -> cn-beijing-2 主写，cn-shanghai-1 只读\nstaging -> cn-tianjin-1 单副本\n"
+  },
+  "turns": [
+    {
+      "prompt": "staging 和 prod 的配置都在 envs/ 下。帮我对比哪些键不一样，把 prod 这边的值原样列出来，我拿去跟运维对齐。",
+      "expect": {
+        "output_contains": [
+          "SUN 02:00-04:00",
+          "cn-beijing-2",
+          "off"
+        ],
+        "output_contains_any": [
+          "SUN 02:00-04:00",
+          "cn-beijing-2",
+          "off"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

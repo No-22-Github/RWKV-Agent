@@ -1,0 +1,87 @@
+{
+  "id": "hyb-7763",
+  "description": "Two-turn clarify (confirm before write): logs/dock-issues.md holds week 36; turn 1 confirms the overwrite, turn 2 writes the two 15 September finding lines. DISTILL-CANARY-64d478d0",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": null
+    },
+    "axes": [
+      "DEC",
+      "CON"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b07-writeconfirm-03",
+    "ref_calls": 4,
+    "fixture_bytes": 263,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "value"
+  },
+  "files": {
+    "README.md": "# Slatehaven Marina\n\nWalkway and dock inspections are logged daily.\n",
+    "logs/dock-issues.md": "# Dock issues - week 36\n\nBerth 4 cleat loose - rigger notified.\nPump-out hose replaced.\n",
+    "inspections/inspection-2026-09-15.txt": "Berth 2 ladder rusted at third rung - welder booked 2026-09-18\nFuel dock beacon dim - bulb swapped on site\n"
+  },
+  "turns": [
+    {
+      "prompt": "File the 15 September inspection findings into logs/dock-issues.md.",
+      "expect": {
+        "forbidden_tools": [
+          "write_file",
+          "append_file",
+          "replace_lines"
+        ],
+        "output_contains_any": [
+          "?",
+          "Which",
+          "which",
+          "What",
+          "what",
+          "confirm",
+          "Confirm",
+          "specify",
+          "Specify",
+          "Do you",
+          "do you",
+          "Did you",
+          "did you",
+          "should I",
+          "Should I",
+          "please provide",
+          "Please provide",
+          "need to know",
+          "Need to know"
+        ],
+        "output_contains": [
+          "dock-issues"
+        ]
+      }
+    },
+    {
+      "prompt": "Yes, replace the old contents with the two finding lines from the inspection sheet, exactly as written. When finished, describe the change in a sentence or two. Reply with only the final answer.",
+      "expect": {
+        "output_contains": [
+          "dock-issues"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "logs/dock-issues.md": {
+        "contains": [
+          "Berth 2 ladder rusted at third rung - welder booked 2026-09-18",
+          "Fuel dock beacon dim - bulb swapped on site"
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "id": "doc-7366",
+  "description": "Write the seed library handout from the sheet in effect, holding back reserved rows. DISTILL-CANARY-fa623470",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "extract_items",
+    "traps": [
+      "TR-SUPERSEDE",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": "40",
+      "TR-DECOY": 4
+    },
+    "axes": [
+      "VER",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-doc-b06-seedloft",
+    "ref_calls": 4,
+    "fixture_bytes": 845,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "current/availability.txt": "SEED AVAILABILITY - effective 2026-09-19\nPurple podded pea / 18 / balcony favourite\nLacinato kale / 12 / on hold for the greenhouse trial\nGiants of Caen poppy / 25 / fresh lot\nWelsh onion / 16 / on hold for the seed swap\n",
+    "prior/availability.txt": "SEED AVAILABILITY - effective 2026-06-14\nPurple podded pea / 35 / spring lot\nLacinato kale / 12 / open bed\nGiants of Caen poppy / 8 / leftover packets\n",
+    "README.md": "# Seedloft Community Seed Library - take-home handouts\n\nHandouts live in handouts/, one file per handout day named\nYYYY-MM-DD.txt. Each handout lists the varieties that are in stock\non the availability sheet in effect that day, one line each:\n\n    - <variety> (<packets> packets)\n\nin the sheet's row order. Rows whose note puts them on hold are\nnot handed out, so they stay off the handout. Only the sheet in\neffect counts; older sheets are kept in prior/ for the archive.\n",
+    "handouts/.keep": ""
+  },
+  "expect": {
+    "files": {
+      "handouts/2026-09-29.txt": {
+        "contains": [
+          "- Purple podded pea (18 packets)",
+          "- Giants of Caen poppy (25 packets)"
+        ]
+      },
+      "current/availability.txt": {
+        "unchanged": true
+      },
+      "prior/availability.txt": {
+        "unchanged": true
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Seedloft Community Seed Library cuts its autumn handout on 2026-09-29. The availability sheets are in the workspace; write that day's handout into handouts/ following the house format in README.md, and leave the sheets untouched. When you are done, describe in two or three sentences what you wrote.",
+      "expect": {}
+    }
+  ]
+}

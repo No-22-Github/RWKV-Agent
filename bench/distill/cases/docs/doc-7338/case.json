@@ -1,0 +1,55 @@
+{
+  "id": "doc-7338",
+  "description": "Count April pages whose link targets are missing, ignoring a same-name variant and mixed date formats. DISTILL-CANARY-e0a06af8",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "link_check",
+    "traps": [
+      "TR-NEARNAME",
+      "TR-DATEFMT"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": 1,
+      "TR-DATEFMT": 3
+    },
+    "axes": [
+      "ERR",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-doc-b06-jiyue",
+    "ref_calls": 3,
+    "fixture_bytes": 1542,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "官网页面清单.csv": "页面名称,链接路径,上线日期,维护人\n门店信息,pages/shop-notice.md,2026-02-14,蒋一苇\n花礼预订,pages/order-guide.md,2026.3.6,唐折枝\n婚礼花艺,pages/wedding-set.md,03/21/2026,竺秋原\n花艺课程,pages/flower-course.md,2026-04-03,郑迦南\n春季企划,pages/spring-plan.md,2026.4.18,沈书白\n媒体资料,pages/press-kit.md,04/10/2026,白榆\n花艺养护,pages/flower-care.md,2026-04-22,韩霁\n秋日市集,pages/autumn-market.md,10/04/2026,闻人夏\n企业订阅,pages/corporate-plan.md,2026-05-09,王峻岩\n花艺师团队,pages/florist-team.md,2026-05-27,陈苡晴\n夏季花束,pages/summer-bouquet.md,06/11/2026,桑野\n押花工坊,pages/pressed-workshop.md,2026-07-19,祁雪臣\n中秋节礼,pages/midautumn-gift.md,2026.8.30,林晚照\n周年活动,pages/anniversary.md,2026-09-26,苏合\n",
+    "站点备注.md": "# 官网资料库备注\n\n页面清单由建站系统导出，链接路径相对资料库根目录。\n\n上线日期写法不统一：横线与点分为 年-月-日，斜线为 月/日/年。\n",
+    "pages/flower-course-v2.md": "# 花艺课程（新版草稿）\n\n新版课程页草稿，尚未发布。\n",
+    "pages/press-kit.md": "# 媒体资料\n\n品牌资料与高清图打包下载。\n",
+    "pages/flower-care.md": "# 花艺养护\n\n常见花材的养护要点。\n",
+    "pages/shop-notice.md": "# 门店信息\n\n营业时间与地址。\n",
+    "pages/order-guide.md": "# 花礼预订\n\n预订流程与配送范围。\n",
+    "pages/wedding-set.md": "# 婚礼花艺\n\n婚礼布置套餐介绍。\n",
+    "pages/corporate-plan.md": "# 企业订阅\n\n企业周花订阅方案。\n",
+    "pages/florist-team.md": "# 花艺师团队\n\n花艺师介绍与作品集。\n",
+    "pages/summer-bouquet.md": "# 夏季花束\n\n夏季限定花束系列。\n",
+    "pages/midautumn-gift.md": "# 中秋节礼\n\n中秋礼盒预订说明。\n",
+    "pages/anniversary.md": "# 周年活动\n\n店庆活动安排。\n"
+  },
+  "turns": [
+    {
+      "prompt": "霁月花艺官网要在四月专题页上集中改版，先要摸清现状。对照资料库里实际存在的文件，页面清单里 2026 年 4 月上线的页面中，有几条链接路径找不到对应文件？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 2,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

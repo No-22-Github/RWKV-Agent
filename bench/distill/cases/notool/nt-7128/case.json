@@ -1,0 +1,49 @@
+{
+  "id": "nt-7128",
+  "description": "A quick are-you-there opener with no task yet; reply directly without any tool call DISTILL-CANARY-657e15a7",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b06-smalltalk-03",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 254
+  },
+  "web_fixture": [],
+  "files": {
+    "orders/upcoming.csv": "日期,订单,花材\n2026-10-14,开业花篮,红掌、散尾葵\n2026-10-15,生日花束,郁金香\n2026-10-16,宴会桌花,蝴蝶兰\n",
+    "README.md": "# 南枝花艺 - 花艺工作室\n\n订单与花材库存都在这里。\n\n- orders/  近期订单表\n- stock/  花材库存\n"
+  },
+  "turns": [
+    {
+      "prompt": "在吗？想问你个事儿。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "在的",
+          "我在",
+          "在呢",
+          "请说",
+          "说吧",
+          "什么事",
+          "怎么了",
+          "怎么啦",
+          "尽管说",
+          "你说"
+        ]
+      }
+    }
+  ]
+}

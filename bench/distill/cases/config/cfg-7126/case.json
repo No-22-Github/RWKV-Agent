@@ -1,0 +1,45 @@
+{
+  "id": "cfg-7126",
+  "description": "Effective alert delay of a pump station whose site YAML overrides the region baseline and carries a stale commented value. DISTILL-CANARY-80a6a8a5",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-DECOY",
+      "TR-PRECEDENCE"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 120,
+      "TR-PRECEDENCE": 30
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "fam-cfg-b06-yanqiao-pump",
+    "ref_calls": 3,
+    "fixture_bytes": 624,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/pump-station.yaml": "station: yanqiao-03\npoll_interval_s: 45\nalert_delay_s: 20\npump_rating_kw: 75\n# 2024-11 老值班表停用：alert_delay_s 曾按 120 秒试运行\n",
+    "config/region-baseline.json": "{\n  \"region\": \"yanqiao-river-basin\",\n  \"poll_interval_s\": 30,\n  \"alert_delay_s\": 30,\n  \"pump_rating_kw\": 55,\n  \"night_patrol_start\": 23\n}\n",
+    "README.md": "# 沿桥水务 - 泵站监控配置\n\n泵站监控配置分两层：\n\n- config/pump-station.yaml    泵站自己的站点配置（本仓是 3 号泵站）\n- config/region-baseline.json 流域统一基线\n\n站点配置覆盖基线：同名键以站点为准，站点没写的键按基线生效。站点文件里井号开头的是备注行。\n"
+  },
+  "turns": [
+    {
+      "prompt": "沿桥水务要给 3 号泵站调整报警延后时间，交接班记录要先填现值（只回答数字，不要单位）。3 号泵站现在生效的 alert_delay_s 是多少秒？",
+      "expect": {
+        "expected_number": 20,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

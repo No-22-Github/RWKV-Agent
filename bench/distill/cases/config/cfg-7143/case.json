@@ -1,0 +1,45 @@
+{
+  "id": "cfg-7143",
+  "description": "Raise the soaking pool loop's supply temperature on the guesthouse boiler. DISTILL-CANARY-c5257b71",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": "52"
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b06-hanshui",
+    "ref_calls": 3,
+    "fixture_bytes": 554,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/boiler.yaml": "# 寒水谷温泉民宿 锅炉房运行参数（2026 年秋）\n客房暖气:\n  供水温度: 52\n  回水温度: 40\n  夜间降档: 45\n泡池区:\n  供水温度: 41\n  循环频率: 30\n  保温温度: 46\n计量:\n  上报间隔: 60\n",
+    "README.md": "# 寒水谷温泉民宿 锅炉房\n\nconfig/boiler.yaml 是锅炉房控制器的参数文件，值班师傅直接改\n文件。配置分三段：客房暖气是客房供暖回路，泡池区是温泉泡池\n的热水回路（老检修单上把这一路叫「汤池区」，段名一直是\n泡池区），计量是抄表上报。\n"
+  },
+  "expect": {
+    "files": {
+      "config/boiler.yaml": {
+        "equals": "# 寒水谷温泉民宿 锅炉房运行参数（2026 年秋）\n客房暖气:\n  供水温度: 52\n  回水温度: 40\n  夜间降档: 45\n泡池区:\n  供水温度: 44\n  循环频率: 30\n  保温温度: 46\n计量:\n  上报间隔: 60\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "寒水谷温泉的客人嫌泡池上水温太慢，把汤池区那一路的供水温度提到 44（改 config/boiler.yaml）。其余档位都不要动。完成后用两三句话说明你改了哪里。",
+      "expect": {}
+    }
+  ]
+}

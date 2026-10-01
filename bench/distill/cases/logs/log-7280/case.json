@@ -1,0 +1,52 @@
+{
+  "id": "log-7280",
+  "description": "REFUND_REVERSED events in the Nuanlu POS log for 12 September, which records none. DISTILL-CANARY-290b5d24",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "locate_error",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "NP-20037"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-log-b06-nuanlu-refund",
+    "ref_calls": 2,
+    "fixture_bytes": 1684,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 暖炉咖啡 - 门店收银日志\n\n收银终端的应用日志，按天一个文件，每行一个 JSON 事件。\n\n事件：pos_open / SHIFT_CLOSE（开班、交班）、ORDER_PAID（收款）、REFUND_ISSUED（退款发放，带审批人）。\n\n撤销类操作以收银后台的审核记录为准，本目录只存原始日志。\n",
+    "logs/pos-2026-09-12.jsonl": "{\"ts\": \"2026-09-12T07:58:41+08:00\", \"level\": \"INFO\", \"event\": \"pos_open\", \"detail\": \"store nuanlu-01 till 2\"}\n{\"ts\": \"2026-09-12T09:14:22+08:00\", \"level\": \"INFO\", \"event\": \"ORDER_PAID\", \"detail\": \"order NP-20037 amount 42.00\", \"pay\": \"wx\"}\n{\"ts\": \"2026-09-12T10:02:55+08:00\", \"level\": \"INFO\", \"event\": \"ORDER_PAID\", \"detail\": \"order NP-20041 amount 18.50\", \"pay\": \"cash\"}\n{\"ts\": \"2026-09-12T11:26:10+08:00\", \"level\": \"INFO\", \"event\": \"REFUND_ISSUED\", \"detail\": \"order NP-20037 amount 42.00 reason=错单\", \"approver\": \"chen\"}\n{\"ts\": \"2026-09-12T12:40:31+08:00\", \"level\": \"INFO\", \"event\": \"ORDER_PAID\", \"detail\": \"order NP-20049 amount 67.00\", \"pay\": \"wx\"}\n{\"ts\": \"2026-09-12T13:15:47+08:00\", \"level\": \"INFO\", \"event\": \"ORDER_PAID\", \"detail\": \"order NP-20052 amount 33.50\", \"pay\": \"wx\"}\n{\"ts\": \"2026-09-12T15:08:14+08:00\", \"level\": \"INFO\", \"event\": \"REFUND_ISSUED\", \"detail\": \"order NP-20049 amount 67.00 reason=顾客取消\", \"approver\": \"chen\"}\n{\"ts\": \"2026-09-12T16:44:03+08:00\", \"level\": \"INFO\", \"event\": \"ORDER_PAID\", \"detail\": \"order NP-20058 amount 25.00\", \"pay\": \"ali\"}\n{\"ts\": \"2026-09-12T18:02:29+08:00\", \"level\": \"INFO\", \"event\": \"REFUND_ISSUED\", \"detail\": \"order NP-20052 amount 20.00 reason=部分退款\", \"approver\": \"liu\"}\n{\"ts\": \"2026-09-12T20:31:52+08:00\", \"level\": \"INFO\", \"event\": \"SHIFT_CLOSE\", \"detail\": \"till 2 day window closed\"}\n"
+  },
+  "turns": [
+    {
+      "prompt": "暖炉咖啡的店长在对 9 月 12 日的账，帮忙查一下 logs/pos-2026-09-12.jsonl 里有没有 REFUND_REVERSED 这种撤销退款的事件？有的话对应的订单号是什么？",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "REFUND_REVERSED",
+          "refund reversed",
+          "撤销退款"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

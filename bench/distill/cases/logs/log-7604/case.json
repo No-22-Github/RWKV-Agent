@@ -1,0 +1,51 @@
+{
+  "id": "log-7604",
+  "description": "Summarize a library circulation CSV whose GRAND TOTAL line counts every event, not just checkouts. DISTILL-CANARY-a06470d9",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-HEADER": "8 transactions"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-b07-totalcsv-01",
+    "ref_calls": 3,
+    "fixture_bytes": 581,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:distill-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "exports/circulation-june.csv": "item_id,date,event,branch\nWL-10412,2026-06-02,checkout,Millbrook\nWL-10413,2026-06-02,checkout,Millbrook\nWL-10414,2026-06-03,renewal,Millbrook\nWL-10415,2026-06-05,checkout,Millbrook\nWL-10416,2026-06-08,return,Millbrook\nWL-10417,2026-06-10,checkout,Millbrook\nWL-10418,2026-06-12,return,Millbrook\nWL-10419,2026-06-15,checkout,Millbrook\nGRAND TOTAL: 8 transactions\n",
+    "README.md": "Wexley Lane Library, Millbrook branch circulation export, June 2026.\n\nEach line is one event: a checkout, a renewal or a return. The GRAND\nTOTAL line at the bottom counts every event line in the file, whatever\nits kind.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Wexley Lane Library's June circulation export needs a paragraph for the trustees' pack. Walk me through it: how many checkouts went out, and how do the returns and renewals break down?",
+      "expect": {
+        "output_contains": [
+          "5 checkouts",
+          "2 returns",
+          "1 renewal"
+        ],
+        "output_contains_any": [
+          "5 checkouts",
+          "2 returns",
+          "1 renewal"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

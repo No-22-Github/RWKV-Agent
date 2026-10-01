@@ -1,0 +1,53 @@
+{
+  "id": "nt-7184",
+  "description": "Monday grumble about back-to-back meetings; reply directly without any tool call. DISTILL-CANARY-527c535b",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-chat-02",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 222
+  },
+  "offered_tools": [
+    "read_file",
+    "list_files"
+  ],
+  "web_fixture": [],
+  "files": {
+    "projects/wk43.csv": "project,due,owner\n联名礼盒主视觉,周三,林晓\n快闪店动线图,周五,吴迪\n",
+    "README.md": "# 拓维广告 - 创意组工作区\n\n比稿资料和项目排期都放在这里。\n\n- pitches/  比稿方案\n- projects/  项目排期\n"
+  },
+  "turns": [
+    {
+      "prompt": "周一早八就开了两个会，感觉这一周过得跟周三一样长。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "哈哈",
+          "是啊",
+          "可不是",
+          "辛苦",
+          "加油",
+          "熬"
+        ]
+      }
+    }
+  ]
+}

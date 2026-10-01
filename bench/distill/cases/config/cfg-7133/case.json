@@ -1,0 +1,54 @@
+{
+  "id": "cfg-7133",
+  "description": "temperature_unit is defined in neither config layer of a seafood cold chain monitor. DISTILL-CANARY-6c32383d",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "missing_keys",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": 20
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b06-haiyu-coldchain",
+    "ref_calls": 3,
+    "fixture_bytes": 557,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/coldchain.json": "{\n  \"depot\": \"haiyu-zhoushan-cold\",\n  \"coldchain_target_c\": -18,\n  \"door_alarm_after_min\": 5,\n  \"audit_tag_days\": 90\n}\n",
+    "config/coldchain-defaults.json": "{\n  \"coldchain_target_c\": -15,\n  \"door_alarm_after_min\": 3,\n  \"temp_log_interval_min\": 20,\n  \"haul_handover_min\": 40\n}\n",
+    "README.md": "# 海月水产 - 冷链监控配置\n\n冷链监控配置分两层：`config/coldchain.json` 是舟山库的实例配置，`config/coldchain-defaults.json` 是平台默认档案。\n\n实例配置覆盖默认档案：同名键以实例为准，实例没写的键回落默认档案；两层都没有的键没有生效值。\n"
+  },
+  "turns": [
+    {
+      "prompt": "海月水产的监控面板要换成华氏显示，值班先来查系统里配的温度单位。生效配置里 temperature_unit 现在是什么？",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "temperature_unit",
+          "temperature unit",
+          "温度单位"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools",
+          "20"
+        ]
+      }
+    }
+  ]
+}
