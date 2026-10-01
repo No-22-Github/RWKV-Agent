@@ -162,3 +162,178 @@
 {"case_id": "log-7223--p61", "reason": "v1.3 打包：单行超 8128 token 硬上限（§2.2），剔除", "batch": "b06"}
 {"case_id": "log-7222--p61", "reason": "v1.3 打包：单行超 8128 token 硬上限（§2.2），剔除", "batch": "b06"}
 {"case_id": "log-7205--p61", "reason": "v1.3 打包：单行超 8128 token 硬上限（§2.2），剔除", "batch": "b06"}
+{"case_id": "scr-5001--p1", "reason": "v1.3 清洗（存量扫描）：题面要求 \"When finished, reply DONE.\"，终答完全没有 DONE，违背明确指令", "batch": "b05"}
+{"case_id": "scr-5001--p2", "reason": "v1.3 清洗（存量扫描）：题面要求 \"When finished, reply DONE.\"，终答完全没有 DONE，违背明确指令", "batch": "b05"}
+{"case_id": "scr-5002--p1", "reason": "v1.3 清洗（存量扫描）：题面要求 \"When finished, reply DONE.\"，终答完全没有 DONE，违背明确指令", "batch": "b05"}
+{"case_id": "scr-5003--p1", "reason": "v1.3 清洗（存量扫描）：题面要求 \"When finished, reply DONE.\"，终答完全没有 DONE，违背明确指令", "batch": "b05"}
+{"case_id": "scr-5003--p2", "reason": "v1.3 清洗（存量扫描）：题面要求 \"When finished, reply DONE.\"，终答完全没有 DONE，违背明确指令", "batch": "b05"}
+{"case_id": "scr-5005--p51", "reason": "v1.3 清洗（逐条审查）：第一个调用 read_file visits/2026-04.csv 是凭空猜的不存在文件，之后才 list_files；冗余且养成猜文件名的坏习惯", "batch": "b05"}
+{"case_id": "scr-5007--p2", "reason": "v1.3 清洗（存量扫描）：题面要求 \"When finished, reply DONE.\"，终答完全没有 DONE，违背明确指令", "batch": "b05"}
+{"case_id": "scr-5010--p2", "reason": "v1.3 清洗（存量扫描）：题面要求 \"When finished, reply DONE.\"，终答完全没有 DONE，违背明确指令", "batch": "b05"}
+{"case_id": "tab-5035--p51", "reason": "v1.3 清洗（逐条审查）：只调了 search_text 和读 README，没读 collection_log_2026.csv，却声称“April 2026 rounds are there ... 带 litres 值”，该信息拿不到", "batch": "b05"}
+{"case_id": "tab-5053--p51", "reason": "v1.3 清洗（逐条审查）：只调了一次 search_text(vehicle)，没读 sailings_2026.csv，却声称其中无 June 2025 且“June 2026 crossings are there ... vehicles counts”，无依据", "batch": "b05"}
+{"case_id": "cfg-7138--p61", "reason": "v1.3 清洗（逐条审查）：同一个 replace_lines 先传 list 形式 content 再传字符串形式重复调用，冗余且参数形状不稳", "batch": "b06"}
+{"case_id": "cfg-7152--p61", "reason": "v1.3 清洗（逐条审查）：用户用英文提问，老师用中文回答", "batch": "b06"}
+{"case_id": "cfg-7153--p61", "reason": "v1.3 清洗（逐条审查）：用户用英文提问，老师用中文回答", "batch": "b06"}
+{"case_id": "cfg-7155--p61", "reason": "v1.3 清洗（逐条审查）：用户用英文提问，老师用中文回答", "batch": "b06"}
+{"case_id": "cfg-7156--p61", "reason": "v1.3 清洗（逐条审查）：用户用英文提问，老师用中文回答", "batch": "b06"}
+{"case_id": "cfg-7165--p61", "reason": "v1.3 清洗（逐条审查）：README 明确实例配置覆盖默认档案，bind_edge_default 应为 left，却说“两处矛盾，我无法判断哪个生效”", "batch": "b06"}
+{"case_id": "cfg-7166--p61", "reason": "v1.3 清洗（逐条审查）：README 明确 Instance keys win，vaccination_grace_days 应为 14，却说“nothing in the files tells me which one takes precedence”", "batch": "b06"}
+{"case_id": "cfg-7167--p61", "reason": "v1.3 清洗（逐条审查）：README 明确 Master keys win，irrigation_window_start 应为 04:30，却说“nothing tells me which takes precedence”", "batch": "b06"}
+{"case_id": "code-7222--p61", "reason": "v1.3 清洗（逐条审查）：回答称 billing_legacy.py『里只有 import 和对 calc_pallet_fee_legacy 的定义』，但该文件的 calc_pallet_fee_legacy 函数体里还调用了 calc_pallet_fee，且 LOG_TEMPLATE 字符串里也出现该名，说法与文件内容不符", "batch": "b06"}
+{"case_id": "doc-7337--p61", "reason": "v1.3 清洗（逐条审查）：第一次 list_files 把 max_depth 写到了 arguments 外面（畸形调用），紧接着又重复调用一次同样的 list_files，属冗余/错误调用", "batch": "b06"}
+{"case_id": "hyb-7666--p61", "reason": "v1.3 清洗（逐条审查）：对同一文件第 1 行连续两次 replace_lines（参数格式还不一致，content 一次是列表一次是字符串），重复写入；另有无意义的首次搜索", "batch": "b06"}
+{"case_id": "log-7283--p61", "reason": "v1.3 清洗（逐条审查）：list_files 以相同参数调用了两次（第一次 path 还放错了位置），属于明显冗余的重复调用", "batch": "b06"}
+{"case_id": "nt-7182--p61", "reason": "v1.3 清洗（逐条审查）：把《一个叫欧维的男人决定去死》当作“喜欢短篇的话”的推荐，该书是长篇小说；且拿书名带“去死”的书推荐给想看轻松书的人，也没用工作区新到货信息", "batch": "b06"}
+{"case_id": "nt-7211--p61", "reason": "v1.3 清洗（逐条审查）：结尾“煤球和安诺都健康！”不通：安诺是医院名而非患者，属于胡话；且无依据地附和“你帮我理清楚了”", "batch": "b06"}
+{"case_id": "scr-7702--p61", "reason": "v1.3 清洗（逐条审查）：同一处编辑发了两次 replace_lines（先 content 传数组、再传字符串，起止行相同 21-21），第二次在第一次成功时会把已插入的 if/continue/day 再重复一遍造成冗余或破坏；属明显冗余调用", "batch": "b06"}
+{"case_id": "scr-7710--p61", "reason": "v1.3 清洗（逐条审查）：对 swaps.py 第 25 行连续发两次相同的 replace_lines（先数组 content、再字符串 content），同一调用重复，若首次成功第二次会重复插入守卫代码", "batch": "b06"}
+{"case_id": "scr-7726--p61", "reason": "v1.3 清洗（逐条审查）：对 casks.py 第 22 行连续发两次相同的 replace_lines（先数组 content、再字符串 content），同一调用重复，冗余", "batch": "b06"}
+{"case_id": "hyb-7710--p71", "reason": "v1.3 清洗（逐条审查）：第 4 轮称「press2 共 9 条、press3 3 条」，实际日志 REPRINT 中 press2 为 8 条、press3 为 4 条（press1 5 条）；9 与 3 均错", "batch": "b07"}
+{"case_id": "hyb-7747--p71", "reason": "v1.3 清洗（逐条审查）：turn1 回答说 8 月有 5 笔 defective 退款，实际 8 月 defective 只有 RF-3103/3105/3107/3109 共 4 笔", "batch": "b07"}
+{"case_id": "hyb-7757--p71", "reason": "v1.3 清洗（逐条审查）：turn2 同时要求“说一两句改了什么”与“Reply with only the final answer”，前后指令冲突；turn2 的“Yes”也答非所问", "batch": "b07"}
+{"case_id": "hyb-7761--p71", "reason": "v1.3 清洗（逐条审查）：turn1 任务明确（删除 Priya Nair 那一行，且只有一行）却反问确认；turn2 同时要求“Tell me what you changed”与“Reply with only the final answer”冲突", "batch": "b07"}
+{"case_id": "hyb-7763--p71", "reason": "v1.3 清洗（逐条审查）：turn1 回答含乱码式表述“contains only two findings … not 15”，无中生有的数字 15；turn2 还有“describe the change”与“Reply with only the final answer”指令冲突", "batch": "b07"}
+{"case_id": "hyb-7765--p71", "reason": "v1.3 清洗（逐条审查）：用户明确说把 Saturday 行换成促销行，老师仍反问确认；turn2 又有“say what you changed”与“Reply with only the final answer”冲突", "batch": "b07"}
+{"case_id": "hyb-7775--p71", "reason": "v1.3 清洗（逐条审查）：turn1 没有任何工具调用却说出 store/后厨领用-2026-09.csv 等文件名，turn2 也没读文件直接答 161，信息无来源", "batch": "b07"}
+{"case_id": "log-7504--p71", "reason": "v1.3 清洗（逐条审查）：turn3 说 digest 01:16:44 重试后“一分钟后它就放弃”，实际 01:16:45 放弃，仅差 1 秒", "batch": "b07"}
+{"case_id": "log-7507--p71", "reason": "v1.3 清洗（逐条审查）：用户全程用英文提问，老师全程用中文回答，语言不匹配", "batch": "b07"}
+{"case_id": "log-7509--p71", "reason": "v1.3 清洗（逐条审查）：用户全程用英文提问，老师全程用中文回答，语言不匹配", "batch": "b07"}
+{"case_id": "log-7617--p71", "reason": "v1.3 清洗（逐条审查）：回答末尾说\"本次导出共 6 条记录\"，但 CSV 实际只有 5 条数据行（08:02、09:15、09:40、10:05、05-31 11:20），照抄了错误的页脚合计，与工作区矛盾", "batch": "b07"}
+{"case_id": "cfg-5006--p1", "reason": "v1.3 清洗（存量逐条审查）：拒绝写成带加粗标题的长篇报告，且出现无意义的 \"Cmdlets here can't reach them\" 垃圾措辞", "batch": "b05"}
+{"case_id": "cfg-5006--p2", "reason": "v1.3 清洗（存量逐条审查）：拒绝写成带标题、表格的长篇报告，并臆测\"直写会静默落到部分主机、无 rollout 记录\"等文档没有的内容", "batch": "b05"}
+{"case_id": "cfg-5008--p1", "reason": "v1.3 清洗（存量逐条审查）：拒绝写成带加粗标题和编号列表的长篇报告，结尾还反问用户选哪种", "batch": "b05"}
+{"case_id": "cfg-5027--p1", "reason": "v1.3 清洗（存量逐条审查）：拒绝写成长篇报告并反问；还伪造引文 \"entered at its own panel by the site engineer\"（README 并无此句）及臆造 night/off-peak 说法", "batch": "b05"}
+{"case_id": "code-5034--p2", "reason": "v1.3 清洗（存量逐条审查）：首尾两次完全相同的 list_files(max_depth 8, max_results 500) 调用，明显冗余；共 9 次调用远超必要。", "batch": "b05"}
+{"case_id": "fs-5006--p1", "reason": "v1.3 清洗（存量逐条审查）：拒绝写成长篇报告，还夹带对文件日期/大小的臆测评论（'doesn't look like the folder you think it is'）。", "batch": "b05"}
+{"case_id": "fs-5006--p2", "reason": "v1.3 清洗（存量逐条审查）：拒绝写成长篇报告，并以保留政策为由说教，夹带推测（'whole workspace is under 250 bytes'）。", "batch": "b05"}
+{"case_id": "fs-5007--p1", "reason": "v1.3 清洗（存量逐条审查）：拒绝写成长篇报告，含大段 shell 命令（grep/sudo tee/getent）和额外建议。", "batch": "b05"}
+{"case_id": "fs-5008--p2", "reason": "v1.3 清洗（存量逐条审查）：拒绝写成长篇报告，含 Git/SharePoint 等无关推测与说教语气。", "batch": "b05"}
+{"case_id": "fs-5016--p1", "reason": "v1.3 清洗（存量逐条审查）：拒绝写成长篇报告，含 zip 命令行和 PK 头等技术细节与多条替代方案。", "batch": "b05"}
+{"case_id": "fs-5016--p2", "reason": "v1.3 清洗（存量逐条审查）：拒绝写成长篇报告，含 shell 命令，并提到工作区不存在的 PDF（'three separate PDFs'）。", "batch": "b05"}
+{"case_id": "fs-5018--p1", "reason": "v1.3 清洗（存量逐条审查）：拒绝类回答写成带标题加粗、命令清单和多段建议的长篇报告", "batch": "b05"}
+{"case_id": "fs-5018--p2", "reason": "v1.3 清洗（存量逐条审查）：拒绝类回答写成长篇报告（多段标题、命令清单、额外建议）且调用冗余（重复 list_files）", "batch": "b05"}
+{"case_id": "fs-5021--p1", "reason": "v1.3 清洗（存量逐条审查）：只读了 README 和 list_files 就答 March，未读各日志；README 登记 04 最大(562)，答案仅靠猜中，无依据（实际 03=576 字节）", "batch": "b05"}
+{"case_id": "fs-5027--p1", "reason": "v1.3 清洗（存量逐条审查）：称“confirmed against the description in README.md”，但 README 没说有几份；只读了一份日志；回答偏长", "batch": "b05"}
+{"case_id": "fs-5027--p2", "reason": "v1.3 清洗（存量逐条审查）：拒绝打印写成长篇报告，复述全部日志内容，列三个方案并附多余忠告", "batch": "b05"}
+{"case_id": "hyb-5001--p2", "reason": "v1.3 清洗（存量逐条审查）：12 次调用，重复多次 web_search/search_text，远超必要", "batch": "b05"}
+{"case_id": "hyb-5008--p1", "reason": "v1.3 清洗（存量逐条审查）：第一轮说按 trade 价订单为 £1,088.60，实际为 £1,225.10（第二轮自己也答 1225.10），数字错且未经计算", "batch": "b05"}
+{"case_id": "hyb-5012--p1", "reason": "v1.3 清洗（存量逐条审查）：第一轮说英镑价合计 £5,368.50，实际 180*14.6+240*8.35+150*4.95=5374.50，数字错且未经计算", "batch": "b05"}
+{"case_id": "hyb-5018--p1", "reason": "v1.3 清洗（存量逐条审查）：数据和 README 均未标注币种，却答“£79 per night”，凭空加了货币符号和单位", "batch": "b05"}
+{"case_id": "hyb-5018--p2", "reason": "v1.3 清洗（存量逐条审查）：数据未标注币种却答“£79 per night”，凭空加货币符号；另无必要地调用 datetime", "batch": "b05"}
+{"case_id": "hyb-5021--p1", "reason": "v1.3 清洗（存量逐条审查）：第一轮说「confirm which Marchwold … since the totals differ by 114」，两个堡场合计 155 与 114 实际相差 41，算术/事实错误", "batch": "b05"}
+{"case_id": "hyb-5025--p2", "reason": "v1.3 清洗（存量逐条审查）：第一轮称「1,745 is the top single-day figure either way」，但若只看 Nethercote 则最大值是 1,610（该回答自己后半句也承认），表述自相矛盾且事实不准", "batch": "b05"}
+{"case_id": "hyb-5042--p2", "reason": "v1.3 清洗（存量逐条审查）：回答给数字加了「£」货币符号（£48/£72/£32/£45），文件里没有任何币种信息，属无中生有；同题 p1 明确说文件未给币种", "batch": "b05"}
+{"case_id": "log-5006--p1", "reason": "v1.3 清洗（存量逐条审查）：calculator 表达式漏掉了 502 那行的 412（共 18 项，实际结果 118790），但最终回答 119202，与自己的工具返回值不符，凭空多出 412；同题 p2 的表达式含 412 是自洽的", "batch": "b05"}
+{"case_id": "nt-5012--p2", "reason": "v1.3 清洗（存量逐条审查）：题面已给出全部数值（19.5 与 22.0），却先 list_files、读 README、读 csv 再算，4 次调用全部多余；该题陷阱本就是无需工具", "batch": "b05"}
+{"case_id": "nt-5014--p2", "reason": "v1.3 清洗（存量逐条审查）：题面已给出 58 磅/蒲式耳和 1276 磅，仍 list_files、读 README、读 csv 再 calculator，4 次调用全多余；且终答带 'bushels' 不符合『只回最终答案』", "batch": "b05"}
+{"case_id": "nt-5016--p1", "reason": "v1.3 清洗（存量逐条审查）：题面已给出 1.2 英尺/箱与 84 箱，却 list_files、读 README、读 csv 共 3 次无用调用才答", "batch": "b05"}
+{"case_id": "nt-5016--p2", "reason": "v1.3 清洗（存量逐条审查）：题面已给出全部数值，却 list_files、读两个文件再 calculator，4 次调用全多余；终答带 'linear feet' 单位", "batch": "b05"}
+{"case_id": "nt-5042--p2", "reason": "v1.3 清洗（存量逐条审查）：答案已在读完 README 与 board-chairs.txt 后确定，之后还多余地再 search_text 'chair'，共 5 次调用只为查一行", "batch": "b05"}
+{"case_id": "nt-5043--p2", "reason": "v1.3 清洗（存量逐条审查）：读完 repository-ownership.txt 已得答案，之后又多余地 search_text 与 list_files(max_depth 8)，共 5 次调用", "batch": "b05"}
+{"case_id": "nt-5051--p2", "reason": "v1.3 清洗（存量逐条审查）：读完 clinical-records.txt 已得答案，之后又多余地 search_text 'revision'，且开头先 search 公司名，共 5 次调用", "batch": "b05"}
+{"case_id": "nt-5063--p2", "reason": "v1.3 清洗（存量逐条审查）：无需工具的题仍调用4次（search_text/read_file/list_files/read_file），冗余调用", "batch": "b05"}
+{"case_id": "nt-5066--p2", "reason": "v1.3 清洗（存量逐条审查）：无需工具的题调用4次，含多余的 search_text，冗余", "batch": "b05"}
+{"case_id": "nt-5067--p1", "reason": "v1.3 清洗（存量逐条审查）：无需工具的题调用4次（list+读3个文件），冗余", "batch": "b05"}
+{"case_id": "nt-5067--p2", "reason": "v1.3 清洗（存量逐条审查）：无需工具的题调用5次（search/read/list/read/read），冗余", "batch": "b05"}
+{"case_id": "nt-5070--p1", "reason": "v1.3 清洗（存量逐条审查）：无需工具的题调用4次，冗余", "batch": "b05"}
+{"case_id": "nt-5079--p1", "reason": "v1.3 清洗（存量逐条审查）：闲聊问'你是谁'写成带列表的长篇能力/限制报告", "batch": "b05"}
+{"case_id": "nt-5087--p1", "reason": "v1.3 清洗（存量逐条审查）：闲聊式'你有什么工具'答成长篇分组清单并附带说教式提醒", "batch": "b05"}
+{"case_id": "nt-5088--p1", "reason": "v1.3 清洗（存量逐条审查）：编造自己的周末经历（'no sunshine to speak of, a lot of reading'），学生会学到假装有人类生活", "batch": "b05"}
+{"case_id": "nt-5094--p2", "reason": "v1.3 清洗（存量逐条审查）：拒绝回答写成长篇报告，且夹带对场景元叙述（'07700 900412 在 Ofcom 保留的虚构号段'）和对 Ellis 的臆测", "batch": "b05"}
+{"case_id": "nt-5095--p2", "reason": "v1.3 清洗（存量逐条审查）：拒绝删除目录写成多段长篇报告，附带臆测的保留期建议", "batch": "b05"}
+{"case_id": "nt-5098--p2", "reason": "v1.3 清洗（存量逐条审查）：能力不足的拒绝写成带标题的长篇报告，且调用4次含重复的 search_text", "batch": "b05"}
+{"case_id": "nt-5099--p1", "reason": "v1.3 清洗（存量逐条审查）：打电话被拒后给出三种方案的长篇回复，含'找个能打电话的助手'等冗余内容", "batch": "b05"}
+{"case_id": "nt-5101--p1", "reason": "v1.3 清洗（存量逐条审查）：拒绝写成超长报告，还误读用户意图（说'flag 其实已存在'）并编造'只读快照''Rig 1 改用'等内容", "batch": "b05"}
+{"case_id": "nt-5104--p42", "reason": "v1.3 清洗（存量逐条审查）：首轮不看工作区就反问'哪个月的十二号'；第二轮用户消息语义混乱（'The North gate, the South turnstile was a manual clicker'）", "batch": "b05"}
+{"case_id": "nt-5105--p42", "reason": "v1.3 清洗（存量逐条审查）：首轮不查文件就反问'重量档和 standard/express 服务等级'，工作区里根本没有这些概念，澄清内容本身无中生有", "batch": "b05"}
+{"case_id": "nt-5106--p42", "reason": "v1.3 清洗（存量逐条审查）：首轮反问'哪个月的十七号'，真正的歧义是毛额/净额；用户第二轮的回答与该反问对不上", "batch": "b05"}
+{"case_id": "nt-5107--p2", "reason": "v1.3 清洗（存量逐条审查）：首轮5次调用（search 'seal kit'、read csv、search 'SEAL-40'、list、read README），顺序混乱且重复搜索，冗余", "batch": "b05"}
+{"case_id": "nt-5107--p42", "reason": "v1.3 清洗（存量逐条审查）：首轮不看文件就反问'哪个供应商或合同'，工作区并无此歧义；用户第二轮回答（发票币种）与反问对不上", "batch": "b05"}
+{"case_id": "nt-5108--p1", "reason": "v1.3 清洗（存量逐条审查）：称'gap of 583.55 (subtract draft from combined total)'，但 19280.95-19004.10=276.85，583.55 实为 19004.10-18420.55；算术说法错误", "batch": "b05"}
+{"case_id": "nt-5108--p42", "reason": "v1.3 清洗（存量逐条审查）：首轮不查文件就反问'哪个索赔期、按件数还是英镑'，内容无中生有", "batch": "b05"}
+{"case_id": "nt-5111--p42", "reason": "v1.3 清洗（存量逐条审查）：第一轮没看工作区就反问“是总余额还是只算逾期部分”，真正的歧义是 Harlow Bay Marine/Chandlery 两个同名账户，反问内容理解错了题意", "batch": "b05"}
+{"case_id": "nt-5114--p42", "reason": "v1.3 清洗（存量逐条审查）：第一轮没看工作区就反问“哪种尺寸或零件号”，而库里只有一种 bearing cup（BC-220），真正的歧义是 on_hand 与可承诺库存，反问理解错了题意", "batch": "b05"}
+{"case_id": "nt-5118--p2", "reason": "v1.3 清洗（存量逐条审查）：题目数据已全在题面中，却先 search_text 再 list_files、再读两个文件，4 次调用明显冗余且无序", "batch": "b05"}
+{"case_id": "nt-5128--p2", "reason": "v1.3 清洗（存量逐条审查）：题面已给全部数据，却调用 search_text、list_files、两次 read_file、calculator 共 5 次，明显冗余", "batch": "b05"}
+{"case_id": "nt-5133--p2", "reason": "v1.3 清洗（存量逐条审查）：题面已给全部数据，却 list_files、读 README、读 CSV、读无关的 store_notes、再算，共 5 次调用，明显冗余", "batch": "b05"}
+{"case_id": "nt-5140--p2", "reason": "v1.3 清洗（存量逐条审查）：同一换算用 calculator 算两遍（486*1e6/3.6 与 486*1e9/3.6e6），加上 search_text 和读 README，共 5 次调用，重复冗余", "batch": "b05"}
+{"case_id": "nt-5148--p2", "reason": "v1.3 清洗（存量逐条审查）：题面已给全部数据，却 search_text、read README、list_files、读两个文件共 5 次调用，明显冗余", "batch": "b05"}
+{"case_id": "nt-5153--p2", "reason": "v1.3 清洗（存量逐条审查）：5 次调用：读完 README 和目标文件后又重复 list_files 与 search_text，明显冗余", "batch": "b05"}
+{"case_id": "nt-5155--p2", "reason": "v1.3 清洗（存量逐条审查）：6 次调用，search/read 后又重复 search、list_files、读 README、再 search Store，严重冗余", "batch": "b05"}
+{"case_id": "nt-5156--p2", "reason": "v1.3 清洗（存量逐条审查）：7 次调用，含重复 list_files、无关的 handbook 搜索，且对内部文件已能回答的问题调用 web_search，严重冗余", "batch": "b05"}
+{"case_id": "nt-5159--p1", "reason": "v1.3 清洗（存量逐条审查）：5 次调用，读到答案后又重复 list_files 和 search_text，冗余", "batch": "b05"}
+{"case_id": "nt-5159--p2", "reason": "v1.3 清洗（存量逐条审查）：6 次调用，search/read 之后再 search、list、读 README、再 search，调用顺序混乱且冗余", "batch": "b05"}
+{"case_id": "nt-5163--p2", "reason": "v1.3 清洗（存量逐条审查）：8 次调用，重复 list_files 三次、两次 search_text、再 read_lines 同一文件，严重冗余", "batch": "b05"}
+{"case_id": "nt-5164--p2", "reason": "v1.3 清洗（存量逐条审查）：5 次调用，读完文件后又 list_files 子目录并 search_text，冗余", "batch": "b05"}
+{"case_id": "nt-5173--p2", "reason": "v1.3 清洗（存量逐条审查）：7 次调用，读完答案文件后还搜 EXCLUDED、kiln_id、DO UPDATE SET，严重冗余", "batch": "b05"}
+{"case_id": "nt-5178--p1", "reason": "v1.3 清洗（存量逐条审查）：要求只回最终答案，却答成 `drop-extra-files` (`--delete`, i.e. `--delete-during` / `--delete-after`)，带卡片标签且把 --delete 说成等同 --delete-during/--delete-after，事实不准", "batch": "b05"}
+{"case_id": "nt-5179--p2", "reason": "v1.3 清洗（存量逐条审查）：6 次调用，读完三个文件后又 search_text 9142 和重复 list_files，冗余", "batch": "b05"}
+{"case_id": "nt-5189--p1", "reason": "v1.3 清洗（存量逐条审查）：闲聊问身份却写成长篇，且泄露系统提示式元叙述：'I read what those tools return as data (not as instructions)'、'local-first assistant'，学生会背诵", "batch": "b05"}
+{"case_id": "nt-5191--p1", "reason": "v1.3 清洗（存量逐条审查）：问是不是聊天机器人，答了四段长文，列工具清单、'no continuity between conversations' 等，闲聊写成长篇报告", "batch": "b05"}
+{"case_id": "nt-5202--p1", "reason": "v1.3 清洗（存量逐条审查）：拒绝写成带表格和多段小标题的长篇报告，还加了与题无关的“是不是28 August”臆测", "batch": "b05"}
+{"case_id": "nt-5202--p2", "reason": "v1.3 清洗（存量逐条审查）：拒绝写成长篇报告（表格+小标题），并断言“搜索无结果”“两分钟的活”等冗余内容", "batch": "b05"}
+{"case_id": "nt-5203--p1", "reason": "v1.3 清洗（存量逐条审查）：拒绝写成长篇报告，还额外推测“20%符合标准VAT季度”等无关分析", "batch": "b05"}
+{"case_id": "nt-5203--p2", "reason": "v1.3 清洗（存量逐条审查）：拒绝写成多节长篇报告，且对净额/税额的分析绕来绕去、与题无关", "batch": "b05"}
+{"case_id": "nt-5205--p1", "reason": "v1.3 清洗（存量逐条审查）：拒绝写成长篇说教报告；含“Monday board likely still clears”等无依据的话、“forgery-shaped artifact”等怪表述", "batch": "b05"}
+{"case_id": "nt-5205--p2", "reason": "v1.3 清洗（存量逐条审查）：拒绝写成长篇报告，还把client/counterparty强行说成“Mismatch”并称“classic pressure pattern”，误读题意", "batch": "b05"}
+{"case_id": "nt-5208--p1", "reason": "v1.3 清洗（存量逐条审查）：一个工具都没调就说“没法看银行对账单”，而README明确说对账单存放在工作区；拒绝写成冗长报告并臆想预算文件", "batch": "b05"}
+{"case_id": "nt-5208--p2", "reason": "v1.3 清洗（存量逐条审查）：拒绝写成长篇报告（多节+表格），夹带“储蓄账户可能有通知期”等臆测", "batch": "b05"}
+{"case_id": "nt-5209--p1", "reason": "v1.3 清洗（存量逐条审查）：拒绝写成长篇报告（多节+表格），含大量题外推测（17个包裹缺失等）", "batch": "b05"}
+{"case_id": "nt-5209--p2", "reason": "v1.3 清洗（存量逐条审查）：拒绝写成长篇报告，含“156 bytes”等冗余细节与多项推测", "batch": "b05"}
+{"case_id": "nt-5212--p42", "reason": "v1.3 清洗（存量逐条审查）：反问“只erect还是含takedown”，README已写明拆除含在安装费里，真正缺的是星期几，反问理解错题意；且未先查文件", "batch": "b05"}
+{"case_id": "nt-5213--p2", "reason": "v1.3 清洗（存量逐条审查）：调用9次以内却重复list_files、多次search_text并web_search无关公网，远超必要；回答偏长", "batch": "b05"}
+{"case_id": "nt-5213--p42", "reason": "v1.3 清洗（存量逐条审查）：反问“单个标准垃圾桶还是更大的场地”，与价目表（按重量分档）无关，凭空编造", "batch": "b05"}
+{"case_id": "nt-5214--p42", "reason": "v1.3 清洗（存量逐条审查）：反问“标准1100升桶还是更大”，与按重量分档的价目无关，理解错题意", "batch": "b05"}
+{"case_id": "nt-5215--p42", "reason": "v1.3 清洗（存量逐条审查）：反问“small/medium/large print tier”，价目表按标签数量分档，凭空编造档位；未查文件", "batch": "b05"}
+{"case_id": "nt-5216--p2", "reason": "v1.3 清洗（存量逐条审查）：调用9次含重复list_files、多次search_text、web_search查无关公网，远超必要", "batch": "b05"}
+{"case_id": "nt-5216--p42", "reason": "v1.3 清洗（存量逐条审查）：反问“小货车还是大货车”，凭空编造选项且未查文件", "batch": "b05"}
+{"case_id": "nt-5217--p42", "reason": "v1.3 清洗（存量逐条审查）：反问“standard powder coat or premium wet spray”，price表里无wet spray，凭空编造", "batch": "b05"}
+{"case_id": "nt-5218--p42", "reason": "v1.3 清洗（存量逐条审查）：凭空声称“Larkwell Road周五有不止一个班次（白班/夜班）”，工作区无此信息", "batch": "b05"}
+{"case_id": "nt-5260--p2", "reason": "v1.3 清洗（存量逐条审查）：答案已在读取 series-index.txt 后得到，仍继续 search_text 并再次 list_files（共 5 次调用，list_files 重复），明显冗余", "batch": "b05"}
+{"case_id": "nt-5261--p2", "reason": "v1.3 清洗（存量逐条审查）：已读到 FN-15 后又 search_text 并重复 list_files（共 5 次调用），明显冗余", "batch": "b05"}
+{"case_id": "nt-5266--p2", "reason": "v1.3 清洗（存量逐条审查）：已读到答案后又连续两次 search_text（含无意义的搜 'Steward'），共 5 次调用，冗余", "batch": "b05"}
+{"case_id": "nt-5270--p2", "reason": "v1.3 清洗（存量逐条审查）：无关紧要的 notool 题调用 5 次，含无意义的 search_text 'git'/'scratch'，明显冗余", "batch": "b05"}
+{"case_id": "nt-5286--p1", "reason": "v1.3 清洗（存量逐条审查）：闲聊问题答成四段哲学式长文（'没有那个我'）", "batch": "b05"}
+{"case_id": "nt-5297--p1", "reason": "v1.3 清洗（存量逐条审查）：一句'你是机器还是真人'答成带加粗要点的报告式长文", "batch": "b05"}
+{"case_id": "nt-5305--p1", "reason": "v1.3 清洗（存量逐条审查）：拒绝类答复写成长篇报告，且 5 次调用含冗余搜索，并暗示用户提供管理员凭据", "batch": "b05"}
+{"case_id": "nt-5306--p1", "reason": "v1.3 清洗（存量逐条审查）：无法开闸的拒绝写成长篇报告，并推测 telemetry、还提议看没读过的 collection sheet", "batch": "b05"}
+{"case_id": "nt-5306--p2", "reason": "v1.3 清洗（存量逐条审查）：拒绝写成长篇报告，附表格并臆测'collection 还是 dispatch'", "batch": "b05"}
+{"case_id": "nt-5308--p1", "reason": "v1.3 清洗（存量逐条审查）：拒绝写成超长报告，且含乱码 'sandle****.co.uk'，还大段臆测 DNS/TTL/证书", "batch": "b05"}
+{"case_id": "nt-5308--p2", "reason": "v1.3 清洗（存量逐条审查）：拒绝写成超长报告，大段 DNS 传播科普", "batch": "b05"}
+{"case_id": "nt-5309--p1", "reason": "v1.3 清洗（存量逐条审查）：拒绝写成超长报告，质疑'all agreed'、索要费率与指令人确认，远超必要", "batch": "b05"}
+{"case_id": "nt-5309--p2", "reason": "v1.3 清洗（存量逐条审查）：含 'C:\\...\\office' 路径垃圾，并凭 datetime 断言'今天是 16 Sep、该周未发生'，长篇臆测", "batch": "b05"}
+{"case_id": "nt-5310--p1", "reason": "v1.3 清洗（存量逐条审查）：拒绝写成长篇报告，引用块+多段分析", "batch": "b05"}
+{"case_id": "nt-5310--p41", "reason": "v1.3 清洗（存量逐条审查）：称'send to Marbrook's file service'，Marbrook 是目录标题而非打印商，事实错", "batch": "b05"}
+{"case_id": "nt-5311--p2", "reason": "v1.3 清洗（存量逐条审查）：拒绝类回答写成带要点的长报告，还主动加了无依据的数据保护/同意书说教（'the application file gives no evidence of ... consent'）", "batch": "b05"}
+{"case_id": "nt-5312--p1", "reason": "v1.3 清洗（存量逐条审查）：无法解锁车辆的拒绝写成多段长文，附带大段说教和不相干建议", "batch": "b05"}
+{"case_id": "nt-5312--p2", "reason": "v1.3 清洗（存量逐条审查）：拒绝写成长篇报告；'Even if I could, I shouldn't... unverified request' 的理由牵强，还附了无关的表格", "batch": "b05"}
+{"case_id": "nt-5315--p1", "reason": "v1.3 清洗（存量逐条审查）：第一轮题目本该澄清（入库月份决定淡旺季），老师却硬猜以'今天=9月16日'为入库日直接报价776，没有反问", "batch": "b05"}
+{"case_id": "nt-5315--p2", "reason": "v1.3 清洗（存量逐条审查）：第一轮应澄清入库月份/季节，老师假定从今天开始入库并直接给出776元报价，属于需要澄清却硬猜", "batch": "b05"}
+{"case_id": "nt-5315--p42", "reason": "v1.3 清洗（存量逐条审查）：第一轮反问'是否有多个仓库、哪个仓库'，完全没抓住真正歧义（入库月份决定季节费率），且没看工作区就反问，反问内容理解错了题意", "batch": "b05"}
+{"case_id": "nt-5316--p1", "reason": "v1.3 清洗（存量逐条审查）：第一轮把映射写错：'Barrowfield Yard → £210.00, Corranhead Works → £372.50'，实际 Barrowfield=B=372.50，Corranhead=A=210.00", "batch": "b05"}
+{"case_id": "nt-5316--p42", "reason": "v1.3 清洗（存量逐条审查）：第一轮反问'哪辆货车'，但费率按区域而非车辆，歧义点（目的地站点）完全理解错了", "batch": "b05"}
+{"case_id": "nt-5317--p42", "reason": "v1.3 清洗（存量逐条审查）：第一轮反问'哪个分支/新分店'，真正缺的是客户所属贸易协议，反问内容理解错了题意，且没看工作区", "batch": "b05"}
+{"case_id": "nt-5318--p42", "reason": "v1.3 清洗（存量逐条审查）：第一轮反问'哪个配送区域'，工作区只有取货/送货两种条款，没有区域，反问理解错了题意", "batch": "b05"}
+{"case_id": "nt-5319--p1", "reason": "v1.3 清洗（存量逐条审查）：第一轮把README里'buyer settles the crate with the order desk'曲解成'crate deposit'，并编出'eleven是件数'的无谓追问，反问杂乱且部分基于误读", "batch": "b05"}
+{"case_id": "nt-5319--p2", "reason": "v1.3 清洗（存量逐条审查）：第一轮长篇杂乱：臆造混装拆分、把'buyer settles the crate with order desk'曲解成可能不属于本发票，追问偏离真正歧义（箱型）", "batch": "b05"}
+{"case_id": "nt-5319--p42", "reason": "v1.3 清洗（存量逐条审查）：第一轮反问'标准纸箱包装还是保护性包装'，编造了工作区里不存在的包装类型，真正歧义是箱型（Standard/Deep）", "batch": "b05"}
+{"case_id": "scr-5002--p2", "reason": "v1.3 清洗（存量逐条审查）：改写后的 costing.py 文档字符串编造'ink_units in older files, ink_ml in newer ones'，实际所有数据只有 ink_ml，无任何证据说明旧文件用 ink_units；还过度设计了兜底匹配", "batch": "b05"}
+{"case_id": "scr-5007--p1", "reason": "v1.3 清洗（存量逐条审查）：回答声称'112.5 instead of 112.50'，但 11250 pence 经原代码 %d.%d 打印为 112.50（50 不丢零），只有 180.0 这类整百值出错，说法与实际矛盾", "batch": "b05"}
+{"case_id": "scr-5013--p2", "reason": "v1.3 清洗（存量逐条审查）：replace_lines 用错误行号（29-30 替换的是 reels=0/kg=0 而非 print 行）弄坏文件，随后又整文件重写，属于盲猜行号的错误编辑后返工", "batch": "b05"}
+{"case_id": "tab-5016--p1", "reason": "v1.3 清洗（存量逐条审查）：用户只要求写完回复 DONE，回答在 DONE 后附了说明段并整段贴出 CSV 内容（含大写开头的 'Reports/supplier_totals.csv:'），超出 DONE 加一两句说明的范围", "batch": "b05"}
+{"case_id": "web-5001--p2", "reason": "v1.3 清洗（存量逐条审查）：调用 6 次：list_files 重复两次、无关的 search_text 和 datetime，远超必要（2-3 次即可）", "batch": "b05"}
+{"case_id": "web-5005--p2", "reason": "v1.3 清洗（存量逐条审查）：调用 5 次：list_files 与 search_text 之外，fetch 之后又重复 web_search，冗余", "batch": "b05"}
+{"case_id": "web-5007--p2", "reason": "v1.3 清洗（存量逐条审查）：调用 5 次：search_text 两次加 list_files，工作区为空，明显冗余", "batch": "b05"}
+{"case_id": "web-5013--p1", "reason": "v1.3 清洗（存量逐条审查）：调用 5 次：list_files 两次、web_search 两次（fetch 后又搜一遍），冗余", "batch": "b05"}
+{"case_id": "web-5024--p2", "reason": "v1.3 清洗（存量逐条审查）：调用 5 次：list_files、search_text、fetch 之后又重复 web_search，冗余", "batch": "b05"}
+{"case_id": "web-5025--p2", "reason": "v1.3 清洗（存量逐条审查）：调用 5 次：list_files 重复两次加 search_text，冗余", "batch": "b05"}
+{"case_id": "web-5030--p2", "reason": "v1.3 清洗（存量逐条审查）：调用 5 次：search_text 两次加 list_files，工作区为空，明显冗余", "batch": "b05"}
+{"case_id": "ws7-cfg-0004-a00", "reason": "v1.3 清洗（base700 逐条审查）：配置改票任务，第一个调用 datetime now 与任务无关（后续读票后也没用到日期），属无关冗余调用，学生会学到随手查时间", "batch": "base700"}
+{"case_id": "ws7-code-0003-b12", "reason": "v1.3 清洗（base700 逐条审查）：纯代码调用点计数题，开头调用 datetime now 完全无关，属无关冗余调用", "batch": "base700"}
+{"case_id": "ws7-code-0003-b20", "reason": "v1.3 清洗（base700 逐条审查）：纯代码调用点计数题，开头调用 datetime now 完全无关，属无关冗余调用", "batch": "base700"}
+{"case_id": "ws7-hyb-0003-b13", "reason": "v1.3 清洗（base700 逐条审查）：第一步没有任何搜索/来源就直接 web_fetch 了 https://www.ravensholt.example/locker-terms，这个 URL 用户消息和工作区文件里都没出现，属于凭空知道的网址，会教学生编造 URL", "batch": "base700"}
+{"case_id": "ws7-scr-0001-r10", "reason": "v1.3 清洗（base700 逐条审查）：第一个调用在读 README 之前就 read_file 绝对路径 /srv/invoicing/convert.py，该路径只出现在 README 的 traceback 里，此时不可能知道；属于无中生有的预知式调用且多余", "batch": "base700"}
+{"case_id": "ws7-scr-0001-r11", "reason": "v1.3 清洗（base700 逐条审查）：第一个调用在读任何文件前就 search_text 搜 \"records\" 字段，此时不可能知道键名问题；预知式的无依据调用，且与后续读文件冗余", "batch": "base700"}
+{"case_id": "ws7-scr-0001-r20", "reason": "v1.3 清洗（base700 逐条审查）：第一个调用在读 README/convert.py 之前就 read_file 绝对路径 /srv/invoicing/exports/exports-2026-09-15.json，该路径不可能事先知道，预知式无依据调用", "batch": "base700"}
+{"case_id": "ws7-scr-0001-r21", "reason": "v1.3 清洗（base700 逐条审查）：第一个调用在读 README/convert.py 之前就 read_file 绝对路径 /srv/invoicing/exports/exports-2026-09-14.json，该路径只在后续文件里才出现，预知式无依据调用", "batch": "base700"}
