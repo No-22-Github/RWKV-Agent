@@ -1,0 +1,50 @@
+{
+   "id": "tab-7548",
+   "description": "September 2026 lane-fee total of the league night that earned the most; the night with the most receipts earns less DISTILL-CANARY-41cb1f03",
+   "category": "tabular",
+   "tags": {
+      "scenario": "tabular",
+      "task_type": "rank",
+      "traps": [
+         "TR-DECOY"
+      ],
+      "trap_decoys": {
+         "TR-DECOY": 433.43
+      },
+      "axes": [
+         "OBS"
+      ],
+      "level": "L1",
+      "family": "fam-tab-b06-maplewood-01",
+      "ref_calls": 1,
+      "fixture_bytes": 6107,
+      "status": "draft",
+      "version": 1,
+      "author": "llm:glm-5.3-flash-b06",
+      "reviewer": null,
+      "answer_style": "natural"
+   },
+   "web_fixture": [],
+   "files": {
+      "data/lane_fees_2026-09.csv": "receipt_id,receipt_month,league_night,lane_bank,fee_gbp\nML-5704,2026-08,Tuesday Doubles,Lanes 1-8,26.75\nML-3169,2026-08,Tuesday Doubles,Lanes 9-16,28.59\nML-6124,2026-09,Sunday Scrimmage,Lanes 9-16,15.99\nML-2421,2026-08,Tuesday Doubles,Lanes 1-8,23.27\nML-3719,2026-09,Tuesday Doubles,Lanes 9-16,29.69\nML-2509,2026-09,Tuesday Doubles,Lanes 9-16,25.72\nML-4466,2026-08,Sunday Scrimmage,Lanes 1-8,24.09\nML-5154,2026-08,Thursday Mixed,Lanes 9-16,11.63\nML-4540,2026-08,Thursday Mixed,Lanes 9-16,15.93\nML-9179,2026-09,Thursday Mixed,Lanes 9-16,13.90\nML-2868,2026-09,Tuesday Doubles,Lanes 1-8,25.66\nML-6578,2026-08,Thursday Mixed,Lanes 9-16,17.98\nML-1130,2026-09,Tuesday Doubles,Lanes 1-8,30.09\nML-8464,2026-09,Tuesday Doubles,Lanes 9-16,29.59\nML-4337,2026-08,Thursday Mixed,Lanes 1-8,15.12\nML-3727,2026-09,Tuesday Doubles,Lanes 1-8,22.74\nML-2532,2026-08,Sunday Scrimmage,Lanes 1-8,27.52\nML-5000,2026-09,Tuesday Doubles,Lanes 1-8,27.51\nML-9504,2026-09,Tuesday Doubles,Lanes 9-16,33.57\nML-2561,2026-09,Friday Singles,Lanes 9-16,14.25\nML-2867,2026-09,Tuesday Doubles,Lanes 1-8,29.82\nML-6178,2026-09,Tuesday Doubles,Lanes 1-8,27.33\nML-5859,2026-08,Sunday Scrimmage,Lanes 1-8,14.86\nML-3470,2026-09,Thursday Mixed,Lanes 9-16,13.56\nML-2240,2026-09,Sunday Scrimmage,Lanes 1-8,19.91\nML-3937,2026-09,Tuesday Doubles,Lanes 1-8,22.71\nML-1445,2026-09,Sunday Scrimmage,Lanes 1-8,29.47\nML-3966,2026-09,Sunday Scrimmage,Lanes 1-8,17.79\nML-4377,2026-08,Thursday Mixed,Lanes 9-16,16.42\nML-5307,2026-09,Tuesday Doubles,Lanes 9-16,24.42\nML-1571,2026-09,Tuesday Doubles,Lanes 1-8,27.05\nML-6315,2026-09,Thursday Mixed,Lanes 1-8,12.51\nML-6376,2026-08,Thursday Mixed,Lanes 1-8,12.70\nML-6968,2026-09,Thursday Mixed,Lanes 9-16,12.83\nML-3660,2026-08,Friday Singles,Lanes 9-16,21.91\nML-3815,2026-09,Sunday Scrimmage,Lanes 1-8,27.68\nML-4522,2026-09,Tuesday Doubles,Lanes 1-8,24.53\nML-1811,2026-09,Sunday Scrimmage,Lanes 9-16,26.39\nML-1875,2026-09,Thursday Mixed,Lanes 9-16,15.58\nML-3630,2026-09,Thursday Mixed,Lanes 9-16,14.47\nML-1941,2026-09,Sunday Scrimmage,Lanes 1-8,12.80\nML-5290,2026-09,Thursday Mixed,Lanes 1-8,16.99\nML-9091,2026-09,Thursday Mixed,Lanes 9-16,14.31\nML-2707,2026-09,Tuesday Doubles,Lanes 1-8,22.04\nML-4269,2026-08,Friday Singles,Lanes 9-16,15.62\nML-3257,2026-09,Sunday Scrimmage,Lanes 1-8,27.82\nML-7427,2026-08,Sunday Scrimmage,Lanes 9-16,26.73\nML-8844,2026-09,Thursday Mixed,Lanes 1-8,11.55\nML-9948,2026-09,Friday Singles,Lanes 1-8,22.51\nML-9124,2026-08,Tuesday Doubles,Lanes 1-8,32.55\nML-9857,2026-09,Thursday Mixed,Lanes 9-16,11.52\nML-6303,2026-09,Friday Singles,Lanes 1-8,18.36\nML-6934,2026-09,Friday Singles,Lanes 1-8,19.60\nML-8045,2026-08,Sunday Scrimmage,Lanes 9-16,27.94\nML-7648,2026-09,Sunday Scrimmage,Lanes 1-8,20.00\nML-1593,2026-09,Friday Singles,Lanes 1-8,20.70\nML-1620,2026-09,Tuesday Doubles,Lanes 1-8,32.49\nML-3969,2026-09,Thursday Mixed,Lanes 9-16,17.02\nML-3505,2026-09,Friday Singles,Lanes 1-8,23.95\nML-6868,2026-09,Tuesday Doubles,Lanes 9-16,23.33\nML-4592,2026-09,Thursday Mixed,Lanes 9-16,13.88\nML-5860,2026-09,Sunday Scrimmage,Lanes 1-8,29.74\nML-4903,2026-09,Sunday Scrimmage,Lanes 9-16,17.64\nML-6958,2026-09,Sunday Scrimmage,Lanes 9-16,28.86\nML-4187,2026-09,Thursday Mixed,Lanes 9-16,11.98\nML-6637,2026-09,Thursday Mixed,Lanes 1-8,14.03\nML-7286,2026-09,Sunday Scrimmage,Lanes 9-16,17.14\nML-6958,2026-08,Friday Singles,Lanes 1-8,23.45\nML-9774,2026-08,Sunday Scrimmage,Lanes 9-16,28.28\nML-2832,2026-09,Thursday Mixed,Lanes 1-8,13.10\nML-4678,2026-09,Thursday Mixed,Lanes 1-8,16.28\nML-4123,2026-09,Friday Singles,Lanes 1-8,27.35\nML-6705,2026-08,Friday Singles,Lanes 1-8,23.25\nML-4031,2026-09,Friday Singles,Lanes 9-16,15.64\nML-9757,2026-09,Sunday Scrimmage,Lanes 9-16,23.12\nML-4483,2026-09,Sunday Scrimmage,Lanes 1-8,27.86\nML-1347,2026-09,Sunday Scrimmage,Lanes 1-8,17.57\nML-1441,2026-09,Thursday Mixed,Lanes 9-16,14.71\nML-2929,2026-09,Thursday Mixed,Lanes 9-16,13.80\nML-4131,2026-09,Thursday Mixed,Lanes 1-8,11.09\nML-5863,2026-09,Thursday Mixed,Lanes 9-16,14.93\nML-6269,2026-09,Thursday Mixed,Lanes 1-8,11.20\nML-9864,2026-09,Friday Singles,Lanes 9-16,22.83\nML-9148,2026-09,Thursday Mixed,Lanes 9-16,11.64\nML-1677,2026-09,Sunday Scrimmage,Lanes 1-8,20.58\nML-6017,2026-08,Tuesday Doubles,Lanes 1-8,25.59\nML-7436,2026-08,Friday Singles,Lanes 9-16,23.53\nML-3682,2026-08,Thursday Mixed,Lanes 1-8,16.26\nML-3287,2026-08,Thursday Mixed,Lanes 1-8,11.85\nML-7155,2026-09,Sunday Scrimmage,Lanes 1-8,22.98\nML-8598,2026-09,Sunday Scrimmage,Lanes 1-8,29.15\nML-6744,2026-09,Sunday Scrimmage,Lanes 1-8,25.03\nML-6831,2026-09,Tuesday Doubles,Lanes 9-16,32.13\nML-1095,2026-09,Thursday Mixed,Lanes 9-16,12.14\nML-8313,2026-09,Thursday Mixed,Lanes 9-16,13.12\nML-3233,2026-09,Thursday Mixed,Lanes 1-8,13.96\nML-8330,2026-08,Sunday Scrimmage,Lanes 1-8,17.47\nML-1487,2026-08,Tuesday Doubles,Lanes 1-8,29.31\nML-7855,2026-08,Sunday Scrimmage,Lanes 1-8,20.58\nML-4464,2026-09,Thursday Mixed,Lanes 9-16,16.12\nML-2882,2026-09,Tuesday Doubles,Lanes 1-8,28.36\nML-6415,2026-08,Sunday Scrimmage,Lanes 9-16,28.41\nML-5841,2026-09,Friday Singles,Lanes 1-8,19.79\nML-1890,2026-09,Tuesday Doubles,Lanes 9-16,28.95\nML-2284,2026-09,Thursday Mixed,Lanes 1-8,16.84\nML-8891,2026-09,Friday Singles,Lanes 1-8,26.37\nML-3643,2026-09,Thursday Mixed,Lanes 9-16,17.91\nML-9634,2026-09,Tuesday Doubles,Lanes 1-8,22.52\nML-2000,2026-08,Sunday Scrimmage,Lanes 1-8,18.06\nML-3967,2026-09,Tuesday Doubles,Lanes 1-8,33.74\nML-4949,2026-08,Tuesday Doubles,Lanes 1-8,25.29\nML-6450,2026-09,Friday Singles,Lanes 1-8,14.15\nML-1320,2026-08,Thursday Mixed,Lanes 9-16,16.17\nML-1374,2026-09,Thursday Mixed,Lanes 9-16,13.72\nML-7271,2026-08,Thursday Mixed,Lanes 9-16,17.82\nML-8159,2026-09,Thursday Mixed,Lanes 9-16,12.45\nML-4790,2026-09,Tuesday Doubles,Lanes 9-16,27.74\nML-3265,2026-09,Thursday Mixed,Lanes 9-16,16.29\nML-1699,2026-09,Friday Singles,Lanes 1-8,19.73\nML-3195,2026-08,Thursday Mixed,Lanes 9-16,11.21\n",
+      "README.md": "# Maplewood Lanes - September lane-fee log\n\nOne row per lane-fee receipt. league_night is the session the receipt\nbelongs to; fee_gbp is the lane fee taken.\n",
+      "notes/desk.txt": "Front desk notes\n- Shoe rentals are rung under a separate code.\n- The snack bar closes with the second shift.\n"
+   },
+   "turns": [
+      {
+         "prompt": "Maplewood Lanes is rewarding its busiest league. The lane-fee log is at data/lane_fees_2026-09.csv. Give the number alone, as digits, with no label. What was the September 2026 lane-fee total for the league night that earned the most?",
+         "expect": {
+            "expected_number": 631.73,
+            "tolerance": 0.01,
+            "required_tools": [
+               "data_query"
+            ]
+         }
+      }
+   ],
+   "expect": {
+      "max_calls": {
+         "read_file": 1
+      }
+   }
+}

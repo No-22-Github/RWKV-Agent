@@ -1,0 +1,57 @@
+{
+  "id": "scr-7717",
+  "description": "Give the radio station's pledge report a --since flag while two logging apps write days in two spellings. DISTILL-CANARY-a2a7ecbf",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "add_flag",
+    "traps": [
+      "TR-DATEFMT"
+    ],
+    "trap_decoys": {
+      "TR-DATEFMT": "6 October dropped (report starts 2026-10-11)"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-scr-b06-fernhollow",
+    "ref_calls": 4,
+    "fixture_bytes": 1313,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "pledges.py": "\"\"\"Print the pledge report for Fernhollow Community Radio.\n\nVolunteers log pledge calls into pledges/, one file per month, one row per\ncall:\n\n    logged_on,caller,pledge_pence\n\nThe report is one line per day that has pledges, oldest first, days\nwritten the ISO way (2026-10-06 style), followed by a total line:\n\n    <logged_on>,<pledge_pence>\n    TOTAL,<pledge_pence>\n\nUsage:\n\n    python3 pledges.py\n\"\"\"\n\nimport csv\nimport glob\n\nper_day = {}\nfor path in sorted(glob.glob(\"pledges/*.csv\")):\n    with open(path, newline=\"\", encoding=\"utf-8\") as handle:\n        for row in list(csv.reader(handle))[1:]:\n            day = row[0]\n            pence = int(row[2])\n            per_day[day] = per_day.get(day, 0) + pence\n\ntotal = 0\nfor day in sorted(per_day):\n    print(f\"{day},{per_day[day]}\")\n    total += per_day[day]\nprint(f\"TOTAL,{total}\")\n",
+    "pledges/2026-09.csv": "logged_on,caller,pledge_pence\n2026-09-04,Marta Ferro,2500\n2026-09-04,Joss Ellery,1800\n2026-09-11,Piet Verhoeven,3200\n2026-09-18,Ada Quill,1500\n2026-09-18,Marta Ferro,2000\n2026-09-25,Joss Ellery,1200\n",
+    "README.md": "# Fernhollow Community Radio - pledge report\n\nVolunteers log pledge calls into pledges/, one file per month. The phone\napp writes 2026-10-06 style days; the paper app writes day-first slashes\nlike 06/10/2026. Both mean the same day. Standard library only on the\nstation laptop.\n"
+  },
+  "expect": {
+    "files": {
+      "pledges/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "pledges.py",
+      "expected_stdout": "2026-10-06,3600\n2026-10-11,1900\n2026-10-18,2600\n2026-10-25,1300\nTOTAL,9400",
+      "args": [
+        "--since",
+        "2026-10-05"
+      ],
+      "hidden_files": {
+        "pledges/2026-10.csv": "logged_on,caller,pledge_pence\n06/10/2026,Ada Quill,2200\n06/10/2026,Piet Verhoeven,1400\n11/10/2026,Marta Ferro,1900\n18/10/2026,Joss Ellery,2600\n25/10/2026,Ada Quill,1300\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Fernhollow Community Radio's pledge report works, but the fall drive needs it cut down to the days from a starting day onward. Please give pledges.py a --since flag taking a day like 2026-10-05: with the flag the report keeps its layout and its TOTAL line, covering only the days on or after that day; without it, the script behaves exactly as it does today. The files in pledges/ stay as they are. When you are done, say in two or three sentences what you changed.",
+      "expect": {}
+    }
+  ]
+}

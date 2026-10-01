@@ -1,0 +1,41 @@
+{
+  "id": "cfg-8013",
+  "description": "Effective per-store fee rate after merging a store-delta sheet with city rates that carry a floor rule. DISTILL-CANARY-f35b6bfc",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "merge",
+    "traps": [
+      "TR-RULEFILE"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": 2.2
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-holdout-cfg-storerate-01",
+    "ref_calls": 3,
+    "fixture_bytes": 364,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "stores.csv": "门店,城市,差异费率(千分比)\n虹桥店,上海,2.6\n徐汇店,上海,2.2\n滨江店,杭州,沿用\n运河店,杭州,2.9\n望江店,杭州,沿用\n",
+    "cities.yaml": "# 城市费率与合并规则（单位：千分比）\nrates:\n  上海: 2.8\n  杭州: 2.4\nmerge_rule: 门店差异表里的数值优先于城市费率\nfloor_rule: 差异费率低于 2.5 时按 2.5 执行（保底）\n"
+  },
+  "turns": [
+    {
+      "prompt": "澜桥咖啡的手续费率按门店差异表（stores.csv）和城市费率（cities.yaml）合并生效。徐汇店现在生效的费率是千分之几？只回答数字。",
+      "expect": {
+        "expected_number": 2.5,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

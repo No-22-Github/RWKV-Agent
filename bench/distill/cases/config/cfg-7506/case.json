@@ -1,0 +1,52 @@
+{
+  "id": "cfg-7506",
+  "description": "service.yaml against the Wrenfield launch checklist: what is missing. DISTILL-CANARY-37d1a6b8",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "missing_keys",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "s3://wrenfield-audit"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b07-gaps-01",
+    "ref_calls": 3,
+    "fixture_bytes": 307,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "config/service.yaml": "trace_endpoint: http://collector.obs.internal:4318\nsentry_dsn: off\nfeature_flags:\n  bulk_export: on\n# audit_sink: s3://wrenfield-audit\n",
+    "runbooks/launch.md": "# Launch checklist (Wrenfield)\n\nservice.yaml must set trace_endpoint, sentry_dsn and a\nfeature_flags block with bulk_export and audit_sink. A commented key does not count.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The Wrenfield launch review is on Friday. Compare config/service.yaml with runbooks/launch.md and tell me what is still missing and what is already in place.",
+      "expect": {
+        "output_contains": [
+          "audit_sink",
+          "bulk_export",
+          "http://collector.obs.internal:4318"
+        ],
+        "output_contains_any": [
+          "audit_sink",
+          "bulk_export",
+          "http://collector.obs.internal:4318"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

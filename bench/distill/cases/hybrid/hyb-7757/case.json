@@ -1,0 +1,88 @@
+{
+  "id": "hyb-7757",
+  "description": "Two-turn clarify (confirm before write): reports/refund-summary.md still holds August; turn 1 checks and asks, turn 2 confirms and overwrites with the September log lines. DISTILL-CANARY-84b4f275",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": null
+    },
+    "axes": [
+      "DEC",
+      "CON"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b07-writeconfirm-01",
+    "ref_calls": 4,
+    "fixture_bytes": 425,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "value"
+  },
+  "files": {
+    "README.md": "# Redgrave Apiaries\n\nRefund reasons are logged per approved case; the summary file carries the latest reviewed period.\n",
+    "reports/refund-summary.md": "# Refund summary - August 2026\n\nJar leakage, batch R-441: GBP 96.40\nLate delivery, shop order: GBP 22.00\n",
+    "logs/refunds-2026-09.csv": "refund_id,date,reason,amount_gbp\nRG-902,2026-09-03,jar leakage batch R-447,41.20\nRG-903,2026-09-08,broken lid,12.75\nRG-904,2026-09-14,jar leakage batch R-447,26.05\nRG-905,2026-09-19,late courier,18.00\n"
+  },
+  "turns": [
+    {
+      "prompt": "Update reports/refund-summary.md with September's refunds.",
+      "expect": {
+        "forbidden_tools": [
+          "write_file",
+          "append_file",
+          "replace_lines"
+        ],
+        "output_contains_any": [
+          "?",
+          "Which",
+          "which",
+          "What",
+          "what",
+          "confirm",
+          "Confirm",
+          "specify",
+          "Specify",
+          "Do you",
+          "do you",
+          "Did you",
+          "did you",
+          "should I",
+          "Should I",
+          "please provide",
+          "Please provide",
+          "need to know",
+          "Need to know"
+        ],
+        "output_contains": [
+          "refund-summary"
+        ]
+      }
+    },
+    {
+      "prompt": "Yes, overwrite it — copy the September log lines in exactly as they appear. When you are done, say in a sentence or two what you changed. Reply with only the final answer.",
+      "expect": {
+        "output_contains": [
+          "refund-summary"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "reports/refund-summary.md": {
+        "contains": [
+          "RG-902,2026-09-03,jar leakage batch R-447,41.20",
+          "RG-904,2026-09-14,jar leakage batch R-447,26.05",
+          "RG-905,2026-09-19,late courier,18.00"
+        ]
+      }
+    }
+  }
+}

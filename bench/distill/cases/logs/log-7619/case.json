@@ -1,0 +1,51 @@
+{
+  "id": "log-7619",
+  "description": "总结剧场灯控台日志（中文）：中断演出的那一次事故；次日测试模式下的崩溃是诱饵。 DISTILL-CANARY-adaf171e",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "locate_error",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "22:40"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-b07-locatedecoy-01",
+    "ref_calls": 3,
+    "fixture_bytes": 608,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:distill-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "logs/lightboard-1017.log": "2025-10-17 20:15 灯光控制台 程序崩溃 中断演出 故障\n2025-10-17 20:31 灯光控制台 备用面板接管 演出继续 正常\n2025-10-18 13:02 灯光控制台 固件重装 工单 GD-542 完成\n2025-10-19 22:40 灯光控制台 程序崩溃 例行测试\n2025-10-19 22:47 灯光控制台 重启恢复 正常\n",
+    "notes/舞监记录.md": "临水剧场舞监台记录。\n\n2025-10-17 的演出事故以「中断演出」为标记，当晚由备用面板接完\n余下场次，次日按工单 GD-542 重装固件，演出照常完成谢幕。\n\n2025-10-19 的崩溃是测试模式下的固件验收例行测试，不算演出事故。\n"
+  },
+  "turns": [
+    {
+      "prompt": "临水剧场 10 月 17 日晚上演出中间灯控出了事，剧团例会要用。帮我把这份控制台日志讲明白：演出是几点被中断的、当时怎么接上的、后来怎么修好的。",
+      "expect": {
+        "output_contains": [
+          "20:15",
+          "备用面板",
+          "固件"
+        ],
+        "output_contains_any": [
+          "20:15",
+          "备用面板",
+          "固件"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

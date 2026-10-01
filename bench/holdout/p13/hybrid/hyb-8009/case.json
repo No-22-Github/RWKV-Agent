@@ -1,0 +1,62 @@
+{
+  "id": "hyb-8009",
+  "description": "Three-turn English session: an ambiguous request across two June spend reports, a clarification toward the finance-confirmed file, then a channel slice. DISTILL-CANARY-89786ceb",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": "june-report-superseded.csv"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-holdout-hyb-askwhich-junespend-01",
+    "ref_calls": 3,
+    "fixture_bytes": 491,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "june-report-final.csv": "channel,spend_usd\nsearch,3120.75\ndisplay,1840.20\nsocial,1425.40\nvideo,980.00\naffiliate,620.35\nemail,265.90\npodcast,200.00\n",
+    "june-report-superseded.csv": "channel,spend_usd\nsearch,2980.40\ndisplay,1710.00\nsocial,1588.60\nvideo,905.25\naffiliate,640.00\nemail,240.00\npodcast,185.75\n",
+    "README.md": "# June 2026 ad-spend reports\n\nTwo exports exist for June: june-report-final.csv is the finance-confirmed statement issued on June 30; june-report-superseded.csv is the pre-adjustment draft kept for archive only and its numbers were later revised.\n"
+  },
+  "turns": [
+    {
+      "prompt": "I need the June ad-spend figures from the reporting folder.",
+      "expect": {
+        "output_contains_any": [
+          "?",
+          "which",
+          "specify",
+          "confirm",
+          "clarify",
+          "need to know"
+        ]
+      }
+    },
+    {
+      "prompt": "The finance-confirmed one. What was the total spend across all channels in June? Answer with the number alone, two decimals.",
+      "expect": {
+        "expected_number": 8452.6,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "And how much of that total was search ads? Answer with the number alone, two decimals.",
+      "expect": {
+        "expected_number": 3120.75,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

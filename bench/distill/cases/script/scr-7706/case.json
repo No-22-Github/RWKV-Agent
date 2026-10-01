@@ -1,0 +1,47 @@
+{
+  "id": "scr-7706",
+  "description": "Write the missing daily sales slip script for a stationery shop's nightly till exports. DISTILL-CANARY-143d8e83",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "write_new",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-scr-b06-qingwu",
+    "ref_calls": 3,
+    "fixture_bytes": 788,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "till.py": "\"\"\"打印青梧文具的日销小票。\n\n收银机每晚把当日流水导出到 receipts/，一行一个品类：\n\n    日期,品类,笔数,金额分\n\n日销小票每天一行、按日期排序，末尾加一行合计：\n\n    <日期>,<笔数>,<金额分>\n    合计,<笔数>,<金额分>\n\"\"\"\n\nif __name__ == \"__main__\":\n    raise SystemExit(\"日销小票还没写出来\")\n",
+    "receipts/2026-09.csv": "日期,品类,笔数,金额分\n2026-09-01,书写工具,14,12600\n2026-09-01,本册,9,7200\n2026-09-04,纸张,6,3300\n2026-09-08,书写工具,11,9900\n2026-09-15,本册,12,9600\n2026-09-15,装订小件,4,2000\n2026-09-22,书写工具,8,7200\n2026-09-28,纸张,7,3850\n",
+    "README.md": "# 青梧文具 - 日销小票\n\n收银机每晚导出一份流水到 receipts/，一行一个品类。\ntill.py 打出的小票是店主盘账用的那份。\n"
+  },
+  "expect": {
+    "files": {
+      "receipts/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "till.py",
+      "expected_stdout": "2026-09-01,23,19800\n2026-09-04,6,3300\n2026-09-08,11,9900\n2026-09-15,16,11600\n2026-09-22,8,7200\n2026-09-28,7,3850\n2026-10-09,15,13000\n2026-10-16,6,3000\n合计,92,71650",
+      "hidden_files": {
+        "receipts/2026-10.csv": "日期,品类,笔数,金额分\n2026-10-09,书写工具,10,9000\n2026-10-09,本册,5,4000\n2026-10-16,装订小件,6,3000\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "青梧文具的日销小票一直没做出来：till.py 里只有说明文字，收银机每晚都把流水导出到 receipts/。请把 till.py 写好，让它按说明里的版式打出小票，往后 receipts/ 里新到的流水也能照常汇总。receipts/ 里的流水是收银机的原始记录，保持原样。完成后用两三句话说明你的脚本是做什么的。",
+      "expect": {}
+    }
+  ]
+}

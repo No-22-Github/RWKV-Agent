@@ -1,0 +1,53 @@
+{
+  "id": "scr-7708",
+  "description": "Write the market stall intake ledger script whose export carries voided rows marked in a status column. DISTILL-CANARY-2bcd0a68",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "write_new",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "voided rows counted (425 件)"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-scr-b06-nantang",
+    "ref_calls": 3,
+    "fixture_bytes": 909,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "ledger.py": "\"\"\"打印南塘批发市场的摊位进货台账。\n\n市场办公室把每天的进场记录导出到 intake/，一行一条：\n\n    摊位,品类,件数,状态\n\n进货台账每个摊位一行、按摊位号排序，末尾加一行合计：\n\n    <摊位>,<件数>\n    合计,<件数>\n\n录入员撤录错单时会把该行状态改成「已撤销」；台账只统计状态为\n「入库」的行。\n\"\"\"\n\nif __name__ == \"__main__\":\n    raise SystemExit(\"进货台账还没写出来\")\n",
+    "intake/2026-09.csv": "摊位,品类,件数,状态\nA03,豆腐,60,入库\nA03,豆干,30,入库\nA07,青菜,120,入库\nA07,菠菜,45,入库\nA07,青菜,20,已撤销\nB02,鲈鱼,35,入库\nB02,带鱼,25,已撤销\nB02,鲈鱼,10,入库\nB05,大米,80,入库\n",
+    "README.md": "# 南塘批发市场 - 摊位进货台账\n\n市场办公室每晚把进场记录导出到 intake/。错单撤销后仍在原行上改状态，\n件数不改；台账按状态为「入库」的行统计。\n"
+  },
+  "expect": {
+    "files": {
+      "intake/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "ledger.py",
+      "expected_stdout": "A03,140\nA07,255\nB02,45\nB05,140\n合计,580",
+      "hidden_files": {
+        "intake/2026-10.csv": "摊位,品类,件数,状态\nA03,豆腐,50,入库\nA07,青菜,90,入库\nA07,菠菜,15,已撤销\nB05,大米,60,入库\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "南塘批发市场想把摊位进货台账打出来：ledger.py 里只有说明文字，市场办公室每晚都把进场记录导出到 intake/。请把 ledger.py 写好，让它按说明里的版式打出台账，往后 intake/ 里新到的记录也能照常汇总。intake/ 里的记录是市场办公室的原始导出，保持原样。完成后用两三句话说明你的脚本是做什么的。",
+      "expect": {}
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "id": "hyb-7719",
+  "description": "Multi-turn cancellation count for a guesthouse shifted from October to September, then a cause cut. DISTILL-CANARY-6c25ae93",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 10
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b07-window-07",
+    "ref_calls": 2,
+    "fixture_bytes": 1119,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "bookings/cancellations-2026.csv": "cancel_date,booking_ref,room_type,cause,refund_yuan\n2026-09-04,BK-8055,湖景双床,行程有变,210\n2026-09-07,BK-8058,山景大床,行程有变,175\n2026-09-10,BK-8061,木屋套房,天气,300\n2026-09-16,BK-8066,山景大床,行程有变,135\n2026-09-21,BK-8070,湖景双床,天气,220\n2026-09-25,BK-8074,木屋套房,价格,160\n2026-10-02,BK-8102,山景大床,行程有变,320\n2026-10-03,BK-8105,湖景双床,天气,180\n2026-10-05,BK-8109,山景大床,价格,240\n2026-10-09,BK-8113,木屋套房,行程有变,410\n2026-10-11,BK-8117,湖景双床,行程有变,150\n2026-10-11,BK-8117,湖景双床,行程有变,150\n2026-10-15,BK-8121,山景大床,天气,95\n2026-10-19,BK-8125,木屋套房,价格,265\n2026-10-03,BK-8105,湖景双床,天气,180\n2026-10-22,BK-8129,湖景双床,天气,120\n",
+    "README.md": "# 鹿鸣民宿 取消记录\n\n每行一笔取消：日期、订单号、房型、原因、退款金额（元）。十月导出时\n重试过两次，个别十月订单以完全相同的两行出现。\n",
+    "policies/refund-rules.md": "# 退款口径\n\n入住前 7 天以上取消退全款，3-7 天退半款，3 天内不退。\n退款金额以本表 refund_yuan 列为准。\n"
+  },
+  "turns": [
+    {
+      "prompt": "鹿鸣民宿做季度复盘。十月一共有多少笔取消？只回数字。",
+      "expect": {
+        "expected_number": 8,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "复盘口径换了：改成统计九月的取消，一共几笔？直接回数字就行。",
+      "expect": {
+        "expected_number": 6,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "九月取消原因里最多的是哪一类？回原因就行。",
+      "expect": {
+        "output_contains": [
+          "行程有变"
+        ]
+      }
+    },
+    {
+      "prompt": "这一类原因在十月有几笔？只回数字。",
+      "expect": {
+        "expected_number": 3,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

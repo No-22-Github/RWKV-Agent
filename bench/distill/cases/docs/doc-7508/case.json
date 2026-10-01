@@ -1,0 +1,55 @@
+{
+  "id": "doc-7508",
+  "description": "Standup summary: what rolled into sprint 43 and what is blocked, with owners. DISTILL-CANARY-08d5f3ea",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "extract_items",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "SPT-881"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b07-brief-01",
+    "ref_calls": 4,
+    "fixture_bytes": 420,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "retro/sprint-42.txt": "carried SPT-903 (webhook retries) into sprint 43, owner Ridley\ndone: SPT-881 load profiles for the checkout API\nblocked: SPT-918 tenant export waits on the vendor sandbox, owner Ines\nnote: the flaky auth test was quarantined and keeps failing in CI\n",
+    "retro/sprint-43-goal.md": "# Sprint 43 goal\n\nShip the webhook retry backlog and unblock tenant export.\n",
+    "README.md": "# Meridian Ledger retros\n\nOne notes file per sprint; the goal statement is written separately.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Standup is at ten. Go through retro/ and tell me what rolled into sprint 43 and what is stuck, with owners.",
+      "expect": {
+        "output_contains": [
+          "Ines",
+          "Ridley",
+          "SPT-903",
+          "SPT-918"
+        ],
+        "output_contains_any": [
+          "Ines",
+          "Ridley",
+          "SPT-903",
+          "SPT-918"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "id": "log-7515",
+  "description": "Four-turn Chinese session on a slow-query log with missing durations: count over threshold, morning rescope, ETL exclusion, slowest survivor. DISTILL-CANARY-a250327d",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-MISSING"
+    ],
+    "trap_decoys": {
+      "TR-MISSING": 13
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-log-b07-bracken-db-01",
+    "ref_calls": 5,
+    "fixture_bytes": 3115,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "logs/db-slowquery.log": "2026-09-22 00:41:17 dur=5.6s db=reporting user=bi_dash query=\"SELECT region, count(*) FROM stores GROUP BY 1\"\n2026-09-22 01:05:12 dur=6.8s db=reporting user=bi_dash query=\"SELECT c.id, p.total FROM carts c JOIN payments p ON c.id = p.cart_id\"\n2026-09-22 01:22:40 dur=6.3s db=reporting user=bi_dash query=\"SELECT week, channel, sum(spend) FROM marketing GROUP BY 1, 2\"\n2026-09-22 01:40:08 dur=8.4s db=etl_warehouse user=etl_batch query=\"REFRESH MATERIALIZED VIEW mv_inventory_snapshot\"\n2026-09-22 01:58:33 dur=1.4s db=reporting user=svc_alert query=\"SELECT 1\"\n2026-09-22 02:05:26 dur=7.9s db=reporting user=svc_alert query=\"SELECT a.uid FROM audit a JOIN users u ON a.uid = u.id WHERE a.action = 'export'\"\n2026-09-22 02:30:44 dur=5.9s db=etl_warehouse user=etl_batch query=\"ANALYZE staging.orders\"\n2026-09-22 02:41:02 dur=NA db=reporting user=bi_dash query=\"SELECT * FROM sessions WHERE payload LIKE '%timeout%'\"\n2026-09-22 03:12:19 dur=1.9s db=reporting user=svc_alert query=\"SELECT now()\"\n2026-09-22 03:41:55 dur=5.2s db=reporting user=bi_dash query=\"SELECT sku, sum(qty) FROM stock_moves GROUP BY 1\"\n2026-09-22 05:12:44 dur=5.00s db=reporting user=bi_dash query=\"SELECT city, count(*) FROM members GROUP BY 1\"\n2026-09-22 05:38:21 dur=6.1s db=reporting user=bi_dash query=\"SELECT tenant, p95(latency) FROM api_calls GROUP BY 1\"\n2026-09-22 06:20:09 dur=7.0s db=etl_warehouse user=etl_batch query=\"VACUUM ANALYZE daily_facts\"\n2026-09-22 07:03:37 dur=2.4s db=reporting user=svc_alert query=\"SELECT * FROM queues WHERE state = 'stuck'\"\n2026-09-22 08:33:52 dur=NA db=reporting user=bi_dash query=\"SELECT day, count(*) FROM logins GROUP BY 1\"\n2026-09-22 09:52:30 dur=8.8s db=reporting user=bi_dash query=\"SELECT o.id FROM orders o WHERE NOT EXISTS (SELECT 1 FROM shipments s WHERE s.order_id = o.id)\"\n2026-09-22 11:40:06 dur=9.1s db=reporting user=bi_dash query=\"SELECT m.month, sum(d.revenue) OVER (ORDER BY m.month) FROM monthly_facts m\"\n2026-09-22 12:15:53 dur=NA db=etl_warehouse user=etl_batch query=\"COPY staging.returns FROM '/mnt/inbox/returns.csv'\"\n2026-09-22 14:50:18 dur=9.4s db=etl_warehouse user=etl_batch query=\"REFRESH MATERIALIZED VIEW mv_customer_360\"\n2026-09-22 16:44:31 dur=NA db=reporting user=svc_alert query=\"SELECT * FROM tokens WHERE expires_at < now()\"\n2026-09-22 18:07:49 dur=4.2s db=reporting user=bi_dash query=\"SELECT count(*) FROM sessions WHERE started_at::date = current_date\"\n2026-09-22 19:26:14 dur=3.3s db=reporting user=svc_alert query=\"SELECT u.id FROM users u LEFT JOIN profiles p ON u.id = p.uid WHERE p.uid IS NULL\"\n2026-09-22 21:11:58 dur=0.8s db=etl_warehouse user=etl_batch query=\"TRUNCATE staging.tmp_recon\"\n2026-09-22 22:44:26 dur=2.1s db=reporting user=bi_dash query=\"SELECT hour, sum(bytes) FROM egress GROUP BY 1\"\n2026-09-22 23:30:03 dur=4.7s db=reporting user=svc_alert query=\"SELECT * FROM locks WHERE held_since < now() - interval '5 minutes'\"\n",
+    "README.md": "# Bracken Analytics 慢查询日志（2026-09-22）\n\n一行一条查询：时间 dur（执行时长） db user query。\n当晚采集管道有故障，部分行只记到 dur=NA，时长未知；dur=5.00s 的行是精确值。\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "Bracken Analytics 的慢查询日志在 logs/db-slowquery.log（9 月 22 日）。执行时间超过 5 秒的查询有多少条？",
+      "expect": {
+        "expected_number": 12.0,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "只看 00:00:00 到 03:00:00 之间的，超过 5 秒的有多少条？",
+      "expect": {
+        "expected_number": 6.0,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "etl_batch 是例行任务，把它发起的都排除，重新算 00:00:00 到 03:00:00 之间超过 5 秒的条数。",
+      "expect": {
+        "expected_number": 4.0,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "排除之后剩下的那几条里，最慢的一条是几秒？",
+      "expect": {
+        "expected_number": 7.9,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

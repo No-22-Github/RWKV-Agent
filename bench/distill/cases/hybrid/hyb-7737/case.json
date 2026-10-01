@@ -1,0 +1,67 @@
+{
+  "id": "hyb-7737",
+  "description": "Deckle Desk two-turn session: greeting first, then a Q2 toner spend total. DISTILL-CANARY-6d2c85ae",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS",
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-hyb-b07-stationery-01",
+    "ref_calls": 1,
+    "fixture_bytes": 471,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "value"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Deckle Desk - Q2 purchases\n\nOne row per purchase. Amounts are USD as paid, tax included.\n",
+    "finance/purchases_q2.csv": "date,vendor,item,amount_usd\n2026-04-11,Inkwell Trading,Toner cartridge TC-40,189.00\n2026-04-25,Inkwell Trading,Toner cartridge TC-24,205.00\n2026-05-09,Paper Mart,A4 ream box,42.50\n2026-05-20,Inkwell Trading,Toner cartridge TC-40,189.00\n2026-06-03,Paper Mart,Staples bulk,18.00\n2026-06-17,Inkwell Trading,Toner cartridge TC-40,214.65\n2026-06-28,Office Hub,Whiteboard markers,31.20\n"
+  },
+  "turns": [
+    {
+      "prompt": "Hey there! Just popping in to say hi.",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "Hello",
+          "hello",
+          "Hi",
+          "hi",
+          "Hey",
+          "hey",
+          "Morning",
+          "morning",
+          "Afternoon",
+          "afternoon",
+          "Evening",
+          "evening",
+          "Nice",
+          "nice",
+          "help",
+          "assist",
+          "How can",
+          "how can",
+          "thank",
+          "well"
+        ]
+      }
+    },
+    {
+      "prompt": "While I have you - how much did we spend on toner cartridges in Q2? The purchases are at finance/purchases_q2.csv. Reply with only the final answer.",
+      "expect": {
+        "expected_number": 797.65,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

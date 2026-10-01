@@ -1,0 +1,50 @@
+{
+   "id": "tab-7537",
+   "description": "Average August 2026 bill for one corporate screening plan; a plus-tier plan with a near-identical name bills alongside DISTILL-CANARY-44f91dd1",
+   "category": "tabular",
+   "tags": {
+      "scenario": "tabular",
+      "task_type": "aggregate",
+      "traps": [
+         "TR-DECOY"
+      ],
+      "trap_decoys": {
+         "TR-DECOY": 267.8569
+      },
+      "axes": [
+         "OBS"
+      ],
+      "level": "L1",
+      "family": "fam-tab-b06-clearwater-01",
+      "ref_calls": 1,
+      "fixture_bytes": 6681,
+      "status": "draft",
+      "version": 1,
+      "author": "llm:glm-5.3-flash-b06",
+      "reviewer": null,
+      "answer_style": "natural"
+   },
+   "web_fixture": [],
+   "files": {
+      "data/reports_2026-08.csv": "report_id,report_month,plan,employer,bill_gbp\nCW-8178,2026-07,Individual,Struan Marine,242.12\nCW-3069,2026-07,Individual,Belvo Foundry,170.70\nCW-8994,2026-08,Corporate Standard,Belvo Foundry,65.67\nCW-4473,2026-08,Individual,Belvo Foundry,55.52\nCW-2952,2026-07,Individual,Ravenhill Logistics,199.83\nCW-8065,2026-08,Corporate Standard,Haxby Print,65.09\nCW-9749,2026-07,Individual,Belvo Foundry,223.19\nCW-7688,2026-08,Corporate Standard Plus,Belvo Foundry,325.65\nCW-2934,2026-08,Corporate Standard Plus,Belvo Foundry,305.68\nCW-5841,2026-08,Individual,Haxby Print,156.96\nCW-5549,2026-08,Corporate Standard,Struan Marine,185.87\nCW-5066,2026-07,Corporate Standard,Haxby Print,204.30\nCW-7207,2026-08,Corporate Standard Plus,Otley Ceramics,340.91\nCW-1065,2026-07,Individual,Haxby Print,271.21\nCW-4110,2026-08,Individual,Belvo Foundry,172.66\nCW-9656,2026-08,Corporate Standard,Struan Marine,169.76\nCW-8188,2026-07,Individual,Otley Ceramics,81.44\nCW-1344,2026-08,Corporate Standard Plus,Ravenhill Logistics,262.63\nCW-1504,2026-08,Corporate Standard,Haxby Print,229.66\nCW-4968,2026-08,Corporate Standard Plus,Haxby Print,189.18\nCW-5266,2026-07,Corporate Standard,Haxby Print,99.90\nCW-4385,2026-07,Corporate Standard Plus,Haxby Print,369.07\nCW-3832,2026-08,Individual,Haxby Print,216.51\nCW-5665,2026-08,Corporate Standard,Haxby Print,216.73\nCW-3431,2026-08,Corporate Standard Plus,Belvo Foundry,279.11\nCW-9885,2026-08,Corporate Standard Plus,Haxby Print,233.89\nCW-4284,2026-07,Corporate Standard Plus,Struan Marine,261.53\nCW-5476,2026-08,Corporate Standard,Haxby Print,168.02\nCW-6097,2026-08,Individual,Otley Ceramics,252.12\nCW-5110,2026-08,Corporate Standard,Haxby Print,78.32\nCW-8313,2026-08,Individual,Ravenhill Logistics,117.55\nCW-3752,2026-07,Corporate Standard,Struan Marine,62.91\nCW-9935,2026-07,Corporate Standard,Struan Marine,184.96\nCW-6848,2026-07,Corporate Standard,Otley Ceramics,111.04\nCW-9041,2026-08,Individual,Struan Marine,127.15\nCW-7880,2026-08,Corporate Standard,Struan Marine,122.40\nCW-2995,2026-08,Corporate Standard,Haxby Print,81.75\nCW-4423,2026-08,Individual,Ravenhill Logistics,160.76\nCW-7279,2026-07,Corporate Standard Plus,Otley Ceramics,158.12\nCW-4355,2026-08,Corporate Standard Plus,Otley Ceramics,248.13\nCW-5653,2026-08,Individual,Belvo Foundry,225.29\nCW-2771,2026-07,Individual,Haxby Print,151.75\nCW-1395,2026-08,Individual,Struan Marine,159.44\nCW-2934,2026-07,Corporate Standard,Ravenhill Logistics,69.49\nCW-1216,2026-08,Corporate Standard,Otley Ceramics,247.86\nCW-9933,2026-08,Corporate Standard,Ravenhill Logistics,61.70\nCW-5856,2026-08,Corporate Standard,Belvo Foundry,240.16\nCW-3237,2026-07,Individual,Haxby Print,293.57\nCW-2231,2026-08,Corporate Standard Plus,Otley Ceramics,229.79\nCW-9198,2026-08,Individual,Belvo Foundry,199.90\nCW-7123,2026-07,Individual,Belvo Foundry,127.54\nCW-6099,2026-07,Individual,Struan Marine,153.57\nCW-8162,2026-07,Corporate Standard,Haxby Print,125.55\nCW-9241,2026-08,Corporate Standard,Ravenhill Logistics,102.61\nCW-6846,2026-08,Individual,Haxby Print,139.24\nCW-9657,2026-08,Individual,Ravenhill Logistics,112.49\nCW-6303,2026-07,Corporate Standard,Otley Ceramics,242.20\nCW-1013,2026-07,Corporate Standard,Struan Marine,161.18\nCW-3029,2026-08,Corporate Standard Plus,Haxby Print,216.98\nCW-8246,2026-08,Individual,Haxby Print,174.75\nCW-8365,2026-08,Corporate Standard,Ravenhill Logistics,67.83\nCW-6737,2026-08,Individual,Otley Ceramics,91.10\nCW-5993,2026-08,Individual,Belvo Foundry,246.57\nCW-9835,2026-07,Corporate Standard Plus,Struan Marine,280.17\nCW-7543,2026-08,Corporate Standard,Ravenhill Logistics,166.86\nCW-6560,2026-08,Corporate Standard,Struan Marine,217.40\nCW-9065,2026-07,Individual,Ravenhill Logistics,77.46\nCW-2852,2026-08,Individual,Haxby Print,101.04\nCW-7185,2026-08,Corporate Standard,Otley Ceramics,93.48\nCW-7265,2026-07,Individual,Belvo Foundry,161.60\nCW-4340,2026-08,Corporate Standard Plus,Haxby Print,338.22\nCW-1063,2026-07,Corporate Standard Plus,Struan Marine,173.03\nCW-5548,2026-07,Corporate Standard,Struan Marine,256.52\nCW-9371,2026-08,Corporate Standard,Belvo Foundry,138.25\nCW-4258,2026-07,Individual,Belvo Foundry,292.60\nCW-8562,2026-07,Corporate Standard,Haxby Print,183.56\nCW-9469,2026-08,Corporate Standard Plus,Otley Ceramics,231.84\nCW-7700,2026-08,Corporate Standard,Ravenhill Logistics,109.28\nCW-6002,2026-08,Corporate Standard,Ravenhill Logistics,210.66\nCW-3790,2026-08,Individual,Belvo Foundry,285.48\nCW-8362,2026-08,Corporate Standard,Haxby Print,97.36\nCW-9699,2026-08,Corporate Standard,Haxby Print,126.87\nCW-4233,2026-08,Individual,Otley Ceramics,77.55\nCW-6888,2026-07,Corporate Standard,Haxby Print,74.47\nCW-9621,2026-08,Individual,Ravenhill Logistics,60.27\nCW-1057,2026-07,Individual,Otley Ceramics,175.85\nCW-7376,2026-07,Individual,Haxby Print,135.38\nCW-7977,2026-08,Corporate Standard,Otley Ceramics,215.24\nCW-7639,2026-08,Corporate Standard,Haxby Print,81.38\nCW-6505,2026-08,Individual,Otley Ceramics,85.94\nCW-2109,2026-07,Individual,Struan Marine,62.78\nCW-9072,2026-08,Individual,Haxby Print,219.69\nCW-5057,2026-08,Individual,Otley Ceramics,223.95\nCW-5765,2026-07,Corporate Standard Plus,Otley Ceramics,161.17\nCW-1340,2026-07,Corporate Standard,Belvo Foundry,252.68\nCW-7668,2026-08,Corporate Standard Plus,Belvo Foundry,345.80\nCW-3557,2026-07,Individual,Belvo Foundry,97.02\nCW-7509,2026-07,Individual,Haxby Print,157.09\nCW-5427,2026-07,Individual,Haxby Print,197.12\nCW-3918,2026-07,Corporate Standard,Belvo Foundry,225.79\nCW-2202,2026-08,Corporate Standard,Belvo Foundry,77.85\nCW-1165,2026-07,Corporate Standard Plus,Belvo Foundry,265.21\nCW-6725,2026-08,Individual,Struan Marine,110.30\nCW-5334,2026-08,Corporate Standard Plus,Belvo Foundry,201.76\nCW-7736,2026-08,Individual,Struan Marine,233.41\nCW-9916,2026-08,Corporate Standard,Haxby Print,244.32\nCW-5975,2026-08,Corporate Standard Plus,Otley Ceramics,267.68\nCW-3491,2026-07,Individual,Struan Marine,263.00\nCW-8570,2026-07,Individual,Ravenhill Logistics,168.87\nCW-5249,2026-08,Individual,Haxby Print,290.22\nCW-8938,2026-08,Corporate Standard,Haxby Print,145.35\nCW-3779,2026-08,Individual,Belvo Foundry,176.28\nCW-8653,2026-08,Corporate Standard Plus,Otley Ceramics,268.46\nCW-9361,2026-08,Individual,Ravenhill Logistics,183.42\nCW-1743,2026-08,Individual,Ravenhill Logistics,120.54\nCW-5437,2026-08,Corporate Standard,Ravenhill Logistics,215.26\nCW-9360,2026-08,Individual,Belvo Foundry,292.95\nCW-2615,2026-08,Individual,Struan Marine,152.32\n",
+      "README.md": "# Clearwater Diagnostics - August reports export\n\nOne row per completed health report. plan is the package the report was\nbooked under; bill_gbp is the amount billed for the report.\n",
+      "notes/clinic.txt": "Clinic notes\n- Fasting panels go to the 7:30 slot list.\n- Employer invoicing closes on the last working day.\n"
+   },
+   "turns": [
+      {
+         "prompt": "Clearwater Diagnostics is reviewing August billing. The reports export is at data/reports_2026-08.csv. Give the number alone, as digits, with no label. What was the average billed amount for Corporate Standard reports in August 2026?",
+         "expect": {
+            "expected_number": 146.31,
+            "tolerance": 0.01,
+            "required_tools": [
+               "data_query"
+            ]
+         }
+      }
+   ],
+   "expect": {
+      "max_calls": {
+         "read_file": 1
+      }
+   }
+}

@@ -24,7 +24,8 @@
     "status": "draft",
     "version": 1,
     "author": "llm:glm-5.3-flash-b04",
-    "reviewer": null
+    "reviewer": null,
+    "answer_style": "unknown"
   },
   "web_fixture": [],
   "files": {

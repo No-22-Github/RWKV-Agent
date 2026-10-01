@@ -44,6 +44,13 @@ type Case struct {
 	// cross-contaminate through one shared keyword map. Empty falls back to the
 	// suite-level fixture for legacy custom suites.
 	WebFixture []WebFixtureEntry `json:"web_fixture,omitempty"`
+	// OfferedTools (v1.3 §2.12) narrows the work-v1 catalog to a per-case
+	// subset: ~40% of distill rows drop 2-4 irrelevant tools so the model reads
+	// the turn's directory instead of reciting a memorized one. nil keeps the
+	// whole catalog; a name outside the catalog is a load-time error. The
+	// wire_hash covers the catalog rendering mode, not the tool list, so a
+	// subset does not fork the wire.
+	OfferedTools []string `json:"offered_tools,omitempty"`
 	// Expect (v5) holds case-level result expectations evaluated after the
 	// final turn against the workspace state and the whole transcript.
 	Expect    *CaseExpect        `json:"expect,omitempty"`

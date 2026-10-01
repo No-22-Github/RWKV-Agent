@@ -1,0 +1,62 @@
+{
+  "id": "web-7556",
+  "description": "Headset cap bolt torque for Ashmill F-series frames, straight from the vendor service FAQ snippet. DISTILL-CANARY-05246b81",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": 8
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-web-b06-ashmill-torque",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "ashmill",
+      "url": "https://service.ashmillcycles.example/faq",
+      "url_match": "service.ashmillcycles.example/faq",
+      "title": "Service FAQ - Ashmill Cycle Works",
+      "snippet": "Headset cap bolts on the F-2 and F-4 frames torque to 5 Nm. Anything past 6 Nm rounds the expander plug.",
+      "content": "# Ashmill Cycle Works - service FAQ\n\nQ: What torque do the headset cap bolts need?\nA: The headset cap bolts torque to 5 Nm on the F-2 and F-4 frames. Going past 6 Nm rounds the expander plug, so set the driver with the bolt seated first.\n\nQ: And the stem faceplate bolts?\nA: Stem faceplate bolts torque to 10 Nm in the same star pattern.\n\nQ: How often should the headset be re-greased?\nA: Every 12 months for year-round commuters; 18 months for fair-weather bikes.\n",
+      "published_at": "2026-07-14"
+    },
+    {
+      "query_match": "ashmill",
+      "url": "https://forum.ridertech.example/t/ashmill-headset-torque",
+      "url_match": "forum.ridertech.example/t/ashmill-headset-torque",
+      "title": "Ashmill headset torque? - RiderTech forum",
+      "snippet": "My 2022 shop card said 8 Nm for the Ashmill headset cap, but the bolt has creaked ever since.",
+      "content": "ridertech.example forum - wrenching - Ashmill headset torque?\n\np1 (grannygrind, 2025-11-02): My 2022 shop card said 8 Nm for the Ashmill headset cap. Followed it and the bolt has creaked ever since. Anyone got the current figure?\n\np2 (spokes_n_sprockets, 2025-11-03): The pre-2023 cards were wrong; Ashmill quietly revised the service sheets.\n",
+      "published_at": "2025-11-02"
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The co-op workshop bench got a crate of Ashmill F-4 frames to assemble, and the torque driver needs to be set for the headset cap bolts. How many Nm should the driver be set to? Give the number alone, as digits, with no label.",
+      "expect": {
+        "expected_number": 5,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "id": "web-7555",
+  "description": "2026 adult admission at the wharf museum, against a stale visitor post and an annual-pass figure. DISTILL-CANARY-9481ff06",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-WEBSTALE",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": 8,
+      "TR-DECOY": 28
+    },
+    "axes": [
+      "VER",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-web-b06-thornreach",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "thornreach",
+      "url": "https://www.thornreachwharf.example/visit",
+      "url_match": "www.thornreachwharf.example/visit",
+      "title": "Plan your visit - Thornreach Wharf Maritime Museum",
+      "snippet": "Opening times, seasonal events and 2026 admission prices for the museum.",
+      "content": "# Plan your visit - Thornreach Wharf Maritime Museum\n\n2026 admission: adults 9.50 pounds, children 4 pounds, annual pass\n28 pounds. Open Tuesday to Sunday, 10:00-16:30. The dry dock tour runs\nat weekends and is included with admission.\n",
+      "published_at": "2026-04-18"
+    },
+    {
+      "query_match": "thornreach",
+      "url": "https://www.visitcanalguide.example/thornreach",
+      "url_match": "www.visitcanalguide.example/thornreach",
+      "title": "Thornreach Wharf day out",
+      "snippet": "Entry was £8 for adults when we visited; the dry dock is the highlight.",
+      "content": "visitcanalguide.example, 2023-08-06.\n\nEntry was 8 pounds for adults when we visited in 2023, and the dry\ndock tour alone is worth the trip. Check current prices before you\ntravel.\n",
+      "published_at": "2023-08-06"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "We are stopping at Thornreach Wharf on the canal walk and want cash for tickets. Give the number alone, as digits, with no label. How much is one adult admission in pounds?",
+      "expect": {
+        "expected_number": 9.5,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

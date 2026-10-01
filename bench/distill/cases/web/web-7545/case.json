@@ -1,0 +1,66 @@
+{
+  "id": "web-7545",
+  "description": "Meaning and fix for label printer error E-03, straight from the vendor KB snippet. DISTILL-CANARY-6dd207bf",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": "reflash the firmware"
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-web-b06-colehurst",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "colehurst",
+      "url": "https://support.colehurst.example/kb/e03",
+      "url_match": "support.colehurst.example/kb/e03",
+      "title": "Colehurst L-Series: E-03 label errors",
+      "snippet": "E-03 means the label roll is empty or the gap sensor is dusty; reload the roll and clean the sensor.",
+      "content": "# Colehurst L-Series - E-03 label errors\n\n- E-03 | Cause label roll empty or gap sensor dusty | Action reload the roll and clean the sensor\n\nThe L-Series prints die-cut labels; a missed gap reads as an empty\nroll. Clean the sensor with the included swab, not solvents.\n",
+      "published_at": "2026-08-05"
+    },
+    {
+      "query_match": "colehurst",
+      "url": "https://forum.labeltech.example/t/9931",
+      "url_match": "forum.labeltech.example/t/9931",
+      "title": "L-Series keeps stopping mid-roll",
+      "snippet": "Ours kept stopping until we reflashed the firmware; try that first.",
+      "content": "forum.labeltech.example - thermal printing - L-Series stops mid-roll\n\np1 (dispatchdan, 2026-02-14): Ours kept stopping until we reflashed\nthe firmware. Fixed it for us, worth a try.\n\np2 (rollrat, 2026-02-15): No change on mine, still stops.\n",
+      "published_at": "2026-02-14"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "The shipping desk's Colehurst L-Series printer stops with E-03 partway through a roll. One or two sentences on the cause and the handling are enough. What does the vendor's guide say E-03 means, and what is the fix?",
+      "expect": {
+        "output_contains_any": [
+          "label roll empty or gap sensor dusty",
+          "Label roll empty or gap sensor dusty",
+          "reload the roll and clean the sensor",
+          "Reload the roll and clean the sensor"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  }
+}

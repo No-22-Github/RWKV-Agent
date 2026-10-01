@@ -1,0 +1,42 @@
+{
+  "id": "nt-7195",
+  "description": "Convert a boarding cat's 11-pound intake weight to kilograms for the boarding form; the pound-to-kilogram definition is fixed. DISTILL-CANARY-046e2a70",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 6.8
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-kgconv-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 287
+  },
+  "web_fixture": [],
+  "files": {
+    "boarding/intake_2026-10.csv": "pet,species,weight_lb\n布丁,猫,11\n雪球,兔,6\n壮壮,犬,15\n",
+    "README.md": "# 汀兰宠物之家 - 寄养工作区\n\n寄养登记和喂养记录都放在这里。\n\n- boarding/  寄养入住登记\n- feeding/  每日喂养记录\n\n寄养单上的体重一律换算成公斤填写，保留两位小数。\n"
+  },
+  "turns": [
+    {
+      "prompt": "汀兰宠物之家要给这批寄养的猫咪做入托体检，布丁的体重在登记表上记的是 11 磅。寄养单上的体重栏要换算成公斤填写。布丁的体重是多少公斤？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 4.99,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

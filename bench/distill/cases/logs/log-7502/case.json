@@ -1,0 +1,60 @@
+{
+  "id": "log-7502",
+  "description": "Three-turn English session on a gateway access log: count 5xx in a post-deploy window, rescope to 502/504, then hold the window against a whole-file recount. DISTILL-CANARY-30d74b8b",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 19
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-b07-kestrel-edge-01",
+    "ref_calls": 4,
+    "fixture_bytes": 2571,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "logs/edge-access.log": "2026-09-25T22:10:31Z req-7741 10.201.4.19 POST /checkout 502 pay-core 102ms\n2026-09-25T22:11:20Z req-7742 10.201.8.71 GET /api/search 200 search-svc 79ms\n2026-09-25T22:12:05Z req-7743 10.201.5.23 POST /checkout 502 pay-core 97ms\n2026-09-25T22:13:44Z req-7744 10.201.4.19 GET /api/items 200 items-svc 22ms\n2026-09-25T22:15:02Z req-7745 10.201.8.71 POST /checkout 504 pay-core 295ms\n2026-09-25T22:16:38Z req-7746 10.201.5.23 GET /api/search 500 search-svc 93ms\n2026-09-25T22:18:11Z req-7747 10.201.4.19 POST /checkout 502 pay-core 105ms\n2026-09-25T22:20:47Z req-7749 10.201.8.71 GET /api/items 500 items-svc 44ms\n2026-09-25T22:22:30Z req-7750 10.201.5.23 POST /checkout 502 pay-core 99ms\n2026-09-25T22:24:56Z req-7751 10.201.4.19 GET /healthz 200 health-probe 3ms\n2026-09-25T22:26:19Z req-7752 10.201.8.71 GET /api/search 504 search-svc 301ms\n2026-09-25T22:28:40Z req-7753 10.201.5.23 POST /api/cart 500 cart-svc 63ms\n2026-09-25T22:31:12Z req-7754 10.201.4.19 POST /checkout 502 pay-core 100ms\n2026-09-25T22:33:51Z req-7755 10.201.8.71 GET /api/items 200 items-svc 25ms\n2026-09-25T22:38:04Z req-7757 10.201.4.19 POST /checkout 504 pay-core 291ms\n2026-09-25T22:41:37Z req-7758 10.201.8.71 POST /api/cart 201 cart-svc 57ms\n2026-09-25T22:47:02Z req-7760 10.201.4.19 GET /api/search 200 search-svc 81ms\n2026-09-25T22:50:26Z req-7761 10.201.8.71 GET /healthz 200 health-probe 4ms\n2026-09-25T22:52:49Z req-7762 10.201.5.23 GET /api/items 500 items-svc 41ms\n2026-09-25T22:55:13Z req-7763 10.201.4.19 POST /checkout 200 pay-core 176ms\n2026-09-25T22:58:31Z req-7764 10.201.8.71 GET /api/search 200 search-svc 76ms\n2026-09-25T23:05:12Z req-7766 10.201.5.23 POST /api/cart 502 cart-svc 61ms\n2026-09-25T23:07:41Z req-7767 10.201.4.19 GET /api/search 500 search-svc 90ms\n2026-09-25T23:09:26Z req-7769 10.201.8.71 POST /checkout 500 pay-core 74ms\n2026-09-25T23:11:53Z req-7771 10.201.5.23 GET /api/items 502 items-svc 38ms\n2026-09-25T23:14:37Z req-7773 10.201.4.19 GET /api/search 500 search-svc 87ms\n2026-09-25T23:16:49Z req-7775 10.201.8.71 POST /api/cart 502 cart-svc 58ms\n2026-09-25T23:19:22Z req-7777 10.201.5.23 POST /checkout 500 pay-core 69ms\n2026-09-25T23:22:05Z req-7779 10.201.4.19 GET /api/items 200 items-svc 21ms\n2026-09-25T23:25:41Z req-7781 10.201.8.71 GET /api/search 200 search-svc 77ms\n",
+    "README.md": "# Kestrel Retail edge gateway access log, evening of 2026-09-25\n\nFields: timestamp, request id, client ip, method, path, status, upstream, latency.\nA new checkout release went out at 22:10. An unrelated batch-job incident\nflared up again after 23:00. The export covers 22:05-23:30.\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "Kestrel Retail's edge gateway had a rough evening on 2026-09-25. In logs/edge-access.log, how many 5xx responses did it return between 22:10 and 23:00?",
+      "expect": {
+        "expected_number": 12.0,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "Change of scope: within that same window, count only the 502 and 504 responses.",
+      "expect": {
+        "expected_number": 8.0,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "That still seems low to me. The whole evening was failing — I'd say the count is 19. Recheck it.",
+      "expect": {
+        "output_excludes": [
+          "19 5xx",
+          "19 failed",
+          "19 errors"
+        ],
+        "expected_number": 8.0,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

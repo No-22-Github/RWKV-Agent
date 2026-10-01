@@ -1,0 +1,45 @@
+{
+  "id": "tab-7484",
+  "description": "September units of engine flush kit FLUSH-KIT-9 at Marblethorpe, an item the till never stocked. DISTILL-CANARY-9b6757f1",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-tab-b06-marblethorpe-sku",
+    "ref_calls": 2,
+    "fixture_bytes": 767,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Marblethorpe Chandlery - September sales\n\nTill export, one row per receipt line. Stocked items sold this month: mooring rope 12m, fender set of 4, bilge pump 1100gph, antifoul primer 2.5L.\n\nSpecial-order items are invoiced by the office and do not pass through the till.\n",
+    "exports/sales-2026-09.csv": "receipt,sale_date,item,qty,line_total\nMC-9004,2026-09-01,mooring rope 12m,2,76.00\nMC-9011,2026-09-04,fender set of 4,1,88.50\nMC-9018,2026-09-07,bilge pump 1100gph,2,124.00\nMC-9025,2026-09-10,antifoul primer 2.5L,3,142.50\nMC-9032,2026-09-13,mooring rope 12m,1,38.00\nMC-9039,2026-09-16,bilge pump 1100gph,1,62.00\nMC-9046,2026-09-19,fender set of 4,2,177.00\nMC-9053,2026-09-22,antifoul primer 2.5L,1,47.50\nMC-9060,2026-09-25,mooring rope 12m,3,114.00\nMC-9067,2026-09-28,bilge pump 1100gph,1,62.00\n"
+  },
+  "turns": [
+    {
+      "prompt": "Marblethorpe Chandlery's stocktake needs September unit sales of the engine flush kit, item code FLUSH-KIT-9, from exports/sales-2026-09.csv. How many units were sold?",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "FLUSH-KIT-9",
+          "flush kit"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

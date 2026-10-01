@@ -1,0 +1,63 @@
+{
+  "id": "scr-8004",
+  "description": "Write scripts/returns_count.py to print per-file record counts for the top-level weekly JSONL return files, excluding the archive subfolder; judged offline by expect.run on visible plus hidden inputs. DISTILL-CANARY-51c7e3a9",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "write_new",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-holdout-scr-counts-01",
+    "answer_style": "natural",
+    "ref_calls": 4,
+    "fixture_bytes": 1104,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "# 拾光童书 · 每周退货统计\n\n各书店的退货单按周放进 returns/ 目录，文件名 week-<周数>.jsonl，\n每行一条 JSON 记录：{\"shop\": \"书店名\", \"qty\": 册数}。\n\n统计口径（scripts/returns_count.py 要照此实现）：\n\n- 只统计 returns/ 顶层的 .jsonl 文件；returns/archive/ 是历史存档，\n  不参与统计。\n- 每个文件打印一行：\"文件名: 记录条数\"（文件名含扩展名，半角冒号\n  后接一个空格，条数为十进制整数），行按文件名排序。\n",
+    "returns/week-1.jsonl": "{\"shop\": \"纸飞机书店\", \"qty\": 12}\n{\"shop\": \"蓝鲸书屋\", \"qty\": 4}\n{\"shop\": \"纸飞机书店\", \"qty\": 3}\n{\"shop\": \"山桃书亭\", \"qty\": 8}\n{\"shop\": \"蓝鲸书屋\", \"qty\": 5}\n",
+    "returns/week-2.jsonl": "{\"shop\": \"山桃书亭\", \"qty\": 2}\n{\"shop\": \"纸飞机书店\", \"qty\": 7}\n{\"shop\": \"蓝鲸书屋\", \"qty\": 1}\n{\"shop\": \"山桃书亭\", \"qty\": 6}\n",
+    "returns/archive/2026-08-w4.jsonl": "{\"shop\": \"纸飞机书店\", \"qty\": 5}\n{\"shop\": \"蓝鲸书屋\", \"qty\": 2}\n{\"shop\": \"山桃书亭\", \"qty\": 9}\n",
+    "scripts/returns_count.py": "\"\"\"拾光童书每周退货统计。\n\n统计口径见项目根目录的 README.md。\n\"\"\"\n\nraise SystemExit(\"returns_count.py: 尚未实现\")\n"
+  },
+  "turns": [
+    {
+      "prompt": "我们每周把各书店的退货单归到 returns 目录，统计口径写在项目根目录的 README.md 里。请把 scripts/returns_count.py（现在是个占位文件）写成能直接运行的脚本，按 README 的口径输出统计结果。完成后，用一到三句话告诉我你写了什么。",
+      "expect": {}
+    }
+  ],
+  "expect": {
+    "files": {
+      "README.md": {
+        "equals": "# 拾光童书 · 每周退货统计\n\n各书店的退货单按周放进 returns/ 目录，文件名 week-<周数>.jsonl，\n每行一条 JSON 记录：{\"shop\": \"书店名\", \"qty\": 册数}。\n\n统计口径（scripts/returns_count.py 要照此实现）：\n\n- 只统计 returns/ 顶层的 .jsonl 文件；returns/archive/ 是历史存档，\n  不参与统计。\n- 每个文件打印一行：\"文件名: 记录条数\"（文件名含扩展名，半角冒号\n  后接一个空格，条数为十进制整数），行按文件名排序。\n"
+      },
+      "returns/week-1.jsonl": {
+        "equals": "{\"shop\": \"纸飞机书店\", \"qty\": 12}\n{\"shop\": \"蓝鲸书屋\", \"qty\": 4}\n{\"shop\": \"纸飞机书店\", \"qty\": 3}\n{\"shop\": \"山桃书亭\", \"qty\": 8}\n{\"shop\": \"蓝鲸书屋\", \"qty\": 5}\n"
+      },
+      "returns/week-2.jsonl": {
+        "equals": "{\"shop\": \"山桃书亭\", \"qty\": 2}\n{\"shop\": \"纸飞机书店\", \"qty\": 7}\n{\"shop\": \"蓝鲸书屋\", \"qty\": 1}\n{\"shop\": \"山桃书亭\", \"qty\": 6}\n"
+      },
+      "returns/archive/2026-08-w4.jsonl": {
+        "equals": "{\"shop\": \"纸飞机书店\", \"qty\": 5}\n{\"shop\": \"蓝鲸书屋\", \"qty\": 2}\n{\"shop\": \"山桃书亭\", \"qty\": 9}\n"
+      }
+    },
+    "run": {
+      "path": "scripts/returns_count.py",
+      "expected_stdout": "week-1.jsonl: 5\nweek-2.jsonl: 4\nweek-3.jsonl: 3",
+      "hidden_files": {
+        "returns/week-3.jsonl": "{\"shop\": \"蓝鲸书屋\", \"qty\": 9}\n{\"shop\": \"纸飞机书店\", \"qty\": 2}\n{\"shop\": \"山桃书亭\", \"qty\": 4}\n"
+      }
+    }
+  }
+}

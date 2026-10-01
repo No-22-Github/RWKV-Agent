@@ -1,0 +1,48 @@
+{
+  "id": "cfg-7154",
+  "description": "Append the pump house's latest meter reading to the runtime log. DISTILL-CANARY-64f855f2",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-cfg-b06-alderyard",
+    "ref_calls": 3,
+    "fixture_bytes": 533,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "logs/runtime.log": "2026-09-24 pump B runtime 6.4 h - pressure 2.1 bar - operator T. Malley\n2026-09-26 pump B runtime 5.9 h - pressure 2.0 bar - operator T. Malley\n",
+    "notes/meter-2026-09-27.txt": "Meter reading 2026-09-27, Alderyard pump house\npump B runtime 7.1 h - pressure 2.2 bar\noperator T. Malley\n",
+    "README.md": "# Alderyard Nurseries - pump house runtime log\n\nlogs/runtime.log takes one line per reading:\n\n    <date> pump B runtime <h> h - pressure <bar> bar - operator <name>\n\nMeter readings are kept in notes/; a reading is logged under its\nsheet's date with the operator who signs the sheet.\n"
+  },
+  "expect": {
+    "files": {
+      "logs/runtime.log": {
+        "contains": [
+          "2026-09-24 pump B runtime 6.4 h - pressure 2.1 bar - operator T. Malley",
+          "2026-09-27 pump B runtime 7.1 h - pressure 2.2 bar - operator T. Malley"
+        ]
+      },
+      "notes/meter-2026-09-27.txt": {
+        "unchanged": true
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Alderyard Nurseries took a pump reading on 2026-09-27; the sheet is in notes/. Bring the runtime log in logs/ up to date in the house style and leave the meter sheet untouched. When you are done, describe in two or three sentences what you wrote.",
+      "expect": {}
+    }
+  ]
+}

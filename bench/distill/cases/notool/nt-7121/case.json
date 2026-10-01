@@ -1,0 +1,42 @@
+{
+  "id": "nt-7121",
+  "description": "Checkout price after a 10-percent member discount followed by an over-400-minus-50 coupon DISTILL-CANARY-658cc644",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 387
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-discount-stack-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 288
+  },
+  "web_fixture": [],
+  "files": {
+    "promo/bundle_2026-10.csv": "书目,定价元\n城市植物志（函套全两册）,480\n少年天文图鉴,120\n",
+    "README.md": "# 鹿鸣书店 - 会员日工作区\n\n会员日促销书目和券规则登记都在这里。\n\n- promo/  促销书目登记表\n\n会员折扣：全场 9 折。图书券：满 400 减 50，先打折后用券。\n"
+  },
+  "turns": [
+    {
+      "prompt": "鹿鸣书店会员日：《城市植物志》函套全两册定价 480 元，会员先按 9 折计算，再用一张满 400 减 50 的图书券。这一单实付多少元？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 382,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

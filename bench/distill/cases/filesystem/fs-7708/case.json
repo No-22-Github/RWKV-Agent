@@ -1,0 +1,54 @@
+{
+  "id": "fs-7708",
+  "description": "整理合唱团购谱柜目录（中文）：本学期用谱在 term-2026spring，同名旧版是诱饵。 DISTILL-CANARY-05a57a38",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "find_file",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "混声三部"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-fs-b07-finddecoy-01",
+    "ref_calls": 4,
+    "fixture_bytes": 758,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 2,
+    "author": "llm:distill-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "scores/term-2025autumn/score-qingchun.txt": "星野合唱团 2025 秋季用谱：青春舞曲（旧版）。\n声部：混声三部。收在第 44 小节。旧版不再用于排练。\n旧版声部表随件归档，如需借阅找谱务登记，借阅期两周。\n",
+    "scores/term-2026spring/score-qingchun.txt": "星野合唱团 2026 春季用谱：青春舞曲。\n声部：混声四部。第 12 小节起渐强，收在第 48 小节。请勿在谱面上\n做记号。分声部名单贴在谱柜门内侧，以谱务 3 月 2 日版本为准，\n伴奏音频随谱借还，用完即归还。\n",
+    "README.md": "星野合唱团购谱柜。\n\nterm-2026spring 是本学期在用；term-2025autumn 是上学期的旧版，\n两个文件夹里的文件同名，勿混用。旧版只在查对历史编配时取用，\n谱柜每周三开放借还登记，逾期按社团章程处理。\n"
+  },
+  "turns": [
+    {
+      "prompt": "星野合唱团换了新谱务，请帮我理一理谱柜这个目录：这学期在用的青春舞曲放在哪个文件夹、分几个声部、跟旁边那份同名旧版差在哪儿。",
+      "expect": {
+        "output_contains": [
+          "term-2026spring",
+          "混声四部"
+        ],
+        "output_contains_any": [
+          "2025 秋季",
+          "2025 年秋季",
+          "2025 年秋"
+        ],
+        "required_tools": [
+          "read_file"
+        ],
+        "output_excludes": [
+          "混声三部"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "id": "cfg-7164",
+  "description": "Effective storm_mooring_surcharge for Colverstone quay, present in no config layer or handbook key list. DISTILL-CANARY-3f0a2c27",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "missing_keys",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "38.50"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L2",
+    "family": "fam-cfg-b06-colverstone-berth",
+    "ref_calls": 3,
+    "fixture_bytes": 914,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Colverstone Marinas - berth pricing config\n\nThe berth allocator reads two config layers: config/berth-master.json (marina instance) and config/marina-defaults.json (group defaults). A key set in the master file wins; keys the master does not set fall back to the defaults.\n\nPricing was restructured for the 2026 winter season; retired keys are listed in docs/ops-handbook.md.\n",
+    "config/berth-master.json": "{\n  \"marina\": \"colverstone-quay\",\n  \"season\": \"2026-winter\",\n  \"night_mooring_surcharge\": \"38.50\",\n  \"power_pedestal_fee\": \"12.00\",\n  \"winter_layup_discount_pct\": 15\n}\n",
+    "config/marina-defaults.json": "{\n  \"night_mooring_surcharge\": \"25.00\",\n  \"power_pedestal_fee\": \"9.50\",\n  \"visitor_checkin_cutoff\": \"18:00\"\n}\n",
+    "docs/ops-handbook.md": "# Ops handbook (pricing)\n\n- Keys retired in the winter-2026 restructure: gale_alert_flag, summer_dinghy_rate.\n- Surcharge keys always carry their scope in the name: night_, event_, storm_.\n- The master file must stay the only place winter figures are tuned.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Colverstone Marinas is repricing winter berths and needs the effective storm_mooring_surcharge for the quay. What value applies?",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "storm_mooring_surcharge",
+          "storm mooring surcharge",
+          "storm surcharge"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools",
+          "38.50"
+        ]
+      }
+    }
+  ]
+}

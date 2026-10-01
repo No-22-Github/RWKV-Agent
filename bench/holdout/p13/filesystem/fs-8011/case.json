@@ -1,0 +1,46 @@
+{
+  "id": "fs-8011",
+  "description": "Locate the finalized Q4 2025 bank statement file in a recon folder containing draft and quarter-similar names. DISTILL-CANARY-8048a035",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "find_file",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "bank-statement-2025Q4-draft.csv"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-holdout-fs-findstmt-01",
+    "ref_calls": 2,
+    "fixture_bytes": 1166,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "recon/2024/bank-statement-2024Q4-final.csv": "对账日期,流水号,收支方向,金额(元),余额\n2024-10-08,BK-71001,支出,3200.00,152300.00\n2024-10-25,BK-71002,收入,18600.00,170900.00\n2024-11-12,BK-71003,支出,940.00,169960.00\n2024-12-03,BK-71004,支出,12400.00,157560.00\n2024-12-28,BK-71005,收入,4200.00,161760.00\n",
+    "recon/2025/bank-statement-2025Q3-final.csv": "对账日期,流水号,收支方向,金额(元),余额\n2025-07-09,BK-81201,支出,2100.00,164380.00\n2025-07-30,BK-81202,收入,9800.00,174180.00\n2025-08-16,BK-81203,支出,6600.00,167580.00\n2025-09-04,BK-81204,收入,7200.00,174780.00\n2025-09-27,BK-81205,支出,1350.00,173430.00\n",
+    "recon/2025/bank-statement-2025Q4-draft.csv": "对账日期,流水号,收支方向,金额(元),余额\n2025-10-11,BK-81301,支出,1750.00,171680.00\n2025-10-26,BK-81302,收入,11400.00,183080.00\n",
+    "recon/2025/bank-statement-2025Q4-final-v2.csv": "对账日期,流水号,收支方向,金额(元),余额\n2025-10-11,BK-81301,支出,1750.00,171680.00\n2025-10-26,BK-81302,收入,11400.00,183080.00\n2025-11-08,BK-81303,支出,4300.00,178780.00\n2025-11-29,BK-81304,收入,8600.00,187380.00\n2025-12-15,BK-81305,支出,2900.00,184480.00\n",
+    "说明.md": "# 对账单归档说明\n\n对账单按 季度 + final/draft 命名：draft 是对账过程中的草稿，final 是定稿；同名出现 v2 这类后缀时以后缀版本为准。\n"
+  },
+  "turns": [
+    {
+      "prompt": "2025 年第四季度定稿的银行对账单是哪份文件？直接回答文件名。",
+      "expect": {
+        "output_equals_any": [
+          "bank-statement-2025Q4-final-v2.csv",
+          "recon/2025/bank-statement-2025Q4-final-v2.csv"
+        ]
+      }
+    }
+  ]
+}

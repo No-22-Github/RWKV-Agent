@@ -1,0 +1,42 @@
+{
+  "id": "nt-7102",
+  "description": "Convert a cold-room temperature limit of 41 degrees Fahrenheit to Celsius for a supplier notice. DISTILL-CANARY-b7e49015",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 22.78
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-degfah-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 308
+  },
+  "web_fixture": [],
+  "files": {
+    "checks/thresholds.csv": "zone,limit_f\n冷库2号,41\n速冻间,-4\n收货区,55\n",
+    "README.md": "# 沧澜冷链 - 温控巡检工作区\n\n各库区的温度上限与巡检抄录都登记在这里。\n\n- checks/  各库区温度上限登记表\n- notices/  发给供货方的温控通知存档\n\n温控通知一律用摄氏度填写，数字保留整数。\n"
+  },
+  "turns": [
+    {
+      "prompt": "沧澜冷链要给供货方发温控通知，通知模板里的温度要用摄氏度填写。验收登记表上 2 号冷库的温度上限标注为 41 华氏度。这个温度上限是多少摄氏度？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 5,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

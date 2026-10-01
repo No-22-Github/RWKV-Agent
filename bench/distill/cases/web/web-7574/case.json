@@ -1,0 +1,69 @@
+{
+  "id": "web-7574",
+  "description": "Date v2 payroll keys stop working at Pellbridge per the migration page, with the status page fetch failing and an April summary ranked second. DISTILL-CANARY-7863c555",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "deprecation",
+    "traps": [
+      "TR-WEBSTALE",
+      "TR-FETCHFAIL"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "2026-09-15",
+      "TR-FETCHFAIL": "UNKNOWN"
+    },
+    "axes": [
+      "VER",
+      "ERR"
+    ],
+    "level": "L2",
+    "family": "fam-web-b06-pellbridge-v2",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "pellbridge",
+      "url": "https://status.pellbridge.example/history",
+      "url_match": "status.pellbridge.example/history",
+      "title": "Status history - Pellbridge Payroll",
+      "snippet": "Uptime and incident history for the Pellbridge Payroll APIs.",
+      "content": "# Status history\n\n90-day uptime and incident history for the Pellbridge Payroll APIs.\n",
+      "published_at": "2026-09-14",
+      "error": "Tavily extract failed: 502 Bad Gateway"
+    },
+    {
+      "query_match": "pellbridge",
+      "url": "https://payrollradar.example/pellbridge-v2-sunset",
+      "url_match": "payrollradar.example/pellbridge-v2-sunset",
+      "title": "Pellbridge sets v2 payroll API sunset",
+      "snippet": "Pellbridge told customers in April that the v2 payroll API would retire on 2026-09-15.",
+      "content": "payrollradar.example - Pellbridge sets v2 payroll API sunset\n\nPosted 2026-04-21. Pellbridge told customers in April that the v2 payroll API would retire on 2026-09-15, with v2 keys expiring the same day.\n",
+      "published_at": "2026-04-21"
+    },
+    {
+      "query_match": "pellbridge",
+      "url": "https://www.pellbridge.example/docs/v2-migration",
+      "url_match": "www.pellbridge.example/docs/v2-migration",
+      "title": "v2 to v3 migration - Pellbridge Payroll",
+      "snippet": "The v2 payroll API sunset is extended to 2026-11-15; v2 keys stop working after that date.",
+      "content": "# v2 to v3 migration\n\nUpdated 2026-08-28. The v2 payroll API sunset is extended to 2026-11-15 to line up with the quarter-end freeze; v2 keys stop working after that date. Exports stay available through the v3 reporting resource.\n",
+      "published_at": "2026-08-28"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "Our bureau still runs month-end exports against the v2 payroll API at Pellbridge and needs the real cut-off for the migration planner. On what date does the vendor's migration page say v2 keys stop working? Give the date alone, in the form YYYY-MM-DD.",
+      "expect": {
+        "output_equals": "2026-11-15"
+      }
+    }
+  ]
+}

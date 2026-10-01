@@ -1,0 +1,45 @@
+{
+  "id": "log-7286",
+  "description": "DOCK_LATE scan count for 12 September in a dock scan volume covering 8-10 September. DISTILL-CANARY-7abe1543",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-log-b06-ellersmuir-dock",
+    "ref_calls": 2,
+    "fixture_bytes": 685,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Ellersmuir Depot - dock scans\n\nDoor scans roll weekly. This volume covers 8-10 September; the following volume (dock-scans-2026-09-11-14.log) stays on the depot share and is not copied into this workspace.\n",
+    "logs/dock-scans-2026-09-08-10.log": "# ellersmuir-depot dock scan log w/d 2026-09-08..2026-09-10 node=dock-gw-01\n2026-09-08T07:12:44 SCAN  door=3 trailer=T-88213 status=ONTIME\n2026-09-08T09:40:12 SCAN  door=1 trailer=T-88190 status=DOCK_LATE\n2026-09-09T06:55:31 SCAN  door=2 trailer=T-88240 status=ONTIME\n2026-09-09T10:05:47 SCAN  door=3 trailer=T-88251 status=DOCK_LATE\n2026-09-10T07:22:09 SCAN  door=1 trailer=T-88266 status=ONTIME\n2026-09-10T18:44:02 INFO  weekly rollover, next volume dock-scans-2026-09-11-14\n"
+  },
+  "turns": [
+    {
+      "prompt": "Ellersmuir Depot's shift report needs the DOCK_LATE scan count for 12 September. How many DOCK_LATE scans are in logs/dock-scans-2026-09-08-10.log for that day?",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "DOCK_LATE",
+          "dock late"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

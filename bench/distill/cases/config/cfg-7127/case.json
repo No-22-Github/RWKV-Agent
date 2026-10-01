@@ -1,0 +1,36 @@
+{
+  "id": "cfg-7127",
+  "description": "Effective log flush seconds of a mill service whose value lives only in the platform global env file. DISTILL-CANARY-24b8de8a",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "precedence",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-cfg-b06-mailang-mill",
+    "ref_calls": 3,
+    "fixture_bytes": 437,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "deploy/mill-api.env": "MILL_API_WORKERS=6\nMILL_API_LOG_LEVEL=info\nMILL_API_BATCH_BAGS=24\n",
+    "deploy/global.env": "LOG_FLUSH_SECONDS=45\nMETRICS_PUSH_INTERVAL_S=60\nDEFAULT_LOCALE=zh-CN\n",
+    "README.md": "# 麦浪面粉 - 磨粉线部署环境\n\ndeploy 目录下，`deploy/global.env` 是全平台默认环境；每个服务另有自己的 env 文件（磨粉线服务 mill-api 用 `deploy/mill-api.env`）。\n\n服务 env 里没写的键按 global.env 生效；服务 env 写了的键以服务 env 为准。\n"
+  },
+  "turns": [
+    {
+      "prompt": "麦浪面粉的磨粉线服务 mill-api 早上重启过一次，值班想顺手核对日志刷盘周期（只回答数字，不要单位）。服务自己的环境在 deploy/mill-api.env，平台默认环境在 deploy/global.env，mill-api 生效的 LOG_FLUSH_SECONDS 是多少秒？",
+      "expect": {
+        "expected_number": 45,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

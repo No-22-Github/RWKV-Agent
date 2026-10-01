@@ -1,0 +1,43 @@
+{
+  "id": "cfg-7128",
+  "description": "Effective dispatch timeout of the north dispatch site, whose site file overrides the base config. DISTILL-CANARY-f1982195",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "precedence",
+    "traps": [
+      "TR-PRECEDENCE"
+    ],
+    "trap_decoys": {
+      "TR-PRECEDENCE": 90
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b06-baifan-dispatch",
+    "ref_calls": 3,
+    "fixture_bytes": 607,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/base.json": "{\n  \"dispatch_timeout_s\": 90,\n  \"retry_backoff_s\": 8,\n  \"driver_app_min_ver\": \"5.2.1\",\n  \"pod_photo_required\": true\n}\n",
+    "config/site-north.json": "{\n  \"dispatch_timeout_s\": 60,\n  \"driver_app_min_ver\": \"5.3.0\"\n}\n",
+    "config/site-south.json": "{\n  \"dispatch_timeout_s\": 75,\n  \"retry_backoff_s\": 10\n}\n",
+    "README.md": "# 白帆货运 - 派单配置\n\n派单配置分两层：`config/base.json` 是全网基线，各调度站点另有覆盖文件：\n\n- config/site-north.json  北区调度中心\n- config/site-south.json  南区调度中心\n\n站点文件覆盖基线：同名键以站点文件为准，站点没写的键按基线生效。每个站点只读自己的覆盖文件和基线。\n"
+  },
+  "turns": [
+    {
+      "prompt": "白帆货运的北区调度中心抱怨派单等待偏久，主管想先核对北区现在的派单超时现值（只回答数字，不要单位）。北区生效的 dispatch_timeout_s 是多少秒？",
+      "expect": {
+        "expected_number": 60,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

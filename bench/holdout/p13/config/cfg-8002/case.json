@@ -1,0 +1,45 @@
+{
+  "id": "cfg-8002",
+  "description": "Explain in natural language what relay-config.json makes the service do: binding, TLS, upload cap and auth. DISTILL-CANARY-fddbf90f",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-holdout-cfgexplain-01",
+    "ref_calls": 2,
+    "fixture_bytes": 154,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "relay-config.json": "{\n  \"bind_address\": \"0.0.0.0:9443\",\n  \"tls\": {\n    \"enabled\": true,\n    \"client_cert_required\": true\n  },\n  \"max_upload_mb\": 25,\n  \"auth_mode\": \"token\"\n}\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "Explain what relay-config.json actually makes the service do - I inherited the service from someone who left. Keep it conversational.",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains": [
+          "9443",
+          "token",
+          "max_upload_mb"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

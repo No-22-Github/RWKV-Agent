@@ -1,0 +1,52 @@
+{
+  "id": "tab-7483",
+  "description": "September tonnage for the enterprise-custom customer type at Ganjing Salt, absent from the three-type export. DISTILL-CANARY-e17278da",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "84.60"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b06-ganjing-cust",
+    "ref_calls": 3,
+    "fixture_bytes": 672,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 甘井盐业 - 9 月发货表\n\n销售内勤按月导出的发货流水，一行一单。客户类型目前只有零售、批发、电商三类，企业定制单走集团台账，不在本表。\n",
+    "exports/ship-2026-09.csv": "发货单号,发货日期,客户类型,区域,吨数\nGJ-7301,2026-09-02,批发,鲁南,18.60\nGJ-7304,2026-09-03,零售,鲁中,2.40\nGJ-7309,2026-09-05,电商,苏北,6.80\nGJ-7315,2026-09-08,批发,鲁南,22.30\nGJ-7320,2026-09-10,零售,冀南,3.10\nGJ-7326,2026-09-13,电商,皖北,9.50\nGJ-7333,2026-09-16,批发,冀南,15.20\nGJ-7340,2026-09-19,零售,鲁中,2.80\nGJ-7347,2026-09-22,电商,苏北,11.40\nGJ-7354,2026-09-25,批发,鲁南,28.50\nGJ-7361,2026-09-28,零售,冀南,4.60\n"
+  },
+  "turns": [
+    {
+      "prompt": "甘井盐业销售月会要按客户类型拆数据，帮我在 exports/ship-2026-09.csv 里算一下『企业定制』这类客户 9 月的发货吨数合计？",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "企业定制",
+          "企业 定制"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools",
+          "84.60"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "id": "hyb-7771",
+  "description": "Two-turn clarify (two readings): the till export has gross_gbp and net_gbp columns; turn 1 names both and asks, turn 2 picks net giving 4534.53. DISTILL-CANARY-3b38152d",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 5441.44
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b07-ambiguoustwo-02",
+    "ref_calls": 3,
+    "fixture_bytes": 264,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "value"
+  },
+  "files": {
+    "README.md": "# Hartwell & Sons\n\nTill export: gross includes VAT at 20%; net is what the till banked.\n",
+    "tills/till-export-2026-08.csv": "date,gross_gbp,net_gbp\n2026-08-02,962.98,802.48\n2026-08-05,732.00,610.00\n2026-08-09,1061.09,884.24\n2026-08-14,546.00,455.00\n2026-08-20,1259.77,1049.81\n2026-08-27,879.60,733.00\n"
+  },
+  "turns": [
+    {
+      "prompt": "What did the tills take in August for the partners' pack?",
+      "expect": {
+        "forbidden_tools": [
+          "write_file",
+          "append_file",
+          "replace_lines"
+        ],
+        "output_contains_any": [
+          "?",
+          "Which",
+          "which",
+          "What",
+          "what",
+          "confirm",
+          "Confirm",
+          "specify",
+          "Specify",
+          "Do you",
+          "do you",
+          "Did you",
+          "did you",
+          "should I",
+          "Should I",
+          "please provide",
+          "Please provide",
+          "need to know",
+          "Need to know"
+        ],
+        "output_contains": [
+          "gross_gbp",
+          "net_gbp"
+        ]
+      }
+    },
+    {
+      "prompt": "Use net. Reply with only the final answer.",
+      "expect": {
+        "expected_number": 4534.53,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

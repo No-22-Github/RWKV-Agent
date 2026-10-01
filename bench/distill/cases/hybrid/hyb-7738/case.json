@@ -1,0 +1,48 @@
+{
+  "id": "hyb-7738",
+  "description": "云栖瑜伽两轮会话：先算 3 月净收入（退款以正数入账），道谢后追问最大一笔退款。 DISTILL-CANARY-90f4c613",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-SIGN"
+    ],
+    "trap_decoys": {
+      "TR-SIGN": 17540
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b07-yoga-01",
+    "ref_calls": 2,
+    "fixture_bytes": 434,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 云栖瑜伽 · 3 月资金流水\n\n退款与收入一样按正数记账，类别列区分「收入」与「退款」。\n金额均为实收实付。\n",
+    "finance/march_cashflow.csv": "date,项目,类别,金额\n2026-03-04,私教课,收入,6800.00\n2026-03-06,会员卡退款,退款,320.00\n2026-03-08,团课,收入,5200.00\n2026-03-11,工作坊,收入,3100.00\n2026-03-16,私教退款,退款,620.00\n2026-03-19,私教课,收入,1200.00\n2026-03-24,团课退款,退款,300.00\n"
+  },
+  "turns": [
+    {
+      "prompt": "帮我算一下 3 月的净收入，流水在 finance/march_cashflow.csv。只回答数字。",
+      "expect": {
+        "expected_number": 15060,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "辛苦啦，谢谢！还想再确认一个数：3 月最大的一笔退款是多少？只回答数字。",
+      "expect": {
+        "expected_number": 620,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

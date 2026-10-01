@@ -1,0 +1,44 @@
+{
+  "id": "doc-7330",
+  "description": "Find the newest server version in a release directory that also lists client builds. DISTILL-CANARY-de5d2dfa",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": "3.9.0"
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b06-yunmiao",
+    "ref_calls": 2,
+    "fixture_bytes": 759,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "docs/云打印发布目录.csv": "产品,版本号,发布日期,说明\n云打印服务端,4.6.0,2026-03-10,修复队列堆积\n云打印服务端,4.7.5,2026-04-02,支持缺纸告警\n云打印服务端,4.8.2,2026-05-14,修复断连重试\n云打印服务端,5.0.9,2026-07-02,新增打印模板\n云打印服务端,5.2.1,2026-08-30,修复模板偏移\n云打印客户端,3.6.1,2026-04-20,修复预览空白\n云打印客户端,3.7.2,2026-06-11,新增扫码取件\n云打印客户端,3.8.4,2026-07-21,修复重复出票\n云打印客户端,3.9.0,2026-09-10,新增静默安装\n云标签打印机,2.1.0,2026-03-30,首版\n云标签打印机,2.2.4,2026-06-05,修复偏移\n云收银插件,1.5.0,2026-04-11,首版\n云收银插件,1.6.2,2026-07-08,修复小数进位\n云对账助手,0.9.3,2026-08-15,内测版\n"
+  },
+  "turns": [
+    {
+      "prompt": "门店的云打印最近总掉线，IT 让各店把服务端升到最新。云打印服务端现在最新的版本号是多少？",
+      "expect": {
+        "output_contains_any": [
+          "5.2.1"
+        ],
+        "output_excludes": [
+          "3.9.0"
+        ]
+      }
+    }
+  ]
+}

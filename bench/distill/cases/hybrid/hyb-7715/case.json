@@ -1,0 +1,56 @@
+{
+  "id": "hyb-7715",
+  "description": "Multi-turn rush-job total for a copy shop, then the top job and its amount. DISTILL-CANARY-7d2e91a4",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 5260
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b07-drilldown-05",
+    "ref_calls": 2,
+    "fixture_bytes": 431,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "jobs/print-jobs-2026-09.csv": "job_id,rush,total_yuan\nPJ-9031,是,980.00\nPJ-9033,否,210.00\nPJ-9034,是,416.00\nPJ-9036,否,156.50\nPJ-9037,是,655.50\nPJ-9040,否,320.00\nPJ-9041,是,388.00\nPJ-9044,否,98.00\nPJ-9045,是,742.50\nPJ-9048,是,682.00\nPJ-9031,是,980.00\nPJ-9034,是,416.00\n",
+    "README.md": "# 拾光影印 九月工单\n\n每行一张工单：工单号、是否加急、总价（元）。月中导出重试过一次，\n个别加急工单会以完全相同的两行出现。\n"
+  },
+  "turns": [
+    {
+      "prompt": "拾光影印九月对账。加急（rush 为「是」）工单的打印费合计多少元？只回数字。",
+      "expect": {
+        "expected_number": 3864.0,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "加急工单里总价最高的是哪个工单号？回工单号就行。",
+      "expect": {
+        "output_contains": [
+          "PJ-9031"
+        ]
+      }
+    },
+    {
+      "prompt": "这一单的总价是多少元？只回数字。",
+      "expect": {
+        "expected_number": 980.0,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

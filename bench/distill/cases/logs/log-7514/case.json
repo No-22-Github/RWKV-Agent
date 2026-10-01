@@ -1,0 +1,64 @@
+{
+  "id": "log-7514",
+  "description": "Four-turn English session on a CDN cache purge done twice: carried-out purges, covers subset, marketing exclusion, busiest minute of the executed run. DISTILL-CANARY-8c4ce690",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": 23
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L2",
+    "family": "fam-log-b07-quill-cdn-01",
+    "ref_calls": 6,
+    "fixture_bytes": 1826,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "logs/purge-executed.log": "2026-09-22 22:10:03 P-301 SENT path=/assets/covers/cover-1121.jpg\n2026-09-22 22:12:44 P-302 SENT path=/assets/pages/page-204.json\n2026-09-22 22:15:21 P-303 SENT path=/assets/covers/cover-1180.jpg\n2026-09-22 22:18:05 P-304 SENT path=/assets/pages/page-211.json\n2026-09-22 22:20:38 P-305 SENT path=/assets/covers/cover-1042.jpg\n2026-09-22 22:23:16 P-306 SENT path=/assets/marketing/banner-08.png\n2026-09-22 22:26:52 P-307 SENT path=/assets/pages/page-198.json\n2026-09-22 22:31:27 P-308 SENT path=/assets/pages/page-207.json\n2026-09-22 22:36:09 P-309 SENT path=/assets/covers/cover-1230.jpg\n2026-09-22 22:41:02 P-310 SENT path=/assets/marketing/banner-11.png\n2026-09-22 22:41:19 P-311 SENT path=/assets/pages/page-215.json\n2026-09-22 22:41:37 P-312 SENT path=/assets/covers/cover-1301.jpg\n2026-09-22 22:47:53 P-313 SENT path=/assets/pages/page-220.json\n2026-09-22 22:52:31 P-314 SENT path=/assets/marketing/banner-03.png\n",
+    "logs/purge-superseded.log": "2026-09-22 22:01:11 P-301 QUEUED path=/assets/covers/cover-1121.jpg\n2026-09-22 22:01:48 P-302 QUEUED path=/assets/pages/page-204.json\n2026-09-22 22:02:20 P-303 QUEUED path=/assets/covers/cover-1180.jpg\n2026-09-22 22:02:57 P-304 QUEUED path=/assets/pages/page-211.json\n2026-09-22 22:03:31 P-305 QUEUED path=/assets/covers/cover-1042.jpg\n2026-09-22 22:03:58 P-306 QUEUED path=/assets/marketing/banner-08.png\n2026-09-22 22:04:19 P-307 QUEUED path=/assets/pages/page-198.json\n2026-09-22 22:04:41 P-308 QUEUED path=/assets/pages/page-207.json\n2026-09-22 22:05:02 P-309 QUEUED path=/assets/covers/cover-1230.jpg\n",
+    "README.md": "# Quill & Page CDN cache purge, 2026-09-22 22:00-23:00 window\n\nlogs/purge-superseded.log is the first attempt: it was aborted at 22:05 before\nany purge was sent, and the operator re-issued the whole set as the executed run.\nPurge ids are stable across attempts. Only rows marked SENT were carried out.\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "Quill & Page's CDN ran a cache purge during the 22:00-23:00 maintenance window on 2026-09-22; logs/purge-executed.log and logs/purge-superseded.log cover the two attempts. How many cache purges were carried out?",
+      "expect": {
+        "expected_number": 14.0,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "How many of those purges targeted paths under /assets/covers/?",
+      "expect": {
+        "expected_number": 5.0,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "The marketing team's banner purges (paths under /assets/marketing/) were requested through a separate ticket — leave them out and recount.",
+      "expect": {
+        "expected_number": 11.0,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "Different question: which minute of the executed run sent the most purges?",
+      "expect": {
+        "output_contains_any": [
+          "22:41"
+        ]
+      }
+    }
+  ]
+}

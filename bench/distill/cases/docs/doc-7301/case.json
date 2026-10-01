@@ -1,0 +1,56 @@
+{
+  "id": "doc-7301",
+  "description": "Collect the standup's action items into a fresh follow-up file in the house format. DISTILL-CANARY-4a9d72e6",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 5
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b06-gorsewick",
+    "ref_calls": 3,
+    "fixture_bytes": 1023,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "followups/.keep": "",
+    "minutes/standup-2026-09-24.txt": "- Tomasz: the cranberry dock shot still pops through the pier at frame 240; he takes the fix, due 2026-09-26.\n- Ines: the lighthouse glass needs a warmer tint for the dusk pass; she takes it, due 2026-09-25.\n- Mirela: the foley session for the storm sequence is booked for October; nothing to do until the studio confirms the date.\n- Dev: the crab-walk cycle has a stray vertex; he takes the cleanup, due 2026-09-27.\n- Parked: retiming the tide chart came up again, but Mirela wants the tide vendor call first, so it stays with no owner until next week.\n",
+    "README.md": "# Gorsewick Studios - standup follow-ups\n\nThe standup bot appends its notes to minutes/ as plain bullets, one per line,\nno header. Producers collect the follow-ups into followups/, one file per\nstandup day named YYYY-MM-DD.md.\n\nA follow-up file lists only action items: a bullet counts as an action item\nwhen it names an owner and carries a due date. Each line is written as\n\n    - <name>: <one-line summary> (due <date>)\n\nin the order the bullets appear in the notes.\n"
+  },
+  "expect": {
+    "files": {
+      "followups/2026-09-24.md": {
+        "contains": [
+          "- Tomasz:",
+          "- Ines:",
+          "- Dev:",
+          "(due 2026-09-26)",
+          "(due 2026-09-25)",
+          "(due 2026-09-27)"
+        ]
+      },
+      "minutes/standup-2026-09-24.txt": {
+        "unchanged": true
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The producers at Gorsewick Studios collect standup follow-ups into followups/, one file per standup day. Write the follow-up file for 2026-09-24 from that day's notes in minutes/, following the house format in README.md. Leave the notes themselves untouched. When you are done, describe in two or three sentences what you wrote.",
+      "expect": {}
+    }
+  ]
+}

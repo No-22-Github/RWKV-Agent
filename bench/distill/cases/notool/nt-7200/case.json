@@ -1,0 +1,42 @@
+{
+  "id": "nt-7200",
+  "description": "Convert a 25-mile road sign to kilometres for the roadbook; the mile definition is fixed. DISTILL-CANARY-371a5ade",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 64.37
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-mileconv-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 305
+  },
+  "web_fixture": [],
+  "files": {
+    "routes/day3_legs.csv": "destination,sign_miles\n黑水镇,25\n观景台,8\n加油站,40\n",
+    "README.md": "# 远山自驾 - 行程工作区\n\n美国段的自驾路牌记录和行程安排都放在这里。\n\n- routes/  每日路段与路牌记录\n- stays/  住宿与加油安排\n\n行程表里的距离统一换算成公里登记，保留两位小数。\n"
+  },
+  "turns": [
+    {
+      "prompt": "远山自驾的美国段今天开往黑水镇，高速路牌上写着距黑水镇 25 英里。行程表里的距离要换算成公里登记。从路牌处到黑水镇是多少公里？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 40.23,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

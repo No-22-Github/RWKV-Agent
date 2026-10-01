@@ -1,0 +1,44 @@
+{
+  "id": "tab-8013",
+  "description": "Compute September 2026 sales commission for a furniture retailer using tiered rates from a rule memo, with refund rows stored as positive amounts. DISTILL-CANARY-4dd919fb",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "policy_calc",
+    "traps": [
+      "TR-RULEFILE",
+      "TR-SIGN"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": 2826.0,
+      "TR-SIGN": 3005.5
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-holdout-tab-commission-01",
+    "ref_calls": 4,
+    "fixture_bytes": 1027,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "sales/销售明细-2026-09.csv": "订单号,成交日期,销售员,类型,金额(元)\nDD-77102,2026-09-03,沈晓东,销售,4860.00\nDD-77108,2026-09-04,沈晓东,销售,3520.00\nDD-77111,2026-09-05,顾春梅,销售,26800.00\nDD-77115,2026-09-06,顾春梅,销售,1980.00\nDD-77119,2026-09-08,沈晓东,销售,7240.00\nDD-77123,2026-09-09,顾春梅,销售,5310.00\nDD-77128,2026-09-11,赵磊,销售,2260.00\nDD-77131,2026-09-12,赵磊,销售,18940.00\nDD-77135,2026-09-14,沈晓东,销售,6120.00\nDD-77140,2026-09-16,顾春梅,销售,4570.00\nDD-77144,2026-09-19,赵磊,销售,3480.00\nDD-77149,2026-09-22,沈晓东,销售,9120.00\nTK-0031,2026-09-07,顾春梅,退款,620.00\nTK-0034,2026-09-13,沈晓东,退款,480.00\nTK-0037,2026-09-20,赵磊,退款,350.00\n",
+    "提成办法.md": "# 启澜家居销售提成办法（2026 版）\n\n- 基础提成按订单金额的 3% 计提。\n- 单笔销售额满 20000 元的订单：其中 20000 元的部分按 3%，超出 20000 元的部分按 5%。\n- 类型为退款的行是此前订单的退回，金额以正数记录；退款订单本身不计提提成。\n"
+  },
+  "turns": [
+    {
+      "prompt": "启澜家居要核 9 月的销售提成总额。明细在 sales/销售明细-2026-09.csv，计提口径见提成办法。总额是多少？只回答数字，保留两位小数。",
+      "expect": {
+        "expected_number": 2962.0,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

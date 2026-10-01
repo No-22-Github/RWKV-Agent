@@ -1,0 +1,43 @@
+{
+  "id": "code-7222",
+  "description": "Locate the real definition of calc_pallet_fee while a legacy module imports and mentions it. DISTILL-CANARY-67cde140",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "locate_definition",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "billing_legacy.py"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-code-b06-lanshi-def",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 1212,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {
+    "billing.py": "\"\"\"澜石仓储的托盘计费模块，费率口径以运营部 9 月通知为准。\nzone 取值见 constants 区。\n\"\"\"\nZONE_RATE = {\"A\": 4.5, \"B\": 3.2, \"C\": 2.8}\n\n\ndef calc_pallet_fee(pallets: int, zone: str) -> float:\n    \"\"\"按托数与库区费率计算补差运费。\"\"\"\n    rate = ZONE_RATE.get(zone, 0.0)\n    return round(pallets * rate, 2)\n",
+    "billing_legacy.py": "\"\"\"旧版托盘计费，只保留给历史账单复核使用，新流程禁止接入。\n本文件仅为复核脚本兜底。\n\"\"\"\nfrom billing import calc_pallet_fee\n\n\ndef calc_pallet_fee_legacy(pallets: int, zone: str) -> float:\n    \"\"\"历史口径：托数先向上取整到十位，再套当期费率。\"\"\"\n    import math\n\n    return calc_pallet_fee(math.ceil(pallets / 10) * 10, zone)\n\n\nLOG_TEMPLATE = \"托盘补差复核完成：{order} 使用 calc_pallet_fee 口径复核，差额 {delta}\"\n",
+    "weekly_report.py": "\"\"\"周报脚本：汇总各门店的托盘补差并生成日报附件。\n输出列与财务系统的模板一致。\n\"\"\"\nfrom billing import calc_pallet_fee\n\n\ndef weekly_rows(movements: list) -> list:\n    rows = []\n    for mv in movements:\n        fee = calc_pallet_fee(mv[\"pallets\"], mv[\"zone\"])\n        rows.append([mv[\"store\"], mv[\"pallets\"], fee])\n    return rows\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "澜石仓储的周报脚本 weekly_report.py 用到了 calc_pallet_fee。这个函数的定义在哪个文件里？回答时写明文件名。",
+      "expect": {
+        "output_contains_any": [
+          "billing.py"
+        ]
+      }
+    }
+  ]
+}

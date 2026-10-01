@@ -1,0 +1,62 @@
+{
+  "id": "web-7552",
+  "description": "Removal version of the legacy /v1/webhooks endpoint, named in the official notice snippet. DISTILL-CANARY-99debaa8",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "deprecation",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": 12
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-web-b06-otterwick",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "otterwick",
+      "url": "https://developers.otterwick.example/notices/webhooks-v1",
+      "url_match": "developers.otterwick.example/notices/webhooks-v1",
+      "title": "Webhooks v1 retirement - Otterwick Payments",
+      "snippet": "The legacy /v1/webhooks endpoint will be removed in API version 16; migrate to /v2/events.",
+      "content": "# Webhooks v1 retirement - Otterwick Payments\n\nPosted 2026-08-25. The legacy /v1/webhooks endpoint will be removed in API version 16.\nMigrate to /v2/events ahead of the 2026-11-02 cutover.\n\nReplay windows and signing keys carry over unchanged.\n",
+      "published_at": "2026-08-25"
+    },
+    {
+      "query_match": "otterwick",
+      "url": "https://blog.eventgrid.example/otterwick-hooks",
+      "url_match": "blog.eventgrid.example/otterwick-hooks",
+      "title": "Replaying Otterwick webhooks safely",
+      "snippet": "Webhooks v1 has been deprecated since API version 12; replay tips for the transition.",
+      "content": "blog.eventgrid.example, 2026-03-19.\n\nOtterwick's webhooks v1 has been deprecated since API version 12.\nReplay tips: keep idempotency keys, and watch the event ordering\nnotes before you cut over.\n",
+      "published_at": "2026-03-19"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "We route shipment updates through Otterwick's legacy /v1/webhooks endpoint. Give the number alone, as digits, with no label. In which API version does Otterwick remove it?",
+      "expect": {
+        "expected_number": 16,
+        "tolerance": 0.01
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  }
+}

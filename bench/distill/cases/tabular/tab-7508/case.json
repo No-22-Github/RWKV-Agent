@@ -1,0 +1,50 @@
+{
+  "id": "tab-7508",
+  "description": "Count the January 2026 customers who took one gear class in a ski rental log whose retry wrote some contracts twice. DISTILL-CANARY-8125e1db",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 24
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b06-dupdistinct-02",
+    "ref_calls": 2,
+    "fixture_bytes": 4402,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "data/equipment_log.csv": "rental_id,rental_month,gear_class,size,renter_id\nFR-9174,2026-01,Snowboard Package,L,RS-2814\nFR-5280,2026-01,Snowboard Package,S,RS-3417\nFR-7689,2026-01,Snowboard Package,L,RS-9868\nFR-2200,2026-01,Boots Only,S,RS-6586\nFR-967,2025-12,Ski Package,S,RS-6436\nFR-5972,2026-02,Snowboard Package,S,RS-8619\nFR-3007,2026-02,Snowboard Package,L,RS-2519\nFR-6102,2026-02,Ski Package,M,RS-6639\nFR-2976,2026-01,Boots Only,L,RS-3879\nFR-6238,2025-12,Snowboard Package,S,RS-7022\nFR-1816,2026-01,Snowboard Package,M,RS-381\nFR-5902,2026-01,Boots Only,L,RS-8353\nFR-2149,2025-12,Ski Package,M,RS-6091\nFR-3636,2026-02,Ski Package,L,RS-1678\nFR-1416,2026-02,Ski Package,L,RS-2814\nFR-3628,2025-12,Ski Package,M,RS-6218\nFR-2518,2025-12,Snowboard Package,M,RS-2814\nFR-1471,2026-02,Ski Package,L,RS-2648\nFR-3183,2026-01,Ski Package,M,RS-7022\nFR-553,2025-12,Ski Package,M,RS-8353\nFR-7124,2026-01,Snowboard Package,M,RS-319\nFR-7617,2026-01,Snowboard Package,M,RS-1678\nFR-2211,2026-01,Boots Only,S,RS-3541\nFR-3915,2026-02,Snowboard Package,M,RS-8619\nFR-9277,2026-01,Ski Package,L,RS-6586\nFR-2467,2026-01,Boots Only,L,RS-1678\nFR-9357,2025-12,Snowboard Package,L,RS-5636\nFR-1178,2026-02,Ski Package,L,RS-7106\nFR-7403,2026-01,Ski Package,S,RS-6218\nFR-1225,2026-01,Snowboard Package,S,RS-1019\nFR-7846,2026-02,Boots Only,S,RS-7948\nFR-5869,2026-02,Snowboard Package,L,RS-2696\nFR-7452,2026-01,Ski Package,S,RS-4227\nFR-7402,2025-12,Ski Package,S,RS-9365\nFR-2375,2025-12,Boots Only,S,RS-3113\nFR-8401,2026-01,Boots Only,M,RS-5148\nFR-5740,2025-12,Ski Package,L,RS-3541\nFR-8538,2026-01,Ski Package,S,RS-8124\nFR-9649,2025-12,Snowboard Package,M,RS-7948\nFR-5020,2026-01,Snowboard Package,M,RS-4073\nFR-7830,2026-01,Ski Package,S,RS-9152\nFR-281,2026-01,Snowboard Package,S,RS-1019\nFR-9823,2025-12,Snowboard Package,M,RS-7106\nFR-402,2026-01,Boots Only,M,RS-591\nFR-4811,2026-01,Ski Package,L,RS-9524\nFR-1238,2026-01,Snowboard Package,S,RS-8097\nFR-3980,2026-02,Snowboard Package,L,RS-7948\nFR-6245,2026-01,Snowboard Package,M,RS-8923\nFR-6617,2026-01,Ski Package,L,RS-7537\nFR-3667,2026-01,Ski Package,S,RS-3089\nFR-1072,2026-01,Snowboard Package,S,RS-2281\nFR-7742,2026-02,Snowboard Package,L,RS-3541\nFR-4908,2025-12,Snowboard Package,S,RS-3113\nFR-8433,2026-01,Snowboard Package,S,RS-6436\nFR-7705,2025-12,Boots Only,L,RS-1283\nFR-3388,2026-01,Snowboard Package,M,RS-2519\nFR-7699,2026-02,Snowboard Package,L,RS-3333\nFR-1548,2026-02,Ski Package,L,RS-757\nFR-4781,2026-02,Snowboard Package,L,RS-7537\nFR-3220,2026-01,Ski Package,S,RS-6218\nFR-5622,2026-01,Ski Package,M,RS-5148\nFR-5325,2026-01,Ski Package,M,RS-1283\nFR-5016,2026-02,Snowboard Package,M,RS-7804\nFR-1268,2026-01,Snowboard Package,L,RS-3333\nFR-2475,2026-01,Ski Package,S,RS-1678\nFR-3799,2026-02,Boots Only,S,RS-7537\nFR-8700,2026-01,Boots Only,S,RS-8444\nFR-6792,2026-01,Boots Only,S,RS-2814\nFR-4750,2026-01,Ski Package,L,RS-6436\nFR-8528,2025-12,Ski Package,M,RS-8353\nFR-7745,2026-01,Ski Package,L,RS-5636\nFR-1334,2026-01,Ski Package,S,RS-8619\nFR-116,2026-01,Ski Package,S,RS-7804\nFR-992,2026-01,Ski Package,L,RS-4227\nFR-2334,2026-01,Ski Package,L,RS-8669\nFR-6871,2026-01,Boots Only,S,RS-9868\nFR-9645,2025-12,Boots Only,S,RS-1678\nFR-9790,2026-01,Boots Only,S,RS-3988\nFR-8491,2026-01,Ski Package,L,RS-591\nFR-435,2026-01,Ski Package,M,RS-591\nFR-3116,2026-01,Snowboard Package,L,RS-3678\nFR-8637,2026-01,Snowboard Package,M,RS-9365\nFR-3872,2026-02,Ski Package,M,RS-6436\nFR-4983,2026-02,Ski Package,S,RS-6091\nFR-9556,2026-01,Snowboard Package,L,RS-5148\nFR-9336,2026-01,Ski Package,S,RS-7480\nFR-8415,2026-02,Ski Package,L,RS-7022\nFR-8711,2026-01,Ski Package,L,RS-3678\nFR-1797,2025-12,Ski Package,L,RS-3678\nFR-5168,2026-01,Ski Package,L,RS-3417\nFR-3294,2026-01,Snowboard Package,M,RS-4619\nFR-9795,2025-12,Boots Only,S,RS-757\nFR-1579,2026-01,Snowboard Package,L,RS-7480\nFR-2463,2026-01,Boots Only,M,RS-3089\nFR-8628,2026-01,Boots Only,L,RS-2519\nFR-3725,2026-01,Boots Only,S,RS-1019\nFR-8637,2026-01,Snowboard Package,M,RS-9365\nFR-1579,2026-01,Snowboard Package,L,RS-7480\nFR-7617,2026-01,Snowboard Package,M,RS-1678\nFR-3294,2026-01,Snowboard Package,M,RS-4619\n",
+    "README.md": "# Frostpine Ski Rentals - equipment log\n\nOne row per rental contract. The booking system retry wrote some contracts to the export twice; rental_id identifies the contract and renter_id identifies the customer.\n",
+    "notes/fit_bench.txt": "Fit bench\n- Boot shells rack by size on the wall.\n- The heat gun for moldings lives in the drawer.\n- Helmet liners go in the wash bin nightly.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Frostpine Ski Rentals is counting how many customers took snowboard gear in January. The equipment log is at data/equipment_log.csv. Give the number alone, as digits, with no label. How many different customers rented a Snowboard Package in January 2026?",
+      "expect": {
+        "expected_number": 19,
+        "tolerance": 0.01,
+        "required_tools": [
+          "data_query"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 1
+    }
+  }
+}

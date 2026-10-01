@@ -1,0 +1,45 @@
+{
+  "id": "cfg-7137",
+  "description": "Length of the effective lift quota of one tower after fragment and tower layers apply, with the array rule in the README. DISTILL-CANARY-dd753e0e",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "merge",
+    "traps": [
+      "TR-RULEFILE",
+      "TR-PRECEDENCE"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": 5,
+      "TR-PRECEDENCE": 2
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "fam-cfg-b06-wangjiang-estate",
+    "ref_calls": 3,
+    "fixture_bytes": 699,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 望江山庄 - 访客梯控配置\n\n山庄访客梯控配置按下面的次序套用，得到各楼栋的生效配置：\n\n一、基线 config/estate-base.json；\n二、冬季调整片段 config/winter-fragment.json；\n三、楼栋覆盖 config/tower-annan.json（安澜栋专用）。\n\n后套用的一层，同名键覆盖先套用的一层；列表（数组）键不逐项拼接，整组以最后写它的那层为准；某层没写的键沿用上一层的结果。\n",
+    "config/estate-base.json": "{\n  \"estate\": \"wangjiang-estate\",\n  \"lift_quota\": [\"tower-a\", \"tower-b\"],\n  \"ev_charge_slots\": 12,\n  \"gate_hours\": \"06:40\"\n}\n",
+    "config/winter-fragment.json": "{\n  \"lift_quota\": [\"tower-a\", \"tower-b\", \"tower-c\"],\n  \"ev_charge_slots\": 14\n}\n",
+    "config/tower-annan.json": "{\n  \"ev_charge_slots\": 9\n}\n"
+  },
+  "turns": [
+    {
+      "prompt": "望江山庄的安澜栋入冬后访客梯控有调整，物业主管要核对安澜栋现在生效的访客梯控覆盖哪几栋楼（只回答数字，不要单位）。套用次序与合并办法按 README 的说明。安澜栋生效配置里的 lift_quota 数组有几座楼？",
+      "expect": {
+        "expected_number": 3,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "id": "scr-7710",
+  "description": "Repair the bike-share battery swap report whose nightly run crashes on a swap row the handheld never finished. DISTILL-CANARY-342a4259",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_from_traceback",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "the moved-archive warning"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-scr-b06-spokeshed",
+    "ref_calls": 4,
+    "fixture_bytes": 1703,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "swaps.py": "\"\"\"Print the battery swap report for Spokeshed Cycles.\n\nThe vans drop one swap file per month into swaps/, one row per swap:\n\n    swap_id,day,station,bikes\n\nThe report is one line per station, in alphabetical order, with the bikes\nswapped that month, followed by a total line:\n\n    <station>,<bikes>\n    TOTAL,<bikes>\n\nA row whose bikes cell is empty is a swap the handheld started but never\nfinished; it counts nothing.\n\"\"\"\n\nimport csv\nimport glob\n\nper_station = {}\nfor path in sorted(glob.glob(\"swaps/*.csv\")):\n    with open(path, newline=\"\", encoding=\"utf-8\") as handle:\n        for row in list(csv.reader(handle))[1:]:\n            station = row[2]\n            bikes = int(row[3])\n            per_station[station] = per_station.get(station, 0) + bikes\n\ntotal = 0\nfor station in sorted(per_station):\n    print(f\"{station},{per_station[station]}\")\n    total += per_station[station]\nprint(f\"TOTAL,{total}\")\n",
+    "swaps/2026-09.csv": "swap_id,day,station,bikes\nSW-5101,2026-09-04,Harbour Wall,6\nSW-5102,2026-09-04,Mill Race,4\nSW-5103,2026-09-09,Harbour Wall,3\nSW-5104,2026-09-13,North Lock,5\nSW-5105,2026-09-13,Mill Race,\nSW-5106,2026-09-21,Harbour Wall,7\nSW-5107,2026-09-26,North Lock,2\n",
+    "logs/night-2026-09-26.log": "Spokeshed Cycles - nightly fleet jobs\n2026-09-26 23:05 [warn] battery archive moved to archive/2026-08; nothing else touched\n2026-09-26 23:40 [error] swap report failed, log follows\nTraceback (most recent call last):\n  File \"swaps.py\", line 25, in <module>\n    bikes = int(row[3])\nValueError: invalid literal for int() with base 10: ''\n",
+    "README.md": "# Spokeshed Cycles - battery swap report\n\nThe vans upload one swap file per month into swaps/. A handheld that dies\nmid-swap still writes its row, with the bikes cell left empty; those\nswaps never finished.\n"
+  },
+  "expect": {
+    "files": {
+      "swaps/2026-09.csv": {
+        "unchanged": true
+      },
+      "logs/night-2026-09-26.log": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "swaps.py",
+      "expected_stdout": "Harbour Wall,20\nMill Race,9\nNorth Lock,13\nTOTAL,42",
+      "hidden_files": {
+        "swaps/2026-10.csv": "swap_id,day,station,bikes\nSW-5201,2026-10-02,Mill Race,5\nSW-5202,2026-10-09,Harbour Wall,4\nSW-5203,2026-10-14,Mill Race,\nSW-5204,2026-10-20,North Lock,6\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The battery swap report at Spokeshed Cycles stopped coming out: the nightly job crashed on the 26th and the run record is in logs/night-2026-09-26.log. Please repair swaps.py so the report prints again the way its docstring describes, and so it keeps working as later monthly swap files land in swaps/. The swap files are the vans' own uploads, so they stay as they are. When you are done, say in two or three sentences what you changed.",
+      "expect": {}
+    }
+  ]
+}

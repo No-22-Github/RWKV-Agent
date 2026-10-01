@@ -1,0 +1,54 @@
+{
+  "id": "scr-7741",
+  "description": "Repair the cocoon station's drying report script that dies on an undefined totals variable. DISTILL-CANARY-c91140d5",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_from_traceback",
+    "traps": [
+      "TR-CLAIM"
+    ],
+    "trap_decoys": {
+      "TR-CLAIM": "日志页脚写着「批处理状态：完成」，误读为无需修复"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-scr-b06-banshan",
+    "ref_calls": 3,
+    "fixture_bytes": 1426,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "dryer.py": "\"\"\"打印半山蚕茧站的烘房日报。\n\n导出按月落进 dryers/，一行一次进灶：\n\n    日期,灶号,茧量斤\n\n日报按日期排序打印，每天一行，最后加一行总计：\n\n    <日期>,<次>,<茧量斤>\n    总计,<次>,<茧量斤>\n\"\"\"\n\nimport csv\nimport glob\n\nper_day = {}\nfor path in sorted(glob.glob(\"dryers/*.csv\")):\n    with open(path, encoding=\"utf-8\") as handle:\n        for row in csv.DictReader(handle):\n            day = row[\"日期\"]\n            old = per_day.get(day, (0, 0))\n            per_day[day] = (old[0] + 1, old[1] + int(row[\"茧量斤\"]))\n\ntimes_total = 0\njin_total = 0\nfor day in sorted(per_day):\n    times, jin = per_day[day]\n    print(f\"{day},{times},{jin}\")\n    times_total += times\n    jin_total += jin\nprint(f\"总计,{grand_total[0]},{grand_total[1]}\")\n",
+    "dryers/2026-09.csv": "日期,灶号,茧量斤\n2026-09-03,一号灶,112\n2026-09-03,三号灶,90\n2026-09-10,二号灶,128\n2026-09-17,一号灶,105\n2026-09-24,三号灶,84\n",
+    "logs/dryer-2026-09.log": "半山蚕茧站 烘房批处理\n2026-09-29 06:30 [info] 读取 dryers/2026-09.csv\n2026-09-29 06:30 [error] 烘房日报中断，回溯如下：\nTraceback (most recent call last):\n  File \"dryer.py\", line 31, in <module>\n    print(f\"总计,{grand_total[0]},{grand_total[1]}\")\nNameError: name 'grand_total' is not defined\n2026-09-29 06:31 [info] 批处理状态：完成\n",
+    "README.md": "# 半山蚕茧站 - 烘房日报\n\ndryer.py 打印烘房组的烘干日报。导出是烘房组的留档。\n"
+  },
+  "expect": {
+    "files": {
+      "dryers/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "dryer.py",
+      "expected_stdout": "2026-09-03,2,202\n2026-09-10,1,128\n2026-09-17,1,105\n2026-09-24,1,84\n2026-10-08,1,124\n2026-10-15,1,98\n2026-10-22,1,87\n总计,8,828",
+      "hidden_files": {
+        "dryers/2026-10.csv": "日期,灶号,茧量斤\n2026-10-08,二号灶,124\n2026-10-15,一号灶,98\n2026-10-22,三号灶,87\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "半山蚕茧站的烘房日报好几天没出来了：夜间批处理中断，运行记录在 logs/dryer-2026-09.log。请把 dryer.py 修好，让日报按说明里的版式恢复打印，之后 dryers/ 里新到的导出也要能照常汇总。dryers/ 里的导出是烘房组的留档，保持原样。完成后用两三句话说明你改了什么。",
+      "expect": {}
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "id": "log-7601",
+  "description": "Summarize a bakery deck-oven temperature log: genuine over-temp alarms, onset time, and the cause from the maintenance note; TEST BURN entries are decoys. DISTILL-CANARY-c0c28f39",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "root_cause",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "4 over-temp alarms"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-b07-thermroot-01",
+    "ref_calls": 3,
+    "fixture_bytes": 792,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:distill-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "logs/deck-oven-aug.log": "2026-08-14 05:02 deck oven chamber B temp 247C over limit ALARM\n2026-08-14 05:07 deck oven chamber B temp 244C still over limit ALARM\n2026-08-14 05:19 deck oven chamber B temp 206C back in range OK\n2026-08-14 21:40 deck oven chamber B heating element replaced, work order WO-2214 DONE\n2026-08-15 06:30 deck oven chamber B temp 239C over limit TEST BURN\n2026-08-15 07:05 deck oven chamber B temp 227C still over limit TEST BURN\n2026-08-15 07:52 deck oven chamber B temp 195C in range OK\n",
+    "notes/maintenance.md": "Hillbrook Bakehouse - Hearthline D240 deck oven, chamber B.\n\n2026-08-14, evening: heating element swapped, work order WO-2214 signed off.\nCause: worn heating element in chamber B.\n\nThe two over-limit entries on 2026-08-15 are TEST BURN commissioning runs,\nrack empty. They are expected and are not faults.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Hillbrook Bakehouse's deck oven kept tripping its over-temp alarm this month and I have to explain it at Monday's production meeting. Summarize the oven log for me: how many genuine over-temp alarms there were, what time the trouble started, and what the maintenance notes say caused it.",
+      "expect": {
+        "output_contains": [
+          "2 over-temp alarms",
+          "05:02",
+          "worn heating element in chamber B"
+        ],
+        "output_contains_any": [
+          "2 over-temp alarms",
+          "05:02",
+          "worn heating element in chamber B"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

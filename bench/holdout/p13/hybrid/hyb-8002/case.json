@@ -1,0 +1,54 @@
+{
+  "id": "hyb-8002",
+  "description": "Three-turn session on a Chinese supermarket stock snapshot: count SKUs with real quantities among mixed blank markers, sum them, then re-scope to one warehouse. DISTILL-CANARY-6b2c7ad8",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-MISSING"
+    ],
+    "trap_decoys": {
+      "TR-MISSING": 14
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-holdout-hyb-stock-rescope-01",
+    "ref_calls": 3,
+    "fixture_bytes": 981,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "库存快照-2026-09-15.csv": "仓库,品类,SKU,在库数量,周转天数\n1号仓,生鲜,生鲜-叶菜,190,15\n1号仓,生鲜,生鲜-菌菇,180,18\n2号仓,生鲜,生鲜-浆果,210,12\n2号仓,生鲜,生鲜-热带果,320,25\n3号仓,生鲜,生鲜-叶菜,260,14\n3号仓,生鲜,生鲜-茄果,240,16\n3号仓,生鲜,生鲜-根茎,150,21\n3号仓,生鲜,生鲜-菌菇,230,19\n3号仓,生鲜,生鲜-浆果,160,22\n1号仓,生鲜,生鲜-柑橘,200,17\n2号仓,生鲜,生鲜-叶菜,NA,12\n2号仓,生鲜,生鲜-芽苗,-,15\n3号仓,生鲜,生鲜-鲜切,,28\n1号仓,生鲜,生鲜-香草,NA,20\n1号仓,饮料,饮料-气泡水,640,31\n1号仓,饮料,饮料-冷萃,380,26\n2号仓,饮料,饮料-果汁,520,29\n3号仓,饮料,饮料-茶饮,440,33\n1号仓,日配,日配-酸奶,720,11\n2号仓,日配,日配-鲜奶,880,8\n3号仓,日配,日配-奶油,310,13\n1号仓,冷冻,冷冻-水饺,560,36\n2号仓,冷冻,冷冻-冰淇淋,430,38\n3号仓,冷冻,冷冻-牛肉,290,35\n2号仓,冷冻,冷冻-虾滑,240,32\n3号仓,日配,日配-蛋品,610,24\n"
+  },
+  "turns": [
+    {
+      "prompt": "泊岸商超 9 月中的库存快照在 库存快照-2026-09-15.csv。生鲜大类里在库数量有数据的 SKU 有几个？只回答数字。",
+      "expect": {
+        "expected_number": 10,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "把这些有数据的生鲜在库量加总，一共多少件？只回答数字。",
+      "expect": {
+        "expected_number": 2140,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "口径改一下：只看 3 号仓，生鲜在库总量是多少件？只回答数字。",
+      "expect": {
+        "expected_number": 1040,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

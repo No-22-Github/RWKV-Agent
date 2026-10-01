@@ -1,0 +1,54 @@
+{
+  "id": "web-7531",
+  "description": "Explain SDK error 14029 from the official error-code page given by URL. DISTILL-CANARY-fff32453",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "VER"
+    ],
+    "level": "L0",
+    "family": "fam-web-b06-yusheng-err",
+    "answer_style": "natural",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "屿声",
+      "url": "https://docs.yusheng.example/sdk/errors",
+      "url_match": "docs.yusheng.example/sdk/errors",
+      "title": "屿声语音 SDK · 错误码手册",
+      "snippet": "录音与合成相关的错误码含义。",
+      "published_at": "2026-08-06",
+      "content": "# 屿声语音 SDK · 错误码手册\n\n五位数字错误码以 14 开头的属于录音链路。\n\n14025 | 麦克风权限被系统拒绝 | 引导用户到系统设置开启权限\n14029 | 录音通道被其他应用占用 | 关闭占用麦克风的通话或录音应用后重试\n14033 | 网络抖动丢包 | SDK 会自动重连，无需处理\n14041 | 采样率不受设备支持 | 改用 16k 或 48k 采样率\n"
+    },
+    {
+      "query_match": "屿声",
+      "url": "https://docs.yusheng.example/sdk/quickstart",
+      "url_match": "docs.yusheng.example/sdk/quickstart",
+      "title": "屿声语音 SDK · 快速开始",
+      "snippet": "五分钟接入第一段录音。",
+      "published_at": "2026-08-06",
+      "content": "# 快速开始\n\n安装 SDK 后初始化 appkey，先在沙箱环境跑通一段录音。\n"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "屿声语音 SDK 的错误码手册在 https://docs.yusheng.example/sdk/errors。SDK 报 14029 错误是什么意思？",
+      "expect": {
+        "output_contains_any": [
+          "占用"
+        ]
+      }
+    }
+  ]
+}

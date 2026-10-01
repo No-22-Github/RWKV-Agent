@@ -1,0 +1,40 @@
+{
+  "id": "doc-8011",
+  "description": "Annual leave days for an employee with four years of tenure under the currently effective revision of a Chinese HR policy. DISTILL-CANARY-f6be6e85",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": 8
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-holdout-doc-annualleave-01",
+    "ref_calls": 2,
+    "fixture_bytes": 444,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "员工手册-休假制度.md": "# 员工手册：休假制度（现行版）\n\n## 年假\n\n年假按司龄核定工作日天数：\n\n| 司龄 | 年假天数 |\n|---|---|\n| 不满 1 年 | 5 |\n| 满 1 年不满 3 年 | 8 |\n| 满 3 年不满 5 年 | 10 |\n| 满 5 年及以上 | 15 |\n\n## 修订记录\n\n- v2（2026-03-01 起执行）：满 3 年不满 5 年一档由 8 天调整为 10 天，其余档位不变。\n- v1（2024-06-01）：首次发布，满 3 年不满 5 年为 8 天。\n"
+  },
+  "turns": [
+    {
+      "prompt": "岚舟设计的老周是 2022 年 3 月入职的，司龄满四年了。按现行制度，他今年的年假有几天？只回答数字。",
+      "expect": {
+        "expected_number": 10,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

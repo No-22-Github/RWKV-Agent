@@ -1,0 +1,52 @@
+{
+  "id": "cfg-7509",
+  "description": "Relay broker, TLS and inflight limit per relay.properties, legacy copy excluded. DISTILL-CANARY-4ab83e16",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "tcp://mq.nanpu.legacy:9092"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b07-drift-01",
+    "ref_calls": 3,
+    "fixture_bytes": 361,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "config/relay.properties": "relay.id=relay-cn-3\nbroker.address=tcp://mq.nanpu.internal:9092\ntls.required=true\nmax.inflight=256\nheartbeat.interval=15\nreconnect.backoff.ms=2000\nclient.id=relay-cn-3-producer\n# 旧机房出口，弃用：broker.address=tcp://mq.nanpu.legacy:9092\n",
+    "config/relay.properties.old": "# 2026-05 随机房迁移下线\nrelay.id=relay-cn-2\nbroker.address=tcp://mq.nanpu.legacy:9092\ntls.required=false\n"
+  },
+  "turns": [
+    {
+      "prompt": "新同事要接手中继服务。config/ 下有它的配置，帮我讲讲这个中继连的是哪个 broker、有没有强制 TLS、并发上限是多少，几句话就行。",
+      "expect": {
+        "output_contains": [
+          "256",
+          "relay-cn-3",
+          "tcp://mq.nanpu.internal:9092"
+        ],
+        "output_contains_any": [
+          "256",
+          "relay-cn-3",
+          "tcp://mq.nanpu.internal:9092"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

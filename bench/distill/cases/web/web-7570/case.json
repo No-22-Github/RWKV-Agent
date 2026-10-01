@@ -1,0 +1,62 @@
+{
+  "id": "web-7570",
+  "description": "Meaning of access panel code A-12 in the current Linyi code manual while the 2025 codebook ranks first. DISTILL-CANARY-9afbdc18",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [
+      "TR-WEBSTALE",
+      "TR-SNIPPETVAGUE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "卡未授权",
+      "TR-SNIPPETVAGUE": "UNKNOWN"
+    },
+    "axes": [
+      "VER",
+      "LNG"
+    ],
+    "level": "L2",
+    "family": "fam-web-b06-linyi-a12",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "临漪",
+      "url": "https://www.linyidoor.example/support/codebook-2025",
+      "url_match": "www.linyidoor.example/support/codebook-2025",
+      "title": "临漪门禁错误码速查（2025 版）",
+      "snippet": "临漪门禁各系列错误码速查表。",
+      "content": "# 临漪门禁错误码速查（2025 版）\n\nA-03 | 读头离线 | 检查读头网线\nA-12 | 卡未授权 | 到管理处重新登记卡片\nA-20 | 时段受限 | 联系管理员调整通行时段\n",
+      "published_at": "2025-03-06"
+    },
+    {
+      "query_match": "临漪",
+      "url": "https://www.linyidoor.example/support/codes-2026",
+      "url_match": "www.linyidoor.example/support/codes-2026",
+      "title": "临漪门禁错误码手册（2026-08 版）",
+      "snippet": "临漪门禁现行错误码手册，覆盖 2026 年固件。",
+      "content": "# 临漪门禁错误码手册（2026-08 版）\n\nA-03 | 读头离线 | 检查读头网线\nA-12 | 门磁超时 | 检查门是否关严，门框有无变形\nA-20 | 时段受限 | 联系管理员调整通行时段\n\n本手册适用于 2026-06 之后出厂的固件；旧固件请参阅 2025 版速查表。\n",
+      "published_at": "2026-08-14"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "办公楼大堂的临漪门禁面板反复报 A-12。查一下现行错误码手册，用一两句话说明这个码的原因和处理方式。",
+      "expect": {
+        "output_contains_any": [
+          "门磁超时",
+          "关严"
+        ]
+      }
+    }
+  ]
+}

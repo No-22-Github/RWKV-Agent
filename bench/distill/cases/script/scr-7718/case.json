@@ -1,0 +1,57 @@
+{
+  "id": "scr-7718",
+  "description": "Give the allotment watering script a --plot flag while two plots share a name prefix. DISTILL-CANARY-aea59948",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "add_flag",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": "prefix match prints 1280 (both Alder plots)"
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-scr-b06-fernbrink",
+    "ref_calls": 3,
+    "fixture_bytes": 1171,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "watering.py": "\"\"\"Print the watering totals for Fernbrink Allotments.\n\nThe standpipe meter writes one file per month into readings/, one row per\nplot and day:\n\n    read_on,plot,litres\n\nThe totals are one line per plot, in alphabetical order, followed by a\ntotal line:\n\n    <plot>,<litres>\n    TOTAL,<litres>\n\nUsage:\n\n    python3 watering.py\n\"\"\"\n\nimport csv\nimport glob\n\nper_plot = {}\nfor path in sorted(glob.glob(\"readings/*.csv\")):\n    with open(path, newline=\"\", encoding=\"utf-8\") as handle:\n        for row in list(csv.reader(handle))[1:]:\n            plot = row[1]\n            litres = int(row[2])\n            per_plot[plot] = per_plot.get(plot, 0) + litres\n\ntotal = 0\nfor plot in sorted(per_plot):\n    print(f\"{plot},{per_plot[plot]}\")\n    total += per_plot[plot]\nprint(f\"TOTAL,{total}\")\n",
+    "readings/2026-09.csv": "read_on,plot,litres\n2026-09-03,Alder Walk,320\n2026-09-03,Alder Walk North,140\n2026-09-08,Bay Tree Row,410\n2026-09-14,Alder Walk,280\n2026-09-14,Copper Gate,190\n2026-09-22,Alder Walk North,160\n2026-09-29,Bay Tree Row,300\n",
+    "README.md": "# Fernbrink Allotments - watering totals\n\nThe standpipe meter writes one file per month into readings/. Plots keep\ntheir full names on every row; the society bills per plot.\n"
+  },
+  "expect": {
+    "files": {
+      "readings/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "watering.py",
+      "expected_stdout": "Alder Walk,860",
+      "args": [
+        "--plot",
+        "Alder Walk"
+      ],
+      "hidden_files": {
+        "readings/2026-10.csv": "read_on,plot,litres\n2026-10-04,Alder Walk,260\n2026-10-04,Alder Walk North,120\n2026-10-11,Copper Gate,210\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Fernbrink Allotments' watering totals print fine, but the water bill needs them per plot. Please give watering.py a --plot flag taking a plot name like \"Alder Walk\": with the flag it prints that plot's line alone, exactly as the line appears without the flag; a plot matches only under its full name; and without the flag the script behaves exactly as it does today. The files in readings/ stay as they are. When you are done, say in two or three sentences what you changed.",
+      "expect": {}
+    }
+  ]
+}

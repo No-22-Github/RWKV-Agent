@@ -1,0 +1,53 @@
+{
+  "id": "doc-7363",
+  "description": "Write the linen room's restock list from the day's damage register. DISTILL-CANARY-8175a362",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 4
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b06-taoyuanbu",
+    "ref_calls": 3,
+    "fixture_bytes": 531,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "records/loss-2026-09-27.txt": "209房 白床单 2条 勾纱 报废\n305房 枕套 4只 拉链损坏 报废\n402房 地巾 6条 未送洗 不算损耗\n208房 浴巾 3条 洗破 报废\n",
+    "README.md": "# 桃源布草洗涤坊 客房布草\n\n客房报来的损耗登记在 records/，一行一条，字段依次是：\n\n    房号 品名 数量 原因 处理\n\n处理一栏写着「报废」的品项要补货：把当天的补货需求誊进\nrestock/，文件名用登记日期，一行一条，写法是\n\n    - <房号> <品名> <数量>\n\n按登记行顺序抄，登记原件不动。\n",
+    "restock/.keep": ""
+  },
+  "expect": {
+    "files": {
+      "restock/2026-09-27.txt": {
+        "contains": [
+          "- 209房 白床单 2条",
+          "- 305房 枕套 4只",
+          "- 208房 浴巾 3条"
+        ]
+      },
+      "records/loss-2026-09-27.txt": {
+        "unchanged": true
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "桃源布草洗涤坊今天（9 月 27 日）收了几间客房的布草损耗登记，在 records/loss-2026-09-27.txt。请按店里的规矩（见 README）把需要补货的品项誊成补货单，放进 restock/，文件名用登记日期；登记原件不要动。完成后用两三句话说明你写了什么。",
+      "expect": {}
+    }
+  ]
+}

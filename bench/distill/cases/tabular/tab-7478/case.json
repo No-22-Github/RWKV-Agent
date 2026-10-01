@@ -1,0 +1,43 @@
+{
+  "id": "tab-7478",
+  "description": "Delivery fees where a threshold waiver exists but frozen categories are carved out in the fee note. DISTILL-CANARY-e9c06122",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "policy_calc",
+    "traps": [
+      "TR-RULEFILE"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": 84.0
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b06-bailu-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1267,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "data/deliveries_2026-08.csv": "单号,日期,门店,品类,金额\nBL-26-08871,2026-08-16,新区店,冰皮,25.95\nBL-26-08861,2026-08-04,老城店,冰皮,35.13\nBL-26-08857,2026-08-22,新区店,欧包,152.26\nBL-26-08873,2026-08-15,老城店,蛋糕,47.09\nBL-26-08862,2026-08-13,老城店,欧包,76.63\nBL-26-08874,2026-08-12,老城店,蛋糕,20.19\nBL-26-08864,2026-08-09,新区店,欧包,35.63\nBL-26-08860,2026-08-19,新区店,慕斯,135.80\nBL-26-08863,2026-08-09,新区店,冰皮,54.47\nBL-26-08866,2026-08-12,新区店,司康,29.46\nBL-26-08865,2026-08-23,老城店,蛋糕,73.96\nBL-26-08858,2026-08-27,新区店,蛋糕,112.73\nBL-26-08872,2026-08-26,新区店,欧包,26.66\nBL-26-08870,2026-08-26,新区店,贝果,54.02\nBL-26-08869,2026-08-05,老城店,贝果,23.20\nBL-26-08868,2026-08-05,老城店,司康,43.40\nBL-26-08859,2026-08-12,新区店,冰皮,93.28\nBL-26-08867,2026-08-02,新区店,蛋糕,31.96\n",
+    "README.md": "# 白露烘焙 八月配送记录\n\n本表为八月配送记录。配送费标准见 notes/delivery_fee.txt。品类中冰皮、慕斯为冷冻品类。\n",
+    "notes/delivery_fee.txt": "配送费标准\n每单 6 元。\n单笔订单金额满 88 元免收配送费。\n冷冻品类（冰皮、慕斯）不参与满额减免，无论金额一律照收。\n",
+    "notes/cold_chain.txt": "冷链备注\n- 冷冻品由冷链车单独配送。\n- 夏季冷链车每日两班。\n"
+  },
+  "turns": [
+    {
+      "prompt": "白露烘焙八月要核对付给配送队的费用。八月配送记录在 data/deliveries_2026-08.csv。只回答数字，不要单位。2026 年 8 月应收配送费合计是多少？",
+      "expect": {
+        "expected_number": 96.0,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "id": "code-7504",
+  "description": "Count open TODO/FIXME comments across the pipeline modules; the banner string does not count. DISTILL-CANARY-58c2ea74",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "count_markers",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "11"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-code-b07-markers-01",
+    "ref_calls": 4,
+    "fixture_bytes": 610,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "src/pipeline.py": "# TODO(shard): split the ingest stage by tenant\nimport json\n\ndef load_shards(path):\n    # FIXME: quadratic copy on wide rows\n    rows = [json.loads(line) for line in open(path)]\n    return rows\n",
+    "src/pipeline_cli.py": "# TODO(ops): wire a --dry-run path\nimport sys\n\nfrom pipeline import load_shards\n\ndef main():\n    # TODO: retry transient s3 errors\n    print(load_shards(sys.argv[1]))\n    print(\"TODO: rotate the alert banner text\")\n",
+    "src/pipeline_util.py": "# TODO(locale): date formatting for EU tenants\n# TODO: cap shard fan-out\n# FIXME: memory spike on zip bombs\n# TODO: document the env matrix\n# TODO(cost): sample debug logs\n# TODO: retire the py36 shim\n"
+  },
+  "turns": [
+    {
+      "prompt": "Sprint planning wants debt numbers. Go through the modules in src/ and tell me how many open TODO/FIXME comments there are and which kinds show up.",
+      "expect": {
+        "output_contains": [
+          "10",
+          "FIXME",
+          "TODO"
+        ],
+        "output_contains_any": [
+          "10",
+          "FIXME",
+          "TODO"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

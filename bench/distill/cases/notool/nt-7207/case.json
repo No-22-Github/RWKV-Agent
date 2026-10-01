@@ -1,0 +1,50 @@
+{
+  "id": "nt-7207",
+  "description": "Thanks for scheduling two smooth training sessions; reply directly without any tool call. DISTILL-CANARY-6bc6a28e",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-smalltalk-03",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 191
+  },
+  "web_fixture": [],
+  "files": {
+    "plans/schedule_w41.csv": "day,slot,member\n周二,19:00,雷千帆\n周四,19:00,雷千帆\n",
+    "README.md": "# 铁岸体能馆 - 训练工作区\n\n会员课表和训练记录都放在这里。\n\n- plans/  私教课表\n- logs/  训练记录\n"
+  },
+  "turns": [
+    {
+      "prompt": "这周的两节私教课都给我排得特别顺，铁岸体能馆这边省心了，谢谢你啊。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "不客气",
+          "不用谢",
+          "别客气",
+          "应该的",
+          "能帮上",
+          "荣幸",
+          "随时"
+        ]
+      }
+    }
+  ]
+}

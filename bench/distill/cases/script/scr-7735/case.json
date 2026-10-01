@@ -1,0 +1,51 @@
+{
+  "id": "scr-7735",
+  "description": "Give the lift company's trail sheet a --day flag that prints a single day's lines. DISTILL-CANARY-75cf98ba",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "add_flag",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-scr-b06-veymont",
+    "ref_calls": 3,
+    "fixture_bytes": 922,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "trail_status.py": "\"\"\"Print Veymont Lifts' trail status sheet.\n\nThe patrol's exports land in trails/, one row per checked trail:\n\n    checked_date,trail,status\n\nThe sheet prints every row sorted by checked date, then trail\nname:\n\n    <checked_date>,<trail>,<status>\n\nUsage:\n\n    python3 trail_status.py\n\"\"\"\n\nimport csv\nimport glob\n\nrows = []\nfor path in sorted(glob.glob(\"trails/*.csv\")):\n    with open(path, encoding=\"utf-8\") as handle:\n        rows.extend(csv.DictReader(handle))\n\nfor row in sorted(rows, key=lambda r: (r[\"checked_date\"], r[\"trail\"])):\n    print(f\"{row['checked_date']},{row['trail']},{row['status']}\")\n",
+    "trails/2026-09.csv": "checked_date,trail,status\n2026-09-04,Eagle Run,open\n2026-09-04,Fern Loop,cleared\n2026-09-11,Fern Loop,open\n2026-09-18,Eagle Run,cleared\n2026-09-25,Heron Spur,open\n",
+    "README.md": "# Veymont Lifts - trail status\n\ntrail_status.py prints the patrol sheet from the patrol desk's\nexports in trails/. The exports are the patrol's own record.\n"
+  },
+  "expect": {
+    "files": {
+      "trails/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "trail_status.py",
+      "expected_stdout": "2026-10-04,Eagle Run,open\n2026-10-04,Heron Spur,cleared",
+      "hidden_files": {
+        "trails/2026-10.csv": "checked_date,trail,status\n2026-10-04,Eagle Run,open\n2026-10-04,Heron Spur,cleared\n2026-10-11,Fern Loop,open\n"
+      },
+      "args": [
+        "--day",
+        "2026-10-04"
+      ]
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Veymont's patrol desk wants trail_status.py to print a single day on request: give it a --day flag that takes a YYYY-MM-DD date and prints that day's lines in the sheet's usual layout. Without the flag the script prints the whole sheet exactly as it does now. The exports in trails/ stay as they are. When you are done, describe in two or three sentences what you changed.",
+      "expect": {}
+    }
+  ]
+}

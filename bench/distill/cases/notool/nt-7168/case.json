@@ -1,0 +1,42 @@
+{
+  "id": "nt-7168",
+  "description": "Espresso beverage weight for an 18 g dose at a 1:2 brew ratio. DISTILL-CANARY-9592a229",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 9
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-coffee-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 328
+  },
+  "web_fixture": [],
+  "files": {
+    "espresso/profiles.csv": "basket,dose_g,ratio,beverage\n双份粉碗,18,1:2,espresso\n单份粉碗,9,1:2,espresso\n",
+    "README.md": "# 山雾咖啡 - 吧台工作区\n\n豆单、粉碗规格和萃取出品记录都放在这里。\n\n- espresso/  粉碗与萃取参数\n- beans/  当前用豆登记\n\n出品口径：浓缩按粉液比 1:2 记录，液重以电子秤读数为准。\n"
+  },
+  "turns": [
+    {
+      "prompt": "山雾咖啡的吧台上，双份粉碗里装了 18 克咖啡粉，按 1:2 的粉液比萃取浓缩。这一杯萃出来的液重是多少克？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 36,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

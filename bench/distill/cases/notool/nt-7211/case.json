@@ -1,0 +1,50 @@
+{
+  "id": "nt-7211",
+  "description": "Thanks for tidying a pet's vaccine log; reply directly without any tool call. DISTILL-CANARY-9ab88514",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-smalltalk-03",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 189
+  },
+  "web_fixture": [],
+  "files": {
+    "cards/vaccine_log.csv": "pet,vaccine,next_due\n煤球,猫三联,2027-09-20\n",
+    "README.md": "# 安诺宠物医院 - 门诊工作区\n\n疫苗本和就诊档案都放在这里。\n\n- cards/  疫苗与驱虫登记\n- visits/  就诊档案\n"
+  },
+  "turns": [
+    {
+      "prompt": "煤球的疫苗记录你帮我理清楚了，安诺这边下次什么时候打一目了然，多亏你啦。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "不客气",
+          "不用谢",
+          "别客气",
+          "应该的",
+          "举手之劳",
+          "能帮上",
+          "随时"
+        ]
+      }
+    }
+  ]
+}

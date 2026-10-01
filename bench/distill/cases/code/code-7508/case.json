@@ -1,0 +1,53 @@
+{
+  "id": "code-7508",
+  "description": "Every live caller of purge_cache and the file that defines it. DISTILL-CANARY-7f1b58d3",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "find_callers",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "3"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-code-b07-callers-01",
+    "ref_calls": 4,
+    "fixture_bytes": 318,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "worker/api.py": "def purge_endpoint(scope):\n    from jobs import purge_cache\n    return purge_cache(scope)\n",
+    "worker/beat.py": "NIGHTLY_HOUR = 3\n\ndef nightly_sweep():\n    from jobs import purge_cache\n    purge_cache(scope=\"stale\")\n\n# purge_cache(scope=\"legacy\")  # v1 sweeper, retired 2026-01\n",
+    "worker/jobs.py": "cache = {}\n\ndef purge_cache(scope):\n    cache.pop(scope, None)\n"
+  },
+  "turns": [
+    {
+      "prompt": "I want to change how we clear caches. Find every caller of purge_cache under worker/ and tell me which file defines it.",
+      "expect": {
+        "output_contains": [
+          "jobs.py",
+          "nightly_sweep",
+          "purge_endpoint"
+        ],
+        "output_contains_any": [
+          "jobs.py",
+          "nightly_sweep",
+          "purge_endpoint"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

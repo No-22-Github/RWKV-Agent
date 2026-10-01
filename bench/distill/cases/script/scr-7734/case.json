@@ -1,0 +1,58 @@
+{
+  "id": "scr-7734",
+  "description": "Make the lift company's uplift sheet run on standard-library-only runners while it prints the same sheet. DISTILL-CANARY-168565d5",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "stdlib_only",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "gates-only uplift, the hut counters left out"
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "fam-scr-b06-veymont",
+    "ref_calls": 5,
+    "fixture_bytes": 1532,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "uplift.py": "\"\"\"Print Veymont Lifts' daily uplift sheet.\n\nThe turnstile exports land in gates/ and the hut counters land in\nhuts/, one row per counter day:\n\n    date,gate,rides        (gates/)\n    date,hut,rides         (huts/)\n\nThe sheet prints one line per date, in date order, followed by a\ntotals line; a date's uplift is the turnstiles and the huts added\ntogether:\n\n    <date>,<rides>\n    TOTAL,<rides>\n\"\"\"\n\nimport csv\nimport glob\n\nfrom dateutil.parser import parse\n\nper_day = {}\nfor path in sorted(glob.glob(\"gates/*.csv\")) + sorted(glob.glob(\"huts/*.csv\")):\n    with open(path, encoding=\"utf-8\") as handle:\n        for row in csv.DictReader(handle):\n            day = row[\"date\"].strip()\n            key = parse(day).date().isoformat()\n            per_day[key] = per_day.get(key, 0) + int(row[\"rides\"])\n\nfor day in sorted(per_day):\n    print(f\"{day},{per_day[day]}\")\nprint(f\"TOTAL,{sum(per_day.values())}\")\n",
+    "gates/2026-09.csv": "date,gate,rides\n2026-09-05,Valley Base,412\n2026-09-06,Valley Base,388\n2026-09-12,Creekside,241\n2026-09-13,Valley Base,356\n2026-09-19,Creekside,268\n2026-09-26,Valley Base,301\n",
+    "huts/2026-09.csv": "date,hut,rides\n2026-09-05,Summit Hut,64\n2026-09-06,Summit Hut,71\n2026-09-12,Summit Hut,58\n2026-09-13,Ridge Hut,44\n2026-09-19,Summit Hut,77\n2026-09-26,Ridge Hut,39\n",
+    "README.md": "# Veymont Lifts - uplift sheet\n\nuplift.py prints the daily uplift sheet the patrol board copies.\nThe turnstile exports land in gates/ and the hut counters land in\nhuts/; a date's uplift is the two counters added together. The\nvalley terminal has no third-party packages; standard library only.\n"
+  },
+  "expect": {
+    "files": {
+      "gates/2026-09.csv": {
+        "unchanged": true
+      },
+      "huts/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "uplift.py",
+      "expected_stdout": "2026-09-05,476\n2026-09-06,459\n2026-09-12,299\n2026-09-13,400\n2026-09-19,345\n2026-09-26,340\n2026-10-03,405\n2026-10-04,300\nTOTAL,3024",
+      "hidden_files": {
+        "gates/2026-10.csv": "date,gate,rides\n2026-10-03,Valley Base,344\n2026-10-04,Creekside,252\n",
+        "huts/2026-10.csv": "date,hut,rides\n2026-10-03,Summit Hut,61\n2026-10-04,Ridge Hut,48\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The valley terminal at Veymont Lifts cannot install packages, and uplift.py leans on dateutil, so the daily uplift sheet stopped printing. Please rewrite uplift.py with the standard library alone so the sheet prints exactly as it does today, and keeps printing as the counter exports keep landing in gates/ and huts/. The exports in the two folders stay as they are. When you are done, describe in two or three sentences what you changed.",
+      "expect": {}
+    }
+  ]
+}

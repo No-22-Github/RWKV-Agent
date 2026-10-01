@@ -1,0 +1,53 @@
+{
+  "id": "web-7557",
+  "description": "Water temperature of the lap pool at the Cobblemere Lido, from the venue's visitor information page. DISTILL-CANARY-914d8c24",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-web-b06-cobblemere-lido",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "cobblemere",
+      "url": "https://www.cobblemere.example/visitor-info",
+      "url_match": "www.cobblemere.example/visitor-info",
+      "title": "Visitor information - Cobblemere Lido",
+      "snippet": "The lap pool is kept at 27.5 degrees through the year; the shallow teaching pool runs a degree or two warmer.",
+      "content": "# Cobblemere Lido - visitor information\n\nWater temperature\nThe lap pool is kept at 27.5 degrees through the year. The shallow teaching pool runs a degree or two warmer, and the plunge pool is unheated.\n\nOpening times\nLanes are bookable from 06:30 to 21:00. The cafe closes at 20:00.\n",
+      "published_at": "2026-08-19"
+    },
+    {
+      "query_match": "cobblemere",
+      "url": "https://www.cobblemere.example/find-us",
+      "url_match": "www.cobblemere.example/find-us",
+      "title": "Finding us - Cobblemere Lido",
+      "snippet": "Cobblemere Lido sits on the north bank, ten minutes on foot from Millstone Lane tram stop.",
+      "content": "# Finding us\n\nCobblemere Lido sits on the north bank, ten minutes on foot from Millstone Lane tram stop. Cycle racks are at the main gate; the car park is pay and display.\n",
+      "published_at": "2026-02-11"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "Our swim club is booking autumn lane time at Cobblemere Lido and one member wants to know how warm the water will be. What temperature is the lap pool kept at? Give the number alone, as digits, with no label.",
+      "expect": {
+        "expected_number": 27.5,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

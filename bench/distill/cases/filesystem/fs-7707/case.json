@@ -1,0 +1,57 @@
+{
+  "id": "fs-7707",
+  "description": "总结茶艺社两个茶柜清单（中文）：同一茶品分存两柜只算一个品种；两单相加是诱饵。 DISTILL-CANARY-4dbcc572",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "duplicates",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "6 种茶"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-fs-b07-dupdecoy-01",
+    "ref_calls": 4,
+    "fixture_bytes": 847,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 2,
+    "author": "llm:distill-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "stock/shelf-east.csv": "茶品,数量,备注\n白牡丹,8,整箱未拆\n凤凰单丛,2,散罐\n正山小种,1,仅剩一罐\n",
+    "stock/shelf-west.csv": "茶品,数量,备注\n凤凰单丛,3,散罐\n正山小种,2,半罐\n白毫银针,6,礼盒装\n",
+    "README.md": "听雨茶艺社茶柜清单（社内资产组整理）。\n\n东柜与西柜各有一份清单，格式相同，备注列记录开封情况。同一种茶\n在两柜都有时，是同一批采购分两处存放，报总账时品种只算一次，\n数量可以相加；只在一柜出现的品种照常计入。清单文件只增不改，\n勘误另起一行注明。\n",
+    "stock/盘点约定.md": "盘点口径：品种数按茶名去重统计；开封与否不影响计入。两柜清单\n每月末由值日社员核对一次，核对无误后签字归档；盘点结果当月公示\n在社团公告栏，有出入的当场复点并记录在册，复点结果由两名社员\n共同签字确认。\n"
+  },
+  "turns": [
+    {
+      "prompt": "听雨茶艺社要给社员报一版茶柜总账。帮我把 stock 目录里的两份清单理一理：社里实际有几个品种的茶、哪几种是两柜都有的。",
+      "expect": {
+        "output_contains": [
+          "凤凰单丛",
+          "正山小种"
+        ],
+        "output_contains_any": [
+          "4 种茶",
+          "四种茶",
+          "4 种",
+          "共 4 种"
+        ],
+        "required_tools": [
+          "read_file"
+        ],
+        "output_excludes": [
+          "6 种茶",
+          "六种"
+        ]
+      }
+    }
+  ]
+}

@@ -19,9 +19,10 @@
     "ref_calls": 2,
     "fixture_bytes": 0,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
-    "reviewer": null
+    "reviewer": null,
+    "answer_style": "value"
   },
   "files": {},
   "web_fixture": [
@@ -51,7 +52,7 @@
   },
   "turns": [
     {
-      "prompt": "Our browser clients are dropped with error PD-2004 from the Peldreth channel service. How many seconds does the error reference ask the client to back off before subscribing again? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Our browser clients are dropped with error PD-2004 from the Peldreth channel service. How many seconds does the error reference ask the client to back off before subscribing again? Reply with only the final answer.",
       "expect": {
         "expected_number": 20,
         "tolerance": 0.01

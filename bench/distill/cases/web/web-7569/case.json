@@ -1,0 +1,59 @@
+{
+  "id": "web-7569",
+  "description": "Meaning and handling of water heater code E5 per the vendor code table, against a forum capacitor story ranked second. DISTILL-CANARY-aa5f8586",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "风机电容老化"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-web-b06-nuanshan-e5",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "暖山",
+      "url": "https://www.nuanshanheater.example/codes",
+      "url_match": "www.nuanshanheater.example/codes",
+      "title": "暖山燃气热水器故障代码表",
+      "snippet": "E5 | 风压异常 | 清理排烟管后复位",
+      "content": "# 暖山燃气热水器故障代码表（2026-05 版）\n\n代码 | 含义 | 处理方式\n- E1 | 温度传感器开路 | 联系售后更换传感器\n- E3 | 燃烧仓温度过高 | 停机半小时再试\n- E5 | 风压异常 | 清理排烟管后复位\n- E9 | 气压不足 | 检查燃气阀门是否全开\n\n复位后仍复现的，请记下代码联系售后。\n",
+      "published_at": "2026-05-11"
+    },
+    {
+      "query_match": "暖山",
+      "url": "https://bbs.jiajudian.example/thread-5521",
+      "url_match": "bbs.jiajudian.example/thread-5521",
+      "title": "暖山热水器 E5，网上说换风机电容？",
+      "snippet": "我家暖山报 E5，翻帖说多半是风机电容老化，换一个就好。",
+      "content": "家居点点论坛 - 厨卫电器 - 暖山热水器 E5\n\n1楼（装修老宋，2026-04-22）：我家暖山去年老报 E5，翻帖子说多半是风机电容老化，花十五块换了一个，到现在没再报。\n\n2楼（水电小赵，2026-04-23）：E 类代码先看排烟，别急着换件。\n",
+      "published_at": "2026-04-22"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "浴室的暖山燃气热水器点火后跳 E5。查一下故障代码表，用一两句话说明 E5 的原因和处理方式。",
+      "expect": {
+        "output_contains_any": [
+          "风压异常",
+          "清理排烟管后复位"
+        ]
+      }
+    }
+  ]
+}

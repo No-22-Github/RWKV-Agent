@@ -1,0 +1,36 @@
+{
+  "id": "doc-8013",
+  "description": "Count action items due by end of September in a Chinese weekly meeting minute with an item table. DISTILL-CANARY-80a886ab",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "extract_items",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-holdout-doc-actionitems-01",
+    "ref_calls": 2,
+    "fixture_bytes": 655,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "周会纪要-0914.md": "# 运营周会纪要（2026-09-14）\n\n参会：陈迪、沈一诺、顾一凡、白露、主持：方晓。\n\n## 决议\n\n1. 会员日活动照常举行，预算沿用。\n2. 新客礼包改由供应商直发，本周内签补充协议。\n3. 大促预热方案下周一评审。\n\n## 行动项\n\n| 事项 | 负责人 | 完成期限 |\n|---|---|---|\n| 签署新客礼包补充协议 | 陈迪 | 2026-09-18 |\n| 会员日物料上架 | 沈一诺 | 2026-09-25 |\n| 大促预热方案初稿 | 陈迪 | 2026-09-28 |\n| 复盘上月投放数据 | 顾一凡 | 2026-09-29 |\n| 更新客服话术 | 沈一诺 | 2026-09-30 |\n| 供应商月度对账 | 顾一凡 | 2026-10-09 |\n"
+  },
+  "turns": [
+    {
+      "prompt": "把上周例会定在 9 月底之前要完成的行动项数一数，一共几条？只回答数字。",
+      "expect": {
+        "expected_number": 5,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "id": "cfg-7163",
+  "description": "turbidity_alarm_floor of pump station P-07, whose monitoring config covers water level and pressure only. DISTILL-CANARY-6a4c0e1b",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "missing_keys",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-cfg-b06-hechuan-pump",
+    "ref_calls": 2,
+    "fixture_bytes": 470,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 鹤川水务 - 泵站监控工作区\n\n泵站 P-07 的监控配置在 config/pump-station.json，这份配置覆盖水位与压力两类指标，是本站监控项的唯一来源。\n\n水质类指标（浊度等）由水质科的在线仪表系统单独管理，不在泵站监控配置里。\n",
+    "config/pump-station.json": "{\n  \"station\": \"P-07\",\n  \"pump_count\": 4,\n  \"level_poll_s\": 60,\n  \"level_alarm_high_m\": 7.2,\n  \"level_alarm_low_m\": 1.5,\n  \"pressure_poll_s\": 120,\n  \"pressure_alarm_bar\": 4.8\n}\n"
+  },
+  "turns": [
+    {
+      "prompt": "鹤川水务的月度巡检要填泵站 P-07 的浊度报警下限，帮我在 config/pump-station.json 里查一下 turbidity_alarm_floor 的值是多少？",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "turbidity_alarm_floor",
+          "turbidity",
+          "浊度"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

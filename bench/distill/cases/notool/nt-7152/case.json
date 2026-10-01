@@ -1,0 +1,48 @@
+{
+  "id": "nt-7152",
+  "description": "End-of-week sigh after a week of overtime; no task attached. DISTILL-CANARY-96697787",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b06-smalltalk-friday-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 187
+  },
+  "web_fixture": [],
+  "files": {
+    "store/roster_week41.csv": "day,shift,barista\n周一,早班,阿澈\n周一,晚班,小满\n",
+    "README.md": "# 栖桐咖啡 - 门店工作区\n\n排班与物料登记都放在这里。\n\n- store/  门店排班表\n- supplies/  物料台账\n"
+  },
+  "turns": [
+    {
+      "prompt": "总算熬到周五了，这周天天加班到半夜，周末谁也别想让我干活。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "周五",
+          "周末",
+          "熬",
+          "辛苦",
+          "终于",
+          "是该",
+          "好好",
+          "休息",
+          "是啊"
+        ]
+      }
+    }
+  ]
+}

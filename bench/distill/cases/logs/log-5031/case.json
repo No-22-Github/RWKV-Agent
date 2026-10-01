@@ -15,9 +15,10 @@
     "ref_calls": 2,
     "fixture_bytes": 1912,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
-    "reviewer": null
+    "reviewer": null,
+    "answer_style": "value"
   },
   "web_fixture": [],
   "files": {
@@ -26,7 +27,7 @@
   },
   "turns": [
     {
-      "prompt": "Ackworth Dyehouse runs three jet dyeing machines, and each machine writes a line to the day's journal when it completes a cycle. For the production review of 15 September 2026 the dyehouse needs to know how many cycles the machine drawing from vat V-3 completed that day. Give the count alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Ackworth Dyehouse runs three jet dyeing machines, and each machine writes a line to the day's journal when it completes a cycle. For the production review of 15 September 2026 the dyehouse needs to know how many cycles the machine drawing from vat V-3 completed that day. Give the count alone, as digits, with no label. Reply with only the final answer.",
       "expect": {
         "expected_number": 12,
         "tolerance": 0.01

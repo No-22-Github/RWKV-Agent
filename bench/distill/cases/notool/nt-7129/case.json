@@ -1,0 +1,56 @@
+{
+  "id": "nt-7129",
+  "description": "Appreciation for late-night help checking survey data; reply directly without any tool call DISTILL-CANARY-c7451877",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-smalltalk-04",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 229
+  },
+  "offered_tools": [
+    "read_file",
+    "list_files"
+  ],
+  "web_fixture": [],
+  "files": {
+    "field/ridgeline_2026-10.csv": "测线,点数,状态\n山脊东线,412,已平差\n山脊西线,388,待复核\n横断-3,96,已平差\n",
+    "README.md": "# 朔风测绘 - 外业工作区\n\n测线数据与仪器台账都在这里。\n\n- field/  测线数据登记表\n- gear/  仪器台账\n"
+  },
+  "turns": [
+    {
+      "prompt": "连着两个礼拜帮我对山脊线的测量数据，天天陪我熬到后半夜，真是辛苦你了。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "辛苦",
+          "不辛苦",
+          "应该",
+          "职责",
+          "分内",
+          "客气",
+          "互相",
+          "谈不上",
+          "一起"
+        ]
+      }
+    }
+  ]
+}

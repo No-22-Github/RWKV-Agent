@@ -1,0 +1,53 @@
+{
+  "id": "cfg-7504",
+  "description": "How alerts are routed today per alerts.json, leftover EU env excluded. DISTILL-CANARY-6a2e8d15",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "0.95"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b07-gaps-01",
+    "ref_calls": 4,
+    "fixture_bytes": 368,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "settings/alerts.json": "{\n  \"route\": \"#oncall-apac\",\n  \"error_ratio_threshold\": 0.98,\n  \"webhook\": \"https://hooks.tessellar.internal/alerts\",\n  \"silence_window_minutes\": 45\n}\n",
+    "settings/fallback.env": "ERROR_RATIO_THRESHOLD=0.95\nROUTE=#oncall-eu\n",
+    "settings/README.md": "# Tessellar alerting\n\nalerts.json is authoritative; fallback.env is a leftover from the EU pilot.\nPaging goes through the webhook, and the route channel is the only target.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Someone paged the wrong channel last night. Read settings/ and sum up how alerts are routed today, thresholds included.",
+      "expect": {
+        "output_contains": [
+          "0.98",
+          "#oncall-apac",
+          "https://hooks.tessellar.internal/alerts"
+        ],
+        "output_contains_any": [
+          "0.98",
+          "#oncall-apac",
+          "https://hooks.tessellar.internal/alerts"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,46 @@
+{
+  "id": "code-7227",
+  "description": "Count reserve_stock call sites spread over three modules with a commented old call. DISTILL-CANARY-4ec07f85",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "find_callers",
+    "traps": [
+      "TR-MULTISRC",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": 2,
+      "TR-DECOY": 5
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-code-b06-qiaomu-callers",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 1198,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {
+    "stock.py": "\"\"\"乔木家具的库存占用模块，下单与调拨都会用到。\n占用释放规则见交接说明。\n\"\"\"\n\n\n\ndef reserve_stock(sku: str, qty: int) -> str:\n    \"\"\"按 SKU 与数量做库存占用，返回占用单号。\"\"\"\n    return f\"RS-{sku}-{qty}\"\n",
+    "invoice.py": "\"\"\"开单模块：整单与补录两条路径都会锁库存。\n补录单走草稿状态。\n\"\"\"\nfrom stock import reserve_stock\n\n\ndef create_order(items: list, draft: bool) -> list:\n    refs = []\n    for it in items:\n        refs.append(reserve_stock(it[\"sku\"], it[\"qty\"]))\n    if draft:\n        refs.append(reserve_stock(items[0][\"sku\"], 1))\n    return refs\n",
+    "picking.py": "\"\"\"拣货模块：生成拣选任务时预占库存。\n旧流程的整托预占已下线。\n\"\"\"\nfrom stock import reserve_stock\n\n\ndef pick_task(picks: list) -> list:\n    tasks = []\n    for p in picks:\n        tasks.append([p[\"loc\"], reserve_stock(p[\"sku\"], p[\"qty\"])])\n    return tasks\n    # 旧流程：reserve_stock(p[\"sku\"], p[\"qty\"] * 12)\n",
+    "returns.py": "\"\"\"退货入库：验收通过后把库存重新占用到待检区。\n待检区 SKU 与正品区分。\n\"\"\"\nfrom stock import reserve_stock\n\n\ndef restock(items: list) -> list:\n    return [reserve_stock(it[\"sku\"], it[\"qty\"]) for it in items]\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "乔木家具的 ERP 脚本仓库里，开单模块 invoice.py 会调用 reserve_stock 锁定库存。只回答数字，不要单位。整个仓库对 reserve_stock 的调用一共有多少处？",
+      "expect": {
+        "expected_number": 4,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

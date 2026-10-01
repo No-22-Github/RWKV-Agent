@@ -1,0 +1,53 @@
+{
+  "id": "web-7560",
+  "description": "Per-session capacity of the pottery wheel class at the Zhutao studio, from the booking information page. DISTILL-CANARY-82b68f7e",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-web-b06-zhutao-studio",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "拙陶",
+      "url": "https://www.zhutaostudio.example/baoming",
+      "url_match": "www.zhutaostudio.example/baoming",
+      "title": "拙陶工坊 体验课报名须知",
+      "snippet": "拉坯体验课每场最多 12 人，含两小时教学，烧制一件作品。",
+      "content": "# 拙陶工坊 体验课报名须知\n\n拉坯体验课每场最多 12 人，含两小时教学，烧制一件作品，成品约三周后可取。周末场次建议提前一周报名。\n\n开放时间：周三至周日 10:00-18:00，周一、周二闭馆。\n",
+      "published_at": "2026-08-01"
+    },
+    {
+      "query_match": "拙陶",
+      "url": "https://www.zhutaostudio.example/jiaotong",
+      "url_match": "www.zhutaostudio.example/jiaotong",
+      "title": "拙陶工坊 交通与开放时间",
+      "snippet": "拙陶工坊在樟树街 41 号，地铁 3 线滨河站 B 口步行八分钟。",
+      "content": "# 交通与开放时间\n\n拙陶工坊在樟树街 41 号，地铁 3 线滨河站 B 口步行八分钟。馆内无停车位，建议绿色出行。\n",
+      "published_at": "2026-05-20"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "公司团建想去拙陶工坊上拉坯体验课，一场最多能安排几个人？只回答数字，不要带单位。",
+      "expect": {
+        "expected_number": 12,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

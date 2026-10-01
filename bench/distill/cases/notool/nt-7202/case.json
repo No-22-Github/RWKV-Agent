@@ -1,0 +1,42 @@
+{
+  "id": "nt-7202",
+  "description": "Parking fee for 3 h 20 min under first-hour plus per-half-hour rules with rounding up. DISTILL-CANARY-4d29371b",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 14
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-fare-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 217
+  },
+  "web_fixture": [],
+  "files": {
+    "parking/exit_2026-10-11.csv": "plate,duration_min\n苏E7K90,200\n苏E3M12,95\n苏E6T77,45\n",
+    "README.md": "# 云枢大厦 - 车场值班工作区\n\n车场每日出场记录和月卡登记都放在这里。\n\n- parking/  每日出场登记\n- monthly/  月卡车辆名单\n"
+  },
+  "turns": [
+    {
+      "prompt": "云枢大厦的停车收费是：首小时 6 元，之后每 30 分钟收 2 元，不足 30 分钟按 30 分钟算。车牌苏E7K90 的车今天停了 3 小时 20 分钟出场。应收停车费多少元？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 16,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

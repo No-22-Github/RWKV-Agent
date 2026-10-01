@@ -1,0 +1,45 @@
+{
+  "id": "nt-7150",
+  "description": "Which version the production environment actually runs when v3 is only verified on pre-release. DISTILL-CANARY-b4378908",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "v3"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-envver-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 308
+  },
+  "offered_tools": [
+    "read_file",
+    "list_files"
+  ],
+  "web_fixture": [],
+  "files": {
+    "ops/env_register.csv": "env,service,version\n生产,订单中台,v2\n预发布,订单中台,v3\n开发,订单中台,v3\n",
+    "README.md": "# 云杉软件 - 发布工作区\n\n环境登记与变更单都归档在这里。\n\n- ops/  环境与版本登记表\n- changes/  变更单存档\n\n生产环境版本以登记表为准，变更单批准后方可更新。\n"
+  },
+  "turns": [
+    {
+      "prompt": "云杉软件的订单中台刚发过新版：变更单上写着 v3 已经在预发布环境验证完成。环境登记表里生产环境这一行登记的还是上一版。现在生产环境实际跑的是哪个版本？只回答「v2」或「v3」。",
+      "expect": {
+        "output_equals": "v2",
+        "tools": []
+      }
+    }
+  ]
+}

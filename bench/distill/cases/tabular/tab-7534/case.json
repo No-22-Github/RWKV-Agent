@@ -1,0 +1,50 @@
+{
+   "id": "tab-7534",
+   "description": "September 2026 honey weight the co-op pays on; the intake log keeps the delivered weight beside the settled weight DISTILL-CANARY-4f12d9e1",
+   "category": "tabular",
+   "tags": {
+      "scenario": "tabular",
+      "task_type": "aggregate",
+      "traps": [
+         "TR-NEARNAME"
+      ],
+      "trap_decoys": {
+         "TR-NEARNAME": 4832.2
+      },
+      "axes": [
+         "ERR"
+      ],
+      "level": "L2",
+      "family": "fam-tab-b06-grantham-01",
+      "ref_calls": 2,
+      "fixture_bytes": 5369,
+      "status": "draft",
+      "version": 1,
+      "author": "llm:glm-5.3-flash-b06",
+      "reviewer": null,
+      "answer_style": "natural"
+   },
+   "web_fixture": [],
+   "files": {
+      "data/honey_intake_2026-09.csv": "lot_id,intake_month,yard,gross_kg,settled_kg\nGA-202608607,2026-08,Aster Yard,83.3,78.62\nGA-202609599,2026-09,Aster Yard,54.6,51.18\nGA-202608102,2026-08,Coombe Yard,82.4,77.38\nGA-202609204,2026-09,Coombe Yard,38.9,36.93\nGA-202609490,2026-09,Coombe Yard,20.8,18.98\nGA-202609882,2026-09,Bray Yard,92.6,87.32\nGA-202609324,2026-09,Aster Yard,56.4,52.70\nGA-202609669,2026-09,Bray Yard,91.3,86.33\nGA-202609403,2026-09,Coombe Yard,26.2,24.78\nGA-202608532,2026-08,Coombe Yard,44.0,41.63\nGA-202609611,2026-09,Bray Yard,88.1,82.44\nGA-202609348,2026-09,Aster Yard,57.2,53.87\nGA-202609819,2026-09,Bray Yard,49.4,46.63\nGA-202609210,2026-09,Coombe Yard,75.0,70.00\nGA-202609130,2026-09,Bray Yard,58.4,54.77\nGA-202609692,2026-09,Coombe Yard,42.1,39.99\nGA-202609889,2026-09,Dunmore Yard,31.5,29.61\nGA-202608452,2026-08,Bray Yard,88.9,83.62\nGA-202609661,2026-09,Aster Yard,62.7,58.89\nGA-202609858,2026-09,Dunmore Yard,74.3,69.70\nGA-202609157,2026-09,Aster Yard,28.4,27.03\nGA-202609523,2026-09,Dunmore Yard,46.4,43.68\nGA-202609738,2026-09,Bray Yard,45.8,42.87\nGA-202609750,2026-09,Dunmore Yard,43.8,41.29\nGA-202608916,2026-08,Dunmore Yard,63.2,59.84\nGA-202609172,2026-09,Dunmore Yard,89.7,83.76\nGA-202608355,2026-08,Coombe Yard,19.8,18.03\nGA-202608271,2026-08,Bray Yard,79.5,74.35\nGA-202608828,2026-08,Aster Yard,58.8,54.87\nGA-202608419,2026-08,Aster Yard,72.3,67.96\nGA-202609847,2026-09,Aster Yard,50.7,47.28\nGA-202609121,2026-09,Dunmore Yard,34.5,32.56\nGA-202608556,2026-08,Dunmore Yard,48.9,45.41\nGA-202609745,2026-09,Aster Yard,70.4,66.23\nGA-202609504,2026-09,Coombe Yard,58.0,54.19\nGA-202609855,2026-09,Bray Yard,80.0,75.39\nGA-202608979,2026-08,Bray Yard,92.5,87.40\nGA-202608678,2026-08,Aster Yard,88.7,83.14\nGA-202608939,2026-08,Aster Yard,19.1,18.41\nGA-202608990,2026-08,Dunmore Yard,87.4,82.11\nGA-202609455,2026-09,Bray Yard,72.4,68.07\nGA-202608604,2026-08,Coombe Yard,62.4,59.13\nGA-202608433,2026-08,Bray Yard,69.4,64.99\nGA-202609978,2026-09,Aster Yard,49.3,46.08\nGA-202609318,2026-09,Bray Yard,94.0,88.70\nGA-202608957,2026-08,Coombe Yard,25.9,24.20\nGA-202609842,2026-09,Aster Yard,55.6,52.85\nGA-202608374,2026-08,Bray Yard,28.7,26.58\nGA-202609448,2026-09,Bray Yard,64.4,60.95\nGA-202608832,2026-08,Coombe Yard,36.5,34.84\nGA-202609140,2026-09,Aster Yard,28.9,27.23\nGA-202609228,2026-09,Aster Yard,47.6,45.33\nGA-202609684,2026-09,Bray Yard,65.6,62.00\nGA-202609402,2026-09,Bray Yard,61.8,58.63\nGA-202609905,2026-09,Aster Yard,89.3,83.89\nGA-202608523,2026-08,Aster Yard,41.1,38.77\nGA-202608700,2026-08,Aster Yard,86.2,80.48\nGA-202609861,2026-09,Aster Yard,27.3,25.26\nGA-202609655,2026-09,Dunmore Yard,51.8,49.25\nGA-202609202,2026-09,Bray Yard,41.0,38.24\nGA-202608402,2026-08,Dunmore Yard,42.8,39.66\nGA-202609165,2026-09,Bray Yard,43.0,40.29\nGA-202609320,2026-09,Aster Yard,92.7,87.70\nGA-202609580,2026-09,Dunmore Yard,78.0,73.79\nGA-202609352,2026-09,Bray Yard,38.3,36.05\nGA-202609192,2026-09,Coombe Yard,81.2,75.84\nGA-202609414,2026-09,Bray Yard,67.7,64.17\nGA-202608410,2026-08,Coombe Yard,32.8,31.18\nGA-202608194,2026-08,Dunmore Yard,26.2,24.76\nGA-202608664,2026-08,Aster Yard,20.1,18.59\nGA-202609868,2026-09,Aster Yard,74.3,69.27\nGA-202609613,2026-09,Aster Yard,56.2,53.26\nGA-202609283,2026-09,Coombe Yard,43.6,41.00\nGA-202609209,2026-09,Bray Yard,93.8,88.56\nGA-202609311,2026-09,Aster Yard,82.4,77.58\nGA-202608738,2026-08,Bray Yard,88.2,82.35\nGA-202609806,2026-09,Coombe Yard,87.9,83.03\nGA-202608982,2026-08,Aster Yard,41.4,38.96\nGA-202609927,2026-09,Dunmore Yard,37.8,35.01\nGA-202609111,2026-09,Bray Yard,37.6,35.27\nGA-202609761,2026-09,Aster Yard,44.4,41.45\nGA-202609693,2026-09,Coombe Yard,93.2,87.03\nGA-202608507,2026-08,Dunmore Yard,28.1,26.12\nGA-202609281,2026-09,Bray Yard,31.7,29.31\nGA-202609802,2026-09,Bray Yard,56.8,53.57\nGA-202609330,2026-09,Coombe Yard,35.8,33.43\nGA-202609769,2026-09,Coombe Yard,44.3,41.78\nGA-202608623,2026-08,Aster Yard,68.0,63.38\nGA-202609308,2026-09,Dunmore Yard,46.7,43.91\nGA-202609818,2026-09,Bray Yard,71.5,67.63\nGA-202609720,2026-09,Aster Yard,54.1,50.36\nGA-202609322,2026-09,Aster Yard,62.2,58.08\nGA-202609503,2026-09,Bray Yard,73.5,69.43\nGA-202609847,2026-09,Aster Yard,45.1,42.41\nGA-202609203,2026-09,Aster Yard,58.6,54.59\nGA-202608894,2026-08,Aster Yard,88.3,83.55\nGA-202609971,2026-09,Aster Yard,92.5,87.17\nGA-202609543,2026-09,Dunmore Yard,92.8,87.09\nGA-202609599,2026-09,Coombe Yard,88.1,82.74\nGA-202609220,2026-09,Bray Yard,27.6,26.06\nGA-202609294,2026-09,Coombe Yard,39.7,37.17\nGA-202609348,2026-09,Dunmore Yard,62.8,58.47\nGA-202609379,2026-09,Coombe Yard,34.3,31.98\nGA-202609981,2026-09,Bray Yard,76.4,72.21\nGA-202609976,2026-09,Bray Yard,93.0,87.47\nGA-202608930,2026-08,Aster Yard,34.5,32.88\nGA-202608658,2026-08,Coombe Yard,80.3,75.02\nGA-202608176,2026-08,Coombe Yard,70.1,66.16\nGA-202609465,2026-09,Bray Yard,62.3,58.34\nGA-202609458,2026-09,Coombe Yard,43.3,40.25\nGA-202609604,2026-09,Coombe Yard,49.1,46.49\nGA-202608384,2026-08,Coombe Yard,88.7,83.24\nGA-202609303,2026-09,Coombe Yard,73.8,69.66\nGA-202609862,2026-09,Bray Yard,53.8,50.97\nGA-202609784,2026-09,Bray Yard,94.1,88.70\n",
+      "README.md": "# Grantham Apiary - honey intake log\n\nOne row per intake lot. gross_kg is the weight as delivered, unprocessed;\nsettled_kg is the weight after the moisture correction, and it is the\nfigure the co-op's monthly payment is worked out from.\n",
+      "notes/yard_rota.txt": "Yard rota\n- Extractors are serviced on the first Monday.\n- Drum deposits go to the bonding shelf, not the rack.\n"
+   },
+   "turns": [
+      {
+         "prompt": "Grantham Apiary's co-op is settling the September intakes. The intake log is at data/honey_intake_2026-09.csv. Give the number alone, as digits, with no label. How many kilograms of September 2026 honey will the co-op actually pay for?",
+         "expect": {
+            "expected_number": 4543.45,
+            "tolerance": 0.01,
+            "required_tools": [
+               "data_query"
+            ]
+         }
+      }
+   ],
+   "expect": {
+      "max_calls": {
+         "read_file": 1
+      }
+   }
+}

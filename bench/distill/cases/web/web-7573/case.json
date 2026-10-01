@@ -1,0 +1,56 @@
+{
+  "id": "web-7573",
+  "description": "End date of the C2 sync service for pre-2019 Fenstanton bodies per the vendor notice, against a spring blog post ranked first. DISTILL-CANARY-f8d6c624",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "deprecation",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "2026-06-30"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-web-b06-fenstanton-c2",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "fenstanton",
+      "url": "https://camerawatch.example/fenstanton-c2",
+      "url_match": "camerawatch.example/fenstanton-c2",
+      "title": "Fenstanton to end C2 sync for older bodies",
+      "snippet": "Camerawatch understands the C2 cloud sync shutdown for pre-2019 Fenstanton bodies lands at the end of June.",
+      "content": "camerawatch.example - Fenstanton to end C2 sync for older bodies\n\nPosted 2026-03-19. Camerawatch understands the C2 cloud sync shutdown for pre-2019 Fenstanton bodies lands at the end of June, judging by the service calendar shown at the spring dealer day.\n",
+      "published_at": "2026-03-19"
+    },
+    {
+      "query_match": "fenstanton",
+      "url": "https://www.fenstanton.example/support/c2-sync-notice",
+      "url_match": "www.fenstanton.example/support/c2-sync-notice",
+      "title": "C2 sync service notice - Fenstanton support",
+      "snippet": "The C2 sync shutdown for pre-2019 bodies is now set for 2026-10-31, after the August firmware window.",
+      "content": "# C2 sync service notice\n\nUpdated 2026-07-22. The C2 cloud sync shutdown for pre-2019 bodies is now set for 2026-10-31, moved back to follow the August firmware window. After that date the sync client stops accepting those serial ranges.\n",
+      "published_at": "2026-07-22"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "Our rental shelf still has two pre-2019 Fenstanton bodies syncing through C2, and the front desk wants the real end date on the booking sheet. On what date does the vendor's service notice say the C2 sync shutdown is set? Give the date alone, in the form YYYY-MM-DD.",
+      "expect": {
+        "output_equals": "2026-10-31"
+      }
+    }
+  ]
+}

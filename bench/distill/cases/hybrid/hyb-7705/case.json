@@ -1,0 +1,57 @@
+{
+  "id": "hyb-7705",
+  "description": "Multi-turn flour-delivery total under a retired sheet name, then a market-run exclusion. DISTILL-CANARY-08d3a6e1",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": 36
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b07-scopecut-02",
+    "ref_calls": 3,
+    "fixture_bytes": 921,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "deliveries-2026-09.csv": "supplier,delivered_on,product,bags\nStonebridge Mills,2026-09-02,bread flour,18\nStonebridge Mills,2026-09-05,bread flour,12\nHollowbrook Organics,2026-09-08,wholemeal,9\nQuernhill Trading,2026-09-12,semolina,7\nStonebridge Mills,2026-09-16,bread flour,15\nFernhall market run,2026-09-18,bread flour,5\nHollowbrook Organics,2026-09-21,wholemeal,6\nStonebridge Mills,2026-09-23,bread flour,11\nFernhall market run,2026-09-26,bread flour,4\nStonebridge Mills,2026-09-29,bread flour,14\n",
+    "deliveries-sept.csv.bak": "supplier,delivered_on,product,bags\nStonebridge Mills,2026-06-18,bread flour,22\nStonebridge Mills,2026-06-25,bread flour,19\nStonebridge Mills,2026-09-01,bread flour,17\nQuernhill Trading,2026-09-03,semolina,19\n",
+    "README.md": "# Fernhall Bakehouse\n\nDelivery exports live at the top level. The monthly file is named deliveries-YYYY-MM.csv.\nThe restore tool keeps .bak snapshots of retired notebook exports; those snapshots can be\nstale and only cover part of a month.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Fernhall Bakehouse stocktake. The September flour sheet - our runner saved it as deliveries-sept.csv at some point - how many bags of flour arrived in September 2026 in total? Just the number.",
+      "expect": {
+        "expected_number": 101,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "Hold on - the market-run deliveries are billed from the stall float, so they don't belong in the kitchen's flour total. Give it again without those. The bare number, please.",
+      "expect": {
+        "expected_number": 92,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "Which supplier made the biggest single September delivery in that sheet?",
+      "expect": {
+        "output_contains": [
+          "Stonebridge Mills"
+        ]
+      }
+    }
+  ]
+}

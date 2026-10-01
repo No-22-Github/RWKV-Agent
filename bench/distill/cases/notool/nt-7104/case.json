@@ -1,0 +1,42 @@
+{
+  "id": "nt-7104",
+  "description": "Usable capacity of a two-disk RAID1 pair built from 4 TB drives; mirroring does not add capacity. DISTILL-CANARY-d41a6f02",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 8
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-raidcap-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 279
+  },
+  "web_fixture": [],
+  "files": {
+    "assets/storage_plan.csv": "asset_tag,slot,capacity_gb\nDSK-4471,0,4096\nDSK-4472,1,4096\n",
+    "README.md": "# 明川精密 - 机房扩容工作区\n\n监控存储扩容的资产登记和验收记录都放在这里。\n\n- assets/  硬盘资产与容量登记表\n- checklists/  上架验收清单\n\n容量登记一律用 GB 填写。\n"
+  },
+  "turns": [
+    {
+      "prompt": "明川精密的机房在给监控存储扩容，采购了两块 4 TB 的硬盘组 RAID1。RAID1 会把同样的数据同时写在两块盘上，两块盘互为镜像。这套 RAID1 建好后，实际能用来存数据的空间是多少 TB？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 4,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

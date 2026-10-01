@@ -1,0 +1,61 @@
+{
+  "id": "web-7553",
+  "description": "Meaning of massage-chair error E-08 per the 2026 revised official page, against an old forum diagnosis. DISTILL-CANARY-8a9ce269",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [
+      "TR-WEBSTALE",
+      "TR-SNIPPETVAGUE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "继电器",
+      "TR-SNIPPETVAGUE": "继电器"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L2",
+    "family": "fam-web-b06-heting",
+    "ref_calls": 4,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "鹤汀",
+      "url": "https://bbs.massagetalk.example/t-20511",
+      "url_match": "bbs.massagetalk.example/t-20511",
+      "title": "鹤汀 H7 报 E-08 不升降了",
+      "snippet": "我们那台报 E-08，售后上门说是继电器问题，换了小板子才好。",
+      "content": "bbs.massagetalk.example - 按摩椅 - 鹤汀 H7 报 E-08\n\n1楼（桥西老唐，2025-11-03）：我们那台报 E-08，售后上门说是继电器\n问题，换了小板子才好，给大家参考。\n\n2楼（舒松客，2025-11-04）：我家那台报 E-08 好几年了，一直没修。\n",
+      "published_at": "2025-11-03"
+    },
+    {
+      "query_match": "鹤汀",
+      "url": "https://www.heting.example/support/codes",
+      "url_match": "www.heting.example/support/codes",
+      "title": "鹤汀按摩椅 · 错误码与自查",
+      "snippet": "常见错误码的含义与自查步骤汇总。",
+      "content": "# 鹤汀按摩椅 · 错误码与自查\n\n2026-08 修订，适用于 H5/H7 系列。\n\n- E-05 | 原因 按摩头位置未复位 | 处理 重新启动并等待自检完成\n- E-08 | 原因 气囊气泵过热 | 处理 停机散热半小时\n- E-12 | 原因 靠背行程受阻 | 处理 移开障碍物后重新启动\n\n自查后仍复现请报修，勿自行拆机。\n",
+      "published_at": "2026-08-19"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "客厅那台鹤汀按摩椅一开气囊模式就报 E-08。一两句话说明原因和处理办法就好。这个码是什么意思？",
+      "expect": {
+        "output_contains_any": [
+          "气囊气泵过热",
+          "停机散热半小时"
+        ]
+      }
+    }
+  ]
+}

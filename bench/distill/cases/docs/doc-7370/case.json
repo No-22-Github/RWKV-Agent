@@ -1,0 +1,50 @@
+{
+  "id": "doc-7370",
+  "description": "Write the boat shed shelf tally from the count sheet. DISTILL-CANARY-8b7d8a68",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-doc-b06-galehaven",
+    "ref_calls": 3,
+    "fixture_bytes": 395,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "daylogs/tally-2026-09-26.txt": "fender clips / 24 / shelf B\nrope whipping twine / 5 / shelf A\ndrain bungs / 9 / shelf C\nbrass screws 30mm / 60 / shelf B\n",
+    "README.md": "# Galehaven Sailing Co-op - boat shed tallies\n\nThe shed's count sheets land in daylogs/ as rows:\n\n    <item> / <count> / <shelf>\n\nEach tally is copied into tallies/ under the sheet's date, one\nfile named YYYY-MM-DD.txt, one line per row in row order:\n\n    - <item>: <count>\n",
+    "tallies/.keep": ""
+  },
+  "expect": {
+    "files": {
+      "tallies/2026-09-26.txt": {
+        "contains": [
+          "- fender clips: 24",
+          "- rope whipping twine: 5",
+          "- drain bungs: 9",
+          "- brass screws 30mm: 60"
+        ]
+      },
+      "daylogs/tally-2026-09-26.txt": {
+        "unchanged": true
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The Galehaven boat shed counted its shelves on 2026-09-26; the sheet is in daylogs/. Write the tally into tallies/ the way the README describes and leave the count sheet untouched. When you are done, describe in two or three sentences what you wrote.",
+      "expect": {}
+    }
+  ]
+}

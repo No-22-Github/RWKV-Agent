@@ -1,0 +1,57 @@
+{
+  "id": "fs-8003",
+  "description": "List the September orders that have no valid receipt in a report file, ascending, skipping the amount-0 placeholder receipt rows; judged by a pinned block. DISTILL-CANARY-3e8b52d7",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "presence",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-holdout-fs-receipts-01",
+    "answer_style": "natural",
+    "ref_calls": 4,
+    "fixture_bytes": 714,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null
+  },
+  "files": {
+    "finance/README.md": "# 青梧茶具 · 9 月对账\n\n- orders-2026-09.csv：9 月全部订单，一行一单。\n- receipts-2026-09.csv：银行回执登记。金额为 0 且备注为「占位」的行\n  是出纳预先登记的占位行，不算已收到回执。\n",
+    "finance/orders-2026-09.csv": "order_id,customer,city,amount\nQW-30790,素直茶室,苏州,2360.00\nQW-30825,南山茶事,深圳,1180.50\nQW-30841,白鹭洲茶馆,厦门,7425.00\nQW-30860,半山茶集,成都,3980.00\nQW-30897,松风阁,杭州,1260.00\nQW-30913,拾夏生活馆,南京,5210.00\nQW-30931,曲水茶寮,扬州,890.00\n",
+    "finance/receipts-2026-09.csv": "receipt_id,order_id,amount,note\nR-9101,QW-30790,2360.00,\nR-9102,QW-30841,7425.00,\nR-9103,QW-30860,0,占位\nR-9104,QW-30897,1260.00,\nR-9105,QW-30913,0,占位\nR-9106,QW-30931,890.00,\n",
+    "reports/.keep": ""
+  },
+  "turns": [
+    {
+      "prompt": "财务要给 9 月已下单、但还没收到有效回执的订单发催告。对照 finance/ 目录里的订单和回执登记，把这些订单号写进 reports/unreceipted-2026-09.txt：一行一个订单号，按从小到大排，口径见 finance/README.md。完成后，用一到三句话告诉我你改动了什么。",
+      "expect": {}
+    }
+  ],
+  "expect": {
+    "files": {
+      "reports/unreceipted-2026-09.txt": {
+        "contains": [
+          "QW-30825\nQW-30860\nQW-30913"
+        ]
+      },
+      "finance/README.md": {
+        "equals": "# 青梧茶具 · 9 月对账\n\n- orders-2026-09.csv：9 月全部订单，一行一单。\n- receipts-2026-09.csv：银行回执登记。金额为 0 且备注为「占位」的行\n  是出纳预先登记的占位行，不算已收到回执。\n"
+      },
+      "finance/orders-2026-09.csv": {
+        "equals": "order_id,customer,city,amount\nQW-30790,素直茶室,苏州,2360.00\nQW-30825,南山茶事,深圳,1180.50\nQW-30841,白鹭洲茶馆,厦门,7425.00\nQW-30860,半山茶集,成都,3980.00\nQW-30897,松风阁,杭州,1260.00\nQW-30913,拾夏生活馆,南京,5210.00\nQW-30931,曲水茶寮,扬州,890.00\n"
+      },
+      "finance/receipts-2026-09.csv": {
+        "equals": "receipt_id,order_id,amount,note\nR-9101,QW-30790,2360.00,\nR-9102,QW-30841,7425.00,\nR-9103,QW-30860,0,占位\nR-9104,QW-30897,1260.00,\nR-9105,QW-30913,0,占位\nR-9106,QW-30931,890.00,\n"
+      }
+    }
+  }
+}

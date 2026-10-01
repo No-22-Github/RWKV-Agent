@@ -1,0 +1,53 @@
+{
+  "id": "doc-7509",
+  "description": "Triage a damage claim letter against the order export and the policy. DISTILL-CANARY-c2a9417f",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "云雾绿茶"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b07-policyqa-01",
+    "ref_calls": 4,
+    "fixture_bytes": 623,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "inbox/orders.csv": "order_id,signed_date,items,boxes\nSO-77342,2026-09-03,雪山白桃,6\nSO-77388,2026-09-05,云雾绿茶,2\nSO-77401,2026-09-06,桂花龙井,3\n",
+    "inbox/letter-0904.txt": "贵司好。订单 SO-77342 于 2026-09-03 签收，次日开箱发现两箱「雪山白桃」软塌。\n随信附收货当日照片，希望按破损流程处理，可能的话请优先补发。\n随件附上运单号 YD-3301 的签收底单，请查收。\n——青崖民宿 褚岸\n",
+    "policies/damage-flow.md": "# 破损件处理口径\n\n签收后 72 小时内反馈的，运费我方承担、坏果按箱退款；补发需重新走运力排期。\n超出 72 小时的，按普通售后流程走，不适用本节。\n"
+  },
+  "turns": [
+    {
+      "prompt": "inbox/ 里有一封客户来信和订单导出，policies/ 是破损件的处理口径。帮我捋一下：客户遇到了什么问题、按口径该怎么处理，回我一段就行。",
+      "expect": {
+        "output_contains": [
+          "2026-09-03",
+          "SO-77342",
+          "雪山白桃"
+        ],
+        "output_contains_any": [
+          "2026-09-03",
+          "SO-77342",
+          "雪山白桃"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

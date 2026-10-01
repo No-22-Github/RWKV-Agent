@@ -5,7 +5,8 @@ case = json.load(open("case.json"))
 services = json.loads(case["files"]["config/services.json"])
 
 # README.md: a service keeps the inherited value for any key it does not
-# set, so the effective config is the whole resolved chain.
+# set, so the effective config is the whole resolved chain. The case asserts
+# that no block in tracking's chain defines the key; recompute that here.
 def effective(name):
     block = services[name]
     merged = dict(effective(block["inherits"])) if "inherits" in block else {}
@@ -14,8 +15,12 @@ def effective(name):
 
 KEY = "stream_keepalive_s"
 chain = effective("tracking")
-value = "UNKNOWN"
 if KEY in chain:
-    value = chain[KEY]
+    raise SystemExit("tracking's resolved chain now defines " + KEY + "; the absent-object case is broken")
 
-print(json.dumps({"expected_string": value}))
+accepted = [
+    "stream_keepalive_s",
+    "stream keepalive",
+    "keepalive interval",
+]
+print(json.dumps({"expected_contains_any": accepted}))

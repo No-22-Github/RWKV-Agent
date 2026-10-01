@@ -1,0 +1,61 @@
+{
+  "id": "hyb-7746",
+  "description": "两轮反问（缺必需参数）：青梧书店文学类销售额合计未给统计月份，第 1 轮零调用反问，第 2 轮补 8 月后得 6056.05。 DISTILL-CANARY-2712f16b",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 10317.3
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b07-missingparam-01",
+    "ref_calls": 3,
+    "fixture_bytes": 500,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "README.md": "# 青梧书店销售流水\n\n每日销售按类别登记，金额为含会员折扣后的实收（元）。\n文学与少儿类由楼层 A 柜台负责，其余在楼层 B。\n",
+    "logs/销售流水.csv": "日期,类别,金额\n2026-07-03,文学,1280.50\n2026-07-08,少儿,940.00\n2026-07-15,文学,2135.75\n2026-07-21,社科,760.20\n2026-07-28,文学,845.00\n2026-08-02,文学,1975.40\n2026-08-09,少儿,1180.00\n2026-08-11,文学,660.80\n2026-08-18,社科,1320.50\n2026-08-23,文学,2489.60\n2026-08-27,文学,930.25\n2026-08-30,生活,540.00\n"
+  },
+  "turns": [
+    {
+      "prompt": "帮我统计一下文学类图书的销售额合计，我要放在月度经营汇报里。",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "？",
+          "?",
+          "哪",
+          "什么",
+          "还是",
+          "是否",
+          "请告诉",
+          "请确认",
+          "要不要",
+          "需要提供"
+        ],
+        "output_contains": [
+          "文学"
+        ]
+      }
+    },
+    {
+      "prompt": "统计 2026 年 8 月的。只回答数字。",
+      "expect": {
+        "expected_number": 6056.05,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

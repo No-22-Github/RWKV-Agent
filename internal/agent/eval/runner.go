@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"slices"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -520,6 +521,33 @@ func evalTools(
 		)
 		if err != nil {
 			return nil, nil, err
+		}
+		if testCase.OfferedTools != nil {
+			// Per-case tool subset (v1.3 §2.12): the case faces only the tools
+			// it declares, so a call to a dropped tool is rejected as unknown.
+			// Unknown names fail here rather than silently narrowing the case.
+			offered := make(map[string]struct{}, len(testCase.OfferedTools))
+			for _, name := range testCase.OfferedTools {
+				offered[name] = struct{}{}
+			}
+			filtered := make([]agent.Tool, 0, len(testCase.OfferedTools))
+			for _, tool := range catalog {
+				name := tool.Spec().Name
+				if _, want := offered[name]; want {
+					filtered = append(filtered, tool)
+					delete(offered, name)
+				}
+			}
+			if len(offered) > 0 {
+				names := make([]string, 0, len(offered))
+				for name := range offered {
+					names = append(names, name)
+				}
+				sort.Strings(names)
+				return nil, nil, fmt.Errorf("offered_tools names outside the %s catalog: %v",
+					config.ToolCatalog, names)
+			}
+			catalog = filtered
 		}
 		return catalog, nil, nil
 	}

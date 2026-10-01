@@ -1,0 +1,56 @@
+{
+  "id": "hyb-7708",
+  "description": "Multi-turn weighbridge day-shift count pinned to local time, then an earlier gate opening. DISTILL-CANARY-c74f19b8",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-TZ"
+    ],
+    "trap_decoys": {
+      "TR-TZ": 5
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b07-correct-03",
+    "ref_calls": 2,
+    "fixture_bytes": 964,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "telemetry/weighbridge-2026-09.csv": "timestamp_utc,trailer,driver,net_tons\n2026-09-20T21:15:00Z,T-118,M. Okonkwo,24.5\n2026-09-20T23:40:00Z,T-204,R. Bhatt,31.0\n2026-09-21T02:05:00Z,T-118,M. Okonkwo,28.2\n2026-09-21T05:50:00Z,T-311,J. Aroha,19.8\n2026-09-21T08:30:00Z,T-204,R. Bhatt,26.4\n2026-09-21T11:45:00Z,T-118,M. Okonkwo,22.0\n2026-09-21T19:30:00Z,T-402,P. Vance,34.8\n2026-09-21T20:55:00Z,T-402,P. Vance,33.6\n2026-09-21T23:20:00Z,T-311,J. Aroha,27.9\n2026-09-22T03:35:00Z,T-118,M. Okonkwo,30.1\n2026-09-22T07:10:00Z,T-204,R. Bhatt,21.7\n2026-09-22T12:15:00Z,T-204,R. Bhatt,20.6\n2026-09-22T14:25:00Z,T-402,P. Vance,25.5\n2026-09-22T21:05:00Z,T-311,J. Aroha,29.3\n2026-09-23T01:50:00Z,T-118,M. Okonkwo,23.8\n2026-09-23T06:40:00Z,T-402,P. Vance,32.2\n2026-09-23T22:35:00Z,T-311,J. Aroha,26.9\n2026-09-24T04:20:00Z,T-118,M. Okonkwo,27.4\n",
+    "README.md": "# Drayford Haulage - weighbridge telemetry\n\nThe weighbridge stamps every crossing in UTC. Depot rosters and shift times follow local\nSydney time, which is UTC+10 in September.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Drayford Haulage is reconciling the weighbridge log. How many crossings happened during local day shifts (06:00 to 18:00 Sydney time) in this log? Just the number.",
+      "expect": {
+        "expected_number": 13,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "The gate roster was fixed last week - the day shift actually opens at 05:00 local, not six. Count it again with the 05:00 start. The bare number, please.",
+      "expect": {
+        "expected_number": 14,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "Which driver crossed the weighbridge most often during those day shifts?",
+      "expect": {
+        "output_contains": [
+          "Okonkwo"
+        ]
+      }
+    }
+  ]
+}

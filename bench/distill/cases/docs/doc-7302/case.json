@@ -1,0 +1,53 @@
+{
+  "id": "doc-7302",
+  "description": "Append the receivable rows of a courier delivery note to the tea shop's monthly receiving log. DISTILL-CANARY-e17b5839",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 3
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b06-linwin",
+    "ref_calls": 4,
+    "fixture_bytes": 876,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "logbook/receiving-2026-09.txt": "2026-09-04 到货 金骏眉 6饼 顺达冷链 DH-2187 签收人 阿芷\n2026-09-12 到货 正山小种 10罐 门店自提 签收人 老岑\n2026-09-21 到货 冷萃瓶坯 240只 顺达冷链 DH-2203 签收人 阿芷\n",
+    "notes/delivery-DH-2210.txt": "顺达冷链 送货单 DH-2210\n到店 凛冬茶铺 湖畔店\n到店日期 2026-09-28\n品名 数量 备注\n金骏眉 8饼 湖畔店正常入库\n正山小种 4罐 改送延安店 湖畔店勿收\n土陶茶罐 30只 延安店加单 湖畔店勿收\n空木箱 6只 退回 司机带回\n司机 何磊 车牌 浙A-D2210 门店签收 阿芷\n",
+    "README.md": "# 凛冬茶铺·湖畔店 到货登记\n\nlogbook/ 按月记到货，一行一笔，字段依次是：\n\n    日期 到货 品名 数量 承运 单号 签收人\n\n供应商的送货单扫描件录在 notes/ 下。登记以送货单里备注为\n「湖畔店正常入库」的品项为准；改送别店、退回带走的都不入库。\n"
+  },
+  "expect": {
+    "files": {
+      "logbook/receiving-2026-09.txt": {
+        "contains": [
+          "2026-09-04 到货 金骏眉 6饼 顺达冷链 DH-2187",
+          "2026-09-28 到货 金骏眉 8饼",
+          "DH-2210"
+        ]
+      },
+      "notes/delivery-DH-2210.txt": {
+        "unchanged": true
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "顺达冷链上午给凛冬茶铺·湖畔店送了一车货，送货单已经录成文字，在 notes/delivery-DH-2210.txt。请按店里的规矩把这笔到货登记进 logbook/receiving-2026-09.txt，写法和里面的旧记录保持一致；送货单原文不要动。完成后用两三句话说明你补了什么、依据是什么。",
+      "expect": {}
+    }
+  ]
+}

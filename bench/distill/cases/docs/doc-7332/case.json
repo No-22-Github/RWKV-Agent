@@ -1,0 +1,44 @@
+{
+  "id": "doc-7332",
+  "description": "Identify the one rush linen order not yet returned. DISTILL-CANARY-9a62fe56",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "extract_items",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "F-308"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b06-nanyu-minsu",
+    "ref_calls": 1,
+    "fixture_bytes": 827,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "布草换洗登记.csv": "记录号,房间,类型,送洗时间,加急,状态\nBC-0901,F-308,床品四件套,2026-09-14 09:20,是,已送回\nBC-0902,G-201,浴巾,2026-09-14 10:05,否,已送回\nBC-0903,F-112,地巾,2026-09-14 15:40,否,待取回\nBC-0904,H-305,床单被套,2026-09-15 08:50,否,已送回\nBC-0905,G-108,浴巾,2026-09-15 11:30,否,已送回\nBC-0906,F-401,枕套,2026-09-15 14:15,是,已送回\nBC-0907,H-202,床品四件套,2026-09-16 09:00,否,待取回\nBC-0908,F-205,地巾,2026-09-16 10:45,否,洗涤中\nBC-0909,G-304,浴巾,2026-09-16 13:25,否,已送回\nBC-0910,H-110,床单被套,2026-09-16 16:00,否,洗涤中\nBC-0911,F-112,床品四件套,2026-09-16 17:20,是,已送回\nBC-0912,F-305,浴巾与地巾,2026-09-16 15:05,是,洗涤中\nBC-0913,G-206,枕套,2026-09-17 08:35,否,待取回\nBC-0914,H-403,浴巾,2026-09-17 10:10,否,已送回\n"
+  },
+  "turns": [
+    {
+      "prompt": "南屿民宿管家说有间房的急用布草一直没送回来。查一下换洗登记：这间加了急、但布草还没送回的房间是哪间？",
+      "expect": {
+        "output_contains_any": [
+          "F-305"
+        ],
+        "output_excludes": [
+          "F-308"
+        ]
+      }
+    }
+  ]
+}

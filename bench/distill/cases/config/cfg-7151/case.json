@@ -1,0 +1,49 @@
+{
+  "id": "cfg-7151",
+  "description": "Log the cold store patrol round, whose sheet re-keys one event. DISTILL-CANARY-edd05a71",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 4
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b06-brindlemoor",
+    "ref_calls": 4,
+    "fixture_bytes": 580,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "logs/patrol.log": "2026-09-26 Door 1 alarm test - reset OK\n2026-09-26 Compressor 2 - amps 39 - nominal\n",
+    "sheets/round-2026-09-29.txt": "Cold store patrol round 2026-09-29, duty tech R. Iwasa\nDoor 2 alarm test - reset OK\nDoor 5 alarm test - reset OK\nDoor 2 alarm test - reset OK\nCompressor 3 - amps 41 - nominal\n",
+    "README.md": "# Brindlemoor Cold Store - patrol log\n\nlogs/patrol.log takes one line per event:\n\n    <date> <event> - <result>\n\nPatrol rounds are kept in sheets/. The clipboard sheet sometimes\nre-keys an event, so the same event can appear twice on one round;\neach event is logged once, in the order first seen, under the\nround's date.\n"
+  },
+  "expect": {
+    "files": {
+      "logs/patrol.log": {
+        "equals": "2026-09-26 Door 1 alarm test - reset OK\n2026-09-26 Compressor 2 - amps 39 - nominal\n2026-09-29 Door 2 alarm test - reset OK\n2026-09-29 Door 5 alarm test - reset OK\n2026-09-29 Compressor 3 - amps 41 - nominal\n"
+      },
+      "sheets/round-2026-09-29.txt": {
+        "unchanged": true
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Brindlemoor Cold Store ran a patrol round on 2026-09-29; the round sheet is in sheets/. Bring the patrol log in logs/ up to date in the house style, and leave the round sheet untouched. When you are done, describe in two or three sentences what you wrote.",
+      "expect": {}
+    }
+  ]
+}

@@ -19,9 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 341,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
-    "reviewer": null
+    "reviewer": null,
+    "answer_style": "value"
   },
   "web_fixture": [],
   "files": {
@@ -31,7 +32,7 @@
   },
   "turns": [
     {
-      "prompt": "A forwarder at Passmoor asked how a light air consignment is charged; the airline turns volume into weight at 167 kilograms per cubic metre and bills whichever of the two figures is higher. Consignment AW-3381 measures 0.48 cubic metres and weighs 62.5 kilograms. Give the weight it is billed on, in kilograms. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "A forwarder at Passmoor asked how a light air consignment is charged; the airline turns volume into weight at 167 kilograms per cubic metre and bills whichever of the two figures is higher. Consignment AW-3381 measures 0.48 cubic metres and weighs 62.5 kilograms. Give the weight it is billed on, in kilograms. Reply with only the final answer.",
       "expect": {
         "expected_number": 80.16,
         "tolerance": 0.01,

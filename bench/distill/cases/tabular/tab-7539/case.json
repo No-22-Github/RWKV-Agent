@@ -1,0 +1,50 @@
+{
+   "id": "tab-7539",
+   "description": "Count of different items returned to one branch in September 2026 in an export that repeats some rows DISTILL-CANARY-457e4e00",
+   "category": "tabular",
+   "tags": {
+      "scenario": "tabular",
+      "task_type": "filter_count",
+      "traps": [
+         "TR-DUPROW"
+      ],
+      "trap_decoys": {
+         "TR-DUPROW": 52.0
+      },
+      "axes": [
+         "OBS"
+      ],
+      "level": "L1",
+      "family": "fam-tab-b06-wrenfield-01",
+      "ref_calls": 2,
+      "fixture_bytes": 4862,
+      "status": "draft",
+      "version": 1,
+      "author": "llm:glm-5.3-flash-b06",
+      "reviewer": null,
+      "answer_style": "natural"
+   },
+   "web_fixture": [],
+   "files": {
+      "data/returns_2026-09.csv": "return_id,return_month,branch,item_code,shelf_class\nWL-9588,2026-09,North,WL-58127,Childrens\nWL-2481,2026-09,North,WL-22723,Reference\nWL-5180,2026-09,East,WL-73346,Reference\nWL-2655,2026-09,North,WL-40458,Reference\nWL-5383,2026-09,North,WL-72077,Fiction\nWL-2371,2026-09,East,WL-55423,Fiction\nWL-3279,2026-09,East,WL-43350,Reference\nWL-2343,2026-09,West,WL-29622,Reference\nWL-8291,2026-09,East,WL-99359,Reference\nWL-4948,2026-09,North,WL-21327,Fiction\nWL-7264,2026-09,North,WL-65803,Fiction\nWL-8092,2026-09,North,WL-54679,Reference\nWL-7508,2026-09,North,WL-73888,Childrens\nWL-3699,2026-09,North,WL-91335,Reference\nWL-6332,2026-09,East,WL-59802,Reference\nWL-8178,2026-09,East,WL-39932,Childrens\nWL-3069,2026-09,West,WL-80564,Non-fiction\nWL-8994,2026-09,East,WL-53993,Fiction\nWL-4473,2026-09,East,WL-83510,Reference\nWL-2952,2026-09,East,WL-42232,Fiction\nWL-8065,2026-09,West,WL-81224,Non-fiction\nWL-9749,2026-09,East,WL-86889,Childrens\nWL-7688,2026-09,East,WL-25949,Fiction\nWL-2934,2026-09,North,WL-55496,Non-fiction\nWL-5841,2026-09,West,WL-86883,Fiction\nWL-5549,2026-09,East,WL-32927,Reference\nWL-5066,2026-09,East,WL-97415,Childrens\nWL-7207,2026-09,East,WL-75390,Non-fiction\nWL-1065,2026-09,East,WL-29142,Childrens\nWL-4110,2026-09,North,WL-66553,Fiction\nWL-9656,2026-09,North,WL-28781,Childrens\nWL-8188,2026-09,West,WL-77997,Fiction\nWL-1344,2026-09,East,WL-22587,Childrens\nWL-1504,2026-09,East,WL-41513,Reference\nWL-4968,2026-09,East,WL-86474,Reference\nWL-5266,2026-09,East,WL-41184,Non-fiction\nWL-4385,2026-09,West,WL-32196,Non-fiction\nWL-3832,2026-09,East,WL-72680,Non-fiction\nWL-5665,2026-09,West,WL-56149,Non-fiction\nWL-3431,2026-09,West,WL-99297,Reference\nWL-9885,2026-09,West,WL-59898,Childrens\nWL-4284,2026-09,West,WL-47379,Non-fiction\nWL-5476,2026-09,North,WL-89218,Fiction\nWL-6097,2026-09,North,WL-47224,Reference\nWL-5110,2026-09,East,WL-51094,Fiction\nWL-8313,2026-09,East,WL-63770,Reference\nWL-3752,2026-09,North,WL-55267,Fiction\nWL-9935,2026-09,East,WL-28985,Reference\nWL-6848,2026-09,West,WL-29815,Reference\nWL-9041,2026-09,West,WL-88576,Reference\nWL-7880,2026-09,East,WL-68261,Childrens\nWL-2995,2026-09,West,WL-81333,Reference\nWL-4423,2026-09,West,WL-87045,Childrens\nWL-7279,2026-09,North,WL-93092,Non-fiction\nWL-4355,2026-09,East,WL-26519,Non-fiction\nWL-5653,2026-09,East,WL-42092,Childrens\nWL-2771,2026-09,East,WL-58912,Reference\nWL-1395,2026-09,West,WL-92907,Fiction\nWL-2934,2026-09,East,WL-55358,Non-fiction\nWL-1216,2026-09,East,WL-66642,Reference\nWL-9933,2026-09,West,WL-99910,Childrens\nWL-5856,2026-09,East,WL-50423,Fiction\nWL-3237,2026-09,East,WL-71453,Childrens\nWL-2231,2026-09,West,WL-93537,Fiction\nWL-9198,2026-09,North,WL-72391,Reference\nWL-7123,2026-09,West,WL-42591,Non-fiction\nWL-6099,2026-09,East,WL-83389,Reference\nWL-8162,2026-09,West,WL-54016,Childrens\nWL-9241,2026-09,East,WL-63207,Childrens\nWL-6846,2026-09,East,WL-49139,Childrens\nWL-9657,2026-09,East,WL-53917,Reference\nWL-6303,2026-09,North,WL-99947,Reference\nWL-1013,2026-09,East,WL-52011,Reference\nWL-3029,2026-09,East,WL-24002,Childrens\nWL-8246,2026-09,East,WL-72769,Fiction\nWL-8365,2026-09,West,WL-61488,Childrens\nWL-6737,2026-09,East,WL-76592,Childrens\nWL-5993,2026-09,North,WL-52561,Childrens\nWL-9835,2026-09,East,WL-55270,Fiction\nWL-7543,2026-09,East,WL-44890,Fiction\nWL-6560,2026-09,North,WL-29507,Fiction\nWL-9065,2026-09,East,WL-41709,Reference\nWL-2852,2026-09,North,WL-95909,Childrens\nWL-7185,2026-09,North,WL-78140,Non-fiction\nWL-7265,2026-09,North,WL-96209,Fiction\nWL-4340,2026-09,North,WL-39422,Non-fiction\nWL-1063,2026-09,East,WL-99463,Fiction\nWL-5548,2026-09,North,WL-54338,Non-fiction\nWL-9371,2026-09,West,WL-80213,Non-fiction\nWL-4258,2026-09,East,WL-89021,Reference\nWL-8562,2026-09,West,WL-41303,Reference\nWL-9469,2026-09,North,WL-38169,Reference\nWL-7700,2026-09,West,WL-38100,Fiction\nWL-6002,2026-09,East,WL-77760,Non-fiction\nWL-3790,2026-09,North,WL-67328,Reference\nWL-8362,2026-09,East,WL-60601,Non-fiction\nWL-9699,2026-09,West,WL-72527,Reference\nWL-4233,2026-09,West,WL-51521,Childrens\nWL-6888,2026-09,West,WL-35182,Reference\nWL-9621,2026-09,West,WL-47025,Childrens\nWL-1057,2026-09,East,WL-60041,Childrens\nWL-7376,2026-09,North,WL-28942,Childrens\nWL-7977,2026-09,East,WL-33944,Non-fiction\nWL-7639,2026-09,North,WL-49834,Fiction\nWL-6505,2026-09,North,WL-72036,Non-fiction\nWL-2109,2026-09,West,WL-62122,Fiction\nWL-9072,2026-09,East,WL-84534,Reference\nWL-5057,2026-09,East,WL-33103,Fiction\nWL-5549,2026-09,East,WL-32927,Reference\nWL-3279,2026-09,East,WL-43350,Reference\nWL-5383,2026-09,North,WL-72077,Fiction\nWL-4233,2026-09,West,WL-51521,Childrens\n",
+      "README.md": "# Wrenfield Library - September returns export\n\nOne row per returned item scan. item_code identifies the copy and one\ncopy can be scanned more than once in the month if the export job\nretried overnight.\n",
+      "notes/shelving.txt": "Shelving notes\n- Reference items do not leave the floor.\n- Trolleys are cleared before the afternoon shift.\n"
+   },
+   "turns": [
+      {
+         "prompt": "Wrenfield Library is preparing its September shelving report. The returns export is at data/returns_2026-09.csv. Give the number alone, as digits, with no label. How many different items were returned to the East branch in September 2026?",
+         "expect": {
+            "expected_number": 50.0,
+            "tolerance": 0.01,
+            "required_tools": [
+               "data_query"
+            ]
+         }
+      }
+   ],
+   "expect": {
+      "max_calls": {
+         "read_file": 1
+      }
+   }
+}

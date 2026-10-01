@@ -1,0 +1,54 @@
+{
+  "id": "web-7535",
+  "description": "Read the sms.send interface status from the official status page given by URL. DISTILL-CANARY-de33eaf5",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "deprecation",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "VER"
+    ],
+    "level": "L0",
+    "family": "fam-web-b06-banxia-api",
+    "answer_style": "natural",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "半夏",
+      "url": "https://open.banxia.example/status",
+      "url_match": "open.banxia.example/status",
+      "title": "半夏收银开放平台 · 接口状态",
+      "snippet": "开放接口的当前状态一览。",
+      "published_at": "2026-09-18",
+      "content": "# 半夏收银开放平台 · 接口状态\n\norder.create | 正常\nstock.sync | 正常\nsms.send | 已弃用（2026-07-15 起），短信请改用 sms.batch\nuser.export | 灰度中\n"
+    },
+    {
+      "query_match": "半夏",
+      "url": "https://open.banxia.example/quickstart",
+      "url_match": "open.banxia.example/quickstart",
+      "title": "半夏收银开放平台 · 快速接入",
+      "snippet": "五分钟跑通第一笔订单接口。",
+      "published_at": "2026-09-18",
+      "content": "# 快速接入\n\n申请 appkey 后先在沙箱下单，回执字段见对接文档。\n"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "官方状态页 https://open.banxia.example/status 上，半夏收银的短信发送接口 sms.send 现在是什么状态？",
+      "expect": {
+        "output_contains_any": [
+          "弃用"
+        ]
+      }
+    }
+  ]
+}

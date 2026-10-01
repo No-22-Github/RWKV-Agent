@@ -1,0 +1,47 @@
+{
+  "id": "scr-7704",
+  "description": "Write the missing morning bake sheet script for a bakery's monthly sales exports. DISTILL-CANARY-0249ed80",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "write_new",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-scr-b06-loafline",
+    "ref_calls": 3,
+    "fixture_bytes": 935,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "bakes.py": "\"\"\"Print the morning bake sheet for Hollyhock Bakehouse.\n\nThe counter tills export one sales file per month into sales/, one row per\nproduct and day:\n\n    sold_on,product,trays,loaves\n\nThe bake sheet is one line per product that sold, in alphabetical order,\nfollowed by a grand total line:\n\n    <product>,<trays>,<loaves>\n    GRAND,<trays>,<loaves>\n\"\"\"\n\nif __name__ == \"__main__\":\n    raise SystemExit(\"the bake sheet is not written yet\")\n",
+    "sales/2026-09.csv": "sold_on,product,trays,loaves\n2026-09-02,Poppy Loaf,3,36\n2026-09-02,Rye Boule,2,24\n2026-09-05,Sesame Batard,4,48\n2026-09-05,Poppy Loaf,1,12\n2026-09-09,Spelt Tin,2,20\n2026-09-12,Walnut Roll,5,60\n2026-09-12,Rye Boule,3,36\n2026-09-19,Poppy Loaf,2,24\n2026-09-26,Sesame Batard,1,12\n2026-09-26,Spelt Tin,1,10\n",
+    "README.md": "# Hollyhock Bakehouse - morning bake sheet\n\nThe counter tills export one sales file per month into sales/. The bake\nsheet from bakes.py is what the head baker pins up before the 4am oven\nshift.\n"
+  },
+  "expect": {
+    "files": {
+      "sales/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "bakes.py",
+      "expected_stdout": "Poppy Loaf,8,96\nRye Boule,9,108\nSesame Batard,7,84\nSpelt Tin,3,30\nWalnut Roll,6,72\nGRAND,33,390",
+      "hidden_files": {
+        "sales/2026-10.csv": "sold_on,product,trays,loaves\n2026-10-03,Poppy Loaf,2,24\n2026-10-03,Walnut Roll,1,12\n2026-10-10,Rye Boule,4,48\n2026-10-17,Sesame Batard,2,24\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The morning bake sheet at Hollyhock Bakehouse never made it past its notes: bakes.py holds only the docstring, and the counter tills keep dropping monthly exports into sales/. Please write bakes.py so the bake sheet prints the way its notes describe, and so it keeps working as later monthly exports land in sales/. The exports are the tills' own record, so they stay as they are. When you are done, describe in two or three sentences what your script does.",
+      "expect": {}
+    }
+  ]
+}

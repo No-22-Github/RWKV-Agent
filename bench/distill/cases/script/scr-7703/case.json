@@ -1,0 +1,54 @@
+{
+  "id": "scr-7703",
+  "description": "Give the roastery's summary script a --dry-run flag that prints the summary without writing it. DISTILL-CANARY-c85e41b2",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "add_flag",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-scr-b06-copperleaf",
+    "ref_calls": 3,
+    "fixture_bytes": 1909,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "batches/2026-09.csv": "roast_date,bean,green_kg,roasted_kg\n2026-09-04,Yirgacheffe,12,10\n2026-09-04,Huehuetenango,18,15\n2026-09-11,Yirgacheffe,9,8\n2026-09-18,Huehuetenango,15,13\n2026-09-25,Sumatra Mandheling,20,17\n",
+    "out/.keep": "",
+    "README.md": "# Copperleaf Roasters - roast summary\n\nroastlog.py reads the monthly batch exports in batches/ and writes the season\nsummary to out/roast-summary.csv. The weekend inventory diff reads that file,\nso it should only exist when a summary was really written. The roastery\nruntime has no third-party packages, standard library only.\n",
+    "roastlog.py": "\"\"\"Write the roast summary for Copperleaf Roasters.\n\nReads every monthly batch export in batches/ (one row per roast) and writes\nthe season summary to out/roast-summary.csv:\n\n    <roast_date>,<green_kg>,<roasted_kg>\n    ...one line per roast day, oldest first...\n    TOTAL,<green_kg>,<roasted_kg>\n\nUsage:\n\n    python3 roastlog.py\n\"\"\"\n\nimport csv\nimport glob\nimport os\n\n\ndef load_days():\n    days = {}\n    for path in sorted(glob.glob(\"batches/*.csv\")):\n        with open(path, newline=\"\", encoding=\"utf-8\") as handle:\n            for row in list(csv.reader(handle))[1:]:\n                if not row:\n                    continue\n                day, green, roasted = row[0], int(row[2]), int(row[3])\n                old = days.get(day, (0, 0))\n                days[day] = (old[0] + green, old[1] + roasted)\n    return days\n\n\ndef summary_lines(days):\n    lines = []\n    total_green = 0\n    total_roasted = 0\n    for day in sorted(days):\n        green, roasted = days[day]\n        lines.append(f\"{day},{green},{roasted}\")\n        total_green += green\n        total_roasted += roasted\n    lines.append(f\"TOTAL,{total_green},{total_roasted}\")\n    return lines\n\n\nif __name__ == \"__main__\":\n    lines = summary_lines(load_days())\n    os.makedirs(\"out\", exist_ok=True)\n    with open(\"out/roast-summary.csv\", \"w\", encoding=\"utf-8\", newline=\"\") as handle:\n        handle.write(\"\\n\".join(lines) + \"\\n\")\n"
+  },
+  "expect": {
+    "files": {
+      "out/roast-summary.csv": {
+        "absent": true
+      },
+      "batches/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "roastlog.py",
+      "args": [
+        "--dry-run"
+      ],
+      "expected_stdout": "2026-09-04,30,25\n2026-09-11,9,8\n2026-09-18,15,13\n2026-09-25,20,17\n2026-10-02,11,9\n2026-10-09,30,26\n2026-10-16,8,7\nTOTAL,123,105",
+      "hidden_files": {
+        "batches/2026-10.csv": "roast_date,bean,green_kg,roasted_kg\n2026-10-02,Yirgacheffe,11,9\n2026-10-09,Sumatra Mandheling,14,12\n2026-10-09,Huehuetenango,16,14\n2026-10-16,Yirgacheffe,8,7\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Copperleaf Roasters' season summary always lands in out/roast-summary.csv, which keeps tripping the weekend inventory diff when someone reruns it by hand. Please give roastlog.py a --dry-run flag: with the flag, the summary goes to stdout exactly as it would be written and no file is written; without the flag, the script behaves exactly as it does today. The batch exports in batches/ stay as they are. When you are done, say in two or three sentences what you changed.",
+      "expect": {}
+    }
+  ]
+}

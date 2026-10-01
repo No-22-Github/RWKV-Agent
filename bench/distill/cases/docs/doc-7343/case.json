@@ -1,0 +1,54 @@
+{
+  "id": "doc-7343",
+  "description": "Whether the Yunting Travel refund-and-reschedule library covers a typhoon red alert clause, which no indexed article defines (台风红色预警). DISTILL-CANARY-122fc8a1",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "免手续费改签"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b06-luming-weather",
+    "ref_calls": 3,
+    "fixture_bytes": 803,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 云汀文旅 - 退款改签政策库\n\n客服共用的政策文件区。现行政策以 policy/ 目录下的文件为准，文件清单见 policy/index.txt；政策库未覆盖的情形，一律上报值班经理裁定。\n",
+    "policy/index.txt": "refund.md｜退款规则\nreschedule.md｜改签规则\n",
+    "policy/refund.md": "# 云汀文旅 - 退款规则（2026 年 6 月修订）\n\n## 退款时限\n\n审核通过后 7 个工作日内原路退回。\n\n## 发票订单\n\n已开票的订单，退款在发票作废后 15 个自然日内原路退回。\n",
+    "policy/reschedule.md": "# 云汀文旅 - 改签规则（2026 年 6 月修订）\n\n## 常规改签\n\n出行前 48 小时以上申请改签，收取手续费 20 元；48 小时内按订单金额的 10% 收取。\n\n## 特殊天气\n\n目的地暴雨橙色预警或暴雪预警的，可免手续费改签一次，需提供预警截图。\n"
+  },
+  "turns": [
+    {
+      "prompt": "云汀文旅客服刚接到受台风红色预警影响线路的客人来电，问退改怎么处理。帮我在退款改签政策库里查一下『台风红色预警』的退改条款，手续费怎么算、能不能免？",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "台风红色预警",
+          "台风预警",
+          "台风"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

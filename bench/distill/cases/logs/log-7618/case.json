@@ -1,0 +1,51 @@
+{
+  "id": "log-7618",
+  "description": "总结换电柜运维日志（中文）为真实锁死时段；下午的应急演练是诱饵。 DISTILL-CANARY-849264b2",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "15:00"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-b07-windowdecoy-02",
+    "ref_calls": 3,
+    "fixture_bytes": 660,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:distill-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "logs/cabinet-0614.log": "2026-06-14 07:50 换电柜 C-7 柜门锁死 无法弹出 故障\n2026-06-14 09:05 换电柜 C-7 断电重启 恢复 正常\n2026-06-14 14:30 换电柜 C-7 柜门锁死 无法弹出 故障 演练\n2026-06-14 15:00 换电柜 C-7 演练结束 恢复 正常\n",
+    "notes/运维记录.md": "小骑换电站运维记录（C-7 柜）。\n\n原因：锁扣电机故障，2026-06-14 上午锁死后断电重启恢复，电机已更换。\n\n当天下午的锁死是公司组织的应急演练（日志带演练标记），由值班师傅\n按季度演练计划执行，柜内电池与锁扣均无实际故障，演练期间没有用户\n换电受影响，不算事故。演练结论已抄送运维组备查。\n"
+  },
+  "turns": [
+    {
+      "prompt": "小骑换电站 6 月 14 日的运维日志被车友在群里问起了，帮我捋一下发到群里：柜子真正锁死是从几点到几点、后来查出的毛病是什么。",
+      "expect": {
+        "output_contains": [
+          "07:50",
+          "09:05",
+          "锁扣电机"
+        ],
+        "output_contains_any": [
+          "07:50",
+          "09:05",
+          "锁扣电机"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

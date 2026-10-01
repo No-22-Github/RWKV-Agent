@@ -1,0 +1,56 @@
+{
+  "id": "web-7543",
+  "description": "Standardise on the current stable Draycott Mesh firmware against a review of an older build. DISTILL-CANARY-68f61781",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "2.7.0"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-web-b06-draycott",
+    "ref_calls": 4,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "draycott",
+      "url": "https://www.meshreview.example/draycott-270",
+      "url_match": "www.meshreview.example/draycott-270",
+      "title": "Draycott Mesh 2.7.0: a deeper look",
+      "snippet": "The 2.7.0 firmware makes band steering far calmer; our long-term test node has been stable for weeks.",
+      "content": "# Draycott Mesh 2.7.0: a deeper look\n\nmeshreview.example, 2026-04-03.\n\nThe 2.7.0 firmware makes band steering far calmer: our long-term test\nnode has now gone weeks without a roaming blip. The new node\nonboarding flow is also a step up.\n",
+      "published_at": "2026-04-03"
+    },
+    {
+      "query_match": "draycott",
+      "url": "https://support.draycottnet.example/release-notes",
+      "url_match": "support.draycottnet.example/release-notes",
+      "title": "Draycott Mesh - firmware release notes",
+      "snippet": "Firmware release history for Draycott Mesh systems.",
+      "content": "# Firmware release notes - Draycott Mesh\n\nThe current stable firmware is 2.9.1 (2026-09-14).\n\n## 2.9.1 (2026-09-14)\n\nFixes a scheduled-reboot timezone slip.\n\n## 2.8.3 (2026-06-30)\n\nImproves band steering under load.\n\n## 2.7.0 (2026-04-03)\n\nCalmer band steering; new node onboarding flow.\n",
+      "published_at": "2026-09-14"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "Facilities wants one firmware version standardised on all twelve Draycott Mesh nodes. Give the version alone, in the form 1.2.3. Which firmware version should they install?",
+      "expect": {
+        "output_equals": "2.9.1"
+      }
+    }
+  ]
+}

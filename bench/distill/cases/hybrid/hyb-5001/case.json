@@ -19,9 +19,10 @@
     "ref_calls": 4,
     "fixture_bytes": 798,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
-    "reviewer": null
+    "reviewer": null,
+    "answer_style": "value"
   },
   "web_fixture": [
     {
@@ -50,7 +51,7 @@
   },
   "turns": [
     {
-      "prompt": "Kestrel Preserves is checking the Ravensbourne Freight charges for its September 2026 despatches out of the Bellhaven depot. What was the total charge in pounds for those despatches, at the per-kilogram rates that applied in September 2026? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Kestrel Preserves is checking the Ravensbourne Freight charges for its September 2026 despatches out of the Bellhaven depot. What was the total charge in pounds for those despatches, at the per-kilogram rates that applied in September 2026? Reply with only the final answer.",
       "expect": {
         "expected_number": 4105.35,
         "tolerance": 0.01

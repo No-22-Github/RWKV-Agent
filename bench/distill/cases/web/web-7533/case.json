@@ -1,0 +1,69 @@
+{
+  "id": "web-7533",
+  "description": "Report that a planned API shutdown was postponed, against an older sunset announcement. DISTILL-CANARY-77893668",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "deprecation",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "已弃用"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-web-b06-banxia-api",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "半夏",
+      "url": "https://devblog.example/banxia-v2-sunset",
+      "url_match": "devblog.example/banxia-v2-sunset",
+      "title": "半夏收银 v2 开放接口 6 月底停用，迁移指南",
+      "snippet": "官方已宣布 v2 开放接口将于 6 月底弃用，本文给出迁移清单。",
+      "published_at": "2026-05-20",
+      "content": "# 半夏收银 v2 开放接口 6 月底停用\n\n半夏收银 5 月的开发者信宣布：v2 开放接口将于 2026-06-30 弃用，届时调用会被拒绝。\n\n请尽快迁移到 v3，迁移清单见文末。\n"
+    },
+    {
+      "query_match": "半夏",
+      "url": "https://open.banxia.example/notices",
+      "url_match": "open.banxia.example/notices",
+      "title": "半夏收银开放平台 · 官方公告",
+      "snippet": "接口调整与维护窗口的官方公告汇总。",
+      "published_at": "2026-06-28",
+      "content": "# 半夏收银开放平台 · 官方公告\n\n【2026-06-28】v2 开放接口停用计划延期：经商户委员会评估，v2 接口的停用时间推迟到 2027-03-31，此前调用一切照常，无需迁移。\n\n【2026-05-18】维护窗口：6 月 10 日 02:00-04:00 读写分离切换。\n"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "半夏收银的 v2 开放接口现在还能正常调用吗？官方的口径是什么？",
+      "expect": {
+        "output_contains_any": [
+          "延期",
+          "推迟",
+          "延后",
+          "延长",
+          "照常",
+          "仍可",
+          "仍能",
+          "还能"
+        ],
+        "output_excludes": [
+          "已弃用",
+          "已停用"
+        ]
+      }
+    }
+  ]
+}

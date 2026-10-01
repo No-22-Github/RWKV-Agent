@@ -1,0 +1,62 @@
+{
+  "id": "doc-7378",
+  "description": "Write the tea-oil workshop's pickup list from the current month's order log. DISTILL-CANARY-2a1bcd38",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "extract_items",
+    "traps": [
+      "TR-NEARNAME",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": "pickup/2026-09-28.txt",
+      "TR-DECOY": 3
+    },
+    "axes": [
+      "ERR",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-doc-b06-meihewu",
+    "ref_calls": 4,
+    "fixture_bytes": 654,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "orders/2026-09.txt": "订货登记 2026-09（梅鹤坞茶油工坊）\n山茶油 2.5L装 6瓶 未提 竹里馆\n茶枯饼 散装 3袋 未提 曾家\n山茶油 500ml装 10瓶 已提 竹里馆\n",
+    "orders/prior/2026-08.txt": "订货登记 2026-08（梅鹤坞茶油工坊）\n山茶油 2.5L装 4瓶 已提 曾家\n茶枯饼 2袋 已提 竹里馆\n",
+    "README.md": "# 梅鹤坞茶油工坊 提货单\n\n订货登记按月记在 orders/，当月文件叫 YYYY-MM.txt，上月的\n结转留底放在 orders/prior/ 下。提货单录在 pickup/，文件名\n「提货单-YYYY-MM-DD.txt」，日期用出单当天；只列当月登记里\n状态为「未提」的品项，按登记行序，每行写成\n\n    - <品名> <规格> <数量> <客户>\n",
+    "pickup/.keep": ""
+  },
+  "expect": {
+    "files": {
+      "pickup/提货单-2026-09-28.txt": {
+        "contains": [
+          "- 山茶油 2.5L装 6瓶 竹里馆",
+          "- 茶枯饼 散装 3袋 曾家"
+        ]
+      },
+      "pickup/2026-09-28.txt": {
+        "absent": true
+      },
+      "orders/2026-09.txt": {
+        "unchanged": true
+      },
+      "orders/prior/2026-08.txt": {
+        "unchanged": true
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "梅鹤坞茶油工坊今天（2026-09-28）要出一张提货单。订货登记在 orders/ 下，请按工坊的规矩把 该提的货写成提货单放进 pickup/，文件名按 README；orders/ 里的登记都不要动。完成后用两三句话说明你写了什么。",
+      "expect": {}
+    }
+  ]
+}

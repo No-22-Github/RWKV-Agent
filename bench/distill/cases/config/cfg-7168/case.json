@@ -1,0 +1,54 @@
+{
+  "id": "cfg-7168",
+  "description": "Effective surge_ceiling_pct of the Zhaoye fleet dispatch, where the documented precedence and the deploy record disagree. DISTILL-CANARY-e2f9bfbf",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-PRECEDENCE"
+    ],
+    "trap_decoys": {
+      "TR-PRECEDENCE": "250"
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b06-zhaoye-surge",
+    "ref_calls": 3,
+    "fixture_bytes": 801,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 照夜出行 - 车队调度配置\n\n调度服务的配置分两层：config/fleet-dispatch.json 是实例配置，覆盖 config/fleet-baseline.json 基线；实例没写的键用基线。\n\n配置改动走平台组的发布流程，发布与回滚记录见 docs/deploy-log.md。\n",
+    "config/fleet-dispatch.json": "{\n  \"service\": \"fleet-dispatch\",\n  \"city\": \"hangzhou\",\n  \"surge_ceiling_pct\": 250,\n  \"dispatch_radius_km\": 8,\n  \"driver_ping_interval_s\": 10\n}\n",
+    "config/fleet-baseline.json": "{\n  \"surge_ceiling_pct\": 180,\n  \"dispatch_radius_km\": 5,\n  \"driver_ping_interval_s\": 15,\n  \"log_level\": \"info\"\n}\n",
+    "docs/deploy-log.md": "# 部署记录\n\n- 2026-09-01：巡检发现 fleet-dispatch.json 含超出 schema 的字段，调度服务已切到只加载 fleet-baseline.json 的安全模式；实例配置恢复加载的时间待平台组通知。\n- 2026-08-19：例行发布，无配置变更。\n"
+  },
+  "turns": [
+    {
+      "prompt": "照夜出行的运营周报要写溢价上限，帮我看一下调度这套配置里生效的 surge_ceiling_pct 现在到底是多少？",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "surge_ceiling_pct",
+          "surge ceiling",
+          "溢价上限"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "id": "nt-7144",
+  "description": "Identify the country of the +81 international dialing prefix from a client's phone number. DISTILL-CANARY-f3bc3397",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "stable_fact",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b06-dialcode-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 233
+  },
+  "web_fixture": [],
+  "files": {
+    "clients/contacts.csv": "name,phone\n郑海宁,+81-3-6812-4470\n沈昱,+86-137-5519-2084\n陆蔓,+82-2-776-3315\n",
+    "README.md": "# 澜庭贸易 - 外贸客户工作区\n\n客户名录与往来函件都放在这里。\n\n- clients/  客户联系方式\n- letters/  往来函件存档\n"
+  },
+  "turns": [
+    {
+      "prompt": "澜庭贸易的新客户郑海宁留的联系方式是 +81-3-6812-4470。+81 这个国际区号属于哪个国家？只回答国家名。",
+      "expect": {
+        "output_equals": "日本",
+        "tools": []
+      }
+    }
+  ]
+}

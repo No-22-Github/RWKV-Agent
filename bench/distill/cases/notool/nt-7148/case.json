@@ -1,0 +1,37 @@
+{
+  "id": "nt-7148",
+  "description": "Decide whether a return request 5 days after receipt is inside the 7-day return window. DISTILL-CANARY-723812d5",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b06-returnwin-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 263
+  },
+  "web_fixture": [],
+  "files": {
+    "aftersale/orders.csv": "order_no,received_date\nMD-3312,2026-03-05\nMD-3340,2026-02-19\n",
+    "README.md": "# 木白家居 - 售后工作区\n\n订单签收与售后登记都放在这里。\n\n- aftersale/  售后工单登记\n- policies/  售后政策文件\n\n售后政策：商品签收后 7 日内支持退货。\n"
+  },
+  "turns": [
+    {
+      "prompt": "木白家居的售后政策是签收后 7 日内可以退货。订单 MD-3312 的客户 3 月 5 日签收，3 月 10 日提出退货申请。这单还在可退货的期限内吗？只回答「在期限内」或「已超期」。",
+      "expect": {
+        "output_equals": "在期限内",
+        "tools": []
+      }
+    }
+  ]
+}

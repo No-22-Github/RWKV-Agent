@@ -1,0 +1,76 @@
+{
+  "id": "hyb-7767",
+  "description": "Two-turn clarify (two readings): Kestrel Homes invoices exist in issued and provisional files; turn 1 names both and asks, turn 2 picks issued giving 6290.75. DISTILL-CANARY-82bfb705",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 8400.75
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b07-ambiguoustwo-01",
+    "ref_calls": 4,
+    "fixture_bytes": 426,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "value"
+  },
+  "files": {
+    "README.md": "# Hollis & Vane invoicing\n\nProvisional invoices are not yet issued; the issued file is what clients are billed from.\n",
+    "invoices/invoices-issued.csv": "invoice_id,client,amount_gbp\nHV-231,Kestrel Homes,4820.00\nHV-234,Orrery Tea,1265.50\nHV-236,Delvin Bank,3980.25\nHV-238,Kestrel Homes,1470.75\n",
+    "invoices/invoices-provisional.csv": "invoice_id,client,amount_gbp\nHV-231,Kestrel Homes,4820.00\nHV-233,Kestrel Homes,2110.00\nHV-234,Orrery Tea,1265.50\nHV-236,Delvin Bank,3980.25\nHV-238,Kestrel Homes,1470.75\n"
+  },
+  "turns": [
+    {
+      "prompt": "Total the Kestrel Homes invoices for the client statement.",
+      "expect": {
+        "forbidden_tools": [
+          "write_file",
+          "append_file",
+          "replace_lines"
+        ],
+        "output_contains_any": [
+          "?",
+          "Which",
+          "which",
+          "What",
+          "what",
+          "confirm",
+          "Confirm",
+          "specify",
+          "Specify",
+          "Do you",
+          "do you",
+          "Did you",
+          "did you",
+          "should I",
+          "Should I",
+          "please provide",
+          "Please provide",
+          "need to know",
+          "Need to know"
+        ],
+        "output_contains": [
+          "invoices-issued.csv",
+          "invoices-provisional.csv"
+        ]
+      }
+    },
+    {
+      "prompt": "Use the issued file. Reply with only the final answer.",
+      "expect": {
+        "expected_number": 6290.75,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

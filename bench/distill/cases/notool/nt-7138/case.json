@@ -1,0 +1,52 @@
+{
+  "id": "nt-7138",
+  "description": "Two managers share the surname the message addresses; the message does not say which one DISTILL-CANARY-88e00905",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "ambiguous_request",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": "对账单已经发给王淑芬经理了。"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-clarify-02",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 291
+  },
+  "web_fixture": [],
+  "files": {
+    "contacts/clients.csv": "姓名,职务,对接事项\n王启明,采购经理,月度对账\n王淑芬,财务经理,发票与回款\n李成志,仓库主管,收发货\n",
+    "README.md": "# 汇泽贸易 - 客户对接工作区\n\n联系人台账与对账单归档都在这里。\n\n- contacts/  客户联系人台账\n- statements/  对账单归档\n"
+  },
+  "turns": [
+    {
+      "prompt": "汇泽贸易要把本季度的对账单发给对接的王经理，不过通讯录里存了两位王经理——采购经理王启明和财务经理王淑芬。你把对账单发给王经理。",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "？",
+          "?",
+          "哪个",
+          "哪一位",
+          "哪一个",
+          "哪位"
+        ],
+        "output_contains": [
+          "王启明",
+          "王淑芬"
+        ]
+      }
+    }
+  ]
+}

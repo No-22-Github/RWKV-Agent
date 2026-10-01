@@ -1,0 +1,53 @@
+{
+  "id": "scr-7723",
+  "description": "Fix the apiary harvest report that prints a zero line for hives the inspector never opened. DISTILL-CANARY-ec2f170d",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_output",
+    "traps": [
+      "TR-MISSING"
+    ],
+    "trap_decoys": {
+      "TR-MISSING": "Foxglove Stack printed with 0"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-scr-b06-heathridge",
+    "ref_calls": 4,
+    "fixture_bytes": 1352,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "harvest.py": "\"\"\"Print the honey harvest report for Heathridge Apiaries.\n\nThe inspector's tablet drops one file per month into hives/, one row per\nhive and visit:\n\n    visited_on,hive,frames\n\nThe report is one line per hive that was inspected, in alphabetical order,\nwith the frames pulled that month, followed by a total line:\n\n    <hive>,<frames>\n    TOTAL,<frames>\n\nA hive whose frames cell is empty or a dash was not opened that visit; it\ncounts nothing and gets no line.\n\"\"\"\n\nimport csv\nimport glob\n\nper_hive = {}\nfor path in sorted(glob.glob(\"hives/*.csv\")):\n    with open(path, newline=\"\", encoding=\"utf-8\") as handle:\n        for row in list(csv.reader(handle))[1:]:\n            hive = row[1]\n            cell = row[2].strip()\n            frames = int(cell) if cell.isdigit() else 0\n            per_hive[hive] = per_hive.get(hive, 0) + frames\n\ntotal = 0\nfor hive in sorted(per_hive):\n    print(f\"{hive},{per_hive[hive]}\")\n    total += per_hive[hive]\nprint(f\"TOTAL,{total}\")\n",
+    "hives/2026-09.csv": "visited_on,hive,frames\n2026-09-05,Bell Thorn,14\n2026-09-05,Copper Rise,9\n2026-09-12,Bell Thorn,11\n2026-09-12,Foxglove Stack,\n2026-09-19,Copper Rise,15\n2026-09-26,Foxglove Stack,-\n2026-09-26,Bell Thorn,12\n",
+    "README.md": "# Heathridge Apiaries - honey harvest report\n\nThe inspector's tablet drops one file per month into hives/. An empty or\ndashed frames cell means the hive was not opened that visit.\n"
+  },
+  "expect": {
+    "files": {
+      "hives/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "harvest.py",
+      "expected_stdout": "Bell Thorn,54\nCopper Rise,24\nFoxglove Stack,10\nTOTAL,88",
+      "hidden_files": {
+        "hives/2026-10.csv": "visited_on,hive,frames\n2026-10-03,Bell Thorn,8\n2026-10-10,Foxglove Stack,10\n2026-10-17,Copper Rise,-\n2026-10-24,Bell Thorn,9\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Heathridge Apiaries' harvest report lists hives the inspector never opened, and the warden copies them out by hand every month. The docstring spells out which hives the report owes. Please repair harvest.py so the report follows its docstring again. The files in hives/ stay as they are. When you are done, say in two or three sentences what you changed.",
+      "expect": {}
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "id": "cfg-7132",
+  "description": "offline_order_discount is defined in neither config layer of a bakery mini program. DISTILL-CANARY-b0382f5b",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "missing_keys",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": 85
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b06-luming-bakery",
+    "ref_calls": 3,
+    "fixture_bytes": 540,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/bakery-app.json": "{\n  \"shop\": \"luming-bakery-hangzhou\",\n  \"order_cutoff_min\": 30,\n  \"pickup_slots\": 6,\n  \"loyalty_points_per_yuan\": 2\n}\n",
+    "config/bakery-defaults.json": "{\n  \"order_cutoff_min\": 45,\n  \"pickup_slots\": 4,\n  \"member_discount_pct\": 85,\n  \"sms_remind_hours\": 24\n}\n",
+    "README.md": "# 鹿鸣烘焙 - 门店小程序配置\n\n门店小程序配置分两层：`config/bakery-app.json` 是本店实例配置，`config/bakery-defaults.json` 是连锁默认档案。\n\n实例配置覆盖默认档案：同名键以实例为准，实例没写的键回落默认档案；两层都没有的键没有生效值。\n"
+  },
+  "turns": [
+    {
+      "prompt": "鹿鸣烘焙想把到店自提的单子也挂上折扣，店长让先查小程序现在的配置。生效配置里 offline_order_discount 这一项现在有值吗？值是多少？",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "offline_order_discount",
+          "offline order discount",
+          "线下订单折扣"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools",
+          "85"
+        ]
+      }
+    }
+  ]
+}

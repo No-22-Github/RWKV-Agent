@@ -1,0 +1,38 @@
+{
+  "id": "nt-7112",
+  "description": "Convert a freight lift's 1.05 t rated load into kilograms from the nameplate figure given in the message DISTILL-CANARY-e25f9219",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b06-crane-load-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 267
+  },
+  "web_fixture": [],
+  "files": {
+    "assets/lift_plates.csv": "电梯,类型,额定载重吨\n1号客梯,客梯,0.8\n2号客梯,客梯,1.0\n3号货梯,货梯,1.05\n",
+    "README.md": "# 磐石仓储 - 库房管理工作区\n\n库房电梯铭牌与限载标签登记都在这里。\n\n- assets/  电梯铭牌登记表\n\n限载提示条统一用千克填写。\n"
+  },
+  "turns": [
+    {
+      "prompt": "磐石仓储 5 号库的 3 号货梯，铭牌上写的额定载重是 1.05 吨。库管要把限载提示条换成用千克来写。1.05 吨合多少千克？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 1050,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

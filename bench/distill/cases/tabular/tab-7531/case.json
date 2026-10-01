@@ -1,0 +1,50 @@
+{
+   "id": "tab-7531",
+   "description": "Total August 2026 fees for one swim programme in an enrolments export with a near-name programme beside it DISTILL-CANARY-074eef86",
+   "category": "tabular",
+   "tags": {
+      "scenario": "tabular",
+      "task_type": "aggregate",
+      "traps": [
+         "TR-DECOY"
+      ],
+      "trap_decoys": {
+         "TR-DECOY": 1813.97
+      },
+      "axes": [
+         "OBS"
+      ],
+      "level": "L1",
+      "family": "fam-tab-b06-meadowbrook-01",
+      "ref_calls": 1,
+      "fixture_bytes": 6506,
+      "status": "draft",
+      "version": 1,
+      "author": "llm:glm-5.3-flash-b06",
+      "reviewer": null,
+      "answer_style": "natural"
+   },
+   "web_fixture": [],
+   "files": {
+      "exports/enrolments_2026-08.csv": "enrolment_id,enrol_month,program,site,fee_gbp\nMB-9935,2026-07,Parent & Toddler,Training Pool,22.22\nMB-6848,2026-07,Lane Swim,Training Pool,20.50\nMB-9041,2026-08,Learn-to-Swim,Training Pool,15.30\nMB-7880,2026-08,Lane Swim,Training Pool,12.04\nMB-2995,2026-07,Lane Swim,Main Pool,22.64\nMB-4423,2026-08,Learn-to-Swim,Main Pool,15.17\nMB-7279,2026-08,Learn-to-Swim Intensive,Training Pool,44.30\nMB-4355,2026-08,Aqua Fitness,Training Pool,57.71\nMB-5653,2026-08,Learn-to-Swim Intensive,Training Pool,74.67\nMB-2771,2026-08,Parent & Toddler,Main Pool,16.66\nMB-1395,2026-07,Parent & Toddler,Main Pool,23.76\nMB-2934,2026-08,Parent & Toddler,Training Pool,25.57\nMB-1216,2026-08,Parent & Toddler,Training Pool,13.04\nMB-9933,2026-08,Parent & Toddler,Training Pool,23.54\nMB-5856,2026-08,Learn-to-Swim,Training Pool,25.17\nMB-3237,2026-08,Learn-to-Swim,Training Pool,39.24\nMB-2231,2026-07,Lane Swim,Main Pool,13.94\nMB-9198,2026-08,Learn-to-Swim Intensive,Main Pool,62.32\nMB-7123,2026-08,Learn-to-Swim Intensive,Training Pool,85.99\nMB-6099,2026-08,Learn-to-Swim,Main Pool,24.44\nMB-8162,2026-08,Aqua Fitness,Main Pool,62.74\nMB-9241,2026-08,Learn-to-Swim Intensive,Training Pool,85.93\nMB-6846,2026-08,Learn-to-Swim Intensive,Main Pool,66.17\nMB-9657,2026-08,Parent & Toddler,Main Pool,25.27\nMB-6303,2026-08,Aqua Fitness,Main Pool,40.16\nMB-1013,2026-08,Learn-to-Swim Intensive,Training Pool,66.59\nMB-3029,2026-08,Learn-to-Swim Intensive,Training Pool,52.84\nMB-8246,2026-08,Learn-to-Swim,Main Pool,24.56\nMB-8365,2026-08,Learn-to-Swim,Training Pool,18.21\nMB-6737,2026-07,Parent & Toddler,Main Pool,11.13\nMB-5993,2026-08,Lane Swim,Training Pool,17.06\nMB-9835,2026-07,Aqua Fitness,Main Pool,35.91\nMB-7543,2026-07,Learn-to-Swim Intensive,Training Pool,92.83\nMB-6560,2026-08,Learn-to-Swim Intensive,Training Pool,76.37\nMB-9065,2026-08,Learn-to-Swim,Training Pool,31.78\nMB-2852,2026-08,Learn-to-Swim Intensive,Main Pool,46.73\nMB-7185,2026-08,Learn-to-Swim Intensive,Main Pool,94.39\nMB-7265,2026-07,Learn-to-Swim,Main Pool,47.07\nMB-4340,2026-08,Aqua Fitness,Main Pool,40.19\nMB-1063,2026-08,Aqua Fitness,Training Pool,54.14\nMB-5548,2026-07,Aqua Fitness,Training Pool,38.53\nMB-9371,2026-08,Learn-to-Swim Intensive,Main Pool,78.67\nMB-4258,2026-08,Parent & Toddler,Main Pool,14.90\nMB-8562,2026-08,Parent & Toddler,Training Pool,21.90\nMB-9469,2026-08,Learn-to-Swim,Main Pool,39.79\nMB-7700,2026-08,Learn-to-Swim,Training Pool,55.44\nMB-6002,2026-07,Parent & Toddler,Main Pool,25.58\nMB-3790,2026-08,Learn-to-Swim Intensive,Training Pool,43.58\nMB-8362,2026-08,Aqua Fitness,Training Pool,66.77\nMB-9699,2026-07,Aqua Fitness,Training Pool,34.92\nMB-4233,2026-08,Learn-to-Swim,Training Pool,23.24\nMB-6888,2026-08,Aqua Fitness,Training Pool,25.03\nMB-9621,2026-07,Lane Swim,Training Pool,27.08\nMB-1057,2026-08,Lane Swim,Main Pool,21.62\nMB-7376,2026-07,Learn-to-Swim,Main Pool,20.12\nMB-7977,2026-08,Learn-to-Swim,Training Pool,48.92\nMB-7639,2026-08,Learn-to-Swim Intensive,Training Pool,49.22\nMB-6505,2026-07,Aqua Fitness,Main Pool,23.42\nMB-2109,2026-08,Learn-to-Swim Intensive,Main Pool,95.42\nMB-9072,2026-08,Learn-to-Swim Intensive,Training Pool,70.60\nMB-5057,2026-07,Aqua Fitness,Training Pool,47.43\nMB-5765,2026-08,Learn-to-Swim Intensive,Main Pool,65.26\nMB-1340,2026-08,Learn-to-Swim Intensive,Training Pool,81.94\nMB-7668,2026-07,Lane Swim,Main Pool,13.65\nMB-3557,2026-08,Lane Swim,Training Pool,15.38\nMB-7509,2026-07,Learn-to-Swim Intensive,Main Pool,74.94\nMB-5427,2026-08,Learn-to-Swim,Training Pool,55.90\nMB-3918,2026-08,Aqua Fitness,Training Pool,60.55\nMB-2202,2026-08,Learn-to-Swim Intensive,Training Pool,43.70\nMB-1165,2026-07,Learn-to-Swim,Training Pool,59.20\nMB-6725,2026-08,Learn-to-Swim Intensive,Training Pool,55.82\nMB-5334,2026-07,Parent & Toddler,Training Pool,25.52\nMB-7736,2026-07,Learn-to-Swim,Training Pool,42.42\nMB-9916,2026-08,Learn-to-Swim Intensive,Training Pool,65.75\nMB-5975,2026-07,Learn-to-Swim Intensive,Main Pool,84.12\nMB-3491,2026-08,Learn-to-Swim Intensive,Training Pool,73.03\nMB-8570,2026-08,Learn-to-Swim Intensive,Training Pool,50.25\nMB-5249,2026-07,Lane Swim,Training Pool,22.42\nMB-8938,2026-07,Learn-to-Swim,Main Pool,42.12\nMB-3779,2026-07,Learn-to-Swim,Main Pool,25.21\nMB-8653,2026-07,Parent & Toddler,Main Pool,21.67\nMB-9361,2026-08,Learn-to-Swim Intensive,Training Pool,82.28\nMB-1743,2026-08,Parent & Toddler,Training Pool,11.61\nMB-5437,2026-07,Parent & Toddler,Main Pool,12.77\nMB-9360,2026-08,Lane Swim,Main Pool,17.76\nMB-2615,2026-08,Lane Swim,Main Pool,22.83\nMB-7923,2026-08,Learn-to-Swim,Main Pool,55.88\nMB-2142,2026-08,Lane Swim,Main Pool,23.22\nMB-6819,2026-07,Learn-to-Swim Intensive,Main Pool,40.42\nMB-2097,2026-07,Learn-to-Swim,Training Pool,58.32\nMB-8249,2026-08,Aqua Fitness,Training Pool,62.27\nMB-1323,2026-07,Lane Swim,Training Pool,15.09\nMB-3689,2026-07,Aqua Fitness,Main Pool,39.67\nMB-9309,2026-07,Learn-to-Swim Intensive,Main Pool,39.13\nMB-3648,2026-07,Parent & Toddler,Training Pool,14.43\nMB-2524,2026-07,Learn-to-Swim,Main Pool,36.36\nMB-7585,2026-08,Aqua Fitness,Training Pool,51.74\nMB-5518,2026-08,Aqua Fitness,Training Pool,29.74\nMB-5987,2026-08,Aqua Fitness,Training Pool,29.70\nMB-4422,2026-08,Aqua Fitness,Training Pool,55.87\nMB-9652,2026-08,Learn-to-Swim,Training Pool,56.39\nMB-4403,2026-07,Lane Swim,Training Pool,27.89\nMB-4886,2026-07,Learn-to-Swim Intensive,Main Pool,66.45\nMB-6471,2026-08,Lane Swim,Main Pool,22.70\nMB-5408,2026-08,Parent & Toddler,Main Pool,19.14\nMB-2123,2026-07,Learn-to-Swim Intensive,Main Pool,92.15\nMB-2226,2026-08,Learn-to-Swim Intensive,Training Pool,72.04\nMB-9572,2026-08,Learn-to-Swim,Main Pool,47.58\nMB-7032,2026-08,Learn-to-Swim,Main Pool,25.74\nMB-8666,2026-07,Parent & Toddler,Main Pool,25.35\nMB-9380,2026-08,Aqua Fitness,Main Pool,68.27\nMB-1814,2026-08,Parent & Toddler,Training Pool,25.54\nMB-3761,2026-08,Parent & Toddler,Training Pool,16.36\nMB-5864,2026-08,Aqua Fitness,Main Pool,43.37\nMB-5419,2026-07,Aqua Fitness,Main Pool,39.23\nMB-6830,2026-08,Learn-to-Swim Intensive,Main Pool,55.00\nMB-4802,2026-08,Aqua Fitness,Main Pool,48.11\nMB-7431,2026-08,Aqua Fitness,Main Pool,61.44\nMB-7548,2026-07,Learn-to-Swim,Training Pool,23.22\nMB-3823,2026-08,Learn-to-Swim Intensive,Main Pool,75.11\n",
+      "README.md": "# Meadowbrook Swim Centre - August enrolments export\n\nOne row per enrolment taken at the front desk. program is the booked\ncourse exactly as printed on the booking form; fee_gbp is the amount\ninvoiced when the enrolment was taken.\n",
+      "notes/rota.txt": "Lifeguard rota notes\n- Lane ropes come out of storage on Friday evenings.\n- The training pool closes early on gala days; see the whiteboard.\n"
+   },
+   "turns": [
+      {
+         "prompt": "Meadowbrook Swim Centre is closing the August books. The enrolments export is at exports/enrolments_2026-08.csv. Give the number alone, as digits, with no label. What was the total of the August 2026 fees for the Learn-to-Swim program?",
+         "expect": {
+            "expected_number": 602.75,
+            "tolerance": 0.01,
+            "required_tools": [
+               "data_query"
+            ]
+         }
+      }
+   ],
+   "expect": {
+      "max_calls": {
+         "read_file": 1
+      }
+   }
+}

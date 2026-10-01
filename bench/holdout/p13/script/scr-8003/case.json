@@ -1,0 +1,69 @@
+{
+  "id": "scr-8003",
+  "description": "Write scripts/energy_report.py to print per-floor watt-hour totals from greenhouse CSV logs, deduplicating retried lines and skipping the archive copy; judged offline by expect.run on visible plus hidden inputs. DISTILL-CANARY-d92b605e",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "write_new",
+    "traps": [
+      "TR-DUPROW",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": null,
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-holdout-scr-report-01",
+    "answer_style": "natural",
+    "ref_calls": 5,
+    "fixture_bytes": 1251,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null
+  },
+  "files": {
+    "README.md": "# Hollowbrook Greenhouses - energy logs\n\nEach floor's controller writes one CSV per day under data/readings/.\nA current log is named floor<N>.csv and holds two columns with no\nheader row: an ISO timestamp and the watt-hours consumed in that\ninterval.\n\nTwo things to know about the logger:\n\n- When a write times out the controller retries it, so the same\n  reading can appear twice in a file. Readings are the same only when\n  the whole line matches; count each reading once.\n- floor2-old.csv is an archive left over from the old second-floor\n  controller; it is not current data.\n",
+    "data/readings/floor1.csv": "2026-09-21T06:00,412\n2026-09-21T06:15,398\n2026-09-21T06:30,405\n2026-09-21T06:45,411\n2026-09-21T07:00,412\n2026-09-21T06:15,398\n2026-09-21T07:15,420\n",
+    "data/readings/floor2.csv": "2026-09-21T06:00,351\n2026-09-21T06:15,366\n2026-09-21T06:30,360\n2026-09-21T06:45,372\n2026-09-21T07:00,359\n",
+    "data/readings/floor3.csv": "2026-09-21T06:00,287\n2026-09-21T06:15,290\n2026-09-21T06:30,301\n2026-09-21T06:30,301\n2026-09-21T06:45,295\n2026-09-21T07:00,288\n2026-09-21T07:15,309\n",
+    "data/readings/floor2-old.csv": "2026-09-14T06:00,301\n2026-09-14T06:15,298\n2026-09-14T06:30,310\n",
+    "scripts/energy_report.py": "\"\"\"Per-floor energy report for Hollowbrook Greenhouses.\n\nThe conventions this report must follow are described in the README\nat the project root.\n\"\"\"\n\nraise SystemExit(\"energy_report.py: not implemented yet\")\n"
+  },
+  "turns": [
+    {
+      "prompt": "Hollowbrook's floor controllers log power use under data/readings, and the README at the project root explains how those logs behave. Write the report script scripts/energy_report.py - there is a placeholder sitting there now - so that running it prints one line per current log in that folder, in the form '<name>.csv: <watt-hours for that file>', with the lines sorted by filename. When you're done, tell me in one to three sentences what you built.",
+      "expect": {}
+    }
+  ],
+  "expect": {
+    "files": {
+      "README.md": {
+        "equals": "# Hollowbrook Greenhouses - energy logs\n\nEach floor's controller writes one CSV per day under data/readings/.\nA current log is named floor<N>.csv and holds two columns with no\nheader row: an ISO timestamp and the watt-hours consumed in that\ninterval.\n\nTwo things to know about the logger:\n\n- When a write times out the controller retries it, so the same\n  reading can appear twice in a file. Readings are the same only when\n  the whole line matches; count each reading once.\n- floor2-old.csv is an archive left over from the old second-floor\n  controller; it is not current data.\n"
+      },
+      "data/readings/floor1.csv": {
+        "equals": "2026-09-21T06:00,412\n2026-09-21T06:15,398\n2026-09-21T06:30,405\n2026-09-21T06:45,411\n2026-09-21T07:00,412\n2026-09-21T06:15,398\n2026-09-21T07:15,420\n"
+      },
+      "data/readings/floor2.csv": {
+        "equals": "2026-09-21T06:00,351\n2026-09-21T06:15,366\n2026-09-21T06:30,360\n2026-09-21T06:45,372\n2026-09-21T07:00,359\n"
+      },
+      "data/readings/floor3.csv": {
+        "equals": "2026-09-21T06:00,287\n2026-09-21T06:15,290\n2026-09-21T06:30,301\n2026-09-21T06:30,301\n2026-09-21T06:45,295\n2026-09-21T07:00,288\n2026-09-21T07:15,309\n"
+      },
+      "data/readings/floor2-old.csv": {
+        "equals": "2026-09-14T06:00,301\n2026-09-14T06:15,298\n2026-09-14T06:30,310\n"
+      }
+    },
+    "run": {
+      "path": "scripts/energy_report.py",
+      "expected_stdout": "floor1.csv: 2458\nfloor2.csv: 1808\nfloor3.csv: 1770\nfloor4.csv: 1325",
+      "hidden_files": {
+        "data/readings/floor4.csv": "2026-09-21T06:00,330\n2026-09-21T06:15,342\n2026-09-21T06:15,342\n2026-09-21T06:30,318\n2026-09-21T06:45,335\n"
+      }
+    }
+  }
+}

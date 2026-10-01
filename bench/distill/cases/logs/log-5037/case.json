@@ -19,9 +19,10 @@
     "ref_calls": 2,
     "fixture_bytes": 2181,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
-    "reviewer": null
+    "reviewer": null,
+    "answer_style": "value"
   },
   "web_fixture": [],
   "files": {
@@ -30,7 +31,7 @@
   },
   "turns": [
     {
-      "prompt": "Thorneybank Foundry's two induction furnaces melt iron for the day's castings, and the furnace house writes a line for every run they make. The metal reconciliation for the shift of 18 September 2026 needs the iron the shift poured out of its furnaces. How many tonnes was that? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Thorneybank Foundry's two induction furnaces melt iron for the day's castings, and the furnace house writes a line for every run they make. The metal reconciliation for the shift of 18 September 2026 needs the iron the shift poured out of its furnaces. How many tonnes was that? Give the number alone, as digits, with no label. Reply with only the final answer.",
       "expect": {
         "expected_number": 817,
         "tolerance": 0.01

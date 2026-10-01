@@ -1,0 +1,48 @@
+{
+  "id": "doc-7379",
+  "description": "Log a single harbour office damage claim. DISTILL-CANARY-e44b5de6",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-doc-b06-ossory",
+    "ref_calls": 3,
+    "fixture_bytes": 459,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "logbook/claims-2026-09.txt": "2026-09-12 Berth 08 \"Lark\" - anchor chain dropped overboard - 210\n2026-09-19 Berth 17 \"Marlin\" - window cracked by a halyard - 95\n",
+    "notices/inspector-2026-09-30.txt": "Notices received 2026-09-30\nBerth 05 - \"Sanderling\" - tiller arm scored - 150\n",
+    "README.md": "# Ossory Marina - damage claims log\n\nlogbook/claims-YYYY-MM.txt takes one line per claim:\n\n    <date> <berth> \"<vessel>\" - <summary> - <estimate>\n\nThe inspector's notices are kept in notices/; each claim is logged\nunder the date on the notices sheet.\n"
+  },
+  "expect": {
+    "files": {
+      "logbook/claims-2026-09.txt": {
+        "contains": [
+          "2026-09-12 Berth 08 \"Lark\" - anchor chain dropped overboard - 210",
+          "2026-09-30 Berth 05 \"Sanderling\" - tiller arm scored - 150"
+        ]
+      },
+      "notices/inspector-2026-09-30.txt": {
+        "unchanged": true
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Ossory Marina received one inspector's notice on 2026-09-30 (in notices/). Log it into logbook/claims-2026-09.txt in the house style and leave the notice untouched. When you are done, describe in two or three sentences what you wrote.",
+      "expect": {}
+    }
+  ]
+}

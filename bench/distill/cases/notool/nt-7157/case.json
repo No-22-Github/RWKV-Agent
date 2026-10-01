@@ -1,0 +1,51 @@
+{
+  "id": "nt-7157",
+  "description": "Pre-holiday greeting before the October break; no task attached. DISTILL-CANARY-41476357",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-smalltalk-holiday-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 199
+  },
+  "web_fixture": [],
+  "files": {
+    "trips/goldenweek.csv": "route,seats_left,price_cny\n桂林双飞,6,3280\n厦门高铁,15,1580\n",
+    "README.md": "# 观潮旅行社 - 产品工作区\n\n假期线路与报价都放在这里。\n\n- trips/  线路与余位\n- quotes/  团期报价单\n"
+  },
+  "turns": [
+    {
+      "prompt": "下周就放国庆长假啦，先跟你说一声，提前祝你假期玩得开心！",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "假期",
+          "愉快",
+          "开心",
+          "快乐",
+          "玩得",
+          "谢谢",
+          "同乐",
+          "顺利"
+        ]
+      }
+    }
+  ]
+}

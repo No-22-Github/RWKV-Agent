@@ -1,0 +1,41 @@
+{
+  "id": "tab-8011",
+  "description": "Sum August 2026 delivery fees for a Chinese grocery chain from an export whose nightly job retried and repeated rows. DISTILL-CANARY-b723eb8f",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 174.4
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-holdout-tab-feesum-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1389,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "exports/delivery-fees-2026-08.csv": "配送单号,下单号,配送日期,承运商,配送费(元)\nPS-8091,DD-41002,2026-08-01,顺丰,6.80\nPS-8093,DD-41005,2026-08-02,京东物流,5.50\nPS-8095,DD-41009,2026-08-03,顺丰,7.20\nPS-8098,DD-41013,2026-08-04,极兔,4.30\nPS-8101,DD-41016,2026-08-05,京东物流,6.00\nPS-8102,DD-41018,2026-08-06,顺丰,8.40\nPS-8104,DD-41021,2026-08-07,极兔,4.90\nPS-8106,DD-41025,2026-08-09,顺丰,6.60\nPS-8107,DD-41028,2026-08-10,京东物流,5.20\nPS-8102,DD-41018,2026-08-06,顺丰,8.40\nPS-8109,DD-41031,2026-08-11,极兔,4.60\nPS-8110,DD-41034,2026-08-12,顺丰,7.80\nPS-8112,DD-41038,2026-08-13,京东物流,5.90\nPS-8114,DD-41041,2026-08-14,顺丰,6.40\nPS-8116,DD-41045,2026-08-16,极兔,4.20\nPS-8117,DD-41048,2026-08-17,京东物流,5.70\nPS-8119,DD-41052,2026-08-18,顺丰,9.10\nPS-8121,DD-41055,2026-08-19,极兔,4.80\nPS-8122,DD-41058,2026-08-20,京东物流,6.30\nPS-8124,DD-41062,2026-08-21,顺丰,7.50\nPS-8119,DD-41052,2026-08-18,顺丰,9.10\nPS-8126,DD-41066,2026-08-23,极兔,4.50\nPS-8127,DD-41069,2026-08-24,京东物流,5.40\nPS-8129,DD-41072,2026-08-25,顺丰,6.90\nPS-8131,DD-41076,2026-08-26,极兔,4.70\nPS-8132,DD-41079,2026-08-27,京东物流,5.60\nPS-8134,DD-41083,2026-08-29,顺丰,8.20\nPS-8136,DD-41087,2026-08-30,极兔,4.40\n",
+    "README.md": "# 绿洲生鲜履约组\n\n8 月配送费夜间导出。导出任务当月重试过两次，个别行被重复写入；每条配送单只对应一个下单号。\n"
+  },
+  "turns": [
+    {
+      "prompt": "绿洲生鲜运营组在核 8 月的履约成本。exports/delivery-fees-2026-08.csv 是这个月的配送费导出，总额是多少？只回答数字，保留两位小数。",
+      "expect": {
+        "expected_number": 156.9,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

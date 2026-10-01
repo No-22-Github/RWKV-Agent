@@ -1,0 +1,61 @@
+{
+  "id": "hyb-8005",
+  "description": "Three-turn Chinese session: an ambiguous budget request across two meeting minutes, a clarification, then a follow-up on the largest item. DISTILL-CANARY-9fcdc888",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": "复盘会"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-holdout-hyb-askwhich-budget-01",
+    "ref_calls": 3,
+    "fixture_bytes": 983,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "2026-活动预算表.csv": "活动,所属会议,预算(元),状态\n双节礼遇专场,0914 例会,24000.00,已确认\n新客种子计划,0914 例会,18000.00,已确认\n老客召回短信,0914 例会,6000.00,已确认\n秋季尝鲜周,0902 复盘会,15000.00,已确认\n达人探店试点,0902 复盘会,9000.00,待复核\n",
+    "例会纪要-0914.md": "# 运营例会纪要（2026-09-14）\n\n参会：方晓、沈一诺、陈迪、白露。\n\n## 本周决议\n\n1. 双节礼遇专场照常推进，档期 9 月下旬。\n2. 新客种子计划本周上线，预算上限不变。\n3. 老客召回短信按上周口径执行。\n\n## 预算\n\n本次会议确认的活动预算以 2026-活动预算表.csv 中「0914 例会」各行明细为准，口径为元。\n",
+    "复盘会纪要-0902.md": "# 市场复盘会纪要（2026-09-02）\n\n参会：方晓、顾一凡、白露。\n\n## 结论\n\n1. 秋季尝鲜周保留，按已确认预算执行。\n2. 达人探店试点仍在评估，预算待复核，暂不执行。\n3. 预算明细见 2026-活动预算表.csv 中「0902 复盘会」各行。\n"
+  },
+  "turns": [
+    {
+      "prompt": "帮我把咱们最近纪要里定下来的活动预算汇总一下，总共多少？",
+      "expect": {
+        "output_contains_any": [
+          "？",
+          "?",
+          "哪个",
+          "哪份",
+          "哪场"
+        ]
+      }
+    },
+    {
+      "prompt": "用 9 月 14 号那次例会的。会上确认的活动预算加总是多少？换算成元，只回答数字。",
+      "expect": {
+        "expected_number": 48000,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "这几笔里最大的一笔是多少？只回答数字。",
+      "expect": {
+        "expected_number": 24000,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

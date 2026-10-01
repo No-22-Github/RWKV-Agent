@@ -1,0 +1,35 @@
+{
+  "id": "cfg-7123",
+  "description": "Read the effective per-order bouquet cap of a florist back office from a flat env config located via the README. DISTILL-CANARY-2ca2c170",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-cfg-b06-tinglan-floral",
+    "ref_calls": 2,
+    "fixture_bytes": 381,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "deploy/flowerdesk.env": "FLOWERDESK_REMIND_HOURS=48\nFLOWERDESK_MAX_BOUQUETS_PER_ORDER=19\nFLOWERDESK_DELIVERY_SLOTS=4\nFLOWERDESK_VASE_DEPOSIT_YUAN=35\n",
+    "README.md": "# 汀兰花艺 - 订花后台配置\n\n订花后台 flowerdesk 的生效配置只有一份：`deploy/flowerdesk.env`，一行一个设置，等号左边是设置名。\n\n后台没有其他配置层；营销活动的开关由运营页控制，不在 env 里。\n"
+  },
+  "turns": [
+    {
+      "prompt": "汀兰花艺的订花后台在节前要控一控单笔订单的量，店长先想知道现状（只回答数字，不要单位）。现在生效的配置里，单笔订单最多能下几束花？",
+      "expect": {
+        "expected_number": 19,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

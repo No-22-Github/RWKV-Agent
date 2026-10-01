@@ -1,0 +1,48 @@
+{
+  "id": "nt-7182",
+  "description": "Asks the assistant for a light book recommendation; reply directly without any tool call. DISTILL-CANARY-602ebdf9",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-chat-02",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 196
+  },
+  "web_fixture": [],
+  "files": {
+    "arrivals/oct.csv": "title,author,copies\n海风便利店,陈末,6\n群山回信,苏杭,4\n",
+    "README.md": "# 墨白书屋 - 店内工作区\n\n书讯和读书会记录都放在这里。\n\n- arrivals/  新书到货\n- club/  读书会记录\n"
+  },
+  "turns": [
+    {
+      "prompt": "最近想看点轻松的书换换脑子，你有什么推荐吗？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "推荐",
+          "建议",
+          "可以",
+          "试试",
+          "《"
+        ]
+      }
+    }
+  ]
+}

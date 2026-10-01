@@ -1,0 +1,65 @@
+{
+  "id": "web-7532",
+  "description": "Explain gate error G-3112 while a forum thread about the near code G-3115 ranks first. DISTILL-CANARY-46dce989",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [
+      "TR-DECOY",
+      "TR-SNIPPETVAGUE"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "校验失败",
+      "TR-SNIPPETVAGUE": "校验失败"
+    },
+    "axes": [
+      "VER",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-web-b06-xiushan-err",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "岫山",
+      "url": "https://travelbbs.example/t/g3115",
+      "url_match": "travelbbs.example/t/g3115",
+      "title": "闸机跳 G-3115 身份证校验失败，一家人被拦在闸外",
+      "snippet": "工作人员说是证件号的问题，重录就好。",
+      "published_at": "2026-08-03",
+      "content": "# G-3115 身份证校验失败\n\n上周在岫山索道遇到 G-3115，工作人员说是身份证号校验失败，重新录一次就好了。\n"
+    },
+    {
+      "query_match": "岫山",
+      "url": "https://gate.xiushan.example/codes",
+      "url_match": "gate.xiushan.example/codes",
+      "title": "岫山索道 · 闸机错误码速查",
+      "snippet": "检票闸机错误码的含义与现场处置。",
+      "published_at": "2026-08-30",
+      "content": "# 岫山索道 · 闸机错误码速查\n\n闸机错误码以 G 开头，现场处置无效再呼叫值守。\n\nG-3110 | 二维码过期 | 重新出码后进站\nG-3112 | 儿童票未绑定监护人 | 在购票人列表里补选监护人后重刷\nG-3115 | 身份证号校验失败 | 核对证件号重新录入\nG-3118 | 闸门未复位 | 呼叫值守复位\n"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "岫山索道的检票闸机显示错误码 G-3112。这个码是什么意思？",
+      "expect": {
+        "output_contains_any": [
+          "监护人"
+        ],
+        "output_excludes": [
+          "校验失败",
+          "二维码过期"
+        ]
+      }
+    }
+  ]
+}

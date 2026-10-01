@@ -1,0 +1,50 @@
+{
+   "id": "tab-7405",
+   "description": "Units recovered for resale from October 2026 laptop intake; recovered and recycled counts sit side by side in the ledger. DISTILL-CANARY-0d58c9e4",
+   "category": "tabular",
+   "tags": {
+      "scenario": "tabular",
+      "task_type": "aggregate",
+      "traps": [
+         "TR-NEARNAME"
+      ],
+      "trap_decoys": {
+         "TR-NEARNAME": 39
+      },
+      "axes": [
+         "ERR"
+      ],
+      "level": "L2",
+      "family": "fam-tab-b06-voltec-01",
+      "ref_calls": 2,
+      "fixture_bytes": 2869,
+      "status": "draft",
+      "version": 1,
+      "author": "llm:glm-5.3-flash-b06",
+      "reviewer": null,
+      "answer_style": "natural"
+   },
+   "web_fixture": [],
+   "files": {
+      "intake/lots_2026.csv": "lot_id,intake_month,device_class,recovered_units,recycled_units\nVT-2608037,2026-08,Monitor,21,3\nVT-2609054,2026-09,Tablet,14,0\nVT-2606002,2026-06,Desktop,26,7\nVT-2607024,2026-07,Monitor,20,6\nVT-2610073,2026-10,Desktop,29,4\nVT-2606008,2026-06,Tablet,15,11\nVT-2606010,2026-06,Desktop,8,7\nVT-2609051,2026-09,Monitor,12,5\nVT-2609050,2026-09,Tablet,6,6\nVT-2609049,2026-09,Tablet,26,2\nVT-2610066,2026-10,Laptop,15,6\nVT-2607028,2026-07,Desktop,27,2\nVT-2607029,2026-07,Desktop,11,8\nVT-2608032,2026-08,Tablet,8,5\nVT-2606014,2026-06,Monitor,6,11\nVT-2609047,2026-09,Monitor,28,1\nVT-2606013,2026-06,Desktop,4,3\nVT-2609058,2026-09,Desktop,11,5\nVT-2608031,2026-08,Laptop,19,0\nVT-2608033,2026-08,Monitor,24,7\nVT-2609060,2026-09,Tablet,5,0\nVT-2609052,2026-09,Laptop,18,5\nVT-2610071,2026-10,Monitor,14,6\nVT-2608034,2026-08,Tablet,11,6\nVT-2609055,2026-09,Desktop,19,1\nVT-2608045,2026-08,Laptop,9,6\nVT-2608043,2026-08,Laptop,7,10\nVT-2607018,2026-07,Tablet,15,9\nVT-2610069,2026-10,Desktop,22,8\nVT-2607021,2026-07,Monitor,26,1\nVT-2608042,2026-08,Desktop,16,11\nVT-2606004,2026-06,Laptop,19,3\nVT-2609059,2026-09,Tablet,11,2\nVT-2607030,2026-07,Desktop,7,5\nVT-2610065,2026-10,Laptop,8,5\nVT-2606011,2026-06,Tablet,12,9\nVT-2609057,2026-09,Laptop,27,7\nVT-2606009,2026-06,Tablet,21,0\nVT-2610072,2026-10,Monitor,18,3\nVT-2608041,2026-08,Laptop,12,4\nVT-2607020,2026-07,Desktop,17,7\nVT-2606015,2026-06,Monitor,19,9\nVT-2606003,2026-06,Laptop,8,3\nVT-2608039,2026-08,Monitor,26,10\nVT-2610070,2026-10,Monitor,5,4\nVT-2608040,2026-08,Laptop,13,11\nVT-2607017,2026-07,Desktop,20,6\nVT-2607027,2026-07,Desktop,29,10\nVT-2610075,2026-10,Tablet,6,9\nVT-2610061,2026-10,Laptop,30,6\nVT-2607023,2026-07,Tablet,17,9\nVT-2606012,2026-06,Desktop,17,3\nVT-2609056,2026-09,Monitor,28,4\nVT-2609053,2026-09,Tablet,17,0\nVT-2610067,2026-10,Laptop,14,7\nVT-2606001,2026-06,Laptop,30,0\nVT-2609048,2026-09,Desktop,27,7\nVT-2607022,2026-07,Laptop,24,2\nVT-2607026,2026-07,Monitor,15,3\nVT-2609046,2026-09,Monitor,24,5\nVT-2610062,2026-10,Laptop,22,5\nVT-2610068,2026-10,Laptop,27,1\nVT-2610064,2026-10,Laptop,17,8\nVT-2608036,2026-08,Tablet,12,4\nVT-2607025,2026-07,Tablet,11,6\nVT-2608044,2026-08,Monitor,17,4\nVT-2607019,2026-07,Desktop,9,6\nVT-2606007,2026-06,Monitor,25,5\nVT-2610063,2026-10,Laptop,15,1\nVT-2606005,2026-06,Monitor,29,5\nVT-2610074,2026-10,Desktop,29,2\nVT-2606006,2026-06,Monitor,24,1\nVT-2608035,2026-08,Tablet,30,11\nVT-2607016,2026-07,Desktop,4,11\nVT-2608038,2026-08,Tablet,27,7\n",
+      "README.md": "# Voltec Refurb - device intake ledger\n\nOne row per intake lot. recovered_units counts devices restored to\nworking order and passed to the resale channel. recycled_units counts\ndevices scrapped for material recovery.\n",
+      "notes/buyer_sheet.txt": "Resale buyers take laptop lots with complete accessory sets; keyboard swaps come\noff the parts bench. Monitor lots move on full pallets; tablet lots ship in\npadded totes. Scrapped material is weighed at the dock and logged weekly.\n"
+   },
+   "turns": [
+      {
+         "prompt": "Voltec Refurb is drafting the October recovery report for the laptop program. The intake ledger is at intake/lots_2026.csv. Give the number alone, as digits, with no label. How many laptop units taken in during October 2026 were recovered, meaning restored to working order and resold?",
+         "expect": {
+            "expected_number": 148,
+            "tolerance": 0.01,
+            "required_tools": [
+               "data_query"
+            ]
+         }
+      }
+   ],
+   "expect": {
+      "max_calls": {
+         "read_file": 1
+      }
+   }
+}

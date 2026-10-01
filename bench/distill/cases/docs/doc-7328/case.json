@@ -1,0 +1,45 @@
+{
+  "id": "doc-7328",
+  "description": "Determine the deployable whiteboard component version after a rollback. DISTILL-CANARY-6436ad02",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": "2.15.0"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b06-fenglin",
+    "ref_calls": 3,
+    "fixture_bytes": 763,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "docs/白板组件更新记录.csv": "版本号,发布日期,状态,更新说明\n2.9.4,2026-03-12,正式,修复笔迹抖动\n2.9.8,2026-03-27,正式,优化橡皮擦\n2.10.0,2026-04-06,正式,新增模板库\n2.10.1,2026-04-19,正式,修复模板缩放\n2.11.0,2026-05-08,正式,支持多页批注\n2.11.2,2026-05-25,正式,修复翻页丢失\n2.12.0,2026-06-10,正式,新增协同光标\n2.12.1,2026-06-24,正式,修复光标漂移\n2.13.0,2026-07-13,正式,新增板书回放\n2.13.1,2026-07-30,正式,修复回放卡顿\n2.14.0,2026-08-28,正式,新增保存到云端\n2.15.0,2026-09-04,已回滚,实验性手势操作\n",
+    "docs/回滚公告.md": "# 白板协作组件 2.15.0 回滚公告\n\n2.15.0 在部分教室机型上出现批注丢失，已于 2026-09-08 全量回滚。\n\n请各校区继续使用 2.14.0，修复版本另行通知。\n"
+  },
+  "turns": [
+    {
+      "prompt": "枫林课件的老师反映白板上写的内容总是丢。现在课堂大屏上应该部署白板协作组件的哪个版本？",
+      "expect": {
+        "output_contains_any": [
+          "2.14.0"
+        ],
+        "output_excludes": [
+          "2.15.0"
+        ]
+      }
+    }
+  ]
+}

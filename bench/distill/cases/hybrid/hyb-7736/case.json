@@ -1,0 +1,63 @@
+{
+  "id": "hyb-7736",
+  "description": "纸鸢文具两轮会话：先寒暄，再查 70g A4 复印纸的库存包数。 DISTILL-CANARY-b8183f47",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS",
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-hyb-b07-stationery-01",
+    "ref_calls": 1,
+    "fixture_bytes": 230,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 纸鸢文具 · 库存表\n\n一行一个 sku 的当前库存，库存包数为可售整包数。\n",
+    "inventory/stock.csv": "sku,品名,规格,库存包数\nZY-A4-70,复印纸,70g,38\nZY-A4-80,复印纸,80g,24\nZY-A3-70,卡纸,70g,12\nZY-B5-70,复印纸,70g,30\n"
+  },
+  "turns": [
+    {
+      "prompt": "你好呀！刚忙完一批单子，过来转转。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "你好",
+          "您好",
+          "嗨",
+          "哈喽",
+          "早上好",
+          "上午好",
+          "下午好",
+          "晚上好",
+          "在的",
+          "帮您",
+          "帮忙",
+          "有什么",
+          "挺好",
+          "不错",
+          "顺利",
+          "开心"
+        ]
+      }
+    },
+    {
+      "prompt": "帮我查一下库房里 70g 的 A4 复印纸还剩多少包？库存表在 inventory/stock.csv。只回答数字。",
+      "expect": {
+        "expected_number": 38,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

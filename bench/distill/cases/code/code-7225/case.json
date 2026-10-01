@@ -1,0 +1,43 @@
+{
+  "id": "code-7225",
+  "description": "Count real call sites of calc_surcharge while a commented-out old call and imports distract. DISTILL-CANARY-38ea4b5b",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "find_callers",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 3
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-code-b06-tieyun-callers",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 1195,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {
+    "tariff.py": "\"\"\"铁雁物流的附加费口径模块，偏远与常规区域都在这里。\n费率调整以运营部公告为准。\n\"\"\"\n\n\n\ndef calc_surcharge(weight: float, zone: str) -> float:\n    \"\"\"按重量与区域计算附加费。\"\"\"\n    if zone == \"remote\":\n        return weight * 1.2\n    return weight * 0.8\n",
+    "invoice.py": "\"\"\"开票脚本：把运单费用汇总成发票行。\n附加费单独一行展示。\n\"\"\"\nfrom tariff import calc_surcharge\n\n\ndef invoice_lines(waybills: list) -> list:\n    lines = []\n    for wb in waybills:\n        extra = calc_surcharge(wb[\"weight\"], wb[\"zone\"])\n        lines.append([wb[\"no\"], wb[\"base\"], extra])\n    return lines\n",
+    "nightly.py": "\"\"\"夜间批量脚本：凌晨跑当日未结算运单。\n跑完把结果落到 nightly_out 目录。\n\"\"\"\nfrom tariff import calc_surcharge\n\n\ndef run_nightly(rows: list) -> list:\n    out = []\n    for row in rows:\n        out.append([row[\"no\"], calc_surcharge(row[\"weight\"], row[\"zone\"])])\n    return out\n",
+    "archive.py": "\"\"\"历史运单归档脚本。\n旧流程的附加费已在改版时下线，只留注释备查。\n\"\"\"\n\n\n\ndef archive(rows: list) -> list:\n    # 旧流程：extra = calc_surcharge(row[\"weight\"], row[\"zone\"])\n    return [r for r in rows if r[\"settled\"]]\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "铁雁物流的运单脚本仓库里，nightly.py 每晚会调用 calc_surcharge 计算附加费。只回答数字，不要单位。整个仓库对 calc_surcharge 的调用一共有多少处？",
+      "expect": {
+        "expected_number": 2,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "id": "scr-7728",
+  "description": "Write the wool shed's season sheet script so the haulier's re-sent pickups print once each. DISTILL-CANARY-3805b211",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "write_new",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": "pickup row counts (the re-sent pickups double-counted)"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-scr-b06-foxhill",
+    "ref_calls": 4,
+    "fixture_bytes": 1202,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "shedbook.py": "\"\"\"Print Foxhill Wool's season sheet.\n\nThe haulier's exports land in shearings/, one row per pickup:\n\n    pickup_id,pickup_date,shed,kg\n\nThe season sheet prints one line per pickup date, in date order,\nfollowed by a totals line:\n\n    <pickup_date>,<pickups>,<kg>\n    TOTAL,<pickups>,<kg>\n\nPickups are counted per pickup_id: the haulier's tablet re-sends a\npickup when the shed's scale link is slow, and the repeated rows are\nidentical copies of the same pickup.\n\"\"\"\n\nif __name__ == \"__main__\":\n    raise SystemExit(\"not written yet\")\n",
+    "shearings/2026-09.csv": "pickup_id,pickup_date,shed,kg\nFW-3001,2026-09-04,Home Paddock,48\nFW-3002,2026-09-04,Home Paddock,35\nFW-3003,2026-09-09,Foxhill Shed,52\nFW-3004,2026-09-09,Foxhill Shed,29\nFW-3004,2026-09-09,Foxhill Shed,29\nFW-3005,2026-09-16,Home Paddock,41\nFW-3006,2026-09-21,Foxhill Shed,33\nFW-3007,2026-09-21,Home Paddock,27\nFW-3005,2026-09-16,Home Paddock,41\n",
+    "README.md": "# Foxhill Wool - season sheet\n\nshedbook.py prints the season sheet from the haulier's exports in\nshearings/. The haulier's tablet re-sends a pickup when the shed's\nscale link is slow: repeated rows are identical copies of the same\npickup_id, and the sheet counts each pickup once. The exports are\nthe haulier's own record.\n"
+  },
+  "expect": {
+    "files": {
+      "shearings/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "shedbook.py",
+      "expected_stdout": "2026-09-04,2,83\n2026-09-09,2,81\n2026-09-16,1,41\n2026-09-21,2,60\n2026-10-02,2,77\n2026-10-09,1,44\n2026-10-16,1,38\nTOTAL,11,424",
+      "hidden_files": {
+        "shearings/2026-10.csv": "pickup_id,pickup_date,shed,kg\nFW-3101,2026-10-02,Foxhill Shed,46\nFW-3102,2026-10-02,Home Paddock,31\nFW-3103,2026-10-09,Foxhill Shed,44\nFW-3103,2026-10-09,Foxhill Shed,44\nFW-3104,2026-10-16,Home Paddock,38\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Foxhill Wool's season sheet stopped printing when the shed clerk retired: shedbook.py holds only the notes describing it, and the haulier's exports keep landing in shearings/. Please write shedbook.py so the sheet prints the way the notes describe, and so it keeps working as later exports arrive. The exports in shearings/ are the haulier's own record, so leave them as they are. When you are done, describe in two or three sentences what your script does.",
+      "expect": {}
+    }
+  ]
+}

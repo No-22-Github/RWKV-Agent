@@ -1,0 +1,41 @@
+{
+  "id": "tab-8012",
+  "description": "Count completed September 2026 return requests in a stationery wholesaler's export that appends a grand-total row. DISTILL-CANARY-d2c7fcfa",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-HEADER": 15
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-holdout-tab-returncount-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1453,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "returns/退货明细-2026-09.csv": "退货单号,申请日期,订单号,商品,数量,状态\nTH-90003,2026-09-01,DD-77412,中性笔 0.5 黑色,2,已完成\nTH-90006,2026-09-02,DD-77430,A5 缝线本,1,已完成\nTH-90008,2026-09-03,DD-77441,荧光笔六色装,1,已完成\nTH-90011,2026-09-04,DD-77459,桌面文件架,3,已完成\nTH-90014,2026-09-05,DD-77466,修正带,1,已完成\nTH-90017,2026-09-06,DD-77483,活页夹两孔,2,已完成\nTH-90020,2026-09-07,DD-77497,中性笔 0.5 红色,1,已完成\nTH-90022,2026-09-08,DD-77503,订书机中号,1,已完成\nTH-90025,2026-09-10,DD-77521,A4 复印纸整箱,2,已完成\nTH-90028,2026-09-12,DD-77536,荧光笔六色装,1,已完成\nTH-90031,2026-09-15,DD-77552,白板笔黑色,3,已完成\nTH-90033,2026-09-17,DD-77560,索引贴,1,已完成\nTH-90036,2026-09-19,DD-77574,长尾票夹,2,已完成\nTH-90039,2026-09-21,DD-77589,中性笔 0.5 蓝色,2,已完成\nTH-90005,2026-09-02,DD-77425,橡皮擦,1,待审核\nTH-90009,2026-09-03,DD-77447,圆规,2,待审核\nTH-90015,2026-09-05,DD-77470,笔记本 B5,1,待审核\nTH-90021,2026-09-08,DD-77500,胶带座,1,待审核\nTH-90027,2026-09-11,DD-77515,签字笔礼盒,2,待审核\nTH-90012,2026-09-04,DD-77455,桌面型起钉器,1,已驳回\nTH-90019,2026-09-06,DD-77490,剪刀,1,已驳回\nTH-90024,2026-09-09,DD-77510,笔筒,2,已驳回\n合计,,,,34,\n",
+    "README.md": "# 青禾文具批发售后组\n\n退货系统 9 月夜间导出，每行一笔退货申请；末行合计行由导出脚本追加，记录的是数量列总和。\n"
+  },
+  "turns": [
+    {
+      "prompt": "青禾文具批发的 9 月退货明细在 returns/退货明细-2026-09.csv。状态是已完成的退货申请一共有多少笔？只回答数字。",
+      "expect": {
+        "expected_number": 14,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

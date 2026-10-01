@@ -1,0 +1,44 @@
+{
+  "id": "code-7223",
+  "description": "Find the file defining freeze_batch when a near-named order_utils module also exists. DISTILL-CANARY-a16adbb5",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "locate_definition",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": "order_utils.py"
+    },
+    "axes": [
+      "ERR",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-code-b06-yufan-def",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 1172,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {
+    "orders_util.py": "\"\"\"渔帆生鲜门店配货的订单工具集，冻结与解冻都在这里。\n冻结时长以交接说明里的口径为准。\n\"\"\"\n\n\n\ndef freeze_batch(batch_id: str, minutes: int) -> str:\n    \"\"\"把整批配货单冻结 minutes 分钟，防止重复拣货。\"\"\"\n    return f\"{batch_id}#F{minutes}\"\n\n\ndef unfreeze_batch(batch_id: str) -> str:\n    \"\"\"解除批次冻结。\"\"\"\n    return f\"{batch_id}#R\"\n",
+    "order_utils.py": "\"\"\"渔帆生鲜历史订单的费用汇总工具，与配货冻结无关。\n只做已完结订单的金额统计。\n\"\"\"\n\n\n\ndef order_fee_summary(orders: list) -> float:\n    \"\"\"对已完结订单求运费与包装费之和。\"\"\"\n    return round(sum(o[\"fee\"] for o in orders), 2)\n\n\ndef order_count_by_store(orders: list) -> dict:\n    \"\"\"按门店统计订单数。\"\"\"\n    stats: dict = {}\n    for o in orders:\n        stats[o[\"store\"]] = stats.get(o[\"store\"], 0) + 1\n    return stats\n",
+    "stock_compare.py": "\"\"\"对账入口：先冻结相关批次，再跑库存比对。\n比对结果写入 exports 目录。\n\"\"\"\nfrom orders_util import freeze_batch\n\n\ndef run_compare(batch_id: str, rows: list) -> list:\n    freeze_batch(batch_id, 30)\n    return [r for r in rows if r[\"counted\"] != r[\"system\"]]\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "渔帆生鲜的门店配货脚本里，对账入口 stock_compare.py 调用了 freeze_batch。这个函数的定义在哪个文件里？回答时写明文件名。",
+      "expect": {
+        "output_contains_any": [
+          "orders_util.py"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "id": "nt-7196",
+  "description": "Days one 2 kg bag of adult cat food lasts at 50 g per day; plain division. DISTILL-CANARY-13baf2ae",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 30
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-feedmath-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 255
+  },
+  "web_fixture": [],
+  "files": {
+    "stock/food_inventory.csv": "item,net_weight_kg,bags\n成猫粮鸡肉味,2,9\n幼猫粮奶糕味,1.5,4\n成猫粮海洋鱼味,4,6\n",
+    "README.md": "# 橙屿猫舍 - 喂养工作区\n\n寄养猫咪的口粮库存和喂养单都放在这里。\n\n- stock/  猫粮库存登记\n- plans/  每只猫的喂养计划\n"
+  },
+  "turns": [
+    {
+      "prompt": "橙屿猫舍新到一批成猫粮，包装袋上印着净含量 2 千克。按喂养计划，一只成年猫每天喂 50 克。一袋这样的猫粮够一只成年猫吃多少天？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 40,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

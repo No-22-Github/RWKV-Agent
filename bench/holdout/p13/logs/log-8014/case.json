@@ -1,0 +1,40 @@
+{
+  "id": "log-8014",
+  "description": "Identify which downstream service started erroring first after the latest production deploy, using a deploy roster plus an application log. DISTILL-CANARY-9029c38b",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "root_cause",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "db-primary"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-holdout-log-rootcause-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1962,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "发布记录.csv": "服务,版本,环境,开始时间\ncart-core,v1.8.2,生产,2026-09-04 15:20\napi-gateway,v3.2.9,生产,2026-09-11 10:05\nsearch-api,v2.1.0,预发,2026-09-10 20:15\ncart-core,v1.8.3,预发,2026-09-17 09:30\napi-gateway,v3.3.0,生产,2026-09-18 21:40\n",
+    "app-20260918.log": "2026-09-18 18:02:11 [INFO] api-gateway config rev=204 loaded\n2026-09-18 18:44:52 [INFO] cart-core cache warmed keys=1043\n2026-09-18 20:44:36 [ERROR] db-primary slow query exceeds 5s on report_daily\n2026-09-18 20:58:19 [INFO] db-primary nightly report finished\n2026-09-18 21:39:58 [INFO] api-gateway v3.3.0 rollout start\n2026-09-18 21:41:22 [INFO] api-gateway v3.3.0 rollout done, draining old pods\n2026-09-18 21:44:07 [ERROR] sms-gateway connect timeout after 3000ms upstream=/sms/send\n2026-09-18 21:45:31 [WARN] api-gateway retry spike on /sms/send\n2026-09-18 21:47:12 [ERROR] db-primary lock wait timeout on orders_write\n2026-09-18 21:48:05 [ERROR] db-primary lock wait timeout on orders_write\n2026-09-18 21:48:56 [ERROR] db-primary connection pool exhausted\n2026-09-18 21:50:14 [WARN] cart-core falling back to cached cart\n2026-09-18 21:52:38 [ERROR] cart-core cart save failed order=CT-90244\n2026-09-18 21:53:40 [ERROR] cart-core cart save failed order=CT-90251\n2026-09-18 21:55:19 [ERROR] sms-gateway connect timeout after 3000ms upstream=/sms/send\n2026-09-18 21:56:47 [ERROR] db-primary lock wait timeout on orders_write\n2026-09-18 21:58:02 [WARN] api-gateway circuit breaker open on db-primary\n2026-09-18 22:00:25 [INFO] db-primary oncall paged, investigating lock queue\n2026-09-18 22:04:48 [ERROR] db-primary lock wait timeout on orders_write\n2026-09-18 22:06:31 [INFO] sms-gateway queue drained\n2026-09-18 22:09:14 [ERROR] cart-core cart save failed order=CT-90268\n2026-09-18 22:12:37 [WARN] db-primary lock queue shrinking\n2026-09-18 22:18:50 [INFO] db-primary lock wait timeouts stopped\n2026-09-18 22:25:07 [INFO] api-gateway error rate back to baseline\n2026-09-18 22:40:31 [INFO] cart-core cache refreshed\n"
+  },
+  "turns": [
+    {
+      "prompt": "9 月 18 日晚 api-gateway 发布之后线上出了一次故障。当天的应用日志在 app-20260918.log，发布记录在 发布记录.csv。这次故障里最先开始报错的下游服务是哪个？直接回答它的服务代号。",
+      "expect": {
+        "output_equals": "sms-gateway"
+      }
+    }
+  ]
+}

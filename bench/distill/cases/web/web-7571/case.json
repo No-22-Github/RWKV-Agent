@@ -1,0 +1,61 @@
+{
+  "id": "web-7571",
+  "description": "Retirement date of the v1 tide endpoint on the Pennanchor Charts API, straight from the status page snippet. DISTILL-CANARY-21b10fac",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "deprecation",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": "2026-03-01"
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-web-b06-pennanchor-tides",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "pennanchor",
+      "url": "https://status.pennanchor.example/api",
+      "url_match": "status.pennanchor.example/api",
+      "title": "API status - Pennanchor Charts",
+      "snippet": "The v1 tide endpoint was retired on 2026-05-30 and now answers HTTP 410 on every call.",
+      "content": "# Pennanchor Charts - API status\n\nCurrent incidents: none.\n\nPlanned works\n- 2026-10-12: chart tile cache rebuild, read-only for one hour.\n\nDeprecations\n- The v1 tide endpoint was retired on 2026-05-30 and now answers HTTP 410 on every call. Migrate to the v2 series tide resource.\n",
+      "published_at": "2026-09-01"
+    },
+    {
+      "query_match": "pennanchor",
+      "url": "https://devlog.tidalworks.example/pennanchor-v2",
+      "url_match": "devlog.tidalworks.example/pennanchor-v2",
+      "title": "Pennanchor's v2 tide API: what changes",
+      "snippet": "Pennanchor's planning notes pointed at a 2026-03-01 sunset for the v1 tide endpoint.",
+      "content": "devlog.tidalworks.example - Pennanchor's v2 tide API\n\nPosted 2025-11-06. Pennanchor's planning notes pointed at a 2026-03-01 sunset for the v1 tide endpoint, with the v2 series settling through the spring.\n",
+      "published_at": "2025-11-06"
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Our mooring dashboard still polls the v1 tide endpoint on the Pennanchor Charts API and gets errors back. On what date was that endpoint retired? Give the date alone, in the form YYYY-MM-DD.",
+      "expect": {
+        "output_equals": "2026-05-30"
+      }
+    }
+  ]
+}

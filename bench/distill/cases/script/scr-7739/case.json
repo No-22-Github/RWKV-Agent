@@ -1,0 +1,61 @@
+{
+  "id": "scr-7739",
+  "description": "Give the vinegar workshop's vat sheet script a --vat flag whose subtotal layout follows the shop spec. DISTILL-CANARY-b8fee867",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "add_flag",
+    "traps": [
+      "TR-RULEFILE"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": "小计行没有按 specs/版式说明.md 的写法打印"
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-scr-b06-wuling",
+    "ref_calls": 4,
+    "fixture_bytes": 1178,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "vat_sheet.py": "\"\"\"打印雾岭醋坊的分缸发酵表。\n\n读取 vats/ 里的月度导出，把每条记录按日期排序打印：\n\n    <日期>,<缸组>,<醋醅克>\n\n行版式与小计写法以 specs/版式说明.md 为准。\n\n用法：\n\n    python3 vat_sheet.py\n\"\"\"\n\nimport csv\nimport glob\n\nrows = []\nfor path in sorted(glob.glob(\"vats/*.csv\")):\n    with open(path, encoding=\"utf-8\") as handle:\n        rows.extend(csv.DictReader(handle))\n\nfor row in sorted(rows, key=lambda r: r[\"日期\"]):\n    print(f\"{row['日期']},{row['缸组']},{row['醋醅克']}\")\n",
+    "specs/版式说明.md": "# 版式说明\n\n## 分缸版式\n\n带缸组参数时，只打印该缸组的记录，仍按日期排序，每行：\n\n    <日期>,<缸组>,<醋醅克>\n\n记录打完后加一行小计（缸组名顶格，冒号用全角，克数后带「克」字）：\n\n    <缸组>：小计 <醋醅克> 克\n\n不带缸组参数时整表照旧，不加小计。\n",
+    "vats/2026-09.csv": "日期,缸组,醋醅克\n2026-09-05,西缸组,3750\n2026-09-05,东缸组,4050\n2026-09-12,西缸组,3820\n2026-09-19,中缸组,2950\n2026-09-26,东缸组,3600\n",
+    "README.md": "# 雾岭醋坊 - 分缸发酵表\n\nvat_sheet.py 供把作师傅按缸组查发酵记录。vats/ 里的导出是记缸师傅的留档。\n"
+  },
+  "expect": {
+    "files": {
+      "vats/2026-09.csv": {
+        "unchanged": true
+      },
+      "specs/版式说明.md": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "vat_sheet.py",
+      "expected_stdout": "2026-09-05,西缸组,3750\n2026-09-12,西缸组,3820\n2026-10-10,西缸组,4160\n西缸组：小计 11730 克",
+      "hidden_files": {
+        "vats/2026-10.csv": "日期,缸组,醋醅克\n2026-10-10,西缸组,4160\n2026-10-17,中缸组,2700\n"
+      },
+      "args": [
+        "--vat",
+        "西缸组"
+      ]
+    }
+  },
+  "turns": [
+    {
+      "prompt": "雾岭醋坊的把作师傅想按缸组单独查记录：请给 vat_sheet.py 加一个 --vat 选项，取一个缸组名，只打印那个缸组的记录；不带选项时整表照旧打印。vats/ 里的导出保持原样。完成后用两三句话说明你改了什么。",
+      "expect": {}
+    }
+  ]
+}

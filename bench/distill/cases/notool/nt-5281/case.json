@@ -19,9 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 323,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
-    "reviewer": null
+    "reviewer": null,
+    "answer_style": "value"
   },
   "web_fixture": [],
   "files": {
@@ -30,7 +31,7 @@
   },
   "turns": [
     {
-      "prompt": "A clerk at Nethercroft Timberyard takes in the monthly saw log as a compressed archive and has to say which member files are inside it before the archive is filed. Give the flag group that makes the archive tool decompress the stream, list the members and read the archive from the named file, without writing anything out. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "A clerk at Nethercroft Timberyard takes in the monthly saw log as a compressed archive and has to say which member files are inside it before the archive is filed. Give the flag group that makes the archive tool decompress the stream, list the members and read the archive from the named file, without writing anything out. Reply with only the final answer.",
       "expect": {
         "tools": [],
         "output_contains_any": [

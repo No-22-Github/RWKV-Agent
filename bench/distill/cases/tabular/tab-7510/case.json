@@ -1,0 +1,50 @@
+{
+  "id": "tab-7510",
+  "description": "Count the May 2026 people who received one courier's parcels; the intake log pairs a person column with a mail-stop column. DISTILL-CANARY-c4b7ab3d",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": 6
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L2",
+    "family": "fam-tab-b06-whowhat-02",
+    "ref_calls": 2,
+    "fixture_bytes": 4804,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "data/parcel_intake.csv": "parcel_id,intake_month,carrier,recv_id,recv_dept\nHB-5493,2026-05,Grayline,MB-4352,Finance\nHB-9345,2026-05,Grayline,MB-1515,Editorial\nHB-1783,2026-05,RapidShip,MB-912,Sales\nHB-5176,2026-05,RapidShip,MB-3710,Studio\nHB-3172,2026-05,RapidShip,MB-522,Finance\nHB-6880,2026-05,Grayline,MB-7405,Legal\nHB-4888,2026-05,PostRun,MB-5189,Sales\nHB-3975,2026-06,RapidShip,MB-5171,Studio\nHB-6050,2026-04,RapidShip,MB-8042,Editorial\nHB-367,2026-04,RapidShip,MB-522,Editorial\nHB-6839,2026-04,PostRun,MB-9824,Design\nHB-5813,2026-05,RapidShip,MB-5508,Studio\nHB-6992,2026-06,RapidShip,MB-9632,Editorial\nHB-1290,2026-05,Grayline,MB-3723,Sales\nHB-6853,2026-05,PostRun,MB-6538,Sales\nHB-497,2026-05,Grayline,MB-1958,Finance\nHB-7939,2026-05,PostRun,MB-9221,Legal\nHB-6234,2026-06,Grayline,MB-627,Studio\nHB-231,2026-05,RapidShip,MB-4369,Design\nHB-6671,2026-06,PostRun,MB-5294,Finance\nHB-1973,2026-04,RapidShip,MB-6680,Design\nHB-9871,2026-05,RapidShip,MB-9896,Editorial\nHB-7535,2026-05,Grayline,MB-5294,Studio\nHB-1470,2026-05,PostRun,MB-6680,Studio\nHB-8681,2026-05,RapidShip,MB-7991,Finance\nHB-6743,2026-06,RapidShip,MB-912,Studio\nHB-4943,2026-05,Grayline,MB-1958,Design\nHB-5790,2026-05,RapidShip,MB-8588,Editorial\nHB-4219,2026-05,RapidShip,MB-2984,Sales\nHB-7921,2026-05,Grayline,MB-9896,Studio\nHB-6137,2026-05,RapidShip,MB-3710,Sales\nHB-1365,2026-04,RapidShip,MB-1958,Editorial\nHB-8948,2026-05,Grayline,MB-8556,Sales\nHB-4314,2026-04,RapidShip,MB-2413,Sales\nHB-1183,2026-05,RapidShip,MB-8042,Studio\nHB-3395,2026-06,PostRun,MB-9612,Design\nHB-8199,2026-05,RapidShip,MB-3592,Sales\nHB-2492,2026-06,PostRun,MB-8042,Legal\nHB-3201,2026-06,RapidShip,MB-1515,Editorial\nHB-777,2026-05,RapidShip,MB-6635,Editorial\nHB-3869,2026-05,Grayline,MB-1515,Sales\nHB-5196,2026-05,Grayline,MB-9632,Legal\nHB-3407,2026-06,RapidShip,MB-3602,Studio\nHB-2645,2026-04,RapidShip,MB-522,Design\nHB-7179,2026-05,RapidShip,MB-8556,Legal\nHB-2678,2026-05,Grayline,MB-8042,Studio\nHB-3790,2026-04,RapidShip,MB-6680,Editorial\nHB-9163,2026-05,Grayline,MB-4960,Legal\nHB-1090,2026-05,Grayline,MB-9612,Design\nHB-6508,2026-06,PostRun,MB-6538,Finance\nHB-8103,2026-04,Grayline,MB-7372,Studio\nHB-1073,2026-05,RapidShip,MB-6040,Sales\nHB-1599,2026-05,Grayline,MB-8588,Legal\nHB-3814,2026-06,RapidShip,MB-171,Legal\nHB-7281,2026-05,RapidShip,MB-7822,Studio\nHB-6583,2026-05,RapidShip,MB-4861,Legal\nHB-1411,2026-04,Grayline,MB-9896,Editorial\nHB-6372,2026-04,RapidShip,MB-8556,Sales\nHB-4672,2026-05,RapidShip,MB-3872,Design\nHB-2726,2026-06,RapidShip,MB-8642,Legal\nHB-535,2026-05,Grayline,MB-4010,Finance\nHB-2555,2026-04,Grayline,MB-8588,Sales\nHB-8759,2026-06,RapidShip,MB-627,Sales\nHB-5563,2026-06,RapidShip,MB-8042,Design\nHB-2867,2026-04,Grayline,MB-316,Editorial\nHB-784,2026-06,Grayline,MB-171,Design\nHB-1784,2026-06,Grayline,MB-7405,Sales\nHB-1976,2026-05,Grayline,MB-5804,Finance\nHB-797,2026-05,Grayline,MB-2124,Finance\nHB-2234,2026-06,PostRun,MB-7822,Legal\nHB-908,2026-06,Grayline,MB-9612,Studio\nHB-2071,2026-05,Grayline,MB-627,Editorial\nHB-7642,2026-06,PostRun,MB-4861,Finance\nHB-6134,2026-06,Grayline,MB-6978,Design\nHB-4464,2026-05,Grayline,MB-6680,Design\nHB-1754,2026-06,RapidShip,MB-6680,Design\nHB-6332,2026-06,PostRun,MB-8042,Studio\nHB-9236,2026-05,PostRun,MB-8346,Studio\nHB-9469,2026-04,Grayline,MB-8556,Studio\nHB-1709,2026-04,PostRun,MB-9612,Legal\nHB-4725,2026-04,PostRun,MB-3872,Design\nHB-6483,2026-05,RapidShip,MB-7372,Studio\nHB-4127,2026-04,PostRun,MB-8642,Legal\nHB-7250,2026-06,PostRun,MB-9824,Legal\nHB-8280,2026-06,RapidShip,MB-9632,Legal\nHB-3808,2026-06,RapidShip,MB-180,Design\nHB-9214,2026-06,RapidShip,MB-8642,Finance\nHB-7765,2026-05,RapidShip,MB-5804,Editorial\nHB-2081,2026-05,RapidShip,MB-171,Studio\nHB-5678,2026-05,RapidShip,MB-5508,Studio\nHB-1535,2026-06,Grayline,MB-5804,Legal\nHB-8002,2026-05,PostRun,MB-8588,Editorial\nHB-8980,2026-04,RapidShip,MB-5840,Editorial\nHB-6090,2026-06,RapidShip,MB-3710,Studio\nHB-4359,2026-04,PostRun,MB-8642,Editorial\nHB-8511,2026-04,Grayline,MB-8768,Studio\nHB-7903,2026-06,PostRun,MB-3723,Legal\nHB-6662,2026-05,Grayline,MB-6978,Studio\nHB-407,2026-05,RapidShip,MB-7405,Design\nHB-541,2026-06,PostRun,MB-8346,Studio\nHB-2803,2026-05,RapidShip,MB-1958,Editorial\nHB-7509,2026-05,RapidShip,MB-8556,Design\nHB-1635,2026-05,RapidShip,MB-4751,Finance\nHB-3153,2026-05,PostRun,MB-1515,Design\nHB-6628,2026-05,PostRun,MB-2518,Finance\nHB-8805,2026-05,Grayline,MB-9632,Studio\nHB-4933,2026-04,Grayline,MB-7405,Legal\nHB-7000,2026-05,PostRun,MB-7822,Editorial\nHB-7272,2026-05,RapidShip,MB-8042,Finance\nHB-1355,2026-04,RapidShip,MB-9824,Finance\n",
+    "README.md": "# Hobbstone Mail Hub - parcel intake log\n\nrecv_id identifies the person a parcel is for. recv_dept is the mail stop where the parcel lands; several people share one mail stop.\n",
+    "notes/sort_rack.txt": "Sort rack\n- Oversize boxes live on the floor shelf.\n- The label printer needs a fresh roll on Mondays.\n- Returns cart goes out at four.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Hobbstone Mail Hub is measuring how many people use the RapidShip courier. The intake log is at data/parcel_intake.csv. Give the number alone, as digits, with no label. How many different people received a RapidShip parcel in May 2026?",
+      "expect": {
+        "expected_number": 23,
+        "tolerance": 0.01,
+        "required_tools": [
+          "data_query"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 1
+    }
+  }
+}

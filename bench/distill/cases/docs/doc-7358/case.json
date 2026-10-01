@@ -1,0 +1,60 @@
+{
+  "id": "doc-7358",
+  "description": "UAV flight declaration lead time, paired with a spare battery carry limit that the field manual never defines (备用电池). DISTILL-CANARY-8b5830f5",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "6 块"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L2",
+    "family": "fam-doc-b06-chengjiang-partial",
+    "ref_calls": 3,
+    "fixture_bytes": 739,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 临渚测绘 - 外业作业规程库\n\n外业组共用的规程文件区。现行规程以 spec/ 目录下的文件为准，文件清单见 spec/index.txt；规程未覆盖的装备事项，报外业组长现场裁定。\n",
+    "spec/index.txt": "uav-rules.md｜无人机作业规程\nequipment-checklist.md｜出队装备清单\n",
+    "spec/uav-rules.md": "# 临渚测绘 - 无人机作业规程（2026 年 4 月修订）\n\n## 飞行申报\n\n空域飞行申报须提前 1 个工作日提交，遇雨天顺延。\n\n## 起飞条件\n\n风速超过 5 级禁止起飞，湖区作业另派观察员。\n",
+    "spec/equipment-checklist.md": "# 临渚测绘 - 出队装备清单\n\n## 无人机与电池\n\nNP-251 型无人机 1 架，随箱电池 6 块，充电器 2 只。\n\n## 测量仪器\n\n全站仪 1 台，棱镜组 2 套，对中杆 2 根。\n"
+  },
+  "turns": [
+    {
+      "prompt": "临渚测绘下周有两次航测外业，帮我在作业规程库里查两件事：无人机飞行申报要提前多久提交，还有备用电池每人最多能带几块？",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "备用电池",
+          "电池上限",
+          "电池携带"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ],
+        "output_contains": [
+          "1 个工作日"
+        ],
+        "must_state_unverified": [
+          "备用电池"
+        ]
+      }
+    }
+  ]
+}

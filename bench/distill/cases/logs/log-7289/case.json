@@ -1,0 +1,51 @@
+{
+  "id": "log-7289",
+  "description": "Whether the Ottergate feed truck DOCK_SCAN happened by 06:00 on 11 September, in a log with a corrupted 06:00 block. DISTILL-CANARY-0ff43e0e",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "05:58"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-log-b06-ottergate-dock",
+    "ref_calls": 2,
+    "fixture_bytes": 800,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Ottergate Stables - feed dock log\n\nBarn sensor log for the feed dock. The feed truck's arrival is recorded as a DOCK_SCAN line by the dock sensor; rounds and checks come from the barn controller.\n",
+    "logs/feed-dock-2026-09-11.log": "# ottergate-stables feed dock log barn=main opened 2026-09-11T04:55 node=dock-1\n2026-09-11T05:02:19 ROUND feed round 1 started aisle A\n2026-09-11T05:26:44 ROUND feed round 1 finished aisle A\n2026-09-11T05:41:03 ROUND feed round 1 started aisle B\n2026-09-11T05:58:36 ROUND feed round 1 finished aisle B\nK7 FdTrk ?? 2026-09-11T06:1\n?? FdTrk DO 2026-09-11T06:2\nK3 ??Trk ?? 2026-09-11T06:3\n?? ??Trk DO 2026-09-11T06:4\nK7 Fd??? ?? 2026-09-11T06:5\n2026-09-11T07:04:52 ROUND feed round 2 started aisle A\n2026-09-11T07:31:28 ROUND feed round 2 finished aisle A\n2026-09-11T08:00:05 INFO  morning checks ok\n"
+  },
+  "turns": [
+    {
+      "prompt": "Ottergate Stables' barn manager needs to know whether the feed truck's DOCK_SCAN on 11 September happened by 06:00. What does logs/feed-dock-2026-09-11.log show?",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "DOCK_SCAN",
+          "dock scan"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

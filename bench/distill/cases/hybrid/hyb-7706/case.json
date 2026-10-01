@@ -1,0 +1,57 @@
+{
+  "id": "hyb-7706",
+  "description": "Multi-turn crane-fault count split at the overhaul completion line, then cut to one crane. DISTILL-CANARY-b25e7c44",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 6
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b07-scopecut-02",
+    "ref_calls": 2,
+    "fixture_bytes": 879,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "logs/crane-faults-2026-09.log": "# 磐石建材 九月塔吊记录（级别：FAULT / WARN / INFO）\n2026-09-02 WARN 塔吊C-2 回转支承异响趋势\n2026-09-03 FAULT 塔吊C-2 回转支承异响\n2026-09-08 WARN 塔吊三号 钢丝绳断丝超标\n2026-09-09 FAULT 塔吊C-2 变频器过流\n2026-09-15 INFO 三台塔吊年检大修全部完成，恢复作业\n2026-09-16 WARN 塔吊C-2 液压油温偏高\n2026-09-18 FAULT 塔吊C-2 回转支承渗油\n2026-09-21 FAULT 塔吊三号 吊钩限位失灵\n2026-09-22 WARN 塔吊三号 钢丝绳断丝超标\n2026-09-24 FAULT 塔吊三号 变频器过流\n2026-09-27 FAULT 塔吊C-2 电缆排线卡滞\n2026-09-28 WARN 塔吊C-2 液压油温偏高\n",
+    "README.md": "# 磐石建材 塔吊运行记录\n\n记录按天写一行，第二列是级别，第三列是设备。九月三台塔吊集中年检，\n9 月 15 日全部恢复作业；恢复作业后的 FAULT 记录才计入本月考核。\n"
+  },
+  "turns": [
+    {
+      "prompt": "磐石建材九月的安全例会要数据。塔吊的 FAULT 记录里，属于 9 月 15 日恢复作业之后的有几条？只回数字。",
+      "expect": {
+        "expected_number": 4,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "不对，我只要三号塔吊的——C-2 的都排除。恢复作业之后三号塔吊的 FAULT 有几条？只回数字。",
+      "expect": {
+        "expected_number": 2,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "三号塔吊这两条故障分别是哪个部件？把两个部件名都写出来就行。",
+      "expect": {
+        "output_contains": [
+          "吊钩限位",
+          "变频器"
+        ]
+      }
+    }
+  ]
+}

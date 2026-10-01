@@ -1,0 +1,51 @@
+{
+  "id": "tab-7486",
+  "description": "September net revenue per item at Loxley, whose sales export carries bag counts only. DISTILL-CANARY-4e2aed7c",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "107"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b06-loxley-price",
+    "ref_calls": 2,
+    "fixture_bytes": 540,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Loxley Feed & Grain - September sales\n\nYard sales log, one row per day and item. Bags move at counter prices set by the office price list, which is not part of this export.\n",
+    "exports/sales-2026-09.csv": "date,item,bags_sold,return_bags\n2026-09-02,layer pellets 20kg,14,1\n2026-09-04,barley seed 25kg,9,0\n2026-09-08,layer pellets 20kg,11,0\n2026-09-11,maize meal 20kg,17,2\n2026-09-14,barley seed 25kg,6,0\n2026-09-17,layer pellets 20kg,13,1\n2026-09-21,maize meal 20kg,8,0\n2026-09-24,poultry grit 25kg,10,0\n2026-09-27,barley seed 25kg,12,1\n2026-09-29,layer pellets 20kg,7,0\n"
+  },
+  "turns": [
+    {
+      "prompt": "Loxley Feed & Grain's bookkeeper needs September net revenue per item from exports/sales-2026-09.csv. What are the figures?",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "revenue",
+          "price"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

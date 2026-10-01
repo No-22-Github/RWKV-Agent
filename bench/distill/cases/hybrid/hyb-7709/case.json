@@ -1,0 +1,67 @@
+{
+  "id": "hyb-7709",
+  "description": "Multi-turn API quota lookup through a stale handbook filename, then tier and throttle follow-ups. DISTILL-CANARY-52b6e0a3",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": 500000
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b07-correct-03",
+    "ref_calls": 3,
+    "fixture_bytes": 678,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "configs/quota.yml": "# API 租户配额（次/月）\ntiers:\n  trial:\n    monthly_quota: 2000\n    burst_per_sec: 5\n  pro:\n    monthly_quota: 50000\n    burst_per_sec: 20\n  enterprise:\n    monthly_quota: 500000\n    burst_per_sec: 100\n# 超出月配额后不直接拒绝：降速到该档 burst_per_sec 的一半，次月恢复\n",
+    "docs/oncall-handbook.md": "# 值班手册（摘录）\n\n租户配额文件在 configs/quota.yaml。收到「配额超了」类告警时，先确认租户档位，\n再对照该文件的月配额；处理完在值班群同步档位与恢复时间。\n",
+    "README.md": "# 长风软件 计费配置\n\nconfigs/ 下是计费与配额配置。配置文件统一使用 .yml 扩展名；\n部分旧文档仍按 .yaml 引用它们。\n"
+  },
+  "turns": [
+    {
+      "prompt": "长风软件值班排查。值班手册里提到的那个配额文件，里面 pro 档的月配额是多少次？只回数字。",
+      "expect": {
+        "expected_number": 50000,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "不对，我看成出问题那单的档位了——告警里的租户是试用档。试用档的月配额是多少次？只回数字。",
+      "expect": {
+        "expected_number": 2000,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "那超出月配额之后是直接拒绝请求吗？把文件里的说法告诉我。",
+      "expect": {
+        "output_contains_any": [
+          "降速",
+          "限流",
+          "限速",
+          "throttl"
+        ]
+      }
+    },
+    {
+      "prompt": "降速之后 pro 档每秒最多放行几次？只回数字。",
+      "expect": {
+        "expected_number": 10,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

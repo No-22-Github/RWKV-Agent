@@ -1,0 +1,42 @@
+{
+  "id": "cfg-7129",
+  "description": "Effective upload cap of harvest-api, whose service env overrides the platform global env named in the prompt. DISTILL-CANARY-8cd1182a",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "precedence",
+    "traps": [
+      "TR-PRECEDENCE"
+    ],
+    "trap_decoys": {
+      "TR-PRECEDENCE": 50
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b06-hesui-harvest",
+    "ref_calls": 3,
+    "fixture_bytes": 430,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "deploy/global.env": "MAX_UPLOAD_MB=50\nSESSION_TTL_MIN=720\nMAINTENANCE_WINDOW=02:30\n",
+    "deploy/harvest-api.env": "MAX_UPLOAD_MB=200\nQUEUE_DEPTH=35\nIMAGE_MAX_EDGE_PX=1600\n",
+    "README.md": "# 禾穗农机 - 收割服务平台部署环境\n\ndeploy 目录下 `deploy/global.env` 是平台默认环境，每个服务另有自己的 env 文件（收割图片服务 harvest-api 用 `deploy/harvest-api.env`）。\n\n服务 env 里的同名键覆盖 global.env；服务 env 没写的键按 global.env 生效。\n"
+  },
+  "turns": [
+    {
+      "prompt": "禾穗农机售后收用户发来的作业大图总报超限，客服想确认上传上限现在放开了没有（只回答数字，不要单位）。平台默认环境在 deploy/global.env，harvest-api 服务生效的 MAX_UPLOAD_MB 是多少？",
+      "expect": {
+        "expected_number": 200,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "id": "cfg-7125",
+  "description": "Effective rate limit of the production ticket API in a YAML that also defines a near-named sandbox service. DISTILL-CANARY-8451c1f8",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": 60
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b06-lanjing-ticket",
+    "ref_calls": 2,
+    "fixture_bytes": 494,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/services.yaml": "ticket-api:\n  host: 10.34.8.21\n  rate_limit_per_min: 600\n  queue_depth: 900\nticket-api-sandbox:\n  host: 10.34.8.22\n  rate_limit_per_min: 60\n  queue_depth: 120\n",
+    "README.md": "# 蓝鲸票务 - 对外服务配置\n\n`config/services.yaml` 里按服务块写配置：顶格的服务名是一块的开头，缩进的行属于它上面的服务。\n\n- ticket-api          对客售票生产服务\n- ticket-api-sandbox  给渠道联调用的沙箱，配置与生产无关\n\n限流告警只认生产服务的生效值。\n"
+  },
+  "turns": [
+    {
+      "prompt": "蓝鲸票务的对外售票接口昨晚触发了限流告警，值班要核对生产服务的限流线现值（只回答数字，不要单位）。配置在 config/services.yaml，生产服务 ticket-api 生效的 rate_limit_per_min 是多少？",
+      "expect": {
+        "expected_number": 600,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

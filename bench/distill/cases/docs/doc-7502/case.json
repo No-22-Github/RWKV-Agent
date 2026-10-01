@@ -1,0 +1,54 @@
+{
+  "id": "doc-7502",
+  "description": "Digest the newest release from a changelog, with the board card ids. DISTILL-CANARY-59b2d3f1",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "extract_items",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "BC-117"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b07-digest-01",
+    "ref_calls": 3,
+    "fixture_bytes": 432,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "docs/CHANGELOG.txt": "v2.7.0 -- 2026-05-14\n  billing export: nightly S3 dump is now compressed (BC-118)\n  scheduler: retry storm fixed by jittered backoff (BC-121)\nv2.6.2 -- 2026-04-30\n  billing export: hotfix for timezone drift in date filters (BC-117)\nv2.6.0 -- 2026-04-11\n  scheduler: draft of jittered backoff, reverted within the week\n",
+    "README.md": "# Meridian Ledger\n\nThe changelog is appended by release duty. Every entry carries a board card id in parentheses.\n"
+  },
+  "turns": [
+    {
+      "prompt": "I owe the stakeholders an update. Skim docs/CHANGELOG.txt and sum up what made it into the newest release, with the card ids.",
+      "expect": {
+        "output_contains": [
+          "2026-05-14",
+          "BC-118",
+          "BC-121",
+          "v2.7.0"
+        ],
+        "output_contains_any": [
+          "2026-05-14",
+          "BC-118",
+          "BC-121",
+          "v2.7.0"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

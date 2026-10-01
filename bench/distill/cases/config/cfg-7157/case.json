@@ -1,0 +1,48 @@
+{
+  "id": "cfg-7157",
+  "description": "Raise the big pot decoction machine's first-brew time. DISTILL-CANARY-a89b4baf",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-NEARNAME",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": "30",
+      "TR-DECOY": "20"
+    },
+    "axes": [
+      "ERR",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-cfg-b06-xiyunguan",
+    "ref_calls": 3,
+    "fixture_bytes": 473,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/decoction.yaml": "# 西云观煎药室 煎药机参数\n一号机:\n  先煎分钟: 30\n  二煎分钟: 20\n  火力档: 3\n二号机:\n  先煎分钟: 25\n  二煎分钟: 18\n  火力档: 3\n",
+    "README.md": "# 西云观煎药室\n\nconfig/decoction.yaml 是两台煎药机的参数文件。一号机是代煎\n小锅，二号机是大锅，老病案上把大锅写作「大壶」，指的都是\n二号机。两台机都有 先煎分钟、二煎分钟、火力档 三个键，改参数\n直接改文件、保持行式。\n"
+  },
+  "expect": {
+    "files": {
+      "config/decoction.yaml": {
+        "equals": "# 西云观煎药室 煎药机参数\n一号机:\n  先煎分钟: 30\n  二煎分钟: 20\n  火力档: 3\n二号机:\n  先煎分钟: 35\n  二煎分钟: 18\n  火力档: 3\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "入冬后西云观煎药室的大壶出药偏生：把大壶那台的先煎分钟提到 35（改 config/decoction.yaml），其余参数一概不动。完成后用两三句话说明你改了哪里。",
+      "expect": {}
+    }
+  ]
+}

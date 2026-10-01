@@ -1,0 +1,60 @@
+{
+  "id": "hyb-7664",
+  "description": "September Rotterdam freight using the carrier's in-force notice; a year-old blog post ranks first in search. DISTILL-CANARY-ef611618",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_calc",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": 3854
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b06-freightcalc-01",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 295,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {
+    "出口部/出港记录.csv": "提单号,箱数,目的港,离港日期\nWL-5512,12,鹿特丹,2026-09-03\nWL-5518,18,鹿特丹,2026-09-09\nWL-5521,17,鹿特丹,2026-09-15\n",
+    "README.md": "万里航贸出口部：9 月发鹿特丹的货物分三票离港，海运费按承运方万里航线现行公告价每箱计收，出港后随账单结算。\n"
+  },
+  "web_fixture": [
+    {
+      "query_match": "万里航线 运价",
+      "url": "https://blog.shipfans.example/wanli-rates-2025",
+      "url_match": "blog.shipfans.example/wanli-rates-2025",
+      "title": "万里航线欧线运价小记（2025 年 11 月更新）",
+      "snippet": "万里航线鹿特丹线每箱 82.00 欧元，价格从 11 月维持至今。",
+      "content": "# 万里航线欧线运价小记\n\n更新于 2025-11-30：鹿特丹每箱 82.00 欧元，持续一年未变。\n",
+      "published_at": "2025-11-30"
+    },
+    {
+      "query_match": "万里航线",
+      "url": "https://www.wanli-shipping.example/notices/rate-2026-09",
+      "url_match": "www.wanli-shipping.example/notices/rate-2026-09",
+      "title": "万里航线 2026 年 9 月运价公告",
+      "snippet": "9 月起执行的各航线每箱运价。",
+      "content": "# 万里航线 2026 年 9 月运价公告\n\n自 2026-09-01 起执行：\n\n目的港 | 每箱运价（欧元）\n鹿特丹 | 89.00\n汉堡 | 84.50\n",
+      "published_at": "2026-08-26"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "出口部要预估 9 月发往鹿特丹那批货的海运费。出港记录在 出口部/出港记录.csv，运价按承运方现行的公告价每箱计收。这批货的海运费一共多少欧元？（只回答数字，不要单位。）",
+      "expect": {
+        "expected_number": 4183,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

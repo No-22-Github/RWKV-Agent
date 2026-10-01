@@ -1,0 +1,42 @@
+{
+  "id": "nt-7197",
+  "description": "Dewormer dose for an 18 kg dog at 25 mg per 10 kg body weight; arithmetic only. DISTILL-CANARY-13cfe75e",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 30
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-feedmath-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 240
+  },
+  "web_fixture": [],
+  "files": {
+    "visits/weights_2026-10.csv": "pet,species,weight_kg\n大福,犬,18\n雪宝,犬,12\n团团,猫,4\n",
+    "README.md": "# 汪乐宠物诊所 - 就诊工作区\n\n就诊登记和用药记录都在这里。\n\n- visits/  就诊与体重登记\n- meds/  用药说明存档\n\n体重登记一律用公斤。\n"
+  },
+  "turns": [
+    {
+      "prompt": "汪乐宠物诊所给大福做体内外驱虫。驱虫药按体重给药：每 10 公斤体重服 25 毫克。登记表上大福的体重是 18 公斤。这次该给大福服多少毫克？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 45,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

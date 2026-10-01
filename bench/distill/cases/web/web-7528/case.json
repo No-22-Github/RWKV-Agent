@@ -1,0 +1,69 @@
+{
+  "id": "web-7528",
+  "description": "Find the current release behind two stale third-party posts and vague snippets. DISTILL-CANARY-910ba5f4",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-WEBSTALE",
+      "TR-SNIPPETVAGUE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "2.5.1",
+      "TR-SNIPPETVAGUE": "2.4.0"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L2",
+    "family": "fam-web-b06-baize-rel",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "白泽",
+      "url": "https://forumapps.example/t/baize-240",
+      "url_match": "forumapps.example/t/baize-240",
+      "title": "白泽翻译移动端 2.4.0 用后感",
+      "snippet": "体验了一周，说说新版本的变化和槽点。",
+      "published_at": "2026-05-19",
+      "content": "# 白泽翻译移动端 2.4.0 用后感\n\n2.4.0 把离线词库做进了安装包，出手速度明显变快。\n\n槽点也有：剪贴板悬浮窗偶尔不消失。\n"
+    },
+    {
+      "query_match": "白泽",
+      "url": "https://appreview.example/baize-251",
+      "url_match": "appreview.example/baize-251",
+      "title": "白泽翻译 2.5.1 更新浅评",
+      "snippet": "截屏翻译终于不糊了，详细对比见正文。",
+      "published_at": "2026-08-10",
+      "content": "# 白泽翻译 2.5.1 更新浅评\n\n2.5.1 修掉了截屏翻译的压缩糊块，词典界面也重排了。\n\n目前官方渠道 2.5.1 还是正式版本，可以放心更新。\n"
+    },
+    {
+      "query_match": "白泽",
+      "url": "https://www.baize.example/fanyi/changelog",
+      "url_match": "www.baize.example/fanyi/changelog",
+      "title": "白泽翻译 · 更新日志",
+      "snippet": "各端的版本发布记录。",
+      "published_at": "2026-09-12",
+      "content": "# 白泽翻译 · 更新日志\n\n## 2.6.0（2026-09-12）\n当前正式版本。同声传译模式开放给全部用户。\n\n## 2.5.1（2026-07-30）\n截屏翻译清晰度修复。\n\n## 2.4.0（2026-05-12）\n离线词库内置。\n"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "我想了解白泽翻译的新版本。它目前的正式版本号是多少？",
+      "expect": {
+        "output_contains_any": [
+          "2.6.0"
+        ]
+      }
+    }
+  ]
+}

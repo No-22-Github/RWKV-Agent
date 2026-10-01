@@ -49,6 +49,10 @@ type RenderArgs struct {
 	Parallelism   int
 	AllowTestBank bool
 	KeepFailing   bool
+	// RotateCatalog is the v1.3 §4.2 tool-directory rotation share: with 0.4,
+	// ~40% of the rendered rows face a work-v1 catalog missing 2-4 tools the
+	// row's own trajectory never calls. 0 (default) leaves every case untouched.
+	RotateCatalog float64
 	Extra         []string
 }
 
@@ -145,6 +149,18 @@ func RunRender(args RenderArgs) int {
 			fmt.Fprintln(stderr, err)
 			return 2
 		}
+	}
+
+	// Rotate the per-case tool directory (§4.2) after resolution, so both the
+	// records mode and the cases mode go through one deterministic rule and
+	// the rows replay against a narrowed catalog.
+	if args.RotateCatalog > 0 {
+		rotated, err := rotateCatalogs(cases, entries, args.RotateCatalog)
+		if err != nil {
+			fmt.Fprintln(stderr, err)
+			return 2
+		}
+		fmt.Fprintf(stderr, "catalog rotation: %d of %d case(s) narrowed\n", rotated, len(cases))
 	}
 
 	if _, err := os.Stat(args.Out); err == nil {

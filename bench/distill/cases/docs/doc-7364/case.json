@@ -1,0 +1,49 @@
+{
+  "id": "doc-7364",
+  "description": "Transcribe the linen room's damage register into the month-end summary file. DISTILL-CANARY-474f7d5b",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-doc-b06-taoyuanbu",
+    "ref_calls": 2,
+    "fixture_bytes": 413,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "records/loss-2026-09-30.txt": "106房 床罩 1条 划破 报废\n311房 面巾 8条 洗破 报废\n204房 被套 2条 拉链损坏 报废\n",
+    "README.md": "# 桃源布草洗涤坊 客房布草\n\n损耗登记在 records/，一行一条，字段依次是：\n\n    房号 品名 数量 原因 处理\n\n月底把当天登记原样誊成汇总，放进 summary/，文件名用登记\n日期，保持行序，每行写成\n\n    - <房号> <品名> <数量> <原因> <处理>\n",
+    "summary/.keep": ""
+  },
+  "expect": {
+    "files": {
+      "summary/2026-09-30.txt": {
+        "contains": [
+          "- 106房 床罩 1条 划破 报废",
+          "- 311房 面巾 8条 洗破 报废",
+          "- 204房 被套 2条 拉链损坏 报废"
+        ]
+      },
+      "records/loss-2026-09-30.txt": {
+        "unchanged": true
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "桃源布草洗涤坊 9 月 30 日的损耗登记在 records/loss-2026-09-30.txt。请按 README 的写法把它誊成汇总文件放进 summary/，文件名用登记日期；登记原件不要动。完成后用两三句话说明你写了什么。",
+      "expect": {}
+    }
+  ]
+}

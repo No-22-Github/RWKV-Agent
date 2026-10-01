@@ -1,0 +1,60 @@
+{
+  "id": "doc-7369",
+  "description": "Prepare the chandlery purchase list where the co-op's rules say it goes. DISTILL-CANARY-cba0f71e",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-NEARNAME",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": "orders/2026-09-28.txt",
+      "TR-DECOY": 4
+    },
+    "axes": [
+      "ERR",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-doc-b06-galehaven",
+    "ref_calls": 3,
+    "fixture_bytes": 666,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "daylogs/2026-09-28.txt": "bilge pump / 2 / order\nshackle set / 6 / order\nantifouling quart / 3 / order\nspinnaker repair tape / 4 / quote only\n",
+    "orders/2026-09-19.txt": "- winch handle x1\n- cabin cushion x2\n",
+    "README.md": "# Galehaven Sailing Co-op - chandlery orders\n\nPurchase lists for the chandlery live in purchasing/, one file per\norder day named YYYY-MM-DD.txt, one line per item:\n\n    - <item> x<qty>\n\nRows in the quartermaster's day sheet count for the order only when\ntheir status is order; rows marked quote only are price checks and\nstay off the list. The orders/ folder holds received invoices, not\norder lists - the steward's shorthand about the orders folder\nrefers to the chandlery paperwork, which lives in purchasing/.\n",
+    "purchasing/.keep": ""
+  },
+  "expect": {
+    "files": {
+      "purchasing/2026-09-28.txt": {
+        "contains": [
+          "- bilge pump x2",
+          "- shackle set x6",
+          "- antifouling quart x3"
+        ]
+      },
+      "orders/2026-09-28.txt": {
+        "absent": true
+      },
+      "daylogs/2026-09-28.txt": {
+        "unchanged": true
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The quartermaster at Galehaven Sailing Co-op wrote the chandlery needs for 2026-09-28 into daylogs/. The steward wants the list with the chandlery paperwork in the orders folder; the co-op's README is the authority on where chandlery purchase lists go. Prepare the list accordingly, leave the day sheet untouched, and when you are done describe in two or three sentences what you wrote.",
+      "expect": {}
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "id": "nt-7178",
+  "description": "Seed grams for a 6 square-metre bed sown at 8 grams per square metre. DISTILL-CANARY-886f88e4",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b06-garden-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 291
+  },
+  "web_fixture": [],
+  "files": {
+    "beds/sowing_plan.csv": "bed,crop,area_m2,seed_g_m2\n苗床A,小白菜,6,8\n苗床B,生菜,9,3\n苗床C,菠菜,7,6\n",
+    "README.md": "# 青苗农场 - 育苗工作区\n\n苗床播种计划都登记在这里。\n\n- beds/  苗床与播种登记\n\n播种口径：用种量按每平方米克数登记，领种时按苗床面积折算总克数。\n"
+  },
+  "turns": [
+    {
+      "prompt": "青苗农场这周要播苗床 A 的小白菜，苗床面积 6 平方米，每平方米用种 8 克。这块苗床一共要领多少克种子？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 48,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

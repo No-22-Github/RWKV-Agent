@@ -1,0 +1,39 @@
+{
+  "id": "code-7221",
+  "description": "Locate the file defining pick_alternate_sku in a small Chinese warehouse-replenishment repo. DISTILL-CANARY-76792a40",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "locate_definition",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-code-b06-lanshi-def",
+    "answer_style": "natural",
+    "ref_calls": 2,
+    "fixture_bytes": 1561,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {
+    "replenish.py": "\"\"\"澜石仓储补货同步服务，负责门店库存与总仓的联动换算。\n备选 SKU 的挑选规则以总仓当日的库存快照为准。\n\"\"\"\nfrom dataclasses import dataclass\n\n\n@dataclass\nclass StockRow:\n    sku: str\n    shelf: str\n    qty: int\n    reserved: int\n\n\ndef normalize_location(raw: str) -> str:\n    \"\"\"把库位编码统一成大写并去掉多余分隔符。\"\"\"\n    return raw.replace(\"-\", \"\").strip().upper()\n\n\ndef pick_alternate_sku(primary: str, snapshot: dict) -> str:\n    \"\"\"主 SKU 缺货时，从同组商品里挑一个总仓仍有余量的备选。\"\"\"\n    for cand, qty in snapshot.items():\n        if cand != primary and qty > 0:\n            return cand\n    return \"\"\n",
+    "sync_cli.py": "\"\"\"补货同步的命令行入口，负责读入库存快照并生成调拨建议。\n参数格式见仓库根的交接说明。\n\"\"\"\nimport json\n\nfrom replenish import normalize_location, pick_alternate_sku\n\n\ndef main(snapshot_path: str) -> None:\n    with open(snapshot_path, encoding=\"utf-8\") as fh:\n        snapshot = json.load(fh)\n    for row in snapshot[\"rows\"]:\n        alt = pick_alternate_sku(row[\"sku\"], row[\"candidates\"])\n        row[\"shelf\"] = normalize_location(row[\"shelf\"])\n        if alt:\n            row[\"sku\"] = alt\n\n\nif __name__ == \"__main__\":\n    main(\"snapshot.json\")\n",
+    "models.py": "\"\"\"同步服务用到的最小数据结构，字段与总仓导出的表头保持一致。\n新增字段时先在交接说明里登记。\n\"\"\"\nfrom dataclasses import dataclass\n\n\n@dataclass\nclass TransferSuggestion:\n    store: str\n    sku: str\n    move_qty: int\n    note: str\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "这是澜石仓储内部补货同步工具的代码仓库。函数 pick_alternate_sku 的定义写在哪个文件里？回答时写明文件名。",
+      "expect": {
+        "output_contains_any": [
+          "replenish.py"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "id": "hyb-7755",
+  "description": "Two-turn clarify (missing required param): August overage billing lacks the tenant; turn 1 question, turn 2 meridian-health gives 125.85. DISTILL-CANARY-2170d83b",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 142.35
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b07-missingparam-04",
+    "ref_calls": 3,
+    "fixture_bytes": 468,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "value"
+  },
+  "files": {
+    "README.md": "# Larkspur Analytics usage billing\n\nOverage beyond each tenant's plan allowance is billed in USD.\n",
+    "usage/api-usage.csv": "date,tenant,endpoint,calls,overage_usd\n2026-08-03,meridian-health,extract,184000,42.60\n2026-08-07,corvid-retail,extract,96500,12.35\n2026-08-12,meridian-health,summarize,121400,18.75\n2026-08-15,bracken-fintech,classify,88200,0.00\n2026-08-20,meridian-health,extract,201250,55.10\n2026-08-27,corvid-retail,summarize,64300,4.15\n2026-08-29,meridian-health,classify,77900,9.40\n"
+  },
+  "turns": [
+    {
+      "prompt": "Total the overage fees for the August invoice run.",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "?",
+          "Which",
+          "which",
+          "What",
+          "what",
+          "confirm",
+          "Confirm",
+          "specify",
+          "Specify",
+          "Do you",
+          "do you",
+          "Did you",
+          "did you",
+          "should I",
+          "Should I",
+          "please provide",
+          "Please provide",
+          "need to know",
+          "Need to know"
+        ],
+        "output_contains": [
+          "overage"
+        ]
+      }
+    },
+    {
+      "prompt": "Invoice meridian-health only. Reply with only the final answer.",
+      "expect": {
+        "expected_number": 125.85,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

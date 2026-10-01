@@ -21,7 +21,8 @@
     "status": "draft",
     "version": 1,
     "author": "llm:deepseek-v4.1-flash",
-    "reviewer": null
+    "reviewer": null,
+    "answer_style": "unknown"
   },
   "web_fixture": [],
   "files": {

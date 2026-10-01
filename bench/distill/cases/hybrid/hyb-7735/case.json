@@ -1,0 +1,48 @@
+{
+  "id": "hyb-7735",
+  "description": "Paper Crane Supplies two-turn session: April first-week dispatch units first, then a thank-you with a Northgate follow-up. DISTILL-CANARY-2e95b6d0",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-DATEFMT"
+    ],
+    "trap_decoys": {
+      "TR-DATEFMT": 65
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b07-stationery-01",
+    "ref_calls": 2,
+    "fixture_bytes": 402,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "value"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Paper Crane Supplies - April dispatch log\n\nDispatch dates are written either in ISO form (2026-04-02) or as\nmonth/day/year (04/06/2026 means 6 April). units counts cartons shipped.\n",
+    "logs/april_dispatches.csv": "dispatch_id,date,destination,units\nD-2201,2026-04-02,Northgate,40\nD-2202,03/28/2026,Oakfield,55\nD-2204,04/06/2026,Northgate,35\nD-2207,2026-04-05,Riverside,25\nD-2209,04/13/2026,Oakfield,60\nD-2211,2026-04-09,Northgate,45\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many units left the warehouse during the first seven days of April 2026? The log is at logs/april_dispatches.csv. Reply with only the final answer.",
+      "expect": {
+        "expected_number": 100,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "Great, thanks a lot! And of those dispatches, how many units went to Northgate? Reply with only the final answer.",
+      "expect": {
+        "expected_number": 75,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

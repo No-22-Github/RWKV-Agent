@@ -1,0 +1,63 @@
+{
+  "id": "hyb-8010",
+  "description": "Four-turn session on a subscription ledger with mixed date conventions: August actives and MRR, a switch to July, then a plan slice; three rows use day-first dates. DISTILL-CANARY-347214d4",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-DATEFMT"
+    ],
+    "trap_decoys": {
+      "TR-DATEFMT": 21
+    },
+    "axes": [
+      "OBS",
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-holdout-hyb-subs-julyswitch-01",
+    "ref_calls": 4,
+    "fixture_bytes": 1970,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "subs-export.csv": "customer,plan,start_date,end_date,mrr_usd,status\nCobalt Fitness,growth,2026-03-14,,96.00,active\nHarbor Bakery,starter,2026-02-02,,36.00,active\nLumen Optics,pro,2026-01-19,,320.00,active\nJuniper Legal,growth,2026-04-01,,120.00,active\nMistral Prints,starter,2026-03-27,,36.00,active\nFoxglove Studio,growth,2026-05-11,,96.00,active\nQuarry Games,pro,2026-02-24,,320.00,active\nBramble Tea,growth,2026-06-03,,144.00,active\nOtter Logistics,starter,2026-04-22,,36.00,active\nSable Analytics,growth,2026-01-30,,120.00,active\nPinecone Toys,starter,2026-05-28,,36.00,active\nVerdant Farms,pro,2026-03-06,,480.00,active\nKite & Co,growth,2026-06-17,,96.00,active\nMarrow Books,starter,2026-02-09,,36.00,active\nDriftwood Surf,pro,2026-04-08,,320.00,active\nTamsin Florists,growth,2026-05-02,2026-07-21,120.00,churned\nRook Ramp Rentals,starter,2026-03-19,2026-07-08,36.00,churned\nHalcyon Dental,starter,2026-01-12,2026-07-29,36.00,churned\nGrouse Coffee,pro,2026-04-15,2026-07-11,320.00,churned\nWrenfield Gym,growth,2026-06-25,2026-07-15,96.00,churned\nSprig Catering,starter,2026-07-03,,36.00,active\nPolestar Tutoring,pro,2026-07-22,,320.00,active\nCinder Pottery,growth,2026-08-05,,96.00,active\nBellweather Pets,starter,2026-08-03,,36.00,active\nAspen Bike Tours,pro,2026-08-19,,320.00,active\nFerris Home Care,growth,2026-05-06,02/08/2026,120.00,churned\nTortoise Cloud,pro,2026-03-31,04/08/2026,320.00,churned\nQuill Events,starter,03/08/2026,,36.00,active\nEgret Cycles,pro,2026-02-14,2026-06-02,320.00,churned\nNimbus Kennels,starter,2026-01-08,2026-05-20,36.00,churned\nOstrich Outfitters,growth,2026-03-03,2026-06-18,96.00,churned\n",
+    "README.md": "# Subscription ledger export, 2026-09-01\n\nThe billing system mixes conventions: most rows use YYYY-MM-DD, three legacy rows use DD/MM/YYYY (slash dates read day/month/year). A subscription is active in a month when its period covers at least one day of that month; an empty end_date means still renewing. The status column is the snapshot flag at export time.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Our subscription ledger is in subs-export.csv. How many subscriptions were active in August 2026? Answer with the number alone.",
+      "expect": {
+        "expected_number": 23,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "What was the combined MRR of those August-active subscriptions? Answer with the number alone, two decimals.",
+      "expect": {
+        "expected_number": 3576.0,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "Change of plan — I need July 2026 instead. How many subscriptions were active that month? Answer with the number alone.",
+      "expect": {
+        "expected_number": 24,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "Of the July-active ones, how many are on the growth plan? Answer with the number alone.",
+      "expect": {
+        "expected_number": 9,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

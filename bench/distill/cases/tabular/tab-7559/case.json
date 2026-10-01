@@ -1,0 +1,52 @@
+{
+   "id": "tab-7559",
+   "description": "August 2026 net Hall income after trader deductions stored as positive amounts, with a system total row at the foot of the register DISTILL-CANARY-932badb7",
+   "category": "tabular",
+   "tags": {
+      "scenario": "tabular",
+      "task_type": "reconcile",
+      "traps": [
+         "TR-HEADER",
+         "TR-SIGN"
+      ],
+      "trap_decoys": {
+         "TR-SIGN": 54571.93,
+         "TR-HEADER": 100426.68
+      },
+      "axes": [
+         "OBS"
+      ],
+      "level": "L2",
+      "family": "fam-tab-b06-loftlarder-01",
+      "ref_calls": 2,
+      "fixture_bytes": 5073,
+      "status": "draft",
+      "version": 1,
+      "author": "llm:glm-5.3-flash-b06",
+      "reviewer": null,
+      "answer_style": "natural"
+   },
+   "web_fixture": [],
+   "files": {
+      "data/register_2026-08.csv": "entry_id,entry_month,trader,fee_gbp,deduction_gbp\nLL-2608220,2026-08,Otterby Cider,224.80,138.90\nLL-2608907,2026-08,Skelwith Cheese,506.44,0.00\nLL-2608543,2026-08,Skelwith Cheese,283.76,0.00\nLL-2608838,2026-08,Otterby Cider,593.80,127.07\nLL-2608131,2026-08,Otterby Cider,745.42,23.79\nLL-2608802,2026-08,Skelwith Cheese,137.41,7.60\nLL-2608640,2026-08,Pell & Sons,288.95,0.00\nLL-2608666,2026-08,Skelwith Cheese,292.92,0.00\nLL-2608879,2026-08,Wrayburn Bakehouse,301.81,0.00\nLL-2608526,2026-08,Pell & Sons,478.49,0.00\nLL-2608744,2026-08,Wrayburn Bakehouse,773.31,117.76\nLL-2608838,2026-08,Otterby Cider,894.18,27.03\nLL-2608619,2026-08,Skelwith Cheese,879.14,0.00\nLL-2608611,2026-08,Harkness Olives,767.43,58.79\nLL-2608973,2026-08,Harkness Olives,780.03,0.00\nLL-2608524,2026-08,Skelwith Cheese,146.93,0.00\nLL-2608188,2026-08,Otterby Cider,638.50,0.00\nLL-2608633,2026-08,Wrayburn Bakehouse,462.39,0.00\nLL-2608580,2026-08,Pell & Sons,775.16,0.00\nLL-2608692,2026-08,Harkness Olives,153.92,177.07\nLL-2608332,2026-08,Harkness Olives,427.01,0.00\nLL-2608337,2026-08,Harkness Olives,886.02,99.89\nLL-2608461,2026-08,Harkness Olives,435.47,0.00\nLL-2608723,2026-08,Harkness Olives,478.12,0.00\nLL-2608928,2026-08,Harkness Olives,866.55,0.00\nLL-2608592,2026-08,Pell & Sons,220.81,41.75\nLL-2608523,2026-08,Harkness Olives,798.61,40.77\nLL-2608101,2026-08,Otterby Cider,498.24,0.00\nLL-2608714,2026-08,Skelwith Cheese,540.01,112.57\nLL-2608663,2026-08,Wrayburn Bakehouse,141.82,0.00\nLL-2608133,2026-08,Otterby Cider,575.88,144.93\nLL-2608563,2026-08,Pell & Sons,776.56,20.48\nLL-2608916,2026-08,Pell & Sons,131.36,49.42\nLL-2608271,2026-08,Pell & Sons,607.35,0.00\nLL-2608772,2026-08,Wrayburn Bakehouse,244.51,0.00\nLL-2608608,2026-08,Otterby Cider,332.87,85.12\nLL-2608451,2026-08,Skelwith Cheese,489.54,0.00\nLL-2608359,2026-08,Pell & Sons,448.32,0.00\nLL-2608720,2026-08,Wrayburn Bakehouse,821.86,0.00\nLL-2608249,2026-08,Skelwith Cheese,456.69,45.22\nLL-2608794,2026-08,Harkness Olives,147.55,83.55\nLL-2608561,2026-08,Harkness Olives,452.80,175.99\nLL-2608922,2026-08,Harkness Olives,294.09,74.71\nLL-2608228,2026-08,Otterby Cider,370.57,16.23\nLL-2608417,2026-08,Pell & Sons,874.96,59.31\nLL-2608526,2026-08,Wrayburn Bakehouse,835.40,0.00\nLL-2608970,2026-08,Harkness Olives,560.65,0.00\nLL-2608571,2026-08,Harkness Olives,149.57,173.42\nLL-2608621,2026-08,Harkness Olives,253.78,175.44\nLL-2608310,2026-08,Pell & Sons,149.19,0.00\nLL-2608206,2026-08,Skelwith Cheese,567.24,108.91\nLL-2608611,2026-08,Harkness Olives,851.60,0.00\nLL-2608118,2026-08,Otterby Cider,133.42,76.00\nLL-2608901,2026-08,Harkness Olives,242.43,147.14\nLL-2608790,2026-08,Otterby Cider,225.41,0.00\nLL-2608452,2026-08,Harkness Olives,195.20,0.00\nLL-2608340,2026-08,Harkness Olives,833.27,98.97\nLL-2608273,2026-08,Wrayburn Bakehouse,170.95,0.00\nLL-2608877,2026-08,Otterby Cider,249.91,0.00\nLL-2608476,2026-08,Otterby Cider,379.14,0.00\nLL-2608988,2026-08,Wrayburn Bakehouse,384.30,0.00\nLL-2608238,2026-08,Skelwith Cheese,856.32,130.43\nLL-2608174,2026-08,Skelwith Cheese,572.37,61.81\nLL-2608449,2026-08,Wrayburn Bakehouse,416.58,31.64\nLL-2608684,2026-08,Pell & Sons,209.46,167.15\nLL-2608402,2026-08,Otterby Cider,549.21,171.69\nLL-2608210,2026-08,Otterby Cider,560.27,85.65\nLL-2608193,2026-08,Pell & Sons,733.87,8.15\nLL-2608345,2026-08,Wrayburn Bakehouse,442.56,143.44\nLL-2608271,2026-08,Skelwith Cheese,732.70,34.19\nLL-2608545,2026-08,Pell & Sons,651.09,0.00\nLL-2608937,2026-08,Harkness Olives,830.40,0.00\nLL-2608422,2026-08,Skelwith Cheese,349.34,0.00\nLL-2608905,2026-08,Pell & Sons,198.10,12.89\nLL-2608427,2026-08,Harkness Olives,886.42,0.00\nLL-2608165,2026-08,Pell & Sons,470.88,0.00\nLL-2608356,2026-08,Pell & Sons,832.45,174.74\nLL-2608988,2026-08,Harkness Olives,287.85,176.51\nLL-2608312,2026-08,Harkness Olives,656.79,51.08\nLL-2608939,2026-08,Pell & Sons,359.71,0.00\nLL-2608758,2026-08,Harkness Olives,339.01,83.93\nLL-2608142,2026-08,Otterby Cider,384.33,0.00\nLL-2608410,2026-08,Harkness Olives,375.25,0.00\nLL-2608692,2026-08,Harkness Olives,311.76,0.00\nLL-2608120,2026-08,Wrayburn Bakehouse,749.90,0.00\nLL-2608664,2026-08,Otterby Cider,750.45,0.00\nLL-2608397,2026-08,Pell & Sons,796.69,9.74\nLL-2608983,2026-08,Skelwith Cheese,705.57,0.00\nLL-2608178,2026-08,Otterby Cider,790.11,0.00\nLL-2608244,2026-08,Wrayburn Bakehouse,517.23,37.24\nLL-2608826,2026-08,Pell & Sons,760.81,0.00\nLL-2608245,2026-08,Wrayburn Bakehouse,521.20,57.07\nLL-2608923,2026-08,Harkness Olives,545.48,141.68\nLL-2608282,2026-08,Wrayburn Bakehouse,644.31,170.16\nLL-2608831,2026-08,Pell & Sons,353.16,0.00\nLL-2608798,2026-08,Pell & Sons,792.44,0.00\nLL-2608549,2026-08,Harkness Olives,871.44,101.57\nLL-2608956,2026-08,Skelwith Cheese,784.01,0.00\nTOTAL,ALL,,50213.34,0\n",
+      "README.md": "# Loft & Larder - August trader register\n\nOne row per trader stand settlement. deduction_gbp covers breakages and\nunpaid stall-share; it is stored as a positive figure and is taken off\nHall income at settlement. The last line is the system-generated month\ntotal for reconciliation and is not a trader.\n",
+      "notes/hallkeeper.txt": "Hallkeeper notes\n- Trestle counts go to the key cupboard.\n- The cellar fridge is for the dairy stands.\n"
+   },
+   "turns": [
+      {
+         "prompt": "Loft & Larder is settling the August trader stands. The register export is at data/register_2026-08.csv. Give the number alone, as digits, with no label. What was the August 2026 net Hall income after the trader deductions?",
+         "expect": {
+            "expected_number": 45854.75,
+            "tolerance": 0.01,
+            "required_tools": [
+               "data_query"
+            ]
+         }
+      }
+   ],
+   "expect": {
+      "max_calls": {
+         "read_file": 1
+      }
+   }
+}

@@ -1,0 +1,41 @@
+{
+  "id": "nt-7205",
+  "description": "Whether moving the shutter from 1/125 s to 1/250 s is faster or slower; one-word answer. DISTILL-CANARY-5ea17dc9",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "慢"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-digicam-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 220
+  },
+  "web_fixture": [],
+  "files": {
+    "reference/shutter_pair.csv": "shutter,exposure_seconds\n1/125,0.008\n1/250,0.004\n",
+    "README.md": "# 白匣暗房工作室 - 冲扫工作区\n\n胶片冲扫的拍摄参数参考和冲扫单都放在这里。\n\n- reference/  快门与光圈参考卡\n- orders/  冲扫登记\n"
+  },
+  "turns": [
+    {
+      "prompt": "白匣暗房工作室的学徒在整理快门笔记：快门速度从 1/125 秒调到 1/250 秒。调完之后的快门是更快还是更慢？只回答「快」或「慢」，不要写别的。",
+      "expect": {
+        "output_equals": "快",
+        "tools": []
+      }
+    }
+  ]
+}

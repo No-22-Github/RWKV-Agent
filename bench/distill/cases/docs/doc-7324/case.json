@@ -1,0 +1,49 @@
+{
+  "id": "doc-7324",
+  "description": "Work out the earliest destruction date for one rush water sample using the retention rules and mixed date formats. DISTILL-CANARY-ca4558fe",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-RULEFILE",
+      "TR-DATEFMT"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": "2026-08-01",
+      "TR-DATEFMT": "2026-05-04"
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-doc-b06-chengchuan",
+    "ref_calls": 2,
+    "fixture_bytes": 1316,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "docs/样品登记.csv": "样品编号,类别,收样日期,加急,登记人\nCZ-S-0401,水质,2026-01-12,否,林晚照\nCZ-S-0402,土壤,2026-01-20,否,苏合\nCZ-S-0403,气体,2026.2.3,是,顾南枝\nCZ-S-0404,水质,2026-02-11,否,白榆\nCZ-S-0405,土壤,02/17/2026,否,韩霁\nCZ-S-0406,水质,2026-02-25,是,沈书白\nCZ-S-0407,气体,2026.3.4,否,闻人夏\nCZ-S-0408,水质,03/12/2026,否,蒋一苇\nCZ-S-0409,土壤,2026-03-18,是,唐折枝\nCZ-S-0410,水质,2026-03-26,否,竺秋原\nCZ-S-0411,气体,04/01/2026,否,王峻岩\nCZ-S-0412,水质,05/03/2026,是,陈苡晴\nCZ-S-0413,土壤,2026.4.9,否,郑迦南\nCZ-S-0414,水质,2026-04-16,是,桑野\nCZ-S-0415,气体,2026-04-23,否,祁雪臣\nCZ-S-0416,水质,04/28/2026,否,林晚照\nCZ-S-0417,土壤,2026.5.6,是,苏合\nCZ-S-0418,水质,2026-05-14,否,顾南枝\n",
+    "docs/留存规定.md": "# 澄川物业环境检测样品留存与销毁规定\n\n一、常规留存期限：水质类样品自收样之日起留存 90 天，土壤类留存 180 天，气体类留存 90 天，期满方可销毁。\n\n二、例外：登记表加急栏为「是」的样品，自收样之日起留存 60 天即可安排销毁。\n\n三、销毁前需在台账登记销毁编号与经办人。\n\n四、登记表中收样日期写法不统一：横线（2026-03-07）与点分（2026.3.7）均为 年-月-日，斜线（03/07/2026）为 月/日/年。\n"
+  },
+  "turns": [
+    {
+      "prompt": "澄川物业环境检测的样品台账在 docs/样品登记.csv，销毁时限见 docs/留存规定.md。样品 CZ-S-0412 最早可以安排销毁的是哪一天（日期写成 2026-01-01 这样的年-月-日形式）？",
+      "expect": {
+        "output_contains_any": [
+          "2026-07-02"
+        ],
+        "output_excludes": [
+          "2026-08-01",
+          "2026-05-04"
+        ]
+      }
+    }
+  ]
+}

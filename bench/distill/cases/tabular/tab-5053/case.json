@@ -18,10 +18,11 @@
     "ref_calls": 3,
     "scenario": "tabular",
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "fixture_bytes": 1225
+    "fixture_bytes": 1225,
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -30,9 +31,15 @@
   },
   "turns": [
     {
-      "prompt": "Skernish Ferry Company compares each season's summer traffic with the season before. How many more vehicles did the June 2026 sailings carry than the June 2025 sailings? Give the answer as a number alone. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Skernish Ferry Company compares each season's summer traffic with the season before. How many more vehicles did the June 2026 sailings carry than the June 2025 sailings?",
       "expect": {
-        "output_equals": "UNKNOWN"
+        "required_tools": ["read_file"],
+        "output_contains_any": [
+          "June 2025",
+          "Jun 2025",
+          "2025-06"
+        ],
+        "output_excludes": ["UNKNOWN", "252"]
       }
     }
   ]

@@ -1,0 +1,50 @@
+{
+   "id": "tab-7540",
+   "description": "Count of different patients on the auto-refill channel in September 2026 in an export that repeats some rows DISTILL-CANARY-ea4d0494",
+   "category": "tabular",
+   "tags": {
+      "scenario": "tabular",
+      "task_type": "filter_count",
+      "traps": [
+         "TR-DUPROW"
+      ],
+      "trap_decoys": {
+         "TR-DUPROW": 36.0
+      },
+      "axes": [
+         "OBS"
+      ],
+      "level": "L1",
+      "family": "fam-tab-b06-hartwell-01",
+      "ref_calls": 2,
+      "fixture_bytes": 5027,
+      "status": "draft",
+      "version": 1,
+      "author": "llm:glm-5.3-flash-b06",
+      "reviewer": null,
+      "answer_style": "natural"
+   },
+   "web_fixture": [],
+   "files": {
+      "data/refills_2026-09.csv": "refill_id,refill_month,channel,patient_code,drug_class\nHP-8092,2026-09,App,PT-8570,Respiratory\nHP-7508,2026-09,Phone,PT-5249,Pain\nHP-3699,2026-09,Auto-Refill,PT-8938,Pain\nHP-6332,2026-09,Phone,PT-3779,Pain\nHP-8178,2026-09,App,PT-8653,Cardio\nHP-3069,2026-09,Auto-Refill,PT-9361,Cardio\nHP-8994,2026-09,Counter,PT-1743,Pain\nHP-4473,2026-09,Counter,PT-5437,Pain\nHP-2952,2026-09,Counter,PT-9360,Pain\nHP-8065,2026-09,App,PT-2615,Cardio\nHP-9749,2026-09,App,PT-7923,Cardio\nHP-7688,2026-09,App,PT-2142,Pain\nHP-2934,2026-09,App,PT-6819,Respiratory\nHP-5841,2026-09,App,PT-2097,Pain\nHP-5549,2026-09,Auto-Refill,PT-8249,Pain\nHP-5066,2026-09,Auto-Refill,PT-1323,Respiratory\nHP-7207,2026-09,Phone,PT-3689,Endocrine\nHP-1065,2026-09,Counter,PT-9309,Cardio\nHP-4110,2026-09,Counter,PT-3648,Pain\nHP-9656,2026-09,Auto-Refill,PT-2524,Cardio\nHP-8188,2026-09,Counter,PT-7585,Endocrine\nHP-1344,2026-09,Counter,PT-5518,Respiratory\nHP-1504,2026-09,Auto-Refill,PT-5987,Cardio\nHP-4968,2026-09,App,PT-4422,Endocrine\nHP-5266,2026-09,Counter,PT-9652,Cardio\nHP-4385,2026-09,Counter,PT-4403,Pain\nHP-3832,2026-09,Counter,PT-4886,Respiratory\nHP-5665,2026-09,Auto-Refill,PT-6471,Endocrine\nHP-3431,2026-09,Auto-Refill,PT-5408,Respiratory\nHP-9885,2026-09,App,PT-2123,Cardio\nHP-4284,2026-09,Phone,PT-2226,Respiratory\nHP-5476,2026-09,Phone,PT-9572,Cardio\nHP-6097,2026-09,Auto-Refill,PT-7032,Respiratory\nHP-5110,2026-09,Auto-Refill,PT-8666,Pain\nHP-8313,2026-09,Auto-Refill,PT-9380,Pain\nHP-3752,2026-09,Auto-Refill,PT-1814,Endocrine\nHP-9935,2026-09,Counter,PT-3761,Endocrine\nHP-6848,2026-09,Auto-Refill,PT-5864,Endocrine\nHP-9041,2026-09,Counter,PT-5419,Endocrine\nHP-7880,2026-09,Phone,PT-6830,Pain\nHP-2995,2026-09,Phone,PT-4802,Respiratory\nHP-4423,2026-09,Counter,PT-7431,Endocrine\nHP-7279,2026-09,App,PT-7548,Cardio\nHP-4355,2026-09,App,PT-3823,Pain\nHP-5653,2026-09,Auto-Refill,PT-8923,Cardio\nHP-2771,2026-09,Auto-Refill,PT-5252,Pain\nHP-1395,2026-09,App,PT-6400,Cardio\nHP-2934,2026-09,Counter,PT-4642,Pain\nHP-1216,2026-09,Counter,PT-5239,Pain\nHP-9933,2026-09,Counter,PT-5001,Pain\nHP-5856,2026-09,Auto-Refill,PT-1500,Respiratory\nHP-3237,2026-09,Counter,PT-7596,Pain\nHP-2231,2026-09,Phone,PT-6186,Respiratory\nHP-9198,2026-09,App,PT-8074,Endocrine\nHP-7123,2026-09,Auto-Refill,PT-5070,Endocrine\nHP-6099,2026-09,Auto-Refill,PT-5408,Respiratory\nHP-8162,2026-09,Counter,PT-4111,Pain\nHP-9241,2026-09,Counter,PT-2188,Cardio\nHP-6846,2026-09,Counter,PT-3713,Endocrine\nHP-9657,2026-09,Counter,PT-8267,Pain\nHP-6303,2026-09,Counter,PT-3427,Respiratory\nHP-1013,2026-09,Auto-Refill,PT-5292,Cardio\nHP-3029,2026-09,Auto-Refill,PT-8526,Respiratory\nHP-8246,2026-09,Phone,PT-9627,Cardio\nHP-8365,2026-09,Phone,PT-3662,Pain\nHP-6737,2026-09,Counter,PT-3271,Endocrine\nHP-5993,2026-09,Auto-Refill,PT-3262,Pain\nHP-9835,2026-09,Counter,PT-8220,Respiratory\nHP-7543,2026-09,Counter,PT-6916,Respiratory\nHP-6560,2026-09,Auto-Refill,PT-6075,Respiratory\nHP-9065,2026-09,Counter,PT-7565,Pain\nHP-2852,2026-09,App,PT-4940,Pain\nHP-7185,2026-09,Auto-Refill,PT-2897,Pain\nHP-7265,2026-09,Auto-Refill,PT-4378,Respiratory\nHP-4340,2026-09,Counter,PT-6005,Cardio\nHP-1063,2026-09,Counter,PT-2117,Respiratory\nHP-5548,2026-09,Counter,PT-2743,Respiratory\nHP-9371,2026-09,Phone,PT-4729,Respiratory\nHP-4258,2026-09,Auto-Refill,PT-7504,Cardio\nHP-8562,2026-09,Auto-Refill,PT-6265,Cardio\nHP-9469,2026-09,App,PT-9066,Cardio\nHP-7700,2026-09,Auto-Refill,PT-2637,Pain\nHP-6002,2026-09,App,PT-4059,Respiratory\nHP-3790,2026-09,App,PT-1736,Endocrine\nHP-8362,2026-09,App,PT-1906,Cardio\nHP-9699,2026-09,App,PT-1381,Endocrine\nHP-4233,2026-09,Auto-Refill,PT-4548,Cardio\nHP-6888,2026-09,App,PT-1568,Endocrine\nHP-9621,2026-09,Counter,PT-9101,Endocrine\nHP-1057,2026-09,Auto-Refill,PT-9659,Pain\nHP-7376,2026-09,Counter,PT-8246,Pain\nHP-7977,2026-09,App,PT-6610,Pain\nHP-7639,2026-09,Phone,PT-5498,Cardio\nHP-6505,2026-09,Counter,PT-2934,Endocrine\nHP-2109,2026-09,App,PT-3829,Pain\nHP-9072,2026-09,Auto-Refill,PT-2560,Endocrine\nHP-5057,2026-09,Counter,PT-4638,Pain\nHP-5765,2026-09,Phone,PT-7548,Respiratory\nHP-1340,2026-09,Counter,PT-4821,Pain\nHP-7668,2026-09,Phone,PT-9110,Respiratory\nHP-3557,2026-09,Auto-Refill,PT-8369,Respiratory\nHP-7509,2026-09,Phone,PT-7191,Respiratory\nHP-5427,2026-09,Auto-Refill,PT-3762,Endocrine\nHP-3918,2026-09,Phone,PT-4796,Cardio\nHP-2202,2026-09,App,PT-4862,Endocrine\nHP-1165,2026-09,Counter,PT-5647,Cardio\nHP-6725,2026-09,Counter,PT-8578,Pain\nHP-5334,2026-09,Auto-Refill,PT-9962,Cardio\nHP-7736,2026-09,Auto-Refill,PT-7383,Cardio\nHP-9916,2026-09,App,PT-4471,Endocrine\nHP-5975,2026-09,Phone,PT-8400,Cardio\nHP-3491,2026-09,App,PT-5225,Pain\nHP-6560,2026-09,Auto-Refill,PT-6075,Respiratory\nHP-5427,2026-09,Auto-Refill,PT-3762,Endocrine\nHP-9916,2026-09,App,PT-4471,Endocrine\nHP-4110,2026-09,Counter,PT-3648,Pain\n",
+      "README.md": "# Hartwell Pharmacy - September refill log\n\nOne row per dispensed refill. patient_code identifies the patient; when\nthe nightly export job retried, some refills were written to the file\nmore than once.\n",
+      "notes/front.txt": "Front notes\n- Cold chain bag goes back to the fridge at noon.\n- The delivery driver signs the grey ledger.\n"
+   },
+   "turns": [
+      {
+         "prompt": "Hartwell Pharmacy is auditing its September refill queue. The refill export is at data/refills_2026-09.csv. Give the number alone, as digits, with no label. How many different patients had refills on the Auto-Refill channel in September 2026?",
+         "expect": {
+            "expected_number": 33.0,
+            "tolerance": 0.01,
+            "required_tools": [
+               "data_query"
+            ]
+         }
+      }
+   ],
+   "expect": {
+      "max_calls": {
+         "read_file": 1
+      }
+   }
+}

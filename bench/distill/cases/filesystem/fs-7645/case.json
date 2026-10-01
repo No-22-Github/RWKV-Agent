@@ -1,0 +1,47 @@
+{
+  "id": "fs-7645",
+  "description": "Count valid ledger-type exports in the night-export directory, ignoring the voided subdirectory. DISTILL-CANARY-12300135",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "count_by_type",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 5
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-fs-b06-typemark-count-01",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 1047,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {
+    "导出/export_0081.txt": "类型：台账\n日期：2026-08-12\n计量点,上月示数,本月示数\n一号变,50210,51340\n二号变,38705,39912\n",
+    "导出/export_0082.txt": "类型：日报\n日期：2026-08-19\n本日抄见电量合计：4205\n异常记录：无\n",
+    "导出/export_0083.txt": "类型：台账\n日期：2026-08-19\n计量点,上月示数,本月示数\n三号变,61480,62903\n四号变,29554,30211\n",
+    "导出/export_0084.txt": "类型：通知\n日期：2026-08-25\n关于月底停电检修的安排另行通知。\n",
+    "导出/export_0085.txt": "类型：台账\n日期：2026-08-26\n计量点,上月示数,本月示数\n五号变,47266,48105\n六号变,51830,52984\n",
+    "导出/作废/export_0077.txt": "类型：台账\n日期：2026-08-05\n计量点,上月示数,本月示数\n一号变,49880,50210\n二号变,38022,38705\n（本批示数有误，已回滚重导。）\n",
+    "导出/作废/export_0078.txt": "类型：日报\n日期：2026-08-06\n本日抄见电量合计：4087\n异常记录：无\n（本批已回滚重导。）\n",
+    "README.md": "泉山计量站：老库房系统的夜间导出。每份导出文件的首行是类型戳，写明这份导出的种类（类型：台账、类型：日报等）。\n导出/作废 子目录里是当月已回滚的导出，不属于有效导出。\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "计量站想知道 8 月这批夜间导出里，有效的设备台账导出有几份。导出文件都在 导出 目录下。一共几份？（只回答数字，不要单位。）",
+      "expect": {
+        "expected_number": 3,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

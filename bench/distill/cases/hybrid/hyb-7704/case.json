@@ -1,0 +1,64 @@
+{
+  "id": "hyb-7704",
+  "description": "Multi-turn Hangzhou backlog quantity for a stationer, re-cut to the wholesale channel. DISTILL-CANARY-71c9f4b2",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 380
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b07-scopecut-02",
+    "ref_calls": 3,
+    "fixture_bytes": 832,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "orders/backlog-2026-09.csv": "order_id,channel,city,customer,qty\nDY-2001,批发,杭州,纸飞机文具,88\nDY-2002,零售,杭州,散单,34\nDY-2004,批发,杭州,蓝格子文创,50\nDY-2006,零售,宁波,散单,26\nDY-2008,批发,绍兴,纸飞机文具,19\nDY-2010,零售,杭州,散单,42\nDY-2012,批发,杭州,纸飞机文具,44\nDY-2002,零售,杭州,散单,34\nDY-2015,零售,杭州,散单,18\nDY-2017,批发,杭州,纸飞机文具,58\nDY-2019,零售,嘉兴,散单,31\nDY-2021,批发,杭州,蓝格子文创,12\n",
+    "README.md": "# 澜溪文具 九月在途订单\n\n每行一张在途订单，含渠道、收货城市与件数。月初导出任务重试过一次，\n同一订单可能以完全相同的两行出现。\n",
+    "notes/channel-codes.md": "# 渠道说明\n\n批发（WS）：面向文具店、文创店的整箱订单，客户列记店铺名。\n零售（RE）：门店与电商散单，客户列记「散单」。\n"
+  },
+  "turns": [
+    {
+      "prompt": "澜溪文具在对九月账款。九月在途订单里发往杭州的一共多少件？只回数字。",
+      "expect": {
+        "expected_number": 346,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "口径改成只看批发渠道：杭州的批发件数一共多少？直接回数字就行。",
+      "expect": {
+        "expected_number": 252,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "批发渠道里，九月在杭州下订单最多的是哪家客户？把店名告诉我就行。",
+      "expect": {
+        "output_contains": [
+          "纸飞机文具"
+        ]
+      }
+    },
+    {
+      "prompt": "这家客户九月杭州的批发件数一共多少？只回数字。",
+      "expect": {
+        "expected_number": 190,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

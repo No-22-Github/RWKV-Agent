@@ -1,0 +1,54 @@
+{
+  "id": "cfg-7170",
+  "description": "Effective max_advance_booking_days at Wellmouth Clinics, where the documented regional layer and the rolled-back build disagree. DISTILL-CANARY-47d5e3f6",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-PRECEDENCE"
+    ],
+    "trap_decoys": {
+      "TR-PRECEDENCE": "90"
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b06-wellmouth-booking",
+    "ref_calls": 3,
+    "fixture_bytes": 760,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Wellmouth Clinics - scheduling config\n\nThe booking system layers config/scheduling-regional.json over config/scheduling-live.json: a key set in the regional file wins for the clinic group.\n\nDeploy history is kept in docs/deploy-notes.md.\n",
+    "config/scheduling-live.json": "{\n  \"service\": \"scheduling\",\n  \"max_advance_booking_days\": 60,\n  \"slot_length_min\": 20,\n  \"reminder_hours_before\": 24\n}\n",
+    "config/scheduling-regional.json": "{\n  \"max_advance_booking_days\": 90,\n  \"slot_length_min\": 15,\n  \"cancellation_cutoff_hours\": 4\n}\n",
+    "docs/deploy-notes.md": "# Deploy notes\n\n- 2026-09-02: production scheduler rolled back to build 412 after the booking-spike incident. Build 412 predates the regional layer and reads scheduling-live.json only; the regional rollout is re-planned but not scheduled.\n- 2026-08-27: regional layer config merged for the autumn pilot.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Wellmouth Clinics' front desk is training new staff and needs the effective max_advance_booking_days for the appointment system. What is it?",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "max_advance_booking_days",
+          "advance booking",
+          "booking window"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

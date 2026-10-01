@@ -18,10 +18,11 @@
     "ref_calls": 3,
     "scenario": "tabular",
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "fixture_bytes": 3216
+    "fixture_bytes": 3216,
+    "answer_style": "value"
   },
   "web_fixture": [],
   "files": {
@@ -31,7 +32,7 @@
   },
   "turns": [
     {
-      "prompt": "Coedwig Firewood invoices its trade customers by the pack. What was the total value of the packs ordered by Marlpit Nurseries in August 2026? Give the amount as a number of pounds and pence. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Coedwig Firewood invoices its trade customers by the pack. What was the total value of the packs ordered by Marlpit Nurseries in August 2026? Give the amount as a number of pounds and pence. Reply with only the final answer.",
       "expect": {
         "expected_number": 1705.0,
         "tolerance": 0.01

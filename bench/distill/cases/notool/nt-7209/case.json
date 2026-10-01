@@ -1,0 +1,49 @@
+{
+  "id": "nt-7209",
+  "description": "Parting words before catching the last shuttle; reply directly without any tool call. DISTILL-CANARY-874b1127",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-smalltalk-02",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 184
+  },
+  "web_fixture": [],
+  "files": {
+    "runs/runs_2026-10-12.csv": "run,depart,seats_left\n末班,21:40,6\n",
+    "README.md": "# 快马通勤车队 - 调度工作区\n\n班车排班和每日运行记录都放在这里。\n\n- runs/  班次与发车记录\n- notes/  调度备注\n"
+  },
+  "turns": [
+    {
+      "prompt": "先这样，我去赶 21:40 的末班车啦，回见！",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "回见",
+          "再见",
+          "拜拜",
+          "明天见",
+          "慢走",
+          "注意"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "id": "log-7285",
+  "description": "GATE_ALARM events on 13-14 September in a sluice log volume that ends on 12 September. DISTILL-CANARY-95f75000",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "02:14"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-log-b06-shazhou-window",
+    "ref_calls": 3,
+    "fixture_bytes": 1322,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 沙洲闸站 - 闸门运行日志\n\n闸站遥测日志按半月滚动：上半月在 sluice-2026-09a.jsonl，下半月写入 sluice-2026-09b.jsonl，由站内归档机保存，未同步到本工作区。\n\n事件：GATE_CYCLE_OK（启闭到位）、GATE_ALARM / GATE_ALARM_CLEAR（闸门异常与恢复）、LEVEL_REPORT（水位上报）、collector_start / archive_stop（采集起止）。\n",
+    "logs/sluice-2026-09a.jsonl": "{\"ts\": \"2026-09-01T00:00:12+08:00\", \"level\": \"INFO\", \"event\": \"collector_start\", \"detail\": \"sluice telemetry col-01\"}\n{\"ts\": \"2026-09-03T06:10:41+08:00\", \"level\": \"INFO\", \"event\": \"GATE_CYCLE_OK\", \"detail\": \"gate 2 full open 12m\"}\n{\"ts\": \"2026-09-05T14:22:18+08:00\", \"level\": \"INFO\", \"event\": \"LEVEL_REPORT\", \"detail\": \"upstream 5.84m\"}\n{\"ts\": \"2026-09-08T09:31:55+08:00\", \"level\": \"INFO\", \"event\": \"GATE_CYCLE_OK\", \"detail\": \"gate 1 pass 3m\"}\n{\"ts\": \"2026-09-10T02:14:07+08:00\", \"level\": \"WARN\", \"event\": \"GATE_ALARM\", \"detail\": \"gate 3 position drift 0.4m\", \"ack\": \"duty\"}\n{\"ts\": \"2026-09-10T08:40:29+08:00\", \"level\": \"INFO\", \"event\": \"GATE_ALARM_CLEAR\", \"detail\": \"gate 3 nominal\"}\n{\"ts\": \"2026-09-11T16:05:33+08:00\", \"level\": \"INFO\", \"event\": \"LEVEL_REPORT\", \"detail\": \"upstream 6.02m\"}\n{\"ts\": \"2026-09-12T23:58:00+08:00\", \"level\": \"INFO\", \"event\": \"archive_stop\", \"detail\": \"half-month rollover, next file sluice-2026-09b\"}\n"
+  },
+  "turns": [
+    {
+      "prompt": "沙洲闸站的值班记录要查 9 月 14 日夜里的闸门异常，帮我看看 9 月 13 日到 14 日这两天有没有 GATE_ALARM 事件，几点触发、是几号闸门？",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "GATE_ALARM",
+          "gate alarm",
+          "闸门异常"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

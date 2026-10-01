@@ -21,7 +21,8 @@
     "status": "draft",
     "version": 1,
     "author": "llm:claude-opus-5-5",
-    "reviewer": null
+    "reviewer": null,
+    "answer_style": "unknown"
   },
   "files": {},
   "web_fixture": [

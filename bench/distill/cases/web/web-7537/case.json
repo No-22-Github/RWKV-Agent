@@ -1,0 +1,52 @@
+{
+  "id": "web-7537",
+  "description": "Pin the current stable Fernwave PDF toolkit version from the vendor changelog. DISTILL-CANARY-e9afbd91",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "VER"
+    ],
+    "level": "L0",
+    "family": "fam-web-b06-fernwave",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "fernwave",
+      "url": "https://docs.fernwave.example/changelog",
+      "url_match": "docs.fernwave.example/changelog",
+      "title": "Fernwave PDF toolkit - changelog",
+      "snippet": "Release history for the Fernwave PDF toolkit; the download page always serves the current stable build.",
+      "content": "# Changelog - Fernwave PDF toolkit\n\nCurrent stable: 3.14.2 (2026-09-05)\n\n## 3.14.2 (2026-09-05)\n\nFixes a form-field flattening bug on scanned contracts.\n\n## 3.13.0 (2026-06-18)\n\nAdds batch watermarking.\n\n## 3.12.4 (2026-03-02)\n\nMaintenance release.\n",
+      "published_at": "2026-09-05"
+    },
+    {
+      "query_match": "fernwave",
+      "url": "https://www.fernwave.example/download",
+      "url_match": "www.fernwave.example/download",
+      "title": "Download Fernwave PDF toolkit",
+      "snippet": "Installers for macOS, Windows and Linux.",
+      "content": "# Download\n\nThe installer bundles the current stable build and\nverifies its signature on first run.\n",
+      "published_at": "2026-08-30"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "Our IT checklist wants one Fernwave PDF toolkit version pinned for every new workstation. Give the version alone, in the form 1.2.3. Which version string should we pin?",
+      "expect": {
+        "output_equals": "3.14.2"
+      }
+    }
+  ]
+}

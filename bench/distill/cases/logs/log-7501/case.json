@@ -1,0 +1,55 @@
+{
+  "id": "log-7501",
+  "description": "Three-turn Chinese session on a gateway access log: count 5xx requests, rescope to /checkout, then exclude the load-test subnet. DISTILL-CANARY-2f7ac809",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 17
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-b07-kestrel-edge-01",
+    "ref_calls": 4,
+    "fixture_bytes": 2714,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "logs/edge-access.log": "2026-09-28T21:33:41Z req-6102 10.201.4.12 POST /checkout 502 pay-core 84ms\n2026-09-28T21:34:20Z req-6103 10.201.6.90 GET /api/search 200 search-svc 71ms\n2026-09-28T21:35:01Z req-6104 10.201.3.14 GET /api/items 200 items-svc 19ms\n2026-09-28T21:36:02Z req-6107 10.42.7.19 POST /checkout 504 pay-core 301ms\n2026-09-28T21:36:47Z req-6108 10.201.8.52 GET /api/cart 200 cart-svc 33ms\n2026-09-28T21:37:29Z req-6109 10.201.2.77 POST /api/cart 201 cart-svc 55ms\n2026-09-28T21:38:55Z req-6111 10.201.9.64 GET /api/search 500 search-svc 92ms\n2026-09-28T21:39:31Z req-6112 10.201.6.90 GET /healthz 200 health-probe 4ms\n2026-09-28T21:40:12Z req-6113 10.201.3.14 GET /api/items 200 items-svc 21ms\n2026-09-28T21:44:10Z req-6115 10.201.4.12 POST /checkout 502 pay-core 88ms\n2026-09-28T21:44:10Z req-6115 10.201.4.12 POST /checkout 502 pay-core 88ms\n2026-09-28T21:45:02Z req-6116 10.201.8.52 GET /api/search 200 search-svc 80ms\n2026-09-28T21:46:33Z req-6118 10.201.6.90 POST /checkout 201 pay-core 188ms\n2026-09-28T21:48:37Z req-6121 10.201.2.77 GET /healthz 503 health-probe 9ms\n2026-09-28T21:49:14Z req-6122 10.201.3.14 GET /api/items 200 items-svc 17ms\n2026-09-28T21:51:09Z req-6123 10.201.7.31 POST /api/cart 500 cart-svc 66ms\n2026-09-28T21:52:40Z req-6125 10.201.9.64 GET /api/search 200 search-svc 77ms\n2026-09-28T21:55:44Z req-6128 10.42.3.88 POST /checkout 502 pay-core 296ms\n2026-09-28T21:55:44Z req-6128 10.42.3.88 POST /checkout 502 pay-core 296ms\n2026-09-28T21:57:21Z req-6129 10.201.7.31 GET /api/cart 200 cart-svc 29ms\n2026-09-28T22:00:12Z req-6130 10.201.9.64 GET /api/search 502 search-svc 95ms\n2026-09-28T22:01:48Z req-6131 10.201.6.90 POST /api/cart 201 cart-svc 52ms\n2026-09-28T22:04:51Z req-6134 10.201.4.12 POST /checkout 504 pay-core 288ms\n2026-09-28T22:06:15Z req-6136 10.201.2.77 GET /api/items 200 items-svc 23ms\n2026-09-28T22:09:26Z req-6139 10.201.5.90 GET /healthz 503 health-probe 8ms\n2026-09-28T22:13:03Z req-6142 10.201.7.31 POST /api/cart 502 cart-svc 70ms\n2026-09-28T22:15:39Z req-6144 10.201.8.52 GET /api/search 200 search-svc 83ms\n2026-09-28T22:18:40Z req-6147 10.201.9.64 GET /api/search 500 search-svc 91ms\n2026-09-28T22:24:18Z req-6151 10.201.4.12 POST /checkout 502 pay-core 86ms\n2026-09-28T22:24:18Z req-6151 10.201.4.12 POST /checkout 502 pay-core 86ms\n2026-09-28T22:26:05Z req-6153 10.201.5.90 GET /api/items 200 items-svc 20ms\n2026-09-28T22:29:55Z req-6155 10.201.6.23 GET /api/items 500 items-svc 43ms\n",
+    "README.md": "# Kestrel Retail 边缘网关访问日志（2026-09-28 晚）\n\n字段顺序：时间 请求编号 客户端IP 方法 路径 状态码 上游服务 耗时。\n导出作业当晚重试过两次，个别请求会以完全相同的行出现多次；请求编号唯一标识一笔请求。\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "Kestrel Retail 的边缘网关昨晚出过一波 5xx。logs/edge-access.log 是当晚的访问日志：返回 5xx 的请求一共有多少笔？",
+      "expect": {
+        "expected_number": 14.0,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "口径改一下：只看 /checkout 这个路径的 5xx，有多少笔？",
+      "expect": {
+        "expected_number": 6.0,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "不对，里面混了内网压测机的流量——来源 IP 是 10.42. 开头的那部分不算，/checkout 的 5xx 还有几笔？",
+      "expect": {
+        "expected_number": 4.0,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

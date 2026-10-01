@@ -1,0 +1,41 @@
+{
+  "id": "cfg-7153",
+  "description": "Shorten the archive retention on the playout host config. DISTILL-CANARY-dc0b98b7",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-cfg-b06-pinegrove",
+    "ref_calls": 2,
+    "fixture_bytes": 337,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/playout.yaml": "# Pinegrove Community Radio - playout host pg-01\nstream:\n  bitrate_kbps: 128\n  buffer_ms: 2000\n  fallback: vault_reel\narchive:\n  root: /srv/audio/archive\n  retention_days: 60\n  verify_passes: 1\n",
+    "README.md": "# Pinegrove Community Radio - playout host pg-01\n\nconfig/playout.yaml is the playout host's policy file, edited in\nplace by the duty engineer.\n"
+  },
+  "expect": {
+    "files": {
+      "config/playout.yaml": {
+        "equals": "# Pinegrove Community Radio - playout host pg-01\nstream:\n  bitrate_kbps: 128\n  buffer_ms: 2000\n  fallback: vault_reel\narchive:\n  root: /srv/audio/archive\n  retention_days: 45\n  verify_passes: 1\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Pinegrove Community Radio is short on disk: cut the archive retention on pg-01 to 45 days in config/playout.yaml and leave the rest of the file alone. When you are done, describe in two or three sentences what you changed.",
+      "expect": {}
+    }
+  ]
+}

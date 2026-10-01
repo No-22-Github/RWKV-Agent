@@ -1,0 +1,48 @@
+{
+  "id": "hyb-7742",
+  "description": "拾光冲印两轮会话：先统计 4 月彩色胶卷冲洗量（表尾有合计行），道谢后追问 5 月黑白卷。 DISTILL-CANARY-d09b47ea",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-HEADER": 215
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b07-filmlab-01",
+    "ref_calls": 2,
+    "fixture_bytes": 384,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 拾光冲印 · 冲洗台账\n\n一行一个月份、类型、门店的当月汇总，卷数为冲洗完成的胶卷数。\n表末的「合计」行汇总全部月份与类型，该行的月份、类型、门店为空。\n",
+    "logs/develops.csv": "月份,类型,门店,卷数\n4,彩色,中山路,42\n4,彩色,湖滨,36\n4,黑白,中山路,18\n5,彩色,中山路,55\n5,黑白,湖滨,29\n5,彩色,湖滨,35\n合计,,,215\n"
+  },
+  "turns": [
+    {
+      "prompt": "帮我数数 4 月彩色胶卷一共冲了多少卷，记录在 logs/develops.csv。只回答数字。",
+      "expect": {
+        "expected_number": 78,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "好嘞，多谢！再帮我确认一下：5 月的黑白卷冲了多少？只回答数字。",
+      "expect": {
+        "expected_number": 29,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

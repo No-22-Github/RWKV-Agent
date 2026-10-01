@@ -1,0 +1,51 @@
+{
+  "id": "log-7612",
+  "description": "总结民宿门锁刷卡日志（中文）；装修楼层培训卡刷卡是诱饵。 DISTILL-CANARY-25829f88",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "9 次"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-b07-countdecoy-01",
+    "ref_calls": 3,
+    "fixture_bytes": 657,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:distill-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "logs/doorlock-0912.log": "2026-09-12 08:03 房卡 F-2213 201 房 开门 成功\n2026-09-12 08:40 房卡 F-2213 201 房 开门 成功\n2026-09-12 09:15 培训卡 X-0070 402 房 开门 成功 培训\n2026-09-12 11:02 房卡 F-3305 305 房 开门 成功\n2026-09-12 14:26 房卡 F-2213 201 房 开门 成功\n2026-09-12 16:45 房卡 F-1188 208 房 开门 成功\n2026-09-12 19:30 房卡 F-3305 305 房 开门 成功\n2026-09-12 22:18 房卡 F-2213 201 房 开门 成功\n",
+    "README.md": "云栖山房民宿门锁审计说明（9 月 12 日）。\n\nX 开头的培训卡由管家部使用，只刷四楼 401–406；四楼正在装修，\n这些刷卡是员工培训演练。住客活动只看 F 开头的房卡。\n"
+  },
+  "turns": [
+    {
+      "prompt": "云栖山房民宿前台的门锁记录导出来了，是 9 月 12 日这天的。帮我整理一下：住客开锁一共多少次、哪间房进出最多、有没有什么异常值得跟店长说一声。",
+      "expect": {
+        "output_contains": [
+          "7 次",
+          "201 房",
+          "X-0070"
+        ],
+        "output_contains_any": [
+          "7 次",
+          "201 房",
+          "X-0070"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "id": "cfg-7150",
+  "description": "Append the day's completed pump-out runs to the harbour service log. DISTILL-CANARY-2e218e1b",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 3
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b06-pumplock",
+    "ref_calls": 4,
+    "fixture_bytes": 789,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "logs/service.log": "2026-09-14 09:40 PUMPOUT slip C4 \"Merganser\" 210 gal COMPLETE operator L. Voss\n2026-09-19 15:05 PUMPOUT slip C4 \"Merganser\" 180 gal COMPLETE operator L. Voss\n2026-09-24 11:20 PUMPOUT slip B1 \"Kittiwake\" ABORTED tank valve stuck operator L. Voss\n",
+    "notes/ticket-2026-09-28.txt": "Pump-out tickets 2026-09-28, duty operator L. Voss\nSlip B7 \"Puffin\" 150 gal - completed 10:15\nSlip C2 \"Teal\" 190 gal - completed 13:40\nSlip B1 \"Kittiwake\" - aborted again, valve engineer booked\n",
+    "README.md": "# Pumplock Harbourmaster - pump-out service log\n\nlogs/service.log takes one line per run:\n\n    <date> <time> PUMPOUT slip <slip> \"<boat>\" <gal> gal COMPLETE operator <name>\n\nOnly completed runs are logged; aborted runs wait until they are\nre-run. Log lines carry the ticket sheet's date and the duty\noperator named on it. Tickets are kept in notes/.\n"
+  },
+  "expect": {
+    "files": {
+      "logs/service.log": {
+        "contains": [
+          "2026-09-14 09:40 PUMPOUT slip C4 \"Merganser\" 210 gal COMPLETE operator L. Voss",
+          "2026-09-28 10:15 PUMPOUT slip B7 \"Puffin\" 150 gal COMPLETE operator L. Voss",
+          "2026-09-28 13:40 PUMPOUT slip C2 \"Teal\" 190 gal COMPLETE operator L. Voss"
+        ]
+      },
+      "notes/ticket-2026-09-28.txt": {
+        "unchanged": true
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Pumplock Harbourmaster ran pump-outs on 2026-09-28; the ticket sheet is in notes/. Bring the service log in logs/ up to date in the house style, and leave the ticket sheet untouched. When you are done, describe in two or three sentences what you wrote.",
+      "expect": {}
+    }
+  ]
+}

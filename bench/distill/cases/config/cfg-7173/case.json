@@ -1,0 +1,55 @@
+{
+  "id": "cfg-7173",
+  "description": "Effective live_poll_interval_ms of the Qushui Academy live-classroom service, which neither config layer defines DISTILL-CANARY-9db92d9c",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "missing_keys",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": 800
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b06-qushui-academy",
+    "ref_calls": 3,
+    "fixture_bytes": 1131,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 曲水书院 - 直播课堂服务配置工作区\n\n`live-classroom` 承载书院的直播大课与课堂互动，助教端依赖它的轮询接口刷新答题与举手状态。\n\n配置分两层存放，生效顺序为：实例配置覆盖默认档案，同名键以实例配置里的值为准；实例配置没写的键回落到默认档案；两层都没有的键没有生效值。\n\n- config/live-classroom.json   生产实例的实例配置\n- config/liveclass-defaults.json   平台下发的默认档案\n\n配置由发布系统统一下发生效，变更记录见 docs/ta-notes.md。\n",
+    "config/live-classroom.json": "{\n  \"service\": \"live-classroom\",\n  \"campus\": \"qushui-main\",\n  \"listen_port\": 8443,\n  \"max_attendees\": 300,\n  \"whiteboard_preset\": \"ink\"\n}\n",
+    "config/liveclass-defaults.json": "{\n  \"listen_port\": 8080,\n  \"chat_flush_interval_ms\": 800,\n  \"recording_retention_days\": 180,\n  \"attendance_snapshot_s\": 90,\n  \"log_level\": \"warn\"\n}\n",
+    "docs/ta-notes.md": "# 助教值班备忘（摘录）\n\n- 直播大课开场前提前十分钟进教室，检查白板预设。\n- 学生反馈卡顿先看本地网络，再回报值班群，不要自行改服务配置。\n- 课堂回放按书院规定保留，到期自动清理。\n"
+  },
+  "turns": [
+    {
+      "prompt": "曲水书院的直播课堂服务 live-classroom 最近被反馈互动卡顿，助教想确认生效配置里 live_poll_interval_ms 现在是多少，帮我查一下。",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "live_poll_interval_ms",
+          "live poll interval",
+          "轮询间隔"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools",
+          "800"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+   "id": "tab-7550",
+   "description": "Crab value on 5 September 2026 for the operator that landed the most that day; one operator logs day-month-year dates DISTILL-CANARY-4f0dfe24",
+   "category": "tabular",
+   "tags": {
+      "scenario": "tabular",
+      "task_type": "rank",
+      "traps": [
+         "TR-DATEFMT"
+      ],
+      "trap_decoys": {
+         "TR-DATEFMT": 1818.7
+      },
+      "axes": [
+         "OBS"
+      ],
+      "level": "L1",
+      "family": "fam-tab-b06-saltmarsh-01",
+      "ref_calls": 3,
+      "fixture_bytes": 4915,
+      "status": "draft",
+      "version": 1,
+      "author": "llm:glm-5.3-flash-b06",
+      "reviewer": null,
+      "answer_style": "natural"
+   },
+   "web_fixture": [],
+   "files": {
+      "data/landings_2026-09.csv": "landing_id,landing_date,operator,value_gbp\nSC-2609607,03/09/2026,Pelican Bay,244.38\nSC-2609907,2026-09-08,Heron Crew,222.45\nSC-2609955,2026-09-04,Heron Crew,47.94\nSC-2609372,05/09/2026,Pelican Bay,407.46\nSC-2609204,2026-09-07,Gullwing,205.52\nSC-2609765,11/09/2026,Pelican Bay,158.26\nSC-2609532,2026-09-05,Heron Crew,232.22\nSC-2609607,2026-09-08,Gullwing,253.84\nSC-2609324,2026-09-05,Tern & Son,104.64\nSC-2609526,2026-09-08,Tern & Son,299.42\nSC-2609841,10/09/2026,Pelican Bay,218.79\nSC-2609838,10/09/2026,Pelican Bay,424.96\nSC-2609786,2026-09-12,Heron Crew,182.16\nSC-2609611,2026-09-04,Tern & Son,204.52\nSC-2609135,2026-09-10,Heron Crew,204.92\nSC-2609277,2026-09-05,Heron Crew,156.01\nSC-2609779,2026-09-05,Tern & Son,64.21\nSC-2609502,2026-09-05,Gullwing,185.86\nSC-2609415,05/09/2026,Pelican Bay,323.65\nSC-2609272,2026-09-07,Heron Crew,221.20\nSC-2609652,05/09/2026,Pelican Bay,435.09\nSC-2609452,2026-09-11,Gullwing,153.25\nSC-2609375,2026-09-12,Tern & Son,168.56\nSC-2609977,06/09/2026,Pelican Bay,291.97\nSC-2609674,2026-09-09,Gullwing,185.23\nSC-2609473,04/09/2026,Pelican Bay,328.01\nSC-2609523,2026-09-05,Gullwing,303.48\nSC-2609101,2026-09-05,Tern & Son,156.04\nSC-2609128,2026-09-05,Tern & Son,168.28\nSC-2609285,2026-09-09,Gullwing,194.21\nSC-2609789,2026-09-10,Tern & Son,49.09\nSC-2609872,02/09/2026,Pelican Bay,317.61\nSC-2609916,2026-09-08,Gullwing,115.22\nSC-2609271,2026-09-06,Tern & Son,121.28\nSC-2609763,2026-09-03,Gullwing,223.86\nSC-2609608,2026-09-07,Heron Crew,236.74\nSC-2609451,05/09/2026,Pelican Bay,265.44\nSC-2609359,2026-09-05,Gullwing,112.36\nSC-2609542,2026-09-11,Gullwing,310.36\nSC-2609506,09/09/2026,Pelican Bay,233.39\nSC-2609618,2026-09-03,Gullwing,164.79\nSC-2609745,2026-09-07,Gullwing,313.55\nSC-2609764,2026-09-09,Heron Crew,102.49\nSC-2609536,2026-09-01,Tern & Son,224.75\nSC-2609317,2026-09-02,Tern & Son,75.19\nSC-2609178,2026-09-10,Tern & Son,59.80\nSC-2609526,2026-09-05,Tern & Son,248.28\nSC-2609970,2026-09-05,Gullwing,42.37\nSC-2609683,2026-09-01,Gullwing,309.42\nSC-2609455,05/09/2026,Pelican Bay,289.85\nSC-2609604,2026-09-02,Heron Crew,205.59\nSC-2609611,2026-09-02,Heron Crew,122.90\nSC-2609118,2026-09-01,Heron Crew,291.91\nSC-2609676,2026-09-03,Tern & Son,267.12\nSC-2609372,2026-09-09,Tern & Son,160.19\nSC-2609452,2026-09-07,Heron Crew,301.01\nSC-2609645,2026-09-11,Heron Crew,255.03\nSC-2609273,05/09/2026,Pelican Bay,181.33\nSC-2609440,2026-09-03,Gullwing,115.04\nSC-2609448,2026-09-05,Tern & Son,143.07\nSC-2609718,2026-09-03,Gullwing,282.88\nSC-2609664,2026-09-09,Heron Crew,77.90\nSC-2609174,2026-09-08,Tern & Son,50.96\nSC-2609449,2026-09-05,Gullwing,271.98\nSC-2609663,2026-09-03,Heron Crew,61.46\nSC-2609473,05/09/2026,Pelican Bay,502.33\nSC-2609383,11/09/2026,Pelican Bay,319.37\nSC-2609112,02/09/2026,Pelican Bay,456.27\nSC-2609217,06/09/2026,Pelican Bay,183.92\nSC-2609904,09/09/2026,Pelican Bay,219.53\nSC-2609561,2026-09-12,Heron Crew,85.37\nSC-2609965,2026-09-04,Gullwing,84.50\nSC-2609655,2026-09-02,Heron Crew,265.82\nSC-2609828,2026-09-11,Tern & Son,194.06\nSC-2609425,05/09/2026,Pelican Bay,226.82\nSC-2609402,01/09/2026,Pelican Bay,441.14\nSC-2609420,2026-09-08,Tern & Son,165.96\nSC-2609715,05/09/2026,Pelican Bay,487.96\nSC-2609903,12/09/2026,Pelican Bay,242.52\nSC-2609365,2026-09-06,Heron Crew,225.31\nSC-2609352,2026-09-04,Gullwing,126.05\nSC-2609871,2026-09-05,Tern & Son,65.04\nSC-2609499,2026-09-05,Tern & Son,303.41\nSC-2609424,12/09/2026,Pelican Bay,271.08\nSC-2609203,2026-09-09,Tern & Son,108.84\nSC-2609120,05/09/2026,Pelican Bay,240.69\nSC-2609664,2026-09-09,Heron Crew,60.25\nSC-2609110,10/09/2026,Pelican Bay,157.96\nSC-2609983,2026-09-05,Tern & Son,178.11\nSC-2609914,10/09/2026,Pelican Bay,335.53\nSC-2609253,2026-09-05,Gullwing,90.28\nSC-2609826,2026-09-12,Tern & Son,125.57\nSC-2609311,2026-09-05,Tern & Son,75.36\nSC-2609940,03/09/2026,Pelican Bay,438.51\nSC-2609543,2026-09-11,Gullwing,89.88\nSC-2609783,05/09/2026,Pelican Bay,414.49\nSC-2609557,05/09/2026,Pelican Bay,402.37\nSC-2609971,2026-09-09,Tern & Son,191.59\nSC-2609446,05/09/2026,Pelican Bay,296.41\nSC-2609761,2026-09-04,Heron Crew,46.83\nSC-2609463,11/09/2026,Pelican Bay,173.06\nSC-2609948,2026-09-05,Gullwing,78.78\nSC-2609191,2026-09-05,Heron Crew,88.21\nSC-2609424,05/09/2026,Pelican Bay,215.70\nSC-2609754,2026-09-05,Heron Crew,300.43\nSC-2609803,2026-09-08,Gullwing,127.64\nSC-2609445,2026-09-05,Gullwing,239.60\nSC-2609324,2026-09-05,Tern & Son,312.26\nSC-2609760,01/09/2026,Pelican Bay,432.38\nSC-2609911,2026-09-10,Gullwing,183.26\nSC-2609406,2026-09-10,Tern & Son,123.64\nSC-2609818,2026-09-10,Tern & Son,86.25\nSC-2609720,08/09/2026,Pelican Bay,466.82\nSC-2609356,2026-09-12,Heron Crew,89.36\nSC-2609503,05/09/2026,Pelican Bay,333.16\nSC-2609965,2026-09-07,Tern & Son,147.51\nSC-2609192,03/09/2026,Pelican Bay,343.94\nSC-2609185,09/09/2026,Pelican Bay,248.98\n",
+      "README.md": "# Saltmarsh Charters - early September landings\n\nOne row per landed crab lot, valued at the quay. Pelican Bay writes\nlanding_date as DD/MM/YYYY; every other operator uses ISO YYYY-MM-DD.\n"
+   },
+   "turns": [
+      {
+         "prompt": "Saltmarsh Charters is settling the quay sheet. The landings log is at data/landings_2026-09.csv. Give the number alone, as digits, with no label. What was the crab value landed on 5 September 2026 by the operator that brought in the most that day?",
+         "expect": {
+            "expected_number": 5022.75,
+            "tolerance": 0.01,
+            "required_tools": [
+               "data_query"
+            ]
+         }
+      }
+   ],
+   "expect": {
+      "max_calls": {
+         "read_file": 1
+      }
+   }
+}

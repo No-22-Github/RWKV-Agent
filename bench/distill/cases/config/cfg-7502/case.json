@@ -1,0 +1,53 @@
+{
+  "id": "cfg-7502",
+  "description": "Which values win when prod.overlay.yaml is applied on app.yaml. DISTILL-CANARY-1b8f52a0",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "precedence",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "/tmp/relay-artifacts"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b07-precedence-01",
+    "ref_calls": 4,
+    "fixture_bytes": 337,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "config/app.yaml": "metrics: ws://metrics.bramblewick.internal/stream\nlog_level: info\nartifact_store: /tmp/relay-artifacts\ntrace_endpoint: http://collector.bramblewick.internal:4318\n",
+    "config/prod.overlay.yaml": "log_level: warn\nartifact_store: s3://bramblewick-prod-artifacts\n",
+    "config/README.md": "# Bramblewick relay config\n\nprod.overlay.yaml is applied on top of app.yaml; whichever key appears later wins.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Deploy review is tomorrow. Read the config folder and tell me which values actually apply in production and where each one comes from.",
+      "expect": {
+        "output_contains": [
+          "s3://bramblewick-prod-artifacts",
+          "warn",
+          "ws://metrics.bramblewick.internal/stream"
+        ],
+        "output_contains_any": [
+          "s3://bramblewick-prod-artifacts",
+          "warn",
+          "ws://metrics.bramblewick.internal/stream"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

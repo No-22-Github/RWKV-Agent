@@ -1,0 +1,54 @@
+{
+  "id": "scr-7702",
+  "description": "Repair the guesthouse room-board script that crashes on the monthly export's summary row. DISTILL-CANARY-7e2ad905",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_from_traceback",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "IndexError"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-scr-b06-lanyu",
+    "ref_calls": 4,
+    "fixture_bytes": 1645,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "board.py": "\"\"\"打印蓝屿民宿的每日房态看板。\n\nrooms/ 下的月度导出是前台系统的留档：一行一条预订，首行是表头，\n导出末尾还有前台系统自己加的一行小计。看板的版式是每天一行、\n按日期排序，最后加一行合计：\n\n    <日期>,<间夜>,<房费>\n    合计,<间夜>,<房费>\n\"\"\"\n\nimport csv\nimport glob\n\nrows = []\nfor path in sorted(glob.glob(\"rooms/*.csv\")):\n    with open(path, encoding=\"utf-8\") as handle:\n        rows.extend(list(csv.reader(handle))[1:])\n\nper_day = {}\nfor row in rows:\n    day = row[0]\n    nights = int(row[2])\n    fee = int(row[3])\n    old = per_day.get(day, (0, 0))\n    per_day[day] = (old[0] + nights, old[1] + fee)\n\ntotal_nights = 0\ntotal_fee = 0\nfor day in sorted(per_day):\n    nights, fee = per_day[day]\n    print(f\"{day},{nights},{fee}\")\n    total_nights += nights\n    total_fee += fee\nprint(f\"合计,{total_nights},{total_fee}\")\n",
+    "logs/board-2026-09.log": "蓝屿民宿 前台系统 夜间批处理\n2026-09-28 08:40 [warn] rooms/2026-08.csv 已按保留期清理，本次批处理跳过\n2026-09-28 08:40 [error] 看板生成中断，回溯如下：\nTraceback (most recent call last):\n  File \"board.py\", line 23, in <module>\n    fee = int(row[3])\nIndexError: list index out of range\n",
+    "README.md": "# 蓝屿民宿 - 每日房态看板\n\nboard.py 由夜间批处理调用，把 rooms/ 里的月度导出汇总成看板交给打印机。\n导出文件本身是前台系统的留档，批处理只读不写。\n",
+    "rooms/2026-09.csv": "日期,房型,间夜,房费\n2026-09-02,海景大床,2,3160\n2026-09-05,山景双床,1,980\n2026-09-05,海景大床,1,1580\n2026-09-12,庭院套房,2,2380\n2026-09-20,海景大床,3,4740\n小计,9,12840\n"
+  },
+  "expect": {
+    "files": {
+      "rooms/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "board.py",
+      "expected_stdout": "2026-09-02,2,3160\n2026-09-05,2,2560\n2026-09-12,2,2380\n2026-09-20,3,4740\n2026-10-03,3,3540\n2026-10-15,1,1190\n合计,13,17570",
+      "hidden_files": {
+        "rooms/2026-10.csv": "日期,房型,间夜,房费\n2026-10-03,海景大床,1,1580\n2026-10-03,山景双床,2,1960\n2026-10-15,庭院套房,1,1190\n小计,4,4730\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "蓝屿民宿前台的每日房态看板两天没出来了：夜间批处理跑 board.py 时中断，运行记录在 logs/board-2026-09.log。请把 board.py 修好，让看板恢复输出，之后 rooms/ 里新到的月度导出也要能照常汇总。rooms/ 里的导出是前台系统的留档，保持原样。完成后用两三句话说明你改了什么。",
+      "expect": {}
+    }
+  ]
+}

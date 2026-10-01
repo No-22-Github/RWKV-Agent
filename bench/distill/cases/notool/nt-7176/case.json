@@ -1,0 +1,38 @@
+{
+  "id": "nt-7176",
+  "description": "Convert a 3/8-inch seam allowance to millimetres for the cutting table. DISTILL-CANARY-2d678669",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b06-sewing-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 258
+  },
+  "web_fixture": [],
+  "files": {
+    "patterns/seam_allowance.csv": "part,allowance_in\n口袋,3/8\n侧缝,5/8\n领口,1/4\n底摆,1/2\n",
+    "README.md": "# 巧手缝纫工作室 - 纸样工作区\n\n客户纸样和缝份标注都放在这里。\n\n- patterns/  纸样缝份标注\n\n缝份口径：纸样上标注英寸，车间下料时换算成毫米。\n"
+  },
+  "turns": [
+    {
+      "prompt": "巧手缝纫工作室的纸样上，口袋部位的缝份标的是 3/8 英寸。车间下料要把缝份换算成毫米。这个缝份是多少毫米？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 9.525,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

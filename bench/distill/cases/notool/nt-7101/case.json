@@ -1,0 +1,42 @@
+{
+  "id": "nt-7101",
+  "description": "Convert a display cabinet's 27-inch width to centimetres for a product page; the answer comes from the fixed inch-to-centimetre definition. DISTILL-CANARY-a3f1c2d4",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 78.74
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-inchcm-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 296
+  },
+  "web_fixture": [],
+  "files": {
+    "spec/widths.csv": "item,width_in\nSW-3021,27\nSW-3022,31\nSW-3100,24\n",
+    "README.md": "# 青禾办公家具 - 电商运营工作区\n\n上架商品的详情页资料都放在这里。\n\n- spec/  在售款式的规格登记表\n- drafts/  详情页文案草稿\n\n运营规定：详情页尺寸栏统一用厘米填写，保留两位小数。\n"
+  },
+  "turns": [
+    {
+      "prompt": "青禾办公家具的电商详情页要上新一款展示柜，型号 SW-3021，规格表上标的宽度是 27 英寸。运营要求尺寸栏统一改用厘米。这款展示柜的宽度是多少厘米？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 68.58,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

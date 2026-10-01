@@ -1,0 +1,50 @@
+{
+   "id": "tab-7560",
+   "description": "September 2026 gap between service charges billed and receipts; one managing agent writes months as month/year DISTILL-CANARY-654a90c5",
+   "category": "tabular",
+   "tags": {
+      "scenario": "tabular",
+      "task_type": "reconcile",
+      "traps": [
+         "TR-DATEFMT"
+      ],
+      "trap_decoys": {
+         "TR-DATEFMT": 4825.99
+      },
+      "axes": [
+         "OBS"
+      ],
+      "level": "L1",
+      "family": "fam-tab-b06-brindlegate-01",
+      "ref_calls": 3,
+      "fixture_bytes": 6048,
+      "status": "draft",
+      "version": 1,
+      "author": "llm:glm-5.3-flash-b06",
+      "reviewer": null,
+      "answer_style": "natural"
+   },
+   "web_fixture": [],
+   "files": {
+      "data/charges_2026-09.csv": "charge_id,charge_month,property,fee_gbp\nBG-2609921,2026-09,Gate Farm,205.84\nBG-2609607,2026-09,Brindle House,122.59\nBG-2609488,2026-09,Mill Race,180.14\nBG-2609129,2026-09,Gate Farm,79.87\nBG-2609880,2026-09,Mill Race,169.68\nBG-2609372,2026-09,Brindle House,239.40\nBG-2609204,2026-09,Gate Farm,211.66\nBG-2609126,2026-09,The Stables,63.11\nBG-2609490,2026-09,Brindle House,303.87\nBG-2609843,2026-09,Gate Farm,311.80\nBG-2609882,2026-09,Brindle House,194.82\nBG-2609666,2026-09,Mill Race,303.88\nBG-2609793,2026-09,Gate Farm,146.61\nBG-2609396,2026-09,Gate Farm,256.65\nBG-2609669,2026-09,Brindle House,165.29\nBG-2609841,2026-09,Brindle House,104.27\nBG-2609440,2026-09,The Stables,87.04\nBG-2609786,2026-09,Mill Race,189.55\nBG-2609701,2026-09,Gate Farm,135.39\nBG-2609617,2026-09,Mill Race,279.24\nBG-2609135,2026-09,Mill Race,211.09\nBG-2609916,2026-09,Mill Race,119.33\nBG-2609277,2026-09,Mill Race,164.79\nBG-2609819,2026-09,The Stables,200.43\nBG-2609779,2026-09,The Stables,77.91\nBG-2609633,2026-09,Brindle House,261.29\nBG-2609850,2026-09,Mill Race,153.19\nBG-2609415,2026-09,Brindle House,179.37\nBG-2609272,2026-09,Mill Race,226.50\nBG-2609889,2026-09,Gate Farm,315.25\nBG-2609980,2026-09,Gate Farm,198.00\nBG-2609452,2026-09,Gate Farm,162.18\nBG-2609375,2026-09,The Stables,176.67\nBG-2609977,2026-09,Brindle House,156.68\nBG-2609674,2026-09,Gate Farm,192.45\nBG-2609157,2026-09,Gate Farm,167.91\nBG-2609683,2026-09,Mill Race,285.55\nBG-2609523,2026-09,Gate Farm,304.37\nBG-2609524,2026-09,Mill Race,270.54\nBG-2609653,2026-09,The Stables,55.42\nBG-2609128,2026-09,The Stables,176.41\nBG-2609663,2026-09,Gate Farm,223.37\nBG-2609917,2026-09,Gate Farm,283.17\nBG-2609789,2026-09,The Stables,63.60\nBG-2609117,2026-09,Brindle House,77.06\nBG-2609873,2026-09,Mill Race,58.86\nBG-2609212,2026-09,The Stables,121.13\nBG-2609171,2026-09,Gate Farm,146.27\nBG-2609640,2026-09,Gate Farm,97.30\nBG-2609763,2026-09,Gate Farm,229.01\nBG-2609429,2026-09,The Stables,175.50\nBG-2609124,2026-09,Mill Race,180.55\nBG-2609531,2026-09,The Stables,157.44\nBG-2609359,2026-09,Gate Farm,123.48\nBG-2609542,2026-09,Gate Farm,310.87\nBG-2609506,2026-09,Brindle House,114.72\nBG-2609264,2026-09,Gate Farm,64.36\nBG-2609794,2026-09,Mill Race,241.72\nBG-2609325,2026-09,Mill Race,199.35\nBG-2609764,2026-09,Mill Race,114.15\nBG-2609689,2026-09,Brindle House,159.65\nBG-2609536,2026-09,The Stables,229.85\nBG-2609228,2026-09,Brindle House,250.42\nBG-2609413,2026-09,Gate Farm,287.02\nBG-2609417,2026-09,Brindle House,282.51\nBG-2609526,2026-09,The Stables,252.12\nBG-2609674,2026-09,The Stables,89.55\nBG-2609322,2026-09,Brindle House,211.50\nBG-2609988,2026-09,Mill Race,100.45\nBG-2609455,2026-09,Brindle House,155.16\nBG-2609790,2026-09,Brindle House,109.53\nBG-2609604,2026-09,Mill Race,211.72\nBG-2609499,2026-09,Brindle House,303.56\nBG-2609117,2026-09,The Stables,188.59\nBG-2609511,2026-09,The Stables,217.21\nBG-2609305,2026-09,The Stables,59.79\n",
+      "data/receipts_2026-09.csv": "receipt_id,value_month,agent,amount_gbp\nBP-2609676,2026-09,Osgarby & Co,269.95\nBP-2609318,2026-09,Marlow Lettings,144.86\nBP-2609957,2026-09,Osgarby & Co,233.73\nBP-2609452,2026-09,Pennine Estates,302.03\nBP-2609645,2026-09,Pennine Estates,258.51\nBP-2609141,2026-09,Marlow Lettings,72.31\nBP-2609270,09/2026,Coble & Sons,90.25\nBP-2609440,2026-09,Marlow Lettings,126.02\nBP-2609448,2026-09,Osgarby & Co,152.55\nBP-2609988,09/2026,Coble & Sons,132.17\nBP-2609664,2026-09,Pennine Estates,90.87\nBP-2609516,09/2026,Coble & Sons,139.99\nBP-2609907,09/2026,Coble & Sons,155.76\nBP-2609449,2026-09,Marlow Lettings,274.55\nBP-2609900,09/2026,Coble & Sons,218.02\nBP-2609663,2026-09,Pennine Estates,75.31\nBP-2609373,2026-09,Marlow Lettings,204.98\nBP-2609677,2026-09,Osgarby & Co,291.05\nBP-2609383,09/2026,Coble & Sons,176.31\nBP-2609947,09/2026,Coble & Sons,263.56\nBP-2609786,2026-09,Osgarby & Co,58.28\nBP-2609217,09/2026,Coble & Sons,79.30\nBP-2609904,09/2026,Coble & Sons,104.80\nBP-2609561,2026-09,Pennine Estates,97.94\nBP-2609262,2026-09,Marlow Lettings,235.44\nBP-2609487,09/2026,Coble & Sons,170.30\nBP-2609828,2026-09,Osgarby & Co,200.81\nBP-2609312,2026-09,Pennine Estates,138.33\nBP-2609110,2026-09,Osgarby & Co,65.50\nBP-2609427,2026-09,Osgarby & Co,247.52\nBP-2609508,2026-09,Pennine Estates,158.69\nBP-2609424,09/2026,Coble & Sons,72.01\nBP-2609320,2026-09,Pennine Estates,84.51\nBP-2609365,2026-09,Pennine Estates,230.39\nBP-2609414,2026-09,Marlow Lettings,198.52\nBP-2609183,2026-09,Marlow Lettings,120.29\nBP-2609871,2026-09,Osgarby & Co,78.69\nBP-2609688,2026-09,Pennine Estates,78.98\nBP-2609499,2026-09,Osgarby & Co,304.29\nBP-2609291,2026-09,Osgarby & Co,65.88\nBP-2609692,2026-09,Osgarby & Co,265.07\nBP-2609203,2026-09,Osgarby & Co,120.15\nBP-2609120,09/2026,Coble & Sons,119.95\nBP-2609374,2026-09,Marlow Lettings,161.47\nBP-2609122,09/2026,Coble & Sons,248.23\nBP-2609911,09/2026,Coble & Sons,132.07\nBP-2609983,2026-09,Osgarby & Co,185.71\nBP-2609896,2026-09,Marlow Lettings,81.75\nBP-2609781,2026-09,Osgarby & Co,75.43\nBP-2609253,2026-09,Marlow Lettings,102.59\nBP-2609427,2026-09,Marlow Lettings,272.71\nBP-2609626,2026-09,Osgarby & Co,83.32\nBP-2609311,2026-09,Osgarby & Co,88.47\nBP-2609839,2026-09,Marlow Lettings,199.56\nBP-2609940,09/2026,Coble & Sons,261.63\nBP-2609543,2026-09,Marlow Lettings,102.21\nBP-2609982,2026-09,Marlow Lettings,67.87\nBP-2609165,2026-09,Marlow Lettings,121.94\nBP-2609662,2026-09,Pennine Estates,269.19\nBP-2609971,2026-09,Osgarby & Co,198.47\nBP-2609956,2026-09,Pennine Estates,57.88\nBP-2609597,2026-09,Osgarby & Co,100.45\nBP-2609526,09/2026,Coble & Sons,265.16\nBP-2609463,09/2026,Coble & Sons,71.52\nBP-2609241,2026-09,Marlow Lettings,212.29\nBP-2609383,2026-09,Osgarby & Co,315.55\nBP-2609276,2026-09,Pennine Estates,204.48\nBP-2609107,09/2026,Coble & Sons,116.89\nBP-2609612,2026-09,Marlow Lettings,195.11\nBP-2609754,2026-09,Pennine Estates,301.48\nBP-2609606,2026-09,Marlow Lettings,118.17\nBP-2609829,2026-09,Pennine Estates,308.48\n",
+      "README.md": "# Brindle Gate Properties - September service charges\n\ncharges file: one row per service charge raised in September.\nreceipts file: one row per payment received. Coble & Sons' export\nwrites value_month as MM/YYYY; every other agent writes YYYY-MM.\n"
+   },
+   "turns": [
+      {
+         "prompt": "Brindle Gate Properties is reconciling the September service charges. The charges and receipts exports are both in the workspace. Give the number alone, as digits, with no label. By how much did the September 2026 charges exceed the September 2026 receipts?",
+         "expect": {
+            "expected_number": 2008.07,
+            "tolerance": 0.01,
+            "required_tools": [
+               "data_query"
+            ]
+         }
+      }
+   ],
+   "expect": {
+      "max_calls": {
+         "read_file": 1
+      }
+   }
+}

@@ -1,0 +1,51 @@
+{
+  "id": "log-7617",
+  "description": "总结陶艺社电窑 CSV（中文），文件开头有两行标题、结尾有合计行；定位断路故障。 DISTILL-CANARY-ad10fdfe",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "locate_error",
+    "traps": [
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-HEADER": "6 条记录"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-b07-faultcsv-01",
+    "ref_calls": 3,
+    "fixture_bytes": 586,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:distill-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "exports/kiln-0530.csv": "拾青陶艺社 - 电窑运行记录\n2 号电窑 5 月 30 日窑次导出\n时间,阶段,代码,说明\n2026-05-30 08:02,预热,K-04,热电偶读数波动\n2026-05-30 09:15,升温,E-21,加热片 2 区断路\n2026-05-30 09:40,升温,E-21,加热片 2 区断路\n2026-05-30 10:05,降温,E-21,加热片 2 区断路\n2026-05-31 11:20,复检,E-21,2 区加热片更换\n6 条记录\n",
+    "README.md": "拾青陶艺社电窑导出说明。\n\n文件开头两行是标题，列名从第三行开始；结尾一行合计只统计本次\n导出的记录条数。K-04 是预热阶段的提示，E-21 是加热片故障代码。\n"
+  },
+  "turns": [
+    {
+      "prompt": "拾青陶艺社 2 号窑 5 月 30 日那窑没烧成，社里想弄清楚经过。帮我把导出的记录讲一讲：问题最早几点冒出来、是什么部件、最后怎么处理的。",
+      "expect": {
+        "output_contains": [
+          "09:15",
+          "E-21",
+          "加热片"
+        ],
+        "output_contains_any": [
+          "09:15",
+          "E-21",
+          "加热片"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

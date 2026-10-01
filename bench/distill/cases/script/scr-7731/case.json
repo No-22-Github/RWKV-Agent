@@ -1,0 +1,53 @@
+{
+  "id": "scr-7731",
+  "description": "Make the theatre's bar report run on standard-library-only runners while it prints the same report. DISTILL-CANARY-1b2b3fcc",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "stdlib_only",
+    "traps": [
+      "TR-NUMFMT"
+    ],
+    "trap_decoys": {
+      "TR-NUMFMT": "ValueError from int() on the comma amounts"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-scr-b06-kingsholt",
+    "ref_calls": 3,
+    "fixture_bytes": 1180,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "bar_totals.py": "\"\"\"Print the interval report for Kingsholt Theatre's bars.\n\nThe till exports land in bars/, one row per sale:\n\n    sale_date,bar,takings_pence\n\nThe takings column carries the till's own separators, so the\nreport reads it through pandas. The report prints one line per\nbar, in name order, followed by a totals line:\n\n    <bar>,<sales>,<pence>\n    TOTAL,<sales>,<pence>\n\"\"\"\n\nimport glob\n\nimport pandas as pd\n\nframes = []\nfor path in sorted(glob.glob(\"bars/*.csv\")):\n    frames.append(pd.read_csv(path, dtype={\"takings_pence\": str}))\n\ndf = pd.concat(frames)\ndf[\"pence\"] = df[\"takings_pence\"].str.replace(\",\", \"\", regex=False).astype(int)\nfor bar, group in df.groupby(\"bar\"):\n    print(f\"{bar},{len(group)},{int(group['pence'].sum())}\")\nprint(f\"TOTAL,{len(df)},{int(df['pence'].sum())}\")\n",
+    "bars/2026-09.csv": "sale_date,bar,takings_pence\n2026-09-03,Ivory Bar,\"8,240\"\n2026-09-03,Foyer Bar,\"3,115\"\n2026-09-10,Ivory Bar,\"9,860\"\n2026-09-17,Foyer Bar,\"4,720\"\n2026-09-17,Ivory Bar,\"6,530\"\n2026-09-24,Ivory Bar,\"11,205\"\n",
+    "README.md": "# Kingsholt Theatre - interval report\n\nbar_totals.py prints the interval report the duty manager reads out\nbetween shows. The kiosk terminal has no third-party packages;\nstandard library only.\n"
+  },
+  "expect": {
+    "files": {
+      "bars/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "bar_totals.py",
+      "expected_stdout": "Foyer Bar,3,13480\nIvory Bar,5,43145\nTOTAL,8,56625",
+      "hidden_files": {
+        "bars/2026-10.csv": "sale_date,bar,takings_pence\n2026-10-01,Ivory Bar,\"7,310\"\n2026-10-08,Foyer Bar,\"5,645\"\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The kiosk terminal at Kingsholt Theatre runs a bare Python install, and bar_totals.py leans on pandas, so the interval report stopped printing. Please rewrite bar_totals.py with the standard library alone so the report prints exactly as it does today, and keeps printing for the till exports that follow. The exports in bars/ stay as they are. When you are done, describe in two or three sentences what you changed.",
+      "expect": {}
+    }
+  ]
+}

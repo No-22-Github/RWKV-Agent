@@ -1,0 +1,40 @@
+{
+  "id": "cfg-7122",
+  "description": "Read the effective print_mode of a print shop press line from a flat YAML config. DISTILL-CANARY-ed01f25b",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-cfg-b06-hanshan-press",
+    "ref_calls": 1,
+    "fixture_bytes": 379,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/press-line.yaml": "paper_stock_alert_pct: 15\nprint_mode: duplex\nink_batch_check: on\nmax_copies_per_job: 200\nnight_shift_queue: hold\n",
+    "README.md": "# 寒山印务 - 前台复印线配置\n\n`config/press-line.yaml` 是前台复印打印一体机的生效配置，一行一个设置，井号开头的是备注行。\n\n机长排班与告警核对都以这份文件为准，设备面板上的临时选择不算配置。\n"
+  },
+  "turns": [
+    {
+      "prompt": "寒山印务前台那台复印打印一体机刚换过排队配置，机长想确认现在的出纸方式。生效配置在 config/press-line.yaml，现在的 print_mode 是双面（duplex）还是单面（simplex）？",
+      "expect": {
+        "output_contains_any": [
+          "duplex",
+          "双面"
+        ],
+        "output_excludes": [
+          "UNKNOWN"
+        ]
+      }
+    }
+  ]
+}

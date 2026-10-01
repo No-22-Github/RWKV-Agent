@@ -1,0 +1,38 @@
+{
+  "id": "nt-7120",
+  "description": "Shipping fee for a 2.5 kg parcel under a first-weight plus per-0.5-kg continued-weight tariff DISTILL-CANARY-01002247",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b06-express-fee-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 288
+  },
+  "web_fixture": [],
+  "files": {
+    "shipping/rates_2026.csv": "计费项,数值\n首重千克,1\n首重费用元,12\n续重计价单位千克,0.5\n每单位续重费用元,4\n",
+    "README.md": "# 半岛文具 - 电商发货工作区\n\n样品寄件运价和发货登记都在这里。\n\n- shipping/  快递运价登记表\n\n续重不足一个计价单位时按一个单位计。\n"
+  },
+  "turns": [
+    {
+      "prompt": "半岛文具要把一批文具样品寄给外地客户，包裹连包装重 2.5 千克。快递按首重 1 千克 12 元、续重每 0.5 千克加收 4 元计费。这单运费是多少元？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 24,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

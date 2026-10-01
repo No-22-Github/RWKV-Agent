@@ -1,0 +1,38 @@
+{
+  "id": "nt-7117",
+  "description": "Sheets of paper needed to print an 80-page flyer double-sided, one sheet carrying two pages DISTILL-CANARY-b800e9b5",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b06-duplex-print-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 237
+  },
+  "web_fixture": [],
+  "files": {
+    "jobs/print_2026-10-12.csv": "任务,页数,单双面\n传单,80,双面\n合同,26,单面\n画册,64,双面\n",
+    "README.md": "# 白鹭印务 - 生产工作区\n\n当日打印任务和纸张领用都在这里。\n\n- jobs/  打印任务台账\n\n双面打印一张纸正反两面各算一页。\n"
+  },
+  "turns": [
+    {
+      "prompt": "白鹭印务接了一批宣传传单，正文一共 80 页，客户要求双面打印，一张纸正反两面各算一页。打完这批传单要用多少张纸？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 40,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

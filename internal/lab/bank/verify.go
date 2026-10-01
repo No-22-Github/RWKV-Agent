@@ -782,6 +782,28 @@ func sabotageAndRerun(caseDir string, caseObj map[string]any, numbers []expected
 			"detail": label + " but verify.py still matches expect: " + mdetail,
 		})
 	}
+	if matched == nil {
+		// B-group script cases (§2.7): the judged quantity is
+		// expect.run.expected_stdout, which this re-run never compared — a
+		// verify.py that still printed the same stdout after the corruption
+		// was reported as "output diverged" without any comparison having
+		// happened. Re-compare it here: an unchanged stdout means the
+		// corruption never reached what the case judges.
+		runExpect, _ := caseObj["expect"].(map[string]any)
+		want, hasWant := anyMap(runExpect["run"])["expected_stdout"]
+		objMap, _ := obj.(map[string]any)
+		produced, hasProduced := objMap["expected_stdout"]
+		if hasWant && want != nil {
+			if hasProduced && jsonEqual(produced, want) {
+				return check("sabotage", false, map[string]any{
+					"error":  "sabotage_undetected",
+					"detail": label + " but verify.py still reports the same expected_stdout",
+				})
+			}
+			return check("sabotage", true, map[string]any{
+				"detail": label + "; expected_stdout diverged after sabotage (detected)"})
+		}
+	}
 	return check("sabotage", true, map[string]any{
 		"detail": label + "; output diverged: " + mdetail})
 }

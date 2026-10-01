@@ -1,0 +1,59 @@
+{
+  "id": "web-7523",
+  "description": "Pick the current concurrency quota behind a stale ranked blog post and a vague snippet. DISTILL-CANARY-a4d4dc67",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-WEBSTALE",
+      "TR-SNIPPETVAGUE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": 50,
+      "TR-SNIPPETVAGUE": 50
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L2",
+    "family": "fam-web-b06-yantai-geo",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "砚台",
+      "url": "https://gisnote.example/blog/yantai-qps",
+      "url_match": "gisnote.example/blog/yantai-qps",
+      "title": "砚台地理开放平台实测：批量接口并发这样调才不亏",
+      "snippet": "实测把并发开到 50 也能稳定出结果，文末附压测脚本。",
+      "published_at": "2026-03-14",
+      "content": "# 砚台地理开放平台实测笔记\n\n今年年初我们接入了砚台地理的逆地理编码接口。\n\n实测阶段我们把并发开到 50，跑了一整周也没有被限流。\n\n压测脚本放在文末，请注意控制预算。\n"
+    },
+    {
+      "query_match": "砚台",
+      "url": "https://geo.yantai.example/docs/quota",
+      "url_match": "geo.yantai.example/docs/quota",
+      "title": "砚台地理开放平台 · 配额说明",
+      "snippet": "各类接口的调用频次与并发说明，超限后的返回码。",
+      "published_at": "2026-08-02",
+      "content": "# 砚台地理开放平台 · 配额说明\n\n以下配额自 2026-08-01 起生效，此前发布的数值一律作废。\n\n逆地理编码 | 批量接口并发上限为 30\n路径规划 | 批量接口并发上限为 12\n静态地图 | 每秒请求数上限为 40\n\n超出并发上限时返回 429，请在客户端做退避。\n"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "砚台地理开放平台的逆地理编码批量接口有并发限制。只回答数字，不要单位。这个接口现在的并发上限是多少？",
+      "expect": {
+        "expected_number": 30,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

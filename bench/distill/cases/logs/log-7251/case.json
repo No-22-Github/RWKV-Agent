@@ -1,0 +1,35 @@
+{
+  "id": "log-7251",
+  "description": "Find the request path of the first ERROR entry in a school platform gateway log. DISTILL-CANARY-8538ce8e",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "locate_error",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-log-b06-firstfault",
+    "ref_calls": 1,
+    "fixture_bytes": 2932,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "api-gateway.log": "2026-09-29 08:20:05 INFO [接入网关] POST /api/course/list -> 200 8ms\n2026-09-29 08:21:12 INFO [接入网关] POST /api/user/login -> 200 21ms\n2026-09-29 08:22:19 INFO [接入网关] POST /api/homework/submit -> 200 34ms\n2026-09-29 08:23:26 INFO [接入网关] POST /api/live/enter -> 200 47ms\n2026-09-29 08:24:33 INFO [接入网关] POST /api/order/refund -> 200 60ms\n2026-09-29 08:25:40 INFO [接入网关] POST /api/course/list -> 200 73ms\n2026-09-29 08:26:47 INFO [接入网关] POST /api/user/login -> 200 86ms\n2026-09-29 08:27:54 INFO [接入网关] POST /api/homework/submit -> 200 9ms\n2026-09-29 08:28:01 INFO [接入网关] POST /api/live/enter -> 200 22ms\n2026-09-29 08:29:08 INFO [接入网关] POST /api/order/refund -> 200 35ms\n2026-09-29 08:30:15 INFO [接入网关] POST /api/course/list -> 200 48ms\n2026-09-29 08:31:22 INFO [接入网关] POST /api/user/login -> 200 61ms\n2026-09-29 08:32:29 INFO [接入网关] POST /api/homework/submit -> 200 74ms\n2026-09-29 08:33:36 INFO [接入网关] POST /api/live/enter -> 200 87ms\n2026-09-29 08:34:43 INFO [接入网关] POST /api/order/refund -> 200 10ms\n2026-09-29 08:35:50 INFO [接入网关] POST /api/course/list -> 200 23ms\n2026-09-29 08:36:57 INFO [接入网关] POST /api/user/login -> 200 36ms\n2026-09-29 08:37:04 INFO [接入网关] POST /api/homework/submit -> 200 49ms\n2026-09-29 08:38:11 INFO [接入网关] POST /api/live/enter -> 200 62ms\n2026-09-29 08:39:18 INFO [接入网关] POST /api/order/refund -> 200 75ms\n2026-09-29 08:40:25 INFO [接入网关] POST /api/course/list -> 200 88ms\n2026-09-29 08:41:32 INFO [接入网关] POST /api/user/login -> 200 11ms\n2026-09-29 08:42:39 INFO [接入网关] POST /api/homework/submit -> 200 24ms\n2026-09-29 08:43:46 INFO [接入网关] POST /api/live/enter -> 200 37ms\n2026-09-29 08:44:53 INFO [接入网关] POST /api/order/refund -> 200 50ms\n2026-09-29 08:45:00 INFO [接入网关] POST /api/course/list -> 200 63ms\n2026-09-29 08:47:21 ERROR [接入网关] POST /api/signin/batch -> 500 上游超时\n2026-09-29 08:47:24 INFO [接入网关] POST /api/user/login -> 200 31ms\n2026-09-29 08:49:02 WARN [接入网关] GET /api/course/list -> 429 触发限流\n2026-09-29 08:52:38 INFO [接入网关] POST /api/homework/submit -> 200 44ms\n2026-09-29 09:02:55 ERROR [接入网关] POST /api/homework/submit -> 502 网关错误\n2026-09-29 09:05:11 INFO [接入网关] POST /api/live/enter -> 200 27ms\n2026-09-29 09:09:47 WARN [接入网关] POST /api/user/login -> 429 触发限流\n2026-09-29 09:15:02 ERROR [接入网关] POST /api/live/enter -> 500 房间服务不可用\n2026-09-29 09:18:29 INFO [接入网关] GET /api/course/list -> 200 12ms\n2026-09-29 09:31:40 ERROR [接入网关] POST /api/signin/batch -> 500 上游超时\n2026-09-29 09:36:15 INFO [接入网关] POST /api/order/refund -> 200 58ms\n2026-09-29 09:40:03 INFO [接入网关] POST /api/user/login -> 200 22ms\n---- 日志导出完成：共 38 行 ----\n"
+  },
+  "turns": [
+    {
+      "prompt": "白鹭学堂的接入网关日志在 api-gateway.log，教研组想复盘昨天上午最早报出来的那个故障。回答时只写接口路径本身。日志中第一条级别为 ERROR 的记录请求的是哪个接口？",
+      "expect": {
+        "output_equals": "/api/signin/batch"
+      }
+    }
+  ]
+}

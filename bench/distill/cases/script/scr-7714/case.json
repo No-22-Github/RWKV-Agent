@@ -1,0 +1,57 @@
+{
+  "id": "scr-7714",
+  "description": "Repair the laundry monthly wash summary whose nightly run crashes on pieces cells left empty or dashed. DISTILL-CANARY-61f43d51",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_from_traceback",
+    "traps": [
+      "TR-MISSING"
+    ],
+    "trap_decoys": {
+      "TR-MISSING": "ValueError on the empty cell"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-scr-b06-jienuo",
+    "ref_calls": 4,
+    "fixture_bytes": 1388,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "wash.py": "\"\"\"打印洁诺洗衣的月度洗涤汇总。\n\n门店系统每晚把洗涤单导出到 slips/，一行一条：\n\n    日期,品类,件数\n\n汇总单每个品类一行、按品类名排序，末尾加一行合计：\n\n    <品类>,<件数>\n    合计,<件数>\n\n当天没有洗到的品类，件数一格是空格子或短横线，都按零计入。\n\"\"\"\n\nimport csv\nimport glob\n\nper_cat = {}\nfor path in sorted(glob.glob(\"slips/*.csv\")):\n    with open(path, newline=\"\", encoding=\"utf-8\") as handle:\n        for row in list(csv.reader(handle))[1:]:\n            cat = row[1]\n            pieces = int(row[2])\n            per_cat[cat] = per_cat.get(cat, 0) + pieces\n\ntotal = 0\nfor cat in sorted(per_cat):\n    print(f\"{cat},{per_cat[cat]}\")\n    total += per_cat[cat]\nprint(f\"合计,{total}\")\n",
+    "slips/2026-09.csv": "日期,品类,件数\n2026-09-03,春装,40\n2026-09-03,毛衣,25\n2026-09-08,皮具,18\n2026-09-14,毛衣,30\n2026-09-14,鞋靴,\n2026-09-21,春装,35\n2026-09-28,皮具,-\n",
+    "logs/夜批-2026-09-28.log": "洁诺洗衣 门店系统 夜间批处理\n2026-09-28 23:20 [error] 洗涤汇总生成失败，回溯如下：\nTraceback (most recent call last):\n  File \"wash.py\", line 23, in <module>\n    pieces = int(row[2])\nValueError: invalid literal for int() with base 10: ''\n",
+    "README.md": "# 洁诺洗衣 - 月度洗涤汇总\n\n门店系统每晚导出洗涤单到 slips/。当天没洗到的品类，件数一格是空格子\n或短横线，汇总时按零计入。\n"
+  },
+  "expect": {
+    "files": {
+      "slips/2026-09.csv": {
+        "unchanged": true
+      },
+      "logs/夜批-2026-09-28.log": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "wash.py",
+      "expected_stdout": "春装,75\n毛衣,83\n皮具,18\n鞋靴,12\n合计,188",
+      "hidden_files": {
+        "slips/2026-10.csv": "日期,品类,件数\n2026-10-09,毛衣,28\n2026-10-16,春装,-\n2026-10-23,鞋靴,12\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "洁诺洗衣的月度洗涤汇总没出来：夜间批处理跑 wash.py 中断，运行记录在 logs/夜批-2026-09-28.log。请把 wash.py 修好，让汇总恢复输出，往后 slips/ 里新到的洗涤单也能照常汇总。slips/ 里的洗涤单是门店系统的原始导出，保持原样。完成后用两三句话说明你改了什么。",
+      "expect": {}
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "id": "web-7563",
+  "description": "Current stable CR-40 firmware build behind a vague roundup snippet and last year's tested build. DISTILL-CANARY-756de73c",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-WEBSTALE",
+      "TR-SNIPPETVAGUE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "2.3.0",
+      "TR-SNIPPETVAGUE": "UNKNOWN"
+    },
+    "axes": [
+      "VER",
+      "LNG"
+    ],
+    "level": "L2",
+    "family": "fam-web-b06-cragwell-firmware",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "cragwell",
+      "url": "https://gearnotes.example/best-handhelds-2026",
+      "url_match": "gearnotes.example/best-handhelds-2026",
+      "title": "Best handheld marine radios we tested this year",
+      "snippet": "The Cragwell CR-40 earns our budget pick; our full test notes cover battery, waterproofing and the firmware situation.",
+      "content": "gearnotes.example - best handheld marine radios this year\n\nPublished 2026-01-11. The Cragwell CR-40 earns our budget pick. We ran our standard battery loop and dunk tests on firmware 2.3.0, the build the vendor shipped through most of last year; see the full test notes for the details.\n",
+      "published_at": "2026-01-11"
+    },
+    {
+      "query_match": "cragwell",
+      "url": "https://www.cragwellradio.example/cr40/firmware",
+      "url_match": "www.cragwellradio.example/cr40/firmware",
+      "title": "CR-40 firmware downloads - Cragwell Radio",
+      "snippet": "Firmware packages for the CR-40 handheld series.",
+      "content": "# CR-40 firmware downloads\n\ncr40-fw-2.7.4.pkg - current stable build (2026-08-12), fixes the DSC position send retry.\n\ncr40-fw-2.5.1.pkg - superseded stable build (2026-03-03).\n\ncr40-fw-2.3.0.pkg - archived build (2025-09-20).\n",
+      "published_at": "2026-08-12"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "Two CR-40 handhelds in our marina office came back from the repair shop on different builds, and I want both flash cards written with the same stable firmware. Which firmware version string should go on the cards? Give the version alone, in the form 1.2.3.",
+      "expect": {
+        "output_equals": "2.7.4"
+      }
+    }
+  ]
+}

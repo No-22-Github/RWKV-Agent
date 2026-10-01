@@ -1,0 +1,50 @@
+{
+  "id": "tab-7514",
+  "description": "June 2026 total for the drink line that earned the most; the line with the most tickets is a different one. DISTILL-CANARY-01b23231",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "rank",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 825.18
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b06-harborlight-pour-01",
+    "ref_calls": 2,
+    "fixture_bytes": 5220,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "data/cafe_register.csv": "ticket_id,sale_month,drink_line,size,sales\nHL-652,2026-06,Mocha,L,34.58\nHL-6872,2026-06,Cortado,M,33.29\nHL-2527,2026-06,Mocha,M,34.49\nHL-5683,2026-06,Cold Brew,L,23.81\nHL-8425,2026-06,Cold Brew,S,25.14\nHL-6518,2026-06,Cold Brew,M,27.34\nHL-4199,2026-06,Cold Brew,L,30.59\nHL-936,2026-06,Cold Brew,M,22.22\nHL-5046,2026-06,Cold Brew,S,26.89\nHL-1607,2026-06,Mocha,L,53.69\nHL-7211,2026-06,Oat Latte,L,76.50\nHL-2700,2026-06,Cold Brew,S,27.75\nHL-4803,2026-06,Oat Latte,M,63.75\nHL-6233,2026-05,Mocha,S,43.70\nHL-977,2026-06,Oat Latte,L,70.08\nHL-9751,2026-05,Oat Latte,S,66.56\nHL-2394,2026-06,Mocha,S,54.62\nHL-7540,2026-07,Mocha,M,39.43\nHL-2585,2026-06,Cold Brew,S,27.22\nHL-7486,2026-07,Cold Brew,M,22.69\nHL-4141,2026-06,Mocha,L,42.12\nHL-2079,2026-06,Cold Brew,M,22.40\nHL-6219,2026-05,Cortado,S,43.35\nHL-6553,2026-06,Mocha,L,31.34\nHL-3615,2026-07,Oat Latte,S,76.65\nHL-2113,2026-05,Oat Latte,M,77.11\nHL-3085,2026-05,Cortado,L,30.96\nHL-4711,2026-06,Oat Latte,M,82.90\nHL-440,2026-06,Cold Brew,M,28.17\nHL-1810,2026-07,Cortado,L,44.30\nHL-3537,2026-06,Mocha,L,51.81\nHL-7481,2026-06,Mocha,S,49.23\nHL-4261,2026-06,Cold Brew,S,30.94\nHL-536,2026-07,Oat Latte,M,79.80\nHL-4166,2026-05,Cold Brew,S,23.61\nHL-6588,2026-06,Cortado,S,42.91\nHL-227,2026-06,Oat Latte,S,63.66\nHL-9459,2026-07,Cold Brew,M,20.06\nHL-386,2026-06,Cold Brew,L,27.23\nHL-1245,2026-05,Oat Latte,S,78.62\nHL-5796,2026-06,Mocha,L,35.29\nHL-5478,2026-05,Oat Latte,S,81.27\nHL-2701,2026-07,Mocha,L,50.37\nHL-6951,2026-06,Cortado,L,25.37\nHL-2641,2026-05,Cold Brew,M,30.27\nHL-805,2026-05,Cold Brew,L,32.70\nHL-139,2026-07,Mocha,M,41.84\nHL-4015,2026-06,Cortado,M,31.46\nHL-1666,2026-05,Oat Latte,L,54.43\nHL-8956,2026-06,Mocha,S,38.07\nHL-5681,2026-06,Cold Brew,S,28.80\nHL-1724,2026-05,Mocha,M,54.22\nHL-2420,2026-07,Oat Latte,S,68.30\nHL-2628,2026-06,Mocha,M,44.56\nHL-1236,2026-06,Oat Latte,M,80.71\nHL-1177,2026-06,Mocha,S,50.94\nHL-926,2026-06,Oat Latte,M,75.30\nHL-9672,2026-06,Oat Latte,L,68.32\nHL-1881,2026-06,Cortado,S,27.48\nHL-4044,2026-06,Cortado,S,28.02\nHL-7110,2026-07,Cold Brew,L,31.30\nHL-7451,2026-06,Cortado,S,43.35\nHL-4248,2026-05,Cold Brew,S,33.12\nHL-8066,2026-06,Oat Latte,S,79.26\nHL-1546,2026-06,Cortado,M,32.40\nHL-1010,2026-06,Cortado,L,25.50\nHL-1749,2026-07,Cortado,S,29.37\nHL-8540,2026-07,Cold Brew,S,22.63\nHL-2381,2026-07,Cold Brew,S,19.61\nHL-524,2026-07,Oat Latte,S,57.76\nHL-6020,2026-05,Cold Brew,S,31.44\nHL-6128,2026-06,Cold Brew,L,24.21\nHL-8950,2026-06,Oat Latte,S,59.48\nHL-6461,2026-05,Cortado,S,36.69\nHL-2785,2026-06,Cold Brew,L,26.46\nHL-5217,2026-07,Oat Latte,S,57.48\nHL-6225,2026-05,Cortado,M,35.21\nHL-5019,2026-06,Mocha,L,43.45\nHL-2925,2026-07,Cold Brew,M,20.02\nHL-3408,2026-06,Cortado,S,38.90\nHL-4822,2026-05,Cortado,L,39.56\nHL-6515,2026-06,Cold Brew,S,29.23\nHL-113,2026-06,Cold Brew,M,27.50\nHL-7766,2026-06,Oat Latte,L,63.65\nHL-1692,2026-06,Oat Latte,M,72.65\nHL-6867,2026-06,Cold Brew,S,19.02\nHL-8790,2026-05,Mocha,S,43.41\nHL-9748,2026-05,Cold Brew,L,20.09\nHL-1765,2026-06,Oat Latte,M,73.83\nHL-116,2026-05,Oat Latte,L,77.70\nHL-5357,2026-05,Cold Brew,L,31.69\nHL-8400,2026-05,Cold Brew,S,32.65\nHL-8292,2026-06,Cold Brew,M,33.18\nHL-4259,2026-06,Cold Brew,L,23.52\nHL-2833,2026-06,Oat Latte,M,84.96\nHL-7662,2026-07,Oat Latte,L,71.06\nHL-7956,2026-07,Cold Brew,M,26.83\nHL-6831,2026-05,Mocha,L,48.21\nHL-3669,2026-06,Mocha,L,30.60\nHL-3358,2026-06,Cortado,M,41.31\nHL-8845,2026-06,Cold Brew,S,29.92\nHL-982,2026-06,Oat Latte,M,67.68\nHL-8035,2026-05,Cold Brew,L,23.98\nHL-6792,2026-07,Oat Latte,L,87.89\nHL-9233,2026-07,Cold Brew,L,32.22\nHL-8013,2026-06,Oat Latte,L,59.52\nHL-9241,2026-07,Cold Brew,M,27.59\nHL-5102,2026-06,Cortado,S,36.19\nHL-6206,2026-07,Mocha,S,44.75\nHL-406,2026-06,Cold Brew,M,26.72\nHL-6107,2026-06,Oat Latte,M,82.92\nHL-2020,2026-06,Mocha,M,34.55\nHL-4794,2026-06,Oat Latte,S,61.93\nHL-4349,2026-06,Oat Latte,M,70.19\nHL-4504,2026-07,Cortado,S,27.31\nHL-3772,2026-05,Mocha,L,46.63\nHL-8446,2026-06,Cold Brew,S,19.52\nHL-2289,2026-06,Cold Brew,L,19.90\nHL-1584,2026-06,Cortado,S,31.40\nHL-1756,2026-06,Cold Brew,M,29.05\nHL-502,2026-06,Oat Latte,S,58.29\nHL-9458,2026-06,Oat Latte,L,76.82\nHL-7096,2026-05,Mocha,S,35.68\nHL-5632,2026-06,Cortado,S,29.62\nHL-8350,2026-06,Cortado,S,30.26\nHL-2143,2026-07,Cortado,S,29.40\nHL-8161,2026-06,Cold Brew,M,21.29\nHL-7876,2026-06,Cold Brew,M,28.27\nHL-7326,2026-06,Mocha,L,41.72\nHL-1992,2026-06,Cortado,M,30.88\nHL-2072,2026-06,Cold Brew,S,27.83\nHL-3069,2026-06,Cold Brew,M,21.06\nHL-7228,2026-06,Mocha,S,44.83\nHL-4052,2026-07,Mocha,L,34.01\nHL-7482,2026-05,Oat Latte,M,62.45\nHL-7427,2026-07,Cold Brew,L,20.15\nHL-8342,2026-06,Cold Brew,L,18.63\nHL-3256,2026-05,Mocha,M,43.40\nHL-1437,2026-06,Cold Brew,S,28.86\nHL-351,2026-05,Oat Latte,L,87.78\nHL-9866,2026-06,Oat Latte,L,57.67\nHL-1702,2026-07,Cortado,M,27.33\nHL-8430,2026-05,Cortado,M,34.51\nHL-5918,2026-05,Cold Brew,S,20.14\nHL-6067,2026-06,Mocha,S,48.21\nHL-4194,2026-06,Cold Brew,S,22.51\nHL-7021,2026-07,Cold Brew,L,22.84\nHL-4981,2026-07,Mocha,M,39.37\nHL-1341,2026-05,Cold Brew,L,33.65\nHL-3538,2026-05,Cold Brew,L,23.33\n",
+    "README.md": "# Harborlight Coffee Roasters - cafe register\n\nOne row per ticket line. sales is the line total after the loyalty discount.\n",
+    "notes/bar_board.txt": "Bar board\n- Cold brew steeps overnight in the tall urns.\n- Oat milk cases stack under the counter.\n- The grinder burrs get swapped on the schedule.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Harborlight Coffee Roasters wants to know which drink line earned the most in June. The cafe register is at data/cafe_register.csv. Give the number alone, as digits, with no label. What was the June 2026 sales total for the drink line that earned the most?",
+      "expect": {
+        "expected_number": 1550.07,
+        "tolerance": 0.01,
+        "required_tools": [
+          "data_query"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 1
+    }
+  }
+}

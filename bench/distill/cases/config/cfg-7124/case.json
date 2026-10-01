@@ -1,0 +1,42 @@
+{
+  "id": "cfg-7124",
+  "description": "Effective wind stop speed of a crane fleet whose instance config overrides the platform defaults file. DISTILL-CANARY-8e3658bd",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-PRECEDENCE"
+    ],
+    "trap_decoys": {
+      "TR-PRECEDENCE": 15
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b06-tieji-crane",
+    "ref_calls": 3,
+    "fixture_bytes": 689,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/crane-fleet.json": "{\n  \"fleet\": \"tieji-north-fleet\",\n  \"cranes_enrolled\": 14,\n  \"wind_stop_speed_mps\": 12,\n  \"maintenance_gap_days\": 45,\n  \"telemetry_interval_s\": 10\n}\n",
+    "config/fleet-defaults.json": "{\n  \"wind_stop_speed_mps\": 15,\n  \"maintenance_gap_days\": 60,\n  \"telemetry_interval_s\": 30,\n  \"load_chart_audit_months\": 6\n}\n",
+    "README.md": "# 铁骥起重 - 车队监控配置\n\n车队监控平台对每支车队生成一份实例配置，平台另维护一份默认档案：\n\n- config/crane-fleet.json    北区车队的实例配置\n- config/fleet-defaults.json 平台默认档案\n\n实例配置覆盖默认档案：同名键以实例配置为准，实例没写的键回落默认档案。安监要求风速停止作业线以车队实际生效的值为准。\n"
+  },
+  "turns": [
+    {
+      "prompt": "铁骥起重北区车队要复核大风停止作业的风速线，安检表上要填生效值（只回答数字，不要单位）。实例配置在 config/crane-fleet.json，平台默认档案在 config/fleet-defaults.json，生效的 wind_stop_speed_mps 是多少？",
+      "expect": {
+        "expected_number": 12,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

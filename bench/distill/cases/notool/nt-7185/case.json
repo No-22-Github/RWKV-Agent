@@ -1,0 +1,46 @@
+{
+  "id": "nt-7185",
+  "description": "Parting words after finishing the month-end report; reply directly without any tool call. DISTILL-CANARY-ca26bc78",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b06-chat-03",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 204
+  },
+  "web_fixture": [],
+  "files": {
+    "rounds/oct-w3.csv": "day,area,items\n周一,地下车库,3\n周二,电梯机房,5\n",
+    "README.md": "# 云杉物业 - 项目部工作区\n\n项目收支报表和巡检记录都放在这里。\n\n- reports/  项目收支报表\n- rounds/  巡检记录\n"
+  },
+  "turns": [
+    {
+      "prompt": "报表核完了，我先回去了，你加完班也早点回。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "辛苦",
+          "路上",
+          "注意",
+          "再见",
+          "慢走",
+          "早点",
+          "明天"
+        ]
+      }
+    }
+  ]
+}

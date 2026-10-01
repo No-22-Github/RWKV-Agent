@@ -1,0 +1,52 @@
+{
+  "id": "log-7287",
+  "description": "GATE_OFFLINE events for the 6 September evening show in a gate log exported for 5 September only. DISTILL-CANARY-8d59dd39",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "B3"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-log-b06-quyuan-gate",
+    "ref_calls": 3,
+    "fixture_bytes": 1382,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 曲苑剧场 - 检票闸机日志\n\n闸机控制器日志按天导出，当日文件次日中午由场馆系统生成后放入本目录。\n\n事件：GATE_OPEN（开闸）、GATE_OFFLINE / GATE_RECOVER（离线与恢复，带设备编号）、RECONCILE_OK（对账）。\n",
+    "logs/gates-2026-09-05.jsonl": "{\"ts\": \"2026-09-05T09:00:11+08:00\", \"level\": \"INFO\", \"event\": \"collector_start\", \"detail\": \"gate controller gc-1\"}\n{\"ts\": \"2026-09-05T18:32:40+08:00\", \"level\": \"INFO\", \"event\": \"GATE_OPEN\", \"detail\": \"device B1 gate east\"}\n{\"ts\": \"2026-09-05T19:05:12+08:00\", \"level\": \"INFO\", \"event\": \"GATE_OPEN\", \"detail\": \"device B2 gate east\"}\n{\"ts\": \"2026-09-05T19:40:55+08:00\", \"level\": \"WARN\", \"event\": \"GATE_OFFLINE\", \"detail\": \"device B3 heartbeat lost 4m\"}\n{\"ts\": \"2026-09-05T19:47:01+08:00\", \"level\": \"INFO\", \"event\": \"GATE_RECOVER\", \"detail\": \"device B3 online\"}\n{\"ts\": \"2026-09-05T20:15:26+08:00\", \"level\": \"INFO\", \"event\": \"GATE_OPEN\", \"detail\": \"device B2 gate west\"}\n{\"ts\": \"2026-09-05T21:05:33+08:00\", \"level\": \"WARN\", \"event\": \"GATE_OFFLINE\", \"detail\": \"device B7 heartbeat lost 11m\"}\n{\"ts\": \"2026-09-05T21:19:48+08:00\", \"level\": \"INFO\", \"event\": \"GATE_RECOVER\", \"detail\": \"device B7 online\"}\n{\"ts\": \"2026-09-05T22:40:07+08:00\", \"level\": \"INFO\", \"event\": \"RECONCILE_OK\", \"detail\": \"scans vs tickets delta 0\"}\n{\"ts\": \"2026-09-05T23:10:00+08:00\", \"level\": \"INFO\", \"event\": \"collector_stop\", \"detail\": \"nightly\"}\n"
+  },
+  "turns": [
+    {
+      "prompt": "曲苑剧场 9 月 6 日晚场有观众投诉扫码不开闸，帮我查一下 6 日晚上的 GATE_OFFLINE 事件，离线的是哪几台闸机？",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "GATE_OFFLINE",
+          "gate offline",
+          "闸机离线"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

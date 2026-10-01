@@ -1,0 +1,55 @@
+{
+  "id": "tab-7487",
+  "description": "Per-technician labour cost for September at Luzhou from a job table and a parts table that carry no hours. DISTILL-CANARY-9aef7f9e",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "join",
+    "traps": [
+      "TR-ABSENT",
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "按维修项目估工时",
+      "TR-MULTISRC": "配件表"
+    },
+    "axes": [
+      "DEC",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "fam-tab-b06-luzhou-hours",
+    "ref_calls": 3,
+    "fixture_bytes": 1034,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 鹭洲汽修 - 9 月工单与配件\n\n- exports/repairs-2026-09.csv  工单表，一行一张工单\n- exports/parts-2026-09.csv  配件领用表，一行一次领用\n\n两张表按工单号关联。技师的工时记录在工时系统里，工时费按工时系统结算，不在工单或配件表里。\n",
+    "exports/repairs-2026-09.csv": "工单号,车牌,进场日期,维修项目,技师\nLZ-6120,苏A·Y2381,2026-09-02,更换前刹车片,孙磊\nLZ-6124,苏A·K7712,2026-09-04,空调检修,周斌\nLZ-6131,苏A·Y2381,2026-09-09,四轮定位,孙磊\nLZ-6136,苏B·M3309,2026-09-12,更换电瓶,吴桐\nLZ-6142,苏A·D5502,2026-09-15,小保养,周斌\nLZ-6149,苏A·K7712,2026-09-19,更换后刹车片,孙磊\nLZ-6155,苏B·M3309,2026-09-22,轮胎换位,吴桐\nLZ-6161,苏A·D5502,2026-09-26,变速箱油更换,周斌\n",
+    "exports/parts-2026-09.csv": "工单号,配件,数量,领用日期\nLZ-6120,前刹车片,1,2026-09-02\nLZ-6124,冷媒,2,2026-09-04\nLZ-6136,电瓶,1,2026-09-12\nLZ-6142,机滤,1,2026-09-15\nLZ-6142,机油 4L,1,2026-09-15\nLZ-6149,后刹车片,1,2026-09-19\nLZ-6161,变速箱油 1L,2,2026-09-26\n"
+  },
+  "turns": [
+    {
+      "prompt": "鹭洲汽修的老板要按技师核算 9 月的工时费，帮我把工单和配件两张表对一遍，每位技师 9 月的工时费合计是多少？",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "工时",
+          "技师工时"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

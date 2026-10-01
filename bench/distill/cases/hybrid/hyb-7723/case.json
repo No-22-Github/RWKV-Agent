@@ -1,0 +1,64 @@
+{
+  "id": "hyb-7723",
+  "description": "Multi-turn workshop energy total with a look-alike meter, then a maintenance-day exclusion. DISTILL-CANARY-2f60b5d8",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 13650
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b07-filterfix-09",
+    "ref_calls": 3,
+    "fixture_bytes": 947,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "logs/energy-2026-09.csv": "date,meter,kwh\n2026-09-01,M-1,810\n2026-09-01,M-3A,460\n2026-09-01,M-3B,660\n2026-09-01,M-13,640\n2026-09-04,M-3A,440\n2026-09-04,M-3B,640\n2026-09-07,M-3A,430\n2026-09-07,M-3B,615\n2026-09-07,M-13,630\n2026-09-10,M-3A,420\n2026-09-10,M-3B,600\n2026-09-13,M-1,795\n2026-09-13,M-3A,415\n2026-09-13,M-3B,590\n2026-09-13,M-13,625\n2026-09-14,M-3A,60\n2026-09-14,M-3B,90\n2026-09-15,M-3A,55\n2026-09-15,M-3B,84\n2026-09-16,M-3A,58\n2026-09-16,M-3B,88\n2026-09-19,M-3A,405\n2026-09-19,M-3B,598\n2026-09-19,M-13,640\n2026-09-22,M-3A,420\n2026-09-22,M-3B,610\n2026-09-22,M-13,635\n2026-09-25,M-1,802\n2026-09-25,M-3A,432\n2026-09-25,M-3B,575\n2026-09-28,M-3A,515\n2026-09-28,M-3B,580\n2026-09-28,M-13,640\n",
+    "README.md": "# 云杉电气 九月能耗抄表\n\n每行一块表一天的读数差（度）。表号与产线的对应关系见 docs/line-map.md。\n",
+    "docs/line-map.md": "# 表计-产线对照\n\n三号车间：M-3A（3A 线）、M-3B（3B 线）。\nM-13 为三号库房表计，不属于车间；M-1 为一号车间。\n"
+  },
+  "turns": [
+    {
+      "prompt": "云杉电气做九月能耗复盘。三号车间九月的用电合计多少度？只回数字。",
+      "expect": {
+        "expected_number": 9840,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "不对，9 月 14 到 16 日全厂检修停机，那三天的记录不能算。排除后三号车间的合计是多少度？只回数字。",
+      "expect": {
+        "expected_number": 9405,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "排除检修那几天后，三号车间哪台表耗电最多？回表号就行。",
+      "expect": {
+        "output_contains": [
+          "M-3B"
+        ]
+      }
+    },
+    {
+      "prompt": "这台表排除检修后一共多少度？只回数字。",
+      "expect": {
+        "expected_number": 5468,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

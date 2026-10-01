@@ -1,0 +1,38 @@
+{
+  "id": "nt-7171",
+  "description": "Concentrate volume for a 1:500 dilution in a 15-litre sprayer. DISTILL-CANARY-d00a8eba",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b06-garden-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 326
+  },
+  "web_fixture": [],
+  "files": {
+    "garden/tank_log.csv": "date,vessel,volume_l\n2026-10-12,喷壶A,15\n2026-10-12,喷壶B,8\n2026-10-11,背负桶,12\n",
+    "README.md": "# 绿屿园艺 - 养护工作区\n\n苗木养护的配药与浇水记录都放在这里。\n\n- garden/  喷药配比与水箱记录\n- beds/  苗床与播种登记\n\n配药口径：营养原液一律按 1:500 兑水，先量水后加原液。\n"
+  },
+  "turns": [
+    {
+      "prompt": "绿屿园艺的园艺师要给苗圃喷药，营养原液按 1:500 兑水。喷壶 A 里装了 15 升水，需要往里加多少毫升原液？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 30,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "id": "nt-7126",
+  "description": "User asks for a reminder before an afternoon fabric appointment; acknowledge without any tool call DISTILL-CANARY-47dfd1a6",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-smalltalk-03",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 261
+  },
+  "web_fixture": [],
+  "files": {
+    "swatch/pending_2026-10.csv": "客户,样布,状态\n创联服饰,真丝双绉,待送样\n蓝汀制衣,亚麻混纺,待送样\n创联服饰,醋酸缎,已送样\n",
+    "README.md": "# 云锦布业 - 样品间工作区\n\n布样台账与客户样单都在这里。\n\n- swatch/  样布送样台账\n- orders/  客户样单\n"
+  },
+  "turns": [
+    {
+      "prompt": "对了，下午三点我得去创联看样布，你到点提醒我一声，我这人一扎进布堆里就什么都忘了。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "好的",
+          "没问题",
+          "收到",
+          "放心",
+          "一定",
+          "记下",
+          "记住了",
+          "到点",
+          "会提醒",
+          "忘不了",
+          "我会"
+        ]
+      }
+    }
+  ]
+}

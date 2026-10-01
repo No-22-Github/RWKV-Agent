@@ -1,0 +1,44 @@
+{
+  "id": "nt-7125",
+  "description": "A first-time user asks who the assistant is and what it can do; reply directly without any tool call DISTILL-CANARY-2aaa93cf",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b06-smalltalk-02",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 209
+  },
+  "web_fixture": [],
+  "files": {
+    "inventory/models.csv": "型号,状态\n启航-S2,在售\n启航-M4,预售\n启航-K1,停售\n",
+    "README.md": "# 启航无人机 - 门店运营工作区\n\n机型资料与库存登记都在这里。\n\n- inventory/  机型状态表\n- faq/  常见问题整理\n"
+  },
+  "turns": [
+    {
+      "prompt": "我刚接手这家店的线上客服，头一回用这个助手。先认识一下呗——你是谁？平时都能帮我干点什么？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "助手",
+          "助理",
+          "AI",
+          "模型",
+          "智能"
+        ]
+      }
+    }
+  ]
+}

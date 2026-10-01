@@ -1,0 +1,52 @@
+{
+  "id": "nt-7180",
+  "description": "Mid-Autumn Festival greeting ahead of the holiday break; reply directly without any tool call. DISTILL-CANARY-13a008c8",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-chat-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 248
+  },
+  "offered_tools": [
+    "read_file",
+    "list_files"
+  ],
+  "web_fixture": [],
+  "files": {
+    "products/giftbox_2026.csv": "sku,name,boxes_reserved\nMB-118,桂香双黄莲蓉礼盒,320\nMB-122,流心奶黄礼盒,180\n",
+    "README.md": "# 桂香食品 - 电商运营工作区\n\n月饼礼盒和节令商品的备货资料都放在这里。\n\n- products/  节令商品资料\n- orders/  渠道订单\n"
+  },
+  "turns": [
+    {
+      "prompt": "中秋节快乐呀！放假这三天好好休息，节后回来一起盘月饼礼盒的备货。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "中秋",
+          "快乐",
+          "节日",
+          "假期",
+          "月饼"
+        ]
+      }
+    }
+  ]
+}

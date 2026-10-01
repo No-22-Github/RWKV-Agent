@@ -1,0 +1,53 @@
+{
+  "id": "web-7558",
+  "description": "Minimum order value for free next-day delivery at Batchwood Bakery Supplies, from the vendor delivery page. DISTILL-CANARY-33a33da4",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-web-b06-batchwood-delivery",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "batchwood",
+      "url": "https://www.batchwoodbaking.example/delivery",
+      "url_match": "www.batchwoodbaking.example/delivery",
+      "title": "Delivery & collection - Batchwood Bakery Supplies",
+      "snippet": "Orders of 60 pounds or more ship free on the next-day run; smaller baskets pay the standard 7 pound drop fee.",
+      "content": "# Batchwood Bakery Supplies - delivery and collection\n\nFree next-day delivery applies to orders of 60 pounds or more (ex VAT). Smaller baskets pay the standard 7 pound drop fee. Same-day van runs cover the NS postcode area only; the cut-off for booking a slot is 15:00.\n\nCollections from the Wharf Road depot can be placed up to 18:00.\n",
+      "published_at": "2026-07-02"
+    },
+    {
+      "query_match": "batchwood",
+      "url": "https://www.batchwoodbaking.example/flour-t65",
+      "url_match": "www.batchwoodbaking.example/flour-t65",
+      "title": "T65 flour, 16kg sack - Batchwood Bakery Supplies",
+      "snippet": "Stone-milled T65 in 16kg sacks; milled weekly at the Wharf Road depot.",
+      "content": "# T65 flour, 16kg sack\n\nStone-milled T65 in 16kg sacks, milled weekly at the Wharf Road depot. Sold per sack; pallet discounts apply from 20 sacks.\n",
+      "published_at": "2026-06-10"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "Our cafe puts in a weekly flour and butter order with Batchwood Bakery Supplies and wants to top the basket up so shipping costs nothing. What is the minimum order value for free next-day delivery? Give the number alone, as digits, with no label.",
+      "expect": {
+        "expected_number": 60,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

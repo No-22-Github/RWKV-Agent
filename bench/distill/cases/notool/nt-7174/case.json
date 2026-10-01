@@ -1,0 +1,41 @@
+{
+  "id": "nt-7174",
+  "description": "Which of three roast levels tastes most acidic; light roast is the stable answer. DISTILL-CANARY-ddc044c8",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "stable_fact",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "深烘"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-coffee-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 302
+  },
+  "web_fixture": [],
+  "files": {
+    "beans/menu_2026-10.csv": "bean,origin,roast,price_cny\n云雾,埃塞俄比亚,浅,48\n顺滑,巴西,中,45\n炭烧,苏门答腊,深,42\n",
+    "README.md": "# 拾光咖啡 - 门店工作区\n\n当季豆单和货架卡文案都放在这里。\n\n- beans/  当季豆单\n\n货架卡口径：风味描述按烘焙度写，酸质、甜感与醇厚分开描述。\n"
+  },
+  "turns": [
+    {
+      "prompt": "拾光咖啡在给新豆写货架卡。一般来说，浅烘、中烘、深烘三种烘焙度里，喝起来酸质最突出的是哪一种？只回答「浅烘」「中烘」或「深烘」。",
+      "expect": {
+        "output_equals": "浅烘",
+        "tools": []
+      }
+    }
+  ]
+}

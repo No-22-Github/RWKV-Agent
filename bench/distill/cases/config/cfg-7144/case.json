@@ -1,0 +1,41 @@
+{
+  "id": "cfg-7144",
+  "description": "Lengthen the backwash time on the guesthouse pump controller. DISTILL-CANARY-8e2471d9",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-cfg-b06-hanshui",
+    "ref_calls": 2,
+    "fixture_bytes": 278,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/pump.yaml": "# 寒水谷温泉民宿 泵房控制器参数\n流量档位: 2\n冲洗时长: 20\n冲洗周期: 7\n缺水保护: 开\n",
+    "README.md": "# 寒水谷温泉民宿 泵房\n\nconfig/pump.yaml 是泵房控制器的参数文件，四个键各出现一次，\n值班师傅直接改文件、保持原有行式。\n"
+  },
+  "expect": {
+    "files": {
+      "config/pump.yaml": {
+        "equals": "# 寒水谷温泉民宿 泵房控制器参数\n流量档位: 2\n冲洗时长: 35\n冲洗周期: 7\n缺水保护: 开\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "寒水谷温泉的泵房滤罐最近反冲洗不干净，把冲洗时长从 20 提到 35（改 config/pump.yaml），其他参数不动。完成后用两三句话说明你改了哪里。",
+      "expect": {}
+    }
+  ]
+}

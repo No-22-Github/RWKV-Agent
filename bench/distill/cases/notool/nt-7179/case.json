@@ -1,0 +1,46 @@
+{
+  "id": "nt-7179",
+  "description": "End-of-day farewell before shelving case files; reply directly without any tool call. DISTILL-CANARY-59653755",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b06-chat-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 250
+  },
+  "web_fixture": [],
+  "files": {
+    "cases/index.csv": "case_no,matter,stage\nH-2211,买卖合同纠纷,一审待开庭\nH-2233,劳动争议,调解阶段\n",
+    "README.md": "# 天衡律所 - 诉讼团队工作区\n\n案卷与开庭日程都归档在这里。\n\n- cases/  在办案件卷宗索引\n- calendar/  开庭与会议日程\n"
+  },
+  "turns": [
+    {
+      "prompt": "今天先到这里，我把卷宗放回档案室就下班了，明天见。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "明天见",
+          "再见",
+          "拜拜",
+          "慢走",
+          "路上",
+          "早点休息",
+          "注意"
+        ]
+      }
+    }
+  ]
+}

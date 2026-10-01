@@ -1,0 +1,41 @@
+{
+  "id": "cfg-7160",
+  "description": "Extend the free-minutes allowance on the charging station config. DISTILL-CANARY-88653f55",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-cfg-b06-panjiaxiang",
+    "ref_calls": 2,
+    "fixture_bytes": 260,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/station.yaml": "# 潘家巷充电站 桩端参数\n计费:\n  服务费每度: 0.4\n  免费时长分钟: 30\n照明:\n  关灯时刻: \"23:30\"\n  感应延时秒: 45\n",
+    "README.md": "# 潘家巷充电站\n\nconfig/station.yaml 是站端参数文件，值班员直接改文件、保持\n原有行式。\n"
+  },
+  "expect": {
+    "files": {
+      "config/station.yaml": {
+        "equals": "# 潘家巷充电站 桩端参数\n计费:\n  服务费每度: 0.4\n  免费时长分钟: 45\n照明:\n  关灯时刻: \"23:30\"\n  感应延时秒: 45\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "潘家巷充电站要把充电后的免费时长放宽到 45 分钟：改 config/station.yaml 里的对应参数，其余参数不动。完成后用两三句话说明你改了哪里。",
+      "expect": {}
+    }
+  ]
+}

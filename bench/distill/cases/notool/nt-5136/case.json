@@ -19,9 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 267,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
-    "reviewer": null
+    "reviewer": null,
+    "answer_style": "value"
   },
   "web_fixture": [],
   "files": {
@@ -31,7 +32,7 @@
   },
   "turns": [
     {
-      "prompt": "Foxglove Bottling is loading its September bottle stock onto the ordering system. The stock office holds 46 gross of Amber 500ml bottles. How many single bottles is that on the ordering system? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Foxglove Bottling is loading its September bottle stock onto the ordering system. The stock office holds 46 gross of Amber 500ml bottles. How many single bottles is that on the ordering system? Reply with only the final answer.",
       "expect": {
         "expected_number": 6624,
         "tolerance": 0.01,

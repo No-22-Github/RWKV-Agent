@@ -1,0 +1,42 @@
+{
+  "id": "nt-7201",
+  "description": "Taxi fare for a 9 km ride under a base-fare-plus-per-km schedule. DISTILL-CANARY-4baf27a0",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 33.7
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-fare-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 274
+  },
+  "web_fixture": [],
+  "files": {
+    "trips/taxi_2026-09.csv": "date,route,distance_km\n2026-09-28,机场到会展酒店,9\n2026-09-29,酒店到展馆,5\n2026-09-30,展馆到高铁站,12\n",
+    "README.md": "# 蓝鲸商旅行政 - 差旅报销区\n\n差旅行程登记和报销材料都放在这里。\n\n- trips/  差旅行程登记\n- receipts/  行程票据扫描\n"
+  },
+  "turns": [
+    {
+      "prompt": "蓝鲸商旅的同事在会展城市打车，市区出租车起步价 13 元（含 3 公里），超出部分每公里 2.3 元。9 月 28 日那趟从机场到会展酒店走了 9 公里。这趟车费是多少元？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 26.8,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

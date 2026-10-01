@@ -1,0 +1,51 @@
+{
+  "id": "log-7603",
+  "description": "Summarize a hotel card-key audit log; T-card training opens on the closed renovation floor are decoys against genuine guest unlocks. DISTILL-CANARY-7b494842",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "9 unlocks"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-b07-countdecoy-01",
+    "ref_calls": 3,
+    "fixture_bytes": 694,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:distill-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "logs/card-audit-sep.log": "2026-09-08 07:12 card K-4471 room 201 unlock OK\n2026-09-08 07:31 card K-4471 room 201 unlock OK\n2026-09-08 08:02 card T-0090 room 412 unlock OK TRAINING\n2026-09-08 08:05 card T-0090 room 408 unlock OK TRAINING\n2026-09-08 09:14 card K-5102 room 305 unlock OK\n2026-09-08 12:47 card K-4471 room 201 unlock OK\n2026-09-08 14:03 card K-3820 room 210 unlock OK\n2026-09-08 18:22 card K-5102 room 305 unlock OK\n2026-09-08 21:15 card K-4471 room 201 unlock OK\n",
+    "README.md": "Brackenridge House door system audit, 8 September.\n\nCards starting with T are the housekeeping trainer set used on floor 4.\nRooms 401-412 are closed for renovation, so T-card opens are training\ndrills for staff. Guest activity is K-cards only.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Front desk at Brackenridge House — the door system dumped its card audit for 8 September and the duty manager wants a plain summary: how many genuine guest unlocks there were, which room saw the most traffic, and whether the log shows anything that needs explaining.",
+      "expect": {
+        "output_contains": [
+          "7 guest unlocks",
+          "room 201",
+          "T-0090"
+        ],
+        "output_contains_any": [
+          "7 guest unlocks",
+          "room 201",
+          "T-0090"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

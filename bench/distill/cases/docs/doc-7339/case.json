@@ -1,0 +1,48 @@
+{
+  "id": "doc-7339",
+  "description": "Write a restock notice listing items below safety stock into a notice file. DISTILL-CANARY-72515672",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-doc-b06-chenghu",
+    "ref_calls": 2,
+    "fixture_bytes": 530,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "物料库存.csv": "物料,仓库,库存数,安全库存,单位\n帐篷灯,一号仓,28,40,盏\n防潮垫,一号仓,45,60,块\n一次性雨衣,二号仓,150,200,件\n手电筒,一号仓,66,40,支\n睡袋,二号仓,52,50,条\n折叠桌,一号仓,18,15,张\n折叠椅,一号仓,90,80,把\n野餐垫,二号仓,60,55,块\n营灯挂架,一号仓,30,25,个\n炭包,二号仓,120,100,盒\n驱蚊液,二号仓,75,60,瓶\n垃圾袋,一号仓,300,200,卷\n急救包,一号仓,22,20,个\n保温毯,二号仓,40,35,条\n头灯,一号仓,35,30,支\n引火棒,二号仓,88,80,包\n",
+    "公告/.keep": ""
+  },
+  "expect": {
+    "files": {
+      "公告/补货公告.md": {
+        "contains": [
+          "帐篷灯",
+          "防潮垫",
+          "一次性雨衣",
+          "12",
+          "15",
+          "50"
+        ]
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "澄湖文旅下周迎来团建高峰，店长要一张补货公告。物料库存表在 物料库存.csv。请把库存数低于安全库存的物料写成 公告/补货公告.md：每行一条，写明物料名和缺口数量（数字），格式参照「- 物料名：缺 N 单位」。写完后，告诉我你写进了哪些内容？",
+      "expect": {}
+    }
+  ]
+}

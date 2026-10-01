@@ -1,0 +1,50 @@
+{
+   "id": "tab-7546",
+   "description": "September 2026 sessions of one pottery taster class whose week-long namesake runs alongside DISTILL-CANARY-4ecfacd1",
+   "category": "tabular",
+   "tags": {
+      "scenario": "tabular",
+      "task_type": "filter_count",
+      "traps": [
+         "TR-DECOY"
+      ],
+      "trap_decoys": {
+         "TR-DECOY": 28.0
+      },
+      "axes": [
+         "OBS"
+      ],
+      "level": "L1",
+      "family": "fam-tab-b06-kilnhouse-01",
+      "ref_calls": 1,
+      "fixture_bytes": 5069,
+      "status": "draft",
+      "version": 1,
+      "author": "llm:glm-5.3-flash-b06",
+      "reviewer": null,
+      "answer_style": "natural"
+   },
+   "web_fixture": [],
+   "files": {
+      "data/sessions_2026-09.csv": "booking_id,session_month,session,studio,seats\nKP-4595,2026-08,Youth Clay Lab,Yard Studio,10\nKP-1789,2026-08,Youth Clay Lab,Yard Studio,12\nKP-2172,2026-09,Wheel Taster,Yard Studio,7\nKP-9383,2026-09,Youth Clay Lab,Yard Studio,10\nKP-7040,2026-08,Youth Clay Lab,Front Studio,7\nKP-3612,2026-09,Wheel Taster,Front Studio,2\nKP-9382,2026-09,Wheel Taster Week,Yard Studio,3\nKP-4339,2026-09,Hand-Building Evening,Yard Studio,9\nKP-6108,2026-09,Wheel Taster Week,Yard Studio,9\nKP-5894,2026-09,Youth Clay Lab,Front Studio,7\nKP-5908,2026-08,Youth Clay Lab,Front Studio,6\nKP-7088,2026-09,Youth Clay Lab,Yard Studio,10\nKP-3706,2026-09,Youth Clay Lab,Yard Studio,8\nKP-8614,2026-09,Youth Clay Lab,Yard Studio,7\nKP-2392,2026-09,Wheel Taster,Yard Studio,12\nKP-3019,2026-09,Wheel Taster,Yard Studio,11\nKP-9420,2026-08,Hand-Building Evening,Front Studio,9\nKP-7180,2026-09,Wheel Taster Week,Front Studio,3\nKP-3888,2026-09,Wheel Taster Week,Yard Studio,12\nKP-3552,2026-09,Wheel Taster,Front Studio,8\nKP-5105,2026-09,Hand-Building Evening,Front Studio,8\nKP-7991,2026-09,Wheel Taster Week,Yard Studio,5\nKP-4565,2026-09,Wheel Taster Week,Front Studio,10\nKP-1854,2026-09,Youth Clay Lab,Front Studio,2\nKP-9110,2026-09,Hand-Building Evening,Front Studio,6\nKP-7448,2026-09,Wheel Taster Week,Yard Studio,12\nKP-6701,2026-09,Wheel Taster Week,Yard Studio,11\nKP-7291,2026-09,Wheel Taster,Front Studio,10\nKP-9438,2026-09,Wheel Taster,Yard Studio,5\nKP-3700,2026-08,Youth Clay Lab,Front Studio,9\nKP-9916,2026-09,Hand-Building Evening,Yard Studio,11\nKP-1666,2026-08,Hand-Building Evening,Front Studio,10\nKP-9588,2026-08,Wheel Taster Week,Yard Studio,8\nKP-2481,2026-09,Wheel Taster Week,Yard Studio,6\nKP-5180,2026-09,Wheel Taster,Yard Studio,4\nKP-2655,2026-09,Wheel Taster Week,Front Studio,9\nKP-5383,2026-09,Wheel Taster Week,Front Studio,11\nKP-2371,2026-08,Wheel Taster,Front Studio,12\nKP-3279,2026-09,Wheel Taster Week,Front Studio,10\nKP-2343,2026-09,Hand-Building Evening,Yard Studio,5\nKP-8291,2026-08,Hand-Building Evening,Yard Studio,7\nKP-4948,2026-09,Wheel Taster Week,Front Studio,10\nKP-7264,2026-09,Youth Clay Lab,Front Studio,2\nKP-8092,2026-09,Youth Clay Lab,Yard Studio,12\nKP-7508,2026-09,Wheel Taster,Front Studio,8\nKP-3699,2026-09,Wheel Taster,Yard Studio,11\nKP-6332,2026-08,Youth Clay Lab,Front Studio,8\nKP-8178,2026-09,Wheel Taster Week,Yard Studio,8\nKP-3069,2026-09,Wheel Taster Week,Yard Studio,7\nKP-8994,2026-08,Wheel Taster Week,Yard Studio,11\nKP-4473,2026-09,Wheel Taster,Yard Studio,11\nKP-2952,2026-09,Hand-Building Evening,Yard Studio,3\nKP-8065,2026-08,Hand-Building Evening,Yard Studio,9\nKP-9749,2026-09,Youth Clay Lab,Front Studio,5\nKP-7688,2026-08,Wheel Taster,Front Studio,12\nKP-2934,2026-09,Wheel Taster,Yard Studio,12\nKP-5841,2026-09,Wheel Taster Week,Yard Studio,6\nKP-5549,2026-08,Hand-Building Evening,Front Studio,12\nKP-5066,2026-09,Wheel Taster Week,Front Studio,2\nKP-7207,2026-09,Wheel Taster Week,Yard Studio,8\nKP-1065,2026-08,Hand-Building Evening,Yard Studio,12\nKP-4110,2026-09,Wheel Taster Week,Front Studio,4\nKP-9656,2026-09,Wheel Taster Week,Yard Studio,12\nKP-8188,2026-08,Hand-Building Evening,Front Studio,8\nKP-1344,2026-09,Youth Clay Lab,Yard Studio,6\nKP-1504,2026-08,Wheel Taster Week,Front Studio,4\nKP-4968,2026-09,Wheel Taster,Yard Studio,3\nKP-5266,2026-09,Hand-Building Evening,Yard Studio,11\nKP-4385,2026-09,Wheel Taster Week,Yard Studio,2\nKP-3832,2026-08,Wheel Taster,Yard Studio,7\nKP-5665,2026-09,Wheel Taster Week,Yard Studio,6\nKP-3431,2026-08,Youth Clay Lab,Yard Studio,8\nKP-9885,2026-08,Wheel Taster,Yard Studio,12\nKP-4284,2026-09,Wheel Taster Week,Yard Studio,10\nKP-5476,2026-08,Wheel Taster Week,Front Studio,6\nKP-6097,2026-09,Wheel Taster Week,Yard Studio,4\nKP-5110,2026-09,Wheel Taster Week,Yard Studio,9\nKP-8313,2026-08,Youth Clay Lab,Yard Studio,6\nKP-3752,2026-08,Wheel Taster,Front Studio,9\nKP-9935,2026-08,Wheel Taster,Front Studio,4\nKP-6848,2026-08,Youth Clay Lab,Front Studio,9\nKP-9041,2026-09,Wheel Taster Week,Yard Studio,10\nKP-7880,2026-09,Youth Clay Lab,Yard Studio,2\nKP-2995,2026-08,Youth Clay Lab,Front Studio,6\nKP-4423,2026-09,Youth Clay Lab,Front Studio,10\nKP-7279,2026-09,Youth Clay Lab,Front Studio,3\nKP-4355,2026-09,Wheel Taster,Front Studio,11\nKP-5653,2026-09,Youth Clay Lab,Front Studio,8\nKP-2771,2026-08,Wheel Taster Week,Front Studio,3\nKP-1395,2026-08,Wheel Taster,Yard Studio,7\nKP-2934,2026-09,Hand-Building Evening,Yard Studio,3\nKP-1216,2026-08,Youth Clay Lab,Yard Studio,12\nKP-9933,2026-08,Hand-Building Evening,Front Studio,9\nKP-5856,2026-08,Wheel Taster Week,Front Studio,2\nKP-3237,2026-08,Youth Clay Lab,Yard Studio,4\nKP-2231,2026-08,Wheel Taster,Front Studio,10\nKP-9198,2026-09,Wheel Taster Week,Yard Studio,4\nKP-7123,2026-09,Hand-Building Evening,Yard Studio,3\nKP-6099,2026-09,Wheel Taster Week,Yard Studio,8\nKP-8162,2026-09,Hand-Building Evening,Yard Studio,12\n",
+      "README.md": "# Kilnhouse Pottery - session sheet\n\nOne row per booked session. session is the class exactly as named on\nthe booking page; seats is the places taken in that session.\n",
+      "notes/clay.txt": "Clay notes\n- Reclaimed clay rests a week before reuse.\n- Glaze buckets stay covered overnight.\n"
+   },
+   "turns": [
+      {
+         "prompt": "Kilnhouse Pottery is scheduling clay orders. The session export is at data/sessions_2026-09.csv. Give the number alone, as digits, with no label. How many Wheel Taster sessions ran in September 2026?",
+         "expect": {
+            "expected_number": 14.0,
+            "tolerance": 0.01,
+            "required_tools": [
+               "data_query"
+            ]
+         }
+      }
+   ],
+   "expect": {
+      "max_calls": {
+         "read_file": 1
+      }
+   }
+}

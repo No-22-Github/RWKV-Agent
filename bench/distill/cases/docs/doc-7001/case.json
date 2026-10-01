@@ -1,0 +1,42 @@
+{
+  "id": "doc-7001",
+  "description": "Warranty months of a trade-in whole unit under the revised aftercare policy. DISTILL-CANARY-41f9c8ab",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-RULEFILE"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": 24
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b06-jingcheng-aftersale",
+    "ref_calls": 3,
+    "fixture_bytes": 1059,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 净澄净水器 - 客服工作区\n\n售后组共用的资料区：\n\n- docs/       面向客户的制度文件（保修、退换等）\n- orders/     客服归档的订单存根（文本版）\n",
+    "docs/aftercare-policy.md": "# 净澄净水器售后政策（2026 年 3 月修订）\n\n本政策适用于 2026 年 3 月 1 日起签收的订单；此前签收的订单按 2024 年版执行。\n\n## 保修时长\n- 台式净水机、壁挂净水机等整机产品：自签收日起保修 24 个月。\n- 滤芯、滤瓶、UV 灯管等耗材配件：自签收日起保修 6 个月。\n\n## 例外情形\n- 通过以旧换新活动购入的整机产品：整机保修 12 个月，不再按 24 个月执行。\n- 单笔采购 10 台以上的企业订单：保修期按采购合同约定，不受上述条款限制。\n",
+    "orders/HZ-260511-03.txt": "净澄净水器 订单存根\n订单号：HZ-260511-03\n下单时间：2026-05-11 10:26\n客户：周砚秋\n联系电话：138-0571-2246\n商品：台式净水机 X3（整机）\n购买方式：以旧换新（旧机型号 J2 折抵 150 元）\n实付金额：1299.00 元\n签收日期：2026-05-13\n"
+  },
+  "turns": [
+    {
+      "prompt": "净澄净水器的客服要回复客户周砚秋的保修咨询。她 2026 年 5 月 11 日通过以旧换新活动买了一台台式净水机，订单存根在 orders/HZ-260511-03.txt。按现行售后政策，这台机器的整机保修期是多少个月？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 12,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

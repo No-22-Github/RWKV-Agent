@@ -1,0 +1,49 @@
+{
+  "id": "fs-8012",
+  "description": "Count full backups among .sql dump files whose type label lives on the first line of each file; one filename lies. DISTILL-CANARY-c60308d9",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "count_by_type",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 7
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-holdout-fs-fullbackup-01",
+    "ref_calls": 3,
+    "fixture_bytes": 2598,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "backup-2026-05-01-full-weekly.sql": "-- type: full\n-- PostgreSQL database dump\n-- generated: 2026-05-01 02:00:05\n-- host: db-main port=5432\n\\connect studio_erp\nSET statement_timeout = 0;\nSET lock_timeout = 0;\nCOPY public.projects (id, name) FROM stdin;\n101\t舞台灯控\n102\t调音台固件\n\\.\n-- dump completed\n",
+    "backup-2026-05-04-incr-daily.sql": "-- type: incremental\n-- PostgreSQL incremental log\n-- generated: 2026-05-04 02:00:05\n-- base: backup-2026-05-01-full-weekly.sql\n\\connect studio_erp\nSET statement_timeout = 0;\nCOPY public.projects (id, name) FROM stdin;\n103\t追光控制\n\\.\n-- log completed\n",
+    "backup-2026-05-08-full-weekly.sql": "-- type: full\n-- PostgreSQL database dump\n-- generated: 2026-05-08 02:00:11\n-- host: db-main port=5432\n\\connect studio_erp\nSET statement_timeout = 0;\nSET lock_timeout = 0;\nCOPY public.projects (id, name) FROM stdin;\n104\t烟雾机控制\n\\.\n-- dump completed\n",
+    "backup-2026-05-11-incr-daily.sql": "-- type: incremental\n-- PostgreSQL incremental log\n-- generated: 2026-05-11 02:00:09\n-- base: backup-2026-05-08-full-weekly.sql\n\\connect studio_erp\nSET statement_timeout = 0;\nCOPY public.venues (id, name) FROM stdin;\n201\t星海剧场\n\\.\n-- log completed\n",
+    "backup-2026-05-15-full-weekly.sql": "-- type: full\n-- PostgreSQL database dump\n-- generated: 2026-05-15 02:00:07\n-- host: db-main port=5432\n\\connect studio_erp\nSET statement_timeout = 0;\nSET lock_timeout = 0;\nCOPY public.venues (id, name) FROM stdin;\n202\t临江会展\n\\.\n-- dump completed\n",
+    "backup-2026-05-18-incr-daily.sql": "-- type: incremental\n-- PostgreSQL incremental log\n-- generated: 2026-05-18 02:00:08\n-- base: backup-2026-05-15-full-weekly.sql\n\\connect studio_erp\nSET statement_timeout = 0;\nCOPY public.staff (id, name) FROM stdin;\n301\t宋祁\n\\.\n-- log completed\n",
+    "backup-2026-05-22-full-weekly.sql": "-- type: full\n-- PostgreSQL database dump\n-- generated: 2026-05-22 02:00:12\n-- host: db-main port=5432\n\\connect studio_erp\nSET statement_timeout = 0;\nSET lock_timeout = 0;\nCOPY public.staff (id, name) FROM stdin;\n302\t闻人夏\n\\.\n-- dump completed\n",
+    "backup-2026-05-26-full-hotfix.sql": "-- type: incremental\n-- PostgreSQL incremental log\n-- generated: 2026-05-26 03:12:41\n-- note: hotfix 窗口只来得及做增量，文件名未改\n-- base: backup-2026-05-22-full-weekly.sql\n\\connect studio_erp\nSET statement_timeout = 0;\nCOPY public.staff (id, name) FROM stdin;\n303\t霍山月\n\\.\n-- log completed\n",
+    "backup-2026-05-29-full-weekly.sql": "-- type: full\n-- PostgreSQL database dump\n-- generated: 2026-05-29 02:00:10\n-- host: db-main port=5432\n\\connect studio_erp\nSET statement_timeout = 0;\nSET lock_timeout = 0;\nCOPY public.contracts (id, ref) FROM stdin;\n401\tHT-2601\n\\.\n-- dump completed\n",
+    "backup-2026-06-05-full-weekly.sql": "-- type: full\n-- PostgreSQL database dump\n-- generated: 2026-06-05 02:00:04\n-- host: db-main port=5432\n\\connect studio_erp\nSET statement_timeout = 0;\nSET lock_timeout = 0;\nCOPY public.contracts (id, ref) FROM stdin;\n402\tHT-2604\n\\.\n-- dump completed\n"
+  },
+  "turns": [
+    {
+      "prompt": "舒影影棚的库备份都在工作区的 backup 目录下（文件名都以 backup- 开头）。按每个文件里的类型标注，全量（full）备份有几个？只回答数字。",
+      "expect": {
+        "expected_number": 6,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

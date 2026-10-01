@@ -1,0 +1,51 @@
+{
+  "id": "log-7605",
+  "description": "Summarize a nursery irrigation fault log into an outage timeline; MANUAL TEST cycles after the valve was isolated are decoys. DISTILL-CANARY-87533f19",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "10:02"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-b07-windowdecoy-01",
+    "ref_calls": 3,
+    "fixture_bytes": 616,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:distill-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "logs/irrigation-jul.log": "2026-07-19 04:10 zone 3 valve V-3 open timeout FAULT\n2026-07-19 04:25 zone 3 valve V-3 open timeout FAULT\n2026-07-19 05:00 zone 3 valve V-3 manual shutoff by tech OK\n2026-07-21 09:12 zone 3 valve V-3 open timeout FAULT MANUAL TEST\n2026-07-21 09:40 zone 3 valve V-3 open timeout FAULT MANUAL TEST\n2026-07-21 10:02 zone 3 valve V-3 solenoid replaced OK\n",
+    "notes/maintenance.md": "Ashcombe Nurseries irrigation controller, zone 3.\n\nCause: the V-3 solenoid stuck shut; it was replaced on 2026-07-21.\n\nThe two FAULT entries on 2026-07-21 marked MANUAL TEST were bench cycles\nrun in bypass with the valve already isolated. They are not outage time.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Ashcombe Nurseries' irrigation controller logged valve faults last week and the insurers want a timeline. Summarize it for me: when the real trouble with the zone 3 valve started and ended, and what the technician's note says was wrong.",
+      "expect": {
+        "output_contains": [
+          "04:10",
+          "05:00",
+          "solenoid"
+        ],
+        "output_contains_any": [
+          "04:10",
+          "05:00",
+          "solenoid"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

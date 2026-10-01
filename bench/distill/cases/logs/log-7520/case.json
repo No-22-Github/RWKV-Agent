@@ -1,0 +1,75 @@
+{
+  "id": "log-7520",
+  "description": "Five-turn English session on a payout batch failure: failed step, failure timestamp, items released, limit recomputed under the current runbook, pending items. DISTILL-CANARY-cb17f62b",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "root_cause",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": "conversion"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L2",
+    "family": "fam-log-b07-solstice-pay-01",
+    "ref_calls": 6,
+    "fixture_bytes": 1177,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "notes/payout-runbook.md": "# Payout batch runbook (v2, effective 2026-09-01)\n\n- The daily payout limit is 50,000.00 GBP and is checked against the batch GROSS\n  amount, including fx fees and any in-flight amounts from earlier batches.\n- Changelog: the 2026-08-01 sheet (v1) checked the limit against the NET amount;\n  it was replaced after the March overrelease review.\n- On limit breach the batch aborts after releasing the items already processed;\n  pending items stay queued for the manual rerun.\n",
+    "README.md": "# Solstice Fare payout platform\n\nlogs/payout-batch.csv is the batch-log export for payout batch B-0925 (run 2026-09-26).\nnotes/payout-runbook.md is the runbook in force.\n",
+    "logs/payout-batch.csv": "ts,unit,level,message\n2026-09-26 02:00:04,batch:B-0925,INFO,\"batch start, 160 items\"\n2026-09-26 02:00:11,step:fx-convert,INFO,started\n2026-09-26 02:11:58,step:fx-convert,INFO,\"completed, 160 items converted\"\n2026-09-26 02:12:05,step:fund-release,INFO,started\n2026-09-26 02:14:07,step:fund-release,ERROR,\"daily limit exceeded: batch gross 51,340.22 GBP > limit 50,000.00 GBP\"\n2026-09-26 02:14:08,step:fund-release,INFO,\"released 118 items, 42 items pending, batch aborted\"\n2026-09-26 02:14:09,batch:B-0925,WARN,\"batch aborted, exit=1\"\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "Solstice Fare's payout batch B-0925 ran in the early hours of 2026-09-26; the log export is logs/payout-batch.csv. Which step of the batch failed?",
+      "expect": {
+        "output_contains_any": [
+          "fund-release"
+        ]
+      }
+    },
+    {
+      "prompt": "At what timestamp did that step fail?",
+      "expect": {
+        "output_contains_any": [
+          "02:14",
+          "02:14:07"
+        ]
+      }
+    },
+    {
+      "prompt": "How many payout items had been released successfully by then?",
+      "expect": {
+        "expected_number": 118.0,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "Hold on — the net amount of the batch was only around 46k and the limit is 50k. Check the runbook in notes/payout-runbook.md and tell me by how much the batch actually exceeded the limit.",
+      "expect": {
+        "output_contains_any": [
+          "1340.22",
+          "1,340.22"
+        ]
+      }
+    },
+    {
+      "prompt": "One more: how many items were still pending when the batch aborted?",
+      "expect": {
+        "expected_number": 42.0,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

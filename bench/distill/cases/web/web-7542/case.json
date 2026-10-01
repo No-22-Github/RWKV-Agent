@@ -1,0 +1,57 @@
+{
+  "id": "web-7542",
+  "description": "Per-tent occupancy on Caldermere pitches, from a rules page the snippet does not reveal. DISTILL-CANARY-9e83ef94",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-SNIPPETVAGUE"
+    ],
+    "trap_decoys": {
+      "TR-SNIPPETVAGUE": 4
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-web-b06-caldermere",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "caldermere",
+      "url": "https://help.caldermere.example/pitches",
+      "url_match": "help.caldermere.example/pitches",
+      "title": "Pitch types and site rules - Caldermere Fields",
+      "snippet": "An overview of pitch types, seasonal rates and the site rules that apply to every booking.",
+      "content": "# Pitch types and site rules\n\nStandard grass pitch: one tent up to 6 occupants, one car included.\nServiced pitch (electric hook-up): one tent up to 6 occupants on\nhardstanding, with a 16 amp hook-up. Moonlight safari tents sleep 4\nand are booked separately.\n\nSite rules: quiet hours 22:30-07:00, one fire pit per booking, dogs on\nleads in the meadow.\n",
+      "published_at": "2026-06-15"
+    },
+    {
+      "query_match": "caldermere",
+      "url": "https://help.caldermere.example/seasonal-rates",
+      "url_match": "help.caldermere.example/seasonal-rates",
+      "title": "Seasonal rates - Caldermere Fields",
+      "snippet": "Nightly rates by season and pitch type.",
+      "content": "# Seasonal rates\n\nStandard grass pitch: 22 pounds off-peak, 28 pounds summer.\nServiced pitch: 28 pounds off-peak, 34 pounds summer.\nSafari tents: 95 pounds flat, two-night minimum.\n",
+      "published_at": "2026-06-15"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "A group of friends is picking a tent for a stay at Caldermere Fields. Give the number alone, as digits, with no label. How many occupants can one tent hold on a standard or serviced pitch?",
+      "expect": {
+        "expected_number": 6,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

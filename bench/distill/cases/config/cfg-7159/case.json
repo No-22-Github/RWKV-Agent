@@ -1,0 +1,53 @@
+{
+  "id": "cfg-7159",
+  "description": "Append the charging station's finished repair tickets to the monthly log. DISTILL-CANARY-92b38d61",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 3
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b06-panjiaxiang",
+    "ref_calls": 4,
+    "fixture_bytes": 561,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "logs/repair-2026-09.txt": "2026-09-21 2号桩 读卡器除尘 完成 WX-2874\n2026-09-25 6号桩 急停按钮复位 完成 WX-2877\n",
+    "sheets/工单-2026-09-29.txt": "潘家巷充电站 维修工单 2026-09-29\n3号桩 充电枪接触器更换 完成 WX-2881\n7号桩 计费板更换 未完成 WX-2882\n5号桩 熔断器更换 完成 WX-2883\n",
+    "README.md": "# 潘家巷充电站 维修日志\n\nlogs/repair-YYYY-MM.txt 一行一单：\n\n    日期 N号桩 事项 完成 工单号\n\n维修工单录在 sheets/。只有当日记为「完成」的工单当天入日志，\n未完成的等配件到货修好后再记；日期用工单表头的日期。\n"
+  },
+  "expect": {
+    "files": {
+      "logs/repair-2026-09.txt": {
+        "contains": [
+          "2026-09-21 2号桩 读卡器除尘 完成 WX-2874",
+          "2026-09-29 3号桩 充电枪接触器更换 完成 WX-2881",
+          "2026-09-29 5号桩 熔断器更换 完成 WX-2883"
+        ]
+      },
+      "sheets/工单-2026-09-29.txt": {
+        "unchanged": true
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "潘家巷充电站 9 月 29 日的一批维修工单已经录成文字，在 sheets/工单-2026-09-29.txt。请按站里的规矩把该入日志的单子记进 logs/repair-2026-09.txt，写法和旧行一致；工单原件不要动。完成后用两三句话说明你补了什么、依据是什么。",
+      "expect": {}
+    }
+  ]
+}

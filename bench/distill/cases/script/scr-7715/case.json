@@ -1,0 +1,50 @@
+{
+  "id": "scr-7715",
+  "description": "Give the orchard press-day script a --total flag that prints only the grand total line. DISTILL-CANARY-795d05e9",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "add_flag",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-scr-b06-pippinfield",
+    "ref_calls": 3,
+    "fixture_bytes": 1129,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "press.py": "\"\"\"Print the press-day totals for Pippinfield Orchards.\n\nPress days drop one file per month into pressings/, one row per variety:\n\n    pressed_on,variety,bottles\n\nThe totals are one line per variety, in alphabetical order, followed by a\ngrand total line:\n\n    <variety>,<bottles>\n    GRAND,<bottles>\n\nUsage:\n\n    python3 press.py\n\"\"\"\n\nimport csv\nimport glob\n\nper_variety = {}\nfor path in sorted(glob.glob(\"pressings/*.csv\")):\n    with open(path, newline=\"\", encoding=\"utf-8\") as handle:\n        for row in list(csv.reader(handle))[1:]:\n            variety = row[1]\n            bottles = int(row[2])\n            per_variety[variety] = per_variety.get(variety, 0) + bottles\n\ntotal = 0\nfor variety in sorted(per_variety):\n    print(f\"{variety},{per_variety[variety]}\")\n    total += per_variety[variety]\nprint(f\"GRAND,{total}\")\n",
+    "pressings/2026-09.csv": "pressed_on,variety,bottles\n2026-09-06,Dabinett,120\n2026-09-06,Medland,80\n2026-09-13,Kingston,60\n2026-09-20,Dabinett,95\n2026-09-27,Medland,110\n2026-09-27,Tremlett,45\n",
+    "README.md": "# Pippinfield Orchards - press day totals\n\nPress days drop one file per month into pressings/. Standard library\nonly on the orchard laptop.\n"
+  },
+  "expect": {
+    "files": {
+      "pressings/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "press.py",
+      "expected_stdout": "GRAND,720",
+      "args": [
+        "--total"
+      ],
+      "hidden_files": {
+        "pressings/2026-10.csv": "pressed_on,variety,bottles\n2026-10-04,Dabinett,70\n2026-10-11,Kingston,85\n2026-10-18,Tremlett,55\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Pippinfield Orchards' press-day totals print fine, but the cider master wants the bottom line alone when he checks the barrel plan. Please give press.py a --total flag: with the flag it prints only the grand total line; without it, the script behaves exactly as it does today. The files in pressings/ stay as they are. When you are done, say in two or three sentences what you changed.",
+      "expect": {}
+    }
+  ]
+}

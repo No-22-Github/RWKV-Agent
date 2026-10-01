@@ -1,0 +1,54 @@
+{
+  "id": "code-7509",
+  "description": "Which audit files still carry TODO/FIXME markers and of which kind. DISTILL-CANARY-46e0d29a",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "count_markers",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "5"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-code-b07-markers-01",
+    "ref_calls": 3,
+    "fixture_bytes": 393,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "audit/emit.py": "# FIXME: 本地时间未换算成 UTC\nAUDIT_TOPIC = \"audit.cn.huaqiang.events\"\nBANNER = \"TODO: 换新版横幅文案\"\n\ndef emit(event):\n    return {\"topic\": AUDIT_TOPIC, \"body\": event, \"banner\": BANNER}\n",
+    "audit/rules.py": "# TODO: 规则热更新还没接总线\nTHRESHOLD = 42\n\ndef suspicious(count):\n    # TODO(cost): 高峰期限流阈值待定\n    # TODO: 补充灰度名单来源\n    return count > THRESHOLD\n"
+  },
+  "turns": [
+    {
+      "prompt": "audit/ 下两个文件里还留着哪些待办标记（TODO/FIXME 之类）、分别在哪个文件？帮我盘一遍。",
+      "expect": {
+        "output_contains": [
+          "FIXME",
+          "TODO",
+          "emit.py",
+          "rules.py"
+        ],
+        "output_contains_any": [
+          "FIXME",
+          "TODO",
+          "emit.py",
+          "rules.py"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

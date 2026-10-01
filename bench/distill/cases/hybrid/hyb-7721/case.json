@@ -1,0 +1,57 @@
+{
+  "id": "hyb-7721",
+  "description": "Multi-turn bookstore ledger correction from transfers to storefront sales under a wrong sheet name. DISTILL-CANARY-05a3d6f8",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": 210
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b07-namefix-08",
+    "ref_calls": 3,
+    "fixture_bytes": 664,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "transfers-2026-09.csv": "date,title,copies\n2026-09-03,雾港航图,120\n2026-09-05,青箱记,64\n2026-09-09,纸鸢考,200\n2026-09-12,北地食单,88\n2026-09-16,夜航西窗,145\n2026-09-19,青箱记,75\n2026-09-23,木刻纪年,90\n2026-09-26,雾港航图,74\n",
+    "storefront-2026-09.csv": "date,title,copies\n2026-09-02,青箱记,210\n2026-09-04,北地食单,160\n2026-09-08,纸鸢考,185\n2026-09-11,雾港航图,95\n2026-09-15,青箱记,140\n2026-09-18,木刻纪年,120\n2026-09-22,夜航西窗,155\n2026-09-25,青箱记,88\n2026-09-28,北地食单,137\n",
+    "README.md": "# 星桥书局 九月台账\n\ntransfers-2026-09.csv 记仓库调拨出库，storefront-2026-09.csv 记门店零售，\n两本账分开记。文件名按「用途-年-月」命名。\n"
+  },
+  "turns": [
+    {
+      "prompt": "星桥书局做九月盘点。仓库调拨出库的册数一共多少？只回数字。",
+      "expect": {
+        "expected_number": 856,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "不对，调拨的先放一边——我要的是门店零售的账。店长提过文件叫 storefront-september.csv，零售册数一共多少？只回数字。",
+      "expect": {
+        "expected_number": 1290,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "零售台账里单日卖出最多的是哪本书？回书名就行。",
+      "expect": {
+        "output_contains": [
+          "青箱记"
+        ]
+      }
+    }
+  ]
+}

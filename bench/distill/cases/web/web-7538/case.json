@@ -1,0 +1,53 @@
+{
+  "id": "web-7538",
+  "description": "Fingerprint capacity per door lock, from a help-centre page given by URL. DISTILL-CANARY-ad896a91",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-web-b06-songlan",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "松阑",
+      "url": "https://help.songlan.example/capacity",
+      "url_match": "help.songlan.example/capacity",
+      "title": "松阑智能门锁 · 指纹与密码容量说明",
+      "snippet": "整理了指纹、密码与临时密码的录入上限。",
+      "content": "# 松阑智能门锁 · 指纹与密码容量说明\n\n为保证识别速度，单把门锁的容量如下：\n- 指纹：单把门锁最多可录入 30 组指纹\n- 门禁密码：最多 20 组常用密码\n- 临时密码：同时有效的临时密码不超过 10 把\n\n超出容量时请先删除不再使用的条目。\n",
+      "published_at": "2026-08-08"
+    },
+    {
+      "query_match": "松阑",
+      "url": "https://help.songlan.example/install",
+      "url_match": "help.songlan.example/install",
+      "title": "松阑智能门锁 · 安装与联网指引",
+      "snippet": "安装位置、门体厚度与配网步骤。",
+      "content": "# 松阑智能门锁 · 安装与联网指引\n\n安装前请确认门体厚度在 38-55 毫米之间，并按说明书接好方轴与\n锁体排线。配网时长按电池盖内的按键直至指示灯快闪。\n",
+      "published_at": "2026-07-19"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "松阑智能门锁的帮助中心 https://help.songlan.example/capacity 整理了各功能的录入上限。只回答数字，不要单位。单把门锁最多可以录入多少组指纹？",
+      "expect": {
+        "expected_number": 30,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

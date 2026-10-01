@@ -1,0 +1,39 @@
+{
+  "id": "doc-8012",
+  "description": "Which payment API version a new merchant should integrate against, given a changelog where one entry is announced but not yet released. DISTILL-CANARY-58b2dd3d",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": "v2.7"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-holdout-doc-apiversion-01",
+    "ref_calls": 2,
+    "fixture_bytes": 328,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "api-changelog.md": "# 支付接口版本记录\n\n| 版本 | 日期 | 状态 | 说明 |\n|---|---|---|---|\n| v2.7 | 2026-09-20 | 预告 | 风控回调扩展，尚未发布 |\n| v2.6 | 2026-08-30 | 已发布 | 新增退款查询接口 |\n| v2.5 | 2026-06-12 | 已发布 | 分账明细字段调整 |\n| v2.4 | 2026-03-02 | 已发布 | 初始对接版本 |\n"
+  },
+  "turns": [
+    {
+      "prompt": "栖梧民宿的新商户要接入我们的支付接口，应该按哪个版本对接？只回答版本号（例如 v1.0 这种写法）。",
+      "expect": {
+        "output_equals": "v2.6"
+      }
+    }
+  ]
+}

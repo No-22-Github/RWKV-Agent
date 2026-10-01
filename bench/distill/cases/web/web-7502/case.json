@@ -1,0 +1,57 @@
+{
+  "id": "web-7502",
+  "description": "Pin the current stable Kestrel CLI version against a stale release blog ranked first. DISTILL-CANARY-58a2c9f7",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "2.5.0"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-web-b06-kestrel",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "kestrel",
+      "url": "https://www.datatooljournal.example/kestrel-cli-2-5-0",
+      "url_match": "www.datatooljournal.example/kestrel-cli-2-5-0",
+      "title": "Kestrel CLI 2.5.0 ships a rewritten plan cache",
+      "snippet": "The 2.5.0 release, out since April 2026, rewrites the plan cache and cuts cold-start time in half.",
+      "content": "# Kestrel CLI 2.5.0 ships a rewritten plan cache\n\ndatatooljournal.example, 2026-04-11.\n\nThe 2.5.0 release is out: the query planner's cache is rewritten, cold starts\nare down by half, and kestrel verify now prints the plan digest.\n\n## 2.5.0 (2026-04-11)\n\n- rewritten plan cache\n- faster cold start\n- plan digest in verify output\n",
+      "published_at": "2026-04-11"
+    },
+    {
+      "query_match": "kestrel",
+      "url": "https://docs.kestreldata.example/changelog",
+      "url_match": "docs.kestreldata.example/changelog",
+      "title": "Kestrel CLI changelog",
+      "snippet": "Release history for the Kestrel CLI; pin the current stable release for new machines.",
+      "content": "# Changelog\n\nRelease history for the Kestrel CLI. Pin the current stable release for new\nmachines.\n\n## 2.8.4 (2026-09-12)\n\nCurrent stable release. Fixes a plan-cache invalidation miss on retry.\n\n## 2.7.1 (2026-07-30)\n\nStable release. Adds a flame-graph export.\n\n## 2.5.0 (2026-04-11)\n\nRewritten plan cache, faster cold start.\n",
+      "published_at": "2026-09-12"
+    }
+  ],
+  "expect": {},
+  "turns": [
+    {
+      "prompt": "Our release engineer wants to pin one Kestrel CLI version for all the new render machines today. Which version string should go into the pin? Give the version alone, in the form 1.2.3.",
+      "expect": {
+        "output_equals": "2.8.4"
+      }
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "id": "scr-7713",
+  "description": "Repair the aquarium feed report whose nightly run crashes on a feeding row the tablet aborted mid-write. DISTILL-CANARY-4a462ab4",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_from_traceback",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-scr-b06-tidecrest",
+    "ref_calls": 3,
+    "fixture_bytes": 1494,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "feeds.py": "\"\"\"Print the morning feed report for Tidecrest Aquarium.\n\nThe keeper tablets drop one feed file per month into feeds/, one row per\nfeeding:\n\n    day,tank,grams\n\nThe report is one line per tank, in alphabetical order, with the grams fed\nthat month, followed by a total line:\n\n    <tank>,<grams>\n    TOTAL,<grams>\n\nA row whose grams cell was never filled in is an aborted entry from a\ntablet that lost the network; it counts nothing.\n\"\"\"\n\nimport csv\nimport glob\n\nper_tank = {}\nfor path in sorted(glob.glob(\"feeds/*.csv\")):\n    with open(path, newline=\"\", encoding=\"utf-8\") as handle:\n        for row in list(csv.reader(handle))[1:]:\n            tank = row[1]\n            grams = int(row[2])\n            per_tank[tank] = per_tank.get(tank, 0) + grams\n\ntotal = 0\nfor tank in sorted(per_tank):\n    print(f\"{tank},{per_tank[tank]}\")\n    total += per_tank[tank]\nprint(f\"TOTAL,{total}\")\n",
+    "feeds/2026-09.csv": "day,tank,grams\n2026-09-02,Reef Loop,900\n2026-09-02,Kelp Shelf,450\n2026-09-09,Reef Loop,850\n2026-09-14,Ray Pool,\n2026-09-14,Kelp Shelf,400\n2026-09-23,Reef Loop,780\n2026-09-29,Ray Pool,520\n",
+    "logs/night-2026-09-29.log": "Tidecrest Aquarium - overnight batch\n2026-09-29 23:30 [error] morning feed report failed, log follows\nTraceback (most recent call last):\n  File \"feeds.py\", line 26, in <module>\n    grams = int(row[2])\nValueError: invalid literal for int() with base 10: ''\n",
+    "README.md": "# Tidecrest Aquarium - morning feed report\n\nKeeper tablets drop one feed file per month into feeds/. The report from\nfeeds.py is what the morning keeper meeting reads out.\n"
+  },
+  "expect": {
+    "files": {
+      "feeds/2026-09.csv": {
+        "unchanged": true
+      },
+      "logs/night-2026-09-29.log": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "feeds.py",
+      "expected_stdout": "Kelp Shelf,1320\nRay Pool,1080\nReef Loop,3340\nTOTAL,5740",
+      "hidden_files": {
+        "feeds/2026-10.csv": "day,tank,grams\n2026-10-03,Kelp Shelf,470\n2026-10-08,Reef Loop,810\n2026-10-15,Reef Loop,\n2026-10-22,Ray Pool,560\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The morning feed report at Tidecrest Aquarium stopped coming out: the overnight batch crashed on the 29th and the run record is in logs/night-2026-09-29.log. Please repair feeds.py so the report prints again the way its docstring describes, and so it keeps working as later monthly feed files land in feeds/. The feed files are the keeper tablets' own uploads, so they stay as they are. When you are done, say in two or three sentences what you changed.",
+      "expect": {}
+    }
+  ]
+}

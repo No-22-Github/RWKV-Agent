@@ -1,0 +1,38 @@
+{
+  "id": "nt-7118",
+  "description": "Workstations that fit into a 54 square-metre open office at 3 square metres per desk DISTILL-CANARY-86a3343f",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b06-workstation-plan-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 251
+  },
+  "web_fixture": [],
+  "files": {
+    "plans/floor_areas.csv": "区域,面积平方米\n开放办公区,54\n大会议室,22\n前台接待,9\n",
+    "README.md": "# 栖梧办公 - 空间规划工作区\n\n客户工位排布的底稿和面积登记都在这里。\n\n- plans/  区域面积登记表\n\n工位标准：每 3 平米放一个工位。\n"
+  },
+  "turns": [
+    {
+      "prompt": "栖梧办公在给客户排工位，标准是每 3 平米放一个工位。开放办公区的面积是 54 平米。这个区域一共能放多少个工位？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 18,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

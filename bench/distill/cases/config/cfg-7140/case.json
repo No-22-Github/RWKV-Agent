@@ -1,0 +1,39 @@
+{
+  "id": "cfg-7140",
+  "description": "Extend kiln hold hours in a two section kiln config, changing nothing else. DISTILL-CANARY-dd1bc574",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-cfg-b06-yunhe-kiln",
+    "ref_calls": 2,
+    "fixture_bytes": 358,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/kiln.yaml": "kiln:\n  max_temp_c: 85\n  hold_hours: 6\n  log_every_min: 5\nshipping:\n  pallet_max_kg: 480\n  wrap_minutes: 12\n",
+    "README.md": "# 云和木艺 - 烘干窑配置\n\n`config/kiln.yaml` 是厂区烘干窑的生效配置，分 kiln（窑体）与 shipping（出货运托）两节，缩进的行属于它上面的节。\n\n窑长按这份文件值守，改动只动对应的那一行。\n"
+  },
+  "expect": {
+    "files": {
+      "config/kiln.yaml": {
+        "equals": "kiln:\n  max_temp_c: 85\n  hold_hours: 8\n  log_every_min: 5\nshipping:\n  pallet_max_kg: 480\n  wrap_minutes: 12\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "云和木艺的烘干窑这周开大窑，窑长决定把保温段从 6 小时延到 8 小时。请把 config/kiln.yaml 里的 hold_hours 改到 8，其他行保持原样。完成后用两三句话说明你改了什么。",
+      "expect": {}
+    }
+  ]
+}

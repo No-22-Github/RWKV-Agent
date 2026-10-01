@@ -1,0 +1,46 @@
+{
+  "id": "code-7224",
+  "description": "Locate recalc_cool_box past a mention-heavy importer module and a near-name function. DISTILL-CANARY-206f53af",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "locate_definition",
+    "traps": [
+      "TR-DECOY",
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "icepack.py",
+      "TR-NEARNAME": "coldchain_note.py"
+    },
+    "axes": [
+      "OBS",
+      "ERR"
+    ],
+    "level": "L2",
+    "family": "fam-code-b06-yufan-def",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 1161,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {
+    "cold_chain.py": "\"\"\"渔帆生鲜冷链重算模块，冰袋与冷媒用量都从这里出。\n重算口径以冷链组的最新备忘为准。\n\"\"\"\n\n\n\ndef recalc_cool_box(boxes: int, ambient: float) -> float:\n    \"\"\"按箱数与环境温度重算冰袋用量，返回冰袋数。\"\"\"\n    base = boxes * 2\n    if ambient >= 27.5:\n        base += boxes\n    return float(base)\n",
+    "icepack.py": "\"\"\"装箱模块：把待发货商品装进保温箱并调用冷链重算。\n装完的箱单交给打标机。\n\"\"\"\nfrom cold_chain import recalc_cool_box\n\nLOG_LINE = \"箱单 {no} 已重算：recalc_cool_box 建议 {ice} 张冰袋\"\n\n\ndef pack_boxes(items: list, ambient: float) -> list:\n    boxes = max(1, len(items) // 5)\n    ice = recalc_cool_box(boxes, ambient)\n    return [{\"box\": i + 1, \"ice\": ice} for i in range(boxes)]\n",
+    "coldchain_note.py": "\"\"\"冷链备注工具，只维护与冰袋无关的箱贴文案。\n历史版本曾叫 coolbox 速记，现已拆分。\n\"\"\"\n\n\n\ndef coolbox_note(box_no: int, note: str) -> str:\n    \"\"\"生成箱贴备注文案。\"\"\"\n    return f\"#{box_no} {note}\"\n\n\ndef recalc_coolbox_draft(text: str) -> str:\n    \"\"\"草稿占位：与正式重算无关，勿接入流程。\"\"\"\n    return text.strip()\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "渔帆生鲜的冷链脚本仓库里，装箱模块 icepack.py 调用了 recalc_cool_box。这个函数的定义在哪个文件里？回答时写明文件名。",
+      "expect": {
+        "output_contains_any": [
+          "cold_chain.py"
+        ]
+      }
+    }
+  ]
+}

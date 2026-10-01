@@ -1,0 +1,60 @@
+{
+  "id": "hyb-7665",
+  "description": "Container freight plus fuel surcharge from two different carrier pages, priced by container size. DISTILL-CANARY-dae56591",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_calc",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": 4700
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b06-freightcalc-01",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 216,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {
+    "集装箱部/装箱清单.csv": "箱号,尺寸,货物\nHYNU-4471,20GP,阀门\nHYNU-4472,20GP,管件\n",
+    "README.md": "铁峰物流集装箱部：出口海运费按环宇海运的价目表计收，燃油附加费按其当月通知单独加收，两项都按箱计算。\n"
+  },
+  "web_fixture": [
+    {
+      "query_match": "环宇海运",
+      "url": "https://www.huanyu-shipping.example/price-list-2026-09",
+      "url_match": "huanyu-shipping.example/price-list-2026-09",
+      "title": "环宇海运 2026 年 9 月海运价目表",
+      "snippet": "9 月起执行的各箱型海运费。",
+      "content": "# 环宇海运 9 月海运价目表（2026-09-01 起执行）\n\n箱型 | 海运费（美元/箱）\n20GP | 2350\n40HQ | 3520\n",
+      "published_at": "2026-08-27"
+    },
+    {
+      "query_match": "环宇海运 附加费",
+      "url": "https://www.huanyu-shipping.example/surcharge-2026-09",
+      "url_match": "huanyu-shipping.example/surcharge-2026-09",
+      "title": "环宇海运 9 月燃油附加费通知",
+      "snippet": "9 月燃油附加费按箱加收。",
+      "content": "# 环宇海运燃油附加费通知（2026 年 9 月）\n\n9 月燃油附加费按箱加收：\n\n箱型 | 附加费（美元/箱）\n20GP | 180\n40HQ | 260\n",
+      "published_at": "2026-09-01"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "集装箱部要给这批出口箱子报总的海运成本。装箱清单在 集装箱部/装箱清单.csv，海运费和燃油附加费都按环宇海运 9 月的标准。这批箱子的海运费加燃油附加费一共多少美元？（只回答数字，不要单位。）",
+      "expect": {
+        "expected_number": 5060,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

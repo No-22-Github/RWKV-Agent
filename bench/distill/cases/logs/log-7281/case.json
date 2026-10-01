@@ -1,0 +1,51 @@
+{
+  "id": "log-7281",
+  "description": "September vibration exceedance list from an inspection export that carries no vibration readings. DISTILL-CANARY-7a0029a0",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "aggregate_jsonl",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "2"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-log-b06-chongming-vib",
+    "ref_calls": 2,
+    "fixture_bytes": 830,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 重明机械 - 设备巡检导出\n\n巡检班每月导出的巡检记录，一行一次巡检。\n\n列：日期、设备编号、巡检人、结果、备注。备注是巡检员的手写文字记录，不是测量值。\n\n振动传感器数据在设备物联网平台上，不在本表。\n",
+    "exports/inspect-2026-09.csv": "日期,设备编号,巡检人,结果,备注\n2026-09-01,JC-1102,周衡,正常,\n2026-09-02,JC-1105,周衡,正常,\n2026-09-03,JC-1102,吴迪,正常,\n2026-09-05,JC-1108,吴迪,异常,振动偏大，已复紧地脚螺栓\n2026-09-08,JC-1105,周衡,正常,\n2026-09-09,JC-1108,吴迪,异常,振动偏大，建议安排复查\n2026-09-11,JC-1112,周衡,正常,\n2026-09-12,JC-1102,吴迪,正常,\n2026-09-15,JC-1108,周衡,待观察,轴承声音偏响\n2026-09-17,JC-1105,吴迪,正常,\n2026-09-22,JC-1112,周衡,正常,\n2026-09-26,JC-1108,吴迪,正常,\n"
+  },
+  "turns": [
+    {
+      "prompt": "重明机械的安全员要 9 月的设备振动超标清单，帮我从 exports/inspect-2026-09.csv 里统计一下各设备 9 月的振动值，超标的分别是哪几台？",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "振动",
+          "vibration"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

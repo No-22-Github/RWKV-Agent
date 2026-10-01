@@ -1,0 +1,47 @@
+{
+  "id": "nt-7127",
+  "description": "End-of-day goodbye with a note about reviewing proofs tomorrow; reply directly without any tool call DISTILL-CANARY-1006143b",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b06-smalltalk-03",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 237
+  },
+  "web_fixture": [],
+  "files": {
+    "orders/albums_2026-10.csv": "订单,套系,状态\nAY-3105,草坪婚礼,修片中\nAY-3112,周岁跟拍,待修\nAY-3098,全家福,已交付\n",
+    "README.md": "# 拾光影楼 - 修图工作区\n\n客片进度与选片单都在这里。\n\n- orders/  订单进度表\n- proofs/  选片单存档\n"
+  },
+  "turns": [
+    {
+      "prompt": "今天先到这儿，样片我明天精神好了再细看。我先下班啦，明天见。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "明天见",
+          "再见",
+          "拜拜",
+          "慢走",
+          "路上注意",
+          "回见",
+          "下班",
+          "明天"
+        ]
+      }
+    }
+  ]
+}

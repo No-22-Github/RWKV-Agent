@@ -19,9 +19,10 @@
     "ref_calls": 2,
     "fixture_bytes": 1328,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
-    "reviewer": null
+    "reviewer": null,
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -31,9 +32,11 @@
   },
   "turns": [
     {
-      "prompt": "The Tarnbrook Software billing team is writing the capacity note for the checkout service and needs the effective value of `reservation_hold_s` for the production deployment. What is it? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "The Tarnbrook Software billing team is writing the capacity note for the checkout service and needs the effective value of `reservation_hold_s` for the production deployment. What is it?",
       "expect": {
-        "output_equals": "UNKNOWN"
+        "required_tools": ["read_file"],
+        "output_contains_any": ["reservation_hold_s", "reservation hold", "hold for reservations"],
+        "output_excludes": ["UNKNOWN", "1800"]
       }
     }
   ]

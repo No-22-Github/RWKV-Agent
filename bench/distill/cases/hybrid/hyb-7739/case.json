@@ -1,0 +1,48 @@
+{
+  "id": "hyb-7739",
+  "description": "Stillpoint Studio two-turn session: Standard-plan MRR first, then a thank-you with a September signups follow-up. DISTILL-CANARY-47a0d8be",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 2900
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b07-yoga-01",
+    "ref_calls": 2,
+    "fixture_bytes": 745,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "value"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Stillpoint Studio - October member list\n\nOne row per active membership. plan is either Standard or Standard Plus;\nmonthly_fee is the current recurring fee; joined is the signup date.\n",
+    "data/members_october.csv": "member_id,plan,monthly_fee,joined\nM-2201,Standard Plus,220,2026-08-14\nM-2202,Standard Plus,260,2026-09-02\nM-2203,Standard Plus,220,2026-09-18\nM-2204,Standard,140,2026-06-10\nM-2205,Standard,140,2026-07-21\nM-2206,Standard Plus,260,2026-10-01\nM-2207,Standard,160,2026-09-27\nM-2208,Standard Plus,220,2026-07-30\nM-2209,Standard,140,2026-09-05\nM-2210,Standard,160,2026-09-30\nM-2211,Standard Plus,260,2026-10-08\nM-2212,Standard,140,2026-09-11\nM-2213,Standard,140,2026-05-16\nM-2214,Standard,160,2026-09-21\nM-2215,Standard,140,2026-09-26\nM-2216,Standard,140,2026-09-14\n"
+  },
+  "turns": [
+    {
+      "prompt": "What was our monthly recurring revenue from the Standard plan in October? The member list is at data/members_october.csv. Reply with only the final answer.",
+      "expect": {
+        "expected_number": 1460,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "Thank you, that clears it up! One follow-up - how many members on the Standard plan joined in September? Reply with only the final answer.",
+      "expect": {
+        "expected_number": 7,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

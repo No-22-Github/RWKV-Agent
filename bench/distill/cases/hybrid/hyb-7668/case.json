@@ -1,0 +1,71 @@
+{
+  "id": "hyb-7668",
+  "description": "Update the duty phone in the emergency plan; the notice page fails to fetch and a reposted copy works. DISTILL-CANARY-1d545c2b",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_edit",
+    "traps": [
+      "TR-FETCHFAIL"
+    ],
+    "trap_decoys": {
+      "TR-FETCHFAIL": "0755-26631199"
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b06-rosteredit-01",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 222,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {
+    "应急预案.txt": "24小时值班电话：0755-26631188\n夜间值守：安保部轮值\n启用条件：台风黄色及以上预警\n修订：2026-03-15\n",
+    "物业管理.md": "澜庭嘉园物业的应急预案张贴在值班室，电话有调整时要同步更新。\n"
+  },
+  "web_fixture": [
+    {
+      "query_match": "澜庭嘉园 值班电话",
+      "url": "https://news.lanting-estate.example/notices/duty-phone-2026-09",
+      "url_match": "news.lanting-estate.example/notices/duty-phone-2026-09",
+      "title": "澜庭嘉园物业：值班电话调整公告",
+      "snippet": "自 9 月 8 日起 24 小时值班电话调整。",
+      "content": "",
+      "published_at": "2026-09-05",
+      "error": "connect timeout after 30s"
+    },
+    {
+      "query_match": "澜庭嘉园",
+      "url": "https://forum.citylife.example/thread-88217",
+      "url_match": "forum.citylife.example/thread-88217",
+      "title": "城市生活论坛：澜庭嘉园 9 月物业公告（转载）",
+      "snippet": "澜庭嘉园 9 月物业公告全文转载。",
+      "content": "# 澜庭嘉园 9 月物业公告（转载自物业通知栏）\n\n自 2026-09-08 起，24 小时值班电话调整为 0755-26633456，原号码停用。\n消防值班室电话维持 0755-26631199 不变。\n",
+      "published_at": "2026-09-06"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "值班室反馈说值班电话换了。应急预案在 应急预案.txt，物业前几天发过调整公告。请把应急预案里的值班电话更新成公告里说的新号码。改完后告诉我新的值班电话是多少？",
+      "expect": {
+        "output_contains": [
+          "0755-26633456"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "应急预案.txt": {
+        "contains": [
+          "0755-26633456"
+        ]
+      }
+    }
+  }
+}

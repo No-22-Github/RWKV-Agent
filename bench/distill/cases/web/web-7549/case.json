@@ -1,0 +1,64 @@
+{
+  "id": "web-7549",
+  "description": "Current stable Draycott Guard app version, named in the official release-notes snippet. DISTILL-CANARY-3c048d43",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-EARLYHIT",
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": "4.9.4",
+      "TR-WEBSTALE": "4.9.4"
+    },
+    "axes": [
+      "STP",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "fam-web-b06-draycott",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "draycott",
+      "url": "https://www.draycottnet.example/guard-notes",
+      "url_match": "www.draycottnet.example/guard-notes",
+      "title": "Draycott Guard - release notes",
+      "snippet": "Draycott Guard 4.10.2 is the current stable release; it adds offline door logs.",
+      "content": "# Draycott Guard - release notes\n\nGuard 4.10.2 is the current stable release (2026-09-09). It adds\noffline door logs and fixes a push-notification delay.\n\n## 4.10.2 (2026-09-09)\n\nOffline door logs; push fix.\n\n## 4.9.4 (2026-05-22)\n\nBattery reporting rework.\n",
+      "published_at": "2026-09-09"
+    },
+    {
+      "query_match": "draycott",
+      "url": "https://forum.smarthome.example/t/draycott-guard-old",
+      "url_match": "forum.smarthome.example/t/draycott-guard-old",
+      "title": "Anyone else stuck on Guard 4.9.4?",
+      "snippet": "Our hub has been stuck on 4.9.4 since the spring rollout; auto-update keeps failing.",
+      "content": "forum.smarthome.example - hubs - stuck on Guard 4.9.4\n\np1 (keyfob_kate, 2026-06-02): Our hub has been stuck on 4.9.4 since\nthe spring rollout; auto-update keeps failing on it.\n\np2 (relayron, 2026-06-03): Same here since May.\n",
+      "published_at": "2026-06-02"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "The front desk tablet runs the Draycott Guard app. Give the version alone, in the form 1.2.3. Which Guard version is the current stable release?",
+      "expect": {
+        "output_equals": "4.10.2"
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  }
+}

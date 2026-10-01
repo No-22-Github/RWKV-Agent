@@ -1,0 +1,55 @@
+{
+  "id": "nt-7156",
+  "description": "Signing off for the evening; no task attached. DISTILL-CANARY-48d1e921",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-smalltalk-signoff-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 201
+  },
+  "offered_tools": [
+    "read_file",
+    "list_files"
+  ],
+  "web_fixture": [],
+  "files": {
+    "fields/planting.csv": "plot,crop,status\n东三号,晚稻,已收割\n东四号,大豆,待收\n",
+    "README.md": "# 山禾农场 - 农事工作区\n\n地块与农事进度都登记在这里。\n\n- fields/  地块与种植登记\n- logs/  农事日志\n"
+  },
+  "turns": [
+    {
+      "prompt": "我先撤啦，今晚约了老同学吃饭，明天见哈。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "明天见",
+          "再见",
+          "拜拜",
+          "慢走",
+          "回见",
+          "玩得开心",
+          "好好吃",
+          "路上小心"
+        ]
+      }
+    }
+  ]
+}

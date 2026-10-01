@@ -1,0 +1,56 @@
+{
+  "id": "doc-7340",
+  "description": "Write next week's duty roster notice from a shift registry. DISTILL-CANARY-cdbcc8fa",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-doc-b06-yunjian",
+    "ref_calls": 2,
+    "fixture_bytes": 389,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "值班登记.csv": "日期,班次,员工\n2026-10-05,早班,苏合\n2026-10-05,晚班,顾南枝\n2026-10-06,早班,白榆\n2026-10-06,晚班,韩霁\n2026-10-07,早班,桑野\n2026-10-07,晚班,蒋一苇\n2026-10-08,早班,唐折枝\n2026-10-08,晚班,竺秋原\n2026-10-09,早班,顾南枝\n2026-10-09,晚班,苏合\n2026-10-10,早班,韩霁\n2026-10-10,晚班,白榆\n2026-10-11,早班,蒋一苇\n2026-10-11,晚班,桑野\n"
+  },
+  "expect": {
+    "files": {
+      "下周值班通知.md": {
+        "contains": [
+          "2026-10-05",
+          "2026-10-06",
+          "2026-10-07",
+          "2026-10-08",
+          "2026-10-09",
+          "2026-10-10",
+          "2026-10-11",
+          "苏合",
+          "顾南枝",
+          "白榆",
+          "韩霁",
+          "桑野",
+          "蒋一苇",
+          "唐折枝",
+          "竺秋原"
+        ]
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "云涧茶室下周（2026-10-05 到 2026-10-11）的排班记在 值班登记.csv。请把它整理成 下周值班通知.md：每天一行，依次写日期、早班员工、晚班员工，日期写法照登记表。写好后告诉我你写了什么？",
+      "expect": {}
+    }
+  ]
+}

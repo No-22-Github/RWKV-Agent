@@ -1,0 +1,50 @@
+{
+  "id": "tab-7506",
+  "description": "Average June 2026 class size for Yoga Flow in a studio session log where a near-name restorative class sits beside it. DISTILL-CANARY-c2acbd1a",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 11.2105
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b06-cobblestone-yoga-01",
+    "ref_calls": 1,
+    "fixture_bytes": 4692,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "data/class_sessions.csv": "session_id,session_month,class_name,instructor,attendees\nCS-1624,2026-05,Pilates Mat,T. Osei,6\nCS-3440,2026-06,Yoga Flow Restore,T. Osei,15\nCS-7095,2026-06,Yoga Flow,N. Farkas,13\nCS-8655,2026-07,Pilates Mat,R. Whitfield,4\nCS-4716,2026-06,Yoga Flow Restore,R. Whitfield,17\nCS-2746,2026-06,Yoga Flow,N. Farkas,16\nCS-1930,2026-06,Spin,N. Farkas,15\nCS-6186,2026-06,Yoga Flow Restore,R. Whitfield,6\nCS-6550,2026-06,Yoga Flow Restore,T. Osei,13\nCS-1617,2026-06,Yoga Flow,N. Farkas,6\nCS-8504,2026-05,Pilates Mat,T. Osei,17\nCS-9761,2026-05,Yoga Flow,N. Farkas,7\nCS-6393,2026-05,Pilates Mat,R. Whitfield,17\nCS-6596,2026-05,Yoga Flow Restore,R. Whitfield,9\nCS-9127,2026-05,Yoga Flow,L. Brann,18\nCS-7071,2026-06,Yoga Flow,T. Osei,4\nCS-4051,2026-05,Yoga Flow Restore,L. Brann,10\nCS-2050,2026-06,Pilates Mat,N. Farkas,17\nCS-8533,2026-06,Yoga Flow Restore,L. Brann,6\nCS-1884,2026-06,Yoga Flow Restore,N. Farkas,13\nCS-657,2026-07,Pilates Mat,T. Osei,4\nCS-3513,2026-07,Yoga Flow,T. Osei,8\nCS-1773,2026-05,Yoga Flow,R. Whitfield,13\nCS-3346,2026-07,Yoga Flow,L. Brann,13\nCS-6346,2026-06,Yoga Flow Restore,R. Whitfield,12\nCS-7256,2026-06,Spin,T. Osei,6\nCS-384,2026-06,Yoga Flow,R. Whitfield,4\nCS-2219,2026-06,Yoga Flow Restore,R. Whitfield,13\nCS-9468,2026-06,Yoga Flow,L. Brann,4\nCS-9801,2026-06,Yoga Flow,N. Farkas,13\nCS-1694,2026-07,Yoga Flow Restore,L. Brann,11\nCS-9686,2026-05,Yoga Flow,T. Osei,9\nCS-226,2026-07,Yoga Flow Restore,N. Farkas,5\nCS-6305,2026-07,Yoga Flow,R. Whitfield,5\nCS-5839,2026-05,Yoga Flow,R. Whitfield,12\nCS-8508,2026-05,Pilates Mat,R. Whitfield,14\nCS-3121,2026-06,Yoga Flow,N. Farkas,9\nCS-3413,2026-06,Pilates Mat,L. Brann,16\nCS-9540,2026-06,Pilates Mat,N. Farkas,6\nCS-1760,2026-07,Yoga Flow Restore,R. Whitfield,17\nCS-3789,2026-07,Spin,N. Farkas,6\nCS-7215,2026-07,Spin,L. Brann,10\nCS-5317,2026-07,Yoga Flow Restore,T. Osei,9\nCS-664,2026-07,Yoga Flow Restore,R. Whitfield,14\nCS-5001,2026-07,Spin,N. Farkas,16\nCS-5648,2026-07,Yoga Flow Restore,N. Farkas,18\nCS-5799,2026-05,Yoga Flow,L. Brann,9\nCS-3777,2026-06,Yoga Flow,L. Brann,13\nCS-9137,2026-07,Yoga Flow,L. Brann,9\nCS-7510,2026-06,Yoga Flow Restore,L. Brann,17\nCS-3355,2026-06,Spin,L. Brann,5\nCS-5563,2026-05,Spin,R. Whitfield,7\nCS-6044,2026-05,Yoga Flow Restore,R. Whitfield,11\nCS-8899,2026-06,Yoga Flow,N. Farkas,11\nCS-3585,2026-07,Yoga Flow,L. Brann,8\nCS-514,2026-05,Spin,T. Osei,13\nCS-453,2026-06,Yoga Flow,T. Osei,13\nCS-9210,2026-07,Yoga Flow Restore,T. Osei,6\nCS-8622,2026-07,Yoga Flow,L. Brann,10\nCS-3276,2026-06,Yoga Flow,R. Whitfield,5\nCS-759,2026-05,Spin,N. Farkas,5\nCS-3461,2026-05,Yoga Flow Restore,N. Farkas,13\nCS-8266,2026-06,Yoga Flow Restore,R. Whitfield,9\nCS-5236,2026-06,Yoga Flow,L. Brann,10\nCS-2772,2026-06,Yoga Flow Restore,N. Farkas,17\nCS-5745,2026-06,Yoga Flow,T. Osei,18\nCS-2799,2026-06,Yoga Flow,R. Whitfield,17\nCS-2470,2026-06,Yoga Flow Restore,T. Osei,11\nCS-7090,2026-06,Yoga Flow Restore,L. Brann,4\nCS-1931,2026-06,Spin,T. Osei,11\nCS-7836,2026-06,Yoga Flow Restore,N. Farkas,6\nCS-529,2026-06,Yoga Flow,N. Farkas,7\nCS-3703,2026-06,Yoga Flow,N. Farkas,18\nCS-2595,2026-06,Pilates Mat,T. Osei,4\nCS-6893,2026-06,Spin,T. Osei,7\nCS-6316,2026-06,Yoga Flow,N. Farkas,18\nCS-7761,2026-06,Yoga Flow Restore,N. Farkas,18\nCS-9265,2026-06,Yoga Flow,R. Whitfield,5\nCS-4978,2026-07,Pilates Mat,L. Brann,14\nCS-4196,2026-06,Yoga Flow,T. Osei,18\nCS-1180,2026-05,Yoga Flow,R. Whitfield,16\nCS-8726,2026-06,Yoga Flow Restore,T. Osei,9\nCS-3035,2026-05,Pilates Mat,R. Whitfield,10\nCS-6353,2026-06,Pilates Mat,R. Whitfield,13\nCS-3512,2026-06,Yoga Flow Restore,R. Whitfield,5\nCS-9190,2026-06,Yoga Flow,N. Farkas,7\nCS-2906,2026-07,Yoga Flow Restore,L. Brann,18\nCS-4373,2026-06,Pilates Mat,L. Brann,6\nCS-8133,2026-07,Pilates Mat,N. Farkas,11\nCS-9622,2026-05,Yoga Flow,R. Whitfield,7\nCS-3236,2026-05,Yoga Flow,T. Osei,8\nCS-860,2026-06,Yoga Flow,L. Brann,6\nCS-582,2026-07,Yoga Flow,R. Whitfield,6\nCS-5279,2026-06,Spin,R. Whitfield,13\nCS-7742,2026-06,Spin,N. Farkas,4\nCS-1539,2026-06,Yoga Flow,L. Brann,5\nCS-3256,2026-06,Pilates Mat,L. Brann,17\nCS-5151,2026-07,Yoga Flow,L. Brann,8\nCS-947,2026-07,Spin,N. Farkas,6\nCS-793,2026-06,Yoga Flow Restore,L. Brann,6\nCS-5302,2026-07,Pilates Mat,N. Farkas,14\nCS-7373,2026-05,Yoga Flow,R. Whitfield,10\nCS-2573,2026-07,Yoga Flow,N. Farkas,12\nCS-1067,2026-06,Yoga Flow Restore,L. Brann,16\nCS-6617,2026-05,Yoga Flow Restore,N. Farkas,8\nCS-6557,2026-06,Yoga Flow,T. Osei,5\n",
+    "README.md": "# Cobblestone Fitness Studio - session log\n\nOne row per scheduled session. Yoga Flow is the vinyasa class; Yoga Flow Restore is the slow restorative class in the same room.\n",
+    "notes/studio_board.txt": "Studio board\n- Bolsters go back on the shelf wall after class.\n- The sound system remote lives in the drawer.\n- Mat cleaner refills are in the back closet.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Cobblestone Fitness Studio is reviewing June attendance by class. The session log is at data/class_sessions.csv. Give the number alone, as digits, with no label. What was the average class size for Yoga Flow sessions in June 2026?",
+      "expect": {
+        "expected_number": 10.2083,
+        "tolerance": 0.01,
+        "required_tools": [
+          "data_query"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 1
+    }
+  }
+}

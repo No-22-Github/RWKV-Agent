@@ -1,0 +1,54 @@
+{
+  "id": "fs-7710",
+  "description": "确认社区花园记录柜里钉耙借用登记（中文）：2026 年登记在场，同名 2025 归档件是诱饵。 DISTILL-CANARY-4f25d2bf",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "presence",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "2025-06-28"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-fs-b07-presdecoy-01",
+    "ref_calls": 4,
+    "fixture_bytes": 750,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 2,
+    "author": "llm:distill-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "records/2025/borrow-form-rakes.txt": "望泽园社区花园 2025 年工具借用登记：钉耙（已归档）。\n期限：2025-04-12 至 2025-06-28。押金已退。\n归还验收：五月底清点，耙齿两把齐全，已入柜。旧登记不再作为本季凭据。\n",
+    "records/2026/borrow-form-rakes.txt": "望泽园社区花园 2026 年工具借用登记：钉耙。\n借用人：周三维护组。期限：2026-04-11 至 2026-06-30。押金已收。\n工具状况：八齿耙两把，齿口完好，配木柄套各一。借用期间如需转借，\n先在群里报备，押金条由财务统一保管。\n",
+    "README.md": "望泽园社区花园记录柜。\n\nrecords/2025 已归档；2026 年的借用看 records/2026。两个文件夹里\n的文件同名，按年份区分。归还时由值日志愿者当面清点，柜门钥匙\n在传达室。\n"
+  },
+  "turns": [
+    {
+      "prompt": "望泽园社区花园这边要确认钉耙这季的借用登记还在不在、期限到什么时候。帮我在记录柜里找一找，顺带说说旁边那份同名旧文件是什么。",
+      "expect": {
+        "output_contains": [
+          "钉耙",
+          "2025 年工具借用登记"
+        ],
+        "output_contains_any": [
+          "2026-06-30",
+          "2026 年 6 月 30 日",
+          "6 月 30 日"
+        ],
+        "required_tools": [
+          "read_file"
+        ],
+        "output_excludes": [
+          "2025-06-28"
+        ]
+      }
+    }
+  ]
+}

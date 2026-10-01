@@ -1,0 +1,62 @@
+{
+  "id": "web-7530",
+  "description": "Explain charger error E-2203 from the official code table behind a vague snippet. DISTILL-CANARY-c0091698",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [
+      "TR-SNIPPETVAGUE"
+    ],
+    "trap_decoys": {
+      "TR-SNIPPETVAGUE": "超时"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-web-b06-tiema-err",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "铁马",
+      "url": "https://ops.tiema.example/codes",
+      "url_match": "ops.tiema.example/codes",
+      "title": "铁马充电 · 桩端错误码对照表",
+      "snippet": "桩体屏幕错误码的含义与处置建议。",
+      "published_at": "2026-08-20",
+      "content": "# 铁马充电 · 桩端错误码对照表\n\n屏幕错误码以 E 开头，复位无效再报修。\n\nE-2201 | 读卡超时 | 重新插卡，连错三次锁枪\nE-2203 | 结算令牌已过期 | 重新扫码授权后恢复\nE-2205 | 接地检测异常 | 停用并报修\nE-2207 | 电网电压异常 | 等待电网恢复，勿反复启动\n"
+    },
+    {
+      "query_match": "e-2203",
+      "url": "https://evclub.example/t/2203",
+      "url_match": "evclub.example/t/2203",
+      "title": "桩上跳出 E-2203，充到一半停了",
+      "snippet": "客服让我扫码重来就好了。",
+      "published_at": "2026-07-11",
+      "content": "# E-2203 充到一半停了\n\n昨晚在站里充到一半，屏幕跳出 E-2203。打客服电话说重新扫码授权就行，试了下确实恢复。\n"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "铁马充电的桩体屏幕上跳出错误码 E-2203。这个码是什么意思？",
+      "expect": {
+        "output_contains_any": [
+          "过期"
+        ],
+        "output_excludes": [
+          "超时",
+          "电压"
+        ]
+      }
+    }
+  ]
+}

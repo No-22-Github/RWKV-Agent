@@ -1,0 +1,45 @@
+{
+  "id": "cfg-7147",
+  "description": "Speed up the main hoist for the autumn intake at the grain depot. DISTILL-CANARY-46e6e676",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "0.5"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b06-qingshanpu",
+    "ref_calls": 3,
+    "fixture_bytes": 530,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/hoist.json": "{\n  \"库区\": \"青山铺一号库\",\n  \"提升机\": {\n    \"额定吨位\": 5,\n    \"上升速度\": 0.8,\n    \"门限位\": \"上位2\"\n  },\n  \"备用提升机\": {\n    \"额定吨位\": 5,\n    \"上升速度\": 0.5,\n    \"门限位\": \"上位2\"\n  },\n  \"巡检\": {\n    \"间隔分钟\": 30\n  }\n}\n",
+    "README.md": "# 青山铺粮库 提升机参数\n\nconfig/hoist.json 是库门提升机的参数文件，直接改文件、保持\n原有缩进。提升机是主提升机，秋粮入库期间由它常开；备用提升机\n只在检修时顶班，参数历来不动。\n"
+  },
+  "expect": {
+    "files": {
+      "config/hoist.json": {
+        "equals": "{\n  \"库区\": \"青山铺一号库\",\n  \"提升机\": {\n    \"额定吨位\": 5,\n    \"上升速度\": 1.0,\n    \"门限位\": \"上位2\"\n  },\n  \"备用提升机\": {\n    \"额定吨位\": 5,\n    \"上升速度\": 0.5,\n    \"门限位\": \"上位2\"\n  },\n  \"巡检\": {\n    \"间隔分钟\": 30\n  }\n}\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "青山铺粮库秋粮入库要提效：把主提升机的上升速度提到 1.0（改 config/hoist.json）。备用提升机和其余参数都不要动，保持文件原有缩进。完成后用两三句话说明你改了哪里。",
+      "expect": {}
+    }
+  ]
+}

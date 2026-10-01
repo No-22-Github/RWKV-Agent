@@ -19,9 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 279,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
-    "reviewer": null
+    "reviewer": null,
+    "answer_style": "value"
   },
   "web_fixture": [],
   "files": {
@@ -31,7 +32,7 @@
   },
   "turns": [
     {
-      "prompt": "A hatchery hand at Selcove Aquaculture asked what the stocking density on a tank card describes; it is the mass of fish held in a tank spread over the volume of water the tank holds. Tank 38 holds 3780 kilograms of fish in 210 cubic metres of water. Give the stocking density as a single number in kilograms per cubic metre, with no unit in the reply. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "A hatchery hand at Selcove Aquaculture asked what the stocking density on a tank card describes; it is the mass of fish held in a tank spread over the volume of water the tank holds. Tank 38 holds 3780 kilograms of fish in 210 cubic metres of water. Give the stocking density as a single number in kilograms per cubic metre, with no unit in the reply. Reply with only the final answer.",
       "expect": {
         "expected_number": 18.0,
         "tolerance": 0.01,

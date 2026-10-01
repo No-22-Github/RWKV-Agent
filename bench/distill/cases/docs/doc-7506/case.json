@@ -1,0 +1,52 @@
+{
+  "id": "doc-7506",
+  "description": "Which refund window and refund target apply to a Premium annual return. DISTILL-CANARY-41f8d2a9",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "45"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b07-policyqa-01",
+    "ref_calls": 3,
+    "fixture_bytes": 302,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "policies/refund-windows.csv": "tier,window_days,refund_to,exceptions\nStandard,21,original payment,none\nPremium,45,original payment,none\nPremium annual,60,store credit,annual contract\n",
+    "policies/refund-policy.md": "# Refund policy\n\nThe window follows the buyer's current tier on the day the return opens.\nAnnual contracts refund to store credit regardless of tier.\n"
+  },
+  "turns": [
+    {
+      "prompt": "A customer on the Premium annual plan just opened a return. Check the folder policies/ and tell me which refund window applies and where the refund lands.",
+      "expect": {
+        "output_contains": [
+          "60",
+          "annual contract",
+          "store credit"
+        ],
+        "output_contains_any": [
+          "60",
+          "annual contract",
+          "store credit"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

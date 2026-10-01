@@ -1,0 +1,57 @@
+{
+  "id": "web-7541",
+  "description": "Removal version of the legacy /v1/transfers endpoint per the vendor sunset page. DISTILL-CANARY-42ac5431",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "deprecation",
+    "traps": [
+      "TR-SNIPPETVAGUE"
+    ],
+    "trap_decoys": {
+      "TR-SNIPPETVAGUE": 8
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-web-b06-otterwick",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "otterwick",
+      "url": "https://developers.otterwick.example/deprecations",
+      "url_match": "developers.otterwick.example/deprecations",
+      "title": "API deprecation schedule - Otterwick Payments",
+      "snippet": "Sunset timeline for pre-v2 endpoints, with migration notes for each removal.",
+      "content": "# API deprecation schedule - Otterwick Payments\n\nUpdated 2026-08-11. Pre-v2 endpoints keep working until the API version\nin the right column removes them.\n\n| endpoint | deprecated since | removed in |\n| --- | --- | --- |\n| /v1/payouts.raw | v7 | API version 13 |\n| /v1/transfers | v8 | API version 14 |\n| /v1/refs | v9 | API version 15 |\n\nMove transfers to /v2/transfers.batch ahead of the autumn cutover.\n",
+      "published_at": "2026-08-11"
+    },
+    {
+      "query_match": "otterwick",
+      "url": "https://developers.otterwick.example/migrate-v2",
+      "url_match": "developers.otterwick.example/migrate-v2",
+      "title": "Migrating transfers to v2",
+      "snippet": "Since API version 8 transfers are deprecated; this guide maps v1 fields to v2.",
+      "content": "# Migrating transfers to v2\n\nTransfers have been deprecated since API version 8. This guide maps\nthe v1 fields onto /v2/transfers.batch and lists the webhook events\nthat change names.\n",
+      "published_at": "2026-05-30"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "Our billing service still calls /v1/transfers on the Otterwick Payments API. Give the number alone, as digits, with no label. In which API version will that endpoint be removed?",
+      "expect": {
+        "expected_number": 14,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

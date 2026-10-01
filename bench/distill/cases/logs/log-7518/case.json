@@ -1,0 +1,70 @@
+{
+  "id": "log-7518",
+  "description": "Five-turn English session on a delivery-event JSONL with duplicated export rows: deferred messages, attempt threshold, sandbox exclusion, top domain, bounce count. DISTILL-CANARY-99685b69",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "aggregate_jsonl",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 19
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-log-b07-heron-mail-01",
+    "ref_calls": 6,
+    "fixture_bytes": 3592,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "logs/delivery-events.jsonl": "{\"ts\":\"2026-09-26T03:12:44Z\",\"queue\":\"Q-55208\",\"rcpt\":\"kai.tan@heroncourier.cn\",\"event\":\"deferred\",\"attempts\":3}\n{\"ts\":\"2026-09-26T04:02:17Z\",\"queue\":\"Q-55201\",\"rcpt\":\"ana.reyes@bramblehill.cn\",\"event\":\"deferred\",\"attempts\":2}\n{\"ts\":\"2026-09-26T04:02:17Z\",\"queue\":\"Q-55201\",\"rcpt\":\"ana.reyes@bramblehill.cn\",\"event\":\"deferred\",\"attempts\":2}\n{\"ts\":\"2026-09-26T04:40:52Z\",\"queue\":\"Q-55204\",\"rcpt\":\"li.wen@bramblehill.cn\",\"event\":\"delivered\"}\n{\"ts\":\"2026-09-26T05:15:26Z\",\"queue\":\"Q-55211\",\"rcpt\":\"fang.lu@bramblehill.cn\",\"event\":\"deferred\",\"attempts\":2}\n{\"ts\":\"2026-09-26T05:53:08Z\",\"queue\":\"Q-55215\",\"rcpt\":\"dev@sandbox.heroncourier.cn\",\"event\":\"deferred\",\"attempts\":4}\n{\"ts\":\"2026-09-26T06:31:41Z\",\"queue\":\"Q-55219\",\"rcpt\":\"ivy.zhang@tulipgrove.co.uk\",\"event\":\"deferred\",\"attempts\":3}\n{\"ts\":\"2026-09-26T06:31:41Z\",\"queue\":\"Q-55219\",\"rcpt\":\"ivy.zhang@tulipgrove.co.uk\",\"event\":\"deferred\",\"attempts\":3}\n{\"ts\":\"2026-09-26T07:09:55Z\",\"queue\":\"Q-55222\",\"rcpt\":\"zhou.yi@tulipgrove.co.uk\",\"event\":\"deferred\",\"attempts\":1}\n{\"ts\":\"2026-09-26T07:48:18Z\",\"queue\":\"Q-55225\",\"rcpt\":\"mo.chen@tulipgrove.co.uk\",\"event\":\"deferred\",\"attempts\":2}\n{\"ts\":\"2026-09-26T08:26:33Z\",\"queue\":\"Q-55229\",\"rcpt\":\"jing.xu@bramblehill.cn\",\"event\":\"deferred\",\"attempts\":5}\n{\"ts\":\"2026-09-26T09:04:47Z\",\"queue\":\"Q-55233\",\"rcpt\":\"hana.kim@bramblehill.cn\",\"event\":\"deferred\",\"attempts\":3}\n{\"ts\":\"2026-09-26T09:42:02Z\",\"queue\":\"Q-55236\",\"rcpt\":\"lei.qin@bramblehill.cn\",\"event\":\"delivered\"}\n{\"ts\":\"2026-09-26T10:19:26Z\",\"queue\":\"Q-55240\",\"rcpt\":\"yun.bo@bramblehill.cn\",\"event\":\"deferred\",\"attempts\":3}\n{\"ts\":\"2026-09-26T10:19:26Z\",\"queue\":\"Q-55240\",\"rcpt\":\"yun.bo@bramblehill.cn\",\"event\":\"deferred\",\"attempts\":3}\n{\"ts\":\"2026-09-26T10:57:44Z\",\"queue\":\"Q-55244\",\"rcpt\":\"xiu.mei@tulipgrove.co.uk\",\"event\":\"deferred\",\"attempts\":2}\n{\"ts\":\"2026-09-26T11:35:08Z\",\"queue\":\"Q-55247\",\"rcpt\":\"hao.song@heroncourier.cn\",\"event\":\"deferred\",\"attempts\":6}\n{\"ts\":\"2026-09-26T12:13:29Z\",\"queue\":\"Q-55251\",\"rcpt\":\"ana.reyes@bramblehill.cn\",\"event\":\"deferred\",\"attempts\":3}\n{\"ts\":\"2026-09-26T12:51:51Z\",\"queue\":\"Q-55255\",\"rcpt\":\"kai.tan@heroncourier.cn\",\"event\":\"bounced\",\"attempts\":7}\n{\"ts\":\"2026-09-26T13:29:36Z\",\"queue\":\"Q-55258\",\"rcpt\":\"li.wen@bramblehill.cn\",\"event\":\"deferred\",\"attempts\":1}\n{\"ts\":\"2026-09-26T14:07:54Z\",\"queue\":\"Q-55262\",\"rcpt\":\"fang.lu@bramblehill.cn\",\"event\":\"deferred\",\"attempts\":4}\n{\"ts\":\"2026-09-26T14:45:12Z\",\"queue\":\"Q-55266\",\"rcpt\":\"mo.chen@tulipgrove.co.uk\",\"event\":\"bounced\",\"attempts\":5}\n{\"ts\":\"2026-09-26T15:22:39Z\",\"queue\":\"Q-55269\",\"rcpt\":\"ivy.zhang@tulipgrove.co.uk\",\"event\":\"delivered\"}\n{\"ts\":\"2026-09-26T16:00:21Z\",\"queue\":\"Q-55273\",\"rcpt\":\"lei.qin@bramblehill.cn\",\"event\":\"delivered\",\"attempts\":2}\n{\"ts\":\"2026-09-26T16:38:05Z\",\"queue\":\"Q-55277\",\"rcpt\":\"jing.xu@bramblehill.cn\",\"event\":\"delivered\",\"attempts\":3}\n{\"ts\":\"2026-09-26T17:15:48Z\",\"queue\":\"Q-55281\",\"rcpt\":\"yun.bo@bramblehill.cn\",\"event\":\"bounced\",\"attempts\":6}\n{\"ts\":\"2026-09-26T17:53:26Z\",\"queue\":\"Q-55285\",\"rcpt\":\"hana.kim@bramblehill.cn\",\"event\":\"delivered\",\"attempts\":1}\n{\"ts\":\"2026-09-26T18:31:04Z\",\"queue\":\"Q-55289\",\"rcpt\":\"zhou.yi@tulipgrove.co.uk\",\"event\":\"deferred\",\"attempts\":3}\n{\"ts\":\"2026-09-26T19:08:47Z\",\"queue\":\"Q-55293\",\"rcpt\":\"hao.song@heroncourier.cn\",\"event\":\"bounced\",\"attempts\":4}\n{\"ts\":\"2026-09-26T19:46:22Z\",\"queue\":\"Q-55297\",\"rcpt\":\"xiu.mei@tulipgrove.co.uk\",\"event\":\"delivered\",\"attempts\":1}\n",
+    "README.md": "# Heron Courier delivery event stream, 2026-09-26\n\nOne event per line: ts, queue id, recipient, event, attempts.\nThe export job retried twice that day, so some lines were written more than once;\na queue id identifies one message.\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "Heron Courier's delivery event stream for 2026-09-26 is in logs/delivery-events.jsonl. How many messages were deferred that day?",
+      "expect": {
+        "expected_number": 16.0,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "Count only the ones deferred on their third attempt or later.",
+      "expect": {
+        "expected_number": 10.0,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "The sandbox domain (rcpt ending in sandbox.heroncourier.cn) is integration-test traffic — leave it out and recount.",
+      "expect": {
+        "expected_number": 9.0,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "Among the messages still counted, which recipient domain shows up most?",
+      "expect": {
+        "output_contains_any": [
+          "bramblehill.cn"
+        ]
+      }
+    },
+    {
+      "prompt": "Last one for today: how many messages bounced on 2026-09-26?",
+      "expect": {
+        "expected_number": 4.0,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

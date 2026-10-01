@@ -1,0 +1,44 @@
+{
+  "id": "doc-7334",
+  "description": "Count non-compliant September laundry batches against a two-factor acceptance standard with mixed date formats. DISTILL-CANARY-07e328f0",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "extract_items",
+    "traps": [
+      "TR-MULTISRC",
+      "TR-DATEFMT"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": 3,
+      "TR-DATEFMT": 7
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-doc-b06-shiguang-xidi",
+    "ref_calls": 3,
+    "fixture_bytes": 1217,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "洗涤批次对账.csv": "批次号,客户,送洗日期,洁净度,pH\nSG-2608-01,苇岸民宿,2026-08-15,B+,7.4\nSG-2608-02,云栖客栈,2026-08-19,C,7.8\nSG-2608-03,雾外山房,2026-08-24,A,7.0\nSG-2608-04,半岛客栈,2026.8.29,B,7.1\nSG-2609-01,云栖客栈,2026-09-02,A,6.8\nSG-2609-02,苇岸民宿,2026-09-04,C+,7.1\nSG-2609-03,苇岸民宿,2026-09-06,B,7.4\nSG-2609-04,半岛客栈,2026-09-08,B+,7.9\nSG-2609-05,雾外山房,2026-09-10,C,6.9\nSG-2609-06,云栖客栈,2026-09-13,A,7.0\nSG-2609-07,雾外山房,2026-09-15,B,8.1\nSG-2609-08,半岛客栈,2026-09-18,B+,7.2\nSG-2609-09,苇岸民宿,2026-09-20,A,7.3\nSG-2609-10,云栖客栈,2026-09-23,C+,7.5\nSG-2609-11,半岛客栈,2026.9.25,B,7.6\nSG-2609-12,雾外山房,2026.9.27,A,6.7\nSG-2609-13,云栖客栈,09/11/2026,B,7.0\nSG-2610-01,苇岸民宿,2026-10-02,B,7.2\nSG-2610-02,云栖客栈,10/09/2026,C,7.7\nSG-2610-03,雾外山房,2026-10-05,A,6.9\n",
+    "清洁标准.md": "# 拾光洗衣工厂布草验收标准\n\n一、送洗批次同时满足两项才算合格：洁净度达到 B 级或以上（A、B+、B 视为达标，C+、C 不达标），且 pH 不高于 7.5。\n\n二、对账单中送洗日期写法不统一：横线（2026-09-03）与点分（2026.9.3）均为 年-月-日，斜线（09/11/2026）为 月/日/年。\n"
+  },
+  "turns": [
+    {
+      "prompt": "拾光洗衣工厂九月的布草批次要出验收结论。按验收标准，九月送洗的批次里不合格的有几条？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 6,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

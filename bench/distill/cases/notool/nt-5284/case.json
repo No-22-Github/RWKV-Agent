@@ -19,9 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 417,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
-    "reviewer": null
+    "reviewer": null,
+    "answer_style": "value"
   },
   "web_fixture": [],
   "files": {
@@ -30,7 +31,7 @@
   },
   "turns": [
     {
-      "prompt": "Sallowdene Woolstore describes its intake index warehouse in an infrastructure definition that the crew re-plans every month, and that warehouse holds the only copy of the intake index. The crew wants a plan to stop instead of carrying out a change that would destroy the warehouse. Give the block that makes the tool refuse to destroy that resource. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Sallowdene Woolstore describes its intake index warehouse in an infrastructure definition that the crew re-plans every month, and that warehouse holds the only copy of the intake index. The crew wants a plan to stop instead of carrying out a change that would destroy the warehouse. Give the block that makes the tool refuse to destroy that resource. Reply with only the final answer.",
       "expect": {
         "tools": [],
         "output_contains_any": [

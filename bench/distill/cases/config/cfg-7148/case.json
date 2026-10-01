@@ -1,0 +1,45 @@
+{
+  "id": "cfg-7148",
+  "description": "Add the new dough retarder as its own section in the oven controller file. DISTILL-CANARY-25627256",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": "prover"
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b06-marshend",
+    "ref_calls": 3,
+    "fixture_bytes": 624,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/ovens.yaml": "# Marshend Community Bakery - oven controller\noven:\n  bake_temp_c: 210\n  steam_burst_s: 12\n  cycle_minutes: 38\nprover:\n  temp_c: 28\n  humidity_pct: 75\n  hold_minutes: 45\n",
+    "README.md": "# Marshend Community Bakery - oven controller\n\nconfig/ovens.yaml gives one top-level section per cabinet, named\nwith the cabinet's short name. The retarder cabinet installed this\nweek is the manual's \"dough retarder\"; the controller expects the\nshort section name retarder, with the keys temp_c, humidity_pct\nand hold_hours. New cabinets are appended as new sections at the\nend of the file, in the same two-space style; existing sections\nstay untouched.\n"
+  },
+  "expect": {
+    "files": {
+      "config/ovens.yaml": {
+        "equals": "# Marshend Community Bakery - oven controller\noven:\n  bake_temp_c: 210\n  steam_burst_s: 12\n  cycle_minutes: 38\nprover:\n  temp_c: 28\n  humidity_pct: 75\n  hold_minutes: 45\nretarder:\n  temp_c: 4\n  humidity_pct: 60\n  hold_hours: 14\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Marshend Community Bakery finished wiring its dough retarder. Give the cabinet its own section in config/ovens.yaml with the settings the house README prescribes for it: 4 °C, 60 %, 14 h. The oven and prover sections stay as they are. When you are done, describe in two or three sentences what you changed.",
+      "expect": {}
+    }
+  ]
+}

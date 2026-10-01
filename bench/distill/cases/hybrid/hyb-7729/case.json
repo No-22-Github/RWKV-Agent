@@ -1,0 +1,67 @@
+{
+  "id": "hyb-7729",
+  "description": "Petal & Stem two-turn session: greeting first, then a June wedding order count. DISTILL-CANARY-a2d60b83",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS",
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-hyb-b07-florist-01",
+    "ref_calls": 1,
+    "fixture_bytes": 493,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "value"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Petal & Stem - June order book\n\nOne row per order. occasion values: wedding, event, subscription.\narrangements is the number of arrangements included in the order.\n",
+    "orders/june_orders.csv": "order_id,date,occasion,arrangements\nPS-6012,2026-06-03,wedding,4\nPS-6018,2026-06-05,event,6\nPS-6024,2026-06-08,wedding,2\nPS-6031,2026-06-10,wedding,5\nPS-6036,2026-06-12,subscription,3\nPS-6042,2026-06-15,wedding,6\nPS-6048,2026-06-18,wedding,2\nPS-6055,2026-06-21,event,4\nPS-6061,2026-06-24,wedding,3\nPS-6066,2026-06-28,wedding,2\n"
+  },
+  "turns": [
+    {
+      "prompt": "Morning! How's everything going on your end?",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "Hello",
+          "hello",
+          "Hi",
+          "hi",
+          "Hey",
+          "hey",
+          "Morning",
+          "morning",
+          "Afternoon",
+          "afternoon",
+          "Evening",
+          "evening",
+          "Nice",
+          "nice",
+          "help",
+          "assist",
+          "How can",
+          "how can",
+          "thank",
+          "well"
+        ]
+      }
+    },
+    {
+      "prompt": "One more thing - could you count how many wedding orders Petal & Stem booked in June? The order book is at orders/june_orders.csv. Reply with only the final answer.",
+      "expect": {
+        "expected_number": 7,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

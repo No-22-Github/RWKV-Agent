@@ -1,0 +1,54 @@
+{
+  "id": "scr-7726",
+  "description": "Repair the cooperage's nightly sheet script that crashes on an export row with an unread timer. DISTILL-CANARY-bdd4a38c",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_from_traceback",
+    "traps": [
+      "TR-MISSING"
+    ],
+    "trap_decoys": {
+      "TR-MISSING": "the empty-minutes day's pence dropped from the sheet"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-scr-b06-cranlow",
+    "ref_calls": 4,
+    "fixture_bytes": 1735,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "casks.py": "\"\"\"Print the nightly char sheet for Cranlow Cooperage.\n\nReads every monthly export in casks/ (one row per cask firing) and\nprints one line per firing day, in date order, followed by a totals\nline:\n\n    <char_date>,<minutes>,<pence>\n    TOTAL,<minutes>,<pence>\n\nAn empty minutes cell is a cask whose timer failed that firing: the\nrow still contributes its pence and counts as zero minutes.\n\"\"\"\n\nimport csv\nimport glob\n\nper_day = {}\nfor path in sorted(glob.glob(\"casks/*.csv\")):\n    with open(path, encoding=\"utf-8\") as handle:\n        for row in csv.DictReader(handle):\n            day = row[\"char_date\"]\n            minutes = int(row[\"minutes\"])\n            pence = int(row[\"pence\"])\n            old = per_day.get(day, (0, 0))\n            per_day[day] = (old[0] + minutes, old[1] + pence)\n\ntotal_minutes = 0\ntotal_pence = 0\nfor day in sorted(per_day):\n    minutes, pence = per_day[day]\n    print(f\"{day},{minutes},{pence}\")\n    total_minutes += minutes\n    total_pence += pence\nprint(f\"TOTAL,{total_minutes},{total_pence}\")\n",
+    "casks/2026-09.csv": "char_date,pit,minutes,pence\n2026-09-01,Cinder One,34,2980\n2026-09-01,Cinder Two,25,2175\n2026-09-04,Cinder One,,1870\n2026-09-04,Cinder Two,27,2145\n2026-09-09,Cinder One,40,3160\n2026-09-16,Cinder Two,20,1690\n2026-09-23,Cinder One,30,2380\n",
+    "logs/nightly-2026-09.log": "Cranlow Cooperage - nightly char sheet\n2026-09-30 23:10 [info] reading casks/2026-09.csv\n2026-09-30 23:10 [error] batch job aborted, traceback below:\nTraceback (most recent call last):\n  File \"casks.py\", line 22, in <module>\n    minutes = int(row[\"minutes\"])\nValueError: invalid literal for int() with base 10: ''\n",
+    "README.md": "# Cranlow Cooperage - nightly char sheet\n\ncasks.py prints the char sheet from the firing shed's exports in\ncasks/. The exports are the firing shed's own record.\n"
+  },
+  "expect": {
+    "files": {
+      "casks/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "casks.py",
+      "expected_stdout": "2026-09-01,59,5155\n2026-09-04,27,4015\n2026-09-09,40,3160\n2026-09-16,20,1690\n2026-09-23,30,2380\n2026-10-01,31,2450\n2026-10-06,0,1765\n2026-10-13,36,2820\nTOTAL,243,23435",
+      "hidden_files": {
+        "casks/2026-10.csv": "char_date,pit,minutes,pence\n2026-10-01,Cinder One,31,2450\n2026-10-06,Cinder Two,,1765\n2026-10-13,Cinder One,36,2820\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Cranlow Cooperage's nightly char sheet has not printed since the fires came back online: the batch job aborts partway through the September export, and the run log with the traceback is in logs/nightly-2026-09.log. Please get casks.py printing the sheet again, and keep it printing for the exports that follow. The exports in casks/ are the firing shed's own record, so they stay as they are. When you are done, describe in two or three sentences what you fixed.",
+      "expect": {}
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "id": "nt-7119",
+  "description": "Parking fee for a 3.5-hour stay under a first-hour-plus-per-half-hour tariff DISTILL-CANARY-085c5034",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 17.5
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-parking-tier-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 178
+  },
+  "web_fixture": [],
+  "files": {
+    "parking/tariff.csv": "计费段,费用元\n首小时,10\n此后每半小时,3\n",
+    "README.md": "# 麓枫物业 - 客服工作区\n\n访客车位收费标准和月卡登记都在这里。\n\n- parking/  收费标准登记表\n"
+  },
+  "turns": [
+    {
+      "prompt": "麓枫物业的访客车位按两段收费：首小时 10 元，之后每半小时 3 元。一辆访客车停了 3.5 小时。这一单停车费一共多少元？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 25,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

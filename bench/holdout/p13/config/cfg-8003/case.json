@@ -1,0 +1,45 @@
+{
+  "id": "cfg-8003",
+  "description": "Explain in Chinese what the database archive policy config specifies: schedule, retention, compression. DISTILL-CANARY-5ebdcb87",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-holdout-cfgexplain-01",
+    "ref_calls": 2,
+    "fixture_bytes": 118,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "archive-policy.json": "{\n  \"schedule\": \"01:15\",\n  \"retention_days\": 14,\n  \"compress\": \"zstd\",\n  \"notify_webhook\": null,\n  \"dry_run\": false\n}\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "仓库里这份 archive-policy.json 是数据库归档任务的配置，帮我解释一下它都在规定什么。",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains": [
+          "01:15",
+          "zstd",
+          "retention_days"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

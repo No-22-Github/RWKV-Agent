@@ -1,0 +1,53 @@
+{
+  "id": "nt-7124",
+  "description": "Thanks for finished help with quarterly expense checks; reply directly without any tool call DISTILL-CANARY-1fe82a0d",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-smalltalk-02",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 299
+  },
+  "web_fixture": [],
+  "files": {
+    "reimburse/q3_exceptions.csv": "单据编号,问题,处理\nBX-0912,招待费缺事由,已退回补签\nBX-0918,行程与审批单不符,已退回说明\nBX-0925,附件模糊,已退回重传\n",
+    "README.md": "# 顺正财务 - 代账工作区\n\n客户报销审核与凭证归档都在这里。\n\n- reimburse/  报退单据台账\n- vouchers/  凭证归档\n"
+  },
+  "turns": [
+    {
+      "prompt": "三季度的报销单你帮我全部核完了，退回的那几张还把原因一条条标了出来，这下跟客户交代起来省事多了，多谢多谢。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "不客气",
+          "不用谢",
+          "别客气",
+          "应该的",
+          "能帮上",
+          "荣幸",
+          "随时",
+          "举手之劳",
+          "小事一桩",
+          "客气"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "id": "fs-8002",
+  "description": "Give a natural-language tour of a shared Q3 planning folder: what each file holds and where the numbers are. DISTILL-CANARY-31045152",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "count_by_type",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-holdout-foldertour-01",
+    "ref_calls": 3,
+    "fixture_bytes": 520,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "README.md": "# Q3 Planning - Shared Folder\n\nWorking files for the Q3 planning cycle. The budget workbook is exported as CSV for the finance numbers; owners and dates live in the action items file.\n",
+    "budget-2026.csv": "category,owner,amount_q3\nvenue,Imani,4200.00\ncatering,Imani,2650.00\nprint,Devon,890.50\nswag,Devon,1540.00\ntravel,Priya,3105.75\ncontingency,Priya,1000.00\n",
+    "action-items.txt": "Q3 planning action items\n- book venue: Imani, due Sep 12\n- confirm headcount swag order: Devon, due Sep 19\n- collect travel quotes: Priya, due Sep 26\n- draft agenda: Devon, due Oct 2\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "Give me a short tour of this shared folder: what is in it, what each file is for, and where I should look for the Q3 numbers.",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains": [
+          "budget-2026.csv",
+          "action",
+          "Q3"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

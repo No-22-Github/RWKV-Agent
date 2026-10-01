@@ -1,0 +1,58 @@
+{
+  "id": "cfg-8014",
+  "description": "Baseline self-check finds the required release-strategy item unconfigured; a commented env line makes it look enabled. DISTILL-CANARY-220ec0bf",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "灰度已开启"
+    },
+    "axes": [
+      "OBS",
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-holdout-cfg-absentkey-01",
+    "ref_calls": 3,
+    "fixture_bytes": 470,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "配置基线.csv": "配置项,说明,是否必填\nserver_port,服务监听端口,是\ndb_pool_size,数据库连接池,是\n慢查询日志,慢查询日志开关,是\n灰度发布,发布策略，须显式配置（如 按流量 5%）,是\nlog_level,日志级别,是\n",
+    "app.yaml": "# 应用配置\nserver_port: 8080\ndb_pool_size: 16\nlog_level: info\n慢查询日志: 开\n",
+    "deploy.env": "# 生产容器环境变量\nserver_port=8080\ndb_pool_size=24\nlog_level=warning\n# 灰度发布: 按流量 5%（待安全评审，暂未启用）\n"
+  },
+  "turns": [
+    {
+      "prompt": "对照配置基线，把 app.yaml 和 deploy.env 两处的线上配置自查一遍：还缺哪个必填项？这项现在生效的值是什么？",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "灰度发布",
+          "灰度"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "已开启",
+          "已启用"
+        ],
+        "forbidden_tools": [
+          "write_file",
+          "replace_lines",
+          "append_file"
+        ]
+      }
+    }
+  ]
+}

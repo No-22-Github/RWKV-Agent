@@ -1,0 +1,56 @@
+{
+  "id": "nt-7217",
+  "description": "Books next week's grooming in one of two open slots; the first message does not say which slot. DISTILL-CANARY-bf24956a",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "ambiguous_request",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": "豆豆下次的美容已经约在周四上午，到时候直接带过来就行。"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-clarify-02",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 275
+  },
+  "offered_tools": [
+    "read_file",
+    "list_files"
+  ],
+  "web_fixture": [],
+  "files": {
+    "bookings/slots_nextweek.csv": "slot,groomer,note\n周二上午,阿桔,可约\n周四上午,阿桔,可约（仅剩升级剪辑位，需加收30元）\n",
+    "README.md": "# 沐宠美容工作室 - 预约工作区\n\n下周可约时段和会员套餐都放在这里。\n\n- bookings/  下周可约时段\n- members/  会员卡与套餐\n"
+  },
+  "turns": [
+    {
+      "prompt": "沐宠这边，我家豆豆的美容卡还剩一次。下周二上午和周四上午店里都开着，你帮我把豆豆下次美容约在其中一个时段。",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "？",
+          "?",
+          "哪天",
+          "哪一天",
+          "哪个",
+          "哪一个"
+        ],
+        "output_contains": [
+          "周二",
+          "周四"
+        ]
+      }
+    }
+  ]
+}

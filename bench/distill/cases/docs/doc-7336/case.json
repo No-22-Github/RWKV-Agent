@@ -1,0 +1,46 @@
+{
+  "id": "doc-7336",
+  "description": "Count manual links whose target files are absent from the library. DISTILL-CANARY-054ee942",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "link_check",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-doc-b06-bandao",
+    "ref_calls": 2,
+    "fixture_bytes": 1351,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "手册链接清单.csv": "页面标题,链接路径,所属章节\n考勤与排班,policies/attendance.md,排班考勤\n班次交接,policies/shift-rules.md,排班考勤\n着装规范,policies/uniform.md,行政人事\n放映员上岗,training/projectionist.md,安全培训\n影厅安全巡查,training/safety.md,安全培训\n退改签规则,ops/ticket-refund.md,票务会员\n失物招领,ops/lost-property.md,票务会员\n会员章程,ops/membership.md,票务会员\n未成年人观影,ops/minors-policy.md,票务会员\n薪资发放日,hr/payroll-faq.md,行政人事\n工装领用,hr/uniform-request.md,行政人事\n节日福利通知,hr/benefit-notice.md,行政人事\n",
+    "policies/attendance.md": "# 考勤与排班\n\n门店员工按排班表上下班，调班需店长批准。\n",
+    "policies/shift-rules.md": "# 班次交接\n\n交班时清点票款与备用金，双方签字确认。\n",
+    "policies/uniform.md": "# 着装规范\n\n当班期间穿工装、佩工牌，发色以自然色为宜。\n",
+    "training/projectionist.md": "# 放映员上岗\n\n放映员须通过设备操作考核后方可独立值班。\n",
+    "training/safety.md": "# 影厅安全巡查\n\n每场开场前巡检安全出口与疏散通道。\n",
+    "ops/ticket-refund.md": "# 退改签规则\n\n开场前可退改，开场后不支持退票。\n",
+    "ops/lost-property.md": "# 失物招领\n\n拾获物品登记后交值班经理保管。\n",
+    "ops/membership.md": "# 会员章程\n\n会员积分有效期一年，到期清零。\n",
+    "hr/payroll-faq.md": "# 薪资发放日\n\n薪资于每月十日发放，遇节假日提前。\n",
+    "hr/uniform-request.md": "# 工装领用\n\n工装每半年领用一次，离职时归还。\n"
+  },
+  "turns": [
+    {
+      "prompt": "半岛影城把员工手册拆成了一批小文件。对照 手册链接清单.csv 和资料库里实际有的文件，清单里有多少条链接指向的文件其实不存在？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 2,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

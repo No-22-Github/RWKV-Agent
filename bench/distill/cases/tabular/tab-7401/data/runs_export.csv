@@ -1,0 +1,87 @@
+run_id,run_date,run_month,zone,courier,parcels
+KR-2608006,2026-08-01,2026-08,Midtown,P. Lindqvist,3
+KR-2608027,2026-08-03,2026-08,Harbour Point,P. Lindqvist,8
+KR-2608004,2026-08-05,2026-08,Sloan Park,A. Whitlock,9
+KR-2608030,2026-08-05,2026-08,Midtown,P. Lindqvist,8
+KR-2608020,2026-08-06,2026-08,Sloan Park,M. Okafor,4
+KR-2608021,2026-08-06,2026-08,Docklands,S. Braithwaite,6
+KR-2608026,2026-08-07,2026-08,Midtown,M. Okafor,3
+KR-2608001,2026-08-09,2026-08,Docklands,M. Okafor,3
+KR-2608008,2026-08-09,2026-08,Sloan Park,J. Ferrand,2
+KR-2608022,2026-08-09,2026-08,Midtown,M. Okafor,8
+KR-2608023,2026-08-09,2026-08,Harbour Point,S. Braithwaite,5
+KR-2608016,2026-08-12,2026-08,Sloan Park,S. Braithwaite,5
+KR-2608024,2026-08-13,2026-08,Sloan Park,J. Ferrand,8
+KR-2608028,2026-08-13,2026-08,Sloan Park,A. Whitlock,7
+KR-2608025,2026-08-18,2026-08,Docklands,J. Ferrand,4
+KR-2608018,2026-08-20,2026-08,Midtown,J. Ferrand,8
+KR-2608002,2026-08-21,2026-08,Midtown,J. Ferrand,3
+KR-2608015,2026-08-21,2026-08,Harbour Point,M. Okafor,2
+KR-2608031,2026-08-21,2026-08,Harbour Point,M. Okafor,3
+KR-2608002,2026-08-21,2026-08,Midtown,J. Ferrand,3
+KR-2608014,2026-08-22,2026-08,Midtown,M. Okafor,7
+KR-2608019,2026-08-22,2026-08,Harbour Point,P. Lindqvist,9
+KR-2608017,2026-08-23,2026-08,Docklands,P. Lindqvist,9
+KR-2608034,2026-08-23,2026-08,Midtown,M. Okafor,9
+KR-2608035,2026-08-23,2026-08,Harbour Point,J. Ferrand,4
+KR-2608010,2026-08-24,2026-08,Midtown,P. Lindqvist,3
+KR-2608032,2026-08-24,2026-08,Sloan Park,P. Lindqvist,5
+KR-2608013,2026-08-25,2026-08,Docklands,S. Braithwaite,7
+KR-2608033,2026-08-25,2026-08,Docklands,M. Okafor,4
+KR-2608011,2026-08-26,2026-08,Harbour Point,M. Okafor,6
+KR-2608007,2026-08-27,2026-08,Harbour Point,S. Braithwaite,1
+KR-2608003,2026-08-28,2026-08,Harbour Point,J. Ferrand,3
+KR-2608005,2026-08-28,2026-08,Docklands,J. Ferrand,5
+KR-2608009,2026-08-28,2026-08,Docklands,M. Okafor,8
+KR-2608012,2026-08-28,2026-08,Sloan Park,J. Ferrand,8
+KR-2608029,2026-08-28,2026-08,Docklands,A. Whitlock,4
+KR-2608003,2026-08-28,2026-08,Harbour Point,J. Ferrand,3
+KR-2609310,2026-09-02,2026-09,Harbour Point,M. Okafor,3
+KR-2609402,2026-09-02,2026-09,Sloan Park,M. Okafor,9
+KR-2609301,2026-09-03,2026-09,Harbour Point,A. Whitlock,1
+KR-2609307,2026-09-04,2026-09,Harbour Point,M. Okafor,3
+KR-2609400,2026-09-04,2026-09,Sloan Park,M. Okafor,8
+KR-2609306,2026-09-05,2026-09,Harbour Point,J. Ferrand,1
+KR-2609104,2026-09-06,2026-09,Docklands,M. Okafor,4
+KR-2609105,2026-09-06,2026-09,Docklands,S. Braithwaite,2
+KR-2609105,2026-09-06,2026-09,Docklands,S. Braithwaite,2
+KR-2609308,2026-09-07,2026-09,Harbour Point,M. Okafor,5
+KR-2609106,2026-09-08,2026-09,Docklands,J. Ferrand,2
+KR-2609406,2026-09-08,2026-09,Sloan Park,J. Ferrand,2
+KR-2609208,2026-09-09,2026-09,Midtown,P. Lindqvist,4
+KR-2609209,2026-09-09,2026-09,Midtown,P. Lindqvist,4
+KR-2609111,2026-09-10,2026-09,Docklands,A. Whitlock,7
+KR-2609112,2026-09-10,2026-09,Docklands,M. Okafor,2
+KR-2609305,2026-09-10,2026-09,Harbour Point,S. Braithwaite,7
+KR-2609403,2026-09-10,2026-09,Sloan Park,J. Ferrand,1
+KR-2609202,2026-09-11,2026-09,Midtown,M. Okafor,3
+KR-2609404,2026-09-11,2026-09,Sloan Park,J. Ferrand,9
+KR-2609103,2026-09-12,2026-09,Docklands,S. Braithwaite,6
+KR-2609210,2026-09-12,2026-09,Midtown,J. Ferrand,5
+KR-2609408,2026-09-12,2026-09,Sloan Park,M. Okafor,4
+KR-2609300,2026-09-13,2026-09,Harbour Point,P. Lindqvist,2
+KR-2609304,2026-09-13,2026-09,Harbour Point,M. Okafor,1
+KR-2609107,2026-09-14,2026-09,Docklands,S. Braithwaite,9
+KR-2609211,2026-09-14,2026-09,Midtown,J. Ferrand,6
+KR-2609212,2026-09-14,2026-09,Midtown,A. Whitlock,6
+KR-2609109,2026-09-15,2026-09,Docklands,M. Okafor,2
+KR-2609303,2026-09-15,2026-09,Harbour Point,P. Lindqvist,9
+KR-2609401,2026-09-15,2026-09,Sloan Park,S. Braithwaite,7
+KR-2609109,2026-09-15,2026-09,Docklands,M. Okafor,2
+KR-2609200,2026-09-16,2026-09,Midtown,S. Braithwaite,6
+KR-2609203,2026-09-16,2026-09,Midtown,S. Braithwaite,9
+KR-2609407,2026-09-16,2026-09,Sloan Park,M. Okafor,2
+KR-2609110,2026-09-17,2026-09,Docklands,A. Whitlock,3
+KR-2609204,2026-09-17,2026-09,Midtown,P. Lindqvist,4
+KR-2609207,2026-09-17,2026-09,Midtown,J. Ferrand,3
+KR-2609102,2026-09-19,2026-09,Docklands,S. Braithwaite,1
+KR-2609309,2026-09-20,2026-09,Harbour Point,P. Lindqvist,5
+KR-2609302,2026-09-21,2026-09,Harbour Point,M. Okafor,4
+KR-2609205,2026-09-22,2026-09,Midtown,J. Ferrand,5
+KR-2609100,2026-09-24,2026-09,Docklands,P. Lindqvist,4
+KR-2609405,2026-09-24,2026-09,Sloan Park,J. Ferrand,1
+KR-2609100,2026-09-24,2026-09,Docklands,P. Lindqvist,4
+KR-2609108,2026-09-26,2026-09,Docklands,S. Braithwaite,1
+KR-2609206,2026-09-26,2026-09,Midtown,A. Whitlock,7
+KR-2609101,2026-09-28,2026-09,Docklands,S. Braithwaite,1
+KR-2609201,2026-09-28,2026-09,Midtown,A. Whitlock,1

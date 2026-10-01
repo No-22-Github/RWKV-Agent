@@ -1,0 +1,54 @@
+{
+  "id": "scr-7733",
+  "description": "Repair the mussel farm's sack tally script that opens a path the tablets stopped writing. DISTILL-CANARY-6c32364c",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_from_traceback",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": "FileNotFoundError from the retired export name"
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-scr-b06-fernbrae",
+    "ref_calls": 4,
+    "fixture_bytes": 1488,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "sack_tally.py": "\"\"\"Print Fernbrae Mussel Beds' bed tally.\n\nReads the crew export and prints one line per bed, in name order,\nfollowed by a totals line:\n\n    <bed>,<sacks>,<kg>\n    TOTAL,<sacks>,<kg>\n\"\"\"\n\nimport csv\n\nper_bed = {}\nwith open(\"pickers/2026-09-picks.csv\", encoding=\"utf-8\") as handle:\n    for row in csv.DictReader(handle):\n        bed = row[\"bed\"]\n        old = per_bed.get(bed, (0, 0))\n        per_bed[bed] = (old[0] + 1, old[1] + int(row[\"kg\"]))\n\ntotal_sacks = 0\ntotal_kg = 0\nfor bed in sorted(per_bed):\n    sacks, kg = per_bed[bed]\n    print(f\"{bed},{sacks},{kg}\")\n    total_sacks += sacks\n    total_kg += kg\nprint(f\"TOTAL,{total_sacks},{total_kg}\")\n",
+    "pickers/2026-09.csv": "sack_id,pick_date,bed,kg\nMS-5111,2026-09-02,Sable Bed,166\nMS-5112,2026-09-02,Drift Bed,141\nMS-5113,2026-09-06,Sable Bed,174\nMS-5114,2026-09-13,Drift Bed,133\nMS-5115,2026-09-20,Sable Bed,158\nMS-5116,2026-09-27,Drift Bed,148\n",
+    "logs/sack-2026-09.log": "Fernbrae Mussel Beds - nightly sack tally\n2026-09-30 21:40 [info] tally run started\n2026-09-30 21:40 [error] tally aborted, traceback below:\nTraceback (most recent call last):\n  File \"sack_tally.py\", line 13, in <module>\n    with open(\"pickers/2026-09-picks.csv\", encoding=\"utf-8\") as handle:\nFileNotFoundError: [Errno 2] No such file or directory: 'pickers/2026-09-picks.csv'\n",
+    "README.md": "# Fernbrae Mussel Beds - sack tally\n\nsack_tally.py prints the bed tally from the crew exports in\npickers/. The tablets rewrite the month's file in place as the\nmonth goes on, so the folder holds one export per month, named\nfor its month.\n"
+  },
+  "expect": {
+    "files": {
+      "pickers/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "sack_tally.py",
+      "expected_stdout": "Drift Bed,4,560\nSable Bed,5,817\nTOTAL,9,1377",
+      "hidden_files": {
+        "pickers/2026-10.csv": "sack_id,pick_date,bed,kg\nMS-5201,2026-10-01,Sable Bed,152\nMS-5202,2026-10-08,Drift Bed,138\nMS-5203,2026-10-15,Sable Bed,167\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Fernbrae Mussel Beds' sack tally stopped mid-season: the nightly job aborts and the run log with the traceback is in logs/sack-2026-09.log. Please get sack_tally.py printing the bed tally again, and keep it printing for the exports that land next. The exports in pickers/ stay as they are. When you are done, describe in two or three sentences what you fixed.",
+      "expect": {}
+    }
+  ]
+}

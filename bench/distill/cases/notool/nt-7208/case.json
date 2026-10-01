@@ -1,0 +1,52 @@
+{
+  "id": "nt-7208",
+  "description": "Asks who the assistant is; reply directly from context without any tool call. DISTILL-CANARY-80849c7c",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "smalltalk",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-smalltalk-04",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 208
+  },
+  "offered_tools": [
+    "read_file",
+    "list_files"
+  ],
+  "web_fixture": [],
+  "files": {
+    "projects/shotlist.csv": "project,client,due\n风物志画册,山水文化,2026-10-15\n",
+    "README.md": "# 棱镜视觉工作室 - 项目工作区\n\n拍摄项目和客户资料都放在这里。\n\n- projects/  拍摄项目档案\n- briefs/  客户需求单\n"
+  },
+  "turns": [
+    {
+      "prompt": "棱镜视觉刚搬了新工位，先聊聊——你是谁呀？跟我介绍一下你自己呗。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "助手",
+          "助理",
+          "AI",
+          "模型",
+          "智能"
+        ]
+      }
+    }
+  ]
+}

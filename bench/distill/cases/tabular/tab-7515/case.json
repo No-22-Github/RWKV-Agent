@@ -1,0 +1,50 @@
+{
+  "id": "tab-7515",
+  "description": "May 2026 total for the best-selling product line in a florist export whose house-account standing orders stay out of the stall report. DISTILL-CANARY-2768bebd",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "rank",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": 1869.12
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b06-foxglove-stall-01",
+    "ref_calls": 2,
+    "fixture_bytes": 4993,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "data/stall_sales.csv": "order_id,order_month,product_line,house_account,sales\nFS-1508,2026-05,Planters,N,54.43\nFS-8051,2026-04,Planters,N,36.04\nFS-5385,2026-05,Bouquets,N,78.27\nFS-5524,2026-04,Wreaths,N,41.11\nFS-5739,2026-05,Dried Stems,N,37.43\nFS-1345,2026-05,Planters,N,53.35\nFS-3894,2026-06,Bouquets,Y,67.29\nFS-1230,2026-05,Dried Stems,Y,47.46\nFS-1989,2026-05,Planters,N,58.14\nFS-7549,2026-05,Wreaths,N,53.94\nFS-7210,2026-05,Dried Stems,N,38.64\nFS-6646,2026-04,Wreaths,N,41.13\nFS-7049,2026-05,Wreaths,N,65.42\nFS-3060,2026-06,Bouquets,N,76.80\nFS-1023,2026-04,Dried Stems,N,32.70\nFS-6309,2026-05,Planters,Y,56.13\nFS-3898,2026-04,Bouquets,N,83.13\nFS-6121,2026-05,Planters,N,57.91\nFS-4347,2026-05,Planters,N,63.26\nFS-8219,2026-04,Wreaths,N,57.02\nFS-9275,2026-05,Bouquets,N,60.19\nFS-7406,2026-05,Wreaths,N,69.94\nFS-9225,2026-06,Bouquets,Y,87.85\nFS-5143,2026-04,Planters,N,43.08\nFS-2241,2026-04,Planters,N,37.47\nFS-401,2026-05,Wreaths,N,36.04\nFS-8953,2026-05,Dried Stems,N,27.99\nFS-3301,2026-05,Dried Stems,N,53.13\nFS-9048,2026-06,Dried Stems,N,54.93\nFS-8292,2026-04,Dried Stems,N,28.45\nFS-8643,2026-05,Wreaths,N,56.25\nFS-4336,2026-04,Dried Stems,N,54.99\nFS-8690,2026-05,Bouquets,N,77.60\nFS-4752,2026-04,Wreaths,N,40.53\nFS-8515,2026-05,Bouquets,N,63.85\nFS-7028,2026-05,Dried Stems,N,32.14\nFS-1862,2026-05,Bouquets,N,80.02\nFS-2799,2026-05,Wreaths,Y,45.58\nFS-7614,2026-05,Planters,N,56.67\nFS-4971,2026-05,Dried Stems,N,49.72\nFS-1446,2026-04,Dried Stems,N,39.32\nFS-3878,2026-06,Wreaths,N,37.55\nFS-8517,2026-05,Planters,N,56.27\nFS-5562,2026-06,Wreaths,N,42.45\nFS-566,2026-06,Planters,N,41.40\nFS-7853,2026-06,Planters,N,33.42\nFS-3171,2026-06,Dried Stems,N,45.39\nFS-9230,2026-04,Bouquets,N,88.60\nFS-4463,2026-05,Dried Stems,N,52.63\nFS-6950,2026-05,Bouquets,Y,83.05\nFS-2638,2026-06,Planters,N,55.07\nFS-6894,2026-04,Wreaths,N,65.66\nFS-7123,2026-05,Dried Stems,N,29.95\nFS-2957,2026-06,Wreaths,N,44.82\nFS-8343,2026-05,Planters,N,32.62\nFS-8502,2026-05,Dried Stems,N,26.96\nFS-9887,2026-05,Bouquets,N,58.88\nFS-5093,2026-05,Wreaths,N,36.95\nFS-5407,2026-05,Bouquets,Y,72.67\nFS-9680,2026-04,Bouquets,N,93.97\nFS-1095,2026-04,Bouquets,N,92.83\nFS-9116,2026-04,Bouquets,N,88.04\nFS-4538,2026-05,Bouquets,N,93.34\nFS-1719,2026-05,Dried Stems,N,44.44\nFS-7108,2026-05,Bouquets,N,90.44\nFS-7907,2026-06,Wreaths,Y,44.69\nFS-273,2026-05,Planters,N,57.03\nFS-3435,2026-06,Bouquets,N,83.06\nFS-3317,2026-05,Bouquets,N,62.65\nFS-5791,2026-04,Bouquets,N,67.41\nFS-7098,2026-06,Planters,N,39.69\nFS-9009,2026-05,Wreaths,N,54.54\nFS-4589,2026-05,Planters,Y,55.57\nFS-959,2026-05,Planters,N,36.67\nFS-1853,2026-05,Planters,N,54.50\nFS-2833,2026-05,Wreaths,N,67.72\nFS-9541,2026-05,Bouquets,Y,94.38\nFS-6005,2026-06,Wreaths,N,36.51\nFS-9693,2026-05,Bouquets,Y,87.88\nFS-3098,2026-04,Dried Stems,N,37.34\nFS-436,2026-06,Bouquets,N,85.09\nFS-5849,2026-06,Bouquets,N,82.59\nFS-301,2026-04,Bouquets,N,87.24\nFS-4144,2026-05,Dried Stems,N,38.75\nFS-380,2026-06,Bouquets,N,77.96\nFS-6084,2026-05,Bouquets,N,89.24\nFS-4623,2026-05,Wreaths,N,67.48\nFS-2206,2026-05,Wreaths,N,50.60\nFS-6532,2026-05,Planters,N,52.13\nFS-4123,2026-05,Bouquets,Y,65.39\nFS-6022,2026-04,Dried Stems,N,35.46\nFS-5970,2026-05,Bouquets,N,68.44\nFS-8014,2026-05,Wreaths,N,65.79\nFS-8490,2026-05,Planters,N,41.97\nFS-5117,2026-04,Planters,N,41.15\nFS-5145,2026-06,Dried Stems,Y,52.14\nFS-567,2026-05,Planters,N,52.20\nFS-7105,2026-06,Dried Stems,N,26.66\nFS-1759,2026-06,Planters,N,46.21\nFS-7641,2026-06,Wreaths,N,56.10\nFS-140,2026-04,Wreaths,N,53.82\nFS-9177,2026-05,Planters,N,62.31\nFS-5580,2026-04,Wreaths,N,49.34\nFS-4332,2026-05,Bouquets,N,94.21\nFS-9659,2026-05,Dried Stems,Y,74.74\nFS-3717,2026-06,Dried Stems,N,38.94\nFS-3206,2026-05,Bouquets,N,89.13\nFS-9706,2026-05,Bouquets,N,65.07\nFS-8531,2026-06,Bouquets,Y,77.97\nFS-2928,2026-05,Wreaths,N,45.11\nFS-7828,2026-06,Wreaths,N,56.89\nFS-3781,2026-05,Bouquets,Y,77.65\nFS-6786,2026-04,Planters,N,33.88\nFS-4245,2026-06,Wreaths,N,61.71\nFS-8529,2026-05,Bouquets,N,58.07\nFS-7138,2026-05,Wreaths,N,61.91\nFS-6302,2026-06,Bouquets,N,77.37\nFS-1570,2026-04,Planters,N,31.96\nFS-7799,2026-06,Planters,N,60.57\nFS-1579,2026-04,Bouquets,N,90.21\nFS-5038,2026-05,Wreaths,N,36.64\nFS-5964,2026-05,Wreaths,N,38.33\nFS-668,2026-05,Wreaths,N,63.98\nFS-9610,2026-06,Planters,N,31.15\nFS-2182,2026-05,Planters,Y,86.85\nFS-6024,2026-05,Planters,Y,51.41\nFS-7608,2026-04,Planters,N,32.81\nFS-7591,2026-05,Planters,N,39.90\nFS-5471,2026-06,Dried Stems,N,39.04\nFS-5196,2026-05,Dried Stems,N,32.19\nFS-3522,2026-05,Bouquets,N,90.61\nFS-8402,2026-05,Bouquets,N,82.02\nFS-3408,2026-05,Bouquets,N,86.07\nFS-1166,2026-04,Bouquets,N,73.54\nFS-3198,2026-05,Wreaths,N,58.18\nFS-1192,2026-05,Wreaths,N,42.06\nFS-3369,2026-04,Wreaths,N,65.93\nFS-6717,2026-05,Dried Stems,N,51.88\n",
+    "README.md": "# Foxglove & Stem Florist - stall sales export\n\nOne row per order. house_account=Y lines are the standing orders we deliver to two hotel lobbies on account; they are not stall sales and stay out of the stall report.\n",
+    "notes/cooler_log.txt": "Cooler log\n- Roses drink first at the morning trim.\n- The ribbon drawer restocks on Fridays.\n- Foam bricks soak in the utility sink.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Foxglove & Stem Florist is ranking stall sales by product line for May. The sales export is at data/stall_sales.csv. Give the number alone, as digits, with no label. What was the May 2026 sales total for the product line that sold the most?",
+      "expect": {
+        "expected_number": 1388.1,
+        "tolerance": 0.01,
+        "required_tools": [
+          "data_query"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 1
+    }
+  }
+}

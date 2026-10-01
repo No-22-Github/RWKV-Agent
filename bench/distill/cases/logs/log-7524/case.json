@@ -1,0 +1,63 @@
+{
+  "id": "log-7524",
+  "description": "Four-turn English session on a build-event JSONL with killed builds: failure count, worst repo, long-build rescope, experimental exclusion. DISTILL-CANARY-fed41943",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "aggregate_jsonl",
+    "traps": [
+      "TR-MISSING"
+    ],
+    "trap_decoys": {
+      "TR-MISSING": 6
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-log-b07-larkspur-build-01",
+    "ref_calls": 5,
+    "fixture_bytes": 2363,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "logs/build-events.jsonl": "{\"ts\":\"2026-09-27T08:12:31Z\",\"build\":\"BR-3341\",\"repo\":\"vision-core\",\"event\":\"failed\",\"worker\":\"ci-04\",\"duration_s\":null,\"channel\":\"nightly\"}\n{\"ts\":\"2026-09-27T09:02:11Z\",\"build\":\"BR-3343\",\"repo\":\"nav-stack\",\"event\":\"failed\",\"worker\":\"ci-02\",\"duration_s\":1042,\"channel\":\"nightly\"}\n{\"ts\":\"2026-09-27T09:47:26Z\",\"build\":\"BR-3345\",\"repo\":\"nav-stack\",\"event\":\"passed\",\"worker\":\"ci-01\",\"duration_s\":512,\"channel\":\"mr-4398\"}\n{\"ts\":\"2026-09-27T10:33:47Z\",\"build\":\"BR-3347\",\"repo\":\"slam-maps\",\"event\":\"passed\",\"worker\":\"ci-05\",\"duration_s\":486,\"channel\":\"nightly\"}\n{\"ts\":\"2026-09-27T11:20:08Z\",\"build\":\"BR-3349\",\"repo\":\"vision-core\",\"event\":\"failed\",\"worker\":\"ci-03\",\"duration_s\":1102,\"channel\":\"experimental\"}\n{\"ts\":\"2026-09-27T12:05:29Z\",\"build\":\"BR-3351\",\"repo\":\"path-planner\",\"event\":\"passed\",\"worker\":\"ci-06\",\"duration_s\":604,\"channel\":\"mr-4407\"}\n{\"ts\":\"2026-09-27T12:51:44Z\",\"build\":\"BR-3353\",\"repo\":\"nav-stack\",\"event\":\"failed\",\"worker\":\"ci-02\",\"duration_s\":743,\"channel\":\"nightly\"}\n{\"ts\":\"2026-09-27T13:38:03Z\",\"build\":\"BR-3355\",\"repo\":\"vision-core\",\"event\":\"failed\",\"worker\":\"ci-04\",\"duration_s\":926,\"channel\":\"mr-4415\"}\n{\"ts\":\"2026-09-27T14:24:18Z\",\"build\":\"BR-3357\",\"repo\":\"slam-maps\",\"event\":\"passed\",\"worker\":\"ci-01\",\"duration_s\":389,\"channel\":\"nightly\"}\n{\"ts\":\"2026-09-27T15:11:35Z\",\"build\":\"BR-3359\",\"repo\":\"path-planner\",\"event\":\"failed\",\"worker\":\"ci-07\",\"duration_s\":null,\"channel\":\"mr-4410\"}\n{\"ts\":\"2026-09-27T15:58:52Z\",\"build\":\"BR-3361\",\"repo\":\"nav-stack\",\"event\":\"passed\",\"worker\":\"ci-03\",\"duration_s\":455,\"channel\":\"nightly\"}\n{\"ts\":\"2026-09-27T16:46:09Z\",\"build\":\"BR-3363\",\"repo\":\"slam-maps\",\"event\":\"passed\",\"worker\":\"ci-05\",\"duration_s\":522,\"channel\":\"mr-4412\"}\n{\"ts\":\"2026-09-27T17:33:26Z\",\"build\":\"BR-3365\",\"repo\":\"slam-maps\",\"event\":\"failed\",\"worker\":\"ci-06\",\"duration_s\":954,\"channel\":\"mr-4412\"}\n{\"ts\":\"2026-09-27T18:20:43Z\",\"build\":\"BR-3367\",\"repo\":\"path-planner\",\"event\":\"passed\",\"worker\":\"ci-02\",\"duration_s\":522,\"channel\":\"nightly\"}\n{\"ts\":\"2026-09-27T19:07:58Z\",\"build\":\"BR-3369\",\"repo\":\"vision-core\",\"event\":\"passed\",\"worker\":\"ci-04\",\"duration_s\":498,\"channel\":\"mr-4415\"}\n",
+    "README.md": "# Larkspur Robotics build farm, 2026-09-27\n\nOne event per line: ts, build id, repo, event, worker, duration_s, channel.\nduration_s is null when a build was killed before completing, so no runtime\nwas measured. channel=experimental rows are throwaway experiment runs.\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "Larkspur Robotics' build events for 2026-09-27 are in logs/build-events.jsonl. How many builds failed that day?",
+      "expect": {
+        "expected_number": 7.0,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "Which repo had the most failures?",
+      "expect": {
+        "output_contains_any": [
+          "vision-core"
+        ]
+      }
+    },
+    {
+      "prompt": "Change of scope: how many builds ran longer than 900 seconds?",
+      "expect": {
+        "expected_number": 4.0,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "vision-core's experimental run (channel experimental) is a throwaway — leave it out and recount the long builds.",
+      "expect": {
+        "expected_number": 3.0,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

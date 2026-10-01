@@ -1,0 +1,38 @@
+{
+  "id": "nt-7175",
+  "description": "Convert the 6.35 mm plug diameter of a large-gauge audio connector to inches. DISTILL-CANARY-15a37b34",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b06-audio-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 347
+  },
+  "web_fixture": [],
+  "files": {
+    "shop/connectors.csv": "model,type,diameter_mm,price_cny\nNC3MX,卡侬公头,6.35,18\nNC3FX,卡侬母头,6.35,22\nTS35,大二芯插头,6.35,15\nM35,小三芯插头,3.5,12\n",
+    "README.md": "# 律动影音 - 配件工作区\n\n线材插头的规格和进货价都登记在这里。\n\n- shop/  插头与线材规格\n\n配件口径：插头直径登记用毫米，外贸单报价时换算成英寸。\n"
+  },
+  "turns": [
+    {
+      "prompt": "律动影音的配件柜里，大二芯插头的直径是 6.35 毫米。外贸单报价要把直径换算成英寸。这个直径是多少英寸？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 0.25,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

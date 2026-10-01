@@ -1,0 +1,56 @@
+{
+  "id": "log-7278",
+  "description": "EXPORT_MEMBER_LIST events on 10 September across app and audit logs, recorded in neither. DISTILL-CANARY-00fdde28",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "locate_error",
+    "traps": [
+      "TR-ABSENT",
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "EXPORT_SUMMARY",
+      "TR-MULTISRC": "audit 里的 EXPORT_SUMMARY"
+    },
+    "axes": [
+      "DEC",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "fam-log-b06-wutong-export",
+    "ref_calls": 3,
+    "fixture_bytes": 1578,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 梧桐保代 - 客户数据平台日志\n\n- logs/app-2026-09-10.jsonl  应用日志（服务与批处理任务，不含操作人）\n- logs/audit-2026-09-10.jsonl  审计日志（控制台登录与导出审计，含操作人）\n\n导出行为只在审计日志里记 EXPORT_* 事件；应用日志只记任务结果。\n",
+    "logs/app-2026-09-10.jsonl": "{\"ts\": \"2026-09-10T08:30:01+08:00\", \"level\": \"INFO\", \"event\": \"service_start\", \"detail\": \"cdp app node cdp-02\"}\n{\"ts\": \"2026-09-10T09:13:02+08:00\", \"level\": \"INFO\", \"event\": \"TASK_RUN\", \"detail\": \"nightly scoring finished 0 errors\"}\n{\"ts\": \"2026-09-10T10:06:01+08:00\", \"level\": \"INFO\", \"event\": \"JOB_DONE\", \"detail\": \"report-daily-2026-09-10.csv generated\"}\n{\"ts\": \"2026-09-10T15:47:33+08:00\", \"level\": \"WARN\", \"event\": \"SLOW_QUERY\", \"detail\": \"member search 4.2s\"}\n{\"ts\": \"2026-09-10T18:00:01+08:00\", \"level\": \"INFO\", \"event\": \"service_stop\", \"detail\": \"day window closed\"}\n",
+    "logs/audit-2026-09-10.jsonl": "{\"ts\": \"2026-09-10T08:30:00+08:00\", \"actor\": \"system\", \"event\": \"audit_open\", \"detail\": \"audit trail 2026-09-10\"}\n{\"ts\": \"2026-09-10T09:12:44+08:00\", \"actor\": \"zhang.wei\", \"event\": \"LOGIN\", \"detail\": \"console\"}\n{\"ts\": \"2026-09-10T10:05:19+08:00\", \"actor\": \"zhang.wei\", \"event\": \"EXPORT_SUMMARY\", \"detail\": \"file=report-daily-2026-09-10.csv rows=412\"}\n{\"ts\": \"2026-09-10T11:40:02+08:00\", \"actor\": \"li.na\", \"event\": \"LOGIN\", \"detail\": \"console\"}\n{\"ts\": \"2026-09-10T14:22:37+08:00\", \"actor\": \"li.na\", \"event\": \"EXPORT_SUMMARY\", \"detail\": \"file=report-claims-2026-09-10.csv rows=58\"}\n{\"ts\": \"2026-09-10T18:00:00+08:00\", \"actor\": \"system\", \"event\": \"audit_close\", \"detail\": \"no anomalies\"}\n"
+  },
+  "turns": [
+    {
+      "prompt": "梧桐保代的合规组要核对 9 月 10 日有没有发生过会员名单导出，帮我把 app 和 audit 两份日志都查一遍：EXPORT_MEMBER_LIST 事件出现过吗？有的话操作人是谁？",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "EXPORT_MEMBER_LIST",
+          "会员名单导出",
+          "member list"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

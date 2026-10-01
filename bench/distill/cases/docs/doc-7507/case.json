@@ -1,0 +1,52 @@
+{
+  "id": "doc-7507",
+  "description": "Turn a service-change notice into a short customer-facing summary. DISTILL-CANARY-b67e09c3",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "extract_items",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "30 GB"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b07-digest-01",
+    "ref_calls": 3,
+    "fixture_bytes": 767,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "notices/notice-0618.txt": "2026-06-18 发给存量客户的服务调整公告（编号 NC-2606）\n自 2026-07-01 起，导出接口单次上限调整为 5000 行，超出部分分页返回。\n历史套餐的免费额度维持 30 GB 不变。\n企业版工单响应时长由 8 小时缩短到 4 小时。\n原定 6 月推送的暗色主题推迟到 Q3，具体日期另行公告。\n自 2026-07-01 起，账单下载通道同步切换到新域名。\n以上调整适用于全部存量套餐，续约不受影响。\n如有疑问，联系你的客户成功经理，或回信本邮箱。\n（本公告由客户运营组发布，2026-06-18）\n",
+    "README.md": "# 客户公告存档\n\n每份公告一个文本文件，首行是日期与编号，正文逐条写变化。公告正文一旦发布不再修改，勘误另发。\n"
+  },
+  "turns": [
+    {
+      "prompt": "notices/ 下是刚发的服务调整公告。帮我用几句话给老客户讲清楚：公告编号是什么、哪些费用或额度变了、各自什么时候生效。",
+      "expect": {
+        "output_contains": [
+          "2026-07-01",
+          "5000",
+          "NC-2606"
+        ],
+        "output_contains_any": [
+          "2026-07-01",
+          "5000",
+          "NC-2606"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

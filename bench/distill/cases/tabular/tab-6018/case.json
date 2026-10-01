@@ -19,9 +19,10 @@
     "ref_calls": 3,
     "fixture_bytes": 1039,
     "status": "draft",
-    "version": 1,
+    "version": 3,
     "author": "llm:glm-5.3-flash-b04",
-    "reviewer": null
+    "reviewer": null,
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -30,9 +31,20 @@
   },
   "turns": [
     {
-      "prompt": "Fiskerton Chandlery's insurer has asked how many crates arrived with damage recorded in the August 2026 delivery log. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Fiskerton Chandlery's insurer has asked how many crates arrived with damage recorded in the August 2026 delivery log.",
       "expect": {
-        "output_equals": "UNKNOWN"
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "damage",
+          "damage_crates"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "0 crates",
+          "zero crates"
+        ]
       }
     }
   ]

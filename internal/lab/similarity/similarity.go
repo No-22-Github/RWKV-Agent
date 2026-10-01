@@ -23,6 +23,12 @@ var Kinds = []string{"prompt", "files", "names"}
 var (
 	wordRe = regexp.MustCompile(`[a-z0-9]+`)
 	nameRe = regexp.MustCompile(`\b[A-Za-z][A-Za-z0-9]*(?:[-_.][A-Za-z0-9]+)+\b`)
+	// cjkRe matches one run of CJK ideographs (plus the full-width forms that
+	// reach prompts through punctuation-free Chinese text). Word shingles never
+	// see these characters: wordRe is [a-z0-9]+, so a Chinese prompt used to
+	// reduce to an empty feature set and decontam went blind on it
+	// (distill-allocation-v1.3 §2.8).
+	cjkRe = regexp.MustCompile(`[\p{Han}\p{Hangul}\p{Hiragana}\p{Katakana}]+`)
 )
 
 // commonNames are too common across any workspace task to count as a shared
@@ -53,12 +59,30 @@ func PromptOf(caseObj map[string]any) string {
 	return strings.Join(parts, "\n")
 }
 
-// WordShingles is the set of word size-grams over the lowercased text.
+// cjkGramSize is the character n-gram for CJK runs, independent of the word
+// shingle size: three characters is the shortest window that survives
+// boilerplate stripping while still localizing a shared phrase.
+const cjkGramSize = 3
+
+// WordShingles is the set of word size-grams over the lowercased text, plus
+// character 3-grams over every CJK run: Chinese has no [a-z0-9] words, so
+// without the character grams a Chinese prompt contributes nothing and the
+// gate cannot flag a Chinese variant of a test case.
 func WordShingles(text string, size int) map[string]struct{} {
 	words := wordRe.FindAllString(strings.ToLower(text), -1)
 	out := map[string]struct{}{}
 	for i := 0; i+size <= len(words); i++ {
 		out[strings.Join(words[i:i+size], "\x00")] = struct{}{}
+	}
+	for _, run := range cjkRe.FindAllString(text, -1) {
+		runes := []rune(run)
+		if len(runes) < cjkGramSize {
+			out[run] = struct{}{}
+			continue
+		}
+		for i := 0; i+cjkGramSize <= len(runes); i++ {
+			out[string(runes[i:i+cjkGramSize])] = struct{}{}
+		}
 	}
 	return out
 }

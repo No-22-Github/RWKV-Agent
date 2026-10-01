@@ -1,0 +1,67 @@
+{
+  "id": "hyb-7741",
+  "description": "Silver Grain Lab two-turn session: greeting first, then a C-41 intake count for 12 September. DISTILL-CANARY-8a63f2b5",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS",
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-hyb-b07-filmlab-01",
+    "ref_calls": 1,
+    "fixture_bytes": 344,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "value"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Silver Grain Lab - September intake log\n\nOne row per roll checked in. process values: C-41 (colour negative),\nB&W, E-6 (slide).\n",
+    "logs/intake_september.csv": "roll_id,intake_date,process,frames\nR-4102,2026-09-09,C-41,36\nR-4105,2026-09-10,B&W,24\nR-4111,2026-09-12,C-41,36\nR-4112,2026-09-12,C-41,24\nR-4116,2026-09-12,E-6,36\nR-4119,2026-09-13,C-41,36\nR-4123,2026-09-15,B&W,24\n"
+  },
+  "turns": [
+    {
+      "prompt": "Good morning! Lovely day at the shop, isn't it?",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "Hello",
+          "hello",
+          "Hi",
+          "hi",
+          "Hey",
+          "hey",
+          "Morning",
+          "morning",
+          "Afternoon",
+          "afternoon",
+          "Evening",
+          "evening",
+          "Nice",
+          "nice",
+          "help",
+          "assist",
+          "How can",
+          "how can",
+          "thank",
+          "well"
+        ]
+      }
+    },
+    {
+      "prompt": "Could you check how many C-41 rolls were checked in on 12 September? The intake log is at logs/intake_september.csv. Reply with only the final answer.",
+      "expect": {
+        "expected_number": 2,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

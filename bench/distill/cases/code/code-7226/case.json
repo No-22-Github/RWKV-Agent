@@ -1,0 +1,39 @@
+{
+  "id": "code-7226",
+  "description": "Count how many files call format_waybill_no in a clean three-caller repo. DISTILL-CANARY-acc137cd",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "find_callers",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-code-b06-tieyun-callers",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 1159,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {
+    "waybill.py": "\"\"\"铁雁物流的运单号工具，格式化与校验都在这里。\n编号规则以 9 月的规范为准。\n\"\"\"\n\n\n\ndef format_waybill_no(branch: str, seq: int) -> str:\n    \"\"\"把网点代码与流水号拼成标准运单号。\"\"\"\n    return f\"TY{branch}-{seq:06d}\"\n",
+    "dispatch_cli.py": "\"\"\"调度入口：读入当日运单并分派到打印与短信两个队列。\n队列名与值班表对应。\n\"\"\"\nfrom waybill import format_waybill_no\n\n\ndef dispatch(rows: list) -> dict:\n    for row in rows:\n        row[\"no\"] = format_waybill_no(row[\"branch\"], row[\"seq\"])\n    return {\"print\": rows, \"sms\": rows[:1]}\n",
+    "sms_notify.py": "\"\"\"到货短信通知，运单号会写进短信正文。\n模板在 config 区维护。\n\"\"\"\nfrom waybill import format_waybill_no\n\nSMS_TEMPLATE = \"您的运单 {no} 已到站，凭取件码取件。\"\n\n\ndef notify(rows: list) -> list:\n    return [SMS_TEMPLATE.format(no=format_waybill_no(r[\"branch\"], r[\"seq\"])) for r in rows]\n",
+    "archive.py": "\"\"\"运单归档：按月打包并写索引。\n索引文件名带年份与月份。\n\"\"\"\nfrom waybill import format_waybill_no\n\n\ndef archive_index(rows: list) -> list:\n    return [[format_waybill_no(r[\"branch\"], r[\"seq\"]), r[\"month\"]] for r in rows]\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "铁雁物流的调度入口 dispatch_cli.py 用到了 format_waybill_no。只回答数字，不要单位。整个仓库一共有几个文件调用了这个函数？",
+      "expect": {
+        "expected_number": 3,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

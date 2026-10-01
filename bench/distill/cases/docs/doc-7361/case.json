@@ -1,0 +1,54 @@
+{
+  "id": "doc-7361",
+  "description": "Build the cleared-crew roster file from the safety boat day log. DISTILL-CANARY-ec8871fb",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": 5
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b06-torholm",
+    "ref_calls": 3,
+    "fixture_bytes": 690,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "daylogs/2026-09-24.txt": "Sander Holm / bow / cleared / radio check done\nPetra Ives / stroke / cleared / radio check done\nYusuf Demir / engine / provisional / rides along, not signed off\nNadia Ferrari / bow / cleared / radio check done\nColm Brady / engine / cleared / radio check done\n",
+    "README.md": "# Torholm Rowing Club - safety boat crews\n\nDay logs from the duty officer land in daylogs/ as plain rows:\n\n    <name> / <seat> / <status> / <note>\n\nFor every session the club keeps a crew roster in rosters/, one file\nper day named YYYY-MM-DD.txt. A row goes on the roster only when its\nstatus is cleared; provisional rows are trainees and stay off it.\nRoster lines are written in the day log's row order as:\n\n    - <name> (<seat>)\n",
+    "rosters/.keep": ""
+  },
+  "expect": {
+    "files": {
+      "rosters/2026-09-24.txt": {
+        "contains": [
+          "- Sander Holm (bow)",
+          "- Petra Ives (stroke)",
+          "- Nadia Ferrari (bow)",
+          "- Colm Brady (engine)"
+        ]
+      },
+      "daylogs/2026-09-24.txt": {
+        "unchanged": true
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Torholm Rowing Club ran its safety-boat drill on 2026-09-24 and the duty officer's day log is in daylogs/. Put together that day's crew roster in rosters/ the way the club's README describes, and leave the day log itself untouched. When you are done, describe in two or three sentences what you wrote.",
+      "expect": {}
+    }
+  ]
+}

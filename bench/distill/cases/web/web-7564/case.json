@@ -1,0 +1,61 @@
+{
+  "id": "web-7564",
+  "description": "Stable build to pin for Mistlemoor Survey field tablets, straight from the downloads page snippet. DISTILL-CANARY-5899dd74",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": "4.3.0"
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-web-b06-mistlemoor-stable",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "mistlemoor",
+      "url": "https://www.mistlemoorsurvey.example/downloads",
+      "url_match": "www.mistlemoorsurvey.example/downloads",
+      "title": "Downloads - Mistlemoor Survey",
+      "snippet": "Mistlemoor Survey 4.2.1 is the current stable build (2026-08-30); the 4.3.0 series is still beta-channel only.",
+      "content": "# Mistlemoor Survey downloads\n\nCurrent stable build: 4.2.1, released 2026-08-30. The 4.3.0 series is still beta-channel only and is not recommended for field tablets.\n\nBeta build: 4.3.0-beta.2 (2026-09-08).\n\nOlder stable builds are archived on request.\n",
+      "published_at": "2026-08-30"
+    },
+    {
+      "query_match": "mistlemoor",
+      "url": "https://releaselog.example/mistlemoor",
+      "url_match": "releaselog.example/mistlemoor",
+      "title": "Mistlemoor Survey - release log mirror",
+      "snippet": "Community mirror of the Mistlemoor Survey release log.",
+      "content": "releaselog.example - Mistlemoor Survey release log mirror\n\n4.3.0-beta.2 (2026-09-08): beta channel.\n4.3.0-beta.1 (2026-08-24): beta channel.\n4.2.1 (2026-08-30): stable channel.\n",
+      "published_at": "2026-09-08"
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The hedgerow survey team refreshes all the field tablets at once and only takes stable builds. Which version string should the update script pin? Give the version alone, in the form 1.2.3.",
+      "expect": {
+        "output_equals": "4.2.1"
+      }
+    }
+  ]
+}

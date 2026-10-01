@@ -1,0 +1,42 @@
+{
+  "id": "nt-7115",
+  "description": "Convert a 26-degree-Celsius lab setpoint into Fahrenheit for a report to an overseas client DISTILL-CANARY-33500b64",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 46.8
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-degfah-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 259
+  },
+  "web_fixture": [],
+  "files": {
+    "lab/setpoints.csv": "区域,设定温度摄氏度\n恒温间,26\n冷藏间,4\n低温间,-18\n",
+    "README.md": "# 澄江检测中心 - 实验室工作区\n\n各实验室温控设定与设备台账都在这里。\n\n- lab/  温控设定登记表\n\n给外方客户的设备报告需要同时标注华氏度。\n"
+  },
+  "turns": [
+    {
+      "prompt": "澄江检测中心恒温间的设定温度是 26 摄氏度。给外方客户的设备报告里要同时标注华氏度。26 摄氏度合多少华氏度？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 78.8,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

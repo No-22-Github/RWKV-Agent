@@ -1,0 +1,71 @@
+{
+  "id": "web-7578",
+  "description": "The after-concert night shuttle departure time at the Qionghua Arena, whose notice page fetch fails with a provider error (琼华). DISTILL-CANARY-bc49e2e9",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-FETCHFAIL"
+    ],
+    "trap_decoys": {
+      "TR-FETCHFAIL": "22:40"
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-web-b06-shuttle-notice",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [
+    {
+      "query_match": "琼华",
+      "url": "https://www.qionghua.example/guide",
+      "url_match": "www.qionghua.example/guide",
+      "title": "交通指南 - 琼华体育馆",
+      "snippet": "琼华体育馆的地铁、公交与散场出行指引。",
+      "content": "# 交通指南\n\n地铁 2 号线琼华站 C 口直达，演出散场后加开安排，以夜间散场班车公告页发布为准。\n",
+      "published_at": "2026-04-02"
+    },
+    {
+      "query_match": "琼华",
+      "url": "https://www.qionghua.example/notice/shuttle-night",
+      "url_match": "www.qionghua.example/notice/shuttle-night",
+      "title": "演唱会夜间散场班车公告 - 琼华体育馆",
+      "snippet": "演唱会当晚散场班车的发车时间以本公告正文为准。",
+      "content": "# 演唱会夜间散场班车公告\n\n演唱会当晚散场班车的发车时间以本公告正文为准。\n",
+      "published_at": "2026-09-25",
+      "error": "Tavily extract failed: 502 Bad Gateway"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "琼华体育馆周六晚上有演唱会，散场后的夜班班车几点发车？帮我查体育馆官网的夜间散场班车公告。",
+      "expect": {
+        "required_tools": [
+          "web_fetch"
+        ],
+        "output_contains_any": [
+          "qionghua.example",
+          "qionghua",
+          "散场班车"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools",
+          "22:40",
+          "22 点 40 分"
+        ]
+      }
+    }
+  ]
+}

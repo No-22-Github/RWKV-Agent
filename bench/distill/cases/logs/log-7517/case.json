@@ -1,0 +1,73 @@
+{
+  "id": "log-7517",
+  "description": "Five-turn Chinese session on cold-chain telemetry with one sensor on a legacy date format: warm-reading count, per-sensor breakdown, first and warmest readings, defrost tally. DISTILL-CANARY-4ebeb734",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "aggregate_jsonl",
+    "traps": [
+      "TR-DATEFMT"
+    ],
+    "trap_decoys": {
+      "TR-DATEFMT": 7
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-log-b07-wrenfield-iot-01",
+    "ref_calls": 6,
+    "fixture_bytes": 3374,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "logs/telemetry-0926.jsonl": "{\"ts\":\"2026-09-26T05:12:40+08:00\",\"sensor\":\"TH-0114\",\"site\":\"冷库B\",\"temp_c\":-4.5,\"status\":\"defrost\"}\n{\"ts\":\"2026-09-26T06:10:05+08:00\",\"sensor\":\"TH-0114\",\"site\":\"冷库B\",\"temp_c\":-19.4,\"status\":\"ok\"}\n{\"ts\":\"2026-09-26T06:47:15+08:00\",\"sensor\":\"TH-0203\",\"site\":\"冷库B\",\"temp_c\":-3.8,\"status\":\"defrost\"}\n{\"ts\":\"2026-09-26T07:33:29+08:00\",\"sensor\":\"TH-0203\",\"site\":\"冷库B\",\"temp_c\":-18.6,\"status\":\"ok\"}\n{\"ts\":\"26-09-2026 07:55:12+08:00\",\"sensor\":\"TH-0087\",\"site\":\"冷库B\",\"temp_c\":-19.1,\"status\":\"ok\"}\n{\"ts\":\"2026-09-26T08:20:11+08:00\",\"sensor\":\"TH-0305\",\"site\":\"冷库A\",\"temp_c\":-19.8,\"status\":\"ok\"}\n{\"ts\":\"2026-09-26T08:41:11+08:00\",\"sensor\":\"TH-0114\",\"site\":\"冷库B\",\"temp_c\":-17.2,\"status\":\"ok\"}\n{\"ts\":\"26-09-2026 08:52:40+08:00\",\"sensor\":\"TH-0087\",\"site\":\"冷库B\",\"temp_c\":-17.9,\"status\":\"ok\"}\n{\"ts\":\"2026-09-26T09:02:33+08:00\",\"sensor\":\"TH-0203\",\"site\":\"冷库B\",\"temp_c\":-17.6,\"status\":\"ok\"}\n{\"ts\":\"2026-09-26T09:23:05+08:00\",\"sensor\":\"TH-0114\",\"site\":\"冷库B\",\"temp_c\":-16.8,\"status\":\"ok\"}\n{\"ts\":\"2026-09-26T09:41:26+08:00\",\"sensor\":\"TH-0305\",\"site\":\"冷库A\",\"temp_c\":-20.1,\"status\":\"ok\"}\n{\"ts\":\"2026-09-26T10:05:12+08:00\",\"sensor\":\"TH-0114\",\"site\":\"冷库B\",\"temp_c\":-15.2,\"status\":\"ok\"}\n{\"ts\":\"26-09-2026 10:31:22+08:00\",\"sensor\":\"TH-0087\",\"site\":\"冷库B\",\"temp_c\":-16.1,\"status\":\"ok\"}\n{\"ts\":\"2026-09-26T10:44:19+08:00\",\"sensor\":\"TH-0203\",\"site\":\"冷库B\",\"temp_c\":-17.1,\"status\":\"ok\"}\n{\"ts\":\"2026-09-26T11:12:48+08:00\",\"sensor\":\"TH-0114\",\"site\":\"冷库B\",\"temp_c\":-17.5,\"status\":\"ok\"}\n{\"ts\":\"2026-09-26T11:15:40+08:00\",\"sensor\":\"TH-0305\",\"site\":\"冷库A\",\"temp_c\":-19.2,\"status\":\"ok\"}\n{\"ts\":\"2026-09-26T11:38:55+08:00\",\"sensor\":\"TH-0203\",\"site\":\"冷库B\",\"temp_c\":-16.4,\"status\":\"ok\"}\n{\"ts\":\"2026-09-26T12:40:18+08:00\",\"sensor\":\"TH-0114\",\"site\":\"冷库B\",\"temp_c\":-18.3,\"status\":\"ok\"}\n{\"ts\":\"26-09-2026 13:05:00+08:00\",\"sensor\":\"TH-0087\",\"site\":\"冷库B\",\"temp_c\":-2.9,\"status\":\"defrost\"}\n{\"ts\":\"2026-09-26T13:33:04+08:00\",\"sensor\":\"TH-0305\",\"site\":\"冷库A\",\"temp_c\":-18.7,\"status\":\"ok\"}\n{\"ts\":\"2026-09-26T14:05:36+08:00\",\"sensor\":\"TH-0203\",\"site\":\"冷库B\",\"temp_c\":-18.9,\"status\":\"ok\"}\n{\"ts\":\"2026-09-26T14:22:33+08:00\",\"sensor\":\"TH-0114\",\"site\":\"冷库B\",\"temp_c\":-4.1,\"status\":\"defrost\"}\n{\"ts\":\"2026-09-26T15:41:08+08:00\",\"sensor\":\"TH-0305\",\"site\":\"冷库A\",\"temp_c\":-3.4,\"status\":\"defrost\"}\n{\"ts\":\"2026-09-26T16:20:44+08:00\",\"sensor\":\"TH-0305\",\"site\":\"冷库A\",\"temp_c\":-19.5,\"status\":\"ok\"}\n{\"ts\":\"2026-09-26T16:44:02+08:00\",\"sensor\":\"TH-0114\",\"site\":\"冷库B\",\"temp_c\":-19.7,\"status\":\"ok\"}\n{\"ts\":\"2026-09-26T18:09:52+08:00\",\"sensor\":\"TH-0203\",\"site\":\"冷库B\",\"temp_c\":-3.6,\"status\":\"defrost\"}\n{\"ts\":\"2026-09-26T19:30:26+08:00\",\"sensor\":\"TH-0305\",\"site\":\"冷库A\",\"temp_c\":-3.9,\"status\":\"defrost\"}\n{\"ts\":\"2026-09-26T20:31:19+08:00\",\"sensor\":\"TH-0203\",\"site\":\"冷库B\",\"temp_c\":-18.2,\"status\":\"ok\"}\n{\"ts\":\"2026-09-26T21:14:03+08:00\",\"sensor\":\"TH-0114\",\"site\":\"冷库B\",\"temp_c\":-4.3,\"status\":\"defrost\"}\n{\"ts\":\"26-09-2026 22:48:41+08:00\",\"sensor\":\"TH-0087\",\"site\":\"冷库B\",\"temp_c\":-3.1,\"status\":\"defrost\"}\n",
+    "README.md": "# Wrenfield 冷链传感器遥测（2026-09-26，北京时间）\n\n一行一条读数：ts（本地时间 +08:00）、传感器、库房、温度、状态。\nTH-0087 固件较旧，时间戳为 日-月-年 顺序（如 26-09-2026），其余传感器为 ISO 顺序；\n两者都是 9 月 26 日的读数。status=defrost 为除霜周期。\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "Wrenfield 冷链的传感器遥测在 logs/telemetry-0926.jsonl。9 月 26 日 08:00:00 到 12:00:00 之间，冷库 B 的读数里温度高于 -18 ℃ 的有多少条？",
+      "expect": {
+        "expected_number": 9.0,
+        "tolerance": 0.01
+      }
+    },
+    {
+      "prompt": "按传感器拆开看：这些高于 -18 ℃ 的读数里，哪个传感器最多？",
+      "expect": {
+        "output_contains_any": [
+          "TH-0114"
+        ]
+      }
+    },
+    {
+      "prompt": "TH-0114 在 08:00:00 到 12:00:00 之间第一次高于 -18 ℃ 是几点几分？",
+      "expect": {
+        "output_contains_any": [
+          "08:41",
+          "08:41:11"
+        ]
+      }
+    },
+    {
+      "prompt": "它在 08:00:00 到 12:00:00 里高于 -18 ℃ 的那几条中，温度最高的是多少度？",
+      "expect": {
+        "output_contains_any": [
+          "-15.2"
+        ]
+      }
+    },
+    {
+      "prompt": "最后统计一下全天：9 月 26 日 status=defrost 的读数有多少条？",
+      "expect": {
+        "expected_number": 9.0,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "id": "log-7616",
+  "description": "总结游泳馆水质记录仪日志（中文）；探头校准配液条目是诱饵。 DISTILL-CANARY-8997b520",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "4 条"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-b07-countdecoy-01",
+    "ref_calls": 3,
+    "fixture_bytes": 600,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:distill-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "logs/water-0812.log": "2026-08-12 09:05 2 号池 余氯 0.9 mg/L 超上限 告警\n2026-08-12 10:00 2 号池 余氯 1.2 mg/L 超上限 告警\n2026-08-12 11:30 2 号池 余氯 0.7 mg/L 复测仍偏高 告警\n2026-08-12 13:40 2 号池 补水换水完成 正常\n2026-08-12 15:20 2 号池 余氯 1.1 mg/L 超上限 校准\n2026-08-12 15:50 2 号池 余氯 0.5 mg/L 回到区间 正常\n",
+    "notes/巡检记录.md": "青澜游泳馆水质巡检记录（2 号池）。\n\n原因：投药泵设定偏高，已回调。\n\n2026-08-12 15:20 的一条带「校准」标记，是探头校准用的配液读数，\n不是水样超标，卫生检查口径里不算告警。\n"
+  },
+  "turns": [
+    {
+      "prompt": "青澜游泳馆 8 月 12 日 2 号池的水质记录仪存了一串读数，馆长让我整理一份给卫生检查用的说明：带告警的记录一共几条、是哪个池子、后来查出来是什么原因。",
+      "expect": {
+        "output_contains": [
+          "3 条",
+          "2 号池",
+          "投药泵"
+        ],
+        "output_contains_any": [
+          "3 条",
+          "2 号池",
+          "投药泵"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

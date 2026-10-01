@@ -1,0 +1,66 @@
+{
+  "id": "log-7509",
+  "description": "Four-turn English session on a gateway log with a renamed upstream: top 5xx service, maintenance-window rescope, peak minute, and its top contributor. DISTILL-CANARY-b9f1f543",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "locate_error",
+    "traps": [
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": "search-svc"
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L2",
+    "family": "fam-log-b07-kestrel-edge-01",
+    "ref_calls": 5,
+    "fixture_bytes": 3448,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "logs/edge-access.log": "2026-09-26T03:02:40Z req-3111 10.201.7.44 POST /pay/charge 502 payment-svc 210ms\n2026-09-26T03:04:12Z req-3112 10.201.2.90 POST /cart/add 200 cart-svc 41ms\n2026-09-26T03:05:38Z req-3113 10.201.9.15 GET /api/auth 503 auth-svc 94ms\n2026-09-26T03:06:55Z req-3114 10.201.4.44 POST /pay/charge 503 paymentsvc 205ms\n2026-09-26T03:08:21Z req-3115 10.201.7.44 GET /api/items 200 items-svc 19ms\n2026-09-26T03:09:47Z req-3116 10.201.2.90 GET /api/auth 500 auth-svc 88ms\n2026-09-26T03:11:03Z req-3117 10.201.9.15 POST /pay/charge 502 paymentsvc 198ms\n2026-09-26T03:12:30Z req-3118 10.201.4.44 GET /api/auth 200 auth-svc 80ms\n2026-09-26T03:13:56Z req-3119 10.201.2.90 POST /cart/add 200 cart-svc 38ms\n2026-09-26T03:14:22Z req-3120 10.201.7.44 POST /pay/charge 504 payment-svc 302ms\n2026-09-26T03:15:48Z req-3121 10.201.9.15 POST /pay/charge 502 paymentsvc 201ms\n2026-09-26T03:16:30Z req-3122 10.201.4.44 POST /pay/charge 502 payment-svc 207ms\n2026-09-26T03:17:14Z req-3123 10.201.2.90 POST /pay/charge 502 payment-svc 209ms\n2026-09-26T03:18:40Z req-3124 10.201.9.15 POST /pay/charge 504 paymentsvc 299ms\n2026-09-26T03:21:05Z req-3125 10.201.7.44 GET /api/auth 200 auth-svc 85ms\n2026-09-26T03:22:31Z req-3126 10.201.4.44 POST /pay/refund 200 payment-svc 150ms\n2026-09-26T03:23:57Z req-3127 10.201.9.15 GET /api/auth 500 auth-svc 91ms\n2026-09-26T03:25:13Z req-3128 10.201.2.90 POST /pay/charge 502 paymentsvc 204ms\n2026-09-26T03:26:49Z req-3129 10.201.7.44 GET /api/items 200 items-svc 21ms\n2026-09-26T03:28:15Z req-3130 10.201.4.44 GET /api/auth 502 auth-svc 86ms\n2026-09-26T03:29:41Z req-3131 10.201.9.15 POST /cart/add 502 cart-svc 55ms\n2026-09-26T03:31:08Z req-3132 10.201.2.90 GET /api/auth 200 auth-svc 83ms\n2026-09-26T03:32:24Z req-3133 10.201.7.44 POST /pay/charge 502 payment-svc 199ms\n2026-09-26T03:34:00Z req-3134 10.201.4.44 GET /api/auth 500 auth-svc 89ms\n2026-09-26T03:34:18Z req-3135 10.201.2.90 POST /cart/add 502 cart-svc 59ms\n2026-09-26T03:34:41Z req-3136 10.201.9.15 GET /api/auth 500 auth-svc 90ms\n2026-09-26T03:34:52Z req-3137 10.201.7.44 GET /api/auth 500 auth-svc 92ms\n2026-09-26T03:36:42Z req-3138 10.201.4.44 GET /api/auth 200 auth-svc 84ms\n2026-09-26T03:38:18Z req-3139 10.201.2.90 POST /cart/add 200 cart-svc 40ms\n2026-09-26T03:41:10Z req-3140 10.201.9.15 POST /pay/charge 200 payment-svc 95ms\n2026-09-26T03:42:36Z req-3141 10.201.2.90 GET /api/auth 500 auth-svc 87ms\n2026-09-26T03:44:02Z req-3142 10.201.7.44 POST /pay/charge 504 payment-svc 297ms\n2026-09-26T03:45:28Z req-3143 10.201.4.44 GET /api/auth 200 auth-svc 81ms\n2026-09-26T03:46:54Z req-3144 10.201.9.15 POST /cart/add 200 cart-svc 42ms\n2026-09-26T03:48:20Z req-3145 10.201.2.90 POST /pay/charge 200 payment-svc 180ms\n2026-09-26T03:49:46Z req-3146 10.201.7.44 GET /api/auth 500 auth-svc 89ms\n2026-09-26T03:51:12Z req-3147 10.201.4.44 GET /api/items 200 items-svc 18ms\n2026-09-26T03:52:38Z req-3148 10.201.9.15 GET /api/auth 500 auth-svc 93ms\n2026-09-26T03:54:04Z req-3149 10.201.2.90 POST /cart/add 200 cart-svc 39ms\n2026-09-26T03:55:30Z req-3150 10.201.7.44 GET /api/auth 200 auth-svc 79ms\n2026-09-26T03:58:22Z req-3151 10.201.4.44 GET /api/auth 200 auth-svc 86ms\n",
+    "README.md": "# Kestrel Retail edge gateway, 03:00-04:00 window of 2026-09-26\n\nFields: timestamp, request id, client ip, method, path, status, upstream, latency.\nUpstream payment-svc was renamed from paymentsvc on 2026-09-12; some entries\nlogged that night still carry the legacy name. Both spellings are the same service.\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "Kestrel Retail's edge gateway log for the 03:00-04:00 window of 2026-09-26 is in logs/edge-access.log. Which upstream service returned the most 5xx responses?",
+      "expect": {
+        "output_contains_any": [
+          "payment-svc"
+        ]
+      }
+    },
+    {
+      "prompt": "Hold on — 03:14:00 to 03:19:59 was a maintenance freeze on the payment path. Exclude that window and tell me again which upstream had the most 5xx.",
+      "expect": {
+        "output_contains_any": [
+          "auth-svc"
+        ]
+      }
+    },
+    {
+      "prompt": "Now a different cut: which single minute had the most 5xx across all upstreams?",
+      "expect": {
+        "output_contains_any": [
+          "03:34"
+        ]
+      }
+    },
+    {
+      "prompt": "And in that minute, which upstream accounted for the most?",
+      "expect": {
+        "output_contains_any": [
+          "auth-svc"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "id": "web-7503",
+  "description": "Meaning and handling of the QingWu panel error code E-3102 per the official code manual. DISTILL-CANARY-3c7e05da",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "网线松动"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-web-b06-qingwu",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "青梧",
+      "url": "https://help.qingwu.example/codes",
+      "url_match": "help.qingwu.example/codes",
+      "title": "青梧会议平板 错误码手册",
+      "snippet": "E-3102 | 原因 编码器过载 | 处理 自动降低共享帧率",
+      "content": "# 青梧会议平板 错误码手册（2026-07 版）\n\n错误码 | 含义 | 处理方式\n- E-1088 | 原因 网线未连接 | 处理 检查机身右侧网口和水晶头\n- E-2044 | 原因 无线投屏配对超时 | 处理 在投屏菜单重新发起配对\n- E-3102 | 原因 编码器过载 | 处理 自动降低共享帧率\n- E-4071 | 原因 固件校验失败 | 处理 联系售后刷写固件\n\n若处理后仍复现，请在「设置-关于」里导出诊断包联系售后。\n",
+      "published_at": "2026-07-02"
+    },
+    {
+      "query_match": "青梧",
+      "url": "https://bbs.avdiy.example/thread-88231",
+      "url_match": "bbs.avdiy.example/thread-88231",
+      "title": "青梧 E-3102 报错，有人遇到过吗",
+      "snippet": "我们会议室那台青梧一投屏就报 E-3102，最后发现是网线松了，重新插拔就好了。",
+      "content": "bbs.avdiy.example - 会议视听版 - 青梧 E-3102 报错，有人遇到过吗\n\n1楼（老周布线，2026-05-30）：我们会议室那台青梧一投屏就报 E-3102，查了半天\n最后发现是网线松了，重新插拔就好了，供参考。\n\n2楼（av老曹，2026-05-31）：E-3 开头一般是编码那一路的问题，建议先把投屏\n分辨率降一档试试。\n\n3楼（老周布线，2026-06-02）：后来一直没再报，先结帖。\n",
+      "published_at": "2026-05-30"
+    }
+  ],
+  "expect": {},
+  "turns": [
+    {
+      "prompt": "会议室的青梧会议平板一投屏就跳出错误码 E-3102。查一下官方错误码手册，用一两句话说明这个码的原因和处理方式。",
+      "expect": {
+        "output_contains_any": [
+          "编码器过载",
+          "自动降低共享帧率"
+        ]
+      }
+    }
+  ]
+}

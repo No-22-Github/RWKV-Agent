@@ -1,0 +1,79 @@
+{
+  "id": "hyb-7756",
+  "description": "两轮反问（写前确认）：库存周报.md 已有上周内容，第 1 轮先查再确认是否覆盖，第 2 轮确认后用 write 方式写入 9 月 13 日动销记录。 DISTILL-CANARY-93a5ac59",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": null
+    },
+    "axes": [
+      "DEC",
+      "CON"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b07-writeconfirm-01",
+    "ref_calls": 4,
+    "fixture_bytes": 311,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "README.md": "# 绿屿文具\n\n动销流水按日登记，出库为售出、入库为补货。\n",
+    "reports/库存周报.md": "# 库存周报（9 月第 1 周）\n\n笔记本到货 60 册，已上架。\n中性笔补货 200 支，在途。\n",
+    "data/动销-2026-09-13.csv": "品类,变动,数量\n笔记本,出库,18\n中性笔,出库,64\n文件袋,出库,37\n档案盒,入库,50\n便签本,出库,22\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 9 月 13 日的动销记录整理进 reports/库存周报.md。",
+      "expect": {
+        "forbidden_tools": [
+          "write_file",
+          "append_file",
+          "replace_lines"
+        ],
+        "output_contains_any": [
+          "？",
+          "?",
+          "哪",
+          "什么",
+          "还是",
+          "是否",
+          "请告诉",
+          "请确认",
+          "要不要",
+          "需要提供"
+        ],
+        "output_contains": [
+          "库存周报"
+        ]
+      }
+    },
+    {
+      "prompt": "对，直接覆盖，把那天的 5 行记录原样写进去，旧内容不要保留。完成后用一两句话说明你改了什么。",
+      "expect": {
+        "output_contains": [
+          "库存周报"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "reports/库存周报.md": {
+        "contains": [
+          "笔记本,出库,18",
+          "中性笔,出库,64",
+          "档案盒,入库,50"
+        ]
+      }
+    }
+  }
+}

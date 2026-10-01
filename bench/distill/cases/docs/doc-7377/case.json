@@ -1,0 +1,49 @@
+{
+  "id": "doc-7377",
+  "description": "Log the harbour office's damage claims, which arrive partly re-keyed. DISTILL-CANARY-be8073ed",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": 4
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b06-ossory",
+    "ref_calls": 4,
+    "fixture_bytes": 715,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "logbook/claims-2026-09.txt": "2026-09-12 Berth 08 \"Lark\" - anchor chain dropped overboard - 210\n2026-09-19 Berth 17 \"Marlin\" - window cracked by a halyard - 95\n",
+    "notices/inspector-2026-09-28.txt": "Notices received 2026-09-28\nBerth 14 - \"Periwinkle\" - cleat torn out - 340\nBerth 22 - \"Heron\" - hull gouge amidships - 890\nBerth 14 - \"Periwinkle\" - cleat torn out - 340\nBerth 31 - \"Sable\" - fender rail bent - 120\n",
+    "README.md": "# Ossory Marina - damage claims log\n\nlogbook/claims-YYYY-MM.txt takes one line per claim:\n\n    <date> <berth> \"<vessel>\" - <summary> - <estimate>\n\nThe inspector's notices are kept in notices/. The counter sometimes\nre-keys a notice, so the same claim can appear twice on one sheet;\neach claim is logged once, in the order first seen, under the date\non the notices sheet.\n"
+  },
+  "expect": {
+    "files": {
+      "logbook/claims-2026-09.txt": {
+        "equals": "2026-09-12 Berth 08 \"Lark\" - anchor chain dropped overboard - 210\n2026-09-19 Berth 17 \"Marlin\" - window cracked by a halyard - 95\n2026-09-28 Berth 14 \"Periwinkle\" - cleat torn out - 340\n2026-09-28 Berth 22 \"Heron\" - hull gouge amidships - 890\n2026-09-28 Berth 31 \"Sable\" - fender rail bent - 120\n"
+      },
+      "notices/inspector-2026-09-28.txt": {
+        "unchanged": true
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "The Ossory Marina harbour office received the inspector's notices of 2026-09-28 (in notices/). Log the day's claims into logbook/claims-2026-09.txt in the house style, and leave the notices sheet untouched. When you are done, describe in two or three sentences what you wrote.",
+      "expect": {}
+    }
+  ]
+}

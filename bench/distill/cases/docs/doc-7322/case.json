@@ -1,0 +1,41 @@
+{
+  "id": "doc-7322",
+  "description": "Find the return window for one textbook order by applying the exception clause in the returns policy. DISTILL-CANARY-ab373964",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-RULEFILE"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": "30 天"
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b06-qingwu-shuju",
+    "ref_calls": 2,
+    "fixture_bytes": 1085,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 2,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "docs/退货政策.md": "# 青梧书局退货政策\n\n自签收之日起 30 天内，图书类商品可申请退货，需保持塑封完整、无勾画。\n\n例外：教材与教辅类商品不支持无理由退货，仅在签收之日起 7 天内且存在印装质量问题时可申请退货，需拍照留证。\n\n退货请携带订单号到原购买门店办理，线上订单按原支付路径退回。\n",
+    "docs/退货订单.csv": "订单号,品类,签收日期,金额(元),会员\nQD-1002,文学,2026-08-03,78.00,蒋一苇\nQD-1007,社科,2026-08-05,64.00,白榆\nQD-1011,少儿,2026-08-09,45.00,韩霁\nQD-1014,艺术,2026-08-12,120.00,唐折枝\nTB-1101,教材,2026-08-15,88.00,竺秋原\nQD-1019,文学,2026-08-18,52.00,桑野\nTB-1104,教材,2026-08-21,96.00,费映棠\nQD-1023,社科,2026-08-24,69.00,穆怀瑾\nTB-1108,教辅,2026-08-27,32.00,阮青时\nQD-1028,少儿,2026-08-30,58.00,蒋一苇\nQD-1031,文学,2026-09-02,83.00,白榆\nTB-1112,教材,2026-09-05,110.00,韩霁\nQD-1036,艺术,2026-09-09,145.00,唐折枝\nQD-1039,社科,2026-09-12,57.00,竺秋原\nTB-1115,教辅,2026-09-15,28.00,费映棠\nQD-1044,文学,2026-09-19,91.00,桑野\n"
+  },
+  "turns": [
+    {
+      "prompt": "有位客人想退青梧书局的一本书：订单 TB-1104，明细在 docs/退货订单.csv。这单商品自签收之日起多少天以内可以申请退货？",
+      "expect": {
+        "expected_number": 7.0,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "id": "hyb-7768",
+  "description": "两轮反问（多种合理解读）：9 月 30 日有初盘与复盘两份盘点，数字有出入，第 1 轮点名两份反问，第 2 轮定初盘得 1786。 DISTILL-CANARY-b0f027ec",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-AMBIG"
+    ],
+    "trap_decoys": {
+      "TR-AMBIG": 1782.0
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b07-ambiguoustwo-01",
+    "ref_calls": 4,
+    "fixture_bytes": 352,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {
+    "README.md": "# 翌辰电子仓储\n\n初盘与复盘同日各做一次全仓盘点，两班数字偶有出入，以财务采用者为准。数量为件。\n",
+    "stock/盘点-初盘.csv": "货位,料号,数量\nA-01,IC-2201,355\nA-02,IC-3310,164\nB-01,CN-1180,812\nB-02,IC-2201,315\nC-01,CN-1180,140\n",
+    "stock/盘点-复盘.csv": "货位,料号,数量\nA-01,IC-2201,351\nA-02,IC-3310,164\nB-01,CN-1180,809\nB-02,IC-2201,318\nC-01,CN-1180,140\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 9 月 30 日盘点的库存总件数报给财务。",
+      "expect": {
+        "forbidden_tools": [
+          "write_file",
+          "append_file",
+          "replace_lines"
+        ],
+        "output_contains_any": [
+          "？",
+          "?",
+          "哪",
+          "什么",
+          "还是",
+          "是否",
+          "请告诉",
+          "请确认",
+          "要不要",
+          "需要提供"
+        ],
+        "output_contains": [
+          "盘点-初盘.csv",
+          "盘点-复盘.csv"
+        ]
+      }
+    },
+    {
+      "prompt": "财务用初盘那份。只回答数字。",
+      "expect": {
+        "expected_number": 1786.0,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

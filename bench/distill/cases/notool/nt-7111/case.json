@@ -1,0 +1,42 @@
+{
+  "id": "nt-7111",
+  "description": "Convert a patrol route's 4.6 km total length into metres for signage; every input is in the message DISTILL-CANARY-7dfb1b6e",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": 4.6
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-route-len-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 283
+  },
+  "web_fixture": [],
+  "files": {
+    "patrol/route_2026w40.csv": "路段,起点,终点,长度公里\n1,东门岗,地库入口,2.1\n2,地库入口,B栋天台,1.6\n3,B栋天台,西门岗,0.9\n",
+    "README.md": "# 望岚物业 - 园区巡更工作区\n\n每周巡更路线和巡更记录都登记在这里。\n\n- patrol/  本周巡更路线分段表\n- logs/  巡更打点记录\n"
+  },
+  "turns": [
+    {
+      "prompt": "望岚物业要给园区巡更路线做一批里程指示牌，牌子上要写全程多少米。这条巡更路线全程 4.6 公里。全程是多少米？只回答数字，不要单位。",
+      "expect": {
+        "expected_number": 4600,
+        "tolerance": 0.01,
+        "tools": []
+      }
+    }
+  ]
+}

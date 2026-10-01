@@ -1,7 +1,10 @@
 package corpus
 
 import (
+	"encoding/json"
 	"fmt"
+
+	"github.com/no22/RWKV-Agent/internal/agent/eval"
 	"github.com/no22/RWKV-Agent/internal/lab"
 	"github.com/no22/RWKV-Agent/internal/lab/similarity"
 )
@@ -23,6 +26,12 @@ import (
 // DecontamArgs are the `corpus decontam` flags.
 type DecontamArgs struct {
 	Test            string
+	// TestSuite names an in-memory test population (registered suite, v1.3
+	// §2.9): "bfcl-product" compares against eval.BFCLProductCases(), whose 60
+	// cases exist only as Go source. Chinese distill variants of the
+	// missing-required / multiturn skeletons must be caught before they leak
+	// into the one Chinese acceptance suite. Mutually exclusive with Test.
+	TestSuite       string
 	Candidates      string
 	Records         string
 	PromptThreshold float64
@@ -30,6 +39,40 @@ type DecontamArgs struct {
 	NamesThreshold  float64
 	Boilerplate     float64
 	Report          string
+}
+
+// testSuites maps the --test-suite name to its in-memory case list. The eval
+// import is here rather than at the top of the package so the corpus tools
+// keep a single place that depends on the harness types.
+func testSuiteCases(name string) ([]*lab.OrderedMap, error) {
+	switch name {
+	case "bfcl-product":
+		cases, err := eval.BFCLProductCases()
+		if err != nil {
+			return nil, err
+		}
+		out := make([]*lab.OrderedMap, 0, len(cases))
+		for _, c := range cases {
+			// Round-trip through JSON: the harness Case struct is the source of
+			// truth and the similarity code speaks map[string]any.
+			raw, err := json.Marshal(c)
+			if err != nil {
+				return nil, err
+			}
+			decoded, err := lab.DecodeOrderedJSON(raw)
+			if err != nil {
+				return nil, err
+			}
+			obj, ok := decoded.(*lab.OrderedMap)
+			if !ok {
+				return nil, fmt.Errorf("bfcl case %s did not decode to an object", c.ID)
+			}
+			out = append(out, obj)
+		}
+		return out, nil
+	default:
+		return nil, fmt.Errorf("unknown test suite %q (known: bfcl-product)", name)
+	}
 }
 
 // RunDecontam is the `corpus decontam` command.
@@ -40,10 +83,20 @@ func RunDecontam(args DecontamArgs) int {
 		"names":  args.NamesThreshold,
 	}
 
-	testCases, err := Load(args.Test)
-	if err != nil {
-		fmt.Fprintln(stderr, err)
-		return 2
+	var testCases []*lab.OrderedMap
+	var err error
+	if args.TestSuite != "" {
+		testCases, err = testSuiteCases(args.TestSuite)
+		if err != nil {
+			fmt.Fprintln(stderr, err)
+			return 2
+		}
+	} else {
+		testCases, err = Load(args.Test)
+		if err != nil {
+			fmt.Fprintln(stderr, err)
+			return 2
+		}
 	}
 	population := make([]similarity.Features, 0, len(testCases))
 	for _, caseObj := range testCases {

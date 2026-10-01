@@ -1,0 +1,47 @@
+{
+  "id": "cfg-8005",
+  "description": "Change the production sync interval to 15 minutes in a two-section config while the staging section stays untouched; judged by pinned substrings. DISTILL-CANARY-9b2e6d41",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-holdout-cfg-edit-01",
+    "answer_style": "natural",
+    "ref_calls": 2,
+    "fixture_bytes": 205,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null
+  },
+  "files": {
+    "config/sync.conf": "[sync]\nendpoint = https://tracks.lanren-logistics.example/pull\ninterval_minutes = 30\nbatch = 200\n\n[staging]\nendpoint = https://tracks.staging.lanren-logistics.example/pull\ninterval_minutes = 10\nbatch = 50\n"
+  },
+  "turns": [
+    {
+      "prompt": "把正式环境的轨迹同步间隔从 30 分钟改成 15 分钟，其余内容原样保留。完成后，用一到三句话告诉我你改动了什么。",
+      "expect": {}
+    }
+  ],
+  "expect": {
+    "files": {
+      "config/sync.conf": {
+        "contains": [
+          "[sync]\nendpoint = https://tracks.lanren-logistics.example/pull\ninterval_minutes = 15",
+          "interval_minutes = 15\nbatch = 200",
+          "[staging]\nendpoint = https://tracks.staging.lanren-logistics.example/pull\ninterval_minutes = 10\nbatch = 50"
+        ]
+      }
+    }
+  }
+}

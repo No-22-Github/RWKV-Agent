@@ -1,0 +1,41 @@
+{
+  "id": "nt-7173",
+  "description": "Crontab expression for a daily 6 a.m. reconciliation report, five fields, minute first. DISTILL-CANARY-7f51c2d5",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "6 0 * * *"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b06-logistics-01",
+    "ref_calls": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural",
+    "fixture_bytes": 361
+  },
+  "web_fixture": [],
+  "files": {
+    "ops/jobs.csv": "job,task,frequency,run_at\nJ-1,对账报表,每天,06:00\nJ-2,批次推送,每天,21:30\nJ-3,库存核对,每周一,07:00\n",
+    "README.md": "# 迅鸟同城速递 - 分拣中心工作区\n\n分拣线的定时任务清单和值班记录都放在这里。\n\n- ops/  定时任务清单\n\n运维口径：定时任务用五个字段的 crontab 表达式登记，分钟在前、小时在后。\n"
+  },
+  "turns": [
+    {
+      "prompt": "迅鸟同城速递的分拣中心每天早上 6 点要跑一次头一天的对账报表。这条定时任务的 crontab 表达式怎么写？只回答表达式本身，不要解释。",
+      "expect": {
+        "output_equals": "0 6 * * *",
+        "tools": []
+      }
+    }
+  ]
+}

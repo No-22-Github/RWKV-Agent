@@ -1,0 +1,37 @@
+{
+  "id": "code-7229",
+  "description": "Count test cases slower than one second from a regression log. DISTILL-CANARY-807ff65f",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "report_test_result",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS"
+    ],
+    "level": "L0",
+    "family": "fam-code-b06-hanshan-report",
+    "answer_style": "natural",
+    "ref_calls": 2,
+    "fixture_bytes": 940,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {
+    "tests/test_availability.py": "\"\"\"寒山民宿可售状态引擎的用例集，覆盖房型矩阵与季节切换。\n用例数据取自 8 月订单，已脱敏。\n\"\"\"\nimport unittest\n\n\nclass TestAvailability(unittest.TestCase):\n    def test_room_type_matrix(self):\n        \"\"\"房型与价格档齐全。\"\"\"\n        self.assertTrue(True)\n\n    def test_season_switch(self):\n        \"\"\"季节切换后保底价生效。\"\"\"\n        self.assertTrue(True)\n\n    def test_loyalty_tier(self):\n        \"\"\"会员等级折扣只叠加一层。\"\"\"\n        self.assertTrue(True)\n",
+    "tests/运行记录-2026-09-25.txt": "================ 测试运行记录 2026-09-25 22:05 ================\n[运行环境] python3.11 · 寒山民宿房价引擎 · 发布前回归\nPASS test_room_type_matrix (1.86s)\nFAIL test_promo_overlap (0.95s)\nPASS test_season_switch (2.31s)\nPASS test_loyalty_tier (1.07s)\nFAIL test_invoice_void (0.66s)\nPASS test_price_floor (0.53s)\nPASS test_refund_window (1.12s)\nPASS test_group_quote (0.44s)\n共 11 行\n"
+  },
+  "web_fixture": [],
+  "turns": [
+    {
+      "prompt": "寒山民宿在 9 月 25 日晚跑过一轮发布前回归，记录在 tests/运行记录-2026-09-25.txt。只回答数字，不要单位。运行时间超过 1 秒的用例有几个？",
+      "expect": {
+        "expected_number": 4,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

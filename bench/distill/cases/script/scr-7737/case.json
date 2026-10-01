@@ -1,0 +1,57 @@
+{
+  "id": "scr-7737",
+  "description": "Write the chocolate maker's consignment sheet so the final exports print and the outbox drafts stay out. DISTILL-CANARY-eee6ba54",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "write_new",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "outbox draft rows counted into the sheet"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-scr-b06-cauldwell",
+    "ref_calls": 4,
+    "fixture_bytes": 1183,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "consign.py": "\"\"\"Print Cauldwell Chocolate's consignment sheet.\n\nThe dispatch office's final exports land in consignments/, one row\nper consignment:\n\n    consignment_id,sent_date,shop,cases\n\nThe sheet prints one line per sent date, in date order, followed\nby a totals line:\n\n    <sent_date>,<consignments>,<cases>\n    TOTAL,<consignments>,<cases>\n\"\"\"\n\nif __name__ == \"__main__\":\n    raise SystemExit(\"not written yet\")\n",
+    "consignments/2026-09.csv": "consignment_id,sent_date,shop,cases\nCC-8301,2026-09-03,Aldervale Deli,12\nCC-8302,2026-09-03,Oat Square Larder,9\nCC-8303,2026-09-10,Aldervale Deli,15\nCC-8304,2026-09-17,Sorrel Bank Provisions,7\nCC-8305,2026-09-24,Oat Square Larder,11\n",
+    "outbox/2026-09-draft.csv": "consignment_id,sent_date,shop,cases\nCC-8301,2026-09-03,Aldervale Deli,10\nCC-8302,2026-09-03,Oat Square Larder,9\nCC-8304,2026-09-17,Sorrel Bank Provisions,6\n",
+    "README.md": "# Cauldwell Chocolate - consignment sheet\n\nconsign.py prints the consignment sheet from the dispatch office's\nfinal exports in consignments/. While a month's numbers are\nsettling, the office parks a draft in outbox/; a draft is re-issued\nuntil the final export lands in consignments/, and the sheet reads\nthe final exports only. The exports in the two folders are the\noffice's own record.\n"
+  },
+  "expect": {
+    "files": {
+      "consignments/2026-09.csv": {
+        "unchanged": true
+      },
+      "outbox/2026-09-draft.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "consign.py",
+      "expected_stdout": "2026-09-03,2,21\n2026-09-10,1,15\n2026-09-17,1,7\n2026-09-24,1,11\n2026-10-01,1,8\n2026-10-08,1,13\n2026-10-15,1,10\nTOTAL,8,85",
+      "hidden_files": {
+        "consignments/2026-10.csv": "consignment_id,sent_date,shop,cases\nCC-8401,2026-10-01,Sorrel Bank Provisions,8\nCC-8402,2026-10-08,Aldervale Deli,13\nCC-8403,2026-10-15,Oat Square Larder,10\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Cauldwell's dispatch office wants its consignment sheet back: consign.py holds only the notes describing it, and the final exports keep landing in consignments/. Please write consign.py so the sheet prints the way the notes describe, and so it keeps working as later exports arrive. The exports in consignments/ and outbox/ stay as they are. When you are done, describe in two or three sentences what your script does.",
+      "expect": {}
+    }
+  ]
+}

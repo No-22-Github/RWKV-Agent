@@ -1,0 +1,61 @@
+{
+  "id": "web-7575",
+  "description": "Shutdown date of the v1 invoicing interface of the Qingsui bookkeeping app, straight from the vendor notice snippet. DISTILL-CANARY-9ab0f31f",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "deprecation",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": "2026-06-30"
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-web-b06-qingsui-invoice",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "青穗",
+      "url": "https://www.qingsuibook.example/notice/v1-invoice",
+      "url_match": "www.qingsuibook.example/notice/v1-invoice",
+      "title": "青穗记账 - v1 开票接口停服公告",
+      "snippet": "v1 开票接口于 2026-09-30 停止服务，之后所有调用返回 410。",
+      "content": "# 青穗记账 - v1 开票接口停服公告\n\n发布于 2026-08-15。v1 开票接口于 2026-09-30 停止服务，之后所有调用返回 410，请迁移到 v2 开票接口；票据号规则不变。\n",
+      "published_at": "2026-08-15"
+    },
+    {
+      "query_match": "青穗",
+      "url": "https://keji.guanchashi.example/qingsui-plan",
+      "url_match": "keji.guanchashi.example/qingsui-plan",
+      "title": "青穗记账宣布接口升级计划",
+      "snippet": "青穗记账去年底透露 v1 开票接口预计 2026-06-30 下线。",
+      "content": "科技观察市 - 青穗记账宣布接口升级计划\n\n发布于 2025-11-02。青穗记账去年底透露 v1 开票接口预计 2026-06-30 下线，随 v2 系列灰度完成而执行。\n",
+      "published_at": "2025-11-02"
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  },
+  "turns": [
+    {
+      "prompt": "财务那边的开票脚本还在调青穗记账的 v1 开票接口，迁移表上要填停服日期。这个接口哪天停止服务？只回答日期，形如 2026-01-01。",
+      "expect": {
+        "output_equals": "2026-09-30"
+      }
+    }
+  ]
+}

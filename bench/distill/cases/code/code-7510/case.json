@@ -1,0 +1,52 @@
+{
+  "id": "code-7510",
+  "description": "What triggers a retry in backoff.py, the starting delay and how it grows. DISTILL-CANARY-bd58f317",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "explain_readonly",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "500"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-code-b07-explain-01",
+    "ref_calls": 3,
+    "fixture_bytes": 475,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "net/backoff.py": "BASE_DELAY_MS = 250\n\nimport time\n\nclass ThrottlingError(Exception):\n    pass\n\ndef with_backoff(op, attempts=4):\n    delay = BASE_DELAY_MS\n    for _ in range(attempts):\n        try:\n            return op()\n        except ThrottlingError:\n            time.sleep(delay / 1000)\n            delay = delay * 2\n    raise ThrottlingError(\"giving up\")\n",
+    "net/policy.py": "# 旧口径：BASE_DELAY_MS = 500，2026-02 调低\nRETRY_BUDGET_MS = 4000\n\ndef budget_ok(spent):\n    return spent < RETRY_BUDGET_MS\n"
+  },
+  "turns": [
+    {
+      "prompt": "Walk me through net/backoff.py: what triggers a retry, what the starting delay is, and how the wait grows.",
+      "expect": {
+        "output_contains": [
+          "BASE_DELAY_MS",
+          "250",
+          "ThrottlingError"
+        ],
+        "output_contains_any": [
+          "BASE_DELAY_MS",
+          "250",
+          "ThrottlingError"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

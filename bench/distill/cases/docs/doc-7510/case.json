@@ -1,0 +1,52 @@
+{
+  "id": "doc-7510",
+  "description": "Which PTO balances exceed their carryover cap and what happens to the excess. DISTILL-CANARY-5e08b6d1",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "Priya Raman"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b07-policyqa-01",
+    "ref_calls": 3,
+    "fixture_bytes": 344,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "hr/pto-balances.csv": "employee,band,days_left,carryover_cap\nNadia Kovac,senior,9,5\nTomas Lindqvist,staff,14,8\nPriya Raman,associate,2,2\n",
+    "hr/pto-policy.md": "# PTO carryover\n\nOn January 31 unused days move over up to the band cap; anything past the cap lapses.\nStaff band may convert lapsed days to a training budget on request.\nCaps are set by the band table and reviewed each December.\n"
+  },
+  "turns": [
+    {
+      "prompt": "December is ending. Look in hr/ and tell me whose PTO balance will not fully carry over and what the options are.",
+      "expect": {
+        "output_contains": [
+          "January 31",
+          "Nadia Kovac",
+          "Tomas Lindqvist"
+        ],
+        "output_contains_any": [
+          "January 31",
+          "Nadia Kovac",
+          "Tomas Lindqvist"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "id": "scr-7709",
+  "description": "Write the nursery season potting report script whose uploads repeat batches and mix two day spellings. DISTILL-CANARY-2f283924",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "write_new",
+    "traps": [
+      "TR-DUPROW",
+      "TR-DATEFMT"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": "MB-103 counted twice (SEASON 107)",
+      "TR-DATEFMT": "slash rows dropped (SEASON 68)"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-scr-b06-marrowmere",
+    "ref_calls": 4,
+    "fixture_bytes": 1209,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "pottings.py": "\"\"\"Print the season potting report for Marrowmere Nursery.\n\nThe greenhouse tablet uploads one sowing file per month into sowings/, one\nrow per batch:\n\n    batch_id,sown_on,trays\n\nThe season report is one line per sowing day, oldest first, dates written\nthe tablet's way (2026-09-14 style), counting every batch once, followed\nby a season line:\n\n    <sown_on>,<trays>\n    SEASON,<trays>\n\nTwo things about the uploads: the tablet re-uploads a batch now and then,\nposting the same batch_id twice, and two volunteers log the days in\ndifferent apps - the tablet writes 2026-09-14 style days, the paper app\nwrites day-first days with slashes like 14/09/2026.\n\"\"\"\n\nif __name__ == \"__main__\":\n    raise SystemExit(\"the season report is not written yet\")\n",
+    "sowings/2026-09.csv": "batch_id,sown_on,trays\nMB-101,2026-09-03,12\nMB-102,2026-09-03,8\nMB-103,2026-09-10,15\nMB-104,10/09/2026,6\nMB-103,2026-09-10,15\nMB-105,2026-09-18,9\nMB-106,24/09/2026,11\n",
+    "README.md": "# Marrowmere Nursery - season potting report\n\nThe greenhouse tablet drops one sowing file per month into sowings/. It\nre-uploads batches after a weak wifi moment, posting the same batch_id\ntwice, and the paper app writes its days day-first with slashes. The\nseason report counts each batch once.\n"
+  },
+  "expect": {
+    "files": {
+      "sowings/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "pottings.py",
+      "expected_stdout": "2026-09-03,20\n2026-09-10,21\n2026-09-18,9\n2026-09-24,11\n2026-10-02,10\n2026-10-05,7\n2026-10-15,14\nSEASON,92",
+      "hidden_files": {
+        "sowings/2026-10.csv": "batch_id,sown_on,trays\nMB-107,2026-10-02,10\nMB-108,05/10/2026,7\nMB-107,2026-10-02,10\nMB-109,2026-10-15,14\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Marrowmere Nursery's season potting report was never written: pottings.py holds only the docstring, and the greenhouse tablet keeps uploading monthly sowing files into sowings/. Please write pottings.py so the season report prints the way its notes describe, and so it keeps working as later uploads land in sowings/. The files in sowings/ are the tablet's own uploads, so they stay as they are. When you are done, describe in two or three sentences what your script does.",
+      "expect": {}
+    }
+  ]
+}

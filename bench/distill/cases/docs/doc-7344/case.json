@@ -1,0 +1,53 @@
+{
+  "id": "doc-7344",
+  "description": "Whether the Marrowfield Dairy staff handbook grants sabbatical leave, which no indexed article defines. DISTILL-CANARY-1ba90f89",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "unpaid leave"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b06-luming-weather",
+    "ref_calls": 3,
+    "fixture_bytes": 849,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Marrowfield Dairy - staff handbook\n\nHandbook for dairy floor and lab staff. The handbook consists of exactly the files listed in handbook/index.txt; anything not covered there is referred to HR in writing.\n",
+    "handbook/index.txt": "leave-entitlements.md|Leave entitlements\nuniform-and-safety.md|Uniform and safety\n",
+    "handbook/leave-entitlements.md": "# Leave entitlements\n\n(2026-01 revision)\n\n## Annual leave\n\nFull-time staff accrue 24 days of annual leave per year, booked in the rota system.\n\n## Parental leave\n\nParental leave is 6 weeks at full pay, on production of the birth certificate.\n\n## Unpaid leave\n\nUnpaid leave beyond 5 working days needs the herd manager's written approval.\n",
+    "handbook/uniform-and-safety.md": "# Uniform and safety\n\n## Protective clothing\n\nMilking overalls are laundered on site; safety boots are replaced yearly.\n\n## Chemical handling\n\nCIP chemicals are decanted only by trained staff wearing the supplied gloves.\n"
+  },
+  "turns": [
+    {
+      "prompt": "A Marrowfield Dairy technician asked HR whether the dairy grants sabbatical leave after five years of service. Look through the staff handbook workspace for the sabbatical leave clause and tell me what it says.",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "output_contains_any": [
+          "sabbatical",
+          "sabbatical leave"
+        ],
+        "output_excludes": [
+          "UNKNOWN",
+          "我没有工具",
+          "I have no tools"
+        ]
+      }
+    }
+  ]
+}

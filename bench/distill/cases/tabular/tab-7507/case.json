@@ -1,0 +1,50 @@
+{
+  "id": "tab-7507",
+  "description": "Sum the September 2026 claim lines an insurer actually reimburses; consult lines are billed to patients and never go to the insurer. DISTILL-CANARY-5c7edaa8",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": 11755.86
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b06-ashgrove-claim-01",
+    "ref_calls": 2,
+    "fixture_bytes": 5630,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "data/claim_lines.csv": "claim_id,claim_month,payer,procedure,line_amount,billable\nAD-950,2026-09,Self-pay,Filling,536.37,Y\nAD-1088,2026-09,Bluepeak Dental,Cleaning,168.83,Y\nAD-4539,2026-08,Bluepeak Dental,Crown,180.53,Y\nAD-9367,2026-09,Meridian Dental,Filling,355.29,Y\nAD-5451,2026-09,Bluepeak Dental,Cleaning,89.22,Y\nAD-1551,2026-08,Meridian Dental,Cleaning,284.99,Y\nAD-7945,2026-09,Self-pay,Cleaning,458.75,Y\nAD-3402,2026-09,Bluepeak Dental,Filling,392.23,Y\nAD-9313,2026-09,Meridian Dental,Filling,325.36,Y\nAD-1769,2026-09,Bluepeak Dental,Cleaning,353.62,Y\nAD-115,2026-09,Meridian Dental,Consult,423.47,N\nAD-3282,2026-09,Meridian Dental,Xray,452.01,Y\nAD-3814,2026-09,Meridian Dental,Filling,395.01,Y\nAD-6481,2026-09,Meridian Dental,Cleaning,321.08,Y\nAD-7105,2026-08,Bluepeak Dental,Filling,228.21,Y\nAD-9291,2026-08,Meridian Dental,Crown,143.31,Y\nAD-633,2026-08,Meridian Dental,Filling,491.96,Y\nAD-9873,2026-08,Bluepeak Dental,Filling,519.31,Y\nAD-2154,2026-09,Bluepeak Dental,Cleaning,496.82,Y\nAD-5293,2026-09,Bluepeak Dental,Cleaning,84.94,Y\nAD-743,2026-09,Bluepeak Dental,Cleaning,332.94,Y\nAD-6141,2026-09,Bluepeak Dental,Cleaning,245.09,Y\nAD-3270,2026-09,Bluepeak Dental,Filling,447.45,Y\nAD-3703,2026-09,Self-pay,Cleaning,100.74,Y\nAD-5411,2026-08,Bluepeak Dental,Consult,198.07,N\nAD-6317,2026-09,Meridian Dental,Consult,353.36,N\nAD-5243,2026-09,Self-pay,Consult,199.81,N\nAD-7566,2026-08,Bluepeak Dental,Consult,187.50,N\nAD-3843,2026-09,Self-pay,Cleaning,438.56,Y\nAD-5070,2026-09,Meridian Dental,Filling,296.59,Y\nAD-1211,2026-09,Bluepeak Dental,Xray,106.89,Y\nAD-2693,2026-09,Self-pay,Consult,478.84,N\nAD-3300,2026-08,Meridian Dental,Filling,195.30,Y\nAD-5882,2026-08,Self-pay,Cleaning,524.03,Y\nAD-2216,2026-09,Self-pay,Cleaning,94.06,Y\nAD-8592,2026-09,Meridian Dental,Filling,487.91,Y\nAD-9182,2026-09,Bluepeak Dental,Xray,327.81,Y\nAD-8661,2026-09,Meridian Dental,Cleaning,390.32,Y\nAD-5161,2026-09,Bluepeak Dental,Xray,93.70,Y\nAD-362,2026-09,Bluepeak Dental,Filling,482.37,Y\nAD-7038,2026-09,Self-pay,Crown,408.09,Y\nAD-9878,2026-09,Bluepeak Dental,Consult,365.52,N\nAD-3474,2026-08,Bluepeak Dental,Filling,351.05,Y\nAD-5632,2026-09,Meridian Dental,Xray,219.09,Y\nAD-3595,2026-08,Meridian Dental,Filling,288.79,Y\nAD-943,2026-08,Self-pay,Filling,101.44,Y\nAD-9214,2026-09,Bluepeak Dental,Cleaning,332.70,Y\nAD-2641,2026-09,Self-pay,Filling,411.86,Y\nAD-3409,2026-09,Bluepeak Dental,Cleaning,261.21,Y\nAD-2653,2026-09,Meridian Dental,Filling,427.23,Y\nAD-6046,2026-09,Bluepeak Dental,Consult,372.49,N\nAD-9326,2026-09,Bluepeak Dental,Cleaning,455.50,Y\nAD-9604,2026-09,Meridian Dental,Crown,399.72,Y\nAD-9128,2026-09,Bluepeak Dental,Filling,364.51,Y\nAD-7629,2026-09,Bluepeak Dental,Consult,64.89,N\nAD-1320,2026-08,Meridian Dental,Xray,193.19,Y\nAD-7435,2026-08,Bluepeak Dental,Cleaning,301.52,Y\nAD-8528,2026-09,Bluepeak Dental,Crown,532.82,Y\nAD-9063,2026-09,Bluepeak Dental,Xray,183.77,Y\nAD-7138,2026-09,Self-pay,Crown,494.13,Y\nAD-6538,2026-09,Self-pay,Consult,436.68,N\nAD-440,2026-09,Meridian Dental,Xray,167.01,Y\nAD-8992,2026-08,Self-pay,Consult,539.19,N\nAD-7604,2026-09,Bluepeak Dental,Filling,51.88,Y\nAD-4625,2026-09,Bluepeak Dental,Filling,196.79,Y\nAD-4833,2026-09,Meridian Dental,Consult,67.68,N\nAD-181,2026-09,Bluepeak Dental,Filling,471.97,Y\nAD-8519,2026-09,Bluepeak Dental,Xray,491.66,Y\nAD-6119,2026-09,Bluepeak Dental,Filling,282.26,Y\nAD-8657,2026-09,Bluepeak Dental,Consult,300.11,N\nAD-1015,2026-09,Self-pay,Crown,265.17,Y\nAD-4517,2026-08,Meridian Dental,Consult,96.14,N\nAD-3557,2026-09,Meridian Dental,Filling,272.32,Y\nAD-8850,2026-09,Meridian Dental,Consult,353.57,N\nAD-7869,2026-08,Bluepeak Dental,Crown,222.95,Y\nAD-1899,2026-09,Meridian Dental,Crown,364.77,Y\nAD-7758,2026-09,Bluepeak Dental,Filling,61.47,Y\nAD-5543,2026-09,Bluepeak Dental,Filling,221.74,Y\nAD-5024,2026-09,Meridian Dental,Filling,302.36,Y\nAD-9459,2026-09,Self-pay,Cleaning,400.31,Y\nAD-5407,2026-09,Meridian Dental,Consult,146.67,N\nAD-2834,2026-09,Bluepeak Dental,Crown,390.83,Y\nAD-923,2026-09,Meridian Dental,Crown,501.89,Y\nAD-5786,2026-09,Bluepeak Dental,Consult,530.13,N\nAD-2243,2026-08,Meridian Dental,Cleaning,115.66,Y\nAD-5264,2026-09,Self-pay,Crown,186.10,Y\nAD-402,2026-09,Meridian Dental,Crown,394.17,Y\nAD-2649,2026-08,Bluepeak Dental,Filling,118.50,Y\nAD-6412,2026-09,Bluepeak Dental,Xray,37.77,Y\nAD-1829,2026-08,Bluepeak Dental,Cleaning,42.59,Y\nAD-8346,2026-09,Bluepeak Dental,Filling,418.74,Y\nAD-7823,2026-09,Meridian Dental,Crown,126.89,Y\nAD-3415,2026-09,Bluepeak Dental,Consult,73.39,N\nAD-7407,2026-09,Meridian Dental,Xray,79.82,Y\nAD-4384,2026-09,Self-pay,Filling,214.37,Y\nAD-2169,2026-09,Meridian Dental,Consult,234.55,N\nAD-9527,2026-09,Bluepeak Dental,Cleaning,377.73,Y\nAD-8133,2026-08,Self-pay,Xray,397.08,Y\nAD-8330,2026-09,Self-pay,Filling,283.24,Y\nAD-1802,2026-09,Meridian Dental,Filling,184.95,Y\nAD-3531,2026-09,Meridian Dental,Filling,219.35,Y\nAD-4615,2026-09,Self-pay,Filling,99.22,Y\nAD-228,2026-08,Self-pay,Consult,224.30,N\nAD-3713,2026-09,Bluepeak Dental,Crown,256.32,Y\nAD-1099,2026-08,Bluepeak Dental,Filling,158.38,Y\nAD-8363,2026-09,Self-pay,Filling,496.04,Y\nAD-5466,2026-09,Bluepeak Dental,Cleaning,526.68,Y\nAD-3468,2026-09,Meridian Dental,Cleaning,365.10,Y\nAD-3459,2026-09,Meridian Dental,Consult,156.58,N\nAD-8311,2026-09,Bluepeak Dental,Consult,511.07,N\nAD-7034,2026-09,Self-pay,Cleaning,383.64,Y\nAD-4614,2026-08,Self-pay,Crown,412.78,Y\n",
+    "README.md": "# Ashgrove Dental Practice - claim line export\n\nInsurers reimburse only the lines marked billable=Y. Consult lines are billed to the patient directly and never go to the insurer.\n",
+    "notes/sterilisation_log.txt": "Sterilisation log\n- Autoclave pouches restock on the first weekday.\n- The handpiece kit lives in drawer three.\n- Xray aprons hang behind the door.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Ashgrove Dental Practice is checking its September insurance submissions for Bluepeak Dental. The claim line export is at data/claim_lines.csv. Give the number alone, as digits, with no label. How much did Bluepeak Dental reimburse for September 2026 claim lines?",
+      "expect": {
+        "expected_number": 9538.26,
+        "tolerance": 0.01,
+        "required_tools": [
+          "data_query"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 1
+    }
+  }
+}

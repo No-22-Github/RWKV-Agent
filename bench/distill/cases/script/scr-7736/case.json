@@ -1,0 +1,56 @@
+{
+  "id": "scr-7736",
+  "description": "Repair the chocolate maker's batch sheet script that crashes on the temper room's closing line and re-sent rows. DISTILL-CANARY-6c4ee502",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_from_traceback",
+    "traps": [
+      "TR-DUPROW",
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-DUPROW": "repeated batch rows double-counted",
+      "TR-HEADER": "the BATCH TOTAL closing line summed into the sheet"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-scr-b06-cauldwell",
+    "ref_calls": 5,
+    "fixture_bytes": 1814,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "batch_sheet.py": "\"\"\"Print the conch room's batch sheet for Cauldwell Chocolate.\n\nReads every monthly export in batches/ (one row per batch) and\nprints one line per batch day, in date order, followed by a\ntotals line:\n\n    <made_date>,<batches>,<shell_kg>\n    TOTAL,<batches>,<shell_kg>\n\"\"\"\n\nimport csv\nimport glob\n\nper_day = {}\nfor path in sorted(glob.glob(\"batches/*.csv\")):\n    with open(path, encoding=\"utf-8\") as handle:\n        for row in csv.DictReader(handle):\n            day = row[\"made_date\"]\n            shell = int(row[\"shell_kg\"])\n            old = per_day.get(day, (0, 0))\n            per_day[day] = (old[0] + 1, old[1] + shell)\n\ntotal_batches = 0\ntotal_shell = 0\nfor day in sorted(per_day):\n    batches, shell = per_day[day]\n    print(f\"{day},{batches},{shell}\")\n    total_batches += batches\n    total_shell += shell\nprint(f\"TOTAL,{total_batches},{total_shell}\")\n",
+    "batches/2026-09.csv": "batch_id,made_date,shell_kg\nCB-7101,2026-09-02,84\nCB-7102,2026-09-02,76\nCB-7102,2026-09-02,76\nCB-7103,2026-09-09,91\nCB-7104,2026-09-16,68\nCB-7104,2026-09-16,68\nCB-7105,2026-09-23,88\nBATCH TOTAL,,\n",
+    "logs/conch-2026-09.log": "Cauldwell Chocolate - conch room nightly job\n2026-09-30 22:15 [info] reading batches/2026-09.csv\n2026-09-30 22:15 [error] batch sheet aborted, traceback below:\nTraceback (most recent call last):\n  File \"batch_sheet.py\", line 20, in <module>\n    shell = int(row[\"shell_kg\"])\nValueError: invalid literal for int() with base 10: ''\n",
+    "README.md": "# Cauldwell Chocolate - batch sheet\n\nbatch_sheet.py prints the conch room's batch sheet from the temper\nroom's exports in batches/. The temper writes a batch row twice\nwhen its scale reconnects: repeated rows are identical, and each\nbatch_id is one batch. The export also ends with a BATCH TOTAL\nline the temper room adds for its own reconciliation; the sheet\nhas never carried it. The exports are the temper room's own\nrecord.\n"
+  },
+  "expect": {
+    "files": {
+      "batches/2026-09.csv": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "batch_sheet.py",
+      "expected_stdout": "2026-09-02,2,160\n2026-09-09,1,91\n2026-09-16,1,68\n2026-09-23,1,88\n2026-10-01,2,162\n2026-10-08,1,72\nTOTAL,8,641",
+      "hidden_files": {
+        "batches/2026-10.csv": "batch_id,made_date,shell_kg\nCB-7201,2026-10-01,79\nCB-7202,2026-10-01,83\nCB-7202,2026-10-01,83\nCB-7203,2026-10-08,72\nBATCH TOTAL,,\n"
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Cauldwell Chocolate's batch sheet stopped printing: the conch room's nightly job aborts on the September export, and the run log with the traceback is in logs/conch-2026-09.log. Please repair batch_sheet.py so the sheet prints again the way its notes describe, and keeps printing for the exports that follow. The exports in batches/ are the temper room's own record and stay as they are. When you are done, describe in two or three sentences what you fixed.",
+      "expect": {}
+    }
+  ]
+}

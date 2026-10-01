@@ -1,0 +1,52 @@
+{
+  "id": "cfg-7146",
+  "description": "Raise the drip line pressure in the live controller file, not the audit copy. DISTILL-CANARY-873d1a80",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY",
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "2.6",
+      "TR-NEARNAME": "config/wiring-audit-2025.yaml"
+    },
+    "axes": [
+      "OBS",
+      "ERR"
+    ],
+    "level": "L2",
+    "family": "fam-cfg-b06-wellcourt",
+    "ref_calls": 4,
+    "fixture_bytes": 738,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/irrigation.yaml": "# Wellcourt Allotments - irrigation controller (live)\npump:\n  run_pressure_bar: 2.6\n  priming_s: 45\ndrip_lines:\n  run_pressure_bar: 1.0\n  flush_s: 150\nbeds:\n  evening_start: \"19:20\"\n  cycle_count: 4\n",
+    "config/wiring-audit-2025.yaml": "# Wellcourt Allotments - 2025 wiring audit snapshot (not read by the controller)\npump:\n  run_pressure_bar: 2.2\n  priming_s: 60\ndrip_lines:\n  run_pressure_bar: 0.9\n  flush_s: 90\nbeds:\n  evening_start: \"19:40\"\n  cycle_count: 3\n",
+    "README.md": "# Wellcourt Allotments - irrigation\n\nconfig/irrigation.yaml is the live controller file. The drip lines\nhave their own run_pressure_bar, deliberately lower than the\npump's. config/wiring-audit-2025.yaml is last year's snapshot kept\nfor the wiring audit; the controller never reads it and it must\nstay as archived.\n"
+  },
+  "expect": {
+    "files": {
+      "config/irrigation.yaml": {
+        "equals": "# Wellcourt Allotments - irrigation controller (live)\npump:\n  run_pressure_bar: 2.6\n  priming_s: 45\ndrip_lines:\n  run_pressure_bar: 1.3\n  flush_s: 150\nbeds:\n  evening_start: \"19:20\"\n  cycle_count: 4\n"
+      },
+      "config/wiring-audit-2025.yaml": {
+        "unchanged": true
+      }
+    }
+  },
+  "turns": [
+    {
+      "prompt": "Wellcourt Allotments is retuning the drippers: raise the drip lines' run pressure to 1.3 bar in the live controller config. The pump keeps its setting, and the audit snapshot in config/ stays exactly as archived. When you are done, describe in two or three sentences what you changed.",
+      "expect": {}
+    }
+  ]
+}

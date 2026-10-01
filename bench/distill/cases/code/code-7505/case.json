@@ -1,0 +1,52 @@
+{
+  "id": "code-7505",
+  "description": "Where loader.py sends events, what retries on, and where dead events land. DISTILL-CANARY-e6749b1d",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "explain_readonly",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "kafka://events.gulan.internal/legacy"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-code-b07-explain-01",
+    "ref_calls": 3,
+    "fixture_bytes": 518,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "core/loader.py": "DEFAULT_SINK = \"kafka://events.gulan.internal/main\"\nMAX_ATTEMPTS = 3\n\ndef deliver(events, target):\n    return {\"target\": target, \"count\": len(events)}\n\ndef load(events):\n    from sink import DEAD_LETTER\n    for attempt in range(MAX_ATTEMPTS):\n        try:\n            return deliver(events, DEFAULT_SINK)\n        except TimeoutError:\n            continue\n    return deliver(events, DEAD_LETTER)\n",
+    "core/sink.py": "DEAD_LETTER = \"s3://gulan-deadletter/loader\"\n\n# 旧队列，弃用：DEFAULT_SINK = \"kafka://events.gulan.internal/legacy\"\n"
+  },
+  "turns": [
+    {
+      "prompt": "core/ 下是事件加载的两个文件。帮我讲讲事件正常会被送到哪里、重试由什么触发、彻底失败之后落到哪儿，整理成一段话给我。",
+      "expect": {
+        "output_contains": [
+          "TimeoutError",
+          "kafka://events.gulan.internal/main",
+          "s3://gulan-deadletter/loader"
+        ],
+        "output_contains_any": [
+          "TimeoutError",
+          "kafka://events.gulan.internal/main",
+          "s3://gulan-deadletter/loader"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

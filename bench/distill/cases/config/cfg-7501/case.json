@@ -1,0 +1,52 @@
+{
+  "id": "cfg-7501",
+  "description": "Which service.env values are live, old port excluded. DISTILL-CANARY-9d31c7e4",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "8080"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b07-effective-01",
+    "ref_calls": 3,
+    "fixture_bytes": 377,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "deploy/service.env": "SERVICE_NAME=billing-worker\nLISTEN_PORT=8443\nREGION=cn-north-1\nLOG_LEVEL=warn\n# 旧端口，下线后保留排查用：LISTEN_PORT=8080\nTRACE_SINK=http://collector.obs.internal:4318\nHEALTH_PATH=/healthz\nSHUTDOWN_GRACE_SECONDS=30\nMETRICS_PORT=9102\nLOG_PATH=/var/log/billing-worker\n",
+    "deploy/used-ports.list": "8443 当前对外端口\n8080 旧端口，已下线\n9102 指标端口\n22 跳板机入口，勿动\n"
+  },
+  "turns": [
+    {
+      "prompt": "部署群里又在问服务的端口和日志级别。deploy/ 下有配置和说明，帮我看看现在实际生效的是哪些值，用几句话回群里。",
+      "expect": {
+        "output_contains": [
+          "8443",
+          "billing-worker",
+          "warn"
+        ],
+        "output_contains_any": [
+          "8443",
+          "billing-worker",
+          "warn"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

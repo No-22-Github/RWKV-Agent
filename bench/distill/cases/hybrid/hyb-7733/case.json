@@ -1,0 +1,71 @@
+{
+  "id": "hyb-7733",
+  "description": "Crumb & Crust two-turn session: greeting first, then a delivery-sheet count with a TOTAL row on the sheet. DISTILL-CANARY-58e2d19a",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-HEADER": 30
+    },
+    "axes": [
+      "OBS",
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b07-bakery-01",
+    "ref_calls": 1,
+    "fixture_bytes": 341,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "value"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Crumb & Crust - September week 1 deliveries\n\nThe delivery sheet ends with a TOTAL line that sums every branch and every\nitem for the week. Branch and item are empty on that line.\n",
+    "deliveries/september_week1.csv": "branch,item,dozens\nRiverside,croissant,7\nRiverside,sourdough,4\nRiverside,croissant,6\nHarbourview,croissant,5\nHarbourview,rye,3\nRiverside,croissant,5\nTOTAL,,,30\n"
+  },
+  "turns": [
+    {
+      "prompt": "Hello! Hope your week is going well so far.",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "Hello",
+          "hello",
+          "Hi",
+          "hi",
+          "Hey",
+          "hey",
+          "Morning",
+          "morning",
+          "Afternoon",
+          "afternoon",
+          "Evening",
+          "evening",
+          "Nice",
+          "nice",
+          "help",
+          "assist",
+          "How can",
+          "how can",
+          "thank",
+          "well"
+        ]
+      }
+    },
+    {
+      "prompt": "By the way, how many croissant dozens went to the Riverside branch in the first week of September? The delivery sheet is at deliveries/september_week1.csv. Reply with only the final answer.",
+      "expect": {
+        "expected_number": 18,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

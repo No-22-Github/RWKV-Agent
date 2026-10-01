@@ -1,0 +1,49 @@
+{
+   "id": "tab-7543",
+   "description": "Different vendors trading on 5 September 2026 at a farmers market where one marshal writes day-month-year dates DISTILL-CANARY-973dbf25",
+   "category": "tabular",
+   "tags": {
+      "scenario": "tabular",
+      "task_type": "filter_count",
+      "traps": [
+         "TR-DATEFMT"
+      ],
+      "trap_decoys": {
+         "TR-DATEFMT": 17.0
+      },
+      "axes": [
+         "OBS"
+      ],
+      "level": "L1",
+      "family": "fam-tab-b06-bracken-01",
+      "ref_calls": 3,
+      "fixture_bytes": 5122,
+      "status": "draft",
+      "version": 1,
+      "author": "llm:glm-5.3-flash-b06",
+      "reviewer": null,
+      "answer_style": "natural"
+   },
+   "web_fixture": [],
+   "files": {
+      "data/stalls_2026-09.csv": "ticket_id,trade_date,vendor_code,section\nBF-2609220,2026-09-05,VE-361,Avenue Row\nBF-2609767,12/09/2026,VE-583,Dock Side\nBF-2609599,2026-09-12,VE-196,Barn End\nBF-2609722,02/09/2026,VE-543,Dock Side\nBF-2609556,2026-09-20,VE-812,Avenue Row\nBF-2609204,2026-09-06,VE-705,Barn End\nBF-2609126,2026-09-26,VE-122,Avenue Row\nBF-2609802,2026-09-19,VE-490,Avenue Row\nBF-2609129,05/09/2026,VE-843,Dock Side\nBF-2609666,14/09/2026,VE-607,Dock Side\nBF-2609324,2026-09-05,VE-793,Barn End\nBF-2609526,2026-09-20,VE-122,Creamery\nBF-2609744,2026-09-24,VE-290,Avenue Row\nBF-2609860,2026-09-26,VE-223,Creamery\nBF-2609949,09/09/2026,VE-619,Dock Side\nBF-2609390,2026-09-26,VE-410,Barn End\nBF-2609617,17/09/2026,VE-966,Dock Side\nBF-2609348,2026-09-12,VE-591,Avenue Row\nBF-2609780,19/09/2026,VE-524,Dock Side\nBF-2609549,2026-09-05,VE-188,Creamery\nBF-2609267,2026-09-19,VE-897,Avenue Row\nBF-2609601,14/09/2026,VE-479,Dock Side\nBF-2609415,19/09/2026,VE-144,Dock Side\nBF-2609274,19/09/2026,VE-762,Dock Side\nBF-2609889,2026-09-05,VE-112,Barn End\nBF-2609626,2026-09-05,VE-514,Barn End\nBF-2609375,2026-09-10,VE-570,Creamery\nBF-2609902,2026-09-19,VE-492,Avenue Row\nBF-2609896,2026-09-25,VE-631,Barn End\nBF-2609592,15/09/2026,VE-157,Dock Side\nBF-2609523,2026-09-25,VE-616,Barn End\nBF-2609454,2026-09-12,VE-524,Creamery\nBF-2609714,2026-09-01,VE-569,Creamery\nBF-2609281,2026-09-02,VE-750,Barn End\nBF-2609193,2026-09-15,VE-981,Barn End\nBF-2609961,2026-09-22,VE-133,Creamery\nBF-2609988,2026-09-26,VE-185,Avenue Row\nBF-2609873,2026-09-01,VE-872,Avenue Row\nBF-2609916,2026-09-07,VE-212,Creamery\nBF-2609171,2026-09-18,VE-397,Creamery\nBF-2609272,2026-09-05,VE-640,Creamery\nBF-2609819,2026-09-19,VE-565,Creamery\nBF-2609124,09/09/2026,VE-216,Dock Side\nBF-2609915,2026-09-08,VE-531,Creamery\nBF-2609847,2026-09-05,VE-359,Avenue Row\nBF-2609542,2026-09-13,VE-720,Barn End\nBF-2609118,2026-09-23,VE-330,Avenue Row\nBF-2609264,2026-09-12,VE-836,Avenue Row\nBF-2609952,12/09/2026,VE-657,Dock Side\nBF-2609636,05/09/2026,VE-328,Dock Side\nBF-2609689,19/09/2026,VE-791,Dock Side\nBF-2609855,22/09/2026,VE-160,Dock Side\nBF-2609148,2026-09-08,VE-996,Barn End\nBF-2609405,2026-09-08,VE-417,Avenue Row\nBF-2609358,19/09/2026,VE-678,Dock Side\nBF-2609939,2026-09-05,VE-704,Avenue Row\nBF-2609947,05/09/2026,VE-275,Dock Side\nBF-2609305,2026-09-25,VE-487,Avenue Row\nBF-2609790,2026-09-10,VE-687,Barn End\nBF-2609206,2026-09-26,VE-604,Barn End\nBF-2609616,26/09/2026,VE-403,Dock Side\nBF-2609992,2026-09-12,VE-726,Creamery\nBF-2609260,2026-09-12,VE-118,Creamery\nBF-2609676,2026-09-05,VE-930,Creamery\nBF-2609318,2026-09-21,VE-539,Creamery\nBF-2609488,2026-09-06,VE-957,Avenue Row\nBF-2609803,2026-09-26,VE-957,Creamery\nBF-2609842,2026-09-14,VE-166,Barn End\nBF-2609270,2026-09-02,VE-273,Barn End\nBF-2609877,2026-09-26,VE-374,Barn End\nBF-2609446,2026-09-09,VE-476,Creamery\nBF-2609988,2026-09-10,VE-340,Creamery\nBF-2609693,26/09/2026,VE-238,Dock Side\nBF-2609140,2026-09-15,VE-428,Avenue Row\nBF-2609907,12/09/2026,VE-986,Dock Side\nBF-2609217,2026-09-05,VE-449,Barn End\nBF-2609684,18/09/2026,VE-178,Dock Side\nBF-2609473,2026-09-15,VE-373,Avenue Row\nBF-2609383,2026-09-26,VE-568,Avenue Row\nBF-2609402,2026-09-05,VE-947,Avenue Row\nBF-2609523,2026-09-01,VE-193,Avenue Row\nBF-2609345,2026-09-05,VE-292,Avenue Row\nBF-2609218,21/09/2026,VE-265,Dock Side\nBF-2609861,2026-09-12,VE-262,Barn End\nBF-2609925,24/09/2026,VE-487,Dock Side\nBF-2609359,2026-09-26,VE-663,Creamery\nBF-2609312,2026-09-19,VE-202,Creamery\nBF-2609110,2026-09-19,VE-127,Avenue Row\nBF-2609710,2026-09-21,VE-843,Creamery\nBF-2609508,09/09/2026,VE-420,Dock Side\nBF-2609566,2026-09-04,VE-715,Creamery\nBF-2609732,2026-09-05,VE-903,Barn End\nBF-2609464,21/09/2026,VE-777,Dock Side\nBF-2609303,2026-09-06,VE-414,Barn End\nBF-2609387,2026-09-05,VE-939,Avenue Row\nBF-2609767,05/09/2026,VE-192,Dock Side\nBF-2609499,2026-09-16,VE-332,Creamery\nBF-2609291,2026-09-26,VE-435,Avenue Row\nBF-2609442,2026-09-09,VE-351,Creamery\nBF-2609325,2026-09-05,VE-350,Avenue Row\nBF-2609174,2026-09-01,VE-511,Barn End\nBF-2609176,2026-09-06,VE-846,Avenue Row\nBF-2609868,2026-09-02,VE-397,Avenue Row\nBF-2609983,22/09/2026,VE-580,Dock Side\nBF-2609896,2026-09-25,VE-613,Avenue Row\nBF-2609781,2026-09-22,VE-621,Avenue Row\nBF-2609941,2026-09-05,VE-244,Barn End\nBF-2609826,2026-09-25,VE-209,Creamery\nBF-2609311,2026-09-13,VE-229,Creamery\nBF-2609423,2026-09-05,VE-898,Avenue Row\nBF-2609406,2026-09-23,VE-282,Barn End\nBF-2609831,2026-09-12,VE-149,Barn End\nBF-2609896,2026-09-25,VE-358,Barn End\nBF-2609540,04/09/2026,VE-927,Dock Side\nBF-2609650,15/09/2026,VE-971,Dock Side\nBF-2609446,12/09/2026,VE-956,Dock Side\nBF-2609912,05/09/2026,VE-124,Dock Side\nBF-2609119,19/09/2026,VE-684,Dock Side\nBF-2609241,2026-09-03,VE-693,Creamery\nBF-2609948,2026-09-17,VE-365,Barn End\nBF-2609727,07/09/2026,VE-276,Dock Side\nBF-2609281,05/09/2026,VE-107,Dock Side\nBF-2609754,14/09/2026,VE-802,Dock Side\nBF-2609606,2026-09-19,VE-420,Barn End\nBF-2609522,2026-09-19,VE-829,Barn End\nBF-2609324,2026-09-10,VE-761,Creamery\n",
+      "README.md": "# Bracken Farmers Market - September trade tickets\n\nOne row per trade ticket issued at the gate. The Dock Side marshal\nwrites trade_date as DD/MM/YYYY; every other marshal uses ISO\nYYYY-MM-DD.\n"
+   },
+   "turns": [
+      {
+         "prompt": "Bracken Farmers Market is printing the Saturday attendance list. The trade tickets are at data/stalls_2026-09.csv. Give the number alone, as digits, with no label. How many different vendors traded on 5 September 2026?",
+         "expect": {
+            "expected_number": 23.0,
+            "tolerance": 0.01,
+            "required_tools": [
+               "data_query"
+            ]
+         }
+      }
+   ],
+   "expect": {
+      "max_calls": {
+         "read_file": 1
+      }
+   }
+}

@@ -19,9 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 598,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
-    "reviewer": null
+    "reviewer": null,
+    "answer_style": "value"
   },
   "web_fixture": [],
   "files": {
@@ -30,7 +31,7 @@
   },
   "turns": [
     {
-      "prompt": "Quillon Ceramics terminates TLS at its front end and hands each request to an application server that builds absolute links. Give the front-end directive that carries the scheme the visitor actually used through to that server. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Quillon Ceramics terminates TLS at its front end and hands each request to an application server that builds absolute links. Give the front-end directive that carries the scheme the visitor actually used through to that server. Reply with only the final answer.",
       "expect": {
         "tools": [],
         "output_contains_any": [

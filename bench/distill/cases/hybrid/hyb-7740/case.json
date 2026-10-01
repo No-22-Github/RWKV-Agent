@@ -1,0 +1,63 @@
+{
+  "id": "hyb-7740",
+  "description": "青竹会馆两轮会话：先寒暄，再统计 10 月私教课预约节数。 DISTILL-CANARY-15d7e90c",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "multi_turn",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS",
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-hyb-b07-yoga-01",
+    "ref_calls": 1,
+    "fixture_bytes": 404,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b07",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 青竹会馆 · 10 月私教预约\n\n一行教练一天的汇总：节数为当天实际约课数，金额按每节 300 元入账。\n",
+    "data/october_sessions.csv": "date,教练,节数,金额\n2026-10-03,林教练,3,900.00\n2026-10-05,周教练,4,1200.00\n2026-10-09,林教练,2,600.00\n2026-10-12,苏教练,5,1500.00\n2026-10-16,周教练,3,900.00\n2026-10-21,林教练,4,1200.00\n2026-10-24,苏教练,2,600.00\n2026-10-28,周教练,5,1500.00\n"
+  },
+  "turns": [
+    {
+      "prompt": "晚上好！今天一天都泡在馆里，总算闲下来了。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "你好",
+          "您好",
+          "嗨",
+          "哈喽",
+          "早上好",
+          "上午好",
+          "下午好",
+          "晚上好",
+          "在的",
+          "帮您",
+          "帮忙",
+          "有什么",
+          "挺好",
+          "不错",
+          "顺利",
+          "开心"
+        ]
+      }
+    },
+    {
+      "prompt": "想请你帮忙统计一下，10 月私教课一共约了多少节？预约表在 data/october_sessions.csv。只回答数字。",
+      "expect": {
+        "expected_number": 28,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

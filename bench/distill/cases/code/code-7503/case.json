@@ -1,0 +1,53 @@
+{
+  "id": "code-7503",
+  "description": "Every live caller of reserve_stock and the file that defines it. DISTILL-CANARY-b91d3f06",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "find_callers",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "3"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-code-b07-callers-01",
+    "ref_calls": 4,
+    "fixture_bytes": 492,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "src/api.py": "def reserve_endpoint(sku, qty):\n    from inventory import reserve_stock\n    return reserve_stock(sku, qty)\n\n# legacy v1 shim, retired 2026-02:\n# reserve_stock(\"GS-100\", 2)\n",
+    "src/flows.py": "stock = {\"GS-100\": 3, \"GS-118\": 9}\n\ndef scan_below_floor():\n    return [s for s, q in stock.items() if q < 5]\n\ndef restock_low_items():\n    from inventory import reserve_stock\n    for sku in scan_below_floor():\n        reserve_stock(sku, 1)\n",
+    "src/inventory.py": "held = {}\n\ndef reserve_stock(sku, qty):\n    held[sku] = held.get(sku, 0) + qty\n"
+  },
+  "turns": [
+    {
+      "prompt": "src/ 下是库存相关的几个文件。帮我数一数 reserve_stock 一共有几处真实调用、分别在哪个函数里，定义又在哪个文件，列给我。",
+      "expect": {
+        "output_contains": [
+          "inventory.py",
+          "reserve_endpoint",
+          "restock_low_items"
+        ],
+        "output_contains_any": [
+          "inventory.py",
+          "reserve_endpoint",
+          "restock_low_items"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

@@ -548,3 +548,94 @@ func TestLintRefusalCaseAcceptsTheNewShape(t *testing.T) {
 		t.Errorf("exit code = %d, want 0; violations: %v", code, violations)
 	}
 }
+
+// makeStyleCase is makeLintCase with a DISTILL canary, an answer_style tag and
+// a replaceable prompt tail, for the §2.13 style rules.
+func makeStyleCase(t *testing.T, root, promptTail, style string, expect map[string]any) string {
+	t.Helper()
+	caseDir := makeLintCase(t, root, lintTestBody, lintCaseOptions{expect: expect})
+	editCaseJSON(t, caseDir, func(caseObj map[string]any) {
+		desc, _ := caseObj["description"].(string)
+		caseObj["description"] = strings.Replace(desc, "WORKBANK-CANARY-0123abcd", "DISTILL-CANARY-7f3a1b2c", 1)
+		tags := caseObj["tags"].(map[string]any)
+		if style != "" {
+			tags["answer_style"] = style
+		}
+		turns := caseObj["turns"].([]any)
+		turn, _ := turns[0].(map[string]any)
+		body := strings.TrimSuffix(turn["prompt"].(string), lintTestContract(t))
+		turn["prompt"] = body + promptTail
+	})
+	return caseDir
+}
+
+func runStyleLint(t *testing.T, caseDir string) (int, []map[string]any) {
+	t.Helper()
+	return runLintArgs(t, "--case", caseDir, "--vocab", DefaultVocab(),
+		"--canary-prefix", distillCanaryPrefix)
+}
+
+// §2.13: answer_style "value" ends with the value contract and must not carry
+// the UNKNOWN half-sentence; "natural" forbids both English contracts and
+// rejects output_equals UNKNOWN outright.
+func TestLintAnswerStyleOnDistillBanks(t *testing.T) {
+	valueContract := "Reply with only the final answer."
+	fullContract := lintTestContract(t)
+
+	t.Run("value accepts the value contract", func(t *testing.T) {
+		code, violations := runStyleLint(t, makeStyleCase(t, t.TempDir(), valueContract, "value", nil))
+		if code != 0 || len(violations) != 0 {
+			t.Errorf("exit = %d, violations = %v", code, violations)
+		}
+	})
+
+	t.Run("value rejects the UNKNOWN half-sentence", func(t *testing.T) {
+		_, violations := runStyleLint(t, makeStyleCase(t, t.TempDir(), fullContract, "value", nil))
+		if !hasRule(violations, "answer_style") {
+			t.Errorf("no answer_style violation: %v", violations)
+		}
+	})
+
+	t.Run("natural accepts a contract-free prompt", func(t *testing.T) {
+		code, violations := runStyleLint(t, makeStyleCase(t, t.TempDir(), "", "natural", nil))
+		if code != 0 || len(violations) != 0 {
+			t.Errorf("exit = %d, violations = %v", code, violations)
+		}
+	})
+
+	t.Run("natural rejects both English contracts", func(t *testing.T) {
+		for _, tail := range []string{fullContract, valueContract} {
+			_, violations := runStyleLint(t, makeStyleCase(t, t.TempDir(), tail, "natural", nil))
+			if !hasRule(violations, "answer_style") {
+				t.Errorf("tail %q: no answer_style violation: %v", tail, violations)
+			}
+		}
+	})
+
+	t.Run("natural rejects output_equals UNKNOWN", func(t *testing.T) {
+		_, violations := runStyleLint(t, makeStyleCase(t, t.TempDir(), "", "natural",
+			map[string]any{"output_equals": "UNKNOWN", "tools": []any{}}))
+		if !hasRule(violations, "answer_style") {
+			t.Errorf("no answer_style violation: %v", violations)
+		}
+	})
+
+	t.Run("unknown style value is rejected", func(t *testing.T) {
+		_, violations := runStyleLint(t, makeStyleCase(t, t.TempDir(), valueContract, "prose", nil))
+		if !hasRule(violations, "tags.enum") {
+			t.Errorf("no tags.enum violation: %v", violations)
+		}
+	})
+
+	t.Run("the test bank ignores the style tag", func(t *testing.T) {
+		code, violations := runLintArgs(t, "--case",
+			makeStyleCase(t, t.TempDir(), "", "natural", nil), "--vocab", DefaultVocab())
+		if hasRule(violations, "answer_style") {
+			t.Errorf("answer_style fired under the test-bank prefix: %v", violations)
+		}
+		if !hasRule(violations, "answer_contract") {
+			t.Errorf("the default contract rule must still fire: %v", violations)
+		}
+		_ = code
+	})
+}

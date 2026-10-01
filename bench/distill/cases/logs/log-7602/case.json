@@ -1,0 +1,51 @@
+{
+  "id": "log-7602",
+  "description": "Summarize a marina pump-out CSV whose TOTAL line counts void rows too; report completed pump-outs, busiest berth and the void bookings. DISTILL-CANARY-1fb56a11",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-HEADER": "10 services"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-log-b07-totalcsv-01",
+    "ref_calls": 3,
+    "fixture_bytes": 637,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:distill-drafter",
+    "reviewer": null
+  },
+  "files": {
+    "exports/pump-outs-may.csv": "service_id,date,berth,vessel,status\nPO-2201,2026-05-03,A2,Kestrel,done\nPO-2202,2026-05-05,A5,Heron,done\nPO-2203,2026-05-09,A2,Kestrel,void\nPO-2204,2026-05-09,A2,Kestrel,done\nPO-2205,2026-05-12,B1,Tern,done\nPO-2206,2026-05-15,A5,Heron,done\nPO-2207,2026-05-18,B1,Tern,void\nPO-2208,2026-05-21,A2,Kestrel,done\nPO-2209,2026-05-24,A2,Puffin,done\nPO-2210,2026-05-27,A5,Heron,done\nTOTAL,,,,,10 services\n",
+    "README.md": "Mereside Marina pump-out station, May 2026 export.\n\nA status of void means the booking was cancelled and the boat never tied\nup; only done services are billable. The TOTAL line at the bottom counts\nevery row in the file, whatever its status.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Mereside Marina's May pump-out export is due for the harbor board pack. Summarize it for me: how many pump-outs were completed, which berth needed the most visits, and what the void bookings amount to.",
+      "expect": {
+        "output_contains": [
+          "8 pump-outs",
+          "A2",
+          "2 void bookings"
+        ],
+        "output_contains_any": [
+          "8 pump-outs",
+          "A2",
+          "2 void bookings"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

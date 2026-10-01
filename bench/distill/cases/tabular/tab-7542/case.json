@@ -1,0 +1,50 @@
+{
+   "id": "tab-7542",
+   "description": "September 2026 bookings for one kayak tour whose plus-tier twin takes more bookings DISTILL-CANARY-5d3fa7d5",
+   "category": "tabular",
+   "tags": {
+      "scenario": "tabular",
+      "task_type": "filter_count",
+      "traps": [
+         "TR-DECOY"
+      ],
+      "trap_decoys": {
+         "TR-DECOY": 33.0
+      },
+      "axes": [
+         "OBS"
+      ],
+      "level": "L1",
+      "family": "fam-tab-b06-ottertail-01",
+      "ref_calls": 1,
+      "fixture_bytes": 4840,
+      "status": "draft",
+      "version": 1,
+      "author": "llm:glm-5.3-flash-b06",
+      "reviewer": null,
+      "answer_style": "natural"
+   },
+   "web_fixture": [],
+   "files": {
+      "data/bookings_2026-09.csv": "booking_id,booking_month,tour,launch_site,paddlers\nOK-9420,2026-08,Full-Day Loop,Boathouse,4\nOK-7180,2026-08,Morning Mist,Boathouse,8\nOK-3888,2026-09,Sunset Tour,Boathouse,7\nOK-3552,2026-09,Morning Mist,Boathouse,5\nOK-5105,2026-08,Full-Day Loop,North Slip,3\nOK-7991,2026-09,Sunset Tour,North Slip,8\nOK-4565,2026-09,Sunset Tour Plus,Boathouse,4\nOK-1854,2026-09,Sunset Tour Plus,Boathouse,6\nOK-9110,2026-09,Sunset Tour Plus,Boathouse,1\nOK-7448,2026-09,Full-Day Loop,North Slip,7\nOK-6701,2026-08,Full-Day Loop,North Slip,7\nOK-7291,2026-09,Full-Day Loop,Boathouse,7\nOK-9438,2026-09,Full-Day Loop,Boathouse,6\nOK-3700,2026-09,Full-Day Loop,Boathouse,2\nOK-9916,2026-09,Sunset Tour,Boathouse,8\nOK-1666,2026-09,Sunset Tour,Boathouse,4\nOK-9588,2026-08,Morning Mist,North Slip,5\nOK-2481,2026-09,Sunset Tour Plus,North Slip,1\nOK-5180,2026-09,Sunset Tour Plus,Boathouse,7\nOK-2655,2026-09,Sunset Tour,North Slip,3\nOK-5383,2026-09,Sunset Tour Plus,North Slip,7\nOK-2371,2026-09,Sunset Tour Plus,Boathouse,5\nOK-3279,2026-09,Sunset Tour Plus,North Slip,3\nOK-2343,2026-09,Full-Day Loop,North Slip,2\nOK-8291,2026-09,Morning Mist,North Slip,1\nOK-4948,2026-09,Sunset Tour Plus,Boathouse,6\nOK-7264,2026-09,Sunset Tour Plus,Boathouse,5\nOK-8092,2026-09,Sunset Tour,North Slip,7\nOK-7508,2026-09,Sunset Tour,Boathouse,5\nOK-3699,2026-08,Full-Day Loop,North Slip,3\nOK-6332,2026-09,Morning Mist,Boathouse,8\nOK-8178,2026-08,Morning Mist,North Slip,5\nOK-3069,2026-08,Sunset Tour Plus,Boathouse,8\nOK-8994,2026-09,Sunset Tour Plus,Boathouse,3\nOK-4473,2026-09,Sunset Tour,Boathouse,8\nOK-2952,2026-09,Sunset Tour Plus,North Slip,1\nOK-8065,2026-09,Sunset Tour Plus,North Slip,5\nOK-9749,2026-08,Sunset Tour,North Slip,2\nOK-7688,2026-09,Sunset Tour Plus,North Slip,7\nOK-2934,2026-09,Morning Mist,Boathouse,2\nOK-5841,2026-08,Morning Mist,Boathouse,6\nOK-5549,2026-09,Sunset Tour Plus,North Slip,2\nOK-5066,2026-09,Full-Day Loop,North Slip,8\nOK-7207,2026-09,Full-Day Loop,Boathouse,1\nOK-1065,2026-09,Sunset Tour,North Slip,3\nOK-4110,2026-09,Sunset Tour Plus,Boathouse,3\nOK-9656,2026-08,Full-Day Loop,North Slip,2\nOK-8188,2026-09,Sunset Tour Plus,Boathouse,7\nOK-1344,2026-09,Sunset Tour Plus,Boathouse,5\nOK-1504,2026-08,Sunset Tour Plus,Boathouse,5\nOK-4968,2026-09,Sunset Tour,Boathouse,4\nOK-5266,2026-09,Morning Mist,Boathouse,4\nOK-4385,2026-08,Morning Mist,Boathouse,4\nOK-3832,2026-09,Full-Day Loop,North Slip,6\nOK-5665,2026-08,Sunset Tour,North Slip,5\nOK-3431,2026-09,Sunset Tour Plus,Boathouse,2\nOK-9885,2026-09,Sunset Tour Plus,Boathouse,2\nOK-4284,2026-08,Morning Mist,North Slip,6\nOK-5476,2026-09,Sunset Tour Plus,North Slip,8\nOK-6097,2026-09,Sunset Tour Plus,Boathouse,1\nOK-5110,2026-08,Morning Mist,Boathouse,3\nOK-8313,2026-09,Sunset Tour Plus,North Slip,5\nOK-3752,2026-09,Sunset Tour Plus,Boathouse,5\nOK-9935,2026-08,Morning Mist,North Slip,6\nOK-6848,2026-09,Full-Day Loop,Boathouse,4\nOK-9041,2026-08,Sunset Tour Plus,North Slip,7\nOK-7880,2026-09,Sunset Tour,Boathouse,7\nOK-2995,2026-09,Morning Mist,Boathouse,3\nOK-4423,2026-09,Sunset Tour Plus,Boathouse,8\nOK-7279,2026-08,Sunset Tour,Boathouse,5\nOK-4355,2026-09,Sunset Tour Plus,Boathouse,6\nOK-5653,2026-08,Full-Day Loop,Boathouse,4\nOK-2771,2026-08,Sunset Tour Plus,Boathouse,5\nOK-1395,2026-09,Sunset Tour Plus,Boathouse,4\nOK-2934,2026-08,Sunset Tour Plus,North Slip,1\nOK-1216,2026-09,Sunset Tour Plus,Boathouse,7\nOK-9933,2026-09,Sunset Tour Plus,Boathouse,6\nOK-5856,2026-08,Full-Day Loop,Boathouse,7\nOK-3237,2026-08,Sunset Tour,North Slip,4\nOK-2231,2026-08,Sunset Tour,North Slip,5\nOK-9198,2026-08,Full-Day Loop,North Slip,4\nOK-7123,2026-09,Sunset Tour Plus,Boathouse,2\nOK-6099,2026-09,Full-Day Loop,Boathouse,3\nOK-8162,2026-08,Full-Day Loop,North Slip,8\nOK-9241,2026-09,Full-Day Loop,North Slip,3\nOK-6846,2026-09,Full-Day Loop,North Slip,5\nOK-9657,2026-09,Sunset Tour,North Slip,8\nOK-6303,2026-09,Full-Day Loop,North Slip,3\nOK-1013,2026-08,Sunset Tour Plus,North Slip,3\nOK-3029,2026-08,Sunset Tour,Boathouse,3\nOK-8246,2026-09,Morning Mist,Boathouse,8\nOK-8365,2026-08,Full-Day Loop,Boathouse,6\nOK-6737,2026-08,Morning Mist,North Slip,5\nOK-5993,2026-08,Sunset Tour Plus,North Slip,7\nOK-9835,2026-08,Full-Day Loop,Boathouse,4\nOK-7543,2026-08,Sunset Tour,North Slip,2\nOK-6560,2026-09,Sunset Tour Plus,Boathouse,4\nOK-9065,2026-09,Morning Mist,Boathouse,5\nOK-2852,2026-09,Sunset Tour Plus,Boathouse,2\nOK-7185,2026-09,Morning Mist,Boathouse,2\nOK-7265,2026-09,Sunset Tour Plus,Boathouse,4\nOK-4340,2026-08,Morning Mist,Boathouse,7\nOK-1063,2026-08,Sunset Tour Plus,North Slip,6\nOK-5548,2026-09,Morning Mist,North Slip,8\n",
+      "README.md": "# Ottertail Kayaks - autumn booking sheet\n\nOne row per booking. tour is the booked tour exactly as named on the\nsheet; paddlers is the party size. Cancellations are removed before\nthe sheet is exported.\n",
+      "notes/dock.txt": "Dock notes\n- Light racks go out with the first trip.\n- The boathouse ramp is reserved for the school groups.\n"
+   },
+   "turns": [
+      {
+         "prompt": "Ottertail Kayaks is provisioning for the late-season tours. The bookings export is at data/bookings_2026-09.csv. Give the number alone, as digits, with no label. How many bookings were made for the Sunset Tour in September 2026?",
+         "expect": {
+            "expected_number": 12.0,
+            "tolerance": 0.01,
+            "required_tools": [
+               "data_query"
+            ]
+         }
+      }
+   ],
+   "expect": {
+      "max_calls": {
+         "read_file": 1
+      }
+   }
+}

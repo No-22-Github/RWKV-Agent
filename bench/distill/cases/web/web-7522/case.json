@@ -1,0 +1,58 @@
+{
+  "id": "web-7522",
+  "description": "Find the default statement export format on a help page the snippet does not reveal. DISTILL-CANARY-b81e8504",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-SNIPPETVAGUE"
+    ],
+    "trap_decoys": {
+      "TR-SNIPPETVAGUE": "csv"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-web-b06-yunfan-help",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "云帆",
+      "url": "https://help.yunfan.example/export",
+      "url_match": "help.yunfan.example/export",
+      "title": "云帆进销存 · 报表导出与对账单",
+      "snippet": "介绍报表中心里各类报表的导出入口与权限。",
+      "published_at": "2026-08-25",
+      "content": "# 云帆进销存 · 报表导出与对账单\n\n报表中心的导出权限默认只开放给店主与财务。\n\n对账单导出默认使用 xlsx 格式，如需给银行上传，可在「设置-报表」里切换成 csv。\n\n流水明细导出不支持合并单元格，方便二次加工。\n"
+    },
+    {
+      "query_match": "云帆",
+      "url": "https://help.yunfan.example/reports",
+      "url_match": "help.yunfan.example/reports",
+      "title": "云帆进销存 · 报表中心常见问题",
+      "snippet": "为什么报表数字和单据列表对不上。",
+      "published_at": "2026-07-18",
+      "content": "# 报表中心常见问题\n\n报表统计口径为单据审核时间，未审核单据不计入。退货单在次月报表中冲减。\n"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "云帆进销存的帮助中心里有一篇报表导出的说明。从报表中心导出对账单时，默认的文件格式是什么？",
+      "expect": {
+        "output_contains_any": [
+          "xlsx"
+        ]
+      }
+    }
+  ]
+}

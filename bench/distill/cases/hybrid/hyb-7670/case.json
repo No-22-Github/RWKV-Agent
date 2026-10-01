@@ -1,0 +1,63 @@
+{
+  "id": "hyb-7670",
+  "description": "August receivable for a distributor from the authoritative local ledger; the portal statement is stale. DISTILL-CANARY-428f8cbf",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "local_first",
+    "traps": [
+      "TR-WEBSTALE",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": 4210,
+      "TR-DECOY": 5490
+    },
+    "axes": [
+      "VER",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b06-localauth-01",
+    "answer_style": "natural",
+    "ref_calls": 3,
+    "fixture_bytes": 448,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null
+  },
+  "files": {
+    "销售台账.csv": "日期,客户,品名,金额\n2026-07-28,华达商贸,洗地机,1055\n2026-08-06,华达商贸,吸尘器,1280\n2026-08-09,恒信清洁,吸尘器,630\n2026-08-14,华达商贸,清洗机,940\n2026-08-18,恒信清洁,洗地机,1780\n2026-08-21,华达商贸,洗地机,2215\n2026-08-27,广源物业,吸尘器,495\n",
+    "README.md": "净澜日化销售内勤：销售台账由 ERP 每日同步，对账一律以本台账为准；经销商门户上的对账单数据更新有滞后。\n"
+  },
+  "web_fixture": [
+    {
+      "query_match": "净澜日化 对账",
+      "url": "https://portal.jinglan-daily.example/statement/huada",
+      "url_match": "portal.jinglan-daily.example/statement/huada",
+      "title": "经销商门户：华达商贸对账单",
+      "snippet": "截至 2026-07-31 的应付余额。",
+      "content": "# 华达商贸 对账单\n\n数据截至 2026-07-31，应付余额 4210 元。\n",
+      "published_at": "2026-08-01"
+    },
+    {
+      "query_match": "净澜日化",
+      "url": "https://portal.jinglan-daily.example/promo-2026-09",
+      "url_match": "portal.jinglan-daily.example/promo-2026-09",
+      "title": "净澜日化 9 月经销商促销公告",
+      "snippet": "9 月进货满赠活动。",
+      "content": "9 月进货满赠活动详见公告附件。\n",
+      "published_at": "2026-09-01"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "华达商贸 8 月的货款要对账。销售台账.csv 是每天同步的对账依据。华达商贸 8 月的货款合计多少元？（只回答数字，不要单位。）",
+      "expect": {
+        "expected_number": 4435,
+        "tolerance": 0.01
+      }
+    }
+  ]
+}

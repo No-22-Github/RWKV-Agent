@@ -1,0 +1,46 @@
+{
+  "id": "fs-8013",
+  "description": "Largest usable icon asset in a design folder where a .bak backup copy of the biggest file is present. DISTILL-CANARY-2aee29ad",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "largest",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "01-hero.json.bak"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-holdout-fs-largesticon-01",
+    "ref_calls": 2,
+    "fixture_bytes": 3540,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-p13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "icons/01-hero.json": "{\"asset\":\"hero-illustration\",\"version\":3,\"format\":\"svg-raster-hybrid\",\"viewport\":{\"width\":1440,\"height\":720},\"background\":\"#0f1e2e\",\"palette\":[\"#0f1e2e\",\"#264653\",\"#2a9d8f\",\"#e9c46a\",\"#f4a261\",\"#ffffff\"],\"layers\":[{\"id\":\"sky\",\"type\":\"gradient\",\"from\":\"#0f1e2e\",\"to\":\"#264653\",\"opacity\":0.92},{\"id\":\"moon\",\"type\":\"circle\",\"cx\":1180,\"cy\":120,\"r\":64,\"fill\":\"#e9c46a\"},{\"id\":\"ridge-far\",\"type\":\"path\",\"points\":[[0,420],[220,360],[460,400],[720,340],[980,390],[1440,350]],\"fill\":\"#264653\"},{\"id\":\"ridge-near\",\"type\":\"path\",\"points\":[[0,520],[260,470],[540,510],[860,450],[1180,500],[1440,470]],\"fill\":\"#2a9d8f\"},{\"id\":\"water\",\"type\":\"rect\",\"x\":0,\"y\":560,\"width\":1440,\"height\":160,\"fill\":\"#0f1e2e\",\"opacity\":0.8},{\"id\":\"boat\",\"type\":\"group\",\"children\":[{\"id\":\"hull\",\"type\":\"path\",\"points\":[[640,600],[760,600],[730,640],[670,640]],\"fill\":\"#f4a261\"},{\"id\":\"sail\",\"type\":\"path\",\"points\":[[700,500],[700,595],[640,595]],\"fill\":\"#ffffff\"}]},{\"id\":\"stars\",\"type\":\"scatter\",\"seed\":7,\"count\":90,\"bounds\":[0,0,1440,400],\"fill\":\"#ffffff\",\"opacity\":0.7}],\"exports\":[{\"name\":\"hero@1x\",\"scale\":1},{\"name\":\"hero@2x\",\"scale\":2},{\"name\":\"hero@3x\",\"scale\":3}],\"license\":\"internal-use\",\"updatedAt\":\"2026-08-14\"}\n",
+    "icons/01-hero.json.bak": "{\"asset\":\"hero-illustration\",\"version\":2,\"format\":\"svg-raster-hybrid\",\"viewport\":{\"width\":1440,\"height\":720},\"background\":\"#0f1e2e\",\"palette\":[\"#0f1e2e\",\"#264653\",\"#2a9d8f\",\"#e9c46a\",\"#f4a261\",\"#ffffff\"],\"layers\":[{\"id\":\"sky\",\"type\":\"gradient\",\"from\":\"#0f1e2e\",\"to\":\"#264653\",\"opacity\":0.92},{\"id\":\"moon\",\"type\":\"circle\",\"cx\":1180,\"cy\":120,\"r\":64,\"fill\":\"#e9c46a\"},{\"id\":\"ridge-far\",\"type\":\"path\",\"points\":[[0,420],[220,360],[460,400],[720,340],[980,390],[1440,350]],\"fill\":\"#264653\"},{\"id\":\"ridge-near\",\"type\":\"path\",\"points\":[[0,520],[260,470],[540,510],[860,450],[1180,500],[1440,470]],\"fill\":\"#2a9d8f\"},{\"id\":\"water\",\"type\":\"rect\",\"x\":0,\"y\":560,\"width\":1440,\"height\":160,\"fill\":\"#0f1e2e\",\"opacity\":0.8},{\"id\":\"boat\",\"type\":\"group\",\"children\":[{\"id\":\"hull\",\"type\":\"path\",\"points\":[[640,600],[760,600],[730,640],[670,640]],\"fill\":\"#f4a261\"},{\"id\":\"sail\",\"type\":\"path\",\"points\":[[700,500],[700,595],[640,595]],\"fill\":\"#ffffff\"}]},{\"id\":\"stars\",\"type\":\"scatter\",\"seed\":7,\"count\":90,\"bounds\":[0,0,1440,400],\"fill\":\"#ffffff\",\"opacity\":0.7},{\"id\":\"fog\",\"type\":\"rect\",\"x\":0,\"y\":480,\"width\":1440,\"height\":80,\"fill\":\"#ffffff\",\"opacity\":0.15}],\"exports\":[{\"name\":\"hero@1x\",\"scale\":1},{\"name\":\"hero@2x\",\"scale\":2}],\"license\":\"internal-use\",\"updatedAt\":\"2026-05-02\"}\n",
+    "icons/02-badge.json": "{\"asset\":\"badge-circle\",\"version\":5,\"format\":\"svg\",\"viewport\":{\"width\":240,\"height\":240},\"background\":\"transparent\",\"palette\":[\"#2a9d8f\",\"#ffffff\",\"#264653\"],\"layers\":[{\"id\":\"ring\",\"type\":\"circle\",\"cx\":120,\"cy\":120,\"r\":104,\"stroke\":\"#2a9d8f\",\"stroke_width\":12,\"fill\":\"none\"},{\"id\":\"disc\",\"type\":\"circle\",\"cx\":120,\"cy\":120,\"r\":92,\"fill\":\"#2a9d8f\"},{\"id\":\"leaf\",\"type\":\"path\",\"points\":[[120,64],[164,120],[120,176],[76,120]],\"fill\":\"#ffffff\"},{\"id\":\"vein\",\"type\":\"path\",\"points\":[[120,76],[120,164]],\"stroke\":\"#264653\",\"stroke_width\":4}],\"exports\":[{\"name\":\"badge@1x\",\"scale\":1},{\"name\":\"badge@2x\",\"scale\":2}],\"license\":\"internal-use\",\"updatedAt\":\"2026-08-20\"}\n",
+    "icons/03-arrow.json": "{\"asset\":\"arrow-next\",\"version\":1,\"format\":\"svg\",\"viewport\":{\"width\":64,\"height\":64},\"layers\":[{\"id\":\"shaft\",\"type\":\"rect\",\"x\":8,\"y\":28,\"width\":36,\"height\":8,\"fill\":\"#264653\"},{\"id\":\"head\",\"type\":\"path\",\"points\":[[40,12],[56,32],[40,52]],\"fill\":\"#264653\"}],\"updatedAt\":\"2026-07-01\"}\n",
+    "README.md": "# 觅象设计图标资产库\n\n.bak 结尾的文件是改版前的备份副本，不属于可用资产；资产以同名不带 .bak 的文件为准。\n"
+  },
+  "turns": [
+    {
+      "prompt": "觅象设计的图标资产都在 icons 目录。可用的资产文件里最大的是哪个？直接回答文件名。",
+      "expect": {
+        "output_equals_any": [
+          "01-hero.json",
+          "icons/01-hero.json"
+        ]
+      }
+    }
+  ]
+}

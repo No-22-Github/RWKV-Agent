@@ -1,0 +1,57 @@
+{
+  "id": "web-7540",
+  "description": "Meaning and fix for espresso machine error E-07 per the vendor error-code page. DISTILL-CANARY-8d391117",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "VER"
+    ],
+    "level": "L0",
+    "family": "fam-web-b06-hartmoor",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "hartmoor",
+      "url": "https://support.hartmoor.example/error-codes",
+      "url_match": "support.hartmoor.example/error-codes",
+      "title": "Hartmoor Barista One - error codes",
+      "snippet": "Meanings and first steps for the Barista One error codes.",
+      "content": "# Error codes - Hartmoor Barista One\n\n- E-02 | Cause water tank is empty | Action refill the tank and reseat it\n- E-07 | Cause limescale in the thermoblock | Action run the descale program\n- E-09 | Cause brew unit lost its home position | Action power cycle the machine\n\nIf the code returns after the listed step, book a service visit.\n",
+      "published_at": "2026-08-14"
+    },
+    {
+      "query_match": "hartmoor",
+      "url": "https://support.hartmoor.example/quickstart",
+      "url_match": "support.hartmoor.example/quickstart",
+      "title": "Hartmoor Barista One - quick start",
+      "snippet": "First shots, flushing and daily cleaning.",
+      "content": "# Quick start - Hartmoor Barista One\n\nRinse the portafilter, run a blank shot, and wipe the wand after\nevery jug. Full cleaning schedules live in the manual.\n",
+      "published_at": "2026-08-14"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "The cafe's Hartmoor Barista One flashes error code E-07 whenever we steam milk. The maker's error-code page is at https://support.hartmoor.example/error-codes. One or two sentences on the cause and the handling are enough. What does E-07 mean, and what should we do about it?",
+      "expect": {
+        "output_contains_any": [
+          "limescale in the thermoblock",
+          "Limescale in the thermoblock",
+          "run the descale program",
+          "Run the descale program"
+        ]
+      }
+    }
+  ]
+}

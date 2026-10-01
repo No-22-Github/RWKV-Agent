@@ -1,0 +1,52 @@
+{
+  "id": "cfg-7503",
+  "description": "Effective scheduler.ini settings, old backup file excluded. DISTILL-CANARY-f04d9b37",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "600"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b07-effective-01",
+    "ref_calls": 3,
+    "fixture_bytes": 315,
+    "answer_style": "natural",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash",
+    "reviewer": null
+  },
+  "web_fixture": [],
+  "files": {
+    "conf/scheduler.ini": "[queue]\nworker_count = 6\nretry_backoff_seconds = 120\n[alerts]\nwebhook = http://hooks.hongzhong.internal/sched\nquiet_hours = 23:00-06:30\n[metrics]\nendpoint = http://metrics.hongzhong.internal/push\ninterval_seconds = 15\n",
+    "conf/scheduler.old.ini": "[queue]\nretry_backoff_seconds = 600\n[alerts]\nwebhook = http://hooks.hongzhong.internal/sched-old\n"
+  },
+  "turns": [
+    {
+      "prompt": "conf/ 里有调度器的配置和一份旧档。帮我看看现在真正生效的配置是什么样的，特别是重试间隔和告警那一块，说给我听就行。",
+      "expect": {
+        "output_contains": [
+          "120",
+          "23:00-06:30",
+          "http://hooks.hongzhong.internal/sched"
+        ],
+        "output_contains_any": [
+          "120",
+          "23:00-06:30",
+          "http://hooks.hongzhong.internal/sched"
+        ],
+        "required_tools": [
+          "read_file"
+        ]
+      }
+    }
+  ]
+}

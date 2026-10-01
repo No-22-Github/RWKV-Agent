@@ -1,0 +1,55 @@
+{
+  "id": "web-7544",
+  "description": "Meaning of water purifier code E-03 per the official code page given by URL. DISTILL-CANARY-3bbb88bb",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "VER"
+    ],
+    "level": "L0",
+    "family": "fam-web-b06-qinglan",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "青岚",
+      "url": "https://help.qinglan.example/codes",
+      "url_match": "help.qinglan.example/codes",
+      "title": "青岚净水器 · 错误码说明",
+      "snippet": "机器提示代码的含义与处理办法。",
+      "content": "# 青岚净水器 · 错误码说明\n\n- E-01 | 原因 进水水压过低 | 处理 检查进水阀是否全开\n- E-03 | 原因 PP 棉滤芯寿命到期 | 处理 更换第一级滤芯\n- E-05 | 原因 漏水传感器触发 | 处理 断电并检查机器底部\n\n更换滤芯后长按「复位」键 3 秒清除提示。\n",
+      "published_at": "2026-07-22"
+    },
+    {
+      "query_match": "青岚",
+      "url": "https://help.qinglan.example/flush",
+      "url_match": "help.qinglan.example/flush",
+      "title": "青岚净水器 · 新机冲洗与日常保养",
+      "snippet": "新机冲洗步骤与滤芯保养周期。",
+      "content": "# 青岚净水器 · 新机冲洗与日常保养\n\n新机或换芯后先放水冲洗 15 分钟再接饮用水。储水桶每月空放一次，\n机身用湿布擦拭即可。\n",
+      "published_at": "2026-07-22"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "青岚净水器的面板亮了 E-03，出水也变慢了。官方错误码说明在 https://help.qinglan.example/codes。一两句话说明原因和处理办法就好。E-03 是什么意思？",
+      "expect": {
+        "output_contains_any": [
+          "PP 棉滤芯寿命到期",
+          "更换第一级滤芯"
+        ]
+      }
+    }
+  ]
+}

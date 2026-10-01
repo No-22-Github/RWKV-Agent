@@ -1,0 +1,62 @@
+{
+  "id": "web-7546",
+  "description": "Security deposit for a weekly narrowboat hire, straight from the hire price page snippet. DISTILL-CANARY-fabf984f",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-EARLYHIT"
+    ],
+    "trap_decoys": {
+      "TR-EARLYHIT": 100
+    },
+    "axes": [
+      "STP"
+    ],
+    "level": "L1",
+    "family": "fam-web-b06-thornreach",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b06",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "files": {},
+  "web_fixture": [
+    {
+      "query_match": "thornreach",
+      "url": "https://thornreachboats.example/pricing",
+      "url_match": "thornreachboats.example/pricing",
+      "title": "Hire prices - Thornreach Canal Boats",
+      "snippet": "Weekly narrowboat hires carry a £150 security deposit, refunded within five working days of return.",
+      "content": "# Hire prices - Thornreach Canal Boats\n\n4-berth narrowboat, weekly: 1,180 pounds high season, 940 pounds low\nseason. A 150 pound security deposit is taken at booking and refunded\nwithin five working days of return. Fuel is charged at the pump rate.\n\nDay boats: 120 pounds per day, no deposit.\n",
+      "published_at": "2026-07-12"
+    },
+    {
+      "query_match": "thornreach",
+      "url": "https://forum.canalworld.example/t/2024-thornreach",
+      "url_match": "forum.canalworld.example/t/2024-thornreach",
+      "title": "Thornreach deposit gone up? (2024)",
+      "snippet": "It was £100 when we hired in 2024; maybe it changed since.",
+      "content": "forum.canalworld.example - hiring - Thornreach deposit?\n\np1 (lockkeeper_lou, 2024-05-11): It was 100 pounds when we hired from\nThornreach in 2024. Maybe it changed since, no idea.\n\np2 (narrowneil, 2024-05-12): We paid the same that spring.\n",
+      "published_at": "2024-05-11"
+    }
+  ],
+  "turns": [
+    {
+      "prompt": "Our club is booking a weekly 4-berth narrowboat from Thornreach Canal Boats for June. Give the number alone, as digits, with no label. How much is the security deposit in pounds?",
+      "expect": {
+        "expected_number": 150,
+        "tolerance": 0.01
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "web_search": 1
+    }
+  }
+}
