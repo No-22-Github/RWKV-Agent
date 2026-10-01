@@ -337,3 +337,12 @@
 {"case_id": "ws7-scr-0001-r11", "reason": "v1.3 清洗（base700 逐条审查）：第一个调用在读任何文件前就 search_text 搜 \"records\" 字段，此时不可能知道键名问题；预知式的无依据调用，且与后续读文件冗余", "batch": "base700"}
 {"case_id": "ws7-scr-0001-r20", "reason": "v1.3 清洗（base700 逐条审查）：第一个调用在读 README/convert.py 之前就 read_file 绝对路径 /srv/invoicing/exports/exports-2026-09-15.json，该路径不可能事先知道，预知式无依据调用", "batch": "base700"}
 {"case_id": "ws7-scr-0001-r21", "reason": "v1.3 清洗（base700 逐条审查）：第一个调用在读 README/convert.py 之前就 read_file 绝对路径 /srv/invoicing/exports/exports-2026-09-14.json，该路径只在后续文件里才出现，预知式无依据调用", "batch": "base700"}
+{"case_id": "fs-7704--p71", "reason": "v1.3 清洗：改题后旧轨迹按现行判据重放不过，render 必拒，从脚本移除", "batch": "b07"}
+{"case_id": "fs-7709--p71", "reason": "v1.3 清洗：改题后旧轨迹按现行判据重放不过，render 必拒，从脚本移除", "batch": "b07"}
+{"case_id": "log-7501--p71", "reason": "v1.3 清洗：改题后旧轨迹按现行判据重放不过，render 必拒，从脚本移除", "batch": "b07"}
+{"case_id": "log-7503--p71", "reason": "v1.3 清洗：改题后旧轨迹按现行判据重放不过，render 必拒，从脚本移除", "batch": "b07"}
+{"case_id": "log-7506--p71", "reason": "v1.3 清洗：改题后旧轨迹按现行判据重放不过，render 必拒，从脚本移除", "batch": "b07"}
+{"case_id": "log-7508--p71", "reason": "v1.3 清洗：改题后旧轨迹按现行判据重放不过，render 必拒，从脚本移除", "batch": "b07"}
+{"case_id": "log-7510--p71", "reason": "v1.3 清洗：改题后旧轨迹按现行判据重放不过，render 必拒，从脚本移除", "batch": "b07"}
+{"case_id": "log-7511--p71", "reason": "v1.3 清洗：改题后旧轨迹按现行判据重放不过，render 必拒，从脚本移除", "batch": "b07"}
+{"case_id": "log-7513--p71", "reason": "v1.3 清洗：改题后旧轨迹按现行判据重放不过，render 必拒，从脚本移除", "batch": "b07"}
