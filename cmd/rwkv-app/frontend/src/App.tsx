@@ -143,12 +143,27 @@ export default function App() {
       }
     }))
   }
+  function ensureReady() {
+    if (ready) return true
+    manager.openSettings(); manager.setSettingsMessage('请先选择一个已保存连接，或新建草稿后点击“保存并使用”。')
+    return false
+  }
   async function sendMessage(value: string) {
-    const content = value.trim(); if (!content || busy) return
-    if (!ready) { manager.openSettings(); manager.setSettingsMessage('请先选择一个已保存连接，或新建草稿后点击“保存并使用”。'); return }
-    setPrompt(''); setActivity([]); setMessages((current) => [...current, { id: `pending-${nextMessageID++}`, role: 'user', content, createdAt: new Date().toISOString() }]); setBusy(true)
+    const content = value.trim(); if (!content || busy || !ensureReady()) return
+    setPrompt('')
+    await runTurn(content, (current) => [...current, userMessage(content)], () => Backend.Chat(content), true)
+  }
+  // 原地重新生成：撤掉最后一轮的回复，由后端回退历史后用同一条用户消息重跑，而不是追加一条重复消息。
+  async function regenerateLast() {
+    if (busy) return
+    const content = [...messages].reverse().find((message) => message.role === 'user')?.content
+    if (!content || !ensureReady()) return
+    await runTurn(content, (current) => current.at(-1)?.role === 'user' ? current : current.slice(0, -1), () => Backend.Regenerate(), false)
+  }
+  async function runTurn(content: string, stage: (current: Message[]) => Message[], run: () => Promise<Result>, restoreUser: boolean) {
+    setActivity([]); setMessages(stage); setBusy(true)
     try {
-      const result = await Backend.Chat(content)
+      const result = await run()
       const assistant: Message = { id: `pending-${nextMessageID++}`, role: 'assistant', content: result.output, prompt: content, trace: result, createdAt: new Date().toISOString(), meta: `${result.steps.length} 步 · ${(result.durationMs / 1000).toFixed(1)} 秒`, trajectory: legacyTrajectory(result.steps) }
       setMessages((current) => [...current, assistant]); setSelectedTraceID(assistant.id)
       const persisted = await Backend.Bootstrap(); setConversations(persisted.conversations || []); setActiveConversationID(persisted.conversation?.id || '')
@@ -157,6 +172,14 @@ export default function App() {
         const persisted = await Backend.Bootstrap()
         applyBootstrap(persisted)
         setSelectedTraceID('')
+        // 会话建立前就失败（如连接配置错误）时后端不落盘，重载会吞掉这一轮和报错，这里补回。
+        const persistedMessages = persisted.conversation?.messages || []
+        const persistedThisTurn = persistedMessages.at(-1)?.role === 'error' && persistedMessages.at(-2)?.content === content
+        if (!persistedThisTurn) {
+          setMessages((current) => [...current,
+            ...(restoreUser ? [userMessage(content)] : []),
+            { id: `error-${nextMessageID++}`, role: 'error', content: errorText(error) }])
+        }
       } catch {
         setMessages((current) => [...current, { id: `error-${nextMessageID++}`, role: 'error', content: errorText(error) }])
       }
@@ -164,7 +187,6 @@ export default function App() {
     finally { setBusy(false) }
   }
   function submitMessage() { void sendMessage(prompt) }
-  function regenerate(value: string) { void sendMessage(value) }
   function onComposerKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void sendMessage(prompt) } }
   async function newConversation() { if (busy) return; await Backend.NewConversation(); setMessages([]); setActivity([]); setPrompt(''); setActiveConversationID(''); setActiveTab('chat') }
   async function openConversation(id: string) { if (busy || id === activeConversationID) return; setBusy(true); try { applyConversation(await Backend.OpenConversation(id)) } catch (error) { manager.setSettingsMessage(errorText(error)) } finally { setBusy(false) } }
@@ -184,7 +206,7 @@ export default function App() {
 
   return <div className="flex h-full w-full bg-paper">
     {settingsOpen ? <SettingsPage manager={manager} status={status} ready={ready} onChooseWorkspace={chooseWorkspace} theme={theme} onToggleTheme={handleToggleTheme} onActivateProvider={(id) => void activateProviderNow(id)} onDeleteProvider={(id) => void deleteProviderNow(id)} /> : <>
-      <Sidebar conversations={conversations} workspaces={workspaces} activeId={activeConversationID} busy={busy} open={sidebarOpen} onCloseSidebar={() => setSidebarOpen(false)} onNewChat={() => void newConversation()} onChooseWorkspace={() => void chooseWorkspace()} onOpenSettings={manager.openSettings} onOpen={openConversation} onDelete={deleteConversation} onRename={renameConversation} onTogglePin={togglePinConversation} onOpenWorkspace={openWorkspace} />
+      <Sidebar conversations={conversations} workspaces={workspaces} activeId={activeConversationID} busy={busy} open={sidebarOpen} onCloseSidebar={() => setSidebarOpen(false)} onNewChat={() => { setSidebarOpen(false); void newConversation() }} onChooseWorkspace={() => void chooseWorkspace()} onOpenSettings={() => { setSidebarOpen(false); manager.openSettings() }} onOpen={(id) => { setSidebarOpen(false); void openConversation(id) }} onDelete={deleteConversation} onRename={renameConversation} onTogglePin={togglePinConversation} onOpenWorkspace={openWorkspace} />
       <main className="flex min-w-0 flex-1 flex-col bg-paper">
         <header className="app-header relative flex h-(--header-h) flex-none items-end gap-[18px] border-b border-line px-[30px]">
           <button className="sidebar-toggle relative mr-[-6px] grid h-8 w-8 flex-none place-items-center border-0 bg-transparent text-ink-soft before:absolute before:inset-[-6px] before:content-[''] lg:hidden" aria-label="打开导航" onClick={() => setSidebarOpen(true)}><Menu size={18} /></button>
@@ -202,7 +224,7 @@ export default function App() {
             </button>
           </div>
         </header>
-        {activeTab === 'trace' ? <TraceView messages={traceMessages} selected={selectedMessage} onSelect={setSelectedTraceID} onBackToChat={() => setActiveTab('chat')} /> : <ChatView messages={messages} activity={activity} busy={busy} ready={ready} workspace={workspaceName} model={status.model || '选择模型'} capabilities={capabilities} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={regenerate} onKeyDown={onComposerKeyDown} openSettings={manager.openSettings} chooseWorkspace={chooseWorkspace} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} messagesEnd={messagesEnd} />}
+        {activeTab === 'trace' ? <TraceView messages={traceMessages} selected={selectedMessage} onSelect={setSelectedTraceID} onBackToChat={() => setActiveTab('chat')} /> : <ChatView messages={messages} activity={activity} busy={busy} ready={ready} workspace={workspaceName} model={status.model || '选择模型'} capabilities={capabilities} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={() => void regenerateLast()} onKeyDown={onComposerKeyDown} openSettings={manager.openSettings} chooseWorkspace={chooseWorkspace} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} messagesEnd={messagesEnd} />}
       </main>
       <RunConfigDropdown open={runConfigOpen} onClose={() => setRunConfigOpen(false)} ready={ready} busy={busy} providers={manager.providers} runtimeProviderId={manager.runtimeProviderId} onActivate={(id) => void activateProviderNow(id)} onOpenSettings={() => { setRunConfigOpen(false); manager.openSettings() }} />
     </>}
@@ -253,7 +275,7 @@ function Sidebar({ conversations, workspaces, activeId, busy, open, onCloseSideb
   }
   return <>
     {open && <div className="sidebar-scrim fixed inset-0 z-[40] bg-[rgba(43,39,33,.34)] lg:hidden" onClick={onCloseSidebar} />}
-    <aside ref={sidebarRef} className={`app-sidebar fixed inset-y-0 left-0 z-[50] flex h-full w-(--sidebar-w) flex-none flex-col border-r border-line bg-paper-sidebar py-[18px] text-ink transition-transform duration-200 motion-reduce:transition-none lg:static lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+    <aside ref={sidebarRef} data-open={open} className={`app-sidebar fixed inset-y-0 left-0 z-[50] flex h-full w-(--sidebar-w) flex-none flex-col border-r border-line bg-paper-sidebar py-[18px] text-ink transition-transform duration-200 motion-reduce:transition-none lg:static lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
       <div className="flex items-center gap-[9px] px-[18px] pb-[18px] font-serif text-lg font-semibold tracking-[.02em]"><span className="h-[9px] w-[9px] flex-none rounded-[1px] bg-brand-bright" /><span>RWKV</span><span className="ml-auto font-mono text-2xs font-medium leading-none text-ink-muted">⌘K</span></div>
       <button className="mx-[18px] mb-[14px] flex h-8 items-center justify-center gap-2 border-[1.5px] border-ink bg-transparent px-[10px] text-sm font-medium text-ink" onClick={onNewChat} disabled={busy}><SquarePen size={16} />新的对话 <kbd className="ml-[2px] font-mono text-2xs text-ink-muted">⌘N</kbd></button>
       <button className="mx-[18px] mb-3 flex items-center gap-2 border-0 bg-transparent p-[2px_0] text-sm text-ink-soft" onClick={onChooseWorkspace} disabled={busy}><FolderOpen size={16} /><span>打开工作区</span><MoreHorizontal size={15} className="ml-auto" /></button>
@@ -263,7 +285,7 @@ function Sidebar({ conversations, workspaces, activeId, busy, open, onCloseSideb
       <section className="min-h-0 flex-1 overflow-y-auto"><div className="px-[18px] pb-[7px] text-2xs font-medium uppercase tracking-[.14em] text-ink-muted">近期</div>
         {conversations.length === 0 ? <div className="px-[18px] py-2 text-sm text-ink-muted">暂无历史对话</div> : conversations.map((conversation) => (
           <div key={conversation.id} className={`conversation-row relative mx-[10px] flex items-center rounded-[3px] border-0 bg-transparent ${conversation.id === activeId ? 'active bg-surface-active text-ink' : 'text-ink-soft'}`}>
-            {renaming === conversation.id ? <div className="flex min-w-0 flex-1 p-[5px_8px]"><input autoFocus aria-label="重命名会话" className="min-w-0 flex-1 border border-line-strong bg-paper px-[7px] py-[4px] text-sm text-ink outline-none focus:border-brand" value={renameValue} onChange={(event) => setRenameValue(event.target.value)} onBlur={() => commitRename(conversation.id)} onKeyDown={(event) => { if (event.key === 'Enter') commitRename(conversation.id); if (event.key === 'Escape') setRenaming(null) }} /></div> : <button className="flex min-w-0 flex-1 flex-col gap-[1px] border-0 bg-transparent p-[7px_8px] text-left text-inherit" onClick={() => onOpen(conversation.id)} title={conversation.title || '未命名会话'}><span className="flex min-w-0 items-center gap-[5px] truncate text-sm">{conversation.pinned && <Pin size={11} className="flex-none text-brand" aria-label="已置顶" />}{conversation.title || '未命名会话'}</span><span className="text-2xs text-ink-muted">{relativeTime(conversation.updatedAt)}</span></button>}
+            {renaming === conversation.id ? <div className="flex min-w-0 flex-1 p-[5px_8px]"><input autoFocus aria-label="重命名会话" className="min-w-0 flex-1 border border-line-strong bg-paper px-[7px] py-[4px] text-sm text-ink outline-none focus:border-brand" value={renameValue} onChange={(event) => setRenameValue(event.target.value)} onBlur={() => commitRename(conversation.id)} onKeyDown={(event) => { if (event.key === 'Enter') commitRename(conversation.id); if (event.key === 'Escape') setRenaming(null) }} /></div> : <button className="flex min-w-0 flex-1 flex-col gap-[1px] border-0 bg-transparent p-[7px_8px] text-left text-inherit" onClick={() => onOpen(conversation.id)} title={conversation.title || '未命名会话'}><span className="flex min-w-0 items-center gap-[5px] text-sm">{conversation.pinned && <Pin size={11} className="flex-none text-brand" aria-label="已置顶" />}<span className="min-w-0 truncate">{conversation.title || '未命名会话'}</span></span><span className="text-2xs text-ink-muted">{relativeTime(conversation.updatedAt)}</span></button>}
             <button className="conversation-menu grid h-[26px] w-[26px] place-items-center border-0 bg-transparent text-ink-muted" aria-label={`会话“${conversation.title || '未命名会话'}”的更多操作`} aria-haspopup="menu" aria-expanded={menu?.id === conversation.id} onClick={(event) => toggleMenu(conversation.id, event)}><MoreHorizontal size={15} /></button>
             {menu?.id === conversation.id && (
               <div data-conversation-menu className={`absolute right-2 z-[5] flex min-w-[128px] flex-col rounded-[3px] border border-line-strong bg-paper-wash py-[3px] shadow-[0_8px_20px_rgba(45,33,20,.12)] ${menu.up ? 'bottom-[30px]' : 'top-[30px]'}`} role="menu" aria-label="会话操作">
@@ -281,7 +303,7 @@ function Sidebar({ conversations, workspaces, activeId, busy, open, onCloseSideb
   </>
 }
 
-function ChatView({ messages, activity, busy, ready, workspace, capabilities, prompt, setPrompt, onSubmit, onRegenerate, onKeyDown, onTrace, messagesEnd }: { messages: Message[]; activity: AgentActivity[]; busy: boolean; ready: boolean; workspace: string; model: string; capabilities: string; prompt: string; setPrompt: (value: string) => void; onSubmit: () => void; onRegenerate: (value: string) => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void; openSettings: () => void; chooseWorkspace: () => Promise<void>; onTrace: (id: string) => void; messagesEnd: React.RefObject<HTMLDivElement | null> }) {
+function ChatView({ messages, activity, busy, ready, workspace, capabilities, prompt, setPrompt, onSubmit, onRegenerate, onKeyDown, onTrace, messagesEnd }: { messages: Message[]; activity: AgentActivity[]; busy: boolean; ready: boolean; workspace: string; model: string; capabilities: string; prompt: string; setPrompt: (value: string) => void; onSubmit: () => void; onRegenerate: () => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void; openSettings: () => void; chooseWorkspace: () => Promise<void>; onTrace: (id: string) => void; messagesEnd: React.RefObject<HTMLDivElement | null> }) {
   const turns = groupMessagesIntoTurns(messages)
   const empty = turns.length === 0
   const stageRef = useRef<HTMLDivElement>(null)
@@ -335,7 +357,7 @@ function ChatView({ messages, activity, busy, ready, workspace, capabilities, pr
   return <div className="chat-panel relative flex min-h-0 flex-1 flex-col overflow-hidden">
     <div ref={stageRef} className="chat-stage relative min-h-0 flex-1 overflow-hidden">
       {!empty && <div ref={scrollRef} className="conversation-scroll absolute inset-0 mx-auto content-narrow overflow-auto pt-[30px]">
-        {turns.map((turn, index) => <TurnView key={turn.user?.id || turn.response?.id || index} turn={turn} index={index + 1} pending={busy && index === turns.length - 1 && !turn.response} activity={activity} onTrace={onTrace} onRegenerate={onRegenerate} />)}
+        {turns.map((turn, index) => <TurnView key={turn.user?.id || turn.response?.id || index} turn={turn} index={index + 1} last={index === turns.length - 1} busy={busy} pending={busy && index === turns.length - 1 && !turn.response} activity={activity} onTrace={onTrace} onRegenerate={onRegenerate} />)}
         <div ref={messagesEnd} />
       </div>}
     </div>
@@ -345,7 +367,7 @@ function ChatView({ messages, activity, busy, ready, workspace, capabilities, pr
   </div>
 }
 
-function TurnView({ turn, index, pending, activity, onTrace, onRegenerate }: { turn: ChatTurn; index: number; pending: boolean; activity: AgentActivity[]; onTrace: (id: string) => void; onRegenerate: (value: string) => void }) {
+function TurnView({ turn, index, last, busy, pending, activity, onTrace, onRegenerate }: { turn: ChatTurn; index: number; last: boolean; busy: boolean; pending: boolean; activity: AgentActivity[]; onTrace: (id: string) => void; onRegenerate: () => void }) {
   const response = turn.response
   const hasTrace = Boolean(response?.trace || response?.trajectory?.length)
   const subagentCalls = (response?.trajectory || []).filter((call) => call.subagents?.length)
@@ -357,12 +379,12 @@ function TurnView({ turn, index, pending, activity, onTrace, onRegenerate }: { t
     <aside className="turn-gutter flex min-w-0 flex-col items-end gap-[6px] pt-[1px] text-right text-ink-muted">
       <span className={`font-serif text-xl font-bold leading-none ${response?.role === 'error' ? 'text-danger' : 'text-ink-faint'}`}>{String(index).padStart(2, '0')}</span>
       <time className="text-2xs leading-[1.6]">{formatTurnTime(time)}</time>
-      <span className="my-[3px] h-px w-[34px] flex-none bg-line" />
+      <span className="gutter-rule my-[3px] h-px w-[34px] flex-none bg-line" />
       <div className="gutter-statuses flex w-full flex-col items-end gap-1" aria-label={pending ? 'Agent 运行状态' : 'Agent 完成状态'}>
         {statuses.map((item, statusIndex) => <div className={`gutter-status flex w-full items-center justify-end gap-[7px] text-2xs leading-[1.55] ${item.state === 'failed' ? 'failed text-danger' : item.state === 'running' ? 'running text-brand' : item.state === 'completed' ? 'completed text-ink-soft' : 'text-ink-soft'}`} key={`${item.label}-${statusIndex}`}><span className="min-w-0 truncate">{item.label}</span><i /></div>)}
       </div>
       {subagentCount > 0 && <div className="mt-[2px] flex items-start gap-[7px] text-2xs leading-[1.5] text-ink-ghost"><span>{subagentCount} 路并发<br />见右侧</span><svg width="11" height="26" viewBox="0 0 11 26" fill="none" stroke="var(--brand)" strokeWidth="1.2" className="flex-none"><path d="M5.5 0v6M5.5 6c0 4 4.5 3 4.5 7v13M5.5 6c0 4-4.5 3-4.5 7v13M5.5 6v20" /></svg></div>}
-      {(stats || (response?.trajectory?.length && !response.trace)) && <><span className="my-[3px] h-px w-[34px] flex-none bg-line" /><span className="text-2xs leading-[1.6] text-ink-muted">{stats ? <>{formatDuration(stats.durationMs)}{stats.tokens > 0 && <><br />{stats.tokens.toLocaleString('zh-CN')} tok</>}</> : <>历史摘要<br />工具 {response?.trajectory?.length}</>}</span></>}
+      {(stats || (response?.trajectory?.length && !response.trace)) && <><span className="gutter-rule my-[3px] h-px w-[34px] flex-none bg-line" /><span className="text-2xs leading-[1.6] text-ink-muted">{stats ? <>{formatDuration(stats.durationMs)}{stats.tokens > 0 && <><br />{stats.tokens.toLocaleString('zh-CN')} tok</>}</> : <>历史摘要<br />工具 {response?.trajectory?.length}</>}</span></>}
     </aside>
     <div className="turn-main flex min-w-0 flex-col gap-4">
       {turn.user && <div className="flex justify-end"><div className="min-w-[180px] max-w-[82%] border-l-2 border-user-line bg-user-bg p-[11px_15px] text-base leading-[1.7] text-user-text [overflow-wrap:anywhere]">{turn.user.content}</div></div>}
@@ -373,7 +395,8 @@ function TurnView({ turn, index, pending, activity, onTrace, onRegenerate }: { t
       {response?.meta && <div className="font-mono text-2xs text-ink-muted">{response.meta}</div>}
       {response && <div className="turn-actions flex gap-4 pt-[2px]">
         {response.role === 'assistant' && <button className="border-0 bg-transparent p-0 text-xs text-ink-muted hover:text-brand" onClick={() => void navigator.clipboard?.writeText(response.content)}>复制</button>}
-        {response.role === 'assistant' && turn.user && <button className="border-0 bg-transparent p-0 text-xs text-ink-muted hover:text-brand" onClick={() => onRegenerate(turn.user?.content || '')}>重新生成</button>}
+        {/* 只有最后一轮能原地重跑；更早的回合重跑会让后续回合失去依据。 */}
+        {last && turn.user && <button className="border-0 bg-transparent p-0 text-xs text-ink-muted hover:text-brand disabled:opacity-50" disabled={busy} onClick={onRegenerate}>{response.role === 'error' ? '重试' : '重新生成'}</button>}
         {hasTrace && <button className="border-0 bg-transparent p-0 text-xs text-ink-muted hover:text-brand" onClick={() => onTrace(response.id)}>查看轨迹</button>}
       </div>}
     </div>
@@ -477,9 +500,10 @@ function groupMessagesIntoTurns(messages: Message[]) {
 
 function completedGutterStatuses(message?: Message): GutterStatus[] {
   if (!message) return [{ label: '等待响应', state: 'idle' }]
-  const records = flattenTraceRecords(buildTraceTurns([message])).filter((record) => record.kind !== 'user')
+  // 编号沿用轨迹页的 #序号（含被隐藏的“用户输入”），两处才能对照。
+  const records = flattenTraceRecords(buildTraceTurns([message])).map((record, index) => ({ record, order: index + 1 })).filter(({ record }) => record.kind !== 'user')
   if (records.length === 0) return [{ label: message.role === 'error' ? '运行失败' : '回答完成', state: message.role === 'error' ? 'failed' : 'completed' }]
-  return records.slice(-6).map((record, index) => ({ label: gutterEventLabel(record.title, records.length - Math.min(records.length, 6) + index + 1), state: record.state }))
+  return records.slice(-6).map(({ record, order }) => ({ label: gutterEventLabel(record.title, order), state: record.state }))
 }
 
 function liveGutterStatuses(events: AgentActivity[]): GutterStatus[] {
@@ -489,6 +513,7 @@ function liveGutterStatuses(events: AgentActivity[]): GutterStatus[] {
 
 function gutterEventLabel(title: string, order: number) {
   return `${String(order).padStart(2, '0')} ${title
+    .replace(/^Step (\d+) · 决策$/, '第 $1 步决策')
     .replace(' · 决策', '')
     .replace(/ · Step \d+/, '')
     .replace('工具调用 · ', '调用 ')
@@ -506,4 +531,5 @@ function formatTurnTime(value?: string) {
   if (Number.isNaN(date.getTime()) || date.getUTCFullYear() <= 1) return '本地'
   return date.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
 }
+function userMessage(content: string): Message { return { id: `pending-${nextMessageID++}`, role: 'user', content, createdAt: new Date().toISOString() } }
 function errorText(error: unknown) { return error instanceof Error ? error.message : String(error) }

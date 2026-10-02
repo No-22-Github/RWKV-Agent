@@ -317,3 +317,70 @@ func TestPersistTurnKeepsFailedRunTrace(t *testing.T) {
 		t.Fatalf("reloaded failed message = %+v", reloaded.Messages)
 	}
 }
+
+func TestRollbackLastTurnCutsCommittedTranscript(t *testing.T) {
+	t.Parallel()
+	conversation := appstorage.Conversation{
+		Messages: []appstorage.DisplayMessage{
+			{ID: "m1", Role: "user", Content: "first"},
+			{ID: "m2", Role: "assistant", Content: "one"},
+			{ID: "m3", Role: "user", Content: "second"},
+			{ID: "m4", Role: "assistant", Content: "two"},
+		},
+		Transcript: []agentapi.ConversationMessage{
+			{Role: "user", Content: "first"},
+			{Role: "assistant", Content: "one"},
+			{Role: "user", Content: "second"},
+			{Role: "assistant", ToolCalls: []agentapi.ToolCall{{ID: "call_1"}}},
+			{Role: "tool", ToolCallID: "call_1", Content: "result"},
+			{Role: "assistant", Content: "two"},
+		},
+	}
+	rolled, prompt, err := rollbackLastTurn(conversation)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if prompt != "second" || len(rolled.Messages) != 2 || len(rolled.Transcript) != 2 || rolled.Transcript[1].Content != "one" {
+		t.Fatalf("rollback = %q %+v %+v", prompt, rolled.Messages, rolled.Transcript)
+	}
+	if len(conversation.Messages) != 4 || len(conversation.Transcript) != 6 {
+		t.Fatalf("rollback mutated the original conversation: %+v", conversation)
+	}
+}
+
+func TestRollbackLastTurnKeepsTranscriptForFailedTurn(t *testing.T) {
+	t.Parallel()
+	conversation := appstorage.Conversation{
+		Messages: []appstorage.DisplayMessage{
+			{ID: "m1", Role: "user", Content: "first"},
+			{ID: "m2", Role: "assistant", Content: "one"},
+			{ID: "m3", Role: "user", Content: "first"},
+			{ID: "m4", Role: "error", Content: "503"},
+		},
+		// A failed run never commits, so the repeated prompt is not in the transcript.
+		Transcript: []agentapi.ConversationMessage{
+			{Role: "user", Content: "first"},
+			{Role: "assistant", Content: "one"},
+		},
+	}
+	rolled, prompt, err := rollbackLastTurn(conversation)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if prompt != "first" || len(rolled.Messages) != 2 || len(rolled.Transcript) != 2 {
+		t.Fatalf("rollback = %q %+v %+v", prompt, rolled.Messages, rolled.Transcript)
+	}
+}
+
+func TestRollbackLastTurnRejectsMissingResponse(t *testing.T) {
+	t.Parallel()
+	for _, messages := range [][]appstorage.DisplayMessage{
+		nil,
+		{{Role: "user", Content: "pending"}},
+		{{Role: "assistant", Content: "orphan"}, {Role: "assistant", Content: "orphan"}},
+	} {
+		if _, _, err := rollbackLastTurn(appstorage.Conversation{Messages: messages}); err == nil {
+			t.Fatalf("rollback accepted %+v", messages)
+		}
+	}
+}

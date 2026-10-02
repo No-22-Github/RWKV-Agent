@@ -148,6 +148,16 @@ export function PreviewSystemPrompt(config: api$0.Config): $CancellablePromise<a
 }
 
 /**
+ * Regenerate discards the latest turn of the active conversation and runs its
+ * user prompt again in place, instead of appending a duplicate user message.
+ */
+export function Regenerate(): $CancellablePromise<api$0.Result> {
+    return $Call.ByID(3829194448).then(($result: any) => {
+        return $$createType2($result);
+    });
+}
+
+/**
  * RenameConversation updates a conversation's display title.
  */
 export function RenameConversation(id: string, title: string): $CancellablePromise<void> {

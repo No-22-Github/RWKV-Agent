@@ -254,6 +254,78 @@ func (s *AppService) Chat(ctx context.Context, prompt string) (agentapi.Result, 
 	if err != nil {
 		return agentapi.Result{}, err
 	}
+	return s.runTurn(ctx, session, prompt)
+}
+
+// Regenerate discards the latest turn of the active conversation and runs its
+// user prompt again in place, instead of appending a duplicate user message.
+func (s *AppService) Regenerate(ctx context.Context) (agentapi.Result, error) {
+	s.operation.Lock()
+	defer s.operation.Unlock()
+	s.mu.Lock()
+	original := s.active
+	s.mu.Unlock()
+	if original == nil {
+		return agentapi.Result{}, fmt.Errorf("没有可重新生成的回合")
+	}
+	rolled, prompt, err := rollbackLastTurn(*original)
+	if err != nil {
+		return agentapi.Result{}, err
+	}
+	s.replaceActive(&rolled)
+	session, err := s.ensureSession(ctx)
+	if err != nil {
+		// Nothing was persisted yet: keep the original turn instead of a half-rolled state.
+		s.replaceActive(original)
+		return agentapi.Result{}, err
+	}
+	return s.runTurn(ctx, session, prompt)
+}
+
+// replaceActive swaps the in-memory conversation and drops the cached session
+// so the next turn restores the Harness transcript from it.
+func (s *AppService) replaceActive(value *appstorage.Conversation) {
+	s.mu.Lock()
+	old := s.session
+	s.session = nil
+	s.active = value
+	s.mu.Unlock()
+	if old != nil {
+		_ = old.Close()
+	}
+}
+
+// rollbackLastTurn removes the latest user/response pair from the display
+// messages and the Harness transcript. A failed turn never reached the
+// transcript (the runner commits transactionally), so only a successful
+// turn is cut there, starting at its user message.
+func rollbackLastTurn(value appstorage.Conversation) (appstorage.Conversation, string, error) {
+	count := len(value.Messages)
+	if count < 2 || value.Messages[count-2].Role != "user" ||
+		(value.Messages[count-1].Role != "assistant" && value.Messages[count-1].Role != "error") {
+		return appstorage.Conversation{}, "", fmt.Errorf("没有可重新生成的回合")
+	}
+	prompt := value.Messages[count-2].Content
+	transcript := value.Transcript
+	if value.Messages[count-1].Role == "assistant" {
+		cut := -1
+		for index := len(transcript) - 1; index >= 0; index-- {
+			if transcript[index].Role == "user" {
+				cut = index
+				break
+			}
+		}
+		if cut < 0 || strings.TrimSpace(transcript[cut].Content) != strings.TrimSpace(prompt) {
+			return appstorage.Conversation{}, "", fmt.Errorf("对话记录与历史不一致，无法重新生成")
+		}
+		transcript = transcript[:cut]
+	}
+	value.Messages = append([]appstorage.DisplayMessage(nil), value.Messages[:count-2]...)
+	value.Transcript = append([]agentapi.ConversationMessage(nil), transcript...)
+	return value, prompt, nil
+}
+
+func (s *AppService) runTurn(ctx context.Context, session *agentapi.Session, prompt string) (agentapi.Result, error) {
 	turnStarted := time.Now().UTC()
 	result, err := session.RunWithObserver(ctx, prompt, func(event agentapi.Event) {
 		s.emit("agent:event", event)

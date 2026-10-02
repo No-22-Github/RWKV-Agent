@@ -46,6 +46,13 @@
 
 .turn-answer .md-markdown ul, .turn-answer .md-markdown ol { margin: 6px 0 14px; padding-left: 24px; }
 
+/* Tailwind preflight 会清空 list-style，这里恢复项目符号；GFM 任务列表保持无符号。 */
+.turn-answer .md-markdown ul { list-style: disc; }
+.turn-answer .md-markdown ul ul { list-style: circle; }
+.turn-answer .md-markdown ol { list-style: decimal; }
+.turn-answer .md-markdown ul.contains-task-list { list-style: none; }
+.turn-answer .md-markdown li::marker { color: var(--ink-muted); }
+
 .turn-answer .md-markdown table { width: 100%; border-top: 1.5px solid var(--ink); border-collapse: collapse; font-size: 13px; line-height: 1.55; }
 
 .turn-answer .md-markdown th, .turn-answer .md-markdown td { border-bottom: 1px solid var(--line-soft); padding: 8px 10px; text-align: left; }
@@ -95,23 +102,14 @@
 /* 输入框聚焦反馈仅保留左侧 3px 竖条变色，不要整圈 outline（设计稿要求） */
 .composer textarea:focus, .composer textarea:focus-visible { outline: none; }
 
-/* 响应式：≥1180 三栏完整；1024–1180 页边栏折行；<1024 侧栏抽屉化、正文满宽 */
+/* 响应式：≥1180 三栏完整；≤1180 页边栏保留、收窄栏间距压缩正文；<1024 侧栏抽屉化；≤640 页边栏才折成横排 */
 @media (max-width: 1180px) {
   .app-sidebar { width: 196px; flex-basis: 196px; }
 
-  .conversation-turn { grid-template-columns: minmax(0, 1fr); gap: 0; }
-
-  .turn-gutter { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: flex-start; gap: 8px 14px; text-align: left; }
-
-  .turn-gutter > .gutter-rule, .turn-gutter > .gutter-statuses { display: none; }
-
-  .turn-gutter .gutter-status { justify-content: flex-start; }
+  /* 页边栏竖排保留，只收窄栏间距，让正文列自己压缩。 */
+  .conversation-turn, .composer { column-gap: 24px; }
 
   .trace-inspector { width: 280px; flex-basis: 280px; }
-
-  .composer .composer-gutter { display: none; }
-
-  .composer { grid-template-columns: minmax(0, 1fr); gap: 0; }
 
   .settings-group { grid-template-columns: minmax(0, 1fr); gap: 10px; }
 
@@ -125,13 +123,29 @@
 @media (max-width: 1023px) {
   body { min-width: 0; }
 
-  .app-sidebar { box-shadow: 0 12px 40px rgba(60, 50, 35, .2); }
+  /* 仅抽屉展开时投影；收起后侧栏在屏幕外，阴影会漏到左边缘。 */
+  .app-sidebar[data-open='true'] { box-shadow: 0 12px 40px rgba(60, 50, 35, .2); }
 
   .sidebar-scrim { display: block; }
 
-  .conversation-turn { grid-template-columns: minmax(0, 1fr); }
-
   .trace-inspector { display: none; }
+}
+
+/* 手机宽度放不下两栏：页边栏折到回合头一行，步骤状态另起一行横排。 */
+@media (max-width: 640px) {
+  .conversation-turn { grid-template-columns: minmax(0, 1fr); gap: 0; }
+
+  .turn-gutter { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: flex-start; gap: 8px 14px; text-align: left; }
+
+  .turn-gutter > .gutter-rule { display: none; }
+
+  .turn-gutter > .gutter-statuses { order: 10; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 2px 14px; }
+
+  .turn-gutter .gutter-status { width: auto; justify-content: flex-start; }
+
+  .composer .composer-gutter { display: none; }
+
+  .composer { grid-template-columns: minmax(0, 1fr); gap: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {

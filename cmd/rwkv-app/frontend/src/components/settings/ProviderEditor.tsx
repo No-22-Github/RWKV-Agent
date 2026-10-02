@@ -28,10 +28,11 @@ export default function ProviderEditor({ manager, ready, onTestRemote, onSave, o
     >
       <header className="flex min-h-[54px] items-end justify-between gap-[16px] border-b border-line pb-[12px]">
         <div className="min-w-0 flex-1">
-          <span className="block text-2xs uppercase tracking-[.12em] text-ink-muted">{isNew ? '新连接' : '连接档案'}</span>
+          <span className="block text-2xs uppercase tracking-[.12em] text-ink-muted">{isNew ? '新连接 · 名称' : '连接名称'}</span>
           <input
             aria-label="连接名称"
-            className="mt-[3px] h-[30px] w-full max-w-[420px] border-0 bg-transparent p-0 font-serif text-lg font-semibold text-ink outline-0 placeholder:text-ink-ghost"
+            className="mt-[3px] h-[30px] w-full max-w-[420px] border-0 border-b border-dashed border-transparent bg-transparent p-0 font-serif text-lg font-semibold text-ink outline-0 transition-[border-color] duration-[120ms] placeholder:text-ink-ghost hover:border-line-strong focus:border-solid focus:border-brand focus-visible:outline-0"
+            title="点击修改连接名称"
             value={manager.draftLabel}
             placeholder="未命名连接"
             onChange={(event) => manager.setDraftLabel(event.target.value)}

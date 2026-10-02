@@ -33,6 +33,7 @@ vi.mock('../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/appservice', () => 
   Bootstrap: vi.fn(),
   Status: vi.fn().mockResolvedValue({ state: 'idle', workspace: '/tmp/RWKV-Agent', hasApiKey: false, updatedAt: new Date().toISOString() }),
   Chat: vi.fn(),
+  Regenerate: vi.fn(),
   Configure: vi.fn(),
   ConfigureProvider: vi.fn(),
   SaveProvider: vi.fn(),
@@ -950,6 +951,67 @@ describe('App', () => {
   })
 
 
+
+  it('keeps the prompt and error when the run fails before anything is persisted', async () => {
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({ status: readyStatus() }))
+    vi.mocked(Backend.Chat).mockRejectedValue(new Error('连接未配置'))
+
+    render(<App />)
+    const composer = await screen.findByLabelText('消息')
+    fireEvent.change(composer, { target: { value: '检查会话建立失败' } })
+    fireEvent.keyDown(composer, { key: 'Enter' })
+
+    expect(await screen.findByText('连接未配置')).toBeInTheDocument()
+    expect(screen.getByText('检查会话建立失败')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '重试' })).toBeEnabled()
+  })
+
+  it('regenerates the last turn in place instead of resending the prompt', async () => {
+    const summary = new ConversationSummary({ id: 'regen-conversation', title: '重新生成', updatedAt: new Date().toISOString() })
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
+      status: readyStatus(),
+      conversations: [summary],
+      conversation: new ConversationView({
+        id: summary.id,
+        title: summary.title,
+        messages: [
+          new DisplayMessage({ id: 'r1', role: 'user', content: '第一问' }),
+          new DisplayMessage({ id: 'r2', role: 'assistant', content: '旧回答一' }),
+          new DisplayMessage({ id: 'r3', role: 'user', content: '第二问' }),
+          new DisplayMessage({ id: 'r4', role: 'assistant', content: '旧回答二' }),
+        ],
+      }),
+    }))
+    vi.mocked(Backend.Chat).mockClear()
+    vi.mocked(Backend.Regenerate).mockResolvedValue(new Result({ output: '新回答二', steps: [], durationMs: 5 }))
+
+    render(<App />)
+    await screen.findByText('旧回答二')
+    const buttons = screen.getAllByRole('button', { name: '重新生成' })
+    expect(buttons).toHaveLength(1)
+    fireEvent.click(buttons[0])
+
+    expect(await screen.findByText('新回答二')).toBeInTheDocument()
+    expect(Backend.Regenerate).toHaveBeenCalledOnce()
+    expect(Backend.Chat).not.toHaveBeenCalled()
+    expect(screen.queryByText('旧回答二')).not.toBeInTheDocument()
+    expect(screen.getByText('旧回答一')).toBeInTheDocument()
+    expect(screen.getAllByText('第二问')).toHaveLength(1)
+  })
+
+  it('closes the navigation drawer after opening a conversation', async () => {
+    const summary = new ConversationSummary({ id: 'drawer-conversation', title: '抽屉会话', updatedAt: new Date().toISOString() })
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({ conversations: [summary] }))
+    vi.mocked(Backend.OpenConversation).mockResolvedValue(new ConversationView({ id: summary.id, title: summary.title, messages: [] }))
+
+    render(<App />)
+    fireEvent.click(screen.getByRole('button', { name: '打开导航' }))
+    expect(document.querySelector('.sidebar-scrim')).not.toBeNull()
+    fireEvent.click(await screen.findByRole('button', { name: /^抽屉会话/ }))
+
+    await waitFor(() => expect(Backend.OpenConversation).toHaveBeenCalledWith('drawer-conversation'))
+    expect(document.querySelector('.sidebar-scrim')).toBeNull()
+  })
 
   it('toggles the raw tab between formatted and JSON views', async () => {
     const trace = new Result({
