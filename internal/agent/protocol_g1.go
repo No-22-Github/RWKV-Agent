@@ -465,6 +465,15 @@ func (protocol G1Protocol) Parse(value string, finish continuation.FinishReason)
 			call.Name = "read_file"
 			repairs.mark(wire.RepairToolRenamed)
 		}
+		// OpenAI-style function calls carry arguments as a JSON string; the
+		// Hermes-trained checkpoints sometimes copy that shape into the envelope.
+		if !isJSONObject(call.Arguments) {
+			var inner string
+			if json.Unmarshal(call.Arguments, &inner) == nil && isJSONObject(json.RawMessage(inner)) {
+				call.Arguments = json.RawMessage(inner)
+				repairs.mark(wire.RepairStringifiedArguments)
+			}
+		}
 		if (strictDecoded && decoder.Decode(&struct{}{}) != io.EOF) ||
 			strings.TrimSpace(call.Name) == "" ||
 			!isJSONObject(call.Arguments) {

@@ -91,3 +91,10 @@ func TestHermesParsesPaddedCall(t *testing.T) {
 		t.Fatalf("parse = %#v, %v", action, err)
 	}
 }
+
+func TestG1ParseAcceptsStringifiedArguments(t *testing.T) {
+	action, err := (G1Protocol{}).Parse(`<tool_call>{"name":"read_file","arguments":"{\"path\": \"a.txt\"}"}</tool_call>`, "stop")
+	if err != nil || action.Type != ActionTypeTool || string(action.Arguments) != `{"path": "a.txt"}` || !action.ProtocolRepaired {
+		t.Fatalf("parse = %#v, %v", action, err)
+	}
+}
