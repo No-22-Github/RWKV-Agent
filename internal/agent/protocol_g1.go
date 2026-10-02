@@ -26,6 +26,10 @@ type G1Protocol struct {
 	// is a JSON array inside <tools>. The action envelope (<tool_call>) and
 	// every instruction sentence are unchanged.
 	AlignQwen36 bool
+	// Hermes (align=hermes, implies AlignQwen36) renders the Hermes / Qwen
+	// chat-template tool shape: a "# Tools" block with one OpenAI function
+	// schema per line and newline-padded <tool_call> / <tool_response> tags.
+	Hermes bool
 	// NoCallDemo adds one substantive no-call demonstration to the examples: a
 	// real question the tools cannot improve on, answered directly. It
 	// is the R1.5 probe for whether the abstention behavior is evocable in
@@ -110,10 +114,14 @@ func (protocol G1Protocol) Instructions(
 	if protocol.SourceHint {
 		prompt.WriteString(sourceHintSentence(specs))
 	}
+	envelopeExample := `<tool_call>{"name":"TOOL_NAME","arguments":{...}}</tool_call>`
+	if protocol.Hermes {
+		envelopeExample = "<tool_call>\n  {\"name\": \"TOOL_NAME\", \"arguments\": {...}}\n  </tool_call>"
+	}
 	prompt.WriteString(`
 Choose one action:
 - If new tool evidence is needed, output exactly one tool call and nothing else:
-  <tool_call>{"name":"TOOL_NAME","arguments":{...}}</tool_call>
+  ` + envelopeExample + `
 - Otherwise, answer the user directly in ordinary text without an envelope.
 Greetings, thanks, casual conversation, and questions that do not need new tool evidence must be answered directly. Never invoke tools merely because they are available.
 After a Tool result, make the same choice again: call one tool if more evidence is needed, or answer directly.
@@ -124,7 +132,9 @@ After a Tool result, make the same choice again: call one tool if more evidence 
 	}
 	prompt.WriteString(thinkingControl(controlMode))
 	prompt.WriteString("\n" + PolicyNoInvention + "\n")
-	if protocol.AlignQwen36 {
+	if protocol.Hermes {
+		prompt.WriteString(protocol.renderHermesTools(specs))
+	} else if protocol.AlignQwen36 {
 		prompt.WriteString("<tools>" + protocol.renderToolsJSON(specs) + "</tools>\n")
 	} else {
 		prompt.WriteString("Available tools:\n")
@@ -236,7 +246,92 @@ func toolAccessDescription(specs []ToolSpec) string {
 // toolResponseEnvelope wraps a tool-result payload in the aligned tag. The
 // legacy tag lives inline in FormatToolResult and the example strings.
 func (protocol G1Protocol) toolResponseEnvelope(payload string) string {
+	if protocol.Hermes {
+		return "<tool_response>\n" + payload + "\n</tool_response>"
+	}
 	return "<tool_response>" + payload + "</tool_response>"
+}
+
+// renderHermesTools renders the catalog the way the Hermes / Qwen chat
+// template does: a "# Tools" block, one {"type":"function","function":{...}}
+// schema per line inside <tools>, then the call-format sentence. The no_tool
+// pseudo-action is listed like any other function.
+func (protocol G1Protocol) renderHermesTools(specs []ToolSpec) string {
+	type function struct {
+		Name        string          `json:"name"`
+		Description string          `json:"description"`
+		Parameters  json.RawMessage `json:"parameters"`
+	}
+	type entry struct {
+		Type     string   `json:"type"`
+		Function function `json:"function"`
+	}
+	var lines []string
+	add := func(name, description string, parameters json.RawMessage) {
+		encoded, err := json.Marshal(entry{Type: "function", Function: function{name, description, parameters}})
+		if err == nil {
+			lines = append(lines, hermesSpacing(string(encoded)))
+		}
+	}
+	for _, spec := range specs {
+		add(spec.Name, spec.Description, hermesParameters(spec))
+	}
+	if protocol.SemanticNoTool && protocol.Experiments.Exit == "" {
+		add(SemanticNoToolName,
+			"Indicate that none of the offered tools is needed. Put a brief, complete user-facing response in reason; it becomes the final reply.",
+			json.RawMessage(`{"type":"object","properties":{"reason":{"type":"string","description":"brief complete user-facing response"}},"required":["reason"]}`))
+	}
+	if protocol.SemanticNoTool && protocol.Experiments.Exit != "" {
+		add(protocol.exitName(),
+			"Reply to the user and end the turn. Use it when no tool is needed, when the tool results already contain the answer, or when the task cannot be completed. Put only the final answer in answer.",
+			json.RawMessage(`{"type":"object","properties":{"answer":{"type":"string","description":"the final answer only"}},"required":["answer"]}`))
+	}
+	return "\n# Tools\n\nYou may call one or more functions to assist with the user query.\n\n" +
+		"You are provided with function signatures within <tools></tools> XML tags:\n<tools>\n" +
+		strings.Join(lines, "\n") + "\n</tools>\n\n" +
+		"For each function call, return a json object with function name and arguments within <tool_call></tool_call> XML tags:\n" +
+		"<tool_call>\n{\"name\": <function-name>, \"arguments\": <args-json-object>}\n</tool_call>\n"
+}
+
+// hermesParameters is the spec's JSON Schema, or one derived from the flat
+// arguments description ({"path":"optional relative directory"}) when the
+// tool has no schema.
+func hermesParameters(spec ToolSpec) json.RawMessage {
+	if len(spec.Parameters) > 0 && json.Valid(spec.Parameters) {
+		return spec.Parameters
+	}
+	var flat map[string]any
+	if json.Unmarshal([]byte(spec.Arguments), &flat) != nil {
+		return json.RawMessage(`{"type":"object","properties":{}}`)
+	}
+	properties := map[string]any{}
+	for name, description := range flat {
+		properties[name] = map[string]any{"description": fmt.Sprint(description)}
+	}
+	encoded, _ := json.Marshal(map[string]any{"type": "object", "properties": properties})
+	return encoded
+}
+
+// hermesSpacing re-spaces compact JSON the way Python's json.dumps (and so
+// the Hermes / Qwen tojson filter) writes it: ", " between items and ": "
+// after keys. Strings are copied verbatim.
+func hermesSpacing(compact string) string {
+	var out strings.Builder
+	inString, escaped := false, false
+	for _, r := range compact {
+		out.WriteRune(r)
+		switch {
+		case inString && escaped:
+			escaped = false
+		case inString && r == '\\':
+			escaped = true
+		case r == '"':
+			inString = !inString
+		case !inString && (r == ',' || r == ':'):
+			out.WriteByte(' ')
+		}
+	}
+	return out.String()
 }
 
 // renderToolsJSON renders the catalog as the JSON array the markdown training
@@ -551,6 +646,9 @@ func (protocol G1Protocol) RecordAction(action Action, raw string) string {
 	})
 	if err != nil {
 		return raw
+	}
+	if protocol.Hermes {
+		return "<tool_call>\n" + hermesSpacing(string(payload)) + "\n</tool_call>"
 	}
 	return "<tool_call>" + string(payload) + "</tool_call>"
 }

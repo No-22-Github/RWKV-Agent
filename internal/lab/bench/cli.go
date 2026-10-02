@@ -59,6 +59,8 @@ func runSweepCmd(argv []string) int {
 	fs.StringVar(&args.Prefix, "prefix", "g1k", "run directory prefix")
 	fs.StringVar(&args.StateID, "state-id", "",
 		"rwkv_lightning state id attached to every run of this invocation")
+	fs.StringVar(&args.Profile, "profile", "g1k",
+		"wire profile for the g1k-wire suites (format ablations: g1k+think-fast, ...)")
 	fs.IntVar(&args.MaxConcurrency, "max-concurrency", 64,
 		"total in-flight cases across concurrently running suites")
 	fs.IntVar(&args.MaxAttempts, "max-attempts", 2,

@@ -106,6 +106,10 @@ type CheckArgs struct {
 	MaxTokens          int
 	DecisionMaxTokens  int
 	CaseTimeoutSeconds int
+	// Profile is the --profile the run must have used. Empty means the g1k
+	// preset; anything else (format ablations such as g1k+think-fast) is
+	// matched against harness.wire_profile verbatim.
+	Profile string
 }
 
 // RunCheck is the `run check` command.
@@ -161,8 +165,13 @@ func RunCheckTo(w io.Writer, args CheckArgs) int {
 	}
 
 	if args.RWKV && !args.Primitive {
-		gate("wire_preset == g1k", lab.StringOf(harness, "wire_preset") == "g1k",
-			fmt.Sprintf("wire_preset=%s", pyRepr(harness["wire_preset"])))
+		if args.Profile == "" || args.Profile == "g1k" {
+			gate("wire_preset == g1k", lab.StringOf(harness, "wire_preset") == "g1k",
+				fmt.Sprintf("wire_preset=%s", pyRepr(harness["wire_preset"])))
+		} else {
+			gate("wire_profile == "+args.Profile, lab.StringOf(harness, "wire_profile") == args.Profile,
+				fmt.Sprintf("wire_profile=%s", pyRepr(harness["wire_profile"])))
+		}
 	}
 	if !args.RWKV {
 		gate("completion == chat-completions", lab.StringOf(model, "completion") == "chat-completions",

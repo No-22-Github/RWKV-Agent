@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/no22/RWKV-Agent/internal/agent/wire"
 	"github.com/no22/RWKV-Agent/internal/continuation/toolchat"
 )
 
@@ -391,7 +390,7 @@ func (turn *runnerTurn) appendToolTranscript(
 	// The aligned transcript carries tool results in the user turn; the legacy
 	// g1i wire renders them on their own Tool: role line.
 	toolRole := RoleTool
-	if r.wire.Align == wire.AlignQwen36 {
+	if r.wire.Align.ToolResultsInUser() {
 		toolRole = RoleUser
 	}
 	toolMessage := Message{

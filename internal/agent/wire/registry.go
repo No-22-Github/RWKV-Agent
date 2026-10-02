@@ -170,6 +170,7 @@ var modifiers = map[string]func(Spec) Spec{
 	"native":      func(s Spec) Spec { s.Transport = TransportNative; s.Prefill = PrefillNone; return s },
 
 	"align-qwen36": func(s Spec) Spec { s.Align = AlignQwen36; return s },
+	"hermes":       func(s Spec) Spec { s.Align = AlignHermes; return s },
 	"align-legacy": func(s Spec) Spec { s.Align = AlignLegacy; return s },
 	"one-stage":    func(s Spec) Spec { s.Stages = StagesOne; return s },
 	"two-stage":    func(s Spec) Spec { s.Stages = StagesTwo; return s },

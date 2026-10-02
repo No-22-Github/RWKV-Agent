@@ -34,7 +34,9 @@ func WireSpecOf(options Options) (wire.Spec, error) {
 		spec.Format = wire.FormatXML
 		spec.Transcript = wire.TranscriptProduct
 		spec.Thinking = wire.Thinking(rendererThinkingMode(options.Renderer))
-		if protocol.AlignQwen36 {
+		if protocol.Hermes {
+			spec.Align = wire.AlignHermes
+		} else if protocol.AlignQwen36 {
 			spec.Align = wire.AlignQwen36
 		}
 		if protocol.OneStage {
@@ -163,7 +165,8 @@ func OptionsWithWire(base Options, spec wire.Spec) (Options, error) {
 			GreetingExamples: spec.Control == wire.ControlGreeting,
 			BareExamples:     spec.Control == wire.ControlBare,
 			SemanticNoTool:   spec.Abstain != wire.AbstainNone,
-			AlignQwen36:      spec.Align == wire.AlignQwen36,
+			AlignQwen36:      spec.Align.ToolResultsInUser(),
+			Hermes:           spec.Align == wire.AlignHermes,
 			OneStage:         spec.Stages == wire.StagesOne,
 			SourceHint:       spec.SourceHint == wire.SourceHintOn,
 		}

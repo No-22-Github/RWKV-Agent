@@ -228,7 +228,18 @@ const (
 	AlignLegacy Align = "legacy"
 	// AlignQwen36 matches the Qwen3.6-style tool corpus shape.
 	AlignQwen36 Align = "qwen36"
+	// AlignHermes is the Hermes / Qwen chat-template tool shape on top of
+	// qwen36: a "# Tools" block with one OpenAI function schema per line,
+	// newline-padded <tool_call> and <tool_response> tags. Tool results ride in
+	// the user turn exactly as with qwen36.
+	AlignHermes Align = "hermes"
 )
+
+// ToolResultsInUser reports whether tool results ride in the user turn
+// wrapped in <tool_response> (the qwen36 and hermes alignments).
+func (a Align) ToolResultsInUser() bool {
+	return a == AlignQwen36 || a == AlignHermes
+}
 
 // Loop is the loop policy. The fallback mechanisms (duplicate replay,
 // duplicate rescue, same-tool rescue, answer-stage lead) trigger on these
@@ -430,7 +441,7 @@ func (s Spec) Validate() error {
 		return fail("subagent_feedback.unknown", fmt.Sprintf("unknown subagent feedback %q", s.SubagentFeedback), "block, raw")
 	}
 	if !known(AlignValues, s.Align) {
-		return fail("align.unknown", fmt.Sprintf("unknown align %q", s.Align), "legacy, qwen36")
+		return fail("align.unknown", fmt.Sprintf("unknown align %q", s.Align), "legacy, qwen36, hermes")
 	}
 	if !known(StagesValues, s.Stages) {
 		return fail("stages.unknown", fmt.Sprintf("unknown stages %q", s.Stages), "two, one")
@@ -447,7 +458,7 @@ func (s Spec) Validate() error {
 	// User merging is defined for tool results riding in user turns, which is
 	// the qwen36 alignment of the product XML transcript.
 	if s.UserMerge != UserMergeSplit &&
-		(s.Format != FormatXML || s.Transcript != TranscriptProduct || s.Align != AlignQwen36) {
+		(s.Format != FormatXML || s.Transcript != TranscriptProduct || !s.Align.ToolResultsInUser()) {
 		return fail("usermsg.unsupported",
 			fmt.Sprintf("usermsg=%s requires format=xml, transcript=product, align=qwen36", s.UserMerge),
 			"the merge semantics are defined for tool results riding in user turns")
@@ -466,12 +477,12 @@ func (s Spec) Validate() error {
 	}
 	// The aligned tags and catalog are G1Protocol (product XML) mechanisms; the
 	// benchmark transcript keeps its trained fenced shape.
-	if s.Align == AlignQwen36 && (s.Format != FormatXML || s.Transcript != TranscriptProduct) {
-		return fail("align.unsupported", "align=qwen36 requires format=xml and transcript=product",
+	if s.Align.ToolResultsInUser() && (s.Format != FormatXML || s.Transcript != TranscriptProduct) {
+		return fail("align.unsupported", "align="+string(s.Align)+" requires format=xml and transcript=product",
 			"use align=legacy for md-fence and benchmark transcripts")
 	}
-	if s.Align == AlignQwen36 && s.Transport == TransportNative {
-		return fail("align.unsupported", "align=qwen36 requires transport=text",
+	if s.Align.ToolResultsInUser() && s.Transport == TransportNative {
+		return fail("align.unsupported", "align="+string(s.Align)+" requires transport=text",
 			"native tool calling has no text tags to align")
 	}
 
@@ -664,7 +675,7 @@ var (
 	ControlValues          = []string{string(ControlBase), string(ControlBaseNoCall), string(ControlGreeting), string(ControlBare), string(ControlFewShot)}
 	FeedbackValues         = []string{string(FeedbackRaw), string(FeedbackCompressFetch)}
 	SubagentFeedbackValues = []string{string(SubagentFeedbackBlock), string(SubagentFeedbackRaw)}
-	AlignValues            = []string{string(AlignLegacy), string(AlignQwen36)}
+	AlignValues            = []string{string(AlignLegacy), string(AlignQwen36), string(AlignHermes)}
 	StagesValues           = []string{string(StagesTwo), string(StagesOne)}
 	FirstCallValues        = []string{string(FirstCallRequired), string(FirstCallAuto)}
 	UserMergeValues        = []string{string(UserMergeSplit), string(UserMergeMerged), string(UserMergeNoNudge), string(UserMergeRewrite)}
