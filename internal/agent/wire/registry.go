@@ -139,6 +139,7 @@ var modifiers = map[string]func(Spec) Spec{
 	"fake-think-closed": func(s Spec) Spec { s.Prefill = PrefillFakeThinkClosed; return s },
 
 	"no-tool":       func(s Spec) Spec { s.Abstain = AbstainNoTool; return s },
+	"no-abstain":    func(s Spec) Spec { s.Abstain = AbstainNone; return s },
 	"gate-state":    func(s Spec) Spec { s.Abstain = AbstainNoToolGateState; return s },
 	"gate-evidence": func(s Spec) Spec { s.Abstain = AbstainNoToolGateEvidence; return s },
 

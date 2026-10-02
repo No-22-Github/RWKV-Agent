@@ -80,6 +80,13 @@ func (renderer RWKVChatRenderer) thinkingMode() inference.ThinkingMode {
 }
 
 func (renderer RWKVChatRenderer) appendAssistantPrefix(prompt, prefix string) (string, bool) {
+	// Render already ends with the role opening; an "Assistant:" prefix (the
+	// empty no_tool answer stage) must not double it into "Assistant:
+	// Assistant:". Nothing was injected, as in G1FunctionRenderer, so the
+	// output is not re-prefixed either.
+	if prefix == "Assistant:" && strings.HasSuffix(prompt, "Assistant:") {
+		return prompt, false
+	}
 	if renderer.thinkingMode() != inference.ThinkingOff {
 		return prompt, false
 	}

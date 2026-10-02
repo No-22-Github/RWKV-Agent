@@ -770,3 +770,15 @@ func TestG1ProtocolOneStagePrepareAnswerKeepsTranscript(t *testing.T) {
 		t.Fatalf("two-stage contract drifted: prefix=%q head=%+v", twoPrefix, twoMessages[0])
 	}
 }
+
+func TestRWKVChatRendererDoesNotDoubleAssistantOpening(t *testing.T) {
+	renderer := RWKVChatRenderer{}
+	prompt, err := renderer.Render([]Message{{Role: RoleUser, Content: "hi"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	framed, injected := appendAssistantPrefix(renderer, prompt, "Assistant:")
+	if injected || framed != prompt || strings.HasSuffix(framed, "Assistant: Assistant:") {
+		t.Fatalf("framed = %q, injected = %v", framed, injected)
+	}
+}
