@@ -450,3 +450,8 @@
 {"case_id": "ws7-fs-0004-a00", "reason": "v1.3 训练前：以 no_tool(reason=答案) 收尾，与 b05–b08 纯文本终答不一致，统一收尾方式", "batch": "base700"}
 {"case_id": "ws7-tab-0001-b12", "reason": "v1.3 训练前：以 no_tool(reason=答案) 收尾，与 b05–b08 纯文本终答不一致，统一收尾方式", "batch": "base700"}
 {"case_id": "ws7-web-0003-b11", "reason": "v1.3 训练前：以 no_tool(reason=答案) 收尾，与 b05–b08 纯文本终答不一致，统一收尾方式", "batch": "base700"}
+{"case_id": "scr-7720--p61", "reason": "v1.3 训练前：用户全程英文提问，老师用中文作答，语言错配", "batch": "b06"}
+{"case_id": "scr-7722--p61", "reason": "v1.3 训练前：用户全程英文提问，老师用中文作答，语言错配", "batch": "b06"}
+{"case_id": "scr-7723--p61", "reason": "v1.3 训练前：用户全程英文提问，老师用中文作答，语言错配", "batch": "b06"}
+{"case_id": "code-7504--p71", "reason": "v1.3 训练前：用户全程英文提问，老师用中文作答，语言错配", "batch": "b07"}
+{"case_id": "code-7508--p71", "reason": "v1.3 训练前：用户全程英文提问，老师用中文作答，语言错配", "batch": "b07"}

@@ -98,6 +98,7 @@ python3 bench/distill/tools/to_segments.py --rows $O/dataset/validation/rows.jso
 - `loss_spans` 是**字符**偏移（754 行含中文的行按字符全部对齐，按字节只有 146 行碰巧对齐）。
 - 区间起点都紧跟 `Assistant: `。转换时把这个空格划进训练片段：前缀以 `Assistant:` 结尾，和推理端 `AppendAssistantOpening` 一致，第一个 token（` <`、` 57`）由模型学着生成。按原区间切会拆开 ` <` 等 token，train 2073/2157 行的分词与整段不一致；前移后 0 行不一致（用仓库 World 分词器逐行比对）。
 - 剔除 base700 中以 `no_tool(reason=答案)` 收尾的 104 个 case（train 101、validation 3，每个 case 一行），登记进 `bench/distill/exclude.jsonl`（batch base700），统一为纯文本终答；旧产物留在 `dataset-prev/`。
-- 产物：train **2056 行**（segments sha256 `70cba078…`），validation **73 行**（`f69c83e1…`）。token p50 1629 / p99 4104 / max 6925，0 行超过 8192，0 行无训练片段；每行以训练片段 `\n\nUser:` 结尾（代替 EOD）。wire_hash 不变。
+- 剔除 5 行语言错配（用户全程英文、老师中文作答）：scr-7720/7722/7723--p61（b06）、code-7504/7508--p71（b07）。
+- 产物：train **2051 行**（segments sha256 `31554122…`），validation **73 行**（`f69c83e1…`）。token p50 1626 / p99 4104 / max 6925，0 行超过 8192，0 行无训练片段；每行以训练片段 `\n\nUser:` 结尾（代替 EOD）。wire_hash 不变。
 - 96 条收尾恢复行（validation 4 条）插入的重复调用都在训练片段之外，其后都是重复调用拒绝回执。
 - 训练必须传 `--ctx 8192`，否则长行的终答会被静默截掉。
