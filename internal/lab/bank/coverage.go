@@ -16,7 +16,7 @@ const tolerance = 1
 // runCoverage ports coverage.py. It is a planning tool, not a gate: exit code
 // is always 0, and lint.py is what fails a bank.
 func runCoverage(args []string) int {
-	fs := newFlagSet("bank coverage",
+	fs := lab.NewFlagSet("bank coverage",
 		"Report scenario x level coverage of the workbank case tree against the quotas.")
 	cases := fs.String("cases", DefaultCases(), "cases root directory")
 	vocabPath := fs.String("vocab", DefaultVocab(), "tag vocabulary file with quotas")

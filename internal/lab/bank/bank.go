@@ -11,7 +11,6 @@ package bank
 
 import (
 	"errors"
-	"flag"
 	"fmt"
 	"io/fs"
 	"os"
@@ -137,16 +136,4 @@ func tagsOf(caseObj map[string]any) map[string]any {
 func stringField(m map[string]any, key string) string {
 	s, _ := m[key].(string)
 	return s
-}
-
-// newFlagSet builds a flag set that reports errors the way the Python tools
-// did: message on stderr, exit code 2.
-func newFlagSet(name, description string) *flag.FlagSet {
-	fs := flag.NewFlagSet(name, flag.ContinueOnError)
-	fs.SetOutput(os.Stderr)
-	fs.Usage = func() {
-		fmt.Fprintf(os.Stderr, "%s\n\nusage: rwkv-lab %s\n\nflags:\n", description, name)
-		fs.PrintDefaults()
-	}
-	return fs
 }

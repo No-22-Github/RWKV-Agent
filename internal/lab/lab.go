@@ -172,12 +172,6 @@ func RoundHalfEven(x float64, ndigits int) float64 {
 	return v
 }
 
-// FormatFloat mimics Python's "%.*f" for the common cases our tools use.
-// strconv already rounds half to even on the exact value, same as Python.
-func FormatFloat(x float64, prec int) string {
-	return strconv.FormatFloat(x, 'f', prec, 64)
-}
-
 // PyFloat formats a float the way Python's repr() does, so that encoding it as
 // a json.Number reproduces json.dumps' bytes: shortest round-trip digits, and
 // a trailing ".0" on values that would otherwise look like integers
@@ -212,23 +206,6 @@ func RepoRoot() string {
 		}
 		dir = parent
 	}
-}
-
-// WriteFileExclusive writes data to path, refusing to overwrite an existing
-// file unless force is set. The old pipelines relied on this to avoid
-// clobbering the previous round's artifacts (§4.1).
-func WriteFileExclusive(path string, data []byte, force bool) error {
-	if !force {
-		if _, err := os.Stat(path); err == nil {
-			return fmt.Errorf("%s already exists (use --force to overwrite)", path)
-		}
-	}
-	if dir := filepath.Dir(path); dir != "" && dir != "." {
-		if err := os.MkdirAll(dir, 0o755); err != nil {
-			return err
-		}
-	}
-	return os.WriteFile(path, data, 0o644)
 }
 
 // ReadText reads a file as UTF-8 text.

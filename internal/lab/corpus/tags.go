@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"slices"
 	"sort"
 	"strings"
 
@@ -177,7 +178,7 @@ func (t *TagMap) resolveTaskType(record *lab.OrderedMap, vocab *Vocab) (string, 
 		return "", fmt.Errorf("%s: scenario %q has no task types in the vocabulary", id, scenario)
 	}
 	if override, ok := t.overrides[id]; ok {
-		if !containsString(legal, override.TaskType) {
+		if !slices.Contains(legal, override.TaskType) {
 			return "", fmt.Errorf("%s: tag map override %q is not legal for scenario %s", id, override.TaskType, scenario)
 		}
 		return override.TaskType, nil
@@ -185,7 +186,7 @@ func (t *TagMap) resolveTaskType(record *lab.OrderedMap, vocab *Vocab) (string, 
 	tags := tagStrings(record, "behavior_tags")
 	var found []string
 	for _, tag := range tags {
-		if containsString(legal, tag) {
+		if slices.Contains(legal, tag) {
 			found = append(found, tag)
 		}
 	}
@@ -385,13 +386,13 @@ func DeriveKind(tags eval.CaseTags, traj eval.TrajStats, turn int, hasRunExpect 
 	switch {
 	case tags.TaskType == "smalltalk":
 		return kindSmalltalk
-	case tags.TaskType == "beyond_capability" || containsString(tags.Traps, "TR-NOCAP"):
+	case tags.TaskType == "beyond_capability" || slices.Contains(tags.Traps, "TR-NOCAP"):
 		// Looking at the workspace before refusing is allowed (§4.3.1), so the
 		// refusual itself is what makes the row a refusal, exactly as asking is
 		// what makes a TR-AMBIG turn a clarification. traj.zero_call still
 		// records whether the model checked first.
 		return kindRefuse
-	case containsString(tags.Traps, "TR-AMBIG") && turn < traj.TurnsTotal:
+	case slices.Contains(tags.Traps, "TR-AMBIG") && turn < traj.TurnsTotal:
 		// Asking is the action of the turn whether or not the model looked at
 		// the workspace first: checking two candidate sites and then asking
 		// which one is the better clarification, and traj.zero_call still
@@ -504,15 +505,6 @@ func originField(tags *lab.OrderedMap) *eval.TagOrigin {
 		Split:        stringFieldOf(origin, "split"),
 		BehaviorTags: tagStrings(origin, "behavior_tags"),
 	}
-}
-
-func containsString(list []string, value string) bool {
-	for _, item := range list {
-		if item == value {
-			return true
-		}
-	}
-	return false
 }
 
 // caseHasRunExpect reports whether the case grades a script run. §4.4.2 rule 5

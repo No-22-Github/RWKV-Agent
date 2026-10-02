@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -39,7 +40,7 @@ var numberScanRe = regexp.MustCompile(`-?\d+(?:\.\d+)?`)
 // `python3 -I -S`. verify.py files are LLM-drafted case attachments, and this
 // is the only thing standing between them and the repository or the network.
 func runVerify(args []string) int {
-	fs := newFlagSet("bank verify",
+	fs := lab.NewFlagSet("bank verify",
 		"Run every case's verify.py against case.json expect, plus a sabotage test.")
 	casesRoot := fs.String("cases", "", "case root directory (searched recursively for case.json), or a single case dir")
 	strictShape := fs.Bool("strict-shape", false, "fail cases whose verify.py output shape is unrecognized instead of warning")
@@ -117,7 +118,7 @@ func verifyCase(caseDir string, strictShape bool) *lab.OrderedMap {
 	if caseID == "" {
 		caseID = filepath.Base(caseDir)
 	}
-	if !fileExists(filepath.Join(caseDir, "verify.py")) {
+	if !lab.FileExists(filepath.Join(caseDir, "verify.py")) {
 		if isSmalltalkCase(caseObj) {
 			// A smalltalk case has no independently computable answer -- its
 			// expectation is a word list, not a value -- so there is nothing
@@ -510,7 +511,7 @@ func matchesExpectation(obj any, numbers []expectedNumber, outputEquals, contain
 		}
 	}
 	if s, ok := sval.(string); ok && hasSval {
-		if containsString(outputEquals, s) {
+		if slices.Contains(outputEquals, s) {
 			return boolPtr(true), fmt.Sprintf("string %s matches output_equals", pyReprValue(s))
 		}
 		for _, want := range numbers {

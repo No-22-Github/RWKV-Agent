@@ -227,40 +227,6 @@ func asFloat64(v any) (float64, bool) {
 	return 0, false
 }
 
-// pyRepr renders a string the way Python's repr() does, for the messages that
-// quote one.
-func pyRepr(s string) string {
-	quote := byte('\'')
-	if strings.Contains(s, "'") && !strings.Contains(s, `"`) {
-		quote = '"'
-	}
-	var b strings.Builder
-	b.WriteByte(quote)
-	for _, r := range s {
-		switch r {
-		case '\\':
-			b.WriteString(`\\`)
-		case '\n':
-			b.WriteString(`\n`)
-		case '\r':
-			b.WriteString(`\r`)
-		case '\t':
-			b.WriteString(`\t`)
-		default:
-			if r == rune(quote) {
-				b.WriteByte('\\')
-				b.WriteRune(r)
-			} else if r < 0x20 || r == 0x7f {
-				fmt.Fprintf(&b, `\x%02x`, r)
-			} else {
-				b.WriteRune(r)
-			}
-		}
-	}
-	b.WriteByte(quote)
-	return b.String()
-}
-
 func intField(m *lab.OrderedMap, key string) int {
 	v, _ := m.Get(key)
 	if i, ok := asInt64(v); ok {

@@ -106,8 +106,8 @@ func RunProbe(args ProbeArgs) int {
 		return 1
 	}
 	headers := map[string]string{
-		"CF-Access-Client-Id":     stringOf(cred, "WIRE_CF_ID"),
-		"CF-Access-Client-Secret": stringOf(cred, "WIRE_CF_SECRET"),
+		"CF-Access-Client-Id":     lab.StringOf(cred, "WIRE_CF_ID"),
+		"CF-Access-Client-Secret": lab.StringOf(cred, "WIRE_CF_SECRET"),
 		"User-Agent":              "curl/8.7.1",
 		"Content-Type":            "application/json",
 	}
@@ -214,7 +214,7 @@ func RunProbe(args ProbeArgs) int {
 			entry.Set("reference", truncateRunes(row.reference, 200))
 			entry.Set("output", truncateRunes(output, 200))
 			entry.Set("common_prefix", commonPrefix(strings.TrimSpace(output), strings.TrimSpace(row.reference)))
-			entry.Set("exact_start_16", prefixRunes(strings.TrimSpace(output), 16) == prefixRunes(strings.TrimSpace(row.reference), 16))
+			entry.Set("exact_start_16", truncateRunes(strings.TrimSpace(output), 16) == truncateRunes(strings.TrimSpace(row.reference), 16))
 			if row.referenceCall != nil {
 				wantedName, _ := row.referenceCall["name"].(string)
 				entry.Set("reference_tool", wantedName)
@@ -222,7 +222,7 @@ func RunProbe(args ProbeArgs) int {
 				if produced != nil {
 					producedName, _ = produced["name"].(string)
 				}
-				entry.Set("produced_tool", nilIfEmpty(producedName))
+				entry.Set("produced_tool", lab.NilIfEmpty(producedName))
 				entry.Set("tool_match", produced != nil && producedName == wantedName)
 				entry.Set("call_match", produced != nil && canonicalJSON(produced) == canonicalJSON(row.referenceCall))
 			}
@@ -243,7 +243,7 @@ func RunProbe(args ProbeArgs) int {
 			if _, has := entry.Values["tool_match"]; has {
 				toolRows = append(toolRows, entry)
 			}
-			if v, ok := intOf(entry.Values["common_prefix"]); ok {
+			if v, ok := lab.IntOf(entry.Values["common_prefix"]); ok {
 				commonTotal += v
 			}
 			if v, ok := entry.Values["exact_start_16"].(bool); ok && v {
@@ -291,21 +291,6 @@ func truncateRunes(s string, limit int) string {
 		return s
 	}
 	return string(r[:limit])
-}
-
-func prefixRunes(s string, n int) string {
-	r := []rune(s)
-	if len(r) <= n {
-		return s
-	}
-	return string(r[:n])
-}
-
-func nilIfEmpty(s string) any {
-	if s == "" {
-		return nil
-	}
-	return s
 }
 
 func canonicalJSON(v any) string {

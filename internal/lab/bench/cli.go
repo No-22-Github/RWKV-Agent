@@ -1,11 +1,11 @@
 package bench
 
 import (
-	"flag"
 	"fmt"
 	"os"
 	"strings"
 
+	"github.com/no22/RWKV-Agent/internal/lab"
 	"github.com/no22/RWKV-Agent/internal/lab/runs"
 )
 
@@ -37,16 +37,6 @@ func Run(args []string) int {
 	}
 }
 
-func newFlagSet(name, description string) *flag.FlagSet {
-	fs := flag.NewFlagSet(name, flag.ContinueOnError)
-	fs.SetOutput(os.Stderr)
-	fs.Usage = func() {
-		fmt.Fprintf(os.Stderr, "%s\n\nusage: rwkv-lab %s\n\nflags:\n", description, name)
-		fs.PrintDefaults()
-	}
-	return fs
-}
-
 func runSweepCmd(argv []string) int {
 	args := SweepArgs{
 		Suites:         []string{"workbank", "bfcl-product"},
@@ -58,7 +48,7 @@ func runSweepCmd(argv []string) int {
 		MaxAttempts:    2,
 	}
 	var arms, suites string
-	fs := newFlagSet("bench sweep",
+	fs := lab.NewFlagSet("bench sweep",
 		"Run a grid of sampling arms x suites x replicas against an RWKV endpoint.")
 	fs.StringVar(&args.Out, "out", "", "output directory for the run directories (required)")
 	fs.StringVar(&arms, "arms", "", "comma-separated arm names: "+strings.Join(runs.ArmNames(), ", "))
@@ -88,7 +78,7 @@ func runSweepCmd(argv []string) int {
 
 func runRankCmd(argv []string) int {
 	args := RankArgs{Prefix: "g1k", Baseline: "greedy", Floor: 5}
-	fs := newFlagSet("bench rank",
+	fs := lab.NewFlagSet("bench rank",
 		"Rank sampling arms from sweep runs using the pre-registered rules.")
 	fs.StringVar(&args.Prefix, "prefix", "g1k", "run directory prefix")
 	fs.StringVar(&args.Baseline, "baseline", "greedy", "arm to pair against")

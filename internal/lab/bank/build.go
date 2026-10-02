@@ -16,7 +16,7 @@ import (
 // cases must reproduce the file exactly — compact separators, sorted keys,
 // and Python's int-vs-float spelling preserved.
 func runBuild(args []string) int {
-	fs := newFlagSet("bank build",
+	fs := lab.NewFlagSet("bank build",
 		"Merge case.json files into a canonical bank file with a bank_version hash.")
 	cases := fs.String("cases", DefaultCases(),
 		"case root directory (searched recursively for case.json), or a single case dir")

@@ -167,7 +167,6 @@ type ControlPromptMode string
 
 const (
 	ControlPromptSystem ControlPromptMode = "system"
-	ControlPromptInline ControlPromptMode = "inline"
 )
 
 type EventKind string

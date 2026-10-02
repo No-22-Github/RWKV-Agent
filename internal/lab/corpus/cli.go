@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/no22/RWKV-Agent/internal/lab"
 )
 
 const usage = `rwkv-lab corpus — distillation corpus tools
@@ -47,22 +49,12 @@ func Run(args []string) int {
 	}
 }
 
-func newFlagSet(name, description string) *flag.FlagSet {
-	fs := flag.NewFlagSet(name, flag.ContinueOnError)
-	fs.SetOutput(os.Stderr)
-	fs.Usage = func() {
-		fmt.Fprintf(os.Stderr, "%s\n\nusage: rwkv-lab %s\n\nflags:\n", description, name)
-		fs.PrintDefaults()
-	}
-	return fs
-}
-
 // The flag sets are built by their own functions so tests can assert how the
 // command line parses without running the command (§6 M1 ports the CLI tests
 // from test_corpus.py).
 
 func pathsFlagSet(args *PathsArgs, runs *stringList) *flag.FlagSet {
-	fs := newFlagSet("corpus paths",
+	fs := lab.NewFlagSet("corpus paths",
 		"Pick teacher paths out of agent-eval runs and write them as a replay script.")
 	fs.Var(runs, "run", "teacher agent-eval run (repeatable)")
 	fs.StringVar(&args.Out, "out", "", "new script JSONL")
@@ -88,7 +80,7 @@ func runPathsCmd(argv []string) int {
 
 func runRowsCmd(argv []string) int {
 	var args RowsArgs
-	fs := newFlagSet("corpus rows",
+	fs := lab.NewFlagSet("corpus rows",
 		"Cut training rows out of a scripted agent-eval run's trace.")
 	fs.StringVar(&args.Run, "run", "", "agent-eval output directory (run.json, summary.json, trace.jsonl)")
 	fs.StringVar(&args.Script, "script", "", "the JSONL script the run replayed")
@@ -105,7 +97,7 @@ func runRowsCmd(argv []string) int {
 }
 
 func renderFlagSet(args *RenderArgs) *flag.FlagSet {
-	fs := newFlagSet("corpus render",
+	fs := lab.NewFlagSet("corpus render",
 		"Render corpus rows by replaying teacher actions through the real eval harness.")
 	fs.StringVar(&args.Records, "records", "", "normalized records JSONL")
 	fs.StringVar(&args.Cases, "cases", "", "bank directory the --script case IDs resolve against")
@@ -140,7 +132,7 @@ func runRenderCmd(argv []string) int {
 }
 
 func decontamFlagSet(args *DecontamArgs) *flag.FlagSet {
-	fs := newFlagSet("corpus decontam",
+	fs := lab.NewFlagSet("corpus decontam",
 		"Flag distillation cases that are too close to the test bank.")
 	fs.StringVar(&args.Test, "test", "", "test bank directory (case.json files)")
 	fs.StringVar(&args.TestSuite, "test-suite", "",

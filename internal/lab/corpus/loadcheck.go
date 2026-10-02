@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/no22/RWKV-Agent/internal/agent/eval"
+	"github.com/no22/RWKV-Agent/internal/lab"
 )
 
 // The eval loader decodes case.json with DisallowUnknownFields, so a field the
@@ -20,7 +21,7 @@ type LoadcheckArgs struct {
 }
 
 func loadcheckFlagSet(args *LoadcheckArgs) *flag.FlagSet {
-	fs := newFlagSet("corpus loadcheck",
+	fs := lab.NewFlagSet("corpus loadcheck",
 		"Load a bank through the real eval loader (unknown fields are fatal).")
 	fs.StringVar(&args.Cases, "cases", "", "bank directory to load")
 	return fs

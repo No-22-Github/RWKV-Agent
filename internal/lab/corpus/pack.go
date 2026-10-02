@@ -56,7 +56,7 @@ type PackArgs struct {
 // packFlagSet parses the command line on its own so tests can exercise the
 // flags without running the command (the cli.go convention).
 func packFlagSet(args *PackArgs, rows *stringList) *flag.FlagSet {
-	fs := newFlagSet("corpus pack",
+	fs := lab.NewFlagSet("corpus pack",
 		"Validate rendered training rows and pack a dataset directory.")
 	fs.Var(rows, "rows", "rows.jsonl to pack, in order (repeatable)")
 	fs.StringVar(&args.Exclude, "exclude", "", "JSONL whose case_id values are dropped, every turn of them")

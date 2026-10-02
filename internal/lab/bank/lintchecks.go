@@ -6,6 +6,7 @@ import (
 	"math"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -56,7 +57,6 @@ var stdlibModules = map[string]struct{}{
 }
 
 var (
-	notesSectionRe = regexp.MustCompile(`(?m)^##[\s\p{Zs}]+`)
 	fivePhrasingRe = regexp.MustCompile(`(?m)^##[\s\p{Zs}]+Five alternative phrasings.*$`)
 	noteItemRe     = regexp.MustCompile(`^\s*(?:\d+[.)]|\*|-)\s+(\S.*?)\s*$`)
 )
@@ -90,7 +90,7 @@ func foreignCanaryViolations(description, caseDir, prefix string) [][2]string {
 // parse, import only the standard library, and read its own case.json.
 func verifyPyViolations(caseDir string) [][2]string {
 	path := filepath.Join(caseDir, "verify.py")
-	if !fileExists(path) {
+	if !lab.FileExists(path) {
 		return [][2]string{{"verify", "verify.py missing"}}
 	}
 	text, err := lab.ReadText(path)
@@ -243,7 +243,7 @@ func stripPythonStringsAndComments(text string) string {
 // three mandatory sections, plus the five phrasings for web/hybrid cases.
 func notesViolations(caseDir, scenario string) [][2]string {
 	path := filepath.Join(caseDir, "NOTES.md")
-	if !fileExists(path) {
+	if !lab.FileExists(path) {
 		return [][2]string{{"notes", "NOTES.md missing"}}
 	}
 	text, err := lab.ReadText(path)
@@ -286,7 +286,7 @@ func notesViolations(caseDir, scenario string) [][2]string {
 // file that argues for a different one.
 func notesAnswerViolations(caseDir string, caseObj map[string]any) [][2]string {
 	path := filepath.Join(caseDir, "NOTES.md")
-	if !fileExists(path) {
+	if !lab.FileExists(path) {
 		return nil
 	}
 	text, err := lab.ReadText(path)
@@ -388,7 +388,7 @@ func hiddenFileViolations(caseObj map[string]any) [][2]string {
 	var out [][2]string
 	for path := range anyMap(run["hidden_files"]) {
 		normalized := strings.ReplaceAll(path, "\\", "/")
-		if strings.HasPrefix(normalized, "/") || containsString(strings.Split(normalized, "/"), "..") {
+		if strings.HasPrefix(normalized, "/") || slices.Contains(strings.Split(normalized, "/"), "..") {
 			out = append(out, [2]string{"expect.run.hidden",
 				fmt.Sprintf("hidden file %s must be a relative path inside the workspace", pyReprValue(path))})
 		}
@@ -499,7 +499,7 @@ func pyReprValue(v any) string {
 		}
 		return "False"
 	case string:
-		return pyRepr(t)
+		return lab.PyRepr(t)
 	case json.Number:
 		s := t.String()
 		if strings.ContainsAny(s, ".eE") {
@@ -528,7 +528,7 @@ func pyReprValue(v any) string {
 		sort.Strings(keys)
 		parts := make([]string, 0, len(keys))
 		for _, k := range keys {
-			parts = append(parts, pyRepr(k)+": "+pyReprValue(t[k]))
+			parts = append(parts, lab.PyRepr(k)+": "+pyReprValue(t[k]))
 		}
 		return "{" + strings.Join(parts, ", ") + "}"
 	default:

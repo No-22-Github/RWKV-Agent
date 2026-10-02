@@ -3,7 +3,6 @@ package state
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -57,8 +56,8 @@ func digest(data []byte) string {
 // canaries, which is the diagnostic distinction the driver records.
 func effectiveFingerprint(record map[string]any) string {
 	var outputs []string
-	for _, row := range mapSlice(record["requests"]) {
-		text := stringOf(row, "output")
+	for _, row := range lab.MapSlice(record["requests"]) {
+		text := lab.StringOf(row, "output")
 		cut := -1
 		for _, stop := range []string{"</tool_call>", "\nUser:", "\nSystem:", "\nTool:"} {
 			if idx := strings.Index(text, stop); idx != -1 && (cut == -1 || idx < cut) {
@@ -216,7 +215,7 @@ func canaryFingerprint(headers map[string]string, stateID string, fast bool, des
 	var outputHashes []string
 	for _, row := range requestRows {
 		m, _ := row.(*lab.OrderedMap)
-		outputHashes = append(outputHashes, stringOf(m.AsMap(), "output_sha256"))
+		outputHashes = append(outputHashes, lab.StringOf(m.AsMap(), "output_sha256"))
 	}
 	hashData, _ := lab.EncodeOrderedJSON(outputHashes, lab.EncodeOptions{SpacedSeparators: true})
 	record.Set("fingerprint", digest(hashData))
@@ -304,8 +303,8 @@ func RunState(args RunArgs) int {
 		return 1
 	}
 	headers := map[string]string{
-		"CF-Access-Client-Id":     stringOf(cred, "WIRE_CF_ID"),
-		"CF-Access-Client-Secret": stringOf(cred, "WIRE_CF_SECRET"),
+		"CF-Access-Client-Id":     lab.StringOf(cred, "WIRE_CF_ID"),
+		"CF-Access-Client-Secret": lab.StringOf(cred, "WIRE_CF_SECRET"),
 		"User-Agent":              "curl/8.7.1",
 		"Content-Type":            "application/json",
 	}
@@ -318,9 +317,9 @@ func RunState(args RunArgs) int {
 			return 1
 		}
 		if upload != nil {
-			localPath := stringOf(upload, "local_path")
+			localPath := lab.StringOf(upload, "local_path")
 			data, err := os.ReadFile(localPath)
-			if err != nil || digest(data) != stringOf(upload, "sha256") {
+			if err != nil || digest(data) != lab.StringOf(upload, "sha256") {
 				fmt.Fprintln(os.Stderr, "state upload receipt does not match the local file")
 				return 1
 			}
@@ -336,7 +335,7 @@ func RunState(args RunArgs) int {
 		dest := filepath.Join(root, name)
 		before := filepath.Join(root, name+".canary-before.json")
 		after := filepath.Join(root, name+".canary-after.json")
-		if exists(dest) || exists(before) {
+		if lab.Exists(dest) || lab.Exists(before) {
 			fmt.Fprintf(os.Stderr, "Refusing overwrite %s\n", name)
 			return 1
 		}
@@ -348,7 +347,7 @@ func RunState(args RunArgs) int {
 		}
 		registered := registeredStates(a, args.StateID)
 		if args.StateID != "" {
-			size, _ := intOf(upload["size_bytes"])
+			size, _ := lab.IntOf(upload["size_bytes"])
 			if len(registered) != 1 || intOfAny(registered[0]["size_bytes"]) != size {
 				fmt.Fprintln(os.Stderr, "State registration absent or mismatched")
 				return 1
@@ -367,13 +366,13 @@ func RunState(args RunArgs) int {
 			fmt.Fprintln(os.Stderr, err)
 			return 1
 		}
-		stable := stringOf(a, "fingerprint") == stringOf(b, "fingerprint")
+		stable := lab.StringOf(a, "fingerprint") == lab.StringOf(b, "fingerprint")
 		effectiveStable := effectiveFingerprint(a) == effectiveFingerprint(b)
 		current := registeredStates(b, args.StateID)
 		stableRegistration := sameRegistrations(registered, current)
 
 		experimentPath := filepath.Join(dest, "experiment.json")
-		if exists(experimentPath) {
+		if lab.Exists(experimentPath) {
 			e, err := runs.LoadJSONFile(experimentPath, true)
 			if err == nil && e != nil {
 				om := toOrdered(e)
@@ -396,7 +395,7 @@ func RunState(args RunArgs) int {
 		fmt.Println("VALIDITY", name, "canary_stable", pyBool(stable), "registration_stable", pyBool(stableRegistration))
 
 		if args.AllowCanaryDrift && !stable && effectiveStable {
-			if exists(experimentPath) {
+			if lab.Exists(experimentPath) {
 				if e, err := runs.LoadJSONFile(experimentPath, true); err == nil && e != nil {
 					om := toOrdered(e)
 					om.Set("canary_drift_tolerated", true)
@@ -434,8 +433,8 @@ func toOrdered(m map[string]any) *lab.OrderedMap {
 func registeredStates(record map[string]any, stateID string) []map[string]any {
 	list, _ := record["state_list"].(map[string]any)
 	var out []map[string]any
-	for _, item := range mapSlice(list["data"]) {
-		if stringOf(item, "state_id") == stateID {
+	for _, item := range lab.MapSlice(list["data"]) {
+		if lab.StringOf(item, "state_id") == stateID {
 			out = append(out, item)
 		}
 	}
@@ -541,7 +540,7 @@ func launchWireExperiment(args RunArgs, suite, name, root, repo, binary, output 
 	_ = runErr
 
 	summaryPath := filepath.Join(output, "summary.json")
-	if !exists(summaryPath) {
+	if !lab.Exists(summaryPath) {
 		data, _ := os.ReadFile(logPath)
 		if len(data) > 2000 {
 			data = data[len(data)-2000:]
@@ -555,34 +554,34 @@ func launchWireExperiment(args RunArgs, suite, name, root, repo, binary, output 
 	}
 
 	provenance := lab.NewOrderedMap()
-	provenance.Set("command", toAnySlice(cmd))
+	provenance.Set("command", lab.ToAnySlice(cmd))
 	binaryData, err := os.ReadFile(binary)
 	if err == nil {
 		provenance.Set("binary_sha256", digest(binaryData))
 	}
-	provenance.Set("git_head", gitOutput("rev-parse", "HEAD"))
-	provenance.Set("diff_sha256", digest([]byte(gitOutput("diff", "HEAD"))))
+	provenance.Set("git_head", lab.GitOutput("rev-parse", "HEAD"))
+	provenance.Set("diff_sha256", digest([]byte(lab.GitOutput("diff", "HEAD"))))
 	provenance.Set("started_unix", float64(started.UnixNano())/1e9)
 	provenance.Set("evaluation_scope", "original_suite")
 	provenance.Set("state_id", args.StateID)
 	if suite == "workbank" {
 		root := filepath.Join(repo, "bench", "workbank", "cases")
 		provenance.Set("case_source", root)
-		provenance.Set("case_source_sha256", caseSourceSHA256(root))
+		provenance.Set("case_source_sha256", lab.CaseSourceSHA256(root))
 	}
 
 	budgets := map[string]int{}
 	var errors []string
-	for _, c := range mapSlice(summary["cases"]) {
-		for _, t := range mapSlice(c["turns"]) {
-			for _, st := range mapSlice(mapOf(t, "result")["steps"]) {
+	for _, c := range lab.MapSlice(summary["cases"]) {
+		for _, t := range lab.MapSlice(c["turns"]) {
+			for _, st := range lab.MapSlice(lab.MapOf(t, "result")["steps"]) {
 				budget := 0
 				if request, ok := st["request"].(map[string]any); ok {
-					budget, _ = intOf(request["max_output_tokens"])
+					budget, _ = lab.IntOf(request["max_output_tokens"])
 				}
 				budgets[strconv.Itoa(budget)]++
 			}
-			for _, f := range stringList(t["failures"]) {
+			for _, f := range lab.StringList(t["failures"]) {
 				if runs.InfrastructureFailure(f) {
 					errors = append(errors, f)
 				}
@@ -600,7 +599,7 @@ func launchWireExperiment(args RunArgs, suite, name, root, repo, binary, output 
 	}
 	provenance.Set("actual_request_token_budgets", budgetMap)
 	provenance.Set("valid_for_model_comparison", len(errors) == 0)
-	provenance.Set("infrastructure_errors", toAnySlice(errors))
+	provenance.Set("infrastructure_errors", lab.ToAnySlice(errors))
 	provenance.Set("exit_code", code)
 	provenance.Set("elapsed_seconds", time.Since(started).Seconds())
 	writeIndented(filepath.Join(output, "experiment.json"), provenance)
@@ -611,84 +610,6 @@ func launchWireExperiment(args RunArgs, suite, name, root, repo, binary, output 
 		return code, fmt.Errorf("Infrastructure error: run excluded, matrix stopped")
 	}
 	return code, nil
-}
-
-func gitOutput(args ...string) string {
-	cmd := exec.Command("git", args...)
-	cmd.Dir = lab.RepoRoot()
-	out, err := cmd.Output()
-	if err != nil {
-		return ""
-	}
-	return strings.TrimSpace(string(out))
-}
-
-func caseSourceSHA256(root string) string {
-	digestHash := sha256.New()
-	var paths []string
-	filepath.WalkDir(root, func(path string, d os.DirEntry, err error) error {
-		if err != nil {
-			return nil
-		}
-		if !d.IsDir() && d.Name() == "case.json" {
-			paths = append(paths, path)
-		}
-		return nil
-	})
-	sort.Strings(paths)
-	for _, path := range paths {
-		rel, err := filepath.Rel(root, path)
-		if err != nil {
-			continue
-		}
-		digestHash.Write([]byte(rel))
-		digestHash.Write([]byte{0})
-		data, err := os.ReadFile(path)
-		if err == nil {
-			digestHash.Write(data)
-		}
-	}
-	return hex.EncodeToString(digestHash.Sum(nil))
-}
-
-func exists(path string) bool {
-	_, err := os.Stat(path)
-	return err == nil
-}
-
-func toAnySlice(items []string) []any {
-	out := make([]any, len(items))
-	for i, item := range items {
-		out[i] = item
-	}
-	return out
-}
-
-func stringOf(m map[string]any, key string) string {
-	s, _ := m[key].(string)
-	return s
-}
-
-func mapSlice(v any) []map[string]any {
-	items, _ := v.([]any)
-	out := make([]map[string]any, 0, len(items))
-	for _, item := range items {
-		if m, ok := item.(map[string]any); ok {
-			out = append(out, m)
-		}
-	}
-	return out
-}
-
-func stringList(v any) []string {
-	items, _ := v.([]any)
-	out := make([]string, 0, len(items))
-	for _, item := range items {
-		if s, ok := item.(string); ok {
-			out = append(out, s)
-		}
-	}
-	return out
 }
 
 // taskSuccessRepr is Python's repr of summary.metrics.task_success, which is
@@ -738,7 +659,7 @@ func pyValue(v any) string {
 	case nil:
 		return "None"
 	default:
-		if i, ok := intOf(v); ok {
+		if i, ok := lab.IntOf(v); ok {
 			return strconv.Itoa(i)
 		}
 		if f, ok := v.(float64); ok {
@@ -756,40 +677,7 @@ func pyBool(b bool) string {
 	return "False"
 }
 
-func mapOf(m map[string]any, key string) map[string]any {
-	out, _ := m[key].(map[string]any)
-	return out
-}
-
-func mapOfAny(m map[string]any, keys ...string) map[string]any {
-	current := m
-	for _, key := range keys {
-		next, _ := current[key].(map[string]any)
-		if next == nil {
-			return nil
-		}
-		current = next
-	}
-	return current
-}
-
-func intOf(v any) (int, bool) {
-	switch t := v.(type) {
-	case json.Number:
-		i, err := t.Int64()
-		if err != nil {
-			return 0, false
-		}
-		return int(i), true
-	case int:
-		return t, true
-	case float64:
-		return int(t), true
-	}
-	return 0, false
-}
-
 func intOfAny(v any) int {
-	i, _ := intOf(v)
+	i, _ := lab.IntOf(v)
 	return i
 }

@@ -38,7 +38,7 @@ type markedPair struct {
 // dedup marks candidate pairs for a human to judge, it does not gate a
 // pipeline, and making it fail on a hit would change how the bank is built.
 func runDedup(args []string) int {
-	fs := newFlagSet("bank dedup",
+	fs := lab.NewFlagSet("bank dedup",
 		"Mark near-duplicate workbank case pairs within the same scenario "+
 			"(prompt 3-gram Jaccard > 0.6 or fixture number-set Jaccard > 0.5).")
 	casesRoot := fs.String("cases", DefaultCases(), "cases root directory")

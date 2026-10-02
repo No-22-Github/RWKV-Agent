@@ -1,16 +1,17 @@
 package bench
 
 import (
-	"encoding/json"
 	"fmt"
 	"math"
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"sort"
 	"strconv"
 	"strings"
 
+	"github.com/no22/RWKV-Agent/internal/lab"
 	"github.com/no22/RWKV-Agent/internal/lab/runs"
 )
 
@@ -177,7 +178,7 @@ func RunRank(args RankArgs) int {
 			i+1, arm, fmtRank(table[arm].wb), fmtRank(table[arm].bp), combined(arm)))
 	}
 	for _, arm := range armNames {
-		if containsString(order, arm) {
+		if slices.Contains(order, arm) {
 			continue
 		}
 		lines = append(lines, fmt.Sprintf("| – | `%s` | %s | %s | %.1f |",
@@ -270,7 +271,7 @@ func loadRankRuns(out, prefix string) map[rankKey][]*rankRep {
 			continue
 		}
 		metaPath := filepath.Join(path, "experiment.json")
-		if !exists(metaPath) {
+		if !lab.Exists(metaPath) {
 			continue
 		}
 		meta, err := runs.LoadJSONFile(metaPath, true)
@@ -290,11 +291,11 @@ func loadRankRuns(out, prefix string) map[rankKey][]*rankRep {
 		}
 		scores := map[string]bool{}
 		correct, invalid := 0, 0
-		for _, c := range mapSlice(summary["cases"]) {
+		for _, c := range lab.MapSlice(summary["cases"]) {
 			passed, _ := c["passed"].(bool)
 			isInvalid, _ := c["invalid"].(bool)
 			ok := passed && !isInvalid
-			scores[stringOf(c, "id")] = ok
+			scores[lab.StringOf(c, "id")] = ok
 			if ok {
 				correct++
 			}
@@ -403,25 +404,12 @@ func temperatureOf(loaded map[rankKey][]*rankRep, arm string) float64 {
 			if sampling == nil {
 				continue
 			}
-			if t, ok := numberValue(sampling["temperature"]); ok {
+			if t, ok := lab.NumberValue(sampling["temperature"]); ok {
 				return t
 			}
 		}
 	}
 	return 99
-}
-
-func numberValue(v any) (float64, bool) {
-	switch t := v.(type) {
-	case json.Number:
-		f, err := t.Float64()
-		return f, err == nil
-	case float64:
-		return t, true
-	case int:
-		return float64(t), true
-	}
-	return 0, false
 }
 
 // signTest is a two-sided sign test over the paired flips.
@@ -477,13 +465,4 @@ func minInt(values []int) int {
 		}
 	}
 	return best
-}
-
-func containsString(list []string, want string) bool {
-	for _, item := range list {
-		if item == want {
-			return true
-		}
-	}
-	return false
 }

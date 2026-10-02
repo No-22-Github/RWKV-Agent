@@ -37,8 +37,6 @@ type RWKVChatRenderer struct {
 	// HistoryThinkFast restores the empty think prefix on assistant history
 	// for opt-in evaluation of states trained with that prefix on every turn.
 	HistoryThinkFast bool
-	// Reasoning preserves the former fast-thinking renderer construction.
-	Reasoning bool
 }
 
 func (RWKVChatRenderer) ID() string {
@@ -77,9 +75,6 @@ func (renderer RWKVChatRenderer) Render(messages []Message) (string, error) {
 func (renderer RWKVChatRenderer) thinkingMode() inference.ThinkingMode {
 	if renderer.ThinkingMode != "" {
 		return renderer.ThinkingMode
-	}
-	if renderer.Reasoning {
-		return inference.ThinkingFast
 	}
 	return inference.ThinkingOff
 }

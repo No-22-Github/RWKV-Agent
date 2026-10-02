@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"slices"
 	"strings"
 	"testing"
 
@@ -716,10 +717,10 @@ func TestG1ProductFunctionRunnerPrefillsEveryToolDecision(t *testing.T) {
 		t.Fatalf("result = %+v, requests = %d", result, len(requests))
 	}
 	if !strings.HasSuffix(requests[1].Prompt, "Assistant: ```json\n") ||
-		!containsString(requests[1].Stops, "```") {
+		!slices.Contains(requests[1].Stops, "```") {
 		t.Fatalf("first decision request = %+v", requests[1])
 	}
-	if !strings.HasSuffix(requests[2].Prompt, "Assistant: ```json\n") || !containsString(requests[2].Stops, "```") ||
+	if !strings.HasSuffix(requests[2].Prompt, "Assistant: ```json\n") || !slices.Contains(requests[2].Stops, "```") ||
 		!strings.Contains(requests[2].Prompt, "User: Function output:\n") {
 		t.Fatalf("second decision request = %+v", requests[2])
 	}

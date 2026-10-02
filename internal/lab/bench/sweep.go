@@ -93,9 +93,6 @@ func scaledParallelism(names []string, budget int) map[string]int {
 }
 
 func binaryPath() string { return filepath.Join(lab.RepoRoot(), "local", "bin", "rwkv-cli") }
-func checkRunPath() string {
-	return filepath.Join(lab.RepoRoot(), ".claude", "skills", "rwkv-bench", "check_run.py")
-}
 
 // SweepArgs are the `bench sweep` flags.
 type SweepArgs struct {
@@ -311,7 +308,7 @@ func runDone(path string) bool {
 
 func setAside(args *SweepArgs, path string) error {
 	logPath := path + ".log"
-	if !exists(path) && !exists(logPath) {
+	if !lab.Exists(path) && !lab.Exists(logPath) {
 		return nil
 	}
 	aborted := filepath.Join(args.Out, "aborted")
@@ -320,18 +317,13 @@ func setAside(args *SweepArgs, path string) error {
 	}
 	stamp := time.Now().Format("20060102-150405")
 	for _, source := range []string{path, logPath} {
-		if exists(source) {
+		if lab.Exists(source) {
 			if err := os.Rename(source, filepath.Join(aborted, filepath.Base(source)+"."+stamp)); err != nil {
 				return err
 			}
 		}
 	}
 	return nil
-}
-
-func exists(path string) bool {
-	_, err := os.Stat(path)
-	return err == nil
 }
 
 func runArm(args *SweepArgs, arm string, k int) bool {
@@ -454,7 +446,7 @@ func runArm(args *SweepArgs, arm string, k int) bool {
 func finishRun(args *SweepArgs, suite, arm, output string, cmd []string, started time.Time) (*lab.OrderedMap, bool, string, error) {
 	spec := suites[suite]
 	summaryPath := filepath.Join(output, "summary.json")
-	if !exists(summaryPath) {
+	if !lab.Exists(summaryPath) {
 		return nil, true, fmt.Sprintf("no summary.json; see %s.log", output), nil
 	}
 	summary, err := runs.LoadJSONFile(summaryPath, true)
@@ -462,16 +454,16 @@ func finishRun(args *SweepArgs, suite, arm, output string, cmd []string, started
 		return nil, false, "", err
 	}
 	var errors []string
-	for _, c := range mapSlice(summary["cases"]) {
-		for _, t := range mapSlice(c["turns"]) {
-			for _, f := range stringList(t["failures"]) {
+	for _, c := range lab.MapSlice(summary["cases"]) {
+		for _, t := range lab.MapSlice(c["turns"]) {
+			for _, f := range lab.StringList(t["failures"]) {
 				if runs.InfrastructureFailure(f) {
 					errors = append(errors, f)
 				}
 			}
 		}
 		if invalid, _ := c["invalid"].(bool); invalid {
-			errors = append(errors, stringOf(c, "invalid_reason"))
+			errors = append(errors, lab.StringOf(c, "invalid_reason"))
 		}
 	}
 
@@ -490,20 +482,20 @@ func finishRun(args *SweepArgs, suite, arm, output string, cmd []string, started
 	})
 
 	task := mapOfAny(summary, "metrics", "task_success")
-	correct, _ := intOfAny(task["correct"])
-	invalidCases, _ := intOfAny(mapOfAny(summary, "metrics")["invalid_cases"])
+	correct, _ := lab.IntOf(task["correct"])
+	invalidCases, _ := lab.IntOf(mapOfAny(summary, "metrics")["invalid_cases"])
 
 	binaryBytes, err := os.ReadFile(binaryPath())
 	if err != nil {
 		return nil, false, "", err
 	}
 	binarySum := sha256.Sum256(binaryBytes)
-	gitHead := gitOutput("rev-parse", "HEAD")
-	gitDiff := gitOutput("diff", "HEAD")
+	gitHead := lab.GitOutput("rev-parse", "HEAD")
+	gitDiff := lab.GitOutput("diff", "HEAD")
 	diffSum := sha256.Sum256([]byte(gitDiff))
 
 	provenance := lab.NewOrderedMap()
-	provenance.Set("command", toAnySlice(cmd))
+	provenance.Set("command", lab.ToAnySlice(cmd))
 	provenance.Set("arm", arm)
 	provenance.Set("suite", suite)
 	provenance.Set("sampling", armSamplingMap(arm))
@@ -514,21 +506,21 @@ func finishRun(args *SweepArgs, suite, arm, output string, cmd []string, started
 	provenance.Set("started_unix", float64(started.UnixNano())/1e9)
 	provenance.Set("exit_code", lastExitCode)
 	provenance.Set("elapsed_seconds", time.Since(started).Seconds())
-	provenance.Set("infrastructure_errors", toAnySlice(errors))
+	provenance.Set("infrastructure_errors", lab.ToAnySlice(errors))
 	provenance.Set("valid_for_model_comparison", len(errors) == 0)
 	provenance.Set("gate_output", gateOut)
 	strict := lab.NewOrderedMap()
 	strict.Set("correct", correct)
-	strict.Set("total", len(mapSlice(summary["cases"])))
+	strict.Set("total", len(lab.MapSlice(summary["cases"])))
 	provenance.Set("strict", strict)
 	if suite == "workbank" {
 		root := filepath.Join(lab.RepoRoot(), "bench", "workbank", "cases")
 		provenance.Set("case_source", root)
-		provenance.Set("case_source_sha256", caseSourceSHA256(root))
+		provenance.Set("case_source_sha256", lab.CaseSourceSHA256(root))
 	}
 
 	line := fmt.Sprintf("strict %d/%d  invalid %d  infra_errors %d  gate %s  %.0fs",
-		correct, len(mapSlice(summary["cases"])), invalidCases, len(errors),
+		correct, len(lab.MapSlice(summary["cases"])), invalidCases, len(errors),
 		map[bool]string{true: "PASS", false: "FAIL"}[gateCode == 0],
 		time.Since(started).Seconds())
 	if gateCode != 0 {
@@ -555,44 +547,6 @@ func armSamplingMap(arm string) map[string]any {
 	return out
 }
 
-func caseSourceSHA256(root string) string {
-	digest := sha256.New()
-	var paths []string
-	filepath.WalkDir(root, func(path string, d os.DirEntry, err error) error {
-		if err != nil {
-			return nil
-		}
-		if !d.IsDir() && d.Name() == "case.json" {
-			paths = append(paths, path)
-		}
-		return nil
-	})
-	sort.Strings(paths)
-	for _, path := range paths {
-		rel, err := filepath.Rel(root, path)
-		if err != nil {
-			continue
-		}
-		digest.Write([]byte(rel))
-		digest.Write([]byte{0})
-		data, err := os.ReadFile(path)
-		if err == nil {
-			digest.Write(data)
-		}
-	}
-	return hex.EncodeToString(digest.Sum(nil))
-}
-
-func gitOutput(args ...string) string {
-	cmd := exec.Command("git", args...)
-	cmd.Dir = lab.RepoRoot()
-	out, err := cmd.Output()
-	if err != nil {
-		return ""
-	}
-	return strings.TrimSpace(string(out))
-}
-
 // snapshot records the endpoint's model list and status before and after a
 // sweep, so a mid-run model swap is visible in the artifacts.
 func snapshot(args *SweepArgs, label string) ([]string, any, any, error) {
@@ -607,7 +561,7 @@ func snapshot(args *SweepArgs, label string) ([]string, any, any, error) {
 	writeIndented(filepath.Join(args.Out, "endpoint-"+label+"-models.json"), models)
 	writeIndented(filepath.Join(args.Out, "endpoint-"+label+"-server-status.json"), status)
 	var ids []string
-	for _, m := range mapSlice(models["data"]) {
+	for _, m := range lab.MapSlice(models["data"]) {
 		if id, ok := m["id"].(string); ok {
 			ids = append(ids, id)
 		}
@@ -622,7 +576,7 @@ func endpointModels(base string) ([]string, error) {
 		return nil, err
 	}
 	var ids []string
-	for _, m := range mapSlice(models["data"]) {
+	for _, m := range lab.MapSlice(models["data"]) {
 		if id, ok := m["id"].(string); ok {
 			ids = append(ids, id)
 		}

@@ -166,18 +166,6 @@ func (turn *runnerTurn) initialize() error {
 // the first decision transcript under the active control prompt. The control
 // prompt is framing, not conversation data, so it never enters History.
 func (turn *runnerTurn) assembleTurnMessages(history []Message, control string) {
-	if turn.r.options.ControlPrompt == ControlPromptInline {
-		label := "Repository task:"
-		if turn.result.Route == RouteRespond {
-			label = "Current user message:"
-		}
-		turn.messages = append([]Message(nil), history...)
-		turn.messages = append(turn.messages, Message{
-			Role:    RoleUser,
-			Content: control + "\n\n" + label + "\n" + turn.task,
-		})
-		return
-	}
 	turn.messages = make([]Message, 0, len(history)+2)
 	turn.messages = append(turn.messages, Message{Role: RoleSystem, Content: control})
 	turn.messages = append(turn.messages, history...)

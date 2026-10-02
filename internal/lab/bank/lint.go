@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"slices"
 	"sort"
 	"strings"
 
@@ -68,7 +69,7 @@ type trapEntry struct {
 // runLint ports lint.py. Violations are one JSON object per line on stdout,
 // the summary goes to stderr, and the exit code is 1 when anything remains.
 func runLint(args []string) int {
-	fs := newFlagSet("bank lint",
+	fs := lab.NewFlagSet("bank lint",
 		"Validate workbank cases (schema v5) against bench/workbank/tag-vocab.json and the authoring rules.")
 	casesRoot := fs.String("cases", DefaultCases(), "cases root directory")
 	var caseArgs stringList
@@ -98,7 +99,7 @@ func runLint(args []string) int {
 	if len(caseArgs) > 0 {
 		for _, item := range caseArgs {
 			abs, err := filepath.Abs(item)
-			if err != nil || !fileExists(filepath.Join(abs, "case.json")) {
+			if err != nil || !lab.FileExists(filepath.Join(abs, "case.json")) {
 				fmt.Fprintf(os.Stderr, "error: --case %s: no case.json inside\n", item)
 				return 2
 			}
@@ -191,7 +192,7 @@ func checkCase(caseDir string, caseObj map[string]any, ctx *lintCtx, relParts []
 	// beyond_capability case is one, and so is any case that declares TR-NOCAP
 	// whatever its scenario.
 	isRefusal := ctx.distillRules && !isSmalltalk && (asString(tags["task_type"]) == "beyond_capability" ||
-		containsString(anyStrings(anySlice(tags["traps"])), "TR-NOCAP"))
+		slices.Contains(anyStrings(anySlice(tags["traps"])), "TR-NOCAP"))
 
 	// (a) required tag keys + enums
 	for _, key := range requiredTags {
@@ -200,11 +201,11 @@ func checkCase(caseDir string, caseObj map[string]any, ctx *lintCtx, relParts []
 		}
 	}
 	scenario, scenarioIsString := tags["scenario"].(string)
-	if !containsString(ctx.scenarios, scenario) {
+	if !slices.Contains(ctx.scenarios, scenario) {
 		bad("tags.enum", fmt.Sprintf("scenario %s not in vocabulary", pyReprValue(tags["scenario"])))
 	}
 	taskType := tags["task_type"]
-	if allowed, ok := ctx.taskTypes[scenario]; ok && !containsString(allowed, asString(taskType)) {
+	if allowed, ok := ctx.taskTypes[scenario]; ok && !slices.Contains(allowed, asString(taskType)) {
 		bad("tags.enum", fmt.Sprintf("task_type %s not allowed for scenario %s",
 			pyReprValue(taskType), pyReprValue(tags["scenario"])))
 	}
@@ -255,7 +256,7 @@ func checkCase(caseDir string, caseObj map[string]any, ctx *lintCtx, relParts []
 		forbiddenTraps = append(forbiddenTraps, asString(trap))
 	}
 	for _, trap := range ctx.scenarioTraps[scenario] {
-		if !containsString(forbiddenTraps, trap) {
+		if !slices.Contains(forbiddenTraps, trap) {
 			forbiddenTraps = append(forbiddenTraps, trap)
 		}
 	}
@@ -305,7 +306,7 @@ func checkCase(caseDir string, caseObj map[string]any, ctx *lintCtx, relParts []
 	caseExpect, _ := caseObj["expect"].(map[string]any)
 	writeCase := false
 	if caseExpect != nil {
-		writeCase = truthy(caseExpect["files"]) || truthy(caseExpect["run"])
+		writeCase = lab.Truthy(caseExpect["files"]) || lab.Truthy(caseExpect["run"])
 	}
 	answerStyle := asString(tags["answer_style"])
 	if ctx.distillRules && answerStyle != "" &&
@@ -401,10 +402,10 @@ func checkCase(caseDir string, caseObj map[string]any, ctx *lintCtx, relParts []
 			var problems []string
 			if anyOf, ok := turnExpect["output_contains_any"].([]any); !ok || len(anyOf) == 0 {
 				problems = append(problems, "expect.output_contains_any must be a non-empty array of refusal words")
-			} else if containsString(anyStrings(anyOf), "UNKNOWN") {
+			} else if slices.Contains(anyStrings(anyOf), "UNKNOWN") {
 				problems = append(problems, "expect.output_contains_any must not list UNKNOWN")
 			}
-			if !containsString(anyStrings(anySlice(turnExpect["output_excludes"])), "UNKNOWN") {
+			if !slices.Contains(anyStrings(anySlice(turnExpect["output_excludes"])), "UNKNOWN") {
 				problems = append(problems, "expect.output_excludes must list UNKNOWN")
 			}
 			if len(anySlice(turnExpect["forbidden_tools"])) == 0 {
@@ -547,7 +548,7 @@ func checkCase(caseDir string, caseObj map[string]any, ctx *lintCtx, relParts []
 		if match == nil {
 			bad("dir_structure", fmt.Sprintf("case id %s must be <scenario abbrev>-<4 digits>", pyReprValue(dirname)))
 		}
-		if scenarioIsString && containsString(ctx.scenarios, scenario) && scenDir != scenario {
+		if scenarioIsString && slices.Contains(ctx.scenarios, scenario) && scenDir != scenario {
 			bad("dir_structure", fmt.Sprintf("case sits under %s but tags.scenario is %s",
 				pyReprValue(scenDir), pyReprValue(scenario)))
 		}
@@ -791,28 +792,6 @@ func writeCaseIndented(path string, caseObj map[string]any) {
 	_ = os.WriteFile(path, append(data, '\n'), 0o644)
 }
 
-// truthy is Python's bool(x) for the JSON shapes a case's expect fields can
-// take: an empty object, array, string, zero or null is false, anything else
-// is true.
-func truthy(v any) bool {
-	switch t := v.(type) {
-	case nil:
-		return false
-	case bool:
-		return t
-	case string:
-		return t != ""
-	case json.Number:
-		f, err := t.Float64()
-		return err != nil || f != 0
-	case []any:
-		return len(t) > 0
-	case map[string]any:
-		return len(t) > 0
-	}
-	return true
-}
-
 // anyStrings renders a decoded JSON array as strings, the way the checks read
 // vocabulary entries.
 func anyStrings(items []any) []string {
@@ -821,15 +800,6 @@ func anyStrings(items []any) []string {
 		out = append(out, asString(item))
 	}
 	return out
-}
-
-func containsString(list []string, want string) bool {
-	for _, item := range list {
-		if item == want {
-			return true
-		}
-	}
-	return false
 }
 
 func asString(v any) string {

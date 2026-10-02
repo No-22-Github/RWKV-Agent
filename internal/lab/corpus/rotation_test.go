@@ -3,6 +3,7 @@ package corpus
 import (
 	"crypto/sha256"
 	"reflect"
+	"slices"
 	"testing"
 
 	"github.com/no22/RWKV-Agent/internal/agent/eval"
@@ -40,10 +41,10 @@ func TestRotateCatalogsDeterministicAndSafe(t *testing.T) {
 		t.Fatalf("rotated = %d, want 1", first)
 	}
 	offeredAny, _ := cases[0].Get("offered_tools")
-	offered := stringSlice(offeredAny)
+	offered := lab.StringList(offeredAny)
 	catalog := eval.WorkToolCatalogNames()
 	for _, used := range []string{"list_files", "read_file", "data_query"} {
-		if containsString(offered, used) == false {
+		if !slices.Contains(offered, used) {
 			t.Errorf("used tool %q was dropped: %v", used, offered)
 		}
 	}
@@ -51,7 +52,7 @@ func TestRotateCatalogsDeterministicAndSafe(t *testing.T) {
 		t.Errorf("offered = %d tools, want catalog minus 2..4 drops (used tools stay)", len(offered))
 	}
 	for _, name := range offered {
-		if !containsString(catalog, name) {
+		if !slices.Contains(catalog, name) {
 			t.Errorf("offered tool %q is outside the catalog", name)
 		}
 	}
@@ -63,8 +64,8 @@ func TestRotateCatalogsDeterministicAndSafe(t *testing.T) {
 		t.Fatal(err)
 	}
 	again, _ := cases2[0].Get("offered_tools")
-	if !reflect.DeepEqual(offered, stringSlice(again)) {
-		t.Errorf("rotation is not deterministic: %v vs %v", offered, stringSlice(again))
+	if !reflect.DeepEqual(offered, lab.StringList(again)) {
+		t.Errorf("rotation is not deterministic: %v vs %v", offered, lab.StringList(again))
 	}
 
 	// Different ID -> (almost surely) a different subset; at minimum the two
