@@ -12,10 +12,11 @@ type Experiments struct {
 	Nudge        string // none, think, exit
 	Duplicate    string // continue (reject duplicates without forcing answer stage)
 	AnswerOpen   string // answer (restore just the answer prefill)
+	ToolRole     string // tool (aligned tool results on a Tool: line instead of the user turn)
 }
 
 func (e Experiments) entries() [][2]string {
-	return [][2]string{{"recovery", e.Recovery}, {"exit", e.Exit}, {"history", e.History}, {"thinkcontrol", e.ThinkControl}, {"nudge", e.Nudge}, {"duplicate", e.Duplicate}, {"answeropen", e.AnswerOpen}}
+	return [][2]string{{"recovery", e.Recovery}, {"exit", e.Exit}, {"history", e.History}, {"thinkcontrol", e.ThinkControl}, {"nudge", e.Nudge}, {"duplicate", e.Duplicate}, {"answeropen", e.AnswerOpen}, {"toolrole", e.ToolRole}}
 }
 
 func (e Experiments) canonical() string {
@@ -41,6 +42,7 @@ func (s Spec) validateExperiments() error {
 		"history":  {"", "preserve", "think-fast"}, "nudge": {"", "none", "think", "exit"},
 		"thinkcontrol": {"", "off"},
 		"duplicate":    {"", "continue"}, "answeropen": {"", "answer"},
+		"toolrole":     {"", "tool"},
 	}
 	for _, entry := range s.Experiments.entries() {
 		if !known(allowed[entry[0]], entry[1]) {

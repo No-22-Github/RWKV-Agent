@@ -176,6 +176,11 @@ var modifiers = map[string]func(Spec) Spec{
 	// dup-continue rejects a duplicate call without forcing the answer stage
 	// (experiment duplicate=continue).
 	"dup-continue": func(s Spec) Spec { s.Experiments.Duplicate = "continue"; return s },
+	// no-nudge drops the post-tool reminder user turn (experiment nudge=none).
+	"no-nudge": func(s Spec) Spec { s.Experiments.Nudge = "none"; return s },
+	// tool-role puts aligned tool results on their own Tool: line, the
+	// ShareGPT "tool" turn of Hermes trajectories (experiment toolrole=tool).
+	"tool-role":    func(s Spec) Spec { s.Experiments.ToolRole = "tool"; return s },
 	"align-legacy": func(s Spec) Spec { s.Align = AlignLegacy; return s },
 	"one-stage":    func(s Spec) Spec { s.Stages = StagesOne; return s },
 	"two-stage":    func(s Spec) Spec { s.Stages = StagesTwo; return s },

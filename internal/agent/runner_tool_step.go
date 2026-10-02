@@ -390,7 +390,7 @@ func (turn *runnerTurn) appendToolTranscript(
 	// The aligned transcript carries tool results in the user turn; the legacy
 	// g1i wire renders them on their own Tool: role line.
 	toolRole := RoleTool
-	if r.wire.Align.ToolResultsInUser() {
+	if r.wire.Align.ToolResultsInUser() && r.wire.Experiments.ToolRole != "tool" {
 		toolRole = RoleUser
 	}
 	toolMessage := Message{
