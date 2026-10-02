@@ -116,6 +116,22 @@ func (w *workspace) absoluteCandidates(path string) []string {
 		return []string{"."}
 	}
 	candidates := []string{trimmed}
+	// Agent harnesses the checkpoints learned from keep the workspace under a
+	// home directory (OpenClaw: /home/node/.openclaw/workspace). Whatever
+	// follows the last "workspace" component names the same relative path;
+	// resolveRelative still enforces containment and existence.
+	if parts := strings.Split(trimmed, "/"); len(parts) > 1 {
+		for i := len(parts) - 1; i > 0; i-- {
+			if parts[i] == "workspace" {
+				rest := strings.Join(parts[i+1:], "/")
+				if rest == "" {
+					rest = "."
+				}
+				candidates = append(candidates, rest)
+				break
+			}
+		}
+	}
 	for _, notional := range []string{"workspace", filepath.Base(w.root)} {
 		for {
 			if trimmed == notional {
