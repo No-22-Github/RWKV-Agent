@@ -85,3 +85,19 @@ dataset-v13.md 的「只给答案 51.1%」只数了英文那一句；把中文�
 - b07 报告写 127 条路径，入库的 `b07.jsonl` 实际是 124 条（本轮清洗后 104 条）。
 - 用户纠正错了、模型坚持原答案的会话只有 2 个（hyb-7711、log-7504，后者本轮因事实错误被删），规划要求约占纠正轮的 1/4。
 - 新题里题面给了路径仍先 list_files 的约 23%（规划 ≤10%），其中一部分确实需要先看 README，没有删。
+
+## 训练输入（2026-10-03，mask 训练器）
+
+训练器 rwkv_lightning_cuda 47df608 起支持 `{"segments":[{"text","train"}]}` 掩码行：各片段**分别分词**，只对 `train=true` 的 token 算 loss；不追加 EOD；超过 `--ctx` 的部分直接截断。每行只允许 `segments` 一个字段。
+
+```bash
+python3 bench/distill/tools/to_segments.py --rows $O/dataset/train/rows.jsonl --out $O/dataset/train/segments.jsonl
+python3 bench/distill/tools/to_segments.py --rows $O/dataset/validation/rows.jsonl --out $O/dataset/validation/segments.jsonl
+```
+
+- `loss_spans` 是**字符**偏移（754 行含中文的行按字符全部对齐，按字节只有 146 行碰巧对齐）。
+- 区间起点都紧跟 `Assistant: `。转换时把这个空格划进训练片段：前缀以 `Assistant:` 结尾，和推理端 `AppendAssistantOpening` 一致，第一个 token（` <`、` 57`）由模型学着生成。按原区间切会拆开 ` <` 等 token，train 2073/2157 行的分词与整段不一致；前移后 0 行不一致（用仓库 World 分词器逐行比对）。
+- 产物：train 2157 行（sha256 `3315ec10…`），训练 token 262,561 / 3,710,643（7.1%），单行最长 6925；validation 76 行（sha256 `7b970ba4…`），7.5%，最长 3784。0 行超过 8192，0 行无训练 token；每行以训练片段 `\n\nUser:` 结尾（代替 EOD）。
+- 96 条收尾恢复行（validation 4 条）插入的重复调用都在训练片段之外，其后都是重复调用拒绝回执。
+- 训练必须传 `--ctx 8192`，否则长行的终答会被静默截掉。
+- 待定：base700 有 101 行（validation 3 行）以 `no_tool` 工具调用收尾、答案写在 `reason` 里（`abstain=no-tool` 线路的合法路径），b05–b08 全部是纯文本终答。
