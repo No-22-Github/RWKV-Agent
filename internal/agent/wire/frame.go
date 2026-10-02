@@ -1,6 +1,10 @@
 package wire
 
-import "github.com/no22/RWKV-Agent/internal/inference"
+import (
+	"strings"
+
+	"github.com/no22/RWKV-Agent/internal/inference"
+)
 
 // Assistant-opening byte constants. They live here, next to the axis that
 // selects them, so the runner, the golden fixtures and the explain output all
@@ -26,6 +30,9 @@ const (
 	FakeThinkHalfPrefix = inference.ThinkBlockFast
 	// FakeThinkClosedPrefix closes the block in the prompt.
 	FakeThinkClosedPrefix = inference.ThinkBlockClosed
+	// HermesThinkPrefix is the empty think block that opens every Hermes Agent
+	// trajectory gpt turn.
+	HermesThinkPrefix = "<think>\n</think>\n"
 )
 
 // Frame is the assistant-opening prefill for one generation. Inject means the
@@ -90,6 +97,12 @@ func (s Spec) DecisionFrame(state DecisionState) Frame {
 			Text:   FakeThinkClosedPrefix,
 			Inject: true,
 			Strip:  FakeThinkClosedPrefix,
+		}
+	case PrefillHermesThink:
+		return Frame{
+			Text:   HermesThinkPrefix,
+			Inject: true,
+			Strip:  strings.TrimSpace(HermesThinkPrefix),
 		}
 	}
 	if state.AfterTool && state.TerminalComplete {

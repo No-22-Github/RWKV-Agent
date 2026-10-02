@@ -18,6 +18,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/no22/RWKV-Agent/internal/agent/wire"
 	"github.com/no22/RWKV-Agent/internal/lab"
 	"github.com/no22/RWKV-Agent/internal/lab/runs"
 )
@@ -295,7 +296,12 @@ func sweepCommand(args SweepArgs, suite, arm, output string) []string {
 		cmd = append(cmd, "--state-id", args.StateID)
 	}
 	if spec.g1k {
-		cmd = append(cmd, "--profile", args.profile(), "--strict-spec")
+		cmd = append(cmd, "--profile", args.profile())
+		// --strict-spec only admits registered presets; a modifier chain such
+		// as g1k+think-fast is still pinned by run check's wire_profile gate.
+		if _, registered := wire.Lookup(args.profile()); registered {
+			cmd = append(cmd, "--strict-spec")
+		}
 	}
 	cmd = append(cmd, spec.args...)
 	cmd = append(cmd, armFlags(arm)...)

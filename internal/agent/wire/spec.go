@@ -80,6 +80,10 @@ const (
 	PrefillDeepFence       Prefill = "deep-fence"
 	PrefillFakeThinkHalf   Prefill = "fake-think-half"
 	PrefillFakeThinkClosed Prefill = "fake-think-closed"
+	// PrefillHermesThink opens every decision with the empty think block the
+	// Hermes Agent trajectory format writes on every gpt turn
+	// ("<think>\n</think>\n"). It requires align=hermes.
+	PrefillHermesThink Prefill = "hermes-think"
 )
 
 // Abstain is the text-only abstention action offered to the model.
@@ -512,6 +516,11 @@ func (s Spec) Validate() error {
 		if s.Transcript != TranscriptProduct {
 			return fail("prefill.requires-product", fmt.Sprintf("prefill=%s is a product experiment", s.Prefill), "use transcript=product")
 		}
+	case PrefillHermesThink:
+		if s.Align != AlignHermes || s.Thinking != ThinkingOff {
+			return fail("prefill.unsupported", "prefill=hermes-think requires align=hermes and thinking=off",
+				"the empty think block is the Hermes trajectory turn opening")
+		}
 	case PrefillDeepFence:
 		if s.Format != FormatMDFence {
 			return fail("prefill.unsupported", "prefill=deep-fence requires format=md-fence",
@@ -663,7 +672,7 @@ var (
 	ThinkingValues   = []string{string(ThinkingOff), string(ThinkingFast), string(ThinkingFull)}
 	PrefillValues    = []string{
 		string(PrefillNone), string(PrefillEnvelope), string(PrefillFence),
-		string(PrefillDeepFence), string(PrefillFakeThinkHalf), string(PrefillFakeThinkClosed),
+		string(PrefillDeepFence), string(PrefillFakeThinkHalf), string(PrefillFakeThinkClosed), string(PrefillHermesThink),
 	}
 	AbstainValues = []string{
 		string(AbstainNone), string(AbstainNoTool),

@@ -26,9 +26,11 @@ type G1Protocol struct {
 	// is a JSON array inside <tools>. The action envelope (<tool_call>) and
 	// every instruction sentence are unchanged.
 	AlignQwen36 bool
-	// Hermes (align=hermes, implies AlignQwen36) renders the Hermes / Qwen
-	// chat-template tool shape: a "# Tools" block with one OpenAI function
-	// schema per line and newline-padded <tool_call> / <tool_response> tags.
+	// Hermes (align=hermes, implies AlignQwen36) renders the Hermes Agent
+	// trajectory format (NousResearch/hermes-agent convert_to_trajectory_format):
+	// its fixed function-calling system prompt, assistant turns opened by a
+	// think block with newline-padded <tool_call> JSON, and tool results as
+	// <tool_response>{"tool_call_id","name","content"}</tool_response>.
 	Hermes bool
 	// NoCallDemo adds one substantive no-call demonstration to the examples: a
 	// real question the tools cannot improve on, answered directly. It
@@ -109,19 +111,18 @@ func (protocol G1Protocol) Instructions(
 	specs []ToolSpec,
 	thinkingMode inference.ThinkingMode,
 ) string {
+	if protocol.Hermes {
+		return protocol.hermesSystemPrompt(specs)
+	}
 	var prompt strings.Builder
 	prompt.WriteString("You are a local-first assistant with " + toolAccessDescription(specs) + ". " + PolicyUntrustedData + "\n")
 	if protocol.SourceHint {
 		prompt.WriteString(sourceHintSentence(specs))
 	}
-	envelopeExample := `<tool_call>{"name":"TOOL_NAME","arguments":{...}}</tool_call>`
-	if protocol.Hermes {
-		envelopeExample = "<tool_call>\n  {\"name\": \"TOOL_NAME\", \"arguments\": {...}}\n  </tool_call>"
-	}
 	prompt.WriteString(`
 Choose one action:
 - If new tool evidence is needed, output exactly one tool call and nothing else:
-  ` + envelopeExample + `
+  <tool_call>{"name":"TOOL_NAME","arguments":{...}}</tool_call>
 - Otherwise, answer the user directly in ordinary text without an envelope.
 Greetings, thanks, casual conversation, and questions that do not need new tool evidence must be answered directly. Never invoke tools merely because they are available.
 After a Tool result, make the same choice again: call one tool if more evidence is needed, or answer directly.
@@ -132,9 +133,7 @@ After a Tool result, make the same choice again: call one tool if more evidence 
 	}
 	prompt.WriteString(thinkingControl(controlMode))
 	prompt.WriteString("\n" + PolicyNoInvention + "\n")
-	if protocol.Hermes {
-		prompt.WriteString(protocol.renderHermesTools(specs))
-	} else if protocol.AlignQwen36 {
+	if protocol.AlignQwen36 {
 		prompt.WriteString("<tools>" + protocol.renderToolsJSON(specs) + "</tools>\n")
 	} else {
 		prompt.WriteString("Available tools:\n")
@@ -246,17 +245,28 @@ func toolAccessDescription(specs []ToolSpec) string {
 // toolResponseEnvelope wraps a tool-result payload in the aligned tag. The
 // legacy tag lives inline in FormatToolResult and the example strings.
 func (protocol G1Protocol) toolResponseEnvelope(payload string) string {
-	if protocol.Hermes {
-		return "<tool_response>\n" + payload + "\n</tool_response>"
-	}
 	return "<tool_response>" + payload + "</tool_response>"
 }
 
-// renderHermesTools renders the catalog the way the Hermes / Qwen chat
-// template does: a "# Tools" block, one {"type":"function","function":{...}}
-// schema per line inside <tools>, then the call-format sentence. The no_tool
-// pseudo-action is listed like any other function.
-func (protocol G1Protocol) renderHermesTools(specs []ToolSpec) string {
+// hermesSystemPromptTemplate is Hermes Agent's _TRAJECTORY_SYSTEM_PROMPT
+// (agent/agent_runtime_helpers.py), the system turn of every trajectory it
+// exports for training. %s is the tool list.
+const hermesSystemPromptTemplate = "You are a function calling AI model. You are provided with function signatures within <tools> </tools> XML tags. " +
+	"You may call one or more functions to assist with the user query. If available tools are not relevant in assisting " +
+	"with user query, just respond in natural conversational language. Don't make assumptions about what values to plug " +
+	"into functions. After calling & executing the functions, you will be provided with function results within " +
+	"<tool_response> </tool_response> XML tags. Here are the available tools:\n" +
+	"<tools>\n%s\n</tools>\n" +
+	"For each function call return a JSON object, with the following pydantic model json schema for each:\n" +
+	"{'title': 'FunctionCall', 'type': 'object', 'properties': {'name': {'title': 'Name', 'type': 'string'}, " +
+	"'arguments': {'title': 'Arguments', 'type': 'object'}}, 'required': ['name', 'arguments']}\n" +
+	"Each function call should be enclosed within <tool_call> </tool_call> XML tags.\n" +
+	"Example:\n<tool_call>\n{'name': <function-name>,'arguments': <args-dict>}\n</tool_call>"
+
+// hermesSystemPrompt fills the Hermes trajectory system prompt with the
+// catalog as one JSON array of OpenAI function objects, Python-spaced. The
+// no_tool pseudo-action is listed like any other function.
+func (protocol G1Protocol) hermesSystemPrompt(specs []ToolSpec) string {
 	type function struct {
 		Name        string          `json:"name"`
 		Description string          `json:"description"`
@@ -266,12 +276,9 @@ func (protocol G1Protocol) renderHermesTools(specs []ToolSpec) string {
 		Type     string   `json:"type"`
 		Function function `json:"function"`
 	}
-	var lines []string
+	var entries []entry
 	add := func(name, description string, parameters json.RawMessage) {
-		encoded, err := json.Marshal(entry{Type: "function", Function: function{name, description, parameters}})
-		if err == nil {
-			lines = append(lines, hermesSpacing(string(encoded)))
-		}
+		entries = append(entries, entry{Type: "function", Function: function{name, description, parameters}})
 	}
 	for _, spec := range specs {
 		add(spec.Name, spec.Description, hermesParameters(spec))
@@ -286,12 +293,24 @@ func (protocol G1Protocol) renderHermesTools(specs []ToolSpec) string {
 			"Reply to the user and end the turn. Use it when no tool is needed, when the tool results already contain the answer, or when the task cannot be completed. Put only the final answer in answer.",
 			json.RawMessage(`{"type":"object","properties":{"answer":{"type":"string","description":"the final answer only"}},"required":["answer"]}`))
 	}
-	return "\n# Tools\n\nYou may call one or more functions to assist with the user query.\n\n" +
-		"You are provided with function signatures within <tools></tools> XML tags:\n<tools>\n" +
-		strings.Join(lines, "\n") + "\n</tools>\n\n" +
-		"For each function call, return a json object with function name and arguments within <tool_call></tool_call> XML tags:\n" +
-		"<tool_call>\n{\"name\": <function-name>, \"arguments\": <args-json-object>}\n</tool_call>\n"
+	return fmt.Sprintf(hermesSystemPromptTemplate, hermesJSON(entries))
 }
+
+// hermesJSON is json.dumps(value, ensure_ascii=False): no HTML escaping, ", "
+// and ": " separators.
+func hermesJSON(value any) string {
+	var buf strings.Builder
+	encoder := json.NewEncoder(&buf)
+	encoder.SetEscapeHTML(false)
+	if err := encoder.Encode(value); err != nil {
+		return ""
+	}
+	return hermesSpacing(strings.TrimSpace(buf.String()))
+}
+
+// hermesThinkOpening is the empty think block every Hermes trajectory gpt
+// turn starts with (_with_think_block).
+const hermesThinkOpening = "<think>\n</think>\n"
 
 // hermesParameters is the spec's JSON Schema, or one derived from the flat
 // arguments description ({"path":"optional relative directory"}) when the
@@ -635,6 +654,9 @@ func (protocol G1Protocol) RecordAction(action Action, raw string) string {
 		return wire.StripLeadingThinkBlocks(strings.TrimSpace(raw))
 	}
 	if action.Type != "tool" {
+		if protocol.Hermes {
+			return hermesThinkOpening + strings.TrimSpace(wire.StripLeadingThinkBlocks(strings.TrimSpace(raw)))
+		}
 		return raw
 	}
 	payload, err := json.Marshal(struct {
@@ -648,12 +670,29 @@ func (protocol G1Protocol) RecordAction(action Action, raw string) string {
 		return raw
 	}
 	if protocol.Hermes {
-		return "<tool_call>\n" + hermesSpacing(string(payload)) + "\n</tool_call>"
+		// RawMessage keeps the model's key order, as json.dumps of the parsed
+		// dict does in the Python exporter.
+		return hermesThinkOpening + "<tool_call>\n" + hermesJSON(struct {
+			Name      string          `json:"name"`
+			Arguments json.RawMessage `json:"arguments"`
+		}{action.Name, action.Arguments}) + "\n</tool_call>"
 	}
 	return "<tool_call>" + string(payload) + "</tool_call>"
 }
 
-func (protocol G1Protocol) FormatToolResult(_ string, _ string, payload string) string {
+func (protocol G1Protocol) FormatToolResult(name string, callID string, payload string) string {
+	if protocol.Hermes {
+		// _trajectory_tool_responses: the content is parsed when it is JSON.
+		var content any = payload
+		if json.Valid([]byte(payload)) {
+			content = json.RawMessage(payload)
+		}
+		return "<tool_response>\n" + hermesJSON(struct {
+			ToolCallID string `json:"tool_call_id"`
+			Name       string `json:"name"`
+			Content    any    `json:"content"`
+		}{callID, name, content}) + "\n</tool_response>"
+	}
 	if protocol.AlignQwen36 {
 		return protocol.toolResponseEnvelope(payload)
 	}

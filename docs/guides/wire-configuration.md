@@ -143,7 +143,7 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 | `transcript` | `product`, `benchmark` |
 | `transport` | `text`, `native` |
 | `thinking` | `off`, `fast`, `full` |
-| `prefill` | `none`, `envelope`, `fence`, `deep-fence`, `fake-think-half`, `fake-think-closed` |
+| `prefill` | `none`, `envelope`, `fence`, `deep-fence`, `fake-think-half`, `fake-think-closed`, `hermes-think` |
 | `abstain` | `none`, `no-tool`, `no-tool+gate-state`, `no-tool+gate-evidence` |
 | `terminal` | `none`, `any tool name (e.g. submit)` |
 | `route` | `none`, `respond-inspect`, `progressive` |
@@ -164,7 +164,7 @@ export RWKV_CF_ACCESS_CLIENT_SECRET='...'
 
 ## Modifiers
 
-`align-legacy`, `align-qwen36`, `anchor`, `bare`, `base-nocall`, `compress-fetch`, `deep-fence`, `envelope`, `fake-think`, `fake-think-closed`, `fence`, `fewshot`, `first-auto`, `gate-evidence`, `gate-state`, `greeting`, `hermes`, `merge-users`, `merge-users-no-nudge`, `merge-users-rewrite`, `native`, `no-tool`, `one-stage`, `prefill-none`, `progressive`, `raw-subagent`, `route-progressive`, `route-respond`, `src-hint`, `submit`, `think-fast`, `think-full`, `think-off`, `two-stage`
+`align-legacy`, `align-qwen36`, `anchor`, `bare`, `base-nocall`, `compress-fetch`, `deep-fence`, `envelope`, `fake-think`, `fake-think-closed`, `fence`, `fewshot`, `first-auto`, `gate-evidence`, `gate-state`, `greeting`, `hermes`, `hermes-think`, `merge-users`, `merge-users-no-nudge`, `merge-users-rewrite`, `native`, `no-tool`, `one-stage`, `prefill-none`, `progressive`, `raw-subagent`, `route-progressive`, `route-respond`, `src-hint`, `submit`, `think-fast`, `think-full`, `think-off`, `two-stage`
 
 ## Override keys
 
