@@ -1,7 +1,8 @@
 import { AgentProtocol } from '../../../bindings/github.com/no22/RWKV-Agent/api/models'
 import type { ProviderManager } from '../../state/providerManager'
 import { CUSTOM_PRESET_ID, SAMPLING_PRESETS, presetById } from '../../state/samplingPresets'
-import { GroupTitle, Row, SettingsPane } from './ui'
+import { GroupTitle, Row, SettingsPane, SaveStatus } from './ui'
+import { autosaveHint } from './autosaveHint'
 
 type Props = {
   manager: ProviderManager
@@ -47,10 +48,8 @@ export default function ParametersSection({ manager }: Props) {
   return (
     <SettingsPane>
       <div className="mb-[10px] flex items-center justify-between gap-[12px]">
-        <GroupTitle title="参数" hint="自动保存；编辑运行中的远端档案时即时生效" />
-        {manager.autoApplyNote && (
-          <span className="flex-none font-mono text-2xs text-ink-ghost">{manager.autoApplyNote}</span>
-        )}
+        <GroupTitle title="参数" hint={autosaveHint(manager)} />
+        <SaveStatus state={manager.saveState} />
       </div>
 
       <section className="mt-[18px]">

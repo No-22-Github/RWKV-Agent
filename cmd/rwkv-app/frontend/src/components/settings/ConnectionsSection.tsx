@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { MoreHorizontal, Plus, Trash2 } from 'lucide-react'
 import { Provider } from '../../../bindings/github.com/no22/RWKV-Agent/api/models'
-import type { SavedProvider } from '../../../bindings/github.com/no22/RWKV-Agent/internal/appstorage/models'
+import { SavedProvider } from '../../../bindings/github.com/no22/RWKV-Agent/internal/appstorage/models'
 import type { ProviderManager } from '../../state/providerManager'
 import ConfirmDialog from '../ConfirmDialog'
 import { hostOf } from '../../endpoint'
 import ProviderEditor from './ProviderEditor'
+import { derivedProviderLabel } from '../../state/draftValidation'
 
 type Props = {
   manager: ProviderManager
@@ -25,16 +26,23 @@ export default function ConnectionsSection({ manager, ready, onActivateProvider,
   const [menuForID, setMenuForID] = useState('')
   const [confirm, setConfirm] = useState<PendingConfirm>(null)
 
+  /* 离开当前草稿：能自动保存的直接落盘后离开；新建未建档、校验不过或保存失败才问。 */
+  async function leaveDraft(next: Exclude<PendingConfirm, null>) {
+    if (manager.draftDirty && !(await manager.flushDraft())) {
+      setConfirm(next)
+      return
+    }
+    if (next.kind === 'switch') manager.selectProvider(next.id)
+    else if (next.kind === 'new') manager.startNewDraft()
+  }
   function requestEdit(id: string) {
     setMenuForID('')
     if (id === manager.editingProviderId) return
-    if (manager.draftDirty) setConfirm({ kind: 'switch', id })
-    else manager.selectProvider(id)
+    void leaveDraft({ kind: 'switch', id })
   }
   function requestNew() {
     setMenuForID('')
-    if (manager.draftDirty) setConfirm({ kind: 'new' })
-    else manager.startNewDraft()
+    void leaveDraft({ kind: 'new' })
   }
   function requestDelete(id: string) {
     setMenuForID('')
@@ -55,6 +63,11 @@ export default function ConnectionsSection({ manager, ready, onActivateProvider,
   }
 
   const deleteTarget = confirm?.kind === 'delete' ? manager.providers.find((provider) => provider.id === confirm.id) : undefined
+  const creating = manager.editingProviderId === ''
+
+  function draftAsProvider(saved: SavedProvider): SavedProvider {
+    return new SavedProvider({ ...saved, label: manager.draftLabel.trim() || derivedProviderLabel(manager.draftConfigValue), config: manager.draftConfigValue })
+  }
 
   return (
     <div className="flex min-h-0 flex-1">
@@ -64,13 +77,23 @@ export default function ConnectionsSection({ manager, ready, onActivateProvider,
           <span className="font-mono text-2xs text-ink-ghost">{manager.providers.length}</span>
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto px-[10px] pb-[8px]">
+          {manager.editingProviderId === '' && (
+            <div className="mb-[4px] flex items-center gap-[9px] border border-dashed border-brand bg-surface-active px-[8px] py-[7px]" aria-current="true">
+              <span className="h-[7px] w-[7px] flex-none" />
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-base font-medium text-ink">{manager.draftLabel.trim() || '新连接'}</span>
+                <span className="mt-[2px] block truncate font-mono text-2xs text-ink-muted">未保存 · 填写后点「保存」</span>
+              </span>
+            </div>
+          )}
           {manager.providers.map((provider) => (
             <ProviderRow
               key={provider.id}
-              provider={provider}
+              // 正在编辑的行直接显示草稿：改名、换模型时列表同步变化，不等保存落盘。
+              provider={provider.id === manager.editingProviderId ? draftAsProvider(provider) : provider}
               running={ready && provider.id === manager.runtimeProviderId}
               selected={provider.id === manager.editingProviderId}
-              dirty={provider.id === manager.editingProviderId && manager.draftDirty}
+              dirty={provider.id === manager.editingProviderId && manager.draftDirty && (manager.saveState.kind === 'invalid' || manager.saveState.kind === 'error')}
               menuOpen={menuForID === provider.id}
               onToggleMenu={() => setMenuForID(menuForID === provider.id ? '' : provider.id)}
               onCloseMenu={() => setMenuForID('')}
@@ -100,9 +123,10 @@ export default function ConnectionsSection({ manager, ready, onActivateProvider,
       <ConfirmDialog
         open={confirm?.kind === 'switch' || confirm?.kind === 'new'}
         title="有未保存的更改"
-        body="当前连接档案的更改还没有保存。要如何处理？"
+        body={`${manager.draftBlockReason || '当前连接档案的更改还没有保存。'}要如何处理？`}
         actions={[
-          { label: '保存', variant: 'primary', onClick: () => void resolveConfirm('save') },
+          // 已有档案走到这里说明自动保存失败，再点"保存"也一样失败，只给放弃/取消。
+          ...(creating ? [{ label: '保存', variant: 'primary' as const, onClick: () => void resolveConfirm('save') }] : []),
           { label: '放弃更改', onClick: () => void resolveConfirm('discard') },
           { label: '取消', onClick: () => void resolveConfirm('cancel') },
         ]}

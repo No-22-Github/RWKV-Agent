@@ -1,15 +1,36 @@
-import type { ReactNode } from 'react'
+import { useId, type ReactNode } from 'react'
+import type { SaveState } from '../../state/providerManager'
 
 /* 设置表单的三个基础控件：输入框、开关、单行设置。所有 aria-label 供测试与读屏使用。 */
 
-export function Field({ label, value, onChange, placeholder, type = 'text', list }: { label: string; value: string; onChange: (value: string) => void; placeholder?: string; type?: string; list?: string[] }) {
-  const id = label.replace(/\s+/g, '-')
+export function Field({ label, value, onChange, placeholder, type = 'text', list, error }: { label: string; value: string; onChange: (value: string) => void; placeholder?: string; type?: string; list?: string[]; error?: string }) {
+  // useId：同名字段（多行请求头）不能共用 id，否则 datalist 与错误说明会串行。
+  const id = useId()
+  const errorId = `${id}-error`
   return (
     <label className="flex flex-col gap-[5px] py-[6px] text-xs text-ink-muted">
       <span>{label}</span>
-      <input id={id} aria-label={label} className="h-[40px] w-full rounded-none border border-line bg-paper-wash px-[10px] text-base text-ink outline-0 placeholder:text-ink-ghost focus:border-brand" type={type} value={value} placeholder={placeholder} list={list ? `${id}-list` : undefined} onChange={(event) => onChange(event.target.value)} />
+      <input id={id} aria-label={label} aria-invalid={error ? true : undefined} aria-describedby={error ? errorId : undefined} className={`h-[40px] w-full rounded-none border bg-paper-wash px-[10px] text-base text-ink outline-0 placeholder:text-ink-ghost focus:border-brand ${error ? 'border-danger' : 'border-line'}`} type={type} value={value} placeholder={placeholder} list={list ? `${id}-list` : undefined} onChange={(event) => onChange(event.target.value)} />
+      {error && <span id={errorId} className="text-xs text-danger">{error}</span>}
       {list && list.length > 0 && <datalist id={`${id}-list`}>{list.map((item) => <option key={item} value={item} />)}</datalist>}
     </label>
+  )
+}
+
+const SAVE_STATE_TONE: Record<SaveState['kind'], string> = {
+  idle: 'text-ink-ghost',
+  pending: 'text-ink-muted',
+  saving: 'text-ink-muted',
+  saved: 'text-ink-ghost',
+  invalid: 'text-warning',
+  error: 'text-danger',
+}
+
+/* 自动保存状态：读屏以 polite 播报，失败与校验提示用醒目色。idle 不渲染文字。 */
+export function SaveStatus({ state }: { state: SaveState }) {
+  const text = state.kind === 'invalid' ? `未保存：${state.message}` : state.message || ''
+  return (
+    <span role="status" aria-live="polite" className={`min-w-0 truncate font-mono text-2xs ${SAVE_STATE_TONE[state.kind]}`} title={text || undefined}>{text}</span>
   )
 }
 

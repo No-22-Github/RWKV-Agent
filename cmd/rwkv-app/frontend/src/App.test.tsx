@@ -12,6 +12,7 @@ import {
 } from '../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/models'
 import { SavedProvider, SubagentStep, SubagentTrace, ToolRetryTrace, ToolTrace } from '../bindings/github.com/no22/RWKV-Agent/internal/appstorage/models'
 import App from './App'
+import { SnackbarProvider } from './snackbar-context'
 
 const eventHandlers = vi.hoisted(() => new Map<string, (event: { data: unknown }) => void>())
 
@@ -529,32 +530,7 @@ describe('App', () => {
     expect(screen.getByText('已保存')).toBeInTheDocument()
   })
 
-  it('asks for confirmation when switching away from a dirty draft and applies the choice', async () => {
-    const first = savedRemoteProvider({}, { id: 'first-provider', label: 'First connection' })
-    const second = savedRemoteProvider({ model: 'second-model' }, { id: 'second-provider', label: 'Second connection' })
-    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
-      config: first.config,
-      hasConfig: true,
-      providers: [first, second],
-      activeProviderId: first.id,
-    }))
-
-    render(<App />)
-    await waitFor(() => expect(Backend.Bootstrap).toHaveBeenCalledOnce())
-    openSettings()
-    fireEvent.change(screen.getByLabelText('模型 ID'), { target: { value: 'edited-model' } })
-    fireEvent.click(screen.getByRole('button', { name: /^Second connection/ }))
-
-    expect(screen.getByLabelText('连接名称')).toHaveValue('First connection')
-    const dialog = await screen.findByRole('dialog', { name: '有未保存的更改' })
-    expect(dialog).toBeInTheDocument()
-
-    fireEvent.click(screen.getByRole('button', { name: '放弃更改' }))
-    expect(await screen.findByLabelText('连接名称')).toHaveValue('Second connection')
-    expect(Backend.SaveProvider).not.toHaveBeenCalled()
-  })
-
-  it('saves through the confirm dialog when switching profiles', async () => {
+  it('auto-saves a valid edit before switching profiles instead of asking', async () => {
     const first = savedRemoteProvider({}, { id: 'first-provider', label: 'First connection' })
     const second = savedRemoteProvider({ model: 'second-model' }, { id: 'second-provider', label: 'Second connection' })
     vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
@@ -570,14 +546,57 @@ describe('App', () => {
     openSettings()
     fireEvent.change(screen.getByLabelText('模型 ID'), { target: { value: 'edited-model' } })
     fireEvent.click(screen.getByRole('button', { name: /^Second connection/ }))
-    const dialog = await screen.findByRole('dialog', { name: '有未保存的更改' })
-    fireEvent.click(within(dialog).getByRole('button', { name: '保存' }))
 
     await waitFor(() => expect(Backend.SaveProvider).toHaveBeenCalledOnce())
     expect(vi.mocked(Backend.SaveProvider).mock.calls[0][0]).toBe('first-provider')
+    expect(vi.mocked(Backend.SaveProvider).mock.calls[0][2].model).toBe('edited-model')
     expect(await screen.findByLabelText('连接名称')).toHaveValue('Second connection')
+    expect(screen.queryByRole('dialog', { name: '有未保存的更改' })).not.toBeInTheDocument()
   })
 
+  it('asks before leaving an edit that cannot be saved and never persists it', async () => {
+    const first = savedRemoteProvider({}, { id: 'first-provider', label: 'First connection' })
+    const second = savedRemoteProvider({ model: 'second-model' }, { id: 'second-provider', label: 'Second connection' })
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
+      config: first.config,
+      hasConfig: true,
+      providers: [first, second],
+      activeProviderId: first.id,
+    }))
+
+    render(<App />)
+    await waitFor(() => expect(Backend.Bootstrap).toHaveBeenCalledOnce())
+    openSettings()
+    fireEvent.change(screen.getByLabelText('API 地址'), { target: { value: 'not a url' } })
+    expect(screen.getByLabelText('API 地址')).toHaveAttribute('aria-invalid', 'true')
+    expect(screen.getByText('API 地址必须是 http:// 或 https:// 开头的完整地址')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: /^Second connection/ }))
+
+    const dialog = await screen.findByRole('dialog', { name: '有未保存的更改' })
+    expect(within(dialog).queryByRole('button', { name: '保存' })).not.toBeInTheDocument()
+    fireEvent.click(within(dialog).getByRole('button', { name: '放弃更改' }))
+    expect(await screen.findByLabelText('连接名称')).toHaveValue('Second connection')
+    expect(Backend.SaveProvider).not.toHaveBeenCalled()
+  })
+
+  it('still confirms leaving an unsaved new connection and can save it from the dialog', async () => {
+    const created = savedRemoteProvider({ endpoint: 'https://new.example.test', model: 'new-model' }, { id: 'created', label: 'New one' })
+    vi.mocked(Backend.SaveProvider).mockResolvedValue(created)
+    render(<App />)
+    openSettings()
+    switchToRemoteProvider()
+    fireEvent.change(screen.getByLabelText('API 地址'), { target: { value: 'https://new.example.test' } })
+    fireEvent.change(screen.getByLabelText('模型 ID'), { target: { value: 'new-model' } })
+    // 新建连接不自动建档：等过防抖窗口也不会保存。
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+    expect(Backend.SaveProvider).not.toHaveBeenCalled()
+
+    fireEvent.keyDown(window, { key: 'Escape' })
+    const dialog = await screen.findByRole('dialog', { name: '有未保存的更改' })
+    fireEvent.click(within(dialog).getByRole('button', { name: '保存并返回' }))
+    await waitFor(() => expect(Backend.SaveProvider).toHaveBeenCalledOnce())
+    expect(vi.mocked(Backend.SaveProvider).mock.calls[0][0]).toBe('')
+  })
   it('activates a saved provider from the connection list', async () => {
     const provider = savedRemoteProvider({}, { id: 'p1', label: 'Solo connection' })
     vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
@@ -602,24 +621,8 @@ describe('App', () => {
     expect(vi.mocked(Backend.ActivateProvider).mock.calls[0][0]).toBe('p1')
   })
 
-  it('derives the capability indicator from the running profile, not the draft', async () => {
-    const runtime = savedRemoteProvider({ enableWeb: true, enableSubagents: true }, { id: 'runtime-provider', label: 'Runtime connection' })
-    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
-      status: new Status({
-        state: ModelState.ModelReady,
-        provider: Provider.ProviderRWKVLightningCUDA,
-        endpoint: runtime.config.endpoint,
-        model: runtime.config.model,
-        workspace: '/tmp/RWKV-Agent',
-        hasApiKey: false,
-        updatedAt: new Date().toISOString(),
-      }),
-      config: runtime.config,
-      hasConfig: true,
-      providers: [runtime],
-      activeProviderId: runtime.id,
-      runtimeProviderId: runtime.id,
-    }))
+  it('derives the capability indicator from the running config and applies toggles on close', async () => {
+    const runtime = bootstrapWithRunningProvider({ enableWeb: true, enableSubagents: true }, { id: 'runtime-provider', label: 'Runtime connection' })
 
     render(<App />)
     expect((await screen.findAllByText('web · subagents')).length).toBeGreaterThan(0)
@@ -627,12 +630,23 @@ describe('App', () => {
     openAgentSection()
     fireEvent.click(screen.getByLabelText('网页搜索与正文获取'))
     expect(screen.getByLabelText('网页搜索与正文获取')).not.toBeChecked()
+    // 草稿改了但还没生效：头部能力仍是运行中的配置。
+    expect(Backend.ConfigureProvider).not.toHaveBeenCalled()
 
+    // 后端应用后的状态：运行配置不再含 web。
+    const applied = new Config({ ...runtime.config, enableWeb: false })
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
+      status: readyStatus(), config: applied, hasConfig: true,
+      providers: [new SavedProvider({ ...runtime, config: applied })],
+      activeProviderId: runtime.id, runtimeProviderId: runtime.id,
+    }))
+    // Esc 不再弹"放弃更改"：待保存的更改立即落盘并生效，然后返回对话。
     fireEvent.keyDown(window, { key: 'Escape' })
-    fireEvent.click(await screen.findByRole('button', { name: '放弃更改' }))
-    expect((await screen.findAllByText('web · subagents')).length).toBeGreaterThan(0)
+    await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalledOnce())
+    expect(vi.mocked(Backend.ConfigureProvider).mock.calls[0][2].enableWeb).toBe(false)
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect((await screen.findAllByText('subagents')).length).toBeGreaterThan(0)
   })
-
   it('closes via Escape with confirmation when the draft is dirty', async () => {
     render(<App />)
     openSettings()
@@ -643,6 +657,145 @@ describe('App', () => {
 
     fireEvent.click(screen.getByRole('button', { name: '放弃更改' }))
     await waitFor(() => expect(screen.queryByLabelText('连接名称')).not.toBeInTheDocument())
+  })
+
+  it('keeps an auto-derived name in sync with the model in the list and on save', async () => {
+    const provider = bootstrapWithRunningProvider({}, { label: 'saved-model · saved.example.test' })
+    render(<App />)
+    await waitRuntimeReady()
+    openSettings()
+    expect(screen.getByLabelText('连接名称')).toHaveValue('')
+    fireEvent.change(screen.getByLabelText('模型 ID'), { target: { value: 'next-model' } })
+    expect(screen.getByRole('button', { name: /^next-model · saved\.example\.test/ })).toBeInTheDocument()
+    await waitFor(() => expect(Backend.SaveProvider).toHaveBeenCalledOnce(), { timeout: 3000 })
+    // 空名称交给后端按新模型重新派生。
+    expect(vi.mocked(Backend.SaveProvider).mock.calls[0][0]).toBe(provider.id)
+    expect(vi.mocked(Backend.SaveProvider).mock.calls[0][1]).toBe('')
+  })
+
+  it('applies connection edits to the running remote profile without a save button', async () => {
+    const provider = bootstrapWithRunningProvider()
+    render(<App />)
+    await waitRuntimeReady()
+    openSettings()
+    expect(screen.queryByRole('button', { name: '保存' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '使用中' })).toBeDisabled()
+
+    fireEvent.change(screen.getByLabelText('模型 ID'), { target: { value: 'rwkv-live-edit' } })
+    // 列表行立即跟随草稿，不等落盘。
+    expect(screen.getByRole('button', { name: /^Saved connection/ })).toHaveTextContent('Saved connection')
+    expect(screen.getByText('待保存…')).toBeInTheDocument()
+
+    await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalledOnce(), { timeout: 3000 })
+    expect(Backend.SaveProvider).toHaveBeenCalledOnce()
+    expect(vi.mocked(Backend.SaveProvider).mock.calls[0][0]).toBe(provider.id)
+    expect(vi.mocked(Backend.ConfigureProvider).mock.calls[0][2].model).toBe('rwkv-live-edit')
+    expect(await screen.findByText('已自动生效')).toBeInTheDocument()
+  })
+
+  it('renames a running profile without reconnecting and shows the new name in the list', async () => {
+    bootstrapWithRunningProvider()
+    render(<App />)
+    await waitRuntimeReady()
+    openSettings()
+    fireEvent.change(screen.getByLabelText('连接名称'), { target: { value: 'Renamed connection' } })
+    expect(screen.getByRole('button', { name: /^Renamed connection/ })).toBeInTheDocument()
+
+    await waitFor(() => expect(Backend.SaveProvider).toHaveBeenCalledOnce(), { timeout: 3000 })
+    expect(vi.mocked(Backend.SaveProvider).mock.calls[0][1]).toBe('Renamed connection')
+    expect(Backend.ConfigureProvider).not.toHaveBeenCalled()
+  })
+
+  it('does not auto-save an invalid endpoint and explains why', async () => {
+    bootstrapWithRunningProvider()
+    render(<App />)
+    await waitRuntimeReady()
+    openSettings()
+    fireEvent.change(screen.getByLabelText('API 地址'), { target: { value: 'https://user:pw@host.test' } })
+    expect(await screen.findByText(/未保存：API 地址不能内嵌账号密码/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: '使用此连接' })).toBeDisabled()
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+    expect(Backend.SaveProvider).not.toHaveBeenCalled()
+    expect(Backend.ConfigureProvider).not.toHaveBeenCalled()
+  })
+
+  it('surfaces a rejected auto-save and does not retry the same draft', async () => {
+    bootstrapWithRunningProvider()
+    vi.mocked(Backend.SaveProvider).mockRejectedValue(new Error('another provider profile already uses this provider, endpoint, and model'))
+    render(<App />)
+    await waitRuntimeReady()
+    openSettings()
+    fireEvent.change(screen.getByLabelText('模型 ID'), { target: { value: 'duplicate-model' } })
+    expect(await screen.findByText(/保存失败：another provider profile/, undefined, { timeout: 3000 })).toBeInTheDocument()
+    await new Promise((resolve) => setTimeout(resolve, 1000))
+    expect(Backend.SaveProvider).toHaveBeenCalledOnce()
+    expect(Backend.ConfigureProvider).not.toHaveBeenCalled()
+  })
+
+  it('marks a running local profile as needing a reload and reloads on demand', async () => {
+    const local = new SavedProvider({
+      id: 'local-provider', label: 'Local model',
+      config: new Config({ provider: Provider.ProviderLocal, model: '/models/new.pth' }),
+      lastUsedAt: new Date().toISOString(),
+    })
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
+      status: readyStatus(),
+      config: new Config({ provider: Provider.ProviderLocal, model: '/models/old.pth' }),
+      hasConfig: true,
+      providers: [local],
+      activeProviderId: local.id,
+      runtimeProviderId: local.id,
+      runtimeOutdated: true,
+    }))
+    vi.mocked(Backend.ConfigureProvider).mockResolvedValue(readyStatus())
+    render(<App />)
+    await waitRuntimeReady()
+    openSettings()
+    expect(screen.getByText('运行中 · 待重新加载')).toBeInTheDocument()
+    expect(screen.getByText(/本地模型仍在用旧配置运行/)).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('button', { name: '重新加载模型' }))
+    await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalledOnce())
+    expect(vi.mocked(Backend.ConfigureProvider).mock.calls[0][0]).toBe('local-provider')
+    expect(vi.mocked(Backend.ConfigureProvider).mock.calls[0][2].model).toBe('/models/new.pth')
+  })
+
+  it('refreshes the provider list when the backend announces a change', async () => {
+    render(<App />)
+    await waitFor(() => expect(Backend.Bootstrap).toHaveBeenCalledOnce())
+    fireEvent.click(screen.getByRole('button', { name: /运行配置|选择模型/ }))
+    expect(screen.getByText('尚无保存的连接，去设置里连接一次即可记住')).toBeInTheDocument()
+
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({ providers: [savedRemoteProvider({}, { label: 'Pushed connection' })] }))
+    await act(async () => { eventHandlers.get('providers:changed')?.({ data: undefined }) })
+    expect(await screen.findByText('Pushed connection')).toBeInTheDocument()
+  })
+
+  it('stops a running turn from the composer', async () => {
+    bootstrapWithRunningProvider()
+    const cancel = vi.fn()
+    let reject: (reason: unknown) => void = () => {}
+    const pending = new Promise<Result>((_, rejectRun) => { reject = rejectRun }) as Promise<Result> & { cancel: () => void }
+    pending.cancel = () => { cancel(); reject(new Error('cancelled')) }
+    vi.mocked(Backend.Chat).mockReturnValue(pending as unknown as ReturnType<typeof Backend.Chat>)
+
+    render(<App />)
+    await waitRuntimeReady()
+    fireEvent.change(screen.getByLabelText('消息'), { target: { value: 'long task' } })
+    fireEvent.click(screen.getByRole('button', { name: '发送' }))
+    const stop = await screen.findByRole('button', { name: '停止运行' })
+    fireEvent.click(stop)
+
+    expect(cancel).toHaveBeenCalledOnce()
+    expect(await screen.findByRole('button', { name: '发送' })).toBeInTheDocument()
+  })
+
+  it('shows chat-page failures in the snackbar instead of the hidden settings footer', async () => {
+    const conversation = new ConversationSummary({ id: 'c1', title: 'Broken', updatedAt: new Date().toISOString(), pinned: false })
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({ conversations: [conversation] }))
+    vi.mocked(Backend.OpenConversation).mockRejectedValue(new Error('conversation belongs to another workspace'))
+    render(<SnackbarProvider><App /></SnackbarProvider>)
+    fireEvent.click(await screen.findByTitle('Broken'))
+    expect(await screen.findByText('conversation belongs to another workspace')).toBeInTheDocument()
   })
 
   it('preserves an explicitly saved Markdown and Router selection', async () => {

@@ -1,7 +1,7 @@
 import { KeyboardEvent, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import {
-  ChevronDown, Folder, FolderOpen, LoaderCircle,
-  Menu, MoreHorizontal, PenLine, Pin, Settings, SquarePen,
+  ChevronDown, Folder, FolderOpen,
+  Menu, MoreHorizontal, PenLine, Pin, Settings, Square, SquarePen,
   Trash2, X,
 } from 'lucide-react'
 import { Events } from '@wailsio/runtime'
@@ -20,6 +20,7 @@ import TraceView from './components/TraceView'
 import { buildTraceTurns, flattenTraceRecords, formatDuration, parseJSONValue, shortValue, traceStats, type TraceRecord } from './ledger'
 import { useProviderManager } from './state/providerManager'
 import { getInitialTheme, toggleTheme, type ThemeMode } from './theme'
+import { useSnackbar } from './snackbar'
 
 type Message = {
   id: string
@@ -72,6 +73,11 @@ export default function App() {
   const messagesEnd = useRef<HTMLDivElement>(null)
   const ready = status.state === ModelState.ModelReady
   const manager = useProviderManager({ onStatus: setStatus, ready })
+  const { show: notify } = useSnackbar()
+  // 进行中的一轮：Wails 绑定返回可取消的 Promise，取消会中断后端 ctx。
+  const runningChat = useRef<{ cancel: () => void } | null>(null)
+  // 聊天页的失败要在聊天页看得见：settingsMessage 只在设置页底部渲染。
+  const reportError = (error: unknown) => notify(errorText(error), 'error')
   const { settingsOpen } = manager
 
   useEffect(() => {
@@ -83,32 +89,37 @@ export default function App() {
   }, [])
   useEffect(() => { messagesEnd.current?.scrollIntoView({ block: 'end' }) }, [messages])
 
-  useEffect(() => {
-    function onKeyDown(event: globalThis.KeyboardEvent) {
-      const mod = event.metaKey || event.ctrlKey
+  // 快捷键监听只挂一次，经 ref 调最新一轮渲染的处理函数：过去依赖 [busy] 的闭包会拿着
+  // 空的档案列表打开设置（首轮对话前按 ⌘, 总是落到"新建连接"）。
+  const shortcutRef = useRef<(event: globalThis.KeyboardEvent) => void>(() => {})
+  shortcutRef.current = (event) => {
+    const mod = event.metaKey || event.ctrlKey
       if (!mod) return
-      if (event.key.toLowerCase() === 'n') {
-        event.preventDefault()
-        void newConversation()
-          } else if (event.key === ',') {
-        event.preventDefault()
-        setRunConfigOpen(false)
-        manager.openSettings()
-      } else if (event.key.toLowerCase() === 'k') {
-        event.preventDefault()
-        document.querySelector<HTMLTextAreaElement>('textarea[aria-label="消息"]')?.focus()
-      }
+    if (event.key.toLowerCase() === 'n') {
+      event.preventDefault()
+      void newConversation()
+    } else if (event.key === ',') {
+      event.preventDefault()
+      setRunConfigOpen(false)
+      if (!settingsOpen) manager.openSettings()
+    } else if (event.key.toLowerCase() === 'k') {
+      event.preventDefault()
+      document.querySelector<HTMLTextAreaElement>('textarea[aria-label="消息"]')?.focus()
     }
+  }
+  useEffect(() => {
+    const onKeyDown = (event: globalThis.KeyboardEvent) => shortcutRef.current(event)
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [busy])
+  }, [])
 
   const workspaceName = useMemo(() => status.workspace ? status.workspace.split(/[\\/]/).filter(Boolean).at(-1) || status.workspace : '未打开工作区', [status.workspace])
   // 能力指示的单一事实源：当前运行中档案的已保存配置，而非正在编辑的草稿。
-  const runtimeProvider = manager.providers.find((provider) => provider.id === manager.runtimeProviderId)
-  const capabilities = ready && runtimeProvider
-    ? [runtimeProvider.config.enableWeb ? 'web' : null, runtimeProvider.config.enableSubagents ? 'subagents' : null].filter(Boolean).join(' · ') || '无'
+  // 取实际运行的配置（bootstrap.config）：本地档案改了参数但未重新加载时，档案的
+  // 已保存值并不是正在生效的值。
+  const runtimeConfig = manager.runtimeConfig
+  const capabilities = ready && runtimeConfig
+    ? [runtimeConfig.enableWeb ? 'web' : null, runtimeConfig.enableSubagents ? 'subagents' : null].filter(Boolean).join(' · ') || '无'
     : '无'
 
   function handleToggleTheme() {
@@ -118,12 +129,12 @@ export default function App() {
   function applyBootstrap(value: AppBootstrap) {
     setStatus(Status.createFrom(value.status)); setConversations(value.conversations || []); setWorkspaces(value.workspaces || [])
     manager.applyProviderBootstrapState(value)
-    applyConversation(value.conversation || undefined); if (value.hasConfig) manager.applyConfig(value.config); if (value.warning) manager.setSettingsMessage(value.warning)
+    applyConversation(value.conversation || undefined); if (value.hasConfig && !settingsOpen) manager.applyConfig(value.config); if (value.warning) notify(value.warning, 'error')
   }
   async function activateProviderNow(id: string) {
     if (busy) return
     setRunConfigOpen(false); setBusy(true)
-    try { await manager.activateProvider(id) } catch (error) { manager.setSettingsMessage(errorText(error)) } finally { setBusy(false) }
+    try { await manager.activateProvider(id) } catch (error) { if (settingsOpen) manager.setSettingsMessage(errorText(error)); else reportError(error) } finally { setBusy(false) }
   }
   async function deleteProviderNow(id: string) {
     if (busy) return
@@ -160,10 +171,12 @@ export default function App() {
     if (!content || !ensureReady()) return
     await runTurn(content, (current) => current.at(-1)?.role === 'user' ? current : current.slice(0, -1), () => Backend.Regenerate(), false)
   }
-  async function runTurn(content: string, stage: (current: Message[]) => Message[], run: () => Promise<Result>, restoreUser: boolean) {
+  async function runTurn(content: string, stage: (current: Message[]) => Message[], run: () => Promise<Result> & { cancel: () => void }, restoreUser: boolean) {
     setActivity([]); setMessages(stage); setBusy(true)
     try {
-      const result = await run()
+      const call = run()
+      runningChat.current = call
+      const result = await call
       const assistant: Message = { id: `pending-${nextMessageID++}`, role: 'assistant', content: result.output, prompt: content, trace: result, createdAt: new Date().toISOString(), meta: `${result.steps.length} 步 · ${(result.durationMs / 1000).toFixed(1)} 秒`, trajectory: legacyTrajectory(result.steps) }
       setMessages((current) => [...current, assistant]); setSelectedTraceID(assistant.id)
       const persisted = await Backend.Bootstrap(); setConversations(persisted.conversations || []); setActiveConversationID(persisted.conversation?.id || '')
@@ -184,20 +197,21 @@ export default function App() {
         setMessages((current) => [...current, { id: `error-${nextMessageID++}`, role: 'error', content: errorText(error) }])
       }
     }
-    finally { setBusy(false) }
+    finally { runningChat.current = null; setBusy(false) }
   }
+  function stopRun() { runningChat.current?.cancel() }
   function submitMessage() { void sendMessage(prompt) }
   function onComposerKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void sendMessage(prompt) } }
   async function newConversation() { if (busy) return; await Backend.NewConversation(); setMessages([]); setActivity([]); setPrompt(''); setActiveConversationID(''); setActiveTab('chat') }
-  async function openConversation(id: string) { if (busy || id === activeConversationID) return; setBusy(true); try { applyConversation(await Backend.OpenConversation(id)) } catch (error) { manager.setSettingsMessage(errorText(error)) } finally { setBusy(false) } }
-  async function deleteConversation(id: string) { if (busy) return; setBusy(true); try { await Backend.DeleteConversation(id); if (id === activeConversationID) applyConversation(); const persisted = await Backend.Bootstrap(); setConversations(persisted.conversations || []) } catch (error) { manager.setSettingsMessage(errorText(error)) } finally { setBusy(false) } }
-  async function chooseWorkspace() { if (busy) return; setBusy(true); try { applyBootstrap(await Backend.ChooseWorkspace()) } catch (error) { if (!errorText(error).toLowerCase().includes('cancel')) manager.setSettingsMessage(errorText(error)) } finally { setBusy(false) } }
-  async function openWorkspace(path: string) { if (busy) return; setBusy(true); try { applyBootstrap(await Backend.OpenWorkspace(path)) } catch (error) { manager.setSettingsMessage(errorText(error)) } finally { setBusy(false) } }
+  async function openConversation(id: string) { if (busy || id === activeConversationID) return; setBusy(true); try { applyConversation(await Backend.OpenConversation(id)) } catch (error) { reportError(error) } finally { setBusy(false) } }
+  async function deleteConversation(id: string) { if (busy) return; setBusy(true); try { await Backend.DeleteConversation(id); if (id === activeConversationID) applyConversation(); const persisted = await Backend.Bootstrap(); setConversations(persisted.conversations || []) } catch (error) { reportError(error) } finally { setBusy(false) } }
+  async function chooseWorkspace() { if (busy) return; setBusy(true); try { applyBootstrap(await Backend.ChooseWorkspace()) } catch (error) { if (!errorText(error).toLowerCase().includes('cancel')) { if (settingsOpen) manager.setSettingsMessage(errorText(error)); else reportError(error) } } finally { setBusy(false) } }
+  async function openWorkspace(path: string) { if (busy) return; setBusy(true); try { applyBootstrap(await Backend.OpenWorkspace(path)) } catch (error) { reportError(error) } finally { setBusy(false) } }
   async function renameConversation(id: string, title: string) {
-    try { await Backend.RenameConversation(id, title); const persisted = await Backend.Bootstrap(); setConversations(persisted.conversations || []) } catch (error) { manager.setSettingsMessage(errorText(error)) }
+    try { await Backend.RenameConversation(id, title); const persisted = await Backend.Bootstrap(); setConversations(persisted.conversations || []) } catch (error) { reportError(error) }
   }
   async function togglePinConversation(id: string, pinned: boolean) {
-    try { await Backend.SetConversationPinned(id, pinned); const persisted = await Backend.Bootstrap(); setConversations(persisted.conversations || []) } catch (error) { manager.setSettingsMessage(errorText(error)) }
+    try { await Backend.SetConversationPinned(id, pinned); const persisted = await Backend.Bootstrap(); setConversations(persisted.conversations || []) } catch (error) { reportError(error) }
   }
 
   const traceMessages = messages.filter((message) => message.role !== 'user' && (message.trace || message.trajectory?.length))
@@ -224,7 +238,7 @@ export default function App() {
             </button>
           </div>
         </header>
-        {activeTab === 'trace' ? <TraceView messages={traceMessages} selected={selectedMessage} onSelect={setSelectedTraceID} onBackToChat={() => setActiveTab('chat')} /> : <ChatView messages={messages} activity={activity} busy={busy} ready={ready} workspace={workspaceName} model={status.model || '选择模型'} capabilities={capabilities} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={() => void regenerateLast()} onKeyDown={onComposerKeyDown} openSettings={manager.openSettings} chooseWorkspace={chooseWorkspace} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} messagesEnd={messagesEnd} />}
+        {activeTab === 'trace' ? <TraceView messages={traceMessages} selected={selectedMessage} onSelect={setSelectedTraceID} onBackToChat={() => setActiveTab('chat')} /> : <ChatView messages={messages} activity={activity} busy={busy} ready={ready} workspace={workspaceName} model={status.model || '选择模型'} capabilities={capabilities} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={() => void regenerateLast()} onKeyDown={onComposerKeyDown} onStop={stopRun} openSettings={manager.openSettings} chooseWorkspace={chooseWorkspace} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} messagesEnd={messagesEnd} />}
       </main>
       <RunConfigDropdown open={runConfigOpen} onClose={() => setRunConfigOpen(false)} ready={ready} busy={busy} providers={manager.providers} runtimeProviderId={manager.runtimeProviderId} onActivate={(id) => void activateProviderNow(id)} onOpenSettings={() => { setRunConfigOpen(false); manager.openSettings() }} />
     </>}
@@ -303,7 +317,7 @@ function Sidebar({ conversations, workspaces, activeId, busy, open, onCloseSideb
   </>
 }
 
-function ChatView({ messages, activity, busy, ready, workspace, capabilities, prompt, setPrompt, onSubmit, onRegenerate, onKeyDown, onTrace, messagesEnd }: { messages: Message[]; activity: AgentActivity[]; busy: boolean; ready: boolean; workspace: string; model: string; capabilities: string; prompt: string; setPrompt: (value: string) => void; onSubmit: () => void; onRegenerate: () => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void; openSettings: () => void; chooseWorkspace: () => Promise<void>; onTrace: (id: string) => void; messagesEnd: React.RefObject<HTMLDivElement | null> }) {
+function ChatView({ messages, activity, busy, ready, workspace, capabilities, prompt, setPrompt, onSubmit, onStop, onRegenerate, onKeyDown, onTrace, messagesEnd }: { messages: Message[]; activity: AgentActivity[]; busy: boolean; ready: boolean; workspace: string; model: string; capabilities: string; prompt: string; setPrompt: (value: string) => void; onSubmit: () => void; onStop: () => void; onRegenerate: () => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void; openSettings: () => void; chooseWorkspace: () => Promise<void>; onTrace: (id: string) => void; messagesEnd: React.RefObject<HTMLDivElement | null> }) {
   const turns = groupMessagesIntoTurns(messages)
   const empty = turns.length === 0
   const stageRef = useRef<HTMLDivElement>(null)
@@ -362,7 +376,7 @@ function ChatView({ messages, activity, busy, ready, workspace, capabilities, pr
       </div>}
     </div>
     <div ref={anchorRef} className="composer-anchor absolute left-0 right-0 z-[2] mx-auto content-narrow will-change-transform transition-transform duration-[420ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none">
-      <Composer prompt={prompt} setPrompt={setPrompt} busy={busy} ready={ready} workspace={workspace} capabilities={capabilities} empty={empty} onSubmit={onSubmit} onKeyDown={onKeyDown} />
+      <Composer prompt={prompt} setPrompt={setPrompt} busy={busy} ready={ready} workspace={workspace} capabilities={capabilities} empty={empty} onSubmit={onSubmit} onStop={onStop} onKeyDown={onKeyDown} />
     </div>
   </div>
 }
@@ -403,7 +417,7 @@ function TurnView({ turn, index, last, busy, pending, activity, onTrace, onRegen
   </article>
 }
 
-function Composer({ prompt, setPrompt, busy, ready, workspace, capabilities, empty, onSubmit, onKeyDown }: { prompt: string; setPrompt: (value: string) => void; busy: boolean; ready: boolean; workspace: string; capabilities: string; empty?: boolean; onSubmit: () => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void }) {
+function Composer({ prompt, setPrompt, busy, ready, workspace, capabilities, empty, onSubmit, onStop, onKeyDown }: { prompt: string; setPrompt: (value: string) => void; busy: boolean; ready: boolean; workspace: string; capabilities: string; empty?: boolean; onSubmit: () => void; onStop: () => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void }) {
   function autoGrow(element: HTMLTextAreaElement) { element.style.height = 'auto'; element.style.height = `${Math.min(element.scrollHeight, 180)}px` }
   // 页边栏メタ・挨拶・スターターは全て流外(absolute)：输入框行高恒定，空↔对话仅位移，不改尺寸。
   return <div className="composer grid turn-grid">
@@ -423,7 +437,10 @@ function Composer({ prompt, setPrompt, busy, ready, workspace, capabilities, emp
       <div className="flex min-h-[52px] min-w-0 border-l-[3px] border-line-strong bg-paper-soft transition-[border-color] duration-[120ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none focus-within:border-brand">
         <textarea aria-label="消息" rows={1} value={prompt} disabled={busy} placeholder="描述你想要完成的任务" className="block min-h-[52px] max-h-[180px] min-w-0 flex-1 resize-none border-0 bg-transparent p-[13px_4px_12px_15px] text-md leading-[1.7] text-ink outline-0 placeholder:text-placeholder" onChange={(event) => { setPrompt(event.target.value); autoGrow(event.target) }} onKeyDown={onKeyDown} />
         <div className="flex flex-none items-end p-[12px_12px_12px_10px]">
-          <button className="h-[29px] border-0 bg-brand px-[14px] text-sm font-semibold text-white transition-colors duration-[120ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none disabled:bg-disabled-bg disabled:text-disabled-text" aria-label="发送" onClick={() => void onSubmit()} disabled={!prompt.trim() || busy}>{busy ? <LoaderCircle size={15} className="spin" /> : <>发送<span className="ml-[7px] font-mono text-2xs opacity-70">⏎</span></>}</button>
+          {busy
+            // 运行中发送键变成停止键：中断后端这一轮，已完成的步骤保留在轨迹里。
+            ? <button className="flex h-[29px] items-center gap-[6px] border border-danger bg-transparent px-[12px] text-sm font-semibold text-danger" aria-label="停止运行" onClick={onStop}><Square size={11} fill="currentColor" />停止</button>
+            : <button className="h-[29px] border-0 bg-brand px-[14px] text-sm font-semibold text-white transition-colors duration-[120ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none disabled:bg-disabled-bg disabled:text-disabled-text" aria-label="发送" onClick={() => void onSubmit()} disabled={!prompt.trim()}>发送<span className="ml-[7px] font-mono text-2xs opacity-70">⏎</span></button>}
         </div>
       </div>
       <div className={`composer-starters absolute inset-x-0 top-full mt-[9px] flex flex-wrap gap-[9px] transition-opacity duration-[240ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none ${empty ? 'opacity-100' : 'pointer-events-none opacity-0'}`} aria-hidden={!empty} aria-label="快速开始">

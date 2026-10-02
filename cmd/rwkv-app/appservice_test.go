@@ -1,7 +1,11 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
+	"net/http"
+	"net/http/httptest"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -155,8 +159,23 @@ func TestAppServiceSavesDraftWithoutReplacingRuntimeProvider(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if bootstrap.RuntimeProviderID != "" || bootstrap.Status.Model != draftConfig.Model {
-		t.Fatalf("editing the running profile should leave an unmatched runtime snapshot: %+v", bootstrap)
+	if bootstrap.RuntimeProviderID != draft.ID || !bootstrap.RuntimeOutdated || bootstrap.Status.Model != draftConfig.Model {
+		t.Fatalf("editing the running profile should keep the runtime marker and report it outdated: %+v", bootstrap)
+	}
+	if bootstrap.Config.Model != draftConfig.Model {
+		t.Fatalf("bootstrap config must stay the running config, got %q", bootstrap.Config.Model)
+	}
+
+	// 重新应用档案后运行配置追上保存值，待重新加载标记消失。
+	if _, err := backend.ActivateProvider(t.Context(), draft.ID); err != nil {
+		t.Fatal(err)
+	}
+	bootstrap, err = backend.Bootstrap()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bootstrap.RuntimeProviderID != draft.ID || bootstrap.RuntimeOutdated || bootstrap.Config.Model != edited.Model {
+		t.Fatalf("re-applying the edited profile should clear the outdated flag: %+v", bootstrap)
 	}
 }
 
@@ -382,5 +401,71 @@ func TestRollbackLastTurnRejectsMissingResponse(t *testing.T) {
 		if _, _, err := rollbackLastTurn(appstorage.Conversation{Messages: messages}); err == nil {
 			t.Fatalf("rollback accepted %+v", messages)
 		}
+	}
+}
+
+// 用户中断正在运行的一轮：取消 Chat 的 ctx 后调用及时返回，失败轮以中文“已停止”落盘。
+func TestChatCancellationPersistsStoppedTurn(t *testing.T) {
+	t.Parallel()
+	workspace := resolvedWorkspace(t)
+	store := testAppStore(t)
+	started := make(chan struct{}, 1)
+	release := make(chan struct{})
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		select {
+		case started <- struct{}{}:
+		default:
+		}
+		// 远端批处理请求不一定随单轮 ctx 中断（合批在后台 goroutine 上发出），
+		// 因此测试结束时显式放行，避免 server.Close 等待悬挂的连接。
+		select {
+		case <-r.Context().Done():
+		case <-release:
+		}
+	}))
+	t.Cleanup(server.Close)
+	t.Cleanup(func() { close(release) })
+	service, err := agentapi.NewService(agentapi.Options{Workspace: workspace})
+	if err != nil {
+		t.Fatal(err)
+	}
+	backend := newAppService(service, store)
+	t.Cleanup(func() { _ = backend.Close() })
+	config := agentapi.Config{Provider: agentapi.ProviderRWKVLightningCUDA, Endpoint: server.URL, Model: "blocking-model"}
+	if _, err := backend.ConfigureProvider(t.Context(), "", "", config); err != nil {
+		t.Fatal(err)
+	}
+
+	ctx, cancel := context.WithCancel(t.Context())
+	done := make(chan error, 1)
+	go func() {
+		_, chatErr := backend.Chat(ctx, "hello")
+		done <- chatErr
+	}()
+	select {
+	case <-started:
+	case <-time.After(5 * time.Second):
+		t.Fatal("model request never started")
+	}
+	cancel()
+	select {
+	case chatErr := <-done:
+		if !errors.Is(chatErr, context.Canceled) {
+			t.Fatalf("chat error = %v, want context.Canceled", chatErr)
+		}
+	case <-time.After(5 * time.Second):
+		t.Fatal("chat did not return after cancellation")
+	}
+
+	bootstrap, err := backend.Bootstrap()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bootstrap.Conversation == nil || len(bootstrap.Conversation.Messages) != 2 {
+		t.Fatalf("stopped turn was not persisted: %+v", bootstrap.Conversation)
+	}
+	stopped := bootstrap.Conversation.Messages[1]
+	if stopped.Role != "error" || !strings.Contains(stopped.Content, "已停止") {
+		t.Fatalf("stopped message = %+v", stopped)
 	}
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ArrowLeft } from 'lucide-react'
 import type { Status } from '../../bindings/github.com/no22/RWKV-Agent/api/models'
 import type { ProviderManager } from '../state/providerManager'
@@ -32,22 +32,29 @@ export default function SettingsPage({ manager, status, ready, onChooseWorkspace
   const [section, setSection] = useState<Section>('连接')
   const [confirmClose, setConfirmClose] = useState(false)
 
-  function requestClose() {
-    if (manager.draftDirty) setConfirmClose(true)
-    else manager.setSettingsOpen(false)
+  /* 返回对话：待保存的更改先落盘再关；只有无法自动保存时才弹确认框。 */
+  async function requestClose() {
+    if (confirmClose) return // 确认框自己处理 Esc
+    if (manager.draftDirty && !(await manager.flushDraft())) {
+      setConfirmClose(true)
+      return
+    }
+    manager.setSettingsOpen(false)
   }
 
+  // Esc 监听只挂一次，经 ref 调最新一轮渲染的 requestClose：否则会用旧闭包里的草稿去落盘。
+  const requestCloseRef = useRef(requestClose)
+  requestCloseRef.current = requestClose
   useEffect(() => {
     if (!manager.settingsOpen) return
     function onKeyDown(event: KeyboardEvent) {
-      if (event.key !== 'Escape') return
+      if (event.key !== 'Escape' || event.defaultPrevented) return
       event.preventDefault()
-      requestClose()
+      void requestCloseRef.current()
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [manager.settingsOpen, manager.draftDirty])
+  }, [manager.settingsOpen])
 
   async function resolveClose(action: 'save' | 'discard' | 'cancel') {
     setConfirmClose(false)
@@ -61,29 +68,36 @@ export default function SettingsPage({ manager, status, ready, onChooseWorkspace
   }
 
   const runtime = manager.providers.find((provider) => provider.id === manager.runtimeProviderId)
+  const creating = manager.editingProviderId === ''
   const closeActions: ConfirmAction[] = [
-    { label: '保存并返回', variant: 'primary', onClick: () => void resolveClose('save') },
+    // 已有档案走到这里说明自动保存失败，只给放弃/留下；新建连接才能在这里建档。
+    ...(creating ? [{ label: '保存并返回', variant: 'primary' as const, onClick: () => void resolveClose('save') }] : []),
     { label: '放弃更改', onClick: () => void resolveClose('discard') },
     { label: '留在设置', onClick: () => setConfirmClose(false) },
   ]
+  // 自动保存后"未保存"只剩两种真问题：新建连接未建档、或更改无法保存。
+  const profileNeedsAttention = manager.draftDirty && (creating || manager.saveState.kind === 'invalid' || manager.saveState.kind === 'error')
 
   return (
     <div className="flex h-full w-full bg-paper text-ink">
       <aside className="settings-sidebar flex h-full w-(--sidebar-w) flex-none flex-col border-r border-line bg-paper-sidebar py-[18px]">
         <div className="px-[18px] pb-[18px] font-serif text-lg font-semibold">设置</div>
+        <nav aria-label="设置分区" className="flex flex-col">
         {NAV_ITEMS.map((item) => (
           <button
             key={item}
+            aria-current={section === item ? 'page' : undefined}
             className={`flex items-center gap-[9px] px-[18px] py-[8px] text-left text-base ${section === item ? 'bg-surface-active font-semibold text-ink' : 'text-ink-soft'}`}
             onClick={() => setSection(item)}
           >
             <span className={`h-[14px] w-[3px] flex-none ${section === item ? 'bg-brand' : 'bg-transparent'}`} />
             {item}
-            {PROFILE_SECTIONS.includes(item) && manager.draftDirty && <span className="ml-auto h-[6px] w-[6px] rounded-full bg-warning" title="有未保存更改" />}
+            {PROFILE_SECTIONS.includes(item) && profileNeedsAttention && <span className="ml-auto h-[6px] w-[6px] rounded-full bg-warning" title={manager.draftBlockReason || '有未保存更改'} />}
           </button>
         ))}
+        </nav>
         <div className="flex-1" />
-        <button className="mx-[18px] mb-3 flex items-center gap-[9px] border border-line bg-transparent px-3 py-2 text-base text-ink-soft" onClick={requestClose}>
+        <button className="mx-[18px] mb-3 flex items-center gap-[9px] border border-line bg-transparent px-3 py-2 text-base text-ink-soft" onClick={() => void requestClose()}>
           <ArrowLeft size={15} />
           返回对话
         </button>
@@ -118,7 +132,7 @@ export default function SettingsPage({ manager, status, ready, onChooseWorkspace
       <ConfirmDialog
         open={confirmClose}
         title="有未保存的更改"
-        body="返回对话前要保存当前连接档案的更改吗？"
+        body={`${manager.draftBlockReason || "当前连接档案有未保存的更改。"}要如何处理？`}
         actions={closeActions}
         onClose={() => setConfirmClose(false)}
       />
