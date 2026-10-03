@@ -1,0 +1,64 @@
+{
+  "id": "cfg-8004",
+  "description": "Turn 1 asks for pool sizes of two environments but says the user will name them and the assistant should ask first; turn 2 names staging and dr. DISTILL-CANARY-5fa811f0",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-cfg-b10-poolsizepair-01",
+    "ref_calls": 2,
+    "fixture_bytes": 385,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b10",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/database.yaml": "database:\n  driver: postgres\n  pool_size: 10\n  statement_timeout_ms: 30000\n",
+    "README.md": "Shared defaults live in config/database.yaml; config/env/<name>.yaml overrides them per environment.\n",
+    "config/env/dev.yaml": "database:\n  host: pg-dev.internal\n  pool_size: 8\n",
+    "config/env/staging.yaml": "database:\n  host: pg-staging.internal\n  pool_size: 24\n",
+    "config/env/production.yaml": "database:\n  host: pg-production.internal\n  pool_size: 64\n",
+    "config/env/dr.yaml": "database:\n  host: pg-dr.internal\n  pool_size: 16\n"
+  },
+  "turns": [
+    {
+      "prompt": "I need the database connection pool sizes for two of our environments side by side. I'll tell you which two; ask me first and hold off on looking anything up.",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "which two",
+          "Which two",
+          "which environments",
+          "Which environments",
+          "which environment",
+          "Which environment"
+        ],
+        "max_output_chars": 300
+      }
+    },
+    {
+      "prompt": "Staging and dr.",
+      "expect": {
+        "output_contains": [
+          "24",
+          "16"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "read_file"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ]
+}

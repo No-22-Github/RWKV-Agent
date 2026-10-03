@@ -1,0 +1,52 @@
+{
+  "id": "cfg-8009",
+  "description": "Align one requirements pin with the version locked in poetry.lock; a neighbouring package with a similar name has a different version. DISTILL-CANARY-fa63d11e",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10-lockpin-01",
+    "ref_calls": 4,
+    "fixture_bytes": 295,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b10",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "requirements.txt": "fastapi==0.115.2\nhttpx==0.26.0\npydantic==2.8.2\nuvicorn==0.30.6\n",
+    "poetry.lock": "[[package]]\nname = \"httpcore\"\nversion = \"1.0.5\"\n\n[[package]]\nname = \"httpx\"\nversion = \"0.27.2\"\n\n[[package]]\nname = \"pydantic\"\nversion = \"2.8.2\"\n",
+    "README.md": "Deploy installs from requirements.txt; poetry.lock is the source of truth for versions.\n"
+  },
+  "turns": [
+    {
+      "prompt": "requirements.txt has httpx pinned to an older version than poetry.lock. Update the httpx pin to match the lock file. When finished, reply DONE.",
+      "expect": {
+        "output_contains": [
+          "DONE",
+          "0.27.2"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "requirements.txt": {
+        "equals": "fastapi==0.115.2\nhttpx==0.27.2\npydantic==2.8.2\nuvicorn==0.30.6\n"
+      }
+    }
+  }
+}

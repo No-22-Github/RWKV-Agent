@@ -1,0 +1,50 @@
+{
+  "id": "hyb-8005",
+  "description": "Inflate last year's average purchase price by the official year-over-year CPI from the statistics bureau page, then compute with the calculator. DISTILL-CANARY-26b77675",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_calc",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-hyb-b10-cpiadjust-01",
+    "ref_calls": 3,
+    "fixture_bytes": 93,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-opus-5-5-b10",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [
+    {
+      "query_match": "cpi",
+      "url_match": "stats.example.gov.cn/cpi/2026-08",
+      "url": "https://stats.example.gov.cn/cpi/2026-08",
+      "title": "2026 年 8 月居民消费价格指数（CPI）",
+      "snippet": "8 月全国居民消费价格同比上涨 2.3%。",
+      "content": "# 2026 年 8 月居民消费价格指数\n\n发布日期 2026-09-09。8 月份，全国居民消费价格同比上涨 2.3%，环比上涨 0.2%。\n",
+      "published_at": "2026-09-09"
+    }
+  ],
+  "files": {
+    "采购/均价.md": "2025 年 8 月 办公耗材采购均价：4860 元/批。\n\n（按批次加权，含税。）\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 2025 年 8 月的办公耗材采购均价按 2026 年 8 月 CPI 的同比涨幅调整一下，换算到今年 8 月的水平是多少元？保留两位小数。",
+      "expect": {
+        "output_contains_any": [
+          "4,971.78",
+          "4971.78"
+        ],
+        "required_tools": [
+          "calculator"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ]
+}

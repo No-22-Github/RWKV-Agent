@@ -1,0 +1,69 @@
+{
+  "id": "cfg-8002",
+  "description": "Asks the retry backoff of a worker in production; neither the base nor the production config sets it, the docs say the client library default applies, and a healthcheck retry interval is the decoy. DISTILL-CANARY-18c2ad2e",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-ABSENT",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "UNKNOWN",
+      "TR-DECOY": "30"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-cfg-b10-retrybackoff-01",
+    "ref_calls": 3,
+    "fixture_bytes": 786,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b10",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/ledger-sync.toml": "[worker]\nqueue = \"ledger-events\"\nbatch_size = 500\nmax_retries = 6\n\n[healthcheck]\npath = \"/healthz\"\nretry_interval_s = 30\n",
+    "config/env/production.toml": "[worker]\nbatch_size = 2000\nmax_retries = 8\n",
+    "docs/worker-config.md": "# ledger-sync worker settings\n\n- batch_size: events per commit.\n- max_retries: attempts before an event goes to the dead-letter queue.\n- retry_backoff_ms: delay between retries. When unset, the worker uses the backoff built into the ledgerkit client library, which has changed between ledgerkit releases. Pin it explicitly for production.\n- healthcheck.retry_interval_s: how often the orchestrator re-probes /healthz after a failed probe. Unrelated to event retries.\n",
+    "README.md": "ledger-sync: consumes ledger events and writes them to the reporting store. Settings in config/ledger-sync.toml; per-environment overrides in config/env/.\n"
+  },
+  "turns": [
+    {
+      "prompt": "We are tuning ledger-sync after last night's dead-letter spike. What retry backoff does the worker use in production?",
+      "expect": {
+        "output_contains": [
+          "ledgerkit"
+        ],
+        "output_contains_any": [
+          "not set",
+          "isn't set",
+          "not configured",
+          "isn't configured",
+          "not defined",
+          "doesn't set",
+          "does not set",
+          "no retry_backoff_ms",
+          "unset",
+          "neither"
+        ],
+        "output_excludes": [
+          "backoff is 30",
+          "backoff of 30",
+          "30 seconds between retries",
+          "30-second backoff"
+        ],
+        "required_tools": [
+          "read_file"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

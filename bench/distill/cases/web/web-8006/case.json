@@ -1,0 +1,68 @@
+{
+  "id": "web-8006",
+  "description": "When an API endpoint is switched off: a trade article from March gives a vague later date, the official deprecation page has the updated sunset date. DISTILL-CANARY-17b89596",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "deprecation",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "mid-2027"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-web-b10-endpointsunset-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b10",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [
+    {
+      "query_match": "ostrander",
+      "url_match": "paymentsweekly.io/ostrander-v1-batch",
+      "url": "https://paymentsweekly.io/ostrander-v1-batch",
+      "title": "Ostrander deprecates v1 batch endpoint",
+      "snippet": "Ostrander says /v1/batch will be removed around mid-2027.",
+      "published_at": "2026-03-18",
+      "content": "# Ostrander deprecates v1 batch endpoint\n\nMarch 2026. Ostrander told partners the /v1/batch endpoint is deprecated and will likely be removed around mid-2027.\n"
+    },
+    {
+      "query_match": "ostrander",
+      "url_match": "docs.ostrander.com/deprecations",
+      "url": "https://docs.ostrander.com/deprecations",
+      "title": "Deprecations and sunsets | Ostrander API",
+      "snippet": "Current deprecation schedule for the Ostrander Payments API.",
+      "published_at": "2026-08-04",
+      "content": "# Deprecations and sunsets\n\nUpdated 2026-08-04.\n\n| Endpoint | Status | Sunset |\n|---|---|---|\n| /v1/batch | deprecated; use /v2/batch-jobs | 2026-12-01 (requests return 410 after this date) |\n| /v1/refunds/legacy | removed | 2026-05-01 |\n"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "Is the /v1/batch endpoint of the Ostrander Payments API still supported? If it's going away, when exactly does it stop working?",
+      "expect": {
+        "output_contains_any": [
+          "2026-12-01",
+          "December 1, 2026",
+          "1 December 2026",
+          "Dec 1, 2026"
+        ],
+        "output_excludes": [
+          "mid-2027"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ],
+        "max_output_chars": 400
+      }
+    }
+  ]
+}

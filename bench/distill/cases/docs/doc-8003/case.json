@@ -1,0 +1,48 @@
+{
+  "id": "doc-8003",
+  "description": "With only list, read and search tools offered, look up how many unused annual-leave days can carry over in the employee handbook. DISTILL-CANARY-afb8538e",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-doc-b10-leavecarry-01",
+    "ref_calls": 2,
+    "fixture_bytes": 711,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b10",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "制度/员工手册.md": "# 员工手册（2026 版）\n\n## 第 1 章 总则\n\n本手册适用于栖霞科技全体正式员工。\n\n## 第 2 章 考勤\n\n标准工时为每日 8 小时，弹性上班时间 8:30–10:00。\n\n## 第 3 章 请假\n\n病假需提供医院证明；事假每年累计不超过 10 天。\n\n## 第 4 章 年假\n\n工作满 1 年不满 10 年的，年假 10 天；满 10 年的，年假 15 天。当年未休完的年假可结转至次年 3 月 31 日前使用，结转上限 5 天，逾期作废。\n\n## 第 5 章 报销\n\n差旅报销须在出差结束后 30 天内提交。\n\n## 第 6 章 设备\n\n笔记本电脑使用年限为 4 年。\n\n",
+    "制度/考勤补充说明.md": "2026 年 5 月起，远程办公日也需在系统打卡。\n",
+    "README.md": "人事制度文档。\n"
+  },
+  "turns": [
+    {
+      "prompt": "我今年还有 7 天年假没休，最多能带到明年几天？",
+      "expect": {
+        "output_contains": [
+          "5"
+        ],
+        "output_contains_token": true,
+        "output_contains_any": [
+          "3 月 31",
+          "3月31"
+        ],
+        "max_output_chars": 400
+      }
+    }
+  ],
+  "offered_tools": [
+    "list_files",
+    "read_file",
+    "search_text"
+  ]
+}

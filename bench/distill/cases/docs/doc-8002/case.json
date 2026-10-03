@@ -1,0 +1,57 @@
+{
+  "id": "doc-8002",
+  "description": "Asks who is on call for the billing service in a given week; the Q4 rota has no billing row, only a decommissioned billing-legacy service, and the service catalogue names the owning team. DISTILL-CANARY-9c932886",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-ABSENT",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "UNKNOWN",
+      "TR-DECOY": "Priya Venkataraman"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-doc-b10-oncallrota-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1016,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b10",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "oncall/2026-Q4.md": "# On-call rota, Q4 2026 (weeks start Monday)\n\n| Service | Oct 6 | Oct 13 | Oct 20 | Oct 27 |\n|---|---|---|---|---|\n| checkout-api | Mateus Ferreira | Hana Kobayashi | Mateus Ferreira | Hana Kobayashi |\n| search-indexer | Oluwaseun Adeyemi | Lena Hartmann | Oluwaseun Adeyemi | Lena Hartmann |\n| billing-legacy | Tomasz Wierzbicki | Priya Venkataraman | Tomasz Wierzbicki | Priya Venkataraman |\n| notifications | Ines Carvalho | Dmitri Sokolov | Ines Carvalho | Dmitri Sokolov |\n",
+    "oncall/README.md": "The rota lists every service that has a pager rotation this quarter. Swaps go through the #oncall-swaps channel.\n",
+    "services/catalogue.md": "# Service catalogue\n\n- checkout-api: owned by Storefront, pager rotation in oncall/.\n- search-indexer: owned by Discovery, pager rotation in oncall/.\n- billing: owned by Revenue Platform. Moved to the Revenue Platform pager tool on 2026-09-01; not in the shared rota.\n- billing-legacy: decommissioned 2026-08-15, rotation kept until the Q4 rota is regenerated.\n- notifications: owned by Messaging, pager rotation in oncall/.\n"
+  },
+  "turns": [
+    {
+      "prompt": "A payment reconciliation job is going to run against the billing service during the week of October 13. Who is on call for billing that week?",
+      "expect": {
+        "output_contains": [
+          "billing"
+        ],
+        "output_contains_any": [
+          "Revenue Platform"
+        ],
+        "output_excludes": [
+          "Priya Venkataraman",
+          "Tomasz Wierzbicki"
+        ],
+        "required_tools": [
+          "read_file"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "id": "doc-8005",
+  "description": "Replace two adjacent rows of a KPI table with new targets given in the prompt. DISTILL-CANARY-9964e67f",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-doc-b10-kpitargets-01",
+    "ref_calls": 3,
+    "fixture_bytes": 304,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b10",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "docs/kpi-targets.md": "# Support KPI targets, FY2026\n\n| Quarter | First response (h) | Resolution (h) | CSAT (%) |\n|---|---|---|---|\n| Q1 | 4 | 48 | 88 |\n| Q2 | 4 | 40 | 89 |\n| Q3 | 3 | 36 | 90 |\n| Q4 | 3 | 36 | 90 |\n\nTargets are reviewed each quarter by the support leads.\n",
+    "docs/leads.md": "Support leads: Amara Osei (EMEA), Jun Takeda (APAC).\n"
+  },
+  "turns": [
+    {
+      "prompt": "The support leads agreed new targets for the second half. In docs/kpi-targets.md, set Q3 to 2 h first response, 30 h resolution, 91% CSAT, and Q4 to 2 h, 28 h, 92%.",
+      "expect": {
+        "output_contains_any": [
+          "Q3"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "docs/kpi-targets.md": {
+        "equals": "# Support KPI targets, FY2026\n\n| Quarter | First response (h) | Resolution (h) | CSAT (%) |\n|---|---|---|---|\n| Q1 | 4 | 48 | 88 |\n| Q2 | 4 | 40 | 89 |\n| Q3 | 2 | 30 | 91 |\n| Q4 | 2 | 28 | 92 |\n\nTargets are reviewed each quarter by the support leads.\n"
+      }
+    }
+  }
+}

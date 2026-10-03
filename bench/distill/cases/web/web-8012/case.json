@@ -1,0 +1,67 @@
+{
+  "id": "web-8012",
+  "description": "Current version on a frontend framework's official channel: a June article is stale, and the official channel page also lists a next pre-release and an LTS line. DISTILL-CANARY-c148cc39",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-SUPERSEDE",
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": "9.3.0-next.4",
+      "TR-WEBSTALE": "9.1.4"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L2",
+    "family": "fam-web-b10-fechannel-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b10",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [
+    {
+      "query_match": "orchid",
+      "url_match": "fe-weekly.cn/orchid-9-1",
+      "url": "https://fe-weekly.cn/orchid-9-1",
+      "title": "Orchid 9.1.4 升级指南",
+      "snippet": "Orchid 最新稳定版 9.1.4 升级要点。",
+      "published_at": "2026-06-03",
+      "content": "# Orchid 9.1.4 升级指南\n\n2026-06-03。Orchid 最新稳定版 9.1.4……\n"
+    },
+    {
+      "query_match": "orchid",
+      "url_match": "orchidjs.dev/versions",
+      "url": "https://orchidjs.dev/versions",
+      "title": "Orchid 版本与发布通道",
+      "snippet": "Orchid 前端框架各发布通道的当前版本。",
+      "published_at": "2026-09-08",
+      "content": "# Orchid 版本与发布通道\n\n更新于 2026-09-08。\n\n| 通道 | 当前版本 | 说明 |\n|---|---|---|\n| latest（正式） | 9.2.0 | 2026-08-20 发布，推荐生产使用 |\n| next（预发布） | 9.3.0-next.4 | 每周更新，API 可能变动 |\n| lts | 8.6.7 | 维护到 2027-03 |\n"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "Orchid 前端框架的正式通道现在是哪个版本？",
+      "expect": {
+        "output_contains": [
+          "9.2.0"
+        ],
+        "output_excludes": [
+          "9.1.4 是"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ],
+        "max_output_chars": 400
+      }
+    }
+  ]
+}

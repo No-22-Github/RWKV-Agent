@@ -1,0 +1,58 @@
+{
+  "id": "fs-8002",
+  "description": "Turn 1 reads an equipment ledger for a freezer's room; turn 2 forbids tools and asks the next calibration date from the same ledger. DISTILL-CANARY-36d22f11",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "find_file",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-fs-b10-labledger-01",
+    "ref_calls": 1,
+    "fixture_bytes": 594,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b10",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "实验室/设备台账.md": "# 实验室设备台账（2026-09 更新）\n\n| 设备 | 编号 | 房间 | 上次校准 | 下次校准 | 责任人 |\n|---|---|---|---|---|---|\n| 超低温冰箱 -80℃ | EQ-0412 | B214 | 2026-04-09 | 2026-10-09 | 骆文清 |\n| 二氧化碳培养箱 | EQ-0388 | B210 | 2026-06-21 | 2026-12-21 | 骆文清 |\n| 离心机 | EQ-0275 | B207 | 2026-03-14 | 2027-03-14 | 韦嘉 |\n| 生物安全柜 | EQ-0331 | B210 | 2026-07-02 | 2027-01-02 | 韦嘉 |\n",
+    "实验室/借用登记.md": "# 借用登记\n\n- EQ-0275 离心机：2026-09-10 至 09-12 借给细胞组。\n",
+    "README.md": "实验平台共享资料。设备以 实验室/设备台账.md 为准。\n"
+  },
+  "turns": [
+    {
+      "prompt": "帮我看看 实验室/设备台账.md 里那台 -80℃ 超低温冰箱放在哪个房间？",
+      "expect": {
+        "output_contains": [
+          "B214"
+        ],
+        "required_tools": [
+          "read_file"
+        ],
+        "max_output_chars": 300
+      }
+    },
+    {
+      "prompt": "别再调用工具了，就用刚才读到的台账：那台冰箱下次校准是哪天？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "2026-10-09",
+          "10 月 9 日",
+          "10月9日",
+          "10 月 9 号",
+          "10月9号"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ]
+}

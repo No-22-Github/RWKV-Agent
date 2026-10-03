@@ -1,0 +1,37 @@
+{
+  "id": "nt-8006",
+  "description": "Convert a chiller's cooling capacity from kW to refrigeration tons with a non-integer factor, rounded to two decimals. DISTILL-CANARY-8d53f03e",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-nt-b10-chillertons-01",
+    "ref_calls": 1,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b10",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "一台冷水机组的制冷量是 350 kW，换算成冷吨是多少？按 1 冷吨 = 3.517 kW 算，保留两位小数。",
+      "expect": {
+        "output_contains": [
+          "99.52"
+        ],
+        "required_tools": [
+          "calculator"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ]
+}

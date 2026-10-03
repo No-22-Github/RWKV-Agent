@@ -1,0 +1,78 @@
+{
+  "id": "hyb-8003",
+  "description": "Bump a Dockerfile base image to the newest patch of the current minor series according to the project's releases page; a release candidate of the next minor and an older blog post are decoys. DISTILL-CANARY-ba892226",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_edit",
+    "traps": [
+      "TR-WEBSTALE",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": null,
+      "TR-DECOY": null
+    },
+    "axes": [
+      "VER",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b10-runtimepatch-01",
+    "ref_calls": 5,
+    "fixture_bytes": 186,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-opus-5-5-b10",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [
+    {
+      "query_match": "tidewater",
+      "url_match": "tidewater.dev/releases",
+      "url": "https://tidewater.dev/releases",
+      "title": "Tidewater runtime releases",
+      "snippet": "Release history for the Tidewater runtime images.",
+      "content": "# Tidewater runtime releases\n\n| Version | Channel | Date |\n|---|---|---|\n| 5.4.0-rc1 | preview | 2026-09-08 |\n| 5.3.4 | stable | 2026-09-02 |\n| 5.3.3 | stable | 2026-08-05 |\n| 5.3.2 | stable | 2026-07-01 |\n| 5.3.1 | stable | 2026-06-10 |\n\nImages: ghcr.io/tidewater/runtime:<version>\n",
+      "published_at": "2026-09-08"
+    },
+    {
+      "query_match": "tidewater",
+      "url_match": "blog.shipyardnotes.io/tidewater-5-3",
+      "url": "https://blog.shipyardnotes.io/tidewater-5-3",
+      "title": "Upgrading to Tidewater 5.3.2",
+      "snippet": "We moved all services to Tidewater 5.3.2, the newest 5.3 patch.",
+      "content": "# Upgrading to Tidewater 5.3.2\n\nJuly 2026. We moved all services to runtime 5.3.2, the newest 5.3 patch at the time.\n",
+      "published_at": "2026-07-04"
+    }
+  ],
+  "files": {
+    "Dockerfile": "FROM ghcr.io/tidewater/runtime:5.3.1\nWORKDIR /srv\nCOPY . .\nCMD [\"tidewater\", \"serve\", \"--port\", \"8080\"]\n",
+    "README.md": "Gateway service image. Stay on the 5.3 series until the 5.4 migration is planned.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Bump the Tidewater runtime base image in our Dockerfile to the newest 5.3 patch release.",
+      "expect": {
+        "output_contains": [
+          "5.3.4"
+        ],
+        "output_excludes": [
+          "5.4.0-rc1 is the"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "Dockerfile": {
+        "equals": "FROM ghcr.io/tidewater/runtime:5.3.4\nWORKDIR /srv\nCOPY . .\nCMD [\"tidewater\", \"serve\", \"--port\", \"8080\"]\n"
+      }
+    }
+  }
+}

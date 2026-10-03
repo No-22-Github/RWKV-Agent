@@ -1,0 +1,51 @@
+{
+  "id": "tab-8013",
+  "description": "Average the elapsed time of export runs when the column mixes millisecond and second values with unit suffixes. DISTILL-CANARY-f7d5d403",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-NUMFMT"
+    ],
+    "trap_decoys": {
+      "TR-NUMFMT": "357.23"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b10-elapsedunits-01",
+    "ref_calls": 3,
+    "fixture_bytes": 973,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b10",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "jobs/export-runs.csv": "run_id,date,elapsed\nexp-500,2026-09-18,4.1s\nexp-501,2026-09-03,1.5s\nexp-502,2026-09-24,488ms\nexp-503,2026-09-10,898ms\nexp-504,2026-09-21,953ms\nexp-505,2026-09-18,862ms\nexp-506,2026-09-03,2.4s\nexp-507,2026-09-28,3.3s\nexp-508,2026-09-10,1.7s\nexp-509,2026-09-11,1.7s\nexp-510,2026-09-04,2.4s\nexp-511,2026-09-11,3.4s\nexp-512,2026-09-08,920ms\nexp-513,2026-09-08,3.1s\nexp-514,2026-09-11,4.1s\nexp-515,2026-09-30,1.8s\nexp-516,2026-09-04,4.2s\nexp-517,2026-09-30,2.3s\nexp-518,2026-09-08,2.4s\nexp-519,2026-09-05,4.1s\nexp-520,2026-09-21,826ms\nexp-521,2026-09-12,1.4s\nexp-522,2026-09-10,965ms\nexp-523,2026-09-13,496ms\nexp-524,2026-09-26,775ms\nexp-525,2026-09-08,2.0s\nexp-526,2026-09-27,683ms\nexp-527,2026-09-13,786ms\nexp-528,2026-09-24,713ms\nexp-529,2026-09-06,2.9s\nexp-530,2026-09-17,587ms\nexp-531,2026-09-26,739ms\nexp-532,2026-09-29,863ms\nexp-533,2026-09-10,543ms\n",
+    "README.md": "Nightly export runs for Corvane Analytics. The runner logs elapsed as written by two different versions of the exporter.\n"
+  },
+  "turns": [
+    {
+      "prompt": "What was the average elapsed time of the September export runs, in seconds rounded to two decimals?",
+      "expect": {
+        "output_contains": [
+          "1.79"
+        ],
+        "required_tools": [
+          "calculator"
+        ],
+        "max_output_chars": 400
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 1
+    }
+  }
+}

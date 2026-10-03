@@ -1,0 +1,35 @@
+{
+  "id": "nt-8010",
+  "description": "Year-over-year revenue growth percentage to one decimal, answered as a bare number. DISTILL-CANARY-46b63d6e",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-nt-b10-yoygrowth-01",
+    "ref_calls": 1,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b10",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "去年营收 2846 万元，今年 3217 万元，同比增长百分之几？保留一位小数，只回数字，不带百分号。",
+      "expect": {
+        "expected_number": 13.0,
+        "tolerance": 0.05,
+        "required_tools": [
+          "calculator"
+        ]
+      }
+    }
+  ]
+}

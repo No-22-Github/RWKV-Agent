@@ -1,0 +1,45 @@
+{
+  "id": "nt-8001",
+  "description": "User has proxy configs in the workspace but explicitly says not to open them and asks the difference between HTTP 502 and 504. DISTILL-CANARY-75b1ba2a",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b10-gatewaycodes-01",
+    "ref_calls": 0,
+    "fixture_bytes": 162,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b10",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "nginx/conf.d/upstream.conf": "upstream orders_api {\n    server 10.0.4.21:8080;\n    server 10.0.4.22:8080;\n}\nproxy_read_timeout 15s;\n",
+    "README.md": "边缘代理配置。改动后执行 nginx -t 再 reload。\n"
+  },
+  "turns": [
+    {
+      "prompt": "不用翻配置文件，直接跟我讲一下 HTTP 502 和 504 有什么区别？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains": [
+          "502",
+          "504"
+        ],
+        "output_contains_any": [
+          "超时"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

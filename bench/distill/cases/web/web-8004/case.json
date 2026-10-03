@@ -1,0 +1,68 @@
+{
+  "id": "web-8004",
+  "description": "Default request timeout of an HTTP client 3.2: an older Q&A answer gives the old value while the official changelog records the 3.2 change. DISTILL-CANARY-2ebeabb5",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "60"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-web-b10-clienttimeout-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b10",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [
+    {
+      "query_match": "larkspur",
+      "url_match": "stackanswers.dev/q/larkspur-timeout",
+      "url": "https://stackanswers.dev/q/larkspur-timeout",
+      "title": "What is Larkspur's default timeout?",
+      "snippet": "Accepted answer: the default request timeout is 60 seconds.",
+      "published_at": "2025-04-02",
+      "content": "# What is Larkspur's default timeout?\n\nAsked 2025-04-02. Accepted answer: Larkspur waits 60 seconds by default before raising TimeoutError.\n"
+    },
+    {
+      "query_match": "larkspur",
+      "url_match": "larkspur.dev/changelog",
+      "url": "https://larkspur.dev/changelog",
+      "title": "Larkspur changelog",
+      "snippet": "Release notes for the Larkspur HTTP client.",
+      "published_at": "2026-06-30",
+      "content": "# Larkspur changelog\n\n## 3.2.0 (2026-06-30)\n- Default request timeout lowered from 60 s to 30 s.\n- New `retry_on` option.\n\n## 3.1.4 (2026-03-11)\n- Fix proxy auth header.\n"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "What is the default request timeout in the Larkspur HTTP client 3.2?",
+      "expect": {
+        "output_contains": [
+          "30"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "60 seconds",
+          "60s",
+          "60 s "
+        ],
+        "required_tools": [
+          "web_fetch"
+        ],
+        "max_output_chars": 400
+      }
+    }
+  ]
+}

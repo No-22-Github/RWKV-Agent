@@ -1,0 +1,51 @@
+{
+  "id": "cfg-8006",
+  "description": "Lower one section's max_replicas in an INI file while keeping its inline change-ticket comment; another section has the same key and value. DISTILL-CANARY-dcc09ad1",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10-replicacap-01",
+    "ref_calls": 3,
+    "fixture_bytes": 345,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b10",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "deploy/autoscale.ini": "[search]\nimage = registry.local/search:4.2.0\nmin_replicas = 3\nmax_replicas = 12  ; raised for Q4 peak (CHG-5521)\ncpu_target = 65\n\n[indexer]\nimage = registry.local/indexer:4.2.0\nmin_replicas = 1\nmax_replicas = 12  ; batch reindex window\ncpu_target = 80\n",
+    "README.md": "Autoscaling limits per service. Keep change-ticket comments next to the values they explain.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Lower the search service's max_replicas to 9 in deploy/autoscale.ini, and leave the change-ticket note on that line in place.",
+      "expect": {
+        "output_contains": [
+          "9"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "deploy/autoscale.ini": {
+        "equals": "[search]\nimage = registry.local/search:4.2.0\nmin_replicas = 3\nmax_replicas = 9  ; raised for Q4 peak (CHG-5521)\ncpu_target = 65\n\n[indexer]\nimage = registry.local/indexer:4.2.0\nmin_replicas = 1\nmax_replicas = 12  ; batch reindex window\ncpu_target = 80\n"
+      }
+    }
+  }
+}

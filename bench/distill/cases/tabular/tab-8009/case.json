@@ -1,0 +1,52 @@
+{
+  "id": "tab-8009",
+  "description": "Count billing-queue tickets opened August 1-14 when the opened column mixes ISO, US month/day, month-name and datetime forms. DISTILL-CANARY-ce37b9a1",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [
+      "TR-DATEFMT"
+    ],
+    "trap_decoys": {
+      "TR-DATEFMT": 23
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b10-ticketweek-01",
+    "ref_calls": 2,
+    "fixture_bytes": 5876,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b10",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "support/tickets-2026-08.csv": "ticket,opened,queue,priority\nTCK-88099,\"Aug 26, 2026\",billing,P1\nTCK-88049,08/25/2026,shipping,P3\nTCK-88026,2026-08-12 14:20,shipping,P1\nTCK-88082,\"Aug 16, 2026\",accounts,P3\nTCK-88054,08/26/2026,accounts,P3\nTCK-88091,2026-08-04 15:45,accounts,P2\nTCK-88107,2026-08-06 16:20,accounts,P2\nTCK-88077,08/26/2026,billing,P3\nTCK-88056,\"Aug 22, 2026\",shipping,P3\nTCK-88039,2026-08-06,accounts,P3\nTCK-88009,2026-08-23 16:40,billing,P3\nTCK-88103,\"Aug 28, 2026\",billing,P2\nTCK-88021,2026-08-25 16:00,accounts,P2\nTCK-88093,\"Aug 15, 2026\",billing,P2\nTCK-88055,08/20/2026,shipping,P3\nTCK-88088,2026-08-04,billing,P3\nTCK-88135,2026-08-23,shipping,P2\nTCK-88063,2026-08-26,billing,P2\nTCK-88015,08/08/2026,billing,P1\nTCK-88038,2026-08-09,billing,P2\nTCK-88050,2026-08-25 18:10,shipping,P3\nTCK-88020,\"Aug 28, 2026\",billing,P3\nTCK-88065,\"Aug 8, 2026\",shipping,P3\nTCK-88068,2026-08-12,billing,P3\nTCK-88064,2026-08-30,billing,P3\nTCK-88142,08/24/2026,shipping,P3\nTCK-88152,2026-08-13,billing,P2\nTCK-88114,\"Aug 17, 2026\",billing,P2\nTCK-88004,08/27/2026,billing,P3\nTCK-88145,\"Aug 26, 2026\",billing,P3\nTCK-88071,2026-08-01,shipping,P1\nTCK-88146,\"Aug 18, 2026\",billing,P1\nTCK-88037,2026-08-17 18:00,billing,P2\nTCK-88017,\"Aug 16, 2026\",shipping,P3\nTCK-88089,2026-08-26 18:15,billing,P3\nTCK-88119,08/04/2026,shipping,P3\nTCK-88140,2026-08-09 09:00,billing,P3\nTCK-88144,2026-08-07 13:10,billing,P3\nTCK-88154,\"Aug 31, 2026\",accounts,P2\nTCK-88133,\"Aug 6, 2026\",accounts,P3\nTCK-88112,2026-08-02,shipping,P1\nTCK-88128,2026-08-18,billing,P3\nTCK-88086,2026-08-23 18:20,accounts,P1\nTCK-88156,\"Aug 11, 2026\",shipping,P2\nTCK-88094,08/04/2026,accounts,P3\nTCK-88016,2026-08-18 18:45,billing,P2\nTCK-88081,2026-08-09,billing,P1\nTCK-88132,\"Aug 20, 2026\",billing,P2\nTCK-88012,08/09/2026,shipping,P3\nTCK-88153,2026-08-23,billing,P1\nTCK-88074,\"Aug 28, 2026\",billing,P3\nTCK-88117,2026-08-08,shipping,P3\nTCK-88018,08/18/2026,billing,P3\nTCK-88101,\"Aug 6, 2026\",billing,P1\nTCK-88106,08/11/2026,shipping,P3\nTCK-88090,2026-08-03,shipping,P2\nTCK-88085,08/24/2026,billing,P2\nTCK-88138,2026-08-05,billing,P1\nTCK-88113,\"Aug 15, 2026\",billing,P2\nTCK-88108,\"Aug 30, 2026\",billing,P3\nTCK-88013,2026-08-14,shipping,P3\nTCK-88029,2026-08-13,billing,P3\nTCK-88061,2026-08-30,billing,P3\nTCK-88032,2026-08-27 13:10,billing,P3\nTCK-88019,\"Aug 17, 2026\",billing,P1\nTCK-88150,2026-08-31 18:50,shipping,P3\nTCK-88158,08/31/2026,shipping,P1\nTCK-88131,2026-08-23,accounts,P3\nTCK-88157,2026-08-29 18:45,accounts,P3\nTCK-88151,\"Aug 11, 2026\",billing,P3\nTCK-88043,08/01/2026,shipping,P2\nTCK-88104,2026-08-30 14:20,billing,P3\nTCK-88139,08/02/2026,billing,P3\nTCK-88001,\"Aug 7, 2026\",accounts,P3\nTCK-88096,\"Aug 25, 2026\",billing,P3\nTCK-88060,08/12/2026,billing,P1\nTCK-88047,2026-08-06,billing,P3\nTCK-88129,2026-08-09 16:40,billing,P1\nTCK-88041,2026-08-22,accounts,P1\nTCK-88115,2026-08-23 15:45,accounts,P3\nTCK-88092,2026-08-25 09:50,billing,P1\nTCK-88083,08/26/2026,billing,P1\nTCK-88111,08/12/2026,billing,P3\nTCK-88007,\"Aug 9, 2026\",billing,P3\nTCK-88058,08/21/2026,billing,P3\nTCK-88006,08/02/2026,billing,P1\nTCK-88075,2026-08-10,billing,P2\nTCK-88123,2026-08-14,shipping,P3\nTCK-88126,2026-08-13 12:30,shipping,P3\nTCK-88072,\"Aug 18, 2026\",accounts,P3\nTCK-88159,2026-08-28 11:15,billing,P2\nTCK-88010,08/09/2026,accounts,P3\nTCK-88034,08/11/2026,shipping,P3\nTCK-88073,2026-08-20 08:00,billing,P2\nTCK-88033,\"Aug 3, 2026\",accounts,P3\nTCK-88024,2026-08-30 10:30,shipping,P1\nTCK-88036,08/09/2026,billing,P3\nTCK-88067,\"Aug 30, 2026\",billing,P3\nTCK-88155,2026-08-04 15:20,shipping,P3\nTCK-88087,08/20/2026,billing,P3\nTCK-88030,\"Aug 31, 2026\",billing,P2\nTCK-88045,\"Aug 5, 2026\",billing,P2\nTCK-88110,2026-08-17,accounts,P3\nTCK-88023,08/08/2026,shipping,P1\nTCK-88121,2026-08-29,shipping,P1\nTCK-88136,2026-08-25 09:20,accounts,P1\nTCK-88025,2026-08-28 12:15,shipping,P2\nTCK-88011,2026-08-05 15:40,shipping,P2\nTCK-88097,2026-08-23 16:20,billing,P2\nTCK-88008,08/25/2026,shipping,P2\nTCK-88027,08/05/2026,shipping,P1\nTCK-88044,08/02/2026,shipping,P2\nTCK-88042,2026-08-18,accounts,P3\nTCK-88118,2026-08-24 08:50,billing,P1\nTCK-88052,2026-08-17 10:50,billing,P3\nTCK-88147,08/03/2026,billing,P2\nTCK-88022,2026-08-27 10:40,billing,P3\nTCK-88127,08/10/2026,shipping,P3\nTCK-88031,2026-08-11 09:45,billing,P3\nTCK-88120,08/31/2026,accounts,P1\nTCK-88116,08/11/2026,accounts,P3\nTCK-88141,2026-08-19 08:10,shipping,P1\nTCK-88051,\"Aug 27, 2026\",shipping,P3\nTCK-88076,2026-08-25,billing,P2\nTCK-88000,08/01/2026,billing,P3\nTCK-88109,08/04/2026,billing,P3\nTCK-88014,\"Aug 23, 2026\",shipping,P3\nTCK-88143,2026-08-13 17:15,billing,P3\nTCK-88125,2026-08-03 17:50,accounts,P1\nTCK-88035,08/03/2026,billing,P1\nTCK-88040,2026-08-19,billing,P3\nTCK-88105,08/30/2026,billing,P3\nTCK-88046,2026-08-02 11:20,shipping,P1\nTCK-88149,2026-08-20,shipping,P2\nTCK-88062,08/17/2026,accounts,P3\nTCK-88148,2026-08-11 18:00,accounts,P3\nTCK-88070,08/31/2026,shipping,P3\nTCK-88137,08/11/2026,billing,P2\nTCK-88098,2026-08-03 18:50,billing,P2\nTCK-88057,2026-08-04 17:50,billing,P3\nTCK-88048,2026-08-18 11:10,billing,P3\nTCK-88079,08/26/2026,billing,P2\nTCK-88084,2026-08-13,shipping,P3\nTCK-88122,2026-08-30,billing,P3\nTCK-88130,2026-08-15 12:30,accounts,P3\nTCK-88066,\"Aug 25, 2026\",billing,P2\nTCK-88003,2026-08-20,billing,P2\nTCK-88124,\"Aug 4, 2026\",shipping,P3\nTCK-88078,\"Aug 4, 2026\",billing,P1\nTCK-88069,08/27/2026,accounts,P3\nTCK-88080,2026-08-09 09:00,billing,P2\nTCK-88053,\"Aug 23, 2026\",shipping,P3\nTCK-88059,\"Aug 13, 2026\",accounts,P3\nTCK-88102,2026-08-22,billing,P1\nTCK-88002,\"Aug 12, 2026\",shipping,P2\nTCK-88028,2026-08-24,billing,P2\nTCK-88134,2026-08-13 08:45,shipping,P1\nTCK-88095,\"Aug 19, 2026\",billing,P3\nTCK-88005,\"Aug 30, 2026\",billing,P2\nTCK-88100,\"Aug 2, 2026\",billing,P1\n",
+    "support/README.md": "Ticket export for Fernhill Telecom. The opened column comes from three intake tools: the portal writes 2026-08-03 or 2026-08-03 14:22 (local time), the phone desk writes US-style 08/04/2026 (month/day/year), and email intake writes Aug 5, 2026.\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many billing-queue tickets were opened in the first two weeks of August, the 1st through the 14th?",
+      "expect": {
+        "output_contains": [
+          "34"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "data_query"
+        ],
+        "max_output_chars": 400
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 1
+    }
+  }
+}

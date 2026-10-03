@@ -1,0 +1,61 @@
+{
+  "id": "log-8001",
+  "description": "Asks how many upstream timeouts the payment gateway logged between 02:00 and 03:00; the log has a collector gap covering that hour, so the count is unknown, not zero. DISTILL-CANARY-342aa1ae",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "0"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-log-b10-collectorgap-01",
+    "ref_calls": 2,
+    "fixture_bytes": 4013,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b10",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "logs/payment-gw/2026-09-14.log": "# payment-gw warn log, host gw-02, times Asia/Shanghai\n2026-09-14T00:02:42+08:00 INFO settle batch ok size=30\n2026-09-14T00:06:59+08:00 WARN upstream timeout route=/v2/charge ms=5000\n2026-09-14T00:10:08+08:00 WARN upstream timeout route=/v2/charge ms=5000\n2026-09-14T00:12:27+08:00 WARN upstream timeout route=/v2/charge ms=5000\n2026-09-14T00:15:01+08:00 WARN upstream timeout route=/v2/charge ms=5000\n2026-09-14T00:17:17+08:00 INFO settle batch ok size=28\n2026-09-14T00:21:30+08:00 INFO settle batch ok size=72\n2026-09-14T00:23:09+08:00 WARN upstream timeout route=/v2/charge ms=5000\n2026-09-14T00:27:03+08:00 WARN upstream timeout route=/v2/charge ms=5000\n2026-09-14T00:30:10+08:00 INFO settle batch ok size=72\n2026-09-14T00:33:13+08:00 INFO settle batch ok size=21\n2026-09-14T00:36:58+08:00 INFO settle batch ok size=85\n2026-09-14T00:40:58+08:00 WARN upstream timeout route=/v2/charge ms=5000\n2026-09-14T00:42:48+08:00 INFO settle batch ok size=53\n2026-09-14T00:46:34+08:00 WARN upstream timeout route=/v2/charge ms=5000\n2026-09-14T00:48:13+08:00 WARN upstream timeout route=/v2/charge ms=5000\n2026-09-14T00:52:15+08:00 INFO settle batch ok size=78\n2026-09-14T00:54:25+08:00 INFO settle batch ok size=72\n2026-09-14T00:56:25+08:00 INFO settle batch ok size=58\n2026-09-14T00:58:14+08:00 INFO settle batch ok size=67\n2026-09-14T01:01:36+08:00 INFO settle batch ok size=52\n2026-09-14T01:03:08+08:00 INFO settle batch ok size=44\n2026-09-14T01:06:41+08:00 INFO settle batch ok size=87\n2026-09-14T01:10:37+08:00 INFO settle batch ok size=21\n2026-09-14T01:12:32+08:00 INFO settle batch ok size=21\n2026-09-14T01:16:14+08:00 WARN upstream timeout route=/v2/charge ms=5000\n2026-09-14T01:19:28+08:00 INFO settle batch ok size=49\n2026-09-14T01:22:23+08:00 WARN upstream timeout route=/v2/charge ms=5000\n2026-09-14T01:25:01+08:00 WARN upstream timeout route=/v2/charge ms=5000\n2026-09-14T01:29:43+08:00 INFO settle batch ok size=32\n2026-09-14T01:33:24+08:00 WARN upstream timeout route=/v2/charge ms=5000\n2026-09-14T01:35:41+08:00 INFO settle batch ok size=52\n2026-09-14T01:39:44+08:00 INFO settle batch ok size=62\n2026-09-14T01:43:02+08:00 WARN upstream timeout route=/v2/charge ms=5000\n2026-09-14T01:47:05+08:00 INFO collector: shipping paused for maintenance window\n2026-09-14T03:41:30+08:00 INFO collector: shipping resumed; lines from 01:47 to 03:41 were not shipped and are not backfilled\n2026-09-14T03:43:35+08:00 WARN upstream timeout route=/v2/refund ms=5000\n2026-09-14T03:46:32+08:00 WARN upstream timeout route=/v2/refund ms=5000\n2026-09-14T03:51:44+08:00 INFO settle batch ok size=61\n2026-09-14T03:56:12+08:00 WARN upstream timeout route=/v2/refund ms=5000\n2026-09-14T04:00:12+08:00 INFO settle batch ok size=34\n2026-09-14T04:04:44+08:00 INFO settle batch ok size=65\n2026-09-14T04:07:58+08:00 INFO settle batch ok size=62\n2026-09-14T04:10:41+08:00 INFO settle batch ok size=80\n2026-09-14T04:14:55+08:00 INFO settle batch ok size=36\n2026-09-14T04:16:01+08:00 INFO settle batch ok size=84\n2026-09-14T04:18:10+08:00 INFO settle batch ok size=40\n2026-09-14T04:21:07+08:00 INFO settle batch ok size=67\n2026-09-14T04:23:13+08:00 WARN upstream timeout route=/v2/refund ms=5000\n2026-09-14T04:28:07+08:00 WARN upstream timeout route=/v2/refund ms=5000\n2026-09-14T04:32:34+08:00 INFO settle batch ok size=26\n2026-09-14T04:34:26+08:00 INFO settle batch ok size=65\n2026-09-14T04:39:24+08:00 WARN upstream timeout route=/v2/refund ms=5000\n2026-09-14T04:42:33+08:00 WARN upstream timeout route=/v2/refund ms=5000\n2026-09-14T04:44:41+08:00 INFO settle batch ok size=20\n2026-09-14T04:48:44+08:00 INFO settle batch ok size=23\n2026-09-14T04:53:56+08:00 WARN upstream timeout route=/v2/refund ms=5000\n2026-09-14T04:58:00+08:00 INFO settle batch ok size=90\n",
+    "运维/日志采集说明.md": "# 日志采集说明\n\n网关日志由 collector 每分钟推送到 logs/。维护期间推送暂停，暂停时段的日志不会补传；原始日志只在网关本机 /var/log/gw/ 保留 7 天。\n",
+    "README.md": "# 支付网关运维仓库\n\nlogs/ 下按服务、按天存放网关日志。\n"
+  },
+  "turns": [
+    {
+      "prompt": "支付网关 9 月 14 日凌晨 2 点到 3 点之间一共出现了多少次上游超时？",
+      "expect": {
+        "output_contains_any": [
+          "中断",
+          "暂停",
+          "维护",
+          "没有采集",
+          "没有推送",
+          "没有日志",
+          "缺失",
+          "空白",
+          "没有记录"
+        ],
+        "output_excludes": [
+          "0 次",
+          "零次",
+          "共 0",
+          "为 0 次"
+        ],
+        "required_tools": [
+          "read_file"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

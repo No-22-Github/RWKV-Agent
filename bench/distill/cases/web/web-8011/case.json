@@ -1,0 +1,62 @@
+{
+  "id": "web-8011",
+  "description": "Which SDK version to pin for production: the official releases list a 2.15 beta pre-release above the latest stable 2.14.0, and a blog post promotes the beta. DISTILL-CANARY-928bd6a3",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": "2.15.0-beta.1"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-web-b10-sdkpin-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b10",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [
+    {
+      "query_match": "kestrel",
+      "url_match": "github.com/kestrel-labs/sdk/releases",
+      "url": "https://github.com/kestrel-labs/sdk/releases",
+      "title": "Releases - kestrel-labs/sdk",
+      "snippet": "Kestrel SDK release history.",
+      "published_at": "2026-09-09",
+      "content": "# kestrel-labs/sdk releases\n\n## v2.15.0-beta.1 (pre-release) 2026-09-09\nNew streaming client. Not recommended for production.\n\n## v2.14.0 (latest) 2026-08-19\nStable. Retries honour Retry-After.\n\n## v2.13.2 2026-07-02\nBug fixes.\n"
+    },
+    {
+      "query_match": "kestrel",
+      "url_match": "medium.example-dev.net/kestrel-2-15",
+      "url": "https://medium.example-dev.net/kestrel-2-15",
+      "title": "Why we upgraded to Kestrel SDK 2.15",
+      "snippet": "Kestrel SDK 2.15 is out and it's great.",
+      "published_at": "2026-09-12",
+      "content": "# Why we upgraded to Kestrel SDK 2.15\n\nThe 2.15 beta's streaming client cut our latency in half. Upgrade today!\n"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "Which Kestrel SDK version should we pin for our production services?",
+      "expect": {
+        "output_contains": [
+          "2.14.0"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ],
+        "max_output_chars": 400
+      }
+    }
+  ]
+}

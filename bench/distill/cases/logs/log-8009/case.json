@@ -1,0 +1,40 @@
+{
+  "id": "log-8009",
+  "description": "Average ingest throughput: total events over all batches divided by the seconds from job start to the last batch, rounded to two decimals. DISTILL-CANARY-2f5fd462",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "aggregate_jsonl",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-log-b10-ingestrate-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1367,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b10",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "logs/ingest-2026-09-15.log": "2026-09-15T03:00:00Z INFO ingest job start source=s3://tidal-raw/2026-09-15/\n2026-09-15T03:02:58Z INFO batch 01 done events=9183\n2026-09-15T03:05:04Z INFO batch 02 done events=14263\n2026-09-15T03:07:55Z INFO batch 03 done events=15770\n2026-09-15T03:10:13Z INFO batch 04 done events=10185\n2026-09-15T03:11:50Z INFO batch 05 done events=12732\n2026-09-15T03:11:50Z WARN slow partition p14 lag=14s\n2026-09-15T03:14:25Z INFO batch 06 done events=9080\n2026-09-15T03:14:25Z WARN slow partition p4 lag=36s\n2026-09-15T03:17:14Z INFO batch 07 done events=11108\n2026-09-15T03:20:06Z INFO batch 08 done events=8158\n2026-09-15T03:21:42Z INFO batch 09 done events=8054\n2026-09-15T03:24:20Z INFO batch 10 done events=8042\n2026-09-15T03:27:14Z INFO batch 11 done events=11981\n2026-09-15T03:29:28Z INFO batch 12 done events=9991\n2026-09-15T03:31:36Z INFO batch 13 done events=11336\n2026-09-15T03:31:36Z WARN slow partition p9 lag=37s\n2026-09-15T03:34:20Z INFO batch 14 done events=13248\n2026-09-15T03:34:20Z WARN slow partition p6 lag=27s\n2026-09-15T03:36:48Z INFO batch 15 done events=12510\n2026-09-15T03:38:39Z INFO batch 16 done events=8531\n2026-09-15T03:38:39Z WARN slow partition p0 lag=8s\n2026-09-15T03:41:21Z INFO batch 17 done events=12247\n2026-09-15T03:43:24Z INFO batch 18 done events=8649\n2026-09-15T03:43:24Z WARN slow partition p3 lag=24s\n",
+    "README.md": "Tidal ingest worker logs (UTC).\n"
+  },
+  "turns": [
+    {
+      "prompt": "For the ingest run in logs/ingest-2026-09-15.log, what was the average throughput in events per second, counting from the job start to the last batch finishing? Round to two decimals.",
+      "expect": {
+        "output_contains": [
+          "74.91"
+        ],
+        "required_tools": [
+          "calculator"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ]
+}

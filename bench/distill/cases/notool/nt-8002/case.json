@@ -1,0 +1,38 @@
+{
+  "id": "nt-8002",
+  "description": "User asks a two-step stock arithmetic question and explicitly says not to use any tools. DISTILL-CANARY-c552a987",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b10-receivingloss-01",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b10",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "不用调工具，直接帮我算：一批货 18 箱、每箱 24 件，抽检损耗按 2.5% 算，实际能入库多少件？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains": [
+          "421"
+        ],
+        "max_output_chars": 400
+      }
+    }
+  ]
+}

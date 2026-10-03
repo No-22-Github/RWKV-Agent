@@ -1,0 +1,48 @@
+{
+  "id": "tab-8015",
+  "description": "Convert the EUR invoices of a month to CNY with the month's rate file and total them; the file also holds USD and GBP rates. DISTILL-CANARY-0b10c36f",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "policy_calc",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "42235.72"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b10-eurcny-01",
+    "ref_calls": 3,
+    "fixture_bytes": 317,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b10",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "rates/fx-2026-09.json": "{\n  \"month\": \"2026-09\",\n  \"EUR_CNY\": 7.8342,\n  \"USD_CNY\": 7.1186,\n  \"GBP_CNY\": 9.3021\n}\n",
+    "invoices/sept.csv": "invoice,currency,amount\nEU-2209,EUR,1840.00\nUS-1187,USD,2310.50\nEU-2214,EUR,965.40\nEU-2231,EUR,3127.75\nUK-0412,GBP,780.00\n",
+    "README.md": "Month-end FX: convert foreign invoices with that month's rates file (units of CNY per 1 unit of currency).\n"
+  },
+  "turns": [
+    {
+      "prompt": "Convert our September euro invoices to CNY using the month's rates file and give me the CNY total.",
+      "expect": {
+        "output_contains_any": [
+          "46,481.48",
+          "46481.48"
+        ],
+        "required_tools": [
+          "calculator"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ]
+}

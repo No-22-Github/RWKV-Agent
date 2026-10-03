@@ -1,0 +1,50 @@
+{
+  "id": "cfg-8008",
+  "description": "Set three consecutive timeout lines of one route to the same value; the next route has identical lines that must stay. DISTILL-CANARY-e0462e9b",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10-routetimeouts-01",
+    "ref_calls": 3,
+    "fixture_bytes": 293,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b10",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "网关/路由.yaml": "路由:\n  /pay:\n    上游: pay-svc:9000\n    连接超时秒: 2\n    读超时秒: 10\n    写超时秒: 10\n    重试次数: 1\n  /refund:\n    上游: refund-svc:9100\n    连接超时秒: 2\n    读超时秒: 10\n    写超时秒: 10\n    重试次数: 0\n",
+    "README.md": "支付网关路由配置，缩进两格。\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 网关/路由.yaml 里 /pay 的连接、读、写三个超时都改成 5 秒，别的不动。",
+      "expect": {
+        "output_contains_any": [
+          "/pay"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "网关/路由.yaml": {
+        "equals": "路由:\n  /pay:\n    上游: pay-svc:9000\n    连接超时秒: 5\n    读超时秒: 5\n    写超时秒: 5\n    重试次数: 1\n  /refund:\n    上游: refund-svc:9100\n    连接超时秒: 2\n    读超时秒: 10\n    写超时秒: 10\n    重试次数: 0\n"
+      }
+    }
+  }
+}

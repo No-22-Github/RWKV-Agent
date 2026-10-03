@@ -1,0 +1,35 @@
+{
+  "id": "nt-8009",
+  "description": "Contractor invoice with regular and time-and-a-half overtime hours at a decimal hourly rate, answered as a plain number. DISTILL-CANARY-986bc4ae",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-nt-b10-overtimeinvoice-01",
+    "ref_calls": 1,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b10",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "A contractor logged 37.5 regular hours at $86.40 an hour and 7.5 overtime hours at 1.5 times that rate. What is the invoice total in dollars? Give it as a plain number.",
+      "expect": {
+        "expected_number": 4212.0,
+        "tolerance": 0.01,
+        "required_tools": [
+          "calculator"
+        ]
+      }
+    }
+  ]
+}

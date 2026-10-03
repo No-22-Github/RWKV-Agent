@@ -1,0 +1,58 @@
+{
+  "id": "hyb-8002",
+  "description": "Only read_file and calculator are offered; the user wants one client's Q3 euro invoices converted at today's dollar rate, so only the euro total can be given. DISTILL-CANARY-97c7478e",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_calc",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "UNKNOWN"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b10-eurtousd-01",
+    "ref_calls": 2,
+    "fixture_bytes": 384,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b10",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "invoices/q3-eu.csv": "invoice,client,issued,amount_eur\nINV-2026-0718,Brightwater Marine,2026-07-09,318.40\nINV-2026-0802,Brightwater Marine,2026-08-14,276.95\nINV-2026-0811,Kessler Optics,2026-08-21,1440.00\nINV-2026-0907,Brightwater Marine,2026-09-03,317.88\nINV-2026-0915,Kessler Optics,2026-09-18,905.10\n",
+    "README.md": "EU invoices are issued in EUR. Finance converts at the day's ECB reference rate when reporting in USD.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Finance wants Brightwater Marine's Q3 invoices (invoices/q3-eu.csv) in US dollars at today's exchange rate. What's the total?",
+      "expect": {
+        "output_contains": [
+          "913.23"
+        ],
+        "output_contains_any": [
+          "can't",
+          "cannot",
+          "unable",
+          "don't have",
+          "do not have",
+          "no web",
+          "no internet",
+          "not able",
+          "no access"
+        ],
+        "max_output_chars": 500
+      }
+    }
+  ],
+  "offered_tools": [
+    "read_file",
+    "calculator"
+  ]
+}

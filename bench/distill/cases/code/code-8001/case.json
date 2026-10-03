@@ -1,0 +1,46 @@
+{
+  "id": "code-8001",
+  "description": "With only list, read and search tools offered, find which function rounds invoice totals and where it is defined. DISTILL-CANARY-d046a15f",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "locate_definition",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-code-b10-invoiceround-01",
+    "ref_calls": 2,
+    "fixture_bytes": 705,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b10",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "billing/money.py": "from decimal import Decimal, ROUND_HALF_UP\n\nCENT = Decimal(\"0.01\")\n\n\ndef round_invoice_total(amount: Decimal) -> Decimal:\n    \"\"\"Round an invoice total to the cent, half up, as finance requires.\"\"\"\n    return amount.quantize(CENT, rounding=ROUND_HALF_UP)\n\n\ndef round_display(amount: Decimal) -> str:\n    return f\"{amount:.2f}\"\n",
+    "billing/invoice.py": "from decimal import Decimal\n\nfrom billing.money import round_invoice_total\n\n\ndef invoice_total(lines):\n    subtotal = sum((Decimal(l[\"qty\"]) * Decimal(l[\"unit_price\"]) for l in lines), Decimal(\"0\"))\n    return round_invoice_total(subtotal)\n",
+    "billing/__init__.py": "",
+    "reports/export.py": "def export_rows(rows):\n    return [\",\".join(str(v) for v in r) for r in rows]\n",
+    "README.md": "Billing service. Money helpers live in the billing package.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Which function rounds invoice totals in this codebase, and which file defines it?",
+      "expect": {
+        "output_contains": [
+          "round_invoice_total",
+          "billing/money.py"
+        ],
+        "max_output_chars": 400
+      }
+    }
+  ],
+  "offered_tools": [
+    "list_files",
+    "read_file",
+    "search_text"
+  ]
+}

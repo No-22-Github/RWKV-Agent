@@ -1,0 +1,68 @@
+{
+  "id": "web-8003",
+  "description": "Default message retention of a queue's 4.x line: a 2025 blog repeats the pre-4.0 default while the official 4.x docs give the current one. DISTILL-CANARY-d3657a86",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "48"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-web-b10-queueretention-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b10",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [
+    {
+      "query_match": "quarrel",
+      "url_match": "kafkanotes.cn/quarrel-retention",
+      "url": "https://kafkanotes.cn/quarrel-retention",
+      "title": "Quarrel 消息保留调优笔记",
+      "snippet": "Quarrel 默认保留 48 小时，生产上建议调大。",
+      "published_at": "2025-11-20",
+      "content": "# Quarrel 消息保留调优笔记\n\n2025 年 11 月。Quarrel 默认把消息保留 48 小时，生产环境建议调到 7 天。\n"
+    },
+    {
+      "query_match": "quarrel",
+      "url_match": "quarrelmq.io/docs/4.x/retention",
+      "url": "https://quarrelmq.io/docs/4.x/retention",
+      "title": "Retention | Quarrel 4.x Documentation",
+      "snippet": "Message retention settings in Quarrel 4.x.",
+      "published_at": "2026-07-14",
+      "content": "# Retention (Quarrel 4.x)\n\nLast updated 2026-07-14.\n\n`retention.hours` defaults to 72. Changed in 4.0: the default was raised from 48 to 72 hours.\n"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "Quarrel 消息队列 4.x 版本默认把消息保留多少小时？",
+      "expect": {
+        "output_contains": [
+          "72"
+        ],
+        "output_contains_token": true,
+        "output_excludes": [
+          "48 小时",
+          "48小时",
+          "48 hours"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ],
+        "max_output_chars": 400
+      }
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "id": "web-8010",
+  "description": "Which version customers can install today: the official releases page lists a 6.0 release candidate on the preview channel above the latest stable. DISTILL-CANARY-9958b0f2",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": "6.0.0-rc.2"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-web-b10-stablechannel-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b10",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [
+    {
+      "query_match": "tessera",
+      "url_match": "gatewayweekly.cn/tessera-6",
+      "url": "https://gatewayweekly.cn/tessera-6",
+      "title": "Tessera 6.0 来了！",
+      "snippet": "Tessera 数据网关 6.0 带来全新插件体系。",
+      "published_at": "2026-09-11",
+      "content": "# Tessera 6.0 来了！\n\n2026-09-11。Tessera 6.0.0-rc.2 已经可以试用，全新插件体系……\n"
+    },
+    {
+      "query_match": "tessera",
+      "url_match": "tessera.io/releases",
+      "url": "https://tessera.io/releases",
+      "title": "Tessera 发布记录",
+      "snippet": "Tessera 数据网关各通道版本。",
+      "published_at": "2026-09-10",
+      "content": "# Tessera releases\n\n| 版本 | 通道 | 日期 |\n|---|---|---|\n| 6.0.0-rc.2 | preview（不提供商业支持） | 2026-09-10 |\n| 5.8.3 | stable | 2026-09-01 |\n| 5.8.2 | stable | 2026-07-22 |\n"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "客户现在能正式装上用的 Tessera 数据网关最新版本是哪个？",
+      "expect": {
+        "output_contains": [
+          "5.8.3"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ],
+        "max_output_chars": 400
+      }
+    }
+  ]
+}

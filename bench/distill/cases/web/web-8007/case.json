@@ -1,0 +1,70 @@
+{
+  "id": "web-8007",
+  "description": "Meaning of a CLI error code: a forum reply calls it a network timeout, the official error reference says it is a lockfile-version mismatch. DISTILL-CANARY-575f16dc",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "error_meaning",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "network timeout"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-web-b10-clierror-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-opus-5-5-b10",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [
+    {
+      "query_match": "halyard",
+      "url_match": "devforum.net/t/halyard-e4127",
+      "url": "https://devforum.net/t/halyard-e4127",
+      "title": "Halyard E4127 again??",
+      "snippet": "E4127 is just a network timeout, retry the command.",
+      "published_at": "2025-12-02",
+      "content": "# Halyard E4127 again??\n\nReply (2025-12-02): E4127 is just a network timeout talking to the registry, retry and it goes away.\n"
+    },
+    {
+      "query_match": "halyard",
+      "url_match": "halyard.sh/docs/errors",
+      "url": "https://halyard.sh/docs/errors",
+      "title": "Error reference | Halyard",
+      "snippet": "Every Halyard CLI error code and what it means.",
+      "published_at": "2026-07-21",
+      "content": "# Halyard error reference\n\nUpdated 2026-07-21.\n\n- E4126: registry unreachable (network). Retry or check proxy settings.\n- E4127: the lockfile was written by a newer Halyard version than the one running. Upgrade Halyard, or regenerate the lockfile with this version.\n- E4128: lockfile checksum invalid.\n"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "Our CI keeps failing with Halyard error E4127. What does that error mean?",
+      "expect": {
+        "output_contains": [
+          "newer"
+        ],
+        "output_contains_any": [
+          "lockfile",
+          "lock file"
+        ],
+        "output_excludes": [
+          "is just a network timeout",
+          "means a network timeout"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

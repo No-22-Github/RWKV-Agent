@@ -1,0 +1,53 @@
+{
+  "id": "tab-8011",
+  "description": "Value one category's stock at list price by joining a stock table (sku, warehouse, qty) to an item table (sku, category, price). DISTILL-CANARY-b2daea16",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "join",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "1526"
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b10-stockvalue-01",
+    "ref_calls": 4,
+    "fixture_bytes": 4201,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b10",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "catalog/items.csv": "sku,category,list_price\nSKU-3100,Accessories,16.48\nSKU-3107,Bikes,248.35\nSKU-3114,Clothing,506.43\nSKU-3121,Components,56.54\nSKU-3128,Accessories,56.84\nSKU-3135,Bikes,107.83\nSKU-3142,Clothing,758.87\nSKU-3149,Components,316.73\nSKU-3156,Accessories,44.90\nSKU-3163,Bikes,767.61\nSKU-3170,Clothing,877.25\nSKU-3177,Components,886.64\nSKU-3184,Accessories,15.59\nSKU-3191,Bikes,300.69\nSKU-3198,Clothing,341.94\nSKU-3205,Components,75.25\nSKU-3212,Accessories,80.42\nSKU-3219,Bikes,490.30\nSKU-3226,Clothing,779.78\nSKU-3233,Components,441.53\nSKU-3240,Accessories,34.91\nSKU-3247,Bikes,40.35\nSKU-3254,Clothing,409.06\nSKU-3261,Components,873.54\nSKU-3268,Accessories,47.49\nSKU-3275,Bikes,523.35\nSKU-3282,Clothing,437.63\nSKU-3289,Components,493.19\nSKU-3296,Accessories,89.01\nSKU-3303,Bikes,405.51\nSKU-3310,Clothing,391.67\nSKU-3317,Components,736.84\nSKU-3324,Accessories,84.83\nSKU-3331,Bikes,772.23\nSKU-3338,Clothing,326.82\nSKU-3345,Components,837.99\nSKU-3352,Accessories,32.53\nSKU-3359,Bikes,580.34\nSKU-3366,Clothing,394.80\nSKU-3373,Components,851.81\nSKU-3380,Accessories,85.44\nSKU-3387,Bikes,29.54\nSKU-3394,Clothing,461.17\nSKU-3401,Components,692.22\nSKU-3408,Accessories,44.20\nSKU-3415,Bikes,386.32\nSKU-3422,Clothing,47.52\nSKU-3429,Components,41.07\n",
+    "inventory/stock.csv": "sku,warehouse,qty\nSKU-3170,Leeds,23\nSKU-3296,Glasgow,2\nSKU-3408,Bristol,4\nSKU-3212,Glasgow,26\nSKU-3191,Leeds,18\nSKU-3240,Leeds,54\nSKU-3261,Bristol,17\nSKU-3387,Glasgow,34\nSKU-3247,Leeds,7\nSKU-3240,Bristol,60\nSKU-3373,Glasgow,48\nSKU-3331,Leeds,49\nSKU-3429,Glasgow,24\nSKU-3184,Bristol,36\nSKU-3100,Glasgow,28\nSKU-3345,Leeds,5\nSKU-3121,Leeds,8\nSKU-3331,Glasgow,5\nSKU-3268,Bristol,58\nSKU-3352,Glasgow,31\nSKU-3380,Bristol,29\nSKU-3310,Leeds,21\nSKU-3345,Bristol,42\nSKU-3226,Glasgow,36\nSKU-3128,Glasgow,54\nSKU-3352,Leeds,34\nSKU-3261,Glasgow,6\nSKU-3373,Leeds,5\nSKU-3135,Bristol,2\nSKU-3177,Bristol,9\nSKU-3366,Glasgow,2\nSKU-3401,Glasgow,49\nSKU-3184,Bristol,34\nSKU-3282,Bristol,25\nSKU-3177,Glasgow,31\nSKU-3261,Glasgow,1\nSKU-3331,Bristol,33\nSKU-3324,Leeds,29\nSKU-3100,Glasgow,59\nSKU-3275,Leeds,37\nSKU-3156,Bristol,17\nSKU-3338,Bristol,3\nSKU-3149,Glasgow,50\nSKU-3205,Glasgow,5\nSKU-3310,Leeds,24\nSKU-3219,Glasgow,17\nSKU-3394,Bristol,19\nSKU-3212,Leeds,19\nSKU-3387,Leeds,6\nSKU-3107,Glasgow,32\nSKU-3240,Glasgow,13\nSKU-3324,Leeds,14\nSKU-3170,Leeds,15\nSKU-3310,Bristol,48\nSKU-3429,Bristol,23\nSKU-3233,Leeds,60\nSKU-3198,Glasgow,3\nSKU-3345,Glasgow,49\nSKU-3401,Glasgow,21\nSKU-3359,Glasgow,2\nSKU-3247,Glasgow,0\nSKU-3135,Leeds,29\nSKU-3408,Leeds,39\nSKU-3268,Bristol,50\nSKU-3366,Glasgow,25\nSKU-3177,Glasgow,37\nSKU-3149,Leeds,57\nSKU-3422,Leeds,60\nSKU-3198,Bristol,28\nSKU-3373,Glasgow,23\nSKU-3170,Bristol,11\nSKU-3317,Leeds,12\nSKU-3163,Leeds,24\nSKU-3212,Bristol,13\nSKU-3184,Glasgow,17\nSKU-3387,Leeds,44\nSKU-3240,Leeds,35\nSKU-3261,Leeds,8\nSKU-3107,Leeds,15\nSKU-3226,Bristol,3\nSKU-3135,Bristol,51\nSKU-3275,Leeds,43\nSKU-3198,Bristol,35\nSKU-3128,Glasgow,25\nSKU-3317,Glasgow,31\nSKU-3247,Glasgow,4\nSKU-3415,Bristol,45\nSKU-3380,Bristol,8\nSKU-3352,Glasgow,51\nSKU-3422,Leeds,36\nSKU-3198,Bristol,2\nSKU-3401,Glasgow,50\nSKU-3338,Leeds,59\nSKU-3408,Bristol,55\nSKU-3310,Glasgow,5\nSKU-3198,Leeds,33\nSKU-3135,Leeds,46\nSKU-3303,Leeds,9\nSKU-3128,Bristol,37\nSKU-3100,Glasgow,50\nSKU-3261,Leeds,35\nSKU-3142,Glasgow,8\nSKU-3345,Leeds,35\nSKU-3324,Leeds,39\nSKU-3422,Glasgow,7\nSKU-3387,Leeds,28\nSKU-3212,Leeds,17\nSKU-3289,Leeds,0\nSKU-3345,Glasgow,8\nSKU-3282,Leeds,36\nSKU-3387,Leeds,57\nSKU-3415,Bristol,51\nSKU-3415,Bristol,17\nSKU-3170,Glasgow,36\nSKU-3184,Bristol,60\nSKU-3338,Leeds,22\nSKU-3128,Leeds,59\nSKU-3135,Bristol,44\nSKU-3415,Leeds,35\nSKU-3401,Bristol,14\nSKU-3121,Leeds,56\nSKU-3380,Bristol,38\nSKU-3345,Leeds,21\nSKU-3240,Bristol,51\nSKU-3184,Bristol,57\nSKU-3240,Leeds,44\nSKU-3205,Bristol,35\nSKU-3387,Bristol,19\nSKU-3380,Glasgow,55\nSKU-3149,Leeds,6\nSKU-3205,Leeds,19\nSKU-3408,Bristol,31\nSKU-3345,Leeds,54\nSKU-3275,Bristol,54\nSKU-3394,Glasgow,59\nSKU-3303,Glasgow,35\nSKU-3121,Leeds,50\nSKU-3422,Glasgow,7\nSKU-3394,Bristol,48\nSKU-3401,Glasgow,56\nSKU-3338,Bristol,28\nSKU-3114,Bristol,26\nSKU-3107,Leeds,54\nSKU-3177,Bristol,58\nSKU-3156,Bristol,3\nSKU-3408,Glasgow,52\nSKU-3156,Bristol,39\nSKU-3149,Leeds,12\nSKU-3394,Bristol,37\nSKU-3149,Bristol,9\n",
+    "README.md": "Pedalworks UK inventory. A SKU can appear once per warehouse in stock.csv; prices are in GBP.\n"
+  },
+  "turns": [
+    {
+      "prompt": "What is the total list-price value of our Accessories stock across all warehouses, in GBP?",
+      "expect": {
+        "output_contains_any": [
+          "68,181.47",
+          "68181.47"
+        ],
+        "required_tools": [
+          "data_query"
+        ],
+        "max_output_chars": 400
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 1
+    }
+  }
+}

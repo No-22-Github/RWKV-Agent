@@ -1,0 +1,49 @@
+{
+  "id": "log-8005",
+  "description": "Write a three-line incident summary file with the first and last ERROR timestamps and the ERROR count from a service log. DISTILL-CANARY-bbc233f1",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-log-b10-incidentsummary-01",
+    "ref_calls": 3,
+    "fixture_bytes": 4548,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b10",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "logs/pay-api-2026-09-15.log": "2026-09-15T13:30:00Z WARN pay-api slow upstream ledger 1569ms\n2026-09-15T13:30:25Z INFO pay-api charge ok\n2026-09-15T13:31:33Z WARN pay-api slow upstream ledger 975ms\n2026-09-15T13:32:20Z INFO pay-api charge ok\n2026-09-15T13:33:00Z WARN pay-api slow upstream ledger 1993ms\n2026-09-15T13:33:54Z INFO pay-api charge ok\n2026-09-15T13:34:55Z INFO pay-api charge ok\n2026-09-15T13:35:41Z INFO pay-api charge ok\n2026-09-15T13:36:55Z WARN pay-api slow upstream ledger 2237ms\n2026-09-15T13:37:54Z INFO pay-api charge ok\n2026-09-15T13:38:28Z INFO pay-api charge ok\n2026-09-15T13:39:32Z INFO pay-api charge ok\n2026-09-15T13:40:34Z INFO pay-api charge ok\n2026-09-15T13:41:06Z INFO pay-api charge ok\n2026-09-15T13:41:50Z INFO pay-api charge ok\n2026-09-15T13:42:32Z INFO pay-api charge ok\n2026-09-15T13:43:20Z INFO pay-api charge ok\n2026-09-15T13:44:16Z INFO pay-api charge ok\n2026-09-15T13:44:55Z INFO pay-api charge ok\n2026-09-15T13:46:10Z INFO pay-api charge ok\n2026-09-15T13:46:52Z INFO pay-api charge ok\n2026-09-15T13:47:39Z INFO pay-api charge ok\n2026-09-15T13:47:59Z INFO pay-api charge ok\n2026-09-15T13:48:43Z INFO pay-api charge ok\n2026-09-15T13:49:06Z INFO pay-api charge ok\n2026-09-15T13:49:31Z INFO pay-api charge ok\n2026-09-15T13:50:28Z INFO pay-api charge ok\n2026-09-15T13:50:50Z INFO pay-api charge ok\n2026-09-15T13:51:26Z INFO pay-api charge ok\n2026-09-15T13:52:32Z INFO pay-api charge ok\n2026-09-15T13:53:01Z WARN pay-api slow upstream ledger 1977ms\n2026-09-15T13:53:47Z INFO pay-api charge ok\n2026-09-15T13:54:18Z INFO pay-api charge ok\n2026-09-15T13:54:47Z WARN pay-api slow upstream ledger 1435ms\n2026-09-15T13:55:57Z WARN pay-api slow upstream ledger 1136ms\n2026-09-15T13:56:54Z INFO pay-api charge ok\n2026-09-15T13:57:58Z INFO pay-api charge ok\n2026-09-15T13:58:24Z INFO pay-api charge ok\n2026-09-15T13:58:53Z INFO pay-api charge ok\n2026-09-15T13:59:21Z INFO pay-api charge ok\n2026-09-15T14:00:09Z WARN pay-api slow upstream ledger 1404ms\n2026-09-15T14:01:10Z INFO pay-api charge ok\n2026-09-15T14:01:37Z WARN pay-api slow upstream ledger 2155ms\n2026-09-15T14:02:44Z ERROR pay-api charge failed: upstream ledger 503\n2026-09-15T14:03:14Z INFO pay-api charge ok\n2026-09-15T14:04:10Z WARN pay-api slow upstream ledger 1456ms\n2026-09-15T14:05:15Z INFO pay-api charge ok\n2026-09-15T14:05:52Z INFO pay-api charge ok\n2026-09-15T14:06:20Z ERROR pay-api charge failed: upstream ledger 503\n2026-09-15T14:07:10Z INFO pay-api charge ok\n2026-09-15T14:08:07Z WARN pay-api slow upstream ledger 2367ms\n2026-09-15T14:09:05Z ERROR pay-api charge failed: upstream ledger 503\n2026-09-15T14:10:11Z ERROR pay-api charge failed: upstream ledger 503\n2026-09-15T14:10:37Z INFO pay-api charge ok\n2026-09-15T14:11:27Z INFO pay-api charge ok\n2026-09-15T14:12:38Z ERROR pay-api charge failed: upstream ledger 503\n2026-09-15T14:13:21Z INFO pay-api charge ok\n2026-09-15T14:13:56Z INFO pay-api charge ok\n2026-09-15T14:14:49Z ERROR pay-api charge failed: upstream ledger 503\n2026-09-15T14:15:53Z INFO pay-api charge ok\n2026-09-15T14:16:30Z ERROR pay-api charge failed: upstream ledger 503\n2026-09-15T14:17:16Z INFO pay-api charge ok\n2026-09-15T14:17:39Z INFO pay-api charge ok\n2026-09-15T14:18:16Z INFO pay-api charge ok\n2026-09-15T14:19:06Z INFO pay-api charge ok\n2026-09-15T14:19:42Z WARN pay-api slow upstream ledger 1066ms\n2026-09-15T14:20:31Z WARN pay-api slow upstream ledger 1904ms\n2026-09-15T14:21:05Z INFO pay-api charge ok\n2026-09-15T14:21:40Z INFO pay-api charge ok\n2026-09-15T14:22:41Z INFO pay-api charge ok\n2026-09-15T14:23:35Z INFO pay-api charge ok\n2026-09-15T14:24:36Z INFO pay-api charge ok\n2026-09-15T14:25:32Z INFO pay-api charge ok\n2026-09-15T14:26:26Z INFO pay-api charge ok\n2026-09-15T14:27:12Z INFO pay-api charge ok\n2026-09-15T14:27:59Z WARN pay-api slow upstream ledger 1690ms\n2026-09-15T14:28:23Z WARN pay-api slow upstream ledger 1672ms\n2026-09-15T14:29:35Z WARN pay-api slow upstream ledger 952ms\n2026-09-15T14:30:38Z INFO pay-api charge ok\n2026-09-15T14:31:21Z INFO pay-api charge ok\n2026-09-15T14:32:11Z INFO pay-api charge ok\n2026-09-15T14:33:24Z INFO pay-api charge ok\n2026-09-15T14:34:12Z WARN pay-api slow upstream ledger 1906ms\n2026-09-15T14:35:02Z INFO pay-api charge ok\n2026-09-15T14:35:46Z INFO pay-api charge ok\n2026-09-15T14:36:08Z WARN pay-api slow upstream ledger 1380ms\n2026-09-15T14:36:56Z INFO pay-api charge ok\n2026-09-15T14:37:56Z INFO pay-api charge ok\n2026-09-15T14:38:17Z INFO pay-api charge ok\n2026-09-15T14:39:31Z WARN pay-api slow upstream ledger 2047ms\n",
+    "incidents/.keep": "",
+    "README.md": "pay-api logs, UTC timestamps. Incident notes go under incidents/.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Create incidents/2026-09-15-pay-api.md with three lines: `start: <timestamp of the first ERROR>`, `end: <timestamp of the last ERROR>`, `errors: <number of ERROR lines>`, using timestamps exactly as they appear in the pay-api log for that day.",
+      "expect": {
+        "output_contains_any": [
+          "incidents/2026-09-15-pay-api.md"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "incidents/2026-09-15-pay-api.md": {
+        "contains": [
+          "start: 2026-09-15T14:02:44Z",
+          "end: 2026-09-15T14:16:30Z",
+          "errors: 7"
+        ]
+      }
+    }
+  }
+}

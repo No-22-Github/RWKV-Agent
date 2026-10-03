@@ -1,0 +1,51 @@
+{
+  "id": "code-8002",
+  "description": "Point the default database at the connection pooler port in a Python settings module, updating the inline comment, keeping indentation and leaving the reporting database alone. DISTILL-CANARY-b9ab2b6f",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "fix_edge_case",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-code-b10-poolerport-01",
+    "ref_calls": 3,
+    "fixture_bytes": 608,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b10",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "app/settings.py": "import os\n\nDEBUG = os.environ.get(\"DEBUG\") == \"1\"\n\nDATABASES = {\n    \"default\": {\n        \"ENGINE\": \"django.db.backends.postgresql\",\n        \"HOST\": \"pg-main.internal\",\n        \"PORT\": 5432,  # direct to postgres\n        \"NAME\": \"orders\",\n        \"CONN_MAX_AGE\": 60,\n    },\n    \"reporting\": {\n        \"ENGINE\": \"django.db.backends.postgresql\",\n        \"HOST\": \"pg-replica.internal\",\n        \"PORT\": 5432,\n        \"NAME\": \"orders\",\n    },\n}\n",
+    "docs/pgbouncer.md": "pgbouncer runs on each app host and listens on 6432. Point only the read-write (default) connection at it; the reporting replica stays direct.\n",
+    "README.md": "Orders service (Django).\n"
+  },
+  "turns": [
+    {
+      "prompt": "Switch the default database in app/settings.py over to pgbouncer on port 6432, and change the comment on that line to just say pgbouncer.",
+      "expect": {
+        "output_contains": [
+          "6432"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "app/settings.py": {
+        "equals": "import os\n\nDEBUG = os.environ.get(\"DEBUG\") == \"1\"\n\nDATABASES = {\n    \"default\": {\n        \"ENGINE\": \"django.db.backends.postgresql\",\n        \"HOST\": \"pg-main.internal\",\n        \"PORT\": 6432,  # pgbouncer\n        \"NAME\": \"orders\",\n        \"CONN_MAX_AGE\": 60,\n    },\n    \"reporting\": {\n        \"ENGINE\": \"django.db.backends.postgresql\",\n        \"HOST\": \"pg-replica.internal\",\n        \"PORT\": 5432,\n        \"NAME\": \"orders\",\n    },\n}\n"
+      }
+    }
+  }
+}

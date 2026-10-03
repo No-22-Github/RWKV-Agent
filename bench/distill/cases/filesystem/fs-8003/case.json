@@ -1,0 +1,52 @@
+{
+  "id": "fs-8003",
+  "description": "With only list, read and search tools offered, count the SQL migration files in the migrations directory, excluding seeds and docs. DISTILL-CANARY-c80fed93",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "count_by_type",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-fs-b10-migrationcount-01",
+    "ref_calls": 1,
+    "fixture_bytes": 146,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b10",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "db/migrations/0001_create_accounts.sql": "-- migration\n",
+    "db/migrations/0002_create_invoices.sql": "-- migration\n",
+    "db/migrations/0003_add_invoice_status.sql": "-- migration\n",
+    "db/migrations/0004_create_payments.sql": "-- migration\n",
+    "db/migrations/0005_index_payments_account.sql": "-- migration\n",
+    "db/migrations/0006_add_currency.sql": "-- migration\n",
+    "db/migrations/0007_backfill_currency.sql": "-- migration\n",
+    "db/migrations/README.md": "Apply in numeric order.\n",
+    "db/migrations/.keep": "",
+    "db/seeds/demo.sql": "-- demo rows\n",
+    "README.md": "Payments service.\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many SQL migration files are in db/migrations right now?",
+      "expect": {
+        "output_contains": [
+          "7"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
+      }
+    }
+  ],
+  "offered_tools": [
+    "list_files",
+    "read_file",
+    "search_text"
+  ]
+}
