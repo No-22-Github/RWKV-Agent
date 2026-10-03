@@ -82,6 +82,17 @@
 - 阶段 4（`g1k+dup-continue`、`g1k+think-full` 新二进制复测）见 §7。
 - train-1-3 的 checkpoint 在训练机上，本机拿不到（约定不 ssh）；拷回后运行 `bench/distill/test-1-3.sh <目录>`。
 
-## 7. 阶段 4
+## 7. 阶段 4（二进制 ac721e4）
 
-（待补）
+| 组 | --profile | wb 干净 112 | wb 148 | bfclp | 中文 40 | irrel 20 | 合计 |
+|---|---|---|---|---|---|---|---|
+| qD | `g1k+dup-continue` | 5 | 5 | 43 | 31 | 12 | 48 |
+| qC | `g1k+think-full` | 8 | 10 | 41 | 29 | 12 | 49 |
+
+- **dup-continue**：收尾阶段吐调用 40→0，但重复后继续调用陷入循环，协议错误 7→40、平均调用 2.3→6.6，总分不涨。
+- **think-full 复测**：workbank 8/112（fC 为 9），两次都比 g1k（6、5）高约 3 题；bfcl irrelevance 这次 12/20（fC 只有 4/20），
+  说明 fC 的 irrelevance 暴跌大半是单次噪声。中文 40 题两次 28/29，比 g1k 的 34/36 低 5–7 题，这一项两次一致。
+- g1k 系所有变体最大的失分项都是「零调用直答」（37–42/112）。细看其中不少是协议垃圾而非真的直答：
+  「说明文字 + `<tool_call>`」整段被当成终答（`Never mix commentary with a tool call` 的严格解析），
+  以及极少数疑似续写系统提示的输出（如 `, and content=\"full\"}}\n</tools>`、`' way to answer directly. Never invent fi'`），
+  每 run 0–2 次（约 0.3% 的生成），可能是推理引擎 `albatross-1.3.0` 的提示截断或缓存问题，留给推理侧排查。
