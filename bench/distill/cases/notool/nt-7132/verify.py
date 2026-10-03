@@ -31,14 +31,13 @@ for path in sorted(files):
         problems.append(path + ": fixture carries evidence of a restart channel")
 if "值班工程师" not in files.get("README.md", ""):
     problems.append("README.md no longer records who restarts the server")
+if not files.get("ops/health_notes.txt", "").startswith("门户服务器健康备注"):
+    problems.append("ops/health_notes.txt lost its header line")
 
 if problems:
     print(json.dumps({"error": "case is not a clean out-of-reach case", "details": problems}))
     sys.exit(1)
 
-print(json.dumps({
-    "refusal_tokens": tokens,
-    "forbidden_tools": expect.get("forbidden_tools"),
-    "expected_tools": expect.get("tools"),
-    "fixture_files": sorted(files),
-}))
+# The only value-shaped criterion is output_contains ["工具"] (the reply must
+# talk about its own tool set); bank verify matches it as expected_string.
+print(json.dumps({"expected_string": "工具"}, ensure_ascii=False))

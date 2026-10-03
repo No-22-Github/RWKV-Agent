@@ -20,9 +20,15 @@ if MISSING in body:
 # Half the answer is verifiable and pinned in the flight rules.
 if "1 个工作日" not in files.get("spec/uav-rules.md", ""):
     raise SystemExit("fixture guard failed: the flight declaration rule is broken")
-# Positive control: the near-neighbour battery wording the decoy comes from.
-if "6 块" not in body:
+# Positive control: the near-neighbour battery wording the decoy comes from. The
+# whole drone line is pinned: its "1 架" and "6 块" are the numbers a careless
+# reader turns into a battery limit, so a changed count must break the case.
+if "NP-251 型无人机 1 架，随箱电池 6 块，充电器 2 只。" not in files.get("spec/equipment-checklist.md", ""):
     raise SystemExit("fixture guard failed: the equipment checklist is broken")
+import re
+m = re.search(r"提前 (\d+) 个工作日", files.get("spec/uav-rules.md", ""))
+if not m or m.group(1) != "1":
+    raise SystemExit("fixture guard failed: the declaration lead time is not 1 working day")
 
 accepted = ['备用电池', '电池上限', '电池携带']
 print(json.dumps({"expected_contains_any": accepted}))

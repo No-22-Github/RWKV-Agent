@@ -1,8 +1,14 @@
 # DISTILL-CANARY-a014d304 : distillation case
 import json
+import re
 
 case = json.load(open("case.json"))
 lines = [l for l in case["files"]["logs/roaster3-0822.log"].splitlines() if l.strip()]
+# Every record starts with "YYYY-MM-DD HH:MM 3 号烘炉"; the alarm start time is
+# read from that field, so a malformed timestamp has to break the script.
+for l in lines:
+    if not re.match(r"^2026-08-2[23] \d\d:\d\d 3 号烘炉 ", l):
+        raise SystemExit("malformed roaster line: " + l)
 alarms = [l for l in lines if "告警" in l]
 if not alarms:
     raise SystemExit(1)
