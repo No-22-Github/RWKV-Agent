@@ -18,6 +18,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/no22/RWKV-Agent/internal/agent/wire"
 	"github.com/no22/RWKV-Agent/internal/lab"
 	"github.com/no22/RWKV-Agent/internal/lab/runs"
 )
@@ -104,6 +105,7 @@ type SweepArgs struct {
 	APIURL         string
 	Prefix         string
 	StateID        string
+	Profile        string
 	MaxConcurrency int
 	MaxAttempts    int
 	DryRun         bool
@@ -111,6 +113,15 @@ type SweepArgs struct {
 	// parallel carries the per-suite in-flight case cap (scaledParallelism);
 	// nil falls back to the suiteSpec values.
 	parallel map[string]int
+}
+
+// profile is the wire profile of the g1k-wire suites: the g1k preset unless a
+// format ablation passes --profile.
+func (args *SweepArgs) profile() string {
+	if args.Profile == "" {
+		return "g1k"
+	}
+	return args.Profile
 }
 
 // RunSweep is the `bench sweep` command.
@@ -285,7 +296,12 @@ func sweepCommand(args SweepArgs, suite, arm, output string) []string {
 		cmd = append(cmd, "--state-id", args.StateID)
 	}
 	if spec.g1k {
-		cmd = append(cmd, "--profile", "g1k", "--strict-spec")
+		cmd = append(cmd, "--profile", args.profile())
+		// --strict-spec only admits registered presets; a modifier chain such
+		// as g1k+think-fast is still pinned by run check's wire_profile gate.
+		if _, registered := wire.Lookup(args.profile()); registered {
+			cmd = append(cmd, "--strict-spec")
+		}
 	}
 	cmd = append(cmd, spec.args...)
 	cmd = append(cmd, armFlags(arm)...)
@@ -479,6 +495,7 @@ func finishRun(args *SweepArgs, suite, arm, output string, cmd []string, started
 		MaxTokens:          4096,
 		DecisionMaxTokens:  2048,
 		CaseTimeoutSeconds: 1800,
+		Profile:            args.profile(),
 	})
 
 	task := mapOfAny(summary, "metrics", "task_success")
@@ -503,6 +520,7 @@ func finishRun(args *SweepArgs, suite, arm, output string, cmd []string, started
 	provenance.Set("git_head", gitHead)
 	provenance.Set("diff_sha256", hex.EncodeToString(diffSum[:]))
 	provenance.Set("state_id", args.StateID)
+	provenance.Set("profile", args.profile())
 	provenance.Set("started_unix", float64(started.UnixNano())/1e9)
 	provenance.Set("exit_code", lastExitCode)
 	provenance.Set("elapsed_seconds", time.Since(started).Seconds())

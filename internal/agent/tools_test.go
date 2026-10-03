@@ -167,6 +167,8 @@ func TestWorkspaceToolsNormalizeNotionalAbsolutePaths(t *testing.T) {
 		"/workspace/project-repo.git/logs/deploy.log",
 		"/logs/deploy.log",
 		"/workspace/workspace/logs/deploy.log",
+		"/home/node/.openclaw/workspace/logs/deploy.log",
+		"/home/user/workspace/logs/deploy.log",
 		filepath.Join(root, "logs", "deploy.log"),
 	} {
 		arguments := json.RawMessage(`{"path":` + strconv.Quote(path) + `}`)
@@ -178,10 +180,12 @@ func TestWorkspaceToolsNormalizeNotionalAbsolutePaths(t *testing.T) {
 			t.Fatalf("read_file(%q) content = %q", path, content)
 		}
 	}
-	if _, err := list.Execute(
-		context.Background(), json.RawMessage(`{"path":"/workspace/logs"}`),
-	); err != nil {
-		t.Fatalf("list_files absolute error = %v, want normalized success", err)
+	for _, path := range []string{"/workspace/logs", "/home/node/.openclaw/workspace"} {
+		if _, err := list.Execute(
+			context.Background(), json.RawMessage(`{"path":`+strconv.Quote(path)+`}`),
+		); err != nil {
+			t.Fatalf("list_files(%q) error = %v, want normalized success", path, err)
+		}
 	}
 }
 

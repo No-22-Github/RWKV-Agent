@@ -103,6 +103,7 @@ func runCheckCmd(argv []string) int {
 	fs.StringVar(&args.Arm, "arm", "", "sampling arm (required)")
 	fs.BoolVar(&args.RWKV, "rwkv", false, "RWKV run: require wire_preset g1k")
 	fs.BoolVar(&args.Primitive, "primitive", false, "Primitive suite: skip the g1k wire gate")
+	fs.StringVar(&args.Profile, "profile", "", "expected --profile for a format ablation (default: the g1k preset)")
 	fs.IntVar(&args.Cases, "cases", 0, "expected case count")
 	fs.IntVar(&args.MaxSteps, "max-steps", 16, "expected harness.max_steps")
 	fs.IntVar(&args.MaxTokens, "max-tokens", 4096, "expected answer_max_output_tokens")

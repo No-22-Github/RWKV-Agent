@@ -139,6 +139,7 @@ var modifiers = map[string]func(Spec) Spec{
 	"fake-think-closed": func(s Spec) Spec { s.Prefill = PrefillFakeThinkClosed; return s },
 
 	"no-tool":       func(s Spec) Spec { s.Abstain = AbstainNoTool; return s },
+	"no-abstain":    func(s Spec) Spec { s.Abstain = AbstainNone; return s },
 	"gate-state":    func(s Spec) Spec { s.Abstain = AbstainNoToolGateState; return s },
 	"gate-evidence": func(s Spec) Spec { s.Abstain = AbstainNoToolGateEvidence; return s },
 
@@ -170,6 +171,22 @@ var modifiers = map[string]func(Spec) Spec{
 	"native":      func(s Spec) Spec { s.Transport = TransportNative; s.Prefill = PrefillNone; return s },
 
 	"align-qwen36": func(s Spec) Spec { s.Align = AlignQwen36; return s },
+	"hermes":       func(s Spec) Spec { s.Align = AlignHermes; return s },
+	"hermes-think": func(s Spec) Spec { s.Prefill = PrefillHermesThink; return s },
+	// dup-continue rejects a duplicate call without forcing the answer stage
+	// (experiment duplicate=continue).
+	"dup-continue": func(s Spec) Spec { s.Experiments.Duplicate = "continue"; return s },
+	// no-nudge drops the post-tool reminder user turn (experiment nudge=none).
+	"no-nudge": func(s Spec) Spec { s.Experiments.Nudge = "none"; return s },
+	// recover-* accept one standalone tool call after commentary (preamble),
+	// also inside an unclosed think block (salvage), and with light JSON
+	// repair (json); the levels are cumulative (experiment recovery=...).
+	"recover-preamble": func(s Spec) Spec { s.Experiments.Recovery = "preamble"; return s },
+	"recover-salvage":  func(s Spec) Spec { s.Experiments.Recovery = "salvage"; return s },
+	"recover-json":     func(s Spec) Spec { s.Experiments.Recovery = "json"; return s },
+	// tool-role puts aligned tool results on their own Tool: line, the
+	// ShareGPT "tool" turn of Hermes trajectories (experiment toolrole=tool).
+	"tool-role":    func(s Spec) Spec { s.Experiments.ToolRole = "tool"; return s },
 	"align-legacy": func(s Spec) Spec { s.Align = AlignLegacy; return s },
 	"one-stage":    func(s Spec) Spec { s.Stages = StagesOne; return s },
 	"two-stage":    func(s Spec) Spec { s.Stages = StagesTwo; return s },
