@@ -33,7 +33,8 @@ for pair in "lr2e-2:v13a" "lr1e-2:v13b"; do
     else
       name=$(printf '%s-s%03d' "$tag" "$((10#${base#state-step-}))")
     fi
-    cp -n "$f" "$STATES/$name.pth"
+    # macOS cp -n exits 1 when the target exists, which set -e would abort on.
+    [[ -e $STATES/$name.pth ]] || cp "$f" "$STATES/$name.pth"
   done
 done
 (cd "$STATES" && shasum -a 256 ./*.pth >SHA256SUMS && cat SHA256SUMS)
