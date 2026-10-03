@@ -19,10 +19,10 @@
     "ref_calls": 5,
     "fixture_bytes": 973,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -35,10 +35,13 @@
   },
   "turns": [
     {
-      "prompt": "The replay desk holds replay runs with a REPLAY-HOLD annotation while the clock cutover is pending. How many lines under replay/ carry that annotation? Reply with only the final answer.",
+      "prompt": "The replay desk holds replay runs with a REPLAY-HOLD annotation while the clock cutover is pending. How many lines under replay/ carry that annotation?",
       "expect": {
-        "expected_number": 4,
-        "tolerance": 0.01
+        "output_contains": [
+          "4"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

@@ -19,10 +19,10 @@
     "ref_calls": 1,
     "fixture_bytes": 344,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -31,10 +31,14 @@
   },
   "turns": [
     {
-      "prompt": "Pinewood Grid Services is configuring the intake queue for access review requests and has to enter the prefix those tickets carry. Which prefix is it? Reply with only the final answer.",
+      "prompt": "Pinewood Grid Services is configuring the intake queue for access review requests and has to enter the prefix those tickets carry. Which prefix is it?",
       "expect": {
-        "output_equals": "AREV-",
-        "tools": []
+        "tools": [],
+        "output_contains": [
+          "AREV-"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

@@ -15,10 +15,10 @@
     "ref_calls": 3,
     "fixture_bytes": 1724,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-5.3-flash-b04",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -27,10 +27,13 @@
   },
   "turns": [
     {
-      "prompt": "Lammermoor Wind Farm's controller journals every turbine control event. How many yaw moves did turbine T-2 make on 21 January 2026? Give the number alone, as digits, with no label. Reply with only the final answer.",
+      "prompt": "Lammermoor Wind Farm's controller journals every turbine control event. How many yaw moves did turbine T-2 make on 21 January 2026?",
       "expect": {
-        "expected_number": 6,
-        "tolerance": 0.01
+        "output_contains": [
+          "6"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

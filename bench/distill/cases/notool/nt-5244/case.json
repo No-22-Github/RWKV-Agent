@@ -19,10 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 276,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -32,11 +32,14 @@
   },
   "turns": [
     {
-      "prompt": "Havensgill Marine is writing up the passage of the survey launch through the North Sound. The log holds a speed over ground of 17.5 knots, and a knot is 1.852 kilometres an hour. What speed in kilometres an hour goes into the survey report? Give the answer as a single number, with no unit in the reply. Reply with only the final answer.",
+      "prompt": "Havensgill Marine is writing up the passage of the survey launch through the North Sound. The log holds a speed over ground of 17.5 knots, and a knot is 1.852 kilometres an hour. What speed in kilometres an hour goes into the survey report?",
       "expect": {
-        "expected_number": 32.41,
-        "tolerance": 0.01,
-        "tools": []
+        "tools": [],
+        "output_contains": [
+          "32.41"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

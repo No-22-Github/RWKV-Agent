@@ -19,10 +19,10 @@
     "ref_calls": 3,
     "fixture_bytes": 3644,
     "status": "draft",
-    "version": 3,
+    "version": 4,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -32,10 +32,13 @@
   },
   "turns": [
     {
-      "prompt": "Quillbrook Office Supply's overnight manifest push to Ridgeway Freight ran on 15 September 2026. How many batches did that run leave undelivered? Reply with only the final answer.",
+      "prompt": "Quillbrook Office Supply's overnight manifest push to Ridgeway Freight ran on 15 September 2026. How many batches did that run leave undelivered?",
       "expect": {
-        "expected_number": 5,
-        "tolerance": 0.01
+        "output_contains": [
+          "5"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

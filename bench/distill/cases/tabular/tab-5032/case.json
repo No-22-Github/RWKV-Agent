@@ -22,10 +22,10 @@
     "ref_calls": 3,
     "fixture_bytes": 3444,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -34,10 +34,13 @@
   },
   "turns": [
     {
-      "prompt": "Garnet Ropeworks reports how many runs its braiding lines worked each month. How many separate runs does the June 2026 log record? Reply with only the final answer.",
+      "prompt": "Garnet Ropeworks reports how many runs its braiding lines worked each month. How many separate runs does the June 2026 log record?",
       "expect": {
-        "expected_number": 65,
-        "tolerance": 0.01
+        "output_contains": [
+          "65"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

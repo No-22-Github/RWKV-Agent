@@ -13,10 +13,10 @@
     "ref_calls": 2,
     "fixture_bytes": 1353,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -26,10 +26,13 @@
   },
   "turns": [
     {
-      "prompt": "Nightly posting is being resized, and the ledger team at Tarnbrook Software wants to know how many lines a single posting batch carries for the production deployment. How many is that? Reply with only the final answer.",
+      "prompt": "Nightly posting is being resized, and the ledger team at Tarnbrook Software wants to know how many lines a single posting batch carries for the production deployment. How many is that?",
       "expect": {
-        "expected_number": 480,
-        "tolerance": 0.01
+        "output_contains": [
+          "480"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

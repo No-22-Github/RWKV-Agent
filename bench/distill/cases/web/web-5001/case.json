@@ -19,10 +19,10 @@
     "ref_calls": 3,
     "fixture_bytes": 0,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "files": {},
   "web_fixture": [
@@ -47,10 +47,13 @@
   ],
   "turns": [
     {
-      "prompt": "Sablehook's webhook delivery policy is quoted in our on-call runbook. How many delivery attempts does one event get under the policy that is in force today? Reply with only the final answer.",
+      "prompt": "Sablehook's webhook delivery policy is quoted in our on-call runbook. How many delivery attempts does one event get under the policy that is in force today?",
       "expect": {
-        "expected_number": 6,
-        "tolerance": 0.01
+        "output_contains": [
+          "6"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

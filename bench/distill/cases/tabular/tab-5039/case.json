@@ -12,11 +12,11 @@
     "ref_calls": 2,
     "scenario": "tabular",
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
     "fixture_bytes": 710,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -25,10 +25,13 @@
   },
   "turns": [
     {
-      "prompt": "Carrowdore Kelp Works settles with its boats at the end of every month. What was the total kelp landed in August 2026? Give the weight as a number of tonnes. Reply with only the final answer.",
+      "prompt": "Carrowdore Kelp Works settles with its boats at the end of every month. What was the total kelp landed in August 2026? Give the weight as a number of tonnes.",
       "expect": {
-        "expected_number": 244.8,
-        "tolerance": 0.01
+        "output_contains": [
+          "244.8"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

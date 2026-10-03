@@ -19,10 +19,10 @@
     "ref_calls": 1,
     "fixture_bytes": 358,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -31,10 +31,14 @@
   },
   "turns": [
     {
-      "prompt": "Brackenmoor Assurance is gathering evidence for an internal audit of access control. Which revision of the access control standard is the audit held against? Reply with only the final answer.",
+      "prompt": "Brackenmoor Assurance is gathering evidence for an internal audit of access control. Which revision of the access control standard is the audit held against?",
       "expect": {
-        "output_equals": "ACS-4",
-        "tools": []
+        "tools": [],
+        "output_contains": [
+          "ACS-4"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

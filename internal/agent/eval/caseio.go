@@ -325,6 +325,9 @@ func ValidateCases(cases []Case) error {
 					index+1,
 				)
 			}
+			if turn.Expect.MaxOutputChars < 0 {
+				return fmt.Errorf("case %q turn %d max_output_chars cannot be negative", testCase.ID, index+1)
+			}
 			if plan := turn.Expect.Plan; plan != nil {
 				if plan.SubtaskCount < 1 {
 					return fmt.Errorf("case %q turn %d plan subtask_count must be positive", testCase.ID, index+1)

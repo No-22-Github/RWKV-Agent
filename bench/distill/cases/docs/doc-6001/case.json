@@ -13,10 +13,10 @@
     "ref_calls": 2,
     "fixture_bytes": 708,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:glm-5.3-flash-b04",
     "reviewer": null,
-    "answer_style": "unknown"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -26,10 +26,13 @@
   },
   "turns": [
     {
-      "prompt": "The workshop planner at Sizergh Logistics is booking the season's services and needs the mileage cycle the coolant runs on. After how many kilometres is the coolant replaced? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "The workshop planner at Sizergh Logistics is booking the season's services and needs the mileage cycle the coolant runs on. After how many kilometres is the coolant replaced?",
       "expect": {
-        "expected_number": 60000,
-        "tolerance": 0.01
+        "output_contains": [
+          "60000"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

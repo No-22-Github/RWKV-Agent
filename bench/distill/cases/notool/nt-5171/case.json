@@ -19,10 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 352,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -31,13 +31,14 @@
   },
   "turns": [
     {
-      "prompt": "Grangemoor Hide & Tallow lets its night ledger and its stock clerks work on the same hide_batch table. A clerk who writes a row that the ledger has read has to wait until the ledger's transaction has committed. Give the clause to put at the end of the ledger's reading statement so that the clerk's write waits. Reply with only the final answer.",
+      "prompt": "Grangemoor Hide & Tallow lets its night ledger and its stock clerks work on the same hide_batch table. A clerk who writes a row that the ledger has read has to wait until the ledger's transaction has committed. Give the clause to put at the end of the ledger's reading statement so that the clerk's write waits.",
       "expect": {
         "tools": [],
-        "output_equals_any": [
-          "FOR UPDATE",
-          "FOR UPDATE OF hide_batch"
-        ]
+        "output_contains": [
+          "FOR UPDATE"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

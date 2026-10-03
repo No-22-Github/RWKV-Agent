@@ -19,10 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 318,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -32,11 +32,14 @@
   },
   "turns": [
     {
-      "prompt": "Redmarsh Transit is loading the night service departure into the network timetable. The service leaves the east ridge site at 22:50 by the site clock, and that site keeps its clocks five hours and forty-five minutes ahead of UTC. How many seconds after midnight UTC does the timetable hold for the departure? Give the answer as a single number, with no unit in the reply. Reply with only the final answer.",
+      "prompt": "Redmarsh Transit is loading the night service departure into the network timetable. The service leaves the east ridge site at 22:50 by the site clock, and that site keeps its clocks five hours and forty-five minutes ahead of UTC. How many seconds after midnight UTC does the timetable hold for the departure?",
       "expect": {
-        "expected_number": 61500,
-        "tolerance": 0.01,
-        "tools": []
+        "tools": [],
+        "output_contains": [
+          "61500"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

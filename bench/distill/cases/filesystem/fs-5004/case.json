@@ -15,10 +15,10 @@
     "ref_calls": 2,
     "fixture_bytes": 534,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -30,12 +30,13 @@
   },
   "turns": [
     {
-      "prompt": "Thornbury Veterinary Laboratory scans one sheet per accession. The intake index in this folder lists the accession scans of the current batch, but one of them was never saved. Which path is missing? Report it exactly as the index writes it. Reply with only the final answer.",
+      "prompt": "Thornbury Veterinary Laboratory scans one sheet per accession. The intake index in this folder lists the accession scans of the current batch, but one of them was never saved. Which path is missing? Report it exactly as the index writes it.",
       "expect": {
-        "output_equals_any": [
-          "scans/3391-basalt.txt",
-          "3391-basalt.txt"
-        ]
+        "output_contains": [
+          "scans/3391-basalt.txt"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

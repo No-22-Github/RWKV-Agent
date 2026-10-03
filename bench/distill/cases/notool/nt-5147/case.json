@@ -19,10 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 273,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -32,11 +32,14 @@
   },
   "turns": [
     {
-      "prompt": "Barrowden Automation is registering a conveyor panel on the site register. The panel's address switch bank is set 11010010, read left to right from bit 7 down to bit 0. The register holds the address as a denary number. What address goes on the register? Reply with only the final answer.",
+      "prompt": "Barrowden Automation is registering a conveyor panel on the site register. The panel's address switch bank is set 11010010, read left to right from bit 7 down to bit 0. The register holds the address as a denary number. What address goes on the register?",
       "expect": {
-        "expected_number": 210,
-        "tolerance": 0.01,
-        "tools": []
+        "tools": [],
+        "output_contains": [
+          "210"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

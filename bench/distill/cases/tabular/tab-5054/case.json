@@ -12,11 +12,11 @@
     "ref_calls": 2,
     "scenario": "tabular",
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
     "fixture_bytes": 2033,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -25,10 +25,13 @@
   },
   "turns": [
     {
-      "prompt": "Skernish Ferry Company reports how its traffic moves between seasons. By how many foot passengers did the June 2026 sailings exceed the June 2025 sailings? Give the answer as a number alone. Reply with only the final answer.",
+      "prompt": "Skernish Ferry Company reports how its traffic moves between seasons. By how many foot passengers did the June 2026 sailings exceed the June 2025 sailings?",
       "expect": {
-        "expected_number": 36,
-        "tolerance": 0.01
+        "output_contains": [
+          "36"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

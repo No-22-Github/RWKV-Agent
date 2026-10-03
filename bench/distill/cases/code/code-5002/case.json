@@ -13,10 +13,10 @@
     "ref_calls": 2,
     "fixture_bytes": 513,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -26,9 +26,13 @@
   },
   "turns": [
     {
-      "prompt": "The nightly ingest job in jobs/rotation.py rotates each shard by calling rotate_shards. Which module defines that function? Answer with the module's file path alone, including its .py suffix. Reply with only the final answer.",
+      "prompt": "The nightly ingest job in jobs/rotation.py rotates each shard by calling rotate_shards. Which module defines that function?",
       "expect": {
-        "output_equals": "storage/shards.py"
+        "output_contains": [
+          "storage/shards.py"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

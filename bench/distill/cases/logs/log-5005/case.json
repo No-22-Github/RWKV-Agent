@@ -15,10 +15,10 @@
     "ref_calls": 2,
     "fixture_bytes": 1342,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "unknown"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -27,10 +27,13 @@
   },
   "turns": [
     {
-      "prompt": "Ashdene Freight's depot scanner records one line for every parcel scan it takes. How many parcels that left the depot on 19 August 2026 were never handed over to a recipient? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Ashdene Freight's depot scanner records one line for every parcel scan it takes. How many parcels that left the depot on 19 August 2026 were never handed over to a recipient?",
       "expect": {
-        "expected_number": 3,
-        "tolerance": 0.01
+        "output_contains": [
+          "3"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

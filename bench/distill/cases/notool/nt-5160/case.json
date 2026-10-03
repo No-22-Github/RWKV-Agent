@@ -19,10 +19,10 @@
     "ref_calls": 1,
     "fixture_bytes": 555,
     "status": "draft",
-    "version": 4,
+    "version": 5,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -31,10 +31,14 @@
   },
   "turns": [
     {
-      "prompt": "Dunmoor Precision Engineering is updating its inspection paperwork and a first article inspection now needs a named signatory role. Name the role that signs one off. Reply with only the final answer.",
+      "prompt": "Dunmoor Precision Engineering is updating its inspection paperwork and a first article inspection now needs a named signatory role. Name the role that signs one off.",
       "expect": {
-        "output_equals": "Quality Manager",
-        "tools": []
+        "tools": [],
+        "output_contains": [
+          "Quality Manager"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

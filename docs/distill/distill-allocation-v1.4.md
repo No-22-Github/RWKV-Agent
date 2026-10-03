@@ -76,7 +76,7 @@ M1 只改 `outputs` 的**最后一项** `text`，其余各项逐字节不动。
 
 1. **选题**：b05 里终答为纯值的路径（判定同 [clean-v13.md](reports/clean-v13.md) 的口径），按 family 均匀抽 **450 条**，每个 family 最多 3 条。只选单轮题（多轮题的终答改写会牵动后续轮次，不在本批）。
 2. **改题面**：删掉题面里的答案契约句——`Reply with only the final answer.`、`If you cannot determine the answer, reply exactly UNKNOWN.`、`Just the number`、`只回数字` 等（正则沿用 v1.3 `v13_edit_contracts.py`，再加中文四种写法）。`tags.answer_style` 设为 `natural`，`tags.version` +1。
-3. **改判据**：`output_equals` / `expected_number` → `output_contains`（值的规范写法）或保留 `expected_number` 并加 `"number_in_text": true`（**待 M0 确认 scorer 是否支持从句子里取数**）；另加 `"max_output_chars": 300`。不得加「或者 UNKNOWN」之类兜底选项。
+3. **改判据**：`output_equals` / `expected_number` → `output_contains`（值的规范写法）或保留 `expected_number` 并加 `"number_in_text": true`（**待 M0 确认 scorer 是否支持从句子里取数**）；另加 `"max_output_chars": 300` 与 `"output_contains_token": true`（值必须作为独立词元出现：子串匹配下 `5` 会命中 `2026-05`、`95` 会命中 `95000`，b09 实测 450 条里 19 条改错值仍能通过）。不得加「或者 UNKNOWN」之类兜底选项。
 4. **改写终答**：对每条路径调用一次改写模型（GLM 或 DeepSeek，非思考模式，温度 0.7），输入 = 新题面 + 该路径全部工具调用与工具结果 + 原终答；要求见下方「改写提示要求」。
 5. **机械校验**（任一条不过就丢掉这条，**不修**）：
    - 改写后的终答包含原值（数值按规范写法比较，允许千分位逗号差异）；
@@ -85,7 +85,7 @@ M1 只改 `outputs` 的**最后一项** `text`，其余各项逐字节不动。
    - 长度 ≤300 字符；不含 `<tool_call>`、`<tool_response>`、角色标签、`✿`；
    - 语言与题面一致。
 6. **输出**：新脚本写成 `bench/distill/scripts/b09-m1.jsonl`，`case_id` 用新路径号 `--p90`（如 `cfg-5001--p90`），`supervised` 照抄。
-7. **排除旧路径**：被改写的那道题，b05 里**所有**旧路径（不止被选中的那条）都写进 `exclude.jsonl`（batch b05，reason「v1.4 M1 改写终答」）。理由：存量行是从题目文件重新渲染的，题面改了以后，旧路径会套上没有契约的新题面重新渲染，且仍能通过 `output_contains`，正好造出「用户没要求只给值、模型却只回一个值」的最坏组合。
+7. **排除旧路径**：被改写的那道题，b05 里**所有**旧路径（不止被选中的那条）和 b08 里由它派生的收尾恢复路径（`--p81`）都写进 `exclude.jsonl`（batch 分别写 b05 / b08，reason「v1.4 M1 改写终答」）。判断「已排除」要按 (case_id, batch)：pack 只认本 batch 的条目。理由：存量行是从题目文件重新渲染的，题面改了以后，旧路径会套上没有契约的新题面重新渲染，且仍能通过 `output_contains`，正好造出「用户没要求只给值、模型却只回一个值」的最坏组合。
 8. **重放**：`corpus render --script bench/distill/scripts/b09-m1.jsonl --source distill-b09`，按新判据判分，不过的路径照常进 rejects。
 9. **抽检**：每 50 条人工看 3 条「依据讲得对不对」，结果贴进 b09 报告。重点看下方「改写救不了的情况」。
 
@@ -225,6 +225,7 @@ scorer 已把调用未提供的工具判为失败（提交 70e604f），S5 会�
 规则：**本轮清单里有 `calculator` 且答案需要计算**时，必须调用它；清单里没有时直接算并写出算式（见 §3.4）。
 题型：单位换算、百分比、按天 / 按小时折算、多项求和。判据：`required_tools: ["calculator"]` + `expected_number`。
 同时 S5 加一条过滤：v1.3 存量里「题面需要计算、清单有计算器、路径却零调用」的行，从训练集剔除（写进 `exclude.jsonl`，reason「v1.4 M8 心算」）。
+**按难度区分**（`bench/distill/tools/v14_m1_closeout.py`）：终答数值不在上下文里（确是算出来的）才算心算；其中一步就能得到、且是 ≤100 的整数加减 / 一个因数 ≤12 另一个 ≤100 的乘法 / ≤1000 被 ≤12 整除的，属心算合理，保留；其余（小数、多步、带非整常数的换算）剔除。理由：两位数相加也去调计算器是多余的，且全剔会把零调用占比继续往下压。b09 实测剔除 143、保留 25。
 
 ### 3.9 存量封顶（b09，删 ~150 行）
 

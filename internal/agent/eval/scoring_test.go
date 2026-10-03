@@ -437,3 +437,30 @@ func TestParseNumericOutputAcceptsLeadingCurrencyCode(t *testing.T) {
 		}
 	}
 }
+
+func TestOutputContainsTokenRejectsEmbeddedValue(t *testing.T) {
+	tests := []struct {
+		output string
+		want   string
+		pass   bool
+	}{
+		{"It runs 5 checks.", "5", true},
+		{"Window is 95 seconds (95000 ms).", "95", true},
+		{"Converting 95000 ms yields 96 seconds.", "95", false},
+		{"Filed on 2026-05-03, 6 batches.", "5", false},
+		{"The drop is 7.5 metres.", "5", false},
+		{"Total 5,000 units.", "5", false},
+		{"Charge is £144.00.", "£144.00", true},
+		{"Prefix AREV- is used.", "AREV-", true},
+		{"Use git log --follow here.", "--follow", true},
+	}
+	for _, tt := range tests {
+		failures := answerFailures(Expectation{OutputContains: []string{tt.want}, OutputContainsToken: true}, tt.output)
+		if got := len(failures) == 0; got != tt.pass {
+			t.Errorf("output %q want %q: pass=%v, failures=%v", tt.output, tt.want, got, failures)
+		}
+	}
+	if failures := answerFailures(Expectation{OutputContains: []string{"95"}}, "Converting 95000 ms yields 96 seconds."); len(failures) != 0 {
+		t.Errorf("without the flag output_contains stays a substring check, got %v", failures)
+	}
+}

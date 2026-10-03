@@ -19,10 +19,10 @@
     "ref_calls": 3,
     "fixture_bytes": 2617,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -31,10 +31,13 @@
   },
   "turns": [
     {
-      "prompt": "Ravensbank Bridge Company's barrier registers each vehicle that crosses the bridge and sends its records to the office when the link is up. The resurfacing record for 6 September 2026 needs the traffic that crossed between 06:00 and 09:00 that morning. How many vehicles crossed the bridge in those hours? Give the count alone, as digits, with no label. Reply with only the final answer.",
+      "prompt": "Ravensbank Bridge Company's barrier registers each vehicle that crosses the bridge and sends its records to the office when the link is up. The resurfacing record for 6 September 2026 needs the traffic that crossed between 06:00 and 09:00 that morning. How many vehicles crossed the bridge in those hours?",
       "expect": {
-        "expected_number": 15,
-        "tolerance": 0.01
+        "output_contains": [
+          "15"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

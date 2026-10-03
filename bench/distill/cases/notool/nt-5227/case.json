@@ -19,10 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 222,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -31,11 +31,14 @@
   },
   "turns": [
     {
-      "prompt": "A controller new to Fellgate Radio Dispatch asked what an Erlang is on a trunk loading sheet; it is one channel busy for a full hour, so the traffic a group carries is its speech minutes in the hour divided by sixty. Group T-19 carries 342 speech minutes in the busy hour across its 7 channels. Give the traffic that group carries, as a single number in Erlangs with no unit in the reply. Reply with only the final answer.",
+      "prompt": "A controller new to Fellgate Radio Dispatch asked what an Erlang is on a trunk loading sheet; it is one channel busy for a full hour, so the traffic a group carries is its speech minutes in the hour divided by sixty. Group T-19 carries 342 speech minutes in the busy hour across its 7 channels. Give the traffic that group carries in Erlangs.",
       "expect": {
-        "expected_number": 5.7,
-        "tolerance": 0.01,
-        "tools": []
+        "tools": [],
+        "output_contains": [
+          "5.7"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

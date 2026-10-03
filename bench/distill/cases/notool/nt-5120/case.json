@@ -19,10 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 248,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -31,11 +31,14 @@
   },
   "turns": [
     {
-      "prompt": "A charge nurse at Brackenhill Day Unit asked how the drop factor on a giving set is used when a rate is worked out; one millilitre of fluid makes as many drops as the set's factor says. Order D-247 runs 1050 millilitres through the fifteen-drop set over 350 minutes. Give the rate for that order, in drops per minute. Reply with only the final answer.",
+      "prompt": "A charge nurse at Brackenhill Day Unit asked how the drop factor on a giving set is used when a rate is worked out; one millilitre of fluid makes as many drops as the set's factor says. Order D-247 runs 1050 millilitres through the fifteen-drop set over 350 minutes. Give the rate for that order, in drops per minute.",
       "expect": {
-        "expected_number": 45.0,
-        "tolerance": 0.01,
-        "tools": []
+        "tools": [],
+        "output_contains": [
+          "45"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

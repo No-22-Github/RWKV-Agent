@@ -13,10 +13,10 @@
     "ref_calls": 2,
     "fixture_bytes": 518,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -26,10 +26,13 @@
   },
   "turns": [
     {
-      "prompt": "A web order can reach the Bexhill chandlery's shipping quote with an empty basket. What charge, in pence, does the quote come back with for it? Reply with only the final answer.",
+      "prompt": "A web order can reach the Bexhill chandlery's shipping quote with an empty basket. What charge, in pence, does the quote come back with for it?",
       "expect": {
-        "expected_number": 275,
-        "tolerance": 0.01
+        "output_contains": [
+          "275"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

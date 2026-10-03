@@ -19,10 +19,10 @@
     "ref_calls": 4,
     "fixture_bytes": 606,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -34,10 +34,13 @@
   },
   "turns": [
     {
-      "prompt": "One landing at Pellan Cove was declared twice, once by the harbour office and once by the market, so the same sheet sits in this folder under two names. The declaration typed for the next day's landing was copied from that sheet. How many crates does the declaration that is filed twice record? Reply with only the final answer.",
+      "prompt": "One landing at Pellan Cove was declared twice, once by the harbour office and once by the market, so the same sheet sits in this folder under two names. The declaration typed for the next day's landing was copied from that sheet. How many crates does the declaration that is filed twice record?",
       "expect": {
-        "expected_number": 218,
-        "tolerance": 0.01
+        "output_contains": [
+          "218"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

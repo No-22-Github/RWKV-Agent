@@ -19,10 +19,10 @@
     "ref_calls": 3,
     "fixture_bytes": 1254,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -31,10 +31,13 @@
   },
   "turns": [
     {
-      "prompt": "On 4 September 2026 Glenmoor Tools loaded Hardacre's price list. How many tools in it did the loader turn away because the price came with no currency? Reply with only the final answer.",
+      "prompt": "On 4 September 2026 Glenmoor Tools loaded Hardacre's price list. How many tools in it did the loader turn away because the price came with no currency?",
       "expect": {
-        "expected_number": 4,
-        "tolerance": 0.01
+        "output_contains": [
+          "4"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

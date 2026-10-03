@@ -19,10 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 371,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "unknown"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -31,10 +31,14 @@
   },
   "turns": [
     {
-      "prompt": "Nettlecoombe Saltworks recycles the brine pans at 02:30 on the first day of every month, no matter which weekday that falls on. Give the five-field schedule expression for that task, with the fields separated by single spaces. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Nettlecoombe Saltworks recycles the brine pans at 02:30 on the first day of every month, no matter which weekday that falls on. Give the five-field schedule expression for that task, with the fields separated by single spaces.",
       "expect": {
         "tools": [],
-        "output_equals": "30 2 1 * *"
+        "output_contains": [
+          "30 2 1 * *"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

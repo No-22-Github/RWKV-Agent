@@ -19,10 +19,10 @@
     "ref_calls": 3,
     "fixture_bytes": 464,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -32,9 +32,13 @@
   },
   "turns": [
     {
-      "prompt": "Oakhurst Smallholding freezes a crate of produce by calling the chill store's freeze_run. Which module calls it? Give the file path on its own, with the .py suffix. Reply with only the final answer.",
+      "prompt": "Oakhurst Smallholding freezes a crate of produce by calling the chill store's freeze_run. Which module calls it?",
       "expect": {
-        "output_equals": "coolroom/freezer.py"
+        "output_contains": [
+          "coolroom/freezer.py"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

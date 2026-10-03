@@ -22,10 +22,10 @@
     "ref_calls": 3,
     "fixture_bytes": 804,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "unknown"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -38,10 +38,13 @@
   },
   "turns": [
     {
-      "prompt": "The production manager at Masham Playhouse is closing the season and tidying the production paperwork. How many of the documents named in the playhouse's two lists have no file anywhere in the folders? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "The production manager at Masham Playhouse is closing the season and tidying the production paperwork. How many of the documents named in the playhouse's two lists have no file anywhere in the folders?",
       "expect": {
-        "expected_number": 3,
-        "tolerance": 0.01
+        "output_contains": [
+          "3"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

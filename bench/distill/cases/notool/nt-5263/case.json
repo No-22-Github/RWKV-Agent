@@ -19,10 +19,10 @@
     "ref_calls": 1,
     "fixture_bytes": 523,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:deepseek-v4.1-flash",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -31,10 +31,14 @@
   },
   "turns": [
     {
-      "prompt": "Broomhill Farm Partnership has to give the milk buyer its silage clamp weights and the farm office needs the unit those weights are recorded in. Which unit is it? Reply with only the final answer.",
+      "prompt": "Broomhill Farm Partnership has to give the milk buyer its silage clamp weights and the farm office needs the unit those weights are recorded in. Which unit is it?",
       "expect": {
-        "output_equals": "kilograms",
-        "tools": []
+        "tools": [],
+        "output_contains": [
+          "kilograms"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

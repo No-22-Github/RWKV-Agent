@@ -19,10 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 481,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -31,14 +31,19 @@
   },
   "turns": [
     {
-      "prompt": "Verrin Toolworks runs its nightly forge-load pipeline as a chain of stages inside one shell script, but a stage that fails in the middle stays invisible because the script's status comes from the final stage alone. Give the shell line to put at the top of that script so that a failure in any stage makes the pipeline report failure. Reply with only the final answer.",
+      "prompt": "Verrin Toolworks runs its nightly forge-load pipeline as a chain of stages inside one shell script, but a stage that fails in the middle stays invisible because the script's status comes from the final stage alone. Give the shell line to put at the top of that script so that a failure in any stage makes the pipeline report failure.",
       "expect": {
         "tools": [],
         "output_contains_any": [
           "set -o pipefail",
           "set -euo pipefail",
           "set -eo pipefail"
-        ]
+        ],
+        "output_contains": [
+          "set -o pipefail"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

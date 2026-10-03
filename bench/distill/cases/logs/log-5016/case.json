@@ -15,10 +15,10 @@
     "ref_calls": 2,
     "fixture_bytes": 1378,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -27,10 +27,13 @@
   },
   "turns": [
     {
-      "prompt": "Bramcote Print Finishers' guillotine worked through 18 September 2026 and wrote a line for every step it took. How many stacks did it put down that day? Reply with only the final answer.",
+      "prompt": "Bramcote Print Finishers' guillotine worked through 18 September 2026 and wrote a line for every step it took. How many stacks did it put down that day?",
       "expect": {
-        "expected_number": 8,
-        "tolerance": 0.01
+        "output_contains": [
+          "8"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

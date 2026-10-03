@@ -19,10 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 224,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -31,11 +31,14 @@
   },
   "turns": [
     {
-      "prompt": "A mechanic at Cobblewheel asked what gear inches describe on a build sheet; the wheel diameter is multiplied by the ratio of chainring teeth to sprocket teeth. One build has a 26 inch wheel, a 48 tooth chainring and a 16 tooth sprocket. Give its gear inches. Reply with only the final answer.",
+      "prompt": "A mechanic at Cobblewheel asked what gear inches describe on a build sheet; the wheel diameter is multiplied by the ratio of chainring teeth to sprocket teeth. One build has a 26 inch wheel, a 48 tooth chainring and a 16 tooth sprocket. Give its gear inches.",
       "expect": {
-        "expected_number": 78.0,
-        "tolerance": 0.01,
-        "tools": []
+        "tools": [],
+        "output_contains": [
+          "78"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

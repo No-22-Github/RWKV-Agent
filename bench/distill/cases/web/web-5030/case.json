@@ -19,10 +19,10 @@
     "ref_calls": 2,
     "fixture_bytes": 0,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "files": {},
   "web_fixture": [
@@ -52,10 +52,13 @@
   },
   "turns": [
     {
-      "prompt": "One of our senders keeps ending on Hallowbrook error HB-5510 and the vendor has asked how large its bodies may be. How many kilobytes may one request body carry before that error is raised? Give the number alone, as digits, with no label. Reply with only the final answer.",
+      "prompt": "One of our senders keeps ending on Hallowbrook error HB-5510 and the vendor has asked how large its bodies may be. How many kilobytes may one request body carry before that error is raised?",
       "expect": {
-        "expected_number": 128,
-        "tolerance": 0.01
+        "output_contains": [
+          "128"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

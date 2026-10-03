@@ -19,10 +19,10 @@
     "ref_calls": 3,
     "fixture_bytes": 1627,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "unknown"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -33,10 +33,13 @@
   },
   "turns": [
     {
-      "prompt": "Thistlebank Honey has asked to send back the hive bodies listed on confirmation SC-2291. How many days after delivery may they still return those hive bodies for a refund? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Thistlebank Honey has asked to send back the hive bodies listed on confirmation SC-2291. How many days after delivery may they still return those hive bodies for a refund?",
       "expect": {
-        "expected_number": 21,
-        "tolerance": 0.01
+        "output_contains": [
+          "21 days"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

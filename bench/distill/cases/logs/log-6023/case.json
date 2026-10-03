@@ -19,10 +19,10 @@
     "ref_calls": 3,
     "fixture_bytes": 819,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-5.3-flash-b04",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -31,9 +31,13 @@
   },
   "turns": [
     {
-      "prompt": "Gweek Marina's pump house journal covers the whole of June 2026. Which pump raised the first FAULT line of the month? Answer with the pump id alone. Reply with only the final answer.",
+      "prompt": "Gweek Marina's pump house journal covers the whole of June 2026. Which pump raised the first FAULT line of the month?",
       "expect": {
-        "output_equals": "PUMP-D"
+        "output_contains": [
+          "PUMP-D"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

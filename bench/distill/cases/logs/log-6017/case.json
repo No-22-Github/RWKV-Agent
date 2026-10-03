@@ -15,10 +15,10 @@
     "ref_calls": 2,
     "fixture_bytes": 741,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-5.3-flash-b04",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -27,9 +27,13 @@
   },
   "turns": [
     {
-      "prompt": "Kilnhurst Brickworks' kiln controller journals each zone of the firing. What fault code did the controller record on 3 March 2026? Answer with the code alone. Reply with only the final answer.",
+      "prompt": "Kilnhurst Brickworks' kiln controller journals each zone of the firing. What fault code did the controller record on 3 March 2026?",
       "expect": {
-        "output_equals": "K-114"
+        "output_contains": [
+          "K-114"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

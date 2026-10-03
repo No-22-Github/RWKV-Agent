@@ -19,10 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 232,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "unknown"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -31,11 +31,14 @@
   },
   "turns": [
     {
-      "prompt": "A technician at Sundercroft Power asked what the discharge figure on a battery card stands for; it is the share of the bank's capacity that may be taken before the bank has to be recharged. Site SR-14 has a 650 ampere hour bank at 48 volts, a working discharge of 70 percent and a daily load of 8.4 kilowatt hours. Give how many days the bank covers that load, in days. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "A technician at Sundercroft Power asked what the discharge figure on a battery card stands for; it is the share of the bank's capacity that may be taken before the bank has to be recharged. Site SR-14 has a 650 ampere hour bank at 48 volts, a working discharge of 70 percent and a daily load of 8.4 kilowatt hours. Give how many days the bank covers that load, in days.",
       "expect": {
-        "expected_number": 2.6,
-        "tolerance": 0.01,
-        "tools": []
+        "tools": [],
+        "output_contains": [
+          "2.6"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

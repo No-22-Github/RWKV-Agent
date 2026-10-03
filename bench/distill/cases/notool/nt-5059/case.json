@@ -19,10 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 374,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -31,13 +31,18 @@
   },
   "turns": [
     {
-      "prompt": "Aubrey & Wren Chandlery checks wharf tags with a pattern that has to accept a run of two to four word characters and, at every position, settle for the shortest run that fits instead of reaching for the longest. Give the regular-expression fragment that describes such a run. Reply with only the final answer.",
+      "prompt": "Aubrey & Wren Chandlery checks wharf tags with a pattern that has to accept a run of two to four word characters and, at every position, settle for the shortest run that fits instead of reaching for the longest. Give the regular-expression fragment that describes such a run.",
       "expect": {
         "tools": [],
         "output_contains_any": [
           "\\w{2,4}?",
           "[A-Za-z0-9_]{2,4}?"
-        ]
+        ],
+        "output_contains": [
+          "\\w{2,4}?"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

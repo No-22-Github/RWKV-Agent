@@ -13,10 +13,10 @@
     "ref_calls": 2,
     "fixture_bytes": 541,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "unknown"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -25,10 +25,13 @@
   },
   "turns": [
     {
-      "prompt": "The night shift at Sandwell Forge needs the count from last night's check run, which the runner wrote to results/run-2026-09-14.log. How many of the checks in that log came out as error? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "The night shift at Sandwell Forge needs the count from last night's check run, which the runner wrote to results/run-2026-09-14.log. How many of the checks in that log came out as error?",
       "expect": {
-        "expected_number": 2,
-        "tolerance": 0.01
+        "output_contains": [
+          "2"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

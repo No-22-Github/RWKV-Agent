@@ -19,10 +19,10 @@
     "ref_calls": 3,
     "fixture_bytes": 883,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-5.3-flash-b04",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -33,10 +33,13 @@
   },
   "turns": [
     {
-      "prompt": "The labelling head on the Oakmoss Vineyard packing line pauses between crates so the ink can set, and the harvest crew lead is recording the pause the line runs with the seasonal profile in force. What is the effective label delay in milliseconds? Give the number alone, as digits, with no label. Reply with only the final answer.",
+      "prompt": "The labelling head on the Oakmoss Vineyard packing line pauses between crates so the ink can set, and the harvest crew lead is recording the pause the line runs with the seasonal profile in force. What is the effective label delay in milliseconds?",
       "expect": {
-        "expected_number": 350,
-        "tolerance": 0.01
+        "output_contains": [
+          "350"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

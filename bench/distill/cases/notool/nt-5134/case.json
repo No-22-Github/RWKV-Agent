@@ -19,10 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 189,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -31,11 +31,14 @@
   },
   "turns": [
     {
-      "prompt": "A stockman at Whinbrae Farm asked what the dry matter figure on a silage card means for the clamp; it is the share of the weighed grass that is left once the water is taken out. Clamp CL-71 weighed 28.4 tonnes at 32 percent dry matter. Give the dry matter in that clamp, in tonnes. Reply with only the final answer.",
+      "prompt": "A stockman at Whinbrae Farm asked what the dry matter figure on a silage card means for the clamp; it is the share of the weighed grass that is left once the water is taken out. Clamp CL-71 weighed 28.4 tonnes at 32 percent dry matter. Give the dry matter in that clamp, in tonnes.",
       "expect": {
-        "expected_number": 9.088,
-        "tolerance": 0.01,
-        "tools": []
+        "tools": [],
+        "output_contains": [
+          "9.088 tonnes"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

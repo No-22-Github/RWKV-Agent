@@ -19,10 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 365,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -32,11 +32,14 @@
   },
   "turns": [
     {
-      "prompt": "Eastmarsh Trading is raising the invoice for the September container of spare parts from the Bergen supplier. The order stands at 8,400 euro, and the purchase desk rate is 11.65 Norwegian kroner to the euro. How many kroner does the ledger post for the order? Give the answer as a single number, with no unit in the reply. Reply with only the final answer.",
+      "prompt": "Eastmarsh Trading is raising the invoice for the September container of spare parts from the Bergen supplier. The order stands at 8,400 euro, and the purchase desk rate is 11.65 Norwegian kroner to the euro. How many kroner does the ledger post for the order?",
       "expect": {
-        "expected_number": 97860,
-        "tolerance": 0.01,
-        "tools": []
+        "tools": [],
+        "output_contains": [
+          "97860"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

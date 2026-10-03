@@ -19,10 +19,10 @@
     "ref_calls": 2,
     "fixture_bytes": 0,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "files": {},
   "web_fixture": [
@@ -52,10 +52,13 @@
   },
   "turns": [
     {
-      "prompt": "Our intake worker takes messages from a Landwick queue and leaves every lease setting alone. How many seconds pass before an unacknowledged message is handed to another consumer? Reply with only the final answer.",
+      "prompt": "Our intake worker takes messages from a Landwick queue and leaves every lease setting alone. How many seconds pass before an unacknowledged message is handed to another consumer?",
       "expect": {
-        "expected_number": 900,
-        "tolerance": 0.01
+        "output_contains": [
+          "900"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

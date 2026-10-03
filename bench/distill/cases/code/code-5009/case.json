@@ -19,10 +19,10 @@
     "ref_calls": 3,
     "fixture_bytes": 438,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -32,9 +32,13 @@
   },
   "turns": [
     {
-      "prompt": "The roastery seals every finished lot by calling seal_lot. Which module calls it? Answer with the module's file path alone, including its .py suffix. Reply with only the final answer.",
+      "prompt": "The roastery seals every finished lot by calling seal_lot. Which module calls it?",
       "expect": {
-        "output_equals": "packing/sealer.py"
+        "output_contains": [
+          "packing/sealer.py"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

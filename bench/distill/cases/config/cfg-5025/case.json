@@ -13,10 +13,10 @@
     "ref_calls": 2,
     "fixture_bytes": 574,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -26,10 +26,13 @@
   },
   "turns": [
     {
-      "prompt": "The ropewalk supervisor at Bowdenhill Ropeworks is writing up the spinning log and needs the number of bobbins the frame threads from its creel on each run. What is that number? Give the number alone, as digits, with no label. Reply with only the final answer.",
+      "prompt": "The ropewalk supervisor at Bowdenhill Ropeworks is writing up the spinning log and needs the number of bobbins the frame threads from its creel on each run. What is that number?",
       "expect": {
-        "expected_number": 36,
-        "tolerance": 0.01
+        "output_contains": [
+          "36"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

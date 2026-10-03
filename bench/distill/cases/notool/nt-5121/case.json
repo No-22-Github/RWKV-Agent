@@ -19,10 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 196,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -31,11 +31,14 @@
   },
   "turns": [
     {
-      "prompt": "The stockman at Oakhurst Poultry asked what the conversion figure on a shed card means; it is the feed the birds ate divided by the liveweight they put on over the same spell. Shed 24 ate 1860 kilograms of feed and put on 1240 kilograms of liveweight. Give that shed's conversion figure. Reply with only the final answer.",
+      "prompt": "The stockman at Oakhurst Poultry asked what the conversion figure on a shed card means; it is the feed the birds ate divided by the liveweight they put on over the same spell. Shed 24 ate 1860 kilograms of feed and put on 1240 kilograms of liveweight. Give that shed's conversion figure.",
       "expect": {
-        "expected_number": 1.5,
-        "tolerance": 0.01,
-        "tools": []
+        "tools": [],
+        "output_contains": [
+          "1.5"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

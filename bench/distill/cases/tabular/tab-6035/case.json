@@ -19,10 +19,10 @@
     "ref_calls": 3,
     "fixture_bytes": 1582,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-5.3-flash-b04",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -32,10 +32,13 @@
   },
   "turns": [
     {
-      "prompt": "Fenwick Marine Supplies needs its month-end position. What is the closing balance for account FM-4471 after its August 2026 entries? Give the number alone, as digits, with no label. Reply with only the final answer.",
+      "prompt": "Fenwick Marine Supplies needs its month-end position. What is the closing balance for account FM-4471 after its August 2026 entries?",
       "expect": {
-        "expected_number": 3434.3,
-        "tolerance": 0.01
+        "output_contains": [
+          "3434.30"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

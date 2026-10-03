@@ -15,10 +15,10 @@
     "ref_calls": 2,
     "fixture_bytes": 1165,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-5.3-flash-b04",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -27,9 +27,13 @@
   },
   "turns": [
     {
-      "prompt": "Lochee Press journals every press event during its night shift. What is the error code of the only ERROR the press logged on 27 August 2026? Answer with the code alone. Reply with only the final answer.",
+      "prompt": "Lochee Press journals every press event during its night shift. What is the error code of the only ERROR the press logged on 27 August 2026?",
       "expect": {
-        "output_equals": "E-217"
+        "output_contains": [
+          "E-217"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

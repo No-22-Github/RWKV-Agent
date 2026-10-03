@@ -19,10 +19,10 @@
     "ref_calls": 3,
     "fixture_bytes": 797,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "unknown"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -33,10 +33,13 @@
   },
   "turns": [
     {
-      "prompt": "The Tideswell mill holds spinning frames with a SPINDLE-HOLD annotation while the belt changeover is pending. How many files in the spinning package carry such an annotation? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "The Tideswell mill holds spinning frames with a SPINDLE-HOLD annotation while the belt changeover is pending. How many files in the spinning package carry such an annotation?",
       "expect": {
-        "expected_number": 3,
-        "tolerance": 0.01
+        "output_contains": [
+          "3"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

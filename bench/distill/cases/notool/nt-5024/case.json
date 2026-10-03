@@ -19,10 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 208,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -31,11 +31,14 @@
   },
   "turns": [
     {
-      "prompt": "A sawyer at Ashcombe asked what a board foot measures on a cutting order; it is 144 cubic inches of timber whatever the section of the plank. One plank is 1.5 inches thick, 7.25 inches wide and 12 feet long. Give that plank in board feet. Reply with only the final answer.",
+      "prompt": "A sawyer at Ashcombe asked what a board foot measures on a cutting order; it is 144 cubic inches of timber whatever the section of the plank. One plank is 1.5 inches thick, 7.25 inches wide and 12 feet long. Give that plank in board feet.",
       "expect": {
-        "expected_number": 10.875,
-        "tolerance": 0.01,
-        "tools": []
+        "tools": [],
+        "output_contains": [
+          "10.875 board feet"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

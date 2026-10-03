@@ -15,10 +15,10 @@
     "ref_calls": 2,
     "fixture_bytes": 393,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -27,9 +27,13 @@
   },
   "turns": [
     {
-      "prompt": "Mellinow Wharf booked six pallets for the morning van to Bristol and the loader marked the pallets that went on it. Which booked mark has no line on the loaded list? Report the mark exactly as the sheet writes it. Reply with only the final answer.",
+      "prompt": "Mellinow Wharf booked six pallets for the morning van to Bristol and the loader marked the pallets that went on it. Which booked mark has no line on the loaded list? Report the mark exactly as the sheet writes it.",
       "expect": {
-        "output_equals": "PL-4472"
+        "output_contains": [
+          "PL-4472"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

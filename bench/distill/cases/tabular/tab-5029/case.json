@@ -19,10 +19,10 @@
     "ref_calls": 3,
     "fixture_bytes": 3193,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -32,10 +32,13 @@
   },
   "turns": [
     {
-      "prompt": "Porthilly Fish Quay collects a levy on the fish sold across its floor. What levy is owed on the August 2026 landings, in pounds, rounded to two decimal places? Reply with only the final answer.",
+      "prompt": "Porthilly Fish Quay collects a levy on the fish sold across its floor. What levy is owed on the August 2026 landings, in pounds, rounded to two decimal places?",
       "expect": {
-        "expected_number": 1666.94,
-        "tolerance": 0.01
+        "output_contains": [
+          "£1666.94"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

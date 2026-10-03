@@ -19,10 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 290,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "unknown"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -32,11 +32,14 @@
   },
   "turns": [
     {
-      "prompt": "A chiller technician at Pressmore asked what the wet-bulb depression on a room card measures; it is how far the wet bulb sits below the dry bulb. Room 9 reads 24.0 and 18.5 degrees on the two bulbs. Give the depression for that room. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "A chiller technician at Pressmore asked what the wet-bulb depression on a room card measures; it is how far the wet bulb sits below the dry bulb. Room 9 reads 24.0 and 18.5 degrees on the two bulbs. Give the depression for that room.",
       "expect": {
-        "expected_number": 5.5,
-        "tolerance": 0.01,
-        "tools": []
+        "tools": [],
+        "output_contains": [
+          "5.5 degrees Celsius"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

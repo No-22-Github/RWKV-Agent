@@ -16,3 +16,8 @@ __pycache__/
 .zcode/
 .zcodeignore
 .agent-teams/
+
+# b09 work dir: `v14_rewrite_finals.py prepare` regenerates the inputs; only the
+# rewritten finals (batch_*_out.json) are source.
+/bench/distill/b09_work/*
+!/bench/distill/b09_work/batch_*_out.json

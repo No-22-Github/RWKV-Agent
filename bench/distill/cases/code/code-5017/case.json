@@ -19,10 +19,10 @@
     "ref_calls": 3,
     "fixture_bytes": 646,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -33,10 +33,13 @@
   },
   "turns": [
     {
-      "prompt": "The Ravenswood cannery starts each timed batch by calling start_batch. Across the intake and line modules, how many call sites does start_batch have? Reply with only the final answer.",
+      "prompt": "The Ravenswood cannery starts each timed batch by calling start_batch. Across the intake and line modules, how many call sites does start_batch have?",
       "expect": {
-        "expected_number": 3,
-        "tolerance": 0.01
+        "output_contains": [
+          "3"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

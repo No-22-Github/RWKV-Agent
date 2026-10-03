@@ -19,10 +19,10 @@
     "ref_calls": 4,
     "fixture_bytes": 1292,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -33,9 +33,13 @@
   },
   "turns": [
     {
-      "prompt": "One of the other files in this folder is a byte-for-byte copy of `screening-fri.txt`. Which file is it? Report the file name. Reply with only the final answer.",
+      "prompt": "One of the other files in this folder is a byte-for-byte copy of `screening-fri.txt`. Which file is it? Report the file name.",
       "expect": {
-        "output_equals": "screening-sat.txt"
+        "output_contains": [
+          "screening-sat.txt"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

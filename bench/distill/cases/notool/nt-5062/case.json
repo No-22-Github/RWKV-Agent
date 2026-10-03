@@ -19,10 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 576,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "unknown"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -32,14 +32,19 @@
   },
   "turns": [
     {
-      "prompt": "Cadmium Ridge Instruments rolls its calibration records up to one row per instrument model. Give the clause that discards every model whose row count is ten or lower and keeps the rest of the grouped result. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Cadmium Ridge Instruments rolls its calibration records up to one row per instrument model. Give the clause that discards every model whose row count is ten or lower and keeps the rest of the grouped result.",
       "expect": {
         "tools": [],
         "output_contains_any": [
           "HAVING COUNT(*) > 10",
           "HAVING count(*) > 10",
           "HAVING COUNT(*) >= 11"
-        ]
+        ],
+        "output_contains": [
+          "HAVING COUNT(*) > 10"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

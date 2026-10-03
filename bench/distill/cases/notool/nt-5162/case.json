@@ -19,10 +19,10 @@
     "ref_calls": 1,
     "fixture_bytes": 545,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -31,10 +31,14 @@
   },
   "turns": [
     {
-      "prompt": "Fenwick Apiaries is filling in a grant form and the apiary the beekeepers call the lower meadow has to go on it under its registered designation. What designation should the form carry? Reply with only the final answer.",
+      "prompt": "Fenwick Apiaries is filling in a grant form and the apiary the beekeepers call the lower meadow has to go on it under its registered designation. What designation should the form carry?",
       "expect": {
-        "output_equals": "Hollow Field",
-        "tools": []
+        "tools": [],
+        "output_contains": [
+          "Hollow Field"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

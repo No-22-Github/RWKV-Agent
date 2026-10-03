@@ -120,16 +120,20 @@ type Expectation struct {
 	// zero-call contract and a nil list is no constraint at all. With omitempty
 	// the two serialized identically, so a frozen run.json lost every notool
 	// case's contract and no offline re-scoring could see it.
-	Tools               []string         `json:"tools"`
-	Calls               []ExpectedCall   `json:"calls,omitempty"`
-	RequiredTools       []string         `json:"required_tools,omitempty"`
-	ForbiddenTools      []string         `json:"forbidden_tools,omitempty"`
-	RequiredCalls       []ExpectedCall   `json:"required_calls,omitempty"`
-	OutputEquals        *string          `json:"output_equals,omitempty"`
-	OutputEqualsAny     []string         `json:"output_equals_any,omitempty"`
-	OutputContains      []string         `json:"output_contains,omitempty"`
+	Tools           []string       `json:"tools"`
+	Calls           []ExpectedCall `json:"calls,omitempty"`
+	RequiredTools   []string       `json:"required_tools,omitempty"`
+	ForbiddenTools  []string       `json:"forbidden_tools,omitempty"`
+	RequiredCalls   []ExpectedCall `json:"required_calls,omitempty"`
+	OutputEquals    *string        `json:"output_equals,omitempty"`
+	OutputEqualsAny []string       `json:"output_equals_any,omitempty"`
+	OutputContains  []string       `json:"output_contains,omitempty"`
+	// OutputContainsToken makes each OutputContains entry match only as a whole
+	// token, so "5" is not found inside "2026-05" or "95000".
+	OutputContainsToken bool             `json:"output_contains_token,omitempty"`
 	OutputContainsAny   []string         `json:"output_contains_any,omitempty"`
 	OutputExcludes      []string         `json:"output_excludes,omitempty"`
+	MaxOutputChars      int              `json:"max_output_chars,omitempty"`
 	ExpectedNumber      *float64         `json:"expected_number,omitempty"`
 	Tolerance           *float64         `json:"tolerance,omitempty"`
 	Plan                *PlanExpectation `json:"plan,omitempty"`

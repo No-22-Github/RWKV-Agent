@@ -13,10 +13,10 @@
     "ref_calls": 2,
     "fixture_bytes": 905,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-5.3-flash-b04",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -26,9 +26,13 @@
   },
   "turns": [
     {
-      "prompt": "An Ulshaw Mills customer runs twin drive cabinets and needs the arrival version of the feature they depend on for the maintenance contract paperwork. Which release version first added load balancing across twin drive cabinets? Give the version number alone, as digits and dots, with no label. Reply with only the final answer.",
+      "prompt": "An Ulshaw Mills customer runs twin drive cabinets and needs the arrival version of the feature they depend on for the maintenance contract paperwork. Which release version first added load balancing across twin drive cabinets?",
       "expect": {
-        "output_equals": "2.7.0"
+        "output_contains": [
+          "2.7.0"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

@@ -19,10 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 207,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "unknown"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -31,11 +31,14 @@
   },
   "turns": [
     {
-      "prompt": "A rigger at Hartsmere asked what the safe working load on a sling tag means; it is the load the sling broke at under test divided by a factor of safety. Sling SL-14 broke at 12,400 newtons and the house applies a factor of 5. Give its safe working load in newtons. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "A rigger at Hartsmere asked what the safe working load on a sling tag means; it is the load the sling broke at under test divided by a factor of safety. Sling SL-14 broke at 12,400 newtons and the house applies a factor of 5. Give its safe working load in newtons.",
       "expect": {
-        "expected_number": 2480,
-        "tolerance": 0.01,
-        "tools": []
+        "tools": [],
+        "output_contains": [
+          "2480 N"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

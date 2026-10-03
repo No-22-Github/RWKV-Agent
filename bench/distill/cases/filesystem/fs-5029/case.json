@@ -19,10 +19,10 @@
     "ref_calls": 4,
     "fixture_bytes": 725,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -33,10 +33,13 @@
   },
   "turns": [
     {
-      "prompt": "One kiln round at Thurlby Brickworks was written up twice, once in the burner's cabin and once in the works office, so the same sheet sits in this folder under two names. How many bricks did that round draw? Give the number alone, as digits, with no label. Reply with only the final answer.",
+      "prompt": "One kiln round at Thurlby Brickworks was written up twice, once in the burner's cabin and once in the works office, so the same sheet sits in this folder under two names. How many bricks did that round draw?",
       "expect": {
-        "expected_number": 1096,
-        "tolerance": 0.01
+        "output_contains": [
+          "1096"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

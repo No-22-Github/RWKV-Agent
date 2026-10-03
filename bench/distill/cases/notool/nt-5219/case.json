@@ -19,10 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 223,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -31,11 +31,14 @@
   },
   "turns": [
     {
-      "prompt": "A sawyer new to the counter at Marlbrook Timber asked what a board foot is; it is the volume of a square foot of board one inch thick, which is how the trade quotes sawn timber. The deck beam on the cutting list is 1.5 inches thick, 7.5 inches wide and 16 feet long. Give its volume, as a single number in board feet with no unit in the reply. Reply with only the final answer.",
+      "prompt": "A sawyer new to the counter at Marlbrook Timber asked what a board foot is; it is the volume of a square foot of board one inch thick, which is how the trade quotes sawn timber. The deck beam on the cutting list is 1.5 inches thick, 7.5 inches wide and 16 feet long. Give its volume in board feet.",
       "expect": {
-        "expected_number": 15.0,
-        "tolerance": 0.01,
-        "tools": []
+        "tools": [],
+        "output_contains": [
+          "15"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

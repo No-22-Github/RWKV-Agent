@@ -19,10 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 321,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -32,11 +32,14 @@
   },
   "turns": [
     {
-      "prompt": "Cindermoor Streaming is sizing the September capacity report for the Manchester edge. The peak the monitoring system recorded there is 720 megabits a second. The report states sustained egress in gigabytes an hour. What does it state for the Manchester edge? Reply with only the final answer.",
+      "prompt": "Cindermoor Streaming is sizing the September capacity report for the Manchester edge. The peak the monitoring system recorded there is 720 megabits a second. The report states sustained egress in gigabytes an hour. What does it state for the Manchester edge?",
       "expect": {
-        "expected_number": 324,
-        "tolerance": 0.01,
-        "tools": []
+        "tools": [],
+        "output_contains": [
+          "324"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

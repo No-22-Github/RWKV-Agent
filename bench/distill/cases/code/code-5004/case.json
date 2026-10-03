@@ -13,10 +13,10 @@
     "ref_calls": 2,
     "fixture_bytes": 448,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -25,10 +25,13 @@
   },
   "turns": [
     {
-      "prompt": "The support desk keeps asking how much time the nightly import spends idle when the queue has nothing ready. In ingest/queue.py, how many seconds does the reader wait between its attempts on an empty queue? Reply with only the final answer.",
+      "prompt": "The support desk keeps asking how much time the nightly import spends idle when the queue has nothing ready. In ingest/queue.py, how many seconds does the reader wait between its attempts on an empty queue?",
       "expect": {
-        "expected_number": 45,
-        "tolerance": 0.01
+        "output_contains": [
+          "45"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

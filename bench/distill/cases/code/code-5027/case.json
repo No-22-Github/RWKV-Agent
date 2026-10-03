@@ -13,10 +13,10 @@
     "ref_calls": 2,
     "fixture_bytes": 368,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -25,10 +25,13 @@
   },
   "turns": [
     {
-      "prompt": "An order can reach the Sorrelbank herb farm's crate quote with no crates in it at all. What charge, in pence, does the quote come back with for it? Give the answer as a single number, with no unit in the reply. Reply with only the final answer.",
+      "prompt": "An order can reach the Sorrelbank herb farm's crate quote with no crates in it at all. What charge, in pence, does the quote come back with for it?",
       "expect": {
-        "expected_number": 420,
-        "tolerance": 0.01
+        "output_contains": [
+          "420"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

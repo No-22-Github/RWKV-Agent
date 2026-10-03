@@ -19,10 +19,10 @@
     "ref_calls": 3,
     "fixture_bytes": 1323,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-5.3-flash-b04",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -31,9 +31,13 @@
   },
   "turns": [
     {
-      "prompt": "Lindisfare Ferries' booking service ran its nightly reconciliation on 30 August 2026. Working from the check lines in the service journal, which booking reference failed its card check? Answer with the reference alone. Reply with only the final answer.",
+      "prompt": "Lindisfare Ferries' booking service ran its nightly reconciliation on 30 August 2026. Working from the check lines in the service journal, which booking reference failed its card check?",
       "expect": {
-        "output_equals": "BK-6118"
+        "output_contains": [
+          "BK-6118"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

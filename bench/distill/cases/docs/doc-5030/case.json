@@ -19,10 +19,10 @@
     "ref_calls": 2,
     "fixture_bytes": 993,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -35,9 +35,13 @@
   },
   "turns": [
     {
-      "prompt": "The head nurse at Rievaulx Veterinary Practice is tidying the clinical protocol folder before the practice inspection. One of the register entries has no protocol of its own in the folder. Which register entry is it? Reproduce the entry as the register spells it. Reply with only the final answer.",
+      "prompt": "The head nurse at Rievaulx Veterinary Practice is tidying the clinical protocol folder before the practice inspection. One of the register entries has no protocol of its own in the folder. Which register entry is it? Reproduce the entry as the register spells it.",
       "expect": {
-        "output_equals": "protocols/equine-colic.md"
+        "output_contains": [
+          "protocols/equine-colic.md"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

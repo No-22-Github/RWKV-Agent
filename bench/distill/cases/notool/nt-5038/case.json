@@ -19,10 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 342,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -32,11 +32,14 @@
   },
   "turns": [
     {
-      "prompt": "Ferngate Logistics runs the evening handover call with the Kathmandu desk. The Kathmandu gates close at 07:30 local time. The European control room logs closure times as minutes after midnight UTC. What does the control room log for that closure? Reply with only the final answer.",
+      "prompt": "Ferngate Logistics runs the evening handover call with the Kathmandu desk. The Kathmandu gates close at 07:30 local time. The European control room logs closure times as minutes after midnight UTC. What does the control room log for that closure?",
       "expect": {
-        "expected_number": 105,
-        "tolerance": 0.01,
-        "tools": []
+        "tools": [],
+        "output_contains": [
+          "105"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

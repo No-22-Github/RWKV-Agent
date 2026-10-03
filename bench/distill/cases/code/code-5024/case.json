@@ -13,10 +13,10 @@
     "ref_calls": 2,
     "fixture_bytes": 483,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -26,9 +26,13 @@
   },
   "turns": [
     {
-      "prompt": "The Bywell Steam Laundry's sorting bench weighs each crate by calling weigh_bundle. Which module defines that helper? Give the file path on its own, with the .py suffix. Reply with only the final answer.",
+      "prompt": "The Bywell Steam Laundry's sorting bench weighs each crate by calling weigh_bundle. Which module defines that helper?",
       "expect": {
-        "output_equals": "scales/bundles.py"
+        "output_contains": [
+          "scales/bundles.py"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

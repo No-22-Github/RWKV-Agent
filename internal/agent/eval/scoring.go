@@ -240,7 +240,11 @@ func answerFailures(expect Expectation, output string) []string {
 		}
 	}
 	for _, required := range expect.OutputContains {
-		if !strings.Contains(output, required) {
+		found := strings.Contains(output, required)
+		if expect.OutputContainsToken {
+			found = containsToken(output, required)
+		}
+		if !found {
 			failures = append(
 				failures,
 				fmt.Sprintf("output does not contain %q", required),
@@ -269,6 +273,12 @@ func answerFailures(expect Expectation, output string) []string {
 				fmt.Sprintf("output contains forbidden text %q", forbidden),
 			)
 		}
+	}
+	if expect.MaxOutputChars > 0 && len([]rune(output)) > expect.MaxOutputChars {
+		failures = append(
+			failures,
+			fmt.Sprintf("output length %d chars exceeds max_output_chars %d", len([]rune(output)), expect.MaxOutputChars),
+		)
 	}
 	if expect.ExpectedNumber != nil {
 		actual, err := parseNumericOutput(output)
@@ -1071,4 +1081,45 @@ func isLeadingUnit(token string) bool {
 	}
 	_, isFunctionWord := unitLeadingFunctionWords[strings.ToLower(token)]
 	return !isFunctionWord
+}
+
+// containsToken reports whether want occurs in output with no letter or digit
+// directly on either side, and not as part of a longer decimal or grouped
+// number ("5" is not in "7.5", "5,000" or "2026-05").
+func containsToken(output, want string) bool {
+	if want == "" {
+		return true
+	}
+	isWord := func(r rune) bool { return unicode.IsLetter(r) || unicode.IsDigit(r) }
+	for from := 0; ; {
+		idx := strings.Index(output[from:], want)
+		if idx < 0 {
+			return false
+		}
+		start, end := from+idx, from+idx+len(want)
+		before := []rune(output[:start])
+		after := []rune(output[end:])
+		ok := true
+		if n := len(before); n > 0 {
+			if isWord(before[n-1]) && isWord([]rune(want)[0]) {
+				ok = false
+			}
+			if n > 1 && (before[n-1] == '.' || before[n-1] == ',') && unicode.IsDigit(before[n-2]) {
+				ok = false
+			}
+		}
+		if n := len(after); n > 0 {
+			wr := []rune(want)
+			if isWord(after[0]) && isWord(wr[len(wr)-1]) {
+				ok = false
+			}
+			if n > 1 && (after[0] == '.' || after[0] == ',') && unicode.IsDigit(after[1]) {
+				ok = false
+			}
+		}
+		if ok {
+			return true
+		}
+		from = start + 1
+	}
 }

@@ -19,10 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 315,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -32,11 +32,14 @@
   },
   "turns": [
     {
-      "prompt": "Skerrygate Rail Pathing is loading a September path slot into the network timetable. The slot booked at the Chatham Islands station stands at 21:40 by the station clock. The timetable keeps each slot as seconds after midnight UTC. What does it keep for that slot? Reply with only the final answer.",
+      "prompt": "Skerrygate Rail Pathing is loading a September path slot into the network timetable. The slot booked at the Chatham Islands station stands at 21:40 by the station clock. The timetable keeps each slot as seconds after midnight UTC. What does it keep for that slot?",
       "expect": {
-        "expected_number": 32100,
-        "tolerance": 0.01,
-        "tools": []
+        "tools": [],
+        "output_contains": [
+          "32100"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

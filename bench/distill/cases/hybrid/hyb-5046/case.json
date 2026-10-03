@@ -19,10 +19,10 @@
     "ref_calls": 3,
     "fixture_bytes": 333,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "unknown"
+    "answer_style": "natural"
   },
   "web_fixture": [
     {
@@ -55,10 +55,13 @@
   },
   "turns": [
     {
-      "prompt": "Quarryhill Press ran woven cream all September and has to report the sheets drawn from the store. How many sheets did the September reams hold? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Quarryhill Press ran woven cream all September and has to report the sheets drawn from the store. How many sheets did the September reams hold?",
       "expect": {
-        "expected_number": 9288,
-        "tolerance": 0.01
+        "output_contains": [
+          "9288"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

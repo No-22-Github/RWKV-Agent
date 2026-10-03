@@ -19,10 +19,10 @@
     "ref_calls": 3,
     "fixture_bytes": 1169,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:glm-5.3-flash-b04",
     "reviewer": null,
-    "answer_style": "unknown"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -32,10 +32,13 @@
   },
   "turns": [
     {
-      "prompt": "Denby Grant Makers reports its outgoings to the board. How much has actually been paid out across all awards? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Denby Grant Makers reports its outgoings to the board. How much has actually been paid out across all awards?",
       "expect": {
-        "expected_number": 14528.11,
-        "tolerance": 0.01
+        "output_contains": [
+          "14528.11"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

@@ -19,10 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 208,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "unknown"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -31,11 +31,14 @@
   },
   "turns": [
     {
-      "prompt": "A customer of Bexley Paper asked what the substance figure on a stock card means; it is the weight in grams of one square metre of the sheet. The quoted sheet measures 320 by 450 millimetres and the stock is 250 grams per square metre. Give the weight of one sheet in grams. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "A customer of Bexley Paper asked what the substance figure on a stock card means; it is the weight in grams of one square metre of the sheet. The quoted sheet measures 320 by 450 millimetres and the stock is 250 grams per square metre. Give the weight of one sheet in grams.",
       "expect": {
-        "expected_number": 36.0,
-        "tolerance": 0.01,
-        "tools": []
+        "tools": [],
+        "output_contains": [
+          "36"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

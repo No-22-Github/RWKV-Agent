@@ -18,11 +18,11 @@
     "ref_calls": 3,
     "scenario": "tabular",
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
     "fixture_bytes": 3044,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -31,10 +31,13 @@
   },
   "turns": [
     {
-      "prompt": "Cilgwyn Slate Yard reports the work of each yard to the quarry office. How many splitting runs did the Penrhyddn yard carry out in August 2026? Give the count as a number alone. Reply with only the final answer.",
+      "prompt": "Cilgwyn Slate Yard reports the work of each yard to the quarry office. How many splitting runs did the Penrhyddn yard carry out in August 2026?",
       "expect": {
-        "expected_number": 21,
-        "tolerance": 0.01
+        "output_contains": [
+          "21"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

@@ -19,10 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 256,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "unknown"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -31,11 +31,14 @@
   },
   "turns": [
     {
-      "prompt": "A watchkeeper new to the Harnsey Harbour Board tide desk asked what the twelfths rule on a reach card is for. It splits a rising tide into six hours that take one, two, three, three, two and one twelfth of the range. The range at Skerry Cove is 4.8 metres and the flood there has been running for three hours. Give how far the water has risen above the level at the turn, in metres. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "A watchkeeper new to the Harnsey Harbour Board tide desk asked what the twelfths rule on a reach card is for. It splits a rising tide into six hours that take one, two, three, three, two and one twelfth of the range. The range at Skerry Cove is 4.8 metres and the flood there has been running for three hours. Give how far the water has risen above the level at the turn, in metres.",
       "expect": {
-        "expected_number": 2.4,
-        "tolerance": 0.01,
-        "tools": []
+        "tools": [],
+        "output_contains": [
+          "2.4"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

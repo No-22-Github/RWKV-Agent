@@ -19,10 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 218,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -31,11 +31,14 @@
   },
   "turns": [
     {
-      "prompt": "Hollowbrook's newest beekeeper asked how a hive box is measured on the yard card; a deep box takes ten frames and each frame carries comb on both faces. The yard runs five deep boxes. Give the number of comb cells the yard's boxes can hold. Reply with only the final answer.",
+      "prompt": "Hollowbrook's newest beekeeper asked how a hive box is measured on the yard card; a deep box takes ten frames and each frame carries comb on both faces. The yard runs five deep boxes. Give the number of comb cells the yard's boxes can hold.",
       "expect": {
-        "expected_number": 348000,
-        "tolerance": 0.01,
-        "tools": []
+        "tools": [],
+        "output_contains": [
+          "348000"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

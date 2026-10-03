@@ -19,10 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 598,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -32,12 +32,17 @@
   },
   "turns": [
     {
-      "prompt": "Cradlewick Creamery runs an order intake service that loads its reference data for a while after the container starts and answers its health endpoint only when that load is done. Requests that arrive in that window fail. Give the container field that keeps a starting container out of the request rotation until its check reports healthy, without restarting it. Reply with only the final answer.",
+      "prompt": "Cradlewick Creamery runs an order intake service that loads its reference data for a while after the container starts and answers its health endpoint only when that load is done. Requests that arrive in that window fail. Give the container field that keeps a starting container out of the request rotation until its check reports healthy, without restarting it.",
       "expect": {
         "tools": [],
         "output_contains_any": [
           "readinessProbe"
-        ]
+        ],
+        "output_contains": [
+          "`readinessProbe`"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

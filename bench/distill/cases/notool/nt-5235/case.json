@@ -19,10 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 199,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "unknown"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -31,11 +31,14 @@
   },
   "turns": [
     {
-      "prompt": "A haulage clerk new to Barrowcrag Quarry asked what the stripping ratio on a bench card is; it is the waste rock that has to come off for each tonne of ore won. Bench B-14 takes 38400 cubic metres of waste off 12000 tonnes of ore. Give the stripping ratio, as a single number in cubic metres of waste per tonne of ore with no unit in the reply. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "A haulage clerk new to Barrowcrag Quarry asked what the stripping ratio on a bench card is; it is the waste rock that has to come off for each tonne of ore won. Bench B-14 takes 38400 cubic metres of waste off 12000 tonnes of ore. Give the stripping ratio in cubic metres of waste per tonne of ore.",
       "expect": {
-        "expected_number": 3.2,
-        "tolerance": 0.01,
-        "tools": []
+        "tools": [],
+        "output_contains": [
+          "3.2"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

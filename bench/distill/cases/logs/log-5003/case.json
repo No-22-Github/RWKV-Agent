@@ -15,10 +15,10 @@
     "ref_calls": 2,
     "fixture_bytes": 846,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -27,10 +27,13 @@
   },
   "turns": [
     {
-      "prompt": "Wrenmoor Foods' overnight relay hands the day's customer notices to the outbound mail exchangers. How many messages were still pending when the relay logged its first error? Reply with only the final answer.",
+      "prompt": "Wrenmoor Foods' overnight relay hands the day's customer notices to the outbound mail exchangers. How many messages were still pending when the relay logged its first error?",
       "expect": {
-        "expected_number": 783,
-        "tolerance": 0.01
+        "output_contains": [
+          "783"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

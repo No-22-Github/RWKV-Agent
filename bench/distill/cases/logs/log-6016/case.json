@@ -19,10 +19,10 @@
     "ref_calls": 3,
     "fixture_bytes": 1290,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-5.3-flash-b04",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -31,9 +31,13 @@
   },
   "turns": [
     {
-      "prompt": "Merrowdown Quarry's weighbridge journals every truck it weighs. At what UTC time was the first oversize alarm raised on 16 June 2026? Answer with the time as HH:MM, 24-hour. Reply with only the final answer.",
+      "prompt": "Merrowdown Quarry's weighbridge journals every truck it weighs. At what UTC time was the first oversize alarm raised on 16 June 2026? Answer with the time as HH:MM, 24-hour.",
       "expect": {
-        "output_equals": "07:52"
+        "output_contains": [
+          "07:52"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

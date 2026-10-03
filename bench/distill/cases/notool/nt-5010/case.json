@@ -19,10 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 205,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -31,11 +31,14 @@
   },
   "turns": [
     {
-      "prompt": "A prepress hand at Ironbark Press asked what an imposition sheet means for a press run; one sheet carries several pages on each face, it is printed on both faces, and every page of the programme appears once. The Dunsmere run uses 840 sheets with 8 pages on each face. Give the number of finished pages the run produces. Reply with only the final answer.",
+      "prompt": "A prepress hand at Ironbark Press asked what an imposition sheet means for a press run; one sheet carries several pages on each face, it is printed on both faces, and every page of the programme appears once. The Dunsmere run uses 840 sheets with 8 pages on each face. Give the number of finished pages the run produces.",
       "expect": {
-        "expected_number": 13440,
-        "tolerance": 0.01,
-        "tools": []
+        "tools": [],
+        "output_contains": [
+          "13440"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

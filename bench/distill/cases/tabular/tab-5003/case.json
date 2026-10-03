@@ -13,10 +13,10 @@
     "ref_calls": 2,
     "fixture_bytes": 740,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -25,10 +25,13 @@
   },
   "turns": [
     {
-      "prompt": "Cinder & Coil Espresso Service bills repair hours at the end of the month. How many minutes in total are recorded against the technician who logged the most repair minutes in the August log? Reply with only the final answer.",
+      "prompt": "Cinder & Coil Espresso Service bills repair hours at the end of the month. How many minutes in total are recorded against the technician who logged the most repair minutes in the August log?",
       "expect": {
-        "expected_number": 280,
-        "tolerance": 0.01
+        "output_contains": [
+          "280"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

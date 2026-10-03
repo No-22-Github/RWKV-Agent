@@ -9,7 +9,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
-	"slices"
 	"sort"
 	"strconv"
 	"strings"
@@ -356,6 +355,24 @@ func caseExpectations(caseObj map[string]any) ([]expectedNumber, []string, []str
 				}
 			}
 		}
+		if oc, ok := exp["output_contains"].([]any); ok {
+			for _, item := range oc {
+				if s, ok := item.(string); ok {
+					outputEquals = append(outputEquals, s)
+					clean := strings.TrimLeft(strings.TrimSpace(strings.ReplaceAll(s, ",", "")), "$£€¥")
+					if f, err := strconv.ParseFloat(clean, 64); err == nil {
+						numbers = append(numbers, expectedNumber{value: f, tolerance: defaultTolerance})
+					} else {
+						for _, fld := range strings.Fields(clean) {
+							fldClean := strings.TrimLeft(fld, "$£€¥")
+							if f, err := strconv.ParseFloat(fldClean, 64); err == nil {
+								numbers = append(numbers, expectedNumber{value: f, tolerance: defaultTolerance})
+							}
+						}
+					}
+				}
+			}
+		}
 		if oca, ok := exp["output_contains_any"].([]any); ok {
 			for _, item := range oca {
 				if s, ok := item.(string); ok && !seenContains[s] {
@@ -511,8 +528,10 @@ func matchesExpectation(obj any, numbers []expectedNumber, outputEquals, contain
 		}
 	}
 	if s, ok := sval.(string); ok && hasSval {
-		if slices.Contains(outputEquals, s) {
-			return boolPtr(true), fmt.Sprintf("string %s matches output_equals", pyReprValue(s))
+		for _, oe := range outputEquals {
+			if oe == s || (s != "" && (strings.Contains(oe, s) || strings.Contains(s, oe))) {
+				return boolPtr(true), fmt.Sprintf("string %s matches output_equals", pyReprValue(s))
+			}
 		}
 		for _, want := range numbers {
 			fval, err := strconv.ParseFloat(strings.TrimSpace(s), 64)

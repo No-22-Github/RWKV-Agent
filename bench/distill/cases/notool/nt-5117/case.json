@@ -19,10 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 261,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -31,11 +31,14 @@
   },
   "turns": [
     {
-      "prompt": "The apprentice at Bellhouse Marine Electrical asked what the drop column on a cable schedule means; the figure is the loss in millivolts for every ampere the cable carries over each metre of the run. Circuit BK-7 is a two-core 2.5 square millimetre run of 38 metres that will carry 17 amperes. Give the drop along that run, in volts. Reply with only the final answer.",
+      "prompt": "The apprentice at Bellhouse Marine Electrical asked what the drop column on a cable schedule means; the figure is the loss in millivolts for every ampere the cable carries over each metre of the run. Circuit BK-7 is a two-core 2.5 square millimetre run of 38 metres that will carry 17 amperes. Give the drop along that run, in volts.",
       "expect": {
-        "expected_number": 2.8424,
-        "tolerance": 0.01,
-        "tools": []
+        "tools": [],
+        "output_contains": [
+          "2.8424 V"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

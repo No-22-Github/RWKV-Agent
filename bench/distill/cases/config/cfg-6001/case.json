@@ -19,10 +19,10 @@
     "ref_calls": 3,
     "fixture_bytes": 863,
     "status": "draft",
-    "version": 1,
+    "version": 2,
     "author": "llm:glm-5.3-flash-b04",
     "reviewer": null,
-    "answer_style": "unknown"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -33,10 +33,13 @@
   },
   "turns": [
     {
-      "prompt": "Norlake ColdChain reports each depot's sensors on a fixed cadence, and the facilities team at Marldon wants the cadence their depot actually runs. What is the effective telemetry interval in seconds for Marldon? Give the number alone, as digits, with no label. Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",
+      "prompt": "Norlake ColdChain reports each depot's sensors on a fixed cadence, and the facilities team at Marldon wants the cadence their depot actually runs. What is the effective telemetry interval in seconds for Marldon?",
       "expect": {
-        "expected_number": 45,
-        "tolerance": 0.01
+        "output_contains": [
+          "45"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

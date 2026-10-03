@@ -19,10 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 299,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -32,11 +32,14 @@
   },
   "turns": [
     {
-      "prompt": "Slatebridge Cold Store is logging the setpoint for the chamber that holds the chilled dairy. The controller is set at 41 degrees Fahrenheit. The site log is kept in degrees Celsius, where the ice point is 32 degrees Fahrenheit and a Celsius degree is 1.8 Fahrenheit degrees. What setpoint in degrees Celsius goes into the site log? Give the answer as a single number, with no unit in the reply. Reply with only the final answer.",
+      "prompt": "Slatebridge Cold Store is logging the setpoint for the chamber that holds the chilled dairy. The controller is set at 41 degrees Fahrenheit. The site log is kept in degrees Celsius, where the ice point is 32 degrees Fahrenheit and a Celsius degree is 1.8 Fahrenheit degrees. What setpoint in degrees Celsius goes into the site log?",
       "expect": {
-        "expected_number": 5,
-        "tolerance": 0.01,
-        "tools": []
+        "tools": [],
+        "output_contains": [
+          "5"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

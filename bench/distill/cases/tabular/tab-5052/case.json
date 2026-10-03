@@ -21,11 +21,11 @@
     "ref_calls": 3,
     "scenario": "tabular",
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
     "fixture_bytes": 1913,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -35,10 +35,13 @@
   },
   "turns": [
     {
-      "prompt": "Stokeclimsland Distillery charges its warehouse customers for the casks they hold. What is the storage charge for the casks filled in the second quarter of 2026? Give the amount as a number of pounds and pence. Reply with only the final answer.",
+      "prompt": "Stokeclimsland Distillery charges its warehouse customers for the casks they hold. What is the storage charge for the casks filled in the second quarter of 2026? Give the amount as a number of pounds and pence.",
       "expect": {
-        "expected_number": 144.0,
-        "tolerance": 0.01
+        "output_contains": [
+          "144.00"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

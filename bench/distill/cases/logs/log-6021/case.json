@@ -19,10 +19,10 @@
     "ref_calls": 3,
     "fixture_bytes": 6009,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-5.3-flash-b04",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -31,9 +31,13 @@
   },
   "turns": [
     {
-      "prompt": "Metherall Steel's pickling-line controller rotated its journal at the start of February. Which coiler raised the first over-current ERROR on 1 February 2026? Answer with the unit id alone. Reply with only the final answer.",
+      "prompt": "Metherall Steel's pickling-line controller rotated its journal at the start of February. Which coiler raised the first over-current ERROR on 1 February 2026?",
       "expect": {
-        "output_equals": "metherall-coiler-2"
+        "output_contains": [
+          "metherall-coiler-2"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

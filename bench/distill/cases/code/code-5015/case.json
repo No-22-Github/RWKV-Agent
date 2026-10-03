@@ -13,10 +13,10 @@
     "ref_calls": 2,
     "fixture_bytes": 466,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -25,10 +25,13 @@
   },
   "turns": [
     {
-      "prompt": "The Hollybush Cidery's press scheduler gives up on a vat that never clears. How many times does it poll the vat before it gives up? Reply with only the final answer.",
+      "prompt": "The Hollybush Cidery's press scheduler gives up on a vat that never clears. How many times does it poll the vat before it gives up?",
       "expect": {
-        "expected_number": 7,
-        "tolerance": 0.01
+        "output_contains": [
+          "7"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

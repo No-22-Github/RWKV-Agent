@@ -19,10 +19,10 @@
     "ref_calls": 2,
     "fixture_bytes": 0,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "files": {},
   "web_fixture": [
@@ -52,10 +52,13 @@
   },
   "turns": [
     {
-      "prompt": "Our storefront keeps ending on Ashcott error AC-4210 while the origin sends redirects. How many redirect hops may one request follow before the edge raises that error? Reply with only the final answer.",
+      "prompt": "Our storefront keeps ending on Ashcott error AC-4210 while the origin sends redirects. How many redirect hops may one request follow before the edge raises that error?",
       "expect": {
-        "expected_number": 16,
-        "tolerance": 0.01
+        "output_contains": [
+          "16"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

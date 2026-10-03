@@ -19,10 +19,10 @@
     "ref_calls": 3,
     "fixture_bytes": 11959,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:glm-5.3-flash-b04",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -32,9 +32,13 @@
   },
   "turns": [
     {
-      "prompt": "Morvane Glassworks journals each tempering oven to its own file. Which oven raised the first ERROR of 3 August 2026? Answer with the oven id alone. Reply with only the final answer.",
+      "prompt": "Morvane Glassworks journals each tempering oven to its own file. Which oven raised the first ERROR of 3 August 2026?",
       "expect": {
-        "output_equals": "morvane-oven-b"
+        "output_contains": [
+          "morvane-oven-b"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]

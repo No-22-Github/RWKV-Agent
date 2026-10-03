@@ -19,10 +19,10 @@
     "ref_calls": 0,
     "fixture_bytes": 287,
     "status": "draft",
-    "version": 2,
+    "version": 3,
     "author": "llm:claude-opus-5-5",
     "reviewer": null,
-    "answer_style": "value"
+    "answer_style": "natural"
   },
   "web_fixture": [],
   "files": {
@@ -32,11 +32,14 @@
   },
   "turns": [
     {
-      "prompt": "Covehurst Harbour is letting the dredging contract for the approach channel. The design sheet specifies a dredge depth of 12.5 fathoms, and a fathom is 1.8288 metres. What depth in metres goes into the contract? Give the answer as a single number, with no unit in the reply. Reply with only the final answer.",
+      "prompt": "Covehurst Harbour is letting the dredging contract for the approach channel. The design sheet specifies a dredge depth of 12.5 fathoms, and a fathom is 1.8288 metres. What depth in metres goes into the contract?",
       "expect": {
-        "expected_number": 22.86,
-        "tolerance": 0.01,
-        "tools": []
+        "tools": [],
+        "output_contains": [
+          "22.86"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
       }
     }
   ]
