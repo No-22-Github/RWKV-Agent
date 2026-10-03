@@ -19,6 +19,7 @@ usage: rwkv-lab corpus <command> [flags]
   decontam   flag candidates that are too close to the test bank
   pack       validate rows and pack a dataset directory
   loadcheck  load a bank through the real eval loader (unknown fields are fatal)
+  segcheck   verify segment tokenization matches whole-text tokenization
 `
 
 // Run dispatches a corpus subcommand.
@@ -40,6 +41,8 @@ func Run(args []string) int {
 		return runPackCmd(args[1:])
 	case "loadcheck":
 		return runLoadcheckCmd(args[1:])
+	case "segcheck":
+		return runSegcheckCmd(args[1:])
 	case "-h", "--help", "help":
 		fmt.Print(usage)
 		return 0

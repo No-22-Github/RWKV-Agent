@@ -55,4 +55,14 @@ func TestScaledParallelism(t *testing.T) {
 			t.Fatalf("want 120, got %v", got)
 		}
 	})
+
+	t.Run("p13 suite registered", func(t *testing.T) {
+		spec, ok := suites["p13"]
+		if !ok {
+			t.Fatal("p13 suite not registered")
+		}
+		if spec.count != 60 || spec.parallelism != 48 || !spec.g1k {
+			t.Fatalf("unexpected p13 spec: %+v", spec)
+		}
+	})
 }

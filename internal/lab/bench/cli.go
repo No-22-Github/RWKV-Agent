@@ -69,7 +69,14 @@ func runSweepCmd(argv []string) int {
 	if err := runs.ParseInterspersed(fs, argv, map[string]bool{"dry-run": true}); err != nil {
 		return 2
 	}
-	if args.Out == "" || arms == "" {
+	if args.DryRun {
+		if args.Out == "" {
+			args.Out = "<out>"
+		}
+		if arms == "" {
+			arms = "greedy"
+		}
+	} else if args.Out == "" || arms == "" {
 		fmt.Fprintln(os.Stderr, "error: --out and --arms are required")
 		return 2
 	}

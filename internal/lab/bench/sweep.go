@@ -36,6 +36,8 @@ type suiteSpec struct {
 var suites = map[string]suiteSpec{
 	"workbank": {"workbank", []string{"--cases", "bench/workbank/cases", "--tool-catalog", "work-v1",
 		"--file-tools", "lines", "--include-draft"}, 148, 48, true},
+	"p13": {"p13", []string{"--cases", "bench/holdout/p13", "--tool-catalog", "work-v1",
+		"--file-tools", "lines", "--include-draft"}, 60, 48, true},
 	"bfcl-product":         {"bfclp", []string{"--suite", "bfcl-product"}, 60, 16, true},
 	"boundary":             {"boundary", []string{"--suite", "boundary"}, 18, 18, true},
 	"assistant":            {"assistant", []string{"--suite", "assistant"}, 6, 6, true},
