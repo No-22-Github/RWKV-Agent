@@ -31,7 +31,7 @@ bfcl-product 只提供 `list_files` / `read_file` / `search_text` / `no_tool` �
 
 | 批 | 内容 | 产出行（估） | 老师 |
 |---|---|---|---|
-| b09 存量改造 | §3.1 M1：b05 纯值题去模板重解为证据句终答；§3.9 按 family 封顶 | 替换 ~450 行，删 ~150 行 | GLM step.py |
+| b09 存量改造 | §3.1 M1：b05 纯值题删契约、只改写终答（不重做题）；§3.9 按 family 封顶 | 替换 ~450 行，删 ~150 行 | 改写模型（每行一次调用），不跑老师 |
 | b10 新题 | §3.2–§3.8 M2–M8 | ~1000 行 | 按类，见各节 |
 | b11 收尾恢复 | §3.10 N10 扩量（含写/脚本任务） | ~200 行 | 无（机械变换） |
 | 合计 | v1.3 2051 − 150 + 1000 + 100（N10 净增） | **≈ 3000 行** | |
@@ -55,27 +55,57 @@ bfcl-product 只提供 `list_files` / `read_file` / `search_text` / `no_tool` �
 - 「中文」列是该类中文题的**下限**。中文题的工作区文件内容也用中文（表头、日志、文档），不是英文工作区配中文题面。
 - 终答一律按 §4。
 
-### 3.1 M1 终答形态去偏（b09，改存量，~450 题重解）
+### 3.1 M1 终答形态去偏（b09，改写存量终答，~450 题，**不重做题**）
 
 **治什么**：短垃圾终答（15 题）。训练终答 70% 是纯值、紧跟 `\n\nUser:`，模型学成「写个短东西就结束」。
 
-**怎么做**：
+**为什么改写而不重做**：b05 的工具轨迹已经验证能做对，只有终答形态有问题。只改最后一项输出：成本是每行一次 LLM 改写 + 一次重放（重做要老师 k=3 + S5 质检）；工具部分原样保留，不会带进新的轨迹变化；v1.4 的收益也能干净地归到「终答形态」这一个变量上。
 
-1. 从 b05 中选出终答为纯值的题（881 行对应的题，按 `meta.case_id` 去 `--pN` 后缀得到题 ID），按 family 均匀抽 **450 题**。
-2. 机械改题：删掉题面里的答案契约句——`Reply with only the final answer.`、`If you cannot determine the answer, reply exactly UNKNOWN.`、`Just the number`、`只回数字` 等（清单用 v1.3 `v13_edit_contracts.py` 的正则，再加中文四种写法）。`tags.answer_style` 设为 `natural`，`tags.version` +1。
-3. 判据改写：`output_equals` / `expected_number` → `output_contains`（值的规范写法）或 `expected_number` 保留并加 `"number_in_text": true`（**待 M0 确认 scorer 是否支持从句子里取数**；不支持就用 `output_contains` 规范数字串）；另加 `"max_output_chars": 300`。
-4. 用老师重解，路径进 b09；被替换的旧行写进 `exclude.jsonl`（batch b05，reason「v1.4 M1 去模板重解」）。
+**脚本格式**（`bench/distill/scripts/b05-baseline.jsonl`，一行一条路径）：
 
-**改前改后样例**（cfg 类）：
+```json
+{"case_id": "cfg-5001--p1", "outputs": [
+  {"text": "<tool_call>{\"name\":\"list_files\",\"arguments\":{\"path\":\".\",\"max_depth\":4}}</tool_call>", "supervised": true},
+  {"text": "<tool_call>{\"name\":\"read_file\",\"arguments\":{\"path\":\"config/production.yaml\"}}</tool_call>", "supervised": true},
+  {"text": "576", "supervised": true}]}
+```
+
+M1 只改 `outputs` 的**最后一项** `text`，其余各项逐字节不动。
+
+**步骤**（新工具 `bench/distill/tools/v14_rewrite_finals.py`，输入 b05 脚本 + 渲染行，输出 b09 脚本）：
+
+1. **选题**：b05 里终答为纯值的路径（判定同 [clean-v13.md](reports/clean-v13.md) 的口径），按 family 均匀抽 **450 条**，每个 family 最多 3 条。只选单轮题（多轮题的终答改写会牵动后续轮次，不在本批）。
+2. **改题面**：删掉题面里的答案契约句——`Reply with only the final answer.`、`If you cannot determine the answer, reply exactly UNKNOWN.`、`Just the number`、`只回数字` 等（正则沿用 v1.3 `v13_edit_contracts.py`，再加中文四种写法）。`tags.answer_style` 设为 `natural`，`tags.version` +1。
+3. **改判据**：`output_equals` / `expected_number` → `output_contains`（值的规范写法）或保留 `expected_number` 并加 `"number_in_text": true`（**待 M0 确认 scorer 是否支持从句子里取数**）；另加 `"max_output_chars": 300`。不得加「或者 UNKNOWN」之类兜底选项。
+4. **改写终答**：对每条路径调用一次改写模型（GLM 或 DeepSeek，非思考模式，温度 0.7），输入 = 新题面 + 该路径全部工具调用与工具结果 + 原终答；要求见下方「改写提示要求」。
+5. **机械校验**（任一条不过就丢掉这条，**不修**）：
+   - 改写后的终答包含原值（数值按规范写法比较，允许千分位逗号差异）；
+   - 终答里出现的文件路径，必须是这条轨迹里实际 `read_file` / `read_lines` / `data_query` 过的路径；
+   - 终答里出现的数字，必须出现在原值、题面或某次工具结果里（防编造）；
+   - 长度 ≤300 字符；不含 `<tool_call>`、`<tool_response>`、角色标签、`✿`；
+   - 语言与题面一致。
+6. **输出**：新脚本写成 `bench/distill/scripts/b09-m1.jsonl`，`case_id` 用新路径号 `--p90`（如 `cfg-5001--p90`），`supervised` 照抄。
+7. **排除旧路径**：被改写的那道题，b05 里**所有**旧路径（不止被选中的那条）都写进 `exclude.jsonl`（batch b05，reason「v1.4 M1 改写终答」）。理由：存量行是从题目文件重新渲染的，题面改了以后，旧路径会套上没有契约的新题面重新渲染，且仍能通过 `output_contains`，正好造出「用户没要求只给值、模型却只回一个值」的最坏组合。
+8. **重放**：`corpus render --script bench/distill/scripts/b09-m1.jsonl --source distill-b09`，按新判据判分，不过的路径照常进 rejects。
+9. **抽检**：每 50 条人工看 3 条「依据讲得对不对」，结果贴进 b09 报告。重点看下方「改写救不了的情况」。
+
+**改写提示要求**（写进 `v14_rewrite_finals.py` 的提示词，不得删减）：
+
+- 一到两句：先给结论（含原值），再说依据（哪个文件 / 字段 / 哪条规则覆盖了哪条）。
+- **句式要有变化**：提示里给 5 种不同开头和结构的示例（结论在前 / 依据在前 / 「按 X 算是 Y」/ 带单位换算说明 / 带对比项），并要求不要总用同一种。理由：全写成「X is Y (file)」会练出一个新的固定句式，和纯值一样僵化。
+- 只能用轨迹里出现过的信息，不得补充轨迹之外的事实；不得改动原值。
+- 不写「根据工具结果」「I used read_file」这类描述过程的话：说依据是哪份文件，不是说调了什么工具。
+
+**改前改后样例**（示意，非真实题）：
 
 | | 题面 | 终答 |
 |---|---|---|
 | 改前 | The kiln-monitor exporter is being moved to a new scrape pool; what scrape interval does it run with in staging? Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN. | `20` |
 | 改后 | The kiln-monitor exporter is being moved to a new scrape pool; what scrape interval does it run with in staging? | `It scrapes every 20 seconds in staging: environments/staging.env overrides the 60-second default in config/exporter.yaml.` |
 
-（样例为示意，非真实题。M1 改的是 b05 里已有的蒸馏题，不出新题。）
+**改写救不了的情况**：原轨迹本身是「没查完、碰巧猜对」的路径（例如只读了默认配置，值恰好没被覆盖）。只回一个值时看不出来，改写成「依据是某文件」反而把错误推理写明白了。校验第 2 条只能保证引用的文件读过，保证不了推理对。抽检时专看这类；抽检里发现 ≥2 条，就对该 family 的全部改写行做逐条人工检查。
 
-**保留比例**：b05 剩余纯值题不动。改完后全量纯值终答目标 ≤40%（§5）——这意味着仍有约 1/3 的题保留「只给答案」，因为真实用户也会这么要求，模型必须两种都会。
+**保留比例**：b05 剩余纯值题不动。改完后全量纯值终答目标 ≤40%（§5）——仍有约 1/3 的题保留「只给答案」，因为真实用户也会这么要求，模型必须两种都会。
 
 ### 3.2 M2 查不到 / 目标不存在：写一段说明（b10，150 行，中文 ≥50%）
 
@@ -199,20 +229,20 @@ scorer 已把调用未提供的工具判为失败（提交 70e604f），S5 会�
 ### 3.9 存量封顶（b09，删 ~150 行）
 
 v1.3 训练集 b05 占 55%（1130 行，几乎全英文、单轮、纯值），拖低中文与多轮占比。
-按 `tags.family` 封顶：**每个 family 最多 3 行**（优先保留 M1 重解后的行和带 `--p81` 收尾恢复的行），超出的写进 `exclude.jsonl`（batch b05，reason「v1.4 family 封顶」）。
+按 `tags.family` 封顶：**每个 family 最多 3 行**（优先保留 M1 改写后的行和带 `--p81` 收尾恢复的行），超出的写进 `exclude.jsonl`（batch b05，reason「v1.4 family 封顶」）。
 执行前先跑一遍统计并把「将删除的行数按 kind 分布」贴进 b09 报告；若删除超过 250 行，停下来报告，不要继续——说明封顶值需要调。
 
 ### 3.10 N10 收尾恢复扩量（b11，~200 行）
 
 沿用 v1.3 `bench/distill/tools/v13_closeout.py` 的机械变换（不出新题），两处改动：
 
-1. 来源换成 v1.4 最终通过的脚本（b09 + b10），路径编号 `--p91`。
+1. 来源换成 v1.4 最终通过的脚本（b09 + b10），路径编号 `--p91`（M1 改写用的是 `--p90`，不要撞号）。
 2. **写任务和脚本任务也要覆盖**：v1.3 只从单轮读取题里取；归因里收尾失败的有一半是写 / 脚本任务。目标 200 行里 write+script ≥ 60 行。
    插入的重复调用仍只允许 `list_files` / `read_file` / `read_lines` / `search_text`（web 工具可重放，走不到收尾）。
 
 **这不是 bug**：插入的重复调用在 loss 区间之外（`supervised:false`），训练时不学它；学的是被拒之后的文字终答。
 
-## 4. 终答形态规则（所有新增行与重解行）
+## 4. 终答形态规则（所有新增行与改写行）
 
 ### 4.1 按情况选形态
 
@@ -255,7 +285,7 @@ v1.3 训练集 b05 占 55%（1130 行，几乎全英文、单轮、纯值），�
 | 工具清单 ≤5 个的行 | 0 | ~7%（M4 150 行 + 部分 M3） |
 | `data_query` 占全部调用 | 3.8% | ≥10% |
 | write + script 行 | 5.6% | ≥12% |
-| 写任务中「写后回读」的比例 | 未统计 | ≥90%（新增与重解行） |
+| 写任务中「写后回读」的比例 | 未统计 | ≥90%（新增行） |
 | 收尾恢复行 | 96 | ~200，其中写 / 脚本 ≥60 |
 | 零调用（第 1 轮） | 26.5% | 22–28%（不下降，防 bfcl 过调用） |
 | 首动作 `list_files`（用工具的首轮行） | 62.7% | ≤40%；题面给路径时 ≤10% |
@@ -291,7 +321,7 @@ python3 bench/distill/tools/to_segments.py --rows $O/dataset/train/rows.jsonl --
 ## 7. 执行者容易悄悄搞砸的地方
 
 1. **照抄样例或考题**：本文样例是新编的形态示意；workbank / p13 / bfcl-product 的场景、文件名、公司名、数值一律不得进题（§3 通用规定）。归因文档里列了 workbank 题号和内容，**那是考卷，不是出题素材**。
-2. **M1 改题时顺手把判据改宽**：去掉契约后判据从精确匹配变成 `output_contains`，不得再加「或者 UNKNOWN」之类的兜底选项；值本身仍必须准确。
+2. **M1 改写时顺手把判据改宽**：去掉契约后判据从精确匹配变成 `output_contains`，不得再加「或者 UNKNOWN」之类的兜底选项；值本身仍必须准确。
 3. **M2 给「查不到」的题补一个答案**，或判据只写 `output_contains_any: ["UNKNOWN"]`：这两样都会把题变回 v1.2 的形态。
 4. **M3 第 2 轮被老师调了工具也照收**：S5 必须按 `forbidden_tools` 丢掉；不要放宽判据去「救」路径。
 5. **M4 的 `offered_tools` 写进了没在 work-v1 里的名字**（如 `web_fetch_url`）：render 会静默得到更小的清单。写完对照 `eval.WorkToolCatalogNames()` 检查。
@@ -306,7 +336,7 @@ python3 bench/distill/tools/to_segments.py --rows $O/dataset/train/rows.jsonl --
 | # | 内容 | 估时 | 验收（可运行） |
 |---|---|---|---|
 | **M0 阻塞** | 工具改造：① `classify_failures.py` 新增 `short_garbage` 类（非 PASS、无 runner error、终答 ≤20 字符、不含判分里的期望值、不是 UNKNOWN/DONE、**不是纯数字**——纯数字算答错，排在 `wrong_answer` 之前）；② 片段分词校验入库为 `rwkv-lab corpus segcheck <segments.jsonl>`（逐行比较片段分词与整段分词、检查训练片段前一片段以 `Assistant:` 结尾、输出不一致行数）；③ 确认 scorer 能否从句子里取数（§3.1 第 3 步的 `number_in_text`），不能就实现或改用 `output_contains`；④ `bench sweep` 增加 `p13` 套件（`--cases bench/holdout/p13 --tool-catalog work-v1 --file-tools lines --include-draft`，题数 60），闸门题数同步 | 0.5–1 天 | ① 对 `local/runs/bench-20261003-v13/` 跑：v13b-s688 三次应为 9 / 1 / 8、none 三次都是 0（2026-10-03 按此定义实测）；④ `bench sweep --suites p13 --dry-run` 打出正确命令；② 对 v1.3 `segments.jsonl` 报 0；**负向**：用原始 `loss_spans`（不前移空格）生成一份，必须报 ≥2000 行不一致 |
-| M1 | b09：M1 重解 450 题 + §3.8 心算行剔除 + §3.9 封顶 | 1–1.5 天 | b09 报告含封顶删除的 kind 分布；重解通过率 ≥80% |
+| M1 | b09：M1 改写 450 条终答 + §3.8 心算行剔除 + §3.9 封顶 | 0.5 天 | 改写后机械校验通过率与重放通过率分别报；两者都 ≥85%，否则先看改写提示；抽检结果贴报告；**负向**：把一条改写终答里的值改错，重放必须判失败 |
 | M2 | b10 试跑：每类先出 10 题过 S2–S5 全闸门 | 0.5 天 | 每类 10 题的通过率与中文自然度抽查（每类抽 3 条贴进报告） |
 | M3 | b10 放量 | 2–3 天 | §5 各指标逐项报，未达标的写原因 |
 | M4 | b11 N10 扩量 + 打包 + 转掩码 + segcheck | 0.5 天 | segcheck 0 不一致；`wire_hash` 不变；§5 表全部填实际值 |
@@ -329,6 +359,6 @@ M0 不做的代价：没有 `short_garbage` 计数，就量不出 v1.4 最想治
 
 ## 10. 待拍板
 
-1. M1 重解 450 题是否足够把纯值终答压到 ≤40%：按 v1.3 数字估算（2051 行里 1435 行纯值），450 题重解 + 150 行封顶（约 120 行是纯值）+ 1000 行新增（纯值 ≤20%）+ N10 净增 100 行（沿用来源形态，约 70% 纯值）后约 38%（1135 / 3001），离 40% 的线不远。若 M3 后实测仍 >40%，是加大 M1 还是降低封顶值？
+1. M1 改写 450 条终答是否足够把纯值终答压到 ≤40%：按 v1.3 数字估算（2051 行里 1435 行纯值），450 条改写 + 150 行封顶（约 120 行是纯值）+ 1000 行新增（纯值 ≤20%）+ N10 净增 100 行（沿用来源形态，约 70% 纯值）后约 38%（1135 / 3001），离 40% 的线不远。若 M3 后实测仍 >40%，是加大 M1 的改写量还是降低封顶值？
 2. M4 的「小清单」是否也要扩到写工具缺失（如只给读工具时请求删文件）：目前只放了 50 行在第三种清单里，可按需加量。
 3. 另一张卡跑 4 epoch 是否值得：v1.3 workbank 到 3 epoch 仍在涨，但 bfcl 随训练下滑；v1.4 数据若修好了 bfcl，4 epoch 才有意义。
