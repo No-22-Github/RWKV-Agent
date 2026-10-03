@@ -79,10 +79,13 @@ type Config struct {
 	ChatThinking   chatcompletions.ThinkingMode
 	ChatPromptMode chatcompletions.PromptMode
 	ChatTokenLimit chatcompletions.TokenLimitField
-	StopTokens     string
-	StateID        string
-	Stream         *bool
-	BatchWait      time.Duration
+	// ChatSystemSuffix is appended to every Chat Completions system message
+	// (distillation teacher instructions); see chatcompletions.Config.
+	ChatSystemSuffix string
+	StopTokens       string
+	StateID          string
+	Stream           *bool
+	BatchWait        time.Duration
 }
 
 func DefaultStopTokens(kind string) string {
@@ -106,6 +109,7 @@ func NewRemote(config Config) (continuation.Generator, error) {
 			Endpoint: endpoint, Model: config.Model, APIKey: config.Credential,
 			Headers: config.Headers, HTTPClient: config.HTTPClient,
 			Thinking: config.ChatThinking, PromptMode: config.ChatPromptMode, TokenLimit: config.ChatTokenLimit,
+			SystemSuffix: config.ChatSystemSuffix,
 		})
 	case LightningPython, LightningCUDA:
 		stops := config.StopTokens

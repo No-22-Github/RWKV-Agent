@@ -3,6 +3,8 @@ package main
 import (
 	"bufio"
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"flag"
@@ -78,6 +80,8 @@ type runOptions struct {
 	chatPromptMode           string
 	chatPromptExplicit       bool
 	chatTokenLimit           string
+	chatSystemSuffixFile     string
+	chatSystemSuffix         string
 	apiPasswordEnv           string
 	apiStopTokens            string
 	apiStream                bool
@@ -491,6 +495,12 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			"Chat Completions token limit field: max-completion-tokens or max-tokens",
 		)
 		fs.StringVar(
+			&options.chatSystemSuffixFile,
+			"chat-system-suffix",
+			"",
+			"file whose text is appended to every Chat Completions system message (distillation teacher instructions; never reaches rendered rows)",
+		)
+		fs.StringVar(
 			&options.apiPasswordEnv,
 			"api-password-env",
 			"RWKV_API_PASSWORD",
@@ -865,6 +875,19 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			chatTokenLimit != chatcompletions.TokenLimitMaxCompletionTokens {
 			return options, errors.New("--chat-token-limit-field requires --completion chat-completions")
 		}
+		if options.chatSystemSuffixFile != "" {
+			if options.completion != "chat-completions" {
+				return options, errors.New("--chat-system-suffix requires --completion chat-completions")
+			}
+			raw, err := os.ReadFile(options.chatSystemSuffixFile)
+			if err != nil {
+				return options, fmt.Errorf("--chat-system-suffix: %w", err)
+			}
+			options.chatSystemSuffix = strings.TrimSpace(string(raw))
+			if options.chatSystemSuffix == "" {
+				return options, errors.New("--chat-system-suffix file is empty")
+			}
+		}
 		if name == "agent" &&
 			options.ui == string(terminal.UIPlain) &&
 			strings.TrimSpace(options.prompt) == "" {
@@ -1221,10 +1244,11 @@ func newAgentGeneratorSource(
 		client, err := completionprovider.NewRemote(completionprovider.Config{
 			Kind: options.completion, Endpoint: options.apiURL, Model: options.modelPath,
 			Credential: credential, Headers: headers,
-			ChatThinking:   chatcompletions.ThinkingMode(options.chatThinking),
-			ChatPromptMode: chatcompletions.PromptMode(options.chatPromptMode),
-			ChatTokenLimit: chatcompletions.TokenLimitField(options.chatTokenLimit),
-			StopTokens:     options.apiStopTokens, StateID: options.stateID,
+			ChatThinking:     chatcompletions.ThinkingMode(options.chatThinking),
+			ChatPromptMode:   chatcompletions.PromptMode(options.chatPromptMode),
+			ChatTokenLimit:   chatcompletions.TokenLimitField(options.chatTokenLimit),
+			ChatSystemSuffix: options.chatSystemSuffix,
+			StopTokens:       options.apiStopTokens, StateID: options.stateID,
 			Stream: &options.apiStream, BatchWait: batchWait,
 		})
 		if err != nil {
@@ -1798,6 +1822,10 @@ func runAgentEval(args []string) error {
 		model.UnsupportedSampling = []string{"top_k", "penalty_decay"}
 		model.UpstreamThinking = options.chatThinking
 		model.TokenLimitField = options.chatTokenLimit
+		if options.chatSystemSuffix != "" {
+			sum := sha256.Sum256([]byte(options.chatSystemSuffix))
+			model.SystemSuffixSHA256 = hex.EncodeToString(sum[:])
+		}
 	}
 	if source.hasModelInfo {
 		info := source.modelInfo

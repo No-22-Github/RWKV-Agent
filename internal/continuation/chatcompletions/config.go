@@ -108,6 +108,13 @@ type Config struct {
 	TokenLimit                 TokenLimitField
 	Headers                    http.Header
 	HTTPClient                 *http.Client
+	// SystemSuffix is appended to the system message of every request this
+	// client sends. It exists for distillation teachers: the teacher sees the
+	// student's system block plus authoring rules (answer shape, read-back
+	// after writes) that the student never sees. Only the teacher's actions
+	// reach the corpus, which is re-rendered under the student wire, so the
+	// suffix cannot change wire_hash or any training byte.
+	SystemSuffix string
 }
 
 type normalizedConfig struct {
@@ -122,6 +129,7 @@ type normalizedConfig struct {
 	headers                    http.Header
 	secrets                    []string
 	httpClient                 *http.Client
+	systemSuffix               string
 }
 
 func normalizeConfig(config Config) (normalizedConfig, error) {
@@ -179,6 +187,7 @@ func normalizeConfig(config Config) (normalizedConfig, error) {
 		headers:                    headers,
 		secrets:                    secrets,
 		httpClient:                 httpClient,
+		systemSuffix:               strings.TrimSpace(config.SystemSuffix),
 	}, nil
 }
 
@@ -323,6 +332,30 @@ func withAssistantPrefix(sources []toolchat.Message, prefix string) []toolchat.M
 		}
 	}
 	return append([]toolchat.Message{{Role: toolchat.RoleSystem, Content: instruction}}, result...)
+}
+
+func withSuffix(text, suffix string) string {
+	if suffix == "" {
+		return text
+	}
+	return text + "\n\n" + suffix
+}
+
+// withSystemSuffix appends suffix to the first system message, or adds a
+// system message when the conversation has none.
+func withSystemSuffix(sources []toolchat.Message, suffix string) []toolchat.Message {
+	result := make([]toolchat.Message, len(sources))
+	copy(result, sources)
+	if suffix == "" {
+		return result
+	}
+	for index := range result {
+		if result[index].Role == toolchat.RoleSystem {
+			result[index].Content += "\n\n" + suffix
+			return result
+		}
+	}
+	return append([]toolchat.Message{{Role: toolchat.RoleSystem, Content: suffix}}, result...)
 }
 
 func isJSONObject(value json.RawMessage) bool {

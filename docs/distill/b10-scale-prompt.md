@@ -59,12 +59,24 @@
 
 **主路径：`agent-eval --completion chat-completions`，每题 k=3**。参数照 `distill-workflow.md` S4：`--temperature 0.3 --top-p 1 --tool-catalog work-v1 --file-tools lines --max-steps 16 --max-tokens 4096 --decision-max-tokens 8192 --include-draft`，不传 `--profile`。老师端点和模型由用户给（环境变量里的 key，不得写进文件）。只跑本批新题：用 `--case <id>` 逐个传，或把本批题放进临时目录再跑。
 
-**第 0 步（开跑前先决定，并告诉用户）**：现在 `agent-eval` 没有「只给老师看的附加指令」。API 老师只看到 student 的 System，不知道简报里的终答规则（长度、写后回读、不复述诱饵、只用清单里的工具……）。二选一：
+**第 0 步：老师附加指令（已就绪，先冒烟再放量）**
 
-- **A（推荐）**：加一个只在 chat-completions 通道生效的 `--chat-system-suffix <file>`，把 `b10-solver-brief.md` §4–§5 压缩成一段附在老师的 system 末尾。
-  - 理由：老师的 wire 不进训练数据（`corpus paths` 只带走动作），所以不影响 `wire_hash`。
-  - 要求：带测试，证明 `--script` / render 路径的 `wire_hash` 不变；先在 10 道样板题上冒烟，pass@3 与终答形态都要比不加时好。
-- **B**：不改代码，靠 S5 过滤。代价是 M5（写后回读）、M7（不复述二手值）、长度这几项的废品率会高，要多出题来补。
+API 老师默认只看到 student 的 System，不知道简报里的终答规则。`rwkv-cli agent-eval` 已有 `--chat-system-suffix <file>`（提交见 git log）：
+- 把文件内容附在老师每次请求的 system 末尾，只在 `--completion chat-completions` 下可用；
+- 老师的 wire 不进训练数据，所以不改变 `wire_hash`。已验证：用新二进制重渲染 b10-pilot，77 行逐字节一致；
+- 每次 run 的 `run.json` 里 `model.system_suffix_sha256` 会记录用的是哪一版。
+
+附加指令文件是 `bench/distill/teacher/b10-suffix.txt`（简报 §4–§5 的英文压缩版）。S4 命令在 workflow 的参数之外加上：
+
+```bash
+--chat-system-suffix bench/distill/teacher/b10-suffix.txt
+```
+
+**放量前先冒烟**：用 b10-pilot 的 70 道样板题，老师 k=1 跑两遍，一遍加 suffix、一遍不加，比较两项：
+- pass 数；
+- `b10_check.py` 风格的形态问题数（写后回读、长度、Markdown、DONE 行）。
+
+加 suffix 应当不差于不加。结果写进第一批报告。若明显更差，停下来报告用户，不要自己改 suffix 文件里的规则口径。
 
 **S5 质检，三层都要做，缺一层就会漏**：
 
@@ -95,7 +107,7 @@ python3 bench/distill/tools/to_segments.py --rows <suffixed> --out <segments>
 local/bin/rwkv-lab corpus segcheck <segments>        # 必须 0 不一致
 ```
 
-- `wire_hash` 必须是 `707c67403b1b…`。全程不重编 `local/bin/rwkv-cli`（第 0 步 A 改了代码的话，在本批开跑前编好一次，记下 sha256，之后不再动）。
+- `wire_hash` 必须是 `707c67403b1b…`。开工时用当前 main 编一次 `local/bin/rwkv-cli`（`go build -tags chatcompletions -o local/bin/rwkv-cli ./cmd/rwkv-cli`），记下 sha256，之后全程不再重编。
 - 闸门：lint 0 违规；verify 全过；decontam 五面都要 0 flagged，命中的题重写或删除，不调阈值：
   ```bash
   local/bin/rwkv-lab corpus decontam --test bench/workbank/cases --candidates bench/distill/cases
@@ -118,7 +130,7 @@ local/bin/rwkv-lab corpus segcheck <segments>        # 必须 0 不一致
 ## 5. 规矩
 
 - 直接在 main 上改和提交，不开分支；每批验收完提交一次（题目、脚本、batches.jsonl、exclude.jsonl、报告）。`local/runs/` 不提交。
-- 不碰 `bench/workbank/cases`、`bench/holdout/p13`、bfcl-product 源码；不改 System、wire、工具 schema（第 0 步 A 的老师通道附加指令除外）。
+- 不碰 `bench/workbank/cases`、`bench/holdout/p13`、bfcl-product 源码；不改 System、wire、工具 schema；老师附加指令文件的规则口径改动要先问用户。
 - 不 ssh 任何服务器；推理和训练机器只走 HTTP 或请用户操作。
 - 蒸馏数据里老师自称 Qwen / DeepSeek 的，照收不筛。
 - 拿不准的规格问题停下来问用户，不要自己当可优化项绕过去。
@@ -130,7 +142,7 @@ local/bin/rwkv-lab corpus segcheck <segments>        # 必须 0 不一致
 - v1.4 §5 全表的实际值（把 b09、b10-pilot 与本批合起来算）；
 - 未达标项及原因；
 - 下架题清单；
-- 第 0 步选了 A 还是 B 及冒烟结果；
+- 第 0 步冒烟结果（加 / 不加 suffix 的对比）；
 - 每批报告链接。
 
 ---

@@ -174,6 +174,9 @@ type ModelMetadata struct {
 	UnsupportedSampling  []string `json:"unsupported_sampling,omitempty"`
 	UpstreamThinking     string   `json:"upstream_thinking,omitempty"`
 	TokenLimitField      string   `json:"token_limit_field,omitempty"`
+	// SystemSuffixSHA256 identifies the teacher-only instruction appended to
+	// the Chat Completions system message (--chat-system-suffix), if any.
+	SystemSuffixSHA256 string `json:"system_suffix_sha256,omitempty"`
 }
 
 type HarnessMetadata struct {

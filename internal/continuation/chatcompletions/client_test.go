@@ -790,3 +790,65 @@ func TestDecodeSDKToolCallsErrorNamesThePayload(t *testing.T) {
 		}
 	}
 }
+
+// The teacher suffix is appended to the system message of both transports and
+// is absent when unset, so student-facing runs send byte-identical requests.
+func TestClientAppendsSystemSuffixToBothTransports(t *testing.T) {
+	t.Parallel()
+	var systems []string
+	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		var received requestBody
+		if err := json.NewDecoder(request.Body).Decode(&received); err != nil {
+			t.Error(err)
+		}
+		if len(received.Messages) == 0 || received.Messages[0].Role != "system" || received.Messages[0].Content == nil {
+			t.Errorf("first message is not a system message: %+v", received.Messages)
+			systems = append(systems, "")
+		} else {
+			systems = append(systems, *received.Messages[0].Content)
+		}
+		writeJSON(writer, `{"choices":[{"index":0,"message":{"role":"assistant","content":"done"},"finish_reason":"stop"}]}`)
+	}))
+	defer server.Close()
+	const suffix = "Keep final answers under 600 characters."
+	newClient := func(mode PromptMode, suffix string) *Client {
+		client, err := New(Config{Endpoint: server.URL, Model: "teacher", PromptMode: mode, SystemSuffix: "  " + suffix + "\n"})
+		if err != nil {
+			t.Fatal(err)
+		}
+		return client
+	}
+	if _, err := newClient(PromptWrappedContinuation, suffix).Continue(context.Background(), validRequest(), nil); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := newClient(PromptNativeChat, suffix).Complete(context.Background(), validToolChatRequest(), nil); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := newClient(PromptNativeChat, "").Complete(context.Background(), validToolChatRequest(), nil); err != nil {
+		t.Fatal(err)
+	}
+	if len(systems) != 3 {
+		t.Fatalf("got %d requests", len(systems))
+	}
+	if systems[0] != continuationInstruction+"\n\n"+suffix {
+		t.Fatalf("wrapped system = %q", systems[0])
+	}
+	if systems[1] != "Use tools when needed.\n\n"+suffix {
+		t.Fatalf("native system = %q", systems[1])
+	}
+	if systems[2] != "Use tools when needed." {
+		t.Fatalf("native system without suffix = %q", systems[2])
+	}
+}
+
+func TestWithSystemSuffixAddsSystemMessageWhenMissing(t *testing.T) {
+	t.Parallel()
+	got := withSystemSuffix([]toolchat.Message{{Role: toolchat.RoleUser, Content: "hi"}}, "rules")
+	if len(got) != 2 || got[0].Role != toolchat.RoleSystem || got[0].Content != "rules" || got[1].Content != "hi" {
+		t.Fatalf("got %+v", got)
+	}
+	source := []toolchat.Message{{Role: toolchat.RoleSystem, Content: "base"}}
+	if withSystemSuffix(source, "rules"); source[0].Content != "base" {
+		t.Fatal("withSystemSuffix mutated its input")
+	}
+}

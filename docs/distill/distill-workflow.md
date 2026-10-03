@@ -318,6 +318,7 @@ done
 - `$TEACHER_URL` / `$TEACHER_MODEL`：**待用户填写**（§8）。已知可用：
   - **自建 vLLM（2026-09-25 冒烟所用）**：`http://100.64.0.1:8000/v1/chat/completions` + `qwen3.8-27b`（Qwen3.8-27B-NVFP4，max_model_len 32768）。必须加 `--chat-thinking disabled`：它把 `chat_template_kwargs.enable_thinking=false` 发给 vLLM，否则 Qwen 的思考会占用输出预算。不需要 key，但 agent-eval 要求变量存在，传 `OPENAI_API_KEY=dummy`。并发先用 10，端点能力未测。
   - 官方 `https://api.deepseek.com/v1/chat/completions` + `deepseek-v4-flash`；中转 + `deepseek-flash`（dsflash 基线所用）。
+- **老师附加指令**（2026-10-04 起）：`--chat-system-suffix <file>` 把文件内容附在老师每次请求的 system 末尾（只在 chat-completions 下可用，`run.json` 记 `model.system_suffix_sha256`）。老师的 wire 不进训练数据，所以不改变 `wire_hash`；v1.4 b10 用 `bench/distill/teacher/b10-suffix.txt`。
 - 每个 run 结束检查 `local/runs/distill/$B/teacher-k$k/summary.json`：infra 错误（超时、5xx）> 5% 就整轮重跑，换新的 `--output` 目录，**不得覆盖**。
 - 单独补跑某几题：加 `--case <id>`（可重复），输出到 `teacher-fix-k$k`。
 

@@ -27,6 +27,7 @@ type Client struct {
 	promptMode                 PromptMode
 	tokenLimit                 TokenLimitField
 	secrets                    []string
+	systemSuffix               string
 }
 
 func New(config Config) (*Client, error) {
@@ -57,6 +58,7 @@ func New(config Config) (*Client, error) {
 		promptMode:                 normalized.promptMode,
 		tokenLimit:                 normalized.tokenLimit,
 		secrets:                    normalized.secrets,
+		systemSuffix:               normalized.systemSuffix,
 	}, nil
 }
 
@@ -104,7 +106,7 @@ func (c *Client) Continue(
 	}
 	params := c.baseParams(model, request.MaxOutputTokens, request.Stops, request.Sampling)
 	params.Messages = []openai.ChatCompletionMessageParamUnion{
-		openai.SystemMessage(continuationInstruction),
+		openai.SystemMessage(withSuffix(continuationInstruction, c.systemSuffix)),
 		openai.UserMessage(request.Prompt),
 	}
 	requestOptions := c.thinkingOption()
@@ -171,7 +173,7 @@ func (c *Client) Complete(
 	if err := validateToolChatRequest(request); err != nil {
 		return toolchat.Result{}, err
 	}
-	messages := withAssistantPrefix(request.Messages, request.AssistantPrefix)
+	messages := withSystemSuffix(withAssistantPrefix(request.Messages, request.AssistantPrefix), c.systemSuffix)
 	encodedMessages, err := encodeSDKMessages(messages)
 	if err != nil {
 		return toolchat.Result{}, err
