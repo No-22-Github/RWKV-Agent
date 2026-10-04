@@ -95,6 +95,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   const [remoteModel, setRemoteModel] = useState('')
   const [remoteProtocol, setRemoteProtocol] = useState<keyof typeof REMOTE_BACKENDS>('cuda')
   const [apiKey, setAPIKey] = useState('')
+  const [stateId, setStateId] = useState('')
   const [headers, setHeaders] = useState<HeaderRow[]>([])
   const [agentProtocol, setAgentProtocol] = useState<AgentProtocol>(AgentProtocol.AgentProtocolXML)
   const [thinking, setThinking] = useState<'off' | 'fast' | 'full'>('off')
@@ -178,7 +179,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       ...draftBaseConfig,
       provider: Provider.ProviderLocal,
       model: modelPath.trim(), tokenizerPath: tokenizerPath.trim() || undefined,
-      endpoint: undefined, apiKey: undefined, password: undefined, headers: undefined,
+      endpoint: undefined, apiKey: undefined, password: undefined, headers: undefined, stateId: undefined,
       ...agentCapabilityConfig(),
     })
   }
@@ -197,6 +198,8 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       chatPromptMode: 'native-chat', chatThinking: 'disabled',
       stream: remoteProtocol !== 'openai' ? draftBaseConfig.stream ?? false : undefined,
       rwkvStopTokens: remoteProtocol === 'openai' ? undefined : stops,
+      // 只有 CUDA 支持上传的 State；切到别的协议时不带出去，否则 Python 会直接拒绝。
+      stateId: remoteProtocol === 'cuda' ? stateId.trim() || undefined : undefined,
       ...agentCapabilityConfig(),
     })
   }
@@ -348,6 +351,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     setSettingsTab(remote ? 'remote' : 'local'); setModelPath(config.provider === Provider.ProviderLocal ? config.model : '')
     setTokenizerPath(config.tokenizerPath || ''); setRemoteEndpoint(remote ? config.endpoint || '' : ''); setRemoteModel(remote ? config.model : '')
     setRemoteProtocol(config.provider === Provider.ProviderChatCompletions ? 'openai' : config.provider === Provider.ProviderRWKVLightningPython ? 'python' : 'cuda'); setAPIKey(config.provider === Provider.ProviderChatCompletions ? config.apiKey || '' : config.password || '')
+    setStateId(config.provider === Provider.ProviderRWKVLightningCUDA ? config.stateId || '' : '')
     setHeaders(Object.entries(config.headers || {}).map(([name, value]) => ({ id: nextHeaderID++, name, value: value || '' })))
     setAgentProtocol(config.agentProtocol || AgentProtocol.AgentProtocolXML)
     setThinking((config.thinking as 'off' | 'fast' | 'full') || 'off')
@@ -395,7 +399,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     const config = new Config({
       ...draftBaseConfig,
       provider: Provider.ProviderRWKVLightningCUDA,
-      model: '', endpoint: '', apiKey: undefined, password: undefined, headers: {},
+      model: '', endpoint: '', apiKey: undefined, password: undefined, headers: {}, stateId: undefined,
       chatPromptMode: 'native-chat', chatThinking: 'disabled', stream: false, rwkvStopTokens: 'eos',
       ...agentCapabilityConfig(),
     })
@@ -522,6 +526,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     modelPath, setModelPath, tokenizerPath, setTokenizerPath,
     remoteEndpoint, setRemoteEndpoint, remoteModel, setRemoteModel,
     remoteProtocol, setRemoteProtocol, apiKey, setAPIKey, headers, setHeaders,
+    stateId, setStateId,
     agentProtocol, setAgentProtocol, thinking, setThinking, progressiveTools, setProgressiveTools,
     enableWeb, setEnableWeb, braveAPIKey, setBraveAPIKey, tavilyAPIKey, setTavilyAPIKey,
     enableSubagents, setEnableSubagents, maxActiveBatch, setMaxActiveBatch,

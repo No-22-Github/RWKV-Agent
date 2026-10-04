@@ -187,6 +187,94 @@ export const DisplayMessage = appstorage$0.DisplayMessage;
  */
 export type DisplayMessage = appstorage$0.DisplayMessage;
 
+/**
+ * StateEntry is one server-side state joined with the local upload record, if
+ * this machine uploaded it.
+ */
+export class StateEntry {
+    "id": string;
+    "filename": string;
+    "sizeBytes": number;
+    "tensorCount": number;
+
+    /**
+     * Created is the server's upload time in Unix seconds.
+     */
+    "created": number;
+    "localPath"?: string;
+
+    /**
+     * LocalAvailable reports whether LocalPath still exists on disk.
+     */
+    "localAvailable"?: boolean;
+
+    /** Creates a new StateEntry instance. */
+    constructor($$source: Partial<StateEntry> = {}) {
+        if (!("id" in $$source)) {
+            this["id"] = "";
+        }
+        if (!("filename" in $$source)) {
+            this["filename"] = "";
+        }
+        if (!("sizeBytes" in $$source)) {
+            this["sizeBytes"] = 0;
+        }
+        if (!("tensorCount" in $$source)) {
+            this["tensorCount"] = 0;
+        }
+        if (!("created" in $$source)) {
+            this["created"] = 0;
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new StateEntry instance from a string or object.
+     */
+    static createFrom($$source: any = {}): StateEntry {
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        return new StateEntry($$parsedSource as Partial<StateEntry>);
+    }
+}
+
+/**
+ * StateListing is the server list plus local records whose state no longer
+ * exists on the server (typically wiped by a deployment restart).
+ */
+export class StateListing {
+    "states": StateEntry[];
+    "missing": StateEntry[];
+
+    /** Creates a new StateListing instance. */
+    constructor($$source: Partial<StateListing> = {}) {
+        if (!("states" in $$source)) {
+            this["states"] = [];
+        }
+        if (!("missing" in $$source)) {
+            this["missing"] = [];
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new StateListing instance from a string or object.
+     */
+    static createFrom($$source: any = {}): StateListing {
+        const $$createField0_0 = $$createType14;
+        const $$createField1_0 = $$createType14;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("states" in $$parsedSource) {
+            $$parsedSource["states"] = $$createField0_0($$parsedSource["states"]);
+        }
+        if ("missing" in $$parsedSource) {
+            $$parsedSource["missing"] = $$createField1_0($$parsedSource["missing"]);
+        }
+        return new StateListing($$parsedSource as Partial<StateListing>);
+    }
+}
+
 export class StoragePaths {
     "configFile": string;
     "dataDirectory": string;
@@ -267,3 +355,5 @@ const $$createType9 = $Create.Array($$createType8);
 const $$createType10 = StoragePaths.createFrom;
 const $$createType11 = appstorage$0.DisplayMessage.createFrom;
 const $$createType12 = $Create.Array($$createType11);
+const $$createType13 = StateEntry.createFrom;
+const $$createType14 = $Create.Array($$createType13);

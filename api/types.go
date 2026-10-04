@@ -117,7 +117,10 @@ type Status struct {
 	Message      string     `json:"message,omitempty"`
 	HeaderNames  []string   `json:"headerNames,omitempty"`
 	HasAPIKey    bool       `json:"hasApiKey"`
-	UpdatedAt    time.Time  `json:"updatedAt"`
+	// StateID is the uploaded state every generation runs from; empty means
+	// the zero-initialized state.
+	StateID   string    `json:"stateId,omitempty"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 // EventKind identifies an observable Agent loop transition.

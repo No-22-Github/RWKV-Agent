@@ -49,6 +49,15 @@ export function Chat(prompt: string): $CancellablePromise<api$0.Result> {
 }
 
 /**
+ * ChooseStateFile opens the native file picker for a .pth state file. Server
+ * builds return the Wails "file dialogs not available" error; the UI then
+ * falls back to a typed path.
+ */
+export function ChooseStateFile(): $CancellablePromise<string> {
+    return $Call.ByID(2420698234);
+}
+
+/**
  * ChooseWorkspace opens the platform-native directory picker. Server builds
  * return the Wails "file dialogs not available" error.
  */
@@ -91,6 +100,15 @@ export function DeleteProvider(id: string): $CancellablePromise<$models.AppBoots
 }
 
 /**
+ * DeleteState removes a state from the shared deployment and forgets its
+ * local record. Records for states already gone from the server are only
+ * forgotten.
+ */
+export function DeleteState(config: api$0.Config, id: string, serverSide: boolean): $CancellablePromise<void> {
+    return $Call.ByID(3447241414, config, id, serverSide);
+}
+
+/**
  * ExportTrajectory shows a native save dialog and writes the given JSONL
  * content to the chosen path. Returns the written path, or "" when the user
  * cancels the dialog.
@@ -109,9 +127,14 @@ export function ListRemoteModels(config: api$0.Config): $CancellablePromise<api$
 }
 
 /**
- * NewConversation starts a blank durable conversation while preserving the
- * configured provider.
+ * ListStates lists the deployment's states and joins local upload records.
  */
+export function ListStates(config: api$0.Config): $CancellablePromise<$models.StateListing> {
+    return $Call.ByID(260521560, config).then(($result: any) => {
+        return $$createType5($result);
+    });
+}
+
 export function NewConversation(): $CancellablePromise<void> {
     return $Call.ByID(1069091331);
 }
@@ -123,7 +146,7 @@ export function NewConversation(): $CancellablePromise<void> {
  */
 export function OpenConversation(id: string): $CancellablePromise<$models.ConversationView> {
     return $Call.ByID(2245178561, id).then(($result: any) => {
-        return $$createType5($result);
+        return $$createType6($result);
     });
 }
 
@@ -143,7 +166,7 @@ export function OpenWorkspace(path: string): $CancellablePromise<$models.AppBoot
  */
 export function PreviewSystemPrompt(config: api$0.Config): $CancellablePromise<api$0.AgentPromptPreview> {
     return $Call.ByID(766505949, config).then(($result: any) => {
-        return $$createType6($result);
+        return $$createType7($result);
     });
 }
 
@@ -169,7 +192,7 @@ export function RenameConversation(id: string, title: string): $CancellablePromi
  */
 export function SaveProvider(id: string, label: string, config: api$0.Config): $CancellablePromise<appstorage$0.SavedProvider> {
     return $Call.ByID(5308806, id, label, config).then(($result: any) => {
-        return $$createType7($result);
+        return $$createType8($result);
     });
 }
 
@@ -189,12 +212,25 @@ export function Status(): $CancellablePromise<api$0.Status> {
     });
 }
 
+/**
+ * UploadState uploads a local state file and records where it came from.
+ * Uploads are serialized: concurrent multi-hundred-MB uploads have knocked
+ * the shared deployment over before.
+ */
+export function UploadState(config: api$0.Config, path: string): $CancellablePromise<$models.StateEntry> {
+    return $Call.ByID(320817040, config, path).then(($result: any) => {
+        return $$createType9($result);
+    });
+}
+
 // Private type creation functions
 const $$createType0 = api$0.Status.createFrom;
 const $$createType1 = $models.AppBootstrap.createFrom;
 const $$createType2 = api$0.Result.createFrom;
 const $$createType3 = api$0.RemoteModel.createFrom;
 const $$createType4 = $Create.Array($$createType3);
-const $$createType5 = $models.ConversationView.createFrom;
-const $$createType6 = api$0.AgentPromptPreview.createFrom;
-const $$createType7 = appstorage$0.SavedProvider.createFrom;
+const $$createType5 = $models.StateListing.createFrom;
+const $$createType6 = $models.ConversationView.createFrom;
+const $$createType7 = api$0.AgentPromptPreview.createFrom;
+const $$createType8 = appstorage$0.SavedProvider.createFrom;
+const $$createType9 = $models.StateEntry.createFrom;

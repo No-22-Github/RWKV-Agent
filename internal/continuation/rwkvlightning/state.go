@@ -58,6 +58,15 @@ func (c *Client) stateEndpoint(suffix string) string {
 // deployment keeps the file in a process-local temporary directory; it is
 // removed by DeleteState or when the server exits.
 func (c *Client) UploadState(ctx context.Context, path string) (StateInfo, error) {
+	return c.UploadStateWithProgress(ctx, path, nil)
+}
+
+// UploadProgress reports how many request-body bytes have been sent so far.
+type UploadProgress func(sent, total int64)
+
+// UploadStateWithProgress is UploadState with an optional progress callback,
+// invoked from the HTTP transport goroutine as the multipart body is read.
+func (c *Client) UploadStateWithProgress(ctx context.Context, path string, progress UploadProgress) (StateInfo, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return StateInfo{}, fmt.Errorf("%w: open state file: %v", ErrRemote, err)
@@ -77,10 +86,16 @@ func (c *Client) UploadState(ctx context.Context, path string) (StateInfo, error
 		return StateInfo{}, fmt.Errorf("%w: close multipart form: %v", ErrRemote, err)
 	}
 
-	request, err := c.newRequest(ctx, http.MethodPost, c.stateEndpoint("/state/upload"), &body)
+	total := int64(body.Len())
+	var reader io.Reader = &body
+	if progress != nil {
+		reader = &progressReader{reader: &body, total: total, report: progress}
+	}
+	request, err := c.newRequest(ctx, http.MethodPost, c.stateEndpoint("/state/upload"), reader)
 	if err != nil {
 		return StateInfo{}, err
 	}
+	request.ContentLength = total
 	request.Header.Set("Content-Type", writer.FormDataContentType())
 	response, err := c.httpClient.Do(request)
 	if err != nil {
@@ -181,4 +196,20 @@ func decodeStateBody(body io.Reader, target any, secret string) error {
 		)
 	}
 	return nil
+}
+
+type progressReader struct {
+	reader io.Reader
+	sent   int64
+	total  int64
+	report UploadProgress
+}
+
+func (p *progressReader) Read(buffer []byte) (int, error) {
+	n, err := p.reader.Read(buffer)
+	if n > 0 {
+		p.sent += int64(n)
+		p.report(p.sent, p.total)
+	}
+	return n, err
 }

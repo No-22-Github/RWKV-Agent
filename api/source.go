@@ -148,6 +148,7 @@ func buildRemoteSource(config Config) (generatorSource, error) {
 			Endpoint: provider.CompletionEndpoint(string(config.Provider), config.Endpoint),
 			Backend:  string(config.Provider), Message: "Remote model configured",
 			HeaderNames: names, HasAPIKey: strings.TrimSpace(credential) != "",
+			StateID: strings.TrimSpace(config.StateID),
 		},
 	}, nil
 }

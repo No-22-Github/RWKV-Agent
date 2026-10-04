@@ -74,8 +74,24 @@ type State struct {
 	Workspace           string            `json:"workspace,omitempty"`
 	RecentWorkspaces    []string          `json:"recentWorkspaces,omitempty"`
 	ActiveConversations map[string]string `json:"activeConversations,omitempty"`
-	UpdatedAt           time.Time         `json:"updatedAt"`
+	// StateUploads remembers which local file produced each uploaded state, so
+	// a state wiped by a deployment restart can be re-uploaded in one step.
+	StateUploads []StateUpload `json:"stateUploads,omitempty"`
+	UpdatedAt    time.Time     `json:"updatedAt"`
 }
+
+// StateUpload links a server-assigned state_id to the local file it came from.
+type StateUpload struct {
+	Server     string    `json:"server"`
+	StateID    string    `json:"stateId"`
+	Path       string    `json:"path"`
+	SHA256     string    `json:"sha256"`
+	SizeBytes  int64     `json:"sizeBytes"`
+	UploadedAt time.Time `json:"uploadedAt"`
+}
+
+// maxStateUploads bounds the registry; the oldest records are dropped first.
+const maxStateUploads = 200
 
 type DisplayMessage struct {
 	ID         string           `json:"id"`
@@ -129,16 +145,16 @@ type SubagentTrace struct {
 }
 
 type Conversation struct {
-	SchemaVersion int                            `json:"schemaVersion"`
-	ID            string                         `json:"id"`
-	Workspace     string                         `json:"workspace"`
-	Title         string                         `json:"title"`
-	CreatedAt     time.Time                      `json:"createdAt"`
-	UpdatedAt     time.Time                      `json:"updatedAt"`
+	SchemaVersion int       `json:"schemaVersion"`
+	ID            string    `json:"id"`
+	Workspace     string    `json:"workspace"`
+	Title         string    `json:"title"`
+	CreatedAt     time.Time `json:"createdAt"`
+	UpdatedAt     time.Time `json:"updatedAt"`
 	// PinnedAt marks sidebar-pinned conversations; nil means unpinned.
-	PinnedAt      *time.Time                     `json:"pinnedAt,omitempty"`
-	Messages      []DisplayMessage               `json:"messages"`
-	Transcript    []agentapi.ConversationMessage `json:"transcript"`
+	PinnedAt   *time.Time                     `json:"pinnedAt,omitempty"`
+	Messages   []DisplayMessage               `json:"messages"`
+	Transcript []agentapi.ConversationMessage `json:"transcript"`
 }
 
 type Summary struct {
@@ -441,6 +457,57 @@ func (s *Store) ActiveConversation(workspace string) (string, error) {
 		return "", err
 	}
 	return value.ActiveConversations[pathKey(workspace)], nil
+}
+
+// RecordStateUpload registers (or refreshes) one upload record.
+func (s *Store) RecordStateUpload(record StateUpload) error {
+	value, err := s.LoadState()
+	if err != nil {
+		return err
+	}
+	kept := []StateUpload{record}
+	for _, existing := range value.StateUploads {
+		if existing.Server == record.Server && existing.StateID == record.StateID {
+			continue
+		}
+		kept = append(kept, existing)
+	}
+	if len(kept) > maxStateUploads {
+		kept = kept[:maxStateUploads]
+	}
+	value.StateUploads = kept
+	return s.SaveState(value)
+}
+
+// ForgetStateUpload drops the record for a state deleted from the server.
+func (s *Store) ForgetStateUpload(server, stateID string) error {
+	value, err := s.LoadState()
+	if err != nil {
+		return err
+	}
+	kept := value.StateUploads[:0]
+	for _, existing := range value.StateUploads {
+		if existing.Server != server || existing.StateID != stateID {
+			kept = append(kept, existing)
+		}
+	}
+	value.StateUploads = kept
+	return s.SaveState(value)
+}
+
+// StateUploads returns the upload records for one server, newest first.
+func (s *Store) StateUploads(server string) ([]StateUpload, error) {
+	value, err := s.LoadState()
+	if err != nil {
+		return nil, err
+	}
+	var records []StateUpload
+	for _, record := range value.StateUploads {
+		if record.Server == server {
+			records = append(records, record)
+		}
+	}
+	return records, nil
 }
 
 func NewConversation(workspace, title string) (Conversation, error) {

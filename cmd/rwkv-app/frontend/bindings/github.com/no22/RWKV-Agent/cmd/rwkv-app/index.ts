@@ -11,6 +11,8 @@ export {
     ConversationSummary,
     ConversationView,
     DisplayMessage,
+    StateEntry,
+    StateListing,
     StoragePaths,
     WorkspaceItem
 } from "./models.js";

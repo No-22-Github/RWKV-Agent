@@ -79,6 +79,7 @@ type AppBootstrap struct {
 // AppService binds durable application state to the public Agent API.
 type AppService struct {
 	operation         sync.Mutex
+	stateUpload       sync.Mutex
 	mu                sync.Mutex
 	service           *agentapi.Service
 	storage           *appstorage.Store
@@ -156,6 +157,10 @@ func (s *AppService) ConfigureProvider(ctx context.Context, id string, label str
 }
 
 func (s *AppService) configureProvider(ctx context.Context, id string, label string, config agentapi.Config) (agentapi.Status, error) {
+	// 先确认 State 还在服务器上，失败时保留当前运行连接不动。
+	if err := s.verifyStateAvailable(ctx, config); err != nil {
+		return s.currentService().Status(), err
+	}
 	s.mu.Lock()
 	if s.closed {
 		s.mu.Unlock()
@@ -374,7 +379,7 @@ func (s *AppService) persistTurn(session *agentapi.Session, prompt, role, conten
 		},
 		appstorage.DisplayMessage{
 			ID: messageID(active.ID, len(active.Messages)+1), Role: role, Content: content,
-			Meta:       fmt.Sprintf("%d 步 · %.1f 秒", len(result.Steps), float64(result.DurationMS)/1000),
+			Meta:       turnMeta(result, s.runtimeStateID()),
 			Trajectory: storedToolTrace(result),
 			Trace:      &result,
 			CreatedAt:  time.Now().UTC(),
@@ -401,6 +406,24 @@ func (s *AppService) persistTurn(session *agentapi.Session, prompt, role, conten
 
 // NewConversation starts a blank durable conversation while preserving the
 // configured provider.
+func turnMeta(result agentapi.Result, stateID string) string {
+	meta := fmt.Sprintf("%d 步 · %.1f 秒", len(result.Steps), float64(result.DurationMS)/1000)
+	if stateID != "" {
+		meta += " · " + stateID
+	}
+	return meta
+}
+
+// runtimeStateID is the uploaded state the running provider generates from.
+func (s *AppService) runtimeStateID() string {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if !agentapi.SupportsUploadedState(s.config.Provider) {
+		return ""
+	}
+	return strings.TrimSpace(s.config.StateID)
+}
+
 func (s *AppService) NewConversation() error {
 	s.operation.Lock()
 	defer s.operation.Unlock()

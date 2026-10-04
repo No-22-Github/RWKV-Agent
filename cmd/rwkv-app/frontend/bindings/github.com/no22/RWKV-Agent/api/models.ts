@@ -405,6 +405,12 @@ export class Status {
     "message"?: string;
     "headerNames"?: string[];
     "hasApiKey": boolean;
+
+    /**
+     * StateID is the uploaded state every generation runs from; empty means
+     * the zero-initialized state.
+     */
+    "stateId"?: string;
     "updatedAt": string;
 
     /** Creates a new Status instance. */

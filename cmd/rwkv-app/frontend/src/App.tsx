@@ -233,6 +233,7 @@ export default function App() {
             <button className="relative flex h-[28px] items-center gap-[9px] border border-line bg-paper-wash px-[10px] text-xs text-ink-soft before:absolute before:inset-x-0 before:inset-y-[-8px] before:content-['']" aria-haspopup="dialog" aria-expanded={runConfigOpen} onClick={() => setRunConfigOpen((value) => !value)} title={status.model || '运行配置'}>
               <span className={`h-[5px] w-[5px] flex-none rounded-full ${ready ? 'bg-brand-bright' : 'bg-ink-muted'}`} />
               <span className="max-w-[180px] truncate text-ink">{status.model || '选择模型'}</span>
+              {ready && status.stateId && <span className="max-w-[120px] truncate font-mono text-2xs text-ink-muted" title={`State：${status.stateId}`}>· {status.stateId}</span>}
               {ready && <><span className="h-[12px] w-px flex-none bg-line" /><span className="text-ink-muted">{capabilities}</span></>}
               <ChevronDown size={12} className="text-ink-muted" />
             </button>

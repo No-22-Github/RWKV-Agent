@@ -17,6 +17,13 @@ frontend and bind the same public Go API from `api/`.
   to 5 times with exponential backoff (500 ms base, 5 s cap, jitter), honor
   `Retry-After`, and emit retry events into the trajectory; a gate serializes provider
   requests.
+- Uploaded-state management for RWKV Lightning CUDA connections: upload a `.pth`
+  state (native picker, or a typed path in server mode), pick the state a
+  connection generates from, and delete states from the shared deployment. The
+  app remembers which local file produced each `state_id`; when a deployment
+  restart wipes its states, the editor offers a one-click re-upload, and
+  connecting with a state the server no longer holds is refused up front. The
+  running state is shown next to the model name and in each turn's metadata.
 - Local model (`.pth` or MLX directory) or remote RWKV continuation / OpenAI-compatible
   Chat Completions configuration, remote model listing via `GET /v1/models`, arbitrary
   HTTP headers, and macOS system proxy support.
