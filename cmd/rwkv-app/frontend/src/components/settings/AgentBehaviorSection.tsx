@@ -44,7 +44,7 @@ export default function AgentBehaviorSection({ manager }: Props) {
             {budgets.map(([label, key, setter, min, max]) => (
               <label key={key} className="flex flex-col gap-[5px] text-sm text-ink-muted">
                 {label}
-                <input aria-label={label} className="rounded-none border border-line bg-paper-wash px-2 py-[8px] text-base text-ink outline-0" type="number" min={min} max={max} value={manager[key]} onChange={(event) => manager[setter](Number(event.target.value))} />
+                <input aria-label={label} className="rounded-md border border-line bg-paper-wash px-2 py-[8px] text-base text-ink outline-0" type="number" min={min} max={max} value={manager[key]} onChange={(event) => manager[setter](Number(event.target.value))} />
               </label>
             ))}
           </div>

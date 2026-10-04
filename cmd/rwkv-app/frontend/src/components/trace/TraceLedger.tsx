@@ -139,7 +139,7 @@ export default function TraceLedger({
                 {collapsed
                   ? <ChevronRight size={13} className="flex-none text-ink-ghost" />
                   : <ChevronDown size={13} className="flex-none text-ink-ghost" />}
-                <span className="font-serif text-sm font-semibold text-ink">TURN {row.turn.turn}</span>
+                <span className=" text-sm font-semibold text-ink">TURN {row.turn.turn}</span>
                 <span className="truncate text-xs text-ink-muted">{turnSummary(row.turn)}</span>
                 {row.turn.header.durationMs > 0 && (
                   <span className="ml-auto flex-none font-mono text-2xs text-ink-ghost">{formatDuration(row.turn.header.durationMs)}</span>

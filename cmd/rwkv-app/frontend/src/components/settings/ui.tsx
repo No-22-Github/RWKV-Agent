@@ -10,7 +10,7 @@ export function Field({ label, value, onChange, placeholder, type = 'text', list
   return (
     <label className="flex flex-col gap-[5px] py-[6px] text-xs text-ink-muted">
       <span>{label}</span>
-      <input id={id} aria-label={label} aria-invalid={error ? true : undefined} aria-describedby={error ? errorId : undefined} className={`h-[40px] w-full rounded-none border bg-paper-wash px-[10px] text-base text-ink outline-0 placeholder:text-ink-ghost focus:border-brand ${error ? 'border-danger' : 'border-line'}`} type={type} value={value} placeholder={placeholder} list={list ? `${id}-list` : undefined} onChange={(event) => onChange(event.target.value)} />
+      <input id={id} aria-label={label} aria-invalid={error ? true : undefined} aria-describedby={error ? errorId : undefined} className={`h-[40px] w-full rounded-md border bg-paper-wash px-[10px] text-base text-ink outline-0 placeholder:text-ink-ghost focus:border-brand ${error ? 'border-danger' : 'border-line'}`} type={type} value={value} placeholder={placeholder} list={list ? `${id}-list` : undefined} onChange={(event) => onChange(event.target.value)} />
       {error && <span id={errorId} className="text-xs text-danger">{error}</span>}
       {list && list.length > 0 && <datalist id={`${id}-list`}>{list.map((item) => <option key={item} value={item} />)}</datalist>}
     </label>
@@ -44,7 +44,7 @@ export function Toggle({ icon, label, description, checked, onChange }: { icon?:
           <span className="text-xs leading-[1.55] text-ink-muted">{description}</span>
         </span>
       </span>
-      <input type="checkbox" aria-label={label} checked={checked} onChange={(event) => onChange(event.target.checked)} className="h-[18px] w-[32px] flex-none cursor-pointer appearance-none rounded-[9px] bg-line-strong p-0 transition-colors after:ml-[2px] after:mt-[2px] after:block after:h-[13px] after:w-[13px] after:rounded-full after:bg-white after:content-[''] after:transition-transform after:duration-200 checked:bg-brand checked:after:translate-x-[15px]" />
+      <input type="checkbox" aria-label={label} checked={checked} onChange={(event) => onChange(event.target.checked)} className="h-[18px] w-[32px] flex-none cursor-pointer appearance-none rounded-[9px] bg-line-strong p-0 transition-colors after:ml-[2px] after:mt-[2px] after:block after:h-[13px] after:w-[13px] after:rounded-full after:bg-paper after:content-[''] after:transition-transform after:duration-200 checked:bg-brand checked:after:translate-x-[15px]" />
     </label>
   )
 }
@@ -65,7 +65,7 @@ export function Row({ label, description, children }: { label: string; descripti
 export function GroupTitle({ title, hint }: { title: string; hint?: string }) {
   return (
     <div className="mb-[6px] flex items-baseline gap-[10px] border-b border-line pb-[8px]">
-      <h3 className="m-0 font-mono text-2xs font-semibold uppercase tracking-[.14em] text-ink-muted">{title}</h3>
+      <h3 className="m-0 font-mono text-2xs font-semibold text-ink-muted">{title}</h3>
       {hint && <span className="text-2xs text-ink-ghost">{hint}</span>}
     </div>
   )

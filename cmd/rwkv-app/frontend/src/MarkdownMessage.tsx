@@ -60,7 +60,7 @@ const languageLabels: Record<string, string> = {
 }
 
 const codeTheme: PrismTheme = {
-  plain: { color: '#303642', backgroundColor: '#f7f8fa' },
+  plain: { color: 'var(--ink)', backgroundColor: 'transparent' },
   styles: [
     { types: ['comment', 'prolog', 'doctype', 'cdata'], style: { color: '#7b8492', fontStyle: 'italic' } },
     { types: ['keyword', 'atrule'], style: { color: '#7653b4', fontWeight: '600' } },
@@ -125,7 +125,7 @@ export default function MarkdownMessage({ content }: MarkdownMessageProps) {
 
         return (
           <div key={index} className="answer-para grid grid-cols-[22px_minmax(0,1fr)] items-baseline gap-[12px]">
-            <span className="answer-para-num font-serif text-md font-bold leading-[1.95] text-brand">{pointNumber}</span>
+            <span className="answer-para-num text-md font-bold leading-[1.95] text-brand">{pointNumber}</span>
             <div className="min-w-0">{markdown}</div>
           </div>
         )
@@ -200,8 +200,8 @@ function CodeBlock({ className, code }: CodeBlockProps) {
     copyState === 'copied' ? 'text-brand' : copyState === 'failed' ? 'text-danger' : 'text-ink-muted hover:text-brand';
 
   return (
-    <div className="my-4 overflow-hidden rounded border border-line bg-[#f7f8fa]">
-      <div className="flex items-center justify-between gap-2 border-b border-line bg-[#f1f2f5] px-3 py-1.5">
+    <div className="my-4 overflow-hidden rounded-lg border border-line bg-paper-soft">
+      <div className="flex items-center justify-between gap-2 border-b border-line bg-surface-active px-3 py-1.5">
         <span className="font-mono text-2xs font-medium text-ink-muted">{label}</span>
         <button
           type="button"

@@ -69,7 +69,7 @@ export default function RecordDetails({ record, turn, width, onWidthChange, onCl
       />
       <div className="flex items-start justify-between gap-[10px] px-5 pb-[12px] pt-[20px]">
         <div className="flex min-w-0 flex-col gap-[5px]">
-          <span className="font-mono text-2xs uppercase tracking-[.14em] text-ink-muted">
+          <span className="font-mono text-2xs text-ink-muted">
             {record ? `#${record.index} · ${kindLabel(record.kind)}` : '轮次概览'}
           </span>
           <strong className="truncate text-base font-semibold text-ink">
@@ -177,7 +177,7 @@ function ContentTab({ record, tab }: { record: TraceRecord; tab: string }) {
       <div className="px-5 pt-[10px]">
         {thinking && (
           <div className="mb-[12px]">
-            <div className="mb-[4px] font-mono text-2xs uppercase tracking-[.12em] text-ink-ghost">思考内容</div>
+            <div className="mb-[4px] font-mono text-2xs text-ink-ghost">思考内容</div>
             <pre className="m-0 overflow-auto whitespace-pre-wrap border-l-2 border-line bg-paper-soft px-[10px] py-[8px] font-mono text-xs leading-[1.7] text-ink-ghost [overflow-wrap:anywhere]">{thinking}</pre>
           </div>
         )}
@@ -189,7 +189,7 @@ function ContentTab({ record, tab }: { record: TraceRecord; tab: string }) {
   if (tab === 'output') {
     return (
       <div className="px-5 pt-[10px]">
-        <div className="turn-answer font-serif text-base leading-[1.85] text-ink [overflow-wrap:anywhere]">
+        <div className="turn-answer text-base leading-[1.85] text-ink [overflow-wrap:anywhere]">
           <MarkdownMessage content={detail.output || ''} />
         </div>
       </div>
@@ -286,7 +286,7 @@ function promptMeta(detail: TraceRecordDetail) {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <div className="mb-[5px] font-mono text-2xs uppercase tracking-[.12em] text-ink-muted">{title}</div>
+      <div className="mb-[5px] font-mono text-2xs text-ink-muted">{title}</div>
       {children}
     </div>
   )
@@ -298,7 +298,7 @@ function PreBlock({ label, value, error, meta }: { label?: string; value: string
     <div className={label || meta ? 'px-5 pt-[10px]' : ''}>
       {label && (
         <div className="mb-[5px] flex items-center gap-[8px]">
-          <span className="font-mono text-2xs uppercase tracking-[.12em] text-ink-muted">{label}</span>
+          <span className="font-mono text-2xs text-ink-muted">{label}</span>
           {meta && <span className="text-2xs text-ink-ghost">{meta}</span>}
           <button
             aria-label={`复制${label || ''}`}

@@ -30,10 +30,10 @@ export default function ProviderEditor({ manager, ready, onTestRemote, onSave, o
     >
       <header className="flex min-h-[54px] items-end justify-between gap-[16px] border-b border-line pb-[12px]">
         <div className="min-w-0 flex-1">
-          <span className="block text-2xs uppercase tracking-[.12em] text-ink-muted">{isNew ? '新连接 · 名称' : '连接名称'}</span>
+          <span className="block text-2xs text-ink-muted">{isNew ? '新连接 · 名称' : '连接名称'}</span>
           <input
             aria-label="连接名称"
-            className="mt-[3px] h-[30px] w-full max-w-[420px] border-0 border-b border-dashed border-transparent bg-transparent p-0 font-serif text-lg font-semibold text-ink outline-0 transition-[border-color] duration-[120ms] placeholder:text-ink-ghost hover:border-line-strong focus:border-solid focus:border-brand focus-visible:outline-0"
+            className="mt-[3px] h-[30px] w-full max-w-[420px] border-0 border-b border-dashed border-transparent bg-transparent p-0 text-lg font-semibold text-ink outline-0 transition-[border-color] duration-[120ms] placeholder:text-ink-ghost hover:border-line-strong focus:border-solid focus:border-brand focus-visible:outline-0"
             title="点击修改连接名称"
             value={manager.draftLabel}
             placeholder={isNew ? '未命名连接' : `${derivedProviderLabel(manager.draftConfigValue)}（自动）`}
@@ -54,15 +54,15 @@ export default function ProviderEditor({ manager, ready, onTestRemote, onSave, o
       {isNew ? (
         <p className="mb-0 mt-[12px] text-xs leading-[1.65] text-ink-muted">填写连接信息后点击「保存」建档；「保存并使用」会建档并立即切换为当前运行连接。建档后所有改动自动保存。调用参数在「参数」分区，能力开关在「Agent」分区。</p>
       ) : manager.draftNeedsReload ? (
-        <p role="status" className="mb-0 mt-[12px] border-l-2 border-warning bg-paper-soft px-[10px] py-[7px] text-xs leading-[1.65] text-ink-soft">更改已保存，但本地模型仍在用旧配置运行。点底部「重新加载模型」使其生效（会重新加载模型文件）。</p>
+        <p role="status" className="mb-0 mt-[12px] rounded-md border border-warning/40 bg-paper-soft px-[10px] py-[7px] text-xs leading-[1.65] text-ink-soft">更改已保存，但本地模型仍在用旧配置运行。点底部「重新加载模型」使其生效（会重新加载模型文件）。</p>
       ) : null}
 
       <section className="mt-[18px] pb-[24px]">
         <GroupTitle title="模型来源" />
         <div className="flex items-center gap-[10px] pt-[10px]">
-          <div className="flex border border-line bg-paper-soft p-[2px]">
-            <button aria-label="远端 Provider" className={`flex h-[28px] items-center gap-[5px] border-0 px-[9px] text-xs ${manager.settingsTab === 'remote' ? 'bg-paper font-medium text-brand shadow-sm' : 'bg-transparent text-ink-muted'}`} onClick={() => manager.setSettingsTab('remote')}><Cloud size={13} />远端</button>
-            <button aria-label="本地模型" className={`flex h-[28px] items-center gap-[5px] border-0 px-[9px] text-xs ${manager.settingsTab === 'local' ? 'bg-paper font-medium text-brand shadow-sm' : 'bg-transparent text-ink-muted'}`} onClick={() => manager.setSettingsTab('local')}><Cpu size={13} />本地</button>
+          <div className="flex rounded-lg border border-line bg-surface-active p-[2px]">
+            <button aria-label="远端 Provider" className={`flex h-[28px] items-center gap-[5px] rounded-md border-0 px-[9px] text-xs transition-colors ${manager.settingsTab === 'remote' ? 'bg-paper font-medium text-ink shadow-hair' : 'bg-transparent text-ink-muted'}`} onClick={() => manager.setSettingsTab('remote')}><Cloud size={13} />远端</button>
+            <button aria-label="本地模型" className={`flex h-[28px] items-center gap-[5px] rounded-md border-0 px-[9px] text-xs transition-colors ${manager.settingsTab === 'local' ? 'bg-paper font-medium text-ink shadow-hair' : 'bg-transparent text-ink-muted'}`} onClick={() => manager.setSettingsTab('local')}><Cpu size={13} />本地</button>
           </div>
         </div>
         {manager.settingsTab === 'local' ? (
@@ -74,7 +74,7 @@ export default function ProviderEditor({ manager, ready, onTestRemote, onSave, o
           <>
             <label className="mt-[8px] flex flex-col gap-[6px] text-xs text-ink-muted">
               接口协议
-              <select aria-label="远端协议" className="h-[40px] border border-line bg-paper-wash px-[10px] text-base text-ink outline-0 focus:border-brand" value={manager.remoteProtocol} onChange={(event) => manager.setRemoteProtocol(event.target.value as 'python' | 'cuda' | 'openai')}>
+              <select aria-label="远端协议" className="rounded-md h-[40px] border border-line bg-paper-wash px-[10px] text-base text-ink outline-0 focus:border-brand" value={manager.remoteProtocol} onChange={(event) => manager.setRemoteProtocol(event.target.value as 'python' | 'cuda' | 'openai')}>
                 <option value="python">RWKV Lightning Python</option>
                 <option value="cuda">RWKV Lightning CUDA</option>
                 <option value="openai">OpenAI 兼容</option>
@@ -90,7 +90,7 @@ export default function ProviderEditor({ manager, ready, onTestRemote, onSave, o
                 <div key={row.id} className="flex items-end gap-[8px]">
                   <div className="flex-1"><Field label="Header 名称" value={row.name} onChange={(value) => updateHeader(row.id, { name: value })} /></div>
                   <div className="flex-1"><Field label="Header 值" value={row.value} onChange={(value) => updateHeader(row.id, { value })} type="password" /></div>
-                  <button className="mb-[6px] grid h-[40px] w-[40px] flex-none place-items-center border border-line bg-transparent text-ink-muted" onClick={() => removeHeader(row.id)} aria-label={`删除 Header ${row.name || row.id}`}><Trash2 size={15} /></button>
+                  <button className="rounded-md mb-[6px] grid h-[40px] w-[40px] flex-none place-items-center border border-line bg-transparent text-ink-muted" onClick={() => removeHeader(row.id)} aria-label={`删除 Header ${row.name || row.id}`}><Trash2 size={15} /></button>
                 </div>
               ))}
               <button className="flex items-center gap-[6px] border-0 bg-transparent px-0 py-[7px] text-sm text-brand" onClick={addHeader}><Plus size={14} />添加请求头</button>

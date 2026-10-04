@@ -58,11 +58,11 @@ export default function TraceToolbar({
 
   return (
     <div className="flex min-h-[48px] flex-none items-center gap-[14px] border-b border-line px-[30px]" role="toolbar" aria-label="轨迹工具栏">
-      <div ref={groupRef} className="relative flex border border-line bg-paper-soft p-[2px]">
+      <div ref={groupRef} className="relative flex rounded-lg border border-line bg-surface-active p-[2px]">
         {thumb.ready && (
           <span
             aria-hidden
-            className="absolute bottom-[2px] top-[2px] bg-paper shadow-sm transition-[transform,width] duration-[180ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none"
+            className="absolute bottom-[2px] top-[2px] rounded-md bg-paper shadow-hair transition-[transform,width] duration-[180ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none"
             style={{ transform: `translateX(${thumb.left}px)`, width: thumb.width }}
           />
         )}
@@ -99,7 +99,7 @@ export default function TraceToolbar({
       {matchCount !== null && (
         <span className="text-xs text-brand">{matchCount} 条命中</span>
       )}
-      <label className="ml-auto flex h-[28px] w-[235px] items-center gap-[7px] border border-line bg-paper-wash px-[9px] text-ink-muted">
+      <label className="rounded-md ml-auto flex h-[28px] w-[235px] items-center gap-[7px] border border-line bg-paper-wash px-[9px] text-ink-muted">
         <Search size={14} />
         <input
           type="search"

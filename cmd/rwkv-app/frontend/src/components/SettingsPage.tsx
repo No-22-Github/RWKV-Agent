@@ -81,23 +81,22 @@ export default function SettingsPage({ manager, status, ready, onChooseWorkspace
   return (
     <div className="flex h-full w-full bg-paper text-ink">
       <aside className="settings-sidebar flex h-full w-(--sidebar-w) flex-none flex-col border-r border-line bg-paper-sidebar py-[18px]">
-        <div className="px-[18px] pb-[18px] font-serif text-lg font-semibold">设置</div>
+        <div className="px-[18px] pb-[18px] text-lg font-semibold">设置</div>
         <nav aria-label="设置分区" className="flex flex-col">
         {NAV_ITEMS.map((item) => (
           <button
             key={item}
             aria-current={section === item ? 'page' : undefined}
-            className={`flex items-center gap-[9px] px-[18px] py-[8px] text-left text-base ${section === item ? 'bg-surface-active font-semibold text-ink' : 'text-ink-soft'}`}
+            className={`mx-[10px] flex items-center gap-[9px] rounded-md px-[10px] py-[7px] text-left text-base transition-colors ${section === item ? 'bg-surface-active font-medium text-ink' : 'text-ink-soft hover:bg-surface-active hover:text-ink'}`}
             onClick={() => setSection(item)}
           >
-            <span className={`h-[14px] w-[3px] flex-none ${section === item ? 'bg-brand' : 'bg-transparent'}`} />
             {item}
             {PROFILE_SECTIONS.includes(item) && profileNeedsAttention && <span className="ml-auto h-[6px] w-[6px] rounded-full bg-warning" title={manager.draftBlockReason || '有未保存更改'} />}
           </button>
         ))}
         </nav>
         <div className="flex-1" />
-        <button className="mx-[18px] mb-3 flex items-center gap-[9px] border border-line bg-transparent px-3 py-2 text-base text-ink-soft" onClick={() => void requestClose()}>
+        <button className="mx-[18px] mb-3 flex items-center gap-[9px] rounded-md border border-line bg-paper-wash px-3 py-2 text-base text-ink-soft shadow-hair transition-colors hover:bg-surface-active hover:text-ink" onClick={() => void requestClose()}>
           <ArrowLeft size={15} />
           返回对话
         </button>
@@ -105,7 +104,7 @@ export default function SettingsPage({ manager, status, ready, onChooseWorkspace
 
       <main className="flex min-w-0 flex-1 flex-col">
         <header className="settings-header flex h-(--header-h) flex-none items-end justify-between gap-[16px] border-b border-line px-[30px] pb-[10px]">
-          <span className="font-serif text-lg font-semibold">{section}</span>
+          <span className=" text-lg font-semibold">{section}</span>
           {section === '连接' && (
             <span className="flex min-w-0 items-center gap-[7px] text-2xs text-ink-muted">
               {ready && runtime ? (

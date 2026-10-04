@@ -73,12 +73,12 @@ export default function ConnectionsSection({ manager, ready, onActivateProvider,
     <div className="flex min-h-0 flex-1">
       <aside className="flex w-[232px] flex-none flex-col border-r border-line bg-paper-sidebar">
         <div className="flex items-center justify-between px-[14px] pb-[6px] pt-[14px]">
-          <span className="font-mono text-2xs font-medium uppercase tracking-[.14em] text-ink-muted">已保存连接</span>
+          <span className="font-mono text-2xs font-medium text-ink-muted">已保存连接</span>
           <span className="font-mono text-2xs text-ink-ghost">{manager.providers.length}</span>
         </div>
         <div className="min-h-0 flex-1 overflow-y-auto px-[10px] pb-[8px]">
           {manager.editingProviderId === '' && (
-            <div className="mb-[4px] flex items-center gap-[9px] border border-dashed border-brand bg-surface-active px-[8px] py-[7px]" aria-current="true">
+            <div className="mb-[4px] flex items-center gap-[9px] rounded-lg border border-dashed border-line-strong bg-surface-active px-[8px] py-[7px]" aria-current="true">
               <span className="h-[7px] w-[7px] flex-none" />
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-base font-medium text-ink">{manager.draftLabel.trim() || '新连接'}</span>
@@ -106,7 +106,7 @@ export default function ConnectionsSection({ manager, ready, onActivateProvider,
             <p className="px-[6px] py-[8px] text-xs leading-[1.65] text-ink-muted">还没有保存的连接。在右侧填写并保存即可。</p>
           )}
         </div>
-        <button className="mx-[10px] mb-[12px] mt-[6px] flex h-[32px] flex-none items-center justify-center gap-[6px] border-[1.5px] border-ink bg-transparent text-sm font-medium text-ink" onClick={requestNew}>
+        <button className="rounded-md mx-[10px] mb-[12px] mt-[6px] flex h-[32px] flex-none items-center justify-center gap-[6px] border border-line bg-paper-wash text-sm font-medium text-ink shadow-hair transition-colors hover:bg-surface-active" onClick={requestNew}>
           <Plus size={14} />新建连接
         </button>
       </aside>
@@ -162,7 +162,7 @@ function ProviderRow({ provider, running, selected, dirty, menuOpen, onToggleMen
     ? `本地模型 · ${provider.config.model.split(/[\\/]/).at(-1) || provider.config.model}`
     : [provider.config.provider === Provider.ProviderChatCompletions ? 'OpenAI 兼容' : provider.config.provider === Provider.ProviderRWKVLightningPython ? 'Lightning Python' : 'Lightning CUDA', hostOf(provider.config.endpoint)].filter(Boolean).join(' · ')
   return (
-    <div className={`group relative mb-[4px] flex items-stretch border px-[8px] py-[7px] ${selected ? 'border-brand bg-surface-active' : 'border-transparent hover:border-line hover:bg-paper-wash'}`}>
+    <div className={`group relative mb-[4px] flex items-stretch rounded-lg border px-[8px] py-[7px] transition-colors ${selected ? 'border-line-strong bg-surface-active' : 'border-transparent hover:bg-surface-active'}`}>
       <button className="flex min-w-0 flex-1 items-center gap-[9px] border-0 bg-transparent p-0 text-left" onClick={onEdit} title={provider.label || provider.config.model || '未命名连接'}>
         <span className={`h-[7px] w-[7px] flex-none rounded-full ${running ? 'bg-brand-bright' : 'bg-transparent'}`} title={running ? '运行中' : undefined} />
         <span className="min-w-0 flex-1">
@@ -176,14 +176,14 @@ function ProviderRow({ provider, running, selected, dirty, menuOpen, onToggleMen
       </button>
       <div className="flex flex-none items-center gap-[2px]">
         {!running && (
-          <button className="h-[24px] border border-line bg-paper-wash px-[8px] text-xs text-ink-soft opacity-0 transition-opacity hover:border-brand hover:text-brand focus-visible:opacity-100 group-hover:opacity-100" onClick={onUse} title="切换为此连接">使用</button>
+          <button className="rounded-md h-[24px] border border-line bg-paper-wash px-[8px] text-xs text-ink-soft opacity-0 transition-opacity hover:border-brand hover:text-brand focus-visible:opacity-100 group-hover:opacity-100" onClick={onUse} title="切换为此连接">使用</button>
         )}
         <button className="grid h-[24px] w-[24px] place-items-center border-0 bg-transparent text-ink-muted opacity-0 transition-opacity hover:text-ink focus-visible:opacity-100 group-hover:opacity-100" aria-label={`更多操作 ${provider.label || ''}`} onClick={onToggleMenu}><MoreHorizontal size={14} /></button>
       </div>
       {menuOpen && (
         <>
           <div className="fixed inset-0 z-[10]" onClick={onCloseMenu} aria-hidden="true" />
-          <button className="absolute right-[6px] top-[30px] z-[20] flex items-center gap-[7px] border border-line-strong bg-paper-wash px-[10px] py-[7px] text-xs text-danger shadow-[0_8px_20px_rgba(45,33,20,.12)]" onClick={onDelete}><Trash2 size={13} />删除连接</button>
+          <button className="rounded-md absolute right-[6px] top-[30px] z-[20] flex items-center gap-[7px] border border-line-strong bg-paper-wash px-[10px] py-[7px] text-xs text-danger shadow-pop" onClick={onDelete}><Trash2 size={13} />删除连接</button>
         </>
       )}
     </div>

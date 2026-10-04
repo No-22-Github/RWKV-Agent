@@ -34,7 +34,7 @@ export default function ProfileFooter({ manager, ready, onTestRemote, onSave, on
       <footer className="flex flex-none items-center gap-[10px] border-t border-line bg-paper-soft px-[28px] py-[12px]">
         {onRequestDelete && (
           <button
-            className="h-[32px] border border-danger bg-transparent px-[12px] text-sm text-danger disabled:opacity-40"
+            className="rounded-md h-[32px] border border-danger bg-transparent px-[12px] text-sm text-danger disabled:opacity-40"
             onClick={onRequestDelete}
             disabled={manager.editingProviderId === '' || manager.settingsBusy}
             aria-label="删除连接"
@@ -42,12 +42,12 @@ export default function ProfileFooter({ manager, ready, onTestRemote, onSave, on
         )}
         <span className="flex-1" />
         {manager.settingsTab === 'remote' && (
-          <button className="h-[32px] border border-line bg-transparent px-[12px] text-sm text-ink disabled:opacity-40" onClick={onTestRemote} disabled={manager.settingsBusy}>测试连接</button>
+          <button className="rounded-md h-[32px] border border-line bg-transparent px-[12px] text-sm text-ink disabled:opacity-40" onClick={onTestRemote} disabled={manager.settingsBusy}>测试连接</button>
         )}
         {isNew && (
-          <button className="h-[32px] border border-ink bg-transparent px-[13px] text-sm font-medium text-ink disabled:opacity-40" onClick={onSave} disabled={!manager.draftDirty || manager.settingsBusy}>{manager.settingsBusy ? '处理中…' : '保存'}</button>
+          <button className="rounded-md h-[32px] border border-line bg-paper-wash px-[13px] text-sm font-medium text-ink shadow-hair transition-colors hover:bg-surface-active disabled:opacity-40" onClick={onSave} disabled={!manager.draftDirty || manager.settingsBusy}>{manager.settingsBusy ? '处理中…' : '保存'}</button>
         )}
-        <button className="h-[32px] border-0 bg-brand px-[15px] text-sm font-medium text-white disabled:opacity-40" onClick={onSaveAndUse} disabled={primaryDisabled} title={!isNew && manager.draftError ? manager.draftError : ready ? undefined : '当前未连接，将建立连接'}>{manager.settingsBusy ? '处理中…' : primaryLabel}</button>
+        <button className="rounded-md h-[32px] border-0 bg-brand px-[15px] text-sm font-medium text-brand-fg disabled:opacity-40" onClick={onSaveAndUse} disabled={primaryDisabled} title={!isNew && manager.draftError ? manager.draftError : ready ? undefined : '当前未连接，将建立连接'}>{manager.settingsBusy ? '处理中…' : primaryLabel}</button>
       </footer>
     </>
   )

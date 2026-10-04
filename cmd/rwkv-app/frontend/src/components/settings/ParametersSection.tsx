@@ -59,7 +59,7 @@ export default function ParametersSection({ manager }: Props) {
             <span className="text-base text-ink-strong">工具协议</span>
             <span className="text-xs leading-[1.55] text-ink-muted">XML 默认直达工具决策；Markdown 保留为可选模式</span>
           </span>
-          <select aria-label="工具协议" className="h-[36px] w-[170px] flex-none border border-line bg-paper-wash px-[8px] text-base text-ink outline-0 focus:border-brand" value={manager.agentProtocol} onChange={(event) => {
+          <select aria-label="工具协议" className="rounded-md h-[36px] w-[170px] flex-none border border-line bg-paper-wash px-[8px] text-base text-ink outline-0 focus:border-brand" value={manager.agentProtocol} onChange={(event) => {
             const protocol = event.target.value as AgentProtocol
             manager.setAgentProtocol(protocol)
             // 与后端 applyProtocolDefaults 的契约一致：Markdown 协议没有思考预填。
@@ -80,7 +80,7 @@ export default function ParametersSection({ manager }: Props) {
           </span>
           <select
             aria-label="思考模式"
-            className="h-[36px] w-[170px] flex-none border border-line bg-paper-wash px-[8px] text-base text-ink outline-0 focus:border-brand disabled:opacity-40"
+            className="rounded-md h-[36px] w-[170px] flex-none border border-line bg-paper-wash px-[8px] text-base text-ink outline-0 focus:border-brand disabled:opacity-40"
             value={manager.thinking}
             disabled={manager.agentProtocol === AgentProtocol.AgentProtocolMarkdown}
             onChange={(event) => manager.setThinking(event.target.value as 'off' | 'fast' | 'full')}
@@ -100,7 +100,7 @@ export default function ParametersSection({ manager }: Props) {
         >
           <select
             aria-label="采样预设"
-            className="h-[36px] w-[190px] flex-none border border-line bg-paper-wash px-[8px] text-base text-ink outline-0 focus:border-brand"
+            className="rounded-md h-[36px] w-[190px] flex-none border border-line bg-paper-wash px-[8px] text-base text-ink outline-0 focus:border-brand"
             value={manager.samplingIsCustom ? CUSTOM_PRESET_ID : manager.matchedSamplingPreset}
             onChange={(event) => manager.applySamplingPreset(event.target.value)}
           >
@@ -115,7 +115,7 @@ export default function ParametersSection({ manager }: Props) {
             {samplingFields.map(([label, key, setter, min, max, step]) => (
               <label key={key} className="flex flex-col gap-[5px] text-sm text-ink-muted">
                 {label}
-                <input aria-label={label} className="rounded-none border border-line bg-paper-wash px-2 py-[8px] text-base text-ink outline-0" type="number" min={min} max={max} step={step} value={manager[key]} onChange={(event) => manager[setter](Number(event.target.value))} />
+                <input aria-label={label} className="rounded-md border border-line bg-paper-wash px-2 py-[8px] text-base text-ink outline-0" type="number" min={min} max={max} step={step} value={manager[key]} onChange={(event) => manager[setter](Number(event.target.value))} />
               </label>
             ))}
           </div>
@@ -134,7 +134,7 @@ export default function ParametersSection({ manager }: Props) {
           {budgetFields.map(([label, key, setter, min, max, step]) => (
             <label key={key} className="flex flex-col gap-[5px] text-sm text-ink-muted">
               {label}
-              <input aria-label={label} className="rounded-none border border-line bg-paper-wash px-2 py-[8px] text-base text-ink outline-0" type="number" min={min} max={max} step={step} value={manager[key]} onChange={(event) => manager[setter](Number(event.target.value))} />
+              <input aria-label={label} className="rounded-md border border-line bg-paper-wash px-2 py-[8px] text-base text-ink outline-0" type="number" min={min} max={max} step={step} value={manager[key]} onChange={(event) => manager[setter](Number(event.target.value))} />
             </label>
           ))}
         </div>
@@ -150,7 +150,7 @@ export default function ParametersSection({ manager }: Props) {
             <span className="text-xs leading-[1.55] text-ink-muted">可选的个性化提示词，原文追加在整个系统提示词最后（Task-specific contract 之后）。下面的预览可以直接看到效果。</span>
             <textarea
               aria-label="附加任务约定"
-              className="min-h-[88px] resize-y border border-line bg-paper-wash px-[10px] py-[8px] text-base leading-[1.6] text-ink outline-0 placeholder:text-ink-ghost focus:border-brand"
+              className="rounded-md min-h-[88px] resize-y border border-line bg-paper-wash px-[10px] py-[8px] text-base leading-[1.6] text-ink outline-0 placeholder:text-ink-ghost focus:border-brand"
               value={manager.taskControl}
               placeholder="例如：回答使用中文；先列出步骤再给结论。"
               onChange={(event) => manager.setTaskControl(event.target.value)}
@@ -169,13 +169,13 @@ export default function ParametersSection({ manager }: Props) {
           <span>工具 {manager.promptPreview?.toolNames.length ?? 0} 项</span>
           <button
             aria-label="预览系统提示词"
-            className="ml-auto h-[26px] border border-line bg-paper-wash px-[10px] font-sans text-xs text-ink disabled:opacity-40"
+            className="rounded-md ml-auto h-[26px] border border-line bg-paper-wash px-[10px] font-sans text-xs text-ink disabled:opacity-40"
             onClick={() => manager.setPreviewOpen(!manager.previewOpen)}
             disabled={manager.previewBusy}
           >{manager.previewBusy ? '生成中…' : manager.previewOpen ? '收起' : '展开'}</button>
         </div>
         {manager.previewOpen && manager.promptPreview && (
-          <pre className="m-0 max-h-[420px] overflow-auto whitespace-pre-wrap border border-line bg-paper-wash px-[10px] py-[8px] font-mono text-xs leading-[1.7] text-ink-soft [overflow-wrap:anywhere]">{manager.promptPreview.control}</pre>
+          <pre className="rounded-md m-0 max-h-[420px] overflow-auto whitespace-pre-wrap border border-line bg-paper-wash px-[10px] py-[8px] font-mono text-xs leading-[1.7] text-ink-soft [overflow-wrap:anywhere]">{manager.promptPreview.control}</pre>
         )}
       </section>
     </SettingsPane>

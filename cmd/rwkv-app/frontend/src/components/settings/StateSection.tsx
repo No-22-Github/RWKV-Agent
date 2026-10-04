@@ -129,7 +129,7 @@ export default function StateSection({ manager }: Props) {
         当前 State
         <select
           aria-label="当前 State"
-          className="h-[40px] border border-line bg-paper-wash px-[10px] text-base text-ink outline-0 focus:border-brand"
+          className="rounded-md h-[40px] border border-line bg-paper-wash px-[10px] text-base text-ink outline-0 focus:border-brand"
           value={current}
           onChange={(event) => manager.setStateId(event.target.value)}
         >
@@ -144,18 +144,18 @@ export default function StateSection({ manager }: Props) {
           <p className="m-0">State <span className="font-mono">{current}</span> 已不在服务器上，通常是服务端重启清空了上传目录。连接时会被拒绝。</p>
           <div className="mt-[7px] flex flex-wrap gap-[8px]">
             {currentRecord?.localAvailable && currentRecord.localPath && (
-              <button className="flex h-[28px] items-center gap-[5px] border-0 bg-brand px-[10px] text-xs text-white disabled:opacity-60" disabled={busy} onClick={() => void upload(currentRecord.localPath!, current)}>
+              <button className="rounded-md flex h-[28px] items-center gap-[5px] border-0 bg-brand px-[10px] text-xs text-brand-fg disabled:opacity-60" disabled={busy} onClick={() => void upload(currentRecord.localPath!, current)}>
                 <RotateCcw size={12} />重新上传 {baseName(currentRecord.localPath)}
               </button>
             )}
-            <button className="h-[28px] border border-line bg-transparent px-[10px] text-xs text-ink" onClick={() => manager.setStateId('')}>改回零状态</button>
+            <button className="rounded-md h-[28px] border border-line bg-transparent px-[10px] text-xs text-ink" onClick={() => manager.setStateId('')}>改回零状态</button>
           </div>
           {currentRecord && !currentRecord.localAvailable && currentRecord.localPath && <p className="mb-0 mt-[6px] text-ink-muted">本机记录的文件已找不到：<span className="font-mono">{currentRecord.localPath}</span></p>}
         </div>
       )}
 
       <div className="mt-[12px] flex items-center gap-[8px]">
-        <button className="flex h-[32px] items-center gap-[6px] border border-line bg-paper-wash px-[11px] text-sm text-ink disabled:opacity-50" disabled={!endpointReady || busy} onClick={() => void chooseAndUpload()}>
+        <button className="rounded-md flex h-[32px] items-center gap-[6px] border border-line bg-paper-wash px-[11px] text-sm text-ink disabled:opacity-50" disabled={!endpointReady || busy} onClick={() => void chooseAndUpload()}>
           <Upload size={14} />上传 .pth…
         </button>
         <button className="flex h-[32px] items-center gap-[6px] border-0 bg-transparent px-[6px] text-sm text-brand disabled:opacity-50" disabled={!endpointReady || busy} onClick={() => void refresh()} aria-label="刷新 State 列表">
@@ -172,7 +172,7 @@ export default function StateSection({ manager }: Props) {
       {manualPath !== null && (
         <div className="mt-[6px] flex items-end gap-[8px]">
           <div className="flex-1"><Field label="State 文件路径（服务进程所在机器上的绝对路径）" value={manualPath} onChange={setManualPath} placeholder="/path/to/state.pth" /></div>
-          <button className="mb-[6px] h-[40px] border-0 bg-brand px-[14px] text-sm text-white disabled:opacity-50" disabled={!manualPath.trim() || busy} onClick={() => void upload(manualPath)}>上传</button>
+          <button className="rounded-md mb-[6px] h-[40px] border-0 bg-brand px-[14px] text-sm text-brand-fg disabled:opacity-50" disabled={!manualPath.trim() || busy} onClick={() => void upload(manualPath)}>上传</button>
         </div>
       )}
 

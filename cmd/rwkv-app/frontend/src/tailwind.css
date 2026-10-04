@@ -8,7 +8,7 @@
 
 /*
  * 主题映射。
- * 颜色统一走 index.css 的纸面 token（亮/暗两套静态值），
+ * 颜色统一走 index.css 的 zinc 单色 token（亮/暗两套静态值），
  * 工具类（bg-brand 等）通过 var() 自动跟随 data-theme。
  */
 @theme {
@@ -40,6 +40,12 @@
   --color-placeholder: var(--placeholder);
   --color-disabled-bg: var(--disabled-bg);
   --color-disabled-text: var(--disabled-text);
+  --color-brand-fg: var(--brand-fg);
+  --color-overlay: var(--overlay);
+
+  /* 阴影：shadcn 式的轻阴影，亮暗两套值在 index.css */
+  --shadow-pop: var(--elev-pop);
+  --shadow-hair: var(--elev-sm);
 
   /*
    * 字号 token：8 档，只管字号。

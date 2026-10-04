@@ -24,17 +24,17 @@ export default function Snackbar({ message, severity = "info", duration = 4000, 
   }, [exiting, onClose]);
 
   const Icon = severity === "success" ? CheckCircle2 : severity === "error" ? AlertCircle : Info;
-  const iconClass = severity === "success" ? "text-brand-bright" : severity === "error" ? "text-danger" : "text-white/80";
+  const iconClass = severity === "success" ? "text-brand-bright" : severity === "error" ? "text-danger" : "text-paper/80";
 
   return (
     <div
-      className={`fixed bottom-6 left-1/2 z-[1100] flex -translate-x-1/2 items-center gap-3 rounded-none bg-ink px-4 py-3 text-white shadow-[0_10px_30px_rgba(43,39,33,.35)] transition-all duration-200 ${exiting ? "translate-y-2 opacity-0" : "opacity-100"}`}
+      className={`fixed bottom-6 left-1/2 z-[1100] flex -translate-x-1/2 items-center gap-3 rounded-md bg-ink px-4 py-3 text-paper shadow-pop transition-all duration-200 ${exiting ? "translate-y-2 opacity-0" : "opacity-100"}`}
       role="status"
     >
       <Icon className={`flex-none ${iconClass}`} size={20} />
       <span className="text-sm leading-5">{message}</span>
       <button
-        className="grid h-7 w-7 flex-none place-items-center rounded-none text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+        className="grid h-7 w-7 flex-none place-items-center rounded-md text-paper/70 transition-colors hover:bg-paper/10 hover:text-paper"
         onClick={() => setExiting(true)}
         aria-label="关闭"
       >

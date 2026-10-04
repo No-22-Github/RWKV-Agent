@@ -175,7 +175,7 @@ export default function TraceView({ messages, selected, onSelect, onBackToChat }
           />
         )}
       </div>
-      <div className="flex flex-none items-center gap-[16px] border-t-[1.5px] border-ink px-[30px] py-[10px] font-mono text-xs text-ink-soft">
+      <div className="flex flex-none items-center gap-[16px] border-t border-line px-[30px] py-[10px] font-mono text-xs text-ink-soft">
         <div className="flex min-w-0 flex-1 items-center gap-[16px] overflow-hidden whitespace-nowrap">
           <span>{turns.length} 轮 · {records.length} 条</span>
           <span className="text-ink-ghost">/</span>

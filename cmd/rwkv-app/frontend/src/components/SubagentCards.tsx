@@ -22,7 +22,7 @@ export default function SubagentCards({ trajectory, done = true }: Props) {
         return (
           <div key={`${group.step}-${group.tool}-${groupIndex}`} className="border border-line bg-card-bg">
             <div className="flex items-center gap-[10px] border-b border-line-soft px-[14px] py-[9px]">
-              <span className="font-mono text-2xs font-bold uppercase tracking-[.16em] text-brand">SPAWN_AGENTS</span>
+              <span className="font-mono text-2xs font-bold text-brand">SPAWN_AGENTS</span>
               <span className="text-xs text-ink-muted">{statusText}</span>
               <span className="flex-1" />
               {batchDuration != null && <span className="font-mono text-2xs text-ink-ghost">{formatDuration(batchDuration)}</span>}
@@ -46,7 +46,7 @@ function SubagentCard({ agent }: { agent: SubagentTrace }) {
     <div className="flex min-w-0 flex-col gap-[8px] border-b border-line-soft p-[12px_14px] md:border-b-0 md:border-r last:border-r-0 last:border-b-0">
       <div className="flex items-center gap-[7px]">
         <span className={`h-[5px] w-[5px] flex-none rounded-full ${dot}`} />
-        <span className="font-mono text-2xs font-bold uppercase tracking-[.12em] text-ink-soft">AGENT {agent.index}</span>
+        <span className="font-mono text-2xs font-bold text-ink-soft">AGENT {agent.index}</span>
         <span className="flex-1" />
         {agent.durationMs != null && <span className="font-mono text-2xs text-ink-ghost">{formatDuration(agent.durationMs)}</span>}
       </div>

@@ -199,7 +199,7 @@ export default function TraceTimeline({
 }
 
 function spanKindColor(kind: TraceRecord['kind']) {
-  if (kind === 'tool' || kind === 'subtool') return 'var(--warning)'
+  if (kind === 'tool' || kind === 'subtool') return 'var(--ink-ghost)'
   if (kind === 'user') return 'var(--accent-warm)'
   return 'var(--brand)'
 }

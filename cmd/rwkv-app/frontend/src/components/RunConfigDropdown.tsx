@@ -38,8 +38,8 @@ export default function RunConfigDropdown({ open, onClose, ready, busy, provider
   if (!open) return null
 
   return (
-    <div ref={ref} className="run-config-dropdown absolute right-[30px] top-[56px] z-[60] flex w-[340px] flex-col border border-line-strong bg-paper-wash shadow-[0_12px_32px_rgba(60,50,35,.16)]">
-      <div className="border-b border-line px-[14px] pb-[9px] pt-[11px] text-2xs uppercase tracking-[.14em] text-ink-muted">已保存连接</div>
+    <div ref={ref} className="run-config-dropdown absolute right-[30px] top-[56px] z-[60] flex w-[340px] flex-col overflow-hidden rounded-xl border border-line bg-paper-wash shadow-pop">
+      <div className="border-b border-line px-[14px] pb-[9px] pt-[11px] text-2xs text-ink-muted">已保存连接</div>
       {providers.length === 0 ? (
         <div className="border-b border-line px-[14px] py-[10px] text-xs text-ink-muted">尚无保存的连接，去设置里连接一次即可记住</div>
       ) : (
