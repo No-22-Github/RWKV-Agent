@@ -8,6 +8,8 @@
 	<string>RWKV Agent</string>
 	<key>CFBundleExecutable</key>
 	<string>RWKV Agent</string>
+	<key>CFBundleIconFile</key>
+	<string>icons</string>
 	<key>CFBundleIdentifier</key>
 	<string>com.rwkv.agent</string>
 	<key>CFBundleInfoDictionaryVersion</key>

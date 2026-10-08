@@ -10,7 +10,7 @@ fixture="$test_root/repo with spaces"
 mkdir -p "$mock_bin" "$fixture/scripts" "$fixture/third_party/rwkv-mobile" \
   "$fixture/cmd/rwkv-app/frontend" "$fixture/cmd/rwkv-app/build/darwin"
 cp "$repo_root/scripts/build-macos.sh" "$repo_root/scripts/build-app.sh" "$fixture/scripts/"
-cp "$repo_root/cmd/rwkv-app/build/darwin/Info.plist" "$fixture/cmd/rwkv-app/build/darwin/"
+cp "$repo_root/cmd/rwkv-app/build/darwin/Info.plist" "$repo_root/cmd/rwkv-app/build/darwin/icons.icns" "$fixture/cmd/rwkv-app/build/darwin/"
 touch "$fixture/third_party/rwkv-mobile/CMakeLists.txt"
 echo '{"packageManager":"pnpm@11.7.0"}' >"$fixture/cmd/rwkv-app/frontend/package.json"
 ln -s "$(command -v node)" "$mock_bin/node"
