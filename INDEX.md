@@ -11,8 +11,9 @@
 
 | 想找什么 | 推荐入口 | 说明 |
 | --- | --- | --- |
-| 安装、构建和基本使用 | [`README.md`](README.md) | 项目主入口、CLI、Provider、Agent 和测试说明 |
+| 安装、构建和基本使用 | [`README.md`](README.md) | 项目概览、快速开始、组成与文档导航 |
 | macOS 从零运行 | [`docs/guides/getting-started-macos.md`](docs/guides/getting-started-macos.md) | 环境、模型准备、构建、运行、更新和常见问题 |
+| CLI 全部参数与行为 | [`docs/guides/cli.md`](docs/guides/cli.md) | `rwkv-cli` 各子命令参考手册 |
 | 桌面 App 与公开 API | [`docs/guides/app.md`](docs/guides/app.md) | Wails App、headless server、存储和开发说明 |
 | **蒸馏语料流程（现行）** | [`docs/distill/distill-workflow.md`](docs/distill/distill-workflow.md) | 出题 → 老师在真实 harness 里跑 → `corpus render` 重放切行 → 打包；批次报告在 [`docs/distill/reports/`](docs/distill/reports/) |
 | **最新 state 横测** | [`docs/evaluations/state-t927-20260927/REPORT.md`](docs/evaluations/state-t927-20260927/REPORT.md) | t927 六个 checkpoint，s316 最优；终答不停、答案契约被拒是最大失分点 |

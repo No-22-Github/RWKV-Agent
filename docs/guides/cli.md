@@ -1,0 +1,590 @@
+# CLI 参考手册
+
+> `rwkv-cli` 各子命令的完整参数、行为细节与示例。项目概览与快速开始见
+> [根目录 README](../../README.md)；第一次使用请先看 [macOS 从零上手](getting-started-macos.md)。
+>
+> 本文由原 README 第 3–10 节迁移而来（2026-10-08）。
+
+## 目录
+
+1. [CLI 命令一览](#1-cli-命令一览)
+2. [模型加载与转换](#2-模型加载与转换)
+3. [REPL 与 Session](#3-repl-与-session)
+4. [Agent 框架](#4-agent-框架)
+5. [远程 Provider](#5-远程-provider)
+6. [Agent 评测](#6-agent-评测)
+7. [并发 Dashboard](#7-并发-dashboard)
+8. [测试与 CI](#8-测试与-ci)
+
+## 1. CLI 命令一览
+
+| 命令 | 用途 |
+| --- | --- |
+| `convert` | 读取 PyTorch ZIP/pickle checkpoint，写出 MLX safetensors（不依赖 Python） |
+| `run` | 单轮生成或多轮 REPL，支持 `.pth` 与 MLX 目录 |
+| `agent` | 本地优先的只读工作区 Agent（TUI/plain） |
+| `agent-eval` | 固定 case 的 Agent 评测，产出 run/trace/summary |
+| `concurrent` | 1–8 路并发生成与选中续聊 dashboard |
+| `bench` | `concurrent` 的 plain 渲染别名，适合脚本与 CI |
+| `state` | 向 rwkv_lightning 部署上传/列出/删除序列化 State（`.pth`） |
+
+```text
+rwkv-cli convert --input <RWKV .pth> --output <MLX model directory>
+rwkv-cli run --model <RWKV .pth or MLX directory> [--prompt <text> | --session <bundle>]
+rwkv-cli agent --model <path or remote model ID> [--prompt <task>] [--ui auto|tui|plain]
+rwkv-cli agent-eval --model <path or remote model ID> [--suite boundary|smoke|assistant|bfcl-product|primitive-orig30|primitive-feedback30]
+rwkv-cli concurrent --model <RWKV .pth or MLX directory> [--concurrency 1..8]
+rwkv-cli bench --model <RWKV .pth or MLX directory> [--concurrency 1..8]
+rwkv-cli state upload --api-url <URL> [--api-header-env HEADER=ENV ...] --file <state .pth>
+rwkv-cli state list --api-url <URL> [--api-header-env HEADER=ENV ...]
+rwkv-cli state delete --api-url <URL> [--api-header-env HEADER=ENV ...] --state-id <state_id>
+```
+
+## 2. 模型加载与转换
+
+### 直接运行 `.pth`（推荐）
+
+运行不再要求先转换模型：
+
+```sh
+./local/dist/rwkv-cli run \
+  --model /absolute/path/to/rwkv7-model.pth \
+  --session ./local/sessions/demo.rwkv-session \
+  --autosave
+```
+
+运行时 mmap 原始 `.pth`，直接把 tensor 装入 MLX，不写出第二份完整权重。第一次加载会在
+`~/Library/Caches/RWKV-Agent/pth-index/v1/` 生成一个通常只有几十到几百 KB 的 `.rwkvi`
+元数据索引；后续加载通过索引跳过 pickle 元数据解析。缓存 key 绑定原文件绝对路径，索引
+内部再校验文件大小与修改时间，checkpoint 变化后自动拒绝旧索引并原位重建。`.pth` 默认
+使用发行包里的 RWKV World tokenizer，只有自定义 vocabulary 时才需要传 `--tokenizer`。
+
+### 显式转换（可选）
+
+`convert` 保留给需要独立 MLX safetensors 产物的部署流程：
+
+```sh
+./local/dist/rwkv-cli convert \
+  --input /absolute/path/to/rwkv7-model.pth \
+  --output /absolute/path/to/rwkv7-model-mlx
+```
+
+默认输出 BF16，也可使用 `--precision fp16` 或 `--precision fp32`。目标目录已存在时默认
+拒绝覆盖，确认替换可传 `--overwrite`。转换结果包含 `config.json`、
+`model.safetensors` 与 `rwkv_vocab_v20230424.txt`。
+
+## 3. REPL 与 Session
+
+```sh
+./local/dist/rwkv-cli run \
+  --model /absolute/path/to/rwkv7-model.pth \
+  --session ./local/sessions/demo.rwkv-session \
+  --autosave
+```
+
+主要参数：
+
+```text
+--backend auto|rwkvmobile        --provider auto|mlx
+--tokenizer <file>               --session <bundle>
+--prompt <single turn>           --max-tokens <n>
+--temperature <f>                --top-k <n> --top-p <f>
+--presence-penalty <f>           --frequency-penalty <f> --penalty-decay <f>
+--thinking off|fast|full         --native-state auto|off|required
+--autosave
+```
+
+默认使用 RWKV 官方 G1 常规聊天模板 `User: ...\n\nAssistant:`。`--thinking fast`
+严格预填充 `Assistant: <think></think` 后快速续写，`--thinking full` 严格预填充
+`Assistant: <think`；两者最后的 `>` 都**故意不写入 prompt**，由模型生成（RWKV tokenizer
+会把 `>` 与后续文本合并切分，补上括号会让续写从一个训练中不存在的 token 边界开始）。
+旧参数 `--reasoning[=true|false]` 仍分别兼容 `fast/off`；不要把 `<|bos|>` 等伪 special
+token 写进 prompt。
+
+默认解码参数采用当前 G1 模型卡建议：`temperature=1`、`top-p=0.5`、`presence-penalty=2`、
+`frequency-penalty=0.1`、`penalty-decay=0.99`。模型加载时显示轻量 spinner；单轮生成和
+REPL 不进入 alternate screen，回答是可选择、复制和重定向的普通文本。
+
+REPL 命令：
+
+```text
+/state   /history   /save [path]   /load <path>   /reset   /new   /help   /exit
+```
+
+每轮先在候选 transcript 上生成，只有完整输出与 native prefix 对齐后才提交。取消、终端
+写入失败或 native 错误不会写入残缺 user/assistant 消息。生成时第一次 `Ctrl-C` 只取消
+当前 turn 并回到提示符；空闲时 `Ctrl-C` 退出。`SIGTERM` 会先请求取消再按 Session、Model、
+Runtime 的顺序关闭。
+
+Session 使用不可变 revision 和原子 `CURRENT` 指针：
+
+```text
+demo.rwkv-session/
+├── CURRENT
+└── revisions/
+    └── sha256-.../
+        ├── session.json
+        ├── transcript.jsonl
+        └── state.bin
+```
+
+transcript 是事实源，`state.bin` 只是带 codec、尺寸、prefix token 和 checksum 校验的 MLX
+State 加速快照。快照不存在或导入失败时自动 replay transcript；模型、tokenizer、Initial
+State 或不支持迁移的 prompt profile 不兼容时拒绝加载。`/load` 使用临时 Conversation
+完成校验和恢复，成功后才替换当前会话。同一 `rwkv-g1-chat` 模板的旧 prompt profile 会
+安全升级：未显式传 `--thinking` 时继承 Session 原有思考模式；显式模式冲突、模型或
+tokenizer 不匹配仍会拒绝。迁移后的 autosave 写入新 revision，不改写旧 revision。
+
+## 4. Agent 框架
+
+`agent` 验证本地优先 Agent 的纵向链路：模型在指定工作区内列出文件、读取文本、搜索
+字面量并处理结构化数据，然后基于实际工具结果回答。普通 `agent` 默认注册工作区工具，
+以及不依赖 Provider 的 `calculator`、`data_query`、`datetime`。固定 mock 的 `weather`、
+`nearest_transit`、`transit_hours`、`fx_convert` 只在可重复的 `assistant` 评测 suite 中
+注册。默认工具没有写入、命令执行或真实网络能力。
+
+产品默认使用 `rwkv-g1-envelope-v1` XML transcript，并让模型在一个决策阶段内直接选择动作。
+工具调用格式为 `<tool_call>{"name":"TOOL_NAME","arguments":{...}}</tool_call>`，工具结果以
+`<tool_result>...</tool_result>` 回填；不需要工具时直接输出普通文本。默认不运行独立 Router，
+因此不会先生成 `<route>`，完整的已启用工具目录直接交给动作协议。
+
+G1 训练原生的 Markdown/function transcript 保留为显式
+`--agent-protocol markdown` 选项。渐进式 Router 也保留为
+`--progressive-tools=true`：它先在 `workspace`、`compute`、`web`、`delegate` 能力组中选择
+零至两个，再只暴露所选 schema，并允许通过 `load_tools` 加载另一个已启用能力组。
+
+```sh
+./local/dist/rwkv-cli agent \
+  --model /absolute/path/to/rwkv7-model.pth \
+  --workspace /absolute/path/to/project
+```
+
+交互终端默认进入全屏 Agent TUI；首轮完成后可直接追问，Harness 会把已提交的
+user/assistant/tool transcript 带入后续阶段。`/new` 或 `/reset` 清空当前多轮会话，
+`/exit` 退出；`Ctrl-C` 运行时取消当前轮次、空闲时退出。传入 `--prompt` 会自动提交首轮
+任务；脚本、pipe 和 CI 自动使用 plain renderer：
+
+```sh
+./local/dist/rwkv-cli agent \
+  --ui plain \
+  --model /absolute/path/to/rwkv7-model.pth \
+  --workspace /absolute/path/to/project \
+  --prompt "阅读 README 和 docs，概括当前已完成内容与下一步"
+```
+
+常用参数：
+
+```text
+--max-steps <2..20>                  --progressive-tools[=true|false]
+--agent-protocol markdown|xml        --route-max-tokens <n>
+--decision-max-tokens <n>            --max-tokens <n>
+--workspace <directory>              --thinking off|fast|full（仅 XML 协议）
+--ui auto|tui|plain                  --prompt <task>
+--web                                --subagents
+--semantic-no-tool                   --decision-fake-think
+--trace-prompt-bytes <n>
+--brave-endpoint <url>               --tavily-endpoint <url>
+--max-active-batch <1..8>            --subagent-max-parallel <2..8>
+--subagent-max-steps <n>             --subagent-timeout <duration>
+--remote-batch-wait <duration>
+```
+
+Agent 默认使用确定性解码：`temperature=1`、`top-k=1`、`top-p=1`，presence/frequency
+惩罚为 0、`penalty-decay=1`。默认 XML 工具决策最多 512 token，最终回答最多 1024 token，
+并限制为 6 个 Agent step；显式开启 progressive Router 时，路由最多生成 48 token 且独立
+计数。XML 下 `semantic-no-tool` 与 `deep-tool-anchor` 默认关闭；`--few-shot`、旧
+`--route-stage` 和 Primitive 的重复/救援参数只属于 `agent-eval`。
+
+Markdown profile 固定使用 `--thinking off`；`--thinking fast/full` 由默认 XML profile
+直接支持。Markdown 的半开 think 字节实验必须使用独立的
+`--decision-fake-think` 开关，避免把两种 renderer 语义混成一套。
+
+### 可选 Web 与子代理
+
+只有显式传入 `--web` 且同时提供两个 API Key 时才注册 `web_search`（Brave Search）与
+`web_fetch`（Tavily Extract，最多 4 个页面）：
+
+```sh
+export BRAVE_API_KEY='...'
+export TAVILY_API_KEY='...'
+
+./local/dist/rwkv-cli agent \
+  --web \
+  --model /absolute/path/to/rwkv7-model.pth \
+  --workspace /absolute/path/to/project
+```
+
+Web Provider 对 429/5xx 自动重试（最多 5 次、500ms 起指数退避、上限 5s、尊重
+`Retry-After`），并把每次重试记录进工具轨迹事件。
+
+`spawn_agents` 一次接收 2–8 个独立任务并发执行，每个任务创建自己的 Session、State 和
+transcript，结果按输入顺序返回。子 Agent 继承工作区、计算和 Web 能力，但不继承
+`delegate`，因此不会递归派生。全部子任务失败时整个工具调用失败；部分成功时保留成功
+输出和逐项错误。本地 MLX 通过 continuous batching 并行推进独立 Session；RWKV Lightning
+在聚合窗口内把兼容的并发续写合并成一个 `contents[]` 请求；Chat Completions 则发并发
+HTTP 请求。`continuation.Generator` 仍保持单请求、传输中立，批处理只发生在
+Provider/runtime 层。
+
+```sh
+./local/dist/rwkv-cli agent \
+  --subagents \
+  --max-active-batch 4 \
+  --subagent-max-parallel 4 \
+  --subagent-max-steps 4 \
+  --subagent-timeout 2m \
+  --remote-batch-wait 10ms \
+  --model /absolute/path/to/rwkv7-model.pth \
+  --workspace /absolute/path/to/project
+```
+
+### 安全边界与恢复
+
+所有工具路径必须相对 `--workspace`；绝对路径、`..` 穿越和指向工作区外的符号链接都会被
+拒绝。单文件读取限制为 64 KiB，搜索跳过 `.git`、`build`、`dist` 和 `node_modules`。
+每次工具尝试后 Runner 保留完整的 assistant/function-output 轨迹，允许模型继续调用不同
+工具，证据充分时直接回答；失败结果给出确定性恢复提示，同一精确调用不会再次执行。
+达到重复或同工具连击阈值后，Runner 禁用后续工具并要求基于已有证据直接给出最佳答案；
+证据不足时必须明确说明限制。合法 final 产生后才事务化提交整轮 transcript，生成、协议或 step
+失败仍整轮回滚。诊断协议错误可临时设置 `RWKV_AGENT_DEBUG=1`（会打印可能包含本地文件
+内容的原始模型 step，默认不启用）。
+
+当前 CLI `agent` 支持进程内多轮交互，但还没有自己的 transcript 保存/恢复；桌面 App 已
+通过公开 `api` 持久化会话与历史。上下文压缩、写文件审批和命令执行仍不在范围内。
+协议边界、工具权限与状态机设计见
+[docs/design/continuation-and-agent-protocol.md](../design/continuation-and-agent-protocol.md) 与历史里程碑
+[docs/archive/agent-harness-milestone.md](../archive/agent-harness-milestone.md)。
+
+## 5. 远程 Provider
+
+统一支持四种后端，模板和工具调用格式仍由独立的 wire/profile 层控制：
+
+| `--completion` / API `provider` | 后端 |
+| --- | --- |
+| `chat-completions` | 标准 Chat Completions（可选构建，支持原生工具调用） |
+| `rwkv-lightning-python` | Python Lightning，`/v1/chat/completions` 原始续写 |
+| `rwkv-lightning-cuda` | C++/CUDA Lightning，`/v1/batch/completions` 原始续写 |
+| `local` | 本地推理 |
+
+仅接受上述四个明确标识。旧 `rwkv-lightning` 标识已删除，现有连接需重新选择 Python 或 CUDA。
+远端地址支持服务根地址、`/v1` 或完整 API 路径；停止参数和状态支持差异见
+[后端接口约定](../design/continuation-and-agent-protocol.md#4-cli)。
+
+### rwkv_lightning 原生续写
+
+```sh
+# 仅当服务启用请求体密码时：export RWKV_API_PASSWORD='...'
+export RWKV_CF_ACCESS_CLIENT_ID='...'      # Cloudflare Access 部署时需要
+export RWKV_CF_ACCESS_CLIENT_SECRET='...'
+
+./local/dist/rwkv-cli agent \
+  --completion rwkv-lightning-cuda \
+  --api-url https://example.com/v1/batch/completions \
+  --model rwkv7-13b \
+  --api-header-env CF-Access-Client-Id=RWKV_CF_ACCESS_CLIENT_ID \
+  --api-header-env CF-Access-Client-Secret=RWKV_CF_ACCESS_CLIENT_SECRET \
+  --workspace /absolute/path/to/project
+```
+
+要点：
+
+- `--api-url` 支持根地址和完整 API 路径。Python 使用 `/v1/chat/completions`，
+  CUDA 使用 `/v1/batch/completions`；两者都发送 `contents[]`，不会重新渲染 prompt。
+- Python 默认发送 decoded-text 字符串停止序列；CUDA 默认发送整数 EOS `[0]`，
+  文本停止由客户端处理。`none` 省略字段并使用服务端默认值；也可显式给出
+  逗号分隔整数列表。
+- `--api-stream` 默认 `true`（SSE 逐 token）；`--api-stream=false` 请求一次性 JSON 响应，
+  在 SSE 不稳定的部署上更可靠，但交互式 `agent` 会失去 token 级输出。
+- `rwkv_lightning` 在 `top-k=1` 时直接取 argmax，temperature 和 top-p 不参与随机采样。
+- 密码默认从 `RWKV_API_PASSWORD` 读取（`--api-password-env` 可改）；`--api-header-env`
+  可重复使用，凭证不进入命令行参数或配置文件。远程模型会收到 Agent 组成的 prompt，
+  其中可能包含模型主动读取的本地文件片段。
+
+#### 上传并复用 State
+
+`rwkv_lightning` 部署（`rwkv_lightning_cuda`）可以把序列化 RWKV State（如微调后导出的
+`.pth`，含状态张量）上传到服务端，再用返回的 `state_id` 让后续每次生成都从该状态续写。
+状态由服务端保存在进程内临时目录，退出或调用 delete 后消失。
+
+```sh
+export RWKV_CF_ACCESS_CLIENT_ID='...'
+export RWKV_CF_ACCESS_CLIENT_SECRET='...'
+
+# 上传，stdout 打印 state_id
+./local/dist/rwkv-cli state upload \
+  --api-url https://api-7b.rwkvos.com/v1/models \
+  --api-header-env CF-Access-Client-Id=RWKV_CF_ACCESS_CLIENT_ID \
+  --api-header-env CF-Access-Client-Secret=RWKV_CF_ACCESS_CLIENT_SECRET \
+  --file ./local/runs/nekoqa200_7.2b_s42_e2.pth
+
+# 列出 / 删除
+./local/dist/rwkv-cli state list --api-url ... --api-header-env ...
+./local/dist/rwkv-cli state delete --api-url ... --api-header-env ... --state-id state-xxxx
+
+# 复用：agent/agent-eval 的每次生成都带上该 state_id
+./local/dist/rwkv-cli agent \
+  --completion rwkv-lightning-cuda \
+  --api-url https://api-7b.rwkvos.com/v1/models \
+  --model rwkv7-13b \
+  --api-header-env CF-Access-Client-Id=RWKV_CF_ACCESS_CLIENT_ID \
+  --api-header-env CF-Access-Client-Secret=RWKV_CF_ACCESS_CLIENT_SECRET \
+  --state-id state-xxxx \
+  --workspace /absolute/path/to/project
+```
+
+- `state` 子命令只管理状态，不需要 `--model`；`--api-url` 传部署地址即可（`/v1/models`、
+  `/v1/batch/completions` 或裸域名均可识别）。
+- 上传的 State 必须是 PyTorch 存档，`bfloat16`/`float32` 张量会被服务端转换为部署配置的
+  WKV 运行精度；上传上限 512 MiB。
+- 复用后同一 `state_id` 可以继续用于 `/v1/chat/completions`、`/v1/batch/completions`、
+  `/translate/v1/batch-translate` 与 `/state/chat/completions`；连续 Agent 步骤会从同一
+  状态持续续写，适合把微调后的口吻/知识固化进整个工作区会话。
+
+### OpenAI-compatible Chat Completions
+
+```sh
+export OPENAI_API_KEY='...'
+
+./local/dist/rwkv-cli agent \
+  --completion chat-completions \
+  --api-url https://example.com/v1/chat/completions \
+  --model other-model \
+  --workspace /absolute/path/to/project \
+  --prompt "阅读 README 并概括项目"
+```
+
+`chat-completions` 由官方 `github.com/openai/openai-go/v3` SDK 实现，通过
+`chatcompletions` build tag 与默认发行包隔离。默认 `--chat-prompt-mode native-chat`
+传递真正的 system/user/assistant 消息与原生 `tools`；`wrapped-continuation` 把完整
+continuation prompt 放进一个 user message，作为不支持原生工具的兼容回退。两者都使用
+非流式响应，固定发送 `parallel_tool_calls: false`；输出预算默认使用
+`max_completion_tokens`，只接受旧字段的服务用 `--chat-token-limit-field max-tokens`。
+
+对于默认开启隐藏推理、且隐藏推理与正文共享输出预算的上游（例如 DeepSeek V4-Flash），
+应显式关闭上游思考：
+
+```sh
+export DEEPSEEK_API_KEY='...'
+
+./local/dist/rwkv-cli agent \
+  --completion chat-completions \
+  --api-url https://api.deepseek.com/v1/chat/completions \
+  --api-key-env DEEPSEEK_API_KEY \
+  --model deepseek-v4-flash \
+  --chat-thinking disabled \
+  --chat-prompt-mode native-chat \
+  --chat-token-limit-field max-tokens \
+  --workspace /absolute/path/to/project \
+  --prompt "阅读 README 并概括项目"
+```
+
+`--chat-thinking auto`（默认）不发送非标准字段；`disabled`/`enabled` 发送
+`thinking: {"type":"..."}` 扩展。它独立于控制内部 RWKV prompt 的
+`--thinking off|fast|full`。Bearer token 默认读取 `OPENAI_API_KEY`
+（`--api-key-env` 可改）；显式 `Authorization` header 会覆盖 bearer token。
+
+可选的真实接口集成测试默认跳过：
+
+```sh
+export CHAT_COMPLETIONS_INTEGRATION_URL=https://api.deepseek.com/v1/chat/completions
+export CHAT_COMPLETIONS_INTEGRATION_MODEL=deepseek-v4-flash
+export CHAT_COMPLETIONS_INTEGRATION_API_KEY='...'
+export CHAT_COMPLETIONS_INTEGRATION_THINKING=disabled
+export CHAT_COMPLETIONS_INTEGRATION_PROMPT_MODE=native-chat
+export CHAT_COMPLETIONS_INTEGRATION_TOKEN_LIMIT_FIELD=max-tokens
+go test -tags chatcompletions ./internal/continuation/chatcompletions \
+  -run 'TestRemoteChatCompletions(NativeTool)?Integration' -v
+```
+
+完整映射细节见 [docs/design/continuation-and-agent-protocol.md](../design/continuation-and-agent-protocol.md)。
+
+## 6. Agent 评测
+
+`agent-eval` 按 suite 使用显式、可归档的 profile，不继承 App/CLI 的产品默认值。
+`bfcl-product` 继续通过 `ProductHarnessOptions` 构造冻结的 Markdown/function + progressive
+Router 基线；Primitive、BFCL 原始包装协议和 XML 对照各自保持独立，避免历史口径漂移：
+
+> 模型侧的全部参数（format/thinking/prefill/abstain/terminal/route/catalog/control/loop 等）
+> 现在由一份统一的 wire 配置描述，用 `--profile <preset>` 简写或 `--wire key=value,...` 长写选择；
+> 完整的参数表、旧参数对照、loop 默认值和远程部署注意事项见
+> [`docs/guides/wire-configuration.md`](wire-configuration.md)。
+> `agent-eval --list-profiles` 列出注册点，`--explain-profile <spec>` 打印解析后的字节。
+
+| Suite | 内容 |
+| --- | --- |
+| `boundary`（默认） | 18 个从 [marty1885/primitive-bench](https://github.com/marty1885/primitive-bench) 只读任务改造的 case |
+| `smoke` | 10 个协议与安全契约回归 |
+| `assistant` | 6 个天气/交通、开销/汇率、Provider 不可用、单意图与歧义追问 |
+| `bfcl-product` | 60 个从 BFCL 语义转化的产品题：主动不调用、缺参追问与多轮决策 |
+| `primitive-orig30` | 上游 `agent_cases_orig30` 的 30-case 固定快照（旧名 `primitive` 仍可用） |
+| `primitive-feedback30` | 同一上游 commit 的 `agent_cases_feedback` 精选 30 题 |
+
+```sh
+./local/dist/rwkv-cli agent-eval \
+  --model /absolute/path/to/rwkv7-model.pth \
+  --suite boundary \
+  --output local/runs/local-13b-boundary
+```
+
+每个 case 使用独立临时工作区；本地推理为每个 case 创建全新 Session。`--case` 可重复选
+子集，`--cases` 可载入 `schema_version: 4` 的自定义 JSON case 文件或受信任的 Primitive
+Bench 目录，`--case-timeout` 设单 case 超时，`--case-parallelism` 设并发度。`--cases` 与
+`--suite` 互斥；输出目录必须尚不存在。
+
+Case schema v4 可用 `require_active_no_call` 和 `forbid_route_fallback` 把“主动不调用”设为
+显式成功条件。Run schema v6 在 manifest 冻结 scorer/outcome taxonomy、产品协议/renderer、
+Router 和两个实验开关，并在 summary 分别报告 `active_no_call`、route/decision 协议合法率、
+outcome 分布和分类解析失败；`semantic_no_call`、普通文本 final、fail-closed 与兼容修复互不
+混记。
+
+`bfcl-product` 默认开启 progressive Router。两个 7B 定向实验开关默认关闭：
+`--semantic-no-tool` 允许文本协议输出 `no_tool`，参数只能为空，或包含可选字符串
+`reason` / `answer`。非空 `answer` 优先、否则 `reason` 直接成为用户可见最终回复；原始字段
+同时保留在 trace 和 App 的“无需工具”事件里，但不算工具执行或 evidence。空参数保留为进入
+直接回答阶段的兼容路径，未知字段和非字符串值仍拒绝。`--decision-fake-think` 只在未锚定的
+inspect decision 上预填精确的半开 `<think></think`。两者只适用于文本续写，不会注册成
+原生 API tool；原生 function calling 会拒绝该组合。显式
+`--progressive-tools=false` 可用于无 Router 校准，但此时 route 指标没有分母，不能当作
+产品 Router 成绩。
+
+远程评测直接复用同一入口：
+
+```sh
+./local/dist/rwkv-cli agent-eval \
+  --suite smoke \
+  --completion rwkv-lightning-cuda \
+  --api-url https://example.com/v1/batch/completions \
+  --model rwkv7-13b \
+  --case read_exact_file \
+  --case multi_turn_memory \
+  --output local/runs/remote-13b-smoke
+```
+
+```sh
+export OPENAI_API_KEY='...'
+
+./local/dist/rwkv-cli agent-eval \
+  --completion chat-completions \
+  --api-url https://example.com/v1/chat/completions \
+  --model other-model \
+  --suite primitive-orig30 \
+  --output local/runs/primitive-orig30-external
+```
+
+### Primitive Bench 双轨
+
+仓库内置 [`RWKV-Vibe/rwkv-Primitive-Bench`](https://github.com/RWKV-Vibe/rwkv-Primitive-Bench)
+commit `0350023f99a31133fb30eb32dacf779f196827d4` 的固定快照，JSON 嵌入 CLI，本地、CI
+和外部模型评测使用完全相同的 prompt、fixture 与评分契约，不需要先 clone 上游仓库。
+
+两种显式工具 profile：
+
+- `upstream-compatible`（默认）保留上游逐题声明的完整工具目录（包括 `run_lua`），用于
+  协议和 Harness 横向对照。
+- `go-native` 保留相同题目、fixture、`max_turns` 和 scorer，但在原题提供 `run_lua` 时以
+  `calculator` 与 `data_query` 替代，衡量实际 Go Agent 产品能力，不要求安装 Lua。
+
+```sh
+./local/dist/rwkv-cli agent-eval \
+  --model /absolute/path/to/rwkv7-model.pth \
+  --suite primitive-orig30 \
+  --primitive-profile go-native \
+  --output local/runs/primitive-orig30-local
+```
+
+`rwkv_lightning_cuda` 部署要求整数形式的 `stop_tokens`，用 `--api-stop-tokens 0,6884,24281`
+预设即可走同一个 Harness；额外 HTTP header 只从环境变量读取，不写入评测产物。Primitive
+suite 逐题采用快照中的原始 `max_turns`（6–22），并用 1024-token 工具调用预算；`run.json`
+的 `manifest.harness.tool_profile` 记录实际 profile，避免两种分数被误混。
+
+每次运行原子写入三个文件：
+
+- `run.json`：case 定义、模型指纹（本地可用时）、Harness/协议版本、prompt 配置、采样参数与运行环境。
+- `trace.jsonl`：逐次原始 continuation request/output、usage、阶段、Runner 事件和工具结果；不记录密码或认证 header。
+- `summary.json`：逐 case/turn 失败原因与答案、route、协议、精确/必需/禁止工具等评分。
+
+失败 case 仍会写完 artifacts，随后命令以非零状态退出。默认输出到带 UTC 时间戳的
+`local/runs/agent-eval-*`。
+
+### 当前基线
+
+- Primitive `upstream-compatible`：v12 有效基线 13/30（7.2B，替换一次网络失败后）；
+  native-G1 协议分支最终 17/30，同一模型上游官方留档 20/30。
+- Primitive `go-native`（贪心 `top-k=1`）：正式成绩 23/30（v19/v20 稳定通过集合），
+  v21b 单轮 24/30，其中 `config_precedence_resolve` 为不稳定边界题（通过率约 25–30%）。
+- `boundary` 与 smoke 的历史演进、v8/v9 修复复测和失败分类，见
+  [docs/evaluations/](../evaluations/)。
+
+完整的 v12 基线、v13–v21 演进、复跑命令与政策记录见
+[docs/evaluations/primitive-bench-v12-baseline-2026-08-13.md](../evaluations/primitive-bench-v12-baseline-2026-08-13.md)。
+上方历史基线分数基于旧版题库快照，与新快照不可比。
+
+## 7. 并发 Dashboard
+
+`concurrent` 用一个模型实例创建多个 Session，并让 native scheduler 合并单 token decode：
+
+```sh
+./local/dist/rwkv-cli concurrent \
+  --model /absolute/path/to/rwkv7-model.pth \
+  --concurrency 8 \
+  --max-tokens 64 \
+  --concurrent-prompt "用一句话介绍 RWKV"
+```
+
+终端可交互时默认进入实时 dashboard（2×4 或 4×2 pane，窄终端自动降级），header/footer
+显示 provider、native batch 与 aggregate tok/s。初始 8 路完成后，点击满意的 pane 即可
+继续追问；该操作复用该 pane 原本的 `Conversation` 和 native State，而不是用输出文本临时
+拼新会话。渲染模式：
+
+```text
+--ui auto    终端可交互时使用 TUI，否则自动 plain（默认）
+--ui tui     强制 TUI；终端能力不足时明确报错
+--ui plain   强制稳定纯文本输出，适合 pipe、CI 和脚本
+```
+
+`bench` 是 `concurrent` 的 `--ui plain` 别名。Dashboard 快捷键：`q`/`Esc` 退出、
+`Tab`/方向键切换 pane、`y` 复制、`r` 重跑、点击或 `Enter` 选中续聊。退出 alternate
+screen 后固定打印一行 `Concurrent batch complete: ...` 汇总。
+
+所有窗口收到相同的用户 prompt 和解码参数，只使用 `42 + session_index` 的不同 seed；
+session 编号只属于 UI，不会写进模型输入。`--top-k 1` 的贪心解码应得到 8 个相同结果，
+去掉 `--top-k 1` 后则出现合理的采样差异。每个 Session 的 callback、采样器、token、取消
+标志和 State 彼此隔离；MLX FFI 支持 16 个物理 State slot，CLI 当前开放最多 8 路活跃
+batch，并为额外请求提供有界 FIFO 队列。录屏演示建议终端至少 `120×40` cell（`160×24`
+以上切换四列），生成中截取 dashboard，完成后再演示点击续聊。
+
+## 8. 测试与 CI
+
+不依赖真实模型：
+
+```sh
+go test ./...
+go test -race ./...
+./scripts/test-macos-native.sh
+```
+
+Go 测试包含 8 路 runner、选定 Conversation 续聊与取消回滚、plain 无 ANSI、CJK/emoji
+cell 宽度、响应式布局，以及真实 PTY 下的 alternate-screen、resize、鼠标点选续聊、`q`
+全局取消和终端恢复。`test-macos-native.sh` 还会构建 AddressSanitizer 版本并运行 C ABI
+lifecycle test。
+
+使用已转换模型：
+
+```sh
+RWKV_TEST_MODEL=/absolute/path/to/mlx-model \
+./scripts/test-macos-real-model.sh
+```
+
+直接使用 `.pth`：
+
+```sh
+RWKV_TEST_PTH=/absolute/path/to/rwkv7-model.pth \
+./scripts/test-macos-real-model.sh
+```
+
+真实模型脚本覆盖单轮生成、8 路贪心解码 State 隔离、4 路取消、保存、native State 恢复，
+以及移除 `state.bin` 后的 transcript replay。
+
+GitHub Actions（`.github/workflows/ci.yml`）包含两个 job：
+
+- Go：race 测试 `api/...`、`internal/...`、`cmd/rwkv-cli/...`；`CGO_ENABLED=0 go build -tags server ./...` 与 vet 验证 Linux headless 构建。
+- Frontend：Node 26 + pnpm 11（`pnpm install --frozen-lockfile` + `pnpm test` + `pnpm build`）。

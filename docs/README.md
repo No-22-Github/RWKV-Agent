@@ -10,6 +10,7 @@
 | 文档 | 说明 |
 | --- | --- |
 | [getting-started-macos.md](guides/getting-started-macos.md) | macOS 从零上手：环境、构建、模型准备、运行、更新与常见问题 |
+| [cli.md](guides/cli.md) | `rwkv-cli` 参考手册：各子命令参数、Session、Agent、远程 Provider、评测与并发 dashboard（原 README 第 3–10 节） |
 | [app.md](guides/app.md) | Wails V3 桌面 App 与 headless server：构建、公开 API、持久化存储、配置与开发 |
 
 ## 工具调用与对话格式 (Wire & Protocols)
