@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+<rect x="40.96" y="40.96" width="942.08" height="942.08" rx="188.42" fill="#000"/>
+<rect x="41.96" y="41.96" width="940.08" height="940.08" rx="188.42" fill="none" stroke="#fff" stroke-opacity="0.1" stroke-width="2"/>
+<g fill="#fff">
+<rect x="133.40" y="310.04" width="50.64" height="50.64" rx="11.14"/>
+<rect x="192.28" y="310.04" width="50.64" height="50.64" rx="11.14"/>
+<rect x="251.16" y="310.04" width="50.64" height="50.64" rx="11.14"/>
+<rect x="310.04" y="310.04" width="50.64" height="50.64" rx="11.14"/>
+<rect x="133.40" y="368.92" width="50.64" height="50.64" rx="11.14"/>
+<rect x="368.92" y="368.92" width="50.64" height="50.64" rx="11.14"/>
+<rect x="486.68" y="368.92" width="50.64" height="50.64" rx="11.14"/>
+<rect x="133.40" y="427.80" width="50.64" height="50.64" rx="11.14"/>
+<rect x="368.92" y="427.80" width="50.64" height="50.64" rx="11.14"/>
+<rect x="545.56" y="427.80" width="50.64" height="50.64" rx="11.14"/>
+<rect x="133.40" y="486.68" width="50.64" height="50.64" rx="11.14"/>
+<rect x="192.28" y="486.68" width="50.64" height="50.64" rx="11.14"/>
+<rect x="251.16" y="486.68" width="50.64" height="50.64" rx="11.14"/>
+<rect x="310.04" y="486.68" width="50.64" height="50.64" rx="11.14"/>
+<rect x="604.44" y="486.68" width="50.64" height="50.64" rx="11.14"/>
+<rect x="133.40" y="545.56" width="50.64" height="50.64" rx="11.14"/>
+<rect x="251.16" y="545.56" width="50.64" height="50.64" rx="11.14"/>
+<rect x="545.56" y="545.56" width="50.64" height="50.64" rx="11.14"/>
+<rect x="133.40" y="604.44" width="50.64" height="50.64" rx="11.14"/>
+<rect x="310.04" y="604.44" width="50.64" height="50.64" rx="11.14"/>
+<rect x="486.68" y="604.44" width="50.64" height="50.64" rx="11.14"/>
+<rect x="133.40" y="663.32" width="50.64" height="50.64" rx="11.14"/>
+<rect x="368.92" y="663.32" width="50.64" height="50.64" rx="11.14"/>
+<rect x="722.20" y="663.32" width="50.64" height="50.64" rx="11.14"/>
+<rect x="781.08" y="663.32" width="50.64" height="50.64" rx="11.14"/>
+<rect x="839.96" y="663.32" width="50.64" height="50.64" rx="11.14"/>
+</g></svg>
