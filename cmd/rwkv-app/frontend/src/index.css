@@ -45,10 +45,23 @@
   /* 布局 token：供 tailwind.css 的组件类与宽高任意值引用 */
   --sidebar-w: 216px;
   --header-h: 52px;
-  --col-gutter: 112px;
-  --col-content: 672px;
-  --gutter-gap: 42px;
-  --content-narrow: 826px;
+  --content-narrow: 720px;
+
+  /*
+   * 轨迹页语义色：低饱和，按记录类型区分（用户 / 模型 / 工具 / 上下文）与强调色。
+   * 只在轨迹分析界面使用；以后换主题（如按图片取色）只改这组变量。
+   */
+  --trace-accent: #4f6fae;
+  --trace-user: #4a6a9a;
+  --trace-user-wash: #eaeff6;
+  --trace-assistant: #7a5f9a;
+  --trace-assistant-wash: #f1ecf6;
+  --trace-tool: #9a6d2e;
+  --trace-tool-wash: #f6efe4;
+  --trace-context: #4f7d5f;
+  --trace-context-wash: #e9f2ec;
+  --trace-ttft: #c9b9dc;
+  --trace-decoding: #8f78ad;
 }
 
 [data-theme="dark"] {
@@ -90,6 +103,18 @@
   --elev-sm: 0 1px 2px rgba(0, 0, 0, .3);
   --scroll-thumb: rgba(250, 250, 250, .14);
   --scroll-thumb-hover: rgba(250, 250, 250, .28);
+
+  --trace-accent: #8aa3d6;
+  --trace-user: #9db3d8;
+  --trace-user-wash: #1d2533;
+  --trace-assistant: #b9a3d6;
+  --trace-assistant-wash: #2a2333;
+  --trace-tool: #d2ad75;
+  --trace-tool-wash: #30281b;
+  --trace-context: #93c2a2;
+  --trace-context-wash: #1c2a21;
+  --trace-ttft: #4a3f5c;
+  --trace-decoding: #a58fc4;
 }
 
 * { box-sizing: border-box; }

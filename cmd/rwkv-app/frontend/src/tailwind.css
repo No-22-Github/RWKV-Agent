@@ -76,16 +76,10 @@
 }
 
 /*
- * 布局组件类：反复出现的三栏/正文宽度收敛到 index.css 的布局 token。
+ * 布局组件类：正文宽度收敛到 index.css 的布局 token。
  * 响应式覆盖仍在 legacy.css（未分层样式优先级高于 layer 内规则）。
  */
 @layer components {
-  /* 轮次/输入框/设置分组的「页边栏 + 正文」栅格 */
-  .turn-grid {
-    grid-template-columns: var(--col-gutter) minmax(0, var(--col-content));
-    gap: var(--gutter-gap);
-  }
-
   /* 对话区正文宽度 */
   .content-narrow {
     width: min(var(--content-narrow), calc(100% - 52px));

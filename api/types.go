@@ -244,6 +244,7 @@ type Step struct {
 	Usage            Usage            `json:"usage"`
 	StartedAtMS      int64            `json:"startedAtMs,omitempty"`
 	ModelDurationMS  int64            `json:"modelDurationMs,omitempty"`
+	FirstTokenAtMS   int64            `json:"firstTokenAtMs,omitempty"`
 	ModelError       string           `json:"modelError,omitempty"`
 	ActionType       string           `json:"actionType,omitempty"`
 	Tool             string           `json:"tool,omitempty"`

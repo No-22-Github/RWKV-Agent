@@ -16,3 +16,6 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: vi.fn(() => false),
   })),
 })
+
+// jsdom 没有 Canvas：像素动画只占位不绘制，免得每次挂载都打一条 Not implemented。
+HTMLCanvasElement.prototype.getContext = (() => null) as typeof HTMLCanvasElement.prototype.getContext

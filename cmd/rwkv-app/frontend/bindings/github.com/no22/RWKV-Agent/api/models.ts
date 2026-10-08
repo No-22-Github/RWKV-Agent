@@ -456,6 +456,7 @@ export class Step {
     "usage": Usage;
     "startedAtMs"?: number;
     "modelDurationMs"?: number;
+    "firstTokenAtMs"?: number;
     "modelError"?: string;
     "actionType"?: string;
     "tool"?: string;

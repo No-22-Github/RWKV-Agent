@@ -249,11 +249,14 @@ type Step struct {
 	Usage           continuation.Usage        `json:"usage"`
 	StartedAtMS     int64                     `json:"model_started_at_ms,omitempty"`
 	ModelDurationMS int64                     `json:"model_duration_ms,omitempty"`
-	ModelError      string                    `json:"model_error,omitempty"`
-	ActionType      string                    `json:"action_type,omitempty"`
-	Tool            string                    `json:"tool,omitempty"`
-	ToolArguments   json.RawMessage           `json:"tool_arguments,omitempty"`
-	ToolResult      json.RawMessage           `json:"tool_result,omitempty"`
+	// FirstTokenAtMS is when the first streamed text delta arrived; zero when
+	// the step was not streamed (no observer) or produced no delta.
+	FirstTokenAtMS int64           `json:"model_first_token_at_ms,omitempty"`
+	ModelError     string          `json:"model_error,omitempty"`
+	ActionType     string          `json:"action_type,omitempty"`
+	Tool           string          `json:"tool,omitempty"`
+	ToolArguments  json.RawMessage `json:"tool_arguments,omitempty"`
+	ToolResult     json.RawMessage `json:"tool_result,omitempty"`
 	// ToolResultFeedback holds the transcript copy of the tool result when
 	// query-aware compression replaced it (docs/design/preferences.md P5-1..P5-3).
 	ToolResultFeedback json.RawMessage      `json:"tool_result_feedback,omitempty"`

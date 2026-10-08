@@ -446,6 +446,7 @@ func (turn *runnerTurn) generateModelStep(step int) (turnModelStep, error) {
 			Number: step, Stage: turn.stage, Channel: channel, Request: compiled.Trace,
 			StartedAtMS:     modelStarted.UnixMilli(),
 			ModelDurationMS: modelDuration, ModelError: err.Error(),
+			FirstTokenAtMS: preview.firstTokenAtMS(),
 		})
 		r.observe(
 			Event{Kind: EventModelDone, Step: step, DurationMS: modelDuration, Err: err},
@@ -463,6 +464,7 @@ func (turn *runnerTurn) generateModelStep(step int) (turnModelStep, error) {
 		Usage:           generated.Usage,
 		StartedAtMS:     modelStarted.UnixMilli(),
 		ModelDurationMS: time.Since(modelStarted).Milliseconds(),
+		FirstTokenAtMS:  preview.firstTokenAtMS(),
 	}
 	turn.result.Steps = append(turn.result.Steps, current)
 	r.observe(

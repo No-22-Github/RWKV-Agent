@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react'
 import { hostOf } from '../endpoint'
-import { type ReactNode, useState } from 'react'
-import { Check, Globe, Network, Plus } from 'lucide-react'
-import { Provider, type Config, type Status } from '../../bindings/github.com/no22/RWKV-Agent/api/models'
+import { useState } from 'react'
+import { Check, Plus } from 'lucide-react'
+import { Provider, type Status } from '../../bindings/github.com/no22/RWKV-Agent/api/models'
 import type { SavedProvider } from '../../bindings/github.com/no22/RWKV-Agent/internal/appstorage/models'
 
 type Props = {
@@ -11,8 +11,6 @@ type Props = {
   ready: boolean
   busy: boolean
   status: Status
-  runtimeConfig: Config | null
-  onToggleCapability: (key: 'enableWeb' | 'enableSubagents', value: boolean) => void
   providers: SavedProvider[]
   runtimeProviderId: string
   onActivate: (id: string) => void
@@ -22,8 +20,8 @@ type Props = {
 // 收起动画时长；与 legacy.css 的 .menu-pop-out 保持一致。
 const CLOSE_MS = 120
 
-/* 运行配置下拉：当前运行信息、能力开关与连接切换。 */
-export default function RunConfigDropdown({ open, onClose, ready, busy, status, runtimeConfig, onToggleCapability, providers, runtimeProviderId, onActivate, onOpenSettings }: Props) {
+/* 运行配置菜单：从输入框上方的模型标签向上弹出，显示当前运行信息与连接切换；能力与 State 各有自己的标签。 */
+export default function RunConfigDropdown({ open, onClose, ready, busy, status, providers, runtimeProviderId, onActivate, onOpenSettings }: Props) {
   const ref = useRef<HTMLDivElement>(null)
   // 关闭后多留一个收起动画的时长再卸载；减少动态效果时立即卸载。
   const [mounted, setMounted] = useState(open)
@@ -57,7 +55,7 @@ export default function RunConfigDropdown({ open, onClose, ready, busy, status, 
 
   return (
     // 收起动画期间已不可交互（inert），只是视觉上淡出。
-    <div ref={ref} inert={!open} className={`run-config-dropdown absolute right-[30px] top-[56px] z-[60] flex w-[340px] origin-top-right flex-col overflow-hidden rounded-xl border border-line bg-paper-wash shadow-pop ${open ? 'menu-pop-in' : 'menu-pop-out'}`}>
+    <div ref={ref} inert={!open} className={`run-config-dropdown absolute bottom-full left-0 z-[60] mb-[8px] flex max-h-[min(440px,48vh)] w-[340px] max-w-[calc(100vw-32px)] origin-bottom-left flex-col overflow-auto rounded-xl border border-line bg-paper-wash shadow-pop ${open ? 'menu-up-in' : 'menu-up-out'}`}>
       {/* 当前运行：顶栏芯片只放缩略信息，完整的模型、State、端点、能力在这里。 */}
       {ready && (() => {
         const runtime = providers.find((provider) => provider.id === runtimeProviderId)
@@ -67,8 +65,6 @@ export default function RunConfigDropdown({ open, onClose, ready, busy, status, 
           ['State', status.stateId || '未加载', Boolean(status.stateId)],
           ['端点', endpoint || '—'],
         ]
-        // 本地模型改能力要重新加载模型，开关只对远端连接开放。
-        const local = runtime?.config.provider === Provider.ProviderLocal
         return (<>
           <div className="border-b border-line px-[14px] pb-[11px] pt-[11px]">
             <div className="pb-[7px] text-2xs text-ink-muted">当前运行</div>
@@ -78,12 +74,6 @@ export default function RunConfigDropdown({ open, onClose, ready, busy, status, 
                 <dd className={`m-0 truncate ${mono ? 'font-mono text-2xs leading-[1.8] text-ink' : label === 'State' ? 'text-ink-muted' : 'text-ink'}`} title={value}>{value}</dd>
               </div>)}
             </dl>
-          </div>
-          <div className="border-b border-line px-[14px] pb-[8px] pt-[10px]">
-            <div className="pb-[4px] text-2xs text-ink-muted">能力</div>
-            <CapabilitySwitch icon={<Globe size={14} />} label="网页搜索" checked={Boolean(runtimeConfig?.enableWeb)} disabled={busy || local} onChange={(value) => onToggleCapability('enableWeb', value)} />
-            <CapabilitySwitch icon={<Network size={14} />} label="子 Agent" checked={Boolean(runtimeConfig?.enableSubagents)} disabled={busy || local} onChange={(value) => onToggleCapability('enableSubagents', value)} />
-            {local && <div className="pt-[4px] text-2xs text-ink-muted">本地模型请在设置中修改，重新加载后生效</div>}
           </div>
         </>)
       })()}
@@ -120,20 +110,6 @@ export default function RunConfigDropdown({ open, onClose, ready, busy, status, 
         <span className="text-xs text-brand">打开设置</span>
       </button>
     </div>
-  )
-}
-
-function CapabilitySwitch({ icon, label, checked, disabled, onChange }: { icon: ReactNode; label: string; checked: boolean; disabled: boolean; onChange: (value: boolean) => void }) {
-  return (
-    <button type="button" role="switch" aria-checked={checked} aria-label={label} disabled={disabled} onClick={() => onChange(!checked)}
-      className="flex w-full items-center gap-[9px] rounded-md border-0 bg-transparent px-0 py-[5px] text-left text-sm text-ink disabled:opacity-60">
-      <span className={checked ? 'text-ink' : 'text-ink-ghost'}>{icon}</span>
-      <span className="flex-1">{label}</span>
-      {/* 开关轨道：开 = 实心，关 = 浅灰；过渡跟随系统减少动态效果设置 */}
-      <span className={`relative h-[18px] w-[32px] flex-none rounded-full transition-colors duration-150 motion-reduce:transition-none ${checked ? 'bg-brand' : 'bg-line-strong'}`}>
-        <span className={`absolute top-[2px] h-[14px] w-[14px] rounded-full bg-paper-wash shadow-hair transition-[left] duration-150 motion-reduce:transition-none ${checked ? 'left-[16px]' : 'left-[2px]'}`} />
-      </span>
-    </button>
   )
 }
 

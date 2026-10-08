@@ -459,6 +459,15 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     await refreshProviders()
   }
 
+  /** 切换运行中连接的 State（仅 Lightning CUDA）；空串表示不使用 State。 */
+  async function setRuntimeState(stateId: string) {
+    const provider = providers.find((item) => item.id === runtimeProviderId)
+    if (!provider || provider.config.provider !== Provider.ProviderRWKVLightningCUDA) return
+    const config = new Config({ ...provider.config, stateId: stateId || undefined })
+    onStatus(await Backend.ConfigureProvider(provider.id, provider.label, config))
+    await refreshProviders()
+  }
+
   async function activateProvider(id: string) {
     const configured = await Backend.ActivateProvider(id)
     onStatus(configured)
@@ -561,7 +570,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     // 动作
     openSettings, discardDraft, selectProvider, startNewDraft,
     applyProviderBootstrapState, applyConfig, refreshProviders,
-    activateProvider, setRuntimeCapability, deleteProvider, testRemote,
+    activateProvider, setRuntimeCapability, setRuntimeState, deleteProvider, testRemote,
     saveProviderDraft, saveAndUseProviderDraft, flushDraft,
   }
 }

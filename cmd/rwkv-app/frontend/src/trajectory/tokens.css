@@ -1,0 +1,141 @@
+/*
+ * DSH design tokens used by the ported trajectory CSS, mapped onto this app's
+ * theme variables (index.css). Declared on :root because tooltips and menus
+ * portal into <body>. Record-kind colors come from the --trace-* palette so a
+ * future theme (e.g. image-derived) only redefines those.
+ */
+:root {
+  --dsw-font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang SC", system-ui, sans-serif;
+  --ds-font-family-code: var(--mono);
+  --ds-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --dsw-font-xs-13: 13px/20px var(--dsw-font-family);
+  --dsw-font-xs-strong-13: 500 13px/20px var(--dsw-font-family);
+  --dsw-font-xxs-12: 12px/18px var(--dsw-font-family);
+  --dsw-font-xxxs-11: 11px/14px var(--dsw-font-family);
+  --dsw-radius-xs: 4px;
+  --dsw-radius-sm: 6px;
+  --dsw-radius-md: 8px;
+  --dsw-radius-lg: 12px;
+
+  --dsw-alias-label-primary: var(--ink);
+  --dsw-alias-label-secondary: var(--ink-soft);
+  --dsw-alias-label-tertiary: var(--ink-muted);
+  --dsw-alias-label-caption: var(--ink-ghost);
+  --dsw-alias-label-dimmed: var(--ink-faint);
+  --dsw-alias-label-primary-foreground: var(--paper);
+
+  --dsw-alias-bg-base: var(--paper);
+  --dsw-alias-bg-layer-1: var(--paper);
+  --dsw-alias-bg-layer-2: var(--paper-soft);
+  --dsw-alias-bg-layer-3: var(--surface-active);
+  --dsw-alias-bg-module-platform: var(--paper-soft);
+  --dsw-specific-sidebar-fill: var(--paper-sidebar);
+
+  --dsw-alias-border-l1: var(--line-soft);
+  --dsw-alias-border-l2: var(--line);
+  --dsw-alias-border-l2-darkmode-thin: var(--line);
+  --dsw-alias-border-l3: var(--line-strong);
+  --dsw-alias-border-l4: var(--ink-ghost);
+
+  --dsw-alias-interactive-bg-hover: var(--surface-active);
+  --dsw-alias-interactive-bg-active: var(--line);
+  --dsw-alias-button-ghost-active-fill: var(--line);
+
+  --dsw-alias-brand-primary-new-colorprimary-new-color: var(--trace-accent);
+  --dsw-static-blue-500: var(--trace-accent);
+  --dsw-static-neutral-bluish-00: var(--paper);
+  --dsw-focus-ring-color: var(--trace-accent);
+  --dsw-focus-ring-width: 2px;
+
+  --dsw-alias-state-business-primary: var(--trace-user);
+  --dsw-alias-state-business-tertiary: var(--trace-user-wash);
+  --dsw-alias-state-success-primary: var(--trace-context);
+  --dsw-alias-state-success-tertiary: var(--trace-context-wash);
+  --dsw-alias-state-warn-label: var(--trace-tool);
+  --dsw-alias-state-warn-primary: var(--warning);
+  --dsw-alias-state-warn-tertiary: var(--trace-tool-wash);
+  --dsw-alias-state-error-primary: var(--danger);
+  --dsw-alias-state-error-secondary: var(--danger);
+  --dsw-alias-state-idle-primary: var(--ink-ghost);
+
+  --dsw-alias-tooltip-bg: var(--ink);
+  --dsw-elevation-panel: var(--elev-pop);
+  --dsw-alias-scrollbar-bg-l2: var(--scroll-thumb);
+  --dsw-alias-scrollbar-hover-l2: var(--scroll-thumb-hover);
+  --dsw-alias-markdown-code-block: var(--paper-soft);
+  --dsw-alias-markdown-citation: var(--ink-muted);
+}
+
+/* No floating composer over the ledger in this app. */
+.trajectory-root {
+  --dsh-composer-height: 0px;
+}
+
+.trajectory-markdown {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+.trajectory-markdown-compact {
+  line-height: 20px;
+}
+
+.trajectory-menu {
+  z-index: 1000;
+  min-width: 160px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper-wash);
+  box-shadow: var(--elev-pop);
+}
+
+.trajectory-menu-item {
+  display: block;
+  width: 100%;
+  padding: 5px 8px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--ink);
+  font: var(--dsw-font-xxs-12);
+  text-align: left;
+}
+
+.trajectory-menu-item:hover {
+  background: var(--surface-active);
+}
+
+.trajectory-menu-separator {
+  height: 1px;
+  margin: 4px 0;
+  background: var(--line);
+}
+
+.trajectory-menu-label {
+  padding: 4px 8px;
+  color: var(--ink-muted);
+  font: var(--dsw-font-xxxs-11);
+}
+
+.trajectory-toolbar-extra {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  margin-left: 8px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: var(--dsw-radius-sm);
+  background: transparent;
+  color: var(--dsw-alias-label-secondary);
+  font: var(--dsw-font-xxs-12);
+}
+
+.trajectory-toolbar-extra:hover {
+  background: var(--dsw-alias-interactive-bg-hover);
+  color: var(--dsw-alias-label-primary);
+}

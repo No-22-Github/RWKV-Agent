@@ -3,6 +3,7 @@ package agent
 import (
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/no22/RWKV-Agent/internal/agent/wire"
 	"github.com/no22/RWKV-Agent/internal/continuation"
@@ -23,6 +24,16 @@ type answerPreview struct {
 	injected bool
 	raw      strings.Builder
 	sent     string
+	// firstToken is when the first non-empty text delta arrived (time to first token).
+	firstToken time.Time
+}
+
+// firstTokenAtMS reports the first-delta arrival, or zero when none was seen.
+func (preview *answerPreview) firstTokenAtMS() int64 {
+	if preview == nil || preview.firstToken.IsZero() {
+		return 0
+	}
+	return preview.firstToken.UnixMilli()
 }
 
 func (turn *runnerTurn) newAnswerPreview(step int, injected bool) *answerPreview {
@@ -39,6 +50,9 @@ func (preview *answerPreview) sink() continuation.EventSink {
 	return func(event continuation.Event) error {
 		if event.Kind != continuation.EventTextDelta || event.Text == "" {
 			return nil
+		}
+		if preview.firstToken.IsZero() {
+			preview.firstToken = time.Now()
 		}
 		preview.raw.WriteString(event.Text)
 		visible, ok := previewAnswerText(preview.turn.postProcessModelOutput(preview.raw.String(), preview.injected))

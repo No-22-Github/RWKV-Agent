@@ -388,7 +388,7 @@ func (s *AppService) persistTurn(session *agentapi.Session, prompt, role, conten
 		},
 		appstorage.DisplayMessage{
 			ID: messageID(active.ID, len(active.Messages)+1), Role: role, Content: content,
-			Meta:       turnMeta(result, s.runtimeStateID()),
+			Meta:       turnMeta(result, s.runtimeModelName(), s.runtimeStateID()),
 			Trajectory: storedToolTrace(result),
 			Trace:      &result,
 			CreatedAt:  time.Now().UTC(),
@@ -415,12 +415,28 @@ func (s *AppService) persistTurn(session *agentapi.Session, prompt, role, conten
 
 // NewConversation starts a blank durable conversation while preserving the
 // configured provider.
-func turnMeta(result agentapi.Result, stateID string) string {
+// turnMeta records what produced a turn: model and state can be switched
+// between turns, so each answer keeps its own.
+func turnMeta(result agentapi.Result, model, stateID string) string {
 	meta := fmt.Sprintf("%d 步 · %.1f 秒", len(result.Steps), float64(result.DurationMS)/1000)
-	if stateID != "" {
-		meta += " · " + stateID
+	for _, part := range []string{model, stateID} {
+		if part != "" {
+			meta += " · " + part
+		}
 	}
 	return meta
+}
+
+// runtimeModelName is the running model as shown to the user; local model
+// paths are shortened to the file name.
+func (s *AppService) runtimeModelName() string {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	model := strings.TrimSpace(s.config.Model)
+	if model == "" {
+		return ""
+	}
+	return filepath.Base(model)
 }
 
 // runtimeStateID is the uploaded state the running provider generates from.

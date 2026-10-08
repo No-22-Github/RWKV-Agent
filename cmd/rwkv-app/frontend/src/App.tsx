@@ -1,7 +1,7 @@
 import { KeyboardEvent, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import {
-  ChevronDown, Folder, FolderOpen, Globe,
-  Menu, MoreHorizontal, Network, PenLine, Pin, Settings, Square, SquarePen,
+  Check, Copy, CornerDownLeft, Folder, ListTree, RotateCcw, FolderOpen,
+  Menu, MoreHorizontal, PenLine, Pin, Settings, Square, SquarePen,
   Trash2, X,
 } from 'lucide-react'
 import { Events } from '@wailsio/runtime'
@@ -14,11 +14,13 @@ import MarkdownMessage from './MarkdownMessage'
 import PacedAnswer from './components/PacedAnswer'
 import ConfirmDialog from './components/ConfirmDialog'
 import type { ToolTrace } from './trajectory-types'
-import RunConfigDropdown from './components/RunConfigDropdown'
+import RunChips from './components/RunChips'
 import SettingsPage from './components/SettingsPage'
-import SubagentCards from './components/SubagentCards'
-import TraceView from './components/TraceView'
-import { buildTraceTurns, flattenTraceRecords, formatDuration, parseJSONValue, shortValue, traceStats, type TraceRecord } from './ledger'
+import PixelLoader from './components/PixelLoader'
+import ToolActivity, { ThinkingMark, callsFromEvents, callsFromSteps, callsFromTrajectory } from './components/ToolActivity'
+import TrajectoryView from './trajectory/TrajectoryView'
+import type { LiveTurn } from './trajectory/rwkv-adapter'
+import { traceStats } from './ledger'
 import { useProviderManager } from './state/providerManager'
 import { getInitialTheme, toggleTheme, type ThemeMode } from './theme'
 import { useSnackbar } from './snackbar'
@@ -39,24 +41,13 @@ type Message = {
 // seen 记已经播过入场/显影的回合与回答；progress 记流式回答已放出的字数。
 type MotionMemory = { seen: Set<string>; progress: Map<string, number> }
 type AgentActivity = {
+  // 收到事件的时刻：事件本身不带时间戳，轨迹页实时轮次靠它画时间线。
+  at: number
   kind: string; step?: number; parentStep?: number; tool?: string; arguments?: string; route?: string
   bundles?: string[]; subagentIndex?: number; subagentTask?: string; durationMs?: number
   attempt?: number; maxAttempts?: number; statusCode?: number; delayMs?: number; error?: string; text?: string
 }
 type ChatTurn = { user?: Message; response?: Message }
-type GutterStatus = { label: string; state: 'idle' | 'running' | 'completed' | 'failed' }
-type LedgerEvent = {
-  id: string
-  order: number
-  kind: 'input' | 'route' | 'model' | 'tool' | 'retry' | 'subagent' | 'output'
-  title: string
-  summary: string
-  state: GutterStatus['state']
-  request?: unknown
-  result?: unknown
-  timing?: unknown
-  raw?: unknown
-}
 
 const emptyStatus = new Status({ state: ModelState.ModelIdle, workspace: '', hasApiKey: false, updatedAt: new Date(0).toISOString(), message: '正在连接后端…' })
 const STARTER_PROMPTS = ['概括这个仓库的近期进度', '找出最近改动可能引入的风险', '解释这个项目的整体架构']
@@ -106,7 +97,7 @@ export default function App() {
         setLiveAnswer(liveAnswerRef.current)
         return
       }
-      setActivity((current) => [...current, data])
+      setActivity((current) => [...current, { ...data, at: Date.now() }])
     })
     return () => { offStatus(); offAgent() }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -138,13 +129,10 @@ export default function App() {
   }, [])
 
   const workspaceName = useMemo(() => status.workspace ? status.workspace.split(/[\\/]/).filter(Boolean).at(-1) || status.workspace : '未打开工作区', [status.workspace])
-  // 能力指示的单一事实源：当前运行中档案的已保存配置，而非正在编辑的草稿。
+  // 运行标签（能力、State）的单一事实源：当前运行中档案的已保存配置，而非正在编辑的草稿。
   // 取实际运行的配置（bootstrap.config）：本地档案改了参数但未重新加载时，档案的
   // 已保存值并不是正在生效的值。
   const runtimeConfig = manager.runtimeConfig
-  const capabilities = ready && runtimeConfig
-    ? [runtimeConfig.enableWeb ? 'web' : null, runtimeConfig.enableSubagents ? 'subagents' : null].filter(Boolean).join(' · ') || '无'
-    : '无'
 
   function handleToggleTheme() {
     setTheme((current) => toggleTheme(current))
@@ -164,6 +152,22 @@ export default function App() {
     if (busy) return
     setBusy(true)
     try { await manager.setRuntimeCapability(key, value) } catch (error) { reportError(error) } finally { setBusy(false) }
+  }
+  // 导出当前会话所有轮次的原始 trace，每行一轮（JSONL）。
+  async function exportTrajectory() {
+    const data = messages.filter((message) => message.role !== 'user' && (message.trace || message.trajectory?.length)).map((message) => JSON.stringify({
+      id: message.id, role: message.role, prompt: message.prompt, createdAt: message.createdAt,
+      trace: message.trace || { legacyTrajectory: message.trajectory },
+    })).join('\n')
+    try {
+      const path = await Backend.ExportTrajectory(data)
+      if (path) notify(`轨迹已导出：${path.split('/').at(-1)}`, 'success')
+    } catch (error) { reportError(error) }
+  }
+  async function setStateNow(stateId: string) {
+    if (busy) return
+    setBusy(true)
+    try { await manager.setRuntimeState(stateId) } catch (error) { reportError(error); throw error } finally { setBusy(false) }
   }
   async function deleteProviderNow(id: string) {
     if (busy) return
@@ -211,7 +215,7 @@ export default function App() {
       const call = run()
       runningChat.current = call
       const result = await call
-      const assistant: Message = { id: `pending-${nextMessageID++}`, role: 'assistant', content: result.output, prompt: content, trace: result, createdAt: new Date().toISOString(), meta: `${result.steps.length} 步 · ${(result.durationMs / 1000).toFixed(1)} 秒`, trajectory: legacyTrajectory(result.steps), streamed: liveAnswerRef.current !== '' }
+      const assistant: Message = { id: `pending-${nextMessageID++}`, role: 'assistant', content: result.output, prompt: content, trace: result, createdAt: new Date().toISOString(), meta: [`${result.steps.length} 步 · ${(result.durationMs / 1000).toFixed(1)} 秒`, status.model?.split(/[\\/]/).at(-1), status.stateId].filter(Boolean).join(' · '), trajectory: legacyTrajectory(result.steps), streamed: liveAnswerRef.current !== '' }
       setMessages((current) => [...current, assistant]); setSelectedTraceID(assistant.id)
       const persisted = await Backend.Bootstrap(); setConversations(persisted.conversations || []); setActiveConversationID(persisted.conversation?.id || '')
     } catch (error) {
@@ -252,7 +256,11 @@ export default function App() {
   }
 
   const traceMessages = messages.filter((message) => message.role !== 'user' && (message.trace || message.trajectory?.length))
-  const selectedMessage = traceMessages.find((message) => message.id === selectedTraceID) || traceMessages.at(-1)
+  // 运行中的一轮：最后一条用户消息还没有回答时，用实时事件拼出它的轨迹。
+  const pendingUser = busy && messages.at(-1)?.role === 'user' ? messages.at(-1) : undefined
+  const liveTurn = useMemo<LiveTurn | null>(() => pendingUser
+    ? { id: pendingUser.id, prompt: pendingUser.content, startedAt: new Date(pendingUser.createdAt || Date.now()).getTime(), events: activity }
+    : null, [pendingUser, activity])
 
   return <div className="flex h-full w-full bg-paper">
     {settingsOpen ? <SettingsPage manager={manager} status={status} ready={ready} onChooseWorkspace={chooseWorkspace} theme={theme} onToggleTheme={handleToggleTheme} onActivateProvider={(id) => void activateProviderNow(id)} onDeleteProvider={(id) => void deleteProviderNow(id)} /> : <>
@@ -262,26 +270,11 @@ export default function App() {
           <button className="sidebar-toggle relative mr-[-6px] grid h-8 w-8 flex-none place-items-center border-0 bg-transparent text-ink-soft before:absolute before:inset-[-6px] before:content-[''] lg:hidden" aria-label="打开导航" onClick={() => setSidebarOpen(true)}><Menu size={18} /></button>
           <div className="flex h-9 flex-none items-end gap-[22px]" role="tablist">
             <button role="tab" aria-selected={activeTab === 'chat'} className={`relative border-0 border-b-2 bg-transparent pb-[9px] text-md transition-[border-color,color] duration-[180ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none before:absolute before:inset-x-0 before:bottom-0 before:top-[-15px] before:content-[''] ${activeTab === 'chat' ? 'border-brand font-semibold text-ink' : 'border-transparent text-ink-muted'}`} onClick={() => setActiveTab('chat')}>对话</button>
-            <button role="tab" aria-selected={activeTab === 'trace'} className={`relative min-w-[58px] border-0 border-b-2 bg-transparent pb-[9px] text-center text-md transition-[border-color,color] duration-[180ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none before:absolute before:inset-x-0 before:bottom-0 before:top-[-15px] before:content-[''] ${activeTab === 'trace' ? 'border-brand font-semibold text-ink' : 'border-transparent text-ink-muted'}`} onClick={() => setActiveTab('trace')} disabled={!traceMessages.length}>轨迹 <span className="ml-1 font-mono text-2xs text-ink-muted">{traceMessages.length || ''}</span></button>
-          </div>
-          <div className="ml-auto flex items-center gap-[14px] pb-[11px]">
-            {/* 运行配置芯片：只放认得出「是哪个」的最少信息——模型名、State 有无、开了哪些能力；完整信息在下拉的「当前运行」。 */}
-            <button className="relative flex h-[28px] min-w-0 items-center gap-[8px] whitespace-nowrap rounded-md border border-line bg-paper-wash px-[10px] text-xs text-ink-soft shadow-hair transition-colors hover:bg-surface-active before:absolute before:inset-x-0 before:inset-y-[-8px] before:content-['']" data-run-config-trigger aria-haspopup="dialog" aria-expanded={runConfigOpen} onClick={() => setRunConfigOpen((value) => !value)} title={[status.model || '运行配置', ready && status.stateId ? `State：${status.stateId}` : '', ready ? `能力：${capabilities}` : ''].filter(Boolean).join('\n')}>
-              <span className={`h-[5px] w-[5px] flex-none rounded-full ${ready ? 'bg-brand-bright' : 'bg-ink-muted'}`} />
-              <span className="min-w-0 max-w-[200px] truncate text-ink">{status.model || '选择模型'}</span>
-              {ready && status.stateId && <span className="flex-none rounded-[4px] bg-surface-active px-[5px] py-px text-2xs text-ink-soft">State</span>}
-              {ready && (runtimeConfig?.enableWeb || runtimeConfig?.enableSubagents) && <span className="flex flex-none items-center gap-[6px]">
-                <span className="h-[12px] w-px bg-line" />
-                {runtimeConfig?.enableWeb && <Globe size={13} aria-label="web 搜索" />}
-                {runtimeConfig?.enableSubagents && <Network size={13} aria-label="子 Agent" />}
-              </span>}
-              <ChevronDown size={12} className={`flex-none text-ink-muted transition-transform duration-200 ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none ${runConfigOpen ? 'rotate-180' : ''}`} />
-            </button>
+            <button role="tab" aria-selected={activeTab === 'trace'} className={`relative min-w-[58px] border-0 border-b-2 bg-transparent pb-[9px] text-center text-md transition-[border-color,color] duration-[180ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none before:absolute before:inset-x-0 before:bottom-0 before:top-[-15px] before:content-[''] ${activeTab === 'trace' ? 'border-brand font-semibold text-ink' : 'border-transparent text-ink-muted'}`} onClick={() => setActiveTab('trace')} disabled={!traceMessages.length && !liveTurn}>轨迹 <span className="ml-1 font-mono text-2xs text-ink-muted">{traceMessages.length + (liveTurn ? 1 : 0) || ''}</span></button>
           </div>
         </header>
-        {activeTab === 'trace' ? <TraceView messages={traceMessages} selected={selectedMessage} onSelect={setSelectedTraceID} onBackToChat={() => setActiveTab('chat')} /> : <ChatView messages={messages} activity={activity} liveAnswer={liveAnswer} motion={motionMemory.current} busy={busy} ready={ready} workspace={workspaceName} model={status.model || '选择模型'} capabilities={capabilities} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={() => void regenerateLast()} onKeyDown={onComposerKeyDown} onStop={stopRun} openSettings={manager.openSettings} chooseWorkspace={chooseWorkspace} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} messagesEnd={messagesEnd} />}
+        {activeTab === 'trace' ? <TrajectoryView messages={traceMessages} live={liveTurn} focusMessageId={selectedTraceID} onExport={() => void exportTrajectory()} /> : <ChatView chips={<RunChips ready={ready} busy={busy} status={status} runtimeConfig={runtimeConfig} providers={manager.providers} runtimeProviderId={manager.runtimeProviderId} workspace={workspaceName} runConfigOpen={runConfigOpen} setRunConfigOpen={setRunConfigOpen} onActivate={(id) => void activateProviderNow(id)} onToggleCapability={(key, value) => void toggleCapabilityNow(key, value)} onSetState={setStateNow} onChooseWorkspace={() => void chooseWorkspace()} onOpenSettings={() => { setRunConfigOpen(false); manager.openSettings() }} />} messages={messages} activity={activity} liveAnswer={liveAnswer} motion={motionMemory.current} busy={busy} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={() => void regenerateLast()} onKeyDown={onComposerKeyDown} onStop={stopRun} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} messagesEnd={messagesEnd} />}
       </main>
-      <RunConfigDropdown open={runConfigOpen} onClose={() => setRunConfigOpen(false)} ready={ready} busy={busy} status={status} runtimeConfig={runtimeConfig} onToggleCapability={(key, value) => void toggleCapabilityNow(key, value)} providers={manager.providers} runtimeProviderId={manager.runtimeProviderId} onActivate={(id) => void activateProviderNow(id)} onOpenSettings={() => { setRunConfigOpen(false); manager.openSettings() }} />
     </>}
   </div>
 }
@@ -359,7 +352,7 @@ function Sidebar({ conversations, workspaces, activeId, busy, open, onCloseSideb
   </>
 }
 
-function ChatView({ messages, activity, liveAnswer, motion, busy, ready, workspace, capabilities, prompt, setPrompt, onSubmit, onStop, onRegenerate, onKeyDown, onTrace, messagesEnd }: { messages: Message[]; activity: AgentActivity[]; liveAnswer: string; motion: MotionMemory; busy: boolean; ready: boolean; workspace: string; model: string; capabilities: string; prompt: string; setPrompt: (value: string) => void; onSubmit: () => void; onStop: () => void; onRegenerate: () => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void; openSettings: () => void; chooseWorkspace: () => Promise<void>; onTrace: (id: string) => void; messagesEnd: React.RefObject<HTMLDivElement | null> }) {
+function ChatView({ chips, messages, activity, liveAnswer, motion, busy, prompt, setPrompt, onSubmit, onStop, onRegenerate, onKeyDown, onTrace, messagesEnd }: { chips: React.ReactNode; messages: Message[]; activity: AgentActivity[]; liveAnswer: string; motion: MotionMemory; busy: boolean; prompt: string; setPrompt: (value: string) => void; onSubmit: () => void; onStop: () => void; onRegenerate: () => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void; onTrace: (id: string) => void; messagesEnd: React.RefObject<HTMLDivElement | null> }) {
   const turns = groupMessagesIntoTurns(messages)
   const empty = turns.length === 0
   // 匀速显示会比消息到达晚一点长高，滚动要跟着显示层走，而不只是跟着消息。
@@ -422,7 +415,7 @@ function ChatView({ messages, activity, liveAnswer, motion, busy, ready, workspa
       </div>}
     </div>
     <div ref={anchorRef} className="composer-anchor absolute left-0 right-0 z-[2] mx-auto content-narrow will-change-transform transition-transform duration-[420ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none">
-      <Composer prompt={prompt} setPrompt={setPrompt} busy={busy} running={running} ready={ready} workspace={workspace} capabilities={capabilities} empty={empty} onSubmit={onSubmit} onStop={onStop} onKeyDown={onKeyDown} />
+      <Composer chips={chips} prompt={prompt} setPrompt={setPrompt} busy={busy} running={running} empty={empty} onSubmit={onSubmit} onStop={onStop} onKeyDown={onKeyDown} />
     </div>
   </div>
 }
@@ -430,9 +423,10 @@ function ChatView({ messages, activity, liveAnswer, motion, busy, ready, workspa
 function TurnView({ turn, index, last, busy, pending, activity, liveAnswer, motion, onGrow, onTrace, onRegenerate }: { turn: ChatTurn; index: number; last: boolean; busy: boolean; pending: boolean; activity: AgentActivity[]; liveAnswer: string; motion: MotionMemory; onGrow: () => void; onTrace: (id: string) => void; onRegenerate: () => void }) {
   const response = turn.response
   const hasTrace = Boolean(response?.trace || response?.trajectory?.length)
-  const subagentCalls = (response?.trajectory || []).filter((call) => call.subagents?.length)
-  const subagentCount = subagentCalls.reduce((sum, call) => sum + (call.subagents?.length || 0), 0)
-  const statuses = pending ? liveGutterStatuses(activity) : completedGutterStatuses(response)
+  const calls = pending ? callsFromEvents(activity) : response?.trace ? callsFromSteps(response.trace.steps) : callsFromTrajectory(response?.trajectory || [])
+  const lastEvent = activity.at(-1)
+  // 运行中摘要行：正在调用工具时显示最新那次调用，其余阶段（决策、路由、子 Agent）沿用活动文字。
+  const liveLabel = lastEvent && !lastEvent.subagentIndex && lastEvent.kind.startsWith('tool_') && lastEvent.kind !== 'tool_done' ? undefined : activityLabel(lastEvent)
   const stats = response?.trace ? traceStats(response.trace) : undefined
   const time = turn.user?.createdAt || response?.createdAt
   const streamText = pending ? liveAnswer : response?.role === 'assistant' && response.streamed ? response.content : ''
@@ -445,61 +439,59 @@ function TurnView({ turn, index, last, busy, pending, activity, liveAnswer, moti
   useEffect(() => { motion.seen.add(turnKey) }, [motion, turnKey])
   useEffect(() => { if (answerKey) motion.seen.add(answerKey) }, [motion, answerKey])
   // 入场动效只给最后一轮：新发出的回合，或刚打开会话时的最末一轮；历史回合不整片闪动。
-  return <article className={`conversation-turn mb-[42px] grid turn-grid${pending ? ' pending' : ''}${last && enterFresh ? ' turn-enter' : ''}`} data-testid={`conversation-turn-${index}`}>
-    <aside className="turn-gutter flex min-w-0 flex-col items-end gap-[6px] pt-[1px] text-right text-ink-muted">
-      <span className={`font-mono text-xl font-semibold leading-none tabular-nums ${response?.role === 'error' ? 'text-danger' : 'text-ink-faint'}`}>{String(index).padStart(2, '0')}</span>
-      <time className="text-2xs leading-[1.6]">{formatTurnTime(time)}</time>
-      <span className="gutter-rule my-[3px] h-px w-[34px] flex-none bg-line" />
-      <div className="gutter-statuses flex w-full flex-col items-end gap-1" aria-label={pending ? 'Agent 运行状态' : 'Agent 完成状态'}>
-        {statuses.map((item, statusIndex) => <div className={`gutter-status flex w-full items-center justify-end gap-[7px] text-2xs leading-[1.55] ${item.state === 'failed' ? 'failed text-danger' : item.state === 'running' ? 'running text-brand' : item.state === 'completed' ? 'completed text-ink-soft' : 'text-ink-soft'}`} key={`${item.label}-${statusIndex}`}><span className="min-w-0 truncate">{item.label}</span><i /></div>)}
-      </div>
-      {subagentCount > 0 && <div className="mt-[2px] flex items-start gap-[7px] text-2xs leading-[1.5] text-ink-ghost"><span>{subagentCount} 路并发<br />见右侧</span><svg width="11" height="26" viewBox="0 0 11 26" fill="none" stroke="var(--brand)" strokeWidth="1.2" className="flex-none"><path d="M5.5 0v6M5.5 6c0 4 4.5 3 4.5 7v13M5.5 6c0 4-4.5 3-4.5 7v13M5.5 6v20" /></svg></div>}
-      {(stats || (response?.trajectory?.length && !response.trace)) && <><span className="gutter-rule my-[3px] h-px w-[34px] flex-none bg-line" /><span className="text-2xs leading-[1.6] text-ink-muted">{stats ? <>{formatDuration(stats.durationMs)}{stats.tokens > 0 && <><br />{stats.tokens.toLocaleString('zh-CN')} tok</>}</> : <>历史摘要<br />工具 {response?.trajectory?.length}</>}</span></>}
-    </aside>
+  return <article className={`conversation-turn mb-[42px]${pending ? ' pending' : ''}${last && enterFresh ? ' turn-enter' : ''}`} data-testid={`conversation-turn-${index}`}>
     <div className="turn-main flex min-w-0 flex-col gap-4">
       {turn.user && <div className="flex justify-end"><div className="max-w-[82%] rounded-xl bg-user-bg p-[10px_14px] text-base leading-[1.7] text-user-text [overflow-wrap:anywhere]">{turn.user.content}</div></div>}
-      {pending && !liveAnswer && <div className="turn-pending-answer min-h-7 pt-[2px]" aria-live="polite"><span className="shimmer-text text-sm">{activityLabel(activity.at(-1))}</span></div>}
+      {calls.length > 0 && <ToolActivity calls={calls} running={pending && !liveAnswer} liveLabel={liveLabel} />}
+      {pending && !liveAnswer && calls.length === 0 && <div className="turn-pending-answer flex min-h-7 items-center gap-[6px] pt-[2px] text-ink-muted" aria-live="polite"><ThinkingMark /><span className="shimmer-text text-sm">{activityLabel(activity.at(-1))}</span></div>}
       {/* 流式回答：生成中与落定后必须是同一位置的同一个 PacedAnswer，落定时它才能把没放完的字按节奏放完。 */}
       {streamText
         ? <div className="turn-answer answer-streaming text-md leading-[1.8] text-ink [overflow-wrap:anywhere]" aria-busy={pending}><PacedAnswer text={streamText} live={pending} onGrow={onGrow} initialShown={motion.progress.get(turnKey)} onProgress={(shown) => motion.progress.set(turnKey, shown)} /></div>
         : response?.role === 'assistant' && <div className={`turn-answer${last && answerFresh.current ? ' answer-reveal' : ''} text-md leading-[1.8] text-ink [overflow-wrap:anywhere]`}><MarkdownMessage content={response.content} /></div>}
       {response?.role === 'error' && <div className="flex items-start gap-2 rounded-lg border border-danger/30 bg-danger-wash p-[10px_12px] text-sm leading-[1.65] text-danger"><X size={15} className="mt-[3px] flex-none" /><span>{response.content}</span></div>}
-      {subagentCount > 0 && response && <SubagentCards trajectory={response.trajectory} done={!pending} />}
-      {response?.meta && <div className="font-mono text-2xs text-ink-muted">{response.meta}</div>}
-      {response && <div className="turn-actions flex gap-4 pt-[2px]">
-        {response.role === 'assistant' && <button className="border-0 bg-transparent p-0 text-xs text-ink-muted hover:text-brand" onClick={() => void navigator.clipboard?.writeText(response.content)}>复制</button>}
-        {/* 只有最后一轮能原地重跑；更早的回合重跑会让后续回合失去依据。 */}
-        {last && turn.user && <button className="border-0 bg-transparent p-0 text-xs text-ink-muted hover:text-brand disabled:opacity-50" disabled={busy} onClick={onRegenerate}>{response.role === 'error' ? '重试' : '重新生成'}</button>}
-        {hasTrace && <button className="border-0 bg-transparent p-0 text-xs text-ink-muted hover:text-brand" onClick={() => onTrace(response.id)}>查看轨迹</button>}
-      </div>}
+      {response && <TurnActions response={response} meta={[formatTurnTime(time), response.meta, stats && stats.tokens > 0 ? `${stats.tokens.toLocaleString('zh-CN')} tok` : ''].filter(Boolean).join(' · ')} canRegenerate={last && Boolean(turn.user)} busy={busy} hasTrace={hasTrace} onRegenerate={onRegenerate} onTrace={() => onTrace(response.id)} />}
     </div>
   </article>
 }
 
-function Composer({ prompt, setPrompt, busy, running, ready, workspace, capabilities, empty, onSubmit, onStop, onKeyDown }: { prompt: string; setPrompt: (value: string) => void; busy: boolean; running?: boolean; ready: boolean; workspace: string; capabilities: string; empty?: boolean; onSubmit: () => void; onStop: () => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void }) {
+// 回答下方的操作栏：图标按钮（悬停出提示）+ 右侧一行运行信息。
+function TurnActions({ response, meta, canRegenerate, busy, hasTrace, onRegenerate, onTrace }: { response: Message; meta: string; canRegenerate: boolean; busy: boolean; hasTrace: boolean; onRegenerate: () => void; onTrace: () => void }) {
+  const [copied, setCopied] = useState(false)
+  useEffect(() => { if (!copied) return; const timer = setTimeout(() => setCopied(false), 1500); return () => clearTimeout(timer) }, [copied])
+  const regenerateLabel = response.role === 'error' ? '重试' : '重新生成'
+  return <div className="turn-actions -ml-[6px] flex items-center gap-[2px]">
+    {response.role === 'assistant' && <IconButton label={copied ? '已复制' : '复制'} onClick={() => { void navigator.clipboard?.writeText(response.content); setCopied(true) }}>{copied ? <Check size={15} /> : <Copy size={15} />}</IconButton>}
+    {/* 只有最后一轮能原地重跑；更早的回合重跑会让后续回合失去依据。 */}
+    {canRegenerate && <IconButton label={regenerateLabel} disabled={busy} onClick={onRegenerate}><RotateCcw size={15} /></IconButton>}
+    {hasTrace && <IconButton label="查看轨迹" onClick={onTrace}><ListTree size={15} /></IconButton>}
+    {meta && <span className="ml-[10px] min-w-0 truncate font-mono text-2xs text-ink-ghost">{meta}</span>}
+  </div>
+}
+
+function IconButton({ label, disabled, onClick, children }: { label: string; disabled?: boolean; onClick: () => void; children: React.ReactNode }) {
+  return <button type="button" aria-label={label} title={label} disabled={disabled} onClick={onClick} className="flex h-[28px] w-[28px] flex-none items-center justify-center rounded-md border-0 bg-transparent p-0 text-ink-muted transition-colors duration-[120ms] hover:bg-surface-active hover:text-ink disabled:pointer-events-none disabled:opacity-40">{children}</button>
+}
+
+function Composer({ chips, prompt, setPrompt, busy, running, empty, onSubmit, onStop, onKeyDown }: { chips: React.ReactNode; prompt: string; setPrompt: (value: string) => void; busy: boolean; running?: boolean; empty?: boolean; onSubmit: () => void; onStop: () => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void }) {
   function autoGrow(element: HTMLTextAreaElement) { element.style.height = 'auto'; element.style.height = `${Math.min(element.scrollHeight, 180)}px` }
-  // 页边栏メタ・挨拶・スターターは全て流外(absolute)：输入框行高恒定，空↔对话仅位移，不改尺寸。
-  return <div className="composer grid turn-grid">
-    <div className="relative">
-      {/* 页边栏メタ：绝对定位、以输入框中线为中心、用自然高度显示，不撑高输入框行高 */}
-      <div className="composer-gutter absolute inset-x-0 top-1/2 flex -translate-y-1/2 flex-col items-end gap-[7px] text-right text-2xs leading-[1.5] text-ink-ghost">
-        <span className="flex max-w-full flex-col">工作区<b className="truncate font-normal text-ink-soft">{workspace}</b></span>
-        <span className="my-[1px] h-px w-[34px] bg-line" />
-        <span className="flex max-w-full flex-col">能力<b className={`truncate font-normal ${ready ? 'text-brand' : 'text-ink-soft'}`}>{capabilities}</b></span>
-      </div>
-    </div>
+  // 问候与快速开始都在流外(absolute)：输入框尺寸恒定，空↔对话仅位移，不改尺寸。
+  return <div className="composer">
     <div className="relative min-w-0">
       <div className={`composer-greeting pointer-events-none absolute inset-x-0 bottom-full mb-[26px] flex flex-col gap-[6px] transition-opacity duration-[240ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none ${empty ? 'opacity-100' : 'opacity-0'}`} aria-hidden={!empty}>
+        {/* 空态的品牌标记：噪点解码播一次后常亮；每次回到空态（新对话）重播。 */}
+        {empty && <PixelLoader className="mb-[10px] text-ink" layout="row" animation="decode" cell={3} gap={1} letterSpacing={6} decode={{ once: true }} label="RWKV" />}
         <span className=" text-lg text-brand">你好</span>
         <h1 className="m-0 text-display font-semibold leading-[1.35] tracking-[.01em] text-ink">需要我为你做些什么？</h1>
       </div>
-      <div data-running={running || undefined} className="composer-box relative flex min-h-[52px] min-w-0 rounded-xl border border-line bg-paper-wash shadow-hair transition-[border-color,box-shadow] duration-[120ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none focus-within:border-line-strong focus-within:ring-[3px] focus-within:ring-ink/10">
+      {/* 输入框上方的运行标签：模型、State、能力、工作区 */}
+      <div className="mb-[8px]">{chips}</div>
+      <div data-running={running || undefined} className="composer-box relative flex min-h-[52px] min-w-0 items-end rounded-xl border border-line bg-paper-wash shadow-hair transition-[border-color,box-shadow] duration-[120ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none focus-within:border-line-strong focus-within:ring-[3px] focus-within:ring-ink/10">
         <textarea aria-label="消息" rows={1} value={prompt} disabled={busy} placeholder="描述你想要完成的任务" className="block min-h-[52px] max-h-[180px] min-w-0 flex-1 resize-none border-0 bg-transparent p-[13px_4px_12px_15px] text-md leading-[1.7] text-ink outline-0 placeholder:text-placeholder" onChange={(event) => { setPrompt(event.target.value); autoGrow(event.target) }} onKeyDown={onKeyDown} />
-        <div className="flex flex-none items-end p-[12px_12px_12px_10px]">
+        <div className="flex flex-none items-center p-[12px_12px_12px_6px]">
           {busy
             // 运行中发送键变成停止键：中断后端这一轮，已完成的步骤保留在轨迹里。
-            ? <button className="flex h-[29px] items-center gap-[6px] rounded-md border border-danger bg-transparent px-[12px] text-sm font-semibold text-danger" aria-label="停止运行" onClick={onStop}><Square size={11} fill="currentColor" />停止</button>
-            : <button className="h-[29px] rounded-md border-0 bg-brand px-[14px] text-sm font-semibold text-brand-fg transition-colors duration-[120ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none disabled:bg-disabled-bg disabled:text-disabled-text" aria-label="发送" onClick={() => void onSubmit()} disabled={!prompt.trim()}>发送<span className="ml-[7px] font-mono text-2xs opacity-70">⏎</span></button>}
+            ? <button type="button" title="停止" aria-label="停止运行" onClick={onStop} className="flex h-[28px] w-[28px] items-center justify-center rounded-md border-0 bg-ink p-0 text-paper transition-opacity hover:opacity-85"><Square size={10} fill="currentColor" /></button>
+            : <button type="button" title="发送（⏎）" aria-label="发送" onClick={() => void onSubmit()} disabled={!prompt.trim()} className="flex h-[28px] w-[28px] items-center justify-center rounded-md border-0 bg-brand p-0 text-brand-fg transition-colors duration-[120ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none disabled:bg-transparent disabled:text-ink-ghost"><CornerDownLeft size={15} /></button>}
         </div>
       </div>
       <div className={`composer-starters absolute inset-x-0 top-full mt-[9px] flex flex-wrap gap-[9px] transition-opacity duration-[240ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none ${empty ? 'opacity-100' : 'pointer-events-none opacity-0'}`} aria-hidden={!empty} aria-label="快速开始">
@@ -510,25 +502,6 @@ function Composer({ prompt, setPrompt, busy, running, ready, workspace, capabili
 }
 
 
-function liveLedgerEvents(activity: AgentActivity[]): LedgerEvent[] {
-  const matchesScope = (left: AgentActivity, right: AgentActivity) => left.step === right.step && left.parentStep === right.parentStep && left.subagentIndex === right.subagentIndex && (!left.tool || !right.tool || left.tool === right.tool)
-  const later = (index: number, doneKind: string) => activity.slice(index + 1).some((candidate) => candidate.kind === doneKind && matchesScope(activity[index], candidate))
-  return activity.map((item, index) => {
-    const child = item.subagentIndex ? `子 Agent ${item.subagentIndex} · ` : ''
-    let title = 'Agent 事件'; let summary = activityLabel(item); let kind: LedgerEvent['kind'] = 'model'; let state: LedgerEvent['state'] = item.error ? 'failed' : 'completed'
-    if (item.kind === 'route_start') { title = `${child}路由请求`; summary = '正在选择能力组'; kind = 'route'; state = later(index, 'route_done') ? 'completed' : 'running' }
-    else if (item.kind === 'route_done') { title = `${child}路由响应`; summary = item.error || [item.route, ...(item.bundles || [])].filter(Boolean).join(' · '); kind = 'route' }
-    else if (item.kind === 'model_start') { title = `${child}模型请求 · Step ${item.step || 1}`; summary = '等待模型响应'; state = later(index, 'model_done') ? 'completed' : 'running' }
-    else if (item.kind === 'model_done') { title = `${child}模型响应 · Step ${item.step || 1}`; summary = item.error || formatDuration(item.durationMs); state = item.error ? 'failed' : 'completed' }
-    else if (item.kind === 'protocol_retry') { title = `${child}协议修复 · Step ${item.step || 1}`; summary = item.error || '重新请求模型'; kind = 'retry' }
-    else if (item.kind === 'tool_start') { title = `${child}工具调用 · ${item.tool}`; summary = shortValue(item.arguments || '无参数'); kind = 'tool'; state = later(index, 'tool_done') ? 'completed' : 'running' }
-    else if (item.kind === 'tool_retry') { title = `${child}工具重试 · ${item.tool}`; summary = `Attempt ${item.attempt || 1}/${item.maxAttempts || 1} · 等待 ${formatDuration(item.delayMs)}`; kind = 'retry'; state = 'running' }
-    else if (item.kind === 'tool_done') { title = `${child}工具结果 · ${item.tool}`; summary = item.error || formatDuration(item.durationMs); kind = 'tool'; state = item.error ? 'failed' : 'completed' }
-    else if (item.kind === 'subagent_start') { title = `子 Agent ${item.subagentIndex} · 启动`; summary = shortValue(item.subagentTask || '子任务'); kind = 'subagent'; state = later(index, 'subagent_done') ? 'completed' : 'running' }
-    else if (item.kind === 'subagent_done') { title = `子 Agent ${item.subagentIndex} · ${item.error ? '失败' : '完成'}`; summary = item.error || formatDuration(item.durationMs); kind = 'subagent'; state = item.error ? 'failed' : 'completed' }
-    return { id: `live:${index}:${item.kind}:${item.parentStep || 0}:${item.step || 0}:${item.subagentIndex || 0}`, order: index + 1, kind, title, summary, state, request: item.arguments ? { arguments: parseJSONValue(item.arguments) } : undefined, result: item.error ? { error: item.error } : undefined, timing: { durationMs: item.durationMs, delayMs: item.delayMs }, raw: item }
-  })
-}
 
 function legacyTrajectory(steps: Step[]): ToolTrace[] {
   return steps.filter((step) => step.tool).map((step) => ({
@@ -574,29 +547,8 @@ function groupMessagesIntoTurns(messages: Message[]) {
   return turns
 }
 
-function completedGutterStatuses(message?: Message): GutterStatus[] {
-  if (!message) return [{ label: '等待响应', state: 'idle' }]
-  // 编号沿用轨迹页的 #序号（含被隐藏的“用户输入”），两处才能对照。
-  const records = flattenTraceRecords(buildTraceTurns([message])).map((record, index) => ({ record, order: index + 1 })).filter(({ record }) => record.kind !== 'user')
-  if (records.length === 0) return [{ label: message.role === 'error' ? '运行失败' : '回答完成', state: message.role === 'error' ? 'failed' : 'completed' }]
-  return records.slice(-6).map(({ record, order }) => ({ label: gutterEventLabel(record.title, order), state: record.state }))
-}
 
-function liveGutterStatuses(events: AgentActivity[]): GutterStatus[] {
-  if (events.length === 0) return [{ label: '正在思考', state: 'running' }]
-  return liveLedgerEvents(events).slice(-6).map((event) => ({ label: gutterEventLabel(event.title, event.order), state: event.state }))
-}
 
-function gutterEventLabel(title: string, order: number) {
-  return `${String(order).padStart(2, '0')} ${title
-    .replace(/^Step (\d+) · 决策$/, '第 $1 步决策')
-    .replace(' · 决策', '')
-    .replace(/ · Step \d+/, '')
-    .replace('工具调用 · ', '调用 ')
-    .replace('工具结果 · ', '结果 ')
-    .replace('模型请求', '请求模型')
-    .replace('模型响应', '模型回复')}`
-}
 
 function activityLabel(item?: AgentActivity) { if (!item) return '正在思考…'; const child = item.subagentIndex ? `Agent ${item.subagentIndex} · ` : ''; if (item.kind === 'subagent_start') return `Agent ${item.subagentIndex} · 已开始子任务`; if (item.kind === 'subagent_done') return `Agent ${item.subagentIndex} · ${item.error ? '子任务失败' : '子任务完成'}`; if (item.kind === 'model_start') return `${child}步骤 ${item.step || 1} · 正在决定下一步`; if (item.kind === 'route_start') return `${child}正在选择能力组`; if (item.kind === 'tool_start') return `${child}步骤 ${item.step} · 正在使用 ${item.tool}`; if (item.kind === 'tool_retry') return `${child}步骤 ${item.step} · ${item.tool} 自动退避后重试`; if (item.kind === 'tool_done') return `${child}步骤 ${item.step} · ${item.tool} 已完成`; return 'Agent 正在工作…' }
 function relativeTime(value: string) { const timestamp = new Date(value).getTime(); if (!Number.isFinite(timestamp)) return ''; const elapsed = Math.max(0, Math.floor((Date.now() - timestamp) / 1000)); if (elapsed < 60) return '刚刚'; const minutes = Math.floor(elapsed / 60); if (minutes < 60) return `${minutes} 分钟前`; const hours = Math.floor(minutes / 60); if (hours < 24) return `${hours} 小时前`; return `${Math.floor(hours / 24)} 天前` }

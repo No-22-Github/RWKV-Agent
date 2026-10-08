@@ -483,6 +483,7 @@ func publicResult(value agent.Result, duration time.Duration) Result {
 			},
 			StartedAtMS:      step.StartedAtMS,
 			ModelDurationMS:  step.ModelDurationMS,
+			FirstTokenAtMS:   step.FirstTokenAtMS,
 			ModelError:       step.ModelError,
 			ActionType:       step.ActionType,
 			Tool:             step.Tool,

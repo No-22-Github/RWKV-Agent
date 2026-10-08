@@ -2,7 +2,6 @@
  * 保留层：刻意不迁移到 Tailwind 的样式。
  * - @keyframes 与动画类（含对话区四处动效）
  * - markdown 排版（作用域 .turn-answer .md-markdown）
- * - gutter 状态圆点（设计稿：5px 实心点）
  * - 轨迹事件行扫描动画（伪元素 + data-state 属性）
  * - Wails 桌面拖拽区与 macOS 内嵌标题栏补丁
  * - 会话删除菜单的 hover/active 显隐（后代选择器）
@@ -10,8 +9,6 @@
  */
 
 @keyframes spin { to { transform: rotate(360deg); } }
-
-@keyframes gutter-pulse { 50% { opacity: .35; } }
 
 @keyframes trace-row-sweep { 0% { left: -300px; } 90%, 100% { left: 100%; } }
 
@@ -50,6 +47,15 @@
 
 .menu-pop-out { animation: menu-out .12s ease-in both; }
 
+/* 向上弹出的浮层（输入框上方的运行标签）：位移方向相反，原点在底部 */
+@keyframes menu-up-in { from { opacity: 0; transform: translateY(4px) scale(.98); } }
+
+@keyframes menu-up-out { to { opacity: 0; transform: translateY(4px) scale(.98); } }
+
+.menu-up-in { animation: menu-up-in .16s cubic-bezier(.2, 0, 0, 1) both; }
+
+.menu-up-out { animation: menu-up-out .12s ease-in both; }
+
 /* 流式回答：新挂载的段落、列表项、表格行淡入（主要给列表序号这类不拆字的部分）；已显示的部分不再动 */
 @keyframes stream-fade { from { opacity: 0; } }
 
@@ -69,14 +75,6 @@
 
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
 
-/* gutter 状态圆点：5px 实心圆，颜色由 --dot 驱动 */
-.gutter-status i { position: relative; width: 5px; height: 5px; flex: 0 0 5px; border-radius: 50%; background: var(--dot); --dot: var(--accent-warm); }
-
-.gutter-status.completed i { --dot: var(--brand); }
-
-.gutter-status.failed i { --dot: var(--danger); }
-
-.gutter-status.running i { --dot: var(--brand-bright); animation: gutter-pulse 1.25s ease-in-out infinite; }
 
 /* 轨迹事件行运行时的扫描高光 */
 .trace-event[data-state='running']::after { content: ''; position: absolute; top: 0; bottom: 0; left: -300px; width: 300px; pointer-events: none; background: linear-gradient(90deg, transparent 0%, color-mix(in srgb, var(--paper-wash) 70%, transparent) 55%, transparent 100%); animation: trace-row-sweep 2.6s ease-out infinite; }
@@ -178,27 +176,11 @@
 }
 
 /* 手机宽度放不下两栏：页边栏折到回合头一行，步骤状态另起一行横排。 */
-@media (max-width: 640px) {
-  .conversation-turn { grid-template-columns: minmax(0, 1fr); gap: 0; }
-
-  .turn-gutter { flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: flex-start; gap: 8px 14px; text-align: left; }
-
-  .turn-gutter > .gutter-rule { display: none; }
-
-  .turn-gutter > .gutter-statuses { order: 10; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 2px 14px; }
-
-  .turn-gutter .gutter-status { width: auto; justify-content: flex-start; }
-
-  .composer .composer-gutter { display: none; }
-
-  .composer { grid-template-columns: minmax(0, 1fr); gap: 0; }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .gutter-status.running i, .trace-event[data-state='running']::after, .spin, .composer-anchor,
+  .trace-event[data-state='running']::after, .spin, .composer-anchor,
   .turn-enter, .answer-reveal, .shimmer-text, .composer-box[data-running]::before,
   .answer-streaming .md-markdown > *, .answer-streaming .md-markdown li, .answer-streaming .md-markdown tr, .stream-tok,
-  .menu-pop-in, .menu-pop-out { transition: none !important; animation: none !important; }
+  .menu-pop-in, .menu-pop-out, .menu-up-in, .menu-up-out { transition: none !important; animation: none !important; }
 
   .shimmer-text { color: var(--ink-muted); background: none; }
 }
