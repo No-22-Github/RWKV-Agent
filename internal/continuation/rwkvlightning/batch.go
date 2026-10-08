@@ -23,6 +23,9 @@ type pendingCall struct {
 type batchOutcome struct {
 	result continuation.Result
 	err    error
+	// delivered marks an outcome the stream reader already handed to its call
+	// as soon as that choice stopped; executeBatch must not deliver it again.
+	delivered bool
 }
 
 func (c *Client) continueBatched(
@@ -153,7 +156,9 @@ func (c *Client) executeBatch(calls []*pendingCall) {
 		outcomes = readBatchBufferedResponse(response.Body, active, c.password)
 	}
 	for index, call := range active {
-		call.deliver(outcomes[index])
+		if !outcomes[index].delivered {
+			call.deliver(outcomes[index])
+		}
 	}
 }
 
@@ -189,13 +194,14 @@ func errorsIsContext(err error) bool {
 }
 
 type batchStreamState struct {
-	result  strings.Builder
-	pending string
-	finish  continuation.FinishReason
-	deltas  int
-	saw     bool
-	stopped bool
-	err     error
+	result    strings.Builder
+	pending   string
+	finish    continuation.FinishReason
+	deltas    int
+	saw       bool
+	stopped   bool
+	err       error
+	delivered bool
 }
 
 func readBatchStreamResponse(
@@ -212,6 +218,27 @@ func readBatchStreamResponse(
 	responseBytes := 0
 	limit := batchResponseLimit(len(calls))
 	var streamErr error
+	// A choice that hit a stop sequence is finished for its caller: hand its
+	// result over right away instead of after [DONE]. A checkpoint that writes
+	// the next "User:" turn instead of EOS keeps the server generating up to
+	// max_tokens, which made a two-character reply wait seconds for the whole
+	// batch. Once every choice is finished, stop reading; executeBatch then
+	// closes the body, which also lets the server drop the generation.
+	deliverEarly := func(index int) {
+		state := &states[index]
+		state.delivered = true
+		calls[index].deliver(batchOutcome{result: continuation.Result{
+			Text: state.result.String(), FinishReason: state.finish, Usage: usage,
+		}, err: state.err})
+	}
+	allFinished := func() bool {
+		for index := range states {
+			if !states[index].delivered {
+				return false
+			}
+		}
+		return true
+	}
 	for scanner.Scan() {
 		line := scanner.Text()
 		responseBytes += len(line) + 1
@@ -267,13 +294,19 @@ func readBatchStreamResponse(
 			if err := emitBatchText(state, calls[choice.Index].sink, text); err != nil {
 				state.err = err
 				state.finish = continuation.FinishCancelled
+				deliverEarly(choice.Index)
 				continue
 			}
 			state.pending = tail
 			if stopped {
 				state.stopped = true
 				state.finish = continuation.FinishStop
+				deliverEarly(choice.Index)
 			}
+		}
+		if allFinished() {
+			sawDone = true
+			break
 		}
 	}
 	if streamErr == nil {
@@ -291,6 +324,10 @@ func readBatchStreamResponse(
 	outcomes := make([]batchOutcome, len(calls))
 	for index := range states {
 		state := &states[index]
+		if state.delivered {
+			outcomes[index] = batchOutcome{delivered: true}
+			continue
+		}
 		if streamErr != nil && state.err == nil {
 			state.err = streamErr
 		}

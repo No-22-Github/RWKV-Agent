@@ -486,3 +486,47 @@ func TestClientBatchStreamBudgetScalesWithCallCount(t *testing.T) {
 		t.Fatalf("batchResponseLimit(0) = %d", got)
 	}
 }
+
+// A checkpoint that writes the next "User:" turn instead of EOS keeps the
+// server generating to max_tokens. The batched call must return as soon as its
+// stop sequence appears, and the client must hang up instead of waiting for
+// [DONE].
+func TestClientBatchStreamReturnsAtStopWithoutWaitingForDone(t *testing.T) {
+	t.Parallel()
+	disconnected := make(chan struct{})
+	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		writer.Header().Set("Content-Type", "text/event-stream")
+		for _, content := range []string{" 你好", "\n\n", "User", ":", " 你能帮我"} {
+			fmt.Fprintf(writer, "data: {\"choices\":[{\"index\":0,\"delta\":{\"content\":%q}}]}\n\n", content)
+		}
+		writer.(http.Flusher).Flush()
+		// Keep "generating" until the client goes away.
+		select {
+		case <-request.Context().Done():
+			close(disconnected)
+		case <-time.After(5 * time.Second):
+		}
+	}))
+	defer server.Close()
+
+	client, err := New(Config{Endpoint: server.URL, Model: "rwkv7", BatchWait: time.Millisecond})
+	if err != nil {
+		t.Fatal(err)
+	}
+	started := time.Now()
+	result, err := client.Continue(context.Background(), validRequest(), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if elapsed := time.Since(started); elapsed > time.Second {
+		t.Fatalf("call waited %v for the stream to end after its stop sequence", elapsed)
+	}
+	if result.Text != " 你好\n" || result.FinishReason != continuation.FinishStop {
+		t.Fatalf("result = %+v", result)
+	}
+	select {
+	case <-disconnected:
+	case <-time.After(2 * time.Second):
+		t.Fatal("client kept the finished batch stream open")
+	}
+}
