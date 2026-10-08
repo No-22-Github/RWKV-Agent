@@ -9,6 +9,8 @@ type Props = {
   onClose: () => void
   ready: boolean
   busy: boolean
+  status: Status
+  capabilities: string
   providers: SavedProvider[]
   runtimeProviderId: string
   onActivate: (id: string) => void
@@ -16,7 +18,7 @@ type Props = {
 }
 
 /* 运行配置下拉：只读切换器。能力开关属于连接档案，在设置的编辑器里修改。 */
-export default function RunConfigDropdown({ open, onClose, ready, busy, providers, runtimeProviderId, onActivate, onOpenSettings }: Props) {
+export default function RunConfigDropdown({ open, onClose, ready, busy, status, capabilities, providers, runtimeProviderId, onActivate, onOpenSettings }: Props) {
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -39,7 +41,29 @@ export default function RunConfigDropdown({ open, onClose, ready, busy, provider
 
   return (
     <div ref={ref} className="run-config-dropdown absolute right-[30px] top-[56px] z-[60] flex w-[340px] flex-col overflow-hidden rounded-xl border border-line bg-paper-wash shadow-pop">
-      <div className="border-b border-line px-[14px] pb-[9px] pt-[11px] text-2xs text-ink-muted">已保存连接</div>
+      {/* 当前运行：顶栏芯片只放缩略信息，完整的模型、State、端点、能力在这里。 */}
+      {ready && (() => {
+        const runtime = providers.find((provider) => provider.id === runtimeProviderId)
+        const endpoint = runtime ? providerMeta(runtime) : hostOf(status.endpoint || '')
+        const rows: [string, string, boolean?][] = [
+          ['模型', status.model || '—'],
+          ['State', status.stateId || '未加载', Boolean(status.stateId)],
+          ['端点', endpoint || '—'],
+          ['能力', capabilities],
+        ]
+        return (
+          <div className="border-b border-line px-[14px] pb-[11px] pt-[11px]">
+            <div className="pb-[7px] text-2xs text-ink-muted">当前运行</div>
+            <dl className="m-0 grid grid-cols-[46px_minmax(0,1fr)] gap-x-[10px] gap-y-[4px] text-xs">
+              {rows.map(([label, value, mono]) => <div key={label} className="contents">
+                <dt className="text-ink-muted">{label}</dt>
+                <dd className={`m-0 truncate ${mono ? 'font-mono text-2xs leading-[1.8] text-ink' : label === 'State' ? 'text-ink-muted' : 'text-ink'}`} title={value}>{value}</dd>
+              </div>)}
+            </dl>
+          </div>
+        )
+      })()}
+      <div className="border-b border-line px-[14px] pb-[9px] pt-[11px] text-2xs text-ink-muted">{ready ? '切换连接' : '已保存连接'}</div>
       {providers.length === 0 ? (
         <div className="border-b border-line px-[14px] py-[10px] text-xs text-ink-muted">尚无保存的连接，去设置里连接一次即可记住</div>
       ) : (

@@ -184,7 +184,7 @@ describe('App', () => {
 
     const { container } = render(<App />)
 
-    const modelChipSelector = `button[title="${model}"]`
+    const modelChipSelector = `button[title^="${model}"]`
     await waitFor(() => expect(container.querySelector(modelChipSelector)).not.toBeNull())
     expect(container.querySelector(modelChipSelector)).toHaveTextContent(model)
   })

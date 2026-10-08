@@ -1,7 +1,7 @@
 import { KeyboardEvent, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import {
-  ChevronDown, Folder, FolderOpen,
-  Menu, MoreHorizontal, PenLine, Pin, Settings, Square, SquarePen,
+  ChevronDown, Folder, FolderOpen, Globe,
+  Menu, MoreHorizontal, Network, PenLine, Pin, Settings, Square, SquarePen,
   Trash2, X,
 } from 'lucide-react'
 import { Events } from '@wailsio/runtime'
@@ -241,7 +241,6 @@ export default function App() {
 
   const traceMessages = messages.filter((message) => message.role !== 'user' && (message.trace || message.trajectory?.length))
   const selectedMessage = traceMessages.find((message) => message.id === selectedTraceID) || traceMessages.at(-1)
-  const turns = groupMessagesIntoTurns(messages)
 
   return <div className="flex h-full w-full bg-paper">
     {settingsOpen ? <SettingsPage manager={manager} status={status} ready={ready} onChooseWorkspace={chooseWorkspace} theme={theme} onToggleTheme={handleToggleTheme} onActivateProvider={(id) => void activateProviderNow(id)} onDeleteProvider={(id) => void deleteProviderNow(id)} /> : <>
@@ -254,19 +253,23 @@ export default function App() {
             <button role="tab" aria-selected={activeTab === 'trace'} className={`relative min-w-[58px] border-0 border-b-2 bg-transparent pb-[9px] text-center text-md transition-[border-color,color] duration-[180ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none before:absolute before:inset-x-0 before:bottom-0 before:top-[-15px] before:content-[''] ${activeTab === 'trace' ? 'border-brand font-semibold text-ink' : 'border-transparent text-ink-muted'}`} onClick={() => setActiveTab('trace')} disabled={!traceMessages.length}>轨迹 <span className="ml-1 font-mono text-2xs text-ink-muted">{traceMessages.length || ''}</span></button>
           </div>
           <div className="ml-auto flex items-center gap-[14px] pb-[11px]">
-            <span className="hidden text-xs text-ink-ghost sm:inline">{turns.length} 轮 · 已保存</span>
-            <button className="relative flex h-[28px] items-center gap-[9px] rounded-md border border-line bg-paper-wash px-[10px] text-xs text-ink-soft shadow-hair transition-colors hover:bg-surface-active before:absolute before:inset-x-0 before:inset-y-[-8px] before:content-['']" aria-haspopup="dialog" aria-expanded={runConfigOpen} onClick={() => setRunConfigOpen((value) => !value)} title={status.model || '运行配置'}>
+            {/* 运行配置芯片：只放认得出「是哪个」的最少信息——模型名、State 有无、开了哪些能力；完整信息在下拉的「当前运行」。 */}
+            <button className="relative flex h-[28px] min-w-0 items-center gap-[8px] whitespace-nowrap rounded-md border border-line bg-paper-wash px-[10px] text-xs text-ink-soft shadow-hair transition-colors hover:bg-surface-active before:absolute before:inset-x-0 before:inset-y-[-8px] before:content-['']" aria-haspopup="dialog" aria-expanded={runConfigOpen} onClick={() => setRunConfigOpen((value) => !value)} title={[status.model || '运行配置', ready && status.stateId ? `State：${status.stateId}` : '', ready ? `能力：${capabilities}` : ''].filter(Boolean).join('\n')}>
               <span className={`h-[5px] w-[5px] flex-none rounded-full ${ready ? 'bg-brand-bright' : 'bg-ink-muted'}`} />
-              <span className="max-w-[180px] truncate text-ink">{status.model || '选择模型'}</span>
-              {ready && status.stateId && <span className="max-w-[120px] truncate font-mono text-2xs text-ink-muted" title={`State：${status.stateId}`}>· {status.stateId}</span>}
-              {ready && <><span className="h-[12px] w-px flex-none bg-line" /><span className="text-ink-muted">{capabilities}</span></>}
-              <ChevronDown size={12} className="text-ink-muted" />
+              <span className="min-w-0 max-w-[200px] truncate text-ink">{status.model || '选择模型'}</span>
+              {ready && status.stateId && <span className="flex-none rounded-[4px] bg-surface-active px-[5px] py-px text-2xs text-ink-soft">State</span>}
+              {ready && (runtimeConfig?.enableWeb || runtimeConfig?.enableSubagents) && <span className="flex flex-none items-center gap-[6px]">
+                <span className="h-[12px] w-px bg-line" />
+                {runtimeConfig?.enableWeb && <Globe size={13} aria-label="web 搜索" />}
+                {runtimeConfig?.enableSubagents && <Network size={13} aria-label="子 Agent" />}
+              </span>}
+              <ChevronDown size={12} className="flex-none text-ink-muted" />
             </button>
           </div>
         </header>
         {activeTab === 'trace' ? <TraceView messages={traceMessages} selected={selectedMessage} onSelect={setSelectedTraceID} onBackToChat={() => setActiveTab('chat')} /> : <ChatView messages={messages} activity={activity} liveAnswer={liveAnswer} busy={busy} ready={ready} workspace={workspaceName} model={status.model || '选择模型'} capabilities={capabilities} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={() => void regenerateLast()} onKeyDown={onComposerKeyDown} onStop={stopRun} openSettings={manager.openSettings} chooseWorkspace={chooseWorkspace} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} messagesEnd={messagesEnd} />}
       </main>
-      <RunConfigDropdown open={runConfigOpen} onClose={() => setRunConfigOpen(false)} ready={ready} busy={busy} providers={manager.providers} runtimeProviderId={manager.runtimeProviderId} onActivate={(id) => void activateProviderNow(id)} onOpenSettings={() => { setRunConfigOpen(false); manager.openSettings() }} />
+      <RunConfigDropdown open={runConfigOpen} onClose={() => setRunConfigOpen(false)} ready={ready} busy={busy} status={status} capabilities={capabilities} providers={manager.providers} runtimeProviderId={manager.runtimeProviderId} onActivate={(id) => void activateProviderNow(id)} onOpenSettings={() => { setRunConfigOpen(false); manager.openSettings() }} />
     </>}
   </div>
 }
