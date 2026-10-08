@@ -6,7 +6,7 @@ import remarkGfm from 'remark-gfm'
 
 type MarkdownMessageProps = {
   content: string
-  // 流式生成中：正文按字（英文按词）拆成 span，新挂载的字各自浮起；落定后不拆。
+  // 流式生成中：正文按字（英文按词）拆成 span，新挂载的字各自由虚到实；落定后不拆。
   streaming?: boolean
 }
 
