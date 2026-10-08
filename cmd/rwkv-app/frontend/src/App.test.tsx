@@ -621,6 +621,18 @@ describe('App', () => {
     expect(vi.mocked(Backend.ActivateProvider).mock.calls[0][0]).toBe('p1')
   })
 
+  it('closes the run config dropdown when its chip is clicked again', async () => {
+    bootstrapWithRunningProvider()
+
+    render(<App />)
+    const chip = await screen.findByRole('button', { name: /rwkv7-test/ })
+    fireEvent.mouseDown(chip); fireEvent.click(chip)
+    expect(screen.getByText('当前运行')).toBeInTheDocument()
+    // 真实点击的顺序：mousedown（面板的点击外部关闭）先于 click（芯片的开合切换）。
+    fireEvent.mouseDown(chip); fireEvent.click(chip)
+    expect(screen.queryByText('当前运行')).not.toBeInTheDocument()
+  })
+
   it('toggles a capability of the running remote profile from the run config dropdown', async () => {
     const runtime = bootstrapWithRunningProvider({ enableWeb: true, enableSubagents: true }, { id: 'runtime-provider', label: 'Runtime connection' })
 
@@ -804,6 +816,17 @@ describe('App', () => {
 
     expect(cancel).toHaveBeenCalledOnce()
     expect(await screen.findByRole('button', { name: '发送' })).toBeInTheDocument()
+  })
+
+  it('closes a conversation menu when its own button is clicked again', async () => {
+    const conversation = new ConversationSummary({ id: 'c1', title: '检查项目', updatedAt: new Date().toISOString(), pinned: false })
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({ conversations: [conversation] }))
+    render(<App />)
+    const more = await screen.findByRole('button', { name: '会话“检查项目”的更多操作' })
+    fireEvent.pointerDown(more); fireEvent.click(more)
+    expect(screen.getByRole('menu', { name: '会话操作' })).toBeInTheDocument()
+    fireEvent.pointerDown(more); fireEvent.click(more)
+    expect(screen.queryByRole('menu', { name: '会话操作' })).not.toBeInTheDocument()
   })
 
   it('shows chat-page failures in the snackbar instead of the hidden settings footer', async () => {

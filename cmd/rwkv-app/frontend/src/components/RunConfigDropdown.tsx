@@ -26,6 +26,8 @@ export default function RunConfigDropdown({ open, onClose, ready, busy, status, 
   useEffect(() => {
     if (!open) return
     function onPointerDown(event: MouseEvent) {
+      // 顶栏芯片自己负责开合：按下时在这里先关，松开时芯片的 click 又会把它切回打开，面板就闪一下又弹出来。
+      if ((event.target as Element).closest?.('[data-run-config-trigger]')) return
       if (ref.current && !ref.current.contains(event.target as Node)) onClose()
     }
     function onKeyDown(event: KeyboardEvent) {

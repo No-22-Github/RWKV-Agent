@@ -259,7 +259,7 @@ export default function App() {
           </div>
           <div className="ml-auto flex items-center gap-[14px] pb-[11px]">
             {/* 运行配置芯片：只放认得出「是哪个」的最少信息——模型名、State 有无、开了哪些能力；完整信息在下拉的「当前运行」。 */}
-            <button className="relative flex h-[28px] min-w-0 items-center gap-[8px] whitespace-nowrap rounded-md border border-line bg-paper-wash px-[10px] text-xs text-ink-soft shadow-hair transition-colors hover:bg-surface-active before:absolute before:inset-x-0 before:inset-y-[-8px] before:content-['']" aria-haspopup="dialog" aria-expanded={runConfigOpen} onClick={() => setRunConfigOpen((value) => !value)} title={[status.model || '运行配置', ready && status.stateId ? `State：${status.stateId}` : '', ready ? `能力：${capabilities}` : ''].filter(Boolean).join('\n')}>
+            <button className="relative flex h-[28px] min-w-0 items-center gap-[8px] whitespace-nowrap rounded-md border border-line bg-paper-wash px-[10px] text-xs text-ink-soft shadow-hair transition-colors hover:bg-surface-active before:absolute before:inset-x-0 before:inset-y-[-8px] before:content-['']" data-run-config-trigger aria-haspopup="dialog" aria-expanded={runConfigOpen} onClick={() => setRunConfigOpen((value) => !value)} title={[status.model || '运行配置', ready && status.stateId ? `State：${status.stateId}` : '', ready ? `能力：${capabilities}` : ''].filter(Boolean).join('\n')}>
               <span className={`h-[5px] w-[5px] flex-none rounded-full ${ready ? 'bg-brand-bright' : 'bg-ink-muted'}`} />
               <span className="min-w-0 max-w-[200px] truncate text-ink">{status.model || '选择模型'}</span>
               {ready && status.stateId && <span className="flex-none rounded-[4px] bg-surface-active px-[5px] py-px text-2xs text-ink-soft">State</span>}
@@ -268,7 +268,7 @@ export default function App() {
                 {runtimeConfig?.enableWeb && <Globe size={13} aria-label="web 搜索" />}
                 {runtimeConfig?.enableSubagents && <Network size={13} aria-label="子 Agent" />}
               </span>}
-              <ChevronDown size={12} className="flex-none text-ink-muted" />
+              <ChevronDown size={12} className={`flex-none text-ink-muted transition-transform duration-200 ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none ${runConfigOpen ? 'rotate-180' : ''}`} />
             </button>
           </div>
         </header>
@@ -290,7 +290,8 @@ function Sidebar({ conversations, workspaces, activeId, busy, open, onCloseSideb
   useEffect(() => {
     if (!menu && !renaming) return
     function onPointerDown(event: PointerEvent) {
-      if (event.target instanceof Element && event.target.closest('[data-conversation-menu],input[aria-label="重命名会话"]')) return
+      // 「…」按钮自己负责开合（toggleMenu）；这里也关的话，按下关、松开又开，菜单会闪一下又弹出来。
+      if (event.target instanceof Element && event.target.closest('[data-conversation-menu],.conversation-menu,input[aria-label="重命名会话"]')) return
       setMenu(null); setRenaming(null)
     }
     function onKeyDown(event: globalThis.KeyboardEvent) {
