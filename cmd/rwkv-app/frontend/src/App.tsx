@@ -321,6 +321,8 @@ function Sidebar({ conversations, workspaces, activeId, busy, open, onCloseSideb
 function ChatView({ messages, activity, busy, ready, workspace, capabilities, prompt, setPrompt, onSubmit, onStop, onRegenerate, onKeyDown, onTrace, messagesEnd }: { messages: Message[]; activity: AgentActivity[]; busy: boolean; ready: boolean; workspace: string; model: string; capabilities: string; prompt: string; setPrompt: (value: string) => void; onSubmit: () => void; onStop: () => void; onRegenerate: () => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void; openSettings: () => void; chooseWorkspace: () => Promise<void>; onTrace: (id: string) => void; messagesEnd: React.RefObject<HTMLDivElement | null> }) {
   const turns = groupMessagesIntoTurns(messages)
   const empty = turns.length === 0
+  // busy 也覆盖打开会话等短操作；只有最后一轮在等回答才算 Agent 运行中。
+  const running = busy && !empty && !turns[turns.length - 1].response
   const stageRef = useRef<HTMLDivElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   const anchorRef = useRef<HTMLDivElement>(null)
@@ -377,7 +379,7 @@ function ChatView({ messages, activity, busy, ready, workspace, capabilities, pr
       </div>}
     </div>
     <div ref={anchorRef} className="composer-anchor absolute left-0 right-0 z-[2] mx-auto content-narrow will-change-transform transition-transform duration-[420ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none">
-      <Composer prompt={prompt} setPrompt={setPrompt} busy={busy} ready={ready} workspace={workspace} capabilities={capabilities} empty={empty} onSubmit={onSubmit} onStop={onStop} onKeyDown={onKeyDown} />
+      <Composer prompt={prompt} setPrompt={setPrompt} busy={busy} running={running} ready={ready} workspace={workspace} capabilities={capabilities} empty={empty} onSubmit={onSubmit} onStop={onStop} onKeyDown={onKeyDown} />
     </div>
   </div>
 }
@@ -390,7 +392,8 @@ function TurnView({ turn, index, last, busy, pending, activity, onTrace, onRegen
   const statuses = pending ? liveGutterStatuses(activity) : completedGutterStatuses(response)
   const stats = response?.trace ? traceStats(response.trace) : undefined
   const time = turn.user?.createdAt || response?.createdAt
-  return <article className={`conversation-turn mb-[42px] grid turn-grid${pending ? ' pending' : ''}`} data-testid={`conversation-turn-${index}`}>
+  // 入场动效只给最后一轮：新发出的回合，或刚打开会话时的最末一轮；历史回合不整片闪动。
+  return <article className={`conversation-turn mb-[42px] grid turn-grid${pending ? ' pending' : ''}${last ? ' turn-enter' : ''}`} data-testid={`conversation-turn-${index}`}>
     <aside className="turn-gutter flex min-w-0 flex-col items-end gap-[6px] pt-[1px] text-right text-ink-muted">
       <span className={`font-mono text-xl font-semibold leading-none tabular-nums ${response?.role === 'error' ? 'text-danger' : 'text-ink-faint'}`}>{String(index).padStart(2, '0')}</span>
       <time className="text-2xs leading-[1.6]">{formatTurnTime(time)}</time>
@@ -403,8 +406,8 @@ function TurnView({ turn, index, last, busy, pending, activity, onTrace, onRegen
     </aside>
     <div className="turn-main flex min-w-0 flex-col gap-4">
       {turn.user && <div className="flex justify-end"><div className="min-w-[180px] max-w-[82%] rounded-xl bg-user-bg p-[10px_14px] text-base leading-[1.7] text-user-text [overflow-wrap:anywhere]">{turn.user.content}</div></div>}
-      {pending && <div className="turn-pending-answer min-h-7 pt-[2px]" aria-live="polite"><span className="answer-cursor" /><span className="sr-only">{activityLabel(activity.at(-1))}</span></div>}
-      {response?.role === 'assistant' && <div className="turn-answer text-md leading-[1.8] text-ink [overflow-wrap:anywhere]"><MarkdownMessage content={response.content} /></div>}
+      {pending && <div className="turn-pending-answer min-h-7 pt-[2px]" aria-live="polite"><span className="shimmer-text text-sm">{activityLabel(activity.at(-1))}</span></div>}
+      {response?.role === 'assistant' && <div className={`turn-answer${last ? ' answer-reveal' : ''} text-md leading-[1.8] text-ink [overflow-wrap:anywhere]`}><MarkdownMessage content={response.content} /></div>}
       {response?.role === 'error' && <div className="flex items-start gap-2 rounded-lg border border-danger/30 bg-danger-wash p-[10px_12px] text-sm leading-[1.65] text-danger"><X size={15} className="mt-[3px] flex-none" /><span>{response.content}</span></div>}
       {subagentCount > 0 && response && <SubagentCards trajectory={response.trajectory} done={!pending} />}
       {response?.meta && <div className="font-mono text-2xs text-ink-muted">{response.meta}</div>}
@@ -418,7 +421,7 @@ function TurnView({ turn, index, last, busy, pending, activity, onTrace, onRegen
   </article>
 }
 
-function Composer({ prompt, setPrompt, busy, ready, workspace, capabilities, empty, onSubmit, onStop, onKeyDown }: { prompt: string; setPrompt: (value: string) => void; busy: boolean; ready: boolean; workspace: string; capabilities: string; empty?: boolean; onSubmit: () => void; onStop: () => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void }) {
+function Composer({ prompt, setPrompt, busy, running, ready, workspace, capabilities, empty, onSubmit, onStop, onKeyDown }: { prompt: string; setPrompt: (value: string) => void; busy: boolean; running?: boolean; ready: boolean; workspace: string; capabilities: string; empty?: boolean; onSubmit: () => void; onStop: () => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void }) {
   function autoGrow(element: HTMLTextAreaElement) { element.style.height = 'auto'; element.style.height = `${Math.min(element.scrollHeight, 180)}px` }
   // 页边栏メタ・挨拶・スターターは全て流外(absolute)：输入框行高恒定，空↔对话仅位移，不改尺寸。
   return <div className="composer grid turn-grid">
@@ -435,7 +438,7 @@ function Composer({ prompt, setPrompt, busy, ready, workspace, capabilities, emp
         <span className=" text-lg text-brand">你好</span>
         <h1 className="m-0 text-display font-semibold leading-[1.35] tracking-[.01em] text-ink">需要我为你做些什么？</h1>
       </div>
-      <div className="flex min-h-[52px] min-w-0 rounded-xl border border-line bg-paper-wash shadow-hair transition-[border-color,box-shadow] duration-[120ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none focus-within:border-line-strong focus-within:ring-[3px] focus-within:ring-ink/10">
+      <div data-running={running || undefined} className="composer-box relative flex min-h-[52px] min-w-0 rounded-xl border border-line bg-paper-wash shadow-hair transition-[border-color,box-shadow] duration-[120ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none focus-within:border-line-strong focus-within:ring-[3px] focus-within:ring-ink/10">
         <textarea aria-label="消息" rows={1} value={prompt} disabled={busy} placeholder="描述你想要完成的任务" className="block min-h-[52px] max-h-[180px] min-w-0 flex-1 resize-none border-0 bg-transparent p-[13px_4px_12px_15px] text-md leading-[1.7] text-ink outline-0 placeholder:text-placeholder" onChange={(event) => { setPrompt(event.target.value); autoGrow(event.target) }} onKeyDown={onKeyDown} />
         <div className="flex flex-none items-end p-[12px_12px_12px_10px]">
           {busy

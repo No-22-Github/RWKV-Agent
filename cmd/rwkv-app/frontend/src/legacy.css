@@ -1,6 +1,6 @@
 /*
  * 保留层：刻意不迁移到 Tailwind 的样式。
- * - @keyframes 与动画类
+ * - @keyframes 与动画类（含对话区四处动效）
  * - markdown 排版（作用域 .turn-answer .md-markdown）
  * - gutter 状态圆点（设计稿：5px 实心点）
  * - 轨迹事件行扫描动画（伪元素 + data-state 属性）
@@ -13,13 +13,36 @@
 
 @keyframes gutter-pulse { 50% { opacity: .35; } }
 
-@keyframes cursor-pulse { 50% { opacity: 0; } }
-
 @keyframes trace-row-sweep { 0% { left: -300px; } 90%, 100% { left: 100%; } }
 
 .spin { animation: spin .8s linear infinite; }
 
-.answer-cursor { display: block; width: 2px; height: 20px; background: var(--brand); animation: cursor-pulse 1s steps(2, end) infinite; }
+/*
+ * 对话区动效（只挑四处，克制为先）：
+ * - .turn-enter     最后一轮入场：上移 + 去模糊
+ * - .shimmer-text   等待回答时的状态文字流光
+ * - .answer-reveal  答案出现时由虚到实
+ * - .composer-box[data-running]  Agent 运行中输入框描边旋转一道高光
+ */
+@keyframes turn-enter { from { opacity: 0; transform: translateY(14px) scale(.985); filter: blur(6px); } }
+
+@keyframes answer-reveal { from { opacity: 0; filter: blur(8px); transform: translateY(4px); } }
+
+@keyframes shimmer { from { background-position: 120% 0; } to { background-position: -120% 0; } }
+
+@property --ring-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+
+@keyframes ring-spin { to { --ring-angle: 360deg; } }
+
+@keyframes ring-in { from { opacity: 0; } }
+
+.turn-enter { animation: turn-enter .55s cubic-bezier(.22, 1, .36, 1) both; }
+
+.answer-reveal { animation: answer-reveal .7s cubic-bezier(.22, 1, .36, 1) both; }
+
+.shimmer-text { display: inline-block; color: transparent; background: linear-gradient(110deg, var(--ink-muted) 35%, var(--ink) 50%, var(--ink-muted) 65%); background-size: 250% 100%; -webkit-background-clip: text; background-clip: text; animation: shimmer 1.8s linear infinite; }
+
+.composer-box[data-running]::before { content: ''; position: absolute; inset: -1px; z-index: 1; padding: 1px; border-radius: inherit; pointer-events: none; background: conic-gradient(from var(--ring-angle), transparent 0 58%, var(--ink-ghost) 74%, var(--ink) 80%, var(--ink-ghost) 86%, transparent 100%); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); animation: ring-spin 2.6s linear infinite, ring-in .4s ease-out both; }
 
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
 
@@ -149,5 +172,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .gutter-status.running i, .trace-event[data-state='running']::after, .answer-cursor, .spin, .composer-anchor { transition: none !important; animation: none !important; }
+  .gutter-status.running i, .trace-event[data-state='running']::after, .spin, .composer-anchor,
+  .turn-enter, .answer-reveal, .shimmer-text, .composer-box[data-running]::before { transition: none !important; animation: none !important; }
+
+  .shimmer-text { color: var(--ink-muted); background: none; }
 }
