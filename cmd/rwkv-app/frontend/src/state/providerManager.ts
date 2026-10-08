@@ -447,6 +447,18 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     }
   }
 
+  /*
+   * 顶栏下拉里的能力开关：直接改运行中档案的一个字段并重连生效（远端重连不加载模型，
+   * 对话历史由后端在下一轮恢复）。本地模型重配要重新加载，不走这里。
+   */
+  async function setRuntimeCapability(key: 'enableWeb' | 'enableSubagents', value: boolean) {
+    const provider = providers.find((item) => item.id === runtimeProviderId)
+    if (!provider || provider.config.provider === Provider.ProviderLocal) return
+    const config = new Config({ ...provider.config, [key]: value })
+    onStatus(await Backend.ConfigureProvider(provider.id, provider.label, config))
+    await refreshProviders()
+  }
+
   async function activateProvider(id: string) {
     const configured = await Backend.ActivateProvider(id)
     onStatus(configured)
@@ -549,7 +561,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     // 动作
     openSettings, discardDraft, selectProvider, startNewDraft,
     applyProviderBootstrapState, applyConfig, refreshProviders,
-    activateProvider, deleteProvider, testRemote,
+    activateProvider, setRuntimeCapability, deleteProvider, testRemote,
     saveProviderDraft, saveAndUseProviderDraft, flushDraft,
   }
 }

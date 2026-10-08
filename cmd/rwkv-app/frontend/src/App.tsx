@@ -156,6 +156,11 @@ export default function App() {
     setRunConfigOpen(false); setBusy(true)
     try { await manager.activateProvider(id) } catch (error) { if (settingsOpen) manager.setSettingsMessage(errorText(error)); else reportError(error) } finally { setBusy(false) }
   }
+  async function toggleCapabilityNow(key: 'enableWeb' | 'enableSubagents', value: boolean) {
+    if (busy) return
+    setBusy(true)
+    try { await manager.setRuntimeCapability(key, value) } catch (error) { reportError(error) } finally { setBusy(false) }
+  }
   async function deleteProviderNow(id: string) {
     if (busy) return
     setBusy(true)
@@ -269,7 +274,7 @@ export default function App() {
         </header>
         {activeTab === 'trace' ? <TraceView messages={traceMessages} selected={selectedMessage} onSelect={setSelectedTraceID} onBackToChat={() => setActiveTab('chat')} /> : <ChatView messages={messages} activity={activity} liveAnswer={liveAnswer} busy={busy} ready={ready} workspace={workspaceName} model={status.model || '选择模型'} capabilities={capabilities} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={() => void regenerateLast()} onKeyDown={onComposerKeyDown} onStop={stopRun} openSettings={manager.openSettings} chooseWorkspace={chooseWorkspace} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} messagesEnd={messagesEnd} />}
       </main>
-      <RunConfigDropdown open={runConfigOpen} onClose={() => setRunConfigOpen(false)} ready={ready} busy={busy} status={status} capabilities={capabilities} providers={manager.providers} runtimeProviderId={manager.runtimeProviderId} onActivate={(id) => void activateProviderNow(id)} onOpenSettings={() => { setRunConfigOpen(false); manager.openSettings() }} />
+      <RunConfigDropdown open={runConfigOpen} onClose={() => setRunConfigOpen(false)} ready={ready} busy={busy} status={status} runtimeConfig={runtimeConfig} onToggleCapability={(key, value) => void toggleCapabilityNow(key, value)} providers={manager.providers} runtimeProviderId={manager.runtimeProviderId} onActivate={(id) => void activateProviderNow(id)} onOpenSettings={() => { setRunConfigOpen(false); manager.openSettings() }} />
     </>}
   </div>
 }

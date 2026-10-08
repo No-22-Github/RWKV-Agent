@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react'
 import { hostOf } from '../endpoint'
-import { Check, Plus } from 'lucide-react'
-import { Provider, type Status } from '../../bindings/github.com/no22/RWKV-Agent/api/models'
+import { type ReactNode } from 'react'
+import { Check, Globe, Network, Plus } from 'lucide-react'
+import { Provider, type Config, type Status } from '../../bindings/github.com/no22/RWKV-Agent/api/models'
 import type { SavedProvider } from '../../bindings/github.com/no22/RWKV-Agent/internal/appstorage/models'
 
 type Props = {
@@ -10,7 +11,8 @@ type Props = {
   ready: boolean
   busy: boolean
   status: Status
-  capabilities: string
+  runtimeConfig: Config | null
+  onToggleCapability: (key: 'enableWeb' | 'enableSubagents', value: boolean) => void
   providers: SavedProvider[]
   runtimeProviderId: string
   onActivate: (id: string) => void
@@ -18,7 +20,7 @@ type Props = {
 }
 
 /* 运行配置下拉：只读切换器。能力开关属于连接档案，在设置的编辑器里修改。 */
-export default function RunConfigDropdown({ open, onClose, ready, busy, status, capabilities, providers, runtimeProviderId, onActivate, onOpenSettings }: Props) {
+export default function RunConfigDropdown({ open, onClose, ready, busy, status, runtimeConfig, onToggleCapability, providers, runtimeProviderId, onActivate, onOpenSettings }: Props) {
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -49,9 +51,10 @@ export default function RunConfigDropdown({ open, onClose, ready, busy, status, 
           ['模型', status.model || '—'],
           ['State', status.stateId || '未加载', Boolean(status.stateId)],
           ['端点', endpoint || '—'],
-          ['能力', capabilities],
         ]
-        return (
+        // 本地模型改能力要重新加载模型，开关只对远端连接开放。
+        const local = runtime?.config.provider === Provider.ProviderLocal
+        return (<>
           <div className="border-b border-line px-[14px] pb-[11px] pt-[11px]">
             <div className="pb-[7px] text-2xs text-ink-muted">当前运行</div>
             <dl className="m-0 grid grid-cols-[46px_minmax(0,1fr)] gap-x-[10px] gap-y-[4px] text-xs">
@@ -61,7 +64,13 @@ export default function RunConfigDropdown({ open, onClose, ready, busy, status, 
               </div>)}
             </dl>
           </div>
-        )
+          <div className="border-b border-line px-[14px] pb-[8px] pt-[10px]">
+            <div className="pb-[4px] text-2xs text-ink-muted">能力</div>
+            <CapabilitySwitch icon={<Globe size={14} />} label="网页搜索" checked={Boolean(runtimeConfig?.enableWeb)} disabled={busy || local} onChange={(value) => onToggleCapability('enableWeb', value)} />
+            <CapabilitySwitch icon={<Network size={14} />} label="子 Agent" checked={Boolean(runtimeConfig?.enableSubagents)} disabled={busy || local} onChange={(value) => onToggleCapability('enableSubagents', value)} />
+            {local && <div className="pt-[4px] text-2xs text-ink-muted">本地模型请在设置中修改，重新加载后生效</div>}
+          </div>
+        </>)
       })()}
       <div className="border-b border-line px-[14px] pb-[9px] pt-[11px] text-2xs text-ink-muted">{ready ? '切换连接' : '已保存连接'}</div>
       {providers.length === 0 ? (
@@ -96,6 +105,20 @@ export default function RunConfigDropdown({ open, onClose, ready, busy, status, 
         <span className="text-xs text-brand">打开设置</span>
       </button>
     </div>
+  )
+}
+
+function CapabilitySwitch({ icon, label, checked, disabled, onChange }: { icon: ReactNode; label: string; checked: boolean; disabled: boolean; onChange: (value: boolean) => void }) {
+  return (
+    <button type="button" role="switch" aria-checked={checked} aria-label={label} disabled={disabled} onClick={() => onChange(!checked)}
+      className="flex w-full items-center gap-[9px] rounded-md border-0 bg-transparent px-0 py-[5px] text-left text-sm text-ink disabled:opacity-60">
+      <span className={checked ? 'text-ink' : 'text-ink-ghost'}>{icon}</span>
+      <span className="flex-1">{label}</span>
+      {/* 开关轨道：开 = 实心，关 = 浅灰；过渡跟随系统减少动态效果设置 */}
+      <span className={`relative h-[18px] w-[32px] flex-none rounded-full transition-colors duration-150 motion-reduce:transition-none ${checked ? 'bg-brand' : 'bg-line-strong'}`}>
+        <span className={`absolute top-[2px] h-[14px] w-[14px] rounded-full bg-paper-wash shadow-hair transition-[left] duration-150 motion-reduce:transition-none ${checked ? 'left-[16px]' : 'left-[2px]'}`} />
+      </span>
+    </button>
   )
 }
 

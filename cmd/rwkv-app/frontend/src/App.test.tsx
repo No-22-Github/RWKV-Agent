@@ -621,6 +621,23 @@ describe('App', () => {
     expect(vi.mocked(Backend.ActivateProvider).mock.calls[0][0]).toBe('p1')
   })
 
+  it('toggles a capability of the running remote profile from the run config dropdown', async () => {
+    const runtime = bootstrapWithRunningProvider({ enableWeb: true, enableSubagents: true }, { id: 'runtime-provider', label: 'Runtime connection' })
+
+    render(<App />)
+    fireEvent.click(await screen.findByRole('button', { name: /rwkv7-test/ }))
+    const web = screen.getByRole('switch', { name: '网页搜索' })
+    expect(web).toHaveAttribute('aria-checked', 'true')
+    fireEvent.click(web)
+
+    await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalledOnce())
+    const [id, label, config] = vi.mocked(Backend.ConfigureProvider).mock.calls[0]
+    expect([id, label]).toEqual([runtime.id, 'Runtime connection'])
+    expect(config.enableWeb).toBe(false)
+    expect(config.enableSubagents).toBe(true)
+    expect(config.endpoint).toBe(runtime.config.endpoint)
+  })
+
   it('derives the capability indicator from the running config and applies toggles on close', async () => {
     const runtime = bootstrapWithRunningProvider({ enableWeb: true, enableSubagents: true }, { id: 'runtime-provider', label: 'Runtime connection' })
 
