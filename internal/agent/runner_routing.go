@@ -86,7 +86,7 @@ func (r *Runner) decideRoute(
 		}
 		promptTrace := compiled.Trace
 		started := time.Now()
-		generated, _, _, err := r.generate(ctx, compiled, messages, nil)
+		generated, _, _, err := r.generate(ctx, compiled, messages, nil, nil)
 		if err != nil {
 			steps = append(steps, RouteStep{
 				Attempt:     attempt + 1,
@@ -159,7 +159,7 @@ func (r *Runner) decideToolRoute(
 		}
 		promptTrace := compiled.Trace
 		started := time.Now()
-		generated, _, _, err := r.generate(ctx, compiled, messages, nil)
+		generated, _, _, err := r.generate(ctx, compiled, messages, nil, nil)
 		if err != nil {
 			steps = append(steps, RouteStep{
 				Attempt:     attempt + 1,

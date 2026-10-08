@@ -106,7 +106,7 @@ func newAppService(service *agentapi.Service, storage *appstorage.Store) *AppSer
 		// 远端配置很轻量（不发网络请求，连通性检查在"测试连接"里），启动时自动连上
 		// 上次使用的远端档案，省去手动重连；本地模型加载较重，仍需用户显式加载。
 		if cfg.Provider != agentapi.ProviderLocal {
-			if _, err := service.Configure(context.Background(), cfg, func(agentapi.Status) {}); err != nil {
+			if _, err := service.Configure(context.Background(), liveStreamConfig(cfg), func(agentapi.Status) {}); err != nil {
 				backend.warning = joinWarning(backend.warning, fmt.Sprintf("自动连接上次的远端失败：%v", err))
 			} else {
 				backend.runtimeProviderID = settings.ActiveID
@@ -117,6 +117,15 @@ func newAppService(service *agentapi.Service, storage *appstorage.Store) *AppSer
 	// 只有用户通过“打开工作区”主动选择后才应该被记住。
 	backend.loadActiveConversation()
 	return backend
+}
+
+// liveStreamConfig makes every remote generation stream so the chat view can
+// show the answer while it is written. The App has no stream switch; a saved
+// "stream": false is the old draft default, not a user choice. nil selects the
+// client default, which streams.
+func liveStreamConfig(config agentapi.Config) agentapi.Config {
+	config.Stream = nil
+	return config
 }
 
 func (s *AppService) setApplication(app *application.App) {
@@ -173,7 +182,7 @@ func (s *AppService) configureProvider(ctx context.Context, id string, label str
 	if old != nil {
 		_ = old.Close()
 	}
-	status, err := service.Configure(ctx, config, func(value agentapi.Status) {
+	status, err := service.Configure(ctx, liveStreamConfig(config), func(value agentapi.Status) {
 		s.emit("model:status", value)
 	})
 	s.emit("model:status", status)

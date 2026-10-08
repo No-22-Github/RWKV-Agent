@@ -137,6 +137,11 @@ const (
 	EventToolDone      EventKind = "tool_done"
 	EventSubagentStart EventKind = "subagent_start"
 	EventSubagentDone  EventKind = "subagent_done"
+	// EventAnswerDelta streams answer text for live display; Result.Output
+	// replaces it when the turn completes.
+	EventAnswerDelta EventKind = "answer_delta"
+	// EventAnswerReset retracts the answer text streamed so far.
+	EventAnswerReset EventKind = "answer_reset"
 )
 
 // Event is a transport-safe Agent loop event.
@@ -155,6 +160,7 @@ type Event struct {
 	MaxAttempts   int       `json:"maxAttempts,omitempty"`
 	StatusCode    int       `json:"statusCode,omitempty"`
 	DelayMS       int64     `json:"delayMs,omitempty"`
+	Text          string    `json:"text,omitempty"`
 	Error         string    `json:"error,omitempty"`
 }
 

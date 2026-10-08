@@ -85,6 +85,9 @@ type turnModelStep struct {
 	nativeCall       *toolchat.ToolCall
 	reasoningContent string
 	modelAction      string
+	// preview is the live answer preview streamed while this step generated;
+	// nil without an observer.
+	preview *answerPreview
 }
 
 func newRunnerTurn(
@@ -173,11 +176,16 @@ func (turn *runnerTurn) assembleTurnMessages(history []Message, control string) 
 }
 
 func (turn *runnerTurn) run() (Result, error) {
+	var preview *answerPreview
 	for step := 1; step <= turn.r.options.MaxSteps; step++ {
+		// Reaching another step means the previous one did not end the turn:
+		// its streamed text was not the answer.
+		preview.retract()
 		if err := turn.prepareAnswerStage(step); err != nil {
 			return turn.result, err
 		}
 		modelStep, err := turn.generateModelStep(step)
+		preview = modelStep.preview
 		if err != nil {
 			return turn.result, err
 		}
@@ -230,6 +238,7 @@ func (turn *runnerTurn) run() (Result, error) {
 			}
 			continue
 		}
+		preview.retract()
 		done, err := turn.runToolAction(step, action, modelStep)
 		if err != nil {
 			return turn.result, err
@@ -419,11 +428,13 @@ func (turn *runnerTurn) generateModelStep(step int) (turnModelStep, error) {
 		return turnModelStep{}, err
 	}
 	modelStarted := time.Now()
+	preview := turn.newAnswerPreview(step, compiled.InjectedPrefix)
 	generated, nativeCall, reasoningContent, err := r.generate(
 		turn.ctx,
 		compiled,
 		turn.messages,
 		turn.activeSpecs,
+		preview.sink(),
 	)
 	channel := ChannelText
 	if r.toolCompleter != nil {
@@ -440,7 +451,7 @@ func (turn *runnerTurn) generateModelStep(step int) (turnModelStep, error) {
 			Event{Kind: EventModelDone, Step: step, DurationMS: modelDuration, Err: err},
 			turn.observer,
 		)
-		return turnModelStep{}, err
+		return turnModelStep{preview: preview}, err
 	}
 	current := Step{
 		Number:          step,
@@ -465,6 +476,7 @@ func (turn *runnerTurn) generateModelStep(step int) (turnModelStep, error) {
 		nativeCall:       nativeCall,
 		reasoningContent: reasoningContent,
 		modelAction:      modelAction,
+		preview:          preview,
 	}, nil
 }
 

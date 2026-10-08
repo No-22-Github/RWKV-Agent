@@ -432,6 +432,7 @@ func publicEvent(event agent.Event) Event {
 		MaxAttempts:   event.MaxAttempts,
 		StatusCode:    event.StatusCode,
 		DelayMS:       event.DelayMS,
+		Text:          terminal.SanitizeModelText(event.Text),
 	}
 	if event.Err != nil {
 		value.Error = event.Err.Error()

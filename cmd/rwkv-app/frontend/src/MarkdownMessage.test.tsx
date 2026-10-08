@@ -8,6 +8,18 @@ afterEach(() => {
 })
 
 describe('MarkdownMessage', () => {
+  it('splits streamed prose into per-token spans but leaves code and settled text whole', () => {
+    const content = '杭州 is **lovely**\n\n```js\nconst a = 1\n```'
+    const { container, rerender } = render(<MarkdownMessage content={content} streaming />)
+    const tokens = [...container.querySelectorAll('.stream-tok')].map((node) => node.textContent)
+    expect(tokens).toEqual(['杭', '州', ' ', 'is ', 'lovely'])
+    expect(container.querySelector('code .stream-tok')).toBeNull()
+    expect(container.textContent).toContain('const a = 1')
+
+    rerender(<MarkdownMessage content={content} />)
+    expect(container.querySelector('.stream-tok')).toBeNull()
+  })
+
   it('renders GFM content and keeps external links isolated', () => {
     render(<MarkdownMessage content={'## 结果\n\n- [x] 已完成\n\n| 名称 | 状态 |\n| --- | --- |\n| Agent | **正常** |\n\n[来源](https://example.test)'} />)
 

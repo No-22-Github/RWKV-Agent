@@ -6,6 +6,29 @@ import remarkGfm from 'remark-gfm'
 
 type MarkdownMessageProps = {
   content: string
+  // 流式生成中：正文按字（英文按词）拆成 span，新挂载的字各自浮起；落定后不拆。
+  streaming?: boolean
+}
+
+// 最小 hast 形状：只为下面的拆字插件服务，避免为此引入 @types/hast。
+type HastNode = { type: string; tagName?: string; value?: string; properties?: Record<string, unknown>; children?: HastNode[] }
+
+// 中日韩字符逐字、其余按词（连同空白）切分。
+const STREAM_TOKEN = /[\u2e80-\u9fff\uf900-\ufaff\uff00-\uffef\u3000-\u303f]|[^\s\u2e80-\u9fff\uf900-\ufaff\uff00-\uffef\u3000-\u303f]+\s*|\s+/g
+
+// rehype 插件：把文本节点拆成 .stream-tok span。React 按位置复用已有 span，
+// 只有新追加的字才挂载、才播放入场动画。代码块保持整段文本（CodeBlock 要取纯文本高亮）。
+function rehypeStreamTokens() {
+  const split = (node: HastNode) => {
+    if (!node.children || node.tagName === 'code' || node.tagName === 'pre') return
+    node.children = node.children.flatMap((child): HastNode[] => {
+      if (child.type !== 'text' || !child.value) { split(child); return [child] }
+      return (child.value.match(STREAM_TOKEN) || []).map((token) => ({
+        type: 'element', tagName: 'span', properties: { className: ['stream-tok'] }, children: [{ type: 'text', value: token }],
+      }))
+    })
+  }
+  return (tree: HastNode) => split(tree)
 }
 
 type CodeBlockProps = {
@@ -76,7 +99,7 @@ const codeTheme: PrismTheme = {
   ],
 }
 
-export default function MarkdownMessage({ content }: MarkdownMessageProps) {
+export default function MarkdownMessage({ content, streaming }: MarkdownMessageProps) {
   const blocks = splitTopLevelBlocks(content)
   let plainCount = 0
 
@@ -91,6 +114,7 @@ export default function MarkdownMessage({ content }: MarkdownMessageProps) {
         const markdown = (
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
+            rehypePlugins={streaming ? [rehypeStreamTokens] : undefined}
             skipHtml
             components={{
               pre({ children }) {

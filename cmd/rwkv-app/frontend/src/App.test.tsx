@@ -221,7 +221,7 @@ describe('App', () => {
     const config = vi.mocked(Backend.ConfigureProvider).mock.calls[0][2]
     expect(config.provider).toBe('rwkv-lightning-cuda')
     expect(config.rwkvStopTokens).toBe('eos')
-    expect(config.stream).toBe(false)
+    expect(config.stream).toBeUndefined()
     expect(config.headers).toEqual({ 'CF-Access-Client-Id': 'secret' })
     expect(config.agentProtocol).toBe('xml')
     expect(config.progressiveTools).toBe(false)

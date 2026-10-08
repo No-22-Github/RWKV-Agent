@@ -196,7 +196,8 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       password: remoteProtocol !== 'openai' ? apiKey.trim() || undefined : undefined,
       headers: headerMap, tokenizerPath: undefined,
       chatPromptMode: 'native-chat', chatThinking: 'disabled',
-      stream: remoteProtocol !== 'openai' ? draftBaseConfig.stream ?? false : undefined,
+      // 流式由后端统一决定（App 一律流式显示回答），旧档案里的 stream:false 不再带出去。
+      stream: undefined,
       rwkvStopTokens: remoteProtocol === 'openai' ? undefined : stops,
       // 只有 CUDA 支持上传的 State；切到别的协议时不带出去，否则 Python 会直接拒绝。
       stateId: remoteProtocol === 'cuda' ? stateId.trim() || undefined : undefined,
@@ -400,7 +401,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       ...draftBaseConfig,
       provider: Provider.ProviderRWKVLightningCUDA,
       model: '', endpoint: '', apiKey: undefined, password: undefined, headers: {}, stateId: undefined,
-      chatPromptMode: 'native-chat', chatThinking: 'disabled', stream: false, rwkvStopTokens: 'eos',
+      chatPromptMode: 'native-chat', chatThinking: 'disabled', rwkvStopTokens: 'eos',
       ...agentCapabilityConfig(),
     })
     setDraftInitialized(false)

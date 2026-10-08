@@ -97,10 +97,11 @@ func (r *Runner) generate(
 	compiled CompiledPrompt,
 	messages []Message,
 	toolSpecs []ToolSpec,
+	sink continuation.EventSink,
 ) (continuation.Result, *toolchat.ToolCall, string, error) {
 	request := compiled.Request
 	if r.toolCompleter == nil {
-		result, err := r.generator.Continue(ctx, request, nil)
+		result, err := r.generator.Continue(ctx, request, sink)
 		return result, nil, "", err
 	}
 	chatRequest := toolchat.Request{
@@ -121,7 +122,7 @@ func (r *Runner) generate(
 			chatRequest.ToolChoice = toolchat.ToolChoiceRequired
 		}
 	}
-	completed, err := r.toolCompleter.Complete(ctx, chatRequest, nil)
+	completed, err := r.toolCompleter.Complete(ctx, chatRequest, sink)
 	if err != nil {
 		return continuation.Result{}, nil, "", err
 	}

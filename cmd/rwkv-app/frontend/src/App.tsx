@@ -31,11 +31,13 @@ type Message = {
   trajectory?: ToolTrace[]
   trace?: Result
   createdAt?: string
+  // 回答已经流式显示过：落定时不再播放显影动画，免得同一段字又闪一次。
+  streamed?: boolean
 }
 type AgentActivity = {
   kind: string; step?: number; parentStep?: number; tool?: string; arguments?: string; route?: string
   bundles?: string[]; subagentIndex?: number; subagentTask?: string; durationMs?: number
-  attempt?: number; maxAttempts?: number; statusCode?: number; delayMs?: number; error?: string
+  attempt?: number; maxAttempts?: number; statusCode?: number; delayMs?: number; error?: string; text?: string
 }
 type ChatTurn = { user?: Message; response?: Message }
 type GutterStatus = { label: string; state: 'idle' | 'running' | 'completed' | 'failed' }
@@ -63,6 +65,9 @@ export default function App() {
   const [workspaces, setWorkspaces] = useState<WorkspaceItem[]>([])
   const [activeConversationID, setActiveConversationID] = useState('')
   const [activity, setActivity] = useState<AgentActivity[]>([])
+  // 正在生成的回答预览：后端 answer_delta 逐段追加、answer_reset 清空；一轮结束后由正式结果取代。
+  const [liveAnswer, setLiveAnswer] = useState('')
+  const liveAnswerRef = useRef('')
   const [prompt, setPrompt] = useState('')
   const [busy, setBusy] = useState(false)
   const [activeTab, setActiveTab] = useState<'chat' | 'trace'>('chat')
@@ -83,11 +88,21 @@ export default function App() {
   useEffect(() => {
     Backend.Bootstrap().then(applyBootstrap).catch((error: unknown) => setStatus(new Status({ ...emptyStatus, state: ModelState.ModelError, message: errorText(error) })))
     const offStatus = Events.On('model:status', (event) => setStatus(Status.createFrom(event.data)))
-    const offAgent = Events.On('agent:event', (event) => setActivity((current) => [...current, event.data as AgentActivity]))
+    const offAgent = Events.On('agent:event', (event) => {
+      const data = event.data as AgentActivity
+      if (data.kind === 'answer_delta' || data.kind === 'answer_reset') {
+        // 子 Agent 的回答只是它交回主 Agent 的中间结果，不显示在对话里。
+        if (data.subagentIndex) return
+        liveAnswerRef.current = data.kind === 'answer_reset' ? '' : liveAnswerRef.current + (data.text || '')
+        setLiveAnswer(liveAnswerRef.current)
+        return
+      }
+      setActivity((current) => [...current, data])
+    })
     return () => { offStatus(); offAgent() }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-  useEffect(() => { messagesEnd.current?.scrollIntoView({ block: 'end' }) }, [messages])
+  useEffect(() => { messagesEnd.current?.scrollIntoView({ block: 'end' }) }, [messages, liveAnswer])
 
   // 快捷键监听只挂一次，经 ref 调最新一轮渲染的处理函数：过去依赖 [busy] 的闭包会拿着
   // 空的档案列表打开设置（首轮对话前按 ⌘, 总是落到"新建连接"）。
@@ -173,11 +188,12 @@ export default function App() {
   }
   async function runTurn(content: string, stage: (current: Message[]) => Message[], run: () => Promise<Result> & { cancel: () => void }, restoreUser: boolean) {
     setActivity([]); setMessages(stage); setBusy(true)
+    liveAnswerRef.current = ''; setLiveAnswer('')
     try {
       const call = run()
       runningChat.current = call
       const result = await call
-      const assistant: Message = { id: `pending-${nextMessageID++}`, role: 'assistant', content: result.output, prompt: content, trace: result, createdAt: new Date().toISOString(), meta: `${result.steps.length} 步 · ${(result.durationMs / 1000).toFixed(1)} 秒`, trajectory: legacyTrajectory(result.steps) }
+      const assistant: Message = { id: `pending-${nextMessageID++}`, role: 'assistant', content: result.output, prompt: content, trace: result, createdAt: new Date().toISOString(), meta: `${result.steps.length} 步 · ${(result.durationMs / 1000).toFixed(1)} 秒`, trajectory: legacyTrajectory(result.steps), streamed: liveAnswerRef.current !== '' }
       setMessages((current) => [...current, assistant]); setSelectedTraceID(assistant.id)
       const persisted = await Backend.Bootstrap(); setConversations(persisted.conversations || []); setActiveConversationID(persisted.conversation?.id || '')
     } catch (error) {
@@ -197,7 +213,7 @@ export default function App() {
         setMessages((current) => [...current, { id: `error-${nextMessageID++}`, role: 'error', content: errorText(error) }])
       }
     }
-    finally { runningChat.current = null; setBusy(false) }
+    finally { runningChat.current = null; setBusy(false); liveAnswerRef.current = ''; setLiveAnswer('') }
   }
   function stopRun() { runningChat.current?.cancel() }
   function submitMessage() { void sendMessage(prompt) }
@@ -239,7 +255,7 @@ export default function App() {
             </button>
           </div>
         </header>
-        {activeTab === 'trace' ? <TraceView messages={traceMessages} selected={selectedMessage} onSelect={setSelectedTraceID} onBackToChat={() => setActiveTab('chat')} /> : <ChatView messages={messages} activity={activity} busy={busy} ready={ready} workspace={workspaceName} model={status.model || '选择模型'} capabilities={capabilities} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={() => void regenerateLast()} onKeyDown={onComposerKeyDown} onStop={stopRun} openSettings={manager.openSettings} chooseWorkspace={chooseWorkspace} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} messagesEnd={messagesEnd} />}
+        {activeTab === 'trace' ? <TraceView messages={traceMessages} selected={selectedMessage} onSelect={setSelectedTraceID} onBackToChat={() => setActiveTab('chat')} /> : <ChatView messages={messages} activity={activity} liveAnswer={liveAnswer} busy={busy} ready={ready} workspace={workspaceName} model={status.model || '选择模型'} capabilities={capabilities} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={() => void regenerateLast()} onKeyDown={onComposerKeyDown} onStop={stopRun} openSettings={manager.openSettings} chooseWorkspace={chooseWorkspace} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} messagesEnd={messagesEnd} />}
       </main>
       <RunConfigDropdown open={runConfigOpen} onClose={() => setRunConfigOpen(false)} ready={ready} busy={busy} providers={manager.providers} runtimeProviderId={manager.runtimeProviderId} onActivate={(id) => void activateProviderNow(id)} onOpenSettings={() => { setRunConfigOpen(false); manager.openSettings() }} />
     </>}
@@ -318,7 +334,7 @@ function Sidebar({ conversations, workspaces, activeId, busy, open, onCloseSideb
   </>
 }
 
-function ChatView({ messages, activity, busy, ready, workspace, capabilities, prompt, setPrompt, onSubmit, onStop, onRegenerate, onKeyDown, onTrace, messagesEnd }: { messages: Message[]; activity: AgentActivity[]; busy: boolean; ready: boolean; workspace: string; model: string; capabilities: string; prompt: string; setPrompt: (value: string) => void; onSubmit: () => void; onStop: () => void; onRegenerate: () => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void; openSettings: () => void; chooseWorkspace: () => Promise<void>; onTrace: (id: string) => void; messagesEnd: React.RefObject<HTMLDivElement | null> }) {
+function ChatView({ messages, activity, liveAnswer, busy, ready, workspace, capabilities, prompt, setPrompt, onSubmit, onStop, onRegenerate, onKeyDown, onTrace, messagesEnd }: { messages: Message[]; activity: AgentActivity[]; liveAnswer: string; busy: boolean; ready: boolean; workspace: string; model: string; capabilities: string; prompt: string; setPrompt: (value: string) => void; onSubmit: () => void; onStop: () => void; onRegenerate: () => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void; openSettings: () => void; chooseWorkspace: () => Promise<void>; onTrace: (id: string) => void; messagesEnd: React.RefObject<HTMLDivElement | null> }) {
   const turns = groupMessagesIntoTurns(messages)
   const empty = turns.length === 0
   // busy 也覆盖打开会话等短操作；只有最后一轮在等回答才算 Agent 运行中。
@@ -374,7 +390,7 @@ function ChatView({ messages, activity, busy, ready, workspace, capabilities, pr
   return <div className="chat-panel relative flex min-h-0 flex-1 flex-col overflow-hidden">
     <div ref={stageRef} className="chat-stage relative min-h-0 flex-1 overflow-hidden">
       {!empty && <div ref={scrollRef} className="conversation-scroll absolute inset-0 mx-auto content-narrow overflow-auto pt-[30px]">
-        {turns.map((turn, index) => <TurnView key={turn.user?.id || turn.response?.id || index} turn={turn} index={index + 1} last={index === turns.length - 1} busy={busy} pending={busy && index === turns.length - 1 && !turn.response} activity={activity} onTrace={onTrace} onRegenerate={onRegenerate} />)}
+        {turns.map((turn, index) => <TurnView key={turn.user?.id || turn.response?.id || index} turn={turn} index={index + 1} last={index === turns.length - 1} busy={busy} pending={busy && index === turns.length - 1 && !turn.response} activity={activity} liveAnswer={liveAnswer} onTrace={onTrace} onRegenerate={onRegenerate} />)}
         <div ref={messagesEnd} />
       </div>}
     </div>
@@ -384,7 +400,7 @@ function ChatView({ messages, activity, busy, ready, workspace, capabilities, pr
   </div>
 }
 
-function TurnView({ turn, index, last, busy, pending, activity, onTrace, onRegenerate }: { turn: ChatTurn; index: number; last: boolean; busy: boolean; pending: boolean; activity: AgentActivity[]; onTrace: (id: string) => void; onRegenerate: () => void }) {
+function TurnView({ turn, index, last, busy, pending, activity, liveAnswer, onTrace, onRegenerate }: { turn: ChatTurn; index: number; last: boolean; busy: boolean; pending: boolean; activity: AgentActivity[]; liveAnswer: string; onTrace: (id: string) => void; onRegenerate: () => void }) {
   const response = turn.response
   const hasTrace = Boolean(response?.trace || response?.trajectory?.length)
   const subagentCalls = (response?.trajectory || []).filter((call) => call.subagents?.length)
@@ -406,8 +422,11 @@ function TurnView({ turn, index, last, busy, pending, activity, onTrace, onRegen
     </aside>
     <div className="turn-main flex min-w-0 flex-col gap-4">
       {turn.user && <div className="flex justify-end"><div className="min-w-[180px] max-w-[82%] rounded-xl bg-user-bg p-[10px_14px] text-base leading-[1.7] text-user-text [overflow-wrap:anywhere]">{turn.user.content}</div></div>}
-      {pending && <div className="turn-pending-answer min-h-7 pt-[2px]" aria-live="polite"><span className="shimmer-text text-sm">{activityLabel(activity.at(-1))}</span></div>}
-      {response?.role === 'assistant' && <div className={`turn-answer${last ? ' answer-reveal' : ''} text-md leading-[1.8] text-ink [overflow-wrap:anywhere]`}><MarkdownMessage content={response.content} /></div>}
+      {pending && (liveAnswer
+        // 流式预览：新生成的字逐个浮起，新段落、列表项整块浮起。
+        ? <div className="turn-answer answer-streaming text-md leading-[1.8] text-ink [overflow-wrap:anywhere]" aria-busy="true"><MarkdownMessage content={liveAnswer} streaming /></div>
+        : <div className="turn-pending-answer min-h-7 pt-[2px]" aria-live="polite"><span className="shimmer-text text-sm">{activityLabel(activity.at(-1))}</span></div>)}
+      {response?.role === 'assistant' && <div className={`turn-answer${last && !response.streamed ? ' answer-reveal' : ''} text-md leading-[1.8] text-ink [overflow-wrap:anywhere]`}><MarkdownMessage content={response.content} /></div>}
       {response?.role === 'error' && <div className="flex items-start gap-2 rounded-lg border border-danger/30 bg-danger-wash p-[10px_12px] text-sm leading-[1.65] text-danger"><X size={15} className="mt-[3px] flex-none" /><span>{response.content}</span></div>}
       {subagentCount > 0 && response && <SubagentCards trajectory={response.trajectory} done={!pending} />}
       {response?.meta && <div className="font-mono text-2xs text-ink-muted">{response.meta}</div>}

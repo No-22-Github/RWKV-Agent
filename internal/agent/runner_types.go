@@ -182,6 +182,11 @@ const (
 	EventToolDone      EventKind = "tool_done"
 	EventSubagentStart EventKind = "subagent_start"
 	EventSubagentDone  EventKind = "subagent_done"
+	// EventAnswerDelta carries newly generated text of what looks like the
+	// final answer, for live display only; Result.Output stays authoritative.
+	EventAnswerDelta EventKind = "answer_delta"
+	// EventAnswerReset retracts every answer delta streamed so far.
+	EventAnswerReset EventKind = "answer_reset"
 )
 
 type Event struct {
@@ -199,6 +204,7 @@ type Event struct {
 	MaxAttempts   int
 	StatusCode    int
 	DelayMS       int64
+	Text          string
 	Err           error
 }
 
