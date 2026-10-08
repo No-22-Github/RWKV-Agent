@@ -433,7 +433,7 @@ function TurnView({ turn, index, last, busy, pending, activity, liveAnswer, onGr
       {(stats || (response?.trajectory?.length && !response.trace)) && <><span className="gutter-rule my-[3px] h-px w-[34px] flex-none bg-line" /><span className="text-2xs leading-[1.6] text-ink-muted">{stats ? <>{formatDuration(stats.durationMs)}{stats.tokens > 0 && <><br />{stats.tokens.toLocaleString('zh-CN')} tok</>}</> : <>历史摘要<br />工具 {response?.trajectory?.length}</>}</span></>}
     </aside>
     <div className="turn-main flex min-w-0 flex-col gap-4">
-      {turn.user && <div className="flex justify-end"><div className="min-w-[180px] max-w-[82%] rounded-xl bg-user-bg p-[10px_14px] text-base leading-[1.7] text-user-text [overflow-wrap:anywhere]">{turn.user.content}</div></div>}
+      {turn.user && <div className="flex justify-end"><div className="max-w-[82%] rounded-xl bg-user-bg p-[10px_14px] text-base leading-[1.7] text-user-text [overflow-wrap:anywhere]">{turn.user.content}</div></div>}
       {pending && !liveAnswer && <div className="turn-pending-answer min-h-7 pt-[2px]" aria-live="polite"><span className="shimmer-text text-sm">{activityLabel(activity.at(-1))}</span></div>}
       {/* 流式回答：生成中与落定后必须是同一位置的同一个 PacedAnswer，落定时它才能把没放完的字按节奏放完。 */}
       {streamText
