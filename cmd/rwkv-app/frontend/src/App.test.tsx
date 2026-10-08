@@ -939,6 +939,35 @@ describe('App', () => {
     expect(screen.getByText(/legacySubagents/)).toHaveTextContent('检查官方文档')
   })
 
+  it('sends one turn when Enter fires twice before the next render', async () => {
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
+      status: new Status({ state: ModelState.ModelReady, model: 'scripted', workspace: '/tmp/RWKV-Agent', hasApiKey: false, updatedAt: new Date().toISOString() }),
+    }))
+    vi.mocked(Backend.Chat).mockReturnValue(new Promise(() => {}) as ReturnType<typeof Backend.Chat>)
+
+    render(<App />)
+    const composer = await screen.findByLabelText('消息')
+    fireEvent.change(composer, { target: { value: '你好' } })
+    act(() => {
+      fireEvent.keyDown(composer, { key: 'Enter' })
+      fireEvent.keyDown(composer, { key: 'Enter' })
+    })
+    await waitFor(() => expect(Backend.Chat).toHaveBeenCalledOnce())
+    expect(screen.getAllByTestId(/^conversation-turn-/)).toHaveLength(1)
+  })
+
+  it('does not send while an input method is composing', async () => {
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
+      status: new Status({ state: ModelState.ModelReady, model: 'scripted', workspace: '/tmp/RWKV-Agent', hasApiKey: false, updatedAt: new Date().toISOString() }),
+    }))
+
+    render(<App />)
+    const composer = await screen.findByLabelText('消息')
+    fireEvent.change(composer, { target: { value: 'nihao' } })
+    fireEvent.keyDown(composer, { key: 'Enter', keyCode: 229 })
+    expect(Backend.Chat).not.toHaveBeenCalled()
+  })
+
   it('groups live child activity under spawn_agents', async () => {
     vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
       status: new Status({

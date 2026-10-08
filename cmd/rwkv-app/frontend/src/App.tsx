@@ -82,6 +82,10 @@ export default function App() {
   const { show: notify } = useSnackbar()
   // 进行中的一轮：Wails 绑定返回可取消的 Promise，取消会中断后端 ctx。
   const runningChat = useRef<{ cancel: () => void } | null>(null)
+  // 同步生效的「本轮进行中」标记。busy 是状态，要等下一次渲染才更新：同一瞬间触发两次发送
+  // （如输入法确认时连发两次回车）两次都会读到 busy=false，第二条会在后端操作锁上排队，
+  // 等第一轮结束后被悄悄跑掉。
+  const turnInFlight = useRef(false)
   // 聊天页的失败要在聊天页看得见：settingsMessage 只在设置页底部渲染。
   const reportError = (error: unknown) => notify(errorText(error), 'error')
   const { settingsOpen } = manager
@@ -176,18 +180,19 @@ export default function App() {
     return false
   }
   async function sendMessage(value: string) {
-    const content = value.trim(); if (!content || busy || !ensureReady()) return
+    const content = value.trim(); if (!content || busy || turnInFlight.current || !ensureReady()) return
     setPrompt('')
     await runTurn(content, (current) => [...current, userMessage(content)], () => Backend.Chat(content), true)
   }
   // 原地重新生成：撤掉最后一轮的回复，由后端回退历史后用同一条用户消息重跑，而不是追加一条重复消息。
   async function regenerateLast() {
-    if (busy) return
+    if (busy || turnInFlight.current) return
     const content = [...messages].reverse().find((message) => message.role === 'user')?.content
     if (!content || !ensureReady()) return
     await runTurn(content, (current) => current.at(-1)?.role === 'user' ? current : current.slice(0, -1), () => Backend.Regenerate(), false)
   }
   async function runTurn(content: string, stage: (current: Message[]) => Message[], run: () => Promise<Result> & { cancel: () => void }, restoreUser: boolean) {
+    turnInFlight.current = true
     setActivity([]); setMessages(stage); setBusy(true)
     liveAnswerRef.current = ''; setLiveAnswer('')
     try {
@@ -214,11 +219,14 @@ export default function App() {
         setMessages((current) => [...current, { id: `error-${nextMessageID++}`, role: 'error', content: errorText(error) }])
       }
     }
-    finally { runningChat.current = null; setBusy(false); liveAnswerRef.current = ''; setLiveAnswer('') }
+    finally { runningChat.current = null; turnInFlight.current = false; setBusy(false); liveAnswerRef.current = ''; setLiveAnswer('') }
   }
   function stopRun() { runningChat.current?.cancel() }
   function submitMessage() { void sendMessage(prompt) }
-  function onComposerKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void sendMessage(prompt) } }
+  function onComposerKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
+    // 输入法组字中的回车是确认候选词，不是发送（WebKit 组字时 keyCode 为 229）。
+    if (event.nativeEvent.isComposing || event.keyCode === 229) return
+    if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void sendMessage(prompt) } }
   async function newConversation() { if (busy) return; await Backend.NewConversation(); setMessages([]); setActivity([]); setPrompt(''); setActiveConversationID(''); setActiveTab('chat') }
   async function openConversation(id: string) { if (busy || id === activeConversationID) return; setBusy(true); try { applyConversation(await Backend.OpenConversation(id)) } catch (error) { reportError(error) } finally { setBusy(false) } }
   async function deleteConversation(id: string) { if (busy) return; setBusy(true); try { await Backend.DeleteConversation(id); if (id === activeConversationID) applyConversation(); const persisted = await Backend.Bootstrap(); setConversations(persisted.conversations || []) } catch (error) { reportError(error) } finally { setBusy(false) } }
