@@ -11,6 +11,7 @@ import type {
   AppBootstrap, ConversationSummary, ConversationView, WorkspaceItem,
 } from '../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/models'
 import MarkdownMessage from './MarkdownMessage'
+import PacedAnswer from './components/PacedAnswer'
 import ConfirmDialog from './components/ConfirmDialog'
 import type { ToolTrace } from './trajectory-types'
 import RunConfigDropdown from './components/RunConfigDropdown'
@@ -337,6 +338,8 @@ function Sidebar({ conversations, workspaces, activeId, busy, open, onCloseSideb
 function ChatView({ messages, activity, liveAnswer, busy, ready, workspace, capabilities, prompt, setPrompt, onSubmit, onStop, onRegenerate, onKeyDown, onTrace, messagesEnd }: { messages: Message[]; activity: AgentActivity[]; liveAnswer: string; busy: boolean; ready: boolean; workspace: string; model: string; capabilities: string; prompt: string; setPrompt: (value: string) => void; onSubmit: () => void; onStop: () => void; onRegenerate: () => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void; openSettings: () => void; chooseWorkspace: () => Promise<void>; onTrace: (id: string) => void; messagesEnd: React.RefObject<HTMLDivElement | null> }) {
   const turns = groupMessagesIntoTurns(messages)
   const empty = turns.length === 0
+  // 匀速显示会比消息到达晚一点长高，滚动要跟着显示层走，而不只是跟着消息。
+  const followAnswer = useCallback(() => messagesEnd.current?.scrollIntoView({ block: 'end' }), [messagesEnd])
   // busy 也覆盖打开会话等短操作；只有最后一轮在等回答才算 Agent 运行中。
   const running = busy && !empty && !turns[turns.length - 1].response
   const stageRef = useRef<HTMLDivElement>(null)
@@ -390,7 +393,7 @@ function ChatView({ messages, activity, liveAnswer, busy, ready, workspace, capa
   return <div className="chat-panel relative flex min-h-0 flex-1 flex-col overflow-hidden">
     <div ref={stageRef} className="chat-stage relative min-h-0 flex-1 overflow-hidden">
       {!empty && <div ref={scrollRef} className="conversation-scroll absolute inset-0 mx-auto content-narrow overflow-auto pt-[30px]">
-        {turns.map((turn, index) => <TurnView key={turn.user?.id || turn.response?.id || index} turn={turn} index={index + 1} last={index === turns.length - 1} busy={busy} pending={busy && index === turns.length - 1 && !turn.response} activity={activity} liveAnswer={liveAnswer} onTrace={onTrace} onRegenerate={onRegenerate} />)}
+        {turns.map((turn, index) => <TurnView key={turn.user?.id || turn.response?.id || index} turn={turn} index={index + 1} last={index === turns.length - 1} busy={busy} pending={busy && index === turns.length - 1 && !turn.response} activity={activity} liveAnswer={liveAnswer} onGrow={followAnswer} onTrace={onTrace} onRegenerate={onRegenerate} />)}
         <div ref={messagesEnd} />
       </div>}
     </div>
@@ -400,7 +403,7 @@ function ChatView({ messages, activity, liveAnswer, busy, ready, workspace, capa
   </div>
 }
 
-function TurnView({ turn, index, last, busy, pending, activity, liveAnswer, onTrace, onRegenerate }: { turn: ChatTurn; index: number; last: boolean; busy: boolean; pending: boolean; activity: AgentActivity[]; liveAnswer: string; onTrace: (id: string) => void; onRegenerate: () => void }) {
+function TurnView({ turn, index, last, busy, pending, activity, liveAnswer, onGrow, onTrace, onRegenerate }: { turn: ChatTurn; index: number; last: boolean; busy: boolean; pending: boolean; activity: AgentActivity[]; liveAnswer: string; onGrow: () => void; onTrace: (id: string) => void; onRegenerate: () => void }) {
   const response = turn.response
   const hasTrace = Boolean(response?.trace || response?.trajectory?.length)
   const subagentCalls = (response?.trajectory || []).filter((call) => call.subagents?.length)
@@ -408,6 +411,7 @@ function TurnView({ turn, index, last, busy, pending, activity, liveAnswer, onTr
   const statuses = pending ? liveGutterStatuses(activity) : completedGutterStatuses(response)
   const stats = response?.trace ? traceStats(response.trace) : undefined
   const time = turn.user?.createdAt || response?.createdAt
+  const streamText = pending ? liveAnswer : response?.role === 'assistant' && response.streamed ? response.content : ''
   // 入场动效只给最后一轮：新发出的回合，或刚打开会话时的最末一轮；历史回合不整片闪动。
   return <article className={`conversation-turn mb-[42px] grid turn-grid${pending ? ' pending' : ''}${last ? ' turn-enter' : ''}`} data-testid={`conversation-turn-${index}`}>
     <aside className="turn-gutter flex min-w-0 flex-col items-end gap-[6px] pt-[1px] text-right text-ink-muted">
@@ -422,11 +426,11 @@ function TurnView({ turn, index, last, busy, pending, activity, liveAnswer, onTr
     </aside>
     <div className="turn-main flex min-w-0 flex-col gap-4">
       {turn.user && <div className="flex justify-end"><div className="min-w-[180px] max-w-[82%] rounded-xl bg-user-bg p-[10px_14px] text-base leading-[1.7] text-user-text [overflow-wrap:anywhere]">{turn.user.content}</div></div>}
-      {pending && (liveAnswer
-        // 流式预览：新生成的字逐个浮起，新段落、列表项整块浮起。
-        ? <div className="turn-answer answer-streaming text-md leading-[1.8] text-ink [overflow-wrap:anywhere]" aria-busy="true"><MarkdownMessage content={liveAnswer} streaming /></div>
-        : <div className="turn-pending-answer min-h-7 pt-[2px]" aria-live="polite"><span className="shimmer-text text-sm">{activityLabel(activity.at(-1))}</span></div>)}
-      {response?.role === 'assistant' && <div className={`turn-answer${last && !response.streamed ? ' answer-reveal' : ''} text-md leading-[1.8] text-ink [overflow-wrap:anywhere]`}><MarkdownMessage content={response.content} /></div>}
+      {pending && !liveAnswer && <div className="turn-pending-answer min-h-7 pt-[2px]" aria-live="polite"><span className="shimmer-text text-sm">{activityLabel(activity.at(-1))}</span></div>}
+      {/* 流式回答：生成中与落定后必须是同一位置的同一个 PacedAnswer，落定时它才能把没放完的字按节奏放完。 */}
+      {streamText
+        ? <div className="turn-answer answer-streaming text-md leading-[1.8] text-ink [overflow-wrap:anywhere]" aria-busy={pending}><PacedAnswer text={streamText} live={pending} onGrow={onGrow} /></div>
+        : response?.role === 'assistant' && <div className={`turn-answer${last ? ' answer-reveal' : ''} text-md leading-[1.8] text-ink [overflow-wrap:anywhere]`}><MarkdownMessage content={response.content} /></div>}
       {response?.role === 'error' && <div className="flex items-start gap-2 rounded-lg border border-danger/30 bg-danger-wash p-[10px_12px] text-sm leading-[1.65] text-danger"><X size={15} className="mt-[3px] flex-none" /><span>{response.content}</span></div>}
       {subagentCount > 0 && response && <SubagentCards trajectory={response.trajectory} done={!pending} />}
       {response?.meta && <div className="font-mono text-2xs text-ink-muted">{response.meta}</div>}

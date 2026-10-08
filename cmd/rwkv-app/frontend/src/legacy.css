@@ -42,14 +42,14 @@
 .answer-reveal { animation: answer-reveal .7s cubic-bezier(.22, 1, .36, 1) both; }
 
 /* 流式回答：新挂载的段落、列表项、表格行浮起；已显示的部分不再动 */
-@keyframes stream-rise { from { opacity: 0; transform: translateY(6px); filter: blur(4px); } }
+@keyframes stream-rise { from { opacity: 0; transform: translateY(4px); filter: blur(2px); } }
 
 /* 逐字浮起：行内 span 用 position 偏移代替 transform（行内元素不吃 transform，也不打断换行） */
-@keyframes tok-rise { from { opacity: 0; top: .45em; filter: blur(3px); } }
+@keyframes tok-rise { from { opacity: 0; top: .22em; filter: blur(1.5px); } }
 
-.stream-tok { position: relative; animation: tok-rise .6s cubic-bezier(.22, 1, .36, 1) both; }
+.stream-tok { position: relative; animation: tok-rise .9s cubic-bezier(.25, .1, .25, 1) both; }
 
-.answer-streaming .md-markdown > *, .answer-streaming .md-markdown li, .answer-streaming .md-markdown tr { animation: stream-rise .45s cubic-bezier(.22, 1, .36, 1) both; }
+.answer-streaming .md-markdown > *, .answer-streaming .md-markdown li, .answer-streaming .md-markdown tr { animation: stream-rise .7s cubic-bezier(.25, .1, .25, 1) both; }
 
 .shimmer-text { display: inline-block; color: transparent; background: linear-gradient(110deg, var(--ink-muted) 35%, var(--ink) 50%, var(--ink-muted) 65%); background-size: 250% 100%; -webkit-background-clip: text; background-clip: text; animation: shimmer 1.8s linear infinite; }
 
