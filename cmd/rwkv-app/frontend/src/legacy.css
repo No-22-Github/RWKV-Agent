@@ -41,6 +41,15 @@
 
 .answer-reveal { animation: answer-reveal .7s cubic-bezier(.22, 1, .36, 1) both; }
 
+/* 浮层开合（运行配置下拉）：shadcn 式淡入 + 轻微缩放，原点在触发按钮一侧 */
+@keyframes menu-in { from { opacity: 0; transform: translateY(-4px) scale(.98); } }
+
+@keyframes menu-out { to { opacity: 0; transform: translateY(-4px) scale(.98); } }
+
+.menu-pop-in { animation: menu-in .16s cubic-bezier(.2, 0, 0, 1) both; }
+
+.menu-pop-out { animation: menu-out .12s ease-in both; }
+
 /* 流式回答：新挂载的段落、列表项、表格行淡入（主要给列表序号这类不拆字的部分）；已显示的部分不再动 */
 @keyframes stream-fade { from { opacity: 0; } }
 
@@ -185,7 +194,8 @@
 @media (prefers-reduced-motion: reduce) {
   .gutter-status.running i, .trace-event[data-state='running']::after, .spin, .composer-anchor,
   .turn-enter, .answer-reveal, .shimmer-text, .composer-box[data-running]::before,
-  .answer-streaming .md-markdown > *, .answer-streaming .md-markdown li, .answer-streaming .md-markdown tr, .stream-tok { transition: none !important; animation: none !important; }
+  .answer-streaming .md-markdown > *, .answer-streaming .md-markdown li, .answer-streaming .md-markdown tr, .stream-tok,
+  .menu-pop-in, .menu-pop-out { transition: none !important; animation: none !important; }
 
   .shimmer-text { color: var(--ink-muted); background: none; }
 }

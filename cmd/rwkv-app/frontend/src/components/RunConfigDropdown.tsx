@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { hostOf } from '../endpoint'
-import { type ReactNode } from 'react'
+import { type ReactNode, useState } from 'react'
 import { Check, Globe, Network, Plus } from 'lucide-react'
 import { Provider, type Config, type Status } from '../../bindings/github.com/no22/RWKV-Agent/api/models'
 import type { SavedProvider } from '../../bindings/github.com/no22/RWKV-Agent/internal/appstorage/models'
@@ -19,9 +19,21 @@ type Props = {
   onOpenSettings: () => void
 }
 
-/* 运行配置下拉：只读切换器。能力开关属于连接档案，在设置的编辑器里修改。 */
+// 收起动画时长；与 legacy.css 的 .menu-pop-out 保持一致。
+const CLOSE_MS = 120
+
+/* 运行配置下拉：当前运行信息、能力开关与连接切换。 */
 export default function RunConfigDropdown({ open, onClose, ready, busy, status, runtimeConfig, onToggleCapability, providers, runtimeProviderId, onActivate, onOpenSettings }: Props) {
   const ref = useRef<HTMLDivElement>(null)
+  // 关闭后多留一个收起动画的时长再卸载；减少动态效果时立即卸载。
+  const [mounted, setMounted] = useState(open)
+  if (open && !mounted) setMounted(true)
+  useEffect(() => {
+    if (open || !mounted) return
+    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    const timer = setTimeout(() => setMounted(false), reduced ? 0 : CLOSE_MS)
+    return () => clearTimeout(timer)
+  }, [open, mounted])
 
   useEffect(() => {
     if (!open) return
@@ -41,10 +53,11 @@ export default function RunConfigDropdown({ open, onClose, ready, busy, status, 
     }
   }, [open, onClose])
 
-  if (!open) return null
+  if (!mounted) return null
 
   return (
-    <div ref={ref} className="run-config-dropdown absolute right-[30px] top-[56px] z-[60] flex w-[340px] flex-col overflow-hidden rounded-xl border border-line bg-paper-wash shadow-pop">
+    // 收起动画期间已不可交互（inert），只是视觉上淡出。
+    <div ref={ref} inert={!open} className={`run-config-dropdown absolute right-[30px] top-[56px] z-[60] flex w-[340px] origin-top-right flex-col overflow-hidden rounded-xl border border-line bg-paper-wash shadow-pop ${open ? 'menu-pop-in' : 'menu-pop-out'}`}>
       {/* 当前运行：顶栏芯片只放缩略信息，完整的模型、State、端点、能力在这里。 */}
       {ready && (() => {
         const runtime = providers.find((provider) => provider.id === runtimeProviderId)

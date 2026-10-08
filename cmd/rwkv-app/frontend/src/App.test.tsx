@@ -630,7 +630,8 @@ describe('App', () => {
     expect(screen.getByText('当前运行')).toBeInTheDocument()
     // 真实点击的顺序：mousedown（面板的点击外部关闭）先于 click（芯片的开合切换）。
     fireEvent.mouseDown(chip); fireEvent.click(chip)
-    expect(screen.queryByText('当前运行')).not.toBeInTheDocument()
+    // 收起动画播完才卸载。
+    await waitFor(() => expect(screen.queryByText('当前运行')).not.toBeInTheDocument())
   })
 
   it('toggles a capability of the running remote profile from the run config dropdown', async () => {
