@@ -8,6 +8,21 @@ afterEach(() => {
 })
 
 describe('PacedAnswer', () => {
+  it('shows restored progress statically and animates only what comes after it', () => {
+    vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame', 'performance'] })
+    const text = '杭'.repeat(90)
+    const { container } = render(<PacedAnswer text={text} live initialShown={40} />)
+
+    // 恢复的部分整段都已读过：直接按普通文本显示，不拆字、不淡入。
+    expect(container.textContent).toHaveLength(40)
+    expect(container.querySelector('.stream-tok')).toBeNull()
+    expect(container.querySelector('.stream-static')).not.toBeNull()
+
+    act(() => { vi.advanceTimersByTime(300) })
+    expect(container.querySelectorAll('.stream-tok-static')).toHaveLength(40)
+    expect(container.querySelectorAll('.stream-tok').length).toBeGreaterThan(0)
+  })
+
   it('reveals streamed text at a steady pace and finishes it after the run settles', () => {
     vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame', 'performance'] })
     const text = '杭'.repeat(90)

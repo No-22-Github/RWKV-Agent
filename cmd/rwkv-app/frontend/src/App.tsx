@@ -35,6 +35,9 @@ type Message = {
   // 回答已经流式显示过：落定时不再播放显影动画，免得同一段字又闪一次。
   streamed?: boolean
 }
+// 动画只播一次：对话页在切到轨迹时会整页卸载，这份记录放在 App 层跨越重新挂载。
+// seen 记已经播过入场/显影的回合与回答；progress 记流式回答已放出的字数。
+type MotionMemory = { seen: Set<string>; progress: Map<string, number> }
 type AgentActivity = {
   kind: string; step?: number; parentStep?: number; tool?: string; arguments?: string; route?: string
   bundles?: string[]; subagentIndex?: number; subagentTask?: string; durationMs?: number
@@ -69,6 +72,7 @@ export default function App() {
   // 正在生成的回答预览：后端 answer_delta 逐段追加、answer_reset 清空；一轮结束后由正式结果取代。
   const [liveAnswer, setLiveAnswer] = useState('')
   const liveAnswerRef = useRef('')
+  const motionMemory = useRef<MotionMemory>({ seen: new Set(), progress: new Map() })
   const [prompt, setPrompt] = useState('')
   const [busy, setBusy] = useState(false)
   const [activeTab, setActiveTab] = useState<'chat' | 'trace'>('chat')
@@ -192,8 +196,11 @@ export default function App() {
   // 原地重新生成：撤掉最后一轮的回复，由后端回退历史后用同一条用户消息重跑，而不是追加一条重复消息。
   async function regenerateLast() {
     if (busy || turnInFlight.current) return
-    const content = [...messages].reverse().find((message) => message.role === 'user')?.content
+    const lastUser = [...messages].reverse().find((message) => message.role === 'user')
+    const content = lastUser?.content
     if (!content || !ensureReady()) return
+    // 同一条用户消息重跑：上一版回答的放字进度不能带给新回答。
+    motionMemory.current.progress.delete(`turn:${lastUser.id}`)
     await runTurn(content, (current) => current.at(-1)?.role === 'user' ? current : current.slice(0, -1), () => Backend.Regenerate(), false)
   }
   async function runTurn(content: string, stage: (current: Message[]) => Message[], run: () => Promise<Result> & { cancel: () => void }, restoreUser: boolean) {
@@ -272,7 +279,7 @@ export default function App() {
             </button>
           </div>
         </header>
-        {activeTab === 'trace' ? <TraceView messages={traceMessages} selected={selectedMessage} onSelect={setSelectedTraceID} onBackToChat={() => setActiveTab('chat')} /> : <ChatView messages={messages} activity={activity} liveAnswer={liveAnswer} busy={busy} ready={ready} workspace={workspaceName} model={status.model || '选择模型'} capabilities={capabilities} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={() => void regenerateLast()} onKeyDown={onComposerKeyDown} onStop={stopRun} openSettings={manager.openSettings} chooseWorkspace={chooseWorkspace} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} messagesEnd={messagesEnd} />}
+        {activeTab === 'trace' ? <TraceView messages={traceMessages} selected={selectedMessage} onSelect={setSelectedTraceID} onBackToChat={() => setActiveTab('chat')} /> : <ChatView messages={messages} activity={activity} liveAnswer={liveAnswer} motion={motionMemory.current} busy={busy} ready={ready} workspace={workspaceName} model={status.model || '选择模型'} capabilities={capabilities} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={() => void regenerateLast()} onKeyDown={onComposerKeyDown} onStop={stopRun} openSettings={manager.openSettings} chooseWorkspace={chooseWorkspace} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} messagesEnd={messagesEnd} />}
       </main>
       <RunConfigDropdown open={runConfigOpen} onClose={() => setRunConfigOpen(false)} ready={ready} busy={busy} status={status} runtimeConfig={runtimeConfig} onToggleCapability={(key, value) => void toggleCapabilityNow(key, value)} providers={manager.providers} runtimeProviderId={manager.runtimeProviderId} onActivate={(id) => void activateProviderNow(id)} onOpenSettings={() => { setRunConfigOpen(false); manager.openSettings() }} />
     </>}
@@ -352,7 +359,7 @@ function Sidebar({ conversations, workspaces, activeId, busy, open, onCloseSideb
   </>
 }
 
-function ChatView({ messages, activity, liveAnswer, busy, ready, workspace, capabilities, prompt, setPrompt, onSubmit, onStop, onRegenerate, onKeyDown, onTrace, messagesEnd }: { messages: Message[]; activity: AgentActivity[]; liveAnswer: string; busy: boolean; ready: boolean; workspace: string; model: string; capabilities: string; prompt: string; setPrompt: (value: string) => void; onSubmit: () => void; onStop: () => void; onRegenerate: () => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void; openSettings: () => void; chooseWorkspace: () => Promise<void>; onTrace: (id: string) => void; messagesEnd: React.RefObject<HTMLDivElement | null> }) {
+function ChatView({ messages, activity, liveAnswer, motion, busy, ready, workspace, capabilities, prompt, setPrompt, onSubmit, onStop, onRegenerate, onKeyDown, onTrace, messagesEnd }: { messages: Message[]; activity: AgentActivity[]; liveAnswer: string; motion: MotionMemory; busy: boolean; ready: boolean; workspace: string; model: string; capabilities: string; prompt: string; setPrompt: (value: string) => void; onSubmit: () => void; onStop: () => void; onRegenerate: () => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void; openSettings: () => void; chooseWorkspace: () => Promise<void>; onTrace: (id: string) => void; messagesEnd: React.RefObject<HTMLDivElement | null> }) {
   const turns = groupMessagesIntoTurns(messages)
   const empty = turns.length === 0
   // 匀速显示会比消息到达晚一点长高，滚动要跟着显示层走，而不只是跟着消息。
@@ -410,7 +417,7 @@ function ChatView({ messages, activity, liveAnswer, busy, ready, workspace, capa
   return <div className="chat-panel relative flex min-h-0 flex-1 flex-col overflow-hidden">
     <div ref={stageRef} className="chat-stage relative min-h-0 flex-1 overflow-hidden">
       {!empty && <div ref={scrollRef} className="conversation-scroll absolute inset-0 mx-auto content-narrow overflow-auto pt-[30px]">
-        {turns.map((turn, index) => <TurnView key={turn.user?.id || turn.response?.id || index} turn={turn} index={index + 1} last={index === turns.length - 1} busy={busy} pending={busy && index === turns.length - 1 && !turn.response} activity={activity} liveAnswer={liveAnswer} onGrow={followAnswer} onTrace={onTrace} onRegenerate={onRegenerate} />)}
+        {turns.map((turn, index) => <TurnView key={turn.user?.id || turn.response?.id || index} turn={turn} index={index + 1} last={index === turns.length - 1} busy={busy} pending={busy && index === turns.length - 1 && !turn.response} activity={activity} liveAnswer={liveAnswer} motion={motion} onGrow={followAnswer} onTrace={onTrace} onRegenerate={onRegenerate} />)}
         <div ref={messagesEnd} />
       </div>}
     </div>
@@ -420,7 +427,7 @@ function ChatView({ messages, activity, liveAnswer, busy, ready, workspace, capa
   </div>
 }
 
-function TurnView({ turn, index, last, busy, pending, activity, liveAnswer, onGrow, onTrace, onRegenerate }: { turn: ChatTurn; index: number; last: boolean; busy: boolean; pending: boolean; activity: AgentActivity[]; liveAnswer: string; onGrow: () => void; onTrace: (id: string) => void; onRegenerate: () => void }) {
+function TurnView({ turn, index, last, busy, pending, activity, liveAnswer, motion, onGrow, onTrace, onRegenerate }: { turn: ChatTurn; index: number; last: boolean; busy: boolean; pending: boolean; activity: AgentActivity[]; liveAnswer: string; motion: MotionMemory; onGrow: () => void; onTrace: (id: string) => void; onRegenerate: () => void }) {
   const response = turn.response
   const hasTrace = Boolean(response?.trace || response?.trajectory?.length)
   const subagentCalls = (response?.trajectory || []).filter((call) => call.subagents?.length)
@@ -429,8 +436,16 @@ function TurnView({ turn, index, last, busy, pending, activity, liveAnswer, onGr
   const stats = response?.trace ? traceStats(response.trace) : undefined
   const time = turn.user?.createdAt || response?.createdAt
   const streamText = pending ? liveAnswer : response?.role === 'assistant' && response.streamed ? response.content : ''
+  // 每个回合、每条回答的入场动画只在第一次挂载时播放：切页回来、重新挂载不再重播。
+  const turnKey = `turn:${turn.user?.id || response?.id || index}`
+  const answerKey = response ? `answer:${response.id}` : ''
+  const [enterFresh] = useState(() => !motion.seen.has(turnKey))
+  const answerFresh = useRef<boolean | null>(null)
+  if (answerKey && answerFresh.current === null) answerFresh.current = !motion.seen.has(answerKey)
+  useEffect(() => { motion.seen.add(turnKey) }, [motion, turnKey])
+  useEffect(() => { if (answerKey) motion.seen.add(answerKey) }, [motion, answerKey])
   // 入场动效只给最后一轮：新发出的回合，或刚打开会话时的最末一轮；历史回合不整片闪动。
-  return <article className={`conversation-turn mb-[42px] grid turn-grid${pending ? ' pending' : ''}${last ? ' turn-enter' : ''}`} data-testid={`conversation-turn-${index}`}>
+  return <article className={`conversation-turn mb-[42px] grid turn-grid${pending ? ' pending' : ''}${last && enterFresh ? ' turn-enter' : ''}`} data-testid={`conversation-turn-${index}`}>
     <aside className="turn-gutter flex min-w-0 flex-col items-end gap-[6px] pt-[1px] text-right text-ink-muted">
       <span className={`font-mono text-xl font-semibold leading-none tabular-nums ${response?.role === 'error' ? 'text-danger' : 'text-ink-faint'}`}>{String(index).padStart(2, '0')}</span>
       <time className="text-2xs leading-[1.6]">{formatTurnTime(time)}</time>
@@ -446,8 +461,8 @@ function TurnView({ turn, index, last, busy, pending, activity, liveAnswer, onGr
       {pending && !liveAnswer && <div className="turn-pending-answer min-h-7 pt-[2px]" aria-live="polite"><span className="shimmer-text text-sm">{activityLabel(activity.at(-1))}</span></div>}
       {/* 流式回答：生成中与落定后必须是同一位置的同一个 PacedAnswer，落定时它才能把没放完的字按节奏放完。 */}
       {streamText
-        ? <div className="turn-answer answer-streaming text-md leading-[1.8] text-ink [overflow-wrap:anywhere]" aria-busy={pending}><PacedAnswer text={streamText} live={pending} onGrow={onGrow} /></div>
-        : response?.role === 'assistant' && <div className={`turn-answer${last ? ' answer-reveal' : ''} text-md leading-[1.8] text-ink [overflow-wrap:anywhere]`}><MarkdownMessage content={response.content} /></div>}
+        ? <div className="turn-answer answer-streaming text-md leading-[1.8] text-ink [overflow-wrap:anywhere]" aria-busy={pending}><PacedAnswer text={streamText} live={pending} onGrow={onGrow} initialShown={motion.progress.get(turnKey)} onProgress={(shown) => motion.progress.set(turnKey, shown)} /></div>
+        : response?.role === 'assistant' && <div className={`turn-answer${last && answerFresh.current ? ' answer-reveal' : ''} text-md leading-[1.8] text-ink [overflow-wrap:anywhere]`}><MarkdownMessage content={response.content} /></div>}
       {response?.role === 'error' && <div className="flex items-start gap-2 rounded-lg border border-danger/30 bg-danger-wash p-[10px_12px] text-sm leading-[1.65] text-danger"><X size={15} className="mt-[3px] flex-none" /><span>{response.content}</span></div>}
       {subagentCount > 0 && response && <SubagentCards trajectory={response.trajectory} done={!pending} />}
       {response?.meta && <div className="font-mono text-2xs text-ink-muted">{response.meta}</div>}

@@ -1060,6 +1060,36 @@ describe('App', () => {
     expect(screen.getByText('done')).toBeInTheDocument()
   })
 
+  it('does not replay entrance or streaming animations after switching to the trace tab and back', async () => {
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
+      status: new Status({ state: ModelState.ModelReady, model: 'scripted', workspace: '/tmp/RWKV-Agent', hasApiKey: false, updatedAt: new Date().toISOString() }),
+    }))
+    let resolveChat!: (result: Result) => void
+    vi.mocked(Backend.Chat).mockReturnValue(new Promise((resolve) => { resolveChat = resolve }) as ReturnType<typeof Backend.Chat>)
+
+    const { container } = render(<App />)
+    const composer = await screen.findByLabelText('消息')
+    fireEvent.change(composer, { target: { value: '打个招呼' } })
+    fireEvent.keyDown(composer, { key: 'Enter' })
+    await waitFor(() => expect(Backend.Chat).toHaveBeenCalledOnce())
+    expect(screen.getByTestId('conversation-turn-1')).toHaveClass('turn-enter')
+
+    act(() => { eventHandlers.get('agent:event')?.({ data: { kind: 'answer_delta', step: 1, text: '你好世界' } }) })
+    await act(async () => { resolveChat(new Result({ output: '你好世界', steps: [], durationMs: 1 })) })
+    // 匀速放完后交回普通渲染。
+    await waitFor(() => {
+      expect(screen.getByText('你好世界')).toBeInTheDocument()
+      expect(container.querySelector('.stream-tok')).toBeNull()
+    })
+
+    fireEvent.click(screen.getByRole('tab', { name: /轨迹/ }))
+    fireEvent.click(screen.getByRole('tab', { name: '对话' }))
+
+    expect(screen.getByTestId('conversation-turn-1')).not.toHaveClass('turn-enter')
+    expect(container.querySelector('.answer-reveal, .stream-tok')).toBeNull()
+    expect(screen.getByText('你好世界')).toBeInTheDocument()
+  })
+
   it('opens the trace ledger inspector and exports JSONL', async () => {
     const trace = new Result({
       output: '已完成读取。',

@@ -13,8 +13,20 @@ const prefersReducedMotion = () => typeof window !== 'undefined' && window.match
  * 追平后交回普通 Markdown 渲染（不再拆字）。同一实例要跨越「生成中 → 落定」，
  * 否则落定瞬间会把还没放出来的字一次性甩出来。
  */
-export default function PacedAnswer({ text, live, onGrow }: { text: string; live: boolean; onGrow?: () => void }) {
-  const [shown, setShown] = useState(() => (prefersReducedMotion() ? text.length : 0))
+export default function PacedAnswer({ text, live, onGrow, initialShown = 0, onProgress }: {
+  text: string
+  live: boolean
+  onGrow?: () => void
+  // 切页回来时的恢复进度（已经放出的字数）：这部分直接显示、不再淡入，余下的接着按节奏放。
+  initialShown?: number
+  onProgress?: (shown: number) => void
+}) {
+  const [shown, setShown] = useState(() => (prefersReducedMotion() ? text.length : Math.min(initialShown, text.length)))
+  // 挂载时恢复的那段固定不变：只有它之后新放出的字才播放动画。
+  const [staticChars, setStaticChars] = useState(shown)
+  const progressRef = useRef(onProgress)
+  progressRef.current = onProgress
+  useEffect(() => { progressRef.current?.(shown) }, [shown])
   const textRef = useRef(text)
   textRef.current = text
   const growRef = useRef(onGrow)
@@ -22,7 +34,11 @@ export default function PacedAnswer({ text, live, onGrow }: { text: string; live
   const caughtUp = shown >= text.length
 
   // 预览被撤回（answer_reset）后文字会变短：从头按节奏放，而不是把新的一段直接甩出来。
-  useEffect(() => { if (text.length < shown) setShown(0) }, [text, shown])
+  const previousLength = useRef(text.length)
+  useEffect(() => {
+    if (text.length < previousLength.current) { setShown(0); setStaticChars(0) }
+    previousLength.current = text.length
+  }, [text])
 
   useEffect(() => {
     if (caughtUp) return
@@ -57,5 +73,5 @@ export default function PacedAnswer({ text, live, onGrow }: { text: string; live
   }, [caughtUp])
 
   const settled = !live && caughtUp
-  return <MarkdownMessage content={settled ? text : text.slice(0, shown)} streaming={!settled} />
+  return <MarkdownMessage content={settled ? text : text.slice(0, shown)} streaming={!settled} staticChars={staticChars} />
 }
