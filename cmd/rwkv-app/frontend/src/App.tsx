@@ -476,7 +476,7 @@ function TurnView({ turn, index, last, busy, pending, activity, liveAnswer, moti
     <div className="turn-main flex min-w-0 flex-col gap-4">
       {turn.user && <UserMessage content={turn.user.content} canEdit={last} busy={busy} onEdit={onEditLast} />}
       {calls.length > 0 && <ToolActivity calls={calls} running={pending && !liveAnswer} liveLabel={liveLabel} />}
-      {pending && !liveAnswer && calls.length === 0 && <div className="turn-pending-answer flex min-h-7 items-center gap-[6px] pt-[2px] text-ink-muted" aria-live="polite"><ThinkingMark /><span className="shimmer-text text-sm">{activityLabel(activity.at(-1))}</span></div>}
+      {pending && !liveAnswer && calls.length === 0 && <div className="turn-pending-answer flex items-center gap-[6px] text-sm text-ink-muted" aria-live="polite"><ThinkingMark /><span className="shimmer-text text-sm">{activityLabel(activity.at(-1))}</span></div>}
       {/* 流式回答：生成中与落定后必须是同一位置的同一个 PacedAnswer，落定时它才能把没放完的字按节奏放完。 */}
       {streamText
         ? <div className="turn-answer answer-streaming text-md leading-[1.8] text-ink [overflow-wrap:anywhere]" aria-busy={pending}><PacedAnswer text={streamText} live={pending} onGrow={onGrow} initialShown={motion.progress.get(turnKey)} onProgress={(shown) => motion.progress.set(turnKey, shown)} /></div>

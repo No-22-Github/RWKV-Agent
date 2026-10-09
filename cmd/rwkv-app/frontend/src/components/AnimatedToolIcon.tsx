@@ -13,8 +13,8 @@ type IconHandle = { startAnimation: () => void; stopAnimation: () => void }
 type AnimatedIcon = ForwardRefExoticComponent<HTMLAttributes<HTMLDivElement> & { size?: number } & RefAttributes<IconHandle>>
 
 // lucide-animated 的动画都只播一遍（约 0.5–1 秒）；运行中按这个间隔重播，读起来是「还在干活」而不是一直抖。
-// 间隔不宜太长：停顿期间图标是静止的，太长会和「已完成」分不清。
-const REPLAY_MS = 1200
+// 1.2 秒实测太赶；「还在跑」主要由标题文字和右侧实时计时表达，图标留出呼吸的停顿。
+const REPLAY_MS = 2000
 
 /** 工具名 → 动画图标；工具行图标的唯一分类规则（按工具名关键词匹配）。 */
 export function animatedToolIcon(tool: string): AnimatedIcon {

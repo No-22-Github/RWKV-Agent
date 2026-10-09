@@ -10,8 +10,11 @@ describe('tool row icons', () => {
       { id: 'a', tool: 'get_weather', arguments: '{"location":"合肥"}', status: 'completed', durationMs: 2500 },
       { id: 'b', tool: 'web_search', arguments: '{"query":"合肥 景点"}', status: 'running' },
     ]} />)
-    fireEvent.click(screen.getByRole('button', { expanded: false }))
+    // 收起时：标题行用正在执行的工具图标代替 R 点阵。
     expect(container.querySelectorAll('[data-running="true"]')).toHaveLength(1)
+    expect(screen.queryByLabelText('Agent 运行中')).toBeNull()
+    fireEvent.click(screen.getByRole('button', { expanded: false }))
+    expect(container.querySelectorAll('.tool-activity-panel [data-running="true"]')).toHaveLength(1)
     // 运行中右侧是实时计时而不是转圈。
     expect(screen.getByRole('timer', { name: '运行中' })).toHaveTextContent(/^\d+\.\d s$/)
 
@@ -23,5 +26,13 @@ describe('tool row icons', () => {
     expect(screen.queryByRole('timer')).toBeNull()
     expect(screen.getByText('1.9 s')).toBeInTheDocument()
     expect(container.querySelectorAll('.tool-activity-panel svg[viewBox="0 0 24 24"]').length).toBeGreaterThanOrEqual(2)
+  })
+
+  it('shows the R mark while the model decides between tool calls', () => {
+    render(<ToolActivity running liveLabel="步骤 2 · 正在决定下一步" calls={[
+      { id: 'a', tool: 'get_weather', arguments: '{"location":"合肥"}', status: 'completed', durationMs: 1400 },
+    ]} />)
+    expect(screen.getByLabelText('Agent 运行中')).toBeInTheDocument()
+    expect(document.querySelector('[data-running="true"]')).toBeNull()
   })
 })

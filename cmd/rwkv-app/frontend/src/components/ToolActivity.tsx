@@ -127,10 +127,16 @@ export default function ToolActivity({ calls, running = false, liveLabel }: Prop
   const groups = groupCalls(calls)
   const failed = calls.filter((call) => call.status === 'failed').length
   const latest = groups.at(-1)!
+  // 运行中的标题行：工具正在执行时显示该工具的动画图标，模型在想下一步时显示 R 点阵。
+  // 卡片默认收起，不放到这里的话工具动画平时根本看不到。
+  const executing = running && latest.calls.at(-1)!.status === 'running'
 
   return <div className="tool-activity text-sm" data-testid="tool-activity">
     <button type="button" aria-expanded={open} onClick={() => setOpen((value) => !value)} className="group flex max-w-full items-center gap-[6px] border-0 bg-transparent p-0 text-left text-ink-muted transition-colors hover:text-ink">
-      {running && <ThinkingMark />}
+      {executing
+        // 与 ThinkingMark 同宽同高的方框：两种标记互换时文字不左右挪。
+        ? <span className="flex h-[18px] w-[18px] flex-none items-center justify-center text-ink"><AnimatedToolIcon tool={latest.tool} running size={15} /></span>
+        : running && <ThinkingMark />}
       {running
         ? <span className="shimmer-text min-w-0 truncate">{liveLabel || `${toolRunning(latest.tool)} ${primaryArg(latest.calls.at(-1)!)}`.trim()}</span>
         : <span className="min-w-0 truncate">{summarize(groups)}{failed > 0 && <span className="text-danger"> · {failed} 次失败</span>}</span>}
