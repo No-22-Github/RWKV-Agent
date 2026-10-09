@@ -22,6 +22,7 @@ const (
 // failureToolLabels names tools the way the conversation UI does.
 var failureToolLabels = map[string]string{
 	"get_weather":   "查询天气",
+	"bash":          "执行命令",
 	"web_search":    "搜索网页",
 	"web_fetch":     "读取网页",
 	"read_file":     "读取文件",

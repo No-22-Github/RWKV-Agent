@@ -16,6 +16,15 @@ import (
 // WorkToolCatalogName selects the work bank's fixed tool directory.
 const WorkToolCatalogName = "work-v1"
 
+// WorkV2ToolCatalogName is work-v1 plus the sandboxed bash tool (just-bash
+// sidecar) and get_weather backed by the case's weather fixture.
+const WorkV2ToolCatalogName = "work-v2"
+
+// IsWorkToolCatalog reports whether name is one of the fixed bank catalogs.
+func IsWorkToolCatalog(name string) bool {
+	return name == WorkToolCatalogName || name == WorkV2ToolCatalogName
+}
+
 // workToolCatalogClock is the fixed datetime every work-v1 case runs against
 // (bank contract, authoring-guide §2.4): no case may depend on wall-clock.
 var workToolCatalogClock = time.Date(
@@ -32,6 +41,15 @@ var workToolCatalogNames = []string{
 	"web_search", "web_fetch",
 }
 
+var workV2ToolCatalogNames = append(append([]string(nil), workToolCatalogNames...), "bash", "get_weather")
+
+func workCatalogNames(name string) []string {
+	if name == WorkV2ToolCatalogName {
+		return workV2ToolCatalogNames
+	}
+	return workToolCatalogNames
+}
+
 // WorkToolCatalogNames returns a copy of the work-v1 catalog's tool names,
 // the one source of truth for the §4.2 render-layer rotation.
 func WorkToolCatalogNames() []string {
@@ -45,8 +63,10 @@ func WorkToolCatalogNames() []string {
 // and the deterministic not-found page, so "is there a web tool" never leaks
 // which cases need one.
 func buildWorkToolCatalog(
+	name string,
 	workspace string,
 	fixture []WebFixtureEntry,
+	weather []WeatherFixtureEntry,
 	fetchBudgetTokens int,
 	tokenCount func(string) int,
 ) ([]agent.Tool, error) {
@@ -73,7 +93,15 @@ func buildWorkToolCatalog(
 		TokenCount:        tokenCount,
 	})
 	catalog := append(append(append(workspaceTools, editTools...), localTools...), webTools...)
-	if err := requireWorkCatalogShape(catalog); err != nil {
+	if name == WorkV2ToolCatalogName {
+		bash, err := tools.BashTools(tools.BashOptions{Workspace: workspace})
+		if err != nil {
+			return nil, err
+		}
+		catalog = append(catalog, bash...)
+		catalog = append(catalog, tools.WeatherTools(weatherFixtureProvider{entries: weather})...)
+	}
+	if err := requireWorkCatalogShape(name, catalog); err != nil {
 		return nil, err
 	}
 	return catalog, nil
@@ -81,18 +109,18 @@ func buildWorkToolCatalog(
 
 // requireWorkCatalogShape enforces the twelve-tool contract at build time so
 // an upstream tool-set change cannot silently drift the bank's catalog.
-func requireWorkCatalogShape(catalog []agent.Tool) error {
+func requireWorkCatalogShape(name string, catalog []agent.Tool) error {
 	names := make([]string, 0, len(catalog))
 	for _, tool := range catalog {
 		names = append(names, tool.Spec().Name)
 	}
 	sort.Strings(names)
-	want := append([]string(nil), workToolCatalogNames...)
+	want := append([]string(nil), workCatalogNames(name)...)
 	sort.Strings(want)
 	if fmt.Sprint(names) != fmt.Sprint(want) {
 		return fmt.Errorf(
 			"tool catalog %s drifted: got %v, want %v",
-			WorkToolCatalogName,
+			name,
 			names,
 			want,
 		)

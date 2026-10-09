@@ -185,7 +185,7 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 	// Tool catalog identity: build the registered catalog once (schemas do
 	// not depend on fixtures) and pin its schema hash in the manifest.
 	toolCatalogHash := ""
-	if config.ToolCatalog == WorkToolCatalogName {
+	if IsWorkToolCatalog(config.ToolCatalog) {
 		root, err := os.MkdirTemp(config.TempDir, "rwkv-agent-catalog-")
 		if err != nil {
 			toolCatalogHash = ""
@@ -193,7 +193,7 @@ func runManifest(config Config, runID string, started time.Time) RunManifest {
 			workspace := filepath.Join(root, "workspace")
 			toolCatalogHash = ""
 			if err := os.MkdirAll(workspace, 0o700); err == nil {
-				catalog, catalogErr := buildWorkToolCatalog(workspace, nil, 0, nil)
+				catalog, catalogErr := buildWorkToolCatalog(config.ToolCatalog, workspace, nil, nil, 0, nil)
 				if catalogErr == nil {
 					toolCatalogHash = workToolCatalogHash(catalog)
 				}
@@ -497,7 +497,7 @@ func evalTools(
 	workspace string,
 	testCase Case,
 ) ([]agent.Tool, *primitiveExecution, error) {
-	if config.ToolCatalog == WorkToolCatalogName && testCase.primitive == nil {
+	if IsWorkToolCatalog(config.ToolCatalog) && testCase.primitive == nil {
 		// The fixed bank catalog: every case faces the same twelve tools, the
 		// same fixed clock, and web tools registered even when the case
 		// fixture is empty (empty search results / deterministic not-found).
@@ -508,8 +508,10 @@ func evalTools(
 			fixture = config.WebFixture
 		}
 		catalog, err := buildWorkToolCatalog(
+			config.ToolCatalog,
 			workspace,
 			fixture,
+			testCase.WeatherFixture,
 			config.FetchBudgetTokens,
 			config.TokenCount,
 		)

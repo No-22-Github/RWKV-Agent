@@ -1,0 +1,28 @@
+{
+  "id": "bsh-0014",
+  "description": "bash probe / recover / script_unrunnable. BASHPROBE-CANARY-7d41c0e9",
+  "category": "bashprobe",
+  "tags": {
+    "scenario": "bashprobe",
+    "task_type": "script_unrunnable",
+    "probe_axis": "recover",
+    "traps": [],
+    "level": "L1",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5"
+  },
+  "files": {
+    "scripts/stats.py": "from pathlib import Path\n\nrows = Path(__file__).resolve().parent.parent.joinpath('data/latency_ms.txt').read_text().splitlines()\nvalues = [int(r) for r in rows if r.strip() and not r.startswith('#')]\nprint(f'mean latency: {sum(values) / len(values):.1f} ms')\n",
+    "data/latency_ms.txt": "# p50 sampler output, one latency (ms) per line\n149\n670\n759\n813\n707\n579\n\n292\n317\n792\n301\n338\n791\n114\n714\n500\n350\n517\n740\n446\n443\n836\n161\n309\n\n268\n363\n406\n867\n306\n409\n863\n687\n686\n568\n193\n204\n604\n721\n719\n321\n208\n\n50\n707\n111\n165\n649\n385\n68\n125\n320\n249\n431\n453\n637\n489\n662\n136\n696\n\n743\n154\n632\n643\n692\n688\n412\n225\n136\n804\n538\n566\n728\n238\n317\n503\n679\n\n263\n536\n857\n328\n552\n300\n"
+  },
+  "turns": [
+    {
+      "prompt": "跑一下 scripts/stats.py，告诉我它算出来的平均延迟是多少毫秒。",
+      "expect": {
+        "expected_number": 473.7,
+        "tolerance": 0.05
+      }
+    }
+  ]
+}

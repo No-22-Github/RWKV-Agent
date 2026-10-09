@@ -67,7 +67,7 @@ func (G1Protocol) ID() string {
 // tools get no sentence at all.
 func sourceHintSentence(specs []ToolSpec) string {
 	var files, web []string
-	for _, name := range []string{"list_files", "search_text", "read_file"} {
+	for _, name := range []string{"list_files", "search_text", "read_file", "bash"} {
 		if hasToolSpec(specs, name) {
 			files = append(files, name)
 		}
@@ -119,6 +119,7 @@ func (protocol G1Protocol) Instructions(
 	if protocol.SourceHint {
 		prompt.WriteString(sourceHintSentence(specs))
 	}
+	prompt.WriteString(toolChoiceGuidance(specs, "\n"))
 	prompt.WriteString(`
 Choose one action:
 - If new tool evidence is needed, output exactly one tool call and nothing else:
@@ -223,6 +224,27 @@ Assistant: VALUE=cedar`)
 	return strings.TrimSpace(prompt.String())
 }
 
+// toolChoiceGuidance adds one sentence per tool whose choice the catalog
+// alone does not settle. Catalogs without these tools get nothing, so their
+// prompts stay byte-identical.
+//   - bash: the sandbox is the workspace; small models otherwise reach for
+//     python or the network inside it, or for bash where a read suffices.
+//   - get_weather: live probes (2026-10-09) showed web_search chosen for
+//     weather whenever the request also asked for something else.
+func toolChoiceGuidance(specs []ToolSpec, separator string) string {
+	var sentences []string
+	if hasToolSpec(specs, "bash") {
+		sentences = append(sentences, "bash runs in a sandbox whose /workspace is the user's workspace; use it for listing, counting, filtering or changing many files at once, and read single files with read_file.")
+	}
+	if hasToolSpec(specs, "get_weather") {
+		sentences = append(sentences, "For weather and forecasts use get_weather, not web search, even when the request also asks for other things.")
+	}
+	if len(sentences) == 0 {
+		return ""
+	}
+	return strings.Join(sentences, " ") + separator
+}
+
 func hasToolSpec(specs []ToolSpec, name string) bool {
 	for _, spec := range specs {
 		if spec.Name == name {
@@ -235,7 +257,7 @@ func hasToolSpec(specs []ToolSpec, name string) bool {
 func toolAccessDescription(specs []ToolSpec) string {
 	for _, spec := range specs {
 		switch spec.Name {
-		case "write_file", "chmod", "run_file", "run_tests":
+		case "write_file", "chmod", "run_file", "run_tests", "bash":
 			return "isolated tools, including the explicitly listed mutation tools"
 		}
 	}

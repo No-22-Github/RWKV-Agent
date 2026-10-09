@@ -1,4 +1,4 @@
-import { CloudSun, Globe2, Users } from 'lucide-react'
+import { CloudSun, Globe2, SquareTerminal, Users } from 'lucide-react'
 import type { ProviderManager } from '../../state/providerManager'
 import { Field, GroupTitle, SettingsPane, Toggle, SaveStatus } from './ui'
 import { autosaveHint } from './autosaveHint'
@@ -48,6 +48,7 @@ export default function AgentBehaviorSection({ manager }: Props) {
             </select>
           </label>
         )}
+        <Toggle icon={<SquareTerminal size={15} />} label="沙箱 bash" description="在工作区里跑 grep、sed、awk 等命令；无网络、无 Python，碰不到工作区以外的文件" checked={manager.enableBash} onChange={manager.setEnableBash} />
         <Toggle icon={<Users size={15} />} label="并发子 Agent" description="一次派发 2–8 个独立任务，不允许嵌套委派" checked={manager.enableSubagents} onChange={manager.setEnableSubagents} />
         {manager.enableSubagents && (
           <div className="grid grid-cols-3 gap-2 pt-[4px]">

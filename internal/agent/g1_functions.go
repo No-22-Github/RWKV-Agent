@@ -81,6 +81,7 @@ func (protocol G1FunctionProtocol) Instructions(specs []ToolSpec, _ inference.Th
 	if hasToolSpec(specs, "spawn_agents") {
 		workflowGuidance += "After spawn_agents returns, synthesize its ordered results and submit; never spawn another batch. "
 	}
+	workflowGuidance += toolChoiceGuidance(specs, " ")
 	exactOutputGuidance := PolicyVerbatimOutput
 	base := "Tools:\n[\n" + strings.Join(entries, ",\n") + "\n]\n" +
 		"Exact tool names only. Paths are relative (e.g. src/a.txt), never absolute. " +

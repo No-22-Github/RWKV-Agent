@@ -105,6 +105,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   const [tavilyAPIKey, setTavilyAPIKey] = useState('')
   const [enableSubagents, setEnableSubagents] = useState(false)
   const [weatherBackend, setWeatherBackend] = useState('')
+  const [enableBash, setEnableBash] = useState(false)
   const [maxActiveBatch, setMaxActiveBatch] = useState(DEFAULT_AGENT_LIMITS.maxActiveBatch)
   const [remoteBatchWaitMS, setRemoteBatchWaitMS] = useState(DEFAULT_AGENT_LIMITS.remoteBatchWaitMS)
   const [subagentMaxParallel, setSubagentMaxParallel] = useState(DEFAULT_AGENT_LIMITS.subagentMaxParallel)
@@ -155,7 +156,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       agentProtocol, thinking, taskControl: taskControl.trim() || undefined, progressiveTools, enableWeb,
       braveApiKey: enableWeb ? braveAPIKey.trim() || undefined : undefined,
       tavilyApiKey: enableWeb ? tavilyAPIKey.trim() || undefined : undefined,
-      enableSubagents, weatherBackend: weatherBackend || undefined, maxActiveBatch, remoteBatchWaitMs: remoteBatchWaitMS,
+      enableSubagents, weatherBackend: weatherBackend || undefined, enableBash, maxActiveBatch, remoteBatchWaitMs: remoteBatchWaitMS,
       subagentMaxParallel, subagentMaxSteps, subagentTimeoutSeconds,
       maxSteps, maxTokens, decisionMaxTokens,
       ...samplingValues,
@@ -258,7 +259,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       clearTimeout(timer)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settingsOpen, previewOpen, settingsTab, agentProtocol, thinking, progressiveTools, enableWeb, enableSubagents, weatherBackend, taskControl])
+  }, [settingsOpen, previewOpen, settingsTab, agentProtocol, thinking, progressiveTools, enableWeb, enableSubagents, weatherBackend, enableBash, taskControl])
 
   /*
    * 自动保存一次：只对已有档案生效。先 SaveProvider（后端校验唯一性、落盘），编辑的是
@@ -362,6 +363,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     setEnableWeb(config.enableWeb || false); setBraveAPIKey(config.braveApiKey || ''); setTavilyAPIKey(config.tavilyApiKey || '')
     setEnableSubagents(config.enableSubagents || false)
     setWeatherBackend(config.weatherBackend || '')
+    setEnableBash(config.enableBash || false)
     setMaxActiveBatch(config.maxActiveBatch || DEFAULT_AGENT_LIMITS.maxActiveBatch)
     setRemoteBatchWaitMS(config.remoteBatchWaitMs ?? DEFAULT_AGENT_LIMITS.remoteBatchWaitMS)
     setSubagentMaxParallel(config.subagentMaxParallel || DEFAULT_AGENT_LIMITS.subagentMaxParallel)
@@ -553,7 +555,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     stateId, setStateId,
     agentProtocol, setAgentProtocol, thinking, setThinking, progressiveTools, setProgressiveTools,
     enableWeb, setEnableWeb, braveAPIKey, setBraveAPIKey, tavilyAPIKey, setTavilyAPIKey,
-    enableSubagents, setEnableSubagents, weatherBackend, setWeatherBackend, maxActiveBatch, setMaxActiveBatch,
+    enableSubagents, setEnableSubagents, weatherBackend, setWeatherBackend, enableBash, setEnableBash, maxActiveBatch, setMaxActiveBatch,
     remoteBatchWaitMS, setRemoteBatchWaitMS, subagentMaxParallel, setSubagentMaxParallel,
     subagentMaxSteps, setSubagentMaxSteps, subagentTimeoutSeconds, setSubagentTimeoutSeconds,
     maxSteps, setMaxSteps, maxTokens, setMaxTokens,

@@ -106,6 +106,13 @@ func assembleSessionTools(config Config, owner *Service, workspace string, depth
 		}
 		tools = append(tools, assistanttools.WeatherTools(weather)...)
 	}
+	if config.EnableBash && strings.TrimSpace(workspace) != "" {
+		bash, bashErr := assistanttools.BashTools(assistanttools.BashOptions{Workspace: workspace})
+		if bashErr != nil {
+			return nil, fmt.Errorf("initialize bash tool: %w", bashErr)
+		}
+		tools = append(tools, bash...)
+	}
 	if config.EnableSubagents && depth == 0 {
 		tools = append(tools, assistanttools.DelegationTools(assistanttools.DelegationOptions{
 			MaxParallel: config.SubagentMaxParallel,

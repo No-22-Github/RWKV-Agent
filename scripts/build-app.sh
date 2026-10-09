@@ -84,6 +84,15 @@ for executable in "$dist_dir/rwkv-app" "$dist_dir/rwkv-app-server"; do
   fi
 done
 
+# The bash tool's sidecar (native/justbash) is a Bun single-file binary; it
+# sits beside the executables, where tools.ResolveBashSidecar looks first.
+if command -v bun >/dev/null 2>&1; then
+  "$repo_root/scripts/build-justbash.sh" "$dist_dir/justbash-sidecar" >/dev/null
+else
+  echo "warning: bun not found; the bash tool will be unavailable in this build" >&2
+  rm -f "$dist_dir/justbash-sidecar"
+fi
+
 echo "[5/5] Packaging the macOS application bundle..."
 rm -rf "$app_bundle"
 mkdir -p "$app_macos" "$app_resources"
@@ -93,6 +102,9 @@ cp "$dist_dir/rwkv-app" "$app_macos/RWKV Agent"
 cp "$dist_dir/librwkv_agent_runtime.dylib" "$app_macos/librwkv_agent_runtime.dylib"
 cp -R "$dist_dir/mlx-swift_Cmlx.bundle" "$app_resources/mlx-swift_Cmlx.bundle"
 cp -R "$dist_dir/assets" "$app_macos/assets"
+if [[ -f "$dist_dir/justbash-sidecar" ]]; then
+  cp "$dist_dir/justbash-sidecar" "$app_macos/justbash-sidecar"
+fi
 
 echo "Built desktop app: $app_bundle"
 echo "Built browser server: $dist_dir/rwkv-app-server --port 8080"

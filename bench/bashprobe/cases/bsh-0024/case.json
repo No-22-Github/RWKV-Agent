@@ -1,0 +1,42 @@
+{
+  "id": "bsh-0024",
+  "description": "bash probe / command / grep_exact. BASHPROBE-CANARY-7d41c0e9",
+  "category": "bashprobe",
+  "tags": {
+    "scenario": "bashprobe",
+    "task_type": "grep_exact",
+    "probe_axis": "command",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "level": "L1",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5"
+  },
+  "files": {
+    "web/src/lib/mod0.js": "export function f() {\n  const v0 = 0;\n  const v1 = 1;\n  const v2 = 2;\n  const v3 = 3;\n  const v4 = 4;\n  // TODO(@meilin): rename var 5\n  const v6 = 6;\n  const v7 = 7;\n  const v8 = 8;\n  const v9 = 9;\n  const v10 = 10;\n  const v11 = 11;\n  const v12 = 12;\n  const v13 = 13;\n  // TODO(@meilin): rename var 14\n  const v15 = 15;\n  const v16 = 16;\n  const v17 = 17;\n  const v18 = 18;\n  const v19 = 19;\n  const v20 = 20;\n  // TODO(@meilin): rename var 21\n}\n",
+    "web/src/pages/mod1.js": "export function f() {\n  const v0 = 0;\n  const v1 = 1;\n  const v2 = 2;\n  const v3 = 3;\n  const v4 = 4;\n  const v5 = 5;\n  const v6 = 6;\n  const v7 = 7;\n  const v8 = 8;\n  // TODO(@meilin): rename var 9\n  // TODO(@meilin): rename var 10\n  const v11 = 11;\n  const v12 = 12;\n  const v13 = 13;\n  const v14 = 14;\n  const v15 = 15;\n  const v16 = 16;\n  const v17 = 17;\n  const v18 = 18;\n  // TODO(@meilin): rename var 19\n  const v20 = 20;\n  const v21 = 21;\n  // FIXME(@mei): flaky 22\n  const v23 = 23;\n  const v24 = 24;\n  const v25 = 25;\n  // FIXME(@mei): flaky 26\n  const v27 = 27;\n  const v28 = 28;\n}\n",
+    "web/src/lib/mod2.js": "export function f() {\n  const v0 = 0;\n  // TODO(@meilin): rename var 1\n  // FIXME(@mei): flaky 2\n  const v3 = 3;\n  const v4 = 4;\n  const v5 = 5;\n  const v6 = 6;\n  const v7 = 7;\n  // TODO(@meilin): rename var 8\n  const v9 = 9;\n  const v10 = 10;\n  const v11 = 11;\n  const v12 = 12;\n  const v13 = 13;\n  const v14 = 14;\n  const v15 = 15;\n  const v16 = 16;\n  // TODO(@mei): handle edge case 17\n  const v18 = 18;\n  const v19 = 19;\n  const v20 = 20;\n  const v21 = 21;\n  // TODO(@meilin): rename var 22\n  // TODO(@meilin): rename var 23\n  const v24 = 24;\n  const v25 = 25;\n  const v26 = 26;\n}\n",
+    "web/src/api/mod3.js": "export function f() {\n  const v0 = 0;\n  const v1 = 1;\n  const v2 = 2;\n  const v3 = 3;\n  const v4 = 4;\n  // FIXME(@mei): flaky 5\n  const v6 = 6;\n  // TODO(@meilin): rename var 7\n  const v8 = 8;\n  const v9 = 9;\n  const v10 = 10;\n  const v11 = 11;\n  // TODO(@mei): handle edge case 12\n  const v13 = 13;\n  const v14 = 14;\n  const v15 = 15;\n  const v16 = 16;\n  const v17 = 17;\n  const v18 = 18;\n  const v19 = 19;\n  const v20 = 20;\n  // TODO(@mei): handle edge case 21\n  const v22 = 22;\n  const v23 = 23;\n  const v24 = 24;\n  const v25 = 25;\n  const v26 = 26;\n  // FIXME(@mei): flaky 27\n}\n",
+    "web/src/lib/mod4.js": "export function f() {\n  const v0 = 0;\n  const v1 = 1;\n  const v2 = 2;\n  // TODO(@mei): handle edge case 3\n  const v4 = 4;\n  // TODO(@mei): handle edge case 5\n  const v6 = 6;\n  const v7 = 7;\n  const v8 = 8;\n  // TODO(@mei): handle edge case 9\n  const v10 = 10;\n  const v11 = 11;\n  // TODO(@meilin): rename var 12\n  const v13 = 13;\n  // FIXME(@mei): flaky 14\n  const v15 = 15;\n  // TODO(@meilin): rename var 16\n  const v17 = 17;\n  const v18 = 18;\n  const v19 = 19;\n  const v20 = 20;\n  const v21 = 21;\n  const v22 = 22;\n  const v23 = 23;\n  const v24 = 24;\n  const v25 = 25;\n  const v26 = 26;\n  const v27 = 27;\n}\n",
+    "web/src/pages/mod5.js": "export function f() {\n  const v0 = 0;\n  const v1 = 1;\n  // FIXME(@mei): flaky 2\n  const v3 = 3;\n  const v4 = 4;\n  const v5 = 5;\n  const v6 = 6;\n  const v7 = 7;\n  const v8 = 8;\n  const v9 = 9;\n  const v10 = 10;\n  const v11 = 11;\n}\n",
+    "web/src/api/mod6.js": "export function f() {\n  const v0 = 0;\n  const v1 = 1;\n  const v2 = 2;\n  const v3 = 3;\n  const v4 = 4;\n  const v5 = 5;\n  const v6 = 6;\n  const v7 = 7;\n  const v8 = 8;\n  const v9 = 9;\n  const v10 = 10;\n  const v11 = 11;\n  const v12 = 12;\n  const v13 = 13;\n  // TODO(@mei): handle edge case 14\n  const v15 = 15;\n  const v16 = 16;\n  const v17 = 17;\n}\n",
+    "web/src/lib/mod7.js": "export function f() {\n  const v0 = 0;\n  const v1 = 1;\n  const v2 = 2;\n  const v3 = 3;\n  const v4 = 4;\n  // TODO(@mei): handle edge case 5\n  const v6 = 6;\n  const v7 = 7;\n  const v8 = 8;\n  const v9 = 9;\n  const v10 = 10;\n  const v11 = 11;\n  const v12 = 12;\n  const v13 = 13;\n  const v14 = 14;\n  // TODO(@meilin): rename var 15\n  const v16 = 16;\n}\n",
+    "web/src/lib/mod8.js": "export function f() {\n  const v0 = 0;\n  const v1 = 1;\n  const v2 = 2;\n  // TODO(@mei): handle edge case 3\n  const v4 = 4;\n  // TODO(@mei): handle edge case 5\n  const v6 = 6;\n  const v7 = 7;\n  const v8 = 8;\n  const v9 = 9;\n  // TODO(@meilin): rename var 10\n  const v11 = 11;\n  const v12 = 12;\n  const v13 = 13;\n  const v14 = 14;\n  const v15 = 15;\n  const v16 = 16;\n  const v17 = 17;\n  const v18 = 18;\n  const v19 = 19;\n  const v20 = 20;\n}\n",
+    "web/src/api/mod9.js": "export function f() {\n  const v0 = 0;\n  const v1 = 1;\n  const v2 = 2;\n  const v3 = 3;\n  const v4 = 4;\n  const v5 = 5;\n  const v6 = 6;\n  const v7 = 7;\n  const v8 = 8;\n  // TODO(@mei): handle edge case 9\n  const v10 = 10;\n  const v11 = 11;\n  const v12 = 12;\n  const v13 = 13;\n  const v14 = 14;\n  const v15 = 15;\n  const v16 = 16;\n  // FIXME(@mei): flaky 17\n  const v18 = 18;\n  const v19 = 19;\n  const v20 = 20;\n  const v21 = 21;\n  const v22 = 22;\n  const v23 = 23;\n  const v24 = 24;\n  const v25 = 25;\n  const v26 = 26;\n  const v27 = 27;\n  const v28 = 28;\n}\n",
+    "web/src/pages/mod10.js": "export function f() {\n  const v0 = 0;\n  const v1 = 1;\n  const v2 = 2;\n  const v3 = 3;\n  const v4 = 4;\n  const v5 = 5;\n  const v6 = 6;\n  const v7 = 7;\n  const v8 = 8;\n  const v9 = 9;\n  const v10 = 10;\n  const v11 = 11;\n  const v12 = 12;\n  const v13 = 13;\n  const v14 = 14;\n  const v15 = 15;\n}\n",
+    "web/src/lib/mod11.js": "export function f() {\n  const v0 = 0;\n  // FIXME(@mei): flaky 1\n  // TODO(@meilin): rename var 2\n  const v3 = 3;\n  const v4 = 4;\n  const v5 = 5;\n  const v6 = 6;\n  const v7 = 7;\n  const v8 = 8;\n  const v9 = 9;\n  const v10 = 10;\n  // TODO(@mei): handle edge case 11\n  const v12 = 12;\n  const v13 = 13;\n  const v14 = 14;\n  // TODO(@mei): handle edge case 15\n  const v16 = 16;\n  const v17 = 17;\n}\n",
+    "web/src/lib/mod12.js": "export function f() {\n  const v0 = 0;\n  const v1 = 1;\n  // FIXME(@mei): flaky 2\n  const v3 = 3;\n  const v4 = 4;\n  const v5 = 5;\n  const v6 = 6;\n  const v7 = 7;\n  const v8 = 8;\n  const v9 = 9;\n  const v10 = 10;\n  const v11 = 11;\n  const v12 = 12;\n  const v13 = 13;\n  const v14 = 14;\n  const v15 = 15;\n  // TODO(@meilin): rename var 16\n  // TODO(@meilin): rename var 17\n  // TODO(@mei): handle edge case 18\n  const v19 = 19;\n  const v20 = 20;\n  const v21 = 21;\n  const v22 = 22;\n}\n",
+    "web/src/lib/mod13.js": "export function f() {\n  const v0 = 0;\n  const v1 = 1;\n  const v2 = 2;\n  // FIXME(@mei): flaky 3\n  const v4 = 4;\n  // TODO(@meilin): rename var 5\n  const v6 = 6;\n  const v7 = 7;\n  const v8 = 8;\n  // FIXME(@mei): flaky 9\n  const v10 = 10;\n  // TODO(@meilin): rename var 11\n  const v12 = 12;\n  const v13 = 13;\n  const v14 = 14;\n  const v15 = 15;\n  const v16 = 16;\n  const v17 = 17;\n  // TODO(@meilin): rename var 18\n  // TODO(@mei): handle edge case 19\n  const v20 = 20;\n  const v21 = 21;\n  const v22 = 22;\n  const v23 = 23;\n  const v24 = 24;\n  const v25 = 25;\n  const v26 = 26;\n  const v27 = 27;\n  const v28 = 28;\n  const v29 = 29;\n}\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many TODO comments are assigned to @mei in this codebase? Reply with just the number.",
+      "expect": {
+        "expected_number": 15.0,
+        "tolerance": 0.0001
+      }
+    }
+  ]
+}

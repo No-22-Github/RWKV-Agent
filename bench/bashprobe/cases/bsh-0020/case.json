@@ -1,0 +1,64 @@
+{
+  "id": "bsh-0020",
+  "description": "bash probe / closure / weather_then_write. BASHPROBE-CANARY-7d41c0e9",
+  "category": "bashprobe",
+  "tags": {
+    "scenario": "bashprobe",
+    "task_type": "weather_then_write",
+    "probe_axis": "closure",
+    "traps": [],
+    "level": "L2",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5"
+  },
+  "files": {
+    "notes/daily.md": "# 每日天气\n\n2026-09-14 杭州 晴 20~29°C\n2026-09-15 杭州 阵雨 19~26°C\n"
+  },
+  "turns": [
+    {
+      "prompt": "查一下明天杭州的天气，按 notes/daily.md 里已有的格式在文件末尾追加一行。追加完回复 DONE。",
+      "expect": {}
+    }
+  ],
+  "expect": {
+    "files": {
+      "notes/daily.md": {
+        "equals": "# 每日天气\n\n2026-09-14 杭州 晴 20~29°C\n2026-09-15 杭州 阵雨 19~26°C\n2026-09-17 杭州 多云 18~25°C\n"
+      }
+    }
+  },
+  "weather_fixture": [
+    {
+      "location": "杭州",
+      "aliases": [
+        "Hangzhou"
+      ],
+      "report": {
+        "location": "杭州，浙江，中国",
+        "current": "小雨 21°C 体感 22°C 湿度 88% 风速 9 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "小雨",
+            "temp_c": "19~24",
+            "rain_chance": "70%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "多云",
+            "temp_c": "18~25",
+            "rain_chance": "20%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "晴",
+            "temp_c": "17~27",
+            "rain_chance": "5%"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "id": "bsh-0015",
+  "description": "bash probe / recover / cwd_reset. BASHPROBE-CANARY-7d41c0e9",
+  "category": "bashprobe",
+  "tags": {
+    "scenario": "bashprobe",
+    "task_type": "cwd_reset",
+    "probe_axis": "recover",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "level": "L3",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5"
+  },
+  "files": {
+    "config.yaml": "service: edge\nport: 8080\n",
+    "services/payment/config.yaml": "service: payment\nport: 8443\ntls: true\n",
+    "services/payment/main.go": "package main\n\nfunc main() {}\n",
+    "services/payment/README.md": "# payment\nCard capture and refunds.\n",
+    "services/ledger/config.yaml": "service: ledger\nport: 9100\n"
+  },
+  "turns": [
+    {
+      "prompt": "进到 services/payment 目录看看里面有哪些文件。",
+      "expect": {
+        "output_contains": [
+          "config.yaml",
+          "main.go"
+        ]
+      }
+    },
+    {
+      "prompt": "那它的 config.yaml 里端口是多少？只回答数字。",
+      "expect": {
+        "expected_number": 8443.0,
+        "tolerance": 0.0001
+      }
+    }
+  ]
+}

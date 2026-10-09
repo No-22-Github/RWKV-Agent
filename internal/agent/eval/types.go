@@ -44,6 +44,9 @@ type Case struct {
 	// cross-contaminate through one shared keyword map. Empty falls back to the
 	// suite-level fixture for legacy custom suites.
 	WebFixture []WebFixtureEntry `json:"web_fixture,omitempty"`
+	// WeatherFixture backs get_weather in the work-v2 catalog. A location the
+	// fixture does not list answers "location not found".
+	WeatherFixture []WeatherFixtureEntry `json:"weather_fixture,omitempty"`
 	// OfferedTools (v1.3 §2.12) narrows the work-v1 catalog to a per-case
 	// subset: ~40% of distill rows drop 2-4 irrelevant tools so the model reads
 	// the turn's directory instead of reciting a memorized one. nil keeps the

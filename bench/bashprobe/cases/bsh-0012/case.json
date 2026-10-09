@@ -1,0 +1,34 @@
+{
+  "id": "bsh-0012",
+  "description": "bash probe / aggregate / diff_keys. BASHPROBE-CANARY-7d41c0e9",
+  "category": "bashprobe",
+  "tags": {
+    "scenario": "bashprobe",
+    "task_type": "diff_keys",
+    "probe_axis": "aggregate",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "level": "L1",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5"
+  },
+  "files": {
+    "config/v1.env": "APP_HOST=7776\nAPP_PORT=4408\nAPP_TIMEOUT=8670\nAPP_POOL=5731\nAPP_MODE=2337\nDB_HOST=6253\nDB_PORT=178\nDB_TIMEOUT=6140\nDB_POOL=7906\nDB_MODE=4491\nCACHE_HOST=7541\nCACHE_PORT=3730\nCACHE_TIMEOUT=28\nCACHE_POOL=2381\nCACHE_MODE=7210\nQUEUE_HOST=6024\nQUEUE_PORT=2659\nQUEUE_TIMEOUT=5566\nQUEUE_POOL=3445\nQUEUE_MODE=964\nMAIL_HOST=3271\nMAIL_PORT=1223\nMAIL_TIMEOUT=8414\nMAIL_POOL=5522\nMAIL_MODE=6630\nAUTH_HOST=1432\nAUTH_PORT=305\nAUTH_TIMEOUT=996\nAUTH_POOL=8339\nAUTH_MODE=3658\n",
+    "config/v2.env": "APP_PORT=4408\nAPP_TIMEOUT=8713\nAPP_POOL=5766\nAPP_MODE=2337\nDB_HOST=6253\nDB_PORT=178\nDB_TIMEOUT=6140\nDB_POOL=7906\nDB_MODE=4491\nCACHE_HOST=7541\nCACHE_PORT=3730\nCACHE_TIMEOUT=28\nCACHE_POOL=2409\nCACHE_MODE=7219\nQUEUE_HOST=6024\nQUEUE_PORT=2659\nQUEUE_TIMEOUT=5566\nQUEUE_POOL=3445\nQUEUE_MODE=964\nMAIL_HOST=3271\nMAIL_PORT=1223\nMAIL_TIMEOUT=8414\nMAIL_POOL=5522\nMAIL_MODE=6630\nAUTH_HOST=1432\nAUTH_PORT=305\nAUTH_TIMEOUT=996\nAUTH_POOL=8339\nAUTH_MODE=3658\nFEATURE_FLAGS=beta\n"
+  },
+  "turns": [
+    {
+      "prompt": "对比 config/v1.env 和 config/v2.env：两边都有、但取值不一样的配置项有哪些？列出键名即可。",
+      "expect": {
+        "output_contains": [
+          "APP_POOL",
+          "APP_TIMEOUT",
+          "CACHE_MODE",
+          "CACHE_POOL"
+        ]
+      }
+    }
+  ]
+}

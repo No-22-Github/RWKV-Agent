@@ -79,10 +79,15 @@ func toolControlPrompt(
 Choose exactly one action: call one provided function when new evidence is needed, or answer the user directly when it is not.
 After a tool result, call one function only for a specific missing fact; otherwise answer from the evidence already collected.
 Never invent file content, repeat a successful function call, emit XML tool envelopes, or describe a function call in ordinary text.`))
-	prompt.WriteString("\nOnly these exact function names are available; bash, shell, terminal, and command execution are not available:\n")
+	if hasToolSpec(specs, "bash") {
+		prompt.WriteString("\nOnly these exact function names are available; bash is a sandbox limited to the workspace, not the user's terminal:\n")
+	} else {
+		prompt.WriteString("\nOnly these exact function names are available; bash, shell, terminal, and command execution are not available:\n")
+	}
 	for _, spec := range specs {
 		fmt.Fprintf(&prompt, "- %s: %s Arguments: %s\n", spec.Name, spec.Description, spec.Arguments)
 	}
+	prompt.WriteString(toolChoiceGuidance(specs, "\n"))
 	if hasToolSpec(specs, "read_file") {
 		prompt.WriteString(`To inspect README.md, call read_file with {"path":"README.md"}. Paths are workspace-relative.`)
 	}

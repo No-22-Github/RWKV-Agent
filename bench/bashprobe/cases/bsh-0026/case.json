@@ -1,0 +1,59 @@
+{
+  "id": "bsh-0026",
+  "description": "bash probe / command / count_by_type. BASHPROBE-CANARY-7d41c0e9",
+  "category": "bashprobe",
+  "tags": {
+    "scenario": "bashprobe",
+    "task_type": "count_by_type",
+    "probe_axis": "command",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "level": "L1",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5"
+  },
+  "files": {
+    "docs/guides/page00.md": "# page 0\n",
+    "docs/page01.txt": "# page 1\n",
+    "docs/blog/2026/page02.md": "# page 2\n",
+    "docs/guides/page03.md": "# page 3\n",
+    "docs/guides/page04.txt": "# page 4\n",
+    "docs/guides/page05.txt": "# page 5\n",
+    "docs/guides/page06.md": "# page 6\n",
+    "docs/guides/page07.md": "# page 7\n",
+    "docs/blog/2026/page08.md": "# page 8\n",
+    "docs/api/v2/page09.txt": "# page 9\n",
+    "docs/page10.md": "# page 10\n",
+    "docs/api/v2/page11.md": "# page 11\n",
+    "docs/page12.markdown": "# page 12\n",
+    "docs/page13.markdown": "# page 13\n",
+    "docs/blog/2026/page14.md": "# page 14\n",
+    "docs/api/v2/page15.markdown": "# page 15\n",
+    "docs/blog/2026/page16.mdx": "# page 16\n",
+    "docs/guides/page17.txt": "# page 17\n",
+    "docs/api/v2/page18.md": "# page 18\n",
+    "docs/blog/2026/page19.md": "# page 19\n",
+    "docs/guides/page20.txt": "# page 20\n",
+    "docs/page21.md": "# page 21\n",
+    "docs/guides/page22.md": "# page 22\n",
+    "docs/page23.markdown": "# page 23\n",
+    "docs/blog/2026/page24.md": "# page 24\n",
+    "docs/api/v2/page25.md": "# page 25\n",
+    "docs/page26.markdown": "# page 26\n",
+    "docs/api/v2/page27.markdown": "# page 27\n",
+    "docs/blog/2026/page28.md": "# page 28\n",
+    "docs/blog/2026/page29.md": "# page 29\n",
+    "README.md": "# root readme, outside docs\n"
+  },
+  "turns": [
+    {
+      "prompt": "In the docs folder, how many .md files are there, including subfolders? Reply with just the number.",
+      "expect": {
+        "expected_number": 17.0,
+        "tolerance": 0.0001
+      }
+    }
+  ]
+}

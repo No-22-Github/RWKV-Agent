@@ -1,0 +1,29 @@
+{
+  "id": "bsh-0022",
+  "description": "bash probe / baseline / single_read. BASHPROBE-CANARY-7d41c0e9",
+  "category": "bashprobe",
+  "tags": {
+    "scenario": "bashprobe",
+    "task_type": "single_read",
+    "probe_axis": "baseline",
+    "traps": [],
+    "level": "L0",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5"
+  },
+  "files": {
+    "README.md": "# Larkspur Ledger\n\nDouble-entry bookkeeping for small co-ops.\n",
+    "package.json": "{\n  \"name\": \"larkspur-ledger-web\",\n  \"version\": \"0.4.2\"\n}\n"
+  },
+  "turns": [
+    {
+      "prompt": "这个项目的 README 里写的项目名是什么？",
+      "expect": {
+        "output_contains": [
+          "Larkspur Ledger"
+        ]
+      }
+    }
+  ]
+}

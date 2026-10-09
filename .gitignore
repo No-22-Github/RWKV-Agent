@@ -24,3 +24,6 @@ __pycache__/
 
 # Claude 桌面 App 的本机预览配置（含绝对路径）
 .claude/launch.json
+
+# just-bash sidecar dependencies (scripts/build-justbash.sh installs them)
+/native/justbash/node_modules/

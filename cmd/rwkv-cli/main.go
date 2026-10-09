@@ -131,6 +131,7 @@ type runOptions struct {
 	deepToolAnchorExplicit   bool
 	enableWeb                bool
 	weatherBackend           string
+	enableBash               bool
 	braveAPIKeyEnv           string
 	braveEndpoint            string
 	tavilyAPIKeyEnv          string
@@ -540,6 +541,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			fs.BoolVar(&options.progressiveTools, "progressive-tools", false, "route to one or two capability bundles before exposing tool schemas")
 			fs.BoolVar(&options.enableWeb, "web", false, "enable Brave web_search and Tavily web_fetch")
 			fs.StringVar(&options.weatherBackend, "weather", "", "enable the keyless live get_weather tool: open-meteo or wttr")
+			fs.BoolVar(&options.enableBash, "bash", false, "enable the sandboxed bash tool on --workspace (needs scripts/build-justbash.sh)")
 			fs.BoolVar(&options.compressFetch, "compress-fetch", true, "compress long web_fetch results with a query-aware extraction before they enter the transcript (round-2 e2e: 0/25 → 25/25 on long-page tasks; pass =false for the A/B)")
 			fs.StringVar(&options.braveAPIKeyEnv, "brave-api-key-env", "BRAVE_API_KEY", "environment variable containing the Brave Search API key")
 			fs.StringVar(&options.braveEndpoint, "brave-endpoint", "", "optional Brave Search API endpoint")
@@ -662,7 +664,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 				&options.evalToolCatalog,
 				"tool-catalog",
 				"",
-				"register a fixed tool catalog for --cases suites: work-v1 (twelve tools, fixed clock, always-on fixture web tools)",
+				"register a fixed tool catalog for --cases suites: work-v1 (twelve tools, fixed clock, always-on fixture web tools) or work-v2 (work-v1 + sandboxed bash + fixture get_weather; needs scripts/build-justbash.sh)",
 			)
 			fs.BoolVar(
 				&options.evalIncludeDraft,
@@ -1726,6 +1728,7 @@ func agentAPIConfig(options runOptions) (agentapi.Config, error) {
 		ProgressiveTools:       &progressive,
 		EnableWeb:              options.enableWeb,
 		WeatherBackend:         options.weatherBackend,
+		EnableBash:             options.enableBash,
 		BraveAPIKey:            os.Getenv(options.braveAPIKeyEnv),
 		BraveEndpoint:          options.braveEndpoint,
 		TavilyAPIKey:           os.Getenv(options.tavilyAPIKeyEnv),
@@ -1776,11 +1779,12 @@ func runAgentEval(args []string) error {
 			return fmt.Errorf("load Agent eval cases: %w", err)
 		}
 	}
-	if options.evalToolCatalog != "" && options.evalToolCatalog != agenteval.WorkToolCatalogName {
-		return fmt.Errorf("unsupported --tool-catalog %q (known: %s)", options.evalToolCatalog, agenteval.WorkToolCatalogName)
+	if options.evalToolCatalog != "" && !agenteval.IsWorkToolCatalog(options.evalToolCatalog) {
+		return fmt.Errorf("unsupported --tool-catalog %q (known: %s, %s)", options.evalToolCatalog,
+			agenteval.WorkToolCatalogName, agenteval.WorkV2ToolCatalogName)
 	}
-	if options.evalToolCatalog == agenteval.WorkToolCatalogName && suite == agenteval.SuitePrimitive {
-		return errors.New("--tool-catalog work-v1 requires a bank case directory or custom case file, not a Primitive suite")
+	if agenteval.IsWorkToolCatalog(options.evalToolCatalog) && suite == agenteval.SuitePrimitive {
+		return errors.New("--tool-catalog work-v1/work-v2 requires a bank case directory or custom case file, not a Primitive suite")
 	}
 	if !agenteval.IsPrimitiveSuite(suite) && options.primitiveProfile != agenteval.PrimitiveProfileUpstream {
 		return errors.New("--primitive-profile go-native requires a Primitive suite or case directory")

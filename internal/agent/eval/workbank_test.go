@@ -2,6 +2,8 @@ package eval
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -134,7 +136,7 @@ func TestValidateCasesRelaxesToolExpectationForResultTurns(t *testing.T) {
 func TestValidateCaseExpectRejections(t *testing.T) {
 	t.Parallel()
 	cases := []struct {
-		name   string
+		name     string
 		testCase Case
 	}{
 		{
@@ -158,17 +160,6 @@ func TestValidateCaseExpectRejections(t *testing.T) {
 			},
 		},
 		{
-			name: "absent on an initial fixture file",
-			testCase: Case{
-				ID: "bad-2", Description: "bad",
-				Files: map[string]string{"cfg.yml": "a: 1\n"},
-				Expect: &CaseExpect{Files: map[string]FileExpectation{
-					"cfg.yml": {Absent: true},
-				}},
-				Turns: []Turn{{Prompt: "x", Expect: Expectation{}}},
-			},
-		},
-		{
 			name: "run script not shipped in files",
 			testCase: Case{
 				ID: "bad-3", Description: "bad",
@@ -183,7 +174,7 @@ func TestValidateCaseExpectRejections(t *testing.T) {
 			testCase: Case{
 				ID: "bad-4", Description: "bad",
 				Expect: &CaseExpect{MaxCalls: map[string]int{"read_file": 0}},
-				Turns: []Turn{{Prompt: "x", Expect: Expectation{}}},
+				Turns:  []Turn{{Prompt: "x", Expect: Expectation{}}},
 			},
 		},
 	}
@@ -239,7 +230,7 @@ func TestWorkCatalogShapeAndHash(t *testing.T) {
 	if err := os.MkdirAll(workspace, 0o700); err != nil {
 		t.Fatal(err)
 	}
-	catalog, err := buildWorkToolCatalog(workspace, nil, 0, nil)
+	catalog, err := buildWorkToolCatalog(WorkToolCatalogName, workspace, nil, nil, 0, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -256,7 +247,7 @@ func TestWorkCatalogShapeAndHash(t *testing.T) {
 		}
 	}
 	first := workToolCatalogHash(catalog)
-	second, err := buildWorkToolCatalog(workspace, nil, 0, nil)
+	second, err := buildWorkToolCatalog(WorkToolCatalogName, workspace, nil, nil, 0, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -406,8 +397,8 @@ func TestRunCaseLevelExpectationsEndToEnd(t *testing.T) {
 			Description: "write the answer into out/answer.txt",
 			Tags:        map[string]any{"scenario": "tabular", "status": "draft"},
 			Files: map[string]string{
-				"orders.csv":     "order_id,amount\nA-1041,14817.35\n",
-				"out/.keep":      "",
+				"orders.csv": "order_id,amount\nA-1041,14817.35\n",
+				"out/.keep":  "",
 			},
 			Expect: &CaseExpect{
 				Files:    map[string]FileExpectation{"out/answer.txt": {Contains: []string{"14817.35"}}},
@@ -420,7 +411,7 @@ func TestRunCaseLevelExpectationsEndToEnd(t *testing.T) {
 		}},
 		Suite:       "workbank",
 		ToolCatalog: WorkToolCatalogName,
-		Model: ModelMetadata{Identifier: "scripted", Backend: "test", Provider: "test", Completion: "test"},
+		Model:       ModelMetadata{Identifier: "scripted", Backend: "test", Provider: "test", Completion: "test"},
 		Runner: agent.Options{
 			MaxSteps:                4,
 			ProtocolRetries:         1,
@@ -731,3 +722,50 @@ func TestRunOfferedToolsNarrowsWorkCatalog(t *testing.T) {
 }
 
 func strPtr(s string) *string { return &s }
+
+func TestWorkV2CatalogAddsBashAndWeather(t *testing.T) {
+	sidecar, err := filepath.Abs(filepath.Join("..", "..", "..", "local", "bin", "justbash-sidecar"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := os.Stat(sidecar); err != nil {
+		t.Skip("bash sidecar not built; run scripts/build-justbash.sh")
+	}
+	t.Setenv(tools.BashSidecarEnv, sidecar)
+	workspace := t.TempDir()
+	weather := []WeatherFixtureEntry{{
+		Location: "杭州", Aliases: []string{"Hangzhou"},
+		Report: tools.WeatherReport{Location: "杭州", Current: "小雨 19°C", Daily: []tools.WeatherDay{
+			{Date: "2026-09-16", Condition: "小雨"}, {Date: "2026-09-17", Condition: "阴"},
+			{Date: "2026-09-18", Condition: "晴"}, {Date: "2026-09-19", Condition: "晴"},
+		}},
+	}}
+	catalog, err := buildWorkToolCatalog(WorkV2ToolCatalogName, workspace, nil, weather, 0, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(catalog) != len(workToolCatalogNames)+2 {
+		t.Fatalf("catalog size = %d, want %d", len(catalog), len(workToolCatalogNames)+2)
+	}
+	byName := map[string]agent.Tool{}
+	for _, tool := range catalog {
+		byName[tool.Spec().Name] = tool
+	}
+	value, err := byName["get_weather"].Execute(context.Background(), json.RawMessage(`{"location":"杭州市","days":1}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if report := value.(tools.WeatherReport); report.Current != "小雨 19°C" || len(report.Daily) != 3 || !strings.HasPrefix(report.Daily[1].Day, "明天") {
+		t.Fatalf("weather report = %+v", report)
+	}
+	if _, err := byName["get_weather"].Execute(context.Background(), json.RawMessage(`{"location":"成都","days":3}`)); !errors.Is(err, tools.ErrWeatherLocationNotFound) {
+		t.Fatalf("unlisted city error = %v", err)
+	}
+	value, err = byName["bash"].Execute(context.Background(), json.RawMessage(`{"command":"echo hi > a.txt && cat a.txt"}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if result := value.(tools.BashResult); result.Stdout != "hi\n" || !result.WorkspaceChanged() {
+		t.Fatalf("bash result = %+v", result)
+	}
+}

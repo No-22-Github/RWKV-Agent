@@ -163,6 +163,13 @@ export class Config {
     "weatherBackend"?: string;
 
     /**
+     * EnableBash offers the sandboxed bash tool (just-bash sidecar, see
+     * internal/agent/tools/bash.go) on the open workspace. Without a
+     * workspace the tool is left out.
+     */
+    "enableBash"?: boolean;
+
+    /**
      * CompressFetch enables query-aware compression of long web_fetch results
      * before they enter the agent transcript (docs/design/preferences.md P5-1..P5-3).
      */

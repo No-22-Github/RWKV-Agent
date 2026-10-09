@@ -1,0 +1,8 @@
+{
+  "name": "rwkv-justbash-sidecar",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "just-bash": "3.6.0"
+  }
+}

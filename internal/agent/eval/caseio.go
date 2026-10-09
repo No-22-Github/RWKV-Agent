@@ -412,15 +412,8 @@ func validateCaseExpect(testCase Case) error {
 				)
 			}
 		}
-		if fileExpect.Absent {
-			if _, initial := testCase.Files[path]; initial {
-				return fmt.Errorf(
-					"case %q expect.files %q absent cannot apply to an initial fixture file",
-					testCase.ID,
-					path,
-				)
-			}
-		}
+		// absent may name an initial fixture file: the work-v2 bash tool can
+		// delete and rename, so "this file is gone" is a scoreable end state.
 	}
 	if run := expect.Run; run != nil {
 		if strings.TrimSpace(run.Path) == "" {

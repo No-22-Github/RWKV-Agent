@@ -97,6 +97,10 @@ type Config struct {
 	// WeatherBackend offers the keyless live get_weather tool through
 	// "open-meteo" or "wttr"; empty leaves the tool out of the catalog.
 	WeatherBackend string `json:"weatherBackend,omitempty"`
+	// EnableBash offers the sandboxed bash tool (just-bash sidecar, see
+	// internal/agent/tools/bash.go) on the open workspace. Without a
+	// workspace the tool is left out.
+	EnableBash bool `json:"enableBash,omitempty"`
 	// CompressFetch enables query-aware compression of long web_fetch results
 	// before they enter the agent transcript (docs/design/preferences.md P5-1..P5-3).
 	CompressFetch          bool `json:"compressFetch,omitempty"`

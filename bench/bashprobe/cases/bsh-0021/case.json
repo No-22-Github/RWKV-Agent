@@ -1,0 +1,68 @@
+{
+  "id": "bsh-0021",
+  "description": "bash probe / weather / tool_choice. BASHPROBE-CANARY-7d41c0e9",
+  "category": "bashprobe",
+  "tags": {
+    "scenario": "bashprobe",
+    "task_type": "tool_choice",
+    "probe_axis": "weather",
+    "traps": [],
+    "level": "L0",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5"
+  },
+  "files": {
+    "README.md": "# trip notes\n"
+  },
+  "turns": [
+    {
+      "prompt": "成都今天下雨的可能性大吗？",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "bash"
+        ],
+        "output_contains": [
+          "85"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "成都",
+      "aliases": [
+        "Chengdu"
+      ],
+      "report": {
+        "location": "成都，四川，中国",
+        "current": "阴 23°C 体感 24°C 湿度 81% 风速 6 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "中雨",
+            "temp_c": "20~25",
+            "rain_chance": "85%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "小雨",
+            "temp_c": "19~24",
+            "rain_chance": "60%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "阴",
+            "temp_c": "19~26",
+            "rain_chance": "30%"
+          }
+        ]
+      }
+    }
+  ]
+}

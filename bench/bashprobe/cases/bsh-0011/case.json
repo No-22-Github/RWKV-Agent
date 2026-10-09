@@ -1,0 +1,34 @@
+{
+  "id": "bsh-0011",
+  "description": "bash probe / edit / sort_artifact. BASHPROBE-CANARY-7d41c0e9",
+  "category": "bashprobe",
+  "tags": {
+    "scenario": "bashprobe",
+    "task_type": "sort_artifact",
+    "probe_axis": "edit",
+    "traps": [],
+    "level": "L0",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5"
+  },
+  "files": {
+    "employees.csv": "id,name,hired,dept\nE1040,Okafor,2023-07-01,sales\nE1041,Lindqvist,2024-02-24,ops\nE1042,Tanaka,2023-08-28,ops\nE1043,Moreau,2023-07-28,ops\nE1044,Ibarra,2023-11-03,ops\nE1045,Kowalski,2024-04-24,sales\nE1046,Haddad,2022-01-24,sales\nE1047,Nguyen,2022-01-14,ops\nE1048,Petrova,2023-11-11,fin\nE1049,Silva,2023-08-21,eng\nE1050,Adeyemi,2024-07-27,fin\nE1051,Brennan,2024-06-23,sales\nE1052,Castillo,2022-01-17,sales\nE1053,Duarte,2021-07-25,eng\nE1054,Eriksen,2023-06-17,fin\nE1055,Fujita,2022-09-05,ops\nE1056,Gallagher,2021-10-11,ops\nE1057,Horvath,2021-06-18,fin\nE1058,Iqbal,2024-01-09,eng\nE1059,Jansen,2024-11-18,fin\nE1060,Khoury,2024-07-09,ops\nE1061,Larsen,2021-03-02,eng\nE1062,Mensah,2024-05-13,eng\nE1063,Novak,2023-03-26,sales\nE1064,Ortiz,2023-07-02,eng\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 employees.csv 按入职日期（hired）从早到晚排序，结果另存为 employees_sorted.csv，表头保留在第一行，原文件不要改。完成后回复 DONE。",
+      "expect": {}
+    }
+  ],
+  "expect": {
+    "files": {
+      "employees_sorted.csv": {
+        "equals": "id,name,hired,dept\nE1061,Larsen,2021-03-02,eng\nE1057,Horvath,2021-06-18,fin\nE1053,Duarte,2021-07-25,eng\nE1056,Gallagher,2021-10-11,ops\nE1047,Nguyen,2022-01-14,ops\nE1052,Castillo,2022-01-17,sales\nE1046,Haddad,2022-01-24,sales\nE1055,Fujita,2022-09-05,ops\nE1063,Novak,2023-03-26,sales\nE1054,Eriksen,2023-06-17,fin\nE1040,Okafor,2023-07-01,sales\nE1064,Ortiz,2023-07-02,eng\nE1043,Moreau,2023-07-28,ops\nE1049,Silva,2023-08-21,eng\nE1042,Tanaka,2023-08-28,ops\nE1044,Ibarra,2023-11-03,ops\nE1048,Petrova,2023-11-11,fin\nE1058,Iqbal,2024-01-09,eng\nE1041,Lindqvist,2024-02-24,ops\nE1045,Kowalski,2024-04-24,sales\nE1062,Mensah,2024-05-13,eng\nE1051,Brennan,2024-06-23,sales\nE1060,Khoury,2024-07-09,ops\nE1050,Adeyemi,2024-07-27,fin\nE1059,Jansen,2024-11-18,fin\n"
+      },
+      "employees.csv": {
+        "unchanged": true
+      }
+    }
+  }
+}

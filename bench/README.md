@@ -21,6 +21,7 @@
 | `workbank/out/workbank.json` | 由 cases 构建的题库快照 | 0.6 MB | — |
 | `workbank/tools/` | 一次性审计工具（Go）及其 testdata | — | — |
 | `workbank/reports-data/` | `docs/workbank/reports/` 各报告的机器可读数据 | 0.7 MB | [报告目录](../docs/workbank/reports/) |
+| `bashprobe/` | 沙箱 bash 能力探针（`work-v2` 目录）；`cases/` 由 `gen.py` 生成并在 just-bash sidecar 里验证参考解 | 26 题 / 0.9 MB | [README](bashprobe/README.md) |
 | `distill/cases/` | 蒸馏题（5xxx = b01–b03，6xxx = b04） | 759 题 / 2.7 MB | [蒸馏工作流](../docs/distill/distill-workflow.md) |
 | `distill/cases-shelved/` | 蒸馏下架题 | 27 题 | — |
 | `distill/scripts/` | **老师动作脚本**：任何 harness 版本都能用 `corpus render --script` 重渲染出训练行 | 1.4 MB | [README](distill/scripts/README.md) |

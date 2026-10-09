@@ -1,0 +1,48 @@
+{
+  "id": "bsh-0023",
+  "description": "bash probe / aggregate / duplicates. BASHPROBE-CANARY-7d41c0e9",
+  "category": "bashprobe",
+  "tags": {
+    "scenario": "bashprobe",
+    "task_type": "duplicates",
+    "probe_axis": "aggregate",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "level": "L1",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5"
+  },
+  "files": {
+    "downloads/file_00.bin": "payload-c7859faeecc3f80c\n",
+    "downloads/file_01.bin": "payload-4a37fa2df2d7d40f\n",
+    "downloads/file_02.bin": "payload-d46375dce47682e6\n",
+    "downloads/file_03.bin": "payload-45f21da156393d8\n",
+    "downloads/file_04.bin": "payload-4e86c4fa978f18a7\n",
+    "downloads/file_05.bin": "payload-611244c06c7ab5c9\n",
+    "downloads/file_06.bin": "payload-5bab1eec87b3d90e\n",
+    "downloads/file_07.bin": "payload-b9d8249e215b8892\n",
+    "downloads/file_08.bin": "payload-447324943126b9c3\n",
+    "downloads/file_09.bin": "payload-39a7b8871cf92e3\n",
+    "downloads/invoice_copy.pdf": "payload-45f21da156393d8\n",
+    "downloads/backup/report-final.txt": "payload-b9d8249e215b8892\n",
+    "downloads/near_miss.bin": "payload-611244c06c7ab5c0\n"
+  },
+  "turns": [
+    {
+      "prompt": "downloads 目录（含子目录）里有没有内容完全一样的文件？有的话把它们成对列出来。",
+      "expect": {
+        "output_contains": [
+          "file_03.bin",
+          "invoice_copy.pdf",
+          "file_07.bin",
+          "report-final.txt"
+        ],
+        "output_excludes": [
+          "near_miss"
+        ]
+      }
+    }
+  ]
+}

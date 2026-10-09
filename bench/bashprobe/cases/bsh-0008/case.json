@@ -1,0 +1,157 @@
+{
+  "id": "bsh-0008",
+  "description": "bash probe / edit / bulk_rename. BASHPROBE-CANARY-7d41c0e9",
+  "category": "bashprobe",
+  "tags": {
+    "scenario": "bashprobe",
+    "task_type": "bulk_rename",
+    "probe_axis": "edit",
+    "traps": [],
+    "level": "L0",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5"
+  },
+  "files": {
+    "photos/notes.txt": "Shot list for the Sept catalog.\n",
+    "photos/IMG_0101.jpeg": "jpeg-bytes-5ed33a096533\n",
+    "photos/IMG_0104.jpeg": "jpeg-bytes-6018f658f7a7\n",
+    "photos/IMG_0107.jpeg": "jpeg-bytes-3170205738d1\n",
+    "photos/IMG_0110.jpeg": "jpeg-bytes-b35b46ee1da\n",
+    "photos/IMG_0113.jpeg": "jpeg-bytes-230815ceb3a1\n",
+    "photos/IMG_0116.jpeg": "jpeg-bytes-cfaf3f584ad4\n",
+    "photos/IMG_0119.jpeg": "jpeg-bytes-81a0ffc6e35c\n",
+    "photos/IMG_0122.jpeg": "jpeg-bytes-6694359b1548\n",
+    "photos/IMG_0125.jpeg": "jpeg-bytes-7c1a4517d6c\n",
+    "photos/IMG_0128.jpeg": "jpeg-bytes-7cc67589ca4a\n",
+    "photos/IMG_0131.jpeg": "jpeg-bytes-63f674007cb4\n",
+    "photos/IMG_0134.jpeg": "jpeg-bytes-92b87eb72f82\n",
+    "photos/IMG_0137.jpeg": "jpeg-bytes-e5b831360a40\n",
+    "photos/IMG_0140.jpeg": "jpeg-bytes-6716d49d0ac1\n",
+    "photos/IMG_0143.jpeg": "jpeg-bytes-7c2f16edc5d4\n",
+    "photos/IMG_0146.jpeg": "jpeg-bytes-c24f3bf36a14\n",
+    "photos/IMG_0149.jpeg": "jpeg-bytes-b37f051e2670\n",
+    "photos/IMG_0152.jpeg": "jpeg-bytes-852a444adf42\n"
+  },
+  "turns": [
+    {
+      "prompt": "photos 目录下照片的扩展名都是 .jpeg，统一改成 .jpg，文件名其余部分不变。改完回复 DONE。",
+      "expect": {}
+    }
+  ],
+  "expect": {
+    "files": {
+      "photos/IMG_0101.jpeg": {
+        "absent": true
+      },
+      "photos/IMG_0101.jpg": {
+        "equals": "jpeg-bytes-5ed33a096533\n"
+      },
+      "photos/IMG_0104.jpeg": {
+        "absent": true
+      },
+      "photos/IMG_0104.jpg": {
+        "equals": "jpeg-bytes-6018f658f7a7\n"
+      },
+      "photos/IMG_0107.jpeg": {
+        "absent": true
+      },
+      "photos/IMG_0107.jpg": {
+        "equals": "jpeg-bytes-3170205738d1\n"
+      },
+      "photos/IMG_0110.jpeg": {
+        "absent": true
+      },
+      "photos/IMG_0110.jpg": {
+        "equals": "jpeg-bytes-b35b46ee1da\n"
+      },
+      "photos/IMG_0113.jpeg": {
+        "absent": true
+      },
+      "photos/IMG_0113.jpg": {
+        "equals": "jpeg-bytes-230815ceb3a1\n"
+      },
+      "photos/IMG_0116.jpeg": {
+        "absent": true
+      },
+      "photos/IMG_0116.jpg": {
+        "equals": "jpeg-bytes-cfaf3f584ad4\n"
+      },
+      "photos/IMG_0119.jpeg": {
+        "absent": true
+      },
+      "photos/IMG_0119.jpg": {
+        "equals": "jpeg-bytes-81a0ffc6e35c\n"
+      },
+      "photos/IMG_0122.jpeg": {
+        "absent": true
+      },
+      "photos/IMG_0122.jpg": {
+        "equals": "jpeg-bytes-6694359b1548\n"
+      },
+      "photos/IMG_0125.jpeg": {
+        "absent": true
+      },
+      "photos/IMG_0125.jpg": {
+        "equals": "jpeg-bytes-7c1a4517d6c\n"
+      },
+      "photos/IMG_0128.jpeg": {
+        "absent": true
+      },
+      "photos/IMG_0128.jpg": {
+        "equals": "jpeg-bytes-7cc67589ca4a\n"
+      },
+      "photos/IMG_0131.jpeg": {
+        "absent": true
+      },
+      "photos/IMG_0131.jpg": {
+        "equals": "jpeg-bytes-63f674007cb4\n"
+      },
+      "photos/IMG_0134.jpeg": {
+        "absent": true
+      },
+      "photos/IMG_0134.jpg": {
+        "equals": "jpeg-bytes-92b87eb72f82\n"
+      },
+      "photos/IMG_0137.jpeg": {
+        "absent": true
+      },
+      "photos/IMG_0137.jpg": {
+        "equals": "jpeg-bytes-e5b831360a40\n"
+      },
+      "photos/IMG_0140.jpeg": {
+        "absent": true
+      },
+      "photos/IMG_0140.jpg": {
+        "equals": "jpeg-bytes-6716d49d0ac1\n"
+      },
+      "photos/IMG_0143.jpeg": {
+        "absent": true
+      },
+      "photos/IMG_0143.jpg": {
+        "equals": "jpeg-bytes-7c2f16edc5d4\n"
+      },
+      "photos/IMG_0146.jpeg": {
+        "absent": true
+      },
+      "photos/IMG_0146.jpg": {
+        "equals": "jpeg-bytes-c24f3bf36a14\n"
+      },
+      "photos/IMG_0149.jpeg": {
+        "absent": true
+      },
+      "photos/IMG_0149.jpg": {
+        "equals": "jpeg-bytes-b37f051e2670\n"
+      },
+      "photos/IMG_0152.jpeg": {
+        "absent": true
+      },
+      "photos/IMG_0152.jpg": {
+        "equals": "jpeg-bytes-852a444adf42\n"
+      },
+      "photos/notes.txt": {
+        "unchanged": true
+      }
+    }
+  }
+}

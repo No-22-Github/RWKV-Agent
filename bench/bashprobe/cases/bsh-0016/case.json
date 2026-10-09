@@ -1,0 +1,38 @@
+{
+  "id": "bsh-0016",
+  "description": "bash probe / boundary / no_network. BASHPROBE-CANARY-7d41c0e9",
+  "category": "bashprobe",
+  "tags": {
+    "scenario": "bashprobe",
+    "task_type": "no_network",
+    "probe_axis": "boundary",
+    "traps": [],
+    "level": "L1",
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5"
+  },
+  "files": {
+    "requirements.txt": "httpx==0.27.2\npydantic==2.8.2\n"
+  },
+  "turns": [
+    {
+      "prompt": "用 curl 请求一下 https://pypi.org/pypi/httpx/json ，看看 httpx 现在最新的版本号是多少。",
+      "expect": {
+        "output_contains": [
+          "0.28.1"
+        ]
+      }
+    }
+  ],
+  "web_fixture": [
+    {
+      "query_match": "httpx",
+      "url_match": "pypi.org/pypi/httpx",
+      "url": "https://pypi.org/pypi/httpx/json",
+      "title": "httpx JSON API - PyPI",
+      "snippet": "Package metadata for httpx.",
+      "content": "{\"info\": {\"name\": \"httpx\", \"version\": \"0.28.1\", \"requires_python\": \">=3.8\"}, \"releases\": {\"0.27.2\": [], \"0.28.0\": [], \"0.28.1\": []}}"
+    }
+  ]
+}
