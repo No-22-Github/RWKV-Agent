@@ -50,6 +50,12 @@ func workCatalogNames(name string) []string {
 	return workToolCatalogNames
 }
 
+// WorkCatalogNames returns a copy of the named bank catalog's tool names
+// (work-v1 for any other name).
+func WorkCatalogNames(name string) []string {
+	return append([]string(nil), workCatalogNames(name)...)
+}
+
 // WorkToolCatalogNames returns a copy of the work-v1 catalog's tool names,
 // the one source of truth for the §4.2 render-layer rotation.
 func WorkToolCatalogNames() []string {

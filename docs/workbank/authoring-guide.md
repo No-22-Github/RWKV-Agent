@@ -20,11 +20,11 @@
 | logs | `locate_error` `count_events` `time_window` `root_cause` `aggregate_jsonl` | 5xx 最多的接口、部署后第一个 ERROR、某分钟错误峰值、JSONL 聚合 |
 | config | `read_effective` `edit_value` `merge` `missing_keys` `precedence` | 服务最终端口、改一个值保留格式、按规则合并、找缺的环境变量 |
 | docs | `extract_items` `latest_version` `link_check` `policy_lookup` `write_structured` | 纪要行动项写 todo.md、最新发布版本、坏链、退款期限 |
-| filesystem | `largest` `count_by_type` `find_file` `duplicates` `presence` | 最大的 N 个文件、按扩展名计数、找配置文件、内容相同的文件 |
-| script | `write_new` `add_flag` `fix_from_traceback` `stdlib_only` `fix_output` `explain_readonly` | JSON 转 CSV 脚本、加 --dry-run、按报错修脚本、修 off-by-one、只读走读脚本用途（v1.3 N5 登记，2026-10-01） |
+| filesystem | `largest` `count_by_type` `find_file` `duplicates` `presence` `bulk_edit` `scoped_delete` | 最大的 N 个文件、按扩展名计数、找配置文件、内容相同的文件；批量改名/替换、限定范围删除（v1.41 bash，work-v2） |
+| script | `write_new` `add_flag` `fix_from_traceback` `stdlib_only` `fix_output` `explain_readonly` | JSON 转 CSV 脚本、加 --dry-run、按报错修脚本、修 off-by-one、只读走读脚本用途（v1.3 N5 登记，2026-10-01）；`reproduce_output` 脚本跑不了时复算其输出（v1.41 bash，2026-10-09） |
 | code | `locate_definition` `find_callers` `count_markers` `fix_edge_case` `explain_readonly` `report_test_result` | 函数定义在哪、谁调用了它、修边界 bug、测试到底过没过 |
 | web | `latest_version` `deprecation` `error_meaning` `lookup_value` | 某库最新版本、某接口是否弃用、报错含义、文档里的默认值 |
-| hybrid | `web_then_edit` `web_then_calc` `local_first` `multi_turn` | 查最新版本改 requirements、按官网税率算本地账单、答案本地就有 |
+| hybrid | `web_then_edit` `web_then_calc` `local_first` `multi_turn` `special_tool` `tool_then_write` | 查最新版本改 requirements、按官网税率算本地账单、答案本地就有；有专用工具（get_weather）时不走网页搜索、查到后直接写产物（v1.41，work-v2） |
 | notool | `concept` `snippet_in_reply` `unit_convert` `stable_fact` `ambiguous_request` `beyond_capability` `smalltalk` | 解释概念、回复里给代码片段、单位换算、需求歧义要反问、要求发邮件；`smalltalk` 为问候、道谢、「你是谁」「你能做什么」这类闲聊，无答案契约、不要求 verify.py |
 
 新增 task_type 须先改 `tag-vocab.json` 并在本表登记。

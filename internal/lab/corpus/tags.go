@@ -313,7 +313,8 @@ const (
 )
 
 var (
-	webTools   = map[string]bool{"web_search": true, "web_fetch": true}
+	// get_weather (work-v2) is outside evidence like the web pair.
+	webTools   = map[string]bool{"web_search": true, "web_fetch": true, "get_weather": true}
 	writeTools = map[string]bool{"write_file": true, "replace_lines": true, "append_file": true}
 	// neutralTools move the trajectory but leave no local evidence behind.
 	neutralTools = map[string]bool{"calculator": true, "datetime": true}

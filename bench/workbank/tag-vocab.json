@@ -17,11 +17,11 @@
     "logs": ["locate_error", "count_events", "time_window", "root_cause", "aggregate_jsonl"],
     "config": ["read_effective", "edit_value", "merge", "missing_keys", "precedence"],
     "docs": ["extract_items", "latest_version", "link_check", "policy_lookup", "write_structured"],
-    "filesystem": ["largest", "count_by_type", "find_file", "duplicates", "presence"],
-    "script": ["write_new", "add_flag", "fix_from_traceback", "stdlib_only", "fix_output", "explain_readonly"],
+    "filesystem": ["largest", "count_by_type", "find_file", "duplicates", "presence", "bulk_edit", "scoped_delete"],
+    "script": ["write_new", "add_flag", "fix_from_traceback", "stdlib_only", "fix_output", "explain_readonly", "reproduce_output"],
     "code": ["locate_definition", "find_callers", "count_markers", "fix_edge_case", "explain_readonly", "report_test_result"],
     "web": ["latest_version", "deprecation", "error_meaning", "lookup_value"],
-    "hybrid": ["web_then_edit", "web_then_calc", "local_first", "multi_turn"],
+    "hybrid": ["web_then_edit", "web_then_calc", "local_first", "multi_turn", "special_tool", "tool_then_write"],
     "notool": ["concept", "snippet_in_reply", "unit_convert", "stable_fact", "ambiguous_request", "beyond_capability", "smalltalk"]
   },
   "traps": {
@@ -61,7 +61,8 @@
   "statuses": ["draft", "reviewed", "frozen"],
   "tools": [
     "list_files", "read_file", "search_text", "read_lines", "write_file", "replace_lines",
-    "append_file", "calculator", "data_query", "datetime", "web_search", "web_fetch"
+    "append_file", "calculator", "data_query", "datetime", "web_search", "web_fetch",
+    "get_weather"
   ],
   "answer_contracts": {
     "unknown": "Reply with only the final answer. If you cannot determine the answer, reply exactly UNKNOWN.",

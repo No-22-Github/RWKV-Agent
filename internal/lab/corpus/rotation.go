@@ -20,11 +20,15 @@ import (
 // The field travels on the case (eval.Case.OfferedTools), the harness rejects
 // calls to tools outside it, and the wire_hash is unaffected: it covers the
 // catalog rendering mode, not the tool list.
-func rotateCatalogs(cases, entries []*lab.OrderedMap, share float64) (int, error) {
+//
+// bash and get_weather (work-v2) are never dropped: rows that leave them
+// unused are the "offered but not needed" lesson, which a narrowed directory
+// would erase.
+func rotateCatalogs(cases, entries []*lab.OrderedMap, share float64, catalogName string) (int, error) {
 	if share <= 0 || share > 1 {
 		return 0, fmt.Errorf("--rotate-catalog must be in (0, 1], got %v", share)
 	}
-	catalog := eval.WorkToolCatalogNames()
+	catalog := eval.WorkCatalogNames(catalogName)
 	used := map[string]map[string]struct{}{}
 	for _, entry := range entries {
 		used[stringField(entry, "case_id")] = toolsUsedByEntry(entry)
@@ -38,7 +42,7 @@ func rotateCatalogs(cases, entries []*lab.OrderedMap, share float64) (int, error
 		spent := used[id]
 		pool := make([]string, 0, len(catalog))
 		for _, name := range catalog {
-			if _, wasUsed := spent[name]; !wasUsed {
+			if _, wasUsed := spent[name]; !wasUsed && !rotationProtected[name] {
 				pool = append(pool, name)
 			}
 		}
@@ -79,6 +83,8 @@ func rotateCatalogs(cases, entries []*lab.OrderedMap, share float64) (int, error
 	return rotated, nil
 }
 
+var rotationProtected = map[string]bool{"bash": true, "get_weather": true}
+
 // toolCallNameRe matches the wire shape the harness itself produces:
 // <tool_call>{"name":"…" — the same prefix v13_closeout.py keys on.
 var toolCallNameRe = regexp.MustCompile(`<tool_call>\{"name":"([a-z_]+)"`)
@@ -101,4 +107,3 @@ func toolsUsedByEntry(entry *lab.OrderedMap) map[string]struct{} {
 	}
 	return used
 }
-

@@ -116,7 +116,9 @@ func renderFlagSet(args *RenderArgs) *flag.FlagSet {
 	fs.BoolVar(&args.KeepFailing, "keep-failing", false,
 		"also emit rows whose teacher trajectory fails the case expectations")
 	fs.Float64Var(&args.RotateCatalog, "rotate-catalog", 0,
-		"v1.3 §4.2: narrow the work-v1 directory for this share of rows, dropping 2-4 tools the row never calls (0 = off)")
+		"v1.3 §4.2: narrow the tool directory for this share of rows, dropping 2-4 tools the row never calls (0 = off); bash and get_weather are never dropped")
+	fs.StringVar(&args.ToolCatalog, "tool-catalog", "work-v1",
+		"bank catalog the rows replay against: work-v1, or work-v2 (+ bash, get_weather; v1.41 b12)")
 	return fs
 }
 

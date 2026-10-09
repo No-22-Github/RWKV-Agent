@@ -30,8 +30,10 @@ import (
 // benchFlags is the workbank arm of .claude/skills/rwkv-bench/sweep.py:
 // catalog, file tools, budgets and wire. Sampling flags are omitted because a
 // script ignores them.
+// The tool catalog is not part of it: --tool-catalog picks work-v1 (default)
+// or work-v2 per render, and benchFlagsFor prepends it.
 var benchFlags = []string{
-	"--tool-catalog", "work-v1", "--file-tools", "lines",
+	"--file-tools", "lines",
 	"--max-steps", "16", "--max-tokens", "4096", "--decision-max-tokens", "2048",
 	"--profile", "g1k", "--strict-spec",
 	"--trace-prompt-bytes", "-1",
@@ -53,7 +55,14 @@ type RenderArgs struct {
 	// ~40% of the rendered rows face a work-v1 catalog missing 2-4 tools the
 	// row's own trajectory never calls. 0 (default) leaves every case untouched.
 	RotateCatalog float64
-	Extra         []string
+	// ToolCatalog is the fixed bank catalog the rows replay against: work-v1
+	// (default) or work-v2 (v1.41 b12: + bash, get_weather).
+	ToolCatalog string
+	Extra       []string
+}
+
+func benchFlagsFor(catalog string) []string {
+	return append([]string{"--tool-catalog", catalog}, benchFlags...)
 }
 
 // RunRender is the `corpus render` command.
@@ -62,6 +71,13 @@ func RunRender(args RenderArgs) int {
 	hasCasesOrScript := args.Cases != "" || args.Script != ""
 	if hasRecords == hasCasesOrScript || (args.Cases != "") != (args.Script != "") {
 		fmt.Fprintln(stderr, "error: give either --records, or both --cases and --script")
+		return 2
+	}
+	if args.ToolCatalog == "" {
+		args.ToolCatalog = eval.WorkToolCatalogName
+	}
+	if !eval.IsWorkToolCatalog(args.ToolCatalog) {
+		fmt.Fprintf(stderr, "error: --tool-catalog %q is not a bank catalog (work-v1, work-v2)\n", args.ToolCatalog)
 		return 2
 	}
 	// --source has no default on purpose: a default would silently label a
@@ -155,7 +171,7 @@ func RunRender(args RenderArgs) int {
 	// records mode and the cases mode go through one deterministic rule and
 	// the rows replay against a narrowed catalog.
 	if args.RotateCatalog > 0 {
-		rotated, err := rotateCatalogs(cases, entries, args.RotateCatalog)
+		rotated, err := rotateCatalogs(cases, entries, args.RotateCatalog, args.ToolCatalog)
 		if err != nil {
 			fmt.Fprintln(stderr, err)
 			return 2
@@ -192,7 +208,7 @@ func RunRender(args RenderArgs) int {
 		fmt.Fprintf(stderr, "unloadable %s: %s\n", item.caseID, item.reason)
 	}
 
-	replay(args.CLI, scriptPath, casesPath, runDir, args.Parallelism, args.Extra)
+	replay(args.CLI, scriptPath, casesPath, runDir, args.ToolCatalog, args.Parallelism, args.Extra)
 	if !lab.FileExists(filepath.Join(runDir, "trace.jsonl")) {
 		fmt.Fprintln(stderr, "agent-eval produced no trace")
 		return 1
@@ -238,11 +254,11 @@ func CasesForScript(cases map[string]*lab.OrderedMap, entries []*lab.OrderedMap)
 	return resolved, nil
 }
 
-func replay(cli, scriptPath, casesPath, runDir string, parallelism int, extra []string) {
+func replay(cli, scriptPath, casesPath, runDir, catalog string, parallelism int, extra []string) {
 	command := []string{cli, "agent-eval", "--script", scriptPath, "--cases", casesPath,
 		"--include-draft", "--case-parallelism", fmt.Sprintf("%d", parallelism),
 		"--output", runDir}
-	command = append(command, benchFlags...)
+	command = append(command, benchFlagsFor(catalog)...)
 	command = append(command, extra...)
 	fmt.Fprintln(stderr, "+ "+strings.Join(command, " "))
 	cmd := exec.Command(command[0], command[1:]...)

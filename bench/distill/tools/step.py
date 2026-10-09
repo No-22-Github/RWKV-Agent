@@ -29,8 +29,10 @@ CLI = os.path.join(REPO, "local", "bin", "rwkv-cli")
 SOLVE_DIR = os.environ.get("STEP_SOLVE_DIR") or os.path.join(REPO, "local", "runs", "distill", "b04", "solve")
 # Same arm as internal/lab/corpus/render.go benchFlags: the replay must see the
 # exact wire the rows will be rendered under.
+# STEP_TOOL_CATALOG=work-v2 solves v1.41 b12 cases (bash + get_weather offered).
+TOOL_CATALOG = os.environ.get("STEP_TOOL_CATALOG", "work-v1")
 BENCH_FLAGS = [
-    "--tool-catalog", "work-v1", "--file-tools", "lines",
+    "--tool-catalog", TOOL_CATALOG, "--file-tools", "lines",
     "--max-steps", "16", "--max-tokens", "4096", "--decision-max-tokens", "2048",
     "--profile", "g1k", "--strict-spec", "--trace-prompt-bytes", "-1",
 ]
