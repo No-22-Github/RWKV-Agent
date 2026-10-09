@@ -40,6 +40,16 @@ under `local/build/toolchain/` without changing your global pnpm:
 ./scripts/build-app.sh
 ```
 
+The native runtime and frontend build run concurrently; both must succeed before
+the desktop executables are built. Unchanged MLX products and prepared PTH loader
+sources keep their timestamps so repeated builds can reuse Ninja's compiled
+objects and linked runtime. Builds skip frontend tests by default; TypeScript
+checking and all builds still run. Run frontend tests separately with:
+
+```sh
+./scripts/test-app.sh
+```
+
 The outputs stay together with the native runtime and Metal resources in `local/dist/`:
 
 ```text

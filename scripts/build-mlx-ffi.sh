@@ -70,10 +70,13 @@ xcodebuild \
 
 product_dir="$derived_dir/Build/Products/Release"
 mkdir -p "$output_dir"
-cp "$product_dir/libMLXModelFFI.a" "$library_path"
-cp \
-  "$product_dir/mlx-swift_Cmlx.bundle/Contents/Resources/default.metallib" \
-  "$metallib_path"
+# Preserve timestamps for unchanged products so Ninja does not relink the runtime.
+if ! cmp -s "$product_dir/libMLXModelFFI.a" "$library_path"; then
+  cp "$product_dir/libMLXModelFFI.a" "$library_path"
+fi
+if ! cmp -s "$product_dir/mlx-swift_Cmlx.bundle/Contents/Resources/default.metallib" "$metallib_path"; then
+  cp "$product_dir/mlx-swift_Cmlx.bundle/Contents/Resources/default.metallib" "$metallib_path"
+fi
 
 if ! nm -gU "$library_path" 2>/dev/null |
   awk '$NF == "_mlx_model_load_pth" { found = 1 } END { exit !found }'; then

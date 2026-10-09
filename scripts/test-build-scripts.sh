@@ -9,7 +9,9 @@ mock_bin="$test_root/bin"
 fixture="$test_root/repo with spaces"
 mkdir -p "$mock_bin" "$fixture/scripts" "$fixture/third_party/rwkv-mobile" \
   "$fixture/cmd/rwkv-app/frontend" "$fixture/cmd/rwkv-app/build/darwin"
-cp "$repo_root/scripts/build-macos.sh" "$repo_root/scripts/build-app.sh" "$fixture/scripts/"
+cp "$repo_root/scripts/build-macos.sh" "$repo_root/scripts/build-app.sh" "$repo_root/scripts/test-app.sh" "$fixture/scripts/"
+mkdir -p "$fixture/scripts/lib"
+cp "$repo_root/scripts/lib/frontend-toolchain.sh" "$fixture/scripts/lib/"
 cp "$repo_root/cmd/rwkv-app/build/darwin/Info.plist" "$repo_root/cmd/rwkv-app/build/darwin/icons.icns" "$fixture/cmd/rwkv-app/build/darwin/"
 touch "$fixture/third_party/rwkv-mobile/CMakeLists.txt"
 echo '{"packageManager":"pnpm@11.7.0"}' >"$fixture/cmd/rwkv-app/frontend/package.json"
@@ -33,6 +35,8 @@ case "${0##*/}" in
   pnpm)
     if [[ "${1:-}" == --version ]]; then echo "$MOCK_PNPM_VERSION"; else
       printf 'pnpm %s %s\n' "$MOCK_PNPM_VERSION" "$*" >>"$MOCK_LOG"
+      if [[ "${MOCK_FRONTEND_FAILURE:-0}" == 1 && "$*" == *'run build' ]]; then exit 1; fi
+      if [[ "${MOCK_TEST_FAILURE:-0}" == 1 && "$*" == *' test'* ]]; then exit 1; fi
     fi
     ;;
   npm)
@@ -51,10 +55,16 @@ case "${0##*/}" in
     chmod +x "$prefix/node_modules/.bin/pnpm"
     ;;
   go)
+    printf 'go %s\n' "$*" >>"$MOCK_LOG"
     while (( $# )); do
       if [[ "$1" == -o ]]; then touch "$2"; chmod +x "$2"; break; fi
       shift
     done
+    ;;
+  git)
+    if [[ "$*" == *'submodule update'* ]]; then
+      touch "$MOCK_REPO/third_party/rwkv-mobile/CMakeLists.txt"
+    fi
     ;;
   otool) printf 'LC_RPATH\npath @executable_path\n' ;;
 esac
@@ -95,6 +105,7 @@ if [[ "${1:-}" == --check ]]; then
   test -f "$MOCK_REPO/third_party/rwkv-mobile/CMakeLists.txt"
   exit
 fi
+if [[ "${MOCK_NATIVE_FAILURE:-0}" == 1 ]]; then exit 1; fi
 # A normal native build initializes missing submodule sources automatically.
 touch "$MOCK_REPO/third_party/rwkv-mobile/CMakeLists.txt"
 dist="$MOCK_REPO/local/dist"
@@ -102,6 +113,7 @@ mkdir -p "$dist/mlx-swift_Cmlx.bundle/Contents/Resources" "$dist/assets"
 touch "$dist/librwkv_agent_runtime.dylib" \
   "$dist/mlx-swift_Cmlx.bundle/Contents/Resources/default.metallib" \
   "$dist/assets/rwkv_vocab_v20230424.txt"
+printf 'native finished\n' >>"$MOCK_LOG"
 EOF
 
 expect_failure '' env MOCK_METAL_FAILURE=1 bash "$fixture/scripts/build-app.sh"
@@ -110,12 +122,12 @@ rm "$fixture/third_party/rwkv-mobile/CMakeLists.txt"
 bash "$fixture/scripts/build-app.sh" >"$test_root/output.log"
 test -f "$fixture/third_party/rwkv-mobile/CMakeLists.txt"
 grep -Fq 'pnpm@11.7.0' "$MOCK_LOG"
-test "$(grep -c '^pnpm 11.7.0 ' "$MOCK_LOG")" -eq 3
+test "$(grep -c '^pnpm 11.7.0 ' "$MOCK_LOG")" -eq 2
 test -f "$fixture/local/dist/RWKV Agent.app/Contents/MacOS/RWKV Agent"
 : >"$MOCK_LOG"
 bash "$fixture/scripts/build-app.sh" >"$test_root/output.log"
 test "$(grep -c '^npm ' "$MOCK_LOG" || true)" -eq 0
-test "$(grep -c '^pnpm 11.7.0 ' "$MOCK_LOG")" -eq 3
+test "$(grep -c '^pnpm 11.7.0 ' "$MOCK_LOG")" -eq 2
 echo 'PASS: native source initialization, pinned pnpm bootstrap and cache reuse'
 
 : >"$MOCK_LOG"
@@ -128,5 +140,39 @@ echo '{"packageManager":"pnpm@11.8.0"}' >"$fixture/cmd/rwkv-app/frontend/package
 : >"$MOCK_LOG"
 bash "$fixture/scripts/build-app.sh" >"$test_root/output.log"
 grep -Fq 'pnpm@11.8.0' "$MOCK_LOG"
-test "$(grep -c '^pnpm 11.8.0 ' "$MOCK_LOG")" -eq 3
+test "$(grep -c '^pnpm 11.8.0 ' "$MOCK_LOG")" -eq 2
 echo 'PASS: changing the manifest pin selects the new pnpm version'
+
+: >"$MOCK_LOG"
+env MOCK_TEST_FAILURE=1 bash "$fixture/scripts/build-app.sh" >"$test_root/output.log"
+test "$(grep -c '^pnpm .* test$' "$MOCK_LOG" || true)" -eq 0
+test "$(grep -c '^pnpm .* install --frozen-lockfile$' "$MOCK_LOG")" -eq 1
+test "$(grep -c '^pnpm .* run build$' "$MOCK_LOG")" -eq 1
+test "$(grep -c '^go ' "$MOCK_LOG")" -eq 2
+bash "$fixture/scripts/build-app.sh" --skip-tests >"$test_root/output.log"
+test "$(grep -c '^pnpm .* test$' "$MOCK_LOG" || true)" -eq 0
+: >"$MOCK_LOG"
+bash "$fixture/scripts/build-app.sh" --help >"$test_root/output.log"
+grep -Fq -- '--skip-tests' "$test_root/output.log"
+expect_failure 'Unknown option: --skip-test' bash "$fixture/scripts/build-app.sh" --skip-test
+test ! -s "$MOCK_LOG"
+echo 'PASS: default builds skip tests; compatibility flag, help and unknown options'
+
+: >"$MOCK_LOG"
+bash "$fixture/scripts/test-app.sh" ToolActivity >"$test_root/output.log"
+test "$(grep -c '^pnpm .* install --frozen-lockfile$' "$MOCK_LOG")" -eq 1
+grep -q '^pnpm .* test ToolActivity$' "$MOCK_LOG"
+test "$(grep -c '^go ' "$MOCK_LOG" || true)" -eq 0
+test "$(grep -c '^native finished$' "$MOCK_LOG" || true)" -eq 0
+expect_failure '' env MOCK_TEST_FAILURE=1 bash "$fixture/scripts/test-app.sh"
+echo 'PASS: standalone frontend tests forward arguments and propagate failures'
+
+for failure in MOCK_NATIVE_FAILURE MOCK_FRONTEND_FAILURE; do
+  : >"$MOCK_LOG"
+  expect_failure '' env "$failure=1" bash "$fixture/scripts/build-app.sh"
+  test "$(grep -c '^go ' "$MOCK_LOG" || true)" -eq 0
+  if [[ "$failure" == MOCK_FRONTEND_FAILURE ]]; then
+    grep -q '^native finished$' "$MOCK_LOG"
+  fi
+done
+echo 'PASS: either worker failure blocks Go builds and native worker is reaped'
