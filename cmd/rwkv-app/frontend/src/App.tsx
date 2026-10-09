@@ -25,6 +25,7 @@ import { traceStats } from './ledger'
 import { useProviderManager } from './state/providerManager'
 import { getInitialTheme, toggleTheme, type ThemeMode } from './theme'
 import { useSnackbar } from './snackbar'
+import { writeClipboard } from './trajectory/primitives/clipboard'
 
 type Message = {
   id: string
@@ -495,6 +496,7 @@ function UserMessage({ content, canEdit, busy, onEdit }: { content: string; canE
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState(content)
   const [copied, setCopied] = useState(false)
+  const { show } = useSnackbar()
   useEffect(() => { if (!copied) return; const timer = setTimeout(() => setCopied(false), 1500); return () => clearTimeout(timer) }, [copied])
   const changed = draft.trim() !== '' && draft.trim() !== content.trim()
   function submit() { if (!changed || busy) return; setEditing(false); onEdit(draft) }
@@ -524,7 +526,7 @@ function UserMessage({ content, canEdit, busy, onEdit }: { content: string; canE
   return <div className="group/user flex flex-col items-end gap-1">
     <div className="max-w-[82%] whitespace-pre-wrap rounded-xl bg-user-bg p-[10px_14px] text-base leading-[1.7] text-user-text [overflow-wrap:anywhere]">{content}</div>
     <div className="flex items-center gap-[2px] opacity-0 transition-opacity duration-[120ms] focus-within:opacity-100 group-hover/user:opacity-100">
-      <IconButton label={copied ? '已复制' : '复制'} onClick={() => { void navigator.clipboard?.writeText(content); setCopied(true) }}>{copied ? <Check size={15} /> : <Copy size={15} />}</IconButton>
+      <IconButton label={copied ? '已复制' : '复制'} onClick={() => { void writeClipboard(content).then(ok => { setCopied(ok); if (!ok) show('复制失败，请重试', 'error') }) }}>{copied ? <Check size={15} /> : <Copy size={15} />}</IconButton>
       {canEdit && <IconButton label="编辑" disabled={busy} onClick={() => { setDraft(content); setEditing(true) }}><PenLine size={15} /></IconButton>}
     </div>
   </div>
@@ -533,10 +535,11 @@ function UserMessage({ content, canEdit, busy, onEdit }: { content: string; canE
 // 回答下方的操作栏：图标按钮（悬停出提示）+ 右侧一行运行信息。
 function TurnActions({ response, meta, canRegenerate, busy, hasTrace, onRegenerate, onTrace }: { response: Message; meta: string; canRegenerate: boolean; busy: boolean; hasTrace: boolean; onRegenerate: () => void; onTrace: () => void }) {
   const [copied, setCopied] = useState(false)
+  const { show } = useSnackbar()
   useEffect(() => { if (!copied) return; const timer = setTimeout(() => setCopied(false), 1500); return () => clearTimeout(timer) }, [copied])
   const regenerateLabel = response.role === 'error' ? '重试' : '重新生成'
   return <div className="turn-actions -ml-[6px] flex items-center gap-[2px]">
-    {response.role === 'assistant' && <IconButton label={copied ? '已复制' : '复制'} onClick={() => { void navigator.clipboard?.writeText(response.content); setCopied(true) }}>{copied ? <Check size={15} /> : <Copy size={15} />}</IconButton>}
+    {response.role === 'assistant' && <IconButton label={copied ? '已复制' : '复制'} onClick={() => { void writeClipboard(response.content).then(ok => { setCopied(ok); if (!ok) show('复制失败，请重试', 'error') }) }}>{copied ? <Check size={15} /> : <Copy size={15} />}</IconButton>}
     {/* 只有最后一轮能原地重跑；更早的回合重跑会让后续回合失去依据。 */}
     {canRegenerate && <IconButton label={regenerateLabel} disabled={busy} onClick={onRegenerate}><RotateCcw size={15} /></IconButton>}
     {hasTrace && <IconButton label="查看轨迹" onClick={onTrace}><ListTree size={15} /></IconButton>}

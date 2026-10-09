@@ -1,10 +1,12 @@
+import { Clipboard } from '@wailsio/runtime'
+
 // Host clipboard write shared by Web UI copy controls. Success feedback stays
 // with each control; this helper only reports whether the host accepted a write.
 
 /**
  * Write text to the host clipboard, preferring the async Clipboard API and
- * falling back to `execCommand('copy')` on hosts (jsdom, insecure contexts)
- * that omit it.
+ * then the native Wails clipboard for WebViews, and finally
+ * `execCommand('copy')` for browser hosts without either API.
  * @param text - the exact text to place on the clipboard.
  * @returns true only when the host accepted the write.
  */
@@ -17,9 +19,14 @@ export async function writeClipboard(text: string): Promise<boolean> {
       await navigator.clipboard.writeText(text)
       return true
     } catch {
-      // Denied permissions / iframe policy — do not claim success.
-      return false
+      // WebViews may expose the API but reject writes; try the host bridge.
     }
+  }
+  try {
+    await Clipboard.SetText(text)
+    return true
+  } catch {
+    // A browser preview has no native bridge; retain the DOM fallback.
   }
   // jsdom and older hosts: best-effort execCommand path when present.
   // execCommand('copy') is the only clipboard fallback where the async API
