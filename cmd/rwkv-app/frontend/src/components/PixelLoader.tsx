@@ -11,6 +11,8 @@ export type PixelLoaderOptions = {
   radius?: number
   letterSpacing?: number
   baseAlpha?: number
+  /** 静态常亮，不播放动画 */
+  still?: boolean
   decode?: { once?: boolean; onDone?: () => void }
 }
 

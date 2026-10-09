@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
-import { ChevronDown, ChevronRight, Loader2, X } from 'lucide-react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { ChevronRight, Loader2, X } from 'lucide-react'
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import AnimatedToolIcon from './AnimatedToolIcon'
 import PixelLoader from './PixelLoader'
 import { isKnownTool, toolRunning, toolSummary, toolVerb } from '../i18n/toolLabels'
@@ -114,6 +115,16 @@ export function ThinkingMark() {
   return <PixelLoader className="text-ink" layout="single" animation="comet" cell={1.7} gap={0.3} baseAlpha={0.1} label="Agent 运行中" />
 }
 
+/*
+ * 回合结束后留在摘要行左侧的 R：与 ThinkingMark 同尺寸，所以完成时文字不左移。
+ * 当场跑完的回合先解码一次再定格（「动 → 静」表达跑完了）；打开历史时直接静态，不重播。
+ */
+function SettledMark({ fresh }: { fresh: boolean }) {
+  return fresh
+    ? <PixelLoader className="text-ink-muted" layout="single" animation="decode" decode={{ once: true }} cell={1.7} gap={0.3} baseAlpha={0.1} label="Agent 已完成" />
+    : <PixelLoader className="text-ink-muted" layout="single" still cell={1.7} gap={0.3} baseAlpha={0.1} label="Agent 已完成" />
+}
+
 type Props = {
   calls: readonly ToolCall[]
   running?: boolean
@@ -123,6 +134,9 @@ type Props = {
 
 export default function ToolActivity({ calls, running = false, liveLabel }: Props) {
   const [open, setOpen] = useState(false)
+  // 本次挂载期间跑过的卡片，结束时才播定格动画；历史回合挂载时就是完成态。
+  const ranHere = useRef(running)
+  if (running) ranHere.current = true
   if (calls.length === 0) return null
   const groups = groupCalls(calls)
   const failed = calls.filter((call) => call.status === 'failed').length
@@ -136,15 +150,35 @@ export default function ToolActivity({ calls, running = false, liveLabel }: Prop
       {executing
         // 与 ThinkingMark 同宽同高的方框：两种标记互换时文字不左右挪。
         ? <span className="flex h-[18px] w-[18px] flex-none items-center justify-center text-ink"><AnimatedToolIcon tool={latest.tool} running size={15} /></span>
-        : running && <ThinkingMark />}
+        : running ? <ThinkingMark /> : <SettledMark fresh={ranHere.current} />}
       {running
         ? <span className="shimmer-text min-w-0 truncate">{liveLabel || `${toolRunning(latest.tool)} ${primaryArg(latest.calls.at(-1)!)}`.trim()}</span>
         : <span className="min-w-0 truncate">{summarize(groups)}{failed > 0 && <span className="text-danger"> · {failed} 次失败</span>}</span>}
-      {open ? <ChevronDown size={15} className="flex-none" /> : <ChevronRight size={15} className="flex-none" />}
+      <ChevronRight size={15} className={`flex-none transition-transform duration-200 motion-reduce:transition-none ${open ? 'rotate-90' : ''}`} />
     </button>
-    {open && <div className="tool-activity-panel mt-[10px] overflow-hidden rounded-xl border border-line bg-card-bg">
+    <ActivityDisclosure open={open}><div className="tool-activity-panel mt-[10px] overflow-hidden rounded-xl border border-line bg-card-bg">
       {groups.map((group) => <GroupRow key={group.id} group={group} />)}
-    </div>}
+    </div></ActivityDisclosure>
+  </div>
+}
+
+// 高度用无回弹弹簧：起步不猛冲、尾段慢慢落定；内容稍晚淡入，避免框还没撑开字就先糊出来。收起比展开略快。
+const disclosureOpen = { height: { type: 'spring', duration: 0.45, bounce: 0 }, opacity: { duration: 0.28, delay: 0.08, ease: 'easeOut' } } as const
+const disclosureClose = { height: { type: 'spring', duration: 0.32, bounce: 0 }, opacity: { duration: 0.14, ease: 'easeIn' } } as const
+
+/** Keep content mounted through exit so both opening and closing move the answer smoothly. */
+function ActivityDisclosure({ open, children }: { open: boolean; children: ReactNode }) {
+  const reducedMotion = useReducedMotion()
+  return <div aria-hidden={!open} inert={!open}>
+    <AnimatePresence initial={false}>
+      {open && <motion.div
+        key="content"
+        initial={{ height: 0, opacity: 0 }}
+        animate={{ height: 'auto', opacity: 1, transition: reducedMotion ? { duration: 0 } : disclosureOpen }}
+        exit={{ height: 0, opacity: 0, transition: reducedMotion ? { duration: 0 } : disclosureClose }}
+        className="overflow-hidden"
+      >{children}</motion.div>}
+    </AnimatePresence>
   </div>
 }
 
@@ -171,11 +205,11 @@ function GroupRow({ group }: { group: CallGroup }) {
           {failed && <X size={13} className="flex-none text-danger" aria-label="失败" />}
           {duration > 0 && <span className="flex-none font-mono text-2xs tabular-nums text-ink-ghost">{formatDuration(duration)}</span>}
         </>}
-      <ChevronRight size={14} className={`flex-none text-ink-ghost transition-transform duration-150 ${open ? 'rotate-90' : ''}`} />
+      <ChevronRight size={14} className={`flex-none text-ink-ghost transition-transform duration-200 motion-reduce:transition-none ${open ? 'rotate-90' : ''}`} />
     </button>
-    {open && <div className="flex flex-col gap-[14px] border-t border-line-soft bg-paper-soft px-[14px] py-[12px]">
+    <ActivityDisclosure open={open}><div className="flex flex-col gap-[14px] border-t border-line-soft bg-paper-soft px-[14px] py-[12px]">
       {group.calls.map((call, index) => <CallDetail key={call.id} call={call} order={group.calls.length > 1 ? index + 1 : undefined} />)}
-    </div>}
+    </div></ActivityDisclosure>
   </div>
 }
 

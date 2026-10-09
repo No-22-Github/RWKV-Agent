@@ -35,4 +35,13 @@ describe('tool row icons', () => {
     expect(screen.getByLabelText('Agent 运行中')).toBeInTheDocument()
     expect(document.querySelector('[data-running="true"]')).toBeNull()
   })
+
+  it('keeps a settled R mark on the summary row once the turn is done', () => {
+    render(<ToolActivity calls={[
+      { id: 'a', tool: 'get_weather', arguments: '{"location":"合肥"}', status: 'completed', durationMs: 1400 },
+    ]} />)
+    expect(screen.getByText('查询了天气')).toBeInTheDocument()
+    expect(screen.queryByLabelText('Agent 运行中')).toBeNull()
+    expect(document.querySelector('[aria-label="Agent 已完成"]')).not.toBeNull()
+  })
 })

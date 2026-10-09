@@ -439,9 +439,12 @@ function ChatView({ chips, messages, activity, liveAnswer, motion, busy, prompt,
 
   return <div className="chat-panel relative flex min-h-0 flex-1 flex-col overflow-hidden">
     <div ref={stageRef} className="chat-stage relative min-h-0 flex-1 overflow-hidden">
-      {!empty && <div ref={scrollRef} className="conversation-scroll absolute inset-0 mx-auto content-narrow overflow-auto pt-[30px]">
-        {turns.map((turn, index) => <TurnView key={turn.user?.id || turn.response?.id || index} turn={turn} index={index + 1} last={index === turns.length - 1} busy={busy} pending={busy && index === turns.length - 1 && !turn.response} activity={activity} liveAnswer={liveAnswer} motion={motion} onGrow={followAnswer} onTrace={onTrace} onRegenerate={onRegenerate} onEditLast={onEditLast} />)}
-        <div ref={messagesEnd} />
+      {/* 滚动容器铺满舞台，滚动条贴窗口最右；两侧预留等宽槽位，滚动条出现时正文不被挤、也不偏离输入框的中线。 */}
+      {!empty && <div ref={scrollRef} className="conversation-scroll absolute inset-0 overflow-y-auto overflow-x-hidden pt-[30px] [scrollbar-gutter:stable_both-edges]">
+        <div className="mx-auto content-narrow">
+          {turns.map((turn, index) => <TurnView key={turn.user?.id || turn.response?.id || index} turn={turn} index={index + 1} last={index === turns.length - 1} busy={busy} pending={busy && index === turns.length - 1 && !turn.response} activity={activity} liveAnswer={liveAnswer} motion={motion} onGrow={followAnswer} onTrace={onTrace} onRegenerate={onRegenerate} onEditLast={onEditLast} />)}
+          <div ref={messagesEnd} />
+        </div>
       </div>}
     </div>
     <div ref={anchorRef} className="composer-anchor absolute left-0 right-0 z-[2] mx-auto content-narrow will-change-transform transition-transform duration-[420ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none">

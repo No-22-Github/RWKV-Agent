@@ -115,7 +115,8 @@ class RWKVLoader {
       color: null,
       baseAlpha: 0.07,
       quantize: true,
-      autoplay: true
+      autoplay: true,
+      still: false
     }, options, { glyph });
 
     this.scanOpt  = Object.assign({ duration: single ? .68 : .9, hold: 0, overlap: single ? .6 : .45, direction: 'up' }, options.scan);
@@ -146,7 +147,8 @@ class RWKVLoader {
     this._done = false;
     this._reduced = global.matchMedia && global.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    if (this._reduced) { this._static(); this._draw(); }
+    // still：只画常亮的字形，不进动画循环（例如回合结束后定格的 R）。
+    if (this._reduced || this.o.still) { this._static(); this._draw(); }
     else if (this.o.autoplay) this.start();
     else { this._compute(0); this._draw(); }
   }
