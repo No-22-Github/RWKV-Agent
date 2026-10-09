@@ -94,6 +94,9 @@ type Config struct {
 	TavilyAPIKey     string `json:"tavilyApiKey,omitempty"`
 	TavilyEndpoint   string `json:"tavilyEndpoint,omitempty"`
 	EnableSubagents  bool   `json:"enableSubagents,omitempty"`
+	// WeatherBackend offers the keyless live get_weather tool through
+	// "open-meteo" or "wttr"; empty leaves the tool out of the catalog.
+	WeatherBackend string `json:"weatherBackend,omitempty"`
 	// CompressFetch enables query-aware compression of long web_fetch results
 	// before they enter the agent transcript (docs/design/preferences.md P5-1..P5-3).
 	CompressFetch          bool `json:"compressFetch,omitempty"`

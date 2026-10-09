@@ -1,7 +1,7 @@
 import { Children, isValidElement, type ReactNode, useEffect, useRef, useState } from 'react'
 import { Check, Copy, X } from 'lucide-react'
 import { Highlight, Prism, type PrismTheme } from 'prism-react-renderer'
-import ReactMarkdown from 'react-markdown'
+import ReactMarkdown, { type Components } from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 
 type MarkdownMessageProps = {
@@ -37,6 +37,40 @@ function rehypeStreamTokens(skip = 0) {
       })
     }
     split(tree)
+  }
+}
+
+// GFM 裸链接只在空白处结束，中文正文没有空格，「（https://a.com/）——推荐路线。」会整段
+// 变成一个链接。在第一个全角标点或中日韩字符处截断，余下部分放回链接后面的普通文本。
+const AUTOLINK_STOP = /[\u2014\u2026\u2e80-\u9fff\uf900-\ufaff\uff00-\uffef\u3000-\u303f]/
+
+function safeDecodeURI(value: string) {
+  try { return decodeURI(value) } catch { return value }
+}
+
+function rehypeTrimCjkAutolinks() {
+  return (tree: HastNode) => {
+    const visit = (node: HastNode) => {
+      if (!node.children) return
+      node.children = node.children.flatMap((child): HastNode[] => {
+        visit(child)
+        const text = child.children?.length === 1 && child.children[0].type === 'text' ? child.children[0].value || '' : ''
+        const href = child.properties?.href
+        // 只处理自动链接（文本就是地址本身）；[文字](地址) 写法由作者自己界定。
+        // href 已被百分号编码（中文变成 %E4…），先解码再和文本比对。
+        const decoded = typeof href === 'string' ? safeDecodeURI(href) : ''
+        if (child.tagName !== 'a' || !text || !decoded.endsWith(text.replace(/^https?:\/\//, ''))) return [child]
+        const cut = text.search(AUTOLINK_STOP)
+        if (cut <= 0) return [child]
+        const kept = text.slice(0, cut)
+        const trimmedHref = encodeURI(decoded.slice(0, decoded.length - text.length + cut))
+        return [
+          { ...child, properties: { ...child.properties, href: trimmedHref }, children: [{ type: 'text', value: kept }] },
+          { type: 'text', value: text.slice(cut) },
+        ]
+      })
+    }
+    visit(tree)
   }
 }
 
@@ -108,6 +142,33 @@ const codeTheme: PrismTheme = {
   ],
 }
 
+// 必须是模块级常量：内联对象每次渲染都会生成新的组件函数，React 视为不同类型而整棵
+// 子树重挂载——流式期间表格、链接、代码块里的字每帧都从头播淡入，表格一直糊着。
+const markdownComponents: Components = {
+  pre({ children }) {
+    const child = Children.toArray(children)[0]
+    if (!isValidElement<{ className?: string; children?: ReactNode }>(child)) {
+      return <pre>{children}</pre>
+    }
+    return <CodeBlock className={child.props.className} code={textContent(child.props.children).replace(/\n$/, '')} />
+  },
+  table({ children, node: _node, ...props }) {
+    return (
+      <div className="overflow-x-auto">
+        <table {...props}>{children}</table>
+      </div>
+    )
+  },
+  a({ href, children, node: _node, ...props }) {
+    const external = /^(?:https?:|mailto:)/i.test(href || '')
+    return (
+      <a {...props} href={href} target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined}>
+        {children}
+      </a>
+    )
+  },
+}
+
 export default function MarkdownMessage({ content, streaming, staticChars = 0 }: MarkdownMessageProps) {
   const blocks = splitTopLevelBlocks(content)
   let plainCount = 0
@@ -125,36 +186,13 @@ export default function MarkdownMessage({ content, streaming, staticChars = 0 }:
         cursor = start + block.length
         // 整块都在恢复进度之内：不拆字、不做块级淡入；跨越边界的块只把前半截标成静态。
         const blockStatic = Boolean(streaming) && cursor <= staticChars
-        const tokens = streaming && !blockStatic ? [rehypeStreamTokens(Math.max(0, staticChars - start))] : undefined
+        const tokens = streaming && !blockStatic ? [rehypeTrimCjkAutolinks, rehypeStreamTokens(Math.max(0, staticChars - start))] : [rehypeTrimCjkAutolinks]
         const markdown = (
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             rehypePlugins={tokens}
             skipHtml
-            components={{
-              pre({ children }) {
-                const child = Children.toArray(children)[0]
-                if (!isValidElement<{ className?: string; children?: ReactNode }>(child)) {
-                  return <pre>{children}</pre>
-                }
-                return <CodeBlock className={child.props.className} code={textContent(child.props.children).replace(/\n$/, '')} />
-              },
-              table({ children, ...props }) {
-                return (
-                  <div className="overflow-x-auto">
-                    <table {...props}>{children}</table>
-                  </div>
-                )
-              },
-              a({ href, children, ...props }) {
-                const external = /^(?:https?:|mailto:)/i.test(href || '')
-                return (
-                  <a {...props} href={href} target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined}>
-                    {children}
-                  </a>
-                )
-              },
-            }}
+            components={markdownComponents}
           >
             {block}
           </ReactMarkdown>
@@ -164,7 +202,7 @@ export default function MarkdownMessage({ content, streaming, staticChars = 0 }:
         if (!numbered) return <div key={index} className={staticClass}>{markdown}</div>
 
         return (
-          <div key={index} className={`answer-para grid grid-cols-[22px_minmax(0,1fr)] items-baseline gap-[12px]${staticClass ? ` ${staticClass}` : ''}`}>
+          <div key={index} className={`grid grid-cols-[22px_minmax(0,1fr)] items-baseline gap-[12px] answer-para${staticClass ? ` ${staticClass}` : ''}`}>
             <span className="answer-para-num text-md font-bold leading-[1.95] text-brand">{pointNumber}</span>
             <div className="min-w-0">{markdown}</div>
           </div>

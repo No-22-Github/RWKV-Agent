@@ -131,6 +131,8 @@ type XMLHarnessConfig struct {
 	// TokenCount counts tokens with the real World vocabulary (round-3 step 1);
 	// nil keeps the compression hook off. See agent.Options.TokenCount.
 	TokenCount func(string) int
+	// AnswerStageLead mirrors ProductHarnessConfig.AnswerStageLead.
+	AnswerStageLead int
 }
 
 // XMLHarnessOptions is the single constructor for the default XML envelope
@@ -160,6 +162,7 @@ func XMLHarnessOptions(config XMLHarnessConfig) Options {
 		TracePromptBytes: config.TracePromptBytes,
 		CompressFetch:    config.CompressFetch,
 		TokenCount:       config.TokenCount,
+		AnswerStageLead:  config.AnswerStageLead,
 	}
 	applyProgressiveTools(&options, config.ProgressiveTools, config.ToolBundles, config.RouteMaxOutputTokens)
 	return options

@@ -280,6 +280,22 @@ func (s *AppService) Chat(ctx context.Context, prompt string) (agentapi.Result, 
 // Regenerate discards the latest turn of the active conversation and runs its
 // user prompt again in place, instead of appending a duplicate user message.
 func (s *AppService) Regenerate(ctx context.Context) (agentapi.Result, error) {
+	return s.rerunLastTurn(ctx, "")
+}
+
+// EditLast replaces the latest user message with prompt and reruns that turn
+// in place: the old message and its response are rolled back exactly as
+// Regenerate does, then the edited prompt runs on the same history.
+func (s *AppService) EditLast(ctx context.Context, prompt string) (agentapi.Result, error) {
+	if strings.TrimSpace(prompt) == "" {
+		return agentapi.Result{}, fmt.Errorf("message is required")
+	}
+	return s.rerunLastTurn(ctx, prompt)
+}
+
+// rerunLastTurn rolls back the latest turn and runs it again with replacement,
+// or with its original prompt when replacement is empty.
+func (s *AppService) rerunLastTurn(ctx context.Context, replacement string) (agentapi.Result, error) {
 	s.operation.Lock()
 	defer s.operation.Unlock()
 	s.mu.Lock()
@@ -291,6 +307,9 @@ func (s *AppService) Regenerate(ctx context.Context) (agentapi.Result, error) {
 	rolled, prompt, err := rollbackLastTurn(*original)
 	if err != nil {
 		return agentapi.Result{}, err
+	}
+	if strings.TrimSpace(replacement) != "" {
+		prompt = replacement
 	}
 	s.replaceActive(&rolled)
 	session, err := s.ensureSession(ctx)

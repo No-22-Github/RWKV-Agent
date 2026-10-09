@@ -157,6 +157,12 @@ export class Config {
     "enableSubagents"?: boolean;
 
     /**
+     * WeatherBackend offers the keyless live get_weather tool through
+     * "open-meteo" or "wttr"; empty leaves the tool out of the catalog.
+     */
+    "weatherBackend"?: string;
+
+    /**
      * CompressFetch enables query-aware compression of long web_fetch results
      * before they enter the agent transcript (docs/design/preferences.md P5-1..P5-3).
      */
@@ -498,8 +504,8 @@ export class Step {
     static createFrom($$source: any = {}): Step {
         const $$createField2_0 = $$createType7;
         const $$createField5_0 = $$createType8;
-        const $$createField21_0 = $$createType10;
-        const $$createField22_0 = $$createType12;
+        const $$createField22_0 = $$createType10;
+        const $$createField23_0 = $$createType12;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("request" in $$parsedSource) {
             $$parsedSource["request"] = $$createField2_0($$parsedSource["request"]);
@@ -508,10 +514,10 @@ export class Step {
             $$parsedSource["usage"] = $$createField5_0($$parsedSource["usage"]);
         }
         if ("toolRetries" in $$parsedSource) {
-            $$parsedSource["toolRetries"] = $$createField21_0($$parsedSource["toolRetries"]);
+            $$parsedSource["toolRetries"] = $$createField22_0($$parsedSource["toolRetries"]);
         }
         if ("subagents" in $$parsedSource) {
-            $$parsedSource["subagents"] = $$createField22_0($$parsedSource["subagents"]);
+            $$parsedSource["subagents"] = $$createField23_0($$parsedSource["subagents"]);
         }
         return new Step($$parsedSource as Partial<Step>);
     }

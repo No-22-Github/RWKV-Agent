@@ -22,6 +22,8 @@
   --line-soft: #f4f4f5;
   --line-strong: #d4d4d8;
   --brand: #18181b;
+  --link: #2563eb;
+  --link-hover: #1d4ed8;
   --brand-bright: #18181b;
   --brand-wash: #f4f4f5;
   --danger: #dc2626;
@@ -86,6 +88,8 @@
   --line-soft: #18181b;
   --line-strong: #3f3f46;
   --brand: #fafafa;
+  --link: #60a5fa;
+  --link-hover: #93c5fd;
   --brand-bright: #fafafa;
   --brand-wash: #18181b;
   --danger: #f87171;

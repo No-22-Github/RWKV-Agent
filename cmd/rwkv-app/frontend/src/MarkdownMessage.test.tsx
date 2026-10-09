@@ -51,4 +51,19 @@ describe('MarkdownMessage', () => {
     expect(screen.getByRole('button', { name: '复制 Plain text 代码' })).toBeInTheDocument()
     expect(container.querySelector(':not(pre) > code')).toHaveTextContent('inline')
   })
+
+  it('ends bare URLs at the first full-width punctuation or CJK character', () => {
+    const content = '可参考重庆旅游攻略（https://www.trip.com/travel-guide/chongqing/）——第一次去重庆的必去景点。另见 [官网](https://www.cq.gov.cn/中文路径)'
+    for (const streaming of [false, true]) {
+      const { container, unmount } = render(<MarkdownMessage content={content} streaming={streaming} />)
+      const links = [...container.querySelectorAll('a')]
+      expect(links[0]).toHaveAttribute('href', 'https://www.trip.com/travel-guide/chongqing/')
+      expect(links[0]).toHaveTextContent(/^https:\/\/www\.trip\.com\/travel-guide\/chongqing\/$/)
+      expect(container.textContent).toContain('/）——第一次去重庆的必去景点。')
+      // 显式 [文字](地址) 的链接不截断。
+      expect(links[1]).toHaveTextContent('官网')
+      expect(decodeURI(links[1].getAttribute('href') || '')).toBe('https://www.cq.gov.cn/中文路径')
+      unmount()
+    }
+  })
 })

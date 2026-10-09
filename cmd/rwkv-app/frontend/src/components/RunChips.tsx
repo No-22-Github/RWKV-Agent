@@ -36,7 +36,7 @@ export default function RunChips(props: Props) {
   const runtime = providers.find((provider) => provider.id === runtimeProviderId)
   const local = runtime?.config.provider === Provider.ProviderLocal
   const supportsState = ready && runtime?.config.provider === Provider.ProviderRWKVLightningCUDA
-  const capabilities = [runtimeConfig?.enableWeb ? 'web' : null, runtimeConfig?.enableSubagents ? 'subagents' : null].filter(Boolean).join(' · ') || '无'
+  const capabilities = [runtimeConfig?.enableWeb ? 'web' : null, runtimeConfig?.enableSubagents ? 'subagents' : null, runtimeConfig?.weatherBackend ? 'weather' : null].filter(Boolean).join(' · ') || '无'
   const loading = status.state === ModelState.ModelLoading
 
   return <div className="flex min-w-0 flex-wrap items-center gap-[6px]">

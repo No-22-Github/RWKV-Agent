@@ -208,6 +208,15 @@ export default function App() {
     motionMemory.current.progress.delete(`turn:${lastUser.id}`)
     await runTurn(content, (current) => current.at(-1)?.role === 'user' ? current : current.slice(0, -1), () => Backend.Regenerate(), false)
   }
+  // 编辑最近一轮：撤掉最后一条用户消息及其回复，由后端回退历史后用改过的内容重跑。
+  async function editLast(value: string) {
+    const content = value.trim()
+    if (!content || busy || turnInFlight.current || !ensureReady()) return
+    const lastUserIndex = messages.findLastIndex((message) => message.role === 'user')
+    if (lastUserIndex < 0) return
+    motionMemory.current.progress.delete(`turn:${messages[lastUserIndex].id}`)
+    await runTurn(content, (current) => [...current.slice(0, current.findLastIndex((message) => message.role === 'user')), userMessage(content)], () => Backend.EditLast(content), true)
+  }
   async function runTurn(content: string, stage: (current: Message[]) => Message[], run: () => Promise<Result> & { cancel: () => void }, restoreUser: boolean) {
     turnInFlight.current = true
     setActivity([]); setMessages(stage); setBusy(true)
@@ -275,7 +284,7 @@ export default function App() {
             <button role="tab" aria-selected={activeTab === 'trace'} className={`relative min-w-[58px] border-0 border-b-2 bg-transparent pb-[9px] text-center text-md transition-[border-color,color] duration-[180ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none before:absolute before:inset-x-0 before:bottom-0 before:top-[-15px] before:content-[''] ${activeTab === 'trace' ? 'border-brand font-semibold text-ink' : 'border-transparent text-ink-muted'}`} onClick={() => setActiveTab('trace')} disabled={!traceMessages.length && !liveTurn}>轨迹 <span className="ml-1 font-mono text-2xs text-ink-muted">{traceMessages.length + (liveTurn ? 1 : 0) || ''}</span></button>
           </div>
         </header>
-        {activeTab === 'trace' ? <TrajectoryView messages={traceMessages} live={liveTurn} focusMessageId={selectedTraceID} onExport={() => void exportTrajectory()} /> : <ChatView chips={<RunChips ready={ready} busy={busy} status={status} runtimeConfig={runtimeConfig} providers={manager.providers} runtimeProviderId={manager.runtimeProviderId} workspace={workspaceName} runConfigOpen={runConfigOpen} setRunConfigOpen={setRunConfigOpen} onActivate={(id) => void activateProviderNow(id)} onToggleCapability={(key, value) => void toggleCapabilityNow(key, value)} onSetState={setStateNow} onChooseWorkspace={() => void chooseWorkspace()} onOpenSettings={() => { setRunConfigOpen(false); manager.openSettings() }} />} messages={messages} activity={activity} liveAnswer={liveAnswer} motion={motionMemory.current} busy={busy} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={() => void regenerateLast()} onKeyDown={onComposerKeyDown} onStop={stopRun} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} messagesEnd={messagesEnd} />}
+        {activeTab === 'trace' ? <TrajectoryView messages={traceMessages} live={liveTurn} focusMessageId={selectedTraceID} onExport={() => void exportTrajectory()} /> : <ChatView chips={<RunChips ready={ready} busy={busy} status={status} runtimeConfig={runtimeConfig} providers={manager.providers} runtimeProviderId={manager.runtimeProviderId} workspace={workspaceName} runConfigOpen={runConfigOpen} setRunConfigOpen={setRunConfigOpen} onActivate={(id) => void activateProviderNow(id)} onToggleCapability={(key, value) => void toggleCapabilityNow(key, value)} onSetState={setStateNow} onChooseWorkspace={() => void chooseWorkspace()} onOpenSettings={() => { setRunConfigOpen(false); manager.openSettings() }} />} messages={messages} activity={activity} liveAnswer={liveAnswer} motion={motionMemory.current} busy={busy} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={() => void regenerateLast()} onEditLast={(content) => void editLast(content)} onKeyDown={onComposerKeyDown} onStop={stopRun} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} messagesEnd={messagesEnd} />}
       </main>
     </>}
   </div>
@@ -354,7 +363,7 @@ function Sidebar({ conversations, workspaces, activeId, busy, open, onCloseSideb
   </>
 }
 
-function ChatView({ chips, messages, activity, liveAnswer, motion, busy, prompt, setPrompt, onSubmit, onStop, onRegenerate, onKeyDown, onTrace, messagesEnd }: { chips: React.ReactNode; messages: Message[]; activity: AgentActivity[]; liveAnswer: string; motion: MotionMemory; busy: boolean; prompt: string; setPrompt: (value: string) => void; onSubmit: () => void; onStop: () => void; onRegenerate: () => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void; onTrace: (id: string) => void; messagesEnd: React.RefObject<HTMLDivElement | null> }) {
+function ChatView({ chips, messages, activity, liveAnswer, motion, busy, prompt, setPrompt, onSubmit, onStop, onRegenerate, onEditLast, onKeyDown, onTrace, messagesEnd }: { chips: React.ReactNode; messages: Message[]; activity: AgentActivity[]; liveAnswer: string; motion: MotionMemory; busy: boolean; prompt: string; setPrompt: (value: string) => void; onSubmit: () => void; onStop: () => void; onRegenerate: () => void; onEditLast: (content: string) => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void; onTrace: (id: string) => void; messagesEnd: React.RefObject<HTMLDivElement | null> }) {
   const turns = groupMessagesIntoTurns(messages)
   const empty = turns.length === 0
   // 匀速显示会比消息到达晚一点长高，滚动要跟着显示层走，而不只是跟着消息。
@@ -412,17 +421,20 @@ function ChatView({ chips, messages, activity, liveAnswer, motion, busy, prompt,
   return <div className="chat-panel relative flex min-h-0 flex-1 flex-col overflow-hidden">
     <div ref={stageRef} className="chat-stage relative min-h-0 flex-1 overflow-hidden">
       {!empty && <div ref={scrollRef} className="conversation-scroll absolute inset-0 mx-auto content-narrow overflow-auto pt-[30px]">
-        {turns.map((turn, index) => <TurnView key={turn.user?.id || turn.response?.id || index} turn={turn} index={index + 1} last={index === turns.length - 1} busy={busy} pending={busy && index === turns.length - 1 && !turn.response} activity={activity} liveAnswer={liveAnswer} motion={motion} onGrow={followAnswer} onTrace={onTrace} onRegenerate={onRegenerate} />)}
+        {turns.map((turn, index) => <TurnView key={turn.user?.id || turn.response?.id || index} turn={turn} index={index + 1} last={index === turns.length - 1} busy={busy} pending={busy && index === turns.length - 1 && !turn.response} activity={activity} liveAnswer={liveAnswer} motion={motion} onGrow={followAnswer} onTrace={onTrace} onRegenerate={onRegenerate} onEditLast={onEditLast} />)}
         <div ref={messagesEnd} />
       </div>}
     </div>
     <div ref={anchorRef} className="composer-anchor absolute left-0 right-0 z-[2] mx-auto content-narrow will-change-transform transition-transform duration-[420ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none">
+      {/* 渐隐底衬：正文滚到输入区时先淡出、再被纸色盖住，不从标签和输入框之间直接穿过去。
+          延伸到舞台底边（锚点下方留的 28px）；空态输入框居中，没有正文要盖。 */}
+      {!empty && <div aria-hidden className="composer-fade pointer-events-none absolute inset-x-0 top-[-56px] bottom-[-28px] -z-10 bg-[linear-gradient(to_bottom,transparent,var(--paper)_56px)]" />}
       <Composer chips={chips} prompt={prompt} setPrompt={setPrompt} busy={busy} running={running} empty={empty} onSubmit={onSubmit} onStop={onStop} onKeyDown={onKeyDown} />
     </div>
   </div>
 }
 
-function TurnView({ turn, index, last, busy, pending, activity, liveAnswer, motion, onGrow, onTrace, onRegenerate }: { turn: ChatTurn; index: number; last: boolean; busy: boolean; pending: boolean; activity: AgentActivity[]; liveAnswer: string; motion: MotionMemory; onGrow: () => void; onTrace: (id: string) => void; onRegenerate: () => void }) {
+function TurnView({ turn, index, last, busy, pending, activity, liveAnswer, motion, onGrow, onTrace, onRegenerate, onEditLast }: { turn: ChatTurn; index: number; last: boolean; busy: boolean; pending: boolean; activity: AgentActivity[]; liveAnswer: string; motion: MotionMemory; onGrow: () => void; onTrace: (id: string) => void; onRegenerate: () => void; onEditLast: (content: string) => void }) {
   const response = turn.response
   const hasTrace = Boolean(response?.trace || response?.trajectory?.length)
   const calls = pending ? callsFromEvents(activity) : response?.trace ? callsFromSteps(response.trace.steps) : callsFromTrajectory(response?.trajectory || [])
@@ -441,9 +453,9 @@ function TurnView({ turn, index, last, busy, pending, activity, liveAnswer, moti
   useEffect(() => { motion.seen.add(turnKey) }, [motion, turnKey])
   useEffect(() => { if (answerKey) motion.seen.add(answerKey) }, [motion, answerKey])
   // 入场动效只给最后一轮：新发出的回合，或刚打开会话时的最末一轮；历史回合不整片闪动。
-  return <article className={`conversation-turn mb-[42px]${pending ? ' pending' : ''}${last && enterFresh ? ' turn-enter animate-turn-enter motion-reduce:animate-none' : ''}`} data-testid={`conversation-turn-${index}`}>
+  return <article className={`mb-[42px] conversation-turn${pending ? ' pending' : ''}${last && enterFresh ? ' turn-enter animate-turn-enter motion-reduce:animate-none' : ''}`} data-testid={`conversation-turn-${index}`}>
     <div className="turn-main flex min-w-0 flex-col gap-4">
-      {turn.user && <div className="flex justify-end"><div className="max-w-[82%] rounded-xl bg-user-bg p-[10px_14px] text-base leading-[1.7] text-user-text [overflow-wrap:anywhere]">{turn.user.content}</div></div>}
+      {turn.user && <UserMessage content={turn.user.content} canEdit={last} busy={busy} onEdit={onEditLast} />}
       {calls.length > 0 && <ToolActivity calls={calls} running={pending && !liveAnswer} liveLabel={liveLabel} />}
       {pending && !liveAnswer && calls.length === 0 && <div className="turn-pending-answer flex min-h-7 items-center gap-[6px] pt-[2px] text-ink-muted" aria-live="polite"><ThinkingMark /><span className="shimmer-text text-sm">{activityLabel(activity.at(-1))}</span></div>}
       {/* 流式回答：生成中与落定后必须是同一位置的同一个 PacedAnswer，落定时它才能把没放完的字按节奏放完。 */}
@@ -454,6 +466,46 @@ function TurnView({ turn, index, last, busy, pending, activity, liveAnswer, moti
       {response && <TurnActions response={response} meta={[formatTurnTime(time), response.meta, stats && stats.tokens > 0 ? `${stats.tokens.toLocaleString('zh-CN')} tok` : ''].filter(Boolean).join(' · ')} canRegenerate={last && Boolean(turn.user)} busy={busy} hasTrace={hasTrace} onRegenerate={onRegenerate} onTrace={() => onTrace(response.id)} />}
     </div>
   </article>
+}
+
+// 用户消息：悬停出复制/编辑。只有最后一轮可编辑——更早的回合改了会让后续回合失去依据（与重新生成同理）。
+function UserMessage({ content, canEdit, busy, onEdit }: { content: string; canEdit: boolean; busy: boolean; onEdit: (content: string) => void }) {
+  const [editing, setEditing] = useState(false)
+  const [draft, setDraft] = useState(content)
+  const [copied, setCopied] = useState(false)
+  useEffect(() => { if (!copied) return; const timer = setTimeout(() => setCopied(false), 1500); return () => clearTimeout(timer) }, [copied])
+  const changed = draft.trim() !== '' && draft.trim() !== content.trim()
+  function submit() { if (!changed || busy) return; setEditing(false); onEdit(draft) }
+  function cancel() { setEditing(false); setDraft(content) }
+  if (editing) {
+    return <div className="user-edit flex flex-col gap-2 rounded-xl border border-line bg-paper-wash p-[10px_12px]">
+      <textarea
+        aria-label="编辑消息"
+        autoFocus
+        rows={Math.min(8, Math.max(2, draft.split('\n').length))}
+        className="w-full resize-none border-0 bg-transparent text-base leading-[1.7] text-ink outline-0"
+        value={draft}
+        onChange={(event) => setDraft(event.target.value)}
+        onFocus={(event) => event.currentTarget.setSelectionRange(event.currentTarget.value.length, event.currentTarget.value.length)}
+        onKeyDown={(event) => {
+          if (event.nativeEvent.isComposing || event.keyCode === 229) return
+          if (event.key === 'Escape') { event.preventDefault(); cancel() }
+          if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); submit() }
+        }}
+      />
+      <div className="flex justify-end gap-2">
+        <button type="button" onClick={cancel} className="rounded-md px-3 py-1 text-sm text-ink-muted hover:bg-surface-active hover:text-ink">取消</button>
+        <button type="button" aria-label="发送修改" onClick={submit} disabled={!changed || busy} className="rounded-md bg-ink px-3 py-1 text-sm text-paper disabled:opacity-40">发送</button>
+      </div>
+    </div>
+  }
+  return <div className="group/user flex flex-col items-end gap-1">
+    <div className="max-w-[82%] whitespace-pre-wrap rounded-xl bg-user-bg p-[10px_14px] text-base leading-[1.7] text-user-text [overflow-wrap:anywhere]">{content}</div>
+    <div className="flex items-center gap-[2px] opacity-0 transition-opacity duration-[120ms] focus-within:opacity-100 group-hover/user:opacity-100">
+      <IconButton label={copied ? '已复制' : '复制'} onClick={() => { void navigator.clipboard?.writeText(content); setCopied(true) }}>{copied ? <Check size={15} /> : <Copy size={15} />}</IconButton>
+      {canEdit && <IconButton label="编辑" disabled={busy} onClick={() => { setDraft(content); setEditing(true) }}><PenLine size={15} /></IconButton>}
+    </div>
+  </div>
 }
 
 // 回答下方的操作栏：图标按钮（悬停出提示）+ 右侧一行运行信息。

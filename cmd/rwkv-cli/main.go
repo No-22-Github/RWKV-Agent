@@ -130,6 +130,7 @@ type runOptions struct {
 	deepToolAnchor           bool
 	deepToolAnchorExplicit   bool
 	enableWeb                bool
+	weatherBackend           string
 	braveAPIKeyEnv           string
 	braveEndpoint            string
 	tavilyAPIKeyEnv          string
@@ -538,6 +539,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			fs.StringVar(&options.wireOverrides, "wire", "", "longhand wire axis overrides on top of the suite default or --profile: comma-separated key=value (format, thinking, prefill, abstain, terminal, route, catalog, control, feedback, subagent), e.g. \"format=md-fence,prefill=fence\"")
 			fs.BoolVar(&options.progressiveTools, "progressive-tools", false, "route to one or two capability bundles before exposing tool schemas")
 			fs.BoolVar(&options.enableWeb, "web", false, "enable Brave web_search and Tavily web_fetch")
+			fs.StringVar(&options.weatherBackend, "weather", "", "enable the keyless live get_weather tool: open-meteo or wttr")
 			fs.BoolVar(&options.compressFetch, "compress-fetch", true, "compress long web_fetch results with a query-aware extraction before they enter the transcript (round-2 e2e: 0/25 → 25/25 on long-page tasks; pass =false for the A/B)")
 			fs.StringVar(&options.braveAPIKeyEnv, "brave-api-key-env", "BRAVE_API_KEY", "environment variable containing the Brave Search API key")
 			fs.StringVar(&options.braveEndpoint, "brave-endpoint", "", "optional Brave Search API endpoint")
@@ -1723,6 +1725,7 @@ func agentAPIConfig(options runOptions) (agentapi.Config, error) {
 		RWKVStopTokens:         options.apiStopTokens,
 		ProgressiveTools:       &progressive,
 		EnableWeb:              options.enableWeb,
+		WeatherBackend:         options.weatherBackend,
 		BraveAPIKey:            os.Getenv(options.braveAPIKeyEnv),
 		BraveEndpoint:          options.braveEndpoint,
 		TavilyAPIKey:           os.Getenv(options.tavilyAPIKeyEnv),

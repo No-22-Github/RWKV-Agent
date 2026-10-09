@@ -1,4 +1,4 @@
-import { Globe2, Users } from 'lucide-react'
+import { CloudSun, Globe2, Users } from 'lucide-react'
 import type { ProviderManager } from '../../state/providerManager'
 import { Field, GroupTitle, SettingsPane, Toggle, SaveStatus } from './ui'
 import { autosaveHint } from './autosaveHint'
@@ -37,6 +37,16 @@ export default function AgentBehaviorSection({ manager }: Props) {
             <Field label="Brave API Key" value={manager.braveAPIKey} onChange={manager.setBraveAPIKey} type="password" />
             <Field label="Tavily API Key" value={manager.tavilyAPIKey} onChange={manager.setTavilyAPIKey} type="password" />
           </div>
+        )}
+        <Toggle icon={<CloudSun size={15} />} label="实时天气" description="get_weather 工具，免 API Key" checked={manager.weatherBackend !== ''} onChange={(value) => manager.setWeatherBackend(value ? 'open-meteo' : '')} />
+        {manager.weatherBackend !== '' && (
+          <label className="flex items-center justify-between gap-[12px] pt-[4px] text-sm text-ink-muted">
+            天气数据源
+            <select aria-label="天气数据源" className="rounded-md h-[36px] w-[170px] flex-none border border-line bg-paper-wash px-[8px] text-base text-ink outline-0 focus:border-brand" value={manager.weatherBackend} onChange={(event) => manager.setWeatherBackend(event.target.value)}>
+              <option value="open-meteo">Open-Meteo（7 天）</option>
+              <option value="wttr">wttr.in（3 天）</option>
+            </select>
+          </label>
         )}
         <Toggle icon={<Users size={15} />} label="并发子 Agent" description="一次派发 2–8 个独立任务，不允许嵌套委派" checked={manager.enableSubagents} onChange={manager.setEnableSubagents} />
         {manager.enableSubagents && (

@@ -99,6 +99,13 @@ func assembleSessionTools(config Config, owner *Service, workspace string, depth
 			Search: web.search, Fetch: web.fetch,
 		})...)
 	}
+	if backend := strings.TrimSpace(config.WeatherBackend); backend != "" {
+		weather, weatherErr := assistanttools.NewWeatherProvider(backend)
+		if weatherErr != nil {
+			return nil, weatherErr
+		}
+		tools = append(tools, assistanttools.WeatherTools(weather)...)
+	}
 	if config.EnableSubagents && depth == 0 {
 		tools = append(tools, assistanttools.DelegationTools(assistanttools.DelegationOptions{
 			MaxParallel: config.SubagentMaxParallel,
@@ -237,6 +244,7 @@ func sessionRunnerOptions(
 			PostToolHook:             postToolHook,
 			CompressFetch:            config.CompressFetch,
 			TokenCount:               tokenCount,
+			AnswerStageLead:          productAnswerStageLead,
 		})
 	} else {
 		options = agent.XMLHarnessOptions(agent.XMLHarnessConfig{
@@ -254,6 +262,7 @@ func sessionRunnerOptions(
 			ThinkingMode:             inference.ThinkingMode(config.Thinking),
 			CompressFetch:            config.CompressFetch,
 			TokenCount:               tokenCount,
+			AnswerStageLead:          productAnswerStageLead,
 		})
 	}
 	if strings.TrimSpace(config.Profile) != "" {
@@ -291,6 +300,12 @@ func progressiveToolsEnabled(value *bool) bool {
 func productSwitchEnabled(value *bool) bool {
 	return value == nil || *value
 }
+
+// productAnswerStageLead enters the forced answer stage one step before the
+// budget runs out, so a model that still emits a tool call there gets one
+// strict re-ask instead of ending the turn on "agent reached the step limit"
+// with all gathered evidence thrown away.
+const productAnswerStageLead = 1
 
 var resultURLPattern = regexp.MustCompile(`https?://[^\s"\\]+`)
 

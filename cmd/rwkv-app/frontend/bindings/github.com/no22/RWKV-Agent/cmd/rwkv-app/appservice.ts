@@ -109,6 +109,17 @@ export function DeleteState(config: api$0.Config, id: string, serverSide: boolea
 }
 
 /**
+ * EditLast replaces the latest user message with prompt and reruns that turn
+ * in place: the old message and its response are rolled back exactly as
+ * Regenerate does, then the edited prompt runs on the same history.
+ */
+export function EditLast(prompt: string): $CancellablePromise<api$0.Result> {
+    return $Call.ByID(3630591882, prompt).then(($result: any) => {
+        return $$createType2($result);
+    });
+}
+
+/**
  * ExportTrajectory shows a native save dialog and writes the given JSONL
  * content to the chosen path. Returns the written path, or "" when the user
  * cancels the dialog.

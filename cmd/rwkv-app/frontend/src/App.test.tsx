@@ -35,6 +35,7 @@ vi.mock('../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/appservice', () => 
   Status: vi.fn().mockResolvedValue({ state: 'idle', workspace: '/tmp/RWKV-Agent', hasApiKey: false, updatedAt: new Date().toISOString() }),
   Chat: vi.fn(),
   Regenerate: vi.fn(),
+  EditLast: vi.fn(),
   Configure: vi.fn(),
   ConfigureProvider: vi.fn(),
   SaveProvider: vi.fn(),
@@ -444,15 +445,15 @@ describe('App', () => {
     await waitRuntimeReady()
     openSettings()
     openParametersSection()
-    expect(screen.getByLabelText('最大步数')).toHaveValue(6)
+    expect(screen.getByLabelText('最大步数')).toHaveValue(16)
     expect(screen.getByLabelText('最大输出 token')).toHaveValue(1024)
-    fireEvent.change(screen.getByLabelText('最大步数'), { target: { value: '16' } })
+    fireEvent.change(screen.getByLabelText('最大步数'), { target: { value: '24' } })
     fireEvent.change(screen.getByLabelText('最大输出 token'), { target: { value: '4096' } })
     fireEvent.change(screen.getByLabelText('决策输出 token'), { target: { value: '2048' } })
 
     await waitFor(() => expect(Backend.ConfigureProvider).toHaveBeenCalled(), { timeout: 3000 })
     expect(vi.mocked(Backend.ConfigureProvider).mock.calls[0][2]).toMatchObject({
-      maxSteps: 16, maxTokens: 4096, decisionMaxTokens: 2048,
+      maxSteps: 24, maxTokens: 4096, decisionMaxTokens: 2048,
     })
   })
 
@@ -1257,6 +1258,44 @@ describe('App', () => {
     expect(screen.queryByText('旧回答二')).not.toBeInTheDocument()
     expect(screen.getByText('旧回答一')).toBeInTheDocument()
     expect(screen.getAllByText('第二问')).toHaveLength(1)
+  })
+
+  it('edits only the last user message and reruns that turn in place', async () => {
+    const summary = new ConversationSummary({ id: 'edit-conversation', title: '编辑', updatedAt: new Date().toISOString() })
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
+      status: readyStatus(),
+      conversations: [summary],
+      conversation: new ConversationView({
+        id: summary.id,
+        title: summary.title,
+        messages: [
+          new DisplayMessage({ id: 'e1', role: 'user', content: '第一问' }),
+          new DisplayMessage({ id: 'e2', role: 'assistant', content: '回答一' }),
+          new DisplayMessage({ id: 'e3', role: 'user', content: '第二问' }),
+          new DisplayMessage({ id: 'e4', role: 'assistant', content: '旧回答二' }),
+        ],
+      }),
+    }))
+    vi.mocked(Backend.Chat).mockClear()
+    vi.mocked(Backend.EditLast).mockResolvedValue(new Result({ output: '新回答二', steps: [], durationMs: 5 }))
+
+    render(<App />)
+    await screen.findByText('旧回答二')
+    const editButtons = screen.getAllByRole('button', { name: '编辑' })
+    expect(editButtons).toHaveLength(1)
+    fireEvent.click(editButtons[0])
+    const editor = screen.getByRole('textbox', { name: '编辑消息' })
+    expect(editor).toHaveValue('第二问')
+    fireEvent.change(editor, { target: { value: '改过的第二问' } })
+    fireEvent.click(screen.getByRole('button', { name: '发送修改' }))
+
+    expect(await screen.findByText('新回答二')).toBeInTheDocument()
+    expect(Backend.EditLast).toHaveBeenCalledWith('改过的第二问')
+    expect(Backend.Chat).not.toHaveBeenCalled()
+    expect(screen.queryByText('第二问')).not.toBeInTheDocument()
+    expect(screen.queryByText('旧回答二')).not.toBeInTheDocument()
+    expect(screen.getByText('改过的第二问')).toBeInTheDocument()
+    expect(screen.getByText('回答一')).toBeInTheDocument()
   })
 
   it('closes the navigation drawer after opening a conversation', async () => {

@@ -31,6 +31,7 @@ const TOOLS: Record<string, ToolEntry> = {
   web_fetch: { zh: { verb: '读取', noun: '网页', unit: '个' }, en: { verb: 'Fetched', ing: 'Fetching', noun: 'page' } },
   spawn_agents: { zh: { verb: '派出', noun: '子 Agent', unit: '批' }, en: { verb: 'Spawned', ing: 'Spawning', noun: 'subagent' } },
   calculator: { zh: { verb: '计算', noun: '算式', unit: '个' }, en: { verb: 'Calculated', ing: 'Calculating', noun: 'expression' } },
+  get_weather: { zh: { verb: '查询', noun: '天气', unit: '次' }, en: { verb: 'Checked', ing: 'Checking', noun: 'the weather', plural: 'the weather' } },
   datetime: { zh: { verb: '查询', noun: '时间', unit: '次' }, en: { verb: 'Checked', ing: 'Checking', noun: 'the time', plural: 'the time' } },
   load_tools: { zh: { verb: '加载', noun: '工具', unit: '组' }, en: { verb: 'Loaded', ing: 'Loading', noun: 'tool set' } },
 }

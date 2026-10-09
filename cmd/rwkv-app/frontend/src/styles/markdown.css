@@ -26,4 +26,8 @@
 .turn-answer .md-markdown code:not(pre code) { color: var(--brand); font: 12px var(--mono); }
 
 .turn-answer .md-markdown .answer-para p { margin-bottom: 0; }
+
+/* 黑白单色主题里链接是唯一的彩色：不加颜色和下划线时它和正文完全一样，看不出能点。 */
+.turn-answer .md-markdown a { color: var(--link); text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--link) 35%, transparent); text-decoration-thickness: 1px; text-underline-offset: 3px; overflow-wrap: anywhere; transition: color 120ms, text-decoration-color 120ms; }
+.turn-answer .md-markdown a:hover { color: var(--link-hover); text-decoration-color: currentColor; }
 }

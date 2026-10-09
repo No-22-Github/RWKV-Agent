@@ -361,7 +361,7 @@ func normalizeConfig(config Config) (Config, error) {
 // cross-constraints.
 func applyConfigDefaults(config *Config) error {
 	if config.MaxSteps == 0 {
-		config.MaxSteps = 6
+		config.MaxSteps = 16
 	}
 	if config.MaxSteps < 2 {
 		return fmt.Errorf("maxSteps must be at least 2")
