@@ -73,6 +73,9 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [theme, setTheme] = useState<ThemeMode>(() => getInitialTheme())
   const messagesEnd = useRef<HTMLDivElement>(null)
+  // 是否贴底跟随：用户往上滚就松开，滚回底部附近或发出新一轮时重新贴住。
+  // 无条件 scrollIntoView 会在流式的每一帧把正在往上看的用户拽回底部，滚动来回抽搐。
+  const followBottom = useRef(true)
   const ready = status.state === ModelState.ModelReady
   const manager = useProviderManager({ onStatus: setStatus, ready })
   const { show: notify } = useSnackbar()
@@ -103,7 +106,7 @@ export default function App() {
     return () => { offStatus(); offAgent() }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-  useEffect(() => { messagesEnd.current?.scrollIntoView({ block: 'end' }) }, [messages, liveAnswer])
+  useEffect(() => { if (followBottom.current) messagesEnd.current?.scrollIntoView({ block: 'end' }) }, [messages, liveAnswer])
 
   // 快捷键监听只挂一次，经 ref 调最新一轮渲染的处理函数：过去依赖 [busy] 的闭包会拿着
   // 空的档案列表打开设置（首轮对话前按 ⌘, 总是落到"新建连接"）。
@@ -176,7 +179,7 @@ export default function App() {
     try { await manager.deleteProvider(id) } catch (error) { manager.setSettingsMessage(errorText(error)) } finally { setBusy(false) }
   }
   function applyConversation(value?: ConversationView, options: { preserveDraft?: boolean } = {}) {
-    setActiveConversationID(value?.id || ''); setActiveTab('chat'); setActivity([]); if (!options.preserveDraft) setPrompt('')
+    setActiveConversationID(value?.id || ''); setActiveTab('chat'); setActivity([]); followBottom.current = true; if (!options.preserveDraft) setPrompt('')
     let lastPrompt = ''
     setMessages((value?.messages || []).map((message) => {
       if (message.role === 'user') lastPrompt = message.content
@@ -219,6 +222,7 @@ export default function App() {
   }
   async function runTurn(content: string, stage: (current: Message[]) => Message[], run: () => Promise<Result> & { cancel: () => void }, restoreUser: boolean) {
     turnInFlight.current = true
+    followBottom.current = true
     setActivity([]); setMessages(stage); setBusy(true)
     liveAnswerRef.current = ''; setLiveAnswer('')
     try {
@@ -284,7 +288,7 @@ export default function App() {
             <button role="tab" aria-selected={activeTab === 'trace'} className={`relative min-w-[58px] border-0 border-b-2 bg-transparent pb-[9px] text-center text-md transition-[border-color,color] duration-[180ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none before:absolute before:inset-x-0 before:bottom-0 before:top-[-15px] before:content-[''] ${activeTab === 'trace' ? 'border-brand font-semibold text-ink' : 'border-transparent text-ink-muted'}`} onClick={() => setActiveTab('trace')} disabled={!traceMessages.length && !liveTurn}>轨迹 <span className="ml-1 font-mono text-2xs text-ink-muted">{traceMessages.length + (liveTurn ? 1 : 0) || ''}</span></button>
           </div>
         </header>
-        {activeTab === 'trace' ? <TrajectoryView messages={traceMessages} live={liveTurn} focusMessageId={selectedTraceID} onExport={() => void exportTrajectory()} /> : <ChatView chips={<RunChips ready={ready} busy={busy} status={status} runtimeConfig={runtimeConfig} providers={manager.providers} runtimeProviderId={manager.runtimeProviderId} workspace={workspaceName} runConfigOpen={runConfigOpen} setRunConfigOpen={setRunConfigOpen} onActivate={(id) => void activateProviderNow(id)} onToggleCapability={(key, value) => void toggleCapabilityNow(key, value)} onSetState={setStateNow} onChooseWorkspace={() => void chooseWorkspace()} onOpenSettings={() => { setRunConfigOpen(false); manager.openSettings() }} />} messages={messages} activity={activity} liveAnswer={liveAnswer} motion={motionMemory.current} busy={busy} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={() => void regenerateLast()} onEditLast={(content) => void editLast(content)} onKeyDown={onComposerKeyDown} onStop={stopRun} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} messagesEnd={messagesEnd} />}
+        {activeTab === 'trace' ? <TrajectoryView messages={traceMessages} live={liveTurn} focusMessageId={selectedTraceID} onExport={() => void exportTrajectory()} /> : <ChatView chips={<RunChips ready={ready} busy={busy} status={status} runtimeConfig={runtimeConfig} providers={manager.providers} runtimeProviderId={manager.runtimeProviderId} workspace={workspaceName} runConfigOpen={runConfigOpen} setRunConfigOpen={setRunConfigOpen} onActivate={(id) => void activateProviderNow(id)} onToggleCapability={(key, value) => void toggleCapabilityNow(key, value)} onSetState={setStateNow} onChooseWorkspace={() => void chooseWorkspace()} onOpenSettings={() => { setRunConfigOpen(false); manager.openSettings() }} />} messages={messages} activity={activity} liveAnswer={liveAnswer} motion={motionMemory.current} busy={busy} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={() => void regenerateLast()} onEditLast={(content) => void editLast(content)} onKeyDown={onComposerKeyDown} onStop={stopRun} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} messagesEnd={messagesEnd} followBottom={followBottom} />}
       </main>
     </>}
   </div>
@@ -363,16 +367,31 @@ function Sidebar({ conversations, workspaces, activeId, busy, open, onCloseSideb
   </>
 }
 
-function ChatView({ chips, messages, activity, liveAnswer, motion, busy, prompt, setPrompt, onSubmit, onStop, onRegenerate, onEditLast, onKeyDown, onTrace, messagesEnd }: { chips: React.ReactNode; messages: Message[]; activity: AgentActivity[]; liveAnswer: string; motion: MotionMemory; busy: boolean; prompt: string; setPrompt: (value: string) => void; onSubmit: () => void; onStop: () => void; onRegenerate: () => void; onEditLast: (content: string) => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void; onTrace: (id: string) => void; messagesEnd: React.RefObject<HTMLDivElement | null> }) {
+function ChatView({ chips, messages, activity, liveAnswer, motion, busy, prompt, setPrompt, onSubmit, onStop, onRegenerate, onEditLast, onKeyDown, onTrace, messagesEnd, followBottom }: { chips: React.ReactNode; messages: Message[]; activity: AgentActivity[]; liveAnswer: string; motion: MotionMemory; busy: boolean; prompt: string; setPrompt: (value: string) => void; onSubmit: () => void; onStop: () => void; onRegenerate: () => void; onEditLast: (content: string) => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void; onTrace: (id: string) => void; messagesEnd: React.RefObject<HTMLDivElement | null>; followBottom: React.RefObject<boolean> }) {
   const turns = groupMessagesIntoTurns(messages)
   const empty = turns.length === 0
   // 匀速显示会比消息到达晚一点长高，滚动要跟着显示层走，而不只是跟着消息。
-  const followAnswer = useCallback(() => messagesEnd.current?.scrollIntoView({ block: 'end' }), [messagesEnd])
+  const followAnswer = useCallback(() => { if (followBottom.current) messagesEnd.current?.scrollIntoView({ block: 'end' }) }, [messagesEnd, followBottom])
   // busy 也覆盖打开会话等短操作；只有最后一轮在等回答才算 Agent 运行中。
   const running = busy && !empty && !turns[turns.length - 1].response
   const stageRef = useRef<HTMLDivElement>(null)
   const scrollRef = useRef<HTMLDivElement>(null)
   const anchorRef = useRef<HTMLDivElement>(null)
+  // 程序滚动只会往下（贴底），所以 scrollTop 变小就是用户在往上看：松开跟随。
+  useEffect(() => {
+    const scroller = scrollRef.current
+    if (!scroller) return
+    let lastTop = scroller.scrollTop
+    const onScroll = () => {
+      const top = scroller.scrollTop
+      const distance = scroller.scrollHeight - top - scroller.clientHeight
+      if (top < lastTop - 2) followBottom.current = false
+      else if (distance < 48) followBottom.current = true
+      lastTop = top
+    }
+    scroller.addEventListener('scroll', onScroll, { passive: true })
+    return () => scroller.removeEventListener('scroll', onScroll)
+  }, [empty, followBottom])
   const metrics = useRef({ dockedTop: 0, offset: 0 })
   const settled = useRef(false)
   const emptyRef = useRef(empty)
@@ -462,7 +481,7 @@ function TurnView({ turn, index, last, busy, pending, activity, liveAnswer, moti
       {streamText
         ? <div className="turn-answer answer-streaming text-md leading-[1.8] text-ink [overflow-wrap:anywhere]" aria-busy={pending}><PacedAnswer text={streamText} live={pending} onGrow={onGrow} initialShown={motion.progress.get(turnKey)} onProgress={(shown) => motion.progress.set(turnKey, shown)} /></div>
         : response?.role === 'assistant' && <div className={`turn-answer${last && answerFresh.current ? ' answer-reveal animate-answer-reveal motion-reduce:animate-none' : ''} text-md leading-[1.8] text-ink [overflow-wrap:anywhere]`}><MarkdownMessage content={response.content} /></div>}
-      {response?.role === 'error' && <div className="flex items-start gap-2 rounded-lg border border-danger/30 bg-danger-wash p-[10px_12px] text-sm leading-[1.65] text-danger"><X size={15} className="mt-[3px] flex-none" /><span>{response.content}</span></div>}
+      {response?.role === 'error' && <div className="flex items-start gap-2 rounded-lg border border-danger/30 bg-danger-wash p-[10px_12px] text-sm leading-[1.65] text-danger"><X size={15} className="mt-[3px] flex-none" /><span className="min-w-0 whitespace-pre-wrap [overflow-wrap:anywhere]">{response.content}</span></div>}
       {response && <TurnActions response={response} meta={[formatTurnTime(time), response.meta, stats && stats.tokens > 0 ? `${stats.tokens.toLocaleString('zh-CN')} tok` : ''].filter(Boolean).join(' · ')} canRegenerate={last && Boolean(turn.user)} busy={busy} hasTrace={hasTrace} onRegenerate={onRegenerate} onTrace={() => onTrace(response.id)} />}
     </div>
   </article>

@@ -378,6 +378,10 @@ func (s *AppService) runTurn(ctx context.Context, session *agentapi.Session, pro
 		if errors.Is(err, context.Canceled) {
 			content = "已停止：本轮运行被手动中断。"
 		}
+		// 已经跑过工具的失败轮：把查了什么、拿到了什么讲清楚，而不是只给一行协议错误。
+		if explanation := failureExplanation(result, err); explanation != "" {
+			content = explanation
+		}
 		s.emit("agent:error", err.Error())
 	}
 	if persistErr := s.persistTurn(session, prompt, role, content, result, turnStarted); persistErr != nil {

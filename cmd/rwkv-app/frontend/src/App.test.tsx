@@ -1107,6 +1107,39 @@ describe('App', () => {
     expect(screen.getByText('你好世界')).toBeInTheDocument()
   })
 
+  it('stops following the stream once the user scrolls up, and follows again near the bottom', async () => {
+    vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap({
+      status: new Status({ state: ModelState.ModelReady, model: 'scripted', workspace: '/tmp/RWKV-Agent', hasApiKey: false, updatedAt: new Date().toISOString() }),
+    }))
+    vi.mocked(Backend.Chat).mockReturnValue(new Promise(() => undefined) as ReturnType<typeof Backend.Chat>)
+    const follow = vi.spyOn(Element.prototype, 'scrollIntoView')
+
+    const { container } = render(<App />)
+    const composer = await screen.findByLabelText('消息')
+    fireEvent.change(composer, { target: { value: '写一段长回答' } })
+    fireEvent.keyDown(composer, { key: 'Enter' })
+    await waitFor(() => expect(Backend.Chat).toHaveBeenCalledOnce())
+    const scroller = container.querySelector('.conversation-scroll') as HTMLDivElement
+    Object.defineProperty(scroller, 'scrollHeight', { configurable: true, value: 2000 })
+    Object.defineProperty(scroller, 'clientHeight', { configurable: true, value: 500 })
+    scroller.scrollTop = 1500
+    fireEvent.scroll(scroller)
+
+    // 用户往上滚：后续流式增量不再把视口拽回底部。
+    scroller.scrollTop = 900
+    fireEvent.scroll(scroller)
+    follow.mockClear()
+    act(() => { eventHandlers.get('agent:event')?.({ data: { kind: 'answer_delta', step: 1, text: '第一段' } }) })
+    expect(follow).not.toHaveBeenCalled()
+
+    // 滚回底部附近：重新贴底跟随。
+    scroller.scrollTop = 1480
+    fireEvent.scroll(scroller)
+    act(() => { eventHandlers.get('agent:event')?.({ data: { kind: 'answer_delta', step: 1, text: '第二段' } }) })
+    expect(follow).toHaveBeenCalled()
+    follow.mockRestore()
+  })
+
   it('opens the trace ledger inspector and exports JSONL', async () => {
     const trace = new Result({
       output: '已完成读取。',

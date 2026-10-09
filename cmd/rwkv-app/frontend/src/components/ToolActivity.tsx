@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import {
-  ChevronDown, ChevronRight, FilePen, FileText, FolderTree, Globe, Loader2, Network,
+  ChevronDown, ChevronRight, CloudSun, FilePen, FileText, FolderTree, Globe, Loader2, Network,
   Search, Terminal, Wrench, X, type LucideIcon,
 } from 'lucide-react'
 import PixelLoader from './PixelLoader'
@@ -216,6 +216,7 @@ function Block({ label, text, danger }: { label: string; text: string; danger?: 
 function toolIcon(tool: string): LucideIcon {
   const name = tool.toLowerCase()
   if (name === 'spawn_agents') return Network
+  if (/weather|forecast/.test(name)) return CloudSun
   if (/web|fetch|url|browse/.test(name)) return Globe
   if (/search|grep|find/.test(name)) return Search
   if (/list|tree|dir/.test(name)) return FolderTree
@@ -225,7 +226,7 @@ function toolIcon(tool: string): LucideIcon {
   return Wrench
 }
 
-const PRIMARY_KEYS = ['path', 'file', 'filename', 'query', 'url', 'pattern', 'command', 'script', 'dir', 'directory', 'name']
+const PRIMARY_KEYS = ['path', 'file', 'filename', 'query', 'url', 'pattern', 'command', 'script', 'dir', 'directory', 'location', 'name']
 
 /** 一行里最能说明这次调用的参数：路径/查询/命令等；识别不了就给工具名或压缩的参数。 */
 function primaryArg(call: ToolCall): string {
