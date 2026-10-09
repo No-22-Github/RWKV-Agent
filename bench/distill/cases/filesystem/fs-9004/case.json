@@ -1,0 +1,133 @@
+{
+  "id": "fs-9004",
+  "description": "Moves first-half-year invoices into an archive folder by the date encoded in each file name. DISTILL-CANARY-f7262d5d",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "bulk_edit",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-fs-b12-invoicearchive-01",
+    "ref_calls": 2,
+    "fixture_bytes": 807,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b12",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "inbox/inv-2026-08-16-565.pdf": "%PDF-invoice inv-2026-08-16-565.pdf total 310\n",
+    "inbox/inv-2026-05-16-951.pdf": "%PDF-invoice inv-2026-05-16-951.pdf total 1416\n",
+    "inbox/inv-2026-01-02-935.pdf": "%PDF-invoice inv-2026-01-02-935.pdf total 487\n",
+    "inbox/inv-2026-02-10-444.pdf": "%PDF-invoice inv-2026-02-10-444.pdf total 5316\n",
+    "inbox/inv-2026-03-13-213.pdf": "%PDF-invoice inv-2026-03-13-213.pdf total 114\n",
+    "inbox/inv-2026-08-05-919.pdf": "%PDF-invoice inv-2026-08-05-919.pdf total 6053\n",
+    "inbox/inv-2026-01-17-665.pdf": "%PDF-invoice inv-2026-01-17-665.pdf total 2511\n",
+    "inbox/inv-2026-07-20-695.pdf": "%PDF-invoice inv-2026-07-20-695.pdf total 7893\n",
+    "inbox/inv-2026-07-03-809.pdf": "%PDF-invoice inv-2026-07-03-809.pdf total 2079\n",
+    "inbox/inv-2026-07-14-943.pdf": "%PDF-invoice inv-2026-07-14-943.pdf total 8631\n",
+    "inbox/inv-2026-06-23-367.pdf": "%PDF-invoice inv-2026-06-23-367.pdf total 4214\n",
+    "inbox/inv-2026-05-25-772.pdf": "%PDF-invoice inv-2026-05-25-772.pdf total 4381\n",
+    "inbox/inv-2026-09-17-731.pdf": "%PDF-invoice inv-2026-09-17-731.pdf total 2356\n",
+    "inbox/inv-2026-03-05-962.pdf": "%PDF-invoice inv-2026-03-05-962.pdf total 5244\n",
+    "inbox/inv-2026-03-18-472.pdf": "%PDF-invoice inv-2026-03-18-472.pdf total 8948\n",
+    "inbox/inv-2026-07-08-784.pdf": "%PDF-invoice inv-2026-07-08-784.pdf total 446\n",
+    "inbox/notes.txt": "Invoices are named inv-YYYY-MM-DD-<seq>.pdf by issue date.\n",
+    "archive/2026H1/.keep": ""
+  },
+  "turns": [
+    {
+      "prompt": "Move every invoice in inbox issued in the first half of 2026 into archive/2026H1, and leave the rest where they are. Reply DONE when finished.",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "inbox/inv-2026-08-16-565.pdf": {
+        "unchanged": true
+      },
+      "inbox/inv-2026-05-16-951.pdf": {
+        "absent": true
+      },
+      "archive/2026H1/inv-2026-05-16-951.pdf": {
+        "equals": "%PDF-invoice inv-2026-05-16-951.pdf total 1416\n"
+      },
+      "inbox/inv-2026-01-02-935.pdf": {
+        "absent": true
+      },
+      "archive/2026H1/inv-2026-01-02-935.pdf": {
+        "equals": "%PDF-invoice inv-2026-01-02-935.pdf total 487\n"
+      },
+      "inbox/inv-2026-02-10-444.pdf": {
+        "absent": true
+      },
+      "archive/2026H1/inv-2026-02-10-444.pdf": {
+        "equals": "%PDF-invoice inv-2026-02-10-444.pdf total 5316\n"
+      },
+      "inbox/inv-2026-03-13-213.pdf": {
+        "absent": true
+      },
+      "archive/2026H1/inv-2026-03-13-213.pdf": {
+        "equals": "%PDF-invoice inv-2026-03-13-213.pdf total 114\n"
+      },
+      "inbox/inv-2026-08-05-919.pdf": {
+        "unchanged": true
+      },
+      "inbox/inv-2026-01-17-665.pdf": {
+        "absent": true
+      },
+      "archive/2026H1/inv-2026-01-17-665.pdf": {
+        "equals": "%PDF-invoice inv-2026-01-17-665.pdf total 2511\n"
+      },
+      "inbox/inv-2026-07-20-695.pdf": {
+        "unchanged": true
+      },
+      "inbox/inv-2026-07-03-809.pdf": {
+        "unchanged": true
+      },
+      "inbox/inv-2026-07-14-943.pdf": {
+        "unchanged": true
+      },
+      "inbox/inv-2026-06-23-367.pdf": {
+        "absent": true
+      },
+      "archive/2026H1/inv-2026-06-23-367.pdf": {
+        "equals": "%PDF-invoice inv-2026-06-23-367.pdf total 4214\n"
+      },
+      "inbox/inv-2026-05-25-772.pdf": {
+        "absent": true
+      },
+      "archive/2026H1/inv-2026-05-25-772.pdf": {
+        "equals": "%PDF-invoice inv-2026-05-25-772.pdf total 4381\n"
+      },
+      "inbox/inv-2026-09-17-731.pdf": {
+        "unchanged": true
+      },
+      "inbox/inv-2026-03-05-962.pdf": {
+        "absent": true
+      },
+      "archive/2026H1/inv-2026-03-05-962.pdf": {
+        "equals": "%PDF-invoice inv-2026-03-05-962.pdf total 5244\n"
+      },
+      "inbox/inv-2026-03-18-472.pdf": {
+        "absent": true
+      },
+      "archive/2026H1/inv-2026-03-18-472.pdf": {
+        "equals": "%PDF-invoice inv-2026-03-18-472.pdf total 8948\n"
+      },
+      "inbox/inv-2026-07-08-784.pdf": {
+        "unchanged": true
+      }
+    }
+  }
+}

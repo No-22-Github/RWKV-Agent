@@ -1,0 +1,84 @@
+{
+  "id": "hyb-9018",
+  "description": "Implicit weather need: whether to bring rain gear for an outdoor shoot tomorrow. DISTILL-CANARY-acb86b83",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "25%"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b12-raingear-01",
+    "ref_calls": 1,
+    "fixture_bytes": 98,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b12",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "拍摄/通告.md": "# 外景通告\n\n日期：9 月 17 日（周四）\n地点：苏州 平江路\n时长：全天外景\n"
+  },
+  "turns": [
+    {
+      "prompt": "明天要在苏州户外拍一整天，需要准备雨具吗？",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "80%"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "苏州",
+      "aliases": [
+        "Suzhou"
+      ],
+      "report": {
+        "location": "苏州",
+        "current": "多云 23°C 体感 24°C 湿度 80% 风速 8 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "多云",
+            "temp_c": "21~27",
+            "rain_chance": "25%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "中雨",
+            "temp_c": "20~24",
+            "rain_chance": "80%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "阴",
+            "temp_c": "20~26",
+            "rain_chance": "35%"
+          }
+        ]
+      }
+    }
+  ]
+}

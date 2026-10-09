@@ -1,0 +1,84 @@
+{
+  "id": "hyb-9013",
+  "description": "Asks tomorrow's high temperature for a city; get_weather answers it directly. DISTILL-CANARY-5ccf34fb",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "31"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b12-weatherhigh-01",
+    "ref_calls": 1,
+    "fixture_bytes": 49,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b12",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "出差/行程.md": "# 出差行程\n\n9 月 17 日 厦门 客户拜访\n"
+  },
+  "turns": [
+    {
+      "prompt": "厦门明天最高气温多少度？",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "29"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "厦门",
+      "aliases": [
+        "Xiamen"
+      ],
+      "report": {
+        "location": "厦门",
+        "current": "多云 28°C 体感 31°C 湿度 76% 风速 11 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "多云",
+            "temp_c": "25~31",
+            "rain_chance": "20%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "阵雨",
+            "temp_c": "24~29",
+            "rain_chance": "60%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "晴",
+            "temp_c": "25~32",
+            "rain_chance": "10%"
+          }
+        ]
+      }
+    }
+  ]
+}

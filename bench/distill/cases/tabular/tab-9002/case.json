@@ -1,0 +1,53 @@
+{
+  "id": "tab-9002",
+  "description": "Sums refunded amounts for one SKU family across six monthly exports with a look-alike prefix. DISTILL-CANARY-0ce2851f",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-MULTISRC",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "599.69",
+      "TR-DECOY": "9710.31"
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-tab-b12-refundsum-01",
+    "ref_calls": 1,
+    "fixture_bytes": 6579,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b12",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "exports/2026-03/orders.csv": "order_id,sku,status,amount_usd\nQ3000,KXL-12,shipped,262.32\nQ3001,KXL-12,shipped,56.97\nQ3002,MB-450,shipped,36.49\nQ3003,KX-200,cancelled,370.44\nQ3004,KX-310,shipped,356.28\nQ3005,KX-200,shipped,377.31\nQ3006,KXL-12,cancelled,140.26\nQ3007,KXL-12,shipped,309.94\nQ3008,KX-200,shipped,258.82\nQ3009,KX-310,refunded,377.81\nQ3010,MB-450,shipped,24.51\nQ3011,KXL-12,cancelled,47.97\nQ3012,MB-450,shipped,452.96\nQ3013,PT-77,shipped,129.76\nQ3014,KX-200,shipped,180.06\nQ3015,KX-310,shipped,15.13\nQ3016,KXL-12,refunded,303.79\nQ3017,KXL-12,shipped,368.08\nQ3018,PT-77,shipped,37.71\nQ3019,MB-450,shipped,329.76\nQ3020,MB-450,shipped,85.18\nQ3021,MB-450,shipped,17.33\nQ3022,PT-77,shipped,234.42\nQ3023,MB-450,refunded,302.38\nQ3024,KXL-12,cancelled,109.49\nQ3025,KX-310,refunded,221.88\nQ3026,KXL-12,cancelled,34.55\nQ3027,KX-310,shipped,322.28\nQ3028,PT-77,shipped,106.70\nQ3029,PT-77,shipped,192.71\nQ3030,PT-77,refunded,199.25\nQ3031,KX-200,shipped,129.46\nQ3032,MB-450,shipped,104.60\n",
+    "exports/2026-04/orders.csv": "order_id,sku,status,amount_usd\nQ4000,PT-77,refunded,389.29\nQ4001,KXL-12,cancelled,348.30\nQ4002,MB-450,cancelled,131.31\nQ4003,PT-77,shipped,472.22\nQ4004,KX-200,refunded,402.57\nQ4005,KXL-12,cancelled,74.67\nQ4006,KXL-12,cancelled,297.23\nQ4007,KX-200,cancelled,162.81\nQ4008,MB-450,shipped,432.78\nQ4009,KX-310,refunded,45.80\nQ4010,MB-450,cancelled,422.00\nQ4011,PT-77,shipped,112.66\nQ4012,KX-310,shipped,171.97\nQ4013,KX-200,cancelled,415.73\nQ4014,KX-310,cancelled,426.98\nQ4015,MB-450,cancelled,380.73\nQ4016,PT-77,cancelled,451.90\nQ4017,KXL-12,cancelled,189.00\nQ4018,KX-200,refunded,127.60\nQ4019,KX-310,cancelled,295.30\nQ4020,PT-77,shipped,215.04\nQ4021,KX-200,cancelled,245.40\nQ4022,MB-450,cancelled,169.77\nQ4023,KXL-12,cancelled,137.31\nQ4024,PT-77,shipped,192.99\nQ4025,PT-77,refunded,252.52\nQ4026,KX-310,cancelled,27.52\nQ4027,KX-310,cancelled,421.40\nQ4028,KX-310,refunded,240.73\nQ4029,PT-77,shipped,20.50\nQ4030,KXL-12,shipped,66.41\nQ4031,KX-200,cancelled,234.98\nQ4032,KXL-12,refunded,314.77\nQ4033,MB-450,shipped,346.49\nQ4034,MB-450,refunded,450.35\nQ4035,KX-200,shipped,471.77\nQ4036,KX-310,cancelled,261.75\nQ4037,PT-77,cancelled,262.99\nQ4038,PT-77,shipped,50.36\nQ4039,PT-77,cancelled,382.64\nQ4040,KXL-12,shipped,444.36\nQ4041,KX-310,shipped,311.00\nQ4042,KX-310,shipped,187.50\n",
+    "exports/2026-05/orders.csv": "order_id,sku,status,amount_usd\nQ5000,KX-310,refunded,213.83\nQ5001,KX-200,refunded,294.70\nQ5002,PT-77,shipped,457.14\nQ5003,KX-310,refunded,312.03\nQ5004,KX-310,shipped,153.91\nQ5005,KXL-12,cancelled,453.28\nQ5006,KX-310,shipped,233.27\nQ5007,KX-310,shipped,53.23\nQ5008,PT-77,shipped,213.10\nQ5009,KX-200,shipped,140.11\nQ5010,MB-450,cancelled,237.48\nQ5011,KX-310,cancelled,151.74\nQ5012,KX-200,refunded,437.34\nQ5013,MB-450,refunded,247.85\nQ5014,KX-310,refunded,95.29\nQ5015,MB-450,shipped,72.70\nQ5016,KX-200,shipped,452.11\nQ5017,KXL-12,cancelled,314.94\nQ5018,KXL-12,shipped,269.85\nQ5019,KX-200,shipped,267.55\nQ5020,PT-77,shipped,174.12\nQ5021,MB-450,shipped,375.96\nQ5022,KXL-12,shipped,42.76\nQ5023,KXL-12,refunded,124.83\nQ5024,PT-77,shipped,421.20\nQ5025,MB-450,shipped,338.26\nQ5026,KX-310,cancelled,252.74\nQ5027,KXL-12,shipped,57.83\nQ5028,PT-77,shipped,462.47\nQ5029,KX-200,shipped,93.45\nQ5030,KXL-12,shipped,31.40\nQ5031,PT-77,shipped,457.43\nQ5032,KXL-12,cancelled,119.47\nQ5033,KXL-12,shipped,230.58\nQ5034,KX-310,refunded,462.84\nQ5035,KXL-12,cancelled,414.46\nQ5036,KX-200,refunded,234.72\nQ5037,MB-450,refunded,282.39\nQ5038,KX-310,shipped,209.65\nQ5039,MB-450,shipped,26.37\n",
+    "exports/2026-06/orders.csv": "order_id,sku,status,amount_usd\nQ6000,KXL-12,cancelled,450.26\nQ6001,PT-77,refunded,171.90\nQ6002,PT-77,shipped,414.42\nQ6003,KX-200,shipped,299.90\nQ6004,KX-200,shipped,53.61\nQ6005,KX-200,shipped,88.08\nQ6006,KXL-12,refunded,241.56\nQ6007,KX-310,cancelled,262.08\nQ6008,KX-310,shipped,265.67\nQ6009,MB-450,cancelled,158.82\nQ6010,KX-200,shipped,156.47\nQ6011,KX-310,cancelled,125.16\nQ6012,MB-450,shipped,59.45\nQ6013,KXL-12,cancelled,106.36\nQ6014,KX-310,refunded,304.75\nQ6015,KX-310,refunded,337.29\nQ6016,KXL-12,shipped,208.26\nQ6017,KX-310,cancelled,22.05\nQ6018,KX-200,refunded,54.65\nQ6019,KX-310,refunded,362.95\nQ6020,KX-200,shipped,222.18\nQ6021,KX-310,shipped,329.82\nQ6022,KX-200,refunded,338.30\nQ6023,MB-450,shipped,33.59\nQ6024,KX-200,refunded,365.83\nQ6025,PT-77,refunded,241.82\nQ6026,MB-450,shipped,185.13\nQ6027,KX-310,shipped,216.44\nQ6028,PT-77,refunded,150.69\nQ6029,MB-450,cancelled,327.86\nQ6030,PT-77,refunded,336.12\n",
+    "exports/2026-07/orders.csv": "order_id,sku,status,amount_usd\nQ7000,KX-310,shipped,122.70\nQ7001,KX-310,refunded,436.56\nQ7002,MB-450,shipped,412.55\nQ7003,KXL-12,refunded,345.64\nQ7004,KXL-12,shipped,105.39\nQ7005,MB-450,shipped,190.29\nQ7006,KX-310,shipped,98.54\nQ7007,KX-200,cancelled,120.92\nQ7008,PT-77,cancelled,197.58\nQ7009,KX-310,shipped,408.58\nQ7010,KX-310,cancelled,93.84\nQ7011,KX-310,shipped,271.78\nQ7012,KX-200,refunded,166.01\nQ7013,KX-310,shipped,391.02\nQ7014,KX-310,cancelled,412.26\nQ7015,MB-450,shipped,397.63\nQ7016,MB-450,cancelled,130.17\nQ7017,KXL-12,shipped,189.95\nQ7018,PT-77,shipped,274.77\nQ7019,KX-310,cancelled,333.03\nQ7020,KX-310,shipped,418.91\nQ7021,KXL-12,shipped,60.90\nQ7022,KXL-12,refunded,222.75\nQ7023,KXL-12,refunded,30.42\nQ7024,MB-450,cancelled,363.63\nQ7025,MB-450,shipped,151.24\nQ7026,KXL-12,cancelled,338.18\nQ7027,KX-310,shipped,118.18\nQ7028,MB-450,refunded,126.53\nQ7029,PT-77,shipped,260.91\nQ7030,KX-310,refunded,383.80\nQ7031,MB-450,cancelled,351.16\nQ7032,KX-200,cancelled,233.25\nQ7033,KX-310,cancelled,271.62\nQ7034,KX-310,shipped,429.53\nQ7035,KX-200,shipped,239.45\nQ7036,MB-450,shipped,281.94\nQ7037,KX-200,shipped,396.40\nQ7038,KXL-12,shipped,37.67\nQ7039,KXL-12,cancelled,300.53\nQ7040,MB-450,shipped,428.32\nQ7041,KX-310,refunded,396.64\nQ7042,KXL-12,cancelled,199.21\n",
+    "exports/2026-08/orders.csv": "order_id,sku,status,amount_usd\nQ8000,KXL-12,cancelled,413.87\nQ8001,PT-77,refunded,178.94\nQ8002,MB-450,shipped,390.92\nQ8003,KX-310,refunded,340.74\nQ8004,PT-77,refunded,426.97\nQ8005,KXL-12,shipped,299.27\nQ8006,KX-310,cancelled,116.46\nQ8007,KX-310,shipped,406.40\nQ8008,MB-450,shipped,195.27\nQ8009,KX-310,cancelled,177.68\nQ8010,PT-77,refunded,283.07\nQ8011,MB-450,refunded,266.35\nQ8012,KX-310,cancelled,245.53\nQ8013,KX-200,refunded,204.14\nQ8014,MB-450,refunded,289.17\nQ8015,MB-450,cancelled,35.36\nQ8016,MB-450,cancelled,263.16\nQ8017,PT-77,refunded,215.14\nQ8018,KX-200,cancelled,237.62\nQ8019,KX-200,shipped,402.96\nQ8020,MB-450,cancelled,385.36\nQ8021,MB-450,refunded,260.02\nQ8022,KXL-12,refunded,450.22\nQ8023,PT-77,shipped,134.99\nQ8024,PT-77,shipped,459.07\nQ8025,KXL-12,refunded,155.12\nQ8026,KX-200,shipped,425.43\nQ8027,PT-77,shipped,153.26\nQ8028,MB-450,cancelled,33.55\nQ8029,KXL-12,cancelled,318.20\nQ8030,KX-310,refunded,362.41\n",
+    "exports/README.md": "Monthly order exports.\nKX- is the Kestrel line; KXL- is the unrelated Kestrel Lite accessory line.\n"
+  },
+  "turns": [
+    {
+      "prompt": "How much did we refund on the Kestrel line across the March to August order exports?",
+      "expect": {
+        "output_contains": [
+          "7521.21"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "id": "nt-9020",
+  "description": "Weather concept question with the weather tool offered; answered without any call. DISTILL-CANARY-09239a4a",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "70% 的地区会下雨"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b12-popdefinition-01",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b12",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "天气预报里说的「降水概率 70%」到底是什么意思？",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "70%",
+          "百分之七十",
+          "七成"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

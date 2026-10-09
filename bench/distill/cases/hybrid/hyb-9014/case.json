@@ -1,0 +1,86 @@
+{
+  "id": "hyb-9014",
+  "description": "Asks about rain at a landmark the day after tomorrow; the forecast must be looked up by its city. DISTILL-CANARY-7b3159e7",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-NEARNAME",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": "UNKNOWN",
+      "TR-DECOY": "30%"
+    },
+    "axes": [
+      "ERR",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b12-landmarkrain-01",
+    "ref_calls": 1,
+    "fixture_bytes": 44,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b12",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "旅行/清单.md": "# 旅行清单\n\n- 9 月 18 日 上鼓浪屿\n"
+  },
+  "turns": [
+    {
+      "prompt": "我后天去鼓浪屿玩，会下雨吗？",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "75%"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "厦门",
+      "aliases": [
+        "Xiamen"
+      ],
+      "report": {
+        "location": "厦门",
+        "current": "晴 27°C 体感 29°C 湿度 70% 风速 9 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "晴",
+            "temp_c": "24~30",
+            "rain_chance": "10%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "多云",
+            "temp_c": "24~29",
+            "rain_chance": "30%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "中雨",
+            "temp_c": "23~27",
+            "rain_chance": "75%"
+          }
+        ]
+      }
+    }
+  ]
+}

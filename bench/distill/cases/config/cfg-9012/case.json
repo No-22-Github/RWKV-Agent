@@ -1,0 +1,57 @@
+{
+  "id": "cfg-9012",
+  "description": "Two turns: list a service folder, then read a same-named file whose root copy is a decoy. DISTILL-CANARY-f95c7737",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "precedence",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "30"
+    },
+    "axes": [
+      "OBS",
+      "ERR"
+    ],
+    "level": "L3",
+    "family": "fam-cfg-b12-cwdreset-01",
+    "ref_calls": 2,
+    "fixture_bytes": 150,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b12",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "超时.yaml": "# 全局默认\n读超时秒: 30\n写超时秒: 30\n",
+    "服务/结算/超时.yaml": "# 结算服务覆盖\n读超时秒: 12\n写超时秒: 45\n",
+    "服务/结算/入口.go": "package main\n\nfunc main() {}\n",
+    "服务/对账/超时.yaml": "读超时秒: 20\n"
+  },
+  "turns": [
+    {
+      "prompt": "进到 服务/结算 目录看看有哪些文件。",
+      "expect": {
+        "output_contains": [
+          "超时.yaml"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "那里面的 超时.yaml 读超时是多少秒？",
+      "expect": {
+        "output_contains": [
+          "12"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

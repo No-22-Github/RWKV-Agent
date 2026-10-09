@@ -1,0 +1,71 @@
+{
+  "id": "cfg-9003",
+  "description": "Flips one value in five service env files while an archived copy must stay untouched. DISTILL-CANARY-8f1de976",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b12-loglevel-01",
+    "ref_calls": 2,
+    "fixture_bytes": 555,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b12",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "部署/网关/服务.env": "服务名=网关\n端口=9329\n日志级别=debug   # 上线前改回 info\n并发=32\n",
+    "部署/账单/服务.env": "服务名=账单\n端口=7124\n日志级别=debug   # 上线前改回 info\n并发=8\n",
+    "部署/搜索/服务.env": "服务名=搜索\n端口=9145\n日志级别=debug   # 上线前改回 info\n并发=16\n",
+    "部署/推荐/服务.env": "服务名=推荐\n端口=9364\n日志级别=debug   # 上线前改回 info\n并发=8\n",
+    "部署/通知/服务.env": "服务名=通知\n端口=9334\n日志级别=debug   # 上线前改回 info\n并发=32\n",
+    "部署/归档/2025-旧网关/服务.env": "服务名=旧网关\n日志级别=debug\n",
+    "部署/说明.md": "# 部署\n\n每个服务一个目录；归档/ 下是下线服务的留档，审计要求原样保留。\n"
+  },
+  "turns": [
+    {
+      "prompt": "要上线了，把 部署 下各个服务的日志级别从 debug 改回 info，注释别动。改完回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "部署/网关/服务.env": {
+        "equals": "服务名=网关\n端口=9329\n日志级别=info   # 上线前改回 info\n并发=32\n"
+      },
+      "部署/账单/服务.env": {
+        "equals": "服务名=账单\n端口=7124\n日志级别=info   # 上线前改回 info\n并发=8\n"
+      },
+      "部署/搜索/服务.env": {
+        "equals": "服务名=搜索\n端口=9145\n日志级别=info   # 上线前改回 info\n并发=16\n"
+      },
+      "部署/推荐/服务.env": {
+        "equals": "服务名=推荐\n端口=9364\n日志级别=info   # 上线前改回 info\n并发=8\n"
+      },
+      "部署/通知/服务.env": {
+        "equals": "服务名=通知\n端口=9334\n日志级别=info   # 上线前改回 info\n并发=32\n"
+      },
+      "部署/归档/2025-旧网关/服务.env": {
+        "unchanged": true
+      }
+    }
+  }
+}

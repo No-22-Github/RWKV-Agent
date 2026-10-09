@@ -1,0 +1,47 @@
+{
+  "id": "doc-9009",
+  "description": "Single-file lookup of a contract clause while bash is offered; the read tool is the right call. DISTILL-CANARY-cd51adbb",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "10%"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b12-contractrate-01",
+    "ref_calls": 1,
+    "fixture_bytes": 388,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b12",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "合同/采购框架协议模板.md": "# 采购框架协议（模板）\n\n## 第五条 交付\n乙方应在订单确认后 15 个工作日内交付。\n\n## 第八条 违约责任\n乙方逾期交付的，每逾期一日按未交付部分货款的 0.3% 支付违约金，累计不超过合同总额的 10%。\n\n## 第九条 争议解决\n协商不成的，提交甲方所在地仲裁委员会仲裁。\n",
+    "合同/README.md": "模板最后修订：2026-07。\n"
+  },
+  "turns": [
+    {
+      "prompt": "采购框架协议模板里，逾期交付的违约金是按什么比例算的？",
+      "expect": {
+        "output_contains": [
+          "0.3%"
+        ],
+        "forbidden_tools": [
+          "bash"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

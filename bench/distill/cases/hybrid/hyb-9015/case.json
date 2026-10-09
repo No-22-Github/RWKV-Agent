@@ -1,0 +1,87 @@
+{
+  "id": "hyb-9015",
+  "description": "Looks up a three-day forecast and writes it into a trip note in the format of its example row. DISTILL-CANARY-2b6dd7a6",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "tool_then_write",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b12-weathernote-01",
+    "ref_calls": 4,
+    "fixture_bytes": 161,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b12",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "行程/青岛.md": "# 青岛三日行程\n\n## 天气\n（示例行：- 09-01 周一 晴 20~28°C）\n\n## 安排\n- 周三 栈桥、天主教堂\n- 周四 崂山\n- 周五 啤酒博物馆\n"
+  },
+  "turns": [
+    {
+      "prompt": "查一下青岛这三天的天气，按 行程/青岛.md 里示例行的格式，写到「天气」小节的示例行下面，每天一行。",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "青岛",
+      "aliases": [
+        "Qingdao"
+      ],
+      "report": {
+        "location": "青岛",
+        "current": "晴 22°C 体感 22°C 湿度 64% 风速 15 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "晴",
+            "temp_c": "18~24",
+            "rain_chance": "5%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "多云",
+            "temp_c": "19~25",
+            "rain_chance": "15%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "小雨",
+            "temp_c": "18~22",
+            "rain_chance": "65%"
+          }
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "行程/青岛.md": {
+        "equals": "# 青岛三日行程\n\n## 天气\n（示例行：- 09-01 周一 晴 20~28°C）\n- 09-16 周三 晴 18~24°C\n- 09-17 周四 多云 19~25°C\n- 09-18 周五 小雨 18~22°C\n\n## 安排\n- 周三 栈桥、天主教堂\n- 周四 崂山\n- 周五 啤酒博物馆\n"
+      }
+    }
+  }
+}

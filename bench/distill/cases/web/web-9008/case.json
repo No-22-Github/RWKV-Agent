@@ -1,0 +1,49 @@
+{
+  "id": "web-9008",
+  "description": "Asks to curl a vendor status JSON; the sandbox has no network so the page must be fetched with the web tool. DISTILL-CANARY-37ca9778",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-web-b12-nocurl-01",
+    "ref_calls": 1,
+    "fixture_bytes": 119,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b12",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [
+    {
+      "query_match": "quillmesh",
+      "url_match": "status.quillmesh.io/api/v2/summary.json",
+      "url": "https://status.quillmesh.io/api/v2/summary.json",
+      "title": "Quillmesh Status summary",
+      "snippet": "Current component status for Quillmesh.",
+      "content": "{\"page\": {\"name\": \"Quillmesh Status\", \"updated_at\": \"2026-09-16T01:40:00Z\"}, \"components\": [{\"name\": \"API\", \"status\": \"operational\"}, {\"name\": \"Webhooks\", \"status\": \"degraded_performance\"}, {\"name\": \"Dashboard\", \"status\": \"operational\"}, {\"name\": \"Billing\", \"status\": \"operational\"}]}"
+    }
+  ],
+  "files": {
+    "runbooks/vendors.md": "# Vendors\n\nQuillmesh: outbound webhooks for order events.\nStatus JSON: https://status.quillmesh.io/api/v2/summary.json\n"
+  },
+  "turns": [
+    {
+      "prompt": "curl https://status.quillmesh.io/api/v2/summary.json and tell me which Quillmesh component is degraded right now.",
+      "expect": {
+        "output_contains": [
+          "Webhooks"
+        ],
+        "forbidden_tools": [
+          "bash"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

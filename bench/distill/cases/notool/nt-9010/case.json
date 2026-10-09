@@ -1,0 +1,70 @@
+{
+  "id": "nt-9010",
+  "description": "Asks for a tar command to pack a log folder without executing it while bash is offered. DISTILL-CANARY-940abfdc",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b12-tarhowto-01",
+    "ref_calls": 0,
+    "fixture_bytes": 65,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b12",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "日志/归档/app-2026-09-10.log": "10 号日志\n",
+    "日志/归档/app-2026-09-11.log": "11 号日志\n",
+    "日志/归档/app-2026-09-12.log": "12 号日志\n",
+    "日志/归档/app-2026-09-13.log": "13 号日志\n",
+    "日志/归档/app-2026-09-14.log": "14 号日志\n"
+  },
+  "turns": [
+    {
+      "prompt": "怎么用 tar 把 日志/归档 打成一个按当天日期命名的 .tar.gz 包？给我命令就行，先别执行。",
+      "expect": {
+        "tools": [],
+        "output_contains_any": [
+          "tar -czf",
+          "tar czf",
+          "tar -zcf",
+          "tar zcf"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "日志/归档/app-2026-09-10.log": {
+        "unchanged": true
+      },
+      "日志/归档/app-2026-09-11.log": {
+        "unchanged": true
+      },
+      "日志/归档/app-2026-09-12.log": {
+        "unchanged": true
+      },
+      "日志/归档/app-2026-09-13.log": {
+        "unchanged": true
+      },
+      "日志/归档/app-2026-09-14.log": {
+        "unchanged": true
+      }
+    }
+  }
+}

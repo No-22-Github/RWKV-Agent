@@ -1,0 +1,83 @@
+{
+  "id": "hyb-9019",
+  "description": "Applies a local rain-chance rule to tomorrow's forecast to decide on a concrete pour. DISTILL-CANARY-3ef17b3a",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-RULEFILE"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": "35%"
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b12-pourrule-01",
+    "ref_calls": 2,
+    "fixture_bytes": 124,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b12",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "site/rules.md": "# Pour rules\n\n- No concrete pours when the forecast rain chance for the day is 40% or more.\n- Minimum air temperature 5°C.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Should the Hangzhou crew pour concrete tomorrow?",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "60%"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "Hangzhou",
+      "aliases": [
+        "杭州"
+      ],
+      "report": {
+        "location": "Hangzhou",
+        "current": "Overcast 21°C feels 21°C humidity 85% wind 10 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "Overcast",
+            "temp_c": "19~24",
+            "rain_chance": "35%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "Light rain",
+            "temp_c": "18~23",
+            "rain_chance": "60%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "Cloudy",
+            "temp_c": "18~25",
+            "rain_chance": "25%"
+          }
+        ]
+      }
+    }
+  ]
+}

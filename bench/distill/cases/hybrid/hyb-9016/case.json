@@ -1,0 +1,81 @@
+{
+  "id": "hyb-9016",
+  "description": "Appends the forecast for a site visit day to a notes file in a prescribed line format. DISTILL-CANARY-2074f4ab",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "tool_then_write",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-hyb-b12-sitevisit-01",
+    "ref_calls": 3,
+    "fixture_bytes": 92,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b12",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "ops/site-visit.md": "# Site visit: Shenzhen assembly line\n\nDate: Thursday 2026-09-17\nAttendees: QA, procurement\n\n"
+  },
+  "turns": [
+    {
+      "prompt": "Add the forecast for the visit day to the end of ops/site-visit.md as one line: Weather: <condition>, <low>-<high>°C, <rain chance> chance of rain",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "Shenzhen",
+      "aliases": [
+        "深圳"
+      ],
+      "report": {
+        "location": "Shenzhen",
+        "current": "Partly cloudy 29°C feels 33°C humidity 78% wind 12 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "Partly cloudy",
+            "temp_c": "26~31",
+            "rain_chance": "20%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "Thundery showers",
+            "temp_c": "25~30",
+            "rain_chance": "70%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "Sunny",
+            "temp_c": "26~32",
+            "rain_chance": "10%"
+          }
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "ops/site-visit.md": {
+        "equals": "# Site visit: Shenzhen assembly line\n\nDate: Thursday 2026-09-17\nAttendees: QA, procurement\n\nWeather: Thundery showers, 25-30°C, 70% chance of rain\n"
+      }
+    }
+  }
+}

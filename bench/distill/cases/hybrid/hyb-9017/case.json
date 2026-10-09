@@ -1,0 +1,103 @@
+{
+  "id": "hyb-9017",
+  "description": "Composite request: weekend forecast from the weather tool plus an exhibition from web search. DISTILL-CANARY-da41185c",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "阵雨"
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b12-weekendcombo-01",
+    "ref_calls": 2,
+    "fixture_bytes": 55,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-opus-5-5-b12",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [
+    {
+      "query_match": "展览",
+      "url": "https://www.cdmuseum.cn/exhibitions/2026-autumn",
+      "url_match": "cdmuseum.cn/exhibitions",
+      "title": "成都博物馆 2026 秋季特展",
+      "snippet": "「锦官城外——蜀锦千年」特展 9 月 12 日至 11 月 30 日在成都博物馆三楼开放。",
+      "content": "# 2026 秋季特展\n\n「锦官城外——蜀锦千年」特展，9 月 12 日至 11 月 30 日，成都博物馆三楼临展厅，周一闭馆。",
+      "published_at": "2026-09-05"
+    }
+  ],
+  "files": {
+    "周末/想法.md": "# 周末想法\n\n- 看展？\n- 天气好就去青城山\n"
+  },
+  "turns": [
+    {
+      "prompt": "帮我看下成都这个周末的天气，再搜搜成都最近有什么展览。",
+      "expect": {
+        "required_tools": [
+          "get_weather",
+          "web_search"
+        ],
+        "output_contains": [
+          "晴",
+          "蜀锦"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "成都",
+      "aliases": [
+        "Chengdu"
+      ],
+      "report": {
+        "location": "成都",
+        "current": "阴 24°C 体感 25°C 湿度 82% 风速 6 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "阴",
+            "temp_c": "20~26",
+            "rain_chance": "30%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "小雨",
+            "temp_c": "19~24",
+            "rain_chance": "60%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "多云",
+            "temp_c": "19~26",
+            "rain_chance": "20%"
+          },
+          {
+            "date": "2026-09-19",
+            "condition": "晴",
+            "temp_c": "18~28",
+            "rain_chance": "5%"
+          },
+          {
+            "date": "2026-09-20",
+            "condition": "阵雨",
+            "temp_c": "19~25",
+            "rain_chance": "55%"
+          }
+        ]
+      }
+    }
+  ]
+}

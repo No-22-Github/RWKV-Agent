@@ -145,4 +145,18 @@ local/bin/rwkv-lab corpus segcheck <segments>        # 必须 0 不一致
 - 第 0 步冒烟结果（加 / 不加 suffix 的对比）；
 - 每批报告链接。
 
+## 7. v1.41 追加：b12（bash + get_weather，work-v2）
+
+v1.4 之后规划升级为 v1.41（[distill-allocation-v1.41.md](distill-allocation-v1.41.md)），在本次放量里**并入 b12 批**。M2–M8 的做法不变，b12 的差别只有这些：
+
+1. 先读 v1.41 全文与样板：`bench/distill/cases/*/*-90xx`（20 道）和构建脚本 `bench/distill/tools/b12_build/`（`build.py` 在真实 sidecar 里跑参考解，`gate.sh` 跑 lint + verify）。
+2. 开工前 `scripts/build-justbash.sh` 编出 `local/bin/justbash-sidecar`（要 bun），老师解题和渲染都要它。
+3. 配额：M9 bash ~260 行（六个子类见 v1.41 §2.1），M10 专用工具 ~100 行（§2.2）；ID 从 9021 起（9001–9020 是样板）；批号 `b12a`、`b12b`……
+4. 出题：bash 题的参考解必须写进构建脚本并在 sidecar 里跑通，跑不通不收；天气 fixture 第一行必须是 2026-09-16；不给 M9 加 `required_tools: ["bash"]`。
+5. 解题：`--tool-catalog work-v2 --chat-system-suffix bench/distill/teacher/b12-suffix.txt`；盲解用 `STEP_TOOL_CATALOG=work-v2`。
+6. 去污染多一面：`local/bin/rwkv-lab corpus decontam --test bench/bashprobe/cases --candidates bench/distill/cases`。
+7. 渲染：`corpus render ... --tool-catalog work-v2 --rotate-catalog 0.4`；**存量与 b09 / b10 不重渲染**。
+8. S5 逐条读终答时，b12 额外丢这几类：`cd` 之后下一次调用用相对路径；对大文件 `cat` 整读后心算；有 get_weather 仍去搜天气；查完天气要写文件却没写或没回读。
+9. 报告里加 v1.41 §3 的四项指标。
+
 ---
