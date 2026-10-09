@@ -21,6 +21,7 @@
     "clsx": "2.1.1",
     "diff": "8.0.2",
     "lucide-react": "1.31.0",
+    "motion": "13.4.3",
     "prism-react-renderer": "2.4.1",
     "react": "19.2.8",
     "react-dom": "19.2.8",

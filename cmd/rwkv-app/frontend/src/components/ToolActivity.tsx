@@ -1,8 +1,6 @@
-import { useState } from 'react'
-import {
-  ChevronDown, ChevronRight, CloudSun, FilePen, FileText, FolderTree, Globe, Loader2, Network,
-  Search, Terminal, Wrench, X, type LucideIcon,
-} from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { ChevronDown, ChevronRight, Loader2, X } from 'lucide-react'
+import AnimatedToolIcon from './AnimatedToolIcon'
 import PixelLoader from './PixelLoader'
 import { isKnownTool, toolRunning, toolSummary, toolVerb } from '../i18n/toolLabels'
 import type { Step } from '../../bindings/github.com/no22/RWKV-Agent/api/models'
@@ -23,6 +21,8 @@ export type ToolCall = {
   error?: string
   status: 'running' | 'completed' | 'failed'
   durationMs?: number
+  /** 运行中调用的开始时刻（Date.now()），供实时计时；落定的调用用 durationMs。 */
+  startedAt?: number
   subagents?: SubagentTrace[]
 }
 
@@ -55,6 +55,7 @@ export function callsFromTrajectory(trajectory: readonly ToolTrace[]): ToolCall[
 type LiveEvent = {
   kind: string; step?: number; parentStep?: number; tool?: string; arguments?: string
   subagentIndex?: number; subagentTask?: string; durationMs?: number; error?: string
+  at?: number
 }
 
 /** 运行中的回合：由 agent:event 流拼出调用列表；子 Agent 事件挂到父步骤的 spawn 调用下。 */
@@ -84,7 +85,7 @@ export function callsFromEvents(events: readonly LiveEvent[]): ToolCall[] {
       continue
     }
     if (event.kind === 'tool_start' && event.tool) {
-      const call: ToolCall = { id: `live${event.step || calls.length}`, tool: event.tool, arguments: event.arguments, status: 'running' }
+      const call: ToolCall = { id: `live${event.step || calls.length}`, tool: event.tool, arguments: event.arguments, status: 'running', startedAt: event.at }
       calls.push(call)
       byStep.set(event.step || 0, call)
     } else if (event.kind === 'tool_done') {
@@ -144,7 +145,6 @@ export default function ToolActivity({ calls, running = false, liveLabel }: Prop
 function GroupRow({ group }: { group: CallGroup }) {
   const [open, setOpen] = useState(false)
   const latest = group.calls.at(-1)!
-  const Icon = toolIcon(group.tool)
   const verb = toolVerb(group.tool)
   const isRunning = group.calls.some((call) => call.status === 'running')
   const failed = group.calls.some((call) => call.status === 'failed')
@@ -153,16 +153,17 @@ function GroupRow({ group }: { group: CallGroup }) {
 
   return <div className="border-b border-line last:border-b-0">
     <button type="button" aria-expanded={open} onClick={() => setOpen((value) => !value)} className="flex w-full min-w-0 items-center gap-[10px] border-0 bg-transparent px-[14px] py-[10px] text-left transition-colors hover:bg-surface-active">
-      <Icon size={15} className="flex-none text-ink-muted" />
+      <AnimatedToolIcon tool={group.tool} running={isRunning} className="flex-none text-ink-muted" />
       <span className="flex-none text-ink-muted">{verb}</span>
       <span className="min-w-0 truncate text-ink" title={target}>{target}</span>
       {group.calls.length > 1 && <span className="flex-none rounded-md bg-surface-active px-[6px] py-[1px] font-mono text-2xs text-ink-soft">×{group.calls.length}</span>}
       <span className="flex-1" />
+      {/* 运行中右侧是往上走的计时，不再叠一个转圈：左边图标在动，这里的数字在涨，两者都说「还在跑」。 */}
       {isRunning
-        ? <Loader2 size={13} className="animate-spin-fast motion-reduce:animate-none flex-none text-ink-muted" aria-label="运行中" />
+        ? <LiveDuration settledMs={duration} startedAt={group.calls.find((call) => call.status === 'running')?.startedAt} />
         : <>
           {failed && <X size={13} className="flex-none text-danger" aria-label="失败" />}
-          {duration > 0 && <span className="flex-none font-mono text-2xs text-ink-ghost">{formatDuration(duration)}</span>}
+          {duration > 0 && <span className="flex-none font-mono text-2xs tabular-nums text-ink-ghost">{formatDuration(duration)}</span>}
         </>}
       <ChevronRight size={14} className={`flex-none text-ink-ghost transition-transform duration-150 ${open ? 'rotate-90' : ''}`} />
     </button>
@@ -212,19 +213,6 @@ function Block({ label, text, danger }: { label: string; text: string; danger?: 
   </div>
 }
 
-/** 工具名 → 图标；文案见 i18n/toolLabels。 */
-function toolIcon(tool: string): LucideIcon {
-  const name = tool.toLowerCase()
-  if (name === 'spawn_agents') return Network
-  if (/weather|forecast/.test(name)) return CloudSun
-  if (/web|fetch|url|browse/.test(name)) return Globe
-  if (/search|grep|find/.test(name)) return Search
-  if (/list|tree|dir/.test(name)) return FolderTree
-  if (/write|edit|create|patch|replace|append/.test(name)) return FilePen
-  if (/read|open|cat|view/.test(name)) return FileText
-  if (/script|shell|bash|exec|run|command/.test(name)) return Terminal
-  return Wrench
-}
 
 const PRIMARY_KEYS = ['path', 'file', 'filename', 'query', 'url', 'pattern', 'command', 'script', 'dir', 'directory', 'location', 'name']
 
@@ -276,6 +264,17 @@ export function resultText(value: string): string {
     if (key) return record[key] as string
   }
   return JSON.stringify(inner, null, 2)
+}
+
+/** 运行中的计时：已落定调用的耗时 + 正在跑的这次已过去的时间，每 0.1 秒刷新。 */
+function LiveDuration({ settledMs, startedAt }: { settledMs: number; startedAt?: number }) {
+  const [now, setNow] = useState(() => Date.now())
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 100)
+    return () => clearInterval(timer)
+  }, [])
+  const elapsed = settledMs + (startedAt ? Math.max(0, now - startedAt) : 0)
+  return <span className="flex-none font-mono text-2xs tabular-nums text-ink-muted" role="timer" aria-label="运行中">{(elapsed / 1000).toFixed(1)} s</span>
 }
 
 function formatDuration(durationMs: number) {
