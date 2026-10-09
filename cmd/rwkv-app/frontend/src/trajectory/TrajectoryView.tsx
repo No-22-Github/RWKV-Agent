@@ -135,7 +135,7 @@ export default function TrajectoryView({ messages, live, focusMessageId, onExpor
   const allAssistantsCollapsed = collapsibleAssistantIds.length > 0 && collapsibleAssistantIds.every(id => collapsedAssistants.has(id))
 
   return (
-    <div className={`${css.root} trajectory-root`}>
+    <div className={`${css.root} [--dsh-composer-height:0px]`}>
       <TrajectoryToolbar
         actualDuration={actualDuration}
         onActualDurationChange={(next) => { setActualDuration(next); setTimelineSelection(null) }}
@@ -148,7 +148,7 @@ export default function TrajectoryView({ messages, live, focusMessageId, onExpor
         searchQuery={searchQuery}
         onSearchQueryChange={setSearchQuery}
         extra={onExport && (
-          <button type="button" className="trajectory-toolbar-extra" title="导出 trace.jsonl" onClick={onExport}>
+          <button type="button" className="ml-2 inline-flex h-6 flex-none items-center gap-1 rounded-md border-0 bg-transparent px-[6px] text-ink-soft [font:var(--dsw-font-xxs-12)] hover:bg-surface-active hover:text-ink" title="导出 trace.jsonl" onClick={onExport}>
             <Download size={12} strokeWidth={1.5} aria-hidden="true" />导出
           </button>
         )}

@@ -17,7 +17,7 @@ type Props = {
   onOpenSettings: () => void
 }
 
-// 收起动画时长；与 legacy.css 的 .menu-pop-out 保持一致。
+// 收起动画时长；与 tailwind.css 的 --animate-menu-up-out 保持一致。
 const CLOSE_MS = 120
 
 /* 运行配置菜单：从输入框上方的模型标签向上弹出，显示当前运行信息与连接切换；能力与 State 各有自己的标签。 */
@@ -55,7 +55,7 @@ export default function RunConfigDropdown({ open, onClose, ready, busy, status, 
 
   return (
     // 收起动画期间已不可交互（inert），只是视觉上淡出。
-    <div ref={ref} inert={!open} className={`run-config-dropdown absolute bottom-full left-0 z-[60] mb-[8px] flex max-h-[min(440px,48vh)] w-[340px] max-w-[calc(100vw-32px)] origin-bottom-left flex-col overflow-auto rounded-xl border border-line bg-paper-wash shadow-pop ${open ? 'menu-up-in' : 'menu-up-out'}`}>
+    <div ref={ref} inert={!open} className={`run-config-dropdown absolute bottom-full left-0 z-[60] mb-[8px] flex max-h-[min(440px,48vh)] w-[340px] max-w-[calc(100vw-32px)] origin-bottom-left flex-col overflow-auto rounded-xl border border-line bg-paper-wash shadow-pop ${open ? 'animate-menu-up-in motion-reduce:animate-none' : 'animate-menu-up-out motion-reduce:animate-none'}`}>
       {/* 当前运行：顶栏芯片只放缩略信息，完整的模型、State、端点、能力在这里。 */}
       {ready && (() => {
         const runtime = providers.find((provider) => provider.id === runtimeProviderId)

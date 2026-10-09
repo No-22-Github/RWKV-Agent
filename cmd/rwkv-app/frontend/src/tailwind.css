@@ -1,17 +1,17 @@
 @import "tailwindcss";
 
 /*
- * 暗色模式：由 index.css 里的 [data-theme=dark] token 块控制，
+ * 暗色模式：由 styles/tokens.css 里的 [data-theme=dark] token 块控制，
  * dark: 变体跟随该属性（而不是 Tailwind 默认的 .dark class）。
  */
 @custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 /*
  * 主题映射。
- * 颜色统一走 index.css 的 zinc 单色 token（亮/暗两套静态值），
+ * 颜色统一走 styles/tokens.css 的 zinc 单色 token（亮/暗两套静态值），
  * 工具类（bg-brand 等）通过 var() 自动跟随 data-theme。
  */
-@theme {
+@theme inline {
   --color-paper: var(--paper);
   --color-paper-soft: var(--paper-soft);
   --color-paper-sidebar: var(--paper-sidebar);
@@ -43,7 +43,7 @@
   --color-brand-fg: var(--brand-fg);
   --color-overlay: var(--overlay);
 
-  /* 阴影：shadcn 式的轻阴影，亮暗两套值在 index.css */
+  /* 阴影：shadcn 式的轻阴影，亮暗两套值在 styles/tokens.css */
   --shadow-pop: var(--elev-pop);
   --shadow-hair: var(--elev-sm);
 
@@ -75,13 +75,78 @@
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
-/*
- * 布局组件类：正文宽度收敛到 index.css 的布局 token。
- * 响应式覆盖仍在 legacy.css（未分层样式优先级高于 layer 内规则）。
- */
-@layer components {
-  /* 对话区正文宽度 */
-  .content-narrow {
-    width: min(var(--content-narrow), calc(100% - 52px));
+/* 桌面属性由 main.tsx 检测；组件可直接使用 wails-mac:*。 */
+@custom-variant wails-mac (&:where(.wails-mac, .wails-mac *));
+/* 保留原先 <=1180px 的包含边界。 */
+@custom-variant compact (@media (max-width: 1180px));
+
+@theme {
+  --animate-spin-fast: spin .8s linear infinite;
+  --animate-turn-enter: turn-enter .55s cubic-bezier(.22, 1, .36, 1) both;
+  --animate-answer-reveal: answer-reveal .7s cubic-bezier(.22, 1, .36, 1) both;
+  --animate-menu-up-in: menu-up-in .16s cubic-bezier(.2, 0, 0, 1) both;
+  --animate-menu-up-out: menu-up-out .12s ease-in both;
+  --animate-wordmark-blink: wordmark-blink 1.06s steps(1, end) infinite;
+  --animate-stream-fade: stream-fade .5s ease-out both;
+  --animate-tok-in: tok-in 1.1s ease-out both;
+  --animate-shimmer: shimmer 1.8s linear infinite;
+  @keyframes turn-enter { from { opacity: 0; transform: translateY(14px) scale(.985); filter: blur(6px); } }
+  @keyframes answer-reveal { from { opacity: 0; filter: blur(8px); transform: translateY(4px); } }
+  @keyframes menu-up-in { from { opacity: 0; transform: translateY(4px) scale(.98); } }
+  @keyframes menu-up-out { to { opacity: 0; transform: translateY(4px) scale(.98); } }
+  @keyframes wordmark-blink { 50% { opacity: 0; } }
+  @keyframes stream-fade { from { opacity: 0; } }
+  @keyframes tok-in { from { opacity: 0; filter: blur(2.5px); } }
+  @keyframes shimmer { from { background-position: 120% 0; } to { background-position: -120% 0; } }
+}
+
+@utility content-narrow {
+  width: min(var(--content-narrow), calc(100% - 52px));
+}
+
+@utility shimmer-text {
+  display: inline-block;
+  color: transparent;
+  background: linear-gradient(110deg, var(--ink-muted) 35%, var(--ink) 50%, var(--ink-muted) 65%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: var(--animate-shimmer);
+  @variant motion-reduce {
+    animation: none;
+    color: var(--ink-muted);
+    background: none;
+  }
+}
+
+/* 由 Markdown 容器控制新块显影；恢复的已读块及其后代保持静态。 */
+@utility stream-blocks {
+  & > *, & li, & tr { animation: var(--animate-stream-fade); }
+  & > .stream-static, & .stream-static li, & .stream-static tr { animation: none; }
+  @variant motion-reduce {
+    & > *, & li, & tr { animation: none; }
+  }
+}
+
+@property --ring-angle { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+@keyframes ring-spin { to { --ring-angle: 360deg; } }
+@keyframes ring-in { from { opacity: 0; } }
+
+/* mask 合成和注册属性适合保留 CSS，作为可组合 utility 按运行状态启用。 */
+@utility running-ring {
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    z-index: 1;
+    padding: 1px;
+    border-radius: inherit;
+    pointer-events: none;
+    background: conic-gradient(from var(--ring-angle), transparent 0 58%, var(--ink-ghost) 74%, var(--ink) 80%, var(--ink-ghost) 86%, transparent 100%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+    animation: ring-spin 2.6s linear infinite, ring-in .4s ease-out both;
+    @variant motion-reduce { animation: none; }
   }
 }

@@ -1,0 +1,29 @@
+@layer components {
+/* Markdown 排版（消息正文） */
+.turn-answer .md-markdown > :first-child { margin-top: 0; }
+
+.turn-answer .md-markdown > :last-child { margin-bottom: 0; }
+
+.turn-answer .md-markdown p { margin: 0 0 13px; }
+
+.turn-answer .md-markdown h1, .turn-answer .md-markdown h2, .turn-answer .md-markdown h3 { margin: 18px 0 8px; color: var(--ink); font: 650 16px/1.5 var(--font-sans); }
+
+.turn-answer .md-markdown ul, .turn-answer .md-markdown ol { margin: 6px 0 14px; padding-left: 24px; }
+
+/* Tailwind preflight 会清空 list-style，这里恢复项目符号；GFM 任务列表保持无符号。 */
+.turn-answer .md-markdown ul { list-style: disc; }
+.turn-answer .md-markdown ul ul { list-style: circle; }
+.turn-answer .md-markdown ol { list-style: decimal; }
+.turn-answer .md-markdown ul.contains-task-list { list-style: none; }
+.turn-answer .md-markdown li::marker { color: var(--ink-muted); }
+
+.turn-answer .md-markdown table { width: 100%; border-top: 1.5px solid var(--ink); border-collapse: collapse; font-size: 13px; line-height: 1.55; }
+
+.turn-answer .md-markdown th, .turn-answer .md-markdown td { border-bottom: 1px solid var(--line-soft); padding: 8px 10px; text-align: left; }
+
+.turn-answer .md-markdown th { color: var(--ink-muted); font-size: 10.5px; font-weight: 500; text-transform: uppercase; }
+
+.turn-answer .md-markdown code:not(pre code) { color: var(--brand); font: 12px var(--mono); }
+
+.turn-answer .md-markdown .answer-para p { margin-bottom: 0; }
+}

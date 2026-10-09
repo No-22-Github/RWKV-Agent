@@ -159,7 +159,7 @@ function GroupRow({ group }: { group: CallGroup }) {
       {group.calls.length > 1 && <span className="flex-none rounded-md bg-surface-active px-[6px] py-[1px] font-mono text-2xs text-ink-soft">×{group.calls.length}</span>}
       <span className="flex-1" />
       {isRunning
-        ? <Loader2 size={13} className="spin flex-none text-ink-muted" aria-label="运行中" />
+        ? <Loader2 size={13} className="animate-spin-fast motion-reduce:animate-none flex-none text-ink-muted" aria-label="运行中" />
         : <>
           {failed && <X size={13} className="flex-none text-danger" aria-label="失败" />}
           {duration > 0 && <span className="flex-none font-mono text-2xs text-ink-ghost">{formatDuration(duration)}</span>}
@@ -195,7 +195,7 @@ function SubagentDetail({ agent }: { agent: SubagentTrace }) {
     <div className="flex items-center gap-2 text-xs">
       <span className="font-mono text-2xs text-ink-muted">Agent {agent.index}</span>
       <span className="min-w-0 flex-1 truncate text-ink">{agent.task}</span>
-      {agent.status === 'running' ? <Loader2 size={12} className="spin text-ink-muted" /> : agent.status === 'failed' ? <X size={12} className="text-danger" /> : null}
+      {agent.status === 'running' ? <Loader2 size={12} className="animate-spin-fast motion-reduce:animate-none text-ink-muted" /> : agent.status === 'failed' ? <X size={12} className="text-danger" /> : null}
       {agent.durationMs != null && <span className="font-mono text-2xs text-ink-ghost">{formatDuration(agent.durationMs)}</span>}
     </div>
     {agent.steps?.length ? <div className="mt-[6px] flex flex-wrap gap-x-3 gap-y-1 font-mono text-2xs text-ink-muted">

@@ -7,9 +7,7 @@ import { applyTheme, getInitialTheme } from './theme'
 import '@fontsource/jetbrains-mono/400.css'
 import '@fontsource/jetbrains-mono/500.css'
 import '@fontsource/jetbrains-mono/700.css'
-import './tailwind.css'
 import './index.css'
-import './legacy.css'
 
 // 仅桌面 macOS webview 会注入 window._wails；据此为隐藏式内嵌标题栏（红绿灯）预留顶部空间。
 function detectMacDesktop(): boolean {

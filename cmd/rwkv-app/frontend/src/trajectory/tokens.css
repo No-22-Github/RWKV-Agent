@@ -1,6 +1,6 @@
 /*
  * DSH design tokens used by the ported trajectory CSS, mapped onto this app's
- * theme variables (index.css). Declared on :root because tooltips and menus
+ * theme variables (styles/tokens.css). Declared on :root because tooltips and menus
  * portal into <body>. Record-kind colors come from the --trace-* palette so a
  * future theme (e.g. image-derived) only redefines those.
  */
@@ -64,78 +64,4 @@
   --dsw-alias-scrollbar-hover-l2: var(--scroll-thumb-hover);
   --dsw-alias-markdown-code-block: var(--paper-soft);
   --dsw-alias-markdown-citation: var(--ink-muted);
-}
-
-/* No floating composer over the ledger in this app. */
-.trajectory-root {
-  --dsh-composer-height: 0px;
-}
-
-.trajectory-markdown {
-  font-size: 13px;
-  line-height: 1.7;
-  color: var(--ink);
-  overflow-wrap: anywhere;
-}
-
-.trajectory-markdown-compact {
-  line-height: 20px;
-}
-
-.trajectory-menu {
-  z-index: 1000;
-  min-width: 160px;
-  padding: 4px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--paper-wash);
-  box-shadow: var(--elev-pop);
-}
-
-.trajectory-menu-item {
-  display: block;
-  width: 100%;
-  padding: 5px 8px;
-  border: 0;
-  border-radius: 5px;
-  background: transparent;
-  color: var(--ink);
-  font: var(--dsw-font-xxs-12);
-  text-align: left;
-}
-
-.trajectory-menu-item:hover {
-  background: var(--surface-active);
-}
-
-.trajectory-menu-separator {
-  height: 1px;
-  margin: 4px 0;
-  background: var(--line);
-}
-
-.trajectory-menu-label {
-  padding: 4px 8px;
-  color: var(--ink-muted);
-  font: var(--dsw-font-xxxs-11);
-}
-
-.trajectory-toolbar-extra {
-  display: inline-flex;
-  flex: none;
-  align-items: center;
-  gap: 4px;
-  height: 24px;
-  margin-left: 8px;
-  padding: 0 6px;
-  border: 0;
-  border-radius: var(--dsw-radius-sm);
-  background: transparent;
-  color: var(--dsw-alias-label-secondary);
-  font: var(--dsw-font-xxs-12);
-}
-
-.trajectory-toolbar-extra:hover {
-  background: var(--dsw-alias-interactive-bg-hover);
-  color: var(--dsw-alias-label-primary);
 }

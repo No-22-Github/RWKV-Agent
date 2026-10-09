@@ -24,7 +24,7 @@ export interface MarkdownLabels {
 /** Markdown body rendered with the chat's renderer; `compact` tightens it for the inspector. */
 export function MarkdownText({ text, variant = 'body' }: { text: string; labels?: MarkdownLabels; variant?: 'body' | 'compact' }) {
   return (
-    <div className={variant === 'compact' ? 'trajectory-markdown trajectory-markdown-compact' : 'trajectory-markdown'}>
+    <div className={`text-[13px] text-ink [overflow-wrap:anywhere] ${variant === 'compact' ? 'leading-5' : 'leading-[1.7]'}`}>
       <MarkdownMessage content={text} />
     </div>
   )

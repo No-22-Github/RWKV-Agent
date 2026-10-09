@@ -32,7 +32,7 @@ function rehypeStreamTokens(skip = 0) {
         return (child.value.match(STREAM_TOKEN) || []).map((token) => {
           const seen = offset < skip
           offset += token.length
-          return { type: 'element', tagName: 'span', properties: { className: [seen ? 'stream-tok-static' : 'stream-tok'] }, children: [{ type: 'text', value: token }] }
+          return { type: 'element', tagName: 'span', properties: { className: seen ? ['stream-tok-static'] : ['stream-tok', 'animate-tok-in', 'motion-reduce:animate-none'] }, children: [{ type: 'text', value: token }] }
         })
       })
     }
@@ -114,7 +114,7 @@ export default function MarkdownMessage({ content, streaming, staticChars = 0 }:
   let cursor = 0
 
   return (
-    <div className="md-markdown">
+    <div className={`md-markdown${streaming ? ' stream-blocks' : ''}`}>
       {blocks.map((block, index) => {
         const isPlain = isPlainParagraph(block)
         if (isPlain) plainCount++

@@ -29,7 +29,7 @@ type Props = {
   onOpenSettings: () => void
 }
 
-const chipClass = 'flex h-[26px] min-w-0 items-center gap-[6px] rounded-md border border-line bg-paper-wash px-[9px] text-xs text-ink-soft shadow-hair transition-colors duration-[120ms] hover:bg-surface-active hover:text-ink disabled:pointer-events-none disabled:opacity-60'
+const chipClass = 'flex h-[26px] min-w-0 items-center gap-[6px] rounded-lg border border-line bg-paper-wash px-[9px] text-xs text-ink-soft shadow-hair transition-colors duration-[120ms] hover:bg-surface-active hover:text-ink disabled:pointer-events-none disabled:opacity-60'
 
 export default function RunChips(props: Props) {
   const { ready, busy, status, runtimeConfig, providers, runtimeProviderId, workspace, runConfigOpen, setRunConfigOpen } = props
@@ -44,7 +44,7 @@ export default function RunChips(props: Props) {
       {/* 模型标签：完整信息放在悬停提示与弹出菜单里，标签本身只认得出「是哪个」。 */}
       <button type="button" className={`${chipClass} max-w-[260px]`} data-run-config-trigger aria-haspopup="dialog" aria-expanded={runConfigOpen} onClick={() => setRunConfigOpen((value) => !value)}
         title={[status.model || '运行配置', ready && status.stateId ? `State：${status.stateId}` : '', ready ? `能力：${capabilities}` : ''].filter(Boolean).join('\n')}>
-        {loading ? <Loader2 size={11} className="spin flex-none" /> : <span className={`h-[6px] w-[6px] flex-none rounded-full ${ready ? 'bg-brand-bright' : 'bg-ink-ghost'}`} />}
+        {loading ? <Loader2 size={11} className="animate-spin-fast motion-reduce:animate-none flex-none" /> : <span className={`h-[6px] w-[6px] flex-none rounded-full ${ready ? 'bg-brand-bright' : 'bg-ink-ghost'}`} />}
         <span className="truncate text-ink">{status.model || '选择模型'}</span>
         <ChevronDown size={12} className={`flex-none text-ink-muted transition-transform duration-200 motion-reduce:transition-none ${runConfigOpen ? 'rotate-180' : ''}`} />
       </button>
@@ -65,7 +65,7 @@ export default function RunChips(props: Props) {
 function CapabilityToggle({ icon, label, checked, disabled, local, onChange }: { icon: ReactNode; label: string; checked: boolean; disabled: boolean; local: boolean; onChange: (value: boolean) => void }) {
   const title = local ? `${label}：${checked ? '开' : '关'}（本地模型请在设置中修改）` : `${label}：${checked ? '已开启' : '已关闭'}，点击切换`
   return <button type="button" role="switch" aria-checked={checked} aria-label={label} title={title} disabled={disabled} onClick={() => onChange(!checked)}
-    className={`flex h-[26px] w-[30px] flex-none items-center justify-center rounded-md border transition-colors duration-[120ms] disabled:pointer-events-none ${checked ? 'border-line bg-paper-wash text-ink shadow-hair hover:bg-surface-active' : 'border-dashed border-line bg-transparent text-ink-ghost hover:text-ink-soft'} ${disabled ? 'opacity-60' : ''}`}>
+    className={`flex h-[26px] w-[30px] flex-none items-center justify-center rounded-lg border transition-colors duration-[120ms] disabled:pointer-events-none ${checked ? 'border-line bg-paper-wash text-ink shadow-hair hover:bg-surface-active' : 'border-dashed border-line bg-transparent text-ink-ghost hover:text-ink-soft'} ${disabled ? 'opacity-60' : ''}`}>
     {icon}
   </button>
 }
@@ -115,10 +115,10 @@ function StateChip({ config, current, busy, onSelect, onManage }: { config: Conf
       <span className={`truncate ${current ? 'font-mono text-2xs text-ink' : ''}`}>{current || '无 State'}</span>
       <ChevronDown size={12} className={`flex-none text-ink-muted transition-transform duration-200 motion-reduce:transition-none ${open ? 'rotate-180' : ''}`} />
     </button>
-    {mounted && <div inert={!open} role="listbox" aria-label="选择 State" className={`absolute bottom-full left-0 z-[60] mb-[8px] flex max-h-[min(440px,48vh)] w-[300px] max-w-[calc(100vw-32px)] origin-bottom-left flex-col overflow-auto rounded-xl border border-line bg-paper-wash py-[4px] shadow-pop ${open ? 'menu-up-in' : 'menu-up-out'}`}>
+    {mounted && <div inert={!open} role="listbox" aria-label="选择 State" className={`absolute bottom-full left-0 z-[60] mb-[8px] flex max-h-[min(440px,48vh)] w-[300px] max-w-[calc(100vw-32px)] origin-bottom-left flex-col overflow-auto rounded-xl border border-line bg-paper-wash py-[4px] shadow-pop ${open ? 'animate-menu-up-in motion-reduce:animate-none' : 'animate-menu-up-out motion-reduce:animate-none'}`}>
       <div className="px-[12px] pb-[4px] pt-[6px] text-2xs text-ink-muted">State · 对之后的消息生效</div>
       <StateOption label="不使用 State" plain selected={!current} pending={applying === 'none'} onClick={() => void choose('')} />
-      {states === null && !error && <div className="flex items-center gap-2 px-[12px] py-[8px] text-xs text-ink-muted"><Loader2 size={12} className="spin" />正在读取部署上的 State…</div>}
+      {states === null && !error && <div className="flex items-center gap-2 px-[12px] py-[8px] text-xs text-ink-muted"><Loader2 size={12} className="animate-spin-fast motion-reduce:animate-none" />正在读取部署上的 State…</div>}
       {states?.map((entry) => <StateOption key={entry.id} label={entry.filename && entry.filename !== entry.id ? entry.filename : entry.id} hint={entry.filename && entry.filename !== entry.id ? entry.id : undefined} selected={entry.id === current} pending={applying === entry.id} onClick={() => void choose(entry.id)} />)}
       {states?.length === 0 && <div className="px-[12px] py-[8px] text-xs text-ink-muted">部署上还没有 State</div>}
       {error && <div className="px-[12px] py-[8px] text-xs text-danger">{error}</div>}
@@ -133,6 +133,6 @@ function StateOption({ label, hint, plain, selected, pending, onClick }: { label
       <span className={`truncate text-ink ${plain ? 'text-xs' : 'font-mono text-2xs'}`}>{label}</span>
       {hint && <span className="truncate font-mono text-2xs text-ink-ghost">{hint}</span>}
     </span>
-    {pending ? <Loader2 size={13} className="spin flex-none text-ink-muted" /> : selected ? <Check size={13} className="flex-none text-ink" /> : null}
+    {pending ? <Loader2 size={13} className="animate-spin-fast motion-reduce:animate-none flex-none text-ink-muted" /> : selected ? <Check size={13} className="flex-none text-ink" /> : null}
   </button>
 }

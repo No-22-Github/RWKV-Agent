@@ -80,7 +80,7 @@ export default function SettingsPage({ manager, status, ready, onChooseWorkspace
 
   return (
     <div className="flex h-full w-full bg-paper text-ink">
-      <aside className="settings-sidebar flex h-full w-(--sidebar-w) flex-none flex-col border-r border-line bg-paper-sidebar py-[18px]">
+      <aside className="settings-sidebar [--wails-draggable:drag] [&_button]:[--wails-draggable:no-drag] [&_input]:[--wails-draggable:no-drag] wails-mac:pt-[44px] flex h-full w-(--sidebar-w) flex-none flex-col border-r border-line bg-paper-sidebar py-[18px]">
         <div className="px-[18px] pb-[18px] text-lg font-semibold">设置</div>
         <nav aria-label="设置分区" className="flex flex-col">
         {NAV_ITEMS.map((item) => (
@@ -103,7 +103,7 @@ export default function SettingsPage({ manager, status, ready, onChooseWorkspace
       </aside>
 
       <main className="flex min-w-0 flex-1 flex-col">
-        <header className="settings-header flex h-(--header-h) flex-none items-end justify-between gap-[16px] border-b border-line px-[30px] pb-[10px]">
+        <header className="settings-header [--wails-draggable:drag] wails-mac:pt-[22px] wails-mac:h-[74px] wails-mac:basis-[74px] flex h-(--header-h) flex-none items-end justify-between gap-[16px] border-b border-line px-[30px] pb-[10px]">
           <span className=" text-lg font-semibold">{section}</span>
           {section === '连接' && (
             <span className="flex min-w-0 items-center gap-[7px] text-2xs text-ink-muted">

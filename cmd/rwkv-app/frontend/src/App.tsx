@@ -17,6 +17,7 @@ import type { ToolTrace } from './trajectory-types'
 import RunChips from './components/RunChips'
 import SettingsPage from './components/SettingsPage'
 import PixelLoader from './components/PixelLoader'
+import Wordmark from './components/Wordmark'
 import ToolActivity, { ThinkingMark, callsFromEvents, callsFromSteps, callsFromTrajectory } from './components/ToolActivity'
 import TrajectoryView from './trajectory/TrajectoryView'
 import type { LiveTurn } from './trajectory/rwkv-adapter'
@@ -138,10 +139,10 @@ export default function App() {
     setTheme((current) => toggleTheme(current))
   }
 
-  function applyBootstrap(value: AppBootstrap) {
+  function applyBootstrap(value: AppBootstrap, options: { preserveDraft?: boolean } = {}) {
     setStatus(Status.createFrom(value.status)); setConversations(value.conversations || []); setWorkspaces(value.workspaces || [])
     manager.applyProviderBootstrapState(value)
-    applyConversation(value.conversation || undefined); if (value.hasConfig && !settingsOpen) manager.applyConfig(value.config); if (value.warning) notify(value.warning, 'error')
+    applyConversation(value.conversation || undefined, options); if (value.hasConfig && !settingsOpen) manager.applyConfig(value.config); if (value.warning) notify(value.warning, 'error')
   }
   async function activateProviderNow(id: string) {
     if (busy) return
@@ -174,8 +175,8 @@ export default function App() {
     setBusy(true)
     try { await manager.deleteProvider(id) } catch (error) { manager.setSettingsMessage(errorText(error)) } finally { setBusy(false) }
   }
-  function applyConversation(value?: ConversationView) {
-    setActiveConversationID(value?.id || ''); setActiveTab('chat'); setActivity([]); setPrompt('')
+  function applyConversation(value?: ConversationView, options: { preserveDraft?: boolean } = {}) {
+    setActiveConversationID(value?.id || ''); setActiveTab('chat'); setActivity([]); if (!options.preserveDraft) setPrompt('')
     let lastPrompt = ''
     setMessages((value?.messages || []).map((message) => {
       if (message.role === 'user') lastPrompt = message.content
@@ -221,7 +222,8 @@ export default function App() {
     } catch (error) {
       try {
         const persisted = await Backend.Bootstrap()
-        applyBootstrap(persisted)
+        // 停止或失败后重载历史，保留运行期间输入的下一条草稿。
+        applyBootstrap(persisted, { preserveDraft: true })
         setSelectedTraceID('')
         // 会话建立前就失败（如连接配置错误）时后端不落盘，重载会吞掉这一轮和报错，这里补回。
         const persistedMessages = persisted.conversation?.messages || []
@@ -241,7 +243,7 @@ export default function App() {
   function submitMessage() { void sendMessage(prompt) }
   function onComposerKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
     // 输入法组字中的回车是确认候选词，不是发送（WebKit 组字时 keyCode 为 229）。
-    if (event.nativeEvent.isComposing || event.keyCode === 229) return
+    if (event.nativeEvent.isComposing || event.keyCode === 229 || busy) return
     if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void sendMessage(prompt) } }
   async function newConversation() { if (busy) return; await Backend.NewConversation(); setMessages([]); setActivity([]); setPrompt(''); setActiveConversationID(''); setActiveTab('chat') }
   async function openConversation(id: string) { if (busy || id === activeConversationID) return; setBusy(true); try { applyConversation(await Backend.OpenConversation(id)) } catch (error) { reportError(error) } finally { setBusy(false) } }
@@ -266,7 +268,7 @@ export default function App() {
     {settingsOpen ? <SettingsPage manager={manager} status={status} ready={ready} onChooseWorkspace={chooseWorkspace} theme={theme} onToggleTheme={handleToggleTheme} onActivateProvider={(id) => void activateProviderNow(id)} onDeleteProvider={(id) => void deleteProviderNow(id)} /> : <>
       <Sidebar conversations={conversations} workspaces={workspaces} activeId={activeConversationID} busy={busy} open={sidebarOpen} onCloseSidebar={() => setSidebarOpen(false)} onNewChat={() => { setSidebarOpen(false); void newConversation() }} onChooseWorkspace={() => void chooseWorkspace()} onOpenSettings={() => { setSidebarOpen(false); manager.openSettings() }} onOpen={(id) => { setSidebarOpen(false); void openConversation(id) }} onDelete={deleteConversation} onRename={renameConversation} onTogglePin={togglePinConversation} onOpenWorkspace={openWorkspace} />
       <main className="flex min-w-0 flex-1 flex-col bg-paper">
-        <header className="app-header relative flex h-(--header-h) flex-none items-end gap-[18px] border-b border-line px-[30px]">
+        <header className="app-header [--wails-draggable:drag] [&_button]:[--wails-draggable:no-drag] wails-mac:pt-[22px] wails-mac:h-[74px] wails-mac:basis-[74px] relative flex h-(--header-h) flex-none items-end gap-[18px] border-b border-line px-[30px]">
           <button className="sidebar-toggle relative mr-[-6px] grid h-8 w-8 flex-none place-items-center border-0 bg-transparent text-ink-soft before:absolute before:inset-[-6px] before:content-[''] lg:hidden" aria-label="打开导航" onClick={() => setSidebarOpen(true)}><Menu size={18} /></button>
           <div className="flex h-9 flex-none items-end gap-[22px]" role="tablist">
             <button role="tab" aria-selected={activeTab === 'chat'} className={`relative border-0 border-b-2 bg-transparent pb-[9px] text-md transition-[border-color,color] duration-[180ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none before:absolute before:inset-x-0 before:bottom-0 before:top-[-15px] before:content-[''] ${activeTab === 'chat' ? 'border-brand font-semibold text-ink' : 'border-transparent text-ink-muted'}`} onClick={() => setActiveTab('chat')}>对话</button>
@@ -324,8 +326,8 @@ function Sidebar({ conversations, workspaces, activeId, busy, open, onCloseSideb
   }
   return <>
     {open && <div className="sidebar-scrim fixed inset-0 z-[40] bg-overlay lg:hidden" onClick={onCloseSidebar} />}
-    <aside ref={sidebarRef} data-open={open} className={`app-sidebar fixed inset-y-0 left-0 z-[50] flex h-full w-(--sidebar-w) flex-none flex-col border-r border-line bg-paper-sidebar py-[18px] text-ink transition-transform duration-200 motion-reduce:transition-none lg:static lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
-      <div className="flex items-center gap-[9px] px-[18px] pb-[18px] text-md font-semibold"><img src="/favicon.svg" alt="" aria-hidden="true" className="h-[18px] w-[18px] flex-none" /><span>RWKV</span><span className="ml-auto font-mono text-2xs font-medium leading-none text-ink-muted">⌘K</span></div>
+    <aside ref={sidebarRef} data-open={open} className={`app-sidebar compact:w-[196px] compact:basis-[196px] max-lg:data-[open=true]:shadow-[0_12px_40px_rgba(60,50,35,.2)] [--wails-draggable:drag] [&_button]:[--wails-draggable:no-drag] [&_input]:[--wails-draggable:no-drag] wails-mac:pt-[44px] fixed inset-y-0 left-0 z-[50] flex h-full w-(--sidebar-w) flex-none flex-col border-r border-line bg-paper-sidebar py-[18px] text-ink transition-transform duration-200 motion-reduce:transition-none lg:static lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
+      <div className="flex items-center gap-[9px] px-[18px] pb-[18px] text-md font-semibold"><Wordmark /><span className="ml-auto font-mono text-2xs font-medium leading-none text-ink-muted">⌘K</span></div>
       <button className="mx-[18px] mb-[14px] flex h-8 items-center justify-center gap-2 rounded-md border border-line bg-paper-wash px-[10px] text-sm font-medium text-ink shadow-hair transition-colors hover:bg-surface-active" onClick={onNewChat} disabled={busy}><SquarePen size={16} />新的对话 <kbd className="ml-[2px] font-mono text-2xs text-ink-muted">⌘N</kbd></button>
       <button className="mx-[10px] mb-3 flex items-center gap-2 rounded-md border-0 bg-transparent p-[6px_8px] text-sm text-ink-soft transition-colors hover:bg-surface-active hover:text-ink" onClick={onChooseWorkspace} disabled={busy}><FolderOpen size={16} /><span>打开工作区</span><MoreHorizontal size={15} className="ml-auto" /></button>
       {workspaces.length > 0 && <section className="mb-[6px] flex flex-col"><div className="px-[18px] pb-[7px] text-2xs font-medium text-ink-muted">工作区</div>{workspaces.map((workspace) => (
@@ -333,9 +335,9 @@ function Sidebar({ conversations, workspaces, activeId, busy, open, onCloseSideb
       ))}</section>}
       <section className="min-h-0 flex-1 overflow-y-auto"><div className="px-[18px] pb-[7px] text-2xs font-medium text-ink-muted">近期</div>
         {conversations.length === 0 ? <div className="px-[18px] py-2 text-sm text-ink-muted">暂无历史对话</div> : conversations.map((conversation) => (
-          <div key={conversation.id} className={`conversation-row relative mx-[10px] flex items-center rounded-md border-0 bg-transparent transition-colors ${conversation.id === activeId ? 'active bg-surface-active text-ink' : 'text-ink-soft hover:bg-surface-active hover:text-ink'}`}>
+          <div key={conversation.id} data-active={conversation.id === activeId} className={`conversation-row group/conversation relative mx-[10px] flex items-center rounded-md border-0 bg-transparent transition-colors ${conversation.id === activeId ? 'active bg-surface-active text-ink' : 'text-ink-soft hover:bg-surface-active hover:text-ink'}`}>
             {renaming === conversation.id ? <div className="flex min-w-0 flex-1 p-[5px_8px]"><input autoFocus aria-label="重命名会话" className="min-w-0 flex-1 rounded-md border border-line-strong bg-paper px-[7px] py-[4px] text-sm text-ink outline-none focus:border-brand" value={renameValue} onChange={(event) => setRenameValue(event.target.value)} onBlur={() => commitRename(conversation.id)} onKeyDown={(event) => { if (event.key === 'Enter') commitRename(conversation.id); if (event.key === 'Escape') setRenaming(null) }} /></div> : <button className="flex min-w-0 flex-1 flex-col gap-[1px] border-0 bg-transparent p-[7px_8px] text-left text-inherit" onClick={() => onOpen(conversation.id)} title={conversation.title || '未命名会话'}><span className="flex min-w-0 items-center gap-[5px] text-sm">{conversation.pinned && <Pin size={11} className="flex-none text-brand" aria-label="已置顶" />}<span className="min-w-0 truncate">{conversation.title || '未命名会话'}</span></span><span className="text-2xs text-ink-muted">{relativeTime(conversation.updatedAt)}</span></button>}
-            <button className="conversation-menu grid h-[26px] w-[26px] place-items-center border-0 bg-transparent text-ink-muted" aria-label={`会话“${conversation.title || '未命名会话'}”的更多操作`} aria-haspopup="menu" aria-expanded={menu?.id === conversation.id} onClick={(event) => toggleMenu(conversation.id, event)}><MoreHorizontal size={15} /></button>
+            <button className="conversation-menu invisible group-hover/conversation:visible group-focus-within/conversation:visible group-data-[active=true]/conversation:visible grid h-[26px] w-[26px] place-items-center border-0 bg-transparent text-ink-muted" aria-label={`会话“${conversation.title || '未命名会话'}”的更多操作`} aria-haspopup="menu" aria-expanded={menu?.id === conversation.id} onClick={(event) => toggleMenu(conversation.id, event)}><MoreHorizontal size={15} /></button>
             {menu?.id === conversation.id && (
               <div data-conversation-menu className={`absolute right-2 z-[5] flex min-w-[128px] flex-col rounded-lg border border-line bg-paper-wash p-1 shadow-pop ${menu.up ? 'bottom-[30px]' : 'top-[30px]'}`} role="menu" aria-label="会话操作">
                 <button role="menuitem" className="flex items-center gap-[7px] rounded-sm border-0 bg-transparent px-[8px] py-[6px] text-left text-sm text-ink hover:bg-surface-active" onClick={() => { setMenu(null); void onTogglePin(conversation.id, !conversation.pinned) }}><Pin size={14} />{conversation.pinned ? '取消置顶' : '置顶'}</button>
@@ -439,7 +441,7 @@ function TurnView({ turn, index, last, busy, pending, activity, liveAnswer, moti
   useEffect(() => { motion.seen.add(turnKey) }, [motion, turnKey])
   useEffect(() => { if (answerKey) motion.seen.add(answerKey) }, [motion, answerKey])
   // 入场动效只给最后一轮：新发出的回合，或刚打开会话时的最末一轮；历史回合不整片闪动。
-  return <article className={`conversation-turn mb-[42px]${pending ? ' pending' : ''}${last && enterFresh ? ' turn-enter' : ''}`} data-testid={`conversation-turn-${index}`}>
+  return <article className={`conversation-turn mb-[42px]${pending ? ' pending' : ''}${last && enterFresh ? ' turn-enter animate-turn-enter motion-reduce:animate-none' : ''}`} data-testid={`conversation-turn-${index}`}>
     <div className="turn-main flex min-w-0 flex-col gap-4">
       {turn.user && <div className="flex justify-end"><div className="max-w-[82%] rounded-xl bg-user-bg p-[10px_14px] text-base leading-[1.7] text-user-text [overflow-wrap:anywhere]">{turn.user.content}</div></div>}
       {calls.length > 0 && <ToolActivity calls={calls} running={pending && !liveAnswer} liveLabel={liveLabel} />}
@@ -447,7 +449,7 @@ function TurnView({ turn, index, last, busy, pending, activity, liveAnswer, moti
       {/* 流式回答：生成中与落定后必须是同一位置的同一个 PacedAnswer，落定时它才能把没放完的字按节奏放完。 */}
       {streamText
         ? <div className="turn-answer answer-streaming text-md leading-[1.8] text-ink [overflow-wrap:anywhere]" aria-busy={pending}><PacedAnswer text={streamText} live={pending} onGrow={onGrow} initialShown={motion.progress.get(turnKey)} onProgress={(shown) => motion.progress.set(turnKey, shown)} /></div>
-        : response?.role === 'assistant' && <div className={`turn-answer${last && answerFresh.current ? ' answer-reveal' : ''} text-md leading-[1.8] text-ink [overflow-wrap:anywhere]`}><MarkdownMessage content={response.content} /></div>}
+        : response?.role === 'assistant' && <div className={`turn-answer${last && answerFresh.current ? ' answer-reveal animate-answer-reveal motion-reduce:animate-none' : ''} text-md leading-[1.8] text-ink [overflow-wrap:anywhere]`}><MarkdownMessage content={response.content} /></div>}
       {response?.role === 'error' && <div className="flex items-start gap-2 rounded-lg border border-danger/30 bg-danger-wash p-[10px_12px] text-sm leading-[1.65] text-danger"><X size={15} className="mt-[3px] flex-none" /><span>{response.content}</span></div>}
       {response && <TurnActions response={response} meta={[formatTurnTime(time), response.meta, stats && stats.tokens > 0 ? `${stats.tokens.toLocaleString('zh-CN')} tok` : ''].filter(Boolean).join(' · ')} canRegenerate={last && Boolean(turn.user)} busy={busy} hasTrace={hasTrace} onRegenerate={onRegenerate} onTrace={() => onTrace(response.id)} />}
     </div>
@@ -485,8 +487,8 @@ function Composer({ chips, prompt, setPrompt, busy, running, empty, onSubmit, on
       </div>
       {/* 输入框上方的运行标签：模型、State、能力、工作区 */}
       <div className="mb-[8px]">{chips}</div>
-      <div data-running={running || undefined} className="composer-box relative flex min-h-[52px] min-w-0 items-end rounded-xl border border-line bg-paper-wash shadow-hair transition-[border-color,box-shadow] duration-[120ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none focus-within:border-line-strong focus-within:ring-[3px] focus-within:ring-ink/10">
-        <textarea aria-label="消息" rows={1} value={prompt} disabled={busy} placeholder="描述你想要完成的任务" className="block min-h-[52px] max-h-[180px] min-w-0 flex-1 resize-none border-0 bg-transparent p-[13px_4px_12px_15px] text-md leading-[1.7] text-ink outline-0 placeholder:text-placeholder" onChange={(event) => { setPrompt(event.target.value); autoGrow(event.target) }} onKeyDown={onKeyDown} />
+      <div data-running={running || undefined} className="composer-box data-running:running-ring relative flex min-h-[52px] min-w-0 items-end rounded-lg border border-line bg-paper-wash shadow-hair transition-[border-color,box-shadow] duration-[120ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none focus-within:border-line-strong focus-within:ring-[3px] focus-within:ring-ink/10">
+        <textarea aria-label="消息" rows={1} value={prompt} placeholder="描述你想要完成的任务" className="block min-h-[52px] max-h-[180px] min-w-0 flex-1 resize-none border-0 bg-transparent p-[13px_4px_12px_15px] text-md leading-[1.7] text-ink outline-0 focus:outline-none focus-visible:outline-none placeholder:text-placeholder" onChange={(event) => { setPrompt(event.target.value); autoGrow(event.target) }} onKeyDown={onKeyDown} />
         <div className="flex flex-none items-center p-[12px_12px_12px_6px]">
           {busy
             // 运行中发送键变成停止键：中断后端这一轮，已完成的步骤保留在轨迹里。
@@ -495,7 +497,7 @@ function Composer({ chips, prompt, setPrompt, busy, running, empty, onSubmit, on
         </div>
       </div>
       <div className={`composer-starters absolute inset-x-0 top-full mt-[9px] flex flex-wrap gap-[9px] transition-opacity duration-[240ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none ${empty ? 'opacity-100' : 'pointer-events-none opacity-0'}`} aria-hidden={!empty} aria-label="快速开始">
-        {STARTER_PROMPTS.map((starter) => <button key={starter} tabIndex={empty ? 0 : -1} className="rounded-full border border-line bg-card-bg px-3 py-[6px] text-sm text-ink-soft transition-colors hover:bg-surface-active hover:text-ink" onClick={() => setPrompt(starter)}>{starter}</button>)}
+        {STARTER_PROMPTS.map((starter) => <button key={starter} tabIndex={empty ? 0 : -1} className="rounded-lg border border-line bg-paper-wash px-3 py-[6px] text-sm shadow-hair text-ink-soft transition-colors hover:bg-surface-active hover:text-ink" onClick={() => setPrompt(starter)}>{starter}</button>)}
       </div>
     </div>
   </div>

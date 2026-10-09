@@ -800,7 +800,7 @@ describe('App', () => {
     expect(await screen.findByText('Pushed connection')).toBeInTheDocument()
   })
 
-  it('stops a running turn from the composer', async () => {
+  it('allows drafting during a run and preserves the draft when stopped', async () => {
     bootstrapWithRunningProvider()
     const cancel = vi.fn()
     let reject: (reason: unknown) => void = () => {}
@@ -813,10 +813,19 @@ describe('App', () => {
     fireEvent.change(screen.getByLabelText('消息'), { target: { value: 'long task' } })
     fireEvent.click(screen.getByRole('button', { name: '发送' }))
     const stop = await screen.findByRole('button', { name: '停止运行' })
+    const composer = screen.getByLabelText('消息')
+    expect(composer).toBeEnabled()
+    fireEvent.focus(composer)
+    fireEvent.change(composer, { target: { value: '下一条消息\n继续检查' } })
+    expect(composer).toHaveValue('下一条消息\n继续检查')
+    // 运行中的 Enter 保留浏览器换行行为，不触发第二次请求。
+    expect(fireEvent.keyDown(composer, { key: 'Enter', code: 'Enter' })).toBe(true)
+    expect(Backend.Chat).toHaveBeenCalledOnce()
     fireEvent.click(stop)
 
     expect(cancel).toHaveBeenCalledOnce()
     expect(await screen.findByRole('button', { name: '发送' })).toBeInTheDocument()
+    expect(screen.getByLabelText('消息')).toHaveValue('下一条消息\n继续检查')
   })
 
   it('closes a conversation menu when its own button is clicked again', async () => {
