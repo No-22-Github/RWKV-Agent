@@ -7,8 +7,9 @@
 
 1. **两套都比 MiniMax 高**：workbank 严格 **143/148**（MiniMax 132/148），bfcl-product **60/60**（MiniMax 53/60）。
    配对逐题：workbank DeepSeek 独过 11、MiniMax 独过 3（双侧符号检验 p≈0.057）；bfcl DeepSeek 独过 7、MiniMax 独过 0（p≈0.016）。
-   bfcl 差距全在多轮：recovery 10/10 对 5/10，state 10/10 对 9/10。
+   bfcl 差距主要在多轮：recovery 10/10 对 5/10，state 10/10 对 9/10；另有 supplied 10/10 对 9/10。
 2. **思考比 MiniMax 更频繁、更短**：workbank 69% 的步有思考（MiniMax 44%），中位 154 字符（MiniMax 297），p90 1128；全是英文。
+   和 g1k 像不像见 [think-vs-g1k.md](think-vs-g1k.md)：语言、段落和中位长度像；首步过短、推敲长尾（22% 的步带 Wait/Hmm）不像。
 3. **快且不限流**：8 并发下 workbank 148 题 5.7 分钟，没有 429；bfcl 两段合计约 1 分钟。
 4. **一个接口限制**：思考模式下不接受 `tool_choice: "required"`（HTTP 400）。workbank 不发这个值，不受影响；bfcl 的工具调用题会发。
 
