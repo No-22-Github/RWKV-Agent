@@ -270,7 +270,9 @@ func (calculatorTool) Spec() agent.ToolSpec {
 	spec.Replayable = true
 	spec.Bundle = agent.ToolBundleCompute
 	spec.Permission = agent.PermissionCompute
-	spec.Example = `{"expression":"4500*0.082*30/365","precision":2}`
+	// A neutral expression: thinking models copied the earlier domain-looking
+	// example (4500*0.082*30/365, an interest calculation) into their own calls.
+	spec.Example = `{"expression":"(2+3)*4","precision":null}`
 	return spec
 }
 
