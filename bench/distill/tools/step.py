@@ -24,7 +24,7 @@ import subprocess
 import sys
 import tempfile
 
-REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+from distill_paths import REPO
 CLI = os.path.join(REPO, "local", "bin", "rwkv-cli")
 SOLVE_DIR = os.environ.get("STEP_SOLVE_DIR") or os.path.join(REPO, "local", "runs", "distill", "b04", "solve")
 # Same arm as internal/lab/corpus/render.go benchFlags: the replay must see the

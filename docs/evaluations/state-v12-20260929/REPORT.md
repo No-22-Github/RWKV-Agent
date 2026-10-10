@@ -39,7 +39,7 @@
 | 格式 / 采样 | `--profile g1k --strict-spec`，`g1k-agent`（sweep 默认，固定不扫） |
 | 预算 | `--max-steps 16 --max-tokens 4096 --decision-max-tokens 2048 --case-timeout 30m`，`--remote-batch-wait 0s`（sweep 自动带） |
 | 并发 | 经 Cloudflare 单队列总在飞 64（sweep 按 workbank 48 + bfclp 16 分配），未上调、未开第二队列 |
-| 套件 | workbank 148 题含 draft（case 源 sha256 `2d9193e4…ef98f`，**与 t927 轮完全相同**——a22cde0 改的 nt-5278 v3 在 `bench/distill/cases/`，不在 workbank；HANDOFF §6.13 的"题库不同"括注按 sha 更正为"相同"）；bfcl-product 60 题 |
+| 套件 | workbank 148 题含 draft（case 源 sha256 `2d9193e4…ef98f`，**与 t927 轮完全相同**——a22cde0 改的 nt-5278 v3 在 `bench/distill`，不在 workbank；HANDOFF §6.13 的"题库不同"括注按 sha 更正为"相同"）；bfcl-product 60 题 |
 | state | 包 `state-v12-20260929.tar`（sha256 `2ff834ac…7d0f`，与 HANDOFF §2.1 一致）解包 19/19 校验 OK；端点上所需 13 个在跑前已就位（用户当日 ~17:00 上传），补点 `v12m-s336/s432.pth` 于 M3 前串行上传（各 16,785,536 字节 / 32 张量核对无误） |
 | 耗时 | 每 arm 两套件并行 406–797s（6.8–13.3 分钟）；全程 17:24–22:05（含 2 次无效处理与上传间隙） |
 | 网络 | VPS 直连 Cloudflare 上行实测 264–446 KB/s（低于 HANDOFF 的 500 KB/s 参考线，本机无代理可配），上传/跑分未因此失败 |

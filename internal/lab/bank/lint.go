@@ -20,12 +20,11 @@ var requiredTags = []string{
 }
 
 // defaultCanaryPrefix is the test-bank canary. --canary-prefix overrides it
-// for trees that must not carry it (docs/distill/distill-workflow.md §4.1).
+// for trees that must not carry it (bench/distill/common/distill-workflow.md §4.1).
 const defaultCanaryPrefix = "WORKBANK-CANARY"
 
 var (
 	caseIDRe  = regexp.MustCompile(`^([a-z]+)-(\d{4})$`)
-	versionRe = regexp.MustCompile(`^v\d+(\.\d+)*$`)
 	notesSecs = []string{"Traps", "Reference solution", "Why the answer is unique"}
 )
 
@@ -189,7 +188,7 @@ func checkCase(caseDir string, caseObj map[string]any, ctx *lintCtx, relParts []
 	isSmalltalk := asString(tags["task_type"]) == "smalltalk"
 	// A refusal case answers a request the assistant cannot carry out. It must
 	// explain that instead of abstaining, so it carries no answer contract and
-	// its criterion forbids UNKNOWN (docs/distill/distill-workflow.md §4.3). Every
+	// its criterion forbids UNKNOWN (bench/distill/common/distill-workflow.md §4.3). Every
 	// beyond_capability case is one, and so is any case that declares TR-NOCAP
 	// whatever its scenario.
 	isRefusal := ctx.distillRules && !isSmalltalk && (asString(tags["task_type"]) == "beyond_capability" ||
@@ -295,7 +294,7 @@ func checkCase(caseDir string, caseObj map[string]any, ctx *lintCtx, relParts []
 	// Small talk is the exception: a greeting followed by "Reply with only the
 	// final answer..." would teach the student to expect format instructions
 	// after every pleasantry, so a contract there is itself the violation
-	// (docs/distill/distill-workflow.md §4.3).
+	// (bench/distill/common/distill-workflow.md §4.3).
 	//
 	// tags.answer_style (v1.3 §2.13, distill banks only) re-points the rule:
 	// "unknown" (default) keeps today's full-UNKNOWN contract; "value" ends
@@ -420,7 +419,7 @@ func checkCase(caseDir string, caseObj map[string]any, ctx *lintCtx, relParts []
 
 	// (d) canary: the configured prefix must end the description, and a tree
 	// linted under another prefix must not carry the test-bank canary anywhere
-	// (docs/distill/distill-workflow.md §4.1).
+	// (bench/distill/common/distill-workflow.md §4.1).
 	description, _ := caseObj["description"].(string)
 	if !canaryOK(description, ctx.canaryRe) {
 		bad("canary", fmt.Sprintf("description must end with %s-<8 lowercase hex>", ctx.canaryPrefix))
@@ -536,17 +535,18 @@ func checkCase(caseDir string, caseObj map[string]any, ctx *lintCtx, relParts []
 		}
 	}
 
-	// (j) directory structure [<version>/]<scenario>/<id>/ — the distill tree
-	// groups cases by data version (v1.4/config/cfg-8001).
-	if len(relParts) == 3 && versionRe.MatchString(relParts[0]) {
-		relParts = relParts[1:]
+	// (j) directory structure …/<scenario>/<id>/ — the distill tree nests
+	// cases under data versions (v1.4/cases/config/cfg-8001), so only the
+	// last two components are checked.
+	if len(relParts) > 2 {
+		relParts = relParts[len(relParts)-2:]
 	}
 	if len(relParts) != 2 {
 		shown := strings.Join(relParts, "/")
 		if shown == "" {
 			shown = "(root)"
 		}
-		bad("dir_structure", fmt.Sprintf("expected [<version>/]<scenario>/<id>/ layout, got %s", shown))
+		bad("dir_structure", fmt.Sprintf("expected <scenario>/<id>/ layout, got %s", shown))
 	} else {
 		scenDir, dirname := relParts[0], relParts[1]
 		match := caseIDRe.FindStringSubmatch(dirname)
@@ -566,7 +566,7 @@ func checkCase(caseDir string, caseObj map[string]any, ctx *lintCtx, relParts []
 	}
 
 	// (k) verify.py + NOTES.md. Small talk has no answer a script could
-	// recompute, so verify.py is not required there (docs/distill/distill-workflow.md
+	// recompute, so verify.py is not required there (bench/distill/common/distill-workflow.md
 	// §4.3).
 	if !isSmalltalk {
 		for _, item := range verifyPyViolations(caseDir) {

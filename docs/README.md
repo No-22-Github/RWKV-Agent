@@ -33,16 +33,10 @@
 
 ## 蒸馏语料与 State 训练（现行）
 
-蒸馏文档按数据版本分目录，入口是 [distill/README.md](distill/README.md)（各版本的计划、执行提示、报告、题号段一张表）。
+蒸馏的计划、报告、题目、老师脚本、工具**全部在 [`bench/distill/`](../bench/distill/README.md)**，按版本分目录（`v1/`、`v1.3/`、`v1.4/`、`v1.41/`），入口 README 里有版本总表。
 
-| 目录 / 文档 | 说明 |
+| 文档 | 说明 |
 | --- | --- |
-| [distill/distill-workflow.md](distill/distill-workflow.md) | **蒸馏工作流规格**（跨版本通用）：出题 → 老师在真实 harness 里跑 → 抽路径 → `corpus render` 重放切行 → 打包；各环节闸门与命令 |
-| [distill/harness-corpus-render.md](distill/harness-corpus-render.md) | 训练行只能由 harness 重放生成：`--script` 回放、多轮按轮切行、分集规则 |
-| [distill/v1/](distill/v1/) | v1.0–v1.2：加题分配 v1、b04 规格、09-29 修数派单，smoke 与 b01–b04 报告 |
-| [distill/v1.3/](distill/v1.3/) | v1.3 数据构成规划（中文/多轮/失败汇报/收尾恢复等 N1–N11），b05–b08 报告、数据集与清洗报告 |
-| [distill/v1.4/](distill/v1.4/) | v1.4 实施规格书、b10 放量提示与解题简报，b09、b10 试跑报告 |
-| [distill/v1.41/](distill/v1.41/) | **进行中**：v1.41（在 v1.4 上加 bash 与 get_weather，b12），10-10 进度重估 |
 | [evaluations/distill-audit-20260926/REPORT.md](evaluations/distill-audit-20260926/REPORT.md) | 蒸馏数据审阅：判据 fail-open、stable_fact 实为本地检索、`tools: []` 名不副实；配套清洗说明 CLEANING.md |
 
 ## workbank 手写题库（148 题，现行主测试集之一）

@@ -11,7 +11,8 @@ import subprocess
 import sys
 
 LINK = re.compile(r"\]\(([^)\s]+)\)")
-SKIP_PREFIXES = ("third_party/", "bench/workbank/cases", "bench/distill/cases")
+SKIP_PREFIXES = ("third_party/", "bench/workbank/cases")
+SKIP_DIRS = ("/cases/", "/cases-shelved/")  # case NOTES under bench/distill/<version>/
 
 
 def main() -> int:
@@ -24,7 +25,8 @@ def main() -> int:
             d = os.path.dirname(d)
             dirs.add(d)
     bad = 0
-    for md in sorted(p for p in tracked if p.endswith(".md") and not p.startswith(SKIP_PREFIXES)):
+    for md in sorted(p for p in tracked if p.endswith(".md") and not p.startswith(SKIP_PREFIXES)
+                     and not (p.startswith("bench/distill/") and any(d in p for d in SKIP_DIRS))):
         with open(md, encoding="utf-8") as fh:
             for lineno, line in enumerate(fh, 1):
                 for target in LINK.findall(line):

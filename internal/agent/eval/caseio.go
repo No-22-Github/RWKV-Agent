@@ -47,6 +47,11 @@ func LoadCasesDir(root string, includeDraft bool) ([]Case, error) {
 			switch entry.Name() {
 			case ".git", "build", "dist", "node_modules":
 				return filepath.SkipDir
+			case "cases-shelved":
+				// Retired cases sit beside live ones in bench/distill.
+				if path != root {
+					return filepath.SkipDir
+				}
 			}
 			return nil
 		}

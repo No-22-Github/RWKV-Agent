@@ -33,7 +33,7 @@ import re
 import zlib
 from collections import Counter
 
-REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+from distill_paths import REPO
 NO_CALL_CATEGORIES = {"notool", "bfcl-irrelevance", "bfcl-missing-required"}
 
 

@@ -79,6 +79,11 @@ func DefaultLedgerCases() string {
 	return filepath.Join(lab.RepoRoot(), "bench", "workbank", "ledger", "cases.jsonl")
 }
 
+// ShelvedDir holds retired cases. Walks from a bank root skip it unless it is
+// the root itself, so bench/distill can hold every version's cases and
+// shelved cases side by side.
+const ShelvedDir = "cases-shelved"
+
 // findCaseFiles mirrors build.py's find_case_files: a root that is itself a
 // case dir yields just that dir, otherwise every directory under it that
 // holds a case.json, sorted by path.
@@ -96,6 +101,9 @@ func findCaseFiles(root string) ([]string, error) {
 			return nil // Python's rglob skips unreadable directories
 		}
 		if d.IsDir() {
+			if path != root && d.Name() == ShelvedDir {
+				return filepath.SkipDir
+			}
 			return nil
 		}
 		if d.Name() == "case.json" {

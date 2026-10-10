@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Collect solved b04 cases (step.py state files) into a replay script.
 
-  collect.py [--solve local/runs/distill/b04/solve] [--out bench/distill/scripts/v1/b04.jsonl]
+  collect.py [--solve local/runs/distill/b04/solve] [--out bench/distill/v1/teacher/b04.jsonl]
              [--suffix --p41]
 
 Only "pass" cases are written. Entry IDs are "<case id><suffix>", suffix
@@ -25,13 +25,9 @@ import glob
 import json
 import os
 
-REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+from distill_paths import REPO, find_case, teacher_script
+
 LOOK_FIRST_TASKS = {"beyond_capability", "stable_fact"}
-
-
-def find_case(case_id):
-    hits = glob.glob(os.path.join(REPO, "bench", "distill", "cases", "*", "*", case_id, "case.json"))
-    return json.load(open(hits[0])) if len(hits) == 1 else None
 
 
 def split_turns(outputs, n_turns):
@@ -50,7 +46,7 @@ def split_turns(outputs, n_turns):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--solve", default=os.path.join(REPO, "local", "runs", "distill", "b04", "solve"))
-    ap.add_argument("--out", default=os.path.join(REPO, "bench", "distill", "scripts", "v1", "b04.jsonl"))
+    ap.add_argument("--out", default=teacher_script("v1", "b04"))
     ap.add_argument("--suffix", default="--p41")
     args = ap.parse_args()
     counts = collections.Counter()
@@ -64,7 +60,7 @@ def main():
             continue
         case = find_case(cid)
         if case is None:
-            rejected.append((cid, "case not found in bench/distill/cases"))
+            rejected.append((cid, "case not found under bench/distill/*/cases"))
             continue
         turns = split_turns(state["outputs"], len(case["turns"]))
         if turns is None:

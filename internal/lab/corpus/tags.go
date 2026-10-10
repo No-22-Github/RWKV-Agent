@@ -13,7 +13,7 @@ import (
 	"github.com/no22/RWKV-Agent/internal/lab"
 )
 
-// Per-row labels (docs/distill/distill-workflow.md §4.4).
+// Per-row labels (bench/distill/common/distill-workflow.md §4.4).
 //
 // A row's text and loss_spans come from the harness replay and must never be
 // touched here; everything in this file only fills in meta. The label block
@@ -23,7 +23,7 @@ import (
 // DefaultTagMap is the reviewed mapping that turns the 700 records' mixed
 // behaviour_tags into the authoring vocabulary.
 func DefaultTagMap() string {
-	return filepath.Join(RepoRoot(), "bench", "distill", "tag-map.json")
+	return filepath.Join(RepoRoot(), "bench", "distill", "common", "tag-map.json")
 }
 
 // DefaultVocab is the authoring vocabulary that defines legal task types.
@@ -31,7 +31,7 @@ func DefaultVocab() string {
 	return filepath.Join(RepoRoot(), "bench", "workbank", "tag-vocab.json")
 }
 
-// TagMap is bench/distill/tag-map.json. The normalisation rules live in data
+// TagMap is bench/distill/common/tag-map.json. The normalisation rules live in data
 // rather than in Go because the task_type choices needed human judgement:
 // they have to be reviewable and correctable without a rebuild.
 type TagMap struct {
@@ -380,7 +380,7 @@ func finalKind(last string, lastIsCall bool, expect *lab.OrderedMap) string {
 	return "text"
 }
 
-// DeriveKind classifies a row the way docs/distill/distill-workflow.md §4.4.2
+// DeriveKind classifies a row the way bench/distill/common/distill-workflow.md §4.4.2
 // prescribes: the first matching rule wins, so a smalltalk row stays
 // smalltalk however it was produced.
 func DeriveKind(tags eval.CaseTags, traj eval.TrajStats, turn int, hasRunExpect bool) string {

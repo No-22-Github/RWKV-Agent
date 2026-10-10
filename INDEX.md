@@ -15,7 +15,7 @@
 | macOS 从零运行 | [`docs/guides/getting-started-macos.md`](docs/guides/getting-started-macos.md) | 环境、模型准备、构建、运行、更新和常见问题 |
 | CLI 全部参数与行为 | [`docs/guides/cli.md`](docs/guides/cli.md) | `rwkv-cli` 各子命令参考手册 |
 | 桌面 App 与公开 API | [`docs/guides/app.md`](docs/guides/app.md) | Wails App、headless server、存储和开发说明 |
-| **蒸馏语料流程（现行）** | [`docs/distill/distill-workflow.md`](docs/distill/distill-workflow.md) | 出题 → 老师在真实 harness 里跑 → `corpus render` 重放切行 → 打包；各版本计划与报告见 [`docs/distill/`](docs/distill/README.md) |
+| **蒸馏语料流程（现行）** | [`bench/distill/common/distill-workflow.md`](bench/distill/common/distill-workflow.md) | 出题 → 老师在真实 harness 里跑 → `corpus render` 重放切行 → 打包；各版本计划与报告见 [`docs/distill/`](bench/distill/README.md) |
 | **最新 state 横测** | [`docs/evaluations/state-t927-20260927/REPORT.md`](docs/evaluations/state-t927-20260927/REPORT.md) | t927 六个 checkpoint，s316 最优；终答不停、答案契约被拒是最大失分点 |
 | 跑分规程 | [`docs/evaluations/benchmark-protocol.md`](docs/evaluations/benchmark-protocol.md) | g1k 格式、统一预算、采样预设、`run check` 闸门 |
 | **数据在哪** | [`bench/README.md`](bench/README.md) | 入库数据清单（题库、老师脚本、账本、冻结证据）、仓库外本地目录与迁移 HF 的边界 |
@@ -67,8 +67,7 @@
 
 | 路径 | 用途 |
 | --- | --- |
-| [`docs/distill/`](docs/distill/) | 流程规格：`distill-workflow.md`（主流程）、`distill-allocation-v1.md`（b01–b03 配额）、`distill-allocation-v1.3.md`（v1.3 构成规划）、`distill-b04-glm.md`（子 Agent 用 step.py 在真实 harness 里解题）、`harness-corpus-render.md`（重放切行） |
-| `bench/distill/` | 蒸馏题库 `cases/`（759 题，5xxx 为 b01–b03、6xxx 为 b04）、老师动作脚本 `scripts/`（**本线真正的资产**，任何 harness 版本都能重渲染出训练行）、批次报告 `reports/`、`batches.jsonl`、`exclude.jsonl`、b04 工具 `tools/` |
+| [`bench/distill/`](bench/distill/README.md) | **蒸馏的全部东西都在这里**，按版本分：`v1/`、`v1.3/`、`v1.4/`、`v1.41/` 各自放计划、报告 `reports/`、题目 `cases/`、老师动作脚本 `teacher/`（**本线真正的资产**）；跨版本的流程规格与登记表在 `common/`，所有脚本在 `tools/` |
 | [`docs/evaluations/distill-audit-20260926/`](docs/evaluations/distill-audit-20260926/) | 蒸馏数据审阅报告与清洗说明（v1 / v1.1 的来源） |
 | [`docs/evaluations/state-t927-20260927/REPORT.md`](docs/evaluations/state-t927-20260927/REPORT.md) | t927 state 横测（训练集为 clean v1.1）。复核发现：训练行终答后没有任何后续文本，state 答完不停；截断重判 s316 从 16 题变成 25 题 |
 | [`docs/evaluations/state-lr-sweep-20260923/REPORT.md`](docs/evaluations/state-lr-sweep-20260923/REPORT.md) | 上一轮 state LR 扫描复核（旧 700 语料，含测试集泄漏） |

@@ -188,7 +188,7 @@ local/                   本机产物（构建、模型、runs），不入库
 | 推理核心与 `.pth` 直读设计 | [inference-core-design.md](docs/design/inference-core-design.md) · [direct-pth-loading.md](docs/design/direct-pth-loading.md) |
 | 续写接口与 Agent 协议 | [continuation-and-agent-protocol.md](docs/design/continuation-and-agent-protocol.md) |
 | 跑分规程与评测结论 | [benchmark-protocol.md](docs/evaluations/benchmark-protocol.md) · [docs/evaluations/](docs/evaluations/) |
-| 蒸馏语料流程 | [distill-workflow.md](docs/distill/distill-workflow.md) |
+| 蒸馏语料流程 | [distill-workflow.md](bench/distill/common/distill-workflow.md) |
 | 数据放在哪 | [bench/README.md](bench/README.md) |
 | 全部文档 | [INDEX.md](INDEX.md) · [docs/README.md](docs/README.md) |
 

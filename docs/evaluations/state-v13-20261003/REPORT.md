@@ -1,6 +1,6 @@
 # v1.3 state 跑分（train-1-3）— 报告
 
-日期：2026-10-03。分支 `exp/g1k-official-format`。训练脚本 [train-1-3.sh](../../../bench/distill/tools/v1.3/train-1-3.sh)，测试脚本 [test-1-3.sh](../../../bench/distill/tools/v1.3/test-1-3.sh)。
+日期：2026-10-03。分支 `exp/g1k-official-format`。训练脚本 [train-1-3.sh](../../../bench/distill/tools/train-1-3.sh)，测试脚本 [test-1-3.sh](../../../bench/distill/tools/test-1-3.sh)。
 
 ## 0. 结论
 

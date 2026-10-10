@@ -7,7 +7,7 @@
 
 - **入库**：源数据（手写/起草的题、花钱买且不可复现的老师轨迹）、小而关键的冻结证据、报告引用的 json。
 - **不入库**：能从源确定性重建的派生物（训练行 `rows.jsonl`、打包好的训练集）和原始运行（`local/runs/`）。
-  例外只有 `distill/scripts/`，理由见其 [README](distill/scripts/README.md)。
+  例外只有老师动作脚本 `distill/<版本>/teacher/`，理由见 [teacher-scripts.md](distill/common/teacher-scripts.md)。
 - 冻结基线：把最小完整证据（`run.json` / `summary.json` / `trace.jsonl`）复制到 `archive/<name>/`，附 README 写明模型、日期、harness 版本与可比性边界。
 
 ## 清单
@@ -22,12 +22,7 @@
 | `workbank/tools/` | 一次性审计工具（Go）及其 testdata | — | — |
 | `workbank/reports-data/` | `docs/workbank/reports/` 各报告的机器可读数据 | 0.7 MB | [报告目录](../docs/workbank/reports/) |
 | `bashprobe/` | 沙箱 bash 能力探针（`work-v2` 目录）；`cases/` 由 `gen.py` 生成并在 just-bash sidecar 里验证参考解 | 26 题 / 0.9 MB | [README](bashprobe/README.md) |
-| `distill/cases/` | 蒸馏题，按版本分目录：`v1/`（5xxx b01–b03、6xxx b04）、`v1.3/`（7xxx）、`v1.4/`（8xxx b10）、`v1.41/`（9xxx b12） | 1631 题 | [目录说明](distill/README.md) |
-| `distill/cases-shelved/` | 蒸馏下架题（同样按版本分目录） | 27 题 | — |
-| `distill/scripts/` | **老师动作脚本**（按版本分目录）：任何 harness 版本都能用 `corpus render --script` 重渲染出训练行 | 1.4 MB | [README](distill/scripts/README.md) |
-| `distill/batches.jsonl` · `exclude.jsonl` · `tag-map.json` | 批次登记（author 以此为准）、打包排除表、标签映射 | — | [批次报告](../docs/distill/) |
-| `distill/tools/` | 通用工具（`step.py` / `collect.py` 等）在根，各版本专用的构建脚本、老师 suffix 在 `tools/<版本>/` | — | [目录说明](distill/README.md) |
-| `distill/audit-20260926/` | 蒸馏审阅的统计与清洗策略 json | — | [审阅报告](../docs/evaluations/distill-audit-20260926/REPORT.md) |
+| `distill/` | **蒸馏的全部东西**：按版本分 `v1/` `v1.3/` `v1.4/` `v1.41/`，每个版本下是计划与 `reports/`、题目 `cases/`、老师动作脚本 `teacher/`；`common/` 放流程规格、批次登记、排除表、标签映射、审阅统计；`tools/` 放所有脚本 | 1631 题 + 27 下架 | [目录说明](distill/README.md) |
 | `archive/v10-baseline/` | v8–v10 boundary 基线（RWKV 13B / DeepSeek v4 Flash） | 5.6 MB | [README](archive/v10-baseline/README.md) |
 | `archive/primitive-orig30-snapshot-416b073d/` | Primitive Bench 原始 30 题快照 | — | [README](archive/primitive-orig30-snapshot-416b073d/README.md) |
 | `archive/bfcl-v4-e8-qwen-enhanced-base-20260822/` | BFCL v4 E8 Qwen enhanced 对照证据 | — | [README](archive/bfcl-v4-e8-qwen-enhanced-base-20260822/README.md) |
@@ -49,7 +44,7 @@
 | `local/datasets/raw/` | 外部原始语料（toucan、ultradata、nemotron、toolpref 等），约 17 GB | 能，`local/datasets/download_all.sh` |
 | `local/datasets/data/` | 清洗后的外部语料（normalized / rendered），约 1.2 GB | 能，按 `local/datasets/data/REPORT.md` |
 | `local/datasets/workspace-agent-700-20260920/` | 旧 700 条轨迹制作工作区（records / sessions / sketches / tooling 等过程件）；标准导出集已入库 `archive/workspace-agent-700-20260920/`，制作过程件不入库 | 母本**不能**，另有 `.zip` 备份 |
-| `local/outputs/workspace-agent-distill-clean-*` | 交付的训练集（v1.1 / v1.2） | 能，由 `distill/scripts/` + cases 重渲染再 pack |
+| `local/outputs/workspace-agent-distill-clean-*` | 交付的训练集（v1.1 / v1.2） | 能，由 `distill/<版本>/teacher/` + cases 重渲染再 pack |
 | `local/outputs/workspace-agent-700*` | 700 条的标准导出集（已镜像进 `archive/workspace-agent-700-20260920/`）与送训 text-only 版 | 能，由 700 工作区导出 |
 | `local/runs/` | 所有原始跑分（run.json / trace.jsonl） | 否，但只有冻结进 `archive/` 的才算证据 |
 | `local/state_output/` | state 训练扫描产物 | 否 |
@@ -59,6 +54,6 @@
 现在入库数据量小，先放在仓库里。满足以下任一条件时，把对应目录迁到 HF dataset repo，仓库里只留本表中的指针和 sha256：
 
 - 单个目录超过约 50 MB，或 `bench/` 合计超过约 200 MB；
-- 要公开发布训练集（首选迁移 `distill/scripts/` 加一份打包好的 `rows`）。
+- 要公开发布训练集（首选迁移各版本 `teacher/` 加一份打包好的 `rows`）。
 
 题目（`*/cases/`）和词表要跟代码版本一起走，建议一直留在仓库里。

@@ -27,6 +27,9 @@ func Load(root string) ([]*lab.OrderedMap, error) {
 		if err != nil {
 			return nil
 		}
+		if d.IsDir() && path != root && d.Name() == "cases-shelved" {
+			return filepath.SkipDir
+		}
 		if !d.IsDir() && d.Name() == "case.json" {
 			paths = append(paths, path)
 		}

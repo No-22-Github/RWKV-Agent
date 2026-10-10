@@ -331,17 +331,17 @@ func TestLintFixBackfillsFixtureBytes(t *testing.T) {
 	}
 }
 
-// -- canary prefix and smalltalk (docs/distill/distill-workflow.md §4.1, §4.3) --------
+// -- canary prefix and smalltalk (bench/distill/common/distill-workflow.md §4.1, §4.3) --------
 
 // distillCanaryPrefix is what the distillation tree replaces WORKBANK-CANARY
 // with: the test-bank canary means "never train on this" (§2.2).
 const distillCanaryPrefix = "DISTILL-CANARY"
 
-// distillCaseDir returns bench/distill/cases/v1/notool/<id>, skipping the test in
+// distillCaseDir returns bench/distill/v1/cases/notool/<id>, skipping the test in
 // checkouts that do not carry the bench tree.
 func distillCaseDir(t *testing.T, id string) string {
 	t.Helper()
-	dir := filepath.Join(lab.RepoRoot(), "bench", "distill", "cases", "v1", "notool", id)
+	dir := filepath.Join(lab.RepoRoot(), "bench", "distill", "v1", "cases", "notool", id)
 	if _, err := os.Stat(filepath.Join(dir, "case.json")); err != nil {
 		t.Skipf("distill case %s not present", id)
 	}

@@ -203,7 +203,7 @@ Most documents are written in Chinese.
 | Inference core and direct `.pth` loading | [inference-core-design.md](docs/design/inference-core-design.md) · [direct-pth-loading.md](docs/design/direct-pth-loading.md) |
 | Continuation interface and agent protocol | [continuation-and-agent-protocol.md](docs/design/continuation-and-agent-protocol.md) |
 | Benchmark protocol and results | [benchmark-protocol.md](docs/evaluations/benchmark-protocol.md) · [docs/evaluations/](docs/evaluations/) |
-| Distillation corpus workflow | [distill-workflow.md](docs/distill/distill-workflow.md) |
+| Distillation corpus workflow | [distill-workflow.md](bench/distill/common/distill-workflow.md) |
 | Where the data lives | [bench/README.md](bench/README.md) |
 | All documents | [INDEX.md](INDEX.md) · [docs/README.md](docs/README.md) |
 

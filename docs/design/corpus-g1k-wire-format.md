@@ -1,6 +1,6 @@
 # G1K 对齐语料格式契约（wire：`xml-v1+align-qwen36+no-tool+bare+one-stage`）
 
-> **2026-09-24 起，训练语料请用 harness 渲染**（[harness-corpus-render.md](../distill/harness-corpus-render.md)），
+> **2026-09-24 起，训练语料请用 harness 渲染**（[harness-corpus-render.md](../../bench/distill/common/harness-corpus-render.md)），
 > 不要按本文档手写拼接：本文档未覆盖 `usermsg=split` 下每次成功调用后插入的 post-tool 提醒块，
 > 照它渲染的 700 条语料从第 2 步起就与 eval prompt 不一致。本文档保留为字节形状的说明。
 
