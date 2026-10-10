@@ -1,0 +1,50 @@
+{
+  "id": "doc-8606",
+  "description": "Shift the tea break and awards rows to new times and a new owner. DISTILL-CANARY-a5ff0d68",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b10e-agendarows-01",
+    "ref_calls": 4,
+    "fixture_bytes": 272,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "活动/年会议程.md": "# 年会议程\n\n| 时间 | 环节 | 负责人 |\n|---|---|---|\n| 14:00 | 签到入场 | 行政组 |\n| 14:30 | 开场致辞 | 总经理 |\n| 15:00 | 年度回顾 | 各部门 |\n| 15:40 | 茶歇 | 行政组 |\n| 16:00 | 颁奖典礼 | 人事组 |\n| 17:00 | 聚餐 | 行政组 |\n"
+  },
+  "turns": [
+    {
+      "prompt": "活动/年会议程.md：茶歇推迟 10 分钟，颁奖也推迟 10 分钟并改由工会负责。别的环节时间不变。",
+      "expect": {
+        "max_output_chars": 400,
+        "output_contains_any": [
+          "活动/年会议程.md",
+          "年会议程.md"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "活动/年会议程.md": {
+        "equals": "# 年会议程\n\n| 时间 | 环节 | 负责人 |\n|---|---|---|\n| 14:00 | 签到入场 | 行政组 |\n| 14:30 | 开场致辞 | 总经理 |\n| 15:00 | 年度回顾 | 各部门 |\n| 15:50 | 茶歇 | 行政组 |\n| 16:10 | 颁奖典礼 | 工会 |\n| 17:00 | 聚餐 | 行政组 |\n"
+      }
+    }
+  }
+}

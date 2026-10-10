@@ -1,0 +1,50 @@
+{
+  "id": "cfg-8640",
+  "description": "Change slot length of a hair salon booking config from a manager note, INI with quoted comment marker. DISTILL-CANARY-21dc4f6a",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10e-salonslot-01",
+    "ref_calls": 4,
+    "fixture_bytes": 220,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "预约/时段.ini": "[剪发]\n时段分钟 = 40    ; 含洗吹\n提前预约天数 = 14\n\n[烫染]\n时段分钟 = 150   ; 含等待\n提前预约天数 = 21\n",
+    "预约/店长留言.txt": "剪发总是超时，时段改成 45 分钟吧。烫染别动。——店长 汪俊豪\n"
+  },
+  "turns": [
+    {
+      "prompt": "店长在 预约/店长留言.txt 里说了剪发的时段要改，帮我落到 预约/时段.ini。改完回复 DONE。",
+      "expect": {
+        "max_output_chars": 400,
+        "output_contains": [
+          "DONE"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "预约/时段.ini": {
+        "equals": "[剪发]\n时段分钟 = 45    ; 含洗吹\n提前预约天数 = 14\n\n[烫染]\n时段分钟 = 150   ; 含等待\n提前预约天数 = 21\n"
+      }
+    }
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "id": "cfg-8665",
+  "description": "Set a purchase cap to the value in the approval log; a rejected request and a different cap are decoys. DISTILL-CANARY-f1b32669",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10e-purchasecap-01",
+    "ref_calls": 4,
+    "fixture_bytes": 313,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "配置/采购限额.yaml": "部门: 行政部\n单笔上限: 5000   # 财务部 2026-05 核定\n月度上限: 30000\n",
+    "README.md": "行政部采购限额配置，数值以审批记录中已批准的为准。\n",
+    "审批/记录.txt": "AP-2231 | 单笔上限 | 8000 | 驳回（超预算）\nAP-2236 | 单笔上限 | 12000 | 已批准 2026-09-03\nAP-2240 | 月度上限 | 50000 | 待审批\n"
+  },
+  "turns": [
+    {
+      "prompt": "审批/记录.txt 里行政部的采购限额申请有结果了，照批准的把 配置/采购限额.yaml 改过来，行尾注释留着。",
+      "expect": {
+        "max_output_chars": 400,
+        "output_contains_any": [
+          "12000",
+          "12,000"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "配置/采购限额.yaml": {
+        "equals": "部门: 行政部\n单笔上限: 12000   # 财务部 2026-05 核定\n月度上限: 30000\n"
+      }
+    }
+  }
+}

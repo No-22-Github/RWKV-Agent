@@ -1,0 +1,52 @@
+{
+  "id": "doc-8641",
+  "description": "List delayed dock appointments in file order into a new report with a count line. DISTILL-CANARY-8c992572",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b10e-dockdelay-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1981,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "docks/appointments.csv": "appt,carrier,door,slot,outcome\nAP5001,Tidecargo,D3,2026-09-10,on time\nAP5002,Northway,D1,2026-09-09,delayed\nAP5003,Tidecargo,D4,2026-09-27,delayed\nAP5004,Tidecargo,D4,2026-09-14,on time\nAP5005,Tidecargo,D1,2026-09-21,on time\nAP5006,Northway,D4,2026-09-24,delayed\nAP5007,Northway,D3,2026-09-04,delayed\nAP5008,Tidecargo,D3,2026-09-25,on time\nAP5009,Kestrel,D3,2026-09-08,no show\nAP5010,Northway,D3,2026-09-04,no show\nAP5011,Brightline,D2,2026-09-15,delayed\nAP5012,Oakmoor,D1,2026-09-24,delayed\nAP5013,Oakmoor,D3,2026-09-02,delayed\nAP5014,Brightline,D1,2026-09-04,on time\nAP5015,Northway,D2,2026-09-21,no show\nAP5016,Brightline,D4,2026-09-17,on time\nAP5017,Tidecargo,D4,2026-09-10,on time\nAP5018,Tidecargo,D2,2026-09-05,delayed\nAP5019,Northway,D4,2026-09-05,on time\nAP5020,Northway,D1,2026-09-18,on time\nAP5021,Northway,D1,2026-09-18,on time\nAP5022,Northway,D1,2026-09-20,on time\nAP5023,Kestrel,D4,2026-09-16,on time\nAP5024,Oakmoor,D4,2026-09-02,no show\nAP5025,Kestrel,D4,2026-09-13,on time\nAP5026,Brightline,D3,2026-09-24,no show\nAP5027,Northway,D3,2026-09-16,on time\nAP5028,Brightline,D4,2026-09-14,delayed\nAP5029,Tidecargo,D3,2026-09-19,delayed\nAP5030,Oakmoor,D2,2026-09-23,on time\nAP5031,Oakmoor,D2,2026-09-22,delayed\nAP5032,Brightline,D1,2026-09-21,on time\nAP5033,Oakmoor,D4,2026-09-06,no show\nAP5034,Tidecargo,D1,2026-09-02,on time\nAP5035,Tidecargo,D2,2026-09-16,on time\nAP5036,Oakmoor,D4,2026-09-28,delayed\nAP5037,Northway,D1,2026-09-09,no show\nAP5038,Oakmoor,D1,2026-09-09,on time\nAP5039,Northway,D1,2026-09-26,no show\nAP5040,Kestrel,D1,2026-09-07,no show\nAP5041,Brightline,D4,2026-09-03,on time\nAP5042,Brightline,D4,2026-09-16,delayed\nAP5043,Kestrel,D1,2026-09-02,on time\nAP5044,Oakmoor,D4,2026-09-11,on time\nAP5045,Brightline,D3,2026-09-19,on time\nAP5046,Brightline,D4,2026-09-06,on time\nAP5047,Northway,D3,2026-09-23,on time\nAP5048,Tidecargo,D1,2026-09-09,on time\nAP5049,Brightline,D2,2026-09-19,on time\nAP5050,Oakmoor,D3,2026-09-14,no show\n",
+    "reports/.keep": "",
+    "README.md": "Warehouse dock appointment log.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Create reports/delayed.md listing every appointment in docks/appointments.csv whose outcome is `delayed`: first line `# Delayed appointments`, then one line per appointment as `- <appt> <carrier> <door>` in the original order, and a last line `Total: <N>`.",
+      "expect": {
+        "output_contains_any": [
+          "reports/delayed.md",
+          "delayed.md"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "reports/delayed.md": {
+        "equals": "# Delayed appointments\n- AP5002 Northway D1\n- AP5003 Tidecargo D4\n- AP5006 Northway D4\n- AP5007 Northway D3\n- AP5011 Brightline D2\n- AP5012 Oakmoor D1\n- AP5013 Oakmoor D3\n- AP5018 Tidecargo D2\n- AP5028 Brightline D4\n- AP5029 Tidecargo D3\n- AP5031 Oakmoor D2\n- AP5036 Oakmoor D4\n- AP5042 Brightline D4\nTotal: 13\n"
+      }
+    }
+  }
+}

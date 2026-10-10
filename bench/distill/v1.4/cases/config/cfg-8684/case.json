@@ -1,0 +1,52 @@
+{
+  "id": "cfg-8684",
+  "description": "Use the schedule from the audit finding for one job; findings for two jobs sit in the same file. DISTILL-CANARY-c32350d3",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10e-cronfix-01",
+    "ref_calls": 4,
+    "fixture_bytes": 255,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "ops/jobs.yaml": "- job: nightly-backup\n  at: \"01:00\"\n- job: report-export\n  at: \"06:00\"\n",
+    "README.md": "Scheduled jobs.\n",
+    "audit/findings-2026-09.txt": "F-12 job nightly-backup: run at 02:30 (currently overlaps with batch window).\nF-13 job report-export: run at 05:45.\nF-14 job nightly-backup: keep retention at 14 days.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Audit finding F-12 changes when nightly-backup runs. Update ops/jobs.yaml accordingly and leave report-export alone.",
+      "expect": {
+        "max_output_chars": 400,
+        "output_contains_any": [
+          "02:30",
+          "2:30"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "ops/jobs.yaml": {
+        "equals": "- job: nightly-backup\n  at: \"02:30\"\n- job: report-export\n  at: \"06:00\"\n"
+      }
+    }
+  }
+}

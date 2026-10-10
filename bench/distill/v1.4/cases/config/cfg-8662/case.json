@@ -1,0 +1,53 @@
+{
+  "id": "cfg-8662",
+  "description": "Update three consecutive keys of the premium member tier. DISTILL-CANARY-14b6e9cc",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10e-memberplans-01",
+    "ref_calls": 4,
+    "fixture_bytes": 178,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "配置/会员档.ini": "[标准会员]\n月费 = 39\n折扣 = 0.95\n赠券张数 = 2\n\n[高级会员]\n月费 = 89\n折扣 = 0.90\n赠券张数 = 5\n\n[企业会员]\n月费 = 299\n折扣 = 0.85\n赠券张数 = 20\n"
+  },
+  "turns": [
+    {
+      "prompt": "配置/会员档.ini：高级会员月费涨到 99，折扣 0.88，赠券 6 张。另外两档不变。改完回复 DONE。",
+      "expect": {
+        "max_output_chars": 400,
+        "output_contains_any": [
+          "配置/会员档.ini",
+          "会员档.ini"
+        ],
+        "output_contains": [
+          "DONE"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "配置/会员档.ini": {
+        "equals": "[标准会员]\n月费 = 39\n折扣 = 0.95\n赠券张数 = 2\n\n[高级会员]\n月费 = 99\n折扣 = 0.88\n赠券张数 = 6\n\n[企业会员]\n月费 = 299\n折扣 = 0.85\n赠券张数 = 20\n"
+      }
+    }
+  }
+}

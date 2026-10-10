@@ -1,0 +1,52 @@
+{
+  "id": "cfg-8671",
+  "description": "Change one clinic's slot length per the scheduling committee minutes; a proposal that was voted down is a decoy. DISTILL-CANARY-b5f26011",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10e-clinicslot-01",
+    "ref_calls": 4,
+    "fixture_bytes": 385,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "配置/号源.yaml": "普通门诊:\n  每号分钟: 10\n专家门诊:\n  每号分钟: 15   # 2026-03 起\n急诊分诊:\n  每号分钟: 5\n",
+    "README.md": "门诊号源配置。\n",
+    "会议/排班委员会纪要.md": "## 2026-09-10 纪要\n\n1. 提案：门诊每号时长改 15 分钟——表决未通过。\n2. 提案：专家门诊每号时长改 20 分钟——表决通过，自 9 月 1 日起执行。\n3. 提案：急诊分诊每号 5 分钟——维持现状。\n"
+  },
+  "turns": [
+    {
+      "prompt": "专家门诊的每号时长按排班委员会纪要里通过的那条改，在 配置/号源.yaml 里。",
+      "expect": {
+        "max_output_chars": 400,
+        "output_contains_any": [
+          "20 分钟",
+          "20分钟"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "配置/号源.yaml": {
+        "equals": "普通门诊:\n  每号分钟: 10\n专家门诊:\n  每号分钟: 20   # 2026-03 起\n急诊分诊:\n  每号分钟: 5\n"
+      }
+    }
+  }
+}

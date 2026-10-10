@@ -1,0 +1,48 @@
+{
+  "id": "cfg-8668",
+  "description": "Copy the pool size for one service from the capacity plan into its config; the plan has a column for the previous year. DISTILL-CANARY-fa9b0426",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10e-nginxpool-01",
+    "ref_calls": 4,
+    "fixture_bytes": 192,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "conf/pools.conf": "# pools.conf\n订单.pool_size = 40\n库存.pool_size = 24\n通知.pool_size = 16\n",
+    "README.md": "连接池配置，各服务一行。\n",
+    "容量规划.csv": "服务,2025 连接池,2026 连接池\n订单,40,64\n库存,24,32\n通知,16,20\n"
+  },
+  "turns": [
+    {
+      "prompt": "库存服务的连接池大小改成容量规划.csv 里 2026 年的数，在 conf/pools.conf 里改，其它服务别碰。",
+      "expect": {
+        "max_output_chars": 400
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "conf/pools.conf": {
+        "equals": "# pools.conf\n订单.pool_size = 40\n库存.pool_size = 32\n通知.pool_size = 16\n"
+      }
+    }
+  }
+}

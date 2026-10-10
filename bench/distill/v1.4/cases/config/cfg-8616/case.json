@@ -1,0 +1,50 @@
+{
+  "id": "cfg-8616",
+  "description": "Change a trial-class quota inside a nested block of an early-education centre config from a ticket. DISTILL-CANARY-4c5ad7f4",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10e-earlyclass-01",
+    "ref_calls": 4,
+    "fixture_bytes": 196,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "早教/课程.yaml": "课程:\n  音乐启蒙:\n    试听名额: 6\n    年龄段: 1-2岁\n  感统训练:\n    试听名额: 6\n    年龄段: 2-3岁\n",
+    "早教/排课单.txt": "10月起: 感统训练 试听名额 8 个；音乐启蒙维持现状。\n"
+  },
+  "turns": [
+    {
+      "prompt": "早教/排课单.txt 里提到感统训练的试听名额调整了，请把 早教/课程.yaml 同步。改完回复 DONE。",
+      "expect": {
+        "max_output_chars": 400,
+        "output_contains": [
+          "DONE"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "早教/课程.yaml": {
+        "equals": "课程:\n  音乐启蒙:\n    试听名额: 6\n    年龄段: 1-2岁\n  感统训练:\n    试听名额: 8\n    年龄段: 2-3岁\n"
+      }
+    }
+  }
+}

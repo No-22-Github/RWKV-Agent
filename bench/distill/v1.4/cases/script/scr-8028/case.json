@@ -1,0 +1,49 @@
+{
+  "id": "scr-8028",
+  "description": "Fix a catalogue pager that prints the wrong page. DISTILL-CANARY-98dc5e4c",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_output",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-scr-b10e-catalogpage-01",
+    "ref_calls": 3,
+    "fixture_bytes": 625,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "catalog.txt": "item-01 lamp\nitem-02 desk\nitem-03 chair\nitem-04 shelf\nitem-05 rug\nitem-06 clock\nitem-07 mirror\nitem-08 vase\nitem-09 frame\nitem-10 stool\nitem-11 bench\nitem-12 table\nitem-13 sofa\nitem-14 tray\nitem-15 basket\nitem-16 rack\nitem-17 hook\nitem-18 cart\nitem-19 bin\nitem-20 jar\nitem-21 mug\nitem-22 plate\nitem-23 bowl\nitem-24 fork\nitem-25 spoon\nitem-26 kettle\nitem-27 pan\nitem-28 pot\n",
+    "README.md": "catalog.txt: one item per line, pages are numbered from 1.\n",
+    "page.py": "PAGE = 2\nPAGE_SIZE = 10\n\nwith open(\"catalog.txt\", encoding=\"utf-8\") as f:\n    items = f.read().splitlines()\nstart = PAGE * PAGE_SIZE\nfor item in items[start:start + PAGE_SIZE]:\n    print(item)\n"
+  },
+  "turns": [
+    {
+      "prompt": "page.py is supposed to print page 2 of catalog.txt (10 items per page, pages start at 1), but it shows what looks like page 3. Please fix it.",
+      "expect": {
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "catalog.txt": {
+        "unchanged": true
+      },
+      "README.md": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "page.py",
+      "expected_stdout": "item-11 bench\nitem-12 table\nitem-13 sofa\nitem-14 tray\nitem-15 basket\nitem-16 rack\nitem-17 hook\nitem-18 cart\nitem-19 bin\nitem-20 jar"
+    }
+  }
+}

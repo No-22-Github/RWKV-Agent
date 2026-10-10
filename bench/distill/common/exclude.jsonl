@@ -1442,3 +1442,23 @@
 {"batch": "b10d", "case_id": "tab-8467--p1", "reason": "英文题用中文作答"}
 {"batch": "b10d", "case_id": "tab-8469--p2", "reason": "终答说「only three Ridge pickers」却只列两人"}
 {"batch": "b10d", "case_id": "tab-8503--p1", "reason": "终答编出表里没有的「乙醇 / 甲醇」分项"}
+{"batch": "b10e", "case_id": "cfg-8634--p1", "reason": "题面没要求 DONE，终答却写了 DONE"}
+{"batch": "b10e", "case_id": "cfg-8638--p2", "reason": "两次 replace_lines 后又用 write_file 整体覆盖，路径凌乱"}
+{"batch": "b10e", "case_id": "cfg-8646--p2", "reason": "DONE 写在终答开头而不是末尾"}
+{"batch": "b10e", "case_id": "cfg-8651--p1", "reason": "英文题用中文作答"}
+{"batch": "b10e", "case_id": "cfg-8655--p2", "reason": "英文题用中文作答，且把路径写成 .bssh"}
+{"batch": "b10e", "case_id": "cfg-8658--p2", "reason": "终答补充说明自相矛盾（「Restart=always 手动 stop 后也会重启，可用 systemctl stop 不受影响」）"}
+{"batch": "b10e", "case_id": "cfg-8680--p1", "reason": "英文题用法文作答"}
+{"batch": "b10e", "case_id": "cfg-8690--p1", "reason": "题面没要求 DONE，终答却写了 DONE"}
+{"batch": "b10e", "case_id": "code-8600--p1", "reason": "题面没要求 DONE，终答却写了 DONE"}
+{"batch": "b10e", "case_id": "code-8604--p1", "reason": "英文题用中文作答"}
+{"batch": "b10e", "case_id": "doc-8602--p2", "reason": "反复改了四次才改对，路径凌乱"}
+{"batch": "b10e", "case_id": "scr-8006--p2", "reason": "预测输出算错（东门站 1250+780+4000 克写成 8.03 kg）"}
+{"batch": "b10e", "case_id": "scr-8007--p1", "reason": "终答前后矛盾（「that's miles→km only roughly, actually the old value was wrong」）"}
+{"batch": "b10e", "case_id": "scr-8013--p2", "reason": "中文题用英文作答"}
+{"batch": "b10e", "case_id": "scr-8020--p1", "reason": "预测输出算错（可见数据里 zhangsan 刷卡 3 次，写成 2）"}
+{"batch": "b10e", "case_id": "scr-8021--p2", "reason": "题面没要求 DONE，终答却写了 DONE"}
+{"batch": "b10e", "case_id": "scr-8030--p1", "reason": "英文题用中文作答"}
+{"batch": "b10e", "case_id": "hyb-8601--p1", "reason": "官网公告 10 月 15 日才生效（今天 9 月 16 日），改了值又附加保留，与「改成现行价」不符"}
+{"batch": "b10e", "case_id": "hyb-8601--p2", "reason": "官网公告 10 月 15 日才生效（今天 9 月 16 日），改了值又附加保留，与「改成现行价」不符"}
+{"batch": "b10e", "case_id": "hyb-8603--p2", "reason": "拿「上海 2025」和凭空的数字 36921 去搜索"}

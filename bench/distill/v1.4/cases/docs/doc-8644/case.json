@@ -1,0 +1,52 @@
+{
+  "id": "doc-8644",
+  "description": "List permits that are expired, in file order, with a count line. DISTILL-CANARY-e494a423",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b10e-foodtruck-01",
+    "ref_calls": 3,
+    "fixture_bytes": 2038,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "permits/trucks.csv": "permit,truck,zone,renewal,state\nFT-300,Falafel Express,Stadium,2026-09-27,valid\nFT-301,Grill Parade,Park,2026-09-25,expired\nFT-302,Taco Tide,Market,2026-09-02,valid\nFT-303,Falafel Express,Stadium,2026-09-02,valid\nFT-304,Falafel Express,Park,2026-09-08,valid\nFT-305,Noodle Wagon,Pier,2026-09-09,valid\nFT-306,Taco Tide,Pier,2026-09-19,valid\nFT-307,Grill Parade,Pier,2026-09-21,valid\nFT-308,Taco Tide,Pier,2026-09-05,pending\nFT-309,Noodle Wagon,Park,2026-09-05,expired\nFT-310,Noodle Wagon,Market,2026-09-17,valid\nFT-311,Falafel Express,Pier,2026-09-27,pending\nFT-312,Noodle Wagon,Stadium,2026-09-14,valid\nFT-313,Falafel Express,Pier,2026-09-23,valid\nFT-314,Sweet Wheels,Market,2026-09-23,valid\nFT-315,Noodle Wagon,Pier,2026-09-22,valid\nFT-316,Sweet Wheels,Park,2026-09-23,valid\nFT-317,Grill Parade,Market,2026-09-01,pending\nFT-318,Noodle Wagon,Pier,2026-09-27,valid\nFT-319,Grill Parade,Park,2026-09-03,valid\nFT-320,Taco Tide,Stadium,2026-09-09,valid\nFT-321,Grill Parade,Market,2026-09-12,valid\nFT-322,Noodle Wagon,Park,2026-09-07,expired\nFT-323,Taco Tide,Market,2026-09-21,valid\nFT-324,Falafel Express,Park,2026-09-08,valid\nFT-325,Falafel Express,Market,2026-09-03,expired\nFT-326,Taco Tide,Market,2026-09-07,pending\nFT-327,Taco Tide,Market,2026-09-06,valid\nFT-328,Falafel Express,Stadium,2026-09-16,pending\nFT-329,Falafel Express,Pier,2026-09-26,expired\nFT-330,Sweet Wheels,Park,2026-09-02,valid\nFT-331,Taco Tide,Park,2026-09-13,valid\nFT-332,Sweet Wheels,Stadium,2026-09-08,valid\nFT-333,Noodle Wagon,Market,2026-09-03,valid\nFT-334,Grill Parade,Pier,2026-09-11,valid\nFT-335,Falafel Express,Market,2026-09-25,expired\nFT-336,Sweet Wheels,Pier,2026-09-10,pending\nFT-337,Sweet Wheels,Market,2026-09-14,valid\nFT-338,Taco Tide,Market,2026-09-01,pending\nFT-339,Noodle Wagon,Pier,2026-09-25,valid\nFT-340,Falafel Express,Park,2026-09-19,valid\nFT-341,Sweet Wheels,Stadium,2026-09-08,expired\nFT-342,Grill Parade,Market,2026-09-21,valid\nFT-343,Taco Tide,Stadium,2026-09-24,valid\nFT-344,Falafel Express,Market,2026-09-24,valid\n",
+    "compliance/.keep": "",
+    "README.md": "Food-truck permit register.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Create compliance/expired.md from permits/trucks.csv: first line `# Expired permits`, then a line `- <permit> <truck> <zone>` for every row whose state is `expired` (keep the file order), and a last line `Count: <N>`.",
+      "expect": {
+        "output_contains_any": [
+          "compliance/expired.md",
+          "expired.md"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "compliance/expired.md": {
+        "equals": "# Expired permits\n- FT-301 Grill Parade Park\n- FT-309 Noodle Wagon Park\n- FT-322 Noodle Wagon Park\n- FT-325 Falafel Express Market\n- FT-329 Falafel Express Pier\n- FT-335 Falafel Express Market\n- FT-341 Sweet Wheels Stadium\nCount: 7\n"
+      }
+    }
+  }
+}

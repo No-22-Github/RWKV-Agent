@@ -1,0 +1,56 @@
+{
+  "id": "scr-8007",
+  "description": "Fix a fleet mileage report that converts miles to km with a wrong factor. DISTILL-CANARY-f921746e",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_output",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-scr-b10e-fleetmiles-01",
+    "ref_calls": 3,
+    "fixture_bytes": 515,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "trips/week1.csv": "vehicle,miles\nvan-A,120\nvan-B,85\nvan-A,40\n",
+    "trips/week2.csv": "vehicle,miles\nvan-B,200\nvan-C,60\nvan-A,15\n",
+    "README.md": "Distances in the trip logs are in miles; the report must be in kilometres.\n",
+    "fleet_km.py": "import glob\n\nMILES_TO_KM = 1.06\n\ntotals = {}\nfor path in glob.glob(\"trips/*.csv\"):\n    with open(path, encoding=\"utf-8\") as f:\n        next(f)\n        for line in f:\n            van, miles = line.strip().split(\",\")\n            totals[van] = totals.get(van, 0) + int(miles)\nfor van in sorted(totals):\n    print(f\"{van} {int(totals[van] * MILES_TO_KM)} km\")\n"
+  },
+  "turns": [
+    {
+      "prompt": "Our fleet_km.py prints each vehicle's total distance in km, but the totals look too small. The trip logs are in miles. Can you fix the conversion so python3 fleet_km.py is right?",
+      "expect": {
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "trips/week1.csv": {
+        "unchanged": true
+      },
+      "trips/week2.csv": {
+        "unchanged": true
+      },
+      "README.md": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "fleet_km.py",
+      "expected_stdout": "van-A 289 km\nvan-B 458 km\nvan-C 217 km",
+      "hidden_files": {
+        "trips/week3.csv": "vehicle,miles\nvan-C,75\nvan-A,5\n"
+      }
+    }
+  }
+}

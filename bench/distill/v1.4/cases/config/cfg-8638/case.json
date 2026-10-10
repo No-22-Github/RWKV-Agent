@@ -1,0 +1,50 @@
+{
+  "id": "cfg-8638",
+  "description": "Change the feed ration of one pen from a farm ticket, indented YAML with decoy pen. DISTILL-CANARY-330cebd3",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10e-vetfarm-01",
+    "ref_calls": 4,
+    "fixture_bytes": 228,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "养殖/饲喂.yaml": "栏舍:\n  A栏:\n    日喂次数: 3\n    每次投喂kg: 12.5   # 含补料\n  B栏:\n    日喂次数: 3\n    每次投喂kg: 12.5   # 含补料\n",
+    "养殖/兽医意见.txt": "B栏近期消化不良，每次投喂量减到 11.0 kg，次数不变。A栏正常。\n"
+  },
+  "turns": [
+    {
+      "prompt": "养殖/兽医意见.txt 说了哪个栏要减料，照办改 养殖/饲喂.yaml。改完回复 DONE。",
+      "expect": {
+        "max_output_chars": 400,
+        "output_contains": [
+          "DONE"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "养殖/饲喂.yaml": {
+        "equals": "栏舍:\n  A栏:\n    日喂次数: 3\n    每次投喂kg: 12.5   # 含补料\n  B栏:\n    日喂次数: 3\n    每次投喂kg: 11.0   # 含补料\n"
+      }
+    }
+  }
+}

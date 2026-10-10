@@ -1,0 +1,53 @@
+{
+  "id": "doc-8614",
+  "description": "Change the third and fourth period rows of a class timetable; classes have mirrored subjects. DISTILL-CANARY-b642c141",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b10e-classtable-01",
+    "ref_calls": 4,
+    "fixture_bytes": 260,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "教务/周三课表.md": "# 周三课程表\n\n| 节次 | 一班 | 二班 |\n|---|---|---|\n| 第 1 节 | 语文 | 数学 |\n| 第 2 节 | 数学 | 语文 |\n| 第 3 节 | 英语 | 体育 |\n| 第 4 节 | 体育 | 英语 |\n| 第 5 节 | 美术 | 美术 |\n\n备注：美术课两个班合上。\n"
+  },
+  "turns": [
+    {
+      "prompt": "教务/周三课表.md 里第 3、4 节两个班对调一下：一班第 3 节体育、第 4 节英语，二班第 3 节英语、第 4 节体育。其他节次不动。改完回复 DONE。",
+      "expect": {
+        "max_output_chars": 400,
+        "output_contains_any": [
+          "教务/周三课表.md",
+          "周三课表.md"
+        ],
+        "output_contains": [
+          "DONE"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "教务/周三课表.md": {
+        "equals": "# 周三课程表\n\n| 节次 | 一班 | 二班 |\n|---|---|---|\n| 第 1 节 | 语文 | 数学 |\n| 第 2 节 | 数学 | 语文 |\n| 第 3 节 | 体育 | 英语 |\n| 第 4 节 | 英语 | 体育 |\n| 第 5 节 | 美术 | 美术 |\n\n备注：美术课两个班合上。\n"
+      }
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "id": "cfg-8622",
+  "description": "Raise a CI job timeout in a pipeline YAML, keep the trailing comment. DISTILL-CANARY-a9a26842",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10e-ciTimeout-01",
+    "ref_calls": 3,
+    "fixture_bytes": 173,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    ".ci/pipeline.yml": "stages:\n  build:\n    timeout_minutes: 20   # was 15 before the monorepo split\n    cache: true\n  test:\n    timeout_minutes: 30   # includes integration suite\n    cache: true\n"
+  },
+  "turns": [
+    {
+      "prompt": "Bump the build stage timeout in .ci/pipeline.yml to 25 minutes. Leave the test stage and the comments alone. Reply DONE when finished.",
+      "expect": {
+        "max_output_chars": 300,
+        "output_contains": [
+          "DONE"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      ".ci/pipeline.yml": {
+        "equals": "stages:\n  build:\n    timeout_minutes: 25   # was 15 before the monorepo split\n    cache: true\n  test:\n    timeout_minutes: 30   # includes integration suite\n    cache: true\n"
+      }
+    }
+  }
+}

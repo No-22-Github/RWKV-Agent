@@ -1,0 +1,56 @@
+{
+  "id": "scr-8009",
+  "description": "Fix a podcast listening report that converts seconds to hours with the wrong divisor. DISTILL-CANARY-1f1fec11",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_output",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-scr-b10e-podcasthours-01",
+    "ref_calls": 3,
+    "fixture_bytes": 561,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "plays/jan.csv": "show,seconds\nNight Owls,5400\nCode Hour,3000\nNight Owls,7200\n",
+    "plays/feb.csv": "show,seconds\nCode Hour,9000\nGardening Now,2700\nNight Owls,1800\n",
+    "README.md": "plays: show name and seconds listened.\n",
+    "podcast_hours.py": "import glob\n\n\ndef to_hours(seconds):\n    return seconds / 360\n\n\ntotals = {}\nfor path in sorted(glob.glob(\"plays/*.csv\")):\n    with open(path, encoding=\"utf-8\") as f:\n        next(f)\n        for line in f:\n            show, seconds = line.strip().split(\",\")\n            totals[show] = totals.get(show, 0) + int(seconds)\nfor show in sorted(totals):\n    print(f\"{show} {to_hours(totals[show]):.1f} h\")\n"
+  },
+  "turns": [
+    {
+      "prompt": "podcast_hours.py is meant to print total listening hours per show, but a show with a few episodes already says 20+ hours. The play logs are in seconds. Please fix it.",
+      "expect": {
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "plays/jan.csv": {
+        "unchanged": true
+      },
+      "plays/feb.csv": {
+        "unchanged": true
+      },
+      "README.md": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "podcast_hours.py",
+      "expected_stdout": "Code Hour 3.8 h\nGardening Now 1.0 h\nNight Owls 4.0 h",
+      "hidden_files": {
+        "plays/mar.csv": "show,seconds\nGardening Now,900\nCode Hour,1800\n"
+      }
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "id": "cfg-8620",
+  "description": "Change the roll-up opening temperature of a vegetable greenhouse, near-name key. DISTILL-CANARY-a3cca0cf",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10e-greenhouse-01",
+    "ref_calls": 3,
+    "fixture_bytes": 98,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "大棚/卷帘.toml": "[卷帘]\n开启温度 = 28      # ℃\n关闭温度 = 18      # ℃\n开启温度滞后 = 2   # ℃\n"
+  },
+  "turns": [
+    {
+      "prompt": "大棚卷帘的开启温度降到 26，改 大棚/卷帘.toml。改完回复 DONE。",
+      "expect": {
+        "max_output_chars": 300,
+        "output_contains": [
+          "DONE"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "大棚/卷帘.toml": {
+        "equals": "[卷帘]\n开启温度 = 26      # ℃\n关闭温度 = 18      # ℃\n开启温度滞后 = 2   # ℃\n"
+      }
+    }
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "id": "cfg-8604",
+  "description": "Change a nursing-home patrol interval inside an indented block with no comments, value from a ticket. DISTILL-CANARY-0711c621",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10e-nursepatrol-01",
+    "ref_calls": 4,
+    "fixture_bytes": 224,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "护理/巡房.yaml": "巡房计划:\n  白班:\n    间隔分钟: 60\n    重点楼层: [2, 3]\n  夜班:\n    间隔分钟: 45\n    重点楼层: [3]\n",
+    "护理/通知-0921.txt": "通知: 即日起夜班巡房间隔缩短为 30 分钟，白班不变。\n发布: 护理部 方淑贞\n"
+  },
+  "turns": [
+    {
+      "prompt": "照 护理/通知-0921.txt 里说的，把 护理/巡房.yaml 的夜班巡房间隔改了。改完回复 DONE。",
+      "expect": {
+        "max_output_chars": 400,
+        "output_contains": [
+          "DONE"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "护理/巡房.yaml": {
+        "equals": "巡房计划:\n  白班:\n    间隔分钟: 60\n    重点楼层: [2, 3]\n  夜班:\n    间隔分钟: 30\n    重点楼层: [3]\n"
+      }
+    }
+  }
+}

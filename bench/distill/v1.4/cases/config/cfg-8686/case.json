@@ -1,0 +1,81 @@
+{
+  "id": "cfg-8686",
+  "description": "Ticket for an elevator maintenance period with an empty new-value field. DISTILL-CANARY-097d38d2",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10e-elevator-01",
+    "ref_calls": 2,
+    "fixture_bytes": 269,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "配置/电梯维保.yaml": "电梯维保:\n  维保周期天: 15   # 特种设备法规要求\n  提前提醒天: 3\n",
+    "工单/WB-208.txt": "变更项: 电梯维保 维保周期天\n新值: （空）\n说明: 周期调整需等质监所意见\n申请: 设备科 包景行\n",
+    "README.md": "设备科配置。新值缺失的工单不得执行。\n"
+  },
+  "turns": [
+    {
+      "prompt": "按 工单/WB-208.txt 调整一下 配置/电梯维保.yaml 里的维保周期天。",
+      "expect": {
+        "output_contains_any": [
+          "（空）",
+          "没有",
+          "没写",
+          "未给",
+          "没给",
+          "缺",
+          "尚未",
+          "还没",
+          "未确定",
+          "未明确",
+          "不明确",
+          "未提供",
+          "不存在",
+          "找不到",
+          "冲突",
+          "不一致",
+          "矛盾"
+        ],
+        "forbidden_tools": [
+          "write_file",
+          "replace_lines",
+          "append_file"
+        ],
+        "required_tools": [
+          "read_file"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "配置/电梯维保.yaml": {
+        "unchanged": true
+      },
+      "工单/WB-208.txt": {
+        "unchanged": true
+      },
+      "README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

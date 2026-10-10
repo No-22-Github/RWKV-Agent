@@ -1,0 +1,79 @@
+{
+  "id": "hyb-8603",
+  "description": "Update the contribution base ceiling in an HR config from the city social security bureau's current-year notice; the same page lists the prior year, a helper site is stale. DISTILL-CANARY-9bbb3c46",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_edit",
+    "traps": [
+      "TR-DECOY",
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null,
+      "TR-WEBSTALE": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b10e-socialbase-01",
+    "ref_calls": 5,
+    "fixture_bytes": 97,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [
+    {
+      "query_match": "松江",
+      "url_match": "shbj.songjiang-gov.cn/base",
+      "url": "https://shbj.songjiang-gov.cn/base",
+      "title": "松江市社保 2026 年度缴费基数公告（官网）",
+      "snippet": "松江市社保 2026 年度缴费基数公告（官网）",
+      "content": "# 松江市 2026 年度社会保险缴费基数\n\n2026 年 7 月 1 日至 2027 年 6 月 30 日：\n- 缴费基数上限：24800 元/月\n- 缴费基数下限：4960 元/月\n\n（2025 年度：上限 23100，下限 4620）\n",
+      "published_at": "2026-07-03"
+    },
+    {
+      "query_match": "松江",
+      "url_match": "hr-helper.cn/songjiang-base",
+      "url": "https://hr-helper.cn/songjiang-base",
+      "title": "松江社保基数怎么查",
+      "snippet": "松江社保基数怎么查",
+      "content": "# 松江社保基数\n\n以 2025 年度为例，上限 23100 元，下限 4620 元。\n",
+      "published_at": "2025-08-10"
+    }
+  ],
+  "files": {
+    "配置/社保.yaml": "城市: 松江\n基数上限: 23100   # 元/月\n基数下限: 4960\n",
+    "README.md": "薪资系统的社保参数。\n"
+  },
+  "turns": [
+    {
+      "prompt": "松江市社保 2026 年度的缴费基数公布了，去官网查上限，改到 配置/社保.yaml 里，只改上限那一项。改完回复 DONE。",
+      "expect": {
+        "max_output_chars": 500,
+        "output_contains_any": [
+          "24800",
+          "24,800"
+        ],
+        "output_contains": [
+          "DONE"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "配置/社保.yaml": {
+        "equals": "城市: 松江\n基数上限: 24800   # 元/月\n基数下限: 4960\n"
+      }
+    }
+  }
+}

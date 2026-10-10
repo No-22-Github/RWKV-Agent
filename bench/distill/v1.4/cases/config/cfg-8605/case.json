@@ -1,0 +1,46 @@
+{
+  "id": "cfg-8605",
+  "description": "Lower a PV inverter polling period in an env file, keep the hint comment. DISTILL-CANARY-5ebadaa4",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10e-pvpoll-01",
+    "ref_calls": 3,
+    "fixture_bytes": 129,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "采集/inverter.env": "SITE_ID=PV-0317\nINVERTER_POLL_SEC=20     # 厂商建议不低于 10\nMETER_POLL_SEC=60\nUPLOAD_URL=http://scada.internal:7001/push\n"
+  },
+  "turns": [
+    {
+      "prompt": "光伏站这边逆变器轮询周期想调到 15 秒，在 采集/inverter.env 里改，别的变量不动。",
+      "expect": {
+        "max_output_chars": 300
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "采集/inverter.env": {
+        "equals": "SITE_ID=PV-0317\nINVERTER_POLL_SEC=15     # 厂商建议不低于 10\nMETER_POLL_SEC=60\nUPLOAD_URL=http://scada.internal:7001/push\n"
+      }
+    }
+  }
+}

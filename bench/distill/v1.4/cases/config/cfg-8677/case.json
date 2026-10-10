@@ -1,0 +1,51 @@
+{
+  "id": "cfg-8677",
+  "description": "Apply the retention days from the approved record; a rejected change request for the same setting exists. DISTILL-CANARY-38a6b12d",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10e-retention-01",
+    "ref_calls": 4,
+    "fixture_bytes": 262,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/retention.env": "LOG_RETENTION_DAYS=90\nMETRICS_RETENTION_DAYS=15\n",
+    "README.md": "Retention settings. Approved change requests win.\n",
+    "approvals/log-retention.txt": "CR-77 | log retention | 365 days | REJECTED (cost)\nCR-81 | log retention | 120 days | APPROVED 2026-09-09\nCR-82 | metrics retention | 30 days | APPROVED 2026-09-09\n"
+  },
+  "turns": [
+    {
+      "prompt": "Set LOG_RETENTION_DAYS in config/retention.env to what was approved in the approval log.",
+      "expect": {
+        "max_output_chars": 400,
+        "output_contains_any": [
+          "120"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "config/retention.env": {
+        "equals": "LOG_RETENTION_DAYS=120\nMETRICS_RETENTION_DAYS=15\n"
+      }
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "scr-8010",
+  "description": "Fix a shop revenue report whose cents-to-yuan conversion divides by 10. DISTILL-CANARY-cf0641fc",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_output",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-scr-b10e-shopfen-01",
+    "ref_calls": 3,
+    "fixture_bytes": 468,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "orders/a.csv": "shop,fen\n旗舰店,12990\n书店,3550\n旗舰店,8800\n",
+    "orders/b.csv": "shop,fen\n书店,2490\n旗舰店,1005\n",
+    "README.md": "orders 每行：店铺、订单金额（分）。\n",
+    "shop_revenue.py": "import glob\n\ntotals = {}\nfor path in glob.glob(\"orders/*.csv\"):\n    with open(path, encoding=\"utf-8\") as f:\n        next(f)\n        for line in f:\n            shop, cents = line.strip().split(\",\")\n            totals[shop] = totals.get(shop, 0) + int(cents)\nfor shop in sorted(totals):\n    print(f\"{shop} {totals[shop] / 10:.2f}\")\n"
+  },
+  "turns": [
+    {
+      "prompt": "网店的 shop_revenue.py 算各店铺营业额，订单文件里金额的单位是分，输出要的是元（保留两位）。现在店铺营业额大了十倍，帮我改对。",
+      "expect": {
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "orders/a.csv": {
+        "unchanged": true
+      },
+      "orders/b.csv": {
+        "unchanged": true
+      },
+      "README.md": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "shop_revenue.py",
+      "expected_stdout": "书店 73.50\n旗舰店 227.95",
+      "hidden_files": {
+        "orders/c.csv": "shop,fen\n书店,1310\n"
+      }
+    }
+  }
+}

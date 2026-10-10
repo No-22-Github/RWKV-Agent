@@ -1,0 +1,56 @@
+{
+  "id": "scr-8015",
+  "description": "Fix a quiz leaderboard that prints only two of the top three. DISTILL-CANARY-7f33f5bb",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_output",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-scr-b10e-quiztop3-01",
+    "ref_calls": 3,
+    "fixture_bytes": 472,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "scores/round1.csv": "name,score\n李强,91\n王芳,82\n张雨,77\n",
+    "scores/round2.csv": "name,score\n刘洋,88\n陈静,95\n",
+    "README.md": "每个选手只出现一次，分数不并列。\n",
+    "top3.py": "import glob\n\nrows = []\nfor path in glob.glob(\"scores/*.csv\"):\n    with open(path, encoding=\"utf-8\") as f:\n        next(f)\n        for line in f:\n            name, score = line.strip().split(\",\")\n            rows.append((int(score), name))\nrows.sort(reverse=True)\nfor rank, (score, name) in enumerate(rows[:2], 1):\n    print(f\"{rank}. {name} {score}\")\n"
+  },
+  "turns": [
+    {
+      "prompt": "知识竞赛的 top3.py 应该打印得分最高的前三名，可现在只出来两个人。帮我改一下，python3 top3.py 要列出前三名。",
+      "expect": {
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "scores/round1.csv": {
+        "unchanged": true
+      },
+      "scores/round2.csv": {
+        "unchanged": true
+      },
+      "README.md": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "top3.py",
+      "expected_stdout": "1. 陈静 95\n2. 赵磊 93\n3. 李强 91",
+      "hidden_files": {
+        "scores/round3.csv": "name,score\n赵磊,93\n"
+      }
+    }
+  }
+}

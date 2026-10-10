@@ -1,0 +1,50 @@
+{
+  "id": "cfg-8632",
+  "description": "Change telemetry sampling ratio in YAML, ticket gives the value. DISTILL-CANARY-7d15b263",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10e-otelsample-01",
+    "ref_calls": 4,
+    "fixture_bytes": 223,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "otel/collector.yaml": "processors:\n  probabilistic_sampler:\n    sampling_percentage: 15   # prod default\n  batch:\n    timeout: 5s\n    send_batch_size: 8192\n",
+    "otel/ask.txt": "Hi - traces bill is too high. Please sample at 5 percent starting this week. Thanks, Dana\n"
+  },
+  "turns": [
+    {
+      "prompt": "Set the sampler to the percentage in otel/ask.txt (otel/collector.yaml). Reply DONE.",
+      "expect": {
+        "max_output_chars": 400,
+        "output_contains": [
+          "DONE"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "otel/collector.yaml": {
+        "equals": "processors:\n  probabilistic_sampler:\n    sampling_percentage: 5   # prod default\n  batch:\n    timeout: 5s\n    send_batch_size: 8192\n"
+      }
+    }
+  }
+}

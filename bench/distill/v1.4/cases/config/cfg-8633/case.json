@@ -1,0 +1,49 @@
+{
+  "id": "cfg-8633",
+  "description": "Change the hive-scale reporting period in a beekeeping station config, keep aligned comments. DISTILL-CANARY-aea4d4a8",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10e-beekeep-01",
+    "ref_calls": 3,
+    "fixture_bytes": 122,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "蜂场/称重.yaml": "蜂箱称重:\n  上报周期分钟: 30    # 流蜜期可缩短\n  重量突降告警kg: 2   # 疑似分蜂\n  蜂箱数: 24\n"
+  },
+  "turns": [
+    {
+      "prompt": "洋槐花期开始了，蜂箱称重的上报周期分钟改成 10，文件 蜂场/称重.yaml，别的行都别碰。改完回复 DONE。",
+      "expect": {
+        "max_output_chars": 300,
+        "output_contains": [
+          "DONE"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "蜂场/称重.yaml": {
+        "equals": "蜂箱称重:\n  上报周期分钟: 10    # 流蜜期可缩短\n  重量突降告警kg: 2   # 疑似分蜂\n  蜂箱数: 24\n"
+      }
+    }
+  }
+}

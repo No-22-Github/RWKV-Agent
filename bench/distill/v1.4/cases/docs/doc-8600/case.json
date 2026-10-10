@@ -1,0 +1,53 @@
+{
+  "id": "doc-8600",
+  "description": "Replace the two A3 rows of a price table; A4 rows have similar names. DISTILL-CANARY-f7be958b",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b10e-priceprint-01",
+    "ref_calls": 4,
+    "fixture_bytes": 218,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "docs/打印价目.md": "# 打印服务价目\n\n| 项目 | 单价（元/张） | 起印量 |\n|---|---|---|\n| A4 黑白 | 0.30 | 10 |\n| A4 彩色 | 1.50 | 10 |\n| A3 黑白 | 0.80 | 5 |\n| A3 彩色 | 3.00 | 5 |\n\n价格含纸张，不含装订。\n"
+  },
+  "turns": [
+    {
+      "prompt": "docs/打印价目.md 里 A3 涨价了：黑白 0.90，彩色 3.50，起印量不变。A4 不动。改完回复 DONE。",
+      "expect": {
+        "max_output_chars": 400,
+        "output_contains_any": [
+          "docs/打印价目.md",
+          "打印价目.md"
+        ],
+        "output_contains": [
+          "DONE"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "docs/打印价目.md": {
+        "equals": "# 打印服务价目\n\n| 项目 | 单价（元/张） | 起印量 |\n|---|---|---|\n| A4 黑白 | 0.30 | 10 |\n| A4 彩色 | 1.50 | 10 |\n| A3 黑白 | 0.90 | 5 |\n| A3 彩色 | 3.50 | 5 |\n\n价格含纸张，不含装订。\n"
+      }
+    }
+  }
+}

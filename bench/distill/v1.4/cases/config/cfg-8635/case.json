@@ -1,0 +1,50 @@
+{
+  "id": "cfg-8635",
+  "description": "Change a roast drop temperature from an operator note in a coffee roastery YAML. DISTILL-CANARY-0b060140",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10e-coffeeroast-01",
+    "ref_calls": 4,
+    "fixture_bytes": 208,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "烘豆/曲线.yaml": "批次: 埃塞-水洗\n下豆温度: 208      # ℃，浅烘\n回温点秒: 70\n发展时间占比: 0.18  # 目标 15%-20%\n",
+    "烘豆/备忘.txt": "埃塞这批试烘后感觉偏生，下豆温度提到 210 ℃。\n回温点先不动。\n"
+  },
+  "turns": [
+    {
+      "prompt": "烘豆师在 烘豆/备忘.txt 里写了这批的新下豆温度，照着改 烘豆/曲线.yaml。改完回复 DONE。",
+      "expect": {
+        "max_output_chars": 400,
+        "output_contains": [
+          "DONE"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "烘豆/曲线.yaml": {
+        "equals": "批次: 埃塞-水洗\n下豆温度: 210      # ℃，浅烘\n回温点秒: 70\n发展时间占比: 0.18  # 目标 15%-20%\n"
+      }
+    }
+  }
+}

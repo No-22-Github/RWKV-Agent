@@ -1,0 +1,81 @@
+{
+  "id": "hyb-8607",
+  "description": "Point a tool-versions file at the Ember runtime line marked Active LTS on the project's release schedule; a Current line and a Maintenance line are decoys. DISTILL-CANARY-4ab936e9",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_edit",
+    "traps": [
+      "TR-DECOY",
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null,
+      "TR-WEBSTALE": null
+    },
+    "axes": [
+      "OBS",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b10e-emberlts-01",
+    "ref_calls": 5,
+    "fixture_bytes": 60,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Ember runtime",
+      "url_match": "ember-runtime.dev/releases",
+      "url": "https://ember-runtime.dev/releases",
+      "title": "Ember runtime release schedule (official)",
+      "snippet": "Ember runtime release schedule (official)",
+      "content": "# Ember runtime releases\n\n| Version | Status | End of support |\n|---|---|---|\n| 24 | Active LTS | 2028-04-30 |\n| 22 | Maintenance LTS | 2026-12-31 |\n| 25 | Current (not LTS) | 2027-03-31 |\n",
+      "published_at": "2026-10-05"
+    },
+    {
+      "query_match": "Ember runtime",
+      "url_match": "blog.deploy-notes.io/ember-22-lts",
+      "url": "https://blog.deploy-notes.io/ember-22-lts",
+      "title": "Ember runtime 22 is the LTS to use",
+      "snippet": "Ember runtime 22 is the LTS to use",
+      "content": "# Ember 22 LTS\n\nEmber runtime 22 is the long-term support line. Use it.\n",
+      "published_at": "2024-11-02"
+    }
+  ],
+  "files": {
+    ".tool-versions": "nodejs 20.11.1\nember 22\npython 3.12.4\n",
+    "README.md": "Dev environment pins.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Our .tool-versions still has the old Ember runtime major. Switch it to whichever version the Ember runtime release schedule currently lists as Active LTS, then reply DONE.",
+      "expect": {
+        "max_output_chars": 500,
+        "output_contains_any": [
+          "ember 24",
+          "version 24",
+          "to 24",
+          "Ember 24"
+        ],
+        "output_contains": [
+          "DONE"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      ".tool-versions": {
+        "equals": "nodejs 20.11.1\nember 24\npython 3.12.4\n"
+      }
+    }
+  }
+}

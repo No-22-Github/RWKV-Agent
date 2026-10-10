@@ -1,0 +1,56 @@
+{
+  "id": "scr-8018",
+  "description": "Fix a stock merger that fails on JSON files saved with a BOM. DISTILL-CANARY-ee412aa8",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_output",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-scr-b10e-stockjson-01",
+    "ref_calls": 3,
+    "fixture_bytes": 479,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "stores/a.json": "{\"门店\": \"A\", \"库存\": {\"毛巾\": 30, \"牙刷\": 120}}\n",
+    "stores/b.json": "﻿{\"门店\": \"B\", \"库存\": {\"毛巾\": 12, \"拖鞋\": 45}}\n",
+    "README.md": "每个门店一个 json，库存是 品名 -> 数量。\n",
+    "stock_merge.py": "import glob\nimport json\n\nmerged = {}\nfor path in glob.glob(\"stores/*.json\"):\n    with open(path, encoding=\"utf-8\") as f:\n        data = json.load(f)\n    for item, qty in data[\"库存\"].items():\n        merged[item] = merged.get(item, 0) + qty\nfor item in sorted(merged):\n    print(f\"{item} {merged[item]}\")\n"
+  },
+  "turns": [
+    {
+      "prompt": "仓库的 stock_merge.py 把各门店 json 里的库存按品名合并。其中一家门店用记事本改过文件，现在一跑就报 JSON 解析错误。帮我修好，python3 stock_merge.py 要能合并所有门店。",
+      "expect": {
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "stores/a.json": {
+        "unchanged": true
+      },
+      "stores/b.json": {
+        "unchanged": true
+      },
+      "README.md": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "stock_merge.py",
+      "expected_stdout": "拖鞋 50\n毛巾 42\n牙刷 130",
+      "hidden_files": {
+        "stores/c.json": "﻿{\"门店\": \"C\", \"库存\": {\"拖鞋\": 5, \"牙刷\": 10}}\n"
+      }
+    }
+  }
+}

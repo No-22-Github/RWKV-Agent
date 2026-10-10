@@ -1,0 +1,51 @@
+{
+  "id": "code-8606",
+  "description": "Set a Maven property to the version recorded in the BOM report; two artifacts share the version-property naming scheme. DISTILL-CANARY-a9d4576d",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "fix_edge_case",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-code-b10e-mavenbom-01",
+    "ref_calls": 4,
+    "fixture_bytes": 207,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "pom.xml": "<properties>\n  <logback.version>1.4.14</logback.version>\n  <slf4j.version>2.0.13</slf4j.version>\n</properties>\n",
+    "README.md": "Maven build.\n",
+    "reports/bom.txt": "jackson-databind 2.17.2\njackson-core 2.17.2\nlogback-classic 1.5.7\nslf4j-api 2.0.13\n"
+  },
+  "turns": [
+    {
+      "prompt": "Our BOM report in reports/bom.txt shows what we actually resolve. Fix logback.version in pom.xml to match, and reply DONE.",
+      "expect": {
+        "max_output_chars": 400,
+        "output_contains": [
+          "DONE"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "pom.xml": {
+        "equals": "<properties>\n  <logback.version>1.5.7</logback.version>\n  <slf4j.version>2.0.13</slf4j.version>\n</properties>\n"
+      }
+    }
+  }
+}

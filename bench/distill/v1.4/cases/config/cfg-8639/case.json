@@ -1,0 +1,46 @@
+{
+  "id": "cfg-8639",
+  "description": "Change the lock-out duration of a smart locker bank, TOML table with similar key names. DISTILL-CANARY-62611f39",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10e-cranelock-01",
+    "ref_calls": 3,
+    "fixture_bytes": 134,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "快递柜/格口.toml": "[格口]\n锁定分钟 = 15       # 连续输错密码后\n锁定分钟上限 = 60   # 多次锁定累加封顶\n超时未取小时 = 48\n"
+  },
+  "turns": [
+    {
+      "prompt": "智能柜输错密码后的锁定分钟改成 10，在 快递柜/格口.toml，其他键保持。",
+      "expect": {
+        "max_output_chars": 300
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "快递柜/格口.toml": {
+        "equals": "[格口]\n锁定分钟 = 10       # 连续输错密码后\n锁定分钟上限 = 60   # 多次锁定累加封顶\n超时未取小时 = 48\n"
+      }
+    }
+  }
+}

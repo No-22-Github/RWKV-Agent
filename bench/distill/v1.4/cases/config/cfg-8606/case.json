@@ -1,0 +1,49 @@
+{
+  "id": "cfg-8606",
+  "description": "Change a quoted departure time in a school-bus route file, keep the quotes and note. DISTILL-CANARY-ac9db41b",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10e-busdepart-01",
+    "ref_calls": 3,
+    "fixture_bytes": 88,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "校车/路线三.yaml": "路线: 三号线\n发车时间: \"06:50\"   # 冬令时\n末站: 实验小学\n站点数: 9\n"
+  },
+  "turns": [
+    {
+      "prompt": "三号线校车发车时间改为 07:05，文件是 校车/路线三.yaml，引号和后面的注释保留。改完回复 DONE。",
+      "expect": {
+        "max_output_chars": 300,
+        "output_contains": [
+          "DONE"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "校车/路线三.yaml": {
+        "equals": "路线: 三号线\n发车时间: \"07:05\"   # 冬令时\n末站: 实验小学\n站点数: 9\n"
+      }
+    }
+  }
+}

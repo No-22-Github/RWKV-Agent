@@ -1,0 +1,50 @@
+{
+  "id": "cfg-8649",
+  "description": "Change the irrigation start moisture from a technician note, YAML aligned comments with decoy. DISTILL-CANARY-98dd4fbc",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10e-ricefarm-01",
+    "ref_calls": 4,
+    "fixture_bytes": 203,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "农场/灌溉.yaml": "灌溉:\n  启动土壤湿度: 35    # %，低于即灌\n  停止土壤湿度: 60    # %\n  单次最长分钟: 90\n",
+    "农场/技术员留言.txt": "秧苗期启动土壤湿度提到 40%，停止湿度 65% 只是我的想法，先别改。\n"
+  },
+  "turns": [
+    {
+      "prompt": "农场/技术员留言.txt 说灌溉要早点启动，照留言改 农场/灌溉.yaml。改完回复 DONE。",
+      "expect": {
+        "max_output_chars": 400,
+        "output_contains": [
+          "DONE"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "农场/灌溉.yaml": {
+        "equals": "灌溉:\n  启动土壤湿度: 40    # %，低于即灌\n  停止土壤湿度: 60    # %\n  单次最长分钟: 90\n"
+      }
+    }
+  }
+}

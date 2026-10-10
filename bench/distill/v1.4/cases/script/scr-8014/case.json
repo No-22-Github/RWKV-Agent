@@ -1,0 +1,73 @@
+{
+  "id": "scr-8014",
+  "description": "Fix a warehouse stock total whose loop stops one shelf early. DISTILL-CANARY-ea6aadf3",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_output",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-scr-b10e-shelfcount-01",
+    "ref_calls": 3,
+    "fixture_bytes": 210,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "stock/shelf-1.txt": "40\n",
+    "stock/shelf-2.txt": "25\n",
+    "stock/shelf-3.txt": "60\n",
+    "stock/shelf-4.txt": "18\n",
+    "stock/shelf-5.txt": "33\n",
+    "stock/shelf-6.txt": "71\n",
+    "stock/shelf-7.txt": "12\n",
+    "stock/shelf-8.txt": "54\n",
+    "shelf_total.py": "SHELVES = 8\n\ntotal = 0\nfor number in range(1, SHELVES):\n    with open(f\"stock/shelf-{number}.txt\", encoding=\"utf-8\") as f:\n        total += int(f.read().strip())\nprint(f\"total {total}\")\n"
+  },
+  "turns": [
+    {
+      "prompt": "The warehouse has shelves 1 to 8, each with a count file in stock/. shelf_total.py is supposed to add them all up, but the total is missing the last shelf. Please fix it.",
+      "expect": {
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "stock/shelf-1.txt": {
+        "unchanged": true
+      },
+      "stock/shelf-2.txt": {
+        "unchanged": true
+      },
+      "stock/shelf-3.txt": {
+        "unchanged": true
+      },
+      "stock/shelf-4.txt": {
+        "unchanged": true
+      },
+      "stock/shelf-5.txt": {
+        "unchanged": true
+      },
+      "stock/shelf-6.txt": {
+        "unchanged": true
+      },
+      "stock/shelf-7.txt": {
+        "unchanged": true
+      },
+      "stock/shelf-8.txt": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "shelf_total.py",
+      "expected_stdout": "total 313"
+    }
+  }
+}

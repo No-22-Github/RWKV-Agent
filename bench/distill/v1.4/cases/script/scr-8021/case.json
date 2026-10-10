@@ -1,0 +1,56 @@
+{
+  "id": "scr-8021",
+  "description": "Fix a largest-invoices list that sorts amounts as text. DISTILL-CANARY-6d60c33d",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_output",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-scr-b10e-bigbills-01",
+    "ref_calls": 3,
+    "fixture_bytes": 491,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "invoices/q1.csv": "number,amount\nINV-102,12000\nINV-101,900\nINV-103,450\nINV-104,7800\n",
+    "invoices/q2.csv": "number,amount\nINV-201,3100\nINV-202,95000\nINV-203,640\n",
+    "README.md": "Amounts are whole euros.\n",
+    "top_invoices.py": "import glob\n\nrows = []\nfor path in glob.glob(\"invoices/*.csv\"):\n    with open(path, encoding=\"utf-8\") as f:\n        next(f)\n        for line in f:\n            number, amount = line.strip().split(\",\")\n            rows.append((number, amount))\nrows.sort(key=lambda row: row[1], reverse=True)\nfor number, amount in rows[:5]:\n    print(number, amount)\n"
+  },
+  "turns": [
+    {
+      "prompt": "top_invoices.py is supposed to list the five largest invoices, but the order is clearly off (a 900 is shown above a 12000). Please fix the sorting so python3 top_invoices.py is right.",
+      "expect": {
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "invoices/q1.csv": {
+        "unchanged": true
+      },
+      "invoices/q2.csv": {
+        "unchanged": true
+      },
+      "README.md": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "top_invoices.py",
+      "expected_stdout": "INV-202 95000\nINV-301 25000\nINV-102 12000\nINV-104 7800\nINV-201 3100",
+      "hidden_files": {
+        "invoices/q3.csv": "number,amount\nINV-301,25000\nINV-302,80\n"
+      }
+    }
+  }
+}

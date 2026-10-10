@@ -1,0 +1,50 @@
+{
+  "id": "cfg-8608",
+  "description": "Shorten a pickup-code validity in a kindergarten INI from a ticket table. DISTILL-CANARY-e19e147c",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10e-kinderpass-01",
+    "ref_calls": 4,
+    "fixture_bytes": 186,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "园务/接送.ini": "[接送码]\n有效分钟 = 30     ; 过期需重新生成\n长度 = 6\n允许代接 = 是\n",
+    "园务/工单-117.md": "# 工单 117\n\n| 项 | 新值 |\n|---|---|\n| 接送码有效分钟 | 20 |\n\n批准: 园长 梁雅琴\n"
+  },
+  "turns": [
+    {
+      "prompt": "园务/工单-117.md 里批的接送码有效期，请落到 园务/接送.ini，改完回复 DONE。",
+      "expect": {
+        "max_output_chars": 400,
+        "output_contains": [
+          "DONE"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "园务/接送.ini": {
+        "equals": "[接送码]\n有效分钟 = 20     ; 过期需重新生成\n长度 = 6\n允许代接 = 是\n"
+      }
+    }
+  }
+}

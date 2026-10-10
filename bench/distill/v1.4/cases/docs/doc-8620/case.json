@@ -1,0 +1,52 @@
+{
+  "id": "doc-8620",
+  "description": "Report the best and worst daily output days of a solar plant in two fixed lines. DISTILL-CANARY-1cd5cd89",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b10e-solar-01",
+    "ref_calls": 3,
+    "fixture_bytes": 941,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "电站/日发电量.csv": "记录,日期,方阵,发电量千瓦时,天气\nFD9000,2026-09-25,A 区,3599,晴\nFD9001,2026-09-23,A 区,3935,阴\nFD9002,2026-09-25,B 区,1844,小雨\nFD9003,2026-09-25,B 区,2095,小雨\nFD9004,2026-09-07,A 区,4149,小雨\nFD9005,2026-09-11,B 区,888,晴\nFD9006,2026-09-13,A 区,4292,晴\nFD9007,2026-09-24,B 区,2514,小雨\nFD9008,2026-09-22,A 区,1786,小雨\nFD9009,2026-09-28,B 区,1034,小雨\nFD9010,2026-09-25,B 区,2906,晴\nFD9011,2026-09-26,B 区,2134,小雨\nFD9012,2026-09-15,B 区,4065,小雨\nFD9013,2026-09-29,B 区,2291,晴\nFD9014,2026-09-29,A 区,2822,晴\nFD9015,2026-09-12,A 区,2777,阴\nFD9016,2026-09-11,B 区,2092,阴\nFD9017,2026-09-17,B 区,3237,阴\nFD9018,2026-09-09,A 区,2976,晴\nFD9019,2026-09-09,B 区,2054,晴\nFD9020,2026-09-29,A 区,3295,多云\nFD9021,2026-09-03,A 区,1125,小雨\nFD9022,2026-09-17,A 区,4407,多云\nFD9023,2026-09-08,A 区,2855,阴\nFD9024,2026-09-11,A 区,1338,小雨\n",
+    "报告/.keep": "",
+    "README.md": "光伏电站日发电量记录。\n"
+  },
+  "turns": [
+    {
+      "prompt": "从 电站/日发电量.csv 里找出发电量最高和最低的那一条记录，新建 报告/发电量极值.md：第一行 `# 发电量极值`，第二行 `最高: 日期 方阵 数值 千瓦时`，第三行 `最低: 日期 方阵 数值 千瓦时`。",
+      "expect": {
+        "output_contains_any": [
+          "报告/发电量极值.md",
+          "发电量极值.md"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "报告/发电量极值.md": {
+        "equals": "# 发电量极值\n最高: 2026-09-17 A 区 4407 千瓦时\n最低: 2026-09-11 B 区 888 千瓦时\n"
+      }
+    }
+  }
+}

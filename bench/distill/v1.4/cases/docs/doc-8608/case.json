@@ -1,0 +1,50 @@
+{
+  "id": "doc-8608",
+  "description": "Swap in a new person on two adjacent duty rows; names repeat on all rows. DISTILL-CANARY-ed6ba7bd",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b10e-dutyroster-01",
+    "ref_calls": 4,
+    "fixture_bytes": 233,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "值班/国庆.md": "# 国庆值班表\n\n| 日期 | 白班 | 夜班 |\n|---|---|---|\n| 10-01 | 孟思远 | 柴雪晴 |\n| 10-02 | 柴雪晴 | 孟思远 |\n| 10-03 | 孟思远 | 柴雪晴 |\n| 10-04 | 柴雪晴 | 孟思远 |\n\n注：值班补贴按天结算。\n"
+  },
+  "turns": [
+    {
+      "prompt": "值班/国庆.md：孟思远 10 月 2 日夜班和 10 月 3 日白班有事，这两个班换成容嘉树，别的班次不动。",
+      "expect": {
+        "max_output_chars": 400,
+        "output_contains_any": [
+          "值班/国庆.md",
+          "国庆.md"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "值班/国庆.md": {
+        "equals": "# 国庆值班表\n\n| 日期 | 白班 | 夜班 |\n|---|---|---|\n| 10-01 | 孟思远 | 柴雪晴 |\n| 10-02 | 柴雪晴 | 容嘉树 |\n| 10-03 | 容嘉树 | 柴雪晴 |\n| 10-04 | 柴雪晴 | 孟思远 |\n\n注：值班补贴按天结算。\n"
+      }
+    }
+  }
+}

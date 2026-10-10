@@ -1,0 +1,46 @@
+{
+  "id": "cfg-8615",
+  "description": "Change a self-pickup retention period of a community group-buy point in INI. DISTILL-CANARY-906c5e3b",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10e-grouppick-01",
+    "ref_calls": 3,
+    "fixture_bytes": 186,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "团购/自提点.ini": "[自提点-柳岸花园]\n保留天数 = 2     ; 超期退回团长\n开放时段 = 17:00-21:00\n\n[自提点-紫荆苑]\n保留天数 = 2     ; 超期退回团长\n开放时段 = 16:30-20:30\n"
+  },
+  "turns": [
+    {
+      "prompt": "紫荆苑自提点的货放得久一点，保留天数改成 3，改 团购/自提点.ini，柳岸花园不动。",
+      "expect": {
+        "max_output_chars": 300
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "团购/自提点.ini": {
+        "equals": "[自提点-柳岸花园]\n保留天数 = 2     ; 超期退回团长\n开放时段 = 17:00-21:00\n\n[自提点-紫荆苑]\n保留天数 = 3     ; 超期退回团长\n开放时段 = 16:30-20:30\n"
+      }
+    }
+  }
+}

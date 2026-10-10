@@ -1,0 +1,46 @@
+{
+  "id": "cfg-8629",
+  "description": "Change the DB pool size in an env file, keep the comment. DISTILL-CANARY-c40dab85",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10e-dbpool-01",
+    "ref_calls": 3,
+    "fixture_bytes": 120,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "services/orders/.env.prod": "DB_HOST=pg-orders.internal\nDB_POOL_SIZE=20      # per instance; max_connections is 400\nDB_POOL_TIMEOUT=5\nLOG_LEVEL=info\n"
+  },
+  "turns": [
+    {
+      "prompt": "Set DB_POOL_SIZE to 30 in services/orders/.env.prod and leave the rest as is.",
+      "expect": {
+        "max_output_chars": 300
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "services/orders/.env.prod": {
+        "equals": "DB_HOST=pg-orders.internal\nDB_POOL_SIZE=30      # per instance; max_connections is 400\nDB_POOL_TIMEOUT=5\nLOG_LEVEL=info\n"
+      }
+    }
+  }
+}

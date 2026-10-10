@@ -1,0 +1,64 @@
+{
+  "id": "scr-8005",
+  "description": "Fix a translation word-count rollup that reads only one folder depth. DISTILL-CANARY-9fc036ec",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_output",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-scr-b10e-translatejobs-01",
+    "ref_calls": 3,
+    "fixture_bytes": 558,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "jobs/de/words.csv": "job,words\nJ-101,1200\nJ-102,800\n",
+    "jobs/de/2026-09/words.csv": "job,words\nJ-140,950\n",
+    "jobs/fr/2026-08/words.csv": "job,words\nJ-120,2000\n",
+    "jobs/fr/2026-09/words.csv": "job,words\nJ-150,400\nJ-151,650\n",
+    "README.md": "Each language has jobs/<lang>/; older batches sit in dated subfolders. Each folder holds a words.csv.\n",
+    "wordcount_rollup.py": "import glob\n\ntotals = {}\nfor path in sorted(glob.glob(\"jobs/*/words.csv\")):\n    lang = path.split(\"/\")[1]\n    with open(path, encoding=\"utf-8\") as f:\n        for line in f.read().splitlines()[1:]:\n            words = int(line.split(\",\")[1])\n            totals[lang] = totals.get(lang, 0) + words\nfor lang in sorted(totals):\n    print(lang, totals[lang])\n"
+  },
+  "turns": [
+    {
+      "prompt": "wordcount_rollup.py is supposed to total the words per target language from jobs/<lang>/ ..., but the totals only include the files at the top of each language folder. Some jobs are in dated subfolders. Fix it please.",
+      "expect": {
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "jobs/de/words.csv": {
+        "unchanged": true
+      },
+      "jobs/de/2026-09/words.csv": {
+        "unchanged": true
+      },
+      "jobs/fr/2026-08/words.csv": {
+        "unchanged": true
+      },
+      "jobs/fr/2026-09/words.csv": {
+        "unchanged": true
+      },
+      "README.md": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "wordcount_rollup.py",
+      "expected_stdout": "de 3050\nfr 3050",
+      "hidden_files": {
+        "jobs/de/2026-10/words.csv": "job,words\nJ-160,100\n"
+      }
+    }
+  }
+}

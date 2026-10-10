@@ -1,0 +1,51 @@
+{
+  "id": "cfg-8679",
+  "description": "Move a port to the VLAN named in the change ticket; the ticket also contains the old VLAN and a different port. DISTILL-CANARY-043abee3",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10e-vlanchange-01",
+    "ref_calls": 4,
+    "fixture_bytes": 335,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "switch/access-ports.cfg": "interface Gi1/0/14\n description AP-lobby\n switchport access vlan 20\ninterface Gi1/0/15\n description printer\n switchport access vlan 20\n",
+    "README.md": "Access switch config for the ground floor.\n",
+    "tickets/CHG-4410.txt": "Change: move port Gi1/0/14 from VLAN 20 to VLAN 130 (guest wifi AP).\nSeparate request: port Gi1/0/15 stays on VLAN 20.\nApproved by: network lead, 2026-09-11\n"
+  },
+  "turns": [
+    {
+      "prompt": "Apply ticket tickets/CHG-4410.txt to switch/access-ports.cfg.",
+      "expect": {
+        "max_output_chars": 400,
+        "output_contains_any": [
+          "130"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "switch/access-ports.cfg": {
+        "equals": "interface Gi1/0/14\n description AP-lobby\n switchport access vlan 130\ninterface Gi1/0/15\n description printer\n switchport access vlan 20\n"
+      }
+    }
+  }
+}

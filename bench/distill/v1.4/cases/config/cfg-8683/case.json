@@ -1,0 +1,51 @@
+{
+  "id": "cfg-8683",
+  "description": "Change a worker count according to the runbook section that applies from a date; the outgoing section has another number. DISTILL-CANARY-717e4d1e",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10e-workers-01",
+    "ref_calls": 4,
+    "fixture_bytes": 200,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/prod.env": "APP_ENV=production\nWORKERS=12\nQUEUE=default\n",
+    "README.md": "Production env file.\n",
+    "runbook/workers.md": "# Worker sizing\n\n## staging\nworkers: 4\n\n## production (effective 2026-10-01)\nworkers: 16\n\n## production (until 2026-09-30)\nworkers: 12\n"
+  },
+  "turns": [
+    {
+      "prompt": "config/prod.env is set up for last month's worker sizing. Update WORKERS to the figure that applies from 1 October per the runbook, then say DONE.",
+      "expect": {
+        "max_output_chars": 400,
+        "output_contains": [
+          "DONE"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "config/prod.env": {
+        "equals": "APP_ENV=production\nWORKERS=16\nQUEUE=default\n"
+      }
+    }
+  }
+}

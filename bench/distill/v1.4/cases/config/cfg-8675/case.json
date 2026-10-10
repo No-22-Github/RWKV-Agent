@@ -1,0 +1,51 @@
+{
+  "id": "cfg-8675",
+  "description": "Pin a requirement to the version in poetry.lock; a package with a near-identical name sits just above. DISTILL-CANARY-2dfea69a",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10e-pylock-01",
+    "ref_calls": 4,
+    "fixture_bytes": 269,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "requirements.txt": "flask==3.0.3\nrequests==2.31.0\nurllib3==2.2.2\n",
+    "README.md": "Deploy installs from requirements.txt; poetry.lock is authoritative.\n",
+    "poetry.lock": "[[package]]\nname = \"requests-oauthlib\"\nversion = \"2.0.0\"\n\n[[package]]\nname = \"requests\"\nversion = \"2.32.3\"\n\n[[package]]\nname = \"urllib3\"\nversion = \"2.2.2\"\n"
+  },
+  "turns": [
+    {
+      "prompt": "requests in requirements.txt is behind poetry.lock. Bump the pin to the locked version",
+      "expect": {
+        "max_output_chars": 400,
+        "output_contains_any": [
+          "2.32.3"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "requirements.txt": {
+        "equals": "flask==3.0.3\nrequests==2.32.3\nurllib3==2.2.2\n"
+      }
+    }
+  }
+}

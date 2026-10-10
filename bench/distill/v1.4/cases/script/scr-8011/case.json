@@ -1,0 +1,56 @@
+{
+  "id": "scr-8011",
+  "description": "Fix a VIP list that excludes members sitting exactly at the point threshold. DISTILL-CANARY-d77732ff",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_output",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-scr-b10e-vipcutoff-01",
+    "ref_calls": 3,
+    "fixture_bytes": 452,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "members/east.csv": "name,points\n林夏,100\n周明,87\n赵晴,152\n",
+    "members/west.csv": "name,points\n吴桐,99\n郑远,100\n孙悦,240\n",
+    "README.md": "积分达到 100 分即为 VIP。\n",
+    "vip_list.py": "import glob\n\nTHRESHOLD = 100\n\nvips = []\nfor path in glob.glob(\"members/*.csv\"):\n    with open(path, encoding=\"utf-8\") as f:\n        next(f)\n        for line in f:\n            name, points = line.strip().split(\",\")\n            if int(points) > THRESHOLD:\n                vips.append(name)\nfor name in sorted(vips):\n    print(name)\n"
+  },
+  "turns": [
+    {
+      "prompt": "咖啡店的 vip_list.py 要列出积分达到 100 分的会员（100 分当天就算），但刚好 100 分的人没出现。修一下，python3 vip_list.py 要把所有够格的人都列出来。",
+      "expect": {
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "members/east.csv": {
+        "unchanged": true
+      },
+      "members/west.csv": {
+        "unchanged": true
+      },
+      "README.md": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "vip_list.py",
+      "expected_stdout": "孙悦\n林夏\n赵晴\n郑远\n陈默",
+      "hidden_files": {
+        "members/south.csv": "name,points\n陈默,100\n"
+      }
+    }
+  }
+}

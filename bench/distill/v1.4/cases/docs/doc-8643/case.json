@@ -1,0 +1,52 @@
+{
+  "id": "doc-8643",
+  "description": "Count temperature excursions per clinic fridge into a new report. DISTILL-CANARY-b106fe39",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b10e-vaccinefridge-01",
+    "ref_calls": 3,
+    "fixture_bytes": 3968,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "clinic/fridge-log.csv": "entry,date,fridge,reading,nurse\nTL1200,2026-09-09,Fridge D,in range,R. Okafor\nTL1201,2026-09-06,Fridge D,in range,M. Lindqvist\nTL1202,2026-09-22,Fridge C,excursion,M. Lindqvist\nTL1203,2026-09-15,Fridge C,in range,M. Lindqvist\nTL1204,2026-09-18,Fridge A,in range,T. Baptiste\nTL1205,2026-09-04,Fridge D,sensor fault,T. Baptiste\nTL1206,2026-09-09,Fridge D,excursion,T. Baptiste\nTL1207,2026-09-08,Fridge C,in range,T. Baptiste\nTL1208,2026-09-11,Fridge A,in range,M. Lindqvist\nTL1209,2026-09-13,Fridge C,excursion,M. Lindqvist\nTL1210,2026-09-23,Fridge A,in range,M. Lindqvist\nTL1211,2026-09-03,Fridge D,in range,T. Baptiste\nTL1212,2026-09-04,Fridge C,sensor fault,R. Okafor\nTL1213,2026-09-23,Fridge A,in range,R. Okafor\nTL1214,2026-09-19,Fridge A,in range,T. Baptiste\nTL1215,2026-09-21,Fridge D,sensor fault,T. Baptiste\nTL1216,2026-09-13,Fridge A,in range,R. Okafor\nTL1217,2026-09-10,Fridge A,in range,R. Okafor\nTL1218,2026-09-10,Fridge D,in range,R. Okafor\nTL1219,2026-09-10,Fridge B,sensor fault,T. Baptiste\nTL1220,2026-09-02,Fridge A,sensor fault,T. Baptiste\nTL1221,2026-09-24,Fridge B,in range,R. Okafor\nTL1222,2026-09-09,Fridge D,in range,M. Lindqvist\nTL1223,2026-09-23,Fridge A,in range,R. Okafor\nTL1224,2026-09-16,Fridge C,in range,R. Okafor\nTL1225,2026-09-13,Fridge D,excursion,R. Okafor\nTL1226,2026-09-02,Fridge A,sensor fault,M. Lindqvist\nTL1227,2026-09-23,Fridge C,in range,R. Okafor\nTL1228,2026-09-18,Fridge B,in range,R. Okafor\nTL1229,2026-09-10,Fridge C,sensor fault,M. Lindqvist\nTL1230,2026-09-01,Fridge D,excursion,R. Okafor\nTL1231,2026-09-20,Fridge B,in range,R. Okafor\nTL1232,2026-09-06,Fridge B,excursion,M. Lindqvist\nTL1233,2026-09-15,Fridge D,in range,M. Lindqvist\nTL1234,2026-09-25,Fridge C,in range,M. Lindqvist\nTL1235,2026-09-22,Fridge B,in range,T. Baptiste\nTL1236,2026-09-07,Fridge C,in range,T. Baptiste\nTL1237,2026-09-23,Fridge C,excursion,R. Okafor\nTL1238,2026-09-13,Fridge A,sensor fault,T. Baptiste\nTL1239,2026-09-19,Fridge B,in range,T. Baptiste\nTL1240,2026-09-04,Fridge D,in range,M. Lindqvist\nTL1241,2026-09-22,Fridge A,excursion,T. Baptiste\nTL1242,2026-09-13,Fridge D,in range,M. Lindqvist\nTL1243,2026-09-23,Fridge C,sensor fault,T. Baptiste\nTL1244,2026-09-18,Fridge D,excursion,T. Baptiste\nTL1245,2026-09-11,Fridge A,in range,T. Baptiste\nTL1246,2026-09-16,Fridge D,sensor fault,R. Okafor\nTL1247,2026-09-29,Fridge B,in range,M. Lindqvist\nTL1248,2026-09-11,Fridge C,sensor fault,R. Okafor\nTL1249,2026-09-23,Fridge B,sensor fault,T. Baptiste\nTL1250,2026-09-04,Fridge C,in range,T. Baptiste\nTL1251,2026-09-24,Fridge A,sensor fault,T. Baptiste\nTL1252,2026-09-18,Fridge C,in range,R. Okafor\nTL1253,2026-09-12,Fridge C,excursion,R. Okafor\nTL1254,2026-09-10,Fridge B,in range,R. Okafor\nTL1255,2026-09-26,Fridge D,in range,M. Lindqvist\nTL1256,2026-09-02,Fridge B,excursion,T. Baptiste\nTL1257,2026-09-04,Fridge A,sensor fault,T. Baptiste\nTL1258,2026-09-19,Fridge C,in range,M. Lindqvist\nTL1259,2026-09-26,Fridge C,in range,R. Okafor\nTL1260,2026-09-20,Fridge C,in range,M. Lindqvist\nTL1261,2026-09-06,Fridge C,excursion,R. Okafor\nTL1262,2026-09-24,Fridge D,excursion,R. Okafor\nTL1263,2026-09-27,Fridge A,excursion,R. Okafor\nTL1264,2026-09-13,Fridge A,sensor fault,M. Lindqvist\nTL1265,2026-09-06,Fridge C,excursion,M. Lindqvist\nTL1266,2026-09-06,Fridge A,in range,R. Okafor\nTL1267,2026-09-06,Fridge D,excursion,T. Baptiste\nTL1268,2026-09-18,Fridge D,in range,M. Lindqvist\nTL1269,2026-09-19,Fridge C,excursion,R. Okafor\nTL1270,2026-09-11,Fridge D,in range,M. Lindqvist\nTL1271,2026-09-05,Fridge D,in range,M. Lindqvist\nTL1272,2026-09-26,Fridge A,sensor fault,M. Lindqvist\nTL1273,2026-09-03,Fridge B,sensor fault,T. Baptiste\nTL1274,2026-09-05,Fridge B,in range,T. Baptiste\nTL1275,2026-09-12,Fridge A,excursion,R. Okafor\nTL1276,2026-09-18,Fridge D,in range,T. Baptiste\nTL1277,2026-09-09,Fridge A,excursion,M. Lindqvist\nTL1278,2026-09-13,Fridge B,sensor fault,R. Okafor\nTL1279,2026-09-25,Fridge C,in range,M. Lindqvist\n",
+    "audit/.keep": "",
+    "README.md": "Vaccine fridge twice-daily checks.\n"
+  },
+  "turns": [
+    {
+      "prompt": "For the audit, count how many log rows in clinic/fridge-log.csv are an `excursion`, per fridge, and write them to a new audit/excursions.md: first line `# Temperature excursions`, then `- <fridge>: <N>` per fridge, highest first.",
+      "expect": {
+        "output_contains_any": [
+          "audit/excursions.md",
+          "excursions.md"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "audit/excursions.md": {
+        "equals": "# Temperature excursions\n- Fridge C: 7\n- Fridge D: 6\n- Fridge A: 4\n- Fridge B: 2\n"
+      }
+    }
+  }
+}

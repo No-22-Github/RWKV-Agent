@@ -1,0 +1,52 @@
+{
+  "id": "doc-8607",
+  "description": "Rewrite the three Linux install steps; macOS steps share the final step text. DISTILL-CANARY-40f662c3",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b10e-installsteps-01",
+    "ref_calls": 4,
+    "fixture_bytes": 186,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "INSTALL.md": "# Install\n\n## macOS\n1. brew tap acme/tools\n2. brew install acme-cli\n3. acme --version\n\n## Linux\n1. curl -fsSL https://get.example.test/acme.sh -o acme.sh\n2. sh acme.sh\n3. acme --version\n"
+  },
+  "turns": [
+    {
+      "prompt": "Linux install in INSTALL.md should use the tarball instead of the script: step 1 wget https://get.example.test/acme.tar.gz, step 2 tar xzf acme.tar.gz -C /usr/local/bin, step 3 stays acme --version. macOS section untouched. Reply DONE when it's changed.",
+      "expect": {
+        "max_output_chars": 400,
+        "output_contains_any": [
+          "INSTALL.md"
+        ],
+        "output_contains": [
+          "DONE"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "INSTALL.md": {
+        "equals": "# Install\n\n## macOS\n1. brew tap acme/tools\n2. brew install acme-cli\n3. acme --version\n\n## Linux\n1. wget https://get.example.test/acme.tar.gz\n2. tar xzf acme.tar.gz -C /usr/local/bin\n3. acme --version\n"
+      }
+    }
+  }
+}

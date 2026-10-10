@@ -1,0 +1,60 @@
+{
+  "id": "scr-8003",
+  "description": "Fix a clinic visit counter that misses per-clinic subfolders. DISTILL-CANARY-a10156cf",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_output",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-scr-b10e-clinicvisits-01",
+    "ref_calls": 3,
+    "fixture_bytes": 555,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "visits/main.txt": "0901|Dr. Okafor|flu\n0901|Dr. Lindqvist|cast\n0902|Dr. Okafor|checkup\n",
+    "visits/eastside/week1.txt": "0903|Dr. Lindqvist|cast\n0903|Dr. Reyes|sprain\n\n0904|Dr. Reyes|sprain\n",
+    "visits/westside/week1.txt": "0905|Dr. Okafor|flu\n",
+    "README.md": "One line per visit: date|doctor|reason.\n",
+    "clinic_visits.py": "from pathlib import Path\n\ncounts = {}\nfor path in Path(\"visits\").glob(\"*.txt\"):\n    for line in path.read_text(encoding=\"utf-8\").splitlines():\n        if not line.strip():\n            continue\n        doctor = line.split(\"|\")[1].strip()\n        counts[doctor] = counts.get(doctor, 0) + 1\nfor doctor in sorted(counts):\n    print(f\"{doctor}={counts[doctor]}\")\n"
+  },
+  "turns": [
+    {
+      "prompt": "Our clinic_visits.py only counts the visit files sitting directly in visits/, but each satellite clinic has its own subfolder. Please fix it so python3 clinic_visits.py counts them all.",
+      "expect": {
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "visits/main.txt": {
+        "unchanged": true
+      },
+      "visits/eastside/week1.txt": {
+        "unchanged": true
+      },
+      "visits/westside/week1.txt": {
+        "unchanged": true
+      },
+      "README.md": {
+        "unchanged": true
+      }
+    },
+    "run": {
+      "path": "clinic_visits.py",
+      "expected_stdout": "Dr. Lindqvist=2\nDr. Okafor=3\nDr. Reyes=3",
+      "hidden_files": {
+        "visits/southside/week2.txt": "0910|Dr. Reyes|sprain\n"
+      }
+    }
+  }
+}

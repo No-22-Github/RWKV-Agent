@@ -1,0 +1,50 @@
+{
+  "id": "cfg-8655",
+  "description": "Point the bastion-us host entry at a new address, user, port (three lines after HostName). DISTILL-CANARY-50c6ddf2",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10e-sshhosts-01",
+    "ref_calls": 4,
+    "fixture_bytes": 304,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    ".ssh/config.d/bastions": "Host bastion-eu\n    HostName 52.18.4.10\n    User ops\n    Port 22\n    IdentityFile ~/.ssh/eu_ed25519\n\nHost bastion-us\n    HostName 34.201.9.77\n    User ops\n    Port 22\n    IdentityFile ~/.ssh/us_ed25519\n\nHost bastion-ap\n    HostName 13.250.31.5\n    User ops\n    Port 22\n    IdentityFile ~/.ssh/ap_ed25519\n"
+  },
+  "turns": [
+    {
+      "prompt": "The bastion-us entry in .ssh/config.d/bastions moved: HostName 34.201.12.140, User deploy, Port 2222. Keep its IdentityFile and the other hosts untouched.",
+      "expect": {
+        "max_output_chars": 400,
+        "output_contains_any": [
+          ".ssh/config.d/bastions",
+          "bastion-us"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      ".ssh/config.d/bastions": {
+        "equals": "Host bastion-eu\n    HostName 52.18.4.10\n    User ops\n    Port 22\n    IdentityFile ~/.ssh/eu_ed25519\n\nHost bastion-us\n    HostName 34.201.12.140\n    User deploy\n    Port 2222\n    IdentityFile ~/.ssh/us_ed25519\n\nHost bastion-ap\n    HostName 13.250.31.5\n    User ops\n    Port 22\n    IdentityFile ~/.ssh/ap_ed25519\n"
+      }
+    }
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "id": "doc-8640",
+  "description": "Count completed repairs per depot into a new report, open ones excluded. DISTILL-CANARY-8c4e25cd",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b10e-bikeshare-01",
+    "ref_calls": 3,
+    "fixture_bytes": 3335,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "fleet/repairs.csv": "ticket,date,depot,status,part\nRP-880,2026-09-30,Campus,scrapped,tyre\nRP-881,2026-09-02,Harbor,scrapped,light\nRP-882,2026-09-08,Riverside,done,tyre\nRP-883,2026-09-24,Harbor,scrapped,light\nRP-884,2026-09-16,Station,open,light\nRP-885,2026-09-20,Station,scrapped,chain\nRP-886,2026-09-20,Mill Lane,done,brake\nRP-887,2026-09-07,Riverside,open,brake\nRP-888,2026-09-19,Harbor,scrapped,chain\nRP-889,2026-09-07,Riverside,open,light\nRP-890,2026-09-21,Harbor,open,tyre\nRP-891,2026-09-13,Harbor,done,brake\nRP-892,2026-09-09,Harbor,open,chain\nRP-893,2026-09-18,Harbor,open,brake\nRP-894,2026-09-08,Mill Lane,scrapped,light\nRP-895,2026-09-09,Mill Lane,scrapped,chain\nRP-896,2026-09-15,Harbor,scrapped,tyre\nRP-897,2026-09-29,Riverside,done,light\nRP-898,2026-09-23,Campus,scrapped,chain\nRP-899,2026-09-20,Riverside,done,chain\nRP-900,2026-09-17,Riverside,done,brake\nRP-901,2026-09-26,Campus,scrapped,tyre\nRP-902,2026-09-17,Riverside,scrapped,brake\nRP-903,2026-09-06,Riverside,done,light\nRP-904,2026-09-01,Riverside,done,light\nRP-905,2026-09-29,Station,scrapped,brake\nRP-906,2026-09-17,Harbor,open,light\nRP-907,2026-09-01,Station,scrapped,tyre\nRP-908,2026-09-21,Riverside,done,light\nRP-909,2026-09-16,Harbor,done,chain\nRP-910,2026-09-29,Riverside,done,brake\nRP-911,2026-09-18,Riverside,scrapped,brake\nRP-912,2026-09-18,Station,scrapped,brake\nRP-913,2026-09-25,Harbor,done,chain\nRP-914,2026-09-30,Riverside,open,brake\nRP-915,2026-09-21,Campus,done,tyre\nRP-916,2026-09-14,Harbor,done,tyre\nRP-917,2026-09-15,Campus,done,chain\nRP-918,2026-09-19,Campus,done,brake\nRP-919,2026-09-19,Harbor,scrapped,brake\nRP-920,2026-09-29,Harbor,done,light\nRP-921,2026-09-18,Mill Lane,done,tyre\nRP-922,2026-09-04,Campus,scrapped,light\nRP-923,2026-09-08,Mill Lane,open,brake\nRP-924,2026-09-30,Mill Lane,done,brake\nRP-925,2026-09-18,Campus,done,light\nRP-926,2026-09-25,Station,done,brake\nRP-927,2026-09-14,Harbor,done,chain\nRP-928,2026-09-30,Station,open,tyre\nRP-929,2026-09-18,Campus,open,tyre\nRP-930,2026-09-22,Station,scrapped,chain\nRP-931,2026-09-24,Campus,scrapped,chain\nRP-932,2026-09-18,Riverside,scrapped,light\nRP-933,2026-09-23,Harbor,done,light\nRP-934,2026-09-12,Harbor,scrapped,brake\nRP-935,2026-09-18,Station,done,chain\nRP-936,2026-09-11,Mill Lane,done,light\nRP-937,2026-09-10,Mill Lane,done,brake\nRP-938,2026-09-18,Campus,done,tyre\nRP-939,2026-09-29,Campus,open,brake\nRP-940,2026-09-14,Harbor,scrapped,brake\nRP-941,2026-09-28,Station,open,brake\nRP-942,2026-09-12,Campus,done,chain\nRP-943,2026-09-24,Harbor,done,chain\nRP-944,2026-09-12,Campus,done,brake\nRP-945,2026-09-05,Riverside,done,tyre\nRP-946,2026-09-10,Mill Lane,done,light\nRP-947,2026-09-26,Campus,done,light\nRP-948,2026-09-18,Mill Lane,done,brake\nRP-949,2026-09-05,Campus,open,brake\nRP-950,2026-09-22,Station,open,light\nRP-951,2026-09-08,Riverside,done,chain\nRP-952,2026-09-17,Campus,open,brake\nRP-953,2026-09-21,Mill Lane,open,brake\nRP-954,2026-09-30,Riverside,done,light\nRP-955,2026-09-27,Riverside,done,tyre\nRP-956,2026-09-24,Mill Lane,done,tyre\nRP-957,2026-09-26,Harbor,done,brake\nRP-958,2026-09-09,Station,done,light\nRP-959,2026-09-02,Harbor,done,tyre\nRP-960,2026-09-18,Campus,done,brake\nRP-961,2026-09-13,Riverside,open,light\nRP-962,2026-09-10,Harbor,done,tyre\nRP-963,2026-09-03,Riverside,done,brake\nRP-964,2026-09-25,Campus,scrapped,tyre\n",
+    "summary/.keep": "",
+    "README.md": "Bike-share workshop tickets. Status is open, done or scrapped.\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many repairs were actually completed at each depot? Count the rows in fleet/repairs.csv whose status is `done` and create summary/completed-repairs.md: first line `# Completed repairs`, then `- <depot>: <N>` per depot, most repairs first.",
+      "expect": {
+        "output_contains_any": [
+          "summary/completed-repairs.md",
+          "completed-repairs.md"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "summary/completed-repairs.md": {
+        "equals": "# Completed repairs\n- Riverside: 13\n- Harbor: 11\n- Campus: 9\n- Mill Lane: 8\n- Station: 3\n"
+      }
+    }
+  }
+}

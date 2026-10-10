@@ -1,0 +1,53 @@
+{
+  "id": "cfg-8663",
+  "description": "Rewrite the HighP99 rule (alert name, expr, for, severity lines); HighP95 has parallel lines. DISTILL-CANARY-47cceb1f",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10e-alertrules-01",
+    "ref_calls": 4,
+    "fixture_bytes": 221,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "monitoring/rules.yaml": "groups:\n  - name: latency\n    rules:\n      - alert: HighP95\n        expr: p95_ms > 800\n        for: 5m\n        severity: warning\n      - alert: HighP99\n        expr: p99_ms > 800\n        for: 5m\n        severity: warning\n"
+  },
+  "turns": [
+    {
+      "prompt": "In monitoring/rules.yaml the HighP99 alert should fire above 1500 ms for 10m and have severity critical. HighP95 stays. Reply DONE once done.",
+      "expect": {
+        "max_output_chars": 400,
+        "output_contains_any": [
+          "monitoring/rules.yaml",
+          "rules.yaml"
+        ],
+        "output_contains": [
+          "DONE"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "monitoring/rules.yaml": {
+        "equals": "groups:\n  - name: latency\n    rules:\n      - alert: HighP95\n        expr: p95_ms > 800\n        for: 5m\n        severity: warning\n      - alert: HighP99\n        expr: p99_ms > 1500\n        for: 10m\n        severity: critical\n"
+      }
+    }
+  }
+}

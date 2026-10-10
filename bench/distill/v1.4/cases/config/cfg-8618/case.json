@@ -1,0 +1,50 @@
+{
+  "id": "cfg-8618",
+  "description": "Change the inspection cycle of one elevator in a property config from a work order. DISTILL-CANARY-b2792dba",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10e-lifttour-01",
+    "ref_calls": 4,
+    "fixture_bytes": 304,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "物业/电梯.yaml": "电梯:\n  1号楼A梯:\n    巡检周期天: 30     # 国标要求不超过 30 天\n    维保单位: 恒升电梯\n  1号楼B梯:\n    巡检周期天: 30     # 国标要求不超过 30 天\n    维保单位: 恒升电梯\n",
+    "物业/工单-0925.txt": "1号楼B梯 近期故障频发，巡检周期缩短为 15 天，维保单位不变。\n"
+  },
+  "turns": [
+    {
+      "prompt": "物业/工单-0925.txt 是对 B 梯的要求，按它改 物业/电梯.yaml。改完回复 DONE。",
+      "expect": {
+        "max_output_chars": 400,
+        "output_contains": [
+          "DONE"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "物业/电梯.yaml": {
+        "equals": "电梯:\n  1号楼A梯:\n    巡检周期天: 30     # 国标要求不超过 30 天\n    维保单位: 恒升电梯\n  1号楼B梯:\n    巡检周期天: 15     # 国标要求不超过 30 天\n    维保单位: 恒升电梯\n"
+      }
+    }
+  }
+}

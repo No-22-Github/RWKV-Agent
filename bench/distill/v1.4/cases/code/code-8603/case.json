@@ -1,0 +1,54 @@
+{
+  "id": "code-8603",
+  "description": "Set a limit constant according to the CHANGELOG line marked as the current default; a deprecated value also appears. DISTILL-CANARY-b6f89ff1",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "fix_edge_case",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-code-b10e-retrylimit-01",
+    "ref_calls": 4,
+    "fixture_bytes": 266,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "pkg/client/defaults.go": "package client\n\nconst (\n\tMaxRetries    = 3 // 见 CHANGELOG\n\tRetryInterval = 200\n)\n",
+    "README.md": "客户端默认值。\n",
+    "CHANGELOG.md": "# 版本说明\n\n## v4.2\n- 重试上限默认值调整为 5 次（取代 v4.0 的 3 次）\n- 重试间隔默认 200 毫秒\n\n## v4.0\n- 引入重试，上限 3 次\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 pkg/client/defaults.go 里的重试上限常量改成 CHANGELOG.md 里最新版本给的默认值，格式别乱。",
+      "expect": {
+        "max_output_chars": 400,
+        "output_contains_any": [
+          "改为 5",
+          "改成 5",
+          "为 5 次",
+          "5 次"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "pkg/client/defaults.go": {
+        "equals": "package client\n\nconst (\n\tMaxRetries    = 5 // 见 CHANGELOG\n\tRetryInterval = 200\n)\n"
+      }
+    }
+  }
+}

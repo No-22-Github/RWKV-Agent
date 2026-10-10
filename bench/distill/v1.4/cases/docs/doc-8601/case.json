@@ -1,0 +1,52 @@
+{
+  "id": "doc-8601",
+  "description": "Rewrite the three bullets under Known issues; the Highlights bullets mention the same features. DISTILL-CANARY-3df37905",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b10e-relnotes-01",
+    "ref_calls": 4,
+    "fixture_bytes": 302,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "RELEASE-3.8.md": "# Release notes 3.8\n\n## Highlights\n- Faster cold start (about 30% lower)\n- New export wizard\n- Dark theme refresh\n\n## Known issues\n- Export wizard fails on files over 2 GB\n- Tray icon blurry on 4K displays\n- Dark theme flickers on first launch\n\n## Upgrade notes\nBack up your settings before upgrading.\n"
+  },
+  "turns": [
+    {
+      "prompt": "In RELEASE-3.8.md update the Known issues list: the export wizard limit is actually 4 GB, the tray icon item gets the suffix ' (fixed in 3.8.1)', and the flicker item becomes 'Dark theme flicker fixed in 3.8'. Keep the leading dashes. Reply DONE afterwards.",
+      "expect": {
+        "max_output_chars": 400,
+        "output_contains_any": [
+          "RELEASE-3.8.md"
+        ],
+        "output_contains": [
+          "DONE"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "RELEASE-3.8.md": {
+        "equals": "# Release notes 3.8\n\n## Highlights\n- Faster cold start (about 30% lower)\n- New export wizard\n- Dark theme refresh\n\n## Known issues\n- Export wizard fails on files over 4 GB\n- Tray icon blurry on 4K displays (fixed in 3.8.1)\n- Dark theme flicker fixed in 3.8\n\n## Upgrade notes\nBack up your settings before upgrading.\n"
+      }
+    }
+  }
+}

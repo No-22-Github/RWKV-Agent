@@ -1,0 +1,51 @@
+{
+  "id": "cfg-8674",
+  "description": "Set an API rate limit from the signed order form; an expired quote and another tier are decoys. DISTILL-CANARY-c2ecbe31",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10e-rateplan-01",
+    "ref_calls": 4,
+    "fixture_bytes": 251,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/ratelimit.yaml": "tier: pro\nrequests_per_min: 600   # per API key\nburst: 50\n",
+    "README.md": "Rate limit config for the public API.\n",
+    "contracts/order-form-2026Q3.txt": "Quote Q-118 (expired 2026-06-30): Pro tier 600 requests/min\nOrder form OF-2209 (signed 2026-08-14): Pro tier 900 requests/min; Basic tier 120 requests/min\n"
+  },
+  "turns": [
+    {
+      "prompt": "We upgraded our API contract. Update the Pro tier limit in config/ratelimit.yaml to what the signed order form says, comment left as is.",
+      "expect": {
+        "max_output_chars": 400,
+        "output_contains_any": [
+          "900"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "config/ratelimit.yaml": {
+        "equals": "tier: pro\nrequests_per_min: 900   # per API key\nburst: 50\n"
+      }
+    }
+  }
+}

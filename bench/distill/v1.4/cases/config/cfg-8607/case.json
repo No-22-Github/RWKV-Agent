@@ -1,0 +1,46 @@
+{
+  "id": "cfg-8607",
+  "description": "Change the hourly rate of the daytime tier in a parking TOML; night tier has the same value. DISTILL-CANARY-37f6cc5b",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10e-parkrate-01",
+    "ref_calls": 3,
+    "fixture_bytes": 107,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "停车场/费率.toml": "[白天]\n每小时 = 6      # 单位 元\n封顶 = 40\n\n[夜间]\n每小时 = 6      # 单位 元\n封顶 = 20\n"
+  },
+  "turns": [
+    {
+      "prompt": "停车场白天时段每小时费率涨到 8 元，改 停车场/费率.toml，夜间保持。",
+      "expect": {
+        "max_output_chars": 300
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "停车场/费率.toml": {
+        "equals": "[白天]\n每小时 = 8      # 单位 元\n封顶 = 40\n\n[夜间]\n每小时 = 6      # 单位 元\n封顶 = 20\n"
+      }
+    }
+  }
+}

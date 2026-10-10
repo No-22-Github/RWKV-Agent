@@ -1,0 +1,49 @@
+{
+  "id": "cfg-8610",
+  "description": "Change the show cap of hall 3 in a cinema scheduling file; other halls share the same line text. DISTILL-CANARY-2cfbaf22",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10e-cinemahall-01",
+    "ref_calls": 3,
+    "fixture_bytes": 157,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "排片/厅配置.yaml": "影厅:\n  一号厅:\n    每日最大场次: 8   # 含午夜场\n    座位数: 180\n  三号厅:\n    每日最大场次: 8   # 含午夜场\n    座位数: 96\n"
+  },
+  "turns": [
+    {
+      "prompt": "三号厅座位少、清场慢，每日最大场次降到 6 场，改 排片/厅配置.yaml。改完回复 DONE。",
+      "expect": {
+        "max_output_chars": 300,
+        "output_contains": [
+          "DONE"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "排片/厅配置.yaml": {
+        "equals": "影厅:\n  一号厅:\n    每日最大场次: 8   # 含午夜场\n    座位数: 180\n  三号厅:\n    每日最大场次: 6   # 含午夜场\n    座位数: 96\n"
+      }
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "id": "cfg-8669",
+  "description": "Set an hourly wage to the approved level from an HR memo with several grades. DISTILL-CANARY-b3676314",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10e-shiftrate-01",
+    "ref_calls": 4,
+    "fixture_bytes": 329,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "配置/工资表参数.yaml": "初级技工: 30\n中级技工: 38   # 小时工资，元\n高级技工: 52\n",
+    "README.md": "工资表参数，数值取自人事薪级通知。\n",
+    "人事/薪级通知.txt": "2026 年 10 月起薪级调整（已定稿）：\n  初级技工 小时工资 32 元\n  中级技工 小时工资 41 元\n  高级技工 小时工资 55 元\n（9 月版：中级技工 38 元，已作废）\n"
+  },
+  "turns": [
+    {
+      "prompt": "人事发了新的薪级通知，把 配置/工资表参数.yaml 里中级技工的小时工资更新一下。改完回复 DONE。",
+      "expect": {
+        "max_output_chars": 400,
+        "output_contains": [
+          "DONE"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "配置/工资表参数.yaml": {
+        "equals": "初级技工: 30\n中级技工: 41   # 小时工资，元\n高级技工: 52\n"
+      }
+    }
+  }
+}

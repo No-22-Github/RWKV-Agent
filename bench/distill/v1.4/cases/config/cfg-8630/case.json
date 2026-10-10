@@ -1,0 +1,50 @@
+{
+  "id": "cfg-8630",
+  "description": "Change the burst value of a rate limiter in TOML according to a ticket with several items. DISTILL-CANARY-28c0c6f6",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10e-ratelimit-01",
+    "ref_calls": 4,
+    "fixture_bytes": 196,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "gateway/limits.toml": "[login]\nrate = 5\nburst = 10     # allow short spikes\n\n[search]\nrate = 50\nburst = 100    # allow short spikes\n",
+    "tickets/GW-318.txt": "GW-318\n1. login.burst -> 20\n2. search.rate -> 80 (blocked, waiting on capacity review)\n"
+  },
+  "turns": [
+    {
+      "prompt": "Do the login item from tickets/GW-318.txt in gateway/limits.toml. Reply DONE when it's in.",
+      "expect": {
+        "max_output_chars": 400,
+        "output_contains": [
+          "DONE"
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "gateway/limits.toml": {
+        "equals": "[login]\nrate = 5\nburst = 20     # allow short spikes\n\n[search]\nrate = 50\nburst = 100    # allow short spikes\n"
+      }
+    }
+  }
+}

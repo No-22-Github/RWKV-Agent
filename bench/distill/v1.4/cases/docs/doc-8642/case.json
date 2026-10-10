@@ -1,0 +1,52 @@
+{
+  "id": "doc-8642",
+  "description": "Report the longest and shortest observing sessions in two fixed lines. DISTILL-CANARY-77335040",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b10e-telescope-01",
+    "ref_calls": 3,
+    "fixture_bytes": 971,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10e",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "observatory/sessions.csv": "session,date,target,minutes,seeing\nOB70,2026-09-20,M31,305,fair\nOB71,2026-09-06,Saturn,330,poor\nOB72,2026-09-28,M13,29,fair\nOB73,2026-09-14,Saturn,68,good\nOB74,2026-09-24,Jupiter,332,poor\nOB75,2026-09-20,M13,238,good\nOB76,2026-09-08,M13,238,poor\nOB77,2026-09-19,NGC 7000,140,fair\nOB78,2026-09-17,M31,339,fair\nOB79,2026-09-21,NGC 7000,210,poor\nOB80,2026-09-12,NGC 7000,207,poor\nOB81,2026-09-08,M13,182,poor\nOB82,2026-09-28,NGC 7000,103,good\nOB83,2026-09-07,M13,112,good\nOB84,2026-09-20,Jupiter,192,good\nOB85,2026-09-07,Saturn,51,fair\nOB86,2026-09-11,NGC 7000,228,poor\nOB87,2026-09-16,Saturn,291,poor\nOB88,2026-09-26,NGC 7000,35,fair\nOB89,2026-09-19,Jupiter,70,good\nOB90,2026-09-23,Jupiter,241,fair\nOB91,2026-09-09,M31,49,fair\nOB92,2026-09-17,M31,107,good\nOB93,2026-09-16,M31,321,good\nOB94,2026-09-06,Jupiter,34,good\nOB95,2026-09-13,Saturn,124,poor\nOB96,2026-09-07,NGC 7000,174,fair\nOB97,2026-09-27,Saturn,283,poor\n",
+    "notes/.keep": "",
+    "README.md": "Observing session log; minutes is the dark-sky time used.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Find the longest and the shortest session in observatory/sessions.csv and create notes/session-extremes.md with three lines: `# Session extremes`, `Longest: <session> <target> <minutes> min`, `Shortest: <session> <target> <minutes> min`.",
+      "expect": {
+        "output_contains_any": [
+          "notes/session-extremes.md",
+          "session-extremes.md"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "notes/session-extremes.md": {
+        "equals": "# Session extremes\nLongest: OB78 M31 339 min\nShortest: OB72 M13 29 min\n"
+      }
+    }
+  }
+}
