@@ -121,6 +121,6 @@ local/bin/rwkv-lab corpus render --cases bench/distill/cases --script <b12 scrip
 |---|---|---|
 | M0′ | 流水线支持 work-v2：render / step.py `--tool-catalog`、轮换保护、词表、`absent` 放开 | **已完成**（248dc3c 等） |
 | M2′ | b12 样板 20 题（M9 12、M10 8），lint 0 违规、verify 20/20（含破坏测试）、去污染五面 + bfcl 0 flagged、sidecar 参考解全过、render 冒烟 | **已完成**（本文同次提交） |
-| M3′ | 与 v1.4 M3 一起放量：b12 出 ~340 题、老师 k=3、S5 三层质检 | 交给执行方，见 [b10-scale-prompt.md](b10-scale-prompt.md) §7 |
+| M3′ | 与 v1.4 M3 一起放量：b12 出 ~340 题、老师 k=3、S5 三层质检 | **未开始**（2026-10-10）：b10 还差 ~790 题、b12 还差 ~330 题，工作量重估与排期见 [v141-status-20261010.md](reports/v141-status-20261010.md) |
 | M4′ | 合并打包，§3 指标逐项报 | 同 v1.4 M4 |
 | 验收 | v1.4 §9 的指标照旧；**另加 bashprobe**：bash 调用 ≥10/26 题、通过 ≥10/26 | 训练后跑 |
