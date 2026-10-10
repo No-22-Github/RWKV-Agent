@@ -1361,3 +1361,20 @@
 {"batch": "b05", "case_id": "web-5010--p2", "reason": "v1.4 family 封顶"}
 {"batch": "b05", "case_id": "web-5011--p1", "reason": "v1.4 family 封顶"}
 {"batch": "b05", "case_id": "web-5011--p2", "reason": "v1.4 family 封顶"}
+{"batch": "b10a", "case_id": "cfg-8040--p1", "reason": "第 1 轮只给裸值「11」，题面没要求只回数值（§4.2）"}
+{"batch": "b10a", "case_id": "cfg-8042--p1", "reason": "第 1 轮只给裸值「44」，题面没要求只回数值（§4.2）"}
+{"batch": "b10a", "case_id": "cfg-8045--p1", "reason": "第 1 轮只给裸值「29 days.」，题面没要求只回数值（§4.2）"}
+{"batch": "b10a", "case_id": "doc-8027--p1", "reason": "第 2 轮只给裸值「90 天。」，题面没要求只回数值（§4.2）"}
+{"batch": "b10a", "case_id": "doc-8030--p1", "reason": "第 2 轮只给裸值「300 gsm.」，题面没要求只回数值（§4.2）"}
+{"batch": "b10a", "case_id": "doc-8034--p1", "reason": "第 1 轮只给裸值「周日」，题面没要求只回数值（§4.2）"}
+{"batch": "b10a", "case_id": "hyb-8010--p2", "reason": "复述过时二手单价「18 元/瓶」"}
+{"batch": "b10a", "case_id": "log-8017--p2", "reason": "复述诱饵数值（手动导入批次 7 单、4 单）"}
+{"batch": "b10a", "case_id": "log-8038--p1", "reason": "第 2 轮只给裸值「10:41。」，题面没要求只回数值（§4.2）"}
+{"batch": "b10a", "case_id": "log-8038--p2", "reason": "第 2 轮只给裸值「10:41。」，题面没要求只回数值（§4.2）"}
+{"batch": "b10a", "case_id": "tab-8019--p1", "reason": "把继任桥滨江桥的合计当成青石桥的答案"}
+{"batch": "b10a", "case_id": "tab-8025--p1", "reason": "整读 rides 表后不用工具报出 Swift-10 骑行数（心算）"}
+{"batch": "b10a", "case_id": "web-8013--p1", "reason": "终答末尾泄漏「DONE? No — user didn't ask…」自言自语"}
+{"batch": "b10a", "case_id": "fs-8021--p1", "reason": "把已归档 57 份当成 9 月总数，没标明不完整"}
+{"batch": "b10a", "case_id": "fs-8021--p2", "reason": "渲染后 9647 token，超过 8128 打包上限（逐个读取几十个许可文件）"}
+{"batch": "b10a", "case_id": "nt-8042--p1", "reason": "第 2 轮只给裸值「4400」，题面没要求只回数值（§4.2）"}
+{"batch": "b10a", "case_id": "nt-8044--p1", "reason": "第 2 轮只给裸值「560」，题面没要求只回数值（§4.2）"}

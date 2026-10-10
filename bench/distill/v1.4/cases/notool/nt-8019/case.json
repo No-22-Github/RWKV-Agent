@@ -1,0 +1,39 @@
+{
+  "id": "nt-8019",
+  "description": "Mental multiplication for a coworking pantry restock, tool use explicitly declined. DISTILL-CANARY-46e94cf8",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b10-jasmine-01",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "No need to open anything — mental math: the Loomwork pantry restock bought 9 packs of tea with 6 bags in each pack. How many bags is that in total?",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains": [
+          "54"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 400
+      }
+    }
+  ]
+}

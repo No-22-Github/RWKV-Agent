@@ -239,6 +239,13 @@ func TestExtractRejectsUncleanRuns(t *testing.T) {
 			}),
 			finalStep("x"),
 		}, nil, true, 0)},
+		{"tool error or rejection", caseRun(t, []map[string]any{
+			step("tool", map[string]any{
+				"tool": "web_fetch", "tool_arguments": map[string]any{"urls": []any{}},
+				"tool_executed": true, "tool_error": "invalid tool arguments: urls must not be empty",
+			}),
+			finalStep("x"),
+		}, nil, true, 0)},
 		{"answer repaired by the harness", caseRun(t, []map[string]any{finalStep("x")}, &repaired, true, 0)},
 		{"answer stage (forced closeout)", caseRun(t, []map[string]any{
 			step("final", map[string]any{"model_output": "x", "stage": "answer"}),
@@ -611,4 +618,21 @@ func readLines(t *testing.T, path string) []string {
 		t.Fatal(err)
 	}
 	return strings.Split(strings.TrimSpace(string(raw)), "\n")
+}
+
+func TestExtractKeepsFixturePageErrors(t *testing.T) {
+	run := caseRun(t, []map[string]any{
+		step("tool", map[string]any{
+			"tool": "web_fetch", "tool_arguments": map[string]any{"urls": []any{"https://example.org/fees"}},
+			"tool_executed": true, "tool_error": "HTTP 503 Service Unavailable",
+		}),
+		finalStep("The fee page could not be fetched."),
+	}, nil, true, 0)
+	trajectory, err := Extract(run)
+	if err != nil {
+		t.Fatalf("fixture page error dropped the path: %v", err)
+	}
+	if len(trajectory) != 2 || trajectory[0].Tool != "web_fetch" {
+		t.Fatalf("trajectory = %+v", trajectory)
+	}
 }

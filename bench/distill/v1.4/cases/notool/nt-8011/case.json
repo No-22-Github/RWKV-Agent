@@ -1,0 +1,48 @@
+{
+  "id": "nt-8011",
+  "description": "Tea-chain order tablet workspace on screen, but the user says not to open the incident log and asks what HTTP 404 and 403 mean. DISTILL-CANARY-74bfd1d9",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b10-tealeaf-01",
+    "ref_calls": 0,
+    "fixture_bytes": 229,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 沐棠茶饮 点单小程序运维说明\n\n线上接口报警以 值班/接口报警.md 的记录为准，处理前先对照当月值班表。\n",
+    "值班/接口报警.md": "09:12 GET /menu 200\n09:15 GET /menu 200\n09:31 GET /coupons 500\n09:44 GET /stores 301\n"
+  },
+  "turns": [
+    {
+      "prompt": "不用翻小程序的报警记录，直接告诉我：HTTP 404 和 403 这两个状态码分别是什么意思？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains": [
+          "404",
+          "403"
+        ],
+        "output_contains_any": [
+          "权限",
+          "找不到",
+          "不存在",
+          "无权访问"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

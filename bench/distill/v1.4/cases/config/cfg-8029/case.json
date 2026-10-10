@@ -1,0 +1,70 @@
+{
+  "id": "cfg-8029",
+  "description": "Asks the ironer's seam dwell adjust percentage; neither config sets it, the docs say the drive's on-board dwell handling applies, and the cooling pause seconds are the decoy. DISTILL-CANARY-b2a6c995",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-ABSENT",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "UNKNOWN",
+      "TR-DECOY": "12"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-cfg-b10-ironerdwell-01",
+    "ref_calls": 3,
+    "fixture_bytes": 704,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/ironer-1.toml": "[ironer]\nline = \"flatwork-1\"\nsteam_pressure_bar = 6\ncooling_pause_s = 12\n",
+    "config/env/production.toml": "[ironer]\nsteam_pressure_bar = 7\n",
+    "docs/ironer-config.md": "# Flatwork ironer settings\n\n- steam_pressure_bar: steam supply pressure setpoint.\n- cooling_pause_s: pause between the last heated roll and the cooling roll. Unrelated to speed control.\n- dwell_adjust_pct: percentage speed adjustment applied while a seam passes through the rolls. When unset, the drive falls back to its on-board dwell handling, which changed between drive firmware versions; neither config file records it. Pin it explicitly for a consistent finish.\n",
+    "README.md": "Whitecrest Linen Services flatwork line config. Ironer settings in config/ironer-1.toml; per-environment overrides in config/env/.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Sheets have been finishing damp at the seams, and I want the ironer's dwell adjust value for the service visit. What is it in production?",
+      "expect": {
+        "output_contains": [
+          "dwell_adjust_pct"
+        ],
+        "output_contains_any": [
+          "not set",
+          "isn't set",
+          "not configured",
+          "isn't configured",
+          "not defined",
+          "doesn't set",
+          "does not set",
+          "unset",
+          "neither",
+          "no entry for"
+        ],
+        "output_excludes": [
+          "adjust is 12",
+          "adjust of 12",
+          "12 percent adjust",
+          "adjust is set to 12",
+          "dwell adjust is 12"
+        ],
+        "required_tools": [
+          "read_file"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

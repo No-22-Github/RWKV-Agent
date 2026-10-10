@@ -1,0 +1,103 @@
+{
+  "id": "hyb-8011",
+  "description": "Regulator servicing bill for the in-use units at the vendor's current per-unit rate; the vendor's price page returns 503 and the only other hit is a 2023 blog with the old rate, so only the unit count can be given. DISTILL-CANARY-26a824df",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_calc",
+    "traps": [
+      "TR-FETCHFAIL",
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-FETCHFAIL": "UNKNOWN",
+      "TR-WEBSTALE": "4160"
+    },
+    "axes": [
+      "ERR",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b10-regservicing-01",
+    "ref_calls": 4,
+    "fixture_bytes": 980,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [
+    {
+      "query_match": "青鲨",
+      "url_match": "qingsha-gear.cn/service",
+      "url": "https://www.qingsha-gear.cn/service",
+      "title": "青鲨装备服务 调节器保养价目",
+      "snippet": "本年度调节器保养、漏气检测与加急服务价格。",
+      "published_at": "2026-08-29",
+      "error": "HTTP 503 Service Unavailable"
+    },
+    {
+      "query_match": "青鲨",
+      "url_match": "zhuangbeibiji.cn/reg-service",
+      "url": "https://zhuangbeibiji.cn/reg-service",
+      "title": "调节器保养去哪儿做？",
+      "snippet": "2023-11 博客：当年的保养价格参考。",
+      "published_at": "2023-11-20",
+      "content": "# 调节器保养去哪儿做\n\n2023-11-20。那年青鲨的保养价是每台 260 元，换件另算。后来涨价没有不清楚，下单前看当期价目。\n"
+    }
+  ],
+  "files": {
+    "README.md": "# 磐石潜水 装备\n\n装备/ 台账按台登记调节器。调节器每年送 青鲨装备服务 做一次保养，保养费按服务商当年公布的每台标准、按台账里在用的台数结算。\n",
+    "装备/调节器台账.csv": "编号,品类,状态,上次保养\nRG-201,调节器,在用,2026-03-12\nRG-202,调节器,在用,2026-03-12\nRG-203,调节器,在用,2026-02-27\nRG-204,调节器,在用,2026-02-27\nRG-205,调节器,在用,2026-01-09\nRG-206,调节器,在用,2026-01-09\nRG-207,调节器,在用,2025-12-21\nRG-208,调节器,在用,2025-12-21\nRG-209,调节器,在用,2025-11-05\nRG-210,调节器,在用,2025-11-05\nRG-211,调节器,在用,2026-04-18\nRG-212,调节器,在用,2026-04-18\nRG-213,调节器,在用,2026-04-30\nRG-214,调节器,在用,2026-05-07\nRG-215,调节器,在用,2026-05-07\nRG-216,调节器,在用,2026-06-22\nRG-217,调节器,封存,2025-09-14\nRG-218,调节器,封存,2025-08-26\nRG-219,调节器,封存,2025-07-08\nRG-220,调节器,待报废,2025-06-11\nRG-221,调节器,待报废,2025-05-19\n"
+  },
+  "turns": [
+    {
+      "prompt": "按青鲨装备服务今年公布的保养标准，算一下台账里在用的调节器送保一共要多少钱。",
+      "expect": {
+        "output_contains": [
+          "16"
+        ],
+        "output_contains_any": [
+          "503",
+          "打不开",
+          "无法访问",
+          "访问不了",
+          "访问失败",
+          "抓取失败",
+          "获取失败",
+          "没能获取",
+          "没有获取",
+          "无法获取",
+          "没法获取",
+          "没能打开",
+          "没法打开",
+          "打开失败",
+          "加载失败",
+          "无法加载",
+          "超时",
+          "连接超时",
+          "连不上",
+          "没能连上",
+          "拿不到",
+          "取不到",
+          "没能核实",
+          "没有核实",
+          "无法核实",
+          "没法核实",
+          "没能确认",
+          "无法确认",
+          "未能确认"
+        ],
+        "output_excludes": [
+          "4160",
+          "4,160"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

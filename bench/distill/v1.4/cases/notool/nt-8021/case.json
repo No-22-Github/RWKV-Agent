@@ -1,0 +1,39 @@
+{
+  "id": "nt-8021",
+  "description": "Mental second-item-half-price total for a tea-chain order, tool use explicitly declined. DISTILL-CANARY-59940f0f",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b10-bergamot-01",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "别查了，直接算：鲜奶咖啡一杯 24 元，现在第二杯半价，买两杯一共要付多少元？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains": [
+          "36"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 400
+      }
+    }
+  ]
+}

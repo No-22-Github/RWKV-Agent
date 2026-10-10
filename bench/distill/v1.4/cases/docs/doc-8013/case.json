@@ -1,0 +1,63 @@
+{
+  "id": "doc-8013",
+  "description": "Nightly job escalation asks who is on call for the tile-cache service in a given week; the shared rota has no tile-cache row, the catalogue says it moved to the Platform pager, and the decommissioned tile-cache-legacy row's engineers are the decoy. DISTILL-CANARY-d82e25c7",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-ABSENT",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "UNKNOWN",
+      "TR-DECOY": "Kwame Osei"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-doc-b10-gisrota-01",
+    "ref_calls": 3,
+    "fixture_bytes": 951,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "oncall/2026-Q4.md": "# On-call rota, Q4 2026 (weeks start Monday)\n\n| Service | Oct 12 | Oct 19 | Oct 26 |\n|---|---|---|---|\n| streets-renderer | Petra Salminen | Diego Aramburu | Petra Salminen |\n| mosaic-scheduler | Anouk Verhoeven | Yusuf Demirel | Anouk Verhoeven |\n| tile-cache-legacy | Rosa Lindeman | Kwame Osei | Rosa Lindeman |\n| gazetteer-api | Diego Aramburu | Petra Salminen | Diego Aramburu |\n",
+    "oncall/README.md": "The rota lists every service with a pager rotation this quarter. Swaps go through the #oncall-swaps channel.\n",
+    "services/catalogue.md": "# Service catalogue - Tarnwater GIS\n\n- streets-renderer: owned by Carto Platform, pager rotation in oncall/.\n- mosaic-scheduler: owned by Carto Platform, pager rotation in oncall/.\n- tile-cache: owned by Platform Infrastructure. Moved to the Platform pager tool on 2026-09-01; not in the shared rota.\n- tile-cache-legacy: decommissioned 2026-08-15, rotation kept until the Q4 rota is regenerated.\n- gazetteer-api: owned by Search, pager rotation in oncall/.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The nightly mosaicking job runs against tile-cache during the week of October 19. Who is on call for tile-cache that week?",
+      "expect": {
+        "output_contains": [
+          "tile-cache"
+        ],
+        "output_contains_any": [
+          "Platform Infrastructure",
+          "not listed",
+          "no entry",
+          "isn't in",
+          "not in the",
+          "doesn't cover",
+          "no row"
+        ],
+        "output_excludes": [
+          "Rosa Lindeman",
+          "Kwame Osei"
+        ],
+        "required_tools": [
+          "read_file"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

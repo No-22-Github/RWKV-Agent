@@ -1,0 +1,64 @@
+{
+  "id": "cfg-8052",
+  "description": "Turn 1 asks to check running parameters of two circulation pumps but the user will pick which two; the assistant must ask first; turn 2 names pumps 2 and 3. DISTILL-CANARY-4f499b01",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-cfg-b10-pumpcheck-01",
+    "ref_calls": 1,
+    "fixture_bytes": 268,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "配置/循环泵/1号泵.yaml": "循环泵:\n  流量立方米每小时: 22\n  额定功率千瓦: 1.5\n",
+    "配置/循环泵/2号泵.yaml": "循环泵:\n  流量立方米每小时: 18\n  额定功率千瓦: 1.1\n",
+    "配置/循环泵/3号泵.yaml": "循环泵:\n  流量立方米每小时: 26\n  额定功率千瓦: 2.2\n",
+    "配置/说明.md": "循环泵参数逐台单列，改动后需当班技师复核。\n"
+  },
+  "turns": [
+    {
+      "prompt": "我要核对两台循环泵的运行参数，具体哪两台我来指定——你先问我，别翻泵的配置。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "哪两台",
+          "哪几台",
+          "哪两台泵",
+          "哪几台泵",
+          "位号",
+          "设备编号",
+          "泵编号",
+          "泵的编号"
+        ],
+        "max_output_chars": 300
+      }
+    },
+    {
+      "prompt": "核对 2 号泵和 3 号泵。",
+      "expect": {
+        "output_contains": [
+          "18",
+          "26"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "read_file"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ]
+}

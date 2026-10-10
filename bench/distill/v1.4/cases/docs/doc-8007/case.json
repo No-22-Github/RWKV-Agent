@@ -1,0 +1,66 @@
+{
+  "id": "doc-8007",
+  "description": "System inspection asks who is on duty for the digital resources team in a given week; the shared rota has no such row, the team moved to the consortium's joint duty system, and a decommissioned old-name row with engineers is the decoy. DISTILL-CANARY-f8d3a6a3",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-ABSENT",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "UNKNOWN",
+      "TR-DECOY": "池晚晴"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-doc-b10-pagerota-01",
+    "ref_calls": 3,
+    "fixture_bytes": 883,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "值班/2026-Q4.md": "# 澜山图书馆 2026 年第四季度值班表（周一起算）\n\n| 组别 | 10 月 12 日当周 | 10 月 19 日当周 | 10 月 26 日当周 |\n|---|---|---|---|\n| 流通组 | 宋知微 | 阮清越 | 宋知微 |\n| 参考咨询组 | 裴松年 | 宋知微 | 裴松年 |\n| 数字资源组-旧 | 池晚晴 | 裴松年 | 池晚晴 |\n| 阅读推广组 | 阮清越 | 池晚晴 | 阮清越 |\n",
+    "值班/README.md": "值班表列出本季度仍有馆内轮值的组；组别调整以 部门/目录.md 为准。\n",
+    "部门/目录.md": "# 部门目录\n\n- 流通组：馆内轮值，见 值班/。\n- 参考咨询组：馆内轮值，见 值班/。\n- 数字资源组：2026-09-01 起改在市学会联合值班系统排班，不再进馆内值班表。\n- 数字资源组-旧：更名前的旧组名，2026-08-15 撤销；轮值暂留至季度值班表重新生成，不再响应馆内请求。\n- 阅读推广组：馆内轮值，见 值班/。\n"
+  },
+  "turns": [
+    {
+      "prompt": "澜山图书馆的系统巡检安排在 10 月 12 日那周，数字资源组那周由谁值班？",
+      "expect": {
+        "output_contains": [
+          "数字资源组"
+        ],
+        "output_contains_any": [
+          "没有",
+          "不存在",
+          "找不到",
+          "没找到",
+          "未找到",
+          "尚未",
+          "还没",
+          "联合值班",
+          "不在",
+          "没有排班"
+        ],
+        "output_excludes": [
+          "池晚晴",
+          "裴松年"
+        ],
+        "required_tools": [
+          "read_file"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

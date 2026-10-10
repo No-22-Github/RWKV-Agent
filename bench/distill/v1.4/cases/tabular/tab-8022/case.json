@@ -1,0 +1,67 @@
+{
+  "id": "tab-8022",
+  "description": "Asks September ride counts for a bike-share station that was removed in August; the station register says its docks were redistributed and the ledger has a similarly named active station. DISTILL-CANARY-48e04fe7",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-ABSENT",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "UNKNOWN",
+      "TR-DECOY": "1400"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-tab-b10-dockrides-01",
+    "ref_calls": 3,
+    "fixture_bytes": 3173,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "rides/2026-09.csv": "date,station,rides\n2026-09-01,Cannery Wharf North,36\n2026-09-01,Old Harbour Steps,46\n2026-09-01,Canal Street,57\n2026-09-02,Cannery Wharf North,41\n2026-09-02,Old Harbour Steps,55\n2026-09-02,Canal Street,48\n2026-09-03,Cannery Wharf North,60\n2026-09-03,Old Harbour Steps,59\n2026-09-03,Canal Street,50\n2026-09-04,Cannery Wharf North,56\n2026-09-04,Old Harbour Steps,46\n2026-09-04,Canal Street,44\n2026-09-05,Cannery Wharf North,42\n2026-09-05,Old Harbour Steps,57\n2026-09-05,Canal Street,51\n2026-09-06,Cannery Wharf North,36\n2026-09-06,Old Harbour Steps,48\n2026-09-06,Canal Street,38\n2026-09-07,Cannery Wharf North,36\n2026-09-07,Old Harbour Steps,49\n2026-09-07,Canal Street,37\n2026-09-08,Cannery Wharf North,60\n2026-09-08,Old Harbour Steps,42\n2026-09-08,Canal Street,36\n2026-09-09,Cannery Wharf North,51\n2026-09-09,Old Harbour Steps,41\n2026-09-09,Canal Street,42\n2026-09-10,Cannery Wharf North,49\n2026-09-10,Old Harbour Steps,55\n2026-09-10,Canal Street,44\n2026-09-11,Cannery Wharf North,49\n2026-09-11,Old Harbour Steps,50\n2026-09-11,Canal Street,42\n2026-09-12,Cannery Wharf North,54\n2026-09-12,Old Harbour Steps,44\n2026-09-12,Canal Street,40\n2026-09-13,Cannery Wharf North,50\n2026-09-13,Old Harbour Steps,57\n2026-09-13,Canal Street,50\n2026-09-14,Cannery Wharf North,50\n2026-09-14,Old Harbour Steps,52\n2026-09-14,Canal Street,55\n2026-09-15,Cannery Wharf North,37\n2026-09-15,Old Harbour Steps,55\n2026-09-15,Canal Street,37\n2026-09-16,Cannery Wharf North,38\n2026-09-16,Old Harbour Steps,57\n2026-09-16,Canal Street,53\n2026-09-17,Cannery Wharf North,41\n2026-09-17,Old Harbour Steps,60\n2026-09-17,Canal Street,42\n2026-09-18,Cannery Wharf North,52\n2026-09-18,Old Harbour Steps,36\n2026-09-18,Canal Street,60\n2026-09-19,Cannery Wharf North,42\n2026-09-19,Old Harbour Steps,36\n2026-09-19,Canal Street,38\n2026-09-20,Cannery Wharf North,41\n2026-09-20,Old Harbour Steps,56\n2026-09-20,Canal Street,44\n2026-09-21,Cannery Wharf North,46\n2026-09-21,Old Harbour Steps,41\n2026-09-21,Canal Street,56\n2026-09-22,Cannery Wharf North,48\n2026-09-22,Old Harbour Steps,37\n2026-09-22,Canal Street,51\n2026-09-23,Cannery Wharf North,52\n2026-09-23,Old Harbour Steps,47\n2026-09-23,Canal Street,42\n2026-09-24,Cannery Wharf North,46\n2026-09-24,Old Harbour Steps,46\n2026-09-24,Canal Street,51\n2026-09-25,Cannery Wharf North,49\n2026-09-25,Old Harbour Steps,57\n2026-09-25,Canal Street,35\n2026-09-26,Cannery Wharf North,44\n2026-09-26,Old Harbour Steps,49\n2026-09-26,Canal Street,48\n2026-09-27,Cannery Wharf North,54\n2026-09-27,Old Harbour Steps,44\n2026-09-27,Canal Street,39\n2026-09-28,Cannery Wharf North,59\n2026-09-28,Old Harbour Steps,53\n2026-09-28,Canal Street,43\n2026-09-29,Cannery Wharf North,41\n2026-09-29,Old Harbour Steps,57\n2026-09-29,Canal Street,47\n2026-09-30,Cannery Wharf North,40\n2026-09-30,Old Harbour Steps,35\n2026-09-30,Canal Street,43\n",
+    "stations/stations.csv": "station_id,station,status,note\nCW1,Cannery Wharf,removed,2026-08-31 taken out of service; docks redistributed to Cannery Wharf North and Canal Street\nCW2,Cannery Wharf North,active,\nCS1,Canal Street,active,\nOH1,Old Harbour Steps,active,\n",
+    "README.md": "# Veloblitz harbour district ride log\n\nrides/ holds daily ride counts per station. Station names follow stations/stations.csv.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Finance is reconciling September dock activity for the Cannery Wharf station. How many rides started there in September?",
+      "expect": {
+        "output_contains": [
+          "Cannery Wharf"
+        ],
+        "output_contains_any": [
+          "not listed",
+          "isn't listed",
+          "no entry",
+          "doesn't list",
+          "does not list",
+          "not in the",
+          "not on the",
+          "no row",
+          "missing",
+          "not covered",
+          "removed",
+          "redistributed",
+          "taken out of service",
+          "decommissioned"
+        ],
+        "output_excludes": [
+          "1400",
+          "1,400"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

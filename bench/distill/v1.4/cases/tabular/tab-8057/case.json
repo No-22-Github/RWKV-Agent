@@ -1,0 +1,57 @@
+{
+  "id": "tab-8057",
+  "description": "Turn 1 asks for one session's gate revenue but the user will say which of the holiday sessions; the assistant must ask first; turn 2 names Oct 3 afternoon. DISTILL-CANARY-994c16bc",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-tab-b10-swimsession-01",
+    "ref_calls": 1,
+    "fixture_bytes": 430,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "游泳馆/票务/国庆场次.csv": "日期,场次,入场组数,票房收入\n10-01,上午场,9,4388\n10-01,下午场,17,6349\n10-02,上午场,11,6956\n10-02,下午场,10,8332\n10-03,上午场,17,6744\n10-03,下午场,9,8596\n10-04,上午场,18,7733\n10-04,下午场,9,7119\n10-05,上午场,9,6791\n10-05,下午场,14,4624\n10-06,上午场,15,7026\n10-06,下午场,14,8257\n10-07,上午场,17,8136\n10-07,下午场,12,8015\n",
+    "游泳馆/说明.md": "国庆档按日按场记录，票房收入单位为元。\n"
+  },
+  "turns": [
+    {
+      "prompt": "帮我报其中一场的票房收入，具体哪一场我来定——你先问我，别查表。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "哪一场",
+          "哪个场次",
+          "哪一场次",
+          "哪一天的哪一场",
+          "具体场次",
+          "场次名称",
+          "哪个时段"
+        ],
+        "max_output_chars": 300
+      }
+    },
+    {
+      "prompt": "10 月 3 日下午场那一场。",
+      "expect": {
+        "output_contains": [
+          "8596"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 300
+      }
+    }
+  ]
+}

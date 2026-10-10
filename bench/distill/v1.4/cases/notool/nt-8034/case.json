@@ -1,0 +1,39 @@
+{
+  "id": "nt-8034",
+  "description": "Two-step mental arithmetic for a tea-chain room booking (multiply contributions, then subtract the fee), expression demanded. DISTILL-CANARY-e7486e88",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b10-steamer-01",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "不用调工具，写出算式：沐棠茶饮的包场费 90 元，来了 12 位同事、每人出 8 元，收齐之后还剩几元？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains": [
+          "6"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 400
+      }
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "id": "doc-8024",
+  "description": "Turn 1 reads the maintenance guide for the first-service mileage; turn 2 forbids tools and asks the routine interval in the same guide. DISTILL-CANARY-babd331e",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-doc-b10-maintguide-01",
+    "ref_calls": 1,
+    "fixture_bytes": 281,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "作业/保养指导书.md": "# 保养作业指导书\n\n## 里程与间隔\n- 首保：新车 5000 公里或 6 个月，先到为准。\n- 常规保养：每 10000 公里或 12 个月。\n\n## 工位要求\n- 举升作业必须加保险凳。\n",
+    "README.md": "# 天工汽修 作业制度\n\n保养口径见 作业/保养指导书.md。\n"
+  },
+  "turns": [
+    {
+      "prompt": "天工汽修的首保里程是多少公里？",
+      "expect": {
+        "output_contains_any": [
+          "5000 公里",
+          "5000公里",
+          "5000"
+        ],
+        "required_tools": [
+          "read_file"
+        ],
+        "max_output_chars": 300
+      }
+    },
+    {
+      "prompt": "不要调用工具，就按刚才读到的指导书说：常规保养的间隔是多少？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "10000 公里",
+          "10000公里",
+          "每 10000 公里",
+          "10000"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ]
+}

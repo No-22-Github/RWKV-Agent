@@ -1,0 +1,68 @@
+{
+  "id": "fs-8013",
+  "description": "Asks where the shop's September inspection sheet is; the folder has July and August sheets plus an unfilled template, the archiving note says September moved to the mini-programme, and the template is the decoy. DISTILL-CANARY-b26da9a2",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "find_file",
+    "traps": [
+      "TR-ABSENT",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "UNKNOWN",
+      "TR-DECOY": "检查表/9月检查表-模板.md"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-fs-b10-shopaudit-01",
+    "ref_calls": 3,
+    "fixture_bytes": 529,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "检查表/2026-07-望京店.md": "# 望京店 7 月检查表\n\n卫生：合格\n设备：烤炉 B 门封待换\n",
+    "检查表/2026-08-望京店.md": "# 望京店 8 月检查表\n\n卫生：合格\n设备：全部合格\n",
+    "检查表/9月检查表-模板.md": "# 门店月度检查表（模板）\n\n卫生：\n设备：\n人员：\n（模板，未填写，不作为检查记录）\n",
+    "检查表/登记说明.md": "# 检查表归档说明\n\n从 9 月起门店月度检查改在小程序填报，markdown 检查表不再归档；9 月记录请到运营小程序导出。\n",
+    "README.md": "# 麦禾烘焙 门店运营资料\n\n检查表/ 存各月门店检查表，归档口径看 检查表/登记说明.md。\n"
+  },
+  "turns": [
+    {
+      "prompt": "稽核组要调望京店 9 月的门店检查表，帮我找一下文件在哪。",
+      "expect": {
+        "output_contains": [
+          "小程序"
+        ],
+        "output_contains_any": [
+          "没有",
+          "不存在",
+          "找不到",
+          "没找到",
+          "未找到",
+          "尚未",
+          "还没",
+          "不再归档",
+          "模板"
+        ],
+        "output_excludes": [
+          "9月检查表-模板.md 就是",
+          "检查表是 检查表/9月检查表-模板",
+          "9 月检查表在 检查表/9月检查表-模板"
+        ],
+        "required_tools": [
+          "read_file"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

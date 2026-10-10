@@ -1,0 +1,47 @@
+{
+  "id": "nt-8023",
+  "description": "Tea-chain overseas-expansion workspace on screen, but the user forbids opening it and asks the Tokyo time when Beijing is 8 PM, offsets given. DISTILL-CANARY-2bf60a89",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b10-matcha-01",
+    "ref_calls": 0,
+    "fixture_bytes": 179,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 沐棠茶饮 拓展组速览\n\n海外门店的筹备节点见 拓展/海外筹备.md。\n",
+    "拓展/海外筹备.md": "- 东京出张所：菜单本地化进行中\n- 吉隆坡合资店：装修报价已回收\n"
+  },
+  "turns": [
+    {
+      "prompt": "不用翻资料，直接告诉我：东京在 UTC+9，北京在 UTC+8。北京晚上 8 点的时候，东京是几点？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "21:00",
+          "21 点",
+          "21点",
+          "21 时",
+          "晚上 9 点",
+          "晚上9点",
+          "晚上九点"
+        ],
+        "max_output_chars": 400
+      }
+    }
+  ]
+}

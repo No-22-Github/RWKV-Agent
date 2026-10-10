@@ -1,0 +1,57 @@
+{
+  "id": "doc-8027",
+  "description": "Turn 1 reads the installation pledge for the contact-back window; turn 2 forbids tools and asks the same pledge's workmanship cover. DISTILL-CANARY-50ce2192",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-doc-b10-installpromise-01",
+    "ref_calls": 1,
+    "fixture_bytes": 315,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "承诺/安装服务承诺.md": "# 安装服务承诺\n\n- 预约响应：下单后 24 小时内联系。\n- 上门时限：预约时段前后 30 分钟。\n- 安装保用：安装项目保用 90 天。\n- 辅材：管卡、螺栓免费，支架按公示价。\n",
+    "README.md": "# 初阳家电服务 服务承诺\n\n安装与维修承诺见 承诺/安装服务承诺.md。\n"
+  },
+  "turns": [
+    {
+      "prompt": "初阳家电下单装空调，多久会有人联系我？",
+      "expect": {
+        "output_contains_any": [
+          "24 小时",
+          "24小时",
+          "24 个小时"
+        ],
+        "required_tools": [
+          "read_file"
+        ],
+        "max_output_chars": 300
+      }
+    },
+    {
+      "prompt": "先别调用工具，就按刚才读到的承诺说：安装保用期是多少天？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "90 天",
+          "90天",
+          "90"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ]
+}

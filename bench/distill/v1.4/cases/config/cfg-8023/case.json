@@ -1,0 +1,73 @@
+{
+  "id": "cfg-8023",
+  "description": "Asks the oven fan equalisation delay for a shop; neither config sets it, the docs point at the oven body's built-in programme value, and the cool-down reminder minutes are the decoy. DISTILL-CANARY-dbacf2d5",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-ABSENT",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "UNKNOWN",
+      "TR-DECOY": "25"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-cfg-b10-ovencurve-01",
+    "ref_calls": 3,
+    "fixture_bytes": 657,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/风炉.yaml": "设备: 风炉\n门店: 三里屯店\n烤制温度℃: 175\n降温提醒分: 25\n",
+    "config/门店覆盖/三里屯店.yaml": "门店: 三里屯店\n烤制温度℃: 170\n",
+    "docs/风炉参数.md": "# 风炉参数说明\n\n- 烤制温度℃：常规档位的炉腔温度。\n- 降温提醒分：到点未出炉时提醒值班店的倒计时，与炉腔控制无关。\n- 均温延时秒：开门后风机重新全速运转前的延时。未设置时使用炉体自带程序的延时，程序随炉体机型版本不同，仓库里没有记录这个值，建议按机型向厂家函索后显式写入。\n",
+    "README.md": "# 麦禾烘焙 设备参数仓库\n\n各门店设备参数在 config/ 下，门店差异放 config/门店覆盖/，参数含义见 docs/。\n"
+  },
+  "turns": [
+    {
+      "prompt": "三里屯店反馈饼干边缘上色偏深，让我核对一下风炉的均温延时设的是多少。",
+      "expect": {
+        "output_contains": [
+          "均温延时",
+          "炉体"
+        ],
+        "output_contains_any": [
+          "没设",
+          "没有设置",
+          "未设置",
+          "没有配置",
+          "未配置",
+          "没配置",
+          "没有这一项",
+          "没有这项",
+          "没有这个键",
+          "没有这个参数",
+          "都没有",
+          "查不到"
+        ],
+        "output_excludes": [
+          "均温延时是 25",
+          "均温延时为 25",
+          "均温延时 25",
+          "延时是 25 秒",
+          "延时为 25 秒"
+        ],
+        "required_tools": [
+          "read_file"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

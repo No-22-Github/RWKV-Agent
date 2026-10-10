@@ -1,0 +1,39 @@
+{
+  "id": "nt-8018",
+  "description": "Mental week-to-days conversion for a pastry-shop training plan, tool use explicitly declined. DISTILL-CANARY-f0cef4dc",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b10-jasmine-01",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "麦丰面点坊的新品培训安排 3 周，一周按 7 天算。不用调工具，直接告诉我一共多少天？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains": [
+          "21"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 400
+      }
+    }
+  ]
+}

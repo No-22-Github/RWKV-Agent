@@ -1,0 +1,47 @@
+{
+  "id": "nt-8025",
+  "description": "Tea-chain Dubai pop-up workspace available but forbidden; the user gives both UTC offsets and asks the Dubai time when Beijing is 11 PM. DISTILL-CANARY-2efed2a2",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b10-matcha-01",
+    "ref_calls": 0,
+    "fixture_bytes": 128,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 沐棠茶饮 中东筹备\n\n迪拜快闪店的筹备进度见 拓展/迪拜快闪.md。\n",
+    "拓展/迪拜快闪.md": "- 场地押金已付\n- 菜单已送审\n"
+  },
+  "turns": [
+    {
+      "prompt": "别查了，直接算：北京在 UTC+8，迪拜在 UTC+4。北京晚上 11 点的时候，迪拜是几点？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "19:00",
+          "19 点",
+          "19点",
+          "19 时",
+          "晚上 7 点",
+          "晚上7点",
+          "晚上七点"
+        ],
+        "max_output_chars": 400
+      }
+    }
+  ]
+}

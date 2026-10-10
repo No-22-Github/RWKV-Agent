@@ -1,0 +1,62 @@
+{
+  "id": "log-8023",
+  "description": "Asks how many filter expiry reminders the cloud platform received between 20:00 and 21:00; the platform paused for a data migration covering that hour and states the reports are not backfilled, so the count is unknown, not zero. DISTILL-CANARY-ba7c7da6",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "0"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-log-b10-filterlife-01",
+    "ref_calls": 2,
+    "fixture_bytes": 2300,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "logs/滤芯寿命/2026-09-26.log": "# 滤芯寿命上报日志，时间为北京时间\n2026-09-26T19:32:45+08:00 WARN 滤芯到期提醒 机器 RS-3108 滤芯 PP 棉\n2026-09-26T19:34:11+08:00 INFO 寿命上报 机器 RS-3108 剩余 84%\n2026-09-26T19:36:03+08:00 INFO 寿命上报 机器 RS-3102 剩余 70%\n2026-09-26T19:38:33+08:00 INFO 寿命上报 机器 RS-3115 剩余 78%\n2026-09-26T19:41:15+08:00 INFO 寿命上报 机器 RS-3102 剩余 23%\n2026-09-26T19:45:47+08:00 INFO 寿命上报 机器 RS-3108 剩余 35%\n2026-09-26T19:48:59+08:00 INFO 寿命上报 机器 RS-3115 剩余 23%\n2026-09-26T19:51:57+08:00 INFO 寿命上报 机器 RS-3115 剩余 77%\n2026-09-26T19:56:04+08:00 INFO 云平台：数据迁移，暂停接收\n2026-09-26T21:44:11+08:00 INFO 云平台：迁移完成，恢复接收；19:56 至 21:44 的上报没有接收，也不会补传\n2026-09-26T21:46:02+08:00 WARN 滤芯到期提醒 机器 RS-3102 滤芯 PP 棉\n2026-09-26T21:48:27+08:00 WARN 滤芯到期提醒 机器 RS-3108 滤芯 RO 膜\n2026-09-26T21:52:14+08:00 INFO 寿命上报 机器 RS-3102 剩余 30%\n2026-09-26T21:54:12+08:00 WARN 滤芯到期提醒 机器 RS-3102 滤芯 前置炭\n2026-09-26T21:56:30+08:00 WARN 滤芯到期提醒 机器 RS-3108 滤芯 前置炭\n2026-09-26T22:00:15+08:00 WARN 滤芯到期提醒 机器 RS-3115 滤芯 PP 棉\n2026-09-26T22:02:52+08:00 WARN 滤芯到期提醒 机器 RS-3115 滤芯 PP 棉\n2026-09-26T22:04:55+08:00 INFO 寿命上报 机器 RS-3115 剩余 43%\n2026-09-26T22:07:31+08:00 INFO 寿命上报 机器 RS-3102 剩余 56%\n2026-09-26T22:10:08+08:00 INFO 寿命上报 机器 RS-3108 剩余 85%\n2026-09-26T22:13:44+08:00 WARN 滤芯到期提醒 机器 RS-3102 滤芯 前置炭\n2026-09-26T22:15:46+08:00 INFO 寿命上报 机器 RS-3115 剩余 42%\n2026-09-26T22:19:30+08:00 INFO 寿命上报 机器 RS-3108 剩余 81%\n2026-09-26T22:22:04+08:00 INFO 寿命上报 机器 RS-3108 剩余 24%\n2026-09-26T22:26:00+08:00 INFO 寿命上报 机器 RS-3115 剩余 84%\n2026-09-26T22:29:32+08:00 INFO 寿命上报 机器 RS-3115 剩余 71%\n",
+    "运维/上报说明.md": "# 上报说明\n\n滤芯寿命上报经云平台写入 logs/。平台迁移或维护期间接收暂停，暂停时段的上报不会补传；原始上报在平台暂存区保留 5 天，可由管理员导出。\n",
+    "README.md": "# 澄泉净水 云平台\n\nlogs/滤芯寿命/ 按天存放寿命上报日志。\n"
+  },
+  "turns": [
+    {
+      "prompt": "9 月 26 日晚上 8 点到 9 点，云平台收到了多少条滤芯到期提醒？",
+      "expect": {
+        "output_contains_any": [
+          "中断",
+          "暂停",
+          "维护",
+          "没有采集",
+          "没有推送",
+          "没有日志",
+          "缺失",
+          "空白",
+          "没有记录",
+          "停机",
+          "无法确定",
+          "无法统计",
+          "没有任何记录",
+          "一条记录都没有",
+          "不会补传",
+          "不补录"
+        ],
+        "required_tools": [
+          "read_file"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

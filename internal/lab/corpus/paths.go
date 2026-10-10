@@ -54,6 +54,18 @@ type Action struct {
 // Trajectory is one case's actions, in order.
 type Trajectory []Action
 
+// fixturePageError reports whether a tool error is a page the case made
+// unreachable on purpose rather than a mistake by the teacher. Distillation
+// runs serve web tools from the case's web_fixture, and an entry's "error"
+// makes web_fetch fail with that text (503, timeout, 404) — the situation the
+// failure-reporting cases exist to teach, so the run stays a clean path and
+// render replays the same error. Argument errors are still the teacher's own
+// and keep the path out.
+func fixturePageError(step agent.Step) bool {
+	return step.Tool == "web_fetch" && step.ToolExecuted &&
+		!strings.HasPrefix(step.ToolError, "invalid tool arguments")
+}
+
 // Unclean is a passing run whose path cannot be replayed as-is; the message is
 // the drop reason.
 type Unclean string
@@ -108,7 +120,7 @@ func Extract(run CaseRun) (Trajectory, error) {
 			}
 			switch step.ActionType {
 			case "tool":
-				if step.ToolError != "" || step.ToolRejected != "" || !step.ToolExecuted {
+				if (step.ToolError != "" && !fixturePageError(step)) || step.ToolRejected != "" || !step.ToolExecuted {
 					return nil, Unclean("tool error or rejection")
 				}
 				arguments, err := orderedArguments(step.ToolArguments)

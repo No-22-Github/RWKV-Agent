@@ -1,0 +1,65 @@
+{
+  "id": "fs-8029",
+  "description": "Turn 1 asks for the health-check notice text but its directory is unstated; the assistant must ask first; turn 2 gives the directory. DISTILL-CANARY-0d55b897",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "find_file",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-fs-b10-healthnotice-01",
+    "ref_calls": 1,
+    "fixture_bytes": 377,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "园务通知按分类存放在 通知/ 下的子目录，目录名即分类。\n",
+    "通知/伙食/十月带量食谱.md": "十月带量食谱\n\n第一周主食为软米饭，配菜每日更新，见带量表。\n",
+    "通知/活动/秋游安排.md": "秋游安排\n\n全园秋游定在 10 月 16 日，地点植物园，请穿园服。\n",
+    "通知/体检/秋季体检安排.md": "秋季体检安排\n\n全园体检定在 10 月 21 日（周三）上午，地点妇幼保健院二楼，按班级分批进行。\n"
+  },
+  "turns": [
+    {
+      "prompt": "帮我找秋季体检安排的通知原文，具体放在哪个目录我没说过——你先问我，别自己去翻。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "哪个目录",
+          "哪条路径",
+          "哪个路径",
+          "放在哪",
+          "目录路径",
+          "所在的目录",
+          "所在目录",
+          "具体路径",
+          "完整路径"
+        ],
+        "max_output_chars": 300
+      }
+    },
+    {
+      "prompt": "在 通知/体检/ 这个目录里。",
+      "expect": {
+        "output_contains_any": [
+          "10 月 21 日",
+          "10月21日",
+          "2026-10-21"
+        ],
+        "required_tools": [
+          "read_file"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ]
+}

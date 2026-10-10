@@ -1,0 +1,53 @@
+{
+  "id": "log-8038",
+  "description": "Turn 1 reads the call log for what complaint C-2105 was about; turn 2 forbids tools and asks when that call came in. DISTILL-CANARY-83432053",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-log-b10-callqueue-01",
+    "ref_calls": 1,
+    "fixture_bytes": 573,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "日志/客服来电-20261004.log": "09:03 来电 C-2101 洗衣机异响 转维修组\n09:17 来电 C-2102 冰箱门封条老化 预约更换\n09:52 来电 C-2103 空调不制冷 转维修组\n10:26 来电 C-2104 热水器漏水 转维修组\n10:41 来电 C-2105 微波炉不加热 转维修组\n11:15 来电 C-2106 洗碗机不进水 改约周五\n13:02 来电 C-2107 空调噪音 转维修组\n14:37 来电 C-2108 冰箱制冷差 转维修组\n15:12 来电 C-2109 油烟机按键失灵 转维修组\n16:48 来电 C-2110 燃气灶打不着火 转维修组\n",
+    "README.md": "邦宁家电服务 客服来电记录，一行一通电话。\n"
+  },
+  "turns": [
+    {
+      "prompt": "邦宁家电 10 月 4 日的来电记录里，C-2105 那通电话反映的是什么问题？",
+      "expect": {
+        "output_contains": [
+          "微波炉"
+        ],
+        "required_tools": [
+          "read_file"
+        ],
+        "max_output_chars": 300
+      }
+    },
+    {
+      "prompt": "不要调用工具，就按刚才读到的记录说：那通电话是几点接进来的？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains": [
+          "10:41"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ]
+}

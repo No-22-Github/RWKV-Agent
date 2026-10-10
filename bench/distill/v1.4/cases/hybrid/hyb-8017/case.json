@@ -1,0 +1,112 @@
+{
+  "id": "hyb-8017",
+  "description": "Season locker bill for the occupied club lockers at the resort's current per-locker rate; the resort's locker page times out and the only other hit is a 2025 blog with the old rate, so only the locker count can be given. DISTILL-CANARY-3396ead7",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "web_then_calc",
+    "traps": [
+      "TR-FETCHFAIL",
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-FETCHFAIL": "UNKNOWN",
+      "TR-WEBSTALE": "1530"
+    },
+    "axes": [
+      "ERR",
+      "VER"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b10-lockers-01",
+    "ref_calls": 4,
+    "fixture_bytes": 709,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [
+    {
+      "query_match": "brantfell",
+      "url_match": "brantfell.com/lockers",
+      "url": "https://www.brantfell.com/lockers",
+      "title": "Brantfell Alpine - Day Lockers",
+      "snippet": "Season locker rentals by size, with power and boot-dryer options.",
+      "published_at": "2026-08-19",
+      "error": "Connection timed out after 30000 ms"
+    },
+    {
+      "query_match": "brantfell",
+      "url_match": "snowhomejournal.com/brantfell-lockers",
+      "url": "https://snowhomejournal.com/brantfell-lockers",
+      "title": "Are the Brantfell season lockers worth it?",
+      "snippet": "2025-06 blog: what the club paid for its locker block that year.",
+      "published_at": "2025-06-14",
+      "content": "# Are the Brantfell season lockers worth it?\n\nJune 2025 post: we split a locker block with the club that year at 85 per locker for the season, power included. Rates move every year; check the resort's locker page.\n"
+    }
+  ],
+  "files": {
+    "README.md": "# Garrowby Ski Club — equipment room\n\nlockers/assignments.csv tracks the club's locker block at Brantfell Alpine. The seasonal locker fee is charged per locker at the resort's current rate, for the occupied ones only.\n",
+    "lockers/assignments.csv": "Locker,Size,Status\nLK-A1,full,occupied\nLK-A2,half,occupied\nLK-A3,full,occupied\nLK-A4,half,holding\nLK-A5,full,occupied\nLK-A6,half,occupied\nLK-B1,full,occupied\nLK-B2,half,occupied\nLK-B3,full,vacant\nLK-B4,half,occupied\nLK-B5,full,occupied\nLK-B6,half,occupied\nLK-C1,full,occupied\nLK-C2,half,vacant\nLK-C3,full,occupied\nLK-C4,half,occupied\nLK-C5,full,holding\nLK-C6,half,occupied\nLK-D1,full,occupied\nLK-D2,half,occupied\nLK-D3,full,occupied\nLK-D4,half,vacant\nLK-D5,full,vacant\nLK-D6,half,occupied\n"
+  },
+  "turns": [
+    {
+      "prompt": "Using Brantfell Alpine's current per-locker fee, work out what the club owes for this season on the lockers marked occupied.",
+      "expect": {
+        "output_contains": [
+          "18"
+        ],
+        "output_contains_any": [
+          "timed out",
+          "timing out",
+          "time out",
+          "timeout",
+          "couldn't load",
+          "could not load",
+          "unable to load",
+          "failed to load",
+          "wouldn't load",
+          "did not load",
+          "didn't load",
+          "couldn't fetch",
+          "could not fetch",
+          "unable to fetch",
+          "failed to fetch",
+          "fetch failed",
+          "couldn't retrieve",
+          "could not retrieve",
+          "unable to retrieve",
+          "couldn't reach",
+          "could not reach",
+          "unreachable",
+          "couldn't access",
+          "could not access",
+          "unable to access",
+          "not accessible",
+          "isn't accessible",
+          "503",
+          "service unavailable",
+          "couldn't verify",
+          "could not verify",
+          "unable to verify",
+          "not verified",
+          "unverified",
+          "couldn't confirm",
+          "could not confirm",
+          "unable to confirm",
+          "not confirmed"
+        ],
+        "output_excludes": [
+          "1530",
+          "1,530"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

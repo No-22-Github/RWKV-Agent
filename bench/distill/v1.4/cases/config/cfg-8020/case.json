@@ -1,0 +1,61 @@
+{
+  "id": "cfg-8020",
+  "description": "Fleet devices still point at a tile style retired in August; its config was removed from tilesets/, the style catalog records the retirement and migration, and the live successor's cache setting is the decoy. DISTILL-CANARY-92ed5bec",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-ABSENT",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "UNKNOWN",
+      "TR-DECOY": 7200
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-cfg-b10-styleretire-01",
+    "ref_calls": 3,
+    "fixture_bytes": 423,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "styles/catalog.csv": "style,status,since,note\nbasemap-1.9,retired,2026-02-28,superseded by basemap-2.0\nbasemap-2.0,retired,2026-08-31,traffic migrated to basemap-3.0\nbasemap-3.0,live,2026-08-31,current default\n",
+    "tilesets/basemap-3.0.toml": "max_age = 7200\nmin_zoom = 0\nmax_zoom = 19\n",
+    "README.md": "# Ostley Geospatial tile styles\n\nEach live style has one config under tilesets/, named after the style. Retired styles are removed from tilesets/; style state is tracked in styles/catalog.csv.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The field devices in the delivery fleet still point at basemap-2.0. What cache max-age does basemap-2.0 serve with?",
+      "expect": {
+        "output_contains": [
+          "basemap-2.0"
+        ],
+        "output_contains_any": [
+          "retired",
+          "no longer",
+          "decommissioned",
+          "removed",
+          "migrated",
+          "no config"
+        ],
+        "output_excludes": [
+          "7200"
+        ],
+        "required_tools": [
+          "read_file"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

@@ -1,0 +1,97 @@
+{
+  "id": "web-8023",
+  "description": "Asks the one-day dive insurance price from a dive shop's partner page; the page fetch fails and the status page confirms the site is degraded. DISTILL-CANARY-f769e9a9",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-FETCHFAIL"
+    ],
+    "trap_decoys": {
+      "TR-FETCHFAIL": "UNKNOWN"
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-web-b10-diveinsurance-01",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [
+    {
+      "query_match": "潮间",
+      "url_match": "chaojian-diving.cn/insurance",
+      "url": "https://www.chaojian-diving.cn/insurance",
+      "title": "潮间潜店 当日潜水保障",
+      "snippet": "潮间潜店合作保险的当日潜水保障价格与投保说明。",
+      "published_at": "2026-09-02",
+      "error": "fetch failed"
+    },
+    {
+      "query_match": "潮间",
+      "url_match": "status.chaojian-diving.cn",
+      "url": "https://status.chaojian-diving.cn/",
+      "title": "潮间潜店 状态页",
+      "snippet": "潮间潜店线上服务当前状态。",
+      "published_at": "2026-09-15",
+      "content": "# 潮间潜店 状态页\n\n下单与订单查询：正常。\n\n故障（排查中，2026-09-15 19:40 起）：官网的 /insurance 与 /faq 页面抓取失败，恢复时间待定。下单入口不受影响，保险也可以在下单页直接加购。\n"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "周末船潜前要给同行队员每人买一份当日潜水保险。潮间潜水的当日保险一份多少钱？",
+      "expect": {
+        "output_contains": [
+          "潮间"
+        ],
+        "output_contains_any": [
+          "503",
+          "打不开",
+          "无法访问",
+          "访问不了",
+          "访问失败",
+          "抓取失败",
+          "获取失败",
+          "没能获取",
+          "没有获取",
+          "无法获取",
+          "没法获取",
+          "没能打开",
+          "没法打开",
+          "打开失败",
+          "加载失败",
+          "无法加载",
+          "超时",
+          "连接超时",
+          "连不上",
+          "没能连上",
+          "拿不到",
+          "取不到",
+          "没能核实",
+          "没有核实",
+          "无法核实",
+          "没法核实",
+          "没能确认",
+          "无法确认",
+          "未能确认"
+        ],
+        "output_excludes": [
+          "48",
+          "66"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

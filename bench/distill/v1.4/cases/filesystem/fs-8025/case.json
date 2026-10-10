@@ -1,0 +1,56 @@
+{
+  "id": "fs-8025",
+  "description": "Turn 1 reads the paper cabinet for the shelf holding the carbonless stock; turn 2 forbids tools and asks that stock's sheet count. DISTILL-CANARY-a8f9421f",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "find_file",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-fs-b10-papercab-01",
+    "ref_calls": 1,
+    "fixture_bytes": 408,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "stock/paper-cabinet.md": "# Paper cabinet - counted Sep 30\n\n| Stock | Code | Sheets on hand | Shelf |\n|---|---|---|---|\n| Uncoated 100 gsm | PC-118 | 4500 | B2 |\n| Silk-coated 150 gsm | PC-204 | 2800 | B4 |\n| Carbonless pink | PC-330 | 900 | C1 |\n| Board 300 gsm | PC-377 | 640 | D3 |\n",
+    "stock/order-book.md": "# Standing orders\n\n- PC-330 carbonless: reordered every second Monday.\n",
+    "README.md": "Ledgerside Print Co. stock notes. The paper cabinet listing is authoritative.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Which shelf in stock/paper-cabinet.md holds the carbonless pink stock?",
+      "expect": {
+        "output_contains": [
+          "C1"
+        ],
+        "required_tools": [
+          "read_file"
+        ],
+        "max_output_chars": 300
+      }
+    },
+    {
+      "prompt": "Don't reach for any tools — from the cabinet listing you already have: how many sheets of that carbonless pink are on hand?",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "900",
+          "nine hundred",
+          "Nine hundred"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ]
+}

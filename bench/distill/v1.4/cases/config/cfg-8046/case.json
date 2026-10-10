@@ -1,0 +1,43 @@
+{
+  "id": "cfg-8046",
+  "description": "Tea-chain coding-standard workspace available but forbidden; the user asks what the regex token backslash-d matches. DISTILL-CANARY-3afb0b97",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-cfg-b10-chai-01",
+    "ref_calls": 0,
+    "fixture_bytes": 156,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 沐棠茶饮 会员编码规范\n\n编码格式的校验规则由小程序端维护，运营侧只登记前缀。\n",
+    "运营/前缀登记.md": "- 会员号前缀：MT\n- 券码前缀：Q\n"
+  },
+  "turns": [
+    {
+      "prompt": "不用翻手册，直接讲：正则表达式里的 `\\d` 匹配的是什么？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "数字",
+          "digit",
+          "0-9"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

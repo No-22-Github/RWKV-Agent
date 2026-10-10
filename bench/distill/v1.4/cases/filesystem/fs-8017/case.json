@@ -1,0 +1,66 @@
+{
+  "id": "fs-8017",
+  "description": "Asks for the week 37 hygiene wash certificate for the hotel audit; the index says it has not been scanned yet, the general week 37 wash certificate is the decoy. DISTILL-CANARY-fb4ed8bc",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "find_file",
+    "traps": [
+      "TR-ABSENT",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "UNKNOWN",
+      "TR-DECOY": "certs/week-37-wash-certificate.md"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-fs-b10-washcert-01",
+    "ref_calls": 3,
+    "fixture_bytes": 740,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "certs/INDEX.txt": "week | certificate | note\n35 | certs/week-35-hygiene-certificate.md | scanned\n36 | certs/week-36-hygiene-certificate.md | scanned\n37 | certs/week-37-wash-certificate.md | general wash programme only\n37 hygiene | - | label printer ran the week; hygiene certificate not scanned yet, expected from the lab next week\n",
+    "certs/week-35-hygiene-certificate.md": "# Week 35 hygiene wash certificate\n\nHarborview contract. 71 C wash, final rinse 82 C. Pass.\n",
+    "certs/week-36-hygiene-certificate.md": "# Week 36 hygiene wash certificate\n\nHarborview contract. 71 C wash, final rinse 82 C. Pass.\n",
+    "certs/week-37-wash-certificate.md": "# Week 37 wash certificate\n\nHarborview contract, general wash programme.\n",
+    "certs/README.md": "Certificates for the Harborview contract. Hygiene wash certificates are issued per week by the lab; the general wash certificate does not substitute for the hygiene one.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The Harborview hotel's environmental health officer is on site and wants this week's (week 37) hygiene wash certificate. Where is the file?",
+      "expect": {
+        "output_contains": [
+          "hygiene"
+        ],
+        "output_contains_any": [
+          "not scanned",
+          "hasn't been scanned",
+          "not yet scanned",
+          "no hygiene certificate",
+          "not issued",
+          "pending",
+          "next week"
+        ],
+        "output_excludes": [
+          "hygiene certificate is certs/week-37-wash",
+          "use certs/week-37-wash",
+          "hand over certs/week-37-wash"
+        ],
+        "required_tools": [
+          "read_file"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

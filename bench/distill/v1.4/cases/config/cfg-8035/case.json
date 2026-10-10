@@ -1,0 +1,56 @@
+{
+  "id": "cfg-8035",
+  "description": "Turn 1 reads a service-package config for its labour-time allowance; turn 2 forbids tools and asks the same package's mileage interval. DISTILL-CANARY-21b59b27",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-cfg-b10-maintplan-01",
+    "ref_calls": 2,
+    "fixture_bytes": 397,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "套餐/大保养.yaml": "套餐名: 大保养\n适用: 燃油车\n工时定额: 3.5\n含项: 小保养全部项目、空气滤芯、空调滤芯\n建议间隔: 40000 公里或 24 个月\n",
+    "套餐/小保养.yaml": "套餐名: 小保养\n适用: 燃油车\n工时定额: 1.5\n机油规格: 5W-30\n含项: 机油、机滤、18 项检查\n建议间隔: 10000 公里或 12 个月\n",
+    "README.md": "# 骏驰汽修 保养套餐\n\n套餐工时与含项以 套餐/ 下的 yaml 为准。\n"
+  },
+  "turns": [
+    {
+      "prompt": "骏驰汽修的小保养套餐工时定额是多少？",
+      "expect": {
+        "output_contains": [
+          "1.5"
+        ],
+        "required_tools": [
+          "read_file"
+        ],
+        "max_output_chars": 300
+      }
+    },
+    {
+      "prompt": "别动工具，就按刚才读到的套餐配置说：小保养建议多少公里做一次？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "10000 公里",
+          "10000公里",
+          "10000"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ]
+}

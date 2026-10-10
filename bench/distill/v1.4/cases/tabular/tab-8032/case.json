@@ -1,0 +1,55 @@
+{
+  "id": "tab-8032",
+  "description": "Asks the August wash cycle count across two soil-sort lines; line B's export stops on Aug 18 at a tag-reader swap, so only line A's full-month count is certain. DISTILL-CANARY-45de4544",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-ABSENT",
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "47",
+      "TR-MULTISRC": "26"
+    },
+    "axes": [
+      "DEC",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "fam-tab-b10-washcount-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1665,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "wash/Aug-2026-line-A.csv": "cycle_id,date,program,weight_kg\nWC-6105,2026-08-01,sheets,199\nWC-6117,2026-08-01,duvets,209\nWC-6120,2026-08-02,towels,204\nWC-6102,2026-08-10,sheets,206\nWC-6122,2026-08-10,towels,222\nWC-6123,2026-08-10,towels,193\nWC-6108,2026-08-13,towels,229\nWC-6112,2026-08-13,sheets,235\nWC-6114,2026-08-13,duvets,198\nWC-6121,2026-08-14,sheets,192\nWC-6109,2026-08-15,duvets,197\nWC-6101,2026-08-16,towels,222\nWC-6104,2026-08-16,sheets,216\nWC-6107,2026-08-17,towels,193\nWC-6116,2026-08-20,sheets,184\nWC-6118,2026-08-20,sheets,201\nWC-6110,2026-08-22,sheets,238\nWC-6124,2026-08-22,towels,222\nWC-6115,2026-08-24,towels,205\nWC-6103,2026-08-28,towels,183\nWC-6111,2026-08-28,towels,207\nWC-6113,2026-08-29,sheets,183\nWC-6106,2026-08-30,duvets,220\nWC-6125,2026-08-30,towels,182\nWC-6126,2026-08-30,sheets,211\nWC-6119,2026-08-31,duvets,240\n",
+    "wash/Aug-2026-line-B.csv": "cycle_id,date,program,weight_kg\nWD-7202,2026-08-01,sheets,180\nWD-7220,2026-08-02,duvets,223\nWD-7209,2026-08-03,duvets,195\nWD-7213,2026-08-03,towels,191\nWD-7208,2026-08-05,sheets,208\nWD-7203,2026-08-06,sheets,195\nWD-7221,2026-08-08,sheets,190\nWD-7211,2026-08-09,towels,191\nWD-7219,2026-08-09,towels,186\nWD-7201,2026-08-12,sheets,187\nWD-7204,2026-08-12,towels,182\nWD-7207,2026-08-12,sheets,213\nWD-7215,2026-08-12,towels,224\nWD-7216,2026-08-12,duvets,191\nWD-7218,2026-08-12,duvets,240\nWD-7212,2026-08-14,towels,226\nWD-7214,2026-08-15,duvets,234\nWD-7205,2026-08-16,sheets,235\nWD-7206,2026-08-16,towels,227\nWD-7210,2026-08-18,duvets,236\nWD-7217,2026-08-18,towels,182\n",
+    "wash/README.md": "# Soil-sort wash logs\n\nwash/ holds the per-line cycle exports. Line B's tag reader was swapped on Aug 18 and its cycles after that are pending the vendor's re-export, expected mid-September.\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many wash cycles did we run in August across the two soil-sort lines?",
+      "expect": {
+        "output_contains": [
+          "26"
+        ],
+        "output_contains_any": [
+          "swapped",
+          "not exported",
+          "hasn't been exported",
+          "not yet exported",
+          "pending",
+          "re-export"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

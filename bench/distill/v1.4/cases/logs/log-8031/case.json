@@ -1,0 +1,48 @@
+{
+  "id": "log-8031",
+  "description": "Asks September booking confirmations across the gateway and SMS channels; the SMS log lost four days to a collector disk failure pending backup restore, so only the gateway total is certain. DISTILL-CANARY-322721e1",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "aggregate_jsonl",
+    "traps": [
+      "TR-ABSENT",
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "5252",
+      "TR-MULTISRC": "4241"
+    },
+    "axes": [
+      "DEC",
+      "CHN"
+    ],
+    "level": "L2",
+    "family": "fam-log-b10-gymapi-01",
+    "ref_calls": 3,
+    "fixture_bytes": 3323,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "logs/网关确认-2026-09.jsonl": "{\"date\": \"2026-09-01\", \"confirmed\": 133, \"expired\": 8}\n{\"date\": \"2026-09-02\", \"confirmed\": 140, \"expired\": 10}\n{\"date\": \"2026-09-03\", \"confirmed\": 128, \"expired\": 8}\n{\"date\": \"2026-09-04\", \"confirmed\": 161, \"expired\": 10}\n{\"date\": \"2026-09-05\", \"confirmed\": 120, \"expired\": 6}\n{\"date\": \"2026-09-06\", \"confirmed\": 133, \"expired\": 14}\n{\"date\": \"2026-09-07\", \"confirmed\": 156, \"expired\": 13}\n{\"date\": \"2026-09-08\", \"confirmed\": 149, \"expired\": 8}\n{\"date\": \"2026-09-09\", \"confirmed\": 160, \"expired\": 7}\n{\"date\": \"2026-09-10\", \"confirmed\": 163, \"expired\": 8}\n{\"date\": \"2026-09-11\", \"confirmed\": 151, \"expired\": 11}\n{\"date\": \"2026-09-12\", \"confirmed\": 162, \"expired\": 8}\n{\"date\": \"2026-09-13\", \"confirmed\": 142, \"expired\": 6}\n{\"date\": \"2026-09-14\", \"confirmed\": 132, \"expired\": 13}\n{\"date\": \"2026-09-15\", \"confirmed\": 148, \"expired\": 14}\n{\"date\": \"2026-09-16\", \"confirmed\": 139, \"expired\": 14}\n{\"date\": \"2026-09-17\", \"confirmed\": 120, \"expired\": 9}\n{\"date\": \"2026-09-18\", \"confirmed\": 132, \"expired\": 11}\n{\"date\": \"2026-09-19\", \"confirmed\": 153, \"expired\": 14}\n{\"date\": \"2026-09-20\", \"confirmed\": 121, \"expired\": 6}\n{\"date\": \"2026-09-21\", \"confirmed\": 131, \"expired\": 8}\n{\"date\": \"2026-09-22\", \"confirmed\": 134, \"expired\": 9}\n{\"date\": \"2026-09-23\", \"confirmed\": 142, \"expired\": 11}\n{\"date\": \"2026-09-24\", \"confirmed\": 142, \"expired\": 7}\n{\"date\": \"2026-09-25\", \"confirmed\": 131, \"expired\": 13}\n{\"date\": \"2026-09-26\", \"confirmed\": 140, \"expired\": 6}\n{\"date\": \"2026-09-27\", \"confirmed\": 160, \"expired\": 10}\n{\"date\": \"2026-09-28\", \"confirmed\": 148, \"expired\": 7}\n{\"date\": \"2026-09-29\", \"confirmed\": 145, \"expired\": 10}\n{\"date\": \"2026-09-30\", \"confirmed\": 125, \"expired\": 7}\n",
+    "logs/短信确认-2026-09.jsonl": "{\"date\": \"2026-09-01\", \"confirmed\": 41, \"expired\": 3}\n{\"date\": \"2026-09-02\", \"confirmed\": 38, \"expired\": 2}\n{\"date\": \"2026-09-03\", \"confirmed\": 42, \"expired\": 7}\n{\"date\": \"2026-09-04\", \"confirmed\": 34, \"expired\": 6}\n{\"date\": \"2026-09-05\", \"confirmed\": 32, \"expired\": 4}\n{\"date\": \"2026-09-06\", \"confirmed\": 33, \"expired\": 2}\n{\"date\": \"2026-09-07\", \"confirmed\": 38, \"expired\": 2}\n{\"date\": \"2026-09-08\", \"confirmed\": 43, \"expired\": 7}\n{\"date\": \"2026-09-13\", \"confirmed\": 46, \"expired\": 6}\n{\"date\": \"2026-09-14\", \"confirmed\": 36, \"expired\": 5}\n{\"date\": \"2026-09-15\", \"confirmed\": 38, \"expired\": 5}\n{\"date\": \"2026-09-16\", \"confirmed\": 47, \"expired\": 5}\n{\"date\": \"2026-09-17\", \"confirmed\": 31, \"expired\": 2}\n{\"date\": \"2026-09-18\", \"confirmed\": 48, \"expired\": 3}\n{\"date\": \"2026-09-19\", \"confirmed\": 34, \"expired\": 7}\n{\"date\": \"2026-09-20\", \"confirmed\": 36, \"expired\": 7}\n{\"date\": \"2026-09-21\", \"confirmed\": 35, \"expired\": 3}\n{\"date\": \"2026-09-22\", \"confirmed\": 41, \"expired\": 4}\n{\"date\": \"2026-09-23\", \"confirmed\": 39, \"expired\": 4}\n{\"date\": \"2026-09-24\", \"confirmed\": 37, \"expired\": 5}\n{\"date\": \"2026-09-25\", \"confirmed\": 33, \"expired\": 7}\n{\"date\": \"2026-09-26\", \"confirmed\": 42, \"expired\": 5}\n{\"date\": \"2026-09-27\", \"confirmed\": 44, \"expired\": 5}\n{\"date\": \"2026-09-28\", \"confirmed\": 40, \"expired\": 7}\n{\"date\": \"2026-09-29\", \"confirmed\": 41, \"expired\": 4}\n{\"date\": \"2026-09-30\", \"confirmed\": 42, \"expired\": 2}\n",
+    "logs/README.md": "# 私教约课确认日志\n\n网关确认是小程序网关通道的按天汇总，短信确认是短信通道的按天汇总。\n短信通道 9 月 9 日至 12 日的汇总因收集器磁盘故障缺失，备份在恢复中，预计 10 月 11 日补回。\n"
+  },
+  "turns": [
+    {
+      "prompt": "9 月私教约课确认（网关通道加短信通道）一共确认成功了多少次？",
+      "expect": {
+        "output_contains_any": [
+          "4241",
+          "4,241"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

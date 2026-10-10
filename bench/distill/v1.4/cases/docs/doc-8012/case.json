@@ -1,0 +1,65 @@
+{
+  "id": "doc-8012",
+  "description": "Mapping style question asks the minimum label size in version 4 of the tile style guide, which is still in draft; the published v3 and the legend style guide's v4 are the reference and the decoy. DISTILL-CANARY-7e8d60c7",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-ABSENT",
+      "TR-NEARNAME"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "UNKNOWN",
+      "TR-NEARNAME": "11.5"
+    },
+    "axes": [
+      "DEC",
+      "ERR"
+    ],
+    "level": "L2",
+    "family": "fam-doc-b10-styleguide-01",
+    "ref_calls": 3,
+    "fixture_bytes": 628,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Saltmarsh Cartography style guides\n\nPublished guides live in docs/, one file per guide and version. Draft versions are only logged in docs/STYLE-LOG.md.\n",
+    "docs/STYLE-LOG.md": "# Style guide log\n\n| Guide | Version | Status | Note |\n|---|---|---|---|\n| tile style guide | v3 | published 2026-04-14 | current |\n| tile style guide | v4 | draft | cartography team, review planned 2026-11-20, text not final |\n| legend style guide | v4 | published 2026-08-30 | current |\n",
+    "docs/tile-style-guide-v3.md": "# Tile style guide (v3)\n\n## Labels\n- Minimum label size: 10 pt.\n- Collision distance: 2 px.\n",
+    "docs/legend-style-guide-v4.md": "# Legend style guide (v4)\n\n## Swatches\n- Minimum label size: 11.5 pt.\n- Swatch size: 16 px.\n"
+  },
+  "turns": [
+    {
+      "prompt": "What minimum label size does version 4 of the tile style guide specify?",
+      "expect": {
+        "output_contains": [
+          "v4"
+        ],
+        "output_contains_any": [
+          "draft",
+          "not published",
+          "hasn't been published",
+          "not yet published",
+          "unpublished",
+          "not final",
+          "pending"
+        ],
+        "output_excludes": [
+          "11.5",
+          "11.5 pt",
+          "11.5pt"
+        ],
+        "required_tools": [
+          "read_file"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

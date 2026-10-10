@@ -1,0 +1,71 @@
+{
+  "id": "code-8006",
+  "description": "Asks where the DockAllocator class is defined; the v1 class was removed and the package defines a separately rewritten V2 allocator. DISTILL-CANARY-e193ce95",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "locate_definition",
+    "traps": [
+      "TR-ABSENT",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "UNKNOWN",
+      "TR-DECOY": "fleet/allocator.py"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-code-b10-dockalloc-01",
+    "ref_calls": 2,
+    "fixture_bytes": 1033,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "fleet/allocator.py": "\"\"\"Dock allocation for the Spokecraft rider app.\"\"\"\nfrom dataclasses import dataclass\n\n\n@dataclass\nclass Dock:\n    dock_id: str\n    station: str\n    slots: int\n\n\nclass DockAllocatorV2:\n    \"\"\"Rebalanced allocator: picks the dock with the most free slots.\"\"\"\n\n    def __init__(self, docks):\n        self.docks = list(docks)\n\n    def best_dock(self, station: str) -> Dock:\n        candidates = [d for d in self.docks if d.station == station and d.slots > 0]\n        if not candidates:\n            raise LookupError(station)\n        return max(candidates, key=lambda d: d.slots)\n",
+    "fleet/trips.py": "\"\"\"Trip bookkeeping helpers for the fleet service.\"\"\"\n\n\ndef close_trip(trip: dict, ended_at: str) -> dict:\n    trip[\"ended_at\"] = ended_at\n    return trip\n",
+    "CHANGELOG.md": "# Changelog\n\n## 2026-08-31\n- Removed the v1 DockAllocator class. Dock allocation now runs on DockAllocatorV2, a separate rewrite with a different interface; it is not a rename of the old class.\n",
+    "README.md": "# Spokecraft fleet service\n\nDock allocation lives in the fleet package; recent changes are in CHANGELOG.md.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Where is the DockAllocator class defined in this codebase? I need to check its scoring weights.",
+      "expect": {
+        "output_contains": [
+          "DockAllocator"
+        ],
+        "output_contains_any": [
+          "not listed",
+          "isn't listed",
+          "no entry",
+          "doesn't list",
+          "does not list",
+          "not in the",
+          "not on the",
+          "no row",
+          "missing",
+          "not covered",
+          "removed",
+          "rewrite",
+          "different interface",
+          "not a rename"
+        ],
+        "output_excludes": [
+          "is defined in fleet/allocator.py",
+          "It's defined in fleet/allocator.py",
+          "is located in fleet/allocator.py",
+          "can be found in fleet/allocator.py",
+          "Defined in fleet/allocator.py"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

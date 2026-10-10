@@ -1,0 +1,61 @@
+{
+  "id": "cfg-8038",
+  "description": "Turn 1 reads a paint-booth config for its bake duration; turn 2 forbids tools and asks how many cars the same booth's filter lasts for. DISTILL-CANARY-d95bb912",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-cfg-b10-paintbooth-01",
+    "ref_calls": 1,
+    "fixture_bytes": 268,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "钣喷/1号喷漆房.yaml": "编号: QL-P01\n升温上限: 60\n烘烤温度: 60\n烘烤时长: 30\n过滤棉更换: 每 100 台\n",
+    "钣喷/2号喷漆房.yaml": "编号: QL-P02\n升温上限: 55\n烘烤温度: 60\n烘烤时长: 40\n过滤棉更换: 每 120 台\n",
+    "README.md": "# 千里汽修 钣喷参数\n\n喷漆房参数以 钣喷/ 下的 yaml 为准。\n"
+  },
+  "turns": [
+    {
+      "prompt": "千里汽修 钣喷/2号喷漆房.yaml 里写的烘烤时长是多少分钟？",
+      "expect": {
+        "output_contains_any": [
+          "40 分钟",
+          "40分钟",
+          "40 分",
+          "40分",
+          "40"
+        ],
+        "required_tools": [
+          "read_file"
+        ],
+        "max_output_chars": 300
+      }
+    },
+    {
+      "prompt": "别再调用工具，就用刚才读到的 2 号喷漆房参数说：它的过滤棉累计喷多少台车就要换？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "120 台",
+          "120台",
+          "每 120 台",
+          "120"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ]
+}

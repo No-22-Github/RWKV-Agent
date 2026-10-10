@@ -1,0 +1,39 @@
+{
+  "id": "nt-8017",
+  "description": "Mental-arithmetic dozen conversion for a tea-chain supply order, tool use explicitly declined. DISTILL-CANARY-336ef05d",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b10-jasmine-01",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "沐棠茶饮进了一批纸杯，共 4 打——一打 12 个。不用调工具，口算一共是多少个纸杯？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains": [
+          "48"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 400
+      }
+    }
+  ]
+}

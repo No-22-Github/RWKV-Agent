@@ -1,0 +1,58 @@
+{
+  "id": "cfg-8036",
+  "description": "Turn 1 reads an AC-installation spec for the high-work fee of the floor-standing unit; turn 2 forbids tools and asks the same spec's warranty period. DISTILL-CANARY-0a082f8c",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-cfg-b10-installsop-01",
+    "ref_calls": 2,
+    "fixture_bytes": 369,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "服务规范/挂机安装.yaml": "机型: 分体挂机\n预约响应: 24 小时内联系\n免费辅材: 管卡、膨胀螺栓\n高空作业费: 100\n保用期: 90 天\n",
+    "服务规范/柜机安装.yaml": "机型: 分体柜机\n预约响应: 24 小时内联系\n免费辅材: 管卡、底座螺栓\n高空作业费: 150\n保用期: 90 天\n",
+    "README.md": "# 蓝澄电器售后 安装服务规范\n\n分体挂机与柜机分别按 服务规范/ 下对应文件执行。\n"
+  },
+  "turns": [
+    {
+      "prompt": "蓝澄售后给分体柜机做安装，高空作业费是多少？",
+      "expect": {
+        "output_contains_any": [
+          "150",
+          "150 元",
+          "150元"
+        ],
+        "required_tools": [
+          "read_file"
+        ],
+        "max_output_chars": 300
+      }
+    },
+    {
+      "prompt": "不要调用工具，就按刚才读到的柜机安装规范回答：安装完成后保用期是多少天？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "90 天",
+          "90天",
+          "90"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ]
+}

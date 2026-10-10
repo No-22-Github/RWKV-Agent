@@ -1,0 +1,44 @@
+{
+  "id": "nt-8040",
+  "description": "Mental 12-hour to 24-hour clock conversion for a pastry-shop oven booking, tool use declined. DISTILL-CANARY-3db37987",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b10-hotdesk-01",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "别查了：麦丰面点坊的烤箱预约从晚上 11 点 05 分开始，24 小时制怎么写？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "23:05",
+          "23 点 05 分",
+          "23点05分",
+          "23 点 05",
+          "23点05",
+          "23 时 05 分",
+          "23时05分"
+        ],
+        "max_output_chars": 400
+      }
+    }
+  ]
+}

@@ -1,0 +1,74 @@
+{
+  "id": "log-8016",
+  "description": "Asks the differential pressure of the surgery-room air unit on Oct 8; the gauge was disconnected for a filter change and reconnected Oct 9, only pre-change and kennel-unit readings exist. DISTILL-CANARY-01308158",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "time_window",
+    "traps": [
+      "TR-ABSENT",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "UNKNOWN",
+      "TR-DECOY": "92"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-log-b10-airpresslog-01",
+    "ref_calls": 3,
+    "fixture_bytes": 832,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# 拾野宠物医院 设备日志\n\nlogs/ 存放新风机组压差日志，按机组分文件。\n",
+    "logs/新风压差-手术室-2026-10.csv": "日期,机组,滤网状态,压差Pa,备注\n2026-10-05,手术室新风,初效滤网,78,\n2026-10-06,手术室新风,初效滤网,92,更换前偏高\n2026-10-07,手术室新风,已换新滤网,,记录仪随更换断开\n2026-10-08,手术室新风,新滤网,,记录仪仍未接回\n2026-10-09,手术室新风,新滤网,41,记录仪 10-09 上午重新接回\n",
+    "logs/新风压差-犬舍-2026-10.csv": "日期,机组,滤网状态,压差Pa,备注\n2026-10-07,犬舍新风,初效滤网,66,\n2026-10-08,犬舍新风,初效滤网,69,\n2026-10-09,犬舍新风,初效滤网,71,\n",
+    "运维/机组维护记录.md": "# 新风机组维护记录\n\n- 手术室新风：2026-10-07 更换初效滤网，压差记录仪随更换断开，10-09 上午重新接回；7 日、8 日无压差读数。\n- 犬舍新风：滤网未动，读数正常。\n"
+  },
+  "turns": [
+    {
+      "prompt": "手术室的新风机组 10 月 8 日的压差读数是多少？",
+      "expect": {
+        "output_contains": [
+          "手术室"
+        ],
+        "output_contains_any": [
+          "断开",
+          "未接回",
+          "没接回",
+          "重新接回",
+          "无读数",
+          "没有读数",
+          "没有记录",
+          "无记录",
+          "缺失",
+          "没有数据",
+          "无数据",
+          "10-09",
+          "10 月 9 日"
+        ],
+        "output_excludes": [
+          "92",
+          "78",
+          "41",
+          "66",
+          "69",
+          "71"
+        ],
+        "required_tools": [
+          "read_file"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

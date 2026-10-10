@@ -1,0 +1,45 @@
+{
+  "id": "nt-8030",
+  "description": "Coworking brand-voice workspace available but forbidden; the user asks what API stands for. DISTILL-CANARY-9444cfd7",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b10-pomelo-01",
+    "ref_calls": 0,
+    "fixture_bytes": 121,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:glm-5.3-flash-b10a",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Loomwork member portal\n\nWording for member-facing screens follows brand/voice.md.\n",
+    "brand/voice.md": "Say book a desk, not reserve a unit.\n"
+  },
+  "turns": [
+    {
+      "prompt": "No need to open anything: what does the acronym API stand for?",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains": [
+          "API"
+        ],
+        "output_contains_any": [
+          "Application Programming Interface",
+          "application programming interface"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}
