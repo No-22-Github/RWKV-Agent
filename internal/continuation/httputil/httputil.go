@@ -29,19 +29,25 @@ func ValidateEndpoint(endpoint string) error {
 // TruncateAtStop cuts value at the earliest decoded-text stop sequence. Empty
 // stops are skipped: they would otherwise match the whole value at offset 0.
 func TruncateAtStop(value string, stops []string) (string, bool) {
+	text, matched := TruncateAtStopMatch(value, stops)
+	return text, matched != ""
+}
+
+// TruncateAtStopMatch is TruncateAtStop that also reports which stop sequence
+// ended the text ("" when none matched).
+func TruncateAtStopMatch(value string, stops []string) (string, string) {
 	stopIndex := len(value)
+	matched := ""
 	for _, stop := range stops {
 		if stop == "" {
 			continue
 		}
 		if index := strings.Index(value, stop); index >= 0 && index < stopIndex {
 			stopIndex = index
+			matched = stop
 		}
 	}
-	if stopIndex == len(value) {
-		return value, false
-	}
-	return value[:stopIndex], true
+	return value[:stopIndex], matched
 }
 
 // SafeResponseMessage condenses an error body for an error string: whitespace

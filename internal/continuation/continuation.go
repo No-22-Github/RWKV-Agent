@@ -65,6 +65,11 @@ type Result struct {
 	Text         string
 	FinishReason FinishReason
 	Usage        Usage
+	// Stop is the stop sequence the client matched and cut from Text. It is
+	// empty when the model ended on its own (EOS, budget) or the provider
+	// matched the stop server-side, so a caller can restore exactly what was
+	// cut only when it is set.
+	Stop string
 }
 
 type EventKind string

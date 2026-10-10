@@ -106,7 +106,7 @@ func (r *Runner) generate(
 ) (continuation.Result, *toolchat.ToolCall, string, error) {
 	request := compiled.Request
 	if r.toolCompleter == nil {
-		result, err := r.generator.Continue(ctx, request, sink)
+		result, err := r.continueThroughThinkStops(ctx, request, sink)
 		return result, nil, "", err
 	}
 	chatRequest := toolchat.Request{

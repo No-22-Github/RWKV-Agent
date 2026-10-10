@@ -128,14 +128,15 @@ func (c *Client) Continue(
 			ErrRemote,
 		)
 	}
-	text, stopped := httputil.TruncateAtStop(choice.Message.Content, fullStops)
+	text, matchedStop := httputil.TruncateAtStopMatch(choice.Message.Content, fullStops)
 	finish := finishReason(choice.FinishReason)
-	if stopped {
+	if matchedStop != "" {
 		finish = continuation.FinishStop
 	}
 	result := continuation.Result{
 		Text:         text,
 		FinishReason: finish,
+		Stop:         matchedStop,
 		Usage:        sdkUsage(response),
 	}
 	if sink != nil && text != "" {

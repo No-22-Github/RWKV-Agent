@@ -374,9 +374,11 @@ func readBufferedResponse(
 	if !found {
 		return continuation.Result{}, fmt.Errorf("%w: response has no choices", ErrRemote)
 	}
-	if truncated, stopped := httputil.TruncateAtStop(text, stops); stopped {
+	matchedStop := ""
+	if truncated, stop := httputil.TruncateAtStopMatch(text, stops); stop != "" {
 		text = truncated
 		finish = continuation.FinishStop
+		matchedStop = stop
 	} else if finish == continuation.FinishStop && buffered.Usage.CompletionTokens == 0 {
 		// Some rwkv_lightning deployments answer every buffered request with
 		// "stop" and no usage, even when the response was cut off by
@@ -404,6 +406,7 @@ func readBufferedResponse(
 		// token count, so pass 0 rather than inventing a token estimate.
 		FinishReason: inferFinishReason(finish, buffered.Usage, 0, maxOutputTokens),
 		Usage:        buffered.Usage,
+		Stop:         matchedStop,
 	}, nil
 }
 
@@ -483,7 +486,7 @@ func readStreamResponse(
 				deltas++
 			}
 			pending += choice.Delta.Content
-			text, tail, stopped := splitAtStop(pending, stops)
+			text, tail, stop := splitAtStop(pending, stops)
 			if err := emit(text); err != nil {
 				return continuation.Result{
 					Text:         result.String(),
@@ -492,11 +495,12 @@ func readStreamResponse(
 				}, err
 			}
 			pending = tail
-			if stopped {
+			if stop != "" {
 				return continuation.Result{
 					Text:         result.String(),
 					FinishReason: continuation.FinishStop,
 					Usage:        usage,
+					Stop:         stop,
 				}, nil
 			}
 		}
@@ -582,15 +586,19 @@ func (c *Client) serverStopTokens(stops []string) any {
 	}
 }
 
-func splitAtStop(value string, stops []string) (string, string, bool) {
+// splitAtStop returns the text safe to emit, the tail that may still grow
+// into a stop, and the stop sequence that matched ("" when none did).
+func splitAtStop(value string, stops []string) (string, string, string) {
 	stopIndex := len(value)
+	matched := ""
 	for _, stop := range stops {
 		if index := strings.Index(value, stop); index >= 0 && index < stopIndex {
 			stopIndex = index
+			matched = stop
 		}
 	}
-	if stopIndex < len(value) {
-		return value[:stopIndex], "", true
+	if matched != "" {
+		return value[:stopIndex], "", matched
 	}
 	tailBytes := 0
 	for _, stop := range stops {
@@ -602,7 +610,7 @@ func splitAtStop(value string, stops []string) (string, string, bool) {
 		}
 	}
 	safeBytes := len(value) - tailBytes
-	return value[:safeBytes], value[safeBytes:], false
+	return value[:safeBytes], value[safeBytes:], ""
 }
 
 func finishReason(value string) continuation.FinishReason {

@@ -200,6 +200,7 @@ type batchStreamState struct {
 	deltas    int
 	saw       bool
 	stopped   bool
+	stop      string
 	err       error
 	delivered bool
 }
@@ -228,7 +229,7 @@ func readBatchStreamResponse(
 		state := &states[index]
 		state.delivered = true
 		calls[index].deliver(batchOutcome{result: continuation.Result{
-			Text: state.result.String(), FinishReason: state.finish, Usage: usage,
+			Text: state.result.String(), FinishReason: state.finish, Usage: usage, Stop: state.stop,
 		}, err: state.err})
 	}
 	allFinished := func() bool {
@@ -290,7 +291,7 @@ func readBatchStreamResponse(
 				state.deltas++
 			}
 			state.pending += choice.Delta.Content
-			text, tail, stopped := splitAtStop(state.pending, calls[choice.Index].request.Stops)
+			text, tail, stop := splitAtStop(state.pending, calls[choice.Index].request.Stops)
 			if err := emitBatchText(state, calls[choice.Index].sink, text); err != nil {
 				state.err = err
 				state.finish = continuation.FinishCancelled
@@ -298,8 +299,9 @@ func readBatchStreamResponse(
 				continue
 			}
 			state.pending = tail
-			if stopped {
+			if stop != "" {
 				state.stopped = true
+				state.stop = stop
 				state.finish = continuation.FinishStop
 				deliverEarly(choice.Index)
 			}
@@ -350,6 +352,7 @@ func readBatchStreamResponse(
 					calls[index].request.MaxOutputTokens,
 				),
 				Usage: usage,
+				Stop:  state.stop,
 			},
 			err: state.err,
 		}
@@ -413,9 +416,11 @@ func readBatchBufferedResponse(
 		found[choice.Index] = true
 		text := choice.Message.Content
 		finish := finishReason(choice.FinishReason)
-		if truncated, stopped := httputil.TruncateAtStop(text, calls[choice.Index].request.Stops); stopped {
+		matchedStop := ""
+		if truncated, stop := httputil.TruncateAtStopMatch(text, calls[choice.Index].request.Stops); stop != "" {
 			text = truncated
 			finish = continuation.FinishStop
+			matchedStop = stop
 		}
 		if text != "" && calls[choice.Index].sink != nil {
 			if err := calls[choice.Index].sink(continuation.Event{
@@ -442,6 +447,7 @@ func readBatchBufferedResponse(
 				calls[choice.Index].request.MaxOutputTokens,
 			),
 			Usage: buffered.Usage,
+			Stop:  matchedStop,
 		}}
 	}
 	for index, ok := range found {
