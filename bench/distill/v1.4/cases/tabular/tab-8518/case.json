@@ -1,0 +1,61 @@
+{
+  "id": "tab-8518",
+  "description": "Total bathroom tile cuts in cm from cm and m entries. DISTILL-CANARY-0f558461",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-NUMFMT"
+    ],
+    "trap_decoys": {
+      "TR-NUMFMT": "1169.2"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b10d-tilecut-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1814,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10d",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "site/tile-lengths.csv": "cut,room,length\nTL-1003,bath,5.0m\nTL-1011,kitchen,80cm\nTL-1015,hall,5.0m\nTL-1025,bath,2.7m\nTL-1031,bath,80cm\nTL-1040,hall,95cm\nTL-1044,hall,95cm\nTL-1055,kitchen,80cm\nTL-1062,kitchen,40cm\nTL-1067,bath,5.0m\nTL-1071,kitchen,95cm\nTL-1080,bath,2.3m\nTL-1088,hall,5.0m\nTL-1093,hall,40cm\nTL-1101,hall,95cm\nTL-1111,kitchen,40cm\nTL-1117,kitchen,5.0m\nTL-1124,bath,40cm\nTL-1128,kitchen,80cm\nTL-1138,kitchen,80cm\nTL-1140,kitchen,2.3m\nTL-1152,kitchen,95cm\nTL-1160,kitchen,40cm\nTL-1165,bath,5.0m\nTL-1171,bath,5.0m\nTL-1176,kitchen,80cm\nTL-1187,bath,80cm\nTL-1195,bath,5.0m\nTL-1201,bath,5.0m\nTL-1204,bath,95cm\nTL-1212,bath,5.0m\nTL-1220,kitchen,5.0m\nTL-1226,bath,40cm\nTL-1237,kitchen,2.7m\nTL-1239,bath,2.3m\nTL-1250,kitchen,2.3m\nTL-1254,hall,95cm\nTL-1260,kitchen,80cm\nTL-1267,kitchen,40cm\nTL-1278,bath,80cm\nTL-1282,kitchen,40cm\nTL-1290,hall,2.7m\nTL-1297,kitchen,5.0m\nTL-1307,bath,80cm\nTL-1310,hall,2.7m\nTL-1315,hall,2.7m\nTL-1326,kitchen,80cm\nTL-1329,hall,2.7m\nTL-1340,bath,5.0m\nTL-1343,bath,2.3m\nTL-1350,bath,95cm\nTL-1359,bath,2.7m\nTL-1369,hall,95cm\nTL-1377,bath,2.3m\nTL-1378,kitchen,2.7m\nTL-1391,kitchen,5.0m\nTL-1394,hall,2.7m\nTL-1399,bath,2.3m\nTL-1407,bath,2.7m\nTL-1419,kitchen,2.7m\nTL-1421,bath,80cm\nTL-1427,kitchen,40cm\nTL-1439,hall,2.7m\nTL-1446,bath,2.3m\nTL-1454,kitchen,40cm\nTL-1461,bath,2.3m\nTL-1467,bath,95cm\nTL-1472,kitchen,80cm\nTL-1481,bath,95cm\nTL-1483,hall,40cm\nTL-1494,kitchen,95cm\nTL-1501,bath,40cm\nTL-1504,kitchen,5.0m\nTL-1513,hall,2.7m\nTL-1521,bath,95cm\nTL-1529,kitchen,5.0m\nTL-1538,hall,5.0m\nTL-1540,bath,2.3m\nTL-1548,bath,95cm\nTL-1557,hall,80cm\nTL-1561,kitchen,40cm\nTL-1567,hall,95cm\nTL-1575,bath,5.0m\nTL-1587,hall,5.0m\nTL-1592,bath,2.7m\nTL-1600,hall,5.0m\nTL-1608,bath,2.7m\nTL-1611,bath,2.3m\nTL-1621,hall,5.0m\nTL-1626,hall,5.0m\nTL-1630,kitchen,95cm\nTL-1641,kitchen,40cm\n",
+    "README.md": "# Tile cuts\n\nFitters note lengths in cm or m.\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many centimetres of tile were cut for the bath in total? Cut list: site/tile-lengths.csv.",
+      "expect": {
+        "output_contains_any": [
+          "9,010",
+          "9,010 centimeters",
+          "9,010 cm",
+          "9,010 厘米",
+          "9,010centimeters",
+          "9,010cm",
+          "9,010厘米",
+          "9010",
+          "9010 centimeters",
+          "9010 cm",
+          "9010 厘米",
+          "9010centimeters",
+          "9010cm",
+          "9010厘米"
+        ],
+        "max_output_chars": 500
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 2
+    }
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "id": "tab-8516",
+  "description": "Find the biggest APAC refund in USD from mixed currency spellings. DISTILL-CANARY-264b5bce",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-NUMFMT"
+    ],
+    "trap_decoys": {
+      "TR-NUMFMT": "1600"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b10d-refunds-01",
+    "ref_calls": 3,
+    "fixture_bytes": 2274,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10d",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "support/refunds.csv": "refund,region,amount\nRF-1005,EMEA,$500\nRF-1007,AMER,$950\nRF-1014,APAC,2.7k USD\nRF-1023,EMEA,$500\nRF-1030,APAC,1600 USD\nRF-1036,AMER,1600 USD\nRF-1044,APAC,$500\nRF-1051,EMEA,$500\nRF-1061,EMEA,$950\nRF-1068,EMEA,2.7k USD\nRF-1073,EMEA,$950\nRF-1082,AMER,2.7k USD\nRF-1090,EMEA,$950\nRF-1093,EMEA,3.0k USD\nRF-1104,EMEA,310 USD\nRF-1109,APAC,310 USD\nRF-1116,APAC,310 USD\nRF-1122,EMEA,310 USD\nRF-1128,EMEA,$500\nRF-1134,EMEA,$950\nRF-1144,APAC,2.7k USD\nRF-1149,AMER,3.0k USD\nRF-1154,EMEA,$950\nRF-1163,EMEA,1600 USD\nRF-1168,AMER,$500\nRF-1181,APAC,$950\nRF-1182,APAC,310 USD\nRF-1193,EMEA,3.0k USD\nRF-1199,AMER,310 USD\nRF-1204,APAC,3.0k USD\nRF-1213,AMER,$950\nRF-1222,APAC,3.0k USD\nRF-1225,APAC,310 USD\nRF-1231,APAC,1600 USD\nRF-1238,AMER,$500\nRF-1251,AMER,3.0k USD\nRF-1253,EMEA,1600 USD\nRF-1265,EMEA,1600 USD\nRF-1272,APAC,3.0k USD\nRF-1279,AMER,$950\nRF-1281,APAC,$500\nRF-1293,EMEA,2.7k USD\nRF-1300,EMEA,310 USD\nRF-1305,AMER,$950\nRF-1313,APAC,1600 USD\nRF-1319,EMEA,$500\nRF-1327,APAC,3.0k USD\nRF-1333,EMEA,2.7k USD\nRF-1336,EMEA,310 USD\nRF-1349,APAC,$500\nRF-1353,EMEA,$500\nRF-1361,EMEA,1600 USD\nRF-1364,APAC,$500\nRF-1371,AMER,310 USD\nRF-1380,EMEA,3.0k USD\nRF-1388,AMER,1600 USD\nRF-1398,APAC,2.7k USD\nRF-1404,AMER,1600 USD\nRF-1410,EMEA,1600 USD\nRF-1418,EMEA,310 USD\nRF-1425,AMER,2.7k USD\nRF-1430,AMER,$950\nRF-1438,EMEA,$500\nRF-1446,EMEA,310 USD\nRF-1453,APAC,1600 USD\nRF-1461,EMEA,310 USD\nRF-1462,APAC,1600 USD\nRF-1472,APAC,$950\nRF-1476,AMER,3.0k USD\nRF-1488,AMER,3.0k USD\nRF-1496,AMER,1600 USD\nRF-1498,AMER,3.0k USD\nRF-1505,APAC,310 USD\nRF-1512,AMER,$950\nRF-1520,EMEA,$950\nRF-1529,EMEA,$500\nRF-1536,EMEA,1600 USD\nRF-1540,AMER,2.7k USD\nRF-1549,EMEA,3.0k USD\nRF-1557,EMEA,3.0k USD\nRF-1561,APAC,310 USD\nRF-1570,EMEA,310 USD\nRF-1575,EMEA,$950\nRF-1587,EMEA,2.7k USD\nRF-1591,AMER,$500\nRF-1595,EMEA,3.0k USD\nRF-1607,APAC,3.0k USD\nRF-1610,EMEA,310 USD\nRF-1621,AMER,310 USD\nRF-1629,AMER,1600 USD\nRF-1631,EMEA,310 USD\nRF-1639,APAC,$950\nRF-1644,AMER,1600 USD\nRF-1653,EMEA,$950\nRF-1661,APAC,310 USD\nRF-1670,EMEA,3.0k USD\nRF-1678,APAC,$500\nRF-1685,APAC,$500\nRF-1688,APAC,1600 USD\nRF-1696,EMEA,$950\nRF-1706,APAC,$950\nRF-1709,AMER,1600 USD\nRF-1719,AMER,2.7k USD\nRF-1723,APAC,3.0k USD\nRF-1731,AMER,2.7k USD\nRF-1737,EMEA,310 USD\nRF-1748,EMEA,$950\n",
+    "README.md": "# Refunds\n\nFinance exports mix $1,200, 1200 USD and 1.2k USD forms.\n"
+  },
+  "turns": [
+    {
+      "prompt": "What is the biggest single refund issued in APAC, in USD? Refund list: support/refunds.csv.",
+      "expect": {
+        "output_contains_any": [
+          "$3,000",
+          "$3000",
+          "3,000",
+          "3,000 USD",
+          "3,000 dollars",
+          "3,000USD",
+          "3,000dollars",
+          "3000",
+          "3000 USD",
+          "3000 dollars",
+          "3000USD",
+          "3000dollars"
+        ],
+        "max_output_chars": 500
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 2
+    }
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "id": "tab-8504",
+  "description": "Find the slowest build of one pipeline in seconds from ms and s strings. DISTILL-CANARY-610acc4e",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-NUMFMT"
+    ],
+    "trap_decoys": {
+      "TR-NUMFMT": "610"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b10d-buildslow-01",
+    "ref_calls": 3,
+    "fixture_bytes": 2173,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10d",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "ci/构建耗时.csv": "构建号,流水线,耗时\nBD-1004,web,230ms\nBD-1010,web,600ms\nBD-1017,ios,600ms\nBD-1022,android,4.6s\nBD-1031,web,3.9s\nBD-1036,ios,230ms\nBD-1045,web,4.6s\nBD-1052,android,2.3s\nBD-1058,web,2.3s\nBD-1063,ios,600ms\nBD-1070,android,2.3s\nBD-1077,ios,4.6s\nBD-1088,ios,3.9s\nBD-1093,android,600ms\nBD-1101,android,3.9s\nBD-1106,web,610ms\nBD-1113,android,600ms\nBD-1123,ios,4.6s\nBD-1127,android,610ms\nBD-1137,android,600ms\nBD-1142,ios,2.3s\nBD-1153,web,3.9s\nBD-1158,android,4.6s\nBD-1165,android,2.3s\nBD-1174,android,600ms\nBD-1175,web,230ms\nBD-1182,ios,230ms\nBD-1192,android,600ms\nBD-1200,ios,4.6s\nBD-1203,web,4.6s\nBD-1215,ios,4.6s\nBD-1219,android,3.9s\nBD-1225,android,3.9s\nBD-1231,android,610ms\nBD-1242,android,3.9s\nBD-1246,ios,2.3s\nBD-1257,ios,2.3s\nBD-1264,web,230ms\nBD-1269,web,4.6s\nBD-1274,android,2.3s\nBD-1286,ios,600ms\nBD-1290,ios,230ms\nBD-1300,android,600ms\nBD-1307,ios,230ms\nBD-1313,android,3.9s\nBD-1321,web,230ms\nBD-1328,web,600ms\nBD-1330,web,600ms\nBD-1337,ios,2.3s\nBD-1346,ios,600ms\nBD-1350,android,610ms\nBD-1360,web,3.9s\nBD-1368,web,3.9s\nBD-1377,android,3.9s\nBD-1380,android,600ms\nBD-1388,android,2.3s\nBD-1397,android,600ms\nBD-1401,ios,230ms\nBD-1406,android,230ms\nBD-1419,web,230ms\nBD-1422,ios,4.6s\nBD-1429,ios,2.3s\nBD-1440,ios,610ms\nBD-1445,android,610ms\nBD-1454,ios,600ms\nBD-1455,android,230ms\nBD-1464,android,600ms\nBD-1469,ios,600ms\nBD-1480,web,230ms\nBD-1486,ios,600ms\nBD-1491,android,3.9s\nBD-1499,web,4.6s\nBD-1507,web,3.9s\nBD-1516,android,3.9s\nBD-1518,android,4.6s\nBD-1531,ios,610ms\nBD-1535,web,610ms\nBD-1541,android,600ms\nBD-1547,ios,600ms\nBD-1559,android,3.9s\nBD-1561,web,2.3s\nBD-1572,ios,230ms\nBD-1579,android,610ms\nBD-1582,android,3.9s\nBD-1588,android,2.3s\nBD-1599,ios,2.3s\nBD-1608,web,2.3s\nBD-1612,web,600ms\nBD-1617,android,3.9s\nBD-1627,ios,610ms\nBD-1630,android,2.3s\nBD-1637,web,610ms\nBD-1644,android,600ms\nBD-1655,ios,600ms\nBD-1664,android,2.3s\nBD-1669,web,600ms\nBD-1675,web,230ms\nBD-1681,web,4.6s\nBD-1686,ios,610ms\nBD-1697,web,610ms\nBD-1704,android,230ms\nBD-1711,android,2.3s\nBD-1716,ios,3.9s\nBD-1723,android,610ms\nBD-1732,web,3.9s\nBD-1739,ios,610ms\nBD-1742,ios,600ms\nBD-1752,web,2.3s\n",
+    "README.md": "# 构建耗时\n\n耗时来自两个 CI 插件，一个写毫秒，一个写秒。\n"
+  },
+  "turns": [
+    {
+      "prompt": "android 流水线里耗时最长的一次构建是多少秒？数据在 ci/构建耗时.csv。",
+      "expect": {
+        "output_contains_any": [
+          "4.6 s",
+          "4.6 seconds",
+          "4.6 秒",
+          "4.6s",
+          "4.6seconds",
+          "4.6秒"
+        ],
+        "max_output_chars": 500
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 2
+    }
+  }
+}

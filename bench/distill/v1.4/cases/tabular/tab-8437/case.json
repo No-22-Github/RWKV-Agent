@@ -1,0 +1,49 @@
+{
+  "id": "tab-8437",
+  "description": "Sum amounts in a brewery keg deliveries export whose date column mixes up to four writings (day-month-year included), over a date range. DISTILL-CANARY-467453a9",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-DATEFMT"
+    ],
+    "trap_decoys": {
+      "TR-DATEFMT": "3411"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b10d-mdbrewa-mixdates-02",
+    "ref_calls": 4,
+    "fixture_bytes": 3128,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10d",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "deliveries/kegs.csv": "delivery,delivered_on,beer,litres\nKG07158,2026-06-09T08:00:00Z,stout,154\nKG07163,2026-06-06T08:00:00Z,saison,33\nKG07122,\"Jun 6, 2026\",lager,197\nKG07165,\"Jun 4, 2026\",pale,147\nKG07124,\"Jun 2, 2026\",saison,111\nKG07151,\"Jun 2, 2026\",saison,99\nKG07150,2026-06-05T08:00:00Z,pale,58\nKG07147,2026-06-05T08:00:00Z,stout,163\nKG07138,2026-06-07T08:00:00Z,stout,180\nKG07111,\"Jun 4, 2026\",pale,80\nKG07181,09-06-2026,stout,195\nKG07173,\"Jun 10, 2026\",pale,100\nKG07139,\"Jun 5, 2026\",lager,135\nKG07167,2026-06-08T08:00:00Z,pale,30\nKG07118,04-06-2026,stout,142\nKG07157,10-06-2026,lager,168\nKG07102,\"Jun 5, 2026\",stout,131\nKG07133,2026-06-05T08:00:00Z,lager,85\nKG07104,2026-06-02T08:00:00Z,lager,175\nKG07106,\"Jun 4, 2026\",lager,193\nKG07162,2026-06-08T08:00:00Z,pale,173\nKG07155,07-06-2026,saison,172\nKG07148,\"Jun 2, 2026\",pale,148\nKG07153,2026-06-10T08:00:00Z,lager,75\nKG07103,03-06-2026,pale,122\nKG07179,\"Jun 5, 2026\",lager,169\nKG07144,\"Jun 2, 2026\",pale,196\nKG07174,09-06-2026,saison,152\nKG07125,2026-06-05T08:00:00Z,saison,163\nKG07166,2026-06-08T08:00:00Z,pale,98\nKG07175,06-06-2026,stout,38\nKG07176,05-06-2026,pale,167\nKG07123,10-06-2026,pale,121\nKG07126,2026-06-08T08:00:00Z,stout,117\nKG07121,\"Jun 9, 2026\",stout,147\nKG07160,07-06-2026,stout,108\nKG07146,\"Jun 4, 2026\",lager,197\nKG07135,2026-06-10T08:00:00Z,lager,171\nKG07140,\"Jun 2, 2026\",pale,108\nKG07154,\"Jun 10, 2026\",saison,145\nKG07119,\"Jun 8, 2026\",saison,72\nKG07100,2026-06-10T08:00:00Z,saison,107\nKG07129,06-06-2026,stout,147\nKG07115,2026-06-08T08:00:00Z,saison,85\nKG07134,\"Jun 6, 2026\",lager,177\nKG07112,05-06-2026,lager,139\nKG07137,08-06-2026,saison,197\nKG07149,2026-06-04T08:00:00Z,pale,104\nKG07152,\"Jun 6, 2026\",stout,36\nKG07164,05-06-2026,pale,59\nKG07108,\"Jun 8, 2026\",lager,145\nKG07110,\"Jun 9, 2026\",lager,52\nKG07127,\"Jun 8, 2026\",lager,199\nKG07116,\"Jun 5, 2026\",saison,185\nKG07114,10-06-2026,lager,186\nKG07156,09-06-2026,saison,183\nKG07177,2026-06-10T08:00:00Z,lager,135\nKG07113,\"Jun 8, 2026\",lager,181\nKG07128,10-06-2026,lager,158\nKG07143,06-06-2026,pale,197\nKG07117,2026-06-03T08:00:00Z,pale,60\nKG07161,\"Jun 8, 2026\",stout,176\nKG07159,2026-06-05T08:00:00Z,saison,118\nKG07131,05-06-2026,pale,54\nKG07136,\"Jun 9, 2026\",pale,196\nKG07132,03-06-2026,stout,180\nKG07171,\"Jun 2, 2026\",lager,43\nKG07109,2026-06-09T08:00:00Z,saison,34\nKG07130,2026-06-08T08:00:00Z,pale,145\nKG07142,2026-06-04T08:00:00Z,saison,159\nKG07180,04-06-2026,stout,164\nKG07172,\"Jun 5, 2026\",saison,67\nKG07169,10-06-2026,stout,129\nKG07178,2026-06-07T08:00:00Z,lager,33\nKG07141,02-06-2026,saison,65\nKG07101,2026-06-04T08:00:00Z,saison,74\nKG07120,\"Jun 9, 2026\",pale,35\nKG07168,2026-06-07T08:00:00Z,lager,125\nKG07170,10-06-2026,pale,108\nKG07182,\"Jun 2, 2026\",pale,187\nKG07107,08-06-2026,stout,56\nKG07105,06-06-2026,lager,108\nKG07145,2026-06-03T08:00:00Z,lager,190\n",
+    "README.md": "# Stonebridge Brewing - keg deliveries\n\nOne row per delivery.\nThe date column comes from three systems and is not uniform: the driver handhelds writes 2026/06/02; the distributor's EDI export writes short dates as day-month-year, so 07-06-2026 is 7 Jun 2026; the pub ordering site writes Jun 11, 2026 or an ISO timestamp (UTC 08:00, same calendar day).\n"
+  },
+  "turns": [
+    {
+      "prompt": "What is the total volume in litres that Stonebridge delivered from June 3 to June 6, inclusive? Data in deliveries/kegs.csv.",
+      "expect": {
+        "output_contains_any": [
+          "4,438",
+          "4438"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 2
+    }
+  }
+}

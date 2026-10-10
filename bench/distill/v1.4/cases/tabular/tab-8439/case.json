@@ -1,0 +1,51 @@
+{
+  "id": "tab-8439",
+  "description": "Count rows in a boat charter bookings export whose date column mixes up to four writings (day-month-year included), over a date range. DISTILL-CANARY-bb706315",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [
+      "TR-DATEFMT",
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-DATEFMT": "22",
+      "TR-HEADER": "sail_date"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-tab-b10d-mdboata-mixdates-02",
+    "ref_calls": 4,
+    "fixture_bytes": 3670,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10d",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "charters/bookings.csv": "booking,dep,hull,usd\nCH-00617,\"Oct 4, 2026\",ketch,824\nCH-00694,2026/10/11,trawler,662\nCH-00702,\"Oct 5, 2026\",catamaran,265\nCH-00681,\"Oct 8, 2026\",ketch,1187\nCH-00693,2026/10/07,ketch,1138\nCH-00661,\"Oct 12, 2026\",catamaran,1072\nCH-00677,2026/10/06,sloop,185\nCH-00678,04-10-2026,sloop,518\nCH-00635,10-10-2026,trawler,1284\nCH-00706,08-10-2026,sloop,788\nCH-00686,09-10-2026,trawler,284\nCH-00670,06-10-2026,sloop,1194\nCH-00658,05-10-2026,catamaran,581\nCH-00651,2026/10/06,ketch,1417\nCH-00614,05-10-2026,catamaran,226\nCH-00646,\"Oct 11, 2026\",trawler,1157\nCH-00692,\"Oct 11, 2026\",catamaran,380\nCH-00621,2026/10/06,sloop,263\nCH-00655,04-10-2026,catamaran,987\nCH-00620,04-10-2026,trawler,388\nCH-00643,11-10-2026,trawler,795\nCH-00680,\"Oct 6, 2026\",catamaran,416\nCH-00622,\"Oct 8, 2026\",ketch,1098\nCH-00613,\"Oct 11, 2026\",trawler,588\nCH-00615,08-10-2026,catamaran,1219\nCH-00633,\"Oct 4, 2026\",ketch,1309\nCH-00687,06-10-2026,ketch,1107\nCH-00689,2026/10/11,sloop,1070\nCH-00705,11-10-2026,trawler,411\nCH-00675,07-10-2026,sloop,896\nCH-00650,2026/10/12,ketch,265\nCH-00672,\"Oct 7, 2026\",catamaran,479\nCH-00669,\"Oct 10, 2026\",catamaran,1187\nCH-00618,\"Oct 8, 2026\",trawler,1292\nCH-00684,2026/10/08,sloop,1210\nCH-00701,\"Oct 12, 2026\",ketch,374\nCH-00642,2026/10/12,trawler,791\nCH-00674,2026/10/11,sloop,340\nCH-00695,05-10-2026,ketch,370\nCH-00668,2026/10/10,ketch,453\nCH-00662,2026/10/07,trawler,546\nCH-00688,2026/10/08,catamaran,529\nCH-00626,\"Oct 9, 2026\",sloop,302\nCH-00671,09-10-2026,ketch,332\nCH-00610,\"Oct 5, 2026\",catamaran,832\nCH-00656,04-10-2026,sloop,1038\nCH-00682,\"Oct 11, 2026\",sloop,993\nCH-00691,\"Oct 8, 2026\",trawler,338\nCH-00634,2026/10/12,ketch,1199\nCH-00665,11-10-2026,trawler,994\nCH-00657,06-10-2026,ketch,557\nCH-00624,\"Oct 7, 2026\",catamaran,1017\nCH-00690,2026/10/09,catamaran,1245\nCH-00616,2026/10/08,trawler,200\nCH-00649,2026/10/11,trawler,1011\nCH-00698,\"Oct 11, 2026\",catamaran,513\nCH-00637,2026/10/06,sloop,720\nCH-00631,2026/10/10,catamaran,1137\nCH-00676,2026/10/08,catamaran,1017\nCH-00636,2026/10/09,sloop,1143\nCH-00667,\"Oct 9, 2026\",ketch,1206\nCH-00641,04-10-2026,sloop,1205\nCH-00612,\"Oct 10, 2026\",catamaran,1330\nCH-00654,\"Oct 11, 2026\",catamaran,1303\nCH-00679,2026/10/06,catamaran,1110\nCH-00653,09-10-2026,catamaran,839\nCH-00697,12-10-2026,sloop,460\nCH-00632,2026/10/06,ketch,974\nCH-00640,2026/10/07,ketch,937\nCH-00703,2026/10/09,catamaran,1136\nCH-00638,08-10-2026,ketch,1175\nCH-00652,2026/10/06,catamaran,1204\nCH-00683,2026/10/06,trawler,874\nCH-00673,10-10-2026,trawler,581\nCH-00630,\"Oct 4, 2026\",ketch,422\nCH-00619,\"Oct 11, 2026\",catamaran,403\nCH-00645,10-10-2026,trawler,1124\nCH-00639,2026/10/12,sloop,195\nCH-00629,07-10-2026,ketch,1018\nCH-00611,2026/10/07,sloop,539\nCH-00704,04-10-2026,catamaran,838\nCH-00647,11-10-2026,catamaran,560\nCH-00663,\"Oct 5, 2026\",catamaran,369\nCH-00700,\"Oct 6, 2026\",catamaran,401\nCH-00664,07-10-2026,ketch,1208\nCH-00623,2026/10/07,trawler,1293\nCH-00666,2026/10/04,sloop,1287\nCH-00625,2026/10/11,ketch,205\nCH-00644,2026/10/07,sloop,897\nCH-00685,09-10-2026,ketch,807\nCH-00628,\"Oct 12, 2026\",ketch,387\nCH-00659,06-10-2026,ketch,401\nCH-00648,04-10-2026,sloop,278\nCH-00699,05-10-2026,catamaran,947\nCH-00660,08-10-2026,catamaran,816\nCH-00696,\"Oct 8, 2026\",trawler,815\nCH-00627,\"Oct 5, 2026\",ketch,551\n",
+    "README.md": "# Tern Island Charters - bookings\n\nOne row per booked day trip.\nThe date column comes from three systems and is not uniform: the dock office writes 2026/10/02; the agency feed writes short dates as day-month-year, so 07-10-2026 is 7 Oct 2026; the booking site writes Oct 11, 2026 or an ISO timestamp (UTC 08:00, same calendar day).\n\nColumn guide: booking=booking id; dep=departure date, mixed formats; hull=vessel class; usd=fare in dollars\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many charter trips did Tern Island sail from October 5 to October 7, inclusive? Bookings are in charters/bookings.csv.",
+      "expect": {
+        "output_contains": [
+          "33"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 2
+    }
+  }
+}

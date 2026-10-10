@@ -1,0 +1,57 @@
+{
+  "id": "tab-8503",
+  "description": "Add up reagent volumes recorded as mL or L. DISTILL-CANARY-151bdc86",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-NUMFMT"
+    ],
+    "trap_decoys": {
+      "TR-NUMFMT": "6758.2"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b10d-reagentuse-01",
+    "ref_calls": 3,
+    "fixture_bytes": 627,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10d",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "实验室/试剂用量.csv": "实验,试剂,用量\nSJ-1000,乙醇,3.2L\nSJ-1013,甲醇,2.6L\nSJ-1020,乙醇,725mL\nSJ-1021,乙醇,375mL\nSJ-1033,乙醇,300mL\nSJ-1038,乙醇,2.0L\nSJ-1045,甲醇,275mL\nSJ-1055,乙醇,1.1L\nSJ-1060,甲醇,2.9L\nSJ-1065,甲醇,1.0L\nSJ-1073,乙醇,725mL\nSJ-1082,甲醇,2.5L\nSJ-1085,乙醇,2.8L\nSJ-1091,甲醇,500mL\nSJ-1104,乙醇,575mL\nSJ-1105,甲醇,1.8L\nSJ-1116,乙醇,725mL\nSJ-1122,乙醇,3.8L\nSJ-1126,乙醇,350mL\nSJ-1134,甲醇,3.4L\nSJ-1140,甲醇,700mL\nSJ-1150,乙醇,725mL\nSJ-1155,甲醇,200mL\nSJ-1165,甲醇,3.5L\nSJ-1170,乙醇,2.6L\nSJ-1180,甲醇,550mL\n",
+    "README.md": "# 试剂用量\n\n学生记录：滴管量的写 mL，量筒量的写 L。\n"
+  },
+  "turns": [
+    {
+      "prompt": "这几次实验的试剂用量合计多少毫升？记录在 实验室/试剂用量.csv。",
+      "expect": {
+        "output_contains_any": [
+          "39,925",
+          "39,925 mL",
+          "39,925 毫升",
+          "39,925mL",
+          "39,925毫升",
+          "39925",
+          "39925 mL",
+          "39925 毫升",
+          "39925mL",
+          "39925毫升"
+        ],
+        "max_output_chars": 500
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 2
+    }
+  }
+}

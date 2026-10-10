@@ -1,0 +1,49 @@
+{
+  "id": "tab-8428",
+  "description": "Sum amounts in a community theatre ticket sales export whose date column mixes up to four writings (day-month-year included), over a date range. DISTILL-CANARY-cbad67b7",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-DATEFMT"
+    ],
+    "trap_decoys": {
+      "TR-DATEFMT": "1279"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b10d-mdtheatrea-mixdates-02",
+    "ref_calls": 4,
+    "fixture_bytes": 3550,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10d",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "box-office/sales.csv": "sale_id,sale_date,seat_zone,price_eur\nTX15043,2026/06/02,balcony,55\nTX15058,2026/06/01,circle,62\nTX15029,2026-06-04T08:00:00Z,stalls,46\nTX15057,08-06-2026,box,17\nTX15093,2026/06/07,circle,29\nTX15089,2026/06/05,box,62\nTX15000,2026/06/07,box,53\nTX15035,2026/06/02,circle,62\nTX15062,2026-06-05T08:00:00Z,balcony,32\nTX15099,05-06-2026,circle,27\nTX15031,03-06-2026,balcony,22\nTX15006,2026/06/03,box,62\nTX15080,02-06-2026,stalls,62\nTX15017,07-06-2026,stalls,52\nTX15079,2026-06-08T08:00:00Z,box,30\nTX15096,2026/06/05,stalls,28\nTX15082,2026/06/03,box,54\nTX15081,06-06-2026,box,34\nTX15046,2026/06/02,balcony,38\nTX15091,2026-06-06T08:00:00Z,stalls,53\nTX15090,06-06-2026,balcony,56\nTX15074,2026/06/05,stalls,49\nTX15005,2026/06/08,box,54\nTX15018,2026/06/05,stalls,44\nTX15050,06-06-2026,box,60\nTX15010,2026-06-06T08:00:00Z,box,49\nTX15049,2026/06/07,stalls,23\nTX15041,07-06-2026,circle,18\nTX15019,2026/06/06,stalls,41\nTX15039,2026-06-09T08:00:00Z,circle,47\nTX15004,03-06-2026,stalls,18\nTX15001,02-06-2026,box,36\nTX15022,2026/06/03,stalls,46\nTX15070,07-06-2026,stalls,58\nTX15028,2026/06/08,stalls,48\nTX15053,2026/06/08,circle,19\nTX15086,2026/06/03,stalls,44\nTX15067,02-06-2026,balcony,55\nTX15044,2026-06-08T08:00:00Z,box,49\nTX15021,2026/06/07,stalls,57\nTX15011,2026/06/08,circle,28\nTX15016,2026/06/06,box,30\nTX15027,2026/06/06,circle,29\nTX15007,09-06-2026,stalls,41\nTX15095,2026/06/02,box,39\nTX15072,2026/06/04,balcony,34\nTX15034,2026-06-07T08:00:00Z,balcony,20\nTX15038,04-06-2026,box,30\nTX15087,2026/06/05,balcony,19\nTX15056,2026/06/07,stalls,16\nTX15055,08-06-2026,balcony,43\nTX15051,2026-06-06T08:00:00Z,stalls,28\nTX15008,2026-06-08T08:00:00Z,stalls,18\nTX15045,04-06-2026,circle,46\nTX15073,2026/06/04,box,42\nTX15054,2026/06/08,balcony,53\nTX15025,2026/06/07,stalls,49\nTX15013,2026/06/01,circle,33\nTX15076,2026/06/08,box,38\nTX15052,2026-06-06T08:00:00Z,stalls,40\nTX15084,03-06-2026,balcony,54\nTX15060,06-06-2026,stalls,39\nTX15014,2026-06-02T08:00:00Z,stalls,49\nTX15037,2026-06-01T08:00:00Z,box,25\nTX15040,2026-06-09T08:00:00Z,stalls,25\nTX15094,2026-06-03T08:00:00Z,stalls,33\nTX15015,05-06-2026,box,42\nTX15078,08-06-2026,stalls,32\nTX15024,2026/06/09,stalls,16\nTX15030,2026-06-04T08:00:00Z,box,49\nTX15088,09-06-2026,balcony,54\nTX15020,2026/06/05,box,40\nTX15083,2026-06-09T08:00:00Z,balcony,62\nTX15042,04-06-2026,stalls,39\nTX15075,2026/06/03,stalls,51\nTX15097,2026/06/09,stalls,47\nTX15085,2026-06-08T08:00:00Z,stalls,33\nTX15047,03-06-2026,box,38\nTX15033,2026-06-02T08:00:00Z,stalls,38\nTX15003,2026-06-01T08:00:00Z,box,26\nTX15002,2026-06-04T08:00:00Z,circle,49\nTX15063,04-06-2026,stalls,34\nTX15048,2026/06/03,stalls,39\nTX15098,03-06-2026,circle,62\nTX15065,2026-06-09T08:00:00Z,stalls,47\nTX15064,04-06-2026,circle,29\nTX15023,2026/06/06,balcony,26\nTX15069,2026/06/08,stalls,62\nTX15032,2026/06/03,stalls,35\nTX15077,09-06-2026,circle,57\nTX15059,08-06-2026,balcony,38\nTX15092,06-06-2026,circle,31\nTX15061,2026/06/02,box,35\nTX15100,2026/06/02,balcony,23\nTX15101,2026-06-05T08:00:00Z,circle,14\nTX15012,2026/06/05,balcony,62\nTX15066,2026/06/04,box,55\nTX15009,2026-06-05T08:00:00Z,balcony,33\nTX15068,2026/06/03,circle,31\nTX15071,2026-06-01T08:00:00Z,balcony,58\nTX15026,2026-06-03T08:00:00Z,circle,33\nTX15036,2026/06/01,box,33\n",
+    "README.md": "# Lantern Players - box office sales\n\nOne row per ticket sold.\nThe date column comes from three systems and is not uniform: the box-office till writes 2026/06/02; the ticketing agent's export writes short dates as day-month-year, so 07-06-2026 is 7 Jun 2026; the website checkout writes Jun 11, 2026 or an ISO timestamp (UTC 08:00, same calendar day).\n"
+  },
+  "turns": [
+    {
+      "prompt": "How much ticket revenue in euros did the Lantern Players take from June 1 to June 4, inclusive? See box-office/sales.csv.",
+      "expect": {
+        "output_contains_any": [
+          "1,804",
+          "1804"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 2
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "id": "tab-8510",
+  "description": "Total stout filled in litres from mL and L entries. DISTILL-CANARY-5f94343f",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-NUMFMT"
+    ],
+    "trap_decoys": {
+      "TR-NUMFMT": "8877.5"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b10d-brewbatch-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1805,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10d",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "brewery/fill-log.csv": "fill,beer,volume\nFL-1000,stout,1.6L\nFL-1011,pale ale,2.7L\nFL-1016,lager,2.3L\nFL-1025,pale ale,700mL\nFL-1031,stout,750mL\nFL-1036,stout,2.7L\nFL-1045,pale ale,2.3L\nFL-1054,lager,700mL\nFL-1062,lager,750mL\nFL-1068,stout,1.6L\nFL-1071,stout,875mL\nFL-1081,stout,1.6L\nFL-1088,lager,2.3L\nFL-1093,stout,2.7L\nFL-1099,lager,875mL\nFL-1106,lager,700mL\nFL-1116,pale ale,1.6L\nFL-1123,stout,875mL\nFL-1127,pale ale,2.3L\nFL-1138,pale ale,1.6L\nFL-1146,stout,875mL\nFL-1152,stout,2.7L\nFL-1156,lager,1.6L\nFL-1161,stout,2.3L\nFL-1172,stout,875mL\nFL-1175,pale ale,2.3L\nFL-1185,pale ale,875mL\nFL-1191,pale ale,750mL\nFL-1202,pale ale,2.7L\nFL-1204,pale ale,2.3L\nFL-1212,stout,875mL\nFL-1223,lager,1.6L\nFL-1228,stout,2.3L\nFL-1236,stout,700mL\nFL-1244,stout,2.3L\nFL-1249,pale ale,700mL\nFL-1257,stout,2.7L\nFL-1263,pale ale,700mL\nFL-1271,lager,750mL\nFL-1279,lager,2.3L\nFL-1285,stout,700mL\nFL-1293,lager,2.3L\nFL-1300,lager,750mL\nFL-1307,pale ale,700mL\nFL-1312,lager,875mL\nFL-1316,lager,875mL\nFL-1328,lager,2.3L\nFL-1329,lager,875mL\nFL-1340,lager,875mL\nFL-1346,lager,1.6L\nFL-1354,lager,2.7L\nFL-1359,pale ale,2.7L\nFL-1364,lager,2.7L\nFL-1371,lager,750mL\nFL-1382,lager,700mL\nFL-1385,stout,2.7L\nFL-1397,lager,1.6L\nFL-1402,pale ale,2.7L\nFL-1407,lager,1.6L\nFL-1418,pale ale,2.3L\nFL-1422,pale ale,875mL\nFL-1430,pale ale,2.7L\nFL-1434,pale ale,875mL\nFL-1445,pale ale,700mL\nFL-1451,stout,875mL\nFL-1461,lager,2.3L\nFL-1462,pale ale,875mL\nFL-1473,pale ale,700mL\nFL-1478,lager,750mL\nFL-1487,stout,2.3L\nFL-1495,pale ale,1.6L\nFL-1498,pale ale,1.6L\nFL-1508,lager,1.6L\nFL-1515,lager,750mL\nFL-1522,lager,1.6L\nFL-1526,lager,2.3L\nFL-1538,pale ale,700mL\nFL-1543,pale ale,2.3L\nFL-1550,pale ale,2.7L\nFL-1553,pale ale,2.3L\nFL-1560,stout,750mL\nFL-1573,lager,750mL\nFL-1579,pale ale,1.6L\nFL-1586,stout,700mL\n",
+    "README.md": "# Fill log\n\nSmall test fills are logged in mL, tank fills in L.\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many litres of stout did we fill in total? The fill log is brewery/fill-log.csv.",
+      "expect": {
+        "output_contains_any": [
+          "36.35",
+          "36.35 L",
+          "36.35 liters",
+          "36.35 升",
+          "36.35L",
+          "36.35liters",
+          "36.35升"
+        ],
+        "max_output_chars": 500
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 2
+    }
+  }
+}

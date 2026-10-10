@@ -1,0 +1,51 @@
+{
+  "id": "tab-8467",
+  "description": "Join harvest/pickers.csv with harvest/picking_log.csv: filter the dimension table by vyd=Valley, then count keys at or above a threshold from the fact table; obscure column names. DISTILL-CANARY-e6d6a0a1",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "join",
+    "traps": [
+      "TR-MULTISRC",
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "1",
+      "TR-DEFN": "1"
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-tab-b10d-vineyard-thrcount-01",
+    "ref_calls": 4,
+    "fixture_bytes": 2915,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10d",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "harvest/pickers.csv": "pk_id,nm,vyd\nPK179,Priya Raman,Valley\nPK224,Ines Okafor,Coastal\nPK243,Devon Pryce,Valley\nPK249,Rafael Quintero,Valley\nPK350,Tomas Lindqvist,Ridge\nPK383,Callum Reeve,Ridge\nPK436,Tessa Moreno,Ridge\nPK586,Jonas Mbeki,Coastal\nPK647,Nia Ellsworth,Ridge\nPK680,Ewan Thackeray,Coastal\nPK733,Mina Sorensen,Coastal\nPK743,Greta Hallam,Coastal\nPK825,Lena Farrow,Ridge\nPK972,Wren Halvorsen,Valley\n",
+    "harvest/picking_log.csv": "pk_id,mth,wt\nPK249,2026-08,175\nPK243,2026-09,96\nPK350,2026-08,126\nPK647,2026-08,78\nPK733,2026-10,313\nPK350,2026-08,109\nPK249,2026-08,285\nPK224,2026-08,99\nPK249,2026-08,191\nPK647,2026-08,307\nPK243,2026-09,210\nPK647,2026-08,224\nPK243,2026-08,58\nPK586,2026-09,174\nPK733,2026-09,318\nPK436,2026-08,127\nPK825,2026-08,262\nPK243,2026-09,203\nPK436,2026-08,116\nPK680,2026-09,137\nPK647,2026-08,308\nPK350,2026-10,267\nPK680,2026-08,181\nPK243,2026-10,261\nPK350,2026-09,41\nPK179,2026-09,96\nPK249,2026-10,203\nPK350,2026-09,117\nPK733,2026-09,206\nPK743,2026-09,142\nPK224,2026-08,164\nPK350,2026-09,212\nPK243,2026-09,58\nPK436,2026-08,48\nPK249,2026-09,108\nPK972,2026-09,113\nPK733,2026-10,100\nPK249,2026-10,183\nPK586,2026-09,213\nPK733,2026-08,157\nPK680,2026-09,49\nPK647,2026-10,276\nPK179,2026-09,163\nPK733,2026-10,127\nPK350,2026-10,75\nPK743,2026-09,299\nPK179,2026-08,233\nPK743,2026-08,195\nPK743,2026-10,184\nPK224,2026-10,133\nPK243,2026-09,157\nPK179,2026-09,213\nPK972,2026-08,118\nPK743,2026-10,277\nPK825,2026-09,249\nPK825,2026-10,267\nPK243,2026-09,207\nPK733,2026-10,110\nPK179,2026-10,260\nPK972,2026-08,194\nPK733,2026-09,297\nPK224,2026-09,54\nPK224,2026-10,250\nPK179,2026-10,53\nPK733,2026-10,209\nPK179,2026-09,136\nPK680,2026-10,91\nPK350,2026-08,209\nPK179,2026-08,143\nPK350,2026-08,210\nPK733,2026-09,220\nPK825,2026-08,88\nPK972,2026-08,89\nPK733,2026-09,138\nPK383,2026-08,68\nPK383,2026-10,159\nPK680,2026-10,164\nPK224,2026-09,316\nPK350,2026-10,135\nPK243,2026-08,193\nPK647,2026-10,299\nPK972,2026-10,51\nPK825,2026-08,298\nPK243,2026-09,153\nPK383,2026-08,42\nPK586,2026-09,162\nPK179,2026-09,240\nPK972,2026-09,224\nPK383,2026-08,72\nPK249,2026-10,164\nPK350,2026-10,238\nPK249,2026-08,84\nPK249,2026-10,177\nPK825,2026-08,318\nPK249,2026-10,120\nPK733,2026-09,119\nPK436,2026-09,221\nPK733,2026-09,244\nPK350,2026-09,176\nPK586,2026-10,252\nPK972,2026-10,128\nPK743,2026-08,311\nPK972,2026-09,275\nPK249,2026-08,202\nPK743,2026-10,88\nPK743,2026-10,49\nPK647,2026-09,160\nPK243,2026-08,187\nPK743,2026-09,308\nPK680,2026-09,292\nPK680,2026-10,238\nPK243,2026-08,182\nPK972,2026-09,264\nPK224,2026-10,261\nPK436,2026-08,66\nPK224,2026-09,147\nPK350,2026-10,66\nPK680,2026-08,192\nPK350,2026-09,167\nPK647,2026-09,182\nPK179,2026-08,102\nPK224,2026-09,309\nPK743,2026-08,272\nPK825,2026-08,228\n",
+    "README.md": "Seasonal harvest records for a family vineyard. pickers.csv has one row per picker; picking_log.csv has one row per shift, so a picker appears many times in a month.\n\nColumn guide: pk_id=picker ID; nm=picker name; vyd=vineyard they are assigned to; pk_id=picker ID; mth=month; wt=kilograms picked in one shift\n"
+  },
+  "turns": [
+    {
+      "prompt": "Among the Valley pickers, how many picked at least 876 kg in September?",
+      "expect": {
+        "output_contains": [
+          "2"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "data_query"
+        ],
+        "max_output_chars": 500
+      }
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "id": "tab-8433",
+  "description": "Sum amounts in a coffee roaster wholesale shipments export whose date column mixes up to four writings (day-month-year included), over a date range. DISTILL-CANARY-ddeea13d",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-DATEFMT",
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-DATEFMT": "1322",
+      "TR-HEADER": "ship_date"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-tab-b10d-mdcoffeea-mixdates-02",
+    "ref_calls": 4,
+    "fixture_bytes": 3598,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10d",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "wholesale/shipments.csv": "shipment,ship_dt,grd,wt_kg\nSH02695,03-07-2026,honey,95\nSH02660,2026/07/10,washed,94\nSH02613,2026/07/09,honey,87\nSH02690,08-07-2026,natural,68\nSH02692,08-07-2026,natural,27\nSH02654,04-07-2026,natural,81\nSH02680,07-07-2026,natural,14\nSH02609,05-07-2026,honey,21\nSH02670,2026-07-09T08:00:00Z,natural,34\nSH02674,2026/07/03,natural,75\nSH02641,2026/07/07,honey,94\nSH02649,2026-07-03T08:00:00Z,washed,66\nSH02651,2026-07-09T08:00:00Z,washed,94\nSH02608,2026-07-10T08:00:00Z,natural,46\nSH02675,2026-07-07T08:00:00Z,washed,64\nSH02624,03-07-2026,washed,14\nSH02683,05-07-2026,washed,47\nSH02672,04-07-2026,natural,59\nSH02620,10-07-2026,decaf,50\nSH02634,2026/07/06,honey,53\nSH02657,03-07-2026,decaf,42\nSH02632,2026/07/06,honey,49\nSH02693,2026-07-04T08:00:00Z,decaf,35\nSH02623,03-07-2026,washed,45\nSH02669,2026/07/03,natural,42\nSH02635,2026-07-07T08:00:00Z,natural,27\nSH02689,2026-07-03T08:00:00Z,natural,48\nSH02644,2026-07-04T08:00:00Z,washed,79\nSH02668,2026/07/03,washed,49\nSH02686,05-07-2026,natural,28\nSH02604,2026/07/07,washed,95\nSH02638,2026-07-07T08:00:00Z,natural,73\nSH02616,2026-07-04T08:00:00Z,washed,17\nSH02691,2026-07-06T08:00:00Z,decaf,14\nSH02602,03-07-2026,washed,35\nSH02673,2026-07-06T08:00:00Z,honey,64\nSH02687,2026-07-09T08:00:00Z,washed,15\nSH02671,2026-07-02T08:00:00Z,honey,24\nSH02694,2026/07/03,decaf,42\nSH02677,2026/07/10,natural,47\nSH02629,2026/07/06,honey,33\nSH02659,2026/07/05,natural,63\nSH02656,2026/07/03,natural,44\nSH02630,2026-07-04T08:00:00Z,honey,85\nSH02685,2026/07/04,decaf,21\nSH02621,2026-07-10T08:00:00Z,decaf,93\nSH02679,2026/07/10,natural,75\nSH02650,2026-07-10T08:00:00Z,natural,83\nSH02611,2026-07-06T08:00:00Z,honey,38\nSH02661,2026-07-08T08:00:00Z,honey,86\nSH02600,05-07-2026,decaf,90\nSH02666,2026-07-05T08:00:00Z,decaf,64\nSH02642,2026/07/09,natural,31\nSH02640,2026-07-02T08:00:00Z,decaf,22\nSH02648,2026-07-07T08:00:00Z,washed,28\nSH02626,09-07-2026,washed,37\nSH02615,2026/07/04,natural,58\nSH02652,2026-07-04T08:00:00Z,honey,52\nSH02643,07-07-2026,honey,92\nSH02667,2026-07-03T08:00:00Z,natural,27\nSH02678,2026/07/09,washed,87\nSH02639,2026/07/04,honey,50\nSH02658,03-07-2026,honey,54\nSH02646,05-07-2026,honey,55\nSH02637,2026/07/02,washed,20\nSH02607,2026/07/02,natural,83\nSH02688,2026-07-08T08:00:00Z,decaf,65\nSH02647,2026-07-04T08:00:00Z,honey,95\nSH02610,2026/07/03,honey,72\nSH02662,09-07-2026,honey,91\nSH02684,07-07-2026,natural,45\nSH02636,2026-07-07T08:00:00Z,honey,12\nSH02665,02-07-2026,honey,37\nSH02663,2026-07-02T08:00:00Z,natural,49\nSH02601,2026-07-04T08:00:00Z,natural,21\nSH02653,2026-07-06T08:00:00Z,honey,75\nSH02612,09-07-2026,natural,58\nSH02622,2026-07-07T08:00:00Z,honey,31\nSH02627,2026/07/05,natural,95\nSH02681,2026/07/02,honey,83\nSH02614,2026-07-06T08:00:00Z,washed,59\nSH02606,2026/07/06,natural,56\nSH02617,2026/07/03,decaf,82\nSH02664,05-07-2026,natural,78\nSH02645,2026/07/09,natural,90\nSH02631,2026/07/07,decaf,72\nSH02628,10-07-2026,washed,19\nSH02625,08-07-2026,natural,61\nSH02633,2026/07/06,honey,65\nSH02603,05-07-2026,washed,23\nSH02676,04-07-2026,decaf,35\nSH02605,2026/07/07,honey,91\nSH02618,05-07-2026,decaf,14\nSH02682,2026/07/08,washed,58\nSH02655,05-07-2026,honey,84\nSH02619,2026/07/03,washed,40\n",
+    "README.md": "# Copperfield Roasters - wholesale shipments\n\nOne row per shipment.\nThe date column comes from three systems and is not uniform: the warehouse scanner writes 2026/07/02; the freight broker's feed writes short dates as day-month-year, so 07-07-2026 is 7 Jul 2026; the online wholesale portal writes Jul 11, 2026 or an ISO timestamp (UTC 08:00, same calendar day).\n\nColumn guide: shipment=shipment id; ship_dt=ship date, mixed formats; grd=bean grade; wt_kg=weight in kg\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many kilograms did Copperfield Roasters ship in total from July 3 to July 5, inclusive? Look at wholesale/shipments.csv.",
+      "expect": {
+        "output_contains_any": [
+          "2,222",
+          "2222"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 2
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "id": "tab-8488",
+  "description": "Join fleet/vehicles.csv with fleet/trips.csv: filter the dimension table by loc=Docklands, then name the key with the largest total from the fact table; obscure column names. DISTILL-CANARY-36f46f3f",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "join",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "Tessa Moreno"
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-tab-b10d-fleet-topname-01",
+    "ref_calls": 4,
+    "fixture_bytes": 2865,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10d",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "fleet/vehicles.csv": "veh,drv,loc\nVH113,Yara Castellan,Riverside\nVH322,Lena Farrow,Docklands\nVH411,Tessa Moreno,Docklands\nVH450,Nia Ellsworth,Northgate\nVH562,Callum Reeve,Riverside\nVH594,Noor Haddad,Riverside\nVH610,Marta Kowalski,Riverside\nVH669,Devon Pryce,Northgate\nVH708,Dario Falk,Docklands\nVH711,Ewan Thackeray,Northgate\nVH748,Anders Vail,Riverside\nVH758,Sana Whitlock,Northgate\nVH851,Tomas Lindqvist,Docklands\nVH853,Oskar Dunmore,Docklands\nVH889,Felix Ostrow,Northgate\nVH910,Mina Sorensen,Docklands\n",
+    "fleet/trips.csv": "veh,mo,dist\nVH322,2026-04,240\nVH910,2026-04,155\nVH711,2026-03,126\nVH711,2026-03,108\nVH853,2026-04,162\nVH610,2026-03,188\nVH748,2026-04,191\nVH322,2026-04,50\nVH889,2026-03,116\nVH594,2026-04,136\nVH853,2026-04,65\nVH851,2026-04,188\nVH562,2026-02,84\nVH610,2026-02,200\nVH853,2026-03,75\nVH610,2026-04,71\nVH594,2026-02,124\nVH322,2026-03,79\nVH322,2026-02,78\nVH322,2026-03,183\nVH322,2026-04,141\nVH708,2026-03,159\nVH562,2026-03,218\nVH748,2026-04,68\nVH322,2026-03,58\nVH711,2026-03,91\nVH889,2026-03,240\nVH708,2026-03,214\nVH889,2026-04,137\nVH669,2026-02,50\nVH411,2026-04,52\nVH610,2026-04,203\nVH322,2026-02,206\nVH411,2026-02,118\nVH910,2026-02,43\nVH851,2026-02,217\nVH411,2026-02,88\nVH851,2026-03,49\nVH411,2026-03,132\nVH669,2026-02,197\nVH889,2026-02,94\nVH411,2026-02,68\nVH411,2026-02,250\nVH669,2026-03,42\nVH669,2026-02,206\nVH851,2026-03,210\nVH758,2026-04,229\nVH910,2026-04,119\nVH853,2026-04,196\nVH851,2026-03,167\nVH562,2026-02,245\nVH322,2026-04,214\nVH851,2026-02,215\nVH322,2026-03,190\nVH758,2026-03,80\nVH113,2026-02,78\nVH322,2026-04,231\nVH669,2026-02,145\nVH594,2026-02,61\nVH669,2026-04,229\nVH562,2026-04,114\nVH113,2026-03,201\nVH669,2026-04,204\nVH594,2026-04,248\nVH748,2026-03,221\nVH411,2026-03,201\nVH450,2026-04,98\nVH711,2026-04,189\nVH669,2026-02,252\nVH853,2026-02,259\nVH910,2026-03,223\nVH851,2026-02,71\nVH889,2026-02,73\nVH322,2026-04,51\nVH889,2026-02,249\nVH758,2026-03,183\nVH851,2026-04,127\nVH450,2026-02,45\nVH889,2026-02,44\nVH851,2026-04,215\nVH322,2026-03,218\nVH910,2026-03,187\nVH853,2026-04,70\nVH411,2026-04,47\nVH853,2026-02,114\nVH758,2026-02,237\nVH708,2026-03,202\nVH853,2026-02,166\nVH711,2026-02,245\nVH851,2026-03,130\nVH708,2026-02,132\nVH708,2026-04,191\nVH450,2026-02,135\nVH711,2026-03,204\nVH610,2026-02,138\nVH758,2026-04,73\nVH594,2026-02,145\nVH450,2026-03,173\nVH322,2026-02,256\nVH322,2026-02,236\nVH711,2026-04,207\nVH711,2026-04,90\nVH758,2026-03,138\nVH594,2026-03,94\nVH411,2026-03,122\nVH708,2026-03,105\nVH708,2026-02,141\nVH610,2026-03,120\nVH411,2026-03,50\nVH450,2026-03,255\nVH851,2026-03,211\nVH450,2026-03,234\nVH594,2026-02,255\nVH708,2026-03,182\nVH594,2026-02,178\nVH711,2026-03,217\nVH708,2026-02,77\nVH910,2026-02,226\nVH851,2026-02,232\nVH113,2026-03,169\nVH322,2026-04,166\n",
+    "README.md": "Delivery fleet records. vehicles.csv has one row per van and its depot; trips.csv has one row per trip.\n\nColumn guide: veh=vehicle ID; drv=assigned driver; loc=home depot; veh=vehicle ID; mo=month; dist=kilometres of one trip\n"
+  },
+  "turns": [
+    {
+      "prompt": "Which driver at the Docklands depot covered the most distance in April?",
+      "expect": {
+        "output_contains_any": [
+          "Lena Farrow",
+          "VH322"
+        ],
+        "required_tools": [
+          "data_query"
+        ],
+        "max_output_chars": 500
+      }
+    }
+  ]
+}

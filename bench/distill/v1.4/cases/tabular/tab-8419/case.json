@@ -1,0 +1,49 @@
+{
+  "id": "tab-8419",
+  "description": "Sum amounts in a boat charter bookings export whose date column mixes up to four writings (day-month-year included), over a date range. DISTILL-CANARY-6d268aa9",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-DATEFMT"
+    ],
+    "trap_decoys": {
+      "TR-DATEFMT": "25649"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b10d-mdboata-mixdates-01",
+    "ref_calls": 4,
+    "fixture_bytes": 3032,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10d",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "charters/bookings.csv": "booking,sail_date,vessel,fare_usd\nCH-00654,2026/06/12,ketch,871\nCH-00667,\"Jun 10, 2026\",ketch,492\nCH-00669,\"Jun 5, 2026\",catamaran,679\nCH-00676,2026/06/04,catamaran,551\nCH-00641,\"Jun 9, 2026\",catamaran,848\nCH-00615,\"Jun 5, 2026\",catamaran,655\nCH-00664,06-06-2026,ketch,392\nCH-00631,\"Jun 10, 2026\",ketch,684\nCH-00625,\"Jun 8, 2026\",ketch,285\nCH-00614,\"Jun 10, 2026\",trawler,867\nCH-00670,2026/06/04,sloop,584\nCH-00617,04-06-2026,sloop,817\nCH-00628,\"Jun 8, 2026\",trawler,626\nCH-00621,2026/06/11,catamaran,843\nCH-00653,\"Jun 8, 2026\",ketch,387\nCH-00645,\"Jun 7, 2026\",trawler,712\nCH-00636,04-06-2026,sloop,882\nCH-00646,2026/06/10,trawler,900\nCH-00661,08-06-2026,ketch,409\nCH-00673,\"Jun 5, 2026\",trawler,1365\nCH-00629,\"Jun 11, 2026\",sloop,325\nCH-00619,\"Jun 9, 2026\",ketch,767\nCH-00642,04-06-2026,sloop,539\nCH-00682,\"Jun 9, 2026\",trawler,812\nCH-00672,07-06-2026,catamaran,512\nCH-00681,2026/06/11,catamaran,1336\nCH-00665,08-06-2026,catamaran,1449\nCH-00658,2026/06/09,catamaran,194\nCH-00635,\"Jun 12, 2026\",catamaran,1293\nCH-00649,06-06-2026,trawler,1283\nCH-00630,10-06-2026,catamaran,655\nCH-00689,\"Jun 5, 2026\",sloop,1113\nCH-00679,04-06-2026,trawler,649\nCH-00644,\"Jun 4, 2026\",sloop,1393\nCH-00657,09-06-2026,trawler,514\nCH-00627,06-06-2026,sloop,1156\nCH-00640,11-06-2026,ketch,1417\nCH-00620,\"Jun 12, 2026\",sloop,1069\nCH-00680,07-06-2026,trawler,1394\nCH-00612,05-06-2026,ketch,619\nCH-00648,\"Jun 7, 2026\",trawler,856\nCH-00678,2026/06/05,catamaran,518\nCH-00684,\"Jun 12, 2026\",sloop,486\nCH-00624,\"Jun 7, 2026\",ketch,840\nCH-00637,\"Jun 4, 2026\",trawler,418\nCH-00616,\"Jun 6, 2026\",ketch,891\nCH-00633,\"Jun 12, 2026\",trawler,1251\nCH-00652,\"Jun 6, 2026\",trawler,278\nCH-00675,08-06-2026,catamaran,219\nCH-00610,2026/06/05,trawler,1134\nCH-00634,2026/06/07,ketch,1015\nCH-00677,2026/06/08,trawler,898\nCH-00647,\"Jun 5, 2026\",sloop,510\nCH-00671,11-06-2026,trawler,1390\nCH-00626,2026/06/04,ketch,533\nCH-00651,2026/06/05,ketch,1298\nCH-00674,06-06-2026,catamaran,214\nCH-00668,2026/06/11,catamaran,1389\nCH-00666,\"Jun 7, 2026\",ketch,235\nCH-00683,2026/06/07,catamaran,1030\nCH-00686,11-06-2026,ketch,1132\nCH-00650,2026/06/06,ketch,1200\nCH-00622,\"Jun 8, 2026\",trawler,1098\nCH-00660,08-06-2026,sloop,1330\nCH-00685,\"Jun 9, 2026\",trawler,880\nCH-00618,09-06-2026,trawler,658\nCH-00662,2026/06/09,trawler,804\nCH-00639,\"Jun 5, 2026\",sloop,501\nCH-00687,\"Jun 6, 2026\",sloop,495\nCH-00688,2026/06/11,catamaran,1256\nCH-00663,06-06-2026,sloop,556\nCH-00656,\"Jun 8, 2026\",ketch,1156\nCH-00611,09-06-2026,ketch,957\nCH-00613,06-06-2026,ketch,1312\nCH-00655,2026/06/10,ketch,1378\nCH-00632,\"Jun 11, 2026\",catamaran,921\nCH-00623,2026/06/04,catamaran,708\nCH-00659,\"Jun 10, 2026\",catamaran,1316\nCH-00643,\"Jun 5, 2026\",ketch,412\nCH-00638,2026/06/05,trawler,549\n",
+    "README.md": "# Tern Island Charters - bookings\n\nOne row per booked day trip.\nThe date column comes from three systems and is not uniform: the dock office writes 2026/06/02; the agency feed writes short dates as day-month-year, so 07-06-2026 is 7 Jun 2026; the booking site writes Jun 11, 2026 or an ISO timestamp (UTC 08:00, same calendar day).\n"
+  },
+  "turns": [
+    {
+      "prompt": "What is the total fare in dollars for Tern Island trips from June 5 to June 8, inclusive? See charters/bookings.csv.",
+      "expect": {
+        "output_contains_any": [
+          "31,581",
+          "31581"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 2
+    }
+  }
+}

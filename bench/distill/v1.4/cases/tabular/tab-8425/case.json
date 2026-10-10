@@ -1,0 +1,49 @@
+{
+  "id": "tab-8425",
+  "description": "Count rows of one category in a solar installs export whose date column mixes up to four writings (day-month-year included), over a date range. DISTILL-CANARY-45527efd",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [
+      "TR-DATEFMT"
+    ],
+    "trap_decoys": {
+      "TR-DATEFMT": "27"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b10d-mdsolarb-mixdates-02",
+    "ref_calls": 4,
+    "fixture_bytes": 7216,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10d",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "jobs/installs.csv": "job,install_date,roof,panels\nINS-00934,2026/09/02,tile,18\nINS-00977,2026/09/06,metal,23\nINS-00959,2026-09-02T08:00:00Z,flat,26\nINS-01080,\"Sep 2, 2026\",shingle,14\nINS-01072,04-09-2026,shingle,17\nINS-00997,\"Sep 5, 2026\",metal,22\nINS-01040,2026-09-10T08:00:00Z,flat,27\nINS-00965,\"Sep 5, 2026\",shingle,20\nINS-01038,2026/09/10,metal,20\nINS-01031,2026/09/02,tile,20\nINS-01104,\"Sep 5, 2026\",tile,33\nINS-00943,\"Sep 4, 2026\",tile,28\nINS-00958,2026-09-06T08:00:00Z,shingle,25\nINS-00995,06-09-2026,tile,17\nINS-00947,09-09-2026,shingle,18\nINS-01015,\"Sep 8, 2026\",shingle,11\nINS-01035,10-09-2026,shingle,29\nINS-00972,\"Sep 10, 2026\",metal,32\nINS-01033,\"Sep 2, 2026\",flat,20\nINS-01016,2026/09/03,metal,22\nINS-00928,\"Sep 3, 2026\",flat,10\nINS-01099,\"Sep 2, 2026\",shingle,9\nINS-00901,\"Sep 8, 2026\",flat,31\nINS-00912,\"Sep 7, 2026\",metal,12\nINS-00923,2026-09-09T08:00:00Z,flat,14\nINS-01110,\"Sep 4, 2026\",flat,27\nINS-01002,2026/09/03,metal,25\nINS-00981,2026/09/03,tile,33\nINS-00961,\"Sep 2, 2026\",tile,27\nINS-00983,06-09-2026,tile,12\nINS-01028,2026/09/06,tile,9\nINS-01003,2026/09/09,flat,10\nINS-01090,2026/09/08,flat,29\nINS-01054,2026/09/09,tile,27\nINS-01025,\"Sep 2, 2026\",flat,7\nINS-00909,2026/09/03,tile,29\nINS-00929,04-09-2026,tile,17\nINS-01037,2026-09-02T08:00:00Z,tile,21\nINS-00906,2026/09/02,tile,22\nINS-00996,2026/09/06,metal,6\nINS-01108,\"Sep 4, 2026\",flat,10\nINS-01044,\"Sep 7, 2026\",flat,6\nINS-00994,2026/09/08,tile,6\nINS-01005,04-09-2026,shingle,16\nINS-01101,07-09-2026,metal,26\nINS-00941,\"Sep 7, 2026\",tile,19\nINS-01063,03-09-2026,metal,27\nINS-00971,\"Sep 6, 2026\",shingle,21\nINS-01083,2026/09/07,shingle,31\nINS-00904,08-09-2026,flat,29\nINS-00932,\"Sep 8, 2026\",metal,23\nINS-01068,2026/09/03,flat,17\nINS-00937,2026/09/09,flat,12\nINS-01107,2026/09/05,flat,11\nINS-00926,08-09-2026,metal,17\nINS-01052,09-09-2026,shingle,16\nINS-00986,\"Sep 9, 2026\",flat,11\nINS-00916,2026/09/06,flat,30\nINS-00951,2026/09/03,shingle,10\nINS-00920,2026/09/10,metal,27\nINS-00964,2026-09-04T08:00:00Z,flat,15\nINS-01021,03-09-2026,metal,20\nINS-01081,2026/09/05,shingle,10\nINS-01078,2026-09-09T08:00:00Z,tile,17\nINS-01084,\"Sep 3, 2026\",tile,19\nINS-01106,2026/09/02,metal,30\nINS-00962,2026-09-02T08:00:00Z,flat,32\nINS-01032,2026-09-05T08:00:00Z,metal,31\nINS-00911,06-09-2026,flat,32\nINS-01064,\"Sep 9, 2026\",tile,8\nINS-00976,\"Sep 4, 2026\",tile,30\nINS-00999,2026/09/06,shingle,33\nINS-01001,07-09-2026,metal,10\nINS-01029,\"Sep 6, 2026\",tile,32\nINS-01079,2026-09-06T08:00:00Z,shingle,8\nINS-01073,2026/09/07,flat,10\nINS-00946,2026-09-09T08:00:00Z,metal,13\nINS-01050,10-09-2026,metal,8\nINS-01039,\"Sep 5, 2026\",metal,13\nINS-01069,\"Sep 6, 2026\",metal,21\nINS-01097,2026/09/10,metal,8\nINS-00940,\"Sep 10, 2026\",shingle,32\nINS-00970,02-09-2026,metal,15\nINS-01082,\"Sep 2, 2026\",shingle,8\nINS-00945,2026/09/08,metal,16\nINS-01041,2026/09/04,flat,23\nINS-01066,2026/09/02,metal,26\nINS-00960,2026/09/04,flat,12\nINS-00957,2026/09/03,metal,9\nINS-01045,2026-09-08T08:00:00Z,tile,21\nINS-00933,\"Sep 8, 2026\",flat,7\nINS-00949,2026/09/07,flat,21\nINS-01027,2026-09-05T08:00:00Z,tile,17\nINS-00967,2026/09/07,flat,21\nINS-01085,2026-09-02T08:00:00Z,flat,7\nINS-01009,2026/09/10,tile,27\nINS-00914,2026/09/10,flat,31\nINS-00991,\"Sep 10, 2026\",metal,21\nINS-01096,07-09-2026,tile,25\nINS-01036,\"Sep 4, 2026\",shingle,31\nINS-00917,2026/09/02,tile,13\nINS-00979,\"Sep 8, 2026\",shingle,26\nINS-01011,2026-09-02T08:00:00Z,flat,7\nINS-01056,07-09-2026,shingle,8\nINS-01018,\"Sep 6, 2026\",shingle,12\nINS-01019,05-09-2026,tile,21\nINS-00982,2026/09/06,tile,7\nINS-01022,\"Sep 3, 2026\",flat,18\nINS-00966,2026/09/02,tile,8\nINS-00980,2026-09-06T08:00:00Z,metal,24\nINS-00992,10-09-2026,tile,17\nINS-01071,2026-09-10T08:00:00Z,shingle,33\nINS-01076,02-09-2026,flat,25\nINS-01026,2026-09-05T08:00:00Z,metal,20\nINS-00944,2026-09-06T08:00:00Z,tile,32\nINS-00935,\"Sep 9, 2026\",metal,18\nINS-01105,2026-09-09T08:00:00Z,tile,10\nINS-01070,2026/09/08,metal,14\nINS-00952,07-09-2026,tile,10\nINS-01091,2026-09-09T08:00:00Z,tile,8\nINS-01095,2026-09-03T08:00:00Z,metal,19\nINS-01086,2026/09/07,tile,22\nINS-01046,10-09-2026,flat,17\nINS-01109,10-09-2026,shingle,26\nINS-01075,2026/09/09,tile,7\nINS-00936,08-09-2026,flat,14\nINS-01088,06-09-2026,metal,31\nINS-00984,2026/09/10,tile,17\nINS-01047,2026-09-03T08:00:00Z,tile,28\nINS-01061,2026-09-09T08:00:00Z,flat,32\nINS-00948,2026/09/06,flat,33\nINS-00927,\"Sep 2, 2026\",shingle,9\nINS-01057,\"Sep 6, 2026\",flat,31\nINS-00942,2026/09/04,flat,16\nINS-00969,2026/09/05,metal,26\nINS-01017,2026/09/03,flat,16\nINS-01008,08-09-2026,flat,27\nINS-01065,04-09-2026,metal,34\nINS-00954,05-09-2026,metal,27\nINS-01089,\"Sep 4, 2026\",shingle,30\nINS-01100,2026/09/05,metal,17\nINS-01092,09-09-2026,shingle,28\nINS-00902,2026/09/07,shingle,28\nINS-01000,10-09-2026,shingle,33\nINS-01060,2026/09/03,flat,11\nINS-00988,2026-09-04T08:00:00Z,shingle,18\nINS-01023,2026/09/02,flat,30\nINS-00931,2026-09-02T08:00:00Z,tile,14\nINS-01012,2026-09-07T08:00:00Z,metal,32\nINS-00974,\"Sep 2, 2026\",shingle,25\nINS-01024,2026/09/08,shingle,25\nINS-01042,2026/09/05,flat,11\nINS-00978,2026-09-07T08:00:00Z,flat,33\nINS-00956,2026-09-07T08:00:00Z,tile,9\nINS-01093,04-09-2026,tile,21\nINS-01006,2026-09-08T08:00:00Z,flat,18\nINS-01094,2026/09/02,metal,33\nINS-00987,2026/09/08,tile,14\nINS-01051,2026-09-03T08:00:00Z,tile,25\nINS-00993,2026-09-02T08:00:00Z,flat,29\nINS-00903,2026/09/05,shingle,15\nINS-00924,\"Sep 6, 2026\",flat,13\nINS-00922,09-09-2026,tile,23\nINS-01013,\"Sep 3, 2026\",metal,20\nINS-01053,2026-09-04T08:00:00Z,shingle,22\nINS-00910,2026/09/05,tile,29\nINS-01058,2026/09/02,metal,28\nINS-00900,\"Sep 5, 2026\",flat,26\nINS-00955,07-09-2026,shingle,7\nINS-01059,\"Sep 5, 2026\",flat,10\nINS-00973,\"Sep 9, 2026\",shingle,23\nINS-00918,2026/09/06,flat,7\nINS-01067,2026/09/10,shingle,30\nINS-01055,2026/09/03,flat,12\nINS-00908,03-09-2026,metal,9\nINS-00953,\"Sep 4, 2026\",shingle,17\nINS-01043,\"Sep 5, 2026\",metal,21\nINS-00913,06-09-2026,tile,19\nINS-00998,2026/09/02,shingle,6\nINS-00990,\"Sep 9, 2026\",metal,30\nINS-01098,2026-09-07T08:00:00Z,metal,15\nINS-01077,09-09-2026,flat,22\nINS-01049,\"Sep 7, 2026\",tile,14\nINS-00921,03-09-2026,metal,17\nINS-00938,2026/09/08,metal,13\nINS-00919,\"Sep 9, 2026\",flat,31\nINS-00930,2026-09-04T08:00:00Z,metal,16\nINS-00963,\"Sep 3, 2026\",flat,12\nINS-00950,\"Sep 7, 2026\",metal,21\nINS-01020,\"Sep 5, 2026\",tile,19\nINS-00985,10-09-2026,metal,10\nINS-00915,2026/09/07,flat,17\nINS-00905,2026/09/10,shingle,27\nINS-01014,2026/09/08,tile,16\nINS-01074,2026-09-10T08:00:00Z,metal,18\nINS-01034,2026/09/09,flat,13\nINS-00939,\"Sep 7, 2026\",metal,17\nINS-00907,2026/09/04,flat,16\nINS-00989,\"Sep 5, 2026\",tile,20\nINS-01102,06-09-2026,metal,28\nINS-01030,\"Sep 6, 2026\",tile,21\nINS-01048,2026-09-07T08:00:00Z,tile,7\nINS-01004,05-09-2026,flat,18\nINS-01103,10-09-2026,shingle,30\nINS-01062,2026-09-08T08:00:00Z,flat,6\nINS-00925,2026-09-08T08:00:00Z,flat,30\nINS-01010,03-09-2026,shingle,6\nINS-01007,2026/09/08,metal,10\nINS-01087,\"Sep 9, 2026\",flat,12\nINS-00975,\"Sep 7, 2026\",shingle,10\nINS-00968,03-09-2026,shingle,10\n",
+    "README.md": "# Brightside Solar - completed installs\n\nOne row per finished install.\nThe date column comes from three systems and is not uniform: the field app writes 2026/09/02; the dispatch office writes short dates as day-month-year, so 07-09-2026 is 7 Sep 2026; the customer portal writes Sep 11, 2026 or an ISO timestamp (UTC 08:00, same calendar day).\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many metal-roof installs did Brightside finish from September 3 to September 8, inclusive? The data is jobs/installs.csv.",
+      "expect": {
+        "output_contains": [
+          "38"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 2
+    }
+  }
+}

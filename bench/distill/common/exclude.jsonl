@@ -1378,10 +1378,6 @@
 {"batch": "b10a", "case_id": "fs-8021--p2", "reason": "渲染后 9647 token，超过 8128 打包上限（逐个读取几十个许可文件）"}
 {"batch": "b10a", "case_id": "nt-8042--p1", "reason": "第 2 轮只给裸值「4400」，题面没要求只回数值（§4.2）"}
 {"batch": "b10a", "case_id": "nt-8044--p1", "reason": "第 2 轮只给裸值「560」，题面没要求只回数值（§4.2）"}
-{"batch": "b10b", "case_id": "hyb-8025--p1", "reason": "把官网标注 10 月 1 日起执行的新价当成现行价（今天 9 月 16 日），同题 p2 正确指出尚未生效"}
-{"batch": "b10b", "case_id": "web-8074--p1", "reason": "中文题第一次搜索用日文（嵐山マラソン…）"}
-{"batch": "b10b", "case_id": "web-8041--p2", "reason": "终答把官网域名拼错成 haiuyan-air.cn"}
-{"batch": "b10b", "case_id": "web-8042--p2", "reason": "问「今年」却用 2025 搜索（今天是 2026-09-16）"}
 {"batch": "b10c", "case_id": "cfg-8203--p1", "reason": "终答把 README 写成「READM E」（词中断开的乱码）"}
 {"batch": "b10c", "case_id": "fs-8206--p2", "reason": "英文题用中文作答"}
 {"batch": "b10c", "case_id": "fs-8209--p1", "reason": "终答开头泄漏自言自语「Pruning? That's Lena too probably.」"}
@@ -1403,3 +1399,46 @@
 {"batch": "b10c", "case_id": "tab-8204--p1", "reason": "题面没要求 DONE，终答却说「也没有 DONE」"}
 {"batch": "b10c", "case_id": "tab-8206--p2", "reason": "题面没要求 DONE，终答却说「也不能说 DONE」"}
 {"batch": "b10c", "case_id": "tab-8215--p2", "reason": "题面没要求 DONE，终答却说「there is no DONE」"}
+{"batch": "b10b", "case_id": "hyb-8025--p1", "reason": "把官网标注 10 月 1 日起执行的新价当成现行价（今天 9 月 16 日），同题 p2 正确指出尚未生效"}
+{"batch": "b10b", "case_id": "web-8074--p1", "reason": "中文题第一次搜索用日文（嵐山マラソン…）"}
+{"batch": "b10b", "case_id": "web-8041--p2", "reason": "终答把官网域名拼错成 haiuyan-air.cn"}
+{"batch": "b10b", "case_id": "web-8042--p2", "reason": "问「今年」却用 2025 搜索（今天是 2026-09-16）"}
+{"batch": "b10d", "case_id": "code-8401--p1", "reason": "英文题用中文作答"}
+{"batch": "b10d", "case_id": "code-8406--p1", "reason": "英文题用中文作答"}
+{"batch": "b10d", "case_id": "log-8431--p2", "reason": "英文题用德文作答"}
+{"batch": "b10d", "case_id": "log-8437--p1", "reason": "英文题用中文作答"}
+{"batch": "b10d", "case_id": "log-8440--p1", "reason": "目标行在数据里是 ERROR 级别，终答答「v12 从未发布成功」"}
+{"batch": "b10d", "case_id": "log-8440--p2", "reason": "目标行在数据里是 ERROR 级别，终答答「v12 从未发布成功」"}
+{"batch": "b10d", "case_id": "log-8441--p1", "reason": "英文题用中文作答"}
+{"batch": "b10d", "case_id": "log-8442--p1", "reason": "目标行在数据里是 ERROR 级别，终答答「不是正常的成功收尾」"}
+{"batch": "b10d", "case_id": "log-8442--p2", "reason": "目标行在数据里是 ERROR 级别，终答答「没有可信的成功完成行」"}
+{"batch": "b10d", "case_id": "log-8401--p1", "reason": "终答里冒出乱词「pista（依据）」"}
+{"batch": "b10d", "case_id": "log-8414--p2", "reason": "渲染后 13047 token，超过 8128 打包上限（整读日志）"}
+{"batch": "b10d", "case_id": "log-8416--p1", "reason": "渲染后 13293 token，超过 8128 打包上限（整读日志）"}
+{"batch": "b10d", "case_id": "log-8417--p1", "reason": "渲染后 14511 token，超过 8128 打包上限（整读日志）"}
+{"batch": "b10d", "case_id": "log-8417--p2", "reason": "英文题用中文作答"}
+{"batch": "b10d", "case_id": "log-8419--p1", "reason": "英文题用中文作答"}
+{"batch": "b10d", "case_id": "log-8419--p2", "reason": "英文题用中文作答"}
+{"batch": "b10d", "case_id": "log-8421--p2", "reason": "英文题用中文作答"}
+{"batch": "b10d", "case_id": "log-8423--p1", "reason": "渲染后 15077 token，超过 8128 打包上限（整读日志）"}
+{"batch": "b10d", "case_id": "log-8425--p2", "reason": "渲染后 15708 token，超过 8128 打包上限（整读日志）"}
+{"batch": "b10d", "case_id": "log-8427--p1", "reason": "渲染后 13921 token，超过 8128 打包上限（整读日志）"}
+{"batch": "b10d", "case_id": "log-8428--p1", "reason": "渲染后 14212 token，超过 8128 打包上限（整读日志）"}
+{"batch": "b10d", "case_id": "log-8429--p2", "reason": "英文题用中文作答"}
+{"batch": "b10d", "case_id": "tab-8401--p2", "reason": "渲染后 9007 token，超过 8128 打包上限（整读表格）"}
+{"batch": "b10d", "case_id": "tab-8403--p1", "reason": "渲染后 10689 token，超过 8128 打包上限（整读表格）"}
+{"batch": "b10d", "case_id": "tab-8403--p2", "reason": "渲染后 10810 token，超过 8128 打包上限（整读表格）"}
+{"batch": "b10d", "case_id": "tab-8414--p1", "reason": "渲染后 8678 token，超过 8128 打包上限（整读表格）"}
+{"batch": "b10d", "case_id": "tab-8416--p1", "reason": "渲染后 8835 token，超过 8128 打包上限（整读表格）"}
+{"batch": "b10d", "case_id": "tab-8416--p2", "reason": "渲染后 9224 token，超过 8128 打包上限（整读表格）"}
+{"batch": "b10d", "case_id": "tab-8423--p2", "reason": "渲染后 9016 token，超过 8128 打包上限（整读表格）"}
+{"batch": "b10d", "case_id": "tab-8427--p2", "reason": "渲染后 8413 token，超过 8128 打包上限（整读表格）"}
+{"batch": "b10d", "case_id": "tab-8429--p1", "reason": "终答里自我更正「13 on Aug 2 or Aug 10... precisely 14」"}
+{"batch": "b10d", "case_id": "tab-8430--p1", "reason": "终答把短日期说成 MM-DD-YYYY（README 是日-月-年）"}
+{"batch": "b10d", "case_id": "tab-8432--p1", "reason": "渲染后 8565 token，超过 8128 打包上限（整读表格）"}
+{"batch": "b10d", "case_id": "tab-8433--p1", "reason": "终答凭空写「891 rows」"}
+{"batch": "b10d", "case_id": "tab-8436--p2", "reason": "渲染后 9915 token，超过 8128 打包上限（整读表格）"}
+{"batch": "b10d", "case_id": "tab-8438--p1", "reason": "渲染后 9817 token，超过 8128 打包上限（整读表格）"}
+{"batch": "b10d", "case_id": "tab-8467--p1", "reason": "英文题用中文作答"}
+{"batch": "b10d", "case_id": "tab-8469--p2", "reason": "终答说「only three Ridge pickers」却只列两人"}
+{"batch": "b10d", "case_id": "tab-8503--p1", "reason": "终答编出表里没有的「乙醇 / 甲醇」分项"}

@@ -1,0 +1,61 @@
+{
+  "id": "tab-8502",
+  "description": "Total oak board length in cm from a list mixing cm and m. DISTILL-CANARY-c318a9fc",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-NUMFMT"
+    ],
+    "trap_decoys": {
+      "TR-NUMFMT": "1956.6"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b10d-woodboard-01",
+    "ref_calls": 3,
+    "fixture_bytes": 2293,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10d",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "木工坊/板材.csv": "料单,木种,长度\nBC-1001,橡木,3.9m\nBC-1010,白蜡木,4.0m\nBC-1015,胡桃木,40cm\nBC-1026,橡木,40cm\nBC-1028,橡木,4.0m\nBC-1041,白蜡木,5.3m\nBC-1042,橡木,4.0m\nBC-1052,胡桃木,40cm\nBC-1056,胡桃木,3.9m\nBC-1066,胡桃木,3.9m\nBC-1073,胡桃木,40cm\nBC-1080,胡桃木,3.9m\nBC-1090,胡桃木,40cm\nBC-1093,白蜡木,180cm\nBC-1101,橡木,160cm\nBC-1108,白蜡木,4.0m\nBC-1118,胡桃木,3.9m\nBC-1120,白蜡木,4.0m\nBC-1127,胡桃木,40cm\nBC-1133,白蜡木,3.9m\nBC-1144,白蜡木,4.0m\nBC-1150,橡木,3.9m\nBC-1155,胡桃木,4.0m\nBC-1162,胡桃木,4.0m\nBC-1169,胡桃木,180cm\nBC-1180,胡桃木,5.3m\nBC-1188,胡桃木,160cm\nBC-1190,胡桃木,5.3m\nBC-1200,橡木,180cm\nBC-1206,橡木,180cm\nBC-1215,橡木,160cm\nBC-1222,橡木,4.0m\nBC-1229,橡木,4.0m\nBC-1233,胡桃木,180cm\nBC-1240,白蜡木,180cm\nBC-1251,白蜡木,4.0m\nBC-1258,橡木,3.9m\nBC-1262,胡桃木,160cm\nBC-1270,胡桃木,40cm\nBC-1273,橡木,40cm\nBC-1282,胡桃木,5.3m\nBC-1287,胡桃木,4.0m\nBC-1297,橡木,3.9m\nBC-1303,白蜡木,180cm\nBC-1311,白蜡木,160cm\nBC-1320,橡木,160cm\nBC-1325,胡桃木,4.0m\nBC-1333,胡桃木,5.3m\nBC-1342,白蜡木,5.3m\nBC-1343,橡木,40cm\nBC-1353,胡桃木,180cm\nBC-1358,白蜡木,3.9m\nBC-1364,胡桃木,180cm\nBC-1372,橡木,3.9m\nBC-1382,胡桃木,3.9m\nBC-1386,白蜡木,160cm\nBC-1393,白蜡木,180cm\nBC-1403,胡桃木,5.3m\nBC-1412,橡木,4.0m\nBC-1419,橡木,40cm\nBC-1420,白蜡木,40cm\nBC-1430,橡木,180cm\nBC-1434,胡桃木,5.3m\nBC-1442,胡桃木,3.9m\nBC-1452,橡木,5.3m\nBC-1459,胡桃木,160cm\nBC-1465,胡桃木,40cm\nBC-1474,白蜡木,180cm\nBC-1481,胡桃木,5.3m\nBC-1489,白蜡木,5.3m\nBC-1496,橡木,4.0m\nBC-1501,白蜡木,3.9m\nBC-1504,白蜡木,180cm\nBC-1514,胡桃木,5.3m\nBC-1522,胡桃木,160cm\nBC-1528,白蜡木,40cm\nBC-1536,胡桃木,40cm\nBC-1544,橡木,160cm\nBC-1550,白蜡木,160cm\nBC-1559,胡桃木,3.9m\nBC-1561,橡木,160cm\nBC-1571,橡木,5.3m\nBC-1579,橡木,5.3m\nBC-1581,胡桃木,4.0m\nBC-1588,白蜡木,40cm\nBC-1597,白蜡木,3.9m\nBC-1606,胡桃木,5.3m\nBC-1614,胡桃木,40cm\nBC-1617,橡木,180cm\nBC-1627,白蜡木,3.9m\nBC-1634,橡木,4.0m\nBC-1642,橡木,4.0m\nBC-1650,白蜡木,3.9m\nBC-1657,橡木,5.3m\nBC-1663,胡桃木,160cm\nBC-1669,橡木,40cm\nBC-1673,胡桃木,160cm\nBC-1679,橡木,160cm\nBC-1692,橡木,3.9m\n",
+    "README.md": "# 板材长度\n\n手写料单，有人写厘米，有人写米。\n"
+  },
+  "turns": [
+    {
+      "prompt": "橡木板材的长度加起来是多少厘米？料单在 木工坊/板材.csv。",
+      "expect": {
+        "output_contains_any": [
+          "9,540",
+          "9,540 centimeters",
+          "9,540 cm",
+          "9,540 厘米",
+          "9,540centimeters",
+          "9,540cm",
+          "9,540厘米",
+          "9540",
+          "9540 centimeters",
+          "9540 cm",
+          "9540 厘米",
+          "9540centimeters",
+          "9540cm",
+          "9540厘米"
+        ],
+        "max_output_chars": 500
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 2
+    }
+  }
+}

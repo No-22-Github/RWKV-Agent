@@ -1,0 +1,59 @@
+{
+  "id": "tab-8505",
+  "description": "Total one vendor's invoices where amounts mix dollar-sign, USD suffix and k USD. DISTILL-CANARY-b476e3df",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-NUMFMT"
+    ],
+    "trap_decoys": {
+      "TR-NUMFMT": "27522.4"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b10d-vendorinv-01",
+    "ref_calls": 3,
+    "fixture_bytes": 2621,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10d",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "finance/vendor-invoices.csv": "invoice,vendor,amount\nINV-1004,Lumen Cloud,1810 USD\nINV-1007,Lumen Cloud,2.4k USD\nINV-1015,Lumen Cloud,\"$2,500\"\nINV-1024,Harbor Courier,\"$2,500\"\nINV-1034,Lumen Cloud,2.4k USD\nINV-1040,Lumen Cloud,1810 USD\nINV-1046,Kestrel Print,740 USD\nINV-1053,Kestrel Print,\"$1,450\"\nINV-1059,Kestrel Print,2.4k USD\nINV-1066,Kestrel Print,\"$1,450\"\nINV-1072,Kestrel Print,1.6k USD\nINV-1083,Kestrel Print,1810 USD\nINV-1087,Lumen Cloud,\"$2,500\"\nINV-1094,Kestrel Print,1.6k USD\nINV-1099,Kestrel Print,2.4k USD\nINV-1111,Harbor Courier,\"$1,450\"\nINV-1115,Lumen Cloud,740 USD\nINV-1123,Kestrel Print,\"$1,450\"\nINV-1130,Lumen Cloud,\"$1,450\"\nINV-1134,Kestrel Print,740 USD\nINV-1144,Lumen Cloud,1810 USD\nINV-1151,Lumen Cloud,740 USD\nINV-1155,Lumen Cloud,\"$1,450\"\nINV-1166,Harbor Courier,740 USD\nINV-1171,Kestrel Print,1.6k USD\nINV-1175,Lumen Cloud,2.4k USD\nINV-1184,Harbor Courier,\"$1,450\"\nINV-1195,Lumen Cloud,1.6k USD\nINV-1199,Harbor Courier,2.4k USD\nINV-1207,Harbor Courier,2.4k USD\nINV-1210,Kestrel Print,1810 USD\nINV-1221,Lumen Cloud,1810 USD\nINV-1225,Kestrel Print,2.4k USD\nINV-1233,Kestrel Print,2.4k USD\nINV-1238,Lumen Cloud,1.6k USD\nINV-1251,Kestrel Print,\"$1,450\"\nINV-1253,Lumen Cloud,\"$1,450\"\nINV-1261,Lumen Cloud,1.6k USD\nINV-1270,Kestrel Print,\"$2,500\"\nINV-1275,Lumen Cloud,740 USD\nINV-1286,Kestrel Print,1.6k USD\nINV-1288,Kestrel Print,\"$2,500\"\nINV-1294,Kestrel Print,1810 USD\nINV-1305,Lumen Cloud,1810 USD\nINV-1314,Lumen Cloud,\"$1,450\"\nINV-1321,Kestrel Print,2.4k USD\nINV-1322,Harbor Courier,\"$2,500\"\nINV-1332,Lumen Cloud,1810 USD\nINV-1340,Harbor Courier,1.6k USD\nINV-1343,Kestrel Print,2.4k USD\nINV-1352,Harbor Courier,\"$2,500\"\nINV-1361,Lumen Cloud,2.4k USD\nINV-1369,Lumen Cloud,\"$2,500\"\nINV-1375,Lumen Cloud,\"$1,450\"\nINV-1381,Kestrel Print,740 USD\nINV-1386,Harbor Courier,1.6k USD\nINV-1397,Kestrel Print,\"$2,500\"\nINV-1402,Harbor Courier,2.4k USD\nINV-1412,Kestrel Print,740 USD\nINV-1413,Kestrel Print,1.6k USD\nINV-1426,Lumen Cloud,1810 USD\nINV-1431,Harbor Courier,2.4k USD\nINV-1438,Harbor Courier,\"$2,500\"\nINV-1442,Harbor Courier,740 USD\nINV-1448,Lumen Cloud,740 USD\nINV-1458,Lumen Cloud,2.4k USD\nINV-1463,Harbor Courier,\"$2,500\"\nINV-1475,Harbor Courier,\"$1,450\"\nINV-1480,Lumen Cloud,\"$2,500\"\nINV-1489,Kestrel Print,1810 USD\nINV-1493,Kestrel Print,740 USD\nINV-1500,Harbor Courier,\"$1,450\"\nINV-1509,Kestrel Print,1810 USD\nINV-1514,Kestrel Print,\"$1,450\"\nINV-1518,Lumen Cloud,\"$1,450\"\nINV-1530,Harbor Courier,1810 USD\nINV-1536,Lumen Cloud,740 USD\nINV-1545,Harbor Courier,740 USD\nINV-1550,Harbor Courier,\"$1,450\"\n",
+    "README.md": "# Vendor invoices\n\nAmounts were typed by three clerks: some write $1,200, some 1200 USD, some 1.2k USD. All are US dollars.\n"
+  },
+  "turns": [
+    {
+      "prompt": "What is the total we were invoiced by Kestrel Print, in US dollars? The ledger is finance/vendor-invoices.csv.",
+      "expect": {
+        "output_contains_any": [
+          "$49,900",
+          "$49900",
+          "49,900",
+          "49,900 USD",
+          "49,900 dollars",
+          "49,900USD",
+          "49,900dollars",
+          "49900",
+          "49900 USD",
+          "49900 dollars",
+          "49900USD",
+          "49900dollars"
+        ],
+        "max_output_chars": 500
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 2
+    }
+  }
+}

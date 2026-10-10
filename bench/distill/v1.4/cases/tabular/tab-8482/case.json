@@ -1,0 +1,49 @@
+{
+  "id": "tab-8482",
+  "description": "Join talks/talks.csv with talks/checkins.csv: filter the dimension table by track=Backend, then sum per-key totals from the fact table. DISTILL-CANARY-37306738",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "join",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "2014"
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-tab-b10d-meetup-sumjoin-01",
+    "ref_calls": 4,
+    "fixture_bytes": 2575,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10d",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "talks/talks.csv": "talk_id,title,track\nTK136,Build Systems Compared,Backend\nTK193,Zero-Downtime Migrations,Frontend\nTK260,Edge Caching 101,Backend\nTK281,Async Without Tears,Ops\nTK445,Observability on a Budget,Ops\nTK472,Type Systems in Practice,Backend\nTK589,Why Tests Rot,Frontend\nTK595,Queues at Scale,Frontend\nTK894,WebAssembly Today,Ops\nTK914,Rust for Embedded,Ops\nTK919,Fuzzing Finds Bugs,Backend\n",
+    "talks/checkins.csv": "talk_id,month,attendees\nTK193,2026-03,18\nTK136,2026-02,58\nTK260,2026-02,25\nTK260,2026-01,64\nTK472,2026-01,52\nTK919,2026-02,42\nTK445,2026-01,23\nTK136,2026-01,49\nTK595,2026-02,40\nTK281,2026-03,32\nTK589,2026-02,59\nTK472,2026-01,25\nTK260,2026-02,45\nTK193,2026-02,48\nTK136,2026-02,30\nTK589,2026-03,59\nTK894,2026-01,10\nTK894,2026-02,20\nTK472,2026-02,41\nTK914,2026-03,10\nTK589,2026-02,49\nTK589,2026-02,24\nTK914,2026-01,37\nTK914,2026-03,57\nTK281,2026-01,19\nTK281,2026-01,46\nTK193,2026-03,36\nTK260,2026-03,61\nTK260,2026-03,51\nTK260,2026-03,39\nTK281,2026-02,42\nTK914,2026-01,25\nTK472,2026-03,60\nTK472,2026-03,49\nTK193,2026-01,67\nTK260,2026-01,53\nTK919,2026-01,35\nTK914,2026-03,70\nTK914,2026-02,34\nTK919,2026-02,62\nTK260,2026-03,60\nTK281,2026-01,68\nTK136,2026-01,42\nTK193,2026-02,15\nTK260,2026-01,28\nTK595,2026-03,36\nTK595,2026-03,42\nTK595,2026-03,52\nTK281,2026-03,38\nTK445,2026-03,45\nTK894,2026-02,56\nTK193,2026-01,34\nTK260,2026-01,11\nTK894,2026-02,70\nTK281,2026-01,34\nTK472,2026-01,66\nTK193,2026-01,62\nTK260,2026-01,31\nTK595,2026-02,41\nTK136,2026-01,29\nTK193,2026-03,49\nTK281,2026-03,53\nTK445,2026-03,22\nTK919,2026-03,31\nTK445,2026-02,32\nTK894,2026-01,39\nTK260,2026-03,30\nTK589,2026-02,25\nTK894,2026-03,61\nTK589,2026-01,50\nTK281,2026-01,50\nTK914,2026-03,10\nTK472,2026-03,46\nTK193,2026-02,14\nTK136,2026-01,45\nTK595,2026-02,51\nTK589,2026-02,42\nTK281,2026-03,15\nTK589,2026-03,14\nTK136,2026-02,26\nTK136,2026-02,40\nTK894,2026-01,10\nTK281,2026-02,21\nTK472,2026-01,34\nTK914,2026-02,56\nTK894,2026-01,43\nTK894,2026-03,35\nTK472,2026-02,67\nTK193,2026-02,35\nTK193,2026-02,11\nTK919,2026-01,40\nTK472,2026-02,57\nTK894,2026-02,49\nTK894,2026-02,43\nTK589,2026-03,55\nTK136,2026-03,18\nTK472,2026-01,11\nTK136,2026-02,40\nTK472,2026-02,42\nTK472,2026-03,19\nTK260,2026-03,35\nTK894,2026-02,37\nTK193,2026-02,21\nTK193,2026-01,23\nTK472,2026-02,27\nTK595,2026-03,49\nTK445,2026-01,36\nTK260,2026-01,65\nTK919,2026-03,26\nTK894,2026-01,10\nTK136,2026-02,56\nTK136,2026-03,62\nTK260,2026-02,24\nTK136,2026-03,47\nTK260,2026-02,18\nTK193,2026-01,35\nTK281,2026-01,22\nTK281,2026-01,43\n",
+    "README.md": "A developer community's talk catalogue and check-in sheet. checkins.csv has one row per session of a talk (talks are repeated across venues), with the head count.\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many people attended Backend talks in January?",
+      "expect": {
+        "output_contains": [
+          "680"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "data_query"
+        ],
+        "max_output_chars": 500
+      }
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "tab-8492",
+  "description": "Total one fruit's inbound weight when the weight column mixes kg and g readings. DISTILL-CANARY-d2326e5c",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-NUMFMT"
+    ],
+    "trap_decoys": {
+      "TR-NUMFMT": "8953.7"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b10d-inboundfruit-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1746,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10d",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "仓储/入库.csv": "批次,品类,重量\nRK-1006,柑橘,5.1kg\nRK-1012,葡萄,760g\nRK-1020,柑橘,840g\nRK-1027,苹果,1.0kg\nRK-1029,葡萄,5.1kg\nRK-1038,梨,840g\nRK-1047,柑橘,760g\nRK-1055,柑橘,760g\nRK-1058,柑橘,400g\nRK-1068,苹果,4.1kg\nRK-1072,葡萄,4.1kg\nRK-1082,苹果,5.1kg\nRK-1090,葡萄,4.1kg\nRK-1092,梨,1.0kg\nRK-1103,葡萄,840g\nRK-1109,柑橘,5.1kg\nRK-1112,梨,4.1kg\nRK-1125,葡萄,840g\nRK-1131,梨,1.0kg\nRK-1133,苹果,760g\nRK-1142,柑橘,1.0kg\nRK-1150,柑橘,400g\nRK-1159,柑橘,1.0kg\nRK-1162,梨,760g\nRK-1169,梨,400g\nRK-1175,梨,760g\nRK-1185,葡萄,760g\nRK-1190,苹果,4.1kg\nRK-1196,柑橘,4.1kg\nRK-1207,柑橘,5.1kg\nRK-1214,梨,760g\nRK-1218,葡萄,400g\nRK-1228,苹果,840g\nRK-1236,葡萄,400g\nRK-1244,苹果,400g\nRK-1248,梨,400g\nRK-1257,葡萄,4.1kg\nRK-1261,苹果,840g\nRK-1271,梨,760g\nRK-1278,苹果,4.1kg\nRK-1282,葡萄,5.1kg\nRK-1292,梨,400g\nRK-1298,苹果,840g\nRK-1302,葡萄,840g\nRK-1313,柑橘,4.1kg\nRK-1321,葡萄,4.1kg\nRK-1322,苹果,1.0kg\nRK-1329,苹果,400g\nRK-1340,葡萄,5.1kg\nRK-1348,苹果,840g\nRK-1353,葡萄,760g\nRK-1358,葡萄,4.1kg\nRK-1369,葡萄,4.1kg\nRK-1373,葡萄,5.1kg\nRK-1380,梨,5.1kg\nRK-1388,葡萄,400g\nRK-1397,苹果,840g\nRK-1405,苹果,840g\nRK-1409,梨,400g\nRK-1413,苹果,5.1kg\nRK-1425,苹果,760g\nRK-1432,柑橘,5.1kg\nRK-1439,梨,400g\nRK-1442,梨,4.1kg\nRK-1454,苹果,4.1kg\nRK-1455,苹果,400g\nRK-1467,梨,400g\nRK-1471,梨,760g\nRK-1478,苹果,400g\nRK-1484,葡萄,400g\nRK-1491,柑橘,5.1kg\nRK-1502,柑橘,760g\nRK-1509,葡萄,5.1kg\nRK-1516,梨,840g\nRK-1520,梨,400g\nRK-1530,苹果,1.0kg\nRK-1532,苹果,4.1kg\nRK-1542,柑橘,760g\nRK-1548,梨,400g\nRK-1557,苹果,760g\nRK-1562,柑橘,760g\nRK-1571,柑橘,5.1kg\nRK-1578,梨,5.1kg\nRK-1584,柑橘,4.1kg\n",
+    "README.md": "# 果品入库\n\n称重来自两台秤：地磅记 kg，台秤记 g。\n"
+  },
+  "turns": [
+    {
+      "prompt": "苹果一共入库多少公斤？入库记录在 仓储/入库.csv。",
+      "expect": {
+        "output_contains_any": [
+          "42.62",
+          "42.62 kg",
+          "42.62 kilograms",
+          "42.62 公斤",
+          "42.62 千克",
+          "42.62kg",
+          "42.62kilograms",
+          "42.62公斤",
+          "42.62千克"
+        ],
+        "max_output_chars": 500
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 2
+    }
+  }
+}

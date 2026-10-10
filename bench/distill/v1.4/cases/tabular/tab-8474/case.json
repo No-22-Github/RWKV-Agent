@@ -1,0 +1,49 @@
+{
+  "id": "tab-8474",
+  "description": "Join programme/films.csv with box_office/sales.csv: filter the dimension table by genre=Comedy, then sum per-key totals from the fact table. DISTILL-CANARY-e9f1ba3e",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "join",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "10267"
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-tab-b10d-cinema-sumjoin-01",
+    "ref_calls": 4,
+    "fixture_bytes": 3143,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10d",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "programme/films.csv": "film_id,title,genre\nFM276,Salt and Iron,Comedy\nFM287,The Long Thaw,Documentary\nFM344,Paper Moons,Drama\nFM436,Borrowed Time,Comedy\nFM460,Last Tram to Elm Street,Documentary\nFM533,Hollow Crown,Comedy\nFM560,Winter Cartographers,Comedy\nFM568,Glass Harbour,Drama\nFM594,A Small Fire,Documentary\nFM682,Marigold Road,Comedy\nFM845,Night Ferry,Comedy\nFM889,The Quiet Orchard,Documentary\nFM909,Tin Soldiers,Drama\n",
+    "box_office/sales.csv": "film_id,month,tickets\nFM436,2026-06,170\nFM460,2026-06,72\nFM276,2026-08,189\nFM594,2026-07,67\nFM436,2026-08,148\nFM436,2026-08,115\nFM276,2026-06,113\nFM560,2026-06,259\nFM594,2026-08,124\nFM594,2026-07,189\nFM568,2026-06,165\nFM276,2026-07,147\nFM560,2026-07,242\nFM682,2026-07,94\nFM560,2026-08,89\nFM682,2026-07,260\nFM344,2026-07,208\nFM845,2026-07,78\nFM909,2026-06,198\nFM533,2026-08,202\nFM560,2026-06,226\nFM845,2026-08,82\nFM889,2026-07,204\nFM568,2026-06,92\nFM560,2026-08,89\nFM436,2026-08,82\nFM344,2026-07,219\nFM889,2026-06,136\nFM568,2026-06,109\nFM276,2026-08,101\nFM909,2026-07,57\nFM560,2026-07,152\nFM568,2026-07,47\nFM560,2026-08,122\nFM287,2026-06,113\nFM845,2026-07,144\nFM460,2026-06,116\nFM344,2026-06,108\nFM889,2026-06,166\nFM287,2026-06,166\nFM568,2026-08,99\nFM287,2026-07,219\nFM436,2026-06,159\nFM909,2026-06,51\nFM436,2026-08,178\nFM845,2026-08,40\nFM533,2026-08,97\nFM533,2026-06,241\nFM568,2026-06,150\nFM909,2026-08,169\nFM276,2026-06,57\nFM682,2026-07,69\nFM344,2026-06,229\nFM287,2026-06,230\nFM276,2026-08,258\nFM682,2026-06,160\nFM533,2026-06,123\nFM344,2026-06,91\nFM568,2026-06,180\nFM460,2026-06,93\nFM594,2026-07,76\nFM436,2026-08,115\nFM682,2026-06,49\nFM594,2026-07,82\nFM560,2026-06,78\nFM460,2026-08,217\nFM287,2026-06,51\nFM682,2026-07,82\nFM845,2026-07,212\nFM287,2026-06,38\nFM682,2026-07,146\nFM560,2026-06,145\nFM276,2026-08,110\nFM568,2026-08,39\nFM682,2026-07,127\nFM594,2026-08,79\nFM845,2026-08,101\nFM460,2026-06,122\nFM594,2026-07,170\nFM276,2026-07,171\nFM568,2026-06,142\nFM909,2026-08,187\nFM533,2026-08,79\nFM460,2026-08,191\nFM276,2026-06,118\nFM436,2026-07,155\nFM436,2026-08,125\nFM344,2026-07,164\nFM682,2026-06,260\nFM845,2026-06,198\nFM533,2026-07,187\nFM533,2026-08,178\nFM276,2026-07,80\nFM276,2026-07,35\nFM436,2026-08,200\nFM909,2026-08,185\nFM682,2026-06,95\nFM845,2026-06,204\nFM909,2026-08,127\nFM460,2026-07,211\nFM909,2026-06,234\nFM533,2026-07,144\nFM560,2026-06,99\nFM560,2026-07,200\nFM560,2026-07,91\nFM344,2026-06,255\nFM845,2026-06,132\nFM533,2026-07,61\nFM436,2026-08,217\nFM460,2026-06,103\nFM889,2026-06,170\nFM568,2026-08,162\nFM560,2026-08,126\nFM460,2026-07,230\nFM568,2026-07,237\nFM276,2026-08,57\nFM560,2026-06,42\nFM287,2026-07,123\nFM287,2026-07,237\nFM568,2026-07,193\nFM909,2026-08,260\nFM276,2026-07,138\nFM287,2026-08,41\nFM344,2026-07,244\nFM560,2026-07,140\nFM682,2026-08,115\nFM436,2026-07,80\nFM594,2026-07,151\nFM594,2026-08,135\nFM560,2026-08,33\nFM460,2026-06,216\nFM682,2026-07,127\nFM276,2026-07,228\nFM889,2026-08,35\nFM845,2026-06,69\nFM909,2026-08,33\nFM460,2026-08,198\nFM533,2026-06,149\nFM909,2026-07,217\nFM909,2026-06,211\nFM845,2026-06,123\nFM344,2026-06,154\nFM287,2026-06,86\nFM909,2026-07,218\nFM344,2026-08,256\nFM560,2026-06,111\nFM560,2026-08,49\n",
+    "README.md": "Independent cinema programme and box office. sales.csv has one row per screening; a film is shown many times a month.\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many tickets did our Comedy titles sell in June?",
+      "expect": {
+        "output_contains_any": [
+          "3,380",
+          "3380"
+        ],
+        "required_tools": [
+          "data_query"
+        ],
+        "max_output_chars": 500
+      }
+    }
+  ]
+}

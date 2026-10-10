@@ -1,0 +1,49 @@
+{
+  "id": "tab-8413",
+  "description": "Count rows in a coffee roaster wholesale shipments export whose date column mixes up to four writings (day-month-year included), over a date range. DISTILL-CANARY-c8e141d2",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [
+      "TR-DATEFMT"
+    ],
+    "trap_decoys": {
+      "TR-DATEFMT": "26"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b10d-mdcoffeea-mixdates-01",
+    "ref_calls": 4,
+    "fixture_bytes": 2969,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10d",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "wholesale/shipments.csv": "shipment,ship_date,grade,kg\nSH02651,08-03-2026,natural,94\nSH02660,2026-03-07T08:00:00Z,decaf,60\nSH02631,2026/03/03,honey,82\nSH02647,2026/03/03,natural,92\nSH02605,10-03-2026,natural,18\nSH02658,2026/03/06,decaf,78\nSH02670,07-03-2026,natural,19\nSH02666,08-03-2026,natural,37\nSH02602,2026-03-08T08:00:00Z,decaf,42\nSH02621,2026-03-07T08:00:00Z,washed,93\nSH02630,2026-03-08T08:00:00Z,decaf,42\nSH02640,2026-03-06T08:00:00Z,washed,58\nSH02648,2026/03/04,natural,49\nSH02667,2026-03-05T08:00:00Z,washed,36\nSH02607,09-03-2026,washed,54\nSH02629,06-03-2026,natural,23\nSH02601,05-03-2026,washed,53\nSH02618,04-03-2026,washed,43\nSH02676,03-03-2026,honey,39\nSH02642,10-03-2026,washed,23\nSH02638,2026/03/06,honey,64\nSH02668,09-03-2026,natural,33\nSH02609,03-03-2026,washed,73\nSH02653,2026-03-02T08:00:00Z,natural,87\nSH02671,2026-03-02T08:00:00Z,natural,15\nSH02604,2026-03-10T08:00:00Z,natural,79\nSH02639,06-03-2026,decaf,40\nSH02663,2026/03/04,decaf,75\nSH02623,2026-03-04T08:00:00Z,natural,27\nSH02634,2026/03/04,natural,23\nSH02635,2026/03/08,natural,29\nSH02644,2026-03-04T08:00:00Z,washed,60\nSH02606,2026-03-05T08:00:00Z,natural,62\nSH02652,10-03-2026,washed,64\nSH02616,09-03-2026,decaf,90\nSH02654,03-03-2026,washed,18\nSH02613,02-03-2026,honey,63\nSH02632,2026-03-03T08:00:00Z,decaf,28\nSH02675,2026-03-04T08:00:00Z,honey,74\nSH02665,10-03-2026,decaf,93\nSH02622,2026-03-08T08:00:00Z,natural,91\nSH02641,2026/03/10,washed,36\nSH02625,2026-03-02T08:00:00Z,natural,26\nSH02612,10-03-2026,washed,92\nSH02678,04-03-2026,honey,66\nSH02627,2026-03-03T08:00:00Z,decaf,85\nSH02673,2026/03/06,decaf,43\nSH02649,07-03-2026,washed,40\nSH02614,03-03-2026,natural,77\nSH02636,2026/03/06,honey,17\nSH02619,07-03-2026,decaf,13\nSH02645,2026-03-10T08:00:00Z,natural,62\nSH02600,05-03-2026,decaf,43\nSH02672,04-03-2026,natural,33\nSH02615,2026/03/10,decaf,77\nSH02656,2026/03/10,natural,21\nSH02646,2026-03-09T08:00:00Z,washed,68\nSH02657,2026/03/08,washed,20\nSH02664,2026-03-02T08:00:00Z,washed,29\nSH02617,03-03-2026,natural,57\nSH02650,05-03-2026,decaf,84\nSH02662,2026/03/02,natural,22\nSH02643,2026-03-05T08:00:00Z,honey,52\nSH02603,06-03-2026,honey,63\nSH02610,2026-03-02T08:00:00Z,decaf,19\nSH02633,2026-03-06T08:00:00Z,washed,22\nSH02661,2026-03-06T08:00:00Z,honey,76\nSH02628,07-03-2026,natural,83\nSH02637,2026-03-09T08:00:00Z,natural,49\nSH02674,08-03-2026,washed,92\nSH02655,10-03-2026,honey,76\nSH02677,2026-03-08T08:00:00Z,washed,93\nSH02611,2026/03/02,honey,31\nSH02669,2026-03-07T08:00:00Z,honey,28\nSH02620,2026/03/08,natural,30\nSH02624,2026-03-05T08:00:00Z,decaf,73\nSH02626,02-03-2026,washed,83\nSH02659,2026/03/09,washed,52\nSH02608,2026-03-08T08:00:00Z,natural,33\n",
+    "README.md": "# Copperfield Roasters - wholesale shipments\n\nOne row per shipment.\nThe date column comes from three systems and is not uniform: the warehouse scanner writes 2026/03/02; the freight broker's feed writes short dates as day-month-year, so 07-03-2026 is 7 Mar 2026; the online wholesale portal writes Mar 11, 2026 or an ISO timestamp (UTC 08:00, same calendar day).\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many wholesale shipments did Copperfield Roasters send out from March 3 to March 6, inclusive? The list is wholesale/shipments.csv.",
+      "expect": {
+        "output_contains": [
+          "35"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 2
+    }
+  }
+}

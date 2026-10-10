@@ -1,0 +1,49 @@
+{
+  "id": "tab-8480",
+  "description": "Join catalogue/beers.csv with dispatch/dispatch_log.csv: filter the dimension table by style=Dark, then value quantities at table prices from the fact table. DISTILL-CANARY-30a4da73",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "join",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "41465"
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-tab-b10d-brewery-pricejoin-03",
+    "ref_calls": 4,
+    "fixture_bytes": 3091,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10d",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "catalogue/beers.csv": "beer_code,name,style,case_price\nBR176,Old Mill Porter,Ale,44\nBR219,Lantern Pils,Dark,29\nBR231,Cobble Blonde,Lager,52\nBR321,Harbour Pale,Ale,34\nBR381,Heron Wheat,Lager,64\nBR530,Thistle Gold,Dark,18\nBR632,Salt Marsh Gose,Dark,44\nBR757,Ember Rye,Dark,26\nBR919,Highland Amber,Ale,34\nBR937,Kiln Brown,Lager,31\n",
+    "dispatch/dispatch_log.csv": "beer_code,month,cases\nBR381,2026-05,37\nBR321,2026-06,35\nBR757,2026-05,39\nBR757,2026-06,6\nBR937,2026-05,13\nBR381,2026-04,13\nBR937,2026-04,37\nBR632,2026-04,2\nBR530,2026-04,35\nBR530,2026-06,9\nBR231,2026-06,30\nBR321,2026-04,37\nBR632,2026-04,29\nBR632,2026-05,23\nBR231,2026-05,19\nBR381,2026-06,24\nBR919,2026-06,9\nBR381,2026-06,19\nBR321,2026-05,31\nBR530,2026-06,21\nBR219,2026-05,34\nBR381,2026-05,32\nBR219,2026-04,38\nBR231,2026-04,10\nBR219,2026-04,23\nBR530,2026-04,23\nBR530,2026-05,3\nBR219,2026-04,22\nBR937,2026-04,14\nBR937,2026-06,4\nBR919,2026-05,34\nBR757,2026-06,7\nBR381,2026-05,39\nBR321,2026-06,2\nBR381,2026-05,17\nBR176,2026-05,40\nBR176,2026-04,2\nBR632,2026-05,23\nBR321,2026-05,17\nBR530,2026-05,39\nBR757,2026-05,19\nBR219,2026-06,12\nBR632,2026-05,3\nBR937,2026-05,12\nBR381,2026-06,19\nBR321,2026-06,29\nBR176,2026-05,26\nBR530,2026-06,9\nBR381,2026-04,15\nBR176,2026-04,2\nBR757,2026-06,23\nBR530,2026-06,19\nBR231,2026-06,17\nBR919,2026-06,34\nBR937,2026-05,12\nBR757,2026-04,30\nBR219,2026-05,12\nBR937,2026-05,19\nBR530,2026-04,20\nBR231,2026-06,39\nBR321,2026-04,31\nBR757,2026-06,30\nBR176,2026-05,21\nBR757,2026-06,13\nBR219,2026-05,2\nBR381,2026-05,16\nBR919,2026-06,40\nBR231,2026-06,35\nBR381,2026-04,26\nBR632,2026-05,13\nBR176,2026-05,14\nBR219,2026-06,36\nBR219,2026-06,21\nBR321,2026-06,27\nBR919,2026-04,5\nBR632,2026-06,27\nBR632,2026-05,4\nBR231,2026-04,35\nBR381,2026-04,20\nBR530,2026-06,25\nBR919,2026-04,20\nBR219,2026-06,22\nBR231,2026-04,24\nBR321,2026-04,11\nBR937,2026-06,15\nBR219,2026-06,24\nBR176,2026-04,29\nBR176,2026-05,8\nBR219,2026-05,11\nBR919,2026-06,11\nBR937,2026-05,19\nBR919,2026-04,13\nBR381,2026-05,23\nBR632,2026-05,37\nBR757,2026-04,36\nBR757,2026-06,8\nBR919,2026-06,32\nBR176,2026-04,28\nBR321,2026-05,8\nBR632,2026-06,30\nBR381,2026-06,27\nBR530,2026-05,23\nBR176,2026-06,40\nBR381,2026-06,18\nBR757,2026-04,27\nBR937,2026-06,35\nBR632,2026-05,30\nBR176,2026-04,34\nBR919,2026-04,5\nBR219,2026-04,35\nBR219,2026-04,21\nBR321,2026-06,36\nBR919,2026-06,7\nBR231,2026-06,8\nBR530,2026-04,23\nBR231,2026-05,21\nBR632,2026-04,34\nBR530,2026-05,8\nBR632,2026-06,36\nBR632,2026-06,39\nBR919,2026-04,23\nBR919,2026-04,14\nBR176,2026-04,29\nBR632,2026-05,35\nBR530,2026-05,40\nBR231,2026-05,9\nBR321,2026-05,12\nBR219,2026-05,21\nBR231,2026-05,35\nBR219,2026-04,33\nBR919,2026-06,34\nBR176,2026-04,17\nBR231,2026-06,13\nBR231,2026-04,38\nBR530,2026-06,12\nBR757,2026-05,17\nBR176,2026-04,7\nBR530,2026-04,22\nBR381,2026-04,5\nBR321,2026-06,21\nBR231,2026-05,28\nBR381,2026-06,33\nBR937,2026-05,19\nBR757,2026-06,9\nBR937,2026-06,35\nBR176,2026-05,7\nBR231,2026-04,30\nBR919,2026-04,12\nBR530,2026-04,8\nBR176,2026-05,16\nBR632,2026-04,18\nBR530,2026-06,22\nBR757,2026-05,10\nBR219,2026-05,12\n",
+    "README.md": "Craft brewery catalogue and dispatch log. case_price is the wholesale price per case in GBP; dispatch_log.csv has one row per dispatch, so a beer appears many times a month.\n"
+  },
+  "turns": [
+    {
+      "prompt": "How much, in GBP, were the Dark beers we sent out in June worth at wholesale?",
+      "expect": {
+        "output_contains_any": [
+          "13,745",
+          "13745"
+        ],
+        "required_tools": [
+          "data_query"
+        ],
+        "max_output_chars": 500
+      }
+    }
+  ]
+}

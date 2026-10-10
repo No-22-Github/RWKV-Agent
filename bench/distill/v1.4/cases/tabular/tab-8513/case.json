@@ -1,0 +1,54 @@
+{
+  "id": "tab-8513",
+  "description": "Total one van's distance in km from m and km entries. DISTILL-CANARY-461e9f89",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-NUMFMT"
+    ],
+    "trap_decoys": {
+      "TR-NUMFMT": "3023.6"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b10d-deliverykm-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1511,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10d",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "fleet/trips.csv": "trip,van,distance\nTR-1004,van-3,190m\nTR-1012,van-3,4.6km\nTR-1014,van-2,4.6km\nTR-1022,van-3,190m\nTR-1030,van-3,300m\nTR-1036,van-2,4.6km\nTR-1048,van-3,4.4km\nTR-1050,van-2,190m\nTR-1061,van-2,350m\nTR-1068,van-3,1.2km\nTR-1074,van-2,4.6km\nTR-1077,van-1,4.6km\nTR-1090,van-1,300m\nTR-1097,van-1,300m\nTR-1103,van-3,1.2km\nTR-1110,van-3,1.2km\nTR-1113,van-1,300m\nTR-1122,van-2,350m\nTR-1131,van-1,1.2km\nTR-1136,van-1,190m\nTR-1145,van-3,190m\nTR-1153,van-1,190m\nTR-1159,van-1,4.4km\nTR-1164,van-3,4.4km\nTR-1170,van-1,1.2km\nTR-1175,van-1,4.4km\nTR-1184,van-2,4.6km\nTR-1190,van-1,1.2km\nTR-1199,van-1,1.2km\nTR-1209,van-1,300m\nTR-1216,van-1,190m\nTR-1220,van-2,350m\nTR-1227,van-2,4.4km\nTR-1232,van-3,4.4km\nTR-1242,van-2,300m\nTR-1249,van-3,300m\nTR-1252,van-3,1.2km\nTR-1260,van-2,1.2km\nTR-1270,van-2,4.6km\nTR-1273,van-3,350m\nTR-1284,van-2,1.2km\nTR-1292,van-1,4.6km\nTR-1298,van-3,300m\nTR-1303,van-1,4.4km\nTR-1313,van-2,300m\nTR-1315,van-1,190m\nTR-1324,van-1,4.6km\nTR-1334,van-2,1.2km\nTR-1340,van-3,1.2km\nTR-1345,van-3,350m\nTR-1353,van-2,190m\nTR-1360,van-2,4.6km\nTR-1367,van-3,4.6km\nTR-1371,van-3,4.4km\nTR-1379,van-3,190m\nTR-1388,van-1,350m\nTR-1397,van-3,4.4km\nTR-1401,van-3,190m\nTR-1410,van-2,1.2km\nTR-1418,van-2,300m\nTR-1426,van-2,4.4km\nTR-1433,van-3,350m\nTR-1434,van-1,300m\nTR-1447,van-1,4.6km\nTR-1451,van-1,4.4km\nTR-1461,van-3,190m\nTR-1464,van-2,350m\nTR-1472,van-2,300m\nTR-1477,van-1,1.2km\nTR-1485,van-1,4.4km\nTR-1492,van-2,1.2km\nTR-1500,van-2,1.2km\n",
+    "README.md": "# Van trips\n\nThe dashcam logs short hops in m; the odometer logs longer trips in km.\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many kilometres did van-2 cover in total? Trip data: fleet/trips.csv.",
+      "expect": {
+        "output_contains_any": [
+          "46.58",
+          "46.58 kilometers",
+          "46.58 km",
+          "46.58 公里",
+          "46.58kilometers",
+          "46.58km",
+          "46.58公里"
+        ],
+        "max_output_chars": 500
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 2
+    }
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "id": "tab-8509",
+  "description": "Total video asset storage in MB from MB and GB strings. DISTILL-CANARY-76df1b5d",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-NUMFMT"
+    ],
+    "trap_decoys": {
+      "TR-NUMFMT": "8666.2"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b10d-mediaarchive-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1673,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10d",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "archive/asset-sizes.csv": "asset,type,size\nAS-1004,image,680MB\nAS-1009,image,552MB\nAS-1018,image,2.8GB\nAS-1022,video,2.8GB\nAS-1031,audio,1.5GB\nAS-1038,image,1.5GB\nAS-1044,audio,588MB\nAS-1052,audio,4.6GB\nAS-1062,image,1.5GB\nAS-1067,image,588MB\nAS-1075,video,2.8GB\nAS-1081,audio,4.6GB\nAS-1087,audio,552MB\nAS-1097,video,2.8GB\nAS-1100,image,552MB\nAS-1111,audio,588MB\nAS-1117,audio,4.6GB\nAS-1123,audio,1.5GB\nAS-1129,audio,552MB\nAS-1138,image,588MB\nAS-1146,audio,1.5GB\nAS-1147,image,2.8GB\nAS-1159,video,552MB\nAS-1163,audio,588MB\nAS-1171,audio,2.8GB\nAS-1175,image,1.5GB\nAS-1184,image,588MB\nAS-1189,video,680MB\nAS-1199,audio,680MB\nAS-1204,video,588MB\nAS-1210,image,1.5GB\nAS-1223,video,552MB\nAS-1227,video,2.8GB\nAS-1233,image,552MB\nAS-1239,image,4.6GB\nAS-1251,image,2.8GB\nAS-1255,image,4.6GB\nAS-1259,image,2.8GB\nAS-1269,video,680MB\nAS-1273,audio,552MB\nAS-1280,audio,680MB\nAS-1293,audio,1.5GB\nAS-1295,image,1.5GB\nAS-1305,image,2.8GB\nAS-1309,audio,552MB\nAS-1315,video,552MB\nAS-1328,audio,4.6GB\nAS-1330,audio,1.5GB\nAS-1339,audio,2.8GB\nAS-1344,video,680MB\nAS-1354,audio,1.5GB\nAS-1357,video,680MB\nAS-1366,audio,588MB\nAS-1373,video,1.5GB\nAS-1381,video,680MB\nAS-1389,video,2.8GB\nAS-1395,video,4.6GB\nAS-1404,audio,4.6GB\nAS-1408,image,1.5GB\nAS-1419,video,588MB\nAS-1423,image,2.8GB\nAS-1428,video,4.6GB\nAS-1439,audio,4.6GB\nAS-1446,image,680MB\nAS-1450,image,2.8GB\nAS-1458,video,552MB\nAS-1462,image,2.8GB\nAS-1469,audio,552MB\nAS-1480,video,588MB\nAS-1483,image,2.8GB\nAS-1490,video,588MB\nAS-1502,image,1.5GB\nAS-1504,audio,2.8GB\nAS-1513,video,1.5GB\nAS-1518,image,2.8GB\nAS-1529,video,680MB\nAS-1532,image,2.8GB\nAS-1539,audio,4.6GB\nAS-1547,audio,1.5GB\n",
+    "README.md": "# Asset sizes\n\nThe archiver prints sizes in MB or GB. Treat 1 GB as 1024 MB.\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many MB of storage do the video assets take in total? Data: archive/asset-sizes.csv.",
+      "expect": {
+        "output_contains_any": [
+          "35,468.8",
+          "35,468.8 MB",
+          "35,468.8MB",
+          "35468.8",
+          "35468.8 MB",
+          "35468.8MB"
+        ],
+        "max_output_chars": 500
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 2
+    }
+  }
+}

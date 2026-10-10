@@ -1,0 +1,51 @@
+{
+  "id": "tab-8473",
+  "description": "Join support/agents.csv with support/resolved_daily.csv: filter the dimension table by grp=Integrations, then sum the keys at or above a threshold from the fact table; obscure column names. DISTILL-CANARY-60a5a743",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "join",
+    "traps": [
+      "TR-MULTISRC",
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "144",
+      "TR-DEFN": "144"
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-tab-b10d-support-thrsum-01",
+    "ref_calls": 4,
+    "fixture_bytes": 3389,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10d",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "support/agents.csv": "ag,fullname,grp\nAG178,Tomas Lindqvist,Platform\nAG189,Devon Pryce,Billing\nAG220,Kofi Albright,Platform\nAG318,Anders Vail,Platform\nAG345,Tessa Moreno,Billing\nAG363,Noor Haddad,Mobile\nAG386,Greta Hallam,Mobile\nAG404,Ines Okafor,Integrations\nAG511,Ewan Thackeray,Billing\nAG550,Mina Sorensen,Billing\nAG616,Dario Falk,Integrations\nAG688,Jonas Mbeki,Platform\nAG783,Wren Halvorsen,Integrations\nAG824,Priya Raman,Integrations\nAG837,Rafael Quintero,Integrations\nAG902,Nia Ellsworth,Mobile\n",
+    "support/resolved_daily.csv": "ag,mo,closed_n\nAG837,2026-05,18\nAG688,2026-05,8\nAG783,2026-04,24\nAG902,2026-03,17\nAG783,2026-03,12\nAG550,2026-04,10\nAG616,2026-04,4\nAG178,2026-04,10\nAG783,2026-03,17\nAG783,2026-05,12\nAG902,2026-05,24\nAG189,2026-05,15\nAG318,2026-04,5\nAG824,2026-04,22\nAG363,2026-03,14\nAG404,2026-03,15\nAG318,2026-05,7\nAG902,2026-04,25\nAG837,2026-03,10\nAG688,2026-03,16\nAG345,2026-04,7\nAG386,2026-03,20\nAG386,2026-04,4\nAG824,2026-03,18\nAG837,2026-04,7\nAG318,2026-05,10\nAG404,2026-05,6\nAG688,2026-05,19\nAG688,2026-03,19\nAG824,2026-03,17\nAG220,2026-04,6\nAG824,2026-04,25\nAG318,2026-04,15\nAG511,2026-03,19\nAG178,2026-05,9\nAG783,2026-05,21\nAG902,2026-03,21\nAG824,2026-03,16\nAG837,2026-03,10\nAG386,2026-04,17\nAG550,2026-05,24\nAG220,2026-04,9\nAG783,2026-05,16\nAG688,2026-03,4\nAG178,2026-05,3\nAG824,2026-04,6\nAG688,2026-04,21\nAG386,2026-05,10\nAG783,2026-04,18\nAG688,2026-04,23\nAG902,2026-03,8\nAG688,2026-04,2\nAG404,2026-05,22\nAG345,2026-04,5\nAG345,2026-05,3\nAG404,2026-05,16\nAG902,2026-05,18\nAG178,2026-03,6\nAG824,2026-05,25\nAG386,2026-05,13\nAG783,2026-04,6\nAG386,2026-03,5\nAG220,2026-05,7\nAG220,2026-04,3\nAG386,2026-05,21\nAG616,2026-05,13\nAG345,2026-05,17\nAG363,2026-05,25\nAG404,2026-05,21\nAG345,2026-03,22\nAG616,2026-05,17\nAG220,2026-03,22\nAG363,2026-05,24\nAG318,2026-04,9\nAG824,2026-04,2\nAG837,2026-05,24\nAG386,2026-04,24\nAG837,2026-03,5\nAG345,2026-03,3\nAG837,2026-05,14\nAG318,2026-05,16\nAG511,2026-03,5\nAG837,2026-04,24\nAG511,2026-04,8\nAG824,2026-05,11\nAG824,2026-04,14\nAG616,2026-03,20\nAG511,2026-05,14\nAG616,2026-05,21\nAG511,2026-04,14\nAG783,2026-05,4\nAG783,2026-05,15\nAG902,2026-03,9\nAG404,2026-03,4\nAG783,2026-03,10\nAG902,2026-03,3\nAG837,2026-03,20\nAG189,2026-05,8\nAG902,2026-04,15\nAG220,2026-03,10\nAG783,2026-05,22\nAG386,2026-04,21\nAG404,2026-04,23\nAG783,2026-05,13\nAG824,2026-04,13\nAG404,2026-04,11\nAG318,2026-05,9\nAG511,2026-03,12\nAG511,2026-05,19\nAG318,2026-03,10\nAG220,2026-05,8\nAG616,2026-03,9\nAG783,2026-05,14\nAG404,2026-03,13\nAG386,2026-04,5\nAG404,2026-04,19\nAG318,2026-05,6\nAG178,2026-04,16\nAG783,2026-05,22\nAG345,2026-03,4\nAG511,2026-05,17\nAG345,2026-04,6\nAG363,2026-05,20\nAG550,2026-05,15\nAG783,2026-04,19\nAG511,2026-04,22\nAG550,2026-05,7\nAG220,2026-05,8\nAG345,2026-04,3\nAG363,2026-05,19\nAG550,2026-04,19\nAG220,2026-05,10\nAG902,2026-05,21\nAG824,2026-05,24\nAG189,2026-04,6\nAG824,2026-03,20\nAG386,2026-03,25\nAG404,2026-04,7\nAG178,2026-04,15\nAG345,2026-03,13\nAG837,2026-03,16\nAG345,2026-05,9\nAG220,2026-03,23\nAG616,2026-03,5\nAG404,2026-04,19\nAG688,2026-05,24\nAG363,2026-04,18\nAG404,2026-04,9\nAG220,2026-03,12\nAG783,2026-05,13\nAG220,2026-03,2\nAG783,2026-04,20\nAG783,2026-03,11\nAG688,2026-04,25\nAG837,2026-03,12\nAG902,2026-03,19\nAG404,2026-05,21\n",
+    "README.md": "SaaS support desk. agents.csv lists agents and their team; resolved_daily.csv has one row per agent per working day with the number of tickets closed.\n\nColumn guide: ag=agent ID; fullname=agent name; grp=support team; ag=agent ID; mo=month; closed_n=tickets closed in one day\n"
+  },
+  "turns": [
+    {
+      "prompt": "For March, what is the combined ticket count of the Integrations agents who closed 50 or more?",
+      "expect": {
+        "output_contains": [
+          "194"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "data_query"
+        ],
+        "max_output_chars": 500
+      }
+    }
+  ]
+}

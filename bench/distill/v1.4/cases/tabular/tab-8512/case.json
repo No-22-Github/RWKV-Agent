@@ -1,0 +1,61 @@
+{
+  "id": "tab-8512",
+  "description": "Find the largest single dose of one drug in mg from mg and g values. DISTILL-CANARY-1f9b95ed",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-NUMFMT"
+    ],
+    "trap_decoys": {
+      "TR-NUMFMT": "775"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b10d-doseunits-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1554,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10d",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "clinic/dosing.csv": "order,drug,dose\nOR-1000,drug-A,2.4g\nOR-1011,drug-A,150mg\nOR-1014,drug-B,2.4g\nOR-1023,drug-A,150mg\nOR-1032,drug-B,3.2g\nOR-1038,drug-C,350mg\nOR-1047,drug-B,775mg\nOR-1051,drug-C,3.2g\nOR-1060,drug-B,350mg\nOR-1066,drug-A,350mg\nOR-1072,drug-A,3.2g\nOR-1080,drug-B,2.4g\nOR-1089,drug-B,775mg\nOR-1094,drug-C,150mg\nOR-1099,drug-B,3.2g\nOR-1105,drug-B,350mg\nOR-1118,drug-A,3.2g\nOR-1125,drug-A,150mg\nOR-1132,drug-B,2.4g\nOR-1133,drug-B,350mg\nOR-1145,drug-C,3.1g\nOR-1150,drug-A,350mg\nOR-1157,drug-C,2.4g\nOR-1161,drug-A,2.4g\nOR-1170,drug-A,2.4g\nOR-1181,drug-B,3.2g\nOR-1184,drug-B,150mg\nOR-1194,drug-C,775mg\nOR-1202,drug-B,350mg\nOR-1205,drug-C,150mg\nOR-1211,drug-B,775mg\nOR-1219,drug-C,3.2g\nOR-1226,drug-C,350mg\nOR-1235,drug-B,3.2g\nOR-1241,drug-B,2.4g\nOR-1250,drug-C,350mg\nOR-1257,drug-A,775mg\nOR-1261,drug-C,775mg\nOR-1272,drug-B,3.2g\nOR-1276,drug-B,3.2g\nOR-1282,drug-B,150mg\nOR-1289,drug-B,3.1g\nOR-1294,drug-A,350mg\nOR-1301,drug-C,350mg\nOR-1311,drug-C,2.4g\nOR-1315,drug-A,350mg\nOR-1326,drug-A,150mg\nOR-1329,drug-A,350mg\nOR-1341,drug-C,3.2g\nOR-1346,drug-A,150mg\nOR-1353,drug-B,3.1g\nOR-1363,drug-B,3.2g\nOR-1366,drug-B,3.2g\nOR-1373,drug-B,150mg\nOR-1382,drug-C,350mg\nOR-1391,drug-A,3.2g\nOR-1396,drug-B,350mg\nOR-1400,drug-A,3.2g\nOR-1409,drug-C,150mg\nOR-1415,drug-B,350mg\nOR-1424,drug-A,775mg\nOR-1433,drug-A,3.1g\nOR-1438,drug-B,350mg\nOR-1445,drug-B,350mg\nOR-1453,drug-A,775mg\nOR-1461,drug-C,150mg\nOR-1468,drug-C,150mg\nOR-1471,drug-A,775mg\nOR-1477,drug-B,150mg\nOR-1486,drug-A,150mg\nOR-1490,drug-A,2.4g\n",
+    "README.md": "# Dosing orders\n\nOrders are written in mg or g depending on the prescriber.\n"
+  },
+  "turns": [
+    {
+      "prompt": "What is the largest single dose ordered for drug-B, in mg? Orders: clinic/dosing.csv.",
+      "expect": {
+        "output_contains_any": [
+          "3,200",
+          "3,200 mg",
+          "3,200 milligrams",
+          "3,200 毫克",
+          "3,200mg",
+          "3,200milligrams",
+          "3,200毫克",
+          "3200",
+          "3200 mg",
+          "3200 milligrams",
+          "3200 毫克",
+          "3200mg",
+          "3200milligrams",
+          "3200毫克"
+        ],
+        "max_output_chars": 500
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 2
+    }
+  }
+}

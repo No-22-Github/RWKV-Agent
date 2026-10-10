@@ -1,0 +1,54 @@
+{
+  "id": "tab-8495",
+  "description": "Total milk drawn for one drink when the usage column mixes mL and L. DISTILL-CANARY-41c06ec8",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-NUMFMT"
+    ],
+    "trap_decoys": {
+      "TR-NUMFMT": "7153.9"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b10d-milkuse-01",
+    "ref_calls": 3,
+    "fixture_bytes": 2062,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10d",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "门店/牛奶领用.csv": "领用单,饮品,用量\nLY-1000,燕麦拿铁,1.1L\nLY-1013,拿铁,875mL\nLY-1016,燕麦拿铁,775mL\nLY-1023,拿铁,300mL\nLY-1032,卡布奇诺,1.7L\nLY-1035,燕麦拿铁,1.7L\nLY-1048,燕麦拿铁,300mL\nLY-1055,卡布奇诺,775mL\nLY-1057,卡布奇诺,3.2L\nLY-1067,卡布奇诺,1.7L\nLY-1071,拿铁,875mL\nLY-1080,卡布奇诺,775mL\nLY-1085,燕麦拿铁,875mL\nLY-1093,燕麦拿铁,1.1L\nLY-1103,卡布奇诺,1.7L\nLY-1105,拿铁,1.7L\nLY-1113,拿铁,300mL\nLY-1123,拿铁,1.1L\nLY-1127,燕麦拿铁,875mL\nLY-1133,卡布奇诺,1.1L\nLY-1143,卡布奇诺,775mL\nLY-1152,拿铁,3.2L\nLY-1159,卡布奇诺,3.2L\nLY-1163,卡布奇诺,1.1L\nLY-1172,卡布奇诺,775mL\nLY-1175,燕麦拿铁,875mL\nLY-1184,卡布奇诺,3.2L\nLY-1190,拿铁,300mL\nLY-1198,拿铁,875mL\nLY-1203,拿铁,1.7L\nLY-1212,卡布奇诺,875mL\nLY-1222,卡布奇诺,300mL\nLY-1226,拿铁,3.2L\nLY-1236,拿铁,300mL\nLY-1239,拿铁,1.1L\nLY-1250,卡布奇诺,1.7L\nLY-1253,卡布奇诺,300mL\nLY-1263,卡布奇诺,3.2L\nLY-1272,卡布奇诺,300mL\nLY-1273,燕麦拿铁,3.2L\nLY-1282,拿铁,3.2L\nLY-1288,燕麦拿铁,1.1L\nLY-1294,拿铁,1.7L\nLY-1301,拿铁,775mL\nLY-1312,卡布奇诺,1.1L\nLY-1318,卡布奇诺,3.2L\nLY-1328,拿铁,3.2L\nLY-1329,卡布奇诺,1.7L\nLY-1341,燕麦拿铁,875mL\nLY-1346,卡布奇诺,775mL\nLY-1354,燕麦拿铁,775mL\nLY-1359,卡布奇诺,1.1L\nLY-1367,燕麦拿铁,300mL\nLY-1375,拿铁,1.7L\nLY-1379,燕麦拿铁,875mL\nLY-1386,卡布奇诺,875mL\nLY-1396,燕麦拿铁,1.1L\nLY-1403,燕麦拿铁,875mL\nLY-1408,卡布奇诺,1.7L\nLY-1413,卡布奇诺,1.1L\nLY-1424,燕麦拿铁,775mL\nLY-1432,燕麦拿铁,3.2L\nLY-1440,拿铁,775mL\nLY-1447,拿铁,1.1L\nLY-1454,卡布奇诺,775mL\nLY-1455,燕麦拿铁,1.1L\nLY-1466,拿铁,3.2L\nLY-1475,燕麦拿铁,1.7L\nLY-1478,卡布奇诺,3.2L\nLY-1486,拿铁,875mL\nLY-1494,拿铁,1.7L\nLY-1503,拿铁,875mL\nLY-1504,卡布奇诺,875mL\nLY-1514,燕麦拿铁,300mL\nLY-1519,拿铁,1.1L\nLY-1525,燕麦拿铁,3.2L\nLY-1536,卡布奇诺,875mL\nLY-1544,燕麦拿铁,1.7L\nLY-1552,燕麦拿铁,775mL\nLY-1553,卡布奇诺,1.7L\n",
+    "README.md": "# 牛奶领用\n\n早班用量杯记 mL，晚班按整盒/整瓶记 L。\n"
+  },
+  "turns": [
+    {
+      "prompt": "拿铁一共领了多少升牛奶？领用记录在 门店/牛奶领用.csv。",
+      "expect": {
+        "output_contains_any": [
+          "36.025",
+          "36.025 L",
+          "36.025 liters",
+          "36.025 升",
+          "36.025L",
+          "36.025liters",
+          "36.025升"
+        ],
+        "max_output_chars": 500
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 2
+    }
+  }
+}

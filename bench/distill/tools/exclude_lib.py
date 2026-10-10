@@ -11,7 +11,7 @@ import glob
 import json
 import re
 
-ONLY_VALUE = re.compile(r"只回|只给|只要数字|only the (number|answer|value)|[Rr]eply with only|just the number|number only|value only")
+ONLY_VALUE = re.compile(r"只回|只给|只要|only the (number|answer|value)|[Rr]eply with only|just the number|number only|value only")
 
 
 def _finals(c):

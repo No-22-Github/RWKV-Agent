@@ -1,0 +1,51 @@
+{
+  "id": "tab-8489",
+  "description": "Join fleet/vehicles.csv with fleet/trips.csv: filter the dimension table by depot=Northgate, then sum the keys at or above a threshold from the fact table. DISTILL-CANARY-7fccfe02",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "join",
+    "traps": [
+      "TR-MULTISRC",
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "1048",
+      "TR-DEFN": "1048"
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-tab-b10d-fleet-thrsum-01",
+    "ref_calls": 4,
+    "fixture_bytes": 3034,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10d",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "fleet/vehicles.csv": "vehicle_id,driver,depot\nVH233,Idris Calloway,Northgate\nVH270,Rafael Quintero,Riverside\nVH446,Priya Raman,Riverside\nVH463,Sana Whitlock,Docklands\nVH525,Dario Falk,Northgate\nVH583,Marta Kowalski,Northgate\nVH595,Ines Okafor,Riverside\nVH692,Hugo Delacroix,Docklands\nVH713,Anders Vail,Docklands\nVH759,Yara Castellan,Riverside\nVH929,Felix Ostrow,Docklands\nVH966,Jonas Mbeki,Northgate\n",
+    "fleet/trips.csv": "vehicle_id,month,km\nVH583,2026-03,53\nVH233,2026-02,42\nVH583,2026-03,243\nVH233,2026-04,66\nVH233,2026-04,47\nVH446,2026-03,179\nVH270,2026-03,219\nVH713,2026-02,208\nVH929,2026-04,232\nVH525,2026-04,216\nVH233,2026-02,245\nVH966,2026-04,203\nVH525,2026-02,94\nVH759,2026-02,120\nVH583,2026-02,59\nVH966,2026-04,100\nVH713,2026-04,138\nVH233,2026-04,208\nVH929,2026-04,139\nVH759,2026-04,166\nVH463,2026-04,116\nVH583,2026-04,236\nVH595,2026-02,242\nVH759,2026-03,95\nVH233,2026-02,233\nVH929,2026-03,55\nVH525,2026-04,118\nVH966,2026-02,164\nVH525,2026-02,174\nVH595,2026-03,108\nVH525,2026-02,75\nVH966,2026-02,129\nVH692,2026-04,146\nVH692,2026-04,97\nVH595,2026-03,247\nVH583,2026-02,253\nVH929,2026-03,90\nVH966,2026-04,80\nVH713,2026-02,45\nVH759,2026-02,186\nVH446,2026-02,251\nVH270,2026-04,249\nVH692,2026-04,250\nVH446,2026-02,207\nVH446,2026-04,68\nVH270,2026-03,61\nVH583,2026-03,153\nVH463,2026-02,85\nVH446,2026-02,179\nVH583,2026-02,44\nVH463,2026-04,42\nVH966,2026-03,112\nVH463,2026-02,188\nVH692,2026-02,142\nVH692,2026-03,244\nVH446,2026-02,105\nVH583,2026-03,131\nVH966,2026-02,60\nVH595,2026-02,160\nVH583,2026-03,210\nVH233,2026-04,228\nVH595,2026-02,172\nVH966,2026-04,224\nVH233,2026-04,150\nVH692,2026-02,63\nVH446,2026-03,160\nVH966,2026-03,96\nVH525,2026-04,129\nVH966,2026-04,176\nVH692,2026-04,108\nVH966,2026-03,83\nVH446,2026-03,251\nVH713,2026-02,103\nVH595,2026-03,202\nVH595,2026-03,59\nVH595,2026-03,92\nVH463,2026-03,101\nVH233,2026-02,120\nVH929,2026-03,133\nVH270,2026-04,193\nVH595,2026-03,147\nVH525,2026-04,195\nVH270,2026-02,141\nVH595,2026-03,204\nVH270,2026-03,45\nVH463,2026-03,125\nVH525,2026-02,61\nVH929,2026-04,165\nVH595,2026-02,150\nVH713,2026-02,95\nVH929,2026-04,63\nVH446,2026-04,226\nVH929,2026-04,181\nVH583,2026-02,254\nVH233,2026-02,108\nVH595,2026-03,98\nVH233,2026-03,245\nVH713,2026-04,41\nVH759,2026-04,194\nVH233,2026-03,245\nVH595,2026-04,51\nVH446,2026-02,125\nVH525,2026-02,133\nVH692,2026-02,158\nVH966,2026-02,107\nVH583,2026-04,176\nVH713,2026-04,121\nVH966,2026-03,118\nVH713,2026-02,254\nVH595,2026-04,46\nVH692,2026-04,252\nVH759,2026-04,52\nVH713,2026-03,229\nVH583,2026-04,109\nVH463,2026-03,223\nVH525,2026-04,232\nVH713,2026-04,88\nVH929,2026-02,112\nVH525,2026-03,211\nVH525,2026-02,75\nVH583,2026-04,86\nVH463,2026-04,196\nVH583,2026-04,188\nVH583,2026-03,171\nVH966,2026-03,252\nVH525,2026-02,243\nVH583,2026-03,87\nVH929,2026-02,231\nVH270,2026-03,73\nVH759,2026-04,105\nVH463,2026-02,140\nVH446,2026-02,122\nVH446,2026-04,62\nVH713,2026-04,242\nVH525,2026-04,190\nVH270,2026-03,190\nVH446,2026-02,72\nVH525,2026-02,77\nVH692,2026-04,171\nVH713,2026-02,230\nVH233,2026-02,54\nVH463,2026-02,222\nVH966,2026-03,155\n",
+    "README.md": "Delivery fleet records. vehicles.csv has one row per van and its depot; trips.csv has one row per trip.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Total up the kilometres in March for Northgate depot vans that did 816 km or more.",
+      "expect": {
+        "output_contains_any": [
+          "1,864",
+          "1864"
+        ],
+        "required_tools": [
+          "data_query"
+        ],
+        "max_output_chars": 500
+      }
+    }
+  ]
+}

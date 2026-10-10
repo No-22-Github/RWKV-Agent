@@ -1,0 +1,51 @@
+{
+  "id": "tab-8427",
+  "description": "Sum amounts of one category in a brewery keg deliveries export whose date column mixes up to four writings (day-month-year included), over a date range. DISTILL-CANARY-ef023474",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-DATEFMT",
+      "TR-HEADER"
+    ],
+    "trap_decoys": {
+      "TR-DATEFMT": "1369",
+      "TR-HEADER": "delivered_on"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-tab-b10d-mdbrewb-mixdates-02",
+    "ref_calls": 4,
+    "fixture_bytes": 7931,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10d",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "deliveries/kegs.csv": "delivery,dlv,sku,l\nKG07212,\"Apr 6, 2026\",saison,159\nKG07316,2026-04-12T08:00:00Z,lager,59\nKG07194,2026-04-11T08:00:00Z,lager,119\nKG07230,08-04-2026,saison,61\nKG07229,2026-04-07T08:00:00Z,saison,80\nKG07128,06-04-2026,pale,159\nKG07213,10-04-2026,lager,89\nKG07103,2026-04-05T08:00:00Z,stout,164\nKG07322,2026-04-06T08:00:00Z,lager,199\nKG07201,2026-04-12T08:00:00Z,saison,52\nKG07260,2026-04-10T08:00:00Z,saison,46\nKG07107,2026-04-09T08:00:00Z,stout,190\nKG07124,06-04-2026,saison,75\nKG07149,\"Apr 11, 2026\",saison,140\nKG07180,\"Apr 6, 2026\",saison,188\nKG07136,\"Apr 4, 2026\",stout,109\nKG07217,\"Apr 11, 2026\",saison,71\nKG07240,05-04-2026,stout,164\nKG07199,07-04-2026,saison,72\nKG07155,2026-04-05T08:00:00Z,lager,163\nKG07251,2026-04-12T08:00:00Z,pale,90\nKG07208,\"Apr 4, 2026\",pale,161\nKG07206,2026-04-06T08:00:00Z,lager,189\nKG07253,\"Apr 12, 2026\",pale,49\nKG07228,11-04-2026,saison,142\nKG07193,11-04-2026,pale,55\nKG07319,04-04-2026,lager,93\nKG07309,08-04-2026,stout,64\nKG07310,2026-04-10T08:00:00Z,pale,142\nKG07102,2026-04-07T08:00:00Z,saison,41\nKG07105,2026-04-10T08:00:00Z,saison,159\nKG07162,\"Apr 8, 2026\",stout,49\nKG07283,2026-04-09T08:00:00Z,lager,132\nKG07259,2026-04-11T08:00:00Z,pale,137\nKG07250,2026-04-10T08:00:00Z,lager,59\nKG07172,\"Apr 8, 2026\",stout,190\nKG07150,\"Apr 6, 2026\",lager,181\nKG07233,11-04-2026,pale,58\nKG07159,2026-04-05T08:00:00Z,pale,172\nKG07257,11-04-2026,saison,119\nKG07270,06-04-2026,lager,49\nKG07279,\"Apr 8, 2026\",saison,62\nKG07132,2026-04-10T08:00:00Z,saison,41\nKG07318,\"Apr 6, 2026\",lager,88\nKG07117,12-04-2026,saison,139\nKG07266,12-04-2026,stout,113\nKG07258,07-04-2026,lager,191\nKG07320,09-04-2026,stout,58\nKG07116,\"Apr 8, 2026\",stout,109\nKG07287,\"Apr 6, 2026\",lager,112\nKG07218,2026-04-12T08:00:00Z,stout,34\nKG07110,07-04-2026,stout,49\nKG07204,\"Apr 10, 2026\",lager,135\nKG07118,2026-04-11T08:00:00Z,saison,109\nKG07189,\"Apr 7, 2026\",stout,120\nKG07262,12-04-2026,saison,101\nKG07127,2026-04-08T08:00:00Z,pale,181\nKG07237,06-04-2026,pale,31\nKG07191,2026-04-05T08:00:00Z,stout,117\nKG07246,\"Apr 12, 2026\",lager,111\nKG07168,11-04-2026,saison,142\nKG07120,\"Apr 8, 2026\",pale,134\nKG07241,\"Apr 7, 2026\",lager,85\nKG07271,04-04-2026,stout,194\nKG07215,08-04-2026,pale,170\nKG07114,12-04-2026,saison,40\nKG07216,\"Apr 4, 2026\",lager,84\nKG07313,2026-04-05T08:00:00Z,pale,99\nKG07157,\"Apr 6, 2026\",stout,36\nKG07173,\"Apr 6, 2026\",lager,156\nKG07131,12-04-2026,stout,161\nKG07188,2026-04-11T08:00:00Z,pale,140\nKG07192,\"Apr 4, 2026\",stout,90\nKG07169,\"Apr 5, 2026\",lager,169\nKG07317,12-04-2026,saison,179\nKG07140,2026-04-09T08:00:00Z,stout,176\nKG07163,\"Apr 12, 2026\",saison,164\nKG07179,\"Apr 9, 2026\",lager,142\nKG07236,\"Apr 5, 2026\",saison,79\nKG07106,08-04-2026,stout,116\nKG07138,2026-04-09T08:00:00Z,stout,160\nKG07184,\"Apr 10, 2026\",stout,58\nKG07301,09-04-2026,lager,97\nKG07223,\"Apr 7, 2026\",stout,193\nKG07220,11-04-2026,saison,159\nKG07323,\"Apr 12, 2026\",saison,161\nKG07203,2026-04-11T08:00:00Z,stout,136\nKG07166,2026-04-06T08:00:00Z,pale,81\nKG07281,2026-04-11T08:00:00Z,saison,47\nKG07148,08-04-2026,stout,91\nKG07123,2026-04-10T08:00:00Z,saison,197\nKG07144,2026-04-07T08:00:00Z,stout,72\nKG07291,\"Apr 7, 2026\",stout,111\nKG07224,2026-04-09T08:00:00Z,pale,180\nKG07268,\"Apr 6, 2026\",stout,130\nKG07315,2026-04-07T08:00:00Z,lager,160\nKG07104,2026-04-06T08:00:00Z,lager,61\nKG07296,\"Apr 5, 2026\",stout,141\nKG07302,12-04-2026,pale,185\nKG07314,08-04-2026,lager,65\nKG07219,2026-04-12T08:00:00Z,lager,86\nKG07182,\"Apr 12, 2026\",pale,82\nKG07288,04-04-2026,lager,119\nKG07214,2026-04-07T08:00:00Z,pale,115\nKG07293,05-04-2026,saison,61\nKG07205,2026-04-10T08:00:00Z,lager,99\nKG07101,\"Apr 7, 2026\",lager,34\nKG07306,\"Apr 7, 2026\",pale,33\nKG07273,2026-04-06T08:00:00Z,stout,39\nKG07177,\"Apr 12, 2026\",pale,178\nKG07147,\"Apr 6, 2026\",saison,80\nKG07308,2026-04-11T08:00:00Z,saison,86\nKG07185,\"Apr 5, 2026\",lager,105\nKG07211,10-04-2026,pale,189\nKG07226,2026-04-04T08:00:00Z,stout,169\nKG07171,11-04-2026,stout,68\nKG07109,2026-04-05T08:00:00Z,lager,191\nKG07300,\"Apr 10, 2026\",lager,33\nKG07248,2026-04-04T08:00:00Z,pale,193\nKG07227,08-04-2026,lager,174\nKG07298,09-04-2026,lager,118\nKG07303,09-04-2026,lager,175\nKG07126,2026-04-08T08:00:00Z,stout,46\nKG07154,05-04-2026,lager,68\nKG07165,2026-04-04T08:00:00Z,stout,184\nKG07113,\"Apr 4, 2026\",pale,55\nKG07272,\"Apr 5, 2026\",pale,88\nKG07295,05-04-2026,lager,183\nKG07125,\"Apr 8, 2026\",stout,66\nKG07242,2026-04-04T08:00:00Z,pale,161\nKG07244,2026-04-08T08:00:00Z,stout,159\nKG07137,2026-04-08T08:00:00Z,saison,132\nKG07175,\"Apr 8, 2026\",lager,83\nKG07121,\"Apr 5, 2026\",saison,85\nKG07232,2026-04-11T08:00:00Z,saison,41\nKG07186,\"Apr 5, 2026\",lager,64\nKG07282,2026-04-04T08:00:00Z,lager,116\nKG07178,04-04-2026,pale,59\nKG07176,\"Apr 8, 2026\",lager,186\nKG07274,\"Apr 10, 2026\",stout,181\nKG07297,05-04-2026,stout,73\nKG07187,10-04-2026,saison,119\nKG07321,2026-04-12T08:00:00Z,lager,188\nKG07275,\"Apr 7, 2026\",stout,151\nKG07249,09-04-2026,lager,163\nKG07252,2026-04-04T08:00:00Z,saison,62\nKG07200,\"Apr 11, 2026\",stout,146\nKG07209,\"Apr 6, 2026\",pale,117\nKG07263,2026-04-11T08:00:00Z,stout,139\nKG07284,09-04-2026,lager,46\nKG07129,2026-04-09T08:00:00Z,saison,50\nKG07267,\"Apr 9, 2026\",saison,47\nKG07269,06-04-2026,stout,165\nKG07245,\"Apr 4, 2026\",stout,164\nKG07222,\"Apr 9, 2026\",stout,118\nKG07167,06-04-2026,saison,172\nKG07238,09-04-2026,stout,62\nKG07261,07-04-2026,pale,159\nKG07221,10-04-2026,stout,183\nKG07234,2026-04-09T08:00:00Z,lager,112\nKG07264,11-04-2026,stout,56\nKG07256,06-04-2026,saison,122\nKG07139,2026-04-07T08:00:00Z,stout,73\nKG07312,10-04-2026,stout,172\nKG07285,12-04-2026,lager,90\nKG07254,\"Apr 4, 2026\",pale,168\nKG07112,10-04-2026,saison,173\nKG07160,06-04-2026,pale,154\nKG07134,10-04-2026,saison,64\nKG07196,2026-04-07T08:00:00Z,stout,172\nKG07299,07-04-2026,saison,92\nKG07292,07-04-2026,pale,165\nKG07247,\"Apr 12, 2026\",stout,158\nKG07115,2026-04-12T08:00:00Z,stout,94\nKG07289,06-04-2026,saison,185\nKG07278,12-04-2026,pale,140\nKG07311,\"Apr 12, 2026\",stout,152\nKG07151,07-04-2026,saison,55\nKG07146,2026-04-12T08:00:00Z,stout,148\nKG07304,2026-04-08T08:00:00Z,pale,54\nKG07152,2026-04-11T08:00:00Z,stout,148\nKG07276,\"Apr 7, 2026\",saison,70\nKG07122,08-04-2026,stout,185\nKG07108,2026-04-08T08:00:00Z,stout,95\nKG07181,\"Apr 9, 2026\",lager,44\nKG07243,\"Apr 12, 2026\",pale,73\nKG07143,2026-04-10T08:00:00Z,pale,36\nKG07231,06-04-2026,pale,189\nKG07141,09-04-2026,stout,55\nKG07305,2026-04-06T08:00:00Z,stout,138\nKG07239,2026-04-12T08:00:00Z,saison,148\nKG07290,2026-04-12T08:00:00Z,saison,174\nKG07158,2026-04-10T08:00:00Z,lager,168\nKG07195,11-04-2026,pale,126\nKG07119,08-04-2026,saison,90\nKG07207,2026-04-11T08:00:00Z,saison,176\nKG07183,04-04-2026,lager,43\nKG07280,\"Apr 9, 2026\",stout,176\nKG07164,2026-04-04T08:00:00Z,pale,186\nKG07225,\"Apr 12, 2026\",saison,56\nKG07133,\"Apr 12, 2026\",pale,77\nKG07174,\"Apr 4, 2026\",pale,48\nKG07161,2026-04-04T08:00:00Z,lager,172\nKG07202,09-04-2026,lager,36\nKG07307,04-04-2026,saison,184\nKG07198,\"Apr 10, 2026\",lager,114\nKG07286,08-04-2026,stout,92\nKG07265,2026-04-10T08:00:00Z,stout,110\nKG07153,08-04-2026,stout,175\nKG07255,\"Apr 6, 2026\",pale,38\nKG07100,06-04-2026,saison,110\nKG07190,\"Apr 12, 2026\",saison,105\nKG07130,2026-04-08T08:00:00Z,pale,41\nKG07197,2026-04-07T08:00:00Z,saison,105\nKG07235,\"Apr 10, 2026\",pale,155\nKG07142,2026-04-11T08:00:00Z,lager,168\nKG07135,07-04-2026,saison,49\nKG07324,10-04-2026,saison,186\nKG07210,2026-04-04T08:00:00Z,stout,73\nKG07111,2026-04-09T08:00:00Z,pale,162\nKG07156,\"Apr 9, 2026\",lager,93\nKG07277,09-04-2026,pale,119\nKG07145,\"Apr 7, 2026\",saison,73\nKG07294,2026-04-06T08:00:00Z,lager,144\nKG07170,2026-04-08T08:00:00Z,saison,118\n",
+    "README.md": "# Stonebridge Brewing - keg deliveries\n\nOne row per delivery.\nThe date column comes from three systems and is not uniform: the driver handhelds writes 2026/04/02; the distributor's EDI export writes short dates as day-month-year, so 07-04-2026 is 7 Apr 2026; the pub ordering site writes Apr 11, 2026 or an ISO timestamp (UTC 08:00, same calendar day).\n\nColumn guide: delivery=delivery id; dlv=delivery date, mixed formats; sku=beer style; l=volume in litres\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many litres of saison did Stonebridge deliver from April 5 to April 9, inclusive? The file is deliveries/kegs.csv.",
+      "expect": {
+        "output_contains_any": [
+          "2,513",
+          "2513"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 2
+    }
+  }
+}

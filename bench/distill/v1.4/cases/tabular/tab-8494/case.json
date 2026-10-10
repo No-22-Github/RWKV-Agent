@@ -1,0 +1,53 @@
+{
+  "id": "tab-8494",
+  "description": "Find the largest database backup in MB when sizes mix MB and GB strings. DISTILL-CANARY-c7c49203",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-NUMFMT"
+    ],
+    "trap_decoys": {
+      "TR-NUMFMT": "768"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b10d-backupfile-01",
+    "ref_calls": 3,
+    "fixture_bytes": 2521,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10d",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "运维/备份清单.csv": "任务,类型,大小\nBK-1004,日志,256MB\nBK-1013,日志,468MB\nBK-1015,日志,1.6GB\nBK-1022,日志,4.4GB\nBK-1028,日志,2.1GB\nBK-1037,数据库,256MB\nBK-1046,日志,256MB\nBK-1052,日志,256MB\nBK-1061,图片,256MB\nBK-1064,图片,768MB\nBK-1073,日志,2.1GB\nBK-1080,数据库,468MB\nBK-1085,图片,2.1GB\nBK-1096,数据库,468MB\nBK-1104,图片,256MB\nBK-1105,数据库,468MB\nBK-1113,数据库,4.4GB\nBK-1122,图片,1.6GB\nBK-1131,图片,1.6GB\nBK-1133,日志,468MB\nBK-1142,日志,1.6GB\nBK-1151,日志,1.6GB\nBK-1158,日志,768MB\nBK-1165,图片,1.6GB\nBK-1169,数据库,768MB\nBK-1177,日志,4.4GB\nBK-1183,日志,1.6GB\nBK-1194,图片,4.4GB\nBK-1197,数据库,4.4GB\nBK-1209,数据库,256MB\nBK-1214,数据库,2.1GB\nBK-1218,数据库,468MB\nBK-1225,图片,1.6GB\nBK-1235,图片,768MB\nBK-1244,日志,1.6GB\nBK-1250,数据库,256MB\nBK-1253,数据库,4.4GB\nBK-1259,数据库,768MB\nBK-1268,数据库,256MB\nBK-1274,数据库,468MB\nBK-1284,日志,768MB\nBK-1290,日志,768MB\nBK-1298,图片,4.4GB\nBK-1306,数据库,256MB\nBK-1313,数据库,468MB\nBK-1316,日志,468MB\nBK-1324,数据库,4.4GB\nBK-1331,日志,468MB\nBK-1337,数据库,468MB\nBK-1346,数据库,768MB\nBK-1352,日志,256MB\nBK-1357,数据库,2.1GB\nBK-1370,图片,256MB\nBK-1371,日志,256MB\nBK-1378,日志,468MB\nBK-1387,日志,256MB\nBK-1395,日志,468MB\nBK-1401,日志,1.6GB\nBK-1411,数据库,768MB\nBK-1414,日志,2.1GB\nBK-1424,数据库,468MB\nBK-1432,数据库,768MB\nBK-1436,数据库,768MB\nBK-1446,数据库,1.6GB\nBK-1454,日志,468MB\nBK-1460,日志,768MB\nBK-1468,日志,4.4GB\nBK-1474,日志,256MB\nBK-1482,数据库,1.6GB\nBK-1488,日志,468MB\nBK-1494,日志,468MB\nBK-1497,数据库,4.4GB\nBK-1510,图片,768MB\nBK-1512,日志,4.4GB\nBK-1521,数据库,4.4GB\nBK-1527,图片,256MB\nBK-1533,数据库,256MB\nBK-1543,数据库,768MB\nBK-1551,日志,2.1GB\nBK-1553,图片,4.4GB\nBK-1562,日志,4.4GB\nBK-1570,数据库,256MB\nBK-1577,图片,256MB\nBK-1583,图片,468MB\nBK-1588,数据库,768MB\nBK-1595,数据库,1.6GB\nBK-1602,日志,256MB\nBK-1611,图片,768MB\nBK-1616,日志,4.4GB\nBK-1624,图片,256MB\nBK-1631,图片,468MB\nBK-1640,日志,768MB\nBK-1649,日志,256MB\nBK-1651,图片,4.4GB\nBK-1659,日志,4.4GB\nBK-1670,日志,256MB\nBK-1673,数据库,1.6GB\nBK-1682,日志,256MB\nBK-1689,数据库,1.6GB\nBK-1697,图片,256MB\nBK-1700,图片,4.4GB\nBK-1708,数据库,1.6GB\nBK-1717,日志,468MB\nBK-1727,日志,4.4GB\nBK-1730,日志,4.4GB\nBK-1736,日志,2.1GB\nBK-1743,日志,468MB\nBK-1754,数据库,256MB\n",
+    "README.md": "# 备份清单\n\n大小列是备份脚本直接打印的，小文件用 MB，大文件用 GB。1 GB 按 1024 MB 算。\n"
+  },
+  "turns": [
+    {
+      "prompt": "数据库类备份里，最大的一个文件有多少 MB？清单在 运维/备份清单.csv。",
+      "expect": {
+        "output_contains_any": [
+          "4,505.6",
+          "4,505.6 MB",
+          "4,505.6MB",
+          "4505.6",
+          "4505.6 MB",
+          "4505.6MB"
+        ],
+        "max_output_chars": 500
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 2
+    }
+  }
+}

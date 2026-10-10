@@ -1,0 +1,49 @@
+{
+  "id": "tab-8417",
+  "description": "Count rows in a brewery keg deliveries export whose date column mixes up to four writings (day-month-year included), over a date range. DISTILL-CANARY-4e7ec5fb",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [
+      "TR-DATEFMT"
+    ],
+    "trap_decoys": {
+      "TR-DATEFMT": "37"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b10d-mdbrewa-mixdates-01",
+    "ref_calls": 4,
+    "fixture_bytes": 4094,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10d",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "deliveries/kegs.csv": "delivery,delivered_on,beer,litres\nKG07121,\"Nov 3, 2026\",pale,52\nKG07134,09-11-2026,stout,74\nKG07181,2026-11-09T08:00:00Z,lager,199\nKG07148,04-11-2026,stout,172\nKG07119,2026-11-09T08:00:00Z,pale,131\nKG07201,05-11-2026,saison,102\nKG07161,2026-11-03T08:00:00Z,stout,108\nKG07100,02-11-2026,stout,160\nKG07173,2026-11-09T08:00:00Z,pale,155\nKG07107,2026-11-10T08:00:00Z,pale,70\nKG07109,2026-11-05T08:00:00Z,pale,100\nKG07113,04-11-2026,saison,161\nKG07199,\"Nov 2, 2026\",lager,128\nKG07204,04-11-2026,stout,73\nKG07167,\"Nov 10, 2026\",saison,176\nKG07171,04-11-2026,stout,152\nKG07131,\"Nov 8, 2026\",lager,36\nKG07178,\"Nov 2, 2026\",stout,44\nKG07128,\"Nov 8, 2026\",stout,86\nKG07179,2026-11-03T08:00:00Z,pale,30\nKG07209,2026-11-06T08:00:00Z,saison,158\nKG07169,06-11-2026,stout,153\nKG07125,\"Nov 5, 2026\",pale,195\nKG07118,09-11-2026,pale,76\nKG07207,2026-11-02T08:00:00Z,saison,172\nKG07174,\"Nov 2, 2026\",saison,74\nKG07117,02-11-2026,pale,100\nKG07172,2026-11-04T08:00:00Z,saison,131\nKG07101,2026-11-07T08:00:00Z,stout,128\nKG07152,04-11-2026,lager,48\nKG07116,10-11-2026,lager,149\nKG07202,2026-11-03T08:00:00Z,saison,134\nKG07150,2026-11-04T08:00:00Z,pale,170\nKG07135,2026-11-05T08:00:00Z,pale,152\nKG07151,\"Nov 5, 2026\",saison,117\nKG07191,03-11-2026,lager,172\nKG07139,08-11-2026,lager,195\nKG07184,04-11-2026,saison,183\nKG07130,2026-11-03T08:00:00Z,saison,79\nKG07206,2026-11-02T08:00:00Z,pale,106\nKG07112,\"Nov 6, 2026\",lager,95\nKG07159,02-11-2026,lager,74\nKG07102,\"Nov 8, 2026\",pale,34\nKG07155,\"Nov 8, 2026\",lager,187\nKG07166,2026-11-06T08:00:00Z,stout,196\nKG07164,09-11-2026,stout,186\nKG07103,\"Nov 4, 2026\",stout,166\nKG07168,\"Nov 6, 2026\",lager,108\nKG07175,2026-11-07T08:00:00Z,pale,173\nKG07149,2026-11-10T08:00:00Z,stout,180\nKG07129,2026-11-02T08:00:00Z,stout,137\nKG07132,04-11-2026,saison,135\nKG07111,\"Nov 10, 2026\",saison,136\nKG07192,09-11-2026,lager,160\nKG07165,\"Nov 10, 2026\",stout,77\nKG07122,\"Nov 9, 2026\",saison,183\nKG07187,\"Nov 5, 2026\",saison,157\nKG07142,2026-11-03T08:00:00Z,lager,155\nKG07180,2026-11-10T08:00:00Z,saison,91\nKG07193,2026-11-08T08:00:00Z,lager,168\nKG07186,2026-11-06T08:00:00Z,saison,105\nKG07158,03-11-2026,stout,59\nKG07133,09-11-2026,lager,39\nKG07208,\"Nov 7, 2026\",lager,150\nKG07136,\"Nov 2, 2026\",stout,88\nKG07177,2026-11-08T08:00:00Z,pale,58\nKG07185,2026-11-07T08:00:00Z,pale,71\nKG07127,2026-11-04T08:00:00Z,stout,93\nKG07190,2026-11-10T08:00:00Z,stout,53\nKG07114,\"Nov 4, 2026\",lager,121\nKG07170,\"Nov 5, 2026\",saison,200\nKG07147,06-11-2026,stout,160\nKG07123,\"Nov 3, 2026\",pale,174\nKG07197,2026-11-10T08:00:00Z,pale,75\nKG07145,08-11-2026,pale,127\nKG07162,\"Nov 10, 2026\",lager,38\nKG07141,08-11-2026,lager,160\nKG07183,2026-11-09T08:00:00Z,saison,155\nKG07156,\"Nov 10, 2026\",stout,149\nKG07126,2026-11-02T08:00:00Z,saison,124\nKG07115,\"Nov 4, 2026\",stout,198\nKG07196,2026-11-07T08:00:00Z,lager,74\nKG07163,2026-11-08T08:00:00Z,saison,105\nKG07124,2026-11-02T08:00:00Z,lager,47\nKG07157,2026-11-06T08:00:00Z,lager,173\nKG07138,\"Nov 2, 2026\",stout,110\nKG07188,2026-11-04T08:00:00Z,pale,172\nKG07146,06-11-2026,lager,140\nKG07203,2026-11-02T08:00:00Z,saison,139\nKG07153,2026-11-08T08:00:00Z,pale,171\nKG07104,2026-11-02T08:00:00Z,saison,154\nKG07200,2026-11-03T08:00:00Z,lager,159\nKG07120,2026-11-05T08:00:00Z,lager,44\nKG07105,\"Nov 3, 2026\",lager,68\nKG07189,2026-11-02T08:00:00Z,lager,115\nKG07154,07-11-2026,stout,57\nKG07137,09-11-2026,saison,194\nKG07140,04-11-2026,lager,116\nKG07195,2026-11-08T08:00:00Z,pale,66\nKG07205,03-11-2026,stout,78\nKG07160,07-11-2026,lager,69\nKG07194,\"Nov 9, 2026\",stout,55\nKG07110,08-11-2026,lager,78\nKG07176,\"Nov 6, 2026\",stout,126\nKG07106,2026-11-08T08:00:00Z,pale,180\nKG07143,09-11-2026,pale,164\nKG07198,\"Nov 6, 2026\",stout,182\nKG07144,2026-11-02T08:00:00Z,pale,134\nKG07108,\"Nov 5, 2026\",lager,196\nKG07182,\"Nov 9, 2026\",saison,53\n",
+    "README.md": "# Stonebridge Brewing - keg deliveries\n\nOne row per delivery.\nThe date column comes from three systems and is not uniform: the driver handhelds writes 2026/11/02; the distributor's EDI export writes short dates as day-month-year, so 07-11-2026 is 7 Nov 2026; the pub ordering site writes Nov 11, 2026 or an ISO timestamp (UTC 08:00, same calendar day).\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many keg deliveries did Stonebridge Brewing make from November 3 to November 7, inclusive? The log is deliveries/kegs.csv.",
+      "expect": {
+        "output_contains": [
+          "54"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_file": 2
+    }
+  }
+}

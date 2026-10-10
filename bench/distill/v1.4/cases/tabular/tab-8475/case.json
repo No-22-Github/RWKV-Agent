@@ -1,0 +1,51 @@
+{
+  "id": "tab-8475",
+  "description": "Join programme/films.csv with box_office/sales.csv: filter the dimension table by gn=Drama, then count keys at or above a threshold from the fact table; obscure column names. DISTILL-CANARY-6b9247a9",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "join",
+    "traps": [
+      "TR-MULTISRC",
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "1",
+      "TR-DEFN": "1"
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-tab-b10d-cinema-thrcount-01",
+    "ref_calls": 4,
+    "fixture_bytes": 2873,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10d",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "programme/films.csv": "fid,ttl,gn\nFM137,Borrowed Time,Drama\nFM274,Paper Moons,Documentary\nFM304,Last Tram to Elm Street,Documentary\nFM423,Glass Harbour,Drama\nFM458,Winter Cartographers,Comedy\nFM477,The Lamplighters,Comedy\nFM702,A Small Fire,Comedy\nFM809,Marigold Road,Comedy\nFM816,Night Ferry,Documentary\nFM866,Northern Lights Cafe,Comedy\nFM890,Understudy,Drama\nFM965,Hollow Crown,Drama\nFM967,Tin Soldiers,Documentary\n",
+    "box_office/sales.csv": "fid,mo,tk\nFM809,2026-08,252\nFM423,2026-08,64\nFM890,2026-06,161\nFM458,2026-06,223\nFM890,2026-08,67\nFM866,2026-06,196\nFM809,2026-07,36\nFM423,2026-07,134\nFM816,2026-07,138\nFM477,2026-08,255\nFM423,2026-08,41\nFM965,2026-06,109\nFM423,2026-08,151\nFM965,2026-06,210\nFM809,2026-06,253\nFM137,2026-06,98\nFM304,2026-06,135\nFM137,2026-07,135\nFM809,2026-08,180\nFM304,2026-07,62\nFM816,2026-07,137\nFM866,2026-06,107\nFM809,2026-07,46\nFM965,2026-06,152\nFM890,2026-07,135\nFM965,2026-06,231\nFM809,2026-08,260\nFM866,2026-06,232\nFM702,2026-08,115\nFM967,2026-08,41\nFM866,2026-06,153\nFM137,2026-07,149\nFM967,2026-08,157\nFM304,2026-08,138\nFM458,2026-07,212\nFM423,2026-08,32\nFM967,2026-07,214\nFM702,2026-07,228\nFM477,2026-06,110\nFM274,2026-08,177\nFM965,2026-07,243\nFM965,2026-06,111\nFM967,2026-06,77\nFM702,2026-07,157\nFM965,2026-07,167\nFM702,2026-07,248\nFM816,2026-06,206\nFM137,2026-07,90\nFM816,2026-06,120\nFM967,2026-07,96\nFM965,2026-08,182\nFM809,2026-07,189\nFM866,2026-08,199\nFM304,2026-07,112\nFM809,2026-07,245\nFM890,2026-08,153\nFM965,2026-08,58\nFM967,2026-08,259\nFM458,2026-07,103\nFM809,2026-08,212\nFM477,2026-06,192\nFM967,2026-07,42\nFM816,2026-07,188\nFM890,2026-08,227\nFM965,2026-06,173\nFM702,2026-06,165\nFM965,2026-06,206\nFM137,2026-08,100\nFM304,2026-08,236\nFM304,2026-08,72\nFM304,2026-06,212\nFM477,2026-08,187\nFM458,2026-08,254\nFM423,2026-06,230\nFM137,2026-08,116\nFM137,2026-07,159\nFM809,2026-06,52\nFM965,2026-08,138\nFM137,2026-07,230\nFM816,2026-07,175\nFM816,2026-06,122\nFM274,2026-07,113\nFM137,2026-08,211\nFM274,2026-06,175\nFM423,2026-07,200\nFM477,2026-06,212\nFM137,2026-08,86\nFM274,2026-06,200\nFM816,2026-07,239\nFM702,2026-07,146\nFM458,2026-06,206\nFM866,2026-08,161\nFM965,2026-07,157\nFM809,2026-08,183\nFM137,2026-06,50\nFM965,2026-06,127\nFM816,2026-06,241\nFM816,2026-08,45\nFM137,2026-08,249\nFM423,2026-06,92\nFM890,2026-08,31\nFM137,2026-07,86\nFM965,2026-06,248\nFM458,2026-07,174\nFM702,2026-06,179\nFM866,2026-07,48\nFM816,2026-08,153\nFM965,2026-08,30\nFM816,2026-08,169\nFM458,2026-06,153\nFM816,2026-08,243\nFM702,2026-06,94\nFM965,2026-08,167\nFM477,2026-08,220\nFM274,2026-08,130\nFM967,2026-07,157\nFM890,2026-07,35\nFM965,2026-06,190\nFM816,2026-08,208\nFM866,2026-06,254\nFM866,2026-06,54\nFM890,2026-07,169\nFM890,2026-06,218\nFM477,2026-08,139\nFM967,2026-06,125\nFM304,2026-08,71\n",
+    "README.md": "Independent cinema programme and box office. sales.csv has one row per screening; a film is shown many times a month.\n\nColumn guide: fid=film ID; ttl=film title; gn=genre; fid=film ID; mo=month; tk=tickets sold at one screening\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many Drama films sold at least 567 tickets in July?",
+      "expect": {
+        "output_contains": [
+          "2"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "data_query"
+        ],
+        "max_output_chars": 500
+      }
+    }
+  ]
+}
