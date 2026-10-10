@@ -27,12 +27,15 @@ type ScriptEntry struct {
 	Outputs []ScriptOutput `json:"outputs"`
 }
 
-// ScriptOutput is one generation's raw text. Supervised is corpus metadata
-// only (the generator ignores it): false marks a context-only action such as
-// a recovery prefix whose span is not trained.
+// ScriptOutput is one generation's raw text. Supervised and Reasoning are
+// corpus metadata only (the generator ignores them): Supervised false marks a
+// context-only action such as a recovery prefix whose span is not trained;
+// Reasoning keeps the teacher's thinking for that step (reasoning_content), so
+// a thinking render can use it later without re-buying the path.
 type ScriptOutput struct {
 	Text       string `json:"text"`
 	Supervised bool   `json:"supervised"`
+	Reasoning  string `json:"reasoning,omitempty"`
 }
 
 // ErrScriptExhausted reports a generation the script did not author: the

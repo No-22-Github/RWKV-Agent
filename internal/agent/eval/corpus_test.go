@@ -126,6 +126,17 @@ func TestDecodeScriptRejectsMalformedEntries(t *testing.T) {
 	}
 }
 
+func TestDecodeScriptAcceptsTeacherReasoning(t *testing.T) {
+	input := `{"case_id":"a","outputs":[{"text":"x","supervised":true,"reasoning":"think"}]}`
+	entries, err := decodeScript(strings.NewReader(input))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got := entries["a"].Outputs[0]; got.Text != "x" || got.Reasoning != "think" {
+		t.Errorf("output = %+v", got)
+	}
+}
+
 func TestBuildCorpusTextRejectsHarnessDivergence(t *testing.T) {
 	call := `<tool_call>{"name":"read_file","arguments":{"path":"a"}}</tool_call>`
 	first := "System: s\n\nUser: q\n\nAssistant:"

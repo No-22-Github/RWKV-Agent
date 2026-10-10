@@ -92,6 +92,9 @@ func toAgentStep(t *testing.T, fields map[string]any) agent.Step {
 	if name, ok := fields["tool"].(string); ok {
 		step.Tool = name
 	}
+	if reasoning, ok := fields["reasoning_content"].(string); ok {
+		step.ReasoningContent = reasoning
+	}
 	if executed, ok := fields["tool_executed"].(bool); ok {
 		step.ToolExecuted = executed
 	}
@@ -194,6 +197,31 @@ func TestExtractKeepsActionsInOrder(t *testing.T) {
 	}
 	if path[1].Text != "42" {
 		t.Errorf("final action text = %q", path[1].Text)
+	}
+}
+
+func TestPathsKeepTeacherReasoningAsMetadata(t *testing.T) {
+	tool := toolStep("list_files", map[string]any{"path": ""})
+	tool["reasoning_content"] = "Let me look at the workspace."
+	path, err := Extract(caseRun(t, []map[string]any{tool, finalStep("42")}, nil, true, 0))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if path[0].Reasoning != "Let me look at the workspace." || path[1].Reasoning != "" {
+		t.Fatalf("reasoning = %q / %q", path[0].Reasoning, path[1].Reasoning)
+	}
+	entry := Entry("c--p1", []string{path[0].Text, path[1].Text}, nil)
+	entry.Outputs[0].Reasoning = path[0].Reasoning
+	outputs, _ := scriptEntryOrdered(entry).Get("outputs")
+	items := outputs.([]any)
+	// Steps without thinking keep the old shape, so scripts from runs that
+	// recorded no reasoning stay byte-identical.
+	first, second := items[0].(*lab.OrderedMap), items[1].(*lab.OrderedMap)
+	if got, _ := first.Get("reasoning"); got != "Let me look at the workspace." {
+		t.Errorf("first output keys %v, reasoning %v", first.Keys, got)
+	}
+	if !reflect.DeepEqual(second.Keys, []string{"text", "supervised"}) {
+		t.Errorf("second output keys = %v, want text, supervised only", second.Keys)
 	}
 }
 

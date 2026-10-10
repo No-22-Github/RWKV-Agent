@@ -16,8 +16,9 @@ import (
 // A teacher (for example DeepSeek over chat-completions, native tool calling)
 // runs a bank of distillation cases k times; each passing, clean run of a case
 // is a candidate path. Only actions cross over (tool name, arguments, final
-// text) — the teacher's own wire, reasoning and receipts stay behind, and
-// render replays the actions through the student's wire.
+// text) — the teacher's own wire and receipts stay behind, and render replays
+// the actions through the student's wire. The teacher's per-step reasoning is
+// kept beside each action as metadata; render ignores it.
 //
 // Per case: drop failing or unclean runs and exact duplicates, then keep the
 // shortest path first and further paths only when their tool sequence differs,
@@ -44,9 +45,10 @@ var emptyMeansAbsent = map[string]map[string]bool{
 // Action is one generation's contribution to a path: a tool call or a final
 // answer.
 type Action struct {
-	Text  string // the generation's raw output
-	Tool  string // empty for a final answer
-	Final bool
+	Text      string // the generation's raw output
+	Tool      string // empty for a final answer
+	Final     bool
+	Reasoning string // the teacher's thinking for this step; not part of the path's identity
 }
 
 // Trajectory is one case's actions, in order.
@@ -118,7 +120,7 @@ func Extract(run CaseRun) (Trajectory, error) {
 				if err != nil {
 					return nil, err
 				}
-				actions = append(actions, Action{Text: text, Tool: name})
+				actions = append(actions, Action{Text: text, Tool: name, Reasoning: step.ReasoningContent})
 			case "final":
 				if index != len(result.Steps)-1 {
 					return nil, Unclean("final before the last step")
@@ -130,7 +132,7 @@ func Extract(run CaseRun) (Trajectory, error) {
 				if text == "" {
 					return nil, Unclean("empty final answer")
 				}
-				actions = append(actions, Action{Text: text, Final: true})
+				actions = append(actions, Action{Text: text, Final: true, Reasoning: step.ReasoningContent})
 			default:
 				return nil, Unclean("action " + lab.PyRepr(step.ActionType))
 			}
@@ -271,7 +273,11 @@ func RunPaths(args PathsArgs) int {
 			for _, action := range path {
 				texts = append(texts, action.Text)
 			}
-			entries = append(entries, scriptEntryOrdered(Entry(PathID(caseID, number+1), texts, nil)))
+			entry := Entry(PathID(caseID, number+1), texts, nil)
+			for i, action := range path {
+				entry.Outputs[i].Reasoning = action.Reasoning
+			}
+			entries = append(entries, scriptEntryOrdered(entry))
 		}
 		steps := make([]any, 0, len(kept))
 		for _, path := range kept {
@@ -386,6 +392,9 @@ func scriptEntryOrdered(entry eval.ScriptEntry) *lab.OrderedMap {
 		item := lab.NewOrderedMap()
 		item.Set("text", output.Text)
 		item.Set("supervised", output.Supervised)
+		if output.Reasoning != "" {
+			item.Set("reasoning", output.Reasoning)
+		}
 		outputs = append(outputs, item)
 	}
 	m := lab.NewOrderedMap()
