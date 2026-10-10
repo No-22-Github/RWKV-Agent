@@ -1,0 +1,60 @@
+{
+  "id": "web-8084",
+  "description": "Delivery version of a document engine whose download page puts an rc under the recommended one. DISTILL-CANARY-f67ce23b",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": "6.3.0-rc.2"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-web-b10b-pdfengine-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10b",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [
+    {
+      "query_match": "竹简",
+      "url_match": "zhujian-doc.com/download",
+      "url": "https://zhujian-doc.com/download",
+      "title": "竹简文档引擎 发布记录",
+      "snippet": "竹简文档引擎 各通道版本。",
+      "published_at": "2026-09-13",
+      "content": "# 下载 竹简文档引擎\n\n生产环境推荐：6.2.0（stable，2026-09-01 发布）\n\n抢先体验：6.3.0-rc.2（rc，2026-09-13 发布），仅供评估，不提供支持。\n\n历史版本：6.1.5\n"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "竹简文档引擎，给客户交付的话用哪个版本？",
+      "expect": {
+        "output_contains": [
+          "6.2.0"
+        ],
+        "output_excludes": [
+          "6.3.0-rc.2 是最新的正式",
+          "6.3.0-rc.2 是正式版",
+          "6.3.0-rc.2 是最新正式",
+          "6.3.0-rc.2 就是正式",
+          "6.3.0-rc.2 为正式版"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

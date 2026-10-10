@@ -1,0 +1,38 @@
+{
+  "id": "nt-8063",
+  "description": "Three feeder readings summed and priced per kWh. DISTILL-CANARY-2436101e",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-nt-b10b-feederkwh-01",
+    "ref_calls": 1,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10b",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "Feeder readings this month: A 12,480.5 kWh, B 9,962.25 kWh, C 14,031.75 kWh. At $0.1137 per kWh, what is the total energy cost? Round to two decimals.",
+      "expect": {
+        "output_contains_any": [
+          "4,147.15",
+          "4147.15"
+        ],
+        "required_tools": [
+          "calculator"
+        ],
+        "max_output_chars": 400
+      }
+    }
+  ]
+}

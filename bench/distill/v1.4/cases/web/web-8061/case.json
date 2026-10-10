@@ -1,0 +1,76 @@
+{
+  "id": "web-8061",
+  "description": "The 3.x reference documents the changed default.（官方页与二手页冲突，以官方为准）. DISTILL-CANARY-bbb503ca",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "is 100"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-web-b10b-maxconn-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10b",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Sorrel",
+      "url_match": "dbtips.example.net/sorrel-tuning",
+      "url": "https://dbtips.example.net/sorrel-tuning",
+      "title": "Tuning Sorrel",
+      "snippet": "Default max_connections is 100.",
+      "content": "# Tuning Sorrel\n\nBy default max_connections is 100; raise it if you see connection refused errors.\n",
+      "published_at": "2025-01-11"
+    },
+    {
+      "query_match": "Sorrel",
+      "url_match": "sorrel-db.example/docs/3.x/settings",
+      "url": "https://sorrel-db.example/docs/3.x/settings",
+      "title": "Settings reference | Sorrel 3.x",
+      "snippet": "All server settings and defaults.",
+      "content": "# Settings reference (3.x)\n\nUpdated 2026-08-08.\n\n`max_connections` — default 400. Raised from 100 in 3.0; each connection uses roughly 6 MB.\n",
+      "published_at": "2026-08-08"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "What's Sorrel's default max_connections setting in the 3.x series?",
+      "expect": {
+        "output_contains_any": [
+          "defaults to 400",
+          "default of 400",
+          "is 400",
+          "400 connections",
+          "400 by default",
+          "default 400",
+          "= 400",
+          "to 400"
+        ],
+        "output_excludes": [
+          "is 100",
+          "default 100",
+          "default is 100",
+          "100 connections",
+          "defaults to 100"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

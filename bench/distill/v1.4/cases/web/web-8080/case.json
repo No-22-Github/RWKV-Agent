@@ -1,0 +1,60 @@
+{
+  "id": "web-8080",
+  "description": "Version recommended for production on a download page that also advertises a beta. DISTILL-CANARY-96931636",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": "5.5.0-beta.1"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-web-b10b-mqdownload-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10b",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [
+    {
+      "query_match": "苇渡",
+      "url_match": "weidu-mq.io/download",
+      "url": "https://weidu-mq.io/download",
+      "title": "苇渡消息队列 发布记录",
+      "snippet": "苇渡消息队列 各通道版本。",
+      "published_at": "2026-09-12",
+      "content": "# 下载 苇渡消息队列\n\n生产环境推荐：5.4.1（stable，2026-08-28 发布）\n\n抢先体验：5.5.0-beta.1（beta，2026-09-12 发布），仅供评估，不提供支持。\n\n历史版本：5.4.0\n"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "客户那边要装苇渡消息队列，下载页上给生产环境推荐的是哪个版本？",
+      "expect": {
+        "output_contains": [
+          "5.4.1"
+        ],
+        "output_excludes": [
+          "5.5.0-beta.1 是最新的正式",
+          "5.5.0-beta.1 是正式版",
+          "5.5.0-beta.1 是最新正式",
+          "5.5.0-beta.1 就是正式",
+          "5.5.0-beta.1 为正式版"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

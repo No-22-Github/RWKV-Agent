@@ -1,0 +1,65 @@
+{
+  "id": "web-8036",
+  "description": "官方标准 2026-07-01 起执行并给出区间，新闻稿是去年 12 月的旧口径（官方页与二手页冲突，以官方为准）. DISTILL-CANARY-896da81d",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "231 度"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-web-b10b-tierpower-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10b",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [
+    {
+      "query_match": "岚城",
+      "url_match": "www.lcdaily.cn/news/2026/electricity-tier",
+      "url": "https://www.lcdaily.cn/news/2026/electricity-tier",
+      "title": "岚城日报：电价阶梯怎么算",
+      "snippet": "第二档从每月 231 度起。",
+      "content": "# 岚城电价阶梯怎么算\n\n2025 年 12 月。市民问得最多的是第二档：目前第一档为月用电 230 度以内，第二档从 231 度起算。\n",
+      "published_at": "2025-12-18"
+    },
+    {
+      "query_match": "岚城",
+      "url_match": "www.lanchengpower.cn/tariff/residential",
+      "url": "https://www.lanchengpower.cn/tariff/residential",
+      "title": "岚城供电 | 居民阶梯电价执行标准",
+      "snippet": "居民生活用电阶梯档次与电价。",
+      "content": "# 居民阶梯电价执行标准\n\n2026 年 7 月 1 日起执行。\n\n- 第一档：月用电量 0—260 度，0.52 元/度\n- 第二档：月用电量 261—420 度，0.57 元/度\n- 第三档：月用电量 420 度以上，0.82 元/度\n",
+      "published_at": "2026-07-01"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "岚城居民用电阶梯电价，第二档是从每月多少度开始算的？",
+      "expect": {
+        "output_contains_any": [
+          "261 度",
+          "261度",
+          "第二档从 261",
+          "261 度起"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "id": "doc-8204",
+  "description": "Look up in a flower shop care guide how often to change the water for roses. DISTILL-CANARY-97c51387",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-doc-b10c-florist-01",
+    "ref_calls": 1,
+    "fixture_bytes": 225,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10c",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "养护/鲜切花.md": "# 鲜切花养护\n\n- 玫瑰：每 2 天换一次水，斜剪 1 厘米茎底。\n- 百合：每 3 天换水，及时摘除花粉。\n- 满天星：每 4 天换水。\n",
+    "养护/盆栽.md": "盆栽绿萝每周浇水 1 次。\n",
+    "README.md": "# 花间小铺 养护卡片\n"
+  },
+  "turns": [
+    {
+      "prompt": "买回去的玫瑰要隔几天换一次水？",
+      "expect": {
+        "output_contains_any": [
+          "每 2 天",
+          "每2天",
+          "2 天换",
+          "2天换",
+          "隔 2 天",
+          "两天"
+        ],
+        "required_tools": [
+          "read_file"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ],
+  "offered_tools": [
+    "list_files",
+    "read_file",
+    "search_text"
+  ]
+}

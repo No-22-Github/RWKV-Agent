@@ -1,0 +1,42 @@
+{
+  "id": "tab-8064",
+  "description": "Total cost of one category in a purchase log: kg times unit price per kg, summed. DISTILL-CANARY-fddc82fe",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "policy_calc",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-tab-b10b-seafoodpo-01",
+    "ref_calls": 3,
+    "fixture_bytes": 540,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10b",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "采购/9月进货.csv": "日期,类别,品名,数量(kg),单价(元/kg)\n2026-09-02,干货,木耳,18.0,88.5\n2026-09-03,干货,木耳,23.9,88.5\n2026-09-04,蔬菜,西兰花,5.5,9.6\n2026-09-05,水产,扇贝,17.1,41.2\n2026-09-06,蔬菜,娃娃菜,15.3,5.8\n2026-09-07,干货,香菇,20.3,72.0\n2026-09-08,干货,香菇,6.3,72.0\n2026-09-09,干货,香菇,13.4,72.0\n2026-09-10,水产,鲈鱼,10.0,26.8\n2026-09-11,干货,木耳,15.6,88.5\n2026-09-12,水产,基围虾,8.2,38.5\n2026-09-13,水产,扇贝,16.8,41.2\n2026-09-14,水产,扇贝,24.6,41.2\n2026-09-15,干货,香菇,7.5,72.0\n"
+  },
+  "turns": [
+    {
+      "prompt": "后厨采购单 采购/9月进货.csv 里，水产类这个月一共花了多少钱？数量是公斤数，单价是元/公斤，保留两位小数。",
+      "expect": {
+        "output_contains_any": [
+          "2,993.9",
+          "2,993.90",
+          "2993.9",
+          "2993.90"
+        ],
+        "required_tools": [
+          "calculator"
+        ],
+        "max_output_chars": 400
+      }
+    }
+  ]
+}

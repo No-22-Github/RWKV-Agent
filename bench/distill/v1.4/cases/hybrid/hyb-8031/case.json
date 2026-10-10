@@ -1,0 +1,79 @@
+{
+  "id": "hyb-8031",
+  "description": "The notes pick the hall; the venue page is newer and post-refurbishment.（官方页与二手页冲突，以官方为准）. DISTILL-CANARY-bb79494d",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "local_first",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "280 theatre"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b10b-hallseats-01",
+    "ref_calls": 3,
+    "fixture_bytes": 92,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10b",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Quayside Centre",
+      "url_match": "www.eventplanner.example.com/quayside",
+      "url": "https://www.eventplanner.example.com/quayside",
+      "title": "Quayside Centre venue profile",
+      "snippet": "Cedar Hall seats 280 theatre style.",
+      "content": "# Quayside Centre\n\nCedar Hall: 280 theatre, 180 banquet (pre-refurbishment figures).\n",
+      "published_at": "2025-03-21"
+    },
+    {
+      "query_match": "Quayside Centre",
+      "url_match": "www.quaysidecentre.example/halls",
+      "url": "https://www.quaysidecentre.example/halls",
+      "title": "Halls | Quayside Centre",
+      "snippet": "Hall sizes and capacities.",
+      "content": "# Halls\n\nUpdated 2026-07-11, after the refurbishment.\n\n| Hall | Theatre | Banquet |\n|---|---|---|\n| Cedar Hall | 340 | 220 |\n| Elm Hall | 180 | 120 |\n| Harbour Suite | 90 | 60 |\n",
+      "published_at": "2026-07-11"
+    }
+  ],
+  "files": {
+    "venue/hire-notes.txt": "Shortlisted at Quayside Centre: Cedar Hall (for the AGM, ~300 delegates). Date 12 Feb 2027.\n"
+  },
+  "turns": [
+    {
+      "prompt": "venue/hire-notes.txt names the hall we shortlisted at the Quayside Centre. How many people does that hall seat in theatre layout, per the venue's own site?",
+      "expect": {
+        "output_contains_any": [
+          "340 people",
+          "340 seats",
+          "340 guests",
+          "340 in theatre",
+          "340 theatre",
+          "340 delegates",
+          "seats 340",
+          "340 (theatre",
+          "capacity of 340",
+          "340 attendees"
+        ],
+        "output_excludes": [
+          "280 theatre",
+          "280 people",
+          "280 seats",
+          "280 guests"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

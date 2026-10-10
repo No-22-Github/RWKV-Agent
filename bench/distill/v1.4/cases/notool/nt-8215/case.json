@@ -1,0 +1,46 @@
+{
+  "id": "nt-8215",
+  "description": "Split a dinner bill evenly among six people. DISTILL-CANARY-1eaddf11",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b10c-splitbill-01",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10c",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "六个人聚餐一共花了 468 元，AA 的话每人付多少？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "78 元",
+          "78元",
+          "78 块",
+          "78块"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ],
+  "offered_tools": [
+    "list_files",
+    "read_file",
+    "search_text"
+  ]
+}

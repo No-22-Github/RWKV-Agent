@@ -1,0 +1,46 @@
+{
+  "id": "cfg-8063",
+  "description": "Air freight total with additive fuel and peak surcharges in a config. DISTILL-CANARY-18b0a1f5",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-RULEFILE"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": "2,432.35"
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10b-airfreightrate-01",
+    "ref_calls": 2,
+    "fixture_bytes": 149,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10b",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "航空/运价.yaml": "# 附加费均按基础运费计，两项相加后一并加收\nbase_rate_per_kg: 2.45\nfuel_surcharge_pct: 11.5\npeak_surcharge_pct: 6\nmin_charge: 180\n"
+  },
+  "turns": [
+    {
+      "prompt": "运价表配置在 航空/运价.yaml。一票货 840 公斤，按配置的基础单价加上附加费，总运费是多少元？保留两位小数。",
+      "expect": {
+        "output_contains_any": [
+          "2,418.15",
+          "2418.15"
+        ],
+        "required_tools": [
+          "calculator"
+        ],
+        "max_output_chars": 400
+      }
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "id": "fs-8207",
+  "description": "Find the calibration record that mentions a failed pressure gauge. DISTILL-CANARY-4e0cc8c5",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "find_file",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-fs-b10c-plantcal-01",
+    "ref_calls": 1,
+    "fixture_bytes": 145,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10c",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "calibration/2026-03.txt": "Gauge G-11: pass\nGauge G-12: pass\n",
+    "calibration/2026-06.txt": "Gauge G-11: pass\nGauge G-12: FAILED, replaced\n",
+    "calibration/2026-09.txt": "Gauge G-11: pass\nGauge G-12: pass\n",
+    "README.md": "Quarterly calibration records.\n"
+  },
+  "turns": [
+    {
+      "prompt": "In which quarterly calibration record did a gauge fail?",
+      "expect": {
+        "output_contains": [
+          "2026-06"
+        ],
+        "required_tools": [
+          "search_text"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ],
+  "offered_tools": [
+    "list_files",
+    "read_file",
+    "search_text"
+  ]
+}

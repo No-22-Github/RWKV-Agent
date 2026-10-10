@@ -1,0 +1,45 @@
+{
+  "id": "tab-8060",
+  "description": "Overall return rate for one distributor: total returns over total shipped, in percent. DISTILL-CANARY-7026330b",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "policy_calc",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "10.9"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b10b-returnrate-01",
+    "ref_calls": 3,
+    "fixture_bytes": 456,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10b",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "发行/退货统计.csv": "书名,经销商,发货册数,退货册数\n潮汐笔记,北辰书店,2060,207\n潮汐笔记,知行图书,2420,193\n山海旧事,北辰书店,1980,214\n山海旧事,知行图书,2360,129\n云上食堂,北辰书店,2700,252\n云上食堂,知行图书,1400,150\n玻璃花园,北辰书店,2940,346\n玻璃花园,知行图书,1700,308\n夜航船,北辰书店,2000,123\n夜航船,知行图书,2440,206\n纸上星图,北辰书店,1440,251\n纸上星图,知行图书,820,118\n"
+  },
+  "turns": [
+    {
+      "prompt": "发行台账 发行/退货统计.csv 里，知行图书 这家经销商整体的退货率是多少？用退货总册数除以发货总册数，保留一位小数，用百分数。",
+      "expect": {
+        "output_contains_any": [
+          "9.9%"
+        ],
+        "required_tools": [
+          "calculator"
+        ],
+        "max_output_chars": 400
+      }
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "id": "doc-8203",
+  "description": "Look up in a school bus handbook the maximum number of seated students for the small bus. DISTILL-CANARY-b2ce7de3",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-doc-b10c-schoolbus-01",
+    "ref_calls": 1,
+    "fixture_bytes": 256,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10c",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "校车/运行手册.md": "# 校车运行手册\n\n## 车型与载客\n- 大巴：核载 45 人。\n- 小巴：核载 19 人，其中学生座位 16 个，其余为随车教师和司机。\n\n## 发车\n早班 6:50 发车。\n",
+    "校车/路线.md": "一号线经过 12 站，二号线经过 9 站。\n",
+    "README.md": "# 校车资料\n"
+  },
+  "turns": [
+    {
+      "prompt": "小巴最多能坐几个学生？",
+      "expect": {
+        "output_contains_any": [
+          "16 个",
+          "16 名",
+          "16 位",
+          "16个",
+          "16名",
+          "16位"
+        ],
+        "output_excludes": [
+          "最多 19",
+          "最多能坐 19",
+          "19 个学生"
+        ],
+        "required_tools": [
+          "read_file"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ],
+  "offered_tools": [
+    "list_files",
+    "read_file",
+    "search_text"
+  ]
+}

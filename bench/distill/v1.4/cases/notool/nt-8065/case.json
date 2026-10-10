@@ -1,0 +1,37 @@
+{
+  "id": "nt-8065",
+  "description": "Freight by weight for three pallets plus a percentage fuel surcharge on freight. DISTILL-CANARY-910e4458",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-nt-b10b-palletfreight-01",
+    "ref_calls": 1,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10b",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "Three pallets weigh 412.5 kg, 388.75 kg and 455.2 kg. Freight is $0.62 per kg and a fuel surcharge of 8.5% applies to the freight charge. What is the total? Round to two decimals.",
+      "expect": {
+        "output_contains_any": [
+          "845.21"
+        ],
+        "required_tools": [
+          "calculator"
+        ],
+        "max_output_chars": 400
+      }
+    }
+  ]
+}

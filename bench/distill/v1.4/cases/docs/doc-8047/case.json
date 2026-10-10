@@ -1,0 +1,46 @@
+{
+  "id": "doc-8047",
+  "description": "Overtime pay with different multipliers by day type and an hourly wage derived from monthly salary. DISTILL-CANARY-11256a3e",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-RULEFILE"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": "1,904.77"
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b10b-overtimepay-01",
+    "ref_calls": 2,
+    "fixture_bytes": 203,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10b",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "人事/加班规定.md": "# 加班费计算规定\n\n- 小时工资 = 月薪 ÷ 21.75 ÷ 8。\n- 工作日延时加班：1.5 倍小时工资。\n- 休息日加班：2 倍小时工资。\n- 法定节假日加班：3 倍小时工资。\n"
+  },
+  "turns": [
+    {
+      "prompt": "按 人事/加班规定.md，月薪 9860 元的员工这个月工作日加班 12 小时、休息日加班 8 小时，加班费一共多少元？保留两位小数。",
+      "expect": {
+        "output_contains_any": [
+          "1,926.67",
+          "1926.67"
+        ],
+        "required_tools": [
+          "calculator"
+        ],
+        "max_output_chars": 400
+      }
+    }
+  ]
+}

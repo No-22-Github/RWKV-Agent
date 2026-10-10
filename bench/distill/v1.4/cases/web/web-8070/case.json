@@ -1,0 +1,82 @@
+{
+  "id": "web-8070",
+  "description": "Replacement filter model of an air purifier: the manufacturer's parts page fails, a personal blog gives a model number to report as unverified. DISTILL-CANARY-bf99705b",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-FETCHFAIL"
+    ],
+    "trap_decoys": {
+      "TR-FETCHFAIL": "UNKNOWN"
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-web-b10b-purifierfilter-01",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10b",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [
+    {
+      "query_match": "澜海",
+      "url_match": "lanhai-home.com/support/ap880",
+      "url": "https://lanhai-home.com/support/ap880",
+      "title": "澜海 AP-880 配件与耗材",
+      "snippet": "AP-880 空气净化器滤芯与配件型号。",
+      "published_at": "2026-08-25",
+      "error": "HTTP 503 Service Unavailable"
+    },
+    {
+      "query_match": "澜海",
+      "url_match": "jiadian-blog.cn/lanhai-ap880",
+      "url": "https://jiadian-blog.cn/lanhai-ap880",
+      "title": "澜海 AP-880 使用三个月",
+      "snippet": "滤芯型号是 F-2231，自己换的。",
+      "published_at": "2026-07-28",
+      "content": "# 澜海 AP-880 使用三个月\n\n个人博客，2026-07-28。滤芯型号是 F-2231，网上买的，一百出头一片，自己换很简单。官方配件页没细看。\n"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "澜海 AP-880 空气净化器配的滤芯是什么型号？",
+      "expect": {
+        "output_contains": [
+          "F-2231"
+        ],
+        "output_contains_any": [
+          "未核实",
+          "没有核实",
+          "无法核实",
+          "没能核实",
+          "未能核实",
+          "没法核实",
+          "未经官方",
+          "没有经过官方",
+          "未得到官方",
+          "尚未经官方",
+          "无法确认",
+          "没能确认",
+          "未能确认",
+          "没法确认",
+          "未经证实",
+          "无法证实",
+          "不能确认",
+          "未在官方"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

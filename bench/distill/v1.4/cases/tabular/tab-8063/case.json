@@ -1,0 +1,39 @@
+{
+  "id": "tab-8063",
+  "description": "Total irrigation water for one zone: minutes times flow, converted to cubic metres. DISTILL-CANARY-c31a1f9f",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "policy_calc",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-tab-b10b-zonewater-01",
+    "ref_calls": 3,
+    "fixture_bytes": 699,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10b",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "irrigation/log.csv": "zone,date,minutes,l_per_min\nZA,2026-09-01,35,12.1\nZA,2026-09-02,72,12.4\nZA,2026-09-03,166,14.2\nZA,2026-09-04,123,13.3\nZA,2026-09-05,96,9.5\nZA,2026-09-06,113,8.8\nZA,2026-09-07,122,9.5\nZA,2026-09-08,90,14.0\nZA,2026-09-09,127,12.8\nZA,2026-09-10,148,12.6\nZB,2026-09-01,106,9.1\nZB,2026-09-02,132,10.9\nZB,2026-09-03,41,11.7\nZB,2026-09-04,113,11.0\nZB,2026-09-05,54,11.7\nZB,2026-09-06,111,13.1\nZB,2026-09-07,63,8.9\nZB,2026-09-08,96,14.0\nZB,2026-09-09,183,9.1\nZB,2026-09-10,132,10.8\nZC,2026-09-01,44,10.9\nZC,2026-09-02,43,13.3\nZC,2026-09-03,140,12.2\nZC,2026-09-04,118,13.2\nZC,2026-09-05,131,10.7\nZC,2026-09-06,144,10.1\nZC,2026-09-07,121,9.3\nZC,2026-09-08,88,10.2\nZC,2026-09-09,39,12.3\nZC,2026-09-10,142,11.4\n"
+  },
+  "turns": [
+    {
+      "prompt": "From irrigation/log.csv, how many cubic metres of water did zone ZB use in total? Each row gives minutes run and flow in litres per minute; 1 m3 = 1000 L. Round to two decimals.",
+      "expect": {
+        "output_contains_any": [
+          "11.21"
+        ],
+        "required_tools": [
+          "calculator"
+        ],
+        "max_output_chars": 400
+      }
+    }
+  ]
+}

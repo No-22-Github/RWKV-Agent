@@ -1,0 +1,46 @@
+{
+  "id": "nt-8219",
+  "description": "Scale a recipe from 4 servings to 10 servings. DISTILL-CANARY-0edfb325",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b10c-recipescale-01",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10c",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "食谱写的是 4 人份用 300 克面粉，我要做 10 人份，面粉要多少克？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "750 克",
+          "750克",
+          "750 g",
+          "750g"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ],
+  "offered_tools": [
+    "list_files",
+    "read_file",
+    "search_text"
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "id": "web-8071",
+  "description": "Default SDK request timeout: the docs page times out, an older Q&A answer gives a number to report as unconfirmed. DISTILL-CANARY-7b8eef4a",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-FETCHFAIL"
+    ],
+    "trap_decoys": {
+      "TR-FETCHFAIL": "UNKNOWN"
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-web-b10b-sdktimeout-01",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10b",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Quillbird",
+      "url_match": "quillbird.dev/docs/config",
+      "url": "https://quillbird.dev/docs/config",
+      "title": "Configuration | Quillbird SDK",
+      "snippet": "Client options and defaults.",
+      "published_at": "2026-09-05",
+      "error": "Request timed out after 30s"
+    },
+    {
+      "query_match": "Quillbird",
+      "url_match": "stackhelp.example.org/q/quillbird-timeout",
+      "url": "https://stackhelp.example.org/q/quillbird-timeout",
+      "title": "Quillbird default timeout? (answered)",
+      "snippet": "Accepted answer: 120 seconds.",
+      "published_at": "2026-04-11",
+      "content": "# Quillbird default timeout?\n\nQ&A site, April 2026. Accepted answer: the client's default request timeout is 120 seconds; override with the timeout option. The answerer was on an older minor release.\n"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "What's the default request timeout in the Quillbird SDK?",
+      "expect": {
+        "output_contains": [
+          "120"
+        ],
+        "output_contains_any": [
+          "unverified",
+          "not verified",
+          "couldn't verify",
+          "could not verify",
+          "unable to verify",
+          "not been verified",
+          "can't verify",
+          "cannot verify",
+          "couldn't confirm",
+          "could not confirm",
+          "can't confirm",
+          "cannot confirm",
+          "unable to confirm",
+          "not confirmed",
+          "unconfirmed",
+          "not been confirmed",
+          "couldn’t verify",
+          "can’t verify",
+          "couldn’t confirm",
+          "can’t confirm"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

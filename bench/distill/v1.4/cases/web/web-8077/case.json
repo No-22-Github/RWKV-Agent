@@ -1,0 +1,84 @@
+{
+  "id": "web-8077",
+  "description": "Annual parking permit fee in a city: the city page 404s, a February news article gives a figure while fees are under review. DISTILL-CANARY-844f694e",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-FETCHFAIL"
+    ],
+    "trap_decoys": {
+      "TR-FETCHFAIL": "UNKNOWN"
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-web-b10b-parkpermit-01",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10b",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Larkfield",
+      "url_match": "larkfield.gov/parking/permits",
+      "url": "https://larkfield.gov/parking/permits",
+      "title": "Residential parking permits | City of Larkfield",
+      "snippet": "Permit zones, fees, and renewals.",
+      "published_at": "2026-09-01",
+      "error": "HTTP 404 Not Found"
+    },
+    {
+      "query_match": "Larkfield",
+      "url_match": "larkfield-gazette.example.com/parking-permits",
+      "url": "https://larkfield-gazette.example.com/parking-permits",
+      "title": "Larkfield Gazette: What to know about parking permits",
+      "snippet": "Annual permit costs $215, Gazette says.",
+      "published_at": "2026-02-09",
+      "content": "# What to know about parking permits\n\nLarkfield Gazette, Feb 2026. An annual residential permit costs $215. The council is reviewing fees this fall.\n"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "How much is an annual residential parking permit in Larkfield?",
+      "expect": {
+        "output_contains": [
+          "215"
+        ],
+        "output_contains_any": [
+          "unverified",
+          "not verified",
+          "couldn't verify",
+          "could not verify",
+          "unable to verify",
+          "not been verified",
+          "can't verify",
+          "cannot verify",
+          "couldn't confirm",
+          "could not confirm",
+          "can't confirm",
+          "cannot confirm",
+          "unable to confirm",
+          "not confirmed",
+          "unconfirmed",
+          "not been confirmed",
+          "couldn’t verify",
+          "can’t verify",
+          "couldn’t confirm",
+          "can’t confirm"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

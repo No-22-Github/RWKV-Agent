@@ -1,0 +1,47 @@
+{
+  "id": "doc-8210",
+  "description": "Look up in a coworking space handbook the guest pass limit per month. DISTILL-CANARY-ed3a1c80",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-doc-b10c-coworkdesk-01",
+    "ref_calls": 1,
+    "fixture_bytes": 212,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10c",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "handbook/guests.md": "# Guests\n\nMembers may bring up to 3 guests per month on a free guest pass. Extra guests cost $12 per day. Guests must be signed in at the front desk.\n",
+    "handbook/hours.md": "The space is open 7:00 to 22:00 on weekdays.\n",
+    "README.md": "Member handbook.\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many guests can I bring to the coworking space each month for free?",
+      "expect": {
+        "output_contains": [
+          "3"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "read_file"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ],
+  "offered_tools": [
+    "list_files",
+    "read_file",
+    "search_text"
+  ]
+}

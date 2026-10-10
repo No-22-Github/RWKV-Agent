@@ -1,0 +1,39 @@
+{
+  "id": "cfg-8057",
+  "description": "Total DC capacity of a solar plant from per-string panel counts and wattages in a config. DISTILL-CANARY-d5c8fbfe",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-cfg-b10b-solararray-01",
+    "ref_calls": 2,
+    "fixture_bytes": 160,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10b",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "solar/array.yaml": "plant: ridge-2\nstrings:\n  - {id: S1, panels: 18, watts: 545}\n  - {id: S2, panels: 20, watts: 550}\n  - {id: S3, panels: 22, watts: 540}\ninverter_ac_limit_kw: 25\n"
+  },
+  "turns": [
+    {
+      "prompt": "What is the plant's total DC capacity in kW according to solar/array.yaml? Each string lists its panel count and the watt rating of each panel. Round to two decimals.",
+      "expect": {
+        "output_contains_any": [
+          "32.69"
+        ],
+        "required_tools": [
+          "calculator"
+        ],
+        "max_output_chars": 400
+      }
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "id": "web-8058",
+  "description": "The official releases table lists the LTS channel directly and is newer than the article.（官方页与二手页冲突，以官方为准）. DISTILL-CANARY-75949bcb",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "5.4 is the LTS"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-web-b10b-ltsline-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10b",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Quillmark",
+      "url_match": "www.devdigest.example.com/quillmark-5-lts",
+      "url": "https://www.devdigest.example.com/quillmark-5-lts",
+      "title": "Quillmark 5 LTS: why upgrade?",
+      "snippet": "Quillmark 5.4 is the LTS line.",
+      "content": "# Quillmark 5 LTS\n\nQuillmark 5.4 is the LTS line, so stick with it for production.\n",
+      "published_at": "2025-11-03"
+    },
+    {
+      "query_match": "Quillmark",
+      "url_match": "quillmark.example/releases",
+      "url": "https://quillmark.example/releases",
+      "title": "Quillmark releases",
+      "snippet": "Release channels and support windows.",
+      "content": "# Quillmark releases\n\nUpdated 2026-09-15.\n\n| Version | Channel | Release date |\n|---|---|---|\n| 6.1 | Current | 2026-09-08 |\n| 6.0 | LTS | 2026-04-14 |\n| 5.4 | Maintenance | 2025-10-02 |\n",
+      "published_at": "2026-09-15"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "Which Quillmark release is the current LTS?",
+      "expect": {
+        "output_contains_any": [
+          "Quillmark 6.0",
+          "6.0 is the LTS",
+          "6.0 LTS",
+          "version 6.0",
+          "6.0 (LTS)",
+          "6.0"
+        ],
+        "output_excludes": [
+          "5.4 is the LTS",
+          "Quillmark 5.4 is the",
+          "5.4 LTS"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ],
+        "max_output_chars": 500
+      }
+    }
+  ]
+}

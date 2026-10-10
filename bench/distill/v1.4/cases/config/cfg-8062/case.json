@@ -1,0 +1,43 @@
+{
+  "id": "cfg-8062",
+  "description": "Sterilisation service bill from batch sizes and a per-piece rate and base fee in a config, bare number. DISTILL-CANARY-5de5f865",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-RULEFILE"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": "888.25"
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b10b-sterilefee-01",
+    "ref_calls": 2,
+    "fixture_bytes": 73,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10b",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "灭菌/外包费率.yaml": "per_piece_yuan: 0.85\nbase_fee_per_batch_yuan: 120\nrush_surcharge_pct: 20\n"
+  },
+  "turns": [
+    {
+      "prompt": "供应室这个月送去外包灭菌的三批器械分别是 320 件、450 件、275 件。收费标准在 灭菌/外包费率.yaml，按配置里的单价和每批起步费算，应付多少元？只回数字。",
+      "expect": {
+        "expected_number": 1248.25,
+        "tolerance": 0.005,
+        "required_tools": [
+          "calculator"
+        ]
+      }
+    }
+  ]
+}

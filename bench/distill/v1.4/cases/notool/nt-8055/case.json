@@ -1,0 +1,37 @@
+{
+  "id": "nt-8055",
+  "description": "Capacity factor of a solar plant from nameplate MW and annual GWh. DISTILL-CANARY-2f35557e",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-nt-b10b-pvcapfactor-01",
+    "ref_calls": 1,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10b",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "一座光伏电站装机 6.8 MW，去年发电 8.76 GWh，容量系数是多少？一年按 8760 小时，结果用百分数，保留一位小数。",
+      "expect": {
+        "output_contains_any": [
+          "14.7%"
+        ],
+        "required_tools": [
+          "calculator"
+        ],
+        "max_output_chars": 400
+      }
+    }
+  ]
+}

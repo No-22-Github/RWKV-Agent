@@ -1,0 +1,49 @@
+{
+  "id": "cfg-8203",
+  "description": "Read parking lot pricing where the weekend file overrides the hourly rate. DISTILL-CANARY-8127143b",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-cfg-b10c-parkrate-01",
+    "ref_calls": 1,
+    "fixture_bytes": 184,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10c",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "停车场/费率.toml": "[weekday]\n每小时 = 6\n封顶 = 40\n\n[weekend]\n每小时 = 9\n封顶 = 60\n",
+    "停车场/节假日.toml": "[holiday]\n每小时 = 12\n封顶 = 80\n",
+    "README.md": "# 万丰广场停车场\n\n费率分工作日、周末、节假日三套。\n"
+  },
+  "turns": [
+    {
+      "prompt": "万丰广场停车场周末停车每小时多少钱？",
+      "expect": {
+        "output_contains_any": [
+          "9 元",
+          "9 块",
+          "9元",
+          "9块"
+        ],
+        "required_tools": [
+          "read_file"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ],
+  "offered_tools": [
+    "list_files",
+    "read_file",
+    "search_text"
+  ]
+}

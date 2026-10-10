@@ -1378,3 +1378,28 @@
 {"batch": "b10a", "case_id": "fs-8021--p2", "reason": "渲染后 9647 token，超过 8128 打包上限（逐个读取几十个许可文件）"}
 {"batch": "b10a", "case_id": "nt-8042--p1", "reason": "第 2 轮只给裸值「4400」，题面没要求只回数值（§4.2）"}
 {"batch": "b10a", "case_id": "nt-8044--p1", "reason": "第 2 轮只给裸值「560」，题面没要求只回数值（§4.2）"}
+{"batch": "b10b", "case_id": "hyb-8025--p1", "reason": "把官网标注 10 月 1 日起执行的新价当成现行价（今天 9 月 16 日），同题 p2 正确指出尚未生效"}
+{"batch": "b10b", "case_id": "web-8074--p1", "reason": "中文题第一次搜索用日文（嵐山マラソン…）"}
+{"batch": "b10b", "case_id": "web-8041--p2", "reason": "终答把官网域名拼错成 haiuyan-air.cn"}
+{"batch": "b10b", "case_id": "web-8042--p2", "reason": "问「今年」却用 2025 搜索（今天是 2026-09-16）"}
+{"batch": "b10c", "case_id": "cfg-8203--p1", "reason": "终答把 README 写成「READM E」（词中断开的乱码）"}
+{"batch": "b10c", "case_id": "fs-8206--p2", "reason": "英文题用中文作答"}
+{"batch": "b10c", "case_id": "fs-8209--p1", "reason": "终答开头泄漏自言自语「Pruning? That's Lena too probably.」"}
+{"batch": "b10c", "case_id": "nt-8212--p1", "reason": "终答末句不通（「按常见口径不足 8 小时或 6 小时整，也不算跨日」）"}
+{"batch": "b10c", "case_id": "nt-8217--p1", "reason": "第 1 轮只给裸值「2500 克」，题面没要求只回数值（§4.2）"}
+{"batch": "b10c", "case_id": "log-8200--p1", "reason": "渲染后 13816 token，超过 8128 打包上限（整读日志 jsonl）"}
+{"batch": "b10c", "case_id": "log-8203--p2", "reason": "渲染后 8198 token，超过 8128 打包上限（整读日志 jsonl）"}
+{"batch": "b10c", "case_id": "log-8204--p1", "reason": "渲染后 14383 token，超过 8128 打包上限（整读日志 jsonl）"}
+{"batch": "b10c", "case_id": "log-8204--p2", "reason": "题面没要求 DONE，终答却说「因此也不写 DONE」"}
+{"batch": "b10c", "case_id": "log-8208--p1", "reason": "渲染后 9416 token，超过 8128 打包上限（整读日志 jsonl）"}
+{"batch": "b10c", "case_id": "log-8208--p2", "reason": "渲染后 9476 token，超过 8128 打包上限（整读日志 jsonl）"}
+{"batch": "b10c", "case_id": "log-8210--p1", "reason": "渲染后 14613 token，超过 8128 打包上限（整读日志 jsonl）"}
+{"batch": "b10c", "case_id": "log-8210--p2", "reason": "渲染后 14786 token，超过 8128 打包上限（整读日志 jsonl）"}
+{"batch": "b10c", "case_id": "log-8215--p2", "reason": "渲染后 10727 token，超过 8128 打包上限（整读日志 jsonl）"}
+{"batch": "b10c", "case_id": "log-8216--p1", "reason": "渲染后 13437 token，超过 8128 打包上限（整读日志 jsonl）"}
+{"batch": "b10c", "case_id": "log-8216--p2", "reason": "渲染后 14659 token，超过 8128 打包上限（整读日志 jsonl）"}
+{"batch": "b10c", "case_id": "log-8219--p2", "reason": "题面没要求 DONE，终答却说「can't confirm DONE」"}
+{"batch": "b10c", "case_id": "tab-8202--p1", "reason": "题面没要求 DONE，终答却说「不做 DONE」"}
+{"batch": "b10c", "case_id": "tab-8204--p1", "reason": "题面没要求 DONE，终答却说「也没有 DONE」"}
+{"batch": "b10c", "case_id": "tab-8206--p2", "reason": "题面没要求 DONE，终答却说「也不能说 DONE」"}
+{"batch": "b10c", "case_id": "tab-8215--p2", "reason": "题面没要求 DONE，终答却说「there is no DONE」"}

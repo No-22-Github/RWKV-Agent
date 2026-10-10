@@ -1,0 +1,82 @@
+{
+  "id": "web-8074",
+  "description": "Full-marathon entry fee: the race site times out, a runners' post passes on a figure heard in a chat group. DISTILL-CANARY-7351a0f6",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-FETCHFAIL"
+    ],
+    "trap_decoys": {
+      "TR-FETCHFAIL": "UNKNOWN"
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-web-b10b-marathonfee-01",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10b",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [
+    {
+      "query_match": "岚山马拉松",
+      "url_match": "lanshan-marathon.org/signup",
+      "url": "https://lanshan-marathon.org/signup",
+      "title": "岚山马拉松 报名须知",
+      "snippet": "报名时间、名额与费用。",
+      "published_at": "2026-09-11",
+      "error": "连接超时（30s）"
+    },
+    {
+      "query_match": "岚山马拉松",
+      "url_match": "runnerclub.cn/lanshan-2026",
+      "url": "https://runnerclub.cn/lanshan-2026",
+      "title": "岚山马拉松报名经验贴",
+      "snippet": "跑友：全程报名费 260 元。",
+      "published_at": "2026-09-13",
+      "content": "# 岚山马拉松报名经验贴\n\n跑友分享，2026-09-13。今年全程报名费 260 元，半马便宜些。我是从群里听来的，官网一直进不去。\n"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "岚山马拉松全程的报名费是多少？",
+      "expect": {
+        "output_contains": [
+          "260"
+        ],
+        "output_contains_any": [
+          "未核实",
+          "没有核实",
+          "无法核实",
+          "没能核实",
+          "未能核实",
+          "没法核实",
+          "未经官方",
+          "没有经过官方",
+          "未得到官方",
+          "尚未经官方",
+          "无法确认",
+          "没能确认",
+          "未能确认",
+          "没法确认",
+          "未经证实",
+          "无法证实",
+          "不能确认",
+          "未在官方"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

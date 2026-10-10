@@ -1,0 +1,47 @@
+{
+  "id": "tab-8065",
+  "description": "Royalty on hardcover sales where the README defines royalty as a share of a share of list price. DISTILL-CANARY-909cce7f",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "policy_calc",
+    "traps": [
+      "TR-RULEFILE"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": "146,965"
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-tab-b10b-royaltyrate-01",
+    "ref_calls": 4,
+    "fixture_bytes": 298,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10b",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "sales/q3.csv": "title,format,copies,list_price\nT-101,hardcover,2100,29.00\nT-101,paperback,1700,45.50\nT-102,hardcover,2210,24.50\nT-102,paperback,1420,29.00\nT-103,hardcover,840,38.00\nT-103,paperback,480,45.50\n",
+    "sales/README.md": "# Q3 royalty basis\n\nNet receipts = 55% of list price. Royalty = 12% of net receipts, paid on every format.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Using sales/q3.csv and the README in that folder, how much royalty do we owe on hardcover copies this quarter? Give dollars, two decimals.",
+      "expect": {
+        "output_contains_any": [
+          "9,699.69",
+          "9699.69"
+        ],
+        "required_tools": [
+          "calculator"
+        ],
+        "max_output_chars": 400
+      }
+    }
+  ]
+}

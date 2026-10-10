@@ -1,0 +1,76 @@
+{
+  "id": "web-8056",
+  "description": "The support page states the warranty by purchase date; the early review predates it.（官方页与二手页冲突，以官方为准）. DISTILL-CANARY-3107d628",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "1-year warranty"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-web-b10b-espressowarranty-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10b",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Brindle",
+      "url_match": "www.brindle.example/support/q1-warranty",
+      "url": "https://www.brindle.example/support/q1-warranty",
+      "title": "Brindle Q1 warranty",
+      "snippet": "Warranty terms for the Q1.",
+      "content": "# Brindle Q1 warranty\n\nPurchases made on or after 1 June 2026 carry a 3-year manufacturer warranty on the machine and boiler; accessories 1 year.\n",
+      "published_at": "2026-06-01"
+    },
+    {
+      "query_match": "Brindle",
+      "url_match": "www.coffeegeekz.example.com/brindle-q1",
+      "url": "https://www.coffeegeekz.example.com/brindle-q1",
+      "title": "Brindle Q1 first look",
+      "snippet": "Comes with a 1-year warranty.",
+      "content": "# Brindle Q1 first look\n\nThe Q1 ships with a 1-year warranty, which is on the short side.\n",
+      "published_at": "2026-02-14"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "How long is the manufacturer warranty on the Brindle Q1 espresso machine?",
+      "expect": {
+        "output_contains_any": [
+          "3-year",
+          "3 year",
+          "three-year",
+          "three year",
+          "3 years",
+          "three years",
+          "Three-year",
+          "Three year",
+          "Three years"
+        ],
+        "output_excludes": [
+          "1-year warranty",
+          "1 year warranty",
+          "one-year warranty",
+          "one year warranty"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

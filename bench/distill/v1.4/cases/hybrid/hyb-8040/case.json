@@ -1,0 +1,72 @@
+{
+  "id": "hyb-8040",
+  "description": "Stable upgrade target for an agent version found in a host inventory, while a 5.7 beta tops the changelog. DISTILL-CANARY-1b17d49a",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "local_first",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": "5.7.0-beta.2"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b10b-agentupgrade-01",
+    "ref_calls": 4,
+    "fixture_bytes": 173,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10b",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Pebblestream",
+      "url_match": "pebblestream.io/changelog",
+      "url": "https://pebblestream.io/changelog",
+      "title": "Pebblestream Agent releases",
+      "snippet": "Pebblestream Agent versions by channel.",
+      "published_at": "2026-09-10",
+      "content": "# Pebblestream Agent changelog\n\n## 5.7.0-beta.2 (beta) 2026-09-10\nEarly access. APIs may change; not recommended for production.\n\n## 5.6.2 (latest) 2026-08-19\nCurrent stable release, recommended for production.\n\n## 5.6.1 2026-06-18\nBug fixes.\n"
+    },
+    {
+      "query_match": "Pebblestream",
+      "url_match": "sre-corner.example.net/pebblestream-57",
+      "url": "https://sre-corner.example.net/pebblestream-57",
+      "title": "Pebblestream 5.7 beta is great",
+      "snippet": "We run 5.7.0-beta.2 on all hosts, no issues so far.",
+      "published_at": "2026-09-10",
+      "content": "# Pebblestream 5.7 beta is great\n\nWe run 5.7.0-beta.2 on all hosts, no issues so far.\n"
+    }
+  ],
+  "files": {
+    "inventory/hosts.csv": "host,package,version\nweb-01,pebblestream-agent,5.4.3\nweb-02,pebblestream-agent,5.4.3\ndb-01,nodeprobe,2.1.0\n",
+    "README.md": "# Host inventory\n\nPackage versions as reported by the last audit.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Our inventory lists the Pebblestream agent on the customer hosts. What stable version should we upgrade them to?",
+      "expect": {
+        "output_contains": [
+          "5.6.2",
+          "5.4.3"
+        ],
+        "output_excludes": [
+          "5.7.0-beta.2 is the latest stable",
+          "5.7.0-beta.2 is stable",
+          "5.7.0-beta.2 is the current stable",
+          "5.7.0-beta.2 is the stable release"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "id": "hyb-8038",
+  "description": "Default access-token lifetime of a component in a deploy list: docs 502, a Q&A answer from an older minor gives a number. DISTILL-CANARY-686ffa06",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "local_first",
+    "traps": [
+      "TR-FETCHFAIL"
+    ],
+    "trap_decoys": {
+      "TR-FETCHFAIL": "UNKNOWN"
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b10b-tokenttl-01",
+    "ref_calls": 4,
+    "fixture_bytes": 143,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10b",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [
+    {
+      "query_match": "松岭认证",
+      "url_match": "docs.songling-auth.cn/5.x/tokens",
+      "url": "https://docs.songling-auth.cn/5.x/tokens",
+      "title": "令牌配置 - 松岭认证 5.x 文档",
+      "snippet": "访问令牌与刷新令牌的默认有效期。",
+      "published_at": "2026-09-01",
+      "error": "HTTP 502 Bad Gateway"
+    },
+    {
+      "query_match": "松岭认证",
+      "url_match": "segmentfault-like.cn/q/songling-token",
+      "url": "https://segmentfault-like.cn/q/songling-token",
+      "title": "松岭认证 访问令牌有效期是多少",
+      "snippet": "回答：默认 900 秒。",
+      "published_at": "2026-03-02",
+      "content": "# 松岭认证 访问令牌有效期是多少\n\n问答站，2026-03-02。回答：默认 900 秒，刷新令牌 7 天。我用的是 5.0，不确定 5.2 有没有改。\n"
+    }
+  ],
+  "files": {
+    "部署/清单.csv": "组件,版本,环境\n松岭认证,5.2.0,生产\n渡口缓存,4.2.0,生产\n松岭认证,5.2.0,预发\n",
+    "README.md": "# 部署清单\n\n一行一个组件实例。\n"
+  },
+  "turns": [
+    {
+      "prompt": "部署清单里的松岭认证，访问令牌默认有效期是多长？清单里只有版本，去官方文档那边查一下。",
+      "expect": {
+        "output_contains": [
+          "900"
+        ],
+        "output_contains_any": [
+          "未核实",
+          "没有核实",
+          "无法核实",
+          "没能核实",
+          "未能核实",
+          "没法核实",
+          "未经官方",
+          "没有经过官方",
+          "未得到官方",
+          "尚未经官方",
+          "无法确认",
+          "没能确认",
+          "未能确认",
+          "没法确认",
+          "未经证实",
+          "无法证实",
+          "不能确认",
+          "未在官方"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

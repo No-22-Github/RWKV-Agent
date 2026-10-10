@@ -1,0 +1,52 @@
+{
+  "id": "cfg-8210",
+  "description": "Read a campground settings file with a seasonal override of the quiet hours start. DISTILL-CANARY-5dd54c57",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-cfg-b10c-campsite-01",
+    "ref_calls": 1,
+    "fixture_bytes": 165,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10c",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "site/base.toml": "quiet_start = \"22:00\"\nquiet_end = \"07:00\"\nfire_ban = false\n",
+    "site/summer.toml": "quiet_start = \"23:00\"\n",
+    "site/winter.toml": "quiet_start = \"21:00\"\n",
+    "README.md": "Season files override base.toml. We are in the summer season.\n"
+  },
+  "turns": [
+    {
+      "prompt": "When do quiet hours start at the campground at the moment?",
+      "expect": {
+        "output_contains_any": [
+          "23:00",
+          "11 pm",
+          "11 PM",
+          "11pm",
+          "11:00 pm",
+          "11:00 PM"
+        ],
+        "required_tools": [
+          "read_file"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ],
+  "offered_tools": [
+    "list_files",
+    "read_file",
+    "search_text"
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "id": "web-8066",
+  "description": "Planned master's intake of a university: the admissions office page returns 502, a prep-community summary gives a figure that has to be flagged unverified. DISTILL-CANARY-c1a48fb3",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-FETCHFAIL"
+    ],
+    "trap_decoys": {
+      "TR-FETCHFAIL": "UNKNOWN"
+    },
+    "axes": [
+      "ERR"
+    ],
+    "level": "L1",
+    "family": "fam-web-b10b-enrolquota-01",
+    "ref_calls": 3,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10b",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [
+    {
+      "query_match": "湖滨大学",
+      "url_match": "yz.hubin-univ.edu.cn/plan",
+      "url": "https://yz.hubin-univ.edu.cn/plan",
+      "title": "湖滨大学研究生招生计划",
+      "snippet": "2027 年硕士研究生招生计划与专业目录。",
+      "published_at": "2026-09-10",
+      "error": "HTTP 502 Bad Gateway"
+    },
+    {
+      "query_match": "湖滨大学",
+      "url_match": "kaoyan-circle.cn/hubin-plan",
+      "url": "https://kaoyan-circle.cn/hubin-plan",
+      "title": "湖滨大学 2027 硕士招生人数汇总",
+      "snippet": "考研圈整理：湖滨大学计划招收 320 人。",
+      "published_at": "2026-09-12",
+      "content": "# 湖滨大学 2027 硕士招生人数汇总\n\n考研圈整理，2026-09-12。据往年数据和院系透露，湖滨大学 2027 年硕士计划招收 320 人，最终以研招网公布为准。\n"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "湖滨大学今年硕士招生计划招多少人？",
+      "expect": {
+        "output_contains": [
+          "320"
+        ],
+        "output_contains_any": [
+          "未核实",
+          "没有核实",
+          "无法核实",
+          "没能核实",
+          "未能核实",
+          "没法核实",
+          "未经官方",
+          "没有经过官方",
+          "未得到官方",
+          "尚未经官方",
+          "无法确认",
+          "没能确认",
+          "未能确认",
+          "没法确认",
+          "未经证实",
+          "无法证实",
+          "不能确认",
+          "未在官方"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

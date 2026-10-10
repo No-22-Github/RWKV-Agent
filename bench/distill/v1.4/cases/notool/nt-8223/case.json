@@ -1,0 +1,50 @@
+{
+  "id": "nt-8223",
+  "description": "Number of truck trips needed to carry 250 bricks at 48 per trip. DISTILL-CANARY-1da20b32",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "unit_convert",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "DEC"
+    ],
+    "level": "L0",
+    "family": "fam-nt-b10c-brickstrips-01",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10c",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "工地要运 250 块砖，一辆车一趟最多拉 48 块，至少要跑几趟？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "6 趟",
+          "6趟",
+          "六趟",
+          "6 次",
+          "6次",
+          "跑 6",
+          "6 车",
+          "6车"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ],
+  "offered_tools": [
+    "list_files",
+    "read_file",
+    "search_text"
+  ]
+}

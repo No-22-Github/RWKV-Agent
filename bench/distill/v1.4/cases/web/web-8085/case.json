@@ -1,0 +1,68 @@
+{
+  "id": "web-8085",
+  "description": "Latest officially supported toolkit version when a 9.2 beta is listed above it. DISTILL-CANARY-cc494c16",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "latest_version",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": "9.2.0-beta.3"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-web-b10b-pdfkit-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10b",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Vellum PDF",
+      "url_match": "vellum-pdf.io/channels",
+      "url": "https://vellum-pdf.io/channels",
+      "title": "Vellum PDF releases",
+      "snippet": "Vellum PDF versions by channel.",
+      "published_at": "2026-09-10",
+      "content": "# Vellum PDF release channels\n\n- 9.2.0-beta.3 - beta, 2026-09-10, not final\n- 9.1.1 - stable, 2026-07-30, safe for customers\n- 9.1.0 - stable, 2026-06-18, previous stable\n"
+    },
+    {
+      "query_match": "Vellum PDF",
+      "url_match": "devblog.example.net/vellum-9-2",
+      "url": "https://devblog.example.net/vellum-9-2",
+      "title": "Vellum PDF 9.2 is here",
+      "snippet": "9.2.0-beta.3 renders tables twice as fast; upgrade now.",
+      "published_at": "2026-09-10",
+      "content": "# Vellum PDF 9.2 is here\n\n9.2.0-beta.3 renders tables twice as fast; upgrade now.\n"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "Our customers need the highest Vellum PDF toolkit version that is officially supported. Which one is that?",
+      "expect": {
+        "output_contains": [
+          "9.1.1"
+        ],
+        "output_excludes": [
+          "9.2.0-beta.3 is the latest stable",
+          "9.2.0-beta.3 is stable",
+          "9.2.0-beta.3 is the current stable",
+          "9.2.0-beta.3 is the stable release"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "id": "web-8051",
+  "description": "The manufacturer's spec page is the primary source and postdates the review's pre-release number.（官方页与二手页冲突，以官方为准）. DISTILL-CANARY-6c236633",
+  "category": "web",
+  "tags": {
+    "scenario": "web",
+    "task_type": "lookup_value",
+    "traps": [
+      "TR-WEBSTALE"
+    ],
+    "trap_decoys": {
+      "TR-WEBSTALE": "40 km"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-web-b10b-scootrange-01",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10b",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Orbit Ridge",
+      "url_match": "www.ridertests.example.com/orbit-ridge-s2",
+      "url": "https://www.ridertests.example.com/orbit-ridge-s2",
+      "title": "Orbit Ridge S2 review",
+      "snippet": "Range: 40 km claimed.",
+      "content": "# Orbit Ridge S2 review\n\nThe pre-release spec sheet claimed 40 km of range; in our test we got 36 km.\n",
+      "published_at": "2026-03-03"
+    },
+    {
+      "query_match": "Orbit Ridge",
+      "url_match": "www.orbitridge.example/s2/specs",
+      "url": "https://www.orbitridge.example/s2/specs",
+      "title": "Orbit Ridge S2 specifications",
+      "snippet": "Official specs for the S2 scooter.",
+      "content": "# Orbit Ridge S2 specifications\n\nMotor: 500 W. Battery: 540 Wh. Claimed range: 55 km (rider 75 kg, 20 km/h, flat road). Weight: 19.6 kg.\n",
+      "published_at": "2026-05-12"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "What is the claimed range of the Orbit Ridge S2 electric scooter on one charge?",
+      "expect": {
+        "output_contains_any": [
+          "55 km",
+          "55km",
+          "55 kilometres",
+          "55 kilometers"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

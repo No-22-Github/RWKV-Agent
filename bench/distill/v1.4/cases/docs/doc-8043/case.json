@@ -1,0 +1,43 @@
+{
+  "id": "doc-8043",
+  "description": "Equipment lease with a daily rate pro-rated by hour for the partial day, bare number. DISTILL-CANARY-327aa56c",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-RULEFILE"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": "3,605"
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b10b-scannerlease-01",
+    "ref_calls": 2,
+    "fixture_bytes": 187,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10b",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "租赁/超声设备合同.md": "# 超声设备租赁合同（摘要）\n\n- 日租金 515 元。\n- 不足一天的部分按小时折算：日租金 ÷ 24 × 实际小时数。\n- 押金 5000 元，归还验收后退还。\n"
+  },
+  "turns": [
+    {
+      "prompt": "租赁合同摘要在 租赁/超声设备合同.md。这台设备我们从周一用到下周日，共 6 天 19 小时，按合同的计费方式应付租金多少元？保留两位小数，只回数字。",
+      "expect": {
+        "expected_number": 3497.71,
+        "tolerance": 0.005,
+        "required_tools": [
+          "calculator"
+        ]
+      }
+    }
+  ]
+}

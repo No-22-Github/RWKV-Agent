@@ -1,0 +1,45 @@
+{
+  "id": "cfg-8211",
+  "description": "Read a lab equipment json for the alarm threshold of the minus-80 freezer. DISTILL-CANARY-344ad5e7",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-cfg-b10c-labfreezer-01",
+    "ref_calls": 1,
+    "fixture_bytes": 205,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10c",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "equipment/freezers.json": "{\n  \"F-01\": {\n    \"set_c\": -20,\n    \"alarm_c\": -15\n  },\n  \"F-80A\": {\n    \"set_c\": -80,\n    \"alarm_c\": -70\n  },\n  \"F-80B\": {\n    \"set_c\": -80,\n    \"alarm_c\": -65\n  }\n}\n",
+    "README.md": "Freezer F-80A is the one in room 204.\n"
+  },
+  "turns": [
+    {
+      "prompt": "What is the alarm threshold of the freezer in room 204?",
+      "expect": {
+        "output_contains": [
+          "-70"
+        ],
+        "required_tools": [
+          "read_file"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ],
+  "offered_tools": [
+    "list_files",
+    "read_file",
+    "search_text"
+  ]
+}

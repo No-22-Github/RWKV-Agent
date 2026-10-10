@@ -1,0 +1,46 @@
+{
+  "id": "doc-8049",
+  "description": "Demurrage under a charter: hours over laytime, paid pro rata at a daily rate stated in the charter summary. DISTILL-CANARY-fe50a279",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-RULEFILE"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": "120,937.5"
+    },
+    "axes": [
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b10b-demurrage-01",
+    "ref_calls": 2,
+    "fixture_bytes": 196,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10b",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "charter/terms.md": "# Charter summary\n\nLaytime of 72 hours from notice of readiness. Demurrage is $22,500 per day, pro rata for part of a day, for time used beyond laytime.\nDespatch is not applicable on this voyage.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Charter summary is in charter/terms.md. The vessel spent 5 days 9 hours in port after notice of readiness. What demurrage do we owe? Give dollars, one decimal.",
+      "expect": {
+        "output_contains_any": [
+          "53,437.5",
+          "53437.5"
+        ],
+        "required_tools": [
+          "calculator"
+        ],
+        "max_output_chars": 400
+      }
+    }
+  ]
+}

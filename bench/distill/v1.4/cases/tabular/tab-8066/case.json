@@ -1,0 +1,37 @@
+{
+  "id": "tab-8066",
+  "description": "Week-over-week growth of inverter output between two weeks in a daily log, bare number. DISTILL-CANARY-964da8fa",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "policy_calc",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-tab-b10b-inverterweek-01",
+    "ref_calls": 3,
+    "fixture_bytes": 240,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10b",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "电站/日发电量.csv": "日期,发电量kWh\n2026-09-01,998\n2026-09-02,919\n2026-09-03,1127\n2026-09-04,931\n2026-09-05,960\n2026-09-06,1002\n2026-09-07,1429\n2026-09-08,1592\n2026-09-09,1552\n2026-09-10,1188\n2026-09-11,1146\n2026-09-12,1445\n2026-09-13,1417\n2026-09-14,1363\n"
+  },
+  "turns": [
+    {
+      "prompt": "逆变器日志 电站/日发电量.csv 里，9 月 8 日到 14 日这一周的发电量比 9 月 1 日到 7 日增长了百分之几？保留一位小数，只回数字，不带百分号。",
+      "expect": {
+        "expected_number": 31.7,
+        "tolerance": 0.05,
+        "required_tools": [
+          "calculator"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+{
+  "id": "doc-8208",
+  "description": "Look up in a training academy handbook the minimum attendance for a certificate. DISTILL-CANARY-c272a14b",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-doc-b10c-trainingrefund-01",
+    "ref_calls": 1,
+    "fixture_bytes": 245,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10c",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "handbook/certificates.md": "# Certificates\n\nA certificate is issued to learners who attend at least 80% of sessions and pass the final assessment. Learners below 60% attendance are withdrawn from the cohort.\n",
+    "handbook/fees.md": "Fees are due 14 days before the cohort starts.\n",
+    "README.md": "Academy handbook.\n"
+  },
+  "turns": [
+    {
+      "prompt": "What attendance do I need to get the course certificate?",
+      "expect": {
+        "output_contains_any": [
+          "80%",
+          "80 %",
+          "80 percent",
+          "eighty percent"
+        ],
+        "output_excludes": [
+          "at least 60%",
+          "need 60%"
+        ],
+        "required_tools": [
+          "read_file"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ],
+  "offered_tools": [
+    "list_files",
+    "read_file",
+    "search_text"
+  ]
+}

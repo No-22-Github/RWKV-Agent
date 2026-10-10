@@ -1,0 +1,47 @@
+{
+  "id": "fs-8209",
+  "description": "Find which task file is assigned to Priya in a vineyard task folder. DISTILL-CANARY-5f587fc2",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "find_file",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-fs-b10c-vineyardtask-01",
+    "ref_calls": 1,
+    "fixture_bytes": 105,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10c",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "tasks/pruning.md": "Owner: Tomas\nDue: 2026-02-14\n",
+    "tasks/irrigation.md": "Owner: Priya\nDue: 2026-03-01\n",
+    "tasks/bottling.md": "Owner: Lena\nDue: 2026-05-20\n",
+    "README.md": "One file per task.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Which task is Priya the owner of?",
+      "expect": {
+        "output_contains": [
+          "irrigation"
+        ],
+        "required_tools": [
+          "search_text"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ],
+  "offered_tools": [
+    "list_files",
+    "read_file",
+    "search_text"
+  ]
+}

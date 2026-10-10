@@ -1,0 +1,47 @@
+{
+  "id": "cfg-8208",
+  "description": "Read a brewery recipe config for the mash temperature of the stout. DISTILL-CANARY-a15458c8",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-cfg-b10c-brewtemp-01",
+    "ref_calls": 1,
+    "fixture_bytes": 165,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10c",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "recipes/stout.cfg": "name=Harbour Stout\nmash_temp_c=67\nboil_minutes=75\nferment_days=14\n",
+    "recipes/pale.cfg": "name=Pale Ale\nmash_temp_c=65\nboil_minutes=60\nferment_days=10\n",
+    "README.md": "Recipe parameters, one file per beer.\n"
+  },
+  "turns": [
+    {
+      "prompt": "At what temperature do we mash the Harbour Stout?",
+      "expect": {
+        "output_contains": [
+          "67"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "read_file"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ],
+  "offered_tools": [
+    "list_files",
+    "read_file",
+    "search_text"
+  ]
+}

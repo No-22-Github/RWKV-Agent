@@ -1,0 +1,51 @@
+{
+  "id": "fs-8210",
+  "description": "Count the top-level folders in a theatre production directory. DISTILL-CANARY-c503e174",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "count_by_type",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-fs-b10c-stagelist-01",
+    "ref_calls": 1,
+    "fixture_bytes": 24,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10c",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "lighting/cues.txt": "x",
+    "sound/cues.txt": "x",
+    "costumes/list.md": "x",
+    "props/list.md": "x",
+    "props/photos/a.jpg": "x",
+    "scripts/final.md": "x",
+    "README.md": "Production files.\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many top-level folders does the production directory have?",
+      "expect": {
+        "output_contains": [
+          "5"
+        ],
+        "output_contains_token": true,
+        "required_tools": [
+          "list_files"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ],
+  "offered_tools": [
+    "list_files",
+    "read_file",
+    "search_text"
+  ]
+}

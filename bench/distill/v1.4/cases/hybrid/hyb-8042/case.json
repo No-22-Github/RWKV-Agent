@@ -1,0 +1,72 @@
+{
+  "id": "hyb-8042",
+  "description": "Supported stable release to move a client's cluster to, with a 11.5 release candidate listed on top of the channels page. DISTILL-CANARY-a4f4c2b5",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "local_first",
+    "traps": [
+      "TR-SUPERSEDE"
+    ],
+    "trap_decoys": {
+      "TR-SUPERSEDE": "11.5.0-rc.2"
+    },
+    "axes": [
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b10b-dbpatch-01",
+    "ref_calls": 4,
+    "fixture_bytes": 205,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:claude-sonnet-5-5-b10b",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [
+    {
+      "query_match": "Tidewater DB",
+      "url_match": "tidewater-db.org/channels",
+      "url": "https://tidewater-db.org/channels",
+      "title": "Tidewater DB releases",
+      "snippet": "Tidewater DB versions by channel.",
+      "published_at": "2026-09-13",
+      "content": "# Tidewater DB release channels\n\n- 11.5.0-rc.2 - release candidate, 2026-09-13, not final\n- 11.4.2 - stable, 2026-09-02, safe for customers\n- 11.4.1 - stable, 2026-06-18, previous stable\n"
+    },
+    {
+      "query_match": "Tidewater DB",
+      "url_match": "dbadmin-log.example.org/tidewater-115",
+      "url": "https://dbadmin-log.example.org/tidewater-115",
+      "title": "Tidewater DB 11.5 RC in production",
+      "snippet": "11.5.0-rc.2 has been solid for us, switched last week.",
+      "published_at": "2026-09-13",
+      "content": "# Tidewater DB 11.5 RC in production\n\n11.5.0-rc.2 has been solid for us, switched last week.\n"
+    }
+  ],
+  "files": {
+    "runbook/clusters.csv": "cluster,engine,version,owner\nprod-east,Tidewater DB,11.3.0,platform\nprod-west,Tidewater DB,11.3.0,platform\nci,Tidewater DB,11.4.2,qa\n",
+    "README.md": "# Cluster runbook\n\nOne row per cluster; version is what is running now.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Per our runbook table, the Tidewater DB cluster runs 11.3.0. Which release is the supported stable one we should move the client to? Go by the vendor's own release channels.",
+      "expect": {
+        "output_contains": [
+          "11.4.2",
+          "11.3.0"
+        ],
+        "output_excludes": [
+          "11.5.0-rc.2 is the latest stable",
+          "11.5.0-rc.2 is stable",
+          "11.5.0-rc.2 is the current stable",
+          "11.5.0-rc.2 is the stable release"
+        ],
+        "required_tools": [
+          "web_fetch"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

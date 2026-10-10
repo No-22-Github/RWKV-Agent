@@ -1,0 +1,37 @@
+{
+  "id": "doc-8048",
+  "description": "Weight of paper reams from sheet size and basis weight in a printing spec, bare number. DISTILL-CANARY-d88fb9c5",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-doc-b10b-reamweight-01",
+    "ref_calls": 2,
+    "fixture_bytes": 120,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10b",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "印务/纸张规格.md": "# 正文纸规格\n\n- 整张尺寸 880 × 1230 mm。\n- 定量 80 g/㎡。\n- 每令 500 张。\n- 纤维方向：长纹。\n"
+  },
+  "turns": [
+    {
+      "prompt": "印制规范在 印务/纸张规格.md。按规范里的整张纸尺寸、克重和每令张数，3 令纸一共多重，多少公斤？保留两位小数，只回数字。",
+      "expect": {
+        "expected_number": 129.89,
+        "tolerance": 0.005,
+        "required_tools": [
+          "calculator"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "id": "fs-8202",
+  "description": "Count the gpx route files in a hiking club folder while ignoring photos. DISTILL-CANARY-6651a979",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "count_by_type",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [],
+    "level": "L0",
+    "family": "fam-fs-b10c-routefile-01",
+    "ref_calls": 1,
+    "fixture_bytes": 84,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b10c",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "线路/九溪.gpx": "<gpx/>\n",
+    "线路/龙井.gpx": "<gpx/>\n",
+    "线路/天目山.gpx": "<gpx/>\n",
+    "线路/清凉峰.gpx": "<gpx/>\n",
+    "线路/九溪.jpg": "x\n",
+    "线路/龙井.jpg": "x\n",
+    "线路/备注.txt": "轨迹均为 2026 年实测。\n",
+    "README.md": "# 山友会线路库\n"
+  },
+  "turns": [
+    {
+      "prompt": "山友会线路库里一共有多少条 gpx 轨迹文件？",
+      "expect": {
+        "output_contains_any": [
+          "4 条",
+          "4 个",
+          "4 份",
+          "4条",
+          "4个",
+          "4份",
+          "四条",
+          "四个"
+        ],
+        "required_tools": [
+          "list_files"
+        ],
+        "max_output_chars": 300
+      }
+    }
+  ],
+  "offered_tools": [
+    "list_files",
+    "read_file",
+    "search_text"
+  ]
+}
