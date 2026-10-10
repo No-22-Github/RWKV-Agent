@@ -15,7 +15,7 @@
 | macOS 从零运行 | [`docs/guides/getting-started-macos.md`](docs/guides/getting-started-macos.md) | 环境、模型准备、构建、运行、更新和常见问题 |
 | CLI 全部参数与行为 | [`docs/guides/cli.md`](docs/guides/cli.md) | `rwkv-cli` 各子命令参考手册 |
 | 桌面 App 与公开 API | [`docs/guides/app.md`](docs/guides/app.md) | Wails App、headless server、存储和开发说明 |
-| **蒸馏语料流程（现行）** | [`docs/distill/distill-workflow.md`](docs/distill/distill-workflow.md) | 出题 → 老师在真实 harness 里跑 → `corpus render` 重放切行 → 打包；批次报告在 [`docs/distill/reports/`](docs/distill/reports/) |
+| **蒸馏语料流程（现行）** | [`docs/distill/distill-workflow.md`](docs/distill/distill-workflow.md) | 出题 → 老师在真实 harness 里跑 → `corpus render` 重放切行 → 打包；各版本计划与报告见 [`docs/distill/`](docs/distill/README.md) |
 | **最新 state 横测** | [`docs/evaluations/state-t927-20260927/REPORT.md`](docs/evaluations/state-t927-20260927/REPORT.md) | t927 六个 checkpoint，s316 最优；终答不停、答案契约被拒是最大失分点 |
 | 跑分规程 | [`docs/evaluations/benchmark-protocol.md`](docs/evaluations/benchmark-protocol.md) | g1k 格式、统一预算、采样预设、`run check` 闸门 |
 | **数据在哪** | [`bench/README.md`](bench/README.md) | 入库数据清单（题库、老师脚本、账本、冻结证据）、仓库外本地目录与迁移 HF 的边界 |

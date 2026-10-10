@@ -22,11 +22,11 @@
 | `workbank/tools/` | 一次性审计工具（Go）及其 testdata | — | — |
 | `workbank/reports-data/` | `docs/workbank/reports/` 各报告的机器可读数据 | 0.7 MB | [报告目录](../docs/workbank/reports/) |
 | `bashprobe/` | 沙箱 bash 能力探针（`work-v2` 目录）；`cases/` 由 `gen.py` 生成并在 just-bash sidecar 里验证参考解 | 26 题 / 0.9 MB | [README](bashprobe/README.md) |
-| `distill/cases/` | 蒸馏题（5xxx = b01–b03，6xxx = b04） | 759 题 / 2.7 MB | [蒸馏工作流](../docs/distill/distill-workflow.md) |
-| `distill/cases-shelved/` | 蒸馏下架题 | 27 题 | — |
-| `distill/scripts/` | **老师动作脚本**：任何 harness 版本都能用 `corpus render --script` 重渲染出训练行 | 1.4 MB | [README](distill/scripts/README.md) |
-| `distill/batches.jsonl` · `exclude.jsonl` · `tag-map.json` | 批次登记（author 以此为准）、打包排除表、标签映射 | — | [批次报告](../docs/distill/reports/) |
-| `distill/tools/` | b04 子 Agent 解题工具 `step.py` / `collect.py` | — | [b04 规格](../docs/distill/distill-b04-glm.md) |
+| `distill/cases/` | 蒸馏题，按版本分目录：`v1/`（5xxx b01–b03、6xxx b04）、`v1.3/`（7xxx）、`v1.4/`（8xxx b10）、`v1.41/`（9xxx b12） | 1631 题 | [目录说明](distill/README.md) |
+| `distill/cases-shelved/` | 蒸馏下架题（同样按版本分目录） | 27 题 | — |
+| `distill/scripts/` | **老师动作脚本**（按版本分目录）：任何 harness 版本都能用 `corpus render --script` 重渲染出训练行 | 1.4 MB | [README](distill/scripts/README.md) |
+| `distill/batches.jsonl` · `exclude.jsonl` · `tag-map.json` | 批次登记（author 以此为准）、打包排除表、标签映射 | — | [批次报告](../docs/distill/) |
+| `distill/tools/` | 通用工具（`step.py` / `collect.py` 等）在根，各版本专用的构建脚本、老师 suffix 在 `tools/<版本>/` | — | [目录说明](distill/README.md) |
 | `distill/audit-20260926/` | 蒸馏审阅的统计与清洗策略 json | — | [审阅报告](../docs/evaluations/distill-audit-20260926/REPORT.md) |
 | `archive/v10-baseline/` | v8–v10 boundary 基线（RWKV 13B / DeepSeek v4 Flash） | 5.6 MB | [README](archive/v10-baseline/README.md) |
 | `archive/primitive-orig30-snapshot-416b073d/` | Primitive Bench 原始 30 题快照 | — | [README](archive/primitive-orig30-snapshot-416b073d/README.md) |

@@ -36,7 +36,7 @@
 
 这道题还有真实语义错误：题面要求填入 CREATE 和 INDEX **之间**的单词，收下 `CONCURRENTLY` 两条轨迹；但 PostgreSQL 正确形式是 `CREATE INDEX CONCURRENTLY`，该词位于 INDEX **之后**。NOTES 把错误位置也解释成正确。因此它展示了“题面、判据、老师一起犯错而全绿”的实际风险。
 
-依据：[PostgreSQL CREATE INDEX 官方语法](https://www.postgresql.org/docs/18/sql-createindex.html)。对应数据：`bench/distill/cases/notool/nt-5278/`；探针：`runs/distill/audit-20260926/negative-probe.log`。
+依据：[PostgreSQL CREATE INDEX 官方语法](https://www.postgresql.org/docs/18/sql-createindex.html)。对应数据：`bench/distill/cases/v1/notool/nt-5278`；探针：`runs/distill/audit-20260926/negative-probe.log`。
 
 建议：显式支持并比较关键词契约；非豁免的未知输出形状应失败。对这 92 题重新做契约/事实审查，修题后重新采样，不手改老师轨迹。
 

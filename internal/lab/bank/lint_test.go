@@ -337,11 +337,11 @@ func TestLintFixBackfillsFixtureBytes(t *testing.T) {
 // with: the test-bank canary means "never train on this" (§2.2).
 const distillCanaryPrefix = "DISTILL-CANARY"
 
-// distillCaseDir returns bench/distill/cases/notool/<id>, skipping the test in
+// distillCaseDir returns bench/distill/cases/v1/notool/<id>, skipping the test in
 // checkouts that do not carry the bench tree.
 func distillCaseDir(t *testing.T, id string) string {
 	t.Helper()
-	dir := filepath.Join(lab.RepoRoot(), "bench", "distill", "cases", "notool", id)
+	dir := filepath.Join(lab.RepoRoot(), "bench", "distill", "cases", "v1", "notool", id)
 	if _, err := os.Stat(filepath.Join(dir, "case.json")); err != nil {
 		t.Skipf("distill case %s not present", id)
 	}

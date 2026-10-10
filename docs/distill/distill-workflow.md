@@ -7,7 +7,7 @@
 > 写于 2026-09-25，基于 main `868f332` 加上同日修复的 `lint --fix` bug（见 §4.0）。
 > 管线各环节已在本机冒烟：`corpus paths` → `corpus render` 在 workbank 上 26/26 通过；
 > 用 §2.5 的样例题在非 workbank 目录上 render，正确路径出行、错误路径（答 decoy）被拒，`wire_hash` 与 g1k 跑分一致。
-> 同日真实老师冒烟：`bench/distill/cases/notool/nt-5001..5005`（5 道闲聊直答题）在 Qwen3.8-27B 上跑 k=2 → 4 条路径 → 4 行，0 拒绝，
+> 同日真实老师冒烟：`bench/distill/cases/v1/notool/nt-5001..5005`（5 道闲聊直答题）在 Qwen3.8-27B 上跑 k=2 → 4 条路径 → 4 行，0 拒绝，
 > `wire_hash` 一致；暴露两个问题，都已写进本文：闲聊题与 lint 规则冲突（§4.3）、API 调用需要 build tag（§3 S0）。
 
 ## 0. 目标
@@ -40,7 +40,7 @@ S1 起草 ──► S2 静态闸门 ──► S3 去污染 ──► S4 老师�
 | `bench/distill/batches.jsonl` | 每批一行：批号、题 ID 列表、起草模型、老师模型与参数、commit | 是 |
 | `bench/distill/exclude.jsonl` | 抽检剔除的路径：`{"case_id":"tab-5003--p1","reason":"…","batch":"b01"}` | 是 |
 | `bench/distill/scripts/<batch>.jsonl` | `corpus paths` 的产物（老师动作脚本），各批次渲染实际用的那一份；说明见该目录 README | **是**（2026-09-25 用户拍板） |
-| `docs/distill/reports/<batch>.md` | 批次报告（§3 S7） | 是 |
+| `docs/distill/<版本>/<batch>.md` | 批次报告（§3 S7） | 是 |
 | `local/runs/distill/<batch>/…` | 老师 run、render 产物、rows | 否（`local/runs/` 已 gitignore） |
 | `local/runs/distill/dataset-YYYYMMDD/` | 最终训练集 | 否 |
 
@@ -102,7 +102,7 @@ S1 起草 ──► S2 静态闸门 ──► S3 去污染 ──► S4 老师�
 
 ### 2.4 第一批配额（b01，200 题）
 
-> **已被 [distill-allocation-v1.md](distill-allocation-v1.md) 取代**（在 700 条基础上加约 650 题，分 3 批）。下表只作为最初的设计记录保留。
+> **已被 [distill-allocation-v1.md](v1/distill-allocation-v1.md) 取代**（在 700 条基础上加约 650 题，分 3 批）。下表只作为最初的设计记录保留。
 
 | scenario | 题数 | task_type 侧重（数字为至少题数） | 说明 |
 |---|---|---|---|
@@ -130,7 +130,7 @@ S1 起草 ──► S2 静态闸门 ──► S3 去污染 ──► S4 老师�
 
 ### 2.5 完整样例（已跑过全部闸门）
 
-`bench/distill/cases/tabular/tab-5001/`。在本机实测：lint 除 canary 规则（等 §4.1）外 0 违规；verify 期望比对与破坏测试均通过；dedup、decontam 0 命中；
+`bench/distill/cases/v1/tabular/tab-5001`。在本机实测：lint 除 canary 规则（等 §4.1）外 0 违规；verify 期望比对与破坏测试均通过；dedup、decontam 0 命中；
 render 正确路径出行，答 7（decoy）的路径被拒。
 
 `case.json`：
@@ -215,7 +215,7 @@ The decoy 7 counts rows, but the question asks for orders and the README says th
 
 1. **写目录必须预先存在。** 题面要求写入的目录要在 `files` 里放一个 `.keep`，工作区工具不能建目录（lint `m0.write_dir`）。
 2. **数值答案的题面必须写明「只给数字」。** scorer 的 `expected_number` 只接受纯数字，或「数字 + 空格 + 单位」（单位最多三个词，且不能接别的内容）——`Edition 4`、`4,020 litres on 2026-09-25`、`18 kilograms per cubic metre`、`47.2%`、`35%` 都会被判成「不是数字」。b01/b02 合计 9 道题因此 0/3（doc 的版本号题、hyb 的读数题、nt 的换算题、web 的百分比题）。
-   写法：在答案契约之前加一句，例如「Give the number alone, as digits, with no label.」「Give the reading alone as a number, with no units or dates.」「Give it as a number of percent, without the % sign.」。**改 scorer 是另一件事**（改了要升 scorer 版本、影响测试集分数可比性），见 [allocation-v1](distill-allocation-v1.md) §5 与本报告的留档。
+   写法：在答案契约之前加一句，例如「Give the number alone, as digits, with no label.」「Give the reading alone as a number, with no units or dates.」「Give it as a number of percent, without the % sign.」。**改 scorer 是另一件事**（改了要升 scorer 版本、影响测试集分数可比性），见 [allocation-v1](v1/distill-allocation-v1.md) §5 与本报告的留档。
 3. **web 题的 `url_match` 不得互为前缀。** harness 取最长匹配，但 lint `web_fixture.url_match` 会查；每加一个页面就跑一次 lint（反例 X-008）。
 4. **web 题的 `query_match` 要宽。** 老师自己拼搜索词，`query_match` 太窄时搜索返回空、老师 0/3。NOTES 里的五条改写查询必须 `bank hitcheck` 5/5。
 5. **脚本题的 hidden 输入集必须在工作区内**（反例 X-006；lint `expect.run.hidden`）。
@@ -318,7 +318,7 @@ done
 - `$TEACHER_URL` / `$TEACHER_MODEL`：**待用户填写**（§8）。已知可用：
   - **自建 vLLM（2026-09-25 冒烟所用）**：`http://100.64.0.1:8000/v1/chat/completions` + `qwen3.8-27b`（Qwen3.8-27B-NVFP4，max_model_len 32768）。必须加 `--chat-thinking disabled`：它把 `chat_template_kwargs.enable_thinking=false` 发给 vLLM，否则 Qwen 的思考会占用输出预算。不需要 key，但 agent-eval 要求变量存在，传 `OPENAI_API_KEY=dummy`。并发先用 10，端点能力未测。
   - 官方 `https://api.deepseek.com/v1/chat/completions` + `deepseek-v4-flash`；中转 + `deepseek-flash`（dsflash 基线所用）。
-- **老师附加指令**（2026-10-04 起）：`--chat-system-suffix <file>` 把文件内容附在老师每次请求的 system 末尾（只在 chat-completions 下可用，`run.json` 记 `model.system_suffix_sha256`）。老师的 wire 不进训练数据，所以不改变 `wire_hash`；v1.4 b10 用 `bench/distill/teacher/b10-suffix.txt`。
+- **老师附加指令**（2026-10-04 起）：`--chat-system-suffix <file>` 把文件内容附在老师每次请求的 system 末尾（只在 chat-completions 下可用，`run.json` 记 `model.system_suffix_sha256`）。老师的 wire 不进训练数据，所以不改变 `wire_hash`；v1.4 b10 用 `bench/distill/tools/v1.4/b10-suffix.txt`。
 - 每个 run 结束检查 `local/runs/distill/$B/teacher-k$k/summary.json`：infra 错误（超时、5xx）> 5% 就整轮重跑，换新的 `--output` 目录，**不得覆盖**。
 - 单独补跑某几题：加 `--case <id>`（可重复），输出到 `teacher-fix-k$k`。
 
@@ -367,7 +367,7 @@ local/bin/rwkv-lab corpus render --cases bench/distill/cases --script local/runs
    - 随机 20 行（`meta.case_id` 均匀覆盖场景）；
    - **加上**所有判据为 `output_contains_any` 的题的全部行（TR-AMBIG 第 1 轮、TR-NOCAP、explain_readonly 等），这些题判分器只查关键词。
    - 查：终答是否真的对、反问是否真在问该问的东西、拒绝是否给了理由、有没有答非所问却撞上关键词。不合格的写进 `bench/distill/exclude.jsonl`，**不得手改 rows 或 script**。
-4. **报告** `docs/distill/reports/$B.md`，必须包含：题数（入库 / 下架）、pass@3 分布、0/3 分诊表（ID、归类 ①②③、处置）、
+4. **报告** `docs/distill/<版本>/$B.md`（如 `docs/distill/v1.4/b10a.md`），必须包含：题数（入库 / 下架）、pass@3 分布、0/3 分诊表（ID、归类 ①②③、处置）、
    paths 丢弃原因计数、render 行数与拒绝原因、零调用行占比、抽检行数与剔除数、`wire_hash`、`local/bin/rwkv-cli` sha256、git commit。
 5. **提交**：分支 `distill/$B`，提交 `bench/distill/cases*`、`batches.jsonl`、`exclude.jsonl`、`reports/$B.md`；不提交 `local/runs/`。
 
@@ -619,7 +619,7 @@ rwkv-lab corpus pack --rows <rows.jsonl> [--rows …] [--exclude <jsonl>] (--out
 
 | 里程碑 | 内容 | 验收 |
 |---|---|---|
-| **M0（阻塞，约 1 天）** | §4.1、§4.2、§4.3、§4.4 | `go test ./internal/lab/...` 全过，§4 列出的负向测试齐全；§4.4.4 全部满足；`local/bin/rwkv-lab bank lint` 对 workbank 仍 0 违规；把 §2.5 样例放进 `bench/distill/cases/tabular/tab-5001/` 后，`lint --canary-prefix DISTILL-CANARY` 0 违规 |
+| **M0（阻塞，约 1 天）** | §4.1、§4.2、§4.3、§4.4 | `go test ./internal/lab/...` 全过，§4 列出的负向测试齐全；§4.4.4 全部满足；`local/bin/rwkv-lab bank lint` 对 workbank 仍 0 违规；把 §2.5 样例放进 `bench/distill/cases/v1/tabular/tab-5001` 后，`lint --canary-prefix DISTILL-CANARY` 0 违规 |
 | **M1 冒烟（10 题）** | 每场景 1 题（含 tab-5001）走 S1–S7 全流程 | 老师 k=3 至少 8 题 ≥ 1/3；render 的 `wire_hash` = S0 值；`pack --dry-run` 退出 0；**负向**：手工把一题 `expected_number` 改错后重跑 S6，该题所有行必须进 `rejects.jsonl` |
 | **M2 b01（200 题）** | §2.4 配额，S1–S7 | S7 全部条目；报告入库 |
 | **M3 数据集 v1** | S8 打包 b01 | `manifest.json` 齐全；交给用户训练 state，并在 workbank 上与不训练的基线对比（按 rwkv-bench skill 的规程，不属于本流程） |

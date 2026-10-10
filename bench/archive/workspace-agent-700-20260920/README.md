@@ -9,7 +9,7 @@ Archived for two reasons, per the `bench/README.md` rules:
 1. These are paid-for teacher trajectories — the sampling behind them is not
    reproducible, so they count as source data, not derived artifacts.
 2. `generated/normalized/all.jsonl` is the *only* dependency that
-   `bench/distill/scripts/base700.jsonl` lacks for in-repo re-rendering. With
+   `bench/distill/scripts/v1/base700.jsonl` lacks for in-repo re-rendering. With
    it committed, the base700 reproducibility chain closes inside the repo.
 
 ## Contents (20 files)

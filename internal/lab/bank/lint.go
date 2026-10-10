@@ -25,6 +25,7 @@ const defaultCanaryPrefix = "WORKBANK-CANARY"
 
 var (
 	caseIDRe  = regexp.MustCompile(`^([a-z]+)-(\d{4})$`)
+	versionRe = regexp.MustCompile(`^v\d+(\.\d+)*$`)
 	notesSecs = []string{"Traps", "Reference solution", "Why the answer is unique"}
 )
 
@@ -535,13 +536,17 @@ func checkCase(caseDir string, caseObj map[string]any, ctx *lintCtx, relParts []
 		}
 	}
 
-	// (j) directory structure <scenario>/<id>/
+	// (j) directory structure [<version>/]<scenario>/<id>/ — the distill tree
+	// groups cases by data version (v1.4/config/cfg-8001).
+	if len(relParts) == 3 && versionRe.MatchString(relParts[0]) {
+		relParts = relParts[1:]
+	}
 	if len(relParts) != 2 {
 		shown := strings.Join(relParts, "/")
 		if shown == "" {
 			shown = "(root)"
 		}
-		bad("dir_structure", fmt.Sprintf("expected <scenario>/<id>/layout, got %s", shown))
+		bad("dir_structure", fmt.Sprintf("expected [<version>/]<scenario>/<id>/ layout, got %s", shown))
 	} else {
 		scenDir, dirname := relParts[0], relParts[1]
 		match := caseIDRe.FindStringSubmatch(dirname)

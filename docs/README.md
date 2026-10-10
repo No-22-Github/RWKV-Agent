@@ -33,15 +33,16 @@
 
 ## 蒸馏语料与 State 训练（现行）
 
-| 文档 | 说明 |
+蒸馏文档按数据版本分目录，入口是 [distill/README.md](distill/README.md)（各版本的计划、执行提示、报告、题号段一张表）。
+
+| 目录 / 文档 | 说明 |
 | --- | --- |
-| [distill/distill-workflow.md](distill/distill-workflow.md) | **蒸馏工作流规格**：出题 → 老师在真实 harness 里跑 → 抽路径 → `corpus render` 重放切行 → 打包；各环节闸门与命令 |
-| [distill/distill-allocation-v1.md](distill/distill-allocation-v1.md) | 加题分配 v1：b01–b03 的题型配额与行长约束（取代 workflow §2.4） |
-| [distill/distill-allocation-v1.3.md](distill/distill-allocation-v1.3.md) | v1.3 数据构成规划：存量修复、N1–N11 新增（中文/多轮/失败汇报/自然语言交付/收尾恢复/tabular）、「查不到怎么答」规范、工具目录轮换、目标指标、验收与分批 |
-| [distill/distill-b04-glm.md](distill/distill-b04-glm.md) | b04 执行规格：子 Agent 用 `bench/distill/tools/step.py` 扮演 student，在真实 harness 里逐步解题（老师无法接入 harness 时的方案） |
-| [distill/fix-20260929-glm.md](distill/fix-20260929-glm.md) | 2026-09-29 修数派单：`run compare --exclude-cases` 剔除 base700 的 36 道种子题、t927 泄漏口径更正、`bank verify` 形状识别与 `--strict-shape`、nt-5278 改题、25 道 ambiguous_request 重解 |
+| [distill/distill-workflow.md](distill/distill-workflow.md) | **蒸馏工作流规格**（跨版本通用）：出题 → 老师在真实 harness 里跑 → 抽路径 → `corpus render` 重放切行 → 打包；各环节闸门与命令 |
 | [distill/harness-corpus-render.md](distill/harness-corpus-render.md) | 训练行只能由 harness 重放生成：`--script` 回放、多轮按轮切行、分集规则 |
-| [distill/reports/](distill/reports/) | 各批次报告：smoke、b01–b04 |
+| [distill/v1/](distill/v1/) | v1.0–v1.2：加题分配 v1、b04 规格、09-29 修数派单，smoke 与 b01–b04 报告 |
+| [distill/v1.3/](distill/v1.3/) | v1.3 数据构成规划（中文/多轮/失败汇报/收尾恢复等 N1–N11），b05–b08 报告、数据集与清洗报告 |
+| [distill/v1.4/](distill/v1.4/) | v1.4 实施规格书、b10 放量提示与解题简报，b09、b10 试跑报告 |
+| [distill/v1.41/](distill/v1.41/) | **进行中**：v1.41（在 v1.4 上加 bash 与 get_weather，b12），10-10 进度重估 |
 | [evaluations/distill-audit-20260926/REPORT.md](evaluations/distill-audit-20260926/REPORT.md) | 蒸馏数据审阅：判据 fail-open、stable_fact 实为本地检索、`tools: []` 名不副实；配套清洗说明 CLEANING.md |
 
 ## workbank 手写题库（148 题，现行主测试集之一）

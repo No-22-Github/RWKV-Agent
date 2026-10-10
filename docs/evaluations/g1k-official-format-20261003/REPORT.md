@@ -99,7 +99,7 @@
 
 - 只有 k=1；按 PLAN §2，前两名与基线需补到 k=3 才能下「可区分」结论。
 - 阶段 4（`g1k+dup-continue`、`g1k+think-full` 新二进制复测）见 §7。
-- train-1-3 的 checkpoint 在训练机上，本机拿不到（约定不 ssh）；拷回后运行 `bench/distill/test-1-3.sh <目录>`。
+- train-1-3 的 checkpoint 在训练机上，本机拿不到（约定不 ssh）；拷回后运行 `bench/distill/tools/v1.3/test-1-3.sh <目录>`。
 
 ## 7. 阶段 4（二进制 ac721e4）
 

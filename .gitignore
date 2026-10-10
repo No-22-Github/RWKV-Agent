@@ -19,8 +19,8 @@ __pycache__/
 
 # b09 work dir: `v14_rewrite_finals.py prepare` regenerates the inputs; only the
 # rewritten finals (batch_*_out.json) are source.
-/bench/distill/b09_work/*
-!/bench/distill/b09_work/batch_*_out.json
+/bench/distill/tools/v1.4/b09_work/*
+!/bench/distill/tools/v1.4/b09_work/batch_*_out.json
 
 # Claude 桌面 App 的本机预览配置（含绝对路径）
 .claude/launch.json
