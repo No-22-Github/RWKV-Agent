@@ -41,6 +41,11 @@ const (
 	ThinkingAuto     ThinkingMode = "auto"
 	ThinkingDisabled ThinkingMode = "disabled"
 	ThinkingEnabled  ThinkingMode = "enabled"
+	// ThinkingSplit sends MiniMax's reasoning_split extension instead of a
+	// thinking object: the model keeps its default thinking and the provider
+	// returns it in reasoning_content rather than inline <think> text.
+	// MiniMax-M3 rejects thinking.type "enabled".
+	ThinkingSplit ThinkingMode = "split"
 
 	PromptWrappedContinuation PromptMode = "wrapped-continuation"
 	PromptNativeChat          PromptMode = "native-chat"
@@ -55,11 +60,11 @@ func ParseThinkingMode(value string) (ThinkingMode, error) {
 		mode = ThinkingAuto
 	}
 	switch mode {
-	case ThinkingAuto, ThinkingDisabled, ThinkingEnabled:
+	case ThinkingAuto, ThinkingDisabled, ThinkingEnabled, ThinkingSplit:
 		return mode, nil
 	default:
 		return "", fmt.Errorf(
-			"%w: Chat Completions thinking mode must be auto, disabled, or enabled",
+			"%w: Chat Completions thinking mode must be auto, disabled, enabled, or split",
 			continuation.ErrInvalidRequest,
 		)
 	}

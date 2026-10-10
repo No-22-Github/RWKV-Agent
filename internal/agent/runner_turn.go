@@ -455,16 +455,17 @@ func (turn *runnerTurn) generateModelStep(step int) (turnModelStep, error) {
 		return turnModelStep{preview: preview}, err
 	}
 	current := Step{
-		Number:          step,
-		Stage:           turn.stage,
-		Channel:         channel,
-		Request:         compiled.Trace,
-		ModelOutput:     generated.Text,
-		FinishReason:    generated.FinishReason,
-		Usage:           generated.Usage,
-		StartedAtMS:     modelStarted.UnixMilli(),
-		ModelDurationMS: time.Since(modelStarted).Milliseconds(),
-		FirstTokenAtMS:  preview.firstTokenAtMS(),
+		Number:           step,
+		Stage:            turn.stage,
+		Channel:          channel,
+		Request:          compiled.Trace,
+		ModelOutput:      generated.Text,
+		ReasoningContent: reasoningContent,
+		FinishReason:     generated.FinishReason,
+		Usage:            generated.Usage,
+		StartedAtMS:      modelStarted.UnixMilli(),
+		ModelDurationMS:  time.Since(modelStarted).Milliseconds(),
+		FirstTokenAtMS:   preview.firstTokenAtMS(),
 	}
 	turn.result.Steps = append(turn.result.Steps, current)
 	r.observe(

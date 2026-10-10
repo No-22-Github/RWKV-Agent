@@ -482,7 +482,7 @@ func parseRunOptions(name string, args []string) (runOptions, error) {
 			&options.chatThinking,
 			"chat-thinking",
 			string(chatcompletions.ThinkingAuto),
-			"upstream Chat Completions thinking extension: auto, disabled, or enabled",
+			"upstream Chat Completions thinking extension: auto, disabled, enabled, or split (MiniMax reasoning_split)",
 		)
 		fs.StringVar(
 			&options.chatPromptMode,

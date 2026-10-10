@@ -302,7 +302,9 @@ func (c *Client) baseParams(
 
 func (c *Client) thinkingOption() []option.RequestOption {
 	var options []option.RequestOption
-	if c.thinking != ThinkingAuto {
+	if c.thinking == ThinkingSplit {
+		options = append(options, option.WithJSONSet("reasoning_split", true))
+	} else if c.thinking != ThinkingAuto {
 		options = append(options,
 			option.WithJSONSet("thinking", map[string]string{"type": string(c.thinking)}),
 		)

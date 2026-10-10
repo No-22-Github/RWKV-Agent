@@ -240,15 +240,19 @@ const (
 )
 
 type Step struct {
-	Number          int                       `json:"number"`
-	Stage           GenerationStage           `json:"stage"`
-	Channel         string                    `json:"channel,omitempty"`
-	Request         *PromptTrace              `json:"request,omitempty"`
-	ModelOutput     string                    `json:"model_output"`
-	FinishReason    continuation.FinishReason `json:"finish_reason"`
-	Usage           continuation.Usage        `json:"usage"`
-	StartedAtMS     int64                     `json:"model_started_at_ms,omitempty"`
-	ModelDurationMS int64                     `json:"model_duration_ms,omitempty"`
+	Number      int             `json:"number"`
+	Stage       GenerationStage `json:"stage"`
+	Channel     string          `json:"channel,omitempty"`
+	Request     *PromptTrace    `json:"request,omitempty"`
+	ModelOutput string          `json:"model_output"`
+	// ReasoningContent is the provider's separate reasoning channel
+	// (reasoning_content) on the native Chat Completions path; empty for text
+	// continuations, whose thinking stays inside ModelOutput.
+	ReasoningContent string                    `json:"reasoning_content,omitempty"`
+	FinishReason     continuation.FinishReason `json:"finish_reason"`
+	Usage            continuation.Usage        `json:"usage"`
+	StartedAtMS      int64                     `json:"model_started_at_ms,omitempty"`
+	ModelDurationMS  int64                     `json:"model_duration_ms,omitempty"`
 	// FirstTokenAtMS is when the first streamed text delta arrived; zero when
 	// the step was not streamed (no observer) or produced no delta.
 	FirstTokenAtMS int64           `json:"model_first_token_at_ms,omitempty"`

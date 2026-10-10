@@ -852,3 +852,39 @@ func TestWithSystemSuffixAddsSystemMessageWhenMissing(t *testing.T) {
 		t.Fatal("withSystemSuffix mutated its input")
 	}
 }
+
+func TestThinkingSplitSendsReasoningSplitInsteadOfThinkingObject(t *testing.T) {
+	t.Parallel()
+	var received map[string]json.RawMessage
+	server := httptest.NewServer(http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		if err := json.NewDecoder(request.Body).Decode(&received); err != nil {
+			t.Error(err)
+		}
+		writeJSON(writer, `{
+			"choices":[{"index":0,"message":{"content":"done","reasoning_content":"split reasoning"},"finish_reason":"stop"}]
+		}`)
+	}))
+	defer server.Close()
+	client, err := New(Config{
+		Endpoint:   server.URL,
+		Model:      "MiniMax-M3",
+		Thinking:   ThinkingSplit,
+		PromptMode: PromptNativeChat,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := client.Complete(context.Background(), validToolChatRequest(), nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(received["reasoning_split"]) != "true" {
+		t.Fatalf("reasoning_split = %s", received["reasoning_split"])
+	}
+	if _, exists := received["thinking"]; exists {
+		t.Fatalf("thinking object sent with split mode: %s", received["thinking"])
+	}
+	if result.ReasoningContent != "split reasoning" {
+		t.Fatalf("result = %+v", result)
+	}
+}
