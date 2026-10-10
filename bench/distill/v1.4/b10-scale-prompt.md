@@ -117,7 +117,7 @@ local/bin/rwkv-lab corpus segcheck <segments>        # 必须 0 不一致
   local/bin/rwkv-lab corpus decontam --test-suite bfcl-product --candidates bench/distill
   ```
   其中 cases-shelved 那一面上已有 log-5022、log-5024 两条旧命中，与本批无关。
-- 每批报告 `bench/distill/v1.4$B.md`（b12 写 `bench/distill/v1.41`），格式照 `b10-pilot.md`：
+- 每批报告 `bench/distill/v1.4/reports/$B.md`（b12 写 `bench/distill/v1.41/reports/$B.md`），格式照 `b10-pilot.md`：
   - 题数（入库 / 下架）、pass@3 分布、0/3 分诊表、paths 丢弃原因计数；
   - render 行数与拒绝原因、抽检剔除清单；
   - 各题类中文占比；

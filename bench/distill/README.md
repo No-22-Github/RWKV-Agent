@@ -21,7 +21,7 @@ bench/distill/
 | [v1](v1/) | 已完成（v1.0–v1.2） | [计划](v1/distill-allocation-v1.md)、[b04 规格](v1/distill-b04-glm.md)、[09-29 修数派单](v1/fix-20260929-glm.md) | [smoke](v1/reports/smoke.md)、[b01](v1/reports/b01.md)–[b04](v1/reports/b04.md)、[判据形状复核](v1/reports/verify-shape-review-20260929.md) | 5xxx（b01–b03）、6xxx（b04），下架题在 `v1/cases-shelved/` | base700、b01–b04、b04r |
 | [v1.3](v1.3/) | 已完成 | [计划](v1.3/distill-allocation-v1.3.md) | [b05](v1.3/reports/b05.md)–[b08](v1.3/reports/b08.md)、[数据集](v1.3/reports/dataset-v13.md)、[清洗](v1.3/reports/clean-v13.md) | 7xxx | b05-baseline、b05–b07 |
 | [v1.4](v1.4/) | M0–M2 完成，M3 放量未开始 | [计划](v1.4/distill-allocation-v1.4.md)、[b10 放量提示](v1.4/b10-scale-prompt.md)、[b10 解题简报](v1.4/b10-solver-brief.md) | [b09](v1.4/reports/b09-report.md)、[b10 试跑](v1.4/reports/b10-pilot.md) | 8xxx（b10） | b09-m1、b10-pilot |
-| [v1.41](v1.41/) | **进行中**：样板就绪，放量未开始 | [计划](v1.41/distill-allocation-v1.41.md)（v1.4 的增量），放量照 [b10 放量提示](v1.4/b10-scale-prompt.md) §7 | [10-10 进度重估](v1.41/reports/v141-status-20261010.md) | 9xxx（b12） | — |
+| [v1.41](v1.41/) | **进行中**：样板就绪，放量未开始 | [计划](v1.41/distill-allocation-v1.41.md)（v1.4 的增量）、**[放量提示（DeepSeek 老师，保留思考）](v1.41/scale-prompt-deepseek.md)** | [10-10 进度重估](v1.41/reports/v141-status-20261010.md) | 9xxx（b12） | — |
 
 ## common/
 
