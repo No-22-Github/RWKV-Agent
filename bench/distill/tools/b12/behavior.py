@@ -214,15 +214,47 @@ def split_turn(steps):
 
 
 def literals(turn_expect):
-    """Answer strings the scorer looks for; any one of them proves the evidence."""
-    out = list(turn_expect.get("output_contains", []))
+    """Answer strings the scorer looks for, as (alternatives, whole_token)
+    pairs: every pair must be shown, by any one of its alternatives, with the
+    scorer's token rule when the case sets it."""
+    token = bool(turn_expect.get("output_contains_token"))
+    out = [((x,), token) for x in turn_expect.get("output_contains", [])]
     if turn_expect.get("output_contains_any"):
-        out.append(tuple(turn_expect["output_contains_any"]))
+        out.append((tuple(turn_expect["output_contains_any"]), bool(turn_expect.get("output_contains_any_token"))))
     return out
 
 
+def _word(ch):
+    return ch.isalnum()
+
+
+def contains_token(text, want):
+    """Port of containsToken in internal/agent/eval/scoring.go: "7521.21" is
+    not found inside "17521.21", "5" not inside "2026-05" or "5,000"."""
+    start = text.find(want)
+    while start >= 0:
+        end = start + len(want)
+        before, after = text[:start], text[end:]
+        ok = True
+        if before:
+            if _word(before[-1]) and _word(want[0]):
+                ok = False
+            if len(before) > 1 and before[-1] in ".," and before[-2].isdigit():
+                ok = False
+        if after:
+            if _word(after[0]) and _word(want[-1]):
+                ok = False
+            if len(after) > 1 and after[0] in ".," and after[1].isdigit():
+                ok = False
+        if ok:
+            return True
+        start = text.find(want, start + 1)
+    return False
+
+
 def has_literal(text, item):
-    return any(x in text for x in item) if isinstance(item, tuple) else item in text
+    alternatives, token = item
+    return any(contains_token(text, x) if token else x in text for x in alternatives)
 
 
 def reads(call, path):
@@ -408,12 +440,27 @@ def check_cwd_reset(turns, spec, case):
             problems.append("cwd_reset: read root %s (decoy)" % name)
         if c.tool == "bash" and name in c.command and subdir not in c.command:
             problems.append("cwd_reset: bash read %s without %s (decoy)" % (name, subdir))
-    cd_first = any(c.tool == "bash" and re.search(r"\bcd\s+(/workspace/)?" + re.escape(subdir), c.command)
-                   for c in first)
-    reached = any((c.tool in READ_TOOLS and c.path.strip("./") == target) or
-                  (c.tool == "bash" and (target in c.command or (subdir in c.command and name in c.command)))
-                  for c in second)
-    return cd_first and reached, problems
+    cd_sub = re.compile(r"\s*cd\s+(/workspace/)?" + re.escape(subdir) + r"/?\s*$")
+    # A real `cd` command segment, not the words inside an echo.
+    cd_first = any(c.tool == "bash" and any(cd_sub.match(seg) for seg in segments(c.command)) for c in first)
+    return cd_first and any(reads_target(c, subdir, name, cd_sub) for c in second), problems
+
+
+def reads_target(call, subdir, name, cd_sub):
+    """The call reads subdir/name: a read tool on the full path, a bash check
+    command naming it, or a `cd subdir` segment followed by a check of name."""
+    target = subdir + "/" + name
+    if call.tool in READ_TOOLS:
+        return call.path.strip("./") == target
+    if call.tool != "bash":
+        return False
+    inside = False
+    for seg in segments(call.command):
+        if re.match(r"\s*cd\b", seg):
+            inside = bool(cd_sub.match(seg))
+        elif CHECK.search(seg) and (target in seg or (inside and name in seg)):
+            return True
+    return False
 
 
 def check_weather(turns, spec, case):
