@@ -132,7 +132,11 @@ def load_runs(run_dir):
         for line in f:
             record = json.loads(line)
             if record.get("kind") == "turn_result" and record.get("turn_result"):
-                turns[record["case_id"]][record["turn"]] = record["turn_result"]["result"]["steps"]
+                result = record["turn_result"]["result"]
+                # The committed output rides along on a marker key so unclean()
+                # can make Extract's repaired-answer comparison.
+                turns[record["case_id"]][record["turn"]] = \
+                    list(result.get("steps") or []) + [{"_output": result.get("output") or ""}]
             elif record.get("kind") == "runner_event" and \
                     (record.get("runner_event") or {}).get("kind") == RETRY_EVENT:
                 retried.add(record["case_id"])
@@ -142,11 +146,19 @@ def load_runs(run_dir):
         yield case["id"], bool(case["passed"]), ordered, reason
 
 
+def committed(steps):
+    """Split a loaded turn into its steps and the committed Result.Output."""
+    if steps and "_output" in steps[-1]:
+        return steps[:-1], steps[-1]["_output"]
+    return steps, None
+
+
 def unclean(steps_by_turn):
     """Why `corpus paths` (internal/lab/corpus/paths.go Extract) would drop
     this run, or None. A run it drops never becomes a row, so it must not be
     counted as covered either."""
     for steps in steps_by_turn:
+        steps, output = committed(steps)
         if not steps:
             return "turn without steps"
         for i, step in enumerate(steps):
@@ -158,8 +170,16 @@ def unclean(steps_by_turn):
                     (step.get("tool") == "get_weather" and "location not found" in error)
                 if (error and not fixture) or step.get("tool_rejected_reason") or not step.get("tool_executed"):
                     return "tool error or rejection"
-            elif step.get("action_type") == "final" and i != len(steps) - 1:
-                return "final before the last step"
+            elif step.get("action_type") == "final":
+                if i != len(steps) - 1:
+                    return "final before the last step"
+                text = (step.get("model_output") or "").strip()
+                if output is not None and text != output.strip():
+                    return "answer repaired by the harness"
+                if not text:
+                    return "empty final answer"
+            else:
+                return "action %r" % step.get("action_type")
     return None
 
 
@@ -312,8 +332,22 @@ def check_cmd_missing(turns, spec, case):
               if c.tool == "bash" and (c.result.get("exit_code") == 127 or MISSING.search(c.text))]
     if not failed:
         return False, []
+    # Recovery means a later call produced the answer another way, not just
+    # that something after the failure succeeded.
+    want = literals(case["turns"][-1]["expect"])
     later = calls[failed[0] + 1:]
-    return any(c.tool != "bash" or c.result.get("exit_code") == 0 for c in later), []
+    return any(c.tool not in NO_EVIDENCE_TOOLS and all(has_literal(c.text, w) for w in want)
+               for c in later), []
+
+
+def segments(command):
+    return re.split(r"&&|\|\||[;|\n]", command)
+
+
+def checked_targets(command, targets):
+    """Targets named by a check command of their own (`ls inbox`), not merely
+    mentioned somewhere next to one (`echo archive && ls inbox`)."""
+    return {t for seg in segments(command) if CHECK.search(seg) for t in targets if t in seg}
 
 
 def check_bash_edit(turns, spec, case):
@@ -333,18 +367,21 @@ def check_bash_edit(turns, spec, case):
     # A check names the target, or runs inside it: a leading `cd <target>`
     # holds for the rest of that one call.
     checked, verified_at = set(), None
-    if CHECK.search(tail):
-        checked.update(t for t in targets if t in tail)
-        if "cd " not in tail:
-            checked.update(t for t in targets if re.match(r"\s*cd\s+(/workspace/)?" + re.escape(t), command))
-        if checked >= set(targets):
-            verified_at = last
+    tail_checked = checked_targets(tail, targets)
+    if "cd " not in tail:
+        # A leading `cd <target>` holds for the rest of that one call.
+        inside = [t for t in targets if re.match(r"\s*cd\s+(/workspace/)?" + re.escape(t), command)]
+        if inside and any(CHECK.search(seg) for seg in segments(tail)):
+            tail_checked.update(inside)
+    checked.update(tail_checked)
+    if checked >= set(targets):
+        verified_at = last
     for i in range(last + 1, len(calls)):
         if verified_at is not None:
             break
         c = calls[i]
-        if c.tool == "bash" and CHECK.search(c.command):
-            checked.update(t for t in targets if t in c.command)
+        if c.tool == "bash":
+            checked.update(checked_targets(c.command, targets))
         elif c.tool in READ_TOOLS | {"list_files"}:
             checked.update(t for t in targets if t in c.path)
         if checked >= set(targets):
@@ -437,7 +474,7 @@ def label(case_id, passed, steps_by_turn, dropped=None):
         return "fail", []
     if dropped:
         return "reject", ["unclean: %s (corpus paths drops the run)" % dropped]
-    turns = [split_turn(steps) for steps in steps_by_turn]
+    turns = [split_turn(committed(steps)[0]) for steps in steps_by_turn]
     problems = []
     for (calls, final), turn in zip(turns, case["turns"]):
         # Edit/write kinds judge their own stopping point (after verification).
