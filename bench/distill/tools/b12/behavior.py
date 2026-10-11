@@ -16,7 +16,8 @@ passing run:
   ordinary  passed, no behavior problem, but the target behavior is absent
             (e.g. cfg-9012 without a bash cd); may stay as a plain path but does
             not count toward the sub-class quota
-  reject    passed, but a behavior problem was found; exclude the path
+  reject    passed, but a behavior problem was found, or `corpus paths` would
+            drop the run anyway (protocol retry, forced closeout, tool error)
   fail      the scorer failed the run
 
 Behavior problems (any kind):
@@ -48,6 +49,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from distill_paths import find_case  # noqa: E402
 
+RETRY_EVENT = "protocol_retry"  # agent.EventRetry
 DUMP_CHARS = 4000
 RAW_CHARS = 2000
 RAW_CMD = re.compile(r"\b(cat|head|tail)\b|sed\s+-n")
@@ -61,7 +63,8 @@ MUTATE = re.compile(r"\bsed\s+-i|\bmv\s|\brm\s|\bcp\s|\bmkdir\s|\btouch\s|(?<![0
 CHECK = re.compile(r"\b(ls|grep|cat|find|head|tail|diff|wc)\b")
 # The shell's own diagnostic, not any output that happens to say "not found".
 MISSING = re.compile(r"(^|\n)(bash: )?[^\s:]+: command not found")
-SELFCORRECT = re.compile(r"\bwait\b|let me (re)?state|let me correct|等等|更正一下|不对，", re.I)
+# Correction-shaped phrases only: "Wait until Friday" is advice, not a revision.
+SELFCORRECT = re.compile(r"\bwait[,.!—-]+\s*(let me|actually|no\b|that)|let me (re)?state|let me correct|等等，|更正一下|不对，", re.I)
 
 SPEC = {
     # M9a many-file aggregation
@@ -124,14 +127,40 @@ def load_runs(run_dir):
     with open(os.path.join(run_dir, "summary.json")) as f:
         summary = json.load(f)
     turns = collections.defaultdict(dict)
+    retried = set()
     with open(os.path.join(run_dir, "trace.jsonl")) as f:
         for line in f:
             record = json.loads(line)
             if record.get("kind") == "turn_result" and record.get("turn_result"):
                 turns[record["case_id"]][record["turn"]] = record["turn_result"]["result"]["steps"]
+            elif record.get("kind") == "runner_event" and \
+                    (record.get("runner_event") or {}).get("kind") == RETRY_EVENT:
+                retried.add(record["case_id"])
     for case in summary["cases"]:
         ordered = [turns[case["id"]][t] for t in sorted(turns[case["id"]])]
-        yield case["id"], bool(case["passed"]), ordered
+        reason = "protocol retry" if case["id"] in retried else unclean(ordered)
+        yield case["id"], bool(case["passed"]), ordered, reason
+
+
+def unclean(steps_by_turn):
+    """Why `corpus paths` (internal/lab/corpus/paths.go Extract) would drop
+    this run, or None. A run it drops never becomes a row, so it must not be
+    counted as covered either."""
+    for steps in steps_by_turn:
+        if not steps:
+            return "turn without steps"
+        for i, step in enumerate(steps):
+            if step.get("stage") != "decision":
+                return "%s stage (forced closeout)" % (step.get("stage") or "None")
+            if step.get("action_type") == "tool":
+                error = step.get("tool_error", "")
+                fixture = (step.get("tool") == "web_fetch" and not error.startswith("invalid tool arguments")) or \
+                    (step.get("tool") == "get_weather" and "location not found" in error)
+                if (error and not fixture) or step.get("tool_rejected_reason") or not step.get("tool_executed"):
+                    return "tool error or rejection"
+            elif step.get("action_type") == "final" and i != len(steps) - 1:
+                return "final before the last step"
+    return None
 
 
 class Call:
@@ -300,16 +329,29 @@ def check_bash_edit(turns, spec, case):
     sep = re.search(r"&&|\|\||;|\n", rest)
     tail = rest[sep.end():] if sep else ""
     targets = spec["targets"]
-    # The check after the change must point at the target itself, or run
-    # inside it: a leading `cd <target>` holds for the rest of that one call.
-    cd_into = any(re.match(r"\s*cd\s+(/workspace/)?" + re.escape(t), command) for t in targets)
-    same_call = CHECK.search(tail) and (any(t in tail for t in targets) or (cd_into and "cd " not in tail))
-    later = [c for c in calls[last + 1:]
-             if (c.tool == "bash" and CHECK.search(c.command) and any(t in c.command for t in targets))
-             or (c.tool in READ_TOOLS | {"list_files"} and any(t in c.path for t in targets))]
-    if not same_call and not later:
-        return False, ["bash_edit: no check of %s after the change" % "/".join(targets)]
-    verified_at = last if same_call else calls.index(later[0])
+    # Every target must be checked after the change (a move has two ends).
+    # A check names the target, or runs inside it: a leading `cd <target>`
+    # holds for the rest of that one call.
+    checked, verified_at = set(), None
+    if CHECK.search(tail):
+        checked.update(t for t in targets if t in tail)
+        if "cd " not in tail:
+            checked.update(t for t in targets if re.match(r"\s*cd\s+(/workspace/)?" + re.escape(t), command))
+        if checked >= set(targets):
+            verified_at = last
+    for i in range(last + 1, len(calls)):
+        if verified_at is not None:
+            break
+        c = calls[i]
+        if c.tool == "bash" and CHECK.search(c.command):
+            checked.update(t for t in targets if t in c.command)
+        elif c.tool in READ_TOOLS | {"list_files"}:
+            checked.update(t for t in targets if t in c.path)
+        if checked >= set(targets):
+            verified_at = i
+    if verified_at is None:
+        missing = [t for t in targets if t not in checked]
+        return False, ["bash_edit: no check of %s after the change" % ", ".join(missing)]
     if verified_at < len(calls) - 1:
         return True, ["post_answer_calls: %s after the change was verified"
                       % ", ".join(c.tool for c in calls[verified_at + 1:])]
@@ -386,13 +428,15 @@ CHECKS = {
 }
 
 
-def label(case_id, passed, steps_by_turn):
+def label(case_id, passed, steps_by_turn, dropped=None):
     spec = SPEC.get(case_id)
     case = find_case(case_id)
     if spec is None or case is None:
         return "unknown", ["no behavior spec" if spec is None else "case not found"]
     if not passed:
         return "fail", []
+    if dropped:
+        return "reject", ["unclean: %s (corpus paths drops the run)" % dropped]
     turns = [split_turn(steps) for steps in steps_by_turn]
     problems = []
     for (calls, final), turn in zip(turns, case["turns"]):
@@ -414,8 +458,8 @@ def main():
     args = ap.parse_args()
     rows = []
     for run_dir in args.runs:
-        for case_id, passed, steps in load_runs(run_dir):
-            verdict, problems = label(case_id, passed, steps)
+        for case_id, passed, steps, dropped in load_runs(run_dir):
+            verdict, problems = label(case_id, passed, steps, dropped)
             rows.append((os.path.basename(run_dir.rstrip("/")), case_id, verdict, "; ".join(problems)))
     for row in rows:
         print("%s\t%s\t%s\t%s" % row)
