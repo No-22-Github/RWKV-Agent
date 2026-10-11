@@ -60,7 +60,7 @@ READ_TOOLS = {"read_file", "read_lines"}
 # contain the answer digits by accident.
 NO_EVIDENCE_TOOLS = {"list_files", "datetime"}
 MUTATE = re.compile(r"\bsed\s+-i|\bmv\s|\brm\s|\bcp\s|\bmkdir\s|\btouch\s|(?<![0-9&])>>?\s*(?!/dev/null)[^\s&|;]")
-CHECK = re.compile(r"\b(ls|grep|cat|find|head|tail|diff|wc)\b")
+CHECK_VERBS = {"ls", "grep", "cat", "find", "head", "tail", "diff", "wc"}
 # The shell's own diagnostic, not any output that happens to say "not found".
 MISSING = re.compile(r"(^|\n)(bash: )?[^\s:]+: command not found")
 # Correction-shaped phrases only: "Wait until Friday" is advice, not a revision.
@@ -153,6 +153,12 @@ def committed(steps):
     return steps, None
 
 
+def weather_recovered(later):
+    """A later get_weather in the same turn succeeded (fixtureWeatherMiss)."""
+    return any(s.get("action_type") == "tool" and s.get("tool") == "get_weather" and s.get("tool_executed")
+               and not s.get("tool_error") and not s.get("tool_rejected_reason") for s in later)
+
+
 def unclean(steps_by_turn):
     """Why `corpus paths` (internal/lab/corpus/paths.go Extract) would drop
     this run, or None. A run it drops never becomes a row, so it must not be
@@ -167,7 +173,8 @@ def unclean(steps_by_turn):
             if step.get("action_type") == "tool":
                 error = step.get("tool_error", "")
                 fixture = (step.get("tool") == "web_fetch" and not error.startswith("invalid tool arguments")) or \
-                    (step.get("tool") == "get_weather" and "location not found" in error)
+                    (step.get("tool") == "get_weather" and "location not found" in error
+                     and weather_recovered(steps[i + 1:]))
                 if (error and not fixture) or step.get("tool_rejected_reason") or not step.get("tool_executed"):
                     return "tool error or rejection"
             elif step.get("action_type") == "final":
@@ -381,10 +388,17 @@ def segments(command):
     return re.split(r"&&|\|\||[;|\n]", command)
 
 
+def is_check(seg):
+    """The segment runs a check command itself (`ls inbox`), not one quoted
+    inside another command's arguments (`echo 'ls inbox'`)."""
+    words = seg.split()
+    return bool(words) and words[0] in CHECK_VERBS
+
+
 def checked_targets(command, targets):
     """Targets named by a check command of their own (`ls inbox`), not merely
     mentioned somewhere next to one (`echo archive && ls inbox`)."""
-    return {t for seg in segments(command) if CHECK.search(seg) for t in targets if t in seg}
+    return {t for seg in segments(command) if is_check(seg) for t in targets if t in seg}
 
 
 def check_bash_edit(turns, spec, case):
@@ -408,7 +422,7 @@ def check_bash_edit(turns, spec, case):
     if "cd " not in tail:
         # A leading `cd <target>` holds for the rest of that one call.
         inside = [t for t in targets if re.match(r"\s*cd\s+(/workspace/)?" + re.escape(t), command)]
-        if inside and any(CHECK.search(seg) for seg in segments(tail)):
+        if inside and any(is_check(seg) for seg in segments(tail)):
             tail_checked.update(inside)
     checked.update(tail_checked)
     if checked >= set(targets):
@@ -463,7 +477,7 @@ def reads_target(call, subdir, name, cd_sub):
     for seg in segments(call.command):
         if re.match(r"\s*cd\b", seg):
             inside = bool(cd_sub.match(seg))
-        elif CHECK.search(seg) and (target in seg or (inside and name in seg)):
+        elif is_check(seg) and (target in seg or (inside and name in seg)):
             return True
     return False
 
@@ -485,14 +499,27 @@ def check_weather_landmark(turns, spec, case):
     return covered, problems
 
 
+def norm_path(path):
+    path = path.strip()
+    for prefix in ("/workspace/", "./"):
+        if path.startswith(prefix):
+            path = path[len(prefix):]
+    return path
+
+
 def check_weather_write(turns, spec, case):
     calls, _ = turns[-1]
     problems = []
-    writes = [i for i, c in enumerate(calls) if c.tool in WRITE_TOOLS]
+    # Only writes to the case's expected file count; a scratch write and its
+    # read-back after the real edit are extra calls, not the verification.
+    artifacts = {norm_path(p) for p in case.get("expect", {}).get("files", {})}
+    writes = [i for i, c in enumerate(calls) if c.tool in WRITE_TOOLS
+              and (not artifacts or norm_path(c.path) in artifacts)]
     if not writes:
         return False, ["weather_write: nothing written"]
-    path = calls[writes[-1]].path
-    back = [i for i in range(writes[-1] + 1, len(calls)) if calls[i].tool in READ_TOOLS and calls[i].path == path]
+    path = norm_path(calls[writes[-1]].path)
+    back = [i for i in range(writes[-1] + 1, len(calls))
+            if calls[i].tool in READ_TOOLS and norm_path(calls[i].path) == path]
     if not back:
         return False, ["weather_write: no read-back of %s" % path]
     if back[0] < len(calls) - 1:
