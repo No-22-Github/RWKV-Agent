@@ -40,3 +40,7 @@
 | `v13_closeout.py` | 收尾恢复路径（N10）的机械变换 | v1.3 |
 | `v14_rewrite_finals.py` · `v14_m1_closeout.py` | b09 终答改写、M8 心算剔除与封顶（工作目录 `v1.4/b09_work/`） | v1.4 |
 | `train-1-3.sh` · `test-1-3.sh` | v1.3 state 训练（拷到训练机上跑）与上传跑分 | v1.3 |
+
+## v1.4冻结打包
+
+`finalize_v14.py --out <新目录>` 复用当前统计来源、b13与原排除表，只给未加后缀的行追加一次，按family哈希分出验证集，再执行现有pack/segments/segcheck。拒绝覆盖已有目录；不调用老师，不修复语义行为缺口。交付情况见[v1.4收尾报告](../v1.4/reports/v1.4-final-20261011.md)。

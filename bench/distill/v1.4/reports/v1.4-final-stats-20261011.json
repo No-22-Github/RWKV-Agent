@@ -1,0 +1,183 @@
+{
+  "status": "v1.4_frozen_with_known_data_gaps",
+  "composition": {
+    "rows": 3328,
+    "rows_by_batch": {
+      "b05": 352,
+      "b06": 541,
+      "b07": 173,
+      "b08": 46,
+      "b09": 396,
+      "b10-pilot": 77,
+      "b10a": 458,
+      "b10b": 208,
+      "b10c": 187,
+      "b10d": 251,
+      "b10e": 319,
+      "b11": 200,
+      "b13": 40,
+      "base700": 80
+    },
+    "pure_value_finals": "602/3328 (18.1%)",
+    "pure_value_zh": "237/1483 (16.0%)",
+    "pure_value_en": "365/1845 (19.8%)",
+    "bare_UNKNOWN_finals": 0,
+    "UNKNOWN_contract_rows": "133/3328 (4.0%)",
+    "zh_rows": "1483/3328 (44.6%)",
+    "multi_turn_rows": "504/3328 (15.1%)",
+    "catalog_le5_rows": "174/3328 (5.2%)",
+    "data_query_share_of_calls": "618/9871 (6.3%)",
+    "write_or_script_rows": "473/3328 (14.2%)",
+    "readback_after_last_write_new_rows": "298/298 (100.0%)",
+    "closeout_rows": 246,
+    "closeout_write_rows": 60,
+    "zero_call_rows": "576/3328 (17.3%)",
+    "zero_call_turn1": "370/3058 (12.1%)",
+    "first_action_list_files": "1495/2688 (55.6%)",
+    "first_action_list_files_when_prompt_names_path": "353/1059 (33.3%)",
+    "tokens_max": 8121,
+    "tokens_over_4096": "141/3328 (4.2%)"
+  },
+  "input_counts": {
+    "local/runs/distill/v13-clean/train-rows.jsonl": {
+      "raw": 2161,
+      "kept": 1147,
+      "sha256": "93f1fa4f69c786e7fdf2227af28bda734085b3a19c9a0e15be847f6185324d66"
+    },
+    "local/runs/distill/v13-clean/val-rows.jsonl": {
+      "raw": 76,
+      "kept": 45,
+      "sha256": "9f478d8c63919603efd1b840a8634e1c9ccdeb910c1921a925df32e7b64f81b1"
+    },
+    "local/runs/distill/v14/b09/rows.jsonl": {
+      "raw": 450,
+      "kept": 396,
+      "sha256": "c1945dabc06d6df4081ca7d95dc4d4f40c491dc8f8690ae38c63b289a55fe28e"
+    },
+    "local/runs/distill/v141/b10-pilot/corpus/rows.jsonl": {
+      "raw": 77,
+      "kept": 77,
+      "sha256": "accd0e7e724d89eecf472bae8a102a1cf425e86aea76f0e6a2952051a2580041"
+    },
+    "local/runs/distill/v141/b10a/corpus/rows.jsonl": {
+      "raw": 481,
+      "kept": 458,
+      "sha256": "4e8ab6d3dfdc36c111577e385be97596b64d450c6419db5b789d8638ea3b8b34"
+    },
+    "local/runs/distill/v141/b10b/corpus/rows.jsonl": {
+      "raw": 212,
+      "kept": 208,
+      "sha256": "07a1dfb69d03ef5e3c05d1e64879f700b840029384a81535043722b195816944"
+    },
+    "local/runs/distill/v141/b10c/corpus/rows.jsonl": {
+      "raw": 208,
+      "kept": 187,
+      "sha256": "867cc1f7ada148c6d41dede3aa4f0dffdec57aa7277bad5139f2438b1b26f2a1"
+    },
+    "local/runs/distill/v141/b10d/corpus/rows.jsonl": {
+      "raw": 290,
+      "kept": 251,
+      "sha256": "72c007f4bf57e1e463d95cbc19126dbf5d5610901450c733e1f966bd91db4977"
+    },
+    "local/runs/distill/v141/b10e/corpus/rows.jsonl": {
+      "raw": 339,
+      "kept": 319,
+      "sha256": "02c37136033dcf696294f6a6958a54c19559cf9e85766c859f8cc6a68b161840"
+    },
+    "local/runs/distill/v141/b11/corpus/rows.jsonl": {
+      "raw": 200,
+      "kept": 200,
+      "sha256": "0e9fe1e0fb60b21e2db1b75a7d3333d75745623a3691b81893c9f90aae9f1d53"
+    },
+    "local/runs/distill/v141/b13/corpus/rows.jsonl": {
+      "raw": 63,
+      "kept": 40,
+      "sha256": "10b4c015597330862ba83d91958a0857158712b2ef969873988a26606a402303"
+    }
+  },
+  "exclude_sha256": "e54eb959042755048effdeb11f5e23c5a26a5d88b5ed1bea730a5273b6dd0ab0",
+  "split_method": "sha256(family) mod 32 == 0 -> validation",
+  "rows": 3328,
+  "train": 3228,
+  "validation": 100,
+  "unique_base_cases": 2283,
+  "families": 1919,
+  "suffix_already_present": 1192,
+  "suffix_appended": 2136,
+  "family_leakage": 0,
+  "case_leakage": 0,
+  "seeded_from_test_rows": 80,
+  "seeded_from_test_by_split": {
+    "train": 71,
+    "validation": 9
+  },
+  "wire_hash": [
+    "707c67403b1b2e5269ddfcd8ecee2bfb7ce4d8133912d102bc67f1324f8018cb"
+  ],
+  "pack_manifests": {
+    "train": {
+      "inputs": [
+        {
+          "path": "/Users/no22/Projects/RWKV-Agent/local/runs/distill/v14/final-20261011/train-rows.jsonl",
+          "sha256": "072bbded3d825ab7e3339b821c13f0cd7dd2009d794ee1ce205ff92892448ae9",
+          "rows": 3228
+        }
+      ],
+      "exclude": {
+        "path": "/Users/no22/Projects/RWKV-Agent/bench/distill/common/exclude.jsonl",
+        "sha256": "e54eb959042755048effdeb11f5e23c5a26a5d88b5ed1bea730a5273b6dd0ab0",
+        "removed": 0
+      },
+      "wire_hash": "707c67403b1b2e5269ddfcd8ecee2bfb7ce4d8133912d102bc67f1324f8018cb",
+      "harness_version": "rwkv-agent-eval-v22",
+      "rows": 3228,
+      "tokens": {
+        "p50": 1746,
+        "p99": 6648,
+        "max": 8124
+      },
+      "zero_call_share": 0.1735,
+      "created_at": "2026-10-11T08:30:30Z"
+    },
+    "validation": {
+      "inputs": [
+        {
+          "path": "/Users/no22/Projects/RWKV-Agent/local/runs/distill/v14/final-20261011/validation-rows.jsonl",
+          "sha256": "02659226fe517cbdc9d1ec46048cbfe8ab92a5e22c31ff26949e3ea68edb4dce",
+          "rows": 100
+        }
+      ],
+      "exclude": {
+        "path": "/Users/no22/Projects/RWKV-Agent/bench/distill/common/exclude.jsonl",
+        "sha256": "e54eb959042755048effdeb11f5e23c5a26a5d88b5ed1bea730a5273b6dd0ab0",
+        "removed": 0
+      },
+      "wire_hash": "707c67403b1b2e5269ddfcd8ecee2bfb7ce4d8133912d102bc67f1324f8018cb",
+      "harness_version": "rwkv-agent-eval-v22",
+      "rows": 100,
+      "tokens": {
+        "p50": 1822,
+        "p99": 3613,
+        "max": 3816
+      },
+      "zero_call_share": 0.16,
+      "created_at": "2026-10-11T08:30:30Z"
+    }
+  },
+  "artifact_sha256": {
+    "dataset/train/manifest.json": "d998db1399760b2b0b8923659f59bf88e9cf10f67d45dae19e2222db8bd6d9d9",
+    "dataset/train/rows.jsonl": "072bbded3d825ab7e3339b821c13f0cd7dd2009d794ee1ce205ff92892448ae9",
+    "dataset/train/segments.jsonl": "86e44086d43931e75cd30de9687c3bf083eafff6dafec568a543d0034f4774ed",
+    "dataset/train/train.jsonl": "1989c7e843aee9620d118094224a100206ad6eacad839dcb9bd9bd86bdc3b4a6",
+    "dataset/validation/manifest.json": "cee4a934c2081903996ef7a708029a0ef830586f73e7f31be98b01ecf1846dc7",
+    "dataset/validation/rows.jsonl": "02659226fe517cbdc9d1ec46048cbfe8ab92a5e22c31ff26949e3ea68edb4dce",
+    "dataset/validation/segments.jsonl": "2a57e5a767be40d676a63d9edc7b981034f4d56e80d2354b62394bf7c3218431",
+    "dataset/validation/train.jsonl": "a26234f09e3baf95b17a5115c39f42c07c33fb69f097915e6a95d43f4881b219"
+  },
+  "deferred": [
+    "first-turn zero-call, list_files, data_query and small-catalog composition gaps",
+    "legacy same-file readback, DONE and M6 whole-file behavior repair",
+    "80 retained test-seeded base700 rows: evaluate only with source-aware clean benchmarks",
+    "think-full/MiSS rendering and student training/evaluation"
+  ]
+}

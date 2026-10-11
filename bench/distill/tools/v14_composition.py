@@ -59,11 +59,18 @@ def main():
     def prompt(r):
         m = r["meta"]
         ps = prompts.get(m["case_id"].rsplit("--p", 1)[0])
-        return ps[m["turn"] - 1] if ps and m["turn"] <= len(ps) else ""
+        if ps and m["turn"] <= len(ps):
+            return ps[m["turn"] - 1]
+        # base700 records have no live case.json. The first supervised output
+        # follows the current real user prompt, before any current-turn receipt.
+        head = r["text"][:r["loss_spans"][0][0]]
+        if "\n\nUser: " not in head:
+            raise ValueError("no user prompt for %s" % m["case_id"])
+        return head.rsplit("\n\nUser: ", 1)[1].rsplit("\n\nAssistant: ", 1)[0]
 
     def final(r):
         a, b = r["loss_spans"][-1]
-        return r["text"][a:b].strip()
+        return r["text"][a:b].removesuffix("\n\nUser:").strip()
 
     zh = [bool(CJK.search(prompt(r))) for r in rows]
     val = [r["meta"]["traj"]["final_kind"] == "value" for r in rows]
