@@ -59,7 +59,8 @@ READ_TOOLS = {"read_file", "read_lines"}
 NO_EVIDENCE_TOOLS = {"list_files", "datetime"}
 MUTATE = re.compile(r"\bsed\s+-i|\bmv\s|\brm\s|\bcp\s|\bmkdir\s|\btouch\s|(?<![0-9&])>>?\s*(?!/dev/null)[^\s&|;]")
 CHECK = re.compile(r"\b(ls|grep|cat|find|head|tail|diff|wc)\b")
-MISSING = re.compile(r"command not found|not found|No such file or directory: '?(python|pip|node|curl)")
+# The shell's own diagnostic, not any output that happens to say "not found".
+MISSING = re.compile(r"(^|\n)(bash: )?[^\s:]+: command not found")
 SELFCORRECT = re.compile(r"\bwait\b|let me (re)?state|let me correct|等等|更正一下|不对，", re.I)
 
 SPEC = {
@@ -293,9 +294,16 @@ def check_bash_edit(turns, spec, case):
         return False, ["bash_edit: no bash change"]
     last = mutating[-1]
     command = calls[last].command
-    tail = command[max(m.end() for m in MUTATE.finditer(command)):]
+    # What runs after the last mutating command: skip to the next separator so
+    # the mutation's own arguments (the edited path) do not count as a check.
+    rest = command[max(m.end() for m in MUTATE.finditer(command)):]
+    sep = re.search(r"&&|\|\||;|\n", rest)
+    tail = rest[sep.end():] if sep else ""
     targets = spec["targets"]
-    same_call = CHECK.search(tail) and any(t in command for t in targets)
+    # The check after the change must point at the target itself, or run
+    # inside it: a leading `cd <target>` holds for the rest of that one call.
+    cd_into = any(re.match(r"\s*cd\s+(/workspace/)?" + re.escape(t), command) for t in targets)
+    same_call = CHECK.search(tail) and (any(t in tail for t in targets) or (cd_into and "cd " not in tail))
     later = [c for c in calls[last + 1:]
              if (c.tool == "bash" and CHECK.search(c.command) and any(t in c.command for t in targets))
              or (c.tool in READ_TOOLS | {"list_files"} and any(t in c.path for t in targets))]

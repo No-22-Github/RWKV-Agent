@@ -144,7 +144,8 @@ Status and SKU are exact fields; the README pins KX- versus KXL-.
         traps=["TR-MULTISRC", "TR-DECOY"], decoys={"TR-MULTISRC": march_only, "TR-DECOY": with_lite}, axes=["CHN", "OBS"],
         files=files, verify=verify, notes=notes,
         turns=[{"prompt": "How much did we refund on the Kestrel line across the March to August order exports?",
-                "expect": {"output_contains_any": thousands(value), "max_output_chars": 600}}])
+                "expect": {"output_contains_any": thousands(value), "output_contains_any_token": True,
+                           "max_output_chars": 600}}])
 
 
 # ---------------------------------------------------------------- M9b bulk edit

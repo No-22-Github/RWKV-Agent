@@ -41,6 +41,7 @@
           "2699.2",
           "2,699.2"
         ],
+        "output_contains_any_token": true,
         "max_output_chars": 600
       }
     }

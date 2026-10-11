@@ -46,6 +46,7 @@
           "7521.21",
           "7,521.21"
         ],
+        "output_contains_any_token": true,
         "max_output_chars": 600
       }
     }

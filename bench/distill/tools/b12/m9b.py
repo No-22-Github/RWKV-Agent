@@ -77,7 +77,8 @@ The script's filter and rounding are explicit; returned batches are excluded.
         traps=["TR-DEFN"], decoys={"TR-DEFN": all_kg}, axes=["OBS", "ERR"],
         files=files, verify=verify, notes=notes,
         turns=[{"prompt": "帮我跑一下 工具/汇总.py，告诉我它输出的入库净重合计是多少千克。",
-                "expect": {"output_contains_any": thousands(kg), "max_output_chars": 600}}])
+                "expect": {"output_contains_any": thousands(kg), "output_contains_any_token": True,
+                           "max_output_chars": 600}}])
 
 
 def web_9008():

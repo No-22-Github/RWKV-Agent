@@ -143,6 +143,13 @@ type Expectation struct {
 	MustStateUnverified []string         `json:"must_state_unverified,omitempty"`
 	RequireActiveNoCall bool             `json:"require_active_no_call,omitempty"`
 	ForbidRouteFallback bool             `json:"forbid_route_fallback,omitempty"`
+
+	// OutputContainsAnyToken applies the whole-token match of
+	// OutputContainsToken to the OutputContainsAny alternatives, for a number
+	// accepted in two spellings ("7521.21", "7,521.21") that must still not
+	// match inside "17521.21". It is a separate flag so cases that already set
+	// output_contains_token next to substring alternatives keep their scoring.
+	OutputContainsAnyToken bool `json:"output_contains_any_token,omitempty"`
 }
 
 type PlanExpectation struct {

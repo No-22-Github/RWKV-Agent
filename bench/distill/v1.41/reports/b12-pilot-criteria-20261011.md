@@ -7,8 +7,9 @@
 | 位置 | 改动 | 解决的问题 |
 |---|---|---|
 | `nt-9010`、`nt-9020` | 加 `require_active_no_call: true` | `tools: []` 只计入零调用指标、不判失败，`datetime → final` 照样通过并被抽取。现在任何调用都使该轮失败，`corpus paths` 自然剔除。注意 `forbidden_tools` 是精确名单，`["*"]` 不是通配，不能用 |
-| `tab-9002`、`scr-9007` | `output_contains` + token 改为 `output_contains_any`：`7521.21`/`7,521.21`、`2699.2`/`2,699.2`；verify.py 同步输出 `expected_contains_any` | 四轮冒烟里 tab-9002 全挂，其中两轮仅因老师写了千分位逗号 |
+| `tab-9002`、`scr-9007` | `output_contains` + token 改为 `output_contains_any` + 新增的 `output_contains_any_token`：`7521.21`/`7,521.21`、`2699.2`/`2,699.2`，仍按整词匹配（`17521.21` 不算）；verify.py 同步输出 `expected_contains_any` | 四轮冒烟里 tab-9002 全挂，其中两轮仅因老师写了千分位逗号 |
 | `cfg-9012` | 第一轮题面改为「cd 到 服务/结算 目录，看看里面有哪些文件。」；NOTES 参考解改为 `cd 服务/结算 && ls` | 四轮老师全用 list_files/read_file，路径里没有 cd，教不到「cd 不跨调用」 |
+| `internal/agent/eval` | 新增 `output_contains_any_token`：把整词匹配用到 `output_contains_any` 的各备选上。单独开关，已同时设 `output_contains_token` 与 `output_contains_any` 的旧题评分不变 | 千分位两种写法都接受，又不让更大的数字混过 |
 | `internal/lab/corpus/paths.go` | `get_weather` 的 `location not found` 与 web_fetch 夹具错误页同等对待，不再使整条路径失格；其余 get_weather 错误（参数错）照旧剔除 | M10 地标恢复（鼓浪屿 → 厦门）原本必被 `corpus paths` 丢弃。fixture 决定哪些名字能解析，重放时报同样的错。bash 非零退出本来就是正常 tool_result，不受影响 |
 | `tools/b12/behavior.py`（新） | 读 run 目录的 summary + trace，对每条通过路径判 covered / ordinary / reject | 「结果通过」与「目标行为合格」分开计数，见 §2 |
 
