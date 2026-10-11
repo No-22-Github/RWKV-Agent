@@ -68,13 +68,25 @@ func fixturePageError(step agent.Step) bool {
 }
 
 // fixtureWeatherMiss reports whether a tool error is get_weather not knowing a
-// place. The case's weather_fixture fixes which names resolve, so asking for a
-// landmark and then its city (鼓浪屿 -> 厦门) is the recovery the M10 landmark
-// cases teach, and render replays the same miss. Other get_weather errors
-// (bad days, empty location) stay the teacher's own and keep the path out.
-func fixtureWeatherMiss(step agent.Step) bool {
-	return step.Tool == "get_weather" && step.ToolExecuted &&
-		strings.Contains(step.ToolError, tools.ErrWeatherLocationNotFound.Error())
+// place, recovered later in the same turn by a get_weather call that
+// succeeds. The case's weather_fixture fixes which names resolve, so asking
+// for a landmark and then its city (鼓浪屿 -> 厦门) is the recovery the M10
+// landmark cases teach, and render replays the same miss. A miss that is never
+// recovered (a typo, then a guessed answer) and other get_weather errors (bad
+// days, empty location) stay the teacher's own and keep the path out.
+func fixtureWeatherMiss(steps []agent.Step, index int) bool {
+	step := steps[index]
+	if step.Tool != "get_weather" || !step.ToolExecuted ||
+		!strings.Contains(step.ToolError, tools.ErrWeatherLocationNotFound.Error()) {
+		return false
+	}
+	for _, later := range steps[index+1:] {
+		if later.ActionType == "tool" && later.Tool == "get_weather" &&
+			later.ToolExecuted && later.ToolError == "" && later.ToolRejected == "" {
+			return true
+		}
+	}
+	return false
 }
 
 // Unclean is a passing run whose path cannot be replayed as-is; the message is
@@ -131,7 +143,7 @@ func Extract(run CaseRun) (Trajectory, error) {
 			}
 			switch step.ActionType {
 			case "tool":
-				if (step.ToolError != "" && !fixturePageError(step) && !fixtureWeatherMiss(step)) ||
+				if (step.ToolError != "" && !fixturePageError(step) && !fixtureWeatherMiss(result.Steps, index)) ||
 					step.ToolRejected != "" || !step.ToolExecuted {
 					return nil, Unclean("tool error or rejection")
 				}

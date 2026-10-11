@@ -78,9 +78,9 @@ SPEC = {
     "log-9006": dict(kind="bash_aggregate", sub="M9c"),
     # M9d missing command -> another way
     "scr-9007": dict(kind="cmd_missing", sub="M9d", needs=["工具/汇总.py"]),
-    "web-9008": dict(kind="bash_avoided", sub="M9d"),
+    "web-9008": dict(kind="bash_avoided", sub="M9d", via=("web_fetch", "web_search")),
     # M9e bash offered but not the right tool
-    "doc-9009": dict(kind="bash_avoided", sub="M9e"),
+    "doc-9009": dict(kind="bash_avoided", sub="M9e", via=("read_file", "read_lines", "search_text")),
     "nt-9010": dict(kind="zero_call", sub="M9e"),
     "fs-9011": dict(kind="bash_aggregate", sub="M9e", forbid_cmd=r"\brm\b"),
     # M9f cwd does not carry over between bash calls
@@ -355,7 +355,12 @@ def check_bash_avoided(turns, spec, case):
     calls = [c for t in turns for c in t[0]]
     if any(c.tool == "bash" for c in calls):
         return False, ["bash_avoided: bash was called"]
-    return bool(calls), []
+    # Covered only when the intended tool itself returned the answer, not
+    # when some unrelated call happened next to a passing final.
+    want = literals(case["turns"][-1]["expect"])
+    via = spec.get("via")
+    return any((c.tool in via if via else c.tool not in NO_EVIDENCE_TOOLS | {"bash"}) and all(has_literal(c.text, w) for w in want)
+               for c in turns[-1][0]), []
 
 
 def check_cmd_missing(turns, spec, case):
@@ -493,7 +498,9 @@ def check_weather_write(turns, spec, case):
     if back[0] < len(calls) - 1:
         problems.append("post_answer_calls: %s after the read-back"
                         % ", ".join(c.tool for c in calls[back[0] + 1:]))
-    weather_at = [i for i, c in enumerate(calls) if c.tool == "get_weather" and not c.error]
+    # The forecast has to come before the write it backs; writing a guess and
+    # looking the weather up afterwards is not the M10b sequence.
+    weather_at = [i for i, c in enumerate(calls[:writes[-1]]) if c.tool == "get_weather" and not c.error]
     if any(c.tool in ("web_search", "web_fetch") for c in calls[weather_at[0]:]) if weather_at else False:
         problems.append("weather_write: web search after the forecast")
     return bool(weather_at), problems

@@ -661,3 +661,16 @@ func TestExtractKeepsFixtureWeatherMiss(t *testing.T) {
 		t.Fatalf("trajectory = %+v", trajectory)
 	}
 }
+
+func TestExtractDropsUnrecoveredWeatherMiss(t *testing.T) {
+	run := caseRun(t, []map[string]any{
+		step("tool", map[string]any{
+			"tool": "get_weather", "tool_arguments": map[string]any{"location": "厦们", "days": 3},
+			"tool_executed": true, "tool_error": "location not found: 厦们",
+		}),
+		finalStep("后天厦门中雨，降水概率 75%。"),
+	}, nil, true, 0)
+	if _, err := Extract(run); err == nil {
+		t.Fatal("a weather miss with no successful retry was kept")
+	}
+}
