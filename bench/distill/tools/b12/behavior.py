@@ -87,13 +87,13 @@ SPEC = {
     # M9f cwd does not carry over between bash calls
     "cfg-9012": dict(kind="cwd_reset", sub="M9f", subdir="服务/结算", file="超时.yaml"),
     # M10 get_weather first
-    "hyb-9013": dict(kind="weather", sub="M10a"),
+    "hyb-9013": dict(kind="weather", sub="M10a", dates=["2026-09-17"]),
     "hyb-9014": dict(kind="weather_landmark", sub="M10a", landmark="鼓浪屿", city=("厦门", "Xiamen")),
     "hyb-9015": dict(kind="weather_write", sub="M10b"),
     "hyb-9016": dict(kind="weather_write", sub="M10b"),
-    "hyb-9017": dict(kind="weather", sub="M10c"),
-    "hyb-9018": dict(kind="weather", sub="M10d"),
-    "hyb-9019": dict(kind="weather", sub="M10d", needs=["site/rules.md"]),
+    "hyb-9017": dict(kind="weather", sub="M10c", dates=["2026-09-19", "2026-09-20"]),
+    "hyb-9018": dict(kind="weather", sub="M10d", dates=["2026-09-17"]),
+    "hyb-9019": dict(kind="weather", sub="M10d", needs=["site/rules.md"], dates=["2026-09-17"]),
     "nt-9020": dict(kind="zero_call", sub="M10e"),
 }
 
@@ -521,8 +521,12 @@ def reads_target(call, subdir, name, cd_sub):
 
 
 def check_weather(turns, spec, case):
+    # The forecast must cover the days the answer is about (`dates`), so a
+    # 3-day lookup for a weekend question followed by a guess is not covered.
     calls = [c for t in turns for c in t[0]]
-    return any(c.tool == "get_weather" and not c.error for c in calls), []
+    dates = spec.get("dates", ())
+    return any(c.tool == "get_weather" and not c.error and all(d in c.text for d in dates)
+               for c in calls), []
 
 
 def check_weather_landmark(turns, spec, case):
