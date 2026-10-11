@@ -1,4 +1,4 @@
-# 给执行 Agent 的提示：v1.41 放量（DeepSeek 老师，保留思考）
+# 给执行 Agent 的提示：v1.41 剩余制作任务（2026-10-11）
 
 > 用法：把下面「---」之间的整段原样交给执行 Agent。它在本机仓库根目录 `/Users/no22/Projects/RWKV-Agent` 工作。
 > 凭据在本机 `/Users/no22/.llm_api_key.sh`，提示里只引用这个文件，不含 key 本身。
@@ -6,10 +6,10 @@
 ---
 
 你在 RWKV-Agent 仓库里做 v1.41 蒸馏数据的**放量**：先出新题，再让老师模型在真实 harness 里把题做出来，最后渲染成可训练的行。
-规格、流水线、样板都已就绪，你的工作是**照样板放量，不是重新设计**。
+当前b10a–e、b11、b13已完成，候选全集3328行。先按现行规划修复样板与旧轨迹，再制作缺失行为；不要重复生成已完成批次。最终包尚未统一后缀与family分割。
 
 本提示是 `bench/distill/v1.4/b10-scale-prompt.md` 的覆盖层。那份文件是基础流程，本提示没提到的地方一律照它执行；两者冲突时以本提示为准。
-与那份相比，主要变化有两个：老师换成 DeepSeek-flash，并且**保留思考**；目录和脚本按 2026-10-10 的新结构放。
+现行配额与状态以2026-10-11更新的 `distill-allocation-v1.41.md` 为准，覆盖基础提示的旧任务数、进度与比例。老师沿用DeepSeek-flash，保存思考；本阶段交付g1k/state。历史think-full/MiSS双渲染需求单列待实现，不因本阶段剔思考交付而取消。
 
 ## 0. 先读，按顺序（读完再动手）
 
@@ -25,15 +25,17 @@
 
 ## 1. 范围与顺序
 
-| 批次 | 内容 | 题放哪 | 报告放哪 |
-| --- | --- | --- | --- |
-| b10a | M2 查不到 + M3 不调工具 / 反问（约 120–150 题） | `bench/distill/v1.4/cases/` | `bench/distill/v1.4/reports/b10a.md` |
-| b10b、b10c… | M4–M8（约 550 题） | 同上 | 同上 |
-| b12a、b12b… | M9 bash、M10 专用工具（约 330 题，ID 从 9021 起） | `bench/distill/v1.41/cases/` | `bench/distill/v1.41/reports/` |
+| 剩余任务 | 题目 / 产物位置 | 完成口径 |
+|---|---|---|
+| P0 发布来源盘点、P1 旧路径替换 | 对已有题重跑时用独立新batch老师脚本，题仍在原版本；报告记录旧路径→新路径映射 | 优先可用替代路径；禁止手删list_files或复制行凑指标 |
+| P2 b12 20题样板返修 | `bench/distill/v1.41/cases/`；修改可复现构建源后完整返修重跑 | 零调用禁令、cwd恢复、同文件回查、停止冗余探索、错误恢复抽取 |
+| P3 b12a、b12b…新工具增量 | 同上，ID从9021接续并检查冲突；老师和报告在v1.41目录 | 360有效行包含合格样板，bash≥200行、weather≥80行、负例≥60行、多轮≥120行 |
+| P4/P5 查询、多轮与零调用修复 | 新补充batch使用 `bench/distill/v1.4/cases/` 和work-v1；报告在v1.41目录，registry明确版本/来源 | 条件预算600查询/多轮行、560首轮零调用行；旧路径替换可减少新增需求 |
+| P6 发布包与P7训练验收 | `local/runs/distill/v141/`及版本报告 | 来源隔离、family分割、一次suffix、全集逐项重算；训练后另验收 |
 
-配额、ID 起点、中文下限照 b10-scale-prompt §1 和 v1.41 §2。
+批次名/ID先检查registry与全库占用，不复用b13。每批20–40题完整S1–S8后按有效行重算，达标即停止；不把预算行数当出题数，不为追固定总量制造重复模板。详见规划P0–P7及可复算JSON。
 
-**第一批 b10a 走完 S1→S7 后停下来**，把报告交给用户确认，再开下一批。理由：老师换了，第一批的 pass@3、0/3 比例、思考统计要先过目。
+首个返修b12小批须先验证真实目标行为，再放量。原提示“第一批b10a完成后停等确认”的门槛已执行且过时；不重复跑b10a，不因历史停线指令等待批准。真实质量停线（0/3超过25%、接口错误等）仍按共同流程处理。
 
 ## 2. 出题（S1–S2）
 
@@ -47,8 +49,7 @@
   ```
   b12 批加上 `tool_catalog="work-v2"`，并从 `casegen` 引入 `Sidecar, check_reference, lines, weather`（照 `tools/b12/common.py`）。
   题目内容写在 `m*.py` 里。不得复制 `tools/b10/` 或 `tools/b12/` 的 `common.py`；`casegen.py` 缺功能就加参数，并保证 b10、b12 两批重跑后逐字节不变。
-- 闸门：`bench/distill/tools/gate.sh v1.4 '*-8[0-9][0-9][0-9]'`（lint + verify 含破坏测试），加上 b10-scale-prompt §4 的五面去污染、dedup、hitcheck。
-  b12 另加 `--test bench/bashprobe/cases` 一面，bash 参考解必须在 sidecar 里跑通。
+- 闸门：对本批临时cases目录直接运行 `bank lint`（DISTILL canary）与 `bank verify --strict-shape`（含破坏测试），均须通过。gate.sh的lint容错不作通过证据。按现行规格跑六面去污染、全库dedup、hitcheck；bash参考解必须在sidecar跑通。
 
 ## 3. 老师解题（S4–S5）
 
@@ -64,7 +65,7 @@ source /Users/no22/.llm_api_key.sh     # 导出 API_BASE、API_KEY、MODEL_NAME�
 
 ### 3.2 二进制
 
-开工时用当前 main 编一次，记下 sha256，之后全程不再重编：
+开工时核对当前二进制SHA与协议支持；需要构建时从当前checkout编一次并固定，记录commit和SHA，不切main覆盖已有工作：
 
 ```bash
 go build -tags chatcompletions -o local/bin/rwkv-cli ./cmd/rwkv-cli
@@ -102,12 +103,12 @@ local/bin/rwkv-cli agent-eval \
 
 ### 3.4 第 0 步冒烟（放量前必做）
 
-用 b10-pilot 的 70 道样板和 b12 的 20 道样板，k=1，**加 suffix 和不加 suffix 各跑一遍**，比较三项：
+b10老师配置与suffix已验收，不重复付费冒烟。b12样板行为返修后，在本批20题上k=1，**加suffix和不加suffix各跑一遍**，比较三项（本轮冒烟不能代替之后k=3）：
 - pass 数；
 - `b10_check.py` 的形态问题数；
 - 思考统计（见 §3.6）。
 
-加 suffix 应当不差于不加；明显更差就停下报告用户，不要自己改 suffix 的规则口径。结果写进 b10a 报告。
+加 suffix 应当不差于不加；明显更差就停下报告用户，不要自己改 suffix 的规则口径。结果写进当前b12返修批报告，记录首轮与重试；统计实际bash/weather、零调用、cwd恢复、同文件回查，不能仅报pass数。
 
 ### 3.5 抽路径（必须确认思考保住了）
 
@@ -137,15 +138,16 @@ local/bin/rwkv-lab corpus paths --run local/runs/distill/v141/$B/teacher-k0 --ru
 
 - 这次只渲染**剔思考版**，即现行 g1k 格式。渲染会忽略 `reasoning` 字段，`wire_hash` 必须仍是 `707c67403b1b…`。
   命令照 b10-scale-prompt §4，`--cases bench/distill`（全库根，加载器会跳过 `cases-shelved`）。
-- **不要实现**带思考版渲染（think-full profile）。那是下一步的事，等用户看完思考统计再定格式。
+- 带思考版渲染（think-full profile）作为独立待办：历史双版本需求保留，本阶段不宣称已实现；待确定空思考监督与profile后单独交付/验收。
+- 最终后缀按已有/未加分组处理，只给未加行运行一次 `build_v13_suffix.py`；family与来源隔离后沿用pack/segments/segcheck。不能对混合来源全量再append。
 - 报告格式照 `b10-pilot.md`，另加 §3.6 的思考统计、第 0 步冒烟结果、老师 run 目录路径。报告里的每个数字都要能从产物复算。
 - `bench/distill/common/batches.jsonl` 每批追加一行，老师字段写 `deepseek-flash`（next-token.cc 中转，T=0.3，thinking=auto）。
 
 ## 5. 规矩
 
-- 直接在 main 上改和提交，不开分支；每批验收完提交一次（题目、`tools/b<批号>/`、老师脚本、batches、exclude、报告）。`local/runs/` 不提交。
+- 沿用当前任务分支或 `distill/b<批号>`，保存用户已有改动；每批验收完作聚焦本地提交，不推送（题目、`tools/b<批号>/`、老师脚本、batches、exclude、报告）。`local/runs/` 不提交。
 - 不碰 `bench/workbank/cases`、`bench/holdout/`、bfcl-product 源码；不改 System、wire、工具 schema。
 - 不 ssh 任何服务器。
 - 老师自称 DeepSeek 的照收，不筛。
-- 拿不准的规格问题停下来问用户，不要当成可优化项自己绕过去。
+- 常规制作选择按现行规划推进；只有真实未决范围才说明依据并澄清。配额是实测停止条件，不因预算未出完继续补题。
 - 每批结束，用两三句话告诉用户：题数、pass@3、花了多久、有没有要他拍板的事。

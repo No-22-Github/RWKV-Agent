@@ -8,6 +8,7 @@ import contextlib
 import hashlib
 import io
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -68,7 +69,35 @@ def main():
     drops = collections.Counter()
     for p in reports:
         drops.update(p.get("drops", {}))
+    reasoning_steps = []
+    for path in paths:
+        if path["case_id"] in ex:
+            continue
+        cid = path["case_id"].split("--p")[0]
+        turn, position = 0, 1
+        for step in path["outputs"]:
+            reasoning_steps.append({"position": position, "think": step.get("reasoning", "").strip(),
+                                    "prompt": cases[cid]["turns"][turn]["prompt"]})
+            if step["text"].lstrip().startswith("<tool_call>"):
+                position += 1
+            else:
+                turn += 1
+                position = 1
+        assert turn == len(cases[cid]["turns"]), path["case_id"]
+    thought = [s for s in reasoning_steps if s["think"]]
+    def lengths(first):
+        values = sorted(len(s["think"]) for s in thought if (s["position"] == 1) == first)
+        return {"n": len(values), "p50": values[len(values)//2] if values else None,
+                "p90": values[int(len(values)*.9)] if values else None}
+    zh_thought = [s for s in thought if composition.CJK.search(s["prompt"])]
+    thinking = {"steps": len(reasoning_steps), "with_reasoning": len(thought),
+                "first_step_chars_nonempty": lengths(True), "later_step_chars_nonempty": lengths(False),
+                "over_900_chars": sum(len(s["think"]) > 900 for s in thought),
+                "wait_hmm_actually": sum(bool(re.search(r"\b(Wait|Hmm|Actually|But wait)\b", s["think"])) for s in thought),
+                "zh_prompt_thought_steps": len(zh_thought),
+                "zh_majority_thought": sum(len(composition.CJK.findall(s["think"])) > .2 * len(s["think"]) for s in zh_thought)}
     out = {
+        "thinking_kept_paths": thinking,
         "cases_drafted": len(initial_cases)+len(extras), "cases": len(cases), "pass_original": passk(summaries, initial_cases),
         "pass_final_live": {f"{k}/3": final_pass[k] for k in (3, 2, 1, 0)},
         "extra_cases": sorted(extras), "pass_extra": passk(extra_runs, extras) if extras else {},

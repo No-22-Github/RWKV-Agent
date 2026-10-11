@@ -1,0 +1,195 @@
+{
+  "kind": "conditional_plan_not_production",
+  "baseline": {
+    "rows": 3328,
+    "rows_by_batch": {
+      "b05": 352,
+      "b06": 541,
+      "b07": 173,
+      "b08": 46,
+      "b09": 396,
+      "b10-pilot": 77,
+      "b10a": 458,
+      "b10b": 208,
+      "b10c": 187,
+      "b10d": 251,
+      "b10e": 319,
+      "b11": 200,
+      "b13": 40,
+      "base700": 80
+    },
+    "pure_value_finals": "602/3328 (18.1%)",
+    "pure_value_zh": "237/1483 (16.0%)",
+    "pure_value_en": "365/1845 (19.8%)",
+    "bare_UNKNOWN_finals": 0,
+    "UNKNOWN_contract_rows": "133/3328 (4.0%)",
+    "zh_rows": "1483/3328 (44.6%)",
+    "multi_turn_rows": "504/3328 (15.1%)",
+    "catalog_le5_rows": "174/3328 (5.2%)",
+    "data_query_share_of_calls": "618/9871 (6.3%)",
+    "write_or_script_rows": "473/3328 (14.2%)",
+    "readback_after_last_write_new_rows": "298/298 (100.0%)",
+    "closeout_rows": 246,
+    "closeout_write_rows": 60,
+    "zero_call_rows": "576/3328 (17.3%)",
+    "zero_call_turn1": "370/3058 (12.1%)",
+    "first_action_list_files": "1495/2688 (55.6%)",
+    "first_action_list_files_when_prompt_names_path": "353/1059 (33.3%)",
+    "tokens_max": 8121,
+    "tokens_over_4096": "141/3328 (4.2%)"
+  },
+  "independent_floors_not_additive": {
+    "zero_only_first_rows": 389,
+    "non_list_tool_first_rows": 1050,
+    "named_non_list_tool_first_rows": 2471,
+    "pure_query_calls": 411
+  },
+  "row_cohort_budgets": [
+    {
+      "name": "replace_old_paths",
+      "rows": 0,
+      "first": 0,
+      "zero": 0,
+      "tool_first": 0,
+      "list_first": -350,
+      "named_first": 0,
+      "named_list": -240,
+      "calls": -350,
+      "data_query": 0,
+      "multi": 0,
+      "small": 0,
+      "writes": 0
+    },
+    {
+      "name": "b12_work_v2",
+      "rows": 360,
+      "first": 300,
+      "zero": 30,
+      "tool_first": 270,
+      "list_first": 20,
+      "named_first": 180,
+      "named_list": 5,
+      "calls": 900,
+      "data_query": 0,
+      "multi": 120,
+      "small": 0,
+      "writes": 75
+    },
+    {
+      "name": "query_multiturn",
+      "rows": 600,
+      "first": 300,
+      "zero": 0,
+      "tool_first": 300,
+      "list_first": 0,
+      "named_first": 300,
+      "named_list": 0,
+      "calls": 800,
+      "data_query": 600,
+      "multi": 600,
+      "small": 100,
+      "writes": 60
+    },
+    {
+      "name": "no_call_first_turn",
+      "rows": 560,
+      "first": 560,
+      "zero": 560,
+      "tool_first": 0,
+      "list_first": 0,
+      "named_first": 0,
+      "named_list": 0,
+      "calls": 0,
+      "data_query": 0,
+      "multi": 0,
+      "small": 70,
+      "writes": 0
+    }
+  ],
+  "projected_counts": {
+    "rows": 4848,
+    "first": 4218,
+    "zero": 960,
+    "tool_first": 3258,
+    "list_first": 1165,
+    "named_first": 1539,
+    "named_list": 118,
+    "calls": 11221,
+    "data_query": 1218,
+    "multi": 1224,
+    "small": 344,
+    "writes": 608
+  },
+  "projected_ratios": {
+    "zero_call_turn1": {
+      "numerator": 960,
+      "denominator": 4218,
+      "percent": 22.76
+    },
+    "first_action_list_files": {
+      "numerator": 1165,
+      "denominator": 3258,
+      "percent": 35.758
+    },
+    "named_path_first_list_files": {
+      "numerator": 118,
+      "denominator": 1539,
+      "percent": 7.667
+    },
+    "data_query_share_of_calls": {
+      "numerator": 1218,
+      "denominator": 11221,
+      "percent": 10.855
+    },
+    "multi_turn_rows": {
+      "numerator": 1224,
+      "denominator": 4848,
+      "percent": 25.248
+    },
+    "catalog_le5_rows": {
+      "numerator": 344,
+      "denominator": 4848,
+      "percent": 7.096
+    },
+    "write_or_script_rows": {
+      "numerator": 608,
+      "denominator": 4848,
+      "percent": 12.541
+    },
+    "work_v2_rows": {
+      "numerator": 360,
+      "denominator": 4848,
+      "percent": 7.426
+    }
+  },
+  "projected_checks": {
+    "zero_22_to_28": true,
+    "list_files_le40": true,
+    "named_list_files_le10": true,
+    "data_query_ge10": true,
+    "multi_ge15": true,
+    "small_ge7": true,
+    "writes_ge12": true
+  },
+  "assumptions": [
+    "No source removal, family resplit or QA exclusion beyond baseline.",
+    "Replacement holds first-turn/row denominators fixed; no query lost.",
+    "All budgets describe retained replayed rows, not authored cases.",
+    "Call caps, same-file readback and natural negative behavior need real teacher QA.",
+    "Prioritize alternate existing paths; stop authoring when measured joint targets pass."
+  ],
+  "input_sha256": {
+    "local/runs/distill/v13-clean/train-rows.jsonl": "93f1fa4f69c786e7fdf2227af28bda734085b3a19c9a0e15be847f6185324d66",
+    "local/runs/distill/v13-clean/val-rows.jsonl": "9f478d8c63919603efd1b840a8634e1c9ccdeb910c1921a925df32e7b64f81b1",
+    "local/runs/distill/v14/b09/rows.jsonl": "c1945dabc06d6df4081ca7d95dc4d4f40c491dc8f8690ae38c63b289a55fe28e",
+    "local/runs/distill/v141/b10-pilot/corpus/rows.jsonl": "accd0e7e724d89eecf472bae8a102a1cf425e86aea76f0e6a2952051a2580041",
+    "local/runs/distill/v141/b10a/corpus/rows.jsonl": "4e8ab6d3dfdc36c111577e385be97596b64d450c6419db5b789d8638ea3b8b34",
+    "local/runs/distill/v141/b10b/corpus/rows.jsonl": "07a1dfb69d03ef5e3c05d1e64879f700b840029384a81535043722b195816944",
+    "local/runs/distill/v141/b10c/corpus/rows.jsonl": "867cc1f7ada148c6d41dede3aa4f0dffdec57aa7277bad5139f2438b1b26f2a1",
+    "local/runs/distill/v141/b10d/corpus/rows.jsonl": "72c007f4bf57e1e463d95cbc19126dbf5d5610901450c733e1f966bd91db4977",
+    "local/runs/distill/v141/b10e/corpus/rows.jsonl": "02c37136033dcf696294f6a6958a54c19559cf9e85766c859f8cc6a68b161840",
+    "local/runs/distill/v141/b11/corpus/rows.jsonl": "0e9fe1e0fb60b21e2db1b75a7d3333d75745623a3691b81893c9f90aae9f1d53",
+    "local/runs/distill/v141/b13/corpus/rows.jsonl": "10b4c015597330862ba83d91958a0857158712b2ef969873988a26606a402303",
+    "bench/distill/common/exclude.jsonl": "e54eb959042755048effdeb11f5e23c5a26a5d88b5ed1bea730a5273b6dd0ab0"
+  }
+}
