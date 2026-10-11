@@ -1,0 +1,57 @@
+{
+  "id": "doc-8801",
+  "description": "Read the named target, then reuse evidence without reopening it. DISTILL-CANARY-2cafacf2",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS",
+      "STP"
+    ],
+    "level": "L0",
+    "family": "fam-doc-b13-direct-02",
+    "ref_calls": 1,
+    "fixture_bytes": 112,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:gpt-6-b13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "场馆/寄存说明.md": "# 寄存台\n领取凭证：栀子牌\n",
+    "README.md": "# Shared reception workspace\nContact the duty desk for unrelated services.\n"
+  },
+  "turns": [
+    {
+      "prompt": "场馆/寄存说明.md 中领取寄存物要出示什么凭证？",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "forbidden_tools": [
+          "list_files"
+        ],
+        "output_contains": [
+          "栀子牌"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "用刚才的凭证名称写一句给访客的提醒。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "max_output_chars": 600,
+        "output_contains": [
+          "栀子牌"
+        ]
+      }
+    }
+  ]
+}

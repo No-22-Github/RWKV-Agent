@@ -1,0 +1,57 @@
+{
+  "id": "doc-8805",
+  "description": "Read the named target, then reuse evidence without reopening it. DISTILL-CANARY-9822fe78",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS",
+      "STP"
+    ],
+    "level": "L0",
+    "family": "fam-doc-b13-direct-06",
+    "ref_calls": 1,
+    "fixture_bytes": 119,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:gpt-6-b13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "garden/entry.md": "# Garden access\nCollection point: Fern Gate\n",
+    "README.md": "# Shared reception workspace\nContact the duty desk for unrelated services.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Which collection point does garden/entry.md specify?",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "forbidden_tools": [
+          "list_files"
+        ],
+        "output_contains": [
+          "Fern Gate"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "Turn the result you already found into a visitor reminder.",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "max_output_chars": 600,
+        "output_contains": [
+          "Fern Gate"
+        ]
+      }
+    }
+  ]
+}

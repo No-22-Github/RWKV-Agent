@@ -1,0 +1,61 @@
+{
+  "id": "nt-8805",
+  "description": "Restate supplied context and retain it in a follow-up. DISTILL-CANARY-9835e290",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "unrelated shift records"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b13-context-03",
+    "ref_calls": 0,
+    "fixture_bytes": 66,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:gpt-6-b13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Archive desk F\nThis workspace contains unrelated shift records.\n"
+  },
+  "turns": [
+    {
+      "prompt": "请在聊天回复中给出文本：登记说明规定‘青色标签放冷藏区，橙色标签放常温区’，复述两种标签的去向。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "max_output_chars": 600,
+        "output_contains": [
+          "青色",
+          "冷藏",
+          "橙色",
+          "常温"
+        ]
+      }
+    },
+    {
+      "prompt": "请在聊天回复中给出文本：再将这两项去向写成一行提示。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "max_output_chars": 600,
+        "output_contains": [
+          "青色",
+          "冷藏",
+          "橙色",
+          "常温"
+        ]
+      }
+    }
+  ]
+}

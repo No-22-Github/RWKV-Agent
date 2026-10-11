@@ -1,0 +1,83 @@
+{
+  "id": "tab-8807",
+  "description": "Aggregate the named structured table, change group, then retain both answers. DISTILL-CANARY-fe8a114e",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS",
+      "STP"
+    ],
+    "level": "L0",
+    "family": "fam-tab-b13-query-04",
+    "ref_calls": 2,
+    "fixture_bytes": 1077,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:gpt-6-b13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "bindery/sheets.csv": "job,press,sheets\nR-8008,Birch,8\nR-8015,Maple,7\nR-8022,Birch,6\nR-8029,Birch,5\nR-8036,Maple,4\nR-8043,Birch,3\nR-8050,Birch,2\nR-8057,Maple,1\nR-8064,Birch,9\nR-8071,Birch,8\nR-8078,Maple,7\nR-8085,Birch,6\nR-8092,Birch,5\nR-8099,Maple,4\nR-8106,Birch,3\nR-8113,Birch,2\nR-8120,Maple,1\nR-8127,Birch,9\nR-8134,Birch,8\nR-8141,Maple,7\nR-8148,Birch,6\nR-8155,Birch,5\nR-8162,Maple,4\nR-8169,Birch,3\nR-8176,Birch,2\nR-8183,Maple,1\nR-8190,Birch,9\nR-8197,Birch,8\nR-8204,Maple,7\nR-8211,Birch,6\nR-8218,Birch,5\nR-8225,Maple,4\nR-8232,Birch,3\nR-8239,Birch,2\nR-8246,Maple,1\nR-8253,Birch,9\nR-8260,Birch,8\nR-8267,Maple,7\nR-8274,Birch,6\nR-8281,Birch,5\nR-8288,Maple,4\nR-8295,Birch,3\nR-8302,Birch,2\nR-8309,Maple,1\nR-8316,Birch,9\nR-8323,Birch,8\nR-8330,Maple,7\nR-8337,Birch,6\nR-8344,Birch,5\nR-8351,Maple,4\nR-8358,Birch,3\nR-8365,Birch,2\nR-8372,Maple,1\nR-8379,Birch,9\nR-8386,Birch,8\nR-8393,Maple,7\nR-8400,Birch,6\nR-8407,Birch,5\nR-8414,Maple,4\nR-8421,Birch,3\nR-8428,Birch,2\nR-8435,Maple,1\nR-8442,Birch,9\nR-8449,Birch,8\nR-8456,Maple,7\nR-8463,Birch,6\nR-8470,Birch,5\n",
+    "README.md": "# Intake archive\nEach row records one completed entry.\n"
+  },
+  "turns": [
+    {
+      "prompt": "bindery/sheets.csv has job, press and sheets columns; Birch and Maple are press names. What is the sheet total for Birch?",
+      "expect": {
+        "required_tools": [
+          "data_query"
+        ],
+        "forbidden_tools": [
+          "list_files",
+          "read_file"
+        ],
+        "output_contains": [
+          "250"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "What is the sheet total for Maple in that file?",
+      "expect": {
+        "required_tools": [
+          "data_query"
+        ],
+        "forbidden_tools": [
+          "list_files",
+          "read_file"
+        ],
+        "output_contains": [
+          "91"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "Give a chat reply that recaps the two press totals you obtained.",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "max_output_chars": 600,
+        "output_contains": [
+          "250",
+          "91"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_lines": 2
+    }
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "id": "tab-8805",
+  "description": "Aggregate the named structured table, change group, then retain both answers. DISTILL-CANARY-e274ae2e",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS",
+      "STP"
+    ],
+    "level": "L0",
+    "family": "fam-tab-b13-query-03",
+    "ref_calls": 2,
+    "fixture_bytes": 1043,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:gpt-6-b13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "harbor/checks.csv": "inspection,berth,checks\nP-6006,Reed,522\nP-6013,Slate,535\nP-6020,Reed,548\nP-6027,Reed,561\nP-6034,Slate,574\nP-6041,Reed,587\nP-6048,Reed,529\nP-6055,Slate,542\nP-6062,Reed,555\nP-6069,Reed,568\nP-6076,Slate,581\nP-6083,Reed,523\nP-6090,Reed,536\nP-6097,Slate,549\nP-6104,Reed,562\nP-6111,Reed,575\nP-6118,Slate,588\nP-6125,Reed,530\nP-6132,Reed,543\nP-6139,Slate,556\nP-6146,Reed,569\nP-6153,Reed,582\nP-6160,Slate,524\nP-6167,Reed,537\nP-6174,Reed,550\nP-6181,Slate,563\nP-6188,Reed,576\nP-6195,Reed,589\nP-6202,Slate,531\nP-6209,Reed,544\nP-6216,Reed,557\nP-6223,Slate,570\nP-6230,Reed,583\nP-6237,Reed,525\nP-6244,Slate,538\nP-6251,Reed,551\nP-6258,Reed,564\nP-6265,Slate,577\nP-6272,Reed,590\nP-6279,Reed,532\nP-6286,Slate,545\nP-6293,Reed,558\nP-6300,Reed,571\nP-6307,Slate,584\nP-6314,Reed,526\nP-6321,Reed,539\nP-6328,Slate,552\nP-6335,Reed,565\nP-6342,Reed,578\nP-6349,Slate,591\nP-6356,Reed,533\nP-6363,Reed,546\nP-6370,Slate,559\nP-6377,Reed,572\nP-6384,Reed,585\nP-6391,Slate,527\nP-6398,Reed,540\nP-6405,Reed,553\nP-6412,Slate,566\n",
+    "README.md": "# Intake archive\nEach row records one completed entry.\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many inspection records belong to Reed in harbor/checks.csv?",
+      "expect": {
+        "required_tools": [
+          "data_query"
+        ],
+        "forbidden_tools": [
+          "list_files",
+          "read_file"
+        ],
+        "output_contains": [
+          "39"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "How many records belong to Slate in that file?",
+      "expect": {
+        "required_tools": [
+          "data_query"
+        ],
+        "forbidden_tools": [
+          "list_files",
+          "read_file"
+        ],
+        "output_contains": [
+          "20"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "Give the note in your chat reply using the two previous results. Restate the record counts for the two berths in a handover note.",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "max_output_chars": 600,
+        "output_contains": [
+          "39",
+          "20"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_lines": 2
+    }
+  }
+}

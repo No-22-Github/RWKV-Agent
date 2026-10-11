@@ -1,0 +1,80 @@
+{
+  "id": "tab-8806",
+  "description": "Aggregate the named structured table, change group, then retain both answers. DISTILL-CANARY-8c0029c6",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS",
+      "STP"
+    ],
+    "level": "L0",
+    "family": "fam-tab-b13-query-04",
+    "ref_calls": 2,
+    "fixture_bytes": 1051,
+    "status": "draft",
+    "version": 2,
+    "author": "llm:gpt-6-b13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "诊所/配药.csv": "batch,柜台,盒数\nQ-7007,东柜,7\nQ-7014,西柜,6\nQ-7021,东柜,5\nQ-7028,东柜,4\nQ-7035,西柜,3\nQ-7042,东柜,2\nQ-7049,东柜,1\nQ-7056,西柜,9\nQ-7063,东柜,8\nQ-7070,东柜,7\nQ-7077,西柜,6\nQ-7084,东柜,5\nQ-7091,东柜,4\nQ-7098,西柜,3\nQ-7105,东柜,2\nQ-7112,东柜,1\nQ-7119,西柜,9\nQ-7126,东柜,8\nQ-7133,东柜,7\nQ-7140,西柜,6\nQ-7147,东柜,5\nQ-7154,东柜,4\nQ-7161,西柜,3\nQ-7168,东柜,2\nQ-7175,东柜,1\nQ-7182,西柜,9\nQ-7189,东柜,8\nQ-7196,东柜,7\nQ-7203,西柜,6\nQ-7210,东柜,5\nQ-7217,东柜,4\nQ-7224,西柜,3\nQ-7231,东柜,2\nQ-7238,东柜,1\nQ-7245,西柜,9\nQ-7252,东柜,8\nQ-7259,东柜,7\nQ-7266,西柜,6\nQ-7273,东柜,5\nQ-7280,东柜,4\nQ-7287,西柜,3\nQ-7294,东柜,2\nQ-7301,东柜,1\nQ-7308,西柜,9\nQ-7315,东柜,8\nQ-7322,东柜,7\nQ-7329,西柜,6\nQ-7336,东柜,5\nQ-7343,东柜,4\nQ-7350,西柜,3\nQ-7357,东柜,2\nQ-7364,东柜,1\nQ-7371,西柜,9\nQ-7378,东柜,8\nQ-7385,东柜,7\nQ-7392,西柜,6\nQ-7399,东柜,5\nQ-7406,东柜,4\nQ-7413,西柜,3\nQ-7420,东柜,2\nQ-7427,东柜,1\n",
+    "README.md": "# Intake archive\nEach row records one completed entry.\n"
+  },
+  "turns": [
+    {
+      "prompt": "诊所/配药.csv 的列是 batch、柜台、盒数，柜台取值为东柜或西柜。东柜登记的总盒数是多少？",
+      "expect": {
+        "required_tools": [
+          "data_query"
+        ],
+        "forbidden_tools": [
+          "list_files",
+          "read_file"
+        ],
+        "output_contains": [
+          "181"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "这份记录中，西柜登记的总盒数是多少？",
+      "expect": {
+        "forbidden_tools": [
+          "list_files",
+          "read_file"
+        ],
+        "output_contains": [
+          "117"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "在聊天回复里复述刚才两个柜台的总盒数。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "max_output_chars": 600,
+        "output_contains": [
+          "181",
+          "117"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_lines": 2
+    }
+  }
+}

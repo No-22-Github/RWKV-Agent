@@ -1,0 +1,83 @@
+{
+  "id": "tab-8804",
+  "description": "Aggregate the named structured table, change group, then retain both answers. DISTILL-CANARY-8e6df460",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS",
+      "STP"
+    ],
+    "level": "L0",
+    "family": "fam-tab-b13-query-03",
+    "ref_calls": 2,
+    "fixture_bytes": 1030,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:gpt-6-b13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "剧场/签收.csv": "sheet,section,pieces\nO-5005,服装,421\nO-5012,道具,434\nO-5019,服装,447\nO-5026,服装,460\nO-5033,道具,473\nO-5040,服装,486\nO-5047,服装,428\nO-5054,道具,441\nO-5061,服装,454\nO-5068,服装,467\nO-5075,道具,480\nO-5082,服装,422\nO-5089,服装,435\nO-5096,道具,448\nO-5103,服装,461\nO-5110,服装,474\nO-5117,道具,487\nO-5124,服装,429\nO-5131,服装,442\nO-5138,道具,455\nO-5145,服装,468\nO-5152,服装,481\nO-5159,道具,423\nO-5166,服装,436\nO-5173,服装,449\nO-5180,道具,462\nO-5187,服装,475\nO-5194,服装,488\nO-5201,道具,430\nO-5208,服装,443\nO-5215,服装,456\nO-5222,道具,469\nO-5229,服装,482\nO-5236,服装,424\nO-5243,道具,437\nO-5250,服装,450\nO-5257,服装,463\nO-5264,道具,476\nO-5271,服装,489\nO-5278,服装,431\nO-5285,道具,444\nO-5292,服装,457\nO-5299,服装,470\nO-5306,道具,483\nO-5313,服装,425\nO-5320,服装,438\nO-5327,道具,451\nO-5334,服装,464\nO-5341,服装,477\nO-5348,道具,490\nO-5355,服装,432\nO-5362,服装,445\nO-5369,道具,458\n",
+    "README.md": "# Intake archive\nEach row records one completed entry.\n"
+  },
+  "turns": [
+    {
+      "prompt": "剧场/签收.csv 中服装组有多少条签收记录？",
+      "expect": {
+        "required_tools": [
+          "data_query"
+        ],
+        "forbidden_tools": [
+          "list_files",
+          "read_file"
+        ],
+        "output_contains": [
+          "35"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "这份登记中道具组有多少条签收记录？",
+      "expect": {
+        "required_tools": [
+          "data_query"
+        ],
+        "forbidden_tools": [
+          "list_files",
+          "read_file"
+        ],
+        "output_contains": [
+          "18"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "把两组的记录条数复述成一句归档说明。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "max_output_chars": 600,
+        "output_contains": [
+          "35",
+          "18"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_lines": 2
+    }
+  }
+}

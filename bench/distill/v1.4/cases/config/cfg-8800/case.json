@@ -1,0 +1,57 @@
+{
+  "id": "cfg-8800",
+  "description": "Read the named target, then reuse evidence without reopening it. DISTILL-CANARY-2c2781e2",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS",
+      "STP"
+    ],
+    "level": "L0",
+    "family": "fam-cfg-b13-direct-01",
+    "ref_calls": 1,
+    "fixture_bytes": 97,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:gpt-6-b13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "设备/封口台.ini": "[seal]\nprofile=梨白\n",
+    "README.md": "# Shared reception workspace\nContact the duty desk for unrelated services.\n"
+  },
+  "turns": [
+    {
+      "prompt": "设备/封口台.ini 里封口台的 profile 是什么？",
+      "expect": {
+        "required_tools": [
+          "read_file"
+        ],
+        "forbidden_tools": [
+          "list_files"
+        ],
+        "output_contains": [
+          "梨白"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "将刚才查到的档位写成一句交班提示，不必再查。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "max_output_chars": 600,
+        "output_contains": [
+          "梨白"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "id": "tab-8802",
+  "description": "Aggregate the named structured table, change group, then retain both answers. DISTILL-CANARY-1205328f",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [],
+    "trap_decoys": {},
+    "axes": [
+      "OBS",
+      "STP"
+    ],
+    "level": "L0",
+    "family": "fam-tab-b13-query-02",
+    "ref_calls": 2,
+    "fixture_bytes": 849,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:gpt-6-b13",
+    "reviewer": null,
+    "answer_style": "natural"
+  },
+  "web_fixture": [],
+  "files": {
+    "仓储/收货.csv": "receipt,zone,crates\nM-3003,南仓,219\nM-3010,北仓,232\nM-3017,南仓,245\nM-3024,南仓,258\nM-3031,北仓,271\nM-3038,南仓,284\nM-3045,南仓,226\nM-3052,北仓,239\nM-3059,南仓,252\nM-3066,南仓,265\nM-3073,北仓,278\nM-3080,南仓,220\nM-3087,南仓,233\nM-3094,北仓,246\nM-3101,南仓,259\nM-3108,南仓,272\nM-3115,北仓,285\nM-3122,南仓,227\nM-3129,南仓,240\nM-3136,北仓,253\nM-3143,南仓,266\nM-3150,南仓,279\nM-3157,北仓,221\nM-3164,南仓,234\nM-3171,南仓,247\nM-3178,北仓,260\nM-3185,南仓,273\nM-3192,南仓,286\nM-3199,北仓,228\nM-3206,南仓,241\nM-3213,南仓,254\nM-3220,北仓,267\nM-3227,南仓,280\nM-3234,南仓,222\nM-3241,北仓,235\nM-3248,南仓,248\nM-3255,南仓,261\nM-3262,北仓,274\nM-3269,南仓,287\nM-3276,南仓,229\nM-3283,北仓,242\nM-3290,南仓,255\nM-3297,南仓,268\n",
+    "README.md": "# Intake archive\nEach row records one completed entry.\n"
+  },
+  "turns": [
+    {
+      "prompt": "仓储/收货.csv 里南仓累计收了多少箱？",
+      "expect": {
+        "required_tools": [
+          "data_query"
+        ],
+        "forbidden_tools": [
+          "list_files",
+          "read_file"
+        ],
+        "output_contains": [
+          "7330"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "按同一份记录报出北仓累计箱数。",
+      "expect": {
+        "required_tools": [
+          "data_query"
+        ],
+        "forbidden_tools": [
+          "list_files",
+          "read_file"
+        ],
+        "output_contains": [
+          "3531"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "复述两个仓的箱数，给收货员一条交接说明。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "max_output_chars": 600,
+        "output_contains": [
+          "7330",
+          "3531"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "expect": {
+    "max_calls": {
+      "read_lines": 2
+    }
+  }
+}

@@ -1462,3 +1462,12 @@
 {"batch": "b10e", "case_id": "hyb-8601--p1", "reason": "官网公告 10 月 15 日才生效（今天 9 月 16 日），改了值又附加保留，与「改成现行价」不符"}
 {"batch": "b10e", "case_id": "hyb-8601--p2", "reason": "官网公告 10 月 15 日才生效（今天 9 月 16 日），改了值又附加保留，与「改成现行价」不符"}
 {"batch": "b10e", "case_id": "hyb-8603--p2", "reason": "拿「上海 2025」和凭空的数字 36921 去搜索"}
+{"case_id": "doc-8801--p2", "reason": "Invented lost-token policy: 遗失恕不补办; no such rule in the fixture", "batch": "b13"}
+{"case_id": "doc-8803--p1", "reason": "Invented proof-stage readiness and required confirmation before release", "batch": "b13"}
+{"case_id": "nt-8803--p1", "reason": "Adds unsupported equipment-maintenance rationale and source-edit suggestions instead of a minimal restatement", "batch": "b13"}
+{"case_id": "nt-8806--p1", "reason": "Irrelevant repeated meta commentary about absent quoted terms; not clean visitor reminder supervision", "batch": "b13"}
+{"case_id": "tab-8801--p1", "reason": "read_lines(1,40) reads entire 38-line table before aggregate; misses minimal data-query behavior", "batch": "b13"}
+{"case_id": "tab-8805--p1", "reason": "Misstates berth as inspector and claims the real header is misaligned", "batch": "b13"}
+{"case_id": "tab-8805--p2", "reason": "Misstates berth names and adds unsupported unassigned-field claim; also unnecessary broad search", "batch": "b13"}
+{"case_id": "tab-8806--p2", "reason": "Minimal supplement: prefer p1 direct aggregation; p2 adds a header reread after sufficient result and user-supplied schema", "batch": "b13"}
+{"case_id": "tab-8807--p2", "reason": "Minimal supplement: prefer p1; p2 adds an unrequested count query after the sum result already provides matching-row count", "batch": "b13"}
