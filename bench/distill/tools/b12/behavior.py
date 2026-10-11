@@ -59,7 +59,8 @@ READ_TOOLS = {"read_file", "read_lines"}
 # Results that never carry answer evidence: a file size or a clock reading can
 # contain the answer digits by accident.
 NO_EVIDENCE_TOOLS = {"list_files", "datetime"}
-MUTATE = re.compile(r"\bsed\s+-i|\bmv\s|\brm\s|\bcp\s|\bmkdir\s|\btouch\s|(?<![0-9&])>>?\s*(?!/dev/null)[^\s&|;]")
+MUTATE_VERBS = {"mv", "rm", "cp", "mkdir", "touch", "tee"}
+REDIRECT = re.compile(r"(?<![0-9&])>>?\s*(?!/dev/null)[^\s&|;]")
 CHECK_VERBS = {"ls", "grep", "cat", "find", "head", "tail", "diff", "wc"}
 # The shell's own diagnostic, not any output that happens to say "not found".
 MISSING = re.compile(r"(^|\n)(bash: )?[^\s:]+: command not found")
@@ -77,7 +78,7 @@ SPEC = {
     "log-9005": dict(kind="bash_aggregate", sub="M9c"),
     "log-9006": dict(kind="bash_aggregate", sub="M9c"),
     # M9d missing command -> another way
-    "scr-9007": dict(kind="cmd_missing", sub="M9d", needs=["工具/汇总.py"]),
+    "scr-9007": dict(kind="cmd_missing", sub="M9d", needs=["工具/汇总.py"], script="汇总.py"),
     "web-9008": dict(kind="bash_avoided", sub="M9d", via=("web_fetch", "web_search")),
     # M9e bash offered but not the right tool
     "doc-9009": dict(kind="bash_avoided", sub="M9e", via=("read_file", "read_lines", "search_text")),
@@ -372,8 +373,12 @@ def check_bash_avoided(turns, spec, case):
 
 def check_cmd_missing(turns, spec, case):
     calls, _ = turns[-1]
+    # The failure has to be the attempt to run the case's script, not some
+    # unrelated command that happens to be missing.
+    script = spec.get("script", "")
     failed = [i for i, c in enumerate(calls)
-              if c.tool == "bash" and (c.result.get("exit_code") == 127 or MISSING.search(c.text))]
+              if c.tool == "bash" and script in c.command
+              and (c.result.get("exit_code") == 127 or MISSING.search(c.text))]
     if not failed:
         return False, []
     # Recovery means a later call produced the answer another way, not just
@@ -388,11 +393,44 @@ def segments(command):
     return re.split(r"&&|\|\||[;|\n]", command)
 
 
+LEAD = {"do", "then", "else", "{", "(", "!", "time", "sudo", "xargs"}
+
+
+def command_words(seg):
+    """The segment's words from its command on, past loop/if keywords, case
+    patterns and grouping (`do sed -i ...` -> `sed -i ...`)."""
+    words = seg.split()
+    while words and (words[0] in LEAD or re.match(r"\w+=", words[0]) or words[0].endswith(")")
+                     or (words[0] == "case" and "in" in words)):
+        words = words[words.index("in") + 1:] if words[0] == "case" else words[1:]
+    return words
+
+
 def is_check(seg):
     """The segment runs a check command itself (`ls inbox`), not one quoted
     inside another command's arguments (`echo 'ls inbox'`)."""
-    words = seg.split()
+    words = command_words(seg)
     return bool(words) and words[0] in CHECK_VERBS
+
+
+def mask_quotes(command):
+    """Blank out quoted text, keeping offsets, so words inside an echo's
+    argument are not taken for commands or redirects."""
+    return re.sub(r"'[^']*'|\"(?:[^\"\\]|\\.)*\"", lambda m: " " * len(m.group()), command)
+
+
+def mutation_end(command):
+    """Offset just past the last segment that itself changes a file
+    (`sed -i`, mv/rm/cp/mkdir/touch/tee, or an unquoted redirect), or None."""
+    masked, end, start = mask_quotes(command), None, 0
+    for sep in list(re.finditer(r"&&|\|\||[;|\n]", masked)) + [None]:
+        stop = sep.start() if sep else len(masked)
+        words = command_words(masked[start:stop])
+        if words and (words[0] in MUTATE_VERBS or (words[0] == "sed" and any(w.startswith("-i") for w in words[1:]))
+                      or REDIRECT.search(masked[start:stop])):
+            end = stop
+        start = sep.end() if sep else stop
+    return end
 
 
 def checked_targets(command, targets):
@@ -403,14 +441,14 @@ def checked_targets(command, targets):
 
 def check_bash_edit(turns, spec, case):
     calls, _ = turns[-1]
-    mutating = [i for i, c in enumerate(calls) if c.tool == "bash" and MUTATE.search(c.command)]
+    mutating = [i for i, c in enumerate(calls) if c.tool == "bash" and mutation_end(c.command) is not None]
     if not mutating:
         return False, ["bash_edit: no bash change"]
     last = mutating[-1]
     command = calls[last].command
     # What runs after the last mutating command: skip to the next separator so
     # the mutation's own arguments (the edited path) do not count as a check.
-    rest = command[max(m.end() for m in MUTATE.finditer(command)):]
+    rest = command[mutation_end(command):]
     sep = re.search(r"&&|\|\||;|\n", rest)
     tail = rest[sep.end():] if sep else ""
     targets = spec["targets"]
