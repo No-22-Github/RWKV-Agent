@@ -1,5 +1,5 @@
 ## Traps
-- The ticket's new-value field is deferred ("（空）"); writing any value, or writing nothing but replying DONE, is wrong. 
+- The ticket's new-value field is deferred ("（空）"); writing any value, or writing nothing but replying DONE, is wrong.
 
 ## Reference solution
 1. Read the ticket(s) and the config the prompt points at (list the directory if the target is not where expected).

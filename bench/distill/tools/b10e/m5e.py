@@ -100,7 +100,7 @@ def _o1(f):
     return "\n".join("%s %d" % (k, t[k]) for k in sorted(t))
 
 
-mk(1, "canteensales", "Fix a canteen sales tally that ignores month subfolders", 
+mk(1, "canteensales", "Fix a canteen sales tally that ignores month subfolders",
    "食堂的 dish_tally.py 汇总出来的份数明显偏少，我怀疑是 sales 里分月存的那些文件没算进去。帮我修好，运行 python3 dish_tally.py 要把所有销售记录都统计上。",
    "dish_tally.py",
    '''import glob
