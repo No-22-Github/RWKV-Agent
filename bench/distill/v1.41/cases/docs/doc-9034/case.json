@@ -1,0 +1,47 @@
+{
+  "id": "doc-9034",
+  "description": "Single-file changelog lookup of the release that removed a flag while bash is offered; the read tool is the right call. DISTILL-CANARY-ea78ed41",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "3.0.0"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b12a-removedflag-01",
+    "ref_calls": 1,
+    "fixture_bytes": 452,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "docs/CHANGELOG.md": "# Changelog\n\n## 3.3.1\n- Fix: retry budget is now honoured by the batch client.\n\n## 3.2.0\n- Removed: the `--legacy-auth` flag (deprecated in 3.0.0). Use `--token` instead.\n- Added: `--json` output for `deploy status`.\n\n## 3.1.0\n- Added: shell completion for fish.\n\n## 3.0.0\n- Deprecated: the `--legacy-auth` flag. It still works but prints a warning.\n",
+    "docs/migration.md": "# Migration\n\nIf your scripts still pass the old auth flag, switch to `--token` (see the 3.0.0 notes).\n"
+  },
+  "turns": [
+    {
+      "prompt": "According to docs/CHANGELOG.md, which release removed the --legacy-auth flag?",
+      "expect": {
+        "output_contains": [
+          "3.2.0"
+        ],
+        "forbidden_tools": [
+          "bash"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

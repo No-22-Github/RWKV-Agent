@@ -1,0 +1,89 @@
+{
+  "id": "cfg-9023",
+  "description": "Sums resident replicas of prod services across forty values files with a prod-canary look-alike and a spare-replica look-alike key. DISTILL-CANARY-57d812d7",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-MULTISRC",
+      "TR-DECOY",
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "3",
+      "TR-DECOY": "247",
+      "TR-DEFN": "239"
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L3",
+    "family": "fam-cfg-b12a-prodreplicas-01",
+    "ref_calls": 1,
+    "fixture_bytes": 3014,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "部署/订单接入/values.yaml": "服务: 订单接入\n环境: prod-canary\n副本数: 10\n备用副本数: 0\n",
+    "部署/订单核心/values.yaml": "服务: 订单核心\n环境: prod-canary\n副本数: 10\n备用副本数: 3\n",
+    "部署/订单任务/values.yaml": "服务: 订单任务\n环境: staging\n副本数: 2\n备用副本数: 3\n",
+    "部署/订单缓存/values.yaml": "服务: 订单缓存\n环境: prod\n副本数: 3\n备用副本数: 3\n",
+    "部署/订单网关/values.yaml": "服务: 订单网关\n环境: staging\n副本数: 5\n备用副本数: 0\n",
+    "部署/支付接入/values.yaml": "服务: 支付接入\n环境: prod\n副本数: 10\n备用副本数: 1\n",
+    "部署/支付核心/values.yaml": "服务: 支付核心\n环境: prod\n副本数: 5\n备用副本数: 1\n",
+    "部署/支付任务/values.yaml": "服务: 支付任务\n环境: prod-canary\n副本数: 6\n备用副本数: 2\n",
+    "部署/支付缓存/values.yaml": "服务: 支付缓存\n环境: staging\n副本数: 6\n备用副本数: 1\n",
+    "部署/支付网关/values.yaml": "服务: 支付网关\n环境: prod\n副本数: 10\n备用副本数: 1\n",
+    "部署/库存接入/values.yaml": "服务: 库存接入\n环境: staging\n副本数: 4\n备用副本数: 1\n",
+    "部署/库存核心/values.yaml": "服务: 库存核心\n环境: prod\n副本数: 7\n备用副本数: 3\n",
+    "部署/库存任务/values.yaml": "服务: 库存任务\n环境: prod\n副本数: 7\n备用副本数: 1\n",
+    "部署/库存缓存/values.yaml": "服务: 库存缓存\n环境: prod\n副本数: 9\n备用副本数: 3\n",
+    "部署/库存网关/values.yaml": "服务: 库存网关\n环境: staging\n副本数: 3\n备用副本数: 0\n",
+    "部署/用户接入/values.yaml": "服务: 用户接入\n环境: prod\n副本数: 12\n备用副本数: 2\n",
+    "部署/用户核心/values.yaml": "服务: 用户核心\n环境: prod-canary\n副本数: 11\n备用副本数: 2\n",
+    "部署/用户任务/values.yaml": "服务: 用户任务\n环境: prod\n副本数: 12\n备用副本数: 2\n",
+    "部署/用户缓存/values.yaml": "服务: 用户缓存\n环境: prod\n副本数: 8\n备用副本数: 2\n",
+    "部署/用户网关/values.yaml": "服务: 用户网关\n环境: staging\n副本数: 12\n备用副本数: 3\n",
+    "部署/搜索接入/values.yaml": "服务: 搜索接入\n环境: prod\n副本数: 8\n备用副本数: 1\n",
+    "部署/搜索核心/values.yaml": "服务: 搜索核心\n环境: staging\n副本数: 9\n备用副本数: 0\n",
+    "部署/搜索任务/values.yaml": "服务: 搜索任务\n环境: prod-canary\n副本数: 3\n备用副本数: 0\n",
+    "部署/搜索缓存/values.yaml": "服务: 搜索缓存\n环境: prod\n副本数: 6\n备用副本数: 0\n",
+    "部署/搜索网关/values.yaml": "服务: 搜索网关\n环境: staging\n副本数: 11\n备用副本数: 0\n",
+    "部署/推荐接入/values.yaml": "服务: 推荐接入\n环境: prod\n副本数: 4\n备用副本数: 3\n",
+    "部署/推荐核心/values.yaml": "服务: 推荐核心\n环境: prod\n副本数: 12\n备用副本数: 3\n",
+    "部署/推荐任务/values.yaml": "服务: 推荐任务\n环境: prod\n副本数: 12\n备用副本数: 2\n",
+    "部署/推荐缓存/values.yaml": "服务: 推荐缓存\n环境: prod\n副本数: 10\n备用副本数: 1\n",
+    "部署/推荐网关/values.yaml": "服务: 推荐网关\n环境: prod\n副本数: 4\n备用副本数: 1\n",
+    "部署/通知接入/values.yaml": "服务: 通知接入\n环境: prod\n副本数: 10\n备用副本数: 2\n",
+    "部署/通知核心/values.yaml": "服务: 通知核心\n环境: prod\n副本数: 3\n备用副本数: 0\n",
+    "部署/通知任务/values.yaml": "服务: 通知任务\n环境: prod\n副本数: 5\n备用副本数: 2\n",
+    "部署/通知缓存/values.yaml": "服务: 通知缓存\n环境: prod-canary\n副本数: 8\n备用副本数: 2\n",
+    "部署/通知网关/values.yaml": "服务: 通知网关\n环境: prod\n副本数: 7\n备用副本数: 0\n",
+    "部署/风控接入/values.yaml": "服务: 风控接入\n环境: prod-canary\n副本数: 4\n备用副本数: 2\n",
+    "部署/风控核心/values.yaml": "服务: 风控核心\n环境: prod\n副本数: 9\n备用副本数: 2\n",
+    "部署/风控任务/values.yaml": "服务: 风控任务\n环境: prod\n副本数: 11\n备用副本数: 3\n",
+    "部署/风控缓存/values.yaml": "服务: 风控缓存\n环境: prod\n副本数: 7\n备用副本数: 2\n",
+    "部署/风控网关/values.yaml": "服务: 风控网关\n环境: prod\n副本数: 4\n备用副本数: 3\n",
+    "部署/README.md": "# 部署说明\n\n每个服务一个目录，values.yaml 描述它的环境和副本。\n环境取值 prod、staging 和 prod-canary；prod-canary 是线上金丝雀，单独核算，不计入线上正式副本。\n副本数是常驻副本；备用副本数是弹性预留，不算常驻。\n"
+  },
+  "turns": [
+    {
+      "prompt": "部署目录下各服务的 values.yaml 里，线上正式环境一共配了多少个常驻副本？",
+      "expect": {
+        "output_contains": [
+          "195"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

@@ -1,0 +1,157 @@
+{
+  "id": "hyb-9043",
+  "description": "Two-turn: fills a weekend trip note with one city's forecast, then with another city and day after the plan changes. DISTILL-CANARY-5007c8bf",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "tool_then_write",
+    "traps": [
+      "TR-DEFN",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": null,
+      "TR-DECOY": "晴 22~31°C 5%"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b12a-weekendnote-01",
+    "ref_calls": 6,
+    "fixture_bytes": 81,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "出行/周末.md": "# 周末出行\n\n## 周六\n天气：（待填）\n\n## 周日\n天气：（待填）\n"
+  },
+  "turns": [
+    {
+      "prompt": "周六我去南京。查一下那天南京的天气，填进 出行/周末.md 里「周六」下面那行「天气：（待填）」，格式固定为「天气：<天气> <最低>~<最高>°C，降水概率 <x>」，只替换这一行，其余各行和结尾换行都不要动。",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "计划变了，周日改去扬州。同样查那天扬州的天气，按同样格式填进「周日」下面那行，填完确认一下文件。",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "南京",
+      "aliases": [
+        "Nanjing"
+      ],
+      "report": {
+        "location": "南京",
+        "current": "阴 24°C 体感 26°C 湿度 79% 风速 8 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "阴",
+            "temp_c": "21~26",
+            "rain_chance": "35%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "小雨",
+            "temp_c": "20~25",
+            "rain_chance": "60%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "阴",
+            "temp_c": "20~26",
+            "rain_chance": "30%"
+          },
+          {
+            "date": "2026-09-19",
+            "condition": "多云",
+            "temp_c": "21~29",
+            "rain_chance": "20%"
+          },
+          {
+            "date": "2026-09-20",
+            "condition": "晴",
+            "temp_c": "22~31",
+            "rain_chance": "5%"
+          }
+        ]
+      }
+    },
+    {
+      "location": "扬州",
+      "aliases": [
+        "Yangzhou"
+      ],
+      "report": {
+        "location": "扬州",
+        "current": "阴 23°C 体感 25°C 湿度 82% 风速 6 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "阴",
+            "temp_c": "20~25",
+            "rain_chance": "40%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "小雨",
+            "temp_c": "19~24",
+            "rain_chance": "65%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "阴",
+            "temp_c": "19~25",
+            "rain_chance": "35%"
+          },
+          {
+            "date": "2026-09-19",
+            "condition": "晴",
+            "temp_c": "20~30",
+            "rain_chance": "10%"
+          },
+          {
+            "date": "2026-09-20",
+            "condition": "雷阵雨",
+            "temp_c": "21~27",
+            "rain_chance": "75%"
+          }
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "出行/周末.md": {
+        "equals": "# 周末出行\n\n## 周六\n天气：多云 21~29°C，降水概率 20%\n\n## 周日\n天气：雷阵雨 21~27°C，降水概率 75%\n"
+      }
+    }
+  }
+}

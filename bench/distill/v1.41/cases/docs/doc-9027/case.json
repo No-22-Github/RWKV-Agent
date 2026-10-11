@@ -1,0 +1,66 @@
+{
+  "id": "doc-9027",
+  "description": "Bumps a product version mention across docs while archive blocks inside two files and a changelog file stay untouched. DISTILL-CANARY-ee082e66",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON"
+    ],
+    "level": "L2",
+    "family": "fam-doc-b12a-versionbump-01",
+    "ref_calls": 2,
+    "fixture_bytes": 1006,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "文档/入门.md": "# 入门\n\n星桥 1.8 提供命令行和网页两种入口。\n安装后运行 `xq init` 初始化工作区。\n\n<!-- 历史:开始 -->\n> 存档：星桥 1.8 之前只有命令行入口，网页入口随 星桥 1.8 加入。\n<!-- 历史:结束 -->\n\n从旧版升级时，星桥 1.8 不需要迁移数据。\n",
+    "文档/部署.md": "# 部署\n\n生产环境推荐三节点部署，星桥 1.8 的节点之间通过内网通信。\n\n<!-- 历史:开始 -->\n> 存档：早期的 星桥 1.8 单节点模式已经不再推荐。\n> 单节点模式没有高可用。\n<!-- 历史:结束 -->\n\n监控指标见 排障.md；星桥 1.8 默认暴露 /metrics。\n",
+    "文档/排障.md": "# 排障\n\n星桥 1.8 的日志在 /var/log/xq 下。\n节点失联时先看 星桥 1.8 的健康检查输出。\n",
+    "文档/更新记录.md": "# 更新记录\n\n- 星桥 1.8 发布：新增网页入口。\n- 星桥 1.7 发布：新增命令行补全。\n",
+    "文档/README.md": "# 文档说明\n\n「历史:开始」与「历史:结束」之间的内容是旧版本的存档说明，更新记录.md 是历史记录，\n这两处都不随版本号更新。\n"
+  },
+  "turns": [
+    {
+      "prompt": "产品升级了：把 文档 里提到的「星桥 1.8」都改成「星桥 2.0」，存档部分和历史记录怎么处理看 文档/README.md。改完回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "文档/入门.md": {
+        "equals": "# 入门\n\n星桥 2.0 提供命令行和网页两种入口。\n安装后运行 `xq init` 初始化工作区。\n\n<!-- 历史:开始 -->\n> 存档：星桥 1.8 之前只有命令行入口，网页入口随 星桥 1.8 加入。\n<!-- 历史:结束 -->\n\n从旧版升级时，星桥 2.0 不需要迁移数据。\n"
+      },
+      "文档/部署.md": {
+        "equals": "# 部署\n\n生产环境推荐三节点部署，星桥 2.0 的节点之间通过内网通信。\n\n<!-- 历史:开始 -->\n> 存档：早期的 星桥 1.8 单节点模式已经不再推荐。\n> 单节点模式没有高可用。\n<!-- 历史:结束 -->\n\n监控指标见 排障.md；星桥 2.0 默认暴露 /metrics。\n"
+      },
+      "文档/排障.md": {
+        "equals": "# 排障\n\n星桥 2.0 的日志在 /var/log/xq 下。\n节点失联时先看 星桥 2.0 的健康检查输出。\n"
+      },
+      "文档/更新记录.md": {
+        "unchanged": true
+      },
+      "文档/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

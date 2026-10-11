@@ -1,0 +1,84 @@
+{
+  "id": "hyb-9041",
+  "description": "Asks in English whether it rains in a city the day after tomorrow. DISTILL-CANARY-20037fe0",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "10%"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b12a-xianrain-01",
+    "ref_calls": 1,
+    "fixture_bytes": 48,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "trip/xian.md": "# Xi'an trip\n\n- Fri 2026-09-18: Terracotta Army\n"
+  },
+  "turns": [
+    {
+      "prompt": "Is it going to rain in Xi'an the day after tomorrow? How likely is it?",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "65%"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "Xi'an",
+      "aliases": [
+        "西安",
+        "Xian"
+      ],
+      "report": {
+        "location": "Xi'an",
+        "current": "Sunny 30°C feels 32°C humidity 38% wind 9 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "Sunny",
+            "temp_c": "21~33",
+            "rain_chance": "5%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "Cloudy",
+            "temp_c": "20~31",
+            "rain_chance": "10%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "Showers",
+            "temp_c": "19~27",
+            "rain_chance": "65%"
+          }
+        ]
+      }
+    }
+  ]
+}
