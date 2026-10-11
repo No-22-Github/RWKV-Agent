@@ -35,7 +35,8 @@ One read of the file a search_text hit named, or one web_fetch of a page a
 web_search returned, right after the evidence call is allowed as context.
 
 Per-kind target checks are in check_*; SPEC maps each pilot case to its kind
-and sub-class. Scaled b12 batches add their case ids here.
+and sub-class; later batches add theirs in tools/<batch>/specs.py (see
+merge_batch_specs).
 """
 import argparse
 import collections
@@ -90,6 +91,29 @@ SPEC = {
     "hyb-9019": dict(kind="weather", sub="M10d", needs=["site/rules.md"]),
     "nt-9020": dict(kind="zero_call", sub="M10e"),
 }
+
+
+def merge_batch_specs():
+    """Later b12 batches keep their cases' specs beside their builders, as a
+    SPEC dict in tools/<batch>/specs.py with the same shape as SPEC above.
+    A batch directory without specs.py is skipped; a case id defined twice is
+    an error rather than a silent override."""
+    import importlib.util
+    tools = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    for batch in ("b12a",):
+        path = os.path.join(tools, batch, "specs.py")
+        if not os.path.exists(path):
+            continue
+        spec = importlib.util.spec_from_file_location(batch + "_specs", path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        clash = set(SPEC) & set(module.SPEC)
+        if clash:
+            sys.exit("%s redefines %s" % (path, ", ".join(sorted(clash))))
+        SPEC.update(module.SPEC)
+
+
+merge_batch_specs()
 
 
 # ---------------------------------------------------------------- run loading
