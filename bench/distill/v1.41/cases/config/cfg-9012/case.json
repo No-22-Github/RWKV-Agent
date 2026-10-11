@@ -1,6 +1,6 @@
 {
   "id": "cfg-9012",
-  "description": "Two turns: list a service folder, then read a same-named file whose root copy is a decoy. DISTILL-CANARY-f95c7737",
+  "description": "Two turns: cd into a service folder and list it, then read a same-named file whose root copy is a decoy. DISTILL-CANARY-f95c7737",
   "category": "config",
   "tags": {
     "scenario": "config",
@@ -35,7 +35,7 @@
   },
   "turns": [
     {
-      "prompt": "进到 服务/结算 目录看看有哪些文件。",
+      "prompt": "cd 到 服务/结算 目录，看看里面有哪些文件。",
       "expect": {
         "output_contains": [
           "超时.yaml"

@@ -28,6 +28,7 @@
 | `collect.py` | 把 step.py 的解题状态收成老师动作脚本 | v1 b04 |
 | `b10_merge.py` | 合并多轮 step.py 结果，保留可重判的失败路径 | v1.4 b10 |
 | `b10_check.py` | 终答形态检查（写后回读、长度、Markdown、DONE 行） | v1.4 b10 |
+| `b12/behavior.py` | b12 轨迹行为验收：目标行为 covered / ordinary / reject，证据齐后停止、倾倒、cwd、恢复 | v1.41 b12 |
 | `classify_failures.py` | 跨 arm 的逐题失败分类（v1.2 轨迹复盘） | v1.2 |
 
 ## 数据加工

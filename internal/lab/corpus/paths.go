@@ -8,6 +8,7 @@ import (
 
 	"github.com/no22/RWKV-Agent/internal/agent"
 	"github.com/no22/RWKV-Agent/internal/agent/eval"
+	tools "github.com/no22/RWKV-Agent/internal/agent/tools"
 	"github.com/no22/RWKV-Agent/internal/lab"
 )
 
@@ -66,6 +67,16 @@ func fixturePageError(step agent.Step) bool {
 		!strings.HasPrefix(step.ToolError, "invalid tool arguments")
 }
 
+// fixtureWeatherMiss reports whether a tool error is get_weather not knowing a
+// place. The case's weather_fixture fixes which names resolve, so asking for a
+// landmark and then its city (鼓浪屿 -> 厦门) is the recovery the M10 landmark
+// cases teach, and render replays the same miss. Other get_weather errors
+// (bad days, empty location) stay the teacher's own and keep the path out.
+func fixtureWeatherMiss(step agent.Step) bool {
+	return step.Tool == "get_weather" && step.ToolExecuted &&
+		strings.Contains(step.ToolError, tools.ErrWeatherLocationNotFound.Error())
+}
+
 // Unclean is a passing run whose path cannot be replayed as-is; the message is
 // the drop reason.
 type Unclean string
@@ -120,7 +131,8 @@ func Extract(run CaseRun) (Trajectory, error) {
 			}
 			switch step.ActionType {
 			case "tool":
-				if (step.ToolError != "" && !fixturePageError(step)) || step.ToolRejected != "" || !step.ToolExecuted {
+				if (step.ToolError != "" && !fixturePageError(step) && !fixtureWeatherMiss(step)) ||
+					step.ToolRejected != "" || !step.ToolExecuted {
 					return nil, Unclean("tool error or rejection")
 				}
 				arguments, err := orderedArguments(step.ToolArguments)

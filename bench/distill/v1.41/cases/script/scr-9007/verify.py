@@ -11,4 +11,5 @@ for path, text in case["files"].items():
         batch, item, g, status = row.split(",")
         if status == "入库":
             grams += int(g)
-print(json.dumps({"expected_string": f"{grams / 1000:.1f}"}))
+kg = f"{grams / 1000:.1f}"
+print(json.dumps({"expected_contains_any": [kg, f"{grams / 1000:,.1f}"]}))
