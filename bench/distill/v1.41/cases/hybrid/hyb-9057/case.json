@@ -1,0 +1,93 @@
+{
+  "id": "hyb-9057",
+  "description": "Applies a site's low-temperature rule to tomorrow's forecast to decide whether to pour concrete. DISTILL-CANARY-0e0b038a",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-RULEFILE",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": "5%",
+      "TR-DECOY": "16"
+    },
+    "axes": [
+      "DEC",
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b12b-shenyangpour-01",
+    "ref_calls": 2,
+    "fixture_bytes": 207,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "工地/浇筑规程.md": "# 混凝土浇筑规程\n\n- 当日最低气温 < 5°C：暂停浇筑，改期。\n- 当日降水概率 ≥ 30%：暂停浇筑，改期。\n- 其余情况可以浇筑。\n",
+    "工地/说明.md": "# 说明\n\n本目录存放日常规则。\n"
+  },
+  "turns": [
+    {
+      "prompt": "按工地的浇筑规程，沈阳明天的混凝土浇筑能安排吗？",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "3°C"
+        ],
+        "output_contains_any": [
+          "暂停",
+          "改期",
+          "不能"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "沈阳",
+      "aliases": [
+        "Shenyang"
+      ],
+      "report": {
+        "location": "沈阳",
+        "current": "多云 12°C 体感 10°C 湿度 55% 风速 15 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "多云",
+            "temp_c": "8~16",
+            "rain_chance": "10%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "晴",
+            "temp_c": "3~15",
+            "rain_chance": "5%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "晴",
+            "temp_c": "5~18",
+            "rain_chance": "5%"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "id": "doc-9123",
+  "description": "Two turns: replaces a product term across manual pages except a glossary, then restores the original term in two files. DISTILL-CANARY-4922d99c",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON"
+    ],
+    "level": "L3",
+    "family": "fam-doc-b12e-termswap-01",
+    "ref_calls": 4,
+    "fixture_bytes": 694,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12e",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "手册/安装.md": "# 安装\n\n先下载客户端安装包，双击运行。\n客户端首次启动会要求登录。\n客户支持电话见首页。\n",
+    "手册/使用.md": "# 使用\n\n在客户端左侧选择项目。\n客户反馈请通过菜单提交。\n客户端支持离线模式。\n",
+    "手册/排错.md": "# 排错\n\n客户端打不开时先清理缓存。\n仍无法解决请联系客户成功团队。\n",
+    "手册/法务条款.md": "# 法务条款\n\n第 3 条：客户端的所有权归公司所有。\n第 7 条：客户不得拆解客户端。\n",
+    "手册/术语表.md": "# 术语表\n\n客户端：用户在本机安装的程序。\n客户：购买服务的单位。\n",
+    "手册/README.md": "# 手册说明\n\n统一用语：文档里的「客户端」逐步改称「终端」。\n术语表.md 是定义页，保留原词；README.md 本身不改。\n"
+  },
+  "turns": [
+    {
+      "prompt": "产品统一用语：把 手册 下文档里的「客户端」都换成「终端」。哪些文件要保留原词看 手册/README.md。改完回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "法务条款.md 里的「客户端」是合同用语，安装.md 里的是界面上显示的原文，这两份必须保持原词，改回来，其他文件保持现在的样子。改完回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "手册/安装.md": {
+        "unchanged": true
+      },
+      "手册/使用.md": {
+        "equals": "# 使用\n\n在终端左侧选择项目。\n客户反馈请通过菜单提交。\n终端支持离线模式。\n"
+      },
+      "手册/排错.md": {
+        "equals": "# 排错\n\n终端打不开时先清理缓存。\n仍无法解决请联系客户成功团队。\n"
+      },
+      "手册/法务条款.md": {
+        "unchanged": true
+      },
+      "手册/术语表.md": {
+        "unchanged": true
+      },
+      "手册/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

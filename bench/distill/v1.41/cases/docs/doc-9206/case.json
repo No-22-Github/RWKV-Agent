@@ -1,0 +1,77 @@
+{
+  "id": "doc-9206",
+  "description": "Appends a managed-by footer line to every nginx conf file while a generated folder and a package default file stay unchanged. DISTILL-CANARY-1df74727",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-READONLY",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null,
+      "TR-DECOY": "nginx.conf.default"
+    },
+    "axes": [
+      "CON",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-doc-b12h-footer-01",
+    "ref_calls": 2,
+    "fixture_bytes": 587,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12h",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "nginx/conf.d/site-a.conf": "server {\n    server_name site-a.example.com;\n    listen 80;\n}\n",
+    "nginx/conf.d/site-b.conf": "server {\n    server_name site-b.example.com;\n    listen 80;\n}\n",
+    "nginx/conf.d/site-c.conf": "server {\n    server_name site-c.example.com;\n    listen 80;\n}\n",
+    "nginx/conf.d/api.conf": "server {\n    server_name api.example.com;\n    listen 80;\n}\n",
+    "nginx/generated/auto.conf": "# produced by the deploy tool\nserver {\n    listen 8080;\n}\n",
+    "nginx/nginx.conf.default": "# package default\nworker_processes 1;\n",
+    "nginx/README.md": "# Nginx 配置\n\n每个 conf.d 下的 .conf 末尾要有一行托管标记：# managed by ops-team。\nnginx/generated 是部署工具每次覆盖生成的，不要手改。\nnginx.conf.default 是安装包自带的默认文件，不属于 .conf。\n"
+  },
+  "turns": [
+    {
+      "prompt": "给 nginx 下每个 .conf 文件的末尾追加一行「# managed by ops-team」。哪些不加，nginx/README.md 里有说明。改完检查一下，回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "nginx/conf.d/site-a.conf": {
+        "equals": "server {\n    server_name site-a.example.com;\n    listen 80;\n}\n# managed by ops-team\n"
+      },
+      "nginx/conf.d/site-b.conf": {
+        "equals": "server {\n    server_name site-b.example.com;\n    listen 80;\n}\n# managed by ops-team\n"
+      },
+      "nginx/conf.d/site-c.conf": {
+        "equals": "server {\n    server_name site-c.example.com;\n    listen 80;\n}\n# managed by ops-team\n"
+      },
+      "nginx/conf.d/api.conf": {
+        "equals": "server {\n    server_name api.example.com;\n    listen 80;\n}\n# managed by ops-team\n"
+      },
+      "nginx/generated/auto.conf": {
+        "unchanged": true
+      },
+      "nginx/nginx.conf.default": {
+        "unchanged": true
+      },
+      "nginx/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

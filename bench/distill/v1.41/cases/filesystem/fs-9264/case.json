@@ -1,0 +1,117 @@
+{
+  "id": "fs-9264",
+  "description": "Two turns: renames .yml pipeline files to .yaml except a vendored mirror, then renames the legacy folder's files back to .yml. DISTILL-CANARY-3591de76",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "bulk_edit",
+    "traps": [
+      "TR-READONLY",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null,
+      "TR-DECOY": null
+    },
+    "axes": [
+      "CON",
+      "OBS"
+    ],
+    "level": "L3",
+    "family": "fam-fs-b12k-yamlext-01",
+    "ref_calls": 4,
+    "fixture_bytes": 254,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "pipelines/build.yml": "name: build\n",
+    "pipelines/test.yml": "name: test\n",
+    "pipelines/deploy.yml": "name: deploy\n",
+    "pipelines/lint/style.yml": "name: style\n",
+    "pipelines/lint/types.yml": "name: types\n",
+    "pipelines/legacy/nightly.yml": "name: nightly\n",
+    "pipelines/legacy/cleanup.yml": "name: cleanup\n",
+    "pipelines/vendor/upstream.yml": "name: upstream\n",
+    "pipelines/vendor/shared.yml": "name: shared\n",
+    "pipelines/old-notes.yml.bak": "stale notes\n",
+    "pipelines/README.md": "# Pipelines\n\nPipeline files use the .yaml extension.\nvendor/ mirrors an upstream repository: never rename anything inside it.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Standardize the pipeline extension: rename every .yml file under pipelines to .yaml. pipelines/README.md says what must not be renamed. Reply DONE when finished.",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "The legacy runner only loads .yml, so rename the two files in pipelines/legacy back to .yml. Everything else stays as it is now. Reply DONE when finished.",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "pipelines/build.yml": {
+        "absent": true
+      },
+      "pipelines/test.yml": {
+        "absent": true
+      },
+      "pipelines/deploy.yml": {
+        "absent": true
+      },
+      "pipelines/lint/style.yml": {
+        "absent": true
+      },
+      "pipelines/lint/types.yml": {
+        "absent": true
+      },
+      "pipelines/legacy/nightly.yml": {
+        "unchanged": true
+      },
+      "pipelines/legacy/cleanup.yml": {
+        "unchanged": true
+      },
+      "pipelines/vendor/upstream.yml": {
+        "unchanged": true
+      },
+      "pipelines/vendor/shared.yml": {
+        "unchanged": true
+      },
+      "pipelines/old-notes.yml.bak": {
+        "unchanged": true
+      },
+      "pipelines/README.md": {
+        "unchanged": true
+      },
+      "pipelines/build.yaml": {
+        "equals": "name: build\n"
+      },
+      "pipelines/test.yaml": {
+        "equals": "name: test\n"
+      },
+      "pipelines/deploy.yaml": {
+        "equals": "name: deploy\n"
+      },
+      "pipelines/lint/style.yaml": {
+        "equals": "name: style\n"
+      },
+      "pipelines/lint/types.yaml": {
+        "equals": "name: types\n"
+      }
+    }
+  }
+}

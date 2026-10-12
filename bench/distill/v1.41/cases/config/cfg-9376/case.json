@@ -1,0 +1,45 @@
+{
+  "id": "cfg-9376",
+  "description": "Reads the nightly shard count from a named toml with a PR section and a sample copy; bash allowed but one read suffices. DISTILL-CANARY-ecebea7e",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "4"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b12o-nightlyshards-01",
+    "ref_calls": 1,
+    "fixture_bytes": 161,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12o",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "ci/pipeline.toml": "# CI pipeline settings\n[pr]\ntest_shards = 4\ntimeout_minutes = 20\n\n[nightly]\ntest_shards = 8\ntimeout_minutes = 90\n",
+    "ci/pipeline.toml.sample": "[pr]\ntest_shards = 2\n\n[nightly]\ntest_shards = 3\n"
+  },
+  "turns": [
+    {
+      "prompt": "In ci/pipeline.toml, how many test shards does the nightly pipeline use?",
+      "expect": {
+        "output_contains_any": [
+          "8",
+          "eight"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

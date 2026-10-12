@@ -1,0 +1,59 @@
+{
+  "id": "nt-9140",
+  "description": "Two concept questions (feels-like temperature, command-line delete) with get_weather and bash offered; both answered without a call. DISTILL-CANARY-340a3b0e",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "查一下今天的天气"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b12e-concepts-01",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12e",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "天气预报里的「体感温度」是怎么得出来的？为什么有时候和实际气温差很多？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "风",
+          "湿度",
+          "体感"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "还有个问题：在 Linux 命令行里用 rm 删掉的文件，还能从回收站里找回来吗？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "回收站",
+          "无法",
+          "不能",
+          "恢复"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

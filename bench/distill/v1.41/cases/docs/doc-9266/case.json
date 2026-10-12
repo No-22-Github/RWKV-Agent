@@ -1,0 +1,95 @@
+{
+  "id": "doc-9266",
+  "description": "Two turns: adds an owner comment as first line of every live wiki page except the frozen archive and README, then removes it from the two legal pages. DISTILL-CANARY-29e0b834",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON"
+    ],
+    "level": "L3",
+    "family": "fam-doc-b12k-ownerline-01",
+    "ref_calls": 4,
+    "fixture_bytes": 446,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "wiki/onboarding.md": "# onboarding\n\nNotes for onboarding.\n",
+    "wiki/faq.md": "# faq\n\nNotes for faq.\n",
+    "wiki/runbook.md": "# runbook\n\nNotes for runbook.\n",
+    "wiki/eng/style.md": "# style\n\nNotes for eng/style.\n",
+    "wiki/eng/release.md": "# release\n\nNotes for eng/release.\n",
+    "wiki/legal/terms.md": "# terms\n\nNotes for legal/terms.\n",
+    "wiki/legal/privacy.md": "# privacy\n\nNotes for legal/privacy.\n",
+    "wiki/archive/2024-notes.md": "# 2024-notes\n\nNotes for archive/2024-notes.\n",
+    "wiki/archive/old-faq.md": "# old-faq\n\nNotes for archive/old-faq.\n",
+    "wiki/README.md": "# Wiki\n\nEvery live page starts with the line <!-- owner: docs-team -->\nwiki/archive is frozen and never edited. README.md itself is not a page.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Add the owner line described in wiki/README.md as the first line of every live page under wiki. The README also says what must not be touched. Reply DONE when finished.",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "Legal owns its own pages, so remove that first line again from the two files in wiki/legal. Leave every other page as it is now. Reply DONE when finished.",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "wiki/onboarding.md": {
+        "equals": "<!-- owner: docs-team -->\n# onboarding\n\nNotes for onboarding.\n"
+      },
+      "wiki/faq.md": {
+        "equals": "<!-- owner: docs-team -->\n# faq\n\nNotes for faq.\n"
+      },
+      "wiki/runbook.md": {
+        "equals": "<!-- owner: docs-team -->\n# runbook\n\nNotes for runbook.\n"
+      },
+      "wiki/eng/style.md": {
+        "equals": "<!-- owner: docs-team -->\n# style\n\nNotes for eng/style.\n"
+      },
+      "wiki/eng/release.md": {
+        "equals": "<!-- owner: docs-team -->\n# release\n\nNotes for eng/release.\n"
+      },
+      "wiki/legal/terms.md": {
+        "unchanged": true
+      },
+      "wiki/legal/privacy.md": {
+        "unchanged": true
+      },
+      "wiki/archive/2024-notes.md": {
+        "unchanged": true
+      },
+      "wiki/archive/old-faq.md": {
+        "unchanged": true
+      },
+      "wiki/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

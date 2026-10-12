@@ -1,0 +1,43 @@
+{
+  "id": "nt-9496",
+  "description": "Asks for a command making every shell script in a tree executable without running it while bash is offered. DISTILL-CANARY-6e89f203",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "运行一下看看"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b12t-chmodsh-01",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12t",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "我有个目录 /srv/demo-site，想给它下面所有 .sh 脚本加上可执行权限。请写一条命令，只写出来，先不要运行。",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "chmod"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

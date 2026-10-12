@@ -1,0 +1,73 @@
+{
+  "id": "cfg-9301",
+  "description": "Moves the published host port 8080 to 8090 in four compose files while a legacy stack and the look-alike 18080 monitoring mapping stay. DISTILL-CANARY-20629f0d",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-READONLY",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null,
+      "TR-DECOY": "18080:8080"
+    },
+    "axes": [
+      "CON",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-cfg-b12l-composeport-01",
+    "ref_calls": 2,
+    "fixture_bytes": 762,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "栈/接口/docker-compose.yml": "services:\n  app:\n    image: corp/接口-app:4.5\n    ports:\n      - \"8080:80\"\n      - \"18080:8080\"\n    restart: always\n",
+    "栈/前台/docker-compose.yml": "services:\n  app:\n    image: corp/前台-app:5.9\n    ports:\n      - \"8080:3000\"\n      - \"18080:8080\"\n    restart: always\n",
+    "栈/后台/docker-compose.yml": "services:\n  app:\n    image: corp/后台-app:3.7\n    ports:\n      - \"8080:8000\"\n      - \"18080:8080\"\n    restart: always\n",
+    "栈/文档/docker-compose.yml": "services:\n  app:\n    image: corp/文档-app:2.4\n    ports:\n      - \"8080:80\"\n      - \"18080:8080\"\n    restart: always\n",
+    "栈/旧版/docker-compose.yml": "services:\n  app:\n    image: corp/旧版-app:2.4\n    ports:\n      - \"8080:80\"\n      - \"18080:8080\"\n    restart: always\n",
+    "栈/说明.md": "# 编排说明\n\n旧版 目录是给老客户保留的，对外端口约定 8080，保持原样。\n18080 是监控端口，是另一个映射，不属于这次调整。\n"
+  },
+  "turns": [
+    {
+      "prompt": "宿主机的 8080 端口被占用了，把 栈 目录下各服务 docker-compose.yml 里对外映射的 8080 改成 8090（容器内端口不变）。哪些不能动看 栈/说明.md，改完回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "栈/接口/docker-compose.yml": {
+        "equals": "services:\n  app:\n    image: corp/接口-app:4.5\n    ports:\n      - \"8090:80\"\n      - \"18080:8080\"\n    restart: always\n"
+      },
+      "栈/前台/docker-compose.yml": {
+        "equals": "services:\n  app:\n    image: corp/前台-app:5.9\n    ports:\n      - \"8090:3000\"\n      - \"18080:8080\"\n    restart: always\n"
+      },
+      "栈/后台/docker-compose.yml": {
+        "equals": "services:\n  app:\n    image: corp/后台-app:3.7\n    ports:\n      - \"8090:8000\"\n      - \"18080:8080\"\n    restart: always\n"
+      },
+      "栈/文档/docker-compose.yml": {
+        "equals": "services:\n  app:\n    image: corp/文档-app:2.4\n    ports:\n      - \"8090:80\"\n      - \"18080:8080\"\n    restart: always\n"
+      },
+      "栈/旧版/docker-compose.yml": {
+        "unchanged": true
+      },
+      "栈/说明.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

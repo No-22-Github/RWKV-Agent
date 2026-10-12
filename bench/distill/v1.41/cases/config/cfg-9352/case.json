@@ -1,0 +1,129 @@
+{
+  "id": "cfg-9352",
+  "description": "Two turns: lists services whose production pool_size is below 10, then sets pool_size to 10 in both their production and staging TOML files. DISTILL-CANARY-2f7628b2",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY",
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null,
+      "TR-READONLY": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "CON"
+    ],
+    "level": "L3",
+    "family": "fam-cfg-b12n-lowpool-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1353,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12n",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "svc/billing/config.toml": "[pool]\npool_size = 39\nmax_pool_size = 50\npool_size_min = 2\ntimeout = 30\n",
+    "svc/billing/config.staging.toml": "[pool]\npool_size = 18\nmax_pool_size = 50\npool_size_min = 2\ntimeout = 30\n",
+    "svc/search/config.toml": "[pool]\npool_size = 13\nmax_pool_size = 50\npool_size_min = 2\ntimeout = 30\n",
+    "svc/search/config.staging.toml": "[pool]\npool_size = 4\nmax_pool_size = 50\npool_size_min = 2\ntimeout = 30\n",
+    "svc/auth/config.toml": "[pool]\npool_size = 4\nmax_pool_size = 50\npool_size_min = 2\ntimeout = 30\n",
+    "svc/auth/config.staging.toml": "[pool]\npool_size = 3\nmax_pool_size = 50\npool_size_min = 2\ntimeout = 30\n",
+    "svc/feed/config.toml": "[pool]\npool_size = 16\nmax_pool_size = 50\npool_size_min = 2\ntimeout = 30\n",
+    "svc/feed/config.staging.toml": "[pool]\npool_size = 18\nmax_pool_size = 50\npool_size_min = 2\ntimeout = 30\n",
+    "svc/chat/config.toml": "[pool]\npool_size = 3\nmax_pool_size = 50\npool_size_min = 2\ntimeout = 30\n",
+    "svc/chat/config.staging.toml": "[pool]\npool_size = 16\nmax_pool_size = 50\npool_size_min = 2\ntimeout = 30\n",
+    "svc/media/config.toml": "[pool]\npool_size = 7\nmax_pool_size = 50\npool_size_min = 2\ntimeout = 30\n",
+    "svc/media/config.staging.toml": "[pool]\npool_size = 19\nmax_pool_size = 50\npool_size_min = 2\ntimeout = 30\n",
+    "svc/push/config.toml": "[pool]\npool_size = 28\nmax_pool_size = 50\npool_size_min = 2\ntimeout = 30\n",
+    "svc/push/config.staging.toml": "[pool]\npool_size = 5\nmax_pool_size = 50\npool_size_min = 2\ntimeout = 30\n",
+    "svc/_template/config.toml": "[pool]\npool_size = 4\nmax_pool_size = 50\npool_size_min = 2\ntimeout = 30\n",
+    "svc/_template/config.staging.toml": "[pool]\npool_size = 4\nmax_pool_size = 50\npool_size_min = 2\ntimeout = 30\n",
+    "svc/README.md": "# 服务配置\n\n每个服务目录里有 config.toml（生产）和 config.staging.toml。_template 是新服务的复制模板，保持原样。\nmax_pool_size 和 pool_size_min 是别的参数，不要动。\n"
+  },
+  "turns": [
+    {
+      "prompt": "svc 下每个服务目录里的 config.toml 都有 pool_size。哪些服务的 pool_size 小于 10？把服务名都列出来，哪些目录不算看 svc/README.md。",
+      "expect": {
+        "output_contains": [
+          "auth",
+          "chat",
+          "media"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "把这几个服务的 config.toml 和 config.staging.toml 里的 pool_size 都改成 10，只改 pool_size 这一行，别的键和别的服务不动。改完回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "svc/billing/config.toml": {
+        "unchanged": true
+      },
+      "svc/billing/config.staging.toml": {
+        "unchanged": true
+      },
+      "svc/search/config.toml": {
+        "unchanged": true
+      },
+      "svc/search/config.staging.toml": {
+        "unchanged": true
+      },
+      "svc/auth/config.toml": {
+        "equals": "[pool]\npool_size = 10\nmax_pool_size = 50\npool_size_min = 2\ntimeout = 30\n"
+      },
+      "svc/auth/config.staging.toml": {
+        "equals": "[pool]\npool_size = 10\nmax_pool_size = 50\npool_size_min = 2\ntimeout = 30\n"
+      },
+      "svc/feed/config.toml": {
+        "unchanged": true
+      },
+      "svc/feed/config.staging.toml": {
+        "unchanged": true
+      },
+      "svc/chat/config.toml": {
+        "equals": "[pool]\npool_size = 10\nmax_pool_size = 50\npool_size_min = 2\ntimeout = 30\n"
+      },
+      "svc/chat/config.staging.toml": {
+        "equals": "[pool]\npool_size = 10\nmax_pool_size = 50\npool_size_min = 2\ntimeout = 30\n"
+      },
+      "svc/media/config.toml": {
+        "equals": "[pool]\npool_size = 10\nmax_pool_size = 50\npool_size_min = 2\ntimeout = 30\n"
+      },
+      "svc/media/config.staging.toml": {
+        "equals": "[pool]\npool_size = 10\nmax_pool_size = 50\npool_size_min = 2\ntimeout = 30\n"
+      },
+      "svc/push/config.toml": {
+        "unchanged": true
+      },
+      "svc/push/config.staging.toml": {
+        "unchanged": true
+      },
+      "svc/_template/config.toml": {
+        "unchanged": true
+      },
+      "svc/_template/config.staging.toml": {
+        "unchanged": true
+      },
+      "svc/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

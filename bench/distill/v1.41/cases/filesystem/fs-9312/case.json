@@ -1,0 +1,77 @@
+{
+  "id": "fs-9312",
+  "description": "Renames the CSS class btn-old to btn-main in four pages and the stylesheet while the vendor markup and the btn-older class stay. DISTILL-CANARY-4fab264c",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "bulk_edit",
+    "traps": [
+      "TR-READONLY",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null,
+      "TR-DECOY": "btn-older"
+    },
+    "axes": [
+      "CON",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-fs-b12l-cssclass-01",
+    "ref_calls": 2,
+    "fixture_bytes": 845,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "web/index.html": "<html><body>\n  <a class=\"btn-old large\" href=\"/index\">Go</a>\n  <a class=\"btn-older\" href=\"/x\">Older</a>\n</body></html>\n",
+    "web/pricing.html": "<html><body>\n  <a class=\"btn-old large\" href=\"/pricing\">Go</a>\n  <a class=\"btn-older\" href=\"/x\">Older</a>\n</body></html>\n",
+    "web/about.html": "<html><body>\n  <a class=\"btn-old large\" href=\"/about\">Go</a>\n  <a class=\"btn-older\" href=\"/x\">Older</a>\n</body></html>\n",
+    "web/contact.html": "<html><body>\n  <a class=\"btn-old large\" href=\"/contact\">Go</a>\n  <a class=\"btn-older\" href=\"/x\">Older</a>\n</body></html>\n",
+    "web/assets/site.css": ".btn-old { color: #fff; }\n.btn-old:hover { color: #eee; }\n.btn-older { color: #999; }\n",
+    "web/vendor/widget.html": "<div class=\"btn-old\">third-party widget</div>\n",
+    "web/NOTES.txt": "Web notes\n\nThe button class btn-old is renamed to btn-main in our pages and in the stylesheet.\nweb/vendor holds embedded third-party markup that still relies on btn-old: do not touch it.\nbtn-older is a different class (muted style).\n"
+  },
+  "turns": [
+    {
+      "prompt": "Rename the CSS class btn-old to btn-main everywhere in the site under web: the HTML pages and the stylesheet. web/NOTES.txt says what to leave alone. Reply DONE.",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "web/index.html": {
+        "equals": "<html><body>\n  <a class=\"btn-main large\" href=\"/index\">Go</a>\n  <a class=\"btn-older\" href=\"/x\">Older</a>\n</body></html>\n"
+      },
+      "web/pricing.html": {
+        "equals": "<html><body>\n  <a class=\"btn-main large\" href=\"/pricing\">Go</a>\n  <a class=\"btn-older\" href=\"/x\">Older</a>\n</body></html>\n"
+      },
+      "web/about.html": {
+        "equals": "<html><body>\n  <a class=\"btn-main large\" href=\"/about\">Go</a>\n  <a class=\"btn-older\" href=\"/x\">Older</a>\n</body></html>\n"
+      },
+      "web/contact.html": {
+        "equals": "<html><body>\n  <a class=\"btn-main large\" href=\"/contact\">Go</a>\n  <a class=\"btn-older\" href=\"/x\">Older</a>\n</body></html>\n"
+      },
+      "web/assets/site.css": {
+        "equals": ".btn-main { color: #fff; }\n.btn-main:hover { color: #eee; }\n.btn-older { color: #999; }\n"
+      },
+      "web/vendor/widget.html": {
+        "unchanged": true
+      },
+      "web/NOTES.txt": {
+        "unchanged": true
+      }
+    }
+  }
+}

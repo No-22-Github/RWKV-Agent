@@ -1,0 +1,98 @@
+{
+  "id": "hyb-9448",
+  "description": "Composite request: museum weekly closing day from web search plus the day-after-tomorrow forecast from the weather tool. DISTILL-CANARY-a2d33314",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-MULTISRC",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "阵雨",
+      "TR-DECOY": "多云"
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b12r-nmgmuseumclosed-01",
+    "ref_calls": 2,
+    "fixture_bytes": 49,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12r",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [
+    {
+      "query_match": "内蒙古博物院",
+      "url": "https://www.nmgmuseum.example.cn/visit",
+      "url_match": "nmgmuseum",
+      "title": "内蒙古博物院 参观指南",
+      "snippet": "内蒙古博物院开放时间 9:00—17:00（16:30 停止入馆），每周一闭馆，法定节假日除外。",
+      "content": "# 内蒙古博物院 参观指南\n\n内蒙古博物院开放时间 9:00—17:00（16:30 停止入馆），每周一闭馆，法定节假日除外。",
+      "published_at": "2026-08-30"
+    }
+  ],
+  "files": {
+    "出差/呼和浩特.md": "# 呼和浩特出差\n\n- 周五抽空逛博物院\n"
+  },
+  "turns": [
+    {
+      "prompt": "后天我想去内蒙古博物院，请问它每周哪天闭馆？再看看呼和浩特后天的天气。",
+      "expect": {
+        "required_tools": [
+          "get_weather",
+          "web_search"
+        ],
+        "max_output_chars": 600,
+        "output_contains": [
+          "阵雨"
+        ],
+        "output_contains_any": [
+          "周一",
+          "星期一",
+          "礼拜一"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "呼和浩特",
+      "aliases": [
+        "Hohhot"
+      ],
+      "report": {
+        "location": "呼和浩特",
+        "current": "晴 21°C 体感 20°C 湿度 35% 风速 17 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "晴",
+            "temp_c": "12~24",
+            "rain_chance": "0%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "多云",
+            "temp_c": "11~23",
+            "rain_chance": "5%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "阵雨",
+            "temp_c": "8~17",
+            "rain_chance": "55%"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "id": "doc-9316",
+  "description": "Rewrites markdown image links after an image directory move in four pages while a drafts folder and a prose mention of the old directory stay. DISTILL-CANARY-32b62b4e",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-READONLY",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null,
+      "TR-DECOY": "图片都放在 images/ 目录里"
+    },
+    "axes": [
+      "CON",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-doc-b12l-imgpath-01",
+    "ref_calls": 2,
+    "fixture_bytes": 774,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "手册/入门.md": "# 入门\n\n![架构图](images/arch.png)\n![流程](images/flow-1.png)\n图片都放在 images/ 目录里，不要外链。\n",
+    "手册/进阶.md": "# 进阶\n\n![架构图](images/arch.png)\n![流程](images/flow-1.png)\n图片都放在 images/ 目录里，不要外链。\n",
+    "手册/部署.md": "# 部署\n\n![架构图](images/arch.png)\n![流程](images/flow-1.png)\n图片都放在 images/ 目录里，不要外链。\n",
+    "手册/运维.md": "# 运维\n\n![架构图](images/arch.png)\n![流程](images/flow-1.png)\n图片都放在 images/ 目录里，不要外链。\n",
+    "手册/_草稿/旧版.md": "# 旧版草稿\n\n![架构图](images/arch.png)\n",
+    "手册/README.md": "# 手册说明\n\n图片目录从 images/ 搬到了 assets/img/，Markdown 里的图片链接 ](images/... 要同步改。\n_草稿 里的文件没人维护，保持原样；正文里写到的 images/ 目录名只是文字描述，不是链接。\n"
+  },
+  "turns": [
+    {
+      "prompt": "图片目录搬家了，把 手册 下各页面里图片链接的 images/ 前缀换成 assets/img/。草稿目录和正文里的文字说明看 手册/README.md，改完回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "手册/入门.md": {
+        "equals": "# 入门\n\n![架构图](assets/img/arch.png)\n![流程](assets/img/flow-1.png)\n图片都放在 images/ 目录里，不要外链。\n"
+      },
+      "手册/进阶.md": {
+        "equals": "# 进阶\n\n![架构图](assets/img/arch.png)\n![流程](assets/img/flow-1.png)\n图片都放在 images/ 目录里，不要外链。\n"
+      },
+      "手册/部署.md": {
+        "equals": "# 部署\n\n![架构图](assets/img/arch.png)\n![流程](assets/img/flow-1.png)\n图片都放在 images/ 目录里，不要外链。\n"
+      },
+      "手册/运维.md": {
+        "equals": "# 运维\n\n![架构图](assets/img/arch.png)\n![流程](assets/img/flow-1.png)\n图片都放在 images/ 目录里，不要外链。\n"
+      },
+      "手册/_草稿/旧版.md": {
+        "unchanged": true
+      },
+      "手册/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

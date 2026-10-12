@@ -1,0 +1,73 @@
+{
+  "id": "cfg-9203",
+  "description": "Raises the top-level retries from 3 to 5 in four job toml files while a managed file, max_retries and an alert-section retries stay. DISTILL-CANARY-bd563009",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-READONLY",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null,
+      "TR-DECOY": "max_retries"
+    },
+    "axes": [
+      "CON",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-cfg-b12h-retries-01",
+    "ref_calls": 2,
+    "fixture_bytes": 485,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12h",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "jobs/sync.toml": "name = \"sync\"\nretries = 3\nmax_retries = 3\nbackoff = 30\n",
+    "jobs/report.toml": "name = \"report\"\nretries = 3\nmax_retries = 3\nbackoff = 30\n",
+    "jobs/cleanup.toml": "name = \"cleanup\"\nretries = 3\nmax_retries = 3\nbackoff = 30\n",
+    "jobs/export.toml": "name = \"export\"\nretries = 3\nmax_retries = 3\nbackoff = 30\n[alert]\nretries = 3\n",
+    "jobs/nightly.toml": "name = \"nightly\"\nretries = 3\nmax_retries = 3\nbackoff = 30\n",
+    "jobs/README.md": "# 定时任务\n\nnightly.toml 由运维托管，别手改。\nmax_retries 是硬上限，不随 retries 调整。\n[alert] 段里的 retries 指告警重发次数，同样保持 3。\n"
+  },
+  "turns": [
+    {
+      "prompt": "jobs 目录下各任务 .toml 里顶层的 retries 从 3 改成 5。哪些文件和配置项不能动，jobs/README.md 里有说明。改完检查一下，回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "jobs/sync.toml": {
+        "equals": "name = \"sync\"\nretries = 5\nmax_retries = 3\nbackoff = 30\n"
+      },
+      "jobs/report.toml": {
+        "equals": "name = \"report\"\nretries = 5\nmax_retries = 3\nbackoff = 30\n"
+      },
+      "jobs/cleanup.toml": {
+        "equals": "name = \"cleanup\"\nretries = 5\nmax_retries = 3\nbackoff = 30\n"
+      },
+      "jobs/export.toml": {
+        "equals": "name = \"export\"\nretries = 5\nmax_retries = 3\nbackoff = 30\n[alert]\nretries = 3\n"
+      },
+      "jobs/nightly.toml": {
+        "unchanged": true
+      },
+      "jobs/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

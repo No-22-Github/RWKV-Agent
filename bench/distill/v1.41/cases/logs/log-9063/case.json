@@ -1,0 +1,50 @@
+{
+  "id": "log-9063",
+  "description": "Counts successful job runs across per-queue tables where a look-alike status shares the word. DISTILL-CANARY-7c0c73d2",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-MULTISRC",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "25",
+      "TR-DECOY": "87"
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-log-b12b-jobsok-01",
+    "ref_calls": 1,
+    "fixture_bytes": 3309,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "任务记录/2026-10/batch.csv": "任务,状态,耗时秒\nb000,success-retry,438.15\nb001,success,346.73\nb002,timeout,404.75\nb003,success,25.60\nb004,timeout,82.29\nb005,timeout,830.27\nb006,success,217.29\nb007,failed,507.07\nb008,success,783.72\nb009,success,453.78\nb010,success,46.26\nb011,success,74.89\nb012,failed,66.84\nb013,success,796.89\nb014,success,414.33\nb015,failed,425.75\nb016,success,621.56\nb017,success,387.76\nb018,success,230.05\nb019,success,857.57\nb020,success,404.71\nb021,success-retry,931.03\nb022,failed,443.61\nb023,success-retry,650.22\nb024,failed,139.07\nb025,failed,876.02\nb026,success,911.00\nb027,success,449.87\nb028,failed,739.98\nb029,success,776.95\nb030,success,139.99\nb031,success-retry,505.88\nb032,success,294.26\nb033,success-retry,683.52\nb034,timeout,910.78\nb035,success-retry,317.48\nb036,success,389.93\nb037,success-retry,974.95\nb038,success,546.68\nb039,failed,804.65\nb040,success-retry,907.19\nb041,timeout,955.95\nb042,success-retry,880.87\nb043,success,407.82\nb044,timeout,568.91\nb045,success,460.25\nb046,success-retry,681.09\nb047,success,75.80\nb048,success-retry,201.22\nb049,timeout,862.14\nb050,success,407.71\n",
+    "任务记录/2026-10/stream.csv": "任务,状态,耗时秒\ns000,success,427.00\ns001,success-retry,237.44\ns002,timeout,118.26\ns003,success,352.78\ns004,success,178.66\ns005,timeout,651.61\ns006,failed,666.80\ns007,success-retry,903.49\ns008,success-retry,359.61\ns009,failed,124.23\ns010,failed,183.76\ns011,success-retry,957.98\ns012,success-retry,899.88\ns013,timeout,707.29\ns014,success,661.67\ns015,timeout,671.77\ns016,failed,580.27\ns017,success-retry,346.31\ns018,success,326.20\ns019,failed,63.84\ns020,success,826.75\ns021,success,755.70\ns022,success,834.11\ns023,success-retry,98.27\ns024,success,954.28\ns025,timeout,72.00\ns026,success,181.27\ns027,timeout,892.62\ns028,success,446.14\ns029,success-retry,773.57\ns030,success,796.99\ns031,timeout,404.51\ns032,success,31.02\ns033,failed,962.93\ns034,success-retry,803.92\ns035,failed,365.24\ns036,success,421.03\ns037,success,889.46\ns038,success,244.28\ns039,success-retry,204.71\ns040,success-retry,579.07\ns041,failed,113.62\ns042,success-retry,136.03\n",
+    "任务记录/2026-10/report.csv": "任务,状态,耗时秒\nr000,timeout,924.97\nr001,success-retry,929.64\nr002,timeout,804.87\nr003,failed,768.95\nr004,success,384.13\nr005,failed,396.78\nr006,success,315.46\nr007,failed,197.99\nr008,failed,174.64\nr009,timeout,605.22\nr010,timeout,858.92\nr011,success,800.02\nr012,timeout,613.04\nr013,success-retry,567.82\nr014,failed,185.24\nr015,success,344.09\nr016,failed,790.15\nr017,failed,533.69\nr018,success,825.15\nr019,success,666.39\nr020,success,218.49\nr021,success-retry,409.25\nr022,timeout,605.02\nr023,success-retry,139.44\nr024,failed,937.86\nr025,timeout,28.32\nr026,timeout,393.67\nr027,failed,735.19\nr028,success-retry,110.33\nr029,success-retry,229.01\nr030,failed,278.50\nr031,success-retry,664.17\nr032,success,728.96\nr033,success,624.85\nr034,timeout,31.73\nr035,failed,659.18\nr036,success,61.89\nr037,timeout,506.74\nr038,success-retry,552.24\nr039,success-retry,779.24\nr040,timeout,974.75\nr041,failed,520.19\nr042,success,812.87\nr043,timeout,689.33\nr044,failed,963.03\nr045,failed,623.71\nr046,success,547.23\nr047,success,48.65\nr048,success,888.18\nr049,failed,125.23\n",
+    "任务记录/说明.md": "# 任务记录说明\n\n每个队列一个文件，列：任务,状态,耗时秒。\n统计成功次数时，状态必须恰好是 success；success-retry 表示重试后才成功，单独统计，不算在内。\n"
+  },
+  "turns": [
+    {
+      "prompt": "十月 batch、stream、report 三个队列的记录里，状态为 success 的任务一共有多少个？口径见 任务记录/说明.md。",
+      "expect": {
+        "output_contains_any": [
+          "55"
+        ],
+        "output_contains_any_token": true,
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

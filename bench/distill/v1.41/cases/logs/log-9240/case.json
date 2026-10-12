@@ -1,0 +1,67 @@
+{
+  "id": "log-9240",
+  "description": "Two turns: the next release codename from one named file, then summing linux downloads over six monthly txt files with a look-alike platform. DISTILL-CANARY-85d5ac07",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-MULTISRC",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "Harbor",
+      "TR-DECOY": "48344"
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L3",
+    "family": "fam-log-b12i-linuxdl-01",
+    "ref_calls": 2,
+    "fixture_bytes": 4547,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12i",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "stats/2026-05.txt": "linux 305\nwindows 187\nlinux 28\nlinux-arm 333\nmacos 397\nwindows 366\nlinux-arm 328\nwindows 239\nlinux 161\nmacos 366\nlinux 330\nlinux-arm 46\nmacos 23\nmacos 169\nlinux-arm 393\nlinux 107\nlinux 388\nmacos 221\nlinux-arm 311\nlinux 194\nlinux 292\nlinux 201\nmacos 161\nlinux 68\nmacos 73\nlinux 351\nlinux 148\nlinux 376\nmacos 81\nwindows 100\nmacos 75\nmacos 359\nlinux-arm 212\nwindows 183\nmacos 57\nlinux 167\nlinux-arm 290\nlinux 247\nwindows 165\nlinux-arm 375\nlinux-arm 82\nlinux-arm 140\nlinux-arm 146\nlinux-arm 15\nmacos 19\nlinux-arm 385\nlinux 225\nlinux 131\nlinux-arm 119\nlinux 123\nlinux 45\nlinux-arm 190\nlinux 13\nmacos 350\nlinux 251\nlinux 260\n",
+    "stats/2026-06.txt": "linux-arm 333\nmacos 351\nmacos 383\nlinux 143\nlinux 392\nwindows 257\nlinux-arm 249\nlinux 89\nlinux 98\nlinux 355\nlinux 332\nlinux 50\nlinux 146\nlinux 99\nwindows 380\nwindows 5\nmacos 380\nwindows 53\nwindows 135\nlinux 33\nlinux-arm 233\nmacos 388\nlinux 240\nwindows 288\nlinux 105\nlinux 128\nwindows 321\nlinux 119\nmacos 323\nlinux-arm 198\nlinux-arm 255\nmacos 273\nlinux 95\nlinux 130\nlinux 396\nlinux-arm 158\nmacos 274\nwindows 75\nlinux 314\nlinux 18\nmacos 86\nwindows 226\nlinux-arm 221\nlinux 67\nlinux-arm 32\nwindows 192\nwindows 398\nlinux-arm 232\nlinux 96\nlinux 169\nlinux 86\nlinux 281\nlinux-arm 6\nlinux 47\nwindows 238\nlinux 242\nwindows 349\nlinux 7\nmacos 157\nmacos 170\nwindows 281\nlinux 17\n",
+    "stats/2026-07.txt": "macos 310\nlinux 103\nlinux 164\nlinux 154\nwindows 41\nmacos 158\nwindows 127\nlinux 68\nlinux-arm 289\nlinux 284\nmacos 75\nwindows 74\nlinux 305\nlinux-arm 374\nlinux 133\nwindows 151\nmacos 302\nlinux 342\nmacos 293\nmacos 155\nlinux-arm 100\nwindows 70\nmacos 194\nlinux 346\nwindows 99\nmacos 32\nlinux 399\nlinux 86\nlinux-arm 379\nlinux-arm 42\nlinux 154\nwindows 27\nlinux 63\nmacos 329\nmacos 260\nlinux 169\nlinux-arm 57\nlinux 129\nwindows 266\nmacos 251\nmacos 210\nwindows 273\nwindows 226\nlinux 384\nwindows 309\nlinux-arm 361\nwindows 350\nmacos 284\nlinux 38\nmacos 260\nmacos 202\nmacos 366\nlinux 11\nlinux 264\nlinux 152\nlinux-arm 247\nwindows 5\nmacos 249\nlinux 296\nmacos 372\nlinux 352\nlinux 387\nlinux 347\nmacos 365\nlinux-arm 282\nlinux 354\nlinux-arm 313\nlinux 26\n",
+    "stats/2026-08.txt": "linux 236\nmacos 232\nlinux 114\nlinux 236\nlinux 377\nlinux 26\nmacos 389\nlinux 281\nlinux 290\nmacos 306\nlinux 194\nlinux-arm 246\nlinux 144\nmacos 40\nlinux 256\nlinux-arm 360\nmacos 353\nlinux-arm 253\nlinux 155\nlinux 114\nmacos 185\nlinux-arm 207\nlinux-arm 31\nlinux 383\nlinux-arm 140\nlinux-arm 247\nlinux 336\nlinux 301\nwindows 171\nlinux-arm 389\nlinux 348\nwindows 226\nlinux 282\nlinux-arm 386\nmacos 312\nlinux 19\nwindows 26\nlinux-arm 220\nlinux-arm 13\nmacos 277\nwindows 255\nwindows 339\nlinux 119\nlinux-arm 279\nmacos 92\nwindows 122\nwindows 187\nlinux 279\nlinux-arm 194\nlinux 210\nlinux-arm 288\nmacos 205\nlinux 375\nlinux 304\nwindows 300\nwindows 188\nlinux 176\nwindows 254\nlinux 164\n",
+    "stats/2026-09.txt": "linux 258\nlinux-arm 72\nlinux 162\nlinux-arm 157\nlinux 244\nmacos 221\nlinux-arm 387\nlinux-arm 261\nwindows 197\nlinux 172\nlinux 151\nlinux 356\nlinux 106\nlinux-arm 394\nwindows 259\nlinux 60\nlinux 262\nlinux 289\nwindows 92\nwindows 305\nwindows 179\nlinux 203\nlinux 11\nwindows 142\nmacos 108\nmacos 49\nmacos 333\nlinux 137\nlinux-arm 85\nmacos 284\nmacos 228\nlinux 108\nlinux 7\nlinux-arm 52\nlinux 51\nwindows 79\nlinux 66\nlinux 236\nlinux 134\nwindows 151\nlinux-arm 393\nlinux 166\nlinux 160\nmacos 247\nlinux-arm 215\nlinux 45\nmacos 385\nlinux 277\nlinux-arm 97\nlinux-arm 78\nmacos 30\nlinux 25\nwindows 64\nlinux-arm 81\nlinux 377\nlinux-arm 233\nlinux 147\nlinux-arm 232\nwindows 171\nlinux-arm 153\nlinux 361\nwindows 214\nlinux-arm 19\nlinux-arm 179\n",
+    "stats/2026-10.txt": "macos 42\nmacos 302\nwindows 372\nlinux 211\nlinux-arm 316\nwindows 290\nlinux 155\nlinux-arm 245\nlinux-arm 117\nlinux-arm 74\nmacos 229\nlinux 393\nlinux 362\nlinux 369\nlinux-arm 329\nlinux-arm 224\nmacos 305\nlinux 209\nmacos 386\nlinux-arm 138\nlinux 386\nlinux-arm 354\nwindows 178\nlinux 234\nlinux 29\nwindows 383\nwindows 277\nlinux-arm 328\nlinux 186\nlinux 175\nwindows 109\nlinux 50\nwindows 45\nlinux 172\nlinux-arm 396\nwindows 360\nwindows 70\nlinux 150\nlinux 37\nlinux 21\nlinux 299\nwindows 56\nlinux 115\nlinux 174\nlinux 224\nwindows 40\nlinux 397\nlinux 83\nlinux-arm 310\nwindows 62\nmacos 396\nmacos 138\nlinux-arm 88\nmacos 105\nlinux-arm 286\nlinux-arm 286\nlinux 219\nmacos 295\nwindows 351\nmacos 391\nlinux 399\nwindows 222\nwindows 314\nmacos 391\nlinux 223\nwindows 179\nmacos 392\nlinux 318\nlinux 366\nwindows 90\nmacos 57\nmacos 346\nwindows 285\nlinux-arm 43\nmacos 343\nlinux 282\nwindows 288\n",
+    "stats/README.md": "# Download stats\n\nOne txt file per month. Each line is: platform, then the number of downloads in one batch, separated by a space.\nPlatform names match exactly: linux-arm is a different platform from linux.\n",
+    "release/NEXT.md": "# Next release\n\ncodename: Harbor\ntarget: 2026-11-15\n",
+    "release/NEXT.md.bak": "# Next release\n\ncodename: Lantern\ntarget: 2026-10-01\n"
+  },
+  "turns": [
+    {
+      "prompt": "What is the codename in release/NEXT.md?",
+      "expect": {
+        "output_contains": [
+          "Harbor"
+        ],
+        "forbidden_tools": [
+          "bash"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "Using the monthly files in stats, how many downloads were there in total for the linux platform? stats/README.md describes the format.",
+      "expect": {
+        "output_contains_any": [
+          "30743",
+          "30,743"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

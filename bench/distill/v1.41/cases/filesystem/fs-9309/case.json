@@ -1,0 +1,73 @@
+{
+  "id": "fs-9309",
+  "description": "Deletes the promo.banner entry from four locale files while the template and the look-alike promo.banner.link key stay. DISTILL-CANARY-c4567edf",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "bulk_edit",
+    "traps": [
+      "TR-READONLY",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null,
+      "TR-DECOY": "promo.banner.link"
+    },
+    "axes": [
+      "CON",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-fs-b12l-localedrop-01",
+    "ref_calls": 2,
+    "fixture_bytes": 654,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "i18n/zh-CN.properties": "app.title=App zh-CN\npromo.banner=Spring sale\npromo.banner.link=/sale/spring\nnav.home=Home\n",
+    "i18n/en-US.properties": "app.title=App en-US\npromo.banner=Spring sale\npromo.banner.link=/sale/spring\nnav.home=Home\n",
+    "i18n/fr-FR.properties": "app.title=App fr-FR\npromo.banner=Spring sale\npromo.banner.link=/sale/spring\nnav.home=Home\n",
+    "i18n/de-DE.properties": "app.title=App de-DE\npromo.banner=Spring sale\npromo.banner.link=/sale/spring\nnav.home=Home\n",
+    "i18n/_template.properties": "app.title=\npromo.banner=\npromo.banner.link=\nnav.home=\n",
+    "i18n/NOTES.md": "# i18n notes\n\nThe spring promo ended: remove the promo.banner text entry from the locale files.\npromo.banner.link stays because the redirect page still reads it. _template.properties is the list of all keys translators see; do not edit it.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The spring promo is over. Delete the `promo.banner` line from each locale .properties file under i18n. i18n/NOTES.md lists what to keep. Reply DONE when finished.",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "i18n/zh-CN.properties": {
+        "equals": "app.title=App zh-CN\npromo.banner.link=/sale/spring\nnav.home=Home\n"
+      },
+      "i18n/en-US.properties": {
+        "equals": "app.title=App en-US\npromo.banner.link=/sale/spring\nnav.home=Home\n"
+      },
+      "i18n/fr-FR.properties": {
+        "equals": "app.title=App fr-FR\npromo.banner.link=/sale/spring\nnav.home=Home\n"
+      },
+      "i18n/de-DE.properties": {
+        "equals": "app.title=App de-DE\npromo.banner.link=/sale/spring\nnav.home=Home\n"
+      },
+      "i18n/_template.properties": {
+        "unchanged": true
+      },
+      "i18n/NOTES.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

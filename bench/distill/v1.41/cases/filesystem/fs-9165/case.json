@@ -1,0 +1,77 @@
+{
+  "id": "fs-9165",
+  "description": "Strips trailing whitespace from the Python modules of a source tree while a vendored folder and a .py.txt sample keep theirs. DISTILL-CANARY-d29f0546",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "bulk_edit",
+    "traps": [
+      "TR-READONLY",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null,
+      "TR-DECOY": "demo.py.txt"
+    },
+    "axes": [
+      "CON",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-fs-b12g-trimws-01",
+    "ref_calls": 2,
+    "fixture_bytes": 709,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12g",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "src/app/main.py": "import sys\n\ndef main():\n    print('start')  \n    return 0\t\n\nif __name__ == '__main__':\n    sys.exit(main())\n",
+    "src/app/cli.py": "import argparse \n\ndef parse():\n    p = argparse.ArgumentParser()\n    p.add_argument('--n')   \n    return p.parse_args()\n",
+    "src/lib/util.py": "def clamp(x, lo, hi):\n    if x < lo:\n        return lo    \n    if x > hi:\n        return hi\n    return x \n",
+    "src/lib/models.py": "class User: \n    def __init__(self, name):\n        self.name = name\n  \n    def greet(self):\n        return 'hi ' + self.name\t\n",
+    "src/vendor/six.py": "# vendored, do not reformat\nPY3 = True  \ndef u(s):\n    return s \n",
+    "src/snippets/demo.py.txt": "# snippet for the docs\nx = 1   \nprint(x)\n",
+    "src/README.txt": "Source notes\n\nsrc/vendor/ is third-party code kept byte-for-byte; never reformat it.\nsnippets/*.py.txt are documentation samples, not modules.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Strip the trailing whitespace from every .py file under src. src/README.txt lists what must stay byte-for-byte. Check the result and reply DONE.",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "src/app/main.py": {
+        "equals": "import sys\n\ndef main():\n    print('start')\n    return 0\n\nif __name__ == '__main__':\n    sys.exit(main())\n"
+      },
+      "src/app/cli.py": {
+        "equals": "import argparse\n\ndef parse():\n    p = argparse.ArgumentParser()\n    p.add_argument('--n')\n    return p.parse_args()\n"
+      },
+      "src/lib/util.py": {
+        "equals": "def clamp(x, lo, hi):\n    if x < lo:\n        return lo\n    if x > hi:\n        return hi\n    return x\n"
+      },
+      "src/lib/models.py": {
+        "equals": "class User:\n    def __init__(self, name):\n        self.name = name\n\n    def greet(self):\n        return 'hi ' + self.name\n"
+      },
+      "src/vendor/six.py": {
+        "unchanged": true
+      },
+      "src/snippets/demo.py.txt": {
+        "unchanged": true
+      },
+      "src/README.txt": {
+        "unchanged": true
+      }
+    }
+  }
+}

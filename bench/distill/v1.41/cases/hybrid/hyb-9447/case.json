@@ -1,0 +1,94 @@
+{
+  "id": "hyb-9447",
+  "description": "Composite request: high-speed rail fare from web search plus the day-after-tomorrow forecast from the weather tool. DISTILL-CANARY-ecbcac0f",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-MULTISRC",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "大雨",
+      "TR-DECOY": "阵雨"
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b12r-hainanrail-01",
+    "ref_calls": 2,
+    "fixture_bytes": 31,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12r",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [
+    {
+      "query_match": "三亚",
+      "url": "https://www.hainan-rail.example.cn/hk-sanya",
+      "url_match": "hainan-rail",
+      "title": "海口东—三亚 环岛高铁票价",
+      "snippet": "海南环岛高铁海口东—三亚二等座票价 79.5 元，最快 1 小时 26 分。",
+      "content": "# 海口东—三亚 环岛高铁票价\n\n海南环岛高铁海口东—三亚二等座票价 79.5 元，最快 1 小时 26 分。",
+      "published_at": "2026-08-30"
+    }
+  ],
+  "files": {
+    "旅行/海南.md": "# 海南行\n\n- 周五去三亚\n"
+  },
+  "turns": [
+    {
+      "prompt": "后天我坐环岛高铁从海口去三亚，二等座多少钱？海口后天天气怎样？",
+      "expect": {
+        "required_tools": [
+          "get_weather",
+          "web_search"
+        ],
+        "max_output_chars": 600,
+        "output_contains": [
+          "大雨",
+          "79.5"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "海口",
+      "aliases": [
+        "Haikou"
+      ],
+      "report": {
+        "location": "海口",
+        "current": "阵雨 29°C 体感 34°C 湿度 86% 风速 14 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "雷阵雨",
+            "temp_c": "27~32",
+            "rain_chance": "70%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "阵雨",
+            "temp_c": "27~31",
+            "rain_chance": "60%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "大雨",
+            "temp_c": "26~30",
+            "rain_chance": "85%"
+          }
+        ]
+      }
+    }
+  ]
+}

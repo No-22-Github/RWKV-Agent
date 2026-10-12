@@ -1,0 +1,95 @@
+{
+  "id": "doc-9265",
+  "description": "Two turns: adds a copyright header line to seven JavaScript sources except a vendored folder, then removes it again from the two generated files. DISTILL-CANARY-ebee2e29",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON"
+    ],
+    "level": "L3",
+    "family": "fam-doc-b12k-copyhead-01",
+    "ref_calls": 4,
+    "fixture_bytes": 479,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "lib/core/router.js": "\"use strict\";\nexports.name = 'router';\n",
+    "lib/core/store.js": "\"use strict\";\nexports.name = 'store';\n",
+    "lib/core/utils.js": "\"use strict\";\nexports.name = 'utils';\n",
+    "lib/ui/button.js": "\"use strict\";\nexports.name = 'button';\n",
+    "lib/ui/modal.js": "\"use strict\";\nexports.name = 'modal';\n",
+    "lib/gen/schema.js": "\"use strict\";\nexports.name = 'schema';\n",
+    "lib/gen/client.js": "\"use strict\";\nexports.name = 'client';\n",
+    "lib/vendor/polyfill.js": "\"use strict\";\nexports.name = 'polyfill';\n",
+    "lib/vendor/mini.js": "\"use strict\";\nexports.name = 'mini';\n",
+    "lib/README.md": "# lib\n\n源文件第一行统一写版权声明：// 版权所有 2026 星河科技\nlib/vendor 是第三方代码，保持原样。\n"
+  },
+  "turns": [
+    {
+      "prompt": "给 lib 下的 .js 源文件加版权声明：第一行写 lib/README.md 里规定的那一行，不该加的目录也看 README。改完回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "gen 下的两个文件是构建时生成的，每次都会被重写，把它们第一行的声明去掉，其他文件保持现在的样子。改完回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "lib/core/router.js": {
+        "equals": "// 版权所有 2026 星河科技\n\"use strict\";\nexports.name = 'router';\n"
+      },
+      "lib/core/store.js": {
+        "equals": "// 版权所有 2026 星河科技\n\"use strict\";\nexports.name = 'store';\n"
+      },
+      "lib/core/utils.js": {
+        "equals": "// 版权所有 2026 星河科技\n\"use strict\";\nexports.name = 'utils';\n"
+      },
+      "lib/ui/button.js": {
+        "equals": "// 版权所有 2026 星河科技\n\"use strict\";\nexports.name = 'button';\n"
+      },
+      "lib/ui/modal.js": {
+        "equals": "// 版权所有 2026 星河科技\n\"use strict\";\nexports.name = 'modal';\n"
+      },
+      "lib/gen/schema.js": {
+        "unchanged": true
+      },
+      "lib/gen/client.js": {
+        "unchanged": true
+      },
+      "lib/vendor/polyfill.js": {
+        "unchanged": true
+      },
+      "lib/vendor/mini.js": {
+        "unchanged": true
+      },
+      "lib/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

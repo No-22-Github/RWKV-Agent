@@ -1,0 +1,104 @@
+{
+  "id": "tab-9349",
+  "description": "Two turns: finds the supplier with the lowest quote for an exact part number among look-alike numbers, then switches the default-supplier table and five daily order sheets to that supplier and price. DISTILL-CANARY-54cc4f4a",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "rank",
+    "traps": [
+      "TR-DECOY",
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null,
+      "TR-READONLY": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "CON"
+    ],
+    "level": "L3",
+    "family": "fam-tab-b12n-cheapsupplier-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1113,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12n",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "报价/星辰.csv": "货号,单价,起订量\nA-100,54,100\nA-1000,22,100\nA-100X,76,100\nB-200,78,50\nC-300,56,20\n",
+    "报价/远航.csv": "货号,单价,起订量\nA-100,45,50\nA-1000,62,100\nA-100X,11,100\nB-200,30,50\nC-300,85,20\n",
+    "报价/明达.csv": "货号,单价,起订量\nA-100,77,50\nA-1000,69,100\nA-100X,20,100\nB-200,55,50\nC-300,90,20\n",
+    "报价/恒信.csv": "货号,单价,起订量\nA-100,76,50\nA-1000,66,100\nA-100X,36,100\nB-200,62,50\nC-300,11,20\n",
+    "采购/默认供应商.csv": "货号,供应商\nA-100,恒信\nB-200,远航\nC-300,明达\n",
+    "采购/下单/2026-10-01.csv": "货号,供应商,单价,数量\nB-200,远航,41,55\nA-100,恒信,76,240\nA-1000,明达,42,10\nC-300,明达,52,35\n",
+    "采购/下单/2026-10-02.csv": "货号,供应商,单价,数量\nB-200,远航,41,37\nA-100,恒信,76,240\nA-1000,明达,19,10\nC-300,明达,52,17\n",
+    "采购/下单/2026-10-03.csv": "货号,供应商,单价,数量\nB-200,远航,41,80\nA-100,恒信,76,120\nA-1000,明达,27,10\nC-300,明达,52,38\n",
+    "采购/下单/2026-10-04.csv": "货号,供应商,单价,数量\nB-200,远航,41,38\nA-100,恒信,76,240\nA-1000,明达,32,10\nC-300,明达,52,20\n",
+    "采购/下单/2026-10-05.csv": "货号,供应商,单价,数量\nB-200,远航,41,85\nA-100,恒信,76,120\nA-1000,明达,14,10\nC-300,明达,52,11\n",
+    "采购/README.md": "# 采购\n\n默认供应商.csv 和 下单 里每天的单子，同一货号的供应商必须一致；下单单价取当前报价，数量是各天自己的。\n"
+  },
+  "turns": [
+    {
+      "prompt": "报价 目录里每个供应商一个 CSV（列：货号,单价,起订量）。货号正好是 A-100 的行里，谁的单价最低？回答供应商名和单价。",
+      "expect": {
+        "output_contains": [
+          "远航",
+          "45"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "A-100 改用这家供应商：采购/默认供应商.csv 里 A-100 的供应商，采购/下单 下每天的单子里 A-100 的供应商和单价，都按报价改过去，数量各天保持不变，其他货号不动。改完回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "报价/星辰.csv": {
+        "unchanged": true
+      },
+      "报价/远航.csv": {
+        "unchanged": true
+      },
+      "报价/明达.csv": {
+        "unchanged": true
+      },
+      "报价/恒信.csv": {
+        "unchanged": true
+      },
+      "采购/默认供应商.csv": {
+        "equals": "货号,供应商\nA-100,远航\nB-200,远航\nC-300,明达\n"
+      },
+      "采购/下单/2026-10-01.csv": {
+        "equals": "货号,供应商,单价,数量\nB-200,远航,41,55\nA-100,远航,45,240\nA-1000,明达,42,10\nC-300,明达,52,35\n"
+      },
+      "采购/下单/2026-10-02.csv": {
+        "equals": "货号,供应商,单价,数量\nB-200,远航,41,37\nA-100,远航,45,240\nA-1000,明达,19,10\nC-300,明达,52,17\n"
+      },
+      "采购/下单/2026-10-03.csv": {
+        "equals": "货号,供应商,单价,数量\nB-200,远航,41,80\nA-100,远航,45,120\nA-1000,明达,27,10\nC-300,明达,52,38\n"
+      },
+      "采购/下单/2026-10-04.csv": {
+        "equals": "货号,供应商,单价,数量\nB-200,远航,41,38\nA-100,远航,45,240\nA-1000,明达,32,10\nC-300,明达,52,20\n"
+      },
+      "采购/下单/2026-10-05.csv": {
+        "equals": "货号,供应商,单价,数量\nB-200,远航,41,85\nA-100,远航,45,120\nA-1000,明达,14,10\nC-300,明达,52,11\n"
+      },
+      "采购/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

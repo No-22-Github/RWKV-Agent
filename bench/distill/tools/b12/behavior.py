@@ -105,10 +105,12 @@ def merge_batch_specs():
     an error rather than a silent override."""
     import importlib.util
     tools = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    for batch in ("b12a",):
+    for batch in sorted(d for d in os.listdir(tools) if re.fullmatch(r"b12[a-z]", d)):
         path = os.path.join(tools, batch, "specs.py")
         if not os.path.exists(path):
             continue
+        for name in ("common", "m9", "m10"):
+            sys.modules.pop(name, None)  # each batch has its own same-named modules
         spec = importlib.util.spec_from_file_location(batch + "_specs", path)
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -497,7 +499,7 @@ def check_cwd_reset(turns, spec, case):
             problems.append("cwd_reset: read root %s (decoy)" % name)
         if c.tool == "bash" and name in c.command and subdir not in c.command:
             problems.append("cwd_reset: bash read %s without %s (decoy)" % (name, subdir))
-    cd_sub = re.compile(r"\s*cd\s+(/workspace/)?" + re.escape(subdir) + r"/?\s*$")
+    cd_sub = re.compile(r"\s*cd\s+(/workspace/)?" + re.escape(subdir) + r"/?(\s+\d?>+\s*\S+)*\s*$")
     # A real `cd` command segment, not the words inside an echo.
     cd_first = any(c.tool == "bash" and any(cd_sub.match(seg) for seg in segments(c.command)) for c in first)
     return cd_first and any(reads_target(c, subdir, name, cd_sub) for c in second), problems
