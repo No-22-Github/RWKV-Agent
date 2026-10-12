@@ -1,0 +1,48 @@
+{
+  "id": "cfg-9221",
+  "description": "Single-file port lookup in a toml settings file with a .bak decoy while bash is offered but forbidden. DISTILL-CANARY-bb396af0",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "8080"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b12i-tomlport-01",
+    "ref_calls": 1,
+    "fixture_bytes": 129,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12i",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "service/settings.toml": "[server]\nhost = \"0.0.0.0\"\nport = 8443\n\n[cache]\nttl_seconds = 300\n",
+    "service/settings.toml.bak": "[server]\nhost = \"0.0.0.0\"\nport = 8080\n\n[cache]\nttl_seconds = 60\n"
+  },
+  "turns": [
+    {
+      "prompt": "What port does the server listen on according to service/settings.toml?",
+      "expect": {
+        "output_contains": [
+          "8443"
+        ],
+        "output_contains_token": true,
+        "forbidden_tools": [
+          "bash"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

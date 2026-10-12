@@ -1481,3 +1481,6 @@
 {"case_id": "cfg-9162--p2", "reason": "final answer uses backticks (markdown)", "batch": "b12g"}
 {"case_id": "log-9171--p1", "reason": "final answer uses backticks (markdown)", "batch": "b12g"}
 {"case_id": "tab-9168--p1", "reason": "invented facts: says 116 PM2.5 readings (fixture has 115) and other station maxima 187/185/184 (actual 187/185/182)", "batch": "b12g"}
+{"case_id": "nt-9231--p1", "reason": "最终答案虚构 find 语法：称 GNU find 支持 -size +10MB（该写法无效），且 M 单位解释含糊", "batch": "b12i"}
+{"case_id": "nt-9233--p1", "reason": "最终答案出现无意义的 --posix 建议（编造用法），结尾拖沓", "batch": "b12i"}
+{"case_id": "nt-9236--p1", "reason": "最终答案前后矛盾、语句混乱（把 v2.0..HEAD 与 v2.0 HEAD 说成等价后又说“add nothing else”），无用的 --diff-filter 附加", "batch": "b12i"}
