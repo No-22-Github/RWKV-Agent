@@ -1527,3 +1527,7 @@
 {"case_id": "tab-9467--p1", "reason": "三轮终答全是裸数字（2025/2357/1057），无依据，仅 ordinary", "batch": "b12s"}
 {"case_id": "hyb-9449--p2", "reason": "终答称票务页在占位域名、价格未经核实，自我否定刚取到的证据，过度保留", "batch": "b12r"}
 {"case_id": "hyb-9442--p1", "reason": "终答编造「旺季预约名额紧张、最好今天就订」，fixture 无此事实", "batch": "b12r"}
+{"case_id": "log-9439--p2", "reason": "同题 p1 的重复模板（数字开头）", "batch": "b12q"}
+{"case_id": "tab-9427--p2", "reason": "同题 p1 的重复模板", "batch": "b12q"}
+{"case_id": "log-9426--p1", "reason": "ordinary（只 grep -n 后心算相减），且数字开头", "batch": "b12q"}
+{"case_id": "tab-9421--p2", "reason": "终答只有裸数字 5972，无依据，数字开头占比过高", "batch": "b12q"}
