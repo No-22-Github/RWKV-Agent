@@ -1478,3 +1478,6 @@
 {"case_id": "hyb-9145--p2", "reason": "同 p1：称汇率页面非官方、不能当今日中间价，答案被自我否定，且与 p1 结构雷同", "batch": "b12f"}
 {"case_id": "nt-9119--p1", "reason": "终答使用了反引号（markdown）", "batch": "b12d"}
 {"case_id": "nt-9118--p1", "reason": "终答编造了 fixture 中没有的 Port= 配置格式并冗长发散", "batch": "b12d"}
+{"case_id": "cfg-9162--p2", "reason": "final answer uses backticks (markdown)", "batch": "b12g"}
+{"case_id": "log-9171--p1", "reason": "final answer uses backticks (markdown)", "batch": "b12g"}
+{"case_id": "tab-9168--p1", "reason": "invented facts: says 116 PM2.5 readings (fixture has 115) and other station maxima 187/185/184 (actual 187/185/182)", "batch": "b12g"}
