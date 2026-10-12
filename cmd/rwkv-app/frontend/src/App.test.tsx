@@ -371,6 +371,30 @@ describe('App', () => {
     expect(screen.getByText(/工具 2 项/)).toBeInTheDocument()
   })
 
+  it('toggles session time injection independently of the system prompt', async () => {
+    const preview = new AgentPromptPreview({
+      control: '原有系统提示词',
+      toolNames: [],
+    })
+    vi.mocked(Backend.PreviewSystemPrompt).mockResolvedValue(preview)
+    render(<App />)
+    openSettings()
+    switchToRemoteProvider()
+    openParametersSection()
+    const toggle = screen.getByRole('checkbox', { name: '注入会话启动时间' })
+    expect(toggle).not.toBeChecked()
+    expect(await screen.findByText('原有系统提示词')).toBeInTheDocument()
+    vi.mocked(Backend.PreviewSystemPrompt).mockResolvedValue(new AgentPromptPreview({ ...preview, sessionContext: '会话启动时间为 2026年10月12日 星期一 11时30分（UTC+08:00）。' }))
+    fireEvent.click(toggle)
+    expect(await screen.findByText(/会话启动时间为 2026年10月12日 星期一/)).toBeInTheDocument()
+    expect(vi.mocked(Backend.PreviewSystemPrompt).mock.lastCall?.[0].injectSessionTime).toBe(true)
+    expect(screen.getByText('原有系统提示词')).toBeInTheDocument()
+    vi.mocked(Backend.PreviewSystemPrompt).mockResolvedValue(preview)
+    fireEvent.click(toggle)
+    await waitFor(() => expect(screen.queryByText(/会话启动时间为 2026年10月12日 星期一/)).not.toBeInTheDocument())
+    expect(vi.mocked(Backend.PreviewSystemPrompt).mock.lastCall?.[0].injectSessionTime).toBe(false)
+  })
+
   it('resets the thinking mode when the Markdown protocol is selected', async () => {    render(<App />)
     openSettings()
     switchToRemoteProvider()

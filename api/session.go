@@ -23,14 +23,15 @@ import (
 
 // Session is an isolated, multi-turn Agent conversation.
 type Session struct {
-	owner       *Service
-	runner      *agent.Runner
-	closer      io.Closer
-	opMu        sync.Mutex
-	mu          sync.RWMutex
-	closed      bool
-	overlay     *assistanttools.StagedWorkspace
-	ownsOverlay bool
+	owner             *Service
+	runner            *agent.Runner
+	closer            io.Closer
+	opMu              sync.Mutex
+	mu                sync.RWMutex
+	closed            bool
+	overlay           *assistanttools.StagedWorkspace
+	ownsOverlay       bool
+	injectSessionTime bool
 }
 
 type webProviderSet struct {
@@ -89,12 +90,33 @@ func newSessionAtDepth(
 		config.TaskControl = strings.TrimSpace(config.TaskControl) + "\n\n" + stagedFileControl
 	}
 	runnerOptions := sessionRunnerOptions(config, status, workspace, tools, markdownProtocol)
+	runnerOptions.SessionContext = sessionTimeContext(config.InjectSessionTime, time.Now())
 	runner, err := agent.NewRunner(generator, tools, runnerOptions)
 	if err != nil {
 		return nil, err
 	}
 	success = true
-	return &Session{owner: owner, runner: runner, closer: closer, overlay: view, ownsOverlay: ownsOverlay}, nil
+	return &Session{owner: owner, runner: runner, closer: closer, overlay: view, ownsOverlay: ownsOverlay, injectSessionTime: config.InjectSessionTime}, nil
+}
+
+func sessionTimeContext(enabled bool, startedAt time.Time) string {
+	if !enabled {
+		return ""
+	}
+	local := startedAt.Local()
+	weekday := [...]string{"星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"}[local.Weekday()]
+	return "<session_time>\n会话启动时间为 " + local.Format("2006年01月02日 ") + weekday + local.Format(" 15时04分（UTC-07:00）") + "。这是会话启动时的时间，后续轮次保持不变。\n</session_time>"
+}
+
+// RestoreStartTime restores the persisted conversation's start time separately
+// from the transcript. A zero timestamp leaves the creation-time context intact.
+func (s *Session) RestoreStartTime(startedAt time.Time) {
+	if startedAt.IsZero() {
+		return
+	}
+	s.opMu.Lock()
+	defer s.opMu.Unlock()
+	s.runner.SetSessionContext(sessionTimeContext(s.injectSessionTime, startedAt))
 }
 
 // assembleSessionTools builds the tool catalog for one session depth: workspace
@@ -423,6 +445,7 @@ func (s *Session) Reset() {
 		return
 	}
 	s.runner.Reset()
+	s.runner.SetSessionContext(sessionTimeContext(s.injectSessionTime, time.Now()))
 }
 
 // History returns a transport-safe copy of the complete committed Harness

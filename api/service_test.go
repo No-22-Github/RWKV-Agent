@@ -338,6 +338,30 @@ func TestPreviewAgentPromptAssemblesTranscriptContract(t *testing.T) {
 	}
 }
 
+func TestPreviewSessionTimeDoesNotChangeSystemPrompts(t *testing.T) {
+	service, err := NewService(Options{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer service.Close()
+	config := Config{AgentProtocol: AgentProtocolXML}
+	off, err := service.PreviewAgentPrompt(config)
+	if err != nil {
+		t.Fatal(err)
+	}
+	config.InjectSessionTime = true
+	on, err := service.PreviewAgentPrompt(config)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if on.Control != off.Control || on.ResponseControl != off.ResponseControl {
+		t.Fatal("time injection modified system prompts")
+	}
+	if off.SessionContext != "" || !strings.Contains(on.SessionContext, "会话启动时间为") {
+		t.Fatalf("contexts: off=%q on=%q", off.SessionContext, on.SessionContext)
+	}
+}
+
 func TestSingleLocalBatchRemainsValidWithoutSubagents(t *testing.T) {
 	t.Parallel()
 	config, err := normalizeConfig(Config{Provider: ProviderRWKVLightningCUDA, Model: "model", Endpoint: "https://example.test", MaxActiveBatch: 1})

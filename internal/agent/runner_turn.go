@@ -171,6 +171,7 @@ func (turn *runnerTurn) initialize() error {
 func (turn *runnerTurn) assembleTurnMessages(history []Message, control string) {
 	turn.messages = make([]Message, 0, len(history)+2)
 	turn.messages = append(turn.messages, Message{Role: RoleSystem, Content: control})
+	turn.messages = turn.r.appendSessionContext(turn.messages)
 	turn.messages = append(turn.messages, history...)
 	turn.messages = append(turn.messages, Message{Role: RoleUser, Content: turn.task})
 }

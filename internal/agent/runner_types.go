@@ -57,6 +57,9 @@ type Options struct {
 	// TaskControl adds a suite- or task-specific contract after the generic
 	// tool protocol. It is recorded by eval manifests for reproducibility.
 	TaskControl string
+	// SessionContext is a separate user-context message placed after the system
+	// prompt on every turn. It is excluded from committed conversation history.
+	SessionContext string
 	// TerminalTool requires this tool to succeed before a plain-text final is
 	// accepted. If the tool is not offered for a particular Runner, the option
 	// is ignored (for example the Primitive arithmetic case has no submit tool).

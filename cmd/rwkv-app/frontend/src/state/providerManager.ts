@@ -128,6 +128,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
   const [previewOpen, setPreviewOpen] = useState(true)
   const [previewBusy, setPreviewBusy] = useState(false)
   const [taskControl, setTaskControl] = useState('')
+  const [injectSessionTime, setInjectSessionTime] = useState(false)
   const [saveState, setSaveState] = useState<SaveState>({ kind: 'idle' })
   // 运行中连接实际使用的配置（bootstrap.config），与档案的已保存配置分开：
   // 能力指示与"待重新加载"都以它为准，而不是以正在编辑的草稿为准。
@@ -153,7 +154,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
 
   function agentCapabilityConfig() {
     return {
-      agentProtocol, thinking, taskControl: taskControl.trim() || undefined, progressiveTools, enableWeb,
+      agentProtocol, thinking, taskControl: taskControl.trim() || undefined, injectSessionTime, progressiveTools, enableWeb,
       braveApiKey: enableWeb ? braveAPIKey.trim() || undefined : undefined,
       tavilyApiKey: enableWeb ? tavilyAPIKey.trim() || undefined : undefined,
       enableSubagents, weatherBackend: weatherBackend || undefined, enableBash, maxActiveBatch, remoteBatchWaitMs: remoteBatchWaitMS,
@@ -259,7 +260,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
       clearTimeout(timer)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settingsOpen, previewOpen, settingsTab, agentProtocol, thinking, progressiveTools, enableWeb, enableSubagents, weatherBackend, enableBash, taskControl])
+  }, [settingsOpen, previewOpen, settingsTab, agentProtocol, thinking, progressiveTools, enableWeb, enableSubagents, weatherBackend, enableBash, taskControl, injectSessionTime])
 
   /*
    * 自动保存一次：只对已有档案生效。先 SaveProvider（后端校验唯一性、落盘），编辑的是
@@ -359,6 +360,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     setAgentProtocol(config.agentProtocol || AgentProtocol.AgentProtocolXML)
     setThinking((config.thinking as 'off' | 'fast' | 'full') || 'off')
     setTaskControl(config.taskControl || '')
+    setInjectSessionTime(config.injectSessionTime || false)
     setProgressiveTools(config.progressiveTools ?? false)
     setEnableWeb(config.enableWeb || false); setBraveAPIKey(config.braveApiKey || ''); setTavilyAPIKey(config.tavilyApiKey || '')
     setEnableSubagents(config.enableSubagents || false)
@@ -568,6 +570,7 @@ export function useProviderManager({ onStatus, ready }: { onStatus: (status: Sta
     settingsMessage, setSettingsMessage, settingsBusy,
     promptPreview, previewOpen, setPreviewOpen, previewBusy,
     taskControl, setTaskControl,
+    injectSessionTime, setInjectSessionTime,
     saveState, runtimeConfig, runtimeOutdated,
     // 派生
     draftConfigValue, draftErrors, draftError, draftNeedsReload, draftBlockReason,

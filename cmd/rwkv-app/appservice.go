@@ -746,6 +746,9 @@ func (s *AppService) ensureSession(ctx context.Context) (*agentapi.Session, erro
 	if err != nil {
 		return nil, err
 	}
+	if active != nil {
+		created.RestoreStartTime(active.CreatedAt)
+	}
 	if active != nil && len(active.Transcript) > 0 {
 		if err := created.RestoreHistory(active.Transcript); err != nil {
 			_ = created.Close()

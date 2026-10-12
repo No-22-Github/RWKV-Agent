@@ -189,7 +189,7 @@ export default function MarkdownMessage({ content, streaming, staticChars = 0 }:
         const tokens = streaming && !blockStatic ? [rehypeTrimCjkAutolinks, rehypeStreamTokens(Math.max(0, staticChars - start))] : [rehypeTrimCjkAutolinks]
         const markdown = (
           <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
+            remarkPlugins={[[remarkGfm, { singleTilde: false }]]}
             rehypePlugins={tokens}
             skipHtml
             components={markdownComponents}
@@ -223,6 +223,17 @@ function splitTopLevelBlocks(content: string): string[] {
       current.push(line)
       continue
     }
+    // 模型常省略列表与加粗小标题之间的空行。顶层独占一行的小标题
+    // 单独成块，避免 CommonMark 的 lazy continuation 把它吞进上一项。
+    // 不匹配缩进行：列表内的小标题继续遵循原来的嵌套结构。
+    if (!inFence && isStandaloneBoldHeading(line)) {
+      if (current.length > 0) {
+        blocks.push(current.join('\n'))
+        current = []
+      }
+      blocks.push(line)
+      continue
+    }
     if (!inFence && line.trim() === '') {
       if (current.length > 0) {
         blocks.push(current.join('\n'))
@@ -236,9 +247,14 @@ function splitTopLevelBlocks(content: string): string[] {
   return blocks
 }
 
+function isStandaloneBoldHeading(line: string): boolean {
+  return /^(?:\*\*[^*\n]+\*\*|__[^_\n]+__)[ \t]*$/.test(line)
+}
+
 function isPlainParagraph(block: string): boolean {
   const trimmed = block.trim()
   if (!trimmed) return false
+  if (isStandaloneBoldHeading(block)) return false
   if (/^(#{1,6})\s/.test(trimmed)) return false
   if (/^([-*+]|\d+[.)])\s+/.test(trimmed)) return false
   if (/^```|^~~~/.test(trimmed)) return false

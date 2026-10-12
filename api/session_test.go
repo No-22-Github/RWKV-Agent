@@ -2,15 +2,98 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
 	"testing"
+	"time"
 
 	"github.com/no22/RWKV-Agent/internal/continuation"
 )
+
+func TestSessionTimeContextIncludesLocalWeekdayAndMinute(t *testing.T) {
+	weekdays := []string{"星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"}
+	for day, weekday := range weekdays {
+		started := time.Date(2026, 10, 11+day, 9, 7, 59, 0, time.Local)
+		context := sessionTimeContext(true, started.UTC())
+		want := started.Format("2006年01月02日 ") + weekday + started.Format(" 15时04分（UTC-07:00）")
+		if !strings.Contains(context, want) || strings.Contains(context, "59秒") {
+			t.Fatalf("context = %q; want %q", context, want)
+		}
+		if sessionTimeContext(false, started) != "" {
+			t.Fatal("disabled injection produced context")
+		}
+	}
+}
+
+func TestSessionTimeInjectionPersistsAcrossTurnsAndRestore(t *testing.T) {
+	for _, protocol := range []AgentProtocol{AgentProtocolXML, AgentProtocolMarkdown} {
+		for _, enabled := range []bool{false, true} {
+			t.Run(fmt.Sprintf("%s/enabled=%t", protocol, enabled), func(t *testing.T) {
+				service, err := NewService(Options{})
+				if err != nil {
+					t.Fatal(err)
+				}
+				defer service.Close()
+				service.config, err = normalizeConfig(Config{Provider: ProviderChatCompletions, Model: "scripted", Endpoint: "https://example.test/v1/chat/completions", AgentProtocol: protocol, InjectSessionTime: enabled, DecisionFakeThink: protocol == AgentProtocolMarkdown})
+				if err != nil {
+					t.Fatal(err)
+				}
+				var prompts []string
+				generator := continuation.GenerateFunc(func(_ context.Context, request continuation.Request, _ continuation.EventSink) (continuation.Result, error) {
+					prompts = append(prompts, request.Prompt)
+					output := "你好"
+					if protocol == AgentProtocolMarkdown {
+						output = `>{"name":"no_tool","arguments":{"reason":"无需工具","answer":"你好"}}`
+					}
+					return continuation.Result{Text: output, FinishReason: continuation.FinishStop}, nil
+				})
+				session, err := newSession(service, generator, io.NopCloser(strings.NewReader("")), "", Status{Model: "scripted"})
+				if err != nil {
+					t.Fatal(err)
+				}
+				defer session.Close()
+				started := time.Date(2026, 10, 12, 9, 7, 59, 0, time.Local)
+				session.RestoreStartTime(started.UTC())
+				if err := session.RestoreHistory([]ConversationMessage{{Role: "user", Content: "之前的问题"}, {Role: "assistant", Content: "之前的回答"}}); err != nil {
+					t.Fatal(err)
+				}
+				for _, task := range []string{"你好", "再见"} {
+					if _, err := session.Run(context.Background(), task); err != nil {
+						t.Fatal(err)
+					}
+				}
+				for _, prompt := range prompts {
+					count := strings.Count(prompt, "<session_time>")
+					if enabled && (count != 1 || !strings.Contains(prompt, sessionTimeContext(true, started))) {
+						t.Fatalf("missing or duplicate restored context: %q", prompt)
+					}
+					if !enabled && count != 0 {
+						t.Fatal("disabled injection reached model")
+					}
+					if enabled && strings.Index(prompt, "<session_time>") > strings.Index(prompt, "之前的问题") {
+						t.Fatal("context followed conversation history")
+					}
+				}
+				for _, message := range session.History() {
+					if strings.Contains(message.Content, "<session_time>") {
+						t.Fatal("runtime context persisted into conversation")
+					}
+				}
+				session.Reset()
+				if _, err := session.Run(context.Background(), "重置后"); err != nil {
+					t.Fatal(err)
+				}
+				if enabled && strings.Contains(prompts[len(prompts)-1], sessionTimeContext(true, started)) {
+					t.Fatal("reset retained old start time")
+				}
+			})
+		}
+	}
+}
 
 func TestUnifiedSessionDefaultsToXMLWithoutRouter(t *testing.T) {
 	t.Parallel()

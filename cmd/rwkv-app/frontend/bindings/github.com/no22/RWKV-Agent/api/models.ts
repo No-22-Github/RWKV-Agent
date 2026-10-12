@@ -18,6 +18,7 @@ import * as time$0 from "../../../../time/models.js";
  * the service workspace with the full depth-0 tool catalog.
  */
 export class AgentPromptPreview {
+    "sessionContext"?: string;
     "control": string;
     "responseControl": string;
     "toolNames": string[];
@@ -121,6 +122,7 @@ export class Config {
      * immutable so the measured transcript contract cannot be broken here.
      */
     "taskControl"?: string;
+    "injectSessionTime"?: boolean;
     "semanticNoTool"?: boolean | null;
     "decisionFakeThink"?: boolean;
     "deepToolAnchor"?: boolean | null;

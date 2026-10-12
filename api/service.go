@@ -135,6 +135,7 @@ func (s *Service) NewSession(ctx context.Context) (*Session, error) {
 // preview: what a session with this configuration would send, assembled for
 // the service workspace with the full depth-0 tool catalog.
 type AgentPromptPreview struct {
+	SessionContext  string   `json:"sessionContext,omitempty"`
 	Control         string   `json:"control"`
 	ResponseControl string   `json:"responseControl"`
 	ToolNames       []string `json:"toolNames"`
@@ -177,6 +178,7 @@ func (s *Service) PreviewAgentPrompt(config Config) (AgentPromptPreview, error) 
 		return AgentPromptPreview{}, err
 	}
 	return AgentPromptPreview{
+		SessionContext:  sessionTimeContext(config.InjectSessionTime, time.Now()),
 		Control:         preview.Control,
 		ResponseControl: preview.ResponseControl,
 		ToolNames:       preview.ToolNames,

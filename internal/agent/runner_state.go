@@ -27,6 +27,20 @@ func (r *Runner) Reset() {
 	r.stateMu.Unlock()
 }
 
+// SetSessionContext restores application-owned context independently of history.
+func (r *Runner) SetSessionContext(content string) {
+	r.runMu.Lock()
+	defer r.runMu.Unlock()
+	r.options.SessionContext = content
+}
+
+func (r *Runner) appendSessionContext(messages []Message) []Message {
+	if r.options.SessionContext != "" {
+		messages = append(messages, Message{Role: RoleUser, Content: r.options.SessionContext})
+	}
+	return messages
+}
+
 // RestoreHistory replaces the committed transcript after validating that it
 // contains only conversation roles. It is intended for application-level
 // persistence; the control prompt and runtime tool registry are never stored.

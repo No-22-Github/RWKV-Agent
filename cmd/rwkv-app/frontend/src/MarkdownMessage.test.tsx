@@ -8,6 +8,41 @@ afterEach(() => {
 })
 
 describe('MarkdownMessage', () => {
+  it('keeps standalone bold section titles outside preceding lists without a blank line', () => {
+    const content = '**近期天气**  \n- 晴，16~26°C  \n- 阴，17~25°C  \n**热门景点**  \n1. **博物院**  \n   - 门票：免费  \n   - **馆内展览**  \n     - 历史展厅  \n**出游建议**  \n- 提前预约'
+    for (const streaming of [false, true]) {
+      const { container, unmount } = render(<MarkdownMessage content={content} streaming={streaming} />)
+      for (const title of ['近期天气', '热门景点', '出游建议']) {
+        const heading = [...container.querySelectorAll('strong')].find((node) => node.textContent === title)!
+        expect(heading).toBeDefined()
+        expect(heading.closest('li, ul, ol, .answer-para')).toBeNull()
+      }
+      expect(container.querySelector('ol > li > ul')).toHaveTextContent('门票：免费')
+      expect(container.querySelector('ol > li > ul > li > ul')).toHaveTextContent('历史展厅')
+      expect(container.querySelector('ol > li > ul')).toHaveTextContent('馆内展览')
+      unmount()
+    }
+  })
+
+  it('preserves bold-looking lines inside fenced code', () => {
+    const { container } = render(<MarkdownMessage content={'```md\n- 天气\n**热门景点**\n1. 博物院\n```'} />)
+    expect(container.querySelectorAll('pre')).toHaveLength(1)
+    expect(container.querySelector('pre')).toHaveTextContent('**热门景点**')
+    expect(container.querySelector('strong')).toBeNull()
+  })
+
+  it('keeps single tildes literal and only strikes through double tildes', () => {
+    const content = '晴，16~26°C，体感温度约17~26°C。~保留~，~~删除~~。'
+    for (const streaming of [false, true]) {
+      const { container, unmount } = render(<MarkdownMessage content={content} streaming={streaming} />)
+      expect(container.textContent).toBe('晴，16~26°C，体感温度约17~26°C。~保留~，删除。')
+      const deletions = container.querySelectorAll('del')
+      expect(deletions).toHaveLength(1)
+      expect(deletions[0]).toHaveTextContent('删除')
+      unmount()
+    }
+  })
+
   it('splits streamed prose into per-token spans but leaves code and settled text whole', () => {
     const content = '杭州 is **lovely**\n\n```js\nconst a = 1\n```'
     const { container, rerender } = render(<MarkdownMessage content={content} streaming />)

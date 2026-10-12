@@ -74,6 +74,7 @@ func (r *Runner) decideRoute(
 ) (Route, []RouteStep, error) {
 	r.observe(Event{Kind: EventRouteStart}, observer)
 	messages := []Message{{Role: RoleSystem, Content: r.router.Instructions()}}
+	messages = r.appendSessionContext(messages)
 	messages = append(messages, routingHistory(history)...)
 	messages = append(messages, Message{Role: RoleUser, Content: task})
 
@@ -147,6 +148,7 @@ func (r *Runner) decideToolRoute(
 ) (ToolRouteDecision, []RouteStep, error) {
 	r.observe(Event{Kind: EventRouteStart}, observer)
 	messages := []Message{{Role: RoleSystem, Content: r.toolRouter.Instructions(r.toolBundles)}}
+	messages = r.appendSessionContext(messages)
 	messages = append(messages, routingHistory(history)...)
 	messages = append(messages, Message{Role: RoleUser, Content: task})
 

@@ -62,7 +62,9 @@ type Config struct {
 	// transcript's system prompt ("Task-specific contract:" block). It is the
 	// supported personalization surface; the protocol-owned instructions stay
 	// immutable so the measured transcript contract cannot be broken here.
-	TaskControl       string  `json:"taskControl,omitempty"`
+	TaskControl string `json:"taskControl,omitempty"`
+	// InjectSessionTime adds a separate context message after the system prompt.
+	InjectSessionTime bool    `json:"injectSessionTime,omitempty"`
 	SemanticNoTool    *bool   `json:"semanticNoTool,omitempty"`
 	DecisionFakeThink bool    `json:"decisionFakeThink,omitempty"`
 	DeepToolAnchor    *bool   `json:"deepToolAnchor,omitempty"`

@@ -1,7 +1,7 @@
 import { AgentProtocol } from '../../../bindings/github.com/no22/RWKV-Agent/api/models'
 import type { ProviderManager } from '../../state/providerManager'
 import { CUSTOM_PRESET_ID, SAMPLING_PRESETS, presetById } from '../../state/samplingPresets'
-import { GroupTitle, Row, SettingsPane, SaveStatus } from './ui'
+import { GroupTitle, Row, SettingsPane, SaveStatus, Toggle } from './ui'
 import { autosaveHint } from './autosaveHint'
 
 type Props = {
@@ -141,6 +141,19 @@ export default function ParametersSection({ manager }: Props) {
         <p className="mb-0 mt-[8px] text-xs leading-[1.65] text-ink-muted">
           决策输出 token 填 0 表示按协议自动（XML 512，其余 96）。
         </p>
+      </section>
+
+      <section className="mt-[18px]">
+        <GroupTitle title="时间上下文" />
+        <Toggle
+          label="注入会话启动时间"
+          description="在系统消息后追加独立的时间上下文，包含日期、星期、时分与本机时区；会话内保持不变。"
+          checked={manager.injectSessionTime}
+          onChange={manager.setInjectSessionTime}
+        />
+        {manager.previewOpen && manager.promptPreview?.sessionContext && (
+          <pre className="rounded-md mt-[8px] whitespace-pre-wrap border border-line bg-paper-wash px-[10px] py-[8px] font-mono text-xs leading-[1.7] text-ink-soft">{manager.promptPreview.sessionContext}</pre>
+        )}
       </section>
 
       <section className="mt-[18px]">
