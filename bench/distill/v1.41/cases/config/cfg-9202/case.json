@@ -1,0 +1,73 @@
+{
+  "id": "cfg-9202",
+  "description": "Bumps the top-level image tag in four chart values files while a pinned legacy chart and look-alike sidecar tags stay. DISTILL-CANARY-00c899c9",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-READONLY",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null,
+      "TR-DECOY": "tag_hint"
+    },
+    "axes": [
+      "CON",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-cfg-b12h-imagetag-01",
+    "ref_calls": 2,
+    "fixture_bytes": 696,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12h",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "charts/api/values.yaml": "name: api\nimage:\n  repo: registry.local/api\n  tag: v1.4.2\nreplicas: 2\nsidecar:\n  image: registry.local/envoy\n  tag: v1.4.20\n",
+    "charts/web/values.yaml": "name: web\nimage:\n  repo: registry.local/web\n  tag: v1.4.2\nreplicas: 2\n",
+    "charts/worker/values.yaml": "name: worker\nimage:\n  repo: registry.local/worker\n  tag: v1.4.2\nreplicas: 2\nmigration:\n  tag_hint: v1.4.2\n",
+    "charts/cron/values.yaml": "name: cron\nimage:\n  repo: registry.local/cron\n  tag: v1.4.2\nreplicas: 2\nsidecar:\n  image: registry.local/envoy\n  tag: v1.4.20\n",
+    "charts/billing-legacy/values.yaml": "name: billing-legacy\nimage:\n  repo: registry.local/billing-legacy\n  tag: v1.4.2\nreplicas: 2\n",
+    "charts/README.md": "# Charts\n\nOnly the top-level image tag moves with this release.\nbilling-legacy stays pinned until finance signs off on the new build.\nSidecar versions follow their own schedule.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Release day: in every charts/*/values.yaml bump the image tag from v1.4.2 to v1.5.0. charts/README.md says which chart and which tags must stay as they are. Check the result and reply DONE.",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "charts/api/values.yaml": {
+        "equals": "name: api\nimage:\n  repo: registry.local/api\n  tag: v1.5.0\nreplicas: 2\nsidecar:\n  image: registry.local/envoy\n  tag: v1.4.20\n"
+      },
+      "charts/web/values.yaml": {
+        "equals": "name: web\nimage:\n  repo: registry.local/web\n  tag: v1.5.0\nreplicas: 2\n"
+      },
+      "charts/worker/values.yaml": {
+        "equals": "name: worker\nimage:\n  repo: registry.local/worker\n  tag: v1.5.0\nreplicas: 2\nmigration:\n  tag_hint: v1.4.2\n"
+      },
+      "charts/cron/values.yaml": {
+        "equals": "name: cron\nimage:\n  repo: registry.local/cron\n  tag: v1.5.0\nreplicas: 2\nsidecar:\n  image: registry.local/envoy\n  tag: v1.4.20\n"
+      },
+      "charts/billing-legacy/values.yaml": {
+        "unchanged": true
+      },
+      "charts/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

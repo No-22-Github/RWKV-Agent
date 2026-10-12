@@ -1484,3 +1484,6 @@
 {"case_id": "nt-9231--p1", "reason": "最终答案虚构 find 语法：称 GNU find 支持 -size +10MB（该写法无效），且 M 单位解释含糊", "batch": "b12i"}
 {"case_id": "nt-9233--p1", "reason": "最终答案出现无意义的 --posix 建议（编造用法），结尾拖沓", "batch": "b12i"}
 {"case_id": "nt-9236--p1", "reason": "最终答案前后矛盾、语句混乱（把 v2.0..HEAD 与 v2.0 HEAD 说成等价后又说“add nothing else”），无用的 --diff-filter 附加", "batch": "b12i"}
+{"case_id": "doc-9207--p1", "reason": "final answer uses backticks (markdown); also opens with DONE (templated opening over 1/3)", "batch": "b12h"}
+{"case_id": "doc-9218--p2", "reason": "final answer uses backticks (markdown)", "batch": "b12h"}
+{"case_id": "fs-9205--p1", "reason": "templated DONE-first opening above 1/3 of paths; the sibling path p2 is kept", "batch": "b12h"}
