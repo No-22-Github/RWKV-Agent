@@ -1,0 +1,133 @@
+{
+  "id": "hyb-9135",
+  "description": "Two turns: appends tomorrow's forecast for one city to a trip weather log, then appends another city's day-after-tomorrow forecast in the same style. DISTILL-CANARY-c13ee195",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "tool_then_write",
+    "traps": [
+      "TR-DEFN",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": null,
+      "TR-DECOY": "Cloudy 22-30C"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b12e-tripweatherlog-01",
+    "ref_calls": 6,
+    "fixture_bytes": 69,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12e",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "logs/trip-weather.txt": "2026-09-14 Mon Seoul Clear 17-26C\n2026-09-15 Tue Seoul Cloudy 16-25C\n"
+  },
+  "turns": [
+    {
+      "prompt": "Log tomorrow's Tokyo weather in logs/trip-weather.txt: one new line at the end, laid out like the lines already there (date, weekday abbreviation, city, condition, low-high with a trailing C). The file ends with a newline and must keep ending with exactly one.",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "Now Osaka too: add one more line after it for Osaka's forecast on the day after tomorrow, same layout, still exactly one newline at the very end.",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "Tokyo",
+      "aliases": [
+        "东京"
+      ],
+      "report": {
+        "location": "Tokyo",
+        "current": "Clear 24°C feels 26°C humidity 60% wind 10 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "Clear",
+            "temp_c": "19~27",
+            "rain_chance": "5%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "Light rain",
+            "temp_c": "18~24",
+            "rain_chance": "60%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "Cloudy",
+            "temp_c": "18~25",
+            "rain_chance": "30%"
+          }
+        ]
+      }
+    },
+    {
+      "location": "Osaka",
+      "aliases": [
+        "大阪"
+      ],
+      "report": {
+        "location": "Osaka",
+        "current": "Sunny 28°C feels 31°C humidity 58% wind 8 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "Sunny",
+            "temp_c": "23~31",
+            "rain_chance": "5%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "Cloudy",
+            "temp_c": "22~30",
+            "rain_chance": "25%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "Sunny",
+            "temp_c": "22~31",
+            "rain_chance": "10%"
+          }
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "logs/trip-weather.txt": {
+        "equals": "2026-09-14 Mon Seoul Clear 17-26C\n2026-09-15 Tue Seoul Cloudy 16-25C\n2026-09-17 Thu Tokyo Light rain 18-24C\n2026-09-18 Fri Osaka Sunny 22-31C\n"
+      }
+    }
+  }
+}

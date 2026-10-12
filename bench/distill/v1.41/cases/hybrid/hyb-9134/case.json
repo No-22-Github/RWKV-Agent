@@ -1,0 +1,133 @@
+{
+  "id": "hyb-9134",
+  "description": "Two turns: fills tomorrow's forecast for a run into a plan note, then the run moves to the day after tomorrow in another city and the heading and forecast line change. DISTILL-CANARY-18543fd8",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "tool_then_write",
+    "traps": [
+      "TR-DEFN",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": null,
+      "TR-DECOY": "雷阵雨 24~31°C 60%"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L3",
+    "family": "fam-hyb-b12e-runmove-01",
+    "ref_calls": 6,
+    "fixture_bytes": 88,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12e",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "运动/跑步计划.md": "# 跑步计划\n\n## 周四 成都\n- 天气：（待填）\n\n## 备注\n- 目标配速 6:00\n"
+  },
+  "turns": [
+    {
+      "prompt": "周四（明天）我在成都跑步。查一下成都明天的天气，填进 运动/跑步计划.md 里「天气：（待填）」那一行，格式固定为「- 天气：<cond> <min>~<max>°C，降水概率 <pct>」，只替换这一行，其余各行和结尾换行都不要动。",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "跑步改到后天（周五）、地点改去重庆：把「## 周四 成都」那行改成「## 周五 重庆」，天气那一行换成重庆后天的预报，格式不变，其余各行和结尾换行都不要动。",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "成都",
+      "aliases": [
+        "Chengdu"
+      ],
+      "report": {
+        "location": "成都",
+        "current": "阴 23°C 体感 25°C 湿度 80% 风速 5 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "阴",
+            "temp_c": "20~25",
+            "rain_chance": "40%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "阵雨",
+            "temp_c": "19~24",
+            "rain_chance": "70%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "多云",
+            "temp_c": "20~27",
+            "rain_chance": "25%"
+          }
+        ]
+      }
+    },
+    {
+      "location": "重庆",
+      "aliases": [
+        "Chongqing"
+      ],
+      "report": {
+        "location": "重庆",
+        "current": "多云 29°C 体感 33°C 湿度 72% 风速 6 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "多云",
+            "temp_c": "24~32",
+            "rain_chance": "20%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "雷阵雨",
+            "temp_c": "24~31",
+            "rain_chance": "60%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "晴",
+            "temp_c": "25~34",
+            "rain_chance": "5%"
+          }
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "运动/跑步计划.md": {
+        "equals": "# 跑步计划\n\n## 周五 重庆\n- 天气：晴 25~34°C，降水概率 5%\n\n## 备注\n- 目标配速 6:00\n"
+      }
+    }
+  }
+}
