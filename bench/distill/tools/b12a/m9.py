@@ -1004,7 +1004,7 @@ The question is about the file inside 服务/风控.
         task_type="precedence", family="fam-cfg-b12a-cwdlimit-01", level="L3", ref_calls=2,
         traps=["TR-DECOY"], decoys={"TR-DECOY": "500"}, axes=["OBS", "ERR"],
         files=files, verify=verify, notes=notes,
-        turns=[{"prompt": "cd 到 服务/风控 目录，看看里面有哪些文件。",
+        turns=[{"prompt": "在终端里先 cd 到 服务/风控 目录，再用 ls -l 看看里面有哪些文件。",
                 "expect": {"output_contains": ["限流.toml"], "max_output_chars": 600}},
                {"prompt": "那里面的 限流.toml 里 qps 配的是多少？",
                 "expect": {"output_contains": ["85"], "output_contains_token": True, "max_output_chars": 600}}])
@@ -1045,7 +1045,7 @@ The question is about the README.md inside 文档/接口/v2.
         task_type="policy_lookup", family="fam-doc-b12a-cwdsign-01", level="L3", ref_calls=2,
         traps=["TR-DECOY"], decoys={"TR-DECOY": "SHA1"}, axes=["OBS", "ERR"],
         files=files, verify=verify, notes=notes,
-        turns=[{"prompt": "cd 到 文档/接口/v2 目录，看看里面有哪些文件。",
+        turns=[{"prompt": "在终端里先 cd 到 文档/接口/v2 目录，再用 ls -l 看看里面有哪些文件。",
                 "expect": {"output_contains": ["README.md"], "max_output_chars": 600}},
                {"prompt": "那里面的 README.md 写的签名算法是什么？",
                 "expect": {"output_contains": ["HMAC-SHA256"], "max_output_chars": 600}}])
@@ -1087,7 +1087,7 @@ The question is about the summary.txt inside reports/q3.
         task_type="find_file", family="fam-fs-b12a-cwdsummary-01", level="L3", ref_calls=2,
         traps=["TR-DECOY"], decoys={"TR-DECOY": "41250"}, axes=["OBS", "ERR"],
         files=files, verify=verify, notes=notes,
-        turns=[{"prompt": "cd into the reports/q3 folder and tell me which files are in there.",
+        turns=[{"prompt": "In the terminal, cd into the reports/q3 folder and run ls -l there, then tell me which files are in it.",
                 "expect": {"output_contains": ["summary.txt"], "max_output_chars": 600}},
                {"prompt": "What revenue does the summary.txt in there report?",
                 "expect": {"output_contains_any": thousands("48210"), "output_contains_any_token": True, "max_output_chars": 600}}])

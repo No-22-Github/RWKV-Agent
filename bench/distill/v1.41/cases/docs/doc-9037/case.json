@@ -35,7 +35,7 @@
   },
   "turns": [
     {
-      "prompt": "cd 到 文档/接口/v2 目录，看看里面有哪些文件。",
+      "prompt": "在终端里先 cd 到 文档/接口/v2 目录，再用 ls -l 看看里面有哪些文件。",
       "expect": {
         "output_contains": [
           "README.md"

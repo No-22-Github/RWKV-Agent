@@ -35,7 +35,7 @@
   },
   "turns": [
     {
-      "prompt": "cd into the reports/q3 folder and tell me which files are in there.",
+      "prompt": "In the terminal, cd into the reports/q3 folder and run ls -l there, then tell me which files are in it.",
       "expect": {
         "output_contains": [
           "summary.txt"
