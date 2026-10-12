@@ -10,6 +10,11 @@ import { ModelState, Status, type Result, type Step } from '../bindings/github.c
 import type {
   AppBootstrap, ConversationSummary, ConversationView, WorkspaceItem,
 } from '../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/models'
+import FileChangesPanel from './components/FileChangesPanel'
+import FileReviewPane from './components/FileReviewPane'
+import { AnimatePresence } from 'motion/react'
+import { sameChange, type FileArtifact, type FileView } from './components/fileReview'
+import type { FileChange } from '../bindings/github.com/no22/RWKV-Agent/internal/agent/tools/models'
 import MarkdownMessage from './MarkdownMessage'
 import PacedAnswer from './components/PacedAnswer'
 import ConfirmDialog from './components/ConfirmDialog'
@@ -38,6 +43,7 @@ type Message = {
   createdAt?: string
   // 回答已经流式显示过：落定时不再播放显影动画，免得同一段字又闪一次。
   streamed?: boolean
+  files?: FileArtifact[]
 }
 // 动画只播一次：对话页在切到轨迹时会整页卸载，这份记录放在 App 层跨越重新挂载。
 // seen 记已经播过入场/显影的回合与回答；progress 记流式回答已放出的字数。
@@ -68,6 +74,9 @@ export default function App() {
   const motionMemory = useRef<MotionMemory>({ seen: new Set(), progress: new Map() })
   const [prompt, setPrompt] = useState('')
   const [busy, setBusy] = useState(false)
+  const [fileChanges, setFileChanges] = useState<FileChange[]>([])
+  const [openFile, setOpenFile] = useState<FileArtifact | null>(null)
+  const [fileView, setFileView] = useState<FileView>('preview')
   const [activeTab, setActiveTab] = useState<'chat' | 'trace'>('chat')
   const [selectedTraceID, setSelectedTraceID] = useState('')
   const [runConfigOpen, setRunConfigOpen] = useState(false)
@@ -104,7 +113,10 @@ export default function App() {
       }
       setActivity((current) => [...current, { ...data, at: Date.now() }])
     })
-    return () => { offStatus(); offAgent() }
+    const offChanges = Events.On('workspace:changes', (event) => setFileChanges((event.data || []) as FileChange[]))
+    const offChangesError = Events.On('workspace:changes-error', (event) => reportError(event.data))
+    void Backend.FileChanges().then(setFileChanges).catch(reportError)
+    return () => { offStatus(); offAgent(); offChanges(); offChangesError() }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
   useEffect(() => { if (followBottom.current) messagesEnd.current?.scrollIntoView({ block: 'end' }) }, [messages, liveAnswer])
@@ -180,7 +192,7 @@ export default function App() {
     try { await manager.deleteProvider(id) } catch (error) { manager.setSettingsMessage(errorText(error)) } finally { setBusy(false) }
   }
   function applyConversation(value?: ConversationView, options: { preserveDraft?: boolean } = {}) {
-    setActiveConversationID(value?.id || ''); setActiveTab('chat'); setActivity([]); followBottom.current = true; if (!options.preserveDraft) setPrompt('')
+    setOpenFile(null); setActiveConversationID(value?.id || ''); setActiveTab('chat'); setActivity([]); followBottom.current = true; if (!options.preserveDraft) setPrompt('')
     let lastPrompt = ''
     setMessages((value?.messages || []).map((message) => {
       if (message.role === 'user') lastPrompt = message.content
@@ -188,7 +200,7 @@ export default function App() {
         id: message.id, role: message.role as Message['role'], content: message.content,
         prompt: message.role !== 'user' ? lastPrompt : undefined, meta: message.meta,
         trajectory: message.trajectory as ToolTrace[] | undefined,
-        trace: message.trace as Result | undefined, createdAt: normalizeTimestamp(message.createdAt),
+        files: message.files, trace: message.trace as Result | undefined, createdAt: normalizeTimestamp(message.createdAt),
       }
     }))
   }
@@ -233,6 +245,8 @@ export default function App() {
       const assistant: Message = { id: `pending-${nextMessageID++}`, role: 'assistant', content: result.output, prompt: content, trace: result, createdAt: new Date().toISOString(), meta: [`${result.steps.length} 步 · ${(result.durationMs / 1000).toFixed(1)} 秒`, status.model?.split(/[\\/]/).at(-1), status.stateId].filter(Boolean).join(' · '), trajectory: legacyTrajectory(result.steps), streamed: liveAnswerRef.current !== '' }
       setMessages((current) => [...current, assistant]); setSelectedTraceID(assistant.id)
       const persisted = await Backend.Bootstrap(); setConversations(persisted.conversations || []); setActiveConversationID(persisted.conversation?.id || '')
+      const savedFiles = persisted.conversation?.messages.at(-1)?.files
+      if (savedFiles?.length) setMessages(current => current.map(m => m.id === assistant.id ? { ...m, files: savedFiles } : m))
     } catch (error) {
       try {
         const persisted = await Backend.Bootstrap()
@@ -251,7 +265,20 @@ export default function App() {
         setMessages((current) => [...current, { id: `error-${nextMessageID++}`, role: 'error', content: errorText(error) }])
       }
     }
-    finally { runningChat.current = null; turnInFlight.current = false; setBusy(false); liveAnswerRef.current = ''; setLiveAnswer('') }
+    finally { try { setFileChanges(await Backend.FileChanges()) } catch (error) { reportError(error) }; runningChat.current = null; turnInFlight.current = false; setBusy(false); liveAnswerRef.current = ''; setLiveAnswer('') }
+  }
+  function openArtifact(file: FileArtifact, view: FileView) { setOpenFile(file); setFileView(view) }
+  async function resolveFileChanges(reviewed: FileChange[], accept: boolean) {
+    const grouped = fileChanges.filter(c => reviewed.some(r => sameChange(r, c) || ((r.before.kind === 'directory' || r.after.kind === 'directory') && c.path.startsWith(r.path + '/'))))
+    try { setFileChanges(await Backend.ResolveFileChanges(grouped, accept)) }
+    catch (error) { reportError(error); try { setFileChanges(await Backend.FileChanges()) } catch { /* Keep the last review visible. */ } }
+    // 刷新记录而不重置草稿、回答动画或正在打开的文件。
+    try {
+      const persisted = await Backend.Bootstrap()
+      const stored = persisted.conversation?.messages.filter(m => m.role !== 'user') || []
+      setMessages(current => { let index = 0; return current.map(m => m.role === 'user' ? m : { ...m, files: stored[index++]?.files || m.files }) })
+      setOpenFile(current => current ? stored.flatMap(m => m.files || []).find(f => sameChange(f.change, current.change)) || current : null)
+    } catch (error) { reportError(error) }
   }
   function stopRun() { runningChat.current?.cancel() }
   function submitMessage() { void sendMessage(prompt) }
@@ -259,7 +286,7 @@ export default function App() {
     // 输入法组字中的回车是确认候选词，不是发送（WebKit 组字时 keyCode 为 229）。
     if (event.nativeEvent.isComposing || event.keyCode === 229 || busy) return
     if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void sendMessage(prompt) } }
-  async function newConversation() { if (busy) return; await Backend.NewConversation(); setMessages([]); setActivity([]); setPrompt(''); setActiveConversationID(''); setActiveTab('chat') }
+  async function newConversation() { if (busy) return; try { await Backend.NewConversation(); setOpenFile(null); setMessages([]); setActivity([]); setPrompt(''); setActiveConversationID(''); setActiveTab('chat') } catch (error) { reportError(error) } }
   async function openConversation(id: string) { if (busy || id === activeConversationID) return; setBusy(true); try { applyConversation(await Backend.OpenConversation(id)) } catch (error) { reportError(error) } finally { setBusy(false) } }
   async function deleteConversation(id: string) { if (busy) return; setBusy(true); try { await Backend.DeleteConversation(id); if (id === activeConversationID) applyConversation(); const persisted = await Backend.Bootstrap(); setConversations(persisted.conversations || []) } catch (error) { reportError(error) } finally { setBusy(false) } }
   async function chooseWorkspace() { if (busy) return; setBusy(true); try { applyBootstrap(await Backend.ChooseWorkspace()) } catch (error) { if (!errorText(error).toLowerCase().includes('cancel')) { if (settingsOpen) manager.setSettingsMessage(errorText(error)); else reportError(error) } } finally { setBusy(false) } }
@@ -289,8 +316,11 @@ export default function App() {
             <button role="tab" aria-selected={activeTab === 'trace'} className={`relative min-w-[58px] border-0 border-b-2 bg-transparent pb-[9px] text-center text-md transition-[border-color,color] duration-[180ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none before:absolute before:inset-x-0 before:bottom-0 before:top-[-15px] before:content-[''] ${activeTab === 'trace' ? 'border-brand font-semibold text-ink' : 'border-transparent text-ink-muted'}`} onClick={() => setActiveTab('trace')} disabled={!traceMessages.length && !liveTurn}>轨迹 <span className="ml-1 font-mono text-2xs text-ink-muted">{traceMessages.length + (liveTurn ? 1 : 0) || ''}</span></button>
           </div>
         </header>
-        {activeTab === 'trace' ? <TrajectoryView messages={traceMessages} live={liveTurn} focusMessageId={selectedTraceID} onExport={() => void exportTrajectory()} /> : <ChatView chips={<RunChips ready={ready} busy={busy} status={status} runtimeConfig={runtimeConfig} providers={manager.providers} runtimeProviderId={manager.runtimeProviderId} workspace={workspaceName} runConfigOpen={runConfigOpen} setRunConfigOpen={setRunConfigOpen} onActivate={(id) => void activateProviderNow(id)} onToggleCapability={(key, value) => void toggleCapabilityNow(key, value)} onSetState={setStateNow} onChooseWorkspace={() => void chooseWorkspace()} onOpenSettings={() => { setRunConfigOpen(false); manager.openSettings() }} />} messages={messages} activity={activity} liveAnswer={liveAnswer} motion={motionMemory.current} busy={busy} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={() => void regenerateLast()} onEditLast={(content) => void editLast(content)} onKeyDown={onComposerKeyDown} onStop={stopRun} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} messagesEnd={messagesEnd} followBottom={followBottom} />}
+        {activeTab === 'trace' ? <TrajectoryView messages={traceMessages} live={liveTurn} focusMessageId={selectedTraceID} onExport={() => void exportTrajectory()} /> : <ChatView fileChanges={fileChanges} onResolveFiles={resolveFileChanges} onOpenFile={openArtifact} chips={<RunChips ready={ready} busy={busy} status={status} runtimeConfig={runtimeConfig} providers={manager.providers} runtimeProviderId={manager.runtimeProviderId} workspace={workspaceName} runConfigOpen={runConfigOpen} setRunConfigOpen={setRunConfigOpen} onActivate={(id) => void activateProviderNow(id)} onToggleCapability={(key, value) => void toggleCapabilityNow(key, value)} onSetState={setStateNow} onChooseWorkspace={() => void chooseWorkspace()} onOpenSettings={() => { setRunConfigOpen(false); manager.openSettings() }} />} messages={messages} activity={activity} liveAnswer={liveAnswer} motion={motionMemory.current} busy={busy} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={() => void regenerateLast()} onEditLast={(content) => void editLast(content)} onKeyDown={onComposerKeyDown} onStop={stopRun} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} messagesEnd={messagesEnd} followBottom={followBottom} />}
       </main>
+      <AnimatePresence>
+      {openFile && <FileReviewPane key="file-review" file={openFile} files={messages.find(m => m.files?.some(f => sameChange(f.change, openFile.change)))?.files || fileChanges.map(change => ({ change, status: 'pending' }))} onFile={setOpenFile} view={fileView} onView={setFileView} changes={fileChanges} disabled={busy} onResolve={resolveFileChanges} onClose={() => setOpenFile(null)} />}
+      </AnimatePresence>
     </>}
   </div>
 }
@@ -368,8 +398,9 @@ function Sidebar({ conversations, workspaces, activeId, busy, open, onCloseSideb
   </>
 }
 
-function ChatView({ chips, messages, activity, liveAnswer, motion, busy, prompt, setPrompt, onSubmit, onStop, onRegenerate, onEditLast, onKeyDown, onTrace, messagesEnd, followBottom }: { chips: React.ReactNode; messages: Message[]; activity: AgentActivity[]; liveAnswer: string; motion: MotionMemory; busy: boolean; prompt: string; setPrompt: (value: string) => void; onSubmit: () => void; onStop: () => void; onRegenerate: () => void; onEditLast: (content: string) => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void; onTrace: (id: string) => void; messagesEnd: React.RefObject<HTMLDivElement | null>; followBottom: React.RefObject<boolean> }) {
+function ChatView({ fileChanges, onResolveFiles, onOpenFile, chips, messages, activity, liveAnswer, motion, busy, prompt, setPrompt, onSubmit, onStop, onRegenerate, onEditLast, onKeyDown, onTrace, messagesEnd, followBottom }: { fileChanges: FileChange[]; onResolveFiles: (changes: FileChange[], accept: boolean) => Promise<void>; onOpenFile: (file: FileArtifact, view: FileView) => void; chips: React.ReactNode; messages: Message[]; activity: AgentActivity[]; liveAnswer: string; motion: MotionMemory; busy: boolean; prompt: string; setPrompt: (value: string) => void; onSubmit: () => void; onStop: () => void; onRegenerate: () => void; onEditLast: (content: string) => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void; onTrace: (id: string) => void; messagesEnd: React.RefObject<HTMLDivElement | null>; followBottom: React.RefObject<boolean> }) {
   const turns = groupMessagesIntoTurns(messages)
+  const unattachedChanges = fileChanges.filter(c => !messages.some(m => m.files?.some(f => sameChange(f.change, c))))
   const empty = turns.length === 0
   // 匀速显示会比消息到达晚一点长高，滚动要跟着显示层走，而不只是跟着消息。
   const followAnswer = useCallback(() => { if (followBottom.current) messagesEnd.current?.scrollIntoView({ block: 'end' }) }, [messagesEnd, followBottom])
@@ -443,7 +474,7 @@ function ChatView({ chips, messages, activity, liveAnswer, motion, busy, prompt,
       {/* 滚动容器铺满舞台，滚动条贴窗口最右；两侧预留等宽槽位，滚动条出现时正文不被挤、也不偏离输入框的中线。 */}
       {!empty && <div ref={scrollRef} className="conversation-scroll absolute inset-0 overflow-y-auto overflow-x-hidden pt-[30px] [scrollbar-gutter:stable_both-edges]">
         <div className="mx-auto content-narrow">
-          {turns.map((turn, index) => <TurnView key={turn.user?.id || turn.response?.id || index} turn={turn} index={index + 1} last={index === turns.length - 1} busy={busy} pending={busy && index === turns.length - 1 && !turn.response} activity={activity} liveAnswer={liveAnswer} motion={motion} onGrow={followAnswer} onTrace={onTrace} onRegenerate={onRegenerate} onEditLast={onEditLast} />)}
+          {turns.map((turn, index) => <TurnView fileChanges={fileChanges} fallbackChanges={index === turns.length - 1 ? unattachedChanges : []} onResolveFiles={onResolveFiles} onOpenFile={onOpenFile} key={turn.user?.id || turn.response?.id || index} turn={turn} index={index + 1} last={index === turns.length - 1} busy={busy} pending={busy && index === turns.length - 1 && !turn.response} activity={activity} liveAnswer={liveAnswer} motion={motion} onGrow={followAnswer} onTrace={onTrace} onRegenerate={onRegenerate} onEditLast={onEditLast} />)}
           <div ref={messagesEnd} />
         </div>
       </div>}
@@ -457,7 +488,7 @@ function ChatView({ chips, messages, activity, liveAnswer, motion, busy, prompt,
   </div>
 }
 
-function TurnView({ turn, index, last, busy, pending, activity, liveAnswer, motion, onGrow, onTrace, onRegenerate, onEditLast }: { turn: ChatTurn; index: number; last: boolean; busy: boolean; pending: boolean; activity: AgentActivity[]; liveAnswer: string; motion: MotionMemory; onGrow: () => void; onTrace: (id: string) => void; onRegenerate: () => void; onEditLast: (content: string) => void }) {
+function TurnView({ fileChanges, fallbackChanges, onResolveFiles, onOpenFile, turn, index, last, busy, pending, activity, liveAnswer, motion, onGrow, onTrace, onRegenerate, onEditLast }: { fileChanges: FileChange[]; fallbackChanges: FileChange[]; onResolveFiles: (changes: FileChange[], accept: boolean) => Promise<void>; onOpenFile: (file: FileArtifact, view: FileView) => void; turn: ChatTurn; index: number; last: boolean; busy: boolean; pending: boolean; activity: AgentActivity[]; liveAnswer: string; motion: MotionMemory; onGrow: () => void; onTrace: (id: string) => void; onRegenerate: () => void; onEditLast: (content: string) => void }) {
   const response = turn.response
   const hasTrace = Boolean(response?.trace || response?.trajectory?.length)
   const calls = pending ? callsFromEvents(activity) : response?.trace ? callsFromSteps(response.trace.steps) : callsFromTrajectory(response?.trajectory || [])
@@ -486,6 +517,7 @@ function TurnView({ turn, index, last, busy, pending, activity, liveAnswer, moti
         ? <div className="turn-answer answer-streaming text-md leading-[1.8] text-ink [overflow-wrap:anywhere]" aria-busy={pending}><PacedAnswer text={streamText} live={pending} onGrow={onGrow} initialShown={motion.progress.get(turnKey)} onProgress={(shown) => motion.progress.set(turnKey, shown)} /></div>
         : response?.role === 'assistant' && <div className={`turn-answer${last && answerFresh.current ? ' answer-reveal animate-answer-reveal motion-reduce:animate-none' : ''} text-md leading-[1.8] text-ink [overflow-wrap:anywhere]`}><MarkdownMessage content={response.content} /></div>}
       {response?.role === 'error' && <div className="flex items-start gap-2 rounded-lg border border-danger/30 bg-danger-wash p-[10px_12px] text-sm leading-[1.65] text-danger"><X size={15} className="mt-[3px] flex-none" /><span className="min-w-0 whitespace-pre-wrap [overflow-wrap:anywhere]">{response.content}</span></div>}
+      {response && <FileChangesPanel artifacts={response.files} changes={response.files?.length ? fileChanges : fallbackChanges} fallbackChanges={fallbackChanges} disabled={busy} onResolve={onResolveFiles} onOpen={onOpenFile} />}
       {response && <TurnActions response={response} meta={[formatTurnTime(time), response.meta, stats && stats.tokens > 0 ? `${stats.tokens.toLocaleString('zh-CN')} tok` : ''].filter(Boolean).join(' · ')} canRegenerate={last && Boolean(turn.user)} busy={busy} hasTrace={hasTrace} onRegenerate={onRegenerate} onTrace={() => onTrace(response.id)} />}
     </div>
   </article>

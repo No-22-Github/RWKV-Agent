@@ -7,6 +7,9 @@ import { Create as $Create } from "@wailsio/runtime";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
+import * as tools$0 from "../internal/agent/tools/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
 import * as time$0 from "../../../../time/models.js";
 
 /**
@@ -204,6 +207,9 @@ export class Config {
         return new Config($$parsedSource as Partial<Config>);
     }
 }
+
+export const FileChange = tools$0.FileChange;
+export type FileChange = tools$0.FileChange;
 
 /**
  * ModelState describes the lifecycle state visible to clients.

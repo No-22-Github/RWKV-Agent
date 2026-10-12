@@ -3,12 +3,10 @@ package tools
 import (
 	"bufio"
 	"context"
-	"crypto/sha256"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
-	"io/fs"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -22,7 +20,7 @@ import (
 // The bash tool runs commands in just-bash, a TypeScript bash interpreter
 // with its own builtin coreutils (grep, sed, awk, jq, find, sort, tar, ...),
 // compiled with Bun into a single sidecar binary (native/justbash,
-// scripts/build-justbash.sh). The workspace is mounted read-write at
+// scripts/build-justbash.sh). The workspace uses a copy-on-write overlay at
 // /workspace, which is also the cwd; everything outside it, /tmp included,
 // is in memory and never touches the host. There is no network, no python
 // and no host binaries.
@@ -31,10 +29,9 @@ const (
 	// BashSidecarEnv overrides the sidecar binary location.
 	BashSidecarEnv = "RWKV_JUSTBASH_SIDECAR"
 
-	bashDefaultTimeout   = 20 * time.Second
-	bashMaxCommandBytes  = 16 * 1024
-	bashMaxStreamBytes   = 8 * 1024
-	bashFingerprintLimit = 5000
+	bashDefaultTimeout  = 20 * time.Second
+	bashMaxCommandBytes = 16 * 1024
+	bashMaxStreamBytes  = 8 * 1024
 )
 
 // ErrBashSidecarMissing reports that no sidecar binary was found.
@@ -47,6 +44,9 @@ type BashOptions struct {
 	// ResolveBashSidecar.
 	Sidecar string
 	Timeout time.Duration
+	Overlay *StagedWorkspace
+	// CatalogOnly builds a non-executable catalog entry without starting a sidecar.
+	CatalogOnly bool
 }
 
 // ResolveBashSidecar finds the sidecar binary: the explicit path, then
@@ -78,18 +78,28 @@ func BashTools(options BashOptions) ([]agent.Tool, error) {
 	if resolved, err := filepath.EvalSymlinks(root); err == nil {
 		root = resolved
 	}
+	if options.CatalogOnly {
+		return []agent.Tool{&bashTool{}}, nil
+	}
 	sidecar, err := ResolveBashSidecar(options.Sidecar)
 	if err != nil {
 		return nil, err
+	}
+	if options.Overlay == nil {
+		options.Overlay, err = NewStagedWorkspace(root, sidecar)
+		if err != nil {
+			return nil, err
+		}
 	}
 	timeout := options.Timeout
 	if timeout <= 0 {
 		timeout = bashDefaultTimeout
 	}
-	return []agent.Tool{&bashTool{root: root, sidecar: sidecar, timeout: timeout}}, nil
+	return []agent.Tool{&bashTool{root: root, sidecar: sidecar, timeout: timeout, overlay: options.Overlay}}, nil
 }
 
 type bashTool struct {
+	overlay *StagedWorkspace
 	root    string
 	sidecar string
 	timeout time.Duration
@@ -112,7 +122,7 @@ func (*bashTool) Spec() agent.ToolSpec {
 		Name: "bash",
 		Description: "Run a bash command in a sandbox at /workspace (no network, python or node) and return exit_code, stdout and stderr. " +
 			"Supports pipes, redirection, loops and common Unix tools: ls, cat, head, tail, grep, rg, sed, awk, sort, uniq, wc, cut, tr, find, xargs, jq, yq, diff, tar, gzip, base64, sha256sum, date, seq. " +
-			"Each call starts in /workspace and does not keep cd or variables from earlier calls.",
+			"Changes are staged in memory for user review; all file tools share the session view. Each call starts in /workspace and does not keep cd or variables from earlier calls.",
 		Arguments: `{"command":"bash command line"}`,
 		Parameters: json.RawMessage(`{
 			"type":"object",
@@ -131,6 +141,9 @@ func (*bashTool) Spec() agent.ToolSpec {
 }
 
 func (t *bashTool) Execute(ctx context.Context, raw json.RawMessage) (any, error) {
+	if t.overlay == nil {
+		return nil, fmt.Errorf("bash catalog entry is not executable")
+	}
 	var args struct {
 		Command string `json:"command"`
 	}
@@ -147,9 +160,11 @@ func (t *bashTool) Execute(ctx context.Context, raw json.RawMessage) (any, error
 	if err != nil {
 		return nil, err
 	}
-	before := workspaceFingerprint(t.root)
+	t.overlay.mu.Lock()
+	defer t.overlay.mu.Unlock()
+	before := t.overlay.revision
 	response, err := client.run(ctx, bashSidecarRequest{
-		Root: t.root, Command: args.Command, TimeoutMillis: int(t.timeout / time.Millisecond),
+		Session: t.overlay.id, Root: t.root, Command: args.Command, TimeoutMillis: int(t.timeout / time.Millisecond),
 	}, t.timeout+5*time.Second)
 	if err != nil {
 		return nil, err
@@ -157,11 +172,13 @@ func (t *bashTool) Execute(ctx context.Context, raw json.RawMessage) (any, error
 	if response.Error != "" {
 		return nil, fmt.Errorf("bash: %s", response.Error)
 	}
+	changed := response.Revision != before
+	t.overlay.revision = response.Revision
 	return BashResult{
 		ExitCode: response.ExitCode,
 		Stdout:   capBashStream(response.Stdout),
 		Stderr:   capBashStream(response.Stderr),
-		changed:  workspaceFingerprint(t.root) != before,
+		changed:  changed,
 	}, nil
 }
 
@@ -178,43 +195,30 @@ func capBashStream(text string) string {
 
 func utf8RuneStart(b byte) bool { return b&0xC0 != 0x80 }
 
-// workspaceFingerprint hashes path, size and mtime of every workspace entry
-// so the runner learns whether a command changed files (duplicate policy:
-// repeating a read after a real change is legitimate).
-func workspaceFingerprint(root string) string {
-	digest := sha256.New()
-	count := 0
-	_ = filepath.WalkDir(root, func(path string, entry fs.DirEntry, err error) error {
-		if err != nil {
-			return nil
-		}
-		count++
-		if count > bashFingerprintLimit {
-			return filepath.SkipAll
-		}
-		info, infoErr := entry.Info()
-		if infoErr != nil {
-			return nil
-		}
-		fmt.Fprintf(digest, "%s\x00%d\x00%d\x00", path, info.Size(), info.ModTime().UnixNano())
-		return nil
-	})
-	return string(digest.Sum(nil))
-}
-
 type bashSidecarRequest struct {
-	ID            int64  `json:"id"`
-	Root          string `json:"root"`
-	Command       string `json:"command"`
-	TimeoutMillis int    `json:"timeout_ms"`
+	Session       string   `json:"session,omitempty"`
+	Op            string   `json:"op,omitempty"`
+	Path          string   `json:"path,omitempty"`
+	Data          string   `json:"data,omitempty"`
+	Paths         []string `json:"paths,omitempty"`
+	Close         bool     `json:"close,omitempty"`
+	ID            int64    `json:"id"`
+	Root          string   `json:"root"`
+	Command       string   `json:"command"`
+	TimeoutMillis int      `json:"timeout_ms"`
 }
 
 type bashSidecarResponse struct {
-	ID       int64  `json:"id"`
-	Stdout   string `json:"stdout"`
-	Stderr   string `json:"stderr"`
-	ExitCode int    `json:"exit_code"`
-	Error    string `json:"error"`
+	Revision int64        `json:"revision"`
+	Data     string       `json:"data"`
+	Names    []string     `json:"names"`
+	Stat     overlayStat  `json:"stat"`
+	Changes  []FileChange `json:"changes"`
+	ID       int64        `json:"id"`
+	Stdout   string       `json:"stdout"`
+	Stderr   string       `json:"stderr"`
+	ExitCode int          `json:"exit_code"`
+	Error    string       `json:"error"`
 }
 
 // bashSidecar is one long-lived sidecar process shared by every bash tool

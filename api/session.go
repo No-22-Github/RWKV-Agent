@@ -23,12 +23,14 @@ import (
 
 // Session is an isolated, multi-turn Agent conversation.
 type Session struct {
-	owner  *Service
-	runner *agent.Runner
-	closer io.Closer
-	opMu   sync.Mutex
-	mu     sync.RWMutex
-	closed bool
+	owner       *Service
+	runner      *agent.Runner
+	closer      io.Closer
+	opMu        sync.Mutex
+	mu          sync.RWMutex
+	closed      bool
+	overlay     *assistanttools.StagedWorkspace
+	ownsOverlay bool
 }
 
 type webProviderSet struct {
@@ -53,8 +55,28 @@ func newSessionAtDepth(
 	workspace string,
 	status Status,
 	depth int,
+	views ...*assistanttools.StagedWorkspace,
 ) (*Session, error) {
-	tools, err := assembleSessionTools(ownerConfig(owner), owner, workspace, depth)
+	var view *assistanttools.StagedWorkspace
+	if len(views) > 0 {
+		view = views[0]
+	}
+	ownsOverlay := false
+	if view == nil && ownerConfig(owner).EnableBash && workspace != "" {
+		var err error
+		view, err = assistanttools.NewStagedWorkspace(workspace, "")
+		if err != nil {
+			return nil, err
+		}
+		ownsOverlay = true
+	}
+	success := false
+	defer func() {
+		if !success && ownsOverlay {
+			_ = view.Close()
+		}
+	}()
+	tools, err := assembleSessionTools(ownerConfig(owner), owner, workspace, depth, view)
 	if err != nil {
 		return nil, err
 	}
@@ -63,12 +85,16 @@ func newSessionAtDepth(
 		config.MaxSteps = config.SubagentMaxSteps
 	}
 	markdownProtocol := config.AgentProtocol != AgentProtocolXML
+	if view != nil {
+		config.TaskControl = strings.TrimSpace(config.TaskControl) + "\n\n" + stagedFileControl
+	}
 	runnerOptions := sessionRunnerOptions(config, status, workspace, tools, markdownProtocol)
 	runner, err := agent.NewRunner(generator, tools, runnerOptions)
 	if err != nil {
 		return nil, err
 	}
-	return &Session{owner: owner, runner: runner, closer: closer}, nil
+	success = true
+	return &Session{owner: owner, runner: runner, closer: closer, overlay: view, ownsOverlay: ownsOverlay}, nil
 }
 
 // assembleSessionTools builds the tool catalog for one session depth: workspace
@@ -77,19 +103,34 @@ func newSessionAtDepth(
 // closure compacts each child result into a presentation-safe summary. The
 // config is passed explicitly so prompts can be previewed for a draft; owner
 // may be nil for such previews, in which case nothing executes.
-func assembleSessionTools(config Config, owner *Service, workspace string, depth int) ([]agent.Tool, error) {
+func assembleSessionTools(config Config, owner *Service, workspace string, depth int, views ...*assistanttools.StagedWorkspace) ([]agent.Tool, error) {
 	// 文件工具始终在目录里（模型能感知该能力）；未打开工作区时它们由
 	// 不可用解析器支撑，调用会返回"请先打开工作区"的明确提示。
-	workspaceTools, err := agent.WorkspaceTools(workspace)
+	var view *assistanttools.StagedWorkspace
+	if len(views) > 0 {
+		view = views[0]
+	}
+	var filesystem agent.WorkspaceFS
+	if view != nil {
+		filesystem = view
+	}
+	workspaceTools, err := agent.WorkspaceToolsWithFS(workspace, filesystem)
 	if err != nil {
 		return nil, fmt.Errorf("initialize workspace tools: %w", err)
 	}
 	tools := workspaceTools
-	localTools, err := assistanttools.LocalTools(assistanttools.Options{Workspace: workspace})
+	localTools, err := assistanttools.LocalTools(assistanttools.Options{Workspace: workspace, Filesystem: filesystem})
 	if err != nil {
 		return nil, fmt.Errorf("initialize local tools: %w", err)
 	}
 	tools = append(tools, localTools...)
+	if view != nil || (owner == nil && workspace != "") {
+		edits, e := assistanttools.FileEditToolsWithFS(workspace, assistanttools.FileEditLines, filesystem)
+		if e != nil {
+			return nil, e
+		}
+		tools = append(tools, edits...)
+	}
 	if config.EnableWeb {
 		web, providerErr := webProvidersFor(owner, config)
 		if providerErr != nil {
@@ -107,7 +148,7 @@ func assembleSessionTools(config Config, owner *Service, workspace string, depth
 		tools = append(tools, assistanttools.WeatherTools(weather)...)
 	}
 	if config.EnableBash && strings.TrimSpace(workspace) != "" {
-		bash, bashErr := assistanttools.BashTools(assistanttools.BashOptions{Workspace: workspace})
+		bash, bashErr := assistanttools.BashTools(assistanttools.BashOptions{Workspace: workspace, Overlay: view, CatalogOnly: owner == nil})
 		if bashErr != nil {
 			return nil, fmt.Errorf("initialize bash tool: %w", bashErr)
 		}
@@ -117,21 +158,28 @@ func assembleSessionTools(config Config, owner *Service, workspace string, depth
 		tools = append(tools, assistanttools.DelegationTools(assistanttools.DelegationOptions{
 			MaxParallel: config.SubagentMaxParallel,
 			Timeout:     time.Duration(config.SubagentTimeoutSeconds) * time.Second,
-			Run:         delegateToChildSession(owner, depth+1),
+			Run:         delegateToChildSession(owner, depth+1, view),
 		})...)
+	}
+	if view != nil {
+		tools = view.WrapTools(tools)
 	}
 	return tools, nil
 }
 
 // delegateToChildSession runs one delegated task on a child session and converts
 // the full child trace into the compact per-step summary the parent sees.
-func delegateToChildSession(owner *Service, depth int) func(context.Context, string, func(agent.Event)) (assistanttools.AgentTaskResult, error) {
+func delegateToChildSession(owner *Service, depth int, views ...*assistanttools.StagedWorkspace) func(context.Context, string, func(agent.Event)) (assistanttools.AgentTaskResult, error) {
 	return func(ctx context.Context, task string, observer func(agent.Event)) (assistanttools.AgentTaskResult, error) {
 		if owner == nil {
 			// Preview assemblies wire the catalog without a live service.
 			return assistanttools.AgentTaskResult{}, fmt.Errorf("delegation is not available in this context")
 		}
-		child, childErr := owner.newSession(ctx, depth)
+		var view *assistanttools.StagedWorkspace
+		if len(views) > 0 {
+			view = views[0]
+		}
+		child, childErr := owner.newSessionWithView(ctx, depth, view)
 		if childErr != nil {
 			return assistanttools.AgentTaskResult{}, childErr
 		}
@@ -431,6 +479,9 @@ func (s *Session) Close() error {
 	s.mu.Unlock()
 	if s.owner != nil {
 		s.owner.removeSession(s)
+	}
+	if s.ownsOverlay && s.overlay != nil {
+		_ = s.overlay.Close()
 	}
 	if s.closer != nil {
 		return s.closer.Close()

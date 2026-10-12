@@ -23,7 +23,9 @@ func newTestBashTool(t *testing.T) (*bashTool, string) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	return tools[0].(*bashTool), root
+	tool := tools[0].(*bashTool)
+	t.Cleanup(func() { _ = tool.overlay.Close() })
+	return tool, root
 }
 
 func runBash(t *testing.T, tool *bashTool, command string) BashResult {
@@ -53,8 +55,11 @@ func TestBashToolWritesStayInsideWorkspace(t *testing.T) {
 	if !result.WorkspaceChanged() {
 		t.Fatal("writing out.txt did not report a workspace change")
 	}
-	if data, _ := os.ReadFile(filepath.Join(root, "out.txt")); string(data) != "ok\n" {
-		t.Fatalf("out.txt = %q", data)
+	if _, err := os.Stat(filepath.Join(root, "out.txt")); !os.IsNotExist(err) {
+		t.Fatal("bash wrote an unapproved file to disk")
+	}
+	if result := runBash(t, tool, "cat out.txt"); result.Stdout != "ok\n" {
+		t.Fatalf("overlay read = %+v", result)
 	}
 	if _, err := os.Stat(filepath.Join(filepath.Dir(root), "escape.txt")); err == nil {
 		t.Fatal("../escape.txt escaped the workspace")

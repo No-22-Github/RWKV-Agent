@@ -5,6 +5,7 @@ export {
     AgentPromptPreview,
     AgentProtocol,
     Config,
+    FileChange,
     ModelState,
     PromptTrace,
     Provider,

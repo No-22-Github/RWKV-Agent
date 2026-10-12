@@ -8,8 +8,12 @@ import { Create as $Create } from "@wailsio/runtime";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
 import * as api$0 from "../../api/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
+import * as tools$0 from "../agent/tools/models.js";
 
 export class DisplayMessage {
+    "files"?: FileArtifact[];
     "id": string;
     "role": string;
     "content": string;
@@ -37,16 +41,53 @@ export class DisplayMessage {
      * Creates a new DisplayMessage instance from a string or object.
      */
     static createFrom($$source: any = {}): DisplayMessage {
-        const $$createField4_0 = $$createType1;
+        const $$createField0_0 = $$createType1;
         const $$createField5_0 = $$createType3;
+        const $$createField6_0 = $$createType5;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("files" in $$parsedSource) {
+            $$parsedSource["files"] = $$createField0_0($$parsedSource["files"]);
+        }
         if ("trajectory" in $$parsedSource) {
-            $$parsedSource["trajectory"] = $$createField4_0($$parsedSource["trajectory"]);
+            $$parsedSource["trajectory"] = $$createField5_0($$parsedSource["trajectory"]);
         }
         if ("trace" in $$parsedSource) {
-            $$parsedSource["trace"] = $$createField5_0($$parsedSource["trace"]);
+            $$parsedSource["trace"] = $$createField6_0($$parsedSource["trace"]);
         }
         return new DisplayMessage($$parsedSource as Partial<DisplayMessage>);
+    }
+}
+
+/**
+ * FileArtifact is a read-only snapshot attached to a response. It never
+ * restores pending filesystem writes when a conversation is reopened.
+ */
+export class FileArtifact {
+    "change": api$0.FileChange;
+    "status": string;
+
+    /** Creates a new FileArtifact instance. */
+    constructor($$source: Partial<FileArtifact> = {}) {
+        if (!("change" in $$source)) {
+            this["change"] = (new api$0.FileChange());
+        }
+        if (!("status" in $$source)) {
+            this["status"] = "";
+        }
+
+        Object.assign(this, $$source);
+    }
+
+    /**
+     * Creates a new FileArtifact instance from a string or object.
+     */
+    static createFrom($$source: any = {}): FileArtifact {
+        const $$createField0_0 = $$createType6;
+        let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
+        if ("change" in $$parsedSource) {
+            $$parsedSource["change"] = $$createField0_0($$parsedSource["change"]);
+        }
+        return new FileArtifact($$parsedSource as Partial<FileArtifact>);
     }
 }
 
@@ -81,7 +122,7 @@ export class SavedProvider {
      * Creates a new SavedProvider instance from a string or object.
      */
     static createFrom($$source: any = {}): SavedProvider {
-        const $$createField2_0 = $$createType4;
+        const $$createField2_0 = $$createType7;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("config" in $$parsedSource) {
             $$parsedSource["config"] = $$createField2_0($$parsedSource["config"]);
@@ -117,7 +158,7 @@ export class SubagentStep {
      * Creates a new SubagentStep instance from a string or object.
      */
     static createFrom($$source: any = {}): SubagentStep {
-        const $$createField5_0 = $$createType6;
+        const $$createField5_0 = $$createType9;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("retries" in $$parsedSource) {
             $$parsedSource["retries"] = $$createField5_0($$parsedSource["retries"]);
@@ -160,9 +201,9 @@ export class SubagentTrace {
      * Creates a new SubagentTrace instance from a string or object.
      */
     static createFrom($$source: any = {}): SubagentTrace {
-        const $$createField5_0 = $$createType7;
-        const $$createField8_0 = $$createType7;
-        const $$createField9_0 = $$createType9;
+        const $$createField5_0 = $$createType10;
+        const $$createField8_0 = $$createType10;
+        const $$createField9_0 = $$createType12;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("bundles" in $$parsedSource) {
             $$parsedSource["bundles"] = $$createField5_0($$parsedSource["bundles"]);
@@ -239,8 +280,8 @@ export class ToolTrace {
      * Creates a new ToolTrace instance from a string or object.
      */
     static createFrom($$source: any = {}): ToolTrace {
-        const $$createField5_0 = $$createType6;
-        const $$createField6_0 = $$createType11;
+        const $$createField5_0 = $$createType9;
+        const $$createField6_0 = $$createType14;
         let $$parsedSource = typeof $$source === 'string' ? JSON.parse($$source) : $$source;
         if ("retries" in $$parsedSource) {
             $$parsedSource["retries"] = $$createField5_0($$parsedSource["retries"]);
@@ -253,15 +294,18 @@ export class ToolTrace {
 }
 
 // Private type creation functions
-const $$createType0 = ToolTrace.createFrom;
+const $$createType0 = FileArtifact.createFrom;
 const $$createType1 = $Create.Array($$createType0);
-const $$createType2 = api$0.Result.createFrom;
-const $$createType3 = $Create.Nullable($$createType2);
-const $$createType4 = api$0.Config.createFrom;
-const $$createType5 = ToolRetryTrace.createFrom;
-const $$createType6 = $Create.Array($$createType5);
-const $$createType7 = $Create.Array($Create.Any);
-const $$createType8 = SubagentStep.createFrom;
+const $$createType2 = ToolTrace.createFrom;
+const $$createType3 = $Create.Array($$createType2);
+const $$createType4 = api$0.Result.createFrom;
+const $$createType5 = $Create.Nullable($$createType4);
+const $$createType6 = tools$0.FileChange.createFrom;
+const $$createType7 = api$0.Config.createFrom;
+const $$createType8 = ToolRetryTrace.createFrom;
 const $$createType9 = $Create.Array($$createType8);
-const $$createType10 = SubagentTrace.createFrom;
-const $$createType11 = $Create.Array($$createType10);
+const $$createType10 = $Create.Array($Create.Any);
+const $$createType11 = SubagentStep.createFrom;
+const $$createType12 = $Create.Array($$createType11);
+const $$createType13 = SubagentTrace.createFrom;
+const $$createType14 = $Create.Array($$createType13);

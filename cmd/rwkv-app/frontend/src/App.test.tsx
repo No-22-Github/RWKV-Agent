@@ -32,6 +32,8 @@ vi.mock('@wailsio/runtime', () => ({
 
 vi.mock('../bindings/github.com/no22/RWKV-Agent/cmd/rwkv-app/appservice', () => ({
   Bootstrap: vi.fn(),
+  FileChanges: vi.fn().mockResolvedValue([]),
+  ResolveFileChanges: vi.fn().mockResolvedValue([]),
   Status: vi.fn().mockResolvedValue({ state: 'idle', workspace: '/tmp/RWKV-Agent', hasApiKey: false, updatedAt: new Date().toISOString() }),
   Chat: vi.fn(),
   Regenerate: vi.fn(),
@@ -145,6 +147,8 @@ function switchToRemoteProvider() {
 
 beforeEach(() => {
   eventHandlers.clear()
+  vi.mocked(Backend.FileChanges).mockResolvedValue([])
+  vi.mocked(Backend.ResolveFileChanges).mockResolvedValue([])
   vi.mocked(Backend.Bootstrap).mockResolvedValue(bootstrap())
   vi.mocked(Backend.PreviewSystemPrompt).mockResolvedValue(new AgentPromptPreview({
     control: 'preview-prompt',

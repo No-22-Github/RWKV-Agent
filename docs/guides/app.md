@@ -181,6 +181,43 @@ Agents do not receive the delegation tool, so batches cannot recursively fan out
 
 Use **测试并获取模型** to make an authenticated `GET /v1/models` request. Select a returned model and use **连接 API** to configure Agent conversations.
 
+## File change review
+
+The App uses one just-bash OverlayFs per conversation, including when the bash
+capability is disabled. `bash`, `read_file`, `read_lines`, `list_files`,
+`search_text`, `data_query`, `write_file`, `replace_lines`, and `append_file`
+share that view. Child Agents share their parent's overlay. Writes never reach
+the workspace until the user confirms them in the file change panel.
+
+At the end of each turn (also after an error or stop), file cards and a compact,
+collapsible change summary appear below that response. The summary shows added
+and removed line counts, animates expansion and collapse, and supports individual
+or grouped save/discard actions. Use **查看改动** to open a diff directly.
+Open a file card to inspect HTML previews, code, or diffs in the right pane. The
+viewer lets you switch between the response's files and slides over the right edge without resizing the conversation or hiding
+navigation. It animates both opening and closing, supports Escape and clicking
+outside to dismiss, and respects reduced motion; narrow windows show it full
+screen. Directory decisions include their children; saving a new file also creates its staged parent directories. Binary
+and large files offer downloads of the exact original and proposed contents.
+
+The App checks both the reviewed snapshot and the current disk contents before
+applying a change. External edits cause a conflict instead of being overwritten.
+Unresolved changes remain in memory across turns. Resolve them before switching
+conversations, workspaces, connections, or regenerating a turn. Closing the App
+or losing the sidecar process discards unconfirmed changes. Read-only artifact
+snapshots and save/discard status remain attached to the response for later
+inspection; reopening a conversation never restores its pending workspace edits.
+Normal files use atomic replacement; applying a batch is not one filesystem
+transaction, and I/O failures can leave a partly applied
+batch with the remaining changes still awaiting review.
+
+The sidecar is now required for App workspace sessions, so desktop builds require
+Bun even when bash is disabled. API integrations can call `NewStagedSession`,
+`Session.FileChanges`, and `Session.ResolveFileChanges`; an API session enabling
+bash also shares an overlay across its file tools. Evaluation-only native file
+tool constructors retain their direct disk behavior unless supplied a staged
+`WorkspaceFS`.
+
 ## Development
 
 Regenerate Wails TypeScript bindings after changing `AppService` or public `api` types:

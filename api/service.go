@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/no22/RWKV-Agent/internal/agent"
+	assistanttools "github.com/no22/RWKV-Agent/internal/agent/tools"
 	"github.com/no22/RWKV-Agent/internal/agent/wire"
 	"github.com/no22/RWKV-Agent/internal/continuation/provider"
 	"github.com/no22/RWKV-Agent/internal/inference"
@@ -161,6 +162,9 @@ func (s *Service) PreviewAgentPrompt(config Config) (AgentPromptPreview, error) 
 	if err != nil {
 		return AgentPromptPreview{}, err
 	}
+	if workspace != "" {
+		config.TaskControl = strings.TrimSpace(config.TaskControl) + "\n\n" + stagedFileControl
+	}
 	options := sessionRunnerOptions(
 		config,
 		Status{Workspace: workspace},
@@ -184,6 +188,10 @@ func (s *Service) PreviewAgentPrompt(config Config) (AgentPromptPreview, error) 
 }
 
 func (s *Service) newSession(ctx context.Context, depth int) (*Session, error) {
+	return s.newSessionWithView(ctx, depth, nil)
+}
+
+func (s *Service) newSessionWithView(ctx context.Context, depth int, view *assistanttools.StagedWorkspace) (*Session, error) {
 	s.mu.RLock()
 	if s.closed {
 		s.mu.RUnlock()
@@ -200,7 +208,7 @@ func (s *Service) newSession(ctx context.Context, depth int) (*Session, error) {
 	if err != nil {
 		return nil, err
 	}
-	configured, err := newSessionAtDepth(s, generator, closer, workspace, status, depth)
+	configured, err := newSessionAtDepth(s, generator, closer, workspace, status, depth, view)
 	if err != nil {
 		_ = closer.Close()
 		return nil, err

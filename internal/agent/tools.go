@@ -25,6 +25,7 @@ const (
 )
 
 type workspace struct {
+	filesystem  WorkspaceFS
 	root        string
 	unavailable bool
 }
@@ -163,6 +164,14 @@ func (w *workspace) resolve(path string) (string, error) {
 	if path == "" {
 		path = "."
 	}
+	if w.filesystem != nil && strings.HasPrefix(filepath.ToSlash(path), "/workspace/") {
+		return w.resolveRelative(strings.TrimPrefix(filepath.ToSlash(path), "/workspace/"))
+	}
+	if w.filesystem != nil && filepath.IsAbs(path) {
+		if relative, err := filepath.Rel(w.root, path); err == nil && relative != ".." && !strings.HasPrefix(relative, ".."+string(filepath.Separator)) {
+			return w.resolveRelative(relative)
+		}
+	}
 	if filepath.IsAbs(path) || filepath.VolumeName(path) != "" {
 		// An absolute path that already points inside the workspace is accepted
 		// after the same containment check as any relative path. Symlinks are
@@ -171,7 +180,10 @@ func (w *workspace) resolve(path string) (string, error) {
 			if relative, err := filepath.Rel(w.root, resolved); err == nil &&
 				relative != ".." &&
 				!strings.HasPrefix(relative, ".."+string(filepath.Separator)) {
-				return resolved, nil
+				if w.filesystem != nil {
+					return "", fmt.Errorf("symlinks are not supported in staged workspaces")
+				}
+				return w.resolveRelative(relative)
 			}
 		}
 		candidates := w.absoluteCandidates(path)
@@ -180,7 +192,7 @@ func (w *workspace) resolve(path string) (string, error) {
 			if err != nil {
 				continue
 			}
-			if _, err := os.Lstat(resolved); err != nil {
+			if _, err := w.fs().Stat(resolved); err != nil {
 				continue
 			}
 			return resolved, nil
@@ -209,6 +221,25 @@ func (w *workspace) resolveRelative(path string) (string, error) {
 	clean := filepath.Clean(path)
 	if clean == ".." || strings.HasPrefix(clean, ".."+string(filepath.Separator)) {
 		return "", fmt.Errorf("path escapes the workspace")
+	}
+	if w.filesystem != nil {
+		// Match OverlayFs's default policy: never resolve a host symlink to an
+		// alias that bash itself would refuse to follow.
+		target := w.root
+		for _, component := range strings.Split(clean, string(filepath.Separator)) {
+			target = filepath.Join(target, component)
+			info, err := os.Lstat(target)
+			if os.IsNotExist(err) {
+				continue
+			}
+			if err != nil {
+				return "", err
+			}
+			if info.Mode()&os.ModeSymlink != 0 {
+				return "", fmt.Errorf("symlinks are not supported in staged workspaces")
+			}
+		}
+		return target, nil
 	}
 	target, err := filepath.EvalSymlinks(filepath.Join(w.root, clean))
 	if err != nil {
@@ -349,7 +380,7 @@ func (t *listFilesTool) Execute(ctx context.Context, raw json.RawMessage) (any, 
 	if err != nil {
 		return nil, err
 	}
-	info, err := os.Stat(target)
+	info, err := t.workspace.fs().Stat(target)
 	if err != nil {
 		return nil, t.workspace.relativizeError(err)
 	}
@@ -358,7 +389,7 @@ func (t *listFilesTool) Execute(ctx context.Context, raw json.RawMessage) (any, 
 	}
 	baseDepth := pathDepth(t.workspace.relative(target))
 	result := listFilesResult{Entries: make([]fileEntry, 0, args.MaxResults)}
-	err = filepath.WalkDir(target, func(path string, entry fs.DirEntry, walkErr error) error {
+	err = t.workspace.fs().WalkDir(target, func(path string, entry fs.DirEntry, walkErr error) error {
 		if walkErr != nil {
 			return walkErr
 		}
@@ -439,14 +470,14 @@ func (t *readFileTool) Execute(ctx context.Context, raw json.RawMessage) (any, e
 	if err != nil {
 		return nil, err
 	}
-	info, err := os.Stat(target)
+	info, err := t.workspace.fs().Stat(target)
 	if err != nil {
 		return nil, t.workspace.relativizeError(err)
 	}
 	if !info.Mode().IsRegular() {
 		return nil, fmt.Errorf("path is not a regular file")
 	}
-	handle, err := os.Open(target)
+	handle, err := t.workspace.fs().Open(target)
 	if err != nil {
 		return nil, t.workspace.relativizeError(err)
 	}
@@ -537,7 +568,7 @@ func (t *searchTextTool) Execute(ctx context.Context, raw json.RawMessage) (any,
 	if err != nil {
 		return nil, err
 	}
-	info, err := os.Stat(target)
+	info, err := t.workspace.fs().Stat(target)
 	if err != nil {
 		return nil, t.workspace.relativizeError(err)
 	}
@@ -559,7 +590,7 @@ func (t *searchTextTool) Execute(ctx context.Context, raw json.RawMessage) (any,
 		if err != nil || !value.Mode().IsRegular() || value.Size() > maxSearchFileBytes {
 			return nil
 		}
-		matches, binary, err := searchFile(path, args.Query, args.CaseSensitive, args.MaxResults-len(result.Matches))
+		matches, binary, err := searchFileWithFS(t.workspace.fs(), path, args.Query, args.CaseSensitive, args.MaxResults-len(result.Matches))
 		if err != nil || binary {
 			return err
 		}
@@ -582,7 +613,7 @@ func (t *searchTextTool) Execute(ctx context.Context, raw json.RawMessage) (any,
 			err = nil
 		}
 	} else {
-		err = filepath.WalkDir(target, func(path string, entry fs.DirEntry, walkErr error) error {
+		err = t.workspace.fs().WalkDir(target, func(path string, entry fs.DirEntry, walkErr error) error {
 			if walkErr != nil {
 				return walkErr
 			}
@@ -593,7 +624,11 @@ func (t *searchTextTool) Execute(ctx context.Context, raw json.RawMessage) (any,
 }
 
 func searchFile(path, query string, caseSensitive bool, limit int) ([]searchMatch, bool, error) {
-	handle, err := os.Open(path)
+	return searchFileWithFS(DiskWorkspaceFS{}, path, query, caseSensitive, limit)
+}
+
+func searchFileWithFS(view WorkspaceFS, path, query string, caseSensitive bool, limit int) ([]searchMatch, bool, error) {
+	handle, err := view.Open(path)
 	if err != nil {
 		return nil, false, err
 	}

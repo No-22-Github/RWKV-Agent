@@ -93,7 +93,15 @@ type StateUpload struct {
 // maxStateUploads bounds the registry; the oldest records are dropped first.
 const maxStateUploads = 200
 
+// FileArtifact is a read-only snapshot attached to a response. It never
+// restores pending filesystem writes when a conversation is reopened.
+type FileArtifact struct {
+	Change agentapi.FileChange `json:"change"`
+	Status string              `json:"status"`
+}
+
 type DisplayMessage struct {
+	Files      []FileArtifact   `json:"files,omitempty"`
 	ID         string           `json:"id"`
 	Role       string           `json:"role"`
 	Content    string           `json:"content"`

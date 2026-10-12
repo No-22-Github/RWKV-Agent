@@ -39,7 +39,11 @@ const (
 // FileEditTools returns the editing toolset for the requested form. The
 // workspace resolver is shared with the read-only workspace tools.
 func FileEditTools(root string, form FileEditForm) ([]agent.Tool, error) {
-	value, err := agent.NewWorkspaceResolver(root)
+	return FileEditToolsWithFS(root, form, nil)
+}
+
+func FileEditToolsWithFS(root string, form FileEditForm, view agent.WorkspaceFS) ([]agent.Tool, error) {
+	value, err := agent.NewWorkspaceResolverWithFS(root, view)
 	if err != nil {
 		return nil, err
 	}
@@ -140,7 +144,7 @@ func (t *readLinesTool) Execute(ctx context.Context, raw json.RawMessage) (any, 
 	if err != nil {
 		return nil, err
 	}
-	lines, err := readFileLines(target, fileEditMaxReadByte)
+	lines, err := readFileLinesWithFS(t.workspace.FS(), target, fileEditMaxReadByte)
 	if err != nil {
 		return nil, t.workspace.RelativizeError(err)
 	}
@@ -168,7 +172,11 @@ func (t *readLinesTool) Execute(ctx context.Context, raw json.RawMessage) (any, 
 }
 
 func readFileLines(target string, limit int64) ([]string, error) {
-	handle, err := os.Open(target)
+	return readFileLinesWithFS(agent.DiskWorkspaceFS{}, target, limit)
+}
+
+func readFileLinesWithFS(view agent.WorkspaceFS, target string, limit int64) ([]string, error) {
+	handle, err := view.Open(target)
 	if err != nil {
 		return nil, err
 	}
@@ -240,10 +248,10 @@ func (t *writeFileTool) Execute(ctx context.Context, raw json.RawMessage) (any, 
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	if err := os.MkdirAll(filepath.Dir(target), 0o755); err != nil {
+	if err := t.workspace.FS().MkdirAll(filepath.Dir(target), 0o755); err != nil {
 		return nil, t.workspace.RelativizeError(err)
 	}
-	if err := os.WriteFile(target, []byte(args.Content), 0o644); err != nil {
+	if err := t.workspace.FS().WriteFile(target, []byte(args.Content), 0o644); err != nil {
 		return nil, t.workspace.RelativizeError(err)
 	}
 	return map[string]any{"path": args.Path, "bytes": len(args.Content)}, nil
@@ -296,7 +304,7 @@ func (t *replaceLinesTool) Execute(ctx context.Context, raw json.RawMessage) (an
 	if err != nil {
 		return nil, err
 	}
-	lines, err := readFileLines(target, fileEditMaxReadByte)
+	lines, err := readFileLinesWithFS(t.workspace.FS(), target, fileEditMaxReadByte)
 	if err != nil {
 		return nil, t.workspace.RelativizeError(err)
 	}
@@ -312,7 +320,7 @@ func (t *replaceLinesTool) Execute(ctx context.Context, raw json.RawMessage) (an
 	}
 	updated := append(append([]string{}, lines[:args.StartLine-1]...), replacement...)
 	updated = append(updated, lines[args.EndLine:]...)
-	if err := writeFileLines(target, updated); err != nil {
+	if err := t.workspace.FS().WriteFile(target, []byte(strings.Join(updated, "\n")+"\n"), 0o644); err != nil {
 		return nil, t.workspace.RelativizeError(err)
 	}
 	return map[string]any{
@@ -367,12 +375,7 @@ func (t *appendFileTool) Execute(ctx context.Context, raw json.RawMessage) (any,
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
-	handle, err := os.OpenFile(target, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
-	if err != nil {
-		return nil, t.workspace.RelativizeError(err)
-	}
-	defer handle.Close()
-	if _, err := handle.WriteString(args.Content); err != nil {
+	if err := t.workspace.FS().AppendFile(target, []byte(args.Content)); err != nil {
 		return nil, t.workspace.RelativizeError(err)
 	}
 	return map[string]any{"path": args.Path, "appended_bytes": len(args.Content)}, nil

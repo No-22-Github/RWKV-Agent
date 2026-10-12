@@ -15,6 +15,9 @@ import { Call as $Call, CancellablePromise as $CancellablePromise, Create as $Cr
 import * as api$0 from "../../api/models.js";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore: Unused imports
+import * as tools$0 from "../../internal/agent/tools/models.js";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore: Unused imports
 import * as appstorage$0 from "../../internal/appstorage/models.js";
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -129,11 +132,21 @@ export function ExportTrajectory(content: string): $CancellablePromise<string> {
 }
 
 /**
+ * FileChanges returns pending changes for the active conversation, including
+ * changes left by interrupted or failed turns.
+ */
+export function FileChanges(): $CancellablePromise<api$0.FileChange[]> {
+    return $Call.ByID(2896379773).then(($result: any) => {
+        return $$createType4($result);
+    });
+}
+
+/**
  * ListRemoteModels verifies remote connectivity and returns model identifiers.
  */
 export function ListRemoteModels(config: api$0.Config): $CancellablePromise<api$0.RemoteModel[]> {
     return $Call.ByID(3365822742, config).then(($result: any) => {
-        return $$createType4($result);
+        return $$createType6($result);
     });
 }
 
@@ -142,7 +155,7 @@ export function ListRemoteModels(config: api$0.Config): $CancellablePromise<api$
  */
 export function ListStates(config: api$0.Config): $CancellablePromise<$models.StateListing> {
     return $Call.ByID(260521560, config).then(($result: any) => {
-        return $$createType5($result);
+        return $$createType7($result);
     });
 }
 
@@ -157,7 +170,7 @@ export function NewConversation(): $CancellablePromise<void> {
  */
 export function OpenConversation(id: string): $CancellablePromise<$models.ConversationView> {
     return $Call.ByID(2245178561, id).then(($result: any) => {
-        return $$createType6($result);
+        return $$createType8($result);
     });
 }
 
@@ -177,7 +190,7 @@ export function OpenWorkspace(path: string): $CancellablePromise<$models.AppBoot
  */
 export function PreviewSystemPrompt(config: api$0.Config): $CancellablePromise<api$0.AgentPromptPreview> {
     return $Call.ByID(766505949, config).then(($result: any) => {
-        return $$createType7($result);
+        return $$createType9($result);
     });
 }
 
@@ -198,12 +211,18 @@ export function RenameConversation(id: string, title: string): $CancellablePromi
     return $Call.ByID(2911493027, id, title);
 }
 
+export function ResolveFileChanges(reviewed: api$0.FileChange[], accept: boolean): $CancellablePromise<api$0.FileChange[]> {
+    return $Call.ByID(1812234221, reviewed, accept).then(($result: any) => {
+        return $$createType4($result);
+    });
+}
+
 /**
  * SaveProvider 只保存编辑草稿，不连接服务，也不替换当前会话使用的 provider。
  */
 export function SaveProvider(id: string, label: string, config: api$0.Config): $CancellablePromise<appstorage$0.SavedProvider> {
     return $Call.ByID(5308806, id, label, config).then(($result: any) => {
-        return $$createType8($result);
+        return $$createType10($result);
     });
 }
 
@@ -230,7 +249,7 @@ export function Status(): $CancellablePromise<api$0.Status> {
  */
 export function UploadState(config: api$0.Config, path: string): $CancellablePromise<$models.StateEntry> {
     return $Call.ByID(320817040, config, path).then(($result: any) => {
-        return $$createType9($result);
+        return $$createType11($result);
     });
 }
 
@@ -238,10 +257,12 @@ export function UploadState(config: api$0.Config, path: string): $CancellablePro
 const $$createType0 = api$0.Status.createFrom;
 const $$createType1 = $models.AppBootstrap.createFrom;
 const $$createType2 = api$0.Result.createFrom;
-const $$createType3 = api$0.RemoteModel.createFrom;
+const $$createType3 = tools$0.FileChange.createFrom;
 const $$createType4 = $Create.Array($$createType3);
-const $$createType5 = $models.StateListing.createFrom;
-const $$createType6 = $models.ConversationView.createFrom;
-const $$createType7 = api$0.AgentPromptPreview.createFrom;
-const $$createType8 = appstorage$0.SavedProvider.createFrom;
-const $$createType9 = $models.StateEntry.createFrom;
+const $$createType5 = api$0.RemoteModel.createFrom;
+const $$createType6 = $Create.Array($$createType5);
+const $$createType7 = $models.StateListing.createFrom;
+const $$createType8 = $models.ConversationView.createFrom;
+const $$createType9 = api$0.AgentPromptPreview.createFrom;
+const $$createType10 = appstorage$0.SavedProvider.createFrom;
+const $$createType11 = $models.StateEntry.createFrom;

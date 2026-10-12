@@ -60,9 +60,10 @@ type RateFact struct {
 }
 
 type Options struct {
-	Provider  Provider
-	Clock     Clock
-	Workspace string
+	Provider   Provider
+	Clock      Clock
+	Workspace  string
+	Filesystem agent.WorkspaceFS
 }
 
 type systemClock struct{}
@@ -87,7 +88,7 @@ func AssistantTools(options Options) ([]agent.Tool, error) {
 // general-purpose Agent. They are shared by the interactive Agent and the
 // Go-native Primitive Bench profile.
 func CoreTools(options Options) ([]agent.Tool, error) {
-	resolver, err := agent.NewWorkspaceResolver(options.Workspace)
+	resolver, err := agent.NewWorkspaceResolverWithFS(options.Workspace, options.Filesystem)
 	if err != nil {
 		return nil, err
 	}
@@ -490,7 +491,7 @@ func (t *dataQueryTool) Execute(ctx context.Context, raw json.RawMessage) (any, 
 	if err != nil {
 		return nil, invalidArguments("path: %v", err)
 	}
-	rows, err := readStructuredRows(ctx, target)
+	rows, err := readStructuredRowsWithFS(ctx, t.workspace.FS(), target)
 	if err != nil {
 		return nil, t.workspace.RelativizeError(err)
 	}
@@ -768,14 +769,18 @@ func dataNumber(value any) (float64, bool) {
 }
 
 func readStructuredRows(ctx context.Context, target string) ([]map[string]any, error) {
-	info, err := os.Stat(target)
+	return readStructuredRowsWithFS(ctx, agent.DiskWorkspaceFS{}, target)
+}
+
+func readStructuredRowsWithFS(ctx context.Context, view agent.WorkspaceFS, target string) ([]map[string]any, error) {
+	info, err := view.Stat(target)
 	if err != nil {
 		return nil, err
 	}
 	paths := []string{target}
 	if info.IsDir() {
 		paths = paths[:0]
-		err = filepath.WalkDir(target, func(path string, entry os.DirEntry, walkErr error) error {
+		err = view.WalkDir(target, func(path string, entry os.DirEntry, walkErr error) error {
 			if walkErr != nil {
 				return walkErr
 			}
@@ -798,7 +803,7 @@ func readStructuredRows(ctx context.Context, target string) ([]map[string]any, e
 	sort.Strings(paths)
 	var result []map[string]any
 	for _, path := range paths {
-		rows, err := readStructuredFile(path)
+		rows, err := readStructuredFileWithFS(view, path)
 		if err != nil {
 			return nil, fmt.Errorf("read %s: %w", filepath.Base(path), err)
 		}
@@ -808,7 +813,16 @@ func readStructuredRows(ctx context.Context, target string) ([]map[string]any, e
 }
 
 func readStructuredFile(path string) ([]map[string]any, error) {
-	data, err := os.ReadFile(path)
+	return readStructuredFileWithFS(agent.DiskWorkspaceFS{}, path)
+}
+
+func readStructuredFileWithFS(view agent.WorkspaceFS, path string) ([]map[string]any, error) {
+	handle, err := view.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	defer handle.Close()
+	data, err := io.ReadAll(handle)
 	if err != nil {
 		return nil, err
 	}

@@ -166,6 +166,9 @@ func (s *AppService) ConfigureProvider(ctx context.Context, id string, label str
 }
 
 func (s *AppService) configureProvider(ctx context.Context, id string, label string, config agentapi.Config) (agentapi.Status, error) {
+	if err := s.requireResolvedChanges(); err != nil {
+		return agentapi.Status{}, err
+	}
 	// 先确认 State 还在服务器上，失败时保留当前运行连接不动。
 	if err := s.verifyStateAvailable(ctx, config); err != nil {
 		return s.currentService().Status(), err
@@ -298,6 +301,9 @@ func (s *AppService) EditLast(ctx context.Context, prompt string) (agentapi.Resu
 func (s *AppService) rerunLastTurn(ctx context.Context, replacement string) (agentapi.Result, error) {
 	s.operation.Lock()
 	defer s.operation.Unlock()
+	if err := s.requireResolvedChanges(); err != nil {
+		return agentapi.Result{}, err
+	}
 	s.mu.Lock()
 	original := s.active
 	s.mu.Unlock()
@@ -365,6 +371,15 @@ func rollbackLastTurn(value appstorage.Conversation) (appstorage.Conversation, s
 }
 
 func (s *AppService) runTurn(ctx context.Context, session *agentapi.Session, prompt string) (agentapi.Result, error) {
+	defer func() {
+		changes, e := session.FileChanges()
+		if e == nil {
+			s.emit("workspace:changes", changes)
+		} else {
+			s.emit("workspace:changes-error", e.Error())
+		}
+	}()
+	beforeChanges, _ := session.FileChanges()
 	turnStarted := time.Now().UTC()
 	result, err := session.RunWithObserver(ctx, prompt, func(event agentapi.Event) {
 		s.emit("agent:event", event)
@@ -384,7 +399,8 @@ func (s *AppService) runTurn(ctx context.Context, session *agentapi.Session, pro
 		}
 		s.emit("agent:error", err.Error())
 	}
-	if persistErr := s.persistTurn(session, prompt, role, content, result, turnStarted); persistErr != nil {
+	afterChanges, _ := session.FileChanges()
+	if persistErr := s.persistTurn(session, prompt, role, content, result, turnStarted, turnFileArtifacts(beforeChanges, afterChanges)); persistErr != nil {
 		if err != nil {
 			return result, errors.Join(err, persistErr)
 		}
@@ -392,7 +408,7 @@ func (s *AppService) runTurn(ctx context.Context, session *agentapi.Session, pro
 	}
 	return result, err
 }
-func (s *AppService) persistTurn(session *agentapi.Session, prompt, role, content string, result agentapi.Result, turnStarted time.Time) error {
+func (s *AppService) persistTurn(session *agentapi.Session, prompt, role, content string, result agentapi.Result, turnStarted time.Time, artifactSets ...[]appstorage.FileArtifact) error {
 	s.mu.Lock()
 	active := s.active
 	workspace := s.service.Status().Workspace
@@ -404,6 +420,24 @@ func (s *AppService) persistTurn(session *agentapi.Session, prompt, role, conten
 		}
 		active = &created
 	}
+	var files []appstorage.FileArtifact
+	if len(artifactSets) > 0 {
+		files = artifactSets[0]
+	}
+	// Older snapshots stay visible, but only the latest proposal can be applied.
+	for i := range active.Messages {
+		for j := range active.Messages[i].Files {
+			previous := &active.Messages[i].Files[j]
+			if previous.Status != "pending" {
+				continue
+			}
+			for _, file := range files {
+				if file.Change.Path == previous.Change.Path && file.Change != previous.Change {
+					previous.Status = "superseded"
+				}
+			}
+		}
+	}
 	active.Messages = append(active.Messages,
 		appstorage.DisplayMessage{
 			ID: messageID(active.ID, len(active.Messages)), Role: "user",
@@ -411,6 +445,7 @@ func (s *AppService) persistTurn(session *agentapi.Session, prompt, role, conten
 		},
 		appstorage.DisplayMessage{
 			ID: messageID(active.ID, len(active.Messages)+1), Role: role, Content: content,
+			Files:      files,
 			Meta:       turnMeta(result, s.runtimeModelName(), s.runtimeStateID()),
 			Trajectory: storedToolTrace(result),
 			Trace:      &result,
@@ -475,6 +510,9 @@ func (s *AppService) runtimeStateID() string {
 func (s *AppService) NewConversation() error {
 	s.operation.Lock()
 	defer s.operation.Unlock()
+	if err := s.requireResolvedChanges(); err != nil {
+		return err
+	}
 	s.mu.Lock()
 	if s.closed {
 		s.mu.Unlock()
@@ -501,6 +539,9 @@ func (s *AppService) NewConversation() error {
 func (s *AppService) OpenConversation(id string) (ConversationView, error) {
 	s.operation.Lock()
 	defer s.operation.Unlock()
+	if err := s.requireResolvedChanges(); err != nil {
+		return ConversationView{}, err
+	}
 	value, err := s.storage.LoadConversation(id)
 	if err != nil {
 		return ConversationView{}, err
@@ -547,6 +588,13 @@ func (s *AppService) DeleteConversation(id string) error {
 	defer s.operation.Unlock()
 	s.mu.Lock()
 	active := s.active != nil && s.active.ID == id
+	s.mu.Unlock()
+	if active {
+		if err := s.requireResolvedChanges(); err != nil {
+			return err
+		}
+	}
+	s.mu.Lock()
 	workspace := s.service.Status().Workspace
 	var old *agentapi.Session
 	if active {
@@ -595,6 +643,9 @@ func (s *AppService) ChooseWorkspace() (AppBootstrap, error) {
 func (s *AppService) OpenWorkspace(path string) (AppBootstrap, error) {
 	s.operation.Lock()
 	defer s.operation.Unlock()
+	if err := s.requireResolvedChanges(); err != nil {
+		return AppBootstrap{}, err
+	}
 	s.mu.Lock()
 	if s.closed {
 		s.mu.Unlock()
@@ -691,7 +742,7 @@ func (s *AppService) ensureSession(ctx context.Context) (*agentapi.Session, erro
 	service := s.service
 	active := s.active
 	s.mu.Unlock()
-	created, err := service.NewSession(ctx)
+	created, err := service.NewStagedSession(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -830,7 +881,7 @@ func conversationView(value appstorage.Conversation) ConversationView {
 	for _, message := range value.Messages {
 		messages = append(messages, DisplayMessage{
 			ID: message.ID, Role: message.Role, Content: message.Content, Meta: message.Meta,
-			Trajectory: message.Trajectory, Trace: message.Trace, CreatedAt: message.CreatedAt,
+			Trajectory: message.Trajectory, Trace: message.Trace, CreatedAt: message.CreatedAt, Files: message.Files,
 		})
 	}
 	return ConversationView{

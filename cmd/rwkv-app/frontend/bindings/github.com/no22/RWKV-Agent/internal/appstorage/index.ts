@@ -3,6 +3,7 @@
 
 export {
     DisplayMessage,
+    FileArtifact,
     SavedProvider,
     SubagentStep,
     SubagentTrace,

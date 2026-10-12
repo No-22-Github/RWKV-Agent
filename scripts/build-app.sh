@@ -86,12 +86,11 @@ done
 
 # The bash tool's sidecar (native/justbash) is a Bun single-file binary; it
 # sits beside the executables, where tools.ResolveBashSidecar looks first.
-if command -v bun >/dev/null 2>&1; then
-  "$repo_root/scripts/build-justbash.sh" "$dist_dir/justbash-sidecar" >/dev/null
-else
-  echo "warning: bun not found; the bash tool will be unavailable in this build" >&2
-  rm -f "$dist_dir/justbash-sidecar"
+if ! command -v bun >/dev/null 2>&1; then
+  echo "Required workspace overlay build tool is missing: bun" >&2
+  exit 1
 fi
+"$repo_root/scripts/build-justbash.sh" "$dist_dir/justbash-sidecar" >/dev/null
 
 echo "[5/5] Packaging the macOS application bundle..."
 rm -rf "$app_bundle"

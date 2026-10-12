@@ -1,121 +1,148 @@
-// just-bash sidecar for the Go `bash` tool (internal/agent/tools/bash.go).
-//
-// Protocol: one JSON request per stdin line, one JSON response per stdout
-// line, matched by id. Requests may overlap; each runs on the shell bound to
-// its workspace root.
-//
-//   request  {"id":1,"root":"/abs/workspace","command":"ls","timeout_ms":20000}
-//   response {"id":1,"stdout":"...","stderr":"...","exit_code":0}
-//            {"id":1,"error":"..."}                      (protocol failure)
-//            {"id":1,"close":true} closes the shell bound to root.
-//
-// Filesystem: the workspace root is mounted read-write at /workspace (the
-// cwd of every command); everything else, /tmp included, is in memory, so a
-// command can neither read nor write outside the workspace.
-//
-// Compiled with `bun build --compile` (scripts/build-justbash.sh). Under Bun
-// the defense-in-depth layer must stay off: its global patching makes the
-// first file access inside exec fail. The filesystem layer above is the
-// isolation boundary; the layer is only a secondary guard upstream.
-import { Bash, getCommandNames, InMemoryFs, MountableFs, ReadWriteFs } from "just-bash";
-
+// A session owns one copy-on-write workspace. No operation writes host files.
+import { Bash, getCommandNames, OverlayFs } from "just-bash";
+import { posix } from "node:path";
 const mountPoint = "/workspace";
-
-// sqlite3 needs a worker file that a single-file binary cannot ship;
-// python3 / js-exec are off unless enabled explicitly in the options.
 const commands = getCommandNames().filter((name) => name !== "sqlite3");
-
-type Request = { id: number; root?: string; command?: string; timeout_ms?: number; close?: boolean };
-
-// Shells are cached per root so /tmp survives between calls of one session;
-// the oldest is dropped beyond maxShells (Map keeps insertion order).
-const maxShells = 64;
-const shells = new Map<string, Bash>();
-
-function shellFor(root: string): Bash {
-  let shell = shells.get(root);
-  if (shell) {
-    shells.delete(root);
-  } else {
-    const fs = new MountableFs({
-      base: new InMemoryFs(),
-      mounts: [{ mountPoint, filesystem: new ReadWriteFs({ root }) }],
-    });
-    shell = new Bash({
-      fs,
-      cwd: mountPoint,
-      env: { HOME: mountPoint, TZ: "Asia/Shanghai" },
-      commands,
-      defenseInDepth: false,
-    });
+type Snapshot = { kind: "file" | "directory" | "missing"; data?: string; mode?: number };
+type Change = { path: string; before: Snapshot; after: Snapshot };
+type Request = { id: number; root: string; session?: string; op?: string; path?: string; data?: string; paths?: string[]; command?: string; timeout_ms?: number; close?: boolean; mode?: number };
+class Workspace {
+  overlay: OverlayFs;
+  shell: Bash;
+  baseline = new Map<string, Snapshot>();
+  baselineBytes = 0;
+  revision = 0;
+  constructor(readonly root: string) { this.initialize(); }
+  initialize() {
+    this.overlay = new OverlayFs({ root: this.root, mountPoint, maxMemoryBytes: 16 * 1024 * 1024 });
+    // Observe primitive mutations, including those called by cp/mv/append/link.
+    for (const name of ["writeFile", "mkdir", "rm", "chmod", "utimes", "createExclusive", "symlink", "link", "cp", "mv", "appendFile"]) {
+      const original = (this.overlay as any)[name].bind(this.overlay);
+      (this.overlay as any)[name] = async (...args: any[]) => {
+        const paths = name === "mv" ? [args[0], args[1]] : name === "cp" || name === "link" ? [args[1]] : name === "symlink" ? [args[1]] : [args[0]];
+        if ((name === "rm" || name === "mv") && posix.normalize(args[0]) === mountPoint) throw new Error("cannot remove or move workspace root");
+        const recursive = name === "rm" || name === "mv" || name === "cp";
+        for (const path of paths) await this.remember(path, recursive);
+        const result = await original(...args);
+        if (name === "mv" || name === "cp") for (const path of paths) await this.remember(path, true);
+        if (paths.some(path => path === mountPoint || path.startsWith(mountPoint + "/"))) this.revision++;
+        return result;
+      };
+    }
+    const fs = this.overlay;
+    this.shell = new Bash({ fs, cwd: mountPoint, env: { HOME: mountPoint, TZ: "Asia/Shanghai" }, commands, defenseInDepth: false });
   }
-  shells.set(root, shell);
-  if (shells.size > maxShells) shells.delete(shells.keys().next().value!);
-  return shell;
+  path(path = ".") {
+    const result = posix.resolve(mountPoint, path);
+    if (result !== mountPoint && !result.startsWith(mountPoint + "/")) throw new Error("path escapes workspace");
+    return result;
+  }
+  async snapshot(fs: OverlayFs, path: string): Promise<Snapshot> {
+    if (!(await fs.exists(path))) return { kind: "missing" };
+    const stat = await fs.lstat(path);
+    if (stat.isSymbolicLink) throw new Error("symlinks are not supported in staged workspaces");
+    if (stat.isDirectory) return { kind: "directory", mode: stat.mode & 0o777 };
+    if (!stat.isFile) throw new Error("unsupported workspace entry");
+    return { kind: "file", data: Buffer.from(await fs.readFileBuffer(path)).toString("base64"), mode: stat.mode & 0o777 };
+  }
+  async remember(path: string, recursive = false) {
+    path = posix.normalize(path);
+    if (path !== mountPoint && !path.startsWith(mountPoint + "/")) return;
+    const disk = new OverlayFs({ root: this.root, mountPoint, readOnly: true });
+    const capture = async (p: string) => {
+      if (p === mountPoint) return;
+      if (!this.baseline.has(p)) {
+        if (this.baseline.size >= 10000) throw new Error("staged path limit exceeded; review existing changes first");
+        const value = await this.snapshot(disk, p);
+        const size = value.data?.length || 0;
+        if (this.baselineBytes + size > 24 * 1024 * 1024) throw new Error("staged change baseline limit exceeded; review existing changes first");
+        this.baseline.set(p, value); this.baselineBytes += size;
+      }
+      if (recursive && (await this.overlay.exists(p)) && (await this.overlay.lstat(p)).isDirectory)
+        for (const child of await this.overlay.readdir(p)) await capture(posix.join(p, child));
+    };
+    await capture(path);
+    for (let parent = posix.dirname(path); parent !== mountPoint && parent.startsWith(mountPoint + "/"); parent = posix.dirname(parent)) {
+      if (!this.baseline.has(parent)) this.baseline.set(parent, await this.snapshot(disk, parent));
+    }
+  }
+  async changes(): Promise<Change[]> {
+    const result: Change[] = [];
+    for (const [path, before] of this.baseline) {
+      const after = await this.snapshot(this.overlay, path);
+      if (JSON.stringify(before) !== JSON.stringify(after)) result.push({ path: posix.relative(mountPoint, path), before, after });
+    }
+    return result.sort((a, b) => a.path.localeCompare(b.path));
+  }
+  async forget(paths: string[]): Promise<Workspace> {
+    const remaining = (await this.changes()).filter(c => !paths.includes(c.path));
+    // Build the replacement separately. A replay failure leaves the original
+    // overlay intact, including every unresolved file's original baseline.
+    const replacement = new Workspace(this.root);
+    for (const c of remaining.filter(c => c.after.kind === "missing").sort((a,b) => b.path.length-a.path.length))
+      await replacement.overlay.rm(replacement.path(c.path), { recursive: true, force: true });
+    for (const c of remaining.filter(c => c.after.kind !== "missing").sort((a,b) => a.path.length-b.path.length)) {
+      const path = replacement.path(c.path);
+      if (c.after.kind === "directory") await replacement.overlay.mkdir(path, { recursive: true });
+      else { await replacement.overlay.mkdir(posix.dirname(path), { recursive: true }); await replacement.overlay.writeFile(path, Buffer.from(c.after.data!, "base64")); }
+      if (c.after.mode !== undefined) await replacement.overlay.chmod(path, c.after.mode);
+    }
+    replacement.baseline = new Map(remaining.map(c => [replacement.path(c.path), c.before]));
+    replacement.baselineBytes = remaining.reduce((sum, c) => sum + (c.before.data?.length || 0), 0);
+    replacement.revision = this.revision + 1;
+    return replacement;
+  }
 }
-
-// Commands excluded above report a bundle-specific hint upstream; the model
-// should see the ordinary shell message instead.
-const unavailable = /^bash: ([^:\n]+): command not available in browser environments\.[^\n]*$/gm;
-
-function reply(payload: Record<string, unknown>) {
-  process.stdout.write(JSON.stringify(payload) + "\n");
-}
-
-async function handle(request: Request) {
-  const { id } = request;
-  if (!request.root || !request.root.startsWith("/")) {
-    reply({ id, error: "root must be an absolute path" });
-    return;
-  }
-  if (request.close) {
-    shells.delete(request.root);
-    reply({ id, close: true });
-    return;
-  }
-  if (typeof request.command !== "string") {
-    reply({ id, error: "command is required" });
-    return;
-  }
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), request.timeout_ms ?? 20000);
+const workspaces = new Map<string, Workspace>();
+const queues = new Map<string, Promise<void>>();
+function reply(payload: object) { process.stdout.write(JSON.stringify(payload) + "\n"); }
+async function handle(r: Request) {
+  const key = r.session || r.root;
   try {
-    const result = await shellFor(request.root).exec(request.command, { signal: controller.signal });
-    const stderr = result.stderr.replace(unavailable, "bash: $1: command not found");
-    reply({ id, stdout: result.stdout, stderr, exit_code: result.exitCode });
-  } catch (error) {
-    reply({ id, error: String((error as Error)?.message ?? error) });
-  } finally {
-    clearTimeout(timer);
-  }
+    if (!r.root?.startsWith("/")) throw new Error("root must be absolute");
+    if (r.close) { workspaces.delete(key); reply({ id: r.id }); return; }
+    let w = workspaces.get(key);
+    if (r.op === "init") { if (!w) { w = new Workspace(r.root); workspaces.set(key, w); } }
+    else if (!w && r.session) throw new Error("staged session lost; restart the app (pending changes were not written to disk)");
+    else if (!w) { w = new Workspace(r.root); workspaces.set(key, w); }
+    if (w!.root !== r.root) throw new Error("session workspace mismatch");
+    const path = w!.path(r.path);
+    let result: any = {};
+    switch (r.op) {
+      case "init": break;
+      case "read": result.data = Buffer.from(await w!.overlay.readFileBuffer(path)).toString("base64"); break;
+      case "stat": { const s = await w!.overlay.lstat(path); result.stat = { directory: s.isDirectory, symlink: s.isSymbolicLink, size: s.size, mode: s.mode, mtime: s.mtime.toISOString() }; break; }
+      case "list": result.names = await w!.overlay.readdir(path); break;
+      case "write": await w!.overlay.writeFile(path, Buffer.from(r.data!, "base64")); break;
+      case "append": await w!.overlay.appendFile(path, Buffer.from(r.data!, "base64")); break;
+      case "mkdir": await w!.overlay.mkdir(path, { recursive: true }); break;
+      case "changes": result.changes = await w!.changes(); break;
+      case "forget": w = await w!.forget(r.paths || []); workspaces.set(key, w); break;
+      default: {
+        if (typeof r.command !== "string") throw new Error("command required");
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), r.timeout_ms ?? 20000);
+        try { const out = await w!.shell.exec(r.command, { signal: controller.signal }); result = { stdout: out.stdout, stderr: out.stderr.replace(/^bash: ([^:\n]+): command not available in browser environments\.[^\n]*$/gm, "bash: $1: command not found"), exit_code: out.exitCode }; }
+        finally { clearTimeout(timer); }
+      }
+    }
+    reply({ id: r.id, ...result, revision: w!.revision });
+  } catch (error) { reply({ id: r.id, error: String((error as Error)?.message ?? error) }); }
 }
-
 let buffered = "";
-let pending = 0;
-let ended = false;
 process.stdin.setEncoding("utf8");
 process.stdin.on("data", (chunk: string) => {
   buffered += chunk;
   let newline: number;
   while ((newline = buffered.indexOf("\n")) >= 0) {
-    const line = buffered.slice(0, newline).trim();
-    buffered = buffered.slice(newline + 1);
+    const line = buffered.slice(0, newline).trim(); buffered = buffered.slice(newline + 1);
     if (!line) continue;
-    let request: Request;
-    try {
-      request = JSON.parse(line);
-    } catch {
-      reply({ id: 0, error: "malformed request line" });
-      continue;
-    }
-    pending++;
-    void handle(request).finally(() => {
-      pending--;
-      if (ended && pending === 0) process.exit(0);
-    });
+    let r: Request;
+    try { r = JSON.parse(line); } catch { reply({ id: 0, error: "malformed request" }); continue; }
+    const key = r.session || r.root;
+    const next = (queues.get(key) || Promise.resolve()).then(() => handle(r));
+    queues.set(key, next);
+    void next.finally(() => { if (queues.get(key) === next) queues.delete(key); });
   }
 });
-process.stdin.on("end", () => {
-  ended = true;
-  if (pending === 0) process.exit(0);
-});
+process.stdin.on("end", () => { void Promise.all(queues.values()).then(() => process.exit(0)); });
