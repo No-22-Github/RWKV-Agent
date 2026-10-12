@@ -1487,3 +1487,7 @@
 {"case_id": "doc-9207--p1", "reason": "final answer uses backticks (markdown); also opens with DONE (templated opening over 1/3)", "batch": "b12h"}
 {"case_id": "doc-9218--p2", "reason": "final answer uses backticks (markdown)", "batch": "b12h"}
 {"case_id": "fs-9205--p1", "reason": "templated DONE-first opening above 1/3 of paths; the sibling path p2 is kept", "batch": "b12h"}
+{"case_id": "tab-9257--p1", "reason": "终答用了反引号", "batch": "b12j"}
+{"case_id": "tab-9246--p2", "reason": "终答只有裸数字，与 p1 同模板（裸数字开头占比超 1/3）", "batch": "b12j"}
+{"case_id": "tab-9256--p2", "reason": "终答只有裸数字，与 p1 同模板", "batch": "b12j"}
+{"case_id": "tab-9260--p2", "reason": "终答只有裸数字，与 p1 同模板", "batch": "b12j"}
