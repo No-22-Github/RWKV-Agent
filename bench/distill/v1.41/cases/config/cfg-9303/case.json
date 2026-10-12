@@ -1,0 +1,71 @@
+{
+  "id": "cfg-9303",
+  "description": "Appends .env.local to the .gitignore of four packages while a synced vendor fork keeps its file and an existing .env line is not the same entry. DISTILL-CANARY-17e70a84",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-cfg-b12l-gitignoreenv-01",
+    "ref_calls": 2,
+    "fixture_bytes": 337,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "packages/core/.gitignore": "node_modules/\ndist/\ncoverage/\n",
+    "packages/web/.gitignore": "node_modules/\ndist/\n*.log\n.env\n",
+    "packages/cli/.gitignore": "node_modules/\ndist/\ncoverage/\n",
+    "packages/docs/.gitignore": "node_modules/\ndist/\n*.log\n",
+    "packages/vendor-fork/.gitignore": "node_modules/\ndist/\n.cache/\n",
+    "packages/NOTES.md": "# Packages\n\nvendor-fork is synced from upstream and its .gitignore must stay byte-identical.\n.env is the committed-template env file; .env.local is the personal override that must be ignored.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Add a new line `.env.local` at the end of every package's .gitignore under packages. packages/NOTES.md says which one must stay as it is. Reply DONE when finished.",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "packages/core/.gitignore": {
+        "equals": "node_modules/\ndist/\ncoverage/\n.env.local\n"
+      },
+      "packages/web/.gitignore": {
+        "equals": "node_modules/\ndist/\n*.log\n.env\n.env.local\n"
+      },
+      "packages/cli/.gitignore": {
+        "equals": "node_modules/\ndist/\ncoverage/\n.env.local\n"
+      },
+      "packages/docs/.gitignore": {
+        "equals": "node_modules/\ndist/\n*.log\n.env.local\n"
+      },
+      "packages/vendor-fork/.gitignore": {
+        "unchanged": true
+      },
+      "packages/NOTES.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

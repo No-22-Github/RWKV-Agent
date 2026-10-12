@@ -1,0 +1,73 @@
+{
+  "id": "scr-9320",
+  "description": "Renames the shell variable LOG to LOG_FILE in four scripts while a vendored library and the LOGDIR and LOG_LEVEL variables stay. DISTILL-CANARY-a1b823d8",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "fix_output",
+    "traps": [
+      "TR-READONLY",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null,
+      "TR-DECOY": "LOGDIR"
+    },
+    "axes": [
+      "CON",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-scr-b12l-varrename-01",
+    "ref_calls": 2,
+    "fixture_bytes": 804,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "ops/rotate.sh": "#!/bin/bash\nLOG=/var/log/ops.log\nLOGDIR=/var/log/ops\necho \"$name begin\" >> \"$LOG\"\necho \"level=${LOG_LEVEL}\" >> \"$LOG\"\nls \"$LOGDIR\" >> \"$LOG\"\n",
+    "ops/ship.sh": "#!/bin/bash\nLOG=/var/log/ops.log\nLOGDIR=/var/log/ops\necho \"$name begin\" >> \"$LOG\"\necho \"level=${LOG_LEVEL}\" >> \"$LOG\"\nls \"$LOGDIR\" >> \"$LOG\"\n",
+    "ops/audit.sh": "#!/bin/bash\nLOG=/var/log/ops.log\nLOGDIR=/var/log/ops\necho \"$name begin\" >> \"$LOG\"\necho \"level=${LOG_LEVEL}\" >> \"$LOG\"\nls \"$LOGDIR\" >> \"$LOG\"\n",
+    "ops/prune.sh": "#!/bin/bash\nLOG=/var/log/ops.log\nLOGDIR=/var/log/ops\necho \"$name begin\" >> \"$LOG\"\necho \"level=${LOG_LEVEL}\" >> \"$LOG\"\nls \"$LOGDIR\" >> \"$LOG\"\n",
+    "ops/lib/vendor-logger.sh": "#!/bin/bash\necho \"x\" >> \"$LOG\"\n",
+    "ops/NOTES.md": "# Ops scripts\n\nThe variable LOG (the log file path) is renamed to LOG_FILE in our four scripts.\nLOGDIR and LOG_LEVEL are different variables. lib/vendor-logger.sh is vendored and expects LOG: do not touch it.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Rename the shell variable LOG to LOG_FILE in the scripts under ops (the assignment and every use). ops/NOTES.md lists what must not change. Reply DONE when finished.",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "ops/rotate.sh": {
+        "equals": "#!/bin/bash\nLOG_FILE=/var/log/ops.log\nLOGDIR=/var/log/ops\necho \"$name begin\" >> \"$LOG_FILE\"\necho \"level=${LOG_LEVEL}\" >> \"$LOG_FILE\"\nls \"$LOGDIR\" >> \"$LOG_FILE\"\n"
+      },
+      "ops/ship.sh": {
+        "equals": "#!/bin/bash\nLOG_FILE=/var/log/ops.log\nLOGDIR=/var/log/ops\necho \"$name begin\" >> \"$LOG_FILE\"\necho \"level=${LOG_LEVEL}\" >> \"$LOG_FILE\"\nls \"$LOGDIR\" >> \"$LOG_FILE\"\n"
+      },
+      "ops/audit.sh": {
+        "equals": "#!/bin/bash\nLOG_FILE=/var/log/ops.log\nLOGDIR=/var/log/ops\necho \"$name begin\" >> \"$LOG_FILE\"\necho \"level=${LOG_LEVEL}\" >> \"$LOG_FILE\"\nls \"$LOGDIR\" >> \"$LOG_FILE\"\n"
+      },
+      "ops/prune.sh": {
+        "equals": "#!/bin/bash\nLOG_FILE=/var/log/ops.log\nLOGDIR=/var/log/ops\necho \"$name begin\" >> \"$LOG_FILE\"\necho \"level=${LOG_LEVEL}\" >> \"$LOG_FILE\"\nls \"$LOGDIR\" >> \"$LOG_FILE\"\n"
+      },
+      "ops/lib/vendor-logger.sh": {
+        "unchanged": true
+      },
+      "ops/NOTES.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

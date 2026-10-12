@@ -1,0 +1,73 @@
+{
+  "id": "doc-9317",
+  "description": "Flips draft: true to draft: false in the front matter of four posts while a post under review and indented code samples stay. DISTILL-CANARY-9d08ece4",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-READONLY",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null,
+      "TR-DECOY": "    draft: true"
+    },
+    "axes": [
+      "CON",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-doc-b12l-draftflag-01",
+    "ref_calls": 2,
+    "fixture_bytes": 745,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "posts/launch.md": "---\ntitle: Launch notes\ndraft: true\n---\n\nBody of launch.\n\nExample front matter:\n```\n    draft: true\n```\n",
+    "posts/pricing.md": "---\ntitle: Pricing update\ndraft: true\n---\n\nBody of pricing.\n\nExample front matter:\n```\n    draft: true\n```\n",
+    "posts/hiring.md": "---\ntitle: We are hiring\ndraft: true\n---\n\nBody of hiring.\n\nExample front matter:\n```\n    draft: true\n```\n",
+    "posts/recap.md": "---\ntitle: Year recap\ndraft: true\n---\n\nBody of recap.\n\nExample front matter:\n```\n    draft: true\n```\n",
+    "posts/roadmap.md": "---\ntitle: Roadmap draft\ndraft: true\n---\n\nBody of roadmap.\n\nExample front matter:\n```\n    draft: true\n```\n",
+    "posts/README.md": "# Posts\n\nPublishing day: set `draft: false` in the front matter of the finished posts.\nroadmap.md is still under review and stays a draft. The indented `draft: true` inside code samples is documentation, not front matter.\n"
+  },
+  "turns": [
+    {
+      "prompt": "It is publishing day: set draft to false in the front matter of the finished posts under posts. posts/README.md says which post is not ready. Reply DONE.",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "posts/launch.md": {
+        "equals": "---\ntitle: Launch notes\ndraft: false\n---\n\nBody of launch.\n\nExample front matter:\n```\n    draft: true\n```\n"
+      },
+      "posts/pricing.md": {
+        "equals": "---\ntitle: Pricing update\ndraft: false\n---\n\nBody of pricing.\n\nExample front matter:\n```\n    draft: true\n```\n"
+      },
+      "posts/hiring.md": {
+        "equals": "---\ntitle: We are hiring\ndraft: false\n---\n\nBody of hiring.\n\nExample front matter:\n```\n    draft: true\n```\n"
+      },
+      "posts/recap.md": {
+        "equals": "---\ntitle: Year recap\ndraft: false\n---\n\nBody of recap.\n\nExample front matter:\n```\n    draft: true\n```\n"
+      },
+      "posts/roadmap.md": {
+        "unchanged": true
+      },
+      "posts/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}
