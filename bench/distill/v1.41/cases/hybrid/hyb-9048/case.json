@@ -49,6 +49,9 @@
           "34"
         ],
         "output_contains_token": true,
+        "output_contains_any": [
+          "室内"
+        ],
         "max_output_chars": 600
       }
     }

@@ -373,7 +373,8 @@ The rule and the forecast together decide; only the high temperature triggers it
         files=files, verify=verify, notes=notes, weather_fixture=fx,
         turns=[{"prompt": "郑州明天下午学校的户外拓展活动，能照常在外面进行吗？",
                 "expect": {"required_tools": ["get_weather"], "forbidden_tools": NOWEB,
-                           "output_contains": ["34"], "output_contains_token": True, "max_output_chars": 600}}])
+                           "output_contains": ["34"], "output_contains_token": True,
+                           "output_contains_any": ["室内"], "max_output_chars": 600}}])
 
 
 def hyb_9049():
@@ -408,7 +409,8 @@ The local rule fixes a two-day window and a 30% threshold; the forecast supplies
         files=files, verify=verify, notes=notes, weather_fixture=fx,
         turns=[{"prompt": "我想明天在合肥洗个车，还想顺便做镀膜，合适吗？",
                 "expect": {"required_tools": ["get_weather"], "forbidden_tools": NOWEB,
-                           "output_contains": ["80%"], "max_output_chars": 600}}])
+                           "output_contains": ["80%"],
+                           "output_contains_any": ["改天", "推迟", "延后", "改期", "不建议"], "max_output_chars": 600}}])
 
 
 def nt_9050():
