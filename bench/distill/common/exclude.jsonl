@@ -1471,3 +1471,5 @@
 {"case_id": "tab-8805--p2", "reason": "Misstates berth names and adds unsupported unassigned-field claim; also unnecessary broad search", "batch": "b13"}
 {"case_id": "tab-8806--p2", "reason": "Minimal supplement: prefer p1 direct aggregation; p2 adds a header reread after sufficient result and user-supplied schema", "batch": "b13"}
 {"case_id": "tab-8807--p2", "reason": "Minimal supplement: prefer p1; p2 adds an unrequested count query after the sum result already provides matching-row count", "batch": "b13"}
+{"case_id": "hyb-9052--p1", "reason": "Final answer invents a wind direction (偏北风) that the forecast does not contain", "batch": "b12b"}
+{"case_id": "hyb-9055--p1", "reason": "Final answer leaks the word fixture (fixture 源) to the user", "batch": "b12b"}

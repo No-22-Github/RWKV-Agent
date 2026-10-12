@@ -105,7 +105,7 @@ def merge_batch_specs():
     an error rather than a silent override."""
     import importlib.util
     tools = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    for batch in ("b12a",):
+    for batch in sorted(d for d in os.listdir(tools) if re.fullmatch(r"b12[a-z]", d)):
         path = os.path.join(tools, batch, "specs.py")
         if not os.path.exists(path):
             continue

@@ -1,0 +1,84 @@
+{
+  "id": "hyb-9052",
+  "description": "Asks the weather on Friday evening (the day after tomorrow) in a coastal city. DISTILL-CANARY-b1fd84e6",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "20%"
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b12b-qingdaofri-01",
+    "ref_calls": 1,
+    "fixture_bytes": 46,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12b",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "周末/青岛.md": "# 青岛周末\n\n- 周五傍晚到海边走走\n"
+  },
+  "turns": [
+    {
+      "prompt": "周五傍晚我想去青岛的海边散步，那天天气怎么样，会下雨吗？",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "75%"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "青岛",
+      "aliases": [
+        "Qingdao"
+      ],
+      "report": {
+        "location": "青岛",
+        "current": "多云 21°C 体感 20°C 湿度 72% 风速 22 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "多云",
+            "temp_c": "18~23",
+            "rain_chance": "15%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "多云",
+            "temp_c": "18~24",
+            "rain_chance": "20%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "中雨",
+            "temp_c": "17~21",
+            "rain_chance": "75%"
+          }
+        ]
+      }
+    }
+  ]
+}
