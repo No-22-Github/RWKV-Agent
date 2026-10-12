@@ -1,0 +1,45 @@
+{
+  "id": "cfg-9378",
+  "description": "Reads one job timeout from a workflow yaml with a build job look-alike and a disabled copy; bash allowed but one read suffices. DISTILL-CANARY-4ca6eae2",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "20"
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b12o-publishtimeout-01",
+    "ref_calls": 1,
+    "fixture_bytes": 355,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12o",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "ci/release.yml": "name: release\non:\n  push:\n    tags: ['v*']\njobs:\n  build:\n    runs-on: ubuntu-latest\n    timeout-minutes: 20\n    steps:\n      - run: make dist\n  publish:\n    needs: build\n    runs-on: ubuntu-latest\n    timeout-minutes: 45\n    steps:\n      - run: ./publish.sh\n",
+    "ci/release.yml.disabled": "name: release-old\njobs:\n  publish:\n    timeout-minutes: 10\n    steps:\n      - run: ./publish.sh\n"
+  },
+  "turns": [
+    {
+      "prompt": "ci/release.yml 里 publish 任务的超时时间是多少分钟？",
+      "expect": {
+        "output_contains_any": [
+          "45"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

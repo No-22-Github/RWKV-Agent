@@ -1496,3 +1496,7 @@
 {"case_id": "fs-9274--p1", "reason": "final claims the eight moved reports add up to 59 lines; the fixture has 57", "batch": "b12k"}
 {"case_id": "tab-9269--p1", "reason": "final counts (15 changed, 9 restored) do not match the fixture (12 and 8)", "batch": "b12k"}
 {"case_id": "tab-9276--p1", "reason": "final names rows 4, 6, 8 of 2026-07 and row 10 of 2026-09 as changed; the fixture rows are 5, 7, 13 and 10", "batch": "b12k"}
+{"case_id": "nt-9361--p1", "reason": "命令用 find . 而非题中的 项目 目录，并有 -depth 的误导说明", "batch": "b12o"}
+{"case_id": "nt-9362--p1", "reason": "编造假设（--include='*.java'），而夹具是 .c 文件，且声称无法给出文件名", "batch": "b12o"}
+{"case_id": "nt-9368--p1", "reason": "终答出现无意义措辞（one count per dotted path）", "batch": "b12o"}
+{"case_id": "cfg-9378--p2", "reason": "编造行号：称 timeout-minutes: 45 在第 15 行，实际第 14 行", "batch": "b12o"}

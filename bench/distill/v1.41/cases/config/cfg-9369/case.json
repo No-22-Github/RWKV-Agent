@@ -1,0 +1,48 @@
+{
+  "id": "cfg-9369",
+  "description": "Reads one memory limit from a toml file with a look-alike section and an outdated copy, bash forbidden. DISTILL-CANARY-4769784a",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "512"
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b12o-workermem-01",
+    "ref_calls": 1,
+    "fixture_bytes": 204,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12o",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "deploy/limits.toml": "# 各组件内存与 CPU 上限\n[api]\nmemory_mb = 1024\ncpu_cores = 2\n\n[worker]\nmemory_mb = 768\ncpu_cores = 1\n\n[worker-canary]\nmemory_mb = 512\ncpu_cores = 1\n",
+    "deploy/limits.toml.old": "[api]\nmemory_mb = 512\n\n[worker]\nmemory_mb = 256\n"
+  },
+  "turns": [
+    {
+      "prompt": "deploy/limits.toml 里 [worker] 段的 memory_mb 是多少？",
+      "expect": {
+        "output_contains_any": [
+          "768"
+        ],
+        "max_output_chars": 600,
+        "forbidden_tools": [
+          "bash"
+        ]
+      }
+    }
+  ]
+}
