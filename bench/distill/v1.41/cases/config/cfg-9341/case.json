@@ -1,0 +1,156 @@
+{
+  "id": "cfg-9341",
+  "description": "Three turns: finds the service with the most ERROR-level log lines, raises its timeout_ms in three config files, then restores two of them. DISTILL-CANARY-7daa4bd8",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY",
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null,
+      "TR-READONLY": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "CON"
+    ],
+    "level": "L3",
+    "family": "fam-cfg-b12n-errtimeout-01",
+    "ref_calls": 5,
+    "fixture_bytes": 19754,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12n",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "logs/gateway.log": "2026-10-01 00:00:00 ERROR connection reset by peer\n2026-10-02 05:07:13 INFO health check passed errors=0\n2026-10-03 10:14:26 ERROR pool exhausted\n2026-10-04 15:21:39 INFO health check passed errors=0\n2026-10-05 20:28:52 INFO request ok\n2026-10-06 01:35:05 ERROR pool exhausted\n2026-10-07 06:42:18 ERROR connection reset by peer\n2026-10-01 11:49:31 WARN retrying call\n2026-10-02 16:56:44 WARN retrying call\n2026-10-03 21:03:57 INFO ERROR_RATE=0.00 window=5m\n2026-10-04 02:10:10 ERROR upstream timeout after 3000ms\n2026-10-05 07:17:23 ERROR pool exhausted\n2026-10-06 12:24:36 ERROR connection reset by peer\n2026-10-07 17:31:49 WARN retrying call\n2026-10-01 22:38:02 ERROR pool exhausted\n2026-10-02 03:45:15 INFO request ok\n2026-10-03 08:52:28 INFO ERROR_RATE=0.00 window=5m\n2026-10-04 13:59:41 INFO request ok\n2026-10-05 18:06:54 INFO health check passed errors=0\n2026-10-06 23:13:07 INFO ERROR_RATE=0.00 window=5m\n2026-10-07 04:20:20 ERROR pool exhausted\n2026-10-01 09:27:33 ERROR pool exhausted\n2026-10-02 14:34:46 INFO ERROR_RATE=0.00 window=5m\n2026-10-03 19:41:59 WARN retrying call\n2026-10-04 00:48:12 ERROR upstream timeout after 3000ms\n2026-10-05 05:55:25 INFO ERROR_RATE=0.00 window=5m\n2026-10-06 10:02:38 INFO request ok\n2026-10-07 15:09:51 ERROR pool exhausted\n2026-10-01 20:16:04 ERROR connection reset by peer\n2026-10-02 01:23:17 ERROR upstream timeout after 3000ms\n2026-10-03 06:30:30 INFO ERROR_RATE=0.00 window=5m\n2026-10-04 11:37:43 INFO health check passed errors=0\n2026-10-05 16:44:56 WARN slow response 2400ms\n2026-10-06 21:51:09 WARN retrying call\n2026-10-07 02:58:22 INFO health check passed errors=0\n2026-10-01 07:05:35 ERROR connection reset by peer\n2026-10-02 12:12:48 ERROR pool exhausted\n2026-10-03 17:19:01 INFO request ok\n2026-10-04 22:26:14 INFO ERROR_RATE=0.00 window=5m\n2026-10-05 03:33:27 INFO health check passed errors=0\n2026-10-06 08:40:40 ERROR connection reset by peer\n2026-10-07 13:47:53 ERROR connection reset by peer\n2026-10-01 18:54:06 INFO ERROR_RATE=0.00 window=5m\n2026-10-02 23:01:19 ERROR connection reset by peer\n2026-10-03 04:08:32 WARN slow response 2400ms\n2026-10-04 09:15:45 ERROR connection reset by peer\n2026-10-05 14:22:58 INFO request ok\n2026-10-06 19:29:11 ERROR connection reset by peer\n2026-10-07 00:36:24 ERROR connection reset by peer\n2026-10-01 05:43:37 INFO request ok\n2026-10-02 10:50:50 INFO health check passed errors=0\n2026-10-03 15:57:03 INFO ERROR_RATE=0.00 window=5m\n2026-10-04 20:04:16 WARN retrying call\n2026-10-05 01:11:29 INFO request ok\n2026-10-06 06:18:42 ERROR pool exhausted\n2026-10-07 11:25:55 INFO ERROR_RATE=0.00 window=5m\n2026-10-01 16:32:08 ERROR upstream timeout after 3000ms\n2026-10-02 21:39:21 INFO health check passed errors=0\n2026-10-03 02:46:34 INFO request ok\n2026-10-04 07:53:47 INFO ERROR_RATE=0.00 window=5m\n2026-10-05 12:00:00 ERROR connection reset by peer\n2026-10-06 17:07:13 INFO request ok\n2026-10-07 22:14:26 INFO health check passed errors=0\n2026-10-01 03:21:39 INFO health check passed errors=0\n2026-10-02 08:28:52 INFO health check passed errors=0\n2026-10-03 13:35:05 INFO request ok\n2026-10-04 18:42:18 INFO request ok\n2026-10-05 23:49:31 WARN slow response 2400ms\n2026-10-06 04:56:44 WARN slow response 2400ms\n2026-10-07 09:03:57 ERROR upstream timeout after 3000ms\n2026-10-01 14:10:10 INFO ERROR_RATE=0.00 window=5m\n2026-10-02 19:17:23 INFO ERROR_RATE=0.00 window=5m\n2026-10-03 00:24:36 ERROR upstream timeout after 3000ms\n2026-10-04 05:31:49 ERROR pool exhausted\n2026-10-05 10:38:02 ERROR connection reset by peer\n2026-10-06 15:45:15 ERROR connection reset by peer\n2026-10-07 20:52:28 WARN retrying call\n2026-10-01 01:59:41 INFO request ok\n2026-10-02 06:06:54 ERROR upstream timeout after 3000ms\n2026-10-03 11:13:07 INFO health check passed errors=0\n2026-10-04 16:20:20 ERROR upstream timeout after 3000ms\n2026-10-05 21:27:33 ERROR pool exhausted\n2026-10-06 02:34:46 ERROR connection reset by peer\n",
+    "config/gateway/prod.yaml": "name: gateway\ntimeout_ms: 3000\nconnect_timeout_ms: 500\nretries: 2\n",
+    "config/gateway/staging.yaml": "name: gateway\ntimeout_ms: 3000\nconnect_timeout_ms: 500\nretries: 2\n",
+    "config/gateway/canary.yaml": "name: gateway\ntimeout_ms: 3000\nconnect_timeout_ms: 500\nretries: 2\n",
+    "logs/orders.log": "2026-10-01 00:00:00 INFO ERROR_RATE=0.00 window=5m\n2026-10-02 05:07:13 INFO request ok\n2026-10-03 10:14:26 INFO request ok\n2026-10-04 15:21:39 INFO request ok\n2026-10-05 20:28:52 INFO request ok\n2026-10-06 01:35:05 INFO health check passed errors=0\n2026-10-07 06:42:18 INFO health check passed errors=0\n2026-10-01 11:49:31 WARN retrying call\n2026-10-02 16:56:44 INFO ERROR_RATE=0.00 window=5m\n2026-10-03 21:03:57 ERROR upstream timeout after 3000ms\n2026-10-04 02:10:10 INFO health check passed errors=0\n2026-10-05 07:17:23 INFO request ok\n2026-10-06 12:24:36 INFO health check passed errors=0\n2026-10-07 17:31:49 WARN slow response 2400ms\n2026-10-01 22:38:02 WARN slow response 2400ms\n2026-10-02 03:45:15 INFO ERROR_RATE=0.00 window=5m\n2026-10-03 08:52:28 WARN retrying call\n2026-10-04 13:59:41 INFO health check passed errors=0\n2026-10-05 18:06:54 INFO health check passed errors=0\n2026-10-06 23:13:07 INFO request ok\n2026-10-07 04:20:20 WARN slow response 2400ms\n2026-10-01 09:27:33 INFO request ok\n2026-10-02 14:34:46 INFO request ok\n2026-10-03 19:41:59 ERROR pool exhausted\n2026-10-04 00:48:12 INFO request ok\n2026-10-05 05:55:25 WARN slow response 2400ms\n2026-10-06 10:02:38 INFO ERROR_RATE=0.00 window=5m\n2026-10-07 15:09:51 INFO health check passed errors=0\n2026-10-01 20:16:04 INFO health check passed errors=0\n2026-10-02 01:23:17 INFO health check passed errors=0\n2026-10-03 06:30:30 WARN retrying call\n2026-10-04 11:37:43 ERROR upstream timeout after 3000ms\n2026-10-05 16:44:56 INFO ERROR_RATE=0.00 window=5m\n2026-10-06 21:51:09 WARN slow response 2400ms\n2026-10-07 02:58:22 WARN slow response 2400ms\n2026-10-01 07:05:35 INFO request ok\n2026-10-02 12:12:48 INFO ERROR_RATE=0.00 window=5m\n2026-10-03 17:19:01 INFO request ok\n2026-10-04 22:26:14 ERROR upstream timeout after 3000ms\n2026-10-05 03:33:27 INFO health check passed errors=0\n2026-10-06 08:40:40 INFO ERROR_RATE=0.00 window=5m\n2026-10-07 13:47:53 WARN retrying call\n2026-10-01 18:54:06 INFO ERROR_RATE=0.00 window=5m\n2026-10-02 23:01:19 INFO request ok\n2026-10-03 04:08:32 INFO request ok\n2026-10-04 09:15:45 INFO request ok\n2026-10-05 14:22:58 INFO ERROR_RATE=0.00 window=5m\n2026-10-06 19:29:11 INFO request ok\n2026-10-07 00:36:24 INFO health check passed errors=0\n2026-10-01 05:43:37 ERROR upstream timeout after 3000ms\n2026-10-02 10:50:50 INFO health check passed errors=0\n2026-10-03 15:57:03 WARN retrying call\n2026-10-04 20:04:16 INFO request ok\n2026-10-05 01:11:29 WARN retrying call\n2026-10-06 06:18:42 INFO ERROR_RATE=0.00 window=5m\n2026-10-07 11:25:55 INFO health check passed errors=0\n2026-10-01 16:32:08 ERROR connection reset by peer\n2026-10-02 21:39:21 INFO health check passed errors=0\n2026-10-03 02:46:34 ERROR connection reset by peer\n2026-10-04 07:53:47 INFO ERROR_RATE=0.00 window=5m\n2026-10-05 12:00:00 WARN slow response 2400ms\n2026-10-06 17:07:13 INFO ERROR_RATE=0.00 window=5m\n2026-10-07 22:14:26 INFO ERROR_RATE=0.00 window=5m\n2026-10-01 03:21:39 INFO health check passed errors=0\n2026-10-02 08:28:52 ERROR pool exhausted\n2026-10-03 13:35:05 INFO request ok\n2026-10-04 18:42:18 INFO health check passed errors=0\n2026-10-05 23:49:31 INFO ERROR_RATE=0.00 window=5m\n2026-10-06 04:56:44 INFO ERROR_RATE=0.00 window=5m\n2026-10-07 09:03:57 INFO ERROR_RATE=0.00 window=5m\n2026-10-01 14:10:10 INFO request ok\n2026-10-02 19:17:23 INFO ERROR_RATE=0.00 window=5m\n2026-10-03 00:24:36 WARN retrying call\n2026-10-04 05:31:49 INFO request ok\n2026-10-05 10:38:02 INFO ERROR_RATE=0.00 window=5m\n2026-10-06 15:45:15 ERROR connection reset by peer\n2026-10-07 20:52:28 INFO health check passed errors=0\n2026-10-01 01:59:41 INFO ERROR_RATE=0.00 window=5m\n2026-10-02 06:06:54 INFO ERROR_RATE=0.00 window=5m\n2026-10-03 11:13:07 INFO ERROR_RATE=0.00 window=5m\n",
+    "config/orders/prod.yaml": "name: orders\ntimeout_ms: 3000\nconnect_timeout_ms: 500\nretries: 2\n",
+    "config/orders/staging.yaml": "name: orders\ntimeout_ms: 3000\nconnect_timeout_ms: 500\nretries: 2\n",
+    "config/orders/canary.yaml": "name: orders\ntimeout_ms: 3000\nconnect_timeout_ms: 500\nretries: 2\n",
+    "logs/payment.log": "2026-10-01 00:00:00 ERROR upstream timeout after 3000ms\n2026-10-02 05:07:13 INFO health check passed errors=0\n2026-10-03 10:14:26 ERROR connection reset by peer\n2026-10-04 15:21:39 INFO request ok\n2026-10-05 20:28:52 INFO ERROR_RATE=0.00 window=5m\n2026-10-06 01:35:05 ERROR pool exhausted\n2026-10-07 06:42:18 WARN slow response 2400ms\n2026-10-01 11:49:31 ERROR connection reset by peer\n2026-10-02 16:56:44 ERROR pool exhausted\n2026-10-03 21:03:57 ERROR connection reset by peer\n2026-10-04 02:10:10 WARN slow response 2400ms\n2026-10-05 07:17:23 INFO request ok\n2026-10-06 12:24:36 INFO ERROR_RATE=0.00 window=5m\n2026-10-07 17:31:49 ERROR pool exhausted\n2026-10-01 22:38:02 INFO ERROR_RATE=0.00 window=5m\n2026-10-02 03:45:15 ERROR pool exhausted\n2026-10-03 08:52:28 INFO request ok\n2026-10-04 13:59:41 WARN retrying call\n2026-10-05 18:06:54 ERROR upstream timeout after 3000ms\n2026-10-06 23:13:07 ERROR upstream timeout after 3000ms\n2026-10-07 04:20:20 WARN slow response 2400ms\n2026-10-01 09:27:33 WARN slow response 2400ms\n2026-10-02 14:34:46 INFO ERROR_RATE=0.00 window=5m\n2026-10-03 19:41:59 ERROR pool exhausted\n2026-10-04 00:48:12 ERROR upstream timeout after 3000ms\n2026-10-05 05:55:25 ERROR connection reset by peer\n2026-10-06 10:02:38 WARN slow response 2400ms\n2026-10-07 15:09:51 ERROR pool exhausted\n2026-10-01 20:16:04 INFO ERROR_RATE=0.00 window=5m\n2026-10-02 01:23:17 INFO ERROR_RATE=0.00 window=5m\n2026-10-03 06:30:30 INFO request ok\n2026-10-04 11:37:43 INFO health check passed errors=0\n2026-10-05 16:44:56 INFO ERROR_RATE=0.00 window=5m\n2026-10-06 21:51:09 INFO request ok\n2026-10-07 02:58:22 INFO health check passed errors=0\n2026-10-01 07:05:35 ERROR connection reset by peer\n2026-10-02 12:12:48 INFO health check passed errors=0\n2026-10-03 17:19:01 ERROR connection reset by peer\n2026-10-04 22:26:14 ERROR upstream timeout after 3000ms\n2026-10-05 03:33:27 INFO request ok\n2026-10-06 08:40:40 INFO ERROR_RATE=0.00 window=5m\n2026-10-07 13:47:53 ERROR pool exhausted\n2026-10-01 18:54:06 ERROR upstream timeout after 3000ms\n2026-10-02 23:01:19 ERROR upstream timeout after 3000ms\n2026-10-03 04:08:32 ERROR pool exhausted\n2026-10-04 09:15:45 ERROR pool exhausted\n2026-10-05 14:22:58 WARN retrying call\n2026-10-06 19:29:11 ERROR connection reset by peer\n2026-10-07 00:36:24 INFO ERROR_RATE=0.00 window=5m\n2026-10-01 05:43:37 ERROR connection reset by peer\n2026-10-02 10:50:50 ERROR upstream timeout after 3000ms\n2026-10-03 15:57:03 INFO request ok\n2026-10-04 20:04:16 INFO ERROR_RATE=0.00 window=5m\n2026-10-05 01:11:29 INFO health check passed errors=0\n2026-10-06 06:18:42 INFO request ok\n2026-10-07 11:25:55 ERROR upstream timeout after 3000ms\n2026-10-01 16:32:08 ERROR connection reset by peer\n2026-10-02 21:39:21 WARN slow response 2400ms\n2026-10-03 02:46:34 WARN slow response 2400ms\n2026-10-04 07:53:47 ERROR pool exhausted\n2026-10-05 12:00:00 INFO health check passed errors=0\n2026-10-06 17:07:13 ERROR connection reset by peer\n2026-10-07 22:14:26 INFO health check passed errors=0\n2026-10-01 03:21:39 WARN retrying call\n2026-10-02 08:28:52 ERROR pool exhausted\n2026-10-03 13:35:05 INFO health check passed errors=0\n2026-10-04 18:42:18 ERROR connection reset by peer\n2026-10-05 23:49:31 ERROR upstream timeout after 3000ms\n2026-10-06 04:56:44 ERROR connection reset by peer\n2026-10-07 09:03:57 INFO ERROR_RATE=0.00 window=5m\n2026-10-01 14:10:10 WARN retrying call\n2026-10-02 19:17:23 ERROR pool exhausted\n2026-10-03 00:24:36 WARN retrying call\n2026-10-04 05:31:49 ERROR pool exhausted\n2026-10-05 10:38:02 INFO ERROR_RATE=0.00 window=5m\n2026-10-06 15:45:15 INFO request ok\n2026-10-07 20:52:28 INFO ERROR_RATE=0.00 window=5m\n2026-10-01 01:59:41 INFO ERROR_RATE=0.00 window=5m\n2026-10-02 06:06:54 INFO request ok\n",
+    "config/payment/prod.yaml": "name: payment\ntimeout_ms: 3000\nconnect_timeout_ms: 500\nretries: 2\n",
+    "config/payment/staging.yaml": "name: payment\ntimeout_ms: 3000\nconnect_timeout_ms: 500\nretries: 2\n",
+    "config/payment/canary.yaml": "name: payment\ntimeout_ms: 3000\nconnect_timeout_ms: 500\nretries: 2\n",
+    "logs/stock.log": "2026-10-01 00:00:00 INFO health check passed errors=0\n2026-10-02 05:07:13 ERROR upstream timeout after 3000ms\n2026-10-03 10:14:26 INFO request ok\n2026-10-04 15:21:39 INFO request ok\n2026-10-05 20:28:52 INFO request ok\n2026-10-06 01:35:05 WARN retrying call\n2026-10-07 06:42:18 INFO ERROR_RATE=0.00 window=5m\n2026-10-01 11:49:31 INFO ERROR_RATE=0.00 window=5m\n2026-10-02 16:56:44 INFO health check passed errors=0\n2026-10-03 21:03:57 ERROR pool exhausted\n2026-10-04 02:10:10 INFO health check passed errors=0\n2026-10-05 07:17:23 ERROR pool exhausted\n2026-10-06 12:24:36 ERROR connection reset by peer\n2026-10-07 17:31:49 ERROR upstream timeout after 3000ms\n2026-10-01 22:38:02 WARN retrying call\n2026-10-02 03:45:15 INFO ERROR_RATE=0.00 window=5m\n2026-10-03 08:52:28 ERROR upstream timeout after 3000ms\n2026-10-04 13:59:41 WARN slow response 2400ms\n2026-10-05 18:06:54 ERROR upstream timeout after 3000ms\n2026-10-06 23:13:07 INFO health check passed errors=0\n2026-10-07 04:20:20 INFO health check passed errors=0\n2026-10-01 09:27:33 INFO health check passed errors=0\n2026-10-02 14:34:46 INFO request ok\n2026-10-03 19:41:59 ERROR upstream timeout after 3000ms\n2026-10-04 00:48:12 INFO request ok\n2026-10-05 05:55:25 INFO ERROR_RATE=0.00 window=5m\n2026-10-06 10:02:38 WARN retrying call\n2026-10-07 15:09:51 ERROR pool exhausted\n2026-10-01 20:16:04 INFO health check passed errors=0\n2026-10-02 01:23:17 INFO request ok\n2026-10-03 06:30:30 INFO health check passed errors=0\n2026-10-04 11:37:43 INFO ERROR_RATE=0.00 window=5m\n2026-10-05 16:44:56 INFO health check passed errors=0\n2026-10-06 21:51:09 ERROR connection reset by peer\n2026-10-07 02:58:22 WARN retrying call\n2026-10-01 07:05:35 INFO ERROR_RATE=0.00 window=5m\n2026-10-02 12:12:48 INFO request ok\n2026-10-03 17:19:01 INFO health check passed errors=0\n2026-10-04 22:26:14 INFO ERROR_RATE=0.00 window=5m\n2026-10-05 03:33:27 ERROR pool exhausted\n2026-10-06 08:40:40 INFO health check passed errors=0\n2026-10-07 13:47:53 ERROR connection reset by peer\n2026-10-01 18:54:06 ERROR pool exhausted\n2026-10-02 23:01:19 INFO request ok\n2026-10-03 04:08:32 ERROR pool exhausted\n2026-10-04 09:15:45 ERROR pool exhausted\n2026-10-05 14:22:58 INFO ERROR_RATE=0.00 window=5m\n2026-10-06 19:29:11 WARN retrying call\n2026-10-07 00:36:24 ERROR upstream timeout after 3000ms\n2026-10-01 05:43:37 WARN retrying call\n2026-10-02 10:50:50 INFO request ok\n2026-10-03 15:57:03 INFO ERROR_RATE=0.00 window=5m\n2026-10-04 20:04:16 INFO ERROR_RATE=0.00 window=5m\n2026-10-05 01:11:29 INFO request ok\n2026-10-06 06:18:42 INFO ERROR_RATE=0.00 window=5m\n2026-10-07 11:25:55 ERROR connection reset by peer\n2026-10-01 16:32:08 INFO health check passed errors=0\n2026-10-02 21:39:21 INFO health check passed errors=0\n2026-10-03 02:46:34 ERROR pool exhausted\n2026-10-04 07:53:47 WARN retrying call\n2026-10-05 12:00:00 INFO request ok\n2026-10-06 17:07:13 ERROR connection reset by peer\n2026-10-07 22:14:26 WARN retrying call\n2026-10-01 03:21:39 ERROR upstream timeout after 3000ms\n2026-10-02 08:28:52 INFO health check passed errors=0\n2026-10-03 13:35:05 INFO health check passed errors=0\n2026-10-04 18:42:18 INFO ERROR_RATE=0.00 window=5m\n2026-10-05 23:49:31 INFO ERROR_RATE=0.00 window=5m\n2026-10-06 04:56:44 INFO request ok\n2026-10-07 09:03:57 INFO health check passed errors=0\n2026-10-01 14:10:10 WARN retrying call\n2026-10-02 19:17:23 INFO ERROR_RATE=0.00 window=5m\n2026-10-03 00:24:36 ERROR connection reset by peer\n2026-10-04 05:31:49 INFO ERROR_RATE=0.00 window=5m\n2026-10-05 10:38:02 ERROR connection reset by peer\n2026-10-06 15:45:15 INFO ERROR_RATE=0.00 window=5m\n2026-10-07 20:52:28 ERROR upstream timeout after 3000ms\n2026-10-01 01:59:41 INFO health check passed errors=0\n2026-10-02 06:06:54 INFO health check passed errors=0\n2026-10-03 11:13:07 ERROR connection reset by peer\n2026-10-04 16:20:20 INFO health check passed errors=0\n2026-10-05 21:27:33 WARN slow response 2400ms\n2026-10-06 02:34:46 INFO request ok\n",
+    "config/stock/prod.yaml": "name: stock\ntimeout_ms: 3000\nconnect_timeout_ms: 500\nretries: 2\n",
+    "config/stock/staging.yaml": "name: stock\ntimeout_ms: 3000\nconnect_timeout_ms: 500\nretries: 2\n",
+    "config/stock/canary.yaml": "name: stock\ntimeout_ms: 3000\nconnect_timeout_ms: 500\nretries: 2\n",
+    "logs/notify.log": "2026-10-01 00:00:00 ERROR pool exhausted\n2026-10-02 05:07:13 INFO health check passed errors=0\n2026-10-03 10:14:26 WARN retrying call\n2026-10-04 15:21:39 INFO health check passed errors=0\n2026-10-05 20:28:52 INFO request ok\n2026-10-06 01:35:05 WARN retrying call\n2026-10-07 06:42:18 ERROR upstream timeout after 3000ms\n2026-10-01 11:49:31 ERROR upstream timeout after 3000ms\n2026-10-02 16:56:44 INFO health check passed errors=0\n2026-10-03 21:03:57 INFO request ok\n2026-10-04 02:10:10 ERROR pool exhausted\n2026-10-05 07:17:23 ERROR connection reset by peer\n2026-10-06 12:24:36 INFO health check passed errors=0\n2026-10-07 17:31:49 ERROR connection reset by peer\n2026-10-01 22:38:02 INFO request ok\n2026-10-02 03:45:15 ERROR pool exhausted\n2026-10-03 08:52:28 INFO ERROR_RATE=0.00 window=5m\n2026-10-04 13:59:41 ERROR connection reset by peer\n2026-10-05 18:06:54 INFO health check passed errors=0\n2026-10-06 23:13:07 INFO ERROR_RATE=0.00 window=5m\n2026-10-07 04:20:20 WARN retrying call\n2026-10-01 09:27:33 ERROR upstream timeout after 3000ms\n2026-10-02 14:34:46 INFO request ok\n2026-10-03 19:41:59 INFO request ok\n2026-10-04 00:48:12 ERROR pool exhausted\n2026-10-05 05:55:25 ERROR upstream timeout after 3000ms\n2026-10-06 10:02:38 ERROR upstream timeout after 3000ms\n2026-10-07 15:09:51 INFO ERROR_RATE=0.00 window=5m\n2026-10-01 20:16:04 INFO request ok\n2026-10-02 01:23:17 INFO ERROR_RATE=0.00 window=5m\n2026-10-03 06:30:30 ERROR connection reset by peer\n2026-10-04 11:37:43 INFO health check passed errors=0\n2026-10-05 16:44:56 ERROR upstream timeout after 3000ms\n2026-10-06 21:51:09 INFO health check passed errors=0\n2026-10-07 02:58:22 ERROR connection reset by peer\n2026-10-01 07:05:35 ERROR connection reset by peer\n2026-10-02 12:12:48 INFO request ok\n2026-10-03 17:19:01 INFO request ok\n2026-10-04 22:26:14 WARN slow response 2400ms\n2026-10-05 03:33:27 INFO ERROR_RATE=0.00 window=5m\n2026-10-06 08:40:40 ERROR connection reset by peer\n2026-10-07 13:47:53 WARN slow response 2400ms\n2026-10-01 18:54:06 WARN retrying call\n2026-10-02 23:01:19 ERROR connection reset by peer\n2026-10-03 04:08:32 WARN retrying call\n2026-10-04 09:15:45 INFO request ok\n2026-10-05 14:22:58 ERROR pool exhausted\n2026-10-06 19:29:11 ERROR pool exhausted\n2026-10-07 00:36:24 INFO health check passed errors=0\n2026-10-01 05:43:37 INFO request ok\n2026-10-02 10:50:50 INFO request ok\n2026-10-03 15:57:03 WARN retrying call\n2026-10-04 20:04:16 ERROR connection reset by peer\n2026-10-05 01:11:29 INFO ERROR_RATE=0.00 window=5m\n2026-10-06 06:18:42 INFO request ok\n2026-10-07 11:25:55 INFO request ok\n2026-10-01 16:32:08 ERROR pool exhausted\n2026-10-02 21:39:21 INFO request ok\n2026-10-03 02:46:34 ERROR upstream timeout after 3000ms\n2026-10-04 07:53:47 ERROR upstream timeout after 3000ms\n2026-10-05 12:00:00 WARN retrying call\n2026-10-06 17:07:13 WARN slow response 2400ms\n2026-10-07 22:14:26 INFO ERROR_RATE=0.00 window=5m\n2026-10-01 03:21:39 INFO request ok\n2026-10-02 08:28:52 INFO request ok\n2026-10-03 13:35:05 ERROR connection reset by peer\n2026-10-04 18:42:18 WARN slow response 2400ms\n2026-10-05 23:49:31 WARN slow response 2400ms\n2026-10-06 04:56:44 ERROR connection reset by peer\n2026-10-07 09:03:57 INFO request ok\n2026-10-01 14:10:10 WARN retrying call\n",
+    "config/notify/prod.yaml": "name: notify\ntimeout_ms: 3000\nconnect_timeout_ms: 500\nretries: 2\n",
+    "config/notify/staging.yaml": "name: notify\ntimeout_ms: 3000\nconnect_timeout_ms: 500\nretries: 2\n",
+    "config/notify/canary.yaml": "name: notify\ntimeout_ms: 3000\nconnect_timeout_ms: 500\nretries: 2\n",
+    "config/_base/defaults.yaml": "timeout_ms: 3000\nretries: 2\n",
+    "config/README.md": "# 服务配置\n\n每个服务一个目录，里面有 prod.yaml、staging.yaml、canary.yaml。\n_base 是全局默认值，要走评审，不要改。connect_timeout_ms 是连接超时，和 timeout_ms 是两回事。\n"
+  },
+  "turns": [
+    {
+      "prompt": "logs 目录里每个服务一个日志文件，每行第三个字段是日志级别。哪个服务级别为 ERROR 的行最多？只回答服务名。",
+      "expect": {
+        "output_contains": [
+          "payment"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "这个服务的超时太短了：把它在 config 下 prod.yaml、staging.yaml、canary.yaml 里的 timeout_ms 都改成 6000，哪些不能动看 config/README.md。改完回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "staging 和 canary 的流量小，不用这么长，这两个文件的 timeout_ms 改回 3000，prod 保持 6000。改完回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "logs/gateway.log": {
+        "unchanged": true
+      },
+      "config/gateway/prod.yaml": {
+        "unchanged": true
+      },
+      "config/gateway/staging.yaml": {
+        "unchanged": true
+      },
+      "config/gateway/canary.yaml": {
+        "unchanged": true
+      },
+      "logs/orders.log": {
+        "unchanged": true
+      },
+      "config/orders/prod.yaml": {
+        "unchanged": true
+      },
+      "config/orders/staging.yaml": {
+        "unchanged": true
+      },
+      "config/orders/canary.yaml": {
+        "unchanged": true
+      },
+      "logs/payment.log": {
+        "unchanged": true
+      },
+      "config/payment/prod.yaml": {
+        "equals": "name: payment\ntimeout_ms: 6000\nconnect_timeout_ms: 500\nretries: 2\n"
+      },
+      "config/payment/staging.yaml": {
+        "unchanged": true
+      },
+      "config/payment/canary.yaml": {
+        "unchanged": true
+      },
+      "logs/stock.log": {
+        "unchanged": true
+      },
+      "config/stock/prod.yaml": {
+        "unchanged": true
+      },
+      "config/stock/staging.yaml": {
+        "unchanged": true
+      },
+      "config/stock/canary.yaml": {
+        "unchanged": true
+      },
+      "logs/notify.log": {
+        "unchanged": true
+      },
+      "config/notify/prod.yaml": {
+        "unchanged": true
+      },
+      "config/notify/staging.yaml": {
+        "unchanged": true
+      },
+      "config/notify/canary.yaml": {
+        "unchanged": true
+      },
+      "config/_base/defaults.yaml": {
+        "unchanged": true
+      },
+      "config/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

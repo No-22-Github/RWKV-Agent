@@ -1502,3 +1502,5 @@
 {"case_id": "cfg-9378--p2", "reason": "编造行号：称 timeout-minutes: 45 在第 15 行，实际第 14 行", "batch": "b12o"}
 {"case_id": "cfg-9305--p2", "reason": "终答开头和结尾各写一次 DONE，格式重复", "batch": "b12l"}
 {"case_id": "fs-9313--p1", "reason": "终答以 DONE 开头，与本批其他路径同一开头（超过 1/3 的模板化开头）", "batch": "b12l"}
+{"case_id": "cfg-9358--p2", "reason": "终答自相矛盾：写 Four services 却只列出三个", "batch": "b12n"}
+{"case_id": "fs-9360--p2", "reason": "错误事实：8 个 pdf 移出 3 个 keep_ 后应剩 5 个，终答称剩 4 个", "batch": "b12n"}

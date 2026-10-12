@@ -1,0 +1,117 @@
+{
+  "id": "cfg-9358",
+  "description": "Two turns: lists services that log at debug in their own config, then sets them to info and deletes their temporary debug override files. DISTILL-CANARY-ecffb7b1",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-DECOY",
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null,
+      "TR-READONLY": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "CON"
+    ],
+    "level": "L3",
+    "family": "fam-cfg-b12n-debugoff-01",
+    "ref_calls": 3,
+    "fixture_bytes": 754,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12n",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "config/services/api.yaml": "name: api\nlog_level: debug\nport: 8951\n",
+    "config/overrides/api.debug.yaml": "log_level: trace\nsample_rate: 1.0\n",
+    "config/services/cart.yaml": "name: cart\nlog_level: info\nport: 8640\nlog_level_file: debug\n",
+    "config/overrides/cart.debug.yaml": "log_level: trace\nsample_rate: 1.0\n",
+    "config/services/mailer.yaml": "name: mailer\nlog_level: warn\nport: 8936\nlog_level_file: debug\n",
+    "config/overrides/mailer.debug.yaml": "log_level: trace\nsample_rate: 1.0\n",
+    "config/services/pay.yaml": "name: pay\nlog_level: info\nport: 8440\n",
+    "config/overrides/pay.debug.yaml": "log_level: trace\nsample_rate: 1.0\n",
+    "config/services/report.yaml": "name: report\nlog_level: debug\nport: 8599\n",
+    "config/overrides/report.debug.yaml": "log_level: trace\nsample_rate: 1.0\n",
+    "config/services/sync.yaml": "name: sync\nlog_level: debug\nport: 8867\n",
+    "config/overrides/sync.debug.yaml": "log_level: trace\nsample_rate: 1.0\n",
+    "config/services/ui.yaml": "name: ui\nlog_level: warn\nport: 8144\nlog_level_file: debug\n",
+    "config/README.md": "# Config\n\nservices/<name>.yaml is the real config. overrides/<name>.debug.yaml is a temporary debug override that may only be deleted\ntogether with the service going back to info. log_level_file is a different key.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Under config/services each service has its own log_level. Which services run at debug? List their names.",
+      "expect": {
+        "output_contains": [
+          "api",
+          "report",
+          "sync"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "Put those services back to info: set log_level: info in each one's file under config/services and delete its overrides/<name>.debug.yaml. Other services and overrides stay as they are. Reply DONE when finished.",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "config/services/api.yaml": {
+        "equals": "name: api\nlog_level: info\nport: 8951\n"
+      },
+      "config/overrides/api.debug.yaml": {
+        "absent": true
+      },
+      "config/services/cart.yaml": {
+        "unchanged": true
+      },
+      "config/overrides/cart.debug.yaml": {
+        "unchanged": true
+      },
+      "config/services/mailer.yaml": {
+        "unchanged": true
+      },
+      "config/overrides/mailer.debug.yaml": {
+        "unchanged": true
+      },
+      "config/services/pay.yaml": {
+        "unchanged": true
+      },
+      "config/overrides/pay.debug.yaml": {
+        "unchanged": true
+      },
+      "config/services/report.yaml": {
+        "equals": "name: report\nlog_level: info\nport: 8599\n"
+      },
+      "config/overrides/report.debug.yaml": {
+        "absent": true
+      },
+      "config/services/sync.yaml": {
+        "equals": "name: sync\nlog_level: info\nport: 8867\n"
+      },
+      "config/overrides/sync.debug.yaml": {
+        "absent": true
+      },
+      "config/services/ui.yaml": {
+        "unchanged": true
+      },
+      "config/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

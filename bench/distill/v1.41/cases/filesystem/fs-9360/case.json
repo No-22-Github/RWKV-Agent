@@ -1,0 +1,215 @@
+{
+  "id": "fs-9360",
+  "description": "Three turns: finds the most common file extension in a downloads folder, moves those files into an extension subfolder, then moves the keep_ files back. DISTILL-CANARY-af85d439",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "count_by_type",
+    "traps": [
+      "TR-DECOY",
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": null,
+      "TR-READONLY": null
+    },
+    "axes": [
+      "OBS",
+      "CHN",
+      "CON"
+    ],
+    "level": "L3",
+    "family": "fam-fs-b12n-extsort-01",
+    "ref_calls": 5,
+    "fixture_bytes": 465,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12n",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "下载/keep_简历00.pdf": "pdf 0\n",
+    "下载/keep_简历01.pdf": "pdf 1\n",
+    "下载/keep_手册02.pdf": "pdf 2\n",
+    "下载/报告03.pdf": "pdf 3\n",
+    "下载/手册04.pdf": "pdf 4\n",
+    "下载/手册05.pdf": "pdf 5\n",
+    "下载/发票06.pdf": "pdf 6\n",
+    "下载/报告07.pdf": "pdf 7\n",
+    "下载/资料00.jpg": "jpg 0\n",
+    "下载/备份01.jpg": "jpg 1\n",
+    "下载/资料02.jpg": "jpg 2\n",
+    "下载/图03.jpg": "jpg 3\n",
+    "下载/备份04.jpg": "jpg 4\n",
+    "下载/图00.zip": "zip 0\n",
+    "下载/图01.zip": "zip 1\n",
+    "下载/笔记02.zip": "zip 2\n",
+    "下载/资料03.zip": "zip 3\n",
+    "下载/笔记04.zip": "zip 4\n",
+    "下载/笔记00.txt": "txt 0\n",
+    "下载/图01.txt": "txt 1\n",
+    "下载/图02.txt": "txt 2\n",
+    "下载/图03.txt": "txt 3\n",
+    "下载/笔记04.txt": "txt 4\n",
+    "下载/资料00.docx": "docx 0\n",
+    "下载/图01.docx": "docx 1\n",
+    "下载/旧报告.pdf.bak": "backup\n",
+    "下载/旧合同.pdf.bak": "backup\n",
+    "下载/pdf/说明.txt": "这里放 pdf 文件\n",
+    "下载/jpg/说明.txt": "这里放 jpg 文件\n",
+    "下载/zip/说明.txt": "这里放 zip 文件\n",
+    "下载/txt/说明.txt": "这里放 txt 文件\n",
+    "下载/docx/说明.txt": "这里放 docx 文件\n",
+    "下载/README.md": "# 下载\n\n扩展名以最后一个点后面的部分为准：.pdf.bak 的扩展名是 bak。\n按扩展名整理时，文件放进 下载/<扩展名>/ 子目录，各类子目录已经建好。\n"
+  },
+  "turns": [
+    {
+      "prompt": "下载 目录里（只看直接放在里面的文件）数量最多的是哪种扩展名？扩展名以最后一个点后面的部分为准。只回答扩展名，不带点。",
+      "expect": {
+        "output_contains": [
+          "pdf"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "把这种扩展名的文件都整理到 下载/<扩展名>/ 子目录里（子目录已经建好），别的文件不动。整理完回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "名字以 keep_ 开头的那几个还要留在 下载 根目录，把它们从子目录移回来，其余保持现在的样子。移完回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "下载/keep_简历00.pdf": {
+        "unchanged": true
+      },
+      "下载/keep_简历01.pdf": {
+        "unchanged": true
+      },
+      "下载/keep_手册02.pdf": {
+        "unchanged": true
+      },
+      "下载/报告03.pdf": {
+        "absent": true
+      },
+      "下载/手册04.pdf": {
+        "absent": true
+      },
+      "下载/手册05.pdf": {
+        "absent": true
+      },
+      "下载/发票06.pdf": {
+        "absent": true
+      },
+      "下载/报告07.pdf": {
+        "absent": true
+      },
+      "下载/资料00.jpg": {
+        "unchanged": true
+      },
+      "下载/备份01.jpg": {
+        "unchanged": true
+      },
+      "下载/资料02.jpg": {
+        "unchanged": true
+      },
+      "下载/图03.jpg": {
+        "unchanged": true
+      },
+      "下载/备份04.jpg": {
+        "unchanged": true
+      },
+      "下载/图00.zip": {
+        "unchanged": true
+      },
+      "下载/图01.zip": {
+        "unchanged": true
+      },
+      "下载/笔记02.zip": {
+        "unchanged": true
+      },
+      "下载/资料03.zip": {
+        "unchanged": true
+      },
+      "下载/笔记04.zip": {
+        "unchanged": true
+      },
+      "下载/笔记00.txt": {
+        "unchanged": true
+      },
+      "下载/图01.txt": {
+        "unchanged": true
+      },
+      "下载/图02.txt": {
+        "unchanged": true
+      },
+      "下载/图03.txt": {
+        "unchanged": true
+      },
+      "下载/笔记04.txt": {
+        "unchanged": true
+      },
+      "下载/资料00.docx": {
+        "unchanged": true
+      },
+      "下载/图01.docx": {
+        "unchanged": true
+      },
+      "下载/旧报告.pdf.bak": {
+        "unchanged": true
+      },
+      "下载/旧合同.pdf.bak": {
+        "unchanged": true
+      },
+      "下载/pdf/说明.txt": {
+        "unchanged": true
+      },
+      "下载/jpg/说明.txt": {
+        "unchanged": true
+      },
+      "下载/zip/说明.txt": {
+        "unchanged": true
+      },
+      "下载/txt/说明.txt": {
+        "unchanged": true
+      },
+      "下载/docx/说明.txt": {
+        "unchanged": true
+      },
+      "下载/README.md": {
+        "unchanged": true
+      },
+      "下载/pdf/报告03.pdf": {
+        "equals": "pdf 3\n"
+      },
+      "下载/pdf/手册04.pdf": {
+        "equals": "pdf 4\n"
+      },
+      "下载/pdf/手册05.pdf": {
+        "equals": "pdf 5\n"
+      },
+      "下载/pdf/发票06.pdf": {
+        "equals": "pdf 6\n"
+      },
+      "下载/pdf/报告07.pdf": {
+        "equals": "pdf 7\n"
+      }
+    }
+  }
+}
