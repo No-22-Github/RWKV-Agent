@@ -1473,3 +1473,4 @@
 {"case_id": "tab-8807--p2", "reason": "Minimal supplement: prefer p1; p2 adds an unrequested count query after the sum result already provides matching-row count", "batch": "b13"}
 {"case_id": "hyb-9052--p1", "reason": "Final answer invents a wind direction (偏北风) that the forecast does not contain", "batch": "b12b"}
 {"case_id": "hyb-9055--p1", "reason": "Final answer leaks the word fixture (fixture 源) to the user", "batch": "b12b"}
+{"case_id": "doc-9076--p1", "reason": "Final answer uses backticks (Markdown) against the plain-text rule", "batch": "b12c"}

@@ -1,0 +1,85 @@
+{
+  "id": "hyb-9078",
+  "description": "Asks tomorrow's low temperature of a city for an early arrival. DISTILL-CANARY-8e36ad49",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "12"
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b12c-lanzhoulow-01",
+    "ref_calls": 1,
+    "fixture_bytes": 34,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12c",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "出差/兰州.md": "# 兰州出差\n\n- 周四早班机\n"
+  },
+  "turns": [
+    {
+      "prompt": "明天一早到兰州，早上会很冷吗？明天最低气温是多少度？",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "9"
+        ],
+        "max_output_chars": 600,
+        "output_contains_token": true
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "兰州",
+      "aliases": [
+        "Lanzhou"
+      ],
+      "report": {
+        "location": "兰州",
+        "current": "晴 19°C 体感 18°C 湿度 35% 风速 16 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "晴",
+            "temp_c": "12~22",
+            "rain_chance": "0%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "多云",
+            "temp_c": "9~20",
+            "rain_chance": "10%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "多云",
+            "temp_c": "10~21",
+            "rain_chance": "15%"
+          }
+        ]
+      }
+    }
+  ]
+}

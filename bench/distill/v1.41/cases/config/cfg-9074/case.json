@@ -1,0 +1,70 @@
+{
+  "id": "cfg-9074",
+  "description": "Bumps the chart version in four Chart.yaml files without touching the look-alike appVersion line or the frozen legacy chart. DISTILL-CANARY-f7230c21",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON"
+    ],
+    "level": "L2",
+    "family": "fam-cfg-b12c-chartbump-01",
+    "ref_calls": 2,
+    "fixture_bytes": 507,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12c",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "charts/api/Chart.yaml": "name: api\nversion: 2.3.1\nappVersion: 2.3.1\ntype: application\n",
+    "charts/web/Chart.yaml": "name: web\nversion: 2.3.1\nappVersion: 2.3.1\ntype: application\n",
+    "charts/worker/Chart.yaml": "name: worker\nversion: 2.3.1\nappVersion: 2.3.1\ntype: application\n",
+    "charts/cron/Chart.yaml": "name: cron\nversion: 2.3.1\nappVersion: 2.3.1\ntype: application\n",
+    "charts/legacy/Chart.yaml": "name: legacy\nversion: 2.3.1\nappVersion: 2.3.1\ntype: application\n",
+    "charts/README.md": "# Charts\n\nRelease bump: raise `version` to 2.4.0 in each chart.\n`appVersion` tracks the application release and is bumped by CI; leave it.\ncharts/legacy is frozen and is not part of the release.\n"
+  },
+  "turns": [
+    {
+      "prompt": "发版：把 charts 下各个 Chart.yaml 的 version 从 2.3.1 升到 2.4.0。哪些行或目录不用动，charts/README.md 里有说明。改完回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "charts/api/Chart.yaml": {
+        "equals": "name: api\nversion: 2.4.0\nappVersion: 2.3.1\ntype: application\n"
+      },
+      "charts/web/Chart.yaml": {
+        "equals": "name: web\nversion: 2.4.0\nappVersion: 2.3.1\ntype: application\n"
+      },
+      "charts/worker/Chart.yaml": {
+        "equals": "name: worker\nversion: 2.4.0\nappVersion: 2.3.1\ntype: application\n"
+      },
+      "charts/cron/Chart.yaml": {
+        "equals": "name: cron\nversion: 2.4.0\nappVersion: 2.3.1\ntype: application\n"
+      },
+      "charts/legacy/Chart.yaml": {
+        "unchanged": true
+      },
+      "charts/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "id": "doc-9076",
+  "description": "Single-file README lookup of the dev server port while bash is offered; the read tool is the right call. DISTILL-CANARY-a05a4e8f",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "7400"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b12c-devport-01",
+    "ref_calls": 1,
+    "fixture_bytes": 228,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12c",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "README.md": "# Orders service\n\nRun `make dev`; the dev server listens on port 7410.\nHealth check: GET /healthz.\n",
+    "docs/ports.md": "# Ports (old)\n\nThe dev server used to listen on 7400 before the 2025 move.\nProd listens on 8443.\n",
+    "docs/notes.md": "# Notes\n\nOld dev port was 7400.\n"
+  },
+  "turns": [
+    {
+      "prompt": "What port does the dev server listen on, according to README.md?",
+      "expect": {
+        "output_contains_any": [
+          "7410"
+        ],
+        "forbidden_tools": [
+          "bash"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

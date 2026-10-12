@@ -1,0 +1,84 @@
+{
+  "id": "hyb-9080",
+  "description": "Asks today's high temperature of a city. DISTILL-CANARY-60a1f35f",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "31"
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b12c-wuhantoday-01",
+    "ref_calls": 1,
+    "fixture_bytes": 43,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12c",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "工作/外勤.md": "# 外勤安排\n\n- 下午在汉口跑客户\n"
+  },
+  "turns": [
+    {
+      "prompt": "我今天下午在武汉跑外勤，今天最高会到多少度？热不热？",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "34"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "武汉",
+      "aliases": [
+        "Wuhan"
+      ],
+      "report": {
+        "location": "武汉",
+        "current": "多云 30°C 体感 35°C 湿度 75% 风速 6 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "多云",
+            "temp_c": "25~34",
+            "rain_chance": "20%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "雷阵雨",
+            "temp_c": "24~31",
+            "rain_chance": "70%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "阴",
+            "temp_c": "24~30",
+            "rain_chance": "40%"
+          }
+        ]
+      }
+    }
+  ]
+}

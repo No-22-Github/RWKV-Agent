@@ -1,0 +1,84 @@
+{
+  "id": "hyb-9081",
+  "description": "Asks tomorrow's weather in a city for an outdoor dinner. DISTILL-CANARY-2da3c87d",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "多云"
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b12c-shenzhenbbq-01",
+    "ref_calls": 1,
+    "fixture_bytes": 52,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12c",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "周边/深圳.md": "# 深圳周末\n\n- 周四晚上想去海边吃烧烤\n"
+  },
+  "turns": [
+    {
+      "prompt": "明天晚上想在深圳海边吃烧烤，明天天气怎么样？",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "雷阵雨"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "深圳",
+      "aliases": [
+        "Shenzhen"
+      ],
+      "report": {
+        "location": "深圳",
+        "current": "多云 31°C 体感 37°C 湿度 82% 风速 9 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "多云",
+            "temp_c": "27~33",
+            "rain_chance": "30%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "雷阵雨",
+            "temp_c": "26~31",
+            "rain_chance": "80%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "中雨",
+            "temp_c": "26~30",
+            "rain_chance": "85%"
+          }
+        ]
+      }
+    }
+  ]
+}
