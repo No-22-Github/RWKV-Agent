@@ -109,6 +109,8 @@ def merge_batch_specs():
         path = os.path.join(tools, batch, "specs.py")
         if not os.path.exists(path):
             continue
+        for name in ("common", "m9", "m10"):
+            sys.modules.pop(name, None)  # each batch has its own same-named modules
         spec = importlib.util.spec_from_file_location(batch + "_specs", path)
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)

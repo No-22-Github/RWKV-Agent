@@ -1,0 +1,99 @@
+{
+  "id": "hyb-9146",
+  "description": "Composite request: last metro time from web search plus today's forecast from the weather tool. DISTILL-CANARY-ad62578f",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-MULTISRC",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "中雨",
+      "TR-DECOY": "多云"
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b12f-fuzhoumetro-01",
+    "ref_calls": 2,
+    "fixture_bytes": 37,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12f",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [
+    {
+      "query_match": "福州",
+      "url": "https://www.fzmetro.example.cn/line1",
+      "url_match": "fzmetro",
+      "title": "福州地铁 1 号线运营时间",
+      "snippet": "福州地铁 1 号线运营时间：6:30—22:45（以首末站发车为准）。",
+      "content": "# 福州地铁 1 号线运营时间\n\n福州地铁 1 号线运营时间：6:30—22:45（以首末站发车为准）。",
+      "published_at": "2026-08-30"
+    }
+  ],
+  "files": {
+    "生活/福州.md": "# 福州日常\n\n- 周三晚上聚餐\n"
+  },
+  "turns": [
+    {
+      "prompt": "今晚我在福州坐地铁 1 号线回家，末班车几点？再看看福州今天的天气。",
+      "expect": {
+        "required_tools": [
+          "get_weather",
+          "web_search"
+        ],
+        "max_output_chars": 600,
+        "output_contains": [
+          "中雨"
+        ],
+        "output_contains_any": [
+          "22:45",
+          "22：45",
+          "22点45",
+          "22 点 45"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "福州",
+      "aliases": [
+        "Fuzhou"
+      ],
+      "report": {
+        "location": "福州",
+        "current": "阴 27°C 体感 31°C 湿度 85% 风速 12 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "中雨",
+            "temp_c": "25~28",
+            "rain_chance": "80%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "多云",
+            "temp_c": "25~32",
+            "rain_chance": "30%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "晴",
+            "temp_c": "26~33",
+            "rain_chance": "10%"
+          }
+        ]
+      }
+    }
+  ]
+}

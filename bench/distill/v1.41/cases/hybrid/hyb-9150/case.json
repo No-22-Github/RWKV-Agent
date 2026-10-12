@@ -1,0 +1,86 @@
+{
+  "id": "hyb-9150",
+  "description": "Asks the high temperature at a waterfront district the day after tomorrow; the forecast must be looked up by its city. DISTILL-CANARY-44443511",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-NEARNAME",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": "UNKNOWN",
+      "TR-DECOY": "27"
+    },
+    "axes": [
+      "ERR",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b12f-bundnight-01",
+    "ref_calls": 1,
+    "fixture_bytes": 43,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12f",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "旅行/上海.md": "# 上海行\n\n- 周五晚上外滩看夜景\n"
+  },
+  "turns": [
+    {
+      "prompt": "后天晚上我去外滩看夜景，那天最高气温大概多少度？",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "31"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "上海",
+      "aliases": [
+        "Shanghai"
+      ],
+      "report": {
+        "location": "上海",
+        "current": "阴 27°C 体感 30°C 湿度 80% 风速 14 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "阴",
+            "temp_c": "23~29",
+            "rain_chance": "40%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "小雨",
+            "temp_c": "22~27",
+            "rain_chance": "60%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "多云",
+            "temp_c": "23~31",
+            "rain_chance": "20%"
+          }
+        ]
+      }
+    }
+  ]
+}
