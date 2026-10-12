@@ -1,0 +1,94 @@
+{
+  "id": "hyb-9444",
+  "description": "Composite request: ferry fare from web search plus tomorrow's forecast from the weather tool. DISTILL-CANARY-9c476fee",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-MULTISRC",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "阵雨",
+      "TR-DECOY": "晴"
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b12r-glyferry-01",
+    "ref_calls": 2,
+    "fixture_bytes": 28,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12r",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [
+    {
+      "query_match": "鼓浪屿",
+      "url": "https://www.gly-ferry.example.cn/fare",
+      "url_match": "gly-ferry",
+      "title": "厦门—鼓浪屿 轮渡票价",
+      "snippet": "厦门至鼓浪屿轮渡（游客）往返船票 35 元，须在码头或线上实名购票；上岛景点另计。",
+      "content": "# 厦门—鼓浪屿 轮渡票价\n\n厦门至鼓浪屿轮渡（游客）往返船票 35 元，须在码头或线上实名购票；上岛景点另计。",
+      "published_at": "2026-08-30"
+    }
+  ],
+  "files": {
+    "旅行/厦门.md": "# 厦门行\n\n- 周四上岛\n"
+  },
+  "turns": [
+    {
+      "prompt": "明天坐船去鼓浪屿，往返船票多少钱？再看看厦门明天的天气。",
+      "expect": {
+        "required_tools": [
+          "get_weather",
+          "web_search"
+        ],
+        "max_output_chars": 600,
+        "output_contains": [
+          "阵雨",
+          "35"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "厦门",
+      "aliases": [
+        "Xiamen"
+      ],
+      "report": {
+        "location": "厦门",
+        "current": "多云 29°C 体感 33°C 湿度 76% 风速 11 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "晴",
+            "temp_c": "27~33",
+            "rain_chance": "10%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "阵雨",
+            "temp_c": "26~31",
+            "rain_chance": "60%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "多云",
+            "temp_c": "26~32",
+            "rain_chance": "25%"
+          }
+        ]
+      }
+    }
+  ]
+}

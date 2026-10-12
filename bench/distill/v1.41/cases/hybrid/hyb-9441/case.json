@@ -1,0 +1,101 @@
+{
+  "id": "hyb-9441",
+  "description": "Composite request: panda base opening time from web search plus tomorrow's forecast from the weather tool. DISTILL-CANARY-3378455d",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-MULTISRC",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "小雨",
+      "TR-DECOY": "多云"
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b12r-pandaopen-01",
+    "ref_calls": 2,
+    "fixture_bytes": 31,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12r",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [
+    {
+      "query_match": "熊猫",
+      "url": "https://www.panda.example.cn/visit",
+      "url_match": "panda",
+      "title": "成都大熊猫繁育研究基地 参观须知",
+      "snippet": "基地全年开放，入园时间 7:30 起，18:00 停止售票；熊猫上午最活跃，建议尽早入园。",
+      "content": "# 成都大熊猫繁育研究基地 参观须知\n\n基地全年开放，入园时间 7:30 起，18:00 停止售票；熊猫上午最活跃，建议尽早入园。",
+      "published_at": "2026-08-30"
+    }
+  ],
+  "files": {
+    "旅行/成都.md": "# 成都行\n\n- 周四看熊猫\n"
+  },
+  "turns": [
+    {
+      "prompt": "明天我想去成都看大熊猫，熊猫基地几点开始入园？顺便看看成都明天的天气。",
+      "expect": {
+        "required_tools": [
+          "get_weather",
+          "web_search"
+        ],
+        "max_output_chars": 600,
+        "output_contains": [
+          "小雨"
+        ],
+        "output_contains_any": [
+          "7:30",
+          "7：30",
+          "7点30",
+          "7 点 30",
+          "7点半",
+          "七点半"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "成都",
+      "aliases": [
+        "Chengdu"
+      ],
+      "report": {
+        "location": "成都",
+        "current": "阴 24°C 体感 26°C 湿度 72% 风速 6 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "多云",
+            "temp_c": "22~28",
+            "rain_chance": "20%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "小雨",
+            "temp_c": "20~25",
+            "rain_chance": "70%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "阴",
+            "temp_c": "21~27",
+            "rain_chance": "30%"
+          }
+        ]
+      }
+    }
+  ]
+}

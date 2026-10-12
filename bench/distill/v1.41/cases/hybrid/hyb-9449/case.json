@@ -1,0 +1,96 @@
+{
+  "id": "hyb-9449",
+  "description": "Composite request in English: attraction ticket price from web search plus tomorrow's forecast from the weather tool. DISTILL-CANARY-465e4293",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-MULTISRC",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "Drizzle",
+      "TR-DECOY": "Sunny"
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b12r-spaceneedle-01",
+    "ref_calls": 2,
+    "fixture_bytes": 41,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12r",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [
+    {
+      "query_match": "space needle",
+      "url": "https://www.spaceneedle.example.com/tickets",
+      "url_match": "spaceneedle",
+      "title": "Space Needle tickets",
+      "snippet": "Space Needle general admission, adult: $41, open daily; timed tickets recommended.",
+      "content": "# Space Needle tickets\n\nSpace Needle general admission, adult: $41, open daily; timed tickets recommended.",
+      "published_at": "2026-08-30"
+    }
+  ],
+  "files": {
+    "trip/seattle.md": "# Seattle trip\n\n- Thursday: Space Needle\n"
+  },
+  "turns": [
+    {
+      "prompt": "I'm visiting Seattle tomorrow. How much is an adult ticket for the Space Needle, and what will the weather be like there tomorrow?",
+      "expect": {
+        "required_tools": [
+          "get_weather",
+          "web_search"
+        ],
+        "max_output_chars": 600,
+        "output_contains_any": [
+          "$41",
+          "41 dollars",
+          "41 USD",
+          "USD 41"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "Seattle",
+      "aliases": [
+        "西雅图"
+      ],
+      "report": {
+        "location": "Seattle",
+        "current": "Sunny 21°C feels 21°C humidity 50% wind 10 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "Sunny",
+            "temp_c": "13~23",
+            "rain_chance": "5%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "Drizzle",
+            "temp_c": "12~18",
+            "rain_chance": "60%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "Cloudy",
+            "temp_c": "11~19",
+            "rain_chance": "25%"
+          }
+        ]
+      }
+    }
+  ]
+}
