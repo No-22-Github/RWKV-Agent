@@ -1471,7 +1471,3 @@
 {"case_id": "tab-8805--p2", "reason": "Misstates berth names and adds unsupported unassigned-field claim; also unnecessary broad search", "batch": "b13"}
 {"case_id": "tab-8806--p2", "reason": "Minimal supplement: prefer p1 direct aggregation; p2 adds a header reread after sufficient result and user-supplied schema", "batch": "b13"}
 {"case_id": "tab-8807--p2", "reason": "Minimal supplement: prefer p1; p2 adds an unrequested count query after the sum result already provides matching-row count", "batch": "b13"}
-{"case_id": "tab-9022--p2", "reason": "Headline answer is net 10,236 units while the case expects gross receipts 18,468; passes only because the gross figure is mentioned", "batch": "b12a"}
-{"case_id": "scr-9030--p1", "reason": "Final answer uses backticks and pipes (Markdown) against the plain-text rule", "batch": "b12a"}
-{"case_id": "hyb-9048--p1", "reason": "Never read 规则/户外活动.md and answers 可以照常 although 34°C crosses the 33°C rule; case expect was too weak (now requires 室内)", "batch": "b12a"}
-{"case_id": "hyb-9049--p1", "reason": "Never read 门店/洗车规则.md and recommends 镀膜 tomorrow although the two-day rule says postpone; case expect was too weak", "batch": "b12a"}
