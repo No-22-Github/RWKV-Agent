@@ -38,6 +38,7 @@
       "prompt": "怎么用 tar 把 日志/归档 打成一个按当天日期命名的 .tar.gz 包？给我命令就行，先别执行。",
       "expect": {
         "tools": [],
+        "require_active_no_call": true,
         "output_contains_any": [
           "tar -czf",
           "tar czf",

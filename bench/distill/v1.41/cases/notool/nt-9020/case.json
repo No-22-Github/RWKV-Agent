@@ -32,6 +32,7 @@
       "prompt": "天气预报里说的「降水概率 70%」到底是什么意思？",
       "expect": {
         "tools": [],
+        "require_active_no_call": true,
         "output_contains_any": [
           "70%",
           "百分之七十",

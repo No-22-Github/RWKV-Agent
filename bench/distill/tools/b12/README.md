@@ -9,6 +9,7 @@ cd bench/distill/tools/b12 && python3 build.py   # 写题 + 在 sidecar 里跑�
 ../gate.sh v1.41                                   # 对 v1.41 的题跑 bank lint + bank verify --strict-shape
 ```
 
+- `behavior.py <run-dir>…` 是 S5 的行为验收：读老师 run 的 summary + trace，把每条通过路径判成 covered（计子类配额）/ ordinary（普通路径）/ reject（剔除）。新题要在它的 `SPEC` 里登记子类和参数。判据说明见 [b12-pilot-criteria-20261011.md](../../v1.41/reports/b12-pilot-criteria-20261011.md)。
 - 随机数带固定种子，重跑逐字节一致；数值类题会换种子直到答案字面量不出现在 fixture 里，避免破坏测试撞上无关数字。
 - 放量出题照这里的写法：参考解进 `REFS`，`build.py` 跑不通就不收。
 - 解题者不得读这里的文件（同 b10）。

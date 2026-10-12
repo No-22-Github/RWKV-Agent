@@ -12,4 +12,5 @@ for path, text in case["files"].items():
         whole, frac = amount.split(".")
         if status == "refunded" and sku.startswith("KX-"):
             cents += int(whole) * 100 + int(frac)
-print(json.dumps({"expected_number": cents / 100}))
+value = f"{cents // 100}.{cents % 100:02d}"
+print(json.dumps({"expected_contains_any": [value, f"{cents // 100:,}.{cents % 100:02d}"]}))

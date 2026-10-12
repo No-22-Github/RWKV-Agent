@@ -42,10 +42,11 @@
     {
       "prompt": "How much did we refund on the Kestrel line across the March to August order exports?",
       "expect": {
-        "output_contains": [
-          "7521.21"
+        "output_contains_any": [
+          "7521.21",
+          "7,521.21"
         ],
-        "output_contains_token": true,
+        "output_contains_any_token": true,
         "max_output_chars": 600
       }
     }

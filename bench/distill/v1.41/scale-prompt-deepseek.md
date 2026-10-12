@@ -106,6 +106,7 @@ local/bin/rwkv-cli agent-eval \
 b10老师配置与suffix已验收，不重复付费冒烟。b12样板行为返修后，在本批20题上k=1，**加suffix和不加suffix各跑一遍**，比较三项（本轮冒烟不能代替之后k=3）：
 - pass 数；
 - `b10_check.py` 的形态问题数；
+- `tools/b12/behavior.py` 的 covered / ordinary / reject 分子类计数；
 - 思考统计（见 §3.6）。
 
 加 suffix 应当不差于不加；明显更差就停下报告用户，不要自己改 suffix 的规则口径。结果写进当前b12返修批报告，记录首轮与重试；统计实际bash/weather、零调用、cwd恢复、同文件回查，不能仅报pass数。
@@ -120,6 +121,7 @@ local/bin/rwkv-lab corpus paths --run local/runs/distill/v141/$B/teacher-k0 --ru
 - b12 批的脚本写到 `bench/distill/v1.41/teacher/$B.jsonl`。
 - 抽完马上检查：脚本里有思考的输出占比，应在 60% 以上（筛选时 DeepSeek 是 69% 的步有思考）。是 0 就说明二进制太旧，停下修好再继续。
 - `local/runs/distill/v141/` 下的老师 run 目录不入库，**但不得删除**：trace 里存着完整的思考和请求，以后渲染带思考版要用。
+- b12 批先跑 `bench/distill/tools/b12/behavior.py <teacher-k0> <k1> <k2>`：reject 路径整条剔除，只有 covered 计入 M9/M10 子类配额（新题须先在其 `SPEC` 登记子类）。
 - 0/3 分诊、`b10_check.py`、逐条读终答，三层质检照 b10-scale-prompt §3 S5 做，不得省略。
 
 ### 3.6 思考统计（每批报告必带，先只统计、不按思考过滤）

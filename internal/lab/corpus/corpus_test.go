@@ -246,6 +246,13 @@ func TestExtractRejectsUncleanRuns(t *testing.T) {
 			}),
 			finalStep("x"),
 		}, nil, true, 0)},
+		{"tool error or rejection", caseRun(t, []map[string]any{
+			step("tool", map[string]any{
+				"tool": "get_weather", "tool_arguments": map[string]any{"location": "厦门", "days": 99},
+				"tool_executed": true, "tool_error": "invalid tool arguments: days must be between 1 and 16",
+			}),
+			finalStep("x"),
+		}, nil, true, 0)},
 		{"answer repaired by the harness", caseRun(t, []map[string]any{finalStep("x")}, &repaired, true, 0)},
 		{"answer stage (forced closeout)", caseRun(t, []map[string]any{
 			step("final", map[string]any{"model_output": "x", "stage": "answer"}),
@@ -634,5 +641,36 @@ func TestExtractKeepsFixturePageErrors(t *testing.T) {
 	}
 	if len(trajectory) != 2 || trajectory[0].Tool != "web_fetch" {
 		t.Fatalf("trajectory = %+v", trajectory)
+	}
+}
+
+func TestExtractKeepsFixtureWeatherMiss(t *testing.T) {
+	run := caseRun(t, []map[string]any{
+		step("tool", map[string]any{
+			"tool": "get_weather", "tool_arguments": map[string]any{"location": "鼓浪屿", "days": 3},
+			"tool_executed": true, "tool_error": "location not found: 鼓浪屿",
+		}),
+		toolStep("get_weather", map[string]any{"location": "厦门", "days": 3}),
+		finalStep("后天厦门中雨，降水概率 75%。"),
+	}, nil, true, 0)
+	trajectory, err := Extract(run)
+	if err != nil {
+		t.Fatalf("landmark miss dropped the path: %v", err)
+	}
+	if len(trajectory) != 3 || trajectory[0].Tool != "get_weather" || trajectory[1].Tool != "get_weather" {
+		t.Fatalf("trajectory = %+v", trajectory)
+	}
+}
+
+func TestExtractDropsUnrecoveredWeatherMiss(t *testing.T) {
+	run := caseRun(t, []map[string]any{
+		step("tool", map[string]any{
+			"tool": "get_weather", "tool_arguments": map[string]any{"location": "厦们", "days": 3},
+			"tool_executed": true, "tool_error": "location not found: 厦们",
+		}),
+		finalStep("后天厦门中雨，降水概率 75%。"),
+	}, nil, true, 0)
+	if _, err := Extract(run); err == nil {
+		t.Fatal("a weather miss with no successful retry was kept")
 	}
 }

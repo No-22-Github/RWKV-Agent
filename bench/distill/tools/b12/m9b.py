@@ -3,6 +3,7 @@ import json
 from random import Random
 
 from common import lines, write_case
+from m9a import thousands
 
 REFS = {}
 
@@ -54,7 +55,8 @@ for path, text in case["files"].items():
         batch, item, g, status = row.split(",")
         if status == "入库":
             grams += int(g)
-print(json.dumps({"expected_string": f"{grams / 1000:.1f}"}))
+kg = f"{grams / 1000:.1f}"
+print(json.dumps({"expected_contains_any": [kg, f"{grams / 1000:,.1f}"]}))
 '''
     notes = f"""## Traps
 - TR-DEFN: 工具/汇总.py only adds rows whose 状态 is 入库; summing every row gives {all_kg}.
@@ -75,7 +77,8 @@ The script's filter and rounding are explicit; returned batches are excluded.
         traps=["TR-DEFN"], decoys={"TR-DEFN": all_kg}, axes=["OBS", "ERR"],
         files=files, verify=verify, notes=notes,
         turns=[{"prompt": "帮我跑一下 工具/汇总.py，告诉我它输出的入库净重合计是多少千克。",
-                "expect": {"output_contains": [kg], "output_contains_token": True, "max_output_chars": 600}}])
+                "expect": {"output_contains_any": thousands(kg), "output_contains_any_token": True,
+                           "max_output_chars": 600}}])
 
 
 def web_9008():
@@ -190,7 +193,8 @@ The user said not to execute; any tool call (even listing the directory) violate
         traps=["TR-NOTOOLNEED"], decoys={"TR-NOTOOLNEED": None}, axes=["DEC"],
         files=files, verify=verify, notes=notes, case_expect={"files": expect_files},
         turns=[{"prompt": "怎么用 tar 把 日志/归档 打成一个按当天日期命名的 .tar.gz 包？给我命令就行，先别执行。",
-                "expect": {"tools": [], "output_contains_any": ["tar -czf", "tar czf", "tar -zcf", "tar zcf"],
+                "expect": {"tools": [], "require_active_no_call": True,
+                           "output_contains_any": ["tar -czf", "tar czf", "tar -zcf", "tar zcf"],
                            "max_output_chars": 600}}])
 
 
@@ -255,10 +259,11 @@ print(json.dumps({"expected_number": int(re.search(r"读超时秒: ([0-9]+)", te
 '''
     notes = """## Traps
 - TR-DECOY: the root 超时.yaml says 30. Each bash call starts at /workspace, so a turn-2 `cat 超时.yaml` after a turn-1 `cd 服务/结算` reads the root file.
+- Turn 1 asks for a cd so the path actually carries the cd; a path without a turn-1 bash cd still passes but is not M9f coverage (behavior.py labels it ordinary).
 
 ## Reference solution
-Turn 1: bash `ls 服务/结算` (or list_files) -> 超时.yaml, 入口.go.
-Turn 2: read 服务/结算/超时.yaml with the full path -> 12.
+Turn 1: bash `cd 服务/结算 && ls` -> 超时.yaml, 入口.go.
+Turn 2: read 服务/结算/超时.yaml with the full path (or bash `cat 服务/结算/超时.yaml`) -> 12.
 Final answer turn 2: 结算服务的读超时是 12 秒（服务/结算/超时.yaml 覆盖了根目录默认的 30 秒）。
 
 ## Why the answer is unique
@@ -266,11 +271,11 @@ The question is about the file inside 服务/结算.
 """
     REFS["cfg-9012"] = (files, ["cd 服务/结算 && ls", "grep 读超时 服务/结算/超时.yaml"], has("12"))
     return write_case(
-        "cfg-9012", desc="Two turns: list a service folder, then read a same-named file whose root copy is a decoy",
+        "cfg-9012", desc="Two turns: cd into a service folder and list it, then read a same-named file whose root copy is a decoy",
         task_type="precedence", family="fam-cfg-b12-cwdreset-01", level="L3", ref_calls=2,
         traps=["TR-DECOY"], decoys={"TR-DECOY": "30"}, axes=["OBS", "ERR"],
         files=files, verify=verify, notes=notes,
-        turns=[{"prompt": "进到 服务/结算 目录看看有哪些文件。",
+        turns=[{"prompt": "cd 到 服务/结算 目录，看看里面有哪些文件。",
                 "expect": {"output_contains": ["超时.yaml"], "max_output_chars": 600}},
                {"prompt": "那里面的 超时.yaml 读超时是多少秒？",
                 "expect": {"output_contains": ["12"], "output_contains_token": True, "max_output_chars": 600}}])
