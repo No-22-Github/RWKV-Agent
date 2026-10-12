@@ -36,7 +36,7 @@
   },
   "turns": [
     {
-      "prompt": "我想明天在合肥洗个车，还想顺便做镀膜，合适吗？",
+      "prompt": "我想明天在合肥洗个车，还想顺便做镀膜，按店里的规则合适吗？",
       "expect": {
         "required_tools": [
           "get_weather"

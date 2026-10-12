@@ -497,7 +497,7 @@ def check_cwd_reset(turns, spec, case):
             problems.append("cwd_reset: read root %s (decoy)" % name)
         if c.tool == "bash" and name in c.command and subdir not in c.command:
             problems.append("cwd_reset: bash read %s without %s (decoy)" % (name, subdir))
-    cd_sub = re.compile(r"\s*cd\s+(/workspace/)?" + re.escape(subdir) + r"/?\s*$")
+    cd_sub = re.compile(r"\s*cd\s+(/workspace/)?" + re.escape(subdir) + r"/?(\s+\d?>+\s*\S+)*\s*$")
     # A real `cd` command segment, not the words inside an echo.
     cd_first = any(c.tool == "bash" and any(cd_sub.match(seg) for seg in segments(c.command)) for c in first)
     return cd_first and any(reads_target(c, subdir, name, cd_sub) for c in second), problems
