@@ -11,8 +11,8 @@ Final answer: 大连明天（9 月 17 日）有雷阵雨，降水概率 65%，17
 One forecast row and one web snippet each carry the unique value.
 
 ## Five alternative phrasings of the task
-1. 大连明天天气如何？还有大马全程报名费多少
+1. 大连明天天气如何？还有马拉松全程报名费多少
 2. 查查大连国际马拉松全马报名费，顺便看明天大连天气
 3. 明早大连跑步天气，加上马拉松报名价格
 4. 大连明天会下雨吗，马拉松报名要多少钱
-5. Dalian weather tomorrow and the marathon entry fee?
+5. Dalian weather tomorrow, and the 马拉松 (marathon) entry fee?

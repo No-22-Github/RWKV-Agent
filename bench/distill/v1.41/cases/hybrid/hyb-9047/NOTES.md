@@ -15,4 +15,4 @@ One forecast row and one web snippet each carry the unique value.
 2. 周五从长沙去张家界，高铁多久，那天长沙天气怎样
 3. 长沙后天天气和去张家界高铁时长
 4. 长沙—张家界高铁最短多长时间？后天天气呢
-5. Changsha to Zhangjiajie high-speed train time, and Changsha's weather the day after tomorrow?
+5. Changsha to Zhangjiajie 高铁 (high-speed train) time, and Changsha's weather the day after tomorrow?
