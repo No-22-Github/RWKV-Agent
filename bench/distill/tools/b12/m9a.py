@@ -10,6 +10,14 @@ def has(*needles):
     return lambda out, _root: None if all(n in out for n in needles) else "ref stdout %r lacks %s" % (out[:200], needles)
 
 
+def thousands(value):
+    """The answer with and without a thousands separator: "7521.21" and
+    "7,521.21" are the same total, and teachers write both."""
+    whole, _, frac = value.partition(".")
+    grouped = f"{int(whole):,}" + ("." + frac if frac else "")
+    return [value] if grouped == value else [value, grouped]
+
+
 def literal_free(files, value):
     """True when the answer literal appears nowhere in the fixture, so the
     sabotage test cannot hit an unrelated digit run (b10 pilot lesson)."""
@@ -115,7 +123,8 @@ for path, text in case["files"].items():
         whole, frac = amount.split(".")
         if status == "refunded" and sku.startswith("KX-"):
             cents += int(whole) * 100 + int(frac)
-print(json.dumps({"expected_number": cents / 100}))
+value = f"{cents // 100}.{cents % 100:02d}"
+print(json.dumps({"expected_contains_any": [value, f"{cents // 100:,}.{cents % 100:02d}"]}))
 '''
     notes = f"""## Traps
 - TR-MULTISRC: six monthly exports; one month alone is a plausible wrong total.
@@ -135,7 +144,8 @@ Status and SKU are exact fields; the README pins KX- versus KXL-.
         traps=["TR-MULTISRC", "TR-DECOY"], decoys={"TR-MULTISRC": march_only, "TR-DECOY": with_lite}, axes=["CHN", "OBS"],
         files=files, verify=verify, notes=notes,
         turns=[{"prompt": "How much did we refund on the Kestrel line across the March to August order exports?",
-                "expect": {"output_contains": [value], "output_contains_token": True, "max_output_chars": 600}}])
+                "expect": {"output_contains_any": thousands(value), "output_contains_any_token": True,
+                           "max_output_chars": 600}}])
 
 
 # ---------------------------------------------------------------- M9b bulk edit

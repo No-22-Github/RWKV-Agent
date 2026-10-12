@@ -1,0 +1,96 @@
+{
+  "id": "cfg-9273",
+  "description": "Two turns: sets retries from 1 to 3 in the service configs except the template, then lists the service directories whose conf.yaml still does not say retries 3. DISTILL-CANARY-779c38b4",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "missing_keys",
+    "traps": [
+      "TR-READONLY",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null,
+      "TR-DECOY": null
+    },
+    "axes": [
+      "CON",
+      "OBS"
+    ],
+    "level": "L3",
+    "family": "fam-cfg-b12k-retrieslist-01",
+    "ref_calls": 3,
+    "fixture_bytes": 410,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "微服务/订单/conf.yaml": "name: 订单\nretries: 1\ntimeout: 30\n",
+    "微服务/支付/conf.yaml": "name: 支付\nretries: 1\ntimeout: 30\n",
+    "微服务/库存/conf.yaml": "name: 库存\nretries: 1\ntimeout: 30\n",
+    "微服务/物流/conf.yaml": "name: 物流\nretries: 2\ntimeout: 30\n",
+    "微服务/通知/conf.yaml": "name: 通知\nretries: 1\ntimeout: 30\n",
+    "微服务/风控/conf.yaml": "name: 风控\nretries: 5\ntimeout: 30\n",
+    "微服务/搜索/conf.yaml": "name: 搜索\nretries: 3\ntimeout: 30\n",
+    "微服务/_样例/conf.yaml": "name: 样例\nretries: 1\ntimeout: 30\n",
+    "微服务/README.md": "# 微服务配置\n\n每个服务一个目录，配置在 conf.yaml。_样例 是新服务的复制模板，保持原样。\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 微服务 下各服务 conf.yaml 里的 retries: 1 改成 retries: 3，哪些目录不能动看 微服务/README.md。改完回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "以磁盘上现在的文件内容为准：微服务 下哪些服务目录里的 conf.yaml 的 retries 不是 3（连模板目录也算）？只回答目录名。",
+      "expect": {
+        "output_contains": [
+          "物流",
+          "风控",
+          "_样例"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "微服务/订单/conf.yaml": {
+        "equals": "name: 订单\nretries: 3\ntimeout: 30\n"
+      },
+      "微服务/支付/conf.yaml": {
+        "equals": "name: 支付\nretries: 3\ntimeout: 30\n"
+      },
+      "微服务/库存/conf.yaml": {
+        "equals": "name: 库存\nretries: 3\ntimeout: 30\n"
+      },
+      "微服务/物流/conf.yaml": {
+        "unchanged": true
+      },
+      "微服务/通知/conf.yaml": {
+        "equals": "name: 通知\nretries: 3\ntimeout: 30\n"
+      },
+      "微服务/风控/conf.yaml": {
+        "unchanged": true
+      },
+      "微服务/搜索/conf.yaml": {
+        "unchanged": true
+      },
+      "微服务/_样例/conf.yaml": {
+        "unchanged": true
+      },
+      "微服务/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

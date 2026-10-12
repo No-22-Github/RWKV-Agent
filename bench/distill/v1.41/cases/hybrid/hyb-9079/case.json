@@ -1,0 +1,83 @@
+{
+  "id": "hyb-9079",
+  "description": "Asks in English whether it rains in a city tomorrow. DISTILL-CANARY-f3ca73fb",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "0%"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b12c-sydneyrain-01",
+    "ref_calls": 1,
+    "fixture_bytes": 49,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12c",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "trip/sydney.md": "# Sydney trip\n\n- Harbour walk Thursday afternoon\n"
+  },
+  "turns": [
+    {
+      "prompt": "I'm planning a harbour walk in Sydney tomorrow afternoon. Is it likely to rain?",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "60%"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "Sydney",
+      "aliases": [
+        "悉尼"
+      ],
+      "report": {
+        "location": "Sydney",
+        "current": "Sunny 20°C feels 19°C humidity 48% wind 20 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "Sunny",
+            "temp_c": "11~22",
+            "rain_chance": "0%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "Showers",
+            "temp_c": "12~19",
+            "rain_chance": "60%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "Cloudy",
+            "temp_c": "11~20",
+            "rain_chance": "20%"
+          }
+        ]
+      }
+    }
+  ]
+}

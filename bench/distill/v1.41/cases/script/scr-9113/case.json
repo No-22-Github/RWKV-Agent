@@ -1,0 +1,50 @@
+{
+  "id": "scr-9113",
+  "description": "Asks for the printed distinct-customer count of a Ruby script in a sandbox without ruby; the exact state filter and distinct key must be reproduced. DISTILL-CANARY-9706584d",
+  "category": "script",
+  "tags": {
+    "scenario": "script",
+    "task_type": "reproduce_output",
+    "traps": [
+      "TR-DEFN",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": "148",
+      "TR-DECOY": "82"
+    },
+    "axes": [
+      "OBS",
+      "ERR"
+    ],
+    "level": "L2",
+    "family": "fam-scr-b12d-norubybuyers-01",
+    "ref_calls": 3,
+    "fixture_bytes": 5894,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "data/north.csv": "order,customer,state\nn0000,C1704,paid-pending\nn0001,C4854,paid\nn0002,C8353,paid\nn0003,C3131,paid\nn0004,C9480,paid\nn0005,C1823,paid\nn0006,C6882,refunded\nn0007,C1345,paid\nn0008,C2192,new\nn0009,C2500,new\nn0010,C2172,refunded\nn0011,C6309,paid-pending\nn0012,C3677,new\nn0013,C2085,paid-pending\nn0014,C2265,new\nn0015,C8396,paid\nn0016,C3365,new\nn0017,C3577,paid\nn0018,C2192,paid\nn0019,C4031,new\nn0020,C4854,paid-pending\nn0021,C3754,paid\nn0022,C6882,refunded\nn0023,C3409,paid-pending\nn0024,C8235,paid\nn0025,C8098,new\nn0026,C5307,paid\nn0027,C6038,refunded\nn0028,C1106,paid\nn0029,C5760,new\nn0030,C8396,refunded\nn0031,C5822,new\nn0032,C4766,new\nn0033,C5257,new\nn0034,C5631,paid\nn0035,C5822,paid\nn0036,C2487,refunded\nn0037,C9756,paid\nn0038,C9554,paid\nn0039,C7812,refunded\nn0040,C7570,paid\nn0041,C5135,refunded\nn0042,C5631,paid\nn0043,C3514,paid-pending\nn0044,C7812,paid-pending\nn0045,C6412,paid-pending\nn0046,C2487,paid-pending\nn0047,C4005,refunded\nn0048,C1058,new\nn0049,C2487,paid\nn0050,C5630,new\nn0051,C3119,new\nn0052,C5615,paid-pending\nn0053,C6412,new\nn0054,C4940,paid\nn0055,C2581,refunded\nn0056,C9942,paid\nn0057,C1106,paid-pending\nn0058,C2500,refunded\nn0059,C3465,refunded\nn0060,C2052,paid\nn0061,C5216,paid\nn0062,C8396,paid\nn0063,C1799,paid\nn0064,C1106,new\nn0065,C1704,paid\nn0066,C6038,paid\nn0067,C1058,paid\nn0068,C3409,new\nn0069,C2500,paid\nn0070,C9575,new\nn0071,C9444,paid\nn0072,C1823,paid\nn0073,C6275,new\nn0074,C2581,paid-pending\nn0075,C9756,paid\nn0076,C6275,paid-pending\nn0077,C1799,paid-pending\nn0078,C7812,paid\nn0079,C9480,paid\nn0080,C7196,paid\nn0081,C1704,paid-pending\nn0082,C4370,refunded\nn0083,C3131,new\nn0084,C8476,paid\nn0085,C6275,new\nn0086,C1345,paid\nn0087,C7570,paid\nn0088,C6412,new\nn0089,C9575,paid\nn0090,C3131,paid\nn0091,C4031,paid\nn0092,C4370,paid\n",
+    "data/south.csv": "order,customer,state\ns0000,C9554,paid\ns0001,C5214,refunded\ns0002,C3577,paid\ns0003,C3577,paid-pending\ns0004,C4996,new\ns0005,C3471,paid\ns0006,C9174,paid\ns0007,C6412,paid-pending\ns0008,C3465,new\ns0009,C6882,paid\ns0010,C6287,paid\ns0011,C2172,paid\ns0012,C6974,new\ns0013,C8348,paid\ns0014,C2192,paid-pending\ns0015,C5307,new\ns0016,C1106,paid\ns0017,C3514,paid-pending\ns0018,C1799,paid\ns0019,C6287,paid\ns0020,C1058,new\ns0021,C1477,paid\ns0022,C1823,paid\ns0023,C4036,paid\ns0024,C5630,paid-pending\ns0025,C6287,new\ns0026,C5631,new\ns0027,C9524,paid\ns0028,C6974,paid\ns0029,C4996,new\ns0030,C7812,paid\ns0031,C3471,paid\ns0032,C1799,paid\ns0033,C9374,refunded\ns0034,C1984,paid\ns0035,C5615,paid-pending\ns0036,C8905,paid\ns0037,C4940,refunded\ns0038,C2085,paid\ns0039,C3754,paid-pending\ns0040,C8098,paid\ns0041,C7566,paid\ns0042,C2487,paid\ns0043,C6287,paid-pending\ns0044,C7184,paid\ns0045,C3577,paid\ns0046,C7107,paid\ns0047,C5631,paid-pending\ns0048,C5615,paid\ns0049,C2067,paid\ns0050,C5822,new\ns0051,C3677,paid\ns0052,C6974,new\ns0053,C9942,paid\ns0054,C5216,paid\ns0055,C1823,paid\ns0056,C3663,paid\ns0057,C4005,paid\ns0058,C8098,refunded\ns0059,C5630,new\ns0060,C2067,new\ns0061,C9444,paid-pending\ns0062,C4996,refunded\ns0063,C9575,paid\ns0064,C9682,paid\ns0065,C3471,paid-pending\ns0066,C5216,paid-pending\ns0067,C4770,new\ns0068,C7812,paid\ns0069,C5760,refunded\ns0070,C4005,paid\ns0071,C3577,paid\ns0072,C4770,paid\ns0073,C4370,paid-pending\ns0074,C5822,paid\ns0075,C2487,paid\ns0076,C1345,paid-pending\ns0077,C1741,paid\ns0078,C3514,paid\ns0079,C9756,paid-pending\ns0080,C3131,refunded\ns0081,C7107,paid-pending\ns0082,C2500,new\ns0083,C3754,paid\ns0084,C9511,paid-pending\ns0085,C4370,new\ns0086,C9756,new\ns0087,C6287,paid\ns0088,C5307,new\ns0089,C3663,new\ns0090,C2085,paid\ns0091,C5216,paid\ns0092,C3677,paid\ns0093,C8098,new\ns0094,C4996,paid-pending\ns0095,C3119,paid\ns0096,C6974,paid-pending\ns0097,C7107,paid\ns0098,C1258,paid\ns0099,C5760,paid\ns0100,C5758,new\ns0101,C1799,new\ns0102,C5135,refunded\ns0103,C8396,paid\ns0104,C3365,paid\ns0105,C9524,paid\ns0106,C7812,paid-pending\ns0107,C5417,paid\ns0108,C5417,paid\ns0109,C1741,paid\ns0110,C5760,paid\n",
+    "data/west.csv": "order,customer,state\nw0000,C6038,paid\nw0001,C1058,paid\nw0002,C8476,paid-pending\nw0003,C1799,paid-pending\nw0004,C6275,paid\nw0005,C9554,paid\nw0006,C5760,refunded\nw0007,C3514,paid\nw0008,C8348,paid\nw0009,C1704,paid\nw0010,C4854,new\nw0011,C8476,refunded\nw0012,C3754,new\nw0013,C3471,paid\nw0014,C3754,paid\nw0015,C7570,new\nw0016,C9575,paid\nw0017,C1704,paid-pending\nw0018,C1455,paid\nw0019,C2172,paid\nw0020,C9174,refunded\nw0021,C7812,new\nw0022,C3827,paid\nw0023,C6309,paid-pending\nw0024,C2265,paid\nw0025,C9444,paid\nw0026,C5257,refunded\nw0027,C9511,new\nw0028,C5631,refunded\nw0029,C3577,refunded\nw0030,C6974,paid\nw0031,C4854,paid\nw0032,C5214,refunded\nw0033,C5758,paid\nw0034,C3119,paid\nw0035,C2500,paid-pending\nw0036,C1058,new\nw0037,C3514,paid\nw0038,C7107,paid\nw0039,C6287,paid\nw0040,C8348,refunded\nw0041,C2249,paid\nw0042,C6275,paid\nw0043,C1345,paid\nw0044,C6287,paid\nw0045,C4224,paid-pending\nw0046,C3663,paid\nw0047,C3365,paid\nw0048,C2052,new\nw0049,C9942,refunded\nw0050,C2052,paid-pending\nw0051,C1455,paid-pending\nw0052,C5822,paid\nw0053,C2067,refunded\nw0054,C9524,paid-pending\nw0055,C4005,refunded\nw0056,C5257,paid-pending\nw0057,C1258,paid\nw0058,C9174,refunded\nw0059,C1258,paid-pending\nw0060,C5006,new\nw0061,C3677,paid\nw0062,C4031,paid\nw0063,C2192,refunded\nw0064,C9524,paid\nw0065,C1984,paid\nw0066,C3754,new\nw0067,C2172,paid-pending\nw0068,C9511,paid-pending\nw0069,C8235,paid\nw0070,C3365,paid\nw0071,C9756,paid-pending\nw0072,C3677,paid\nw0073,C1823,paid-pending\nw0074,C3471,paid-pending\nw0075,C9444,new\nw0076,C9942,refunded\nw0077,C4996,paid-pending\nw0078,C2192,paid-pending\nw0079,C9511,paid\nw0080,C4370,paid\nw0081,C3365,paid\nw0082,C3131,new\nw0083,C9444,new\nw0084,C3131,paid\nw0085,C2067,new\nw0086,C1799,new\nw0087,C5135,paid-pending\nw0088,C3365,new\nw0089,C3754,new\nw0090,C6287,paid\nw0091,C7570,paid\n",
+    "tools/buyers.rb": "# count distinct customers with a paid order\nseen = {}\nDir.glob('data/*.csv').each do |f|\n  File.readlines(f).drop(1).each do |line|\n    order, customer, state = line.chomp.split(',')\n    seen[customer] = true if state == 'paid'\n  end\nend\nputs \"distinct paying customers: #{seen.size}\"\n"
+  },
+  "turns": [
+    {
+      "prompt": "Run ruby tools/buyers.rb from the project root and tell me how many distinct paying customers it reports.",
+      "expect": {
+        "output_contains_any": [
+          "73"
+        ],
+        "output_contains_any_token": true,
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

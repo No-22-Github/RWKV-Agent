@@ -1,0 +1,78 @@
+{
+  "id": "doc-9073",
+  "description": "Replaces a company name in five guide files while the changelog history and the legal notice keep the old name. DISTILL-CANARY-f3d1b13d",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON"
+    ],
+    "level": "L2",
+    "family": "fam-doc-b12c-companyname-01",
+    "ref_calls": 2,
+    "fixture_bytes": 632,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12c",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "docs/intro.md": "# intro\n\nAcme Corp builds the toolkit.\nContact: intro@acme.example\n",
+    "docs/install.md": "# install\n\nAcme Corp builds the toolkit.\nContact: install@acme.example\n",
+    "docs/usage.md": "# usage\n\nAcme Corp builds the toolkit.\nContact: usage@acme.example\n",
+    "docs/faq.md": "# faq\n\nAcme Corp builds the toolkit.\nContact: faq@acme.example\n",
+    "docs/roadmap.md": "# roadmap\n\nAcme Corp builds the toolkit.\nContact: roadmap@acme.example\n",
+    "docs/CHANGELOG.md": "# Changelog\n\n2024: Acme Corp released 1.0.\n2025: Acme Corp released 2.0.\n",
+    "docs/legal/notice.md": "# Notice\n\nAcme Corp is the registered legal entity.\n",
+    "docs/README.md": "# Docs\n\nThe company renamed itself: replace the name Acme Corp with Acme Labs in the guides.\nDo not touch docs/CHANGELOG.md (history) or docs/legal/ (registered name).\n"
+  },
+  "turns": [
+    {
+      "prompt": "公司改名了，把 docs 里的 Acme Corp 换成 Acme Labs。哪些文件不能动，docs/README.md 里写了。改完回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "docs/intro.md": {
+        "equals": "# intro\n\nAcme Labs builds the toolkit.\nContact: intro@acme.example\n"
+      },
+      "docs/install.md": {
+        "equals": "# install\n\nAcme Labs builds the toolkit.\nContact: install@acme.example\n"
+      },
+      "docs/usage.md": {
+        "equals": "# usage\n\nAcme Labs builds the toolkit.\nContact: usage@acme.example\n"
+      },
+      "docs/faq.md": {
+        "equals": "# faq\n\nAcme Labs builds the toolkit.\nContact: faq@acme.example\n"
+      },
+      "docs/roadmap.md": {
+        "equals": "# roadmap\n\nAcme Labs builds the toolkit.\nContact: roadmap@acme.example\n"
+      },
+      "docs/CHANGELOG.md": {
+        "unchanged": true
+      },
+      "docs/legal/notice.md": {
+        "unchanged": true
+      },
+      "docs/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

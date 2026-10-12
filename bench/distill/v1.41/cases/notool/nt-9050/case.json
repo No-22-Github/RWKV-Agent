@@ -1,0 +1,44 @@
+{
+  "id": "nt-9050",
+  "description": "Weather concept question (apparent temperature) with the weather tool offered; answered without any call. DISTILL-CANARY-1a9ef76a",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "查一下今天的体感温度"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b12a-feelslike-01",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "天气预报里的「体感温度」是什么意思？为什么有时候比气温高很多？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "湿度",
+          "风"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

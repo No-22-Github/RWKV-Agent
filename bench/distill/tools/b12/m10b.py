@@ -141,7 +141,8 @@ Standard meteorological definition; no city or date is named.
         traps=["TR-NOTOOLNEED"], decoys={"TR-NOTOOLNEED": "70% 的地区会下雨"}, axes=["DEC"],
         files={}, verify=verify, notes=notes,
         turns=[{"prompt": "天气预报里说的「降水概率 70%」到底是什么意思？",
-                "expect": {"tools": [], "output_contains_any": words, "max_output_chars": 600}}])
+                "expect": {"tools": [], "require_active_no_call": True, "output_contains_any": words,
+                           "max_output_chars": 600}}])
 
 
 def json_list(items):

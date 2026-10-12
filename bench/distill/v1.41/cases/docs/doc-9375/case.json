@@ -1,0 +1,45 @@
+{
+  "id": "doc-9375",
+  "description": "Finds an owner in a named meeting note that lists other owners and an older note; bash allowed but one read suffices. DISTILL-CANARY-67304e80",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "extract_items",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "吴越"
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b12o-migowner-01",
+    "ref_calls": 1,
+    "fixture_bytes": 402,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12o",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "notes/纪要-1008.md": "# 10 月 8 日项目例会纪要\n\n出席：周岚、陈默、吴越、郑涛\n\n## 待办\n- 数据迁移：周岚负责，10 月 20 日前完成\n- 迁移回滚演练：陈默负责，10 月 25 日前完成\n- 监控告警梳理：吴越负责，10 月 30 日前完成\n",
+    "notes/纪要-1001.md": "# 10 月 1 日项目例会纪要\n\n## 待办\n- 数据迁移：吴越负责（下次例会已调整）\n- 监控告警梳理：郑涛负责\n"
+  },
+  "turns": [
+    {
+      "prompt": "notes/纪要-1008.md 里，数据迁移这项待办由谁负责？",
+      "expect": {
+        "output_contains_any": [
+          "周岚"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

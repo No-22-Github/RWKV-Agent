@@ -1,0 +1,68 @@
+{
+  "id": "log-9238",
+  "description": "Two turns: the merge approval count from one named rules file, then counting [TODO] lines over six weekly txt files with a look-alike parked tag. DISTILL-CANARY-505e9407",
+  "category": "logs",
+  "tags": {
+    "scenario": "logs",
+    "task_type": "count_events",
+    "traps": [
+      "TR-MULTISRC",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "2",
+      "TR-DECOY": "204"
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L3",
+    "family": "fam-log-b12i-todocount-01",
+    "ref_calls": 2,
+    "fixture_bytes": 7801,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12i",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "notes/week-1.txt": "[NOTE] item 620\n[TODO] item 886\n[NOTE] item 383\n[TODO] item 535\n[TODO-later] item 204\n[TODO] item 773\n[NOTE] item 572\n[NOTE] item 934\n[TODO] item 166\n[NOTE] item 911\n[TODO] item 920\n[NOTE] item 505\n[TODO] item 283\n[DONE] item 746\n[NOTE] item 355\n[TODO] item 710\n[TODO-later] item 453\n[DONE] item 963\n[DONE] item 863\n[TODO] item 316\n[NOTE] item 273\n[TODO-later] item 917\n[NOTE] item 411\n[DONE] item 886\n[TODO] item 738\n[TODO] item 859\n[NOTE] item 219\n[TODO] item 458\n[NOTE] item 749\n[NOTE] item 223\n[NOTE] item 936\n[TODO] item 516\n[TODO-later] item 292\n[NOTE] item 266\n[NOTE] item 432\n[DONE] item 638\n[DONE] item 167\n[TODO] item 122\n[TODO-later] item 645\n[TODO-later] item 731\n[DONE] item 754\n[TODO] item 586\n[TODO] item 588\n[DONE] item 802\n[DONE] item 836\n[DONE] item 604\n[TODO] item 982\n[DONE] item 890\n[DONE] item 157\n[TODO] item 650\n[TODO] item 216\n[NOTE] item 944\n[NOTE] item 668\n[NOTE] item 126\n[TODO] item 717\n[TODO-later] item 396\n[NOTE] item 950\n[TODO-later] item 163\n[NOTE] item 951\n[DONE] item 896\n[TODO] item 728\n[TODO] item 577\n[DONE] item 547\n[DONE] item 845\n[TODO-later] item 971\n[TODO-later] item 956\n[TODO] item 851\n[TODO] item 162\n[DONE] item 262\n[NOTE] item 168\n[TODO] item 843\n[NOTE] item 779\n[TODO-later] item 405\n[DONE] item 887\n[DONE] item 247\n[NOTE] item 485\n[NOTE] item 126\n[NOTE] item 579\n[NOTE] item 503\n[NOTE] item 310\n[DONE] item 501\n[DONE] item 301\n[TODO-later] item 203\n[DONE] item 171\n[DONE] item 612\n[TODO] item 314\n[NOTE] item 656\n[DONE] item 641\n",
+    "notes/week-2.txt": "[NOTE] item 441\n[TODO] item 152\n[TODO-later] item 893\n[NOTE] item 483\n[NOTE] item 475\n[TODO-later] item 506\n[TODO-later] item 761\n[NOTE] item 975\n[TODO-later] item 539\n[NOTE] item 631\n[NOTE] item 767\n[TODO] item 864\n[TODO] item 501\n[NOTE] item 878\n[NOTE] item 599\n[NOTE] item 569\n[TODO] item 873\n[NOTE] item 816\n[TODO] item 890\n[TODO-later] item 639\n[NOTE] item 876\n[TODO-later] item 788\n[NOTE] item 894\n[TODO] item 243\n[NOTE] item 558\n[TODO] item 332\n[DONE] item 520\n[TODO] item 226\n[NOTE] item 618\n[TODO] item 403\n[DONE] item 377\n[TODO] item 692\n[TODO] item 572\n[NOTE] item 215\n[DONE] item 923\n[DONE] item 499\n[DONE] item 451\n[NOTE] item 335\n[NOTE] item 147\n[NOTE] item 270\n[TODO] item 940\n[DONE] item 931\n[NOTE] item 826\n[TODO-later] item 304\n[TODO] item 861\n[DONE] item 740\n[TODO] item 633\n[TODO] item 260\n[TODO] item 455\n[NOTE] item 302\n[NOTE] item 424\n[DONE] item 142\n[TODO] item 132\n[TODO] item 321\n[TODO] item 757\n[TODO] item 609\n[TODO] item 133\n[DONE] item 977\n[DONE] item 886\n[NOTE] item 184\n[DONE] item 287\n[NOTE] item 969\n[TODO-later] item 127\n[DONE] item 444\n[TODO] item 467\n[TODO] item 934\n[NOTE] item 609\n[TODO-later] item 663\n[NOTE] item 834\n[NOTE] item 461\n[TODO] item 808\n[DONE] item 951\n[NOTE] item 338\n[NOTE] item 560\n[NOTE] item 114\n[NOTE] item 930\n[TODO] item 691\n[NOTE] item 859\n[TODO] item 200\n",
+    "notes/week-3.txt": "[NOTE] item 967\n[TODO-later] item 737\n[TODO] item 498\n[NOTE] item 115\n[TODO] item 207\n[DONE] item 254\n[DONE] item 757\n[TODO] item 598\n[TODO-later] item 988\n[TODO] item 856\n[TODO-later] item 375\n[DONE] item 903\n[TODO-later] item 991\n[NOTE] item 986\n[DONE] item 177\n[DONE] item 393\n[TODO-later] item 326\n[NOTE] item 358\n[NOTE] item 315\n[NOTE] item 595\n[TODO-later] item 688\n[TODO] item 343\n[NOTE] item 220\n[TODO] item 884\n[NOTE] item 535\n[TODO] item 351\n[NOTE] item 763\n[TODO] item 270\n[NOTE] item 357\n[TODO] item 976\n[NOTE] item 548\n[TODO] item 926\n[TODO-later] item 712\n[DONE] item 629\n[TODO-later] item 630\n[TODO] item 405\n[DONE] item 567\n[NOTE] item 825\n[TODO-later] item 307\n[DONE] item 558\n[NOTE] item 665\n[TODO-later] item 585\n[NOTE] item 149\n[TODO-later] item 849\n[NOTE] item 646\n[DONE] item 678\n[TODO] item 959\n[TODO-later] item 494\n[NOTE] item 487\n[TODO] item 400\n[TODO-later] item 286\n[NOTE] item 222\n[TODO-later] item 917\n[TODO] item 802\n[TODO-later] item 639\n[TODO-later] item 232\n[TODO-later] item 553\n[TODO] item 776\n[NOTE] item 485\n[TODO-later] item 883\n[TODO-later] item 845\n[TODO] item 623\n[TODO-later] item 474\n[TODO] item 395\n",
+    "notes/week-4.txt": "[TODO] item 433\n[NOTE] item 485\n[NOTE] item 780\n[NOTE] item 188\n[NOTE] item 394\n[NOTE] item 867\n[NOTE] item 464\n[TODO] item 568\n[NOTE] item 946\n[NOTE] item 577\n[DONE] item 565\n[NOTE] item 553\n[TODO] item 240\n[DONE] item 779\n[NOTE] item 469\n[NOTE] item 576\n[DONE] item 721\n[NOTE] item 521\n[TODO] item 709\n[DONE] item 790\n[NOTE] item 254\n[TODO] item 933\n[NOTE] item 449\n[DONE] item 637\n[NOTE] item 499\n[NOTE] item 912\n[DONE] item 866\n[TODO] item 834\n[DONE] item 808\n[TODO] item 300\n[TODO] item 196\n[TODO-later] item 216\n[TODO] item 514\n[TODO] item 515\n[NOTE] item 402\n[TODO] item 604\n[TODO] item 981\n[DONE] item 270\n[TODO-later] item 236\n[NOTE] item 256\n[TODO] item 997\n[TODO] item 571\n[NOTE] item 451\n[DONE] item 376\n[NOTE] item 924\n[DONE] item 999\n[NOTE] item 924\n[DONE] item 968\n[TODO-later] item 439\n[TODO] item 933\n[NOTE] item 531\n[TODO] item 125\n[TODO] item 911\n[NOTE] item 127\n[TODO] item 485\n[NOTE] item 127\n[TODO] item 908\n[DONE] item 511\n[NOTE] item 890\n[NOTE] item 528\n[DONE] item 752\n[TODO-later] item 614\n[TODO-later] item 606\n[DONE] item 442\n[NOTE] item 513\n",
+    "notes/week-5.txt": "[TODO] item 117\n[TODO] item 145\n[DONE] item 302\n[NOTE] item 870\n[TODO-later] item 815\n[TODO] item 704\n[DONE] item 356\n[TODO-later] item 644\n[TODO] item 296\n[DONE] item 973\n[DONE] item 551\n[DONE] item 534\n[TODO-later] item 667\n[NOTE] item 256\n[TODO-later] item 517\n[NOTE] item 457\n[DONE] item 996\n[NOTE] item 424\n[NOTE] item 619\n[NOTE] item 709\n[TODO-later] item 631\n[TODO] item 465\n[TODO-later] item 767\n[NOTE] item 683\n[NOTE] item 143\n[NOTE] item 440\n[NOTE] item 652\n[TODO] item 495\n[TODO] item 608\n[NOTE] item 937\n[DONE] item 869\n[TODO] item 845\n[TODO] item 610\n[TODO] item 163\n[DONE] item 691\n[TODO-later] item 630\n[NOTE] item 817\n[TODO-later] item 736\n[DONE] item 230\n[TODO-later] item 262\n[TODO] item 354\n[TODO] item 149\n[NOTE] item 741\n[TODO-later] item 947\n[TODO-later] item 227\n[NOTE] item 666\n[TODO] item 185\n[NOTE] item 795\n[TODO] item 184\n[TODO-later] item 760\n[TODO] item 301\n[TODO] item 416\n[TODO] item 953\n[DONE] item 156\n[NOTE] item 563\n[DONE] item 212\n[NOTE] item 796\n[TODO-later] item 749\n[TODO-later] item 691\n[TODO] item 800\n[TODO] item 808\n[TODO] item 814\n[TODO] item 360\n[NOTE] item 966\n[NOTE] item 349\n[TODO] item 115\n[DONE] item 416\n[TODO] item 645\n[NOTE] item 201\n[TODO] item 387\n[TODO] item 976\n[TODO] item 893\n[NOTE] item 120\n[TODO-later] item 640\n[NOTE] item 531\n[NOTE] item 117\n",
+    "notes/week-6.txt": "[TODO-later] item 677\n[NOTE] item 333\n[NOTE] item 205\n[NOTE] item 706\n[NOTE] item 210\n[DONE] item 390\n[TODO-later] item 814\n[NOTE] item 367\n[TODO] item 293\n[TODO-later] item 288\n[TODO-later] item 676\n[DONE] item 240\n[NOTE] item 481\n[TODO-later] item 920\n[TODO-later] item 135\n[TODO] item 889\n[NOTE] item 622\n[NOTE] item 376\n[NOTE] item 777\n[TODO] item 640\n[DONE] item 708\n[TODO] item 406\n[DONE] item 156\n[TODO] item 710\n[NOTE] item 694\n[TODO-later] item 638\n[TODO-later] item 239\n[TODO-later] item 764\n[NOTE] item 758\n[NOTE] item 891\n[NOTE] item 410\n[NOTE] item 420\n[TODO] item 669\n[DONE] item 631\n[TODO-later] item 667\n[TODO] item 111\n[TODO] item 404\n[NOTE] item 643\n[DONE] item 424\n[TODO] item 170\n[NOTE] item 169\n[NOTE] item 772\n[NOTE] item 814\n[TODO-later] item 202\n[NOTE] item 953\n[TODO] item 780\n[TODO] item 356\n[NOTE] item 246\n[TODO] item 545\n[NOTE] item 774\n[NOTE] item 118\n[TODO-later] item 344\n[TODO] item 587\n[NOTE] item 241\n[DONE] item 781\n[NOTE] item 423\n[TODO] item 792\n[NOTE] item 864\n[NOTE] item 653\n[TODO] item 782\n[TODO] item 609\n[NOTE] item 477\n[NOTE] item 601\n[DONE] item 578\n[NOTE] item 294\n[TODO-later] item 553\n[TODO] item 947\n",
+    "notes/README.md": "# Notes\n\nOne txt file per week. Every line starts with a bracketed tag: [TODO], [TODO-later], [DONE] or [NOTE].\n[TODO-later] is parked work and is not a TODO.\n",
+    "team/RULES.md": "# Team rules\n\n- Merging requires 2 approvals.\n- Hotfixes need 1 approval from the on-call engineer.\n",
+    "team/RULES.md.bak": "# Team rules\n\n- Merging requires 1 approval.\n- Hotfixes need no approval.\n"
+  },
+  "turns": [
+    {
+      "prompt": "How many approvals does a pull request need according to team/RULES.md?",
+      "expect": {
+        "output_contains_any": [
+          "2",
+          "two"
+        ],
+        "forbidden_tools": [
+          "bash"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "Across the weekly files in notes, how many lines are [TODO] items? notes/README.md explains the tags.",
+      "expect": {
+        "output_contains": [
+          "130"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

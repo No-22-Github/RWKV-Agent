@@ -1,0 +1,81 @@
+{
+  "id": "fs-9210",
+  "description": "Converts CRLF to LF in four text files of a project tree while the Windows batch folder keeps CRLF. DISTILL-CANARY-437f11f7",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "bulk_edit",
+    "traps": [
+      "TR-READONLY",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null,
+      "TR-DECOY": "already.txt"
+    },
+    "axes": [
+      "CON",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-fs-b12h-crlf2lf-01",
+    "ref_calls": 2,
+    "fixture_bytes": 328,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12h",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "文稿库/src/readme.txt": "文稿库说明\r\n第二行\r\n",
+    "文稿库/src/notes.txt": "笔记\r\n待办：测试\r\n待办：发布\r\n",
+    "文稿库/src/app.cfg": "[main]\r\nmode = fast\r\n",
+    "文稿库/src/changelog.md": "# 更新\r\n- 修复崩溃\r\n",
+    "文稿库/src/already.txt": "这个文件本来就是 LF\n无需处理\n",
+    "文稿库/win/setup.bat": "@echo off\r\necho setup\r\n",
+    "文稿库/win/run.bat": "@echo off\r\necho run\r\n",
+    "文稿库/README.md": "# 文稿库\n\n仓库统一使用 LF 换行。文稿库/win 里的 .bat 必须保持 CRLF，否则 Windows 的 cmd 会出错。\n"
+  },
+  "turns": [
+    {
+      "prompt": "文稿库目录里的文本文件混进了 Windows 换行（CRLF），把文稿库目录下的文件统一转成 LF。哪些要保持 CRLF，文稿库/README.md 里写了。改完检查一下，回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "文稿库/src/readme.txt": {
+        "equals": "文稿库说明\n第二行\n"
+      },
+      "文稿库/src/notes.txt": {
+        "equals": "笔记\n待办：测试\n待办：发布\n"
+      },
+      "文稿库/src/app.cfg": {
+        "equals": "[main]\nmode = fast\n"
+      },
+      "文稿库/src/changelog.md": {
+        "equals": "# 更新\n- 修复崩溃\n"
+      },
+      "文稿库/src/already.txt": {
+        "unchanged": true
+      },
+      "文稿库/win/setup.bat": {
+        "unchanged": true
+      },
+      "文稿库/win/run.bat": {
+        "unchanged": true
+      },
+      "文稿库/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

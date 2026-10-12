@@ -1,0 +1,93 @@
+{
+  "id": "fs-9205",
+  "description": "Lowercases the .TXT extension on four documents in a tree while a legacy mirror folder and a detached signature keep theirs. DISTILL-CANARY-b1f7f1e6",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "bulk_edit",
+    "traps": [
+      "TR-READONLY",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null,
+      "TR-DECOY": "INTRO.TXT.sig"
+    },
+    "axes": [
+      "CON",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-fs-b12h-upperext-01",
+    "ref_calls": 2,
+    "fixture_bytes": 501,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12h",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "docs/INTRO.TXT": "Document INTRO.TXT\nSee the index for details.\n",
+    "docs/FAQ.TXT": "Document FAQ.TXT\nSee the index for details.\n",
+    "docs/guide/SETUP.TXT": "Document SETUP.TXT\nSee the index for details.\n",
+    "docs/guide/UPGRADE.TXT": "Document UPGRADE.TXT\nSee the index for details.\n",
+    "docs/legacy/DOS1.TXT": "Legacy DOS manual part 1\n",
+    "docs/legacy/DOS2.TXT": "Legacy DOS manual part 2\n",
+    "docs/INTRO.TXT.sig": "signature of INTRO.TXT\n",
+    "docs/README.md": "# Docs\n\nThe new Linux-hosted site serves lowercase extensions only.\ndocs/legacy/ is mirrored by an FTP job that matches on the exact upper-case names, so never rename anything in there.\n*.sig files are detached signatures and keep their names.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Change the .TXT extension to .txt on every document under docs, subfolders included. docs/README.md says which files must keep their names. Check the result and reply DONE.",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "docs/INTRO.TXT": {
+        "absent": true
+      },
+      "docs/FAQ.TXT": {
+        "absent": true
+      },
+      "docs/guide/SETUP.TXT": {
+        "absent": true
+      },
+      "docs/guide/UPGRADE.TXT": {
+        "absent": true
+      },
+      "docs/legacy/DOS1.TXT": {
+        "unchanged": true
+      },
+      "docs/legacy/DOS2.TXT": {
+        "unchanged": true
+      },
+      "docs/INTRO.TXT.sig": {
+        "unchanged": true
+      },
+      "docs/README.md": {
+        "unchanged": true
+      },
+      "docs/INTRO.txt": {
+        "equals": "Document INTRO.TXT\nSee the index for details.\n"
+      },
+      "docs/FAQ.txt": {
+        "equals": "Document FAQ.TXT\nSee the index for details.\n"
+      },
+      "docs/guide/SETUP.txt": {
+        "equals": "Document SETUP.TXT\nSee the index for details.\n"
+      },
+      "docs/guide/UPGRADE.txt": {
+        "equals": "Document UPGRADE.TXT\nSee the index for details.\n"
+      }
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "id": "nt-9486",
+  "description": "Weather concept question (meaning of a named wind direction) with tools offered; answered without a call. DISTILL-CANARY-1e4c87f6",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "查一下今天的天气"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b12t-winddirection-01",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12t",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "天气预报说「西北风 3 到 4 级」，这个西北风是风吹向西北，还是从西北方向吹来？风级又是怎么划分的？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "吹来",
+          "来自",
+          "来的方向",
+          "从西北",
+          "风速",
+          "蒲福"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

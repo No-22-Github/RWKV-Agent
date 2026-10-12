@@ -1,0 +1,87 @@
+{
+  "id": "hyb-9157",
+  "description": "Overwrites a one-line status file with the day-after-tomorrow forecast in a pipe-separated layout and no trailing newline. DISTILL-CANARY-ee35f8bf",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "tool_then_write",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": "阵雨"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b12f-lhasastatus-01",
+    "ref_calls": 3,
+    "fixture_bytes": 34,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12f",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "状态/天气.txt": "拉萨|2026-09-16|多云|10~20|30%"
+  },
+  "turns": [
+    {
+      "prompt": "状态/天气.txt 里只放一行，格式是「城市|日期|天气|最低~最高|降水概率」（日期写 2026-09-18 这种格式，温度保持「9~21」这种写法不加单位，降水概率带 % 号）。请用拉萨后天的预报覆盖它。整个文件的内容就是这一行字符本身，行尾不加换行符。",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "拉萨",
+      "aliases": [
+        "Lhasa"
+      ],
+      "report": {
+        "location": "拉萨",
+        "current": "多云 17°C 体感 16°C 湿度 40% 风速 15 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "多云",
+            "temp_c": "10~20",
+            "rain_chance": "30%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "阵雨",
+            "temp_c": "9~18",
+            "rain_chance": "55%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "晴",
+            "temp_c": "9~21",
+            "rain_chance": "5%"
+          }
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "状态/天气.txt": {
+        "equals": "拉萨|2026-09-18|晴|9~21|5%"
+      }
+    }
+  }
+}

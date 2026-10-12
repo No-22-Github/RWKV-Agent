@@ -1,0 +1,61 @@
+{
+  "id": "nt-9120",
+  "description": "Asks for a command listing the largest files without running it while bash is offered. DISTILL-CANARY-2eca0df3",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b12d-largestfiles-01",
+    "ref_calls": 0,
+    "fixture_bytes": 6,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12d",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "data/a.bin": "x\n",
+    "data/b.bin": "y\n",
+    "data/sub/c.bin": "z\n"
+  },
+  "turns": [
+    {
+      "prompt": "What command lists the 10 largest files under ./data? Don't run anything, just tell me the command and I'll try it myself.",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "sort -",
+          "-S"
+        ],
+        "max_output_chars": 800
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "data/a.bin": {
+        "unchanged": true
+      },
+      "data/b.bin": {
+        "unchanged": true
+      },
+      "data/sub/c.bin": {
+        "unchanged": true
+      }
+    }
+  }
+}

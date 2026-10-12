@@ -1,0 +1,49 @@
+{
+  "id": "nt-9490",
+  "description": "Asks the difference between kill -9 and kill -15 with bash offered; answered without a call. DISTILL-CANARY-43a75213",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "concept",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "运行一下看看"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b12t-killsignals-01",
+    "ref_calls": 0,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12t",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "kill -9 和 kill -15 有什么区别？平时应该先用哪个？",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "SIGKILL",
+          "SIGTERM",
+          "强制",
+          "优雅",
+          "清理",
+          "无法捕获",
+          "不能被捕获"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

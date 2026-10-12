@@ -464,3 +464,21 @@ func TestOutputContainsTokenRejectsEmbeddedValue(t *testing.T) {
 		t.Errorf("without the flag output_contains stays a substring check, got %v", failures)
 	}
 }
+
+func TestOutputContainsAnyTokenRejectsEmbeddedValue(t *testing.T) {
+	expect := Expectation{OutputContainsAny: []string{"7521.21", "7,521.21"}, OutputContainsAnyToken: true}
+	for output, pass := range map[string]bool{
+		"Refunds total $7521.21.":    true,
+		"Refunds total USD 7,521.21": true,
+		"Refunds total 17521.21.":    false,
+		"Refunds total 17,521.21.":   false,
+	} {
+		if got := len(answerFailures(expect, output)) == 0; got != pass {
+			t.Errorf("output %q: pass=%v, want %v", output, got, pass)
+		}
+	}
+	expect.OutputContainsAnyToken = false
+	if failures := answerFailures(expect, "Refunds total 17521.21."); len(failures) != 0 {
+		t.Errorf("without the flag output_contains_any stays a substring check, got %v", failures)
+	}
+}

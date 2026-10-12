@@ -1,0 +1,58 @@
+{
+  "id": "fs-9038",
+  "description": "Two turns: cd into a quarterly report folder and list it, then read its summary.txt whose root namesake is a decoy. DISTILL-CANARY-068ca07f",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "find_file",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "41250"
+    },
+    "axes": [
+      "OBS",
+      "ERR"
+    ],
+    "level": "L3",
+    "family": "fam-fs-b12a-cwdsummary-01",
+    "ref_calls": 2,
+    "fixture_bytes": 155,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "summary.txt": "Company summary\nRevenue: 41250 USD\n",
+    "reports/q2/summary.txt": "Quarter: Q2\nRevenue: 39870 USD\n",
+    "reports/q3/summary.txt": "Quarter: Q3\nRevenue: 48210 USD\nHeadcount: 63\n",
+    "reports/q3/chart.csv": "month,revenue\nJul,15900\nAug,16100\nSep,16210\n"
+  },
+  "turns": [
+    {
+      "prompt": "In the terminal, cd into the reports/q3 folder and run ls -l there, then tell me which files are in it.",
+      "expect": {
+        "output_contains": [
+          "summary.txt"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "What revenue does the summary.txt in there report?",
+      "expect": {
+        "output_contains_any": [
+          "48210",
+          "48,210"
+        ],
+        "output_contains_any_token": true,
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

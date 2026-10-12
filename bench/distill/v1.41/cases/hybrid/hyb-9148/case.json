@@ -1,0 +1,86 @@
+{
+  "id": "hyb-9148",
+  "description": "Asks the low temperature at a seaside district the day after tomorrow; the forecast must be looked up by its city. DISTILL-CANARY-8354ebdf",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-NEARNAME",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-NEARNAME": "UNKNOWN",
+      "TR-DECOY": "16"
+    },
+    "axes": [
+      "ERR",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b12f-beidaihesunrise-01",
+    "ref_calls": 1,
+    "fixture_bytes": 40,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12f",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "周末/海边.md": "# 海边小住\n\n- 周五清晨看日出\n"
+  },
+  "turns": [
+    {
+      "prompt": "后天清晨我去北戴河海边看日出，那天最低气温大概多少度？",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "17"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "秦皇岛",
+      "aliases": [
+        "Qinhuangdao"
+      ],
+      "report": {
+        "location": "秦皇岛",
+        "current": "晴 22°C 体感 22°C 湿度 55% 风速 13 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "晴",
+            "temp_c": "15~26",
+            "rain_chance": "0%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "晴",
+            "temp_c": "16~27",
+            "rain_chance": "5%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "多云",
+            "temp_c": "17~29",
+            "rain_chance": "10%"
+          }
+        ]
+      }
+    }
+  ]
+}

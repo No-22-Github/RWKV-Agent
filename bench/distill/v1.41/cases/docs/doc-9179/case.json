@@ -1,0 +1,49 @@
+{
+  "id": "doc-9179",
+  "description": "Single-file release-process lookup while bash is offered; the read tool is the right call. DISTILL-CANARY-a414768a",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "2"
+    },
+    "axes": [
+      "OBS",
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b12g-approvers-01",
+    "ref_calls": 1,
+    "fixture_bytes": 242,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12g",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "docs/发布流程.md": "# 发布流程\n\n上线前需要 3 位审批人签字：技术负责人、测试负责人、运维负责人。\n审批全部通过后才能在发布窗口执行。\n",
+    "docs/发布流程-旧版.md": "# 发布流程（旧版，已停用）\n\n上线前需要 2 位审批人签字。\n"
+  },
+  "turns": [
+    {
+      "prompt": "docs/发布流程.md 里写的，上线前需要几位审批人？",
+      "expect": {
+        "output_contains_any": [
+          "3",
+          "三"
+        ],
+        "forbidden_tools": [
+          "bash"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "id": "cfg-9121",
+  "description": "Two turns: scales replicas from 2 to 4 in five service manifests without touching the template or minReplicas, then sets one service back to 2 and another to 6. DISTILL-CANARY-175b101c",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON"
+    ],
+    "level": "L3",
+    "family": "fam-cfg-b12e-replicas-01",
+    "ref_calls": 4,
+    "fixture_bytes": 595,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12e",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "编排/网关/deploy.yaml": "name: 网关\nreplicas: 2\nminReplicas: 2\nimage: registry.corp/gateway:1.2\n",
+    "编排/订单/deploy.yaml": "name: 订单\nreplicas: 2\nminReplicas: 2\nimage: registry.corp/orders:1.4\n",
+    "编排/报表/deploy.yaml": "name: 报表\nreplicas: 2\nminReplicas: 2\nimage: registry.corp/reports:1.5\n",
+    "编排/搜索/deploy.yaml": "name: 搜索\nreplicas: 2\nminReplicas: 2\nimage: registry.corp/search:1.9\n",
+    "编排/通知/deploy.yaml": "name: 通知\nreplicas: 2\nminReplicas: 2\nimage: registry.corp/notify:1.6\n",
+    "编排/_样例/deploy.yaml": "name: 样例\nreplicas: 2\nminReplicas: 2\nimage: registry.corp/sample:1.9\n",
+    "编排/README.md": "# 编排配置\n\n每个服务一个目录；_样例 是新服务的复制模板，保持原样。\nminReplicas 是保底副本数，大促也不随扩容改动。\n"
+  },
+  "turns": [
+    {
+      "prompt": "大促要扩容：把 编排 下各服务 deploy.yaml 里的 replicas 从 2 改成 4，哪些文件和字段不能动看 编排/README.md。改完回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "报表是离线任务，不用扩，replicas 改回 2；订单要多撑一点，改成 6。其他服务保持现在的样子。改完回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "编排/网关/deploy.yaml": {
+        "equals": "name: 网关\nreplicas: 4\nminReplicas: 2\nimage: registry.corp/gateway:1.2\n"
+      },
+      "编排/订单/deploy.yaml": {
+        "equals": "name: 订单\nreplicas: 6\nminReplicas: 2\nimage: registry.corp/orders:1.4\n"
+      },
+      "编排/报表/deploy.yaml": {
+        "unchanged": true
+      },
+      "编排/搜索/deploy.yaml": {
+        "equals": "name: 搜索\nreplicas: 4\nminReplicas: 2\nimage: registry.corp/search:1.9\n"
+      },
+      "编排/通知/deploy.yaml": {
+        "equals": "name: 通知\nreplicas: 4\nminReplicas: 2\nimage: registry.corp/notify:1.6\n"
+      },
+      "编排/_样例/deploy.yaml": {
+        "unchanged": true
+      },
+      "编排/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

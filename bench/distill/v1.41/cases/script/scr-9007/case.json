@@ -37,10 +37,11 @@
     {
       "prompt": "帮我跑一下 工具/汇总.py，告诉我它输出的入库净重合计是多少千克。",
       "expect": {
-        "output_contains": [
-          "2699.2"
+        "output_contains_any": [
+          "2699.2",
+          "2,699.2"
         ],
-        "output_contains_token": true,
+        "output_contains_any_token": true,
         "max_output_chars": 600
       }
     }

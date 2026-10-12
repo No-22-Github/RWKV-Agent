@@ -1,0 +1,83 @@
+{
+  "id": "cfg-9261",
+  "description": "Two turns: raises the connection pool size from 10 to 20 in five datasource files without touching the archive or the min-size key, then returns one datasource to 10 and sets another to 40. DISTILL-CANARY-740993dc",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON"
+    ],
+    "level": "L3",
+    "family": "fam-cfg-b12k-poolsize-01",
+    "ref_calls": 4,
+    "fixture_bytes": 652,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "数据源/订单.properties": "# 订单库\nurl=jdbc:mysql://db-订单:3306/订单\npool.size=10\npool.size.min=10\n",
+    "数据源/用户.properties": "# 用户库\nurl=jdbc:mysql://db-用户:3306/用户\npool.size=10\npool.size.min=10\n",
+    "数据源/报表.properties": "# 报表库\nurl=jdbc:mysql://db-报表:3306/报表\npool.size=10\npool.size.min=10\n",
+    "数据源/日志.properties": "# 日志库\nurl=jdbc:mysql://db-日志:3306/日志\npool.size=10\npool.size.min=10\n",
+    "数据源/风控.properties": "# 风控库\nurl=jdbc:mysql://db-风控:3306/风控\npool.size=10\npool.size.min=10\n",
+    "数据源/_归档/旧库.properties": "# 旧库\nurl=jdbc:mysql://db-old:3306/old\npool.size=10\npool.size.min=10\n",
+    "数据源/README.md": "# 数据源\n\n每个库一个 .properties；_归档 是已下线的库，不再维护，保持原样。\npool.size.min 是最小空闲连接数，不随连接池上限改动。\n"
+  },
+  "turns": [
+    {
+      "prompt": "数据库扩容：把 数据源 下各 .properties 里的 pool.size 从 10 改成 20，哪些文件和配置项不能动看 数据源/README.md。改完回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "订单库只有一个小实例，pool.size 退回 10；报表库要多一点，改成 40。其余保持现在的样子。改完回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "数据源/订单.properties": {
+        "unchanged": true
+      },
+      "数据源/用户.properties": {
+        "equals": "# 用户库\nurl=jdbc:mysql://db-用户:3306/用户\npool.size=20\npool.size.min=10\n"
+      },
+      "数据源/报表.properties": {
+        "equals": "# 报表库\nurl=jdbc:mysql://db-报表:3306/报表\npool.size=40\npool.size.min=10\n"
+      },
+      "数据源/日志.properties": {
+        "equals": "# 日志库\nurl=jdbc:mysql://db-日志:3306/日志\npool.size=20\npool.size.min=10\n"
+      },
+      "数据源/风控.properties": {
+        "equals": "# 风控库\nurl=jdbc:mysql://db-风控:3306/风控\npool.size=20\npool.size.min=10\n"
+      },
+      "数据源/_归档/旧库.properties": {
+        "unchanged": true
+      },
+      "数据源/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

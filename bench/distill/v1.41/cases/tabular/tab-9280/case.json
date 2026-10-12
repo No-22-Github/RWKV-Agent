@@ -1,0 +1,91 @@
+{
+  "id": "tab-9280",
+  "description": "Three turns: renames the phone column header in four customer CSVs except the import template, reverts two of them, then restores every header. DISTILL-CANARY-9d9bdfd8",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [
+      "TR-READONLY",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null,
+      "TR-DECOY": null
+    },
+    "axes": [
+      "CON",
+      "OBS"
+    ],
+    "level": "L3",
+    "family": "fam-tab-b12k-phoneheader-01",
+    "ref_calls": 6,
+    "fixture_bytes": 1344,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "客户/华北.csv": "姓名,手机,备用手机,城市\n客户32,13800009760,13900009724,华北\n客户67,13800008958,13900006675,华北\n客户56,13800005059,13900007744,华北\n客户90,13800005479,13900002996,华北\n客户69,13800004970,13900002326,华北\n客户46,13800004068,13900003706,华北\n",
+    "客户/华东.csv": "姓名,手机,备用手机,城市\n客户39,13800001811,13900002648,华东\n客户80,13800003838,13900007775,华东\n客户45,13800001522,13900005053,华东\n客户98,13800001974,13900002890,华东\n客户43,13800006567,13900001260,华东\n客户88,13800002168,13900006038,华东\n",
+    "客户/华南.csv": "姓名,手机,备用手机,城市\n客户41,13800007119,13900002035,华南\n客户84,13800009707,13900003671,华南\n客户55,13800007768,13900008484,华南\n客户11,13800001653,13900008185,华南\n客户15,13800008456,13900008541,华南\n客户91,13800007730,13900009323,华南\n",
+    "客户/西南.csv": "姓名,手机,备用手机,城市\n客户10,13800006851,13900008733,西南\n客户65,13800005576,13900007444,西南\n客户20,13800005895,13900008981,西南\n客户35,13800002087,13900007179,西南\n客户67,13800001434,13900007741,西南\n客户89,13800002586,13900009173,西南\n",
+    "客户/导出模板.csv": "姓名,手机,备用手机,城市\n示例,13800000000,13900000000,示例\n",
+    "客户/README.md": "# 客户表\n\n表头「手机」统一改称「手机号」。\n导出模板.csv 是外部系统的导入模板，保持原样；「备用手机」是另一列，表头不改。\n"
+  },
+  "turns": [
+    {
+      "prompt": "表头统一：把 客户 下各 CSV 第一行里的「手机」改成「手机号」，哪些不能动看 客户/README.md。改完回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "华东和西南的两个文件还要被旧报表读取，表头改回「手机」，其余文件保持现在的样子。改完回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "这次改名整体撤销：客户 下所有 CSV 的表头都恢复成最开始的样子，数据行不要动。改完回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "客户/华北.csv": {
+        "unchanged": true
+      },
+      "客户/华东.csv": {
+        "unchanged": true
+      },
+      "客户/华南.csv": {
+        "unchanged": true
+      },
+      "客户/西南.csv": {
+        "unchanged": true
+      },
+      "客户/导出模板.csv": {
+        "unchanged": true
+      },
+      "客户/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

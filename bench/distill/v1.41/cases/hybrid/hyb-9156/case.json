@@ -1,0 +1,89 @@
+{
+  "id": "hyb-9156",
+  "description": "Appends tomorrow's forecast as a CSV row following the header's column order, leaving existing rows unchanged. DISTILL-CANARY-5f44705d",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "tool_then_write",
+    "traps": [
+      "TR-DEFN",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": "UNKNOWN",
+      "TR-DECOY": "多云"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b12f-taiyuancsv-01",
+    "ref_calls": 3,
+    "fixture_bytes": 107,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12f",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "记录/天气.csv": "date,city,condition,low,high,rain_chance\n2026-09-14,大同,晴,10,22,0%\n2026-09-15,大同,多云,11,23,10%\n"
+  },
+  "turns": [
+    {
+      "prompt": "在 记录/天气.csv 末尾追加太原明天的预报，一行，列顺序跟表头一致（date,city,condition,low,high,rain_chance）；日期写 2026-09-17 这种格式，最低、最高写不带单位的整数，降水概率带 % 号，不要改动已有各行。每行都以换行结束，追加后文件必须恰好以一个换行结尾。",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "太原",
+      "aliases": [
+        "Taiyuan"
+      ],
+      "report": {
+        "location": "太原",
+        "current": "多云 20°C 体感 19°C 湿度 50% 风速 12 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "多云",
+            "temp_c": "12~22",
+            "rain_chance": "15%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "阴",
+            "temp_c": "13~21",
+            "rain_chance": "35%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "小雨",
+            "temp_c": "12~19",
+            "rain_chance": "60%"
+          }
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "记录/天气.csv": {
+        "equals": "date,city,condition,low,high,rain_chance\n2026-09-14,大同,晴,10,22,0%\n2026-09-15,大同,多云,11,23,10%\n2026-09-17,太原,阴,13,21,35%\n"
+      }
+    }
+  }
+}

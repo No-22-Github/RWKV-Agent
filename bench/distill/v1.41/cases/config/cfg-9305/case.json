@@ -1,0 +1,73 @@
+{
+  "id": "cfg-9305",
+  "description": "Raises memory_limit from 128M to 256M in four php ini files while the CLI ini, a commented-out copy and the opcache setting stay. DISTILL-CANARY-1e562fcc",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-READONLY",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null,
+      "TR-DECOY": ";memory_limit"
+    },
+    "axes": [
+      "CON",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-cfg-b12l-memlimit-01",
+    "ref_calls": 2,
+    "fixture_bytes": 802,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "php/fpm.ini": "[PHP]\nmemory_limit = 128M\n;memory_limit = 128M\nmax_execution_time = 30\nopcache.memory_consumption = 128\npost_max_size = 8M\n",
+    "php/web.ini": "[PHP]\nmemory_limit = 128M\n;memory_limit = 128M\nmax_execution_time = 120\nopcache.memory_consumption = 128\npost_max_size = 32M\n",
+    "php/admin.ini": "[PHP]\nmemory_limit = 128M\n;memory_limit = 128M\nmax_execution_time = 60\nopcache.memory_consumption = 128\npost_max_size = 8M\n",
+    "php/cron.ini": "[PHP]\nmemory_limit = 128M\n;memory_limit = 128M\nmax_execution_time = 60\nopcache.memory_consumption = 128\npost_max_size = 32M\n",
+    "php/cli.ini": "[PHP]\nmemory_limit = 128M\n;memory_limit = 128M\nmax_execution_time = 30\nopcache.memory_consumption = 128\npost_max_size = 32M\n",
+    "php/README.md": "# PHP 配置\n\n命令行用的 cli.ini 要保持 128M，别人的脚本是按它测的。\n以分号开头的是注释，opcache.memory_consumption 是另一个参数，都不用改。\n"
+  },
+  "turns": [
+    {
+      "prompt": "线上 PHP 内存不够，把 php 目录下各 .ini 里的 memory_limit 从 128M 调到 256M。注意事项在 php/README.md，改完回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "php/fpm.ini": {
+        "equals": "[PHP]\nmemory_limit = 256M\n;memory_limit = 128M\nmax_execution_time = 30\nopcache.memory_consumption = 128\npost_max_size = 8M\n"
+      },
+      "php/web.ini": {
+        "equals": "[PHP]\nmemory_limit = 256M\n;memory_limit = 128M\nmax_execution_time = 120\nopcache.memory_consumption = 128\npost_max_size = 32M\n"
+      },
+      "php/admin.ini": {
+        "equals": "[PHP]\nmemory_limit = 256M\n;memory_limit = 128M\nmax_execution_time = 60\nopcache.memory_consumption = 128\npost_max_size = 8M\n"
+      },
+      "php/cron.ini": {
+        "equals": "[PHP]\nmemory_limit = 256M\n;memory_limit = 128M\nmax_execution_time = 60\nopcache.memory_consumption = 128\npost_max_size = 32M\n"
+      },
+      "php/cli.ini": {
+        "unchanged": true
+      },
+      "php/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

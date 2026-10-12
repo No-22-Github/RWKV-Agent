@@ -1,0 +1,94 @@
+{
+  "id": "hyb-9047",
+  "description": "Composite request: train duration from web search plus the day-after-tomorrow forecast from the weather tool. DISTILL-CANARY-fb295125",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-MULTISRC",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "中雨",
+      "TR-DECOY": "多云"
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b12a-changshatrain-01",
+    "ref_calls": 2,
+    "fixture_bytes": 37,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [
+    {
+      "query_match": "高铁",
+      "url": "https://www.rail.example.cn/cs-zjj",
+      "url_match": "rail.example",
+      "title": "长沙南到张家界西 高铁时刻参考",
+      "snippet": "长沙南—张家界西最快 G 字头列车全程约 1 小时 59 分，每天 14 趟。",
+      "content": "# 时刻参考\n\n长沙南—张家界西最快 G 字头列车全程约 1 小时 59 分，每天 14 趟。",
+      "published_at": "2026-07-01"
+    }
+  ],
+  "files": {
+    "出游/张家界.md": "# 张家界两日游\n\n- 周五出发\n"
+  },
+  "turns": [
+    {
+      "prompt": "长沙到张家界的高铁最快要多久？顺便看下长沙后天的天气，我周五出发。",
+      "expect": {
+        "required_tools": [
+          "get_weather",
+          "web_search"
+        ],
+        "output_contains": [
+          "中雨",
+          "59"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "长沙",
+      "aliases": [
+        "Changsha"
+      ],
+      "report": {
+        "location": "长沙",
+        "current": "晴 29°C 体感 33°C 湿度 62% 风速 10 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "晴",
+            "temp_c": "24~32",
+            "rain_chance": "10%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "多云",
+            "temp_c": "24~31",
+            "rain_chance": "20%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "中雨",
+            "temp_c": "22~27",
+            "rain_chance": "80%"
+          }
+        ]
+      }
+    }
+  ]
+}

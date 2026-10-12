@@ -1,0 +1,133 @@
+{
+  "id": "hyb-9133",
+  "description": "Two turns: fills tomorrow's forecast for one city into a trip note, then the plan moves to another city and both the place line and the forecast line change. DISTILL-CANARY-22e5e29b",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "tool_then_write",
+    "traps": [
+      "TR-DEFN",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": null,
+      "TR-DECOY": "阴 21~27°C 30%"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b12e-citychange-01",
+    "ref_calls": 6,
+    "fixture_bytes": 58,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12e",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "行程/明日.md": "# 明日出行\n\n- 地点：杭州\n- 天气：（待填）\n"
+  },
+  "turns": [
+    {
+      "prompt": "明天我去杭州。查一下杭州明天的天气，填进 行程/明日.md 里「天气：（待填）」那一行，格式固定为「- 天气：<condition> <low>~<high>°C，降水概率 <rain>」，只替换这一行，其余各行和结尾换行都不要动。",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "计划变了，明天改去苏州。把「地点」那行改成苏州，「天气」那行换成苏州明天的预报，格式不变，其余各行和结尾换行都不要动。",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "杭州",
+      "aliases": [
+        "Hangzhou"
+      ],
+      "report": {
+        "location": "杭州",
+        "current": "多云 25°C 体感 27°C 湿度 70% 风速 9 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "多云",
+            "temp_c": "22~28",
+            "rain_chance": "20%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "小雨",
+            "temp_c": "21~26",
+            "rain_chance": "65%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "阴",
+            "temp_c": "21~27",
+            "rain_chance": "35%"
+          }
+        ]
+      }
+    },
+    {
+      "location": "苏州",
+      "aliases": [
+        "Suzhou"
+      ],
+      "report": {
+        "location": "苏州",
+        "current": "阴 24°C 体感 26°C 湿度 76% 风速 7 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "阴",
+            "temp_c": "21~27",
+            "rain_chance": "30%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "中雨",
+            "temp_c": "20~25",
+            "rain_chance": "80%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "多云",
+            "temp_c": "21~28",
+            "rain_chance": "25%"
+          }
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "行程/明日.md": {
+        "equals": "# 明日出行\n\n- 地点：苏州\n- 天气：中雨 20~25°C，降水概率 80%\n"
+      }
+    }
+  }
+}

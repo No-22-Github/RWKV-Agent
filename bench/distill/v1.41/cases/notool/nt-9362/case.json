@@ -1,0 +1,61 @@
+{
+  "id": "nt-9362",
+  "description": "Asks for a grep command listing files that lack a license header without running it while bash is offered. DISTILL-CANARY-a06d9c52",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": null
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b12o-spdxmissing-01",
+    "ref_calls": 0,
+    "fixture_bytes": 133,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12o",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "src/a.c": "// SPDX-License-Identifier: MIT\nint a(void){return 1;}\n",
+    "src/b.c": "int b(void){return 2;}\n",
+    "src/util/c.c": "// SPDX-License-Identifier: MIT\nint c(void){return 3;}\n"
+  },
+  "turns": [
+    {
+      "prompt": "Which files under src are missing an SPDX-License-Identifier header? Give me a grep command that prints just those file names. Please don't run it, I'm going to paste it into my CI script.",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "-L",
+          "--files-without-match"
+        ],
+        "max_output_chars": 700
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "src/a.c": {
+        "unchanged": true
+      },
+      "src/b.c": {
+        "unchanged": true
+      },
+      "src/util/c.c": {
+        "unchanged": true
+      }
+    }
+  }
+}

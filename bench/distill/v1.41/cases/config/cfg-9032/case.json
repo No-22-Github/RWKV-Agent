@@ -1,0 +1,50 @@
+{
+  "id": "cfg-9032",
+  "description": "Asks for a git diff between two config trees in a sandbox without git; per-file diff finds the one real value difference. DISTILL-CANARY-4eec19f5",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "read_effective",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "pool_size"
+    },
+    "axes": [
+      "OBS",
+      "ERR"
+    ],
+    "level": "L2",
+    "family": "fam-cfg-b12a-nogit-01",
+    "ref_calls": 2,
+    "fixture_bytes": 604,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "configs/README.md": "# Configs\n\nstaging mirrors prod except host and URL entries and comments.\nWhitespace around = is not significant.\n",
+    "configs/staging/app.conf": "# app settings\nlisten_port = 8443\ndb_host = db-stg.internal\npool_size = 20\nrequest_timeout_s = 15\n# tuned 2026-08\n",
+    "configs/prod/app.conf": "# app settings\nlisten_port = 8443\ndb_host = db-prd.internal\npool_size=20\nrequest_timeout_s = 15\n# tuned 2026-09\n",
+    "configs/staging/cache.conf": "# cache settings\ncache_url = redis://cache-stg.internal:6379\nttl_s = 300\nmax_items = 5000\n",
+    "configs/prod/cache.conf": "# cache settings\ncache_url = redis://cache-prd.internal:6379\nttl_s = 600\nmax_items = 5000\n",
+    "configs/staging/log.conf": "# log settings\nlevel = info\nformat = json\n",
+    "configs/prod/log.conf": "# log settings\nlevel = info\nformat = json\n"
+  },
+  "turns": [
+    {
+      "prompt": "Use git diff --no-index to compare configs/staging with configs/prod and tell me which setting has a different value, apart from hosts and URLs.",
+      "expect": {
+        "output_contains": [
+          "ttl_s"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

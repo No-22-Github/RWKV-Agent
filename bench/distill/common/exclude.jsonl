@@ -1471,3 +1471,63 @@
 {"case_id": "tab-8805--p2", "reason": "Misstates berth names and adds unsupported unassigned-field claim; also unnecessary broad search", "batch": "b13"}
 {"case_id": "tab-8806--p2", "reason": "Minimal supplement: prefer p1 direct aggregation; p2 adds a header reread after sufficient result and user-supplied schema", "batch": "b13"}
 {"case_id": "tab-8807--p2", "reason": "Minimal supplement: prefer p1; p2 adds an unrequested count query after the sum result already provides matching-row count", "batch": "b13"}
+{"case_id": "hyb-9052--p1", "reason": "Final answer invents a wind direction (偏北风) that the forecast does not contain", "batch": "b12b"}
+{"case_id": "hyb-9055--p1", "reason": "Final answer leaks the word fixture (fixture 源) to the user", "batch": "b12b"}
+{"case_id": "doc-9076--p1", "reason": "Final answer uses backticks (Markdown) against the plain-text rule", "batch": "b12c"}
+{"case_id": "hyb-9145--p1", "reason": "终答把 fixture 页面斥为未核实的第三方页面，通篇否定刚拿到的汇率，只给带保留的数字；过度保留且与证据矛盾", "batch": "b12f"}
+{"case_id": "hyb-9145--p2", "reason": "同 p1：称汇率页面非官方、不能当今日中间价，答案被自我否定，且与 p1 结构雷同", "batch": "b12f"}
+{"case_id": "nt-9119--p1", "reason": "终答使用了反引号（markdown）", "batch": "b12d"}
+{"case_id": "nt-9118--p1", "reason": "终答编造了 fixture 中没有的 Port= 配置格式并冗长发散", "batch": "b12d"}
+{"case_id": "cfg-9162--p2", "reason": "final answer uses backticks (markdown)", "batch": "b12g"}
+{"case_id": "log-9171--p1", "reason": "final answer uses backticks (markdown)", "batch": "b12g"}
+{"case_id": "tab-9168--p1", "reason": "invented facts: says 116 PM2.5 readings (fixture has 115) and other station maxima 187/185/184 (actual 187/185/182)", "batch": "b12g"}
+{"case_id": "nt-9231--p1", "reason": "最终答案虚构 find 语法：称 GNU find 支持 -size +10MB（该写法无效），且 M 单位解释含糊", "batch": "b12i"}
+{"case_id": "nt-9233--p1", "reason": "最终答案出现无意义的 --posix 建议（编造用法），结尾拖沓", "batch": "b12i"}
+{"case_id": "nt-9236--p1", "reason": "最终答案前后矛盾、语句混乱（把 v2.0..HEAD 与 v2.0 HEAD 说成等价后又说“add nothing else”），无用的 --diff-filter 附加", "batch": "b12i"}
+{"case_id": "doc-9207--p1", "reason": "final answer uses backticks (markdown); also opens with DONE (templated opening over 1/3)", "batch": "b12h"}
+{"case_id": "doc-9218--p2", "reason": "final answer uses backticks (markdown)", "batch": "b12h"}
+{"case_id": "fs-9205--p1", "reason": "templated DONE-first opening above 1/3 of paths; the sibling path p2 is kept", "batch": "b12h"}
+{"case_id": "tab-9257--p1", "reason": "终答用了反引号", "batch": "b12j"}
+{"case_id": "tab-9246--p2", "reason": "终答只有裸数字，与 p1 同模板（裸数字开头占比超 1/3）", "batch": "b12j"}
+{"case_id": "tab-9256--p2", "reason": "终答只有裸数字，与 p1 同模板", "batch": "b12j"}
+{"case_id": "tab-9260--p2", "reason": "终答只有裸数字，与 p1 同模板", "batch": "b12j"}
+{"case_id": "doc-9275--p1", "reason": "ordinary path: turn 2 answered from memory without a bash call; DONE-first opening", "batch": "b12k"}
+{"case_id": "doc-9265--p2", "reason": "both finals are a bare DONE (no state report); DONE-first openings were over 1/3 of paths", "batch": "b12k"}
+{"case_id": "fs-9274--p1", "reason": "final claims the eight moved reports add up to 59 lines; the fixture has 57", "batch": "b12k"}
+{"case_id": "tab-9269--p1", "reason": "final counts (15 changed, 9 restored) do not match the fixture (12 and 8)", "batch": "b12k"}
+{"case_id": "tab-9276--p1", "reason": "final names rows 4, 6, 8 of 2026-07 and row 10 of 2026-09 as changed; the fixture rows are 5, 7, 13 and 10", "batch": "b12k"}
+{"case_id": "nt-9361--p1", "reason": "命令用 find . 而非题中的 项目 目录，并有 -depth 的误导说明", "batch": "b12o"}
+{"case_id": "nt-9362--p1", "reason": "编造假设（--include='*.java'），而夹具是 .c 文件，且声称无法给出文件名", "batch": "b12o"}
+{"case_id": "nt-9368--p1", "reason": "终答出现无意义措辞（one count per dotted path）", "batch": "b12o"}
+{"case_id": "cfg-9378--p2", "reason": "编造行号：称 timeout-minutes: 45 在第 15 行，实际第 14 行", "batch": "b12o"}
+{"case_id": "cfg-9305--p2", "reason": "终答开头和结尾各写一次 DONE，格式重复", "batch": "b12l"}
+{"case_id": "fs-9313--p1", "reason": "终答以 DONE 开头，与本批其他路径同一开头（超过 1/3 的模板化开头）", "batch": "b12l"}
+{"case_id": "cfg-9358--p2", "reason": "终答自相矛盾：写 Four services 却只列出三个", "batch": "b12n"}
+{"case_id": "fs-9360--p2", "reason": "错误事实：8 个 pdf 移出 3 个 keep_ 后应剩 5 个，终答称剩 4 个", "batch": "b12n"}
+{"case_id": "log-9336--p2", "reason": "终答含无来源的残句“1000+ 行”，属杂质", "batch": "b12m"}
+{"case_id": "log-9333--p2", "reason": "与同题 p1 同为“N 条。”模板开头且仅 ordinary，去掉以免数字开头超过 1/3", "batch": "b12m"}
+{"case_id": "tab-9339--p1", "reason": "终答只有裸数字 84946，无依据；与其余数字开头路径叠加会使数字开头超过 1/3", "batch": "b12m"}
+{"case_id": "log-9402--p2", "reason": "终答是与同题 p1 相同的裸数字（提示要求只回复数字），去掉重复路径以压低裸数字模板占比", "batch": "b12p"}
+{"case_id": "log-9407--p2", "reason": "终答是与同题 p1 相同的裸数字（提示要求只回复数字），去掉重复路径以压低裸数字模板占比", "batch": "b12p"}
+{"case_id": "log-9410--p2", "reason": "终答是与同题 p1 相同的裸数字（提示要求只回复数字），去掉重复路径以压低裸数字模板占比", "batch": "b12p"}
+{"case_id": "log-9416--p2", "reason": "终答是与同题 p1 相同的裸数字（提示要求只回复数字），去掉重复路径以压低裸数字模板占比", "batch": "b12p"}
+{"case_id": "log-9420--p2", "reason": "终答是与同题 p1 相同的裸数字（提示要求只回复数字），去掉重复路径以压低裸数字模板占比", "batch": "b12p"}
+{"case_id": "tab-9404--p2", "reason": "终答是与同题 p1 相同的裸数字（提示要求只回复数字），去掉重复路径以压低裸数字模板占比", "batch": "b12p"}
+{"case_id": "tab-9406--p2", "reason": "终答是与同题 p1 相同的裸数字（提示要求只回复数字），去掉重复路径以压低裸数字模板占比", "batch": "b12p"}
+{"case_id": "tab-9408--p2", "reason": "终答是与同题 p1 相同的裸数字（提示要求只回复数字），去掉重复路径以压低裸数字模板占比", "batch": "b12p"}
+{"case_id": "tab-9409--p2", "reason": "终答是与同题 p1 相同的裸数字（提示要求只回复数字），去掉重复路径以压低裸数字模板占比", "batch": "b12p"}
+{"case_id": "tab-9413--p2", "reason": "终答是与同题 p1 相同的裸数字（提示要求只回复数字），去掉重复路径以压低裸数字模板占比", "batch": "b12p"}
+{"case_id": "tab-9414--p2", "reason": "终答是与同题 p1 相同的裸数字（提示要求只回复数字），去掉重复路径以压低裸数字模板占比", "batch": "b12p"}
+{"case_id": "tab-9417--p2", "reason": "终答是与同题 p1 相同的裸数字（提示要求只回复数字），去掉重复路径以压低裸数字模板占比", "batch": "b12p"}
+{"case_id": "tab-9418--p2", "reason": "终答是与同题 p1 相同的裸数字（提示要求只回复数字），去掉重复路径以压低裸数字模板占比", "batch": "b12p"}
+{"case_id": "tab-9419--p2", "reason": "终答是与同题 p1 相同的裸数字（提示要求只回复数字），去掉重复路径以压低裸数字模板占比", "batch": "b12p"}
+{"case_id": "log-9474--p2", "reason": "与同题 p1 终答逐字相同（102 / 44），重复路径", "batch": "b12s"}
+{"case_id": "log-9477--p2", "reason": "与同题 p1 前两轮终答逐字相同，且三轮全是裸数字开头，去掉以压低数字开头占比", "batch": "b12s"}
+{"case_id": "tab-9463--p1", "reason": "三轮终答全是裸数字（52/18/11），无任何依据，仅 ordinary", "batch": "b12s"}
+{"case_id": "tab-9467--p1", "reason": "三轮终答全是裸数字（2025/2357/1057），无依据，仅 ordinary", "batch": "b12s"}
+{"case_id": "hyb-9449--p2", "reason": "终答称票务页在占位域名、价格未经核实，自我否定刚取到的证据，过度保留", "batch": "b12r"}
+{"case_id": "hyb-9442--p1", "reason": "终答编造「旺季预约名额紧张、最好今天就订」，fixture 无此事实", "batch": "b12r"}
+{"case_id": "log-9439--p2", "reason": "同题 p1 的重复模板（数字开头）", "batch": "b12q"}
+{"case_id": "tab-9427--p2", "reason": "同题 p1 的重复模板", "batch": "b12q"}
+{"case_id": "log-9426--p1", "reason": "ordinary（只 grep -n 后心算相减），且数字开头", "batch": "b12q"}
+{"case_id": "tab-9421--p2", "reason": "终答只有裸数字 5972，无依据，数字开头占比过高", "batch": "b12q"}

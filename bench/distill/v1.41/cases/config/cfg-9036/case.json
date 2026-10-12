@@ -1,0 +1,57 @@
+{
+  "id": "cfg-9036",
+  "description": "Two turns: cd into a service folder and list it, then read a same-named rate-limit file whose root copy is a decoy. DISTILL-CANARY-1b2766f3",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "precedence",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "500"
+    },
+    "axes": [
+      "OBS",
+      "ERR"
+    ],
+    "level": "L3",
+    "family": "fam-cfg-b12a-cwdlimit-01",
+    "ref_calls": 2,
+    "fixture_bytes": 123,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12a",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "限流.toml": "# 全局默认限流\nqps = 500\nburst = 800\n",
+    "服务/风控/限流.toml": "# 风控服务覆盖\nqps = 85\nburst = 170\n",
+    "服务/风控/main.go": "package main\n\nfunc main() {}\n",
+    "服务/账务/限流.toml": "qps = 40\n"
+  },
+  "turns": [
+    {
+      "prompt": "在终端里先 cd 到 服务/风控 目录，再用 ls -l 看看里面有哪些文件。",
+      "expect": {
+        "output_contains": [
+          "限流.toml"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "那里面的 限流.toml 里 qps 配的是多少？",
+      "expect": {
+        "output_contains": [
+          "85"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

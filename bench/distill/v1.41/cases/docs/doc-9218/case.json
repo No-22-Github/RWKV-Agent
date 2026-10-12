@@ -1,0 +1,77 @@
+{
+  "id": "doc-9218",
+  "description": "Inserts a Last reviewed line below the title of four approved policy pages while the drafts folder and the folder README stay unchanged. DISTILL-CANARY-2b396d94",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-READONLY",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null,
+      "TR-DECOY": "policies/README.md"
+    },
+    "axes": [
+      "CON",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-doc-b12h-reviewed-01",
+    "ref_calls": 2,
+    "fixture_bytes": 535,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12h",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "policies/security.md": "# Security policy\n\nOwner: operations\nSee the handbook for details.\n",
+    "policies/travel.md": "# Travel policy\n\nOwner: operations\nSee the handbook for details.\n",
+    "policies/expenses.md": "# Expense policy\n\nOwner: operations\nSee the handbook for details.\n",
+    "policies/remote.md": "# Remote work policy\n\nOwner: operations\nSee the handbook for details.\n",
+    "policies/drafts/bonus.md": "# Draft bonus policy\n\nNot yet approved.\n",
+    "policies/drafts/equity.md": "# Draft equity policy\n\nNot yet approved.\n",
+    "policies/README.md": "# Policies\n\nAfter each quarterly review, add a `Last reviewed: 2026-10` line directly below the title of every approved policy.\nDrafts are not reviewed yet: leave policies/drafts alone.\n"
+  },
+  "turns": [
+    {
+      "prompt": "The quarterly review is done. Add the line `Last reviewed: 2026-10` directly below the title (the first line) of every approved policy page under policies. policies/README.md says what to leave alone. Check the result and reply DONE.",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "policies/security.md": {
+        "equals": "# Security policy\nLast reviewed: 2026-10\n\nOwner: operations\nSee the handbook for details.\n"
+      },
+      "policies/travel.md": {
+        "equals": "# Travel policy\nLast reviewed: 2026-10\n\nOwner: operations\nSee the handbook for details.\n"
+      },
+      "policies/expenses.md": {
+        "equals": "# Expense policy\nLast reviewed: 2026-10\n\nOwner: operations\nSee the handbook for details.\n"
+      },
+      "policies/remote.md": {
+        "equals": "# Remote work policy\nLast reviewed: 2026-10\n\nOwner: operations\nSee the handbook for details.\n"
+      },
+      "policies/drafts/bonus.md": {
+        "unchanged": true
+      },
+      "policies/drafts/equity.md": {
+        "unchanged": true
+      },
+      "policies/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

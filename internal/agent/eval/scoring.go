@@ -254,7 +254,11 @@ func answerFailures(expect Expectation, output string) []string {
 	if len(expect.OutputContainsAny) > 0 {
 		matched := false
 		for _, alternative := range expect.OutputContainsAny {
-			if strings.Contains(output, alternative) {
+			found := strings.Contains(output, alternative)
+			if expect.OutputContainsAnyToken {
+				found = containsToken(output, alternative)
+			}
+			if found {
 				matched = true
 				break
 			}

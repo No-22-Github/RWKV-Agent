@@ -1,0 +1,73 @@
+{
+  "id": "cfg-9307",
+  "description": "Inserts delaycompress below compress in four logrotate configs while the legacy generated config stays and a compresscmd line is left alone. DISTILL-CANARY-f6cab78c",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-READONLY",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null,
+      "TR-DECOY": "compresscmd"
+    },
+    "axes": [
+      "CON",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-cfg-b12l-delaycompress-01",
+    "ref_calls": 2,
+    "fixture_bytes": 728,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12l",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "logrotate.d/web日志.conf": "/var/log/web/*.log {\n    weekly\n    rotate 14\n    compress\n    missingok\n    notifempty\n}\n",
+    "logrotate.d/支付日志.conf": "/var/log/pay/*.log {\n    weekly\n    rotate 7\n    compress\n    missingok\n    notifempty\n}\n",
+    "logrotate.d/搜索日志.conf": "/var/log/search/*.log {\n    weekly\n    rotate 7\n    compress\n    missingok\n    notifempty\n}\n",
+    "logrotate.d/网关日志.conf": "/var/log/gw/*.log {\n    weekly\n    rotate 30\n    compress\n    missingok\n    notifempty\n    compresscmd /usr/bin/zstd\n}\n",
+    "logrotate.d/遗留日志.conf": "/var/log/old/*.log {\n    weekly\n    rotate 30\n    compress\n    missingok\n    notifempty\n}\n",
+    "logrotate.d/README.md": "# logrotate.d\n\n为了让进程先释放文件句柄，压缩要延迟一个周期：在 compress 下面加一行 delaycompress。\n遗留日志.conf 由老系统生成，别手改。compresscmd 是指定压缩程序的另一个指令，不用管。\n"
+  },
+  "turns": [
+    {
+      "prompt": "logrotate.d 下的配置要加延迟压缩：在 compress 那行的下面插入一行 delaycompress。例外看 logrotate.d/README.md，改完回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "logrotate.d/web日志.conf": {
+        "equals": "/var/log/web/*.log {\n    weekly\n    rotate 14\n    compress\n    delaycompress\n    missingok\n    notifempty\n}\n"
+      },
+      "logrotate.d/支付日志.conf": {
+        "equals": "/var/log/pay/*.log {\n    weekly\n    rotate 7\n    compress\n    delaycompress\n    missingok\n    notifempty\n}\n"
+      },
+      "logrotate.d/搜索日志.conf": {
+        "equals": "/var/log/search/*.log {\n    weekly\n    rotate 7\n    compress\n    delaycompress\n    missingok\n    notifempty\n}\n"
+      },
+      "logrotate.d/网关日志.conf": {
+        "equals": "/var/log/gw/*.log {\n    weekly\n    rotate 30\n    compress\n    delaycompress\n    missingok\n    notifempty\n    compresscmd /usr/bin/zstd\n}\n"
+      },
+      "logrotate.d/遗留日志.conf": {
+        "unchanged": true
+      },
+      "logrotate.d/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "id": "tab-9168",
+  "description": "Finds the maximum PM2.5 reading across four station tables where self-test rows share the metric prefix. DISTILL-CANARY-46f5203e",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "aggregate",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "999"
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-tab-b12g-pm25max-01",
+    "ref_calls": 1,
+    "fixture_bytes": 6187,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12g",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "传感器/甲站.tsv": "时间\t指标\t数值\t状态\n15:45\t温度\t17\tok\n08:15\tPM2.5\t170\tlate\n05:15\t温度\t13\tok\n04:15\tPM2.5-校准\t404\tok\n21:00\tPM2.5\t22\tok\n02:45\tPM2.5-校准\t494\tok\n21:45\t温度\t20\tok\n06:00\tPM2.5-校准\t682\tok\n11:45\tPM2.5-校准\t818\tlate\n10:15\tPM2.5\t116\tlate\n06:15\tPM2.5\t185\tok\n07:30\tPM2.5\t45\tok\n13:15\t温度\t34\tok\n15:15\tPM2.5-校准\t366\tlate\n08:45\tPM2.5-校准\t234\tlate\n04:30\t温度\t25\tok\n11:15\tPM2.5\t162\tlate\n06:45\t温度\t16\tlate\n00:15\tPM10\t57\tlate\n03:30\tPM2.5\t188\tok\n23:45\tPM2.5\t139\tok\n14:30\tPM10\t104\tok\n14:45\tPM2.5\t23\tok\n18:45\tPM10\t132\tok\n05:30\tPM2.5-校准\t846\tok\n01:45\tPM2.5-校准\t998\tok\n17:15\t温度\t33\tok\n10:45\t温度\t27\tlate\n03:15\t温度\t27\tok\n08:00\tPM2.5-校准\t432\tlate\n13:45\tPM2.5\t121\tok\n13:15\tPM2.5-校准\t952\tlate\n23:15\tPM10\t104\tok\n07:15\tPM2.5-校准\t736\tok\n16:45\tPM10\t90\tok\n23:30\tPM2.5-校准\t954\tok\n12:45\tPM2.5\t97\tok\n11:45\t温度\t30\tok\n07:30\tPM2.5\t114\tok\n17:00\tPM2.5-校准\t758\tok\n08:00\tPM2.5-校准\t256\tlate\n15:00\t温度\t18\tok\n16:00\tPM2.5-校准\t917\tlate\n02:00\tPM2.5-校准\t677\tlate\n00:45\tPM2.5\t161\tok\n16:00\t温度\t23\tlate\n11:00\tPM2.5\t128\tlate\n23:45\tPM2.5\t59\tok\n10:45\t温度\t30\tok\n04:00\tPM2.5-校准\t738\tok\n18:30\tPM10\t262\tlate\n20:45\tPM2.5-校准\t312\tlate\n19:30\tPM2.5\t129\tok\n11:30\tPM10\t266\tok\n22:00\tPM2.5\t75\tok\n15:15\tPM10\t180\tok\n01:45\tPM2.5\t181\tok\n15:15\tPM10\t127\tok\n04:00\tPM2.5\t82\tok\n14:45\t温度\t23\tok\n18:45\t温度\t13\tok\n08:15\tPM2.5-校准\t886\tok\n08:15\tPM2.5\t179\tlate\n17:30\tPM2.5-校准\t729\tok\n09:15\tPM2.5\t170\tok\n08:15\tPM2.5-校准\t951\tok\n23:15\t温度\t17\tok\n23:15\tPM2.5\t184\tlate\n08:00\tPM2.5\t11\tok\n14:15\tPM2.5\t33\tok\n16:15\tPM2.5\t101\tlate\n15:00\tPM2.5\t115\tok\n19:15\t温度\t26\tok\n03:30\tPM10\t36\tok\n06:00\tPM2.5\t43\tok\n17:00\tPM2.5-校准\t935\tok\n01:00\tPM2.5\t176\tlate\n06:15\tPM2.5\t96\tlate\n14:45\tPM2.5\t81\tok\n",
+    "传感器/乙站.tsv": "时间\t指标\t数值\t状态\n23:15\tPM2.5\t139\tok\n22:30\tPM2.5-校准\t406\tok\n09:15\tPM10\t105\tlate\n00:45\tPM2.5\t136\tok\n14:45\t温度\t20\tok\n00:00\tPM2.5-校准\t268\tok\n00:15\tPM2.5-校准\t273\tok\n09:45\tPM2.5\t180\tok\n10:00\t温度\t32\tok\n22:15\tPM2.5\t137\tlate\n02:00\tPM10\t153\tlate\n13:30\tPM2.5\t131\tok\n10:30\tPM2.5\t25\tok\n19:00\tPM2.5\t51\tlate\n19:15\tPM2.5\t130\tok\n21:30\t温度\t24\tok\n03:30\tPM10\t68\tlate\n17:15\tPM2.5\t174\tok\n08:15\tPM2.5\t125\tlate\n20:30\tPM2.5\t57\tlate\n09:15\tPM2.5\t185\tlate\n20:00\tPM10\t175\tlate\n01:00\tPM10\t237\tok\n20:45\t温度\t28\tlate\n16:45\tPM10\t68\tok\n14:00\tPM2.5-校准\t618\tok\n09:45\t温度\t15\tok\n01:45\tPM2.5\t65\tok\n14:30\tPM2.5-校准\t996\tok\n02:45\tPM10\t276\tok\n08:30\t温度\t12\tok\n01:45\t温度\t30\tlate\n03:45\tPM2.5-校准\t556\tok\n23:45\tPM2.5\t140\tok\n13:00\tPM2.5\t141\tok\n19:30\tPM2.5\t184\tok\n14:00\tPM2.5-校准\t308\tok\n21:45\tPM10\t100\tok\n06:30\tPM10\t113\tlate\n14:00\tPM2.5-校准\t745\tok\n23:00\tPM2.5\t76\tok\n05:15\tPM2.5-校准\t282\tok\n07:15\tPM10\t222\tlate\n12:15\tPM2.5-校准\t201\tlate\n03:30\tPM2.5-校准\t999\tok\n12:00\tPM2.5-校准\t320\tok\n04:00\tPM10\t70\tok\n16:45\tPM10\t262\tok\n04:45\tPM2.5-校准\t424\tlate\n12:15\t温度\t13\tlate\n22:45\tPM10\t87\tok\n21:30\tPM2.5\t48\tok\n12:45\tPM2.5\t172\tok\n09:30\tPM2.5\t168\tok\n02:15\tPM2.5-校准\t306\tok\n20:45\t温度\t22\tok\n09:00\tPM2.5\t46\tok\n05:00\t温度\t16\tok\n09:15\tPM10\t152\tok\n08:45\t温度\t23\tok\n08:00\tPM2.5-校准\t243\tok\n12:15\tPM10\t125\tok\n02:30\tPM2.5\t114\tok\n16:15\tPM2.5\t8\tok\n19:45\tPM2.5-校准\t524\tok\n09:30\tPM2.5\t47\tok\n20:15\tPM2.5\t22\tlate\n15:45\tPM2.5\t112\tok\n05:45\tPM10\t42\tok\n23:00\tPM2.5\t120\tok\n",
+    "传感器/丙站.tsv": "时间\t指标\t数值\t状态\n05:45\tPM2.5\t100\tok\n18:45\tPM2.5\t157\tok\n11:00\t温度\t30\tok\n12:00\tPM10\t91\tlate\n03:45\t温度\t27\tok\n14:00\tPM10\t258\tok\n13:00\tPM2.5-校准\t538\tok\n18:15\tPM2.5\t154\tlate\n23:45\tPM10\t312\tok\n10:00\tPM2.5\t96\tok\n05:15\tPM10\t190\tok\n12:30\t温度\t31\tok\n20:30\tPM2.5-校准\t672\tok\n19:00\t温度\t34\tok\n13:45\tPM2.5-校准\t812\tok\n22:45\t温度\t25\tlate\n13:30\tPM10\t315\tok\n06:15\tPM2.5-校准\t367\tlate\n18:15\tPM2.5\t187\tok\n03:45\tPM2.5-校准\t697\tok\n23:00\t温度\t35\tok\n05:15\tPM10\t296\tok\n01:45\tPM2.5\t80\tok\n18:45\t温度\t26\tlate\n16:30\tPM2.5\t134\tok\n01:30\tPM2.5\t171\tok\n12:15\tPM2.5-校准\t606\tlate\n07:00\tPM2.5\t67\tok\n05:45\t温度\t17\tok\n18:45\tPM2.5-校准\t642\tok\n23:45\tPM2.5\t112\tok\n22:15\tPM2.5\t110\tok\n00:45\t温度\t14\tlate\n00:45\tPM2.5-校准\t780\tlate\n02:15\t温度\t27\tok\n07:45\tPM10\t122\tok\n02:15\tPM2.5\t170\tok\n18:00\tPM10\t231\tok\n19:45\t温度\t27\tlate\n13:15\tPM2.5-校准\t890\tok\n23:30\tPM2.5\t120\tok\n03:15\tPM2.5\t108\tok\n02:00\t温度\t22\tok\n07:45\tPM2.5-校准\t294\tok\n01:15\t温度\t33\tok\n22:15\tPM2.5\t53\tok\n18:15\tPM2.5\t71\tok\n11:00\tPM2.5-校准\t237\tok\n12:45\tPM2.5-校准\t249\tok\n16:15\tPM2.5\t147\tok\n04:30\tPM2.5\t117\tok\n10:00\t温度\t24\tok\n18:30\t温度\t28\tok\n21:45\t温度\t26\tlate\n10:15\tPM2.5-校准\t511\tok\n06:45\t温度\t15\tok\n18:15\tPM10\t21\tok\n09:45\tPM2.5\t8\tok\n06:30\tPM2.5\t22\tok\n15:15\tPM10\t289\tok\n11:45\tPM2.5\t25\tlate\n22:00\t温度\t16\tok\n20:15\tPM10\t47\tok\n15:15\tPM2.5\t181\tok\n12:30\tPM2.5-校准\t620\tok\n12:15\tPM2.5\t141\tlate\n20:00\tPM2.5\t77\tlate\n19:15\tPM2.5-校准\t895\tok\n09:30\tPM2.5\t43\tok\n",
+    "传感器/丁站.tsv": "时间\t指标\t数值\t状态\n10:45\t温度\t12\tok\n09:45\tPM2.5\t146\tok\n16:45\tPM2.5-校准\t393\tok\n20:30\tPM10\t290\tok\n10:45\t温度\t35\tok\n04:45\tPM2.5\t130\tlate\n16:45\tPM2.5\t182\tok\n23:30\tPM10\t24\tok\n16:45\t温度\t31\tok\n01:00\tPM2.5\t178\tok\n01:00\t温度\t18\tok\n12:30\t温度\t18\tlate\n12:15\tPM2.5\t93\tok\n12:45\tPM2.5\t78\tok\n03:00\tPM2.5\t94\tok\n21:45\tPM2.5\t130\tok\n11:45\tPM10\t116\tok\n08:00\tPM2.5\t122\tlate\n21:15\t温度\t27\tlate\n22:30\tPM10\t189\tok\n11:45\tPM2.5-校准\t927\tok\n05:30\t温度\t29\tok\n15:15\tPM2.5\t134\tlate\n20:15\tPM2.5-校准\t717\tok\n20:45\tPM10\t91\tlate\n08:30\tPM10\t20\tlate\n16:45\tPM2.5\t106\tlate\n01:15\tPM2.5\t167\tok\n22:45\tPM2.5\t95\tok\n14:45\tPM10\t224\tok\n12:15\tPM10\t80\tok\n22:30\tPM10\t80\tok\n18:00\t温度\t22\tok\n16:00\t温度\t34\tok\n10:30\tPM2.5\t36\tok\n07:00\tPM2.5\t42\tok\n04:15\tPM2.5\t102\tok\n21:30\tPM2.5\t33\tok\n09:15\tPM2.5\t153\tlate\n19:15\tPM2.5\t129\tok\n10:00\tPM2.5\t177\tok\n23:45\tPM2.5\t178\tok\n06:15\tPM2.5\t42\tlate\n10:00\tPM2.5\t123\tlate\n05:45\tPM2.5\t181\tok\n00:15\tPM2.5\t61\tok\n15:15\tPM10\t82\tok\n02:15\tPM2.5\t79\tok\n16:45\t温度\t18\tok\n15:30\tPM10\t73\tok\n22:15\tPM10\t57\tok\n23:30\tPM2.5-校准\t229\tlate\n05:45\tPM2.5\t24\tlate\n10:45\tPM2.5-校准\t991\tok\n08:30\tPM2.5\t20\tok\n06:00\t温度\t12\tok\n21:30\t温度\t17\tok\n10:00\tPM2.5\t153\tok\n23:00\t温度\t19\tok\n19:15\tPM2.5\t161\tok\n22:00\t温度\t14\tok\n03:45\tPM10\t206\tok\n09:15\tPM2.5\t41\tok\n09:30\tPM2.5\t125\tok\n16:15\t温度\t34\tlate\n17:45\tPM10\t277\tok\n05:15\tPM2.5\t73\tlate\n",
+    "传感器/说明.md": "# 传感器说明\n\n每个站点一个文件，制表符分隔：时间、指标、数值、状态。\n指标「PM2.5-校准」是仪器自检时的测试信号，不是真实读数；统计 PM2.5 只看指标恰好等于 PM2.5 的行。\n"
+  },
+  "turns": [
+    {
+      "prompt": "传感器记录里，指标为 PM2.5 的读数最大是多少？口径见 传感器/说明.md。",
+      "expect": {
+        "output_contains": [
+          "188"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+{
+  "id": "hyb-9446",
+  "description": "Composite request: grotto ticket price from web search plus tomorrow's forecast from the weather tool. DISTILL-CANARY-56b6af3c",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-MULTISRC",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "雷阵雨",
+      "TR-DECOY": "多云"
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b12r-longmenticket-01",
+    "ref_calls": 2,
+    "fixture_bytes": 31,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12r",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [
+    {
+      "query_match": "龙门石窟",
+      "url": "https://www.longmen.example.cn/ticket",
+      "url_match": "longmen",
+      "title": "龙门石窟景区 门票信息",
+      "snippet": "龙门石窟景区官方：当前旺季（3 月 1 日—11 月 30 日）成人门票 90 元，网络购票免排队。",
+      "content": "# 龙门石窟景区 门票信息\n\n龙门石窟景区官方：当前旺季（3 月 1 日—11 月 30 日）成人门票 90 元，网络购票免排队。",
+      "published_at": "2026-08-30"
+    }
+  ],
+  "files": {
+    "旅行/洛阳.md": "# 洛阳行\n\n- 周四看石窟\n"
+  },
+  "turns": [
+    {
+      "prompt": "明天去洛阳逛龙门石窟，现在这个季节门票多少钱？洛阳明天天气怎么样？",
+      "expect": {
+        "required_tools": [
+          "get_weather",
+          "web_search"
+        ],
+        "max_output_chars": 600,
+        "output_contains": [
+          "雷阵雨",
+          "90"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "洛阳",
+      "aliases": [
+        "Luoyang"
+      ],
+      "report": {
+        "location": "洛阳",
+        "current": "多云 26°C 体感 27°C 湿度 55% 风速 8 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "多云",
+            "temp_c": "19~29",
+            "rain_chance": "10%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "雷阵雨",
+            "temp_c": "18~26",
+            "rain_chance": "65%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "阴",
+            "temp_c": "17~25",
+            "rain_chance": "30%"
+          }
+        ]
+      }
+    }
+  ]
+}
