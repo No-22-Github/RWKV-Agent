@@ -1121,9 +1121,12 @@ describe('App', () => {
 
     act(() => { eventHandlers.get('agent:event')?.({ data: { kind: 'answer_delta', step: 1, text: '你好世界' } }) })
     await act(async () => { resolveChat(new Result({ output: '你好世界', steps: [], durationMs: 1 })) })
+    // 后端已返回但仍在吐字：收尾信息不能提前占位。
+    expect(container.querySelector('.turn-actions')).toBeNull()
     // 匀速放完后交回普通渲染。
     await waitFor(() => {
       expect(screen.getByText('你好世界')).toBeInTheDocument()
+      expect(container.querySelector('.turn-actions')).not.toBeNull()
       expect(container.querySelector('.stream-tok')).toBeNull()
     })
 
@@ -1140,7 +1143,6 @@ describe('App', () => {
       status: new Status({ state: ModelState.ModelReady, model: 'scripted', workspace: '/tmp/RWKV-Agent', hasApiKey: false, updatedAt: new Date().toISOString() }),
     }))
     vi.mocked(Backend.Chat).mockReturnValue(new Promise(() => undefined) as ReturnType<typeof Backend.Chat>)
-    const follow = vi.spyOn(Element.prototype, 'scrollIntoView')
 
     const { container } = render(<App />)
     const composer = await screen.findByLabelText('消息')
@@ -1156,16 +1158,23 @@ describe('App', () => {
     // 用户往上滚：后续流式增量不再把视口拽回底部。
     scroller.scrollTop = 900
     fireEvent.scroll(scroller)
-    follow.mockClear()
+    fireEvent.wheel(scroller, { cancelable: false, deltaY: -100 })
     act(() => { eventHandlers.get('agent:event')?.({ data: { kind: 'answer_delta', step: 1, text: '第一段' } }) })
-    expect(follow).not.toHaveBeenCalled()
+    await new Promise(resolve => setTimeout(resolve, 40))
+    expect(scroller.scrollTop).toBe(900)
+    expect(screen.getByRole('button', { name: '回到底部' })).toBeInTheDocument()
 
     // 滚回底部附近：重新贴底跟随。
-    scroller.scrollTop = 1480
+    fireEvent.wheel(scroller, { cancelable: false, deltaY: 100 })
+    scroller.scrollTop = 1500
     fireEvent.scroll(scroller)
     act(() => { eventHandlers.get('agent:event')?.({ data: { kind: 'answer_delta', step: 1, text: '第二段' } }) })
-    expect(follow).toHaveBeenCalled()
-    follow.mockRestore()
+    await waitFor(() => expect(screen.queryByRole('button', { name: '回到底部' })).not.toBeInTheDocument())
+    fireEvent.wheel(scroller, { cancelable: false, deltaY: -100 })
+    scroller.scrollTop = 800
+    fireEvent.scroll(scroller)
+    fireEvent.click(screen.getByRole('button', { name: '回到底部' }))
+    expect(scroller.scrollTop).toBe(1500)
   })
 
   it('opens the trace ledger inspector and exports JSONL', async () => {

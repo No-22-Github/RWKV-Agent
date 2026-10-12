@@ -1,6 +1,6 @@
 import { KeyboardEvent, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import {
-  Check, Copy, CornerDownLeft, Folder, ListTree, RotateCcw, FolderOpen,
+  ArrowDown, Check, Copy, CornerDownLeft, Folder, ListTree, RotateCcw, FolderOpen,
   Menu, MoreHorizontal, PenLine, Pin, Settings, Square, SquarePen,
   Trash2, X,
 } from 'lucide-react'
@@ -17,6 +17,7 @@ import { sameChange, type FileArtifact, type FileView } from './components/fileR
 import type { FileChange } from '../bindings/github.com/no22/RWKV-Agent/internal/agent/tools/models'
 import MarkdownMessage from './MarkdownMessage'
 import PacedAnswer from './components/PacedAnswer'
+import { useConversationScroll } from './useConversationScroll'
 import ConfirmDialog from './components/ConfirmDialog'
 import type { ToolTrace } from './trajectory-types'
 import RunChips from './components/RunChips'
@@ -82,10 +83,7 @@ export default function App() {
   const [runConfigOpen, setRunConfigOpen] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [theme, setTheme] = useState<ThemeMode>(() => getInitialTheme())
-  const messagesEnd = useRef<HTMLDivElement>(null)
-  // 是否贴底跟随：用户往上滚就松开，滚回底部附近或发出新一轮时重新贴住。
-  // 无条件 scrollIntoView 会在流式的每一帧把正在往上看的用户拽回底部，滚动来回抽搐。
-  const followBottom = useRef(true)
+  const [scrollResetKey, setScrollResetKey] = useState(0)
   const ready = status.state === ModelState.ModelReady
   const manager = useProviderManager({ onStatus: setStatus, ready })
   const { show: notify } = useSnackbar()
@@ -119,7 +117,6 @@ export default function App() {
     return () => { offStatus(); offAgent(); offChanges(); offChangesError() }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-  useEffect(() => { if (followBottom.current) messagesEnd.current?.scrollIntoView({ block: 'end' }) }, [messages, liveAnswer])
 
   // 快捷键监听只挂一次，经 ref 调最新一轮渲染的处理函数：过去依赖 [busy] 的闭包会拿着
   // 空的档案列表打开设置（首轮对话前按 ⌘, 总是落到"新建连接"）。
@@ -192,7 +189,7 @@ export default function App() {
     try { await manager.deleteProvider(id) } catch (error) { manager.setSettingsMessage(errorText(error)) } finally { setBusy(false) }
   }
   function applyConversation(value?: ConversationView, options: { preserveDraft?: boolean } = {}) {
-    setOpenFile(null); setActiveConversationID(value?.id || ''); setActiveTab('chat'); setActivity([]); followBottom.current = true; if (!options.preserveDraft) setPrompt('')
+    setOpenFile(null); setActiveConversationID(value?.id || ''); setActiveTab('chat'); setActivity([]); setScrollResetKey(key => key + 1); if (!options.preserveDraft) setPrompt('')
     let lastPrompt = ''
     setMessages((value?.messages || []).map((message) => {
       if (message.role === 'user') lastPrompt = message.content
@@ -235,7 +232,7 @@ export default function App() {
   }
   async function runTurn(content: string, stage: (current: Message[]) => Message[], run: () => Promise<Result> & { cancel: () => void }, restoreUser: boolean) {
     turnInFlight.current = true
-    followBottom.current = true
+    setScrollResetKey(key => key + 1)
     setActivity([]); setMessages(stage); setBusy(true)
     liveAnswerRef.current = ''; setLiveAnswer('')
     try {
@@ -316,7 +313,7 @@ export default function App() {
             <button role="tab" aria-selected={activeTab === 'trace'} className={`relative min-w-[58px] border-0 border-b-2 bg-transparent pb-[9px] text-center text-md transition-[border-color,color] duration-[180ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none before:absolute before:inset-x-0 before:bottom-0 before:top-[-15px] before:content-[''] ${activeTab === 'trace' ? 'border-brand font-semibold text-ink' : 'border-transparent text-ink-muted'}`} onClick={() => setActiveTab('trace')} disabled={!traceMessages.length && !liveTurn}>轨迹 <span className="ml-1 font-mono text-2xs text-ink-muted">{traceMessages.length + (liveTurn ? 1 : 0) || ''}</span></button>
           </div>
         </header>
-        {activeTab === 'trace' ? <TrajectoryView messages={traceMessages} live={liveTurn} focusMessageId={selectedTraceID} onExport={() => void exportTrajectory()} /> : <ChatView fileChanges={fileChanges} onResolveFiles={resolveFileChanges} onOpenFile={openArtifact} chips={<RunChips ready={ready} busy={busy} status={status} runtimeConfig={runtimeConfig} providers={manager.providers} runtimeProviderId={manager.runtimeProviderId} workspace={workspaceName} runConfigOpen={runConfigOpen} setRunConfigOpen={setRunConfigOpen} onActivate={(id) => void activateProviderNow(id)} onToggleCapability={(key, value) => void toggleCapabilityNow(key, value)} onSetState={setStateNow} onChooseWorkspace={() => void chooseWorkspace()} onOpenSettings={() => { setRunConfigOpen(false); manager.openSettings() }} />} messages={messages} activity={activity} liveAnswer={liveAnswer} motion={motionMemory.current} busy={busy} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={() => void regenerateLast()} onEditLast={(content) => void editLast(content)} onKeyDown={onComposerKeyDown} onStop={stopRun} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} messagesEnd={messagesEnd} followBottom={followBottom} />}
+        {activeTab === 'trace' ? <TrajectoryView messages={traceMessages} live={liveTurn} focusMessageId={selectedTraceID} onExport={() => void exportTrajectory()} /> : <ChatView fileChanges={fileChanges} onResolveFiles={resolveFileChanges} onOpenFile={openArtifact} chips={<RunChips ready={ready} busy={busy} status={status} runtimeConfig={runtimeConfig} providers={manager.providers} runtimeProviderId={manager.runtimeProviderId} workspace={workspaceName} runConfigOpen={runConfigOpen} setRunConfigOpen={setRunConfigOpen} onActivate={(id) => void activateProviderNow(id)} onToggleCapability={(key, value) => void toggleCapabilityNow(key, value)} onSetState={setStateNow} onChooseWorkspace={() => void chooseWorkspace()} onOpenSettings={() => { setRunConfigOpen(false); manager.openSettings() }} />} messages={messages} activity={activity} liveAnswer={liveAnswer} motion={motionMemory.current} busy={busy} prompt={prompt} setPrompt={setPrompt} onSubmit={submitMessage} onRegenerate={() => void regenerateLast()} onEditLast={(content) => void editLast(content)} onKeyDown={onComposerKeyDown} onStop={stopRun} onTrace={(id) => { setSelectedTraceID(id); setActiveTab('trace') }} scrollResetKey={scrollResetKey} />}
       </main>
       <AnimatePresence>
       {openFile && <FileReviewPane key="file-review" file={openFile} files={messages.find(m => m.files?.some(f => sameChange(f.change, openFile.change)))?.files || fileChanges.map(change => ({ change, status: 'pending' }))} onFile={setOpenFile} view={fileView} onView={setFileView} changes={fileChanges} disabled={busy} onResolve={resolveFileChanges} onClose={() => setOpenFile(null)} />}
@@ -398,32 +395,15 @@ function Sidebar({ conversations, workspaces, activeId, busy, open, onCloseSideb
   </>
 }
 
-function ChatView({ fileChanges, onResolveFiles, onOpenFile, chips, messages, activity, liveAnswer, motion, busy, prompt, setPrompt, onSubmit, onStop, onRegenerate, onEditLast, onKeyDown, onTrace, messagesEnd, followBottom }: { fileChanges: FileChange[]; onResolveFiles: (changes: FileChange[], accept: boolean) => Promise<void>; onOpenFile: (file: FileArtifact, view: FileView) => void; chips: React.ReactNode; messages: Message[]; activity: AgentActivity[]; liveAnswer: string; motion: MotionMemory; busy: boolean; prompt: string; setPrompt: (value: string) => void; onSubmit: () => void; onStop: () => void; onRegenerate: () => void; onEditLast: (content: string) => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void; onTrace: (id: string) => void; messagesEnd: React.RefObject<HTMLDivElement | null>; followBottom: React.RefObject<boolean> }) {
+function ChatView({ fileChanges, onResolveFiles, onOpenFile, chips, messages, activity, liveAnswer, motion, busy, prompt, setPrompt, onSubmit, onStop, onRegenerate, onEditLast, onKeyDown, onTrace, scrollResetKey }: { fileChanges: FileChange[]; onResolveFiles: (changes: FileChange[], accept: boolean) => Promise<void>; onOpenFile: (file: FileArtifact, view: FileView) => void; chips: React.ReactNode; messages: Message[]; activity: AgentActivity[]; liveAnswer: string; motion: MotionMemory; busy: boolean; prompt: string; setPrompt: (value: string) => void; onSubmit: () => void; onStop: () => void; onRegenerate: () => void; onEditLast: (content: string) => void; onKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void; onTrace: (id: string) => void; scrollResetKey: number }) {
   const turns = groupMessagesIntoTurns(messages)
   const unattachedChanges = fileChanges.filter(c => !messages.some(m => m.files?.some(f => sameChange(f.change, c))))
   const empty = turns.length === 0
-  // 匀速显示会比消息到达晚一点长高，滚动要跟着显示层走，而不只是跟着消息。
-  const followAnswer = useCallback(() => { if (followBottom.current) messagesEnd.current?.scrollIntoView({ block: 'end' }) }, [messagesEnd, followBottom])
+  const { scrollRef, contentRef, showScrollButton, scrollToBottom, schedule: followAnswer } = useConversationScroll(empty, scrollResetKey)
   // busy 也覆盖打开会话等短操作；只有最后一轮在等回答才算 Agent 运行中。
   const running = busy && !empty && !turns[turns.length - 1].response
   const stageRef = useRef<HTMLDivElement>(null)
-  const scrollRef = useRef<HTMLDivElement>(null)
   const anchorRef = useRef<HTMLDivElement>(null)
-  // 程序滚动只会往下（贴底），所以 scrollTop 变小就是用户在往上看：松开跟随。
-  useEffect(() => {
-    const scroller = scrollRef.current
-    if (!scroller) return
-    let lastTop = scroller.scrollTop
-    const onScroll = () => {
-      const top = scroller.scrollTop
-      const distance = scroller.scrollHeight - top - scroller.clientHeight
-      if (top < lastTop - 2) followBottom.current = false
-      else if (distance < 48) followBottom.current = true
-      lastTop = top
-    }
-    scroller.addEventListener('scroll', onScroll, { passive: true })
-    return () => scroller.removeEventListener('scroll', onScroll)
-  }, [empty, followBottom])
   const metrics = useRef({ dockedTop: 0, offset: 0 })
   const settled = useRef(false)
   const emptyRef = useRef(empty)
@@ -445,12 +425,13 @@ function ChatView({ fileChanges, onResolveFiles, onOpenFile, chips, messages, ac
     anchor.style.transition = animate ? '' : 'none' // animate: 交回 CSS 类过渡；否则临时禁用
     anchor.style.top = `${metrics.current.dockedTop}px`
     anchor.style.transform = emptyRef.current ? `translateY(${metrics.current.offset}px)` : 'translateY(0)'
-    if (scrollRef.current) scrollRef.current.style.paddingBottom = `${anchor.offsetHeight + 40}px`
+    if (contentRef.current) contentRef.current.style.paddingBottom = `${anchor.offsetHeight + 40}px`
     if (!animate) {
       void anchor.offsetHeight // 强制回流锁定当前位置，再于下一帧恢复过渡
       requestAnimationFrame(() => { if (anchorRef.current) anchorRef.current.style.transition = '' })
     }
-  }, [])
+    followAnswer()
+  }, [contentRef, followAnswer])
 
   // 空态↔对话态切换：仅此处触发滑动（首次挂载不动画）。
   useLayoutEffect(() => {
@@ -472,10 +453,9 @@ function ChatView({ fileChanges, onResolveFiles, onOpenFile, chips, messages, ac
   return <div className="chat-panel relative flex min-h-0 flex-1 flex-col overflow-hidden">
     <div ref={stageRef} className="chat-stage relative min-h-0 flex-1 overflow-hidden">
       {/* 滚动容器铺满舞台，滚动条贴窗口最右；两侧预留等宽槽位，滚动条出现时正文不被挤、也不偏离输入框的中线。 */}
-      {!empty && <div ref={scrollRef} className="conversation-scroll absolute inset-0 overflow-y-auto overflow-x-hidden pt-[30px] [scrollbar-gutter:stable_both-edges]">
-        <div className="mx-auto content-narrow">
+      {!empty && <div ref={scrollRef} tabIndex={0} aria-label="对话消息" className="conversation-scroll overscroll-y-contain [overflow-anchor:none] [scroll-behavior:auto] absolute inset-0 overflow-y-auto overflow-x-hidden pt-[30px] [scrollbar-gutter:stable_both-edges]">
+        <div ref={contentRef} className="mx-auto content-narrow">
           {turns.map((turn, index) => <TurnView fileChanges={fileChanges} fallbackChanges={index === turns.length - 1 ? unattachedChanges : []} onResolveFiles={onResolveFiles} onOpenFile={onOpenFile} key={turn.user?.id || turn.response?.id || index} turn={turn} index={index + 1} last={index === turns.length - 1} busy={busy} pending={busy && index === turns.length - 1 && !turn.response} activity={activity} liveAnswer={liveAnswer} motion={motion} onGrow={followAnswer} onTrace={onTrace} onRegenerate={onRegenerate} onEditLast={onEditLast} />)}
-          <div ref={messagesEnd} />
         </div>
       </div>}
     </div>
@@ -483,6 +463,7 @@ function ChatView({ fileChanges, onResolveFiles, onOpenFile, chips, messages, ac
       {/* 渐隐底衬：正文滚到输入区时先淡出、再被纸色盖住，不从标签和输入框之间直接穿过去。
           延伸到舞台底边（锚点下方留的 28px）；空态输入框居中，没有正文要盖。 */}
       {!empty && <div aria-hidden className="composer-fade pointer-events-none absolute inset-x-0 top-[-56px] bottom-[-28px] -z-10 bg-[linear-gradient(to_bottom,transparent,var(--paper)_56px)]" />}
+      {!empty && showScrollButton && <button type="button" aria-label="回到底部" title="回到底部" onClick={scrollToBottom} className="absolute left-1/2 top-[-48px] -translate-x-1/2 flex h-8 w-8 items-center justify-center rounded-full border border-line bg-paper text-ink-soft shadow-sm hover:bg-paper-soft focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"><ArrowDown size={16} /></button>}
       <Composer chips={chips} prompt={prompt} setPrompt={setPrompt} busy={busy} running={running} empty={empty} onSubmit={onSubmit} onStop={onStop} onKeyDown={onKeyDown} />
     </div>
   </div>
@@ -501,6 +482,8 @@ function TurnView({ fileChanges, fallbackChanges, onResolveFiles, onOpenFile, tu
   // 每个回合、每条回答的入场动画只在第一次挂载时播放：切页回来、重新挂载不再重播。
   const turnKey = `turn:${turn.user?.id || response?.id || index}`
   const answerKey = response ? `answer:${response.id}` : ''
+  const [settledText, setSettledText] = useState<string | null>(() => (motion.progress.get(turnKey) ?? 0) >= streamText.length ? streamText : '')
+  const showFooter = !pending && (!streamText || settledText === streamText)
   const [enterFresh] = useState(() => !motion.seen.has(turnKey))
   const answerFresh = useRef<boolean | null>(null)
   if (answerKey && answerFresh.current === null) answerFresh.current = !motion.seen.has(answerKey)
@@ -514,11 +497,11 @@ function TurnView({ fileChanges, fallbackChanges, onResolveFiles, onOpenFile, tu
       {pending && !liveAnswer && calls.length === 0 && <div className="turn-pending-answer flex items-center gap-[6px] text-sm text-ink-muted" aria-live="polite"><ThinkingMark /><span className="shimmer-text text-sm">{activityLabel(activity.at(-1))}</span></div>}
       {/* 流式回答：生成中与落定后必须是同一位置的同一个 PacedAnswer，落定时它才能把没放完的字按节奏放完。 */}
       {streamText
-        ? <div className="turn-answer answer-streaming text-md leading-[1.8] text-ink [overflow-wrap:anywhere]" aria-busy={pending}><PacedAnswer text={streamText} live={pending} onGrow={onGrow} initialShown={motion.progress.get(turnKey)} onProgress={(shown) => motion.progress.set(turnKey, shown)} /></div>
+        ? <div className="turn-answer answer-streaming text-md leading-[1.8] text-ink [overflow-wrap:anywhere]" aria-busy={pending}><PacedAnswer text={streamText} live={pending} onGrow={onGrow} onSettled={setSettledText} initialShown={motion.progress.get(turnKey)} onProgress={(shown) => motion.progress.set(turnKey, shown)} /></div>
         : response?.role === 'assistant' && <div className={`turn-answer${last && answerFresh.current ? ' answer-reveal animate-answer-reveal motion-reduce:animate-none' : ''} text-md leading-[1.8] text-ink [overflow-wrap:anywhere]`}><MarkdownMessage content={response.content} /></div>}
       {response?.role === 'error' && <div className="flex items-start gap-2 rounded-lg border border-danger/30 bg-danger-wash p-[10px_12px] text-sm leading-[1.65] text-danger"><X size={15} className="mt-[3px] flex-none" /><span className="min-w-0 whitespace-pre-wrap [overflow-wrap:anywhere]">{response.content}</span></div>}
-      {response && <FileChangesPanel artifacts={response.files} changes={response.files?.length ? fileChanges : fallbackChanges} fallbackChanges={fallbackChanges} disabled={busy} onResolve={onResolveFiles} onOpen={onOpenFile} />}
-      {response && <TurnActions response={response} meta={[formatTurnTime(time), response.meta, stats && stats.tokens > 0 ? `${stats.tokens.toLocaleString('zh-CN')} tok` : ''].filter(Boolean).join(' · ')} canRegenerate={last && Boolean(turn.user)} busy={busy} hasTrace={hasTrace} onRegenerate={onRegenerate} onTrace={() => onTrace(response.id)} />}
+      {response && showFooter && <FileChangesPanel artifacts={response.files} changes={response.files?.length ? fileChanges : fallbackChanges} fallbackChanges={fallbackChanges} disabled={busy} onResolve={onResolveFiles} onOpen={onOpenFile} />}
+      {response && showFooter && <TurnActions response={response} meta={[formatTurnTime(time), response.meta, stats && stats.tokens > 0 ? `${stats.tokens.toLocaleString('zh-CN')} tok` : ''].filter(Boolean).join(' · ')} canRegenerate={last && Boolean(turn.user)} busy={busy} hasTrace={hasTrace} onRegenerate={onRegenerate} onTrace={() => onTrace(response.id)} />}
     </div>
   </article>
 }
@@ -597,7 +580,7 @@ function Composer({ chips, prompt, setPrompt, busy, running, empty, onSubmit, on
       {/* 输入框上方的运行标签：模型、State、能力、工作区 */}
       <div className="mb-[8px]">{chips}</div>
       <div data-running={running || undefined} className="composer-box data-running:running-ring relative flex min-h-[52px] min-w-0 items-end rounded-lg border border-line bg-paper-wash shadow-hair transition-[border-color,box-shadow] duration-[120ms] ease-[cubic-bezier(.2,0,0,1)] motion-reduce:transition-none focus-within:border-line-strong focus-within:ring-[3px] focus-within:ring-ink/10">
-        <textarea aria-label="消息" rows={1} value={prompt} placeholder="描述你想要完成的任务" className="block min-h-[52px] max-h-[180px] min-w-0 flex-1 resize-none border-0 bg-transparent p-[13px_4px_12px_15px] text-md leading-[1.7] text-ink outline-0 focus:outline-none focus-visible:outline-none placeholder:text-placeholder" onChange={(event) => { setPrompt(event.target.value); autoGrow(event.target) }} onKeyDown={onKeyDown} />
+        <textarea aria-label="消息" rows={1} value={prompt} placeholder="描述你想要完成的任务" className="block min-h-[52px] max-h-[180px] min-w-0 flex-1 resize-none border-0 bg-transparent p-[13px_4px_12px_15px] text-md leading-[1.4] text-ink outline-0 focus:outline-none focus-visible:outline-none placeholder:text-placeholder" onChange={(event) => { setPrompt(event.target.value); autoGrow(event.target) }} onKeyDown={onKeyDown} />
         <div className="flex flex-none items-center p-[12px_12px_12px_6px]">
           {busy
             // 运行中发送键变成停止键：中断后端这一轮，已完成的步骤保留在轨迹里。

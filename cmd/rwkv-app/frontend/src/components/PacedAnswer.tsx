@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import MarkdownMessage from '../MarkdownMessage'
 
-// 显示节奏：模型约 90 字/秒，原样跟着到达速度显示会显得急。按基础速度匀速放字，
-// 积压变多时按「最多落后 MAX_LAG_S 秒」线性提速，长回答不会越拖越久。
+// 生成中按基础速度放字，并随积压提速；生成结束后单独加速收尾。
 const BASE_CHARS_PER_SECOND = 45
 const MAX_LAG_S = 2.5
+const FINISH_CHARS_PER_SECOND = 100
+const FINISH_DURATION_S = 0.8
 
 const prefersReducedMotion = () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
@@ -13,13 +14,14 @@ const prefersReducedMotion = () => typeof window !== 'undefined' && window.match
  * 追平后交回普通 Markdown 渲染（不再拆字）。同一实例要跨越「生成中 → 落定」，
  * 否则落定瞬间会把还没放出来的字一次性甩出来。
  */
-export default function PacedAnswer({ text, live, onGrow, initialShown = 0, onProgress }: {
+export default function PacedAnswer({ text, live, onGrow, initialShown = 0, onProgress, onSettled }: {
   text: string
   live: boolean
   onGrow?: () => void
   // 切页回来时的恢复进度（已经放出的字数）：这部分直接显示、不再淡入，余下的接着按节奏放。
   initialShown?: number
   onProgress?: (shown: number) => void
+  onSettled?: (text: string | null) => void
 }) {
   const [shown, setShown] = useState(() => (prefersReducedMotion() ? text.length : Math.min(initialShown, text.length)))
   // 挂载时恢复的那段固定不变：只有它之后新放出的字才播放动画。
@@ -47,12 +49,15 @@ export default function PacedAnswer({ text, live, onGrow, initialShown = 0, onPr
     let last = performance.now()
     let position = shown
     let emitted = shown
+    // 固定收尾速度，避免积压变少时又减速、拖长最后一段。
+    const finishRate = Math.max(FINISH_CHARS_PER_SECOND, (textRef.current.length - shown) / FINISH_DURATION_S)
     const tick = (now: number) => {
       const target = textRef.current.length
       const elapsed = Math.min(now - last, 100) / 1000
       last = now
       const backlog = target - position
-      position = Math.min(target, position + Math.max(BASE_CHARS_PER_SECOND, backlog / MAX_LAG_S) * elapsed)
+      const rate = live ? Math.max(BASE_CHARS_PER_SECOND, backlog / MAX_LAG_S) : finishRate
+      position = Math.min(target, position + rate * elapsed)
       let next = Math.floor(position)
       // 不把代理对切成两半（emoji 等），否则会闪出一个替换字符。
       const code = textRef.current.charCodeAt(next - 1)
@@ -68,10 +73,11 @@ export default function PacedAnswer({ text, live, onGrow, initialShown = 0, onPr
     }
     frame = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(frame)
-    // 只在「追平 ↔ 落后」切换时重启循环；循环内部经 ref 读最新文本。
+    // 追平状态或生成状态切换时重启，以当前显示位置进入收尾加速。
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [caughtUp])
+  }, [caughtUp, live])
 
   const settled = !live && caughtUp
+  useEffect(() => { onSettled?.(settled ? text : null) }, [settled, text, onSettled])
   return <MarkdownMessage content={settled ? text : text.slice(0, shown)} streaming={!settled} staticChars={staticChars} />
 }

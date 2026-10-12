@@ -26,7 +26,8 @@ describe('PacedAnswer', () => {
   it('reveals streamed text at a steady pace and finishes it after the run settles', () => {
     vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame', 'performance'] })
     const text = '杭'.repeat(90)
-    const { container, rerender } = render(<PacedAnswer text={text} live />)
+    const settled = vi.fn()
+    const { container, rerender } = render(<PacedAnswer text={text} live onSettled={settled} />)
 
     act(() => { vi.advanceTimersByTime(1000) })
     const shownAfterOneSecond = container.textContent?.length || 0
@@ -34,10 +35,28 @@ describe('PacedAnswer', () => {
     expect(shownAfterOneSecond).toBeGreaterThan(30)
     expect(shownAfterOneSecond).toBeLessThan(60)
 
-    rerender(<PacedAnswer text={text} live={false} />)
+    rerender(<PacedAnswer text={text} live={false} onSettled={settled} />)
+    expect(settled).not.toHaveBeenCalledWith(text)
     expect(container.textContent?.length).toBe(shownAfterOneSecond)
-    act(() => { vi.advanceTimersByTime(3000) })
+    act(() => { vi.advanceTimersByTime(600) })
+    expect(container.textContent).toBe(text)
+    expect(settled).toHaveBeenCalledWith(text)
+    expect(container.querySelector('.stream-tok')).toBeNull()
+  })
+  it('finishes a large backlog within the short catch-up window without revealing it all at once', () => {
+    vi.useFakeTimers({ toFake: ['requestAnimationFrame', 'cancelAnimationFrame', 'performance'] })
+    const text = '杭'.repeat(600)
+    const { container, rerender } = render(<PacedAnswer text={text} live />)
+    act(() => { vi.advanceTimersByTime(300) })
+    const before = container.textContent!.length
+    rerender(<PacedAnswer text={text} live={false} />)
+    expect(container.textContent).toHaveLength(before)
+    act(() => { vi.advanceTimersByTime(200) })
+    expect(container.textContent!.length).toBeGreaterThan(before + 80)
+    expect(container.textContent!.length).toBeLessThan(text.length)
+    act(() => { vi.advanceTimersByTime(650) })
     expect(container.textContent).toBe(text)
     expect(container.querySelector('.stream-tok')).toBeNull()
   })
+
 })
