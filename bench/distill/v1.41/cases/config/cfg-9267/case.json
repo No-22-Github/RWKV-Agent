@@ -1,0 +1,86 @@
+{
+  "id": "cfg-9267",
+  "description": "Two turns: bumps axios from 0.21.1 to 1.6.2 in five package.json files without touching the vendored copy or axios-retry, then pins two projects back to 0.21.1. DISTILL-CANARY-ddf26023",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-READONLY",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null,
+      "TR-DECOY": null
+    },
+    "axes": [
+      "CON",
+      "OBS"
+    ],
+    "level": "L3",
+    "family": "fam-cfg-b12k-axiosbump-01",
+    "ref_calls": 4,
+    "fixture_bytes": 897,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "项目/商城/package.json": "{\n  \"name\": \"商城\",\n  \"dependencies\": {\n    \"axios\": \"0.21.1\",\n    \"axios-retry\": \"0.21.1\",\n    \"lodash\": \"4.17.21\"\n  }\n}\n",
+    "项目/后台/package.json": "{\n  \"name\": \"后台\",\n  \"dependencies\": {\n    \"axios\": \"0.21.1\",\n    \"axios-retry\": \"0.21.1\",\n    \"lodash\": \"4.17.21\"\n  }\n}\n",
+    "项目/结算/package.json": "{\n  \"name\": \"结算\",\n  \"dependencies\": {\n    \"axios\": \"0.21.1\",\n    \"axios-retry\": \"0.21.1\",\n    \"lodash\": \"4.17.21\"\n  }\n}\n",
+    "项目/报表/package.json": "{\n  \"name\": \"报表\",\n  \"dependencies\": {\n    \"axios\": \"0.21.1\",\n    \"axios-retry\": \"0.21.1\",\n    \"lodash\": \"4.17.21\"\n  }\n}\n",
+    "项目/小程序/package.json": "{\n  \"name\": \"小程序\",\n  \"dependencies\": {\n    \"axios\": \"0.21.1\",\n    \"axios-retry\": \"0.21.1\",\n    \"lodash\": \"4.17.21\"\n  }\n}\n",
+    "项目/_vendored/package.json": "{\n  \"name\": \"vendored\",\n  \"dependencies\": {\n    \"axios\": \"0.21.1\",\n    \"axios-retry\": \"0.21.1\",\n    \"lodash\": \"4.17.21\"\n  }\n}\n",
+    "项目/README.md": "# 项目依赖\n\n统一升到 axios 1.6.2。\n_vendored 是拷贝来的第三方包，保持原样；axios-retry 由平台组统一管理，不动。\n"
+  },
+  "turns": [
+    {
+      "prompt": "依赖升级：把 项目 下各 package.json 里 axios 的版本从 0.21.1 升到 1.6.2，哪些不能动看 项目/README.md。改完回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "结算和后台依赖的支付 SDK 只兼容 axios 0.x，这两个项目的 axios 钉回 0.21.1，其余项目保持现在的样子。改完回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "项目/商城/package.json": {
+        "equals": "{\n  \"name\": \"商城\",\n  \"dependencies\": {\n    \"axios\": \"1.6.2\",\n    \"axios-retry\": \"0.21.1\",\n    \"lodash\": \"4.17.21\"\n  }\n}\n"
+      },
+      "项目/后台/package.json": {
+        "unchanged": true
+      },
+      "项目/结算/package.json": {
+        "unchanged": true
+      },
+      "项目/报表/package.json": {
+        "equals": "{\n  \"name\": \"报表\",\n  \"dependencies\": {\n    \"axios\": \"1.6.2\",\n    \"axios-retry\": \"0.21.1\",\n    \"lodash\": \"4.17.21\"\n  }\n}\n"
+      },
+      "项目/小程序/package.json": {
+        "equals": "{\n  \"name\": \"小程序\",\n  \"dependencies\": {\n    \"axios\": \"1.6.2\",\n    \"axios-retry\": \"0.21.1\",\n    \"lodash\": \"4.17.21\"\n  }\n}\n"
+      },
+      "项目/_vendored/package.json": {
+        "unchanged": true
+      },
+      "项目/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

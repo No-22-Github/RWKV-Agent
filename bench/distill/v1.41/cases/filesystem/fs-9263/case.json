@@ -1,0 +1,114 @@
+{
+  "id": "fs-9263",
+  "description": "Two turns: renames .markdown pages to .md except a read-only mirror folder, then renames two guide pages back to .markdown. DISTILL-CANARY-5ea3369d",
+  "category": "filesystem",
+  "tags": {
+    "scenario": "filesystem",
+    "task_type": "bulk_edit",
+    "traps": [
+      "TR-READONLY",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null,
+      "TR-DECOY": null
+    },
+    "axes": [
+      "CON",
+      "OBS"
+    ],
+    "level": "L3",
+    "family": "fam-fs-b12k-markdownext-01",
+    "ref_calls": 4,
+    "fixture_bytes": 301,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "文档站/指南/安装.markdown": "安装步骤\n",
+    "文档站/指南/导入.markdown": "如何导入数据\n",
+    "文档站/指南/导出.markdown": "如何导出数据\n",
+    "文档站/参考/接口.markdown": "接口说明\n",
+    "文档站/参考/术语.markdown": "术语说明\n",
+    "文档站/博客/发布说明.markdown": "新版本发布\n",
+    "文档站/发布镜像/安装.markdown": "安装步骤（镜像）\n",
+    "文档站/发布镜像/接口.markdown": "接口说明（镜像）\n",
+    "文档站/参考/变更.md": "变更记录\n",
+    "文档站/参考/旧笔记.markdown.bak": "旧笔记备份\n",
+    "文档站/README.md": "# 文档站\n\n页面统一使用 .md 扩展名。\n发布镜像 是同步给外部站点的只读副本，文件名保持原样。\n"
+  },
+  "turns": [
+    {
+      "prompt": "统一文档站的扩展名：把 文档站 下的 .markdown 文件都改成 .md，哪些不能改名看 文档站/README.md。改完回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "旧版站点生成器还按 .markdown 引用 指南 里的导入页和导出页，这两个文件的扩展名改回 .markdown，其余保持现在的样子。改完回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "文档站/指南/安装.markdown": {
+        "absent": true
+      },
+      "文档站/指南/导入.markdown": {
+        "unchanged": true
+      },
+      "文档站/指南/导出.markdown": {
+        "unchanged": true
+      },
+      "文档站/参考/接口.markdown": {
+        "absent": true
+      },
+      "文档站/参考/术语.markdown": {
+        "absent": true
+      },
+      "文档站/博客/发布说明.markdown": {
+        "absent": true
+      },
+      "文档站/发布镜像/安装.markdown": {
+        "unchanged": true
+      },
+      "文档站/发布镜像/接口.markdown": {
+        "unchanged": true
+      },
+      "文档站/参考/变更.md": {
+        "unchanged": true
+      },
+      "文档站/参考/旧笔记.markdown.bak": {
+        "unchanged": true
+      },
+      "文档站/README.md": {
+        "unchanged": true
+      },
+      "文档站/指南/安装.md": {
+        "equals": "安装步骤\n"
+      },
+      "文档站/参考/接口.md": {
+        "equals": "接口说明\n"
+      },
+      "文档站/参考/术语.md": {
+        "equals": "术语说明\n"
+      },
+      "文档站/博客/发布说明.md": {
+        "equals": "新版本发布\n"
+      }
+    }
+  }
+}

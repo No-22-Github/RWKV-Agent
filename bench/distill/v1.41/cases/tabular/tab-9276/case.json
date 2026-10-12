@@ -1,0 +1,78 @@
+{
+  "id": "tab-9276",
+  "description": "Two turns: renames the unit 件 to 个 in three monthly stock files except the template and the look-alike 件套, then counts the rows whose unit is 个 across the three months. DISTILL-CANARY-87ab6980",
+  "category": "tabular",
+  "tags": {
+    "scenario": "tabular",
+    "task_type": "filter_count",
+    "traps": [
+      "TR-READONLY",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null,
+      "TR-DECOY": null
+    },
+    "axes": [
+      "CON",
+      "OBS"
+    ],
+    "level": "L3",
+    "family": "fam-tab-b12k-unitcount-01",
+    "ref_calls": 3,
+    "fixture_bytes": 1058,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "库存/2026-07.txt": "货号,品名,数量,单位\nS0701,货品57,37,个\nS0702,货品12,32,个\nS0703,货品93,55,个\nS0704,货品70,62,件\nS0705,货品22,59,个\nS0706,货品38,36,件\nS0707,货品24,87,箱\nS0708,货品67,68,个\nS0709,货品47,22,件套\nS0710,货品20,18,个\nS0711,货品21,65,个\nS0712,货品12,22,件\nS0713,货品35,25,个\n",
+    "库存/2026-08.txt": "货号,品名,数量,单位\nS0801,货品37,13,件套\nS0802,货品21,73,箱\nS0803,货品58,86,个\nS0804,货品79,77,个\nS0805,货品74,65,个\nS0806,货品94,42,箱\nS0807,货品17,2,个\nS0808,货品51,48,件套\nS0809,货品81,31,个\n",
+    "库存/2026-09.txt": "货号,品名,数量,单位\nS0901,货品79,21,个\nS0902,货品52,41,件套\nS0903,货品42,70,个\nS0904,货品53,41,个\nS0905,货品71,89,个\nS0906,货品38,26,箱\nS0907,货品93,36,个\nS0908,货品21,47,件套\nS0909,货品35,40,件\nS0910,货品46,90,件套\n",
+    "库存/模板.txt": "货号,品名,数量,单位\n示例,示例货品,0,件\n示例2,示例货品,0,个\n",
+    "库存/README.md": "# 库存表\n\n每月一个 txt，逗号分隔，最后一列是单位。\n模板.txt 是空白模板，保持原样。\n「件套」是另一种单位，不属于「件」。\n"
+  },
+  "turns": [
+    {
+      "prompt": "把 库存 下各月 txt 里单位为「件」的行改成「个」，哪些不能动看 库存/README.md。改完回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "现在三个月的库存文件里，单位是「个」的记录一共有多少行？",
+      "expect": {
+        "output_contains_any": [
+          "22"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "库存/2026-07.txt": {
+        "equals": "货号,品名,数量,单位\nS0701,货品57,37,个\nS0702,货品12,32,个\nS0703,货品93,55,个\nS0704,货品70,62,个\nS0705,货品22,59,个\nS0706,货品38,36,个\nS0707,货品24,87,箱\nS0708,货品67,68,个\nS0709,货品47,22,件套\nS0710,货品20,18,个\nS0711,货品21,65,个\nS0712,货品12,22,个\nS0713,货品35,25,个\n"
+      },
+      "库存/2026-08.txt": {
+        "unchanged": true
+      },
+      "库存/2026-09.txt": {
+        "equals": "货号,品名,数量,单位\nS0901,货品79,21,个\nS0902,货品52,41,件套\nS0903,货品42,70,个\nS0904,货品53,41,个\nS0905,货品71,89,个\nS0906,货品38,26,箱\nS0907,货品93,36,个\nS0908,货品21,47,件套\nS0909,货品35,40,个\nS0910,货品46,90,件套\n"
+      },
+      "库存/模板.txt": {
+        "unchanged": true
+      },
+      "库存/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

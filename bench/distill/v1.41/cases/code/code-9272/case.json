@@ -1,0 +1,86 @@
+{
+  "id": "code-9272",
+  "description": "Two turns: renames an identifier across five Python modules without touching the compat layer or a look-alike helper name, then restores the old name in two job modules. DISTILL-CANARY-714298ec",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "fix_edge_case",
+    "traps": [
+      "TR-READONLY",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null,
+      "TR-DECOY": null
+    },
+    "axes": [
+      "CON",
+      "OBS"
+    ],
+    "level": "L3",
+    "family": "fam-code-b12k-loggerrename-01",
+    "ref_calls": 4,
+    "fixture_bytes": 649,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "app/api/handlers.py": "from app.logging import old_logger\n\nold_logger.info(\"api start\")\n",
+    "app/db/session.py": "from app.logging import old_logger\n\nold_logger.info(\"db start\")\nfrom app.testing import old_logger_test_helper\n",
+    "app/cache/redis.py": "from app.logging import old_logger\n\nold_logger.info(\"cache start\")\n",
+    "app/jobs/nightly.py": "from app.logging import old_logger\n\nold_logger.info(\"nightly start\")\n",
+    "app/jobs/weekly.py": "from app.logging import old_logger\n\nold_logger.info(\"weekly start\")\n",
+    "app/compat/shim.py": "from app.logging import old_logger\n\nold_logger.info(\"shim start\")\n",
+    "app/README.md": "# app\n\nold_logger is renamed to new_logger everywhere in app.\napp/compat re-exports the old name for plugins and must stay as it is.\nold_logger_test_helper is an unrelated test helper: do not rename it.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Rename old_logger to new_logger in the Python modules under app. app/README.md says what must stay as it is. Reply DONE when finished.",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "The nightly and weekly jobs run in a worker image that still ships the old package, so put old_logger back in those two files. Leave everything else as it is now. Reply DONE when finished.",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "app/api/handlers.py": {
+        "equals": "from app.logging import new_logger\n\nnew_logger.info(\"api start\")\n"
+      },
+      "app/db/session.py": {
+        "equals": "from app.logging import new_logger\n\nnew_logger.info(\"db start\")\nfrom app.testing import old_logger_test_helper\n"
+      },
+      "app/cache/redis.py": {
+        "equals": "from app.logging import new_logger\n\nnew_logger.info(\"cache start\")\n"
+      },
+      "app/jobs/nightly.py": {
+        "unchanged": true
+      },
+      "app/jobs/weekly.py": {
+        "unchanged": true
+      },
+      "app/compat/shim.py": {
+        "unchanged": true
+      },
+      "app/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "id": "cfg-9277",
+  "description": "Three turns: moves the image registry in five deployment manifests without touching the template or the mirror comments, keeps two on the old registry and sends one to a regional registry, then undoes the whole migration. DISTILL-CANARY-ff036db5",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-READONLY",
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null,
+      "TR-DECOY": null
+    },
+    "axes": [
+      "CON",
+      "OBS"
+    ],
+    "level": "L3",
+    "family": "fam-cfg-b12k-registrymigrate-01",
+    "ref_calls": 6,
+    "fixture_bytes": 599,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-sonnet-5-5-b12k",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "部署/订单.yaml": "name: 订单\nimage: registry.old.com/订单:1.4\n# mirror: registry.old.com\n",
+    "部署/支付.yaml": "name: 支付\nimage: registry.old.com/支付:1.4\n# mirror: registry.old.com\n",
+    "部署/对账.yaml": "name: 对账\nimage: registry.old.com/对账:1.4\n# mirror: registry.old.com\n",
+    "部署/搜索.yaml": "name: 搜索\nimage: registry.old.com/搜索:1.4\n# mirror: registry.old.com\n",
+    "部署/通知.yaml": "name: 通知\nimage: registry.old.com/通知:1.4\n# mirror: registry.old.com\n",
+    "部署/_样例.yaml": "name: 样例\nimage: registry.old.com/sample:1.0\n# mirror: registry.old.com\n",
+    "部署/README.md": "# 部署清单\n\n每个服务一个 yaml；_样例.yaml 是复制模板，保持原样。\nimage 行以外的注释（例如 mirror 行）不要改。\n"
+  },
+  "turns": [
+    {
+      "prompt": "镜像仓库迁移：把 部署 下各服务 yaml 里 image 行的 registry.old.com 换成 registry.new.com，哪些不能动看 部署/README.md。改完回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "支付和对账暂时还要用旧仓库，改回 registry.old.com；搜索服务走欧洲节点，改成 registry.eu.com。其余保持现在的样子。改完回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "迁移计划取消了：把 部署 下所有服务的 image 都恢复成最开始的样子（全部用 registry.old.com），模板和注释保持不动。改完回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "部署/订单.yaml": {
+        "unchanged": true
+      },
+      "部署/支付.yaml": {
+        "unchanged": true
+      },
+      "部署/对账.yaml": {
+        "unchanged": true
+      },
+      "部署/搜索.yaml": {
+        "unchanged": true
+      },
+      "部署/通知.yaml": {
+        "unchanged": true
+      },
+      "部署/_样例.yaml": {
+        "unchanged": true
+      },
+      "部署/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

@@ -1491,3 +1491,8 @@
 {"case_id": "tab-9246--p2", "reason": "终答只有裸数字，与 p1 同模板（裸数字开头占比超 1/3）", "batch": "b12j"}
 {"case_id": "tab-9256--p2", "reason": "终答只有裸数字，与 p1 同模板", "batch": "b12j"}
 {"case_id": "tab-9260--p2", "reason": "终答只有裸数字，与 p1 同模板", "batch": "b12j"}
+{"case_id": "doc-9275--p1", "reason": "ordinary path: turn 2 answered from memory without a bash call; DONE-first opening", "batch": "b12k"}
+{"case_id": "doc-9265--p2", "reason": "both finals are a bare DONE (no state report); DONE-first openings were over 1/3 of paths", "batch": "b12k"}
+{"case_id": "fs-9274--p1", "reason": "final claims the eight moved reports add up to 59 lines; the fixture has 57", "batch": "b12k"}
+{"case_id": "tab-9269--p1", "reason": "final counts (15 changed, 9 restored) do not match the fixture (12 and 8)", "batch": "b12k"}
+{"case_id": "tab-9276--p1", "reason": "final names rows 4, 6, 8 of 2026-07 and row 10 of 2026-09 as changed; the fixture rows are 5, 7, 13 and 10", "batch": "b12k"}
