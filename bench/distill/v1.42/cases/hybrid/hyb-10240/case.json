@@ -1,0 +1,111 @@
+{
+  "id": "hyb-10240",
+  "description": "Looks up the forecast and adds it to an existing file, copying the file's own line format exactly. DISTILL-CANARY-750c712c",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "tool_then_write",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": null
+    },
+    "axes": [
+      "CON",
+      "VER",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b14-write-10240",
+    "ref_calls": 3,
+    "fixture_bytes": 138,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "日记/天气.md": "# 旅行日记 · 天气\n\n9月14日（周一），武汉，阴，最高 24 度。\n9月15日（周二），武汉，晴，最高 27 度。\n"
+  },
+  "turns": [
+    {
+      "prompt": "按 日记/天气.md 里的句式，把武汉明天的天气写进去，写完读一遍确认。",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "max_output_chars": 700,
+        "required_tools": [
+          "get_weather"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "武汉",
+      "aliases": [],
+      "report": {
+        "location": "武汉",
+        "current": "多云 23°C 体感 24°C 湿度 63% 风速 23 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "多云",
+            "temp_c": "16~30",
+            "rain_chance": "10%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "阵雨",
+            "temp_c": "16~27",
+            "rain_chance": "60%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "小雨",
+            "temp_c": "21~29",
+            "rain_chance": "60%"
+          },
+          {
+            "date": "2026-09-19",
+            "condition": "雷阵雨",
+            "temp_c": "17~27",
+            "rain_chance": "70%"
+          },
+          {
+            "date": "2026-09-20",
+            "condition": "大雨",
+            "temp_c": "17~27",
+            "rain_chance": "90%"
+          },
+          {
+            "date": "2026-09-21",
+            "condition": "中雨",
+            "temp_c": "17~29",
+            "rain_chance": "70%"
+          },
+          {
+            "date": "2026-09-22",
+            "condition": "晴",
+            "temp_c": "16~28",
+            "rain_chance": "5%"
+          }
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "日记/天气.md": {
+        "equals": "# 旅行日记 · 天气\n\n9月14日（周一），武汉，阴，最高 24 度。\n9月15日（周二），武汉，晴，最高 27 度。\n9月17日（周四），武汉，阵雨，最高 27 度。\n"
+      }
+    }
+  }
+}

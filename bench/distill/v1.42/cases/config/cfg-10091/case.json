@@ -1,0 +1,79 @@
+{
+  "id": "cfg-10091",
+  "description": "Raises one timeout value in several service configs while a look-alike key and an archive folder must stay. DISTILL-CANARY-394b0af1",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b14-readtimeout-01",
+    "ref_calls": 2,
+    "fixture_bytes": 561,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "部署/订单/配置.yaml": "# 订单 服务\n读超时秒: 30\n写超时秒: 30\n重试次数: 4\n",
+    "部署/库存/配置.yaml": "# 库存 服务\n读超时秒: 30\n写超时秒: 30\n重试次数: 4\n",
+    "部署/支付/配置.yaml": "# 支付 服务\n读超时秒: 30\n写超时秒: 30\n重试次数: 3\n",
+    "部署/会员/配置.yaml": "# 会员 服务\n读超时秒: 30\n写超时秒: 30\n重试次数: 2\n",
+    "部署/搜索/配置.yaml": "# 搜索 服务\n读超时秒: 30\n写超时秒: 30\n重试次数: 2\n",
+    "部署/推送/配置.yaml": "# 推送 服务\n读超时秒: 30\n写超时秒: 30\n重试次数: 2\n",
+    "部署/归档/2025-旧订单/配置.yaml": "# 2025-旧订单 服务\n读超时秒: 30\n写超时秒: 30\n重试次数: 3\n",
+    "部署/README.md": "# 部署配置\n\n归档/ 下是已下线服务的配置留档，审计要求原样保留。\n"
+  },
+  "turns": [
+    {
+      "prompt": "部署 下各服务的读超时现在是 30 秒的，统一改成 60 秒；写超时别动，本来不是 30 的也别动。改完检查一遍再回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "部署/订单/配置.yaml": {
+        "equals": "# 订单 服务\n读超时秒: 60\n写超时秒: 30\n重试次数: 4\n"
+      },
+      "部署/库存/配置.yaml": {
+        "equals": "# 库存 服务\n读超时秒: 60\n写超时秒: 30\n重试次数: 4\n"
+      },
+      "部署/支付/配置.yaml": {
+        "equals": "# 支付 服务\n读超时秒: 60\n写超时秒: 30\n重试次数: 3\n"
+      },
+      "部署/会员/配置.yaml": {
+        "equals": "# 会员 服务\n读超时秒: 60\n写超时秒: 30\n重试次数: 2\n"
+      },
+      "部署/搜索/配置.yaml": {
+        "equals": "# 搜索 服务\n读超时秒: 60\n写超时秒: 30\n重试次数: 2\n"
+      },
+      "部署/推送/配置.yaml": {
+        "equals": "# 推送 服务\n读超时秒: 60\n写超时秒: 30\n重试次数: 2\n"
+      },
+      "部署/归档/2025-旧订单/配置.yaml": {
+        "unchanged": true
+      },
+      "部署/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

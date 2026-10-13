@@ -1,0 +1,104 @@
+{
+  "id": "hyb-10220",
+  "description": "Implicit weather need: the decision rests on one forecast value. DISTILL-CANARY-5a55e310",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "21"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b14-implicit-10220",
+    "ref_calls": 1,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "后天一早飞哈尔滨，要带厚外套吗？",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "max_output_chars": 700,
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "6"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "哈尔滨",
+      "aliases": [],
+      "report": {
+        "location": "哈尔滨",
+        "current": "小雨 26°C 体感 28°C 湿度 85% 风速 15 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "小雨",
+            "temp_c": "21~31",
+            "rain_chance": "55%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "小雨",
+            "temp_c": "18~28",
+            "rain_chance": "60%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "晴",
+            "temp_c": "6~17",
+            "rain_chance": "5%"
+          },
+          {
+            "date": "2026-09-19",
+            "condition": "大雨",
+            "temp_c": "18~27",
+            "rain_chance": "80%"
+          },
+          {
+            "date": "2026-09-20",
+            "condition": "阴",
+            "temp_c": "19~29",
+            "rain_chance": "30%"
+          },
+          {
+            "date": "2026-09-21",
+            "condition": "小雨",
+            "temp_c": "16~26",
+            "rain_chance": "65%"
+          },
+          {
+            "date": "2026-09-22",
+            "condition": "大雨",
+            "temp_c": "18~26",
+            "rain_chance": "95%"
+          }
+        ]
+      }
+    }
+  ]
+}

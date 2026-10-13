@@ -1,0 +1,56 @@
+{
+  "id": "nt-10176",
+  "description": "Asks for a shell command without running it while bash is offered; turn 2 asks to run it. DISTILL-CANARY-fbaae14d",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "ran the command instead of answering"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b14-howto-10176",
+    "ref_calls": 1,
+    "fixture_bytes": 570,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "logs/edge-clients.txt": "10.0.0.0 - - GET /\n10.0.0.1 - - GET /\n10.0.0.2 - - GET /\n10.0.0.3 - - GET /\n10.0.0.4 - - GET /\n10.0.0.5 - - GET /\n10.0.0.6 - - GET /\n10.0.0.0 - - GET /\n10.0.0.1 - - GET /\n10.0.0.2 - - GET /\n10.0.0.3 - - GET /\n10.0.0.4 - - GET /\n10.0.0.5 - - GET /\n10.0.0.6 - - GET /\n10.0.0.0 - - GET /\n10.0.0.1 - - GET /\n10.0.0.2 - - GET /\n10.0.0.3 - - GET /\n10.0.0.4 - - GET /\n10.0.0.5 - - GET /\n10.0.0.6 - - GET /\n10.0.0.0 - - GET /\n10.0.0.1 - - GET /\n10.0.0.2 - - GET /\n10.0.0.3 - - GET /\n10.0.0.4 - - GET /\n10.0.0.5 - - GET /\n10.0.0.6 - - GET /\n10.0.0.0 - - GET /\n10.0.0.1 - - GET /\n"
+  },
+  "turns": [
+    {
+      "prompt": "What's a one-liner to count the distinct client IPs in logs/edge-clients.txt? Don't execute it yet.",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "sort -u",
+          "uniq"
+        ],
+        "max_output_chars": 900
+      }
+    },
+    {
+      "prompt": "Fine, go ahead and run it. How many?",
+      "expect": {
+        "output_contains": [
+          "7"
+        ],
+        "output_contains_token": true,
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "id": "hyb-10226",
+  "description": "Applies a local rule file to a forecast. DISTILL-CANARY-530229bd",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-RULEFILE"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": "70%"
+    },
+    "axes": [
+      "DEC",
+      "OBS",
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b14-implicit-10226",
+    "ref_calls": 2,
+    "fixture_bytes": 130,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "行政/团建规定.md": "# 户外团建规定\n\n- 当天降水概率达到 50% 及以上，改为室内活动。\n- 最高气温超过 35°C 也改室内。\n"
+  },
+  "turns": [
+    {
+      "prompt": "按我们的规定，明天成都的户外团建能照常办吗？",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "max_output_chars": 700,
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "55%"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "成都",
+      "aliases": [],
+      "report": {
+        "location": "成都",
+        "current": "雷阵雨 21°C 体感 23°C 湿度 61% 风速 7 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "雷阵雨",
+            "temp_c": "17~26",
+            "rain_chance": "70%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "阵雨",
+            "temp_c": "18~24",
+            "rain_chance": "55%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "大雨",
+            "temp_c": "18~27",
+            "rain_chance": "95%"
+          },
+          {
+            "date": "2026-09-19",
+            "condition": "多云",
+            "temp_c": "20~31",
+            "rain_chance": "10%"
+          },
+          {
+            "date": "2026-09-20",
+            "condition": "中雨",
+            "temp_c": "19~29",
+            "rain_chance": "80%"
+          },
+          {
+            "date": "2026-09-21",
+            "condition": "小雨",
+            "temp_c": "17~26",
+            "rain_chance": "70%"
+          },
+          {
+            "date": "2026-09-22",
+            "condition": "小雨",
+            "temp_c": "20~31",
+            "rain_chance": "50%"
+          }
+        ]
+      }
+    }
+  ]
+}

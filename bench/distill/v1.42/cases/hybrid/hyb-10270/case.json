@@ -1,0 +1,132 @@
+{
+  "id": "hyb-10270",
+  "description": "Asks the forecast for a place the weather service does not know; the answer must say it was not found. DISTILL-CANARY-6184f65e",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-ABSENT"
+    ],
+    "trap_decoys": {
+      "TR-ABSENT": "UNKNOWN"
+    },
+    "axes": [
+      "ERR",
+      "OBS",
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b14-unknown-10270",
+    "ref_calls": 1,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "周六去霞浦拍滩涂，那天下雨吗？",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains_any": [
+          "查不到",
+          "没有查到",
+          "未查到",
+          "查询不到",
+          "找不到",
+          "没找到",
+          "未找到",
+          "无法获取",
+          "获取不到",
+          "无法查询",
+          "没有这个地方",
+          "没有收录",
+          "not found",
+          "couldn't find",
+          "could not find",
+          "can't find",
+          "cannot find",
+          "unable to find",
+          "no forecast",
+          "not available",
+          "isn't available"
+        ],
+        "output_excludes": [
+          "°C",
+          "℃",
+          "°F"
+        ],
+        "max_output_chars": 700
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "福州",
+      "aliases": [
+        "Fuzhou"
+      ],
+      "report": {
+        "location": "福州",
+        "current": "雷阵雨 22°C 体感 25°C 湿度 63% 风速 9 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "雷阵雨",
+            "temp_c": "17~28",
+            "rain_chance": "75%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "多云",
+            "temp_c": "19~23",
+            "rain_chance": "10%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "中雨",
+            "temp_c": "16~26",
+            "rain_chance": "85%"
+          },
+          {
+            "date": "2026-09-19",
+            "condition": "阴",
+            "temp_c": "15~24",
+            "rain_chance": "25%"
+          },
+          {
+            "date": "2026-09-20",
+            "condition": "多云",
+            "temp_c": "14~25",
+            "rain_chance": "25%"
+          },
+          {
+            "date": "2026-09-21",
+            "condition": "小雨",
+            "temp_c": "19~27",
+            "rain_chance": "60%"
+          },
+          {
+            "date": "2026-09-22",
+            "condition": "晴",
+            "temp_c": "15~27",
+            "rain_chance": "5%"
+          }
+        ]
+      }
+    }
+  ]
+}

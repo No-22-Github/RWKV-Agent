@@ -1,0 +1,131 @@
+{
+  "id": "hyb-10284",
+  "description": "Two turns: forecast first, then a web fact. DISTILL-CANARY-82ca4e44",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-MULTISRC"
+    ],
+    "trap_decoys": {
+      "TR-MULTISRC": "雷阵雨"
+    },
+    "axes": [
+      "CHN",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b14-combo-10284",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [
+    {
+      "query_match": "拙政园",
+      "url": "https://www.zzy-garden.example.cn/visit",
+      "url_match": "www.zzy-garden.example.cn",
+      "title": "拙政园 参观须知",
+      "snippet": "拙政园旺季（4 月 16 日—10 月 30 日）门票 90 元，7:30 开园。",
+      "content": "# 拙政园 参观须知\n\n拙政园旺季（4 月 16 日—10 月 30 日）门票 90 元，7:30 开园。",
+      "published_at": "2026-09-01"
+    }
+  ],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "苏州明天天气怎么样？",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "max_output_chars": 700,
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "雷阵雨"
+        ]
+      }
+    },
+    {
+      "prompt": "那拙政园现在门票多少钱？",
+      "expect": {
+        "required_tools": [
+          "web_search"
+        ],
+        "forbidden_tools": [
+          "get_weather"
+        ],
+        "output_contains_any": [
+          "90"
+        ],
+        "max_output_chars": 700
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "苏州",
+      "aliases": [
+        "Suzhou"
+      ],
+      "report": {
+        "location": "苏州",
+        "current": "雷阵雨 24°C 体感 27°C 湿度 59% 风速 18 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "雷阵雨",
+            "temp_c": "18~30",
+            "rain_chance": "60%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "雷阵雨",
+            "temp_c": "22~31",
+            "rain_chance": "80%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "阵雨",
+            "temp_c": "17~28",
+            "rain_chance": "45%"
+          },
+          {
+            "date": "2026-09-19",
+            "condition": "晴",
+            "temp_c": "19~31",
+            "rain_chance": "0%"
+          },
+          {
+            "date": "2026-09-20",
+            "condition": "晴",
+            "temp_c": "16~28",
+            "rain_chance": "0%"
+          },
+          {
+            "date": "2026-09-21",
+            "condition": "雷阵雨",
+            "temp_c": "21~25",
+            "rain_chance": "75%"
+          },
+          {
+            "date": "2026-09-22",
+            "condition": "多云",
+            "temp_c": "17~30",
+            "rain_chance": "5%"
+          }
+        ]
+      }
+    }
+  ]
+}

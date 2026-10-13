@@ -1,0 +1,111 @@
+{
+  "id": "hyb-10245",
+  "description": "Looks up the forecast and adds it to an existing file, copying the file's own line format exactly. DISTILL-CANARY-ef29e748",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "tool_then_write",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": null
+    },
+    "axes": [
+      "CON",
+      "VER",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b14-write-10245",
+    "ref_calls": 3,
+    "fixture_bytes": 123,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "trip/seoul.log": "# Weather log: Seoul\n\nMon 14 Sep | Seoul | Overcast | 17-24°C | rain 30%\nTue 15 Sep | Seoul | Sunny | 18-27°C | rain 10%\n"
+  },
+  "turns": [
+    {
+      "prompt": "Log Saturday's Seoul forecast in trip/seoul.log the same way as the earlier lines, then check it.",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "max_output_chars": 700,
+        "required_tools": [
+          "get_weather"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "Seoul",
+      "aliases": [],
+      "report": {
+        "location": "Seoul",
+        "current": "Heavy rain 16°C feels 19°C humidity 66% wind 23 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "Heavy rain",
+            "temp_c": "9~23",
+            "rain_chance": "95%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "Sunny",
+            "temp_c": "13~24",
+            "rain_chance": "0%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "Thunderstorms",
+            "temp_c": "15~19",
+            "rain_chance": "60%"
+          },
+          {
+            "date": "2026-09-19",
+            "condition": "Thunderstorms",
+            "temp_c": "12~18",
+            "rain_chance": "65%"
+          },
+          {
+            "date": "2026-09-20",
+            "condition": "Partly cloudy",
+            "temp_c": "13~20",
+            "rain_chance": "5%"
+          },
+          {
+            "date": "2026-09-21",
+            "condition": "Drizzle",
+            "temp_c": "13~20",
+            "rain_chance": "40%"
+          },
+          {
+            "date": "2026-09-22",
+            "condition": "Light rain",
+            "temp_c": "14~19",
+            "rain_chance": "50%"
+          }
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "trip/seoul.log": {
+        "equals": "# Weather log: Seoul\n\nMon 14 Sep | Seoul | Overcast | 17-24°C | rain 30%\nTue 15 Sep | Seoul | Sunny | 18-27°C | rain 10%\nSat 19 Sep | Seoul | Thunderstorms | 12-18°C | rain 65%\n"
+      }
+    }
+  }
+}

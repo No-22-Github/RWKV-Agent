@@ -1,0 +1,47 @@
+{
+  "id": "doc-10191",
+  "description": "Single named-file lookup while bash is offered; the read tool is the right call. DISTILL-CANARY-47ab567d",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "policy_lookup",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "提交后 5 个工作日内审核。"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b14-single-10191",
+    "ref_calls": 1,
+    "fixture_bytes": 193,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "制度/差旅标准.md": "# 差旅标准（2026 版）\n\n## 住宿\n一线城市每晚不超过 650 元；其他城市不超过 450 元。\n\n## 餐补\n每天 120 元。\n",
+    "制度/报销流程.md": "# 报销流程\n\n提交后 5 个工作日内审核。\n"
+  },
+  "turns": [
+    {
+      "prompt": "制度/差旅标准.md 里，一线城市住宿每晚的上限是多少？",
+      "expect": {
+        "output_contains": [
+          "650"
+        ],
+        "forbidden_tools": [
+          "bash"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ]
+}

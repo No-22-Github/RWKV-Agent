@@ -1,0 +1,120 @@
+{
+  "id": "hyb-10232",
+  "description": "Two turns: Implicit weather need: the decision rests on one forecast value. DISTILL-CANARY-972d7956",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "70%"
+    },
+    "axes": [
+      "DEC",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b14-implicit-10232",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "Do I need an umbrella in Singapore today?",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "max_output_chars": 700,
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "70%"
+        ]
+      }
+    },
+    {
+      "prompt": "What about tomorrow?",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "max_output_chars": 700,
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "20%"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "Singapore",
+      "aliases": [],
+      "report": {
+        "location": "Singapore",
+        "current": "Thunderstorms 29°C feels 32°C humidity 46% wind 11 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "Thunderstorms",
+            "temp_c": "26~32",
+            "rain_chance": "70%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "Partly cloudy",
+            "temp_c": "26~33",
+            "rain_chance": "20%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "Showers",
+            "temp_c": "17~25",
+            "rain_chance": "55%"
+          },
+          {
+            "date": "2026-09-19",
+            "condition": "Drizzle",
+            "temp_c": "17~21",
+            "rain_chance": "40%"
+          },
+          {
+            "date": "2026-09-20",
+            "condition": "Sunny",
+            "temp_c": "14~22",
+            "rain_chance": "15%"
+          },
+          {
+            "date": "2026-09-21",
+            "condition": "Overcast",
+            "temp_c": "14~26",
+            "rain_chance": "20%"
+          },
+          {
+            "date": "2026-09-22",
+            "condition": "Light rain",
+            "temp_c": "17~21",
+            "rain_chance": "55%"
+          }
+        ]
+      }
+    }
+  ]
+}

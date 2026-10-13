@@ -1,0 +1,80 @@
+{
+  "id": "cfg-10116",
+  "description": "Two turns: raises an alert threshold, then switches the notify channel, leaving drill rules and a look-alike key. DISTILL-CANARY-06194a3e",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b14-alertthreshold-01",
+    "ref_calls": 3,
+    "fixture_bytes": 411,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "监控/规则/接口/告警.yaml": "# 接口\n  阈值: 80\n  恢复阈值: 80\n  通知: 邮件\n",
+    "监控/规则/数据库/告警.yaml": "# 数据库\n  阈值: 80\n  恢复阈值: 80\n  通知: 邮件\n",
+    "监控/规则/缓存/告警.yaml": "# 缓存\n  阈值: 80\n  恢复阈值: 80\n  通知: 邮件\n",
+    "监控/规则/队列/告警.yaml": "# 队列\n  阈值: 80\n  恢复阈值: 80\n  通知: 邮件\n",
+    "监控/规则/演练/告警.yaml": "# 演练\n  阈值: 80\n  恢复阈值: 80\n  通知: 邮件\n",
+    "监控/规则/README.md": "# 告警规则\n\n演练/ 是故障演练用的规则，参数固定不改。恢复阈值 和 阈值 是两个参数。\n"
+  },
+  "turns": [
+    {
+      "prompt": "监控/规则 下的告警阈值 80 统一调到 90，按 README 的范围改。改完检查，回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "通知渠道也一起从 邮件 改成 企业微信，范围同上。改完再检查一遍，回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "监控/规则/接口/告警.yaml": {
+        "equals": "# 接口\n  阈值: 90\n  恢复阈值: 80\n  通知: 企业微信\n"
+      },
+      "监控/规则/数据库/告警.yaml": {
+        "equals": "# 数据库\n  阈值: 90\n  恢复阈值: 80\n  通知: 企业微信\n"
+      },
+      "监控/规则/缓存/告警.yaml": {
+        "equals": "# 缓存\n  阈值: 90\n  恢复阈值: 80\n  通知: 企业微信\n"
+      },
+      "监控/规则/队列/告警.yaml": {
+        "equals": "# 队列\n  阈值: 90\n  恢复阈值: 80\n  通知: 企业微信\n"
+      },
+      "监控/规则/演练/告警.yaml": {
+        "unchanged": true
+      },
+      "监控/规则/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

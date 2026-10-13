@@ -1,0 +1,79 @@
+{
+  "id": "doc-10098",
+  "description": "Rewrites an intranet knowledge-base URL across manual pages while a history file and a port variant stay. DISTILL-CANARY-fedd23fb",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b14-kburl-01",
+    "ref_calls": 2,
+    "fixture_bytes": 964,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "手册/权限.md": "# 权限\n\nSee http://intranet.xinghe.local/kb/权限 for details.\n内网备用：http://intranet.xinghe.local:8080/kb/权限\n",
+    "手册/安装.md": "# 安装\n\nSee http://intranet.xinghe.local/kb/安装 for details.\n内网备用：http://intranet.xinghe.local:8080/kb/安装\n",
+    "手册/监控.md": "# 监控\n\nSee http://intranet.xinghe.local/kb/监控 for details.\n内网备用：http://intranet.xinghe.local:8080/kb/监控\n",
+    "手册/配置.md": "# 配置\n\nSee http://intranet.xinghe.local/kb/配置 for details.\n内网备用：http://intranet.xinghe.local:8080/kb/配置\n",
+    "手册/备份.md": "# 备份\n\nSee http://intranet.xinghe.local/kb/备份 for details.\n内网备用：http://intranet.xinghe.local:8080/kb/备份\n",
+    "手册/常见问题.md": "# 常见问题\n\nSee http://intranet.xinghe.local/kb/常见问题 for details.\n内网备用：http://intranet.xinghe.local:8080/kb/常见问题\n",
+    "手册/版本记录.md": "# 版本记录\n\n- 2025-12 知识库地址 http://intranet.xinghe.local/kb\n",
+    "手册/说明.md": "# 手册说明\n\n版本记录.md 是历史，地址保持原样；8080 端口的备用地址另有安排，这次不改。\n"
+  },
+  "turns": [
+    {
+      "prompt": "知识库换地址了：手册 里的 http://intranet.xinghe.local/kb 统一换成 https://kb.xinghe.cn，规则看 手册/说明.md。换完检查一遍，回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "手册/权限.md": {
+        "equals": "# 权限\n\nSee https://kb.xinghe.cn/权限 for details.\n内网备用：http://intranet.xinghe.local:8080/kb/权限\n"
+      },
+      "手册/安装.md": {
+        "equals": "# 安装\n\nSee https://kb.xinghe.cn/安装 for details.\n内网备用：http://intranet.xinghe.local:8080/kb/安装\n"
+      },
+      "手册/监控.md": {
+        "equals": "# 监控\n\nSee https://kb.xinghe.cn/监控 for details.\n内网备用：http://intranet.xinghe.local:8080/kb/监控\n"
+      },
+      "手册/配置.md": {
+        "equals": "# 配置\n\nSee https://kb.xinghe.cn/配置 for details.\n内网备用：http://intranet.xinghe.local:8080/kb/配置\n"
+      },
+      "手册/备份.md": {
+        "equals": "# 备份\n\nSee https://kb.xinghe.cn/备份 for details.\n内网备用：http://intranet.xinghe.local:8080/kb/备份\n"
+      },
+      "手册/常见问题.md": {
+        "equals": "# 常见问题\n\nSee https://kb.xinghe.cn/常见问题 for details.\n内网备用：http://intranet.xinghe.local:8080/kb/常见问题\n"
+      },
+      "手册/版本记录.md": {
+        "unchanged": true
+      },
+      "手册/说明.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

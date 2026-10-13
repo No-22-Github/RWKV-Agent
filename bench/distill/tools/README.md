@@ -17,6 +17,7 @@
 | --- | --- | --- |
 | `b10/` | v1.4 b10 试跑 70 题 | `m2a.py`…`m8b.py` 各管一个题类；`common.py` 只写批次设置。见 [b10/README.md](b10/README.md) |
 | `b12/` | v1.41 b12 样板 20 题 | `build.py` 写题并在 sidecar 里跑参考解。见 [b12/README.md](b12/README.md) |
+| `b14/` | v1.42 b14 bash + 天气 300 题 | `build.py` 写题并在 sidecar 里回读 overlay 验证参考解；`behavior.py` 包装 b12 的行为验收；`dedup.py` 8 字符片段去重。见 [b14/README.md](b14/README.md) |
 
 新批次照这个样子：建 `b<NN>/common.py`，用 `casegen.Batch` 写 3–5 行设置，题目内容写在 `m*.py` 里。
 
@@ -29,6 +30,7 @@
 | `b10_merge.py` | 合并多轮 step.py 结果，保留可重判的失败路径 | v1.4 b10 |
 | `b10_check.py` | 终答形态检查（写后回读、长度、Markdown、DONE 行） | v1.4 b10 |
 | `b12/behavior.py` | b12 轨迹行为验收：目标行为 covered / ordinary / reject，证据齐后停止、倾倒、cwd、恢复 | v1.41 b12 |
+| `b14/behavior.py` | 复用 b12 判据，加 b14 的四种目标行为（先问后跑、换城市、查不到的地点、概念后查天气） | v1.42 b14 |
 | `classify_failures.py` | 跨 arm 的逐题失败分类（v1.2 轨迹复盘） | v1.2 |
 
 ## 数据加工

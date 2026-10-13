@@ -1,0 +1,45 @@
+{
+  "id": "nt-10188",
+  "description": "Answers from content the user pasted into the prompt while bash and file tools are offered. DISTILL-CANARY-3c571d92",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "stable_fact",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "def load_users(path):\n    pass"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b14-pasted-10188",
+    "ref_calls": 0,
+    "fixture_bytes": 31,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "app/users.py": "def load_users(path):\n    pass\n"
+  },
+  "turns": [
+    {
+      "prompt": "Here's the diff:\n-def load_users(path):\n+def read_users(path):\n     rows = parse(path)\n-    return [User(r) for r in rows]\n+    return [User.from_row(r) for r in rows]\nWhich function got renamed, and to what?",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "read_users"
+        ],
+        "max_output_chars": 900
+      }
+    }
+  ]
+}

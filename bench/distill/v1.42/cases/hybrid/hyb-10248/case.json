@@ -1,0 +1,123 @@
+{
+  "id": "hyb-10248",
+  "description": "Two turns: Looks up the forecast and adds it to an existing file, copying the file's own line format exactly. DISTILL-CANARY-1612a33d",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "tool_then_write",
+    "traps": [
+      "TR-DEFN",
+      "TR-DUPROW"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": null,
+      "TR-DUPROW": null
+    },
+    "axes": [
+      "CON",
+      "VER",
+      "OBS"
+    ],
+    "level": "L2",
+    "family": "fam-hyb-b14-write-10248",
+    "ref_calls": 4,
+    "fixture_bytes": 197,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "出差/无锡.md": "# 无锡 出差天气\n\n| 日期 | 星期 | 天气 | 最低 | 最高 | 降水 |\n|---|---|---|---|---|---|\n| 2026-09-14 | 周一 | 阴 | 17 | 24 | 30% |\n| 2026-09-15 | 周二 | 晴 | 18 | 27 | 10% |\n"
+  },
+  "turns": [
+    {
+      "prompt": "无锡明天的天气按 出差/无锡.md 表格加一行，加完检查。",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "max_output_chars": 700,
+        "required_tools": [
+          "get_weather"
+        ]
+      }
+    },
+    {
+      "prompt": "再把后天加上，检查一下表里没有重复的行。",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "max_output_chars": 700
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "无锡",
+      "aliases": [],
+      "report": {
+        "location": "无锡",
+        "current": "中雨 23°C 体感 22°C 湿度 78% 风速 5 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "中雨",
+            "temp_c": "16~30",
+            "rain_chance": "90%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "大雨",
+            "temp_c": "17~31",
+            "rain_chance": "95%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "雷阵雨",
+            "temp_c": "22~26",
+            "rain_chance": "70%"
+          },
+          {
+            "date": "2026-09-19",
+            "condition": "中雨",
+            "temp_c": "22~26",
+            "rain_chance": "80%"
+          },
+          {
+            "date": "2026-09-20",
+            "condition": "多云",
+            "temp_c": "22~26",
+            "rain_chance": "20%"
+          },
+          {
+            "date": "2026-09-21",
+            "condition": "阴",
+            "temp_c": "21~25",
+            "rain_chance": "20%"
+          },
+          {
+            "date": "2026-09-22",
+            "condition": "雷阵雨",
+            "temp_c": "18~30",
+            "rain_chance": "60%"
+          }
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "出差/无锡.md": {
+        "equals": "# 无锡 出差天气\n\n| 日期 | 星期 | 天气 | 最低 | 最高 | 降水 |\n|---|---|---|---|---|---|\n| 2026-09-14 | 周一 | 阴 | 17 | 24 | 30% |\n| 2026-09-15 | 周二 | 晴 | 18 | 27 | 10% |\n| 2026-09-17 | 周四 | 大雨 | 17 | 31 | 95% |\n| 2026-09-18 | 周五 | 雷阵雨 | 22 | 26 | 70% |\n"
+      }
+    }
+  }
+}

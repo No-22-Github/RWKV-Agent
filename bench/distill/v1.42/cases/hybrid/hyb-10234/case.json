@@ -1,0 +1,111 @@
+{
+  "id": "hyb-10234",
+  "description": "Looks up the forecast and adds it to an existing file, copying the file's own line format exactly. DISTILL-CANARY-cfa5873e",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "tool_then_write",
+    "traps": [
+      "TR-DEFN"
+    ],
+    "trap_decoys": {
+      "TR-DEFN": null
+    },
+    "axes": [
+      "CON",
+      "VER",
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b14-write-10234",
+    "ref_calls": 3,
+    "fixture_bytes": 197,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "出差/南京.md": "# 南京 出差天气\n\n| 日期 | 星期 | 天气 | 最低 | 最高 | 降水 |\n|---|---|---|---|---|---|\n| 2026-09-14 | 周一 | 阴 | 17 | 24 | 30% |\n| 2026-09-15 | 周二 | 晴 | 18 | 27 | 10% |\n"
+  },
+  "turns": [
+    {
+      "prompt": "查一下南京明后两天的天气，按 出差/南京.md 表格的列和写法各加一行，加完检查表格。",
+      "expect": {
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "max_output_chars": 700,
+        "required_tools": [
+          "get_weather"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "南京",
+      "aliases": [],
+      "report": {
+        "location": "南京",
+        "current": "中雨 25°C 体感 27°C 湿度 82% 风速 16 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "中雨",
+            "temp_c": "20~31",
+            "rain_chance": "80%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "中雨",
+            "temp_c": "21~26",
+            "rain_chance": "75%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "阵雨",
+            "temp_c": "19~29",
+            "rain_chance": "45%"
+          },
+          {
+            "date": "2026-09-19",
+            "condition": "大雨",
+            "temp_c": "19~25",
+            "rain_chance": "80%"
+          },
+          {
+            "date": "2026-09-20",
+            "condition": "大雨",
+            "temp_c": "17~28",
+            "rain_chance": "90%"
+          },
+          {
+            "date": "2026-09-21",
+            "condition": "阴",
+            "temp_c": "18~30",
+            "rain_chance": "40%"
+          },
+          {
+            "date": "2026-09-22",
+            "condition": "中雨",
+            "temp_c": "19~26",
+            "rain_chance": "75%"
+          }
+        ]
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "出差/南京.md": {
+        "equals": "# 南京 出差天气\n\n| 日期 | 星期 | 天气 | 最低 | 最高 | 降水 |\n|---|---|---|---|---|---|\n| 2026-09-14 | 周一 | 阴 | 17 | 24 | 30% |\n| 2026-09-15 | 周二 | 晴 | 18 | 27 | 10% |\n| 2026-09-17 | 周四 | 中雨 | 21 | 26 | 75% |\n| 2026-09-18 | 周五 | 阵雨 | 19 | 29 | 45% |\n"
+      }
+    }
+  }
+}

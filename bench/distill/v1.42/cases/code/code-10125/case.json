@@ -1,0 +1,75 @@
+{
+  "id": "code-10125",
+  "description": "Rewrites a logging call across handlers with a word boundary while a longer identifier and generated code stay. DISTILL-CANARY-50ed00d4",
+  "category": "code",
+  "tags": {
+    "scenario": "code",
+    "task_type": "fix_edge_case",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-code-b14-slog-01",
+    "ref_calls": 2,
+    "fixture_bytes": 589,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "src/handlers/order.go": "package handlers\n\nfunc handleorder() {\n\tlog.Printf(\"order start\")\n\tcatalog.Printf(\"x\")\n}\n",
+    "src/handlers/user.go": "package handlers\n\nfunc handleuser() {\n\tlog.Printf(\"user start\")\n\tcatalog.Printf(\"x\")\n}\n",
+    "src/handlers/cart.go": "package handlers\n\nfunc handlecart() {\n\tlog.Printf(\"cart start\")\n\tcatalog.Printf(\"x\")\n}\n",
+    "src/handlers/coupon.go": "package handlers\n\nfunc handlecoupon() {\n\tlog.Printf(\"coupon start\")\n\tcatalog.Printf(\"x\")\n}\n",
+    "src/handlers/refund.go": "package handlers\n\nfunc handlerefund() {\n\tlog.Printf(\"refund start\")\n\tcatalog.Printf(\"x\")\n}\n",
+    "src/handlers/generated/pb.go": "package handlers\n\nfunc handlepb() {\n\tlog.Printf(\"pb start\")\n\tcatalog.Printf(\"x\")\n}\n",
+    "src/handlers/README.md": "# Handlers\n\ngenerated/ is protoc output; never edit by hand.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Switch log.Printf( calls to slog.Info( in src/handlers, but not in generated code. Be careful not to hit other identifiers that end in log. Verify and reply DONE.",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "src/handlers/order.go": {
+        "equals": "package handlers\n\nfunc handleorder() {\n\tslog.Info(\"order start\")\n\tcatalog.Printf(\"x\")\n}\n"
+      },
+      "src/handlers/user.go": {
+        "equals": "package handlers\n\nfunc handleuser() {\n\tslog.Info(\"user start\")\n\tcatalog.Printf(\"x\")\n}\n"
+      },
+      "src/handlers/cart.go": {
+        "equals": "package handlers\n\nfunc handlecart() {\n\tslog.Info(\"cart start\")\n\tcatalog.Printf(\"x\")\n}\n"
+      },
+      "src/handlers/coupon.go": {
+        "equals": "package handlers\n\nfunc handlecoupon() {\n\tslog.Info(\"coupon start\")\n\tcatalog.Printf(\"x\")\n}\n"
+      },
+      "src/handlers/refund.go": {
+        "equals": "package handlers\n\nfunc handlerefund() {\n\tslog.Info(\"refund start\")\n\tcatalog.Printf(\"x\")\n}\n"
+      },
+      "src/handlers/generated/pb.go": {
+        "unchanged": true
+      },
+      "src/handlers/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

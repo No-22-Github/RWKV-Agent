@@ -1,0 +1,84 @@
+{
+  "id": "doc-10110",
+  "description": "Two turns: removes a draft marker from policy docs except the template, then stamps the reviewed ones. DISTILL-CANARY-c79a1014",
+  "category": "docs",
+  "tags": {
+    "scenario": "docs",
+    "task_type": "write_structured",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-doc-b14-draftmark-01",
+    "ref_calls": 3,
+    "fixture_bytes": 382,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "制度/入职指南.md": "# 入职指南\n\n（草稿，待审）\n正文内容 52。\n",
+    "制度/报销流程.md": "# 报销流程\n\n（草稿，待审）\n正文内容 57。\n",
+    "制度/请假制度.md": "# 请假制度\n\n（草稿，待审）\n正文内容 89。\n",
+    "制度/IT支持.md": "# IT支持\n\n（草稿，待审）\n正文内容 61。\n",
+    "制度/已发布/考勤.md": "# 考勤\n\n正文。\n",
+    "制度/模板.md": "# 模板\n\n（草稿，待审）\n复制本模板新建制度。\n",
+    "制度/说明.md": "# 制度目录\n\n模板.md 的草稿标记是模板的一部分，保留。\n"
+  },
+  "turns": [
+    {
+      "prompt": "这几份制度审过了，把 制度 下各文件里的「（草稿，待审）」那行删掉（模板保留）。删完检查，回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "再在刚审过的这四份文件第一行加上 <!-- 2026-09 审定 -->，已发布目录和模板都不用加。加完检查，回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "制度/入职指南.md": {
+        "equals": "<!-- 2026-09 审定 -->\n# 入职指南\n\n正文内容 52。\n"
+      },
+      "制度/报销流程.md": {
+        "equals": "<!-- 2026-09 审定 -->\n# 报销流程\n\n正文内容 57。\n"
+      },
+      "制度/请假制度.md": {
+        "equals": "<!-- 2026-09 审定 -->\n# 请假制度\n\n正文内容 89。\n"
+      },
+      "制度/IT支持.md": {
+        "equals": "<!-- 2026-09 审定 -->\n# IT支持\n\n正文内容 61。\n"
+      },
+      "制度/已发布/考勤.md": {
+        "unchanged": true
+      },
+      "制度/模板.md": {
+        "unchanged": true
+      },
+      "制度/说明.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

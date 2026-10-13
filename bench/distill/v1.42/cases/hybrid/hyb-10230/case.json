@@ -1,0 +1,107 @@
+{
+  "id": "hyb-10230",
+  "description": "Applies a local rule file to a forecast. DISTILL-CANARY-f2da6ba1",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-RULEFILE"
+    ],
+    "trap_decoys": {
+      "TR-RULEFILE": "Drizzle"
+    },
+    "axes": [
+      "DEC",
+      "OBS",
+      "CHN"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b14-implicit-10230",
+    "ref_calls": 2,
+    "fixture_bytes": 94,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "club/race-rules.md": "# Race rules\n\n- Cancel if thunderstorms are forecast for race day.\n- Otherwise the race runs.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Our sailing club regulations decide whether Saturday's race in Auckland runs. Does it?",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "max_output_chars": 700,
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "Thunderstorms"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "Auckland",
+      "aliases": [],
+      "report": {
+        "location": "Auckland",
+        "current": "Drizzle 21°C feels 21°C humidity 55% wind 3 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "Drizzle",
+            "temp_c": "16~26",
+            "rain_chance": "40%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "Light rain",
+            "temp_c": "12~21",
+            "rain_chance": "65%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "Heavy rain",
+            "temp_c": "12~21",
+            "rain_chance": "95%"
+          },
+          {
+            "date": "2026-09-19",
+            "condition": "Thunderstorms",
+            "temp_c": "11~16",
+            "rain_chance": "75%"
+          },
+          {
+            "date": "2026-09-20",
+            "condition": "Sunny",
+            "temp_c": "11~20",
+            "rain_chance": "15%"
+          },
+          {
+            "date": "2026-09-21",
+            "condition": "Thunderstorms",
+            "temp_c": "13~21",
+            "rain_chance": "70%"
+          },
+          {
+            "date": "2026-09-22",
+            "condition": "Heavy rain",
+            "temp_c": "12~25",
+            "rain_chance": "90%"
+          }
+        ]
+      }
+    }
+  ]
+}

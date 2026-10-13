@@ -1,0 +1,71 @@
+{
+  "id": "cfg-10122",
+  "description": "Changes a paper size key across print templates while a backup key and an old-template folder stay. DISTILL-CANARY-c678b7f0",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b14-papersize-01",
+    "ref_calls": 2,
+    "fixture_bytes": 245,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "打印模板/发票/设置.ini": "# 发票\n纸张=A4\n备用纸张=A4\n",
+    "打印模板/出库单/设置.ini": "# 出库单\n纸张=A4\n备用纸张=A4\n",
+    "打印模板/对账单/设置.ini": "# 对账单\n纸张=A4\n备用纸张=A4\n",
+    "打印模板/合同/设置.ini": "# 合同\n纸张=A4\n备用纸张=A4\n",
+    "打印模板/旧版/设置.ini": "# 旧版\n纸张=A4\n备用纸张=A4\n",
+    "打印模板/README.md": "# 打印模板\n\n旧版/ 给老打印机用，参数不能动。\n"
+  },
+  "turns": [
+    {
+      "prompt": "打印模板 下各模板的 纸张 从 A4 改成 A5（备用纸张不改，旧版目录不改）。改完核对一下，回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "打印模板/发票/设置.ini": {
+        "equals": "# 发票\n纸张=A5\n备用纸张=A4\n"
+      },
+      "打印模板/出库单/设置.ini": {
+        "equals": "# 出库单\n纸张=A5\n备用纸张=A4\n"
+      },
+      "打印模板/对账单/设置.ini": {
+        "equals": "# 对账单\n纸张=A5\n备用纸张=A4\n"
+      },
+      "打印模板/合同/设置.ini": {
+        "equals": "# 合同\n纸张=A5\n备用纸张=A4\n"
+      },
+      "打印模板/旧版/设置.ini": {
+        "unchanged": true
+      },
+      "打印模板/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

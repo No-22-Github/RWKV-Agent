@@ -1,0 +1,71 @@
+{
+  "id": "cfg-10111",
+  "description": "Raises a body-size limit across nginx site configs while staging and a commented copy of the line stay. DISTILL-CANARY-572d9b33",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b14-nginxbody-01",
+    "ref_calls": 2,
+    "fixture_bytes": 496,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "nginx/sites/shop/site.conf": "# shop\n    client_max_body_size 10m;\n    # client_max_body_size 10m; (old default)\n",
+    "nginx/sites/blog/site.conf": "# blog\n    client_max_body_size 10m;\n    # client_max_body_size 10m; (old default)\n",
+    "nginx/sites/admin/site.conf": "# admin\n    client_max_body_size 10m;\n    # client_max_body_size 10m; (old default)\n",
+    "nginx/sites/status/site.conf": "# status\n    client_max_body_size 10m;\n    # client_max_body_size 10m; (old default)\n",
+    "nginx/sites/staging/site.conf": "# staging\n    client_max_body_size 10m;\n    # client_max_body_size 10m; (old default)\n",
+    "nginx/sites/README.md": "# Sites\n\nstaging/ mirrors production limits on its own schedule; leave it.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Raise client_max_body_size from 10m to 50m in every site config under nginx/sites, except where the README says not to. Check and reply DONE.",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "nginx/sites/shop/site.conf": {
+        "equals": "# shop\n    client_max_body_size 50m;\n    # client_max_body_size 10m; (old default)\n"
+      },
+      "nginx/sites/blog/site.conf": {
+        "equals": "# blog\n    client_max_body_size 50m;\n    # client_max_body_size 10m; (old default)\n"
+      },
+      "nginx/sites/admin/site.conf": {
+        "equals": "# admin\n    client_max_body_size 50m;\n    # client_max_body_size 10m; (old default)\n"
+      },
+      "nginx/sites/status/site.conf": {
+        "equals": "# status\n    client_max_body_size 50m;\n    # client_max_body_size 10m; (old default)\n"
+      },
+      "nginx/sites/staging/site.conf": {
+        "unchanged": true
+      },
+      "nginx/sites/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

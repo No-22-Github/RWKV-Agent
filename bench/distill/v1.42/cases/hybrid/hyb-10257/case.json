@@ -1,0 +1,176 @@
+{
+  "id": "hyb-10257",
+  "description": "Two turns: a forecast question about one city, then the same question about another city (a fresh lookup). DISTILL-CANARY-a808f3b5",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "19"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b14-switch-10257",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "沈阳今天早晚冷不冷？最低几度？",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "max_output_chars": 700,
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "19"
+        ]
+      }
+    },
+    {
+      "prompt": "我晚上到长春，长春今天最低多少？",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "max_output_chars": 700,
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "21"
+        ]
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "沈阳",
+      "aliases": [
+        "Shenyang"
+      ],
+      "report": {
+        "location": "沈阳",
+        "current": "中雨 22°C 体感 22°C 湿度 90% 风速 11 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "中雨",
+            "temp_c": "19~26",
+            "rain_chance": "80%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "大雨",
+            "temp_c": "22~26",
+            "rain_chance": "95%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "小雨",
+            "temp_c": "17~31",
+            "rain_chance": "70%"
+          },
+          {
+            "date": "2026-09-19",
+            "condition": "中雨",
+            "temp_c": "18~29",
+            "rain_chance": "70%"
+          },
+          {
+            "date": "2026-09-20",
+            "condition": "中雨",
+            "temp_c": "21~30",
+            "rain_chance": "85%"
+          },
+          {
+            "date": "2026-09-21",
+            "condition": "晴",
+            "temp_c": "21~29",
+            "rain_chance": "5%"
+          },
+          {
+            "date": "2026-09-22",
+            "condition": "阴",
+            "temp_c": "17~26",
+            "rain_chance": "40%"
+          }
+        ]
+      }
+    },
+    {
+      "location": "长春",
+      "aliases": [
+        "Changchun"
+      ],
+      "report": {
+        "location": "长春",
+        "current": "大雨 23°C 体感 23°C 湿度 57% 风速 5 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "大雨",
+            "temp_c": "21~25",
+            "rain_chance": "95%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "雷阵雨",
+            "temp_c": "21~28",
+            "rain_chance": "80%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "中雨",
+            "temp_c": "18~26",
+            "rain_chance": "75%"
+          },
+          {
+            "date": "2026-09-19",
+            "condition": "雷阵雨",
+            "temp_c": "21~25",
+            "rain_chance": "80%"
+          },
+          {
+            "date": "2026-09-20",
+            "condition": "阴",
+            "temp_c": "16~31",
+            "rain_chance": "25%"
+          },
+          {
+            "date": "2026-09-21",
+            "condition": "小雨",
+            "temp_c": "16~25",
+            "rain_chance": "65%"
+          },
+          {
+            "date": "2026-09-22",
+            "condition": "多云",
+            "temp_c": "20~26",
+            "rain_chance": "20%"
+          }
+        ]
+      }
+    }
+  ]
+}

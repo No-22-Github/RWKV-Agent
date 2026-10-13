@@ -1,0 +1,71 @@
+{
+  "id": "cfg-10117",
+  "description": "Updates a base image across Dockerfiles while a comment repeating it and vendored images stay. DISTILL-CANARY-bfc9b1a4",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b14-dockerbase-01",
+    "ref_calls": 2,
+    "fixture_bytes": 408,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "apps/frontend/Dockerfile": "# frontend\nFROM node:18-alpine\n# FROM node:18-alpine used before 2026\n",
+    "apps/backend/Dockerfile": "# backend\nFROM node:18-alpine\n# FROM node:18-alpine used before 2026\n",
+    "apps/worker/Dockerfile": "# worker\nFROM node:18-alpine\n# FROM node:18-alpine used before 2026\n",
+    "apps/cron/Dockerfile": "# cron\nFROM node:18-alpine\n# FROM node:18-alpine used before 2026\n",
+    "apps/third_party/pdf-render/Dockerfile": "# pdf-render\nFROM node:18-alpine\n# FROM node:18-alpine used before 2026\n",
+    "apps/README.md": "# Apps\n\nthird_party/ holds vendored images we do not maintain.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Update the base image in our app Dockerfiles from node:18-alpine to node:20-alpine. Third-party images stay as they are. Verify and reply DONE.",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "apps/frontend/Dockerfile": {
+        "equals": "# frontend\nFROM node:20-alpine\n# FROM node:18-alpine used before 2026\n"
+      },
+      "apps/backend/Dockerfile": {
+        "equals": "# backend\nFROM node:20-alpine\n# FROM node:18-alpine used before 2026\n"
+      },
+      "apps/worker/Dockerfile": {
+        "equals": "# worker\nFROM node:20-alpine\n# FROM node:18-alpine used before 2026\n"
+      },
+      "apps/cron/Dockerfile": {
+        "equals": "# cron\nFROM node:20-alpine\n# FROM node:18-alpine used before 2026\n"
+      },
+      "apps/third_party/pdf-render/Dockerfile": {
+        "unchanged": true
+      },
+      "apps/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

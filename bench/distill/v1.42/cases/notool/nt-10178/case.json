@@ -1,0 +1,45 @@
+{
+  "id": "nt-10178",
+  "description": "Asks for a shell command without running it while bash is offered. DISTILL-CANARY-87e7f523",
+  "category": "notool",
+  "tags": {
+    "scenario": "notool",
+    "task_type": "snippet_in_reply",
+    "traps": [
+      "TR-NOTOOLNEED"
+    ],
+    "trap_decoys": {
+      "TR-NOTOOLNEED": "ran the command instead of answering"
+    },
+    "axes": [
+      "DEC"
+    ],
+    "level": "L1",
+    "family": "fam-nt-b14-howto-10178",
+    "ref_calls": 0,
+    "fixture_bytes": 9,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "src/main.py": "print(1)\n"
+  },
+  "turns": [
+    {
+      "prompt": "What's the git command to undo my last commit but keep the changes staged? Just tell me, don't run anything.",
+      "expect": {
+        "tools": [],
+        "require_active_no_call": true,
+        "output_contains_any": [
+          "reset --soft"
+        ],
+        "max_output_chars": 900
+      }
+    }
+  ]
+}

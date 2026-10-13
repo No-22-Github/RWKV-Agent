@@ -1,0 +1,76 @@
+{
+  "id": "cfg-10121",
+  "description": "Two turns: enables one flyway option, then a second similar option, leaving an audit archive. DISTILL-CANARY-cc46408a",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b14-flyway-01",
+    "ref_calls": 3,
+    "fixture_bytes": 350,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "db/migrations-config/orders/flyway.conf": "# orders\nflyway.baselineOnMigrate=false\nflyway.validateOnMigrate=false\n",
+    "db/migrations-config/users/flyway.conf": "# users\nflyway.baselineOnMigrate=false\nflyway.validateOnMigrate=false\n",
+    "db/migrations-config/payments/flyway.conf": "# payments\nflyway.baselineOnMigrate=false\nflyway.validateOnMigrate=false\n",
+    "db/migrations-config/archive-2024/flyway.conf": "# archive-2024\nflyway.baselineOnMigrate=false\nflyway.validateOnMigrate=false\n",
+    "db/migrations-config/README.md": "# Flyway\n\narchive-2024/ is kept for audit; byte-identical.\n"
+  },
+  "turns": [
+    {
+      "prompt": "Enable baselineOnMigrate in each flyway.conf under db/migrations-config, leaving the archive alone. Check and reply DONE.",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    },
+    {
+      "prompt": "Now set flyway.validateOnMigrate=true in the same three configs. Verify and reply DONE.",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "db/migrations-config/orders/flyway.conf": {
+        "equals": "# orders\nflyway.baselineOnMigrate=true\nflyway.validateOnMigrate=true\n"
+      },
+      "db/migrations-config/users/flyway.conf": {
+        "equals": "# users\nflyway.baselineOnMigrate=true\nflyway.validateOnMigrate=true\n"
+      },
+      "db/migrations-config/payments/flyway.conf": {
+        "equals": "# payments\nflyway.baselineOnMigrate=true\nflyway.validateOnMigrate=true\n"
+      },
+      "db/migrations-config/archive-2024/flyway.conf": {
+        "unchanged": true
+      },
+      "db/migrations-config/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

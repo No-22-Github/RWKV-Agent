@@ -1,0 +1,178 @@
+{
+  "id": "hyb-10265",
+  "description": "Two turns: a forecast question about one city, then the same question about another city (a fresh lookup). DISTILL-CANARY-8bd9ba25",
+  "category": "hybrid",
+  "tags": {
+    "scenario": "hybrid",
+    "task_type": "special_tool",
+    "traps": [
+      "TR-DECOY"
+    ],
+    "trap_decoys": {
+      "TR-DECOY": "26"
+    },
+    "axes": [
+      "OBS"
+    ],
+    "level": "L1",
+    "family": "fam-hyb-b14-switch-10265",
+    "ref_calls": 2,
+    "fixture_bytes": 0,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {},
+  "turns": [
+    {
+      "prompt": "Seoul high on Saturday?",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "max_output_chars": 700,
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "26"
+        ],
+        "output_contains_token": true
+      }
+    },
+    {
+      "prompt": "What about Busan on Saturday?",
+      "expect": {
+        "required_tools": [
+          "get_weather"
+        ],
+        "max_output_chars": 700,
+        "forbidden_tools": [
+          "web_search",
+          "web_fetch"
+        ],
+        "output_contains": [
+          "24"
+        ],
+        "output_contains_token": true
+      }
+    }
+  ],
+  "weather_fixture": [
+    {
+      "location": "Seoul",
+      "aliases": [
+        "首尔"
+      ],
+      "report": {
+        "location": "Seoul",
+        "current": "Thunderstorms 20°C feels 20°C humidity 60% wind 23 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "Thunderstorms",
+            "temp_c": "17~24",
+            "rain_chance": "75%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "Thunderstorms",
+            "temp_c": "13~25",
+            "rain_chance": "60%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "Showers",
+            "temp_c": "14~26",
+            "rain_chance": "50%"
+          },
+          {
+            "date": "2026-09-19",
+            "condition": "Showers",
+            "temp_c": "12~26",
+            "rain_chance": "65%"
+          },
+          {
+            "date": "2026-09-20",
+            "condition": "Showers",
+            "temp_c": "13~25",
+            "rain_chance": "50%"
+          },
+          {
+            "date": "2026-09-21",
+            "condition": "Light rain",
+            "temp_c": "11~25",
+            "rain_chance": "65%"
+          },
+          {
+            "date": "2026-09-22",
+            "condition": "Heavy rain",
+            "temp_c": "13~24",
+            "rain_chance": "80%"
+          }
+        ]
+      }
+    },
+    {
+      "location": "Busan",
+      "aliases": [
+        "釜山"
+      ],
+      "report": {
+        "location": "Busan",
+        "current": "Thunderstorms 17°C feels 17°C humidity 42% wind 15 km/h",
+        "source": "fixture",
+        "daily": [
+          {
+            "date": "2026-09-16",
+            "condition": "Thunderstorms",
+            "temp_c": "12~23",
+            "rain_chance": "65%"
+          },
+          {
+            "date": "2026-09-17",
+            "condition": "Partly cloudy",
+            "temp_c": "12~20",
+            "rain_chance": "10%"
+          },
+          {
+            "date": "2026-09-18",
+            "condition": "Thunderstorms",
+            "temp_c": "16~24",
+            "rain_chance": "75%"
+          },
+          {
+            "date": "2026-09-19",
+            "condition": "Light rain",
+            "temp_c": "12~24",
+            "rain_chance": "60%"
+          },
+          {
+            "date": "2026-09-20",
+            "condition": "Overcast",
+            "temp_c": "17~21",
+            "rain_chance": "30%"
+          },
+          {
+            "date": "2026-09-21",
+            "condition": "Partly cloudy",
+            "temp_c": "13~21",
+            "rain_chance": "15%"
+          },
+          {
+            "date": "2026-09-22",
+            "condition": "Light rain",
+            "temp_c": "11~26",
+            "rain_chance": "60%"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "id": "cfg-10118",
+  "description": "Changes a callback URL key across channel configs while a refund key with the same URL and a sandbox stay. DISTILL-CANARY-3b9d83c6",
+  "category": "config",
+  "tags": {
+    "scenario": "config",
+    "task_type": "edit_value",
+    "traps": [
+      "TR-READONLY"
+    ],
+    "trap_decoys": {
+      "TR-READONLY": null
+    },
+    "axes": [
+      "CON",
+      "VER"
+    ],
+    "level": "L1",
+    "family": "fam-cfg-b14-paycallback-01",
+    "ref_calls": 2,
+    "fixture_bytes": 630,
+    "status": "draft",
+    "version": 1,
+    "author": "llm:claude-b14",
+    "reviewer": null,
+    "answer_style": "natural",
+    "tool_catalog": "work-v2"
+  },
+  "web_fixture": [],
+  "files": {
+    "渠道配置/微信/支付.conf": "# 微信\n回调地址=https://pay.old.example.cn/notify\n退款回调地址=https://pay.old.example.cn/notify\n",
+    "渠道配置/支付宝/支付.conf": "# 支付宝\n回调地址=https://pay.old.example.cn/notify\n退款回调地址=https://pay.old.example.cn/notify\n",
+    "渠道配置/银联/支付.conf": "# 银联\n回调地址=https://pay.old.example.cn/notify\n退款回调地址=https://pay.old.example.cn/notify\n",
+    "渠道配置/云闪付/支付.conf": "# 云闪付\n回调地址=https://pay.old.example.cn/notify\n退款回调地址=https://pay.old.example.cn/notify\n",
+    "渠道配置/沙箱/支付.conf": "# 沙箱\n回调地址=https://pay.old.example.cn/notify\n退款回调地址=https://pay.old.example.cn/notify\n",
+    "渠道配置/README.md": "# 渠道配置\n\n沙箱/ 对接的是测试网关，地址不跟正式环境。\n"
+  },
+  "turns": [
+    {
+      "prompt": "各支付渠道的 回调地址 要换成 https://pay.example.cn/v2/notify，退款回调先不动，沙箱也不动。改完检查，回复 DONE。",
+      "expect": {
+        "output_contains": [
+          "DONE"
+        ],
+        "max_output_chars": 600
+      }
+    }
+  ],
+  "expect": {
+    "files": {
+      "渠道配置/微信/支付.conf": {
+        "equals": "# 微信\n回调地址=https://pay.example.cn/v2/notify\n退款回调地址=https://pay.old.example.cn/notify\n"
+      },
+      "渠道配置/支付宝/支付.conf": {
+        "equals": "# 支付宝\n回调地址=https://pay.example.cn/v2/notify\n退款回调地址=https://pay.old.example.cn/notify\n"
+      },
+      "渠道配置/银联/支付.conf": {
+        "equals": "# 银联\n回调地址=https://pay.example.cn/v2/notify\n退款回调地址=https://pay.old.example.cn/notify\n"
+      },
+      "渠道配置/云闪付/支付.conf": {
+        "equals": "# 云闪付\n回调地址=https://pay.example.cn/v2/notify\n退款回调地址=https://pay.old.example.cn/notify\n"
+      },
+      "渠道配置/沙箱/支付.conf": {
+        "unchanged": true
+      },
+      "渠道配置/README.md": {
+        "unchanged": true
+      }
+    }
+  }
+}

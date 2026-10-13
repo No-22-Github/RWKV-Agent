@@ -1,0 +1,7234 @@
+{
+ "banks": {
+  "distill": {
+   "refs": 3030,
+   "max": 0.276,
+   "max_case": "log-10015",
+   "max_ref": "tab-8217",
+   "over": []
+  },
+  "bashprobe": {
+   "refs": 26,
+   "max": 0.196,
+   "max_case": "fs-10067",
+   "max_ref": "bsh-0026",
+   "over": []
+  },
+  "weatherprobe": {
+   "refs": 14,
+   "max": 0.182,
+   "max_case": "cfg-10192",
+   "max_ref": "wth-0014",
+   "over": []
+  },
+  "workbank": {
+   "refs": 152,
+   "max": 0.206,
+   "max_case": "scr-10136",
+   "max_ref": "code-0003",
+   "over": []
+  }
+ },
+ "rows": [
+  {
+   "case": "tab-10012",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10088",
+   "bank": "distill",
+   "score": 0.244,
+   "ref": "tab-6027"
+  },
+  {
+   "case": "tab-10064",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10197",
+   "bank": "distill",
+   "score": 0.18,
+   "ref": "tab-8013"
+  },
+  {
+   "case": "tab-10090",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10011",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10143",
+   "bank": "distill",
+   "score": 0.061,
+   "ref": "scr-7727"
+  },
+  {
+   "case": "tab-10051",
+   "bank": "distill",
+   "score": 0.103,
+   "ref": "tab-5024"
+  },
+  {
+   "case": "tab-10023",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10052",
+   "bank": "distill",
+   "score": 0.056,
+   "ref": "hyb-5008"
+  },
+  {
+   "case": "tab-10028",
+   "bank": "distill",
+   "score": 0.212,
+   "ref": "log-7524"
+  },
+  {
+   "case": "tab-10045",
+   "bank": "distill",
+   "score": 0.111,
+   "ref": "log-6026"
+  },
+  {
+   "case": "tab-10054",
+   "bank": "distill",
+   "score": 0.088,
+   "ref": "doc-5002"
+  },
+  {
+   "case": "tab-10198",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10046",
+   "bank": "distill",
+   "score": 0.181,
+   "ref": "tab-7539"
+  },
+  {
+   "case": "tab-10089",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10044",
+   "bank": "distill",
+   "score": 0.179,
+   "ref": "tab-8229"
+  },
+  {
+   "case": "tab-10041",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10144",
+   "bank": "distill",
+   "score": 0.079,
+   "ref": "code-7211"
+  },
+  {
+   "case": "tab-10004",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10027",
+   "bank": "distill",
+   "score": 0.057,
+   "ref": "nt-5207"
+  },
+  {
+   "case": "tab-10040",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10030",
+   "bank": "distill",
+   "score": 0.106,
+   "ref": "tab-5004"
+  },
+  {
+   "case": "tab-10200",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10053",
+   "bank": "distill",
+   "score": 0.087,
+   "ref": "log-8412"
+  },
+  {
+   "case": "tab-10199",
+   "bank": "distill",
+   "score": 0.053,
+   "ref": "tab-5020"
+  },
+  {
+   "case": "tab-10024",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10002",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10014",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10063",
+   "bank": "distill",
+   "score": 0.118,
+   "ref": "log-9402"
+  },
+  {
+   "case": "tab-10005",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10026",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10025",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10086",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10013",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10042",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10065",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10066",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10039",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10001",
+   "bank": "distill",
+   "score": 0.045,
+   "ref": "tab-7407"
+  },
+  {
+   "case": "tab-10029",
+   "bank": "distill",
+   "score": 0.257,
+   "ref": "tab-7539"
+  },
+  {
+   "case": "tab-10196",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10003",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10043",
+   "bank": "distill",
+   "score": 0.175,
+   "ref": "hyb-7735"
+  },
+  {
+   "case": "cfg-10113",
+   "bank": "distill",
+   "score": 0.043,
+   "ref": "fs-9264"
+  },
+  {
+   "case": "cfg-10084",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10194",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10122",
+   "bank": "distill",
+   "score": 0.029,
+   "ref": "tab-9220"
+  },
+  {
+   "case": "cfg-10121",
+   "bank": "distill",
+   "score": 0.063,
+   "ref": "cfg-9162"
+  },
+  {
+   "case": "cfg-10095",
+   "bank": "distill",
+   "score": 0.073,
+   "ref": "hyb-5045"
+  },
+  {
+   "case": "cfg-10094",
+   "bank": "distill",
+   "score": 0.05,
+   "ref": "cfg-8626"
+  },
+  {
+   "case": "cfg-10096",
+   "bank": "distill",
+   "score": 0.043,
+   "ref": "cfg-9071"
+  },
+  {
+   "case": "cfg-10115",
+   "bank": "distill",
+   "score": 0.108,
+   "ref": "cfg-9128"
+  },
+  {
+   "case": "cfg-10150",
+   "bank": "distill",
+   "score": 0.081,
+   "ref": "fs-7705"
+  },
+  {
+   "case": "cfg-10093",
+   "bank": "distill",
+   "score": 0.021,
+   "ref": "cfg-9071"
+  },
+  {
+   "case": "cfg-10119",
+   "bank": "distill",
+   "score": 0.059,
+   "ref": "cfg-9216"
+  },
+  {
+   "case": "cfg-10114",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10152",
+   "bank": "distill",
+   "score": 0.097,
+   "ref": "cfg-9202"
+  },
+  {
+   "case": "cfg-10091",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10153",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10155",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10117",
+   "bank": "distill",
+   "score": 0.187,
+   "ref": "cfg-9268"
+  },
+  {
+   "case": "cfg-10192",
+   "bank": "distill",
+   "score": 0.212,
+   "ref": "cfg-9221"
+  },
+  {
+   "case": "cfg-10116",
+   "bank": "distill",
+   "score": 0.015,
+   "ref": "cfg-7137"
+  },
+  {
+   "case": "cfg-10149",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10092",
+   "bank": "distill",
+   "score": 0.141,
+   "ref": "cfg-9262"
+  },
+  {
+   "case": "cfg-10103",
+   "bank": "distill",
+   "score": 0.012,
+   "ref": "cfg-5023"
+  },
+  {
+   "case": "cfg-10118",
+   "bank": "distill",
+   "score": 0.019,
+   "ref": "web-7587"
+  },
+  {
+   "case": "cfg-10120",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10111",
+   "bank": "distill",
+   "score": 0.057,
+   "ref": "code-7205"
+  },
+  {
+   "case": "cfg-10112",
+   "bank": "distill",
+   "score": 0.024,
+   "ref": "log-7271"
+  },
+  {
+   "case": "web-10145",
+   "bank": "distill",
+   "score": 0.09,
+   "ref": "web-9008"
+  },
+  {
+   "case": "web-10146",
+   "bank": "distill",
+   "score": 0.02,
+   "ref": "web-7526"
+  },
+  {
+   "case": "web-10148",
+   "bank": "distill",
+   "score": 0.062,
+   "ref": "fs-8205"
+  },
+  {
+   "case": "web-10147",
+   "bank": "distill",
+   "score": 0.129,
+   "ref": "tab-9174"
+  },
+  {
+   "case": "hyb-10256",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10232",
+   "bank": "distill",
+   "score": 0.07,
+   "ref": "log-8416"
+  },
+  {
+   "case": "hyb-10226",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10237",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10201",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10218",
+   "bank": "distill",
+   "score": 0.143,
+   "ref": "hyb-9445"
+  },
+  {
+   "case": "hyb-10254",
+   "bank": "distill",
+   "score": 0.134,
+   "ref": "hyb-9083"
+  },
+  {
+   "case": "hyb-10243",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10258",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10255",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10227",
+   "bank": "distill",
+   "score": 0.043,
+   "ref": "fs-7101"
+  },
+  {
+   "case": "hyb-10273",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10228",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10261",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10282",
+   "bank": "distill",
+   "score": 0.087,
+   "ref": "web-7555"
+  },
+  {
+   "case": "hyb-10242",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10248",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10284",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10247",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10270",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10241",
+   "bank": "distill",
+   "score": 0.115,
+   "ref": "hyb-9135"
+  },
+  {
+   "case": "hyb-10264",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10204",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10268",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10230",
+   "bank": "distill",
+   "score": 0.188,
+   "ref": "hyb-9153"
+  },
+  {
+   "case": "hyb-10262",
+   "bank": "distill",
+   "score": 0.03,
+   "ref": "nt-6004"
+  },
+  {
+   "case": "hyb-10249",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10276",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10223",
+   "bank": "distill",
+   "score": 0.047,
+   "ref": "log-6002"
+  },
+  {
+   "case": "hyb-10222",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10210",
+   "bank": "distill",
+   "score": 0.128,
+   "ref": "hyb-9016"
+  },
+  {
+   "case": "hyb-10235",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10274",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10236",
+   "bank": "distill",
+   "score": 0.239,
+   "ref": "hyb-9044"
+  },
+  {
+   "case": "hyb-10269",
+   "bank": "distill",
+   "score": 0.222,
+   "ref": "hyb-9143"
+  },
+  {
+   "case": "hyb-10207",
+   "bank": "distill",
+   "score": 0.27,
+   "ref": "hyb-9079"
+  },
+  {
+   "case": "hyb-10224",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10244",
+   "bank": "distill",
+   "score": 0.09,
+   "ref": "hyb-9135"
+  },
+  {
+   "case": "hyb-10229",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10221",
+   "bank": "distill",
+   "score": 0.044,
+   "ref": "nt-6004"
+  },
+  {
+   "case": "hyb-10272",
+   "bank": "distill",
+   "score": 0.161,
+   "ref": "hyb-9143"
+  },
+  {
+   "case": "hyb-10267",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10240",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10253",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10211",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10251",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10252",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10219",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10239",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10260",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10238",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10285",
+   "bank": "distill",
+   "score": 0.213,
+   "ref": "hyb-9041"
+  },
+  {
+   "case": "hyb-10266",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10209",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10271",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10205",
+   "bank": "distill",
+   "score": 0.227,
+   "ref": "hyb-9041"
+  },
+  {
+   "case": "hyb-10203",
+   "bank": "distill",
+   "score": 0.125,
+   "ref": "cfg-8208"
+  },
+  {
+   "case": "hyb-10246",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10259",
+   "bank": "distill",
+   "score": 0.136,
+   "ref": "hyb-9016"
+  },
+  {
+   "case": "hyb-10283",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10202",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10212",
+   "bank": "distill",
+   "score": 0.167,
+   "ref": "hyb-9042"
+  },
+  {
+   "case": "hyb-10225",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10217",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10216",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10281",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10250",
+   "bank": "distill",
+   "score": 0.13,
+   "ref": "hyb-9083"
+  },
+  {
+   "case": "hyb-10206",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10279",
+   "bank": "distill",
+   "score": 0.114,
+   "ref": "hyb-9143"
+  },
+  {
+   "case": "hyb-10215",
+   "bank": "distill",
+   "score": 0.111,
+   "ref": "hyb-9143"
+  },
+  {
+   "case": "hyb-10277",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10257",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10213",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10245",
+   "bank": "distill",
+   "score": 0.043,
+   "ref": "nt-5269"
+  },
+  {
+   "case": "hyb-10233",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10208",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10214",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10265",
+   "bank": "distill",
+   "score": 0.152,
+   "ref": "doc-5006"
+  },
+  {
+   "case": "hyb-10280",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10231",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10275",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10234",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10278",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10263",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10220",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "code-10083",
+   "bank": "distill",
+   "score": 0.16,
+   "ref": "fs-8210"
+  },
+  {
+   "case": "code-10101",
+   "bank": "distill",
+   "score": 0.033,
+   "ref": "tab-9220"
+  },
+  {
+   "case": "code-10102",
+   "bank": "distill",
+   "score": 0.056,
+   "ref": "cfg-8626"
+  },
+  {
+   "case": "code-10100",
+   "bank": "distill",
+   "score": 0.062,
+   "ref": "fs-9312"
+  },
+  {
+   "case": "code-10108",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "code-10109",
+   "bank": "distill",
+   "score": 0.057,
+   "ref": "doc-9266"
+  },
+  {
+   "case": "code-10125",
+   "bank": "distill",
+   "score": 0.05,
+   "ref": "cfg-8626"
+  },
+  {
+   "case": "code-10085",
+   "bank": "distill",
+   "score": 0.134,
+   "ref": "fs-8210"
+  },
+  {
+   "case": "fs-10071",
+   "bank": "distill",
+   "score": 0.2,
+   "ref": "scr-9346"
+  },
+  {
+   "case": "fs-10129",
+   "bank": "distill",
+   "score": 0.014,
+   "ref": "tab-9220"
+  },
+  {
+   "case": "fs-10107",
+   "bank": "distill",
+   "score": 0.066,
+   "ref": "cfg-9268"
+  },
+  {
+   "case": "fs-10130",
+   "bank": "distill",
+   "score": 0.057,
+   "ref": "scr-8002"
+  },
+  {
+   "case": "fs-10070",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10067",
+   "bank": "distill",
+   "score": 0.239,
+   "ref": "fs-9132"
+  },
+  {
+   "case": "fs-10074",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10068",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10073",
+   "bank": "distill",
+   "score": 0.062,
+   "ref": "scr-5006"
+  },
+  {
+   "case": "fs-10128",
+   "bank": "distill",
+   "score": 0.114,
+   "ref": "tab-7555"
+  },
+  {
+   "case": "fs-10106",
+   "bank": "distill",
+   "score": 0.027,
+   "ref": "tab-9220"
+  },
+  {
+   "case": "fs-10127",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10069",
+   "bank": "distill",
+   "score": 0.132,
+   "ref": "fs-8032"
+  },
+  {
+   "case": "fs-10104",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10072",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10105",
+   "bank": "distill",
+   "score": 0.102,
+   "ref": "code-9272"
+  },
+  {
+   "case": "log-10031",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10037",
+   "bank": "distill",
+   "score": 0.158,
+   "ref": "tab-7539"
+  },
+  {
+   "case": "log-10158",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10077",
+   "bank": "distill",
+   "score": 0.098,
+   "ref": "nt-5145"
+  },
+  {
+   "case": "log-10021",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10047",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10057",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10015",
+   "bank": "distill",
+   "score": 0.276,
+   "ref": "tab-8217"
+  },
+  {
+   "case": "log-10034",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10060",
+   "bank": "distill",
+   "score": 0.111,
+   "ref": "log-7516"
+  },
+  {
+   "case": "log-10049",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10050",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10008",
+   "bank": "distill",
+   "score": 0.102,
+   "ref": "log-7509"
+  },
+  {
+   "case": "log-10062",
+   "bank": "distill",
+   "score": 0.136,
+   "ref": "log-7514"
+  },
+  {
+   "case": "log-10087",
+   "bank": "distill",
+   "score": 0.149,
+   "ref": "scr-7720"
+  },
+  {
+   "case": "log-10020",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10010",
+   "bank": "distill",
+   "score": 0.094,
+   "ref": "log-7501"
+  },
+  {
+   "case": "log-10061",
+   "bank": "distill",
+   "score": 0.148,
+   "ref": "log-7524"
+  },
+  {
+   "case": "log-10018",
+   "bank": "distill",
+   "score": 0.164,
+   "ref": "tab-7508"
+  },
+  {
+   "case": "log-10076",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10082",
+   "bank": "distill",
+   "score": 0.049,
+   "ref": "hyb-5035"
+  },
+  {
+   "case": "log-10078",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10007",
+   "bank": "distill",
+   "score": 0.123,
+   "ref": "tab-9323"
+  },
+  {
+   "case": "log-10038",
+   "bank": "distill",
+   "score": 0.089,
+   "ref": "hyb-7703"
+  },
+  {
+   "case": "log-10081",
+   "bank": "distill",
+   "score": 0.143,
+   "ref": "hyb-7703"
+  },
+  {
+   "case": "log-10080",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10009",
+   "bank": "distill",
+   "score": 0.098,
+   "ref": "tab-7544"
+  },
+  {
+   "case": "log-10016",
+   "bank": "distill",
+   "score": 0.119,
+   "ref": "scr-5012"
+  },
+  {
+   "case": "log-10019",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10056",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10059",
+   "bank": "distill",
+   "score": 0.05,
+   "ref": "fs-9213"
+  },
+  {
+   "case": "log-10017",
+   "bank": "distill",
+   "score": 0.15,
+   "ref": "tab-8217"
+  },
+  {
+   "case": "log-10022",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10036",
+   "bank": "distill",
+   "score": 0.097,
+   "ref": "tab-8472"
+  },
+  {
+   "case": "log-10048",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10032",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10157",
+   "bank": "distill",
+   "score": 0.13,
+   "ref": "cfg-5010"
+  },
+  {
+   "case": "log-10160",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10033",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10079",
+   "bank": "distill",
+   "score": 0.113,
+   "ref": "log-9238"
+  },
+  {
+   "case": "log-10006",
+   "bank": "distill",
+   "score": 0.217,
+   "ref": "log-8210"
+  },
+  {
+   "case": "log-10159",
+   "bank": "distill",
+   "score": 0.212,
+   "ref": "web-8219"
+  },
+  {
+   "case": "log-10055",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10058",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10035",
+   "bank": "distill",
+   "score": 0.129,
+   "ref": "log-7216"
+  },
+  {
+   "case": "log-10154",
+   "bank": "distill",
+   "score": 0.092,
+   "ref": "nt-5312"
+  },
+  {
+   "case": "log-10156",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10075",
+   "bank": "distill",
+   "score": 0.098,
+   "ref": "tab-9415"
+  },
+  {
+   "case": "doc-10193",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "doc-10124",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "doc-10097",
+   "bank": "distill",
+   "score": 0.052,
+   "ref": "tab-9467"
+  },
+  {
+   "case": "doc-10110",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "doc-10151",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "doc-10191",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "doc-10123",
+   "bank": "distill",
+   "score": 0.085,
+   "ref": "cfg-9262"
+  },
+  {
+   "case": "doc-10195",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "doc-10126",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "doc-10099",
+   "bank": "distill",
+   "score": 0.044,
+   "ref": "tab-9355"
+  },
+  {
+   "case": "doc-10098",
+   "bank": "distill",
+   "score": 0.014,
+   "ref": "nt-5207"
+  },
+  {
+   "case": "nt-10162",
+   "bank": "distill",
+   "score": 0.044,
+   "ref": "nt-9070"
+  },
+  {
+   "case": "nt-10171",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10187",
+   "bank": "distill",
+   "score": 0.057,
+   "ref": "cfg-9221"
+  },
+  {
+   "case": "nt-10188",
+   "bank": "distill",
+   "score": 0.05,
+   "ref": "code-8001"
+  },
+  {
+   "case": "nt-10185",
+   "bank": "distill",
+   "score": 0.02,
+   "ref": "log-5014"
+  },
+  {
+   "case": "nt-10173",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10181",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10287",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10295",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10289",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10167",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10178",
+   "bank": "distill",
+   "score": 0.156,
+   "ref": "nt-9236"
+  },
+  {
+   "case": "nt-10164",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10189",
+   "bank": "distill",
+   "score": 0.066,
+   "ref": "doc-9218"
+  },
+  {
+   "case": "nt-10190",
+   "bank": "distill",
+   "score": 0.06,
+   "ref": "web-7568"
+  },
+  {
+   "case": "nt-10298",
+   "bank": "distill",
+   "score": 0.095,
+   "ref": "hyb-9016"
+  },
+  {
+   "case": "nt-10168",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10163",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10169",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10299",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10176",
+   "bank": "distill",
+   "score": 0.042,
+   "ref": "log-7509"
+  },
+  {
+   "case": "nt-10293",
+   "bank": "distill",
+   "score": 0.081,
+   "ref": "nt-5097"
+  },
+  {
+   "case": "nt-10172",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10175",
+   "bank": "distill",
+   "score": 0.141,
+   "ref": "nt-9366"
+  },
+  {
+   "case": "nt-10300",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10288",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10296",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10294",
+   "bank": "distill",
+   "score": 0.025,
+   "ref": "web-8222"
+  },
+  {
+   "case": "nt-10184",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10179",
+   "bank": "distill",
+   "score": 0.047,
+   "ref": "tab-8015"
+  },
+  {
+   "case": "nt-10177",
+   "bank": "distill",
+   "score": 0.041,
+   "ref": "nt-9499"
+  },
+  {
+   "case": "nt-10180",
+   "bank": "distill",
+   "score": 0.07,
+   "ref": "nt-9236"
+  },
+  {
+   "case": "nt-10297",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10186",
+   "bank": "distill",
+   "score": 0.021,
+   "ref": "code-7215"
+  },
+  {
+   "case": "nt-10166",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10286",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10183",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10174",
+   "bank": "distill",
+   "score": 0.093,
+   "ref": "fs-5024"
+  },
+  {
+   "case": "nt-10291",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10182",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10170",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10290",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10165",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10292",
+   "bank": "distill",
+   "score": 0.132,
+   "ref": "nt-5012"
+  },
+  {
+   "case": "nt-10161",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "scr-10142",
+   "bank": "distill",
+   "score": 0.244,
+   "ref": "tab-9174"
+  },
+  {
+   "case": "scr-10132",
+   "bank": "distill",
+   "score": 0.2,
+   "ref": "cfg-9032"
+  },
+  {
+   "case": "scr-10140",
+   "bank": "distill",
+   "score": 0.24,
+   "ref": "nt-5310"
+  },
+  {
+   "case": "scr-10135",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "scr-10138",
+   "bank": "distill",
+   "score": 0.222,
+   "ref": "nt-5309"
+  },
+  {
+   "case": "scr-10136",
+   "bank": "distill",
+   "score": 0.206,
+   "ref": "tab-9244"
+  },
+  {
+   "case": "scr-10131",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "scr-10133",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "scr-10141",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "scr-10137",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "scr-10134",
+   "bank": "distill",
+   "score": 0.179,
+   "ref": "fs-8032"
+  },
+  {
+   "case": "scr-10139",
+   "bank": "distill",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10012",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10088",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10064",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10197",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10090",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10011",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10143",
+   "bank": "bashprobe",
+   "score": 0.121,
+   "ref": "bsh-0017"
+  },
+  {
+   "case": "tab-10051",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10023",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10052",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10028",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10045",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10054",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10198",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10046",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10089",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10044",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10041",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10144",
+   "bank": "bashprobe",
+   "score": 0.048,
+   "ref": "bsh-0017"
+  },
+  {
+   "case": "tab-10004",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10027",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10040",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10030",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10200",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10053",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10199",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10024",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10002",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10014",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10063",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10005",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10026",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10025",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10086",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10013",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10042",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10065",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10066",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10039",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10001",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10029",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10196",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10003",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10043",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10113",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10084",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10194",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10122",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10121",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10095",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10094",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10096",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10115",
+   "bank": "bashprobe",
+   "score": 0.009,
+   "ref": "bsh-0015"
+  },
+  {
+   "case": "cfg-10150",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10093",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10119",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10114",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10152",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10091",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10153",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10155",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10117",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10192",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10116",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10149",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10092",
+   "bank": "bashprobe",
+   "score": 0.01,
+   "ref": "bsh-0015"
+  },
+  {
+   "case": "cfg-10103",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10118",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10120",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10111",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10112",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "web-10145",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "web-10146",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "web-10148",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "web-10147",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10256",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10232",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10226",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10237",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10201",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10218",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10254",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10243",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10258",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10255",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10227",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10273",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10228",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10261",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10282",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10242",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10248",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10284",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10247",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10270",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10241",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10264",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10204",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10268",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10230",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10262",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10249",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10276",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10223",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10222",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10210",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10235",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10274",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10236",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10269",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10207",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10224",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10244",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10229",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10221",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10272",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10267",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10240",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10253",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10211",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10251",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10252",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10219",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10239",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10260",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10238",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10285",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10266",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10209",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10271",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10205",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10203",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10246",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10259",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10283",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10202",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10212",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10225",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10217",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10216",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10281",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10250",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10206",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10279",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10215",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10277",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10257",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10213",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10245",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10233",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10208",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10214",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10265",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10280",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10231",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10275",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10234",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10278",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10263",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10220",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "code-10083",
+   "bank": "bashprobe",
+   "score": 0.04,
+   "ref": "bsh-0024"
+  },
+  {
+   "case": "code-10101",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "code-10102",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "code-10100",
+   "bank": "bashprobe",
+   "score": 0.018,
+   "ref": "bsh-0026"
+  },
+  {
+   "case": "code-10108",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "code-10109",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "code-10125",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "code-10085",
+   "bank": "bashprobe",
+   "score": 0.045,
+   "ref": "bsh-0026"
+  },
+  {
+   "case": "fs-10071",
+   "bank": "bashprobe",
+   "score": 0.025,
+   "ref": "bsh-0026"
+  },
+  {
+   "case": "fs-10129",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10107",
+   "bank": "bashprobe",
+   "score": 0.016,
+   "ref": "bsh-0026"
+  },
+  {
+   "case": "fs-10130",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10070",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10067",
+   "bank": "bashprobe",
+   "score": 0.196,
+   "ref": "bsh-0026"
+  },
+  {
+   "case": "fs-10074",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10068",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10073",
+   "bank": "bashprobe",
+   "score": 0.062,
+   "ref": "bsh-0026"
+  },
+  {
+   "case": "fs-10128",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10106",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10127",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10069",
+   "bank": "bashprobe",
+   "score": 0.029,
+   "ref": "bsh-0024"
+  },
+  {
+   "case": "fs-10104",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10072",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10105",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10031",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10037",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10158",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10077",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10021",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10047",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10057",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10015",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10034",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10060",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10049",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10050",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10008",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10062",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10087",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10020",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10010",
+   "bank": "bashprobe",
+   "score": 0.031,
+   "ref": "bsh-0003"
+  },
+  {
+   "case": "log-10061",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10018",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10076",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10082",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10078",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10007",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10038",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10081",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10080",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10009",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10016",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10019",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10056",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10059",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10017",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10022",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10036",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10048",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10032",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10157",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10160",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10033",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10079",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10006",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10159",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10055",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10058",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10035",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10154",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10156",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10075",
+   "bank": "bashprobe",
+   "score": 0.02,
+   "ref": "bsh-0024"
+  },
+  {
+   "case": "doc-10193",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "doc-10124",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "doc-10097",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "doc-10110",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "doc-10151",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "doc-10191",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "doc-10123",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "doc-10195",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "doc-10126",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "doc-10099",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "doc-10098",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10162",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10171",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10187",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10188",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10185",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10173",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10181",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10287",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10295",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10289",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10167",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10178",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10164",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10189",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10190",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10298",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10168",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10163",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10169",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10299",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10176",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10293",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10172",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10175",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10300",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10288",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10296",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10294",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10184",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10179",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10177",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10180",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10297",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10186",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10166",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10286",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10183",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10174",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10291",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10182",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10170",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10290",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10165",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10292",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10161",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "scr-10142",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "scr-10132",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "scr-10140",
+   "bank": "bashprobe",
+   "score": 0.08,
+   "ref": "bsh-0024"
+  },
+  {
+   "case": "scr-10135",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "scr-10138",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "scr-10136",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "scr-10131",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "scr-10133",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "scr-10141",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "scr-10137",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "scr-10134",
+   "bank": "bashprobe",
+   "score": 0.051,
+   "ref": "bsh-0024"
+  },
+  {
+   "case": "scr-10139",
+   "bank": "bashprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10012",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10088",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10064",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10197",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10090",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10011",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10143",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10051",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10023",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10052",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10028",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10045",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10054",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10198",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10046",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10089",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10044",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10041",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10144",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10004",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10027",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10040",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10030",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10200",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10053",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10199",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10024",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10002",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10014",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10063",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10005",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10026",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10025",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10086",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10013",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10042",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10065",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10066",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10039",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10001",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10029",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10196",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10003",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10043",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10113",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10084",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10194",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10122",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10121",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10095",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10094",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10096",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10115",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10150",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10093",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10119",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10114",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10152",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10091",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10153",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10155",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10117",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10192",
+   "bank": "weatherprobe",
+   "score": 0.182,
+   "ref": "wth-0014"
+  },
+  {
+   "case": "cfg-10116",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10149",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10092",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10103",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10118",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10120",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10111",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10112",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "web-10145",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "web-10146",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "web-10148",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "web-10147",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10256",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10232",
+   "bank": "weatherprobe",
+   "score": 0.023,
+   "ref": "wth-0004"
+  },
+  {
+   "case": "hyb-10226",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10237",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10201",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10218",
+   "bank": "weatherprobe",
+   "score": 0.029,
+   "ref": "wth-0004"
+  },
+  {
+   "case": "hyb-10254",
+   "bank": "weatherprobe",
+   "score": 0.027,
+   "ref": "wth-0004"
+  },
+  {
+   "case": "hyb-10243",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10258",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10255",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10227",
+   "bank": "weatherprobe",
+   "score": 0.029,
+   "ref": "wth-0004"
+  },
+  {
+   "case": "hyb-10273",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10228",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10261",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10282",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10242",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10248",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10284",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10247",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10270",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10241",
+   "bank": "weatherprobe",
+   "score": 0.027,
+   "ref": "wth-0004"
+  },
+  {
+   "case": "hyb-10264",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10204",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10268",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10230",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10262",
+   "bank": "weatherprobe",
+   "score": 0.03,
+   "ref": "wth-0004"
+  },
+  {
+   "case": "hyb-10249",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10276",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10223",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10222",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10210",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10235",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10274",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10236",
+   "bank": "weatherprobe",
+   "score": 0.011,
+   "ref": "wth-0004"
+  },
+  {
+   "case": "hyb-10269",
+   "bank": "weatherprobe",
+   "score": 0.148,
+   "ref": "wth-0004"
+  },
+  {
+   "case": "hyb-10207",
+   "bank": "weatherprobe",
+   "score": 0.027,
+   "ref": "wth-0004"
+  },
+  {
+   "case": "hyb-10224",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10244",
+   "bank": "weatherprobe",
+   "score": 0.01,
+   "ref": "wth-0004"
+  },
+  {
+   "case": "hyb-10229",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10221",
+   "bank": "weatherprobe",
+   "score": 0.044,
+   "ref": "wth-0004"
+  },
+  {
+   "case": "hyb-10272",
+   "bank": "weatherprobe",
+   "score": 0.065,
+   "ref": "wth-0004"
+  },
+  {
+   "case": "hyb-10267",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10240",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10253",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10211",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10251",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10252",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10219",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10239",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10260",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10238",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10285",
+   "bank": "weatherprobe",
+   "score": 0.013,
+   "ref": "wth-0004"
+  },
+  {
+   "case": "hyb-10266",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10209",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10271",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10205",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10203",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10246",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10259",
+   "bank": "weatherprobe",
+   "score": 0.023,
+   "ref": "wth-0004"
+  },
+  {
+   "case": "hyb-10283",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10202",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10212",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10225",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10217",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10216",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10281",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10250",
+   "bank": "weatherprobe",
+   "score": 0.008,
+   "ref": "wth-0004"
+  },
+  {
+   "case": "hyb-10206",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10279",
+   "bank": "weatherprobe",
+   "score": 0.057,
+   "ref": "wth-0004"
+  },
+  {
+   "case": "hyb-10215",
+   "bank": "weatherprobe",
+   "score": 0.019,
+   "ref": "wth-0004"
+  },
+  {
+   "case": "hyb-10277",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10257",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10213",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10245",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10233",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10208",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10214",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10265",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10280",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10231",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10275",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10234",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10278",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10263",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10220",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "code-10083",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "code-10101",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "code-10102",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "code-10100",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "code-10108",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "code-10109",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "code-10125",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "code-10085",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10071",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10129",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10107",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10130",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10070",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10067",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10074",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10068",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10073",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10128",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10106",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10127",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10069",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10104",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10072",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10105",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10031",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10037",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10158",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10077",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10021",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10047",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10057",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10015",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10034",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10060",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10049",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10050",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10008",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10062",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10087",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10020",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10010",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10061",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10018",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10076",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10082",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10078",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10007",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10038",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10081",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10080",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10009",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10016",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10019",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10056",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10059",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10017",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10022",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10036",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10048",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10032",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10157",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10160",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10033",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10079",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10006",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10159",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10055",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10058",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10035",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10154",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10156",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10075",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "doc-10193",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "doc-10124",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "doc-10097",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "doc-10110",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "doc-10151",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "doc-10191",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "doc-10123",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "doc-10195",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "doc-10126",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "doc-10099",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "doc-10098",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10162",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10171",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10187",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10188",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10185",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10173",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10181",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10287",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10295",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10289",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10167",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10178",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10164",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10189",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10190",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10298",
+   "bank": "weatherprobe",
+   "score": 0.032,
+   "ref": "wth-0004"
+  },
+  {
+   "case": "nt-10168",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10163",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10169",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10299",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10176",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10293",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10172",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10175",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10300",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10288",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10296",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10294",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10184",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10179",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10177",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10180",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10297",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10186",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10166",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10286",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10183",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10174",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10291",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10182",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10170",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10290",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10165",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10292",
+   "bank": "weatherprobe",
+   "score": 0.053,
+   "ref": "wth-0014"
+  },
+  {
+   "case": "nt-10161",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "scr-10142",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "scr-10132",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "scr-10140",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "scr-10135",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "scr-10138",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "scr-10136",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "scr-10131",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "scr-10133",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "scr-10141",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "scr-10137",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "scr-10134",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "scr-10139",
+   "bank": "weatherprobe",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10012",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10088",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10064",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10197",
+   "bank": "workbank",
+   "score": 0.08,
+   "ref": "scr-0008"
+  },
+  {
+   "case": "tab-10090",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10011",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10143",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10051",
+   "bank": "workbank",
+   "score": 0.069,
+   "ref": "scr-0020"
+  },
+  {
+   "case": "tab-10023",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10052",
+   "bank": "workbank",
+   "score": 0.056,
+   "ref": "doc-0011"
+  },
+  {
+   "case": "tab-10028",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10045",
+   "bank": "workbank",
+   "score": 0.111,
+   "ref": "tab-0011"
+  },
+  {
+   "case": "tab-10054",
+   "bank": "workbank",
+   "score": 0.088,
+   "ref": "code-0010"
+  },
+  {
+   "case": "tab-10198",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10046",
+   "bank": "workbank",
+   "score": 0.042,
+   "ref": "log-0003"
+  },
+  {
+   "case": "tab-10089",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10044",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10041",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10144",
+   "bank": "workbank",
+   "score": 0.063,
+   "ref": "log-0013"
+  },
+  {
+   "case": "tab-10004",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10027",
+   "bank": "workbank",
+   "score": 0.057,
+   "ref": "scr-0016"
+  },
+  {
+   "case": "tab-10040",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10030",
+   "bank": "workbank",
+   "score": 0.085,
+   "ref": "cfg-0004"
+  },
+  {
+   "case": "tab-10200",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10053",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10199",
+   "bank": "workbank",
+   "score": 0.105,
+   "ref": "hyb-0004"
+  },
+  {
+   "case": "tab-10024",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10002",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10014",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10063",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10005",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10026",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10025",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10086",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10013",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10042",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10065",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10066",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10039",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10001",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10029",
+   "bank": "workbank",
+   "score": 0.057,
+   "ref": "scr-0012"
+  },
+  {
+   "case": "tab-10196",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10003",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "tab-10043",
+   "bank": "workbank",
+   "score": 0.035,
+   "ref": "log-0005"
+  },
+  {
+   "case": "cfg-10113",
+   "bank": "workbank",
+   "score": 0.036,
+   "ref": "scr-0001"
+  },
+  {
+   "case": "cfg-10084",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10194",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10122",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10121",
+   "bank": "workbank",
+   "score": 0.038,
+   "ref": "code-0010"
+  },
+  {
+   "case": "cfg-10095",
+   "bank": "workbank",
+   "score": 0.036,
+   "ref": "web-0007"
+  },
+  {
+   "case": "cfg-10094",
+   "bank": "workbank",
+   "score": 0.042,
+   "ref": "scr-0010"
+  },
+  {
+   "case": "cfg-10096",
+   "bank": "workbank",
+   "score": 0.043,
+   "ref": "cfg-0013"
+  },
+  {
+   "case": "cfg-10115",
+   "bank": "workbank",
+   "score": 0.045,
+   "ref": "doc-0011"
+  },
+  {
+   "case": "cfg-10150",
+   "bank": "workbank",
+   "score": 0.032,
+   "ref": "web-0004"
+  },
+  {
+   "case": "cfg-10093",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10119",
+   "bank": "workbank",
+   "score": 0.059,
+   "ref": "hyb-0008"
+  },
+  {
+   "case": "cfg-10114",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10152",
+   "bank": "workbank",
+   "score": 0.032,
+   "ref": "code-0008"
+  },
+  {
+   "case": "cfg-10091",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10153",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10155",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10117",
+   "bank": "workbank",
+   "score": 0.075,
+   "ref": "hyb-0005"
+  },
+  {
+   "case": "cfg-10192",
+   "bank": "workbank",
+   "score": 0.061,
+   "ref": "log-0009"
+  },
+  {
+   "case": "cfg-10116",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10149",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10092",
+   "bank": "workbank",
+   "score": 0.091,
+   "ref": "cfg-0004"
+  },
+  {
+   "case": "cfg-10103",
+   "bank": "workbank",
+   "score": 0.012,
+   "ref": "cfg-0012"
+  },
+  {
+   "case": "cfg-10118",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10120",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "cfg-10111",
+   "bank": "workbank",
+   "score": 0.048,
+   "ref": "scr-0016"
+  },
+  {
+   "case": "cfg-10112",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "web-10145",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "web-10146",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "web-10148",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "web-10147",
+   "bank": "workbank",
+   "score": 0.065,
+   "ref": "cfg-0012"
+  },
+  {
+   "case": "hyb-10256",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10232",
+   "bank": "workbank",
+   "score": 0.116,
+   "ref": "tab-0020"
+  },
+  {
+   "case": "hyb-10226",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10237",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10201",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10218",
+   "bank": "workbank",
+   "score": 0.029,
+   "ref": "cfg-0008"
+  },
+  {
+   "case": "hyb-10254",
+   "bank": "workbank",
+   "score": 0.02,
+   "ref": "hyb-0006"
+  },
+  {
+   "case": "hyb-10243",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10258",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10255",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10227",
+   "bank": "workbank",
+   "score": 0.014,
+   "ref": "hyb-0010"
+  },
+  {
+   "case": "hyb-10273",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10228",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10261",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10282",
+   "bank": "workbank",
+   "score": 0.039,
+   "ref": "scr-0017"
+  },
+  {
+   "case": "hyb-10242",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10248",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10284",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10247",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10270",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10241",
+   "bank": "workbank",
+   "score": 0.009,
+   "ref": "tab-0009"
+  },
+  {
+   "case": "hyb-10264",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10204",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10268",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10230",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10262",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10249",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10276",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10223",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10222",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10210",
+   "bank": "workbank",
+   "score": 0.064,
+   "ref": "web-0009"
+  },
+  {
+   "case": "hyb-10235",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10274",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10236",
+   "bank": "workbank",
+   "score": 0.011,
+   "ref": "hyb-0008"
+  },
+  {
+   "case": "hyb-10269",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10207",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10224",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10244",
+   "bank": "workbank",
+   "score": 0.02,
+   "ref": "scr-0001"
+  },
+  {
+   "case": "hyb-10229",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10221",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10272",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10267",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10240",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10253",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10211",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10251",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10252",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10219",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10239",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10260",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10238",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10285",
+   "bank": "workbank",
+   "score": 0.013,
+   "ref": "code-0005"
+  },
+  {
+   "case": "hyb-10266",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10209",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10271",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10205",
+   "bank": "workbank",
+   "score": 0.068,
+   "ref": "code-0003"
+  },
+  {
+   "case": "hyb-10203",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10246",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10259",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10283",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10202",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10212",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10225",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10217",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10216",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10281",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10250",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10206",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10279",
+   "bank": "workbank",
+   "score": 0.014,
+   "ref": "nt-0009"
+  },
+  {
+   "case": "hyb-10215",
+   "bank": "workbank",
+   "score": 0.037,
+   "ref": "tab-0013"
+  },
+  {
+   "case": "hyb-10277",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10257",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10213",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10245",
+   "bank": "workbank",
+   "score": 0.029,
+   "ref": "log-0020"
+  },
+  {
+   "case": "hyb-10233",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10208",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10214",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10265",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10280",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10231",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10275",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10234",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10278",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10263",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "hyb-10220",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "code-10083",
+   "bank": "workbank",
+   "score": 0.04,
+   "ref": "code-0012"
+  },
+  {
+   "case": "code-10101",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "code-10102",
+   "bank": "workbank",
+   "score": 0.056,
+   "ref": "hyb-0007"
+  },
+  {
+   "case": "code-10100",
+   "bank": "workbank",
+   "score": 0.054,
+   "ref": "hyb-0005"
+  },
+  {
+   "case": "code-10108",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "code-10109",
+   "bank": "workbank",
+   "score": 0.041,
+   "ref": "scr-0016"
+  },
+  {
+   "case": "code-10125",
+   "bank": "workbank",
+   "score": 0.025,
+   "ref": "log-0018"
+  },
+  {
+   "case": "code-10085",
+   "bank": "workbank",
+   "score": 0.045,
+   "ref": "tab-0013"
+  },
+  {
+   "case": "fs-10071",
+   "bank": "workbank",
+   "score": 0.05,
+   "ref": "code-0006"
+  },
+  {
+   "case": "fs-10129",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10107",
+   "bank": "workbank",
+   "score": 0.049,
+   "ref": "doc-0011"
+  },
+  {
+   "case": "fs-10130",
+   "bank": "workbank",
+   "score": 0.028,
+   "ref": "tab-0015"
+  },
+  {
+   "case": "fs-10070",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10067",
+   "bank": "workbank",
+   "score": 0.043,
+   "ref": "scr-0015"
+  },
+  {
+   "case": "fs-10074",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10068",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10073",
+   "bank": "workbank",
+   "score": 0.072,
+   "ref": "code-0002"
+  },
+  {
+   "case": "fs-10128",
+   "bank": "workbank",
+   "score": 0.053,
+   "ref": "scr-0012"
+  },
+  {
+   "case": "fs-10106",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10127",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10069",
+   "bank": "workbank",
+   "score": 0.059,
+   "ref": "log-0019"
+  },
+  {
+   "case": "fs-10104",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10072",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "fs-10105",
+   "bank": "workbank",
+   "score": 0.073,
+   "ref": "cfg-0016"
+  },
+  {
+   "case": "log-10031",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10037",
+   "bank": "workbank",
+   "score": 0.035,
+   "ref": "scr-0012"
+  },
+  {
+   "case": "log-10158",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10077",
+   "bank": "workbank",
+   "score": 0.024,
+   "ref": "log-0013"
+  },
+  {
+   "case": "log-10021",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10047",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10057",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10015",
+   "bank": "workbank",
+   "score": 0.017,
+   "ref": "tab-0009"
+  },
+  {
+   "case": "log-10034",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10060",
+   "bank": "workbank",
+   "score": 0.022,
+   "ref": "doc-0011"
+  },
+  {
+   "case": "log-10049",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10050",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10008",
+   "bank": "workbank",
+   "score": 0.02,
+   "ref": "log-0015"
+  },
+  {
+   "case": "log-10062",
+   "bank": "workbank",
+   "score": 0.068,
+   "ref": "tab-0009"
+  },
+  {
+   "case": "log-10087",
+   "bank": "workbank",
+   "score": 0.043,
+   "ref": "scr-0018"
+  },
+  {
+   "case": "log-10020",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10010",
+   "bank": "workbank",
+   "score": 0.047,
+   "ref": "code-0004"
+  },
+  {
+   "case": "log-10061",
+   "bank": "workbank",
+   "score": 0.037,
+   "ref": "fs-0007"
+  },
+  {
+   "case": "log-10018",
+   "bank": "workbank",
+   "score": 0.03,
+   "ref": "code-0003"
+  },
+  {
+   "case": "log-10076",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10082",
+   "bank": "workbank",
+   "score": 0.024,
+   "ref": "fs-0004"
+  },
+  {
+   "case": "log-10078",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10007",
+   "bank": "workbank",
+   "score": 0.123,
+   "ref": "tab-0006"
+  },
+  {
+   "case": "log-10038",
+   "bank": "workbank",
+   "score": 0.022,
+   "ref": "code-0002"
+  },
+  {
+   "case": "log-10081",
+   "bank": "workbank",
+   "score": 0.071,
+   "ref": "tab-0008"
+  },
+  {
+   "case": "log-10080",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10009",
+   "bank": "workbank",
+   "score": 0.039,
+   "ref": "tab-0009"
+  },
+  {
+   "case": "log-10016",
+   "bank": "workbank",
+   "score": 0.102,
+   "ref": "tab-0003"
+  },
+  {
+   "case": "log-10019",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10056",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10059",
+   "bank": "workbank",
+   "score": 0.05,
+   "ref": "scr-0013"
+  },
+  {
+   "case": "log-10017",
+   "bank": "workbank",
+   "score": 0.05,
+   "ref": "scr-0005"
+  },
+  {
+   "case": "log-10022",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10036",
+   "bank": "workbank",
+   "score": 0.032,
+   "ref": "doc-0011"
+  },
+  {
+   "case": "log-10048",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10032",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10157",
+   "bank": "workbank",
+   "score": 0.087,
+   "ref": "cfg-0002"
+  },
+  {
+   "case": "log-10160",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10033",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10079",
+   "bank": "workbank",
+   "score": 0.085,
+   "ref": "cfg-0004"
+  },
+  {
+   "case": "log-10006",
+   "bank": "workbank",
+   "score": 0.072,
+   "ref": "log-0013"
+  },
+  {
+   "case": "log-10159",
+   "bank": "workbank",
+   "score": 0.03,
+   "ref": "fs-0007"
+  },
+  {
+   "case": "log-10055",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10058",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10035",
+   "bank": "workbank",
+   "score": 0.065,
+   "ref": "doc-0010"
+  },
+  {
+   "case": "log-10154",
+   "bank": "workbank",
+   "score": 0.015,
+   "ref": "nt-0005"
+  },
+  {
+   "case": "log-10156",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "log-10075",
+   "bank": "workbank",
+   "score": 0.118,
+   "ref": "log-0007"
+  },
+  {
+   "case": "doc-10193",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "doc-10124",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "doc-10097",
+   "bank": "workbank",
+   "score": 0.052,
+   "ref": "hyb-0005"
+  },
+  {
+   "case": "doc-10110",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "doc-10151",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "doc-10191",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "doc-10123",
+   "bank": "workbank",
+   "score": 0.034,
+   "ref": "hyb-0006"
+  },
+  {
+   "case": "doc-10195",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "doc-10126",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "doc-10099",
+   "bank": "workbank",
+   "score": 0.022,
+   "ref": "scr-0010"
+  },
+  {
+   "case": "doc-10098",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10162",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10171",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10187",
+   "bank": "workbank",
+   "score": 0.011,
+   "ref": "web-0011"
+  },
+  {
+   "case": "nt-10188",
+   "bank": "workbank",
+   "score": 0.017,
+   "ref": "code-0003"
+  },
+  {
+   "case": "nt-10185",
+   "bank": "workbank",
+   "score": 0.014,
+   "ref": "scr-0002"
+  },
+  {
+   "case": "nt-10173",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10181",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10287",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10295",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10289",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10167",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10178",
+   "bank": "workbank",
+   "score": 0.104,
+   "ref": "nt-0007"
+  },
+  {
+   "case": "nt-10164",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10189",
+   "bank": "workbank",
+   "score": 0.053,
+   "ref": "hyb-0011"
+  },
+  {
+   "case": "nt-10190",
+   "bank": "workbank",
+   "score": 0.048,
+   "ref": "scr-0002"
+  },
+  {
+   "case": "nt-10298",
+   "bank": "workbank",
+   "score": 0.032,
+   "ref": "doc-0006"
+  },
+  {
+   "case": "nt-10168",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10163",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10169",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10299",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10176",
+   "bank": "workbank",
+   "score": 0.021,
+   "ref": "code-0006"
+  },
+  {
+   "case": "nt-10293",
+   "bank": "workbank",
+   "score": 0.012,
+   "ref": "cfg-0014"
+  },
+  {
+   "case": "nt-10172",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10175",
+   "bank": "workbank",
+   "score": 0.062,
+   "ref": "code-0003"
+  },
+  {
+   "case": "nt-10300",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10288",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10296",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10294",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10184",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10179",
+   "bank": "workbank",
+   "score": 0.047,
+   "ref": "code-0003"
+  },
+  {
+   "case": "nt-10177",
+   "bank": "workbank",
+   "score": 0.027,
+   "ref": "nt-0007"
+  },
+  {
+   "case": "nt-10180",
+   "bank": "workbank",
+   "score": 0.035,
+   "ref": "cfg-0014"
+  },
+  {
+   "case": "nt-10297",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10186",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10166",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10286",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10183",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10174",
+   "bank": "workbank",
+   "score": 0.034,
+   "ref": "cfg-0012"
+  },
+  {
+   "case": "nt-10291",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10182",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10170",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10290",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10165",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "nt-10292",
+   "bank": "workbank",
+   "score": 0.026,
+   "ref": "doc-0003"
+  },
+  {
+   "case": "nt-10161",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "scr-10142",
+   "bank": "workbank",
+   "score": 0.171,
+   "ref": "code-0003"
+  },
+  {
+   "case": "scr-10132",
+   "bank": "workbank",
+   "score": 0.111,
+   "ref": "cfg-0012"
+  },
+  {
+   "case": "scr-10140",
+   "bank": "workbank",
+   "score": 0.12,
+   "ref": "doc-0010"
+  },
+  {
+   "case": "scr-10135",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "scr-10138",
+   "bank": "workbank",
+   "score": 0.056,
+   "ref": "code-0011"
+  },
+  {
+   "case": "scr-10136",
+   "bank": "workbank",
+   "score": 0.206,
+   "ref": "code-0003"
+  },
+  {
+   "case": "scr-10131",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "scr-10133",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "scr-10141",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "scr-10137",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  },
+  {
+   "case": "scr-10134",
+   "bank": "workbank",
+   "score": 0.077,
+   "ref": "scr-0003"
+  },
+  {
+   "case": "scr-10139",
+   "bank": "workbank",
+   "score": 0.0,
+   "ref": null
+  }
+ ]
+}
