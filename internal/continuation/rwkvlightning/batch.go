@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"io"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/no22/RWKV-Agent/internal/continuation"
@@ -14,6 +16,8 @@ import (
 )
 
 type pendingCall struct {
+	sinkMu   sync.Mutex
+	closed   bool
 	ctx      context.Context
 	request  continuation.Request
 	sink     continuation.EventSink
@@ -33,12 +37,19 @@ func (c *Client) continueBatched(
 	request continuation.Request,
 	sink continuation.EventSink,
 ) (continuation.Result, error) {
+	ctx, finish := context.WithCancel(ctx)
+	defer finish()
 	call := &pendingCall{
 		ctx:      ctx,
 		request:  request,
 		sink:     sink,
 		response: make(chan batchOutcome, 1),
 	}
+	defer func() {
+		call.sinkMu.Lock()
+		call.closed = true
+		call.sinkMu.Unlock()
+	}()
 	c.batchMu.Lock()
 	c.batchPending = append(c.batchPending, call)
 	if c.batchTimer == nil {
@@ -169,10 +180,46 @@ func batchRequestContext(calls []*pendingCall) (context.Context, context.CancelF
 			earliest = deadline
 		}
 	}
+	var ctx context.Context
+	var cancel context.CancelFunc
 	if !earliest.IsZero() {
-		return context.WithDeadline(context.Background(), earliest)
+		ctx, cancel = context.WithDeadline(context.Background(), earliest)
+	} else {
+		ctx, cancel = context.WithCancel(context.Background())
 	}
-	return context.WithCancel(context.Background())
+	// A shared request lives only while at least one caller still needs it.
+	var remaining atomic.Int64
+	remaining.Store(int64(len(calls)))
+	stops := make([]func() bool, 0, len(calls))
+	for _, call := range calls {
+		stops = append(stops, context.AfterFunc(call.ctx, func() {
+			if remaining.Add(-1) == 0 {
+				cancel()
+			}
+		}))
+	}
+	return ctx, func() {
+		for _, stop := range stops {
+			stop()
+		}
+		cancel()
+	}
+}
+
+// Serialize callbacks with caller teardown: no observer may run after Continue returns.
+func (call *pendingCall) emit(event continuation.Event) error {
+	call.sinkMu.Lock()
+	defer call.sinkMu.Unlock()
+	if err := call.ctx.Err(); err != nil {
+		return err
+	}
+	if call.closed {
+		return context.Canceled
+	}
+	if call.sink == nil {
+		return nil
+	}
+	return call.sink(event)
 }
 
 func (call *pendingCall) deliver(outcome batchOutcome) {
@@ -280,6 +327,11 @@ func readBatchStreamResponse(
 				continue
 			}
 			state := &states[choice.Index]
+			if err := calls[choice.Index].ctx.Err(); err != nil && !state.delivered {
+				state.err = err
+				state.finish = continuation.FinishCancelled
+				deliverEarly(choice.Index)
+			}
 			state.saw = true
 			if state.stopped || state.err != nil {
 				continue
@@ -292,7 +344,7 @@ func readBatchStreamResponse(
 			}
 			state.pending += choice.Delta.Content
 			text, tail, stop := splitAtStop(state.pending, calls[choice.Index].request.Stops)
-			if err := emitBatchText(state, calls[choice.Index].sink, text); err != nil {
+			if err := emitBatchText(state, calls[choice.Index].emit, text); err != nil {
 				state.err = err
 				state.finish = continuation.FinishCancelled
 				deliverEarly(choice.Index)
@@ -337,7 +389,7 @@ func readBatchStreamResponse(
 			state.err = fmt.Errorf("%w: response has no choice for index %d", ErrRemote, index)
 		}
 		if state.err == nil && !state.stopped {
-			if err := emitBatchText(state, calls[index].sink, state.pending); err != nil {
+			if err := emitBatchText(state, calls[index].emit, state.pending); err != nil {
 				state.err = err
 				state.finish = continuation.FinishCancelled
 			}
@@ -423,7 +475,7 @@ func readBatchBufferedResponse(
 			matchedStop = stop
 		}
 		if text != "" && calls[choice.Index].sink != nil {
-			if err := calls[choice.Index].sink(continuation.Event{
+			if err := calls[choice.Index].emit(continuation.Event{
 				Kind: continuation.EventTextDelta,
 				Text: text,
 			}); err != nil {

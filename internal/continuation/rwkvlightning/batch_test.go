@@ -530,3 +530,69 @@ func TestClientBatchStreamReturnsAtStopWithoutWaitingForDone(t *testing.T) {
 		t.Fatal("client kept the finished batch stream open")
 	}
 }
+
+// Cancellation must close a blocked HTTP stream, even when no further token arrives.
+func TestBatchCancellationClosesConnection(t *testing.T) {
+	t.Parallel()
+	connected := make(chan struct{})
+	disconnected := make(chan struct{})
+	release := make(chan struct{})
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, _ = io.Copy(io.Discard, r.Body)
+		w.Header().Set("Content-Type", "text/event-stream")
+		w.WriteHeader(http.StatusOK)
+		w.(http.Flusher).Flush()
+		close(connected)
+		select {
+		case <-r.Context().Done():
+			close(disconnected)
+		case <-release:
+		}
+	}))
+	defer server.Close()
+	defer close(release)
+	client := batchClient(t, server, true)
+	ctx, cancel := context.WithCancel(t.Context())
+	defer cancel()
+	done := make(chan error, 1)
+	go func() { _, err := client.Continue(ctx, validRequest(), nil); done <- err }()
+	select {
+	case <-connected:
+	case <-time.After(3 * time.Second):
+		t.Fatal("request never connected")
+	}
+	cancel()
+	select {
+	case err := <-done:
+		if !errors.Is(err, context.Canceled) {
+			t.Fatal(err)
+		}
+	case <-time.After(3 * time.Second):
+		t.Fatal("caller did not stop")
+	}
+	select {
+	case <-disconnected:
+	case <-time.After(3 * time.Second):
+		t.Fatal("HTTP stream remains open after cancellation")
+	}
+}
+
+func TestCancelledBatchChoiceDoesNotEmitWhilePeerContinues(t *testing.T) {
+	t.Parallel()
+	ctx, cancel := context.WithCancel(t.Context())
+	var cancelledText, peerText strings.Builder
+	calls := []*pendingCall{
+		{ctx: ctx, sink: func(e continuation.Event) error { cancelledText.WriteString(e.Text); return nil }, response: make(chan batchOutcome, 1)},
+		{ctx: t.Context(), sink: func(e continuation.Event) error { peerText.WriteString(e.Text); return nil }, response: make(chan batchOutcome, 1)},
+	}
+	shared, finish := batchRequestContext(calls)
+	defer finish()
+	cancel()
+	if shared.Err() != nil {
+		t.Fatal("cancelled a live peer")
+	}
+	outcomes := readBatchStreamResponse(shared, strings.NewReader("data: {\"choices\":[{\"index\":0,\"delta\":{\"content\":\"stale\"}},{\"index\":1,\"delta\":{\"content\":\"fresh\"}}]}\n\ndata: [DONE]\n\n"), calls, "")
+	if cancelledText.Len() != 0 || peerText.String() != "fresh" || outcomes[1].err != nil {
+		t.Fatalf("cancelled=%q peer=%q outcomes=%+v", cancelledText.String(), peerText.String(), outcomes)
+	}
+}
